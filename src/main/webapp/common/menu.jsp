@@ -29,21 +29,21 @@
 	  <?xml version="1.0"?>
 	  <xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform" version="1.0">
 	    <xsl:output indent="yes"/>
-	    <xsl:els match="/root">
+	    <xsl:template match="/root">
 	        <ul id="someid" class="sf-menu sf-js-enabled sf-shadow">
-	            <xsl:apply-elss select="menu[not(@parent)]"/>
+	            <xsl:apply-templates select="menu[not(@parent)]"/>
 	        </ul>
-	    </xsl:els>
-	    <xsl:els match="menu">
+	    </xsl:template>
+	    <xsl:template match="menu">
 	        <li>
 	            <a href="{@url}"><xsl:value-of select="@text"/></a>
 	            <xsl:if test="count(../menu[@parent=current()/@id])>0">
 	                <ul>
-	                    <xsl:apply-elss select="../menu[@parent=current()/@id]"/>
+	                    <xsl:apply-templates select="../menu[@parent=current()/@id]"/>
 	                </ul>
 	            </xsl:if>
 	            </li>
-	    </xsl:els>
+	    </xsl:template>
 		</xsl:stylesheet>
 	</c:set>
     <x:transform xml="${menu_xml}" xslt="${menu_xsl}">
