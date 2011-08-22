@@ -55,7 +55,6 @@ public class MessageResourceController extends BaseController{
 	
 	@RequestMapping(method = RequestMethod.GET)
 	public String list(ModelMap model) {
-		int i = 1/0;
 		Grid grid = gridService.findByName("MSG_RESOURCE_GRID");
 		model.addAttribute("gridId", grid.getId());
 		return "messages/list";
