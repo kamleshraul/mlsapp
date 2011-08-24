@@ -63,9 +63,6 @@ public class AuthUser extends User{
     
     /** The current login time. */
     private Date currentLoginTime;
-
-    /** The full name. */
-    private String fullName;
     
     // constructor --------------------------------------------------------------------------
 
@@ -84,9 +81,10 @@ public class AuthUser extends User{
      * @param lastName the last name
      * @param email the email
      * @param lastLoginTime the last login time
+     * @param code the code
      * @param mobile the mobile
      */
-    public AuthUser(String username, String password, boolean enabled, boolean accountNonExpired, boolean credentialsNonExpired, boolean accountNonLocked, Collection<GrantedAuthority> authorities, Long id, String firstName, String lastName, String email, Date lastLoginTime, String mobile) {
+    public AuthUser(String username, String password, boolean enabled, boolean accountNonExpired, boolean credentialsNonExpired, boolean accountNonLocked, Collection<GrantedAuthority> authorities, Long id, String firstName, String lastName, String email, Date lastLoginTime, String code, String mobile) {
         super(username, password, enabled, accountNonExpired, credentialsNonExpired, accountNonLocked, authorities);
         this.id = id;
         this.firstName = firstName;
