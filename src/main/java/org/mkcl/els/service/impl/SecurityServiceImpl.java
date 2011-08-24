@@ -64,6 +64,6 @@ public class SecurityServiceImpl implements UserDetailsService {
 		for(Role role:user.getRoles()){
 			roles.add(new GrantedAuthorityImpl(role.getName()));
 		}
-		return new AuthUser(user.getUsername(), user.getPassword(), user.isEnabled(), true, true, true, roles, user.getId(), user.getFirstName(),user.getLastName(),user.getEmail(),user.getLastLoginTime(),user.getMobile());
+		return new AuthUser(user.getUsername(), user.getPassword(), user.isEnabled(), true, true, true, roles, user.getId(), user.getFirstName(), user.getLastName(), user.getEmail(), user.getLastLoginTime(), user.getCode(), user.getMobile());
 	}
 }
