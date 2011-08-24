@@ -27,7 +27,6 @@ import java.util.Locale;
 import org.mkcl.els.domain.MessageResource;
 import org.springframework.stereotype.Repository;
 
-import com.trg.dao.jpa.GenericDAO;
 import com.trg.search.Search;
 
 /**
