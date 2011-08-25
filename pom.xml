@@ -4,7 +4,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>org.mkcl</groupId>
 	<artifactId>els</artifactId>
-	<name>Template</name>
+	<name>e-Legislature</name>
 	<packaging>war</packaging>
 	<version>1.0.0-BUILD-SNAPSHOT</version>
 	<properties>
@@ -252,6 +252,7 @@
 			<artifactId>velocity</artifactId>
 			<version>1.5</version>
 		</dependency>
+		
 		<!-- This first dependency includes all the JPA implementations for the 
 			DAOs -->
 		<dependency>
@@ -377,6 +378,10 @@
 			<url>http://hibernate-generic-dao.googlecode.com/svn/trunk/maven-repo/</url>
 		</repository>
 	</repositories>
+	<organization>
+		<name>MKCL</name>
+		<url>www.mkcl.org</url>
+	</organization>
 	<build>
 		<resources>
 			<resource>
