@@ -11,7 +11,7 @@
 				$.post($('form').attr('action'),  
 		            $("form").serialize(),  
 		            function(data){  
-		            	$('.center-south').html(data);
+		            	$('.contentPanel').html(data);
 		            });  
 		        return false;  
 		    }); 
