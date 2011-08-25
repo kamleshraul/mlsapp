@@ -10,17 +10,16 @@
  
 .toast-item {
 	height: auto;
-	background: #333;
-    opacity: 0.9;
+	background-image:url('../images/outlook/page_bg.png'); 
+		background-repeat:repeat-x;
 	-moz-border-radius: 10px;
 	-webkit-border-radius: 10px;
-	color: #eee;
-	padding-top: 20px;
+	padding-top: 10px;
 	padding-bottom: 20px;
 	padding-left: 6px;
 	padding-right: 6px;
-	font-family: lucida Grande;
-	font-size: 14px;
+	font-family: Verdana, Tahoma;
+	font-size: 12px;
 	border: 2px solid #999;
 	display: block;
 	position: relative;
@@ -75,20 +74,20 @@
  * 
  */
 .toast-type-notice {
-    color: white;    
+    color: black;    
 }
 
 .toast-type-success {
-    color: white;    
+    color: black;    
 }
 
 .toast-type-warning {
-    color: white;
+    color: black;
     border-color: #FCBD57;
 }
 
 .toast-type-error {
-    color: white;
+    color: red;
     border-color: #B32B2B;
 }
 
