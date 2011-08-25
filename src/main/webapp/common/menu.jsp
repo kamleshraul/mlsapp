@@ -17,7 +17,7 @@
 
 	        $('a').click(function(){
 		        if(this.href.indexOf("home")==-1){
-			       $(".ui-layout-west").load(this.href);
+			       $("#navContent").load(this.href);
 		        }
 		        return false;
 	        });
