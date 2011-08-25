@@ -62,7 +62,7 @@ public class HomeController extends BaseController{
 	public String home(ModelMap model, HttpServletRequest request, Locale locale) {
 		String menuXml = menuService.getMenuXml();
 		model.addAttribute("menu_xml", menuXml);
-		return "home";
+		return "home2";
 	}
 	
 }
