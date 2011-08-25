@@ -28,7 +28,6 @@ import javax.servlet.http.HttpServletRequest;
 import org.mkcl.els.common.vo.Filter;
 import org.mkcl.els.common.vo.GridConfig;
 import org.mkcl.els.common.vo.GridData;
-import org.mkcl.els.repository.GridRepository;
 import org.mkcl.els.service.IGridService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -39,14 +38,9 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
-import com.google.gson.Gson;
-
 @Controller
 @RequestMapping("/grid")
 public class GridController extends BaseController{
-	
-	@Autowired
-	GridRepository gridRepository;
 	
 	@Autowired
 	IGridService gridService;
