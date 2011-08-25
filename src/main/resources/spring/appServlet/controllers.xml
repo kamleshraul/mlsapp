@@ -8,6 +8,7 @@
 
 	<context:component-scan base-package="org.mkcl.els" />
 	<!-- Configures Handler Interceptors -->
+	
 	<mvc:interceptors>
 		<!-- Changes the locale when a 'locale' request parameter is sent; e.g. 
 			/?locale=de -->
