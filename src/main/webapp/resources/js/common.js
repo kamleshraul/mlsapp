@@ -85,9 +85,10 @@ function loadGrid(gridId, baseFilter) {
 		c_grid = $('#grid').jqGrid({
 			scroll:1,
 			altRows:true,
+			autowidth:true,
+			height:'auto',
 			ajaxGridOptions:{async:false},
 			url:'grid/'+ gridId +'.json',
-			caption:grid.title,
 			datatype: 'json',
 			mtype: 'GET',
 			colNames:eval(grid.colNames),
@@ -105,11 +106,12 @@ function loadGrid(gridId, baseFilter) {
 			loadComplete:function(data,obj){
 				var top_rowid = $('#grid tbody:first-child tr:nth-child(2)').attr('id');
 				if(!top_rowid){
-					$('.center-south').load('messages/new');
+					$('#contentPanel').load('messages/new');
 				}
 				else{
 					$('#grid').setSelection(top_rowid);
 				}
+				$('div.subHeader > div').html(grid.title);
 			},
 			onSelectRow:function() {
 				//showProcessing(true);
@@ -132,7 +134,7 @@ function loadGrid(gridId, baseFilter) {
 					});
 				}*/
 				var row = $("#grid").jqGrid('getGridParam','selrow');
-				$('.center-south').load('messages/'+row);
+				$('#contentPanel').load('messages/'+row);
 			}
 		});
 		$("#grid").jqGrid('navGrid','#grid_pager',{edit:false,add:false,del:false, search:true},{},{},{},{multipleSearch:true});
@@ -146,7 +148,8 @@ function loadGrid(gridId, baseFilter) {
 		   			$("#detail-content").html(data).dialog({height:grid.formHeight, width:grid.formWidth, title:'New Record',position:'center',close: function(ev, ui) { $(this).remove(); }});
 		   			showProcessing(false);
    			});*/
-			$('.center-south').load('messages/new');
+			var url = $(this).attr('href');
+			$('.contentPanel').load(url);
    			return false;
 		});
 		$("#delete_record").click(function() {
@@ -156,8 +159,10 @@ function loadGrid(gridId, baseFilter) {
 				return;
 			}
 			else{
+				var url = $(this).attr('href');
 				$("#grid").jqGrid('delGridRow',row,{reloadAfterSubmit:true, mtype:'DELETE', url:'messages/'+row});
 			}
+			return false;
 		});
 	}});
 	return c_grid;
