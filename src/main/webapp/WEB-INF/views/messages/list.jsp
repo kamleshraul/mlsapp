@@ -7,8 +7,8 @@
 	<div>
 	<div class="commandbar">
 				<div class="commandbarContent">
-					<a href="messages/new" id="new_record"><img alt="" src="images/45.png" >New</a> | 
-					<a href="messages" id="delete_record"><img alt="" src="images/41.png">Delete</a> | 
+					<a href="messages/new" id="new_record">New</a> | 
+					<a href="messages" id="delete_record">Delete</a> | 
 				</div>
 	</div>
 	<%@ include file="/common/gridview.jsp" %>
