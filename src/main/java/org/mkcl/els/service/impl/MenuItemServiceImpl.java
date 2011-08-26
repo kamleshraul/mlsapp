@@ -52,9 +52,6 @@ public class MenuItemServiceImpl extends GenericServiceImpl<MenuItem,Long> imple
 	/** The menu item repository. */
 	private MenuItemRepository menuItemRepository;
 	
-	/** The message resource repository. */
-	private MessageResourceRepository messageResourceRepository;
-
 	/**
 	 * Sets the message resource repository.
 	 *
@@ -63,6 +60,7 @@ public class MenuItemServiceImpl extends GenericServiceImpl<MenuItem,Long> imple
 	@Autowired
 	public void setRepository(MenuItemRepository menuItemRepository) {
 		this.dao = menuItemRepository;
+		this.menuItemRepository = menuItemRepository;
 	}
 	
 	/* (non-Javadoc)
@@ -89,6 +87,12 @@ public class MenuItemServiceImpl extends GenericServiceImpl<MenuItem,Long> imple
 			logger.error(e.toString());
 		}
 		return writer.toString();
+	}
+
+	@Override
+	public MenuItem findByTextKey(String textKey) 
+	{
+		return menuItemRepository.findMenuItemByTextKey(textKey);
 	}
 	
 	/**
