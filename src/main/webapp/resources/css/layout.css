@@ -102,7 +102,7 @@
 	}
 	/* NAVIGATION */
 	.navigation{
-		width:40%;
+		width:45%;
 		height:80%;
 		margin: 5px 5px 0px 5px;
 		border:solid 1px #6394CE;
@@ -130,26 +130,10 @@
 		height:10px;
 		background-image:url("../images/outlook/nav_separator.png"); background-repeat:repeat-x; background-position:center;
 	}
-	.navSelect{
-		position:absolute;
-		bottom:0px;
-		width:100%;
-	}
-	.navSelect a{
-		height:22px;
-		display:block;
-		padding:5px;
-		background-image:url('../images/outlook/nav_link.png'); background-repeat:repeat-x;
-		font-weight:bold;
-		text-decoration:none;
-		color:#000000;
-	}
-	.navSelect a:hover{
-		background-image:url('../images/outlook/nav_link_hover.png'); background-repeat:repeat-x;
-	}
-	/* CONTENT */
+
+/* CONTENT */
 	.content{
-		width:58%;
+		width:53%;
 		margin: 5px 5px 0px 0px;
 		background-color:#ffffff;
 		border:solid 1px #6394CE;
@@ -157,6 +141,6 @@
 		float:left;
 	}
 	.contentPanel{
-		padding:10px;
+		padding:5px;
 		overflow:auto;
 	}
