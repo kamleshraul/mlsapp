@@ -54,53 +54,106 @@ public class GridRepository extends BaseRepository<Grid,Long>{
 	 * @return the data
 	 */
 	@SuppressWarnings("unchecked")
-	public GridData getData(Long gridId, Integer rows, Integer page, String sidx, String order){
+	public GridData getData(Long gridId, Integer limit, Integer page, String sidx, String order){
 		Grid grid = this.find(gridId);
-		String select = grid.getQuery() + " ORDER BY " + sidx + " " + order;
-		Query query = this.em().createQuery(select);
-		query.setFirstResult(page-1);
-		query.setMaxResults(rows);
-		List<Map<String,Object>> records = query.getResultList();
+		
 		String count_select = grid.getCountQuery() + " ORDER BY " + sidx + " " + order;
 		Query countQuery = this.em().createQuery(count_select);
-		Long total = (Long)countQuery.getSingleResult();
-		GridData gridVO = new GridData(page,rows,total,records);
+		Long count = (Long)countQuery.getSingleResult();
+		
+		Integer total_pages=0;
+		if( count >0 ) { 
+			total_pages = (int) Math.ceil((float)count/limit); 
+		} 
+		
+		if (page > total_pages){
+			page = total_pages;
+		}
+
+		int start = (int) (limit * page - limit);
+		if(start<0){
+			start=0;
+		}
+		
+		String select = grid.getQuery() + " ORDER BY " + sidx + " " + order;
+		Query query = this.em().createQuery(select);
+		query.setFirstResult(start);
+		query.setMaxResults(limit);
+		List<Map<String,Object>> records = query.getResultList();
+		
+
+		GridData gridVO = new GridData(page,limit,count,records);
 		return gridVO;
 	}
 	
 	@SuppressWarnings("unchecked")
-	public GridData getData(Long gridId, Integer rows, Integer page, String sidx, String order, Locale locale){
+	public GridData getData(Long gridId, Integer limit, Integer page, String sidx, String order, Locale locale){
+		
 		Grid grid = this.find(gridId);
-		String select = grid.getQuery() + " ORDER BY " + sidx + " " + order;
-		Query query = this.em().createQuery(select);
-		query.setParameter("locale", locale.toString());
-		query.setFirstResult(page-1);
-		query.setMaxResults(rows);
-		List<Map<String,Object>> records = query.getResultList();
 		
 		String count_select = grid.getCountQuery() + " ORDER BY " + sidx + " " + order;
 		Query countQuery = this.em().createQuery(count_select);
 		countQuery.setParameter("locale", locale.toString());
-		Long total = (Long)countQuery.getSingleResult();
-		GridData gridVO = new GridData(page,rows,total,records);
+		Long count =  (Long) countQuery.getSingleResult();
+
+		Integer total_pages=0;
+		if( count >0 ) { 
+			total_pages = (int) Math.ceil((float)count/limit); 
+		} 
+		
+		if (page > total_pages){
+			page = total_pages;
+		}
+
+		int start = (int) (limit * page - limit);
+		if(start<0){
+			start=0;
+		}
+		
+		String select = grid.getQuery() + " ORDER BY " + sidx + " " + order;
+		Query query = this.em().createQuery(select);
+		query.setParameter("locale", locale.toString());
+		query.setFirstResult(start);
+		query.setMaxResults(limit);
+		List<Map<String,Object>> records = query.getResultList();
+		
+		GridData gridVO = new GridData(page,limit,count,records);
 		return gridVO;
 	}
 	
 	@SuppressWarnings("unchecked")
-	public GridData getData(Long gridId, Integer rows, Integer page, String sidx, String order, String filterSql, Locale locale){
+	public GridData getData(Long gridId, Integer limit, Integer page, String sidx, String order, String filterSql, Locale locale){
 		Grid grid = this.find(gridId);
-		String select = grid.getQuery() + filterSql + " ORDER BY " + sidx + " " + order;
-		Query query = this.em().createQuery(select);
-		query.setParameter("locale", locale.toString());
-		query.setFirstResult(page-1);
-		query.setMaxResults(rows);
-		List<Map<String,Object>> records = query.getResultList();
 		
 		String count_select = grid.getCountQuery() +  filterSql + " ORDER BY " + sidx + " " + order;
 		Query countQuery = this.em().createQuery(count_select);
 		countQuery.setParameter("locale", locale.toString());
-		Long total = (Long)countQuery.getSingleResult();
-		GridData gridVO = new GridData(page,rows,total,records);
+		Long count = (Long)countQuery.getSingleResult();
+		
+
+		Integer total_pages=0;
+		if( count >0 ) { 
+			total_pages = (int) Math.ceil((float)count/limit); 
+		} 
+		
+		if (page > total_pages){
+			page = total_pages;
+		}
+
+		int start = (int) (limit * page - limit);
+		if(start<0){
+			start=0;
+		}
+		
+		String select = grid.getQuery() + filterSql + " ORDER BY " + sidx + " " + order;
+		Query query = this.em().createQuery(select);
+		query.setParameter("locale", locale.toString());
+		query.setFirstResult(start);
+		query.setMaxResults(limit);
+		List<Map<String,Object>> records = query.getResultList();
+		
+		
+		GridData gridVO = new GridData(page,limit,count,records);
 		return gridVO;
 	}
 	
