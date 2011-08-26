@@ -37,5 +37,11 @@ public interface IMenuItemService extends IGenericService<MenuItem,Long>{
 	 * @return the menu string in flat xml format
 	 */
 	public String getMenuXml();
-
+	
+	/**
+	 * Search a MenuItem instance based on it's textKey.
+	 * The textKey attribute of MenuItem is UNIQUE, hence 
+	 * the return type is a simple type.
+	 */
+	public MenuItem findByTextKey(String textKey);
 }
