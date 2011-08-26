@@ -22,23 +22,15 @@ POSSIBILITY OF SUCH DAMAGE.
 package org.mkcl.els.domain;
 
 import java.io.Serializable;
-import java.util.HashSet;
-import java.util.Set;
 
-import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
-import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
-import javax.persistence.OneToMany;
 import javax.persistence.Table;
-
-import org.hibernate.annotations.Cascade;
-import org.hibernate.annotations.IndexColumn;
 
 /**
  * The Class MenuItem.
@@ -83,6 +75,10 @@ public class MenuItem implements Serializable{
     /** The position. */
     private int position;
 	
+    /** The locale. */
+    @Column(length=50)
+    private String locale;
+    
     // Constructors --------------------------------------------------------------------------------------------------------------------
     
     /**
@@ -95,7 +91,7 @@ public class MenuItem implements Serializable{
     /**
      * Instantiates a new menu item.
      *
-     * @param key the key
+     * @param textKey the text key
      * @param text the text
      * @param url the url
      * @param params the params
@@ -115,8 +111,7 @@ public class MenuItem implements Serializable{
     /**
      * Instantiates a new menu item with parent.
      *
-     * @param id the id
-     * @param key the key
+     * @param textKey the text key
      * @param text the text
      * @param url the url
      * @param params the params
@@ -135,7 +130,34 @@ public class MenuItem implements Serializable{
 	}
     
     
+	/**
+	 * Instantiates a new menu item.
+	 *
+	 * @param id the id
+	 * @param textKey the text key
+	 * @param text the text
+	 * @param url the url
+	 * @param params the params
+	 * @param parent the parent
+	 * @param position the position
+	 * @param locale the locale
+	 */
+	public MenuItem(Long id, String textKey, String text, String url,
+			String params, MenuItem parent, int position, String locale) {
+		super();
+		this.id = id;
+		this.textKey = textKey;
+		this.text = text;
+		this.url = url;
+		this.params = params;
+		this.parent = parent;
+		this.position = position;
+		this.locale = locale;
+	}
+    
     // Getters/Setters --------------------------------------------------------------------------------------------------------------------
+
+
 
 	/**
      * Gets the id.
@@ -167,7 +189,7 @@ public class MenuItem implements Serializable{
 	/**
 	 * Sets the key.
 	 *
-	 * @param key the new key
+	 * @param textKey the new text key
 	 */
 	public void setTextKey(String textKey) {
 		this.textKey = textKey;
@@ -263,5 +285,25 @@ public class MenuItem implements Serializable{
 	public int getPosition() {
 		return position;
 	}
+
+	/**
+	 * Gets the locale.
+	 *
+	 * @return the locale
+	 */
+	public String getLocale() {
+		return locale;
+	}
+
+	/**
+	 * Sets the locale.
+	 *
+	 * @param locale the new locale
+	 */
+	public void setLocale(String locale) {
+		this.locale = locale;
+	}
+	
+	
 
 }
