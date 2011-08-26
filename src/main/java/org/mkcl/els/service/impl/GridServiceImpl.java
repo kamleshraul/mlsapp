@@ -87,17 +87,17 @@ public class GridServiceImpl extends GenericServiceImpl<Grid,Long> implements IG
 	/* (non-Javadoc)
 	 * @see org.mkcl.els.service.IGridService#getData(java.lang.Long, java.lang.Integer, java.lang.Integer, java.lang.String, java.lang.String, java.util.Locale)
 	 */
-	public GridData getData(Long gridId, Integer rows, Integer page, String sidx,
+	public GridData getData(Long gridId, Integer limit, Integer page, String sidx,
 			String order, Locale locale) {
-		return gridRepository.getData(gridId,rows,page,sidx,order,locale);
+		return gridRepository.getData(gridId,limit,page,sidx,order,locale);
 	}
 
 	/* (non-Javadoc)
 	 * @see org.mkcl.els.service.IGridService#getData(java.lang.Long, java.lang.Integer, java.lang.Integer, java.lang.String, java.lang.String, java.lang.String, java.util.Locale)
 	 */
-	public GridData getData(Long gridId, Integer rows, Integer page,
+	public GridData getData(Long gridId, Integer limit, Integer page,
 			String sidx, String order, String filterSql, Locale locale) {
-		return gridRepository.getData(gridId,rows,page,sidx,order,filterSql,locale);
+		return gridRepository.getData(gridId,limit,page,sidx,order,filterSql,locale);
 	}
 
 }

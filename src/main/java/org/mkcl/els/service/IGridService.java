@@ -40,33 +40,33 @@ public interface IGridService extends IGenericService<Grid,Long>{
 	 * Gets the data irrespective of locale.
 	 *
 	 * @param gridId the grid id
-	 * @param rows the rows
+	 * @param limit the max no. of rows to fetch
 	 * @param page the page
 	 * @param sidx the sidx
 	 * @param order the order
 	 * @return the data
 	 */
-	public GridData getData(Long gridId, Integer rows, Integer page, String sidx, String order);
+	public GridData getData(Long gridId, Integer limit, Integer page, String sidx, String order);
 	
 	
 	/**
 	 * Gets locale specific data.
 	 *
 	 * @param gridId the grid id
-	 * @param rows the rows
+	 * @param limit the max no. of rows to fetch
 	 * @param page the page
 	 * @param sidx the sidx
 	 * @param order the order
 	 * @param locale the locale
 	 * @return the data
 	 */
-	public GridData getData(Long gridId, Integer rows, Integer page, String sidx, String order, Locale locale);
+	public GridData getData(Long gridId, Integer limit, Integer page, String sidx, String order, Locale locale);
 	
 	/**
 	 * Searches the data.
 	 *
 	 * @param gridId the grid id
-	 * @param rows the rows
+	 * @param limit the max no. of rows to fetch
 	 * @param page the page
 	 * @param sidx the sidx
 	 * @param order the order
@@ -74,7 +74,7 @@ public interface IGridService extends IGenericService<Grid,Long>{
 	 * @param locale the locale
 	 * @return the data
 	 */
-	public GridData getData(Long gridId, Integer rows, Integer page, String sidx, String order, String filterSql, Locale locale);
+	public GridData getData(Long gridId, Integer limit, Integer page, String sidx, String order, String filterSql, Locale locale);
 	
 	/**
 	 * Gets the config.
