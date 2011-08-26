@@ -55,4 +55,17 @@ public class MenuItemRepository extends BaseRepository<MenuItem, Long> {
 		return this.search(search);
 	}
 
+	/**
+	 * Search a MenuItem instance based on it's textKey.
+	 * The textKey attribute of MenuItem is UNIQUE, hence 
+	 * the return type is a simple type.
+	 */
+	public MenuItem findMenuItemByTextKey(String textKey)
+	{
+		Search search = new Search();
+		search.addFilterEqual("textKey", textKey);
+		MenuItem menuItem = this.searchUnique(search);
+		System.out.println(">>>>>>>Repository: " + menuItem);
+		return menuItem;
+	}
 }
