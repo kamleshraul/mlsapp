@@ -51,8 +51,15 @@ public class MessageResourceController extends BaseController{
 	@Autowired
 	IGridService gridService;
 	
+	/** The message resource service. */
 	@Autowired IMessageResourceService messageResourceService;
 	
+	/**
+	 * Lists all message resources.
+	 *
+	 * @param model the model
+	 * @return the string
+	 */
 	@RequestMapping(method = RequestMethod.GET)
 	public String list(ModelMap model) {
 		Grid grid = gridService.findByName("MSG_RESOURCE_GRID");
@@ -60,6 +67,12 @@ public class MessageResourceController extends BaseController{
 		return "messages/list";
 	}
 	
+	/**
+	 * _new.
+	 *
+	 * @param model the model
+	 * @return the string
+	 */
 	@RequestMapping(value="new",method = RequestMethod.GET)
 	public String _new(ModelMap model){
 		MessageResource resource = new MessageResource();
@@ -67,6 +80,13 @@ public class MessageResourceController extends BaseController{
 		return "messages/new";
 	}
 	
+	/**
+	 * Edits the.
+	 *
+	 * @param id the id
+	 * @param model the model
+	 * @return the string
+	 */
 	@RequestMapping(value="{id}",method = RequestMethod.GET)
 	public String edit(@PathVariable Long id, ModelMap model){
 		MessageResource messageResource = messageResourceService.findById(id);
@@ -75,6 +95,14 @@ public class MessageResourceController extends BaseController{
 	}
 
 	
+	/**
+	 * Creates a new message resource.
+	 *
+	 * @param messageResource the message resource
+	 * @param result the result
+	 * @param model the model
+	 * @return the string
+	 */
 	@RequestMapping(method = RequestMethod.POST)
 	public String create(@Valid @ModelAttribute("messageResource") MessageResource messageResource, BindingResult result, ModelMap model){
 		this.validate(messageResource, result);
@@ -86,6 +114,14 @@ public class MessageResourceController extends BaseController{
 		return "redirect:messages/"+messageResource.getId() + "?type=success&msg=create_success";
 	}
 	
+	/**
+	 * Updates the message resource.
+	 *
+	 * @param messageResource the message resource
+	 * @param result the result
+	 * @param model the model
+	 * @return the string
+	 */
 	@RequestMapping(method = RequestMethod.PUT)
 	public String update(@Valid @ModelAttribute("messageResource")MessageResource messageResource, BindingResult result, ModelMap model){
 		this.validate(messageResource, result);
@@ -97,6 +133,13 @@ public class MessageResourceController extends BaseController{
 		return "redirect:messages/"+messageResource.getId() + "?type=success&msg=update_success";
 	}
 
+	/**
+	 * Deletes an existing message resource.
+	 *
+	 * @param id the id
+	 * @param model the model
+	 * @return the string
+	 */
 	@RequestMapping(value="{id}", method=RequestMethod.DELETE)
     public String delete(@PathVariable Long id, ModelMap model){
 		messageResourceService.removeById(id);	
