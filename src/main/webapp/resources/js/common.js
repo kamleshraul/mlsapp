@@ -86,7 +86,7 @@ function loadGrid(gridId, baseFilter) {
 			scroll:1,
 			altRows:true,
 			autowidth:true,
-			height:'auto',
+			height:'100%',
 			ajaxGridOptions:{async:false},
 			url:'grid/'+ gridId +'.json',
 			datatype: 'json',
@@ -111,7 +111,8 @@ function loadGrid(gridId, baseFilter) {
 				else{
 					$('#grid').setSelection(top_rowid);
 				}
-				$('div.subHeader > div').html(grid.title);
+				$('#navigation > .subHeader > div').html(grid.title);
+				$('#content > .subHeader > div').html(grid.title + ' Details');
 			},
 			onSelectRow:function() {
 				//showProcessing(true);
@@ -138,6 +139,7 @@ function loadGrid(gridId, baseFilter) {
 			}
 		});
 		$("#grid").jqGrid('navGrid','#grid_pager',{edit:false,add:false,del:false, search:true},{},{},{},{multipleSearch:true});
+		$("#grid").jqGrid('bindKeys');
 		$("#new_record").click(function(){
 			//showProcessing(true);
 			/*var url = $(this).attr('href');
