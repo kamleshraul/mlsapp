@@ -15,9 +15,13 @@
 	                               // due to slight rounding differences and font-family 
 	        }).superfish();  // call supersubs first, then superfish, so that subs are 
 
-	        $('a').click(function(){
+	        $('.menu_link').click(function(){
 		        if(this.href.indexOf("home")==-1){
-			       $("#navContent").load(this.href);
+		           $("#alertmod").remove();//this is done as fix to jqgrid warning box that shows up at bottom of the page 
+			       $("#navContent").load(this.href,function(data){
+			    	   var title = $(data).filter('title').text();
+						$('#navigation > .subHeader > div').html(title);
+			       });
 		        }
 		        return false;
 	        });
@@ -36,7 +40,7 @@
 	    </xsl:template>
 	    <xsl:template match="menu">
 	        <li>
-	            <a href="{@url}"><xsl:value-of select="@text"/></a>
+	            <a href="{@url}" class="menu_link"><xsl:value-of select="@text"/></a>
 	            <xsl:if test="count(../menu[@parent=current()/@id])>0">
 	                <ul>
 	                    <xsl:apply-templates select="../menu[@parent=current()/@id]"/>
