@@ -129,7 +129,7 @@ public class MenuItemController extends BaseController
 			return "redirect:menus/new?type=error&msg=create_failed";
 		}
 		menuItemService.create(menuItem);
-		return "redirect:menus/"+menuItem.getId() + "?type=success&msg=create_success";
+		return "redirect:menus/"+menuItem.getId() + "?type=success&msg=create_refresh_success";
 	}
 	
 	
@@ -156,7 +156,7 @@ public class MenuItemController extends BaseController
 		
 		// No violation of the UNIQUEness constraint
 		menuItemService.update(menuItem);
-		return "redirect:menus/"+menuItem.getId() + "?type=success&msg=update_success";
+		return "redirect:menus/"+menuItem.getId() + "?type=success&msg=update_refresh_success";
 	}
 	
 	
