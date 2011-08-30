@@ -1,6 +1,7 @@
 <%@ include file="/common/taglibs.jsp" %>
 <html>
 <head>
+	<title>New - Message Resource</title>
 </head>
 <body>
 <form:form cssClass="wufoo" action="messages" method="POST" modelAttribute="messageResource">

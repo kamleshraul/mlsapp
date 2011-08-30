@@ -1,6 +1,7 @@
 <%@ include file="/common/taglibs.jsp" %>
 <html>
 <head>
+	<title>List of Message Resources</title>
 	<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
 </head>
 <body>
