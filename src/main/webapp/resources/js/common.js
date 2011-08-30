@@ -142,15 +142,6 @@ function loadGrid(gridId, baseFilter) {
 		$("#grid").jqGrid('navGrid','#grid_pager',{edit:false,add:false,del:false, search:true},{},{},{},{multipleSearch:true});
 		$("#grid").jqGrid('bindKeys');
 		$("#new_record").click(function(){
-			//showProcessing(true);
-			/*var url = $(this).attr('href');
-			if($("#detail-content").length==0){
-				$('body').append('<div id="detail-content"><div>');
-			}
-   			$.get(url, function(data){
-		   			$("#detail-content").html(data).dialog({height:grid.formHeight, width:grid.formWidth, title:'New Record',position:'center',close: function(ev, ui) { $(this).remove(); }});
-		   			showProcessing(false);
-   			});*/
 			var url = $(this).attr('href');
 			$('.contentPanel').load(url);
    			return false;
