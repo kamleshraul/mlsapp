@@ -163,7 +163,7 @@ function loadGrid(gridId, baseFilter) {
 			}
 			else{
 				var url = $(this).attr('href');
-				$("#grid").jqGrid('delGridRow',row,{reloadAfterSubmit:true, mtype:'DELETE', url:'messages/'+row});
+				$("#grid").jqGrid('delGridRow',row,{reloadAfterSubmit:true, mtype:'DELETE', url:url+'/'+row});
 			}
 			return false;
 		});
