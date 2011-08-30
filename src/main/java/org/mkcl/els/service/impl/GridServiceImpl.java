@@ -72,7 +72,10 @@ public class GridServiceImpl extends GenericServiceImpl<Grid,Long> implements IG
 	 */
 	public GridConfig getConfig(Long gridId) {
 		Grid grid = gridRepository.find(gridId);
-		GridConfig gridConfig = new GridConfig(grid.getTitle(),grid.getColNames(),grid.getColModel(),grid.getHeight(),grid.getWidth(),grid.getPageSize(),grid.getSortOrder());
+		GridConfig gridConfig = new GridConfig(grid.getTitle(),
+				grid.getColNames(), grid.getColModel(), grid.getHeight(),
+				grid.getWidth(), grid.getPageSize(), grid.getSortOrder(),
+				grid.getDetailView());
 		return gridConfig;
 	}
 
