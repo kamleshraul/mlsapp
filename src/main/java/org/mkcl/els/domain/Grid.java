@@ -90,6 +90,10 @@ public class Grid implements Serializable {
 	
 	/** The height. */
 	private int height;
+	
+	/** The detail view. */
+	@Column(length=200)
+	private String detailView;
 
 	// Constructors --------------------------------------------------------------------------------------------------------------------
 
@@ -113,9 +117,10 @@ public class Grid implements Serializable {
 	 * @param countQuery the count query
 	 * @param width the width
 	 * @param height the height
+	 * @param detailView the view to be shown on content panel
 	 */
 	public Grid(String name, String title, String colNames, String colModel,
-			int pageSize, String sortField, String sortOrder,String query, String countQuery, int width, int height) {
+			int pageSize, String sortField, String sortOrder,String query, String countQuery, int width, int height, String detailView) {
 		super();
 		this.name = name;
 		this.title = title;
@@ -128,6 +133,7 @@ public class Grid implements Serializable {
 		this.countQuery = countQuery;
 		this.height = height;
 		this.width = width;
+		this.detailView = detailView;
 	}
 	
 	/**
@@ -139,9 +145,10 @@ public class Grid implements Serializable {
 	 * @param colModel the col model
 	 * @param query the query
 	 * @param countQuery the count query
+	 * @param detailView the detail view
 	 */
-	public Grid(String name, String title, String colNames, String colModel, String query, String countQuery){
-		this(name,title,colNames,colModel,30,"id","asc",query,countQuery,100,100);
+	public Grid(String name, String title, String colNames, String colModel, String query, String countQuery,String detailView){
+		this(name,title,colNames,colModel,30,"id","asc",query,countQuery,100,100,detailView);
 	}
 
 
@@ -361,6 +368,24 @@ public class Grid implements Serializable {
 	 */
 	public void setCountQuery(String countQuery) {
 		this.countQuery = countQuery;
+	}
+
+	/**
+	 * Gets the detail view.
+	 *
+	 * @return the detail view
+	 */
+	public String getDetailView() {
+		return detailView;
+	}
+
+	/**
+	 * Sets the detail view.
+	 *
+	 * @param detailView the new detail view
+	 */
+	public void setDetailView(String detailView) {
+		this.detailView = detailView;
 	}
 	
 	
