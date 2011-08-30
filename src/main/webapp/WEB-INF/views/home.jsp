@@ -109,7 +109,7 @@
 		});
 	</script>
 </head>
-<body style="font-family: verdana,lucida sans unicode;font-size: 12px">
+<body>
 	<div class="ui-layout-center">
 		<div class="center-center"></div>
 		<div class="center-south"></div>

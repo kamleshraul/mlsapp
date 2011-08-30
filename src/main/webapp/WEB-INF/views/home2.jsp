@@ -69,7 +69,16 @@
 			});
 		});
     </script>
-	
+    <style type="text/css">
+    	.field_error{
+			color:red !important;
+		}
+		input[readonly]{
+		    background-color: #F2F2F2 !important;
+		    color: #C6C6C6;
+		    border-color: #ddd;
+		}
+    </style>
 </head>
 <body onresize="resizeWindow()" onload="resizeWindow()">
             <%@ include file="/common/header.jsp" %>
@@ -77,6 +86,7 @@
 				<%@ include file="/common/menu.jsp" %>
 			</div>
  		   <div class="clear"></div>
+ 		   <div id="split">
            <div class="navigation" id="navigation">
            	   <div class="subHeader">
             		<div></div>
@@ -89,6 +99,7 @@
             	</div>
             	<div class="contentPanel" id="contentPanel">
 				</div>
+            </div>
             </div>
             <div class="clear"></div>
             <%@ include file="/common/footer.jsp" %>
