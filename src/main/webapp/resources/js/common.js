@@ -106,13 +106,11 @@ function loadGrid(gridId, baseFilter) {
 			loadComplete:function(data,obj){
 				var top_rowid = $('#grid tbody:first-child tr:nth-child(2)').attr('id');
 				if(!top_rowid){
-					$('#contentPanel').load('messages/new');
+					$('#contentPanel').load(grid.detailView +'/new');
 				}
 				else{
 					$('#grid').setSelection(top_rowid);
 				}
-				$('#navigation > .subHeader > div').html(grid.title);
-				$('#content > .subHeader > div').html(grid.title + ' Details');
 			},
 			onSelectRow:function() {
 				//showProcessing(true);
@@ -135,7 +133,10 @@ function loadGrid(gridId, baseFilter) {
 					});
 				}*/
 				var row = $("#grid").jqGrid('getGridParam','selrow');
-				$('#contentPanel').load('messages/'+row);
+				$('#contentPanel').load(grid.detailView + '/' + row,function(data){
+	                var title = $(data).filter('title').text();
+					$('#content > .subHeader > div').html(title);
+				});
 			}
 		});
 		$("#grid").jqGrid('navGrid','#grid_pager',{edit:false,add:false,del:false, search:true},{},{},{},{multipleSearch:true});
