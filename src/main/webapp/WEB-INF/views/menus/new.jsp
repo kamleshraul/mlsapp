@@ -14,13 +14,21 @@
 				<p class="field_error">Please correct the following errors</p>
 			</c:if>
 		</li>
-	
+		
 		<li>
 		<label class="desc">Id</label>
 			<div>
 				<form:input cssClass="field text small" path="id" readonly="true" /> 
 			</div>
 		</li>
+		<li>
+		<label class="parent">Parent Menu</label>
+			<div>
+				<form:input cssClass="field text medium" path="parent.text" readonly="true" /><form:errors path="parent.text" cssClass="field_error" />
+				<form:hidden path="parent.id"/>	
+			</div>
+		</li>
+		
 		<li>
 		<label class="desc">Locale&nbsp;*</label>
 			<div>
@@ -41,6 +49,18 @@
 		<label class="desc">Text&nbsp;*</label>
 			<div>
 				<form:input cssClass="field text medium" path="text"/><form:errors path="text" cssClass="field_error" />
+			</div>
+		</li>
+		<li>
+			<label class="position">Position&nbsp;*</label>
+			<div>
+				<form:input cssClass="field text medium" path="position"/><form:errors path="position" cssClass="field_error" />	
+			</div>
+		</li>
+		<li>
+		<label class="desc">Url&nbsp;*</label>
+			<div>
+				<form:input cssClass="field text medium" path="url"/><form:errors path="url" cssClass="field_error" />	
 			</div>
 		</li>
 		<li class="buttons">

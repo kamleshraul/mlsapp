@@ -22,6 +22,13 @@
 			</div>
 		</li>
 		<li>
+		<label class="parent">Parent Menu</label>
+			<div>
+				<form:input cssClass="field text medium" path="parent.text" readonly="true" /><form:errors path="parent.text" cssClass="field_error" />
+				<form:hidden path="parent.id"/>	
+			</div>
+		</li>
+		<li>
 		<label class="desc">Locale&nbsp;*</label>
 			<div>
 				<form:select cssClass="field select addr" path="locale"> 
@@ -43,6 +50,19 @@
 				<form:input cssClass="field text medium" path="text"/><form:errors path="text" cssClass="field_error" />
 			</div>
 		</li>
+		<li>
+			<label class="position">Position&nbsp;*</label>
+			<div>
+				<form:input cssClass="field text medium" path="position"/><form:errors path="position" cssClass="field_error" />	
+			</div>
+		</li>
+		<li>
+			<label class="desc">Url&nbsp;*</label>
+			<div>
+				<form:input cssClass="field text medium" path="url"/><form:errors path="url" cssClass="field_error" />	
+			</div>
+		</li>
+		
 		<li class="buttons">
 			<input id="saveForm" class="btTxt" type="submit" value="Submit" />
 		</li>
