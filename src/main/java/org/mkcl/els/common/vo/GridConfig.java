@@ -50,6 +50,9 @@ public class GridConfig {
 	/** The sort order. */
 	String sortOrder;
 	
+	/** The detail view. */
+	String detailView;
+	
 	/**
 	 * Instantiates a new grid config vo.
 	 */
@@ -66,9 +69,10 @@ public class GridConfig {
 	 * @param width the width
 	 * @param pageSize the page size
 	 * @param sortOrder the sort order
+	 * @param detailView the detail view
 	 */
 	public GridConfig(String title, String colNames, String colModel,
-			int height, int width, int pageSize, String sortOrder) {
+			int height, int width, int pageSize, String sortOrder,String detailView) {
 		super();
 		this.title = title;
 		this.colNames = colNames;
@@ -77,6 +81,7 @@ public class GridConfig {
 		this.width = width;
 		this.pageSize = pageSize;
 		this.sortOrder = sortOrder;
+		this.detailView = detailView;
 	}
 
 	/**
@@ -203,6 +208,24 @@ public class GridConfig {
 	 */
 	public void setSortOrder(String sortOrder) {
 		this.sortOrder = sortOrder;
+	}
+
+	/**
+	 * Gets the detail view.
+	 *
+	 * @return the detail view
+	 */
+	public String getDetailView() {
+		return detailView;
+	}
+
+	/**
+	 * Sets the detail view.
+	 *
+	 * @param detailView the new detail view
+	 */
+	public void setDetailView(String detailView) {
+		this.detailView = detailView;
 	}
 	
 	
