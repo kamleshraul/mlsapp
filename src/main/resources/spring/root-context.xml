@@ -102,7 +102,7 @@
 
 	<bean id="velocityEngine"
 		class="org.springframework.ui.velocity.VelocityEngineFactoryBean"
-		p:resourceLoaderPath="/WEB-INF/views/elss" />
+		p:resourceLoaderPath="/WEB-INF/views/templates" />
 	<import resource="appServlet/security.xml" />
 
 </beans>
