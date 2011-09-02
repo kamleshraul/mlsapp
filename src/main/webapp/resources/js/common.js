@@ -88,7 +88,7 @@ function loadGrid(gridId, baseFilter) {
 			autowidth:true,
 			shrinkToFit:true,
 			ajaxGridOptions:{async:false},
-			url:'grid/'+ gridId +'.json',
+			url:'grid/data/'+ gridId +'.json',
 			datatype: 'json',
 			mtype: 'GET',
 			colNames:eval(grid.colNames),
