@@ -93,7 +93,9 @@ public class GridRepository extends BaseRepository<Grid,Long>{
 		
 		String count_select = grid.getCountQuery() + " ORDER BY " + sidx + " " + order;
 		Query countQuery = this.em().createQuery(count_select);
-		countQuery.setParameter("locale", locale.toString());
+		if(grid.getLocalized()){
+			countQuery.setParameter("locale", locale.toString());
+		}
 		Long count =  (Long) countQuery.getSingleResult();
 
 		Integer total_pages=0;
@@ -112,7 +114,9 @@ public class GridRepository extends BaseRepository<Grid,Long>{
 		
 		String select = grid.getQuery() + " ORDER BY " + sidx + " " + order;
 		Query query = this.em().createQuery(select);
-		query.setParameter("locale", locale.toString());
+		if(grid.getLocalized()){
+			countQuery.setParameter("locale", locale.toString());
+		}
 		query.setFirstResult(start);
 		query.setMaxResults(limit);
 		List<Map<String,Object>> records = query.getResultList();
@@ -127,7 +131,9 @@ public class GridRepository extends BaseRepository<Grid,Long>{
 		
 		String count_select = grid.getCountQuery() +  filterSql + " ORDER BY " + sidx + " " + order;
 		Query countQuery = this.em().createQuery(count_select);
-		countQuery.setParameter("locale", locale.toString());
+		if(grid.getLocalized()){
+			countQuery.setParameter("locale", locale.toString());
+		}
 		Long count = (Long)countQuery.getSingleResult();
 		
 
@@ -147,7 +153,9 @@ public class GridRepository extends BaseRepository<Grid,Long>{
 		
 		String select = grid.getQuery() + filterSql + " ORDER BY " + sidx + " " + order;
 		Query query = this.em().createQuery(select);
-		query.setParameter("locale", locale.toString());
+		if(grid.getLocalized()){
+			countQuery.setParameter("locale", locale.toString());
+		}
 		query.setFirstResult(start);
 		query.setMaxResults(limit);
 		List<Map<String,Object>> records = query.getResultList();
