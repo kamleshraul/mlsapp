@@ -4,6 +4,7 @@
 		<pattern>/menus/**</pattern>
 		<pattern>/messages/**</pattern>
 		<pattern>/custom_params/**</pattern>
+		<pattern>/grid/**</pattern>
     </decorator>
     <decorator name="acctform" page="acct_form.jsp">
     	<pattern>/acct/**</pattern>
