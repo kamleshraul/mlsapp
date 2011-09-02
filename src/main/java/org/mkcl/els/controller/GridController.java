@@ -88,7 +88,7 @@ public class GridController extends BaseController{
 	 * @return the grid data
 	 * @throws ClassNotFoundException the class not found exception
 	 */
-	@RequestMapping(value = "/{gridId}.json", method = RequestMethod.GET)
+	@RequestMapping(value = "/data/{gridId}", method = RequestMethod.GET)
 	public  @ResponseBody GridData get(
 			@PathVariable Long gridId,
 			@RequestParam(value = "page", required = false) Integer page ,
