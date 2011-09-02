@@ -95,14 +95,12 @@ public class AccountController extends BaseController{
 		this.validatePassword(password, result);
 		if(result.hasErrors()){
 			model.addAttribute("isvalid",false);
-			return "redirect:changepwd??type=error&msg=update_failed";
+			return "redirect:changepwd?type=error&msg=update_failed";
 		}
-		User user = userService.findByUsername(this.getCurrentUser().getUsername());
-		user.setPassword(password.getNewPassword());
-		userService.update(user);
+		userService.changePassword(this.getCurrentUser().getUsername(), password.getNewPassword());
 		model.addAttribute("password", password);
 		model.addAttribute("updateflag", true);
-		return "account/change_pwd";
+		return "redirect:changepwd?type=success&msg=update_success";
 	}
 	
 	/**
