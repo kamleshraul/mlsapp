@@ -23,6 +23,7 @@ package org.mkcl.els.service.impl;
 
 import org.mkcl.els.common.exception.RecordNotFoundException;
 import org.mkcl.els.domain.User;
+import org.mkcl.els.repository.MessageResourceRepository;
 import org.mkcl.els.repository.UserRepository;
 import org.mkcl.els.service.IUserService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -40,8 +41,18 @@ import com.googlecode.ehcache.annotations.Cacheable;
 public class UserServiceImpl extends GenericServiceImpl<User,Long> implements IUserService{
 
 	/** The user repository. */
-	@Autowired
 	private UserRepository userRepository;
+
+	/**
+	 * Sets the user repository.
+	 *
+	 * @param userRepository the new user repository
+	 */
+	@Autowired
+	public void setUserRepository(UserRepository userRepository) {
+		this.dao = userRepository;
+		this.userRepository = userRepository;
+	}
 	
 	/* (non-Javadoc)
 	 * @see org.mkcl.els.service.IUserService#findByUsername(java.lang.String)
