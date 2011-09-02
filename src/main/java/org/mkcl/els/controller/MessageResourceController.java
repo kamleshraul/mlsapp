@@ -143,7 +143,7 @@ public class MessageResourceController extends BaseController{
 	@RequestMapping(value="{id}", method=RequestMethod.DELETE)
     public String delete(@PathVariable Long id, ModelMap model){
 		messageResourceService.removeById(id);	
-		return "info?type=success&msg=update_success";
+		return "info?type=success&msg=delete_success";
 	}
 	
 	/**

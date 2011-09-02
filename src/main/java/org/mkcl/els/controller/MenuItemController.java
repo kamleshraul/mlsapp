@@ -180,14 +180,24 @@ public class MenuItemController extends BaseController
 	 * @param menuItem the menu item
 	 * @param errors the errors
 	 */
-	private void validate(MenuItem menuItem, Errors errors)
-	{
-		MenuItem duplicateMenuItem = 
+	private void validate(MenuItem menuItem, Errors errors){
+		MenuItem duplicateMenuItemById = 
+			menuItemService.findById(menuItem.getId());
+		
+		MenuItem duplicateMenuItemByTextKey = 
 			menuItemService.findByTextKey(menuItem.getTextKey());
 		
-		if(duplicateMenuItem != null){
-			if(!duplicateMenuItem.getId().equals(menuItem.getId())){
+		// Check if the menuItem instance with a given id is unique
+		if(duplicateMenuItemByTextKey != null){
+			if(!duplicateMenuItemByTextKey.getId().equals(menuItem.getId())){
 				errors.rejectValue("code", "NonUnique");
+			}
+		}
+		
+		// Check if the version matches
+		if(duplicateMenuItemById != null){
+			if(!duplicateMenuItemById.getVersion().equals(menuItem.getVersion())){
+				errors.reject("Version_Mismatch");
 			}
 		}
 	}

@@ -118,7 +118,7 @@ public class CustomParameterController extends BaseController
 		}
 		
 		customParameterService.create(customParameter);		
-		return "redirect:custom_params/"+customParameter.getId() + "?type=success&msg=create_success";
+		return "redirect:custom_params/"+customParameter.getId()+"?type=success&msg=create_success";
 	}
 	
 	
@@ -142,7 +142,7 @@ public class CustomParameterController extends BaseController
 		}
 		 
 		customParameterService.update(customParameter);		
-		return "redirect:custom_params/"+customParameter.getId() + "?type=success&msg=update_success";
+		return "redirect:custom_params/"+customParameter.getId()+"?type=success&msg=update_success";
 	}
 	
 	
@@ -167,12 +167,23 @@ public class CustomParameterController extends BaseController
 	 * @param errors the errors
 	 */
 	private void validate(CustomParameter customParameter, Errors errors){
-		CustomParameter duplicateParameter = 
+		CustomParameter duplicateParameterById = 
+			customParameterService.findById(customParameter.getId());
+		
+		CustomParameter duplicateParameterByName = 
 			customParameterService.findByName(customParameter.getName());
 		
-		if(duplicateParameter != null){
-			if(!duplicateParameter.getId().equals(customParameter.getId())){
+		// Check if the customParameter instance with a given id is unique
+		if(duplicateParameterByName != null){
+			if(!duplicateParameterByName.getId().equals(customParameter.getId())){
 				errors.rejectValue("code", "NonUnique");
+			}
+		}
+		
+		// Check if the version matches
+		if(duplicateParameterById != null){
+			if(!duplicateParameterById.getVersion().equals(customParameter.getVersion())){
+				errors.reject("Version_Mismatch");
 			}
 		}
 	}
