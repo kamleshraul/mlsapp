@@ -143,7 +143,10 @@ function loadGrid(gridId, baseFilter) {
 		$("#grid").jqGrid('bindKeys');
 		$("#new_record").click(function(){
 			var url = $(this).attr('href');
-			$('.contentPanel').load(url);
+			$('.contentPanel').load(url,function(data){
+                var title = $(data).filter('title').text();
+				$('#content > .subHeader > div').html(title);
+			});
    			return false;
 		});
 		$("#delete_record").click(function() {
