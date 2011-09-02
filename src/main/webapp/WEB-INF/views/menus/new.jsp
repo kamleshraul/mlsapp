@@ -26,6 +26,7 @@
 			<div>
 				<form:input cssClass="field text medium" path="parent.text" readonly="true" /><form:errors path="parent.text" cssClass="field_error" />
 				<form:hidden path="parent.id"/>	
+				<form:hidden path="parent.version"/>	
 			</div>
 		</li>
 		
