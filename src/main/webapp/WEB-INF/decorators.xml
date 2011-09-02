@@ -3,5 +3,6 @@
 	<decorator name="form" page="form.jsp">
 		<pattern>/menus/**</pattern>
 		<pattern>/messages/**</pattern>
+		<pattern>/custom_params/**</pattern>
     </decorator>
 </decorators>
