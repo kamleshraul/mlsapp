@@ -65,7 +65,6 @@ public class MenuItemRepository extends BaseRepository<MenuItem, Long> {
 		Search search = new Search();
 		search.addFilterEqual("textKey", textKey);
 		MenuItem menuItem = this.searchUnique(search);
-		System.out.println(">>>>>>>Repository: " + menuItem);
 		return menuItem;
 	}
 }

@@ -42,7 +42,6 @@ import com.trg.search.Search;
 @Repository
 public class GridRepository extends BaseRepository<Grid,Long>{
 	
-	
 	/**
 	 * Gets the data.
 	 *
@@ -115,7 +114,7 @@ public class GridRepository extends BaseRepository<Grid,Long>{
 		String select = grid.getQuery() + " ORDER BY " + sidx + " " + order;
 		Query query = this.em().createQuery(select);
 		if(grid.getLocalized()){
-			countQuery.setParameter("locale", locale.toString());
+			query.setParameter("locale", locale.toString());
 		}
 		query.setFirstResult(start);
 		query.setMaxResults(limit);
@@ -154,7 +153,7 @@ public class GridRepository extends BaseRepository<Grid,Long>{
 		String select = grid.getQuery() + filterSql + " ORDER BY " + sidx + " " + order;
 		Query query = this.em().createQuery(select);
 		if(grid.getLocalized()){
-			countQuery.setParameter("locale", locale.toString());
+			query.setParameter("locale", locale.toString());
 		}
 		query.setFirstResult(start);
 		query.setMaxResults(limit);
@@ -174,7 +173,8 @@ public class GridRepository extends BaseRepository<Grid,Long>{
 	public Grid findByName(String name){
 		Search search = new Search();
 		search.addFilterEqual("name", name);
-		return this.searchUnique(search);
+		Grid grid = this.searchUnique(search);
+		return grid;
 	}
 	
 }
