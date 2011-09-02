@@ -5,4 +5,7 @@
 		<pattern>/messages/**</pattern>
 		<pattern>/custom_params/**</pattern>
     </decorator>
+    <decorator name="acctform" page="acct_form.jsp">
+    	<pattern>/acct/**</pattern>
+    </decorator>
 </decorators>
