@@ -95,6 +95,9 @@ public class Grid implements Serializable {
 	@Column(length=200)
 	private String detailView;
 
+	/** The Localized*/
+	private Boolean localized;
+	
 	// Constructors --------------------------------------------------------------------------------------------------------------------
 
 	/**
@@ -120,7 +123,7 @@ public class Grid implements Serializable {
 	 * @param detailView the view to be shown on content panel
 	 */
 	public Grid(String name, String title, String colNames, String colModel,
-			int pageSize, String sortField, String sortOrder,String query, String countQuery, int width, int height, String detailView) {
+			int pageSize, String sortField, String sortOrder,String query, String countQuery, int width, int height, String detailView, Boolean localized) {
 		super();
 		this.name = name;
 		this.title = title;
@@ -134,6 +137,7 @@ public class Grid implements Serializable {
 		this.height = height;
 		this.width = width;
 		this.detailView = detailView;
+		this.localized = localized;
 	}
 	
 	/**
@@ -148,7 +152,7 @@ public class Grid implements Serializable {
 	 * @param detailView the detail view
 	 */
 	public Grid(String name, String title, String colNames, String colModel, String query, String countQuery,String detailView){
-		this(name,title,colNames,colModel,30,"id","asc",query,countQuery,100,100,detailView);
+		this(name,title,colNames,colModel,30,"id","asc",query,countQuery,100,100,detailView,false);
 	}
 
 
@@ -386,6 +390,24 @@ public class Grid implements Serializable {
 	 */
 	public void setDetailView(String detailView) {
 		this.detailView = detailView;
+	}
+
+	/**
+	 * Gets the localized.
+	 *
+	 * @return the localized
+	 */
+	public Boolean getLocalized() {
+		return localized;
+	}
+
+	/**
+	 * Sets the localized.
+	 *
+	 * @param localized the new localized
+	 */
+	public void setLocalized(Boolean localized) {
+		this.localized = localized;
 	}
 	
 	
