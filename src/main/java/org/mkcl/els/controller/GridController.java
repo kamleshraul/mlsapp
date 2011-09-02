@@ -22,10 +22,8 @@ POSSIBILITY OF SUCH DAMAGE.
 package org.mkcl.els.controller;
 
 import java.util.Locale;
-
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
-
 import org.mkcl.els.common.vo.Filter;
 import org.mkcl.els.common.vo.GridConfig;
 import org.mkcl.els.common.vo.GridData;
