@@ -167,22 +167,15 @@ public class CustomParameterController extends BaseController
 	 * @param errors the errors
 	 */
 	private void validate(CustomParameter customParameter, Errors errors){
-		CustomParameter duplicateParameterById = 
-			customParameterService.findById(customParameter.getId());
-		
-		CustomParameter duplicateParameterByName = 
-			customParameterService.findByName(customParameter.getName());
-		
-		// Check if the customParameter instance with a given id is unique
-		if(duplicateParameterByName != null){
-			if(!duplicateParameterByName.getId().equals(customParameter.getId())){
-				errors.rejectValue("code", "NonUnique");
-			}
+		CustomParameter duplicateParameter = customParameterService.findByName(customParameter.getName());
+		if(duplicateParameter!=null){
+			if(!duplicateParameter.getId().equals(customParameter.getId())){
+				errors.rejectValue("code","NonUnique");
+			}	
 		}
-		
-		// Check if the version matches
-		if(duplicateParameterById != null){
-			if(!duplicateParameterById.getVersion().equals(customParameter.getVersion())){
+		//Check if the version matches
+		if(customParameter.getId()!=null){
+			if(!customParameter.getVersion().equals(customParameterService.findById(customParameter.getId()).getVersion())){
 				errors.reject("Version_Mismatch");
 			}
 		}

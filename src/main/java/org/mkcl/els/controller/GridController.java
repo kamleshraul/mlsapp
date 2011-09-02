@@ -220,22 +220,15 @@ public class GridController extends BaseController{
 	 * @param errors the errors
 	 */
 	private void validate(Grid grid, Errors errors){
-		Grid duplicateGridById = 
-			gridService.findById(grid.getId());
-		
-		Grid duplicateGridByName = 
-			gridService.findByName(grid.getName());
-		
-		// Check if the grid instance with a given id is unique
-		if(duplicateGridByName != null){
-			if(!duplicateGridByName.getId().equals(grid.getId())){
-				errors.rejectValue("code", "NonUnique");
+		Grid duplicateGrid = gridService.findByName(grid.getName());
+		if(duplicateGrid!=null){
+			if(!duplicateGrid.getId().equals(grid.getId())){
+				errors.rejectValue("code","NonUnique");
 			}
 		}
-		
-		// Check if the version matches
-		if(duplicateGridById != null){
-			if(!duplicateGridById.getVersion().equals(grid.getVersion())){
+		//Check if the version matches
+		if(grid.getId()!=null){
+			if(!grid.getVersion().equals(gridService.findById(grid.getId()).getVersion())){
 				errors.reject("Version_Mismatch");
 			}
 		}

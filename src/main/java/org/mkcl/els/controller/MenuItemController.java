@@ -181,22 +181,15 @@ public class MenuItemController extends BaseController
 	 * @param errors the errors
 	 */
 	private void validate(MenuItem menuItem, Errors errors){
-		MenuItem duplicateMenuItemById = 
-			menuItemService.findById(menuItem.getId());
-		
-		MenuItem duplicateMenuItemByTextKey = 
-			menuItemService.findByTextKey(menuItem.getTextKey());
-		
-		// Check if the menuItem instance with a given id is unique
-		if(duplicateMenuItemByTextKey != null){
-			if(!duplicateMenuItemByTextKey.getId().equals(menuItem.getId())){
-				errors.rejectValue("code", "NonUnique");
-			}
+		MenuItem duplicateMenuItem = menuItemService.findByTextKey(menuItem.getTextKey());
+		if(duplicateMenuItem!=null){
+			if(!duplicateMenuItem.getId().equals(menuItem.getId())){
+				errors.rejectValue("code","NonUnique");
+			}	
 		}
-		
-		// Check if the version matches
-		if(duplicateMenuItemById != null){
-			if(!duplicateMenuItemById.getVersion().equals(menuItem.getVersion())){
+		//Check if the version matches
+		if(menuItem.getId()!=null){
+			if(!menuItem.getVersion().equals(gridService.findById(menuItem.getId()).getVersion())){
 				errors.reject("Version_Mismatch");
 			}
 		}

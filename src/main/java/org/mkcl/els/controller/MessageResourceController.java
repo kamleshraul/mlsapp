@@ -154,12 +154,16 @@ public class MessageResourceController extends BaseController{
 	 */
 	private void validate(MessageResource messageResource, Errors errors){
 		MessageResource duplicateResource = messageResourceService.findByLocaleAndCode(messageResource.getLocale(), messageResource.getCode());
-		if(duplicateResource!=null && (!duplicateResource.getId().equals(messageResource.getId()))){
-			errors.rejectValue("code","NonUnique");
+		if(duplicateResource!=null){
+			if(!duplicateResource.getId().equals(messageResource.getId())){
+				errors.rejectValue("code","NonUnique");
+			}	
 		}
 		//Check if the version matches
-		if(messageResource.getId()!=null && (!messageResource.getVersion().equals(messageResourceService.findById(messageResource.getId()).getVersion()))){
-			errors.reject("Version_Mismatch");
+		if(messageResource.getId()!=null){
+			if(!messageResource.getVersion().equals(messageResourceService.findById(messageResource.getId()).getVersion())){
+				errors.reject("Version_Mismatch");
+			}
 		}
 	}
 }
