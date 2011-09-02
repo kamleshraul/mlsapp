@@ -30,7 +30,6 @@ import org.jdom.Element;
 import org.jdom.output.XMLOutputter;
 import org.mkcl.els.domain.MenuItem;
 import org.mkcl.els.repository.MenuItemRepository;
-import org.mkcl.els.repository.MessageResourceRepository;
 import org.mkcl.els.service.IMenuItemService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
