@@ -4,7 +4,7 @@
 	<title>Change Password</title>
 </head>
 <body>
-<c:if test="${!updateflag}">
+<c:if test="${!type}">
 <form:form cssClass="wufoo" action="acct/changepwd" method="POST" modelAttribute="password">
 	<div class="info">
 		<h2>Change Password</h2>
@@ -42,7 +42,7 @@
 	</ul>		
 </form:form>
 </c:if>
-<c:if test="${updateflag eq true}">
+<c:if test="${type}">
 	<div class="info">
 		<h2>You have successfully updated the password. Please logout and login again to confirm the changes.<br> Proceed to <a id="logout" href="<c:url value="/j_spring_security_logout" />">Logout</a></h2>
 	</div>
