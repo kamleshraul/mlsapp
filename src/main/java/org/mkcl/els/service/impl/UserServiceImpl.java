@@ -65,4 +65,14 @@ public class UserServiceImpl extends GenericServiceImpl<User,Long> implements IU
 		return user;
 	}
 
+	/* (non-Javadoc)
+	 * @see org.mkcl.els.service.IUserService#changePassword(java.lang.String, java.lang.String)
+	 */
+	@Override
+	public void changePassword(String username, String new_password) {
+		User user = this.findByUsername(username);
+		user.setPassword(new_password);
+		this.update(user);
+	}
+
 }
