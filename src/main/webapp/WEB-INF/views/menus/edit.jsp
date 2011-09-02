@@ -66,6 +66,7 @@
 		<li class="buttons">
 			<input id="saveForm" class="btTxt" type="submit" value="Submit" />
 		</li>
+		<form:hidden path="version"/>
 	</ul>		
 </form:form>
 </body>
