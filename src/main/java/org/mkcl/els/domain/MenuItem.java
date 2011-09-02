@@ -31,6 +31,7 @@ import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
+import javax.persistence.Version;
 
 /**
  * The Class MenuItem.
@@ -79,6 +80,10 @@ public class MenuItem implements Serializable{
     @Column(length=50)
     private String locale;
     
+    /** The version. */
+    @Version
+    private Long version;
+	
     // Constructors --------------------------------------------------------------------------------------------------------------------
     
     /**
@@ -304,6 +309,22 @@ public class MenuItem implements Serializable{
 		this.locale = locale;
 	}
 	
-	
+	/**
+	 * Gets the version.
+	 *
+	 * @return the version
+	 */
+	public Long getVersion() {
+		return version;
+	}
 
+	
+	/**
+	 * Sets the version.
+	 *
+	 * @param version the new version
+	 */
+	public void setVersion(Long version) {
+		this.version = version;
+	}
 }

@@ -29,6 +29,7 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Table;
+import javax.persistence.Version;
 
 /**
  * The Class Grid.
@@ -97,6 +98,10 @@ public class Grid implements Serializable {
 
 	/** The Localized*/
 	private Boolean localized;
+	
+	/** The version. */
+    @Version
+    private Long version;
 	
 	// Constructors --------------------------------------------------------------------------------------------------------------------
 
@@ -410,5 +415,22 @@ public class Grid implements Serializable {
 		this.localized = localized;
 	}
 	
+	/**
+	 * Gets the version.
+	 *
+	 * @return the version
+	 */
+	public Long getVersion() {
+		return version;
+	}
+
 	
+	/**
+	 * Sets the version.
+	 *
+	 * @param version the new version
+	 */
+	public void setVersion(Long version){
+		this.version = version;
+	}
 }

@@ -29,6 +29,7 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Table;
+import javax.persistence.Version;
 
 import org.hibernate.validator.constraints.NotEmpty;
 
@@ -69,6 +70,10 @@ public class CustomParameter implements Serializable{
 	/** The description. */
 	@Column(length=2000)
 	private String description;
+	
+	/** The version. */
+    @Version
+    private Long version;
 
     // Constructors --------------------------------------------------------------------------------------------------------------------
 
@@ -189,6 +194,23 @@ public class CustomParameter implements Serializable{
 		this.description = description;
 	}
 	
+	/**
+	 * Gets the version.
+	 *
+	 * @return the version
+	 */
+	public Long getVersion() {
+		return version;
+	}
+
 	
+	/**
+	 * Sets the version.
+	 *
+	 * @param version the new version
+	 */
+	public void setVersion(Long version) {
+		this.version = version;
+	}
 
 }
