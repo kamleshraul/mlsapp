@@ -43,5 +43,14 @@ public interface IUserService extends IGenericService<User,Long>{
 	 */
 	@Transactional(readOnly=true)
 	public User findByUsername(String username) throws RecordNotFoundException;
+	
+	/**
+	 * Change password.
+	 *
+	 * @param username the username
+	 * @param new_password the new_password
+	 */
+	@Transactional
+	public void changePassword(String username, String new_password);
 
 }
