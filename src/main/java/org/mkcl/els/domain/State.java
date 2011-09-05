@@ -27,6 +27,10 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Table;
+import javax.validation.constraints.Pattern;
+import javax.validation.constraints.Size;
+
+import org.hibernate.validator.constraints.NotEmpty;
 
 
 /**
@@ -45,7 +49,10 @@ public class State {
 	private Long id;
 	
 	/** The name. */
-	@Column(length=100, nullable=false)
+	@Column(length=50, nullable=false)
+	@NotEmpty
+	@Pattern(regexp="[A-Za-z ]{1,50}")
+	@Size(min=1,max=50)	
 	private String name;
 
 	/**
