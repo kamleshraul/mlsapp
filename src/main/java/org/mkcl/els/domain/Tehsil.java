@@ -1,5 +1,5 @@
 /*
-******************************************************************
+ ******************************************************************
 File: org.mkcl.els.domain.Tehsil.java
 Copyright (c) 2011, sandeeps, MKCL
 All rights reserved.
@@ -17,7 +17,7 @@ LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN
 ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 POSSIBILITY OF SUCH DAMAGE.
 
-******************************************************************
+ ******************************************************************
  */
 package org.mkcl.els.domain;
 
@@ -28,6 +28,7 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
+import javax.persistence.Version;
 
 // TODO: Auto-generated Javadoc
 /**
@@ -40,19 +41,24 @@ import javax.persistence.Table;
 @Entity
 @Table(name="tehsils")
 public class Tehsil {
-	
+
 	/** The id. */
 	@Id
 	@GeneratedValue(strategy = GenerationType.AUTO)
 	private Long id;
-	
+
 	/** The name. */
 	@Column(length=100, nullable=false)
 	private String name;
-	
+
 	/** The district. */
 	@ManyToOne
-    private District district;
+	private District district;
+
+
+	/** The version. */
+	@Version
+	private Long version;
 
 	/**
 	 * Instantiates a new tehsil.
@@ -125,5 +131,25 @@ public class Tehsil {
 	 */
 	public void setDistrict(District district) {
 		this.district = district;
+	}
+
+	/**
+	 * Gets the version.
+	 *
+	 * @return the version
+	 */
+	public Long getVersion() {
+		return version;
+	}
+
+	/**
+	 * Sets the version.
+	 *
+	 * @param version the new version
+	 */
+	public void setVersion(Long version) {
+		this.version = version;
 	}	
+	
+	
 }

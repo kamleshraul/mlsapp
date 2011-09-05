@@ -30,6 +30,7 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
+import javax.persistence.Version;
 
 
 // TODO: Auto-generated Javadoc
@@ -56,6 +57,10 @@ public class District {
 	/** The state. */
 	@ManyToOne
     private State state;
+	
+	/** The version. */
+	@Version
+	private Long version;
 
 	/**
 	 * Instantiates a new district.
@@ -128,5 +133,24 @@ public class District {
 	 */
 	public void setState(State state) {
 		this.state = state;
-	}	
+	}
+
+	/**
+	 * Gets the version.
+	 *
+	 * @return the version
+	 */
+	public Long getVersion() {
+		return version;
+	}
+
+	/**
+	 * Sets the version.
+	 *
+	 * @param version the new version
+	 */
+	public void setVersion(Long version) {
+		this.version = version;
+	}		
+	
 }

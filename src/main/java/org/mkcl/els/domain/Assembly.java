@@ -31,6 +31,7 @@ import javax.persistence.Id;
 import javax.persistence.Table;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
+import javax.persistence.Version;
 
 // TODO: Auto-generated Javadoc
 /**
@@ -59,6 +60,10 @@ public class Assembly {
 	/** The to date. */
 	@Temporal(TemporalType.DATE)
 	private Date toDate;
+	
+	/** The version. */
+	@Version
+	private Long version;
 
 	/**
 	 * Instantiates a new assembly.
@@ -151,5 +156,25 @@ public class Assembly {
 	 */
 	public void setToDate(Date toDate) {
 		this.toDate = toDate;
+	}
+
+	/**
+	 * Gets the version.
+	 *
+	 * @return the version
+	 */
+	public Long getVersion() {
+		return version;
+	}
+
+	/**
+	 * Sets the version.
+	 *
+	 * @param version the new version
+	 */
+	public void setVersion(Long version) {
+		this.version = version;
 	}	
+	
+	
 }

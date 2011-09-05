@@ -27,6 +27,7 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Table;
+import javax.persistence.Version;
 
 // TODO: Auto-generated Javadoc
 /**
@@ -47,6 +48,10 @@ public class Party {
 	/** The name. */
 	@Column(length=100, nullable=false)
 	private String name;
+	
+	/** The version. */
+	@Version
+	private Long version;
 
 	/**
 	 * Instantiates a new party.
@@ -99,5 +104,25 @@ public class Party {
 	 */
 	public void setName(String name) {
 		this.name = name;
+	}
+
+	/**
+	 * Gets the version.
+	 *
+	 * @return the version
+	 */
+	public Long getVersion() {
+		return version;
+	}
+
+	/**
+	 * Sets the version.
+	 *
+	 * @param version the new version
+	 */
+	public void setVersion(Long version) {
+		this.version = version;
 	}	
+	
+	
 }

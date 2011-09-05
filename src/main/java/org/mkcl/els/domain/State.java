@@ -27,12 +27,14 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Table;
+import javax.persistence.Version;
 import javax.validation.constraints.Pattern;
 import javax.validation.constraints.Size;
 
 import org.hibernate.validator.constraints.NotEmpty;
 
 
+// TODO: Auto-generated Javadoc
 /**
  * The Class State.
  *
@@ -54,6 +56,10 @@ public class State {
 	@Pattern(regexp="[A-Za-z ]{1,50}")
 	@Size(min=1,max=50)	
 	private String name;
+	
+	/** The version. */
+	@Version
+	private Long version;
 
 	/**
 	 * Instantiates a new state.
@@ -65,7 +71,6 @@ public class State {
 	/**
 	 * Instantiates a new state.
 	 *
-	 * @param id the id
 	 * @param name the name
 	 */
 	public State(String name) {
@@ -107,5 +112,25 @@ public class State {
 	 */
 	public void setName(String name) {
 		this.name = name;
-	}	
+	}
+
+	/**
+	 * Gets the version.
+	 *
+	 * @return the version
+	 */
+	public Long getVersion() {
+		return version;
+	}
+
+	/**
+	 * Sets the version.
+	 *
+	 * @param version the new version
+	 */
+	public void setVersion(Long version) {
+		this.version = version;
+	}
+	
+	
 }

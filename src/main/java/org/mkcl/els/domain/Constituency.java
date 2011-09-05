@@ -34,6 +34,7 @@ import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
+import javax.persistence.Version;
 
 // TODO: Auto-generated Javadoc
 /**
@@ -59,6 +60,10 @@ public class Constituency {
 	/** The state. */
 	@ManyToOne
     private State state;
+	
+	/** The version. */
+	@Version
+	private Long version;
 	
     /** The districts. */
     @ManyToMany(fetch=FetchType.LAZY)
@@ -161,6 +166,26 @@ public class Constituency {
 	 */
 	public void setDistricts(Set<District> districts) {
 		this.districts = districts;
+	}
+
+	/**
+	 * Gets the version.
+	 *
+	 * @return the version
+	 */
+	public Long getVersion() {
+		return version;
+	}
+
+	/**
+	 * Sets the version.
+	 *
+	 * @param version the new version
+	 */
+	public void setVersion(Long version) {
+		this.version = version;
 	}    
+	
+	
 }
 
