@@ -31,6 +31,7 @@ import javax.persistence.Id;
 import javax.persistence.Table;
 import javax.persistence.Version;
 
+// TODO: Auto-generated Javadoc
 /**
  * The Class Grid.
  *
@@ -96,7 +97,7 @@ public class Grid implements Serializable {
 	@Column(length=200)
 	private String detailView;
 
-	/** The Localized*/
+	/** The Localized. */
 	private Boolean localized;
 	
 	/** The version. */
@@ -126,6 +127,7 @@ public class Grid implements Serializable {
 	 * @param width the width
 	 * @param height the height
 	 * @param detailView the view to be shown on content panel
+	 * @param localized the localized
 	 */
 	public Grid(String name, String title, String colNames, String colModel,
 			int pageSize, String sortField, String sortOrder,String query, String countQuery, int width, int height, String detailView, Boolean localized) {

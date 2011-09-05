@@ -1,7 +1,7 @@
 /*
 ******************************************************************
-File: org.mkcl.els.domain.Role.java
-Copyright (c) 2011, vishals, MKCL
+File: org.mkcl.els.domain.Tehsil.java
+Copyright (c) 2011, sandeeps, MKCL
 All rights reserved.
 
 THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
@@ -21,67 +21,56 @@ POSSIBILITY OF SUCH DAMAGE.
  */
 package org.mkcl.els.domain;
 
-
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.ManyToOne;
 import javax.persistence.Table;
-
-import org.hibernate.validator.constraints.NotEmpty;
 
 // TODO: Auto-generated Javadoc
 /**
- * The Class Role.
+ * The Class Tehsil.
  *
- * @author vishals
- * @version 1.0.0
+ * @author sandeeps
+ * @version v1.0.0
  */
-@Entity
-@Table(name="roles")
-public class Role {
 
-	// Attributes --------------------------------------------------------------------------------	
+@Entity
+@Table(name="tehsils")
+public class Tehsil {
+	
 	/** The id. */
 	@Id
-	@Column(name="role_id",nullable=false)
 	@GeneratedValue(strategy = GenerationType.AUTO)
 	private Long id;
-
-	/** The role name. */
-	@Column(length =20)
-	@NotEmpty
+	
+	/** The name. */
+	@Column(length=100, nullable=false)
 	private String name;
 	
+	/** The district. */
+	@ManyToOne
+    private District district;
 
-	// Constructors ------------------------------------------------------------------------------
 	/**
-	 * Instantiates a new role.
+	 * Instantiates a new tehsil.
 	 */
-	public Role(){
-
+	public Tehsil() {
+		super();
 	}
 
 	/**
-	 * Instantiates a new role.
+	 * Instantiates a new tehsil.
 	 *
 	 * @param name the name
+	 * @param district the district
 	 */
-	public Role(String name) {
+	public Tehsil(String name, District district) {
 		super();
 		this.name = name;
-	}
-
-
-	// Getters & Setters --------------------------------------------------------------------------
-	/**
-	 * Sets the id.
-	 *
-	 * @param id the id to set
-	 */
-	public void setId(Long id) {
-		this.id = id;
+		this.district = district;
 	}
 
 	/**
@@ -93,7 +82,15 @@ public class Role {
 		return id;
 	}
 
-	
+	/**
+	 * Sets the id.
+	 *
+	 * @param id the new id
+	 */
+	public void setId(Long id) {
+		this.id = id;
+	}
+
 	/**
 	 * Gets the name.
 	 *
@@ -112,5 +109,21 @@ public class Role {
 		this.name = name;
 	}
 
-	
+	/**
+	 * Gets the district.
+	 *
+	 * @return the district
+	 */
+	public District getDistrict() {
+		return district;
+	}
+
+	/**
+	 * Sets the district.
+	 *
+	 * @param district the new district
+	 */
+	public void setDistrict(District district) {
+		this.district = district;
+	}	
 }

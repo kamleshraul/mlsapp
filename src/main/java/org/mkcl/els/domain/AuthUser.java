@@ -28,6 +28,7 @@ import org.springframework.security.core.userdetails.User;
 import java.util.Collection;
 import java.util.Date;
 
+// TODO: Auto-generated Javadoc
 /**
  * The Class AuthUser.
  *

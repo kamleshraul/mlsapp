@@ -1,7 +1,7 @@
 /*
 ******************************************************************
-File: org.mkcl.els.domain.Role.java
-Copyright (c) 2011, vishals, MKCL
+File: org.mkcl.els.domain.District.java
+Copyright (c) 2011, sandeeps, MKCL
 All rights reserved.
 
 THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
@@ -19,69 +19,61 @@ POSSIBILITY OF SUCH DAMAGE.
 
 ******************************************************************
  */
-package org.mkcl.els.domain;
 
+
+package org.mkcl.els.domain;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 
-import org.hibernate.validator.constraints.NotEmpty;
 
 // TODO: Auto-generated Javadoc
 /**
- * The Class Role.
+ * The Class District.
  *
- * @author vishals
- * @version 1.0.0
+ * @author sandeeps
+ * @version v1.0.0
  */
-@Entity
-@Table(name="roles")
-public class Role {
 
-	// Attributes --------------------------------------------------------------------------------	
+@Entity
+@Table(name="districts")
+public class District {
+	
 	/** The id. */
 	@Id
-	@Column(name="role_id",nullable=false)
 	@GeneratedValue(strategy = GenerationType.AUTO)
 	private Long id;
-
-	/** The role name. */
-	@Column(length =20)
-	@NotEmpty
+	
+	/** The name. */
+	@Column(length=100, nullable=false)
 	private String name;
 	
+	/** The state. */
+	@ManyToOne
+    private State state;
 
-	// Constructors ------------------------------------------------------------------------------
 	/**
-	 * Instantiates a new role.
+	 * Instantiates a new district.
 	 */
-	public Role(){
-
+	public District() {
+		super();
 	}
 
 	/**
-	 * Instantiates a new role.
+	 * Instantiates a new district.
 	 *
 	 * @param name the name
+	 * @param state the state
 	 */
-	public Role(String name) {
+	public District(String name, State state) {
 		super();
 		this.name = name;
-	}
-
-
-	// Getters & Setters --------------------------------------------------------------------------
-	/**
-	 * Sets the id.
-	 *
-	 * @param id the id to set
-	 */
-	public void setId(Long id) {
-		this.id = id;
+		this.state = state;
 	}
 
 	/**
@@ -93,7 +85,15 @@ public class Role {
 		return id;
 	}
 
-	
+	/**
+	 * Sets the id.
+	 *
+	 * @param id the new id
+	 */
+	public void setId(Long id) {
+		this.id = id;
+	}
+
 	/**
 	 * Gets the name.
 	 *
@@ -112,5 +112,21 @@ public class Role {
 		this.name = name;
 	}
 
-	
+	/**
+	 * Gets the state.
+	 *
+	 * @return the state
+	 */
+	public State getState() {
+		return state;
+	}
+
+	/**
+	 * Sets the state.
+	 *
+	 * @param state the new state
+	 */
+	public void setState(State state) {
+		this.state = state;
+	}	
 }

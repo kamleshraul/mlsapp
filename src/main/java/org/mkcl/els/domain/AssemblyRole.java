@@ -1,7 +1,7 @@
 /*
 ******************************************************************
-File: org.mkcl.els.domain.Role.java
-Copyright (c) 2011, vishals, MKCL
+File: org.mkcl.els.domain.AssemblyRole.java
+Copyright (c) 2011, sandeeps, MKCL
 All rights reserved.
 
 THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
@@ -21,7 +21,6 @@ POSSIBILITY OF SUCH DAMAGE.
  */
 package org.mkcl.els.domain;
 
-
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -29,59 +28,41 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Table;
 
-import org.hibernate.validator.constraints.NotEmpty;
-
 // TODO: Auto-generated Javadoc
 /**
- * The Class Role.
+ * The Class AssemblyRole.
  *
- * @author vishals
- * @version 1.0.0
+ * @author sandeeps
+ * @version v1.0.0
  */
 @Entity
-@Table(name="roles")
-public class Role {
+@Table(name="assembly_roles")
+public class AssemblyRole {
 
-	// Attributes --------------------------------------------------------------------------------	
 	/** The id. */
 	@Id
-	@Column(name="role_id",nullable=false)
 	@GeneratedValue(strategy = GenerationType.AUTO)
 	private Long id;
-
-	/** The role name. */
-	@Column(length =20)
-	@NotEmpty
-	private String name;
 	
+	/** The name. */
+	@Column(length=100, nullable=false)
+	private String name;
 
-	// Constructors ------------------------------------------------------------------------------
 	/**
-	 * Instantiates a new role.
+	 * Instantiates a new assembly role.
 	 */
-	public Role(){
-
+	public AssemblyRole() {
+		super();
 	}
 
 	/**
-	 * Instantiates a new role.
+	 * Instantiates a new assembly role.
 	 *
 	 * @param name the name
 	 */
-	public Role(String name) {
+	public AssemblyRole(String name) {
 		super();
 		this.name = name;
-	}
-
-
-	// Getters & Setters --------------------------------------------------------------------------
-	/**
-	 * Sets the id.
-	 *
-	 * @param id the id to set
-	 */
-	public void setId(Long id) {
-		this.id = id;
 	}
 
 	/**
@@ -93,7 +74,15 @@ public class Role {
 		return id;
 	}
 
-	
+	/**
+	 * Sets the id.
+	 *
+	 * @param id the new id
+	 */
+	public void setId(Long id) {
+		this.id = id;
+	}
+
 	/**
 	 * Gets the name.
 	 *
@@ -110,7 +99,5 @@ public class Role {
 	 */
 	public void setName(String name) {
 		this.name = name;
-	}
-
-	
+	}	
 }

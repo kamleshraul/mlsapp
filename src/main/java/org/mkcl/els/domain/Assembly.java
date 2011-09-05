@@ -1,7 +1,7 @@
 /*
 ******************************************************************
-File: org.mkcl.els.domain.Role.java
-Copyright (c) 2011, vishals, MKCL
+File: org.mkcl.els.domain.Assembly.java
+Copyright (c) 2011, sandeeps, MKCL
 All rights reserved.
 
 THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
@@ -21,6 +21,7 @@ POSSIBILITY OF SUCH DAMAGE.
  */
 package org.mkcl.els.domain;
 
+import java.util.Date;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -28,60 +29,56 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Table;
-
-import org.hibernate.validator.constraints.NotEmpty;
+import javax.persistence.Temporal;
+import javax.persistence.TemporalType;
 
 // TODO: Auto-generated Javadoc
 /**
- * The Class Role.
+ * The Class Assembly.
  *
- * @author vishals
- * @version 1.0.0
+ * @author sandeeps
+ * @version v1.0.0
  */
 @Entity
-@Table(name="roles")
-public class Role {
+@Table(name="assemblies")
+public class Assembly {
 
-	// Attributes --------------------------------------------------------------------------------	
 	/** The id. */
 	@Id
-	@Column(name="role_id",nullable=false)
 	@GeneratedValue(strategy = GenerationType.AUTO)
 	private Long id;
-
-	/** The role name. */
-	@Column(length =20)
-	@NotEmpty
+	
+	/** The name. */
+	@Column(length=20, nullable=false)
 	private String name;
 	
+	/** The from date. */
+	@Temporal(TemporalType.DATE)
+	private Date fromDate;
+	
+	/** The to date. */
+	@Temporal(TemporalType.DATE)
+	private Date toDate;
 
-	// Constructors ------------------------------------------------------------------------------
 	/**
-	 * Instantiates a new role.
+	 * Instantiates a new assembly.
 	 */
-	public Role(){
-
+	public Assembly() {
+		super();
 	}
 
 	/**
-	 * Instantiates a new role.
+	 * Instantiates a new assembly.
 	 *
 	 * @param name the name
+	 * @param fromDate the from date
+	 * @param toDate the to date
 	 */
-	public Role(String name) {
+	public Assembly(String name, Date fromDate, Date toDate) {
 		super();
 		this.name = name;
-	}
-
-
-	// Getters & Setters --------------------------------------------------------------------------
-	/**
-	 * Sets the id.
-	 *
-	 * @param id the id to set
-	 */
-	public void setId(Long id) {
-		this.id = id;
+		this.fromDate = fromDate;
+		this.toDate = toDate;
 	}
 
 	/**
@@ -93,7 +90,15 @@ public class Role {
 		return id;
 	}
 
-	
+	/**
+	 * Sets the id.
+	 *
+	 * @param id the new id
+	 */
+	public void setId(Long id) {
+		this.id = id;
+	}
+
 	/**
 	 * Gets the name.
 	 *
@@ -112,5 +117,39 @@ public class Role {
 		this.name = name;
 	}
 
-	
+	/**
+	 * Gets the from date.
+	 *
+	 * @return the from date
+	 */
+	public Date getFromDate() {
+		return fromDate;
+	}
+
+	/**
+	 * Sets the from date.
+	 *
+	 * @param fromDate the new from date
+	 */
+	public void setFromDate(Date fromDate) {
+		this.fromDate = fromDate;
+	}
+
+	/**
+	 * Gets the to date.
+	 *
+	 * @return the to date
+	 */
+	public Date getToDate() {
+		return toDate;
+	}
+
+	/**
+	 * Sets the to date.
+	 *
+	 * @param toDate the new to date
+	 */
+	public void setToDate(Date toDate) {
+		this.toDate = toDate;
+	}	
 }

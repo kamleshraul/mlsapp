@@ -132,6 +132,7 @@ public class User implements Serializable{
      * @param password the password
      * @param enabled the enabled
      * @param firstName the first name
+     * @param middleName the middle name
      * @param lastName the last name
      * @param email the email
      * @param lastLoginTime the last login time
