@@ -41,10 +41,18 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.ModelAttribute;
 
+// TODO: Auto-generated Javadoc
+/**
+ * The Class GridController.
+ *
+ * @author sandeeps
+ * @version v1.0.0
+ */
 @Controller
 @RequestMapping("/grid")
 public class GridController extends BaseController{
 	
+	/** The grid service. */
 	@Autowired
 	IGridService gridService;
 	
@@ -52,7 +60,6 @@ public class GridController extends BaseController{
 	 * Gets the metadata configuration.
 	 *
 	 * @param gridId the grid id
-	 * @param meta the meta
 	 * @param model the model
 	 * @param request the request
 	 * @return the meta

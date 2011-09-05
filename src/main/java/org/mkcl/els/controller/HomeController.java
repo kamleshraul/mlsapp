@@ -34,14 +34,20 @@ import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 
+// TODO: Auto-generated Javadoc
 /**
  * Handles requests for the application home page.
+ *
+ * @author sandeeps
+ * @version v1.0.0
  */
 @Controller
 public class HomeController extends BaseController{
 
+	/** The Constant logger. */
 	private static final Logger logger = LoggerFactory.getLogger(HomeController.class);
 	
+	/** The menu service. */
 	@Autowired
 	private IMenuItemService menuService;
 	/**
@@ -56,6 +62,11 @@ public class HomeController extends BaseController{
 	
 	/**
 	 * Simply selects the home view to render by returning its name.
+	 *
+	 * @param model the model
+	 * @param request the request
+	 * @param locale the locale
+	 * @return the string
 	 */
 	@RequestMapping(value="/home", method=RequestMethod.GET)
 	public String home(ModelMap model, HttpServletRequest request, Locale locale) {

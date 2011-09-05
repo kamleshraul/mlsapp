@@ -37,6 +37,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 
+// TODO: Auto-generated Javadoc
 /**
  * The Class CustomParameterController.
  *
@@ -163,7 +164,7 @@ public class CustomParameterController extends BaseController
 	/**
 	 * Custom Validation.
 	 *
-	 * @param messageResource the custom parameter
+	 * @param customParameter the custom parameter
 	 * @param errors the errors
 	 */
 	private void validate(CustomParameter customParameter, Errors errors){
