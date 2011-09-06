@@ -51,7 +51,7 @@ public class ErrorsRedirectInterceptor extends HandlerInterceptorAdapter {
 	{
 		if (mav == null) { return; }
 
-		if (request.getMethod().equalsIgnoreCase(HttpMethod.POST.toString())) {
+		if (request.getMethod().equalsIgnoreCase(HttpMethod.POST.toString())||request.getMethod().equalsIgnoreCase(HttpMethod.PUT.toString())) {
 			// POST
 			Map<String, Errors> sessionErrorsMap = new HashMap<String, Errors>();
 			// If there are any Errors in the model, store them in the session
