@@ -1,5 +1,5 @@
 /*
-******************************************************************
+ ******************************************************************
 File: org.mkcl.els.repository.GridRepository.java
 Copyright (c) 2011, vishals, MKCL
 All rights reserved.
@@ -17,7 +17,7 @@ LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN
 ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 POSSIBILITY OF SUCH DAMAGE.
 
-******************************************************************
+ ******************************************************************
  */
 package org.mkcl.els.repository;
 
@@ -41,7 +41,8 @@ import com.trg.search.Search;
  */
 @Repository
 public class GridRepository extends BaseRepository<Grid,Long>{
-	
+
+	private static final String DEFAULT_LOCALE="en";
 	/**
 	 * Gets the data.
 	 *
@@ -55,16 +56,16 @@ public class GridRepository extends BaseRepository<Grid,Long>{
 	@SuppressWarnings("unchecked")
 	public GridData getData(Long gridId, Integer limit, Integer page, String sidx, String order){
 		Grid grid = this.find(gridId);
-		
+
 		String count_select = grid.getCountQuery() + " ORDER BY " + sidx + " " + order;
 		Query countQuery = this.em().createQuery(count_select);
 		Long count = (Long)countQuery.getSingleResult();
-		
+
 		Integer total_pages=0;
 		if( count >0 ) { 
 			total_pages = (int) Math.ceil((float)count/limit); 
 		} 
-		
+
 		if (page > total_pages){
 			page = total_pages;
 		}
@@ -73,27 +74,32 @@ public class GridRepository extends BaseRepository<Grid,Long>{
 		if(start<0){
 			start=0;
 		}
-		
+
 		String select = grid.getQuery() + " ORDER BY " + sidx + " " + order;
 		Query query = this.em().createQuery(select);
 		query.setFirstResult(start);
 		query.setMaxResults(limit);
 		List<Map<String,Object>> records = query.getResultList();
-		
+
 
 		GridData gridVO = new GridData(page,limit,count,records);
 		return gridVO;
 	}
-	
+
 	@SuppressWarnings("unchecked")
 	public GridData getData(Long gridId, Integer limit, Integer page, String sidx, String order, Locale locale){
-		
+
 		Grid grid = this.find(gridId);
-		
+
 		String count_select = grid.getCountQuery() + " ORDER BY " + sidx + " " + order;
 		Query countQuery = this.em().createQuery(count_select);
-		if(grid.getLocalized()){
-			countQuery.setParameter("locale", locale.toString());
+		if(count_select.contains("=:locale")){			
+			if(grid.getLocalized()){
+				countQuery.setParameter("locale", locale.toString());
+			}
+			else{
+				countQuery.setParameter("locale",DEFAULT_LOCALE);
+			}
 		}
 		Long count =  (Long) countQuery.getSingleResult();
 
@@ -101,7 +107,7 @@ public class GridRepository extends BaseRepository<Grid,Long>{
 		if( count >0 ) { 
 			total_pages = (int) Math.ceil((float)count/limit); 
 		} 
-		
+
 		if (page > total_pages){
 			page = total_pages;
 		}
@@ -110,37 +116,43 @@ public class GridRepository extends BaseRepository<Grid,Long>{
 		if(start<0){
 			start=0;
 		}
-		
+
 		String select = grid.getQuery() + " ORDER BY " + sidx + " " + order;
 		Query query = this.em().createQuery(select);
-		if(grid.getLocalized()){
-			query.setParameter("locale", locale.toString());
+		if(select.contains("=:locale")){			
+			if(grid.getLocalized()){
+				query.setParameter("locale", locale.toString());
+			}
+			else{
+				query.setParameter("locale",DEFAULT_LOCALE);
+			}
 		}
+
 		query.setFirstResult(start);
 		query.setMaxResults(limit);
 		List<Map<String,Object>> records = query.getResultList();
-		
+
 		GridData gridVO = new GridData(page,limit,count,records);
 		return gridVO;
 	}
-	
+
 	@SuppressWarnings("unchecked")
 	public GridData getData(Long gridId, Integer limit, Integer page, String sidx, String order, String filterSql, Locale locale){
 		Grid grid = this.find(gridId);
-		
+
 		String count_select = grid.getCountQuery() +  filterSql + " ORDER BY " + sidx + " " + order;
 		Query countQuery = this.em().createQuery(count_select);
 		if(grid.getLocalized()){
 			countQuery.setParameter("locale", locale.toString());
 		}
 		Long count = (Long)countQuery.getSingleResult();
-		
+
 
 		Integer total_pages=0;
 		if( count >0 ) { 
 			total_pages = (int) Math.ceil((float)count/limit); 
 		} 
-		
+
 		if (page > total_pages){
 			page = total_pages;
 		}
@@ -149,7 +161,7 @@ public class GridRepository extends BaseRepository<Grid,Long>{
 		if(start<0){
 			start=0;
 		}
-		
+
 		String select = grid.getQuery() + filterSql + " ORDER BY " + sidx + " " + order;
 		Query query = this.em().createQuery(select);
 		if(grid.getLocalized()){
@@ -158,12 +170,12 @@ public class GridRepository extends BaseRepository<Grid,Long>{
 		query.setFirstResult(start);
 		query.setMaxResults(limit);
 		List<Map<String,Object>> records = query.getResultList();
-		
-		
+
+
 		GridData gridVO = new GridData(page,limit,count,records);
 		return gridVO;
 	}
-	
+
 	/**
 	 * Find by name.
 	 *
@@ -176,5 +188,5 @@ public class GridRepository extends BaseRepository<Grid,Long>{
 		Grid grid = this.searchUnique(search);
 		return grid;
 	}
-	
+
 }
