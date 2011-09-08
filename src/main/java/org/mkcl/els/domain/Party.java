@@ -28,8 +28,10 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Table;
 import javax.persistence.Version;
+import javax.validation.constraints.Size;
 
-// TODO: Auto-generated Javadoc
+import org.hibernate.validator.constraints.NotEmpty;
+
 /**
  * The Class Party.
  *
@@ -47,12 +49,24 @@ public class Party {
 	
 	/** The name. */
 	@Column(length=100, nullable=false)
+	@NotEmpty
+	@Size(min=1,max=100)
 	private String name;
+	
+	/** The abbreviation. */
+	@Column(length=30, nullable=false)
+	@NotEmpty
+	@Size(min=1,max=30)
+	private String abbreviation;
 	
 	/** The version. */
 	@Version
 	private Long version;
 
+	/** The locale. */
+    @Column(length=50)
+    private String locale;
+    
 	/**
 	 * Instantiates a new party.
 	 */
@@ -65,9 +79,10 @@ public class Party {
 	 *
 	 * @param name the name
 	 */
-	public Party(String name) {
+	public Party(String name, String locale) {
 		super();
 		this.name = name;
+		this.locale = locale;
 	}
 
 	/**
@@ -124,5 +139,39 @@ public class Party {
 		this.version = version;
 	}	
 	
-	
+	/**
+	 * Gets the locale.
+	 *
+	 * @return the locale
+	 */
+	public String getLocale() {
+		return locale;
+	}
+
+	/**
+	 * Sets the locale.
+	 *
+	 * @param locale the new locale
+	 */
+	public void setLocale(String locale) {
+		this.locale = locale;
+	}
+
+	/**
+	 * Gets the abbreviation.
+	 *
+	 * @return the abbreviation
+	 */
+	public String getAbbreviation() {
+		return abbreviation;
+	}
+
+	/**
+	 * Sets the abbreviation.
+	 *
+	 * @param abbreviation the new abbreviation
+	 */
+	public void setAbbreviation(String abbreviation) {
+		this.abbreviation = abbreviation;
+	}
 }
