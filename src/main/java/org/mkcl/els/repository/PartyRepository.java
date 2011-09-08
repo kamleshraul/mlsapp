@@ -23,7 +23,6 @@ package org.mkcl.els.repository;
 
 import org.mkcl.els.domain.Party;
 import org.springframework.stereotype.Repository;
-
 import com.trg.search.Search;
 
 /**
