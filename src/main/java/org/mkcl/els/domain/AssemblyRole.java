@@ -28,8 +28,10 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Table;
 import javax.persistence.Version;
+import javax.validation.constraints.Size;
 
-// TODO: Auto-generated Javadoc
+import org.hibernate.validator.constraints.NotEmpty;
+
 /**
  * The Class AssemblyRole.
  *
@@ -47,12 +49,18 @@ public class AssemblyRole {
 	
 	/** The name. */
 	@Column(length=100, nullable=false)
+	@NotEmpty
+	@Size(min=1,max=100)
 	private String name;
 	
 	/** The version. */
 	@Version
 	private Long version;
 
+	/** The locale. */
+    @Column(length=50)
+    private String locale;
+    
 	/**
 	 * Instantiates a new assembly role.
 	 */
@@ -65,9 +73,10 @@ public class AssemblyRole {
 	 *
 	 * @param name the name
 	 */
-	public AssemblyRole(String name) {
+	public AssemblyRole(String name, String locale) {
 		super();
 		this.name = name;
+		this.locale = locale;
 	}
 
 	/**
@@ -124,4 +133,21 @@ public class AssemblyRole {
 		this.version = version;
 	}	
 	
+	/**
+	 * Gets the locale.
+	 *
+	 * @return the locale
+	 */
+	public String getLocale() {
+		return locale;
+	}
+
+	/**
+	 * Sets the locale.
+	 *
+	 * @param locale the new locale
+	 */
+	public void setLocale(String locale) {
+		this.locale = locale;
+	}
 }
