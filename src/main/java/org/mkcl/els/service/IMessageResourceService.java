@@ -39,5 +39,4 @@ public interface IMessageResourceService extends IGenericService<MessageResource
 	 * @return the message resource
 	 */
 	public MessageResource findByLocaleAndCode(String locale, String code);
-
 }
