@@ -30,7 +30,6 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Table;
 import javax.persistence.Version;
-import javax.validation.constraints.Size;
 
 import org.hibernate.validator.constraints.NotEmpty;
 
@@ -53,15 +52,12 @@ public class Party implements Serializable{
 	private Long id;
 	
 	/** The name. */
-	@Column(length=100, nullable=false)
 	@NotEmpty
-	@Size(min=1,max=100)
 	private String name;
 	
 	/** The abbreviation. */
 	@Column(length=30, nullable=false)
 	@NotEmpty
-	@Size(min=1,max=30)
 	private String abbreviation;
 	
 	/** The version. */
