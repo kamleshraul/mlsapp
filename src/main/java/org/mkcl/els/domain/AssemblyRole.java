@@ -30,7 +30,6 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Table;
 import javax.persistence.Version;
-import javax.validation.constraints.Size;
 
 import org.hibernate.validator.constraints.NotEmpty;
 
@@ -55,7 +54,6 @@ public class AssemblyRole implements Serializable{
 	/** The name. */
 	@Column(length=100, nullable=false)
 	@NotEmpty
-	@Size(min=1,max=100)
 	private String name;
 	
 	/** The version. */
