@@ -32,7 +32,6 @@ import javax.persistence.Version;
 
 import org.hibernate.validator.constraints.NotEmpty;
 
-// TODO: Auto-generated Javadoc
 /**
  * The Class MessageResource.
  *
@@ -70,8 +69,7 @@ public class MessageResource implements Serializable{
     @Version
     private Long version;
 	
-    
-    // Constructors -----------------------------------------------------------------------------------------------------------------------
+    // Constructors --------------------------------------------------
     
     /**
      * Instantiates a new message resource.
@@ -87,7 +85,8 @@ public class MessageResource implements Serializable{
      * @param value the value
      * @param description the description
      */
-    public MessageResource(String locale, String code, String value, String description) {
+    public MessageResource(String locale, String code, String value, 
+    			String description) {
 		super();
 		this.locale = locale;
 		this.code = code;
@@ -96,9 +95,7 @@ public class MessageResource implements Serializable{
 	}
 
 
-    // Getters & Setters---------------------------------------------------------------------------------------------------------------------
-	
-    
+    // Getters & Setters-----------------------------------------------
     /**
      * Gets the id.
      *
@@ -107,7 +104,6 @@ public class MessageResource implements Serializable{
     public Long getId() {
 		return id;
 	}
-
 
 	/**
 	 * Sets the id.
@@ -118,7 +114,6 @@ public class MessageResource implements Serializable{
 		this.id = id;
 	}
 
-
 	/**
 	 * Gets the locale.
 	 *
@@ -127,7 +122,6 @@ public class MessageResource implements Serializable{
 	public String getLocale() {
 		return locale;
 	}
-
 
 	/**
 	 * Sets the locale.
@@ -138,7 +132,6 @@ public class MessageResource implements Serializable{
 		this.locale = locale;
 	}
 
-
 	/**
 	 * Gets the message code.
 	 *
@@ -147,7 +140,6 @@ public class MessageResource implements Serializable{
 	public String getCode() {
 		return code;
 	}
-
 
 	/**
 	 * Sets the message code.
@@ -158,7 +150,6 @@ public class MessageResource implements Serializable{
 		this.code = code;
 	}
 
-
 	/**
 	 * Gets the value.
 	 *
@@ -167,8 +158,7 @@ public class MessageResource implements Serializable{
 	public String getValue() {
 		return value;
 	}
-
-
+	
 	/**
 	 * Sets the value.
 	 *
@@ -178,7 +168,6 @@ public class MessageResource implements Serializable{
 		this.value = value;
 	}
 
-	
 	/**
 	 * Gets the version.
 	 *
@@ -188,7 +177,6 @@ public class MessageResource implements Serializable{
 		return version;
 	}
 
-	
 	/**
 	 * Sets the version.
 	 *
@@ -215,8 +203,4 @@ public class MessageResource implements Serializable{
 	public void setDescription(String description) {
 		this.description = description;
 	}
-   
-	
-
-	
 }
