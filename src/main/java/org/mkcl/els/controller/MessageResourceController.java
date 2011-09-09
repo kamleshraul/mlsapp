@@ -36,7 +36,6 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 
-// TODO: Auto-generated Javadoc
 /**
  * The Class MessageResourceController.
  *
@@ -46,7 +45,6 @@ import org.springframework.web.bind.annotation.RequestMethod;
 @Controller
 @RequestMapping("/messages")
 public class MessageResourceController extends BaseController{
-	
 	
 	/** The grid service. */
 	@Autowired
@@ -95,7 +93,6 @@ public class MessageResourceController extends BaseController{
 		return "messages/edit";
 	}
 
-	
 	/**
 	 * Creates a new message resource.
 	 *
@@ -128,10 +125,10 @@ public class MessageResourceController extends BaseController{
 		this.validate(messageResource, result);
 		if(result.hasErrors()){
 			model.addAttribute("isvalid",false);
-			return "redirect:messages/edit?type=error&msg=update_failed";
+			return "redirect:messages/"+messageResource.getId()+"?type=error&msg=update_failed";
 		}
 		messageResourceService.update(messageResource);		
-		return "redirect:messages/"+messageResource.getId() + "?type=success&msg=update_success";
+		return "redirect:messages/"+messageResource.getId()+"?type=success&msg=update_success";
 	}
 
 	/**
@@ -144,7 +141,7 @@ public class MessageResourceController extends BaseController{
 	@RequestMapping(value="{id}", method=RequestMethod.DELETE)
     public String delete(@PathVariable Long id, ModelMap model){
 		messageResourceService.removeById(id);	
-		return "info?type=success&msg=delete_success";
+		return "info";
 	}
 	
 	/**
