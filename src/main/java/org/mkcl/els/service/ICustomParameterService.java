@@ -29,8 +29,9 @@ import org.mkcl.els.domain.CustomParameter;
  * @author amitd
  * @version v1.0.0
  */
-public interface ICustomParameterService extends IGenericService<CustomParameter ,Long>
-{
+public interface ICustomParameterService 
+	extends IGenericService<CustomParameter ,Long>{
+	
 	/**
 	 * Find by name.
 	 *
