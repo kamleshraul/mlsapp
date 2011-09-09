@@ -33,16 +33,16 @@ import com.trg.search.Search;
  * @version v1.0.0
  */
 @Repository
-public class CustomParameterRepository extends BaseRepository<CustomParameter, Long>
-{
+public class CustomParameterRepository 
+	extends BaseRepository<CustomParameter, Long>{
+	
 	/**
 	 * Find by name.
 	 *
 	 * @param name the name
 	 * @return the custom parameter
 	 */
-	public CustomParameter findByName(String name)
-	{
+	public CustomParameter findByName(String name){
 		Search search = new Search();
 		search.addFilterEqual("name", name);
 		CustomParameter parameter = this.searchUnique(search);
