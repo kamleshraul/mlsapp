@@ -5,6 +5,11 @@
 		<pattern>/messages/**</pattern>
 		<pattern>/custom_params/**</pattern>
 		<pattern>/grid/**</pattern>
+		<pattern>/party/**</pattern>
+		<pattern>/assembly/**</pattern>
+		<pattern>/assembly_roles/**</pattern>
+		<pattern>/assembly_struct/**</pattern>
+		<pattern>/assembly_number/**</pattern>
     </decorator>
     <decorator name="acctform" page="acct_form.jsp">
     	<pattern>/acct/**</pattern>
