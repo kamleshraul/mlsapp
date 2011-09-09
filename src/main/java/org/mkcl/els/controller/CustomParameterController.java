@@ -37,7 +37,6 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 
-// TODO: Auto-generated Javadoc
 /**
  * The Class CustomParameterController.
  *
@@ -69,7 +68,6 @@ public class CustomParameterController extends BaseController
 		return "custom_params/list";
 	}
 	
-	
 	/**
 	 * _new.
 	 *
@@ -82,7 +80,6 @@ public class CustomParameterController extends BaseController
 		model.addAttribute(customParameter);
 		return "custom_params/new";
 	}
-	
 	
 	/**
 	 * Edits the.
@@ -97,7 +94,6 @@ public class CustomParameterController extends BaseController
 		model.addAttribute(customParameter);
 		return "custom_params/edit";
 	}
-	
 	
 	/**
 	 * Creates a new custom parameter.
@@ -122,7 +118,6 @@ public class CustomParameterController extends BaseController
 		return "redirect:custom_params/"+customParameter.getId()+"?type=success&msg=create_success";
 	}
 	
-	
 	/**
 	 * Updates the custom parameter.
 	 *
@@ -139,13 +134,12 @@ public class CustomParameterController extends BaseController
 		
 		if(result.hasErrors()){
 			model.addAttribute("isvalid", false);
-			return "redirect:custom_params/edit?type=error&msg=update_failed";
+			return "redirect:custom_params/"+customParameter.getId()+"?type=error&msg=update_failed";
 		}
 		 
 		customParameterService.update(customParameter);		
 		return "redirect:custom_params/"+customParameter.getId()+"?type=success&msg=update_success";
 	}
-	
 	
 	/**
 	 * Deletes an existing custom parameter.
@@ -157,9 +151,8 @@ public class CustomParameterController extends BaseController
 	@RequestMapping(value="{id}", method=RequestMethod.DELETE)
     public String delete(@PathVariable Long id, ModelMap model){
 		customParameterService.removeById(id);	
-		return "info?type=success&msg=delete_success";
+		return "info";
 	}
-	
 	
 	/**
 	 * Custom Validation.
@@ -171,7 +164,8 @@ public class CustomParameterController extends BaseController
 		CustomParameter duplicateParameter = customParameterService.findByName(customParameter.getName());
 		if(duplicateParameter!=null){
 			if(!duplicateParameter.getId().equals(customParameter.getId())){
-				errors.rejectValue("code","NonUnique");
+				// name attribute of CustomParameter object must be unique
+				errors.rejectValue("name","NonUnique");
 			}	
 		}
 		//Check if the version matches
