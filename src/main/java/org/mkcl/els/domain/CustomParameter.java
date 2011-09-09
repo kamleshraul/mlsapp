@@ -33,7 +33,6 @@ import javax.persistence.Version;
 
 import org.hibernate.validator.constraints.NotEmpty;
 
-// TODO: Auto-generated Javadoc
 /**
  * The Class CustomParameter.
  *
@@ -44,8 +43,6 @@ import org.hibernate.validator.constraints.NotEmpty;
 @Table(name="custom_parameters")
 public class CustomParameter implements Serializable{
 	
-	
-
 	/** The Constant serialVersionUID. */
 	private static final long serialVersionUID = 1L;
 
@@ -76,9 +73,7 @@ public class CustomParameter implements Serializable{
     @Version
     private Long version;
 
-    // Constructors --------------------------------------------------------------------------------------------------------------------
-
-	
+    // Constructors -----------------------------------------
 	/**
      * Instantiates a new custom parameter.
      */
@@ -103,8 +98,7 @@ public class CustomParameter implements Serializable{
 		this.description = description;
 	}
 	
-	// Getters/Setters --------------------------------------------------------------------------------------------------------------------
-
+	// Getters/Setters -------------------------------------
 	/**
 	 * Gets the id.
 	 *
@@ -204,7 +198,6 @@ public class CustomParameter implements Serializable{
 		return version;
 	}
 
-	
 	/**
 	 * Sets the version.
 	 *
@@ -213,5 +206,4 @@ public class CustomParameter implements Serializable{
 	public void setVersion(Long version) {
 		this.version = version;
 	}
-
 }
