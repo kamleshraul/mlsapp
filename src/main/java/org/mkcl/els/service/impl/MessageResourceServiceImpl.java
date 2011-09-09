@@ -27,6 +27,7 @@ import org.mkcl.els.service.IMessageResourceService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+// TODO: Auto-generated Javadoc
 /**
  * The Class MessageResourceServiceImpl.
  *
@@ -50,8 +51,12 @@ public class MessageResourceServiceImpl extends GenericServiceImpl<MessageResour
 		this.messageResourceRepository = messageResourceRepository;
 	}
 
-	/* (non-Javadoc)
-	 * @see org.mkcl.els.service.IMessageResourceService#findByLocaleAndCode(java.lang.String, java.lang.String)
+	
+	/**
+	 * Find a messageResource based on locale & code
+	 * 
+	 * @param locale the locale
+	 * @param code the code
 	 */
 	public MessageResource findByLocaleAndCode(String locale, String code) {
 		return messageResourceRepository.findByLocaleAndCode(locale, code);
