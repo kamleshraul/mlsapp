@@ -35,8 +35,7 @@ import org.springframework.stereotype.Service;
  */
 @Service
 public class CustomParameterServiceImpl extends GenericServiceImpl<CustomParameter,Long> 
-										implements ICustomParameterService
-{
+										implements ICustomParameterService{
 	
 	/** The repository. */
 	private CustomParameterRepository customParameterRepository;
