@@ -13,7 +13,10 @@ function initControls(){
 	$("input[class^='date']").datepicker({changeMonth: true, changeYear: true, dateFormat: $('#dateformat').val(), yearRange: 'c-75:c+20'});
 
 };
-
+function resize_grid(){
+	$('#grid').fluidGrid({base:'#grid_container', offset:-0});
+	$("#grid").jqGrid('setGridHeight', $('#navigation').innerHeight()-103);
+}
 function loadGrid(gridId, baseFilter) {
 	var c_grid = null;
 	$.ajax({async:false,url:'grid/' + gridId + '/meta.json', success:function(grid) {
@@ -39,6 +42,7 @@ function loadGrid(gridId, baseFilter) {
 				"baseFilters": baseFilter
 			},
 			loadComplete:function(data,obj){
+				$("#grid").jqGrid('setGridHeight', $('#navigation').innerHeight()-103);
 				if($('#refresh').val()=="refresh"){
 					var top_rowid = $('#grid tbody:first-child tr:nth-child(2)').attr('id');
 					if(!top_rowid){
@@ -48,7 +52,7 @@ function loadGrid(gridId, baseFilter) {
 						});
 					}
 					else{
-						$('#grid').setSelection(top_rowid);
+						
 					}	
 				}								
 			},
@@ -73,8 +77,7 @@ function loadGrid(gridId, baseFilter) {
 		$("#delete_record").click(function() {
 			var row = $("#grid").jqGrid('getGridParam','selrow'); 
 			if(row==null){
-				alert("Please select the desired row to delete");
-				
+				alert("Please select the desired row to delete");		
 			}
 			else{
 				var url = $(this).attr('href');
