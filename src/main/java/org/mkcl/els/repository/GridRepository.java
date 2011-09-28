@@ -193,7 +193,7 @@ public class GridRepository extends BaseRepository<Grid,Long>{
 		query.setFirstResult(start);
 		query.setMaxResults(limit);
 		List<Map<String,Object>> records = query.getResultList();
-		GridData gridVO = new GridData(page,limit,count,records);
+		GridData gridVO = new GridData(page,total_pages,count,records);
 		return gridVO;
 	}
 
