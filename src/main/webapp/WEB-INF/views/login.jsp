@@ -48,11 +48,11 @@
 			</c:if> 
     		<form id="form" action="<c:url value='/j_spring_security_check'/>" method="post" class="clearfix">
 			<p>
-				<label for="j_username"><spring:message code="user_lbl_fname" text="Welcome" /></label>
+				<label for="j_username"><spring:message code="user_lbl_fname" text="Username" /></label>
 				<input type="text" id="j_username"  class="full" value="" name="j_username" required="required" placeholder="Username" autofocus/>
 			</p>
 			<p>
-				<label for="password"></label>
+				<label for="password"><spring:message code="user_lbl_password" text="Password" /></label>
 				<input type="password" id="j_password" class="full" value="" name="j_password" required="required" placeholder="Password" />
 			</p>
 			<p>
@@ -60,9 +60,10 @@
 			<p class="clearfix">
 				<span class="fl">
 					<input type="checkbox" id="remember" class="" value="1" name="remember"/>
-					<label class="choice" for="remember"></label>
+					<label class="choice" for="remember"><spring:message code="user_lbl_remember" text="Password" /></label>
 				</span>
-				<button class="button button-gray fr" type="submit"></button>
+				<input id="saveForm" class="button button-gray fr" type="submit" value="<spring:message code="user_lbl_login"/>" />
+			
 			</p>
 		</form>
     	</section>

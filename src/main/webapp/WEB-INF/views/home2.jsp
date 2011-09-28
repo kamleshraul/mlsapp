@@ -3,15 +3,31 @@
 <html>
 <head>
 	<meta content="text/html; charset=utf-8" http-equiv="Content-Type" />
-	<title>Welcome to e-Legislature</title>
+	<title><spring:message code="home2.welcome"/></title>
+	<link rel="stylesheet"  href="./resources/css/uploadify.css" />
 	<link type="text/css" rel="stylesheet" href="./resources/css/wufoo/structure.css" />
 	<link type="text/css" rel="stylesheet" href="./resources/css/wufoo/theme.css" />
 	<link type="text/css" rel="stylesheet" href="./resources/css/wufoo/form.css" />
 	<link type="text/css" rel="stylesheet" href="./resources/css/jquery.toastmessage.css" />
 	<link type="text/css" rel="stylesheet" href="./resources/css/layout.css" />
+	<link type="text/css" rel="stylesheet" href="./resources/css/jquery.flexbox.css" />
+	<link rel="stylesheet" rel="stylesheet" href="./resources/css/ui.jqgrid.css"  />
+	<link rel="stylesheet" rel="stylesheet" href="./resources/css/start/jquery-ui-1.8.15.custom.css"  />
+	<link rel="stylesheet"  href="./resources/css/thickbox.css" />
+	
 	<script type="text/javascript" src="./resources/js/jquery-1.6.2.min.js"></script>
 	<script type="text/javascript" src="./resources/js/jquery.toastmessage.js"></script>
-	<script type="text/javascript" src="./resources/js/wufoo.js"></script>
+	<script type="text/javascript" src="./resources/js/wufoo.js"></script>	
+	<script type="text/javascript" src="./resources/js/i18n/grid.locale-en.js"></script>
+	<script type="text/javascript" src="./resources/js/jquery.jqGrid.min.js"></script>
+	<script type="text/javascript" src="./resources/js/autoNumeric-1.5.4.js"></script> 
+	<script type="text/javascript" src="./resources/js/jquery-ui-1.8.15.custom.min.js"></script> 
+	<script type="text/javascript" src="./resources/js/timepicker.js"></script>
+	<script type="text/javascript" src="./resources/js/jquery.flexbox.js"></script> 
+	<script type="text/javascript" src="./resources/js/thickbox.js"></script>	
+	<script type="text/javascript" src="./resources/js/jquery.uploadify.js"></script>
+	<script type="text/javascript" src="./resources/js/swfobject.js"></script>	
+	<script type="text/javascript" src="./resources/js/common.js"></script> 	
 	<script type="text/javascript">
         function resizeWindow() 
         {
@@ -58,7 +74,7 @@
 				    inEffectDuration:  600
 				});
 			}
-		};
+		};			
 		$(document).ready(function () {
 			$("#logout").click(function(){
 			    window.location.href($(this).href);
@@ -67,7 +83,11 @@
 			$.ajaxSetup({
 			    error: handleXhrError
 			});
-		});
+
+			
+
+			
+			});
     </script>
     <style type="text/css">
     	.field_error{
@@ -82,6 +102,9 @@
 </head>
 <body onresize="resizeWindow()" onload="resizeWindow()">
             <%@ include file="/common/header.jsp" %>
+            <input type="hidden" id="dateformat" name="dateformat" value="${dateFormat}"/>
+			<input type="hidden" id="timeformat" name="timeformat" value="${timeFormat}"/>
+            
 			<div class="toolbar">
 				<%@ include file="/common/menu.jsp" %>
 			</div>
