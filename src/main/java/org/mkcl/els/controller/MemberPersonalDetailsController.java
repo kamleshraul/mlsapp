@@ -15,6 +15,7 @@ import org.mkcl.els.common.editors.ConstituencyEditor;
 import org.mkcl.els.common.editors.PartyEditor;
 import org.mkcl.els.domain.Constituency;
 import org.mkcl.els.domain.District;
+import org.mkcl.els.domain.Document;
 import org.mkcl.els.domain.Field;
 import org.mkcl.els.domain.Grid;
 import org.mkcl.els.domain.MemberDetails;
@@ -119,7 +120,11 @@ public class MemberPersonalDetailsController {
 		populateModel(model, memberPersonalDetails);
 		model.addAttribute("photoExt", customParameterService.findByName("PHOTO_EXTENSION").getValue());
 		model.addAttribute("photoSize", Long.parseLong(customParameterService.findByName("PHOTO_SIZE").getValue())*1024*1024);
-		model.addAttribute("photoOriginalName", documentService.findByTag(memberPersonalDetails.getPhoto()).getOriginalFileName());
+		Document document=documentService.findByTag(memberPersonalDetails.getPhoto());
+		if(document!=null){
+			model.addAttribute("photoOriginalName", document.getOriginalFileName());
+
+		}
 		return "member_details/personal/edit";
 	}
 	
