@@ -18,9 +18,9 @@
 		<label class="desc"><spring:message code="generic.locale"/>&nbsp;*</label>
 			<div>
 				<form:select cssClass="field select addr" path="locale"> 
-					<form:option value="en">English</form:option>
-					<form:option value="hi_IN">Hindi</form:option>
-					<form:option value="mr_IN">Marathi</form:option>
+					<form:option value="en"><spring:message code="generic.lang.english"/></form:option>
+					<form:option value="hi_IN"><spring:message code="generic.lang.hindi"/></form:option>
+					<form:option value="mr_IN"><spring:message code="generic.lang.marathi"/></form:option>
 				</form:select>
 			</div>
 		</li>		
