@@ -36,6 +36,8 @@ import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import javax.persistence.Version;
 
+import org.hibernate.validator.constraints.NotEmpty;
+
 // TODO: Auto-generated Javadoc
 /**
  * The Class Constituency.
@@ -55,17 +57,15 @@ public class Constituency {
 	
 	/** The name. */
 	@Column(length=100, nullable=false)
+	@NotEmpty
 	private String name;
 	
-	/** The state. */
-	@ManyToOne
-    private State state;
+	   /** The constituency number. */
+    @Column(length=100)
+    private String number;
 	
-	/** The version. */
-	@Version
-	private Long version;
 	
-    /** The districts. */
+	/** The districts. */
     @ManyToMany(fetch=FetchType.LAZY)
     @JoinTable(name="constituency_district",
             joinColumns=
@@ -73,7 +73,21 @@ public class Constituency {
       inverseJoinColumns=
             @JoinColumn(name="district_id", referencedColumnName="id")
     )
-   private Set<District> districts;
+    @NotEmpty
+    private Set<District> districts; 
+    
+    /** The reserved. */
+    private boolean reserved=false;    
+	
+	/** The version. */
+	@Version
+	private Long version;
+	
+	/** The locale. */
+	@Column(length=5)
+	private String locale;    
+
+	
 
 	/**
 	 * Instantiates a new constituency.
@@ -82,19 +96,32 @@ public class Constituency {
 		super();
 	}
 
+	
+
 	/**
 	 * Instantiates a new constituency.
 	 *
 	 * @param name the name
+	 * @param number the number
 	 * @param state the state
 	 * @param districts the districts
+	 * @param reserved the reserved
+	 * @param version the version
+	 * @param locale the locale
 	 */
-	public Constituency(String name, State state, Set<District> districts) {
+	public Constituency(String name, String number, State state,
+			Set<District> districts, boolean reserved, Long version,
+			String locale) {
 		super();
 		this.name = name;
-		this.state = state;
+		this.number = number;
 		this.districts = districts;
+		this.reserved = reserved;
+		this.version = version;
+		this.locale = locale;
 	}
+
+
 
 	/**
 	 * Gets the id.
@@ -131,25 +158,6 @@ public class Constituency {
 	public void setName(String name) {
 		this.name = name;
 	}
-
-	/**
-	 * Gets the state.
-	 *
-	 * @return the state
-	 */
-	public State getState() {
-		return state;
-	}
-
-	/**
-	 * Sets the state.
-	 *
-	 * @param state the new state
-	 */
-	public void setState(State state) {
-		this.state = state;
-	}
-
 	/**
 	 * Gets the districts.
 	 *
@@ -186,6 +194,59 @@ public class Constituency {
 		this.version = version;
 	}    
 	
+	/**
+	 * Gets the locale.
+	 *
+	 * @return the locale
+	 */
+	public String getLocale() {
+		return locale;
+	}
+
+	/**
+	 * Sets the locale.
+	 *
+	 * @param locale the new locale
+	 */
+	public void setLocale(String locale) {
+		this.locale = locale;
+	}
+
+	/**
+	 * Gets the constituency number.
+	 *
+	 * @return the constituency number
+	 */
+	public String getNumber() {
+		return number;
+	}
+
+	/**
+	 * Sets the constituency number.
+	 *
+	 * @param number the new number
+	 */
+	public void setNumber(String number) {
+		this.number = number;
+	}
+
+	/**
+	 * Checks if is reserved.
+	 *
+	 * @return true, if is reserved
+	 */
+	public boolean isReserved() {
+		return reserved;
+	}
+
+	/**
+	 * Sets the reserved.
+	 *
+	 * @param reserved the new reserved
+	 */
+	public void setReserved(boolean reserved) {
+		this.reserved = reserved;
+	}
 	
 }
 

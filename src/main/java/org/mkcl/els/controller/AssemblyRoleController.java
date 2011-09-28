@@ -21,6 +21,10 @@ POSSIBILITY OF SUCH DAMAGE.
  */
 package org.mkcl.els.controller;
 
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
+import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 
 import org.mkcl.els.domain.AssemblyRole;
@@ -36,6 +40,7 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
 
 /**
  * The Class AssemblyRoleController.
@@ -61,11 +66,11 @@ public class AssemblyRoleController extends BaseController{
 	 * @param model the model
 	 * @return the string
 	 */
-	@RequestMapping(method = RequestMethod.GET)
+	@RequestMapping(value="list",method = RequestMethod.GET)
 	public String list(ModelMap model) {
 		Grid grid = gridService.findByName("ASSEMBLY_ROLE_GRID");
 		model.addAttribute("gridId", grid.getId());
-		return "assembly_roles/list";
+		return "masters/assembly_roles/list";
 	}
 	
 	/**
@@ -75,10 +80,10 @@ public class AssemblyRoleController extends BaseController{
 	 * @return the string
 	 */
 	@RequestMapping(value = "new", method = RequestMethod.GET)
-	public String _new(ModelMap model){
+	public String _new(ModelMap model,HttpServletRequest request){
 		AssemblyRole assemblyRole = new AssemblyRole();
-		model.addAttribute(assemblyRole);
-		return "assembly_roles/new";
+		model.addAttribute(assemblyRole);		
+		return "masters/assembly_roles/new";
 	}
 	
 	/**
@@ -88,11 +93,11 @@ public class AssemblyRoleController extends BaseController{
 	 * @param model the model
 	 * @return the string
 	 */
-	@RequestMapping(value = "{id}", method = RequestMethod.GET)
-	public String edit(@PathVariable Long id, ModelMap model){
+	@RequestMapping(value = "{id}/edit", method = RequestMethod.GET)
+	public String edit(HttpServletRequest request,@PathVariable Long id, ModelMap model){
 		AssemblyRole assemblyRole = assemblyRoleService.findById(id);
-		model.addAttribute(assemblyRole);
-		return "assembly_roles/edit";
+		model.addAttribute("assemblyRole",assemblyRole);		
+		return "masters/assembly_roles/edit";
 	}
 	
 	/**
@@ -107,15 +112,18 @@ public class AssemblyRoleController extends BaseController{
 	public String create(@Valid 
 			@ModelAttribute("assemblyRole") AssemblyRole assemblyRole, 
 			BindingResult result, ModelMap model){
-		this.validate(assemblyRole, result);
-		
+		this.validate(assemblyRole, result);		
 		if(result.hasErrors()){
-			model.addAttribute("isvalid", false);
-			return "redirect:assembly_roles/new?type=error&msg=create_failed";
+			model.addAttribute("assemblyRole",assemblyRole);
+			model.addAttribute("type","error");
+			model.addAttribute("msg","create_failed");
+			return "masters/assembly_roles/new";
+
 		}
 		
-		assemblyRoleService.create(assemblyRole);		
-		return "redirect:assembly_roles/"+assemblyRole.getId()+"?type=success&msg=create_success";
+		assemblyRoleService.create(assemblyRole);
+		return "redirect:assembly_roles/"+assemblyRole.getId()+"/edit?type=success&msg=create_success";
+
 	}
 	
 	/**
@@ -130,15 +138,15 @@ public class AssemblyRoleController extends BaseController{
 	public String update(@Valid 
 			@ModelAttribute("assemblyRole")AssemblyRole assemblyRole, 
 			BindingResult result, ModelMap model){
-		this.validate(assemblyRole, result);
-		
+		this.validate(assemblyRole, result);		
 		if(result.hasErrors()){
-			model.addAttribute("isvalid", false);
-			return "redirect:assembly_roles/"+assemblyRole.getId()+"?type=error&msg=update_failed";
-		}
-		 
-		assemblyRoleService.update(assemblyRole);		
-		return "redirect:assembly_roles/"+assemblyRole.getId()+"?type=success&msg=update_success";
+			model.addAttribute("assemblyRole",assemblyRole);
+			model.addAttribute("type","error");
+		    model.addAttribute("msg","update_failed");
+			return "masters/assembly_roles/edit";
+		}		 
+		assemblyRoleService.update(assemblyRole);	
+		return "redirect:assembly_roles/"+assemblyRole.getId()+"/edit?type=success&msg=update_success";
 	}
 	
 	/**
@@ -148,11 +156,13 @@ public class AssemblyRoleController extends BaseController{
 	 * @param model the model
 	 * @return the string
 	 */
-	@RequestMapping(value="{id}", method=RequestMethod.DELETE)
+	@RequestMapping(value="{id}/delete", method=RequestMethod.DELETE)
     public String delete(@PathVariable Long id, ModelMap model){
 		assemblyRoleService.removeById(id);	
+		model.addAttribute("type","success");
+		model.addAttribute("msg","delete_success");
 		return "info";
-	}
+		}
 	
 	/**
 	 * Validate.
@@ -160,19 +170,32 @@ public class AssemblyRoleController extends BaseController{
 	 * @param role the role
 	 * @param errors the errors
 	 */
-	private void validate(AssemblyRole role, Errors errors){
-		AssemblyRole duplicateRole = assemblyRoleService.findByName(role.getName());
+	private void validate(AssemblyRole assemblyRole, Errors errors){
+		if(assemblyRole.getName()!=null){
+			if(assemblyRole.getLocale().equals("en")){
+				String name=assemblyRole.getName();
+				Pattern pattern=Pattern.compile("[A-Za-z ]{1,100}");
+				Matcher matcher=pattern.matcher(name);
+				if(!matcher.matches()){
+					errors.rejectValue("name","Pattern");
+				}
+				if(name.length()>100 || name.length()<1){
+					errors.rejectValue("name","Size");
+
+				}
+			}		
+		AssemblyRole duplicateRole = assemblyRoleService.findByName(assemblyRole.getName());
 		if(duplicateRole!=null){
-			if(!duplicateRole.getId().equals(role.getId())){
-				// name attribute of AssemblyRole object must be unique
+			if(!duplicateRole.getId().equals(assemblyRole.getId())){
 				errors.rejectValue("name","NonUnique");
 			}	
 		}
-		//Check if the version matches
-		if(role.getId()!=null){
-			if(!role.getVersion().equals(assemblyRoleService.findById(role.getId()).getVersion())){
-				errors.reject("Version_Mismatch");
+		if(assemblyRole.getId()!=null){
+			if(!assemblyRole.getVersion().equals(assemblyRoleService.findById(assemblyRole.getId()).getVersion())){
+				errors.rejectValue("name","Version_Mismatch");
 			}
 		}
 	}
+	}
 }
+

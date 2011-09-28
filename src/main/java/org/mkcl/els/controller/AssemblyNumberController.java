@@ -21,6 +21,7 @@ POSSIBILITY OF SUCH DAMAGE.
  */
 package org.mkcl.els.controller;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 
 import org.mkcl.els.domain.AssemblyNumber;
@@ -36,7 +37,9 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
 
+// TODO: Auto-generated Javadoc
 /**
  * The Class AssemblyNumberController.
  *
@@ -61,11 +64,11 @@ public class AssemblyNumberController extends BaseController {
 	 * @param model the model
 	 * @return the string
 	 */
-	@RequestMapping(method = RequestMethod.GET)
-	public String list(ModelMap model) {
+	@RequestMapping(value="list",method = RequestMethod.GET)
+	public String list(HttpServletRequest request,ModelMap model) {
 		Grid grid = gridService.findByName("ASSEMBLY_NUMBER_GRID");
 		model.addAttribute("gridId", grid.getId());
-		return "assembly_number/list";
+		return "masters/assembly_number/list";
 	}
 	
 	/**
@@ -75,10 +78,10 @@ public class AssemblyNumberController extends BaseController {
 	 * @return the string
 	 */
 	@RequestMapping(value = "new", method = RequestMethod.GET)
-	public String _new(ModelMap model){
+	public String _new(HttpServletRequest request,ModelMap model){
 		AssemblyNumber assemblyNumber = new AssemblyNumber();
-		model.addAttribute(assemblyNumber);
-		return "assembly_number/new";
+		model.addAttribute(assemblyNumber);		
+		return "masters/assembly_number/new";
 	}
 	
 	/**
@@ -86,13 +89,15 @@ public class AssemblyNumberController extends BaseController {
 	 *
 	 * @param id the id
 	 * @param model the model
+	 * @param type the type
+	 * @param msg the msg
 	 * @return the string
 	 */
-	@RequestMapping(value = "{id}", method = RequestMethod.GET)
-	public String edit(@PathVariable Long id, ModelMap model){
+	@RequestMapping(value = "{id}/edit", method = RequestMethod.GET)
+	public String edit(HttpServletRequest request,@PathVariable Long id, ModelMap model){
 		AssemblyNumber assemblyNumber = assemblyNumberService.findById(id);
-		model.addAttribute(assemblyNumber);
-		return "assembly_number/edit";
+		model.addAttribute(assemblyNumber);		
+		return "masters/assembly_number/edit";
 	}
 	
 	/**
@@ -107,15 +112,16 @@ public class AssemblyNumberController extends BaseController {
 	public String create(@Valid 
 			@ModelAttribute("assemblyNumber") AssemblyNumber assemblyNumber, 
 			BindingResult result, ModelMap model){
-		this.validate(assemblyNumber, result);
-		
+		this.validate(assemblyNumber, result);		
 		if(result.hasErrors()){
-			model.addAttribute("isvalid", false);
-			return "redirect:assembly_number/new?type=error&msg=create_failed";
-		}
-		
-		assemblyNumberService.create(assemblyNumber);		
-		return "redirect:assembly_number/"+assemblyNumber.getId()+"?type=success&msg=create_success";
+			model.addAttribute("assemblyNumber",assemblyNumber);
+			model.addAttribute("type","error");
+			model.addAttribute("msg","create_failed");
+			return "masters/assembly_number/new";
+		}		
+		assemblyNumberService.create(assemblyNumber);
+		return "redirect:assembly_number/"+assemblyNumber.getId()+"/edit?type=success&msg=create_success";
+	
 	}
 	
 	/**
@@ -130,15 +136,16 @@ public class AssemblyNumberController extends BaseController {
 	public String update(@Valid 
 			@ModelAttribute("assemblyNumber")AssemblyNumber assemblyNumber, 
 			BindingResult result, ModelMap model){
-		this.validate(assemblyNumber, result);
-		
+		this.validate(assemblyNumber, result);		
 		if(result.hasErrors()){
-			model.addAttribute("isvalid", false);
-			return "redirect:assembly_number/"+assemblyNumber.getId()+"?type=error&msg=update_failed";
+			model.addAttribute("assemblyNumber",assemblyNumber);
+			model.addAttribute("type","error");
+		    model.addAttribute("msg","update_failed");
+			return "masters/assembly_number/edit";
 		}
 		 
-		assemblyNumberService.update(assemblyNumber);		
-		return "redirect:assembly_number/"+assemblyNumber.getId()+"?type=success&msg=update_success";
+		assemblyNumberService.update(assemblyNumber);
+		return "redirect:assembly_number/"+assemblyNumber.getId()+"/edit?type=success&msg=update_success";
 	}
 	
 	/**
@@ -148,11 +155,11 @@ public class AssemblyNumberController extends BaseController {
 	 * @param model the model
 	 * @return the string
 	 */
-	@RequestMapping(value="{id}", method=RequestMethod.DELETE)
-    public String delete(@PathVariable Long id, ModelMap model){
+	@RequestMapping(value="{id}/delete", method=RequestMethod.DELETE)
+    public String delete(@PathVariable Long id, ModelMap model,HttpServletRequest request){
 		assemblyNumberService.removeById(id);	
-		return "info";
-	}
+		return "info";	
+		}
 	
 	/**
 	 * Validate.
@@ -161,6 +168,16 @@ public class AssemblyNumberController extends BaseController {
 	 * @param errors the errors
 	 */
 	private void validate(AssemblyNumber assemblyNumber, Errors errors){
+		if(assemblyNumber.getAssemblyNo()!=null){
+			if(assemblyNumber.getLocale().equals("en")){
+				String number=assemblyNumber.getAssemblyNo();
+				if(number.length()>100 || number.length()<1){
+					errors.rejectValue("assemblyNo","Size");
+
+				}
+			}		
+		}
+
 		AssemblyNumber duplicateNumber = 
 			assemblyNumberService.findByAssemblyNo(assemblyNumber.getAssemblyNo());
 		
@@ -173,7 +190,8 @@ public class AssemblyNumberController extends BaseController {
 		//Check if the version matches
 		if(assemblyNumber.getId()!=null){
 			if(!assemblyNumber.getVersion().equals(assemblyNumberService.findById(assemblyNumber.getId()).getVersion())){
-				errors.reject("Version_Mismatch");
+				errors.rejectValue("assemblyNo","Version_Mismatch");
+
 			}
 		}
 	}

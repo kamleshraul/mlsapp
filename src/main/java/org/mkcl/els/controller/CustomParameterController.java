@@ -36,6 +36,7 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
 
 /**
  * The Class CustomParameterController.
@@ -61,11 +62,11 @@ public class CustomParameterController extends BaseController
 	 * @param model the model
 	 * @return the string
 	 */
-	@RequestMapping(method = RequestMethod.GET)
+	@RequestMapping(value="list",method = RequestMethod.GET)
 	public String list(ModelMap model) {
 		Grid grid = gridService.findByName("CUSTOM_PARAMETER_GRID");
 		model.addAttribute("gridId", grid.getId());
-		return "custom_params/list";
+		return "masters/custom_params/list";
 	}
 	
 	/**
@@ -78,7 +79,7 @@ public class CustomParameterController extends BaseController
 	public String _new(ModelMap model){
 		CustomParameter customParameter = new CustomParameter();
 		model.addAttribute(customParameter);
-		return "custom_params/new";
+		return "masters/custom_params/new";
 	}
 	
 	/**
@@ -88,11 +89,11 @@ public class CustomParameterController extends BaseController
 	 * @param model the model
 	 * @return the string
 	 */
-	@RequestMapping(value = "{id}", method = RequestMethod.GET)
+	@RequestMapping(value = "{id}/edit", method = RequestMethod.GET)
 	public String edit(@PathVariable Long id, ModelMap model){
 		CustomParameter customParameter = customParameterService.findById(id);
 		model.addAttribute(customParameter);
-		return "custom_params/edit";
+		return "masters/custom_params/edit";
 	}
 	
 	/**
@@ -110,12 +111,15 @@ public class CustomParameterController extends BaseController
 		this.validate(customParameter, result);
 		
 		if(result.hasErrors()){
-			model.addAttribute("isvalid", false);
-			return "redirect:custom_params/new?type=error&msg=create_failed";
+			model.addAttribute(customParameter);
+			model.addAttribute("type","error");
+			model.addAttribute("msg","create_failed");
+			return "masters/custom_params/new";
 		}
 		
-		customParameterService.create(customParameter);		
-		return "redirect:custom_params/"+customParameter.getId()+"?type=success&msg=create_success";
+		customParameterService.create(customParameter);	
+		return "redirect:custom_params/"+customParameter.getId()+"/edit?type=success&msg=create_success";
+
 	}
 	
 	/**
@@ -133,12 +137,15 @@ public class CustomParameterController extends BaseController
 		this.validate(customParameter, result);
 		
 		if(result.hasErrors()){
-			model.addAttribute("isvalid", false);
-			return "redirect:custom_params/"+customParameter.getId()+"?type=error&msg=update_failed";
+			model.addAttribute(customParameter);
+			model.addAttribute("type","error");
+		    model.addAttribute("msg","update_failed");
+		    return "masters/custom_params/edit";
 		}
 		 
-		customParameterService.update(customParameter);		
-		return "redirect:custom_params/"+customParameter.getId()+"?type=success&msg=update_success";
+		customParameterService.update(customParameter);
+		return "redirect:custom_params/"+customParameter.getId()+"/edit?type=success&msg=update_success";
+
 	}
 	
 	/**
@@ -148,11 +155,13 @@ public class CustomParameterController extends BaseController
 	 * @param model the model
 	 * @return the string
 	 */
-	@RequestMapping(value="{id}", method=RequestMethod.DELETE)
+	@RequestMapping(value="{id}/delete", method=RequestMethod.DELETE)
     public String delete(@PathVariable Long id, ModelMap model){
 		customParameterService.removeById(id);	
+		model.addAttribute("type","success");
+		model.addAttribute("msg","delete_success");
 		return "info";
-	}
+		}
 	
 	/**
 	 * Custom Validation.

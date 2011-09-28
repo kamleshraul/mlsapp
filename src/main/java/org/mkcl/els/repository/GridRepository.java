@@ -90,8 +90,13 @@ public class GridRepository extends BaseRepository<Grid,Long>{
 	public GridData getData(Long gridId, Integer limit, Integer page, String sidx, String order, Locale locale){
 
 		Grid grid = this.find(gridId);
-
-		String count_select = grid.getCountQuery() + " ORDER BY " + sidx + " " + order;
+		String count_select=null;
+		if(!sidx.contains(".")){
+			count_select = grid.getCountQuery() + " ORDER BY m." + sidx + " " + order;
+		}
+		else{
+			count_select = grid.getCountQuery() + " ORDER BY " + sidx + " " + order;
+		}
 		Query countQuery = this.em().createQuery(count_select);
 		if(count_select.contains("=:locale")){			
 			if(grid.getLocalized()){
@@ -117,7 +122,13 @@ public class GridRepository extends BaseRepository<Grid,Long>{
 			start=0;
 		}
 
-		String select = grid.getQuery() + " ORDER BY " + sidx + " " + order;
+		String select=null; 
+		if(!sidx.contains(".")){
+			select= grid.getQuery() + " ORDER BY m." + sidx + " " + order;
+		}
+		else{
+			select= grid.getQuery() + " ORDER BY " + sidx + " " + order;
+		}			
 		Query query = this.em().createQuery(select);
 		if(select.contains("=:locale")){			
 			if(grid.getLocalized()){
@@ -140,7 +151,13 @@ public class GridRepository extends BaseRepository<Grid,Long>{
 	public GridData getData(Long gridId, Integer limit, Integer page, String sidx, String order, String filterSql, Locale locale){
 		Grid grid = this.find(gridId);
 
-		String count_select = grid.getCountQuery() +  filterSql + " ORDER BY " + sidx + " " + order;
+		String count_select =null;
+		if(!sidx.contains(".")){
+			count_select= grid.getCountQuery() +  filterSql + " ORDER BY m." + sidx + " " + order;
+		}
+		else{
+			count_select= grid.getCountQuery() +  filterSql + " ORDER BY " + sidx + " " + order;
+		}
 		Query countQuery = this.em().createQuery(count_select);
 		if(grid.getLocalized()){
 			countQuery.setParameter("locale", locale.toString());
@@ -162,7 +179,13 @@ public class GridRepository extends BaseRepository<Grid,Long>{
 			start=0;
 		}
 
-		String select = grid.getQuery() + filterSql + " ORDER BY " + sidx + " " + order;
+		String select =null;
+		if(!sidx.contains(".")){
+			select= grid.getQuery() + filterSql + " ORDER BY m." + sidx + " " + order;
+		}
+		else{
+			select= grid.getQuery() + filterSql + " ORDER BY " + sidx + " " + order;
+		}
 		Query query = this.em().createQuery(select);
 		if(grid.getLocalized()){
 			query.setParameter("locale", locale.toString());
@@ -170,8 +193,6 @@ public class GridRepository extends BaseRepository<Grid,Long>{
 		query.setFirstResult(start);
 		query.setMaxResults(limit);
 		List<Map<String,Object>> records = query.getResultList();
-
-
 		GridData gridVO = new GridData(page,limit,count,records);
 		return gridVO;
 	}

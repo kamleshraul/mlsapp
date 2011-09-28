@@ -70,8 +70,19 @@ public class ErrorsRedirectInterceptor extends HandlerInterceptorAdapter {
 			Map<String, Errors> sessionErrorsMap =
 				(Map<String, Errors>) request.getSession().getAttribute(ERRORS_MAP_KEY);
 			if (sessionErrorsMap != null) {
-				mav.addAllObjects(sessionErrorsMap);
-				request.getSession().removeAttribute(ERRORS_MAP_KEY);
+				//Added By sandeep singh
+				//Issue can be reproduced by first creating new,than post with some validation message
+				//and when errors have appeared click new again.Instead of all errors getting cleared in case of new ,
+				//we still see errors attached to the jsp.for edit we need to produce validation messages in edit(put)
+				//and then click refresh in grid.Error messages doesn't seem to disaapear
+				if(request.getRequestURI().contains("/new")||request.getRequestURI().contains("/edit")){
+					request.getSession().removeAttribute(ERRORS_MAP_KEY);
+				}
+				else{
+					mav.addAllObjects(sessionErrorsMap);
+					request.getSession().removeAttribute(ERRORS_MAP_KEY);
+				}
+				
 			}
 		}
 	}

@@ -21,17 +21,21 @@ POSSIBILITY OF SUCH DAMAGE.
  */
 package org.mkcl.els.domain;
 
-import java.util.Date;
 
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.ManyToOne;
+import javax.persistence.OneToOne;
 import javax.persistence.Table;
-import javax.persistence.Temporal;
-import javax.persistence.TemporalType;
 import javax.persistence.Version;
+import javax.validation.constraints.NotNull;
+
+import org.hibernate.validator.constraints.NotEmpty;
+
 
 // TODO: Auto-generated Javadoc
 /**
@@ -49,21 +53,41 @@ public class Assembly {
 	@GeneratedValue(strategy = GenerationType.AUTO)
 	private Long id;
 	
-	/** The name. */
-	@Column(length=20, nullable=false)
-	private String name;
+	/** The assembly structure. */
+	@ManyToOne
+	private AssemblyStructure assemblyStructure;
 	
-	/** The from date. */
-	@Temporal(TemporalType.DATE)
-	private Date fromDate;
+	/** The assembly number. */
+    @OneToOne()
+	private AssemblyNumber assemblyNumber;
 	
-	/** The to date. */
-	@Temporal(TemporalType.DATE)
-	private Date toDate;
+	/** The strength. */
+    @NotNull
+	private Integer strength;
 	
-	/** The version. */
+	/** The term. */
+	@NotEmpty
+	@Column(length=20)
+	private String term;
+	
+	/** The budget session. */
+	private boolean budgetSession=false;
+	
+	/** The monsoonsession. */
+	private boolean monsoonSession=false;
+	
+	/** The winter session. */
+	private boolean winterSession=false;
+	
+	/** The special session. */
+	private boolean specialSession=false;
+	
 	@Version
 	private Long version;
+
+	/** The locale. */
+	@Column(length=50)
+	private String locale;
 
 	/**
 	 * Instantiates a new assembly.
@@ -71,19 +95,22 @@ public class Assembly {
 	public Assembly() {
 		super();
 	}
-
-	/**
-	 * Instantiates a new assembly.
-	 *
-	 * @param name the name
-	 * @param fromDate the from date
-	 * @param toDate the to date
-	 */
-	public Assembly(String name, Date fromDate, Date toDate) {
+	public Assembly(AssemblyStructure assemblyStructure,
+			AssemblyNumber assemblyNumber, Integer strength, String term,
+			boolean budgetSession, boolean monsoonSession,
+			boolean winterSession, boolean specialSession, Long version,
+			String locale) {
 		super();
-		this.name = name;
-		this.fromDate = fromDate;
-		this.toDate = toDate;
+		this.assemblyStructure = assemblyStructure;
+		this.assemblyNumber = assemblyNumber;
+		this.strength = strength;
+		this.term = term;
+		this.budgetSession = budgetSession;
+		this.monsoonSession = monsoonSession;
+		this.winterSession = winterSession;
+		this.specialSession = specialSession;
+		this.version = version;
+		this.locale = locale;
 	}
 
 	/**
@@ -105,76 +132,167 @@ public class Assembly {
 	}
 
 	/**
-	 * Gets the name.
+	 * Gets the assembly structure.
 	 *
-	 * @return the name
+	 * @return the assembly structure
 	 */
-	public String getName() {
-		return name;
+	public AssemblyStructure getAssemblyStructure() {
+		return assemblyStructure;
 	}
 
 	/**
-	 * Sets the name.
+	 * Sets the assembly structure.
 	 *
-	 * @param name the new name
+	 * @param assemblyStructure the new assembly structure
 	 */
-	public void setName(String name) {
-		this.name = name;
+	public void setAssemblyStructure(AssemblyStructure assemblyStructure) {
+		this.assemblyStructure = assemblyStructure;
 	}
 
 	/**
-	 * Gets the from date.
+	 * Gets the assembly number.
 	 *
-	 * @return the from date
+	 * @return the assembly number
 	 */
-	public Date getFromDate() {
-		return fromDate;
+	public AssemblyNumber getAssemblyNumber() {
+		return assemblyNumber;
 	}
 
 	/**
-	 * Sets the from date.
+	 * Sets the assembly number.
 	 *
-	 * @param fromDate the new from date
+	 * @param assemblyNumber the new assembly number
 	 */
-	public void setFromDate(Date fromDate) {
-		this.fromDate = fromDate;
+	public void setAssemblyNumber(AssemblyNumber assemblyNumber) {
+		this.assemblyNumber = assemblyNumber;
 	}
 
 	/**
-	 * Gets the to date.
+	 * Gets the strength.
 	 *
-	 * @return the to date
+	 * @return the strength
 	 */
-	public Date getToDate() {
-		return toDate;
+	public Integer getStrength() {
+		return strength;
 	}
 
 	/**
-	 * Sets the to date.
+	 * Sets the strength.
 	 *
-	 * @param toDate the new to date
+	 * @param strength the new strength
 	 */
-	public void setToDate(Date toDate) {
-		this.toDate = toDate;
+	public void setStrength(Integer strength) {
+		this.strength = strength;
 	}
 
 	/**
-	 * Gets the version.
+	 * Gets the term.
 	 *
-	 * @return the version
+	 * @return the term
 	 */
+	public String getTerm() {
+		return term;
+	}
+
+	/**
+	 * Sets the term.
+	 *
+	 * @param term the new term
+	 */
+	public void setTerm(String term) {
+		this.term = term;
+	}
+
+	/**
+	 * Checks if is budget session.
+	 *
+	 * @return true, if is budget session
+	 */
+	public boolean isBudgetSession() {
+		return budgetSession;
+	}
+
+	/**
+	 * Sets the budget session.
+	 *
+	 * @param budgetSession the new budget session
+	 */
+	public void setBudgetSession(boolean budgetSession) {
+		this.budgetSession = budgetSession;
+	}
+
+	/**
+	 * Checks if is monsoonsession.
+	 *
+	 * @return true, if is monsoonsession
+	 */
+	public boolean isMonsoonSession() {
+		return monsoonSession;
+	}
+
+	/**
+	 * Sets the monsoonsession.
+	 *
+	 * @param monsoonsession the new monsoonsession
+	 */
+	public void setMonsoonsession(boolean monsoonSession) {
+		this.monsoonSession = monsoonSession;
+	}
+
+	/**
+	 * Checks if is winter session.
+	 *
+	 * @return true, if is winter session
+	 */
+	public boolean isWinterSession() {
+		return winterSession;
+	}
+
+	/**
+	 * Sets the winter session.
+	 *
+	 * @param winterSession the new winter session
+	 */
+	public void setWinterSession(boolean winterSession) {
+		this.winterSession = winterSession;
+	}
+
+	/**
+	 * Checks if is special session.
+	 *
+	 * @return true, if is special session
+	 */
+	public boolean isSpecialSession() {
+		return specialSession;
+	}
+
+	/**
+	 * Sets the special session.
+	 *
+	 * @param specialSession the new special session
+	 */
+	public void setSpecialSession(boolean specialSession) {
+		this.specialSession = specialSession;
+	}
+
 	public Long getVersion() {
 		return version;
 	}
 
-	/**
-	 * Sets the version.
-	 *
-	 * @param version the new version
-	 */
 	public void setVersion(Long version) {
 		this.version = version;
-	}	
-	
+	}
+
+	public String getLocale() {
+		return locale;
+	}
+
+	public void setLocale(String locale) {
+		this.locale = locale;
+	}
+
+	public void setMonsoonSession(boolean monsoonSession) {
+		this.monsoonSession = monsoonSession;
+	}		
 	
 }

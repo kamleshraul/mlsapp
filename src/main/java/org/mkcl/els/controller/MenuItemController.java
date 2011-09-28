@@ -21,8 +21,11 @@ POSSIBILITY OF SUCH DAMAGE.
  */
 package org.mkcl.els.controller;
 
+import java.util.Locale;
+
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
+
 import org.mkcl.els.common.editors.MenuItemEditor;
 import org.mkcl.els.domain.MenuItem;
 import org.mkcl.els.service.IGridService;
@@ -38,6 +41,7 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
 
 
 // TODO: Auto-generated Javadoc
@@ -67,11 +71,11 @@ public class MenuItemController extends BaseController
 	 * @param model the model
 	 * @return the string
 	 */
-	@RequestMapping(method = RequestMethod.GET)
-	public String list(ModelMap model){
-		String menu_xml = menuItemService.getMenuXml();
+	@RequestMapping(value="list",method = RequestMethod.GET)
+	public String list(ModelMap model,Locale locale){
+		String menu_xml = menuItemService.getMenuXml(locale);
 		model.addAttribute("menu_xml", menu_xml);
-		return "menus/list";
+		return "masters/menus/list";
 	}
 	
 	
@@ -91,7 +95,7 @@ public class MenuItemController extends BaseController
 			menuItem.setParent(parent);
 		}
 		model.addAttribute(menuItem);
-		return "menus/new";
+		return "masters/menus/new";
 	}
 	
 	/**
@@ -101,11 +105,11 @@ public class MenuItemController extends BaseController
 	 * @param model the model
 	 * @return the string
 	 */
-	@RequestMapping(value = "{id}", method = RequestMethod.GET)
+	@RequestMapping(value = "{id}/edit", method = RequestMethod.GET)
 	public String edit(@PathVariable Long id, ModelMap model){
 		MenuItem menuItem = menuItemService.findById(id);
 		model.addAttribute(menuItem);
-		return "menus/edit";
+		return "masters/menus/edit";
 	}
 
 	
@@ -126,11 +130,13 @@ public class MenuItemController extends BaseController
 		
 		// UNIQUEness constraint violated
 		if(result.hasErrors()){
-			model.addAttribute("isvalid", false);
-			return "redirect:menus/new?type=error&msg=create_failed";
+			model.addAttribute("menuItem",menuItem);
+			model.addAttribute("type","error");
+			model.addAttribute("msg","create_failed");
+			return "masters/menus/new";
 		}
 		menuItemService.create(menuItem);
-		return "redirect:menus/"+menuItem.getId() + "?type=success&msg=create_refresh_success";
+		return "redirect:menus/"+menuItem.getId()+"/edit?type=success&msg=create_success";
 	}
 	
 	
@@ -151,13 +157,15 @@ public class MenuItemController extends BaseController
 		
 		// UNIQUEness constraint violated
 		if(result.hasErrors()){
-			model.addAttribute("isvalid", false);
-			return "redirect:menus/edit?type=error&msg=update_failed";
+			model.addAttribute("menuItem",menuItem);
+			model.addAttribute("type","error");
+		    model.addAttribute("msg","update_failed");
+		    return "masters/menus/edit";
 		}
 		
 		// No violation of the UNIQUEness constraint
 		menuItemService.update(menuItem);
-		return "redirect:menus/"+menuItem.getId() + "?type=success&msg=update_refresh_success";
+		return "redirect:menus/"+menuItem.getId() + "/edit?type=success&msg=update_success";
 	}
 	
 	
@@ -168,11 +176,13 @@ public class MenuItemController extends BaseController
 	 * @param model the model
 	 * @return the string
 	 */
-	@RequestMapping(value = "{id}", method = RequestMethod.DELETE)
+	@RequestMapping(value = "{id}/delete", method = RequestMethod.DELETE)
 	public String delete(@PathVariable Long id, ModelMap model){
 		menuItemService.removeById(id);
-		return "redirect:.";
-	}	
+		model.addAttribute("msg","delete_success");
+		model.addAttribute("type","menu_success");
+		return "info";	
+		}	
 	
 	
 	/**
@@ -182,7 +192,7 @@ public class MenuItemController extends BaseController
 	 * @param errors the errors
 	 */
 	private void validate(MenuItem menuItem, Errors errors){
-		MenuItem duplicateMenuItem = menuItemService.findByTextKey(menuItem.getTextKey());
+		/*MenuItem duplicateMenuItem = menuItemService.findByTextKey(menuItem.getTextKey());
 		if(duplicateMenuItem!=null){
 			if(!duplicateMenuItem.getId().equals(menuItem.getId())){
 				errors.rejectValue("code","NonUnique");
@@ -190,10 +200,10 @@ public class MenuItemController extends BaseController
 		}
 		//Check if the version matches
 		if(menuItem.getId()!=null){
-			if(!menuItem.getVersion().equals(gridService.findById(menuItem.getId()).getVersion())){
+			if(!menuItem.getVersion().equals(menuItemService.findById(menuItem.getId()).getVersion())){
 				errors.reject("Version_Mismatch");
 			}
-		}
+		}*/
 	}
 	
 	/**

@@ -21,6 +21,8 @@ POSSIBILITY OF SUCH DAMAGE.
  */
 package org.mkcl.els.service.impl;
 
+import java.util.List;
+
 import org.mkcl.els.domain.Party;
 import org.mkcl.els.repository.PartyRepository;
 import org.mkcl.els.service.IPartyService;
@@ -61,6 +63,12 @@ public class PartyServiceImpl
 	@Override
 	public Party findByName(String name) {
 		return this.partyRepository.findByName(name);
+	}
+
+	@Override
+	public List<Party> findAllSorted() {
+		// TODO Auto-generated method stub
+		return partyRepository.findAllSorted();
 	}
 
 }

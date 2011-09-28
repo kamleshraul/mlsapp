@@ -21,6 +21,10 @@ POSSIBILITY OF SUCH DAMAGE.
  */
 package org.mkcl.els.controller;
 
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
+import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 
 import org.mkcl.els.domain.AssemblyStructure;
@@ -36,6 +40,7 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
 
 /**
  * The Class AssemblyStructureController.
@@ -61,11 +66,11 @@ public class AssemblyStructureController extends BaseController {
 	 * @param model the model
 	 * @return the string
 	 */
-	@RequestMapping(method = RequestMethod.GET)
+	@RequestMapping(value="list",method = RequestMethod.GET)
 	public String list(ModelMap model) {
 		Grid grid = gridService.findByName("ASSEMBLY_STRUCTURE_GRID");
 		model.addAttribute("gridId", grid.getId());
-		return "assembly_struct/list";
+		return "masters/assembly_struct/list";
 	}
 	
 	/**
@@ -75,10 +80,10 @@ public class AssemblyStructureController extends BaseController {
 	 * @return the string
 	 */
 	@RequestMapping(value = "new", method = RequestMethod.GET)
-	public String _new(ModelMap model){
+	public String _new(ModelMap model,HttpServletRequest request){
 		AssemblyStructure structure = new AssemblyStructure();
-		model.addAttribute(structure);
-		return "assembly_struct/new";
+		model.addAttribute(structure);		
+		return "masters/assembly_struct/new";
 	}
 	
 	/**
@@ -88,11 +93,11 @@ public class AssemblyStructureController extends BaseController {
 	 * @param model the model
 	 * @return the string
 	 */
-	@RequestMapping(value = "{id}", method = RequestMethod.GET)
-	public String edit(@PathVariable Long id, ModelMap model){
+	@RequestMapping(value = "{id}/edit", method = RequestMethod.GET)
+	public String edit(HttpServletRequest request,@PathVariable Long id, ModelMap model){
 		AssemblyStructure structure = assemblyStructureService.findById(id);
-		model.addAttribute(structure);
-		return "assembly_struct/edit";
+		model.addAttribute(structure);		
+		return "masters/assembly_struct/edit";
 	}
 	
 	/**
@@ -107,16 +112,17 @@ public class AssemblyStructureController extends BaseController {
 	public String create(@Valid 
 			@ModelAttribute("assemblyStructure") AssemblyStructure assemblyStructure, 
 			BindingResult result, ModelMap model){
-		this.validate(assemblyStructure, result);
-		
+		this.validate(assemblyStructure, result);		
 		if(result.hasErrors()){
-			model.addAttribute("isvalid", false);
-			return "redirect:assembly_struct/new?type=error&msg=create_failed";
+			model.addAttribute("assemblyStructure",assemblyStructure);
+			model.addAttribute("type","error");
+			model.addAttribute("msg","create_failed");
+			return "masters/assembly_struct/new";
 		}
 		
-		assemblyStructureService.create(assemblyStructure);		
-		return "redirect:assembly_struct/"+assemblyStructure.getId()+"?type=success&msg=create_success";
-	}
+		assemblyStructureService.create(assemblyStructure);			
+		return "redirect:assembly_struct/"+assemblyStructure.getId()+"/edit?type=success&msg=create_success";
+		}
 	
 	/**
 	 * Update.
@@ -133,12 +139,14 @@ public class AssemblyStructureController extends BaseController {
 		this.validate(assemblyStructure, result);
 		
 		if(result.hasErrors()){
-			model.addAttribute("isvalid", false);
-			return "redirect:assembly_struct/"+assemblyStructure.getId()+"?type=error&msg=update_failed";
+			model.addAttribute("assemblyStructure",assemblyStructure);
+			model.addAttribute("type","error");
+		    model.addAttribute("msg","update_failed");
+			return "masters/assembly_struct/edit";
 		}
 		 
-		assemblyStructureService.update(assemblyStructure);		
-		return "redirect:assembly_struct/"+assemblyStructure.getId()+"?type=success&msg=update_success";
+		assemblyStructureService.update(assemblyStructure);
+		return "redirect:assembly_struct/"+assemblyStructure.getId()+"/edit?type=success&msg=update_success";
 	}
 	
 	/**
@@ -148,11 +156,13 @@ public class AssemblyStructureController extends BaseController {
 	 * @param model the model
 	 * @return the string
 	 */
-	@RequestMapping(value="{id}", method=RequestMethod.DELETE)
+	@RequestMapping(value="{id}/delete", method=RequestMethod.DELETE)
     public String delete(@PathVariable Long id, ModelMap model){
 		assemblyStructureService.removeById(id);	
+		model.addAttribute("type","success");
+		model.addAttribute("msg","delete_success");
 		return "info";
-	}
+		}
 	
 	/**
 	 * Validate.
@@ -160,20 +170,35 @@ public class AssemblyStructureController extends BaseController {
 	 * @param structure the structure
 	 * @param errors the errors
 	 */
-	private void validate(AssemblyStructure structure, Errors errors){
+	private void validate(AssemblyStructure assemblyStructure, Errors errors){
+		if(assemblyStructure.getName()!=null){
+			if(assemblyStructure.getLocale().equals("en")){
+				String name=assemblyStructure.getName();
+				Pattern pattern=Pattern.compile("[A-Za-z ]{1,100}");
+				Matcher matcher=pattern.matcher(name);
+				if(!matcher.matches()){
+					errors.rejectValue("name","Pattern");
+				}
+				if(name.length()>100 || name.length()<1){
+					errors.rejectValue("name","Size");
+
+				}
+			}		
+		}
+
 		AssemblyStructure duplicateStructure = 
-			assemblyStructureService.findByName(structure.getName());
+			assemblyStructureService.findByName(assemblyStructure.getName());
 		
 		if(duplicateStructure!=null){
-			if(!duplicateStructure.getId().equals(structure.getId())){
+			if(!duplicateStructure.getId().equals(assemblyStructure.getId())){
 				// name attribute of AssemblyStructure object must be unique
 				errors.rejectValue("name","NonUnique");
 			}	
 		}
 		//Check if the version matches
-		if(structure.getId()!=null){
-			if(!structure.getVersion().equals(assemblyStructureService.findById(structure.getId()).getVersion())){
-				errors.reject("Version_Mismatch");
+		if(assemblyStructure.getId()!=null){
+			if(!assemblyStructure.getVersion().equals(assemblyStructureService.findById(assemblyStructure.getId()).getVersion())){
+				errors.rejectValue("name","Version_Mismatch");
 			}
 		}
 	}

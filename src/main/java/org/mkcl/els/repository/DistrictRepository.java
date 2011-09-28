@@ -21,7 +21,12 @@ POSSIBILITY OF SUCH DAMAGE.
  */
 package org.mkcl.els.repository;
 
+import java.util.List;
+import java.util.Set;
+
 import org.mkcl.els.domain.District;
+import org.mkcl.els.service.IConstituencyService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
 import com.trg.search.Search;
@@ -36,6 +41,10 @@ import com.trg.search.Search;
 public class DistrictRepository 
 	extends BaseRepository<District, Long>{
 
+	@Autowired
+	IConstituencyService constituencyService;
+	@Autowired
+	StateRepository stateRepository;
 	/**
 	 * Find by name.
 	 *
@@ -48,4 +57,39 @@ public class DistrictRepository
 		District district = this.searchUnique(search);
 		return district;
 	}
+	
+	public List<District> findDistrictsByStateId(Long stateId){
+		Search search=new Search();
+		search.addFilterEqual("state",stateRepository.find(stateId));
+		search.addSort("name",false);
+		List<District> districts=this.search(search);
+		return districts;
+		
+	}	
+	
+	public List<District> findDistrictsByStateId(Long stateId,String property,boolean descOrder){
+		Search search=new Search();
+		search.addFilterEqual("state",stateRepository.find(stateId));
+		search.addSort(property,descOrder);
+		List<District> districts=this.search(search);
+		return districts;
+		
+	}	
+	
+	public List<District> findDistrictsByStateName(String stateName){
+		Search search=new Search();
+		search.addFilterEqual("state",stateRepository.findByName(stateName));
+		search.addSort("name",false);
+		List<District> districts=this.search(search);
+		return districts;
+		
+	}
+
+	
+	public Set<District> findDistrictsByConstituencyId(Long constituencyId) {
+		return  constituencyService.findById(constituencyId).getDistricts();
+	}
+
+	
+	
 }

@@ -1,5 +1,5 @@
 /*
-******************************************************************
+ ******************************************************************
 File: org.mkcl.els.domain.District.java
 Copyright (c) 2011, sandeeps, MKCL
 All rights reserved.
@@ -17,7 +17,7 @@ LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN
 ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 POSSIBILITY OF SUCH DAMAGE.
 
-******************************************************************
+ ******************************************************************
  */
 
 
@@ -31,6 +31,10 @@ import javax.persistence.Id;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import javax.persistence.Version;
+import javax.validation.constraints.Pattern;
+import javax.validation.constraints.Size;
+
+import org.hibernate.validator.constraints.NotEmpty;
 
 
 // TODO: Auto-generated Javadoc
@@ -44,23 +48,28 @@ import javax.persistence.Version;
 @Entity
 @Table(name="districts")
 public class District {
-	
+
 	/** The id. */
 	@Id
 	@GeneratedValue(strategy = GenerationType.AUTO)
 	private Long id;
-	
+
 	/** The name. */
 	@Column(length=100, nullable=false)
+	@NotEmpty
 	private String name;
-	
+
 	/** The state. */
 	@ManyToOne
-    private State state;
-	
+	private State state;
+
 	/** The version. */
 	@Version
 	private Long version;
+
+	/** The locale. */
+	@Column(length=5)
+	private String locale;	
 
 	/**
 	 * Instantiates a new district.
@@ -151,6 +160,24 @@ public class District {
 	 */
 	public void setVersion(Long version) {
 		this.version = version;
-	}		
+	}	
 	
+	/**
+	 * Gets the locale.
+	 *
+	 * @return the locale
+	 */
+	public String getLocale() {
+		return locale;
+	}
+
+	/**
+	 * Sets the locale.
+	 *
+	 * @param locale the new locale
+	 */
+	public void setLocale(String locale) {
+		this.locale = locale;
+	}
+
 }

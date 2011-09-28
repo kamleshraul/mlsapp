@@ -22,6 +22,7 @@ POSSIBILITY OF SUCH DAMAGE.
 package org.mkcl.els.controller;
 
 import javax.validation.Valid;
+
 import org.mkcl.els.domain.Grid;
 import org.mkcl.els.domain.MessageResource;
 import org.mkcl.els.service.IGridService;
@@ -35,6 +36,7 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
 
 /**
  * The Class MessageResourceController.
@@ -59,11 +61,11 @@ public class MessageResourceController extends BaseController{
 	 * @param model the model
 	 * @return the string
 	 */
-	@RequestMapping(method = RequestMethod.GET)
+	@RequestMapping(value="list",method = RequestMethod.GET)
 	public String list(ModelMap model) {
 		Grid grid = gridService.findByName("MSG_RESOURCE_GRID");
 		model.addAttribute("gridId", grid.getId());
-		return "messages/list";
+		return "masters/messages/list";
 	}
 	
 	/**
@@ -76,7 +78,7 @@ public class MessageResourceController extends BaseController{
 	public String _new(ModelMap model){
 		MessageResource resource = new MessageResource();
 		model.addAttribute(resource);
-		return "messages/new";
+		return "masters/messages/new";
 	}
 	
 	/**
@@ -86,11 +88,11 @@ public class MessageResourceController extends BaseController{
 	 * @param model the model
 	 * @return the string
 	 */
-	@RequestMapping(value="{id}",method = RequestMethod.GET)
+	@RequestMapping(value="{id}/edit",method = RequestMethod.GET)
 	public String edit(@PathVariable Long id, ModelMap model){
 		MessageResource messageResource = messageResourceService.findById(id);
 		model.addAttribute(messageResource);
-		return "messages/edit";
+		return "masters/messages/edit";
 	}
 
 	/**
@@ -105,11 +107,13 @@ public class MessageResourceController extends BaseController{
 	public String create(@Valid @ModelAttribute("messageResource") MessageResource messageResource, BindingResult result, ModelMap model){
 		this.validate(messageResource, result);
 		if(result.hasErrors()){
-			model.addAttribute("isvalid",false);
-			return "redirect:messages/new?type=error&msg=create_failed";
+			model.addAttribute("messageResource", messageResource);
+			model.addAttribute("type","error");
+			model.addAttribute("msg","create_failed");
+			return "masters/messages/new";
 		}
-		messageResourceService.create(messageResource);		
-		return "redirect:messages/"+messageResource.getId() + "?type=success&msg=create_success";
+		messageResourceService.create(messageResource);
+		return "redirect:messages/"+messageResource.getId()+"/edit?type=success&msg=create_success";
 	}
 	
 	/**
@@ -124,11 +128,14 @@ public class MessageResourceController extends BaseController{
 	public String update(@Valid @ModelAttribute("messageResource")MessageResource messageResource, BindingResult result, ModelMap model){
 		this.validate(messageResource, result);
 		if(result.hasErrors()){
-			model.addAttribute("isvalid",false);
-			return "redirect:messages/"+messageResource.getId()+"?type=error&msg=update_failed";
+			model.addAttribute("messageResource", messageResource);
+			model.addAttribute("type","error");
+		    model.addAttribute("msg","update_failed");	
+			return "masters/messages/edit";
 		}
-		messageResourceService.update(messageResource);		
-		return "redirect:messages/"+messageResource.getId()+"?type=success&msg=update_success";
+		messageResourceService.update(messageResource);
+		return "redirect:messages/"+messageResource.getId()+"/edit?type=success&msg=update_success";
+
 	}
 
 	/**
@@ -138,11 +145,13 @@ public class MessageResourceController extends BaseController{
 	 * @param model the model
 	 * @return the string
 	 */
-	@RequestMapping(value="{id}", method=RequestMethod.DELETE)
+	@RequestMapping(value="{id}/delete", method=RequestMethod.DELETE)
     public String delete(@PathVariable Long id, ModelMap model){
 		messageResourceService.removeById(id);	
+		model.addAttribute("type","success");
+		model.addAttribute("msg","delete_success");
 		return "info";
-	}
+		}
 	
 	/**
 	 * Custom Validation.

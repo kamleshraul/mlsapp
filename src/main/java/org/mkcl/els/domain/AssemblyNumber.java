@@ -28,6 +28,8 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.OneToOne;
+import javax.persistence.PrimaryKeyJoinColumn;
 import javax.persistence.Table;
 import javax.persistence.Version;
 
@@ -63,7 +65,7 @@ public class AssemblyNumber implements Serializable {
 
 	/** The locale. */
 	@Column(length=50)
-	private String locale;
+	private String locale;	
 
 	//==========Constructors==========
 	/**
@@ -73,17 +75,16 @@ public class AssemblyNumber implements Serializable {
 		super();
 	}
 
-	/**
-	 * Instantiates a new assembly number.
-	 *
-	 * @param assemblyNo the assembly no
-	 * @param locale the locale
-	 */
-	public AssemblyNumber(String assemblyNo, String locale) {
+
+
+	public AssemblyNumber(String assemblyNo, Long version, String locale) {
 		super();
 		this.assemblyNo = assemblyNo;
+		this.version = version;
 		this.locale = locale;
 	}
+
+
 
 	//==========Getters & Setters==========
 	/**

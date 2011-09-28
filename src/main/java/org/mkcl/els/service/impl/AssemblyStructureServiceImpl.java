@@ -21,6 +21,8 @@ POSSIBILITY OF SUCH DAMAGE.
  */
 package org.mkcl.els.service.impl;
 
+import java.util.List;
+
 import org.mkcl.els.domain.AssemblyStructure;
 import org.mkcl.els.repository.AssemblyStructureRepository;
 import org.mkcl.els.service.IAssemblyStructureService;
@@ -64,6 +66,12 @@ public class AssemblyStructureServiceImpl
 	@Override
 	public AssemblyStructure findByName(String name) {
 		return this.assemblyStructureRepository.findByName(name);
+	}
+
+
+	@Override
+	public List<AssemblyStructure> findAllSortedByName() {
+		return assemblyStructureRepository.findAllSortedByName();
 	}
 
 }

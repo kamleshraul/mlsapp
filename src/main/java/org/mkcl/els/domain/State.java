@@ -53,13 +53,15 @@ public class State {
 	/** The name. */
 	@Column(length=50, nullable=false)
 	@NotEmpty
-	@Pattern(regexp="[A-Za-z ]{1,50}")
-	@Size(min=1,max=50)	
 	private String name;
 	
 	/** The version. */
 	@Version
 	private Long version;
+	
+    /** The locale. */
+    @Column(length=5)
+    private String locale;
 
 	/**
 	 * Instantiates a new state.
@@ -131,6 +133,22 @@ public class State {
 	public void setVersion(Long version) {
 		this.version = version;
 	}
-	
-	
+
+	/**
+	 * Gets the locale.
+	 *
+	 * @return the locale
+	 */
+	public String getLocale() {
+		return locale;
+	}
+
+	/**
+	 * Sets the locale.
+	 *
+	 * @param locale the new locale
+	 */
+	public void setLocale(String locale) {
+		this.locale = locale;
+	}	
 }

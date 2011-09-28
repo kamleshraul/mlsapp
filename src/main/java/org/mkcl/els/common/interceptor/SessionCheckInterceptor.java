@@ -3,6 +3,7 @@ package org.mkcl.els.common.interceptor;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import org.mkcl.els.common.exception.SessionExpiredException;
+import org.springframework.ui.Model;
 import org.springframework.web.servlet.handler.HandlerInterceptorAdapter;
 
 public class SessionCheckInterceptor extends HandlerInterceptorAdapter{
@@ -21,9 +22,22 @@ public class SessionCheckInterceptor extends HandlerInterceptorAdapter{
 		}
 		if(request.getRequestURI().contains("upload"))
 		{
-			return false;
+			return true;
 		}
 		if(request.getUserPrincipal()!=null){
+			if(request.getMethod().equals("DELETE")){
+				request.getSession().setAttribute("delete","delete");
+			}	
+			if(request.getRequestURI().contains("/new")||request.getRequestURI().contains("/edit")){
+				if(request.getSession().getAttribute("delete")!=null){
+					if(request.getSession().getAttribute("delete").equals("delete")){
+						request.setAttribute("type","success");
+						request.setAttribute("msg","delete_success");
+					}	
+					request.getSession().setAttribute("delete","");
+				}
+			}
+			request.getSession().setAttribute("refresh","refresh");
 			return true;
 		}
 		else{

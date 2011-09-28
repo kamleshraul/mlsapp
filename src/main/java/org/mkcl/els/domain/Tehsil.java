@@ -30,6 +30,8 @@ import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import javax.persistence.Version;
 
+import org.hibernate.validator.constraints.NotEmpty;
+
 // TODO: Auto-generated Javadoc
 /**
  * The Class Tehsil.
@@ -49,11 +51,16 @@ public class Tehsil {
 
 	/** The name. */
 	@Column(length=100, nullable=false)
+	@NotEmpty
 	private String name;
 
 	/** The district. */
 	@ManyToOne
 	private District district;
+	
+		
+	@Column(length=5)
+	private String locale;	
 
 
 	/** The version. */
@@ -67,17 +74,18 @@ public class Tehsil {
 		super();
 	}
 
-	/**
-	 * Instantiates a new tehsil.
-	 *
-	 * @param name the name
-	 * @param district the district
-	 */
-	public Tehsil(String name, District district) {
+
+
+	public Tehsil(String name, District district, String locale,
+			Long version) {
 		super();
 		this.name = name;
 		this.district = district;
+		this.locale = locale;
+		this.version = version;
 	}
+
+
 
 	/**
 	 * Gets the id.
@@ -149,7 +157,17 @@ public class Tehsil {
 	 */
 	public void setVersion(Long version) {
 		this.version = version;
-	}	
+	}
+
+	public String getLocale() {
+		return locale;
+	}
+
+	public void setLocale(String locale) {
+		this.locale = locale;
+	}
+
+
 	
 	
 }

@@ -21,7 +21,15 @@ POSSIBILITY OF SUCH DAMAGE.
  */
 package org.mkcl.els.repository;
 
+import java.util.ArrayList;
+import java.util.List;
+
+import javax.persistence.Query;
+
 import org.mkcl.els.domain.Constituency;
+import org.mkcl.els.domain.District;
+import org.mkcl.els.domain.Reference;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
 import com.trg.search.Search;
@@ -36,6 +44,8 @@ import com.trg.search.Search;
 public class ConstituencyRepository 
 	extends BaseRepository<Constituency, Long>{
 
+	@Autowired
+	DistrictRepository districtRepository;
 	/**
 	 * Find by name.
 	 *
@@ -48,4 +58,38 @@ public class ConstituencyRepository
 		Constituency constituency = this.searchUnique(search);
 		return constituency;
 	}
+
+	@SuppressWarnings("unchecked")
+	public List<Constituency> findConstituenciesByDistrictName(String name) {
+		District district=districtRepository.findByName(name);
+		String constituencyQuery="SELECT c FROM Constituency c WHERE :district MEMBER OF c.districts";
+		Query query=this.em().createQuery(constituencyQuery);
+		query.setParameter("district",district);
+		return query.getResultList();
+	}
+
+	@SuppressWarnings("unchecked")
+	public List<Constituency> findConstituenciesByDistrictId(Long districtId) {
+		District district=districtRepository.find(districtId);
+		String constituencyQuery="SELECT c FROM Constituency c WHERE :district MEMBER OF c.districts";
+		Query query=this.em().createQuery(constituencyQuery);
+		query.setParameter("district",district);
+		return query.getResultList();
+	}
+
+	public List<Reference> findConstituenciesStartingWith(String param) {
+		List<Reference> constituencies = new ArrayList<Reference>();
+		Search search =  new Search().addField("name").addField("name","id").addFilterILike("name", param+"%");
+		search.setResultMode(Search.RESULT_MAP);
+		constituencies=this.search(search);
+		return constituencies;
+	}
+
+	public List<Constituency> findAllSorted() {
+		Search search=new Search();
+		search.addSort("name",false);
+		return this.search(search);
+	}
+
+	
 }

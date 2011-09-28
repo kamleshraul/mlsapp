@@ -21,6 +21,8 @@ POSSIBILITY OF SUCH DAMAGE.
  */
 package org.mkcl.els.repository;
 
+import java.util.List;
+
 import org.mkcl.els.domain.AssemblyNumber;
 import org.springframework.stereotype.Repository;
 
@@ -47,5 +49,11 @@ public class AssemblyNumberRepository
 		search.addFilterEqual("assemblyNo", assemblyNo);
 		AssemblyNumber assemblyNumber = this.searchUnique(search);
 		return assemblyNumber;
+	}
+
+	public List<AssemblyNumber> findAllSortedByNumber() {
+		Search search=new Search();
+		search.addSort("assemblyNo",false);
+		return this.search(search);		
 	}
 }

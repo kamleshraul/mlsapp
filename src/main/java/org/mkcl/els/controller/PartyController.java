@@ -21,6 +21,9 @@ POSSIBILITY OF SUCH DAMAGE.
  */
 package org.mkcl.els.controller;
 
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
 import javax.validation.Valid;
 
 import org.mkcl.els.domain.Grid;
@@ -36,6 +39,7 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
 
 /**
  * The Class PartyController.
@@ -61,11 +65,11 @@ public class PartyController extends BaseController{
 	 * @param model the model
 	 * @return the string
 	 */
-	@RequestMapping(method = RequestMethod.GET)
+	@RequestMapping(value="list",method = RequestMethod.GET)
 	public String list(ModelMap model) {
 		Grid grid = gridService.findByName("PARTY_GRID");
 		model.addAttribute("gridId", grid.getId());
-		return "party/list";
+		return "masters/parties/list";
 	}
 	
 	/**
@@ -78,7 +82,7 @@ public class PartyController extends BaseController{
 	public String _new(ModelMap model){
 		Party party = new Party();
 		model.addAttribute(party);
-		return "party/new";
+		return "masters/parties/new";
 	}
 	
 	/**
@@ -88,11 +92,11 @@ public class PartyController extends BaseController{
 	 * @param model the model
 	 * @return the string
 	 */
-	@RequestMapping(value = "{id}", method = RequestMethod.GET)
+	@RequestMapping(value = "{id}/edit", method = RequestMethod.GET)
 	public String edit(@PathVariable Long id, ModelMap model){
 		Party party = partyService.findById(id);
 		model.addAttribute(party);
-		return "party/edit";
+		return "masters/parties/edit";
 	}
 	
 	/**
@@ -110,13 +114,16 @@ public class PartyController extends BaseController{
 		this.validate(party, result);
 		
 		if(result.hasErrors()){
-			model.addAttribute("isvalid", false);
-			return "redirect:party/new?type=error&msg=create_failed";
+			model.addAttribute("party",party);
+			model.addAttribute("type","error");
+			model.addAttribute("msg","create_failed");
+			return "masters/parties/new";
 		}
 		
 		partyService.create(party);		
-		return "redirect:party/"+party.getId()+"?type=success&msg=create_success";
-	}
+		return "redirect:party/"+party.getId()+"/edit?type=success&msg=create_success";
+
+		}
 	
 	/**
 	 * Update.
@@ -130,15 +137,17 @@ public class PartyController extends BaseController{
 	public String update(@Valid 
 			@ModelAttribute("party")Party party, 
 			BindingResult result, ModelMap model){
-		this.validate(party, result);
-		
+		this.validate(party, result);		
 		if(result.hasErrors()){
-			model.addAttribute("isvalid", false);
-			return "redirect:party/"+party.getId()+"?type=error&msg=update_failed";
+			model.addAttribute("party",party);
+			model.addAttribute("type","error");
+		    model.addAttribute("msg","update_failed");
+			return "masters/parties/edit";
 		}
 		 
 		partyService.update(party);		
-		return "redirect:party/"+party.getId()+"?type=success&msg=update_success";
+		return "redirect:party/"+party.getId()+"/edit?type=success&msg=update_success";
+
 	}
 	
 	/**
@@ -148,11 +157,13 @@ public class PartyController extends BaseController{
 	 * @param model the model
 	 * @return the string
 	 */
-	@RequestMapping(value="{id}", method=RequestMethod.DELETE)
+	@RequestMapping(value="{id}/delete", method=RequestMethod.DELETE)
     public String delete(@PathVariable Long id, ModelMap model){
 		partyService.removeById(id);	
+		model.addAttribute("type","success");
+		model.addAttribute("msg","delete_success");
 		return "info";
-	}
+		}
 	
 	/**
 	 * Validate.
@@ -161,17 +172,44 @@ public class PartyController extends BaseController{
 	 * @param errors the errors
 	 */
 	private void validate(Party party, Errors errors){
+		if(party.getName()!=null){
+			if(party.getLocale().equals("en")){
+				String name=party.getName();
+				Pattern pattern=Pattern.compile("[A-Za-z//(//) ]{1,100}");
+				Matcher matcher=pattern.matcher(name);
+				if(!matcher.matches()){
+					errors.rejectValue("name","Pattern");
+				}
+				if(name.length()>100 || name.length()<1){
+					errors.rejectValue("name","Size");
+
+				}
+			}		
+		}
+		if(party.getAbbreviation()!=null){
+			if(party.getLocale().equals("en")){
+				String abbreviation=party.getAbbreviation();
+				Pattern pattern=Pattern.compile("[A-Za-z ]{1,30}");
+				Matcher matcher=pattern.matcher(abbreviation);
+				if(!matcher.matches()){
+					errors.rejectValue("abbreviation","Pattern");
+				}
+				if(abbreviation.length()>30 || abbreviation.length()<1){
+					errors.rejectValue("abbreviation","Size");
+
+				}
+			}		
+		}
 		Party duplicateParty = partyService.findByName(party.getName());
 		if(duplicateParty!=null){
 			if(!duplicateParty.getId().equals(party.getId())){
-				// name attribute of Party object must be unique
 				errors.rejectValue("name","NonUnique");
 			}	
 		}
 		//Check if the version matches
 		if(party.getId()!=null){
 			if(!party.getVersion().equals(partyService.findById(party.getId()).getVersion())){
-				errors.reject("Version_Mismatch");
+				errors.rejectValue("name","Version_Mismatch");
 			}
 		}
 	}

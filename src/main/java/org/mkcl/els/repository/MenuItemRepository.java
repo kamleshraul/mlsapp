@@ -22,6 +22,7 @@ POSSIBILITY OF SUCH DAMAGE.
 package org.mkcl.els.repository;
 
 import java.util.List;
+import java.util.Locale;
 
 import org.mkcl.els.domain.MenuItem;
 import org.springframework.stereotype.Repository;
@@ -66,5 +67,11 @@ public class MenuItemRepository extends BaseRepository<MenuItem, Long> {
 		search.addFilterEqual("textKey", textKey);
 		MenuItem menuItem = this.searchUnique(search);
 		return menuItem;
+	}
+	
+	public List<MenuItem> findAllByLocale(Locale locale){
+		Search search=new Search();
+		search.addFilterEqual("locale",locale.toString());
+		return this.search(search);
 	}
 }

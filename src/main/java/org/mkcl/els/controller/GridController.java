@@ -22,8 +22,10 @@ POSSIBILITY OF SUCH DAMAGE.
 package org.mkcl.els.controller;
 
 import java.util.Locale;
+
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
+
 import org.mkcl.els.common.vo.Filter;
 import org.mkcl.els.common.vo.GridConfig;
 import org.mkcl.els.common.vo.GridData;
@@ -34,12 +36,12 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.Errors;
+import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
-import org.springframework.web.bind.annotation.ModelAttribute;
 
 // TODO: Auto-generated Javadoc
 /**
@@ -123,11 +125,11 @@ public class GridController extends BaseController{
 	 * @param model the model
 	 * @return the string
 	 */
-	@RequestMapping(method = RequestMethod.GET)
+	@RequestMapping(value="list",method = RequestMethod.GET)
 	public String list(ModelMap model) {
 		Grid grid = gridService.findByName("GRID");
 		model.addAttribute("gridId", grid.getId());
-		return "grid/list";
+		return "masters/grids/list";
 	}
 	
 	/**
@@ -140,7 +142,7 @@ public class GridController extends BaseController{
 	public String _new(ModelMap model){
 		Grid grid = new Grid();
 		model.addAttribute(grid);
-		return "grid/new";
+		return "masters/grids/new";
 	}
 	
 	/**
@@ -150,11 +152,11 @@ public class GridController extends BaseController{
 	 * @param model the model
 	 * @return the string
 	 */
-	@RequestMapping(value = "{id}", method = RequestMethod.GET)
+	@RequestMapping(value = "{id}/edit", method = RequestMethod.GET)
 	public String edit(@PathVariable Long id, ModelMap model){
 		Grid grid = gridService.findById(id);
 		model.addAttribute(grid);
-		return "grid/edit";
+		return "masters/grids/edit";
 	}
 	
 	
@@ -170,15 +172,17 @@ public class GridController extends BaseController{
 	public String create(@Valid 
 			@ModelAttribute("grid") Grid grid, 
 			BindingResult result, ModelMap model){
-		this.validate(grid, result);
-		
+		this.validate(grid, result);		
 		if(result.hasErrors()){
-			model.addAttribute("isvalid", false);
-			return "redirect:grid/new?type=error&msg=create_failed";
+			model.addAttribute("grid",grid);
+			model.addAttribute("type","error");
+			model.addAttribute("msg","create_failed");
+			return "masters/grids/new";
 		}
 		
-		gridService.create(grid);		
-		return "redirect:grid/"+grid.getId()+"?type=success&msg=create_success";
+		gridService.create(grid);
+		return "redirect:grid/"+grid.getId()+"/edit?type=success&msg=create_success";
+
 	}
 	
 	
@@ -194,15 +198,17 @@ public class GridController extends BaseController{
 	public String update(@Valid 
 			@ModelAttribute("grid")Grid grid, 
 			BindingResult result, ModelMap model){
-		this.validate(grid, result);
-		
+		this.validate(grid, result);		
 		if(result.hasErrors()){
-			model.addAttribute("isvalid", false);
-			return "redirect:grid/edit?type=error&msg=update_failed";
+			model.addAttribute("grid",grid);
+			model.addAttribute("type","error");
+		    model.addAttribute("msg","update_failed");
+			return "masters/grids/edit";
 		}
 		 
-		gridService.update(grid);		
-		return "redirect:grid/"+grid.getId()+"?type=success&msg=update_success";
+		gridService.update(grid);
+		return "redirect:grid/"+grid.getId()+"/edit?type=success&msg=update_success";
+
 	}
 	
 	/**
@@ -212,11 +218,13 @@ public class GridController extends BaseController{
 	 * @param model the model
 	 * @return the string
 	 */
-	@RequestMapping(value="{id}", method=RequestMethod.DELETE)
+	@RequestMapping(value="{id}/delete", method=RequestMethod.DELETE)
     public String delete(@PathVariable Long id, ModelMap model){
 		gridService.removeById(id);	
-		return "info?type=success&msg=delete_success";
-	}
+		model.addAttribute("type","success");
+		model.addAttribute("msg","delete_success");
+		return "info";
+		}
 	
 	/**
 	 * Custom Validation.

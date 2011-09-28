@@ -21,7 +21,11 @@ POSSIBILITY OF SUCH DAMAGE.
  */
 package org.mkcl.els.repository;
 
+import java.util.List;
+
 import org.mkcl.els.domain.Assembly;
+import org.mkcl.els.domain.AssemblyNumber;
+import org.mkcl.els.domain.AssemblyStructure;
 import org.springframework.stereotype.Repository;
 
 import com.trg.search.Search;
@@ -41,10 +45,13 @@ public class AssemblyRepository extends BaseRepository<Assembly, Long>{
 	 * @param name the name
 	 * @return the assembly
 	 */
-	public Assembly findByName(String name){
+	
+	public Assembly findByAssemblyNumber(AssemblyNumber assemblyNumber){
 		Search search = new Search();
-		search.addFilterEqual("name", name);
+		search.addFilterEqual("assemblyNumber", assemblyNumber);
 		Assembly assembly = this.searchUnique(search);
 		return assembly;
 	}
+	
+	
 }

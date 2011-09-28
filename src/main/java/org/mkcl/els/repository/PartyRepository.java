@@ -21,6 +21,8 @@ POSSIBILITY OF SUCH DAMAGE.
  */
 package org.mkcl.els.repository;
 
+import java.util.List;
+
 import org.mkcl.els.domain.Party;
 import org.springframework.stereotype.Repository;
 import com.trg.search.Search;
@@ -46,5 +48,11 @@ public class PartyRepository
 		search.addFilterEqual("name", name);
 		Party party = this.searchUnique(search);
 		return party;
+	}
+
+	public List<Party> findAllSorted() {
+		Search search=new Search();
+		search.addSort("name",false);
+		return this.search(search);		
 	}
 }

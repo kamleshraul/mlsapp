@@ -21,6 +21,8 @@ POSSIBILITY OF SUCH DAMAGE.
  */
 package org.mkcl.els.service;
 
+import java.util.List;
+
 import org.mkcl.els.domain.AssemblyStructure;
 
 /**
@@ -39,4 +41,6 @@ public interface IAssemblyStructureService
 	 * @return the assembly structure
 	 */
 	public AssemblyStructure findByName(String name);
+	
+	public List<AssemblyStructure> findAllSortedByName();
 }

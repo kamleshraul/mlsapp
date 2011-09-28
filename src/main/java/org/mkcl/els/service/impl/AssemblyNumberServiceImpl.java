@@ -21,6 +21,8 @@ POSSIBILITY OF SUCH DAMAGE.
  */
 package org.mkcl.els.service.impl;
 
+import java.util.List;
+
 import org.mkcl.els.domain.AssemblyNumber;
 import org.mkcl.els.repository.AssemblyNumberRepository;
 import org.mkcl.els.service.IAssemblyNumberService;
@@ -62,6 +64,11 @@ public class AssemblyNumberServiceImpl
 	@Override
 	public AssemblyNumber findByAssemblyNo(String assemblyNo) {
 		return this.assemblyNumberRepository.findByAssemblyNo(assemblyNo);
+	}
+
+	@Override
+	public List<AssemblyNumber> findAllSortedByNumber() {
+		return assemblyNumberRepository.findAllSortedByNumber();
 	}
 
 }

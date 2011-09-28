@@ -21,6 +21,8 @@ POSSIBILITY OF SUCH DAMAGE.
  */
 package org.mkcl.els.service;
 
+import java.util.List;
+
 import org.mkcl.els.domain.Party;
 
 /**
@@ -39,4 +41,6 @@ public interface IPartyService
 	 * @return the party
 	 */
 	public Party findByName(String name);
+	
+	public List<Party> findAllSorted();
 }

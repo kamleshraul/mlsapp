@@ -21,7 +21,10 @@ POSSIBILITY OF SUCH DAMAGE.
  */
 package org.mkcl.els.repository;
 
+import java.util.List;
+
 import org.mkcl.els.domain.Tehsil;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
 import com.trg.search.Search;
@@ -36,6 +39,8 @@ import com.trg.search.Search;
 public class TehsilRepository 
 	extends BaseRepository<Tehsil, Long>{
 
+	@Autowired
+	DistrictRepository districtRepository;
 	/**
 	 * Find by name.
 	 *
@@ -47,5 +52,21 @@ public class TehsilRepository
 		search.addFilterEqual("name", name);
 		Tehsil tehsil = this.searchUnique(search);
 		return tehsil;
+	}
+
+	public List<Tehsil> findTehsilsByDistrictName(String name) {
+		Search search=new Search();
+		search.addFilterEqual("district",districtRepository.findByName(name));
+		search.addSort("name",false);
+		List<Tehsil> tehsils=this.search(search);
+		return tehsils;
+	}
+
+	public List<Tehsil> findTehsilsByDistrictId(Long districtId) {
+		Search search=new Search();
+		search.addFilterEqual("district",districtRepository.find(districtId));
+		search.addSort("name",false);
+		List<Tehsil> tehsils=this.search(search);
+		return tehsils;
 	}
 }

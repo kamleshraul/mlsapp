@@ -21,6 +21,8 @@ POSSIBILITY OF SUCH DAMAGE.
  */
 package org.mkcl.els.service;
 
+import java.util.Locale;
+
 import org.mkcl.els.domain.MenuItem;
 
 /**
@@ -37,6 +39,8 @@ public interface IMenuItemService extends IGenericService<MenuItem,Long>{
 	 * @return the menu string in flat xml format
 	 */
 	public String getMenuXml();
+	
+	public String getMenuXml(Locale locale);
 	
 	/**
 	 * Search a MenuItem instance based on it's textKey.

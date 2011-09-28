@@ -21,6 +21,8 @@ POSSIBILITY OF SUCH DAMAGE.
  */
 package org.mkcl.els.service;
 
+import java.util.List;
+
 import org.mkcl.els.domain.AssemblyNumber;
 
 /**
@@ -39,4 +41,6 @@ public interface IAssemblyNumberService
 	 * @return the assembly number
 	 */
 	public AssemblyNumber findByAssemblyNo(String assemblyNo);
+	
+	public List<AssemblyNumber> findAllSortedByNumber();
 }

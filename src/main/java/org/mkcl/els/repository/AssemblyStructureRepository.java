@@ -21,6 +21,8 @@ POSSIBILITY OF SUCH DAMAGE.
  */
 package org.mkcl.els.repository;
 
+import java.util.List;
+
 import org.mkcl.els.domain.AssemblyStructure;
 import org.springframework.stereotype.Repository;
 
@@ -47,5 +49,11 @@ public class AssemblyStructureRepository
 		search.addFilterEqual("name", name);
 		AssemblyStructure structure = this.searchUnique(search);
 		return structure;
+	}
+	
+	public List<AssemblyStructure> findAllSortedByName(){
+		Search search=new Search();
+		search.addSort("name",false);
+		return this.search(search);
 	}
 }

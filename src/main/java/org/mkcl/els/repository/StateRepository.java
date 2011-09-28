@@ -21,6 +21,8 @@ POSSIBILITY OF SUCH DAMAGE.
  */
 package org.mkcl.els.repository;
 
+import java.util.List;
+
 import org.mkcl.els.domain.State;
 import org.springframework.stereotype.Repository;
 
@@ -47,5 +49,17 @@ public class StateRepository
 		search.addFilterEqual("name", name);
 		State state = this.searchUnique(search);
 		return state;
+	}
+	
+	public List<State> findAllSorted(){
+		Search search=new Search();
+		search.addSort("name",false);
+		return this.search(search);
+	}
+	
+	public List<State> findAllSorted(String property,boolean descOrder){
+		Search search=new Search();
+		search.addSort(property,descOrder);
+		return this.search(search);
 	}
 }

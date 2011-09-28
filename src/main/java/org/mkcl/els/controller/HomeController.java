@@ -25,6 +25,7 @@ import java.util.Locale;
 
 import javax.servlet.http.HttpServletRequest;
 
+import org.mkcl.els.service.ICustomParameterService;
 import org.mkcl.els.service.IMenuItemService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -50,6 +51,9 @@ public class HomeController extends BaseController{
 	/** The menu service. */
 	@Autowired
 	private IMenuItemService menuService;
+	
+	@Autowired
+	private ICustomParameterService customParameterService;
 	/**
 	 * Gets the Login page.
 	 *
@@ -70,8 +74,11 @@ public class HomeController extends BaseController{
 	 */
 	@RequestMapping(value="/home", method=RequestMethod.GET)
 	public String home(ModelMap model, HttpServletRequest request, Locale locale) {
-		String menuXml = menuService.getMenuXml();
+		String menuXml = menuService.getMenuXml(locale);
 		model.addAttribute("menu_xml", menuXml);
+		//used by datepicker to read the date,time format
+		model.addAttribute("dateFormat",customParameterService.findByName("SERVER_DATEFORMAT").getValue());
+		model.addAttribute("timeFormat",customParameterService.findByName("SERVER_TIMEFORMAT").getValue());			
 		return "home2";
 	}
 	

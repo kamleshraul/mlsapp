@@ -68,7 +68,7 @@ public class ErrorNotificationServiceImpl implements IErrorNotificationService {
 		msg.setText("Application Message - " + message + " : " + exception);
 
 		try{
-			this.mailSender.send(msg);
+			//this.mailSender.send(msg);
 		} catch(MailException ex) {
 			log.error("Email Notification message could not sent", ex);
 		}
@@ -91,7 +91,7 @@ public class ErrorNotificationServiceImpl implements IErrorNotificationService {
 		String text = VelocityEngineUtils.mergeTemplateIntoString(
 				velocityEngine, "exception_mail.vm", model);
 		msg.setText(text);
-		this.mailSender.send(msg);
+		//this.mailSender.send(msg);
 	}
 
 	/**

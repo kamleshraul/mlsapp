@@ -24,6 +24,7 @@ package org.mkcl.els.service.impl;
 import java.io.IOException;
 import java.io.StringWriter;
 import java.util.List;
+import java.util.Locale;
 
 import org.jdom.Attribute;
 import org.jdom.Element;
@@ -92,6 +93,30 @@ public class MenuItemServiceImpl extends GenericServiceImpl<MenuItem,Long> imple
 	public MenuItem findByTextKey(String textKey) 
 	{
 		return menuItemRepository.findMenuItemByTextKey(textKey);
+	}
+
+	@Override
+	public String getMenuXml(Locale locale) {
+		List<MenuItem> items = menuItemRepository.findAllByLocale(locale);
+		Element root = new Element("root");
+		for(MenuItem item:items){
+			Element row = new Element("menu");
+			row.setAttribute(new Attribute("id", item.getId()+""));
+			row.setAttribute(new Attribute("text", item.getText()));
+			row.setAttribute(new Attribute("url", item.getUrl()));
+			if(item.getParent()!=null){
+				row.setAttribute(new Attribute("parent", item.getParent().getId()+""));
+			}
+			root.addContent(row);
+		}
+		StringWriter writer = new StringWriter();
+		XMLOutputter serializer = new XMLOutputter();
+	    try {
+			serializer.output(root, writer);
+		} catch (IOException e) {
+			logger.error(e.toString());
+		}
+		return writer.toString();
 	}
 	
 	/**
