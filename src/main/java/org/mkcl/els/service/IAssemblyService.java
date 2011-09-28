@@ -5,5 +5,5 @@ import org.mkcl.els.domain.AssemblyNumber;
 
 public interface IAssemblyService extends IGenericService<Assembly ,Long>{
 
-public Assembly findByAssemblyNumber(AssemblyNumber assemblyNumber);
+public Assembly findByAssembly(String assembly);
 }
