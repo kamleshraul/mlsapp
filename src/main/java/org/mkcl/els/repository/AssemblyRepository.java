@@ -46,11 +46,11 @@ public class AssemblyRepository extends BaseRepository<Assembly, Long>{
 	 * @return the assembly
 	 */
 	
-	public Assembly findByAssemblyNumber(AssemblyNumber assemblyNumber){
+	public Assembly findByAssembly(String assembly) {
 		Search search = new Search();
-		search.addFilterEqual("assemblyNumber", assemblyNumber);
-		Assembly assembly = this.searchUnique(search);
-		return assembly;
+		search.addFilterEqual("assembly", assembly);
+		return 	this.searchUnique(search);
+
 	}
 	
 	
