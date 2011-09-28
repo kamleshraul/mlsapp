@@ -21,22 +21,22 @@ POSSIBILITY OF SUCH DAMAGE.
  */
 package org.mkcl.els.controller;
 
+import java.text.SimpleDateFormat;
 import java.util.Locale;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 
-import org.mkcl.els.common.editors.AssemblyNumberEditor;
 import org.mkcl.els.common.editors.AssemblyStructureEditor;
 import org.mkcl.els.domain.Assembly;
-import org.mkcl.els.domain.AssemblyNumber;
 import org.mkcl.els.domain.AssemblyStructure;
 import org.mkcl.els.domain.Grid;
-import org.mkcl.els.service.IAssemblyNumberService;
 import org.mkcl.els.service.IAssemblyService;
 import org.mkcl.els.service.IAssemblyStructureService;
+import org.mkcl.els.service.ICustomParameterService;
 import org.mkcl.els.service.IGridService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.propertyeditors.CustomDateEditor;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
 import org.springframework.validation.BindingResult;
@@ -47,7 +47,6 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
 
 // TODO: Auto-generated Javadoc
 /**
@@ -68,13 +67,12 @@ public class AssemblyController extends BaseController{
 	@Autowired
 	IAssemblyStructureService assemblyStructureService;
 	
-	/** The assembly number service. */
-	@Autowired
-	IAssemblyNumberService assemblyNumberService;
-	
 	/** The assembly service. */
 	@Autowired
 	IAssemblyService assemblyService;
+	
+	@Autowired
+	ICustomParameterService customParameterService;
 	
 	/**
 	 * Index.
@@ -183,24 +181,18 @@ public class AssemblyController extends BaseController{
 	 * @param errors the errors
 	 */
 	private void validate(Assembly assembly, Errors errors) {
-		if(assembly.getTerm()!=null){
-			if(assembly.getLocale().equals("en")){
-				String term=assembly.getTerm();
-				if(term.length()>20 || term.length()<1){
-					errors.rejectValue("term","Size");
-
-				}
-			}		
+		if(assembly.getAssemblyStructure()==null){
+			errors.rejectValue("assemblyStructure","NotEmpty");
 		}
-		Assembly duplicateParameter = assemblyService.findByAssemblyNumber(assembly.getAssemblyNumber());
+		Assembly duplicateParameter = assemblyService.findByAssembly(assembly.getAssembly());
 		if(duplicateParameter!=null){
 			if(!duplicateParameter.getId().equals(assembly.getId())){
-				errors.rejectValue("assemblyNumber","NonUnique");
+				errors.rejectValue("assembly","NonUnique");
 			}	
 		}
 		if(assembly.getId()!=null){
 			if(!assembly.getVersion().equals(assemblyService.findById(assembly.getId()).getVersion())){
-				errors.reject("assemblyNumber","Version_Mismatch");
+				errors.reject("assembly","Version_Mismatch");
 			}
 		}
 	}
@@ -212,8 +204,11 @@ public class AssemblyController extends BaseController{
 	 */
 	@InitBinder 
 	public void initBinder(WebDataBinder binder) { 
-		binder.registerCustomEditor(AssemblyStructure.class, new AssemblyStructureEditor(assemblyStructureService)); 
-		binder.registerCustomEditor(AssemblyNumber.class, new AssemblyNumberEditor(assemblyNumberService)); 
+		SimpleDateFormat dateFormat = new SimpleDateFormat(customParameterService.findByName("SERVER_DATEFORMAT").getValue()); 
+		dateFormat.setLenient(true); 
+		binder.registerCustomEditor(AssemblyStructure.class, new AssemblyStructureEditor(assemblyStructureService));
+		binder.registerCustomEditor(java.util.Date.class, new CustomDateEditor(dateFormat, true));
+
 	}
 
 	/**
@@ -223,8 +218,7 @@ public class AssemblyController extends BaseController{
 	 * @param assembly the assembly
 	 */
 	private void populateModel(ModelMap model,Assembly assembly){
-		model.addAttribute("assemblyStructures",assemblyStructureService.findAllSortedByName());		
-		model.addAttribute("assemblyNumbers",assemblyNumberService.findAllSortedByNumber());
+		model.addAttribute("assemblyStructures",assemblyStructureService.findAllSortedByName(assembly.getLocale()));		
 		model.addAttribute("assembly",assembly);
 	}
 }
