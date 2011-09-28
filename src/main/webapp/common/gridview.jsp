@@ -5,7 +5,9 @@
 		$(document).ready(function(){
 			var gridId = $('#grid_id').val();
 		    loadGrid(gridId);
+		    resize_grid();
 		});
+		$(window).resize(resize_grid);
 	</script>
 </head>
 <body>
