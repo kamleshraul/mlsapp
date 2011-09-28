@@ -21,6 +21,8 @@ POSSIBILITY OF SUCH DAMAGE.
  */
 package org.mkcl.els.controller;
 
+import java.util.Locale;
+
 import javax.validation.Valid;
 
 import org.mkcl.els.domain.Grid;
@@ -75,8 +77,9 @@ public class MessageResourceController extends BaseController{
 	 * @return the string
 	 */
 	@RequestMapping(value="new",method = RequestMethod.GET)
-	public String _new(ModelMap model){
+	public String _new(ModelMap model,Locale locale){
 		MessageResource resource = new MessageResource();
+		resource.setLocale(locale.toString());
 		model.addAttribute(resource);
 		return "masters/messages/new";
 	}

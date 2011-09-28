@@ -23,6 +23,7 @@ package org.mkcl.els.controller;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -93,8 +94,9 @@ public class DistrictController extends BaseController{
 	 * @return the string
 	 */
 	@RequestMapping(value="new",method=RequestMethod.GET)
-	public String _new(ModelMap model){	
+	public String _new(ModelMap model,Locale locale){	
 		District district=new District();
+		district.setLocale(locale.toString());
 		populateModel(model, district, customParameterService.findByName("DEFAULT_STATE").getValue());		
 		return "masters/districts/new";
 	}

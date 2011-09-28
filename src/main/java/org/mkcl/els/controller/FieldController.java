@@ -1,5 +1,7 @@
 package org.mkcl.els.controller;
 
+import java.util.Locale;
+
 import javax.validation.Valid;
 
 import org.mkcl.els.domain.Field;
@@ -35,7 +37,7 @@ public class FieldController {
 	}
 	
 	@RequestMapping(value="new",method=RequestMethod.GET)
-	public String _new(ModelMap model,Error errors){
+	public String _new(ModelMap model){
 		Field field=new Field();
 		model.addAttribute("field",field);
 		return "masters/fields/new";

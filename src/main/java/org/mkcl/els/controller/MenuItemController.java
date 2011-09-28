@@ -87,8 +87,9 @@ public class MenuItemController extends BaseController
 	 * @return the string
 	 */
 	@RequestMapping(value = "new", method = RequestMethod.GET)
-	public String _new(ModelMap model,HttpServletRequest request){
+	public String _new(ModelMap model,HttpServletRequest request,Locale locale){
 		MenuItem menuItem = new MenuItem();
+		menuItem.setLocale(locale.toString());
 		String parentId = request.getParameter("parentId");
 		if(parentId!=null){
 			MenuItem parent = menuItemService.findById(Long.parseLong(parentId));

@@ -3,6 +3,7 @@ package org.mkcl.els.controller;
 import java.text.SimpleDateFormat;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 
@@ -89,8 +90,9 @@ public class MemberPersonalDetailsController {
 	}
 	
 	@RequestMapping(value="new",method=RequestMethod.GET)
-	public String _new(ModelMap model,Error errors,HttpServletRequest request){
+	public String _new(ModelMap model,Error errors,Locale locale){
 		MemberDetails memberPersonalDetails=new MemberDetails();
+		memberPersonalDetails.setLocale(locale.toString());
 		populateModel(model,memberPersonalDetails);	
 		model.addAttribute("photoExt", customParameterService.findByName("PHOTO_EXTENSION").getValue());
 		model.addAttribute("photoSize", Long.parseLong(customParameterService.findByName("PHOTO_SIZE").getValue())*1024*1024);

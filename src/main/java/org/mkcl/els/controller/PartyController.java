@@ -21,6 +21,7 @@ POSSIBILITY OF SUCH DAMAGE.
  */
 package org.mkcl.els.controller;
 
+import java.util.Locale;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -79,8 +80,9 @@ public class PartyController extends BaseController{
 	 * @return the string
 	 */
 	@RequestMapping(value = "new", method = RequestMethod.GET)
-	public String _new(ModelMap model){
+	public String _new(ModelMap model,Locale locale){
 		Party party = new Party();
+		party.setLocale(locale.toString());
 		model.addAttribute(party);
 		return "masters/parties/new";
 	}

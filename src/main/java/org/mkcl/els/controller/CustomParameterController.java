@@ -21,6 +21,8 @@ POSSIBILITY OF SUCH DAMAGE.
  */
 package org.mkcl.els.controller;
 
+import java.util.Locale;
+
 import javax.validation.Valid;
 
 import org.mkcl.els.domain.CustomParameter;
@@ -76,7 +78,7 @@ public class CustomParameterController extends BaseController
 	 * @return the string
 	 */
 	@RequestMapping(value = "new", method = RequestMethod.GET)
-	public String _new(ModelMap model){
+	public String _new(ModelMap model,Locale locale){
 		CustomParameter customParameter = new CustomParameter();
 		model.addAttribute(customParameter);
 		return "masters/custom_params/new";

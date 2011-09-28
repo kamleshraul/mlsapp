@@ -21,6 +21,8 @@ POSSIBILITY OF SUCH DAMAGE.
  */
 package org.mkcl.els.controller;
 
+import java.util.Locale;
+
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 
@@ -95,8 +97,9 @@ public class AssemblyController extends BaseController{
 	 * @return the string
 	 */
 	@RequestMapping(value="new",method=RequestMethod.GET)
-	public String _new(ModelMap model,Error errors,HttpServletRequest request){
+	public String _new(ModelMap model,Locale locale){
 		Assembly assembly=new Assembly();
+		assembly.setLocale(locale.toString());
 		populateModel(model,assembly);			
 		return "masters/assemblies/new";
 	}
@@ -111,7 +114,7 @@ public class AssemblyController extends BaseController{
 	 * @return the string
 	 */
 	@RequestMapping(value = "{id}/edit", method = RequestMethod.GET)
-	public String edit(HttpServletRequest request,@PathVariable Long id, ModelMap model){
+	public String edit(@PathVariable Long id, ModelMap model){
 		Assembly assembly=assemblyService.findById(id);
 		populateModel(model, assembly);			
 		return "masters/assemblies/edit";		

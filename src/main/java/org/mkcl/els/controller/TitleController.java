@@ -1,5 +1,7 @@
 package org.mkcl.els.controller;
 
+import java.util.Locale;
+
 import javax.validation.Valid;
 
 import org.mkcl.els.domain.Grid;
@@ -35,8 +37,9 @@ public class TitleController {
 	}
 	
 	@RequestMapping(value = "new", method = RequestMethod.GET)
-	public String _new(ModelMap model){
+	public String _new(ModelMap model,Locale locale){
 		Title title = new Title();
+		title.setLocale(locale.toString());
 		model.addAttribute("title",title);
 		return "masters/titles/new";
 	}

@@ -23,6 +23,7 @@ package org.mkcl.els.controller;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -91,8 +92,9 @@ public class TehsilController extends BaseController{
 	}
 	
 	@RequestMapping(value="new",method=RequestMethod.GET)
-	public String _new(ModelMap model){	
+	public String _new(ModelMap model,Locale locale){	
 		Tehsil tehsil=new Tehsil();
+		tehsil.setLocale(locale.toString());
 		populateModel(model, tehsil, customParameterService.findByName("DEFAULT_STATE").getValue());		
 		return "masters/tehsils/new";
 	}

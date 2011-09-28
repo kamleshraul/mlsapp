@@ -1,5 +1,7 @@
 package org.mkcl.els.controller;
 
+import java.util.Locale;
+
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 
@@ -49,8 +51,9 @@ public class AssemblyTermController {
 	 * @return the string
 	 */
 	@RequestMapping(value = "new", method = RequestMethod.GET)
-	public String _new(ModelMap model,HttpServletRequest request){
+	public String _new(ModelMap model,Locale locale){
 		AssemblyTerm assemblyTerm = new AssemblyTerm();
+		assemblyTerm.setLocale(locale.toString());
 		model.addAttribute("assemblyTerm",assemblyTerm);		
 		return "masters/assembly_terms/new";
 	}
@@ -63,7 +66,7 @@ public class AssemblyTermController {
 	 * @return the string
 	 */
 	@RequestMapping(value = "{id}/edit", method = RequestMethod.GET)
-	public String edit(HttpServletRequest request,@PathVariable Long id, ModelMap model){
+	public String edit(@PathVariable Long id, ModelMap model){
 		AssemblyTerm assemblyTerm = assemblyTermService.findById(id);
 		model.addAttribute(assemblyTerm);
 		return "masters/assembly_terms/edit";

@@ -21,6 +21,7 @@ POSSIBILITY OF SUCH DAMAGE.
  */
 package org.mkcl.els.controller;
 
+import java.util.Locale;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -80,8 +81,9 @@ public class AssemblyRoleController extends BaseController{
 	 * @return the string
 	 */
 	@RequestMapping(value = "new", method = RequestMethod.GET)
-	public String _new(ModelMap model,HttpServletRequest request){
+	public String _new(ModelMap model,Locale locale){
 		AssemblyRole assemblyRole = new AssemblyRole();
+		assemblyRole.setLocale(locale.toString());
 		model.addAttribute(assemblyRole);		
 		return "masters/assembly_roles/new";
 	}
@@ -94,7 +96,7 @@ public class AssemblyRoleController extends BaseController{
 	 * @return the string
 	 */
 	@RequestMapping(value = "{id}/edit", method = RequestMethod.GET)
-	public String edit(HttpServletRequest request,@PathVariable Long id, ModelMap model){
+	public String edit(@PathVariable Long id, ModelMap model){
 		AssemblyRole assemblyRole = assemblyRoleService.findById(id);
 		model.addAttribute("assemblyRole",assemblyRole);		
 		return "masters/assembly_roles/edit";

@@ -21,6 +21,8 @@ POSSIBILITY OF SUCH DAMAGE.
  */
 package org.mkcl.els.controller;
 
+import java.util.Locale;
+
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 
@@ -65,7 +67,7 @@ public class AssemblyNumberController extends BaseController {
 	 * @return the string
 	 */
 	@RequestMapping(value="list",method = RequestMethod.GET)
-	public String list(HttpServletRequest request,ModelMap model) {
+	public String list(ModelMap model) {
 		Grid grid = gridService.findByName("ASSEMBLY_NUMBER_GRID");
 		model.addAttribute("gridId", grid.getId());
 		return "masters/assembly_number/list";
@@ -78,8 +80,9 @@ public class AssemblyNumberController extends BaseController {
 	 * @return the string
 	 */
 	@RequestMapping(value = "new", method = RequestMethod.GET)
-	public String _new(HttpServletRequest request,ModelMap model){
+	public String _new(ModelMap model,Locale locale){
 		AssemblyNumber assemblyNumber = new AssemblyNumber();
+		assemblyNumber.setLocale(locale.toString());
 		model.addAttribute(assemblyNumber);		
 		return "masters/assembly_number/new";
 	}
@@ -94,7 +97,7 @@ public class AssemblyNumberController extends BaseController {
 	 * @return the string
 	 */
 	@RequestMapping(value = "{id}/edit", method = RequestMethod.GET)
-	public String edit(HttpServletRequest request,@PathVariable Long id, ModelMap model){
+	public String edit(@PathVariable Long id, ModelMap model){
 		AssemblyNumber assemblyNumber = assemblyNumberService.findById(id);
 		model.addAttribute(assemblyNumber);		
 		return "masters/assembly_number/edit";
