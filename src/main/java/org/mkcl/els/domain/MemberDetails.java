@@ -176,6 +176,8 @@ public class MemberDetails {
 	@Column(length=500)
 	private String presentMobile;
 	
+	/** The address same as above. */
+	private boolean addressSameAsAbove;
 	/** The permanent address. */
 	@Column(length=1000)
 	private String permanentAddress;
@@ -216,16 +218,27 @@ public class MemberDetails {
 	private Integer noOfTerms;
 	
 	
+	/** The member positions. */
 	@OneToMany(mappedBy="member",cascade=CascadeType.REMOVE,fetch=FetchType.LAZY)
 	private List<MemberPositionsDetails> memberPositions;
 	
 
 
 
+	/**
+	 * Gets the member positions.
+	 *
+	 * @return the member positions
+	 */
 	public List<MemberPositionsDetails> getMemberPositions() {
 		return memberPositions;
 	}
 
+	/**
+	 * Sets the member positions.
+	 *
+	 * @param memberPositions the new member positions
+	 */
 	public void setMemberPositions(List<MemberPositionsDetails> memberPositions) {
 		this.memberPositions = memberPositions;
 	}
@@ -312,6 +325,7 @@ public class MemberDetails {
 	 * @param presentTelephone the present telephone
 	 * @param presentFax the present fax
 	 * @param presentMobile the present mobile
+	 * @param addressSameAsAbove the address same as above
 	 * @param permanentAddress the permanent address
 	 * @param permanentState the permanent state
 	 * @param permanentDistrict the permanent district
@@ -322,8 +336,7 @@ public class MemberDetails {
 	 * @param permanentFax the permanent fax
 	 * @param permanentMobile the permanent mobile
 	 * @param noOfTerms the no of terms
-	 * @param poistionHeldPeriod the poistion held period
-	 * @param positionHeldDetails the position held details
+	 * @param memberPositions the member positions
 	 * @param socioCulturalActivities the socio cultural activities
 	 * @param literaryArtisticScAccomplishment the literary artistic sc accomplishment
 	 * @param specialInterests the special interests
@@ -345,11 +358,13 @@ public class MemberDetails {
 			String presentAddress, State presentState,
 			District presentDistrict, Tehsil presentTehsil, String presentCity,
 			String presentPinCode, String presentTelephone, String presentFax,
-			String presentMobile, String permanentAddress,
-			State permanentState, District permanentDistrict,
-			Tehsil permanentTehsil, String permanentCity,
-			String permanentPinCode, String permanentTelephone,
-			String permanentFax, String permanentMobile, Integer noOfTerms,
+			String presentMobile, boolean addressSameAsAbove,
+			String permanentAddress, State permanentState,
+			District permanentDistrict, Tehsil permanentTehsil,
+			String permanentCity, String permanentPinCode,
+			String permanentTelephone, String permanentFax,
+			String permanentMobile, Integer noOfTerms,
+			List<MemberPositionsDetails> memberPositions,
 			String socioCulturalActivities,
 			String literaryArtisticScAccomplishment, String specialInterests,
 			String pastimeRecreation, String sportsClubs,
@@ -385,6 +400,7 @@ public class MemberDetails {
 		this.presentTelephone = presentTelephone;
 		this.presentFax = presentFax;
 		this.presentMobile = presentMobile;
+		this.addressSameAsAbove = addressSameAsAbove;
 		this.permanentAddress = permanentAddress;
 		this.permanentState = permanentState;
 		this.permanentDistrict = permanentDistrict;
@@ -395,6 +411,7 @@ public class MemberDetails {
 		this.permanentFax = permanentFax;
 		this.permanentMobile = permanentMobile;
 		this.noOfTerms = noOfTerms;
+		this.memberPositions = memberPositions;
 		this.socioCulturalActivities = socioCulturalActivities;
 		this.literaryArtisticScAccomplishment = literaryArtisticScAccomplishment;
 		this.specialInterests = specialInterests;
@@ -406,27 +423,6 @@ public class MemberDetails {
 		this.version = version;
 		this.locale = locale;
 	}
-
-
-
-
-
-
-
-
-	/**
-	 * Instantiates a new member personal details.
-	 *
-	 * @param firstName the first name
-	 * @param lastName the last name
-	 */
-	public MemberDetails(String firstName, String lastName) {
-		super();
-		this.firstName = firstName;
-		this.lastName = lastName;
-	}
-
-
 
 	/**
 	 * Gets the id.
@@ -572,7 +568,6 @@ public class MemberDetails {
 		this.partyName = partyName;
 	}
 
-	
 	/**
 	 * Gets the father title.
 	 *
@@ -788,17 +783,6 @@ public class MemberDetails {
 	public void setProfession(String profession) {
 		this.profession = profession;
 	}
-	
-	/**
-	 * Gets the full name.
-	 *
-	 * @return the full name
-	 */
-	public String getFullName(){
-    	return this.getFirstName() + " " + this.getMiddleName()+" "+this.getLastName();
-    }
-
-
 
 	/**
 	 * Gets the email.
@@ -981,6 +965,24 @@ public class MemberDetails {
 	}
 
 	/**
+	 * Checks if is address same as above.
+	 *
+	 * @return true, if is address same as above
+	 */
+	public boolean isAddressSameAsAbove() {
+		return addressSameAsAbove;
+	}
+
+	/**
+	 * Sets the address same as above.
+	 *
+	 * @param addressSameAsAbove the new address same as above
+	 */
+	public void setAddressSameAsAbove(boolean addressSameAsAbove) {
+		this.addressSameAsAbove = addressSameAsAbove;
+	}
+
+	/**
 	 * Gets the permanent address.
 	 *
 	 * @return the permanent address
@@ -1160,8 +1162,6 @@ public class MemberDetails {
 		this.noOfTerms = noOfTerms;
 	}
 
-
-
 	/**
 	 * Gets the socio cultural activities.
 	 *
@@ -1316,8 +1316,6 @@ public class MemberDetails {
 		return version;
 	}
 
-
-
 	/**
 	 * Sets the version.
 	 *
@@ -1326,8 +1324,6 @@ public class MemberDetails {
 	public void setVersion(Long version) {
 		this.version = version;
 	}
-
-
 
 	/**
 	 * Gets the locale.
@@ -1338,8 +1334,6 @@ public class MemberDetails {
 		return locale;
 	}
 
-
-
 	/**
 	 * Sets the locale.
 	 *
@@ -1348,5 +1342,6 @@ public class MemberDetails {
 	public void setLocale(String locale) {
 		this.locale = locale;
 	}
+
 	
 }

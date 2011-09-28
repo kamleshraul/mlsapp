@@ -33,6 +33,7 @@ import javax.persistence.Version;
 
 import org.hibernate.validator.constraints.NotEmpty;
 
+// TODO: Auto-generated Javadoc
 /**
  * The Class Party.
  *
@@ -79,6 +80,7 @@ public class Party implements Serializable{
 	 * Instantiates a new party.
 	 *
 	 * @param name the name
+	 * @param locale the locale
 	 */
 	public Party(String name, String locale) {
 		super();
