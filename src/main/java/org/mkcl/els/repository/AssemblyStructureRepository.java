@@ -51,8 +51,9 @@ public class AssemblyStructureRepository
 		return structure;
 	}
 	
-	public List<AssemblyStructure> findAllSortedByName(){
+	public List<AssemblyStructure> findAllSortedByName(String locale){
 		Search search=new Search();
+		search.addFilterLike("locale",locale);
 		search.addSort("name",false);
 		return this.search(search);
 	}

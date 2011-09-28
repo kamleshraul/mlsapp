@@ -42,5 +42,5 @@ public interface IAssemblyStructureService
 	 */
 	public AssemblyStructure findByName(String name);
 	
-	public List<AssemblyStructure> findAllSortedByName();
+	public List<AssemblyStructure> findAllSortedByName(String locale);
 }

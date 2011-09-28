@@ -70,8 +70,8 @@ public class AssemblyStructureServiceImpl
 
 
 	@Override
-	public List<AssemblyStructure> findAllSortedByName() {
-		return assemblyStructureRepository.findAllSortedByName();
+	public List<AssemblyStructure> findAllSortedByName(String locale) {
+		return assemblyStructureRepository.findAllSortedByName(locale);
 	}
 
 }
