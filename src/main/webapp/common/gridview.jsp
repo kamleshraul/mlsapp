@@ -1,11 +1,6 @@
 <%@ include file="/common/taglibs.jsp"%>
 <html>
 <head>
-	<link rel="stylesheet" media="screen" href="./resources/css/ui.jqgrid.css" type="text/css" />
-	<link rel="stylesheet" media="screen" href="./resources/css/cupertino/jquery-ui-1.8.16.custom.css" type="text/css" />
-	<script type="text/javascript" src="./resources/js/i18n/grid.locale-en.js"></script>
-	<script type="text/javascript" src="./resources/js/jquery.jqGrid.min.js"></script>
-	<script type="text/javascript" src="./resources/js/common.js"></script>
 	<script type="text/javascript">
 		$(document).ready(function(){
 			var gridId = $('#grid_id').val();
@@ -14,6 +9,7 @@
 	</script>
 </head>
 <body>
+<input type="hidden" id="refresh" value="<%=session.getAttribute("refresh") %>">
 <div id="grid_container">
 	<table id="grid"></table> 
 	<div id="grid_pager"></div>
