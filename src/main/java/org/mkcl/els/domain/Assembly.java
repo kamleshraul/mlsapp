@@ -22,15 +22,17 @@ POSSIBILITY OF SUCH DAMAGE.
 package org.mkcl.els.domain;
 
 
-import javax.persistence.CascadeType;
+import java.util.Date;
+
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.ManyToOne;
-import javax.persistence.OneToOne;
 import javax.persistence.Table;
+import javax.persistence.Temporal;
+import javax.persistence.TemporalType;
 import javax.persistence.Version;
 import javax.validation.constraints.NotNull;
 
@@ -57,17 +59,17 @@ public class Assembly {
 	@ManyToOne
 	private AssemblyStructure assemblyStructure;
 	
-	/** The assembly number. */
-    @OneToOne()
-	private AssemblyNumber assemblyNumber;
-	
+	/** The assembly. */
+	@NotEmpty
+	private String assembly;
+		
 	/** The strength. */
     @NotNull
 	private Integer strength;
-	
+
 	/** The term. */
-	@NotEmpty
 	@Column(length=20)
+	@NotEmpty
 	private String term;
 	
 	/** The budget session. */
@@ -79,14 +81,26 @@ public class Assembly {
 	/** The winter session. */
 	private boolean winterSession=false;
 	
-	/** The special session. */
-	private boolean specialSession=false;
+	/** The assembly start date. */
+	@Temporal(TemporalType.DATE)
+	@NotNull
+	private Date assemblyStartDate;
 	
+	/** The assembly end date. */
+	@Temporal(TemporalType.DATE)
+	private Date assemblyEndDate;
+	
+	/** The assembly dissolved on. */
+	@Temporal(TemporalType.DATE)
+	private Date assemblyDissolvedOn;
+	
+	/** The version. */
 	@Version
 	private Long version;
 
 	/** The locale. */
 	@Column(length=50)
+	@NotEmpty
 	private String locale;
 
 	/**
@@ -95,20 +109,39 @@ public class Assembly {
 	public Assembly() {
 		super();
 	}
-	public Assembly(AssemblyStructure assemblyStructure,
-			AssemblyNumber assemblyNumber, Integer strength, String term,
-			boolean budgetSession, boolean monsoonSession,
-			boolean winterSession, boolean specialSession, Long version,
-			String locale) {
+
+	/**
+	 * Instantiates a new assembly.
+	 *
+	 * @param assemblyStructure the assembly structure
+	 * @param assembly the assembly
+	 * @param strength the strength
+	 * @param term the term
+	 * @param budgetSession the budget session
+	 * @param monsoonSession the monsoon session
+	 * @param winterSession the winter session
+	 * @param assemblyStartDate the assembly start date
+	 * @param assemblyEndDate the assembly end date
+	 * @param assemblyDissolvedOn the assembly dissolved on
+	 * @param version the version
+	 * @param locale the locale
+	 */
+	public Assembly(AssemblyStructure assemblyStructure, String assembly,
+			Integer strength, String term, boolean budgetSession,
+			boolean monsoonSession, boolean winterSession,
+			Date assemblyStartDate, Date assemblyEndDate,
+			Date assemblyDissolvedOn, Long version, String locale) {
 		super();
 		this.assemblyStructure = assemblyStructure;
-		this.assemblyNumber = assemblyNumber;
+		this.assembly = assembly;
 		this.strength = strength;
 		this.term = term;
 		this.budgetSession = budgetSession;
 		this.monsoonSession = monsoonSession;
 		this.winterSession = winterSession;
-		this.specialSession = specialSession;
+		this.assemblyStartDate = assemblyStartDate;
+		this.assemblyEndDate = assemblyEndDate;
+		this.assemblyDissolvedOn = assemblyDissolvedOn;
 		this.version = version;
 		this.locale = locale;
 	}
@@ -150,21 +183,21 @@ public class Assembly {
 	}
 
 	/**
-	 * Gets the assembly number.
+	 * Gets the assembly.
 	 *
-	 * @return the assembly number
+	 * @return the assembly
 	 */
-	public AssemblyNumber getAssemblyNumber() {
-		return assemblyNumber;
+	public String getAssembly() {
+		return assembly;
 	}
 
 	/**
-	 * Sets the assembly number.
+	 * Sets the assembly.
 	 *
-	 * @param assemblyNumber the new assembly number
+	 * @param assembly the new assembly
 	 */
-	public void setAssemblyNumber(AssemblyNumber assemblyNumber) {
-		this.assemblyNumber = assemblyNumber;
+	public void setAssembly(String assembly) {
+		this.assembly = assembly;
 	}
 
 	/**
@@ -222,20 +255,20 @@ public class Assembly {
 	}
 
 	/**
-	 * Checks if is monsoonsession.
+	 * Checks if is monsoon session.
 	 *
-	 * @return true, if is monsoonsession
+	 * @return true, if is monsoon session
 	 */
 	public boolean isMonsoonSession() {
 		return monsoonSession;
 	}
 
 	/**
-	 * Sets the monsoonsession.
+	 * Sets the monsoon session.
 	 *
-	 * @param monsoonsession the new monsoonsession
+	 * @param monsoonSession the new monsoon session
 	 */
-	public void setMonsoonsession(boolean monsoonSession) {
+	public void setMonsoonSession(boolean monsoonSession) {
 		this.monsoonSession = monsoonSession;
 	}
 
@@ -258,41 +291,94 @@ public class Assembly {
 	}
 
 	/**
-	 * Checks if is special session.
+	 * Gets the assembly start date.
 	 *
-	 * @return true, if is special session
+	 * @return the assembly start date
 	 */
-	public boolean isSpecialSession() {
-		return specialSession;
+	public Date getAssemblyStartDate() {
+		return assemblyStartDate;
 	}
 
 	/**
-	 * Sets the special session.
+	 * Sets the assembly start date.
 	 *
-	 * @param specialSession the new special session
+	 * @param assemblyStartDate the new assembly start date
 	 */
-	public void setSpecialSession(boolean specialSession) {
-		this.specialSession = specialSession;
+	public void setAssemblyStartDate(Date assemblyStartDate) {
+		this.assemblyStartDate = assemblyStartDate;
 	}
 
+	/**
+	 * Gets the assembly end date.
+	 *
+	 * @return the assembly end date
+	 */
+	public Date getAssemblyEndDate() {
+		return assemblyEndDate;
+	}
+
+	/**
+	 * Sets the assembly end date.
+	 *
+	 * @param assemblyEndDate the new assembly end date
+	 */
+	public void setAssemblyEndDate(Date assemblyEndDate) {
+		this.assemblyEndDate = assemblyEndDate;
+	}
+
+	/**
+	 * Gets the assembly dissolved on.
+	 *
+	 * @return the assembly dissolved on
+	 */
+	public Date getAssemblyDissolvedOn() {
+		return assemblyDissolvedOn;
+	}
+
+	/**
+	 * Sets the assembly dissolved on.
+	 *
+	 * @param assemblyDissolvedOn the new assembly dissolved on
+	 */
+	public void setAssemblyDissolvedOn(Date assemblyDissolvedOn) {
+		this.assemblyDissolvedOn = assemblyDissolvedOn;
+	}
+
+	/**
+	 * Gets the version.
+	 *
+	 * @return the version
+	 */
 	public Long getVersion() {
 		return version;
 	}
 
+	/**
+	 * Sets the version.
+	 *
+	 * @param version the new version
+	 */
 	public void setVersion(Long version) {
 		this.version = version;
 	}
 
+	/**
+	 * Gets the locale.
+	 *
+	 * @return the locale
+	 */
 	public String getLocale() {
 		return locale;
 	}
 
+	/**
+	 * Sets the locale.
+	 *
+	 * @param locale the new locale
+	 */
 	public void setLocale(String locale) {
 		this.locale = locale;
 	}
-
-	public void setMonsoonSession(boolean monsoonSession) {
-		this.monsoonSession = monsoonSession;
-	}		
+	
 	
 }
