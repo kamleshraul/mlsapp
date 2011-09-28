@@ -20,8 +20,8 @@ implements IAssemblyService{
 	}
 
 	@Override
-	public Assembly findByAssemblyNumber(AssemblyNumber assemblyNumber) {
-		return assemblyRepository.findByAssemblyNumber(assemblyNumber);
+	public Assembly findByAssembly(String assembly) {
+		return assemblyRepository.findByAssembly(assembly);
 	}
 
 }
