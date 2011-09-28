@@ -1,13 +1,12 @@
 <%@ include file="/common/taglibs.jsp" %>
 <html>
 <body>
-<form:form cssClass="wufoo" action="member_personal_details" method="PUT" modelAttribute="memberPersonalDetails">
+<form:form cssClass="wufoo" action="member_personal_details" method="POST" modelAttribute="memberPersonalDetails">
 	<div class="info">
 		 <h2><spring:message code="member_personal_details.new.heading"/></h2>		
 		<div style="background-color:#C1CDCD; ;padding: 3px"><spring:message code="generic.mandatory.label"/></div>
 	</div>
-	
-	<ul>
+	<ul id="myList">	
 	
 		<li>
 		<label class="desc"><spring:message code="generic.id"/>&nbsp;*</label>
@@ -17,17 +16,17 @@
 		</li>	
 					
 		<li>
-		<label class="desc"><spring:message code="generic.locale"/>&nbsp;*</label>
+		<label class="desc" style="display: "><spring:message code="generic.locale"/>&nbsp;*</label>
 			<div>
 				<form:select cssClass="field select medium" path="locale"> 
-					<form:option value="en">English</form:option>
-					<form:option value="hi_IN">Hindi</form:option>
-					<form:option value="mr_IN">Marathi</form:option>
+					<form:option value="en"><spring:message code="generic.lang.english"/></form:option>
+					<form:option value="hi_IN"><spring:message code="generic.lang.hindi"/></form:option>
+					<form:option value="mr_IN"><spring:message code="generic.lang.marathi"/></form:option>
 				</form:select>
 			</div>
 		</li>
-		
-		  <li id="${fields.photoField.position}" class="${fields.photoField.visible}">	
+			
+		 <li id="${fields.photoField.position}" class="${fields.photoField.visible}">	
 		 	 <label><spring:message code="member_personal_details.photo.label"/>&nbsp;<c:if test="${fields.photoField.mandatory=='MANDATORY'}">*</c:if></label>	
 		 	 <div class="hideDiv" id="photoDiv">
 		     <img width="80" height="90" id="photoDisplay"/>
@@ -39,151 +38,139 @@
 			 <form:hidden path="photo" id="photoField" cssClass="${fields.photoField.mandatory}"></form:hidden>
 			 <form:errors path="photo" cssClass="field_error" />
 		 </li>
-				
-		<li  class="name">
-		<label class="desc"><spring:message code="member_personal_details.name"/>&nbsp;*</label>		
+		 	
+		<li  class="name ${fields.title.visible}" id="${fields.title.position}">
+		<label class="desc"><spring:message code="member_personal_details.name"/>&nbsp;<c:if test="${fields.title.mandatory=='MANDATORY'}">*</c:if></label>		
 		<span>
 		<label><spring:message code="member_personal_details.title"/></label>
-		<form:select cssClass="field select" path="title" items="${titles}" itemValue="id" itemLabel="name"/><form:errors path="title" cssClass="field_error" />	
+		<form:select cssClass="field select ${fields.title.mandatory}" path="title" items="${titles}" itemValue="id" itemLabel="name"/><form:errors path="title" cssClass="field_error" />	
 		</span>
 		<span>
 		<label><spring:message code="member_personal_details.firstName"/></label>
-		<form:input cssClass="field text" path="firstName" size="25"/><form:errors path="firstName" cssClass="field_error" />	
+		<form:input cssClass="field text ${fields.firstName.mandatory}" path="firstName" size="25" /><form:errors path="firstName" cssClass="field_error" id="firstNameError" /><span id="firstNameError"></span>
 		</span>
 		<span>
 		<label><spring:message code="member_personal_details.middleName"/></label>
-		<form:input cssClass="field text" path="middleName" size="25"/><form:errors path="middleName" cssClass="field_error" />	
+		<form:input cssClass="field text ${fields.middleName.mandatory}" path="middleName" size="25" /><form:errors path="middleName" cssClass="field_error" /><span id="middleNameError"></span>	
 		</span>
 		<span>
 		<label><spring:message code="member_personal_details.lastName"/></label>
-		<form:input cssClass="field text" path="lastName" size="25"/><form:errors path="lastName" cssClass="field_error" />	
+		<form:input cssClass="field text ${fields.lastName.mandatory}" path="lastName" size="25"/><form:errors path="lastName" cssClass="field_error" /><span id="lastNameError"></span>	
 		</span>
 		</li>
 		
-		<li>
-		<label class="desc"><spring:message code="member_personal_details.constituency"/>&nbsp;*</label>
+		<li id="${fields.constituencies.position}" class="${fields.constituencies.visible}">
+		<label class="desc"><spring:message code="member_personal_details.constituency"/>&nbsp;<c:if test="${fields.constituencies.mandatory=='MANDATORY'}">*</c:if></label>
 		<div  id="constituencies" url="ref/constituencies" ></div>
 		</li>	
 			
-		<li class="complex">
+		<li id="${fields.district.position}" class="${fields.district.visible}">
 		<div>
 		<span class="left districts">
-		<label class="desc"><spring:message code="member_personal_details.district"/></label>
-		<input name="district" id="district" class="field text medium" type="text" value="${district}">
+		<label class="desc"><spring:message code="member_personal_details.district"/>&nbsp;<c:if test="${fields.district.mandatory=='MANDATORY'}">*</c:if></label>
+		<input name="district" id="district" class="field text medium ${fields.district.mandatory}" type="text" value="${district}">
 		</span>	
 		<span class="right states">
-		<label class="desc"><spring:message code="member_personal_details.state"/></label>
-		<input type="text" name="state" id="state" class="field text medium" value="${state}">
+		<label class="desc"><spring:message code="member_personal_details.state"/>&nbsp;<c:if test="${fields.state.mandatory=='MANDATORY'}">*</c:if></label>
+		<input type="text" name="state" id="state" class="field text medium ${fields.district.mandatory}" value="${state}">
 		</span>						
 		</div>
 		</li>
 		
-		<li>
-		<label class="desc"><spring:message code="member_personal_details.party"/>&nbsp;*</label>
+		<li id="${fields.partyName.position}" class="${fields.partyName.visible}">
+		<label class="desc"><spring:message code="member_personal_details.party"/>&nbsp;<c:if test="${fields.partyName.mandatory=='MANDATORY'}">*</c:if></label>
 			<div>
-				<form:select path="partyName" items="${parties}" itemValue="id" itemLabel="name" cssClass="field select medium">
+				<form:select path="partyName" items="${parties}" itemValue="id" itemLabel="name" cssClass="field select medium ${fields.partyName.mandatory}">
 	            </form:select><form:errors path="partyName" cssClass="field_error" />		
 		   </div>
 		</li>
 		
-		<li class="name">
-		<label class="desc"><spring:message code="member_personal_details.fatherName"/>&nbsp;*</label>
-		<span>
-		<label><spring:message code="member_personal_details.father.title"/></label>		
-		<form:input cssClass="field text" path="fatherTitle" size="5"/><form:errors path="fatherTitle" cssClass="field_error" />	
+		<li class="complex ${fields.fatherName.visible}" id="${fields.fatherName.position}">
+		<div>
+		<span class="left">
+		<label class="desc"><spring:message code="member_personal_details.fatherName"/>&nbsp;<c:if test="${fields.fatherName.mandatory=='MANDATORY'}">*</c:if></label>
+		<form:input cssClass="field text ${fields.fatherName.mandatory}" path="fatherName"/><form:errors path="fatherName" cssClass="field_error" />	
 		</span>
-		<span>
-		<label><spring:message code="member_personal_details.father.name"/></label>		
-		<form:input cssClass="field text" path="fatherName" size="75"/><form:errors path="fatherName" cssClass="field_error" />	
+		<span class="right">
+		<label class="desc"><spring:message code="member_personal_details.motherName"/>&nbsp;<c:if test="${fields.motherName.mandatory=='MANDATORY'}">*</c:if></label>
+		<form:input cssClass="field text ${fields.motherName.mandatory}" path="motherName"/><form:errors path="motherName" cssClass="field_error" />	
 		</span>
+		</div>
 		</li>
 		
-		<li class="name">
-		<label class="desc"><spring:message code="member_personal_details.motherName"/>&nbsp;*</label>
-		<span>
-		<label><spring:message code="member_personal_details.mother.title"/></label>
-		<form:input cssClass="field text" path="motherTitle" size="5"/><form:errors path="motherTitle" cssClass="field_error" />	
-		</span>
-		<span>
-		<label><spring:message code="member_personal_details.mother.name"/></label>
-		<form:input cssClass="field text" path="motherName" size="75"/><form:errors path="motherName" cssClass="field_error" />	
-		</span>
-		</li>
-		
-		<li>	
-		<label class="desc"><spring:message code="member_personal_details.birthDate"/>&nbsp;*</label>
+		<li id="${fields.birthDate.position}" class="${fields.birthDate.visible}">	
+		<label class="desc"><spring:message code="member_personal_details.birthDate"/>&nbsp;<c:if test="${fields.birthDate.mandatory=='MANDATORY'}">*</c:if></label>
 			<div>
-				<form:input cssClass="date field text medium" path="birthDate"/><form:errors path="birthDate" cssClass="field_error" />	
+				<form:input cssClass="date ${fields.birthDate.mandatory}" path="birthDate"/><form:errors path="birthDate" cssClass="field_error" />	
 			</div>
 		</li>
 		
-		<li>
-		<label class="desc"><spring:message code="member_personal_details.maritalStatus"/>&nbsp;*</label>
+		<li id="${fields.maritalStatus.position}" class="${fields.maritalStatus.visible}">
+		<label class="desc"><spring:message code="member_personal_details.maritalStatus"/>&nbsp;<c:if test="${fields.maritalStatus.mandatory=='MANDATORY'}">*</c:if></label>
 			<div>
-				<form:checkbox cssClass="checkbox" path="maritalStatus" value="true" id="maritalStatus"/><form:errors path="maritalStatus" cssClass="field_error" />	
+				<form:checkbox cssClass="checkbox ${fields.maritalStatus.mandatory}" path="maritalStatus" value="true" id="maritalStatus"/><form:errors path="maritalStatus" cssClass="field_error" />	
 			</div>
 		</li>
 		
-		<li class="date">
+		
+		<li class="date ${fields.marriageDate.visible}" id="${fields.marriageDate.position}">
 		<div class="marriage">				
-		<label class="desc"><spring:message code="member_personal_details.marriageDate"/>&nbsp;*</label>
+		<label class="desc"><spring:message code="member_personal_details.marriageDate"/>&nbsp;<c:if test="${fields.marriageDate.mandatory=='MANDATORY'}">*</c:if></label>
 			<div>
-				<form:input cssClass="date" path="marriageDate"/><form:errors path="marriageDate" cssClass="field_error" />	
+				<form:input cssClass="date ${fields.marriageDate.mandatory}" path="marriageDate"/><form:errors path="marriageDate" cssClass="field_error" />	
 			</div>
 		</div>
 		</li>
 		
-		<li>
+		<li id="${fields.spouseName.position}" class="${fields.spouseName.visible}">
 		<div class="marriage">				
-		<label class="desc"><spring:message code="member_personal_details.spouseName"/>&nbsp;*</label>
+		<label class="desc"><spring:message code="member_personal_details.spouseName"/>&nbsp;<c:if test="${fields.spouseName.mandatory=='MANDATORY'}">*</c:if></label>
 			<div>
-				<form:input cssClass="field text medium" path="spouseName" size="200"/><form:errors path="spouseName" cssClass="field_error" />	
+				<form:input cssClass="field text medium ${fields.spouseName.mandatory}" path="spouseName" size="200"/><form:errors path="spouseName" cssClass="field_error" />	
 			</div>
 		</div>
 		</li>
 		
-		<li>
+		<li id="${fields.noOfSons.position}" class="${fields.noOfSons.visible}">
 		<div class="marriage">		
-		<label class="desc"><spring:message code="member_personal_details.noOfSons"/>&nbsp;*</label>
+		<label class="desc"><spring:message code="member_personal_details.noOfSons"/>&nbsp;<c:if test="${fields.noOfSons.mandatory=='MANDATORY'}">*</c:if></label>
 			<div>
-				<form:input cssClass="integer field text medium" path="noOfSons" size="200"/><form:errors path="noOfSons" cssClass="field_error" />	
+				<form:input cssClass="integer field text medium ${fields.noOfSons.mandatory}" path="noOfSons" size="200"/><form:errors path="noOfSons" cssClass="field_error" />	
 			</div>
 		</div>		
 		</li>
 		
-		<li>
+		<li id="${fields.noOfDaughter.position}" class="${fields.noOfDaughter.visible}">
 		<div class="marriage">				
-		<label class="desc"><spring:message code="member_personal_details.noOfDaughter"/>&nbsp;*</label>
+		<label class="desc"><spring:message code="member_personal_details.noOfDaughter"/>&nbsp;<c:if test="${fields.noOfDaughter.mandatory=='MANDATORY'}">*</c:if></label>
 			<div>
-				<form:input cssClass="integer field text medium" path="noOfDaughter" size="200"/><form:errors path="noOfDaughter" cssClass="field_error" />	
+				<form:input cssClass="integer field text medium ${fields.noOfDaughter.mandatory}" path="noOfDaughter" size="200"/><form:errors path="noOfDaughter" cssClass="field_error" />	
 			</div>	
 		</div>						
-		</li>	
-				
-		<li>
-		<label class="desc"><spring:message code="member_personal_details.educationalQualification"/>&nbsp;*</label>
+		</li>			
+			
+		<li id="${fields.educationalQualification.position}" class="${fields.educationalQualification.visible}">
+		<label class="desc"><spring:message code="member_personal_details.educationalQualification"/>&nbsp;<c:if test="${fields.educationalQualification.mandatory=='MANDATORY'}">*</c:if></label>
 			<div>
-				<form:textarea cssClass="field textarea medium" path="educationalQualification" rows="10" cols="50"/><form:errors path="educationalQualification" cssClass="field_error" />	
+				<form:textarea cssClass="field textarea medium ${fields.educationalQualification.mandatory}" path="educationalQualification" rows="5" cols="50"/><form:errors path="educationalQualification" cssClass="field_error" />	
 			</div>
 		</li>
 		
-		<li>
-		<label class="desc"><spring:message code="member_personal_details.profession"/>&nbsp;*</label>
+		<li id="${fields.profession.position}" class="${fields.profession.visible}">
+		<label class="desc"><spring:message code="member_personal_details.profession"/>&nbsp;<c:if test="${fields.profession.mandatory=='MANDATORY'}">*</c:if></label>
 			<div>
-				<form:textarea cssClass="field textarea medium" path="profession" rows="10" cols="50"/><form:errors path="profession" cssClass="field_error" />	
+				<form:textarea cssClass="field textarea medium ${fields.profession.mandatory}" path="profession" rows="5" cols="50"/><form:errors path="profession" cssClass="field_error" />	
 			</div>
 		</li>
 		
-		<li class="buttons">
-			<input id="saveForm" class="btTxt" type="submit" value="<spring:message code="generic.submit"/>" />
-		</li>
-		
-		<form:hidden path="version"/>	
-		
-	</ul>	
+		<!-- <li class="buttons"> -->
+		 <!-- </li> -->		
+	</ul>
+	<input id="saveForm" class="btTxt" type="submit" value="<spring:message code="generic.submit"/>" />
+	<form:hidden path="version"/>		
 	<input type="hidden" id="const_name" value="${constituency.name}">
-	<input type="hidden" id="const_id" value="${constituency.id}">
-		<input type="hidden" id="photo_size" value="${photoSize}">	
+	<input type="hidden" id="const_id" value="${constituency.id}">	
+	<input type="hidden" id="photo_size" value="${photoSize}">	
 	<input type="hidden" id="photo_ext" value="${photoExt}">				
 </form:form>
 </body>
