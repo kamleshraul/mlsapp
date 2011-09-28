@@ -1,88 +1,23 @@
 /*Common javascript functions to be used across jsp files */
 function initControls(){
-	$("#comments").click(function(){
-		var proc_id = $("#proc_id").val();
-		if(proc_id=='')proc_id=0;
-		$(".preview-pane .preview").animate({left:"-375px"},300,function(){
-			$(this).animate({left:"-22px"},500).html('<img src="images/ajax-loader.gif" />').load('wf/'+proc_id+'/comments');
-		});
-	});
-
-	$("#attachments").click(function(){
-		var proc_id = $("#proc_id").val();
-		if(proc_id=='')proc_id=0;
-		$(".preview-pane .preview").animate({left:"-375px"},300,function(){
-			$(this).animate({left:"-22px"},500).html('<img src="images/ajax-loader.gif" />').load('wf/'+proc_id+'/attachments');
-		});
-	});
-
-	$(".file").each(function() {
-		$('#' + this.id).uploadify( {
-			'script' : 'file/upload?id=' + this.id,
-			'fileDataName' : 'file',
-			'folder' : '/Users/vishal/Documents/uploads',
-			'auto' : true,
-			'multi' : false,
-			'onComplete' : onComplete,
-			'onError' : onError
-		});
-	});
-	$(".dynamicselect").fcbkcomplete({
-        json_url:$(".dynamicselect").attr('url'),
-        addontab: true,
-        cache: false,
-        height: 5,
-        filter_case: false,
-        filter_hide: false,
-        newel: true,
-        maxitems:50
-       
-    });
-	$('.page_link').click(function(){
-		$("#result_content").load($(this).attr('href')).dialog({title:'Leave Balance Details',modal:true});
-		return false;
-	});
-	$('select[multiple="multiple"]').sexyselect({showTitle: false, selectionMode: 'multiple', styleize: true});
 	$("input[class^='numeric']").autoNumeric();
-	$("input[class^='date']").datepicker({changeMonth: true, changeYear: true, dateFormat: $('#dateformat').val(), yearRange: 'c-75:c+20'});
-	$('.time').timepicker({ampm:true});
-	//$('.datetime').datetimepicker({changeMonth: true, changeYear: true, dateFormat:$('#dateformat').val(), yearRange: 'c-75:c+0',ampm:true});
-
-	function onComplete(event, ID, fileObj, response, data) {
-		$('#' + event.target.id + 'Uploader').replaceWith(response);
-	}
-
-	function onError(event, ID, fileObj, errorObj) {
-		console.log(errorObj);
-		$.jGrowl("Error occured while uploading file:");
-	}
-
+	$("input[class^='integer']").autoNumeric({mDec: 0});
 	$('.autosuggest').each(function(){
 		$(this).flexbox($(this).attr('url'), {  
 			paging: false,  
 			maxVisibleRows: 20,
 			onSelect:autosuggest_onchange
 		});
-	});
-	
-	function autosuggest_onchange(){
-		var target = $(this).parent().attr('target');
-		if(target!=''){
-			var url = $('#'+target).attr('url').replace('#',$(this).attr('hiddenvalue'));
-			$('#'+target).empty();
-			$('#'+target).flexbox(url,{  
-				paging: false,  
-				maxVisibleRows: 20,
-				onSelect:autosuggest_onchange
-			});
-		}
-	 }
+	});	
+	$('#dateformat').val();
+	$("input[class^='date']").datepicker({changeMonth: true, changeYear: true, dateFormat: $('#dateformat').val(), yearRange: 'c-75:c+20'});
+
 };
 
 function loadGrid(gridId, baseFilter) {
 	var c_grid = null;
 	$.ajax({async:false,url:'grid/' + gridId + '/meta.json', success:function(grid) {
-		c_grid = $('#grid').jqGrid({
+			c_grid = $('#grid').jqGrid({
 			scroll:1,
 			altRows:true,
 			autowidth:true,
@@ -95,7 +30,7 @@ function loadGrid(gridId, baseFilter) {
 			colModel :eval(grid.colModel),
 			pager: '#grid_pager',
 			rowNum:grid.pageSize,
-			sortname: 'id',
+			sortname: 'm.id',
 			sortorder:grid.sortOrder,
 			viewrecords: true,
 			jsonReader: { repeatitems : false},
@@ -104,36 +39,22 @@ function loadGrid(gridId, baseFilter) {
 				"baseFilters": baseFilter
 			},
 			loadComplete:function(data,obj){
-				var top_rowid = $('#grid tbody:first-child tr:nth-child(2)').attr('id');
-				if(!top_rowid){
-					$('#contentPanel').load(grid.detailView +'/new');
-				}
-				else{
-					$('#grid').setSelection(top_rowid);
-				}
+				if($('#refresh').val()=="refresh"){
+					var top_rowid = $('#grid tbody:first-child tr:nth-child(2)').attr('id');
+					if(!top_rowid){
+						$('#contentPanel').load(grid.detailView +'/new',function(data){
+			                var title = $(data).filter('title').text();
+							$('#content > .subHeader > div').html(title);
+						});
+					}
+					else{
+						$('#grid').setSelection(top_rowid);
+					}	
+				}								
 			},
-			onSelectRow:function() {
-				//showProcessing(true);
-				/*if($("#detail-content").length==0){
-					$('body').append('<div id="detail-content"><div>');
-				}
-				var row = $("#grid").jqGrid('getGridParam','selrow'); 
-				var url = $('#controller').val()+'/'+row;
-				if($('#controller').val()=='users'){
-					url='users/'+row+'/profile';
-					$.get(url, function(data){
-						$(".main-content").empty()
-						$(".main-content").html(data);
-					});
-				}
-				else{
-					$.get(url, function(data){
-						$("#detail-content").html(data).dialog({height:grid.formHeight, width:grid.formWidth, title:'Edit Details',position:'center',close: function(ev, ui) { $(this).remove(); }});
-						showProcessing(false);
-					});
-				}*/
+			onSelectRow:function() {				
 				var row = $("#grid").jqGrid('getGridParam','selrow');
-				$('#contentPanel').load(grid.detailView + '/' + row,function(data){
+				$('#contentPanel').load(grid.detailView + '/' + row+'/edit',function(data){
 	                var title = $(data).filter('title').text();
 					$('#content > .subHeader > div').html(title);
 				});
@@ -153,11 +74,12 @@ function loadGrid(gridId, baseFilter) {
 			var row = $("#grid").jqGrid('getGridParam','selrow'); 
 			if(row==null){
 				alert("Please select the desired row to delete");
-				return;
+				
 			}
 			else{
 				var url = $(this).attr('href');
-				$("#grid").jqGrid('delGridRow',row,{reloadAfterSubmit:true, mtype:'DELETE', url:url+'/'+row});
+				$("#grid").jqGrid('delGridRow',row,{reloadAfterSubmit:true, mtype:'DELETE', url:url+'/'+row+'/delete',modal:true});
+				
 			}
 			return false;
 		});
@@ -165,38 +87,135 @@ function loadGrid(gridId, baseFilter) {
 	return c_grid;
 };
 
-
-function showProcessing(flag){
-	if(flag)
-		$("#activity").show();
-	else
-		$("#activity").hide();
-};
-
+/*Code for uploading files*/
 function unUploadify(element){
 	$(element).unbind("uploadifyComplete");
 	$(element).next(element+"Uploader").remove();
 	$(element).next(element+"Queue").remove();
 	$(element).css("display","inline");
 	$(element+"Remove").show();
+	alert("File Uploaded Successfully");
 };
 	
-function uploadify(element){
+	function uploadify(element,ext,size){
+		var sizeInMB=size/(1024*1024);	
+		var extTokens=ext.split(",");
+		var extType="";
+		for(var i=0;i<extTokens.length;i++){
+			var temp=extTokens[i].replace('.','*.');
+			extType=extType+temp+";";
+		}	
 	$(element).uploadify( {
-	'script' : 'doc/upload.json',
+	'script' : 'file/upload.json?ext='+ext+"#"+size,
 	'fileDataName' : 'file',
-	'folder' : '/Users/vishal/Documents/uploads',
 	'auto' : true,
 	'multi' : false,
-	 onComplete : uploadify_oncomplete
+	'fileExt' : extType,
+	'fileDesc'    : 'Files ('+ext+')',
+	'onComplete' : uploadify_oncomplete,
+	'uploader':'./resources/js/uploadify.swf',
+	'cancelImg':'./resources/images/cancel.png',
+	'sizeLimit':size,
+	'onError': function (event,ID,fileObj,errorObj) {
+		if(errorObj.type=="File Size"){
+			alert("It seems you are trying to upload "+ Math.round((fileObj.size/(1024*1024)))+"MB file which exceeds permissible limit of "+sizeInMB+"MB");
+		}
+		else if(errorObj.type=="HTTP"){
+			alert("File is not uploaded...please try uploading again");
+		}
+		else{
+			alert(errorObj.type + ' Error: ' + errorObj.info);
+		}
+	      $('#'+event.target.id).uploadifyCancel(ID);
+
+	    }
 	});
 	$(element+"Remove").hide();
 };
-
 function uploadify_oncomplete(event, ID, fileObj, response, data){
-	var file = $.parseJSON(response);
-	var element = '#'+event.target.id;
-	$(element).val(file.file.tag);
-	unUploadify(element);
+	try{
+		var file = $.parseJSON(response);
+		var element = '#'+event.target.id;
+		$(element).val(file.file.originalFileName);
+		$(element).attr("readonly","true");
+		$(element+'Field').val(file.file.tag);
+		unUploadify(element);
+		if(event.target.id=='photo'){
+					 		$('#photoDisplay').attr('src','/els/file/photo/'+$('#'+event.target.id+'Field').val());
+				   		   	   $('#photoDiv').removeClass('hideDiv').addClass('showDiv');
+			}
+	}
+	catch(ex){
+		alert("File is not uploaded...please try uploading again");
+		$('#'+event.target.id).uploadifyCancel(ID);
+	}		
 	return false;
 };
+function removeUpload(element,ext)
+{
+	
+$.ajax({
+   				    type: "DELETE",
+   				    url: "file/remove/"+$(element).val(),
+   				    contentType: "application/json; charset=utf-8",
+   				    dataType: "json",
+   				    success: function(json) {
+   				        if(json==true){
+   				        	$(element).val('');
+   				        	uploadify(element,ext);
+   	   				        alert('File successfully deleted');
+   				        }
+   				    },
+   				    error: function (xhr, textStatus, errorThrown) {
+   				    	alert(xhr.responseText);
+   				    }
+   				});
+
+};
+/***************/
+
+jQuery.fn.sortElements = (function(){
+	 
+    var sort = [].sort;
+ 
+    return function(comparator, getSortable) {
+ 
+        getSortable = getSortable || function(){return this;};
+ 
+        var placements = this.map(function(){
+ 
+            var sortElement = getSortable.call(this),
+                parentNode = sortElement.parentNode,
+ 
+                // Since the element itself will change position, we have
+                // to have some way of storing its original position in
+                // the DOM. The easiest way is to have a 'flag' node:
+                nextSibling = parentNode.insertBefore(
+                    document.createTextNode(''),
+                    sortElement.nextSibling
+                );
+ 
+            return function() {
+ 
+                if (parentNode === this) {
+                   // throw new Error(
+                       // "You can't sort elements if any one is a descendant of another."
+                   // );
+                }
+ 
+                // Insert before flag:
+                parentNode.insertBefore(this, nextSibling);
+                // Remove flag:
+                parentNode.removeChild(nextSibling);
+ 
+            };
+ 
+        });
+ 
+        return sort.call(this, comparator).each(function(i){
+            placements[i].call(getSortable.call(this));
+        });
+ 
+    };
+ 
+})();
