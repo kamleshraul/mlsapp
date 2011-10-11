@@ -17,6 +17,9 @@ public class SessionCheckInterceptor extends HandlerInterceptorAdapter{
 		if(request.getRequestURI().contains("login")){
 			return true;
 		}
+		if(request.getRequestURI().contains("/ws/")){
+			return true;
+		}
 		if(request.getRequestURI().contains("home") && request.getUserPrincipal()==null){
 			throw new SessionExpiredException("The user session has expired, please login again");
 		}

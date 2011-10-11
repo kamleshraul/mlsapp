@@ -59,9 +59,7 @@ public class MemberDetails {
 	/** The id. */
 	@Id
 	@GeneratedValue(strategy = GenerationType.AUTO)
-    private Long id;
-	
-	
+    private Long id;	
 	
 	/** The photo. */
 	@Column(length=50)
@@ -82,6 +80,9 @@ public class MemberDetails {
 	/** The last name. */
 	@Column(length=100)
 	private String lastName;
+	
+	@Column(length=6)
+	private String gender;
 	
 	/** The constituency. */
 	@ManyToOne
@@ -369,13 +370,14 @@ public class MemberDetails {
 			String literaryArtisticScAccomplishment, String specialInterests,
 			String pastimeRecreation, String sportsClubs,
 			String countriesVisited, String experience, String otherInfo,
-			Long version, String locale) {
+			Long version, String locale,String gender) {
 		super();
 		this.photo = photo;
 		this.title = title;
 		this.firstName = firstName;
 		this.middleName = middleName;
 		this.lastName = lastName;
+		this.gender=gender;
 		this.constituency = constituency;
 		this.partyName = partyName;
 		this.fatherTitle = fatherTitle;
@@ -1341,6 +1343,14 @@ public class MemberDetails {
 	 */
 	public void setLocale(String locale) {
 		this.locale = locale;
+	}
+
+	public String getGender() {
+		return gender;
+	}
+
+	public void setGender(String gender) {
+		this.gender = gender;
 	}
 
 	

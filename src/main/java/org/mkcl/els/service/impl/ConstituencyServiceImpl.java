@@ -23,6 +23,7 @@ package org.mkcl.els.service.impl;
 
 import java.util.List;
 
+import org.mkcl.els.common.vo.MasterVO;
 import org.mkcl.els.domain.Constituency;
 import org.mkcl.els.domain.District;
 import org.mkcl.els.domain.Reference;
@@ -42,18 +43,18 @@ import org.springframework.stereotype.Service;
 public class ConstituencyServiceImpl extends GenericServiceImpl<Constituency,Long> implements IConstituencyService{
 
 	/** The Constituency repository. */
-	private ConstituencyRepository ConstituencyRepository;
+	private ConstituencyRepository constituencyRepository;
 
 	/**
 	 * Sets the constituency repository.
 	 *
-	 * @param ConstituencyRepository the new constituency repository
+	 * @param constituencyRepository the new constituency repository
 	 */
 	@Autowired
-	public void setConstituencyRepository(ConstituencyRepository ConstituencyRepository) 
+	public void setConstituencyRepository(ConstituencyRepository constituencyRepository) 
 	{
-		this.dao = ConstituencyRepository;
-		this.ConstituencyRepository = ConstituencyRepository;
+		this.dao = constituencyRepository;
+		this.constituencyRepository = constituencyRepository;
 	}
 
 	/* (non-Javadoc)
@@ -61,29 +62,34 @@ public class ConstituencyServiceImpl extends GenericServiceImpl<Constituency,Lon
 	 */
 	@Override
 	public Constituency findByName(String name) {
-		return ConstituencyRepository.findByName(name);
+		return constituencyRepository.findByName(name);
 	}
 
 	@Override
 	public List<Constituency> findConstituenciesByDistrictName(String name) {
-		return ConstituencyRepository.findConstituenciesByDistrictName(name);
+		return constituencyRepository.findConstituenciesByDistrictName(name);
 	}
 
 	@Override
 	public List<Constituency> findConstituenciesByDistrictId(Long districtId) {
-		return ConstituencyRepository.findConstituenciesByDistrictId(districtId);
+		return constituencyRepository.findConstituenciesByDistrictId(districtId);
 
 	}
 
 	@Override
 	public List<Reference> findConstituenciesStartingWith(String param) {
 		// TODO Auto-generated method stub
-		return ConstituencyRepository.findConstituenciesStartingWith(param);
+		return constituencyRepository.findConstituenciesStartingWith(param);
 	}
 
 	@Override
 	public List<Constituency> findAllSorted() {
-		return ConstituencyRepository.findAllSorted();
+		return constituencyRepository.findAllSorted();
+	}
+
+	@Override
+	public List<MasterVO> findAllSortedVO() {
+		return constituencyRepository.findAllSortedVO();
 	}
 
 

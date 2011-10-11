@@ -23,6 +23,7 @@ package org.mkcl.els.service;
 
 import java.util.List;
 
+import org.mkcl.els.common.vo.MasterVO;
 import org.mkcl.els.domain.Party;
 
 /**
@@ -43,4 +44,6 @@ public interface IPartyService
 	public Party findByName(String name);
 	
 	public List<Party> findAllSorted();
+	
+	public List<MasterVO> findAllSortedVO();
 }

@@ -23,6 +23,7 @@ package org.mkcl.els.service.impl;
 
 import java.util.List;
 
+import org.mkcl.els.common.vo.MasterVO;
 import org.mkcl.els.domain.Party;
 import org.mkcl.els.repository.PartyRepository;
 import org.mkcl.els.service.IPartyService;
@@ -69,6 +70,11 @@ public class PartyServiceImpl
 	public List<Party> findAllSorted() {
 		// TODO Auto-generated method stub
 		return partyRepository.findAllSorted();
+	}
+
+	@Override
+	public List<MasterVO> findAllSortedVO() {
+		return partyRepository.findAllSortedVO();
 	}
 
 }

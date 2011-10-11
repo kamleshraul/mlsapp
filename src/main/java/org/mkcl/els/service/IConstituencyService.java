@@ -23,6 +23,7 @@ package org.mkcl.els.service;
 
 import java.util.List;
 
+import org.mkcl.els.common.vo.MasterVO;
 import org.mkcl.els.domain.Constituency;
 import org.mkcl.els.domain.District;
 import org.mkcl.els.domain.Reference;
@@ -51,6 +52,8 @@ public interface IConstituencyService extends IGenericService<Constituency ,Long
 	public List<Reference> findConstituenciesStartingWith(String param);
 	
 	public List<Constituency> findAllSorted();
+
+	public List<MasterVO> findAllSortedVO();
 	
 
 

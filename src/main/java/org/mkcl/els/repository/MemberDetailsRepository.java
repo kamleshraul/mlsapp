@@ -1,11 +1,51 @@
 package org.mkcl.els.repository;
 
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import javax.persistence.Query;
+import javax.sql.DataSource;
+import org.mkcl.els.common.vo.MemberInfo;
+import org.mkcl.els.common.vo.MemberSearchPage;
 import org.mkcl.els.domain.MemberDetails;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Repository;
 
 @Repository
 public class MemberDetailsRepository extends BaseRepository<MemberDetails, Long>{
+
+	private JdbcTemplate jdbcTemplate;
+
+	private static final String CRITERIA_NAME="name";
+
+	private static final String CRITERIA_PARTY="party";
+
+	private static final String CRITERIA_CONSTITUENCY="constituency";
+
+	private static final String CRITERIA_NO_OF_TERMS="no_of_terms";
+
+	private static final String CRITERIA_BIRTH_DATE="birth_date";
+
+	private static final String CRITERIA_MARITAL_STATUS="marital_status";
+
+	private static final String CRITERIA_GENDER="gender";
+
+	private static final String CRITERIA_ALL="all";
+
+	private Integer PAGE_SIZE=20;
+
+	private static final String FETCH_QUERY="SELECT first_name, middle_name,last_name,gender,marital_status,"+
+	"no_of_terms,birth_date,constituencies.name as constituency," +
+	"parties.name as party FROM member_details JOIN constituencies JOIN parties " +
+	"WHERE member_details.constituency=constituencies.id and member_details.party_name=parties.id and "; 
+
+	private static final String COUNT_QUERY="SELECT count(*) FROM member_details WHERE";
+
+	@Autowired
+	public void setDataSource(DataSource dataSource) {
+		this.jdbcTemplate = new JdbcTemplate(dataSource);
+	}
 
 	public int updateMemberPersonalDetails(
 			MemberDetails memberPersonalDetails) {
@@ -28,7 +68,7 @@ public class MemberDetailsRepository extends BaseRepository<MemberDetails, Long>
 		"no_of_daughter=:noOfDaughter,"+
 		"educational_qualification=:educationalQualification,"+
 		"profession=:profession where id=:id";
-		
+
 		Query query=this.em().createNativeQuery(insertQuery);
 		query.setParameter("id", memberPersonalDetails.getId());
 		query.setParameter("photo", memberPersonalDetails.getPhoto());
@@ -74,7 +114,7 @@ public class MemberDetailsRepository extends BaseRepository<MemberDetails, Long>
 		"permanent_telephone=:permanentTelephone,"+
 		"permanent_fax=:permanentFax,"+
 		"permanent_mobile=:permanentMobile where id=:id";
-		
+
 		Query query=this.em().createNativeQuery(insertQuery);
 		query.setParameter("id", memberContactDetails.getId());
 		query.setParameter("email", memberContactDetails.getEmail());
@@ -124,5 +164,185 @@ public class MemberDetailsRepository extends BaseRepository<MemberDetails, Long>
 		int noOfRows=query.executeUpdate();
 		return noOfRows;
 	}
+
+	public MemberSearchPage searchMemberDetails(String criteria1,String locale) {
+		return searchMemberDetails(criteria1, CRITERIA_ALL,locale);
+	}
+
+	public MemberSearchPage searchMemberDetails(String criteria1,
+			String criteria2, String locale) {
+		String searchCriteria=null;
+		if(criteria2.isEmpty()){
+			criteria2=CRITERIA_ALL;
+		}
+		if(criteria1.equals(CRITERIA_NAME)){			
+			searchCriteria=" member_details.locale ='" + locale+"' ORDER BY member_details.first_name asc";	
+		}else if(criteria1.equals(CRITERIA_CONSTITUENCY)){
+			if(criteria2.equals(CRITERIA_ALL)){				
+				searchCriteria=" member_details.locale ='" + locale+"' ORDER BY constituencies.name asc";
+			}
+			else{
+				searchCriteria=" member_details.locale ='" + locale+"' and constituencies.name='"+criteria2+"'";
+				}			
+		}else if(criteria1.equals(CRITERIA_PARTY)){
+			if(criteria2.equals(CRITERIA_ALL)){
+				searchCriteria=" member_details.locale ='" + locale+"' ORDER BY parties.name,member_details.first_name asc";
+			}
+			else{
+				searchCriteria=" member_details.locale ='" + locale+"' and parties.name='"+criteria2+"' ORDER BY member_details.first_name asc";
+			}			
+		}else if(criteria1.equals(CRITERIA_GENDER)){
+			if(criteria2.equals(CRITERIA_ALL)){
+				searchCriteria=" member_details.locale ='" + locale+"' ORDER BY member_details.gender,member_details.first_name asc";
+			}
+			else{
+				searchCriteria=" member_details.locale ='" + locale+"' and member_details.gender='"+criteria2+"' ORDER BY member_details.first_name asc";
+			}	
+		}else if(criteria1.equals(CRITERIA_MARITAL_STATUS)){
+			if(criteria2.equals(CRITERIA_ALL)){
+				searchCriteria=" member_details.locale ='" + locale+"' ORDER BY member_details.marital_status,member_details.first_name asc";
+			}
+			else{
+				searchCriteria=" member_details.locale ='" + locale+"' and member_details.marital_status="+criteria2+" ORDER BY member_details.first_name asc";
+			}	
+		}else if(criteria1.equals(CRITERIA_NO_OF_TERMS)){
+			if(criteria2.equals(CRITERIA_ALL)){
+				searchCriteria=" member_details.locale ='" + locale+"' ORDER BY member_details.no_of_terms,member_details.first_name asc";
+			}
+			else{
+				searchCriteria=" member_details.locale ='" + locale+"' and member_details.no_of_terms='"+criteria2+"' ORDER BY member_details.first_name asc";
+			}	
+		}else if(criteria1.equals(CRITERIA_BIRTH_DATE)){
+			if(criteria2.equals(CRITERIA_ALL)){
+				searchCriteria=" member_details.locale ='" + locale+"' ORDER BY member_details.birth_date,member_details.first_name asc";
+			}
+			else{
+				searchCriteria=" member_details.locale ='" + locale+"' and member_details.birth_date='"+criteria2+"' ORDER BY member_details.first_name asc";
+			}	
+		}
+
+		RowMapper<MemberInfo> mapper = new RowMapper<MemberInfo>() {
+			@Override
+			public MemberInfo mapRow(ResultSet rs, int arg1) throws SQLException {
+				MemberInfo memberInfo = new MemberInfo();
+				memberInfo.setFirstName(rs.getString("first_name"));
+				memberInfo.setMiddleName(rs.getString("middle_name"));
+				memberInfo.setLastName(rs.getString("last_name"));
+				memberInfo.setConstituency(rs.getString("constituency"));
+				memberInfo.setParty(rs.getString("party"));
+				memberInfo.setGender(rs.getString("gender"));
+				memberInfo.setMaritalStatus(rs.getBoolean("marital_status"));
+				memberInfo.setNoOfTerms(rs.getInt("no_of_terms"));
+				memberInfo.setBirthDate(rs.getDate("birth_date"));
+				return memberInfo;
+			}
+		};		
+		MemberSearchPage searchPage=new MemberSearchPage();
+		searchPage.setPageItems(jdbcTemplate.query(FETCH_QUERY+searchCriteria, mapper, new Object[]{}));
+		System.out.println(FETCH_QUERY+searchCriteria);
+		if(searchCriteria.contains("ORDER BY")){
+			searchCriteria=searchCriteria.split("ORDER BY")[0];
+		}
+		searchPage.setTotalRecords(jdbcTemplate.queryForInt(COUNT_QUERY+searchCriteria));
+		System.out.println(COUNT_QUERY+searchCriteria);
+		return 	searchPage;	
+	}
+
+	public MemberSearchPage searchMemberDetails(String criteria1, int page,
+			int rows, String locale) {
+		return searchMemberDetails(criteria1, CRITERIA_ALL, page, rows, locale);	
+	}
+	public MemberSearchPage searchMemberDetails(String criteria1,
+			String criteria2, int page, int rows, String locale) {
+		this.PAGE_SIZE=rows;
+		int firstIndex=(page-1)*PAGE_SIZE;
+		String searchCriteria=null;
+		if(criteria2.isEmpty()){
+			criteria2=CRITERIA_ALL;
+		}
+		if(criteria1.equals(CRITERIA_NAME)){			
+			searchCriteria=" member_details.locale ='" + locale+"' ORDER BY member_details.first_name asc LIMIT "+firstIndex+","+PAGE_SIZE;		
+		}else if(criteria1.equals(CRITERIA_CONSTITUENCY)){
+			if(criteria2.equals(CRITERIA_ALL)){
+				searchCriteria=" member_details.locale ='" + locale+"' ORDER BY constituencies.name asc LIMIT "+firstIndex+","+PAGE_SIZE;
+			}
+			else{
+				searchCriteria=" member_details.locale ='" + locale+"' and constituencies.name='"+criteria2+"' LIMIT "+firstIndex+","+PAGE_SIZE;
+			}
+
+		}else if(criteria1.equals(CRITERIA_PARTY)){
+			if(criteria2.equals(CRITERIA_ALL)){
+				searchCriteria=" member_details.locale ='" + locale+"' ORDER BY parties.name,member_details.first_name asc LIMIT "+firstIndex+","+PAGE_SIZE;
+			}
+			else{
+				searchCriteria=" member_details.locale ='" + locale+"' and parties.name='"+criteria2+"' ORDER BY member_details.first_name asc LIMIT "+firstIndex+","+PAGE_SIZE;
+			}			
+		}else if(criteria1.equals(CRITERIA_GENDER)){
+			if(criteria2.equals(CRITERIA_ALL)){
+				searchCriteria=" member_details.locale ='" + locale+"' ORDER BY member_details.gender,member_details.first_name asc LIMIT "+firstIndex+","+PAGE_SIZE;
+			}
+			else{
+				searchCriteria=" member_details.locale ='" + locale+"' and member_details.gender='"+criteria2+"' ORDER BY member_details.first_name asc LIMIT "+firstIndex+","+PAGE_SIZE;
+			}	
+		}else if(criteria1.equals(CRITERIA_MARITAL_STATUS)){
+			if(criteria2.equals(CRITERIA_ALL)){
+				searchCriteria=" member_details.locale ='" + locale+"' ORDER BY member_details.marital_status,member_details.first_name asc LIMIT "+firstIndex+","+PAGE_SIZE;
+			}
+			else{
+				searchCriteria=" member_details.locale ='" + locale+"' and member_details.marital_status="+criteria2+" ORDER BY member_details.first_name asc LIMIT "+firstIndex+","+PAGE_SIZE;
+			}	
+		}else if(criteria1.equals(CRITERIA_NO_OF_TERMS)){
+			if(criteria2.equals(CRITERIA_ALL)){
+				searchCriteria=" member_details.locale ='" + locale+"' ORDER BY member_details.no_of_terms,member_details.first_name asc LIMIT "+firstIndex+","+PAGE_SIZE;
+			}
+			else{
+				searchCriteria=" member_details.locale ='" + locale+"' and member_details.no_of_terms='"+criteria2+"' ORDER BY member_details.first_name asc LIMIT "+firstIndex+","+PAGE_SIZE;
+			}	
+		}else if(criteria1.equals(CRITERIA_BIRTH_DATE)){
+			if(criteria2.equals(CRITERIA_ALL)){
+				searchCriteria=" member_details.locale ='" + locale+"' ORDER BY member_details.birth_date,member_details.first_name asc LIMIT "+firstIndex+","+PAGE_SIZE;
+			}
+			else{
+				searchCriteria=" member_details.locale ='" + locale+"' and member_details.birth_date='"+criteria2+"' ORDER BY member_details.first_name asc LIMIT "+firstIndex+","+PAGE_SIZE;
+			}	
+		}
+		RowMapper<MemberInfo> mapper = new RowMapper<MemberInfo>() {
+			@Override
+			public MemberInfo mapRow(ResultSet rs, int rowNo) throws SQLException {
+				MemberInfo memberInfo = new MemberInfo();
+				memberInfo.setFirstName(rs.getString("first_name"));
+				memberInfo.setMiddleName(rs.getString("middle_name"));
+				memberInfo.setLastName(rs.getString("last_name"));
+				memberInfo.setConstituency(rs.getString("constituency"));
+				memberInfo.setParty(rs.getString("party"));
+				memberInfo.setGender(rs.getString("gender"));
+				memberInfo.setMaritalStatus(rs.getBoolean("marital_status"));
+				memberInfo.setNoOfTerms(rs.getInt("no_of_terms"));
+				memberInfo.setBirthDate(rs.getDate("birth_date"));				
+				return memberInfo;
+			}
+		};	
+		MemberSearchPage searchPage=new MemberSearchPage();
+		searchPage.setPageItems(jdbcTemplate.query(FETCH_QUERY+searchCriteria, mapper, new Object[]{}));
+		System.out.println(FETCH_QUERY+searchCriteria);
+		if(searchCriteria.contains("ORDER BY")){
+			searchCriteria=searchCriteria.split("ORDER BY")[0];
+		}
+		searchPage.setTotalRecords(jdbcTemplate.queryForInt(COUNT_QUERY+searchCriteria));
+		System.out.println(COUNT_QUERY+searchCriteria);
+		return 	searchPage;	
+	}
+
+	public MemberSearchPage searchMemberDetails(String criteria1,
+			String criteria2, String criteria3, String locale) {
+		return null;
+	}
+
+	public MemberSearchPage searchMemberDetails(String criteria1,
+			String criteria2, String criteria3, int page, int rows,
+			String locale) {
+		return null;
+	}
+
 
 }

@@ -21,10 +21,20 @@ POSSIBILITY OF SUCH DAMAGE.
  */
 package org.mkcl.els.repository;
 
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.List;
 
+import javax.sql.DataSource;
+
+import org.mkcl.els.common.vo.MasterVO;
+import org.mkcl.els.common.vo.MemberInfo;
 import org.mkcl.els.domain.Party;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Repository;
+
 import com.trg.search.Search;
 
 /**
@@ -37,12 +47,13 @@ import com.trg.search.Search;
 public class PartyRepository 
 	extends BaseRepository<Party, Long>{
 
-	/**
-	 * Find by name.
-	 *
-	 * @param name the name
-	 * @return the party
-	 */
+	private JdbcTemplate jdbcTemplate;
+
+	@Autowired
+	public void setDataSource(DataSource dataSource) {
+		this.jdbcTemplate = new JdbcTemplate(dataSource);
+	}
+	
 	public Party findByName(String name){
 		Search search = new Search();
 		search.addFilterEqual("name", name);
@@ -54,5 +65,18 @@ public class PartyRepository
 		Search search=new Search();
 		search.addSort("name",false);
 		return this.search(search);		
+	}
+
+	public List<MasterVO> findAllSortedVO() {
+		String query="SELECT name FROM parties ORDER BY name asc";	
+		RowMapper<MasterVO> mapper = new RowMapper<MasterVO>() {
+			@Override
+			public MasterVO mapRow(ResultSet rs, int rowNo) throws SQLException {
+				MasterVO masterVO = new MasterVO();
+				masterVO.setName(rs.getString("name"));		
+				return masterVO;
+			}
+		};	
+		return jdbcTemplate.query(query, mapper,new Object[]{});
 	}
 }

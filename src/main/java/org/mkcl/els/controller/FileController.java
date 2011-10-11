@@ -1,3 +1,24 @@
+/*
+******************************************************************
+File: org.mkcl.els.controller.FileController.java
+Copyright (c) 2011, sandeeps, ${company}
+All rights reserved.
+
+THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+"AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS
+FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE
+COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT,
+INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
+BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN
+ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+POSSIBILITY OF SUCH DAMAGE.
+
+******************************************************************
+ */
 
 package org.mkcl.els.controller;
 
@@ -25,15 +46,38 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.multipart.MultipartFile;
 
 
+// TODO: Auto-generated Javadoc
+/**
+ * The Class FileController.
+ *
+ * @author sandeeps
+ * @version v1.0.0
+ */
 @Controller
 @RequestMapping("/file")
 public class FileController {
+	
+	/** The Constant logger. */
 	private static final Logger logger = LoggerFactory.getLogger(FileController.class);
+	
+	/** The document service. */
 	@Autowired
 	IDocumentService documentService;	
+	
+	/** The custom parameter service. */
 	@Autowired
 	ICustomParameterService customParameterService;
 
+	/**
+	 * Creates the.
+	 *
+	 * @param file the file
+	 * @param modelMap the model map
+	 * @param request the request
+	 * @param response the response
+	 * @return the string
+	 * @throws IOException Signals that an I/O exception has occurred.
+	 */
 	@RequestMapping(value = "/upload", method = RequestMethod.POST)
 	public String  create(@RequestParam MultipartFile file, ModelMap modelMap, HttpServletRequest request,HttpServletResponse response) throws IOException{
 		String fileName=file.getOriginalFilename().toLowerCase();
@@ -51,7 +95,7 @@ public class FileController {
 				document.setOriginalFileName(file.getOriginalFilename());
 				document.setFileSize(file.getSize());
 				document.setType(file.getContentType());
-				document.setTag(customParameterService.findByName("FILE_PREFIX").getValue()+UUID.randomUUID().toString());
+				document.setTag(customParameterService.findByName("FILE_PREFIX").getValue()+String.valueOf(UUID.randomUUID().hashCode()));
 			
 			try {
 				document = documentService.save(document);
@@ -67,6 +111,13 @@ public class FileController {
 	
 	}
 
+	/**
+	 * Gets the.
+	 *
+	 * @param tag the tag
+	 * @param request the request
+	 * @param response the response
+	 */
 	@RequestMapping(value = "{tag}", method = RequestMethod.GET)
 	public void get(@PathVariable String tag, HttpServletRequest request,  HttpServletResponse response){
 		Document document = documentService.findByTag(tag);
@@ -79,6 +130,15 @@ public class FileController {
 			logger.error("Error occured while downloading file:"+e.toString());
 		}
 	}	
+	
+	/**
+	 * Gets the image.
+	 *
+	 * @param tag the tag
+	 * @param request the request
+	 * @param response the response
+	 * @return the image
+	 */
 	@RequestMapping(value = "photo/{tag}", method = RequestMethod.GET)
 	public void  getImage(@PathVariable String tag, HttpServletRequest request,  HttpServletResponse response){
 		Document document = documentService.findByTag(tag);
@@ -92,6 +152,13 @@ public class FileController {
 		return;
 	}
 
+	/**
+	 * Removes the.
+	 *
+	 * @param tag the tag
+	 * @param request the request
+	 * @return true, if successful
+	 */
 	@Transactional
 	@RequestMapping(value = "remove/{tag}", method = RequestMethod.DELETE)
 	public @ResponseBody boolean remove(@PathVariable("tag") String tag,
