@@ -52,7 +52,10 @@ function loadGrid(gridId, baseFilter) {
 						});
 					}
 					else{
-						
+						$('#contentPanel').load(grid.detailView + '/' + top_rowid+'/edit',function(data){
+			                var title = $(data).filter('title').text();
+							$('#content > .subHeader > div').html(title);
+						});
 					}	
 				}								
 			},
@@ -100,7 +103,8 @@ function unUploadify(element){
 	alert("File Uploaded Successfully");
 };
 	
-	function uploadify(element,ext,size){
+	function uploadify(element,ext,size,url){
+		alert(location.pathname);
 		var sizeInMB=size/(1024*1024);	
 		var extTokens=ext.split(",");
 		var extType="";
@@ -109,7 +113,7 @@ function unUploadify(element){
 			extType=extType+temp+";";
 		}	
 	$(element).uploadify( {
-	'script' : 'file/upload.json?ext='+ext+"#"+size,
+	'script' : 'file/upload.json?ext='+ext+"#"+size,	
 	'fileDataName' : 'file',
 	'auto' : true,
 	'multi' : false,
