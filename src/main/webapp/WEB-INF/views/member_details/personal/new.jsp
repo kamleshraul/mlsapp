@@ -51,6 +51,16 @@
 		</span>
 		</li>
 		
+		<li id="${fields.gender.position}" class="${fields.gender.visible}">
+		<label class="desc"><spring:message code="member_personal_details.gender"/>&nbsp;<c:if test="${fields.gender.mandatory=='MANDATORY'}">*</c:if></label>
+			<div>
+				<form:select path="gender" cssClass="field select medium ${fields.partyName.mandatory}">
+				<form:option value="male">Male</form:option>
+				<form:option value="male">Female</form:option>				
+	            </form:select><form:errors path="gender" cssClass="field_error"/>		
+		   </div>
+		</li>
+		
 		<li id="${fields.constituencies.position}" class="${fields.constituencies.visible}">
 		<label class="desc"><spring:message code="member_personal_details.constituency"/>&nbsp;<c:if test="${fields.constituencies.mandatory=='MANDATORY'}">*</c:if></label>
 		<div  id="constituencies" url="ref/constituencies" ></div>

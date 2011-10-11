@@ -26,6 +26,7 @@
 	<script type="text/javascript" src="./resources/js/jquery.flexbox.js"></script> 
 	<script type="text/javascript" src="./resources/js/thickbox.js"></script>	
 	<script type="text/javascript" src="./resources/js/jquery.uploadify.js"></script>
+	<script type="text/javascript" src="./resources/js/jquery.jqGrid.fluid.js"></script>
 	<script type="text/javascript" src="./resources/js/swfobject.js"></script>	
 	<script type="text/javascript" src="./resources/js/common.js"></script> 	
 	<script type="text/javascript">
