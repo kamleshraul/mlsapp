@@ -34,5 +34,7 @@ public class MemberSearchWebService {
 	public @ResponseBody MemberSearchPage searchDoublePagination(@PathVariable String criteria1,@PathVariable String criteria2,@PathVariable Integer page,@PathVariable Integer rows,@PathVariable String locale){
 		return memberDetailsService.searchMemberDetails(criteria1, criteria2, page, rows, locale);		
 	}
+	
+
 
 }

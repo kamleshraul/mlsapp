@@ -73,8 +73,8 @@ public class PartyServiceImpl
 	}
 
 	@Override
-	public List<MasterVO> findAllSortedVO() {
-		return partyRepository.findAllSortedVO();
+	public List<MasterVO> findAllSortedVO(String locale) {
+		return partyRepository.findAllSortedVO(locale);
 	}
 
 }

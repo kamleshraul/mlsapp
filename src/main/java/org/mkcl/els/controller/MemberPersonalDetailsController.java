@@ -1,6 +1,7 @@
 package org.mkcl.els.controller;
 
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
@@ -82,6 +83,8 @@ public class MemberPersonalDetailsController {
 	
 	@Autowired
 	IDocumentService documentService;
+	
+	private static final String FORM_NAME="MIS.PERSONAL";
 
 	@RequestMapping(value="list",method = RequestMethod.GET)
 	public String index(ModelMap model){
@@ -201,11 +204,15 @@ public class MemberPersonalDetailsController {
 	
 	private void populateModel(ModelMap model,
 			MemberDetails memberPersonalDetails) {
-		List<Field> fieldsCollection=fieldService.findAll();
+		List<Field> fieldsCollection=fieldService.findByFormNameSorted(FORM_NAME);
+		//List<Integer> positionList=new ArrayList<Integer>();
+		StringBuffer positionList=new StringBuffer();
 		Map<String,Field> fields=new HashMap<String, Field>();
 		for(Field i:fieldsCollection){
 			fields.put(i.getName(),i);
+			positionList.append(i.getPosition()+"#");
 		}
+		model.addAttribute("positionList",positionList.toString());
 		model.addAttribute("fields",fields);
 		model.addAttribute("titles", titleService.findAllSorted());
 		model.addAttribute("parties", partyService.findAllSorted());

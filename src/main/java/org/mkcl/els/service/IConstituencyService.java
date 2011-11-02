@@ -53,7 +53,7 @@ public interface IConstituencyService extends IGenericService<Constituency ,Long
 	
 	public List<Constituency> findAllSorted();
 
-	public List<MasterVO> findAllSortedVO();
+	public List<MasterVO> findAllSortedVO(String locale);
 	
 
 

@@ -1,5 +1,7 @@
 package org.mkcl.els.service.impl;
 
+import java.util.List;
+
 import org.mkcl.els.domain.Field;
 import org.mkcl.els.repository.AssemblyRoleRepository;
 import org.mkcl.els.repository.FieldRepository;
@@ -23,6 +25,11 @@ implements IFieldService{
 	@Override
 	public Field findByName(String name) {
 		return fieldRepository.findByName(name);
+	}
+
+	@Override
+	public List<Field> findByFormNameSorted(String formName) {
+		return fieldRepository.findByFormNameSorted(formName);
 	}
 
 }

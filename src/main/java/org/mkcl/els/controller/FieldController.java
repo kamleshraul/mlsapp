@@ -87,8 +87,10 @@ public class FieldController {
 	}	
 
 	private void validate(Field field, Errors errors) {
+		if(field.getMandatory()!=null&&field.getVisible()!=null){
 		if((field.getMandatory().equals("MANDATORY"))&&(field.getVisible().equals("HIDDEN"))){
 			errors.rejectValue("visible","NonVisible");
+		}
 		}
 	}
 }

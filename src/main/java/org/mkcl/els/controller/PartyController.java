@@ -27,8 +27,11 @@ import java.util.regex.Pattern;
 
 import javax.validation.Valid;
 
+import org.mkcl.els.domain.Document;
 import org.mkcl.els.domain.Grid;
 import org.mkcl.els.domain.Party;
+import org.mkcl.els.service.ICustomParameterService;
+import org.mkcl.els.service.IDocumentService;
 import org.mkcl.els.service.IGridService;
 import org.mkcl.els.service.IPartyService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -60,6 +63,12 @@ public class PartyController extends BaseController{
 	@Autowired
 	IPartyService partyService;
 	
+	@Autowired
+	ICustomParameterService customParameterService;
+	
+	@Autowired
+	IDocumentService documentService;
+	
 	/**
 	 * List.
 	 *
@@ -84,6 +93,8 @@ public class PartyController extends BaseController{
 		Party party = new Party();
 		party.setLocale(locale.toString());
 		model.addAttribute(party);
+		model.addAttribute("photoExt", customParameterService.findByName("PARTY_FLAG_EXTENSION").getValue());
+		model.addAttribute("photoSize", Long.parseLong(customParameterService.findByName("PARTY_FLAG_SIZE").getValue())*1024*1024);
 		return "masters/parties/new";
 	}
 	
@@ -98,6 +109,16 @@ public class PartyController extends BaseController{
 	public String edit(@PathVariable Long id, ModelMap model){
 		Party party = partyService.findById(id);
 		model.addAttribute(party);
+		model.addAttribute("photoExt", customParameterService.findByName("PHOTO_EXTENSION").getValue());
+		model.addAttribute("photoSize", Long.parseLong(customParameterService.findByName("PHOTO_SIZE").getValue())*1024*1024);
+		if(party.getPhoto()!=null){
+			if(!party.getPhoto().isEmpty()){
+				Document document=documentService.findByTag(party.getPhoto());
+				if(document!=null){
+					model.addAttribute("photoOriginalName", document.getOriginalFileName());
+				}	
+			}		
+		}
 		return "masters/parties/edit";
 	}
 	

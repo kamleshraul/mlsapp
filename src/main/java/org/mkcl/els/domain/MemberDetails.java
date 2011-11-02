@@ -81,6 +81,14 @@ public class MemberDetails {
 	@Column(length=100)
 	private String lastName;
 	
+	/** The alias. */
+	@Column(length=100)
+	private String alias;
+	
+	/** The enable aliasing. */
+	private boolean enableAliasing=false;
+	
+	/** The gender. */
 	@Column(length=6)
 	private String gender;
 	
@@ -111,6 +119,10 @@ public class MemberDetails {
 	/** The birth date. */
 	@Temporal(TemporalType.DATE)
 	private Date birthDate;
+	
+	/** The place of birth. */
+	@Column(length=100)
+	private String placeOfBirth;
 	
 	/** The marital status. */
 	private boolean maritalStatus;
@@ -178,7 +190,7 @@ public class MemberDetails {
 	private String presentMobile;
 	
 	/** The address same as above. */
-	private boolean addressSameAsAbove;
+	private boolean addressSameAsAbove=false;
 	/** The permanent address. */
 	@Column(length=1000)
 	private String permanentAddress;
@@ -254,6 +266,10 @@ public class MemberDetails {
 	@Column(length=10000)
 	private String literaryArtisticScAccomplishment;
 	
+	/** The books published. */
+	@Column(length=10000)
+	private String booksPublished;
+	
 	/** The special interests. */
 	@Column(length=10000)
 	private String specialInterests;
@@ -302,6 +318,9 @@ public class MemberDetails {
 	 * @param firstName the first name
 	 * @param middleName the middle name
 	 * @param lastName the last name
+	 * @param alias the alias
+	 * @param enableAliasing the enable aliasing
+	 * @param gender the gender
 	 * @param constituency the constituency
 	 * @param partyName the party name
 	 * @param fatherTitle the father title
@@ -309,6 +328,7 @@ public class MemberDetails {
 	 * @param motherTitle the mother title
 	 * @param motherName the mother name
 	 * @param birthDate the birth date
+	 * @param placeOfBirth the place of birth
 	 * @param maritalStatus the marital status
 	 * @param marriageDate the marriage date
 	 * @param spouseName the spouse name
@@ -340,6 +360,7 @@ public class MemberDetails {
 	 * @param memberPositions the member positions
 	 * @param socioCulturalActivities the socio cultural activities
 	 * @param literaryArtisticScAccomplishment the literary artistic sc accomplishment
+	 * @param booksPublished the books published
 	 * @param specialInterests the special interests
 	 * @param pastimeRecreation the pastime recreation
 	 * @param sportsClubs the sports clubs
@@ -350,11 +371,12 @@ public class MemberDetails {
 	 * @param locale the locale
 	 */
 	public MemberDetails(String photo, String title, String firstName,
-			String middleName, String lastName, Constituency constituency,
+			String middleName, String lastName, String alias,
+			boolean enableAliasing, String gender, Constituency constituency,
 			Party partyName, String fatherTitle, String fatherName,
 			String motherTitle, String motherName, Date birthDate,
-			boolean maritalStatus, Date marriageDate, String spouseName,
-			Integer noOfSons, Integer noOfDaughter,
+			String placeOfBirth, boolean maritalStatus, Date marriageDate,
+			String spouseName, Integer noOfSons, Integer noOfDaughter,
 			String educationalQualification, String profession, String email,
 			String presentAddress, State presentState,
 			District presentDistrict, Tehsil presentTehsil, String presentCity,
@@ -367,17 +389,19 @@ public class MemberDetails {
 			String permanentMobile, Integer noOfTerms,
 			List<MemberPositionsDetails> memberPositions,
 			String socioCulturalActivities,
-			String literaryArtisticScAccomplishment, String specialInterests,
-			String pastimeRecreation, String sportsClubs,
-			String countriesVisited, String experience, String otherInfo,
-			Long version, String locale,String gender) {
+			String literaryArtisticScAccomplishment, String booksPublished,
+			String specialInterests, String pastimeRecreation,
+			String sportsClubs, String countriesVisited, String experience,
+			String otherInfo, Long version, String locale) {
 		super();
 		this.photo = photo;
 		this.title = title;
 		this.firstName = firstName;
 		this.middleName = middleName;
 		this.lastName = lastName;
-		this.gender=gender;
+		this.alias = alias;
+		this.enableAliasing = enableAliasing;
+		this.gender = gender;
 		this.constituency = constituency;
 		this.partyName = partyName;
 		this.fatherTitle = fatherTitle;
@@ -385,6 +409,7 @@ public class MemberDetails {
 		this.motherTitle = motherTitle;
 		this.motherName = motherName;
 		this.birthDate = birthDate;
+		this.placeOfBirth = placeOfBirth;
 		this.maritalStatus = maritalStatus;
 		this.marriageDate = marriageDate;
 		this.spouseName = spouseName;
@@ -416,6 +441,7 @@ public class MemberDetails {
 		this.memberPositions = memberPositions;
 		this.socioCulturalActivities = socioCulturalActivities;
 		this.literaryArtisticScAccomplishment = literaryArtisticScAccomplishment;
+		this.booksPublished = booksPublished;
 		this.specialInterests = specialInterests;
 		this.pastimeRecreation = pastimeRecreation;
 		this.sportsClubs = sportsClubs;
@@ -532,6 +558,60 @@ public class MemberDetails {
 	 */
 	public void setLastName(String lastName) {
 		this.lastName = lastName;
+	}
+
+	/**
+	 * Gets the alias.
+	 *
+	 * @return the alias
+	 */
+	public String getAlias() {
+		return alias;
+	}
+
+	/**
+	 * Sets the alias.
+	 *
+	 * @param alias the new alias
+	 */
+	public void setAlias(String alias) {
+		this.alias = alias;
+	}
+
+	/**
+	 * Checks if is enable aliasing.
+	 *
+	 * @return true, if is enable aliasing
+	 */
+	public boolean isEnableAliasing() {
+		return enableAliasing;
+	}
+
+	/**
+	 * Sets the enable aliasing.
+	 *
+	 * @param enableAliasing the new enable aliasing
+	 */
+	public void setEnableAliasing(boolean enableAliasing) {
+		this.enableAliasing = enableAliasing;
+	}
+
+	/**
+	 * Gets the gender.
+	 *
+	 * @return the gender
+	 */
+	public String getGender() {
+		return gender;
+	}
+
+	/**
+	 * Sets the gender.
+	 *
+	 * @param gender the new gender
+	 */
+	public void setGender(String gender) {
+		this.gender = gender;
 	}
 
 	/**
@@ -658,6 +738,24 @@ public class MemberDetails {
 	 */
 	public void setBirthDate(Date birthDate) {
 		this.birthDate = birthDate;
+	}
+
+	/**
+	 * Gets the place of birth.
+	 *
+	 * @return the place of birth
+	 */
+	public String getPlaceOfBirth() {
+		return placeOfBirth;
+	}
+
+	/**
+	 * Sets the place of birth.
+	 *
+	 * @param placeOfBirth the new place of birth
+	 */
+	public void setPlaceOfBirth(String placeOfBirth) {
+		this.placeOfBirth = placeOfBirth;
 	}
 
 	/**
@@ -1202,6 +1300,24 @@ public class MemberDetails {
 	}
 
 	/**
+	 * Gets the books published.
+	 *
+	 * @return the books published
+	 */
+	public String getBooksPublished() {
+		return booksPublished;
+	}
+
+	/**
+	 * Sets the books published.
+	 *
+	 * @param booksPublished the new books published
+	 */
+	public void setBooksPublished(String booksPublished) {
+		this.booksPublished = booksPublished;
+	}
+
+	/**
 	 * Gets the special interests.
 	 *
 	 * @return the special interests
@@ -1343,14 +1459,6 @@ public class MemberDetails {
 	 */
 	public void setLocale(String locale) {
 		this.locale = locale;
-	}
-
-	public String getGender() {
-		return gender;
-	}
-
-	public void setGender(String gender) {
-		this.gender = gender;
 	}
 
 	

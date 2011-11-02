@@ -64,6 +64,10 @@ public class Field {
 	/** The position. */
 	private Integer position;
 	
+	/** The hint. */
+	@Column(length=100)
+	private String hint;
+	
 	/** The form. */
 	@Column(length=50)
 	private String form;
@@ -87,26 +91,26 @@ public class Field {
 	/**
 	 * Instantiates a new field.
 	 *
-	 * @param id the id
 	 * @param name the name
 	 * @param detail the detail
 	 * @param mandatory the mandatory
 	 * @param visible the visible
 	 * @param position the position
+	 * @param hint the hint
 	 * @param form the form
 	 * @param version the version
 	 * @param locale the locale
 	 */
-	public Field(Long id, String name, String detail, String mandatory,
-			String visible, Integer position, String form, Long version,
+	public Field(String name, String detail, String mandatory, String visible,
+			Integer position, String hint, String form, Long version,
 			String locale) {
 		super();
-		this.id = id;
 		this.name = name;
 		this.detail = detail;
 		this.mandatory = mandatory;
 		this.visible = visible;
 		this.position = position;
+		this.hint = hint;
 		this.form = form;
 		this.version = version;
 		this.locale = locale;
@@ -149,6 +153,24 @@ public class Field {
 	}
 
 	/**
+	 * Gets the detail.
+	 *
+	 * @return the detail
+	 */
+	public String getDetail() {
+		return detail;
+	}
+
+	/**
+	 * Sets the detail.
+	 *
+	 * @param detail the new detail
+	 */
+	public void setDetail(String detail) {
+		this.detail = detail;
+	}
+
+	/**
 	 * Gets the mandatory.
 	 *
 	 * @return the mandatory
@@ -184,7 +206,6 @@ public class Field {
 		this.visible = visible;
 	}
 
-
 	/**
 	 * Gets the position.
 	 *
@@ -194,7 +215,6 @@ public class Field {
 		return position;
 	}
 
-
 	/**
 	 * Sets the position.
 	 *
@@ -202,6 +222,42 @@ public class Field {
 	 */
 	public void setPosition(Integer position) {
 		this.position = position;
+	}
+
+	/**
+	 * Gets the hint.
+	 *
+	 * @return the hint
+	 */
+	public String getHint() {
+		return hint;
+	}
+
+	/**
+	 * Sets the hint.
+	 *
+	 * @param hint the new hint
+	 */
+	public void setHint(String hint) {
+		this.hint = hint;
+	}
+
+	/**
+	 * Gets the form.
+	 *
+	 * @return the form
+	 */
+	public String getForm() {
+		return form;
+	}
+
+	/**
+	 * Sets the form.
+	 *
+	 * @param form the new form
+	 */
+	public void setForm(String form) {
+		this.form = form;
 	}
 
 	/**
@@ -239,43 +295,5 @@ public class Field {
 	public void setLocale(String locale) {
 		this.locale = locale;
 	}
-
-	/**
-	 * Gets the detail.
-	 *
-	 * @return the detail
-	 */
-	public String getDetail() {
-		return detail;
-	}
-
-	/**
-	 * Sets the detail.
-	 *
-	 * @param detail the new detail
-	 */
-	public void setDetail(String detail) {
-		this.detail = detail;
-	}
-
-	/**
-	 * Gets the form.
-	 *
-	 * @return the form
-	 */
-	public String getForm() {
-		return form;
-	}
-
-	/**
-	 * Sets the form.
-	 *
-	 * @param form the new form
-	 */
-	public void setForm(String form) {
-		this.form = form;
-	}
-	
-	
 
 }

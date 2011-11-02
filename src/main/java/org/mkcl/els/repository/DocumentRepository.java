@@ -55,5 +55,6 @@ public class DocumentRepository extends BaseRepository<Document, Long>{
 	public void removeByTag(String tag) {
 		Document document=findByTag(tag);
 		remove(document);
-	}	
+	}
+	
 }

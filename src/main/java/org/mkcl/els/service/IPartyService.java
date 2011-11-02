@@ -45,5 +45,5 @@ public interface IPartyService
 	
 	public List<Party> findAllSorted();
 	
-	public List<MasterVO> findAllSortedVO();
+	public List<MasterVO> findAllSortedVO(String locale);
 }

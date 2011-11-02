@@ -1,6 +1,8 @@
 package org.mkcl.els.service.impl;
 
+import org.mkcl.els.common.vo.MemberBiographyVO;
 import org.mkcl.els.common.vo.MemberSearchPage;
+import org.mkcl.els.domain.Document;
 import org.mkcl.els.domain.MemberDetails;
 import org.mkcl.els.repository.MemberDetailsRepository;
 import org.mkcl.els.service.IMemberDetailsService;
@@ -12,7 +14,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 public class MemberDetailsServiceImpl extends GenericServiceImpl<MemberDetails,Long>
 implements IMemberDetailsService{
-
+	
 	private MemberDetailsRepository memberDetailsRepository;
 	
 	@Autowired	
@@ -81,6 +83,24 @@ implements IMemberDetailsService{
 	public MemberSearchPage searchMemberDetails(String criteria1,
 			String criteria2, String criteria3, int page, int rows,String locale) {		
 		return memberDetailsRepository.searchMemberDetails(criteria1,criteria2,criteria3,page,rows,locale);
+	}
+
+
+	@Override
+	public Integer maxNoOfTerms(String locale) {
+		return memberDetailsRepository.maxNoOfTerms(locale);
+	}
+
+
+	@Override
+	public MemberBiographyVO findBiography(long id, String locale) {
+		return memberDetailsRepository.findBiography(id,locale);
+	}
+
+
+	@Override
+	public Document getPhoto(String tag) {
+		return memberDetailsRepository.getPhoto(tag);
 	}
 
 

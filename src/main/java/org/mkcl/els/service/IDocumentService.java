@@ -61,4 +61,6 @@ public interface IDocumentService extends IGenericService<Document ,Long>{
 	 */
 	public void removeByTag(String tag);
 
+
+
 }

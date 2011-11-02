@@ -69,6 +69,10 @@ public class Party implements Serializable{
     @Column(length=50)
     private String locale;
     
+    /** The photo. */
+    @Column(length=50)
+    private String photo;
+    
 	/**
 	 * Instantiates a new party.
 	 */
@@ -80,12 +84,19 @@ public class Party implements Serializable{
 	 * Instantiates a new party.
 	 *
 	 * @param name the name
+	 * @param abbreviation the abbreviation
+	 * @param version the version
 	 * @param locale the locale
+	 * @param photo the photo
 	 */
-	public Party(String name, String locale) {
+	public Party(String name, String abbreviation, Long version, String locale,
+			String photo) {
 		super();
 		this.name = name;
+		this.abbreviation = abbreviation;
+		this.version = version;
 		this.locale = locale;
+		this.photo = photo;
 	}
 
 	/**
@@ -125,6 +136,24 @@ public class Party implements Serializable{
 	}
 
 	/**
+	 * Gets the abbreviation.
+	 *
+	 * @return the abbreviation
+	 */
+	public String getAbbreviation() {
+		return abbreviation;
+	}
+
+	/**
+	 * Sets the abbreviation.
+	 *
+	 * @param abbreviation the new abbreviation
+	 */
+	public void setAbbreviation(String abbreviation) {
+		this.abbreviation = abbreviation;
+	}
+
+	/**
 	 * Gets the version.
 	 *
 	 * @return the version
@@ -140,8 +169,8 @@ public class Party implements Serializable{
 	 */
 	public void setVersion(Long version) {
 		this.version = version;
-	}	
-	
+	}
+
 	/**
 	 * Gets the locale.
 	 *
@@ -161,20 +190,21 @@ public class Party implements Serializable{
 	}
 
 	/**
-	 * Gets the abbreviation.
+	 * Gets the photo.
 	 *
-	 * @return the abbreviation
+	 * @return the photo
 	 */
-	public String getAbbreviation() {
-		return abbreviation;
+	public String getPhoto() {
+		return photo;
 	}
 
 	/**
-	 * Sets the abbreviation.
+	 * Sets the photo.
 	 *
-	 * @param abbreviation the new abbreviation
+	 * @param photo the new photo
 	 */
-	public void setAbbreviation(String abbreviation) {
-		this.abbreviation = abbreviation;
+	public void setPhoto(String photo) {
+		this.photo = photo;
 	}
+
 }

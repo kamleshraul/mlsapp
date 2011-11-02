@@ -120,14 +120,17 @@ public class DatabaseDrivenMessageSource extends ReloadableResourceBundleMessage
 		if (textForCurrentLanguage == null) {
 			textForCurrentLanguage = properties.get(Locale.ENGLISH.toString() + "_" + code);
 		}
-		return textForCurrentLanguage != null ? textForCurrentLanguage : code;
+		//return textForCurrentLanguage != null ? textForCurrentLanguage : code;
+		return textForCurrentLanguage;
 	}
 
 	protected Map<String, String> loadTexts() {
 		Map<String, String> m = new HashMap<String, String>();
 		List<MessageResource> messages = messageResourceService.findAll();
 		for(MessageResource message: messages) {
-			m.put(message.getLocale().toString() + "_" + message.getCode(), message.getValue());
+			if(message.getValue()!=null){
+				m.put(message.getLocale().toString() + "_" + message.getCode(), message.getValue());
+			}
 		}
 		return m;
 	}

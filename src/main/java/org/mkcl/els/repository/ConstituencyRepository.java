@@ -104,8 +104,8 @@ public class ConstituencyRepository
 		return this.search(search);
 	}
 
-	public List<MasterVO> findAllSortedVO() {
-		String query="SELECT name FROM constituencies ORDER BY name asc";	
+	public List<MasterVO> findAllSortedVO(String locale) {
+		String query="SELECT name FROM constituencies WHERE locale = '"+ locale+ "' ORDER BY name asc";	
 		RowMapper<MasterVO> mapper = new RowMapper<MasterVO>() {
 			@Override
 			public MasterVO mapRow(ResultSet rs, int rowNo) throws SQLException {

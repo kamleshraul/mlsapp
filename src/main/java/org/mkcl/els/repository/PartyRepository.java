@@ -67,8 +67,8 @@ public class PartyRepository
 		return this.search(search);		
 	}
 
-	public List<MasterVO> findAllSortedVO() {
-		String query="SELECT name FROM parties ORDER BY name asc";	
+	public List<MasterVO> findAllSortedVO(String locale) {
+		String query="SELECT name FROM parties WHERE locale = '"+ locale+ "' ORDER BY name asc";	
 		RowMapper<MasterVO> mapper = new RowMapper<MasterVO>() {
 			@Override
 			public MasterVO mapRow(ResultSet rs, int rowNo) throws SQLException {

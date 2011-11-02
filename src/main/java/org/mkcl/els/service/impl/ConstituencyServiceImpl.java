@@ -88,8 +88,8 @@ public class ConstituencyServiceImpl extends GenericServiceImpl<Constituency,Lon
 	}
 
 	@Override
-	public List<MasterVO> findAllSortedVO() {
-		return constituencyRepository.findAllSortedVO();
+	public List<MasterVO> findAllSortedVO(String locale) {
+		return constituencyRepository.findAllSortedVO(locale);
 	}
 
 

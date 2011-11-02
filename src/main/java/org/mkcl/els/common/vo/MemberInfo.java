@@ -31,6 +31,7 @@ import java.util.Date;
  * @version v1.0.0
  */
 public class MemberInfo {
+	private Long id;
 	
 	/** The member name. */
 	private String firstName;
@@ -64,10 +65,11 @@ public class MemberInfo {
 		super();
 	}
 
-	public MemberInfo(String firstName, String middleName, String lastName,
-			String constituency, String party, String gender,
+	public MemberInfo(Long id, String firstName, String middleName,
+			String lastName, String constituency, String party, String gender,
 			boolean maritalStatus, Integer noOfTerms, Date birthDate) {
 		super();
+		this.id = id;
 		this.firstName = firstName;
 		this.middleName = middleName;
 		this.lastName = lastName;
@@ -77,6 +79,14 @@ public class MemberInfo {
 		this.maritalStatus = maritalStatus;
 		this.noOfTerms = noOfTerms;
 		this.birthDate = birthDate;
+	}
+
+	public Long getId() {
+		return id;
+	}
+
+	public void setId(Long id) {
+		this.id = id;
 	}
 
 	public String getFirstName() {
@@ -150,5 +160,6 @@ public class MemberInfo {
 	public void setBirthDate(Date birthDate) {
 		this.birthDate = birthDate;
 	}
+
 	
 }
