@@ -1,5 +1,6 @@
 /*Common javascript functions to be used across jsp files */
 function initControls(){
+	$('select[multiple="multiple"]').sexyselect({width:250,showTitle: false, selectionMode: 'multiple', styleize: true});
 	$("input[class^='numeric']").autoNumeric();
 	$("input[class^='integer']").autoNumeric({mDec: 0});
 	$('.autosuggest').each(function(){
@@ -38,11 +39,12 @@ function loadGrid(gridId, baseFilter) {
 			viewrecords: true,
 			jsonReader: { repeatitems : false},
 			gridview:true,
+			multiselect:eval(grid.multiSelect),
 			postData: {
 				"baseFilters": baseFilter
 			},
 			loadComplete:function(data,obj){
-				$("#grid").jqGrid('setGridHeight', $('#navigation').innerHeight()-103);
+				//$("#grid").jqGrid('setGridHeight', $('#navigation').innerHeight()-103);
 				if($('#refresh').val()=="refresh"){
 					var top_rowid = $('#grid tbody:first-child tr:nth-child(2)').attr('id');
 					if(!top_rowid){
@@ -53,18 +55,22 @@ function loadGrid(gridId, baseFilter) {
 					}
 					else{
 						$('#contentPanel').load(grid.detailView + '/' + top_rowid+'/edit',function(data){
-			                var title = $(data).filter('title').text();
+							var title = $(data).filter('title').text();
 							$('#content > .subHeader > div').html(title);
+
 						});
 					}	
 				}								
 			},
-			onSelectRow:function() {				
-				var row = $("#grid").jqGrid('getGridParam','selrow');
-				$('#contentPanel').load(grid.detailView + '/' + row+'/edit',function(data){
-	                var title = $(data).filter('title').text();
-					$('#content > .subHeader > div').html(title);
-				});
+			onSelectRow:function() {
+				if(!$(this).getGridParam("multiselect")){
+					$('#contentPanel').empty();				
+					var row = $("#grid").jqGrid('getGridParam','selrow');				
+					$('#contentPanel').load(grid.detailView + '/' + row+'/edit',function(data){
+						var title = $(data).filter('title').text();
+						$('#content > .subHeader > div').html(title);
+					});	
+				}							
 			}
 		});
 		$("#grid").jqGrid('navGrid','#grid_pager',{edit:false,add:false,del:false, search:true},{},{},{},{multipleSearch:true});
@@ -104,7 +110,6 @@ function unUploadify(element){
 };
 	
 	function uploadify(element,ext,size,url){
-		alert(location.pathname);
 		var sizeInMB=size/(1024*1024);	
 		var extTokens=ext.split(",");
 		var extType="";
