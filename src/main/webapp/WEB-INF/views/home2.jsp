@@ -3,7 +3,8 @@
 <html>
 <head>
 	<meta content="text/html; charset=utf-8" http-equiv="Content-Type" />
-	<title><spring:message code="home2.welcome"/></title>
+	<title><spring:message code="welcome" text="Welcome"/></title>
+	<link rel="stylesheet" media="screen" href="./resources/css/ui.sexyselect.0.55.css" />	
 	<link rel="stylesheet"  href="./resources/css/uploadify.css" />
 	<link type="text/css" rel="stylesheet" href="./resources/css/wufoo/structure.css" />
 	<link type="text/css" rel="stylesheet" href="./resources/css/wufoo/theme.css" />
@@ -12,7 +13,7 @@
 	<link type="text/css" rel="stylesheet" href="./resources/css/layout.css" />
 	<link type="text/css" rel="stylesheet" href="./resources/css/jquery.flexbox.css" />
 	<link rel="stylesheet" rel="stylesheet" href="./resources/css/ui.jqgrid.css"  />
-	<link rel="stylesheet" rel="stylesheet" href="./resources/css/start/jquery-ui-1.8.15.custom.css"  />
+	<link rel="stylesheet" rel="stylesheet" href="./resources/css/aristo/jquery-ui-1.8.7.custom.css"  />
 	<link rel="stylesheet"  href="./resources/css/thickbox.css" />
 	
 	<script type="text/javascript" src="./resources/js/jquery-1.6.2.min.js"></script>
@@ -28,6 +29,7 @@
 	<script type="text/javascript" src="./resources/js/jquery.uploadify.js"></script>
 	<script type="text/javascript" src="./resources/js/jquery.jqGrid.fluid.js"></script>
 	<script type="text/javascript" src="./resources/js/swfobject.js"></script>	
+	<script type="text/javascript" src="./resources/js/ui.sexyselect.min.0.55.js"></script>
 	<script type="text/javascript" src="./resources/js/common.js"></script> 	
 	<script type="text/javascript">
         function resizeWindow() 
@@ -127,6 +129,8 @@
             </div>
             <div class="clear"></div>
             <%@ include file="/common/footer.jsp" %>
+            
+           
 </body>
 </html>
 

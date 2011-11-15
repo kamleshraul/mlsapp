@@ -1,7 +1,7 @@
 <%@ include file="/common/taglibs.jsp" %>
 <html>
 <head>
-	<title>Menu Hierarchy</title>
+	<title><spring:message code="masters.menus.list.title" text="Menu Hierarchy"/></title>
 	<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
 	<link rel="stylesheet" media="screen" href="./resources/css/jquery.treeview.css" type="text/css" />
 	<script type="text/javascript" src="./resources/js/jquery.treeview.min.js"></script>
@@ -66,9 +66,9 @@
 <div>
 	<div class="commandbar">
 		<div class="commandbarContent" >
-			<a href="menus/new" id="new_record">New</a> | 
-			<a href="menus" id="delete_record">Delete</a> |
-			<a href="menus/list" id="refresh">Refresh</a> |
+			<a href="menus/new" id="new_record"><spring:message code="generic.new" text="New"/></a> | 
+			<a href="menus" id="delete_record"><spring:message code="generic.delete" text="Delete"/></a> |
+			<a href="menus/list" id="refresh"><spring:message code="generic.refresh" text="Refresh"/></a> |
 		</div>
 	</div>
 </div>

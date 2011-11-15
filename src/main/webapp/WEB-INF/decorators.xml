@@ -60,25 +60,24 @@
 		<pattern>/fields</pattern>
 		<pattern>/fields/new</pattern>
 		<pattern>/fields/*/edit</pattern>
-		<pattern>/fields/*/delete</pattern>		
+		<pattern>/fields/*/delete</pattern>	
+		<pattern>/member_role/assignroles</pattern>
+		<pattern>/member_role/assignroles/update</pattern>
+		<pattern>/member_role/assignroles/*/new</pattern>
+		<pattern>/member_role/assignroles/*/edit</pattern>
+		<pattern>/member_role/assignroles/*/delete</pattern>
+		<pattern>/member_role/assignmembers</pattern>
+		<pattern>/member_role/assignmembers/update</pattern>
+		<pattern>/member_role/assignmembers/*/new</pattern>
+		<pattern>/member_role/assignmembers/*/edit</pattern>
+		<pattern>/member_role/assignmembers/*/delete</pattern>	
     </decorator>
     <decorator name="mnu_form" page="mnu_form.jsp">
 		<pattern>/menus</pattern>
 		<pattern>/menus/new</pattern>
 		<pattern>/menus/*/edit</pattern>
 		<pattern>/menus/*/delete</pattern> 
-   </decorator>
-   <decorator name="mis_form" page="mis_form.jsp">
-		<pattern>/member_personal_details</pattern>
-		<pattern>/member_personal_details/new</pattern>
-		<pattern>/member_personal_details/*/edit</pattern>
-		<pattern>/member_personal_details/*/delete</pattern>		
-		<pattern>/member_contact_details</pattern>
-		<pattern>/member_contact_details/*/edit</pattern>
-		<pattern>/member_other_details</pattern>
-		<pattern>/member_other_details/*/edit</pattern>	
-		<pattern>/member_position_details/*/delete</pattern>		
-	 </decorator>
+   </decorator>  
     <decorator name="acctform" page="acct_form.jsp">
     	<pattern>/acct/**</pattern>
     </decorator>

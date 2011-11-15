@@ -6,40 +6,30 @@
 <title></title>
 <link rel="stylesheet" media="screen" href="./resources/css/insync.css" />
 <script type="text/javascript" src="./resources/js/jquery-1.6.2.min.js"></script>
-
-<!--[if lt IE 9]>
-<script src="http://themes.vivantdesigns.com/streamlined/js/html5.js"></script>
-<script src="http://themes.vivantdesigns.com/streamlined/js/PIE.js"></script>
-<![endif]-->
-<!-- jquerytools -->
-
-<!--[if lte IE 9]>
-<link rel="stylesheet" media="screen" href="http://themes.vivantdesigns.com/streamlined/css/ie.css" />
-<script type="text/javascript" src="http://themes.vivantdesigns.com/streamlined/js/ie.js"></script>
-<![endif]-->
-
-
 <script type="text/javascript"> 
 	$(document).ready(function(){
 	    $("#j_username").focus();
 	    $("#lang").change(function(){
-		    var url = location.href + "?lang="+$(this).val();
-		    location.href = url;
+		   location.search = "?lang="+$('#lang').val();
 	    });
+	    
 	});
 </script> 
-<meta charset="UTF-8"></head><p>
-<label for="lang"><spring:message code="lang" text="Change Language" /></label>
-				<select id="lang" name="language" required="required">
-					<option value="en" selected="selected">English</option>
-					<option value="mr_IN">Marathi</option>
-					<option value="hi_IN">Hindi</option>
-</select>
-</p>
+</head>
 <body class="login">
+
+<p>
+<input type="hidden" value="${lang}" id="language">
+<label for="lang"><spring:message code="lang" text="Change Language" /></label>	
+			<select id="lang" name="language" >
+				<c:forEach items="${locales}" var="i">
+				<option value='${i.split("#")[0]}'>${i.split("#")[1]}</option>
+				</c:forEach>					
+			</select>
+</p>
+
     <div class="login-box main-content">
-      <header><h2></h2></header>
-    	<section>
+       	<section>
     		<c:if test="${not empty param['error']}"> 
     			<div class="message error">${sessionScope["SPRING_SECURITY_LAST_EXCEPTION"].message}</div>
 			</c:if> 
@@ -49,24 +39,23 @@
     		<form id="form" action="<c:url value='/j_spring_security_check'/>" method="post" class="clearfix">
 			<p>
 				<label for="j_username"><spring:message code="user_lbl_fname" text="Username" /></label>
-				<input type="text" id="j_username"  class="full" value="" name="j_username" required="required" placeholder="Username" autofocus/>
+				<input type="text" id="j_username"  class="full" value="" name="j_username"/>
 			</p>
 			<p>
 				<label for="password"><spring:message code="user_lbl_password" text="Password" /></label>
-				<input type="password" id="j_password" class="full" value="" name="j_password" required="required" placeholder="Password" />
+				<input type="password" id="j_password" class="full" value="" name="j_password"/>
 			</p>
 			<p>
 			</p>
 			<p class="clearfix">
 				<span class="fl">
 					<input type="checkbox" id="remember" class="" value="1" name="remember"/>
-					<label class="choice" for="remember"><spring:message code="user_lbl_remember" text="Password" /></label>
+					<label class="choice" for="remember"><spring:message code="user_lbl_remember" text="Remember Password" /></label>
 				</span>
-				<input id="saveForm" class="button button-gray fr" type="submit" value="<spring:message code="user_lbl_login"/>" />
-			
+				<input id="saveForm" class="button button-gray fr" type="submit" value="<spring:message code='user_lbl_login' text='Login'/>" />			
 			</p>
 		</form>
-    	</section>
-    </div>
+    	</div>
+    </section>
 </body>
 </html>

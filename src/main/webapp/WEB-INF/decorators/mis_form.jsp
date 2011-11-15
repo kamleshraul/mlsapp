@@ -6,7 +6,8 @@
 </title>
 	<decorator:head/>			
 	<script type="text/javascript">
-		$(document).ready(function() {				
+		$(document).ready(function() {
+			alert("Decorator");
 			$('.mis').click(function(event){
 				var id=$('#id').val();
 				if(id!=undefined && id!=""){
@@ -16,15 +17,19 @@
 				}			
 			return false;			
 			});	
+				
 			initControls();
+			
 		    $(':input:visible:not([readonly]):first').focus();
+		    
 			$("form").submit(function(e){	
-				e.preventDefault();			
+				//e.preventDefault();			
 				var count=0;
 				$('.MANDATORY').each(function(){
 				if($(this).val()==""){
 					$(this).after("<span class='field_error'>Required</span>");					
 					count++;
+					return false;
 				}
 			})
 			if(count>0){
@@ -52,9 +57,9 @@
 					inEffectDuration:600
 				});
 			}
-			$('#refresh').val($('#refreshSe').val());				
+			//$('#refresh').val($('#refreshSe').val());				
 					
-		});
+		//});
 	</script>	
 </head>
 <body>	

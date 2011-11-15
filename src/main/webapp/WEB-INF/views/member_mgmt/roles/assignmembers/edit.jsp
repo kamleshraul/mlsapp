@@ -1,0 +1,107 @@
+<%@ include file="/common/taglibs.jsp" %>
+<html>
+<body>
+<form class="wufoo" action="member_role/assignmembers/update" method="post"">
+<div class="info">
+		<h2><spring:message code="mms.assignmembers.edit.heading" text="Edit Members"/></h2>
+			<div style="background-color:#C1CDCD; ;padding: 3px"><spring:message code="generic.mandatory.label" text="Note: Fields marked * are mandatory"/></div>
+</div>
+<ul>
+		<li>
+		<label class="desc"><spring:message code="mms.assignmembers.roleid" text="Role Id"/></label>
+			<div>
+			<input type="text" value="${role.id}" name="roleId" id="roleId" readonly="readonly">
+			</div>
+		</li>
+		<li>
+		<label class="desc"><spring:message code="mms.assignmembers.rolename" text="Role Name"/></label>
+			<div>
+			<input type="text" value="${role.name}" name="roleName" id="roleName" readonly="readonly">
+			</div>
+		</li>
+</ul>
+<table class="datatable">
+<thead>
+<tr>
+<th><input type="checkbox" name="selectAll" id="selectAll"></th>
+<th>Assembly</th>
+<th>Member</th>
+<th>From</th>
+<th>To</th>
+<th>Remarks</th>
+</tr>
+</thead>
+<tbody>
+<c:set var="count" value="1"></c:set>
+<c:if test="${!(empty memberRoles)}">
+<c:forEach items="${memberRoles}" var="i">
+<tr>
+<td><input type="checkbox" name="check${count}" id="check${count}"></td>
+<td><select id="assembly${count}" name="assembly${count}">
+<c:forEach items="${assemblies}" var="j">
+<option value="${j.id}"><c:out value="${j.assembly}"></c:out></option>
+</c:forEach>
+</select>
+<input type="hidden" value="${i.id}" name="id${count}" id="id${count}">
+<input type="hidden" value="${i.version}" name="version${count}" id="version${count}">
+<input type="hidden" value="${i.locale}" name="locale${count}" id="locale${count}">
+<input type="hidden" value="${i.assembly.id}" name="selectedassembly${count}" id="selectedassembly${count}">
+</td>
+
+<td><input id="member${count}" name="member${count}" value="${i.member.firstName} ${i.member.middleName} ${i.member.lastName}">
+<input type="hidden" value="${i.member.id}" name="selectedmember${count}" id="selectedmember${count}">
+</td>
+
+<td><input value="${i.fromDate}" type="text" id="fromDate${count}" class="date" name="fromDate${count}" size="10"></td>
+
+<td><input value="${i.toDate}" type="text" id="toDate${count}" class="date" name="toDate${count}" size="10"></td>
+
+<td><input  id="remarks${count}"  name="remarks${count}" value="${i.remarks}" size="10"></td>
+<td>
+</tr>
+<c:set var="count" value="${count+1}"></c:set>
+</c:forEach>
+</c:if>
+</tbody>
+</table>
+<input type="hidden" value="${noOfRecords}" name="noOfRecords" id="noOfRecords">
+<input id="saveForm" class="btTxt" type="submit" value="<spring:message code='generic.edit.submit' text='Update'/>" />
+</form>
+</body>
+<head>
+	<title><spring:message code="mms.assignroles.edit.title" text="Edit Assigned Roles"/></title>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>	
+	<link rel="stylesheet" media="screen" href="./resources/css/tables.css" />	
+	<script type="text/javascript">
+	$(document).ready(function(){
+		$('input[type="checkbox"]').each(function(){
+			$(this).attr("checked","checked");
+		});
+		
+		$('select[id^="assembly"]').each(function(){
+			var id=this.id;
+			var count=id.charAt(id.length-1);
+			$('#assembly'+count).val($('#selectedassembly'+count).val());
+		});		
+		$('input[id^="fromDate"]').each(function(){
+			var oldDate=$('#'+this.id).val();
+			if(oldDate!=""){
+				var dateComponents=oldDate.split("-");
+				var formattedDate=dateComponents[2]+"/"+dateComponents[1]+"/"+dateComponents[0];
+				$('#'+this.id).val(formattedDate);
+			}
+			
+		});
+		$('input[id^="toDate"]').each(function(){
+			var oldDate=$('#'+this.id).val();
+			if(oldDate!=""){
+				var dateComponents=oldDate.split("-");
+				var formattedDate=dateComponents[2]+"/"+dateComponents[1]+"/"+dateComponents[0];
+				$('#'+this.id).val(formattedDate);
+			}
+		});
+		
+	});
+	</script>
+</head>
+</html>
