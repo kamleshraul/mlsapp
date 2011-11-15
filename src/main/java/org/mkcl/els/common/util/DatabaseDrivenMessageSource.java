@@ -120,8 +120,8 @@ public class DatabaseDrivenMessageSource extends ReloadableResourceBundleMessage
 		if (textForCurrentLanguage == null) {
 			textForCurrentLanguage = properties.get(Locale.ENGLISH.toString() + "_" + code);
 		}
-		//return textForCurrentLanguage != null ? textForCurrentLanguage : code;
-		return textForCurrentLanguage;
+		return textForCurrentLanguage != null ? textForCurrentLanguage : code;
+		//return textForCurrentLanguage;
 	}
 
 	protected Map<String, String> loadTexts() {
