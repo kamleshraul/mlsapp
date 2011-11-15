@@ -103,8 +103,8 @@ public class HomeController extends BaseController{
 		String menuXml = menuService.getMenuXml(locale);
 		model.addAttribute("menu_xml", menuXml);
 		//used by datepicker to read the date,time format
-		model.addAttribute("dateFormat",customParameterService.findByName("SERVER_DATEFORMAT").getValue());
-		model.addAttribute("timeFormat",customParameterService.findByName("SERVER_TIMEFORMAT").getValue());			
+		model.addAttribute("dateFormat",customParameterService.findByName("DATEPICKER_DATEFORMAT").getValue());
+		model.addAttribute("timeFormat",customParameterService.findByName("DATEPICKER_TIMEFORMAT").getValue());			
 		return "home2";
 	}
 	

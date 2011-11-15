@@ -21,6 +21,8 @@ POSSIBILITY OF SUCH DAMAGE.
  */
 package org.mkcl.els.service;
 
+import java.util.List;
+
 import org.mkcl.els.domain.Assembly;
 import org.mkcl.els.domain.AssemblyNumber;
 
@@ -41,4 +43,6 @@ public interface IAssemblyService extends IGenericService<Assembly ,Long>{
  * @return the assembly
  */
 public Assembly findByAssembly(String assembly);
+public Assembly findCurrentAssembly();
+public List<Assembly> findAllSorted(String locale);
 }

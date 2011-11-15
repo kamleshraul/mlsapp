@@ -22,10 +22,12 @@ POSSIBILITY OF SUCH DAMAGE.
 package org.mkcl.els.domain;
 
 
+import java.io.Serializable;
 import java.util.Date;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
@@ -35,9 +37,8 @@ import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
 import javax.persistence.Version;
 import javax.validation.constraints.NotNull;
-
+import org.codehaus.jackson.annotate.JsonIgnoreProperties;
 import org.hibernate.validator.constraints.NotEmpty;
-
 
 // TODO: Auto-generated Javadoc
 /**
@@ -48,7 +49,13 @@ import org.hibernate.validator.constraints.NotEmpty;
  */
 @Entity
 @Table(name="assemblies")
-public class Assembly {
+@JsonIgnoreProperties("assemblyStructure")
+public class Assembly implements Serializable{
+
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
 
 	/** The id. */
 	@Id
@@ -56,7 +63,7 @@ public class Assembly {
 	private Long id;
 	
 	/** The assembly structure. */
-	@ManyToOne
+	@ManyToOne(fetch=FetchType.LAZY)
 	private AssemblyStructure assemblyStructure;
 	
 	/** The assembly. */
@@ -102,6 +109,8 @@ public class Assembly {
 	@Column(length=50)
 	@NotEmpty
 	private String locale;
+	
+
 
 	/**
 	 * Instantiates a new assembly.
@@ -110,22 +119,8 @@ public class Assembly {
 		super();
 	}
 
-	/**
-	 * Instantiates a new assembly.
-	 *
-	 * @param assemblyStructure the assembly structure
-	 * @param assembly the assembly
-	 * @param strength the strength
-	 * @param term the term
-	 * @param budgetSession the budget session
-	 * @param monsoonSession the monsoon session
-	 * @param winterSession the winter session
-	 * @param assemblyStartDate the assembly start date
-	 * @param assemblyEndDate the assembly end date
-	 * @param assemblyDissolvedOn the assembly dissolved on
-	 * @param version the version
-	 * @param locale the locale
-	 */
+
+
 	public Assembly(AssemblyStructure assemblyStructure, String assembly,
 			Integer strength, String term, boolean budgetSession,
 			boolean monsoonSession, boolean winterSession,
@@ -146,239 +141,158 @@ public class Assembly {
 		this.locale = locale;
 	}
 
-	/**
-	 * Gets the id.
-	 *
-	 * @return the id
-	 */
+
+
 	public Long getId() {
 		return id;
 	}
 
-	/**
-	 * Sets the id.
-	 *
-	 * @param id the new id
-	 */
+
+
 	public void setId(Long id) {
 		this.id = id;
 	}
 
-	/**
-	 * Gets the assembly structure.
-	 *
-	 * @return the assembly structure
-	 */
+
+
 	public AssemblyStructure getAssemblyStructure() {
 		return assemblyStructure;
 	}
 
-	/**
-	 * Sets the assembly structure.
-	 *
-	 * @param assemblyStructure the new assembly structure
-	 */
+
+
 	public void setAssemblyStructure(AssemblyStructure assemblyStructure) {
 		this.assemblyStructure = assemblyStructure;
 	}
 
-	/**
-	 * Gets the assembly.
-	 *
-	 * @return the assembly
-	 */
+
+
 	public String getAssembly() {
 		return assembly;
 	}
 
-	/**
-	 * Sets the assembly.
-	 *
-	 * @param assembly the new assembly
-	 */
+
+
 	public void setAssembly(String assembly) {
 		this.assembly = assembly;
 	}
 
-	/**
-	 * Gets the strength.
-	 *
-	 * @return the strength
-	 */
+
+
 	public Integer getStrength() {
 		return strength;
 	}
 
-	/**
-	 * Sets the strength.
-	 *
-	 * @param strength the new strength
-	 */
+
+
 	public void setStrength(Integer strength) {
 		this.strength = strength;
 	}
 
-	/**
-	 * Gets the term.
-	 *
-	 * @return the term
-	 */
+
+
 	public String getTerm() {
 		return term;
 	}
 
-	/**
-	 * Sets the term.
-	 *
-	 * @param term the new term
-	 */
+
+
 	public void setTerm(String term) {
 		this.term = term;
 	}
 
-	/**
-	 * Checks if is budget session.
-	 *
-	 * @return true, if is budget session
-	 */
+
+
 	public boolean isBudgetSession() {
 		return budgetSession;
 	}
 
-	/**
-	 * Sets the budget session.
-	 *
-	 * @param budgetSession the new budget session
-	 */
+
+
 	public void setBudgetSession(boolean budgetSession) {
 		this.budgetSession = budgetSession;
 	}
 
-	/**
-	 * Checks if is monsoon session.
-	 *
-	 * @return true, if is monsoon session
-	 */
+
+
 	public boolean isMonsoonSession() {
 		return monsoonSession;
 	}
 
-	/**
-	 * Sets the monsoon session.
-	 *
-	 * @param monsoonSession the new monsoon session
-	 */
+
+
 	public void setMonsoonSession(boolean monsoonSession) {
 		this.monsoonSession = monsoonSession;
 	}
 
-	/**
-	 * Checks if is winter session.
-	 *
-	 * @return true, if is winter session
-	 */
+
+
 	public boolean isWinterSession() {
 		return winterSession;
 	}
 
-	/**
-	 * Sets the winter session.
-	 *
-	 * @param winterSession the new winter session
-	 */
+
+
 	public void setWinterSession(boolean winterSession) {
 		this.winterSession = winterSession;
 	}
 
-	/**
-	 * Gets the assembly start date.
-	 *
-	 * @return the assembly start date
-	 */
+
+
 	public Date getAssemblyStartDate() {
 		return assemblyStartDate;
 	}
 
-	/**
-	 * Sets the assembly start date.
-	 *
-	 * @param assemblyStartDate the new assembly start date
-	 */
+
+
 	public void setAssemblyStartDate(Date assemblyStartDate) {
 		this.assemblyStartDate = assemblyStartDate;
 	}
 
-	/**
-	 * Gets the assembly end date.
-	 *
-	 * @return the assembly end date
-	 */
+
+
 	public Date getAssemblyEndDate() {
 		return assemblyEndDate;
 	}
 
-	/**
-	 * Sets the assembly end date.
-	 *
-	 * @param assemblyEndDate the new assembly end date
-	 */
+
+
 	public void setAssemblyEndDate(Date assemblyEndDate) {
 		this.assemblyEndDate = assemblyEndDate;
 	}
 
-	/**
-	 * Gets the assembly dissolved on.
-	 *
-	 * @return the assembly dissolved on
-	 */
+
+
 	public Date getAssemblyDissolvedOn() {
 		return assemblyDissolvedOn;
 	}
 
-	/**
-	 * Sets the assembly dissolved on.
-	 *
-	 * @param assemblyDissolvedOn the new assembly dissolved on
-	 */
+
+
 	public void setAssemblyDissolvedOn(Date assemblyDissolvedOn) {
 		this.assemblyDissolvedOn = assemblyDissolvedOn;
 	}
 
-	/**
-	 * Gets the version.
-	 *
-	 * @return the version
-	 */
+
+
 	public Long getVersion() {
 		return version;
 	}
 
-	/**
-	 * Sets the version.
-	 *
-	 * @param version the new version
-	 */
+
+
 	public void setVersion(Long version) {
 		this.version = version;
 	}
 
-	/**
-	 * Gets the locale.
-	 *
-	 * @return the locale
-	 */
+
+
 	public String getLocale() {
 		return locale;
 	}
 
-	/**
-	 * Sets the locale.
-	 *
-	 * @param locale the new locale
-	 */
 	public void setLocale(String locale) {
 		this.locale = locale;
-	}
-	
+	}	
 	
 }

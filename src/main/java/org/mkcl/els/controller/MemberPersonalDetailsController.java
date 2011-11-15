@@ -20,7 +20,9 @@ import org.mkcl.els.domain.Document;
 import org.mkcl.els.domain.Field;
 import org.mkcl.els.domain.Grid;
 import org.mkcl.els.domain.MemberDetails;
+import org.mkcl.els.domain.MemberRole;
 import org.mkcl.els.domain.Party;
+import org.mkcl.els.service.IAssemblyRoleService;
 import org.mkcl.els.service.IConstituencyService;
 import org.mkcl.els.service.ICustomParameterService;
 import org.mkcl.els.service.IDistrictService;
@@ -28,6 +30,7 @@ import org.mkcl.els.service.IDocumentService;
 import org.mkcl.els.service.IFieldService;
 import org.mkcl.els.service.IGridService;
 import org.mkcl.els.service.IMemberDetailsService;
+import org.mkcl.els.service.IMemberRoleService;
 import org.mkcl.els.service.IPartyService;
 import org.mkcl.els.service.IStateService;
 import org.mkcl.els.service.ITehsilService;
@@ -83,6 +86,15 @@ public class MemberPersonalDetailsController {
 	
 	@Autowired
 	IDocumentService documentService;
+	
+	@Autowired
+	IMemberRoleService memberRoleService;
+	
+	@Autowired
+	IAssemblyRoleService assemblyRoleService;
+	
+	
+	
 	
 	private static final String FORM_NAME="MIS.PERSONAL";
 
@@ -146,9 +158,13 @@ public class MemberPersonalDetailsController {
 			model.addAttribute("msg","create_failed");
 			return "member_details/personal/new";
 		}
-		memberDetailsService.create(memberPersonalDetails);
+		if(customParameterService.findByName("CREATE_DEFAULT_MEMBERROLE").getValue().toLowerCase().equals("yes")){
+			memberDetailsService.createMemberAndDefaultRole(memberPersonalDetails);
+		}else{
+			memberDetailsService.create(memberPersonalDetails);
+		}		
 		request.getSession().setAttribute("refresh","");
-		if(customParameterService.findByName("MIS_PROGRESSIVE_DISPLAY").getValue().equals("PROGRESSIVE")){
+		if(customParameterService.findByName("MIS_PROGRESSIVE_DISPLAY").getValue().toLowerCase().equals("progressive")){
 			return "redirect:/member_contact_details/"+memberPersonalDetails.getId()+"/edit?type=success&msg=create_success";
 		}
 		else{
@@ -173,7 +189,7 @@ public class MemberPersonalDetailsController {
 		}	
 			memberDetailsService.updateMemberPersonalDetails(memberPersonalDetails);
 			request.getSession().setAttribute("refresh","");
-			if(customParameterService.findByName("MIS_PROGRESSIVE_DISPLAY").getValue().equals("PROGRESSIVE")){
+			if(customParameterService.findByName("MIS_PROGRESSIVE_DISPLAY").getValue().toLowerCase().equals("progressive")){
 				return "redirect:/member_contact_details/"+memberPersonalDetails.getId()+"/edit?type=success&msg=update_success";
 			}
 			else{

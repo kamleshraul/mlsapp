@@ -47,7 +47,12 @@ import javax.persistence.TemporalType;
 @Table(name = "documents")
 public class Document implements Serializable{
 
-    /** The id. */
+    /**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
+
+	/** The id. */
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;    

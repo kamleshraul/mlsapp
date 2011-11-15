@@ -21,6 +21,7 @@ POSSIBILITY OF SUCH DAMAGE.
  */
 package org.mkcl.els.repository;
 
+import java.util.Date;
 import java.util.List;
 
 import org.mkcl.els.domain.Assembly;
@@ -51,6 +52,18 @@ public class AssemblyRepository extends BaseRepository<Assembly, Long>{
 		search.addFilterEqual("assembly", assembly);
 		return 	this.searchUnique(search);
 
+	}
+
+	public Assembly findCurrentAssembly() {
+		Date currentDate=new Date();		
+		return null;
+	}
+
+	public List<Assembly> findAllSorted(String locale) {
+		Search search = new Search();
+		search.addFilterEqual("locale", locale);
+		search.addSort("assemblyStartDate", true);
+		return 	this.search(search);		
 	}
 	
 	

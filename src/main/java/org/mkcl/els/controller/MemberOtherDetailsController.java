@@ -90,7 +90,7 @@ public class MemberOtherDetailsController {
 			}			
 		}
 		memberDetailsService.updateMemberOtherDetails(memberOtherDetails);
-		if(customParameterService.findByName("MIS_PROGRESSIVE_DISPLAY").getValue().equals("PROGRESSIVE")){
+		if(customParameterService.findByName("MIS_PROGRESSIVE_DISPLAY").getValue().toLowerCase().equals("progressive")){
 			return "redirect:/member_personal_details/"+memberOtherDetails.getId()+"/edit?type=success&msg=update_success";
 		}
 		else{

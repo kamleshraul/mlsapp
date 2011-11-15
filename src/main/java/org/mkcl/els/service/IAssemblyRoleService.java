@@ -21,6 +21,8 @@ POSSIBILITY OF SUCH DAMAGE.
  */
 package org.mkcl.els.service;
 
+import java.util.List;
+
 import org.mkcl.els.domain.AssemblyRole;
 
 /**
@@ -39,4 +41,8 @@ public interface IAssemblyRoleService
 	 * @return the assembly role
 	 */
 	public AssemblyRole findByName(String name);
+
+	public List<AssemblyRole> findAllSorted(String locale);
+
+	public List<AssemblyRole> findUnassignedRoles(String locale, Long memberId);
 }

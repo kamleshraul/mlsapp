@@ -53,6 +53,8 @@ public class GridConfig {
 	/** The detail view. */
 	String detailView;
 	
+	boolean multiSelect;
+	
 	/**
 	 * Instantiates a new grid config vo.
 	 */
@@ -72,7 +74,7 @@ public class GridConfig {
 	 * @param detailView the detail view
 	 */
 	public GridConfig(String title, String colNames, String colModel,
-			int height, int width, int pageSize, String sortOrder,String detailView) {
+			int height, int width, int pageSize, String sortOrder,String detailView,boolean multiSelect) {
 		super();
 		this.title = title;
 		this.colNames = colNames;
@@ -82,6 +84,8 @@ public class GridConfig {
 		this.pageSize = pageSize;
 		this.sortOrder = sortOrder;
 		this.detailView = detailView;
+		this.multiSelect=multiSelect;
+		
 	}
 
 	/**
@@ -227,7 +231,12 @@ public class GridConfig {
 	public void setDetailView(String detailView) {
 		this.detailView = detailView;
 	}
-	
-	
-	
+
+	public boolean isMultiSelect() {
+		return multiSelect;
+	}
+
+	public void setMultiSelect(boolean multiSelect) {
+		this.multiSelect = multiSelect;
+	}	
 }

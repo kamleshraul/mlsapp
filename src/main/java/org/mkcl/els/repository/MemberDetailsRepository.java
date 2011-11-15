@@ -3,8 +3,6 @@ package org.mkcl.els.repository;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.List;
 
 import javax.persistence.Query;
 import javax.sql.DataSource;
@@ -14,9 +12,8 @@ import org.mkcl.els.common.vo.MemberInfo;
 import org.mkcl.els.common.vo.MemberSearchPage;
 import org.mkcl.els.domain.Document;
 import org.mkcl.els.domain.MemberDetails;
-import org.mkcl.els.domain.MemberPositionsDetails;
+import org.mkcl.els.domain.MemberRole;
 import org.mkcl.els.service.ICustomParameterService;
-import org.mkcl.els.service.IDocumentService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
@@ -470,5 +467,16 @@ public class MemberDetailsRepository extends BaseRepository<MemberDetails, Long>
 		return documentRepository.findByTag(tag);
 	}
 
+	public MemberDetails findByIdAndLocale(Long memberId, String locale) {
+		Search search=new Search();
+		search.addFilterEqual("id",memberId);
+		search.addFilterEqual("locale",locale);
+		return this.searchUnique(search);
+	}
 
+//	public MemberDetails findById(Long memberId) {
+//		Search search=new Search();
+//		search.addFilterEqual("id",memberId);		
+//		return this.searchUnique(search);
+//		}
 }

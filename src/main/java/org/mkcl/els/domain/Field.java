@@ -21,6 +21,8 @@ POSSIBILITY OF SUCH DAMAGE.
  */
 package org.mkcl.els.domain;
 
+import java.io.Serializable;
+
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -38,8 +40,13 @@ import javax.persistence.Version;
  */
 @Entity
 @Table(name="fields")
-public class Field {
+public class Field implements Serializable{
 	
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
+
 	/** The id. */
 	@Id
 	@GeneratedValue(strategy = GenerationType.AUTO)

@@ -205,7 +205,7 @@ public class AssemblyController extends BaseController{
 	@InitBinder 
 	public void initBinder(WebDataBinder binder) { 
 		SimpleDateFormat dateFormat = new SimpleDateFormat(customParameterService.findByName("SERVER_DATEFORMAT").getValue()); 
-		dateFormat.setLenient(true); 
+		dateFormat.setLenient(false); 
 		binder.registerCustomEditor(AssemblyStructure.class, new AssemblyStructureEditor(assemblyStructureService));
 		binder.registerCustomEditor(java.util.Date.class, new CustomDateEditor(dateFormat, true));
 

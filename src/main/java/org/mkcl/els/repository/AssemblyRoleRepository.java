@@ -21,8 +21,19 @@ POSSIBILITY OF SUCH DAMAGE.
  */
 package org.mkcl.els.repository;
 
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.List;
+
+import javax.sql.DataSource;
+
+import org.mkcl.els.common.vo.MemberInfo;
 import org.mkcl.els.domain.AssemblyRole;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Repository;
+
 import com.trg.search.Search;
 
 /**
@@ -35,6 +46,13 @@ import com.trg.search.Search;
 public class AssemblyRoleRepository 
 	extends BaseRepository<AssemblyRole, Long>{
 
+	private JdbcTemplate jdbcTemplate;
+	
+	@Autowired
+	public void setDataSource(DataSource dataSource) {
+		this.jdbcTemplate = new JdbcTemplate(dataSource);
+	}
+
 	/**
 	 * Find by name.
 	 *
@@ -46,5 +64,28 @@ public class AssemblyRoleRepository
 		search.addFilterEqual("name", name);
 		AssemblyRole assemblyRole = this.searchUnique(search);
 		return assemblyRole;
+	}
+
+	public List<AssemblyRole> findAllSorted(String locale) {
+		Search search = new Search();
+		search.addFilterEqual("locale", locale);
+		search.addSort("name",false);
+		return this.search(search);
+	}
+
+	public List<AssemblyRole> findUnassignedRoles(String locale, Long memberId) {
+		String query="SELECT * FROM assembly_roles as a WHERE a.id not in(SELECT m.role FROM member_roles as m WHERE m.member="+memberId+")";
+		RowMapper<AssemblyRole> mapper = new RowMapper<AssemblyRole>() {
+			@Override
+			public AssemblyRole mapRow(ResultSet rs, int arg1) throws SQLException {
+				AssemblyRole assemblyRole = new AssemblyRole();
+				assemblyRole.setId(rs.getLong("id"));
+				assemblyRole.setLocale(rs.getString("locale"));
+				assemblyRole.setName(rs.getString("name"));
+				assemblyRole.setVersion(rs.getLong("version"));
+				return assemblyRole;
+				}
+		};	
+		return jdbcTemplate.query(query, mapper, new Object[]{});
 	}
 }

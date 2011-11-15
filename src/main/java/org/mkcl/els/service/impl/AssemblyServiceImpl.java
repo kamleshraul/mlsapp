@@ -21,6 +21,9 @@ POSSIBILITY OF SUCH DAMAGE.
  */
 package org.mkcl.els.service.impl;
 
+import java.util.Date;
+import java.util.List;
+
 import org.mkcl.els.domain.Assembly;
 import org.mkcl.els.domain.AssemblyNumber;
 import org.mkcl.els.repository.AssemblyRepository;
@@ -59,6 +62,16 @@ implements IAssemblyService{
 	@Override
 	public Assembly findByAssembly(String assembly) {
 		return assemblyRepository.findByAssembly(assembly);
+	}
+
+	@Override
+	public Assembly findCurrentAssembly() {
+		return assemblyRepository.findCurrentAssembly();
+	}
+
+	@Override
+	public List<Assembly> findAllSorted(String locale) {
+		return assemblyRepository.findAllSorted(locale);
 	}
 
 }

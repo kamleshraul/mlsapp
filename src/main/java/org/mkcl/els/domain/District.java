@@ -23,6 +23,8 @@ POSSIBILITY OF SUCH DAMAGE.
 
 package org.mkcl.els.domain;
 
+import java.io.Serializable;
+
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -47,7 +49,12 @@ import org.hibernate.validator.constraints.NotEmpty;
 
 @Entity
 @Table(name="districts")
-public class District {
+public class District implements Serializable{
+
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
 
 	/** The id. */
 	@Id

@@ -103,6 +103,10 @@ public class Grid implements Serializable {
 	/** The version. */
     @Version
     private Long version;
+    
+    private boolean multiSelect=false;
+    
+    private boolean nativeQuery=false;
 	
 	// Constructors --------------------------------------------------------------------------------------------------------------------
 
@@ -111,26 +115,12 @@ public class Grid implements Serializable {
 	 */
 	public Grid(){
 	}
-	
-	/**
-	 * Instantiates a new grid.
-	 *
-	 * @param name the name
-	 * @param title the title
-	 * @param colNames the col names
-	 * @param colModel the col model
-	 * @param pageSize the page size
-	 * @param sortField the sort field
-	 * @param sortOrder the sort order
-	 * @param query the query
-	 * @param countQuery the count query
-	 * @param width the width
-	 * @param height the height
-	 * @param detailView the view to be shown on content panel
-	 * @param localized the localized
-	 */
+
 	public Grid(String name, String title, String colNames, String colModel,
-			int pageSize, String sortField, String sortOrder,String query, String countQuery, int width, int height, String detailView, Boolean localized) {
+			int pageSize, String sortField, String sortOrder, String query,
+			String countQuery, int width, int height, String detailView,
+			Boolean localized, Long version, boolean multiSelect,
+			boolean nativeQuery) {
 		super();
 		this.name = name;
 		this.title = title;
@@ -141,298 +131,153 @@ public class Grid implements Serializable {
 		this.sortOrder = sortOrder;
 		this.query = query;
 		this.countQuery = countQuery;
-		this.height = height;
 		this.width = width;
+		this.height = height;
 		this.detailView = detailView;
 		this.localized = localized;
-	}
-	
-	/**
-	 * Instantiates a new grid.
-	 *
-	 * @param name the name
-	 * @param title the title
-	 * @param colNames the col names
-	 * @param colModel the col model
-	 * @param query the query
-	 * @param countQuery the count query
-	 * @param detailView the detail view
-	 */
-	public Grid(String name, String title, String colNames, String colModel, String query, String countQuery,String detailView){
-		this(name,title,colNames,colModel,30,"id","asc",query,countQuery,100,100,detailView,false);
+		this.version = version;
+		this.multiSelect = multiSelect;
+		this.nativeQuery = nativeQuery;
 	}
 
-
-	// Getters/Setter--------------------------------------------------------------------------------------------------------------------
-	
-	/**
-	 * Gets the id.
-	 *
-	 * @return the id
-	 */
 	public Long getId() {
 		return id;
 	}
 
-	/**
-	 * Sets the id.
-	 *
-	 * @param id the new id
-	 */
 	public void setId(Long id) {
 		this.id = id;
 	}
 
-	/**
-	 * Gets the name.
-	 *
-	 * @return the name
-	 */
 	public String getName() {
 		return name;
 	}
 
-	/**
-	 * Sets the name.
-	 *
-	 * @param name the new name
-	 */
 	public void setName(String name) {
 		this.name = name;
 	}
 
-	/**
-	 * Gets the title.
-	 *
-	 * @return the title
-	 */
 	public String getTitle() {
 		return title;
 	}
 
-	/**
-	 * Sets the title.
-	 *
-	 * @param title the new title
-	 */
 	public void setTitle(String title) {
 		this.title = title;
 	}
 
-	/**
-	 * Gets the col names.
-	 *
-	 * @return the col names
-	 */
 	public String getColNames() {
 		return colNames;
 	}
 
-	/**
-	 * Sets the col names.
-	 *
-	 * @param colNames the new col names
-	 */
 	public void setColNames(String colNames) {
 		this.colNames = colNames;
 	}
 
-	/**
-	 * Gets the col model.
-	 *
-	 * @return the col model
-	 */
 	public String getColModel() {
 		return colModel;
 	}
 
-	/**
-	 * Sets the col model.
-	 *
-	 * @param colModel the new col model
-	 */
 	public void setColModel(String colModel) {
 		this.colModel = colModel;
 	}
 
-	/**
-	 * Gets the page size.
-	 *
-	 * @return the page size
-	 */
 	public int getPageSize() {
 		return pageSize;
 	}
 
-	/**
-	 * Sets the page size.
-	 *
-	 * @param pageSize the new page size
-	 */
 	public void setPageSize(int pageSize) {
 		this.pageSize = pageSize;
 	}
 
-	/**
-	 * Gets the sort field.
-	 *
-	 * @return the sort field
-	 */
 	public String getSortField() {
 		return sortField;
 	}
 
-	/**
-	 * Sets the sort field.
-	 *
-	 * @param sortField the new sort field
-	 */
 	public void setSortField(String sortField) {
 		this.sortField = sortField;
 	}
 
-	/**
-	 * Gets the sort order.
-	 *
-	 * @return the sort order
-	 */
 	public String getSortOrder() {
 		return sortOrder;
 	}
 
-	/**
-	 * Sets the sort order.
-	 *
-	 * @param sortOrder the new sort order
-	 */
 	public void setSortOrder(String sortOrder) {
 		this.sortOrder = sortOrder;
 	}
 
-	/**
-	 * Gets the sql.
-	 *
-	 * @return the sql
-	 */
 	public String getQuery() {
 		return query;
 	}
 
-	/**
-	 * Sets the sql.
-	 *
-	 * @param query the new query
-	 */
 	public void setQuery(String query) {
 		this.query = query;
 	}
-	
-	/**
-	 * Gets the width.
-	 *
-	 * @return the width
-	 */
-	public int getWidth() {
-		return width;
-	}
 
-	/**
-	 * Sets the width.
-	 *
-	 * @param width the new width
-	 */
-	public void setWidth(int width) {
-		this.width = width;
-	}
-
-	/**
-	 * Gets the height.
-	 *
-	 * @return the height
-	 */
-	public int getHeight() {
-		return height;
-	}
-
-	/**
-	 * Sets the height.
-	 *
-	 * @param height the new height
-	 */
-	public void setHeight(int height) {
-		this.height = height;
-	}
-
-	/**
-	 * Gets the count query.
-	 *
-	 * @return the count query
-	 */
 	public String getCountQuery() {
 		return countQuery;
 	}
 
-	/**
-	 * Sets the count query.
-	 *
-	 * @param countQuery the new count query
-	 */
 	public void setCountQuery(String countQuery) {
 		this.countQuery = countQuery;
 	}
 
-	/**
-	 * Gets the detail view.
-	 *
-	 * @return the detail view
-	 */
+	public int getWidth() {
+		return width;
+	}
+
+	public void setWidth(int width) {
+		this.width = width;
+	}
+
+	public int getHeight() {
+		return height;
+	}
+
+	public void setHeight(int height) {
+		this.height = height;
+	}
+
 	public String getDetailView() {
 		return detailView;
 	}
 
-	/**
-	 * Sets the detail view.
-	 *
-	 * @param detailView the new detail view
-	 */
 	public void setDetailView(String detailView) {
 		this.detailView = detailView;
 	}
 
-	/**
-	 * Gets the localized.
-	 *
-	 * @return the localized
-	 */
 	public Boolean getLocalized() {
 		return localized;
 	}
 
-	/**
-	 * Sets the localized.
-	 *
-	 * @param localized the new localized
-	 */
 	public void setLocalized(Boolean localized) {
 		this.localized = localized;
 	}
-	
-	/**
-	 * Gets the version.
-	 *
-	 * @return the version
-	 */
+
 	public Long getVersion() {
 		return version;
 	}
 
-	
-	/**
-	 * Sets the version.
-	 *
-	 * @param version the new version
-	 */
-	public void setVersion(Long version){
+	public void setVersion(Long version) {
 		this.version = version;
 	}
+
+	public boolean isMultiSelect() {
+		return multiSelect;
+	}
+
+	public void setMultiSelect(boolean multiSelect) {
+		this.multiSelect = multiSelect;
+	}
+
+	public boolean isNativeQuery() {
+		return nativeQuery;
+	}
+
+	public void setNativeQuery(boolean nativeQuery) {
+		this.nativeQuery = nativeQuery;
+	}
+
+	public static long getSerialversionuid() {
+		return serialVersionUID;
+	}
+	
 }

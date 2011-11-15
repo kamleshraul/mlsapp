@@ -4,8 +4,12 @@ import org.mkcl.els.common.vo.MemberBiographyVO;
 import org.mkcl.els.common.vo.MemberSearchPage;
 import org.mkcl.els.domain.Document;
 import org.mkcl.els.domain.MemberDetails;
+import org.mkcl.els.domain.MemberRole;
 import org.mkcl.els.repository.MemberDetailsRepository;
+import org.mkcl.els.service.IAssemblyRoleService;
+import org.mkcl.els.service.ICustomParameterService;
 import org.mkcl.els.service.IMemberDetailsService;
+import org.mkcl.els.service.IMemberRoleService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -16,6 +20,15 @@ public class MemberDetailsServiceImpl extends GenericServiceImpl<MemberDetails,L
 implements IMemberDetailsService{
 	
 	private MemberDetailsRepository memberDetailsRepository;
+	
+	@Autowired
+	private IAssemblyRoleService assemblyRoleService;
+	
+	@Autowired
+	private IMemberRoleService memberRoleService;
+	
+	@Autowired
+	private ICustomParameterService customParameterService;
 	
 	@Autowired	
 	public void setMemberDetailsRepository(
@@ -101,6 +114,27 @@ implements IMemberDetailsService{
 	@Override
 	public Document getPhoto(String tag) {
 		return memberDetailsRepository.getPhoto(tag);
+	}
+
+
+	@Override
+	@Transactional
+	public void createMemberAndDefaultRole(MemberDetails memberPersonalDetails) {
+		this.create(memberPersonalDetails);
+		//create default role Member for each member
+		MemberRole memberRole=new MemberRole();
+		memberRole.setMember(memberPersonalDetails);
+		memberRole.setRole(assemblyRoleService.findByName(customParameterService.findByName("DEFAULT_MEMBERROLE").getValue()));
+		memberRole.setLocale(memberPersonalDetails.getLocale());
+		memberRoleService.create(memberRole);
+
+	}
+
+
+	@Override
+	public MemberDetails findByIdAndLocale(Long memberId, String locale) {
+		// TODO Auto-generated method stub
+		return memberDetailsRepository.findByIdAndLocale(memberId,locale) ;
 	}
 
 

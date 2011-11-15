@@ -91,13 +91,25 @@ public class GridRepository extends BaseRepository<Grid,Long>{
 
 		Grid grid = this.find(gridId);
 		String count_select=null;
+		Query countQuery=null;
+		String select=null; 
+		Query query=null;
+		
 		if(!sidx.contains(".")){
 			count_select = grid.getCountQuery() + " ORDER BY m." + sidx + " " + order;
+			select= grid.getQuery() + " ORDER BY m." + sidx + " " + order;
 		}
 		else{
 			count_select = grid.getCountQuery() + " ORDER BY " + sidx + " " + order;
+			select= grid.getQuery() + " ORDER BY " + sidx + " " + order;
 		}
-		Query countQuery = this.em().createQuery(count_select);
+		countQuery=this.em().createQuery(count_select);
+		if(grid.isNativeQuery()){
+		query=this.em().createNativeQuery(select);
+
+		}else{
+		query = this.em().createQuery(select);
+		}		
 		if(count_select.contains("=:locale")){			
 			if(grid.getLocalized()){
 				countQuery.setParameter("locale", locale.toString());
@@ -106,30 +118,7 @@ public class GridRepository extends BaseRepository<Grid,Long>{
 				countQuery.setParameter("locale",DEFAULT_LOCALE);
 			}
 		}
-		Long count =  (Long) countQuery.getSingleResult();
-
-		Integer total_pages=0;
-		if( count >0 ) { 
-			total_pages = (int) Math.ceil((float)count/limit); 
-		} 
-
-		if (page > total_pages){
-			page = total_pages;
-		}
-
-		int start = (int) (limit * page - limit);
-		if(start<0){
-			start=0;
-		}
-
-		String select=null; 
-		if(!sidx.contains(".")){
-			select= grid.getQuery() + " ORDER BY m." + sidx + " " + order;
-		}
-		else{
-			select= grid.getQuery() + " ORDER BY " + sidx + " " + order;
-		}			
-		Query query = this.em().createQuery(select);
+		
 		if(select.contains("=:locale")){			
 			if(grid.getLocalized()){
 				query.setParameter("locale", locale.toString());
@@ -138,11 +127,23 @@ public class GridRepository extends BaseRepository<Grid,Long>{
 				query.setParameter("locale",DEFAULT_LOCALE);
 			}
 		}
-
+		
+		Long count =  (Long) countQuery.getSingleResult();
+		Integer total_pages=0;
+		if( count >0 ) { 
+			total_pages = (int) Math.ceil((float)count/limit); 
+		} 
+		if (page > total_pages){
+			page = total_pages;
+		}
+		int start = (int) (limit * page - limit);
+		if(start<0){
+			start=0;
+		}
 		query.setFirstResult(start);
 		query.setMaxResults((int)(count>limit?count:limit));
+		
 		List<Map<String,Object>> records = query.getResultList();
-
 		GridData gridVO = new GridData(page,total_pages,count,records);
 		return gridVO;
 	}

@@ -21,6 +21,7 @@ POSSIBILITY OF SUCH DAMAGE.
  */
 package org.mkcl.els.domain;
 
+import java.io.Serializable;
 import java.util.Set;
 
 import javax.persistence.Column;
@@ -48,7 +49,12 @@ import org.hibernate.validator.constraints.NotEmpty;
 
 @Entity
 @Table(name="constituencies")
-public class Constituency {
+public class Constituency implements Serializable{
+
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
 
 	/** The id. */
 	@Id

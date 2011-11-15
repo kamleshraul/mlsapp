@@ -31,4 +31,8 @@ public interface IMemberDetailsService extends IGenericService<MemberDetails ,Lo
 
 	public Document getPhoto(String tag);
 
+	public void createMemberAndDefaultRole(MemberDetails memberPersonalDetails);
+
+	public MemberDetails findByIdAndLocale(Long memberId, String locale);
+
 }

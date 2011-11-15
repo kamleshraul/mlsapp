@@ -21,6 +21,8 @@ POSSIBILITY OF SUCH DAMAGE.
  */
 package org.mkcl.els.service.impl;
 
+import java.util.List;
+
 import org.mkcl.els.domain.AssemblyRole;
 import org.mkcl.els.repository.AssemblyRoleRepository;
 import org.mkcl.els.service.IAssemblyRoleService;
@@ -63,4 +65,17 @@ public class AssemblyRoleServiceImpl
 	public AssemblyRole findByName(String name) {
 		return this.assemblyRoleRepository.findByName(name);
 	}
+
+	@Override
+	public List<AssemblyRole> findAllSorted(String locale) {
+		return assemblyRoleRepository.findAllSorted(locale);
+	}
+
+	@Override
+	public List<AssemblyRole> findUnassignedRoles(String locale, Long memberId) {
+		return assemblyRoleRepository.findUnassignedRoles(locale,memberId);
+		
+	}
+
+
 }

@@ -22,6 +22,7 @@ POSSIBILITY OF SUCH DAMAGE.
 
 package org.mkcl.els.domain;
 
+import java.io.Serializable;
 import java.util.Date;
 import java.util.List;
 import java.util.Set;
@@ -53,8 +54,13 @@ import org.hibernate.validator.constraints.NotEmpty;
  */
 @Entity
 @Table(name="member_details")
-@JsonIgnoreProperties({"memberPositions"})
-public class MemberDetails {
+@JsonIgnoreProperties({"memberPositions","partyName","constituency"})
+public class MemberDetails implements Serializable{
+
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
 
 	/** The id. */
 	@Id
@@ -93,11 +99,11 @@ public class MemberDetails {
 	private String gender;
 	
 	/** The constituency. */
-	@ManyToOne
+	@ManyToOne(fetch=FetchType.LAZY)
 	private Constituency constituency;
 	
 	/** The party name. */
-	@OneToOne
+	@OneToOne(fetch=FetchType.LAZY)
 	private Party partyName;
 	
 	/** The father title. */

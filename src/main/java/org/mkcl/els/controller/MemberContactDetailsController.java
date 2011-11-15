@@ -71,7 +71,7 @@ public class MemberContactDetailsController {
 			return "member_details/contact/edit";
 		}	
 		memberDetailsService.updateMemberContactDetails(memberContactDetails);
-		if(customParameterService.findByName("MIS_PROGRESSIVE_DISPLAY").getValue().equals("PROGRESSIVE")){
+		if(customParameterService.findByName("MIS_PROGRESSIVE_DISPLAY").getValue().toLowerCase().equals("progressive")){
 			return "redirect:/member_other_details/"+memberContactDetails.getId()+"/edit?type=success&msg=update_success";
 		}
 		else{
