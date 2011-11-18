@@ -75,6 +75,10 @@ function loadGrid(gridId, baseFilter) {
 		});
 		$("#grid").jqGrid('navGrid','#grid_pager',{edit:false,add:false,del:false, search:true},{},{},{},{multipleSearch:true});
 		$("#grid").jqGrid('bindKeys');
+		$("#showhide_columns").click(function(){
+			$("#grid").setColumns({caption:"Check/Uncheck columns to Show/Hide"});
+			return false;
+		});		
 		$("#new_record").click(function(){
 			var url = $(this).attr('href');
 			$('.contentPanel').load(url,function(data){
