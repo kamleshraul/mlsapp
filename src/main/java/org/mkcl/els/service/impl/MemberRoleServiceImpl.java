@@ -1,7 +1,9 @@
 package org.mkcl.els.service.impl;
 
 import java.util.List;
+import java.util.Locale;
 
+import org.mkcl.els.common.vo.GridData;
 import org.mkcl.els.common.vo.MemberInRoleVO;
 import org.mkcl.els.domain.MemberRole;
 import org.mkcl.els.repository.MemberRoleRepository;
@@ -41,5 +43,25 @@ implements IMemberRoleService{
 	@Override
 	public List<MemberRole> findByRoleId(Long roleId) {
 		return memberRoleRepository.findByRoleId(roleId);
+	}
+	@Override
+	public GridData getAssignedMembers(Long roleId, Integer rows, Integer page,
+			String sidx, String order, String sQl, Locale locale) {
+		return memberRoleRepository.getAssignedMembers(roleId, rows,page,sidx, order,sQl,locale);
+	}
+	@Override
+	public GridData getAssignedMembers(Long roleId, Integer rows, Integer page,
+			String sidx, String order, Locale locale) {
+		return memberRoleRepository.getAssignedMembers(roleId,rows,page,sidx,order,locale);
+	}
+	@Override
+	public GridData getUnAssignedMembers(Long roleId, Integer rows,
+			Integer page, String sidx, String order, String sQl, Locale locale) {
+		return memberRoleRepository.getUnAssignedMembers(roleId, rows,page,sidx, order,sQl,locale);
+	}
+	@Override
+	public GridData getUnAssignedMembers(Long roleId, Integer rows,
+			Integer page, String sidx, String order, Locale locale) {
+		return memberRoleRepository.getUnAssignedMembers(roleId,rows,page,sidx,order,locale);
 	}
 }

@@ -75,13 +75,16 @@ public class ErrorsRedirectInterceptor extends HandlerInterceptorAdapter {
 				//and when errors have appeared click new again.Instead of all errors getting cleared in case of new ,
 				//we still see errors attached to the jsp.for edit we need to produce validation messages in edit(put)
 				//and then click refresh in grid.Error messages doesn't seem to disaapear
-				if(request.getRequestURI().contains("/new")||request.getRequestURI().contains("/edit")){
-					request.getSession().removeAttribute(ERRORS_MAP_KEY);
-				}
-				else{
-					mav.addAllObjects(sessionErrorsMap);
-					request.getSession().removeAttribute(ERRORS_MAP_KEY);
-				}
+				
+					if(request.getRequestURI().contains("/new")||request.getRequestURI().contains("/edit")){
+						request.getSession().removeAttribute(ERRORS_MAP_KEY);
+					}
+					else{
+						mav.addAllObjects(sessionErrorsMap);
+						request.getSession().removeAttribute(ERRORS_MAP_KEY);
+					}
+			
+				
 				
 			}
 		}

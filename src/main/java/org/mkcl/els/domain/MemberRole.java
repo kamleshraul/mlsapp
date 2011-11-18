@@ -83,6 +83,16 @@ public class MemberRole implements Serializable{
 	@Column(length=1000)
 	private String remarks;
 	
+	private Date unassignedOn;
+	
+	private String unassignedBy;
+	
+	private Date assignedOn;
+	
+	private String assignedBy;
+	
+	private String status;
+	
 	/** The locale. */
 
 	@Column(length=10)
@@ -99,21 +109,10 @@ public class MemberRole implements Serializable{
 		super();
 	}
 
-	/**
-	 * Instantiates a new member role.
-	 *
-	 * @param member the member
-	 * @param assembly the assembly
-	 * @param role the role
-	 * @param fromdate the fromdate
-	 * @param toDate the to date
-	 * @param remarks the remarks
-	 * @param locale the locale
-	 * @param version the version
-	 */
 	public MemberRole(MemberDetails member, Assembly assembly,
 			AssemblyRole role, Date fromDate, Date toDate, String remarks,
-			String locale, Long version) {
+			Date unassignedOn, String unassignedBy, Date assignedOn,
+			String assignedBy, String status, String locale, Long version) {
 		super();
 		this.member = member;
 		this.assembly = assembly;
@@ -121,169 +120,129 @@ public class MemberRole implements Serializable{
 		this.fromDate = fromDate;
 		this.toDate = toDate;
 		this.remarks = remarks;
+		this.unassignedOn = unassignedOn;
+		this.unassignedBy = unassignedBy;
+		this.assignedOn = assignedOn;
+		this.assignedBy = assignedBy;
+		this.status = status;
 		this.locale = locale;
 		this.version = version;
 	}
 
-	/**
-	 * Gets the id.
-	 *
-	 * @return the id
-	 */
 	public Long getId() {
 		return id;
 	}
 
-	/**
-	 * Sets the id.
-	 *
-	 * @param id the new id
-	 */
 	public void setId(Long id) {
 		this.id = id;
 	}
 
-	/**
-	 * Gets the member.
-	 *
-	 * @return the member
-	 */
 	public MemberDetails getMember() {
 		return member;
 	}
 
-	/**
-	 * Sets the member.
-	 *
-	 * @param member the new member
-	 */
 	public void setMember(MemberDetails member) {
 		this.member = member;
 	}
 
-	/**
-	 * Gets the assembly.
-	 *
-	 * @return the assembly
-	 */
 	public Assembly getAssembly() {
 		return assembly;
 	}
 
-	/**
-	 * Sets the assembly.
-	 *
-	 * @param assembly the new assembly
-	 */
 	public void setAssembly(Assembly assembly) {
 		this.assembly = assembly;
 	}
 
-	/**
-	 * Gets the role.
-	 *
-	 * @return the role
-	 */
 	public AssemblyRole getRole() {
 		return role;
 	}
 
-	/**
-	 * Sets the role.
-	 *
-	 * @param role the new role
-	 */
 	public void setRole(AssemblyRole role) {
 		this.role = role;
 	}
 
-	/**
-	 * Gets the fromdate.
-	 *
-	 * @return the fromdate
-	 */
 	public Date getFromDate() {
 		return fromDate;
 	}
 
-	/**
-	 * Sets the fromdate.
-	 *
-	 * @param fromdate the new fromdate
-	 */
 	public void setFromDate(Date fromDate) {
 		this.fromDate = fromDate;
 	}
 
-	/**
-	 * Gets the to date.
-	 *
-	 * @return the to date
-	 */
 	public Date getToDate() {
 		return toDate;
 	}
 
-	/**
-	 * Sets the to date.
-	 *
-	 * @param toDate the new to date
-	 */
 	public void setToDate(Date toDate) {
 		this.toDate = toDate;
 	}
 
-	/**
-	 * Gets the remarks.
-	 *
-	 * @return the remarks
-	 */
 	public String getRemarks() {
 		return remarks;
 	}
 
-	/**
-	 * Sets the remarks.
-	 *
-	 * @param remarks the new remarks
-	 */
 	public void setRemarks(String remarks) {
 		this.remarks = remarks;
 	}
 
-	/**
-	 * Gets the locale.
-	 *
-	 * @return the locale
-	 */
+	public Date getUnassignedOn() {
+		return unassignedOn;
+	}
+
+	public void setUnassignedOn(Date unassignedOn) {
+		this.unassignedOn = unassignedOn;
+	}
+
+	public String getUnassignedBy() {
+		return unassignedBy;
+	}
+
+	public void setUnassignedBy(String unassignedBy) {
+		this.unassignedBy = unassignedBy;
+	}
+
+	public Date getAssignedOn() {
+		return assignedOn;
+	}
+
+	public void setAssignedOn(Date assignedOn) {
+		this.assignedOn = assignedOn;
+	}
+
+	public String getAssignedBy() {
+		return assignedBy;
+	}
+
+	public void setAssignedBy(String assignedBy) {
+		this.assignedBy = assignedBy;
+	}
+
+	public String getStatus() {
+		return status;
+	}
+
+	public void setStatus(String status) {
+		this.status = status;
+	}
+
 	public String getLocale() {
 		return locale;
 	}
 
-	/**
-	 * Sets the locale.
-	 *
-	 * @param locale the new locale
-	 */
 	public void setLocale(String locale) {
 		this.locale = locale;
 	}
 
-	/**
-	 * Gets the version.
-	 *
-	 * @return the version
-	 */
 	public Long getVersion() {
 		return version;
 	}
 
-	/**
-	 * Sets the version.
-	 *
-	 * @param version the new version
-	 */
 	public void setVersion(Long version) {
 		this.version = version;
+	}
+
+	public static long getSerialversionuid() {
+		return serialVersionUID;
 	}	
+	
 }
