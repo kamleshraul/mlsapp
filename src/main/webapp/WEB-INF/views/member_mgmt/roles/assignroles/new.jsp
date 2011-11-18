@@ -5,7 +5,7 @@
 	<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
 </head>
 <body>
-<form:form cssClass="wufoo" action="member_role/assignroles" method="POST" 
+<form:form cssClass="wufoo" action="member_role/assignroles/createMemberRoles" method="POST" 
 	modelAttribute="memberRole">
 	<div class="info">
 		<h2><spring:message code="mms.assignroles.new.heading" text="New Roles"/></h2>
@@ -16,6 +16,7 @@
 			<c:if test="${isvalid eq false}">
 				<p class="field_error"><spring:message code="generic.error.label"/></p>
 			</c:if>
+			 <form:errors path="assembly" cssClass="field_error" />	
 	</li>			
 		<li>
 		<label class="desc"><spring:message code="generic.locale" text="Select language"/>&nbsp;*</label>
@@ -44,7 +45,7 @@
 		<div>
 				<form:select path="assembly" items="${assemblies}" itemValue="id" itemLabel="assembly" id="assemblies" cssClass="field select medium">
 	            </form:select>
-	            <form:errors path="assembly" cssClass="field_error" />	
+	           
 		</div>
 	</li>
 	<li>
@@ -78,6 +79,7 @@
 			</div>
 		</li>
 	<li class="buttons">
+		<input type="hidden" name="assignmentDate" value="${assignmentDate}" id="assignmentDate">
 		<input id="saveForm" class="btTxt" type="submit" 
 			value="<spring:message code='generic.submit' text='Submit'/>" />
 	</li>

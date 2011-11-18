@@ -61,13 +61,13 @@
 		<pattern>/fields/new</pattern>
 		<pattern>/fields/*/edit</pattern>
 		<pattern>/fields/*/delete</pattern>	
-		<pattern>/member_role/assignroles</pattern>
-		<pattern>/member_role/assignroles/update</pattern>
+		<pattern>/member_role/assignroles/createMemberRoles</pattern>
+		<pattern>/member_role/assignroles/updateMemberRoles</pattern>
 		<pattern>/member_role/assignroles/*/new</pattern>
 		<pattern>/member_role/assignroles/*/edit</pattern>
 		<pattern>/member_role/assignroles/*/delete</pattern>
-		<pattern>/member_role/assignmembers</pattern>
-		<pattern>/member_role/assignmembers/update</pattern>
+		<pattern>/member_role/assignmembers/createMemberRoles</pattern>			
+		<pattern>/member_role/assignmembers/updateMemberRoles</pattern>		
 		<pattern>/member_role/assignmembers/*/new</pattern>
 		<pattern>/member_role/assignmembers/*/edit</pattern>
 		<pattern>/member_role/assignmembers/*/delete</pattern>	

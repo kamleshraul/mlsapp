@@ -29,7 +29,7 @@
 			});			
 		}
 		return false;
-	});	
+	});			
 	</script>
 </head>
 </html>

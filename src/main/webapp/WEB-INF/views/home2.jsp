@@ -30,6 +30,9 @@
 	<script type="text/javascript" src="./resources/js/jquery.jqGrid.fluid.js"></script>
 	<script type="text/javascript" src="./resources/js/swfobject.js"></script>	
 	<script type="text/javascript" src="./resources/js/ui.sexyselect.min.0.55.js"></script>
+	<script type="text/javascript" src="./resources/js/grid.common.js"></script>
+	<script type="text/javascript" src="./resources/js/jqModal.js"></script>	
+	<script type="text/javascript" src="./resources/js/grid.setcolumns.js"></script>
 	<script type="text/javascript" src="./resources/js/common.js"></script> 	
 	<script type="text/javascript">
         function resizeWindow() 
