@@ -3,7 +3,6 @@
 <body>
 <form class="wufoo" action="member_role/assignroles/updateMemberRoles" method="post"">
 <div class="info">
-		<h2><spring:message code="mms.assignroles.edit.heading" text="Edit Roles"/></h2>
 			<div style="background-color:#C1CDCD; ;padding: 3px"><spring:message code="generic.mandatory.label" text="Note: Fields marked * are mandatory"/></div>
 </div>
 <ul>

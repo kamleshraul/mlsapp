@@ -1,14 +1,13 @@
 <%@ include file="/common/taglibs.jsp" %>
 <html>
 <head>
-	<title><spring:message code="mms.assignroles.new.title" text="Assign Roles"/></title>
+	<title><spring:message code="mms.assignroles.new.title" text="Assign New Roles"/></title>
 	<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
 </head>
 <body>
 <form:form cssClass="wufoo" action="member_role/assignroles/createMemberRoles" method="POST" 
 	modelAttribute="memberRole">
 	<div class="info">
-		<h2><spring:message code="mms.assignroles.new.heading" text="New Roles"/></h2>
 			<div style="background-color:#C1CDCD; ;padding: 3px"><spring:message code="generic.mandatory.label" text="Note: Fields marked * are mandatory"/></div>
 	</div>
 	<ul>
