@@ -7,9 +7,7 @@
 			<a href="member_role/assignroles" id="assign_roles">
 				<spring:message code="member_mgmt.assignroles.individually" text="Assign New Roles"/>
 			</a> |
-			<a href="#" id="showhide_columns">
-				<spring:message code="generic.showhide" text="Show/Hide Columns"/>
-			</a> 
+			
 		</div>
 	</div>
 	<%@ include file="/common/gridview.jsp" %>
