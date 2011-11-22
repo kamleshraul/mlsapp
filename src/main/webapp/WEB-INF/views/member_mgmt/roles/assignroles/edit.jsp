@@ -1,7 +1,7 @@
 <%@ include file="/common/taglibs.jsp" %>
 <html>
 <body>
-<form class="wufoo" action="member_role/assignroles/updateMemberRoles" method="post"">
+<form class="wufoo" action="member_role/assignroles/unassignMemberRoles" method="post"">
 <div class="info">
 			<div style="background-color:#C1CDCD; ;padding: 3px"><spring:message code="generic.mandatory.label" text="Note: Fields marked * are mandatory"/></div>
 </div>
@@ -19,55 +19,18 @@
 			</div>
 		</li>
 </ul>
-<table class="datatable">
-<thead>
-<tr>
-<th >Assembly</th>
-<th >Role</th>
-<th>From</th>
-<th>To</th>
-<th>Remarks</th>
-</tr>
-</thead>
-<tbody>
-<c:set var="count" value="1"></c:set>
-<c:if test="${!(empty memberRoles)}">
-<c:forEach items="${memberRoles}" var="i">
-<tr>
 
-<td><select id="assembly${count}" name="assembly${count}">
-<c:forEach items="${assemblies}" var="j">
-<option value="${j.id}"><c:out value="${j.assembly}"></c:out></option>
-</c:forEach>
-</select>
-<input type="hidden" value="${i.id}" name="id${count}" id="id${count}">
-<input type="hidden" value="${i.version}" name="version${count}" id="version${count}">
-<input type="hidden" value="${i.locale}" name="locale${count}" id="locale${count}">
-<input type="hidden" value="${i.assembly.id}" name="selectedassembly${count}" id="selectedassembly${count}">
-</td>
+<div id="grid_container">
+		<table id="memberRoleGrid"></table> 
+		<div id="memberrolegrid_pager"></div>
+</div>
 
-<td><select id="role${count}" name="role${count}">
-<c:forEach items="${roles}" var="k">
-<option value="${k.id}"><c:out value="${k.name}"></c:out></option>
-</c:forEach>
-</select>
-<input type="hidden" value="${i.role.id}" name="selectedrole${count}" id="selectedrole${count}">
-</td>
-
-<td><input value="${i.fromDate}" type="text" id="fromDate${count}" class="date" name="fromDate${count}" size="10"></td>
-
-<td><input value="${i.toDate}" type="text" id="toDate${count}" class="date" name="toDate${count}" size="10"></td>
-
-<td><input  id="remarks${count}"  name="remarks${count}" value="${i.remarks}"></td>
-<td>
-</tr>
-<c:set var="count" value="${count+1}"></c:set>
-</c:forEach>
-</c:if>
-</tbody>
-</table>
-<input type="hidden" value="${noOfRecords}" name="noOfRecords" id="noOfRecords">
-<input id="saveForm" class="btTxt" type="submit" value="<spring:message code='generic.edit.submit' text='Update'/>" />
+<ul>
+<li class="buttons">
+		<input type="hidden" name="memberRolesToUnassign" id="memberRolesToUnassign" >
+		<input id="saveForm" class="btTxt" type="button" value="<spring:message code='mms.assignroles.unassignmemberroles' text='Unassign Member Roles'/>" />
+	</li>
+</ul>
 </form>
 </body>
 <head>
@@ -75,33 +38,71 @@
 	<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>	
 	<link rel="stylesheet" media="screen" href="./resources/css/tables.css" />	
 	<script type="text/javascript">
+	function loadMemberGrid(gridId, baseFilter) {
+		var c_grid = null;
+		var unselectedRow=null;
+		$.ajax({async:false,url:'grid/' + gridId + '/meta.json', success:function(grid) {
+				c_grid = $('#memberRoleGrid').jqGrid({
+				scroll:1,
+				altRows:true,
+				autowidth:true,
+				shrinkToFit:true,
+				ajaxGridOptions:{async:false},
+				url:'member_role/assignroles/assigned/'+$('#memberId').val()+'.json',
+				datatype: 'json',
+				mtype: 'GET',
+				colNames:eval(grid.colNames),
+				colModel :eval(grid.colModel),
+				pager: '#memberrolegrid_pager',
+				rowNum:grid.pageSize,
+				sortname: 'm.id',
+				sortorder:grid.sortOrder,
+				viewrecords: true,
+				jsonReader: { repeatitems : false},
+				gridview:true,
+				multiselect:eval(grid.multiSelect),
+				postData: {
+					"baseFilters": baseFilter
+				},	
+				loadComplete:function(data,obj){
+					$('.cbox').attr("checked","checked");
+					$('#cb_memberRoleGrid').removeAttr("checked");
+														
+				},		
+				onSelectRow:function(rowId,status) {
+						if(status){			
+							$('input[type="checkbox"][id$="'+rowId+'"]').removeAttr("checked");	
+						}else{
+							$('input[type="checkbox"][id$="'+rowId+'"]').attr("checked","checked");	
+						}										
+				}
+			});
+			$("#memberRoleGrid").jqGrid('navGrid','#memberrolegrid_pager',{edit:false,add:false,del:false, search:true},{},{},{},{multipleSearch:true});
+			$("#memberRoleGrid").jqGrid('bindKeys');			
+		}});
+		return c_grid;
+	};
 	$(document).ready(function(){
-		$('select[id^="assembly"]').each(function(){
-			var id=this.id;
-			var count=id.charAt(id.length-1);
-			$('#assembly'+count).val($('#selectedassembly'+count).val());
-		});
-		$('select[id^="role"]').each(function(){
-			var id=this.id;
-			var count=id.charAt(id.length-1);
-			$('#role'+count).val($('#selectedrole'+count).val());
-		});
-		$('input[id^="fromDate"]').each(function(){
-			var oldDate=$('#'+this.id).val();
-			if(oldDate!=""){
-				var dateComponents=oldDate.split("-");
-				var formattedDate=dateComponents[2]+"/"+dateComponents[1]+"/"+dateComponents[0];
-				$('#'+this.id).val(formattedDate);
-			}
-			
-		});
-		$('input[id^="toDate"]').each(function(){
-			var oldDate=$('#'+this.id).val();
-			if(oldDate!=""){
-				var dateComponents=oldDate.split("-");
-				var formattedDate=dateComponents[2]+"/"+dateComponents[1]+"/"+dateComponents[0];
-				$('#'+this.id).val(formattedDate);
-			}
+		loadMemberGrid(25);		
+
+		$('#saveForm').click(function(){
+			var rowsToUnassign=new Array();
+			$('input[type="checkbox"][id*="memberRoleGrid"]').each(function(){
+				if($(this).attr("checked")==undefined){
+					rowsToUnassign.push($(this).attr("id").split("_")[2]);
+				}	
+			});
+			$('#memberRolesToUnassign').val(rowsToUnassign);
+
+			$.post($('form').attr('action'),  
+		            $("form").serialize(),  
+		            function(data){	
+	   				$('.contentPanel').html(data);	
+	   				$('#refresh').val($('#refreshSe').val());	   				      
+		   				if($('#info_type').val()=='success'){			   				
+			   	   	   		$("#memberRoleGrid").trigger("reloadGrid");		   				
+						}		   					   						   					
+		            }); 		
 		});
 		
 	});

@@ -3,66 +3,60 @@
 <body>
 <form:form cssClass="wufoo" action="tehsils" method="PUT" modelAttribute="tehsil">
 	<div class="info">
-		<h2><spring:message code="tehsil.edit.heading"/>[Id:${tehsil.id}]</h2>
-		<div style="background-color:#C1CDCD; ;padding: 3px"><spring:message code="generic.mandatory.label"/></div>
+		<h2><spring:message code="tehsil.edit.heading" text="Details"/>[Id:${tehsil.id}]</h2>
+		<div style="background-color:#C1CDCD; ;padding: 3px"><spring:message code="generic.mandatory.label" text="Note: Fields marked * are mandatory"/></div>
+
 	</div>
 	<ul>	
-		<li class="section first">
-			<c:if test="${isvalid eq false}">
-				<p class="field_error"><spring:message code="generic.error.label"/></p>
-			</c:if>
-			<c:if test="${isvalid eq true}">
-				<p class="field_error"><spring:message code="generic.update_success.label"/></p>
-			</c:if>
-		</li>	
+		
 		<li>
-		<label class="desc"><spring:message code="generic.id"/></label>
+		<label class="desc"><spring:message code="generic.id" text="Id"/></label>
 		<div>
 			<form:input cssClass="field text small" path="id" readonly="true" /> 
 		</div>
 	    </li>
-	    <li>
-		<label class="desc"><spring:message code="generic.locale"/>&nbsp;*</label>
+	   <li>
+		<label class="desc"><spring:message code="generic.locale" text="Select language"/>&nbsp;*</label>
 			<div>
-				<form:select cssClass="field select addr" path="locale"> 
-					<form:option value="en"><spring:message code="generic.lang.english" text="English"/></form:option>
+				<form:select cssClass="field select medium" path="locale"> 
+				<form:option value="en"><spring:message code="generic.lang.english" text="English"/></form:option>
 					<form:option value="hi_IN"><spring:message code="generic.lang.hindi" text="Hindi"/></form:option>
 					<form:option value="mr_IN"><spring:message code="generic.lang.marathi" text="Marathi"/></form:option>
 				</form:select>
 			</div>
 		</li>
 		<li>
-		<label class="desc"><spring:message code="tehsil.state"/>&nbsp;*</label>
+		<label class="desc"><spring:message code="tehsil.state" text="State"/>&nbsp;*</label>
 			<div>
 				<select name="state" id="states">
 				<c:forEach items="${states}" var="i">
 				<option value="${i.id}"><c:out value="${i.name}"></c:out></option>
 				</c:forEach>
-				</select>	
-	        </div>
+				</select>
+		   </div>
 		</li>
 		<li>
-		<label class="desc"><spring:message code="tehsil.district"/>&nbsp;*</label>
+		<label class="desc"><spring:message code="tehsil.district" text="District"/>&nbsp;*</label>
 			<div>
 				<form:select path="district" items="${districts}" itemValue="id" itemLabel="name" id="districts">
 	            </form:select>			
 	        </div>
 		</li>		
 		<li>
-		<label class="desc"><spring:message code="tehsil.name"/>&nbsp;*</label>
+		<label class="desc"><spring:message code="tehsil.name" text="Name"/>&nbsp;*</label>
 			<div>
 				<form:input cssClass="field text medium" path="name" size="50"/><form:errors path="name" cssClass="field_error" />	
 			</div>
 		</li>		
 		<li class="buttons">
-			<input id="saveForm" class="btTxt" type="submit" value="<spring:message code="generic.submit"/>" />
+			<input id="saveForm" class="btTxt" type="submit" value="<spring:message code='generic.submit' text='Submit'/>" />
 		</li>
 		<form:hidden path="version"/>
 	</ul>		
 </form:form>
 </body>
 <head>
-	<title><spring:message code="tehsil.edit.title"/></title>
+	<title><spring:message code="tehsil.edit.title" text="Edit Tehsil"/></title>
 	<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
 	<script type="text/javascript">
 	if($('#states').val()!=undefined){

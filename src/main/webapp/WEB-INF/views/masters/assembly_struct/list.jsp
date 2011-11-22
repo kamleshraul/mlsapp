@@ -1,7 +1,7 @@
 <%@ include file="/common/taglibs.jsp" %>
 <html>
 <head>
-	<title><spring:message code="assemblystruct.list.title"/></title>
+	<title><spring:message code="assemblystruct.list.title" text="List of Assembly Structures"/></title>
 	<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
 </head>
 <body>
@@ -9,10 +9,10 @@
 	<div class="commandbar">
 		<div class="commandbarContent">
 			<a href="assembly_struct/new" id="new_record">
-				<spring:message code="generic.new"/>
+				<spring:message code="generic.new" text="New"/>
 			</a> | 
 			<a href="assembly_struct" id="delete_record">
-				<spring:message code="generic.delete"/>
+				<spring:message code="generic.delete" text="Delete"/>
 			</a> | 
 		</div>
 	</div>

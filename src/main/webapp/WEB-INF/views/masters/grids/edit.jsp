@@ -1,12 +1,12 @@
 <%@ include file="/common/taglibs.jsp" %>
 <html>
 <head>
-	<title><spring:message code="masters.grids.edit.title" text="Edit-Grid"/></title>
+	<title><spring:message code="masters.grids.edit.title" text="Edit Grid"/></title>
 </head>
 <body>
 <form:form cssClass="wufoo" action="grid" method="POST" modelAttribute="grid">
 	<div class="info">
-		<h2><spring:message code="masters.grids.edit.heading" text="Grid[Id:${grid.id}] "/></h2>
+		<h2><spring:message code="masters.grids.edit.heading" text="Details[Id:${grid.id}] "/></h2>
 		<div style="background-color:#C1CDCD; ;padding: 3px"><spring:message code="generic.mandatory.label" text="Note: Fields marked * are mandatory"/></div>
 	</div>
 	<ul>
