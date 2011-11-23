@@ -127,7 +127,7 @@ public class AssemblyController extends BaseController{
 	 * @return the string
 	 */
 	@RequestMapping(method = RequestMethod.POST)
-	public String create(@Valid @ModelAttribute("assembly") Assembly assembly,BindingResult result, ModelMap model){
+	public String create(@Valid @ModelAttribute("assembly") Assembly assembly,BindingResult result, ModelMap model,Locale locale){
 		this.validate(assembly,result);
 		if(result.hasErrors()){
 			populateModel(model, assembly);
@@ -135,7 +135,10 @@ public class AssemblyController extends BaseController{
 			model.addAttribute("msg","create_failed");
 			return "masters/assemblies/new";
 		}	
-		assemblyService.create(assembly);
+		if(assembly.isCurrentAssembly()){
+			assemblyService.updatePreviousCurrentAssembly(locale.toString());
+		}
+		assemblyService.create(assembly);		
 		return "redirect:assemblies/"+assembly.getId()+"/edit?type=success&msg=create_success";
 		
 	}
@@ -149,7 +152,7 @@ public class AssemblyController extends BaseController{
 	 * @return the string
 	 */
 	@RequestMapping(method = RequestMethod.PUT)
-	public String update(@Valid @ModelAttribute("assembly") Assembly assembly,BindingResult result, ModelMap model){
+	public String update(@Valid @ModelAttribute("assembly") Assembly assembly,BindingResult result, ModelMap model,Locale locale){
 		this.validate(assembly,result);
 		if(result.hasErrors()){
 			populateModel(model, assembly);
@@ -157,6 +160,9 @@ public class AssemblyController extends BaseController{
 		    model.addAttribute("msg","update_failed");
 			return "masters/assemblies/edit";
 		}	
+		if(assembly.isCurrentAssembly()){
+			assemblyService.updatePreviousCurrentAssembly(locale.toString());
+		}
 		assemblyService.update(assembly);
 		return "redirect:assemblies/"+assembly.getId()+"/edit?type=success&msg=update_success";
 	}

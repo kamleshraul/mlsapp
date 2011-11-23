@@ -20,15 +20,7 @@ public class MemberDetailsServiceImpl extends GenericServiceImpl<MemberDetails,L
 implements IMemberDetailsService{
 	
 	private MemberDetailsRepository memberDetailsRepository;
-	
-	@Autowired
-	private IAssemblyRoleService assemblyRoleService;
-	
-	@Autowired
-	private IMemberRoleService memberRoleService;
-	
-	@Autowired
-	private ICustomParameterService customParameterService;
+
 	
 	@Autowired	
 	public void setMemberDetailsRepository(
@@ -120,14 +112,7 @@ implements IMemberDetailsService{
 	@Override
 	@Transactional
 	public void createMemberAndDefaultRole(MemberDetails memberPersonalDetails) {
-		this.create(memberPersonalDetails);
-		//create default role Member for each member
-		MemberRole memberRole=new MemberRole();
-		memberRole.setMember(memberPersonalDetails);
-		memberRole.setRole(assemblyRoleService.findByName(customParameterService.findByName("DEFAULT_MEMBERROLE").getValue()));
-		memberRole.setLocale(memberPersonalDetails.getLocale());
-		memberRoleService.create(memberRole);
-
+		memberDetailsRepository.createMemberAndDefaultRole(memberPersonalDetails);
 	}
 
 

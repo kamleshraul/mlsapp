@@ -3,6 +3,7 @@ package org.mkcl.els.repository;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.text.SimpleDateFormat;
+import java.util.Date;
 
 import javax.persistence.Query;
 import javax.sql.DataSource;
@@ -10,6 +11,7 @@ import javax.sql.DataSource;
 import org.mkcl.els.common.vo.MemberBiographyVO;
 import org.mkcl.els.common.vo.MemberInfo;
 import org.mkcl.els.common.vo.MemberSearchPage;
+import org.mkcl.els.domain.Assembly;
 import org.mkcl.els.domain.Document;
 import org.mkcl.els.domain.MemberDetails;
 import org.mkcl.els.domain.MemberRole;
@@ -28,7 +30,16 @@ public class MemberDetailsRepository extends BaseRepository<MemberDetails, Long>
 	private DocumentRepository documentRepository;
 	
 	@Autowired
-	private ICustomParameterService customParameterService; 
+	private CustomParameterRepository customParameterRepository;
+	
+	@Autowired
+	private AssemblyRepository assemblyRepository;
+	
+	@Autowired
+	private AssemblyRoleRepository assemblyRoleRepository;
+	
+	@Autowired
+	private MemberRoleRepository memberRoleRepository;
 	
 	private JdbcTemplate jdbcTemplate;
 
@@ -408,7 +419,7 @@ public class MemberDetailsRepository extends BaseRepository<MemberDetails, Long>
 		MemberBiographyVO memberBiographyVO=new MemberBiographyVO();
 		if(memberDetails!=null){
 			memberBiographyVO.setAlias(memberDetails.getAlias());
-			memberBiographyVO.setBirthDate(new SimpleDateFormat(customParameterService.findByName("BIOGRAPHY_BIRTHDATE_DATEFORMAT").getValue()).format(memberDetails.getBirthDate()));
+			memberBiographyVO.setBirthDate(memberDetails.getBirthDate());
 			memberBiographyVO.setBooksPublished(memberDetails.getBooksPublished());
 			memberBiographyVO.setConstituency(memberDetails.getConstituency()!=null?memberDetails.getConstituency().getName():"");
 			memberBiographyVO.setCountriesVisited(memberDetails.getCountriesVisited());
@@ -424,7 +435,7 @@ public class MemberDetailsRepository extends BaseRepository<MemberDetails, Long>
 			memberBiographyVO.setLiteraryArtisticScAccomplishment(memberBiographyVO.getLiteraryArtisticScAccomplishment());
 			memberBiographyVO.setLocale(memberDetails.getLocale());
 			memberBiographyVO.setMaritalStatus(memberDetails.isMaritalStatus()==true?"married":"unmarried");
-			memberBiographyVO.setMarriageDate(memberDetails.getMarriageDate()!=null?new SimpleDateFormat(customParameterService.findByName("BIOGRAPHY_MARRIAGE_DATE_DATEFORMAT").getValue()).format(memberDetails.getMarriageDate()):"");
+			memberBiographyVO.setMarriageDate(memberDetails.getMarriageDate());
 			memberBiographyVO.setMemberPositions(memberDetails.getMemberPositions());
 			memberBiographyVO.setMiddleName(memberDetails.getMiddleName());
 			memberBiographyVO.setMotherName(memberDetails.getMotherName());
@@ -459,7 +470,8 @@ public class MemberDetailsRepository extends BaseRepository<MemberDetails, Long>
 			memberBiographyVO.setSpecialInterests(memberDetails.getSpecialInterests());
 			memberBiographyVO.setSportsClubs(memberDetails.getSportsClubs());
 			memberBiographyVO.setSpouseName(memberDetails.getSpouseName());
-			memberBiographyVO.setTitle(memberDetails.getTitle());		}		
+			memberBiographyVO.setTitle(memberDetails.getTitle());	
+			}		
 		return memberBiographyVO;
 	}
 
@@ -474,9 +486,19 @@ public class MemberDetailsRepository extends BaseRepository<MemberDetails, Long>
 		return this.searchUnique(search);
 	}
 
-//	public MemberDetails findById(Long memberId) {
-//		Search search=new Search();
-//		search.addFilterEqual("id",memberId);		
-//		return this.searchUnique(search);
-//		}
+	public void createMemberAndDefaultRole(MemberDetails memberPersonalDetails) {
+		this.persist(memberPersonalDetails);
+		MemberRole memberRole=new MemberRole();
+		String locale=memberPersonalDetails.getLocale();
+		Assembly assembly=assemblyRepository.findCurrentAssembly(locale);		
+		memberRole.setAssembly(assembly);
+		memberRole.setFromDate(assembly.getAssemblyStartDate());
+		memberRole.setToDate(assembly.getAssemblyEndDate());
+		memberRole.setLocale(locale);
+		memberRole.setMember(memberPersonalDetails);
+		memberRole.setRemarks("");
+		memberRole.setRole(assemblyRoleRepository.findByNameAndLocale(customParameterRepository.findByName("DEFAULT_MEMBERROLE").getValue(),locale));
+		memberRole.setStatus(customParameterRepository.findByName("MEMBERROLE_ASSIGNED").getValue());	
+		memberRoleRepository.persist(memberRole);
+	}
 }

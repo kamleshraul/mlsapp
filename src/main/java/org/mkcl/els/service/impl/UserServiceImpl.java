@@ -23,13 +23,11 @@ package org.mkcl.els.service.impl;
 
 import org.mkcl.els.common.exception.RecordNotFoundException;
 import org.mkcl.els.domain.User;
-import org.mkcl.els.repository.MessageResourceRepository;
 import org.mkcl.els.repository.UserRepository;
 import org.mkcl.els.service.IUserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-
-import com.googlecode.ehcache.annotations.Cacheable;
+import org.springframework.transaction.annotation.Transactional;
 
 /**
  * The Class UserServiceImpl.
@@ -57,6 +55,7 @@ public class UserServiceImpl extends GenericServiceImpl<User,Long> implements IU
 	/* (non-Javadoc)
 	 * @see org.mkcl.els.service.IUserService#findByUsername(java.lang.String)
 	 */
+	@Transactional(readOnly=true)
 	public User findByUsername(String username){
 		User user = userRepository.findByUsername(username);
 		if(user==null){
@@ -69,6 +68,7 @@ public class UserServiceImpl extends GenericServiceImpl<User,Long> implements IU
 	 * @see org.mkcl.els.service.IUserService#changePassword(java.lang.String, java.lang.String)
 	 */
 	@Override
+	@Transactional
 	public void changePassword(String username, String new_password) {
 		User user = this.findByUsername(username);
 		user.setPassword(new_password);

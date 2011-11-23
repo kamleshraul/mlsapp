@@ -54,9 +54,11 @@ public class AssemblyRepository extends BaseRepository<Assembly, Long>{
 
 	}
 
-	public Assembly findCurrentAssembly() {
-		Date currentDate=new Date();		
-		return null;
+	public Assembly findCurrentAssembly(String locale) {
+		Search search=new Search();
+		search.addFilterEqual("currentAssembly",true);
+		search.addFilterEqual("locale", locale);
+		return this.searchUnique(search);
 	}
 
 	public List<Assembly> findAllSorted(String locale) {
@@ -64,6 +66,17 @@ public class AssemblyRepository extends BaseRepository<Assembly, Long>{
 		search.addFilterEqual("locale", locale);
 		search.addSort("assemblyStartDate", true);
 		return 	this.search(search);		
+	}
+
+	public void updatePreviousCurrentAssembly(String locale) {
+		Search search=new Search();
+		search.addFilterEqual("currentAssembly",true);
+		search.addFilterEqual("locale",locale);
+		Assembly assembly=this.searchUnique(search);
+		if(!(assembly==null)){
+			assembly.setCurrentAssembly(false);
+			this.merge(assembly);
+		}
 	}
 	
 	

@@ -43,6 +43,7 @@ public interface IAssemblyService extends IGenericService<Assembly ,Long>{
  * @return the assembly
  */
 public Assembly findByAssembly(String assembly);
-public Assembly findCurrentAssembly();
+public Assembly findCurrentAssembly(String locale);
 public List<Assembly> findAllSorted(String locale);
+public void updatePreviousCurrentAssembly(String locale);
 }

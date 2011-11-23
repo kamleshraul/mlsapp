@@ -65,13 +65,18 @@ implements IAssemblyService{
 	}
 
 	@Override
-	public Assembly findCurrentAssembly() {
-		return assemblyRepository.findCurrentAssembly();
+	public Assembly findCurrentAssembly(String locale) {
+		return assemblyRepository.findCurrentAssembly(locale);
 	}
 
 	@Override
 	public List<Assembly> findAllSorted(String locale) {
 		return assemblyRepository.findAllSorted(locale);
+	}
+
+	@Override
+	public void updatePreviousCurrentAssembly(String locale) {
+		assemblyRepository.updatePreviousCurrentAssembly(locale);
 	}
 
 }

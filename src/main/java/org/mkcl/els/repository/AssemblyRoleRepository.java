@@ -52,6 +52,9 @@ public class AssemblyRoleRepository
 	public void setDataSource(DataSource dataSource) {
 		this.jdbcTemplate = new JdbcTemplate(dataSource);
 	}
+	
+	@Autowired
+	private CustomParameterRepository customParameterRepository;
 
 	/**
 	 * Find by name.
@@ -73,19 +76,16 @@ public class AssemblyRoleRepository
 		return this.search(search);
 	}
 
+	@SuppressWarnings("unchecked")
 	public List<AssemblyRole> findUnassignedRoles(String locale, Long memberId) {
-		String query="SELECT * FROM assembly_roles as a WHERE a.id not in(SELECT m.role FROM member_roles as m WHERE m.member="+memberId+")";
-		RowMapper<AssemblyRole> mapper = new RowMapper<AssemblyRole>() {
-			@Override
-			public AssemblyRole mapRow(ResultSet rs, int arg1) throws SQLException {
-				AssemblyRole assemblyRole = new AssemblyRole();
-				assemblyRole.setId(rs.getLong("id"));
-				assemblyRole.setLocale(rs.getString("locale"));
-				assemblyRole.setName(rs.getString("name"));
-				assemblyRole.setVersion(rs.getLong("version"));
-				return assemblyRole;
-				}
-		};	
-		return jdbcTemplate.query(query, mapper, new Object[]{});
+		String select="SELECT a FROM AssemblyRole a WHERE a.id not in(SELECT m.role.id FROM MemberRole m WHERE m.member.id="+memberId+" and m.status='"+customParameterRepository.findByName("MEMBERROLE_ASSIGNED").getValue()+"') ORDER BY a.name asc";
+		return 	this.em().createQuery(select).getResultList();
+	}
+
+	public AssemblyRole findByNameAndLocale(String name, String locale) {
+		Search search=new Search();
+		search.addFilterEqual("locale",locale);
+		search.addFilterEqual("name",name);
+		return this.searchUnique(search);
 	}
 }

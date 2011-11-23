@@ -89,17 +89,20 @@ public class Assembly implements Serializable{
 	private boolean winterSession=false;
 	
 	/** The assembly start date. */
-	@Temporal(TemporalType.DATE)
-	@NotNull
-	private Date assemblyStartDate;
+	
+	@Column(length=50)
+	private String assemblyStartDate;
 	
 	/** The assembly end date. */
-	@Temporal(TemporalType.DATE)
-	private Date assemblyEndDate;
+	@Column(length=50)
+	private String assemblyEndDate;
 	
 	/** The assembly dissolved on. */
-	@Temporal(TemporalType.DATE)
-	private Date assemblyDissolvedOn;
+	@Column(length=50)
+	private String assemblyDissolvedOn;
+	
+	private boolean currentAssembly=false;;
+
 	
 	/** The version. */
 	@Version
@@ -108,24 +111,19 @@ public class Assembly implements Serializable{
 	/** The locale. */
 	@Column(length=50)
 	@NotEmpty
-	private String locale;
-	
+	private String locale;	
 
-
-	/**
-	 * Instantiates a new assembly.
-	 */
 	public Assembly() {
 		super();
+		// TODO Auto-generated constructor stub
 	}
-
-
 
 	public Assembly(AssemblyStructure assemblyStructure, String assembly,
 			Integer strength, String term, boolean budgetSession,
 			boolean monsoonSession, boolean winterSession,
-			Date assemblyStartDate, Date assemblyEndDate,
-			Date assemblyDissolvedOn, Long version, String locale) {
+			String assemblyStartDate, String assemblyEndDate,
+			String assemblyDissolvedOn, boolean currentAssembly, Long version,
+			String locale) {
 		super();
 		this.assemblyStructure = assemblyStructure;
 		this.assembly = assembly;
@@ -137,155 +135,114 @@ public class Assembly implements Serializable{
 		this.assemblyStartDate = assemblyStartDate;
 		this.assemblyEndDate = assemblyEndDate;
 		this.assemblyDissolvedOn = assemblyDissolvedOn;
+		this.currentAssembly = currentAssembly;
 		this.version = version;
 		this.locale = locale;
 	}
-
-
 
 	public Long getId() {
 		return id;
 	}
 
-
-
 	public void setId(Long id) {
 		this.id = id;
 	}
-
-
 
 	public AssemblyStructure getAssemblyStructure() {
 		return assemblyStructure;
 	}
 
-
-
 	public void setAssemblyStructure(AssemblyStructure assemblyStructure) {
 		this.assemblyStructure = assemblyStructure;
 	}
-
-
 
 	public String getAssembly() {
 		return assembly;
 	}
 
-
-
 	public void setAssembly(String assembly) {
 		this.assembly = assembly;
 	}
-
-
 
 	public Integer getStrength() {
 		return strength;
 	}
 
-
-
 	public void setStrength(Integer strength) {
 		this.strength = strength;
 	}
-
-
 
 	public String getTerm() {
 		return term;
 	}
 
-
-
 	public void setTerm(String term) {
 		this.term = term;
 	}
-
-
 
 	public boolean isBudgetSession() {
 		return budgetSession;
 	}
 
-
-
 	public void setBudgetSession(boolean budgetSession) {
 		this.budgetSession = budgetSession;
 	}
-
-
 
 	public boolean isMonsoonSession() {
 		return monsoonSession;
 	}
 
-
-
 	public void setMonsoonSession(boolean monsoonSession) {
 		this.monsoonSession = monsoonSession;
 	}
-
-
 
 	public boolean isWinterSession() {
 		return winterSession;
 	}
 
-
-
 	public void setWinterSession(boolean winterSession) {
 		this.winterSession = winterSession;
 	}
 
-
-
-	public Date getAssemblyStartDate() {
+	public String getAssemblyStartDate() {
 		return assemblyStartDate;
 	}
 
-
-
-	public void setAssemblyStartDate(Date assemblyStartDate) {
+	public void setAssemblyStartDate(String assemblyStartDate) {
 		this.assemblyStartDate = assemblyStartDate;
 	}
 
-
-
-	public Date getAssemblyEndDate() {
+	public String getAssemblyEndDate() {
 		return assemblyEndDate;
 	}
 
-
-
-	public void setAssemblyEndDate(Date assemblyEndDate) {
+	public void setAssemblyEndDate(String assemblyEndDate) {
 		this.assemblyEndDate = assemblyEndDate;
 	}
 
-
-
-	public Date getAssemblyDissolvedOn() {
+	public String getAssemblyDissolvedOn() {
 		return assemblyDissolvedOn;
 	}
 
-
-
-	public void setAssemblyDissolvedOn(Date assemblyDissolvedOn) {
+	public void setAssemblyDissolvedOn(String assemblyDissolvedOn) {
 		this.assemblyDissolvedOn = assemblyDissolvedOn;
 	}
 
+	public boolean isCurrentAssembly() {
+		return currentAssembly;
+	}
 
+	public void setCurrentAssembly(boolean currentAssembly) {
+		this.currentAssembly = currentAssembly;
+	}
 
 	public Long getVersion() {
 		return version;
 	}
 
-
-
 	public void setVersion(Long version) {
 		this.version = version;
 	}
-
-
 
 	public String getLocale() {
 		return locale;
@@ -293,6 +250,10 @@ public class Assembly implements Serializable{
 
 	public void setLocale(String locale) {
 		this.locale = locale;
+	}
+
+	public static long getSerialversionuid() {
+		return serialVersionUID;
 	}	
 	
 }

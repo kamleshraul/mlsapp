@@ -26,6 +26,7 @@ import java.util.Date;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
@@ -36,6 +37,7 @@ import javax.persistence.TemporalType;
 import javax.persistence.Version;
 
 import org.codehaus.jackson.annotate.JsonIgnoreProperties;
+import org.hibernate.validator.constraints.NotEmpty;
 
 // TODO: Auto-generated Javadoc
 /**
@@ -46,12 +48,10 @@ import org.codehaus.jackson.annotate.JsonIgnoreProperties;
  */
 @Entity
 @Table(name="member_roles")
-@JsonIgnoreProperties({"member","assembly","role"})
+//@JsonIgnoreProperties({"member","assembly","role"})
 public class MemberRole implements Serializable{
 
-	/**
-	 * 
-	 */
+	/** The Constant serialVersionUID. */
 	private static final long serialVersionUID = 1L;
 
 	/** The id. */
@@ -60,41 +60,36 @@ public class MemberRole implements Serializable{
 	private Long id;
 	
 	/** The member. */
-	@ManyToOne
+	@ManyToOne(fetch=FetchType.EAGER)
 	private MemberDetails member;
 	
 	/** The assembly. */
-	@ManyToOne
+	@ManyToOne(fetch=FetchType.EAGER)
 	private Assembly assembly;
 	
 	/** The role. */
-	@ManyToOne
+	@ManyToOne(fetch=FetchType.EAGER)
 	private AssemblyRole role;
 	
 	/** The fromdate. */
-	@Temporal(TemporalType.DATE)
-	private Date fromDate;
+	@Column(length=20)
+	@NotEmpty
+	private String fromDate;
 	
 	/** The to date. */
-	@Temporal(TemporalType.DATE)
-	private Date toDate;
+	@Column(length=20)
+	@NotEmpty
+	private String toDate;
 	
 	/** The remarks. */
 	@Column(length=1000)
 	private String remarks;
 	
-	private Date unassignedOn;
-	
-	private String unassignedBy;
-	
-	private Date assignedOn;
-	
-	private String assignedBy;
-	
+	/** The status. */
+	@Column(length=20)
 	private String status;
 	
 	/** The locale. */
-
 	@Column(length=10)
 	private String locale;
 	
@@ -110,9 +105,8 @@ public class MemberRole implements Serializable{
 	}
 
 	public MemberRole(MemberDetails member, Assembly assembly,
-			AssemblyRole role, Date fromDate, Date toDate, String remarks,
-			Date unassignedOn, String unassignedBy, Date assignedOn,
-			String assignedBy, String status, String locale, Long version) {
+			AssemblyRole role, String fromDate, String toDate, String remarks,
+			String status, String locale, Long version) {
 		super();
 		this.member = member;
 		this.assembly = assembly;
@@ -120,10 +114,6 @@ public class MemberRole implements Serializable{
 		this.fromDate = fromDate;
 		this.toDate = toDate;
 		this.remarks = remarks;
-		this.unassignedOn = unassignedOn;
-		this.unassignedBy = unassignedBy;
-		this.assignedOn = assignedOn;
-		this.assignedBy = assignedBy;
 		this.status = status;
 		this.locale = locale;
 		this.version = version;
@@ -161,19 +151,19 @@ public class MemberRole implements Serializable{
 		this.role = role;
 	}
 
-	public Date getFromDate() {
+	public String getFromDate() {
 		return fromDate;
 	}
 
-	public void setFromDate(Date fromDate) {
+	public void setFromDate(String fromDate) {
 		this.fromDate = fromDate;
 	}
 
-	public Date getToDate() {
+	public String getToDate() {
 		return toDate;
 	}
 
-	public void setToDate(Date toDate) {
+	public void setToDate(String toDate) {
 		this.toDate = toDate;
 	}
 
@@ -183,38 +173,6 @@ public class MemberRole implements Serializable{
 
 	public void setRemarks(String remarks) {
 		this.remarks = remarks;
-	}
-
-	public Date getUnassignedOn() {
-		return unassignedOn;
-	}
-
-	public void setUnassignedOn(Date unassignedOn) {
-		this.unassignedOn = unassignedOn;
-	}
-
-	public String getUnassignedBy() {
-		return unassignedBy;
-	}
-
-	public void setUnassignedBy(String unassignedBy) {
-		this.unassignedBy = unassignedBy;
-	}
-
-	public Date getAssignedOn() {
-		return assignedOn;
-	}
-
-	public void setAssignedOn(Date assignedOn) {
-		this.assignedOn = assignedOn;
-	}
-
-	public String getAssignedBy() {
-		return assignedBy;
-	}
-
-	public void setAssignedBy(String assignedBy) {
-		this.assignedBy = assignedBy;
 	}
 
 	public String getStatus() {
@@ -243,6 +201,7 @@ public class MemberRole implements Serializable{
 
 	public static long getSerialversionuid() {
 		return serialVersionUID;
-	}	
+	}
+
 	
 }
