@@ -62,7 +62,8 @@
 		<pattern>/fields/*/edit</pattern>
 		<pattern>/fields/*/delete</pattern>	
 		<pattern>/member_role/assignroles/createMemberRoles</pattern>
-		<pattern>/member_role/assignroles/updateMemberRoles</pattern>
+		<pattern>/member_role/assignroles/updateMemberRole</pattern>		
+		<pattern>/member_role/assignroles/deleteMemberRoles</pattern>		
 		<pattern>/member_role/assignroles/*/new</pattern>
 		<pattern>/member_role/assignroles/*/edit</pattern>
 		<pattern>/member_role/assignroles/*/delete</pattern>

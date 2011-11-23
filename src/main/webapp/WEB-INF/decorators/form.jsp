@@ -17,8 +17,10 @@
 	   				$('#refresh').val($('#refreshSe').val());	   				      
 		   				if($('#info_type').val()=='success'){			   				
 			   	   	   		$("#grid").trigger("reloadGrid");		   				
-						}		   					   						   					
-		            });  
+						}
+					  $('#contentPanel').animate({scrollTop:0}, 'slow'); 		   					   						   					
+		            });
+				  
 		        return false;  
 		    }); 
 			if($('#info_msg').val().length!=0){

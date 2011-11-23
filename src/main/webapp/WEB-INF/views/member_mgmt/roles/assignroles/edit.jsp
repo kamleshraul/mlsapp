@@ -3,6 +3,7 @@
 <body>
 <form class="wufoo" action="member_role/assignroles/unassignMemberRoles" method="post"">
 <div class="info">
+			<h2><spring:message code="mms.assignroles.edit.heading" text="Details"/></h2>
 			<div style="background-color:#C1CDCD; ;padding: 3px"><spring:message code="generic.mandatory.label" text="Note: Fields marked * are mandatory"/></div>
 </div>
 <ul>
@@ -15,26 +16,35 @@
 		<li>
 		<label class="desc"><spring:message code="mms.assignroles.member" text="Member Name"/><span><spring:message code="${fields.id.hint}" text=""/></span>&nbsp;<c:if test="${fields.id.mandatory=='MANDATORY'}">*</c:if></label>
 			<div>
-			<input type="text" value="${memberName}" name="memberId" id="memberId" readonly="readonly">
+			<input type="text" value="${memberName}" name="memberName" id="memberName" readonly="readonly">
 			</div>
 		</li>
 </ul>
-
 <div id="grid_container">
 		<table id="memberRoleGrid"></table> 
 		<div id="memberrolegrid_pager"></div>
 </div>
-
-<ul>
-<li class="buttons">
+<div class="commandbar">
+		<div class="commandbarContent">
+			<a href="#" id="unassign_roles">
+				<spring:message code="member_mgmt.assignroles.unassignroles" text="Unassign Member Roles"/>
+			</a> |
+			<a href="#" id="edit_assigned_roles">
+				<spring:message code="member_mgmt.assignroles.editroles" text="Edit Member Role"/>
+			</a> |
+			<a href="#" id="delte_assigned_roles">
+				<spring:message code="member_mgmt.assignroles.deleteroles" text="Delete Member Role"/>
+			</a> |
+			
+		</div>
+</div>
 		<input type="hidden" name="memberRolesToUnassign" id="memberRolesToUnassign" >
-		<input id="saveForm" class="btTxt" type="button" value="<spring:message code='mms.assignroles.unassignmemberroles' text='Unassign Member Roles'/>" />
-	</li>
-</ul>
+		<input type="hidden" name="memberRolesToDelete" id="memberRolesToDelete" >
+		
 </form>
 </body>
 <head>
-	<title><spring:message code="mms.assignroles.edit.title" text="Edit Assigned Roles"/></title>
+	<title><spring:message code="mms.assignroles.edit.title" text="Edit Member Roles"/></title>
 	<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>	
 	<link rel="stylesheet" media="screen" href="./resources/css/tables.css" />	
 	<script type="text/javascript">
@@ -65,16 +75,16 @@
 					"baseFilters": baseFilter
 				},	
 				loadComplete:function(data,obj){
-					$('.cbox').attr("checked","checked");
-					$('#cb_memberRoleGrid').removeAttr("checked");
+					//$('.cbox').attr("checked","checked");
+					//$('#cb_memberRoleGrid').removeAttr("checked");
 														
 				},		
 				onSelectRow:function(rowId,status) {
-						if(status){			
+						/*if(status){			
 							$('input[type="checkbox"][id$="'+rowId+'"]').removeAttr("checked");	
 						}else{
 							$('input[type="checkbox"][id$="'+rowId+'"]').attr("checked","checked");	
-						}										
+						}*/									
 				}
 			});
 			$("#memberRoleGrid").jqGrid('navGrid','#memberrolegrid_pager',{edit:false,add:false,del:false, search:true},{},{},{},{multipleSearch:true});
@@ -85,24 +95,59 @@
 	$(document).ready(function(){
 		loadMemberGrid(25);		
 
-		$('#saveForm').click(function(){
-			var rowsToUnassign=new Array();
-			$('input[type="checkbox"][id*="memberRoleGrid"]').each(function(){
-				if($(this).attr("checked")==undefined){
-					rowsToUnassign.push($(this).attr("id").split("_")[2]);
-				}	
-			});
-			$('#memberRolesToUnassign').val(rowsToUnassign);
+		$('#unassign_roles').click(function(){
+			var row = $("#memberRoleGrid").jqGrid('getGridParam','selarrrow');
+			if(row==""){
+				alert("Please select atleast one role to unassign");
+			}else{
+				$('#memberRolesToUnassign').val(row);
+				$.post($('form').attr('action'),  
+			            $("form").serialize(),  
+			            function(data){	
+		   				$('.contentPanel').html(data);	
+		   				$('#refresh').val($('#refreshSe').val());	   				      
+			   				if($('#info_type').val()=='success'){			   				
+				   	   	   		$("#memberRoleGrid").trigger("reloadGrid");		   				
+							}		   					   						   					
+			     }); 	
+			}	
+			return false;			
+		});
 
-			$.post($('form').attr('action'),  
-		            $("form").serialize(),  
-		            function(data){	
-	   				$('.contentPanel').html(data);	
-	   				$('#refresh').val($('#refreshSe').val());	   				      
-		   				if($('#info_type').val()=='success'){			   				
-			   	   	   		$("#memberRoleGrid").trigger("reloadGrid");		   				
-						}		   					   						   					
-		            }); 		
+		$('#edit_assigned_roles').click(function(){
+			var row = $("#memberRoleGrid").jqGrid('getGridParam','selarrrow');
+			if(row==""){
+				alert("Please select atmost one role to edit");
+			}else if(row.length>1){
+				alert("Maximum one row can be edited at a time");
+				$('.cbox').removeAttr("checked");				
+			}else{
+				$.get('member_role/assignroles/memberrole/'+row+'/edit',			             
+			            function(data){	
+		   				$('.contentPanel').html(data);	
+						}  						   					
+			     ); 	
+			}
+			return false;				
+		});
+
+		$('#delte_assigned_roles').click(function(){
+			var row = $("#memberRoleGrid").jqGrid('getGridParam','selarrrow');
+			if(row==""){
+				alert("Please select atleast one role to delete");
+			}else{
+				$('#memberRolesToDelete').val(row);
+				$.post('member_role/assignroles/deleteMemberRoles',  
+			            $("form").serialize(),  
+			            function(data){	
+		   				$('.contentPanel').html(data);	
+		   				$('#refresh').val($('#refreshSe').val());	   				      
+			   				if($('#info_type').val()=='success'){			   				
+				   	   	   		$("#memberRoleGrid").trigger("reloadGrid");		   				
+							}		   					   						   					
+			     }); 	
+			}	
+			return false;			
 		});
 		
 	});

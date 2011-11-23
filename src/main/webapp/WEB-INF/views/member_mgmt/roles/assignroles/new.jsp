@@ -4,6 +4,7 @@
 <form:form cssClass="wufoo" action="member_role/assignroles/createMemberRoles" method="POST" 
 	modelAttribute="memberRole">
 	<div class="info">
+			<h2><spring:message code="mms.assignroles.new.heading" text="Enter Details"/></h2>
 			<div style="background-color:#C1CDCD; ;padding: 3px"><spring:message code="generic.mandatory.label" text="Note: Fields marked * are mandatory"/></div>
 			<form:errors path="assembly" cssClass="field_error" />	
 	</div>
@@ -71,7 +72,7 @@
 		</li>
 	<li class="buttons">
 		<input type="hidden" name="assignmentDate" value="${assignmentDate}" id="assignmentDate">
-		<input type="hidden" name="selectedroles" value="${roles}" id="selectedroles">
+		<input type="hidden" name="selectedroles" value="${selectedroles}" id="selectedroles">
 		<input id="saveForm" class="btTxt" type="submit" 
 			value="<spring:message code='generic.submit' text='Submit'/>" />
 	</li>
@@ -81,7 +82,7 @@
 </form:form>
 </body>
 <head>
-	<title><spring:message code="mms.assignroles.new.title" text="Assign New Roles"/></title>
+	<title><spring:message code="mms.assignroles.new.title" text="Add Member Roles"/></title>
 	<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
 	<script type="text/javascript">
 	$(document).ready(function(){	

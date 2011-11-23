@@ -72,10 +72,9 @@
 	</li>	
 	<li class="buttons">
 		<input type="hidden" name="membersToAssign" id="membersToAssign" >
-	
+		<input type="hidden" name="assignmentDate" value="${assignmentDate}" id="assignmentDate">	
 		<input id="saveForm" class="btTxt" type="button" value="<spring:message code='generic.submit' text='Submit'/>" />
 	</li>
-	<input type="hidden" name="assignmentDate" value="${assignmentDate}" id="assignmentDate">
 	<form:hidden path="id"/>		
 	<form:hidden path="version"/>
 	</ul>		
@@ -130,20 +129,23 @@
 		loadMemberGrid(24);	
 		
 		$('#saveForm').click(function(){
-						
-			$('#membersToAssign').val($("#memberGrid").jqGrid('getGridParam','selarrrow'));
-			
-			$.post($('form').attr('action'),  
-		            $("form").serialize(),  
-		            function(data){	
-	   				$('.contentPanel').html(data);	
-	   				$('#refresh').val($('#refreshSe').val());	   				      
-		   				if($('#info_type').val()=='success'){			   				
-			   	   	   		$("#grid").trigger("reloadGrid");		   				
-						}		   					   						   					
-		            }); 					
-		});	
-		
+			var row=$("#memberGrid").jqGrid('getGridParam','selarrrow');	
+			if(row==""){
+				alert("Please select atleast one member");
+			}else{
+				$('#membersToAssign').val(row);			
+				$.post($('form').attr('action'),  
+			            $("form").serialize(),  
+			            function(data){	
+		   				$('.contentPanel').html(data);	
+		   				$('#refresh').val($('#refreshSe').val());	   				      
+			   				if($('#info_type').val()=='success'){			   				
+				   	   	   		$("#grid").trigger("reloadGrid");		   				
+							}		   					   						   					
+			            }); 
+			}
+			return false;								
+		});			
 	});
 	</script>
 	
