@@ -4,6 +4,7 @@
 <form:form cssClass="wufoo" action="member_role/assignmembers/createMemberRoles" method="POST" 
 	modelAttribute="memberRole">
 	<div class="info">
+			<h2><spring:message code="mms.assignmembers.new.heading" text="Enter Details"/></h2>
 			<div style="background-color:#C1CDCD; ;padding: 3px"><spring:message code="generic.mandatory.label" text="Note: Fields marked * are mandatory"/></div>
 	</div>
 	<ul>
@@ -22,7 +23,7 @@
 					<form:option value="mr_IN"><spring:message code="generic.lang.marathi" text="Marathi"/></form:option>
 				</form:select>
 			</div>
-		</li>
+		</li>		
 	<li>
 	<label class="desc"><spring:message code="mms.assignroles.assembly" text="Assembly"/>&nbsp;*</label>
 		<div>
@@ -34,12 +35,11 @@
 	<li>
 	<label class="desc"><spring:message code="mms.assignroles.roles" text="Role"/>&nbsp;*</label>
 		<div>
-				<form:select path="role" items="${roles}" itemLabel="name" itemValue="id" id="role" cssClass="field select medium" name="role">
-	            </form:select>
-	            <form:errors path="role" cssClass="field_error" />	
-	                             
+				<input id="role" name="role" type="hidden" value="${memberRole.role.id}">
+				<input id="roleName" name="roleName" value="${memberRole.role.name}" type="text" class="field text medium" readonly="readonly">
+				<form:errors path="role" cssClass="field_error" />		                             
 		</div>
-	</li>
+	</li>	
 	<li>
 		<label class="desc"><spring:message code="mms.assignroles.fromdate" text="From"/>&nbsp;*</label>
 			<div>
@@ -63,6 +63,7 @@
 		<table id="memberGrid"></table> 
 		<div id="membergrid_pager"></div>
 	</div>
+	<form:errors path="member" cssClass="field_error" />	
 	<ul>
 	<li>
 		<label class="desc"><spring:message code="mms.assignroles.remarks" text="Remarks"/></label>
@@ -71,17 +72,18 @@
 			</div>
 	</li>	
 	<li class="buttons">
-		<input type="hidden" name="membersToAssign" id="membersToAssign" >
+		<input type="hidden" name="membersToAssign" id="membersToAssign" value="${membersToAssign}">
 		<input type="hidden" name="assignmentDate" value="${assignmentDate}" id="assignmentDate">	
 		<input id="saveForm" class="btTxt" type="button" value="<spring:message code='generic.submit' text='Submit'/>" />
 	</li>
 	<form:hidden path="id"/>		
 	<form:hidden path="version"/>
+	<form:hidden path="status"/>
 	</ul>		
 </form:form>
 </body>
 <head>
-	<title><spring:message code="mms.assignmembers.new.title" text="Assign Members"/></title>
+	<title><spring:message code="mms.assignmembers.new.title" text="Add Member Roles"/></title>
 	<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
 	<script type="text/javascript">
 	function loadMemberGrid(gridId, baseFilter) {
@@ -112,12 +114,7 @@
 				},	
 				loadComplete:function(data,obj){
 				},		
-				onSelectRow:function(rowId,status) {
-						/*if(status){			
-							$('input[type="checkbox"][id$="'+rowId+'"]').removeAttr("checked");	
-						}else{
-							$('input[type="checkbox"][id$="'+rowId+'"]').attr("checked","checked");	
-						}	*/									
+				onSelectRow:function(rowId,status) {														
 				}
 			});
 			$("#memberGrid").jqGrid('navGrid','#membergrid_pager',{edit:false,add:false,del:false, search:true},{},{},{},{multipleSearch:true});
@@ -126,10 +123,18 @@
 		return c_grid;
 	};
 	$(document).ready(function(){
-		loadMemberGrid(24);	
-		
+		loadMemberGrid(24);
+		var membersToAssign= $('#membersToAssign').val();
+		if(membersToAssign!=""){
+			var membersSelected=membersToAssign.split(",");
+			for(var i=0;i<membersSelected.length;i++){
+				if(membersSelected[i]!=undefined){
+					$('#memberGrid').setSelection(membersSelected[i],false);
+					}	
+			}
+		}		
 		$('#saveForm').click(function(){
-			var row=$("#memberGrid").jqGrid('getGridParam','selarrrow');	
+			var row=$("#memberGrid").jqGrid('getGridParam','selarrrow');
 			if(row==""){
 				alert("Please select atleast one member");
 			}else{

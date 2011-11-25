@@ -40,8 +40,12 @@
 			
 		</div>
 	</li>
-	<li>		
-	
+	<li>
+	<label class="desc"><spring:message code="mms.assignroles.status" text="Current Status"/>&nbsp;*</label>
+		<div>
+		<form:select path="status" items="${allStatus}" cssClass="field select medium"></form:select>			
+		</div>
+	</li>
 	<li>
 		<label class="desc"><spring:message code="mms.assignroles.fromdate" text="From"/>&nbsp;*</label>
 			<div>
@@ -76,7 +80,11 @@
 	<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
 	<script type="text/javascript">
 	$(document).ready(function(){	
-				
+		$('#status').change(function(){
+			if($('#status').val()=="Not Applicable"){
+				$('#toDate').val($('#assignmentDate').val());
+			}
+		});			
 	});
 	</script>
 </head>

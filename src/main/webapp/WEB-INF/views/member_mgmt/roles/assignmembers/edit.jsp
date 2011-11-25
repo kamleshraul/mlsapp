@@ -48,7 +48,7 @@
 </form>
 </body>
 <head>
-	<title><spring:message code="mms.assignroles.edit.title" text="Edit Assigned Members"/></title>
+	<title><spring:message code="mms.assignroles.edit.title" text="Edit Member Roles"/></title>
 	<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>	
 	<link rel="stylesheet" media="screen" href="./resources/css/tables.css" />	
 	<script type="text/javascript">
@@ -119,12 +119,13 @@
 		});
 
 		$('#edit_assigned_roles').click(function(){
-			var row = $("#memberRoleGrid").jqGrid('getGridParam','selarrrow');
+			var row = $("#memberRoleGrid").jqGrid('getGridParam','selarrrow');			
 			if(row==""){
 				alert("Please select atmost one role to edit");
 			}else if(row.length>1){
-				alert("Maximum one row can be edited at a time");
-				$('.cbox').removeAttr("checked");				
+				alert("Maximum one row can be edited at a time");				
+				$('#memberRoleGrid').resetSelection();					
+			
 			}else{
 				$.get('member_role/assignmembers/memberrole/'+row+'/edit',			             
 			            function(data){	

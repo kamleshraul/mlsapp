@@ -8,29 +8,23 @@
 			<div style="background-color:#C1CDCD; ;padding: 3px"><spring:message code="generic.mandatory.label" text="Note: Fields marked * are mandatory"/></div>
 			<form:errors path="assembly" cssClass="field_error" />	
 	</div>
-	<ul>
-	<li>
-		<label class="desc"><spring:message code="mms.assignroles.memberid" text="Member Id"/>&nbsp;*</label>
-			<div>
-				<input type="text" value="${memberRole.member.id}" readonly="readonly" class="field text medium" name="memberId" id="memberId">
-			</div>
-	</li>		
+	<ul>		
 	<li>
 		<label class="desc"><spring:message code="mms.assignroles.member" text="Member Name"/>&nbsp;*</label>
 			<div>
 				<input type="text" value="${memberRole.member.firstName} ${memberRole.member.middleName} ${memberRole.member.lastName}" readonly="readonly" class="field text medium" >
 			</div>
 	</li>			
-		<li>
-		<label class="desc"><spring:message code="generic.locale" text="Select language"/>&nbsp;*</label>
+		<!--<li>
+		<label class="desc"><spring:message code="generic.locale" text="Language"/>&nbsp;*</label>
 			<div>
-				<form:select cssClass="field select medium" path="locale"> 
+						 <form:select cssClass="field select medium" path="locale"> 
 				<form:option value="en"><spring:message code="generic.lang.english" text="English"/></form:option>
 					<form:option value="hi_IN"><spring:message code="generic.lang.hindi" text="Hindi"/></form:option>
 					<form:option value="mr_IN"><spring:message code="generic.lang.marathi" text="Marathi"/></form:option>
-				</form:select>
+				</form:select> 
 			</div>
-		</li>
+		</li>-->
 	
 	<li>
 	<label class="desc"><spring:message code="mms.assignroles.assembly" text="Assembly"/>&nbsp;*</label>
@@ -44,7 +38,7 @@
 	<label class="desc"><spring:message code="mms.assignroles.roles" text="Role"/>&nbsp;*</label>
 		<div>
 				<select multiple="multiple" id="roles" name="roles">
-				<c:forEach items="${rolesmaster}" var="i">
+				<c:forEach items="${roles}" var="i">
 				<option value="${i.id}"><c:out value="${i.name}"></c:out></option>				
 				</c:forEach>
 	            </select>
@@ -73,11 +67,13 @@
 	<li class="buttons">
 		<input type="hidden" name="assignmentDate" value="${assignmentDate}" id="assignmentDate">
 		<input type="hidden" name="selectedroles" value="${selectedroles}" id="selectedroles">
-		<input id="saveForm" class="btTxt" type="submit" 
+		<input type="hidden" value="${memberRole.member.id}"  name="member" id="member">
+		<form:hidden path="id"/>		
+		<form:hidden path="version"/>
+		<form:hidden path="locale"/>					
+		<input id="saveForm" class="btTxt" type="button" 
 			value="<spring:message code='generic.submit' text='Submit'/>" />
 	</li>
-	<form:hidden path="id"/>		
-	<form:hidden path="version"/>
 	</ul>		
 </form:form>
 </body>
@@ -99,7 +95,44 @@
 						}						
 				}
 				}
-			});				
+			});	
+			$('#assemblies').change(function(){
+				$.get('member_role/unassignedroles/'+$('#member').val()+'/'+$('#assemblies').val(),function(data){
+						$('#roles option').remove();
+						for(var i=0;i<data.length;i++){
+							$('#roles').append("<option value='"+data[i].roles.id+"'>"+data[i].roles.name+"</option>");
+						}
+						$('#fromDate').val(data.fromDate);
+						$('#toDate').val(data.toDate);
+						}
+						);
+			});
+
+			$('#saveForm').click(function(){
+				var count=0;
+				$('#roles option:selected').each(function(){
+					count++;
+				});
+				if(count==0){
+					alert("Please select atleast one role");
+					$('#contentPanel').animate({scrollTop:0}, 'slow');						
+				}else{
+					$.post($('form').attr('action'),  
+				            $("form").serialize(),  
+				            function(data){	
+			   				$('.contentPanel').html(data);	
+			   				$('#refresh').val($('#refreshSe').val());	   				      
+				   				if($('#info_type').val()=='success'){			   				
+					   	   	   		$("#grid").trigger("reloadGrid");		   				
+								}
+							  $('#contentPanel').animate({scrollTop:0}, 'slow');			
+							  $('#content').animate({scrollTop:0}, 'slow'); 
+							  $('body').animate({scrollTop:0}, 'slow'); 
+							  		   					   						   					
+				            });
+				}				
+	            return false;
+			});			
 	});
 	</script>
 </head>
