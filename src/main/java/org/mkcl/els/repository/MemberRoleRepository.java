@@ -2,23 +2,24 @@ package org.mkcl.els.repository;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.HashMap;
+import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
+import javax.persistence.NoResultException;
 import javax.persistence.Query;
 import javax.sql.DataSource;
 
 import org.mkcl.els.common.vo.GridData;
 import org.mkcl.els.common.vo.MemberInRoleVO;
 import org.mkcl.els.domain.Assembly;
+import org.mkcl.els.domain.AssemblyRole;
 import org.mkcl.els.domain.MemberDetails;
 import org.mkcl.els.domain.MemberRole;
-import org.mkcl.els.service.IAssemblyRoleService;
 import org.mkcl.els.service.IAssemblyService;
-import org.mkcl.els.service.ICustomParameterService;
 import org.mkcl.els.service.IMemberDetailsService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -39,7 +40,7 @@ public class MemberRoleRepository extends BaseRepository<MemberRole, Long>{
 	private IAssemblyService assemblyService;
 	
 	@Autowired
-	private ICustomParameterService customParameterService;
+	private CustomParameterRepository customParameterRepository;
 	
 	@Autowired
 	private AssemblyRoleRepository assemblyRoleRepository;
@@ -104,8 +105,8 @@ public class MemberRoleRepository extends BaseRepository<MemberRole, Long>{
 	}
 	public GridData getUnAssignedMembers(Long roleId, Integer rows,
 			Integer page, String sidx, String order, Locale locale) {
-		String select="SELECT m FROM MemberDetails m WHERE m.id not in(SELECT mr.member.id FROM MemberRole mr WHERE mr.role.id="+roleId+" and status='"+customParameterService.findByName("MEMBERROLE_ASSIGNED").getValue()+"') and m.locale='"+locale+"' ORDER BY " + sidx + " " + order;
-		String count_select ="SELECT count(m) FROM MemberDetails m WHERE m.id not in(SELECT mr.member.id FROM MemberRole mr WHERE mr.role.id="+roleId+" and status='"+customParameterService.findByName("MEMBERROLE_ASSIGNED").getValue()+"') and m.locale='"+locale+"'";
+		String select="SELECT m FROM MemberDetails m WHERE m.id not in(SELECT mr.member.id FROM MemberRole mr WHERE mr.role.id="+roleId+" and status='"+customParameterRepository.findByName("MEMBERROLE_ASSIGNED").getValue()+"') and m.locale='"+locale+"' ORDER BY " + sidx + " " + order;
+		String count_select ="SELECT count(m) FROM MemberDetails m WHERE m.id not in(SELECT mr.member.id FROM MemberRole mr WHERE mr.role.id="+roleId+" and status='"+customParameterRepository.findByName("MEMBERROLE_ASSIGNED").getValue()+"') and m.locale='"+locale+"'";
 		Query countQuery=this.em().createQuery(count_select);
 		Query query = this.em().createQuery(select);		
 		Long count =  (Long) countQuery.getSingleResult();
@@ -127,10 +128,10 @@ public class MemberRoleRepository extends BaseRepository<MemberRole, Long>{
 		return gridVO;
 	}	
 	
-	public GridData getAssignedMembers(Long roleId, Integer rows, Integer page,
+	public GridData getAssignedUnassignedMembers(Long roleId, Integer rows, Integer page,
 			String sidx, String order, String sQl, Locale locale) {
-		String count_select = "SELECT count(m) FROM MemberRole m WHERE m.role.id="+ roleId+" and m.status='"+ customParameterService.findByName("MEMBERROLE_ASSIGNED").getValue() +"'"+ sQl + " ORDER BY " + sidx + " " + order;
-		String select= "SELECT m,role,assembly,member FROM MemberRole m JOIN m.member member JOIN m.role role JOIN m.assembly assembly WHERE m.role.id=" + roleId+" and m.status='"+ customParameterService.findByName("MEMBERROLE_ASSIGNED").getValue() +"'" + sQl +" ORDER BY " + sidx + " " + order;
+		String count_select = "SELECT count(m) FROM MemberRole m WHERE m.role.id="+ roleId+" and m.status='"+ customParameterRepository.findByName("MEMBERROLE_ASSIGNED").getValue() +"'"+ sQl + " ORDER BY " + sidx + " " + order;
+		String select= "SELECT m,role,assembly,member FROM MemberRole m JOIN m.member member JOIN m.role role JOIN m.assembly assembly WHERE m.role.id=" + roleId+  sQl +" ORDER BY " + sidx + " " + order;
 		Query countQuery=this.em().createQuery(count_select);
 		Query query = this.em().createQuery(select);		
 		Long count =  (Long) countQuery.getSingleResult();
@@ -151,10 +152,10 @@ public class MemberRoleRepository extends BaseRepository<MemberRole, Long>{
 		GridData gridVO = new GridData(page,total_pages,count,records);
 		return gridVO;
 	}	
-	public GridData getAssignedMembers(Long roleId, Integer rows, Integer page,
+	public GridData getAssignedUnassignedMembers(Long roleId, Integer rows, Integer page,
 			String sidx, String order, Locale locale) {		
-		String count_select = "SELECT count(m) FROM MemberRole m WHERE m.role.id="+roleId+" and m.status='"+ customParameterService.findByName("MEMBERROLE_ASSIGNED").getValue() +"' ORDER BY " + sidx + " " + order;
-		String select= "SELECT m FROM MemberRole m  WHERE m.role.id="+roleId+" and m.status='"+ customParameterService.findByName("MEMBERROLE_ASSIGNED").getValue() +"' ORDER BY " + sidx + " " + order;
+		String count_select = "SELECT count(m) FROM MemberRole m WHERE m.role.id="+roleId+" and m.status='"+ customParameterRepository.findByName("MEMBERROLE_ASSIGNED").getValue() +"' ORDER BY " + sidx + " " + order;
+		String select= "SELECT m FROM MemberRole m  WHERE m.role.id="+roleId+"  ORDER BY " + sidx + " " + order;
 		Query countQuery=this.em().createQuery(count_select);
 		Query query = this.em().createQuery(select);		
 		Long count =  (Long) countQuery.getSingleResult();
@@ -176,10 +177,10 @@ public class MemberRoleRepository extends BaseRepository<MemberRole, Long>{
 		return gridVO;
 	}
 	
-	public GridData getAssignedRoles(Long memberId, Integer rows, Integer page,
+	public GridData getAssignedUnassignedRoles(Long memberId, Integer rows, Integer page,
 			String sidx, String order, String sQl, Locale locale) {
-		String count_select = "SELECT count(m) FROM MemberRole m WHERE m.member.id="+ memberId+" and m.status='"+ customParameterService.findByName("MEMBERROLE_ASSIGNED").getValue() +"'"+ sQl + " ORDER BY " + sidx + " " + order;
-		String select= "SELECT m,role,assembly,member FROM MemberRole m JOIN m.member member JOIN m.role role JOIN m.assembly assembly WHERE m.member.id=" + memberId+" and m.status='"+ customParameterService.findByName("MEMBERROLE_ASSIGNED").getValue() +"'" + sQl +" ORDER BY " + sidx + " " + order;
+		String count_select = "SELECT count(m) FROM MemberRole m WHERE m.member.id="+ memberId+" and m.status='"+ customParameterRepository.findByName("MEMBERROLE_ASSIGNED").getValue() +"'"+ sQl + " ORDER BY " + sidx + " " + order;
+		String select= "SELECT m,role,assembly,member FROM MemberRole m JOIN m.member member JOIN m.role role JOIN m.assembly assembly WHERE m.member.id=" + memberId+ sQl +" ORDER BY " + sidx + " " + order;
 		Query countQuery=this.em().createQuery(count_select);
 		Query query = this.em().createQuery(select);		
 		Long count =  (Long) countQuery.getSingleResult();
@@ -202,10 +203,10 @@ public class MemberRoleRepository extends BaseRepository<MemberRole, Long>{
 		}
 	
 	@SuppressWarnings("unchecked")
-	public GridData getAssignedRoles(Long memberId, Integer rows, Integer page,
+	public GridData getAssignedUnassignedRoles(Long memberId, Integer rows, Integer page,
 			String sidx, String order, Locale locale) {		
-		String count_select = "SELECT count(m) FROM MemberRole m WHERE m.member.id="+memberId+" and m.status='"+ customParameterService.findByName("MEMBERROLE_ASSIGNED").getValue() +"' ORDER BY " + sidx + " " + order;
-		String select= "SELECT m FROM MemberRole m  WHERE m.member.id="+memberId+" and m.status='"+ customParameterService.findByName("MEMBERROLE_ASSIGNED").getValue() +"' ORDER BY " + sidx + " " + order;
+		String count_select = "SELECT count(m) FROM MemberRole m WHERE m.member.id="+memberId+" and m.status='"+ customParameterRepository.findByName("MEMBERROLE_ASSIGNED").getValue() +"' ORDER BY " + sidx + " " + order;
+		String select= "SELECT m FROM MemberRole m  WHERE m.member.id="+memberId+"  ORDER BY " + sidx + " " + order;
 		Query countQuery=this.em().createQuery(count_select);
 		Query query = this.em().createQuery(select);		
 		Long count =  (Long) countQuery.getSingleResult();
@@ -227,31 +228,77 @@ public class MemberRoleRepository extends BaseRepository<MemberRole, Long>{
 		return gridVO;
 	}
 	
-	public MemberRole checkForDuplicateMemberRole(MemberRole memberRole) {
-		Search search=new Search();
-		search.addFilterEqual("fromDate",memberRole.getFromDate());
-		search.addFilterEqual("toDate",memberRole.getToDate());
-		search.addFilterEqual("member",memberRole.getMember());
-		search.addFilterEqual("assembly",memberRole.getAssembly());
-		search.addFilterEqual("role",memberRole.getRole());
-		search.addFilterEqual("locale",memberRole.getLocale());
-		return this.searchUnique(search);
-		
+	public MemberRole checkForDuplicateMemberRole(MemberRole memberRole) {	
+		MemberRole tempMemberRole=null;
+		try{
+		SimpleDateFormat format=new SimpleDateFormat(customParameterRepository.findByName("SERVER_DATEFORMAT").getValue());
+		SimpleDateFormat formatDB=new SimpleDateFormat(customParameterRepository.findByName("DB_DATEFORMAT").getValue());
+		Date fromDate=format.parse(memberRole.getFromDate());
+		Date toDate=format.parse(memberRole.getToDate());
+		String strFromDate=formatDB.format(fromDate);
+		String strToDate=formatDB.format(toDate);
+		String searchQuery="SELECT m FROM MemberRole m WHERE m.member.id="+memberRole.getMember().getId()+" " +
+				"and m.assembly.id="+memberRole.getAssembly().getId()+" "+
+				"and m.role.id="+memberRole.getRole().getId()+" "+
+				"and m.locale='"+memberRole.getLocale()+"' "+
+				"and (" +
+				"(STR_TO_DATE(m.fromDate,concat('%d','/','%m','/','%Y'))='"+strFromDate+"' and STR_TO_DATE(m.toDate,concat('%d','/','%m','/','%Y'))='"+strToDate+"') or"+
+				" (STR_TO_DATE(m.fromDate,concat('%d','/','%m','/','%Y'))<='"+strFromDate+"' and STR_TO_DATE(m.toDate,concat('%d','/','%m','/','%Y'))>='"+strToDate+"') or"+
+				" (STR_TO_DATE(m.fromDate,concat('%d','/','%m','/','%Y'))<='"+strFromDate+"' and STR_TO_DATE(m.toDate,concat('%d','/','%m','/','%Y'))>='"+strFromDate+"' and STR_TO_DATE(m.toDate,concat('%d','/','%m','/','%Y'))<='"+strToDate+"') or"+
+				" (STR_TO_DATE(m.fromDate,concat('%d','/','%m','/','%Y'))<='"+strFromDate+"' and STR_TO_DATE(m.toDate,concat('%d','/','%m','/','%Y'))>='"+strToDate+"' and STR_TO_DATE(m.fromDate,concat('%d','/','%m','/','%Y'))>='"+strFromDate+"') or"+
+				" (STR_TO_DATE(m.fromDate,concat('%d','/','%m','/','%Y'))>='"+strFromDate+"' and STR_TO_DATE(m.toDate,concat('%d','/','%m','/','%Y'))<='"+strToDate+"')"+
+				")";		
+		tempMemberRole=(MemberRole) this.em().createQuery(searchQuery).getSingleResult();
+		}catch(NoResultException ex){
+			return new MemberRole();
+		} catch (ParseException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return tempMemberRole;
 	}
 	public boolean isMember(MemberDetails memberDetails, Assembly assembly, String fromdate, String todate) {
-		Search search=new Search();
-		search.addFilterEqual("member",memberDetails);
-		search.addFilterEqual("assembly",assembly);
-		search.addFilterEqual("role",assemblyRoleRepository.findByName("Member"));
-		search.addFilterEqual("fromDate", fromdate);
-		search.addFilterEqual("toDate",todate);
-		search.addFilterEqual("status",customParameterService.findByName("MEMBERROLE_ASSIGNED").getValue());
-		int count=this.count(search);
-		if(count>0){
-			return true;
+		boolean status=false;
+		try {
+			int count=0;
+			SimpleDateFormat format=new SimpleDateFormat(customParameterRepository.findByName("SERVER_DATEFORMAT").getValue());
+			SimpleDateFormat formatDB=new SimpleDateFormat(customParameterRepository.findByName("DB_DATEFORMAT").getValue());
+			Date fromDate=format.parse(fromdate);
+			Date toDate=format.parse(todate);
+			String strFromDate=formatDB.format(fromDate);
+			String strToDate=formatDB.format(toDate);
+			String searchQuery="SELECT m FROM MemberRole m WHERE m.member.id="+memberDetails.getId()+" and m.assembly.id="+assembly.getId()+" and m.role.id="+assemblyRoleRepository.findByName("Member").getId()+" and m.status='"+customParameterRepository.findByName("MEMBERROLE_ASSIGNED").getValue()+"' and " +
+					"((STR_TO_DATE(m.fromDate,concat('%d','/','%m','/','%Y'))<='"+strFromDate+"' and STR_TO_DATE(m.toDate,concat('%d','/','%m','/','%Y'))>='"+strToDate+"') or (m.fromDate='"+fromdate+"' and m.toDate='"+todate+"'))";
+			count=this.em().createQuery(searchQuery).getResultList().size();
+			if(count>0){
+				status=true;
+			}
+		} catch (ParseException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}	
+		return status;
+		
+	}
+	public List<AssemblyRole> getUnassignedRoles(MemberDetails memberDetails,
+			Assembly assembly, String locale) {
+		Date assignmentDate=new Date();
+		SimpleDateFormat format=new SimpleDateFormat(customParameterRepository.findByName("DB_DATEFORMAT").getValue());
+		String strAssignmentDate=format.format(assignmentDate);
+		String select=null;
+		if(assembly.isCurrentAssembly()){
+			/*
+			 * Roles that have not been assigned for selected assembly,role,member
+			 * Roles that have been unassigned or assigned and the date of assignment is >to date or date of assignment <from date
+			 * 
+			 * 
+			 */
+			select="SELECT ar FROM AssemblyRole ar WHERE ar.id NOT IN(SELECT mr.role.id FROM MemberRole mr WHERE mr.member.id="+memberDetails.getId()+" and mr.assembly.id="+assembly.getId()+" and mr.status='"+customParameterRepository.findByName("MEMBERROLE_ASSIGNED").getValue()+"')"+
+							"OR ar.id IN(SELECT mr.role.id FROM MemberRole mr " +"WHERE mr.member.id="+memberDetails.getId()+"and mr.assembly.id="+assembly.getId()+"and (mr.status='"+customParameterRepository.findByName("MEMBERROLE_UNASSIGNED").getValue()+"' or mr.status='"+customParameterRepository.findByName("MEMBERROLE_ASSIGNED").getValue()+"') and (STR_TO_DATE(mr.fromDate,concat('%d','/','%m','/','%Y'))>'"+strAssignmentDate+"' or STR_TO_DATE(mr.toDate,concat('%d','/','%m','/','%Y'))< '"+strAssignmentDate+"') ) and ar.locale='"+locale+"' ORDER BY ar.name";
 		}else{
-			return false;
-		}		
+			select="SELECT ar FROM AssemblyRole ar WHERE ar.id NOT IN(SELECT mr.role.id FROM MemberRole mr WHERE mr.member.id="+memberDetails.getId()+" and mr.assembly.id="+assembly.getId()+" and mr.status='"+customParameterRepository.findByName("MEMBERROLE_ASSIGNED").getValue()+"') and ar.locale='"+locale+"' ORDER BY ar.name";
+		}
+		return this.em().createQuery(select).getResultList();
 	}
 
 }

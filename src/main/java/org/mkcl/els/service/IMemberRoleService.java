@@ -6,6 +6,7 @@ import java.util.Locale;
 import org.mkcl.els.common.vo.GridData;
 import org.mkcl.els.common.vo.MemberInRoleVO;
 import org.mkcl.els.domain.Assembly;
+import org.mkcl.els.domain.AssemblyRole;
 import org.mkcl.els.domain.MemberDetails;
 import org.mkcl.els.domain.MemberRole;
 
@@ -21,10 +22,10 @@ public interface IMemberRoleService extends IGenericService<MemberRole ,Long>{
 
 	List<MemberRole> findByRoleId(Long roleId);
 
-	GridData getAssignedMembers(Long roleId, Integer rows, Integer page, String sidx,
+	GridData getAssignedUnassignedMembers(Long roleId, Integer rows, Integer page, String sidx,
 			String order, String sQl, Locale locale);
 
-	GridData getAssignedMembers(Long roleId, Integer rows, Integer page, String sidx,
+	GridData getAssignedUnassignedMembers(Long roleId, Integer rows, Integer page, String sidx,
 			String order, Locale locale);
 
 	GridData getUnAssignedMembers(Long roleId, Integer rows, Integer page,
@@ -33,14 +34,17 @@ public interface IMemberRoleService extends IGenericService<MemberRole ,Long>{
 	GridData getUnAssignedMembers(Long roleId, Integer rows, Integer page,
 			String sidx, String order, Locale locale);
 
-	GridData getAssignedRoles(Long memberId, Integer rows, Integer page,
+	GridData getAssignedUnassignedRoles(Long memberId, Integer rows, Integer page,
 			String sidx, String order, String sQl, Locale locale);
 
-	GridData getAssignedRoles(Long memberId, Integer rows, Integer page,
+	GridData getAssignedUnassignedRoles(Long memberId, Integer rows, Integer page,
 			String sidx, String order, Locale locale);
 
 	MemberRole checkForDuplicateMemberRole(MemberRole memberRole);
 
 	boolean isMember(MemberDetails member, Assembly assembly, String fromdate, String todate);
+
+	List<AssemblyRole> getUnassignedRoles(MemberDetails memberDetails, Assembly assembly,
+			String locale);
 
 }

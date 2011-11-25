@@ -6,6 +6,7 @@ import java.util.Locale;
 import org.mkcl.els.common.vo.GridData;
 import org.mkcl.els.common.vo.MemberInRoleVO;
 import org.mkcl.els.domain.Assembly;
+import org.mkcl.els.domain.AssemblyRole;
 import org.mkcl.els.domain.MemberDetails;
 import org.mkcl.els.domain.MemberRole;
 import org.mkcl.els.repository.MemberRoleRepository;
@@ -47,14 +48,14 @@ implements IMemberRoleService{
 		return memberRoleRepository.findByRoleId(roleId);
 	}
 	@Override
-	public GridData getAssignedMembers(Long roleId, Integer rows, Integer page,
+	public GridData getAssignedUnassignedMembers(Long roleId, Integer rows, Integer page,
 			String sidx, String order, String sQl, Locale locale) {
-		return memberRoleRepository.getAssignedMembers(roleId, rows,page,sidx, order,sQl,locale);
+		return memberRoleRepository.getAssignedUnassignedMembers(roleId, rows,page,sidx, order,sQl,locale);
 	}
 	@Override
-	public GridData getAssignedMembers(Long roleId, Integer rows, Integer page,
+	public GridData getAssignedUnassignedMembers(Long roleId, Integer rows, Integer page,
 			String sidx, String order, Locale locale) {
-		return memberRoleRepository.getAssignedMembers(roleId,rows,page,sidx,order,locale);
+		return memberRoleRepository.getAssignedUnassignedMembers(roleId,rows,page,sidx,order,locale);
 	}
 	@Override
 	public GridData getUnAssignedMembers(Long roleId, Integer rows,
@@ -67,22 +68,28 @@ implements IMemberRoleService{
 		return memberRoleRepository.getUnAssignedMembers(roleId,rows,page,sidx,order,locale);
 	}
 	@Override
-	public GridData getAssignedRoles(Long memberId, Integer rows, Integer page,
+	public GridData getAssignedUnassignedRoles(Long memberId, Integer rows, Integer page,
 			String sidx, String order, String sQl, Locale locale) {
-		return memberRoleRepository.getAssignedRoles(memberId, rows,page,sidx, order,sQl,locale);
+		return memberRoleRepository.getAssignedUnassignedRoles(memberId, rows,page,sidx, order,sQl,locale);
 	}
 	@Override
-	public GridData getAssignedRoles(Long memberId, Integer rows, Integer page,
+	public GridData getAssignedUnassignedRoles(Long memberId, Integer rows, Integer page,
 			String sidx, String order, Locale locale) {
-		return memberRoleRepository.getAssignedRoles(memberId,rows,page,sidx,order,locale);
+		return memberRoleRepository.getAssignedUnassignedRoles(memberId,rows,page,sidx,order,locale);
 	}
 	@Override
 	public MemberRole checkForDuplicateMemberRole(MemberRole memberRole) {
-		return memberRoleRepository.checkForDuplicateMemberRole(memberRole);
+		return (MemberRole)memberRoleRepository.checkForDuplicateMemberRole(memberRole);
 	}
 	@Override
 	public boolean isMember(MemberDetails memberDetails, Assembly assembly,String fromdate,String todate) {
 		return memberRoleRepository.isMember(memberDetails, assembly,fromdate,todate);
+	}
+	@Override
+	public List<AssemblyRole> getUnassignedRoles(MemberDetails memberDetails,
+			Assembly assembly, String locale) {
+		//for current assembly
+		return memberRoleRepository.getUnassignedRoles(memberDetails,assembly, locale);
 	}
 
 }

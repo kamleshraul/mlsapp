@@ -82,6 +82,9 @@ public class MemberDetails implements Serializable{
 	@Column(length=100)
 	private String lastName;
 	
+	@Column(length=300)
+	private String fullName;
+	
 	/** The alias. */
 	@Column(length=100)
 	private String alias;
@@ -845,5 +848,9 @@ public class MemberDetails implements Serializable{
 	public static long getSerialversionuid() {
 		return serialVersionUID;
 	}	
+	
+	public String getFullName(){
+		return this.firstName+" "+this.middleName+" "+this.lastName;
+	}
 	
 }

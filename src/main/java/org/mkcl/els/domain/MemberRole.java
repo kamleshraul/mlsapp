@@ -118,6 +118,12 @@ public class MemberRole implements Serializable{
 		this.locale = locale;
 		this.version = version;
 	}
+	
+	public static MemberRole newInstance(MemberRole memberRole){
+		return new MemberRole(memberRole.getMember(),memberRole.getAssembly(),memberRole.getRole(),
+				memberRole.getFromDate(),memberRole.getToDate(),memberRole.getRemarks(),
+				memberRole.getStatus(),memberRole.getLocale(),memberRole.getVersion());
+	}
 
 	public Long getId() {
 		return id;
