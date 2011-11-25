@@ -18,7 +18,9 @@
 		   				if($('#info_type').val()=='success'){			   				
 			   	   	   		$("#grid").trigger("reloadGrid");		   				
 						}
-					  $('#contentPanel').animate({scrollTop:0}, 'slow'); 		   					   						   					
+					  $('#contentPanel').animate({scrollTop:0}, 'slow');			
+					  $('#content').animate({scrollTop:0}, 'slow'); 
+					  $('body').animate({scrollTop:0}, 'slow'); 					  		   					   						   					
 		            });
 				  
 		        return false;  
