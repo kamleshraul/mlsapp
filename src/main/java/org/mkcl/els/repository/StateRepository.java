@@ -51,10 +51,8 @@ public class StateRepository
 		return state;
 	}
 	
-	public List<State> findAllSorted(){
-		Search search=new Search();
-		search.addSort("name",false);
-		return this.search(search);
+	public List<State> findAllSorted(){		
+		return findAllSorted("name",false);
 	}
 	
 	public List<State> findAllSorted(String property,boolean descOrder){
