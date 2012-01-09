@@ -30,14 +30,14 @@ import org.mkcl.els.domain.CustomParameter;
  * @author amitd
  * @version v1.0.0
  */
-public interface ICustomParameterService 
+public interface ICustomParameterService
 	extends IGenericService<CustomParameter ,Long>{
-	
-	/**
-	 * Find by name.
-	 *
-	 * @param name the name
-	 * @return the custom parameter
-	 */
-	public CustomParameter findByName(String name);
+
+//	/**
+//	 * Find by name.
+//	 *
+//	 * @param name the name
+//	 * @return the custom parameter
+//	 */
+//	public CustomParameter findByName(String name);
 }

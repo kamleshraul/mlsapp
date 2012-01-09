@@ -1,39 +1,31 @@
-/*
-******************************************************************
-File: org.mkcl.els.domain.AssemblyNumber.java
-Copyright (c) 2011, amitd, ${company}
-All rights reserved.
-
-THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
-"AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
-LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS
-FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE
-COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT,
-INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
-BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
-LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
-CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
-LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN
-ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
-POSSIBILITY OF SUCH DAMAGE.
-
-******************************************************************
+/**
+ * See the file LICENSE for redistribution information.
+ *
+ * Copyright (c) 2011 MKCL.  All rights reserved.
+ *
+ * Project: e-Legislature
+ * File: org.mkcl.els.domain.AssemblyNumber.java
+ * Created On: Dec 27, 2011
  */
+
 package org.mkcl.els.domain;
 
 import java.io.Serializable;
+import java.util.List;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
-import javax.persistence.OneToOne;
-import javax.persistence.PrimaryKeyJoinColumn;
 import javax.persistence.Table;
 import javax.persistence.Version;
 
 import org.hibernate.validator.constraints.NotEmpty;
+import org.mkcl.els.repository.AssemblyNumberRepository;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Configurable;
+import org.springframework.transaction.annotation.Transactional;
 
 /**
  * The Class AssemblyNumber.
@@ -41,121 +33,248 @@ import org.hibernate.validator.constraints.NotEmpty;
  * @author amitd
  * @version v1.0.0
  */
+@Configurable
 @Entity
-@Table(name="assembly_number")
+@Table(name = "assembly_number")
 public class AssemblyNumber implements Serializable {
 
-	/** The Constant serialVersionUID. */
-	private static final long serialVersionUID = 1L;
-	
-	//===========Attributes==========
-	/** The id. */
-	@Id
-	@GeneratedValue(strategy = GenerationType.AUTO)
-	private Long id;
-	
-	/** The assembly number. */
-	@Column(length=100, nullable=false)
-	@NotEmpty
-	private String assemblyNo;
+    /** The Constant serialVersionUID. */
+    private static final long serialVersionUID = 1L;
 
-	/** The version. */
-	@Version
-	private Long version;
+    // ===========Attributes==========
+    /** The id. */
+    @Id
+    @GeneratedValue(strategy = GenerationType.AUTO)
+    private Long id;
 
-	/** The locale. */
-	@Column(length=50)
-	private String locale;	
+    /** The assembly number. */
+    @Column(length = 100, nullable = false)
+    @NotEmpty
+    private String assemblyNo;
 
-	//==========Constructors==========
-	/**
-	 * Instantiates a new assembly number.
-	 */
-	public AssemblyNumber() {
-		super();
-	}
+    /** The version. */
+    @Version
+    private Long version;
+
+    /** The locale. */
+    @Column(length = 50)
+    private String locale;
+
+    /** The assembly number repository. */
+    @Autowired
+    private transient AssemblyNumberRepository assemblyNumberRepository;
+
+    // ==========Constructors==========
+    /**
+     * Instantiates a new assembly number.
+     */
+    public AssemblyNumber() {
+        super();
+    }
+
+    /**
+     * Instantiates a new assembly number.
+     *
+     * @param assemblyNo the assembly no
+     * @param version the version
+     * @param locale the locale
+     */
+    public AssemblyNumber(final String assemblyNo,
+            final Long version,
+            final String locale) {
+        super();
+        this.assemblyNo = assemblyNo;
+        this.version = version;
+        this.locale = locale;
+    }
+
+    // ========== domain methods ===========
+
+    /**
+     * Gets the assembly number repository.
+     *
+     * @return the assembly number repository
+     */
+    public static AssemblyNumberRepository getAssemblyNumberRepository() {
+        AssemblyNumberRepository assemblyNumberRepository =
+                new AssemblyNumber().assemblyNumberRepository;
+
+        if (assemblyNumberRepository == null) {
+            throw new IllegalStateException(
+                    "Assembly Number Repository has not been injected "
+                            + "in Assembly Number domain");
+        }
+
+        return assemblyNumberRepository;
+    }
+
+    /**
+     * Find all sorted.
+     *
+     * @param property the property
+     * @param locale the locale
+     * @param descOrder the desc order
+     * @return the list
+     * @author nileshp
+     * @since v1.0.0
+     */
+    @Transactional(readOnly = true)
+    public static List<AssemblyNumber> findAllSorted(final String property,
+                                                     final String locale,
+                                                     final boolean descOrder) {
+        return getAssemblyNumberRepository().findAllSorted(
+                property, locale, descOrder);
+    }
 
 
+    /**
+     * Find by assembly number.
+     *
+     * @param assemblyNo the assembly no
+     * @return the assembly number
+     * @author nileshp
+     * @since v1.0.0
+     */
+    @Transactional(readOnly = true)
+    public static AssemblyNumber findByAssemblyNumber(final String assemblyNo) {
+        return getAssemblyNumberRepository().findByAssemblyNo(assemblyNo);
+    }
 
-	public AssemblyNumber(String assemblyNo, Long version, String locale) {
-		super();
-		this.assemblyNo = assemblyNo;
-		this.version = version;
-		this.locale = locale;
-	}
+    /**
+     * Find by id.
+     *
+     * @param id the id
+     * @return the assembly number
+     * @author nileshp
+     * @since v1.0.0
+     */
+    @Transactional(readOnly = true)
+    public static AssemblyNumber findById(final Long id) {
+        return getAssemblyNumberRepository().find(id);
+    }
 
+    /**
+     * Check version.
+     *
+     * @return true, if successful
+     * @author nileshp
+     * @since v1.0.0
+     */
+    @Transactional(readOnly = true)
+    public boolean checkVersion() {
+        AssemblyNumber assemblyNumber = getAssemblyNumberRepository().find(this.id);
+        return assemblyNumber.getVersion().equals(this.version);
+    }
 
+    /**
+     * Persist.
+     *
+     * @author nileshp
+     * @since v1.0.0
+     * Persist.
+     */
+    @Transactional
+    public void persist() {
+        assemblyNumberRepository.save(this);
+        assemblyNumberRepository.flush();
+    }
 
-	//==========Getters & Setters==========
-	/**
-	 * Gets the id.
-	 *
-	 * @return the id
-	 */
-	public Long getId() {
-		return id;
-	}
+    /**
+     * Update.
+     *
+     * @author nileshp
+     * @since v1.0.0
+     * Update.
+     */
+    @Transactional
+    public void update() {
+        assemblyNumberRepository.merge(this);
+        assemblyNumberRepository.flush();
+    }
 
-	/**
-	 * Sets the id.
-	 *
-	 * @param id the new id
-	 */
-	public void setId(Long id) {
-		this.id = id;
-	}
+    /**
+     * Removes the.
+     *
+     * @author nileshp
+     * @since v1.0.0
+     * Removes the.
+     */
+    @Transactional
+    public void remove() {
+        assemblyNumberRepository.remove(this);
+        assemblyNumberRepository.flush();
+    }
 
-	/**
-	 * Gets the assembly no.
-	 *
-	 * @return the assembly no
-	 */
-	public String getAssemblyNo() {
-		return assemblyNo;
-	}
+    // ==========Getters & Setters==========
+    /**
+     * Gets the id.
+     *
+     * @return the id
+     */
+    public Long getId() {
+        return id;
+    }
 
-	/**
-	 * Sets the assembly no.
-	 *
-	 * @param assemblyNo the new assembly no
-	 */
-	public void setAssemblyNo(String assemblyNo) {
-		this.assemblyNo = assemblyNo;
-	}
+    /**
+     * Sets the id.
+     *
+     * @param id the new id
+     */
+    public void setId(final Long id) {
+        this.id = id;
+    }
 
-	/**
-	 * Gets the version.
-	 *
-	 * @return the version
-	 */
-	public Long getVersion() {
-		return version;
-	}
+    /**
+     * Gets the assembly no.
+     *
+     * @return the assembly no
+     */
+    public String getAssemblyNo() {
+        return assemblyNo;
+    }
 
-	/**
-	 * Sets the version.
-	 *
-	 * @param version the new version
-	 */
-	public void setVersion(Long version) {
-		this.version = version;
-	}
+    /**
+     * Sets the assembly no.
+     *
+     * @param assemblyNo the new assembly no
+     */
+    public void setAssemblyNo(final String assemblyNo) {
+        this.assemblyNo = assemblyNo;
+    }
 
-	/**
-	 * Gets the locale.
-	 *
-	 * @return the locale
-	 */
-	public String getLocale() {
-		return locale;
-	}
+    /**
+     * Gets the version.
+     *
+     * @return the version
+     */
+    public Long getVersion() {
+        return version;
+    }
 
-	/**
-	 * Sets the locale.
-	 *
-	 * @param locale the new locale
-	 */
-	public void setLocale(String locale) {
-		this.locale = locale;
-	}
+    /**
+     * Sets the version.
+     *
+     * @param version the new version
+     */
+    public void setVersion(final Long version) {
+        this.version = version;
+    }
+
+    /**
+     * Gets the locale.
+     *
+     * @return the locale
+     */
+    public String getLocale() {
+        return locale;
+    }
+
+    /**
+     * Sets the locale.
+     *
+     * @param locale the new locale
+     */
+    public void setLocale(final String locale) {
+        this.locale = locale;
+    }
 }

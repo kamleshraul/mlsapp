@@ -40,10 +40,10 @@ public interface IStateService extends IGenericService<State ,Long>{
 	 * @param name the name
 	 * @return the state
 	 */
-	public State findByName(String name);
-	
-	public List<State> findAllSorted();
-	
-	public List<State> findAllSorted(String property,boolean descOrder);
+//	public State findByName(String name);
+//	
+//	public List<State> findAllSorted();
+//	
+//	public List<State> findAllSorted(String property,boolean descOrder);
 
 }

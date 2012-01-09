@@ -1,23 +1,11 @@
-/*
-******************************************************************
-File: org.mkcl.els.domain.CustomParameter.java
-Copyright (c) 2011, vishals, MKCL
-All rights reserved.
-
-THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
-"AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
-LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS
-FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE
-COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT,
-INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
-BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
-LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
-CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
-LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN
-ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
-POSSIBILITY OF SUCH DAMAGE.
-
-******************************************************************
+/**
+ * See the file LICENSE for redistribution information.
+ *
+ * Copyright (c) 2011 MKCL.  All rights reserved.
+ *
+ * Project: e-Legislature
+ * File: org.mkcl.els.domain.CustomParameter.java
+ * Created On: Dec 30, 2011
  */
 package org.mkcl.els.domain;
 
@@ -32,6 +20,10 @@ import javax.persistence.Table;
 import javax.persistence.Version;
 
 import org.hibernate.validator.constraints.NotEmpty;
+import org.mkcl.els.repository.CustomParameterRepository;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Configurable;
+import org.springframework.transaction.annotation.Transactional;
 
 /**
  * The Class CustomParameter.
@@ -39,171 +31,273 @@ import org.hibernate.validator.constraints.NotEmpty;
  * @author vishals
  * @version v1.0.0
  */
+@Configurable
 @Entity
-@Table(name="custom_parameters")
-public class CustomParameter implements Serializable{
-	
-	/** The Constant serialVersionUID. */
-	private static final long serialVersionUID = 1L;
+@Table(name = "custom_parameters")
+public class CustomParameter implements Serializable {
 
-	// Attributes --------------------------------------------------------------------------------------------------------------------
-	/** The id. */
-	@Id
-	@GeneratedValue(strategy = GenerationType.AUTO)
-	private Long id;
-	
-	/** The name. */
-	@Column(length=100)
-	@NotEmpty
-	private String name;
-	
-	/** The value. */
-	@Column(length=500)
-	@NotEmpty
-	private String value;
+    // ---------------------------------Attributes-------------------------------------------------
+    /** The Constant serialVersionUID. */
+    private static final long serialVersionUID = 1L;
 
-	/** The updateable. */
-	private Boolean updateable;
-	
-	/** The description. */
-	@Column(length=2000)
-	private String description;
-	
-	/** The version. */
+    /** The id. */
+    @Id
+    @GeneratedValue(strategy = GenerationType.AUTO)
+    private Long id;
+
+    /** The name. */
+    @Column(length = 100)
+    @NotEmpty
+    private String name;
+
+    /** The value. */
+    @Column(length = 500)
+    @NotEmpty
+    private String value;
+
+    /** The updateable. */
+    private Boolean updateable;
+
+    /** The description. */
+    @Column(length = 2000)
+    private String description;
+
+    /** The version. */
     @Version
     private Long version;
 
-    // Constructors -----------------------------------------
-	/**
+    /** The custom parameter repository. */
+    @Autowired
+    private transient CustomParameterRepository customParameterRepository;
+
+    // ---------------------------------Constructors----------------------------------------------
+    /**
      * Instantiates a new custom parameter.
      */
-    public CustomParameter(){
-		
-	}
-	
-	/**
-	 * Instantiates a new custom parameter.
-	 *
-	 * @param name the name
-	 * @param value the value
-	 * @param updateable the updateable
-	 * @param description the description
-	 */
-	public CustomParameter(String name, String value, Boolean updateable,
-			String description) {
-		super();
-		this.name = name;
-		this.value = value;
-		this.updateable = updateable;
-		this.description = description;
-	}
-	
-	// Getters/Setters -------------------------------------
-	/**
-	 * Gets the id.
-	 *
-	 * @return the id
-	 */
-	public Long getId() {
-		return id;
-	}
+    public CustomParameter() {
+        super();
+    }
 
-	/**
-	 * Sets the id.
-	 *
-	 * @param id the new id
-	 */
-	public void setId(Long id) {
-		this.id = id;
-	}
+    /**
+     * Instantiates a new custom parameter.
+     *
+     * @param name the name
+     * @param value the value
+     * @param updateable the updateable
+     * @param description the description
+     */
+    public CustomParameter(final String name,
+            final String value,
+            final Boolean updateable,
+            final String description) {
+        super();
+        this.name = name;
+        this.value = value;
+        this.updateable = updateable;
+        this.description = description;
+    }
 
-	/**
-	 * Gets the name.
-	 *
-	 * @return the name
-	 */
-	public String getName() {
-		return name;
-	}
+    // -------------------------------Domain_Methods----------------------------------------------
+    /**
+     * Gets the repository.
+     *
+     * @return the repository
+     */
+    public static CustomParameterRepository getRepository() {
+        final CustomParameterRepository repository =
+                    new CustomParameter().customParameterRepository;
+        if (repository == null) {
+            throw new IllegalStateException(
+                    "CustomParameterRepository has not been injected");
+        }
+        return repository;
+    }
 
-	/**
-	 * Sets the name.
-	 *
-	 * @param name the new name
-	 */
-	public void setName(String name) {
-		this.name = name;
-	}
+    /**
+     * Find by id.
+     *
+     * @param id the id
+     * @return the custom parameter
+     * @author sujitas
+     * @since v1.0.0
+     */
+    @Transactional(readOnly = true)
+    public static CustomParameter findById(final Long id) {
+        return getRepository().find(id);
+    }
 
-	/**
-	 * Gets the value.
-	 *
-	 * @return the value
-	 */
-	public String getValue() {
-		return value;
-	}
+    /**
+     * Find by name.
+     *
+     * @param name the name
+     * @return the custom parameter
+     * @author sujitas
+     * @since v1.0.0
+     */
+    @Transactional(readOnly = true)
+    public static CustomParameter findByName(final String name) {
+        return getRepository().findByName(name);
+    }
 
-	/**
-	 * Sets the value.
-	 *
-	 * @param value the new value
-	 */
-	public void setValue(String value) {
-		this.value = value;
-	}
+    /**
+     * Persist.
+     *
+     * @return the custom parameter
+     * @author sujitas
+     * @since v1.0.0
+     */
+    @Transactional
+    public CustomParameter persist() {
+        customParameterRepository.save(this);
+        customParameterRepository.flush();
+        return this;
+    }
 
-	/**
-	 * Gets the updateable.
-	 *
-	 * @return the updateable
-	 */
-	public Boolean getUpdateable() {
-		return updateable;
-	}
+    /**
+     * Update.
+     *
+     * @return the field
+     * @author sujitas
+     * @since v1.0.0
+     */
+    @Transactional
+    public CustomParameter update() {
+        customParameterRepository.merge(this);
+        customParameterRepository.flush();
+        return this;
+    }
 
-	/**
-	 * Sets the updateable.
-	 *
-	 * @param updateable the new updateable
-	 */
-	public void setUpdateable(Boolean updateable) {
-		this.updateable = updateable;
-	}
+    /**
+     * Removes the.
+     *
+     * @author sujitas
+     * @since v1.0.0
+     */
+    @Transactional
+    public void remove() {
+        customParameterRepository.remove(this);
+        customParameterRepository.flush();
+    }
 
-	/**
-	 * Gets the description.
-	 *
-	 * @return the description
-	 */
-	public String getDescription() {
-		return description;
-	}
+    /**
+     * Check version.
+     *
+     * @return true, if successful
+     * @author sujitas
+     * @since v1.0.0
+     */
+    @Transactional(readOnly = true)
+    public boolean checkVersion() {
+        final CustomParameter field = customParameterRepository.find(this.id);
+        return field.getVersion().equals(this.version);
+    }
 
-	/**
-	 * Sets the description.
-	 *
-	 * @param description the new description
-	 */
-	public void setDescription(String description) {
-		this.description = description;
-	}
-	
-	/**
-	 * Gets the version.
-	 *
-	 * @return the version
-	 */
-	public Long getVersion() {
-		return version;
-	}
+    // ------------------------------------------Getters/Setters-----------------------------------
+    /**
+     * Gets the id.
+     *
+     * @return the id
+     */
+    public Long getId() {
+        return id;
+    }
 
-	/**
-	 * Sets the version.
-	 *
-	 * @param version the new version
-	 */
-	public void setVersion(Long version) {
-		this.version = version;
-	}
+    /**
+     * Sets the id.
+     *
+     * @param id the new id
+     */
+    public void setId(final Long id) {
+        this.id = id;
+    }
+
+    /**
+     * Gets the name.
+     *
+     * @return the name
+     */
+    public String getName() {
+        return name;
+    }
+
+    /**
+     * Sets the name.
+     *
+     * @param name the new name
+     */
+    public void setName(final String name) {
+        this.name = name;
+    }
+
+    /**
+     * Gets the value.
+     *
+     * @return the value
+     */
+    public String getValue() {
+        return value;
+    }
+
+    /**
+     * Sets the value.
+     *
+     * @param value the new value
+     */
+    public void setValue(final String value) {
+        this.value = value;
+    }
+
+    /**
+     * Gets the updateable.
+     *
+     * @return the updateable
+     */
+    public Boolean getUpdateable() {
+        return updateable;
+    }
+
+    /**
+     * Sets the updateable.
+     *
+     * @param updateable the new updateable
+     */
+    public void setUpdateable(final Boolean updateable) {
+        this.updateable = updateable;
+    }
+
+    /**
+     * Gets the description.
+     *
+     * @return the description
+     */
+    public String getDescription() {
+        return description;
+    }
+
+    /**
+     * Sets the description.
+     *
+     * @param description the new description
+     */
+    public void setDescription(final String description) {
+        this.description = description;
+    }
+
+    /**
+     * Gets the version.
+     *
+     * @return the version
+     */
+    public Long getVersion() {
+        return version;
+    }
+
+    /**
+     * Sets the version.
+     *
+     * @param version the new version
+     */
+    public void setVersion(final Long version) {
+        this.version = version;
+    }
 }

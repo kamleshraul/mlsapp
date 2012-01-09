@@ -21,41 +21,27 @@ POSSIBILITY OF SUCH DAMAGE.
  */
 package org.mkcl.els.service;
 
-import java.util.List;
-
-import org.mkcl.els.common.vo.MasterVO;
 import org.mkcl.els.domain.Constituency;
-import org.mkcl.els.domain.District;
-import org.mkcl.els.domain.Reference;
 
-// TODO: Auto-generated Javadoc
 /**
  * The Interface IConstituencyService.
  *
  * @author sandeeps
  * @version v1.0.0
  */
-public interface IConstituencyService extends IGenericService<Constituency ,Long>{
+public interface IConstituencyService extends
+        IGenericService<Constituency, Long> {
 
-	/**
-	 * Find by name.
-	 *
-	 * @param name the name
-	 * @return the constituency
-	 */
-	public Constituency findByName(String name);
-	
-	public List<Constituency> findConstituenciesByDistrictName(String name);
-	
-	public List<Constituency> findConstituenciesByDistrictId(Long districtId);
-	
-	public List<Reference> findConstituenciesStartingWith(String param);
-	
-	public List<Constituency> findAllSorted();
+    //public Constituency findByName(String name);
 
-	public List<MasterVO> findAllSortedVO(String locale);
-	
+    //public List<Constituency> findConstituenciesByDistrictName(String name);
 
+    //public List<Constituency> findConstituenciesByDistrictId(Long
+    //districtId);
 
+    //public List<Reference> findConstituenciesStartingWith(String param);
 
+    //public List<Constituency> findAllSorted();
+
+    //public List<MasterVO> findAllSortedVO(String locale);
 }

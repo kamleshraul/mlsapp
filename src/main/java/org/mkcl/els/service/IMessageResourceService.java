@@ -1,5 +1,5 @@
 /*
-******************************************************************
+ ******************************************************************
 File: org.mkcl.els.service.IMessageResourceService.java
 Copyright (c) 2011, vishals, MKCL
 All rights reserved.
@@ -17,7 +17,7 @@ LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN
 ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 POSSIBILITY OF SUCH DAMAGE.
 
-******************************************************************
+ ******************************************************************
  */
 package org.mkcl.els.service;
 
@@ -29,14 +29,15 @@ import org.mkcl.els.domain.MessageResource;
  * @author vishals
  * @version v1.0.0
  */
-public interface IMessageResourceService extends IGenericService<MessageResource,Long>{
-	
-	/**
-	 * Find by locale and code.
-	 *
-	 * @param locale the locale
-	 * @param code the code
-	 * @return the message resource
-	 */
-	public MessageResource findByLocaleAndCode(String locale, String code);
+public interface IMessageResourceService extends
+        IGenericService<MessageResource, Long> {
+
+//    /**
+//     * Find by locale and code.
+//     *
+//     * @param locale the locale
+//     * @param code the code
+//     * @return the message resource
+//     */
+    // public MessageResource findByLocaleAndCode(String locale, String code);
 }

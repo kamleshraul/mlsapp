@@ -1,5 +1,5 @@
 /*
-******************************************************************
+ ******************************************************************
 File: org.mkcl.els.service.IDistrictService.java
 Copyright (c) 2011, sandeeps, ${company}
 All rights reserved.
@@ -17,39 +17,37 @@ LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN
 ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 POSSIBILITY OF SUCH DAMAGE.
 
-******************************************************************
+ ******************************************************************
  */
 package org.mkcl.els.service;
 
-import java.util.List;
-import java.util.Set;
-
 import org.mkcl.els.domain.District;
 
-// TODO: Auto-generated Javadoc
 /**
  * The Interface IDistrictService.
  *
  * @author sandeeps
  * @version v1.0.0
  */
-public interface IDistrictService extends IGenericService<District ,Long>{
+public interface IDistrictService extends IGenericService<District, Long> {
 
-	/**
-	 * Find by name.
-	 *
-	 * @param name the name
-	 * @return the district
-	 */
-	public District findByName(String name);
-	
-	public List<District> findDistrictsByStateId(Long id);
-	
-	public List<District> findDistrictsByStateId(Long id,String property,boolean descOrder);
-
-	public List<District> findDistrictsByStateName(String name);
-
-	public Set<District> findDistrictsByConstituencyId(Long constituencyId);
-	
+    /**
+     * Find by name.
+     *
+     * @param name the name
+     * @return the district
+     */
+    /*
+     * public District findByName(String name);
+     *
+     * public List<District> findDistrictsByStateId(Long id);
+     *
+     * public List<District> findDistrictsByStateId(Long id,String
+     * property,boolean descOrder);
+     *
+     * public List<District> findDistrictsByStateName(String name);
+     *
+     * public Set<District> findDistrictsByConstituencyId(Long constituencyId);
+     */
 
 }

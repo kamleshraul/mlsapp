@@ -1,27 +1,16 @@
-/*
-******************************************************************
-File: org.mkcl.els.domain.Field.java
-Copyright (c) 2011, sandeeps, ${company}
-All rights reserved.
-
-THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
-"AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
-LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS
-FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE
-COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT,
-INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
-BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
-LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
-CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
-LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN
-ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
-POSSIBILITY OF SUCH DAMAGE.
-
-******************************************************************
+/**
+ * See the file LICENSE for redistribution information.
+ *
+ * Copyright (c) 2011 MKCL.  All rights reserved.
+ *
+ * Project: e-Legislature
+ * File: org.mkcl.els.domain.Field.java
+ * Created On: Dec 28, 2011
  */
 package org.mkcl.els.domain;
 
 import java.io.Serializable;
+import java.util.List;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -31,276 +20,411 @@ import javax.persistence.Id;
 import javax.persistence.Table;
 import javax.persistence.Version;
 
-// TODO: Auto-generated Javadoc
+import org.mkcl.els.repository.FieldRepository;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Configurable;
+import org.springframework.transaction.annotation.Transactional;
+
 /**
  * The Class Field.
  *
  * @author sandeeps
- * @version v1.0.0
+ * @since v1.0.0
  */
+@Configurable
 @Entity
-@Table(name="fields")
-public class Field implements Serializable{
-	
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = 1L;
+@Table(name = "fields")
+public class Field implements Serializable {
 
-	/** The id. */
-	@Id
-	@GeneratedValue(strategy = GenerationType.AUTO)
-	private Long id;
-	
-	/** The name. */
-	@Column(length=50)
-	private String name;
-	
-	/** The detail. */
-	@Column(length=100)
-	private String detail;
-	
-	/** The mandatory. */
-	@Column(length=50)
-	private String mandatory="OPTIONAL";
-	
-	/** The visible. */
-	@Column(length=50)
-	private String visible="HIDDEN";
-	
-	/** The position. */
-	private Integer position;
-	
-	/** The hint. */
-	@Column(length=100)
-	private String hint;
-	
-	/** The form. */
-	@Column(length=50)
-	private String form;
-	
-	/** The version. */
-	@Version
-	private Long version;
+    // ---------------------------------Attributes-------------------------------------------------
+    /** The Constant serialVersionUID. */
+    private static final long serialVersionUID = 1L;
 
-	/** The locale. */
-	@Column(length=5)
-	private String locale;	
+    /** The id. */
+    @Id
+    @GeneratedValue(strategy = GenerationType.AUTO)
+    private Long id;
 
-	/**
-	 * Instantiates a new field.
-	 */
-	public Field() {
-		super();
-		// TODO Auto-generated constructor stub
-	}
+    /** The name. */
+    @Column(length = 50)
+    private String name;
 
-	/**
-	 * Instantiates a new field.
-	 *
-	 * @param name the name
-	 * @param detail the detail
-	 * @param mandatory the mandatory
-	 * @param visible the visible
-	 * @param position the position
-	 * @param hint the hint
-	 * @param form the form
-	 * @param version the version
-	 * @param locale the locale
-	 */
-	public Field(String name, String detail, String mandatory, String visible,
-			Integer position, String hint, String form, Long version,
-			String locale) {
-		super();
-		this.name = name;
-		this.detail = detail;
-		this.mandatory = mandatory;
-		this.visible = visible;
-		this.position = position;
-		this.hint = hint;
-		this.form = form;
-		this.version = version;
-		this.locale = locale;
-	}
+    /** The detail. */
+    @Column(length = 100)
+    private String detail;
 
-	/**
-	 * Gets the id.
-	 *
-	 * @return the id
-	 */
-	public Long getId() {
-		return id;
-	}
+    /** The mandatory. */
+    @Column(length = 50)
+    private String mandatory = "OPTIONAL";
 
-	/**
-	 * Sets the id.
-	 *
-	 * @param id the new id
-	 */
-	public void setId(Long id) {
-		this.id = id;
-	}
+    /** The visible. */
+    @Column(length = 50)
+    private String visible = "HIDDEN";
 
-	/**
-	 * Gets the name.
-	 *
-	 * @return the name
-	 */
-	public String getName() {
-		return name;
-	}
+    /** The position. */
+    private Integer position;
 
-	/**
-	 * Sets the name.
-	 *
-	 * @param name the new name
-	 */
-	public void setName(String name) {
-		this.name = name;
-	}
+    /** The hint. */
+    @Column(length = 100)
+    private String hint;
 
-	/**
-	 * Gets the detail.
-	 *
-	 * @return the detail
-	 */
-	public String getDetail() {
-		return detail;
-	}
+    /** The form. */
+    @Column(length = 50)
+    private String form;
 
-	/**
-	 * Sets the detail.
-	 *
-	 * @param detail the new detail
-	 */
-	public void setDetail(String detail) {
-		this.detail = detail;
-	}
+    /** The version. */
+    @Version
+    private Long version;
 
-	/**
-	 * Gets the mandatory.
-	 *
-	 * @return the mandatory
-	 */
-	public String getMandatory() {
-		return mandatory;
-	}
+    /** The locale. */
+    @Column(length = 5)
+    private String locale;
 
-	/**
-	 * Sets the mandatory.
-	 *
-	 * @param mandatory the new mandatory
-	 */
-	public void setMandatory(String mandatory) {
-		this.mandatory = mandatory;
-	}
+    /** The field repository. */
+    @Autowired
+    private transient FieldRepository fieldRepository;
 
-	/**
-	 * Gets the visible.
-	 *
-	 * @return the visible
-	 */
-	public String getVisible() {
-		return visible;
-	}
+    // ---------------------------------Constructors----------------------------------------------
+    /**
+     * Instantiates a new field.
+     */
+    public Field() {
+        super();
+    }
 
-	/**
-	 * Sets the visible.
-	 *
-	 * @param visible the new visible
-	 */
-	public void setVisible(String visible) {
-		this.visible = visible;
-	}
+    /**
+     * Instantiates a new field.
+     *
+     * @param name the name
+     * @param detail the detail
+     * @param mandatory the mandatory
+     * @param visible the visible
+     * @param position the position
+     * @param hint the hint
+     * @param form the form
+     * @param version the version
+     * @param locale the locale
+     */
+    public Field(final String name,
+            final String detail,
+            final String mandatory,
+            final String visible,
+            final Integer position,
+            final String hint,
+            final String form,
+            final Long version,
+            final String locale) {
+        super();
+        this.name = name;
+        this.detail = detail;
+        this.mandatory = mandatory;
+        this.visible = visible;
+        this.position = position;
+        this.hint = hint;
+        this.form = form;
+        this.version = version;
+        this.locale = locale;
+    }
 
-	/**
-	 * Gets the position.
-	 *
-	 * @return the position
-	 */
-	public Integer getPosition() {
-		return position;
-	}
+    // -------------------------------Domain_Methods----------------------------------------------
+    /**
+     * Gets the field repository.
+     *
+     * @return the field repository
+     */
+    public static FieldRepository getFieldRepository() {
+        final FieldRepository repository = new Field().fieldRepository;
+        if (repository == null) {
+            throw new IllegalStateException(
+                    "FieldRepository has not been injected");
+        }
+        return repository;
+    }
 
-	/**
-	 * Sets the position.
-	 *
-	 * @param position the new position
-	 */
-	public void setPosition(Integer position) {
-		this.position = position;
-	}
+    /**
+     * Find all.
+     *
+     * @return the list
+     * @author sujitas
+     * @since v1.0.0
+     */
+    @Transactional(readOnly = true)
+    public static List<Field> findAll() {
+        return getFieldRepository().findAll();
+    }
 
-	/**
-	 * Gets the hint.
-	 *
-	 * @return the hint
-	 */
-	public String getHint() {
-		return hint;
-	}
+    /**
+     * Find by form name sorted.
+     *
+     * @param formName the form name
+     * @return the list
+     * @author sujitas
+     * @since v1.0.0
+     */
+    @Transactional(readOnly = true)
+    public static List<Field> findByFormNameSorted(final String formName) {
+        return getFieldRepository().findByFormNameSorted(formName);
+    }
 
-	/**
-	 * Sets the hint.
-	 *
-	 * @param hint the new hint
-	 */
-	public void setHint(String hint) {
-		this.hint = hint;
-	}
+    /**
+     * Find by id.
+     *
+     * @param id the id
+     * @return the field
+     * @author sujitas
+     * @since v1.0.0
+     */
+    @Transactional(readOnly = true)
+    public static Field findById(final Long id) {
+        return getFieldRepository().find(id);
+    }
 
-	/**
-	 * Gets the form.
-	 *
-	 * @return the form
-	 */
-	public String getForm() {
-		return form;
-	}
+    /**
+     * Find by name and form.
+     *
+     * @param name the name
+     * @param form the form
+     * @return the field
+     * @author sujitas
+     * @since v1.0.0
+     */
+    @Transactional(readOnly = true)
+    public static Field findByNameAndForm(final String name, final String form) {
+        return getFieldRepository().findByNameAndForm(name, form);
+    }
 
-	/**
-	 * Sets the form.
-	 *
-	 * @param form the new form
-	 */
-	public void setForm(String form) {
-		this.form = form;
-	}
+    /**
+     * Persist.
+     *
+     * @return the field
+     * @author sujitas
+     * @since v1.0.0
+     */
+    @Transactional
+    public Field persist() {
+        fieldRepository.save(this);
+        fieldRepository.flush();
+        return this;
+    }
 
-	/**
-	 * Gets the version.
-	 *
-	 * @return the version
-	 */
-	public Long getVersion() {
-		return version;
-	}
+    /**
+     * Update.
+     *
+     * @return the field
+     * @author sujitas
+     * @since v1.0.0
+     */
+    @Transactional
+    public Field update() {
+        fieldRepository.merge(this);
+        fieldRepository.flush();
+        return this;
+    }
 
-	/**
-	 * Sets the version.
-	 *
-	 * @param version the new version
-	 */
-	public void setVersion(Long version) {
-		this.version = version;
-	}
+    /**
+     * Removes the.
+     *
+     * @author sujitas
+     * @since v1.0.0
+     */
+    @Transactional
+    public void remove() {
+        fieldRepository.remove(this);
+        fieldRepository.flush();
+    }
 
-	/**
-	 * Gets the locale.
-	 *
-	 * @return the locale
-	 */
-	public String getLocale() {
-		return locale;
-	}
+    /**
+     * Check version.
+     *
+     * @return true, if successful
+     * @author sujitas
+     * @since v1.0.0
+     */
+    @Transactional(readOnly = true)
+    public boolean checkVersion() {
+        final Field field = fieldRepository.find(this.id);
+        return field.getVersion().equals(this.version);
+    }
 
-	/**
-	 * Sets the locale.
-	 *
-	 * @param locale the new locale
-	 */
-	public void setLocale(String locale) {
-		this.locale = locale;
-	}
+    // ------------------------------------------Getters/Setters-----------------------------------
+    /**
+     * Gets the id.
+     *
+     * @return the id
+     */
+    public Long getId() {
+        return id;
+    }
+
+    /**
+     * Sets the id.
+     *
+     * @param id the new id
+     */
+    public void setId(final Long id) {
+        this.id = id;
+    }
+
+    /**
+     * Gets the name.
+     *
+     * @return the name
+     */
+    public String getName() {
+        return name;
+    }
+
+    /**
+     * Sets the name.
+     *
+     * @param name the new name
+     */
+    public void setName(final String name) {
+        this.name = name;
+    }
+
+    /**
+     * Gets the detail.
+     *
+     * @return the detail
+     */
+    public String getDetail() {
+        return detail;
+    }
+
+    /**
+     * Sets the detail.
+     *
+     * @param detail the new detail
+     */
+    public void setDetail(final String detail) {
+        this.detail = detail;
+    }
+
+    /**
+     * Gets the mandatory.
+     *
+     * @return the mandatory
+     */
+    public String getMandatory() {
+        return mandatory;
+    }
+
+    /**
+     * Sets the mandatory.
+     *
+     * @param mandatory the new mandatory
+     */
+    public void setMandatory(final String mandatory) {
+        this.mandatory = mandatory;
+    }
+
+    /**
+     * Gets the visible.
+     *
+     * @return the visible
+     */
+    public String getVisible() {
+        return visible;
+    }
+
+    /**
+     * Sets the visible.
+     *
+     * @param visible the new visible
+     */
+    public void setVisible(final String visible) {
+        this.visible = visible;
+    }
+
+    /**
+     * Gets the position.
+     *
+     * @return the position
+     */
+    public Integer getPosition() {
+        return position;
+    }
+
+    /**
+     * Sets the position.
+     *
+     * @param position the new position
+     */
+    public void setPosition(final Integer position) {
+        this.position = position;
+    }
+
+    /**
+     * Gets the hint.
+     *
+     * @return the hint
+     */
+    public String getHint() {
+        return hint;
+    }
+
+    /**
+     * Sets the hint.
+     *
+     * @param hint the new hint
+     */
+    public void setHint(final String hint) {
+        this.hint = hint;
+    }
+
+    /**
+     * Gets the form.
+     *
+     * @return the form
+     */
+    public String getForm() {
+        return form;
+    }
+
+    /**
+     * Sets the form.
+     *
+     * @param form the new form
+     */
+    public void setForm(final String form) {
+        this.form = form;
+    }
+
+    /**
+     * Gets the version.
+     *
+     * @return the version
+     */
+    public Long getVersion() {
+        return version;
+    }
+
+    /**
+     * Sets the version.
+     *
+     * @param version the new version
+     */
+    public void setVersion(final Long version) {
+        this.version = version;
+    }
+
+    /**
+     * Gets the locale.
+     *
+     * @return the locale
+     */
+    public String getLocale() {
+        return locale;
+    }
+
+    /**
+     * Sets the locale.
+     *
+     * @param locale the new locale
+     */
+    public void setLocale(final String locale) {
+        this.locale = locale;
+    }
 
 }

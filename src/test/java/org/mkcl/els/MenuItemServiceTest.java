@@ -1,31 +1,20 @@
-/*
-******************************************************************
-File: org.mkcl.els.UserTest.java
-Copyright (c) 2011, vishals, MKCL
-All rights reserved.
-
-THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
-"AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
-LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS
-FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE
-COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT,
-INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
-BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
-LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
-CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
-LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN
-ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
-POSSIBILITY OF SUCH DAMAGE.
-******************************************************************
+/**
+ * See the file LICENSE for redistribution information.
+ *
+ * Copyright (c) 2012 MKCL.  All rights reserved.
+ *
+ * Project: e-Legislature
+ * File: org.mkcl.els.MenuItemServiceTest.java
+ * Created On: Jan 9, 2012
  */
 package org.mkcl.els;
 
-import org.junit.Before;
+import java.util.List;
+
+import junit.framework.Assert;
+
 import org.junit.Test;
 import org.mkcl.els.domain.MenuItem;
-import org.mkcl.els.service.IMenuItemService;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.test.annotation.Rollback;
 import org.springframework.transaction.annotation.Transactional;
 
 /**
@@ -34,39 +23,141 @@ import org.springframework.transaction.annotation.Transactional;
  * @author vishals
  * @version v1.0.0
  */
-public class MenuItemServiceTest extends AbstractTest{
-	
-	/** The user repository. */
-	@Autowired
-	private IMenuItemService menuService;
-	
-	/**
-	 * Inits the.
-	 */
-	@Transactional
-	@Before
-	public void init(){
-		MenuItem parent1 = new MenuItem("mnu_parent1","Parent-1","","",0,null);
-		MenuItem parent2 = new MenuItem("mnu_parent1","Parent-2","","",0,null);
-		parent1=menuService.create(parent1);
-		parent2=menuService.create(parent2);
-		MenuItem sub1_parent1 = new MenuItem("mnu_sub1_parent1","Sub-1-Parent-1","","",0,parent1);
-		MenuItem sub2_parent1 = new MenuItem("mnu_sub2_parent1","Sub-2-Parent-1","","",1,parent1);
-		MenuItem sub1_parent2 = new MenuItem("mnu_sub1_parent2","Sub-1-Parent-2","","",0,parent2);
-		MenuItem sub2_parent2 = new MenuItem("mnu_sub2_parent2","Sub-2-Parent-2","","",1,parent2);
-		menuService.create(sub1_parent1);
-		menuService.create(sub2_parent1);
-		menuService.create(sub1_parent2);
-		menuService.create(sub2_parent2);
-		MenuItem sub1_sub1_parent1 = new MenuItem("mnu_sub1_sub1_parent1","Sub-1-Sub-1-Parent-1","","",0,sub1_parent1);
-		menuService.create(sub1_sub1_parent1);
-	}
-	
-	@Transactional
-	@Test
-	public void testGetMenuXML(){
-		String xml = menuService.getMenuXml();
-		System.out.println(xml);
-	}
-	
+public class MenuItemServiceTest extends AbstractTest {
+
+
+    /**
+     * Test persist.
+     *
+     * @author meenalw
+     * @since v1.0.0
+     */
+    @Test
+    @Transactional
+    public final void testPersist() {
+        MenuItem menu = new MenuItem("mnu_admin_masters_msgresources",
+                "Message Resources", "messages/list", " ", 0);
+        menu.persist();
+        Assert.assertNotNull("Data inserted into table", menu);
+    }
+
+
+    /**
+     * Test update.
+     *
+     * @author meenalw
+     * @since v1.0.0
+     */
+    @Test
+    @Transactional
+    public final void testUpdate() {
+        MenuItem menu = MenuItem.findById(4L);
+        menu.setText("Menu Updated");
+        Assert.assertNotNull("Data Updated", menu);
+    }
+
+
+    /**
+     * Test remove.
+     *
+     * @author meenalw
+     * @since v1.0.0
+     */
+    @Test
+    @Transactional
+    public final void testRemove() {
+        MenuItem menu = new MenuItem("mnu_admin_masters_msgresources",
+                "Message Resources", "messages/list", " ", 0);
+        menu.persist();
+        MenuItem item = MenuItem.findById(menu.getId());
+        item.remove();
+        Assert.assertNotNull(item);
+    }
+
+
+    /**
+     * Test find by id.
+     *
+     * @author meenalw
+     * @since v1.0.0
+     */
+    @Test
+    @Transactional
+    public final void testFindById() {
+        MenuItem menu = new MenuItem("mnu_admin_masters_msgresources",
+                "Message Resources", "messages/list", " ", 0);
+        menu.persist();
+        MenuItem item = MenuItem.findById(menu.getId());
+        Assert.assertEquals("Message Resources", item.getText());
+    }
+
+
+    /**
+     * Test find by text key.
+     *
+     * @author meenalw
+     * @since v1.0.0
+     */
+    @Test
+    @Transactional
+    public final void testFindByTextKey() {
+        MenuItem menu = new MenuItem("mnu_admin_masters_msgresources",
+                "Message Resources", "messages/list", " ", 0);
+        menu.persist();
+        MenuItem item = MenuItem.findByTextKey("mnu_admin_masters_msgresources", "en");
+        Assert.assertNotNull(item);
+    }
+
+
+    /**
+     * Test find all.
+     *
+     * @author meenalw
+     * @since v1.0.0
+     */
+    @Test
+    @Transactional
+    public final void testFindAll() {
+        MenuItem menu = new MenuItem("mnu_admin_masters_msgresources",
+                "Message Resources", "messages/list", " ", 0);
+        MenuItem menu1 = new MenuItem("mnu_admin_masters_menus",
+                "Menu", "menu/list", " ", 0);
+        menu.persist();
+        menu1.persist();
+        List<MenuItem> menuItem = MenuItem.findAll();
+        Assert.assertEquals(true, menuItem.size() > 0);
+    }
+
+    /**
+     * Test find all sorted.
+     *
+     * @author meenalw
+     * @since v1.0.0
+     */
+    @Test
+    @Transactional
+    public final void testFindAllSorted() {
+        MenuItem menu = new MenuItem("mnu_admin_masters_msgresources",
+                "Message Resources", "messages/list", " ", 0);
+        MenuItem menu1 = new MenuItem("mnu_admin_masters_menus",
+                "Menu", "menu/list", " ", 0);
+        menu.persist();
+        menu1.persist();
+        List<MenuItem> menuItem = MenuItem.findAllSorted("text", "en", false);
+        Assert.assertEquals(true, menuItem.size() > 0);
+    }
+
+
+    /**
+     * Test menu xml.
+     *
+     * @author meenalw
+     * @since v1.0.0
+     */
+    @Test
+    public final void testMenuXML() {
+        String xml =  MenuItem.getMenuXml();
+        Assert.assertNotNull(xml);
+    }
+
 }

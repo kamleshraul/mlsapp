@@ -4,7 +4,7 @@
 	<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
 </head>
 <body>
-<form:form cssClass="wufoo" action="menus" method="PUT" modelAttribute="menuItem">
+<form:form cssClass="wufoo" action="menus" method="POST" modelAttribute="menuItem">
 	<div class="info">
 		<h2><spring:message code="masters.menus.new.heading" text="New Menu"/></h2>
 		<div style="background-color:#C1CDCD; ;padding: 3px"><spring:message code="generic.mandatory.label" text="All fields marked * are mandatory"/></div>

@@ -1,27 +1,14 @@
-/*
-******************************************************************
-File: org.mkcl.els.service.IAssemblyNumber.java
-Copyright (c) 2011, amitd, ${company}
-All rights reserved.
-
-THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
-"AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
-LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS
-FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE
-COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT,
-INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
-BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
-LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
-CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
-LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN
-ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
-POSSIBILITY OF SUCH DAMAGE.
-
-******************************************************************
+/**
+ * See the file LICENSE for redistribution information.
+ *
+ * Copyright (c) 2011 MKCL.  All rights reserved.
+ *
+ * Project: e-Legislature
+ * File: org.mkcl.els.service.IAssemblyNumberService.java
+ * Created On: Dec 27, 2011
  */
-package org.mkcl.els.service;
 
-import java.util.List;
+package org.mkcl.els.service;
 
 import org.mkcl.els.domain.AssemblyNumber;
 
@@ -31,16 +18,7 @@ import org.mkcl.els.domain.AssemblyNumber;
  * @author amitd
  * @version v1.0.0
  */
-public interface IAssemblyNumberService 
-	extends IGenericService<AssemblyNumber ,Long> {
+public interface IAssemblyNumberService extends
+        IGenericService<AssemblyNumber, Long> {
 
-	/**
-	 * Find by assembly number.
-	 *
-	 * @param assemblyNumber the assembly number
-	 * @return the assembly number
-	 */
-	public AssemblyNumber findByAssemblyNo(String assemblyNo);
-	
-	public List<AssemblyNumber> findAllSortedByNumber();
 }

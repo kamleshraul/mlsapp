@@ -1,23 +1,11 @@
-/*
-******************************************************************
-File: org.mkcl.els.domain.User.java
-Copyright (c) 2011, vishals, MKCL
-All rights reserved.
-
-THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
-"AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
-LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS
-FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE
-COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT,
-INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
-BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
-LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
-CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
-LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN
-ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
-POSSIBILITY OF SUCH DAMAGE.
-
-******************************************************************
+/**
+ * See the file LICENSE for redistribution information.
+ *
+ * Copyright (c) 2012 ${company_name}.  All rights reserved.
+ *
+ * Project: e-Legislature
+ * File: org.mkcl.els.domain.User.java
+ * Created On: Jan 7, 2012
  */
 package org.mkcl.els.domain;
 
@@ -38,93 +26,117 @@ import javax.persistence.Table;
 
 import org.hibernate.validator.constraints.Email;
 import org.hibernate.validator.constraints.NotEmpty;
+import org.mkcl.els.common.exception.RecordNotFoundException;
+import org.mkcl.els.repository.UserRepository;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Configurable;
+import org.springframework.transaction.annotation.Transactional;
 
-// TODO: Auto-generated Javadoc
 /**
  * The Class User.
  *
- * @author vishals
+ * @author amitb
  * @version 1.0.0
  */
+@Configurable
 @Entity
 @Table(name = "users")
-public class User implements Serializable{
+public class User implements Serializable {
 
-    // Attributes --------------------------------------------------------------------------
+    // Attributes
+    // --------------------------------------------------------------------------
 
-	/** The Constant serialVersionUID. */
-	private static final long serialVersionUID = 1L;
+    /** The Constant serialVersionUID. */
+    private static final long serialVersionUID = 1L;
 
-	/** The id. */
+    /** The id. */
     @Id
     @Column(name = "user_id", nullable = false)
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
-    
+
     /** The code. */
-    @Column(length =20)
+    @Column(length = 20)
     private String code;
-    
+
     /** The username. */
-    @Column(length =20)
+    @Column(length = 20)
     @NotEmpty
     private String username;
-    
+
     /** The password. */
-    @Column(length =20)
+    @Column(length = 20)
     @NotEmpty
     private String password;
-    
+
     /** The enabled. */
-    private boolean enabled=true;
-    
+    private boolean enabled = true;
+
     /** The first name. */
-    @Column(length =50)
+    @Column(length = 50)
     @NotEmpty
     private String firstName;
-    
+
     /** The first name. */
-    @Column(length =50)
+    @Column(length = 50)
     @NotEmpty
     private String middleName;
-    
+
     /** The last name. */
-    @Column(length =50)
+    @Column(length = 50)
     @NotEmpty
     private String lastName;
-    
+
     /** The email. */
-    @Column(length =50)
+    @Column(length = 50)
     @NotEmpty
     @Email
     private String email;
-    
+
     /** The email. */
-    @Column(length =15)
+    @Column(length = 15)
     private String mobile;
-    
+
     /** The last login time. */
     private Date lastLoginTime;
-    
+
     /** The roles. */
-    @ManyToMany(fetch=FetchType.LAZY)
-    @JoinTable(name="role_membership",
-            joinColumns=
-            @JoinColumn(name="user_id", referencedColumnName="user_id"),
-      inverseJoinColumns=
-            @JoinColumn(name="role_id", referencedColumnName="role_id"))
+    @ManyToMany(fetch = FetchType.LAZY)
+    @JoinTable(name = "role_membership", joinColumns = @JoinColumn(
+            name = "user_id", referencedColumnName = "user_id"),
+            inverseJoinColumns = @JoinColumn(name = "role_id",
+                    referencedColumnName = "role_id"))
     private Set<Role> roles;
-    
-    
-    // constructor --------------------------------------------------------------------------
+
+    /** *******User Repository Injected********. */
+
+    @Autowired
+    private transient UserRepository userRepository;
+
+    /**
+     * Gets the user repository.
+     *
+     * @return the user repository
+     */
+    public static UserRepository getUserRepository() {
+        final UserRepository userRepository = new User().userRepository;
+        if (userRepository == null) {
+            throw new IllegalStateException(
+                    "UserRepository has not been injected in User Domain");
+        }
+        return userRepository;
+    }
+
+    // constructor
+    // --------------------------------------------------------------------------
 
     /**
      * Instantiates a new user.
      */
     public User() {
+        // blank
     }
 
-    
     /**
      * Instantiates a new user.
      *
@@ -137,7 +149,10 @@ public class User implements Serializable{
      * @param email the email
      * @param lastLoginTime the last login time
      */
-    public User(String username, String password, boolean enabled, String firstName, String middleName, String lastName, String email, Date lastLoginTime) {
+    public User(final String username, final String password,
+            final boolean enabled, final String firstName,
+            final String middleName, final String lastName, final String email,
+            final Date lastLoginTime) {
         this.username = username;
         this.password = password;
         this.enabled = enabled;
@@ -148,227 +163,274 @@ public class User implements Serializable{
         this.lastLoginTime = lastLoginTime;
     }
 
-    // Getters & Setters --------------------------------------------------------------------------
+    // ******************Getters & Setters ******************************/
 
-	/**
+    /**
      * Gets the id.
      *
      * @return the id
      */
     public Long getId() {
-		return id;
-	}
+        return id;
+    }
 
-	/**
-	 * Sets the id.
-	 *
-	 * @param id the new id
-	 */
-	public void setId(Long id) {
-		this.id = id;
-	}
+    /**
+     * Sets the id.
+     *
+     * @param id the new id
+     */
+    public void setId(final Long id) {
+        this.id = id;
+    }
 
-	
-	/**
-	 * Sets the code.
-	 *
-	 * @param code the new code
-	 */
-	public void setCode(String code) {
-		this.code = code;
-	}
+    /**
+     * Sets the code.
+     *
+     * @param code the new code
+     */
+    public void setCode(final String code) {
+        this.code = code;
+    }
 
+    /**
+     * Gets the code.
+     *
+     * @return the code
+     */
+    public String getCode() {
+        return code;
+    }
 
-	/**
-	 * Gets the code.
-	 *
-	 * @return the code
-	 */
-	public String getCode() {
-		return code;
-	}
+    /**
+     * Gets the username.
+     *
+     * @return the username
+     */
+    public String getUsername() {
+        return username;
+    }
 
+    /**
+     * Sets the username.
+     *
+     * @param username the new username
+     */
+    public void setUsername(final String username) {
+        this.username = username;
+    }
 
-	/**
-	 * Gets the username.
-	 *
-	 * @return the username
-	 */
-	public String getUsername() {
-		return username;
-	}
+    /**
+     * Gets the password.
+     *
+     * @return the password
+     */
+    public String getPassword() {
+        return password;
+    }
 
-	/**
-	 * Sets the username.
-	 *
-	 * @param username the new username
-	 */
-	public void setUsername(String username) {
-		this.username = username;
-	}
+    /**
+     * Sets the password.
+     *
+     * @param password the new password
+     */
+    public void setPassword(final String password) {
+        this.password = password;
+    }
 
-	/**
-	 * Gets the password.
-	 *
-	 * @return the password
-	 */
-	public String getPassword() {
-		return password;
-	}
+    /**
+     * Checks if is enabled.
+     *
+     * @return true, if is enabled
+     */
+    public boolean isEnabled() {
+        return enabled;
+    }
 
-	/**
-	 * Sets the password.
-	 *
-	 * @param password the new password
-	 */
-	public void setPassword(String password) {
-		this.password = password;
-	}
+    /**
+     * Sets the enabled.
+     *
+     * @param enabled the new enabled
+     */
+    public void setEnabled(final boolean enabled) {
+        this.enabled = enabled;
+    }
 
-	/**
-	 * Checks if is enabled.
-	 *
-	 * @return true, if is enabled
-	 */
-	public boolean isEnabled() {
-		return enabled;
-	}
+    /**
+     * Gets the first name.
+     *
+     * @return the first name
+     */
+    public String getFirstName() {
+        return firstName;
+    }
 
-	/**
-	 * Sets the enabled.
-	 *
-	 * @param enabled the new enabled
-	 */
-	public void setEnabled(boolean enabled) {
-		this.enabled = enabled;
-	}
+    /**
+     * Sets the first name.
+     *
+     * @param firstName the new first name
+     */
+    public void setFirstName(final String firstName) {
+        this.firstName = firstName;
+    }
 
-	/**
-	 * Gets the first name.
-	 *
-	 * @return the first name
-	 */
-	public String getFirstName() {
-		return firstName;
-	}
+    /**
+     * Gets the middle name.
+     *
+     * @return the middle name
+     */
+    public String getMiddleName() {
+        return middleName;
+    }
 
-	/**
-	 * Sets the first name.
-	 *
-	 * @param firstName the new first name
-	 */
-	public void setFirstName(String firstName) {
-		this.firstName = firstName;
-	}
+    /**
+     * Sets the middle name.
+     *
+     * @param middleName the new middle name
+     */
+    public void setMiddleName(final String middleName) {
+        this.middleName = middleName;
+    }
 
-	/**
-	 * Gets the middle name.
-	 *
-	 * @return the middle name
-	 */
-	public String getMiddleName() {
-		return middleName;
-	}
+    /**
+     * Gets the last name.
+     *
+     * @return the last name
+     */
+    public String getLastName() {
+        return lastName;
+    }
 
-	/**
-	 * Sets the middle name.
-	 *
-	 * @param middleName the new middle name
-	 */
-	public void setMiddleName(String middleName) {
-		this.middleName = middleName;
-	}
+    /**
+     * Sets the last name.
+     *
+     * @param lastName the new last name
+     */
+    public void setLastName(final String lastName) {
+        this.lastName = lastName;
+    }
 
-	/**
-	 * Gets the last name.
-	 *
-	 * @return the last name
-	 */
-	public String getLastName() {
-		return lastName;
-	}
+    /**
+     * Gets the email.
+     *
+     * @return the email
+     */
+    public String getEmail() {
+        return email;
+    }
 
-	/**
-	 * Sets the last name.
-	 *
-	 * @param lastName the new last name
-	 */
-	public void setLastName(String lastName) {
-		this.lastName = lastName;
-	}
+    /**
+     * Sets the email.
+     *
+     * @param email the new email
+     */
+    public void setEmail(final String email) {
+        this.email = email;
+    }
 
-	/**
-	 * Gets the email.
-	 *
-	 * @return the email
-	 */
-	public String getEmail() {
-		return email;
-	}
+    /**
+     * Gets the mobile.
+     *
+     * @return the mobile
+     */
+    public String getMobile() {
+        return mobile;
+    }
 
-	/**
-	 * Sets the email.
-	 *
-	 * @param email the new email
-	 */
-	public void setEmail(String email) {
-		this.email = email;
-	}
+    /**
+     * Sets the mobile.
+     *
+     * @param mobile the new mobile
+     */
+    public void setMobile(final String mobile) {
+        this.mobile = mobile;
+    }
 
-	/**
-	 * Gets the mobile.
-	 *
-	 * @return the mobile
-	 */
-	public String getMobile() {
-		return mobile;
-	}
+    /**
+     * Gets the last login time.
+     *
+     * @return the last login time
+     */
+    public Date getLastLoginTime() {
+        return lastLoginTime;
+    }
 
-	/**
-	 * Sets the mobile.
-	 *
-	 * @param mobile the new mobile
-	 */
-	public void setMobile(String mobile) {
-		this.mobile = mobile;
-	}
+    /**
+     * Sets the last login time.
+     *
+     * @param lastLoginTime the new last login time
+     */
+    public void setLastLoginTime(final Date lastLoginTime) {
+        this.lastLoginTime = lastLoginTime;
+    }
 
-	
-	/**
-	 * Gets the last login time.
-	 *
-	 * @return the last login time
-	 */
-	public Date getLastLoginTime() {
-		return lastLoginTime;
-	}
+    /**
+     * Sets the roles.
+     *
+     * @param roles the new roles
+     */
+    public void setRoles(final Set<Role> roles) {
+        this.roles = roles;
+    }
 
-	/**
-	 * Sets the last login time.
-	 *
-	 * @param lastLoginTime the new last login time
-	 */
-	public void setLastLoginTime(Date lastLoginTime) {
-		this.lastLoginTime = lastLoginTime;
-	}
+    /**
+     * Gets the roles.
+     *
+     * @return the roles
+     */
+    public Set<Role> getRoles() {
+        return roles;
+    }
 
+    /**
+     * Find by username.
+     *
+     * @param username the username
+     * @return the user
+     */
+    @Transactional
+    public static User findByUsername(final String username) {
+        final User user = getUserRepository().findByUsername(username);
+        if (user == null) {
+            throw new RecordNotFoundException(
+                    "Error:Record was not found for user:" + username);
+        }
+        return user;
+    }
 
-	/**
-	 * Sets the roles.
-	 *
-	 * @param roles the new roles
-	 */
-	public void setRoles(Set<Role> roles) {
-		this.roles = roles;
-	}
+    /**
+     * Update.
+     *
+     * @param user the user
+     */
+    @Transactional
+    public void update(final User user) {
+        userRepository.merge(this);
+        userRepository.flush();
+    }
 
+    /**
+     * Change password.
+     *
+     * @param username the username
+     * @param newpassword the newpassword
+     */
+    @Transactional
+    public static void changePassword(final String username,
+            final String newpassword) {
+        final User user = getUserRepository().findByUsername(username);
+        user.setPassword(newpassword);
+        user.update(user);
+    }
 
-	/**
-	 * Gets the roles.
-	 *
-	 * @return the roles
-	 */
-	public Set<Role> getRoles() {
-		return roles;
-	}
+    /**
+     * Persist.
+     *
+     * @return the user
+     */
+    @Transactional
+    public User persist() {
+        userRepository.save(this);
+        userRepository.flush();
+        return this;
+    }
 }

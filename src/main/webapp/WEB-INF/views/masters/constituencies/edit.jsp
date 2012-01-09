@@ -4,7 +4,7 @@
 <form:form cssClass="wufoo" action="constituencies" method="PUT" modelAttribute="constituency">
 	<div class="info">
 		<h2><spring:message code="constituency.edit.heading" text="Details"/>[Id:${constituency.id}]</h2>
-		<div style="background-color:#C1CDCD; ;padding: 3px"><spring:message code="generic.mandatory.label"/></div>
+		<div style="background-color:#C1CDCD; ;padding: 3px"><spring:message code="generic.mandatory.label" text="All fields marked * are mandatory"/></div>
 	</div>
 	<ul>	
 		<li>
@@ -70,20 +70,27 @@
 	<title><spring:message code="constituency.edit.title" text="Edit Constituency"/></title>
 	<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
 	<script type="text/javascript">
-	if($('#states').val()!=undefined){
-		$('#states').change(function(){
-			$.ajax({
-				url:'ref/'+$('#states').val()+'/districts',
-				datatype:'json',
-				success:function(data){
-				$('#districts option').remove();
-				for(var i=0;i<data.length;i++){
-					$('#districts').append("<option value='"+data[i].id+"'>"+data[i].name+"</option>");
-				}
-			}							
+	$(document).ready(function(){
+		if($('#states').val()!=undefined){
+			$('#states').change(function(){
+				$.ajax({
+					url:'ref/'+$('#states').val()+'/districts',
+					datatype:'json',
+					success:function(data){				
+					$('#districts option').empty();
+					var options="";
+					for(var i=0;i<data.length;i++){
+						options+="<option value='"+data[i].id+"'>"+data[i].name+"</option>";
+					}
+					$('#districts').html(options);
+					$('#districts').sexyselect('destroy');
+					$('#districts').sexyselect({width:250,showTitle: false, selectionMode: 'multiple', styleize: true});
+				}							
+				});
+		});	
+		} 
 			});
-	});	
-	}    
+   
 	</script>
 </head>
 </html>

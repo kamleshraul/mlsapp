@@ -1,21 +1,35 @@
+/**
+ * See the file LICENSE for redistribution information.
+ *
+ * Copyright (c) 2011 MKCL.  All rights reserved.
+ *
+ * Project: e-Legislature
+ * File: org.mkcl.els.common.editors.PartyEditor.java
+ * Created On: Dec 20, 2011
+ */
 package org.mkcl.els.common.editors;
 
 import java.beans.PropertyEditorSupport;
 
 import org.mkcl.els.domain.Party;
-import org.mkcl.els.service.IPartyService;
 
-public class PartyEditor extends PropertyEditorSupport{
+/**
+ * The Class PartyEditor.
+ *
+ * @author meenalw
+ * @since v1.0.0
+ */
+public class PartyEditor extends PropertyEditorSupport {
 
-	private IPartyService service;
-	
-	public PartyEditor(IPartyService service){
-		this.service=service;
-	}
-	
-	public void setAsText(String text) {
+    /*
+     * (non-Javadoc)
+     *
+     * @see java.beans.PropertyEditorSupport#setAsText(java.lang.String)
+     */
+    @Override
+    public void setAsText(final String text) {
         if (!text.equals("")) {
-        	Party type = (Party) this.service.findById(Long.parseLong(text));
+            Party type = Party.findById(Long.parseLong(text));
             setValue(type);
         }
     }

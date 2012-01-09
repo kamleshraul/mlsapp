@@ -23,40 +23,38 @@ package org.mkcl.els.service.impl;
 
 
 import org.mkcl.els.domain.CustomParameter;
-import org.mkcl.els.repository.CustomParameterRepository;
 import org.mkcl.els.service.ICustomParameterService;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 /**
  * The Class CustomParameterServiceImpl.
- * 
+ *
  * @author amitd
  * @version v1.0.0
  */
 @Service
-public class CustomParameterServiceImpl extends GenericServiceImpl<CustomParameter,Long> 
+public class CustomParameterServiceImpl extends GenericServiceImpl<CustomParameter,Long>
 										implements ICustomParameterService{
-	
-	/** The repository. */
-	private CustomParameterRepository customParameterRepository;
-	
-	/**
-	 * Sets the custom parameter repository.
-	 *
-	 * @param customParameterRepository the new custom parameter repository
-	 */
-	@Autowired
-	public void setCustomParameterRepository(CustomParameterRepository customParameterRepository) 
-	{
-		this.dao = customParameterRepository;
-		this.customParameterRepository = customParameterRepository;
-	}
-	
-	@Override
-	public CustomParameter findByName(String name) 
-	{
-		return customParameterRepository.findByName(name);
-	}
-	
+
+//	/** The repository. */
+//	private CustomParameterRepository customParameterRepository;
+//
+//	/**
+//	 * Sets the custom parameter repository.
+//	 *
+//	 * @param customParameterRepository the new custom parameter repository
+//	 */
+//	@Autowired
+//	public void setCustomParameterRepository(final CustomParameterRepository customParameterRepository)
+//	{
+//		this.dao = customParameterRepository;
+//		this.customParameterRepository = customParameterRepository;
+//	}
+//
+//	@Override
+//	public CustomParameter findByName(final String name)
+//	{
+//		return customParameterRepository.findByName(name);
+//	}
+
 }

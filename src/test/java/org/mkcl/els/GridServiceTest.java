@@ -1,24 +1,36 @@
+/**
+ * See the file LICENSE for redistribution information.
+ *
+ * Copyright (c) 2012 MKCL.  All rights reserved.
+ *
+ * Project: e-Legislature
+ * File: org.mkcl.els.GridServiceTest.java
+ * Created On: Jan 6, 2012
+ */
 package org.mkcl.els;
 
-import junit.framework.Assert;
 
-import org.junit.Test;
-import org.mkcl.els.common.vo.GridData;
-import org.mkcl.els.service.IGridService;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.transaction.annotation.Transactional;
+/**
+ * The Class GridServiceTest.
+ *
+ * @author sandeeps
+ * @version v1.0.0
+ */
+public class GridServiceTest extends AbstractTest {
 
-public class GridServiceTest extends AbstractTest{
-	
-	@Autowired
-	IGridService gridService;
-	
-	@Transactional
-	@Test
-	public void testGetData() {
-		int expectedResult = 2;
-		GridData vo  = gridService.getData(1l, 2, 0, "id", "asc");
-		Assert.assertEquals(expectedResult, vo.getTotal());
-	}
+    /**
+     * Test get data.
+     *
+     * @author nileshp
+     * @since v1.0.0 Test get data.
+     */
+//    @Transactional
+//    @Test
+//    public void testGetData() {
+//        int expectedResult = 2;
+//        GridData vo = new Grid().getData(new Long(1), new Integer(2),
+//                new Integer(1), "id", "asc" , new Locale("en"));
+//        Assert.assertEquals(expectedResult, vo.getTotal());
+//    }
 
 }

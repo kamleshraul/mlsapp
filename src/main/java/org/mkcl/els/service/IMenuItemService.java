@@ -21,8 +21,6 @@ POSSIBILITY OF SUCH DAMAGE.
  */
 package org.mkcl.els.service;
 
-import java.util.Locale;
-
 import org.mkcl.els.domain.MenuItem;
 
 /**
@@ -31,21 +29,20 @@ import org.mkcl.els.domain.MenuItem;
  * @author vishals
  * @version v1.0.0
  */
-public interface IMenuItemService extends IGenericService<MenuItem,Long>{
-	
-	/**
-	 * Gets the menu in XML format.
-	 *
-	 * @return the menu string in flat xml format
-	 */
-	public String getMenuXml();
-	
-	public String getMenuXml(Locale locale);
-	
-	/**
-	 * Search a MenuItem instance based on it's textKey.
-	 * The textKey attribute of MenuItem is UNIQUE, hence 
-	 * the return type is a simple type.
-	 */
-	public MenuItem findByTextKey(String textKey);
+public interface IMenuItemService extends IGenericService<MenuItem, Long> {
+
+    /**
+     * Gets the menu in XML format.
+     *
+     * @return the menu string in flat xml format
+     */
+    // public String getMenuXml();
+
+    // public String getMenuXml(String locale);
+
+    /**
+     * Search a MenuItem instance based on it's textKey. The textKey attribute
+     * of MenuItem is UNIQUE, hence the return type is a simple type.
+     */
+    // public MenuItem findByTextKey(String textKey);
 }

@@ -1,32 +1,17 @@
-/*
-******************************************************************
-File: org.mkcl.els.service.impl.AssemblyRoleServiceImpl.java
-Copyright (c) 2011, amitd, MKCL
-All rights reserved.
-
-THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
-"AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
-LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS
-FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE
-COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT,
-INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
-BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
-LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
-CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
-LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN
-ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
-POSSIBILITY OF SUCH DAMAGE.
-
-******************************************************************
+/**
+ * See the file LICENSE for redistribution information.
+ *
+ * Copyright (c) 2012 MKCL.  All rights reserved.
+ *
+ * Project: e-Legislature
+ * File: org.mkcl.els.service.impl.AssemblyRoleServiceImpl.java
+ * Created On: Jan 9, 2012
  */
+
 package org.mkcl.els.service.impl;
 
-import java.util.List;
-
 import org.mkcl.els.domain.AssemblyRole;
-import org.mkcl.els.repository.AssemblyRoleRepository;
 import org.mkcl.els.service.IAssemblyRoleService;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 /**
@@ -36,46 +21,51 @@ import org.springframework.stereotype.Service;
  * @version v1.0.0
  */
 @Service
-public class AssemblyRoleServiceImpl 
-	extends GenericServiceImpl<AssemblyRole,Long>
-	implements IAssemblyRoleService{
+public class AssemblyRoleServiceImpl extends
+        GenericServiceImpl<AssemblyRole, Long> implements IAssemblyRoleService {
 
-	/** The assembly role repository. */
-	private AssemblyRoleRepository assemblyRoleRepository;
-	
-	/**
-	 * Sets the assembly role repository.
-	 *
-	 * @param assemblyRoleRepository the new assembly role repository
-	 */
-	@Autowired
-	public void setAssemblyRoleRepository(
-			AssemblyRoleRepository assemblyRoleRepository) {
-		this.dao = assemblyRoleRepository;
-		this.assemblyRoleRepository = assemblyRoleRepository;
-	}
+/*    *//** The assembly role repository. *//*
+    private AssemblyRoleRepository assemblyRoleRepository;
 
-	/**
-	 * Find by name.
-	 *
-	 * @param name the name
-	 * @return the assembly role
-	 */
-	@Override
-	public AssemblyRole findByName(String name) {
-		return this.assemblyRoleRepository.findByName(name);
-	}
+    *//**
+     * Sets the assembly role repository.
+     *
+     * @param assemblyRoleRepository the new assembly role repository
+     *//*
+    @Autowired
+    public void setAssemblyRoleRepository(final AssemblyRoleRepository assemblyRoleRepository) {
+        this.dao = assemblyRoleRepository;
+        this.assemblyRoleRepository = assemblyRoleRepository;
+    }
 
-	@Override
-	public List<AssemblyRole> findAllSorted(String locale) {
-		return assemblyRoleRepository.findAllSorted(locale);
-	}
+    *//**
+     * Find by name.
+     *
+     * @param name the name
+     * @return the assembly role
+     * @author nileshp
+     * @since v1.0.0
+     *//*
+    @Override
+    public AssemblyRole findByName(final String name) {
+        return this.assemblyRoleRepository.findByName(name);
+    }
 
-	@Override
-	public List<AssemblyRole> findUnassignedRoles(String locale, Long memberId) {
-		return assemblyRoleRepository.findUnassignedRoles(locale,memberId);
-		
-	}
+     (non-Javadoc)
+     * @see org.mkcl.els.service.IAssemblyRoleService#findAllSorted(java.lang.String)
 
+    @Override
+    public List<AssemblyRole> findAllSorted(final String locale) {
+        return assemblyRoleRepository.findAllSorted(locale);
+    }
+
+     (non-Javadoc)
+     * @see org.mkcl.els.service.IAssemblyRoleService#findUnassignedRoles(java.lang.String, java.lang.Long)
+
+    @Override
+    public List<AssemblyRole> findUnassignedRoles(final String locale, final Long memberId) {
+        return assemblyRoleRepository.findUnassignedRoles(locale, memberId);
+
+    }*/
 
 }

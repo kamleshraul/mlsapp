@@ -13,7 +13,7 @@
 
 	</div>
 	<ul>
-		
+		<form:errors path="version" cssClass="field_error"/>
 	<li>
 	<label class="desc"><spring:message code="generic.id" text="Id"/></label>
 		<div>
@@ -55,6 +55,7 @@
 			<input id="saveForm" class="btTxt" type="submit" value="<spring:message code='generic.submit' text='Submit'/>" />
 	</li>
 	<form:hidden path="version"/>
+	
 	</ul>		
 </form:form>
 </body>

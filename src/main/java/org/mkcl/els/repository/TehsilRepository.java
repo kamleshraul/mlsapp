@@ -36,37 +36,50 @@ import com.trg.search.Search;
  * @version v1.0.0
  */
 @Repository
-public class TehsilRepository 
-	extends BaseRepository<Tehsil, Long>{
+public class TehsilRepository extends BaseRepository<Tehsil, Long> {
 
-	@Autowired
-	DistrictRepository districtRepository;
-	/**
-	 * Find by name.
-	 *
-	 * @param name the name
-	 * @return the tehsil
-	 */
-	public Tehsil findByName(String name){
-		Search search = new Search();
-		search.addFilterEqual("name", name);
-		Tehsil tehsil = this.searchUnique(search);
-		return tehsil;
-	}
+    /** The district repository. */
+    @Autowired
+    private DistrictRepository districtRepository;
 
-	public List<Tehsil> findTehsilsByDistrictName(String name) {
-		Search search=new Search();
-		search.addFilterEqual("district",districtRepository.findByName(name));
-		search.addSort("name",false);
-		List<Tehsil> tehsils=this.search(search);
-		return tehsils;
-	}
+    /**
+     * Find by tehsil name.
+     *
+     * @param name the name
+     * @return the tehsil
+     */
+    public Tehsil findByTehsilName(final String name) {
+        Search search = new Search();
+        search.addFilterEqual("name", name);
+        Tehsil tehsil = this.searchUnique(search);
+        return tehsil;
+        }
 
-	public List<Tehsil> findTehsilsByDistrictId(Long districtId) {
-		Search search=new Search();
-		search.addFilterEqual("district",districtRepository.find(districtId));
-		search.addSort("name",false);
-		List<Tehsil> tehsils=this.search(search);
-		return tehsils;
-	}
-}
+    /**
+     * Find tehsils by district name.
+     *
+     * @param name the name
+     * @return the list
+     */
+    public List<Tehsil> findTehsilsByDistrictName(final String name) {
+        Search search = new Search();
+        search.addFilterEqual("district", districtRepository.findByName(name));
+        search.addSort("name", false);
+        List<Tehsil> tehsils = this.search(search);
+        return tehsils;
+        }
+
+    /**
+     * Find tehsils by district id.
+     *
+     * @param districtId the district id
+     * @return the list
+     */
+    public List<Tehsil> findTehsilsByDistrictId(final Long districtId) {
+        Search search = new Search();
+        search.addFilterEqual("district", districtRepository.find(districtId));
+        search.addSort("name", false);
+        List<Tehsil> tehsils = this.search(search);
+        return tehsils;
+        }
+    }

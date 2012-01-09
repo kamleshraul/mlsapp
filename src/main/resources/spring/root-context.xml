@@ -12,13 +12,19 @@
     http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-3.0.xsd">
 
 	<!-- Root Context: defines shared resources visible to all other web components -->
+	<context:load-time-weaver/>
+	<context:spring-configured />
+	
 	<context:component-scan base-package="org.mkcl.els,com.trg.search" />
 	<context:property-placeholder location="classpath:db.properties" />
-
+	<!-- Disable caching -->
+	<bean class="org.springframework.web.servlet.mvc.annotation.AnnotationMethodHandlerAdapter">
+        <property name="cacheSeconds" value="0" />
+    </bean>
 	<!-- declare the MessageSource bean -->
 	<bean id="messageSource"
 		class="org.mkcl.els.common.util.DatabaseDrivenMessageSource">
-		<property name="cacheSeconds" value="3" />
+		<property name="cacheSeconds" value="0" />
 		<property name="defaultEncoding" value="UTF-8" />
 	</bean>
 
@@ -55,7 +61,7 @@
 		</property>
 	</bean>
 
-	<tx:annotation-driven mode="proxy"
+	<tx:annotation-driven mode="aspectj"
 		transaction-manager="transactionManager" />
 
 	<bean id="transactionManager" class="org.springframework.orm.jpa.JpaTransactionManager">

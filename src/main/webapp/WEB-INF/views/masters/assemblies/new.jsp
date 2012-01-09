@@ -34,7 +34,14 @@
 				<form:input path="assembly" cssClass="field text medium"></form:input>
 	           <form:errors path="assembly" cssClass="field_error"></form:errors>			
 	        </div>
-		</li>		
+		</li>
+		<li>
+		<label class="desc"><spring:message code="assembly.assemblyNumber" text="Assembly Number"/>&nbsp;*</label>
+			<div>
+				<form:input path="assemblyNumber" cssClass="field text medium"></form:input>
+	           <form:errors path="assemblyNumber" cssClass="field_error"></form:errors>			
+	        </div>
+		</li>			
 		<li>
 		<label class="desc"><spring:message code="assembly.strength" text="Strength"/>&nbsp;*</label>
 			<div>
@@ -72,7 +79,12 @@
 				<form:checkbox cssClass="checkbox" path="currentAssembly" value="true" /><form:errors path="currentAssembly" cssClass="field_error" />
 		</div>	
 		</li>	
-		
+		<li>	
+		<label class="desc"><spring:message code="assembly.specialSession" text="Special Session?"/>&nbsp;*</label>
+		<div>
+				<form:checkbox cssClass="checkbox" path="specialSession" value="true" /><form:errors path="specialSession" cssClass="field_error" />
+		</div>	
+		</li>	
 		<li>
 		<label class="desc"><spring:message code="assembly.startDate" text="Start Date"/>&nbsp;*</label>
 			<div>

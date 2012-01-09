@@ -1,28 +1,15 @@
-/*
-******************************************************************
-File: org.mkcl.els.repository.MenuItemRepository.java
-Copyright (c) 2011, vishals, MKCL
-All rights reserved.
-
-THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
-"AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
-LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS
-FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE
-COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT,
-INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
-BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
-LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
-CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
-LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN
-ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
-POSSIBILITY OF SUCH DAMAGE.
-
-******************************************************************
+/**
+ * See the file LICENSE for redistribution information.
+ *
+ * Copyright (c) 2012 MKCL.  All rights reserved.
+ *
+ * Project: e-Legislature
+ * File: org.mkcl.els.repository.MenuItemRepository.java
+ * Created On: Jan 6, 2012
  */
 package org.mkcl.els.repository;
 
 import java.util.List;
-import java.util.Locale;
 
 import org.mkcl.els.domain.MenuItem;
 import org.springframework.stereotype.Repository;
@@ -37,41 +24,54 @@ import com.trg.search.Search;
  */
 @Repository
 public class MenuItemRepository extends BaseRepository<MenuItem, Long> {
-	
-	
+
 	/**
-	 * Finds the menu items by parent.
+	 * List.
 	 *
 	 * @param parent the parent
-	 * @return the menu items by parent
+	 * @return the list< menu item>
+	 * @author meenalw
+	 * @since v1.0.0
 	 */
-	public List<MenuItem> findMenuItemsByParent(MenuItem parent){
+	public List<MenuItem> findMenuItemsByParent(final MenuItem parent) {
 		Search search = new Search();
-		if(parent==null){
-			search.addFilterNull("parent").addSort("position",false);
-		}
-		else{
-			search.addFilterEqual("parent", parent).addSort("position",false);
+		if (parent == null) {
+			search.addFilterNull("parent").addSort("position", false);
+		} else {
+			search.addFilterEqual("parent", parent).addSort("position", false);
 		}
 		return this.search(search);
 	}
 
+
 	/**
-	 * Search a MenuItem instance based on it's textKey.
-	 * The textKey attribute of MenuItem is UNIQUE, hence 
-	 * the return type is a simple type.
+	 * Menu item.
+	 *
+	 * @param textKey the text key
+	 * @return the menu item
+	 * @author meenalw
+	 * @since v1.0.0
 	 */
-	public MenuItem findMenuItemByTextKey(String textKey)
-	{
+    public MenuItem findMenuItemByTextKey(final String textKey,
+                                          final String locale) {
 		Search search = new Search();
 		search.addFilterEqual("textKey", textKey);
+		search.addFilterEqual("locale", locale);
 		MenuItem menuItem = this.searchUnique(search);
 		return menuItem;
 	}
-	
-	public List<MenuItem> findAllByLocale(Locale locale){
-		Search search=new Search();
-		search.addFilterEqual("locale",locale.toString());
+
+	/**
+	 * List.
+	 *
+	 * @param locale the locale
+	 * @return the list< menu item>
+	 * @author meenalw
+	 * @since v1.0.0
+	 */
+	public List<MenuItem> findAllByLocale(final String locale) {
+		Search search = new Search();
+		search.addFilterEqual("locale", locale);
 		return this.search(search);
 	}
 }

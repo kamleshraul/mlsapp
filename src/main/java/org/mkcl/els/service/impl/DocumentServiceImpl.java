@@ -22,14 +22,9 @@ POSSIBILITY OF SUCH DAMAGE.
 
 package org.mkcl.els.service.impl;
 
-import java.io.IOException;
-
 import org.mkcl.els.domain.Document;
-import org.mkcl.els.repository.DocumentRepository;
 import org.mkcl.els.service.IDocumentService;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 
 // TODO: Auto-generated Javadoc
@@ -41,34 +36,34 @@ import org.springframework.transaction.annotation.Transactional;
  */
 @Service
 public class DocumentServiceImpl extends GenericServiceImpl<Document,Long> implements IDocumentService {
-	
-	/** The document repository. */
-	@Autowired
-	DocumentRepository documentRepository;
-	
-	/* (non-Javadoc)
-	 * @see org.mkcl.els.service.IDocumentService#save(org.mkcl.els.domain.Document)
-	 */
-	@Override
-	@Transactional
-	public Document save(Document document) throws IOException {
-		return documentRepository.save(document);
-	}
 
-	/* (non-Javadoc)
-	 * @see org.mkcl.els.service.IDocumentService#findByTag(java.lang.String)
-	 */
-	@Override
-	public Document findByTag(String tag) {
-		return documentRepository.findByTag(tag);
-	}
-
-	/* (non-Javadoc)
-	 * @see org.mkcl.els.service.IDocumentService#removeByTag(java.lang.String)
-	 */
-	@Override
-	public void removeByTag(String tag) {
-		documentRepository.removeByTag(tag);
-	}
+//	/** The document repository. */
+//	@Autowired
+//	DocumentRepository documentRepository;
+//
+//	/* (non-Javadoc)
+//	 * @see org.mkcl.els.service.IDocumentService#save(org.mkcl.els.domain.Document)
+//	 */
+//	@Override
+//	@Transactional
+//	public Document save(final Document document) throws IOException {
+//		return documentRepository.save(document);
+//	}
+//
+//	/* (non-Javadoc)
+//	 * @see org.mkcl.els.service.IDocumentService#findByTag(java.lang.String)
+//	 */
+//	@Override
+//	public Document findByTag(String tag) {
+//		return documentRepository.findByTag(tag);
+//	}
+//
+//	/* (non-Javadoc)
+//	 * @see org.mkcl.els.service.IDocumentService#removeByTag(java.lang.String)
+//	 */
+//	@Override
+//	public void removeByTag(String tag) {
+//		documentRepository.removeByTag(tag);
+//	}
 
 }

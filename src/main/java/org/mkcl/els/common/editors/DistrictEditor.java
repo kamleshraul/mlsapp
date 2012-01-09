@@ -1,21 +1,34 @@
+/**
+ * See the file LICENSE for redistribution information.
+ *
+ * Copyright (c) 2012 MKCL.  All rights reserved.
+ *
+ * Project: e-Legislature
+ * File: org.mkcl.els.common.editors.DistrictEditor.java
+ * Created On: Jan 5, 2012
+ */
 package org.mkcl.els.common.editors;
 
 import java.beans.PropertyEditorSupport;
 
 import org.mkcl.els.domain.District;
-import org.mkcl.els.service.IDistrictService;
 
-public class DistrictEditor extends PropertyEditorSupport{
 
-	private IDistrictService service;
-	
-	public DistrictEditor(IDistrictService service){
-		this.service=service;
-	}
-	
-	public void setAsText(String text) {
+/**
+ * The Class DistrictEditor.
+ */
+public class DistrictEditor extends PropertyEditorSupport {
+
+    /**
+     * Sets the as text.
+     *
+     * @param text the new as text
+     * @see java.beans.PropertyEditorSupport#setAsText(java.lang.String)
+     */
+    @Override
+    public final void setAsText(final String text) {
         if (!text.equals("")) {
-        	District type = (District) this.service.findById(Long.parseLong(text));
+            final District type = District.findById(Long.parseLong(text));
             setValue(type);
         }
     }

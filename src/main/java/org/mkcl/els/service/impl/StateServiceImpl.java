@@ -47,28 +47,28 @@ public class StateServiceImpl extends GenericServiceImpl<State,Long> implements 
 	 *
 	 * @param stateRepository the new state repository
 	 */
-	@Autowired
-	public void setStateRepository(StateRepository stateRepository) 
-	{
-		this.dao = stateRepository;
-		this.stateRepository = stateRepository;
-	}
+//	@Autowired
+//	public void setStateRepository(StateRepository stateRepository) 
+//	{
+//		this.dao = stateRepository;
+//		this.stateRepository = stateRepository;
+//	}
 
 	/* (non-Javadoc)
 	 * @see org.mkcl.els.service.IStateService#findByName(java.lang.String)
 	 */
-	@Override
-	public State findByName(String name) {
-		return stateRepository.findByName(name);
-	}
-
-	@Override
-	public List<State> findAllSorted() {
-		return stateRepository.findAllSorted();
-	}
-
-	@Override
-	public List<State> findAllSorted(String property, boolean descOrder) {
-		return stateRepository.findAllSorted(property, descOrder);
-	}
+//	@Override
+//	public State findByName(String name) {
+//		return stateRepository.findByName(name);
+//	}
+//
+//	@Override
+//	public List<State> findAllSorted() {
+//		return stateRepository.findAllSorted();
+//	}
+//
+//	@Override
+//	public List<State> findAllSorted(String property, boolean descOrder) {
+//		return stateRepository.findAllSorted(property, descOrder);
+//	}
 }

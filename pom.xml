@@ -9,8 +9,8 @@
 	<version>1.0.0-BUILD-SNAPSHOT</version>
 	<properties>
 		<java-version>1.6</java-version>
-		<org.springframework-version>3.0.4.RELEASE</org.springframework-version>
-		<org.springframework.security-version>3.0.4.RELEASE</org.springframework.security-version>
+		<org.springframework-version>3.1.0.RELEASE</org.springframework-version>
+		<org.springframework.security-version>3.1.0.RELEASE</org.springframework.security-version>
 		<org.aspectj-version>1.6.9</org.aspectj-version>
 		<org.slf4j-version>1.5.10</org.slf4j-version>
 		<activiti-version>5.4</activiti-version>
@@ -94,31 +94,12 @@
 		<!-- Spring-Security -->
 		<dependency>
 			<groupId>org.springframework.security</groupId>
-			<artifactId>spring-security-cas-client</artifactId>
+			<artifactId>spring-security-cas</artifactId>
 			<version>${org.springframework.security-version}</version>
 		</dependency>
 		<dependency>
 			<groupId>org.springframework.security</groupId>
-			<artifactId>org.springframework.security.core</artifactId>
-			<version>${org.springframework.security-version}</version>
-			<exclusions>
-				<exclusion>
-					<artifactId>org.springframework.beans</artifactId>
-					<groupId>org.springframework</groupId>
-				</exclusion>
-				<exclusion>
-					<artifactId>org.springframework.context</artifactId>
-					<groupId>org.springframework</groupId>
-				</exclusion>
-				<exclusion>
-					<artifactId>org.springframework.core</artifactId>
-					<groupId>org.springframework</groupId>
-				</exclusion>
-			</exclusions>
-		</dependency>
-		<dependency>
-			<groupId>org.springframework.security</groupId>
-			<artifactId>org.springframework.security.web</artifactId>
+			<artifactId>spring-security-core</artifactId>
 			<version>${org.springframework.security-version}</version>
 			<exclusions>
 				<exclusion>
@@ -137,7 +118,7 @@
 		</dependency>
 		<dependency>
 			<groupId>org.springframework.security</groupId>
-			<artifactId>org.springframework.security.config</artifactId>
+			<artifactId>spring-security-config</artifactId>
 			<version>${org.springframework.security-version}</version>
 			<exclusions>
 				<exclusion>
@@ -156,7 +137,26 @@
 		</dependency>
 		<dependency>
 			<groupId>org.springframework.security</groupId>
-			<artifactId>org.springframework.security.taglibs</artifactId>
+			<artifactId>spring-security-web</artifactId>
+			<version>${org.springframework.security-version}</version>
+			<exclusions>
+				<exclusion>
+					<artifactId>org.springframework.beans</artifactId>
+					<groupId>org.springframework</groupId>
+				</exclusion>
+				<exclusion>
+					<artifactId>org.springframework.context</artifactId>
+					<groupId>org.springframework</groupId>
+				</exclusion>
+				<exclusion>
+					<artifactId>org.springframework.core</artifactId>
+					<groupId>org.springframework</groupId>
+				</exclusion>
+			</exclusions>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework.security</groupId>
+			<artifactId>spring-security-taglibs</artifactId>
 			<version>${org.springframework.security-version}</version>
 			<exclusions>
 				<exclusion>
@@ -354,7 +354,11 @@
 
 	</dependencies>
 	<repositories>
-
+		<repository>
+			<id>org.springframework.maven.milestone</id>
+			<name>Spring Maven Milestone Repository</name>
+			<url>http://maven.springframework.org/milestone</url>
+		</repository>
 		<repository>
 			<id>JBoss Repo</id>
 			<url>http://repository.jboss.com/maven2</url>
@@ -376,6 +380,11 @@
 			<id>trg-dao-repo</id>
 			<name>Repository for The Revere Group's Hibernate Generic DAO framework</name>
 			<url>http://hibernate-generic-dao.googlecode.com/svn/trunk/maven-repo/</url>
+		</repository>
+		<repository>
+    		<id>springsource-repo</id>
+    		<name>SpringSource Repository</name>
+    		<url>http://repo.springsource.org/release</url>
 		</repository>
 	</repositories>
 	<organization>
@@ -440,4 +449,5 @@
 			</plugin>
 		</plugins>
 	</build>
+		
 </project>

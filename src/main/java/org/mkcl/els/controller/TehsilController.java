@@ -1,5 +1,5 @@
 /*
-******************************************************************
+ ******************************************************************
 File: org.mkcl.els.controller.TehsilController.java
 Copyright (c) 2011, sandeeps, MKCL
 All rights reserved.
@@ -17,7 +17,7 @@ LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN
 ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 POSSIBILITY OF SUCH DAMAGE.
 
-******************************************************************
+ ******************************************************************
  */
 package org.mkcl.els.controller;
 
@@ -30,16 +30,11 @@ import java.util.regex.Pattern;
 import javax.validation.Valid;
 
 import org.mkcl.els.common.editors.DistrictEditor;
+import org.mkcl.els.domain.CustomParameter;
 import org.mkcl.els.domain.District;
 import org.mkcl.els.domain.Grid;
 import org.mkcl.els.domain.State;
 import org.mkcl.els.domain.Tehsil;
-import org.mkcl.els.service.ICustomParameterService;
-import org.mkcl.els.service.IDistrictService;
-import org.mkcl.els.service.IGridService;
-import org.mkcl.els.service.IStateService;
-import org.mkcl.els.service.ITehsilService;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
 import org.springframework.validation.BindingResult;
@@ -61,132 +56,187 @@ import org.springframework.web.bind.annotation.RequestParam;
  */
 @Controller
 @RequestMapping("/tehsils")
-public class TehsilController extends BaseController{
+public class TehsilController extends BaseController {
 
-	/** The grid service. */
-	@Autowired
-	IGridService gridService;
-	
-	@Autowired
-	IStateService stateService;
-	
-	@Autowired
-	ICustomParameterService customParameterService;
-		
-	@Autowired
-	IDistrictService districtService;
-	
-	@Autowired
-	ITehsilService tehsilService;
-	/**
-	 * Index.
-	 *
-	 * @param model the model
-	 * @return the string
-	 */
-	@RequestMapping(value="list",method = RequestMethod.GET)
-	public String list(ModelMap model){
-		Grid grid = gridService.findByName("TEHSIL_GRID");
-		model.addAttribute("gridId", grid.getId());
-		return "masters/tehsils/list";
-	}
-	
-	@RequestMapping(value="new",method=RequestMethod.GET)
-	public String _new(ModelMap model,Locale locale){	
-		Tehsil tehsil=new Tehsil();
-		tehsil.setLocale(locale.toString());
-		populateModel(model, tehsil, customParameterService.findByName("DEFAULT_STATE").getValue());		
-		return "masters/tehsils/new";
-	}
-	
-	@RequestMapping(value = "{id}/edit", method = RequestMethod.GET)
-	public String edit(@PathVariable Long id, ModelMap model){
-		Tehsil tehsil = tehsilService.findById(id);
-		populateModel(model, tehsil, tehsil.getDistrict().getState().getName());		
-		return "masters/tehsils/edit";
-	}
-	
-	@RequestMapping(method = RequestMethod.POST)
-	public String create(@Valid @ModelAttribute("tehsil") Tehsil tehsil,BindingResult result, ModelMap model,@RequestParam String state){
-		this.validate(tehsil,result);
-		if(result.hasErrors()){
-			populateModel(model, tehsil,state);
-			model.addAttribute("type","error");
-			model.addAttribute("msg","create_failed");
-			return "masters/tehsils/new";
-		}	
-		tehsilService.create(tehsil);
-		return "redirect:tehsils/"+tehsil.getId()+"/edit?type=success&msg=create_success";
+    /** The tehsil service. */
+    // @Autowired
+    // ITehsilService tehsilService;
 
-		
-	}
-	
-	@RequestMapping(method = RequestMethod.PUT)
-	public String edit(@Valid @ModelAttribute("tehsil") Tehsil tehsil,BindingResult result, ModelMap model,@RequestParam String state){
-		this.validate(tehsil,result);
-		if(result.hasErrors()){
-			populateModel(model, tehsil,state);
-			model.addAttribute("type","error");
-		    model.addAttribute("msg","update_failed");
-			return "masters/tehsils/edit";
-		}	
-		tehsilService.update(tehsil);
-		return "redirect:tehsils/"+tehsil.getId()+"/edit?type=success&msg=update_success";
+    /**
+     * Index.
+     *
+     * @param model the model
+     * @return the string
+     */
+    @RequestMapping(value = "list", method = RequestMethod.GET)
+    public String list(final ModelMap model) {
+        Grid grid = Grid.findByName("TEHSIL_GRID");
+        model.addAttribute("gridId", grid.getId());
+        return "masters/tehsils/list";
+    }
 
-	}	
-	
-	@RequestMapping(value="{id}/delete", method=RequestMethod.DELETE)
-    public String delete(@PathVariable Long id, ModelMap model){
-		tehsilService.removeById(id);
-		model.addAttribute("type","success");
-		model.addAttribute("msg","delete_success");
-		return "info";		
-	}
-	
-	private void validate(Tehsil tehsil, Errors errors){
-		if(tehsil.getName()!=null){
-			if(tehsil.getLocale().equals("en")){
-				String name=tehsil.getName();
-				Pattern pattern=Pattern.compile("[A-Za-z ]{1,50}");
-				Matcher matcher=pattern.matcher(name);
-				if(!matcher.matches()){
-					errors.rejectValue("name","Pattern");
-				}
-				if(name.length()>100 || name.length()<1){
-					errors.rejectValue("name","Size");
+    /**
+     * _new.
+     *
+     * @param model the model
+     * @param locale the locale
+     * @return the string
+     */
+    @RequestMapping(value = "new", method = RequestMethod.GET)
+    public String _new(final ModelMap model, final Locale locale) {
+        Tehsil tehsil = new Tehsil();
+        tehsil.setLocale(locale.toString());
+        populateModel(model, tehsil,
+                CustomParameter.findByName("DEFAULT_STATE").getValue());
+        return "masters/tehsils/new";
+    }
 
-				}
-			}		
-		}
-		Tehsil duplicateParameter = tehsilService.findByName(tehsil.getName());
-		if(duplicateParameter!=null){
-			if(!duplicateParameter.getId().equals(tehsil.getId())){
-				errors.rejectValue("name","NonUnique");
-			}	
-		}
-		if(tehsil.getId()!=null){
-			if(!tehsil.getVersion().equals(tehsilService.findById(tehsil.getId()).getVersion())){
-				errors.reject("name","Version_Mismatch");
-			}
-		}
-	}
-	
-	@InitBinder 
-	public void initBinder(WebDataBinder binder) { 
-		binder.registerCustomEditor(District.class, new DistrictEditor(districtService)); 
-	}
-	
-	private void populateModel(ModelMap model,Tehsil tehsil,String stateName){
-		List<State> states=stateService.findAllSorted();
-		State selectedState=stateService.findByName(stateName);
-		List<State> newStates=new ArrayList<State>();
-		newStates.add(selectedState);
-		states.remove(selectedState);
-		newStates.addAll(states);
-		model.addAttribute("tehsil",tehsil);		
-		model.addAttribute("states",newStates);
-		model.addAttribute("districts",districtService.findDistrictsByStateId(selectedState.getId()));
-	}
-	
-	
+    /**
+     * Edits the.
+     *
+     * @param id the id
+     * @param model the model
+     * @return the string
+     */
+    @RequestMapping(value = "{id}/edit", method = RequestMethod.GET)
+    public String edit(@PathVariable final Long id, final ModelMap model) {
+        final Tehsil tehsil = Tehsil.findById(id);
+        populateModel(model, tehsil, tehsil.getDistrict().getState().getName());
+        return "masters/tehsils/edit";
+    }
+
+    /**
+     * Creates the.
+     *
+     * @param tehsil the tehsil
+     * @param result the result
+     * @param model the model
+     * @param state the state
+     * @return the string
+     */
+    @RequestMapping(method = RequestMethod.POST)
+    public String create(@Valid @ModelAttribute("tehsil") final Tehsil tehsil,
+            final BindingResult result, final ModelMap model,
+            @RequestParam final String state) {
+        this.validate(tehsil, result);
+        if (result.hasErrors()) {
+            populateModel(model, tehsil, state);
+            model.addAttribute("type", "error");
+            model.addAttribute("msg", "create_failed");
+            return "masters/tehsils/new";
+        }
+        tehsil.persist();
+        return "redirect:tehsils/" + tehsil.getId()
+                + "/edit?type=success&msg=create_success";
+
+    }
+
+    /**
+     * Edits the.
+     *
+     * @param tehsil the tehsil
+     * @param result the result
+     * @param model the model
+     * @param state the state
+     * @return the string
+     */
+    @RequestMapping(method = RequestMethod.PUT)
+    public String edit(@Valid @ModelAttribute("tehsil") final Tehsil tehsil,
+            final BindingResult result, final ModelMap model,
+            @RequestParam final String state) {
+        this.validate(tehsil, result);
+        if (result.hasErrors()) {
+            populateModel(model, tehsil, state);
+            model.addAttribute("type", "error");
+            model.addAttribute("msg", "update_failed");
+            return "masters/tehsils/edit";
+        }
+        tehsil.update(tehsil);
+        return "redirect:tehsils/" + tehsil.getId()
+                + "/edit?type=success&msg=update_success";
+
+    }
+
+    /**
+     * Delete.
+     *
+     * @param id the id
+     * @param model the model
+     * @return the string
+     */
+    @RequestMapping(value = "{id}/delete", method = RequestMethod.DELETE)
+    public String delete(@PathVariable final Long id, final ModelMap model) {
+        Tehsil tehsil = Tehsil.findById(id);
+        tehsil.remove();
+        model.addAttribute("type", "success");
+        model.addAttribute("msg", "delete_success");
+        return "info";
+    }
+
+    /**
+     * Validate.
+     *
+     * @param tehsil the tehsil
+     * @param errors the errors
+     */
+    private void validate(final Tehsil tehsil, final Errors errors) {
+        if (tehsil.getName() != null) {
+            if (tehsil.getLocale().equals("en")) {
+                String name = tehsil.getName();
+                Pattern pattern = Pattern.compile("[A-Za-z ]{1,50}");
+                Matcher matcher = pattern.matcher(name);
+                if (!matcher.matches()) {
+                    errors.rejectValue("name", "Pattern");
+                }
+                if (name.length() > 100 || name.length() < 1) {
+                    errors.rejectValue("name", "Size");
+
+                }
+            }
+        }
+        Tehsil duplicateParameter = Tehsil.findByName(tehsil.getName());
+        if (duplicateParameter != null) {
+            if (!duplicateParameter.getId().equals(tehsil.getId())) {
+                errors.rejectValue("name", "NonUnique");
+            }
+        }
+        if (tehsil.getId() != null) {
+            if (!tehsil.getVersion().equals(
+                    Tehsil.findById(tehsil.getId()).getVersion())) {
+                errors.reject("name", "Version_Mismatch");
+            }
+        }
+    }
+
+    /**
+     * Inits the binder.
+     *
+     * @param binder the binder
+     */
+    @InitBinder
+    public void initBinder(final WebDataBinder binder) {
+        binder.registerCustomEditor(District.class, new DistrictEditor());
+    }
+
+    /**
+     * Populate model.
+     *
+     * @param model the model
+     * @param tehsil the tehsil
+     * @param stateName the state name
+     */
+    private void populateModel(final ModelMap model, final Tehsil tehsil,
+            final String stateName) {
+        List<State> states = State.findAllSorted("name" , tehsil.getLocale() , false);
+        State selectedState = State.findByName(stateName);
+        List<State> newStates = new ArrayList<State>();
+        newStates.add(selectedState);
+        states.remove(selectedState);
+        newStates.addAll(states);
+        model.addAttribute("tehsil", tehsil);
+        model.addAttribute("states", newStates);
+        model.addAttribute("districts",
+                District.findDistrictsByStateId(selectedState.getId()));
+    }
+
 }

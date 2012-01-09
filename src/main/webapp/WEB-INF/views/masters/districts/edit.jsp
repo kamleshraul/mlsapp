@@ -8,13 +8,15 @@
 <form:form cssClass="wufoo" action="districts" method="PUT" modelAttribute="district">
 	<div class="info">
 		<h2><spring:message code="district.edit.heading" text="Details"/>[Id:${district.id}]</h2>
-		<div style="background-color:#C1CDCD; ;padding: 3px"><spring:message code="generic.mandatory.label"/></div>
+		<div style="background-color:#C1CDCD; ;padding: 3px">
+		<spring:message code="generic.mandatory.label" text="All fields marked * are mandatory"/></div>
 	</div>
 	<ul>	
 		<li class="section first">
 			<c:if test="${isvalid eq false}">
 				<p class="field_error"><spring:message code="generic.error.label"/></p>
 			</c:if>
+		<form:errors path="version" cssClass="field_error" />		
 		</li>
 		<li>
 		<label class="desc"><spring:message code="generic.id" text="Id"/></label>

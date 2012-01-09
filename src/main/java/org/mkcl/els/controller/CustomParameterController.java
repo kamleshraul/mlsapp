@@ -1,23 +1,11 @@
-/*
-******************************************************************
-File: org.mkcl.els.controller.CustomParameterController.java
-Copyright (c) 2011, vishals, MKCL
-All rights reserved.
-
-THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
-"AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
-LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS
-FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE
-COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT,
-INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
-BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
-LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
-CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
-LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN
-ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
-POSSIBILITY OF SUCH DAMAGE.
-
-******************************************************************
+/**
+ * See the file LICENSE for redistribution information.
+ *
+ * Copyright (c) 2011 MKCL.  All rights reserved.
+ *
+ * Project: e-Legislature
+ * File: org.mkcl.els.controller.CustomParameterController.java
+ * Created On: Dec 30, 2011
  */
 package org.mkcl.els.controller;
 
@@ -27,9 +15,6 @@ import javax.validation.Valid;
 
 import org.mkcl.els.domain.CustomParameter;
 import org.mkcl.els.domain.Grid;
-import org.mkcl.els.service.ICustomParameterService;
-import org.mkcl.els.service.IGridService;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
 import org.springframework.validation.BindingResult;
@@ -38,7 +23,6 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
 
 /**
  * The Class CustomParameterController.
@@ -48,142 +32,153 @@ import org.springframework.web.bind.annotation.RequestParam;
  */
 @Controller
 @RequestMapping("/custom_params")
-public class CustomParameterController extends BaseController
-{
-	/** The grid service. */
-	@Autowired
-	IGridService gridService;
-	
-	/** The custom parameter service. */
-	@Autowired
-	ICustomParameterService customParameterService;
-	
-	/**
-	 * Lists all custom parameters.
-	 *
-	 * @param model the model
-	 * @return the string
-	 */
-	@RequestMapping(value="list",method = RequestMethod.GET)
-	public String list(ModelMap model) {
-		Grid grid = gridService.findByName("CUSTOM_PARAMETER_GRID");
-		model.addAttribute("gridId", grid.getId());
-		return "masters/custom_params/list";
-	}
-	
-	/**
-	 * _new.
-	 *
-	 * @param model the model
-	 * @return the string
-	 */
-	@RequestMapping(value = "new", method = RequestMethod.GET)
-	public String _new(ModelMap model,Locale locale){
-		CustomParameter customParameter = new CustomParameter();
-		model.addAttribute(customParameter);
-		return "masters/custom_params/new";
-	}
-	
-	/**
-	 * Edits the.
-	 *
-	 * @param id the id
-	 * @param model the model
-	 * @return the string
-	 */
-	@RequestMapping(value = "{id}/edit", method = RequestMethod.GET)
-	public String edit(@PathVariable Long id, ModelMap model){
-		CustomParameter customParameter = customParameterService.findById(id);
-		model.addAttribute(customParameter);
-		return "masters/custom_params/edit";
-	}
-	
-	/**
-	 * Creates a new custom parameter.
-	 *
-	 * @param customParameter the custom parameter
-	 * @param result the result
-	 * @param model the model
-	 * @return the string
-	 */
-	@RequestMapping(method = RequestMethod.POST)
-	public String create(@Valid 
-			@ModelAttribute("customParameter") CustomParameter customParameter, 
-			BindingResult result, ModelMap model){
-		this.validate(customParameter, result);
-		
-		if(result.hasErrors()){
-			model.addAttribute(customParameter);
-			model.addAttribute("type","error");
-			model.addAttribute("msg","create_failed");
-			return "masters/custom_params/new";
-		}
-		
-		customParameterService.create(customParameter);	
-		return "redirect:custom_params/"+customParameter.getId()+"/edit?type=success&msg=create_success";
+public class CustomParameterController extends BaseController {
 
-	}
-	
-	/**
-	 * Updates the custom parameter.
-	 *
-	 * @param customParameter the custom parameter
-	 * @param result the result
-	 * @param model the model
-	 * @return the string
-	 */
-	@RequestMapping(method = RequestMethod.PUT)
-	public String update(@Valid 
-			@ModelAttribute("customParameter")CustomParameter customParameter, 
-			BindingResult result, ModelMap model){
-		this.validate(customParameter, result);
-		
-		if(result.hasErrors()){
-			model.addAttribute(customParameter);
-			model.addAttribute("type","error");
-		    model.addAttribute("msg","update_failed");
-		    return "masters/custom_params/edit";
-		}
-		 
-		customParameterService.update(customParameter);
-		return "redirect:custom_params/"+customParameter.getId()+"/edit?type=success&msg=update_success";
+    /**
+     * Lists all custom parameters.
+     *
+     * @param model the model
+     * @return the string
+     * @author sujitas
+     * @since v1.0.0
+     */
+    @RequestMapping(value = "list", method = RequestMethod.GET)
+    public String list(final ModelMap model) {
+        final Grid grid = Grid.findByName("CUSTOM_PARAMETER_GRID");
+        model.addAttribute("gridId", grid.getId());
+        return "masters/custom_params/list";
+    }
 
-	}
-	
-	/**
-	 * Deletes an existing custom parameter.
-	 *
-	 * @param id the id
-	 * @param model the model
-	 * @return the string
-	 */
-	@RequestMapping(value="{id}/delete", method=RequestMethod.DELETE)
-    public String delete(@PathVariable Long id, ModelMap model){
-		customParameterService.removeById(id);	
-		model.addAttribute("type","success");
-		model.addAttribute("msg","delete_success");
-		return "info";
-		}
-	
-	/**
-	 * Custom Validation.
-	 *
-	 * @param customParameter the custom parameter
-	 * @param errors the errors
-	 */
-	private void validate(CustomParameter customParameter, Errors errors){
-		CustomParameter duplicateParameter = customParameterService.findByName(customParameter.getName());
-		if(duplicateParameter!=null){
-			if(!duplicateParameter.getId().equals(customParameter.getId())){
-				// name attribute of CustomParameter object must be unique
-				errors.rejectValue("name","NonUnique");
-			}	
-		}
-		//Check if the version matches
-		if(customParameter.getId()!=null){
-			if(!customParameter.getVersion().equals(customParameterService.findById(customParameter.getId()).getVersion())){
-				errors.reject("Version_Mismatch");
-			}
-		}
-	}
+    /**
+     * New form.
+     *
+     * @param model the model
+     * @param locale the locale
+     * @return the string
+     * @author sujitas
+     * @since v1.0.0
+     */
+    @RequestMapping(value = "new", method = RequestMethod.GET)
+    public String newForm(final ModelMap model, final Locale locale) {
+        final CustomParameter customParameter = new CustomParameter();
+        model.addAttribute(customParameter);
+        return "masters/custom_params/new";
+    }
+
+    /**
+     * Edits the.
+     *
+     * @param id the id
+     * @param model the model
+     * @return the string
+     * @author sujitas
+     * @since v1.0.0
+     */
+    @RequestMapping(value = "{id}/edit", method = RequestMethod.GET)
+    public String edit(@PathVariable final Long id, final ModelMap model) {
+        final CustomParameter customParameter = CustomParameter.findById(id);
+        model.addAttribute(customParameter);
+        return "masters/custom_params/edit";
+    }
+
+    /**
+     * Creates a new custom parameter.
+     *
+     * @param customParameter the custom parameter
+     * @param result the result
+     * @param model the model
+     * @return the string
+     * @author sujitas
+     * @since v1.0.0
+     */
+    @RequestMapping(method = RequestMethod.POST)
+    public String create(@Valid @ModelAttribute("customParameter")
+                         final CustomParameter customParameter,
+                         final BindingResult result,
+                         final ModelMap model) {
+        this.validate(customParameter, result);
+
+        if (result.hasErrors()) {
+            model.addAttribute(customParameter);
+            model.addAttribute("type", "error");
+            model.addAttribute("msg", "create_failed");
+            return "masters/custom_params/new";
+        }
+
+        customParameter.persist();
+        return "redirect:custom_params/" + customParameter.getId()
+                + "/edit?type=success&msg=create_success";
+
+    }
+
+    /**
+     * Updates the custom parameter.
+     *
+     * @param customParameter the custom parameter
+     * @param result the result
+     * @param model the model
+     * @return the string
+     * @author sujitas
+     * @since v1.0.0
+     */
+    @RequestMapping(method = RequestMethod.PUT)
+    public String update(@Valid @ModelAttribute("customParameter")
+                         final CustomParameter customParameter,
+                         final BindingResult result,
+                         final ModelMap model) {
+        this.validate(customParameter, result);
+
+        if (result.hasErrors()) {
+            model.addAttribute(customParameter);
+            model.addAttribute("type", "error");
+            model.addAttribute("msg", "update_failed");
+            return "masters/custom_params/edit";
+        }
+
+        customParameter.update();
+        return "redirect:custom_params/" + customParameter.getId()
+                + "/edit?type=success&msg=update_success";
+
+    }
+
+    /**
+     * Deletes an existing custom parameter.
+     *
+     * @param id the id
+     * @param model the model
+     * @return the string
+     * @author sujitas
+     * @since v1.0.0
+     */
+    @RequestMapping(value = "{id}/delete", method = RequestMethod.DELETE)
+    public String delete(@PathVariable final Long id, final ModelMap model) {
+        final CustomParameter customParameter = CustomParameter.findById(id);
+        customParameter.remove();
+        model.addAttribute("type", "success");
+        model.addAttribute("msg", "delete_success");
+        return "info";
+    }
+
+    /**
+     * Custom Validation.
+     *
+     * @param customParameter the custom parameter
+     * @param errors the errors
+     * @author sujitas
+     * @since v1.0.0
+     */
+    private void validate(final CustomParameter customParameter,
+                          final Errors errors) {
+        final CustomParameter duplicateParameter = CustomParameter
+                .findByName(customParameter.getName());
+        if (duplicateParameter != null
+                && !duplicateParameter.getId().equals(customParameter.getId())) {
+            // name attribute of CustomParameter object must be unique
+            errors.rejectValue("name", "NonUnique");
+        }
+        // Check if the version matches
+        if (customParameter.getId() != null && !customParameter.checkVersion()) {
+            errors.rejectValue("version" , "Version_Mismatch");
+        }
+    }
 }

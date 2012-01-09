@@ -1,27 +1,14 @@
-/*
-******************************************************************
-File: org.mkcl.els.service.IAssemblyRoleService.java
-Copyright (c) 2011, amitd, MKCL
-All rights reserved.
-
-THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
-"AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
-LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS
-FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE
-COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT,
-INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
-BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
-LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
-CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
-LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN
-ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
-POSSIBILITY OF SUCH DAMAGE.
-
-******************************************************************
+/**
+ * See the file LICENSE for redistribution information.
+ *
+ * Copyright (c) 2012 MKCL.  All rights reserved.
+ *
+ * Project: e-Legislature
+ * File: org.mkcl.els.service.IAssemblyRoleService.java
+ * Created On: Jan 9, 2012
  */
-package org.mkcl.els.service;
 
-import java.util.List;
+package org.mkcl.els.service;
 
 import org.mkcl.els.domain.AssemblyRole;
 
@@ -31,18 +18,37 @@ import org.mkcl.els.domain.AssemblyRole;
  * @author amitd
  * @version v1.0.0
  */
-public interface IAssemblyRoleService 
-	extends IGenericService<AssemblyRole ,Long>{
+public interface IAssemblyRoleService extends
+        IGenericService<AssemblyRole, Long> {
 
-	/**
-	 * Find by name.
-	 *
-	 * @param name the name
-	 * @return the assembly role
-	 */
-	public AssemblyRole findByName(String name);
+ /*   *//**
+     * Find by name.
+     *
+     * @param name the name
+     * @return the assembly role
+     * @author nileshp
+     * @since v1.0.0
+     *//*
+    public AssemblyRole findByName(String name);
 
-	public List<AssemblyRole> findAllSorted(String locale);
+    *//**
+     * Find all sorted.
+     *
+     * @param locale the locale
+     * @return the list
+     * @author nileshp
+     * @since v1.0.0
+     *//*
+    public List<AssemblyRole> findAllSorted(String locale);
 
-	public List<AssemblyRole> findUnassignedRoles(String locale, Long memberId);
+    *//**
+     * Find unassigned roles.
+     *
+     * @param locale the locale
+     * @param memberId the member id
+     * @return the list
+     * @author nileshp
+     * @since v1.0.0
+     *//*
+    public List<AssemblyRole> findUnassignedRoles(String locale, Long memberId);*/
 }

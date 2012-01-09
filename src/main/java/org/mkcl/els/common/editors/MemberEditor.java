@@ -1,21 +1,36 @@
+/**
+ * See the file LICENSE for redistribution information.
+ *
+ * Copyright (c) 2012 MKCL.  All rights reserved.
+ *
+ * Project: e-Legislature
+ * File: org.mkcl.els.common.editors.MemberEditor.java
+ * Created On: Jan 6, 2012
+ */
 package org.mkcl.els.common.editors;
 
 import java.beans.PropertyEditorSupport;
 
 import org.mkcl.els.domain.MemberDetails;
-import org.mkcl.els.service.IMemberDetailsService;
 
-public class MemberEditor extends PropertyEditorSupport{
-private IMemberDetailsService service;
+/**
+ * The Class MemberEditor.
+ *
+ * @author sujitas
+ * @since v1.0.0
+ */
+public class MemberEditor extends PropertyEditorSupport {
 
-public MemberEditor(IMemberDetailsService service){
-	this.service=service;
-}
-
-public void setAsText(String text) {
-    if (!text.equals("")) {
-    	MemberDetails type = (MemberDetails) this.service.findById(Long.parseLong(text));
-        setValue(type);
+    /*
+     * (non-Javadoc)
+     *
+     * @see java.beans.PropertyEditorSupport#setAsText(java.lang.String)
+     */
+    @Override
+    public void setAsText(final String text) {
+        if (!text.equals("")) {
+            final MemberDetails type = MemberDetails.findById(Long.parseLong(text));
+            setValue(type);
+        }
     }
-}
 }

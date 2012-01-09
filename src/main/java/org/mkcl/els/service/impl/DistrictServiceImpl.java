@@ -1,5 +1,5 @@
 /*
-******************************************************************
+ ******************************************************************
 File: org.mkcl.els.service.impl.DistrictServiceImpl.java
 Copyright (c) 2011, sandeeps, ${company}
 All rights reserved.
@@ -17,20 +17,15 @@ LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN
 ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 POSSIBILITY OF SUCH DAMAGE.
 
-******************************************************************
+ ******************************************************************
  */
 package org.mkcl.els.service.impl;
 
-import java.util.List;
-import java.util.Set;
-
 import org.mkcl.els.domain.District;
-import org.mkcl.els.repository.DistrictRepository;
+
 import org.mkcl.els.service.IDistrictService;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-// TODO: Auto-generated Javadoc
 /**
  * The Class DistrictServiceImpl.
  *
@@ -38,51 +33,43 @@ import org.springframework.stereotype.Service;
  * @version v1.0.0
  */
 @Service
-public class DistrictServiceImpl extends GenericServiceImpl<District,Long> implements IDistrictService{
+public class DistrictServiceImpl extends GenericServiceImpl<District, Long>
+        implements IDistrictService {
 
-	/** The District repository. */
-	private DistrictRepository districtRepository;
-
-	/**
-	 * Sets the district repository.
-	 *
-	 * @param DistrictRepository the new district repository
-	 */
-	@Autowired
-	public void setDistrictRepository(DistrictRepository DistrictRepository) 
-	{
-		this.dao = DistrictRepository;
-		this.districtRepository = DistrictRepository;
-	}
-
-	/* (non-Javadoc)
-	 * @see org.mkcl.els.service.IDistrictService#findByName(java.lang.String)
-	 */
-	@Override
-	public District findByName(String name) {
-		return districtRepository.findByName(name);
-	}
-
-	@Override
-	public List<District> findDistrictsByStateId(Long stateId) {
-		return districtRepository.findDistrictsByStateId(stateId);
-	}
-
-	@Override
-	public List<District> findDistrictsByStateId(Long id, String property,
-			boolean descOrder) {
-		return districtRepository.findDistrictsByStateId(id, property, descOrder);
-	}
-
-	@Override
-	public List<District> findDistrictsByStateName(String stateName) {
-		// TODO Auto-generated method stub
-		return districtRepository.findDistrictsByStateName(stateName);
-	}
-
-	@Override
-	public Set<District> findDistrictsByConstituencyId(Long constituencyId) {
-		return districtRepository.findDistrictsByConstituencyId(constituencyId);
-	}
+    /** The District repository. */
+    /*
+     * private DistrictRepository districtRepository;
+     *//**
+     * Sets the district repository.
+     *
+     * @param DistrictRepository the new district repository
+     */
+    /*
+     * @Autowired public void setDistrictRepository(DistrictRepository
+     * DistrictRepository) { this.dao = DistrictRepository;
+     * this.districtRepository = DistrictRepository; }
+     *
+     * (non-Javadoc)
+     *
+     * @see org.mkcl.els.service.IDistrictService#findByName(java.lang.String)
+     *
+     * @Override public District findByName(String name) { return
+     * districtRepository.findByName(name); }
+     *
+     * @Override public List<District> findDistrictsByStateId(Long stateId) {
+     * return districtRepository.findDistrictsByStateId(stateId); }
+     *
+     * @Override public List<District> findDistrictsByStateId(Long id, String
+     * property, boolean descOrder) { return
+     * districtRepository.findDistrictsByStateId(id, property, descOrder); }
+     *
+     * @Override public List<District> findDistrictsByStateName(String
+     * stateName) { // TODO Auto-generated method stub return
+     * districtRepository.findDistrictsByStateName(stateName); }
+     *
+     * @Override public Set<District> findDistrictsByConstituencyId(Long
+     * constituencyId) { return
+     * districtRepository.findDistrictsByConstituencyId(constituencyId); }
+     */
 
 }

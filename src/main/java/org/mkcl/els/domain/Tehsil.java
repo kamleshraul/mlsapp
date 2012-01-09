@@ -1,27 +1,16 @@
-/*
- ******************************************************************
-File: org.mkcl.els.domain.Tehsil.java
-Copyright (c) 2011, sandeeps, MKCL
-All rights reserved.
-
-THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
-"AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
-LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS
-FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE
-COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT,
-INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
-BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
-LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
-CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
-LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN
-ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
-POSSIBILITY OF SUCH DAMAGE.
-
- ******************************************************************
+/**
+ * See the file LICENSE for redistribution information.
+ *
+ * Copyright (c) 2012 ${company_name}.  All rights reserved.
+ *
+ * Project: e-Legislature
+ * File: org.mkcl.els.domain.Tehsil.java
+ * Created On: Jan 7, 2012
  */
 package org.mkcl.els.domain;
 
 import java.io.Serializable;
+import java.util.List;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -33,148 +22,264 @@ import javax.persistence.Table;
 import javax.persistence.Version;
 
 import org.hibernate.validator.constraints.NotEmpty;
+import org.mkcl.els.repository.TehsilRepository;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Configurable;
+import org.springframework.transaction.annotation.Transactional;
 
-// TODO: Auto-generated Javadoc
 /**
  * The Class Tehsil.
  *
- * @author sandeeps
+ * @author amitb
  * @version v1.0.0
  */
-
+@Configurable
 @Entity
-@Table(name="tehsils")
-public class Tehsil implements Serializable{
+@Table(name = "tehsils")
+public class Tehsil implements Serializable {
 
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = 1L;
+    //--------------------Attributes-------------------------------------------
 
-	/** The id. */
-	@Id
-	@GeneratedValue(strategy = GenerationType.AUTO)
-	private Long id;
+    /** The Constant serialVersionUID. */
+    private static final long serialVersionUID = 1L;
 
-	/** The name. */
-	@Column(length=100, nullable=false)
-	@NotEmpty
-	private String name;
+    /** The id. */
+    @Id
+    @GeneratedValue(strategy = GenerationType.AUTO)
+    private Long id;
 
-	/** The district. */
-	@ManyToOne
-	private District district;
-	
-		
-	@Column(length=5)
-	private String locale;	
+    /** The name. */
+    @Column(length = 100, nullable = false)
+    @NotEmpty
+    private String name;
 
+    /** The district. */
+    @ManyToOne
+    private District district;
 
-	/** The version. */
-	@Version
-	private Long version;
+    /** The locale. */
+    @Column(length = 5)
+    private String locale;
 
-	/**
-	 * Instantiates a new tehsil.
-	 */
-	public Tehsil() {
-		super();
-	}
+    /** The version. */
+    @Version
+    private Long version;
 
+    //--------------------Constructors-------------------------------------------
+    /**
+     * Instantiates a new tehsil.
+     */
+    public Tehsil() {
+        super();
+    }
 
+    /**
+     * The Constructor.
+     *
+     * @param name the name
+     * @param district the district
+     * @param locale the locale
+     * @param version the version
+     */
+    public Tehsil(final String name, final District district,
+            final String locale, final Long version) {
+        super();
+        this.name = name;
+        this.district = district;
+        this.locale = locale;
+        this.version = version;
+    }
 
-	public Tehsil(String name, District district, String locale,
-			Long version) {
-		super();
-		this.name = name;
-		this.district = district;
-		this.locale = locale;
-		this.version = version;
-	}
+    /**
+     * Gets the id.
+     *
+     * @return the id
+     */
+    public Long getId() {
+        return id;
+    }
 
+    /**
+     * Sets the id.
+     *
+     * @param id the new id
+     */
+    public void setId(final Long id) {
+        this.id = id;
+    }
 
+    /**
+     * Gets the name.
+     *
+     * @return the name
+     */
+    public String getName() {
+        return name;
+    }
 
-	/**
-	 * Gets the id.
-	 *
-	 * @return the id
-	 */
-	public Long getId() {
-		return id;
-	}
+    /**
+     * Sets the name.
+     *
+     * @param name the new name
+     */
+    public void setName(final String name) {
+        this.name = name;
+    }
 
-	/**
-	 * Sets the id.
-	 *
-	 * @param id the new id
-	 */
-	public void setId(Long id) {
-		this.id = id;
-	}
+    /**
+     * Gets the district.
+     *
+     * @return the district
+     */
+    public District getDistrict() {
+        return district;
+    }
 
-	/**
-	 * Gets the name.
-	 *
-	 * @return the name
-	 */
-	public String getName() {
-		return name;
-	}
+    /**
+     * Sets the district.
+     *
+     * @param district the new district
+     */
+    public void setDistrict(final District district) {
+        this.district = district;
+    }
 
-	/**
-	 * Sets the name.
-	 *
-	 * @param name the new name
-	 */
-	public void setName(String name) {
-		this.name = name;
-	}
+    /**
+     * Gets the version.
+     *
+     * @return the version
+     */
+    public Long getVersion() {
+        return version;
+    }
 
-	/**
-	 * Gets the district.
-	 *
-	 * @return the district
-	 */
-	public District getDistrict() {
-		return district;
-	}
+    /**
+     * Sets the version.
+     *
+     * @param version the new version
+     */
+    public void setVersion(final Long version) {
+        this.version = version;
+    }
 
-	/**
-	 * Sets the district.
-	 *
-	 * @param district the new district
-	 */
-	public void setDistrict(District district) {
-		this.district = district;
-	}
+    /**
+     * Gets the locale.
+     *
+     * @return the locale
+     */
+    public String getLocale() {
+        return locale;
+    }
 
-	/**
-	 * Gets the version.
-	 *
-	 * @return the version
-	 */
-	public Long getVersion() {
-		return version;
-	}
+    /**
+     * Sets the locale.
+     *
+     * @param locale the locale
+     */
+    public void setLocale(final String locale) {
+        this.locale = locale;
+    }
 
-	/**
-	 * Sets the version.
-	 *
-	 * @param version the new version
-	 */
-	public void setVersion(Long version) {
-		this.version = version;
-	}
+    /** The tehsil repository. */
+    @Autowired
+    private transient TehsilRepository tehsilRepository;
 
-	public String getLocale() {
-		return locale;
-	}
+    /**
+     * Gets the repository.
+     *
+     * @return the repository
+     */
+    public static TehsilRepository getTehsilRepository() {
+        TehsilRepository tehsilRepository = new Tehsil().tehsilRepository;
+        if (tehsilRepository == null) {
+            throw new IllegalStateException(
+                    "TehsilRepository has not been injected in Tehsil Domail");
+        }
+        return tehsilRepository;
+    }
 
-	public void setLocale(String locale) {
-		this.locale = locale;
-	}
+    /**
+     * Find by name.
+     *
+     * @param name the name
+     * @return the tehsil
+     */
+    @Transactional
+    public static Tehsil findByName(final String name) {
+        return getTehsilRepository().findByName(name);
+    }
 
+    /**
+     * Find by id.
+     *
+     * @param id the id
+     * @return the tehsil
+     */
+    @Transactional
+    public static Tehsil findById(final Long id) {
+        return getTehsilRepository().find(id);
+    }
 
-	
-	
+    /**
+     * Find tehsils by district name.
+     *
+     * @param name the name
+     * @return the list< tehsil>
+     */
+    @Transactional
+    public static List<Tehsil> findTehsilsByDistrictName(final String name) {
+        return getTehsilRepository().findTehsilsByDistrictName(name);
+    }
+
+    /**
+     * Find tehsils by district id.
+     *
+     * @param districtId the district id
+     * @return the list< tehsil>
+     */
+    @Transactional
+    public static List<Tehsil> findTehsilsByDistrictId(final Long districtId) {
+        return getTehsilRepository().findTehsilsByDistrictId(districtId);
+    }
+
+    /**
+     * Persist.
+     *
+     * @return the tehsil
+     */
+    @Transactional
+    public Tehsil persist() {
+        tehsilRepository.save(this);
+        tehsilRepository.flush();
+        return this;
+    }
+
+    /**
+     * Update.
+     *
+     * @param tehsil the tehsil
+     */
+    @Transactional
+    public void update(final Tehsil tehsil) {
+        tehsilRepository.merge(this);
+        tehsilRepository.flush();
+    }
+
+    /**
+     * Removes the.
+     */
+    @Transactional
+    public void remove() {
+        tehsilRepository.remove(this);
+        tehsilRepository.flush();
+    }
+    /**
+     * Gets the tehsil locale.
+     *
+     * @return the tehsil locale
+     */
+    @Transactional
+    public String getTehsilLocale() {
+        return new Tehsil().getLocale();
+    }
 }

@@ -10,7 +10,7 @@
 	<div class="info">
 		<h2><spring:message code="title.edit.heading" text="Details"/>[Id:${title.id}]</h2>
 		<div style="background-color:#C1CDCD; ;padding: 3px">
-			<spring:message code="generic.mandatory.label"/>
+			<spring:message code="generic.mandatory.label" text="Note: Fields marked * are mandatory"/>
 		</div>
 	</div>
 	<ul>

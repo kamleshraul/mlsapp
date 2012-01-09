@@ -21,20 +21,10 @@ POSSIBILITY OF SUCH DAMAGE.
  */
 package org.mkcl.els.service.impl;
 
-import java.io.IOException;
-import java.io.StringWriter;
-import java.util.List;
-import java.util.Locale;
-
-import org.jdom.Attribute;
-import org.jdom.Element;
-import org.jdom.output.XMLOutputter;
 import org.mkcl.els.domain.MenuItem;
-import org.mkcl.els.repository.MenuItemRepository;
 import org.mkcl.els.service.IMenuItemService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 /**
@@ -48,35 +38,37 @@ public class MenuItemServiceImpl extends GenericServiceImpl<MenuItem,Long> imple
 
 	/** The Constant logger. */
 	private static final Logger logger = LoggerFactory.getLogger(MenuItemServiceImpl.class);
-	
+
 	/** The menu item repository. */
-	private MenuItemRepository menuItemRepository;
-	
+	//private MenuItemRepository menuItemRepository;
+
 	/**
 	 * Sets the message resource repository.
 	 *
 	 * @param menuItemRepository the new message resource repository
 	 */
-	@Autowired
-	public void setRepository(MenuItemRepository menuItemRepository) {
+	/*@Autowired
+	public void setRepository(final MenuItemRepository menuItemRepository) {
 		this.dao = menuItemRepository;
 		this.menuItemRepository = menuItemRepository;
-	}
-	
+	}*/
+
 	/* (non-Javadoc)
 	 * @see org.mkcl.els.service.IMenuItemService#getMenuXml()
-	 */
-	public String getMenuXml() {
+
+	@Override*/
+    /*public String getMenuXml() {
 		List<MenuItem> items = dao.findAll();
 		Element root = new Element("root");
-		for(MenuItem item:items){
+		for (MenuItem item : items) {
 			Element row = new Element("menu");
-			row.setAttribute(new Attribute("id", item.getId()+""));
+			row.setAttribute(new Attribute("id", item.getId() + ""));
 			row.setAttribute(new Attribute("text", item.getText()));
 			row.setAttribute(new Attribute("url", item.getUrl()));
-			if(item.getParent()!=null){
-				row.setAttribute(new Attribute("parent", item.getParent().getId()+""));
-			}
+            if (item.getParent() != null) {
+                row.setAttribute(new Attribute("parent", item.getParent()
+                        .getId() + ""));
+            }
 			root.addContent(row);
 		}
 		StringWriter writer = new StringWriter();
@@ -87,17 +79,17 @@ public class MenuItemServiceImpl extends GenericServiceImpl<MenuItem,Long> imple
 			logger.error(e.toString());
 		}
 		return writer.toString();
-	}
+	}*/
 
-	@Override
-	public MenuItem findByTextKey(String textKey) 
+	/*@Override
+	public MenuItem findByTextKey(final String textKey)
 	{
 		return menuItemRepository.findMenuItemByTextKey(textKey);
-	}
+	}*/
 
-	@Override
-	public String getMenuXml(Locale locale) {
-		List<MenuItem> items = menuItemRepository.findAllByLocale(locale);
+	/*@Override
+	public String getMenuXml(final Locale locale) {
+		List<MenuItem> items = menuItemRepository.findAllByLocale(locale.toString());
 		Element root = new Element("root");
 		for(MenuItem item:items){
 			Element row = new Element("menu");
@@ -117,8 +109,8 @@ public class MenuItemServiceImpl extends GenericServiceImpl<MenuItem,Long> imple
 			logger.error(e.toString());
 		}
 		return writer.toString();
-	}
-	
+	}*/
+
 	/**
 	 * Code to get get menu structure in recursive format not needed in this implementation but can be used in future
 	public String getMenu() {
@@ -139,7 +131,7 @@ public class MenuItemServiceImpl extends GenericServiceImpl<MenuItem,Long> imple
 		}
 		return writer.toString();
 	}
-	
+
 	public void addMenuItem(MenuItem parent, Element root){
 		List<MenuItem> items = menuItemRepository.findMenuItemsByParent(parent);
 		if(items!=null){

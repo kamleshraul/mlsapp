@@ -54,7 +54,7 @@
 	border-bottom:1px solid #828790;
 	color:#000;
 	height:20px;
-	clear:both;
+	clear:none;
 }
 .ffb-sel {
 	cursor:pointer;

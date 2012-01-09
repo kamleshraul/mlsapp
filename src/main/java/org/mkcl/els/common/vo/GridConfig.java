@@ -1,24 +1,13 @@
-/*
-******************************************************************
-File: org.mkcl.els.common.vo.GridConfigVO.java
-Copyright (c) 2011, vishals, MKCL
-All rights reserved.
-
-THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
-"AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
-LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS
-FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE
-COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT,
-INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
-BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
-LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
-CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
-LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN
-ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
-POSSIBILITY OF SUCH DAMAGE.
-
-******************************************************************
+/**
+ * See the file LICENSE for redistribution information.
+ *
+ * Copyright (c) 2012 MKCL.  All rights reserved.
+ *
+ * Project: e-Legislature
+ * File: org.mkcl.els.common.vo.GridConfig.java
+ * Created On: Jan 6, 2012
  */
+
 package org.mkcl.els.common.vo;
 
 /**
@@ -29,214 +18,233 @@ package org.mkcl.els.common.vo;
  */
 public class GridConfig {
 
-	/** The title. */
-	String title;
-	
-	/** The col names. */
-	String colNames;
-	
-	/** The col model. */
-	String colModel;
-	
-	/** The height. */
-	int height;
-	
-	/** The width. */
-	int width;
+    /** The title. */
+    private String title;
 
-	/** The page size. */
-	int pageSize;
-	
-	/** The sort order. */
-	String sortOrder;
-	
-	/** The detail view. */
-	String detailView;
-	
-	boolean multiSelect;
-	
-	/**
-	 * Instantiates a new grid config vo.
-	 */
-	public GridConfig(){
-	}
+    /** The col names. */
+    private String colNames;
 
-	/**
-	 * Instantiates a new grid config vo.
-	 *
-	 * @param title the title
-	 * @param colNames the col names
-	 * @param colModel the col model
-	 * @param height the height
-	 * @param width the width
-	 * @param pageSize the page size
-	 * @param sortOrder the sort order
-	 * @param detailView the detail view
-	 */
-	public GridConfig(String title, String colNames, String colModel,
-			int height, int width, int pageSize, String sortOrder,String detailView,boolean multiSelect) {
-		super();
-		this.title = title;
-		this.colNames = colNames;
-		this.colModel = colModel;
-		this.height = height;
-		this.width = width;
-		this.pageSize = pageSize;
-		this.sortOrder = sortOrder;
-		this.detailView = detailView;
-		this.multiSelect=multiSelect;
-		
-	}
+    /** The col model. */
+    private String colModel;
 
-	/**
-	 * Gets the title.
-	 *
-	 * @return the title
-	 */
-	public String getTitle() {
-		return title;
-	}
+    /** The height. */
+    private int height;
 
-	/**
-	 * Sets the title.
-	 *
-	 * @param title the new title
-	 */
-	public void setTitle(String title) {
-		this.title = title;
-	}
+    /** The width. */
+    private int width;
 
-	/**
-	 * Gets the col names.
-	 *
-	 * @return the col names
-	 */
-	public String getColNames() {
-		return colNames;
-	}
+    /** The page size. */
+    private int pageSize;
 
-	/**
-	 * Sets the col names.
-	 *
-	 * @param colNames the new col names
-	 */
-	public void setColNames(String colNames) {
-		this.colNames = colNames;
-	}
+    /** The sort order. */
+    private String sortOrder;
 
-	/**
-	 * Gets the col model.
-	 *
-	 * @return the col model
-	 */
-	public String getColModel() {
-		return colModel;
-	}
+    /** The detail view. */
+    private String detailView;
 
-	/**
-	 * Sets the col model.
-	 *
-	 * @param colModel the new col model
-	 */
-	public void setColModel(String colModel) {
-		this.colModel = colModel;
-	}
+    /** The multi select. */
+    private boolean multiSelect;
 
-	/**
-	 * Gets the height.
-	 *
-	 * @return the height
-	 */
-	public int getHeight() {
-		return height;
-	}
+    /**
+     * Instantiates a new grid config vo.
+     */
+    public GridConfig() {
+    }
 
-	/**
-	 * Sets the height.
-	 *
-	 * @param height the new height
-	 */
-	public void setHeight(int height) {
-		this.height = height;
-	}
+    /**
+     * Instantiates a new grid config vo.
+     *
+     * @param title the title
+     * @param colNames the col names
+     * @param colModel the col model
+     * @param height the height
+     * @param width the width
+     * @param pageSize the page size
+     * @param sortOrder the sort order
+     * @param detailView the detail view
+     * @param multiSelect the multi select
+     */
+    public GridConfig(final String title,
+            final String colNames,
+            final String colModel,
+            final int height,
+            final int width,
+            final int pageSize,
+            final String sortOrder,
+            final String detailView,
+            final boolean multiSelect) {
+        super();
+        this.title = title;
+        this.colNames = colNames;
+        this.colModel = colModel;
+        this.height = height;
+        this.width = width;
+        this.pageSize = pageSize;
+        this.sortOrder = sortOrder;
+        this.detailView = detailView;
+        this.multiSelect = multiSelect;
 
-	/**
-	 * Gets the width.
-	 *
-	 * @return the width
-	 */
-	public int getWidth() {
-		return width;
-	}
+    }
 
-	/**
-	 * Sets the width.
-	 *
-	 * @param width the new width
-	 */
-	public void setWidth(int width) {
-		this.width = width;
-	}
+    /**
+     * Gets the title.
+     *
+     * @return the title
+     */
+    public String getTitle() {
+        return title;
+    }
 
-	/**
-	 * Gets the page size.
-	 *
-	 * @return the page size
-	 */
-	public int getPageSize() {
-		return pageSize;
-	}
+    /**
+     * Sets the title.
+     *
+     * @param title the new title
+     */
+    public void setTitle(final String title) {
+        this.title = title;
+    }
 
-	/**
-	 * Sets the page size.
-	 *
-	 * @param pageSize the new page size
-	 */
-	public void setPageSize(int pageSize) {
-		this.pageSize = pageSize;
-	}
+    /**
+     * Gets the col names.
+     *
+     * @return the col names
+     */
+    public String getColNames() {
+        return colNames;
+    }
 
-	/**
-	 * Gets the sort order.
-	 *
-	 * @return the sort order
-	 */
-	public String getSortOrder() {
-		return sortOrder;
-	}
+    /**
+     * Sets the col names.
+     *
+     * @param colNames the new col names
+     */
+    public void setColNames(final String colNames) {
+        this.colNames = colNames;
+    }
 
-	/**
-	 * Sets the sort order.
-	 *
-	 * @param sortOrder the new sort order
-	 */
-	public void setSortOrder(String sortOrder) {
-		this.sortOrder = sortOrder;
-	}
+    /**
+     * Gets the col model.
+     *
+     * @return the col model
+     */
+    public String getColModel() {
+        return colModel;
+    }
 
-	/**
-	 * Gets the detail view.
-	 *
-	 * @return the detail view
-	 */
-	public String getDetailView() {
-		return detailView;
-	}
+    /**
+     * Sets the col model.
+     *
+     * @param colModel the new col model
+     */
+    public void setColModel(final String colModel) {
+        this.colModel = colModel;
+    }
 
-	/**
-	 * Sets the detail view.
-	 *
-	 * @param detailView the new detail view
-	 */
-	public void setDetailView(String detailView) {
-		this.detailView = detailView;
-	}
+    /**
+     * Gets the height.
+     *
+     * @return the height
+     */
+    public int getHeight() {
+        return height;
+    }
 
-	public boolean isMultiSelect() {
-		return multiSelect;
-	}
+    /**
+     * Sets the height.
+     *
+     * @param height the new height
+     */
+    public void setHeight(final int height) {
+        this.height = height;
+    }
 
-	public void setMultiSelect(boolean multiSelect) {
-		this.multiSelect = multiSelect;
-	}	
+    /**
+     * Gets the width.
+     *
+     * @return the width
+     */
+    public int getWidth() {
+        return width;
+    }
+
+    /**
+     * Sets the width.
+     *
+     * @param width the new width
+     */
+    public void setWidth(final int width) {
+        this.width = width;
+    }
+
+    /**
+     * Gets the page size.
+     *
+     * @return the page size
+     */
+    public int getPageSize() {
+        return pageSize;
+    }
+
+    /**
+     * Sets the page size.
+     *
+     * @param pageSize the new page size
+     */
+    public void setPageSize(final int pageSize) {
+        this.pageSize = pageSize;
+    }
+
+    /**
+     * Gets the sort order.
+     *
+     * @return the sort order
+     */
+    public String getSortOrder() {
+        return sortOrder;
+    }
+
+    /**
+     * Sets the sort order.
+     *
+     * @param sortOrder the new sort order
+     */
+    public void setSortOrder(final String sortOrder) {
+        this.sortOrder = sortOrder;
+    }
+
+    /**
+     * Gets the detail view.
+     *
+     * @return the detail view
+     */
+    public String getDetailView() {
+        return detailView;
+    }
+
+    /**
+     * Sets the detail view.
+     *
+     * @param detailView the new detail view
+     */
+    public void setDetailView(final String detailView) {
+        this.detailView = detailView;
+    }
+
+    /**
+     * Checks if is multi select.
+     *
+     * @return true, if is multi select
+     */
+    public boolean isMultiSelect() {
+        return multiSelect;
+    }
+
+    /**
+     * Sets the multi select.
+     *
+     * @param multiSelect the new multi select
+     */
+    public void setMultiSelect(final boolean multiSelect) {
+        this.multiSelect = multiSelect;
+    }
 }

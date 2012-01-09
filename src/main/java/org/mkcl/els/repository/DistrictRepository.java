@@ -1,32 +1,19 @@
-/*
-******************************************************************
-File: org.mkcl.els.repository.DistrictRepository.java
-Copyright (c) 2011, amitd, MKCL
-All rights reserved.
-
-THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
-"AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
-LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS
-FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE
-COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT,
-INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
-BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
-LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
-CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
-LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN
-ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
-POSSIBILITY OF SUCH DAMAGE.
-
-******************************************************************
+/**
+ * See the file LICENSE for redistribution information.
+ *
+ * Copyright (c) 2011 MKCL.  All rights reserved.
+ *
+ * Project: e-Legislature
+ * File: org.mkcl.els.repository.DistrictRepository.java
+ * Created On: Dec 23, 2011
  */
+
 package org.mkcl.els.repository;
 
 import java.util.List;
-import java.util.Set;
 
+import org.mkcl.els.domain.Constituency;
 import org.mkcl.els.domain.District;
-import org.mkcl.els.service.IConstituencyService;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
 import com.trg.search.Search;
@@ -34,62 +21,117 @@ import com.trg.search.Search;
 /**
  * The Class DistrictRepository.
  *
- * @author amitd
- * @version v1.0.0
+ * @author nileshp
+ * @since v1.0.0
  */
 @Repository
-public class DistrictRepository 
-	extends BaseRepository<District, Long>{
+public class DistrictRepository extends BaseRepository<District, Long> {
 
-	@Autowired
-	IConstituencyService constituencyService;
-	@Autowired
-	StateRepository stateRepository;
-	/**
-	 * Find by name.
-	 *
-	 * @param name the name
-	 * @return the district
-	 */
-	public District findByName(String name){
-		Search search = new Search();
-		search.addFilterEqual("name", name);
-		District district = this.searchUnique(search);
-		return district;
-	}
-	
-	public List<District> findDistrictsByStateId(Long stateId){
-		Search search=new Search();
-		search.addFilterEqual("state",stateRepository.find(stateId));
-		search.addSort("name",false);
-		List<District> districts=this.search(search);
-		return districts;
-		
-	}	
-	
-	public List<District> findDistrictsByStateId(Long stateId,String property,boolean descOrder){
-		Search search=new Search();
-		search.addFilterEqual("state",stateRepository.find(stateId));
-		search.addSort(property,descOrder);
-		List<District> districts=this.search(search);
-		return districts;
-		
-	}	
-	
-	public List<District> findDistrictsByStateName(String stateName){
-		Search search=new Search();
-		search.addFilterEqual("state",stateRepository.findByName(stateName));
-		search.addSort("name",false);
-		List<District> districts=this.search(search);
-		return districts;
-		
-	}
+    /** The Constant ASC. */
+    private static final String ASC = "asc";
 
-	
-	public Set<District> findDistrictsByConstituencyId(Long constituencyId) {
-		return  constituencyService.findById(constituencyId).getDistricts();
-	}
+    /** The Constant DESC. */
+    private static final String DESC = "desc";
 
-	
-	
+    /**
+     * Find by name.
+     *
+     * @param name the name
+     * @return the district
+     * @author nileshp
+     * @since v1.0.0
+     */
+    @Override
+    public District findByName(final String name) {
+        Search search = new Search();
+        search.addFilterEqual("name", name);
+        District district = this.searchUnique(search);
+        return district;
+    }
+
+    /**
+     * Find districts by state id.
+     *
+     * @param stateId the state id
+     * @return the list
+     * @author nileshp
+     * @since v1.0.0
+     */
+    public List<District> findDistrictsByStateId(final Long stateId) {
+        Search search = new Search();
+        search.addFilterEqual("state.id", stateId + "");
+        search.addSort("name", false);
+        List<District> districts = this.search(search);
+        return districts;
+
+    }
+
+    /**
+     * Find districts by state id.
+     *
+     * @param stateId the state id
+     * @param propertySortBy the property sort by
+     * @param descOrder the desc order
+     * @return the list
+     * @author nileshp
+     * @since v1.0.0
+     */
+    public List<District> findDistrictsByStateId(final Long stateId,
+                                                 final String propertySortBy,
+                                                 final boolean descOrder) {
+        Search search = new Search();
+        search.addFilterEqual("state.id", stateId + "");
+        search.addSort(propertySortBy, descOrder);
+        List<District> districts = this.search(search);
+        return districts;
+
+    }
+
+    /**
+     * Find districts by state name.
+     *
+     * @param stateName the state name
+     * @return the list
+     * @author nileshp
+     * @since v1.0.0
+     */
+    public List<District> findDistrictsByStateName(final String stateName) {
+        Search search = new Search();
+        search.addFilterEqual("state.name", stateName);
+        search.addSort("name", false);
+        List<District> districts = this.search(search);
+        return districts;
+
+    }
+
+    /**
+     * Find districts by constituency id.
+     *
+     * @param constituencyId the constituency id
+     * @param propertySortBy the property sort by
+     * @param descOrder the desc order
+     * @return the sets the
+     * @author nileshp
+     * @since v1.0.0
+     */
+    public List<District> findDistrictsByConstituencyId(final Long constituencyId,
+                                                        final String propertySortBy,
+                                                        final boolean descOrder) {
+        String order = null;
+        if (descOrder) {
+            order = DESC;
+        } else {
+            order = ASC;
+        }
+        String select = "SELECT c FROM Constituency c JOIN FETCH c.districts d "
+                + "WHERE c.id = "
+                + constituencyId
+                + " ORDER BY d."
+                + propertySortBy + " " + order;
+        Constituency constituency;
+        constituency = (Constituency) this.em().createQuery(select)
+                .getSingleResult();
+        return constituency.getDistricts();
+    }
+
 }

@@ -41,7 +41,14 @@
 				<form:input path="assembly" cssClass="field text medium"></form:input>
 	           <form:errors path="assembly" cssClass="field_error"></form:errors>			
 	        </div>
-		</li>		
+		</li>
+		<li>
+		<label class="desc"><spring:message code="assembly.assemblyNumber" text="Assembly Number"/>&nbsp;*</label>
+			<div>
+				<form:input path="assemblyNumber" cssClass="field text medium"></form:input>
+	           <form:errors path="assemblyNumber" cssClass="field_error"></form:errors>			
+	        </div>
+		</li>			
 		<li>
 		<label class="desc"><spring:message code="assembly.strength" text="Strength"/>&nbsp;*</label>
 			<div>

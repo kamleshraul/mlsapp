@@ -22,8 +22,6 @@ POSSIBILITY OF SUCH DAMAGE.
 
 package org.mkcl.els.service;
 
-import java.io.IOException;
-
 import org.mkcl.els.domain.Document;
 
 
@@ -35,7 +33,7 @@ import org.mkcl.els.domain.Document;
  * @version v1.0.0
  */
 public interface IDocumentService extends IGenericService<Document ,Long>{
-	
+
 
 	/**
 	 * Save.
@@ -44,22 +42,22 @@ public interface IDocumentService extends IGenericService<Document ,Long>{
 	 * @return the document
 	 * @throws IOException Signals that an I/O exception has occurred.
 	 */
-	public Document save (Document document) throws IOException;
-	
+//	public Document save (Document document) throws IOException;
+
 	/**
 	 * Find by tag.
 	 *
 	 * @param tag the tag
 	 * @return the document
 	 */
-	public Document findByTag(String tag);
-	
+	//public Document findByTag(String tag);
+
 	/**
 	 * Removes the by tag.
 	 *
 	 * @param tag the tag
 	 */
-	public void removeByTag(String tag);
+	//public void removeByTag(String tag);
 
 
 
