@@ -9,6 +9,8 @@
  */
 package org.mkcl.els;
 
+import java.util.List;
+
 import org.junit.Assert;
 import org.junit.Test;
 import org.mkcl.els.domain.Title;
@@ -30,10 +32,9 @@ public class TitleTest extends AbstractTest {
     @Transactional
     @Test
     public final void testPersist() {
-        final Title title = new Title("Mrs", "en", 0L);
+        final Title title = new Title("Mr", "en", 0L);
         title.persist();
     }
-
 
     /**
      * Test update.
@@ -44,10 +45,12 @@ public class TitleTest extends AbstractTest {
     @Transactional
     @Test
     public final void testUpdate() {
-        final Title title = Title.findById(2L);
-        title.setName("Miss test");
-        title.update();
-        Assert.assertNotNull("updated Title Data ", title);
+        final Title titlePersist = new Title("Mr", "en", 0L);
+        titlePersist.persist();
+        final Title title = Title.findById(titlePersist.getId());
+        title.setName("Miss Test");
+        Title updated = title.update();
+        Assert.assertEquals("Miss Test", updated.getName());
     }
 
     /**
@@ -59,10 +62,12 @@ public class TitleTest extends AbstractTest {
     @Transactional
     @Test
     public final void testDelete() {
-        final Title title = Title.findById(2L);
+        final Title titlePersist = new Title("Mrs", "en", 0L);
+        titlePersist.persist();
+        final Title title = Title.findById(titlePersist.getId());
         title.remove();
+        Assert.assertNull(Title.findById(titlePersist.getId()));
     }
-
 
     /**
      * Test findby id.
@@ -71,8 +76,12 @@ public class TitleTest extends AbstractTest {
      * @since v1.0.0
      */
     @Test
+    @Transactional
     public final void testFindbyId() {
-        Title.findById(2L);
+        final Title titlePersist = new Title("Mrs", "en", 0L);
+        titlePersist.persist();
+        Title title = Title.findById(titlePersist.getId());
+        Assert.assertEquals("Mrs", title.getName());
     }
 
     /**
@@ -82,8 +91,12 @@ public class TitleTest extends AbstractTest {
      * @since v1.0.0
      */
     @Test
+    @Transactional
     public final void testFindbyName() {
-        Title.findByName("Miss");
+        final Title titlePersist = new Title("Mrs", "en", 0L);
+        titlePersist.persist();
+        Title title = Title.findByName("Mrs");
+        Assert.assertEquals("Mrs", title.getName());
     }
 
     /**
@@ -94,7 +107,8 @@ public class TitleTest extends AbstractTest {
      */
     @Test
     public final void testFindAllSorted() {
-        Title.findAllSorted("name", "en", false);
+        List<Title> lstTitles = Title.findAllSorted("name", "en", false);
+        Assert.assertNotNull(lstTitles);
     }
 
     /**
@@ -105,7 +119,8 @@ public class TitleTest extends AbstractTest {
      */
     @Test
     public final void testFindAll() {
-        Title.findAll();
+        List<Title> lstTitles = Title.findAll();
+        Assert.assertNotNull(lstTitles);
     }
 
 }
