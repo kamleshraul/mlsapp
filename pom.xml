@@ -21,6 +21,13 @@
 		<developerConnection>scm:svn:http://repos.mkcl.org/mkcl/programs/egovernance/projects/els/source/trunk</developerConnection>
 		<url>http://repos.mkcl.org/mkcl/programs/egovernance/projects/els/source/trunk</url>
 	</scm>
+	<distributionManagement>
+		<site>
+			<id>els</id>
+			<name>ELS Site</name>
+			<url>file:///C:/Apache2.2/htdocs</url>
+		</site>
+	</distributionManagement>
 	<dependencies>
 		<!-- Spring -->
 		<dependency>
