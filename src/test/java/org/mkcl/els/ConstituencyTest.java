@@ -18,6 +18,7 @@ import org.junit.Test;
 import org.mkcl.els.domain.Constituency;
 import org.mkcl.els.domain.District;
 import org.mkcl.els.domain.Reference;
+import org.mkcl.els.domain.State;
 import org.springframework.transaction.annotation.Transactional;
 
 /**
@@ -27,6 +28,8 @@ import org.springframework.transaction.annotation.Transactional;
  * @since v1.0.0
  */
 public class ConstituencyTest extends AbstractTest {
+
+
 
     /**
      * Test persist.
@@ -39,7 +42,13 @@ public class ConstituencyTest extends AbstractTest {
     public final void testPersist() {
         List<District> list = new ArrayList<District>();
 
-        District d = District.findById(1L);
+        // persist State object
+        final State state = new State("testState");
+        state.persist();
+
+        // persist District object
+        District d = new District("testDistrict", state);
+        d.persist();
         list.add(d);
 
         Constituency c = new Constituency("Mumbai", "MH01", list, true, 2L,
@@ -58,9 +67,15 @@ public class ConstituencyTest extends AbstractTest {
     @Transactional
     public final void testUpdate() {
         List<District> list = new ArrayList<District>();
-        District d = District.findById(1L);
+        // persist State object
+        final State state = new State("testState");
+        state.persist();
 
+        // persist District object
+        District d = new District("testDistrict", state);
+        d.persist();
         list.add(d);
+
         Constituency c = new Constituency("Mumbai", "MH01", list, true, 2L,
                 "en");
         c.persist();
@@ -80,7 +95,13 @@ public class ConstituencyTest extends AbstractTest {
     @Transactional
     public final void testRemove() {
         List<District> list = new ArrayList<District>();
-        District d = District.findById(1L);
+        // persist State object
+        final State state = new State("testState");
+        state.persist();
+
+        // persist District object
+        District d = new District("testDistrict", state);
+        d.persist();
         list.add(d);
         Constituency c = new Constituency("Mumbai", "MH01", list, true, 2L,
                 "en");
@@ -100,7 +121,13 @@ public class ConstituencyTest extends AbstractTest {
     @Transactional
     public final void testFindByName() {
         List<District> list = new ArrayList<District>();
-        District d = District.findById(1L);
+        // persist State object
+        final State state = new State("testState");
+        state.persist();
+
+        // persist District object
+        District d = new District("testDistrict", state);
+        d.persist();
         list.add(d);
         Constituency c = new Constituency("Mumbai", "MH01", list, true, 2L,
                 "en");
@@ -119,7 +146,13 @@ public class ConstituencyTest extends AbstractTest {
     @Transactional
     public final void testFindById() {
         List<District> list = new ArrayList<District>();
-        District d = District.findById(1L);
+        // persist State object
+        final State state = new State("testState");
+        state.persist();
+
+        // persist District object
+        District d = new District("testDistrict", state);
+        d.persist();
         list.add(d);
         Constituency c = new Constituency("Mumbai", "MH01", list, true, 2L,
                 "en");
@@ -138,7 +171,13 @@ public class ConstituencyTest extends AbstractTest {
     @Transactional
     public final void testFindAll() {
         List<District> list = new ArrayList<District>();
-        District d = District.findById(1L);
+        // persist State object
+        final State state = new State("testState");
+        state.persist();
+
+        // persist District object
+        District d = new District("testDistrict", state);
+        d.persist();
         list.add(d);
         Constituency c = new Constituency("Mumbai", "MH01", list, true, 2L,
                 "en");
@@ -157,7 +196,13 @@ public class ConstituencyTest extends AbstractTest {
     @Transactional
     public final void testFindAllSorted() {
         List<District> list = new ArrayList<District>();
-        District d = District.findById(2L);
+        // persist State object
+        final State state = new State("testState");
+        state.persist();
+
+        // persist District object
+        District d = new District("testDistrict", state);
+        d.persist();
         list.add(d);
         Constituency c = new Constituency("Nagpur", "MH31", list, true, 2L,
                 "en");
@@ -175,7 +220,13 @@ public class ConstituencyTest extends AbstractTest {
     @Transactional
     public final void testFindConstituenciesStartingWith() {
         List<District> list = new ArrayList<District>();
-        District d = District.findById(2L);
+        // persist State object
+        final State state = new State("testState");
+        state.persist();
+
+        // persist District object
+        District d = new District("testDistrict", state);
+        d.persist();
         list.add(d);
         Constituency c = new Constituency("Nagpur", "MH31", list, true, 2L,
                 "en");
@@ -194,13 +245,20 @@ public class ConstituencyTest extends AbstractTest {
     @Transactional
     public final void testFindConstituenciesByDistrictId() {
         List<District> list = new ArrayList<District>();
-        District d = District.findById(2L);
+        // persist State object
+        final State state = new State("testState");
+        state.persist();
+
+        // persist District object
+        District d = new District("testDistrict", state);
+        d.persist();
         list.add(d);
         Constituency c = new Constituency("Nagpur", "MH31", list, true, 2L,
                 "en");
         c.persist();
         List<Constituency> dList = Constituency
-                .findConstituenciesByDistrictId(c.getDistricts().listIterator().next().getId());
+                .findConstituenciesByDistrictId(c.getDistricts().listIterator()
+                        .next().getId());
         Assert.assertEquals(true, dList.size() > 0);
     }
 
@@ -214,13 +272,20 @@ public class ConstituencyTest extends AbstractTest {
     @Transactional
     public final void testFindConstituenciesByDistrictName() {
         List<District> list = new ArrayList<District>();
-        District d = District.findById(2L);
+        // persist State object
+        final State state = new State("testState");
+        state.persist();
+
+        // persist District object
+        District d = new District("testDistrict", state);
+        d.persist();
         list.add(d);
         Constituency c = new Constituency("Nagpur", "MH31", list, true, 2L,
                 "en");
         c.persist();
         List<Constituency> cList = Constituency
-                .findConstituenciesByDistrictName(c.getDistricts().listIterator().next().getName());
+                .findConstituenciesByDistrictName(c.getDistricts()
+                        .listIterator().next().getName());
         Assert.assertEquals(true, cList.size() > 0);
     }
 
@@ -234,8 +299,14 @@ public class ConstituencyTest extends AbstractTest {
     @Transactional
     public final void testFindAllWithLocale() {
         List<District> list = new ArrayList<District>();
-        District d = District.findById(2L);
-        list.add(d);
+        // persist State object
+        final State state = new State("testState");
+        state.persist();
+
+        // persist District object
+        District district = new District("testDistrict", state);
+        district.persist();
+        list.add(district);
         Constituency c = new Constituency("Nagpur", "MH31", list, true, 2L,
                 "en");
         Constituency c2 = new Constituency("Mumbai", "MH01", list, true, 2L,
@@ -245,4 +316,5 @@ public class ConstituencyTest extends AbstractTest {
         List<Constituency> cList = Constituency.findAll("en");
         Assert.assertEquals(true, cList.size() > 0);
     }
+
 }
