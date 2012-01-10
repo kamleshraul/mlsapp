@@ -170,13 +170,15 @@ public class AssemblyNumber implements Serializable {
      * Persist.
      *
      * @author nileshp
+     * @return
      * @since v1.0.0
      * Persist.
      */
     @Transactional
-    public void persist() {
+    public AssemblyNumber persist() {
         assemblyNumberRepository.save(this);
         assemblyNumberRepository.flush();
+        return this;
     }
 
     /**
@@ -187,9 +189,10 @@ public class AssemblyNumber implements Serializable {
      * Update.
      */
     @Transactional
-    public void update() {
+    public AssemblyNumber update() {
         assemblyNumberRepository.merge(this);
         assemblyNumberRepository.flush();
+        return this;
     }
 
     /**

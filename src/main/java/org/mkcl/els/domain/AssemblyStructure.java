@@ -154,9 +154,10 @@ public class AssemblyStructure implements Serializable {
      * @since v1.0.0 Persist.
      */
     @Transactional
-    public void persist() {
+    public AssemblyStructure persist() {
         assemblyStructureRepository.save(this);
         assemblyStructureRepository.flush();
+        return this;
     }
 
     /**
@@ -166,9 +167,10 @@ public class AssemblyStructure implements Serializable {
      * @since v1.0.0 Update.
      */
     @Transactional
-    public void update() {
+    public AssemblyStructure update() {
         assemblyStructureRepository.merge(this);
         assemblyStructureRepository.flush();
+        return this;
     }
 
     /**
