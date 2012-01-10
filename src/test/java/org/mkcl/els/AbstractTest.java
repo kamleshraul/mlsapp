@@ -20,8 +20,9 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
  * @version v1.0.0
  */
 @RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration(locations = {"/spring/root-context.xml" })
-public class AbstractTest {
+@ContextConfiguration(locations = {"/spring/root-context.xml"})
+public abstract class AbstractTest {
+
 
 }
 
