@@ -10,6 +10,8 @@
 package org.mkcl.els;
 
 
+import java.util.List;
+
 import org.junit.Assert;
 import org.junit.Test;
 import org.mkcl.els.domain.AssemblyTerm;
@@ -45,10 +47,12 @@ public class AssemblyTermTest extends AbstractTest {
     @Transactional
     @Test
     public void testupdate() {
-        AssemblyTerm assemblyTerm = AssemblyTerm.findById(1L);
-        assemblyTerm.setTerm(23);
-        assemblyTerm.update();
-        Assert.assertNotNull("AssemblyTerm should not null", assemblyTerm);
+        AssemblyTerm assemblyTerm = new AssemblyTerm(3, 0L, "en");
+        assemblyTerm.persist();
+        AssemblyTerm assembly = AssemblyTerm.findById(assemblyTerm.getId());
+        assembly.setTerm(23);
+        assembly.update();
+        Assert.assertNotNull("AssemblyTerm should not null", assembly);
 
     }
 
@@ -61,8 +65,10 @@ public class AssemblyTermTest extends AbstractTest {
     @Transactional
     @Test
     public void testremove() {
-        AssemblyTerm assemblyTerm = AssemblyTerm.findById(1L);
-        assemblyTerm.remove();
+        AssemblyTerm assemblyTerm = new AssemblyTerm(3, 0L, "en");
+        assemblyTerm.persist();
+        AssemblyTerm assembly = AssemblyTerm.findById(assemblyTerm.getId());
+        assembly.remove();
     }
 
     /**
@@ -72,9 +78,12 @@ public class AssemblyTermTest extends AbstractTest {
      * @since v1.0.0
      */
     @Test
+    @Transactional
     public void testfindById() {
-        AssemblyTerm.findById(2L);
-
+        AssemblyTerm assemblyTerm = new AssemblyTerm(4, 0L, "en");
+        assemblyTerm.persist();
+        AssemblyTerm term = AssemblyTerm.findById(assemblyTerm.getId());
+        Assert.assertNotNull(term);
     }
 
     /**
@@ -85,7 +94,10 @@ public class AssemblyTermTest extends AbstractTest {
      */
     @Test
     public void testfindByAssemblyTerm() {
-        AssemblyTerm.findByAssemblyTerm(2);
+        AssemblyTerm term = new AssemblyTerm(2, 0L, "en");
+        term.persist();
+        AssemblyTerm assembly = AssemblyTerm.findByAssemblyTerm(term.getTerm());
+        Assert.assertNotNull(assembly);
     }
 
     /**
@@ -96,6 +108,11 @@ public class AssemblyTermTest extends AbstractTest {
      */
     @Test
     public void testfindAll() {
-        AssemblyTerm.findAll();
+        AssemblyTerm term = new AssemblyTerm(2, 0L, "en");
+        term.persist();
+        AssemblyTerm term1 = new AssemblyTerm(3, 0L, "en");
+        term1.persist();
+        List<AssemblyTerm> list = AssemblyTerm.findAll();
+        Assert.assertEquals(true, list.size() > 0);
     }
 }
