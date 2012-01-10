@@ -7,6 +7,7 @@
  * File: org.mkcl.els.GridServiceTest.java
  * Created On: Jan 10, 2012
  */
+
 package org.mkcl.els;
 
 import org.junit.Assert;
@@ -15,7 +16,6 @@ import org.mkcl.els.domain.Grid;
 import org.springframework.transaction.annotation.Transactional;
 
 
-// TODO: Auto-generated Javadoc
 /**
  * The Class GridServiceTest.
  *
