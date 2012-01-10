@@ -36,7 +36,8 @@ public class AssemblyTest extends AbstractTest {
     @Test
     @Transactional
     public final void testPersist() {
-        AssemblyStructure assemblyStructure = AssemblyStructure.findById(1L);
+        AssemblyStructure assemblyStructure = new AssemblyStructure("testAssemblyStru", "en");
+        assemblyStructure = assemblyStructure.persist();
         Assembly assembly = new Assembly(assemblyStructure, "testAssembly", 11,
                 "testTerm", true, false, false, false, "25/01/2012", "29/01/2012", "29/01/2012",
                 false, 0L, "en", 1L);
@@ -54,7 +55,8 @@ public class AssemblyTest extends AbstractTest {
     @Test
     @Transactional
     public final void testFindByAssembly() {
-        AssemblyStructure assemblyStructure = AssemblyStructure.findById(1L);
+        AssemblyStructure assemblyStructure = new AssemblyStructure("testAssemblyStru", "en");
+        assemblyStructure = assemblyStructure.persist();
         Assembly assembly = new Assembly(assemblyStructure, "testAssembly1", 11,
                 "testTerm", true, false, false, false, "25/01/2012", "29/01/2012", "29/01/2012",
                 true, 0L, "en", 1L);
@@ -73,7 +75,9 @@ public class AssemblyTest extends AbstractTest {
     @Test
     @Transactional
     public final void testFindCurrentAssembly() {
-        AssemblyStructure assemblyStructure = AssemblyStructure.findById(1L);
+        AssemblyStructure assemblyStructure = new AssemblyStructure("testAssemblyStru", "en");
+        assemblyStructure = assemblyStructure.persist();
+
         Assembly assembly = new Assembly(assemblyStructure, "testAssembly1", 11,
                 "testTerm", true, false, false, false, "25/01/2012", "29/01/2012", "29/01/2012",
                 true, 0L, "en", 1L);
@@ -92,7 +96,9 @@ public class AssemblyTest extends AbstractTest {
     @Test
     @Transactional
     public final void testFindAllSorted() {
-        AssemblyStructure assemblyStructure = AssemblyStructure.findById(1L);
+        AssemblyStructure assemblyStructure = new AssemblyStructure("testAssemblyStru", "en");
+        assemblyStructure = assemblyStructure.persist();
+
         Assembly assembly = new Assembly(assemblyStructure, "testAssembly1", 11,
                 "testTerm", true, false, false, false, "25/01/2012", "29/01/2012", "29/01/2012",
                 true, 0L, "en", 1L);
@@ -111,11 +117,14 @@ public class AssemblyTest extends AbstractTest {
     @Test
     @Transactional
     public final void testUpdatePreviousCurrentAssembly() {
-        AssemblyStructure assemblyStructure = AssemblyStructure.findById(1L);
+        AssemblyStructure assemblyStructure = new AssemblyStructure("testAssemblyStru", "en");
+        assemblyStructure = assemblyStructure.persist();
+
         Assembly assembly = new Assembly(assemblyStructure, "testAssembly1", 11,
                 "testTerm", true, false, false, false, "25/01/2012", "29/01/2012", "29/01/2012",
                 true, 0L, "en", 1L);
         assembly.persist();
+
         Assembly assembly1 = Assembly.findByAssembly("testAssembly1");
         assembly1.updatePreviousCurrentAssembly("en");
         Assert.assertNotNull("updated assembly data is :-  ", assembly1);
@@ -131,7 +140,9 @@ public class AssemblyTest extends AbstractTest {
     @Test
     @Transactional
     public final void testFindByIdAndUpdateAndRemove() {
-        AssemblyStructure assemblyStructure = AssemblyStructure.findById(1L);
+        AssemblyStructure assemblyStructure = new AssemblyStructure("testAssemblyStru", "en");
+        assemblyStructure = assemblyStructure.persist();
+
         Assembly assembly = new Assembly(assemblyStructure, "testAssembly1", 11,
                 "testTerm", true, false, false, false, "25/01/2012", "29/01/2012", "29/01/2012",
                 true, 0L, "en", 1L);
@@ -151,7 +162,9 @@ public class AssemblyTest extends AbstractTest {
     @Test
     @Transactional
     public final void testUpdate() {
-        AssemblyStructure assemblyStructure = AssemblyStructure.findById(1L);
+        AssemblyStructure assemblyStructure = new AssemblyStructure("testAssemblyStru", "en");
+        assemblyStructure = assemblyStructure.persist();
+
         Assembly assembly = new Assembly(assemblyStructure, "testAssembly1", 11,
                 "testTerm", true, false, false, false, "25/01/2012", "29/01/2012", "29/01/2012",
                 true, 0L, "en", 1L);
@@ -172,7 +185,9 @@ public class AssemblyTest extends AbstractTest {
     @Test
     @Transactional
     public final void testRemove() {
-        AssemblyStructure assemblyStructure = AssemblyStructure.findById(1L);
+        AssemblyStructure assemblyStructure = new AssemblyStructure("testAssemblyStru", "en");
+        assemblyStructure = assemblyStructure.persist();
+
         Assembly assembly = new Assembly(assemblyStructure, "testAssembly1", 11,
                 "testTerm", true, false, false, false, "25/01/2012", "29/01/2012", "29/01/2012",
                 true, 0L, "en", 1L);
