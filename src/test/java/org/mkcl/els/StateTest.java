@@ -17,7 +17,6 @@ import org.junit.Test;
 import org.mkcl.els.domain.State;
 import org.springframework.transaction.annotation.Transactional;
 
-
 /**
  * The Class StateTest.
  *
@@ -37,7 +36,6 @@ public class StateTest extends AbstractTest {
         Assert.assertNotNull("Saved state Data ", state);
     }
 
-
     /**
      * Test find all.
      */
@@ -51,16 +49,22 @@ public class StateTest extends AbstractTest {
      * Test find by id.
      */
     @Test
+    @Transactional
     public final void testFindById() {
-        final State state = State.findById(1L);
-        Assert.assertEquals("Maharashtra", state.getName());
+        final State statePersist = new State("Karnataka");
+        statePersist.persist();
+        final State state = State.findById(statePersist.getId());
+        Assert.assertEquals("Karnataka", state.getName());
     }
 
     /**
      * Test find by name.
      */
-    @Test (expected = NullPointerException.class)
+    @Test
+    @Transactional
     public final void testFindByName() {
+        final State statePersist = new State("Karnataka");
+        statePersist.persist();
         final State state = State.findByName("Karnataka");
         Assert.assertEquals("Karnataka", state.getName());
     }
@@ -71,8 +75,10 @@ public class StateTest extends AbstractTest {
     @Test
     @Transactional
     public final void testUpdateState() {
-        final State state = State.findById(1L);
-        state.setName("MaharashtraState");
+        final State statePersist = new State("Karnataka");
+        statePersist.persist();
+        final State state = State.findById(statePersist.getId());
+        state.setName("KarnatakaState");
         state.update();
         Assert.assertNotNull("updated state Data ", state);
     }
