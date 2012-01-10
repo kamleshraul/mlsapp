@@ -29,20 +29,23 @@ public class UserTest extends AbstractTest {
     @Transactional
     @Test
     public void testCreateUserWithAllParam() {
-        final User user = new User("abc", "abc", true, "fname", "mname",
-                "lname", "user@test.com", new Date());
-        User.getUserRepository().persist(user);
+        User user = new User("abc", "abc", true, "fname", "mname", "lname",
+                "user@test.com", new Date());
+        user = user.persist();
         Assert.assertNotNull("Saved User Data ", user);
     }
 
     /**
      * Test find by username where user exists.
      */
+    @Transactional
     @Test
     public void testFindByUsernameWhereUserExists() {
-        final String expectedResult = "vishals";
-        final User user = User.getUserRepository().findByUsername("vishals");
-        Assert.assertEquals(expectedResult, user.getUsername());
+        User user = new User("abc", "abc", true, "fname", "mname", "lname",
+                "user@test.com", new Date());
+        user = user.persist();
+        User user1 = User.findByUsername(user.getUsername());
+        Assert.assertNotNull("find User Data by username", user1);
     }
 
     /**
@@ -52,9 +55,12 @@ public class UserTest extends AbstractTest {
     @Test
     public void testChangePasswordOfUser() {
         final String changedPassword = "changeP";
-        final User user = User.getUserRepository().findByUsername("vishals");
-        user.setPassword(changedPassword);
-        user.update(user);
+        User user = new User("abc", "abc", true, "fname", "mname", "lname",
+                "user@test.com", new Date());
+        user = user.persist();
+        User user1 = User.findByUsername(user.getUsername());
+        user1.setPassword(changedPassword);
+        user.update(user1);
         Assert.assertNotNull("change password for User Data ", user);
     }
 }
