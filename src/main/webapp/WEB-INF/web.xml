@@ -6,6 +6,11 @@
 	<display-name>e-Legislature</display-name>
 	<!-- The definition of the Root Spring Container shared by all Servlets 
 		and Filters -->
+	<env-entry>
+		<env-entry-name>spring.profiles.active</env-entry-name>
+		<env-entry-type>java.lang.String</env-entry-type>
+		<env-entry-value>dev</env-entry-value>
+	</env-entry>
 	<context-param>
 		<param-name>contextConfigLocation</param-name>
 		<param-value>classpath:spring/root-context.xml</param-value>
@@ -26,27 +31,21 @@
 		</init-param>
 		<load-on-startup>1</load-on-startup>
 	</servlet>
-	
-	
+
 	<servlet>
-    <servlet-name>default</servlet-name>
-    <servlet-class>org.apache.catalina.servlets.DefaultServlet</servlet-class>
-    <init-param>
-      <param-name>debug</param-name>
-      <param-value>0</param-value>
-    </init-param>
-    <init-param>
-      <param-name>listings</param-name>
-      <param-value>false</param-value>
-    </init-param>
-    <load-on-startup>1</load-on-startup>
-  </servlet>
-	
-	
-	
-	
-	
-	
+		<servlet-name>default</servlet-name>
+		<servlet-class>org.apache.catalina.servlets.DefaultServlet</servlet-class>
+		<init-param>
+			<param-name>debug</param-name>
+			<param-value>0</param-value>
+		</init-param>
+		<init-param>
+			<param-name>listings</param-name>
+			<param-value>false</param-value>
+		</init-param>
+		<load-on-startup>1</load-on-startup>
+	</servlet>
+
 	<servlet-mapping>
 		<servlet-name>appServlet</servlet-name>
 		<url-pattern>/</url-pattern>
@@ -60,19 +59,19 @@
 		<servlet-name>default</servlet-name>
 		<url-pattern>*.js</url-pattern>
 	</servlet-mapping>
-		<servlet-mapping>
+	<servlet-mapping>
 		<servlet-name>default</servlet-name>
 		<url-pattern>*.swf</url-pattern>
 	</servlet-mapping>
-		<servlet-mapping>
+	<servlet-mapping>
 		<servlet-name>default</servlet-name>
 		<url-pattern>*.png</url-pattern>
 	</servlet-mapping>
-		<servlet-mapping>
+	<servlet-mapping>
 		<servlet-name>default</servlet-name>
 		<url-pattern>*.jpeg</url-pattern>
 	</servlet-mapping>
-		<servlet-mapping>
+	<servlet-mapping>
 		<servlet-name>default</servlet-name>
 		<url-pattern>*.jpg</url-pattern>
 	</servlet-mapping>
