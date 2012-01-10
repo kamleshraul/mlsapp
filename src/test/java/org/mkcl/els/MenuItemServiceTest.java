@@ -51,9 +51,12 @@ public class MenuItemServiceTest extends AbstractTest {
     @Test
     @Transactional
     public final void testUpdate() {
-        MenuItem menu = MenuItem.findById(4L);
-        menu.setText("Menu Updated");
-        Assert.assertNotNull("Data Updated", menu);
+        MenuItem menu = new MenuItem("mnu_admin_masters_msgresources",
+                "Message Resources", "messages/list", " ", 0);
+        menu.persist();
+        MenuItem menu1 = MenuItem.findById(menu.getId());
+        menu1.setText("Menu Updated");
+        Assert.assertNotNull("Data Updated", menu1);
     }
 
 
@@ -104,8 +107,8 @@ public class MenuItemServiceTest extends AbstractTest {
         MenuItem menu = new MenuItem("mnu_admin_masters_msgresources",
                 "Message Resources", "messages/list", " ", 0);
         menu.persist();
-        MenuItem item = MenuItem.findByTextKey("mnu_admin_masters_msgresources", "en");
-        Assert.assertNotNull(item);
+        MenuItem item = MenuItem.findByTextKey(menu.getTextKey(), menu.getLocale());
+        Assert.assertEquals("Message Resources", item.getText());
     }
 
 
@@ -127,26 +130,6 @@ public class MenuItemServiceTest extends AbstractTest {
         List<MenuItem> menuItem = MenuItem.findAll();
         Assert.assertEquals(true, menuItem.size() > 0);
     }
-
-    /**
-     * Test find all sorted.
-     *
-     * @author meenalw
-     * @since v1.0.0
-     */
-    @Test
-    @Transactional
-    public final void testFindAllSorted() {
-        MenuItem menu = new MenuItem("mnu_admin_masters_msgresources",
-                "Message Resources", "messages/list", " ", 0);
-        MenuItem menu1 = new MenuItem("mnu_admin_masters_menus",
-                "Menu", "menu/list", " ", 0);
-        menu.persist();
-        menu1.persist();
-        List<MenuItem> menuItem = MenuItem.findAllSorted("text", "en", false);
-        Assert.assertEquals(true, menuItem.size() > 0);
-    }
-
 
     /**
      * Test menu xml.
