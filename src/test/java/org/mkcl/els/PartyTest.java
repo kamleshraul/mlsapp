@@ -43,8 +43,12 @@ public class PartyTest extends AbstractTest {
     @Test
     @Transactional
     public final void testUpdateParty() {
-        Party party = Party.findById(2L);
+        Party list = new Party("Indian National", "IN", 2L, "en",
+                "DOC-80857458");
+        list.persist();
+        Party party = Party.findById(list.getId());
         party.setName("Indian National Congress");
+        party.setAbbreviation("INC");
         party.update();
         Assert.assertNotNull("Party data updated", party);
     }
