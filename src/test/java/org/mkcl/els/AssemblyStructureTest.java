@@ -67,9 +67,11 @@ public class AssemblyStructureTest extends AbstractTest {
      */
     @Test
     @Transactional
-    public final void testUpdateState() {
-        AssemblyStructure assemblyStructure = new AssemblyStructure("Unicameraltest", "en");
-        assemblyStructure.update();
+    public final void testUpdate() {
+        AssemblyStructure assemblyStructure = new AssemblyStructure("testAssemblyStructure", "en");
+        assemblyStructure = assemblyStructure.persist();
+        assemblyStructure.setName("testAssemblyStructure2");
+        assemblyStructure = assemblyStructure.update();
         Assert.assertNotNull("updated assemblyStructure Data ", assemblyStructure);
     }
 
@@ -81,10 +83,13 @@ public class AssemblyStructureTest extends AbstractTest {
      * Test find by name.
      */
     @Test
+    @Transactional
     public final void testFindByName() {
-        AssemblyStructure assemblyStructure =
-                AssemblyStructure.findByName("Unicameral");
-        Assert.assertNotNull(assemblyStructure);
+        AssemblyStructure assemblyStructure = new AssemblyStructure("testAssemblyStructure", "en");
+        assemblyStructure = assemblyStructure.persist();
+        AssemblyStructure assemblyStructure1 =
+                AssemblyStructure.findByName(assemblyStructure.getName());
+        Assert.assertNotNull(assemblyStructure1);
     }
 
     /**
@@ -95,10 +100,13 @@ public class AssemblyStructureTest extends AbstractTest {
      * Test find by name.
      */
     @Test
+    @Transactional
     public final void testFindById() {
-        AssemblyStructure assemblyStructure =
-                AssemblyStructure.findById(1L);
-        Assert.assertNotNull(assemblyStructure);
+        AssemblyStructure assemblyStructure = new AssemblyStructure("testAssemblyStructure", "en");
+        assemblyStructure = assemblyStructure.persist();
+        AssemblyStructure assemblyStructure1 =
+                AssemblyStructure.findById(assemblyStructure.getId());
+        Assert.assertNotNull(assemblyStructure1);
     }
 
 
@@ -110,7 +118,10 @@ public class AssemblyStructureTest extends AbstractTest {
      * Test find all sorted.
      */
     @Test
+    @Transactional
     public final void testFindAllSorted() {
+        AssemblyStructure assemblyStructure = new AssemblyStructure("testAssemblyStructure", "en");
+        assemblyStructure = assemblyStructure.persist();
         List<AssemblyStructure> listAssemblyStructures =
                 AssemblyStructure.findAllSorted("name", "en", false);
         Assert.assertNotNull(listAssemblyStructures);
