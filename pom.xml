@@ -2,9 +2,14 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 	<modelVersion>4.0.0</modelVersion>
+	<organization>
+		<name>MKCL</name>
+		<url>www.mkcl.org</url>
+	</organization>
 	<groupId>org.mkcl</groupId>
 	<artifactId>els</artifactId>
 	<name>e-Legislature</name>
+	<description>Development of eLegislature system</description>
 	<packaging>war</packaging>
 	<version>1.0.0-BUILD-SNAPSHOT</version>
 	<properties>
@@ -28,6 +33,99 @@
 			<url>file:///C:/Apache2.2/htdocs</url>
 		</site>
 	</distributionManagement>
+	<ciManagement>
+		<system>Atlassian Bamboo</system>
+		<url>http://build.mkcl.org</url>
+	</ciManagement>
+	<developers>
+		<developer>
+			<organization>MKCL</organization>
+			<name>Vishal Shinde</name>
+			<email>vishals@mkcl.org</email>
+			<roles>
+				<role>Sr.Project Manager</role>
+				<role>Developer</role>
+			</roles>
+		</developer>
+		<developer>
+			<organization>MKCL</organization>
+			<name>Himanshu Thakre</name>
+			<email>himanshut@mkcl.org</email>
+			<roles>
+				<role>Team Lead</role>
+				<role>Developer</role>
+			</roles>
+		</developer>
+		<developer>
+			<organization>MKCL</organization>
+			<name>Amit Bariar</name>
+			<email>amitb@mkcl.org</email>
+			<roles>
+				<role>Team Lead</role>
+				<role>Developer</role>
+			</roles>
+		</developer>
+		<developer>
+			<organization>MKCL</organization>
+			<name>Sujita Sheth</name>
+			<email>sujitas@mkcl.org</email>
+			<roles>
+				<role>Developer</role>
+			</roles>
+		</developer>
+		<developer>
+			<organization>MKCL</organization>
+			<name>Sandeep Singh</name>
+			<email>sandeepsi@mkcl.org</email>
+			<roles>
+				<role>Developer</role>
+			</roles>
+		</developer>
+		<developer>
+			<organization>MKCL</organization>
+			<name>Vijay Chauhan</name>
+			<email>vijayc@mkcl.org</email>
+			<roles>
+				<role>Developer</role>
+			</roles>
+		</developer>
+		<developer>
+			<organization>MKCL</organization>
+			<name>Nilesh Patil</name>
+			<email>nileshp@mkcl.org</email>
+			<roles>
+				<role>Developer</role>
+			</roles>
+		</developer>
+		<developer>
+			<organization>MKCL</organization>
+			<name>Meenal Walokar</name>
+			<email>meenalw@mkcl.org</email>
+			<roles>
+				<role>Developer</role>
+			</roles>
+		</developer>
+		<developer>
+			<organization>MKCL</organization>
+			<name>Samiksha Madame</name>
+			<email>samiksham@mkcl.org</email>
+			<roles>
+				<role>Developer</role>
+			</roles>
+		</developer>
+		<developer>
+			<organization>MKCL</organization>
+			<name>Anupam Narkede</name>
+			<email>anupamn@mkcl.org</email>
+			<roles>
+				<role>Business Analyst</role>
+			</roles>
+		</developer>
+	</developers>
+	<issueManagement>
+		<system>Jira</system>
+		<url>http://track.mkcl.org</url>
+	</issueManagement>
 	<dependencies>
 		<!-- Spring -->
 		<dependency>
@@ -254,11 +352,6 @@
 			<artifactId>commons-email</artifactId>
 			<version>1.2</version>
 		</dependency>
-		<dependency>
-			<groupId>velocity</groupId>
-			<artifactId>velocity</artifactId>
-			<version>1.5</version>
-		</dependency>
 		
 		<!-- This first dependency includes all the JPA implementations for the 
 			DAOs -->
@@ -363,9 +456,8 @@
 			<version>4.7</version>
 			<scope>test</scope>
 		</dependency>
-
-
 	</dependencies>
+	
 	<repositories>
 		<repository>
 			<id>org.springframework.maven.milestone</id>
@@ -374,13 +466,12 @@
 		</repository>
 		<repository>
 			<id>JBoss Repo</id>
-			<url>http://repository.jboss.com/maven2</url>
+			<url>http://repository.jboss.com/nexus/content/groups/public</url>
 		</repository>
 		<repository>
 			<id>common-spring-aspects</id>
 			<url>http://common-spring-aspects.googlecode.com/svn/maven2</url>
 		</repository>
-
 		<repository>
 			<id>Maven Central</id>
 			<url>http://repo1.maven.org/maven2</url>
@@ -400,10 +491,6 @@
     		<url>http://repo.springsource.org/release</url>
 		</repository>
 	</repositories>
-	<organization>
-		<name>MKCL</name>
-		<url>www.mkcl.org</url>
-	</organization>
 	<build>
 		<resources>
 			<resource>
@@ -478,8 +565,6 @@
 								<report>project-team</report>
 								<report>license</report>
 								<report>mailing-list</report>
-								<report>dependencies</report>
-								<report>dependency-convergence</report>
 								<report>plugin-management</report>
 								<report>cim</report>
 								<report>issue-tracking</report>
@@ -502,7 +587,7 @@
 							<artifactId>maven-checkstyle-plugin</artifactId>
 							<version>2.6</version>
 							<configuration>
-								<configLocation>${basedir}/src/main/resources/mkcl-egov.xml
+								<configLocation>${basedir}/src/main/resources/egov-checkstyle.xml
 								</configLocation>
 							</configuration>
 							<!-- <configuration> Adopt config location to your needs, or remove 
