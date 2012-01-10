@@ -30,7 +30,7 @@
 		<site>
 			<id>els</id>
 			<name>ELS Site</name>
-			<url>file:///C:/Apache2.2/htdocs</url>
+			<url>file:///C:/Apache2.2/htdocs/els</url>
 		</site>
 	</distributionManagement>
 	<ciManagement>
