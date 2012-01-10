@@ -48,10 +48,12 @@ public class AssemblyNumberTest extends AbstractTest {
     @Test
     @Transactional
     public final void testUpdate() {
-        AssemblyNumber assemblyNumber = AssemblyNumber.findByAssemblyNumber("1");
-        assemblyNumber.setAssemblyNo("11");
-        assemblyNumber.update();
-        Assert.assertNotNull("Updated assemblyNumber Data ", assemblyNumber);
+        AssemblyNumber assemblyNumber = new AssemblyNumber("11", 0L, "en");
+        assemblyNumber.persist();
+        AssemblyNumber assemblyNumber1 = AssemblyNumber.findByAssemblyNumber("11");
+        assemblyNumber1.setAssemblyNo("12");
+        assemblyNumber1.update();
+        Assert.assertNotNull("Updated assemblyNumber Data ", assemblyNumber1);
     }
 
     /**
@@ -64,22 +66,11 @@ public class AssemblyNumberTest extends AbstractTest {
     @Test
     @Transactional
     public final void testRemove() {
-        AssemblyNumber assemblyNumber = AssemblyNumber.findByAssemblyNumber("1");
-        assemblyNumber.remove();
-        Assert.assertNotNull("Removed assemblyNumber Data ", assemblyNumber);
-    }
-
-    /**
-     * Find by assembly number.
-     *
-     * @author nileshp
-     * @since v1.0.0
-     * Find by assembly number.
-     */
-    @Test
-    public final void testFindByAssemblyNumber() {
-        AssemblyNumber assemblyNumber = AssemblyNumber.findByAssemblyNumber("1");
-        Assert.assertNotNull("assemblyNumber is :- ", assemblyNumber);
+        AssemblyNumber assemblyNumber = new AssemblyNumber("11", 0L, "en");
+        assemblyNumber.persist();
+        AssemblyNumber assemblyNumber1 = AssemblyNumber.findByAssemblyNumber("11");
+        assemblyNumber1.remove();
+        Assert.assertNotNull("Removed assemblyNumber Data ", assemblyNumber1);
     }
 
     /**
@@ -91,7 +82,9 @@ public class AssemblyNumberTest extends AbstractTest {
      */
     @Test
     public final void testFindById() {
-        AssemblyNumber assemblyNumber = AssemblyNumber.findById(1L);
-        Assert.assertNotNull("assemblyNumber is :- ", assemblyNumber);
+        AssemblyNumber assemblyNumber = new AssemblyNumber("11", 0L, "en");
+        assemblyNumber = assemblyNumber.persist();
+        AssemblyNumber assemblyNumber1 = AssemblyNumber.findById(assemblyNumber.getId());
+        Assert.assertNotNull("assemblyNumber is :- ", assemblyNumber1);
     }
 }
