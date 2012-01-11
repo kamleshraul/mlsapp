@@ -9,14 +9,17 @@
  */
 package org.mkcl.els.domain;
 
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Table;
 
+import org.hibernate.validator.constraints.NotEmpty;
 import org.springframework.beans.factory.annotation.Configurable;
 
+// TODO: Auto-generated Javadoc
 /**
  * The Class MotionInformation.
  *
@@ -43,6 +46,31 @@ public class MotionInformation {
 
     /** The assembly date. */
     private String assemblyDate;
+
+    /** The locale. */
+    @Column(length = 50)
+    @NotEmpty
+    private String locale;
+
+
+    /**
+     * Gets the locale.
+     *
+     * @return the locale
+     */
+    public String getLocale() {
+        return locale;
+    }
+
+
+    /**
+     * Sets the locale.
+     *
+     * @param locale the new locale
+     */
+    public void setLocale(final String locale) {
+        this.locale = locale;
+    }
 
     /**
      * Gets the assembly.
