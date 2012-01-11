@@ -9,6 +9,8 @@
  */
 package org.mkcl.els.controller;
 
+import java.util.Locale;
+
 import org.mkcl.els.domain.Grid;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
@@ -38,6 +40,23 @@ public class MotionInformationController extends BaseController {
         Grid grid = Grid.findByName("MEMBER_DETAIL_GRID");
         model.addAttribute("gridId", grid.getId());
         return "motion_information/assembly/list";
+    }
+
+    /**
+     * New form.
+     *
+     * @param model the model
+     * @param errors the errors
+     * @param locale the locale
+     * @return the string
+     * @author nileshp
+     * @since v1.0.0
+     */
+    @RequestMapping(value = "new", method = RequestMethod.GET)
+    public String newForm(final ModelMap model,
+                          final Error errors,
+                          final Locale locale) {
+       return "motion_information/assembly/new";
     }
 
 }
