@@ -8,12 +8,12 @@
 	<div>
 	<div class="commandbar">
 		<div class="commandbarContent">
-			<a href="member_personal_details/new" id="new_record">
+			<a href="motion_information/new" id="new_record">
 				<spring:message code="generic.new" text="New"/>
 			</a> |
-			<a href="member_personal_details" id="delete_record">
+			<a href="motion_information" id="delete_record">
 				<spring:message code="generic.delete" text="Delete"/>
-			</a>  |
+			</a> |
 		</div>
 	</div>
 	<%@ include file="/common/gridview.jsp" %>
