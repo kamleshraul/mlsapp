@@ -43,19 +43,16 @@
 			<div>
 			<select>
 				<option value="">उन्हाळी</option>
-				<option value=""></option>
-				<option value=""></option>
-				<option value=""></option>
-			</select>
+				<option value="">हिवाळी</option>
+				<option value="">बजट</option>
+	 		</select>
 			</div>
 		</span>
-				
 		<span>
-		<label><spring:message code="member_personal_details.lastName" text="Last Name"/><span><spring:message code="${fields.lastName.hint}" text=""/></span>&nbsp;<c:if test="${fields.lastName.mandatory=='MANDATORY'}">*</c:if></label>
-		<form:input cssClass="field text ${fields.lastName.mandatory}" path="lastName"/><form:errors path="lastName" cssClass="field_error" /><span id="lastNameError"></span>	
+		<label>दिनांक&nbsp;</label>
+		<form:input cssClass="field text" path="date"/>
 		</span>
 		</li>
-		
 		</ul>
 		</div>
 	<input id="saveForm" class="btTxt" type="submit" value="Submit" />
