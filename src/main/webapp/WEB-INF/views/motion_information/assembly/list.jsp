@@ -16,7 +16,10 @@
 				<spring:message code="generic.delete" text="Delete"/>
 			</a> |
 			<a href="motion_assembly/print" id="print_record"> Print
-				
+			</a> |
+			<a href="motion_assembly/print" id="print_record"> Report
+			</a> |
+			<a href="motion_assembly/print" id="print_record"> Statistics
 			</a> 
 		</div>
 	</div>
