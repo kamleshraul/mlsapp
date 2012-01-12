@@ -15,6 +15,9 @@
 			<a href="motion_assembly" id="delete_record">
 				<spring:message code="generic.delete" text="Delete"/>
 			</a> |
+			<a href="motion_assembly/print" id="print_record"> Print
+				
+			</a> 
 		</div>
 	</div>
 	<%@ include file="/common/gridview.jsp" %>
