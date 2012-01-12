@@ -24,10 +24,9 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 
-// TODO: Auto-generated Javadoc
 /**
  * The Class MotionAssemblyController.
- * 
+ *
  * @author sujitas
  * @since v1.0.0
  */
@@ -37,7 +36,7 @@ public class MotionAssemblyController extends BaseController {
 
     /**
      * Index.
-     * 
+     *
      * @param model the model
      * @return the string
      * @author nileshp
@@ -52,7 +51,7 @@ public class MotionAssemblyController extends BaseController {
 
     /**
      * New form.
-     * 
+     *
      * @param model the model
      * @param errors the errors
      * @param locale the locale
@@ -72,7 +71,7 @@ public class MotionAssemblyController extends BaseController {
 
     /**
      * Edits the form.
-     * 
+     *
      * @param model the model
      * @param errors the errors
      * @param locale the locale
@@ -85,6 +84,7 @@ public class MotionAssemblyController extends BaseController {
                            final Error errors,
                            final Locale locale) {
         MotionInformation motionInformation = new MotionInformation();
+        motionInformation.setId(1L);
         model.addAttribute("motionInformation", motionInformation);
 
         return "motion_information/assembly/edit";
@@ -92,7 +92,7 @@ public class MotionAssemblyController extends BaseController {
 
     /**
      * Creates the.
-     * 
+     *
      * @param motionInformation the motion information
      * @param result the result
      * @param model the model
@@ -122,7 +122,7 @@ public class MotionAssemblyController extends BaseController {
 
     /**
      * Update.
-     * 
+     *
      * @param motionInformation the motion information
      * @param result the result
      * @param model the model

@@ -50,6 +50,7 @@ public class MotionInformationController extends BaseController {
                           final Error errors,
                           final Locale locale) {
         MotionInformation motionInformation = new MotionInformation();
+        motionInformation.setId(1L);
         model.addAttribute("motionInformation", motionInformation);
 
        return "motion_information/motion/edit";
