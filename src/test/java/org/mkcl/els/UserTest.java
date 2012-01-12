@@ -63,4 +63,45 @@ public class UserTest extends AbstractTest {
         user.update(user1);
         Assert.assertNotNull("change password for User Data ", user);
     }
+
+    /**
+     * Test find user by email.
+     */
+    @Transactional
+    @Test
+    public void testFindUserByEmail() {
+        String expectedResult = "user@test.com";
+        User user = new User("abc", "abc", true, "fname", "mname", "lname",
+                "user@test.com", new Date());
+        user = user.persist();
+        User user1 = User.findByEmail(user.getEmail());
+        Assert.assertEquals(expectedResult, user1.getEmail());
+    }
+
+    /**
+     * Test find user by first name.
+     */
+    @Transactional
+    @Test
+    public void testFindUserByFirstName() {
+        User user = new User("abc", "abc", true, "fname", "mname", "lname",
+                "user@test.com", new Date());
+        user = user.persist();
+        User user1 = User.getUserRepository().findByFirstName(user.getFirstName());
+        Assert.assertNotNull("find user by first name", user1);
+    }
+
+    /**
+     * Test find user by last name.
+     */
+    @Transactional
+    @Test
+    public void testFindUserByLastName() {
+        User user = new User("abc", "abc", true, "fname", "mname", "lname",
+                "user@test.com", new Date());
+        user = user.persist();
+        User user1 = User.getUserRepository().findByLastName(user.getLastName());
+        Assert.assertNotNull("find user by last name", user1);
+
+    }
 }
