@@ -35,31 +35,39 @@
 		 <li>
 		 <span>
 		 	<label class="desc">Submission Date &nbsp;</label>
-	  	 	<form:input cssClass="field date" path="submissionDate"/>
+	  	 	<form:input cssClass="date field text medium" path="submissionDate"/>
 		 </span>	
 		 </li>
 		 	
 		<li>
 			<label class="desc">Submission Time &nbsp;</label>		
 			<form:input cssClass="field text" path="submissionTime"/>
+		</li>
+		 <li>
 		<span>
-			<label>Motion Subject&nbsp;</label>
+			<label class="desc">Motion Subject&nbsp;</label>
 			<form:input cssClass="field text" path="motionSubject"/>	
 		</span>
+		</li>
+		<li>
 		<span>
-			<label>Motion Text&nbsp;</label>
+			<label class="desc">Motion Text&nbsp;</label>
 			<form:input cssClass="field text" path="motionText"/>
 		</span>
-		<span>
-		<label>Supporting Members &nbsp;</label>
+		</li>
+		<li>
+		<label class="desc">Supporting Members &nbsp;</label>
+			<div>
 				<form:select cssClass="field select medium" path="supportingMembers"> 
 					<form:option value="Home Affairs">Member one</form:option>
 					<form:option value="Forests">Member Two</form:option>
 					<form:option value="Agriculture">Three</form:option>
 				</form:select>
-		</span>
+			</div>
+		</li>
+		<li>
 		<span>
-			<label>Is Admitted &nbsp;</label>
+			<label class="desc">Is Admitted &nbsp;</label>
 			<form:checkbox cssClass="field text" path="isAdmitted" value="true" id="isAdmitted"/>	
 		</span>
 		</li>
@@ -69,9 +77,10 @@
 			<label class="desc">Is Discussed &nbsp;</label>	
 			<form:checkbox cssClass="field text" path="isDiscussed" value="true" id="isDiscussed"/>
 		</span>
-		
+		</li>
+		<li>
 		<span>
-			<label>Date of Discussion</label>
+			<label class="desc">Date of Discussion</label>
 			<form:input cssClass="field date" path="dateOfDiscussion" value="true" id="dateOfDiscussion"/>
 		</span>
 		</li>
