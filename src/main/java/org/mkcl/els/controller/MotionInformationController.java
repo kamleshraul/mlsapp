@@ -12,11 +12,13 @@ package org.mkcl.els.controller;
 import java.util.Locale;
 
 import org.mkcl.els.domain.Grid;
+import org.mkcl.els.domain.MotionInformation;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 
+// TODO: Auto-generated Javadoc
 /**
  * The Class MotionInformationController.
  *
@@ -37,7 +39,7 @@ public class MotionInformationController extends BaseController {
      */
     @RequestMapping(value = "list", method = RequestMethod.GET)
     public String index(final ModelMap model) {
-        Grid grid = Grid.findByName("MEMBER_DETAIL_GRID");
+        Grid grid = Grid.findByName("MOIS_GRID");
         model.addAttribute("gridId", grid.getId());
         return "motion_information/assembly/list";
     }
@@ -53,10 +55,32 @@ public class MotionInformationController extends BaseController {
      * @since v1.0.0
      */
     @RequestMapping(value = "new", method = RequestMethod.GET)
-    public String newForm(final ModelMap model,
+    public String newForm( final ModelMap model,
                           final Error errors,
                           final Locale locale) {
+        MotionInformation motionInformation = new MotionInformation();
+        model.addAttribute("motionInformation", motionInformation);
+
        return "motion_information/assembly/new";
     }
 
+    /**
+     * Edits the form.
+     *
+     * @param model the model
+     * @param errors the errors
+     * @param locale the locale
+     * @return the string
+     * @author sujitas
+     * @since v1.0.0
+     */
+    @RequestMapping(value = "{id}/edit", method = RequestMethod.GET)
+    public String editForm( final ModelMap model,
+                          final Error errors,
+                          final Locale locale) {
+        MotionInformation motionInformation = new MotionInformation();
+        model.addAttribute("motionInformation", motionInformation);
+
+       return "motion_information/motion/new";
+    }
 }
