@@ -81,6 +81,6 @@ public class MotionInformationController extends BaseController {
         MotionInformation motionInformation = new MotionInformation();
         model.addAttribute("motionInformation", motionInformation);
 
-       return "motion_information/motion/new";
+       return "motion_information/motion/edit";
     }
 }
