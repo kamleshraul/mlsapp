@@ -24,9 +24,10 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 
+// TODO: Auto-generated Javadoc
 /**
  * The Class MotionAssemblyController.
- *
+ * 
  * @author sujitas
  * @since v1.0.0
  */
@@ -36,7 +37,7 @@ public class MotionAssemblyController extends BaseController {
 
     /**
      * Index.
-     *
+     * 
      * @param model the model
      * @return the string
      * @author nileshp
@@ -51,7 +52,7 @@ public class MotionAssemblyController extends BaseController {
 
     /**
      * New form.
-     *
+     * 
      * @param model the model
      * @param errors the errors
      * @param locale the locale
@@ -71,7 +72,7 @@ public class MotionAssemblyController extends BaseController {
 
     /**
      * Edits the form.
-     *
+     * 
      * @param model the model
      * @param errors the errors
      * @param locale the locale
@@ -91,7 +92,7 @@ public class MotionAssemblyController extends BaseController {
 
     /**
      * Creates the.
-     *
+     * 
      * @param motionInformation the motion information
      * @param result the result
      * @param model the model
@@ -121,7 +122,7 @@ public class MotionAssemblyController extends BaseController {
 
     /**
      * Update.
-     *
+     * 
      * @param motionInformation the motion information
      * @param result the result
      * @param model the model
@@ -131,7 +132,8 @@ public class MotionAssemblyController extends BaseController {
      * @since v1.0.0
      */
     @RequestMapping(method = RequestMethod.PUT)
-    public String update(@Valid @ModelAttribute("motionInformation") final MotionInformation motionInformation,
+    public String update(@Valid @ModelAttribute("motionInformation")
+    final MotionInformation motionInformation,
                          final BindingResult result,
                          final ModelMap model,
                          final HttpServletRequest request) {
@@ -142,10 +144,29 @@ public class MotionAssemblyController extends BaseController {
                 .toLowerCase().equals("progressive")) {
             return "redirect:/motion_information/" + motionInformation.getId()
                     + "/edit?type=success&msg=create_success";
-        }
-        else {
+        } else {
             return "redirect:motion_assembly/" + motionInformation.getId()
                     + "/edit?type=success&msg=create_success";
         }
+    }
+
+    /**
+     * Prints the form.
+     *
+     * @param model the model
+     * @param errors the errors
+     * @param locale the locale
+     * @return the string
+     * @author meenalw
+     * @since v1.0.0
+     */
+    @RequestMapping(value = "print", method = RequestMethod.GET)
+    public String printForm(final ModelMap model,
+                            final Error errors,
+                            final Locale locale) {
+        MotionInformation motionInformation = new MotionInformation();
+        model.addAttribute("motionInformation", motionInformation);
+
+        return "motion_information/motion/print";
     }
 }
