@@ -21,6 +21,12 @@
 	<div id="positionContentDiv">
 	<ul>	
 		<li>
+		<label class="desc">"सूचना क्रमांक"&nbsp;</label>
+			<div>
+				<form:input cssClass="field text medium" path="id" readonly="true" cssStyle="width:260px"/>
+			</div>
+		</li>
+		<li>
 		<label class="desc">सूचना प्रकार &nbsp;</label>
 			<div>
 				<form:select cssClass="field select medium" path="motionType"> 
@@ -39,7 +45,7 @@
 		<li>
 		 <span>
 		 	<label class="desc">वर्ष &nbsp;</label>
-	  	 	<form:input cssClass="field date" path="year" maxlength="4"/>
+	  	 	<form:input cssClass="field date" path="year" maxlength="4" cssStyle="width:260px"/>
 		 </span>	
 		 </li>
 		<li>
@@ -55,13 +61,13 @@
 		<li>
 		<span>
 		<label class="desc">दिनांक&nbsp;</label>
-		<form:input cssClass="date field text medium" path="assemblyDate"/>
+		<form:input cssClass="date field text medium" path="assemblyDate" cssStyle="width:260px"/>
 		</span>
 		</li>
 				
 		</ul>
 		</div>
-		<input id="saveForm" class="btTxt" type="submit" value="प्रस्तुत" />
+		<input id="saveForm" class="btTxt" type="submit" value="सेव करणे" />
 		
 	<form:hidden path="id"/>
 	<form:hidden path="version"/>

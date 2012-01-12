@@ -39,7 +39,7 @@
 		<li>
 		 <span>
 		 	<label class="desc">वर्ष &nbsp;</label>
-	  	 	<form:input cssClass="field date" path="year" maxlength="4"/>
+	  	 	<form:input cssClass="field date" path="year" maxlength="4" cssStyle="width:260px"/>
 		 </span>	
 		 </li>
 		<li>
@@ -55,13 +55,13 @@
 		<li>
 		<span>
 		<label class="desc">दिनांक&nbsp;</label>
-		<form:input cssClass="date field text medium" path="assemblyDate"/>
+		<form:input cssClass="date field text medium" path="assemblyDate" cssStyle="width:260px"/>
 		</span>
 		</li>
 				
 		</ul>
 		</div>
-		<input id="saveForm" class="btTxt" type="submit" value="प्रस्तुत" />
+		<input id="saveForm" class="btTxt" type="submit" value="सेव करणे" />
 		
 	<form:hidden path="id"/>
 	<form:hidden path="version"/>

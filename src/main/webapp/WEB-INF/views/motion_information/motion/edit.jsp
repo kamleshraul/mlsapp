@@ -20,73 +20,94 @@
 	</div>
 	<div id="positionContentDiv">
 	<ul>	
-					
 		<li>
-		<label class="desc">मंत्री/विभाग &nbsp;</label>
+		<label class="desc">"सूचना क्रमांक"&nbsp;</label>
 			<div>
-				<form:select cssClass="field select medium" path="department"> 
-					<form:option value="Home Affairs">Home Affairs</form:option>
-					<form:option value="Forests">Forests</form:option>
-					<form:option value="Agriculture">Agriculture</form:option>
-				</form:select>
+				<form:input cssClass="field text medium" path="id" readonly="true" cssStyle="width:260px"/>
 			</div>
 		</li>
-			
 		 <li>
 		 <span>
 		 	<label class="desc">सूचना प्रस्तुती दिनांक &nbsp;</label>
-	  	 	<form:input cssClass="date field text medium" path="submissionDate"/>
+	  	 	<form:input cssClass="date field text medium" path="submissionDate" cssStyle="width:260px"/>
 		 </span>	
 		 </li>
 		 	
 		<li>
 			<label class="desc">सूचना प्रस्तुती वेळ &nbsp;</label>		
-			<form:input cssClass="field text" path="submissionTime"/>
+			<form:input cssClass="field text" path="submissionTime" cssStyle="width:260px"/>
 		</li>
+		
+		<li>
+		<label class="desc">मंत्री/विभाग &nbsp;</label>
+			<div>
+				<form:select cssClass="field select medium" path="department" cssStyle="width:260px"> 
+					<form:option value="Home Affairs">सिडको</form:option>
+					<form:option value="Home Affairs">पाणीपुरवठा व स्वच्छता</form:option>
+					<form:option value="Home Affairs">महाराष्ट्र औद्योगिक विकास महामंडळ</form:option>
+					<form:option value="Home Affairs">महाराष्ट्र राज्य रस्ते विकास महामंडळ</form:option>
+					<form:option value="Home Affairs">महाराष्ट्र पर्यटन विकास महामंडळ</form:option>
+					<form:option value="Home Affairs">कृषी</form:option>
+					<form:option value="Home Affairs">रोजगार व स्वयंरोजगार</form:option>
+					<form:option value="Home Affairs">शिक्षण विभाग</form:option>
+					<form:option value="Home Affairs">पर्यावरण</form:option>
+					<form:option value="Home Affairs">वित्त</form:option>
+					<form:option value="Home Affairs">वने व वन्यजीवन</form:option>
+					<form:option value="Home Affairs">सामान्य प्रशासन विभाग</form:option>
+					<form:option value="Home Affairs">वैद्यकीय शिक्षण</form:option>
+					<form:option value="Home Affairs">शिक्षण विभाग</form:option>
+				</form:select>
+			</div>
+		</li>
+		
 		 <li>
 		<span>
 			<label class="desc">सूचनेचा विषय&nbsp;</label>
-			<form:input cssClass="field text" path="motionSubject"/>	
+			<form:textarea cssClass="field textarea medium" path="motionSubject" rows="5" cols="70" cssStyle="width:500px"/>	
 		</span>
 		</li>
 		<li>
 		<span>
 			<label class="desc">सूचनेचा मजकूर&nbsp;</label>
-			<form:input cssClass="field text" path="motionText"/>
+			<form:textarea cssClass="field textarea medium" path="motionText" rows="7" cols="70" cssStyle="width:500px"/>
 		</span>
 		</li>
 		<li>
 		<label class="desc">सूचना देणारे सदस्य &nbsp;</label>
 			<div>
-				<form:select cssClass="field select medium" path="supportingMembers"> 
-					<form:option value="Home Affairs">Member one</form:option>
-					<form:option value="Forests">Member Two</form:option>
-					<form:option value="Agriculture">Three</form:option>
+				<form:select cssClass="field select medium" path="supportingMembers" cssStyle="width:260px"> 
+					<form:option value="1">श्री.प्रवीण परदेशी</form:option>
+					<form:option value="2">श्री. गौतम चटर्जी</form:option>
+					<form:option value="3">श्रीमती. मेधा गाडगीळ</form:option>
+					<form:option value="4">श्री. एस. जे कुंटे</form:option>
+					<form:option value="5">श्री. सुनील पोरवाल</form:option>
+					<form:option value="6">श्री. यशवंत गायकवाड</form:option>
+					<form:option value="7">श्री. उमेश सी. सारंगी</form:option>
 				</form:select>
 			</div>
 		</li>
 		<li>
-		<span>
-			<label class="desc">स्विकृत सूचना? &nbsp;</label>
+		<span style='display:inline;'>
+			<label class="desc" style='display:inline;'>स्विकृत सूचना? &nbsp;</label>
 			<form:checkbox cssClass="field text" path="isAdmitted" value="true" id="isAdmitted"/>	
 		</span>
 		</li>
 		
 		<li>
 		<span>
-			<label class="desc">चर्चित सूचना? &nbsp;</label>	
+			<label class="desc"  style='display:inline;'>चर्चित सूचना? &nbsp;</label>	
 			<form:checkbox cssClass="field text" path="isDiscussed" value="true" id="isDiscussed"/>
 		</span>
 		</li>
 		<li>
 		<span>
 			<label class="desc">सूचनेवरील चर्चेची तारीख</label>
-			<form:input cssClass="date field text medium" path="dateOfDiscussion" id="dateOfDiscussion"/>
+			<form:input cssClass="date field text medium" path="dateOfDiscussion" id="dateOfDiscussion" cssStyle="width:260px"/>
 		</span>
 		</li>
 	</ul>
 	</div>	
-	<input id="saveForm" class="btTxt" type="submit" value="प्रस्तुत" />
+	<input id="saveForm" class="btTxt" type="submit" value="सेव करणे" />
 	<form:hidden path="version"/>
 	<form:hidden path="id"/>	
 </form:form>
