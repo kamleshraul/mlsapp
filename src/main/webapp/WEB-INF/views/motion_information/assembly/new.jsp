@@ -20,36 +20,38 @@
 	</div>
 	<div id="positionContentDiv">
 	<ul>	
-					
 		<li>
-		<label class="desc">सूचना प्रकार&nbsp;*</label>
+		<label class="desc">सूचना प्रकार &nbsp;</label>
 			<div>
-			<select>
-				<option value="Adjournment Motion">स्थगन प्रस्ताव</option>
-				<option value="Calling Attention">लक्षवेधी सूचना</option>
-				<option value="Half an hour discussion">अर्धा-तास चर्चा</option>
-				<option value="Short Duration Discussion">अल्पकालीन चर्चा</option>
-			</select>
+				<form:select cssClass="field select medium" path="motionType"> 
+					<form:option value="Adjournment Motion">स्थगन प्रस्ताव</form:option>
+					<form:option value="Calling Attention">लक्षवेधी सूचना</form:option>
+					<form:option value="Half an hour discussion">अर्धा-तास चर्चा</form:option>
+					<form:option value="Short Duration Discussion">अल्पकालीन चर्चा</form:option>
+					<form:option value="Last Week Motion">अंतिम आठवडा प्रस्ताव</form:option>
+					<form:option value="No Day Yet Named Motion">अनियत दिन प्रस्ताव</form:option>
+					<form:option value="No Confidence Motion">मंत्रिमंडळावर अविश्वास व्यक्त करणारा प्रस्ताव</form:option>
+					<form:option value="Confidence Motion">मंत्रिमंडळावर विश्वास व्यक्त करणारा प्रस्ताव</form:option>
+					<form:option value="Removal of Speaker/ Dy. Speaker Motion">अध्यक्षांना/ उपाध्यक्षांना पदावरून दूर करण्यासंबंधीचा प्रस्ताव</form:option>
+				</form:select>
 			</div>
 		</li>
 		<li>
-		<span>
-		<label class="desc">वर्ष&nbsp;</label>
-		<input type="text" class="field text" name="year" maxlength="4"/>
-		</span>
-		</li>
-		
+		 <span>
+		 	<label class="desc">वर्ष &nbsp;</label>
+	  	 	<form:input cssClass="field date" path="year" maxlength="4"/>
+		 </span>	
+		 </li>
 		<li>
-		<span>
 		<label class="desc">सभा &nbsp;</label>
-			<select>
-				<option value="">उन्हाळी</option>
-				<option value="">हिवाळी</option>
-				<option value="">बजट</option>
-	 		</select>
-		</span>
-		</li>
-		
+			<div>
+				<form:select cssClass="field select medium" path="assembly"> 
+					<form:option value="Monsoon">उन्हाळी</form:option>
+					<form:option value="Winter">हिवाळी</form:option>
+					<form:option value="Budget">बजट</form:option>
+				</form:select>
+			</div>
+		</li>			
 		<li>
 		<span>
 		<label class="desc">दिनांक&nbsp;</label>
@@ -60,7 +62,9 @@
 		</ul>
 		</div>
 		<input id="saveForm" class="btTxt" type="submit" value="प्रस्तुत" />
+		
 	<form:hidden path="id"/>
+	<form:hidden path="version"/>
 </form:form>
 <script type="text/javascript">
 		$('document').ready(function(){
