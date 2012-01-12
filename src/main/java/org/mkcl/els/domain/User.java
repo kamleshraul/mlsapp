@@ -387,12 +387,60 @@ public class User implements Serializable {
      * @param username the username
      * @return the user
      */
-    @Transactional
+    @Transactional (readOnly = true)
     public static User findByUsername(final String username) {
         final User user = getUserRepository().findByUsername(username);
         if (user == null) {
             throw new RecordNotFoundException(
-                    "Error:Record was not found for user:" + username);
+                    "Error:Record was not found for user in findByUserName:" + username);
+        }
+        return user;
+    }
+
+    /**
+     * Find user by email.
+     *
+     * @param eMail the e mail
+     * @return the user
+     */
+    @Transactional (readOnly = true)
+    public static User findByEmail(final String eMail) {
+        final User user = getUserRepository().findByEmail(eMail);
+        if (user == null) {
+            throw new RecordNotFoundException(
+                    "Error:Record was not found for user in findByEmail:" + eMail);
+        }
+        return user;
+    }
+
+    /**
+     * Find user by first name.
+     *
+     * @param firstName the first name
+     * @return the user
+     */
+    @Transactional (readOnly = true)
+    public static User findByFirstName(final String firstName) {
+        final User user = getUserRepository().findByFirstName(firstName);
+        if (user == null) {
+            throw new RecordNotFoundException(
+                    "Error:Record was not found for user in findByFirstName:" + firstName);
+        }
+        return user;
+    }
+
+    /**
+     * Find user by last name.
+     *
+     * @param lastName the last name
+     * @return the user
+     */
+    @Transactional (readOnly = true)
+    public static User findByLastName(final String lastName) {
+        final User user = getUserRepository().findByLastName(lastName);
+        if (user == null) {
+            throw new RecordNotFoundException(
+                    "Error:Record was not found for user in findByLastName() :" + lastName);
         }
         return user;
     }
@@ -433,4 +481,5 @@ public class User implements Serializable {
         userRepository.flush();
         return this;
     }
+
 }
