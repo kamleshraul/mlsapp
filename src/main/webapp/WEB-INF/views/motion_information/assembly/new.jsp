@@ -10,13 +10,13 @@
 <body>
 <div class="commandbar">
 		<div class="commandbarContent">
-			<a  href="#" class="mois" id="motion_information">सभा विवरण</a> |
+			<a  href="#" class="mois" id="motion_assembly">सभा विवरण</a> |
 			<a  href="#" class="mois" id="motion_information">प्रस्ताव विवरण</a> 
 		</div>
 </div>	
-<form:form  action="motion_information" method="POST" modelAttribute="motionInformation" >
+<form:form  action="motion_assembly" method="POST" modelAttribute="motionInformation" >
 	<div class="info">
-		 <h2>प्रस्ताव सूचना प्रणाली </h2>		
+		 <h2>सभा विवरण </h2>		
 	</div>
 	<div id="positionContentDiv">
 	<ul>	
@@ -68,11 +68,10 @@
 </form:form>
 <script type="text/javascript">
 		$('document').ready(function(){
-			alert("hello");
 			$('.mois').click(function(event){
 				var id=1;
 				if(id!=undefined && id!=""){
-					$.get($(this).attr('id')+'/'+1+'/edit', function(data) {
+					$.get($(this).attr('id')+'/'+id+'/edit', function(data) {
 				  		$('#contentPanel').html(data);
 					});
 				}			
@@ -83,7 +82,7 @@
 			
 		    $(':input:visible:not([readonly]):first').focus();
 		    		 
-			$("form").submit(function(e){	
+			$("form").submit(function(e){
 				//e.preventDefault();			
 				var count=0;
 				$('.MANDATORY').each(function(){
@@ -93,7 +92,25 @@
 					return false;
 				}
 			});
+				if(count>0){
+					
+				}
+				else{
+					$.post($('form').attr('action'),  
+				            $("form").serialize(),  
+				            function(data){	
+			   				$('.contentPanel').html(data);	
+			   				$('#refresh').val($('#refreshSe').val());
+			   				if($('#info_type').val()=='success'){			   				
+				   	   	   		//$("#grid").trigger("reloadGrid");		   				
+							}						   				  					   						   					
+				            }                                         
+		            );  
+				}				
+				        return false;  
 			});
+			
+			
 		});
 </script>
 </body>

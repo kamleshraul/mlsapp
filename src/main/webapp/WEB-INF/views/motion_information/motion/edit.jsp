@@ -9,20 +9,20 @@
 <body>
 <div class="commandbar">
 		<div class="commandbarContent">
-			<a  href="#" class="mois" id="motion_information">सभा विवरण</a> |
+			<a  href="#" class="mois" id="motion_assembly">सभा विवरण</a> |
 			<a  href="#" class="mois" id="motion_information">सूचना विवरण</a> |
 		</div>
 </div>	
 <form:form  action="motion_information" method="POST" modelAttribute="motionInformation">
 	<div class="info">
-		 <h2>Motion Information System </h2>		
-		<div style="background-color:#C1CDCD; ;padding: 3px"><spring:message code="generic.mandatory.label" text="All fields marked * are mandatory"/></div>
+		 <h2>प्रस्ताव सूचना प्रणाली</h2>		
+		<%-- <div style="background-color:#C1CDCD; ;padding: 3px"><spring:message code="generic.mandatory.label" text="All fields marked * are mandatory"/></div> --%>
 	</div>
 	<div id="positionContentDiv">
 	<ul>	
 					
 		<li>
-		<label class="desc">Ministry /Department &nbsp;</label>
+		<label class="desc">मंत्री/विभाग &nbsp;</label>
 			<div>
 				<form:select cssClass="field select medium" path="department"> 
 					<form:option value="Home Affairs">Home Affairs</form:option>
@@ -34,29 +34,29 @@
 			
 		 <li>
 		 <span>
-		 	<label class="desc">Submission Date &nbsp;</label>
+		 	<label class="desc">सूचना प्रस्तुती दिनांक &nbsp;</label>
 	  	 	<form:input cssClass="date field text medium" path="submissionDate"/>
 		 </span>	
 		 </li>
 		 	
 		<li>
-			<label class="desc">Submission Time &nbsp;</label>		
+			<label class="desc">सूचना प्रस्तुती वेळ &nbsp;</label>		
 			<form:input cssClass="field text" path="submissionTime"/>
 		</li>
 		 <li>
 		<span>
-			<label class="desc">Motion Subject&nbsp;</label>
+			<label class="desc">सूचनेचा विषय&nbsp;</label>
 			<form:input cssClass="field text" path="motionSubject"/>	
 		</span>
 		</li>
 		<li>
 		<span>
-			<label class="desc">Motion Text&nbsp;</label>
+			<label class="desc">सूचनेचा मजकूर&nbsp;</label>
 			<form:input cssClass="field text" path="motionText"/>
 		</span>
 		</li>
 		<li>
-		<label class="desc">Supporting Members &nbsp;</label>
+		<label class="desc">सूचना देणारे सदस्य &nbsp;</label>
 			<div>
 				<form:select cssClass="field select medium" path="supportingMembers"> 
 					<form:option value="Home Affairs">Member one</form:option>
@@ -67,26 +67,26 @@
 		</li>
 		<li>
 		<span>
-			<label class="desc">Is Admitted &nbsp;</label>
+			<label class="desc">स्विकृत सूचना? &nbsp;</label>
 			<form:checkbox cssClass="field text" path="isAdmitted" value="true" id="isAdmitted"/>	
 		</span>
 		</li>
 		
 		<li>
 		<span>
-			<label class="desc">Is Discussed &nbsp;</label>	
+			<label class="desc">चर्चित सूचना? &nbsp;</label>	
 			<form:checkbox cssClass="field text" path="isDiscussed" value="true" id="isDiscussed"/>
 		</span>
 		</li>
 		<li>
 		<span>
-			<label class="desc">Date of Discussion</label>
-			<form:input cssClass="field date" path="dateOfDiscussion" value="true" id="dateOfDiscussion"/>
+			<label class="desc">सूचनेवरील चर्चेची तारीख</label>
+			<form:input cssClass="date field text medium" path="dateOfDiscussion" id="dateOfDiscussion"/>
 		</span>
 		</li>
 	</ul>
 	</div>	
-	<input id="saveForm" class="btTxt" type="submit" value="Submit" />
+	<input id="saveForm" class="btTxt" type="submit" value="प्रस्तुत" />
 	<form:hidden path="version"/>
 	<form:hidden path="id"/>	
 </form:form>
@@ -138,7 +138,7 @@
 			$('.mois').click(function(event){
 				var id=1;
 				if(id!=undefined && id!=""){
-					$.get($(this).attr('id')+'/'+1+'/edit', function(data) {
+					$.get($(this).attr('id')+'/'+id+'/edit', function(data) {
 				  		$('#contentPanel').html(data);
 					});
 				}			
