@@ -17,7 +17,6 @@ import java.util.Map;
 import javax.persistence.Query;
 
 import org.mkcl.els.common.vo.GridData;
-import org.mkcl.els.domain.CustomParameter;
 import org.mkcl.els.domain.Grid;
 import org.springframework.stereotype.Repository;
 
@@ -46,42 +45,42 @@ public class GridRepository extends BaseRepository<Grid, Long> {
      */
     public GridData getData(final Long gridId,
                             final Integer limit,
-                            final Integer page,
+                            Integer page,
                             final String sidx,
                             final String order) {
-       return getData(gridId, limit, page, sidx, order,
-               new Locale(CustomParameter.findByName("DEFAULT_LOCALE").getValue()));
+       /*return getData(gridId, limit, page, sidx, order,
+               new Locale(CustomParameter.findByName("DEFAULT_LOCALE").getValue()));*/
 
-//
-//        Grid grid = this.find(gridId);
-//
-//        String countSelect = grid.getCountQuery() + " ORDER BY " + sidx + " "
-//                + order;
-//        Query countQuery = this.em().createQuery(countSelect);
-//        Long count = (Long) countQuery.getSingleResult();
-//
-//        Integer total_pages = 0;
-//        if (count > 0) {
-//            total_pages = (int) Math.ceil((float) count / limit);
-//        }
-//
-//        if (page > total_pages) {
-//            page = total_pages;
-//        }
-//
-//        int start = (limit * page - limit);
-//        if (start < 0) {
-//            start = 0;
-//        }
-//
-//        String select = grid.getQuery() + " ORDER BY " + sidx + " " + order;
-//        Query query = this.em().createQuery(select);
-//        query.setFirstResult(start);
-//        query.setMaxResults(limit);
-//        List<Map<String, Object>> records = query.getResultList();
-//
-//        GridData gridVO = new GridData(page, limit, count, records);
-//        return gridVO;
+
+        Grid grid = this.find(gridId);
+
+        String countSelect = grid.getCountQuery() + " ORDER BY " + sidx + " "
+                + order;
+        Query countQuery = this.em().createQuery(countSelect);
+        Long count = (Long) countQuery.getSingleResult();
+
+        Integer total_pages = 0;
+        if (count > 0) {
+            total_pages = (int) Math.ceil((float) count / limit);
+        }
+
+        if (page > total_pages) {
+            page = total_pages;
+        }
+
+        int start = (limit * page - limit);
+        if (start < 0) {
+            start = 0;
+        }
+
+        String select = grid.getQuery() + " ORDER BY " + sidx + " " + order;
+        Query query = this.em().createQuery(select);
+        query.setFirstResult(start);
+        query.setMaxResults(limit);
+        List<Map<String, Object>> records = query.getResultList();
+
+        GridData gridVO = new GridData(page, limit, count, records);
+        return gridVO;
     }
 
     /**
