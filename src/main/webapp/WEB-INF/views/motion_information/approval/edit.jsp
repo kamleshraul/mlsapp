@@ -16,7 +16,11 @@
 		<li>
 		<span>
 			<label class="desc">सूचनेचा मजकूर&nbsp;</label>
-			<input type="textarea" cssClass="field textarea medium" rows="7" cols="70" cssStyle="width:500px"/>
+			<select cssClass="field select medium" cssStyle="width:260px"> 
+					<option value="1">Tax</option>
+					<option value="2">Budget</option>
+					<option value="3">Corruption</option>
+			</select>
 		</span>
 		</li>
 		<li>
@@ -44,7 +48,7 @@
 		</li>
 		</ul>
 </div>
-<input id="saveForm" class="btTxt" type="submit" value="सेव करणे" />
+<input id="saveForm" class="btTxt" type="submit" value="Send for Approval" />
 
 </form:form>
 </body>
