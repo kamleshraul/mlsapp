@@ -17,10 +17,10 @@
 			</a> |
 			<a href="motion_assembly/print" id="print_record"> Print
 			</a> |
-			<a href="motion_assembly/print" id="print_record"> Report
+			<a href="#" id="report"> Report
 			</a> |
-			<a href="motion_assembly/print" id="print_record"> Statistics
-			</a> 
+			<a href="#" id="statistics"> Statistics
+			</a>
 		</div>
 	</div>
 	<%@ include file="/common/gridview.jsp" %>

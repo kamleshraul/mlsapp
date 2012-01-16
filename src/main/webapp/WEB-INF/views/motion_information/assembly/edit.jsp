@@ -23,7 +23,7 @@
 		<li>
 		<label class="desc">"सूचना क्रमांक"&nbsp;</label>
 			<div>
-				<form:input cssClass="field text medium" path="id" readonly="true" cssStyle="width:260px"/>
+				<form:input cssClass="field text medium" path="id" readonly="true"/>
 			</div>
 		</li>
 		<li>
@@ -45,7 +45,7 @@
 		<li>
 		 <span>
 		 	<label class="desc">वर्ष &nbsp;</label>
-	  	 	<form:input cssClass="field date" path="year" maxlength="4" cssStyle="width:260px"/>
+	  	 	<form:input cssClass="field date" path="year" maxlength="4"/>
 		 </span>	
 		 </li>
 		<li>
@@ -61,7 +61,7 @@
 		<li>
 		<span>
 		<label class="desc">दिनांक&nbsp;</label>
-		<form:input cssClass="date field text medium" path="assemblyDate" cssStyle="width:260px"/>
+		<form:input cssClass="date field text medium" path="assemblyDate"/>
 		</span>
 		</li>
 				

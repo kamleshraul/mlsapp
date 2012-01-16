@@ -39,7 +39,7 @@
 		<li>
 		 <span>
 		 	<label class="desc">वर्ष &nbsp;</label>
-	  	 	<form:input cssClass="field date" path="year" maxlength="4" cssStyle="width:260px"/>
+	  	 	<form:input cssClass="field date" path="year" maxlength="4"/>
 		 </span>	
 		 </li>
 		<li>
@@ -55,7 +55,7 @@
 		<li>
 		<span>
 		<label class="desc">दिनांक&nbsp;</label>
-		<form:input cssClass="date field text medium" path="assemblyDate" cssStyle="width:260px"/>
+		<form:input cssClass="date field text medium" path="assemblyDate"/>
 		</span>
 		</li>
 				

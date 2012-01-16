@@ -23,25 +23,25 @@
 		<li>
 		<label class="desc">"सूचना क्रमांक"&nbsp;</label>
 			<div>
-				<form:input cssClass="field text medium" path="id" readonly="true" cssStyle="width:260px"/>
+				<form:input cssClass="field text medium" path="id" readonly="true"/>
 			</div>
 		</li>
 		 <li>
 		 <span>
 		 	<label class="desc">सूचना प्रस्तुती दिनांक &nbsp;</label>
-	  	 	<form:input cssClass="date field text medium" path="submissionDate" cssStyle="width:260px"/>
+	  	 	<form:input cssClass="date field text medium" path="submissionDate"/>
 		 </span>	
 		 </li>
 		 	
 		<li>
 			<label class="desc">सूचना प्रस्तुती वेळ &nbsp;</label>		
-			<form:input cssClass="field text" path="submissionTime" cssStyle="width:260px"/>
+			<form:input cssClass="field text" path="submissionTime"/>
 		</li>
 		
 		<li>
 		<label class="desc">मंत्री/विभाग &nbsp;</label>
 			<div>
-				<form:select cssClass="field select medium" path="department" cssStyle="width:260px"> 
+				<form:select cssClass="field select medium" path="department"> 
 					<form:option value="Home Affairs">सिडको</form:option>
 					<form:option value="Home Affairs">पाणीपुरवठा व स्वच्छता</form:option>
 					<form:option value="Home Affairs">महाराष्ट्र औद्योगिक विकास महामंडळ</form:option>
@@ -63,19 +63,19 @@
 		 <li>
 		<span>
 			<label class="desc">सूचनेचा विषय&nbsp;</label>
-			<form:textarea cssClass="field textarea medium" path="motionSubject" rows="5" cols="70" cssStyle="width:500px"/>	
+			<form:textarea cssClass="field textarea medium" path="motionSubject" rows="5" cols="70"/>	
 		</span>
 		</li>
 		<li>
 		<span>
 			<label class="desc">सूचनेचा मजकूर&nbsp;</label>
-			<form:textarea cssClass="field textarea medium" path="motionText" rows="7" cols="70" cssStyle="width:500px"/>
+			<form:textarea cssClass="field textarea medium" path="motionText" rows="7" cols="70"/>
 		</span>
 		</li>
 		<li>
 		<label class="desc">सूचना देणारे सदस्य &nbsp;</label>
 			<div>
-				<form:select cssClass="field select medium" path="supportingMembers" cssStyle="width:260px"> 
+				<form:select cssClass="field select medium" path="supportingMembers" multiple="multiple"> 
 					<form:option value="1">श्री.प्रवीण परदेशी</form:option>
 					<form:option value="2">श्री. गौतम चटर्जी</form:option>
 					<form:option value="3">श्रीमती. मेधा गाडगीळ</form:option>
@@ -87,22 +87,22 @@
 			</div>
 		</li>
 		<li>
-		<span style='display:inline;'>
-			<label class="desc" style='display:inline;'>स्विकृत सूचना? &nbsp;</label>
+		<span>
+			<label class="desc">स्विकृत सूचना? &nbsp;</label>
 			<form:checkbox cssClass="field text" path="isAdmitted" value="true" id="isAdmitted"/>	
 		</span>
 		</li>
 		
 		<li>
 		<span>
-			<label class="desc"  style='display:inline;'>चर्चित सूचना? &nbsp;</label>	
+			<label class="desc">चर्चित सूचना? &nbsp;</label>	
 			<form:checkbox cssClass="field text" path="isDiscussed" value="true" id="isDiscussed"/>
 		</span>
 		</li>
 		<li>
 		<span>
 			<label class="desc">सूचनेवरील चर्चेची तारीख</label>
-			<form:input cssClass="date field text medium" path="dateOfDiscussion" id="dateOfDiscussion" cssStyle="width:260px"/>
+			<form:input cssClass="date field text medium" path="dateOfDiscussion" id="dateOfDiscussion"/>
 		</span>
 		</li>
 	</ul>
