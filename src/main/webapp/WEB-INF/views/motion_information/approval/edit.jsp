@@ -6,7 +6,7 @@
 <title>प्रस्ताव सादर करणे</title>
 </head>
 <body>
-<form:form  action="motion_approval" method="POST">
+<form:form  action="motion_approval" method="POST" modelAttrribute="motionApproval">
 	<div class="info">
 		 <h2>प्रस्ताव सादर करणे</h2>		
 		<%-- <div style="background-color:#C1CDCD; ;padding: 3px"><spring:message code="generic.mandatory.label" text="All fields marked * are mandatory"/></div> --%>
@@ -51,5 +51,52 @@
 <input id="saveForm" class="btTxt" type="submit" value="Send for Approval" />
 
 </form:form>
+<script type="text/javascript">
+		$('document').ready(function(){
+			$('.mois').click(function(event){
+				var id=1;
+				if(id!=undefined && id!=""){
+					$.get($(this).attr('id')+'/'+id+'/edit', function(data) {
+				  		$('#contentPanel').html(data);
+					});
+				}			
+			return false;			
+			});	
+			
+			initControls();
+			
+		    $(':input:visible:not([readonly]):first').focus();
+		    		 
+			$("form").submit(function(e){
+				//e.preventDefault();			
+				var count=0;
+				$('.MANDATORY').each(function(){
+				if($(this).val()==""){
+					$(this).after("<span class='field_error'>Required</span>");					
+					count++;
+					return false;
+				}
+			});
+				if(count>0){
+					
+				}
+				else{
+					$.post($('form').attr('action'),  
+				            $("form").serialize(),  
+				            function(data){	
+			   				$('.contentPanel').html(data);	
+			   				$('#refresh').val($('#refreshSe').val());
+			   				if($('#info_type').val()=='success'){			   				
+				   	   	   		$("#grid").trigger("reloadGrid");		   				
+							}						   				  					   						   					
+				            }                                         
+		            );  
+				}				
+				        return false;  
+			});
+			
+			
+		});
+</script>
 </body>
 </html>
