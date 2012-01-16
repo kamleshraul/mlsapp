@@ -8,7 +8,7 @@
 <body>
 	<div>
 	<div class="commandbar">
-		<div class="commandbarContent">
+		<!-- div class="commandbarContent">
 			<a href="motion_aproval/Process" id="process_record">Process
 			</a> |
 			<a href="motion_aproval/print" id="print_record"> Print
@@ -16,7 +16,7 @@
 			<a href="motion_aproval/Citations" id="citations_record">
 				Citations
 			</a>  
-		</div>
+		</div -->
 	</div>
 	<%@ include file="/common/gridview.jsp" %>
 	<input type="hidden" id="grid_id" value="${gridId}">
