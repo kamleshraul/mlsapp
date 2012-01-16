@@ -16,7 +16,7 @@
 		<li>
 		<span>
 			<label class="desc">सूचनेचा मजकूर&nbsp;</label>
-			<input type="textarea" cssClass="field textarea medium" rows="7" cols="70" cssStyle="width:500px"/>
+			<input type="textarea" readonly="true" cssClass="field textarea medium" rows="7" cols="70" cssStyle="width:500px" value="Tax"/>
 		</span>
 		</li>
 		<li>
