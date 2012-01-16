@@ -9,6 +9,8 @@
  */
 package org.mkcl.els.repository;
 
+import java.util.List;
+
 import org.mkcl.els.domain.User;
 import org.springframework.stereotype.Repository;
 
@@ -27,7 +29,8 @@ public class UserRepository extends BaseRepository<User, Long> {
      * @return the user
      */
     public User findByUsername(final String username) {
-        return this.searchUnique(new Search().addFilterEqual("username", username));
+        return this.searchUnique(new Search().addFilterEqual("username",
+                username));
     }
 
     /**
@@ -44,19 +47,39 @@ public class UserRepository extends BaseRepository<User, Long> {
      * Find by first name.
      *
      * @param firstName the first name
-     * @return the user
+     * @return the list
      */
-    public User findByFirstName(final String firstName) {
-        return this.searchUnique(new Search().addFilterEqual("firstName", firstName));
+    public List<User> findByFirstName(final String firstName) {
+        return this.search(new Search().addFilterEqual("firstName", firstName));
     }
 
     /**
-     * Find user by last name.
+     * Find by middle name.
+     *
+     * @param middleName the middle name
+     * @return the list
+     */
+    public List<User> findByMiddleName(final String middleName) {
+        return this.search(new Search().addFilterEqual("lastName", middleName));
+    }
+
+    /**
+     * Find by last name.
      *
      * @param lastName the last name
+     * @return the list
+     */
+    public List<User> findByLastName(final String lastName) {
+        return this.search(new Search().addFilterEqual("lastName", lastName));
+    }
+
+    /**
+     * Find by user id.
+     *
+     * @param uid the uid
      * @return the user
      */
-    public User findByLastName(final String lastName) {
-        return this.searchUnique(new Search().addFilterEqual("lastName", lastName));
+    public User findByUserId(final Long uid) {
+        return this.searchUnique(new Search().addFilterEqual("uid", uid));
     }
 }
