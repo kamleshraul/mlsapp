@@ -11,6 +11,7 @@ package org.mkcl.els.domain;
 
 import java.io.Serializable;
 import java.util.Date;
+import java.util.List;
 import java.util.Set;
 
 import javax.persistence.Column;
@@ -49,11 +50,11 @@ public class User implements Serializable {
     /** The Constant serialVersionUID. */
     private static final long serialVersionUID = 1L;
 
-    /** The id. */
+    /** The uid. */
     @Id
     @Column(name = "user_id", nullable = false)
     @GeneratedValue(strategy = GenerationType.AUTO)
-    private Long id;
+    private Long uid;
 
     /** The code. */
     @Column(length = 20)
@@ -77,7 +78,7 @@ public class User implements Serializable {
     @NotEmpty
     private String firstName;
 
-    /** The first name. */
+    /** The middle name. */
     @Column(length = 50)
     @NotEmpty
     private String middleName;
@@ -166,21 +167,21 @@ public class User implements Serializable {
     // ******************Getters & Setters ******************************/
 
     /**
-     * Gets the id.
+     * Gets the uid.
      *
-     * @return the id
+     * @return the uid
      */
-    public Long getId() {
-        return id;
+    public Long getUid() {
+        return uid;
     }
 
     /**
-     * Sets the id.
+     * Sets the uid.
      *
-     * @param id the new id
+     * @param uid the new uid
      */
-    public void setId(final Long id) {
-        this.id = id;
+    public void setUid(final Long uid) {
+        this.uid = uid;
     }
 
     /**
@@ -387,12 +388,13 @@ public class User implements Serializable {
      * @param username the username
      * @return the user
      */
-    @Transactional (readOnly = true)
+    @Transactional(readOnly = true)
     public static User findByUsername(final String username) {
         final User user = getUserRepository().findByUsername(username);
         if (user == null) {
             throw new RecordNotFoundException(
-                    "Error:Record was not found for user in findByUserName:" + username);
+                    "Error:Record was not found for user in findByUserName:"
+                            + username);
         }
         return user;
     }
@@ -403,44 +405,82 @@ public class User implements Serializable {
      * @param eMail the e mail
      * @return the user
      */
-    @Transactional (readOnly = true)
+    @Transactional(readOnly = true)
     public static User findByEmail(final String eMail) {
         final User user = getUserRepository().findByEmail(eMail);
         if (user == null) {
             throw new RecordNotFoundException(
-                    "Error:Record was not found for user in findByEmail:" + eMail);
+                    "Error:Record was not found for user in findByEmail:"
+                            + eMail);
         }
         return user;
     }
 
     /**
-     * Find user by first name.
+     * Find by first name.
      *
      * @param firstName the first name
-     * @return the user
+     * @return the list
      */
-    @Transactional (readOnly = true)
-    public static User findByFirstName(final String firstName) {
-        final User user = getUserRepository().findByFirstName(firstName);
+    @Transactional(readOnly = true)
+    public static List<User> findByFirstName(final String firstName) {
+        final List<User> user = getUserRepository().findByFirstName(firstName);
         if (user == null) {
             throw new RecordNotFoundException(
-                    "Error:Record was not found for user in findByFirstName:" + firstName);
+                    "Error:Record was not found for user in findByFirstName:"
+                            + firstName);
         }
         return user;
     }
 
     /**
-     * Find user by last name.
+     * Find by middle name.
      *
-     * @param lastName the last name
-     * @return the user
+     * @param middleName the middle name
+     * @return the list
      */
-    @Transactional (readOnly = true)
-    public static User findByLastName(final String lastName) {
-        final User user = getUserRepository().findByLastName(lastName);
+    @Transactional(readOnly = true)
+    public static List<User> findByMiddleName(final String middleName) {
+        final List<User> user = getUserRepository()
+                .findByMiddleName(middleName);
         if (user == null) {
             throw new RecordNotFoundException(
-                    "Error:Record was not found for user in findByLastName() :" + lastName);
+                    "Error:Record was not found for user in findByLastName() :"
+                            + middleName);
+        }
+        return user;
+    }
+
+    /**
+     * Find by last name.
+     *
+     * @param lastName the last name
+     * @return the list
+     */
+    @Transactional(readOnly = true)
+    public static List<User> findByLastName(final String lastName) {
+        final List<User> user = getUserRepository().findByLastName(lastName);
+        if (user == null) {
+            throw new RecordNotFoundException(
+                    "Error:Record was not found for user in findByLastName() :"
+                            + lastName);
+        }
+        return user;
+    }
+
+    /**
+     * Find by user id.
+     *
+     * @param uid the uid
+     * @return the user
+     */
+    @Transactional(readOnly = true)
+    public static User findByUserId(final Long uid) {
+        final User user = getUserRepository().findByUserId(uid);
+        if (user == null) {
+            throw new RecordNotFoundException(
+                    "Error:Record was not found for user in findByUserId() :"
+                            + uid);
         }
         return user;
     }
