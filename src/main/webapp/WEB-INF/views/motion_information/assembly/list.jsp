@@ -4,6 +4,14 @@
 <head>
 	<title><spring:message code="member_personal_details.list" text="प्रस्ताव सूची"/></title>
 	<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+	<script type="text/javascript">
+   		$(document).ready(function() {
+
+   			$('#print_record').click(function(){
+   				window.open('motion_assembly/print');  
+   			}); 
+   		});
+		</script>
 </head>
 <body>
 	<div>
@@ -15,7 +23,7 @@
 			<a href="motion_assembly" id="delete_record">
 				<spring:message code="generic.delete" text="Delete"/>
 			</a> |
-			<a href="motion_assembly/print" id="print_record"> Print
+			<a href="#" id="print_record"> Print
 			</a> |
 			<a href="#" id="report"> Report
 			</a> |
