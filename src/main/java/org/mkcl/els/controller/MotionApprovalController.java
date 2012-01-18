@@ -16,7 +16,6 @@ import javax.validation.Valid;
 
 import org.mkcl.els.domain.Grid;
 import org.mkcl.els.domain.MotionApproval;
-import org.mkcl.els.domain.MotionInformation;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
 import org.springframework.validation.BindingResult;
@@ -27,7 +26,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 // TODO: Auto-generated Javadoc
 /**
  * The Class MotionApprovalController.
- * 
+ *
  * @author samiksham
  * @since v1.0.0
  */
@@ -37,7 +36,7 @@ public class MotionApprovalController extends BaseController {
 
     /**
      * Index.
-     * 
+     *
      * @param model the model
      * @return the string
      * @author samiksham
@@ -52,7 +51,7 @@ public class MotionApprovalController extends BaseController {
 
     /**
      * New form.
-     * 
+     *
      * @param model the model
      * @param errors the errors
      * @param locale the locale
@@ -69,12 +68,12 @@ public class MotionApprovalController extends BaseController {
         MotionApproval motionApproval = new MotionApproval();
         model.addAttribute("motionApproval", motionApproval);
 
-        return "motion_information/approval/process";
+        return "motion_information/approval/edit";
     }
 
     /**
      * Edits the form.
-     * 
+     *
      * @param model the model
      * @param errors the errors
      * @param locale the locale
@@ -98,7 +97,7 @@ public class MotionApprovalController extends BaseController {
 
     /**
      * Creates the.
-     * 
+     *
      * @param motionInformation the motion information
      * @param result the result
      * @param model the model
@@ -116,7 +115,6 @@ public class MotionApprovalController extends BaseController {
         motionApproval.setId(1L);
         model.addAttribute("motionApproval", motionApproval);
 
-        String message = "Motion sent for approval";
         return "redirect:motion_approval/" + motionApproval.getId()
                 + "/edit?type=success&msg=create_success";
     }
