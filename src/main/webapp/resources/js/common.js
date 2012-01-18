@@ -99,6 +99,25 @@ function loadGrid(gridId, baseFilter) {
 			}
 			return false;
 		});
+		
+		$("#myTask").click(function(){			
+			var url = $(this).attr('href');
+			$('.contentPanel').load(url,function(data){
+                var title = $(data).filter('title').text();
+				$('#content > .subHeader > div').html(title);
+			});
+   			return false;
+		});
+		
+		$("#start_process").click(function(){			
+			var url = $(this).attr('href');
+			$('.contentPanel').load(url,function(data){
+                var title = $(data).filter('title').text();
+				$('#content > .subHeader > div').html(title);
+			});
+   			return false;
+		});
+		
 	}});
 	return c_grid;
 };
