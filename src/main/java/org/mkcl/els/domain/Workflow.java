@@ -5,7 +5,7 @@
  *
  * Project: e-Legislature
  * File: org.mkcl.els.domain.Workflow.java
- * Created On: Jan 13, 2012
+ * Created On: Jan 18, 2012
  */
 package org.mkcl.els.domain;
 
@@ -53,6 +53,30 @@ public class Workflow implements Serializable {
     /** The version. */
     @Version
     private Long version;
+
+    /** The decription. */
+    @Column(length = 1000)
+    private String decription;
+
+    /**
+     * Gets the decription.
+     *
+     * @return the decription
+     */
+    public String getDecription() {
+        return decription;
+    }
+
+
+
+    /**
+     * Sets the decription.
+     *
+     * @param decription the new decription
+     */
+    public void setDecription(final String decription) {
+        this.decription = decription;
+    }
 
 
     /**
