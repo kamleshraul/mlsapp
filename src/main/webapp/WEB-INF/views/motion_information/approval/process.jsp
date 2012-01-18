@@ -22,6 +22,12 @@
 		<li>
 		<span>
 			<label class="desc">संशोधित मजकूर&nbsp;</label>
+			<input type="textarea" readonly="true" cssClass="field textarea medium" rows="7" cols="70" cssStyle="width:500px" value="Revised Tax"/>
+		</span>
+		</li>
+		<li>
+		<span>
+			<label class="desc">संशोधित मजकूर&nbsp;</label>
 			<input type="textarea" cssClass="field textarea medium" rows="7" cols="70" cssStyle="width:500px"/>
 		</span>
 		</li>
@@ -44,8 +50,36 @@
 		</li>
 		</ul>
 </div>
-<input id="saveForm" class="btTxt" type="submit" value="सेव करणे" />
+<input id="saveForm" class="btTxt" type="button" value="सेव करणे" onclick="sentforApp()"/>
+<div id="info" style="visibility: hidden;">
+	<c:choose>
+	<c:when test="${(!empty type) && (!empty msg)}">
+	<input id="info_type" type="text"  value="${type}">
+	<input id="info_msg" type="hidden" value="<spring:message code='${msg}'/>">
+	</c:when>
+	<c:when test="${(!empty param.type) && (!empty param.msg)}">
+	<input id="info_type" type="hidden"  value="${param.type}">
+	<input id="info_msg" type="hidden" value="<spring:message code='${param.msg}'/>">
+	</c:when>
+	<c:otherwise>
+	<input id="info_type"  type="text" value="">
+	<input id="info_msg" type="hidden" value="">
+	</c:otherwise>
+	</c:choose>	
+	</div>	
+	<input type="hidden" id="refreshSe" value="<%=session.getAttribute("refresh")%>">		
+	<input type="hidden" id="const_name" value="${constituency.name}">
+	<input type="hidden" id="const_id" value="${constituency.id}">	
+	<input type="hidden" id="photo_size" value="${photoSize}">	
+	<input type="hidden" id="photo_ext" value="${photoExt}">
+	<input type="hidden" id="positionList" value="${positionList}">	
 
 </form:form>
+<script type="text/javascript">
+function sentforApp(){
+	alert("Sent to next level");
+}
+	</script>
+
 </body>
 </html>
