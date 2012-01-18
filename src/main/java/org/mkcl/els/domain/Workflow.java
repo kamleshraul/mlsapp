@@ -54,28 +54,27 @@ public class Workflow implements Serializable {
     @Version
     private Long version;
 
-    /** The decription. */
+    /** The description. */
     @Column(length = 1000)
-    private String decription;
+    private String description;
 
     /**
-     * Gets the decription.
+     * Gets the description.
      *
-     * @return the decription
+     * @return the description
      */
-    public String getDecription() {
-        return decription;
+    public String getDescription() {
+        return description;
     }
 
 
-
     /**
-     * Sets the decription.
+     * Sets the description.
      *
-     * @param decription the new decription
+     * @param description the new description
      */
-    public void setDecription(final String decription) {
-        this.decription = decription;
+    public void setDescription(final String description) {
+        this.description = description;
     }
 
 
