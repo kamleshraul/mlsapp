@@ -4,19 +4,22 @@
 <head>
 	<title>प्रस्ताव सादर करणे</title>
 	<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+	
 </head>
 <body>
 	<div>
 	<div class="commandbar">
-		<!-- div class="commandbarContent">
-			<a href="motion_aproval/Process" id="process_record">Process
+		<div class="commandbarContent">
+		<a href="motion_approval/new" id="start_process">Start Process
 			</a> |
-			<a href="motion_aproval/print" id="print_record"> Print
+			<a href="mytask/new" id="myTask">My Task
 			</a> |
-			<a href="motion_aproval/Citations" id="citations_record">
-				Citations
+			<a href="#" id="print_record"> Group Task
+			</a> |
+			<a href="#" id="citations_record">
+				Track
 			</a>  
-		</div -->
+		</div>
 	</div>
 	<%@ include file="/common/gridview.jsp" %>
 	<input type="hidden" id="grid_id" value="${gridId}">
