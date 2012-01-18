@@ -48,10 +48,14 @@
 		</li>
 		</ul>
 </div>
-<input id="saveForm" class="btTxt" type="submit" value="Send for Approval" />
+<input id="saveForm" class="btTxt" type="submit" value="Send for Approval" onclick="sentforApp()"/>
 
 </form:form>
 <script type="text/javascript">
+
+function sentforApp(){
+	alert("Sent for approval");
+}
 		$('document').ready(function(){
 			$('.mois').click(function(event){
 				var id=1;
