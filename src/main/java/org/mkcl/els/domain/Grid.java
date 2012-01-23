@@ -5,7 +5,7 @@
  *
  * Project: e-Legislature
  * File: org.mkcl.els.domain.Grid.java
- * Created On: Jan 6, 2012
+ * Created On: Jan 21, 2012
  */
 
 package org.mkcl.els.domain;
@@ -28,6 +28,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Configurable;
 import org.springframework.transaction.annotation.Transactional;
 
+// TODO: Auto-generated Javadoc
 /**
  * The Class Grid.
  *
@@ -107,6 +108,9 @@ public class Grid implements Serializable {
     /** The native query. */
     private boolean nativeQuery = false;
 
+    /** The locale. */
+    private String locale;
+
     /** The grid repository. */
     @Autowired
     private transient GridRepository gridRepository;
@@ -117,7 +121,8 @@ public class Grid implements Serializable {
      */
     public Grid() {
     }
-// -------------- constructor ------------------------------
+
+    // -------------- constructor ------------------------------
     /**
      * Instantiates a new grid.
      *
@@ -137,6 +142,8 @@ public class Grid implements Serializable {
      * @param version the version
      * @param multiSelect the multi select
      * @param nativeQuery the native query
+     * @param locale the locale
+     * @param gridRepository the grid repository
      */
     public Grid(final String name,
             final String title,
@@ -153,7 +160,8 @@ public class Grid implements Serializable {
             final Boolean localized,
             final Long version,
             final boolean multiSelect,
-            final boolean nativeQuery) {
+            final boolean nativeQuery,
+            final String locale) {
         super();
         this.name = name;
         this.title = title;
@@ -171,172 +179,187 @@ public class Grid implements Serializable {
         this.version = version;
         this.multiSelect = multiSelect;
         this.nativeQuery = nativeQuery;
+        this.locale = locale;
     }
 
- // -------------- Domain Methods ------------------------------
+    // -------------- Domain Methods ------------------------------
 
-      /**
-      * Gets the grid repository.
-      *
-      * @return the grid repository
-      */
-      public static GridRepository getGridRepository() {
-            GridRepository gridRepository = new Grid().gridRepository;
-            if (gridRepository == null) {
-                throw new IllegalStateException(
-                        "Grid Repository has not been injected "
-                                + "in Grid domain");
-            }
-            return gridRepository;
-      }
+    /**
+     * Gets the grid repository.
+     *
+     * @return the grid repository
+     */
+    public static GridRepository getGridRepository() {
+        GridRepository gridRepository = new Grid().gridRepository;
+        if (gridRepository == null) {
+            throw new IllegalStateException(
+                    "Grid Repository has not been injected " + "in Grid domain");
+        }
+        return gridRepository;
+    }
 
-      /**
-       * Find by name.
-       *
-       * @param name the name
-       * @return the grid
-       * @author nileshp
-       * @since v1.0.0
-       */
-      @Transactional(readOnly = true)
-      public static Grid findByName(final String name) {
-          return getGridRepository().findByName(name);
-      }
+    /**
+     * Find by name.
+     *
+     * @param name the name
+     * @param locale the locale
+     * @return the grid
+     * @author nileshp
+     * @since v1.0.0
+     */
+    @Transactional(readOnly = true)
+    public static Grid findByName(final String name, final String locale) {
+        return getGridRepository().findByNameAndLocale(name, locale);
+    }
 
-      /**
-       * Gets the data.
-       *
-       * @param gridId the grid id
-       * @param rows the rows
-       * @param page the page
-       * @param sidx the sidx
-       * @param order the order
-       * @return the data
-       */
-      @Transactional
-      public GridData getData(final Long gridId,
-                              final Integer rows,
-                              final Integer page,
-                              final String sidx,
-                              final String order) {
-          return gridRepository.getData(gridId, rows, page, sidx, order);
-      }
+    /**
+     * Gets the data.
+     *
+     * @param gridId the grid id
+     * @param rows the rows
+     * @param page the page
+     * @param sidx the sidx
+     * @param order the order
+     * @return the data
+     */
+    @Transactional
+    public GridData getData(final Long gridId,
+                            final Integer rows,
+                            final Integer page,
+                            final String sidx,
+                            final String order) {
+        return gridRepository.getData(gridId, rows, page, sidx, order);
+    }
 
-      /**
-       * Gets the config.
-       *
-       * @param gridId the grid id
-       * @return the config
-       */
-      @Transactional
-      public GridConfig getConfig(final Long gridId) {
-          Grid grid = Grid.findById(gridId);
-          GridConfig gridConfig = new GridConfig(grid.getTitle(),
-                  grid.getColNames(), grid.getColModel(), grid.getHeight(),
-                  grid.getWidth(), grid.getPageSize(), grid.getSortOrder(),
-                  grid.getDetailView(), grid.isMultiSelect());
-          return gridConfig;
-      }
+    /**
+     * Gets the config.
+     *
+     * @param gridId the grid id
+     * @return the config
+     */
+    @Transactional
+    public GridConfig getConfig(final Long gridId) {
+        Grid grid = Grid.findById(gridId);
+        GridConfig gridConfig = new GridConfig(grid.getTitle(),
+                grid.getColNames(), grid.getColModel(), grid.getHeight(),
+                grid.getWidth(), grid.getPageSize(), grid.getSortOrder(),
+                grid.getDetailView(), grid.isMultiSelect());
+        return gridConfig;
+    }
 
-      /**
-       * Find by id.
-       *
-       * @param id the id
-       * @return the grid
-       * @author nileshp
-       * @since v1.0.0
-       */
-      @Transactional(readOnly = true)
-      public static Grid findById(final Long id) {
-          return getGridRepository().find(id);
-      }
+    /**
+     * Find by id.
+     *
+     * @param id the id
+     * @return the grid
+     * @author nileshp
+     * @since v1.0.0
+     */
+    @Transactional(readOnly = true)
+    public static Grid findById(final Long id) {
+        return getGridRepository().find(id);
+    }
 
-      /**
-       * Gets the data.
-       *
-       * @param gridId the grid id
-       * @param limit the limit
-       * @param page the page
-       * @param sidx the sidx
-       * @param order the order
-       * @param locale the locale
-       * @return the data
-       */
-      @Transactional
-      public GridData getData(final Long gridId,
-                              final Integer limit,
-                              final Integer page,
-                              final String sidx,
-                              final String order,
-                              final Locale locale) {
-          return gridRepository.getData(gridId, limit, page, sidx, order, locale);
-      }
+    /**
+     * Gets the data.
+     *
+     * @param gridId the grid id
+     * @param limit the limit
+     * @param page the page
+     * @param sidx the sidx
+     * @param order the order
+     * @param locale the locale
+     * @return the data
+     */
+    @Transactional
+    public GridData getData(final Long gridId,
+                            final Integer limit,
+                            final Integer page,
+                            final String sidx,
+                            final String order,
+                            final Locale locale) {
+        return gridRepository.getData(gridId, limit, page, sidx, order, locale);
+    }
 
-      /**
-       * Gets the data.
-       *
-       * @param gridId the grid id
-       * @param limit the limit
-       * @param page the page
-       * @param sidx the sidx
-       * @param order the order
-       * @param filterSql the filter sql
-       * @param locale the locale
-       * @return the data
-       */
-      @Transactional
-      public GridData getData(final Long gridId,
-                              final Integer limit,
-                              final Integer page,
-                              final String sidx,
-                              final String order,
-                              final String filterSql,
-                              final Locale locale) {
-          return gridRepository.getData(
-                  gridId, limit, page, sidx, order, filterSql, locale);
-      }
+    /**
+     * Gets the data.
+     *
+     * @param gridId the grid id
+     * @param limit the limit
+     * @param page the page
+     * @param sidx the sidx
+     * @param order the order
+     * @param filterSql the filter sql
+     * @param locale the locale
+     * @return the data
+     */
+    @Transactional
+    public GridData getData(final Long gridId,
+                            final Integer limit,
+                            final Integer page,
+                            final String sidx,
+                            final String order,
+                            final String filterSql,
+                            final Locale locale) {
+        return gridRepository.getData(
+                gridId, limit, page, sidx, order, filterSql, locale);
+    }
 
-      /**
-       * Persist.
-       *
-       * @return the grid
-       * @author nileshp
-       * @since v1.0.0
-       */
-      @Transactional
-      public Grid persist() {
-          gridRepository.save(this);
-          gridRepository.flush();
-          return this;
-      }
+    /**
+     * Persist.
+     *
+     * @return the grid
+     * @author nileshp
+     * @since v1.0.0
+     */
+    @Transactional
+    public Grid persist() {
+        gridRepository.save(this);
+        gridRepository.flush();
+        return this;
+    }
 
-      /**
-       * Update.
-       *
-       * @return the grid
-       * @author nileshp
-       * @since v1.0.0
-       */
-      @Transactional
-      public Grid update() {
-          gridRepository.merge(this);
-          gridRepository.flush();
-          return this;
-      }
+    /**
+     * Update.
+     *
+     * @return the grid
+     * @author nileshp
+     * @since v1.0.0
+     */
+    @Transactional
+    public Grid update() {
+        gridRepository.merge(this);
+        gridRepository.flush();
+        return this;
+    }
 
-      /**
-       * Removes the.
-       *
-       * @author nileshp
-       * @since v1.0.0
-       * Removes the.
-       */
-      @Transactional
-      public void remove() {
-          gridRepository.remove(this);
-          gridRepository.flush();
-      }
- // -------------- Getters & setters ------------------------------
+    /**
+     * Removes the.
+     *
+     * @author nileshp
+     * @since v1.0.0 Removes the.
+     */
+    @Transactional
+    public void remove() {
+        gridRepository.remove(this);
+        gridRepository.flush();
+    }
+
+    /**
+     * Find by name and locale.
+     *
+     * @param name the name
+     * @param locale the locale
+     * @return the grid
+     * @author nileshp
+     * @since v1.0.0
+     */
+    public static Grid findByNameAndLocale(final String name,
+                                           final String locale) {
+        return getGridRepository().findByNameAndLocale(name, locale);
+    }
+
+    // -------------- Getters & setters ------------------------------
     /**
      * Gets the id.
      *
@@ -650,5 +673,23 @@ public class Grid implements Serializable {
      */
     public static long getSerialversionuid() {
         return serialVersionUID;
+    }
+
+    /**
+     * Gets the locale.
+     *
+     * @return the locale
+     */
+    public String getLocale() {
+        return locale;
+    }
+
+    /**
+     * Sets the locale.
+     *
+     * @param locale the new locale
+     */
+    public void setLocale(final String locale) {
+        this.locale = locale;
     }
 }
