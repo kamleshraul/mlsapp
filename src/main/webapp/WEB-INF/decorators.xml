@@ -33,10 +33,6 @@
 		<pattern>/assembly_struct/new</pattern>
 		<pattern>/assembly_struct/*/edit</pattern>
 		<pattern>/assembly_struct/*/delete</pattern>		
-		<pattern>/assembly_number</pattern>
-		<pattern>/assembly_number/new</pattern>
-		<pattern>/assembly_number/*/edit</pattern>
-		<pattern>/assembly_number/*/delete</pattern>		
 		<pattern>/states</pattern>
 		<pattern>/states/new</pattern>
 		<pattern>/states/*/edit</pattern>
