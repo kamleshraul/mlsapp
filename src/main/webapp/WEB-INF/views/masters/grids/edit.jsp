@@ -18,7 +18,16 @@
 				<p class="field_error"><spring:message code="generic.update_success.label"/></p>
 			</c:if>
 		</li>	
-		
+		<li id="${fields.locale.position}" class="${fields.locale.visible}">
+		<label class="desc"><spring:message code="generic.locale" text="Select Language"/><span><spring:message code="${fields.locale.hint}" text=""/></span>&nbsp;<c:if test="${fields.locale.mandatory=='MANDATORY'}">*</c:if></label>
+			<div>
+				<form:select cssClass="field select medium" path="locale"> 
+					<form:option value="en"><spring:message code="generic.lang.english" text="English"/></form:option>
+					<form:option value="hi_IN"><spring:message code="generic.lang.hindi" text="Hindi"/></form:option>
+					<form:option value="mr_IN"><spring:message code="generic.lang.marathi" text="Marathi"/></form:option>
+				</form:select>
+			</div>
+		</li>
 		<li>
 		<label class="desc"><spring:message code="generic.id" text="Id"/></label>
 			<div>
