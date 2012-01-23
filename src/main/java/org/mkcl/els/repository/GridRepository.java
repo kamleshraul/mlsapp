@@ -5,7 +5,7 @@
  *
  * Project: e-Legislature
  * File: org.mkcl.els.repository.GridRepository.java
- * Created On: Jan 6, 2012
+ * Created On: Jan 20, 2012
  */
 
 package org.mkcl.els.repository;
@@ -20,6 +20,9 @@ import org.mkcl.els.common.vo.GridData;
 import org.mkcl.els.domain.Grid;
 import org.springframework.stereotype.Repository;
 
+import com.trg.search.Search;
+
+// TODO: Auto-generated Javadoc
 /**
  * The Class GridRepository.
  *
@@ -31,7 +34,6 @@ public class GridRepository extends BaseRepository<Grid, Long> {
 
     /** The Constant DEFAULT_LOCALE. */
     private static final String DEFAULT_LOCALE = "en";
-
 
     /**
      * Gets the data.
@@ -48,9 +50,10 @@ public class GridRepository extends BaseRepository<Grid, Long> {
                             Integer page,
                             final String sidx,
                             final String order) {
-       /*return getData(gridId, limit, page, sidx, order,
-               new Locale(CustomParameter.findByName("DEFAULT_LOCALE").getValue()));*/
-
+        /*
+         * return getData(gridId, limit, page, sidx, order, new
+         * Locale(CustomParameter.findByName("DEFAULT_LOCALE").getValue()));
+         */
 
         Grid grid = this.find(gridId);
 
@@ -102,7 +105,7 @@ public class GridRepository extends BaseRepository<Grid, Long> {
                             final String order,
                             final Locale locale) {
 
-        //Grid grid = this.find(gridId);
+        // Grid grid = this.find(gridId);
         Grid grid = Grid.findById(gridId);
         String countSelect = null;
         Query countQuery = null;
@@ -113,7 +116,8 @@ public class GridRepository extends BaseRepository<Grid, Long> {
             countSelect = grid.getCountQuery() + " ORDER BY m." + sidx + " "
                     + order;
             select = grid.getQuery() + " ORDER BY m." + sidx + " " + order;
-        } else {
+        }
+        else {
             countSelect = grid.getCountQuery() + " ORDER BY " + sidx + " "
                     + order;
             select = grid.getQuery() + " ORDER BY " + sidx + " " + order;
@@ -122,13 +126,15 @@ public class GridRepository extends BaseRepository<Grid, Long> {
         if (grid.isNativeQuery()) {
             query = this.em().createNativeQuery(select);
 
-        } else {
+        }
+        else {
             query = this.em().createQuery(select);
         }
         if (countSelect.contains("=:locale")) {
             if (grid.getLocalized()) {
                 countQuery.setParameter("locale", locale.toString());
-            } else {
+            }
+            else {
                 countQuery.setParameter("locale", DEFAULT_LOCALE);
             }
         }
@@ -136,7 +142,8 @@ public class GridRepository extends BaseRepository<Grid, Long> {
         if (select.contains("=:locale")) {
             if (grid.getLocalized()) {
                 query.setParameter("locale", locale.toString());
-            } else {
+            }
+            else {
                 query.setParameter("locale", DEFAULT_LOCALE);
             }
         }
@@ -181,54 +188,138 @@ public class GridRepository extends BaseRepository<Grid, Long> {
                             final String order,
                             final String filterSql,
                             final Locale locale) {
-        //Grid grid = this.find(gridId);
+        // Grid grid = this.find(gridId);
+//        Grid grid = Grid.findById(gridId);
+//
+//        String countSelect = null;
+//        if (!sidx.contains(".")) {
+//            countSelect = grid.getCountQuery() + filterSql + " ORDER BY m."
+//                    + sidx + " " + order;
+//        }
+//        else {
+//            countSelect = grid.getCountQuery() + filterSql + " ORDER BY "
+//                    + sidx + " " + order;
+//        }
+//        Query countQuery = this.em().createQuery(countSelect);
+//        if (grid.getLocalized()) {
+//            countQuery.setParameter("locale", locale.toString());
+//        }
+//        Long count = (Long) countQuery.getSingleResult();
+//
+//        Integer totalPages = 0;
+//        if (count > 0) {
+//            totalPages = (int) Math.ceil((float) count / limit);
+//        }
+//
+//        if (page > totalPages) {
+//            page = totalPages;
+//        }
+//
+//        int start = (limit * page - limit);
+//        if (start < 0) {
+//            start = 0;
+//        }
+//
+//        String select = null;
+//        if (!sidx.contains(".")) {
+//            select = grid.getQuery() + filterSql + " ORDER BY m." + sidx + " "
+//                    + order;
+//        }
+//        else {
+//            select = grid.getQuery() + filterSql + " ORDER BY " + sidx + " "
+//                    + order;
+//        }
+//        Query query = this.em().createQuery(select);
+//        if (grid.getLocalized()) {
+//            query.setParameter("locale", locale.toString());
+//        }
+//        query.setFirstResult(start);
+//        query.setMaxResults(limit);
+//        List<Map<String, Object>> records = query.getResultList();
+//        GridData gridVO = new GridData(page, totalPages, count, records);
+//        return gridVO;
         Grid grid = Grid.findById(gridId);
-
         String countSelect = null;
-        if (!sidx.contains(".")) {
-            countSelect = grid.getCountQuery() + filterSql + " ORDER BY m."
-                    + sidx + " " + order;
-        } else {
-            countSelect = grid.getCountQuery() + filterSql + " ORDER BY "
-                    + sidx + " " + order;
-        }
-        Query countQuery = this.em().createQuery(countSelect);
-        if (grid.getLocalized()) {
-            countQuery.setParameter("locale", locale.toString());
-        }
-        Long count = (Long) countQuery.getSingleResult();
+        Query countQuery = null;
+        String select = null;
+        Query query = null;
 
+        if (!sidx.contains(".")) {
+            countSelect = grid.getCountQuery()+filterSql + " ORDER BY m." + sidx + " "
+                    + order;
+            select = grid.getQuery()+filterSql + " ORDER BY m." + sidx + " " + order;
+        }
+        else {
+            countSelect = grid.getCountQuery()+filterSql + " ORDER BY " + sidx + " "
+                    + order;
+            select = grid.getQuery()+filterSql + " ORDER BY " + sidx + " " + order;
+        }
+        countQuery = this.em().createQuery(countSelect);
+        if (grid.isNativeQuery()) {
+            query = this.em().createNativeQuery(select);
+
+        }
+        else {
+            query = this.em().createQuery(select);
+        }
+        if (countSelect.contains("=:locale")) {
+            if (grid.getLocalized()) {
+                countQuery.setParameter("locale", locale.toString());
+            }
+            else {
+                countQuery.setParameter("locale", DEFAULT_LOCALE);
+            }
+        }
+
+        if (select.contains("=:locale")) {
+            if (grid.getLocalized()) {
+                query.setParameter("locale", locale.toString());
+            }
+            else {
+                query.setParameter("locale", DEFAULT_LOCALE);
+            }
+        }
+
+        Long count = (Long) countQuery.getSingleResult();
         Integer totalPages = 0;
         if (count > 0) {
             totalPages = (int) Math.ceil((float) count / limit);
         }
-
         if (page > totalPages) {
             page = totalPages;
         }
-
         int start = (limit * page - limit);
         if (start < 0) {
             start = 0;
         }
-
-        String select = null;
-        if (!sidx.contains(".")) {
-            select = grid.getQuery() + filterSql + " ORDER BY m." + sidx + " "
-                    + order;
-        } else {
-            select = grid.getQuery() + filterSql + " ORDER BY " + sidx + " "
-                    + order;
-        }
-        Query query = this.em().createQuery(select);
-        if (grid.getLocalized()) {
-            query.setParameter("locale", locale.toString());
-        }
         query.setFirstResult(start);
-        query.setMaxResults(limit);
+        query.setMaxResults((int) (count > limit ? count : limit));
+
         List<Map<String, Object>> records = query.getResultList();
         GridData gridVO = new GridData(page, totalPages, count, records);
         return gridVO;
+    }
+
+    /**
+     * Find by name and locale.
+     *
+     * @param name the name
+     * @param locale the locale
+     * @return the grid
+     * @author nileshp
+     * @since v1.0.0
+     */
+    public Grid findByNameAndLocale(final String name, final String locale) {
+        Search search = new Search();
+        search.addFilterEqual("locale", locale);
+        search.addFilterEqual("name", name);
+        try {
+            return this.searchUnique(search);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return new Grid();
+        }
+
     }
 
 }
