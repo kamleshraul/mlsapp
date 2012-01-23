@@ -51,7 +51,7 @@ public class GridServiceTest extends AbstractTest {
                 "Id , Locale",
                 "{name:'id', index:'id', width:'10'}, {name:'locale', index:'locale', width:'30'}",
                 10, "m.id", "desc", "", "", 100, 100, "districts", false, 0L,
-                false, false);
+                false, false , "en");
         grid.persist();
         Assert.assertNotNull("Saved Grid Data ", grid);
     }
@@ -73,9 +73,9 @@ public class GridServiceTest extends AbstractTest {
                 "Id , Locale",
                 "{name:'id', index:'id', width:'10'}, {name:'locale', index:'locale', width:'30'}",
                 10, "m.id", "desc", "", "", 100, 100, "districts", false, 0L,
-                false, false);
+                false, false, "en");
         grid = grid.persist();
-        Grid grid1 = Grid.findByName(grid.getName());
+        Grid grid1 = Grid.findByName(grid.getName(), "en");
         Assert.assertNotNull("Find Grid Data ", grid1);
 
     }
@@ -97,7 +97,7 @@ public class GridServiceTest extends AbstractTest {
                 "Id , Locale",
                 "{name:'id', index:'id', width:'10'}, {name:'locale', index:'locale', width:'30'}",
                 10, "m.id", "desc", "", "", 100, 100, "districts", false, 0L,
-                false, false);
+                false, false, "en");
         grid = grid.persist();
         Grid grid1 = Grid.findById(grid.getId());
         Assert.assertNotNull("Find Grid Data ", grid1);
@@ -121,7 +121,7 @@ public class GridServiceTest extends AbstractTest {
                 "Id , Locale",
                 "{name:'id', index:'id', width:'10'}, {name:'locale', index:'locale', width:'30'}",
                 10, "m.id", "desc", "", "", 100, 100, "districts", false, 0L,
-                false, false);
+                false, false, "en");
         grid = grid.persist();
         grid.setName("Test Grid one");
         Grid grid1 = grid.update();
@@ -145,7 +145,7 @@ public class GridServiceTest extends AbstractTest {
                 "Id , Locale",
                 "{name:'id', index:'id', width:'10'}, {name:'locale', index:'locale', width:'30'}",
                 10, "m.id", "desc", "", "", 100, 100, "districts", false, 0L,
-                false, false);
+                false, false, "en");
         grid.remove();
         Assert.assertNotNull("Removed Grid Data ", grid);
     }
