@@ -1,8 +1,8 @@
 <%@ include file="/common/taglibs.jsp" %>
+<%@ page contentType="text/html;charset=utf-8" %>
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
 <title></title>
 <link rel="stylesheet" media="screen" href="./resources/css/insync.css" />
 <script type="text/javascript" src="./resources/js/jquery-1.6.2.min.js"></script>
@@ -15,6 +15,7 @@
 	    
 	});
 </script> 
+<meta charset="UTF-8">
 </head>
 <body class="login">
 
