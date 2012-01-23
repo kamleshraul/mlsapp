@@ -1,5 +1,11 @@
-/*
- * 
+/**
+ * See the file LICENSE for redistribution information.
+ *
+ * Copyright (c) 2012 MKCL.  All rights reserved.
+ *
+ * Project: e-Legislature
+ * File: org.mkcl.els.controller.BaseController.java
+ * Created On: Jan 21, 2012
  */
 package org.mkcl.els.controller;
 
@@ -11,7 +17,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.security.core.context.SecurityContextHolder;
 
-// TODO: Auto-generated Javadoc
 /**
  * The Class BaseController.
  *
@@ -19,28 +24,28 @@ import org.springframework.security.core.context.SecurityContextHolder;
  * @version v1.0.0
  */
 public abstract class BaseController {
-	
-	/** The logger. */
-	protected Logger logger = LoggerFactory.getLogger(getClass());
 
+    /** The logger. */
+    protected Logger logger = LoggerFactory.getLogger(getClass());
 
     /**
      * Gets the current user.
      *
      * @return the current user
      */
-    protected AuthUser getCurrentUser(){
-       return (AuthUser) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+    protected AuthUser getCurrentUser() {
+        return (AuthUser) SecurityContextHolder.getContext()
+                .getAuthentication().getPrincipal();
     }
-    
+
     /**
      * Gets the user locale.
      *
      * @return the user locale
      */
-    protected Locale getUserLocale(){
-    	Locale locale = LocaleContextHolder.getLocale();
-    	return locale;
+    protected Locale getUserLocale() {
+        Locale locale = LocaleContextHolder.getLocale();
+        return locale;
     }
 
     /**
@@ -48,11 +53,13 @@ public abstract class BaseController {
      *
      * @return true, if is session valid
      */
-    protected boolean isSessionValid(){
-       if(null==SecurityContextHolder.getContext().getAuthentication().getPrincipal())
-           return false;
-        else
-           return true;
+    protected boolean isSessionValid() {
+        if (null == SecurityContextHolder.getContext().getAuthentication()
+                .getPrincipal()) {
+            return false;
+        } else {
+            return true;
+        }
     }
 
 }

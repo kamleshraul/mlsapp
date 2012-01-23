@@ -1,23 +1,11 @@
-/*
- ******************************************************************
-File: org.mkcl.els.controller.TehsilController.java
-Copyright (c) 2011, sandeeps, MKCL
-All rights reserved.
-
-THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
-"AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
-LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS
-FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE
-COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT,
-INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
-BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
-LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
-CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
-LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN
-ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
-POSSIBILITY OF SUCH DAMAGE.
-
- ******************************************************************
+/**
+ * See the file LICENSE for redistribution information.
+ *
+ * Copyright (c) 2012 MKCL.  All rights reserved.
+ *
+ * Project: e-Legislature
+ * File: org.mkcl.els.controller.TehsilController.java
+ * Created On: Jan 21, 2012
  */
 package org.mkcl.els.controller;
 
@@ -47,7 +35,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 
-// TODO: Auto-generated Javadoc
 /**
  * The Class TehsilController.
  *
@@ -58,32 +45,33 @@ import org.springframework.web.bind.annotation.RequestParam;
 @RequestMapping("/tehsils")
 public class TehsilController extends BaseController {
 
-    /** The tehsil service. */
-    // @Autowired
-    // ITehsilService tehsilService;
-
     /**
-     * Index.
+     * The tehsil service.
      *
      * @param model the model
+     * @param locale the locale
      * @return the string
+     * @author nileshp
+     * @since v1.0.0
      */
     @RequestMapping(value = "list", method = RequestMethod.GET)
-    public String list(final ModelMap model) {
-        Grid grid = Grid.findByName("TEHSIL_GRID");
+    public String list(final ModelMap model ,  final Locale locale) {
+        Grid grid = Grid.findByName("TEHSIL_GRID" , locale.toString());
         model.addAttribute("gridId", grid.getId());
         return "masters/tehsils/list";
     }
 
     /**
-     * _new.
+     * New form.
      *
      * @param model the model
      * @param locale the locale
      * @return the string
+     * @author nileshp
+     * @since v1.0.0
      */
     @RequestMapping(value = "new", method = RequestMethod.GET)
-    public String _new(final ModelMap model, final Locale locale) {
+    public String newForm(final ModelMap model, final Locale locale) {
         Tehsil tehsil = new Tehsil();
         tehsil.setLocale(locale.toString());
         populateModel(model, tehsil,
@@ -97,6 +85,8 @@ public class TehsilController extends BaseController {
      * @param id the id
      * @param model the model
      * @return the string
+     * @author nileshp
+     * @since v1.0.0
      */
     @RequestMapping(value = "{id}/edit", method = RequestMethod.GET)
     public String edit(@PathVariable final Long id, final ModelMap model) {
@@ -113,6 +103,8 @@ public class TehsilController extends BaseController {
      * @param model the model
      * @param state the state
      * @return the string
+     * @author nileshp
+     * @since v1.0.0
      */
     @RequestMapping(method = RequestMethod.POST)
     public String create(@Valid @ModelAttribute("tehsil") final Tehsil tehsil,
@@ -139,6 +131,8 @@ public class TehsilController extends BaseController {
      * @param model the model
      * @param state the state
      * @return the string
+     * @author nileshp
+     * @since v1.0.0
      */
     @RequestMapping(method = RequestMethod.PUT)
     public String edit(@Valid @ModelAttribute("tehsil") final Tehsil tehsil,
@@ -163,6 +157,8 @@ public class TehsilController extends BaseController {
      * @param id the id
      * @param model the model
      * @return the string
+     * @author nileshp
+     * @since v1.0.0
      */
     @RequestMapping(value = "{id}/delete", method = RequestMethod.DELETE)
     public String delete(@PathVariable final Long id, final ModelMap model) {
@@ -178,6 +174,9 @@ public class TehsilController extends BaseController {
      *
      * @param tehsil the tehsil
      * @param errors the errors
+     * @author nileshp
+     * @since v1.0.0
+     * Validate.
      */
     private void validate(final Tehsil tehsil, final Errors errors) {
         if (tehsil.getName() != null) {
@@ -212,6 +211,9 @@ public class TehsilController extends BaseController {
      * Inits the binder.
      *
      * @param binder the binder
+     * @author nileshp
+     * @since v1.0.0
+     * Inits the binder.
      */
     @InitBinder
     public void initBinder(final WebDataBinder binder) {
@@ -224,6 +226,9 @@ public class TehsilController extends BaseController {
      * @param model the model
      * @param tehsil the tehsil
      * @param stateName the state name
+     * @author nileshp
+     * @since v1.0.0
+     * Populate model.
      */
     private void populateModel(final ModelMap model, final Tehsil tehsil,
             final String stateName) {

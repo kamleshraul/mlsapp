@@ -1,11 +1,11 @@
 /**
  * See the file LICENSE for redistribution information.
  *
- * Copyright (c) 2011 MKCL.  All rights reserved.
+ * Copyright (c) 2012 MKCL.  All rights reserved.
  *
  * Project: e-Legislature
  * File: org.mkcl.els.controller.CustomParameterController.java
- * Created On: Dec 30, 2011
+ * Created On: Jan 21, 2012
  */
 package org.mkcl.els.controller;
 
@@ -35,16 +35,17 @@ import org.springframework.web.bind.annotation.RequestMethod;
 public class CustomParameterController extends BaseController {
 
     /**
-     * Lists all custom parameters.
+     * List.
      *
      * @param model the model
+     * @param locale the locale
      * @return the string
-     * @author sujitas
+     * @author nileshp
      * @since v1.0.0
      */
     @RequestMapping(value = "list", method = RequestMethod.GET)
-    public String list(final ModelMap model) {
-        final Grid grid = Grid.findByName("CUSTOM_PARAMETER_GRID");
+    public String list(final ModelMap model , final Locale locale) {
+        final Grid grid = Grid.findByName("CUSTOM_PARAMETER_GRID" , locale.toString());
         model.addAttribute("gridId", grid.getId());
         return "masters/custom_params/list";
     }

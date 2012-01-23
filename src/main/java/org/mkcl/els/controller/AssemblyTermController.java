@@ -1,11 +1,11 @@
 /**
  * See the file LICENSE for redistribution information.
  *
- * Copyright (c) 2011 MKCL.  All rights reserved.
+ * Copyright (c) 2012 MKCL.  All rights reserved.
  *
  * Project: e-Legislature
  * File: org.mkcl.els.controller.AssemblyTermController.java
- * Created On: Dec 26, 2011
+ * Created On: Jan 21, 2012
  */
 package org.mkcl.els.controller;
 
@@ -38,13 +38,14 @@ public class AssemblyTermController {
      * List.
      *
      * @param model the model
+     * @param locale the locale
      * @return the string
-     * @author samiksham
+     * @author nileshp
      * @since v1.0.0
      */
     @RequestMapping(value = "list", method = RequestMethod.GET)
-    public String list(final ModelMap model) {
-        Grid grid = Grid.findByName("ASSEMBLY_TERM_GRID");
+    public String list(final ModelMap model , final Locale locale) {
+        Grid grid = Grid.findByName("ASSEMBLY_TERM_GRID" , locale.toString());
         model.addAttribute("gridId", grid.getId());
         return "masters/assembly_terms/list";
     }

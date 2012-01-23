@@ -1,11 +1,11 @@
 /**
  * See the file LICENSE for redistribution information.
  *
- * Copyright (c) 2011 MKCL.  All rights reserved.
+ * Copyright (c) 2012 MKCL.  All rights reserved.
  *
  * Project: e-Legislature
  * File: org.mkcl.els.controller.TitleController.java
- * Created On: Dec 19, 2011
+ * Created On: Jan 21, 2012
  */
 package org.mkcl.els.controller;
 
@@ -40,13 +40,14 @@ public class TitleController {
      * List.
      *
      * @param model the model
+     * @param locale the locale
      * @return the string
      * @author samiksham
      * @since v1.0.0
      */
     @RequestMapping(value = "list", method = RequestMethod.GET)
-    public String list(final ModelMap model) {
-        Grid grid = Grid.findByName("TITLE_GRID");
+    public String list(final ModelMap model , final Locale locale) {
+        Grid grid = Grid.findByName("TITLE_GRID" , locale.toString());
         model.addAttribute("gridId", grid.getId());
         return "masters/titles/list";
     }
@@ -173,7 +174,7 @@ public class TitleController {
                 errors.rejectValue("name", "NonUnique");
             }
         }
-        if (title.getName() != null) {
+        if (title.getName() != null && title.getLocale().equals("en")) {
             final String name = title.getName();
             final Pattern pattern = Pattern.compile("[A-Za-z ]{1,20}");
             final Matcher matcher = pattern.matcher(name);

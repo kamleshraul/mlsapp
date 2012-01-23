@@ -5,7 +5,7 @@
  *
  * Project: e-Legislature
  * File: org.mkcl.els.controller.MotionInformationController.java
- * Created On: Jan 11, 2012
+ * Created On: Jan 21, 2012
  */
 package org.mkcl.els.controller;
 
@@ -46,7 +46,7 @@ public class MotionInformationController extends BaseController {
      * @since v1.0.0
      */
     @RequestMapping(value = "{id}/edit", method = RequestMethod.GET)
-    public String editMotionForm( final ModelMap model,
+    public String editMotionForm(final ModelMap model,
                           final Error errors,
                           final Locale locale) {
         MotionInformation motionInformation = new MotionInformation();
@@ -56,7 +56,17 @@ public class MotionInformationController extends BaseController {
        return "motion_information/motion/edit";
     }
 
-
+    /**
+     * Creates the.
+     *
+     * @param motionInformation the motion information
+     * @param result the result
+     * @param model the model
+     * @param request the request
+     * @return the string
+     * @author nileshp
+     * @since v1.0.0
+     */
     @RequestMapping(method = RequestMethod.POST)
     public String create(@Valid @ModelAttribute("motionInformation")
     final MotionInformation motionInformation,

@@ -5,7 +5,7 @@
  *
  * Project: e-Legislature
  * File: org.mkcl.els.controller.MotionAssemblyController.java
- * Created On: Jan 12, 2012
+ * Created On: Jan 21, 2012
  */
 package org.mkcl.els.controller;
 
@@ -38,13 +38,14 @@ public class MotionAssemblyController extends BaseController {
      * Index.
      *
      * @param model the model
+     * @param locale the locale
      * @return the string
      * @author nileshp
      * @since v1.0.0
      */
     @RequestMapping(value = "list", method = RequestMethod.GET)
-    public String index(final ModelMap model) {
-        Grid grid = Grid.findByName("MOIS_GRID");
+    public String index(final ModelMap model , final Locale locale) {
+        Grid grid = Grid.findByName("MOIS_GRID" , locale.toString());
         model.addAttribute("gridId", grid.getId());
         return "motion_information/assembly/list";
     }
@@ -102,7 +103,8 @@ public class MotionAssemblyController extends BaseController {
      * @since v1.0.0
      */
     @RequestMapping(method = RequestMethod.POST)
-    public String create(@Valid @ModelAttribute("motionInformation") final MotionInformation motionInformation,
+    public String create(@Valid @ModelAttribute("motionInformation")
+    final MotionInformation motionInformation,
                          final BindingResult result,
                          final ModelMap model,
                          final HttpServletRequest request) {
@@ -113,8 +115,7 @@ public class MotionAssemblyController extends BaseController {
                 .toLowerCase().equals("progressive")) {
             return "redirect:/motion_information/" + motionInformation.getId()
                     + "/edit?type=success&msg=create_success";
-        }
-        else {
+        } else {
             return "redirect:motion_assembly/" + motionInformation.getId()
                     + "/edit?type=success&msg=create_success";
         }

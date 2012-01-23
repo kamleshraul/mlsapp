@@ -5,7 +5,7 @@
  *
  * Project: e-Legislature
  * File: org.mkcl.els.controller.MemberRoleController.java
- * Created On: Jan 5, 2012
+ * Created On: Jan 21, 2012
  */
 package org.mkcl.els.controller;
 
@@ -60,13 +60,14 @@ public class MemberRoleController extends BaseController {
      * Index members.
      *
      * @param model the model
+     * @param locale the locale
      * @return the string
      * @author nileshp
      * @since v1.0.0
      */
     @RequestMapping(value = "assignroles/list", method = RequestMethod.GET)
-    public String indexMembers(final Model model) {
-        Grid grid = Grid.findByName("MMS_ASSIGNROLE");
+    public String indexMembers(final Model model , final Locale locale) {
+        Grid grid = Grid.findByName("MMS_ASSIGNROLE" , locale.toString());
         model.addAttribute("gridId", grid.getId());
         return "member_mgmt/roles/assignroles/list";
     }
@@ -524,13 +525,14 @@ final String filtersData,
      * Index roles.
      *
      * @param model the model
+     * @param locale the locale
      * @return the string
      * @author nileshp
      * @since v1.0.0
      */
     @RequestMapping(value = "assignmembers/list", method = RequestMethod.GET)
-    public String indexRoles(final Model model) {
-        Grid grid = Grid.findByName("MMS_ASSIGNMEMBER");
+    public String indexRoles(final Model model , final Locale locale) {
+        Grid grid = Grid.findByName("MMS_ASSIGNMEMBER" , locale.toString());
         model.addAttribute("gridId", grid.getId());
         return "member_mgmt/roles/assignmembers/list";
     }

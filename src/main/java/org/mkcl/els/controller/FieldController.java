@@ -1,13 +1,15 @@
 /**
  * See the file LICENSE for redistribution information.
  *
- * Copyright (c) 2011 MKCL.  All rights reserved.
+ * Copyright (c) 2012 MKCL.  All rights reserved.
  *
  * Project: e-Legislature
  * File: org.mkcl.els.controller.FieldController.java
- * Created On: Dec 29, 2011
+ * Created On: Jan 21, 2012
  */
 package org.mkcl.els.controller;
+
+import java.util.Locale;
 
 import javax.validation.Valid;
 
@@ -36,13 +38,14 @@ public class FieldController {
      * Index.
      *
      * @param model the model
+     * @param locale the locale
      * @return the string
-     * @author sujitas
+     * @author nileshp
      * @since v1.0.0
      */
     @RequestMapping(value = "list", method = RequestMethod.GET)
-    public String index(final ModelMap model) {
-        final Grid grid = Grid.findByName("FIELD_GRID");
+    public String index(final ModelMap model , final Locale locale) {
+        final Grid grid = Grid.findByName("FIELD_GRID" , locale.toString());
         model.addAttribute("gridId", grid.getId());
         return "masters/fields/list";
     }

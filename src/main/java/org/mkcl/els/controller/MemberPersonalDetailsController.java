@@ -5,7 +5,7 @@
  *
  * Project: e-Legislature
  * File: org.mkcl.els.controller.MemberPersonalDetailsController.java
- * Created On: Jan 4, 2012
+ * Created On: Jan 21, 2012
  */
 package org.mkcl.els.controller;
 
@@ -29,8 +29,6 @@ import org.mkcl.els.domain.Grid;
 import org.mkcl.els.domain.MemberDetails;
 import org.mkcl.els.domain.Party;
 import org.mkcl.els.domain.Title;
-import org.mkcl.els.service.IAssemblyRoleService;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.propertyeditors.CustomDateEditor;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
@@ -54,24 +52,22 @@ import org.springframework.web.bind.annotation.RequestParam;
 @RequestMapping("/member_personal_details")
 public class MemberPersonalDetailsController {
 
-    /** The assembly role service. */
-    @Autowired
-    IAssemblyRoleService assemblyRoleService;
-
     /** The Constant FORM_NAME. */
     private static final String FORM_NAME = "MIS.PERSONAL";
 
+
     /**
-     * String.
+     * Index.
      *
      * @param model the model
+     * @param locale the locale
      * @return the string
-     * @author meenalw
+     * @author nileshp
      * @since v1.0.0
      */
     @RequestMapping(value = "list", method = RequestMethod.GET)
-    public String index(final ModelMap model) {
-        Grid grid = Grid.findByName("MEMBER_DETAIL_GRID");
+    public String index(final ModelMap model , final Locale locale) {
+        Grid grid = Grid.findByName("MEMBER_DETAIL_GRID" , locale.toString());
         model.addAttribute("gridId", grid.getId());
         return "member_details/personal/list";
     }

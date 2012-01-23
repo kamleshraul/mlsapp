@@ -5,7 +5,7 @@
  *
  * Project: e-Legislature
  * File: org.mkcl.els.controller.GridController.java
- * Created On: Jan 6, 2012
+ * Created On: Jan 21, 2012
  */
 
 package org.mkcl.els.controller;
@@ -111,13 +111,14 @@ public class GridController extends BaseController {
      * Lists all grids.
      *
      * @param model the model
+     * @param locale the locale
      * @return the string
      * @author nileshp
      * @since v1.0.0
      */
     @RequestMapping(value = "list", method = RequestMethod.GET)
-    public String list(final ModelMap model) {
-        Grid grid = Grid.findByName("GRID");
+    public String list(final ModelMap model, final Locale locale) {
+        Grid grid = Grid.findByName("GRID", locale.toString());
         model.addAttribute("gridId", grid.getId());
         return "masters/grids/list";
     }
@@ -237,8 +238,8 @@ public class GridController extends BaseController {
      * Validate.
      */
     private void validate(final Grid grid, final Errors errors) {
-        Grid duplicateGrid = Grid.findByName(grid.getName());
-        if (duplicateGrid != null) {
+        Grid duplicateGrid = Grid.findByName(grid.getName(),grid.getLocale());
+        if (duplicateGrid != null ) {
             if (!duplicateGrid.getId().equals(grid.getId())) {
                 errors.rejectValue("code", "NonUnique");
             }

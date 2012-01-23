@@ -16,8 +16,6 @@ import javax.validation.Valid;
 
 import org.mkcl.els.common.editors.MenuItemEditor;
 import org.mkcl.els.domain.MenuItem;
-import org.mkcl.els.service.IGridService;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
 import org.springframework.validation.BindingResult;
@@ -38,10 +36,6 @@ import org.springframework.web.bind.annotation.RequestMethod;
 @Controller
 @RequestMapping("/menus")
 public class MenuItemController extends BaseController {
-
-    /** The grid service. */
-    @Autowired
-    IGridService gridService;
 
     /**
      * Lists all the menu items.

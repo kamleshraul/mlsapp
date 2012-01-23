@@ -5,7 +5,7 @@
  *
  * Project: e-Legislature
  * File: org.mkcl.els.controller.ConstituencyController.java
- * Created On: Jan 2, 2012
+ * Created On: Jan 21, 2012
  */
 package org.mkcl.els.controller;
 
@@ -46,16 +46,18 @@ import org.springframework.web.bind.annotation.RequestParam;
 public class ConstituencyController extends BaseController {
 
     /**
-     * Index.
+     * List.
      *
      * @param model the model
+     * @param locale the locale
      * @return the string
-     * @author meenalw
+     * @author nileshp
      * @since v1.0.0
      */
     @RequestMapping(value = "list", method = RequestMethod.GET)
-    public String list(final ModelMap model) {
-        Grid grid = Grid.findByName("CONSTITUENCY_GRID");
+    public String list(final ModelMap model, final Locale locale) {
+        Grid grid = Grid.findByNameAndLocale(
+                "CONSTITUENCY_GRID", locale.toString());
         model.addAttribute("gridId", grid.getId());
         return "masters/constituencies/list";
     }
@@ -75,7 +77,7 @@ public class ConstituencyController extends BaseController {
         constituency.setLocale(locale.toString());
         populateModel(
                 model, constituency, CustomParameter
-                .findByName("DEFAULT_STATE").getValue());
+                        .findByName("DEFAULT_STATE").getValue());
         return "masters/constituencies/new";
     }
 

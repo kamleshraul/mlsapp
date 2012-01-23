@@ -5,7 +5,7 @@
  *
  * Project: e-Legislature
  * File: org.mkcl.els.controller.MyTaskController.java
- * Created On: Jan 16, 2012
+ * Created On: Jan 21, 2012
  */
 package org.mkcl.els.controller;
 
@@ -18,8 +18,6 @@ import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 
-
-// TODO: Auto-generated Javadoc
 /**
  * The Class MyTaskController.
  *
@@ -35,13 +33,14 @@ public class MyTaskController extends BaseController {
      * Index.
      *
      * @param model the model
+     * @param locale the locale
      * @return the string
      * @author meenalw
      * @since v1.0.0
      */
     @RequestMapping(value = "list", method = RequestMethod.GET)
-    public String index(final ModelMap model) {
-        Grid grid = Grid.findByName("MYTASK_GRID");
+    public String index(final ModelMap model , final Locale locale) {
+        Grid grid = Grid.findByName("MYTASK_GRID" , locale.toString());
         model.addAttribute("gridId", grid.getId());
         return "motion_information/approval/myTask";
     }
@@ -66,7 +65,7 @@ public class MyTaskController extends BaseController {
         return "motion_information/approval/process";
     }
 
-    
+
     /**
      * Edits the form.
      *
@@ -81,7 +80,7 @@ public class MyTaskController extends BaseController {
     public String editForm(final ModelMap model,
                            final Error errors,
                            final Locale locale) {
-        
+
 
         return "motion_information/approval/process";
     }

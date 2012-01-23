@@ -5,7 +5,7 @@
  *
  * Project: e-Legislature
  * File: org.mkcl.els.controller.MotionApprovalController.java
- * Created On: Jan 16, 2012
+ * Created On: Jan 23, 2012
  */
 package org.mkcl.els.controller;
 
@@ -23,7 +23,6 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 
-// TODO: Auto-generated Javadoc
 /**
  * The Class MotionApprovalController.
  *
@@ -38,13 +37,14 @@ public class MotionApprovalController extends BaseController {
      * Index.
      *
      * @param model the model
+     * @param locale the locale
      * @return the string
-     * @author samiksham
+     * @author nileshp
      * @since v1.0.0
      */
     @RequestMapping(value = "list", method = RequestMethod.GET)
-    public String index(final ModelMap model) {
-        Grid grid = Grid.findByName("MOIS_APPROVAL_GRID");
+    public String index(final ModelMap model,  final Locale locale) {
+        Grid grid = Grid.findByName("MOIS_APPROVAL_GRID", locale.toString());
         model.addAttribute("gridId", grid.getId());
         return "motion_information/approval/list";
     }
@@ -98,7 +98,7 @@ public class MotionApprovalController extends BaseController {
     /**
      * Creates the.
      *
-     * @param motionInformation the motion information
+     * @param motionApproval the motion approval
      * @param result the result
      * @param model the model
      * @param request the request
@@ -107,7 +107,8 @@ public class MotionApprovalController extends BaseController {
      * @since v1.0.0
      */
     @RequestMapping(method = RequestMethod.POST)
-    public String create(@Valid @ModelAttribute("motionApproval") final MotionApproval motionApproval,
+    public String create(@Valid @ModelAttribute("motionApproval")
+    final MotionApproval motionApproval,
                          final BindingResult result,
                          final ModelMap model,
                          final HttpServletRequest request) {

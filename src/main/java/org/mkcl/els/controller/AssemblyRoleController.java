@@ -5,7 +5,7 @@
  *
  * Project: e-Legislature
  * File: org.mkcl.els.controller.AssemblyRoleController.java
- * Created On: Jan 9, 2012
+ * Created On: Jan 21, 2012
  */
 
 package org.mkcl.els.controller;
@@ -41,13 +41,14 @@ public class AssemblyRoleController extends BaseController {
      * List.
      *
      * @param model the model
+     * @param locale the locale
      * @return the string
      * @author nileshp
      * @since v1.0.0
      */
     @RequestMapping(value = "list", method = RequestMethod.GET)
-    public String list(final ModelMap model) {
-        Grid grid = Grid.findByName("ASSEMBLY_ROLE_GRID");
+    public String list(final ModelMap model , final Locale locale) {
+        Grid grid = Grid.findByName("ASSEMBLY_ROLE_GRID" , locale.toString());
         model.addAttribute("gridId", grid.getId());
         return "masters/assembly_roles/list";
     }

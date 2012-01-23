@@ -1,11 +1,11 @@
 /**
  * See the file LICENSE for redistribution information.
  *
- * Copyright (c) 2011 MKCL.  All rights reserved.
+ * Copyright (c) 2012 MKCL.  All rights reserved.
  *
  * Project: e-Legislature
  * File: org.mkcl.els.controller.DistrictController.java
- * Created On: Dec 19, 2011
+ * Created On: Jan 21, 2012
  */
 
 package org.mkcl.els.controller;
@@ -48,11 +48,14 @@ public class DistrictController extends BaseController {
      * Index.
      *
      * @param model the model
+     * @param locale the locale
      * @return the string
+     * @author nileshp
+     * @since v1.0.0
      */
     @RequestMapping(value = "list", method = RequestMethod.GET)
-    public final String list(final ModelMap model) {
-        Grid grid = Grid.findByName("DISTRICT_GRID");
+    public final String list(final ModelMap model , final Locale locale) {
+        Grid grid = Grid.findByName("DISTRICT_GRID" , locale.toString());
         model.addAttribute("gridId", grid.getId());
         return "masters/districts/list";
     }
@@ -63,6 +66,8 @@ public class DistrictController extends BaseController {
      * @param model the model
      * @param locale the locale
      * @return the string
+     * @author nileshp
+     * @since v1.0.0
      */
     @RequestMapping(value = "new", method = RequestMethod.GET)
     public final String newForm(final ModelMap model, final Locale locale) {
@@ -80,6 +85,8 @@ public class DistrictController extends BaseController {
      * @param id the id
      * @param model the model
      * @return the string
+     * @author nileshp
+     * @since v1.0.0
      */
     @RequestMapping(value = "{id}/edit", method = RequestMethod.GET)
     public final String edit(@PathVariable final Long id, final ModelMap model) {
@@ -95,6 +102,8 @@ public class DistrictController extends BaseController {
      * @param result the result
      * @param model the model
      * @return the string
+     * @author nileshp
+     * @since v1.0.0
      */
     @RequestMapping(method = RequestMethod.POST)
     public final String create(@Valid @ModelAttribute("district") final District district,
@@ -120,6 +129,8 @@ public class DistrictController extends BaseController {
      * @param result the result
      * @param model the model
      * @return the string
+     * @author nileshp
+     * @since v1.0.0
      */
     @RequestMapping(method = RequestMethod.PUT)
     public final String edit(@Valid @ModelAttribute("district") final District district,
@@ -144,6 +155,8 @@ public class DistrictController extends BaseController {
      * @param id the id
      * @param model the model
      * @return the string
+     * @author nileshp
+     * @since v1.0.0
      */
     @RequestMapping(value = "{id}/delete", method = RequestMethod.DELETE)
     public final String delete(@PathVariable final Long id, final ModelMap model) {
@@ -159,6 +172,9 @@ public class DistrictController extends BaseController {
      *
      * @param district the district
      * @param errors the errors
+     * @author nileshp
+     * @since v1.0.0
+     * Validate.
      */
     private void validate(final District district, final Errors errors) {
         if (district.getName() != null) {
@@ -197,6 +213,9 @@ public class DistrictController extends BaseController {
      * Inits the binder.
      *
      * @param binder the binder
+     * @author nileshp
+     * @since v1.0.0
+     * Inits the binder.
      */
     @InitBinder
     public final void initBinder(final WebDataBinder binder) {
@@ -209,6 +228,9 @@ public class DistrictController extends BaseController {
      * @param model the model
      * @param district the district
      * @param stateName the state name
+     * @author nileshp
+     * @since v1.0.0
+     * Populate model.
      */
     private void populateModel(final ModelMap model,
                                final District district,

@@ -90,12 +90,14 @@ public class HomeController extends BaseController {
     public String home(final ModelMap model,
                        final HttpServletRequest request,
                        final Locale locale) {
-        String menuXml = new MenuItem().getMenuXml(locale);
+        String menuXml = MenuItem.getMenuXml(locale);
         model.addAttribute("menu_xml", menuXml);
         // used by datepicker to read the date,time format
+        CustomParameter customParameter = CustomParameter.findByName("DATEPICKER_DATEFORMAT");
+        String value = customParameter.getValue();
         model.addAttribute(
-                "dateFormat",
-                CustomParameter.findByName("DATEPICKER_DATEFORMAT").getValue());
+                "dateFormat", value
+                );
         model.addAttribute(
                 "timeFormat",
                 CustomParameter.findByName("DATEPICKER_TIMEFORMAT").getValue());
