@@ -144,7 +144,7 @@
 		<li id="${fields.placeOfBirth.position}" class="${fields.placeOfBirth.visible}">	
 		<label class="desc"><spring:message code="member_personal_details.placeOfBirth" text="Place of Birth"/><span><spring:message code="${fields.placeOfBirth.hint}" text=""/></span>&nbsp;<c:if test="${fields.placeOfBirth.mandatory=='MANDATORY'}">*</c:if></label>
 			<div>
-				<form:input cssClass="date ${fields.placeOfBirth.mandatory}" path="placeOfBirth"/><form:errors path="placeOfBirth" cssClass="field_error" />	
+				<form:input cssClass="field text ${fields.placeOfBirth.mandatory}" path="placeOfBirth"/><form:errors path="placeOfBirth" cssClass="field_error" />	
 			</div>
 		</li>
 		

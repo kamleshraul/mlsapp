@@ -1,10 +1,10 @@
 <%@ include file="/common/taglibs.jsp" %>
+<%@ page language="java" pageEncoding="UTF-8" contentType="text/html;charset=utf-8" %>
 <html>
 <head>
 	<title>
 	<spring:message code="member_information_system" text="Member Information System"/>
 	</title>
-	<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>	
 </head>
 <body>
 <div class="commandbar">
@@ -69,7 +69,7 @@
 		</li>
 		
 		<li  class="name ${fields.alias.visible}" id="${fields.alias.position}">
-		<label class="desc"><spring:message code="member_personal_details.alias" text="Member's Alias"/><span><spring:message code="${fields.alias.hint}" text=""/></span>&nbsp;<c:if test="${fields.title.mandatory=='MANDATORY'}">*</c:if></label>		
+		<!-- <label class="desc"><spring:message code="member_personal_details.alias" text="Member's Alias"/><span><spring:message code="${fields.alias.hint}" text=""/></span>&nbsp;<c:if test="${fields.title.mandatory=='MANDATORY'}">*</c:if></label>-->		
 		<span>
 		<label><spring:message code="member_personal_details.alias" text="Alias"/><span><spring:message code="${fields.alias.hint}" text=""/></span>&nbsp;<c:if test="${fields.alias.mandatory=='MANDATORY'}">*</c:if></label>
 		<form:input cssClass="field text ${fields.alias.mandatory}" path="alias" size="25"/><form:errors path="alias" cssClass="field_error" /><span id="aliasError"></span>	
@@ -82,14 +82,27 @@
 		
 		<li id="${fields.gender.position}" class="${fields.gender.visible}">
 		<label class="desc"><spring:message code="member_personal_details.gender" text="Gender"/><span><spring:message code="${fields.gender.hint}" text=""/></span>&nbsp;<c:if test="${fields.gender.mandatory=='MANDATORY'}">*</c:if></label>
-			<div>
-				<form:select path="gender" cssClass="field select medium ${fields.partyName.mandatory}">
-				<form:option value="male">Male</form:option>
-				<form:option value="male">Female</form:option>				
-	            </form:select><form:errors path="gender" cssClass="field_error"/>		
-		   </div>
-		</li>
-			
+		<c:choose>
+			<c:when test="${fields.locale == 'en'}">
+						<div>
+							<form:select path="gender" cssClass="field select medium ${fields.partyName.mandatory}">
+							<form:option value="male">Male</form:option>
+							<form:option value="female">Female</form:option>				
+				            </form:select><form:errors path="gender" cssClass="field_error"/>		
+					   </div>
+					
+			</c:when>
+			<c:otherwise>
+						<div>
+							<form:select path="gender" cssClass="field select medium ${fields.partyName.mandatory}">
+							<form:option value="male">पुरुष</form:option>
+							<form:option value="female">महिला</form:option>				
+				            </form:select><form:errors path="gender" cssClass="field_error"/>		
+					   </div>
+					
+			</c:otherwise>
+		</c:choose>
+			</li>
 		<li id="${fields.constituencies.position}" class="${fields.constituencies.visible}">
 		<label class="desc"><spring:message code="member_personal_details.constituency" text="Constituency"/><span><spring:message code="${fields.constituencies.hint}" text=""/></span>&nbsp;<c:if test="${fields.constituencies.mandatory=='MANDATORY'}">*</c:if></label>
 		<div  id="constituencies" url="ref/constituencies"></div>
@@ -139,7 +152,7 @@
 		<li id="${fields.placeOfBirth.position}" class="${fields.placeOfBirth.visible}">	
 		<label class="desc"><spring:message code="member_personal_details.placeOfBirth" text="Place of Birth"/><span><spring:message code="${fields.placeOfBirth.hint}" text=""/></span>&nbsp;<c:if test="${fields.placeOfBirth.mandatory=='MANDATORY'}">*</c:if></label>
 			<div>
-				<form:input cssClass="date ${fields.placeOfBirth.mandatory}" path="placeOfBirth"/><form:errors path="placeOfBirth" cssClass="field_error" />	
+				<form:input cssClass="field text ${fields.placeOfBirth.mandatory}" path="placeOfBirth"/><form:errors path="placeOfBirth" cssClass="field_error" />	
 			</div>
 		</li>
 		
@@ -202,7 +215,7 @@
 		</li>
 		</ul>
 		</div>
-	<input id="saveForm" class="btTxt" type="submit" value="<spring:message code='generic.new.submit' text='Create'/>" />
+	<input id="saveForm" class="btTxt" type="submit" value="<spring:message code='generic.submit' text='Create'/>" />
 	<form:hidden path="version"/>
 	<form:hidden path="id"/>	
 </form:form>
