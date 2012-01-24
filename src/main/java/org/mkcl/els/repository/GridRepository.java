@@ -5,8 +5,9 @@
  *
  * Project: e-Legislature
  * File: org.mkcl.els.repository.GridRepository.java
- * Created On: Jan 20, 2012
+ * Created On: Jan 24, 2012
  */
+
 
 package org.mkcl.els.repository;
 
@@ -22,7 +23,6 @@ import org.springframework.stereotype.Repository;
 
 import com.trg.search.Search;
 
-// TODO: Auto-generated Javadoc
 /**
  * The Class GridRepository.
  *
@@ -116,8 +116,7 @@ public class GridRepository extends BaseRepository<Grid, Long> {
             countSelect = grid.getCountQuery() + " ORDER BY m." + sidx + " "
                     + order;
             select = grid.getQuery() + " ORDER BY m." + sidx + " " + order;
-        }
-        else {
+        } else {
             countSelect = grid.getCountQuery() + " ORDER BY " + sidx + " "
                     + order;
             select = grid.getQuery() + " ORDER BY " + sidx + " " + order;
@@ -126,15 +125,13 @@ public class GridRepository extends BaseRepository<Grid, Long> {
         if (grid.isNativeQuery()) {
             query = this.em().createNativeQuery(select);
 
-        }
-        else {
+        } else {
             query = this.em().createQuery(select);
         }
         if (countSelect.contains("=:locale")) {
             if (grid.getLocalized()) {
                 countQuery.setParameter("locale", locale.toString());
-            }
-            else {
+            } else {
                 countQuery.setParameter("locale", DEFAULT_LOCALE);
             }
         }
@@ -142,8 +139,7 @@ public class GridRepository extends BaseRepository<Grid, Long> {
         if (select.contains("=:locale")) {
             if (grid.getLocalized()) {
                 query.setParameter("locale", locale.toString());
-            }
-            else {
+            } else {
                 query.setParameter("locale", DEFAULT_LOCALE);
             }
         }
@@ -245,28 +241,27 @@ public class GridRepository extends BaseRepository<Grid, Long> {
         Query query = null;
 
         if (!sidx.contains(".")) {
-            countSelect = grid.getCountQuery()+filterSql + " ORDER BY m." + sidx + " "
+            countSelect = grid.getCountQuery() + filterSql + " ORDER BY m."
+                    + sidx + " " + order;
+            select = grid.getQuery() + filterSql + " ORDER BY m." + sidx + " "
                     + order;
-            select = grid.getQuery()+filterSql + " ORDER BY m." + sidx + " " + order;
-        }
-        else {
-            countSelect = grid.getCountQuery()+filterSql + " ORDER BY " + sidx + " "
+        } else {
+            countSelect = grid.getCountQuery() + filterSql + " ORDER BY "
+                    + sidx + " " + order;
+            select = grid.getQuery() + filterSql + " ORDER BY " + sidx + " "
                     + order;
-            select = grid.getQuery()+filterSql + " ORDER BY " + sidx + " " + order;
         }
         countQuery = this.em().createQuery(countSelect);
         if (grid.isNativeQuery()) {
             query = this.em().createNativeQuery(select);
 
-        }
-        else {
+        } else {
             query = this.em().createQuery(select);
         }
         if (countSelect.contains("=:locale")) {
             if (grid.getLocalized()) {
                 countQuery.setParameter("locale", locale.toString());
-            }
-            else {
+            } else {
                 countQuery.setParameter("locale", DEFAULT_LOCALE);
             }
         }
@@ -274,8 +269,7 @@ public class GridRepository extends BaseRepository<Grid, Long> {
         if (select.contains("=:locale")) {
             if (grid.getLocalized()) {
                 query.setParameter("locale", locale.toString());
-            }
-            else {
+            } else {
                 query.setParameter("locale", DEFAULT_LOCALE);
             }
         }
