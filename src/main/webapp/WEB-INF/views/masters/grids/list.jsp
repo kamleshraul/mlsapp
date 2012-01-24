@@ -1,8 +1,8 @@
 <%@ include file="/common/taglibs.jsp" %>
+<%@ page language="java" pageEncoding="UTF-8" contentType="text/html;charset=utf-8" %>
 <html>
 <head>
 	<title><spring:message code="masters.grids.list" text="List of Grids"/></title>
-	<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
 </head>
 <body>
 	<div>

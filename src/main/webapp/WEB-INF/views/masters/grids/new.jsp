@@ -1,8 +1,8 @@
 <%@ include file="/common/taglibs.jsp" %>
+<%@ page language="java" pageEncoding="UTF-8" contentType="text/html;charset=utf-8" %>
 <html>
 <head>
 	<title><spring:message code="masters.grids.new.title" text="Add Grid"/></title>
-	<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
 </head>
 <body>
 <form:form cssClass="wufoo" action="grid" method="POST" modelAttribute="grid">
@@ -17,7 +17,7 @@
 			</c:if>
 		</li>	
 		<li id="${fields.locale.position}" class="${fields.locale.visible}">
-		<label class="desc"><spring:message code="generic.locale" text="Select Language"/><span><spring:message code="${fields.locale.hint}" text=""/></span>&nbsp;<c:if test="${fields.locale.mandatory=='MANDATORY'}">*</c:if></label>
+		<label class="desc"><spring:message code="grid.locale" text="Select Language"/><span><spring:message code="${fields.locale.hint}" text=""/></span>&nbsp;<c:if test="${fields.locale.mandatory=='MANDATORY'}">*</c:if></label>
 			<div>
 				<form:select cssClass="field select medium" path="locale"> 
 					<form:option value="en"><spring:message code="generic.lang.english" text="English"/></form:option>
