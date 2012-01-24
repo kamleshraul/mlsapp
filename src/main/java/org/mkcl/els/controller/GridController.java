@@ -238,8 +238,8 @@ public class GridController extends BaseController {
      * Validate.
      */
     private void validate(final Grid grid, final Errors errors) {
-        Grid duplicateGrid = Grid.findByName(grid.getName(),grid.getLocale());
-        if (duplicateGrid != null ) {
+        Grid duplicateGrid = Grid.findByName(grid.getName(), grid.getLocale());
+        if (duplicateGrid != null && grid.getLocale().equalsIgnoreCase("en")) {
             if (!duplicateGrid.getId().equals(grid.getId())) {
                 errors.rejectValue("code", "NonUnique");
             }
