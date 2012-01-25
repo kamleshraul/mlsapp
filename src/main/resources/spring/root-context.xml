@@ -125,7 +125,7 @@
 	</beans>
 	
 	<beans profile="prod">
-		<jee:jndi-lookup id="dataSource" jndi-name="jdbc/igr"/>
+		<jee:jndi-lookup id="dataSource" jndi-name="jdbc/els"/>
 	</beans>
 
 </beans>
