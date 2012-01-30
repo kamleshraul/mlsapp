@@ -182,7 +182,7 @@ public class MenuItemController extends BaseController {
     private void validate(final MenuItem menuItem, final Errors errors) {
         MenuItem duplicateMenuItem = MenuItem.findByTextKey(menuItem
                 .getTextKey(), menuItem.getLocale());
-        if (duplicateMenuItem != null) {
+        if (duplicateMenuItem != null && menuItem.getLocale().equalsIgnoreCase("en")) {
             if (!duplicateMenuItem.getId().equals(menuItem.getId())) {
                 errors.rejectValue("code", "NonUnique");
             }
