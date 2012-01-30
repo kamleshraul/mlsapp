@@ -28,7 +28,6 @@ import org.mkcl.els.domain.Assembly;
 import org.mkcl.els.domain.AssemblyRole;
 import org.mkcl.els.domain.MemberDetails;
 import org.mkcl.els.domain.MemberRole;
-import org.mkcl.els.service.IMemberDetailsService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
@@ -47,10 +46,6 @@ public class MemberRoleRepository extends BaseRepository<MemberRole, Long> {
 
     /** The jdbc template. */
     private JdbcTemplate jdbcTemplate;
-
-    /** The member details service. */
-    @Autowired
-    private IMemberDetailsService memberDetailsService;
 
     /** The custom parameter repository. */
     @Autowired
@@ -112,7 +107,7 @@ public class MemberRoleRepository extends BaseRepository<MemberRole, Long> {
      */
     public List<MemberRole> findByMemberId(final Long memberId) {
         Search search = new Search();
-        search.addFilterEqual("member", memberDetailsService.findById(memberId));
+        search.addFilterEqual("member", MemberDetails.findById(memberId));
         return this.search(search);
     }
 
@@ -125,7 +120,9 @@ public class MemberRoleRepository extends BaseRepository<MemberRole, Long> {
      * @since v1.0.0
      */
     public List<MemberInRoleVO> findUnassignedMembers(final Long roleId) {
-        String query = "SELECT md.id,md.first_name,md.middle_name,md.last_name from member_details as md where md.id not in(select member from member_roles where role="
+        String query = "SELECT md.id,md.first_name,md.middle_name,md.last_name "
+    + "from member_details as md where md.id "
+                + "not in(select member from member_roles where role="
                 + roleId + " and status='Unassigned')";
         RowMapper<MemberInRoleVO> mapper = new RowMapper<MemberInRoleVO>() {
 
@@ -152,7 +149,9 @@ public class MemberRoleRepository extends BaseRepository<MemberRole, Long> {
      * @since v1.0.0
      */
     public List<MemberInRoleVO> findAssignedMembers(final Long roleId) {
-        String query = "SELECT md.id,md.first_name,md.middle_name,md.last_name from member_details as md where md.id in(select member from member_roles where role="
+        String query = "SELECT md.id,md.first_name,md.middle_name,md.last_name "
+    + "from member_details as md where md.id "
+                + "in(select member from member_roles where role="
                 + roleId + " and status='Assigned')";
         RowMapper<MemberInRoleVO> mapper = new RowMapper<MemberInRoleVO>() {
 
@@ -636,8 +635,7 @@ public class MemberRoleRepository extends BaseRepository<MemberRole, Long> {
                     + "') ) and ar.locale='"
                     + locale
                     + "' ORDER BY ar.name";
-        }
-        else {
+        } else {
             select = "SELECT ar FROM AssemblyRole ar WHERE ar.id NOT IN(SELECT mr.role.id FROM MemberRole mr WHERE mr.member.id="
                     + memberDetails.getId()
                     + " and mr.assembly.id="
