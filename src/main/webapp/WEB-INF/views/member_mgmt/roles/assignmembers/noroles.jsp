@@ -5,6 +5,6 @@
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
 </head>
 <body>
-<spring:message code="mms.assignroles.nomembers" text="First enter atleast one role to assign members"/>
+<spring:message code="mms.assignroles.noroles" text="First enter atleast one role to assign members"/>
 </body>
 </html>
