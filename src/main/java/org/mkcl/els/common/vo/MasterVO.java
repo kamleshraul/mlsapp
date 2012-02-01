@@ -1,13 +1,40 @@
+/**
+ * See the file LICENSE for redistribution information.
+ *
+ * Copyright (c) 2012 MKCL.  All rights reserved.
+ *
+ * Project: e-Legislature
+ * File: org.mkcl.els.common.vo.MasterVO.java
+ * Created On: Jan 30, 2012
+ */
 package org.mkcl.els.common.vo;
 
+/**
+ * The Class MasterVO.
+ *
+ * @author sandeeps
+ * @since v1.0.0
+ */
 public class MasterVO {
-private String name;
 
-public String getName() {
-	return name;
-}
+    /** The name. */
+    private String name;
 
-public void setName(String name) {
-	this.name = name;
-}
+    /**
+     * Gets the name.
+     *
+     * @return the name
+     */
+    public String getName() {
+        return name;
+    }
+
+    /**
+     * Sets the name.
+     *
+     * @param name the new name
+     */
+    public void setName(final String name) {
+        this.name = name;
+    }
 }
