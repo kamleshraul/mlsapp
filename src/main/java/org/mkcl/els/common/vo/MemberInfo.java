@@ -1,29 +1,16 @@
-/*
-******************************************************************
-File: org.mkcl.els.common.vo.MemberInfo.java
-Copyright (c) 2011, sandeeps, ${company}
-All rights reserved.
-
-THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
-"AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
-LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS
-FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE
-COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT,
-INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
-BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
-LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
-CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
-LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN
-ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
-POSSIBILITY OF SUCH DAMAGE.
-
-******************************************************************
+/**
+ * See the file LICENSE for redistribution information.
+ *
+ * Copyright (c) 2012 MKCL.  All rights reserved.
+ *
+ * Project: e-Legislature
+ * File: org.mkcl.els.common.vo.MemberInfo.java
+ * Created On: Jan 30, 2012
  */
+
 package org.mkcl.els.common.vo;
 
-import java.util.Date;
 
-// TODO: Auto-generated Javadoc
 /**
  * The Class MemberInfo.
  *
@@ -31,135 +18,259 @@ import java.util.Date;
  * @version v1.0.0
  */
 public class MemberInfo {
-	private Long id;
-	
-	/** The member name. */
-	private String firstName;
-	
-	/** The middle name. */
-	private String middleName;
-	
-	/** The last name. */
-	private String lastName;
-	
-	/** The member constituency. */
-	private String constituency;
-	
-	/** The party. */
-	private String party;
-	
-	/** The gender. */
-	private String gender;
-	
-	/** The marital status. */
-	private boolean maritalStatus;
-	
-	private Integer noOfTerms;
-	
-	private Date birthDate;
 
-	/**
-	 * Instantiates a new member info.
-	 */
-	public MemberInfo() {
-		super();
-	}
+    /** The id. */
+    private Long id;
 
-	public MemberInfo(Long id, String firstName, String middleName,
-			String lastName, String constituency, String party, String gender,
-			boolean maritalStatus, Integer noOfTerms, Date birthDate) {
-		super();
-		this.id = id;
-		this.firstName = firstName;
-		this.middleName = middleName;
-		this.lastName = lastName;
-		this.constituency = constituency;
-		this.party = party;
-		this.gender = gender;
-		this.maritalStatus = maritalStatus;
-		this.noOfTerms = noOfTerms;
-		this.birthDate = birthDate;
-	}
+    /** The member name. */
+    private String firstName;
 
-	public Long getId() {
-		return id;
-	}
+    /** The middle name. */
+    private String middleName;
 
-	public void setId(Long id) {
-		this.id = id;
-	}
+    /** The last name. */
+    private String lastName;
 
-	public String getFirstName() {
-		return firstName;
-	}
+    /** The member constituency. */
+    private String constituency;
 
-	public void setFirstName(String firstName) {
-		this.firstName = firstName;
-	}
+    /** The party. */
+    private String party;
 
-	public String getMiddleName() {
-		return middleName;
-	}
+    /** The gender. */
+    private String gender;
 
-	public void setMiddleName(String middleName) {
-		this.middleName = middleName;
-	}
+    /** The marital status. */
+    private boolean maritalStatus;
 
-	public String getLastName() {
-		return lastName;
-	}
+    /** The no of terms. */
+    private Integer noOfTerms;
 
-	public void setLastName(String lastName) {
-		this.lastName = lastName;
-	}
+    /** The birth date. */
+    private String birthDate;
 
-	public String getConstituency() {
-		return constituency;
-	}
+    /**
+     * Instantiates a new member info.
+     */
+    public MemberInfo() {
+        super();
+    }
 
-	public void setConstituency(String constituency) {
-		this.constituency = constituency;
-	}
+    /**
+     * Instantiates a new member info.
+     *
+     * @param id the id
+     * @param firstName the first name
+     * @param middleName the middle name
+     * @param lastName the last name
+     * @param constituency the constituency
+     * @param party the party
+     * @param gender the gender
+     * @param maritalStatus the marital status
+     * @param noOfTerms the no of terms
+     * @param birthDate the birth date
+     */
+    public MemberInfo(final Long id,
+            final String firstName,
+            final String middleName,
+            final String lastName,
+            final String constituency,
+            final String party,
+            final String gender,
+            final boolean maritalStatus,
+            final Integer noOfTerms,
+            final String birthDate) {
+        super();
+        this.id = id;
+        this.firstName = firstName;
+        this.middleName = middleName;
+        this.lastName = lastName;
+        this.constituency = constituency;
+        this.party = party;
+        this.gender = gender;
+        this.maritalStatus = maritalStatus;
+        this.noOfTerms = noOfTerms;
+        this.birthDate = birthDate;
+    }
 
-	public String getParty() {
-		return party;
-	}
+    /**
+     * Gets the id.
+     *
+     * @return the id
+     */
+    public Long getId() {
+        return id;
+    }
 
-	public void setParty(String party) {
-		this.party = party;
-	}
+    /**
+     * Sets the id.
+     *
+     * @param id the new id
+     */
+    public void setId(final Long id) {
+        this.id = id;
+    }
 
-	public String getGender() {
-		return gender;
-	}
+    /**
+     * Gets the first name.
+     *
+     * @return the first name
+     */
+    public String getFirstName() {
+        return firstName;
+    }
 
-	public void setGender(String gender) {
-		this.gender = gender;
-	}
+    /**
+     * Sets the first name.
+     *
+     * @param firstName the new first name
+     */
+    public void setFirstName(final String firstName) {
+        this.firstName = firstName;
+    }
 
-	public boolean isMaritalStatus() {
-		return maritalStatus;
-	}
+    /**
+     * Gets the middle name.
+     *
+     * @return the middle name
+     */
+    public String getMiddleName() {
+        return middleName;
+    }
 
-	public void setMaritalStatus(boolean maritalStatus) {
-		this.maritalStatus = maritalStatus;
-	}
+    /**
+     * Sets the middle name.
+     *
+     * @param middleName the new middle name
+     */
+    public void setMiddleName(final String middleName) {
+        this.middleName = middleName;
+    }
 
-	public Integer getNoOfTerms() {
-		return noOfTerms;
-	}
+    /**
+     * Gets the last name.
+     *
+     * @return the last name
+     */
+    public String getLastName() {
+        return lastName;
+    }
 
-	public void setNoOfTerms(Integer noOfTerms) {
-		this.noOfTerms = noOfTerms;
-	}
+    /**
+     * Sets the last name.
+     *
+     * @param lastName the new last name
+     */
+    public void setLastName(final String lastName) {
+        this.lastName = lastName;
+    }
 
-	public Date getBirthDate() {
-		return birthDate;
-	}
+    /**
+     * Gets the constituency.
+     *
+     * @return the constituency
+     */
+    public String getConstituency() {
+        return constituency;
+    }
 
-	public void setBirthDate(Date birthDate) {
-		this.birthDate = birthDate;
-	}
+    /**
+     * Sets the constituency.
+     *
+     * @param constituency the new constituency
+     */
+    public void setConstituency(final String constituency) {
+        this.constituency = constituency;
+    }
 
-	
+    /**
+     * Gets the party.
+     *
+     * @return the party
+     */
+    public String getParty() {
+        return party;
+    }
+
+    /**
+     * Sets the party.
+     *
+     * @param party the new party
+     */
+    public void setParty(final String party) {
+        this.party = party;
+    }
+
+    /**
+     * Gets the gender.
+     *
+     * @return the gender
+     */
+    public String getGender() {
+        return gender;
+    }
+
+    /**
+     * Sets the gender.
+     *
+     * @param gender the new gender
+     */
+    public void setGender(final String gender) {
+        this.gender = gender;
+    }
+
+    /**
+     * Checks if is marital status.
+     *
+     * @return true, if is marital status
+     */
+    public boolean isMaritalStatus() {
+        return maritalStatus;
+    }
+
+    /**
+     * Sets the marital status.
+     *
+     * @param maritalStatus the new marital status
+     */
+    public void setMaritalStatus(final boolean maritalStatus) {
+        this.maritalStatus = maritalStatus;
+    }
+
+    /**
+     * Gets the no of terms.
+     *
+     * @return the no of terms
+     */
+    public Integer getNoOfTerms() {
+        return noOfTerms;
+    }
+
+    /**
+     * Sets the no of terms.
+     *
+     * @param noOfTerms the new no of terms
+     */
+    public void setNoOfTerms(final Integer noOfTerms) {
+        this.noOfTerms = noOfTerms;
+    }
+
+    /**
+     * Gets the birth date.
+     *
+     * @return the birth date
+     */
+    public String getBirthDate() {
+        return birthDate;
+    }
+
+    /**
+     * Sets the birth date.
+     *
+     * @param birthDate the new birth date
+     */
+    public void setBirthDate(final String birthDate) {
+        this.birthDate = birthDate;
+    }
+
 }
