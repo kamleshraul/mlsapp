@@ -1,20 +1,52 @@
+/**
+ * See the file LICENSE for redistribution information.
+ *
+ * Copyright (c) 2012 MKCL.  All rights reserved.
+ *
+ * Project: e-Legislature
+ * File: org.mkcl.els.common.exception.SessionExpiredException.java
+ * Created On: Feb 1, 2012
+ */
 package org.mkcl.els.common.exception;
 
+/**
+ * The Class SessionExpiredException.
+ *
+ * @author vishals
+ * @since v1.0.0
+ */
 public class SessionExpiredException extends Exception {
 
-	private static final long serialVersionUID = 1L;
-	private String message;
+    /** The Constant serialVersionUID. */
+    private static final long serialVersionUID = 1L;
 
-	public SessionExpiredException () {
-		message = "Unknown";
-	}
+    /** The message. */
+    private String message;
 
-	public SessionExpiredException (String message) {
-		this.message = message;
-	}
+    /**
+     * Instantiates a new session expired exception.
+     */
+    public SessionExpiredException() {
+        message = "Unknown";
+    }
 
-	public String getMessage() {
-		return message;
-	}
+    /**
+     * Instantiates a new session expired exception.
+     *
+     * @param message the message
+     */
+    public SessionExpiredException(final String message) {
+        this.message = message;
+    }
+
+    /*
+     * (non-Javadoc)
+     *
+     * @see java.lang.Throwable#getMessage()
+     */
+    @Override
+    public String getMessage() {
+        return message;
+    }
 
 }
