@@ -1,3 +1,13 @@
+/**
+ * See the file LICENSE for redistribution information.
+ *
+ * Copyright (c) 2012 MKCL.  All rights reserved.
+ *
+ * Project: e-Legislature
+ * File: org.mkcl.els.repository.MemberDetailsRepository.java
+ * Created On: Jan 30, 2012
+ */
+
 package org.mkcl.els.repository;
 
 import java.sql.ResultSet;
@@ -433,7 +443,7 @@ public class MemberDetailsRepository extends
                 memberInfo.setGender(rs.getString("gender"));
                 memberInfo.setMaritalStatus(rs.getBoolean("marital_status"));
                 memberInfo.setNoOfTerms(rs.getInt("no_of_terms"));
-                memberInfo.setBirthDate(rs.getDate("birth_date"));
+                memberInfo.setBirthDate(rs.getString("birth_date"));
                 return memberInfo;
             }
         };
@@ -587,7 +597,7 @@ public class MemberDetailsRepository extends
                 memberInfo.setGender(rs.getString("gender"));
                 memberInfo.setMaritalStatus(rs.getBoolean("marital_status"));
                 memberInfo.setNoOfTerms(rs.getInt("no_of_terms"));
-                memberInfo.setBirthDate(rs.getDate("birth_date"));
+                memberInfo.setBirthDate(rs.getString("birth_date"));
                 return memberInfo;
             }
         };
