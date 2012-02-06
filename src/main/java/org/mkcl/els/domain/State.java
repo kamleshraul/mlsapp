@@ -22,6 +22,7 @@ import javax.persistence.Version;
 
 import org.hibernate.validator.constraints.NotEmpty;
 import org.mkcl.els.repository.StateRepository;
+import org.mkcl.els.validator.StringValid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Configurable;
 import org.springframework.transaction.annotation.Transactional;
@@ -49,6 +50,8 @@ public class State implements Serializable {
     /** The name. */
     @Column(length = 50, nullable = false)
     @NotEmpty
+    @StringValid(isAlpha = true, isNumeric = false, isSpace = true,
+    specialSymbols = { } , message = "Pattern mismatch", fieldName = "name")
     private String name;
 
     /** The version. */

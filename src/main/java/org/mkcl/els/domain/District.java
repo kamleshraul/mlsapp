@@ -24,6 +24,7 @@ import javax.persistence.Version;
 
 import org.hibernate.validator.constraints.NotEmpty;
 import org.mkcl.els.repository.DistrictRepository;
+import org.mkcl.els.validator.StringValid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Configurable;
 import org.springframework.transaction.annotation.Transactional;
@@ -50,6 +51,8 @@ public class District implements Serializable {
     /** The name. */
     @Column(length = 100, nullable = false)
     @NotEmpty
+    @StringValid(fieldName = "name", isAlpha = true, isNumeric = false,
+            isSpace = true, specialSymbols = { "-" })
     private String name;
 
     /** The state. */
