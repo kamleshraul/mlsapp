@@ -10,8 +10,6 @@
 package org.mkcl.els.controller;
 
 import java.util.Locale;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import javax.validation.Valid;
 
@@ -20,7 +18,6 @@ import org.mkcl.els.domain.State;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
 import org.springframework.validation.BindingResult;
-import org.springframework.validation.Errors;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -94,7 +91,7 @@ public class StateController extends BaseController {
     public final String create(@Valid @ModelAttribute("state") final State state,
                                final BindingResult result,
                                final ModelMap model) {
-        this.validate(state, result);
+        //this.validate(state, result);
         if (result.hasErrors()) {
             model.addAttribute("state", state);
             model.addAttribute("type", "error");
@@ -117,7 +114,7 @@ public class StateController extends BaseController {
     public final String edit(@Valid @ModelAttribute("state") final State state,
                              final BindingResult result,
                              final ModelMap model) {
-        this.validate(state, result);
+        //this.validate(state, result);
         if (result.hasErrors()) {
             model.addAttribute("state", state);
             model.addAttribute("type", "error");
@@ -142,36 +139,6 @@ public class StateController extends BaseController {
         model.addAttribute("type", "success");
         model.addAttribute("msg", "delete_success");
         return "info";
-    }
-
-    /**
-     * Validate.
-     *
-     * @param state the state
-     * @param errors the errors
-     */
-    private void validate(final State state, final Errors errors) {
-        if (state.getName() != null && state.getLocale().equals("en")) {
-            final String name = state.getName();
-            final Pattern pattern = Pattern.compile("[A-Za-z ]{1,50}");
-            final Matcher matcher = pattern.matcher(name);
-            if (!matcher.matches()) {
-                errors.rejectValue("name", "Pattern");
-            }
-            if (name.length() > 50 || name.length() < 1) {
-                errors.rejectValue("name", "Size");
-            }
-        }
-        final State duplicateParameter = State.findByName(state.getName());
-        if (duplicateParameter != null
-                && !duplicateParameter.getId().equals(state.getId())) {
-            errors.rejectValue("name", "NonUnique");
-        }
-
-        if (state.getId() != null
-                && !state.checkVersion()) {
-            errors.reject("name", "Version_Mismatch");
-        }
     }
 
 }

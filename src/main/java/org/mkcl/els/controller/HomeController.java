@@ -14,6 +14,7 @@ import java.util.List;
 import java.util.Locale;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpSession;
 
 import org.mkcl.els.domain.CustomParameter;
 import org.mkcl.els.domain.MenuItem;
@@ -89,8 +90,11 @@ public class HomeController extends BaseController {
     @RequestMapping(value = "/home", method = RequestMethod.GET)
     public String home(final ModelMap model,
                        final HttpServletRequest request,
-                       final Locale locale) {
+                       final Locale locale,
+                       final HttpSession session) {
         String menuXml = MenuItem.getMenuXml(locale);
+//        HttpSession session = request.getSession() ;
+        session.setAttribute("locale_els", locale.toString());
         model.addAttribute("menu_xml", menuXml);
         // used by datepicker to read the date,time format
         CustomParameter customParameter = CustomParameter.findByName("DATEPICKER_DATEFORMAT");
