@@ -5,20 +5,19 @@
  *
  * Project: e-Legislature
  * File: org.mkcl.els.validator.StringValidator.java
- * Created On: Feb 6, 2012
+ * Created On: Feb 7, 2012
  */
 package org.mkcl.els.validator;
 
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import javax.servlet.http.HttpSession;
 import javax.validation.ConstraintValidator;
 import javax.validation.ConstraintValidatorContext;
 
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.context.request.RequestAttributes;
+import org.springframework.web.context.request.RequestContextHolder;
 
-// TODO: Auto-generated Javadoc
 /**
  * The Class UsernameValidator.
  *
@@ -28,26 +27,22 @@ public class StringValidator implements
         ConstraintValidator<StringValid, String> {
 
     /** The is alpha. */
-    boolean isAlpha = false;
+    private boolean isAlpha = false;
 
     /** The is numeric. */
-    boolean isNumeric = false;
+    private boolean isNumeric = false;
 
     /** The is space. */
-    boolean isSpace = false;
+    private boolean isSpace = false;
 
     /** The special symbols. */
-    String[] specialSymbols = null;
+    private String[] specialSymbols = null;
 
     /** The locale. */
-    String locale = "en";
+    private String locale = "";
 
-    /** The field name. */
-    String fieldName = null;
-
-    /** The session. */
-    @Autowired
-    HttpSession session = null;
+    /** The length. */
+    private int length;
 
     /* (non-Javadoc)
      * @see javax.validation.ConstraintValidator#initialize(java.lang.annotation.Annotation)
@@ -58,9 +53,9 @@ public class StringValidator implements
         isNumeric = constraintAnnotation.isNumeric();
         isSpace = constraintAnnotation.isSpace();
         specialSymbols = constraintAnnotation.specialSymbols();
-        locale = session.getAttribute("locale_els").toString();
-        fieldName = constraintAnnotation.fieldName();
-
+        locale = RequestContextHolder.currentRequestAttributes()
+                .getAttribute("locale_els", RequestAttributes.SCOPE_SESSION).toString();
+        length = constraintAnnotation.length();
     }
 
     /**
@@ -70,7 +65,6 @@ public class StringValidator implements
      * @param context the context
      * @return true, if is valid
      */
-    @SuppressWarnings("null")
     @Override
     public boolean isValid(final String obj1,
                            final ConstraintValidatorContext context) {
@@ -131,21 +125,15 @@ public class StringValidator implements
         Matcher matcher = pattern.matcher(str);
         boolean result = matcher.matches();
         System.out.println("result is :- " + result);
-        if (false == result) {
-            /*
-             * MessageResource messageResource = MessageResource
-             * .findByLocaleAndCode(locale, "Pattern.state.name"); errorMessage
-             * = messageResource.getValue();
-             */
-            context.disableDefaultConstraintViolation();
+        if (!result) {
+             context.disableDefaultConstraintViolation();
             context.buildConstraintViolationWithTemplate(errorMessage)
                     .addConstraintViolation();
-            /*
-             * Errors errors = null; errors.rejectValue(fieldName, "Pattern");
-             */
-
-            // Pattern.state.name
-            return false;
+             return false;
+        } else {
+            if (str.length() > length) {
+                return false;
+            }
         }
         return result;
     }

@@ -5,7 +5,7 @@
  *
  * Project: e-Legislature
  * File: org.mkcl.els.validator.StringValid.java
- * Created On: Feb 6, 2012
+ * Created On: Feb 7, 2012
  */
 package org.mkcl.els.validator;
 
@@ -18,12 +18,13 @@ import java.lang.annotation.Target;
 import javax.validation.Constraint;
 import javax.validation.Payload;
 
+// TODO: Auto-generated Javadoc
 /**
  * The Interface StringValid.
  *
  * @author nileshp
  */
-@Target({ ElementType.METHOD, ElementType.FIELD })
+@Target(ElementType.FIELD)
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
 @Constraint(validatedBy = StringValidator.class)
@@ -60,6 +61,14 @@ public @interface StringValid {
     boolean isSpace();
 
     /**
+     * Length.
+     *
+     * @return the long
+     * @author nileshp
+     * @since v1.0.0
+     */
+    int length();
+    /**
      * Special symbols.
      *
      * @return the string[]
@@ -67,15 +76,6 @@ public @interface StringValid {
      * @since v1.0.0
      */
     String[] specialSymbols();
-
-    /**
-     * Field name.
-     *
-     * @return the string
-     * @author nileshp
-     * @since v1.0.0
-     */
-    String fieldName();
 
     /**
      * Groups.
