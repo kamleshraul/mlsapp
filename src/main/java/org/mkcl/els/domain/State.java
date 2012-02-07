@@ -48,10 +48,11 @@ public class State implements Serializable {
     private Long id;
 
     /** The name. */
-    @Column(length = 50, nullable = false)
+    @Column(nullable = false)
     @NotEmpty
     @StringValid(isAlpha = true, isNumeric = false, isSpace = true,
-    specialSymbols = { } , message = "Pattern mismatch", fieldName = "name")
+    specialSymbols = { } , message = "Pattern mismatch",
+    length = 20)
     private String name;
 
     /** The version. */

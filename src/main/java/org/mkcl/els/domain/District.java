@@ -49,10 +49,10 @@ public class District implements Serializable {
     private Long id;
 
     /** The name. */
-    @Column(length = 100, nullable = false)
     @NotEmpty
-    @StringValid(fieldName = "name", isAlpha = true, isNumeric = false,
-            isSpace = true, specialSymbols = { "-" })
+    @StringValid(isAlpha = true, isNumeric = false,
+            isSpace = true, specialSymbols = { "-" },
+            message = "Pattern mismatch", length = 100)
     private String name;
 
     /** The state. */
