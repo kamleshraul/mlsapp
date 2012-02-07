@@ -90,10 +90,9 @@ public class HomeController extends BaseController {
     @RequestMapping(value = "/home", method = RequestMethod.GET)
     public String home(final ModelMap model,
                        final HttpServletRequest request,
-                       final Locale locale,
-                       final HttpSession session) {
+                       final Locale locale) {
         String menuXml = MenuItem.getMenuXml(locale);
-//        HttpSession session = request.getSession() ;
+        HttpSession session = request.getSession();
         session.setAttribute("locale_els", locale.toString());
         model.addAttribute("menu_xml", menuXml);
         // used by datepicker to read the date,time format

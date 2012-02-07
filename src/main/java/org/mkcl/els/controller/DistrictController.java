@@ -5,7 +5,7 @@
  *
  * Project: e-Legislature
  * File: org.mkcl.els.controller.DistrictController.java
- * Created On: Jan 21, 2012
+ * Created On: Feb 7, 2012
  */
 
 package org.mkcl.els.controller;
@@ -24,6 +24,7 @@ import org.mkcl.els.domain.State;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
 import org.springframework.validation.BindingResult;
+import org.springframework.validation.Errors;
 import org.springframework.web.bind.WebDataBinder;
 import org.springframework.web.bind.annotation.InitBinder;
 import org.springframework.web.bind.annotation.ModelAttribute;
@@ -31,6 +32,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 
+// TODO: Auto-generated Javadoc
 /**
  * The Class DistrictController.
  *
@@ -106,7 +108,7 @@ public class DistrictController extends BaseController {
     public final String create(@Valid @ModelAttribute("district") final District district,
                                final BindingResult result,
                                final ModelMap model) {
-        //this.validate(district, result);
+        this.validate(district, result);
         if (result.hasErrors()) {
             populateModel(model, district, district.getState().getName());
             model.addAttribute("type", "error");
@@ -133,7 +135,7 @@ public class DistrictController extends BaseController {
     public final String edit(@Valid @ModelAttribute("district") final District district,
                              final BindingResult result,
                              final ModelMap model) {
-        //this.validate(district, result);
+        this.validate(district, result);
         if (result.hasErrors()) {
             populateModel(model, district, district.getState().getName());
             model.addAttribute("type", "error");
@@ -199,6 +201,34 @@ public class DistrictController extends BaseController {
         newStates.addAll(states);
         model.addAttribute("district", district);
         model.addAttribute("states", newStates);
+    }
+
+    /**
+     * Validate.
+     *
+     * @param district the district
+     * @param errors the errors
+     * @author nileshp
+     * @since v1.0.0
+     * Validate.
+     */
+    private void validate(final District district, final Errors errors) {
+        District duplicateParameter = District.findByName(district.getName());
+        if (duplicateParameter != null) {
+            if (!duplicateParameter.getId().equals(district.getId())) {
+                errors.rejectValue("name", "NonUnique");
+            }
+        }
+        if (district.getId() != null) {
+            /*
+             * if (!district.getVersion().equals(
+             * District.findById(district.getId()).getVersion())) {
+             * errors.reject("name", "Version_Mismatch"); }
+             */
+            if (!district.checkVersion()) {
+                errors.reject("version", "Version_Mismatch");
+            }
+        }
     }
 
 }
