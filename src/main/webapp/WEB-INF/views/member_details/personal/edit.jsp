@@ -87,12 +87,26 @@
 		
 		<li id="${fields.gender.position}" class="${fields.gender.visible}">
 		<label class="desc"><spring:message code="member_personal_details.gender" text="Gender"/><span><spring:message code="${fields.gender.hint}" text=""/></span>&nbsp;<c:if test="${fields.gender.mandatory=='MANDATORY'}">*</c:if></label>
-			<div>
-				<form:select path="gender" cssClass="field select medium ${fields.partyName.mandatory}">
-				<form:option value="male">Male</form:option>
-				<form:option value="male">Female</form:option>				
-	            </form:select><form:errors path="gender" cssClass="field_error"/>		
-		   </div>
+			<c:choose>
+			<c:when test="${memberPersonalDetails.locale == 'mr_IN'}">
+						<div>
+							<form:select path="gender" cssClass="field select medium ${fields.partyName.mandatory}">
+							<form:option value="male"><spring:message code="member_personal_details.male" text="Male"/></form:option>
+							<form:option value="female"><spring:message code="member_personal_details.female" text="female"/></form:option>				
+				            </form:select><form:errors path="gender" cssClass="field_error"/>		
+					   </div>
+					
+			</c:when>
+			<c:otherwise>
+						<div>
+							<form:select path="gender" cssClass="field select medium ${fields.partyName.mandatory}">
+							<form:option value="male"><spring:message code="member_personal_details.male" text="Male"/></form:option>
+							<form:option value="female"><spring:message code="member_personal_details.female" text="Female"/></form:option>				
+				            </form:select><form:errors path="gender" cssClass="field_error"/>		
+					   </div>
+					
+			</c:otherwise>
+		</c:choose>
 		</li>
 			
 		<li id="${fields.constituencies.position}" class="${fields.constituencies.visible}">
