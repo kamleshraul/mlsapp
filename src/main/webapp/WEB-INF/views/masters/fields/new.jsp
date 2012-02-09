@@ -76,7 +76,7 @@
 		</li>	
 				
 		<li class="buttons">
-			<input id="saveForm" class="btTxt" type="submit" value="<spring:message code='generic.new.submit' text='Create'/>" />
+			<input id="saveForm" class="btTxt" type="submit" value="<spring:message code='generic.submit' text='Create'/>" />
 		</li>
 		<form:hidden path="id"/>
 		<form:hidden path="version"/>
