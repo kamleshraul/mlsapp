@@ -18,7 +18,6 @@ import java.lang.annotation.Target;
 import javax.validation.Constraint;
 import javax.validation.Payload;
 
-// TODO: Auto-generated Javadoc
 /**
  * The Interface StringValid.
  *
@@ -33,7 +32,6 @@ public @interface StringValid {
     /**
      * Message.
      *
-     * @return the string
      * @author nileshp
      * @since v1.0.0
      */
@@ -42,28 +40,24 @@ public @interface StringValid {
     /**
      * Checks if is alpha.
      *
-     * @return true, if is alpha
      */
     boolean isAlpha();
 
     /**
      * Checks if is numeric.
      *
-     * @return true, if is numeric
      */
     boolean isNumeric();
 
     /**
      * Checks if is space.
      *
-     * @return true, if is space
      */
     boolean isSpace();
 
     /**
      * Length.
      *
-     * @return the long
      * @author nileshp
      * @since v1.0.0
      */
@@ -71,7 +65,6 @@ public @interface StringValid {
     /**
      * Special symbols.
      *
-     * @return the string[]
      * @author nileshp
      * @since v1.0.0
      */
@@ -80,19 +73,17 @@ public @interface StringValid {
     /**
      * Groups.
      *
-     * @return the class[]
      * @author nileshp
      * @since v1.0.0
      */
-    public Class<?>[] groups() default {};
+    public Class<?>[] groups() default { };
 
     /**
      * Payload.
      *
-     * @return the class<? extends payload>[]
      * @author nileshp
      * @since v1.0.0
      */
-    public Class<? extends Payload>[] payload() default {};
+    public Class<? extends Payload>[] payload() default { };
 
 }
