@@ -1,0 +1,125 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<decorators defaultdir="/WEB-INF/decorators">
+	<decorator name="form" page="form.jsp">		
+		<pattern>/masters_messages</pattern>
+		<pattern>/masters_messages/new</pattern>
+		<pattern>/masters_messages/*/edit</pattern>
+		<pattern>/masters_messages/*/delete</pattern>
+		
+		<pattern>/masters_grids</pattern>
+		<pattern>/masters_grids/new</pattern>
+		<pattern>/masters_grids/*/edit</pattern>
+		<pattern>/masters_grids/*/delete</pattern>
+		
+		<pattern>/masters_parties</pattern>
+		<pattern>/masters_parties/new</pattern>
+		<pattern>/masters_parties/*/edit</pattern>
+		<pattern>/masters_parties/*/delete</pattern>
+		
+		<pattern>/masters_assemblies</pattern>
+		<pattern>/masters_assemblies/new</pattern>
+		<pattern>/masters_assemblies/*/edit</pattern>
+		<pattern>/masters_assemblies/*/delete</pattern>
+		
+		<pattern>/masters_assemblyterms</pattern>
+		<pattern>/masters_assemblyterms/new</pattern>
+		<pattern>/masters_assemblyterms/*/edit</pattern>
+		<pattern>/masters_assemblyterms/*/delete</pattern>
+		
+		<pattern>/masters_assemblyroles</pattern>
+		<pattern>/masters_assemblyroles/new</pattern>
+		<pattern>/masters_assemblyroles/*/edit</pattern>
+		<pattern>/masters_assemblyroles/*/delete</pattern>
+		
+		<pattern>/masters_assemblystructs</pattern>
+		<pattern>/masters_assemblystructs/new</pattern>
+		<pattern>/masters_assemblystructs/*/edit</pattern>
+		<pattern>/masters_assemblystructs/*/delete</pattern>
+				
+		<pattern>/masters_assemblynumbers</pattern>
+		<pattern>/masters_assemblynumbers/new</pattern>
+		<pattern>/masters_assemblynumbers/*/edit</pattern>
+		<pattern>/masters_assemblynumbers/*/delete</pattern>
+				
+		<pattern>/masters_states</pattern>
+		<pattern>/masters_states/new</pattern>
+		<pattern>/masters_states/*/edit</pattern>
+		<pattern>/masters_states/*/delete</pattern>	
+			
+		<pattern>/masters_districts</pattern>
+		<pattern>/masters_districts/new</pattern>
+		<pattern>/masters_districts/*/edit</pattern>
+		<pattern>/masters_districts/*/delete</pattern>	
+			
+		<pattern>/masters_tehsils</pattern>
+		<pattern>/masters_tehsils/new</pattern>
+		<pattern>/masters_tehsils/*/edit</pattern>
+		<pattern>/masters_tehsils/*/delete</pattern>
+				
+		<pattern>/masters_constituencies</pattern>
+		<pattern>/masters_constituencies/new</pattern>
+		<pattern>/masters_constituencies/*/edit</pattern>
+		<pattern>/masters_constituencies/*/delete</pattern>	
+		
+		<pattern>/masters_titles</pattern>
+		<pattern>/masters_titles/new</pattern>
+		<pattern>/masters_titles/*/edit</pattern>
+		<pattern>/masters_titles/*/delete</pattern>	
+		
+		<pattern>/masters_fields</pattern>
+		<pattern>/masters_fields/new</pattern>
+		<pattern>/masters_fields/*/edit</pattern>
+		<pattern>/masters_fields/*/delete</pattern>	
+		
+		<pattern>/member_role/assignroles/createMemberRoles</pattern>
+		<pattern>/member_role/assignroles/updateMemberRole</pattern>		
+		<pattern>/member_role/assignroles/deleteMemberRoles</pattern>		
+		<pattern>/member_role/assignroles/*/new</pattern>
+		<pattern>/member_role/assignroles/*/edit</pattern>
+		<pattern>/member_role/assignroles/*/delete</pattern>
+		<pattern>/member_role/assignmembers/createMemberRoles</pattern>			
+		<pattern>/member_role/assignmembers/updateMemberRole</pattern>		
+		<pattern>/member_role/assignmembers/deleteMemberRoles</pattern>		
+		<pattern>/member_role/assignmembers/*/new</pattern>
+		<pattern>/member_role/assignmembers/*/edit</pattern>
+		<pattern>/member_role/assignmembers/*/delete</pattern>
+			
+		<pattern>/member_personal_details/new</pattern>
+		<pattern>/member_personal_details/*/edit</pattern>
+		
+		<pattern>/member_contact_details/*/edit</pattern>
+		
+		<pattern>/member_other_details/*/edit</pattern>	
+				
+		<pattern>/base/*/new</pattern>
+		<pattern>/base/*/edit</pattern>
+		<pattern>/base/*/delete</pattern>
+		<pattern>/base/*/create</pattern>
+		<pattern>/base/*/update</pattern>
+		
+		<pattern>/masters_locales/new</pattern>
+		<pattern>/masters_locales/*/edit</pattern>
+		<pattern>/masters_locales/*/delete</pattern>
+		<pattern>/masters_locales</pattern>	
+		
+		<pattern>/masters_customparams/new</pattern>
+		<pattern>/masters_customparams/*/edit</pattern>
+		<pattern>/masters_customparams/*/delete</pattern>
+		<pattern>/masters_customparams</pattern>	
+		
+		<pattern>/masters_motiontypes/new</pattern>
+		<pattern>/masters_motiontypes/*/edit</pattern>
+		<pattern>/masters_motiontypes/*/delete</pattern>
+		<pattern>/masters_motiontypes</pattern>		
+				
+    </decorator>
+    <decorator name="mnu_form" page="mnu_form.jsp">
+		 <pattern>/masters_menus</pattern>
+		<pattern>/masters_menus/new</pattern>
+		<pattern>/masters_menus/*/edit</pattern>
+		<pattern>/masters_menus/*/delete</pattern>	
+   </decorator>  
+    <decorator name="acctform" page="acct_form.jsp">
+    	<pattern>/acct/**</pattern>
+    </decorator>
+</decorators>
