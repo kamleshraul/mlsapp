@@ -61,6 +61,7 @@ public class Degree extends BaseDomain implements Serializable{
     // -------------------------------Domain_Methods----------------------------------------------
    
     
+	
     // ------------------------------------------Getters/Setters-----------------------------------
 		/**
      * Gets the degree.
