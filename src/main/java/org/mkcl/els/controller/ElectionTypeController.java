@@ -41,72 +41,17 @@ public class ElectionTypeController extends GenericController<ElectionType> {
     /* (non-Javadoc)
      * @see org.mkcl.els.controller.GenericController#customValidateCreate(org.mkcl.els.domain.BaseDomain, org.springframework.validation.BindingResult, javax.servlet.http.HttpServletRequest)
      */
-    @Override
-    protected void customValidateCreate(final ElectionType domain,
-                                        final BindingResult result,
-                                        final HttpServletRequest request) {
-        customValidate(domain, result, request);
-    }
-
-    /* (non-Javadoc)
-     * @see org.mkcl.els.controller.GenericController#customValidateUpdate(org.mkcl.els.domain.BaseDomain, org.springframework.validation.BindingResult, javax.servlet.http.HttpServletRequest)
-     */
-    @Override
-    protected void customValidateUpdate(final ElectionType domain,
-                                        final BindingResult result,
-                                        final HttpServletRequest request) {
-        customValidate(domain, result, request);
-    }
-
-    /**
-     * Custom validate.
-     *
-     * @param domain the domain
-     * @param result the result
-     * @param request the request
-     * @author nileshp
-     * @since v1.0.0
-     * Custom validate.
-     */
-    private void customValidate(final ElectionType domain,
-                                final BindingResult result,
-                                final HttpServletRequest request) {
-        Map<String, String> names = new HashMap<String, String>();
-        names.put("electionType", domain.getElectionType());
-       
-        // Check for duplicate instances
-        Boolean duplicateParameter = domain.isDuplicate(names);
-        Object[] params = new Object[1];
-        params[0] = domain.getLocale().toString();
-        if (duplicateParameter) {
-            result.rejectValue(
-                    "electionType", "NonUnique", params, "Duplicate Parameter");
-        }
-        // Check for version mismatch
-        if (domain.isVersionMismatch()) {
-            result.rejectValue("VersionMismatch", "version");
-        }
-    }
-
-    
     /* (non-Javadoc)
      * @see org.mkcl.els.controller.GenericController#populateNew(org.springframework.ui.ModelMap, org.mkcl.els.domain.BaseDomain, java.util.Locale, javax.servlet.http.HttpServletRequest)
      */
     @Override
     protected void populateNew(final ModelMap model,
                                final ElectionType domain,
-                               final Locale locale,
+                               final String locale,
                                final HttpServletRequest request) {
-        /*domain.setLocale(locale.toString());
-        List<AssemblyCouncilType> assemblycounciltype = AssemblyCouncilType.findAll(
-        		AssemblyCouncilType.class, "type", ASC, locale.toString());
-        model.addAttribute("AssemblyCouncilType", assemblycounciltype);
-        String type = ((CustomParameter) CustomParameter.findByName(CustomParameter.class, "DEFAULT_ASSEMBLYCOUNCILTYPE", locale.toString())).getValue();
-        AssemblyCouncilType defaultAssemblycounciltype = AssemblyCouncilType.findByFieldName(AssemblyCouncilType.class, "type", type, locale.toString());
-        domain.setAssemblycounciltype(defaultAssemblycounciltype);*/
-    	
+        
     	 String assemblycounciltype = ((CustomParameter) CustomParameter.findByName(
-                 CustomParameter.class, "DEFAULT_HOUSETYPE", locale.toString())).getValue();
+                 CustomParameter.class, "DEFAULT_HOUSETYPE", locale)).getValue();
          populate(model, domain, locale, request, assemblycounciltype);
     }
 
@@ -119,10 +64,10 @@ public class ElectionTypeController extends GenericController<ElectionType> {
     * @param request the request
     * @param assemblycounciltype the assemblycounciltype
     */
-   protected void populate(final ModelMap model, final ElectionType domain, final Locale locale,
+   protected void populate(final ModelMap model, final ElectionType domain, final String locale,
 			final HttpServletRequest request, final String assemblycounciltype) {
 		// TODO Auto-generated method stub
-	   domain.setLocale(locale.toString());
+	   domain.setLocale(locale);
        List<HouseType> assemblycounciltypelist = HouseType.findAll(
     		   HouseType.class, "type", "asc", locale.toString());
        HouseType selectedAssemblycounciltype = HouseType.findByFieldName(
@@ -138,17 +83,17 @@ public class ElectionTypeController extends GenericController<ElectionType> {
 /* (non-Javadoc)
  * @see org.mkcl.els.controller.GenericController#populateEdit(org.springframework.ui.ModelMap, org.mkcl.els.domain.BaseDomain, javax.servlet.http.HttpServletRequest)
  */
-@Override
-    protected void populateEdit(final ModelMap model,
+   @Override
+protected void populateEdit(final ModelMap model,
                                 final ElectionType domain,
                                 final HttpServletRequest request) {
         /*List<AssemblyCouncilType> assemblycounciltype = AssemblyCouncilType.findAll(
         		AssemblyCouncilType.class, "name", ASC, domain.getLocale());
         model.addAttribute("assemblycounciltype", assemblycounciltype);*/
-	
+	domain.setLocale(domain.getLocale());
 	String assemblycounciltype = domain.getHouseType().getType();
     populate(
-            model, domain, new Locale(domain.getLocale()), request,
+            model, domain,domain.getLocale(), request,
             assemblycounciltype);
     model.addAttribute("electionType", domain);
     }
