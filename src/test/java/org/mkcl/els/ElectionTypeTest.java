@@ -82,7 +82,7 @@ public class ElectionTypeTest extends AbstractTest {
 		assemblycounciltype.persist();
 		ElectionType electiontype=new ElectionType("TestElectionType",assemblycounciltype);
 		electiontype.persist();
-		electiontype.setElectionType("NEw Election Type");
+		electiontype.setName("NEw Election Type");
 		electiontype.merge();
 	    Assert.assertNotNull("Updating ElectionType Data", electiontype);
 	}
@@ -113,7 +113,7 @@ public class ElectionTypeTest extends AbstractTest {
 		ElectionType electiontype=new ElectionType("TestElectionType",assemblycounciltype);	
 		electiontype.persist();
 		ElectionType electiontype1=ElectionType.findById(ElectionType.class,electiontype.getId());
-	    Assert.assertNotNull("Finding ElectionType Data from Id", electiontype);
+	    Assert.assertNotNull("Finding ElectionType Data from Id", electiontype1);
 
 	}
 
@@ -127,8 +127,8 @@ public class ElectionTypeTest extends AbstractTest {
 		assemblycounciltype.persist();
 		ElectionType electiontype=new ElectionType("TestElectionType",assemblycounciltype);	
 		electiontype.persist();
-		ElectionType electiontype1=ElectionType.findByFieldName(ElectionType.class, "electionType", "TestElectiontype",electiontype.getLocale() );
-	    Assert.assertNotNull("Finding ElectionType Data from Field Names", electiontype);
+		ElectionType electiontype1=ElectionType.findByFieldName(ElectionType.class, "name", "TestElectionType", electiontype.getLocale());
+	    Assert.assertNotNull("Finding ElectionType Data from Field Names", electiontype1);
 	
 	}
 
@@ -142,7 +142,7 @@ public class ElectionTypeTest extends AbstractTest {
 		assemblycounciltype.persist();
 		ElectionType electiontype=new ElectionType("TestElectionType",assemblycounciltype);	
 		electiontype.persist();
-		List<ElectionType> listElectionType = ElectionType.findAll(ElectionType.class,"electionType", "desc", "en");
+		List<ElectionType> listElectionType = ElectionType.findAll(ElectionType.class,"name", "desc", "en");
 	    Assert.assertNotNull("testFindAllSorted Election Type Data ", listElectionType);
 	}
 
