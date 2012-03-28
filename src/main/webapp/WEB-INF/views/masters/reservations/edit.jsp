@@ -23,9 +23,9 @@
 	<form:errors path="version" cssClass="validationError"/>
 	
 	<p>
-	<label class="small"><spring:message code="${urlPattern}.reservationType" text="Reservation Type"/>&nbsp;*</label>
-			<form:input cssClass="sSelect" path="reservationType"/>
-			<form:errors path="reservationType" cssClass="validationError"/>	
+	<label class="small"><spring:message code="${urlPattern}.name" text="Reservation Type"/>&nbsp;*</label>
+			<form:input cssClass="sSelect" path="name"/>
+			<form:errors path="name" cssClass="validationError"/>	
 	</p>
 	
 	
