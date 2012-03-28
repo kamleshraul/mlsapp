@@ -26,9 +26,9 @@
 	        <form:errors path="houseType" cssClass="validationError"/>	
 		</p>
 		<p> 
-			<label class="small"><spring:message code="${urlPattern}.electionType" text="Election Type"/></label>
-			<form:input cssClass="sSelect" path="electionType"/>
-			<form:errors path="electionType" cssClass="validationError" />	
+			<label class="small"><spring:message code="${urlPattern}.name" text="Election Type"/></label>
+			<form:input cssClass="sSelect" path="name"/>
+			<form:errors path="name" cssClass="validationError" />	
 		</p>				
 		<div class="fields">
 			<h2></h2>
