@@ -20,7 +20,7 @@ import org.springframework.beans.factory.annotation.Configurable;
 
 /**
  * The Class Reservation.
- *
+ * 
  * @author Anand
  * @since v1.0.0
  */
@@ -29,79 +29,62 @@ import org.springframework.beans.factory.annotation.Configurable;
 @Table(name = "masters_reservations")
 public class Reservation extends BaseDomain implements Serializable {
 
-	// ---------------------------------Attributes------------------------------------------
-	/** The Constant serialVersionUID. */
-	private static final transient long serialVersionUID = 1L;
+    // ---------------------------------Attributes------------------------------------------
+    /** The Constant serialVersionUID. */
+    private static final transient long serialVersionUID = 1L;
 
-	/** The reservation_type. */
-	@Column(length = 150, nullable = false)
-	@NotEmpty
-	private String reservationType;
+    /** The reservation_type. */
+    @Column(length = 600)
+    @NotEmpty
+    private String name;
 
-	/** The short_name. */
-	@Column(length = 75, nullable = false)
-	@NotEmpty
-	private String shortName;
+    /** The short_name. */
+    @Column(length = 200)
+    private String shortName;
 
-	// ---------------------------------Constructors----------------------------------------------
+    // ---------------------------------Constructors----------------------------------------------
 
-	/**
-	 * Instantiates a new reservation.
-	 */
-	public Reservation() {
-		super();
-	}
+    /**
+     * Instantiates a new reservation.
+     */
+    public Reservation() {
+        super();
+    }
 
-	/**
-	 * Instantiates a new reservation.
-	 *
-	 * @param reservationType the reservation type
-	 * @param short_name the short_name
-	 */
-	public Reservation(final String reservationType, final String short_name) {
-		super();
-		this.reservationType = reservationType;
-		this.shortName = short_name;
-	}
+    /**
+     * Instantiates a new reservation.
+     * 
+     * @param name the name
+     * @param shortName the short name
+     */
+    public Reservation(String name, String shortName) {
+        super();
+        this.name = name;
+        this.shortName = shortName;
+    }
 
-	
+    // -------------------------------Domain_Methods----------------------------------------------
 
-	// -------------------------------Domain_Methods----------------------------------------------
+    // ------------------------------------------Getters/Setters-----------------------------------
 
-	// ------------------------------------------Getters/Setters-----------------------------------
-	/**
-	 * Gets the reservation type.
-	 *
-	 * @return the reservation type
-	 */
-	public String getReservationType() {
-		return reservationType;
-	}
+    public String getName() {
+        return name;
+    }
 
-	/**
-	 * Sets the reservation type.
-	 *
-	 * @param reservationType the new reservation type
-	 */
-	public void setReservationType(final String reservationType) {
-		this.reservationType = reservationType;
-	}
+    public void setName(String name) {
+        this.name = name;
+    }
 
-	/**
-	 * Gets the short name.
-	 *
-	 * @return the short name
-	 */
-	public String getShortName() {
-		return shortName;
-	}
+    public String getShortName() {
+        return shortName;
+    }
 
-	/**
-	 * Sets the short name.
-	 *
-	 * @param shortName the new short name
-	 */
-	public void setShortName(final String shortName) {
-		this.shortName = shortName;
-	}
+    /**
+     * Sets the short name.
+     * 
+     * @param shortName the new short name
+     */
+    public void setShortName(String shortName) {
+        this.shortName = shortName;
+    }
 }
