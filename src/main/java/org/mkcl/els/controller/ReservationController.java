@@ -30,46 +30,5 @@ import org.springframework.web.bind.annotation.RequestMapping;
 @RequestMapping("/masters_reservations")
 public class ReservationController extends GenericController<Reservation>{
 	
-	/* (non-Javadoc)
-	 * @see org.mkcl.els.controller.GenericController#customValidateCreate(org.mkcl.els.domain.BaseDomain, org.springframework.validation.BindingResult, javax.servlet.http.HttpServletRequest)
-	 */
-	protected void customValidateCreate(final Reservation domain,
-			final BindingResult result, final HttpServletRequest request) {
-		customValidate(domain, result, request);
-	}
 	
-	/* (non-Javadoc)
-	 * @see org.mkcl.els.controller.GenericController#customValidateUpdate(org.mkcl.els.domain.BaseDomain, org.springframework.validation.BindingResult, javax.servlet.http.HttpServletRequest)
-	 */
-	protected void customValidateUpdate(final Reservation domain,
-			final BindingResult result, final HttpServletRequest request) {
-		customValidate(domain, result, request);
-	}
-	
-	/**
-	 * Custom validate.
-	 *
-	 * @param domain the domain
-	 * @param result the result
-	 * @param request the request
-	 */
-	private void customValidate(final Reservation domain,
-			final BindingResult result, final HttpServletRequest request) {
-		Map<String, String> names = new HashMap<String, String>();
-		names.put("reservationType", domain.getReservationType());
-		names.put("shortName",domain.getShortName());
-
-		// Check for duplicate instances
-		Boolean duplicateParameter = domain.isDuplicate(names);
-		Object[] params = new Object[1];
-		params[0] = domain.getLocale().toString();
-		if (duplicateParameter) {
-			result.rejectValue("reservationType", "NonUnique", params,
-					"Duplicate Parameter");
-		}
-		// Check for version mismatch
-		if (domain.isVersionMismatch()) {
-			result.rejectValue("VersionMismatch", "version");
-		}
-	}
 }
