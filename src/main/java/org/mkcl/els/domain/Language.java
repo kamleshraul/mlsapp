@@ -18,7 +18,6 @@ import javax.persistence.Table;
 import org.hibernate.validator.constraints.NotEmpty;
 import org.springframework.beans.factory.annotation.Configurable;
 
-// TODO: Auto-generated Javadoc
 /**
  * The Class Language.
  * 
@@ -30,54 +29,52 @@ import org.springframework.beans.factory.annotation.Configurable;
 @Table(name = "masters_languages")
 public class Language extends BaseDomain implements Serializable {
 
-	// ---------------------------------Attributes------------------------------------------
-	/** The Constant serialVersionUID. */
-	private static final long serialVersionUID = 1L;
+    // ---------------------------------Attributes------------------------------------------
+    /** The Constant serialVersionUID. */
+    private static final long serialVersionUID = 1L;
 
-	/** The language. */
-	@Column(length = 150)
-	@NotEmpty
-	private String name;
+    /** The language. */
+    @Column(length = 300)
+    @NotEmpty
+    private String name;
 
-	// ---------------------------------Constructors----------------------------------------------
-	/**
-	 * Instantiates a new language.
-	 */
-	public Language() {
-		super();
-	}
+    // ---------------------------------Constructors----------------------------------------------
+    /**
+     * Instantiates a new language.
+     */
+    public Language() {
+        super();
+    }
 
-	/**
-	 * Instantiates a new language.
-	 * 
-	 * @param language
-	 *            the language
-	 */
-	public Language(final String name) {
-		super();
-		this.name = name;
-	}
+    /**
+     * Instantiates a new language.
+     * 
+     * @param language the language
+     */
+    public Language(final String name) {
+        super();
+        this.name = name;
+    }
 
-	// -------------------------------Domain_Methods----------------------------------------------
+    // -------------------------------Domain_Methods----------------------------------------------
 
-	// ------------------------------------------Getters/Setters-----------------------------------
-	/**
-	 * Gets the language.
-	 * 
-	 * @return the language
-	 */
-	public String getName() {
-		return name;
-	}
+    // ------------------------------------------Getters/Setters-----------------------------------
+    /**
+     * Gets the language.
+     * 
+     * @return the language
+     */
+    public String getName() {
+        return name;
+    }
 
-	/**
-	 * Sets the language.
-	 * 
-	 * @param language
-	 *            the new language
-	 */
-	public void setName(final String name) {
-		this.name = name;
-	}
+    /**
+     * Sets the language.
+     * 
+     * @param language the new language
+     */
+    public void setName(final String name) {
+        this.name = name;
+    }
 
 }
