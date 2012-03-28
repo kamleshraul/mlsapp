@@ -56,14 +56,14 @@ public class MaritalStatusController extends GenericController<MaritalStatus>{
 	private void customValidate(final MaritalStatus domain,
 			final BindingResult result, final HttpServletRequest request) {
 		Map<String, String> names = new HashMap<String, String>();
-		names.put("marital_status", domain.getMarital_status());
+		names.put("maritalStatus", domain.getMaritalStatus());
 
 		// Check for duplicate instances
 		Boolean duplicateParameter = domain.isDuplicate(names);
 		Object[] params = new Object[1];
 		params[0] = domain.getLocale().toString();
 		if (duplicateParameter) {
-			result.rejectValue("marital_status", "NonUnique", params,
+			result.rejectValue("maritalStatus", "NonUnique", params,
 					"Duplicate Parameter");
 		}
 		// Check for version mismatch
