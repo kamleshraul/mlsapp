@@ -17,64 +17,64 @@ import javax.persistence.Table;
 
 import org.hibernate.validator.constraints.NotEmpty;
 import org.springframework.beans.factory.annotation.Configurable;
-// TODO: Auto-generated Javadoc
 
 /**
  * The Class Religion.
- *
+ * 
  * @author Anand
  * @since v1.0.0
  */
 @Configurable
 @Entity
 @Table(name = "masters_religions")
-public class Religion extends BaseDomain implements Serializable{
+public class Religion extends BaseDomain implements Serializable {
 
-	// ---------------------------------Attributes------------------------------------------
+    // ---------------------------------Attributes------------------------------------------
     /** The Constant serialVersionUID. */
     private static final transient long serialVersionUID = 1L;
 
     /** The name. */
-    @Column(length = 150, nullable = false)
+    @Column(length = 300)
     @NotEmpty
     private String religion;
 
-	 // ---------------------------------Constructors----------------------------------------------
+    // ---------------------------------Constructors----------------------------------------------
     /**
- 	 * Instantiates a new religion.
- 	 */
- 	public Religion() {
-		super();
-	}
+     * Instantiates a new religion.
+     */
+    public Religion() {
+        super();
+    }
 
-	/**
-	 * Instantiates a new religion.
-	 *
-	 * @param religion the religion
-	 */
-	public Religion(final String religion) {
-		super();
-		this.religion = religion;
-	}
+    /**
+     * Instantiates a new religion.
+     * 
+     * @param religion the religion
+     */
+    public Religion(final String religion) {
+        super();
+        this.religion = religion;
+    }
+
     // -------------------------------Domain_Methods----------------------------------------------
     // ------------------------------------------Getters/Setters-----------------------------------
 
-	/**
+    /**
      * Gets the religion.
-     *
+     * 
      * @return the religion
      */
     public String getReligion() {
-		return religion;
-	}
+        return religion;
+    }
 
-	/**
-	 * Sets the religion.
-	 *
-	 * @param religion the new religion
-	 */
-	public void setReligion(final String religion) {
-		this.religion = religion;
-	}
-	
+    /**
+     * Sets the religion.
+     * 
+     * @param religion the new religion
+     */
+    public void setReligion(final String religion) {
+        this.religion = religion;
+    }
+
 }
