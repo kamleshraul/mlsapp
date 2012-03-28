@@ -20,62 +20,54 @@ import org.springframework.beans.factory.annotation.Configurable;
 
 /**
  * The Class AssemblyCouncilType.
- *
+ * 
  * @author Anand
  * @since v1.0.0
  */
 @Configurable
 @Entity
-@Table(name = "masters_HouseType")
-public class HouseType extends BaseDomain implements Serializable{
-  // ---------------------------------Attributes------------------------------------------
+@Table(name = "masters_housetype")
+public class HouseType extends BaseDomain implements Serializable {
+
+    // ---------------------------------Attributes------------------------------------------
     /** The Constant serialVersionUID. */
-    private static final long serialVersionUID = 1L;
+    private transient static final long serialVersionUID = 1L;
+
     /** The type. */
     @Column(length = 150, nullable = false)
     @NotEmpty
     private String type;
 
- // ---------------------------------Constructors----------------------------------------------
-  /**
-  * Instantiates a new assembly council type.
-  */
- public HouseType() {
-    super();
+    // ---------------------------------Constructors----------------------------------------------
+
+    public HouseType() {
+        super();
     }
 
-	/**
-	 * Instantiates a new assembly council type.
-	 *
-	 * @param type the type
-	 */
-	public HouseType(String type) {
-		super();
-		this.type = type;
-	}
+    public HouseType(String type) {
+        super();
+        this.type = type;
+    }
 
-	 // -------------------------------Domain_Methods----------------------------------------------
-	
-	 // ------------------------------------------Getters/Setters-----------------------------------
-	/**
- 	 * Gets the type.
- 	 *
- 	 * @return the type
- 	 */
- 	public String getType() {
-		return type;
-	}
+    // -------------------------------Domain_Methods----------------------------------------------
 
-	/**
-	 * Sets the type.
-	 *
-	 * @param type the new type
-	 */
-	public void setType(String type) {
-		this.type = type;
-	}
-    
-    
-    
+    // ------------------------------------------Getters/Setters-----------------------------------
+    /**
+     * Gets the type.
+     * 
+     * @return the type
+     */
+    public String getType() {
+        return type;
+    }
+
+    /**
+     * Sets the type.
+     * 
+     * @param type the new type
+     */
+    public void setType(String type) {
+        this.type = type;
+    }
 
 }
