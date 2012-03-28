@@ -28,9 +28,9 @@
 			<form:errors path="version" cssClass="validationError" />
 			<p>
 				<label class="small"><spring:message
-						code="${urlPattern}.marital_status" text="Marital Status" />&nbsp;*</label>
-				<form:input cssClass="sSelect " path="marital_status" />
-				<form:errors path="marital_status" cssClass="validationError" />
+						code="${urlPattern}.maritalStatus" text="Marital Status" />&nbsp;*</label>
+				<form:input cssClass="sSelect " path="maritalStatus" />
+				<form:errors path="maritalStatus" cssClass="validationError" />
 			</p>
 			<div class="fields">
 				<h2></h2>
