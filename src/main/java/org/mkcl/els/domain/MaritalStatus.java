@@ -18,7 +18,6 @@ import javax.persistence.Table;
 import org.hibernate.validator.constraints.NotEmpty;
 import org.springframework.beans.factory.annotation.Configurable;
 
-// TODO: Auto-generated Javadoc
 /**
  * The Class MaritalStatus.
  * 
@@ -27,58 +26,56 @@ import org.springframework.beans.factory.annotation.Configurable;
  */
 @Configurable
 @Entity
-@Table(name = "masters_maritalStatus")
+@Table(name = "masters_maritalstatus")
 public class MaritalStatus extends BaseDomain implements Serializable {
 
-	// ---------------------------------Attributes------------------------------------------
-	/** The Constant serialVersionUID. */
-	private static final transient long serialVersionUID = 1L;
+    // ---------------------------------Attributes------------------------------------------
+    /** The Constant serialVersionUID. */
+    private static final transient long serialVersionUID = 1L;
 
-	/** The marital_status. */
-	@Column(length = 150, nullable = false)
-	@NotEmpty
-	private String marital_status;
+    /** The maritalStatus. */
+    @Column(length = 300)
+    @NotEmpty
+    private String maritalStatus;
 
-	// ---------------------------------Constructors----------------------------------------------
+    // ---------------------------------Constructors----------------------------------------------
 
-	/**
-	 * Instantiates a new marital status.
-	 */
-	public MaritalStatus() {
-		super();
-	}
+    /**
+     * Instantiates a new marital status.
+     */
+    public MaritalStatus() {
+        super();
+    }
 
-	/**
-	 * Instantiates a new marital status.
-	 * 
-	 * @param marital_status
-	 *            the marital_status
-	 */
-	public MaritalStatus(String marital_status) {
-		super();
-		this.marital_status = marital_status;
-	}
+    /**
+     * Instantiates a new marital status.
+     * 
+     * @param maritalStatus the maritalStatus
+     */
+    public MaritalStatus(String maritalStatus) {
+        super();
+        this.maritalStatus = maritalStatus;
+    }
 
-	// -------------------------------Domain_Methods----------------------------------------------
+    // -------------------------------Domain_Methods----------------------------------------------
 
-	// ------------------------------------------Getters/Setters-----------------------------------
-	/**
-	 * Gets the marital_status.
-	 * 
-	 * @return the marital_status
-	 */
-	public String getMarital_status() {
-		return marital_status;
-	}
+    // ------------------------------------------Getters/Setters-----------------------------------
+    /**
+     * Gets the maritalStatus.
+     * 
+     * @return the maritalStatus
+     */
+    public String getMaritalStatus() {
+        return maritalStatus;
+    }
 
-	/**
-	 * Sets the marital_status.
-	 * 
-	 * @param marital_status
-	 *            the new marital_status
-	 */
-	public void setMarital_status(String marital_status) {
-		this.marital_status = marital_status;
-	}
+    /**
+     * Sets the maritalStatus.
+     * 
+     * @param maritalStatus the new maritalStatus
+     */
+    public void setMaritalStatus(String maritalStatus) {
+        this.maritalStatus = maritalStatus;
+    }
 
 }
