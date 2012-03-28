@@ -17,60 +17,64 @@ import javax.persistence.Table;
 
 import org.hibernate.validator.constraints.NotEmpty;
 import org.springframework.beans.factory.annotation.Configurable;
+
 /**
  * The Class SessionPlace.
- *
+ * 
  * @author Anand
  * @since v1.0.0
  */
 @Configurable
 @Entity
-@Table(name = "masters_sessionPlace")
-public class SessionPlace extends BaseDomain implements Serializable{
-	// ---------------------------------Attributes------------------------------------------
+@Table(name = "masters_sessionplaces")
+public class SessionPlace extends BaseDomain implements Serializable {
+
+    // ---------------------------------Attributes------------------------------------------
     /** The Constant serialVersionUID. */
     private static final transient long serialVersionUID = 1L;
 
     /** The name. */
-    @Column(length = 100, nullable = false)
+    @Column(length = 300)
     @NotEmpty
     private String place;
- // -------------------------------Constructors----------------------------------------------
 
-	/**
-  * Instantiates a new session place.
-  */
- public SessionPlace() {
-		super();
-	}
-	
-	/**
-	 * Instantiates a new session place.
-	 *
-	 * @param place the place
-	 */
-	public SessionPlace(final String place) {
-	super();
-	this.place = place;
-	}
-// -------------------------------Domain_Methods----------------------------------------------
- // -------------------------------Getters and Setters----------------------------------------------
-	/**
- * Gets the place.
- *
- * @return the place
- */
-public String getPlace() {
-		return place;
-	}
-	
-	/**
-	 * Sets the place.
-	 *
-	 * @param place the new place
-	 */
-	public void setPlace(final String place) {
-		this.place = place;
-	}
-	
+    // -------------------------------Constructors----------------------------------------------
+
+    /**
+     * Instantiates a new session place.
+     */
+    public SessionPlace() {
+        super();
+    }
+
+    /**
+     * Instantiates a new session place.
+     * 
+     * @param place the place
+     */
+    public SessionPlace(final String place) {
+        super();
+        this.place = place;
+    }
+
+    // -------------------------------Domain_Methods----------------------------------------------
+    // -------------------------------Getters/Setters----------------------------------------------
+    /**
+     * Gets the place.
+     * 
+     * @return the place
+     */
+    public String getPlace() {
+        return place;
+    }
+
+    /**
+     * Sets the place.
+     * 
+     * @param place the new place
+     */
+    public void setPlace(final String place) {
+        this.place = place;
+    }
+
 }
