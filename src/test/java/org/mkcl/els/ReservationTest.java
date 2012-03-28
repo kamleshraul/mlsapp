@@ -48,7 +48,7 @@ public class ReservationTest extends AbstractTest{
 	public void testMerge() {
 		Reservation reservation=new Reservation("TestReservation","tr");
 		reservation.persist();
-		reservation.setReservationType("new Reservation");
+		reservation.setName("new Reservation");
 		reservation.merge();
 	    Assert.assertNotNull("Updated reservation Data ", reservation);
 
@@ -88,7 +88,7 @@ public class ReservationTest extends AbstractTest{
 	public void testFindByFieldName() {
 		Reservation reservation=new Reservation("TestReservation","tr");
 		reservation.persist();
-		Reservation reservation1=Reservation.findByFieldName(Reservation.class, "reservationType", "TestReservation", reservation.getLocale());
+		Reservation reservation1=Reservation.findByFieldName(Reservation.class, "name", "TestReservation", reservation.getLocale());
 	    Assert.assertNotNull("Finding reservation Data by Fieled name ", reservation1);
 
 	}
@@ -101,7 +101,7 @@ public class ReservationTest extends AbstractTest{
 	public void testFindAll(){
 		Reservation reservation=new Reservation("TestReservation","tr");
 		reservation.persist();
-		List<Reservation> reservation1=Reservation.findAll(Reservation.class, "reservationType", "desc",reservation.getLocale());
+		List<Reservation> reservation1=Reservation.findAll(Reservation.class, "name", "desc",reservation.getLocale());
 	    Assert.assertNotNull("Finding reservation Data by Fieled name ", reservation1);
 
 	}
