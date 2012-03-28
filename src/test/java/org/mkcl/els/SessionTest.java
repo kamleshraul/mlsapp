@@ -1,108 +1,125 @@
-/**
- * See the file LICENSE for redistribution information.
- *
- * Copyright (c) 2012 MKCL.  All rights reserved.
- *
- * Project: e-Legislature
- * File: org.mkcl.els.SessionTest.java
- * Created On: Mar 20, 2012
- */
 package org.mkcl.els;
 
 import static org.junit.Assert.*;
 
+import java.util.Date;
 import java.util.List;
 
 import junit.framework.Assert;
 
 import org.junit.Test;
+import org.mkcl.els.domain.House;
+import org.mkcl.els.domain.HouseType;
 import org.mkcl.els.domain.Session;
+import org.mkcl.els.domain.SessionPlace;
+import org.mkcl.els.domain.SessionType;
 import org.springframework.transaction.annotation.Transactional;
 
-// TODO: Auto-generated Javadoc
-/**
- * The Class SessionTest.
- *
- * @author Anand
- * @since v1.0.0
- */
-public class SessionTest extends AbstractTest {
+public class SessionTest extends AbstractTest{
 
-	/**
-	 * Test persist.
-	 */
 	@Test
 	@Transactional
 	public void testPersist() {
-		Session session=new Session("testSession");
+		HouseType housetype=new HouseType("testhousetype");
+		housetype.persist();
+		Date d=new Date(1988-20-12);
+		Date startDate=new Date(1988-20-12);
+		Date endDate=new Date(1988-18-11);
+		SessionPlace place=new SessionPlace("testPlace");
+		place.persist();
+		SessionType type=new SessionType("testsession");
+		type.persist();
+		House house=new House("testhouse",2,housetype,d);
+		house.persist();
+		Session session=new Session(1, startDate, endDate, type, place,1988, house);
 		session.persist();
-	   Assert.assertNotNull("Saved session Data ", session);
+		Assert.assertNotNull("saving session data ",session);
 
 	}
 
-	/**
-	 * Test merge.
-	 */
 	@Test
 	@Transactional
 	public void testMerge() {
-		Session session=new Session("testSession");
+		HouseType housetype=new HouseType("testhousetype");
+		housetype.persist();
+		Date d=new Date(1988-20-12);
+		Date startDate=new Date(1988-20-12);
+		Date endDate=new Date(1988-18-11);
+		SessionPlace place=new SessionPlace("testPlace");
+		place.persist();
+		SessionType type=new SessionType("testsession");
+		type.persist();
+		House house=new House("testhouse",2,housetype,d);
+		house.persist();
+		Session session=new Session(1, startDate, endDate, type, place,1988, house);
 		session.persist();
-		session.setSessionType("new Session type");
+		session.setNumber(3);
 		session.merge();
-	   Assert.assertNotNull("Updated session Data ", session);
+		Assert.assertNotNull("updating session data ",session);
 
 	}
 
-	/**
-	 * Test remove.
-	 */
 	@Test
 	@Transactional
 	public void testRemove() {
-		Session session=new Session("testSession");
+		HouseType housetype=new HouseType("testhousetype");
+		housetype.persist();
+		Date d=new Date(1988-20-12);
+		Date startDate=new Date(1988-20-12);
+		Date endDate=new Date(1988-18-11);
+		SessionPlace place=new SessionPlace("testPlace");
+		place.persist();
+		SessionType type=new SessionType("testsession");
+		type.persist();
+		House house=new House("testhouse",2,housetype,d);
+		house.persist();
+		Session session=new Session(1, startDate, endDate, type, place,1988, house);
 		session.persist();
 		session.remove();
-		Assert.assertNotNull("Deleted session Data ", session);
+		Assert.assertNotNull("removing session data ",session);
 
 	}
 
-	/**
-	 * Test find by id.
-	 */
 	@Test
 	@Transactional
 	public void testFindById() {
-		Session session=new Session("testSession");
+		HouseType housetype=new HouseType("testhousetype");
+		housetype.persist();
+		Date d=new Date(1988-20-12);
+		Date startDate=new Date(1988-20-12);
+		Date endDate=new Date(1988-18-11);
+		SessionPlace place=new SessionPlace("testPlace");
+		place.persist();
+		SessionType type=new SessionType("testsession");
+		type.persist();
+		House house=new House("testhouse",2,housetype,d);
+		house.persist();
+		Session session=new Session(1, startDate, endDate, type, place,1988, house);
 		session.persist();
-		Session session1=Session.findById(Session.class, session.getId());
-		Assert.assertNotNull("Finding session Data by Id ", session1);
+		Session s1=Session.findById(Session.class, session.getId());
+		Assert.assertNotNull("removing session data ",s1);
 
 	}
 
-	/**
-	 * Test find by field name.
-	 */
-	@Test
-	@Transactional
-	public void testFindByFieldName() {
-		Session session=new Session("testSession");
-		session.persist();
-		Session session1=Session.findByFieldName(Session.class, "sessionType","testSession",session.getLocale());
-		Assert.assertNotNull("Finding session Data by Field Name ", session1);
-
-	}
-
-	/**
-	 * Test find all.
-	 */
+	
 	@Test
 	@Transactional
 	public void testFindAll() {
-		Session session=new Session("testSession");
+		HouseType housetype=new HouseType("testhousetype");
+		housetype.persist();
+		Date d=new Date(1988-20-12);
+		Date startDate=new Date(1988-20-12);
+		Date endDate=new Date(1988-18-11);
+		SessionPlace place=new SessionPlace("testPlace");
+		place.persist();
+		SessionType type=new SessionType("testsession");
+		type.persist();
+		House house=new House("testhouse",2,housetype,d);
+		house.persist();
+		Session session=new Session(1, startDate, endDate, type, place,1988, house);
 		session.persist();
-		List<Session> listsession=Session.findAll(Session.class, "sessionType", "desc", session.getLocale());
-		Assert.assertNotNull("Finding session Data by Field Name ", listsession);
+		List<Session> sessions=Session.findAll(Session.class, "number", "desc", session.getLocale());
+		Assert.assertNotNull("Finding session data ",sessions);
 
 	}
 
