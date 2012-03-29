@@ -24,7 +24,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 @RequestMapping("/masters_sessions")
 public class SessionController extends GenericController<Session> {
 	/** The Constant ASC. */
-	private static final String ASC = "asc";
+	private static final String ASC = "asc"; 
 
 	@RequestMapping(value = "{id}/list", method = RequestMethod.GET)
 	    public String list(@PathVariable final Long id,
