@@ -141,6 +141,14 @@
 				$('#isReserved').val(false);				
 				$('#reservedFor').prop('selectedIndex', 0);
 		   	};
+		   	if($('#isRetired').is(':checked'))
+		   	{
+				$('#isRetired').val(true);		   	    
+			}
+			else
+		   	{ 				
+				$('#isRetired').val(false);				
+		   	};
 		});
 	});//document .ready
 </script>
@@ -220,18 +228,7 @@
 								code="${urlPattern}.reservedFor" text="Reserved for" /></label>
 						<form:select cssClass="sOption" path="reservedFor" items="${reservations}" itemValue="id" itemLabel="name" id="reservedFor"></form:select>
 						<form:errors path="reservedFor" cssClass="validationError" />
-					</p>
-					<%-- <p id="reservedFor" >
-						<label class="small"><spring:message
-								code="${urlPattern}.reservedFor" text="Reserved for" /></label> <select
-							name="reservedFor" id="re">
-							<c:forEach items="${reservations}" var="i">
-								<option value="${i.id}">
-									<c:out value="${i.name}"></c:out>
-								</option>
-							</c:forEach>
-						</select>
-					</p> --%>
+					</p>					
 					<p>
 						<label class="small"><spring:message
 								code="${urlPattern}.railwayStation"
@@ -258,7 +255,7 @@
 					<p>
 						<label class="small"><spring:message
 								code="${urlPattern}.retired" text="Retired?" /></label>
-						<form:checkbox cssClass="sSelect" path="isRetired" />
+						<form:checkbox cssClass="sSelect" path="isRetired" id="isRetired"/>
 						<form:errors path="isRetired" cssClass="validationError" />
 					</p>					
 				</c:when>
@@ -268,14 +265,7 @@
 								code="${urlPattern}.name" text="Constituency" /></label>
 						<form:input cssClass="sSelect" path="name" id="constituencyName"/>
 						<form:errors path="name" cssClass="validationError" />
-					</p>
-					<%-- <p>
-						<label class="small"><spring:message
-								code="${urlPattern}.division" text="Division" /></label>
-						<form:input id="divisionName" cssClass="sSelect"
-							path="divisionName" readonly="true" />
-						<form:errors path="divisionName" cssClass="validationError" />
-					</p> --%>
+					</p>					
 					<%-- <p>
 						<label class="small"><spring:message
 								code="${urlPattern}.electionType" text="Election Type" /></label> <select
