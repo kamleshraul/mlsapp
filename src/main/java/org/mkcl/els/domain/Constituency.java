@@ -295,4 +295,13 @@ public class Constituency extends BaseDomain implements Serializable {
         return isRetired;
     }
 
+	/**
+	 * Sets the checks if is retired.
+	 *
+	 * @param isRetired the new checks if is retired
+	 */
+	public void setIsRetired(Boolean isRetired) {
+		this.isRetired = isRetired;
+	}
+
 }
