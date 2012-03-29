@@ -34,6 +34,8 @@
 						code="${urlPattern}.name" text="Assembly Name" />&nbsp;*</label>
 
 				<form:input path="name" cssClass="sText"></form:input>
+				<label class="small"><spring:message
+						code="${urlPattern}.assemblyNumberExample" text="e.g. Eleventh" /></label>
 				<form:errors path="name" cssClass="validationError"></form:errors>
 
 			</p>
@@ -41,8 +43,7 @@
 				<label class="small"><spring:message
 						code="${urlPattern}.number" text="Assembly Number" />&nbsp;*</label>
 				<form:input path="number" cssClass="sText"></form:input>
-				<label class="small"><spring:message
-						code="${urlPattern}.assemblyNumberExample" text="e.g. Eleventh" /></label>
+				
 				<form:errors path="number" cssClass="validationError"></form:errors>
 			</p>
 
