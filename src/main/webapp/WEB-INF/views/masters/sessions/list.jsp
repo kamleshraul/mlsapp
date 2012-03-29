@@ -7,10 +7,11 @@
 	var houseId=$('#houseId').val();
 	
 		$(document).ready(function(){
-			$("#list_Session").hide();
+			//$("#list_session").hide();
+			//$('#key').val("");
 			$('#new_record').click(function(){
 				newSession();
-				$('#edit_records').hide();
+				//$('#edit_records').hide();
 			});
 			$('#edit_record').click(function(){
 				editSession($('#key').val());
@@ -18,20 +19,20 @@
 			$("#delete_record").click(function() {
 				deleteSession($('#key').val());
 			});
-		//	$("#list_sessions").click(function() {
-		//	showTabByIdAndUrl('session_tab','masters_sessions/'+houseId+'/list');
-		//	});
+			//$("#list_session").click(function() {
+			//showTabByIdAndUrl('session_tab','masters_sessions/'+houseId+'/list');
+			//});
 		});
 		
 	</script>
 	<script>
 	function newSession()
 	{
-		//$.get('masters_sessions/'+ houseId +'/new', function(data){
-		//	$('#grid_container').html(data);
-		//	$('#list_Session').show();					
-	//});					
-		showTabByIdAndUrl('session_tab','masters_sessions/'+ houseId +'/new');
+		/* $.get('masters_sessions/'+ houseId +'/new', function(data){
+			$('#grid_container').html(data);
+			$('#list_session').show();					
+	});		 */			
+		showTabByIdAndUrl('session_tab','masters_sessions/'+houseId+'/new');
 	}
 	
 	function editSession(row) {
@@ -39,11 +40,11 @@
 			alert("Please select the desired row to edit");
 			return false;
 		}
-		/* $.get(masters_sessions/'+row+'/edit, function(data){
+		 /* $.get('masters_sessions/'+row+'/edit', function(data){
 			$('#grid_container').html(data);
-			$('#list_Session').show();	
+			$('#list_session').show();	
 		}); */
-		showTabByIdAndUrl('session_tab','masters_sessions/'+row+'/edit');
+		 showTabByIdAndUrl('session_tab','masters_sessions/'+row+'/edit');
 	}
 
 	function deleteSession(row) {
@@ -65,9 +66,9 @@
 		}
 	}
 	function rowDblClickHandler(rowid, iRow, iCol, e) {
-		/* $.get('masters_sessions'+'/'+rowid+'/edit', function(data){
+		 /* $.get('masters_sessions'+'/'+rowid+'/edit', function(data){
 			$('#grid_container').html(data);
-			$('#list_Session').show();	
+			$('#list_session').show();	
 		}); */
 	showTabByIdAndUrl('session_tab', 'masters_sessions'+'/'+rowid+'/edit');
 	}
@@ -86,10 +87,10 @@
 			</a> |
 			<a href="#" id="delete_record" class="butSim">
 				<spring:message code="generic.delete" text="Delete"/>
-			</a> |
-			<a href="#" id="list_Session" class="butSim">
+			</a> <%--  |
+			<a href="#" id="list_session" class="butSim">
 				<spring:message code="generic.list" text="List"/>
-			</a>
+			</a> --%>
 			
 			<p>&nbsp;</p>
 		</div>
