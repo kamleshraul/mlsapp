@@ -28,7 +28,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 /**
  * The Class DistrictController.
  * 
- * @author nileshp
+ * @author Dhananjay
  * @since v1.0.0
  */
 @Controller
@@ -105,9 +105,8 @@ public class DistrictController extends GenericController<District> {
 		states.remove(selectedState);
 		newStates.addAll(states);
 		model.addAttribute("states", newStates);
-		List<Division> divisions = Division.getDivisionRepository()
-				.findDivisionsByStateId(selectedState.getId(), "name", "asc",
-						locale.toString());
+		List<Division> divisions = Division.findAllByFieldName(Division.class,
+				"state", selectedState, "name", "asc", locale.toString());
 		model.addAttribute("divisions", divisions);
 	}
 
