@@ -21,8 +21,8 @@
 	</h2>	
 	<form:errors path="version" cssClass="validationError"/>		 
 		<p> 
-			<label class="small"><spring:message code="${urlPattern}.houseType" text="Assembly Council Type"/></label>
-			<form:select path="houseType" items="${assemblycounciltype}" itemValue="id" itemLabel="type" cssClass="sSelect"></form:select>	
+			<label class="small"><spring:message code="${urlPattern}.houseType" text="House Type"/></label>
+			<form:select path="houseType" items="${assemblycounciltype}" itemValue="id" itemLabel="name" cssClass="sSelect"></form:select>	
 	        <form:errors path="houseType" cssClass="validationError"/>	
 		</p>
 		<p> 
