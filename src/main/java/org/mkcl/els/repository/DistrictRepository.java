@@ -1,11 +1,11 @@
 package org.mkcl.els.repository;
 
-import java.util.LinkedList;
+import java.util.ArrayList;
 import java.util.List;
 
 import org.mkcl.els.domain.Constituency;
 import org.mkcl.els.domain.District;
-import org.mkcl.els.domain.Division;
+import org.mkcl.els.domain.Reference;
 import org.springframework.stereotype.Repository;
 
 import com.trg.search.Search;
@@ -122,27 +122,16 @@ public class DistrictRepository extends BaseRepository<District, Long> {
 	 * @author Dhananjay
 	 * @since v1.0.0
 	 */
-	public List<District> findDistrictsByStateId(final Long StateId,
+	@SuppressWarnings("unchecked")
+	public List<District> findDistrictsByStateId(final Long stateId,
 			final String orderBy, final String sortOrder, String locale) {
-		Search search = new Search();
-		search.addFilterEqual("state.id", StateId);
-		search.addFilterEqual("locale", locale);
-		if (sortOrder.toLowerCase().equals(ASC)) {
-			search.addSort(orderBy, false);
-		} else {
-			search.addSort(orderBy, true);
-		}
-		List<Division> divisions = Division.findDivisionsByStateId(StateId,
-				orderBy, sortOrder, locale);
-		List<District> districts = new LinkedList<District>();
-		for (Division division : divisions) {
-			List<District> distByDiv = District.findDistrictsByDivisionId(
-					division.getId(), orderBy, sortOrder, locale);
-			for (District district : distByDiv) {
-				districts.add((district));
-			}
-		}
-		return districts;
+		String query = "SELECT d FROM District d Join d.division div Join div.state s WHERE s.id="
+				+ stateId
+				+ " AND d.locale='"
+				+ locale
+				+ "' ORDER BY d."
+				+ orderBy + " " + sortOrder;
+		return this.em().createQuery(query).getResultList();
 	}
 
 	/**
@@ -168,5 +157,23 @@ public class DistrictRepository extends BaseRepository<District, Long> {
 			search.addSortDesc(orderBy);
 		}
 		return this.search(search);
+	}
+
+	public List<Reference> findDistrictsRefByStateId(Long stateId,
+			String sortBy, String sortOrder, String locale) {
+		String query = "SELECT d.id,d.name FROM District d Join d.division div Join div.state s WHERE s.id="
+			+ stateId
+			+ " AND d.locale='"
+			+ locale
+			+ "' ORDER BY d."
+			+ sortBy + " " + sortOrder;
+	List districts= this.em().createQuery(query).getResultList();
+	List<Reference> districtsRef=new ArrayList<Reference>();
+	for(Object i:districts){
+		Object[] o=(Object[]) i;
+		Reference reference=new Reference(o[0].toString(),o[1].toString());
+		districtsRef.add(reference);	
+	}
+	return districtsRef;
 	}
 }
