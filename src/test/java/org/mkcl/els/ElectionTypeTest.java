@@ -64,7 +64,7 @@ public class ElectionTypeTest extends AbstractTest {
 	@Test
 	@Transactional
 	public void testPersist() {
-		HouseType assemblycounciltype = new HouseType("testAssemblyCouncilType");
+		HouseType assemblycounciltype = new HouseType("testAssemblyCouncilType","testhouse");
 		assemblycounciltype.persist();
 		ElectionType electiontype=new ElectionType("TestElectionType",assemblycounciltype);
 		electiontype.persist();
@@ -78,7 +78,7 @@ public class ElectionTypeTest extends AbstractTest {
 	@Test
 	@Transactional
 	public void testMerge() {
-		HouseType assemblycounciltype = new HouseType("testAssemblyCouncilType");
+		HouseType assemblycounciltype = new HouseType("testAssemblyCouncilType","testhouse");
 		assemblycounciltype.persist();
 		ElectionType electiontype=new ElectionType("TestElectionType",assemblycounciltype);
 		electiontype.persist();
@@ -93,7 +93,7 @@ public class ElectionTypeTest extends AbstractTest {
 	@Test
 	@Transactional
 	public void testRemove() {
-		HouseType assemblycounciltype = new HouseType("testAssemblyCouncilType");
+		HouseType assemblycounciltype = new HouseType("testAssemblyCouncilType","testhouse");
 		assemblycounciltype.persist();
 		ElectionType electiontype=new ElectionType("TestElectionType",assemblycounciltype);
 		electiontype.persist();
@@ -108,7 +108,7 @@ public class ElectionTypeTest extends AbstractTest {
 	@Test
 	@Transactional
 	public void testFindById() {
-		HouseType assemblycounciltype = new HouseType("testAssemblyCouncilType");
+		HouseType assemblycounciltype = new HouseType("testAssemblyCouncilType","testhouse");
 		assemblycounciltype.persist();
 		ElectionType electiontype=new ElectionType("TestElectionType",assemblycounciltype);	
 		electiontype.persist();
@@ -123,7 +123,7 @@ public class ElectionTypeTest extends AbstractTest {
 	@Test
 	@Transactional
 	public void testFindByFieldName() {
-		HouseType assemblycounciltype = new HouseType("testAssemblyCouncilType");
+		HouseType assemblycounciltype = new HouseType("testAssemblyCouncilType","testhouse");
 		assemblycounciltype.persist();
 		ElectionType electiontype=new ElectionType("TestElectionType",assemblycounciltype);	
 		electiontype.persist();
@@ -138,7 +138,7 @@ public class ElectionTypeTest extends AbstractTest {
 	@Test
 	@Transactional
 	public void testFindAll() {
-		HouseType assemblycounciltype = new HouseType("testAssemblyCouncilType");
+		HouseType assemblycounciltype = new HouseType("testAssemblyCouncilType","testhouse");
 		assemblycounciltype.persist();
 		ElectionType electiontype=new ElectionType("TestElectionType",assemblycounciltype);	
 		electiontype.persist();
