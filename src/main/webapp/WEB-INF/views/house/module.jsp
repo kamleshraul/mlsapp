@@ -1,7 +1,7 @@
 <%@ include file="/common/taglibs.jsp" %>
 <html>
 <head>
-	<title><spring:message code="${urlPattern}.list" /></title>
+	<title><spring:message code="house.list" /></title>
 	<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
 	<script type="text/javascript">
 	var urlPattern=$('#urlPattern').val();
@@ -23,7 +23,7 @@
 			});
 			$('#session_tab').click(function(){
 				var row = $("#grid").jqGrid('getGridParam','selrow');
-				showTabByIdAndUrl('session_tab','masters_sessions/'+ row +'/list');
+				showTabByIdAndUrl('session_tab','session/'+ row +'/list');
 			});
 			
 			$(document).keydown(function (e){
@@ -48,17 +48,17 @@
 					scrollRowsInGrid(e);
 		        }
 			});
-			showTabByIdAndUrl('list_tab',urlPattern +'/list');
+			showTabByIdAndUrl('list_tab','house/list');
 		});
 		
 		function showList() {
-			showTabByIdAndUrl('list_tab',urlPattern+'/list');
+			showTabByIdAndUrl('list_tab','house/list');
 			
 
 		}
 
 		function newRecord() {
-			showTabByIdAndUrl('details_tab',urlPattern+'/new')	;
+			showTabByIdAndUrl('details_tab','house/new')	;
 		}
 
 		function editRecord() {
@@ -67,7 +67,7 @@
 				alert("Please select the desired row to edit");
 				return false;
 			}
-			showTabByIdAndUrl('details_tab',urlPattern+'/'+row+'/edit');
+			showTabByIdAndUrl('details_tab','house/'+row+'/edit');
 		}
 
 		function deleteRecord() {
@@ -79,7 +79,7 @@
 				$.prompt('Are you sure you want to delete the record with Id: '+ row,{
 					buttons: {Ok:true, Cancel:false}, callback: function(v){
 			        if(v){
-				        $.delete_(urlPattern+'/'+row+'/delete', null, function(data, textStatus, XMLHttpRequest) {
+				        $.delete_('house/'+row+'/delete', null, function(data, textStatus, XMLHttpRequest) {
 				            $('#grid').trigger("reloadGrid");
 				        });
 			        }
@@ -91,7 +91,7 @@
 		}
 
 		function rowDblClickHandler(rowid, iRow, iCol, e) {
-			showTabByIdAndUrl('details_tab', urlPattern+'/'+rowid+'/edit');
+			showTabByIdAndUrl('details_tab', 'house/'+rowid+'/edit');
 		}
 		
 	</script>
@@ -112,7 +112,7 @@
 			</li>
 			<li class="tab3">
 				<a id="session_tab" href="#" class="tab">
-					<spring:message code="${urlPattern}.module.session" text="Sessions"></spring:message>
+					<spring:message code="house.module.session" text="Sessions"></spring:message>
 				</a>
 			</li>
 		</ul>
@@ -121,6 +121,6 @@
 		<input type="hidden" id="key" name="key">
 		<input type="hidden" id="urlPattern" name="urlPattern" value="${urlPattern}">
 		<input type="hidden" name="gridURLParams" id="gridURLParams" value="houseType=${type}" >
-		
+	</div>		
 </body>
 </html>

@@ -1,7 +1,7 @@
 <%@ include file="/common/taglibs.jsp"%>
 <html>
 <head>
-<title><spring:message code="${urlPattern}" text="Add House" /></title>
+<title><spring:message code="house" text="Add House" /></title>
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
 <script type="text/javascript">
 	$('document').ready(function() {
@@ -14,7 +14,7 @@
 </head>
 <body>
 	<div class="fields clearfix">
-		<form:form action="${urlPattern}" method="POST" modelAttribute="domain">
+		<form:form action="house" method="POST" modelAttribute="domain">
 			<%@ include file="/common/info.jsp"%>
 			<h2>
 				<spring:message code="generic.new.heading" text="Enter Details" />
@@ -31,17 +31,17 @@
 		
 			<p>
 				<label class="small"><spring:message
-						code="${urlPattern}.name" text="Assembly Name" />&nbsp;*</label>
+						code="house.name" text="Assembly Name" />&nbsp;*</label>
 
 				<form:input path="name" cssClass="sText"></form:input>
 				<label class="small"><spring:message
-						code="${urlPattern}.assemblyNameExample" text="e.g. Eleventh" /></label>
+						code="house.assemblyNameExample" text="e.g. Eleventh" /></label>
 				<form:errors path="name" cssClass="validationError"></form:errors>
 
 			</p>
 			<p>
 				<label class="small"><spring:message
-						code="${urlPattern}.number" text="Assembly Number" />&nbsp;*</label>
+						code="house.number" text="Assembly Number" />&nbsp;*</label>
 				<form:input path="number" cssClass="sText"></form:input>
 				
 				<form:errors path="number" cssClass="validationError"></form:errors>
@@ -49,7 +49,7 @@
 
 			<p>
 				<label class="small" ><spring:message
-						code="${urlPattern}.totalMembers" text="Total Members" />&nbsp;*</label>
+						code="house.totalMembers" text="Total Members" />&nbsp;*</label>
 
 				<form:input cssClass="integer sText" path="totalMembers" />
 				<form:errors path="totalMembers" cssClass="validationError" />
@@ -58,7 +58,7 @@
 			
 			<p>
 				<label class="small"><spring:message
-						code="${urlPattern}.formationDate" text="Formation Date" /></label>
+						code="house.formationDate" text="Formation Date" /></label>
 
 				<form:input cssClass="datemask sText" path="formationDate" />
 				<form:errors path="formationDate" cssClass="validationError" />
@@ -67,7 +67,7 @@
 
 			<p>
 				<label class="small"><spring:message
-						code="${urlPattern}.dissolveDate" text="Dissolved On" /></label>
+						code="house.dissolveDate" text="Dissolved On" /></label>
 
 				<form:input cssClass="datemask sText" path="dissolveDate" />
 				<form:errors path="dissolveDate" cssClass="validationError" />
@@ -75,13 +75,13 @@
 			</p>
 				<p>
 				<label class="small"><spring:message
-						code="${urlPattern}.firstDate" text="Start Date" />&nbsp;*</label>
+						code="house.firstDate" text="Start Date" />&nbsp;*</label>
 
 				<form:input cssClass="datemask sText" path="firstDate" />
 				<form:errors path="firstDate" cssClass="validationError" />
 				</p>
 				<p>
-				<label class="small"><spring:message code="${urlPattern}.lastDate"
+				<label class="small"><spring:message code="house.lastDate"
 						text="End Date" /></label>
 
 				<form:input cssClass="datemask sText" path="lastDate" />
@@ -89,13 +89,13 @@
 				</p>
 				<p>
 				<label class="small"><spring:message
-						code="${urlPattern}.governorAddressDate" text="Governers Address Date" /></label>
+						code="house.governorAddressDate" text="Governers Address Date" /></label>
 
 				<form:input cssClass="datemask sText" path="governorAddressDate" />
 				<form:errors path="governorAddressDate" cssClass="validationError" />
 				</p>
 				<p>
-				<label class="small"><spring:message code="${urlPattern}.remarks"
+				<label class="small"><spring:message code="house.remarks"
 						text="Remarks" /></label>
 
 				<form:textarea cssClass="sTextarea" path="remarks" />
@@ -106,7 +106,7 @@
 		<c:otherwise>	
 			<p>
 				<label class="small"><spring:message
-						code="${urlPattern}.formationDate" text="Formation Date" /></label>
+						code="house.formationDate" text="Formation Date" /></label>
 
 				<form:input cssClass="datemask sText" path="formationDate" />
 				<form:errors path="formationDate" cssClass="validationError" />
@@ -114,7 +114,7 @@
 							
 			<p>
 				<label class="small" ><spring:message
-						code="${urlPattern}.totalMembers" text="Total Members" />&nbsp;*</label>
+						code="house.totalMembers" text="Total Members" />&nbsp;*</label>
 
 				<form:input cssClass="integer sText" path="totalMembers" />
 				<form:errors path="totalMembers" cssClass="validationError" />
@@ -122,14 +122,14 @@
 			</p>		
 			<p>
 			<label class="small"><spring:message
-						code="${urlPattern}.governorAddressDate" text="Chairmans Address Date" /></label>
+						code="house.governorAddressDate" text="Chairmans Address Date" /></label>
 
 				<form:input cssClass="datemask sText" path="governorAddressDate" />
 				<form:errors path="governorAddressDate" cssClass="validationError" />
 				</p>	
 								
 			<p>
-				<label class="small"><spring:message code="${urlPattern}.remarks"
+				<label class="small"><spring:message code="house.remarks"
 						text="Remarks" /></label>
 				<form:textarea cssClass="sTextarea" path="remarks" />
 				<form:errors path="remarks" cssClass="validationError" />

@@ -2,7 +2,7 @@
 <html>
 <head>
 	<title>
-	<spring:message code="${urlPattern}" text="Legislative House type"/>
+	<spring:message code="housetype" text="Legislative House type"/>
 	</title>
 	<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>	
 	<script type="text/javascript">
@@ -14,14 +14,14 @@
 </head>
 <body>
 <div class="fields clearfix">
-<form:form  action="${urlPattern}" method="PUT" modelAttribute="domain">
+<form:form  action="housetype" method="PUT" modelAttribute="domain">
 	<%@ include file="/common/info.jsp" %>
 	<h2><spring:message code="generic.edit.heading" text="Details"/>
 		[<spring:message code="generic.id" text="Id"></spring:message>:${domain.id}]
 	</h2>
 	<form:errors path="version" cssClass="validationError"/>			 
 		<p> 
-			<label class="small"><spring:message code="${urlPattern}.type" text="Type"/></label>
+			<label class="small"><spring:message code="housetype.type" text="Type"/></label>
 			<form:input cssClass="sSelect" path="type"/>
 			<form:errors path="type" cssClass="validationError"/>	
 		</p>

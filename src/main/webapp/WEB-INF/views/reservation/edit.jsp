@@ -2,7 +2,7 @@
 <html>
 <head>
 	<title>
-	<spring:message code="${urlPattern}" text="Reservation Types"/>
+	<spring:message code="reservation" text="Reservation Types"/>
 	</title>
 	<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>	
 	<script type="text/javascript">
@@ -15,7 +15,7 @@
 <body>
 
 <div class="fields clearfix">
-<form:form action="${urlPattern}" method="PUT"  modelAttribute="domain">
+<form:form action="reservation" method="PUT"  modelAttribute="domain">
 	<%@ include file="/common/info.jsp" %>
 	<h2><spring:message code="generic.edit.heading" text="Enter Details "/>
 		 [<spring:message code="generic.id" text="Id"></spring:message>:${domain.id}]
@@ -23,7 +23,7 @@
 	<form:errors path="version" cssClass="validationError"/>
 	
 	<p>
-	<label class="small"><spring:message code="${urlPattern}.name" text="Reservation Type"/>&nbsp;*</label>
+	<label class="small"><spring:message code="reservation.name" text="Reservation Type"/>&nbsp;*</label>
 			<form:input cssClass="sSelect" path="name"/>
 			<form:errors path="name" cssClass="validationError"/>	
 	</p>
@@ -31,7 +31,7 @@
 	
 	<p>
 		<label class="small"><spring:message
-						code="${urlPattern}.shortName" text="Short Name" />&nbsp;*</label>
+						code="reservation.shortName" text="Short Name" />&nbsp;*</label>
 				<form:input cssClass="sSelect " path="shortName" />
 				<form:errors path="shortName" cssClass="validationError" />
 			</p>

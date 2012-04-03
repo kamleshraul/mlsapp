@@ -2,7 +2,7 @@
 <html>
 <head>
 	<title>
-	<spring:message code="${urlPattern}" text="Session Place"/>
+	<spring:message code="sessionplace" text="Session Place"/>
 	</title>
 	<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>	
 	<script type="text/javascript">
@@ -15,7 +15,7 @@
 <body>
 
 <div class="fields clearfix">
-<form:form action="${urlPattern}" method="PUT"  modelAttribute="domain">
+<form:form action="sessionplace" method="PUT"  modelAttribute="domain">
 	<%@ include file="/common/info.jsp" %>
 	<h2><spring:message code="generic.edit.heading" text="Enter Details "/>
 		 [<spring:message code="generic.id" text="Id"></spring:message>:${domain.id}]
@@ -23,7 +23,7 @@
 	<form:errors path="version" cssClass="validationError"/>
 	
 	<p>
-	<label class="small"><spring:message code="${urlPattern}.place" text="Session Place"/>&nbsp;*</label>
+	<label class="small"><spring:message code="sessionplace.place" text="Session Place"/>&nbsp;*</label>
 			<form:input cssClass="sSelect" path="place"/>
 			<form:errors path="place" cssClass="validationError"/>	
 	</p>

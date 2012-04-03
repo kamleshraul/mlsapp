@@ -1,7 +1,7 @@
 <%@ include file="/common/taglibs.jsp"%>
 <html>
 <head>
-<title><spring:message code="${urlPattern}"	text="Edit Message Resource" /></title>
+<title><spring:message code="message"	text="Edit Message Resource" /></title>
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
 <script type="text/javascript">
 	$('document').ready(function() {
@@ -12,7 +12,7 @@
 </head>
 <body>
 	<div class="fields clearfix">
-		<form:form action="${urlPattern}" method="PUT"
+		<form:form action="message" method="PUT"
 			modelAttribute="domain">
 			<%@ include file="/common/info.jsp"%>
 			<h2>
@@ -26,7 +26,7 @@
 			</c:set>
 			<p <c:if test="${not empty codeErrors}">class="error"</c:if>>
 				<label class="small"><spring:message
-						code="${urlPattern}.code" text="Code" />&nbsp;*</label>
+						code="message.code" text="Code" />&nbsp;*</label>
 				<form:input cssClass="sText large" path="code" />
 				<span><form:errors path="code" /></span>
 			</p>
@@ -35,13 +35,13 @@
 			</c:set>
 			<p <c:if test="${not empty valueErrors}">class="error"</c:if>>
 				<label class="small"><spring:message
-						code="${urlPattern}.text" text="Text" />&nbsp;*</label>
+						code="message.text" text="Text" />&nbsp;*</label>
 				<form:input cssClass="sText large" path="value" />
 				<span><form:errors path="value" /></span>
 			</p>
 			<div class="fields">
 				<h2>
-					<spring:message code="${urlPattern}.description"
+					<spring:message code="message.description"
 						text="Description" />
 				</h2>
 				<form:textarea cssClass="wysiwyg sTextarea" path="description"

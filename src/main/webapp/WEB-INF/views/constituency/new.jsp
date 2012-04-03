@@ -1,7 +1,7 @@
 <%@ include file="/common/taglibs.jsp"%>
 <html>
 <head>
-<title><spring:message code="${urlPattern}"
+<title><spring:message code="constituency"
 		text="Constituencies" /></title>
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
 <!-- <link rel="stylesheet" media="screen" href="./resources/css/ui.sexyselect.0.55.css" />	
@@ -155,7 +155,7 @@
 </head>
 <body>
 	<div class="fields clearfix">
-		<form:form action="${urlPattern}" method="POST" id="form"
+		<form:form action="constituency" method="POST" id="form"
 			modelAttribute="domain">
 			<%@ include file="/common/info.jsp"%>
 			<h2>
@@ -171,7 +171,7 @@
 				<c:when test="${ houseType == 1 or houseType == 3 }">
 					<p>
 						<label class="small"><spring:message
-								code="${urlPattern}.state" text="State" /></label> <select name="state"
+								code="constituency.state" text="State" /></label> <select name="state"
 							id="states">
 							<c:forEach items="${states}" var="i">
 								<option value="${i.id}">
@@ -182,7 +182,7 @@
 					</p>
 					<p>
 						<label class="small"><spring:message
-								code="${urlPattern}.division" text="Division" /></label> <select
+								code="constituency.division" text="Division" /></label> <select
 							name="division" id="divisions">
 							<c:forEach items="${divisions}" var="i">
 								<option value="${i.id}">
@@ -193,7 +193,7 @@
 					</p>
 					<p>
 						<label class="small"><spring:message
-								code="${urlPattern}.district" text="Districts" /></label>
+								code="constituency.district" text="Districts" /></label>
 						<form:select path="districts" items="${districts}" itemValue="id"
 							itemLabel="name" multiple="multiple" id="districts"
 							onclick="clearRA()"></form:select>
@@ -201,37 +201,37 @@
 					</p>
 					<p>
 						<label class="small"><spring:message
-								code="${urlPattern}.name" text="Name" /></label>
+								code="constituency.name" text="Name" /></label>
 						<form:input cssClass="sSelect" path="name" id="custom" />
 						<form:errors path="name" cssClass="validationError" />
 					</p>
 					<p>
 						<label class="small"><spring:message
-								code="${urlPattern}.number" text="Number" /></label>
+								code="constituency.number" text="Number" /></label>
 						<form:input cssClass="sSelect" path="number" />
 						<form:errors path="number" cssClass="validationError" />
 					</p>
 					<p>
 						<label class="small"><spring:message
-								code="${urlPattern}.voters" text="Voters" /></label>
+								code="constituency.voters" text="Voters" /></label>
 						<form:input cssClass="sSelect" path="voters" />
 						<form:errors path="voters" cssClass="validationError" />
 					</p>
 					<p>
 						<label class="small"><spring:message
-								code="${urlPattern}.reserved" text="Reserved?" /></label>
+								code="constituency.reserved" text="Reserved?" /></label>
 						<form:checkbox  cssClass="sCheck" id="isReserved" path="isReserved"/>												
 						<form:errors path="isReserved" cssClass="validationError" />
 					</p>
 					<p>
 						<label class="small"><spring:message
-								code="${urlPattern}.reservedFor" text="Reserved for" /></label>
+								code="constituency.reservedFor" text="Reserved for" /></label>
 						<form:select cssClass="sOption" path="reservedFor" items="${reservations}" itemValue="id" itemLabel="name" id="reservedFor"></form:select>
 						<form:errors path="reservedFor" cssClass="validationError" />
 					</p>					
 					<p>
 						<label class="small"><spring:message
-								code="${urlPattern}.railwayStation"
+								code="constituency.railwayStation"
 								text="Nearest Railway Station" /></label>
 						<form:select path="nearestRailwayStation"
 							items="${railwayStations}" itemValue="id" itemLabel="name"
@@ -244,7 +244,7 @@
 					</p>
 					<p>
 						<label class="small"><spring:message
-								code="${urlPattern}.airport" text="Nearest Airport" /></label>
+								code="constituency.airport" text="Nearest Airport" /></label>
 						<form:select path="nearestAirport" items="${airports}"
 							itemValue="id" itemLabel="name" id="nearestAirport" size="1"></form:select>
 						<form:errors path="nearestAirport" cssClass="validationError" />
@@ -254,7 +254,7 @@
 					</p>
 					<p>
 						<label class="small"><spring:message
-								code="${urlPattern}.retired" text="Retired?" /></label>
+								code="constituency.retired" text="Retired?" /></label>
 						<form:checkbox cssClass="sSelect" path="isRetired" id="isRetired"/>
 						<form:errors path="isRetired" cssClass="validationError" />
 					</p>					
@@ -262,13 +262,13 @@
 				<c:otherwise>
 					<p>
 						<label class="small"><spring:message
-								code="${urlPattern}.name" text="Constituency" /></label>
+								code="constituency.name" text="Constituency" /></label>
 						<form:input cssClass="sSelect" path="name" id="constituencyName"/>
 						<form:errors path="name" cssClass="validationError" />
 					</p>					
 					<%-- <p>
 						<label class="small"><spring:message
-								code="${urlPattern}.electionType" text="Election Type" /></label> <select
+								code="constituency.electionType" text="Election Type" /></label> <select
 							name="electionType" id="electionTypes">
 							<c:forEach items="${electionTypes}" var="i">
 								<option value="${i.id}">

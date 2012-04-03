@@ -1,7 +1,7 @@
 <%@ include file="/common/taglibs.jsp"%>
 <html>
 <head>
-<title><spring:message code="${urlPattern}" text="Sessions" />
+<title><spring:message code="sessiontype" text="Sessions" />
 </title>
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
 <script type="text/javascript">
@@ -14,7 +14,7 @@
 <body>
 
 	<div class="fields clearfix">
-		<form:form action="${urlPattern}" method="POST"
+		<form:form action="sessiontype" method="POST"
 			modelAttribute="domain">
 			<%@ include file="/common/info.jsp"%>
 			<h2>
@@ -28,7 +28,7 @@
 			<form:errors path="version" cssClass="validationError" />
 			<p>
 				<label class="small"><spring:message
-						code="${urlPattern}.sessionType" text="Session type" />&nbsp;*</label>
+						code="sessiontype.sessionType" text="Session type" />&nbsp;*</label>
 				<form:input cssClass="sSelect " path="sessionType" />
 				<form:errors path="sessionType" cssClass="validationError" />
 			</p>

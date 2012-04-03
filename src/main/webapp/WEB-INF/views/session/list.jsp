@@ -1,7 +1,7 @@
 <%@ include file="/common/taglibs.jsp" %>
 <html>
 <head>
-	<title><spring:message code="${urlPattern}.list"/></title>
+	<title><spring:message code="session.list"/></title>
 	<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
 	<script type="text/javascript">
 	var houseId=$('#houseId').val();
@@ -97,7 +97,7 @@
 	</div>
 	<%@ include file="/common/gridview.jsp" %>
 	<input type="hidden" id="grid_id" value="${gridId}">
-	<input type="hidden" id="urlPattern" name="urlPattern" value="${urlPattern}">
+	<input type="hidden" id="urlPattern" name="urlPattern" value="session">
 	<input type="hidden" name="gridURLParams" id="gridURLParams" value="houseId=${houseId}" >
 	<input type="hidden" name="houseId" id="houseId" value="${houseId}">
 </div>

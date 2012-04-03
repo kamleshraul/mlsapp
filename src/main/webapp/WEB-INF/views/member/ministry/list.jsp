@@ -1,7 +1,7 @@
 <%@ include file="/common/taglibs.jsp" %>
 <html>
 <head>
-	<title><spring:message code="${urlPattern}.list" text="List of Ministries"/></title>
+	<title><spring:message code="member.ministry.list" text="List of Ministries"/></title>
 	<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
 	<script type="text/javascript">
 		$(document).ready(function(){
@@ -23,10 +23,10 @@
 			});
 		});
 		function listRecord(){
-			showTabByIdAndUrl('house_tab','mis_ministry/list');	
+			showTabByIdAndUrl('house_tab','member/ministry/list');	
 		}
 		function newRecord(member){
-				$.get($('#urlPattern').val()+'/new?member='+member, function(data){					
+				$.get('member/ministry/new?member='+member, function(data){					
 					$('#grid_container').html(data);
 					$('#list_record').show();					
 			});
@@ -36,14 +36,14 @@
 				$.prompt($('#selectRowFirstMessage').val());
 				return false;
 			}
-			$.get($('#urlPattern').val()+'/'+row+'/edit?member='+member, function(data){
+			$.get('member/ministry/'+row+'/edit?member='+member, function(data){
 				$('#grid_container').html(data);
 				$('#list_record').show();					
 		});		
 		}
 		function rowDblClickHandler(rowid, iRow, iCol, e) {
 			var member=$('#key').val();
-			$.get($('#urlPattern').val()+'/'+rowid+'/edit?member='+member, function(data){
+			$.get('member/ministry/'+rowid+'/edit?member='+member, function(data){
 				$('#grid_container').html(data);
 				$('#list_record').show();					
 		});
@@ -63,7 +63,7 @@
 				$.prompt($('#confirmDeleteMessage').val()+ row,{
 					buttons: {Ok:true, Cancel:false}, callback: function(v){
 			        if(v){
-				        $.delete_($('#urlPattern').val()+'/'+row+'/delete?member='+member, null, function(data, textStatus, XMLHttpRequest) {
+				        $.delete_('member/ministry/'+row+'/delete?member='+member, null, function(data, textStatus, XMLHttpRequest) {
 				        	listRecord();
 				        });
 			        }
@@ -95,7 +95,6 @@
 		
 	<%@ include file="/common/gridview.jsp" %>
 	<input type="hidden" id="grid_id" value="${gridId}">
-	<input type="hidden" id="urlPattern" name="urlPattern" value="${urlPattern}">
 	<input type="hidden" id="gridURLParams" name="gridURLParams">
 	<input type="hidden" id="internalKey" name="internalKey">	
 	</div>

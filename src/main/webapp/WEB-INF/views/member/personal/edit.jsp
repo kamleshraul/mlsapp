@@ -14,11 +14,11 @@
 		totalFamilyCount=totalFamilyCount+1;
 		var text="<div id='family"+familyCount+"'>"+
 				  "<p>"+
-	    		  "<label class='small'><spring:message code='mis_personal.familyMemberName' text='Family Member Name'/></label>"+
+	    		  "<label class='small'><spring:message code='member.personal.familyMemberName' text='Family Member Name'/></label>"+
 	    		  "<input name='familyMemberName"+familyCount+"' id='familyMemberName"+familyCount+"' class='sText'>"+
 	    		  "</p>"+
 				  "<p>"+
-		              "<label class='small'><spring:message code='mis_personal.familyMemberRelation' text='Family Member Relation'/></label>"+
+		              "<label class='small'><spring:message code='member.personal.familyMemberRelation' text='Family Member Relation'/></label>"+
 		              "<select name='familyMemberRelation"+familyCount+"' id='familyMemberRelation"+familyCount+"' class='sSelect'>"+
 				      $('#relationMaster').html()+
 				      "</select>"+
@@ -53,13 +53,13 @@
 		totalQualificationCount=totalQualificationCount+1;
 		var text="<div id='qualification"+qualificationCount+"'>"+
 				 "<p>"+
-        		 "<label class='small'><spring:message code='mis_personal.qualificationDegree' text='Degree'/></label>"+
+        		 "<label class='small'><spring:message code='member.personal.qualificationDegree' text='Degree'/></label>"+
         		 "<select name='qualificationDegree"+qualificationCount+"' id='qualificationDegree"+qualificationCount+"' class='sSelect'>"+
 	      		 $('#degreeMaster').html()+
 	      		 "</select>"+
 	     		 "</p>"+
 				  "<p>"+
-	    		  "<label class='small'><spring:message code='mis_personal.qualificationDetail' text='Details'/></label>"+
+	    		  "<label class='small'><spring:message code='member.personal.qualificationDetail' text='Details'/></label>"+
 	    		  "<textarea name='qualificationDetail"+qualificationCount+"' id='qualificationDetail"+qualificationCount+"' class='sTextarea'></textarea>"+
 	    		  "</p>"+
 				  "<input type='button' class='button' id='"+qualificationCount+"' value='"+$('#deleteQualificationMessage').val()+"' onclick='deleteQualification("+qualificationCount+");'>"+

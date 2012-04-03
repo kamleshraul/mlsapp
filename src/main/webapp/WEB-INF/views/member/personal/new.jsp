@@ -2,7 +2,7 @@
 <html>
 <head>
 	<title>
-	<spring:message code="${messagePattern}" text="Member Information System"/>
+	<spring:message code="member.personal" text="Member Information System"/>
 	</title>
 	<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
 	<script type="text/javascript">
@@ -14,11 +14,11 @@
 		totalFamilyCount=totalFamilyCount+1;
 		var text="<div id='family"+familyCount+"'>"+
 				  "<p>"+
-	    		  "<label class='small'><spring:message code='${messagePattern}.familyMemberName' text='Family Member Name'/></label>"+
+	    		  "<label class='small'><spring:message code='member.personal.familyMemberName' text='Family Member Name'/></label>"+
 	    		  "<input name='familyMemberName"+familyCount+"' id='familyMemberName"+familyCount+"' class='sText'>"+
 	    		  "</p>"+
 				  "<p>"+
-		              "<label class='small'><spring:message code='${messagePattern}.familyMemberRelation' text='Family Member Relation'/></label>"+
+		              "<label class='small'><spring:message code='member.personal.familyMemberRelation' text='Family Member Relation'/></label>"+
 		              "<select name='familyMemberRelation"+familyCount+"' id='familyMemberRelation"+familyCount+"' class='sSelect'>"+
 				      $('#relationMaster').html()+
 				      "</select>"+
@@ -53,13 +53,13 @@
 		totalQualificationCount=totalQualificationCount+1;
 		var text="<div id='qualification"+qualificationCount+"'>"+
 				 "<p>"+
-        		 "<label class='small'><spring:message code='${messagePattern}.qualificationDegree' text='Degree'/></label>"+
+        		 "<label class='small'><spring:message code='member.personal.qualificationDegree' text='Degree'/></label>"+
         		 "<select name='qualificationDegree"+qualificationCount+"' id='qualificationDegree"+qualificationCount+"' class='sSelect'>"+
 	      		 $('#degreeMaster').html()+
 	      		 "</select>"+
 	     		 "</p>"+
 				  "<p>"+
-	    		  "<label class='small'><spring:message code='${messagePattern}.qualificationDetail' text='Details'/></label>"+
+	    		  "<label class='small'><spring:message code='member.personal.qualificationDetail' text='Details'/></label>"+
 	    		  "<textarea name='qualificationDetail"+qualificationCount+"' id='qualificationDetail"+qualificationCount+"' class='sTextarea'></textarea>"+
 	    		  "</p>"+
 				  "<input type='button' class='button' id='"+qualificationCount+"' value='"+$('#deleteQualificationMessage').val()+"' onclick='deleteQualification("+qualificationCount+");'>"+
@@ -99,7 +99,7 @@
 
 <body>
 <div class="fields clearfix">
-<form:form action="${urlPattern}" method="POST" modelAttribute="domain">
+<form:form action="member/personal" method="POST" modelAttribute="domain">
 	<%@ include file="/common/info.jsp" %>
 	<h2><spring:message code="generic.new.heading" text="Enter Details"/>
 		[<spring:message code="generic.id" text="Id"></spring:message>:&nbsp;
@@ -111,7 +111,7 @@
 	<img alt="" src="" id="image_specimenSignature" width="70" height="70">	
 	</span>
 	<p>
-		<label class="small"><spring:message code="${messagePattern}.photo" text="Upload Photo"/></label>
+		<label class="small"><spring:message code="member.personal.photo" text="Upload Photo"/></label>
 		<c:choose>
 		<c:when test="${empty domain.photo}">
 		<jsp:include page="/common/file_upload.jsp">
@@ -129,7 +129,7 @@
 		<form:errors path="photo" cssClass="validationError" />
 	</p>
 	<p>
-		<label class="small"><spring:message code="${messagePattern}.specimenSignature" text="Specimen Signature"/></label>
+		<label class="small"><spring:message code="member.personal.specimenSignature" text="Specimen Signature"/></label>
 		<c:choose>
 		<c:when test="${empty domain.specimenSignature}">
 		<jsp:include page="/common/file_upload.jsp">
@@ -147,97 +147,97 @@
 	</p>
 
 	<p>
-		<label class="small"><spring:message code="${messagePattern}.title" text="Title"/></label>
+		<label class="small"><spring:message code="member.personal.title" text="Title"/></label>
 		<form:select path="title" items="${titles}" itemValue="id" itemLabel="name" cssClass="sSelect"/>
 		<form:errors path="title" cssClass="validationError"/>
 	</p>
 	<p>
-		<label class="small"><spring:message code="${messagePattern}.firstName" text="First Name"/></label>
+		<label class="small"><spring:message code="member.personal.firstName" text="First Name"/></label>
 		<form:input path="firstName" cssClass="sText"/>
 		<form:errors path="firstName" cssClass="validationError"/>	
 	</p>
 	<p>
-		<label class="small"><spring:message code="${messagePattern}.middleName" text="Middle Name"/></label>
+		<label class="small"><spring:message code="member.personal.middleName" text="Middle Name"/></label>
 		<form:input path="middleName" cssClass="sText"/>
 		<form:errors path="middleName" cssClass="validationError"/>	
 	</p>
 	<p>
-		<label class="small"><spring:message code="${messagePattern}.lastName" text="Last Name"/></label>
+		<label class="small"><spring:message code="member.personal.lastName" text="Last Name"/></label>
 		<form:input path="lastName" cssClass="sText"/>
 		<form:errors path="lastName" cssClass="validationError"/>	
 	</p>
 	<p>
-		<label class="small"><spring:message code="${messagePattern}.alias" text="Alias Name"/></label>
+		<label class="small"><spring:message code="member.personal.alias" text="Alias Name"/></label>
 		<form:input path="alias" cssClass="sText"/>
 		<form:errors path="alias" cssClass="validationError"/>	
 	</p>
 	<p>
-		<label class="small"><spring:message code="${messagePattern}.aliasEnabled" text="Alias Enabled"/></label>
+		<label class="small"><spring:message code="member.personal.aliasEnabled" text="Alias Enabled"/></label>
 		<form:checkbox path="aliasEnabled" cssClass="sCheck" value="true"/>
 		<form:errors path="aliasEnabled" cssClass="validationError"/>	
 	</p>
 	<p>
-		<label class="small"><spring:message code="${messagePattern}.nationality" text="Nationality"/></label>
+		<label class="small"><spring:message code="member.personal.nationality" text="Nationality"/></label>
 		<form:select path="nationality" items="${nationalities}" itemValue="id" itemLabel="name" cssClass="sSelect"/>
 		<form:errors path="nationality" cssClass="validationError"/>
 	</p>
 	<p>
-		<label class="small"><spring:message code="${messagePattern}.gender" text="Gender"/></label>
+		<label class="small"><spring:message code="member.personal.gender" text="Gender"/></label>
 		<form:select path="gender" items="${genders}" itemValue="id" itemLabel="name" cssClass="sSelect"/>
 		<form:errors path="gender" cssClass="validationError"/>
 	</p>
 	<p>
-		<label class="small"><spring:message code="${messagePattern}.birthDate" text="Birth Date"/></label>
+		<label class="small"><spring:message code="member.personal.birthDate" text="Birth Date"/></label>
 		<form:input path="birthDate" cssClass="datemask sText" />
 		<form:errors path="birthDate" cssClass="validationError"/>	
 	</p>
 	<p>
-		<label class="small"><spring:message code="${messagePattern}.birthPlace" text="Birth Place"/></label>
+		<label class="small"><spring:message code="member.personal.birthPlace" text="Birth Place"/></label>
 		<form:input path="birthPlace" cssClass="sText"/>
 		<form:errors path="birthPlace" cssClass="validationError"/>	
 	</p>
 	<p>
-		<label class="small"><spring:message code="${messagePattern}.religion" text="Religion"/></label>
+		<label class="small"><spring:message code="member.personal.religion" text="Religion"/></label>
 		<form:select path="religion" items="${religions}" itemValue="id" itemLabel="name" cssClass="sSelect"/>
 		<form:errors path="religion" cssClass="validationError"/>
 	</p>
 	<p>
-		<label class="small"><spring:message code="${messagePattern}.category" text="Category"/></label>
+		<label class="small"><spring:message code="member.personal.category" text="Category"/></label>
 		<form:select path="reservation" items="${reservations}" itemValue="id" itemLabel="name" cssClass="sSelect"/>
 		<form:errors path="reservation" cssClass="validationError"/>
 	</p>
 	<p>
-		<label class="small"><spring:message code="${messagePattern}.caste" text="Caste"/></label>
+		<label class="small"><spring:message code="member.personal.caste" text="Caste"/></label>
 		<form:input path="caste" cssClass="sText"/>
 		<form:errors path="caste" cssClass="validationError"/>	
 	</p>
 	<p>
-		<label class="small"><spring:message code="${messagePattern}.maritalStatus" text="Marital Status"/></label>
+		<label class="small"><spring:message code="member.personal.maritalStatus" text="Marital Status"/></label>
 		<form:select path="maritalStatus" items="${maritalStatuses}" itemValue="id" itemLabel="name" cssClass="sSelect"/>
 		<form:errors path="maritalStatus" cssClass="validationError"/>
 	</p>
 	<p>
-		<label class="small"><spring:message code="${messagePattern}.marriageDate" text="Marriage Date"/></label>
+		<label class="small"><spring:message code="member.personal.marriageDate" text="Marriage Date"/></label>
 		<form:input path="marriageDate" cssClass="datemask sText" />
 		<form:errors path="marriageDate" cssClass="validationError"/>	
 	</p>
 
 	<p>
-		<label class="small"><spring:message code="${messagePattern}.languages" text="Language Proficiency"/></label>
+		<label class="small"><spring:message code="member.personal.languages" text="Language Proficiency"/></label>
 		<form:select path="languages" items="${languages}" itemValue="id" itemLabel="name"  multiple="true" size="5" cssClass="sSelect" cssStyle="height:100px;margin-top:5px;"/>
 		<form:errors path="languages" cssClass="validationError"/>
 	</p>
 	
 	<p>
-		<label class="small"><spring:message code="${messagePattern}.professions" text="Profession"/></label>
+		<label class="small"><spring:message code="member.personal.professions" text="Profession"/></label>
 		<form:select path="professions" items="${professions}" itemValue="id" itemLabel="name"  multiple="true" size="5" cssClass="sSelect" cssStyle="height:100px;margin-top:5px;"/>
 		<form:errors path="professions" cssClass="validationError"/>
 	</p>	
 	
 	<div>
-	<input type="button" class="button" id="addFamily" value="<spring:message code='${messagePattern}.addFamily' text='Add Family Members'></spring:message>">
+	<input type="button" class="button" id="addFamily" value="<spring:message code='member.personal.addFamily' text='Add Family Members'></spring:message>">
 	<input type="hidden" id="familyCount" name="familyCount" value="${familyCount}"/>
-	<input type="hidden" id="deleteFamilyMessage" name="deleteFamilyMessage" value="<spring:message code='${messagePattern}.deleteFamily' text='Delete Family Member'></spring:message>" disabled="disabled"/>
+	<input type="hidden" id="deleteFamilyMessage" name="deleteFamilyMessage" value="<spring:message code='member.personal.deleteFamily' text='Delete Family Member'></spring:message>" disabled="disabled"/>
 	<select name="relationMaster" id="relationMaster" disabled="disabled">
 	<c:forEach items="${relations}" var="i">
 	<option value="${i.id}"><c:out value="${i.name}"></c:out></option>
@@ -249,11 +249,11 @@
 	<c:forEach items="${familyMembers}" var="outer">
 	<div id="family${count}">
 	<p>
-	    <label class="small"><spring:message code="${messagePattern}.familyMemberName" text="Name"/></label>
+	    <label class="small"><spring:message code="member.personal.familyMemberName" text="Name"/></label>
 		<input name="familyMemberName${count}" id="familyMemberName${count}" class="sText" value="${outer.name}">
 	</p>	
 	<p>
-	    <label class="small"><spring:message code="${messagePattern}.familyMemberRelation" text="Relation"/></label>
+	    <label class="small"><spring:message code="member.personal.familyMemberRelation" text="Relation"/></label>
 		<select name="familyMemberRelation${count}" id="familyMemberRelation${count}" class="sSelect">
 		<c:forEach items="${relations}" var="i">
 		<c:if test="${outer.relation.id==i.id}">
@@ -262,7 +262,7 @@
 		</c:forEach>
 		</select>
 	</p>
-	<input type='button' class='button' id='${count}' value='<spring:message code="${messagePattern}.deleteFamily" text="Delete Family Member"></spring:message>' onclick='deleteFamily(${count});'/>
+	<input type='button' class='button' id='${count}' value='<spring:message code="member.personal.deleteFamily" text="Delete Family Member"></spring:message>' onclick='deleteFamily(${count});'/>
 	<c:set var="count" value="${count+1}"></c:set>	
 	<input type='hidden' id='familyMemberId${count}' name='familyMemberId${count}' value="${outer.id}">
 	<input type='hidden' id='familyMemberVersion${count}' name='familyMemberVersion${count}' value="${outer.version}">
@@ -273,9 +273,9 @@
 	</div>	
 	
 	<div>
-	<input type="button" class="button" id="addQualification" value="<spring:message code='${messagePattern}.addQualification' text='Add Qualification'></spring:message>">
+	<input type="button" class="button" id="addQualification" value="<spring:message code='member.personal.addQualification' text='Add Qualification'></spring:message>">
 	<input type="hidden" id="qualificationCount" name="qualificationCount" value="${qualificationCount}"/>
-	<input type="hidden" id="deleteQualificationMessage" name="deleteQualificationMessage" value="<spring:message code='${messagePattern}.deleteQualification' text='Delete Qualification'></spring:message>" disabled="disabled"/>
+	<input type="hidden" id="deleteQualificationMessage" name="deleteQualificationMessage" value="<spring:message code='member.personal.deleteQualification' text='Delete Qualification'></spring:message>" disabled="disabled"/>
 	<select name="degreeMaster" id="degreeMaster" disabled="disabled">
 	<c:forEach items="${degrees}" var="i">
 	<option value="${i.id}"><c:out value="${i.name}"></c:out></option>
@@ -287,7 +287,7 @@
 	<c:forEach items="${qualifications}" var="outer">
 	<div id="qualification${count}">
 	<p>
-	    <label class="small"><spring:message code="${messagePattern}.qualificationDegree" text="Degree"/></label>
+	    <label class="small"><spring:message code="member.personal.qualificationDegree" text="Degree"/></label>
 		<select name="qualificationDegree${count}" id="qualificationDegree${count}" class="sSelect">
 		<c:forEach items="${degrees}" var="i">
 		<c:if test="${outer.degree.id==i.id}">
@@ -297,10 +297,10 @@
 		</select>
 	</p>
 	<p>
-	    <label class="small"><spring:message code="${messagePattern}.qualificationDetail" text="Details"/></label>
+	    <label class="small"><spring:message code="member.personal.qualificationDetail" text="Details"/></label>
 		<textarea name="qualificationDetail${count}" id="qualificationDetail${count}" class="sTextarea">${outer.details}</textarea>
 	</p>	
-	<input type='button' class='button' id='${count}' value='<spring:message code="${messagePattern}.deleteQualification" text="Delete Qualification"></spring:message>' onclick='deleteQualification(${count});'/>
+	<input type='button' class='button' id='${count}' value='<spring:message code="member.personal.deleteQualification" text="Delete Qualification"></spring:message>' onclick='deleteQualification(${count});'/>
 	<c:set var="count" value="${count+1}"></c:set>	
 	<input type='hidden' id='qualificationLocale${count}' name='qualificationLocale${count}' value='${domain.locale}'>
 	<input type='hidden' id='qualificationId${count}' name='qualificationId${count}' value="${outer.id}">

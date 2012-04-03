@@ -2,7 +2,7 @@
 <html>
 <head>
 	<title>
-	<spring:message code="${urlPattern}" text="Custom Parameters"/>
+	<spring:message code="customparam" text="Custom Parameters"/>
 	</title>
 	<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>	
 	<script type="text/javascript">
@@ -14,30 +14,30 @@
 </head>
 <body>
 <div class="fields clearfix">
-<form:form  action="${urlPattern}" method="POST" modelAttribute="domain">
+<form:form  action="customparam" method="POST" modelAttribute="domain">
 	<%@ include file="/common/info.jsp" %>
 	<h2><spring:message code="generic.new.heading" text="Enter Details"/>
 		[<spring:message code="generic.id" text="Id"></spring:message>:&nbsp;<spring:message code="generic.new" text="New"></spring:message>]
 	</h2>	
 	<form:errors path="version" cssClass="validationError"/>		 
 		<p> 
-			<label class="small"><spring:message code="${urlPattern}.name" text="Name"/></label>
+			<label class="small"><spring:message code="customparam.name" text="Name"/></label>
 			<form:input cssClass="sSelect" path="name"/>
 			<form:errors path="name" cssClass="validationError"/>	
 		</p>
 		
 		<p>
-			<label class="small"><spring:message code="${urlPattern}.value" text="Value"/></label>
+			<label class="small"><spring:message code="customparam.value" text="Value"/></label>
 			<form:input cssClass="sSelect" path="value"/>
 			<form:errors path="value" cssClass="validationError"/>
 		</p>
 		<p>
-			<label class="small"><spring:message code="${urlPattern}.updateable" text="Updateable?"/></label>
+			<label class="small"><spring:message code="customparam.updateable" text="Updateable?"/></label>
 			<form:checkbox cssClass="sSelect" path="updateable"/>
 			<form:errors path="updateable" cssClass="validationError"/>	
 		</p>
 		<p>
-			<label class="small"><spring:message code="${urlPattern}.description" text="Description"/></label>
+			<label class="small"><spring:message code="customparam.description" text="Description"/></label>
 			<form:textarea cssClass="sSelect" path="description" rows="5" cols="50"/>
 			<form:errors path="description" cssClass="validationError"/>	
 		</p>			

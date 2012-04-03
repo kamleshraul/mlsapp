@@ -3,7 +3,7 @@
 <html>
 <head>
 	<title>
-	<spring:message code="${urlPattern}" text="Divisions"/>
+	<spring:message code="district" text="Divisions"/>
 	</title>
 	<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>	
 	<script type="text/javascript">
@@ -16,25 +16,25 @@
 <body>
 
 <div class="fields clearfix">
-<form:form action="${urlPattern}" method="PUT"  modelAttribute="domain">
+<form:form action="district" method="PUT"  modelAttribute="domain">
 	<%@ include file="/common/info.jsp" %>
 	<h2><spring:message code="generic.edit.heading" text="Enter Details "/>
 		 [<spring:message code="generic.id" text="Id"></spring:message>:${domain.id}]
 	</h2>
 	<form:errors path="version" cssClass="validationError"/>
 	<p>
-	<label class="small"><spring:message code="${urlPattern}.division" text="Division"/>&nbsp;*</label>
+	<label class="small"><spring:message code="district.division" text="Division"/>&nbsp;*</label>
 		<form:select path="division" items="${divisions}" itemValue="id" itemLabel="name" cssClass="sSelect">
 	    </form:select>			
 	    <form:errors path="division" cssClass="validationError"/>	
 	</p>
 	<p>
-	<label class="small"><spring:message code="${urlPattern}.name" text="Name"/>&nbsp;*</label>
+	<label class="small"><spring:message code="district.name" text="Name"/>&nbsp;*</label>
 			<form:input cssClass="sSelect" path="name"/>
 			<form:errors path="name" cssClass="validationError"/>	
 	</p>
 	<p> 
-			<label class="small"><spring:message code="${urlPattern}.totalConstituencies" text="No. of Constituencies"/></label>
+			<label class="small"><spring:message code="district.totalConstituencies" text="No. of Constituencies"/></label>
 			<form:input cssClass="sSelect" path="totalConstituencies"/>
 			<form:errors path="name" cssClass="validationError" />	
 	</p>
@@ -54,7 +54,7 @@
 <%@ include file="/common/taglibs.jsp"%>
 <html>
 <head>
-<title><spring:message code="${urlPattern}" text="Districts" />
+<title><spring:message code="district" text="Districts" />
 </title>
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
 <script type="text/javascript">
@@ -104,7 +104,7 @@
 <body>
 
 	<div class="fields clearfix">
-		<form:form action="${urlPattern}" method="PUT" modelAttribute="domain">
+		<form:form action="district" method="PUT" modelAttribute="domain">
 			<%@ include file="/common/info.jsp"%>
 			<h2>
 				<spring:message code="generic.edit.heading" text="Enter Details " />
@@ -115,7 +115,7 @@
 			<form:errors path="version" cssClass="validationError" />
 			<p>
 				<label class="small"><spring:message
-						code="${urlPattern}.state" text="State" />&nbsp;*</label> <select
+						code="district.state" text="State" />&nbsp;*</label> <select
 					name="state" id="states">
 					<c:forEach items="${states}" var="i">
 						<option value="${i.id}">
@@ -127,20 +127,20 @@
 			</p>
 			<p>
 				<label class="small"><spring:message
-						code="${urlPattern}.division" text="Division" />&nbsp;*</label>
+						code="district.division" text="Division" />&nbsp;*</label>
 				<form:select id="divisions" path="division" items="${divisions}"
 					itemValue="id" itemLabel="name" cssClass="sSelect"></form:select>
 				<form:errors path="division" cssClass="validationError" />
 			</p>
 			<p>
 				<label class="small"><spring:message
-						code="${urlPattern}.name" text="Name" />&nbsp;*</label>
+						code="district.name" text="Name" />&nbsp;*</label>
 				<form:input cssClass="sSelect" path="name" size="50" />
 				<form:errors path="name" cssClass="validationError" />
 			</p>
 			<p>
 				<label class="small"><spring:message
-						code="${urlPattern}.totalConstituencies"
+						code="district.totalConstituencies"
 						text="No. of Constituencies" /></label>
 				<form:input cssClass="sSelect" path="totalConstituencies" />
 				<form:errors path="name" cssClass="validationError" />

@@ -1,7 +1,7 @@
 <%@ include file="/common/taglibs.jsp"%>
 <html>
 <head>
-<title><spring:message code="${urlPattern}" text="States" /></title>
+<title><spring:message code="state" text="States" /></title>
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
 <script type="text/javascript">
 	$('document').ready(function() {
@@ -12,7 +12,7 @@
 </head>
 <body>
 	<div class="fields clearfix">
-		<form:form action="${urlPattern}" method="POST"
+		<form:form action="state" method="POST"
 			modelAttribute="domain">
 			<%@ include file="/common/info.jsp"%>
 			<h2>
@@ -26,7 +26,7 @@
 			<form:errors path="version" cssClass="validationError" />
 			<p>
 				<label class="small"><spring:message
-						code="${urlPattern}.name" text="Name" /></label>
+						code="state.name" text="Name" /></label>
 				<form:input cssClass="sSelect" path="name" />
 				<form:errors path="name" cssClass="validationError" />
 			</p>

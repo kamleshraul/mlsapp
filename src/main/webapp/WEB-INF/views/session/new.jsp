@@ -1,7 +1,7 @@
 <%@ include file="/common/taglibs.jsp"%>
 <html>
 <head>
-<title><spring:message code="${urlPattern}.list"/></title>
+<title><spring:message code="session.list"/></title>
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
 <script type="text/javascript">
 	$('document').ready(function() {
@@ -14,7 +14,7 @@
 	<div class="commandbar">
 	</div>
 	<div class="fields clearfix">
-		<form:form action="${urlPattern}" method="POST"
+		<form:form action="session" method="POST"
 			modelAttribute="domain">
 			<form:input path="house" type="hidden" name="houseId" value="${houseId}" id="houseId"/>
 			<%@ include file="/common/info.jsp"%>
@@ -30,63 +30,64 @@
 			
 			<p>
 				<label class="small"><spring:message
-						code="${urlPattern}.number" text="Session Number" />&nbsp;*</label>
+						code="session.number" text="Session Number" />&nbsp;*</label>
 				<form:input path="number" cssClass="integer sText"></form:input>
+			</p>
 			<p>
 				<label class="small"><spring:message
-						code="${urlPattern}.startDate" text="Start Date" />&nbsp;*</label>
+						code="session.startDate" text="Start Date" />&nbsp;*</label>
 				<form:input cssClass="datemask sText" path="startDate" />
 				<form:errors path="startDate" cssClass="validationError" />
 
 			</p>
 
 			<p>
-				<label class="small"><spring:message code="${urlPattern}.endDate"
+				<label class="small"><spring:message code="session.endDate"
 						text="End Date" /></label>
 				<form:input cssClass="datemask sText" path="endDate" />
 				<form:errors path="endDate" cssClass="validationError" />
 
 			</p>
 			<p>
-				<label class="small"><spring:message code="${urlPattern}.type" text="Session Type" />&nbsp;*</label>
+				<label class="small"><spring:message code="session.type" text="Session Type" />&nbsp;*</label>
 				<form:select cssClass="sSelect" path="type"
 					items="${sessionType}" itemValue="id" itemLabel="sessionType">
 				</form:select>
 
 			</p>
 			<p>
-				<label class="small"><spring:message code="${urlPattern}.place" text="Session Place" />&nbsp;*</label>
+				<label class="small"><spring:message code="session.place" text="Session Place" />&nbsp;*</label>
 				<form:select cssClass="sSelect" path="place"
 					items="${place}" itemValue="id" itemLabel="place">
 				</form:select>
 
 			</p>
 			<p>
-		<label class="small"><spring:message code="${urlPattern}.year" text="Session Year"/>&nbsp;*</label>
+		<label class="small"><spring:message code="session.year" text="Session Year"/>&nbsp;*</label>
 				<form:input cssClass="integer sText" path="year"/>
 				<form:errors path="year" cssClass="validationError" />	
 			
 		</p>
 		<p>
-		<label class="small"><spring:message code="${urlPattern}.durationInDays" text="Session Duration In days"/>&nbsp;*</label>
+		<label class="small"><spring:message code="session.durationInDays" text="Session Duration In days"/>&nbsp;*</label>
 				<form:input cssClass="integer sText" path="durationInDays"/>
 				<form:errors path="durationInDays" cssClass="validationError" />	
 			
 		</p>
 		<p>
-		<label class="small"><spring:message code="${urlPattern}.durationInHrs" text="Session Duration In Hours"/>&nbsp;*</label>
+		<label class="small"><spring:message code="session.durationInHrs" text="Session Duration In Hours"/>&nbsp;*</label>
 				<form:input cssClass="integer sText" path="durationInHrs"/>
 				<form:errors path="durationInHrs" cssClass="validationError" />	
 			
 		</p>
 		<p>
-		<label class="small"><spring:message code="${urlPattern}.durationInMins" text="Session Duration In Mins"/>&nbsp;*</label>
+		<label class="small"><spring:message code="session.durationInMins" text="Session Duration In Mins"/>&nbsp;*</label>
 				<form:input cssClass="integer sText" path="durationInMins"/>
 				<form:errors path="durationInMins" cssClass="validationError" />	
 			
 		</p>
 		<p>
-				<label class="small"><spring:message code="${urlPattern}.remarks"
+				<label class="small"><spring:message code="session.remarks"
 						text="Remarks" /></label>
 				<form:textarea cssClass="sTextarea" path="remarks" />
 				<form:errors path="remarks" cssClass="validationError" />

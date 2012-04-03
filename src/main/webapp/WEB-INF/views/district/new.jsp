@@ -1,7 +1,7 @@
 <%@ include file="/common/taglibs.jsp"%>
 <html>
 <head>
-<title><spring:message code="${urlPattern}" text="districts" />
+<title><spring:message code="district" text="districts" />
 </title>
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
 <script type="text/javascript">
@@ -32,7 +32,7 @@
 </head>
 <body>
 	<div class="fields clearfix">
-		<form:form action="${urlPattern}" method="POST"
+		<form:form action="district" method="POST"
 			modelAttribute="domain">
 			<%@ include file="/common/info.jsp"%>
 			<h2>
@@ -46,7 +46,7 @@
 			<form:errors path="version" cssClass="validationError" />
 			<p>
 				<label class="small"><spring:message
-						code="${urlPattern}.state" text="State" />&nbsp;*</label> <select
+						code="district.state" text="State" />&nbsp;*</label> <select
 					name="state" id="states">
 					<c:forEach items="${states}" var="i">
 						<option value="${i.id}">
@@ -57,7 +57,7 @@
 			</p>
 			<p>
 				<label class="small"><spring:message
-						code="${urlPattern}.division" text="division" />&nbsp;*</label>
+						code="district.division" text="division" />&nbsp;*</label>
 				<form:select id="divisions" path="division" items="${divisions}"
 					itemValue="id" itemLabel="name" cssClass="sSelect"></form:select>
 				<form:errors path="division" cssClass="validationError" />
@@ -65,13 +65,13 @@
 			</p>
 			<p>
 				<label class="small"><spring:message
-						code="${urlPattern}.name" text="Name" />&nbsp;*</label>
+						code="district.name" text="Name" />&nbsp;*</label>
 				<form:input cssClass="sSelect" path="name" size="50" />
 				<form:errors path="name" cssClass="validationError" />
 			</p>
 			<p>
 				<label class="small"><spring:message
-						code="${urlPattern}.totalConstituencies"
+						code="district.totalConstituencies"
 						text="No. of Constituencies" /></label>
 				<form:input cssClass="sSelect" path="totalConstituencies" />
 				<form:errors path="totalConstituencies" cssClass="validationError" />

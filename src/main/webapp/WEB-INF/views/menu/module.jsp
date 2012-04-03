@@ -1,12 +1,12 @@
 <%@ include file="/common/taglibs.jsp" %>
 <html>
 <head>
-	<title><spring:message code="${urlPattern}.list" /></title>
+	<title><spring:message code="menu.list" /></title>
 	<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
 	<script type="text/javascript">
 		 $(document).ready(function(){
 			 var urlPattern=$('#urlPattern').val();
-			 	 showTabByIdAndUrl('menu_tab',urlPattern+'/list');
+			 	 showTabByIdAndUrl('menu_tab','menu/list');
 			
 		 });
 	

@@ -2,7 +2,7 @@
 <html>
 <head>
 	<title>
-	<spring:message code="${urlPattern}" text="Member Ministry Details"/>
+	<spring:message code="member.ministry" text="Member Ministry Details"/>
 	</title>
 	<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
 	<script type="text/javascript">
@@ -13,7 +13,7 @@
 
 <body>
 <div class="fields clearfix">
-<form:form action="${urlPattern}" method="PUT" modelAttribute="domain">
+<form:form action="member/ministry" method="PUT" modelAttribute="domain">
 	<%@ include file="/common/info.jsp" %>
 	<h2><spring:message code="generic.edit.heading" text="Enter Details"/>
 		[<spring:message code="generic.id" text="Id"></spring:message>:&nbsp;
@@ -21,12 +21,12 @@
 	</h2>
 	<form:errors path="version" cssClass="validationError"/>
 	<p>
-		<label class="small"><spring:message code="${urlPattern}.ministry" text="Ministry"/></label>
+		<label class="small"><spring:message code="member.ministry.ministry" text="Ministry"/></label>
 		<form:select path="ministry" items="${ministries}" itemLabel="department" itemValue="id" cssClass="sSelect"/>
 		<form:errors path="ministry" cssClass="validationError"/>		
 	</p>	
 	<p>
-		<label class="small"><spring:message code="${urlPattern}.role" text="Status"/></label>
+		<label class="small"><spring:message code="member.ministry.role" text="Status"/></label>
 		<form:select path="role" items="${roles}" itemLabel="name" itemValue="id" cssClass="sSelect"/>
 		<form:errors path="role" cssClass="validationError"/>	
 	</p>

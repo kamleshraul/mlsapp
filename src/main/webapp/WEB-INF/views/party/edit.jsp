@@ -1,7 +1,7 @@
 <%@ include file="/common/taglibs.jsp" %>
 <html>
 <head>
-	<title><spring:message code="${urlPattern}.edit.title" text="Edit Party"/></title>
+	<title><spring:message code="party.edit.title" text="Edit Party"/></title>
 	<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
 	<script type="text/javascript">
 		$('document').ready(function(){	
@@ -12,7 +12,7 @@
 </head>
 <body>
 <div class="fields clearfix">
-<form:form action="${urlPattern}" method="PUT" 
+<form:form action="party" method="PUT" 
 	modelAttribute="domain">
 	<%@ include file="/common/info.jsp" %>
 	<h2><spring:message code="generic.new.heading" text="Enter Details"/>
@@ -26,20 +26,20 @@
 	</p>
 	
 	<p>
-	<label class="small"><spring:message code="${urlPattern}.name" text="Party Name"/>&nbsp;*</label>
+	<label class="small"><spring:message code="party.name" text="Party Name"/>&nbsp;*</label>
 			<form:input cssClass="sSelect" path="name"/>
 			<form:errors path="name" cssClass="field_error" />	
 	</p>
 		
 	<p>
-	<label class="small"><spring:message code="${urlPattern}.abbreviation" text="Abbreviation"/>&nbsp;*</label>
+	<label class="small"><spring:message code="party.abbreviation" text="Abbreviation"/>&nbsp;*</label>
 			<form:input cssClass="sSelect" path="abbreviation"/>
 			<form:errors path="abbreviation" cssClass="field_error" />	
 	</p>
 	
 	<!--  <p>
 		 <div>
-		 	 <label class="small"><spring:message code="${urlPattern}.photo.label" text="Party Symbol"/>&nbsp;*</label>	
+		 	 <label class="small"><spring:message code="party.photo.label" text="Party Symbol"/>&nbsp;*</label>	
 		 	 <div class="hideDiv" id="photoDiv">
 		     <img width="40" height="40" id="photoDisplay"/>
 		     </div>
@@ -52,7 +52,7 @@
 		 </div>	
 		 </p>-->
 		 <p>
-		 	 <label class="small"><spring:message code="${urlPattern}.photo.label" text="Party Symbol"/></label>
+		 	 <label class="small"><spring:message code="party.photo.label" text="Party Symbol"/></label>
 			
 		 
 		 <c:choose>

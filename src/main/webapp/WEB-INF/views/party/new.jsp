@@ -1,7 +1,7 @@
 <%@ include file="/common/taglibs.jsp" %>
 <html>
 <head>
-	<title><spring:message code="${urlPattern}.new.title" text="Add Party"/></title>
+	<title><spring:message code="party.new.title" text="Add Party"/></title>
 	<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
 	<script type="text/javascript">
 		$('document').ready(function(){	
@@ -12,24 +12,24 @@
 </head>
 <body>
 <div class="fields clearfix">
-<form:form action="${urlPattern}" method="POST" modelAttribute="domain">
+<form:form action="party" method="POST" modelAttribute="domain">
 	<%@ include file="/common/info.jsp" %>
 	<h2><spring:message code="generic.new.heading" text="Enter Details"/>
 		[<spring:message code="generic.id" text="Id"></spring:message>:&nbsp;<spring:message code="generic.new" text="New"></spring:message>]
 	</h2>
 <form:errors path="version" cssClass="validationError"/>
 	<p>
-		<label class="small"><spring:message code="${urlPattern}.name" text="Name"/>&nbsp;*</label>
+		<label class="small"><spring:message code="party.name" text="Name"/>&nbsp;*</label>
 		<form:input cssClass="sSelect" path="name"/>
 		<form:errors path="name" cssClass="validationError" />	
 	</p>
 	<p>	
-		<label class="small"><spring:message code="${urlPattern}.abbreviation" text="Abbreviation"/>&nbsp;*</label>
+		<label class="small"><spring:message code="party.abbreviation" text="Abbreviation"/>&nbsp;*</label>
 		<form:input cssClass="sSelect" path="abbreviation"/>
 		<form:errors path="abbreviation" cssClass="validationError" />	
 	</p>
 	<!--  <p>	 
-		 	 <label class="small"><spring:message code="${urlPattern}.photo.label" text="Party Symbol"/>&nbsp;*</label>	
+		 	 <label class="small"><spring:message code="party.photo.label" text="Party Symbol"/>&nbsp;*</label>	
 		 	 <div class="hideDiv" id="photoDiv">
 		     <img width="40" height="40" id="photoDisplay"/>
 		     </div>
@@ -41,7 +41,7 @@
 			 <form:errors path="photo" cssClass="validationError" />
 	</p>-->	
 		<p>
-		 	 <label class="small"><spring:message code="${urlPattern}.photo.label" text="Party Symbol"/></label>
+		 	 <label class="small"><spring:message code="party.photo.label" text="Party Symbol"/></label>
 			 <jsp:include page="/common/file_upload.jsp">
 			 	<jsp:param name="fileid" value="photo" />
 			 </jsp:include>

@@ -1,13 +1,12 @@
 <%@ include file="/common/taglibs.jsp" %>
 <html>
 <head>
-	<title><spring:message code="${urlPattern}.list" text="Menu Hierarchy"/></title>
+	<title><spring:message code="menu.list" text="Menu Hierarchy"/></title>
 	<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
 	<link rel="stylesheet" media="screen" href="./resources/css/jquery.treeview.css" type="text/css" />
 	<script type="text/javascript" src="./resources/js/jquery.treeview.min.js"></script>
 	<script type="text/javascript">
 	 	$(document).ready(function(){
-	 	var urlPattern=$('#urlPattern').val();
 	 	 $("#treeview").treeview(); 
 		 
 		 $('#expandAll').click(function() {        
@@ -30,14 +29,14 @@
 			 return false;
 		 });
 	     $('#refresh').click(function(){
-	    	 showTabByIdAndUrl('menu_tab',urlPattern+'/list');//$("#menu_tab").Load('menus/list');
+	    	 showTabByIdAndUrl('menu_tab','menu/list');//$("#menu_tab").Load('menus/list');
 	    	 return false;
 	 	 });
 	     $('#new_record').click(function(){
 		     var select_node = $('.selected').attr('id');
 		   //  alert(select_node)
 		     if(select_node){
-		    	$("#disp").load(urlPattern+'/new?parentId='+select_node,function(data){
+		    	$("#disp").load('menu/new?parentId='+select_node,function(data){
 	    	 	});
 		     }
 		     else{
@@ -49,7 +48,7 @@
 		     var select_node = $('.selected').attr('id');
 		     if(select_node){
 		    	 $.ajax({
-		    		   url: urlPattern+'/'+select_node+'/delete',
+		    		   url: 'menu/'+select_node+'/delete',
 		    		   type: 'DELETE',
 		    		   success: function( response ) {
 			    			$('#refresh').trigger('click');
@@ -102,7 +101,6 @@
 		
 		<x:transform xml="${menu_xml}" xslt="${menu_xsl}">
     	</x:transform>
-	  <input id="hidden" name="urlPattern" value="${urlPattern}">
 	</div> 
   	<div id="disp" style="width:700px;height: 554px;border:solid;border-width:1px;float:right;overflow:auto;">
  	</div>    

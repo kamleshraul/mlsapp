@@ -2,7 +2,7 @@
 <html>
 <head>
 	<title>
-	<spring:message code="${urlPattern}" text="Member Role Details"/>
+	<spring:message code="member.house" text="Member Role Details"/>
 	</title>
 	<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
 	<script type="text/javascript">
@@ -13,14 +13,14 @@
 
 <body>
 <div class="fields clearfix">
-<form:form action="${urlPattern}" method="PUT" modelAttribute="domain">
+<form:form action="member/house" method="PUT" modelAttribute="domain">
 	<%@ include file="/common/info.jsp" %>
 	<h2><spring:message code="generic.edit.heading" text="Enter Details"/>
 		[<spring:message code="generic.member" text="Member"></spring:message>:&nbsp;
 		${domain.member.title.name} ${domain.member.firstName} ${domain.member.middleName} ${domain.member.lastName}]
 	</h2>
 	<p>
-		<label class="small"><spring:message code="${urlPattern}.houseType" text="Member Of"/></label>
+		<label class="small"><spring:message code="member.house.houseType" text="Member Of"/></label>
 		<input type="text" readonly="readonly" name="houseType" id="houseType"  value="${houseType.name}">
 	</p>
 	<p>
@@ -39,12 +39,12 @@
 		<form:errors path="house" cssClass="validationError"/>	
 	</p>
 	<p>
-		<label class="small"><spring:message code="${urlPattern}.role" text="Role"/></label>
+		<label class="small"><spring:message code="member.house.role" text="Role"/></label>
 		<form:select path="role" items="${roles}" itemLabel="name" itemValue="id" cssClass="sSelect"/>
 		<form:errors path="role" cssClass="validationError"/>		
 	</p>
 	<!-- <p>
-		<label class="small"><spring:message code="${urlPattern}.constituencies" text="Constituency"/></label>
+		<label class="small"><spring:message code="member.house.constituencies" text="Constituency"/></label>
 		<form:select path="constituency" items="${constituencies}" itemLabel="name" itemValue="id" cssClass="sSelect"/>
 		<form:errors path="constituency" cssClass="validationError"/>		
 	</p> -->
@@ -59,22 +59,22 @@
 		<form:errors path="toDate" cssClass="validationError"/>	
 	</p>
 	<p>
-		<label class="small"><spring:message code="${urlPattern}.oathdate" text="Oath Date"/></label>
+		<label class="small"><spring:message code="member.house.oathdate" text="Oath Date"/></label>
 		<form:input path="oathDate" cssClass="sText datemask"/>
 		<form:errors path="oathDate" cssClass="validationError"/>	
 	</p>
 	<p>
-		<label class="small"><spring:message code="${urlPattern}.internalVotingDate" text="Internal Voting Date"/></label>
+		<label class="small"><spring:message code="member.house.internalVotingDate" text="Internal Voting Date"/></label>
 		<form:input path="internalPollDate" cssClass="sText datemask"/>
 		<form:errors path="internalPollDate" cssClass="validationError"/>	
 	</p>
 	<p>
-		<label class="small"><spring:message code="${urlPattern}.sitting" text="Is Sitting"/></label>
+		<label class="small"><spring:message code="member.house.sitting" text="Is Sitting"/></label>
 		<form:checkbox path="isSitting" cssClass="sOption" value="true" />
 		<form:errors path="isSitting" cssClass="validationError"/>	
 	</p>
 	<p>
-		<label class="small"><spring:message code="${urlPattern}.remarks" text="Remarks"/></label>
+		<label class="small"><spring:message code="member.house.remarks" text="Remarks"/></label>
 		<form:textarea path="remarks" cssClass="sTextarea" rows="5" cols="50"/>
 		<form:errors path="remarks" cssClass="validationError"/>	
 	</p>

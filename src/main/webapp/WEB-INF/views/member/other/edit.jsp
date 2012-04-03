@@ -2,7 +2,7 @@
 <html>
 <head>
 	<title>
-	<spring:message code="${urlPattern}" text="Member Other Details"/>
+	<spring:message code="member.other" text="Member Other Details"/>
 	</title>
 	<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
 	<script type="text/javascript">
@@ -22,7 +22,7 @@
 	    		  "<input name='positionToDate"+positionCount+"' id='positionToDate"+positionCount+"' class='datemask sText'>"+
 	    		  "</p>"+
 	    		  "<p>"+
-	    		  "<label class='small'><spring:message code='mis_other.positionPosition' text='Votes Received'/></label>"+
+	    		  "<label class='small'><spring:message code='member.other.positionPosition' text='Votes Received'/></label>"+
 	    		  "<textarea name='positionPosition"+positionCount+"' id='positionPosition"+positionCount+"' class='sText' rows='5' cols='50'></textarea>"+
 	    		  "</p>"+
 				      "<input type='button' class='button' id='"+positionCount+"' value='"+$('#deletePositionMessage').val()+"' onclick='deletePosition("+positionCount+");'>"+
@@ -55,7 +55,7 @@
 
 <body>
 <div class="fields clearfix">
-<form:form action="${urlPattern}" method="PUT" modelAttribute="domain">
+<form:form action="member/other" method="PUT" modelAttribute="domain">
 	<%@ include file="/common/info.jsp" %>
 	<h2><spring:message code="generic.new.heading" text="Enter Details"/>
 		[<spring:message code="generic.member" text="Member"></spring:message>:&nbsp;
@@ -63,9 +63,9 @@
 	</h2>
 	<form:errors path="version" cssClass="validationError" cssStyle="color:red;"/>
 	<div>
-	<input type="button" class="button" id="addPosition" value="<spring:message code='${urlPattern}.addPosition' text='Add Position'></spring:message>">
+	<input type="button" class="button" id="addPosition" value="<spring:message code='member.other.addPosition' text='Add Position'></spring:message>">
 	<input type="hidden" id="positionCount" name="positionCount" value="${positionCount}"/>
-	<input type="hidden" id="deletePositionMessage" name="deletePositionMessage" value="<spring:message code='${urlPattern}.deletePosition' text='Delete Position'></spring:message>" disabled="disabled"/>
+	<input type="hidden" id="deletePositionMessage" name="deletePositionMessage" value="<spring:message code='member.other.deletePosition' text='Delete Position'></spring:message>" disabled="disabled"/>
 	<form:errors path="positionsHeld" cssClass="validationError"></form:errors>
 	<c:if test="${!(empty positions)}">
 	<c:set var="count" value="1"></c:set>
@@ -80,10 +80,10 @@
 		<input name="positionToDate${count}" id="positionToDate${count}" class="datemask sText" value="${outer.toDate}">
 	</p>
 	<p>
-	    <label class="small"><spring:message code="${urlPattern}.positionPosition" text="Position"/></label>
+	    <label class="small"><spring:message code="member.other.positionPosition" text="Position"/></label>
 		<textarea name="positionPosition${count}" id="positionPosition${count}" class="sText" rows="5" cols="50">${outer.position}</textarea>
 	</p>
-	<input type='button' class='button' id='${count}' value='<spring:message code="${urlPattern}.deletePosition" text="Delete Position"></spring:message>' onclick='deletePosition(${count});'>"
+	<input type='button' class='button' id='${count}' value='<spring:message code="member.other.deletePosition" text="Delete Position"></spring:message>' onclick='deletePosition(${count});'>"
 	<c:set var="count" value="${count+1}"></c:set>
 	<input type='hidden' id='positionId${count}' name='positionId${count}' value="${outer.id}">
 	<input type='hidden' id='positionLocale${count}' name='positionLocale${count}' value="${domain.locale}">
@@ -93,33 +93,33 @@
 	</c:if>
 	</div>				
 	<p>
-		<label class="small"><spring:message code="${urlPattern}.socialCulturalActivities" text="Social Activities"/></label>
+		<label class="small"><spring:message code="member.other.socialCulturalActivities" text="Social Activities"/></label>
 		<form:textarea path="socialCulturalActivities" cssClass="sTextarea" cols="50" rows="5"></form:textarea>
 		<form:errors path="socialCulturalActivities" cssClass="validationError"/>	
 	</p>
 	
 	<p>
-		<label class="small"><spring:message code="${urlPattern}.educationalCulturalActivities" text="Educational and Cultural Activities"/></label>
+		<label class="small"><spring:message code="member.other.educationalCulturalActivities" text="Educational and Cultural Activities"/></label>
 		<form:textarea path="educationalCulturalActivities" cssClass="sTextarea" cols="50" rows="5"></form:textarea>
 		<form:errors path="educationalCulturalActivities" cssClass="validationError"/>	
 	</p>
 	<p>
-		<label class="small"><spring:message code="${urlPattern}.literaryArtisticScientificAccomplishments" text="Literary,Artistic and Scientific Accomplishments"/></label>
+		<label class="small"><spring:message code="member.other.literaryArtisticScientificAccomplishments" text="Literary,Artistic and Scientific Accomplishments"/></label>
 		<form:textarea path="literaryArtisticScientificAccomplishments" cssClass="sTextarea" cols="50" rows="5"></form:textarea>
 		<form:errors path="literaryArtisticScientificAccomplishments" cssClass="validationError"/>	
 	</p>	 
 	<p>
-		<label class="small"><spring:message code="${urlPattern}.hobbySpecialInterests" text="Hobby and Special Interests"/></label>
+		<label class="small"><spring:message code="member.other.hobbySpecialInterests" text="Hobby and Special Interests"/></label>
 		<form:textarea path="hobbySpecialInterests" cssClass="sTextarea" cols="50" rows="5"></form:textarea>
 		<form:errors path="hobbySpecialInterests" cssClass="validationError"/>	
 	</p>	
 	<p>
-		<label class="small"><spring:message code="${urlPattern}.countriesVisited" text="Countries Visited"/></label>
+		<label class="small"><spring:message code="member.other.countriesVisited" text="Countries Visited"/></label>
 		<form:textarea path="countriesVisited" cssClass="sTextarea" cols="50" rows="5"></form:textarea>
 		<form:errors path="countriesVisited" cssClass="validationError"/>	
 	</p>	
 	<p>
-		<label class="small"><spring:message code="${urlPattern}.otherInformation" text="Other Information"/></label>
+		<label class="small"><spring:message code="member.other.otherInformation" text="Other Information"/></label>
 		<form:textarea path="otherInformation" cssClass="sTextarea" cols="50" rows="5"></form:textarea>
 		<form:errors path="otherInformation" cssClass="validationError"/>	
 	</p>	

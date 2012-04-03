@@ -2,7 +2,7 @@
 <html>
 <head>
 	<title>
-	<spring:message code="${urlPattern}" text="Ministries"/>
+	<spring:message code="ministry" text="Ministries"/>
 	</title>
 	<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>	
 	<script type="text/javascript">
@@ -14,20 +14,20 @@
 </head>
 <body>
 <div class="fields clearfix">
-<form:form  action="${urlPattern}" method="PUT" modelAttribute="domain">
+<form:form  action="ministry" method="PUT" modelAttribute="domain">
 	<%@ include file="/common/info.jsp" %>
 	<h2><spring:message code="generic.edit.heading" text="Details"/>
 		[<spring:message code="generic.id" text="Id"></spring:message>:${domain.id}]
 	</h2>
 	<form:errors path="version" cssClass="validationError"/>			 
 		<p> 
-			<label class="small"><spring:message code="${urlPattern}.department" text="Department"/></label>
+			<label class="small"><spring:message code="ministry.department" text="Department"/></label>
 			<form:input cssClass="sSelect" path="department"/>
 			<form:errors path="department" cssClass="validationError"/>	
 		</p>
 		
 		<p>
-			<label class="small"><spring:message code="${urlPattern}.alias" text="Alias"/></label>
+			<label class="small"><spring:message code="ministry.alias" text="Alias"/></label>
 			<form:input cssClass="sSelect" path="alias"/>
 			<form:errors path="alias" cssClass="validationError"/>
 		</p>

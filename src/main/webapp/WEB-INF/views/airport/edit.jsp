@@ -3,7 +3,7 @@
 <html>
 <head>
 	<title>
-	<spring:message code="${urlPattern}" text="Airports"/>
+	<spring:message code="airport" text="Airports"/>
 	</title>
 	<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>	
 	<script type="text/javascript">
@@ -46,14 +46,14 @@
 <body>
 
 <div class="fields clearfix">
-<form:form action="${urlPattern}" method="PUT"  modelAttribute="domain">
+<form:form action="airport" method="PUT"  modelAttribute="domain">
 	<%@ include file="/common/info.jsp" %>
 	<h2><spring:message code="generic.edit.heading" text="Enter Details "/>
 		 [<spring:message code="generic.id" text="Id"></spring:message>:${domain.id}]
 	</h2>
 	<form:errors path="version" cssClass="validationError"/>	
 	<p>
-	<label class="small"><spring:message code="${urlPattern}.state" text="State"/>&nbsp;*</label>
+	<label class="small"><spring:message code="airport.state" text="State"/>&nbsp;*</label>
 			<select name="state" id="states">
 			<c:forEach items="${states}" var="i">
 			<option value="${i.id}"><c:out value="${i.name}"></c:out></option>
@@ -62,12 +62,12 @@
 			<%-- <form:errors path="state" cssClass="validationError"/> --%>
 	</p>  
 	<p>
-	<label class="small"><spring:message code="${urlPattern}.district" text="District"/>&nbsp;*</label>
+	<label class="small"><spring:message code="airport.district" text="District"/>&nbsp;*</label>
 	        <form:select id="districts" path="district" items="${districts}" itemValue="id" itemLabel="name" cssClass="sSelect"></form:select>	
 	        <form:errors path="district" cssClass="validationError"/>	
 	</p>
 	<p>
-	<label class="small"><spring:message code="${urlPattern}.name" text="Name"/>&nbsp;*</label>
+	<label class="small"><spring:message code="airport.name" text="Name"/>&nbsp;*</label>
 			<form:input cssClass="sSelect" path="name"/>
 			<form:errors path="name" cssClass="validationError"/>	
 	</p>
