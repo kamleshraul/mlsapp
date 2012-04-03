@@ -20,7 +20,7 @@ public class SessionTest extends AbstractTest{
 	@Test
 	@Transactional
 	public void testPersist() {
-		HouseType housetype=new HouseType("testhousetype");
+		HouseType housetype=new HouseType("testhousetype","testhouse");
 		housetype.persist();
 		Date d=new Date(1988-20-12);
 		Date startDate=new Date(1988-20-12);
@@ -40,7 +40,7 @@ public class SessionTest extends AbstractTest{
 	@Test
 	@Transactional
 	public void testMerge() {
-		HouseType housetype=new HouseType("testhousetype");
+		HouseType housetype=new HouseType("testhousetype","testhouse");
 		housetype.persist();
 		Date d=new Date(1988-20-12);
 		Date startDate=new Date(1988-20-12);
@@ -62,7 +62,7 @@ public class SessionTest extends AbstractTest{
 	@Test
 	@Transactional
 	public void testRemove() {
-		HouseType housetype=new HouseType("testhousetype");
+		HouseType housetype=new HouseType("testhousetype","testhouse");
 		housetype.persist();
 		Date d=new Date(1988-20-12);
 		Date startDate=new Date(1988-20-12);
@@ -83,7 +83,7 @@ public class SessionTest extends AbstractTest{
 	@Test
 	@Transactional
 	public void testFindById() {
-		HouseType housetype=new HouseType("testhousetype");
+		HouseType housetype=new HouseType("testhousetype","testhouse");
 		housetype.persist();
 		Date d=new Date(1988-20-12);
 		Date startDate=new Date(1988-20-12);
@@ -105,7 +105,7 @@ public class SessionTest extends AbstractTest{
 	@Test
 	@Transactional
 	public void testFindAll() {
-		HouseType housetype=new HouseType("testhousetype");
+		HouseType housetype=new HouseType("testhousetype","testhouses");
 		housetype.persist();
 		Date d=new Date(1988-20-12);
 		Date startDate=new Date(1988-20-12);
