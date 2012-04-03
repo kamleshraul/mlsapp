@@ -1,7 +1,8 @@
 package org.mkcl.els;
 
-import static org.junit.Assert.*;
-
+import java.text.DecimalFormat;
+import java.text.DecimalFormatSymbols;
+import java.text.NumberFormat;
 import java.util.Date;
 import java.util.List;
 
@@ -17,18 +18,25 @@ public class HouseTest extends AbstractTest{
 	@Test
 	@Transactional
 	public void testPersist() {
-		HouseType housetype=new HouseType("testHouseType");
+		HouseType housetype=new HouseType("testHouseType","testhouse");
 		housetype.persist();
 		Date d=new Date(1929-10-12);
 		House house=new House("testname", 2, housetype, d);
-		house.persist();
+		NumberFormat nf = NumberFormat.getInstance();
+ 		DecimalFormat df = (DecimalFormat) nf;
+ 		DecimalFormatSymbols dfs = df.getDecimalFormatSymbols();
+ 		dfs.setZeroDigit('\u0966');
+ 		df.setDecimalFormatSymbols(dfs);
+ 		System.out.println(nf.format(Long.parseLong("२८८")));
+ 		
+		//house.persist();
 		Assert.assertNotNull("Saved House Data ",house);
 	}
 
 	@Test
 	@Transactional
 	public void testMerge() {
-		HouseType housetype=new HouseType("testHouseType");
+		HouseType housetype=new HouseType("testHouseType","testhouse");
 		housetype.persist();
 		Date d=new Date(12/10/1929);
 		House house=new House("testname", 2, housetype, d);
@@ -41,7 +49,7 @@ public class HouseTest extends AbstractTest{
 	@Test
 	@Transactional
 	public void testRemove() {
-		HouseType housetype=new HouseType("testHouseType");
+		HouseType housetype=new HouseType("testHouseType","testhouse");
 		housetype.persist();
 		Date d=new Date(12/10/1929);
 		House house=new House("testname", 2, housetype, d);
@@ -53,7 +61,7 @@ public class HouseTest extends AbstractTest{
 	@Test
 	@Transactional
 	public void testFindById() {
-		HouseType housetype=new HouseType("testHouseType");
+		HouseType housetype=new HouseType("testHouseType","testhouse");
 		housetype.persist();
 		Date d=new Date(12/10/1929);
 		House house=new House("testname", 2, housetype, d);
@@ -65,7 +73,7 @@ public class HouseTest extends AbstractTest{
 	@Test
 	@Transactional
 	public void testFindByFieldNameClassStringStringString() {
-		HouseType housetype=new HouseType("testHouseType");
+		HouseType housetype=new HouseType("testHouseType","testhouse");
 		housetype.persist();
 		Date d=new Date(12/10/1929);
 		House house=new House("testname", 2, housetype, d);
@@ -77,7 +85,7 @@ public class HouseTest extends AbstractTest{
 	@Test
 	@Transactional
 	public void testFindAll() {
-		HouseType housetype=new HouseType("testHouseType");
+		HouseType housetype=new HouseType("testHouseType","testhouse");
 		housetype.persist();
 		Date d=new Date(12/10/1929);
 		House house=new House("testname", 2, housetype, d);
