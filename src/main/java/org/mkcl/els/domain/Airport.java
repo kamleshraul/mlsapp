@@ -17,10 +17,8 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 
-import org.hibernate.validator.constraints.NotEmpty;
 import org.springframework.beans.factory.annotation.Configurable;
 
-// TODO: Auto-generated Javadoc
 /**
  * The Class Airport.
  * 
@@ -38,7 +36,6 @@ public class Airport extends BaseDomain implements Serializable {
 
     /** The name. */
     @Column(length = 600)
-    @NotEmpty
     private String name;
 
     /** The district. */
