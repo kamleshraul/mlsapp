@@ -20,11 +20,13 @@
 
 	<mvc:interceptors>
 		<!-- Changes the locale when a 'locale' request parameter is sent; e.g. 
-			/?locale=de -->
+			/?locale=de -->		
 		<bean class="org.springframework.web.servlet.i18n.LocaleChangeInterceptor">
-			<property name="paramName" value="lang" />			
+			<property name="paramName" value="lang" />
 		</bean>
+		
 		<bean class="org.mkcl.els.common.interceptor.ErrorsRedirectInterceptor" />
+		
 		<bean class="org.mkcl.els.common.interceptor.SessionCheckInterceptor">
 			<property name="redirect" value="login.htm"></property>
 		</bean>
@@ -40,7 +42,7 @@
 		</mvc:interceptor>
 	</mvc:interceptors>
 
-	<bean id="localeResolver" class="org.springframework.web.servlet.i18n.SessionLocaleResolver">
+	 <bean id="localeResolver" class="org.springframework.web.servlet.i18n.SessionLocaleResolver">
 		<property name="defaultLocale" value="mr_IN" />		
 	</bean>
 
