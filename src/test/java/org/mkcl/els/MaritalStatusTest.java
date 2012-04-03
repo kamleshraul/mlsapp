@@ -26,7 +26,7 @@ public class MaritalStatusTest extends AbstractTest{
 	public void testMerge() {
 		MaritalStatus maritalstatus=new MaritalStatus("TestStatus");
 		maritalstatus.persist();
-		maritalstatus.setMaritalStatus("new Status");
+		maritalstatus.setName("new Status");
 		maritalstatus.merge();
 	    Assert.assertNotNull("Updated Marital status Data ", maritalstatus);
 	}
@@ -55,7 +55,7 @@ public class MaritalStatusTest extends AbstractTest{
 	public void testFindByFieldName() {
 		MaritalStatus maritalstatus=new MaritalStatus("TestStatus");
 		maritalstatus.persist();
-		MaritalStatus maritalstatus1=MaritalStatus.findByFieldName(MaritalStatus.class,"maritalStatus","TestStatus",maritalstatus.getLocale());
+		MaritalStatus maritalstatus1=MaritalStatus.findByFieldName(MaritalStatus.class,"name","TestStatus",maritalstatus.getLocale());
 	    Assert.assertNotNull("Finding Marital status Data by Name ", maritalstatus1);
 
 	}
@@ -65,7 +65,7 @@ public class MaritalStatusTest extends AbstractTest{
 	public void testFindAll() {
 		MaritalStatus maritalstatus=new MaritalStatus("TestStatus");
 		maritalstatus.persist();
-		List<MaritalStatus> listStatus=MaritalStatus.findAll(MaritalStatus.class, "maritalStatus", "desc",maritalstatus.getLocale());
+		List<MaritalStatus> listStatus=MaritalStatus.findAll(MaritalStatus.class, "name", "desc",maritalstatus.getLocale());
 	    Assert.assertNotNull("Finding Marital status Data by Name ", listStatus);
 
 	}
