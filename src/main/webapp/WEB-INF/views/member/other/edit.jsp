@@ -1,0 +1,138 @@
+<%@ include file="/common/taglibs.jsp" %>
+<html>
+<head>
+	<title>
+	<spring:message code="${urlPattern}" text="Member Other Details"/>
+	</title>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+	<script type="text/javascript">
+	var positionCount=parseInt($('#positionCount').val());
+	var totalPositionCount=0;
+	totalPositionCount=totalPositionCount+positionCount;
+	function addPosition(){
+		positionCount=positionCount+1;
+		totalPositionCount=totalPositionCount+1;
+		var text="<div id='position"+positionCount+"'>"+
+				  "<p>"+
+	    		  "<label class='small'><spring:message code='generic.fromDate' text='From Date'/></label>"+
+	    		  "<input name='positionFromDate"+positionCount+"' id='positionFromDate"+positionCount+"' class='datemask sText'>"+
+	    		  "</p>"+
+	    		  "<p>"+
+	    		  "<label class='small'><spring:message code='generic.toDate' text='To Date'/></label>"+
+	    		  "<input name='positionToDate"+positionCount+"' id='positionToDate"+positionCount+"' class='datemask sText'>"+
+	    		  "</p>"+
+	    		  "<p>"+
+	    		  "<label class='small'><spring:message code='mis_other.positionPosition' text='Votes Received'/></label>"+
+	    		  "<textarea name='positionPosition"+positionCount+"' id='positionPosition"+positionCount+"' class='sText' rows='5' cols='50'></textarea>"+
+	    		  "</p>"+
+				      "<input type='button' class='button' id='"+positionCount+"' value='"+$('#deletePositionMessage').val()+"' onclick='deletePosition("+positionCount+");'>"+
+					  "<input type='hidden' id='positionId"+positionCount+"' name='positionId"+positionCount+"'>"+
+					  "<input type='hidden' id='positionLocale"+positionCount+"' name='positionLocale"+positionCount+"' value='${domain.locale}'>"+
+					  "<input type='hidden' id='positionVersion"+positionCount+"' name='positionVersion"+positionCount+"'>"+
+				      "</div>"; 
+				      var prevCount=positionCount-1;
+				      if(totalPositionCount==1){
+					   $('#addPosition').after(text);
+					    }else{
+				      $('#position'+prevCount).after(text);
+				      }
+				      $('#positionCount').val(positionCount); 				
+	}
+	function deletePosition(id){
+		$('#position'+id).remove();
+		totalPositionCount=totalPositionCount-1;
+		if(id==positionCount){
+			positionCount=positionCount-1;
+		}
+	}	
+		$(document).ready(function(){
+			$('#addPosition').click(function(){
+				addPosition();
+			});
+		});
+	</script>
+</head>
+
+<body>
+<div class="fields clearfix">
+<form:form action="${urlPattern}" method="PUT" modelAttribute="domain">
+	<%@ include file="/common/info.jsp" %>
+	<h2><spring:message code="generic.new.heading" text="Enter Details"/>
+		[<spring:message code="generic.member" text="Member"></spring:message>:&nbsp;
+		${domain.title.name} ${domain.firstName} ${domain.middleName } ${domain.lastName }]
+	</h2>
+	<form:errors path="version" cssClass="validationError" cssStyle="color:red;"/>
+	<div>
+	<input type="button" class="button" id="addPosition" value="<spring:message code='${urlPattern}.addPosition' text='Add Position'></spring:message>">
+	<input type="hidden" id="positionCount" name="positionCount" value="${positionCount}"/>
+	<input type="hidden" id="deletePositionMessage" name="deletePositionMessage" value="<spring:message code='${urlPattern}.deletePosition' text='Delete Position'></spring:message>" disabled="disabled"/>
+	<form:errors path="positionsHeld" cssClass="validationError"></form:errors>
+	<c:if test="${!(empty positions)}">
+	<c:set var="count" value="1"></c:set>
+	<c:forEach items="${positions}" var="outer">
+	<div id="position${count}">
+	<p>
+	    <label class="small"><spring:message code="generic.fromDate" text="From Date"/></label>
+		<input name="positionFromDate${count}" id="positionFromDate${count}" class="datemask sText" value="${outer.fromDate}">
+	</p>
+	<p>
+	    <label class="small"><spring:message code="generic.toDate" text="To Date"/></label>
+		<input name="positionToDate${count}" id="positionToDate${count}" class="datemask sText" value="${outer.toDate}">
+	</p>
+	<p>
+	    <label class="small"><spring:message code="${urlPattern}.positionPosition" text="Position"/></label>
+		<textarea name="positionPosition${count}" id="positionPosition${count}" class="sText" rows="5" cols="50">${outer.position}</textarea>
+	</p>
+	<input type='button' class='button' id='${count}' value='<spring:message code="${urlPattern}.deletePosition" text="Delete Position"></spring:message>' onclick='deletePosition(${count});'>"
+	<c:set var="count" value="${count+1}"></c:set>
+	<input type='hidden' id='positionId${count}' name='positionId${count}' value="${outer.id}">
+	<input type='hidden' id='positionLocale${count}' name='positionLocale${count}' value="${domain.locale}">
+	<input type='hidden' id='positionVersion${count}' name='positionVersion${count}' value="${outer.version}">
+	</div>	
+	</c:forEach>
+	</c:if>
+	</div>				
+	<p>
+		<label class="small"><spring:message code="${urlPattern}.socialCulturalActivities" text="Social Activities"/></label>
+		<form:textarea path="socialCulturalActivities" cssClass="sTextarea" cols="50" rows="5"></form:textarea>
+		<form:errors path="socialCulturalActivities" cssClass="validationError"/>	
+	</p>
+	
+	<p>
+		<label class="small"><spring:message code="${urlPattern}.educationalCulturalActivities" text="Educational and Cultural Activities"/></label>
+		<form:textarea path="educationalCulturalActivities" cssClass="sTextarea" cols="50" rows="5"></form:textarea>
+		<form:errors path="educationalCulturalActivities" cssClass="validationError"/>	
+	</p>
+	<p>
+		<label class="small"><spring:message code="${urlPattern}.literaryArtisticScientificAccomplishments" text="Literary,Artistic and Scientific Accomplishments"/></label>
+		<form:textarea path="literaryArtisticScientificAccomplishments" cssClass="sTextarea" cols="50" rows="5"></form:textarea>
+		<form:errors path="literaryArtisticScientificAccomplishments" cssClass="validationError"/>	
+	</p>	 
+	<p>
+		<label class="small"><spring:message code="${urlPattern}.hobbySpecialInterests" text="Hobby and Special Interests"/></label>
+		<form:textarea path="hobbySpecialInterests" cssClass="sTextarea" cols="50" rows="5"></form:textarea>
+		<form:errors path="hobbySpecialInterests" cssClass="validationError"/>	
+	</p>	
+	<p>
+		<label class="small"><spring:message code="${urlPattern}.countriesVisited" text="Countries Visited"/></label>
+		<form:textarea path="countriesVisited" cssClass="sTextarea" cols="50" rows="5"></form:textarea>
+		<form:errors path="countriesVisited" cssClass="validationError"/>	
+	</p>	
+	<p>
+		<label class="small"><spring:message code="${urlPattern}.otherInformation" text="Other Information"/></label>
+		<form:textarea path="otherInformation" cssClass="sTextarea" cols="50" rows="5"></form:textarea>
+		<form:errors path="otherInformation" cssClass="validationError"/>	
+	</p>	
+	<div class="fields">
+		<h2></h2>
+		<p class="tright">
+			<input id="submit" type="submit" value="<spring:message code='generic.submit' text='Submit'/>" class="butDef">
+		</p>
+	</div>
+	<form:hidden path="id"/>
+	<form:hidden path="locale"/>
+	<form:hidden path="version"/>	
+</form:form>
+</div>
+</body>
+</html>
