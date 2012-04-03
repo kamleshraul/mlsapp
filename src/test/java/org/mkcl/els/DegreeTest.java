@@ -25,7 +25,7 @@ public class DegreeTest extends AbstractTest{
 	public void testMerge() {
 		Degree degree=new Degree("testDegree");
 		degree.persist();
-		degree.setDegree("new Degree");
+		degree.setName("new Degree");
 		degree.merge();
 		Assert.assertNotNull("Updated Degree Data ", degree);
 
@@ -47,7 +47,7 @@ public class DegreeTest extends AbstractTest{
 		Degree degree=new Degree("testDegree");
 		degree.persist();
 		Degree degree2=Degree.findById(Degree.class,degree.getId());
-		Assert.assertNotNull("Getting Degree Data by ID ", degree);
+		Assert.assertNotNull("Getting Degree Data by ID ", degree2);
 
 				
 	}
@@ -57,7 +57,7 @@ public class DegreeTest extends AbstractTest{
 	public void testFindByFieldName() {
 		Degree degree=new Degree("testDegree");
 		degree.persist();
-		Degree degree2=Degree.findByFieldName(Degree.class, "degree", "testDegree", degree.getLocale());
+		Degree degree2=Degree.findByFieldName(Degree.class, "name", "testDegree", degree.getLocale());
 		Assert.assertNotNull("Getting Degree Data by Field Name ", degree2);
 
 	}
@@ -67,7 +67,7 @@ public class DegreeTest extends AbstractTest{
 	public void testFindAll() {
 		Degree degree=new Degree("testDegree");
 		degree.persist();
-	    List<Degree> listdegree = Degree.findAll(Degree.class,"degree", "desc", "en");
+	    List<Degree> listdegree = Degree.findAll(Degree.class,"name", "desc", "en");
 		Assert.assertNotNull("Getting All Degree Data ", listdegree);
 
 
