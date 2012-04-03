@@ -25,12 +25,14 @@
 			<form:errors path="version" cssClass="validationError" />
 			<form:input path="type" type="hidden" name="houseType" value="${housetype}" id="houseType"/>
 		<c:choose>
-		<c:when test="${housetype==1||housetype==3||housetype==4||housetype==6}">
+		<c:when test="${houseType=='lowerhouse'||houseType=='defaulthouse'}">
 			<p>
 				<label class="small"><spring:message
 						code="${urlPattern}.name" text="Assembly Name" />&nbsp;*</label>
 
 				<form:input path="name" cssClass="sText"></form:input>
+				<label class="small"><spring:message
+						code="${urlPattern}.assemblyNumberExample" text="e.g. Eleventh" /></label>
 				<form:errors path="name" cssClass="validationError"></form:errors>
 
 			</p>
@@ -38,8 +40,7 @@
 				<label class="small"><spring:message
 						code="${urlPattern}.number" text="Assembly Number" />&nbsp;*</label>
 				<form:input path="number" cssClass="sText"></form:input>
-				<label class="small"><spring:message
-						code="${urlPattern}.assemblyNumberExample" text="e.g. Eleventh" /></label>
+				
 				<form:errors path="number" cssClass="validationError"></form:errors>
 			</p>
 
@@ -116,7 +117,7 @@
 			</p>			
 			<p>
 				<label class="small"><spring:message
-						code="${urlPattern}.governorAddressDate" text="Speakers Address Date" /></label>
+						code="${urlPattern}.governorAddressDate" text="Chairmans Address Date" /></label>
 
 				<form:input cssClass="datemask sText" path="governorAddressDate" />
 				<form:errors path="governorAddressDate" cssClass="validationError" />

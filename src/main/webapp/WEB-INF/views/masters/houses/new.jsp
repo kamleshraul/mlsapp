@@ -27,7 +27,7 @@
 			<form:errors path="version" cssClass="validationError" />
 			<form:input path="type" type="hidden" name="houseType" value="${housetype}" id="houseType"/> 
 		 <c:choose>
-		<c:when test="${housetype== 1 || housetype== 3|| housetype==4||housetype== 6}"> 
+		<c:when test="${houseType=='lowerhouse' || houseType== 'defaulthouse'}"> 
 		
 			<p>
 				<label class="small"><spring:message
@@ -35,7 +35,7 @@
 
 				<form:input path="name" cssClass="sText"></form:input>
 				<label class="small"><spring:message
-						code="${urlPattern}.assemblyNumberExample" text="e.g. Eleventh" /></label>
+						code="${urlPattern}.assemblyNameExample" text="e.g. Eleventh" /></label>
 				<form:errors path="name" cssClass="validationError"></form:errors>
 
 			</p>
