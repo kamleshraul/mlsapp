@@ -48,7 +48,7 @@ public class ReligionTest extends AbstractTest {
 	public void testMerge() {
 		Religion religion=new Religion("testReligion");
 		religion.persist();
-		religion.setReligion("newReligion");
+		religion.setName("newReligion");
 	    Assert.assertNotNull("Updated religion Data ", religion);
 	}
 
@@ -85,7 +85,7 @@ public class ReligionTest extends AbstractTest {
 	public void testFindByFieldName() {
 		Religion religion=new Religion("testReligion");
 		religion.persist();
-		Religion religion1=Religion.findByFieldName(Religion.class, "religion","testReligion",religion.getLocale());
+		Religion religion1=Religion.findByFieldName(Religion.class, "name","testReligion",religion.getLocale());
 	    Assert.assertNotNull("Finding  religion Data by Field Name", religion1);
 	}
 
@@ -97,7 +97,7 @@ public class ReligionTest extends AbstractTest {
 	public void testFindAll() {
 		Religion religion=new Religion("testReligion");
 		religion.persist();
-		List<Religion> religion1=Religion.findAll(Religion.class, "religion","desc",religion.getLocale());
+		List<Religion> religion1=Religion.findAll(Religion.class, "name","desc",religion.getLocale());
 	    Assert.assertNotNull("Finding  religion Data by Field Name", religion1);
 	}
 
