@@ -23,9 +23,9 @@
 	<form:errors path="version" cssClass="validationError"/>
 	
 	<p>
-	<label class="small"><spring:message code="${urlPattern}.religion" text="Religion"/>&nbsp;*</label>
-			<form:input cssClass="sSelect" path="religion"/>
-			<form:errors path="religion" cssClass="validationError"/>	
+	<label class="small"><spring:message code="${urlPattern}.name" text="Religion"/>&nbsp;*</label>
+			<form:input cssClass="sSelect" path="name"/>
+			<form:errors path="name" cssClass="validationError"/>	
 	</p>
 	
 	
