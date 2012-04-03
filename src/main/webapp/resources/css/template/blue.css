@@ -727,7 +727,10 @@
 		display:block;
 		background:#0e4269 url("../../images/template/th_blue/bk_menu.png") repeat-x bottom right;
 		padding:4px 0 0 4px;
-		height:30px;
+		/*added by sandeep singh.Here height should be increased from 30 px to 40 px as when viewed in
+		marathi some of the the ligatures in the tabs increase the size of the text to more than
+		30 px resulting in tab content displayed at the corner of the tabarea.*/
+		height:40px;
 		}
 	
 	div.tabbar li {
@@ -743,17 +746,23 @@
 	
 	div.tabbar .tabs  li a.selected{
 		color:black;
+		/*removed the border from all sides as in marathi the height of tabs needs to be increased to adjust 
+		the size of the ligatures but the blue background image is fixed at 32 px resulting in black
+		flowing borders which looks odd.*/
 		border-top:1px solid white;
-		border-left:1px solid white;
-		border-right:1px solid white;
+		/*border-left:1px solid white;
+		border-right:1px solid white;*/
 		background:url("../../images/template/th_blue/toolbar_tab_active.png") repeat-x top right;
 		}
 	
 	div.tabbar .tabs  li a {
 		cursor:pointer;
 		border-top:1px solid #424242;
-		border-left:1px solid #424242;
-		border-right:1px solid #424242;
+		/*removed the border from all sides as in marathi the height of tabs needs to be increased to adjust 
+		the size of the ligatures but the blue background image is fixed at 32 px resulting in black
+		flowing borders which looks odd.*/
+		/*border-left:1px solid #424242;
+		border-right:1px solid #424242;*/
 		background:url("../../images/template/th_blue/toolbar_tab_inactive.png") repeat-x top right;
 		display:block;
 		padding:5px 10px;
@@ -1077,3 +1086,16 @@
 	div.wysiwyg ul.panel li a.empty { background-position: -64px -80px; }
 
 	div.wysiwyg iframe { border: 0; margin: 5px 0 0 0; clear: left; }
+	
+	/*
+	*Added by amitd and sandeeps
+	*/
+	//fieldset { border:1px solid black }
+
+	legend {
+  padding: 0.2em 0.5em;
+  border:1px solid;
+  font-size:90%;
+  text-align:right;
+  }
+	

@@ -34,7 +34,12 @@ function initControls(){
 		});
 	});	
 	$('#dateformat').val();*/
-	$("input[class^='date']").datepicker({changeMonth: true, changeYear: true, dateFormat: $('#dateformat').val(), yearRange: 'c-75:c+20'});
+	/*$('select[multiple="multiple"]').sexyselect({width:250,showTitle: false, selectionMode: 'multiple', styleize: true,allowDelete:false,background:'#fff',allowInput:false});*/
+	$('.datemask').focus(function(){
+		if($(this).val()==""){
+			$(".datemask").mask("99/99/9999");
+		}
+	});
 	$(':input:visible:not([readonly]):first').focus();
 };
 function resize_grid(){
@@ -62,23 +67,34 @@ function scrollRowsInGrid(e) {
             $('#grid').resetSelection().setSelection(gridArr[curr_index+1],true);
     }
 }
+
+
 function loadGrid(gridId, baseFilter) {
 	var c_grid = null;
-	$.ajax({async:false,url:'masters_grids/' + gridId + '/meta.json', success:function(grid) {
+	//added by amitd and sandeeps.
+	//By default housetype is passed as parameter in all grid request
+	var url='grid/data/'+ gridId +'.json';
+	var defaultParams="housetype="+$('#authhousetype').val();
+	url=url+'?'+defaultParams;
+	//for additional parameters have a field with name gridURLParams in name=valye format separated by '&'
+	if($('#gridURLParams').val()!=undefined){
+		url=url+'&'+$('#gridURLParams').val();
+	}
+	$.ajax({async:false,url:'grid/' + gridId + '/meta.json', success:function(grid) {
 			c_grid = $('#grid').jqGrid({
 			scroll:1,
 			altRows:true,
 			autowidth:true,
 			height:'400px',
 			ajaxGridOptions:{async:false},
-			url:'masters_grids/data/'+ gridId +'.json',
+			url:url,
 			datatype: 'json',
 			mtype: 'GET',
 			colNames:eval(grid.colNames),
 			colModel :eval(grid.colModel),
 			pager: '#grid_pager',
 			rowNum:grid.pageSize,
-			sortname: 'm.id',
+			sortname: grid.sortField,
 			sortorder:grid.sortOrder,
 			viewrecords: true,
 			jsonReader: { repeatitems : false},
@@ -95,12 +111,16 @@ function loadGrid(gridId, baseFilter) {
 				}
 			},
 			onSelectRow: function(rowid,status) {
-				if($('#key')){
-					$('#key').val(rowid);
-				}
-		    	if(typeof window.rowSelectHandler == 'function'){
+				//added by sandeeps
+				//first we must ckeck for presence of the handler so that custom logic rather than generic logic
+				//is executed.And only if no handler is found we must set the value of key.This is particularly
+				//useful in case of screens containing multiple tags with grids on one or more of them with one
+				//grid serving as parent grid
+				if(typeof window.rowSelectHandler == 'function'){
 					rowSelectHandler(rowid,status);			    			
-		    	}
+		    	}else if($('#key')){
+					$('#key').val(rowid);					
+				}		    	
 		    },
 		    ondblClickRow: function(rowid,
 		    		iRow,
@@ -121,17 +141,21 @@ function loadGrid(gridId, baseFilter) {
 	return c_grid;
 };
 
-function showTabById(id) {
-	$('a').removeClass('selected');
-	$('#'+ id).addClass('selected');
-	$('.tabContent').load($('#'+ id).attr('href'));
-};
+function scrollTop(){
+	$('html').animate({scrollTop:0}, 'slow');
+	$('body').animate({scrollTop:0}, 'slow');	
+			 	   	
+}
 
 function showTabByIdAndUrl(id, url) {
 	$('a').removeClass('selected');
+	//id refers to the tab name and it is used just to highlight the selected tab
 	$('#'+ id).addClass('selected');
+	//tabcontent is the content area where result of the url load will be displayed
 	$('.tabContent').load(url);
+	scrollTop();
 };
+
 
 function loadDistrictsByStateId(id,type){
 	$.ajax({
