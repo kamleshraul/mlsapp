@@ -20,7 +20,7 @@ import org.springframework.beans.factory.annotation.Configurable;
 
 /**
  * The Class Language.
- * 
+ *
  * @author Anand
  * @since v1.0.0
  */
@@ -48,8 +48,8 @@ public class Language extends BaseDomain implements Serializable {
 
     /**
      * Instantiates a new language.
-     * 
-     * @param language the language
+     *
+     * @param name the name
      */
     public Language(final String name) {
         super();
@@ -61,7 +61,7 @@ public class Language extends BaseDomain implements Serializable {
     // ------------------------------------------Getters/Setters-----------------------------------
     /**
      * Gets the language.
-     * 
+     *
      * @return the language
      */
     public String getName() {
@@ -70,8 +70,8 @@ public class Language extends BaseDomain implements Serializable {
 
     /**
      * Sets the language.
-     * 
-     * @param language the new language
+     *
+     * @param name the new name
      */
     public void setName(final String name) {
         this.name = name;
