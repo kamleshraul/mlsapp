@@ -1,6 +1,13 @@
-/*
- * 
+/**
+ * See the file LICENSE for redistribution information.
+ *
+ * Copyright (c) 2011 MKCL.  All rights reserved.
+ *
+ * Project: els
+ * File: org.mkcl.els.domain.Ministry
+ * Created On: Apr 4, 2012
  */
+
 package org.mkcl.els.domain;
 
 import java.io.Serializable;
@@ -14,7 +21,7 @@ import org.springframework.beans.factory.annotation.Configurable;
 
 /**
  * The Class Ministry.
- * 
+ *
  * @author Anand
  * @since v1.0.0
  */
@@ -47,11 +54,11 @@ public class Ministry extends BaseDomain implements Serializable {
 
     /**
      * Instantiates a new ministry.
-     * 
+     *
      * @param department the department
      * @param alias the alias
      */
-    public Ministry(String department, String alias) {
+    public Ministry(final String department, final String alias) {
         super();
         this.department = department;
         this.alias = alias;
@@ -61,7 +68,7 @@ public class Ministry extends BaseDomain implements Serializable {
     // ------------------------------------------Getters/Setters-----------------------------------
     /**
      * Gets the department.
-     * 
+     *
      * @return the department
      */
     public String getDepartment() {
@@ -70,16 +77,16 @@ public class Ministry extends BaseDomain implements Serializable {
 
     /**
      * Sets the department.
-     * 
+     *
      * @param department the new department
      */
-    public void setDepartment(String department) {
+    public void setDepartment(final String department) {
         this.department = department;
     }
 
     /**
      * Gets the alias.
-     * 
+     *
      * @return the alias
      */
     public String getAlias() {
@@ -88,10 +95,10 @@ public class Ministry extends BaseDomain implements Serializable {
 
     /**
      * Sets the alias.
-     * 
+     *
      * @param alias the new alias
      */
-    public void setAlias(String alias) {
+    public void setAlias(final String alias) {
         this.alias = alias;
     }
 
