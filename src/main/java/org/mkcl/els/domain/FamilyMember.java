@@ -17,14 +17,13 @@ import javax.persistence.JoinColumn;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
 
-import org.hibernate.validator.constraints.NotEmpty;
 import org.springframework.beans.factory.annotation.Configurable;
 
 import com.sun.istack.NotNull;
 
 /**
  * The Class Family.
- * 
+ *
  * @author amitd
  * @author sandeeps
  * @since v1.0.0
@@ -61,11 +60,11 @@ public class FamilyMember extends BaseDomain implements Serializable {
 
     /**
      * Instantiates a new family.
-     * 
+     *
      * @param name the name
      * @param relation the relation
      */
-    public FamilyMember(String name, Relation relation) {
+    public FamilyMember(final String name, final Relation relation) {
         super();
         this.name = name;
         this.relation = relation;
@@ -75,7 +74,7 @@ public class FamilyMember extends BaseDomain implements Serializable {
     // ------------------------------------------Getters/Setters-----------------------------------
     /**
      * Gets the name.
-     * 
+     *
      * @return the name
      */
     public String getName() {
@@ -84,16 +83,16 @@ public class FamilyMember extends BaseDomain implements Serializable {
 
     /**
      * Sets the name.
-     * 
+     *
      * @param name the new name
      */
-    public void setName(String name) {
+    public void setName(final String name) {
         this.name = name;
     }
 
     /**
      * Gets the relation.
-     * 
+     *
      * @return the relation
      */
     public Relation getRelation() {
@@ -102,10 +101,10 @@ public class FamilyMember extends BaseDomain implements Serializable {
 
     /**
      * Sets the relation.
-     * 
+     *
      * @param relation the new relation
      */
-    public void setRelation(Relation relation) {
+    public void setRelation(final Relation relation) {
         this.relation = relation;
     }
 
