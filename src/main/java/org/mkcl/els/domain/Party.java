@@ -22,15 +22,12 @@ import javax.persistence.Table;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
 
-import org.hibernate.validator.constraints.NotEmpty;
 import org.mkcl.els.domain.associations.MemberPartyAssociation;
 import org.springframework.beans.factory.annotation.Configurable;
 
-import com.sun.istack.NotNull;
-
 /**
  * The Class Party.
- * 
+ *
  * @author dhananjay
  * @since v1.0.0
  */
@@ -95,12 +92,12 @@ public class Party extends BaseDomain implements Serializable {
 
     /**
      * Instantiates a new party.
-     * 
+     *
      * @param name the name
      * @param shortName the short name
      * @param establishmentDate the establishment date
      */
-    public Party(String name, String shortName, Date establishmentDate) {
+    public Party(final String name, final String shortName, final Date establishmentDate) {
         super();
         this.name = name;
         this.shortName = shortName;
@@ -112,7 +109,7 @@ public class Party extends BaseDomain implements Serializable {
     // -------------------------------Getters/Setters---------------------------------------------
     /**
      * Gets the name.
-     * 
+     *
      * @return the name
      */
     public String getName() {
@@ -121,16 +118,16 @@ public class Party extends BaseDomain implements Serializable {
 
     /**
      * Sets the name.
-     * 
+     *
      * @param name the new name
      */
-    public void setName(String name) {
+    public void setName(final String name) {
         this.name = name;
     }
 
     /**
      * Gets the short name.
-     * 
+     *
      * @return the short name
      */
     public String getShortName() {
@@ -139,16 +136,16 @@ public class Party extends BaseDomain implements Serializable {
 
     /**
      * Sets the short name.
-     * 
+     *
      * @param shortName the new short name
      */
-    public void setShortName(String shortName) {
+    public void setShortName(final String shortName) {
         this.shortName = shortName;
     }
 
     /**
      * Gets the establishment date.
-     * 
+     *
      * @return the establishment date
      */
     public Date getEstablishmentDate() {
@@ -157,16 +154,16 @@ public class Party extends BaseDomain implements Serializable {
 
     /**
      * Sets the establishment date.
-     * 
+     *
      * @param establishmentDate the new establishment date
      */
-    public void setEstablishmentDate(Date establishmentDate) {
+    public void setEstablishmentDate(final Date establishmentDate) {
         this.establishmentDate = establishmentDate;
     }
 
     /**
      * Gets the registered office address.
-     * 
+     *
      * @return the registered office address
      */
     public Address getRegisteredOfficeAddress() {
@@ -175,16 +172,16 @@ public class Party extends BaseDomain implements Serializable {
 
     /**
      * Sets the registered office address.
-     * 
+     *
      * @param registeredOfficeAddress the new registered office address
      */
-    public void setRegisteredOfficeAddress(Address registeredOfficeAddress) {
+    public void setRegisteredOfficeAddress(final Address registeredOfficeAddress) {
         this.registeredOfficeAddress = registeredOfficeAddress;
     }
 
     /**
      * Gets the state office address.
-     * 
+     *
      * @return the state office address
      */
     public Address getStateOfficeAddress() {
@@ -193,16 +190,16 @@ public class Party extends BaseDomain implements Serializable {
 
     /**
      * Sets the state office address.
-     * 
+     *
      * @param stateOfficeAddress the new state office address
      */
-    public void setStateOfficeAddress(Address stateOfficeAddress) {
+    public void setStateOfficeAddress(final Address stateOfficeAddress) {
         this.stateOfficeAddress = stateOfficeAddress;
     }
 
     /**
      * Gets the contact.
-     * 
+     *
      * @return the contact
      */
     public Contact getContact() {
@@ -211,16 +208,16 @@ public class Party extends BaseDomain implements Serializable {
 
     /**
      * Sets the contact.
-     * 
+     *
      * @param contact the new contact
      */
-    public void setContact(Contact contact) {
+    public void setContact(final Contact contact) {
         this.contact = contact;
     }
 
     /**
      * Gets the checks if is dissolved.
-     * 
+     *
      * @return the checks if is dissolved
      */
     public Boolean getIsDissolved() {
@@ -229,16 +226,16 @@ public class Party extends BaseDomain implements Serializable {
 
     /**
      * Sets the checks if is dissolved.
-     * 
+     *
      * @param isDissolved the new checks if is dissolved
      */
-    public void setIsDissolved(Boolean isDissolved) {
+    public void setIsDissolved(final Boolean isDissolved) {
         this.isDissolved = isDissolved;
     }
 
     /**
      * Gets the party symbols.
-     * 
+     *
      * @return the party symbols
      */
     public List<PartySymbol> getPartySymbols() {
@@ -247,16 +244,16 @@ public class Party extends BaseDomain implements Serializable {
 
     /**
      * Sets the party symbols.
-     * 
+     *
      * @param partySymbols the new party symbols
      */
-    public void setPartySymbols(List<PartySymbol> partySymbols) {
+    public void setPartySymbols(final List<PartySymbol> partySymbols) {
         this.partySymbols = partySymbols;
     }
 
     /**
      * Gets the member party associations.
-     * 
+     *
      * @return the member party associations
      */
     public List<MemberPartyAssociation> getMemberPartyAssociations() {
@@ -265,11 +262,11 @@ public class Party extends BaseDomain implements Serializable {
 
     /**
      * Sets the member party associations.
-     * 
+     *
      * @param memberPartyAssociations the new member party associations
      */
     public void setMemberPartyAssociations(
-            List<MemberPartyAssociation> memberPartyAssociations) {
+            final List<MemberPartyAssociation> memberPartyAssociations) {
         this.memberPartyAssociations = memberPartyAssociations;
     }
 
