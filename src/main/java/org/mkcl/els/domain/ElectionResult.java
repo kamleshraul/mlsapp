@@ -20,7 +20,6 @@ import javax.persistence.JoinColumn;
 import javax.persistence.JoinTable;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
-import javax.persistence.OneToOne;
 import javax.persistence.Table;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
@@ -30,7 +29,7 @@ import org.springframework.beans.factory.annotation.Configurable;
 
 /**
  * The Class ElectionResult.
- * 
+ *
  * @author amitd
  * @author sandeeps
  * @since v1.0.0
@@ -38,7 +37,7 @@ import org.springframework.beans.factory.annotation.Configurable;
 @Configurable
 @Entity
 @Table(name = "election_results")
-@JsonIgnoreProperties({"rivalMembers","member"})
+@JsonIgnoreProperties({ "rivalMembers", "member" })
 public class ElectionResult extends BaseDomain implements Serializable {
 
     // ---------------------------------Attributes-------------------------------------------------
@@ -68,14 +67,15 @@ public class ElectionResult extends BaseDomain implements Serializable {
     /** The rival members. */
     @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @JoinTable(name = "associations_elctionresult_rivalmembers",
-            joinColumns = { @JoinColumn(name = "electionresult_id",
-                    referencedColumnName = "id") },
-            inverseJoinColumns = { @JoinColumn(name = "rivalmember_id",
-                    referencedColumnName = "id") })
+    joinColumns = { @JoinColumn(name = "electionresult_id",
+    referencedColumnName = "id") },
+    inverseJoinColumns = { @JoinColumn(name = "rivalmember_id",
+    referencedColumnName = "id") })
     private List<RivalMember> rivalMembers;
-    
+
+    /** The member. */
     @ManyToOne
-    @JoinColumn(name="member_id")
+    @JoinColumn(name = "member_id")
     private Member member;
 
     // ---------------------------------Constructors----------------------------------------------
@@ -88,15 +88,15 @@ public class ElectionResult extends BaseDomain implements Serializable {
 
     /**
      * Instantiates a new election result.
-     * 
+     *
      * @param election the election
      * @param constituency the constituency
      * @param votingDate the voting date
      * @param totalValidVotes the total valid votes
      * @param votesReceived the votes received
      */
-    public ElectionResult(Election election, Constituency constituency,
-            Date votingDate, Integer totalValidVotes, Integer votesReceived) {
+    public ElectionResult(final Election election, final Constituency constituency,
+            final Date votingDate, final Integer totalValidVotes, final Integer votesReceived) {
         super();
         this.election = election;
         this.constituency = constituency;
@@ -110,7 +110,7 @@ public class ElectionResult extends BaseDomain implements Serializable {
     // ------------------------------------------Getters/Setters-----------------------------------
     /**
      * Gets the election.
-     * 
+     *
      * @return the election
      */
     public Election getElection() {
@@ -119,16 +119,16 @@ public class ElectionResult extends BaseDomain implements Serializable {
 
     /**
      * Sets the election.
-     * 
+     *
      * @param election the new election
      */
-    public void setElection(Election election) {
+    public void setElection(final Election election) {
         this.election = election;
     }
 
     /**
      * Gets the constituency.
-     * 
+     *
      * @return the constituency
      */
     public Constituency getConstituency() {
@@ -137,16 +137,16 @@ public class ElectionResult extends BaseDomain implements Serializable {
 
     /**
      * Sets the constituency.
-     * 
+     *
      * @param constituency the new constituency
      */
-    public void setConstituency(Constituency constituency) {
+    public void setConstituency(final Constituency constituency) {
         this.constituency = constituency;
     }
 
     /**
      * Gets the voting date.
-     * 
+     *
      * @return the voting date
      */
     public Date getVotingDate() {
@@ -155,16 +155,16 @@ public class ElectionResult extends BaseDomain implements Serializable {
 
     /**
      * Sets the voting date.
-     * 
+     *
      * @param votingDate the new voting date
      */
-    public void setVotingDate(Date votingDate) {
+    public void setVotingDate(final Date votingDate) {
         this.votingDate = votingDate;
     }
 
     /**
      * Gets the total valid votes.
-     * 
+     *
      * @return the total valid votes
      */
     public Integer getTotalValidVotes() {
@@ -173,16 +173,16 @@ public class ElectionResult extends BaseDomain implements Serializable {
 
     /**
      * Sets the total valid votes.
-     * 
+     *
      * @param totalValidVotes the new total valid votes
      */
-    public void setTotalValidVotes(Integer totalValidVotes) {
+    public void setTotalValidVotes(final Integer totalValidVotes) {
         this.totalValidVotes = totalValidVotes;
     }
 
     /**
      * Gets the votes received.
-     * 
+     *
      * @return the votes received
      */
     public Integer getVotesReceived() {
@@ -191,16 +191,16 @@ public class ElectionResult extends BaseDomain implements Serializable {
 
     /**
      * Sets the votes received.
-     * 
+     *
      * @param votesReceived the new votes received
      */
-    public void setVotesReceived(Integer votesReceived) {
+    public void setVotesReceived(final Integer votesReceived) {
         this.votesReceived = votesReceived;
     }
 
     /**
      * Gets the rival members.
-     * 
+     *
      * @return the rival members
      */
     public List<RivalMember> getRivalMembers() {
@@ -209,19 +209,29 @@ public class ElectionResult extends BaseDomain implements Serializable {
 
     /**
      * Sets the rival members.
-     * 
+     *
      * @param rivalMembers the new rival members
      */
-    public void setRivalMembers(List<RivalMember> rivalMembers) {
+    public void setRivalMembers(final List<RivalMember> rivalMembers) {
         this.rivalMembers = rivalMembers;
     }
 
-	public Member getMember() {
-		return member;
-	}
+    /**
+     * Gets the member.
+     *
+     * @return the member
+     */
+    public Member getMember() {
+        return member;
+    }
 
-	public void setMember(Member member) {
-		this.member = member;
-	}
+    /**
+     * Sets the member.
+     *
+     * @param member the new member
+     */
+    public void setMember(final Member member) {
+        this.member = member;
+    }
 
 }
