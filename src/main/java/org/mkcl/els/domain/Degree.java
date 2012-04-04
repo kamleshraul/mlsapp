@@ -20,7 +20,7 @@ import org.springframework.beans.factory.annotation.Configurable;
 
 /**
  * The Class Degree.
- * 
+ *
  * @author Anand
  * @since v1.0.0
  */
@@ -57,7 +57,7 @@ public class Degree extends BaseDomain implements Serializable {
         this.name = name;
     }
 
-	
+
     // -------------------------------Domain_Methods----------------------------------------------
 
     // ------------------------------------------Getters/Setters-----------------------------------
@@ -67,16 +67,16 @@ public class Degree extends BaseDomain implements Serializable {
      * @return the name
      */
     public String getName() {
-		return name;
-	}
+        return name;
+    }
 
-	/**
-	 * Sets the name.
-	 *
-	 * @param name the new name
-	 */
-	public void setName(String name) {
-		this.name = name;
-	}
- 
+    /**
+     * Sets the name.
+     *
+     * @param name the new name
+     */
+    public void setName(final String name) {
+        this.name = name;
+    }
+
 }
