@@ -17,13 +17,11 @@ import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
-import javax.persistence.OneToOne;
 import javax.persistence.Table;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
 
 import org.codehaus.jackson.annotate.JsonIgnoreProperties;
-import org.hibernate.validator.constraints.NotEmpty;
 import org.mkcl.els.common.vo.ElectionVO;
 import org.mkcl.els.repository.ElectionRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,7 +29,7 @@ import org.springframework.beans.factory.annotation.Configurable;
 
 /**
  * The Class Election.
- * 
+ *
  * @author amitd
  * @author sandeeps
  * @since v1.0.0
@@ -39,7 +37,7 @@ import org.springframework.beans.factory.annotation.Configurable;
 @Configurable
 @Entity
 @Table(name = "masters_elections")
-@JsonIgnoreProperties({})
+@JsonIgnoreProperties({ })
 public class Election extends BaseDomain implements Serializable {
 
     // ---------------------------------Attributes-------------------------------------------------
@@ -62,10 +60,12 @@ public class Election extends BaseDomain implements Serializable {
     /** The to date. */
     @Temporal(TemporalType.DATE)
     private Date toDate;
-    
+
+
+    /** The election repository. */
     @Autowired
     private transient ElectionRepository electionRepository;
-    
+
 
     // ---------------------------------Constructors----------------------------------------------
     /**
@@ -77,14 +77,14 @@ public class Election extends BaseDomain implements Serializable {
 
     /**
      * Instantiates a new election.
-     * 
+     *
      * @param name the name
      * @param electionType the election type
      * @param fromDate the from date
      * @param toDate the to date
      */
-    public Election(String name, ElectionType electionType, Date fromDate,
-            Date toDate) {
+    public Election(final String name, final ElectionType electionType, final Date fromDate,
+            final Date toDate) {
         super();
         this.name = name;
         this.electionType = electionType;
@@ -93,21 +93,34 @@ public class Election extends BaseDomain implements Serializable {
     }
 
     // -------------------------------Domain_Methods--------------------------------------
+    /**
+     * Gets the election repository.
+     *
+     * @return the election repository
+     */
     public static ElectionRepository getElectionRepository() {
-    	ElectionRepository electionRepository = new Election().electionRepository;
+        ElectionRepository electionRepository = new Election().electionRepository;
         if (electionRepository == null) {
             throw new IllegalStateException(
                     "ElectionRepository has not been injected in Election Domain");
         }
         return electionRepository;
     }
-    public static List<ElectionVO> findByHouseType(String houseType,String locale) {
-		return getElectionRepository().findByHouseType(houseType,locale);
-	}
+
+    /**
+     * Find by house type.
+     *
+     * @param houseType the house type
+     * @param locale the locale
+     * @return the list
+     */
+    public static List<ElectionVO> findByHouseType(final String houseType, final String locale) {
+        return getElectionRepository().findByHouseType(houseType, locale);
+    }
     // ------------------------------------------Getters/Setters-----------------------------------
     /**
      * Gets the name.
-     * 
+     *
      * @return the name
      */
     public String getName() {
@@ -116,16 +129,16 @@ public class Election extends BaseDomain implements Serializable {
 
     /**
      * Sets the name.
-     * 
+     *
      * @param name the new name
      */
-    public void setName(String name) {
+    public void setName(final String name) {
         this.name = name;
     }
 
     /**
      * Gets the election type.
-     * 
+     *
      * @return the election type
      */
     public ElectionType getElectionType() {
@@ -134,16 +147,16 @@ public class Election extends BaseDomain implements Serializable {
 
     /**
      * Sets the election type.
-     * 
+     *
      * @param electionType the new election type
      */
-    public void setElectionType(ElectionType electionType) {
+    public void setElectionType(final ElectionType electionType) {
         this.electionType = electionType;
     }
 
     /**
      * Gets the from date.
-     * 
+     *
      * @return the from date
      */
     public Date getFromDate() {
@@ -152,16 +165,16 @@ public class Election extends BaseDomain implements Serializable {
 
     /**
      * Sets the from date.
-     * 
+     *
      * @param fromDate the new from date
      */
-    public void setFromDate(Date fromDate) {
+    public void setFromDate(final Date fromDate) {
         this.fromDate = fromDate;
     }
 
     /**
      * Gets the to date.
-     * 
+     *
      * @return the to date
      */
     public Date getToDate() {
@@ -170,13 +183,10 @@ public class Election extends BaseDomain implements Serializable {
 
     /**
      * Sets the to date.
-     * 
+     *
      * @param toDate the new to date
      */
-    public void setToDate(Date toDate) {
+    public void setToDate(final Date toDate) {
         this.toDate = toDate;
     }
-
-	
-
 }
