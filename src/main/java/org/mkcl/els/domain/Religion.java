@@ -20,7 +20,7 @@ import org.springframework.beans.factory.annotation.Configurable;
 
 /**
  * The Class Religion.
- * 
+ *
  * @author Anand
  * @since v1.0.0
  */
@@ -48,8 +48,8 @@ public class Religion extends BaseDomain implements Serializable {
 
     /**
      * Instantiates a new religion.
-     * 
-     * @param religion the religion
+     *
+     * @param name the name
      */
     public Religion(final String name) {
         super();
@@ -57,17 +57,24 @@ public class Religion extends BaseDomain implements Serializable {
     }
 
     // -------------------------------Domain_Methods----------------------------------------------
+
     // ------------------------------------------Getters/Setters-----------------------------------
+
+    /**
+     * Gets the name.
+     *
+     * @return the name
+     */
     public String getName() {
         return name;
     }
 
     /**
      * Sets the name.
-     * 
+     *
      * @param name the new name
      */
-    public void setName(String name) {
+    public void setName(final String name) {
         this.name = name;
     }
 
