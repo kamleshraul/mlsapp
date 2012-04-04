@@ -18,12 +18,11 @@ import javax.persistence.Table;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
 
-import org.hibernate.validator.constraints.NotEmpty;
 import org.springframework.beans.factory.annotation.Configurable;
 
 /**
  * The Class PositionHeld.
- * 
+ *
  * @author amitd
  * @author sandeeps
  * @since v1.0.0
@@ -61,12 +60,12 @@ public class PositionHeld extends BaseDomain implements Serializable {
 
     /**
      * Instantiates a new position held.
-     * 
+     *
      * @param fromDate the from date
      * @param toDate the to date
      * @param position the position
      */
-    public PositionHeld(Date fromDate, Date toDate, String position) {
+    public PositionHeld(final Date fromDate, final Date toDate, final String position) {
         super();
         this.fromDate = fromDate;
         this.toDate = toDate;
@@ -74,11 +73,13 @@ public class PositionHeld extends BaseDomain implements Serializable {
     }
 
     // -------------------------------Domain_Methods----------------------------------------------
+
     // ------------------------------------------Getters/Setters-----------------------------------
+
 
     /**
      * Gets the from date.
-     * 
+     *
      * @return the from date
      */
     public Date getFromDate() {
@@ -87,16 +88,16 @@ public class PositionHeld extends BaseDomain implements Serializable {
 
     /**
      * Sets the from date.
-     * 
+     *
      * @param fromDate the new from date
      */
-    public void setFromDate(Date fromDate) {
+    public void setFromDate(final Date fromDate) {
         this.fromDate = fromDate;
     }
 
     /**
      * Gets the to date.
-     * 
+     *
      * @return the to date
      */
     public Date getToDate() {
@@ -105,16 +106,16 @@ public class PositionHeld extends BaseDomain implements Serializable {
 
     /**
      * Sets the to date.
-     * 
+     *
      * @param toDate the new to date
      */
-    public void setToDate(Date toDate) {
+    public void setToDate(final Date toDate) {
         this.toDate = toDate;
     }
 
     /**
      * Gets the position.
-     * 
+     *
      * @return the position
      */
     public String getPosition() {
@@ -123,10 +124,10 @@ public class PositionHeld extends BaseDomain implements Serializable {
 
     /**
      * Sets the position.
-     * 
+     *
      * @param position the new position
      */
-    public void setPosition(String position) {
+    public void setPosition(final String position) {
         this.position = position;
     }
 
