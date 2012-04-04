@@ -20,7 +20,6 @@ import javax.persistence.JoinColumn;
 import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
-import javax.persistence.OneToOne;
 import javax.persistence.Table;
 
 import org.codehaus.jackson.annotate.JsonIgnoreProperties;
@@ -31,14 +30,15 @@ import org.springframework.beans.factory.annotation.Configurable;
 
 /**
  * The Class Constituency.
- * 
+ *
  * @author dhananjay
  * @since v1.0.0
  */
 @Configurable
 @Entity
 @Table(name = "masters_constituencies")
-@JsonIgnoreProperties({"houseType","districts","reservedFor","nearestRailwayStation","nearestAirport"})
+@JsonIgnoreProperties({ "houseType", "districts", "reservedFor", "nearestRailwayStation",
+"nearestAirport" })
 public class Constituency extends BaseDomain implements Serializable {
 
     // ---------------------------------Attributes-------------------------------------------------
@@ -57,10 +57,10 @@ public class Constituency extends BaseDomain implements Serializable {
     /** The districts. */
     @ManyToMany(fetch = FetchType.LAZY)
     @JoinTable(name = "associations_constituency_district",
-            joinColumns = @JoinColumn(name = "constituency_id",
-                    referencedColumnName = "id"),
-            inverseJoinColumns = @JoinColumn(name = "district_id",
-                    referencedColumnName = "id"))
+    joinColumns = @JoinColumn(name = "constituency_id",
+    referencedColumnName = "id"),
+    inverseJoinColumns = @JoinColumn(name = "district_id",
+    referencedColumnName = "id"))
     private List<District> districts;
 
     /** The division. */
@@ -97,9 +97,11 @@ public class Constituency extends BaseDomain implements Serializable {
     @Column(length = 300)
     private String number;
 
+    /** The display name. */
     @Column(length = 600)
     private String displayName;
 
+    /** The constituency repository. */
     @Autowired
     private transient ConstituencyRepository constituencyRepository;
 
@@ -112,6 +114,11 @@ public class Constituency extends BaseDomain implements Serializable {
     }
 
     // -------------------------------Domain_Methods----------------------------------------------
+    /**
+     * Gets the constituency repository.
+     *
+     * @return the constituency repository
+     */
     public static ConstituencyRepository getConstituencyRepository() {
         ConstituencyRepository constituencyRepository = new Constituency().constituencyRepository;
         if (constituencyRepository == null) {
@@ -122,9 +129,19 @@ public class Constituency extends BaseDomain implements Serializable {
     }
 
     // This is used in MemberElectionController
+    /**
+     * Find by default state and house type.
+     *
+     * @param defaultState the default state
+     * @param houseType the house type
+     * @param locale the locale
+     * @param sortBy the sort by
+     * @param sortOrder the sort order
+     * @return the list
+     */
     public static List<ConstituencyVO> findByDefaultStateAndHouseType(
-            String defaultState, String houseType, String locale,
-            String sortBy, String sortOrder) {
+            final String defaultState, final String houseType, final String locale,
+            final String sortBy, final String sortOrder) {
         return getConstituencyRepository().findByDefaultStateAndHouseType(
                 defaultState, houseType, locale, sortBy, sortOrder);
     }
@@ -132,7 +149,7 @@ public class Constituency extends BaseDomain implements Serializable {
     // ------------------------------------------Getters/Setters-----------------------------------
     /**
      * Gets the name.
-     * 
+     *
      * @return the name
      */
     public String getName() {
@@ -141,16 +158,16 @@ public class Constituency extends BaseDomain implements Serializable {
 
     /**
      * Sets the name.
-     * 
+     *
      * @param name the new name
      */
-    public void setName(String name) {
+    public void setName(final String name) {
         this.name = name;
     }
 
     /**
      * Gets the house type.
-     * 
+     *
      * @return the house type
      */
     public HouseType getHouseType() {
@@ -159,16 +176,16 @@ public class Constituency extends BaseDomain implements Serializable {
 
     /**
      * Sets the house type.
-     * 
+     *
      * @param houseType the new house type
      */
-    public void setHouseType(HouseType houseType) {
+    public void setHouseType(final HouseType houseType) {
         this.houseType = houseType;
     }
 
     /**
      * Gets the districts.
-     * 
+     *
      * @return the districts
      */
     public List<District> getDistricts() {
@@ -177,16 +194,16 @@ public class Constituency extends BaseDomain implements Serializable {
 
     /**
      * Sets the districts.
-     * 
+     *
      * @param districts the new districts
      */
-    public void setDistricts(List<District> districts) {
+    public void setDistricts(final List<District> districts) {
         this.districts = districts;
     }
 
     /**
      * Gets the division name.
-     * 
+     *
      * @return the division name
      */
     public String getDivisionName() {
@@ -195,16 +212,16 @@ public class Constituency extends BaseDomain implements Serializable {
 
     /**
      * Sets the division name.
-     * 
+     *
      * @param divisionName the new division name
      */
-    public void setDivisionName(String divisionName) {
+    public void setDivisionName(final String divisionName) {
         this.divisionName = divisionName;
     }
 
     /**
      * Gets the voters.
-     * 
+     *
      * @return the voters
      */
     public Integer getVoters() {
@@ -213,16 +230,16 @@ public class Constituency extends BaseDomain implements Serializable {
 
     /**
      * Sets the voters.
-     * 
+     *
      * @param voters the new voters
      */
-    public void setVoters(Integer voters) {
+    public void setVoters(final Integer voters) {
         this.voters = voters;
     }
 
     /**
      * Gets the reserved for.
-     * 
+     *
      * @return the reserved for
      */
     public Reservation getReservedFor() {
@@ -231,16 +248,16 @@ public class Constituency extends BaseDomain implements Serializable {
 
     /**
      * Sets the reserved for.
-     * 
+     *
      * @param reservedFor the new reserved for
      */
-    public void setReservedFor(Reservation reservedFor) {
+    public void setReservedFor(final Reservation reservedFor) {
         this.reservedFor = reservedFor;
     }
 
     /**
      * Gets the nearest railway station.
-     * 
+     *
      * @return the nearest railway station
      */
     public RailwayStation getNearestRailwayStation() {
@@ -249,16 +266,16 @@ public class Constituency extends BaseDomain implements Serializable {
 
     /**
      * Sets the nearest railway station.
-     * 
+     *
      * @param nearestRailwayStation the new nearest railway station
      */
-    public void setNearestRailwayStation(RailwayStation nearestRailwayStation) {
+    public void setNearestRailwayStation(final RailwayStation nearestRailwayStation) {
         this.nearestRailwayStation = nearestRailwayStation;
     }
 
     /**
      * Gets the nearest airport.
-     * 
+     *
      * @return the nearest airport
      */
     public Airport getNearestAirport() {
@@ -267,16 +284,16 @@ public class Constituency extends BaseDomain implements Serializable {
 
     /**
      * Sets the nearest airport.
-     * 
+     *
      * @param nearestAirport the new nearest airport
      */
-    public void setNearestAirport(Airport nearestAirport) {
+    public void setNearestAirport(final Airport nearestAirport) {
         this.nearestAirport = nearestAirport;
     }
 
     /**
      * Gets the number.
-     * 
+     *
      * @return the number
      */
     public String getNumber() {
@@ -285,16 +302,16 @@ public class Constituency extends BaseDomain implements Serializable {
 
     /**
      * Sets the number.
-     * 
+     *
      * @param number the new number
      */
-    public void setNumber(String number) {
+    public void setNumber(final String number) {
         this.number = number;
     }
 
     /**
      * Gets the checks if is reserved.
-     * 
+     *
      * @return the checks if is reserved
      */
     public Boolean getIsReserved() {
@@ -303,18 +320,28 @@ public class Constituency extends BaseDomain implements Serializable {
 
     /**
      * Gets the checks if is retired.
-     * 
+     *
      * @return the checks if is retired
      */
     public Boolean getIsRetired() {
         return isRetired;
     }
 
+    /**
+     * Gets the display name.
+     *
+     * @return the display name
+     */
     public String getDisplayName() {
         return displayName;
     }
 
-    public void setDisplayName(String displayName) {
+    /**
+     * Sets the display name.
+     *
+     * @param displayName the new display name
+     */
+    public void setDisplayName(final String displayName) {
         this.displayName = displayName;
     }
 
