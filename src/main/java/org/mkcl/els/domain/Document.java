@@ -30,7 +30,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 /**
  * The Class Document.
- * 
+ *
  * @author sandeeps
  * @version v1.0.0
  */
@@ -72,6 +72,7 @@ public class Document implements Serializable {
     /** The file size. */
     private long fileSize;
 
+    /** The created by. */
     private String createdBy;
 
     /** The document repository. */
@@ -89,7 +90,7 @@ public class Document implements Serializable {
 
     /**
      * Instantiates a new document.
-     * 
+     *
      * @param tag the tag
      * @param type the type
      * @param originalFileName the original file name
@@ -113,7 +114,7 @@ public class Document implements Serializable {
 
     /**
      * Gets the document repository.
-     * 
+     *
      * @return the document repository
      */
     public static DocumentRepository getDocumentRepository() {
@@ -127,7 +128,7 @@ public class Document implements Serializable {
 
     /**
      * Find by id.
-     * 
+     *
      * @param id the id
      * @return the document
      * @author sujitas
@@ -140,7 +141,7 @@ public class Document implements Serializable {
 
     /**
      * Find by tag.
-     * 
+     *
      * @param tag the tag
      * @return the document
      * @author sujitas
@@ -153,7 +154,7 @@ public class Document implements Serializable {
 
     /**
      * Persist.
-     * 
+     *
      * @return the document
      * @author sujitas
      * @since v1.0.0
@@ -167,7 +168,7 @@ public class Document implements Serializable {
 
     /**
      * Update.
-     * 
+     *
      * @return the document
      * @author sujitas
      * @since v1.0.0
@@ -181,7 +182,7 @@ public class Document implements Serializable {
 
     /**
      * Removes the.
-     * 
+     *
      * @author sujitas
      * @since v1.0.0
      */
@@ -195,7 +196,7 @@ public class Document implements Serializable {
 
     /**
      * Gets the id.
-     * 
+     *
      * @return the id
      */
     public Long getId() {
@@ -204,7 +205,7 @@ public class Document implements Serializable {
 
     /**
      * Sets the id.
-     * 
+     *
      * @param id the new id
      */
     public void setId(final Long id) {
@@ -213,7 +214,7 @@ public class Document implements Serializable {
 
     /**
      * Gets the tag.
-     * 
+     *
      * @return the tag
      */
     public String getTag() {
@@ -222,7 +223,7 @@ public class Document implements Serializable {
 
     /**
      * Sets the tag.
-     * 
+     *
      * @param tag the new tag
      */
     public void setTag(final String tag) {
@@ -231,7 +232,7 @@ public class Document implements Serializable {
 
     /**
      * Gets the type.
-     * 
+     *
      * @return the type
      */
     public String getType() {
@@ -240,7 +241,7 @@ public class Document implements Serializable {
 
     /**
      * Sets the type.
-     * 
+     *
      * @param type the new type
      */
     public void setType(final String type) {
@@ -249,7 +250,7 @@ public class Document implements Serializable {
 
     /**
      * Gets the original file name.
-     * 
+     *
      * @return the original file name
      */
     public String getOriginalFileName() {
@@ -258,7 +259,7 @@ public class Document implements Serializable {
 
     /**
      * Sets the original file name.
-     * 
+     *
      * @param originalFileName the new original file name
      */
     public void setOriginalFileName(final String originalFileName) {
@@ -267,7 +268,7 @@ public class Document implements Serializable {
 
     /**
      * Gets the created on.
-     * 
+     *
      * @return the created on
      */
     public Date getCreatedOn() {
@@ -276,7 +277,7 @@ public class Document implements Serializable {
 
     /**
      * Sets the created on.
-     * 
+     *
      * @param createdOn the new created on
      */
     public void setCreatedOn(final Date createdOn) {
@@ -285,7 +286,7 @@ public class Document implements Serializable {
 
     /**
      * Gets the file data.
-     * 
+     *
      * @return the file data
      */
     public byte[] getFileData() {
@@ -294,7 +295,7 @@ public class Document implements Serializable {
 
     /**
      * Sets the file data.
-     * 
+     *
      * @param fileData the new file data
      */
     public void setFileData(final byte[] fileData) {
@@ -303,7 +304,7 @@ public class Document implements Serializable {
 
     /**
      * Gets the file size.
-     * 
+     *
      * @return the file size
      */
     public long getFileSize() {
@@ -312,18 +313,28 @@ public class Document implements Serializable {
 
     /**
      * Sets the file size.
-     * 
+     *
      * @param fileSize the new file size
      */
     public void setFileSize(final long fileSize) {
         this.fileSize = fileSize;
     }
 
+    /**
+     * Gets the created by.
+     *
+     * @return the created by
+     */
     public String getCreatedBy() {
         return createdBy;
     }
 
-    public void setCreatedBy(String createdBy) {
+    /**
+     * Sets the created by.
+     *
+     * @param createdBy the new created by
+     */
+    public void setCreatedBy(final String createdBy) {
         this.createdBy = createdBy;
     }
 }
