@@ -22,7 +22,7 @@ import org.springframework.beans.factory.annotation.Configurable;
 
 /**
  * The Class Field.
- * 
+ *
  * @author sandeeps
  * @since v1.0.0
  */
@@ -72,7 +72,7 @@ public class Field extends BaseDomain implements Serializable {
 
     /**
      * Instantiates a new field.
-     * 
+     *
      * @param name the name
      * @param detail the detail
      * @param mandatory the mandatory
@@ -100,7 +100,7 @@ public class Field extends BaseDomain implements Serializable {
     // -------------------------------Domain_Methods----------------------------------------------
     /**
      * Find by name and form.
-     * 
+     *
      * @param name the name
      * @param form the form
      * @return the field
@@ -117,7 +117,7 @@ public class Field extends BaseDomain implements Serializable {
     // ------------------------------------------Getters/Setters-----------------------------------
     /**
      * Gets the name.
-     * 
+     *
      * @return the name
      */
     public String getName() {
@@ -126,7 +126,7 @@ public class Field extends BaseDomain implements Serializable {
 
     /**
      * Sets the name.
-     * 
+     *
      * @param name the new name
      */
     public void setName(final String name) {
@@ -135,7 +135,7 @@ public class Field extends BaseDomain implements Serializable {
 
     /**
      * Gets the detail.
-     * 
+     *
      * @return the detail
      */
     public String getDetail() {
@@ -144,7 +144,7 @@ public class Field extends BaseDomain implements Serializable {
 
     /**
      * Sets the detail.
-     * 
+     *
      * @param detail the new detail
      */
     public void setDetail(final String detail) {
@@ -153,7 +153,7 @@ public class Field extends BaseDomain implements Serializable {
 
     /**
      * Gets the mandatory.
-     * 
+     *
      * @return the mandatory
      */
     public String getMandatory() {
@@ -162,7 +162,7 @@ public class Field extends BaseDomain implements Serializable {
 
     /**
      * Sets the mandatory.
-     * 
+     *
      * @param mandatory the new mandatory
      */
     public void setMandatory(final String mandatory) {
@@ -171,7 +171,7 @@ public class Field extends BaseDomain implements Serializable {
 
     /**
      * Gets the visible.
-     * 
+     *
      * @return the visible
      */
     public String getVisible() {
@@ -180,7 +180,7 @@ public class Field extends BaseDomain implements Serializable {
 
     /**
      * Sets the visible.
-     * 
+     *
      * @param visible the new visible
      */
     public void setVisible(final String visible) {
@@ -189,7 +189,7 @@ public class Field extends BaseDomain implements Serializable {
 
     /**
      * Gets the position.
-     * 
+     *
      * @return the position
      */
     public Integer getPosition() {
@@ -198,7 +198,7 @@ public class Field extends BaseDomain implements Serializable {
 
     /**
      * Sets the position.
-     * 
+     *
      * @param position the new position
      */
     public void setPosition(final Integer position) {
@@ -207,7 +207,7 @@ public class Field extends BaseDomain implements Serializable {
 
     /**
      * Gets the hint.
-     * 
+     *
      * @return the hint
      */
     public String getHint() {
@@ -216,7 +216,7 @@ public class Field extends BaseDomain implements Serializable {
 
     /**
      * Sets the hint.
-     * 
+     *
      * @param hint the new hint
      */
     public void setHint(final String hint) {
@@ -225,7 +225,7 @@ public class Field extends BaseDomain implements Serializable {
 
     /**
      * Gets the form.
-     * 
+     *
      * @return the form
      */
     public String getForm() {
@@ -234,7 +234,7 @@ public class Field extends BaseDomain implements Serializable {
 
     /**
      * Sets the form.
-     * 
+     *
      * @param form the new form
      */
     public void setForm(final String form) {
