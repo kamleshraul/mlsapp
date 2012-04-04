@@ -19,7 +19,7 @@ import org.springframework.beans.factory.annotation.Configurable;
 
 /**
  * The Class Relation.
- * 
+ *
  * @author amitd
  * @author sandeeps
  * @since v1.0.0
@@ -48,7 +48,7 @@ public class Relation extends BaseDomain implements Serializable {
 
     /**
      * Instantiates a new relation.
-     * 
+     *
      * @param name the name
      */
     public Relation(final String name) {
@@ -57,10 +57,11 @@ public class Relation extends BaseDomain implements Serializable {
     }
 
     // -------------------------------Domain_Methods----------------------------------------------
+
     // ------------------------------------------Getters/Setters-----------------------------------
     /**
      * Gets the name.
-     * 
+     *
      * @return the name
      */
     public String getName() {
@@ -69,10 +70,10 @@ public class Relation extends BaseDomain implements Serializable {
 
     /**
      * Sets the name.
-     * 
+     *
      * @param name the new name
      */
-    public void setName(String name) {
+    public void setName(final String name) {
         this.name = name;
     }
 
