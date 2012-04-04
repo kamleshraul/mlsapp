@@ -21,7 +21,7 @@ import org.springframework.beans.factory.annotation.Configurable;
 
 /**
  * The Class RivalMember.
- * 
+ *
  * @author amitd
  * @author sandeeps
  * @since v1.0.0
@@ -57,12 +57,12 @@ public class RivalMember extends BaseDomain implements Serializable {
 
     /**
      * Instantiates a new rival member.
-     * 
+     *
      * @param name the name
      * @param votesReceived the votes received
      * @param party the party
      */
-    public RivalMember(String name, Integer votesReceived, Party party) {
+    public RivalMember(final String name, final Integer votesReceived, final Party party) {
         super();
         this.name = name;
         this.votesReceived = votesReceived;
@@ -74,7 +74,7 @@ public class RivalMember extends BaseDomain implements Serializable {
     // ------------------------------------------Getters/Setters-----------------------------------
     /**
      * Gets the name.
-     * 
+     *
      * @return the name
      */
     public String getName() {
@@ -83,16 +83,16 @@ public class RivalMember extends BaseDomain implements Serializable {
 
     /**
      * Sets the name.
-     * 
+     *
      * @param name the new name
      */
-    public void setName(String name) {
+    public void setName(final String name) {
         this.name = name;
     }
 
     /**
      * Gets the votes received.
-     * 
+     *
      * @return the votes received
      */
     public Integer getVotesReceived() {
@@ -101,16 +101,16 @@ public class RivalMember extends BaseDomain implements Serializable {
 
     /**
      * Sets the votes received.
-     * 
+     *
      * @param votesReceived the new votes received
      */
-    public void setVotesReceived(Integer votesReceived) {
+    public void setVotesReceived(final Integer votesReceived) {
         this.votesReceived = votesReceived;
     }
 
     /**
      * Gets the party.
-     * 
+     *
      * @return the party
      */
     public Party getParty() {
@@ -119,10 +119,10 @@ public class RivalMember extends BaseDomain implements Serializable {
 
     /**
      * Sets the party.
-     * 
+     *
      * @param party the new party
      */
-    public void setParty(Party party) {
+    public void setParty(final Party party) {
         this.party = party;
     }
 
