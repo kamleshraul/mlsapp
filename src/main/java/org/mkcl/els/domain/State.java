@@ -19,7 +19,7 @@ import org.springframework.beans.factory.annotation.Configurable;
 
 /**
  * The Class State.
- * 
+ *
  * @author amitd
  * @author sandeeps
  * @since v1.0.0
@@ -47,7 +47,7 @@ public class State extends BaseDomain implements Serializable {
 
     /**
      * Instantiates a new state.
-     * 
+     *
      * @param name the name
      */
     public State(final String name) {
@@ -60,7 +60,7 @@ public class State extends BaseDomain implements Serializable {
     // ------------------------------------------Getters/Setters-----------------------------------
     /**
      * Gets the name.
-     * 
+     *
      * @return the name
      */
     public String getName() {
@@ -69,7 +69,7 @@ public class State extends BaseDomain implements Serializable {
 
     /**
      * Sets the name.
-     * 
+     *
      * @param name the new name
      */
     public void setName(final String name) {
