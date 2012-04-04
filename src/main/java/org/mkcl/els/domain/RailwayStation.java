@@ -21,7 +21,7 @@ import org.springframework.beans.factory.annotation.Configurable;
 
 /**
  * The Class RailwayStation.
- * 
+ *
  * @author Dhananjay
  * @since v1.0.0
  */
@@ -53,7 +53,7 @@ public class RailwayStation extends BaseDomain implements Serializable {
 
     /**
      * Instantiates a new railway station.
-     * 
+     *
      * @param name the name
      * @param district the district
      */
@@ -68,7 +68,7 @@ public class RailwayStation extends BaseDomain implements Serializable {
 
     /**
      * Gets the name.
-     * 
+     *
      * @return the name
      */
     public String getName() {
@@ -77,7 +77,7 @@ public class RailwayStation extends BaseDomain implements Serializable {
 
     /**
      * Sets the name.
-     * 
+     *
      * @param name the new name
      */
     public void setName(final String name) {
@@ -86,7 +86,7 @@ public class RailwayStation extends BaseDomain implements Serializable {
 
     /**
      * Gets the district.
-     * 
+     *
      * @return the district
      */
     public District getDistrict() {
@@ -95,7 +95,7 @@ public class RailwayStation extends BaseDomain implements Serializable {
 
     /**
      * Sets the district.
-     * 
+     *
      * @param district the new district
      */
     public void setDistrict(final District district) {
