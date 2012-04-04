@@ -180,7 +180,7 @@ public class Grid extends BaseDomain implements Serializable {
      */
     @Transactional(readOnly = true)
     public static Grid findByDetailView(final String urlPattern,
-                                        final String locale) {
+            final String locale) {
         return getGridRepository().findByDetailView(urlPattern, locale);
     }
 
@@ -196,7 +196,7 @@ public class Grid extends BaseDomain implements Serializable {
         GridConfig gridConfig = new GridConfig(grid.getTitle(),
                 grid.getColNames(), grid.getColModel(), grid.getHeight(),
                 grid.getWidth(), grid.getPageSize(), grid.getSortOrder(),
-                grid.getDetailView(), grid.isMultiSelect(),grid.getSortField());
+                grid.getDetailView(), grid.isMultiSelect(), grid.getSortField());
         return gridConfig;
     }
 
