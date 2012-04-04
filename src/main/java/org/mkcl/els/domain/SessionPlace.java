@@ -20,7 +20,7 @@ import org.springframework.beans.factory.annotation.Configurable;
 
 /**
  * The Class SessionPlace.
- * 
+ *
  * @author Anand
  * @since v1.0.0
  */
@@ -49,7 +49,7 @@ public class SessionPlace extends BaseDomain implements Serializable {
 
     /**
      * Instantiates a new session place.
-     * 
+     *
      * @param place the place
      */
     public SessionPlace(final String place) {
@@ -57,11 +57,10 @@ public class SessionPlace extends BaseDomain implements Serializable {
         this.place = place;
     }
 
-    // -------------------------------Domain_Methods----------------------------------------------
     // -------------------------------Getters/Setters----------------------------------------------
     /**
      * Gets the place.
-     * 
+     *
      * @return the place
      */
     public String getPlace() {
@@ -70,7 +69,7 @@ public class SessionPlace extends BaseDomain implements Serializable {
 
     /**
      * Sets the place.
-     * 
+     *
      * @param place the new place
      */
     public void setPlace(final String place) {
