@@ -18,12 +18,11 @@ import javax.persistence.Table;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
 
-import org.hibernate.validator.constraints.NotEmpty;
 import org.springframework.beans.factory.annotation.Configurable;
 
 /**
  * The Class PartySymbol.
- * 
+ *
  * @author amitd
  * @author sandeeps
  * @since v1.0.0
@@ -56,11 +55,11 @@ public class PartySymbol extends BaseDomain implements Serializable {
 
     /**
      * Instantiates a new party symbol.
-     * 
+     *
      * @param symbol the symbol
      * @param changeDate the change date
      */
-    public PartySymbol(String symbol, Date changeDate) {
+    public PartySymbol(final String symbol, final Date changeDate) {
         super();
         this.symbol = symbol;
         this.changeDate = changeDate;
@@ -70,7 +69,7 @@ public class PartySymbol extends BaseDomain implements Serializable {
 
     /**
      * Gets the symbol.
-     * 
+     *
      * @return the symbol
      */
     public String getSymbol() {
@@ -79,16 +78,16 @@ public class PartySymbol extends BaseDomain implements Serializable {
 
     /**
      * Sets the symbol.
-     * 
+     *
      * @param symbol the new symbol
      */
-    public void setSymbol(String symbol) {
+    public void setSymbol(final String symbol) {
         this.symbol = symbol;
     }
 
     /**
      * Gets the change date.
-     * 
+     *
      * @return the change date
      */
     public Date getChangeDate() {
@@ -97,10 +96,10 @@ public class PartySymbol extends BaseDomain implements Serializable {
 
     /**
      * Sets the change date.
-     * 
+     *
      * @param changeDate the new change date
      */
-    public void setChangeDate(Date changeDate) {
+    public void setChangeDate(final Date changeDate) {
         this.changeDate = changeDate;
     }
 
