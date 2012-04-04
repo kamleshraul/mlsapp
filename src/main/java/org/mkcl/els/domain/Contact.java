@@ -19,7 +19,7 @@ import org.springframework.beans.factory.annotation.Configurable;
 
 /**
  * The Class Contact.
- * 
+ *
  * @author dhananjay
  * @since v1.0.0
  */
@@ -86,7 +86,7 @@ public class Contact extends BaseDomain implements Serializable {
 
     /**
      * Gets the email1.
-     * 
+     *
      * @return the email1
      */
     public String getEmail11() {
@@ -95,7 +95,7 @@ public class Contact extends BaseDomain implements Serializable {
 
     /**
      * Sets the email1.
-     * 
+     *
      * @param email1 the new email1
      */
     public void setEmail1(final String email1) {
@@ -104,7 +104,7 @@ public class Contact extends BaseDomain implements Serializable {
 
     /**
      * Gets the email2.
-     * 
+     *
      * @return the email2
      */
     public String getEmail2() {
@@ -113,16 +113,16 @@ public class Contact extends BaseDomain implements Serializable {
 
     /**
      * Sets the email2.
-     * 
+     *
      * @param email2 the new email2
      */
-    public void setEmail2(String email2) {
+    public void setEmail2(final String email2) {
         this.email2 = email2;
     }
 
     /**
      * Gets the website1.
-     * 
+     *
      * @return the website1
      */
     public String getWebsite1() {
@@ -131,16 +131,16 @@ public class Contact extends BaseDomain implements Serializable {
 
     /**
      * Sets the website1.
-     * 
+     *
      * @param website1 the new website1
      */
-    public void setWebsite1(String website1) {
+    public void setWebsite1(final String website1) {
         this.website1 = website1;
     }
 
     /**
      * Gets the website2.
-     * 
+     *
      * @return the website2
      */
     public String getWebsite2() {
@@ -149,16 +149,16 @@ public class Contact extends BaseDomain implements Serializable {
 
     /**
      * Sets the website2.
-     * 
+     *
      * @param website2 the new website2
      */
-    public void setWebsite2(String website2) {
+    public void setWebsite2(final String website2) {
         this.website2 = website2;
     }
 
     /**
      * Gets the telephone1.
-     * 
+     *
      * @return the telephone1
      */
     public String getTelephone1() {
@@ -167,16 +167,16 @@ public class Contact extends BaseDomain implements Serializable {
 
     /**
      * Sets the telephone1.
-     * 
+     *
      * @param telephone1 the new telephone1
      */
-    public void setTelephone1(String telephone1) {
+    public void setTelephone1(final String telephone1) {
         this.telephone1 = telephone1;
     }
 
     /**
      * Gets the telephone2.
-     * 
+     *
      * @return the telephone2
      */
     public String getTelephone2() {
@@ -185,16 +185,16 @@ public class Contact extends BaseDomain implements Serializable {
 
     /**
      * Sets the telephone2.
-     * 
+     *
      * @param telephone2 the new telephone2
      */
-    public void setTelephone2(String telephone2) {
+    public void setTelephone2(final String telephone2) {
         this.telephone2 = telephone2;
     }
 
     /**
      * Gets the fax1.
-     * 
+     *
      * @return the fax1
      */
     public String getFax1() {
@@ -203,16 +203,16 @@ public class Contact extends BaseDomain implements Serializable {
 
     /**
      * Sets the fax1.
-     * 
+     *
      * @param fax1 the new fax1
      */
-    public void setFax1(String fax1) {
+    public void setFax1(final String fax1) {
         this.fax1 = fax1;
     }
 
     /**
      * Gets the fax2.
-     * 
+     *
      * @return the fax2
      */
     public String getFax2() {
@@ -221,16 +221,16 @@ public class Contact extends BaseDomain implements Serializable {
 
     /**
      * Sets the fax2.
-     * 
+     *
      * @param fax2 the new fax2
      */
-    public void setFax2(String fax2) {
+    public void setFax2(final String fax2) {
         this.fax2 = fax2;
     }
 
     /**
      * Gets the mobile1.
-     * 
+     *
      * @return the mobile1
      */
     public String getMobile1() {
@@ -239,16 +239,16 @@ public class Contact extends BaseDomain implements Serializable {
 
     /**
      * Sets the mobile1.
-     * 
+     *
      * @param mobile1 the new mobile1
      */
-    public void setMobile1(String mobile1) {
+    public void setMobile1(final String mobile1) {
         this.mobile1 = mobile1;
     }
 
     /**
      * Gets the mobile2.
-     * 
+     *
      * @return the mobile2
      */
     public String getMobile2() {
@@ -257,15 +257,20 @@ public class Contact extends BaseDomain implements Serializable {
 
     /**
      * Sets the mobile2.
-     * 
+     *
      * @param mobile2 the new mobile2
      */
-    public void setMobile2(String mobile2) {
+    public void setMobile2(final String mobile2) {
         this.mobile2 = mobile2;
     }
 
-	public String getEmail1() {
-		return email1;
-	}
+    /**
+     * Gets the email1.
+     *
+     * @return the email1
+     */
+    public String getEmail1() {
+        return email1;
+    }
 
 }
