@@ -520,7 +520,7 @@ import org.springframework.beans.factory.annotation.Configurable;
 
 /**
  * The Class MenuItem.
- * 
+ *
  * @author amitd
  * @author sandeeps
  * @since v1.0.0
@@ -581,7 +581,7 @@ public class MenuItem extends BaseDomain implements Serializable {
 
     /**
      * Instantiates a new menu item.
-     * 
+     *
      * @param textKey the text key
      * @param text the text
      * @param url the url
@@ -600,7 +600,7 @@ public class MenuItem extends BaseDomain implements Serializable {
 
     /**
      * Instantiates a new menu item.
-     * 
+     *
      * @param textKey the text key
      * @param text the text
      * @param url the url
@@ -621,7 +621,7 @@ public class MenuItem extends BaseDomain implements Serializable {
 
     /**
      * Instantiates a new menu item.
-     * 
+     *
      * @param textKey the text key
      * @param text the text
      * @param url the url
@@ -642,7 +642,7 @@ public class MenuItem extends BaseDomain implements Serializable {
 
     /**
      * Gets the menu item repository.
-     * 
+     *
      * @return the menu item repository
      */
     public static MenuItemRepository getMenuItemRepository() {
@@ -658,10 +658,9 @@ public class MenuItem extends BaseDomain implements Serializable {
 
     /**
      * Gets the menu xml.
-     * 
+     *
      * @return the menu xml
      */
-    @SuppressWarnings("unchecked")
     public static String getMenuXml() {
         List<MenuItem> items = getMenuItemRepository().findAll(MenuItem.class,
                 "textKey", "asc", "");
@@ -681,8 +680,7 @@ public class MenuItem extends BaseDomain implements Serializable {
         XMLOutputter serializer = new XMLOutputter();
         try {
             serializer.output(root, writer);
-        }
-        catch (IOException e) {
+        } catch (IOException e) {
             menuLogger.error(e.toString());
         }
         return writer.toString();
@@ -690,12 +688,11 @@ public class MenuItem extends BaseDomain implements Serializable {
 
     /**
      * Gets the menu xml.
-     * 
+     *
      * @param locale the locale
      * @return the menu xml
      */
-    @SuppressWarnings("unchecked")
-    public static String getMenuXml(String locale) {
+    public static String getMenuXml(final String locale) {
         List<MenuItem> items = getMenuItemRepository().findAll(MenuItem.class,
                 "textKey", "asc", locale);
         Element root = new Element("root");
@@ -714,8 +711,7 @@ public class MenuItem extends BaseDomain implements Serializable {
         XMLOutputter serializer = new XMLOutputter();
         try {
             serializer.output(root, writer);
-        }
-        catch (IOException e) {
+        } catch (IOException e) {
             menuLogger.error(e.toString());
         }
         return writer.toString();
@@ -725,7 +721,7 @@ public class MenuItem extends BaseDomain implements Serializable {
 
     /**
      * Gets the key.
-     * 
+     *
      * @return the key
      */
     public String getTextKey() {
@@ -734,7 +730,7 @@ public class MenuItem extends BaseDomain implements Serializable {
 
     /**
      * Sets the key.
-     * 
+     *
      * @param textKey the new text key
      */
     public void setTextKey(final String textKey) {
@@ -743,7 +739,7 @@ public class MenuItem extends BaseDomain implements Serializable {
 
     /**
      * Gets the text.
-     * 
+     *
      * @return the text
      */
     public String getText() {
@@ -752,7 +748,7 @@ public class MenuItem extends BaseDomain implements Serializable {
 
     /**
      * Sets the text.
-     * 
+     *
      * @param text the new text
      */
     public void setText(final String text) {
@@ -761,7 +757,7 @@ public class MenuItem extends BaseDomain implements Serializable {
 
     /**
      * Gets the url.
-     * 
+     *
      * @return the url
      */
     public String getUrl() {
@@ -770,7 +766,7 @@ public class MenuItem extends BaseDomain implements Serializable {
 
     /**
      * Sets the url.
-     * 
+     *
      * @param url the new url
      */
     public void setUrl(final String url) {
@@ -779,7 +775,7 @@ public class MenuItem extends BaseDomain implements Serializable {
 
     /**
      * Gets the params.
-     * 
+     *
      * @return the params
      */
     public String getParams() {
@@ -788,7 +784,7 @@ public class MenuItem extends BaseDomain implements Serializable {
 
     /**
      * Sets the params.
-     * 
+     *
      * @param params the new params
      */
     public void setParams(final String params) {
@@ -797,7 +793,7 @@ public class MenuItem extends BaseDomain implements Serializable {
 
     /**
      * Gets the parent.
-     * 
+     *
      * @return the parent
      */
     public MenuItem getParent() {
@@ -806,7 +802,7 @@ public class MenuItem extends BaseDomain implements Serializable {
 
     /**
      * Sets the parent.
-     * 
+     *
      * @param parent the new parent
      */
     public void setParent(final MenuItem parent) {
@@ -815,7 +811,7 @@ public class MenuItem extends BaseDomain implements Serializable {
 
     /**
      * Gets the position.
-     * 
+     *
      * @return the position
      */
     public Integer getPosition() {
@@ -824,10 +820,10 @@ public class MenuItem extends BaseDomain implements Serializable {
 
     /**
      * Sets the position.
-     * 
+     *
      * @param position the new position
      */
-    public void setPosition(Integer position) {
+    public void setPosition(final Integer position) {
         this.position = position;
     }
 
