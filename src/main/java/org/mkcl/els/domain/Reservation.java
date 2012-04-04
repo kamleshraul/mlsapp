@@ -20,7 +20,7 @@ import org.springframework.beans.factory.annotation.Configurable;
 
 /**
  * The Class Reservation.
- * 
+ *
  * @author Anand
  * @since v1.0.0
  */
@@ -53,11 +53,11 @@ public class Reservation extends BaseDomain implements Serializable {
 
     /**
      * Instantiates a new reservation.
-     * 
+     *
      * @param name the name
      * @param shortName the short name
      */
-    public Reservation(String name, String shortName) {
+    public Reservation(final String name, final String shortName) {
         super();
         this.name = name;
         this.shortName = shortName;
@@ -67,24 +67,39 @@ public class Reservation extends BaseDomain implements Serializable {
 
     // ------------------------------------------Getters/Setters-----------------------------------
 
+    /**
+     * Gets the name.
+     *
+     * @return the name
+     */
     public String getName() {
         return name;
     }
 
-    public void setName(String name) {
+    /**
+     * Sets the name.
+     *
+     * @param name the new name
+     */
+    public void setName(final String name) {
         this.name = name;
     }
 
+    /**
+     * Gets the short name.
+     *
+     * @return the short name
+     */
     public String getShortName() {
         return shortName;
     }
 
     /**
      * Sets the short name.
-     * 
+     *
      * @param shortName the new short name
      */
-    public void setShortName(String shortName) {
+    public void setShortName(final String shortName) {
         this.shortName = shortName;
     }
 }
