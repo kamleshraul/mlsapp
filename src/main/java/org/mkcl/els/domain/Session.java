@@ -33,7 +33,7 @@ import org.springframework.beans.factory.annotation.Configurable;
 @Configurable
 @Entity
 @Table(name = "sessions")
-@JsonIgnoreProperties({"house"})
+@JsonIgnoreProperties({ "house" })
 public class Session extends BaseDomain implements Serializable {
 
     // ---------------------------------Attributes------------------------------------------
@@ -78,9 +78,10 @@ public class Session extends BaseDomain implements Serializable {
     @Column(length = 1000)
     private String remarks;
 
-   @ManyToOne
-   @JoinColumn(name = "house_id")
-     private House house;
+    /** The house. */
+    @ManyToOne
+    @JoinColumn(name = "house_id")
+    private House house;
 
 
     // -------------------------------Constructors----------------------------------------------
@@ -101,9 +102,16 @@ public class Session extends BaseDomain implements Serializable {
      * @param type the type
      * @param place the place
      * @param year the year
+     * @param house the house
      */
-    public Session(final Integer number, final Date startDate, final Date endDate,
-            final SessionType type, final SessionPlace place, final Integer year,final House house) {
+    public Session(
+            final Integer number,
+            final Date startDate,
+            final Date endDate,
+            final SessionType type,
+            final SessionPlace place,
+            final Integer year,
+            final House house) {
         super();
         this.number = number;
         this.startDate = startDate;
@@ -111,7 +119,7 @@ public class Session extends BaseDomain implements Serializable {
         this.type = type;
         this.place = place;
         this.year = year;
-        this.house=house;
+        this.house = house;
     }
 
     // -------------------------------Domain_Methods----------------------------------------------
@@ -297,12 +305,22 @@ public class Session extends BaseDomain implements Serializable {
         this.remarks = remarks;
     }
 
-	public House getHouse() {
-		return house;
-	}
+    /**
+     * Gets the house.
+     *
+     * @return the house
+     */
+    public House getHouse() {
+        return house;
+    }
 
-	public void setHouse(final House house) {
-		this.house = house;
-	}
+    /**
+     * Sets the house.
+     *
+     * @param house the new house
+     */
+    public void setHouse(final House house) {
+        this.house = house;
+    }
 
 }
