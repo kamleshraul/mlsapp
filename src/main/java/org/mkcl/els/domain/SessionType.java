@@ -20,7 +20,7 @@ import org.springframework.beans.factory.annotation.Configurable;
 
 /**
  * The Class SessionType.
- * 
+ *
  * @author anand
  * @since v1.0.0
  */
@@ -49,10 +49,10 @@ public class SessionType extends BaseDomain implements Serializable {
 
     /**
      * Instantiates a new session type.
-     * 
+     *
      * @param sessionType the session type
      */
-    public SessionType(String sessionType) {
+    public SessionType(final String sessionType) {
         super();
         this.sessionType = sessionType;
     }
@@ -62,7 +62,7 @@ public class SessionType extends BaseDomain implements Serializable {
     // ------------------------------------------Getters/Setters-----------------------
     /**
      * Gets the session type.
-     * 
+     *
      * @return the session type
      */
     public String getSessionType() {
@@ -71,10 +71,10 @@ public class SessionType extends BaseDomain implements Serializable {
 
     /**
      * Sets the session type.
-     * 
+     *
      * @param sessiontype the new session type
      */
-    public void setSessionType(String sessiontype) {
+    public void setSessionType(final String sessiontype) {
         this.sessionType = sessiontype;
     }
 
