@@ -15,12 +15,11 @@ import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Table;
 
-import org.hibernate.validator.constraints.NotEmpty;
 import org.springframework.beans.factory.annotation.Configurable;
 
 /**
  * The Class Gender.
- * 
+ *
  * @author amitd
  * @author sandeeps
  * @since v1.0.0
@@ -50,10 +49,10 @@ public class Gender extends BaseDomain implements Serializable {
 
     /**
      * Instantiates a new gender.
-     * 
+     *
      * @param name the name
      */
-    public Gender(String name) {
+    public Gender(final String name) {
         super();
         this.name = name;
     }
@@ -63,7 +62,7 @@ public class Gender extends BaseDomain implements Serializable {
 
     /**
      * Gets the name.
-     * 
+     *
      * @return the name
      */
     public String getName() {
@@ -72,10 +71,10 @@ public class Gender extends BaseDomain implements Serializable {
 
     /**
      * Sets the name.
-     * 
+     *
      * @param name the new name
      */
-    public void setName(String name) {
+    public void setName(final String name) {
         this.name = name;
     }
 
