@@ -32,7 +32,7 @@ public class ElectionRepository extends BaseRepository<Election, Long> {
      * @param locale the locale
      * @return the list
      */
-    @SuppressWarnings("unchecked")
+    @SuppressWarnings("rawtypes")
     public List<ElectionVO> findByHouseType(final String houseType, final String locale) {
 
         String query = "SELECT e.id,e.name FROM masters_elections AS e JOIN  "
