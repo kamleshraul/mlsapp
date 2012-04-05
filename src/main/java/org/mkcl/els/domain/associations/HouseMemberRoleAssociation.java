@@ -25,7 +25,6 @@ import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
 import javax.persistence.Version;
 
-import org.codehaus.jackson.annotate.JsonIgnoreProperties;
 import org.mkcl.els.domain.Constituency;
 import org.mkcl.els.domain.House;
 import org.mkcl.els.domain.Member;
@@ -48,8 +47,7 @@ import com.sun.istack.NotNull;
 @Configurable
 @Table(name = "associations_house_member_role")
 @IdClass(value = HouseMemberRoleAssociationPK.class)
-//@JsonIgnoreProperties({"role","constituency","house","member"})
-
+// @JsonIgnoreProperties({"role","constituency","house","member"})
 public class HouseMemberRoleAssociation implements Serializable {
 
     // ---------------------------------Attributes-------------------------------------------------
@@ -75,7 +73,7 @@ public class HouseMemberRoleAssociation implements Serializable {
     private Date oathDate;
 
     /** The constituency. */
-    @ManyToOne(fetch=FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "constituency_id")
     private Constituency constituency;
 
@@ -99,6 +97,7 @@ public class HouseMemberRoleAssociation implements Serializable {
     @PrimaryKeyJoinColumn(name = "role_id", referencedColumnName = "id")
     private MemberRole role;
 
+    /** The house. */
     @Id
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "house_id")
@@ -109,12 +108,15 @@ public class HouseMemberRoleAssociation implements Serializable {
     @NotNull
     private Integer recordIndex;
 
+    /** The version. */
     @Version
     private Long version;
 
-    @Column(length=10)
+    /** The locale. */
+    @Column(length = 10)
     private String locale;
 
+    /** The member house role repository. */
     @Autowired
     private transient MemberHouseRoleRepository memberHouseRoleRepository;
 
@@ -129,43 +131,73 @@ public class HouseMemberRoleAssociation implements Serializable {
     /**
      * Instantiates a new house member role association.
      *
-     * @param fromDate the from date
-     * @param toDate the to date
-     * @param isSitting the is sitting
-     * @param oathDate the oath date
-     * @param constituency the constituency
-     * @param member the member
-     * @param role the role
-     * @param house the house
+     * @return the member house role repository
      */
-
-
     public static MemberHouseRoleRepository getMemberHouseRoleRepository() {
-        MemberHouseRoleRepository memberHouseRoleRepository = new HouseMemberRoleAssociation().memberHouseRoleRepository;
+        MemberHouseRoleRepository memberHouseRoleRepository =
+                new HouseMemberRoleAssociation().memberHouseRoleRepository;
         if (memberHouseRoleRepository == null) {
             throw new IllegalStateException(
-                    "HouseMemberRoleAssociationRepository has not been injected in HouseMemberRoleAssociation Domain");
+                    "HouseMemberRoleAssociationRepository has not "
+                            +
+                    "been injected in HouseMemberRoleAssociation Domain");
         }
         return memberHouseRoleRepository;
     }
 
-    public HouseMemberRoleAssociation(final Date fromDate, final Date toDate,
-			final Member member, final MemberRole role, final House house, final String locale) {
-		super();
-		this.fromDate = fromDate;
-		this.toDate = toDate;
-		this.member = member;
-		this.role = role;
-		this.house = house;
-		this.locale = locale;
-	}
+    /**
+     * Instantiates a new house member role association.
+     *
+     * @param fromDate
+     *            the from date
+     * @param toDate
+     *            the to date
+     * @param member
+     *            the member
+     * @param role
+     *            the role
+     * @param house
+     *            the house
+     * @param locale
+     *            the locale
+     */
+    public HouseMemberRoleAssociation(
+            final Date fromDate,
+            final Date toDate,
+            final Member member,
+            final MemberRole role,
+            final House house,
+            final String locale) {
+        super();
+        this.fromDate = fromDate;
+        this.toDate = toDate;
+        this.member = member;
+        this.role = role;
+        this.house = house;
+        this.locale = locale;
+    }
 
-	@Transactional(readOnly = true)
-    public static HouseMemberRoleAssociation findByMemberIdAndId(final Long memberId,
+    /**
+     * Find by member id and id.
+     *
+     * @param memberId
+     *            the member id
+     * @param id
+     *            the id
+     * @return the house member role association
+     */
+    @Transactional(readOnly = true)
+    public static HouseMemberRoleAssociation findByMemberIdAndId(
+            final Long memberId,
             final int id) {
         return getMemberHouseRoleRepository().findByMemberIdAndId(memberId, id);
     }
 
+    /**
+     * Persist.
+     *
+     * @return the house member role association
+     */
     @Transactional
     public HouseMemberRoleAssociation persist() {
         memberHouseRoleRepository.save(this);
@@ -173,6 +205,11 @@ public class HouseMemberRoleAssociation implements Serializable {
         return this;
     }
 
+    /**
+     * Merge.
+     *
+     * @return the house member role association
+     */
     @Transactional
     public HouseMemberRoleAssociation merge() {
         memberHouseRoleRepository.merge(this);
@@ -180,34 +217,60 @@ public class HouseMemberRoleAssociation implements Serializable {
         return this;
     }
 
+    /**
+     * Removes the.
+     *
+     * @return true, if successful
+     */
     @Transactional
     public boolean remove() {
         return memberHouseRoleRepository.remove(this);
     }
 
+    /**
+     * Find highest record index.
+     *
+     * @param member the member
+     * @return the int
+     */
     @Transactional(readOnly = true)
     public static int findHighestRecordIndex(final Long member) {
         return getMemberHouseRoleRepository().findHighestRecordIndex(member);
     }
 
+    /**
+     * Find by pk.
+     *
+     * @param association the association
+     * @return the house member role association
+     */
     public static HouseMemberRoleAssociation findByPK(
             final HouseMemberRoleAssociation association) {
         return getMemberHouseRoleRepository().findByPK(association);
     }
 
+    /**
+     * Checks if is duplicate.
+     *
+     * @return the boolean
+     */
     public Boolean isDuplicate() {
-        HouseMemberRoleAssociation duplicate = HouseMemberRoleAssociation
-                .findByPK(this);
+        HouseMemberRoleAssociation duplicate = HouseMemberRoleAssociation.findByPK(this);
         if (duplicate == null) {
             return false;
         }
         return true;
     }
+
+    /**
+     * Checks if is version mismatch.
+     *
+     * @return true, if is version mismatch
+     */
     @Transactional(readOnly = true)
     public boolean isVersionMismatch() {
         Boolean retVal = false;
-        HouseMemberRoleAssociation domain = getMemberHouseRoleRepository().findByPK(
-                    this);
+        HouseMemberRoleAssociation domain = getMemberHouseRoleRepository().findByPK(this);
         retVal = (!domain.getVersion().equals(this.version));
         return retVal;
     }
@@ -224,7 +287,8 @@ public class HouseMemberRoleAssociation implements Serializable {
     /**
      * Sets the from date.
      *
-     * @param fromDate the new from date
+     * @param fromDate
+     *            the new from date
      */
     public void setFromDate(final Date fromDate) {
         this.fromDate = fromDate;
@@ -242,7 +306,8 @@ public class HouseMemberRoleAssociation implements Serializable {
     /**
      * Sets the to date.
      *
-     * @param toDate the new to date
+     * @param toDate
+     *            the new to date
      */
     public void setToDate(final Date toDate) {
         this.toDate = toDate;
@@ -260,7 +325,8 @@ public class HouseMemberRoleAssociation implements Serializable {
     /**
      * Sets the checks if is sitting.
      *
-     * @param isSitting the new checks if is sitting
+     * @param isSitting
+     *            the new checks if is sitting
      */
     public void setIsSitting(final Boolean isSitting) {
         this.isSitting = isSitting;
@@ -278,7 +344,8 @@ public class HouseMemberRoleAssociation implements Serializable {
     /**
      * Sets the oath date.
      *
-     * @param oathDate the new oath date
+     * @param oathDate
+     *            the new oath date
      */
     public void setOathDate(final Date oathDate) {
         this.oathDate = oathDate;
@@ -296,7 +363,8 @@ public class HouseMemberRoleAssociation implements Serializable {
     /**
      * Sets the constituency.
      *
-     * @param constituency the new constituency
+     * @param constituency
+     *            the new constituency
      */
     public void setConstituency(final Constituency constituency) {
         this.constituency = constituency;
@@ -314,7 +382,8 @@ public class HouseMemberRoleAssociation implements Serializable {
     /**
      * Sets the internal poll date.
      *
-     * @param internalPollDate the new internal poll date
+     * @param internalPollDate
+     *            the new internal poll date
      */
     public void setInternalPollDate(final Date internalPollDate) {
         this.internalPollDate = internalPollDate;
@@ -332,7 +401,8 @@ public class HouseMemberRoleAssociation implements Serializable {
     /**
      * Sets the remarks.
      *
-     * @param remarks the new remarks
+     * @param remarks
+     *            the new remarks
      */
     public void setRemarks(final String remarks) {
         this.remarks = remarks;
@@ -350,7 +420,8 @@ public class HouseMemberRoleAssociation implements Serializable {
     /**
      * Sets the member.
      *
-     * @param member the new member
+     * @param member
+     *            the new member
      */
     public void setMember(final Member member) {
         this.member = member;
@@ -368,7 +439,8 @@ public class HouseMemberRoleAssociation implements Serializable {
     /**
      * Sets the role.
      *
-     * @param role the new role
+     * @param role
+     *            the new role
      */
     public void setRole(final MemberRole role) {
         this.role = role;
@@ -386,34 +458,65 @@ public class HouseMemberRoleAssociation implements Serializable {
     /**
      * Sets the house.
      *
-     * @param house the new house
+     * @param house
+     *            the new house
      */
     public void setHouse(final House house) {
         this.house = house;
     }
 
+    /**
+     * Gets the record index.
+     *
+     * @return the record index
+     */
     public Integer getRecordIndex() {
         return recordIndex;
     }
 
+    /**
+     * Sets the record index.
+     *
+     * @param recordIndex the new record index
+     */
     public void setRecordIndex(final Integer recordIndex) {
         this.recordIndex = recordIndex;
     }
 
+    /**
+     * Gets the version.
+     *
+     * @return the version
+     */
     public Long getVersion() {
         return version;
     }
 
+    /**
+     * Sets the version.
+     *
+     * @param version the new version
+     */
     public void setVersion(final Long version) {
         this.version = version;
     }
 
-	public String getLocale() {
-		return locale;
-	}
+    /**
+     * Gets the locale.
+     *
+     * @return the locale
+     */
+    public String getLocale() {
+        return locale;
+    }
 
-	public void setLocale(final String locale) {
-		this.locale = locale;
-	}
+    /**
+     * Sets the locale.
+     *
+     * @param locale the new locale
+     */
+    public void setLocale(final String locale) {
+        this.locale = locale;
+    }
 
 }
