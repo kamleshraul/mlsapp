@@ -33,7 +33,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 /**
  * The Class MemberPartyAssociation.
- * 
+ *
  * @author amitd
  * @author sandeeps
  * @since v1.0.0
@@ -45,6 +45,7 @@ import org.springframework.transaction.annotation.Transactional;
 @JsonIgnoreProperties({ "member" })
 public class MemberPartyAssociation implements Serializable {
 
+    /** The Constant serialVersionUID. */
     private transient static final long serialVersionUID = 1L;
 
     // ---------------------------------Attributes-------------------------------------------------
@@ -61,6 +62,7 @@ public class MemberPartyAssociation implements Serializable {
     @PrimaryKeyJoinColumn(name = "partyId", referencedColumnName = "id")
     private Party party;
 
+    /** The from date. */
     @Id
     /** The from date. */
     @Temporal(TemporalType.DATE)
@@ -71,6 +73,7 @@ public class MemberPartyAssociation implements Serializable {
     @Temporal(TemporalType.DATE)
     private Date toDate;
 
+    /** The sitting. */
     private Boolean sitting;
 
     /** The record index. */
@@ -81,6 +84,7 @@ public class MemberPartyAssociation implements Serializable {
     @Version
     private Long version;
 
+    /** The member party repository. */
     @Autowired
     private transient MemberPartyRepository memberPartyRepository;
 
@@ -94,8 +98,14 @@ public class MemberPartyAssociation implements Serializable {
     }
 
     // ---------------------------------Domain_Methods----------------------------------------------
+    /**
+     * Gets the member party repository.
+     *
+     * @return the member party repository
+     */
     public static MemberPartyRepository getMemberPartyRepository() {
-        MemberPartyRepository memberPartyRepository = new MemberPartyAssociation().memberPartyRepository;
+        MemberPartyRepository memberPartyRepository =
+                new MemberPartyAssociation().memberPartyRepository;
         if (memberPartyRepository == null) {
             throw new IllegalStateException(
                     "MemberPartyRepository has not been injected in MemberPartyAssociation Domain");
@@ -103,12 +113,24 @@ public class MemberPartyAssociation implements Serializable {
         return memberPartyRepository;
     }
 
+    /**
+     * Find by member id and id.
+     *
+     * @param memberId the member id
+     * @param id the id
+     * @return the member party association
+     */
     @Transactional(readOnly = true)
-    public static MemberPartyAssociation findByMemberIdAndId(Long memberId,
-            int id) {
+    public static MemberPartyAssociation findByMemberIdAndId(final Long memberId,
+            final int id) {
         return getMemberPartyRepository().findByMemberIdAndId(memberId, id);
     }
 
+    /**
+     * Persist.
+     *
+     * @return the member party association
+     */
     @Transactional
     public MemberPartyAssociation persist() {
         memberPartyRepository.save(this);
@@ -116,6 +138,11 @@ public class MemberPartyAssociation implements Serializable {
         return this;
     }
 
+    /**
+     * Merge.
+     *
+     * @return the member party association
+     */
     @Transactional
     public MemberPartyAssociation merge() {
         memberPartyRepository.merge(this);
@@ -123,21 +150,43 @@ public class MemberPartyAssociation implements Serializable {
         return this;
     }
 
+    /**
+     * Removes the.
+     *
+     * @return true, if successful
+     */
     @Transactional
     public boolean remove() {
         return memberPartyRepository.remove(this);
     }
 
+    /**
+     * Find highest record index.
+     *
+     * @param member the member
+     * @return the int
+     */
     @Transactional(readOnly = true)
-    public static int findHighestRecordIndex(Long member) {
+    public static int findHighestRecordIndex(final Long member) {
         return getMemberPartyRepository().findHighestRecordIndex(member);
     }
 
+    /**
+     * Find by pk.
+     *
+     * @param association the association
+     * @return the member party association
+     */
     public static MemberPartyAssociation findByPK(
-            MemberPartyAssociation association) {
+            final MemberPartyAssociation association) {
         return getMemberPartyRepository().findByPK(association);
     }
 
+    /**
+     * Checks if is duplicate.
+     *
+     * @return the boolean
+     */
     public Boolean isDuplicate() {
         MemberPartyAssociation duplicate = MemberPartyAssociation
                 .findByPK(this);
@@ -146,11 +195,18 @@ public class MemberPartyAssociation implements Serializable {
         }
         return true;
     }
+
+
+    /**
+     * Checks if is version mismatch.
+     *
+     * @return true, if is version mismatch
+     */
     @Transactional(readOnly = true)
     public boolean isVersionMismatch() {
         Boolean retVal = false;
         MemberPartyAssociation domain = getMemberPartyRepository().findByPK(
-                    this);
+                this);
         retVal = (!domain.getVersion().equals(this.version));
         return retVal;
     }
@@ -159,7 +215,7 @@ public class MemberPartyAssociation implements Serializable {
 
     /**
      * Gets the member.
-     * 
+     *
      * @return the member
      */
     public Member getMember() {
@@ -168,16 +224,16 @@ public class MemberPartyAssociation implements Serializable {
 
     /**
      * Sets the member.
-     * 
+     *
      * @param member the new member
      */
-    public void setMember(Member member) {
+    public void setMember(final Member member) {
         this.member = member;
     }
 
     /**
      * Gets the party.
-     * 
+     *
      * @return the party
      */
     public Party getParty() {
@@ -186,16 +242,16 @@ public class MemberPartyAssociation implements Serializable {
 
     /**
      * Sets the party.
-     * 
+     *
      * @param party the new party
      */
-    public void setParty(Party party) {
+    public void setParty(final Party party) {
         this.party = party;
     }
 
     /**
      * Gets the from date.
-     * 
+     *
      * @return the from date
      */
     public Date getFromDate() {
@@ -204,16 +260,16 @@ public class MemberPartyAssociation implements Serializable {
 
     /**
      * Sets the from date.
-     * 
+     *
      * @param fromDate the new from date
      */
-    public void setFromDate(Date fromDate) {
+    public void setFromDate(final Date fromDate) {
         this.fromDate = fromDate;
     }
 
     /**
      * Gets the to date.
-     * 
+     *
      * @return the to date
      */
     public Date getToDate() {
@@ -222,34 +278,64 @@ public class MemberPartyAssociation implements Serializable {
 
     /**
      * Sets the to date.
-     * 
+     *
      * @param toDate the new to date
      */
-    public void setToDate(Date toDate) {
+    public void setToDate(final Date toDate) {
         this.toDate = toDate;
     }
 
+    /**
+     * Gets the sitting.
+     *
+     * @return the sitting
+     */
     public Boolean getSitting() {
         return sitting;
     }
 
-    public void setSitting(Boolean sitting) {
+    /**
+     * Sets the sitting.
+     *
+     * @param sitting the new sitting
+     */
+    public void setSitting(final Boolean sitting) {
         this.sitting = sitting;
     }
 
+    /**
+     * Gets the record index.
+     *
+     * @return the record index
+     */
     public Integer getRecordIndex() {
         return recordIndex;
     }
 
-    public void setRecordIndex(Integer recordIndex) {
+    /**
+     * Sets the record index.
+     *
+     * @param recordIndex the new record index
+     */
+    public void setRecordIndex(final Integer recordIndex) {
         this.recordIndex = recordIndex;
     }
 
+    /**
+     * Gets the version.
+     *
+     * @return the version
+     */
     public Long getVersion() {
         return version;
     }
 
-    public void setVersion(Long version) {
+    /**
+     * Sets the version.
+     *
+     * @param version the new version
+     */
+    public void setVersion(final Long version) {
         this.version = version;
     }
 
