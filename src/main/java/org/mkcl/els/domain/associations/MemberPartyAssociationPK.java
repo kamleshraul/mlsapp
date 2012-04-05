@@ -17,7 +17,7 @@ import org.mkcl.els.domain.Party;
 
 /**
  * The Class MemberPartyAssociationPK.
- * 
+ *
  * @author amitd
  * @author sandeeps
  * @since v1.0.0
@@ -27,17 +27,21 @@ public class MemberPartyAssociationPK implements Serializable {
     /** The Constant serialVersionUID. */
     private static final long serialVersionUID = 1L;
 
+    /** The member. */
     private Member member;
 
+    /** The party. */
     private Party party;
 
+    /** The from date. */
     private Date fromDate;
 
+    /** The to date. */
     private Date toDate;
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see java.lang.Object#hashCode()
      */
     @Override
@@ -48,11 +52,11 @@ public class MemberPartyAssociationPK implements Serializable {
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see java.lang.Object#equals(java.lang.Object)
      */
     @Override
-    public boolean equals(Object object) {
+    public boolean equals(final Object object) {
         if (object instanceof MemberPartyAssociationPK) {
             MemberPartyAssociationPK memberPartyAssociationPK = (MemberPartyAssociationPK) object;
             return (memberPartyAssociationPK.member == this.member)
