@@ -22,10 +22,9 @@ import org.mkcl.els.repository.MemberRoleRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Configurable;
 
-// TODO: Auto-generated Javadoc
 /**
  * The Class MemberRole.
- * 
+ *
  * @author amitd
  * @author sandeeps
  * @since v1.0.0
@@ -53,10 +52,12 @@ public class MemberRole extends BaseDomain implements Serializable {
     /** The priority. */
     private Integer priority;
 
+    /** The house type. */
     @ManyToOne
     @JoinColumn(name = "housetype_id")
     private HouseType houseType;
 
+    /** The member role repository. */
     @Autowired
     private transient MemberRoleRepository memberRoleRepository;
 
@@ -71,12 +72,13 @@ public class MemberRole extends BaseDomain implements Serializable {
 
     /**
      * Instantiates a new member role.
-     * 
+     *
      * @param name the name
      * @param priority the priority
+     * @param houseType the house type
      */
 
-    public MemberRole(String name, Integer priority, HouseType houseType) {
+    public MemberRole(final String name, final Integer priority, final HouseType houseType) {
         super();
         this.name = name;
         this.priority = priority;
@@ -84,6 +86,11 @@ public class MemberRole extends BaseDomain implements Serializable {
     }
 
     // -------------------------------Domain_Methods--------------------------
+    /**
+     * Gets the member role repository.
+     *
+     * @return the member role repository
+     */
     public static MemberRoleRepository getMemberRoleRepository() {
         MemberRoleRepository memberRoleRepository = new MemberRole().memberRoleRepository;
         if (memberRoleRepository == null) {
@@ -93,8 +100,16 @@ public class MemberRole extends BaseDomain implements Serializable {
         return memberRoleRepository;
     }
 
-    public static MemberRole findByNameHouseTypeLocale(String roleName,
-            Long houseTypeId, String locale) {
+    /**
+     * Find by name house type locale.
+     *
+     * @param roleName the role name
+     * @param houseTypeId the house type id
+     * @param locale the locale
+     * @return the member role
+     */
+    public static MemberRole findByNameHouseTypeLocale(final String roleName,
+            final Long houseTypeId, final String locale) {
         return getMemberRoleRepository().findByNameHouseTypeLocale(roleName,
                 houseTypeId, locale);
     }
@@ -102,7 +117,7 @@ public class MemberRole extends BaseDomain implements Serializable {
     // ------------------------------------------Getters/Setters-----------------------------------
     /**
      * Gets the name.
-     * 
+     *
      * @return the name
      */
     public String getName() {
@@ -111,16 +126,16 @@ public class MemberRole extends BaseDomain implements Serializable {
 
     /**
      * Sets the name.
-     * 
+     *
      * @param name the new name
      */
-    public void setName(String name) {
+    public void setName(final String name) {
         this.name = name;
     }
 
     /**
      * Gets the priority.
-     * 
+     *
      * @return the priority
      */
     public Integer getPriority() {
@@ -129,18 +144,28 @@ public class MemberRole extends BaseDomain implements Serializable {
 
     /**
      * Sets the priority.
-     * 
+     *
      * @param priority the new priority
      */
-    public void setPriority(Integer priority) {
+    public void setPriority(final Integer priority) {
         this.priority = priority;
     }
 
+    /**
+     * Gets the house type.
+     *
+     * @return the house type
+     */
     public HouseType getHouseType() {
         return houseType;
     }
 
-    public void setHouseType(HouseType houseType) {
+    /**
+     * Sets the house type.
+     *
+     * @param houseType the new house type
+     */
+    public void setHouseType(final HouseType houseType) {
         this.houseType = houseType;
     }
 
