@@ -54,9 +54,9 @@ public class GridController extends GenericController<Grid> {
     @RequestMapping(value = "/{gridId}/meta", method = RequestMethod.GET)
     public @ResponseBody
     GridConfig getConfig(@PathVariable final Long gridId,
-                         final ModelMap model,
-                         final HttpServletRequest request)
-            throws ClassNotFoundException {
+            final ModelMap model,
+            final HttpServletRequest request)
+                    throws ClassNotFoundException {
         return Grid.getConfig(gridId);
     }
 
@@ -85,28 +85,28 @@ public class GridController extends GenericController<Grid> {
     @RequestMapping(value = "/data/{gridId}", method = RequestMethod.GET)
     public @ResponseBody
     GridData get(@PathVariable final Long gridId,
-                 @RequestParam(value = "page", required = false) final Integer page,
-                 @RequestParam(value = "rows", required = false) final Integer rows,
-                 @RequestParam(value = "sidx", required = false) final String sidx,
-                 @RequestParam(value = "sord", required = false) final String order,
-                 @RequestParam(value = "_search", required = false) final Boolean search,
-                 @RequestParam(value = "searchField", required = false) final String searchField,
-                 @RequestParam(value = "searchString", required = false) final String searchString,
-                 @RequestParam(value = "searchOper", required = false) final String searchOper,
-                 @RequestParam(value = "filters", required = false) final String filtersData,
-                 @RequestParam(value = "baseFilters", required = false) final String baseFilters,
-                 final ModelMap model,
-                 final HttpServletRequest request,
-                 final Locale locale) throws ClassNotFoundException {
-    	//Adding support for dynamic parameters in where clause of grid count and select query
-    	Map<String,String[]> requestMap=request.getParameterMap();
+            @RequestParam(value = "page", required = false) final Integer page,
+            @RequestParam(value = "rows", required = false) final Integer rows,
+            @RequestParam(value = "sidx", required = false) final String sidx,
+            @RequestParam(value = "sord", required = false) final String order,
+            @RequestParam(value = "_search", required = false) final Boolean search,
+            @RequestParam(value = "searchField", required = false) final String searchField,
+            @RequestParam(value = "searchString", required = false) final String searchString,
+            @RequestParam(value = "searchOper", required = false) final String searchOper,
+            @RequestParam(value = "filters", required = false) final String filtersData,
+            @RequestParam(value = "baseFilters", required = false) final String baseFilters,
+            final ModelMap model,
+            final HttpServletRequest request,
+            final Locale locale) throws ClassNotFoundException {
+        //Adding support for dynamic parameters in where clause of grid count and select query
+        Map<String, String[]> requestMap = request.getParameterMap();
         Filter filter = Filter.create(filtersData);
-        GridData gridData=new GridData();
+        GridData gridData = new GridData();
         if (search) {
-             gridData=gridService.getData(
-                    gridId, rows, page, sidx, order, filter.toSQl(), locale,requestMap);
+            gridData = gridService.getData(
+                    gridId, rows, page, sidx, order, filter.toSQl(), locale, requestMap);
         } else {
-            gridData= gridService.getData(gridId, rows, page, sidx, order, locale,requestMap);
+            gridData = gridService.getData(gridId, rows, page, sidx, order, locale, requestMap);
         }
         return gridData;
     }
