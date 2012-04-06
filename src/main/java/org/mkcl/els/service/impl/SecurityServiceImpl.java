@@ -70,7 +70,9 @@ public class SecurityServiceImpl implements UserDetailsService {
     	            	houseType=ApplicationConstants.UPPER_HOUSE;
     	            }else if(role.getName().equals("DATA_ENTRY_OPERATOR_BOTHHOUSE")||role.getName().equals("ADMIN_BOTHHOUSE")){
     	            	houseType=ApplicationConstants.BOTH_HOUSE;
-    	            }
+    	            }else if(role.getName().equals("DATA_ENTRY_OPERATOR_DEFAULTHOUSE")||role.getName().equals("ADMIN_DEFAULTHOUSE")){
+                        houseType=ApplicationConstants.DEFAULT_HOUSE;
+                    }
     	        }
     	        credential.setLastLoginTime(new Date());
     	        credential.merge();
