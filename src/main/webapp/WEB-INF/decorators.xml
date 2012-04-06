@@ -70,7 +70,92 @@
 		<pattern>/member/other/new</pattern>
 		<pattern>/member/other/*/edit</pattern>
 		<pattern>/member/other/*/delete</pattern>
-		<pattern>/member/other</pattern>					
+		<pattern>/member/other</pattern>
+		
+		<pattern>/sessiontype/new</pattern>
+		<pattern>/sessiontype/*/edit</pattern>
+		<pattern>/sessiontype/*/delete</pattern>
+		<pattern>/sessiontype</pattern>	
+		
+		<pattern>/division/new</pattern>
+		<pattern>/division/*/edit</pattern>
+		<pattern>/division/*/delete</pattern>
+		<pattern>/division</pattern>	
+		
+		<pattern>/degree/new</pattern>
+		<pattern>/degree/*/edit</pattern>
+		<pattern>/degree/*/delete</pattern>
+		<pattern>/degree</pattern>	
+		
+		<pattern>/language/new</pattern>
+		<pattern>/language/*/edit</pattern>
+		<pattern>/language/*/delete</pattern>
+		<pattern>/language</pattern>	
+		
+		<pattern>/ministry/new</pattern>
+		<pattern>/ministry/*/edit</pattern>
+		<pattern>/ministry/*/delete</pattern>
+		<pattern>/ministry</pattern>	
+		
+		<pattern>/housetype/new</pattern>
+		<pattern>/housetype/*/edit</pattern>
+		<pattern>/housetype/*/delete</pattern>
+		<pattern>/housetype</pattern>
+		
+		<pattern>/electiontype/new</pattern>
+		<pattern>/electiontype/*/edit</pattern>
+		<pattern>/electiontype/*/delete</pattern>
+		<pattern>/electiontype</pattern>
+		
+		<pattern>/maritalstatus/new</pattern>
+		<pattern>/maritalstatus/*/edit</pattern>
+		<pattern>/maritalstatus/*/delete</pattern>
+		<pattern>/maritalstatus</pattern>	
+		
+		<pattern>/profession/new</pattern>
+		<pattern>/profession/*/edit</pattern>
+		<pattern>/profession/*/delete</pattern>
+		<pattern>/profession</pattern>	
+		
+		<pattern>/religion/new</pattern>
+		<pattern>/religion/*/edit</pattern>
+		<pattern>/religion/*/delete</pattern>
+		<pattern>/religion</pattern>
+		
+		<pattern>/reservation/new</pattern>
+		<pattern>/reservation/*/edit</pattern>
+		<pattern>/reservation/*/delete</pattern>
+		<pattern>/reservation</pattern>
+		
+		<pattern>/sessionplace/new</pattern>
+		<pattern>/sessionplace/*/edit</pattern>
+		<pattern>/sessionplace/*/delete</pattern>
+		<pattern>/sessionplace</pattern>
+		
+		<pattern>/relation/new</pattern>
+		<pattern>/relation/*/edit</pattern>
+		<pattern>/relation/*/delete</pattern>
+		<pattern>/relation</pattern>
+			
+		<pattern>/house/new</pattern>
+		<pattern>/house/*/edit</pattern>
+		<pattern>/house/*/delete</pattern>
+		<pattern>/house</pattern>
+		
+		<pattern>/session/new</pattern>
+		<pattern>/session/*/edit</pattern>
+		<pattern>/session/*/delete</pattern>
+		<pattern>/session/</pattern>
+		
+		<pattern>/airport/new</pattern>
+		<pattern>/airport/*/edit</pattern>
+		<pattern>/airport/*/delete</pattern>
+		<pattern>/airport</pattern>
+		
+		<pattern>/railwaystation/new</pattern>
+		<pattern>/railwaystation/*/edit</pattern>
+		<pattern>/railwaystation/*/delete</pattern>
+		<pattern>/railwaystation</pattern>					
 				
     </decorator>
     <decorator name="mnu_form" page="mnu_form.jsp">
