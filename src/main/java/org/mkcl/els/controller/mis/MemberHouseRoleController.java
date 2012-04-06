@@ -1,6 +1,7 @@
 package org.mkcl.els.controller.mis;
 
 import java.text.SimpleDateFormat;
+import java.util.List;
 import java.util.Locale;
 
 import javax.servlet.http.HttpServletRequest;
@@ -51,7 +52,7 @@ public class MemberHouseRoleController extends BaseController {
             final HttpServletRequest request) {
         final String urlPattern = request.getServletPath().split("\\/")[1];
         HouseMemberRoleAssociation domain = new HouseMemberRoleAssociation();
-        populateNew(model, domain, locale, request);
+        populateNew(model, domain, locale.toString(), request);
         model.addAttribute("domain", domain);
         model.addAttribute("urlPattern", urlPattern);
         return "mis/house/new";
@@ -135,29 +136,21 @@ public class MemberHouseRoleController extends BaseController {
     }
 
     protected void populateNew(final ModelMap model,
-            final HouseMemberRoleAssociation domain, final Locale locale,
+            final HouseMemberRoleAssociation domain, final String locale,
             final HttpServletRequest request) {
         domain.setIsSitting(true);
         String houseType = this.getCurrentUser().getHouseType();
-        HouseType authUserHouseType = HouseType.findByFieldName(
-                HouseType.class, "type", houseType, locale.toString());
-        model.addAttribute("houseType", authUserHouseType);
-        model.addAttribute("houses", House.findAllByFieldName(House.class,
-                "type", authUserHouseType, "formationDate",
-                ApplicationConstants.DESC, locale.toString()));
-        model.addAttribute("roles", MemberRole.findAllByFieldName(
-                MemberRole.class, "houseType", authUserHouseType, "name",
-                ApplicationConstants.ASC, locale.toString()));
+        model.addAttribute("houseType",houseType);
+        List<House> houses=House.findByHouseType(houseType,locale.toString());
+        model.addAttribute("houses",houses);        
+        List<MemberRole> memberRoles=MemberRole.findByHouseType(houseType,locale.toString());
+        model.addAttribute("roles",memberRoles);        
         Long member = Long.parseLong(request.getParameter("member"));
-        model.addAttribute("member", member);
-        House currentHouse = House.findCurrentHouse(locale.toString());
-        if (currentHouse != null && houseType.equals("lowerhouse")) {
-            domain.setFromDate(currentHouse.getFirstDate());
-            domain.setToDate(currentHouse.getLastDate());
-        }
-        //algorithm for getting constituencies
-        //1.if deafult state is set then get by default state ,house type and locale
-        //2.if no default state is set then get list of all constituencies by housetype and locale
+        model.addAttribute("member", member);        
+        //since we are arranging the houses by formation date in descending order so houses[0] will
+        //refer to the current house provided info for current house is set.
+        domain.setFromDate(houses.get(0).getFirstDate());
+        domain.setToDate(houses.get(0).getLastDate());         
         String defaultState=((CustomParameter)CustomParameter.findByName(CustomParameter.class,"DEFAULT_STATE",locale.toString())).getValue();
         model.addAttribute("constituencies",Constituency.findByDefaultStateAndHouseType(defaultState, houseType, locale.toString(), "name",ApplicationConstants.ASC));
         // setting the value of the recordIndex field
@@ -169,19 +162,20 @@ public class MemberHouseRoleController extends BaseController {
     private void populateEdit(final ModelMap model,
             final HouseMemberRoleAssociation domain,
             final HttpServletRequest request, String locale) {
-        String houseType = this.getCurrentUser().getHouseType();
-        HouseType authUserHouseType = HouseType.findByFieldName(
-                HouseType.class, "type", houseType, locale);
-        model.addAttribute("houseType", authUserHouseType);
-        model.addAttribute("houses", House.findAllByFieldName(House.class,
-                "type", authUserHouseType, "formationDate",
-                ApplicationConstants.DESC, locale));
-        model.addAttribute("roles", MemberRole.findAllByFieldName(
-                MemberRole.class, "houseType", authUserHouseType, "name",
-                ApplicationConstants.ASC, locale));
-        model.addAttribute("member", request.getSession()
-                .getAttribute("member"));
+    	String houseType = this.getCurrentUser().getHouseType();
+        model.addAttribute("houseType",houseType);
+        List<House> houses=House.findByHouseType(houseType,locale.toString());
+        model.addAttribute("houses",houses);        
+        List<MemberRole> memberRoles=MemberRole.findByHouseType(houseType,locale.toString());
+        model.addAttribute("roles",memberRoles);        
+        Long member = (Long) request.getSession()
+                .getAttribute("member");
         request.getSession().removeAttribute("member");
+        model.addAttribute("member", member);        
+        //since we are arranging the houses by formation date in descending order so houses[0] will
+        //refer to the current house provided info for current house is set.
+        domain.setFromDate(houses.get(0).getFirstDate());
+        domain.setToDate(houses.get(0).getLastDate());         
         String defaultState=((CustomParameter)CustomParameter.findByName(CustomParameter.class,"DEFAULT_STATE",locale.toString())).getValue();
         model.addAttribute("constituencies",Constituency.findByDefaultStateAndHouseType(defaultState, houseType, locale.toString(), "name",ApplicationConstants.ASC));
     }
@@ -189,40 +183,13 @@ public class MemberHouseRoleController extends BaseController {
     private void poulateCreateIfErrors(ModelMap model,
             HouseMemberRoleAssociation domain, HttpServletRequest request,
             String locale) {
-        String houseType = this.getCurrentUser().getHouseType();
-        HouseType authUserHouseType = HouseType.findByFieldName(
-                HouseType.class, "type", houseType, locale.toString());
-        model.addAttribute("houseType", authUserHouseType);
-        model.addAttribute("houses", House.findAllByFieldName(House.class,
-                "type", authUserHouseType, "formationDate",
-                ApplicationConstants.DESC, locale.toString()));
-        model.addAttribute("roles", MemberRole.findAllByFieldName(
-                MemberRole.class, "houseType", authUserHouseType, "name",
-                ApplicationConstants.ASC, locale.toString()));
-        Long member = Long.parseLong(request.getParameter("member"));
-        model.addAttribute("member", member);
-        String defaultState=((CustomParameter)CustomParameter.findByName(CustomParameter.class,"DEFAULT_STATE",locale.toString())).getValue();
-        model.addAttribute("constituencies",Constituency.findByDefaultStateAndHouseType(defaultState, houseType, locale.toString(), "name",ApplicationConstants.ASC));
-
+        populateNew(model, domain,locale,request);
     }
 
     private void poulateUpdateIfErrors(ModelMap model,
             HouseMemberRoleAssociation domain, HttpServletRequest request,
             String locale) {
-        String houseType = this.getCurrentUser().getHouseType();
-        HouseType authUserHouseType = HouseType.findByFieldName(
-                HouseType.class, "type", houseType, locale);
-        model.addAttribute("houseType", authUserHouseType);
-        model.addAttribute("houses", House.findAllByFieldName(House.class,
-                "type", authUserHouseType, "formationDate",
-                ApplicationConstants.DESC, locale));
-        model.addAttribute("roles", MemberRole.findAllByFieldName(
-                MemberRole.class, "houseType", authUserHouseType, "name",
-                ApplicationConstants.ASC, locale));
-        Long member = Long.parseLong(request.getParameter("member"));
-        model.addAttribute("member", member);
-        String defaultState=((CustomParameter)CustomParameter.findByName(CustomParameter.class,"DEFAULT_STATE",locale.toString())).getValue();
-        model.addAttribute("constituencies",Constituency.findByDefaultStateAndHouseType(defaultState, houseType, locale.toString(), "name",ApplicationConstants.ASC));
+    	populateNew(model, domain, locale, request);
     }
 
     private void validateCreate(HouseMemberRoleAssociation domain,
