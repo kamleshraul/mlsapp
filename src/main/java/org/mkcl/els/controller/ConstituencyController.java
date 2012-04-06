@@ -12,10 +12,10 @@ package org.mkcl.els.controller;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Locale;
 
 import javax.servlet.http.HttpServletRequest;
 
+import org.mkcl.els.common.util.ApplicationConstants;
 import org.mkcl.els.domain.Airport;
 import org.mkcl.els.domain.Constituency;
 import org.mkcl.els.domain.CustomParameter;
@@ -33,7 +33,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 // TODO: Auto-generated Javadoc
 /**
  * The Class ConstituencyController.
- * 
+ *
  * @author nileshp
  * @since v1.0.0
  */
@@ -43,7 +43,7 @@ public class ConstituencyController extends GenericController<Constituency> {
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see
      * org.mkcl.els.controller.GenericController#populateNew(org.springframework
      * .ui.ModelMap, org.mkcl.els.domain.BaseDomain, java.util.Locale,
@@ -56,12 +56,12 @@ public class ConstituencyController extends GenericController<Constituency> {
                 CustomParameter.class, "DEFAULT_STATE", locale))
                 .getValue();
         domain.setLocale(locale);
-
-        String htype = this.getCurrentUser().getHouseType();
-        HouseType houseType = HouseType.findByFieldName(HouseType.class,
-                "type", htype, locale);
-        model.addAttribute("houseType", houseType.getId());
-
+        
+        //This is not needed as there will be a dropdown to select the house type
+        //String htype = this.getCurrentUser().getHouseType();
+        //HouseType houseType = HouseType.findByFieldName(HouseType.class,
+        //"type", htype, locale);
+        model.addAttribute("houseTypes",HouseType.findAllByFieldName(HouseType.class,"locale",locale, "name", ApplicationConstants.ASC, locale));
         List<State> states = State.findAll(State.class, "name", "asc",
                 locale);
         List<State> newStates = new ArrayList<State>();
@@ -79,19 +79,6 @@ public class ConstituencyController extends GenericController<Constituency> {
         List<District> districts = District.findAllByFieldName(District.class,
                 "division", divisions.get(0), "name", "asc", locale);
         model.addAttribute("districts", districts);
-
-        /*
-         * if (houseType.getId() == 2 || houseType.getId() == 4) { String name =
-         * divisions.get(0).getName(); model.addAttribute("name", name); }
-         */
-
-        // please confirm below commented code before deleting
-        /*
-         * List<ElectionType> electionTypes = ElectionType.findAllByFieldName(
-         * ElectionType.class, "houseType", houseType, "name", "asc",
-         * locale); model.addAttribute("electionTypes",
-         * electionTypes);
-         */
 
         List<Reservation> reservations = Reservation.findAll(Reservation.class,
                 "name", "asc", locale);
@@ -115,7 +102,7 @@ public class ConstituencyController extends GenericController<Constituency> {
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see
      * org.mkcl.els.controller.GenericController#populateEdit(org.springframework
      * .ui.ModelMap, org.mkcl.els.domain.BaseDomain,
@@ -125,10 +112,7 @@ public class ConstituencyController extends GenericController<Constituency> {
     protected void populateEdit(final ModelMap model,
             final Constituency domain, final HttpServletRequest request) {
 
-        model.addAttribute("houseType", domain.getHouseType().getId());
-
-        if ((domain.getHouseType().getId() == 1)
-                || (domain.getHouseType().getId() == 3)) {
+           	model.addAttribute("houseTypes",HouseType.findAllByFieldName(HouseType.class,"locale",domain.getLocale(), "name", ApplicationConstants.ASC,domain.getLocale()));
             if (domain.getDistricts() != null) {
                 String stateName = "";
                 String divisionName = "";
@@ -219,13 +203,13 @@ public class ConstituencyController extends GenericController<Constituency> {
                 newAirports.addAll(Airports);
                 model.addAttribute("airports", newAirports);
                 model.addAttribute("isReserved", domain.getIsReserved());
-            }
+            //}
         }
     }
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see
      * org.mkcl.els.controller.GenericController#customValidateCreate(org.mkcl
      * .els.domain.BaseDomain, org.springframework.validation.BindingResult,
@@ -239,7 +223,7 @@ public class ConstituencyController extends GenericController<Constituency> {
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see
      * org.mkcl.els.controller.GenericController#customValidateUpdate(org.mkcl
      * .els.domain.BaseDomain, org.springframework.validation.BindingResult,
@@ -253,7 +237,7 @@ public class ConstituencyController extends GenericController<Constituency> {
 
     /**
      * Custom validate.
-     * 
+     *
      * @param domain the domain
      * @param result the result
      * @param request the request
