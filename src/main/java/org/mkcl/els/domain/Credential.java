@@ -22,6 +22,7 @@ import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
 import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
+import javax.persistence.Table;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
 
@@ -37,6 +38,7 @@ import org.springframework.beans.factory.annotation.Configurable;
  */
 @Entity
 @Configurable
+@Table(name="credential")
 public class Credential extends BaseDomain implements Serializable {
 
     // ---------------------------------Attributes-------------------------------------------------
@@ -44,7 +46,7 @@ public class Credential extends BaseDomain implements Serializable {
     private transient static final long serialVersionUID = 1L;
 
     /** The username. */
-    @Column(length = 50)
+    @Column(length = 100)
     private String username;
 
     /** The password. */
@@ -52,41 +54,21 @@ public class Credential extends BaseDomain implements Serializable {
     private String password;
 
     /** The enabled. */
-    private boolean enabled;
-
-    /** The member type. */
-    @ManyToMany(fetch = FetchType.LAZY)
-    @JoinTable(name = "associations_credential_housetype", joinColumns = @JoinColumn(
-            name = "credential_id", referencedColumnName = "id"),
-            inverseJoinColumns = @JoinColumn(name = "housetype_id",
-                    referencedColumnName = "id"))
-    private Set<HouseType> houseTypes;
-    //This field needs to be stored to the usertype of the Person object.This will be used to instantiate 
-    //appropriate class type in SecurityServiceImpl.
-    @Column(length=50)
-    private String userType;
+    private boolean enabled;  
+    
+    @Column(length=200)
+    private String email;
 
     /** The roles. */
     @ManyToMany(fetch = FetchType.LAZY)
-    @JoinTable(name = "associations_role_membership", joinColumns = @JoinColumn(
+    @JoinTable(name = "credentials_roles", joinColumns = @JoinColumn(
             name = "credential_id", referencedColumnName = "id"),
             inverseJoinColumns = @JoinColumn(name = "role_id",
                     referencedColumnName = "id"))
-    private Set<Role> roles;
-
-    /** The members. */
-    @OneToMany(mappedBy = "credential")
-    private List<Member> members;
-    
-    //This field will store the locales in which the user can see his information
-    @Column(length=50)
-    private String allowedLocales;
+    private Set<Role> roles;    
     
     @Temporal(TemporalType.TIMESTAMP)
-    private Date lastLoginTime;
-    
-    //This will just refer to lowerhouse and upperhouse and will be independent of locale specific names
-    private String defaultHouseType;
+    private Date lastLoginTime;   
 
     // ---------------------------------Constructors----------------------------------------------
     /**
@@ -96,156 +78,47 @@ public class Credential extends BaseDomain implements Serializable {
         super();
     }
 
-    
-
     public Credential(String username, String password, boolean enabled,
-			Set<HouseType> houseTypes, String userType, Set<Role> roles,
-			List<Member> members, String allowedLocales, Date lastLoginTime,
-			String defaultHouseType) {
+			Set<Role> roles, Date lastLoginTime) {
 		super();
 		this.username = username;
 		this.password = password;
 		this.enabled = enabled;
-		this.houseTypes = houseTypes;
-		this.userType = userType;
 		this.roles = roles;
-		this.members = members;
-		this.allowedLocales = allowedLocales;
 		this.lastLoginTime = lastLoginTime;
-		this.defaultHouseType = defaultHouseType;
 	}
-
-
-
 	// -------------------------------Domain_Methods----------------------------------------------
-
     // ------------------------------------------Getters/Setters-----------------------------------
-
-    public String getDefaultHouseType() {
-		return defaultHouseType;
+	public String getUsername() {
+		return username;
 	}
 
-
-
-	public void setDefaultHouseType(String defaultHouseType) {
-		this.defaultHouseType = defaultHouseType;
+	public void setUsername(String username) {
+		this.username = username;
 	}
 
-
-
-	/**
-     * Gets the username.
-     * 
-     * @return the username
-     */
-    public String getUsername() {
-        return username;
-    }
-
-    /**
-     * Sets the username.
-     * 
-     * @param username the new username
-     */
-    public void setUsername(String username) {
-        this.username = username;
-    }
-
-    /**
-     * Gets the password.
-     * 
-     * @return the password
-     */
-    public String getPassword() {
-        return password;
-    }
-
-    /**
-     * Sets the password.
-     * 
-     * @param password the new password
-     */
-    public void setPassword(String password) {
-        this.password = password;
-    }
-
-    /**
-     * Checks if is enabled.
-     * 
-     * @return true, if is enabled
-     */
-    public boolean isEnabled() {
-        return enabled;
-    }
-
-    /**
-     * Sets the enabled.
-     * 
-     * @param enabled the new enabled
-     */
-    public void setEnabled(boolean enabled) {
-        this.enabled = enabled;
-    }
-
-    /**
-     * Gets the roles.
-     * 
-     * @return the roles
-     */
-    public Set<Role> getRoles() {
-        return roles;
-    }
-
-    /**
-     * Sets the roles.
-     * 
-     * @param roles the new roles
-     */
-    public void setRoles(Set<Role> roles) {
-        this.roles = roles;
-    }
-
-   
-    public Set<HouseType> getHouseTypes() {
-		return houseTypes;
+	public String getPassword() {
+		return password;
 	}
 
-	public void setHouseTypes(Set<HouseType> houseTypes) {
-		this.houseTypes = houseTypes;
+	public void setPassword(String password) {
+		this.password = password;
 	}
 
-	/**
-     * Gets the members.
-     * 
-     * @return the members
-     */
-    public List<Member> getMembers() {
-        return members;
-    }
-
-    /**
-     * Sets the members.
-     * 
-     * @param members the new members
-     */
-    public void setMembers(List<Member> members) {
-        this.members = members;
-    }
-
-	public String getUserType() {
-		return userType;
+	public boolean isEnabled() {
+		return enabled;
 	}
 
-	public void setUserType(String userType) {
-		this.userType = userType;
+	public void setEnabled(boolean enabled) {
+		this.enabled = enabled;
 	}
 
-	public String getAllowedLocales() {
-		return allowedLocales;
+	public Set<Role> getRoles() {
+		return roles;
 	}
 
-	public void setAllowedLocales(String allowedLocales) {
-		this.allowedLocales = allowedLocales;
+	public void setRoles(Set<Role> roles) {
+		this.roles = roles;
 	}
 
 	public Date getLastLoginTime() {
@@ -256,4 +129,11 @@ public class Credential extends BaseDomain implements Serializable {
 		this.lastLoginTime = lastLoginTime;
 	}
 
+	public String getEmail() {
+		return email;
+	}
+
+	public void setEmail(String email) {
+		this.email = email;
+	}	
 }
