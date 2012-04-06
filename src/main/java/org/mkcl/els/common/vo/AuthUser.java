@@ -35,19 +35,14 @@ public class AuthUser extends User {
     private  String firstName;
     
     private  String middleName;
+    
     /** The last name. */
-    private  String lastName;
+    private  String lastName;   
     
-    private String userType;
-
     /** The house type. */
-    private  String houseType;
+    private  String houseType;    
     
-    private String photographTag;
-    
-    private Set<Role> roles;
-    
-    private Long credentialId;
+    private Set<Role> roles;    
 
     /**
      * Instantiates a new auth user.
@@ -67,7 +62,7 @@ public class AuthUser extends User {
             boolean accountNonExpired, boolean credentialsNonExpired,
             boolean accountNonLocked,
             Collection<? extends GrantedAuthority> authorities,
-            String title,String firstName,String middleName, String lastName, String houseType,String photo,Set<Role> roles,Long credentialId) {
+            String title,String firstName,String middleName, String lastName, String houseType,Set<Role> roles) {
         super(username, password, enabled, accountNonExpired,
                 credentialsNonExpired, accountNonLocked, authorities);
         this.title=title;
@@ -75,63 +70,30 @@ public class AuthUser extends User {
         this.middleName=middleName;
         this.lastName = lastName;
         this.houseType = houseType;
-        this.photographTag=photo;
         this.roles=roles;
-        this.credentialId=credentialId;
-    }
-
-    /**
-     * Gets the first name.
-     * 
-     * @return the first name
-     */
-    public String getFirstName() {
-        return firstName;
-    }
-
-    /**
-     * Gets the last name.
-     * 
-     * @return the last name
-     */
-    public String getLastName() {
-        return lastName;
-    }
-
-    /**
-     * Gets the house type.
-     * 
-     * @return the house type
-     */
-    public String getHouseType() {
-        return houseType;
     }
 
 	public String getTitle() {
 		return title;
 	}
 
+	public String getFirstName() {
+		return firstName;
+	}
+
 	public String getMiddleName() {
 		return middleName;
 	}
 
-	public String getUserType() {
-		return userType;
+	public String getLastName() {
+		return lastName;
 	}
 
-	public String getPhotographTag() {
-		return photographTag;
+	public String getHouseType() {
+		return houseType;
 	}
 
 	public Set<Role> getRoles() {
 		return roles;
-	}
-
-	public void setHouseType(String houseType) {
-		this.houseType = houseType;
-	}
-
-	public Long getCredentialId() {
-		return credentialId;
-	}	
-}
+	}    
+ }
