@@ -112,34 +112,8 @@ public class HomeController extends BaseController {
         model.addAttribute("authmiddlename", this.getCurrentUser()
                 .getMiddleName());
         model.addAttribute("authlastname", this.getCurrentUser().getLastName());
-        model.addAttribute("authphoto", this.getCurrentUser()
-                .getPhotographTag());
         model.addAttribute("logintime", new Date());
         model.addAttribute("authhousetype",this.getCurrentUser().getHouseType());
         return "home";
-    }
-
-    @RequestMapping(value = "/change/{housetype}", method = RequestMethod.GET)
-    public @ResponseBody Map<String,String> changeHouseType(Locale locale,ModelMap model,@PathVariable String housetype){
-    	Long credentialId=this.getCurrentUser().getCredentialId();
-    	//String currentHouseType=this.getCurrentUser().getHouseType();
-    	Credential credential=Credential.findById(Credential.class,credentialId);
-    	for(HouseType i:credential.getHouseTypes()){
-    		if(i.getLocale().equals(locale.toString())){
-    			if(i.getType().equals(housetype)){
-    				if(housetype.equals("lowerhouse")){
-    				this.getCurrentUser().setHouseType("lowerhouse");
-    				}else if(housetype.equals("upperhouse")){
-    					this.getCurrentUser().setHouseType("upperhouse");
-    				}
-    			}
-    		}
-    	}
-    	//model.addAttribute("authhousetype",this.getCurrentUser().getHouseType());
-    	Map<String,String> map=new HashMap<String, String>();
-    	map.put("authhousetype",this.getCurrentUser().getHouseType());
-    	return map;
-    }
-    
-    
+    }    
 }
