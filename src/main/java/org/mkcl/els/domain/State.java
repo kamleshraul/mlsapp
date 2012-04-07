@@ -15,7 +15,9 @@ import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Table;
 
+import org.hibernate.validator.constraints.NotEmpty;
 import org.springframework.beans.factory.annotation.Configurable;
+
 
 /**
  * The Class State.
@@ -34,7 +36,8 @@ public class State extends BaseDomain implements Serializable {
     private static final transient long serialVersionUID = 1L;
 
     /** The name. */
-    @Column(length = 100)
+    @Column(length = 100, nullable = false)
+    @NotEmpty
     private String name;
 
     // ---------------------------------Constructors----------------------------------------------
