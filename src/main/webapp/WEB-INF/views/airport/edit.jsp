@@ -54,7 +54,7 @@
 	<form:errors path="version" cssClass="validationError"/>	
 	<p>
 	<label class="small"><spring:message code="airport.state" text="State"/>&nbsp;*</label>
-			<select name="state" id="states">
+			<select name="state" id="states" class="sSelect">
 			<c:forEach items="${states}" var="i">
 			<option value="${i.id}"><c:out value="${i.name}"></c:out></option>
 			</c:forEach>
