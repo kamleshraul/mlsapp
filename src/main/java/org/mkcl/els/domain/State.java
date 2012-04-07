@@ -29,6 +29,8 @@ import org.springframework.beans.factory.annotation.Configurable;
 @Configurable
 @Entity
 @Table(name = "masters_states")
+@org.hibernate.annotations.Cache
+(usage = org.hibernate.annotations.CacheConcurrencyStrategy.READ_WRITE)
 public class State extends BaseDomain implements Serializable {
 
     // ---------------------------------Attributes-------------------------------------------------

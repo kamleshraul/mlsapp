@@ -34,6 +34,8 @@ import org.springframework.transaction.annotation.Transactional;
 @Configurable
 @Entity
 @Table(name = "masters_districts")
+@org.hibernate.annotations.Cache
+(usage = org.hibernate.annotations.CacheConcurrencyStrategy.READ_WRITE)
 public class District extends BaseDomain implements Serializable {
 
     // ---------------------------------Attributes-------------------------------------------------
