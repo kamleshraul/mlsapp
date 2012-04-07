@@ -10,7 +10,6 @@
 package org.mkcl.els.controller;
 
 import java.util.List;
-import java.util.Locale;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -21,10 +20,9 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.RequestMapping;
 
-// TODO: Auto-generated Javadoc
 /**
  * The Class DivisionController.
- * 
+ *
  * @author Dhananjay
  * @since v1.0.0
  */
@@ -32,45 +30,45 @@ import org.springframework.web.bind.annotation.RequestMapping;
 @RequestMapping("/division")
 public class DivisionController extends GenericController<Division> {
 
-	/** The Constant ASC. */
-	private static final String ASC = "asc";
+    /** The Constant ASC. */
+    private static final String ASC = "asc";
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see
-	 * org.mkcl.els.controller.GenericController#populateNew(org.springframework
-	 * .ui.ModelMap, org.mkcl.els.domain.BaseDomain, java.util.Locale,
-	 * javax.servlet.http.HttpServletRequest)
-	 */
-	@Override
-	protected void populateNew(final ModelMap model, final Division domain,
-			final String locale, final HttpServletRequest request) {
-		domain.setLocale(locale);
-		List<State> states = State.findAll(State.class, "name", ASC,
-				locale);
-		model.addAttribute("states", states);
-		String stateName = ((CustomParameter) CustomParameter.findByName(
-				CustomParameter.class, "DEFAULT_STATE", locale))
-				.getValue();
-		State defaultState = State.findByName(State.class, stateName,
-				locale);
-		domain.setState(defaultState);
-	}
+    /*
+     * (non-Javadoc)
+     *
+     * @see
+     * org.mkcl.els.controller.GenericController#populateNew(org.springframework
+     * .ui.ModelMap, org.mkcl.els.domain.BaseDomain, java.util.Locale,
+     * javax.servlet.http.HttpServletRequest)
+     */
+    @Override
+    protected void populateNew(final ModelMap model, final Division domain,
+            final String locale, final HttpServletRequest request) {
+        domain.setLocale(locale);
+        List<State> states = State.findAll(State.class, "name", ASC,
+                locale);
+        model.addAttribute("states", states);
+        String stateName = ((CustomParameter) CustomParameter.findByName(
+                CustomParameter.class, "DEFAULT_STATE", locale))
+                .getValue();
+        State defaultState = State.findByName(State.class, stateName,
+                locale);
+        domain.setState(defaultState);
+    }
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see
-	 * org.mkcl.els.controller.GenericController#populateEdit(org.springframework
-	 * .ui.ModelMap, org.mkcl.els.domain.BaseDomain,
-	 * javax.servlet.http.HttpServletRequest)
-	 */
-	@Override
-	protected void populateEdit(final ModelMap model, final Division domain,
-			final HttpServletRequest request) {
-		List<State> states = State.findAll(State.class, "name", ASC,
-				domain.getLocale());
-		model.addAttribute("states", states);
-	}
+    /*
+     * (non-Javadoc)
+     *
+     * @see
+     * org.mkcl.els.controller.GenericController#populateEdit(org.springframework
+     * .ui.ModelMap, org.mkcl.els.domain.BaseDomain,
+     * javax.servlet.http.HttpServletRequest)
+     */
+    @Override
+    protected void populateEdit(final ModelMap model, final Division domain,
+            final HttpServletRequest request) {
+        List<State> states = State.findAll(State.class, "name", ASC,
+                domain.getLocale());
+        model.addAttribute("states", states);
+    }
 }
