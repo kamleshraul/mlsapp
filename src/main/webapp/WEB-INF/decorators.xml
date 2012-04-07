@@ -16,6 +16,11 @@
 		<pattern>/party/*/edit</pattern>
 		<pattern>/party/*/delete</pattern>
 				
+		<pattern>/division</pattern>
+		<pattern>/division/new</pattern>
+		<pattern>/division/*/edit</pattern>
+		<pattern>/division/*/delete</pattern>	
+		
 		<pattern>/state</pattern>
 		<pattern>/state/new</pattern>
 		<pattern>/state/*/edit</pattern>
