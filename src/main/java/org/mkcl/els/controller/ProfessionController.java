@@ -9,14 +9,8 @@
  */
 package org.mkcl.els.controller;
 
-import java.util.HashMap;
-import java.util.Map;
-
-import javax.servlet.http.HttpServletRequest;
-
 import org.mkcl.els.domain.Profession;
 import org.springframework.stereotype.Controller;
-import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.RequestMapping;
 
 /**
@@ -28,5 +22,4 @@ import org.springframework.web.bind.annotation.RequestMapping;
 @Controller
 @RequestMapping("/profession")
 public class ProfessionController extends GenericController<Profession> {
-	
 }
