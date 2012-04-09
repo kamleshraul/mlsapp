@@ -29,35 +29,6 @@ import org.springframework.transaction.annotation.Transactional;
  */
 public class ElectionTypeTest extends AbstractTest {
 
-//	/**
-//	 * Test find election type by assembly council type id.
-//	 */
-//	@Test
-//	@Transactional
-//	public void testFindElectionTypeByAssemblyCouncilTypeId() {
-//		HouseType assemblycounciltype = new HouseType("testAssemblyCouncilType");
-//		assemblycounciltype.persist();
-//		ElectionType electiontype=new ElectionType("TestElectionType",assemblycounciltype);
-//		electiontype.persist();
-//		List<ElectionType> listelectiontype=ElectionType.findElectionTypeByAssemblyCouncilTypeId(assemblycounciltype.getId(),"electionType","desc");
-//	    Assert.assertNotNull("FInding Election Type  Data  from AssemblyCouncilType Id", listelectiontype);
-//
-//	}
-//
-//	/**
-//	 * Test find election type by assembly council type.
-//	 */
-//	@Test
-//	@Transactional
-//	public void testFindElectionTypeByAssemblyCouncilType() {
-//		HouseType assemblycounciltype = new HouseType("testAssemblyCouncilType");
-//		assemblycounciltype.persist();
-//		ElectionType electiontype=new ElectionType("TestElectionType",assemblycounciltype);
-//		electiontype.persist();
-//		List<ElectionType> listelectiontype=ElectionType.findElectionTypeByAssemblyCouncilType(assemblycounciltype.getType(),"electionType","desc");
-//	    Assert.assertNotNull("FInding Election Type  Data  from AssemblyCouncilType Type", listelectiontype);
-//	}
-
 	/**
 	 * Test persist.
 	 */

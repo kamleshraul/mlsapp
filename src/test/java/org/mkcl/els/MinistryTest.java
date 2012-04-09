@@ -23,7 +23,7 @@ import org.springframework.transaction.annotation.Transactional;
 /**
  * The Class MinistryTest.
  *
- * @author compaq
+ * @author Anand
  * @since v1.0.0
  */
 public class MinistryTest extends AbstractTest {
@@ -47,7 +47,7 @@ public class MinistryTest extends AbstractTest {
 	public void testMerge() {
 		Ministry ministry=new Ministry("testMinistry","tm");
 		ministry.persist();
-		ministry.setDepartment("new Ministry");
+		ministry.setName("new Ministry");
 		ministry.merge();
 	    Assert.assertNotNull("Updated Ministry Data ", ministry);
 	}
@@ -85,7 +85,7 @@ public class MinistryTest extends AbstractTest {
 	public void testFindByFieldName() {
 		Ministry ministry=new Ministry("testMinistry","tm");
 		ministry.persist();
-		Ministry ministry1=Ministry.findByFieldName(Ministry.class, "department","testMinistry" , ministry.getLocale());
+		Ministry ministry1=Ministry.findByFieldName(Ministry.class, "name","testMinistry" , ministry.getLocale());
 		Assert.assertNotNull("Finding Ministry Data  by Field Name", ministry1);
 	}
 
@@ -97,7 +97,7 @@ public class MinistryTest extends AbstractTest {
 	public void testFindAll() {
 		Ministry ministry=new Ministry("testMinistry","tm");
 		ministry.persist();
-		List<Ministry> listMinistry=Ministry.findAll(Ministry.class, "department", "desc",ministry.getLocale());
+		List<Ministry> listMinistry=Ministry.findAll(Ministry.class, "name", "desc",ministry.getLocale());
 		Assert.assertNotNull("Finding Ministry Data ", listMinistry);
 
 	}

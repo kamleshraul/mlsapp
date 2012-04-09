@@ -1,3 +1,12 @@
+/**
+ * See the file LICENSE for redistribution information.
+ *
+ * Copyright (c) 2012 MKCL.  All rights reserved.
+ *
+ * Project: e-Legislature
+ * File: org.mkcl.els.HouseTest.java
+ * Created On: Apr 9, 2012
+ */
 package org.mkcl.els;
 
 import java.text.DecimalFormat;
@@ -15,6 +24,9 @@ import org.springframework.transaction.annotation.Transactional;
 
 public class HouseTest extends AbstractTest{
 
+	/**
+	 * Test persist.
+	 */
 	@Test
 	@Transactional
 	public void testPersist() {
@@ -27,9 +39,7 @@ public class HouseTest extends AbstractTest{
  		DecimalFormatSymbols dfs = df.getDecimalFormatSymbols();
  		dfs.setZeroDigit('\u0966');
  		df.setDecimalFormatSymbols(dfs);
- 		System.out.println(nf.format(Long.parseLong("२८८")));
- 		
-		//house.persist();
+ 		house.persist();
 		Assert.assertNotNull("Saved House Data ",house);
 	}
 
