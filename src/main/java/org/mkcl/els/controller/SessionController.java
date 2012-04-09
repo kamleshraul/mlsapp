@@ -1,6 +1,17 @@
+/**
+ * See the file LICENSE for redistribution information.
+ *
+ * Copyright (c) 2012 MKCL.  All rights reserved.
+ *
+ * Project: e-Legislature
+ * File: org.mkcl.els.controller.SessionController.java
+ * Created On: Apr 6, 2012
+ */
 package org.mkcl.els.controller;
 
 import java.util.ArrayList;
+
+import org.mkcl.els.common.vo.AuthUser;
 import org.mkcl.els.domain.CustomParameter;
 import java.util.HashMap;
 import java.util.List;
@@ -20,75 +31,44 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 
+// TODO: Auto-generated Javadoc
+/**
+ * The Class SessionController.
+ *
+ * @author Anand
+ * @since v1.0.0
+ */
 @Controller
 @RequestMapping("/session")
 public class SessionController extends GenericController<Session> {
 	/** The Constant ASC. */
 	private static final String ASC = "asc"; 
 
-	@RequestMapping(value = "{id}/list", method = RequestMethod.GET)
-	    public String list(@PathVariable final Long id,
-	    					final ModelMap model,
-	                       final Locale locale,
-	                       final HttpServletRequest request,
-	                       final @RequestParam(required = false) String formtype) {
-	        final String urlPattern = request.getServletPath().split("\\/")[1];
-	        Grid grid = Grid.findByDetailView(urlPattern, locale.toString());
-	        model.addAttribute("gridId", grid.getId());
-	        model.addAttribute("urlPattern", urlPattern);
-	        model.addAttribute("houseId",id);
-	        return getURL(urlPattern) + "list";
-	    }
-	
-	private String getURL(final String urlPattern) {
-       String[] urlParts = urlPattern.split("_");
-       StringBuffer buffer = new StringBuffer();
-       for (String i : urlParts) {
-           buffer.append(i + "/");
-       }
-       return buffer.toString();
-
-   }
-	
-	 @RequestMapping(value = "{houseId}/new", method = RequestMethod.GET)
-	    public String newForm(final @PathVariable Long houseId,
-	    						final ModelMap model,
-	                          final Locale locale,
-	                          final HttpServletRequest request) {
-	        final String urlPattern = request.getServletPath().split("\\/")[1];
-	        Session domain = null;
-	        try {
-	        	domain = (Session.class).newInstance();
-	        }
-	        catch (InstantiationException e) {
-	            logger.error(e.getMessage());
-	        }
-	        catch (IllegalAccessException e) {
-	            logger.error(e.getMessage());
-	        }
-	        // ***** Method to be overridden to provide custom implementation *****
-	        populateNew(model, domain, locale, request);
-	        // ********************************************************************
-	        model.addAttribute("domain", domain);
-	        model.addAttribute("urlPattern", urlPattern);
-	        model.addAttribute("houseId",houseId);
-	        return getURL(urlPattern) + "new";
-	    }
-
-	 
-	 	
-	   @Override
+   /* (non-Javadoc)
+    * @see org.mkcl.els.controller.GenericController#customValidateCreate(org.mkcl.els.domain.BaseDomain, org.springframework.validation.BindingResult, javax.servlet.http.HttpServletRequest)
+    */
+   @Override
 	protected void customValidateCreate(final Session domain,
 			final BindingResult result, final HttpServletRequest request) {
 		customValidate(domain, result, request);
 	}
 	
+	/* (non-Javadoc)
+	 * @see org.mkcl.els.controller.GenericController#customValidateUpdate(org.mkcl.els.domain.BaseDomain, org.springframework.validation.BindingResult, javax.servlet.http.HttpServletRequest)
+	 */
 	@Override
 	protected void customValidateUpdate(final Session domain,
 			final BindingResult result, final HttpServletRequest request) {
 		customValidate(domain, result, request);
 	}
 	
+	/**
+	 * Custom validate.
+	 *
+	 * @param sessiondetails the sessiondetails
+	 * @param result the result
+	 * @param request the request
+	 */
 	private void customValidate(final Session sessiondetails,
 			final BindingResult result, final HttpServletRequest request) {
 		new HashMap<String, String>();
@@ -100,59 +80,67 @@ public class SessionController extends GenericController<Session> {
 		}
 	}
 
-	
+	/* (non-Javadoc)
+	 * @see org.mkcl.els.controller.GenericController#populateNew(org.springframework.ui.ModelMap, org.mkcl.els.domain.BaseDomain, java.lang.String, javax.servlet.http.HttpServletRequest)
+	 */
+	@Override
     protected void populateNew(	final ModelMap model,
                                final Session domain,
-                               final Locale locale,
+                               final String locale,
                                final HttpServletRequest request) {
+		domain.setLocale(locale.toString());
 		 String sessiontype = ((CustomParameter) CustomParameter.findByName(
                  CustomParameter.class, "DEFAULT_SESSIONTYPE", locale.toString())).getValue();
+		 SessionType defaultSessionType = SessionType.findByFieldName(SessionType.class, "sessionType", sessiontype, locale.toString());
+		 domain.setType(defaultSessionType);
+	     List<SessionType> sessionTypes = SessionType.findAll(
+	    		   SessionType.class, "sessionType", "asc", locale.toString());
+	     model.addAttribute("sessionType", sessionTypes); 
+	     
     	 String sessionplace = ((CustomParameter) CustomParameter.findByName(
                  CustomParameter.class, "DEFAULT_SESSIONPLACE", locale.toString())).getValue();
-    	 populate(model, domain, locale, request, sessiontype,sessionplace);
+    	 SessionPlace defaultPlace = SessionPlace.findByFieldName(
+	    		   SessionPlace.class, "place", sessionplace, locale.toString());
+    	 domain.setPlace(defaultPlace);
+    	 List<SessionPlace> sessionPlace = SessionPlace.findAll(
+	    		   SessionPlace.class, "place", "asc", locale.toString());
+    	 model.addAttribute("place",sessionPlace);
+    	 
+    	 model.addAttribute("houseId",request.getParameter("houseId"));
     	 
     }
 	
-	
+	/* (non-Javadoc)
+	 * @see org.mkcl.els.controller.GenericController#populateEdit(org.springframework.ui.ModelMap, org.mkcl.els.domain.BaseDomain, javax.servlet.http.HttpServletRequest)
+	 */
+	@Override
     protected void populateEdit(final ModelMap model,
                                 final Session domain,
                                 final HttpServletRequest request) {
-    	String sessiontype = domain.getType().getSessionType();
-    	String sessionplace=domain.getPlace().getPlace();
+		
     	House house=domain.getHouse();
-    	populate(model, domain, new Locale(domain.getLocale()),request,
-    	         sessiontype,sessionplace);
-    	model.addAttribute("houseId", house.getId());
-    	model.addAttribute("session", domain);
-    	 	
-    }
+    	 List<SessionType> sessionTypes = SessionType.findAll(
+	    		   SessionType.class, "sessionType", "asc", domain.getLocale());
+    	 model.addAttribute("sessionType", sessionTypes);
+    	 
+    	 List<SessionPlace> sessionPlace = SessionPlace.findAll(
+	    		   SessionPlace.class, "place", "asc", domain.getLocale());
+    	 model.addAttribute("place",sessionPlace);
+    	 
+    	 model.addAttribute("houseId", house.getId());
+      }
 
 	
-	 protected void populate(final ModelMap model, final Session domain, final Locale locale,
-				final HttpServletRequest request, final String sessiontype,final String sessionplace) {
-			// TODO Auto-generated method stub
-		   domain.setLocale(locale.toString());
-	       List<SessionType> sessionType = SessionType.findAll(
-	    		   SessionType.class, "sessionType", "asc", locale.toString());
-	       SessionType selectedsessions = SessionType.findByFieldName(
-	    		   SessionType.class, "sessionType", sessiontype, locale.toString());
-	       List<SessionType> newsessiontype = new ArrayList<SessionType>();
-	       newsessiontype.add(selectedsessions);
-	       sessionType.remove(selectedsessions);
-	       newsessiontype.addAll(sessionType);
-	       model.addAttribute("sessionType", newsessiontype);
-	       	       
-	       List<SessionPlace> sessionPlace = SessionPlace.findAll(
-	    		   SessionPlace.class, "place", "asc", locale.toString());
-	       SessionPlace selectedplace = SessionPlace.findByFieldName(
-	    		   SessionPlace.class, "place", sessionplace, locale.toString());
-	       List<SessionPlace> newsessionplace = new ArrayList<SessionPlace>();
-	       newsessionplace.add(selectedplace);
-	       sessionPlace.remove(selectedplace);
-	       newsessionplace.addAll(sessionPlace);
-	       model.addAttribute("place",newsessionplace);
-	       
-	     }
+	  
+	 
+	 /* (non-Javadoc)
+ 	 * @see org.mkcl.els.controller.GenericController#populateList(org.springframework.ui.ModelMap, javax.servlet.http.HttpServletRequest, java.lang.String, org.mkcl.els.common.vo.AuthUser)
+ 	 */
+	@Override
+ 	protected void populateList(final ModelMap model, final HttpServletRequest request,
+				final String locale, final AuthUser currentUser) {
+		 model.addAttribute("houseId",request.getParameter("houseId"));
+		}
 
 
 }
