@@ -4,11 +4,6 @@
 <title><spring:message code="degree" text="Degrees" />
 </title>
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-<script type="text/javascript">
-	$('document').ready(function(){	
-		$('#key').val('');	
-	});		
-</script>
 </head>
 <body>
 
