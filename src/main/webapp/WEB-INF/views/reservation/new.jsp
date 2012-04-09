@@ -4,12 +4,6 @@
 <title><spring:message code="reservation" text="Reservation type" />
 </title>
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-<script type="text/javascript">
-	$('document').ready(function(){	
-		initControls();
-		$('#key').val('');	
-	});		
-</script>
 </head>
 <body>
 
@@ -29,14 +23,14 @@
 			<p>
 				<label class="small"><spring:message
 						code="reservation.name" text="Reservation type" />&nbsp;*</label>
-				<form:input cssClass="sSelect " path="name" />
+				<form:input cssClass="sText" path="name" />
 				<form:errors path="name" cssClass="validationError" />
 			</p>
 			
 			<p>
 				<label class="small"><spring:message
 						code="reservation.shortName" text="Short Name" />&nbsp;*</label>
-				<form:input cssClass="sSelect " path="shortName" />
+				<form:input cssClass="sText" path="shortName" />
 				<form:errors path="shortName" cssClass="validationError" />
 			</p>
 			<div class="fields">

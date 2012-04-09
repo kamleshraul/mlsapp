@@ -24,7 +24,7 @@
 	
 	<p>
 	<label class="small"><spring:message code="reservation.name" text="Reservation Type"/>&nbsp;*</label>
-			<form:input cssClass="sSelect" path="name"/>
+			<form:input cssClass="sText" path="name"/>
 			<form:errors path="name" cssClass="validationError"/>	
 	</p>
 	
@@ -32,7 +32,7 @@
 	<p>
 		<label class="small"><spring:message
 						code="reservation.shortName" text="Short Name" />&nbsp;*</label>
-				<form:input cssClass="sSelect " path="shortName" />
+				<form:input cssClass="sText " path="shortName" />
 				<form:errors path="shortName" cssClass="validationError" />
 			</p>
 	
