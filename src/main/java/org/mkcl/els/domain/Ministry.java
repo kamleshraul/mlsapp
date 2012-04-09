@@ -19,6 +19,7 @@ import javax.persistence.Table;
 import org.hibernate.validator.constraints.NotEmpty;
 import org.springframework.beans.factory.annotation.Configurable;
 
+// TODO: Auto-generated Javadoc
 /**
  * The Class Ministry.
  *
@@ -37,7 +38,7 @@ public class Ministry extends BaseDomain implements Serializable {
     /** The name. */
     @Column(length = 600)
     @NotEmpty
-    private String department;
+    private String name;
 
     /** The alias. */
     @Column(length = 200)
@@ -55,12 +56,12 @@ public class Ministry extends BaseDomain implements Serializable {
     /**
      * Instantiates a new ministry.
      *
-     * @param department the department
+     * @param name the name
      * @param alias the alias
      */
-    public Ministry(final String department, final String alias) {
+    public Ministry(final String name, final String alias) {
         super();
-        this.department = department;
+        this.name = name;
         this.alias = alias;
     }
 
@@ -71,17 +72,17 @@ public class Ministry extends BaseDomain implements Serializable {
      *
      * @return the department
      */
-    public String getDepartment() {
-        return department;
+    public String getName() {
+        return name;
     }
 
     /**
      * Sets the department.
      *
-     * @param department the new department
+     * @param name the new name
      */
-    public void setDepartment(final String department) {
-        this.department = department;
+    public void setName(final String name) {
+        this.name = name;
     }
 
     /**
