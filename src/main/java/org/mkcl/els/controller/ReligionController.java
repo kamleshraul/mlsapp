@@ -9,17 +9,10 @@
  */
 package org.mkcl.els.controller;
 
-import java.util.HashMap;
-import java.util.Map;
-
-import javax.servlet.http.HttpServletRequest;
-
 import org.mkcl.els.domain.Religion;
 import org.springframework.stereotype.Controller;
-import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.RequestMapping;
 
-// TODO: Auto-generated Javadoc
 /**
  * The Class ReligionController.
  *
@@ -28,7 +21,5 @@ import org.springframework.web.bind.annotation.RequestMapping;
  */
 @Controller
 @RequestMapping("/religion")
-public class ReligionController extends GenericController<Religion>{
-	
-	
+public class ReligionController extends GenericController<Religion> {
 }
