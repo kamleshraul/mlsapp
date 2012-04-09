@@ -22,5 +22,4 @@ import org.springframework.web.bind.annotation.RequestMapping;
 @Controller
 @RequestMapping("/relation")
 public class RelationController extends GenericController<Relation> {
-
 }
