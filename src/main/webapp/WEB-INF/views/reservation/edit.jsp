@@ -5,12 +5,6 @@
 	<spring:message code="reservation" text="Reservation Types"/>
 	</title>
 	<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>	
-	<script type="text/javascript">
-	$('document').ready(function(){	
-		initControls();
-		$('#key').val('');	
-	});		
-</script>
 </head>
 <body>
 
