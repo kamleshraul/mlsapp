@@ -2,15 +2,9 @@
 <html>
 <head>
 	<title>
-	<spring:message code="sessiontype" text="Sessions"/>
+	<spring:message code="sessiontype" text="Session Types"/>
 	</title>
 	<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>	
-	<script type="text/javascript">
-	$('document').ready(function(){	
-		initControls();
-		$('#key').val('');	
-	});		
-</script>
 </head>
 <body>
 
@@ -24,7 +18,7 @@
 	
 	<p>
 	<label class="small"><spring:message code="sessiontype.sessionType" text="Session type"/>&nbsp;*</label>
-			<form:input cssClass="sSelect" path="sessionType"/>
+			<form:input cssClass="sText" path="sessionType"/>
 			<form:errors path="sessionType" cssClass="validationError"/>	
 	</p>
 	
