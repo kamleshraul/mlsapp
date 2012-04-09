@@ -4,12 +4,7 @@
 <title><spring:message code="sessionplace" text="Session Place" />
 </title>
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-<script type="text/javascript">
-	$('document').ready(function(){	
-		initControls();
-		$('#key').val('');	
-	});		
-</script>
+
 </head>
 <body>
 
@@ -29,7 +24,7 @@
 			<p>
 				<label class="small"><spring:message
 						code="sessionplace.place" text="Session Place" />&nbsp;*</label>
-				<form:input cssClass="sSelect " path="place" />
+				<form:input cssClass="sText" path="place" />
 				<form:errors path="place" cssClass="validationError" />
 			</p>
 			<div class="fields">
