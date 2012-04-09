@@ -9,20 +9,13 @@
  */
 package org.mkcl.els.controller;
 
-import java.util.HashMap;
-import java.util.Map;
-
-import javax.servlet.http.HttpServletRequest;
-
 import org.mkcl.els.domain.Degree;
 import org.springframework.stereotype.Controller;
-import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.RequestMapping;
 
-// TODO: Auto-generated Javadoc
 /**
  * The Class DegreeController.
- * 
+ *
  * @author Anand
  * @since v1.0.0
  */
