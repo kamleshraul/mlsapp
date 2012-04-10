@@ -16,11 +16,6 @@
 		<pattern>/party/*/edit</pattern>
 		<pattern>/party/*/delete</pattern>
 				
-		<pattern>/division</pattern>
-		<pattern>/division/new</pattern>
-		<pattern>/division/*/edit</pattern>
-		<pattern>/division/*/delete</pattern>	
-		
 		<pattern>/state</pattern>
 		<pattern>/state/new</pattern>
 		<pattern>/state/*/edit</pattern>
@@ -75,7 +70,7 @@
 		<pattern>/member/other/new</pattern>
 		<pattern>/member/other/*/edit</pattern>
 		<pattern>/member/other/*/delete</pattern>
-		<pattern>/member/other</pattern>
+		<pattern>/member/other</pattern>	
 		
 		<pattern>/sessiontype/new</pattern>
 		<pattern>/sessiontype/*/edit</pattern>
@@ -160,8 +155,18 @@
 		<pattern>/railwaystation/new</pattern>
 		<pattern>/railwaystation/*/edit</pattern>
 		<pattern>/railwaystation/*/delete</pattern>
-		<pattern>/railwaystation</pattern>					
-				
+		<pattern>/railwaystation</pattern>	
+		
+		<pattern>/department/new</pattern>
+		<pattern>/department/*/edit</pattern>
+		<pattern>/department/*/delete</pattern>
+		<pattern>/department</pattern>	
+		
+		<pattern>/memberrole/new</pattern>
+		<pattern>/memberrole/*/edit</pattern>
+		<pattern>/memberrole/*/delete</pattern>
+		<pattern>/memberrole</pattern>			
+			
     </decorator>
     <decorator name="mnu_form" page="mnu_form.jsp">
 		 <pattern>/menu</pattern>
