@@ -1,3 +1,12 @@
+/**
+ * See the file LICENSE for redistribution information.
+ *
+ * Copyright (c) 2012 MKCL.  All rights reserved.
+ *
+ * Project: e-Legislature
+ * File: org.mkcl.els.controller.mis.MemberContactController.java
+ * Created On: Apr 17, 2012
+ */
 package org.mkcl.els.controller.mis;
 
 import java.util.List;
@@ -21,10 +30,20 @@ import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.WebDataBinder;
 import org.springframework.web.bind.annotation.RequestMapping;
 
+/**
+ * The Class MemberContactController.
+ *
+ * @author amitd
+ * @author sandeeps
+ * @since v1.0.0
+ */
 @Controller
 @RequestMapping("member/contact")
 public class MemberContactController extends GenericController<Member> {
 
+    /* (non-Javadoc)
+     * @see org.mkcl.els.controller.GenericController#populateEdit(org.springframework.ui.ModelMap, org.mkcl.els.domain.BaseDomain, javax.servlet.http.HttpServletRequest)
+     */
     @Override
     protected void populateEdit(final ModelMap model, final Member domain,
             final HttpServletRequest request) {
@@ -94,6 +113,9 @@ public class MemberContactController extends GenericController<Member> {
         domain.getOfficeAddress().setLocale(domain.getLocale());
     }
 
+    /* (non-Javadoc)
+     * @see org.mkcl.els.controller.GenericController#customValidateUpdate(org.mkcl.els.domain.BaseDomain, org.springframework.validation.BindingResult, javax.servlet.http.HttpServletRequest)
+     */
     @Override
     protected void customValidateUpdate(final Member domain,
             final BindingResult result, final HttpServletRequest request) {
@@ -102,6 +124,9 @@ public class MemberContactController extends GenericController<Member> {
         }
     }
 
+    /* (non-Javadoc)
+     * @see org.mkcl.els.controller.GenericController#customInitBinderSuperClass(java.lang.Class, org.springframework.web.bind.WebDataBinder)
+     */
     @Override
     protected <E extends BaseDomain> void customInitBinderSuperClass(
             final Class clazz, final WebDataBinder binder) {
