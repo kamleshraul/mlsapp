@@ -1,11 +1,11 @@
 /**
  * See the file LICENSE for redistribution information.
  *
- * Copyright (c) 2011 MKCL.  All rights reserved.
+ * Copyright (c) 2012 MKCL.  All rights reserved.
  *
- * Project: els
- * File: org.mkcl.els.repository.MemberHouseRoleRepository
- * Created On: Apr 5, 2012
+ * Project: e-Legislature
+ * File: org.mkcl.els.repository.MemberHouseRoleRepository.java
+ * Created On: Apr 17, 2012
  */
 package org.mkcl.els.repository;
 
@@ -22,12 +22,13 @@ import com.trg.search.Search;
 /**
  * The Class MemberHouseRoleRepository.
  *
- * @author vishals
- * @version 1.0.0
+ * @author amitd
+ * @author sandeeps
+ * @since v1.0.0
  */
 @Repository
 public class MemberHouseRoleRepository extends
-BaseRepository<HouseMemberRoleAssociation, Serializable> {
+        BaseRepository<HouseMemberRoleAssociation, Serializable> {
 
     /**
      * Find by member id and id.
@@ -44,7 +45,8 @@ BaseRepository<HouseMemberRoleAssociation, Serializable> {
         try {
             return (HouseMemberRoleAssociation) this.em().createQuery(query)
                     .getSingleResult();
-        } catch (NoResultException e) {
+        }
+        catch (NoResultException e) {
             e.printStackTrace();
             return new HouseMemberRoleAssociation();
         }
@@ -62,10 +64,10 @@ BaseRepository<HouseMemberRoleAssociation, Serializable> {
                 + member + " ORDER BY m.recordIndex desc LIMIT 1";
         List<HouseMemberRoleAssociation> associations = this.em()
                 .createQuery(query).getResultList();
-        if (associations.isEmpty()) {
-            return 0;
-        } else {
-            return associations.get(0).getRecordIndex();
+        if(associations.isEmpty()){
+        	return 0;
+        }else{
+        return associations.get(0).getRecordIndex();
         }
     }
 
@@ -75,7 +77,8 @@ BaseRepository<HouseMemberRoleAssociation, Serializable> {
      * @param association the association
      * @return the house member role association
      */
-    public HouseMemberRoleAssociation findByPK(final HouseMemberRoleAssociation association) {
+    public HouseMemberRoleAssociation findByPK(
+            final HouseMemberRoleAssociation association) {
         Search search = new Search();
         search.addFilterEqual("member", association.getMember());
         search.addFilterEqual("role", association.getRole());
