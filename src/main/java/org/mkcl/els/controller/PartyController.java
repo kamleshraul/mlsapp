@@ -13,6 +13,7 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+
 import javax.servlet.http.HttpServletRequest;
 
 import org.mkcl.els.common.editors.BaseEditor;
@@ -33,8 +34,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 
 /**
  * The Class PartyController.
- * 
- * @author meenalw
+ *
+ * @author dhananjay
  * @since v1.0.0
  */
 @Controller
@@ -43,7 +44,7 @@ public class PartyController extends GenericController<Party> {
 
 	/**
 	 * New form.
-	 * 
+	 *
 	 * @param model
 	 *            the model
 	 * @param party
@@ -63,7 +64,7 @@ public class PartyController extends GenericController<Party> {
 		model.addAttribute(party);
 		String stateName = ((CustomParameter) CustomParameter.findByName(
 				CustomParameter.class, "DEFAULT_STATE", locale.toString()))
-				.getValue();		
+				.getValue();
 		List<State> states = State.findAll(State.class, "name", "asc",
 				locale.toString());
 		List<State> newStates = new ArrayList<State>();
@@ -90,7 +91,7 @@ public class PartyController extends GenericController<Party> {
 
 	/**
 	 * Edits the.
-	 * 
+	 *
 	 * @param model
 	 *            the model
 	 * @param party
@@ -104,53 +105,53 @@ public class PartyController extends GenericController<Party> {
 	protected void populateEdit(final ModelMap model, final Party party,
 			final HttpServletRequest request) {
 		model.addAttribute(party);
-		
+
 		if(party.getRegisteredOfficeAddress()!=null) {
 			String rStateName = "";
-	        String rDistrictName = "";	        
-	        
+	        String rDistrictName = "";
+
 			rStateName = party.getRegisteredOfficeAddress().getState().getName();
-			rDistrictName = party.getRegisteredOfficeAddress().getDistrict().getName();			
-			
+			rDistrictName = party.getRegisteredOfficeAddress().getDistrict().getName();
+
 			List<State> states = State.findAll(State.class, "name", "asc",
-                    party.getLocale());           
+                    party.getLocale());
             State selectedState = State.findByName(State.class, rStateName,
-                    party.getLocale());         
+                    party.getLocale());
             model.addAttribute("statesR", states);
-            
+
             List<District> districts = District.findDistrictsByStateId(selectedState.getId(), "name", "asc", party.getLocale());
             District selectedDistrict = District.findByName(District.class, rDistrictName,
                     party.getLocale());
             model.addAttribute("districtsR", districts);
-            
+
             List<Tehsil> tehsils = Tehsil.findAllByFieldName(Tehsil.class, "district", selectedDistrict, "name", "asc",
-    				party.getLocale());            
-            model.addAttribute("tehsilsR", tehsils);            
+    				party.getLocale());
+            model.addAttribute("tehsilsR", tehsils);
 		}
-		
+
 		if(party.getStateOfficeAddress()!=null) {
 			String sStateName = "";
-	        String sDistrictName = "";	        
-	        
+	        String sDistrictName = "";
+
 			sStateName = party.getStateOfficeAddress().getState().getName();
-			sDistrictName = party.getStateOfficeAddress().getDistrict().getName();			
-			
+			sDistrictName = party.getStateOfficeAddress().getDistrict().getName();
+
 			List<State> states = State.findAll(State.class, "name", "asc",
-                    party.getLocale());           
+                    party.getLocale());
             State selectedState = State.findByName(State.class, sStateName,
-                    party.getLocale());            
+                    party.getLocale());
             model.addAttribute("statesS", states);
-            
+
             List<District> districts = District.findDistrictsByStateId(selectedState.getId(), "name", "asc", party.getLocale());
             District selectedDistrict = District.findByName(District.class, sDistrictName,
                     party.getLocale());
             model.addAttribute("districtsS", districts);
-            
+
             List<Tehsil> tehsils = Tehsil.findAllByFieldName(Tehsil.class, "district", selectedDistrict, "name", "asc",
-    				party.getLocale());            
+    				party.getLocale());
             model.addAttribute("tehsilsS", tehsils);
 		}
-		
+
 //		CustomParameter customParameter = CustomParameter.findByName(
 //				CustomParameter.class, "PHOTO_EXTENSION", null);
 //		model.addAttribute("photoExt", customParameter.getValue());
@@ -158,11 +159,11 @@ public class PartyController extends GenericController<Party> {
 //				CustomParameter.class, "PHOTO_SIZE", null);
 //		model.addAttribute("photoSize",
 //				Long.parseLong(customParameter1.getValue()) * 1024 * 1024);
-		
+
 		int symbolCount = party.getPartySymbols().size();
-		model.addAttribute("symbolCount", symbolCount);		
+		model.addAttribute("symbolCount", symbolCount);
 	}
-	
+
 	@Override
     protected <E extends BaseDomain> void customInitBinderSuperClass(
             final Class clazz, final WebDataBinder binder) {
@@ -175,9 +176,9 @@ public class PartyController extends GenericController<Party> {
         SimpleDateFormat dateFormat = new SimpleDateFormat(parameter.getValue(),this.getUserLocale());
 		dateFormat.setLenient(true);
 		binder.registerCustomEditor(Date.class, new CustomDateEditor(
-				dateFormat, true));		
+				dateFormat, true));
     }
-	
+
 	/**
 	 * Pre validate create.
 	 *
@@ -188,7 +189,7 @@ public class PartyController extends GenericController<Party> {
 	@Override
 	protected void preValidateCreate(final Party domain,
 			final BindingResult result, final HttpServletRequest request) {
-		
+
 		State stateR = State.findById(State.class, domain.getRegisteredOfficeAddress().getState().getId());
         District districtR = District.findById(District.class, domain.getRegisteredOfficeAddress().getDistrict().getId());
         Tehsil tehsilR = Tehsil.findById(Tehsil.class, domain.getRegisteredOfficeAddress().getTehsil().getId());
@@ -197,7 +198,7 @@ public class PartyController extends GenericController<Party> {
         domain.getRegisteredOfficeAddress().setTehsil(tehsilR);
         domain.getRegisteredOfficeAddress().setLocale(domain.getLocale());
         domain.getRegisteredOfficeAddress().persist();
-        
+
         State stateS = State.findById(State.class, domain.getStateOfficeAddress().getState().getId());
         District districtS = District.findById(District.class, domain.getStateOfficeAddress().getDistrict().getId());
         Tehsil tehsilS = Tehsil.findById(Tehsil.class, domain.getStateOfficeAddress().getTehsil().getId());
@@ -205,42 +206,42 @@ public class PartyController extends GenericController<Party> {
         domain.getStateOfficeAddress().setDistrict(districtS);
         domain.getStateOfficeAddress().setTehsil(tehsilS);
         domain.getStateOfficeAddress().setLocale(domain.getLocale());
-        domain.getStateOfficeAddress().persist(); 
-        
-        domain.getContact().setLocale(domain.getLocale());        
+        domain.getStateOfficeAddress().persist();
+
+        domain.getContact().setLocale(domain.getLocale());
         domain.getContact().persist();
-        
+
         int symbolCount = Integer.parseInt(request.getParameter("symbolCount"));
         List<PartySymbol> partySymbols = new ArrayList<PartySymbol>();
         domain.setPartySymbols(partySymbols);
         for(int i=1; i<=symbolCount; i++) {
         	PartySymbol ps = new PartySymbol();
-            ps.setSymbol(request.getParameter("symbol"+i));  
-            DateFormater toDate = new DateFormater();            
+            ps.setSymbol(request.getParameter("symbol"+i));
+            DateFormater toDate = new DateFormater();
             ps.setChangeDate(toDate.formatStringToDate((request.getParameter("changeDate"+i)), "dd/MM/yyyy"));
             ps.setLocale(domain.getLocale());
             partySymbols.add(ps);
             //ps.persist();
-        }       
-	}	
-	
+        }
+	}
+
 	@Override
 	protected void preValidateUpdate(final Party domain,
-			final BindingResult result, final HttpServletRequest request) {        
-        int symbolCount = Integer.parseInt(request.getParameter("symbolCount"));        
+			final BindingResult result, final HttpServletRequest request) {
+        int symbolCount = Integer.parseInt(request.getParameter("symbolCount"));
         List<PartySymbol> partySymbols = new ArrayList<PartySymbol>();
         domain.setPartySymbols(partySymbols);
         for(int i=1; i<=symbolCount; i++) {
         	if(request.getParameter("symbol"+i)!=null) {
         		PartySymbol ps = new PartySymbol();
-        		ps.setSymbol(request.getParameter("symbol"+i));  
-        		DateFormater toDate = new DateFormater();            
+        		ps.setSymbol(request.getParameter("symbol"+i));
+        		DateFormater toDate = new DateFormater();
         		ps.setChangeDate(toDate.formatStringToDate((request.getParameter("changeDate"+i)), "dd/MM/yyyy"));
         		ps.setLocale(domain.getLocale());
-            partySymbols.add(ps); 
+            partySymbols.add(ps);
         	}
-        }  
-        
-	}	
-	
+        }
+
+	}
+
 }
