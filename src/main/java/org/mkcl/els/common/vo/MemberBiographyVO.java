@@ -12,6 +12,7 @@ package org.mkcl.els.common.vo;
 import java.util.List;
 
 
+// TODO: Auto-generated Javadoc
 /**
  * The Class MemberBiographyVO.
  * @author amitd
@@ -122,80 +123,160 @@ public class MemberBiographyVO {
     /** The other info. */
     private String otherInfo;
 
+    /** The educational cul act. */
     private String educationalCulAct;
     /** The locale. */
     private String locale;
 
+    /** The languages known. */
     private String languagesKnown;
 
+    /** The website. */
     private String website;
 
+    /** The fax. */
     private String fax;
 
+    /** The mobile. */
     private String mobile;
 
+    /** The telephone. */
     private String telephone;
 
+    /** The office address. */
     private String officeAddress;
 
+    /** The valid votes. */
     private String validVotes;
 
+    /** The votes received. */
     private String votesReceived;
 
+    /** The rival members. */
     private List<RivalMemberVO> rivalMembers;
 
+    /**
+     * Gets the educational cul act.
+     *
+     * @return the educational cul act
+     */
     public String getEducationalCulAct() {
 		return educationalCulAct;
 	}
 
+	/**
+	 * Sets the educational cul act.
+	 *
+	 * @param educationalCulAct the new educational cul act
+	 */
 	public void setEducationalCulAct(final String educationalCulAct) {
 		this.educationalCulAct = educationalCulAct;
 	}
 
+	/**
+	 * Gets the office address.
+	 *
+	 * @return the office address
+	 */
 	public String getOfficeAddress() {
 		return officeAddress;
 	}
 
+	/**
+	 * Sets the office address.
+	 *
+	 * @param officeAddress the new office address
+	 */
 	public void setOfficeAddress(final String officeAddress) {
 		this.officeAddress = officeAddress;
 	}
 
+	/**
+	 * Gets the mobile.
+	 *
+	 * @return the mobile
+	 */
 	public String getMobile() {
 		return mobile;
 	}
 
+	/**
+	 * Sets the mobile.
+	 *
+	 * @param mobile the new mobile
+	 */
 	public void setMobile(final String mobile) {
 		this.mobile = mobile;
 	}
 
+	/**
+	 * Gets the telephone.
+	 *
+	 * @return the telephone
+	 */
 	public String getTelephone() {
 		return telephone;
 	}
 
+	/**
+	 * Sets the telephone.
+	 *
+	 * @param telephone the new telephone
+	 */
 	public void setTelephone(final String telephone) {
 		this.telephone = telephone;
 	}
 
+	/**
+	 * Gets the fax.
+	 *
+	 * @return the fax
+	 */
 	public String getFax() {
 		return fax;
 	}
 
+	/**
+	 * Sets the fax.
+	 *
+	 * @param fax the new fax
+	 */
 	public void setFax(final String fax) {
 		this.fax = fax;
 	}
 
+	/**
+	 * Gets the website.
+	 *
+	 * @return the website
+	 */
 	public String getWebsite() {
 		return website;
 	}
 
+	/**
+	 * Sets the website.
+	 *
+	 * @param website the new website
+	 */
 	public void setWebsite(final String website) {
 		this.website = website;
 	}
 
+	/**
+	 * Gets the languages known.
+	 *
+	 * @return the languages known
+	 */
 	public String getLanguagesKnown() {
 		return languagesKnown;
 	}
 
+	/**
+	 * Sets the languages known.
+	 *
+	 * @param languagesKnown the new languages known
+	 */
 	public void setLanguagesKnown(final String languagesKnown) {
 		this.languagesKnown = languagesKnown;
 	}
@@ -525,18 +606,38 @@ public class MemberBiographyVO {
     }
 
 
+    /**
+     * Gets the no of sons.
+     *
+     * @return the no of sons
+     */
     public String getNoOfSons() {
 		return noOfSons;
 	}
 
+	/**
+	 * Sets the no of sons.
+	 *
+	 * @param noOfSons the new no of sons
+	 */
 	public void setNoOfSons(final String noOfSons) {
 		this.noOfSons = noOfSons;
 	}
 
+	/**
+	 * Gets the no of daughter.
+	 *
+	 * @return the no of daughter
+	 */
 	public String getNoOfDaughter() {
 		return noOfDaughter;
 	}
 
+	/**
+	 * Sets the no of daughter.
+	 *
+	 * @param noOfDaughter the new no of daughter
+	 */
 	public void setNoOfDaughter(final String noOfDaughter) {
 		this.noOfDaughter = noOfDaughter;
 	}
@@ -809,26 +910,56 @@ public class MemberBiographyVO {
         this.placeOfBirth = placeOfBirth;
     }
 
+	/**
+	 * Gets the valid votes.
+	 *
+	 * @return the valid votes
+	 */
 	public String getValidVotes() {
 		return validVotes;
 	}
 
+	/**
+	 * Sets the valid votes.
+	 *
+	 * @param validVotes the new valid votes
+	 */
 	public void setValidVotes(final String validVotes) {
 		this.validVotes = validVotes;
 	}
 
+	/**
+	 * Gets the votes received.
+	 *
+	 * @return the votes received
+	 */
 	public String getVotesReceived() {
 		return votesReceived;
 	}
 
+	/**
+	 * Sets the votes received.
+	 *
+	 * @param votesReceived the new votes received
+	 */
 	public void setVotesReceived(final String votesReceived) {
 		this.votesReceived = votesReceived;
 	}
 
+	/**
+	 * Gets the rival members.
+	 *
+	 * @return the rival members
+	 */
 	public List<RivalMemberVO> getRivalMembers() {
 		return rivalMembers;
 	}
 
+	/**
+	 * Sets the rival members.
+	 *
+	 * @param rivalMembers the new rival members
+	 */
 	public void setRivalMembers(final List<RivalMemberVO> rivalMembers) {
 		this.rivalMembers = rivalMembers;
 	}
