@@ -1,16 +1,15 @@
 /**
  * See the file LICENSE for redistribution information.
  *
- * Copyright (c) 2011 MKCL.  All rights reserved.
+ * Copyright (c) 2012 MKCL.  All rights reserved.
  *
- * Project: els
- * File: org.mkcl.els.domain.associations.HouseMemberRoleAssociationPK
- * Created On: Apr 5, 2012
+ * Project: e-Legislature
+ * File: org.mkcl.els.domain.associations.HouseMemberRoleAssociationPK.java
+ * Created On: Apr 17, 2012
  */
 package org.mkcl.els.domain.associations;
 
 import java.io.Serializable;
-import java.util.Date;
 
 import org.mkcl.els.domain.House;
 import org.mkcl.els.domain.Member;
@@ -19,19 +18,14 @@ import org.mkcl.els.domain.MemberRole;
 /**
  * The Class HouseMemberRoleAssociationPK.
  *
- * @author vishals
- * @version 1.0.0
+ * @author amitd
+ * @author sandeeps
+ * @since v1.0.0
  */
 public class HouseMemberRoleAssociationPK implements Serializable {
 
     /** The Constant serialVersionUID. */
     private static final long serialVersionUID = 1L;
-
-    /** The from date. */
-    private Date fromDate;
-
-    /** The to date. */
-    private Date toDate;
 
     /** The member. */
     private Member member;
@@ -47,7 +41,7 @@ public class HouseMemberRoleAssociationPK implements Serializable {
      */
     @Override
     public int hashCode() {
-        return (fromDate.hashCode() + toDate.hashCode() + member.hashCode()
+        return ( member.hashCode()
                 + role.hashCode() + house.hashCode());
     }
 
@@ -57,11 +51,8 @@ public class HouseMemberRoleAssociationPK implements Serializable {
     @Override
     public boolean equals(final Object object) {
         if (object instanceof HouseMemberRoleAssociationPK) {
-            HouseMemberRoleAssociationPK houseMemberRoleAssociationPK =
-                    (HouseMemberRoleAssociationPK) object;
-            return (houseMemberRoleAssociationPK.fromDate == this.fromDate)
-                    && (houseMemberRoleAssociationPK.toDate == this.toDate)
-                    && (houseMemberRoleAssociationPK.member == this.member)
+            HouseMemberRoleAssociationPK houseMemberRoleAssociationPK = (HouseMemberRoleAssociationPK) object;
+            return (houseMemberRoleAssociationPK.member == this.member)
                     && (houseMemberRoleAssociationPK.role == this.role)
                     && (houseMemberRoleAssociationPK.house == this.house);
         }
