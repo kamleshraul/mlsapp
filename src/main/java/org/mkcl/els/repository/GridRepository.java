@@ -70,13 +70,13 @@ public class GridRepository extends BaseRepository<Grid, Long> {
         Query countQuery = null;
         String select = null;
         Query query = null;
-        
+
         //provision for native query
-        
+
         //added by sandeeps
         //there is no need for order by clause in count query as count is independent of sort order
         //also it creates problem in case select statement contains joins and count statement don't.
-        
+
         if (!sidx.contains(".")) {
             countSelect = grid.getCountQuery();
             select = grid.getQuery() + " ORDER BY m." + sidx + " " + order;
@@ -109,6 +109,10 @@ public class GridRepository extends BaseRepository<Grid, Long> {
             }
         }
         // support for dynamic parameters setting in query
+
+        //here since we are reading values from request map and hence to support unicode
+        //we need to first read it in ISO-8859-1 format and then get its bytes using utf-8
+        //format.
         Set<Parameter<?>> selectQueryParameters = query.getParameters();
         for (Parameter i : selectQueryParameters) {
             if (!i.getName().equals("locale")) {
@@ -193,8 +197,7 @@ public class GridRepository extends BaseRepository<Grid, Long> {
         }
         query.setFirstResult(start);
         query.setMaxResults((int) (count > limit ? count : limit));
-       // System.out.println(query.getParameterValue("locale").toString());
-        //System.out.println(query.getParameterValue("housetype").toString());
+
         List<Map<String, Object>> records = query.getResultList();
         GridData gridVO = new GridData(page, totalPages, count, records);
         return gridVO;
@@ -221,7 +224,7 @@ public class GridRepository extends BaseRepository<Grid, Long> {
         Query countQuery = null;
         String select = null;
         Query query = null;
-        
+
         if (!sidx.contains(".")) {
             countSelect = grid.getCountQuery() + filterSql;
             select = grid.getQuery() + filterSql + " ORDER BY m." + sidx + " "
