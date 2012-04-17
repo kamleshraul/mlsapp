@@ -74,7 +74,12 @@ function loadGrid(gridId, baseFilter) {
 	//added by amitd and sandeeps.
 	//By default housetype is passed as parameter in all grid request
 	var url='grid/data/'+ gridId +'.json';
-	var defaultParams="housetype="+$('#authhousetype').val();
+	var defaultParams="";
+	if($('#authhousetype').val()=='both'){
+		defaultParams="housetype1=lowerhouse&housetype2=upperhouse";
+	}else {
+		defaultParams="housetype1="+$('#authhousetype').val()+"&housetype2="+$('#authhousetype').val();
+	}
 	url=url+'?'+defaultParams;
 	//for additional parameters have a field with name gridURLParams in name=valye format separated by '&'
 	if($('#gridURLParams').val()!=undefined){
@@ -108,7 +113,12 @@ function loadGrid(gridId, baseFilter) {
 				if(curr_page==1) {
 					var top_rowid = $('#grid tbody:first-child tr:nth-child(2)').attr('id');
 					$(this).setSelection(top_rowid, true);
-				}
+				}//this is the case when we delete all the records in the grid and reload the list.If we click on 
+				//other tabs then key value has not been set and is still the previous value giving
+				//exceptions
+				//else{
+					//$('#key').val("");
+				//}
 			},
 			onSelectRow: function(rowid,status) {
 				//added by sandeeps
@@ -125,10 +135,10 @@ function loadGrid(gridId, baseFilter) {
 		    ondblClickRow: function(rowid,
 		    		iRow,
 		    		iCol,
-		    		e) {
+		    		e) {		    	
 		    	if(typeof window.rowDblClickHandler == 'function'){
 		    		rowDblClickHandler(rowid, iRow, iCol, e);			    			
-		    	}
+		    	}		    	
 		    }
 		});
 		$("#grid").jqGrid('navGrid','#grid_pager',{search:false,edit:false,add:false,del:false});	
