@@ -14,7 +14,7 @@ import java.util.List;
 
 /**
  * The Class MemberBiographyVO.
- *
+ * @author amitd
  * @author sandeeps
  * @version v1.0.0
  */
@@ -96,7 +96,7 @@ public class MemberBiographyVO {
     private String presentAddress;
 
     /** The permanent address. */
-    private String permanentAddress; 
+    private String permanentAddress;
 
     /** The member positions. */
     private String positionDetails;
@@ -125,30 +125,30 @@ public class MemberBiographyVO {
     private String educationalCulAct;
     /** The locale. */
     private String locale;
-    
+
     private String languagesKnown;
-    
+
     private String website;
-    
+
     private String fax;
-    
+
     private String mobile;
-    
-    private String telephone;    
-    
+
+    private String telephone;
+
     private String officeAddress;
-    
+
     private String validVotes;
-    
+
     private String votesReceived;
-    
+
     private List<RivalMemberVO> rivalMembers;
-    
+
     public String getEducationalCulAct() {
 		return educationalCulAct;
 	}
 
-	public void setEducationalCulAct(String educationalCulAct) {
+	public void setEducationalCulAct(final String educationalCulAct) {
 		this.educationalCulAct = educationalCulAct;
 	}
 
@@ -156,7 +156,7 @@ public class MemberBiographyVO {
 		return officeAddress;
 	}
 
-	public void setOfficeAddress(String officeAddress) {
+	public void setOfficeAddress(final String officeAddress) {
 		this.officeAddress = officeAddress;
 	}
 
@@ -164,7 +164,7 @@ public class MemberBiographyVO {
 		return mobile;
 	}
 
-	public void setMobile(String mobile) {
+	public void setMobile(final String mobile) {
 		this.mobile = mobile;
 	}
 
@@ -172,7 +172,7 @@ public class MemberBiographyVO {
 		return telephone;
 	}
 
-	public void setTelephone(String telephone) {
+	public void setTelephone(final String telephone) {
 		this.telephone = telephone;
 	}
 
@@ -180,7 +180,7 @@ public class MemberBiographyVO {
 		return fax;
 	}
 
-	public void setFax(String fax) {
+	public void setFax(final String fax) {
 		this.fax = fax;
 	}
 
@@ -188,7 +188,7 @@ public class MemberBiographyVO {
 		return website;
 	}
 
-	public void setWebsite(String website) {
+	public void setWebsite(final String website) {
 		this.website = website;
 	}
 
@@ -196,7 +196,7 @@ public class MemberBiographyVO {
 		return languagesKnown;
 	}
 
-	public void setLanguagesKnown(String languagesKnown) {
+	public void setLanguagesKnown(final String languagesKnown) {
 		this.languagesKnown = languagesKnown;
 	}
 
@@ -524,12 +524,12 @@ public class MemberBiographyVO {
         this.spouseName = spouseName;
     }
 
-   
+
     public String getNoOfSons() {
 		return noOfSons;
 	}
 
-	public void setNoOfSons(String noOfSons) {
+	public void setNoOfSons(final String noOfSons) {
 		this.noOfSons = noOfSons;
 	}
 
@@ -537,7 +537,7 @@ public class MemberBiographyVO {
 		return noOfDaughter;
 	}
 
-	public void setNoOfDaughter(String noOfDaughter) {
+	public void setNoOfDaughter(final String noOfDaughter) {
 		this.noOfDaughter = noOfDaughter;
 	}
 
@@ -683,7 +683,7 @@ public class MemberBiographyVO {
     public void setLiteraryArtisticScAccomplishment(final String literaryArtisticScAccomplishment) {
         this.literaryArtisticScAccomplishment = literaryArtisticScAccomplishment;
     }
-   
+
     /**
      * Gets the special interests.
      *
@@ -813,7 +813,7 @@ public class MemberBiographyVO {
 		return validVotes;
 	}
 
-	public void setValidVotes(String validVotes) {
+	public void setValidVotes(final String validVotes) {
 		this.validVotes = validVotes;
 	}
 
@@ -821,7 +821,7 @@ public class MemberBiographyVO {
 		return votesReceived;
 	}
 
-	public void setVotesReceived(String votesReceived) {
+	public void setVotesReceived(final String votesReceived) {
 		this.votesReceived = votesReceived;
 	}
 
@@ -829,7 +829,7 @@ public class MemberBiographyVO {
 		return rivalMembers;
 	}
 
-	public void setRivalMembers(List<RivalMemberVO> rivalMembers) {
+	public void setRivalMembers(final List<RivalMemberVO> rivalMembers) {
 		this.rivalMembers = rivalMembers;
 	}
 }

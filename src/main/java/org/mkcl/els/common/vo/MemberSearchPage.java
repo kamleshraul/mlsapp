@@ -1,21 +1,24 @@
 /**
  * See the file LICENSE for redistribution information.
  *
- * Copyright (c) 2012 MKCL.  All rights reserved.
+ * Copyright (c) 2012 ${company_name}.  All rights reserved.
  *
  * Project: e-Legislature
  * File: org.mkcl.els.common.vo.MemberSearchPage.java
- * Created On: Mar 8, 2012
+ * Created On: Apr 17, 2012
  */
+
 package org.mkcl.els.common.vo;
 
 import java.util.ArrayList;
 import java.util.List;
 
+// TODO: Auto-generated Javadoc
 /**
  * The Class MemberSearchPage.
  *
- * @author nileshp
+ * @author amitd
+ * @author sandeeps
  * @since v1.0.0
  */
 public class MemberSearchPage {

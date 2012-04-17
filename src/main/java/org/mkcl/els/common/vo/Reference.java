@@ -11,7 +11,7 @@ package org.mkcl.els.common.vo;
 
 /**
  * The Class Reference.
- *
+ * @author amitd
  * @author sandeeps
  * @version v1.0.0
  */
