@@ -9,6 +9,8 @@
  */
 package org.mkcl.els.common.vo;
 
+import java.util.List;
+
 
 /**
  * The Class MemberBiographyVO.
@@ -76,10 +78,10 @@ public class MemberBiographyVO {
     private String spouseName;
 
     /** The no of sons. */
-    private Integer noOfSons;
+    private String noOfSons;
 
     /** The no of daughter. */
-    private Integer noOfDaughter;
+    private String noOfDaughter;
 
     /** The educational qualification. */
     private String educationalQualification;
@@ -93,59 +95,8 @@ public class MemberBiographyVO {
     /** The present address. */
     private String presentAddress;
 
-    /** The present state. */
-    private String presentState;
-
-    /** The present district. */
-    private String presentDistrict;
-
-    /** The present tehsil. */
-    private String presentTehsil;
-
-    /** The present city. */
-    private String presentCity;
-
-    /** The present pin code. */
-    private String presentPinCode;
-
-    /** The present telephone. */
-    private String presentTelephone;
-
-    /** The present fax. */
-    private String presentFax;
-
-    /** The present mobile. */
-    private String presentMobile;
-
     /** The permanent address. */
-    private String permanentAddress;
-
-    /** The permanent state. */
-    private String permanentState;
-
-    /** The permanent district. */
-    private String permanentDistrict;
-
-    /** The permanent tehsil. */
-    private String permanentTehsil;
-
-    /** The permanent city. */
-    private String permanentCity;
-
-    /** The permanent pin code. */
-    private String permanentPinCode;
-
-    /** The permanent telephone. */
-    private String permanentTelephone;
-
-    /** The permanent fax. */
-    private String permanentFax;
-
-    /** The permanent mobile. */
-    private String permanentMobile;
-
-    /** The no of terms. */
-    private Integer noOfTerms;
+    private String permanentAddress; 
 
     /** The member positions. */
     private String positionDetails;
@@ -155,9 +106,6 @@ public class MemberBiographyVO {
 
     /** The literary artistic sc accomplishment. */
     private String literaryArtisticScAccomplishment;
-
-    /** The books published. */
-    private String booksPublished;
 
     /** The special interests. */
     private String specialInterests;
@@ -171,16 +119,88 @@ public class MemberBiographyVO {
     /** The countries visited. */
     private String countriesVisited;
 
-    /** The experience. */
-    private String experience;
-
     /** The other info. */
     private String otherInfo;
 
+    private String educationalCulAct;
     /** The locale. */
     private String locale;
+    
+    private String languagesKnown;
+    
+    private String website;
+    
+    private String fax;
+    
+    private String mobile;
+    
+    private String telephone;    
+    
+    private String officeAddress;
+    
+    private String validVotes;
+    
+    private String votesReceived;
+    
+    private List<RivalMemberVO> rivalMembers;
+    
+    public String getEducationalCulAct() {
+		return educationalCulAct;
+	}
 
-    /**
+	public void setEducationalCulAct(String educationalCulAct) {
+		this.educationalCulAct = educationalCulAct;
+	}
+
+	public String getOfficeAddress() {
+		return officeAddress;
+	}
+
+	public void setOfficeAddress(String officeAddress) {
+		this.officeAddress = officeAddress;
+	}
+
+	public String getMobile() {
+		return mobile;
+	}
+
+	public void setMobile(String mobile) {
+		this.mobile = mobile;
+	}
+
+	public String getTelephone() {
+		return telephone;
+	}
+
+	public void setTelephone(String telephone) {
+		this.telephone = telephone;
+	}
+
+	public String getFax() {
+		return fax;
+	}
+
+	public void setFax(String fax) {
+		this.fax = fax;
+	}
+
+	public String getWebsite() {
+		return website;
+	}
+
+	public void setWebsite(String website) {
+		this.website = website;
+	}
+
+	public String getLanguagesKnown() {
+		return languagesKnown;
+	}
+
+	public void setLanguagesKnown(String languagesKnown) {
+		this.languagesKnown = languagesKnown;
+	}
+
+	/**
      * Gets the id.
      *
      * @return the id
@@ -504,43 +524,24 @@ public class MemberBiographyVO {
         this.spouseName = spouseName;
     }
 
-    /**
-     * Gets the no of sons.
-     *
-     * @return the no of sons
-     */
-    public Integer getNoOfSons() {
-        return noOfSons;
-    }
+   
+    public String getNoOfSons() {
+		return noOfSons;
+	}
 
-    /**
-     * Sets the no of sons.
-     *
-     * @param noOfSons the new no of sons
-     */
-    public void setNoOfSons(final Integer noOfSons) {
-        this.noOfSons = noOfSons;
-    }
+	public void setNoOfSons(String noOfSons) {
+		this.noOfSons = noOfSons;
+	}
 
-    /**
-     * Gets the no of daughter.
-     *
-     * @return the no of daughter
-     */
-    public Integer getNoOfDaughter() {
-        return noOfDaughter;
-    }
+	public String getNoOfDaughter() {
+		return noOfDaughter;
+	}
 
-    /**
-     * Sets the no of daughter.
-     *
-     * @param noOfDaughter the new no of daughter
-     */
-    public void setNoOfDaughter(final Integer noOfDaughter) {
-        this.noOfDaughter = noOfDaughter;
-    }
+	public void setNoOfDaughter(String noOfDaughter) {
+		this.noOfDaughter = noOfDaughter;
+	}
 
-    /**
+	/**
      * Gets the educational qualification.
      *
      * @return the educational qualification
@@ -611,151 +612,6 @@ public class MemberBiographyVO {
     public void setPresentAddress(final String presentAddress) {
         this.presentAddress = presentAddress;
     }
-
-    /**
-     * Gets the present state.
-     *
-     * @return the present state
-     */
-    public String getPresentState() {
-        return presentState;
-    }
-
-    /**
-     * Sets the present state.
-     *
-     * @param presentState the new present state
-     */
-    public void setPresentState(final String presentState) {
-        this.presentState = presentState;
-    }
-
-    /**
-     * Gets the present district.
-     *
-     * @return the present district
-     */
-    public String getPresentDistrict() {
-        return presentDistrict;
-    }
-
-    /**
-     * Sets the present district.
-     *
-     * @param presentDistrict the new present district
-     */
-    public void setPresentDistrict(final String presentDistrict) {
-        this.presentDistrict = presentDistrict;
-    }
-
-    /**
-     * Gets the present tehsil.
-     *
-     * @return the present tehsil
-     */
-    public String getPresentTehsil() {
-        return presentTehsil;
-    }
-
-    /**
-     * Sets the present tehsil.
-     *
-     * @param presentTehsil the new present tehsil
-     */
-    public void setPresentTehsil(final String presentTehsil) {
-        this.presentTehsil = presentTehsil;
-    }
-
-    /**
-     * Gets the present city.
-     *
-     * @return the present city
-     */
-    public String getPresentCity() {
-        return presentCity;
-    }
-
-    /**
-     * Sets the present city.
-     *
-     * @param presentCity the new present city
-     */
-    public void setPresentCity(final String presentCity) {
-        this.presentCity = presentCity;
-    }
-
-    /**
-     * Gets the present pin code.
-     *
-     * @return the present pin code
-     */
-    public String getPresentPinCode() {
-        return presentPinCode;
-    }
-
-    /**
-     * Sets the present pin code.
-     *
-     * @param presentPinCode the new present pin code
-     */
-    public void setPresentPinCode(final String presentPinCode) {
-        this.presentPinCode = presentPinCode;
-    }
-
-    /**
-     * Gets the present telephone.
-     *
-     * @return the present telephone
-     */
-    public String getPresentTelephone() {
-        return presentTelephone;
-    }
-
-    /**
-     * Sets the present telephone.
-     *
-     * @param presentTelephone the new present telephone
-     */
-    public void setPresentTelephone(final String presentTelephone) {
-        this.presentTelephone = presentTelephone;
-    }
-
-    /**
-     * Gets the present fax.
-     *
-     * @return the present fax
-     */
-    public String getPresentFax() {
-        return presentFax;
-    }
-
-    /**
-     * Sets the present fax.
-     *
-     * @param presentFax the new present fax
-     */
-    public void setPresentFax(final String presentFax) {
-        this.presentFax = presentFax;
-    }
-
-    /**
-     * Gets the present mobile.
-     *
-     * @return the present mobile
-     */
-    public String getPresentMobile() {
-        return presentMobile;
-    }
-
-    /**
-     * Sets the present mobile.
-     *
-     * @param presentMobile the new present mobile
-     */
-    public void setPresentMobile(final String presentMobile) {
-        this.presentMobile = presentMobile;
-    }
-
     /**
      * Gets the permanent address.
      *
@@ -772,168 +628,6 @@ public class MemberBiographyVO {
      */
     public void setPermanentAddress(final String permanentAddress) {
         this.permanentAddress = permanentAddress;
-    }
-
-    /**
-     * Gets the permanent state.
-     *
-     * @return the permanent state
-     */
-    public String getPermanentState() {
-        return permanentState;
-    }
-
-    /**
-     * Sets the permanent state.
-     *
-     * @param permanentState the new permanent state
-     */
-    public void setPermanentState(final String permanentState) {
-        this.permanentState = permanentState;
-    }
-
-    /**
-     * Gets the permanent district.
-     *
-     * @return the permanent district
-     */
-    public String getPermanentDistrict() {
-        return permanentDistrict;
-    }
-
-    /**
-     * Sets the permanent district.
-     *
-     * @param permanentDistrict the new permanent district
-     */
-    public void setPermanentDistrict(final String permanentDistrict) {
-        this.permanentDistrict = permanentDistrict;
-    }
-
-    /**
-     * Gets the permanent tehsil.
-     *
-     * @return the permanent tehsil
-     */
-    public String getPermanentTehsil() {
-        return permanentTehsil;
-    }
-
-    /**
-     * Sets the permanent tehsil.
-     *
-     * @param permanentTehsil the new permanent tehsil
-     */
-    public void setPermanentTehsil(final String permanentTehsil) {
-        this.permanentTehsil = permanentTehsil;
-    }
-
-    /**
-     * Gets the permanent city.
-     *
-     * @return the permanent city
-     */
-    public String getPermanentCity() {
-        return permanentCity;
-    }
-
-    /**
-     * Sets the permanent city.
-     *
-     * @param permanentCity the new permanent city
-     */
-    public void setPermanentCity(final String permanentCity) {
-        this.permanentCity = permanentCity;
-    }
-
-    /**
-     * Gets the permanent pin code.
-     *
-     * @return the permanent pin code
-     */
-    public String getPermanentPinCode() {
-        return permanentPinCode;
-    }
-
-    /**
-     * Sets the permanent pin code.
-     *
-     * @param permanentPinCode the new permanent pin code
-     */
-    public void setPermanentPinCode(final String permanentPinCode) {
-        this.permanentPinCode = permanentPinCode;
-    }
-
-    /**
-     * Gets the permanent telephone.
-     *
-     * @return the permanent telephone
-     */
-    public String getPermanentTelephone() {
-        return permanentTelephone;
-    }
-
-    /**
-     * Sets the permanent telephone.
-     *
-     * @param permanentTelephone the new permanent telephone
-     */
-    public void setPermanentTelephone(final String permanentTelephone) {
-        this.permanentTelephone = permanentTelephone;
-    }
-
-    /**
-     * Gets the permanent fax.
-     *
-     * @return the permanent fax
-     */
-    public String getPermanentFax() {
-        return permanentFax;
-    }
-
-    /**
-     * Sets the permanent fax.
-     *
-     * @param permanentFax the new permanent fax
-     */
-    public void setPermanentFax(final String permanentFax) {
-        this.permanentFax = permanentFax;
-    }
-
-    /**
-     * Gets the permanent mobile.
-     *
-     * @return the permanent mobile
-     */
-    public String getPermanentMobile() {
-        return permanentMobile;
-    }
-
-    /**
-     * Sets the permanent mobile.
-     *
-     * @param permanentMobile the new permanent mobile
-     */
-    public void setPermanentMobile(final String permanentMobile) {
-        this.permanentMobile = permanentMobile;
-    }
-
-    /**
-     * Gets the no of terms.
-     *
-     * @return the no of terms
-     */
-    public Integer getNoOfTerms() {
-        return noOfTerms;
-    }
-
-    /**
-     * Sets the no of terms.
-     *
-     * @param noOfTerms the new no of terms
-     */
-    public void setNoOfTerms(final Integer noOfTerms) {
-        this.noOfTerms = noOfTerms;
     }
 
     /**
@@ -989,25 +683,7 @@ public class MemberBiographyVO {
     public void setLiteraryArtisticScAccomplishment(final String literaryArtisticScAccomplishment) {
         this.literaryArtisticScAccomplishment = literaryArtisticScAccomplishment;
     }
-
-    /**
-     * Gets the books published.
-     *
-     * @return the books published
-     */
-    public String getBooksPublished() {
-        return booksPublished;
-    }
-
-    /**
-     * Sets the books published.
-     *
-     * @param booksPublished the new books published
-     */
-    public void setBooksPublished(final String booksPublished) {
-        this.booksPublished = booksPublished;
-    }
-
+   
     /**
      * Gets the special interests.
      *
@@ -1079,25 +755,6 @@ public class MemberBiographyVO {
     public void setCountriesVisited(final String countriesVisited) {
         this.countriesVisited = countriesVisited;
     }
-
-    /**
-     * Gets the experience.
-     *
-     * @return the experience
-     */
-    public String getExperience() {
-        return experience;
-    }
-
-    /**
-     * Sets the experience.
-     *
-     * @param experience the new experience
-     */
-    public void setExperience(final String experience) {
-        this.experience = experience;
-    }
-
     /**
      * Gets the other info.
      *
@@ -1152,4 +809,27 @@ public class MemberBiographyVO {
         this.placeOfBirth = placeOfBirth;
     }
 
+	public String getValidVotes() {
+		return validVotes;
+	}
+
+	public void setValidVotes(String validVotes) {
+		this.validVotes = validVotes;
+	}
+
+	public String getVotesReceived() {
+		return votesReceived;
+	}
+
+	public void setVotesReceived(String votesReceived) {
+		this.votesReceived = votesReceived;
+	}
+
+	public List<RivalMemberVO> getRivalMembers() {
+		return rivalMembers;
+	}
+
+	public void setRivalMembers(List<RivalMemberVO> rivalMembers) {
+		this.rivalMembers = rivalMembers;
+	}
 }

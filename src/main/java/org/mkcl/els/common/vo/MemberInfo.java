@@ -40,13 +40,15 @@ public class MemberInfo {
     private String gender;
 
     /** The marital status. */
-    private boolean maritalStatus;
+    private String maritalStatus;
 
     /** The no of terms. */
     private Integer noOfTerms;
 
     /** The birth date. */
     private String birthDate;
+
+    private String title;
 
     /**
      * Instantiates a new member info.
@@ -55,30 +57,9 @@ public class MemberInfo {
         super();
     }
 
-    /**
-     * Instantiates a new member info.
-     *
-     * @param id the id
-     * @param firstName the first name
-     * @param middleName the middle name
-     * @param lastName the last name
-     * @param constituency the constituency
-     * @param party the party
-     * @param gender the gender
-     * @param maritalStatus the marital status
-     * @param noOfTerms the no of terms
-     * @param birthDate the birth date
-     */
-    public MemberInfo(final Long id,
-            final String firstName,
-            final String middleName,
-            final String lastName,
-            final String constituency,
-            final String party,
-            final String gender,
-            final boolean maritalStatus,
-            final Integer noOfTerms,
-            final String birthDate) {
+    public MemberInfo(final Long id, final String firstName, final String middleName,
+            final String lastName, final String constituency, final String party, final String gender,
+            final String maritalStatus, final Integer noOfTerms, final String birthDate) {
         super();
         this.id = id;
         this.firstName = firstName;
@@ -91,6 +72,8 @@ public class MemberInfo {
         this.noOfTerms = noOfTerms;
         this.birthDate = birthDate;
     }
+
+
 
     /**
      * Gets the id.
@@ -218,21 +201,12 @@ public class MemberInfo {
         this.gender = gender;
     }
 
-    /**
-     * Checks if is marital status.
-     *
-     * @return true, if is marital status
-     */
-    public boolean isMaritalStatus() {
+    public String getMaritalStatus() {
         return maritalStatus;
     }
 
-    /**
-     * Sets the marital status.
-     *
-     * @param maritalStatus the new marital status
-     */
-    public void setMaritalStatus(final boolean maritalStatus) {
+
+    public void setMaritalStatus(final String maritalStatus) {
         this.maritalStatus = maritalStatus;
     }
 
@@ -270,6 +244,16 @@ public class MemberInfo {
      */
     public void setBirthDate(final String birthDate) {
         this.birthDate = birthDate;
+    }
+
+
+    public String getTitle() {
+        return title;
+    }
+
+
+    public void setTitle(final String title) {
+        this.title = title;
     }
 
 }

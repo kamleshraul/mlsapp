@@ -16,11 +16,20 @@ package org.mkcl.els.common.vo;
  * @since v1.0.0
  */
 public class MasterVO {
+	
+	private Long id;
 
     /** The name. */
     private String name;
 
-    /**
+    
+	public MasterVO(Long id, String name) {
+		super();
+		this.id = id;
+		this.name = name;
+	}
+
+	/**
      * Gets the name.
      *
      * @return the name
@@ -37,4 +46,12 @@ public class MasterVO {
     public void setName(final String name) {
         this.name = name;
     }
+
+	public Long getId() {
+		return id;
+	}
+
+	public void setId(Long id) {
+		this.id = id;
+	}    
 }
