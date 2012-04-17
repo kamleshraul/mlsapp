@@ -1,22 +1,26 @@
 /**
  * See the file LICENSE for redistribution information.
  *
- * Copyright (c) 2011 MKCL.  All rights reserved.
+ * Copyright (c) 2012 MKCL.  All rights reserved.
  *
- * Project: els
- * File: org.mkcl.els.repository.MemberRoleRepository
- * Created On: Apr 5, 2012
+ * Project: e-Legislature
+ * File: org.mkcl.els.repository.MemberRoleRepository.java
+ * Created On: Apr 17, 2012
  */
 package org.mkcl.els.repository;
 
+import java.util.List;
+
+import org.mkcl.els.common.util.ApplicationConstants;
 import org.mkcl.els.domain.MemberRole;
 import org.springframework.stereotype.Repository;
 
 /**
  * The Class MemberRoleRepository.
  *
- * @author vishals
- * @version 1.0.0
+ * @author amitd
+ * @author sandeeps
+ * @since v1.0.0
  */
 @Repository
 public class MemberRoleRepository extends BaseRepository<MemberRole, Long> {
@@ -36,4 +40,22 @@ public class MemberRoleRepository extends BaseRepository<MemberRole, Long> {
                 + locale + "'";
         return (MemberRole) this.em().createQuery(query).getSingleResult();
     }
+
+	/**
+	 * Find by house type.
+	 *
+	 * @param houseType the house type
+	 * @param locale the locale
+	 * @return the list
+	 */
+	@SuppressWarnings("unchecked")
+	public List<MemberRole> findByHouseType(final String houseType, final String locale) {
+		String query=null;
+		if(houseType.equals(ApplicationConstants.BOTH_HOUSE)){
+			query="SELECT m FROM MemberRole m WHERE m.locale='"+locale+"' ORDER BY m.name DESC";
+		}else{
+			query="SELECT m FROM MemberRole m WHERE m.locale='"+locale+"' AND m.houseType.type='"+houseType+"' ORDER BY m.name DESC";
+		}
+		return this.em().createQuery(query).getResultList();
+	}
 }
