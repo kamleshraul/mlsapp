@@ -81,6 +81,29 @@
 	}
 
 	$(document).ready(function() {
+		$('.hiddenAssemblyFields').hide();
+		$('.hiddenCommonFields').hide();
+		$('.tright').hide();
+		if ($('#houseTypes').val() != undefined) {
+			$('#houseTypes').change(function() {
+				if($('#houseTypes :selected').val()=="lowerhouse") {
+					$('.hiddenAssemblyFields').show();
+					$('.hiddenCommonFields').show();
+					$('.tright').show();
+				}
+				else if($('#houseTypes :selected').val()=="upperhouse") {
+					$('.hiddenCommonFields').show();
+					$('.hiddenAssemblyFields').hide();
+					$('.tright').show();
+				}
+				else {
+					$('.hiddenAssemblyFields').hide();
+					$('.hiddenCommonFields').hide();
+					$('.tright').hide();
+				}
+			}); //change			
+		} //if
+		
 		//$('select[multiple="multiple"]').sexyselect({width:250,showTitle: false, selectionMode: 'multiple', styleize: true});		
 		if ($('#states').val() != undefined) {
 			$('#states').change(function() {
@@ -121,34 +144,44 @@
 				populateAirports(selectedDistricts);
 			}
 		});
-		$('#submit').click(function() {
-			var htype = ${houseType};
-			//alert("house type = " + htype);
-			if( (htype==1) || (htype==3) ) {				
+		$('#submit').click(function() {		
+			var htype = $('#houseTypes :selected').val();
+			if( htype=="lowerhouse" ) {					
 				$('#divisionName').val($('#divisions option:selected').text().trim());
-				//alert($('#divisionName').val());
+				alert($('#divisionName').val());
+				
+				if($('#isReserved').is(':checked'))
+			   	{
+					$('#isReserved').val(true);		   	    
+				}
+				else
+			   	{ 				
+					$('#isReserved').val(false);				
+					$('#reservedFor').prop('selectedIndex', 0);
+			   	};
+			   	
+			   	
+			   	if($('#isRetired').is(':checked'))
+			   	{
+					$('#isRetired').val(true);		   	    
+				}
+				else
+			   	{ 				
+					$('#isRetired').val(false);				
+			   	};
 			}
-			else if( (htype==2) || (htype==4) ) {
+			else if( htype=="upperhouse" ) {
 				$('#divisionName').val($('#constituencyName').val());
-				//alert($('#divisionName').val());				
-			};
-			if($('#isReserved').is(':checked'))
-		   	{
-				$('#isReserved').val(true);		   	    
-			}
-			else
-		   	{ 				
-				$('#isReserved').val(false);				
-				$('#reservedFor').prop('selectedIndex', 0);
-		   	};
-		   	if($('#isRetired').is(':checked'))
-		   	{
-				$('#isRetired').val(true);		   	    
-			}
-			else
-		   	{ 				
-				$('#isRetired').val(false);				
-		   	};
+				alert($('#divisionName').val());				
+				$('#districts').prop('selectedIndex', -1);
+				$('#number').val(null);
+				$('#voters').val(null);	
+				$('#isReserved').val(null);
+				$('#reservedFor').prop('selectedIndex', -1);
+				$('#nearestRailwayStation').prop('selectedIndex', -1);
+				$('#nearestAirport').prop('selectedIndex', -1);				
+				$('#isRetired').val(null);
+			}			
 		});
 	});//document .ready
 </script>
@@ -167,9 +200,19 @@
 				]
 			</h2>
 			<form:errors path="version" cssClass="validationError" />
-			<c:choose>
-				<c:when test="${ houseType == 1 or houseType == 3 }">
 					<p>
+						<label class="small"><spring:message
+								code="constituency.houseType"
+								text="House Type" /></label>
+						<form:select path="houseType.type"
+							items="${houseTypes}" itemValue="type" itemLabel="name"
+							id="houseTypes"></form:select>
+						<form:errors path="houseType"
+							cssClass="validationError" />						
+					</p>
+			<%-- <c:choose>
+				<c:when test="${ houseType == 1 or houseType == 3 }"> --%>
+					<p class="hiddenAssemblyFields">
 						<label class="small"><spring:message
 								code="constituency.state" text="State" /></label> <select name="state"
 							id="states">
@@ -180,7 +223,7 @@
 							</c:forEach>
 						</select>
 					</p>
-					<p>
+					<p class="hiddenAssemblyFields">
 						<label class="small"><spring:message
 								code="constituency.division" text="Division" /></label> <select
 							name="division" id="divisions">
@@ -191,7 +234,7 @@
 							</c:forEach>
 						</select>
 					</p>
-					<p>
+					<p class="hiddenAssemblyFields">
 						<label class="small"><spring:message
 								code="constituency.district" text="Districts" /></label>
 						<form:select path="districts" items="${districts}" itemValue="id"
@@ -199,37 +242,37 @@
 							onclick="clearRA()"></form:select>
 						<form:errors path="districts" cssClass="validationError" />
 					</p>
-					<p>
+					<p class="hiddenCommonFields">
 						<label class="small"><spring:message
 								code="constituency.name" text="Name" /></label>
-						<form:input cssClass="sSelect" path="name" id="custom" />
+						<form:input cssClass="sSelect" path="name" id="constituencyName" />
 						<form:errors path="name" cssClass="validationError" />
 					</p>
-					<p>
+					<p class="hiddenAssemblyFields">
 						<label class="small"><spring:message
 								code="constituency.number" text="Number" /></label>
-						<form:input cssClass="sSelect" path="number" />
+						<form:input cssClass="sSelect" path="number" id="number"/>
 						<form:errors path="number" cssClass="validationError" />
 					</p>
-					<p>
+					<p class="hiddenAssemblyFields">
 						<label class="small"><spring:message
 								code="constituency.voters" text="Voters" /></label>
-						<form:input cssClass="sSelect" path="voters" />
+						<form:input cssClass="sSelect" path="voters" id="voters"/>
 						<form:errors path="voters" cssClass="validationError" />
 					</p>
-					<p>
+					<p class="hiddenAssemblyFields">
 						<label class="small"><spring:message
 								code="constituency.reserved" text="Reserved?" /></label>
 						<form:checkbox  cssClass="sCheck" id="isReserved" path="isReserved"/>												
 						<form:errors path="isReserved" cssClass="validationError" />
 					</p>
-					<p>
+					<p class="hiddenAssemblyFields">
 						<label class="small"><spring:message
 								code="constituency.reservedFor" text="Reserved for" /></label>
 						<form:select cssClass="sOption" path="reservedFor" items="${reservations}" itemValue="id" itemLabel="name" id="reservedFor"></form:select>
 						<form:errors path="reservedFor" cssClass="validationError" />
 					</p>					
-					<p>
+					<p class="hiddenAssemblyFields">
 						<label class="small"><spring:message
 								code="constituency.railwayStation"
 								text="Nearest Railway Station" /></label>
@@ -242,7 +285,7 @@
 							id="railwayStationsBySelectedDistricts"
 							value="list for selected districts" />
 					</p>
-					<p>
+					<p class="hiddenAssemblyFields">
 						<label class="small"><spring:message
 								code="constituency.airport" text="Nearest Airport" /></label>
 						<form:select path="nearestAirport" items="${airports}"
@@ -252,20 +295,14 @@
 							id="airportsBySelectedDistricts"
 							value="list for selected districts" />
 					</p>
-					<p>
+					<p class="hiddenAssemblyFields">
 						<label class="small"><spring:message
 								code="constituency.retired" text="Retired?" /></label>
 						<form:checkbox cssClass="sSelect" path="isRetired" id="isRetired"/>
 						<form:errors path="isRetired" cssClass="validationError" />
 					</p>					
-				</c:when>
-				<c:otherwise>
-					<p>
-						<label class="small"><spring:message
-								code="constituency.name" text="Constituency" /></label>
-						<form:input cssClass="sSelect" path="name" id="constituencyName"/>
-						<form:errors path="name" cssClass="validationError" />
-					</p>					
+				<%-- </c:when>
+				<c:otherwise> --%>										
 					<%-- <p>
 						<label class="small"><spring:message
 								code="constituency.electionType" text="Election Type" /></label> <select
@@ -277,12 +314,12 @@
 							</c:forEach>
 						</select>
 					</p> --%>
-				</c:otherwise>
-			</c:choose>
-			<p>
+				<%-- </c:otherwise>
+			</c:choose> --%>
+			<%-- <p>
 				<input type="hidden" name="houseType" value="${houseType}" id="houseType"/>
 				<form:errors path="houseType" cssClass="validationError" />
-			</p>
+			</p> --%>
 			<p>
 				<input type="hidden" name="divisionName" id="divisionName" />
 				<form:errors path="divisionName" cssClass="validationError" />
