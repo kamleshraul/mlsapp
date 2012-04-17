@@ -2,7 +2,6 @@ package org.mkcl.els.controller.mis;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Locale;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -31,7 +30,9 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.WebDataBinder;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
 
 @Controller
 @RequestMapping("/member/personal")
@@ -133,45 +134,45 @@ public class MemberPersonalController extends GenericController<Member> {
         	String relation=request.getParameter("familyMemberRelation"+ i);
         	if(relation!=null){
         	FamilyMember familyMember=new FamilyMember();
-        	
+
         	String name=request.getParameter("familyMemberName"+i);
         	if(name!=null){
         		if(!name.isEmpty()){
                 	familyMember.setName(request.getParameter("familyMemberName"+ i));
-        		}else{
-        			result.rejectValue("familyMembers","NotEmpty");
-        		}
+        		}//else{
+        			//result.rejectValue("familyMembers","NotEmpty");
+        		//}
         	}
-        	
+
         	if(!relation.isEmpty()){
         		familyMember.setRelation((Relation) Relation.findById(Relation.class,Long.parseLong(relation)));
         	}
-        	
+
         	String id=request.getParameter("familyMemberId"+ i);
         	if(id!=null){
         		if(!id.isEmpty()){
         		familyMember.setId(Long.parseLong(id));
         		}
         	}
-        	
+
         	String version=request.getParameter("familyMemberVersion"+ i);
         	if(version!=null){
         		if(!version.isEmpty()){
-        		familyMember.setId(Long.parseLong(version));
+        		familyMember.setVersion(Long.parseLong(version));
         		}
         	}
-        	
+
         	String locale=request.getParameter("familyMemberLocale"+ i);
  	        if(locale!=null){
  	        	if(!locale.isEmpty()){
  	        	familyMember.setLocale(locale);
  	        }
- 	        }            
- 	        familyMembers.add(familyMember);           
+ 	        }
+ 	        familyMembers.add(familyMember);
         }
         }
         domain.setFamilyMembers(familyMembers);
-        
+
         List<Qualification> qualifications = new ArrayList<Qualification>();
         Integer qualificationCount = Integer.parseInt(request
                 .getParameter("qualificationCount"));
@@ -179,29 +180,29 @@ public class MemberPersonalController extends GenericController<Member> {
             String degree=request.getParameter("qualificationDegree"+ i);
         	if(degree!=null){
             Qualification qualification = new Qualification();
-            
+
             String detail=request.getParameter("qualificationDetail" + i);
             if(detail!=null){
             qualification.setDetails(detail);
             }
-            
+
         	if(!degree.isEmpty()){
         		qualification.setDegree((Degree) Degree.findById(Degree.class,Long.parseLong(degree)));
         	}
-        	
+
             qualification.setLocale(domain.getLocale());
-            
+
             String id=request.getParameter("qualificationId"+ i);
         	if(id!=null){
         		if(!id.isEmpty()){
         			qualification.setId(Long.parseLong(id));
         		}
         	}
-        	
+
         	String version=request.getParameter("qualificationVersion"+ i);
         	if(version!=null){
         		if(!version.isEmpty()){
-        			qualification.setId(Long.parseLong(version));
+        			qualification.setVersion(Long.parseLong(version));
         		}
         	}
         	String locale=request.getParameter("qualificationLocale"+ i);
@@ -256,5 +257,21 @@ public class MemberPersonalController extends GenericController<Member> {
         if (domain.isVersionMismatch()) {
             result.rejectValue("VersionMismatch", "version");
         }
+    }
+
+    @RequestMapping(value = "/family/{id}/delete", method = RequestMethod.DELETE)
+    public String deleteFamily(final @PathVariable("id") Long id,
+            final ModelMap model, final HttpServletRequest request) {
+        FamilyMember familyMember=FamilyMember.findById(FamilyMember.class, id);
+        familyMember.remove();
+        return "info";
+    }
+
+    @RequestMapping(value = "/qualification/{id}/delete", method = RequestMethod.DELETE)
+    public String deleteQualification(final @PathVariable("id") Long id,
+            final ModelMap model, final HttpServletRequest request) {
+        Qualification qualification=Qualification.findById(Qualification.class, id);
+        qualification.remove();
+        return "info";
     }
 }

@@ -7,11 +7,11 @@ import javax.validation.Valid;
 
 import org.mkcl.els.common.util.ApplicationConstants;
 import org.mkcl.els.controller.BaseController;
+import org.mkcl.els.domain.Department;
 import org.mkcl.els.domain.Grid;
 import org.mkcl.els.domain.HouseType;
 import org.mkcl.els.domain.MemberRole;
-import org.mkcl.els.domain.Ministry;
-import org.mkcl.els.domain.associations.MemberMinistryAssociation;
+import org.mkcl.els.domain.associations.MemberDepartmentAssociation;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
 import org.springframework.validation.BindingResult;
@@ -24,43 +24,44 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 @Controller
-@RequestMapping("member/ministry")
-public class MemberMinistryController extends BaseController {
+@RequestMapping("member/department")
+public class MemberDepartmentController extends BaseController {
 
     @RequestMapping(value = "/list", method = RequestMethod.GET)
     public String list(@RequestParam(required = false) final String formtype,
             final ModelMap model, final Locale locale,
             final HttpServletRequest request) {
-        final String urlPattern = request.getServletPath().split("\\/")[1];
+    	final String servletPath = request.getServletPath().replaceFirst("\\/","");
+        String urlPattern=servletPath.split("\\/list")[0];
         Grid grid = Grid.findByDetailView(urlPattern, locale.toString());
         model.addAttribute("gridId", grid.getId());
         model.addAttribute("urlPattern", urlPattern);
-        return "mis/ministry/list";
+        return "member/department/list";
     }
 
     @RequestMapping(value = "/new", method = RequestMethod.GET)
     public String newForm(final ModelMap model, final Locale locale,
             final HttpServletRequest request) {
         final String urlPattern = request.getServletPath().split("\\/")[1];
-        MemberMinistryAssociation domain = new MemberMinistryAssociation();
+        MemberDepartmentAssociation domain = new MemberDepartmentAssociation();
         populateNew(model, domain, locale, request);
         model.addAttribute("domain", domain);
         model.addAttribute("urlPattern", urlPattern);
-        return "mis/ministry/new";
+        return "member/department/new";
     }
 
     @SuppressWarnings("unchecked")
     @RequestMapping(value = "/{recordIndex}/edit", method = RequestMethod.GET)
     public String edit(final @PathVariable("recordIndex") int recordIndex,
             final ModelMap model, final HttpServletRequest request,
-            final @RequestParam("member") Long member, Locale locale) {
+            final @RequestParam("member") Long member, final Locale locale) {
         final String urlPattern = request.getServletPath().split("\\/")[1];
-        MemberMinistryAssociation domain = MemberMinistryAssociation
+        MemberDepartmentAssociation domain = MemberDepartmentAssociation
                 .findByMemberIdAndId(member, recordIndex);
         populateEdit(model, domain, request, locale.toString());
         model.addAttribute("domain", domain);
         model.addAttribute("urlPattern", urlPattern);
-        return "mis/ministry/edit";
+        return "member/department/edit";
     }
 
     @RequestMapping(method = RequestMethod.POST)
@@ -69,14 +70,14 @@ public class MemberMinistryController extends BaseController {
             final HttpServletRequest request,
             final RedirectAttributes redirectAttributes,
             final Locale locale,
-            @Valid @ModelAttribute("domain") final MemberMinistryAssociation domain,
+            @Valid @ModelAttribute("domain") final MemberDepartmentAssociation domain,
             final BindingResult result) {
         final String urlPattern = request.getServletPath().split("\\/")[1];
         validateCreate(domain, result, request);
         model.addAttribute("domain", domain);
         if (result.hasErrors()) {
             poulateCreateIfErrors(model, domain, request, locale.toString());
-            return "mis/ministry/new";
+            return "member/department/new";
         }
         domain.persist();
         request.getSession().setAttribute("refresh", "");
@@ -90,7 +91,7 @@ public class MemberMinistryController extends BaseController {
 
     @RequestMapping(method = RequestMethod.PUT)
     public String update(
-            final @Valid @ModelAttribute("domain") MemberMinistryAssociation domain,
+            final @Valid @ModelAttribute("domain") MemberDepartmentAssociation domain,
             final BindingResult result, final ModelMap model,
             final RedirectAttributes redirectAttributes,
             final HttpServletRequest request, final Locale locale) {
@@ -99,7 +100,7 @@ public class MemberMinistryController extends BaseController {
         model.addAttribute("domain", domain);
         if (result.hasErrors()) {
             poulateUpdateIfErrors(model, domain, request, locale.toString());
-            return "mis/ministry/edit";
+            return "member/department/edit";
         }
         populateUpdateIfNoErrors(model, domain, request);
         domain.merge();
@@ -116,7 +117,7 @@ public class MemberMinistryController extends BaseController {
     public String delete(final @PathVariable("recordIndex") int recordIndex,
             final @RequestParam("member") Long member, final ModelMap model,
             final HttpServletRequest request) {
-        MemberMinistryAssociation association = MemberMinistryAssociation
+        MemberDepartmentAssociation association = MemberDepartmentAssociation
                 .findByMemberIdAndId(member, recordIndex);
         if (association.getMember() != null) {
             association.remove();
@@ -125,58 +126,58 @@ public class MemberMinistryController extends BaseController {
     }
 
     private void populateNew(final ModelMap model,
-            final MemberMinistryAssociation domain, final Locale locale,
+            final MemberDepartmentAssociation domain, final Locale locale,
             final HttpServletRequest request) {
     	String houseType=this.getCurrentUser().getHouseType();
     	HouseType authHouseType=HouseType.findByFieldName(HouseType.class,"type",houseType, locale.toString());
-        model.addAttribute("ministries", Ministry.findAll(Ministry.class,
-                "department", ApplicationConstants.ASC, locale.toString()));
+        model.addAttribute("departments", Department.findAll(Department.class,
+                "name", ApplicationConstants.ASC, locale.toString()));
         model.addAttribute("roles", MemberRole.findAllByFieldName(MemberRole.class,"houseType", authHouseType, "name",ApplicationConstants.ASC, locale.toString()));
         Long member = Long.parseLong(request.getParameter("member"));
         model.addAttribute("member", member);
-        int index = MemberMinistryAssociation.findHighestRecordIndex(member);
+        int index = MemberDepartmentAssociation.findHighestRecordIndex(member);
         domain.setRecordIndex(index + 1);
     }
 
     private void populateEdit(final ModelMap model,
-            final MemberMinistryAssociation domain,
+            final MemberDepartmentAssociation domain,
             final HttpServletRequest request, final String locale) {
     	String houseType=this.getCurrentUser().getHouseType();
     	HouseType authHouseType=HouseType.findByFieldName(HouseType.class,"type",houseType, locale.toString());
-        model.addAttribute("ministries", Ministry.findAll(Ministry.class,
-                "department", ApplicationConstants.ASC, locale.toString()));
+        model.addAttribute("departments", Department.findAll(Department.class,
+                "name", ApplicationConstants.ASC, locale.toString()));
         model.addAttribute("roles", MemberRole.findAllByFieldName(MemberRole.class,"houseType", authHouseType, "name",ApplicationConstants.ASC, locale.toString()));
         Long member = Long.parseLong(request.getParameter("member"));
         model.addAttribute("member", member);
     }
 
-    private void validateCreate(MemberMinistryAssociation domain,
-            Errors errors, HttpServletRequest request) {
+    private void validateCreate(final MemberDepartmentAssociation domain,
+            final Errors errors, final HttpServletRequest request) {
         if (domain.isDuplicate()) {
             Object[] params = new Object[3];
-            params[0] = domain.getMinistry().getDepartment();
+            params[0] = domain.getDepartment().getName();
             params[2] = domain.getFromDate();
             params[3] = domain.getToDate();
             errors.rejectValue("recordIndex", "Duplicate", params,
                     "Entry with Department:" + params[0] + "From Date:"
                             + params[1] + ",To Date:" + params[2]
                             + " already exists");
-        }        
+        }
     }
 
     @SuppressWarnings("unused")
-    private void validateUpdate(MemberMinistryAssociation domain,
-            Errors errors, HttpServletRequest request) {
+    private void validateUpdate(final MemberDepartmentAssociation domain,
+            final Errors errors, final HttpServletRequest request) {
     	if (domain.isVersionMismatch()) {
             errors.rejectValue("VersionMismatch", "version");
         }
     }
 
-    private void poulateCreateIfErrors(ModelMap model,
-            MemberMinistryAssociation domain, HttpServletRequest request,
-            String locale) {
-        model.addAttribute("ministries", Ministry.findAll(Ministry.class,
-                "department", ApplicationConstants.ASC, locale.toString()));
+    private void poulateCreateIfErrors(final ModelMap model,
+            final MemberDepartmentAssociation domain, final HttpServletRequest request,
+            final String locale) {
+        model.addAttribute("departments", Department.findAll(Department.class,
+                "name", ApplicationConstants.ASC, locale.toString()));
         model.addAttribute("roles", MemberRole.findAll(MemberRole.class,
                 "name", ApplicationConstants.ASC, locale.toString()));
         Long member = Long.parseLong(request.getParameter("member"));
@@ -184,19 +185,19 @@ public class MemberMinistryController extends BaseController {
 
     }
 
-    private void poulateUpdateIfErrors(ModelMap model,
-            MemberMinistryAssociation domain, HttpServletRequest request,
-            String locale) {
-        model.addAttribute("ministries", Ministry.findAll(Ministry.class,
-                "department", ApplicationConstants.ASC, locale));
+    private void poulateUpdateIfErrors(final ModelMap model,
+            final MemberDepartmentAssociation domain, final HttpServletRequest request,
+            final String locale) {
+        model.addAttribute("departments", Department.findAll(Department.class,
+                "name", ApplicationConstants.ASC, locale.toString()));
         model.addAttribute("roles", MemberRole.findAll(MemberRole.class,
                 "name", ApplicationConstants.ASC, locale));
         model.addAttribute("member", request.getSession()
                 .getAttribute("member"));
     }
 
-    private void populateUpdateIfNoErrors(ModelMap model,
-            MemberMinistryAssociation domain, HttpServletRequest request) {
+    private void populateUpdateIfNoErrors(final ModelMap model,
+            final MemberDepartmentAssociation domain, final HttpServletRequest request) {
 
     }
 }

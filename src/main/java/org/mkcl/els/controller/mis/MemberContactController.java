@@ -35,18 +35,21 @@ public class MemberContactController extends GenericController<Member> {
                 .getValue();
         State defaultState = State.findByFieldName(State.class, "name",
                 strDefaultState, domain.getLocale());
-        
+
         List<District> districts = District.findDistrictsByStateId(
                 defaultState.getId(), "name", ApplicationConstants.ASC,
                 domain.getLocale());
         model.addAttribute("districts", districts);
-        District defaultDistrict = districts.get(0);
-        
-        model.addAttribute("tehsils", Tehsil.findAllByFieldName(Tehsil.class,
-                "district", defaultDistrict, "name", ApplicationConstants.ASC,
-                domain.getLocale()));
-        
-    	//when bindinG form controls to fields of nested objects it is necessary to instantiate 
+        //here we will populate tehsils depending on if the district has been set.If it is not then
+        //we will populate the tehsils under the district 0.Else we will populate tehsils under the districts
+        //in the domain
+
+        District defaultDistrict1 = districts.get(0);
+        District defaultDistrict2 = districts.get(0);
+        District defaultDistrict3 = districts.get(0);
+
+
+    	//when bindinG form controls to fields of nested objects it is necessary to instantiate
     	//the nested objects as compiler has no way to initialize a custom object and hence set it to null.
     	//This is necessary only when we are first creating these objects.
         if (domain.getContact() == null) {
@@ -55,19 +58,40 @@ public class MemberContactController extends GenericController<Member> {
         if (domain.getPermanentAddress() == null) {
             domain.setPermanentAddress(new Address());
             domain.getPermanentAddress().setState(defaultState);
+        }else{
+            if(domain.getPermanentAddress().getDistrict()!=null){
+                defaultDistrict1=domain.getPermanentAddress().getDistrict();
+            }
         }
         if (domain.getPresentAddress() == null) {
             domain.setPresentAddress(new Address());
             domain.getPresentAddress().setState(defaultState);
+        }else{
+            if(domain.getPresentAddress().getDistrict()!=null){
+                defaultDistrict2=domain.getPresentAddress().getDistrict();
+            }
         }
         if (domain.getOfficeAddress() == null) {
             domain.setOfficeAddress(new Address());
             domain.getOfficeAddress().setState(defaultState);
+        }else{
+            if(domain.getOfficeAddress().getDistrict()!=null){
+                defaultDistrict3=domain.getOfficeAddress().getDistrict();
+            }
         }
+        model.addAttribute("tehsils1", Tehsil.findAllByFieldName(Tehsil.class,
+                "district", defaultDistrict1, "name", ApplicationConstants.ASC,
+                domain.getLocale()));
+        model.addAttribute("tehsils2", Tehsil.findAllByFieldName(Tehsil.class,
+                "district", defaultDistrict2, "name", ApplicationConstants.ASC,
+                domain.getLocale()));
+        model.addAttribute("tehsils3", Tehsil.findAllByFieldName(Tehsil.class,
+                        "district", defaultDistrict3, "name", ApplicationConstants.ASC,
+                        domain.getLocale()));
         domain.getContact().setLocale(domain.getLocale());
         domain.getPermanentAddress().setLocale(domain.getLocale());
         domain.getPresentAddress().setLocale(domain.getLocale());
-        domain.getOfficeAddress().setLocale(domain.getLocale());  
+        domain.getOfficeAddress().setLocale(domain.getLocale());
     }
 
     @Override

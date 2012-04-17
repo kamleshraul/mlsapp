@@ -14,7 +14,6 @@ import org.mkcl.els.domain.Constituency;
 import org.mkcl.els.domain.CustomParameter;
 import org.mkcl.els.domain.Grid;
 import org.mkcl.els.domain.House;
-import org.mkcl.els.domain.HouseType;
 import org.mkcl.els.domain.Member;
 import org.mkcl.els.domain.MemberRole;
 import org.mkcl.els.domain.associations.HouseMemberRoleAssociation;
@@ -40,11 +39,12 @@ public class MemberHouseRoleController extends BaseController {
     public String list(@RequestParam(required = false) final String formtype,
             final ModelMap model, final Locale locale,
             final HttpServletRequest request) {
-        final String urlPattern = request.getServletPath().split("\\/")[1];
+		final String servletPath = request.getServletPath().replaceFirst("\\/","");
+        String urlPattern=servletPath.split("\\/list")[0];
         Grid grid = Grid.findByDetailView(urlPattern, locale.toString());
         model.addAttribute("gridId", grid.getId());
         model.addAttribute("urlPattern", urlPattern);
-        return "mis/house/list";
+        return "member/house/list";
     }
 
     @RequestMapping(value = "/new", method = RequestMethod.GET)
@@ -55,22 +55,21 @@ public class MemberHouseRoleController extends BaseController {
         populateNew(model, domain, locale.toString(), request);
         model.addAttribute("domain", domain);
         model.addAttribute("urlPattern", urlPattern);
-        return "mis/house/new";
+        return "member/house/new";
     }
 
     @SuppressWarnings("unchecked")
     @RequestMapping(value = "/{recordIndex}/edit", method = RequestMethod.GET)
     public String edit(final @PathVariable("recordIndex") int recordIndex,
             final ModelMap model, final HttpServletRequest request,
-            final @RequestParam("member") Long member, Locale locale) {
+            final @RequestParam("member") Long member, final Locale locale) {
         final String urlPattern = request.getServletPath().split("\\/")[1];
-
         HouseMemberRoleAssociation domain = HouseMemberRoleAssociation
                 .findByMemberIdAndId(member, recordIndex);
         populateEdit(model, domain, request, locale.toString());
         model.addAttribute("domain", domain);
         model.addAttribute("urlPattern", urlPattern);
-        return "mis/house/edit";
+        return "member/house/edit";
     }
 
     @RequestMapping(method = RequestMethod.POST)
@@ -86,7 +85,7 @@ public class MemberHouseRoleController extends BaseController {
         model.addAttribute("domain", domain);
         if (result.hasErrors()) {
             poulateCreateIfErrors(model, domain, request, locale.toString());
-            return "mis/house/new";
+            return "member/house/new";
         }
         populateCreateIfNoErrors(model, domain, request);
         domain.persist();
@@ -110,7 +109,7 @@ public class MemberHouseRoleController extends BaseController {
         model.addAttribute("domain", domain);
         if (result.hasErrors()) {
             poulateUpdateIfErrors(model, domain, request, locale.toString());
-            return "mis/house/edit";
+            return "member/house/edit";
         }
         populateUpdateIfNoErrors(model, domain, request);
         domain.merge();
@@ -142,17 +141,19 @@ public class MemberHouseRoleController extends BaseController {
         String houseType = this.getCurrentUser().getHouseType();
         model.addAttribute("houseType",houseType);
         List<House> houses=House.findByHouseType(houseType,locale.toString());
-        model.addAttribute("houses",houses);        
+        model.addAttribute("houses",houses);
         List<MemberRole> memberRoles=MemberRole.findByHouseType(houseType,locale.toString());
-        model.addAttribute("roles",memberRoles);        
+        model.addAttribute("roles",memberRoles);
         Long member = Long.parseLong(request.getParameter("member"));
-        model.addAttribute("member", member);        
+        model.addAttribute("member", member);
         //since we are arranging the houses by formation date in descending order so houses[0] will
         //refer to the current house provided info for current house is set.
-        domain.setFromDate(houses.get(0).getFirstDate());
-        domain.setToDate(houses.get(0).getLastDate());         
+//        if(!houses.isEmpty()){
+//        domain.setFromDate(houses.get(0).getFirstDate());
+//        domain.setToDate(houses.get(0).getLastDate());
+//        }
         String defaultState=((CustomParameter)CustomParameter.findByName(CustomParameter.class,"DEFAULT_STATE",locale.toString())).getValue();
-        model.addAttribute("constituencies",Constituency.findByDefaultStateAndHouseType(defaultState, houseType, locale.toString(), "name",ApplicationConstants.ASC));
+        model.addAttribute("constituencies",Constituency.findVOByDefaultStateAndHouseType(defaultState, houseType, locale.toString(), "name",ApplicationConstants.ASC));
         // setting the value of the recordIndex field
         int index = HouseMemberRoleAssociation.findHighestRecordIndex(member);
         domain.setRecordIndex(index + 1);
@@ -161,39 +162,42 @@ public class MemberHouseRoleController extends BaseController {
 
     private void populateEdit(final ModelMap model,
             final HouseMemberRoleAssociation domain,
-            final HttpServletRequest request, String locale) {
+            final HttpServletRequest request, final String locale) {
     	String houseType = this.getCurrentUser().getHouseType();
         model.addAttribute("houseType",houseType);
         List<House> houses=House.findByHouseType(houseType,locale.toString());
-        model.addAttribute("houses",houses);        
+        model.addAttribute("houses",houses);
         List<MemberRole> memberRoles=MemberRole.findByHouseType(houseType,locale.toString());
-        model.addAttribute("roles",memberRoles);        
+        model.addAttribute("roles",memberRoles);
         Long member = (Long) request.getSession()
                 .getAttribute("member");
         request.getSession().removeAttribute("member");
-        model.addAttribute("member", member);        
+        model.addAttribute("member", member);
         //since we are arranging the houses by formation date in descending order so houses[0] will
         //refer to the current house provided info for current house is set.
-        domain.setFromDate(houses.get(0).getFirstDate());
-        domain.setToDate(houses.get(0).getLastDate());         
+        if(!houses.isEmpty()) {
+            domain.setFromDate(houses.get(0).getFirstDate());
+            domain.setToDate(houses.get(0).getLastDate());
+
+        }
         String defaultState=((CustomParameter)CustomParameter.findByName(CustomParameter.class,"DEFAULT_STATE",locale.toString())).getValue();
-        model.addAttribute("constituencies",Constituency.findByDefaultStateAndHouseType(defaultState, houseType, locale.toString(), "name",ApplicationConstants.ASC));
+        model.addAttribute("constituencies",Constituency.findVOByDefaultStateAndHouseType(defaultState, houseType, locale.toString(), "name",ApplicationConstants.ASC));
     }
 
-    private void poulateCreateIfErrors(ModelMap model,
-            HouseMemberRoleAssociation domain, HttpServletRequest request,
-            String locale) {
+    private void poulateCreateIfErrors(final ModelMap model,
+            final HouseMemberRoleAssociation domain, final HttpServletRequest request,
+            final String locale) {
         populateNew(model, domain,locale,request);
     }
 
-    private void poulateUpdateIfErrors(ModelMap model,
-            HouseMemberRoleAssociation domain, HttpServletRequest request,
-            String locale) {
+    private void poulateUpdateIfErrors(final ModelMap model,
+            final HouseMemberRoleAssociation domain, final HttpServletRequest request,
+            final String locale) {
     	populateNew(model, domain, locale, request);
     }
 
-    private void validateCreate(HouseMemberRoleAssociation domain,
-            Errors errors, HttpServletRequest request) {
+    private void validateCreate(final HouseMemberRoleAssociation domain,
+            final Errors errors, final HttpServletRequest request) {
         if (domain.isDuplicate()) {
             Object[] params = new Object[4];
             params[0] = domain.getHouse().getName();
@@ -204,11 +208,11 @@ public class MemberHouseRoleController extends BaseController {
                     "Entry with House:" + params[0] + ",Role:" + params[1]
                             + "From Date:" + params[2] + ",To Date:"
                             + params[3] + " already exists");
-        }        
+        }
     }
 
-    private void validateUpdate(HouseMemberRoleAssociation domain,
-            BindingResult result, HttpServletRequest request) {
+    private void validateUpdate(final HouseMemberRoleAssociation domain,
+            final BindingResult result, final HttpServletRequest request) {
     	if (domain.isVersionMismatch()) {
             result.rejectValue("VersionMismatch", "version");
         }
@@ -222,8 +226,8 @@ public class MemberHouseRoleController extends BaseController {
 
     }
 
-    private void populateUpdateIfNoErrors(ModelMap model,
-            HouseMemberRoleAssociation domain, HttpServletRequest request) {
+    private void populateUpdateIfNoErrors(final ModelMap model,
+            final HouseMemberRoleAssociation domain, final HttpServletRequest request) {
     	request.getSession().setAttribute("member",
                 Long.parseLong(request.getParameter("member")));
     }
@@ -233,10 +237,19 @@ public class MemberHouseRoleController extends BaseController {
     private void initBinder(final WebDataBinder binder) {
         CustomParameter parameter = CustomParameter.findByName(
                 CustomParameter.class, "SERVER_DATEFORMAT", "");
-        SimpleDateFormat dateFormat = new SimpleDateFormat(parameter.getValue());
+        String locale=this.getUserLocale().toString();
+        SimpleDateFormat dateFormat=null;
+        if(locale!=null){
+            if(locale.equals("mr_IN")){
+                dateFormat = new SimpleDateFormat(parameter.getValue(),new Locale("hi","IN"));
+            }else{
+                dateFormat = new SimpleDateFormat(parameter.getValue(),new Locale("en","US"));
+            }
+        }
         dateFormat.setLenient(true);
         binder.registerCustomEditor(java.util.Date.class, new CustomDateEditor(
                 dateFormat, true));
+
         binder.registerCustomEditor(Constituency.class, new BaseEditor(
                 new Constituency()));
         binder.registerCustomEditor(House.class, new BaseEditor(new House()));
