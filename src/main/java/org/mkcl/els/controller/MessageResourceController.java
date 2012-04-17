@@ -19,7 +19,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 /**
  * The Class MessageResourceController.
  *
- * @author nileshp
+ * @author sandeeps
  * @since v1.0.0
  */
 @Controller
