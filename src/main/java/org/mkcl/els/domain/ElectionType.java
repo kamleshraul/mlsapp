@@ -22,13 +22,13 @@ import org.springframework.beans.factory.annotation.Configurable;
 
 /**
  * The Class ElectionType.
- *
+ * 
  * @author Anand
  * @since v1.0.0
  */
 @Configurable
 @Entity
-@Table(name = "masters_electiontypes")
+@Table(name = "electiontypes")
 public class ElectionType extends BaseDomain implements Serializable {
 
     // ---------------------------------Attributes-------------------------------------------------
@@ -40,7 +40,6 @@ public class ElectionType extends BaseDomain implements Serializable {
     @NotEmpty
     private String name;
 
-    /** The house type. */
     @ManyToOne
     @JoinColumn(name = "housetype_id")
     private HouseType houseType;
@@ -55,9 +54,9 @@ public class ElectionType extends BaseDomain implements Serializable {
 
     /**
      * Instantiates a new election type.
-     *
-     * @param name the name
-     * @param houseType the house type
+     * 
+     * @param electionType the election type
+     * @param assemblycounciltype the assemblycounciltype
      */
     public ElectionType(final String name, final HouseType houseType) {
         super();
@@ -68,39 +67,19 @@ public class ElectionType extends BaseDomain implements Serializable {
     // -------------------------------Domain_Methods----------------------------------------------
 
     // ------------------------------------------Getters/Setters-------------------------------
-    /**
-     * Gets the name.
-     *
-     * @return the name
-     */
     public String getName() {
         return name;
     }
 
-    /**
-     * Sets the name.
-     *
-     * @param name the new name
-     */
-    public void setName(final String name) {
+    public void setName(String name) {
         this.name = name;
     }
 
-    /**
-     * Gets the house type.
-     *
-     * @return the house type
-     */
     public HouseType getHouseType() {
         return houseType;
     }
 
-    /**
-     * Sets the house type.
-     *
-     * @param houseType the new house type
-     */
-    public void setHouseType(final HouseType houseType) {
+    public void setHouseType(HouseType houseType) {
         this.houseType = houseType;
     }
 

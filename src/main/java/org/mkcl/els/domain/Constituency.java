@@ -23,7 +23,7 @@ import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 
 import org.codehaus.jackson.annotate.JsonIgnoreProperties;
-import org.mkcl.els.common.vo.ConstituencyVO;
+import org.mkcl.els.common.vo.MasterVO;
 import org.mkcl.els.repository.ConstituencyRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Configurable;
@@ -139,10 +139,10 @@ public class Constituency extends BaseDomain implements Serializable {
      * @param sortOrder the sort order
      * @return the list
      */
-    public static List<ConstituencyVO> findByDefaultStateAndHouseType(
+    public static List<MasterVO> findVOByDefaultStateAndHouseType(
             final String defaultState, final String houseType, final String locale,
             final String sortBy, final String sortOrder) {
-        return getConstituencyRepository().findByDefaultStateAndHouseType(
+        return getConstituencyRepository().findVOByDefaultStateAndHouseType(
                 defaultState, houseType, locale, sortBy, sortOrder);
     }
 

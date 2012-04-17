@@ -26,7 +26,7 @@ import org.springframework.beans.factory.annotation.Configurable;
  */
 @Configurable
 @Entity
-@Table(name = "masters_sessiontypes")
+@Table(name = "sessiontypes")
 public class SessionType extends BaseDomain implements Serializable {
 
     // ---------------------------------Attributes------------------------------------------

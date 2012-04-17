@@ -24,13 +24,13 @@ import org.springframework.beans.factory.annotation.Configurable;
 
 /**
  * The Class Tehsil.
- *
+ * 
  * @author dhananjay
  * @since v1.0.0
  */
 @Configurable
 @Entity
-@Table(name = "masters_tehsils")
+@Table(name = "tehsils")
 public class Tehsil extends BaseDomain implements Serializable {
 
     // --------------------Attributes-------------------------------------------
@@ -46,8 +46,7 @@ public class Tehsil extends BaseDomain implements Serializable {
     @ManyToOne
     @JoinColumn(name = "district_id")
     private District district;
-
-    /** The tehsil repository. */
+    
     @Autowired
     private transient TehsilRepository tehsilRepository;
 
@@ -62,7 +61,7 @@ public class Tehsil extends BaseDomain implements Serializable {
 
     /**
      * Instantiates a new tehsil.
-     *
+     * 
      * @param name the name
      * @param district the district
      */
@@ -73,43 +72,24 @@ public class Tehsil extends BaseDomain implements Serializable {
     }
 
     // -------------------------------Domain_Methods----------------------------------------------
-
-    /**
-     * Gets the tehsil repository.
-     *
-     * @return the tehsil repository
-     */
     public static TehsilRepository getTehsilRepository() {
-        TehsilRepository tehsilRepository = new Tehsil().tehsilRepository;
+    	TehsilRepository tehsilRepository = new Tehsil().tehsilRepository;
         if (tehsilRepository == null) {
             throw new IllegalStateException(
                     "TehsilRepository has not been injected in Tehsil Domain");
         }
         return tehsilRepository;
     }
-
-    /**
-     * Find tehsils ref by district id.
-     *
-     * @param districtId the district id
-     * @param sortBy the sort by
-     * @param sortOrder the sort order
-     * @param locale the locale
-     * @return the list
-     */
-    public static List<Reference> findTehsilsRefByDistrictId(
-            final Long districtId,
-            final String sortBy,
-            final String sortOrder,
-            final String locale) {
-        return getTehsilRepository().findTehsilsRefByDistrictId(districtId, sortBy, sortOrder,
-                locale);
-    }
+    
+    public static List<Reference> findTehsilsRefByDistrictId(Long districtId,
+			String sortBy, String sortOrder, String locale) {
+		return getTehsilRepository().findTehsilsRefByDistrictId(districtId,sortBy,sortOrder,locale);
+	}
     // ------------------------------------------Getters/Setters-----------------------------------
 
     /**
      * Gets the name.
-     *
+     * 
      * @return the name
      */
     public String getName() {
@@ -118,7 +98,7 @@ public class Tehsil extends BaseDomain implements Serializable {
 
     /**
      * Sets the name.
-     *
+     * 
      * @param name the new name
      */
     public void setName(final String name) {
@@ -127,7 +107,7 @@ public class Tehsil extends BaseDomain implements Serializable {
 
     /**
      * Gets the district.
-     *
+     * 
      * @return the district
      */
     public District getDistrict() {
@@ -136,11 +116,13 @@ public class Tehsil extends BaseDomain implements Serializable {
 
     /**
      * Sets the district.
-     *
+     * 
      * @param district the new district
      */
     public void setDistrict(final District district) {
         this.district = district;
     }
+
+	
 
 }

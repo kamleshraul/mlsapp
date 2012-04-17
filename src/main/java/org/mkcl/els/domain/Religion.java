@@ -26,7 +26,7 @@ import org.springframework.beans.factory.annotation.Configurable;
  */
 @Configurable
 @Entity
-@Table(name = "masters_religions")
+@Table(name = "religions")
 public class Religion extends BaseDomain implements Serializable {
 
     // ---------------------------------Attributes------------------------------------------

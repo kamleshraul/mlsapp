@@ -13,25 +13,26 @@ import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Table;
 
+import org.hibernate.validator.constraints.NotEmpty;
 import org.springframework.beans.factory.annotation.Configurable;
 
 /**
  * The Class Nationality.
- *
+ * 
  * @author amitd
  * @author sandeeps
  * @since v1.0.0
  */
 @Configurable
 @Entity
-@Table(name = "masters_nationalities")
+@Table(name = "nationalities")
 public class Nationality extends BaseDomain {
 
     // ---------------------------------Attributes------------------------------------------
 
     /** The name. */
     @Column(length = 150)
-    private String name;
+     private String name;
 
     // ---------------------------------Constructors----------------------------------------------
 
@@ -44,10 +45,10 @@ public class Nationality extends BaseDomain {
 
     /**
      * Instantiates a new nationality.
-     *
+     * 
      * @param name the name
      */
-    public Nationality(final String name) {
+    public Nationality(String name) {
         super();
         this.name = name;
     }
@@ -56,7 +57,7 @@ public class Nationality extends BaseDomain {
     // ------------------------------------------Getters/Setters-----------------------------------
     /**
      * Gets the name.
-     *
+     * 
      * @return the name
      */
     public String getName() {
@@ -65,10 +66,10 @@ public class Nationality extends BaseDomain {
 
     /**
      * Sets the name.
-     *
+     * 
      * @param name the new name
      */
-    public void setName(final String name) {
+    public void setName(String name) {
         this.name = name;
     }
 }

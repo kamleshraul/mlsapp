@@ -20,13 +20,13 @@ import org.springframework.beans.factory.annotation.Configurable;
 
 /**
  * The Class MaritalStatus.
- *
+ * 
  * @author Anand
  * @since v1.0.0
  */
 @Configurable
 @Entity
-@Table(name = "masters_maritalstatus")
+@Table(name = "maritalstatus")
 public class MaritalStatus extends BaseDomain implements Serializable {
 
     // ---------------------------------Attributes------------------------------------------
@@ -49,10 +49,10 @@ public class MaritalStatus extends BaseDomain implements Serializable {
 
     /**
      * Instantiates a new marital status.
-     *
+     * 
      * @param name the name
      */
-    public MaritalStatus(final String name) {
+    public MaritalStatus(String name) {
         super();
         this.name = name;
     }
@@ -62,7 +62,7 @@ public class MaritalStatus extends BaseDomain implements Serializable {
     // ------------------------------------------Getters/Setters-----------------------------------
     /**
      * Gets the name.
-     *
+     * 
      * @return the name
      */
     public String getName() {
@@ -71,10 +71,10 @@ public class MaritalStatus extends BaseDomain implements Serializable {
 
     /**
      * Sets the name.
-     *
+     * 
      * @param name the new name
      */
-    public void setName(final String name) {
+    public void setName(String name) {
         this.name = name;
     }
 

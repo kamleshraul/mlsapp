@@ -30,14 +30,14 @@ import org.springframework.util.AutoPopulatingList;
 
 /**
  * The Class House.
- *
+ * 
  * @author amitd
  * @author sandeeps
  * @since v1.0.0
  */
 @Configurable
 @Entity
-@Table(name = "house")
+@Table(name = "houses")
 public class House extends BaseDomain implements Serializable {
 
     // ---------------------------------Attributes------------------------------------------
@@ -89,7 +89,6 @@ public class House extends BaseDomain implements Serializable {
     @JoinColumn(name = "house_id", referencedColumnName = "id")
     private List<Session> sessions = new ArrayList<Session>();
 
-    /** The house repository. */
     @Autowired
     private transient HouseRepository houseRepository;
 
@@ -100,23 +99,19 @@ public class House extends BaseDomain implements Serializable {
      */
     public House() {
         super();
-        new AutoPopulatingList<Session>(
+        AutoPopulatingList<Session> sessionsAuto = new AutoPopulatingList<Session>(
                 this.sessions, Session.class);
     }
 
     /**
      * Instantiates a new house.
-     *
+     * 
      * @param name the name
      * @param number the number
      * @param type the type
      * @param formationDate the formation date
      */
-    public House(
-            final String name,
-            final Integer number,
-            final HouseType type,
-            final Date formationDate) {
+    public House(String name, Integer number, HouseType type, Date formationDate) {
         super();
         this.name = name;
         this.number = number;
@@ -125,11 +120,6 @@ public class House extends BaseDomain implements Serializable {
     }
 
     // -------------------------------Domain_Methods----------------------------------------------
-    /**
-     * Gets the house repository.
-     *
-     * @return the house repository
-     */
     public static HouseRepository getHouseRepository() {
         HouseRepository houseRepository = new House().houseRepository;
         if (houseRepository == null) {
@@ -139,35 +129,25 @@ public class House extends BaseDomain implements Serializable {
         return houseRepository;
     }
 
-    /**
-     * Find current house.
-     *
-     * @param locale the locale
-     * @return the house
-     */
-    public static House findCurrentHouse(final String locale) {
+    public static House findCurrentHouse(String locale) {
         return getHouseRepository().findCurrentHouse(locale);
     }
 
-    /**
-     * Find house by to from date.
-     *
-     * @param fromDate the from date
-     * @param toDate the to date
-     * @param locale the locale
-     * @return the house
-     */
-    public static House findHouseByToFromDate(final Date fromDate, final Date toDate,
-            final String locale) {
+    public static House findHouseByToFromDate(Date fromDate, Date toDate,
+            String locale) {
         return getHouseRepository().findHouseByToFromDate(fromDate, toDate,
                 locale);
     }
+    
+    public static List<House> findByHouseType(String houseType, String locale) {
+    	return getHouseRepository().findByHouseType(houseType, locale);
+	}
 
     // ------------------------------------------Getters/Setters-----------------------------------
 
     /**
      * Gets the name.
-     *
+     * 
      * @return the name
      */
     public String getName() {
@@ -176,16 +156,16 @@ public class House extends BaseDomain implements Serializable {
 
     /**
      * Sets the name.
-     *
+     * 
      * @param name the new name
      */
-    public void setName(final String name) {
+    public void setName(String name) {
         this.name = name;
     }
 
     /**
      * Gets the number.
-     *
+     * 
      * @return the number
      */
     public Integer getNumber() {
@@ -194,16 +174,16 @@ public class House extends BaseDomain implements Serializable {
 
     /**
      * Sets the number.
-     *
+     * 
      * @param number the new number
      */
-    public void setNumber(final Integer number) {
+    public void setNumber(Integer number) {
         this.number = number;
     }
 
     /**
      * Gets the type.
-     *
+     * 
      * @return the type
      */
     public HouseType getType() {
@@ -212,16 +192,16 @@ public class House extends BaseDomain implements Serializable {
 
     /**
      * Sets the type.
-     *
+     * 
      * @param type the new type
      */
-    public void setType(final HouseType type) {
+    public void setType(HouseType type) {
         this.type = type;
     }
 
     /**
      * Gets the formation date.
-     *
+     * 
      * @return the formation date
      */
     public Date getFormationDate() {
@@ -230,16 +210,16 @@ public class House extends BaseDomain implements Serializable {
 
     /**
      * Sets the formation date.
-     *
+     * 
      * @param formationDate the new formation date
      */
-    public void setFormationDate(final Date formationDate) {
+    public void setFormationDate(Date formationDate) {
         this.formationDate = formationDate;
     }
 
     /**
      * Gets the dissolve date.
-     *
+     * 
      * @return the dissolve date
      */
     public Date getDissolveDate() {
@@ -248,16 +228,16 @@ public class House extends BaseDomain implements Serializable {
 
     /**
      * Sets the dissolve date.
-     *
+     * 
      * @param dissolveDate the new dissolve date
      */
-    public void setDissolveDate(final Date dissolveDate) {
+    public void setDissolveDate(Date dissolveDate) {
         this.dissolveDate = dissolveDate;
     }
 
     /**
      * Gets the first date.
-     *
+     * 
      * @return the first date
      */
     public Date getFirstDate() {
@@ -266,16 +246,16 @@ public class House extends BaseDomain implements Serializable {
 
     /**
      * Sets the first date.
-     *
+     * 
      * @param firstDate the new first date
      */
-    public void setFirstDate(final Date firstDate) {
+    public void setFirstDate(Date firstDate) {
         this.firstDate = firstDate;
     }
 
     /**
      * Gets the last date.
-     *
+     * 
      * @return the last date
      */
     public Date getLastDate() {
@@ -284,16 +264,16 @@ public class House extends BaseDomain implements Serializable {
 
     /**
      * Sets the last date.
-     *
+     * 
      * @param lastDate the new last date
      */
-    public void setLastDate(final Date lastDate) {
+    public void setLastDate(Date lastDate) {
         this.lastDate = lastDate;
     }
 
     /**
      * Gets the governor address date.
-     *
+     * 
      * @return the governor address date
      */
     public Date getGovernorAddressDate() {
@@ -302,16 +282,16 @@ public class House extends BaseDomain implements Serializable {
 
     /**
      * Sets the governor address date.
-     *
+     * 
      * @param governorAddressDate the new governor address date
      */
-    public void setGovernorAddressDate(final Date governorAddressDate) {
+    public void setGovernorAddressDate(Date governorAddressDate) {
         this.governorAddressDate = governorAddressDate;
     }
 
     /**
      * Gets the total members.
-     *
+     * 
      * @return the total members
      */
     public Integer getTotalMembers() {
@@ -320,16 +300,16 @@ public class House extends BaseDomain implements Serializable {
 
     /**
      * Sets the total members.
-     *
+     * 
      * @param totalMembers the new total members
      */
-    public void setTotalMembers(final Integer totalMembers) {
+    public void setTotalMembers(Integer totalMembers) {
         this.totalMembers = totalMembers;
     }
 
     /**
      * Gets the remarks.
-     *
+     * 
      * @return the remarks
      */
     public String getRemarks() {
@@ -338,16 +318,16 @@ public class House extends BaseDomain implements Serializable {
 
     /**
      * Sets the remarks.
-     *
+     * 
      * @param remarks the new remarks
      */
-    public void setRemarks(final String remarks) {
+    public void setRemarks(String remarks) {
         this.remarks = remarks;
     }
 
     /**
      * Gets the sessions.
-     *
+     * 
      * @return the sessions
      */
     public List<Session> getSessions() {
@@ -356,11 +336,10 @@ public class House extends BaseDomain implements Serializable {
 
     /**
      * Sets the sessions.
-     *
-     *@param sessions the new sessions
+     * 
+     * @param sessions the new sessions
      */
-    public void setSessions(final List<Session> sessions) {
+    public void setSessions(List<Session> sessions) {
         this.sessions = sessions;
     }
-
 }

@@ -20,13 +20,13 @@ import org.springframework.beans.factory.annotation.Configurable;
 
 /**
  * The Class AssemblyCouncilType.
- *
+ * 
  * @author Anand
  * @since v1.0.0
  */
 @Configurable
 @Entity
-@Table(name = "masters_housetype")
+@Table(name = "housetypes")
 public class HouseType extends BaseDomain implements Serializable {
 
     // ---------------------------------Attributes------------------------------------------
@@ -37,40 +37,29 @@ public class HouseType extends BaseDomain implements Serializable {
     @Column(length = 150)
     @NotEmpty
     private String type;
-
-
-    /** The name. */
+    
     private String name;
 
     // ---------------------------------Constructors----------------------------------------------
 
-    /**
-     * Instantiates a new house type.
-     */
     public HouseType() {
         super();
-    }
+    }    
 
-    /**
-     * Instantiates a new house type.
-     *
-     * @param type the type
-     * @param name the name
-     */
-    public HouseType(final String type, final String name) {
-        super();
-        this.type = type;
-        this.name = name;
-    }
+    public HouseType(String type, String name) {
+		super();
+		this.type = type;
+		this.name = name;
+	}
 
 
 
-    // -------------------------------Domain_Methods----------------------------------------------
+	// -------------------------------Domain_Methods----------------------------------------------
 
     // ------------------------------------------Getters/Setters-----------------------------------
     /**
      * Gets the type.
-     *
+     * 
      * @return the type
      */
     public String getType() {
@@ -79,29 +68,19 @@ public class HouseType extends BaseDomain implements Serializable {
 
     /**
      * Sets the type.
-     *
+     * 
      * @param type the new type
      */
-    public void setType(final String type) {
+    public void setType(String type) {
         this.type = type;
     }
 
-    /**
-     * Gets the name.
-     *
-     * @return the name
-     */
-    public String getName() {
-        return name;
-    }
+	public String getName() {
+		return name;
+	}
 
-    /**
-     * Sets the name.
-     *
-     * @param name the new name
-     */
-    public void setName(final String name) {
-        this.name = name;
-    }
+	public void setName(String name) {
+		this.name = name;
+	}	
 
 }

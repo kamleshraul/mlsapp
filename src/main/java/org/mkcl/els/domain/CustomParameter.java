@@ -15,11 +15,13 @@ import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Table;
 
+import org.hibernate.validator.constraints.NotEmpty;
 import org.springframework.beans.factory.annotation.Configurable;
 
+// TODO: Auto-generated Javadoc
 /**
  * The Class CustomParameter.
- *
+ * 
  * @author amitd
  * @author sandeeps
  * @since v1.0.0
@@ -58,7 +60,7 @@ public class CustomParameter extends BaseDomain implements Serializable {
 
     /**
      * Instantiates a new custom parameter.
-     *
+     * 
      * @param name the name
      * @param value the value
      * @param updateable the updateable
@@ -77,7 +79,7 @@ public class CustomParameter extends BaseDomain implements Serializable {
     // ------------------------------------------Getters/Setters-----------------------------------
     /**
      * Gets the name.
-     *
+     * 
      * @return the name
      */
     public String getName() {
@@ -86,7 +88,7 @@ public class CustomParameter extends BaseDomain implements Serializable {
 
     /**
      * Sets the name.
-     *
+     * 
      * @param name the new name
      */
     public void setName(final String name) {
@@ -95,7 +97,7 @@ public class CustomParameter extends BaseDomain implements Serializable {
 
     /**
      * Gets the value.
-     *
+     * 
      * @return the value
      */
     public String getValue() {
@@ -104,7 +106,7 @@ public class CustomParameter extends BaseDomain implements Serializable {
 
     /**
      * Sets the value.
-     *
+     * 
      * @param value the new value
      */
     public void setValue(final String value) {
@@ -113,7 +115,7 @@ public class CustomParameter extends BaseDomain implements Serializable {
 
     /**
      * Gets the updateable.
-     *
+     * 
      * @return the updateable
      */
     public Boolean getUpdateable() {
@@ -122,7 +124,7 @@ public class CustomParameter extends BaseDomain implements Serializable {
 
     /**
      * Sets the updateable.
-     *
+     * 
      * @param updateable the new updateable
      */
     public void setUpdateable(final Boolean updateable) {
@@ -131,7 +133,7 @@ public class CustomParameter extends BaseDomain implements Serializable {
 
     /**
      * Gets the description.
-     *
+     * 
      * @return the description
      */
     public String getDescription() {
@@ -140,7 +142,7 @@ public class CustomParameter extends BaseDomain implements Serializable {
 
     /**
      * Sets the description.
-     *
+     * 
      * @param description the new description
      */
     public void setDescription(final String description) {

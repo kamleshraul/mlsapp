@@ -10,10 +10,13 @@
 package org.mkcl.els.domain;
 
 import java.io.Serializable;
+import java.text.NumberFormat;
+import java.util.Locale;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.JoinColumn;
+import javax.persistence.JoinTable;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 
@@ -47,6 +50,14 @@ public class RivalMember extends BaseDomain implements Serializable {
     @JoinColumn(name = "party_id")
     private Party party;
 
+    @ManyToOne
+    @JoinTable(name = "elctionresults_rivalmembers",
+            joinColumns = { @JoinColumn(name = "rivalmember_id",
+                    referencedColumnName = "id") },
+            inverseJoinColumns = { @JoinColumn(name = "electionresult_id",
+                    referencedColumnName = "id") })
+    private ElectionResult electionResult;
+
     // ---------------------------------Constructors----------------------------------------------
     /**
      * Instantiates a new rival member.
@@ -70,7 +81,18 @@ public class RivalMember extends BaseDomain implements Serializable {
     }
 
     // -------------------------------Domain_Methods--------------------------------------
-
+    public String formatVotesReceived(){
+        if(this.getLocale().equals("mr_IN")){
+            if(this.votesReceived!=null){
+            return NumberFormat.getInstance(new Locale("hi","IN")).format(this.votesReceived);
+            }else{
+                return "";
+            }
+        }
+        else {
+            return String.valueOf(this.votesReceived);
+        }
+    }
     // ------------------------------------------Getters/Setters-----------------------------------
     /**
      * Gets the name.
@@ -96,7 +118,7 @@ public class RivalMember extends BaseDomain implements Serializable {
      * @return the votes received
      */
     public Integer getVotesReceived() {
-        return votesReceived;
+         return votesReceived;
     }
 
     /**
@@ -126,4 +148,8 @@ public class RivalMember extends BaseDomain implements Serializable {
         this.party = party;
     }
 
+
+    public ElectionResult getElectionResult() {
+        return electionResult;
+    }
 }

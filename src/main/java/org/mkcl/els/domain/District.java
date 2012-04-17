@@ -27,163 +27,137 @@ import org.springframework.transaction.annotation.Transactional;
 
 /**
  * The Class District.
- *
+ * 
  * @author dhananjay
  * @since v1.0.0
  */
 @Configurable
 @Entity
-@Table(name = "masters_districts")
-@org.hibernate.annotations.Cache
-(usage = org.hibernate.annotations.CacheConcurrencyStrategy.READ_WRITE)
+@Table(name = "districts")
 public class District extends BaseDomain implements Serializable {
 
-    // ---------------------------------Attributes-------------------------------------------------
-    /** The Constant serialVersionUID. */
-    private static final transient long serialVersionUID = 1L;
+	// ---------------------------------Attributes-------------------------------------------------
+	/** The Constant serialVersionUID. */
+	private static final transient long serialVersionUID = 1L;
 
-    /** The name. */
-    @Column(length = 600)
-    @NotEmpty
-    private String name;
+	/** The name. */
+	@Column(length = 600)
+	@NotEmpty
+	private String name;
 
-    /** The total constituencies. */
-    @NotNull
-    private Integer totalConstituencies = 0;
+	/** The total constituencies. */
+	@NotNull
+	private Integer totalConstituencies = 0;
 
-    /** The division. */
-    @ManyToOne
-    @JoinColumn(name = "division_id")
-    private Division division;
+	/** The division. */
+	@ManyToOne
+	@JoinColumn(name = "division_id")
+	private Division division;
 
-    /** The district repository. */
-    @Autowired
-    private transient DistrictRepository districtRepository;
+	@Autowired
+	private transient DistrictRepository districtRepository;
 
-    // ---------------------------------Constructors----------------------------------------------
-    /**
-     * Instantiates a new district.
-     */
-    public District() {
-        super();
-    }
+	// ---------------------------------Constructors----------------------------------------------
+	/**
+	 * Instantiates a new district.
+	 */
+	public District() {
+		super();
+	}
 
-    /**
-     * Instantiates a new district.
-     *
-     * @param name
-     *            the name
-     * @param division
-     *            the division
-     */
-    public District(final String name, final Division division) {
-        super();
-        this.name = name;
-        this.division = division;
-    }
+	/**
+	 * Instantiates a new district.
+	 * 
+	 * @param name
+	 *            the name
+	 * @param division
+	 *            the division
+	 */
+	public District(final String name, final Division division) {
+		super();
+		this.name = name;
+		this.division = division;
+	}
 
-    // -------------------------------Domain_Methods----------------------------------------------
-    /**
-     * Gets the district repository.
-     *
-     * @return the district repository
-     */
-    public static DistrictRepository getDistrictRepository() {
-        DistrictRepository districtRepository = new District().districtRepository;
-        if (districtRepository == null) {
-            throw new IllegalStateException(
-                    "DistrictRepository has not been injected in District Domain");
-        }
-        return districtRepository;
-    }
+	// -------------------------------Domain_Methods----------------------------------------------
+	public static DistrictRepository getDistrictRepository() {
+		DistrictRepository districtRepository = new District().districtRepository;
+		if (districtRepository == null) {
+			throw new IllegalStateException(
+					"DistrictRepository has not been injected in District Domain");
+		}
+		return districtRepository;
+	}
 
-    /**
-     * Find districts by state id.
-     *
-     * @param stateid the stateid
-     * @param sortBy the sort by
-     * @param sortOrder the sort order
-     * @param locale the locale
-     * @return the list
-     */
-    @Transactional(readOnly = true)
-    public static List<District> findDistrictsByStateId(final Long stateid,
-            final String sortBy, final String sortOrder, final String locale) {
-        return getDistrictRepository().findDistrictsByStateId(stateid, sortBy,
-                sortOrder, locale);
-    }
+	@Transactional(readOnly = true)
+	public static List<District> findDistrictsByStateId(final Long stateid,
+			final String sortBy, final String sortOrder, final String locale) {
+		return getDistrictRepository().findDistrictsByStateId(stateid, sortBy,
+				sortOrder, locale);
+	}
 
-    // ------------------------------------------Getters/Setters-----------------------------------
+	// ------------------------------------------Getters/Setters-----------------------------------
 
-    /**
-     * Gets the name.
-     *
-     * @return the name
-     */
-    public String getName() {
-        return name;
-    }
+	/**
+	 * Gets the name.
+	 * 
+	 * @return the name
+	 */
+	public String getName() {
+		return name;
+	}
 
-    /**
-     * Sets the name.
-     *
-     * @param name
-     *            the new name
-     */
-    public void setName(final String name) {
-        this.name = name;
-    }
+	/**
+	 * Sets the name.
+	 * 
+	 * @param name
+	 *            the new name
+	 */
+	public void setName(final String name) {
+		this.name = name;
+	}
 
-    /**
-     * Gets the total constituencies.
-     *
-     * @return the total constituencies
-     */
-    public int getTotalConstituencies() {
-        return totalConstituencies;
-    }
+	/**
+	 * Gets the total constituencies.
+	 * 
+	 * @return the total constituencies
+	 */
+	public int getTotalConstituencies() {
+		return totalConstituencies;
+	}
 
-    /**
-     * Sets the total constituencies.
-     *
-     * @param totalConstituencies
-     *            the new total constituencies
-     */
-    public void setTotalConstituencies(final int totalConstituencies) {
-        this.totalConstituencies = totalConstituencies;
-    }
+	/**
+	 * Sets the total constituencies.
+	 * 
+	 * @param totalConstituencies
+	 *            the new total constituencies
+	 */
+	public void setTotalConstituencies(int totalConstituencies) {
+		this.totalConstituencies = totalConstituencies;
+	}
 
-    /**
-     * Gets the division.
-     *
-     * @return the division
-     */
-    public Division getDivision() {
-        return division;
-    }
+	/**
+	 * Gets the division.
+	 * 
+	 * @return the division
+	 */
+	public Division getDivision() {
+		return division;
+	}
 
-    /**
-     * Sets the division.
-     *
-     * @param division
-     *            the new division
-     */
-    public void setDivision(final Division division) {
-        this.division = division;
-    }
+	/**
+	 * Sets the division.
+	 * 
+	 * @param division
+	 *            the new division
+	 */
+	public void setDivision(final Division division) {
+		this.division = division;
+	}
 
-    /**
-     * Find districts ref by state id.
-     *
-     * @param stateId the state id
-     * @param sortBy the sort by
-     * @param sortOrder the sort order
-     * @param locale the locale
-     * @return the list
-     */
-    public static List<Reference> findDistrictsRefByStateId(final Long stateId,
-            final String sortBy, final String sortOrder, final String locale) {
-        return getDistrictRepository().findDistrictsRefByStateId(stateId,
-                sortBy, sortOrder, locale);
-    }
+	public static List<Reference> findDistrictsRefByStateId(Long stateId,
+			String sortBy, String sortOrder, String locale) {
+		return getDistrictRepository().findDistrictsRefByStateId(stateId,
+				sortBy, sortOrder, locale);
+	}
 }

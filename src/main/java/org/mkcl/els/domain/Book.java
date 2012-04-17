@@ -23,7 +23,7 @@ import org.springframework.beans.factory.annotation.Configurable;
 
 /**
  * The Class Book.
- *
+ * 
  * @author amitd
  * @author sandeeps
  * @since v1.0.0
@@ -44,10 +44,10 @@ public class Book extends BaseDomain implements Serializable {
 
     /** The authors. */
     @ManyToMany
-    @JoinTable(name = "associations_member_book", joinColumns = @JoinColumn(
+    @JoinTable(name = "members_books", joinColumns = @JoinColumn(
             name = "book_id", referencedColumnName = "id"),
             inverseJoinColumns = @JoinColumn(name = "member_id",
-            referencedColumnName = "id"))
+                    referencedColumnName = "id"))
     private List<Member> authors;
 
     /** The isbn. */
@@ -69,14 +69,14 @@ public class Book extends BaseDomain implements Serializable {
 
     /**
      * Instantiates a new book.
-     *
+     * 
      * @param name the name
      * @param authors the authors
      * @param isbn the isbn
      * @param publication the publication
      */
-    public Book(final String name, final List<Member> authors, final String isbn,
-            final String publication) {
+    public Book(String name, List<Member> authors, String isbn,
+            String publication) {
         super();
         this.name = name;
         this.authors = authors;
@@ -89,7 +89,7 @@ public class Book extends BaseDomain implements Serializable {
     // ------------------------------------------Getters/Setters-----------------------------------
     /**
      * Gets the name.
-     *
+     * 
      * @return the name
      */
     public String getName() {
@@ -98,16 +98,16 @@ public class Book extends BaseDomain implements Serializable {
 
     /**
      * Sets the name.
-     *
+     * 
      * @param name the new name
      */
-    public void setName(final String name) {
+    public void setName(String name) {
         this.name = name;
     }
 
     /**
      * Gets the authors.
-     *
+     * 
      * @return the authors
      */
     public List<Member> getAuthors() {
@@ -116,16 +116,16 @@ public class Book extends BaseDomain implements Serializable {
 
     /**
      * Sets the authors.
-     *
+     * 
      * @param authors the new authors
      */
-    public void setAuthors(final List<Member> authors) {
+    public void setAuthors(List<Member> authors) {
         this.authors = authors;
     }
 
     /**
      * Gets the isbn.
-     *
+     * 
      * @return the isbn
      */
     public String getIsbn() {
@@ -134,16 +134,16 @@ public class Book extends BaseDomain implements Serializable {
 
     /**
      * Sets the isbn.
-     *
+     * 
      * @param isbn the new isbn
      */
-    public void setIsbn(final String isbn) {
+    public void setIsbn(String isbn) {
         this.isbn = isbn;
     }
 
     /**
      * Gets the publication.
-     *
+     * 
      * @return the publication
      */
     public String getPublication() {
@@ -152,10 +152,10 @@ public class Book extends BaseDomain implements Serializable {
 
     /**
      * Sets the publication.
-     *
+     * 
      * @param publication the new publication
      */
-    public void setPublication(final String publication) {
+    public void setPublication(String publication) {
         this.publication = publication;
     }
 

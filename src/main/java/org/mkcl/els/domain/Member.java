@@ -10,11 +10,11 @@
 package org.mkcl.els.domain;
 
 import java.io.Serializable;
+import java.util.Date;
 import java.util.List;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
-import javax.persistence.DiscriminatorValue;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.JoinColumn;
@@ -23,11 +23,18 @@ import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
+import javax.persistence.Table;
+import javax.persistence.Temporal;
+import javax.persistence.TemporalType;
 
 import org.codehaus.jackson.annotate.JsonIgnoreProperties;
+import org.mkcl.els.common.vo.MemberBiographyVO;
+import org.mkcl.els.common.vo.MemberSearchPage;
 import org.mkcl.els.domain.associations.HouseMemberRoleAssociation;
-import org.mkcl.els.domain.associations.MemberMinistryAssociation;
+import org.mkcl.els.domain.associations.MemberDepartmentAssociation;
 import org.mkcl.els.domain.associations.MemberPartyAssociation;
+import org.mkcl.els.repository.MemberRepository;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Configurable;
 
 /**
@@ -39,20 +46,82 @@ import org.springframework.beans.factory.annotation.Configurable;
  */
 @Configurable
 @Entity
-@DiscriminatorValue("M")
+@Table(name="members")
 @JsonIgnoreProperties({ "qualifications", "religion", "languages",
         "familyMembers", "positionsHeld", "reservation", "electionResults",
-        "memberPartyAssociations", "memberMinistryAssociations", "books",
+        "memberPartyAssociations", "memberDepartmentAssociations", "books",
         "credential", "title", "maritalStatus", "gender", "professions",
         "nationality", "permanentAddress", "presentAddress", "contact",
-        "officeAddress", "houseMemberRoleAssociations" })
-public class Member extends Person implements Serializable {
+        "officeAddress","houseMemberRoleAssociations"})
+public class Member extends BaseDomain implements Serializable {
 
     // ---------------------------------Attributes------------------------------------------
-    // ----------------------------------Personal_Informations----------------------------------
+    // ----------------------------------Personal_Informations------------------------------
 
     /** The Constant serialVersionUID. */
     private transient static final long serialVersionUID = 1L;
+
+    /****************Personal_Information*************************/
+    /** The title. */
+    @ManyToOne(fetch=FetchType.LAZY)
+    @JoinColumn(name="title_id")
+    private Title title;
+
+    /** The first name. */
+    @Column(length = 300)
+    private String firstName;
+
+    /** The middle name. */
+    @Column(length = 300)
+    private String middleName;
+
+    /** The last name. */
+    @Column(length = 300)
+    private String lastName;
+
+    /** The birth date. */
+    @Temporal(TemporalType.DATE)
+    private Date birthDate;
+
+    /** The birth place. */
+    @Column(length = 300)
+    private String birthPlace;
+
+    /** The marital status. */
+    @ManyToOne(fetch=FetchType.LAZY)
+    @JoinColumn(name = "maritalstatus_id")
+    private MaritalStatus maritalStatus;
+
+    /** The marriage date. */
+    @Temporal(TemporalType.DATE)
+    private Date marriageDate;
+
+    /** The gender. */
+    @ManyToOne(fetch=FetchType.LAZY)
+    @JoinColumn(name = "gender_id")
+    private Gender gender;
+
+    /** The profession. */
+    @ManyToMany(fetch=FetchType.LAZY)
+    @JoinTable(name = "members_professions",
+            joinColumns = { @JoinColumn(name = "member_id",
+                    referencedColumnName = "id") },
+            inverseJoinColumns = { @JoinColumn(name = "profession_id",
+                    referencedColumnName = "id") })
+    private List<Profession> professions;
+
+    /** The nationality. */
+    @ManyToOne(fetch=FetchType.LAZY)
+    @JoinColumn(name = "nationality_id")
+    private Nationality nationality;
+
+    /** The photo. */
+    @Column(length = 100)
+    private String photo;
+
+    /** The specimen signature. */
+    @Column(length = 100)
+    private String specimenSignature;
 
     /** The alias enabled. */
     private Boolean aliasEnabled;
@@ -68,7 +137,7 @@ public class Member extends Person implements Serializable {
 
     /** The languages. */
     @ManyToMany(fetch = FetchType.LAZY)
-    @JoinTable(name = "associations_member_language",
+    @JoinTable(name = "members_languages",
             joinColumns = { @JoinColumn(name = "member_id",
                     referencedColumnName = "id") },
             inverseJoinColumns = { @JoinColumn(name = "language_id",
@@ -77,7 +146,7 @@ public class Member extends Person implements Serializable {
 
     /** The degrees. */
     @ManyToMany(fetch = FetchType.LAZY,cascade=CascadeType.ALL)
-    @JoinTable(name = "associations_member_qualification",
+    @JoinTable(name = "members_qualifications",
             joinColumns = { @JoinColumn(name = "member_id",
                     referencedColumnName = "id") },
             inverseJoinColumns = { @JoinColumn(name = "qualification_id",
@@ -86,21 +155,12 @@ public class Member extends Person implements Serializable {
 
     /** The family members. */
     @ManyToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    @JoinTable(name = "associations_member_familymember",
+    @JoinTable(name = "members_familymembers",
             joinColumns = { @JoinColumn(name = "member_id",
                     referencedColumnName = "id") },
             inverseJoinColumns = { @JoinColumn(name = "familymember_id",
                     referencedColumnName = "id") })
     private List<FamilyMember> familyMembers;
-
-    /** The positions held. */
-    @ManyToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    @JoinTable(name = "associations_member_positionheld",
-            joinColumns = { @JoinColumn(name = "member_id",
-                    referencedColumnName = "id") },
-            inverseJoinColumns = { @JoinColumn(name = "positionheld_id",
-                    referencedColumnName = "id") })
-    private List<PositionHeld> positionsHeld;
 
     /** The reservation. */
     @ManyToOne(fetch = FetchType.LAZY)
@@ -111,11 +171,35 @@ public class Member extends Person implements Serializable {
     @Column(length = 600)
     private String caste;
 
-    @OneToOne(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    /******************Contact Information**************************************/
+    /** The permanent address. */
+    @OneToOne(cascade=CascadeType.ALL)
+    @JoinColumn(name = "permanentaddress_id")
+    protected Address permanentAddress;
+
+    /** The present address. */
+    @OneToOne(cascade=CascadeType.ALL)
+    @JoinColumn(name = "presentaddress_id")
+    protected Address presentAddress;
+
+    @OneToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "officeaddress_id")
     private Address officeAddress;
 
+    /** The contact. */
+    @OneToOne(fetch = FetchType.LAZY,cascade=CascadeType.ALL)
+    @JoinColumn(name = "contactdetails_id")
+    protected Contact contact;
+
     // ----------------------------------Other_Informations----------------------------------
+    /** The positions held. */
+    @ManyToMany(cascade = CascadeType.ALL)
+    @JoinTable(name = "members_positionsheld",
+            joinColumns = { @JoinColumn(name = "member_id",
+                    referencedColumnName = "id") },
+            inverseJoinColumns = { @JoinColumn(name = "positionheld_id",
+                    referencedColumnName = "id") })
+    private List<PositionHeld> positionsHeld;
 
     /** The social cultural activities. */
     @Column(length = 30000)
@@ -162,9 +246,9 @@ public class Member extends Person implements Serializable {
     /** The member ministry associations. */
     @OneToMany(mappedBy = "member", fetch = FetchType.LAZY,
             cascade = CascadeType.ALL)
-    private List<MemberMinistryAssociation> memberMinistryAssociations;
+    private List<MemberDepartmentAssociation> memberDepartmentAssociations;
 
-    // ----------------------------------Ministry_Informations----------------------------------
+    // ----------------------------------House_Role_Informations----------------------------------
     /** The house member role associations. */
     @OneToMany(mappedBy = "member", fetch = FetchType.LAZY,cascade=CascadeType.ALL)
     private List<HouseMemberRoleAssociation> houseMemberRoleAssociations;
@@ -172,20 +256,20 @@ public class Member extends Person implements Serializable {
     // ----------------------------------Book_Informations----------------------------------
     /** The books. */
     @ManyToMany(fetch = FetchType.LAZY,cascade=CascadeType.ALL)
-    @JoinTable(name = "associations_member_book", joinColumns = @JoinColumn(
+    @JoinTable(name = "members_books", joinColumns = @JoinColumn(
             name = "member_id", referencedColumnName = "id"),
             inverseJoinColumns = @JoinColumn(name = "book_id",
                     referencedColumnName = "id"))
     private List<Book> books;
 
-    // ----------------------------------Credential_Informations----------------------------------
+    // ----------------------------------Member_Record_Status_Informations----------------------------------
     /** The credential. */
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "credentialId")
-    private Credential credential;
-    
+    //this will denote the publication status of a member record.
     @Column(length=100)
     private String status;
+
+    @Autowired
+    private transient MemberRepository memberRepository;
 
     // ---------------------------------Constructors----------------------------------------------
 
@@ -196,418 +280,350 @@ public class Member extends Person implements Serializable {
         super();
         this.aliasEnabled = false;
     }
-
     // -------------------------------Domain_Methods----------------------------------------------
+    public static MemberRepository getMemberRepository() {
+        MemberRepository memberRepository = new Member().memberRepository;
+        if (memberRepository == null) {
+            throw new IllegalStateException(
+                    "MemberRepository has not been injected in Member Domain");
+        }
+        return memberRepository;
+    }
+//    public static Integer maxNoOfTerms(final String housetype, final String locale) {
+//		return getMemberRepository().maxNoOfTerms(housetype, locale);
+//	}
+
+    public static MemberSearchPage search(final String housetype, final String criteria1,
+            final Long criteria2, final String locale) {
+        return getMemberRepository().search(housetype,criteria1,
+                criteria2, locale);
+    }
+    public static MemberBiographyVO findBiography(final long id, final String locale) {
+        return getMemberRepository().findBiography(id,locale);
+    }
+
     // ------------------------------------------Getters/Setters-----------------------------------
+	public Title getTitle() {
+		return title;
+	}
 
-    /**
-     * Gets the religion.
-     *
-     * @return the religion
-     */
-    public Religion getReligion() {
-        return religion;
+	public void setTitle(final Title title) {
+		this.title = title;
+	}
+
+	public String getFirstName() {
+		return firstName;
+	}
+
+	public void setFirstName(final String firstName) {
+		this.firstName = firstName;
+	}
+
+	public String getMiddleName() {
+		return middleName;
+	}
+
+	public void setMiddleName(final String middleName) {
+		this.middleName = middleName;
+	}
+
+	public String getLastName() {
+		return lastName;
+	}
+
+	public void setLastName(final String lastName) {
+		this.lastName = lastName;
+	}
+
+	public Date getBirthDate() {
+		return birthDate;
+	}
+
+	public void setBirthDate(final Date birthDate) {
+		this.birthDate = birthDate;
+	}
+
+	public String getBirthPlace() {
+		return birthPlace;
+	}
+
+	public void setBirthPlace(final String birthPlace) {
+		this.birthPlace = birthPlace;
+	}
+
+	public MaritalStatus getMaritalStatus() {
+		return maritalStatus;
+	}
+
+	public void setMaritalStatus(final MaritalStatus maritalStatus) {
+		this.maritalStatus = maritalStatus;
+	}
+
+	public Date getMarriageDate() {
+		return marriageDate;
+	}
+
+	public void setMarriageDate(final Date marriageDate) {
+		this.marriageDate = marriageDate;
+	}
+
+	public Gender getGender() {
+		return gender;
+	}
+
+	public void setGender(final Gender gender) {
+		this.gender = gender;
+	}
+
+	public List<Profession> getProfessions() {
+		return professions;
+	}
+
+	public void setProfessions(final List<Profession> professions) {
+		this.professions = professions;
+	}
+
+	public Nationality getNationality() {
+		return nationality;
+	}
+
+	public void setNationality(final Nationality nationality) {
+		this.nationality = nationality;
+	}
+
+	public String getPhoto() {
+		return photo;
+	}
+
+	public void setPhoto(final String photo) {
+		this.photo = photo;
+	}
+
+	public String getSpecimenSignature() {
+		return specimenSignature;
+	}
+
+	public void setSpecimenSignature(final String specimenSignature) {
+		this.specimenSignature = specimenSignature;
+	}
+
+	public Address getPermanentAddress() {
+		return permanentAddress;
+	}
+
+	public void setPermanentAddress(final Address permanentAddress) {
+		this.permanentAddress = permanentAddress;
+	}
+
+	public Address getPresentAddress() {
+		return presentAddress;
+	}
+
+	public void setPresentAddress(final Address presentAddress) {
+		this.presentAddress = presentAddress;
+	}
+
+	public Contact getContact() {
+		return contact;
+	}
+
+	public void setContact(final Contact contact) {
+		this.contact = contact;
+	}
+
+	public Boolean getAliasEnabled() {
+		return aliasEnabled;
+	}
+
+	public void setAliasEnabled(final Boolean aliasEnabled) {
+		this.aliasEnabled = aliasEnabled;
+	}
+
+	public String getAlias() {
+		return alias;
+	}
+
+	public void setAlias(final String alias) {
+		this.alias = alias;
+	}
+
+	public Religion getReligion() {
+		return religion;
+	}
+
+	public void setReligion(final Religion religion) {
+		this.religion = religion;
+	}
+
+	public List<Language> getLanguages() {
+		return languages;
+	}
+
+	public void setLanguages(final List<Language> languages) {
+		this.languages = languages;
+	}
+
+	public List<Qualification> getQualifications() {
+		return qualifications;
+	}
+
+	public void setQualifications(final List<Qualification> qualifications) {
+		this.qualifications = qualifications;
+	}
+
+	public List<FamilyMember> getFamilyMembers() {
+		return familyMembers;
+	}
+
+	public void setFamilyMembers(final List<FamilyMember> familyMembers) {
+		this.familyMembers = familyMembers;
+	}
+
+	public List<PositionHeld> getPositionsHeld() {
+		return positionsHeld;
+	}
+
+	public void setPositionsHeld(final List<PositionHeld> positionsHeld) {
+		this.positionsHeld = positionsHeld;
+	}
+
+	public Reservation getReservation() {
+		return reservation;
+	}
+
+	public void setReservation(final Reservation reservation) {
+		this.reservation = reservation;
+	}
+
+	public String getCaste() {
+		return caste;
+	}
+
+	public void setCaste(final String caste) {
+		this.caste = caste;
+	}
+
+	public Address getOfficeAddress() {
+		return officeAddress;
+	}
+
+	public void setOfficeAddress(final Address officeAddress) {
+		this.officeAddress = officeAddress;
+	}
+
+	public String getSocialCulturalActivities() {
+		return socialCulturalActivities;
+	}
+
+	public void setSocialCulturalActivities(final String socialCulturalActivities) {
+		this.socialCulturalActivities = socialCulturalActivities;
+	}
+
+	public String getLiteraryArtisticScientificAccomplishments() {
+		return literaryArtisticScientificAccomplishments;
+	}
+
+	public void setLiteraryArtisticScientificAccomplishments(
+			final String literaryArtisticScientificAccomplishments) {
+		this.literaryArtisticScientificAccomplishments = literaryArtisticScientificAccomplishments;
+	}
+
+	public String getHobbySpecialInterests() {
+		return hobbySpecialInterests;
+	}
+
+	public void setHobbySpecialInterests(final String hobbySpecialInterests) {
+		this.hobbySpecialInterests = hobbySpecialInterests;
+	}
+
+	public String getFavoritePastimeRecreation() {
+		return favoritePastimeRecreation;
+	}
+
+	public void setFavoritePastimeRecreation(final String favoritePastimeRecreation) {
+		this.favoritePastimeRecreation = favoritePastimeRecreation;
+	}
+
+	public String getSportsClubs() {
+		return sportsClubs;
+	}
+
+	public void setSportsClubs(final String sportsClubs) {
+		this.sportsClubs = sportsClubs;
+	}
+
+	public String getCountriesVisited() {
+		return countriesVisited;
+	}
+
+	public void setCountriesVisited(final String countriesVisited) {
+		this.countriesVisited = countriesVisited;
+	}
+
+	public String getOtherInformation() {
+		return otherInformation;
+	}
+
+	public void setOtherInformation(final String otherInformation) {
+		this.otherInformation = otherInformation;
+	}
+
+	public String getEducationalCulturalActivities() {
+		return educationalCulturalActivities;
+	}
+
+	public void setEducationalCulturalActivities(
+			final String educationalCulturalActivities) {
+		this.educationalCulturalActivities = educationalCulturalActivities;
+	}
+
+	public List<ElectionResult> getElectionResults() {
+		return electionResults;
+	}
+
+	public void setElectionResults(final List<ElectionResult> electionResults) {
+		this.electionResults = electionResults;
+	}
+
+	public List<MemberPartyAssociation> getMemberPartyAssociations() {
+		return memberPartyAssociations;
+	}
+
+	public void setMemberPartyAssociations(
+			final List<MemberPartyAssociation> memberPartyAssociations) {
+		this.memberPartyAssociations = memberPartyAssociations;
+	}
+
+    public List<MemberDepartmentAssociation> getMemberDepartmentAssociations() {
+        return memberDepartmentAssociations;
     }
 
-    /**
-     * Sets the religion.
-     *
-     * @param religion the new religion
-     */
-    public void setReligion(final Religion religion) {
-        this.religion = religion;
+    public void setMemberDepartmentAssociations(
+            final List<MemberDepartmentAssociation> memberDepartmentAssociations) {
+        this.memberDepartmentAssociations = memberDepartmentAssociations;
     }
-
-    /**
-     * Gets the languages.
-     *
-     * @return the languages
-     */
-    public List<Language> getLanguages() {
-        return languages;
-    }
-
-    /**
-     * Sets the languages.
-     *
-     * @param languages the new languages
-     */
-    public void setLanguages(final List<Language> languages) {
-        this.languages = languages;
-    }
-
-    public List<Qualification> getQualifications() {
-        return qualifications;
-    }
-
-    public void setQualifications(final List<Qualification> qualifications) {
-        this.qualifications = qualifications;
-    }
-
-    public void setAliasEnabled(final Boolean aliasEnabled) {
-        this.aliasEnabled = aliasEnabled;
-    }
-
-    /**
-     * Gets the family members.
-     *
-     * @return the family members
-     */
-    public List<FamilyMember> getFamilyMembers() {
-        return familyMembers;
-    }
-
-    /**
-     * Sets the family members.
-     *
-     * @param familyMembers the new family members
-     */
-    public void setFamilyMembers(final List<FamilyMember> familyMembers) {
-        this.familyMembers = familyMembers;
-    }
-
-    /**
-     * Gets the positions held.
-     *
-     * @return the positions held
-     */
-    public List<PositionHeld> getPositionsHeld() {
-        return positionsHeld;
-    }
-
-    /**
-     * Sets the positions held.
-     *
-     * @param positionsHeld the new positions held
-     */
-    public void setPositionsHeld(final List<PositionHeld> positionsHeld) {
-        this.positionsHeld = positionsHeld;
-    }
-
-    /**
-     * Gets the reservation.
-     *
-     * @return the reservation
-     */
-    public Reservation getReservation() {
-        return reservation;
-    }
-
-    /**
-     * Sets the reservation.
-     *
-     * @param reservation the new reservation
-     */
-    public void setReservation(final Reservation reservation) {
-        this.reservation = reservation;
-    }
-
-    /**
-     * Gets the alias.
-     *
-     * @return the alias
-     */
-    public String getAlias() {
-        return alias;
-    }
-
-    /**
-     * Sets the alias.
-     *
-     * @param alias the new alias
-     */
-    public void setAlias(final String alias) {
-        this.alias = alias;
-    }
-
-    /**
-     * Gets the social cultural activities.
-     *
-     * @return the social cultural activities
-     */
-    public String getSocialCulturalActivities() {
-        return socialCulturalActivities;
-    }
-
-    /**
-     * Sets the social cultural activities.
-     *
-     * @param socialCulturalActivities the new social cultural activities
-     */
-    public void setSocialCulturalActivities(final String socialCulturalActivities) {
-        this.socialCulturalActivities = socialCulturalActivities;
-    }
-
-    /**
-     * Gets the literary artistic scientific accomplishments.
-     *
-     * @return the literary artistic scientific accomplishments
-     */
-    public String getLiteraryArtisticScientificAccomplishments() {
-        return literaryArtisticScientificAccomplishments;
-    }
-
-    /**
-     * Sets the literary artistic scientific accomplishments.
-     *
-     * @param literaryArtisticScientificAccomplishments the new literary
-     *        artistic scientific accomplishments
-     */
-    public void setLiteraryArtisticScientificAccomplishments(
-            final String literaryArtisticScientificAccomplishments) {
-        this.literaryArtisticScientificAccomplishments = literaryArtisticScientificAccomplishments;
-    }
-
-    /**
-     * Gets the hobby special interests.
-     *
-     * @return the hobby special interests
-     */
-    public String getHobbySpecialInterests() {
-        return hobbySpecialInterests;
-    }
-
-    /**
-     * Sets the hobby special interests.
-     *
-     * @param hobbySpecialInterests the new hobby special interests
-     */
-    public void setHobbySpecialInterests(final String hobbySpecialInterests) {
-        this.hobbySpecialInterests = hobbySpecialInterests;
-    }
-
-    /**
-     * Gets the favorite pastime recreation.
-     *
-     * @return the favorite pastime recreation
-     */
-    public String getFavoritePastimeRecreation() {
-        return favoritePastimeRecreation;
-    }
-
-    /**
-     * Sets the favorite pastime recreation.
-     *
-     * @param favoritePastimeRecreation the new favorite pastime recreation
-     */
-    public void setFavoritePastimeRecreation(final String favoritePastimeRecreation) {
-        this.favoritePastimeRecreation = favoritePastimeRecreation;
-    }
-
-    /**
-     * Gets the sports clubs.
-     *
-     * @return the sports clubs
-     */
-    public String getSportsClubs() {
-        return sportsClubs;
-    }
-
-    /**
-     * Sets the sports clubs.
-     *
-     * @param sportsClubs the new sports clubs
-     */
-    public void setSportsClubs(final String sportsClubs) {
-        this.sportsClubs = sportsClubs;
-    }
-
-    /**
-     * Gets the countries visited.
-     *
-     * @return the countries visited
-     */
-    public String getCountriesVisited() {
-        return countriesVisited;
-    }
-
-    /**
-     * Sets the countries visited.
-     *
-     * @param countriesVisited the new countries visited
-     */
-    public void setCountriesVisited(final String countriesVisited) {
-        this.countriesVisited = countriesVisited;
-    }
-
-    /**
-     * Gets the other information.
-     *
-     * @return the other information
-     */
-    public String getOtherInformation() {
-        return otherInformation;
-    }
-
-    /**
-     * Sets the other information.
-     *
-     * @param otherInformation the new other information
-     */
-    public void setOtherInformation(final String otherInformation) {
-        this.otherInformation = otherInformation;
-    }
-
-    /**
-     * Gets the election results.
-     *
-     * @return the election results
-     */
-    public List<ElectionResult> getElectionResults() {
-        return electionResults;
-    }
-
-    /**
-     * Sets the election results.
-     *
-     * @param electionResults the new election results
-     */
-    public void setElectionResults(final List<ElectionResult> electionResults) {
-        this.electionResults = electionResults;
-    }
-
-    /**
-     * Gets the member party associations.
-     *
-     * @return the member party associations
-     */
-    public List<MemberPartyAssociation> getMemberPartyAssociations() {
-        return memberPartyAssociations;
-    }
-
-    /**
-     * Sets the member party associations.
-     *
-     * @param memberPartyAssociations the new member party associations
-     */
-    public void setMemberPartyAssociations(
-            final List<MemberPartyAssociation> memberPartyAssociations) {
-        this.memberPartyAssociations = memberPartyAssociations;
-    }
-
-    /**
-     * Gets the member ministry associations.
-     *
-     * @return the member ministry associations
-     */
-    public List<MemberMinistryAssociation> getMemberMinistryAssociations() {
-        return memberMinistryAssociations;
-    }
-
-    /**
-     * Sets the member ministry associations.
-     *
-     * @param memberMinistryAssociations the new member ministry associations
-     */
-    public void setMemberMinistryAssociations(
-            final List<MemberMinistryAssociation> memberMinistryAssociations) {
-        this.memberMinistryAssociations = memberMinistryAssociations;
-    }
-
-    /**
-     * Gets the house member role associations.
-     *
-     * @return the house member role associations
-     */
     public List<HouseMemberRoleAssociation> getHouseMemberRoleAssociations() {
-        return houseMemberRoleAssociations;
-    }
+		return houseMemberRoleAssociations;
+	}
 
-    /**
-     * Sets the house member role associations.
-     *
-     * @param houseMemberRoleAssociations the new house member role associations
-     */
-    public void setHouseMemberRoleAssociations(
-            final List<HouseMemberRoleAssociation> houseMemberRoleAssociations) {
-        this.houseMemberRoleAssociations = houseMemberRoleAssociations;
-    }
+	public void setHouseMemberRoleAssociations(
+			final List<HouseMemberRoleAssociation> houseMemberRoleAssociations) {
+		this.houseMemberRoleAssociations = houseMemberRoleAssociations;
+	}
 
-    /**
-     * Gets the books.
-     *
-     * @return the books
-     */
-    public List<Book> getBooks() {
-        return books;
-    }
+	public List<Book> getBooks() {
+		return books;
+	}
 
-    /**
-     * Sets the books.
-     *
-     * @param books the new books
-     */
-    public void setBooks(final List<Book> books) {
-        this.books = books;
-    }
-
-    /**
-     * Gets the alias enabled.
-     *
-     * @return the alias enabled
-     */
-    public Boolean getAliasEnabled() {
-        return aliasEnabled;
-    }
-
-    /**
-     * Gets the credential.
-     *
-     * @return the credential
-     */
-    public Credential getCredential() {
-        return credential;
-    }
-
-    /**
-     * Sets the credential.
-     *
-     * @param credential the new credential
-     */
-    public void setCredential(final Credential credential) {
-        this.credential = credential;
-    }
-
-    /**
-     * Gets the caste.
-     *
-     * @return the caste
-     */
-    public String getCaste() {
-        return caste;
-    }
-
-    /**
-     * Sets the caste.
-     *
-     * @param caste the new caste
-     */
-    public void setCaste(final String caste) {
-        this.caste = caste;
-    }
-
-    public Address getOfficeAddress() {
-        return officeAddress;
-    }
-
-    public void setOfficeAddress(final Address officeAddress) {
-        this.officeAddress = officeAddress;
-    }
-
-    public String getEducationalCulturalActivities() {
-        return educationalCulturalActivities;
-    }
-
-    public void setEducationalCulturalActivities(
-            final String educationalCulturalActivities) {
-        this.educationalCulturalActivities = educationalCulturalActivities;
-    }
+	public void setBooks(final List<Book> books) {
+		this.books = books;
+	}
 
 	public String getStatus() {
 		return status;
 	}
 
-	public void setStatus(String status) {
+	public void setStatus(final String status) {
 		this.status = status;
 	}
 

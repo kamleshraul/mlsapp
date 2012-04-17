@@ -15,17 +15,19 @@ import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Table;
 
+import org.hibernate.validator.constraints.NotEmpty;
 import org.springframework.beans.factory.annotation.Configurable;
 
 /**
  * The Class Title.
- * @author amitd
+ * 
+ * @author amitd *
  * @author sandeeps
  * @since v1.0.0
  */
 @Configurable
 @Entity
-@Table(name = "masters_titles")
+@Table(name = "titles")
 public class Title extends BaseDomain implements Serializable {
 
     // ---------------------------------Attributes------------------------//
@@ -51,12 +53,15 @@ public class Title extends BaseDomain implements Serializable {
 
     /**
      * Instantiates a new title.
+     * 
      * @param name the name
      * @param locale the locale
+     * @param version the version
      */
-    public Title(final String name, final String locale) {
+    public Title(final String name, final String locale, final Long version) {
         super();
         this.name = name;
+
     }
 
     // ----------------------------Domain Methods-------------------------//
@@ -64,6 +69,7 @@ public class Title extends BaseDomain implements Serializable {
     // ----------------------------Getters/Setters------------------------//
     /**
      * Gets the name.
+     * 
      * @return the name
      */
     public String getName() {
@@ -72,7 +78,7 @@ public class Title extends BaseDomain implements Serializable {
 
     /**
      * Sets the name.
-     *
+     * 
      * @param name the new name
      */
     public void setName(final String name) {

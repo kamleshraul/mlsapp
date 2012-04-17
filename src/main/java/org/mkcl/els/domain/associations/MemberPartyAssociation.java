@@ -1,7 +1,7 @@
 /**
  * See the file LICENSE for redistribution information.
  *
- * Copyright (c) 2012 ${company_name}.  All rights reserved.
+ * Copyright (c) 2012 MKCL.  All rights reserved.
  *
  * Project: e-Legislature
  * File: org.mkcl.els.domain.associations.MemberPartyAssociation.java
@@ -34,7 +34,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 /**
  * The Class MemberPartyAssociation.
- * 
+ *
  * @author amitd
  * @author sandeeps
  * @since v1.0.0
@@ -58,17 +58,17 @@ public class MemberPartyAssociation implements Serializable {
 
     /** The party. */
     @Id
-    @ManyToOne(fetch=FetchType.LAZY)
+    @ManyToOne
     @PrimaryKeyJoinColumn(name = "partyId", referencedColumnName = "id")
     private Party party;
 
-    @Id
+
     /** The from date. */
     @Temporal(TemporalType.DATE)
     private Date fromDate;
 
     /** The to date. */
-    @Id
+
     @Temporal(TemporalType.DATE)
     private Date toDate;
 
@@ -81,6 +81,8 @@ public class MemberPartyAssociation implements Serializable {
     /** The version. */
     @Version
     private Long version;
+
+    private String locale;
 
     @Autowired
     private transient MemberPartyRepository memberPartyRepository;
@@ -105,8 +107,8 @@ public class MemberPartyAssociation implements Serializable {
     }
 
     @Transactional(readOnly = true)
-    public static MemberPartyAssociation findByMemberIdAndId(Long memberId,
-            int id) {
+    public static MemberPartyAssociation findByMemberIdAndId(final Long memberId,
+            final int id) {
         return getMemberPartyRepository().findByMemberIdAndId(memberId, id);
     }
 
@@ -130,12 +132,12 @@ public class MemberPartyAssociation implements Serializable {
     }
 
     @Transactional(readOnly = true)
-    public static int findHighestRecordIndex(Long member) {
+    public static int findHighestRecordIndex(final Long member) {
         return getMemberPartyRepository().findHighestRecordIndex(member);
     }
 
     public static MemberPartyAssociation findByPK(
-            MemberPartyAssociation association) {
+            final MemberPartyAssociation association) {
         return getMemberPartyRepository().findByPK(association);
     }
 
@@ -160,7 +162,7 @@ public class MemberPartyAssociation implements Serializable {
 
     /**
      * Gets the member.
-     * 
+     *
      * @return the member
      */
     public Member getMember() {
@@ -169,16 +171,16 @@ public class MemberPartyAssociation implements Serializable {
 
     /**
      * Sets the member.
-     * 
+     *
      * @param member the new member
      */
-    public void setMember(Member member) {
+    public void setMember(final Member member) {
         this.member = member;
     }
 
     /**
      * Gets the party.
-     * 
+     *
      * @return the party
      */
     public Party getParty() {
@@ -187,16 +189,16 @@ public class MemberPartyAssociation implements Serializable {
 
     /**
      * Sets the party.
-     * 
+     *
      * @param party the new party
      */
-    public void setParty(Party party) {
+    public void setParty(final Party party) {
         this.party = party;
     }
 
     /**
      * Gets the from date.
-     * 
+     *
      * @return the from date
      */
     public Date getFromDate() {
@@ -205,16 +207,16 @@ public class MemberPartyAssociation implements Serializable {
 
     /**
      * Sets the from date.
-     * 
+     *
      * @param fromDate the new from date
      */
-    public void setFromDate(Date fromDate) {
+    public void setFromDate(final Date fromDate) {
         this.fromDate = fromDate;
     }
 
     /**
      * Gets the to date.
-     * 
+     *
      * @return the to date
      */
     public Date getToDate() {
@@ -223,10 +225,10 @@ public class MemberPartyAssociation implements Serializable {
 
     /**
      * Sets the to date.
-     * 
+     *
      * @param toDate the new to date
      */
-    public void setToDate(Date toDate) {
+    public void setToDate(final Date toDate) {
         this.toDate = toDate;
     }
 
@@ -234,7 +236,7 @@ public class MemberPartyAssociation implements Serializable {
         return sitting;
     }
 
-    public void setSitting(Boolean sitting) {
+    public void setSitting(final Boolean sitting) {
         this.sitting = sitting;
     }
 
@@ -242,7 +244,7 @@ public class MemberPartyAssociation implements Serializable {
         return recordIndex;
     }
 
-    public void setRecordIndex(Integer recordIndex) {
+    public void setRecordIndex(final Integer recordIndex) {
         this.recordIndex = recordIndex;
     }
 
@@ -250,8 +252,18 @@ public class MemberPartyAssociation implements Serializable {
         return version;
     }
 
-    public void setVersion(Long version) {
+    public void setVersion(final Long version) {
         this.version = version;
+    }
+
+
+    public String getLocale() {
+        return locale;
+    }
+
+
+    public void setLocale(final String locale) {
+        this.locale = locale;
     }
 
 }

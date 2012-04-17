@@ -20,13 +20,13 @@ import org.springframework.beans.factory.annotation.Configurable;
 
 /**
  * The Class Profession.
- *
+ * 
  * @author Anand
  * @since v1.0.0
  */
 @Configurable
 @Entity
-@Table(name = "masters_professions")
+@Table(name = "professions")
 public class Profession extends BaseDomain implements Serializable {
 
     // ---------------------------------Attributes------------------------------------------
@@ -49,8 +49,8 @@ public class Profession extends BaseDomain implements Serializable {
 
     /**
      * Instantiates a new profession.
-     *
-     * @param name the name
+     * 
+     * @param profession the profession
      */
     public Profession(final String name) {
         super();
@@ -62,7 +62,7 @@ public class Profession extends BaseDomain implements Serializable {
     // ------------------------------------------Getters/Setters-----------------------------------
     /**
      * Gets the profession.
-     *
+     * 
      * @return the profession
      */
     public String getName() {
@@ -71,8 +71,8 @@ public class Profession extends BaseDomain implements Serializable {
 
     /**
      * Sets the profession.
-     *
-     * @param name the new name
+     * 
+     * @param profession the new profession
      */
     public void setName(final String name) {
         this.name = name;

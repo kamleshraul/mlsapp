@@ -48,7 +48,7 @@ import com.sun.istack.NotNull;
 @Configurable
 @Table(name = "members_houses_roles")
 @IdClass(value = HouseMemberRoleAssociationPK.class)
-
+@JsonIgnoreProperties({"member"})
 public class HouseMemberRoleAssociation implements Serializable {
 
     // ---------------------------------Attributes-------------------------------------------------
@@ -57,12 +57,10 @@ public class HouseMemberRoleAssociation implements Serializable {
     private transient static final long serialVersionUID = 1L;
 
     /** The from date. */
-    @Id
     @Temporal(TemporalType.DATE)
     private Date fromDate;
 
     /** The to date. */
-    @Id
     @Temporal(TemporalType.DATE)
     private Date toDate;
 
@@ -74,7 +72,7 @@ public class HouseMemberRoleAssociation implements Serializable {
     private Date oathDate;
 
     /** The constituency. */
-    @ManyToOne(fetch=FetchType.LAZY)
+    @ManyToOne(fetch=FetchType.EAGER)
     @JoinColumn(name = "constituency_id")
     private Constituency constituency;
 
@@ -94,12 +92,12 @@ public class HouseMemberRoleAssociation implements Serializable {
 
     /** The role. */
     @Id
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     @PrimaryKeyJoinColumn(name = "role_id", referencedColumnName = "id")
     private MemberRole role;
 
     @Id
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "house_id")
     private House house;
 

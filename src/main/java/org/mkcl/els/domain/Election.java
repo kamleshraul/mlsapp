@@ -22,7 +22,6 @@ import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
 
 import org.codehaus.jackson.annotate.JsonIgnoreProperties;
-import org.mkcl.els.common.vo.ElectionVO;
 import org.mkcl.els.repository.ElectionRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Configurable;
@@ -36,8 +35,8 @@ import org.springframework.beans.factory.annotation.Configurable;
  */
 @Configurable
 @Entity
-@Table(name = "masters_elections")
-@JsonIgnoreProperties({ })
+@Table(name = "elections")
+@JsonIgnoreProperties({"electionType"})
 public class Election extends BaseDomain implements Serializable {
 
     // ---------------------------------Attributes-------------------------------------------------
@@ -61,8 +60,6 @@ public class Election extends BaseDomain implements Serializable {
     @Temporal(TemporalType.DATE)
     private Date toDate;
 
-
-    /** The election repository. */
     @Autowired
     private transient ElectionRepository electionRepository;
 
@@ -93,13 +90,8 @@ public class Election extends BaseDomain implements Serializable {
     }
 
     // -------------------------------Domain_Methods--------------------------------------
-    /**
-     * Gets the election repository.
-     *
-     * @return the election repository
-     */
     public static ElectionRepository getElectionRepository() {
-        ElectionRepository electionRepository = new Election().electionRepository;
+    	ElectionRepository electionRepository = new Election().electionRepository;
         if (electionRepository == null) {
             throw new IllegalStateException(
                     "ElectionRepository has not been injected in Election Domain");
@@ -107,15 +99,8 @@ public class Election extends BaseDomain implements Serializable {
         return electionRepository;
     }
 
-    /**
-     * Find by house type.
-     *
-     * @param houseType the house type
-     * @param locale the locale
-     * @return the list
-     */
-    public static List<ElectionVO> findByHouseType(final String houseType, final String locale) {
-        return getElectionRepository().findByHouseType(houseType, locale);
+    public static List<Election> findByHouseType(final String houseType,final String locale) {
+        return getElectionRepository().findByHouseType(houseType,locale);
     }
     // ------------------------------------------Getters/Setters-----------------------------------
     /**
@@ -189,4 +174,7 @@ public class Election extends BaseDomain implements Serializable {
     public void setToDate(final Date toDate) {
         this.toDate = toDate;
     }
+
+
+
 }

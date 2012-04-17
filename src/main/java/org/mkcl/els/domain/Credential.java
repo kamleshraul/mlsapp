@@ -38,7 +38,7 @@ import org.springframework.beans.factory.annotation.Configurable;
  */
 @Entity
 @Configurable
-@Table(name="credential")
+@Table(name="credentials")
 public class Credential extends BaseDomain implements Serializable {
 
     // ---------------------------------Attributes-------------------------------------------------

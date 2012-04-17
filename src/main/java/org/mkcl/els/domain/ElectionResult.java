@@ -37,7 +37,7 @@ import org.springframework.beans.factory.annotation.Configurable;
 @Configurable
 @Entity
 @Table(name = "election_results")
-@JsonIgnoreProperties({ "rivalMembers", "member" })
+@JsonIgnoreProperties({"rivalMembers","member"})
 public class ElectionResult extends BaseDomain implements Serializable {
 
     // ---------------------------------Attributes-------------------------------------------------
@@ -45,12 +45,12 @@ public class ElectionResult extends BaseDomain implements Serializable {
     private transient static final long serialVersionUID = 1L;
 
     /** The election. */
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne
     @JoinColumn(name = "election_id")
     private Election election;
 
     /** The constituency. */
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne
     @JoinColumn(name = "constituency_id")
     private Constituency constituency;
 
@@ -66,16 +66,15 @@ public class ElectionResult extends BaseDomain implements Serializable {
 
     /** The rival members. */
     @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    @JoinTable(name = "associations_elctionresult_rivalmembers",
-    joinColumns = { @JoinColumn(name = "electionresult_id",
-    referencedColumnName = "id") },
-    inverseJoinColumns = { @JoinColumn(name = "rivalmember_id",
-    referencedColumnName = "id") })
+    @JoinTable(name = "elctionresults_rivalmembers",
+            joinColumns = { @JoinColumn(name = "electionresult_id",
+                    referencedColumnName = "id") },
+            inverseJoinColumns = { @JoinColumn(name = "rivalmember_id",
+                    referencedColumnName = "id") })
     private List<RivalMember> rivalMembers;
 
-    /** The member. */
     @ManyToOne
-    @JoinColumn(name = "member_id")
+    @JoinColumn(name="member_id")
     private Member member;
 
     // ---------------------------------Constructors----------------------------------------------
@@ -216,22 +215,12 @@ public class ElectionResult extends BaseDomain implements Serializable {
         this.rivalMembers = rivalMembers;
     }
 
-    /**
-     * Gets the member.
-     *
-     * @return the member
-     */
-    public Member getMember() {
-        return member;
-    }
+	public Member getMember() {
+		return member;
+	}
 
-    /**
-     * Sets the member.
-     *
-     * @param member the new member
-     */
-    public void setMember(final Member member) {
-        this.member = member;
-    }
+	public void setMember(final Member member) {
+		this.member = member;
+	}
 
 }

@@ -10,16 +10,17 @@
 package org.mkcl.els.domain;
 
 import java.io.Serializable;
+import java.util.List;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.JoinColumn;
+import javax.persistence.JoinTable;
+import javax.persistence.ManyToMany;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
 
 import org.springframework.beans.factory.annotation.Configurable;
-
-import com.sun.istack.NotNull;
 
 /**
  * The Class Family.
@@ -45,8 +46,15 @@ public class FamilyMember extends BaseDomain implements Serializable {
     /** The relation. */
     @OneToOne
     @JoinColumn(name = "relation_id")
-    @NotNull
     private Relation relation;
+
+    @ManyToMany
+    @JoinTable(name = "members_familymembers",
+            joinColumns = { @JoinColumn(name = "familymember_id",
+                    referencedColumnName = "id") },
+            inverseJoinColumns = { @JoinColumn(name = "member_id",
+                    referencedColumnName = "id") })
+    private List<Member> members;
 
     // ---------------------------------Constructors----------------------------------------------
 
@@ -108,4 +116,8 @@ public class FamilyMember extends BaseDomain implements Serializable {
         this.relation = relation;
     }
 
+
+    public List<Member> getMembers() {
+        return members;
+    }
 }

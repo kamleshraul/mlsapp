@@ -15,22 +15,18 @@ import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Table;
 
-import org.hibernate.validator.constraints.NotEmpty;
 import org.springframework.beans.factory.annotation.Configurable;
-
 
 /**
  * The Class State.
- *
+ * 
  * @author amitd
  * @author sandeeps
  * @since v1.0.0
  */
 @Configurable
 @Entity
-@Table(name = "masters_states")
-@org.hibernate.annotations.Cache
-(usage = org.hibernate.annotations.CacheConcurrencyStrategy.READ_WRITE)
+@Table(name = "states")
 public class State extends BaseDomain implements Serializable {
 
     // ---------------------------------Attributes-------------------------------------------------
@@ -38,8 +34,7 @@ public class State extends BaseDomain implements Serializable {
     private static final transient long serialVersionUID = 1L;
 
     /** The name. */
-    @Column(length = 100, nullable = false)
-    @NotEmpty
+    @Column(length = 100)
     private String name;
 
     // ---------------------------------Constructors----------------------------------------------
@@ -52,7 +47,7 @@ public class State extends BaseDomain implements Serializable {
 
     /**
      * Instantiates a new state.
-     *
+     * 
      * @param name the name
      */
     public State(final String name) {
@@ -65,7 +60,7 @@ public class State extends BaseDomain implements Serializable {
     // ------------------------------------------Getters/Setters-----------------------------------
     /**
      * Gets the name.
-     *
+     * 
      * @return the name
      */
     public String getName() {
@@ -74,7 +69,7 @@ public class State extends BaseDomain implements Serializable {
 
     /**
      * Sets the name.
-     *
+     * 
      * @param name the new name
      */
     public void setName(final String name) {

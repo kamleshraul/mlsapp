@@ -27,7 +27,7 @@ import org.springframework.beans.factory.annotation.Configurable;
  */
 @Configurable
 @Entity
-@Table(name = "locale")
+@Table(name = "locales")
 public class ApplicationLocale extends BaseDomain implements Serializable {
 
     /** The Constant serialVersionUID. */

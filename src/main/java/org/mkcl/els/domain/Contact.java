@@ -33,43 +33,43 @@ public class Contact extends BaseDomain implements Serializable {
     private transient static final long serialVersionUID = 1L;
 
     /** The email1. */
-    @Column(length = 100)
+    @Column(length = 1000)
     private String email1;
 
     /** The email2. */
-    @Column(length = 100)
+    @Column(length = 1000)
     private String email2;
 
     /** The website1. */
-    @Column(length = 100)
+    @Column(length = 1000)
     private String website1;
 
     /** The website2. */
-    @Column(length = 100)
+    @Column(length = 1000)
     private String website2;
 
     /** The telephone1. */
-    @Column(length = 20)
+    @Column(length = 1000)
     private String telephone1;
 
     /** The telephone2. */
-    @Column(length = 20)
+    @Column(length = 1000)
     private String telephone2;
 
     /** The fax1. */
-    @Column(length = 20)
+    @Column(length = 1000)
     private String fax1;
 
     /** The fax2. */
-    @Column(length = 20)
+    @Column(length = 1000)
     private String fax2;
 
     /** The fax1. */
-    @Column(length = 20)
+    @Column(length = 1000)
     private String mobile1;
 
     /** The fax1. */
-    @Column(length = 20)
+    @Column(length = 1000)
     private String mobile2;
 
     // ---------------------------------Constructors----------------------------------------------
@@ -264,13 +264,8 @@ public class Contact extends BaseDomain implements Serializable {
         this.mobile2 = mobile2;
     }
 
-    /**
-     * Gets the email1.
-     *
-     * @return the email1
-     */
-    public String getEmail1() {
-        return email1;
-    }
+	public String getEmail1() {
+		return email1;
+	}
 
 }
