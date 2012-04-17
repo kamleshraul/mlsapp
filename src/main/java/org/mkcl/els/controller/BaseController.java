@@ -17,10 +17,12 @@ import org.slf4j.LoggerFactory;
 import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.security.core.context.SecurityContextHolder;
 
+
 /**
  * The Class BaseController.
- * 
- * @author nileshp
+ *
+ * @author amitd
+ * @author sandeeps
  * @since v1.0.0
  */
 public abstract class BaseController {
@@ -30,7 +32,7 @@ public abstract class BaseController {
 
     /**
      * Gets the current user.
-     * 
+     *
      * @return the current user
      */
     protected AuthUser getCurrentUser() {
@@ -40,7 +42,7 @@ public abstract class BaseController {
 
     /**
      * Gets the user locale.
-     * 
+     *
      * @return the user locale
      */
     protected Locale getUserLocale() {
@@ -50,7 +52,7 @@ public abstract class BaseController {
 
     /**
      * Checks if is session valid.
-     * 
+     *
      * @return true, if is session valid
      */
     protected boolean isSessionValid() {
