@@ -125,13 +125,13 @@
 			}
 		});
 		$('#submit').click(function() {
-			var htype = ${houseType};
+			var htype = ${housetype};
 			//alert("house type = " + htype);
-			if( (htype==1) || (htype==3) ) {				
+			if( htype=='lowerhouse' ) {				
 				$('#divisionName').val($('#divisions option:selected').text().trim());
 				//alert($('#divisionName').val());
 			}
-			else if( (htype==2) || (htype==4) ) {
+			else if( htype=='upperhouse' ) {
 				$('#divisionName').val($('#constituencyName').val());
 				//alert($('#divisionName').val());				
 			};
@@ -158,7 +158,7 @@
 </head>
 <body>
 	<div class="fields clearfix">
-		<form:form action="constituency" method="POST" id="form"
+		<form:form action="constituency" method="PUT" id="form"
 			modelAttribute="domain">
 			<%@ include file="/common/info.jsp"%>
 			<h2>
@@ -171,7 +171,7 @@
 			</h2>
 			<form:errors path="version" cssClass="validationError" />
 			<c:choose>
-				<c:when test="${ houseType == 1 or houseType == 3 }">
+				<c:when test="${  housetype == 'lowerhouse' }">
 					<p>
 						<label class="small"><spring:message
 								code="constituency.state" text="State" /></label> <select name="state"
@@ -306,7 +306,7 @@
 			</div>
 			<form:hidden path="version" />
 			<form:hidden path="id" />
-			<form:hidden path="locale" />						
+			<form:hidden path="locale" />									
 		</form:form>
 	</div>
 </body>
