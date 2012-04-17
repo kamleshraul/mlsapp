@@ -857,7 +857,6 @@ public class GenericController<T extends BaseDomain> extends BaseController {
 					if ((String) i.get(domain) != null) {
 						i.set(domain, ((String) i.get(domain)).trim());
 					}
-
 				}
 				catch (IllegalArgumentException e) {
 					logger.error(e.getMessage());
