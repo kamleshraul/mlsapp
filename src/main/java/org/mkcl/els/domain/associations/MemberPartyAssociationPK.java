@@ -1,7 +1,7 @@
 /**
  * See the file LICENSE for redistribution information.
  *
- * Copyright (c) 2012 ${company_name}.  All rights reserved.
+ * Copyright (c) 2012 MKCL.  All rights reserved.
  *
  * Project: e-Legislature
  * File: org.mkcl.els.domain.associations.MemberPartyAssociationPK.java
@@ -10,7 +10,6 @@
 package org.mkcl.els.domain.associations;
 
 import java.io.Serializable;
-import java.util.Date;
 
 import org.mkcl.els.domain.Member;
 import org.mkcl.els.domain.Party;
@@ -27,17 +26,10 @@ public class MemberPartyAssociationPK implements Serializable {
     /** The Constant serialVersionUID. */
     private static final long serialVersionUID = 1L;
 
-    /** The member. */
     private Member member;
 
-    /** The party. */
     private Party party;
 
-    /** The from date. */
-    private Date fromDate;
-
-    /** The to date. */
-    private Date toDate;
 
     /*
      * (non-Javadoc)
@@ -46,8 +38,7 @@ public class MemberPartyAssociationPK implements Serializable {
      */
     @Override
     public int hashCode() {
-        return (member.hashCode() + party.hashCode() + fromDate.hashCode() + toDate
-                .hashCode());
+        return (member.hashCode() + party.hashCode());
     }
 
     /*
@@ -60,10 +51,7 @@ public class MemberPartyAssociationPK implements Serializable {
         if (object instanceof MemberPartyAssociationPK) {
             MemberPartyAssociationPK memberPartyAssociationPK = (MemberPartyAssociationPK) object;
             return (memberPartyAssociationPK.member == this.member)
-                    && (memberPartyAssociationPK.party == this.party)
-                    && (memberPartyAssociationPK.fromDate == this.fromDate)
-                    && (memberPartyAssociationPK.toDate == this.toDate);
-            // && (memberPartyAssociationPK.id == this.id);
+                    && (memberPartyAssociationPK.party == this.party);
         }
         return false;
     }
