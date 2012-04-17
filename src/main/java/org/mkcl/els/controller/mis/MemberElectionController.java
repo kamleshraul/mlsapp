@@ -38,17 +38,6 @@ public class MemberElectionController extends GenericController<ElectionResult>{
         List<RivalMember> rivalMembers=domain.getRivalMembers();
         model.addAttribute("rivalMembers",rivalMembers);
         model.addAttribute("rivalCount",rivalMembers.size());
-        //now since the fields are not  directly bound to the spring path attributes hence number formatting is not taking place.
-       // Map<String,String> map=new HashMap<String, String>();
-//        if(!domain.getRivalMembers().isEmpty()){
-//            for(RivalMember i:domain.getRivalMembers()){
-//                if(i.getVotesReceived()!=null){
-//                if(domain.getLocale().equals("mr_IN")){
-//                   model.addAttribute("rivalVotesCount"+i.getId(), NumberFormat.getInstance(new Locale("hi","IN")).format(i.getVotesReceived()));
-//                }
-//                }
-//            }
-//        }
     }
 	private void populate(final ModelMap model, final ElectionResult domain,
             final HttpServletRequest request,final String locale){
@@ -114,9 +103,11 @@ public class MemberElectionController extends GenericController<ElectionResult>{
 	    	 }
 
 	    	 String votes=request.getParameter("rivalVotesReceived" + i);
+	    	 //
 	    	 if(votes!=null){
 	    		 if(!votes.isEmpty()){
-    		     rivalMember.setVotesReceived(Integer.parseInt(votes));
+	    		 String newVotes=votes.replaceAll(",", "");
+    		     rivalMember.setVotesReceived(Integer.parseInt(newVotes.trim()));
 	    		 }
 	    	 }
 
