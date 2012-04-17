@@ -1,11 +1,11 @@
 /**
  * See the file LICENSE for redistribution information.
  *
- * Copyright (c) 2011 MKCL.  All rights reserved.
+ * Copyright (c) 2012 MKCL.  All rights reserved.
  *
- * Project: els
- * File: org.mkcl.els.repository.MemberPartyRepository
- * Created On: Apr 5, 2012
+ * Project: e-Legislature
+ * File: org.mkcl.els.repository.MemberPartyRepository.java
+ * Created On: Apr 17, 2012
  */
 package org.mkcl.els.repository;
 
@@ -22,12 +22,13 @@ import com.trg.search.Search;
 /**
  * The Class MemberPartyRepository.
  *
- * @author vishals
- * @version 1.0.0
+ * @author amitd
+ * @author sandeeps
+ * @since v1.0.0
  */
 @Repository
 public class MemberPartyRepository extends
-BaseRepository<MemberPartyAssociation, Serializable> {
+        BaseRepository<MemberPartyAssociation, Serializable> {
 
     /**
      * Find by member id and id.
@@ -44,7 +45,8 @@ BaseRepository<MemberPartyAssociation, Serializable> {
         try {
             return (MemberPartyAssociation) this.em().createQuery(query)
                     .getSingleResult();
-        } catch (NoResultException e) {
+        }
+        catch (NoResultException e) {
             e.printStackTrace();
             return new MemberPartyAssociation();
         }
@@ -62,10 +64,10 @@ BaseRepository<MemberPartyAssociation, Serializable> {
                 + member + " ORDER BY m.recordIndex desc LIMIT 1";
         List<MemberPartyAssociation> associations = this.em()
                 .createQuery(query).getResultList();
-        if (associations.isEmpty()) {
-            return 0;
-        } else {
-            return associations.get(0).getRecordIndex();
+        if(associations.isEmpty()){
+        	return 0;
+        }else{
+        return associations.get(0).getRecordIndex();
         }
     }
 
