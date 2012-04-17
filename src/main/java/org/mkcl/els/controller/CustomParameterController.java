@@ -9,8 +9,6 @@
  */
 package org.mkcl.els.controller;
 
-import java.util.Locale;
-
 import javax.servlet.http.HttpServletRequest;
 
 import org.mkcl.els.domain.CustomParameter;
@@ -21,7 +19,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 /**
  * The Class CustomParameterController.
  *
- * @author nileshp
+ * @author anand
  * @since v1.0.0
  */
 @Controller
