@@ -969,7 +969,8 @@
 	}
 	
 	.sSelect{
-		height:24px;	
+	/*added by sandeeps.Increased the height of text boxes from 24 px to 28px;*/
+		height:28px;	
 		width:188px;
 		line-height:16px;
 		background:white url(../../images/template/th_blue/bk_field.png) repeat-x top right; 
@@ -1005,6 +1006,8 @@
 	}
 	
 	.sText{
+		/* added by sandeeps .changed height from 18px to 24px to 
+		accomodate proper display of various marathi ligatures*/
 		height:18px;	
 		line-height:16px;
 		background:#fff url(../../images/template/th_blue/bk_field.png) repeat-x top right; 
