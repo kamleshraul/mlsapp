@@ -36,7 +36,7 @@ import org.springframework.beans.factory.annotation.Configurable;
  */
 @Configurable
 @Entity
-@Table(name = "masters_constituencies")
+@Table(name = "constituencies")
 @JsonIgnoreProperties({ "houseType", "districts", "reservedFor", "nearestRailwayStation",
 "nearestAirport" })
 public class Constituency extends BaseDomain implements Serializable {

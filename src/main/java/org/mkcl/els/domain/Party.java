@@ -33,7 +33,7 @@ import org.springframework.beans.factory.annotation.Configurable;
  */
 @Configurable
 @Entity
-@Table(name = "masters_parties")
+@Table(name = "parties")
 public class Party extends BaseDomain implements Serializable {
 
     // ---------------------------------Attributes-------------------------------------------------

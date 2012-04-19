@@ -29,7 +29,7 @@ import org.springframework.beans.factory.annotation.Configurable;
  */
 @Configurable
 @Entity
-@Table(name = "masters_partysymbols")
+@Table(name = "partysymbols")
 public class PartySymbol extends BaseDomain implements Serializable {
 
     // ---------------------------------Attributes-------------------------------------------------
