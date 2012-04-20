@@ -16,7 +16,6 @@ import javax.servlet.http.HttpServletRequest;
 
 import org.mkcl.els.domain.CustomParameter;
 import org.mkcl.els.domain.Department;
-import org.mkcl.els.domain.Ministry;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -40,15 +39,10 @@ public class DepartmentController extends GenericController<Department>{
 	                               final Department domain,
 	                               final String locale,
 	                               final HttpServletRequest request) {
-	        
-	    	 String ministry = ((CustomParameter) CustomParameter.findByName(
-	                 CustomParameter.class, "DEFAULT_MINISTRY", locale)).getValue();
-	    	 List<Ministry> ministryList = Ministry.findAll(
-		    		   Ministry.class, "name", "asc", locale);
-		       Ministry defaultMinistry = Ministry.findByFieldName(
-		    		   Ministry.class, "name", ministry, locale);
-		       domain.setMinistry(defaultMinistry);
-	          model.addAttribute("ministry", ministryList);
+	        domain.setLocale(locale);
+	    	List<Department> deptList = Department.findAll(
+	    			 Department.class, "name", "asc", locale);
+	    	 model.addAttribute("parentDepartment", deptList);
 	    }
 	 
 	
@@ -60,8 +54,10 @@ public class DepartmentController extends GenericController<Department>{
 	                                   final Department domain,
 	                                   final HttpServletRequest request) {
 	        domain.setLocale(domain.getLocale());
-	        List<Ministry> ministryList = Ministry.findAll(
-		    		   Ministry.class, "name", "asc", domain.getLocale());
-	        model.addAttribute("ministry", ministryList);
-	       }
+	        model.addAttribute("parent", domain.getParentId());
+	          List<Department> deptList = Department.findAll(
+	    			 Department.class, "name", "asc", domain.getLocale());
+	        model.addAttribute("parentDepartment", deptList);
+	      
+   	}
 }
