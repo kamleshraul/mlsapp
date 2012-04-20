@@ -5,16 +5,18 @@
  *
  * Project: e-Legislature
  * File: org.mkcl.els.DepartmentTest.java
- * Created On: Apr 9, 2012
+ * Created On: Apr 20, 2012
  */
 package org.mkcl.els;
 
 import static org.junit.Assert.*;
+
 import java.util.List;
+
 import junit.framework.Assert;
+
 import org.junit.Test;
 import org.mkcl.els.domain.Department;
-import org.mkcl.els.domain.Ministry;
 import org.springframework.transaction.annotation.Transactional;
 
 // TODO: Auto-generated Javadoc
@@ -24,7 +26,7 @@ import org.springframework.transaction.annotation.Transactional;
  * @author Anand
  * @since v1.0.0
  */
-public class DepartmentTest extends AbstractTest{
+public class DepartmentTest extends AbstractTest {
 
 	/**
 	 * Test persist.
@@ -32,11 +34,11 @@ public class DepartmentTest extends AbstractTest{
 	@Test
 	@Transactional
 	public void testPersist() {
-		Ministry ministry=new Ministry("testMinistry", "tm");
-		ministry.persist();
-		Department department=new Department("testDept", ministry);
+		Department department=new Department("testDepartment", null);
 		department.persist();
-		Assert.assertNotNull("Saved Department Data ", department);
+		Department department1=new Department("newDepartment",department);
+		department1.persist();
+		Assert.assertNotNull("Saved Department data", department1);
 	}
 
 	/**
@@ -45,13 +47,13 @@ public class DepartmentTest extends AbstractTest{
 	@Test
 	@Transactional
 	public void testMerge() {
-		Ministry ministry=new Ministry("testMinistry", "tm");
-		ministry.persist();
-		Department department=new Department("testDept", ministry);
+		Department department=new Department("testDepartment", null);
 		department.persist();
-		department.setName("newName");
-		department.merge();
-		Assert.assertNotNull("Updated Department Data ", department);
+		Department department1=new Department("newDepartment",department);
+		department1.persist();
+		department1.setName("HomeDepartment");
+		department1.merge();
+		Assert.assertNotNull("Updated Department data", department1);
 	}
 
 	/**
@@ -60,12 +62,13 @@ public class DepartmentTest extends AbstractTest{
 	@Test
 	@Transactional
 	public void testRemove() {
-		Ministry ministry=new Ministry("testMinistry", "tm");
-		ministry.persist();
-		Department department=new Department("testDept", ministry);
+		Department department=new Department("testDepartment", null);
 		department.persist();
-		department.remove();
-		Assert.assertNotNull("Deleted Department Data ", department);
+		Department department1=new Department("newDepartment",department);
+		department1.persist();
+		department1.remove();
+		Assert.assertNotNull("Deleted Department data", department1);
+
 	}
 
 	/**
@@ -74,12 +77,12 @@ public class DepartmentTest extends AbstractTest{
 	@Test
 	@Transactional
 	public void testFindById() {
-		Ministry ministry=new Ministry("testMinistry", "tm");
-		ministry.persist();
-		Department department=new Department("testDept", ministry);
+		Department department=new Department("testDepartment", null);
 		department.persist();
-		Department dept=Department.findById(Department.class, department.getId());
-		Assert.assertNotNull("searching Department Data wrt id ", dept);
+		Department department1=new Department("newDepartment",department);
+		department1.persist();
+		Department department2=Department.findById(Department.class, department1.getId());
+		Assert.assertNotNull("Searching Department data with ID", department2);
 	}
 
 	/**
@@ -88,12 +91,12 @@ public class DepartmentTest extends AbstractTest{
 	@Test
 	@Transactional
 	public void testFindByName() {
-		Ministry ministry=new Ministry("testMinistry", "tm");
-		ministry.persist();
-		Department department=new Department("testDept", ministry);
+		Department department=new Department("testDepartment", null);
 		department.persist();
-		Department dept=Department.findByName(Department.class, department.getName(), department.getLocale());
-		Assert.assertNotNull("searching Department Data wrt name ", dept);
+		Department department1=new Department("newDepartment",department);
+		department1.persist();
+		Department department2=Department.findByName(Department.class, department1.getName(), department1.getLocale());
+		Assert.assertNotNull("Searching Department data with Name", department2);
 	}
 
 	/**
@@ -102,12 +105,12 @@ public class DepartmentTest extends AbstractTest{
 	@Test
 	@Transactional
 	public void testFindAll() {
-		Ministry ministry=new Ministry("testMinistry", "tm");
-		ministry.persist();
-		Department department=new Department("testDept", ministry);
+		Department department=new Department("testDepartment", null);
 		department.persist();
-		List<Department> departments=Department.findAll(Department.class, "name", "desc", department.getLocale());
-		Assert.assertNotNull("searching All Department Data ", departments);
+		Department department1=new Department("newDepartment",department);
+		department1.persist();
+		List<Department> departments=Department.findAll(Department.class, "name", "desc", department1.getLocale());
+		Assert.assertNotNull("Searching Department data ", departments);
 	}
 
 }
