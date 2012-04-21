@@ -134,12 +134,7 @@ public class DistrictController extends GenericController<District> {
         // Check for version mismatch
         if (domain.isVersionMismatch()) {
             result.rejectValue("VersionMismatch", "version");
-        }
-
-        // Check for Nil Number of Constituencies in District
-        if (domain.getTotalConstituencies() == 0) {
-            result.rejectValue("totalConstituencies", "NonZero.district.totalConstituencies");
-        }
+        }        
 
         // Check for duplicate instance if the instance has a field "name"
         try {

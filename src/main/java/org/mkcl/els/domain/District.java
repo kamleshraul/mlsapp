@@ -41,13 +41,12 @@ public class District extends BaseDomain implements Serializable {
 	private static final transient long serialVersionUID = 1L;
 
 	/** The name. */
-	@Column(length = 600)
-	@NotEmpty
+	@Column(length = 600)	
 	private String name;
 
 	/** The total constituencies. */
-	@NotNull
-	private Integer totalConstituencies = 0;
+	@Column(name="total_constituencies")
+	private Integer totalConstituencies;
 
 	/** The division. */
 	@ManyToOne
@@ -122,7 +121,7 @@ public class District extends BaseDomain implements Serializable {
 	 * 
 	 * @return the total constituencies
 	 */
-	public int getTotalConstituencies() {
+	public Integer getTotalConstituencies() {
 		return totalConstituencies;
 	}
 
@@ -132,7 +131,7 @@ public class District extends BaseDomain implements Serializable {
 	 * @param totalConstituencies
 	 *            the new total constituencies
 	 */
-	public void setTotalConstituencies(int totalConstituencies) {
+	public void setTotalConstituencies(Integer totalConstituencies) {
 		this.totalConstituencies = totalConstituencies;
 	}
 
