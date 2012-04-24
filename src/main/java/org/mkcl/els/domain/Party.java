@@ -15,6 +15,7 @@ import java.util.List;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.JoinColumn;
 import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
@@ -22,6 +23,7 @@ import javax.persistence.Table;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
 
+import org.codehaus.jackson.annotate.JsonIgnoreProperties;
 import org.mkcl.els.domain.associations.MemberPartyAssociation;
 import org.springframework.beans.factory.annotation.Configurable;
 
@@ -34,6 +36,7 @@ import org.springframework.beans.factory.annotation.Configurable;
 @Configurable
 @Entity
 @Table(name = "parties")
+@JsonIgnoreProperties({"registeredOfficeAddress","stateOfficeAddress","contact","partySymbols","memberPartyAssociations"})
 public class Party extends BaseDomain implements Serializable {
 
     // ---------------------------------Attributes-------------------------------------------------
@@ -55,17 +58,17 @@ public class Party extends BaseDomain implements Serializable {
     private Date establishmentDate;
 
     /** The registered office address. */
-    @OneToOne
+    @OneToOne(fetch=FetchType.LAZY)
     @JoinColumn(name = "registered_office_address_id")
     private Address registeredOfficeAddress;
 
     /** The state office address. */
-    @OneToOne
+    @OneToOne(fetch=FetchType.LAZY)
     @JoinColumn(name = "state_office_address_id")
     private Address stateOfficeAddress;
 
     /** The contact. */
-    @OneToOne
+    @OneToOne(fetch=FetchType.LAZY)
     @JoinColumn(name = "contact_id")
     private Contact contact;
 
@@ -73,12 +76,12 @@ public class Party extends BaseDomain implements Serializable {
     private Boolean isDissolved;
 
     /** The party symbols. */
-    @OneToMany
+    @OneToMany(fetch=FetchType.LAZY)
     @JoinColumn(name = "party_id", referencedColumnName = "id")
     private List<PartySymbol> partySymbols;
 
     /** The member party associations. */
-    @OneToMany(mappedBy = "party")
+    @OneToMany(mappedBy = "party",fetch=FetchType.LAZY)
     private List<MemberPartyAssociation> memberPartyAssociations;
 
     // ---------------------------------Constructors----------------------------------------------
