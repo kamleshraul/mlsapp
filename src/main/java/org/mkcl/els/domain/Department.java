@@ -10,13 +10,18 @@
 package org.mkcl.els.domain;
 
 import java.io.Serializable;
+import java.util.List;
+
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.ManyToOne;
+import javax.persistence.OneToMany;
 import javax.persistence.Table;
 
+import org.codehaus.jackson.annotate.JsonIgnoreProperties;
 import org.hibernate.validator.constraints.NotEmpty;
+import org.mkcl.els.domain.associations.MemberDepartmentAssociation;
 import org.springframework.beans.factory.annotation.Configurable;
 // TODO: Auto-generated Javadoc
 
@@ -29,6 +34,7 @@ import org.springframework.beans.factory.annotation.Configurable;
 @Configurable
 @Entity
 @Table(name = "departments")
+@JsonIgnoreProperties({"parentId", "memberDepartmentAssociations"})
 public class Department extends BaseDomain implements Serializable {
 
     // ---------------------------------Attributes-------------------------------------------------
@@ -44,6 +50,11 @@ public class Department extends BaseDomain implements Serializable {
     /** The parent id. */
     @ManyToOne
 	private Department parentId;
+    
+    /** The member party associations. */
+    @OneToMany(mappedBy = "department")    
+    private List<MemberDepartmentAssociation> memberDepartmentAssociations;	
+
 	// ---------------------------------Constructors----------------------------------------------
 	/**
 	 * Instantiates a new department.
@@ -98,6 +109,15 @@ public class Department extends BaseDomain implements Serializable {
 	 */
 	public void setParentId(Department parentId) {
 		this.parentId = parentId;
+	}
+	
+	public List<MemberDepartmentAssociation> getMemberDepartmentAssociations() {
+		return memberDepartmentAssociations;
+	}
+
+	public void setMemberDepartmentAssociations(
+			List<MemberDepartmentAssociation> memberDepartmentAssociations) {
+		this.memberDepartmentAssociations = memberDepartmentAssociations;
 	}
 	
 }
