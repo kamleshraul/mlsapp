@@ -21,6 +21,7 @@ import org.mkcl.els.domain.State;
 import org.mkcl.els.domain.Tehsil;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.RequestMapping;
 
 // TODO: Auto-generated Javadoc
@@ -119,5 +120,46 @@ public class TehsilController extends GenericController<Tehsil> {
 			model.addAttribute("districts", districts);
 		}
 	}
+	
+	/**
+	 * Custom validate create.
+	 *
+	 * @param domain the domain
+	 * @param result the result
+	 * @param request the request
+	 */
+	@Override
+	protected void customValidateCreate(final Tehsil domain,
+			final BindingResult result, final HttpServletRequest request) {
+		customValidateTehsil(domain, result, request);
+	}
+	
+	/**
+	 * Custom validate update.
+	 *
+	 * @param domain the domain
+	 * @param result the result
+	 * @param request the request
+	 */
+	@Override
+	protected void customValidateUpdate(final Tehsil domain,
+			final BindingResult result, final HttpServletRequest request) {
+		customValidateTehsil(domain, result, request);
+	}
+	
+	/**
+	 * Custom validate.
+	 *
+	 * @param domain the domain
+	 * @param result the result
+	 * @param request the request
+	 */
+	private void customValidateTehsil(final Tehsil domain, final BindingResult result,
+			final HttpServletRequest request) {
+		// Check for version mismatch
+		if (domain.isVersionMismatch()) {
+			result.rejectValue("VersionMismatch", "version");
+		}
+	}	
 
 }
