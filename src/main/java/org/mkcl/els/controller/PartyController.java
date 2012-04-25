@@ -227,21 +227,46 @@ public class PartyController extends GenericController<Party> {
 
 	@Override
 	protected void preValidateUpdate(final Party domain,
-			final BindingResult result, final HttpServletRequest request) {
-        int symbolCount = Integer.parseInt(request.getParameter("symbolCount"));
+			final BindingResult result, final HttpServletRequest request) {		
+		
+        int symbolCount = Integer.parseInt(request.getParameter("symbolCount"));             
+        
         List<PartySymbol> partySymbols = new ArrayList<PartySymbol>();
-        domain.setPartySymbols(partySymbols);
+        
         for(int i=1; i<=symbolCount; i++) {
         	if(request.getParameter("symbol"+i)!=null) {
         		PartySymbol ps = new PartySymbol();
+        		
         		ps.setSymbol(request.getParameter("symbol"+i));
-        		DateFormater toDate = new DateFormater();
-        		ps.setChangeDate(toDate.formatStringToDate((request.getParameter("changeDate"+i)), "dd/MM/yyyy"));
-        		ps.setLocale(domain.getLocale());
-            partySymbols.add(ps);
-        	}
+        		
+        		if(!request.getParameter("changeDate"+i).isEmpty()) {
+        			DateFormater toDate = new DateFormater();
+        			ps.setChangeDate(toDate.formatStringToDate((request.getParameter("changeDate"+i)), "dd/MM/yyyy"));
+        		}
+        		
+        		String id=request.getParameter("partySymbolId"+ i);
+            	if(id!=null){
+            		if(!id.isEmpty()){
+            			ps.setId(Long.parseLong(id));
+            		}
+            	}
+
+            	String version=request.getParameter("partySymbolVersion"+ i);
+            	if(version!=null){
+            		if(!version.isEmpty()){
+            			ps.setVersion(Long.parseLong(version));
+            		}
+            	}
+
+            	String locale=request.getParameter("partySymbolLocale"+ i);
+     	        if(locale!=null){
+     	        	if(!locale.isEmpty()){
+     	        		ps.setLocale(locale);
+     	        	}
+     	        }	
+        		partySymbols.add(ps);        	
+        	}        
         }
-
+        domain.setPartySymbols(partySymbols);
 	}
-
 }

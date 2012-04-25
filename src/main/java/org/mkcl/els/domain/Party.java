@@ -13,6 +13,7 @@ import java.io.Serializable;
 import java.util.Date;
 import java.util.List;
 
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
@@ -58,17 +59,17 @@ public class Party extends BaseDomain implements Serializable {
     private Date establishmentDate;
 
     /** The registered office address. */
-    @OneToOne(fetch=FetchType.LAZY)
+    @OneToOne(cascade=CascadeType.ALL, fetch=FetchType.LAZY)
     @JoinColumn(name = "registered_office_address_id")
     private Address registeredOfficeAddress;
 
     /** The state office address. */
-    @OneToOne(fetch=FetchType.LAZY)
+    @OneToOne(cascade=CascadeType.ALL, fetch=FetchType.LAZY)
     @JoinColumn(name = "state_office_address_id")
     private Address stateOfficeAddress;
 
     /** The contact. */
-    @OneToOne(fetch=FetchType.LAZY)
+    @OneToOne(cascade=CascadeType.ALL, fetch=FetchType.LAZY)
     @JoinColumn(name = "contact_id")
     private Contact contact;
 
@@ -76,7 +77,7 @@ public class Party extends BaseDomain implements Serializable {
     private Boolean isDissolved;
 
     /** The party symbols. */
-    @OneToMany(fetch=FetchType.LAZY)
+    @OneToMany(cascade=CascadeType.ALL, orphanRemoval=true, fetch=FetchType.LAZY)
     @JoinColumn(name = "party_id", referencedColumnName = "id")
     private List<PartySymbol> partySymbols;
 

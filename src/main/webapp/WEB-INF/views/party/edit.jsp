@@ -167,6 +167,9 @@
 				 "</span>" +				 
 		  		 "</p>"+		  		 
 		  		 "<input type='button' class='button' id='symbol"+symbolCount+"_delete' value='"+$('#deleteSymbolMessage').val()+"' onclick='deleteSymbol("+symbolCount+");'>"+
+		  		 "<input type='hidden' id='partySymbolId"+symbolCount+"' name='partySymbolId"+symbolCount+"'>"+
+				 "<input type='hidden' id='partySymbolLocale"+symbolCount+"' name='partySymbolLocale"+symbolCount+"' value='"+$('#locale').val()+"'>"+
+				 "<input type='hidden' id='partySymbolVersion"+symbolCount+"' name='partySymbolVersion"+symbolCount+"'>"+
 	 			 "</div>"; 	
 	 	
 		var prevCount=symbolCount-1;
@@ -263,7 +266,10 @@
 								</p>
 								<input type='button' class='button' id='${count}'
 									value='<spring:message code="party.deleteSymbol" text="Delete Symbol"></spring:message>'
-									onclick='deleteSymbol(${count});' />								
+									onclick='deleteSymbol(${count});' />		
+								<input type='hidden' id='partySymbolId${count}' name='partySymbolId${count}' value="${partySymbol.id}">
+								<input type='hidden' id='partySymbolVersion${count}' name='partySymbolVersion${count}' value="${partySymbol.version}">
+								<input type='hidden' id='partySymbolLocale${count}' name='partySymbolLocale${count}' value="${party.locale}">						
 							</div>
 						</c:forEach>
 						<form:errors path="partySymbols" cssClass="validationError"></form:errors>
@@ -457,6 +463,9 @@
 			<form:hidden path="stateOfficeAddress.version"/>
 			<form:hidden path="stateOfficeAddress.id"/>
 			<form:hidden path="stateOfficeAddress.locale"/>		
+			<%-- <c:forEach items="${party.partySymbols }" varStatus="counter">
+				<form:hidden path="partySymbols[${counter.count-1}].id"/>
+			</c:forEach> --%>
 		</form:form>	
 	</div>	
 </body>
