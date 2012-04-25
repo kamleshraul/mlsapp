@@ -30,13 +30,12 @@
 				success:function(data){				
 				$('#districts option').empty();
 				var options="";
-				for(var i=0;i<data.length;i++){
-					alert(data[i].name);
+				for(var i=0;i<data.length;i++){					
 					options+="<option value='"+data[i].id+"'>"+data[i].name+"</option>";
 				}
 				$('#districts').html(options);
-				$('#districts').sexyselect('destroy');
-				$('#districts').sexyselect({width:250,showTitle: false, selectionMode: 'multiple', styleize: true});
+				/* $('#districts').sexyselect('destroy');
+				$('#districts').sexyselect({width:250,showTitle: false, selectionMode: 'multiple', styleize: true}); */
 			}							
 			});
 		});	

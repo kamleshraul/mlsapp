@@ -34,8 +34,8 @@
 					options+="<option value='"+data[i].id+"'>"+data[i].name+"</option>";
 				}
 				$('#districts').html(options);
-				$('#districts').sexyselect('destroy');
-				$('#districts').sexyselect({width:250,showTitle: false, selectionMode: 'multiple', styleize: true});
+				/* $('#districts').sexyselect('destroy');
+				$('#districts').sexyselect({width:250,showTitle: false, selectionMode: 'multiple', styleize: true}); */
 			}							
 			});
 		});	
