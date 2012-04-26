@@ -47,6 +47,7 @@
 		</p>
 	</div>
 	<form:hidden path="version" />
+	<form:hidden path="locale"/>
 	<form:hidden path="recordIndex"/>
 	<input id="member" name="member" value="${member}" type="hidden">
 </form:form>
