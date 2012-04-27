@@ -17,9 +17,7 @@ import javax.persistence.Entity;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
-import javax.validation.constraints.NotNull;
 
-import org.hibernate.validator.constraints.NotEmpty;
 import org.mkcl.els.repository.DistrictRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Configurable;
@@ -27,7 +25,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 /**
  * The Class District.
- * 
+ *
  * @author dhananjay
  * @since v1.0.0
  */
@@ -41,12 +39,12 @@ public class District extends BaseDomain implements Serializable {
 	private static final transient long serialVersionUID = 1L;
 
 	/** The name. */
-	@Column(length = 600)	
+	@Column(length = 600)
 	private String name;
 
 	/** The total constituencies. */
 	@Column(name="total_constituencies")
-	private Integer totalConstituencies;
+	private Integer totalConstituencies = 0;
 
 	/** The division. */
 	@ManyToOne
@@ -66,7 +64,7 @@ public class District extends BaseDomain implements Serializable {
 
 	/**
 	 * Instantiates a new district.
-	 * 
+	 *
 	 * @param name
 	 *            the name
 	 * @param division
@@ -99,7 +97,7 @@ public class District extends BaseDomain implements Serializable {
 
 	/**
 	 * Gets the name.
-	 * 
+	 *
 	 * @return the name
 	 */
 	public String getName() {
@@ -108,7 +106,7 @@ public class District extends BaseDomain implements Serializable {
 
 	/**
 	 * Sets the name.
-	 * 
+	 *
 	 * @param name
 	 *            the new name
 	 */
@@ -118,7 +116,7 @@ public class District extends BaseDomain implements Serializable {
 
 	/**
 	 * Gets the total constituencies.
-	 * 
+	 *
 	 * @return the total constituencies
 	 */
 	public Integer getTotalConstituencies() {
@@ -127,17 +125,17 @@ public class District extends BaseDomain implements Serializable {
 
 	/**
 	 * Sets the total constituencies.
-	 * 
+	 *
 	 * @param totalConstituencies
 	 *            the new total constituencies
 	 */
-	public void setTotalConstituencies(Integer totalConstituencies) {
+	public void setTotalConstituencies(final Integer totalConstituencies) {
 		this.totalConstituencies = totalConstituencies;
 	}
 
 	/**
 	 * Gets the division.
-	 * 
+	 *
 	 * @return the division
 	 */
 	public Division getDivision() {
@@ -146,7 +144,7 @@ public class District extends BaseDomain implements Serializable {
 
 	/**
 	 * Sets the division.
-	 * 
+	 *
 	 * @param division
 	 *            the new division
 	 */
@@ -154,8 +152,8 @@ public class District extends BaseDomain implements Serializable {
 		this.division = division;
 	}
 
-	public static List<Reference> findDistrictsRefByStateId(Long stateId,
-			String sortBy, String sortOrder, String locale) {
+	public static List<Reference> findDistrictsRefByStateId(final Long stateId,
+			final String sortBy, final String sortOrder, final String locale) {
 		return getDistrictRepository().findDistrictsRefByStateId(stateId,
 				sortBy, sortOrder, locale);
 	}
