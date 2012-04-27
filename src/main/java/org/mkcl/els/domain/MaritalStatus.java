@@ -15,12 +15,11 @@ import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Table;
 
-import org.hibernate.validator.constraints.NotEmpty;
 import org.springframework.beans.factory.annotation.Configurable;
 
 /**
  * The Class MaritalStatus.
- * 
+ *
  * @author Anand
  * @since v1.0.0
  */
@@ -35,7 +34,6 @@ public class MaritalStatus extends BaseDomain implements Serializable {
 
     /** The maritalStatus. */
     @Column(length = 300)
-    @NotEmpty
     private String name;
 
     // ---------------------------------Constructors----------------------------------------------
@@ -49,10 +47,10 @@ public class MaritalStatus extends BaseDomain implements Serializable {
 
     /**
      * Instantiates a new marital status.
-     * 
+     *
      * @param name the name
      */
-    public MaritalStatus(String name) {
+    public MaritalStatus(final String name) {
         super();
         this.name = name;
     }
@@ -62,7 +60,7 @@ public class MaritalStatus extends BaseDomain implements Serializable {
     // ------------------------------------------Getters/Setters-----------------------------------
     /**
      * Gets the name.
-     * 
+     *
      * @return the name
      */
     public String getName() {
@@ -71,10 +69,10 @@ public class MaritalStatus extends BaseDomain implements Serializable {
 
     /**
      * Sets the name.
-     * 
+     *
      * @param name the new name
      */
-    public void setName(String name) {
+    public void setName(final String name) {
         this.name = name;
     }
 
