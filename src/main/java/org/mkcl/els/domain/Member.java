@@ -38,15 +38,12 @@ import org.mkcl.els.common.vo.MemberProfessionWiseReportVO;
 import org.mkcl.els.common.vo.MemberQualificationWiseReportVO;
 import org.mkcl.els.common.vo.MemberSearchPage;
 import org.mkcl.els.domain.associations.HouseMemberRoleAssociation;
-import org.mkcl.els.domain.associations.MemberDepartmentAssociation;
-import org.mkcl.els.domain.associations.MemberMinisterAssociation;
 import org.mkcl.els.domain.associations.MemberPartyAssociation;
 import org.mkcl.els.repository.MemberRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Configurable;
 
 
-// TODO: Auto-generated Javadoc
 /**
  * The Class Member.
  *
@@ -62,7 +59,7 @@ import org.springframework.beans.factory.annotation.Configurable;
     "memberPartyAssociations", "memberDepartmentAssociations", "books",
     "credential", "title", "maritalStatus", "gender", "professions",
     "nationality", "permanentAddress", "presentAddress", "contact",
-    "officeAddress","houseMemberRoleAssociations","memberMinisterAssociations"})
+    "officeAddress","houseMemberRoleAssociations"})
     public class Member extends BaseDomain implements Serializable {
 
     // ---------------------------------Attributes------------------------------------------
@@ -183,17 +180,17 @@ import org.springframework.beans.factory.annotation.Configurable;
 
     /** ****************Contact Information*************************************. */
     /** The permanent address. */
-    @OneToOne(cascade=CascadeType.ALL)
+    @OneToOne(cascade=CascadeType.ALL,fetch=FetchType.LAZY)
     @JoinColumn(name = "permanentaddress_id")
     protected Address permanentAddress;
 
     /** The present address. */
-    @OneToOne(cascade=CascadeType.ALL)
+    @OneToOne(cascade=CascadeType.ALL,fetch=FetchType.LAZY)
     @JoinColumn(name = "presentaddress_id")
     protected Address presentAddress;
 
     /** The office address. */
-    @OneToOne(cascade = CascadeType.ALL)
+    @OneToOne(cascade = CascadeType.ALL,fetch=FetchType.LAZY)
     @JoinColumn(name = "officeaddress_id")
     private Address officeAddress;
 
@@ -254,19 +251,12 @@ import org.springframework.beans.factory.annotation.Configurable;
     @OneToMany(mappedBy = "member", fetch = FetchType.LAZY,cascade=CascadeType.ALL)
     private List<MemberPartyAssociation> memberPartyAssociations;
 
-    // ----------------------------------Minister_Informations----------------------------------
-    /** The member minister associations. */
-    @OneToMany(mappedBy = "member", fetch = FetchType.LAZY,cascade=CascadeType.ALL)
-    private List<MemberMinisterAssociation> memberMinisterAssociations;
+    // ----------------------------------Ministry_Informations----------------------------------
+
     // ----------------------------------House_Role_Informations----------------------------------
     /** The house member role associations. */
     @OneToMany(mappedBy = "member", fetch = FetchType.LAZY,cascade=CascadeType.ALL)
     private List<HouseMemberRoleAssociation> houseMemberRoleAssociations;
-    
-    // ----------------------------------Department_Informations----------------------------------
-    /** The member department associations. */
-    @OneToMany(mappedBy = "member", fetch = FetchType.LAZY,cascade=CascadeType.ALL)
-    private List<MemberDepartmentAssociation> memberDepartmentAssociations;
 
     // ----------------------------------Book_Informations----------------------------------
     /** The books. */
@@ -319,8 +309,6 @@ import org.springframework.beans.factory.annotation.Configurable;
      * @param criteria2 the criteria2
      * @param locale the locale
      * @return the member search page
-     * @author compaq
-     * @since v1.0.0
      */
     public static MemberSearchPage search(final String housetype, final String criteria1,
             final Long criteria2, final String locale) {
@@ -335,8 +323,6 @@ import org.springframework.beans.factory.annotation.Configurable;
      * @param id the id
      * @param locale the locale
      * @return the member biography vo
-     * @author compaq
-     * @since v1.0.0
      */
     public static MemberBiographyVO findBiography(final long id, final String locale) {
         return getMemberRepository().findBiography(id,locale);
@@ -347,8 +333,6 @@ import org.springframework.beans.factory.annotation.Configurable;
      *
      * @param locale the locale
      * @return the member age wise report vo
-     * @author compaq
-     * @since v1.0.0
      */
     public static MemberAgeWiseReportVO findMembersByAge(final String locale){
         return getMemberRepository().findMembersByAge(locale);
@@ -359,8 +343,6 @@ import org.springframework.beans.factory.annotation.Configurable;
      *
      * @param locale the locale
      * @return the member qualification wise report vo
-     * @author compaq
-     * @since v1.0.0
      */
     public static MemberQualificationWiseReportVO findMembersByQualification(final String locale){
         return getMemberRepository().findMembersByQualification(locale);
@@ -371,8 +353,6 @@ import org.springframework.beans.factory.annotation.Configurable;
      *
      * @param locale the locale
      * @return the member profession wise report vo
-     * @author compaq
-     * @since v1.0.0
      */
     public static MemberProfessionWiseReportVO findMembersByProfession(final String locale){
         return getMemberRepository().findMembersByProfession(locale);
@@ -383,8 +363,6 @@ import org.springframework.beans.factory.annotation.Configurable;
      *
      * @param locale the locale
      * @return the member children wise report vo
-     * @author compaq
-     * @since v1.0.0
      */
     public static MemberChildrenWiseReportVO findMembersByChildren(final String locale){
         return getMemberRepository().findMembersByChildren(locale);
@@ -395,8 +373,6 @@ import org.springframework.beans.factory.annotation.Configurable;
      *
      * @param locale the locale
      * @return the member party wise report vo
-     * @author compaq
-     * @since v1.0.0
      */
     public static MemberPartyWiseReportVO findMembersByParty(final String locale){
         return getMemberRepository().findMembersByParty(locale);
@@ -407,8 +383,6 @@ import org.springframework.beans.factory.annotation.Configurable;
      *
      * @param locale the locale
      * @return the list
-     * @author compaq
-     * @since v1.0.0
      */
     public static List<MemberPartyDistrictWiseVO> findMembersByPartyDistrict(final String locale){
         return getMemberRepository().findMembersByPartyDistrict(locale);
@@ -419,8 +393,6 @@ import org.springframework.beans.factory.annotation.Configurable;
      *
      * @param locale the locale
      * @return the list
-     * @author compaq
-     * @since v1.0.0
      */
     public static List<MemberGeneralVO> findfemaleMembers(final String locale){
         return getMemberRepository().findfemaleMembers(locale);
@@ -431,8 +403,6 @@ import org.springframework.beans.factory.annotation.Configurable;
      *
      * @param locale the locale
      * @return the list
-     * @author compaq
-     * @since v1.0.0
      */
     public static List<MemberGeneralVO> findMembersByLastName(final String locale){
         return getMemberRepository().findMembersByLastName(locale);
@@ -443,8 +413,6 @@ import org.springframework.beans.factory.annotation.Configurable;
      *
      * @param locale the locale
      * @return the list
-     * @author compaq
-     * @since v1.0.0
      */
     public static List<MemberGeneralVO> findMembersByDistrict(final String locale){
         return getMemberRepository().findMembersByDistrict(locale);
@@ -1119,25 +1087,6 @@ import org.springframework.beans.factory.annotation.Configurable;
             final List<HouseMemberRoleAssociation> houseMemberRoleAssociations) {
         this.houseMemberRoleAssociations = houseMemberRoleAssociations;
     }
-    
-    /**
-     * Gets the member department associations.
-     *
-     * @return the member department associations
-     */
-    public List<MemberDepartmentAssociation> getMemberDepartmentAssociations() {
-		return memberDepartmentAssociations;
-	}
-	
-	/**
-	 * Sets the member department associations.
-	 *
-	 * @param memberDepartmentAssociations the new member department associations
-	 */
-	public void setMemberDepartmentAssociations(
-			List<MemberDepartmentAssociation> memberDepartmentAssociations) {
-		this.memberDepartmentAssociations = memberDepartmentAssociations;
-	}
 
     /**
      * Gets the books.
@@ -1174,25 +1123,5 @@ import org.springframework.beans.factory.annotation.Configurable;
     public void setStatus(final String status) {
         this.status = status;
     }
-	
-	/**
-	 * Gets the member minister associations.
-	 *
-	 * @return the member minister associations
-	 */
-	public List<MemberMinisterAssociation> getMemberMinisterAssociations() {
-		return memberMinisterAssociations;
-	}
-	
-	/**
-	 * Sets the member minister associations.
-	 *
-	 * @param memberMinisterAssociations the new member minister associations
-	 */
-	public void setMemberMinisterAssociations(
-			List<MemberMinisterAssociation> memberMinisterAssociations) {
-		this.memberMinisterAssociations = memberMinisterAssociations;
-	}
-    
 
 }
