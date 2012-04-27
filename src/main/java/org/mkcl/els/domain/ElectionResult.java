@@ -66,7 +66,7 @@ public class ElectionResult extends BaseDomain implements Serializable {
 
     /** The rival members. */
     @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    @JoinTable(name = "elctionresults_rivalmembers",
+    @JoinTable(name = "electionresults_rivalmembers",
             joinColumns = { @JoinColumn(name = "electionresult_id",
                     referencedColumnName = "id") },
             inverseJoinColumns = { @JoinColumn(name = "rivalmember_id",
