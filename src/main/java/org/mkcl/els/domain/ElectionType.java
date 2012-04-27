@@ -17,12 +17,11 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 
-import org.hibernate.validator.constraints.NotEmpty;
 import org.springframework.beans.factory.annotation.Configurable;
 
 /**
  * The Class ElectionType.
- * 
+ *
  * @author Anand
  * @since v1.0.0
  */
@@ -37,7 +36,6 @@ public class ElectionType extends BaseDomain implements Serializable {
 
     /** The type. */
     @Column(length = 600)
-    @NotEmpty
     private String name;
 
     @ManyToOne
@@ -54,7 +52,7 @@ public class ElectionType extends BaseDomain implements Serializable {
 
     /**
      * Instantiates a new election type.
-     * 
+     *
      * @param electionType the election type
      * @param assemblycounciltype the assemblycounciltype
      */
@@ -71,7 +69,7 @@ public class ElectionType extends BaseDomain implements Serializable {
         return name;
     }
 
-    public void setName(String name) {
+    public void setName(final String name) {
         this.name = name;
     }
 
@@ -79,7 +77,7 @@ public class ElectionType extends BaseDomain implements Serializable {
         return houseType;
     }
 
-    public void setHouseType(HouseType houseType) {
+    public void setHouseType(final HouseType houseType) {
         this.houseType = houseType;
     }
 
