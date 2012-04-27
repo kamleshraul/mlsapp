@@ -56,7 +56,7 @@ public class Constituency extends BaseDomain implements Serializable {
 
     /** The districts. */
     @ManyToMany(fetch = FetchType.LAZY)
-    @JoinTable(name = "associations_constituency_district",
+    @JoinTable(name = "constituencies_districts",
     joinColumns = @JoinColumn(name = "constituency_id",
     referencedColumnName = "id"),
     inverseJoinColumns = @JoinColumn(name = "district_id",
@@ -72,7 +72,7 @@ public class Constituency extends BaseDomain implements Serializable {
 
     /** The is reserved. */
 
-    private final Boolean isReserved = false;
+    private  Boolean isReserved;
 
     /** The reserved for. */
     @ManyToOne
@@ -91,15 +91,11 @@ public class Constituency extends BaseDomain implements Serializable {
 
     /** The is retired. */
     @Column
-    private final Boolean isRetired = false;
+    private  Boolean isRetired;
 
     /** The number. */
     @Column(length = 300)
     private String number;
-
-    /** The display name. */
-    @Column(length = 600)
-    private String displayName;
 
     /** The constituency repository. */
     @Autowired
@@ -111,6 +107,8 @@ public class Constituency extends BaseDomain implements Serializable {
      */
     public Constituency() {
         super();
+        this.isReserved=false;
+        this.isRetired=false;
     }
 
     // -------------------------------Domain_Methods----------------------------------------------
@@ -326,23 +324,4 @@ public class Constituency extends BaseDomain implements Serializable {
     public Boolean getIsRetired() {
         return isRetired;
     }
-
-    /**
-     * Gets the display name.
-     *
-     * @return the display name
-     */
-    public String getDisplayName() {
-        return displayName;
-    }
-
-    /**
-     * Sets the display name.
-     *
-     * @param displayName the new display name
-     */
-    public void setDisplayName(final String displayName) {
-        this.displayName = displayName;
-    }
-
 }
