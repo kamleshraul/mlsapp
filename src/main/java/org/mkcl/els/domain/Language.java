@@ -15,12 +15,11 @@ import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Table;
 
-import org.hibernate.validator.constraints.NotEmpty;
 import org.springframework.beans.factory.annotation.Configurable;
 
 /**
  * The Class Language.
- * 
+ *
  * @author Anand
  * @since v1.0.0
  */
@@ -35,7 +34,6 @@ public class Language extends BaseDomain implements Serializable {
 
     /** The language. */
     @Column(length = 300)
-    @NotEmpty
     private String name;
 
     // ---------------------------------Constructors----------------------------------------------
@@ -48,7 +46,7 @@ public class Language extends BaseDomain implements Serializable {
 
     /**
      * Instantiates a new language.
-     * 
+     *
      * @param language the language
      */
     public Language(final String name) {
@@ -61,7 +59,7 @@ public class Language extends BaseDomain implements Serializable {
     // ------------------------------------------Getters/Setters-----------------------------------
     /**
      * Gets the language.
-     * 
+     *
      * @return the language
      */
     public String getName() {
@@ -70,7 +68,7 @@ public class Language extends BaseDomain implements Serializable {
 
     /**
      * Sets the language.
-     * 
+     *
      * @param language the new language
      */
     public void setName(final String name) {
