@@ -15,12 +15,11 @@ import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Table;
 
-import org.hibernate.validator.constraints.NotEmpty;
 import org.springframework.beans.factory.annotation.Configurable;
 
 /**
  * The Class AssemblyCouncilType.
- * 
+ *
  * @author Anand
  * @since v1.0.0
  */
@@ -35,18 +34,17 @@ public class HouseType extends BaseDomain implements Serializable {
 
     /** The type. */
     @Column(length = 150)
-    @NotEmpty
     private String type;
-    
+
     private String name;
 
     // ---------------------------------Constructors----------------------------------------------
 
     public HouseType() {
         super();
-    }    
+    }
 
-    public HouseType(String type, String name) {
+    public HouseType(final String type, final String name) {
 		super();
 		this.type = type;
 		this.name = name;
@@ -59,28 +57,14 @@ public class HouseType extends BaseDomain implements Serializable {
     // ------------------------------------------Getters/Setters-----------------------------------
     /**
      * Gets the type.
-     * 
+     *
      * @return the type
      */
     public String getType() {
         return type;
     }
 
-    /**
-     * Sets the type.
-     * 
-     * @param type the new type
-     */
-    public void setType(String type) {
-        this.type = type;
-    }
-
 	public String getName() {
 		return name;
 	}
-
-	public void setName(String name) {
-		this.name = name;
-	}	
-
 }
