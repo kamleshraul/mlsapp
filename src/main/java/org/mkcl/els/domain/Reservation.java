@@ -15,7 +15,6 @@ import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Table;
 
-import org.hibernate.validator.constraints.NotEmpty;
 import org.springframework.beans.factory.annotation.Configurable;
 
 /**
@@ -35,7 +34,6 @@ public class Reservation extends BaseDomain implements Serializable {
 
     /** The reservation_type. */
     @Column(length = 600)
-    @NotEmpty
     private String name;
 
     /** The short_name. */
