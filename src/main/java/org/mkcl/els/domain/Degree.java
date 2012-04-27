@@ -15,12 +15,11 @@ import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Table;
 
-import org.hibernate.validator.constraints.NotEmpty;
 import org.springframework.beans.factory.annotation.Configurable;
 
 /**
  * The Class Degree.
- * 
+ *
  * @author Anand
  * @since v1.0.0
  */
@@ -34,7 +33,6 @@ public class Degree extends BaseDomain implements Serializable {
     private transient static final long serialVersionUID = 1L;
 
     /** The name. */
-    @NotEmpty
     @Column(length = 300)
     private String name;
 
@@ -57,7 +55,7 @@ public class Degree extends BaseDomain implements Serializable {
         this.name = name;
     }
 
-	
+
     // -------------------------------Domain_Methods----------------------------------------------
 
     // ------------------------------------------Getters/Setters-----------------------------------
@@ -75,8 +73,8 @@ public class Degree extends BaseDomain implements Serializable {
 	 *
 	 * @param name the new name
 	 */
-	public void setName(String name) {
+	public void setName(final String name) {
 		this.name = name;
 	}
- 
+
 }
