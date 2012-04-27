@@ -225,6 +225,7 @@ public class GenericController<T extends BaseDomain> extends BaseController {
 		/*****Hook*************/
 		populateCreateIfNoErrors(model, domain, request);
 		/**********************/
+	    trimString(model, domain, request);
 		((BaseDomain) domain).persist();
 		redirectAttributes.addFlashAttribute("type", "success");
 		redirectAttributes.addFlashAttribute("msg", "create_success");
@@ -278,6 +279,7 @@ public class GenericController<T extends BaseDomain> extends BaseController {
 
 		}
 		/**********************************/
+		trimString(model, domain, request);
 		((BaseDomain) domain).merge();
 		redirectAttributes.addFlashAttribute("type", "success");
 		redirectAttributes.addFlashAttribute("msg", "update_success");
@@ -849,23 +851,28 @@ public class GenericController<T extends BaseDomain> extends BaseController {
 	 */
 	protected void populateIfNoErrors(final ModelMap model, final T domain,
 			final HttpServletRequest request) {
-		Field[] fields = domain.getClass().getDeclaredFields();
-		for (Field i : fields) {
-			String strClassType = i.getType().getSimpleName();
-			if (strClassType.equals("String")) {
-				try {
-					if ((String) i.get(domain) != null) {
-						i.set(domain, ((String) i.get(domain)).trim());
-					}
-				}
-				catch (IllegalArgumentException e) {
-					logger.error(e.getMessage());
-				}
-				catch (IllegalAccessException e) {
-					logger.error(e.getMessage());
-				}
-			}
-		}
 	}
+
+	private void trimString(final ModelMap model, final T domain,
+            final HttpServletRequest request) {
+        Field[] fields = domain.getClass().getDeclaredFields();
+        for (Field i : fields) {
+            String strClassType = i.getType().getSimpleName();
+            if (strClassType.equals("String")) {
+                try {
+                    if ((String) i.get(domain) != null) {
+                        i.set(domain, ((String) i.get(domain)).trim());
+                    }
+
+                }
+                catch (IllegalArgumentException e) {
+                    logger.error(e.getMessage());
+                }
+                catch (IllegalAccessException e) {
+                    logger.error(e.getMessage());
+                }
+            }
+        }
+    }
 
 }
