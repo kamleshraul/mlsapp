@@ -15,13 +15,12 @@ import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Table;
 
-import org.hibernate.validator.constraints.NotEmpty;
 import org.springframework.beans.factory.annotation.Configurable;
 
 // TODO: Auto-generated Javadoc
 /**
  * The Class Role.
- * 
+ *
  * @author amitd
  * @author sandeeps
  * @since v1.0.0
@@ -37,7 +36,6 @@ public class Role extends BaseDomain implements Serializable {
 
     /** The name. */
     @Column(length = 150)
-    @NotEmpty
     private String name;
 
     // ---------------- Constructors
@@ -51,7 +49,7 @@ public class Role extends BaseDomain implements Serializable {
 
     /**
      * Instantiates a new role.
-     * 
+     *
      * @param name the name
      */
     public Role(final String name) {
@@ -63,7 +61,7 @@ public class Role extends BaseDomain implements Serializable {
     // --------------------------------------------------------------------------
     /**
      * Gets the name.
-     * 
+     *
      * @return the name
      */
     public String getName() {
@@ -72,7 +70,7 @@ public class Role extends BaseDomain implements Serializable {
 
     /**
      * Sets the name.
-     * 
+     *
      * @param name the new name
      */
     public void setName(final String name) {
