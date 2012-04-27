@@ -15,12 +15,11 @@ import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Table;
 
-import org.hibernate.validator.constraints.NotEmpty;
 import org.springframework.beans.factory.annotation.Configurable;
 
 /**
  * The Class Profession.
- * 
+ *
  * @author Anand
  * @since v1.0.0
  */
@@ -35,7 +34,6 @@ public class Profession extends BaseDomain implements Serializable {
 
     /** The profession. */
     @Column(length = 600)
-    @NotEmpty
     private String name;
 
     // ---------------------------------Constructors----------------------------------------------
@@ -49,7 +47,7 @@ public class Profession extends BaseDomain implements Serializable {
 
     /**
      * Instantiates a new profession.
-     * 
+     *
      * @param profession the profession
      */
     public Profession(final String name) {
@@ -62,7 +60,7 @@ public class Profession extends BaseDomain implements Serializable {
     // ------------------------------------------Getters/Setters-----------------------------------
     /**
      * Gets the profession.
-     * 
+     *
      * @return the profession
      */
     public String getName() {
@@ -71,7 +69,7 @@ public class Profession extends BaseDomain implements Serializable {
 
     /**
      * Sets the profession.
-     * 
+     *
      * @param profession the new profession
      */
     public void setName(final String name) {
