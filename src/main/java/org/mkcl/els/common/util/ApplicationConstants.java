@@ -1,21 +1,6 @@
-/**
- * See the file LICENSE for redistribution information.
- *
- * Copyright (c) 2012 MKCL.  All rights reserved.
- *
- * Project: e-Legislature
- * File: org.mkcl.els.common.util.ApplicationConstants.java
- * Created On: Mar 20, 2012
- */
 package org.mkcl.els.common.util;
 
-/**
- * The Class ApplicationConstants.
- *
- * @author amitd
- * @author sandeeps
- * @since v1.0.0
- */
+
 public class ApplicationConstants {
 
     public static final String ASC = "asc";
@@ -34,7 +19,13 @@ public class ApplicationConstants {
 
     public static final String DEFAULT_HOUSE="defaulthouse";
 
+    public static final String en_US_INFONOTFOUND="Information Not Available For";
+
+    public static final String mr_IN_INFONOTFOUND="माहिती प्राप्‍त झालेली नाही";
+
+    public static final String mr_IN_INFOFOUND="माहिती मिळालेली एकूण";
+
+    public static final String en_US_INFOFOUND="Information Available For";
 
 
-    // public static final String DEFAULT_SERVER_DATEFORMAT="dd/MM/yyyy";
 }
