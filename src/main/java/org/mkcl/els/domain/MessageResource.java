@@ -14,12 +14,11 @@ import java.io.Serializable;
 import javax.persistence.Entity;
 import javax.persistence.Table;
 
-import org.hibernate.validator.constraints.NotEmpty;
 import org.springframework.beans.factory.annotation.Configurable;
 
 /**
  * The Class MessageResource.
- * 
+ *
  * @author sandeeps
  * @since v1.0.0
  */
@@ -33,11 +32,9 @@ public class MessageResource extends BaseDomain implements Serializable {
     private static final transient long serialVersionUID = 1L;
 
     /** The code. */
-    @NotEmpty
     private String code;
 
     /** The value. */
-    @NotEmpty
     private String value;
 
     /** The description. */
@@ -54,7 +51,7 @@ public class MessageResource extends BaseDomain implements Serializable {
 
     /**
      * Instantiates a new message resource.
-     * 
+     *
      * @param locale the locale
      * @param code the code
      * @param value the value
@@ -74,7 +71,7 @@ public class MessageResource extends BaseDomain implements Serializable {
 
     /**
      * Gets the message code.
-     * 
+     *
      * @return the message code
      */
     public String getCode() {
@@ -83,7 +80,7 @@ public class MessageResource extends BaseDomain implements Serializable {
 
     /**
      * Sets the message code.
-     * 
+     *
      * @param code the new code
      */
     public void setCode(final String code) {
@@ -92,7 +89,7 @@ public class MessageResource extends BaseDomain implements Serializable {
 
     /**
      * Gets the value.
-     * 
+     *
      * @return the value
      */
     public String getValue() {
@@ -101,7 +98,7 @@ public class MessageResource extends BaseDomain implements Serializable {
 
     /**
      * Sets the value.
-     * 
+     *
      * @param value the new value
      */
     public void setValue(final String value) {
@@ -110,7 +107,7 @@ public class MessageResource extends BaseDomain implements Serializable {
 
     /**
      * Gets the description.
-     * 
+     *
      * @return the description
      */
     public String getDescription() {
@@ -119,7 +116,7 @@ public class MessageResource extends BaseDomain implements Serializable {
 
     /**
      * Sets the description.
-     * 
+     *
      * @param description the new description
      */
     public void setDescription(final String description) {
