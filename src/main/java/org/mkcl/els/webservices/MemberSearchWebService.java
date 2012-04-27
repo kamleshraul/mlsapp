@@ -16,7 +16,6 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 
-// TODO: Auto-generated Javadoc
 /**
  * The Class MemberSearchWebService.
  *
