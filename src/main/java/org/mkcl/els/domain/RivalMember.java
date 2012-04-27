@@ -51,7 +51,7 @@ public class RivalMember extends BaseDomain implements Serializable {
     private Party party;
 
     @ManyToOne
-    @JoinTable(name = "elctionresults_rivalmembers",
+    @JoinTable(name = "electionresults_rivalmembers",
             joinColumns = { @JoinColumn(name = "rivalmember_id",
                     referencedColumnName = "id") },
             inverseJoinColumns = { @JoinColumn(name = "electionresult_id",
