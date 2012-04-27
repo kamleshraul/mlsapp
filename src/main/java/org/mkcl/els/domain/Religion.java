@@ -15,7 +15,6 @@ import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Table;
 
-import org.hibernate.validator.constraints.NotEmpty;
 import org.springframework.beans.factory.annotation.Configurable;
 
 /**
@@ -35,7 +34,6 @@ public class Religion extends BaseDomain implements Serializable {
 
     /** The name. */
     @Column(length = 300)
-    @NotEmpty
     private String name;
 
     // ---------------------------------Constructors----------------------------------------------
