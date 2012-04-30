@@ -11,7 +11,6 @@
 		$('.Common').hide();
 	});
 	$('select').change((function(){
-		alert($('#HouseType').val());
 		if($('#HouseType').val()=='lowerhouse'||$('#HouseType').val()=='defaulthouse'){
 			$('.Common').show();
 			$('.Assembly').show();
