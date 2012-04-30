@@ -20,6 +20,7 @@
 		<org.slf4j-version>1.5.10</org.slf4j-version>
 		<activiti-version>5.4</activiti-version>
 		<activiti-spring-version>5.4</activiti-spring-version>
+		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 	</properties>
 	<scm>
 		<connection>scm:svn:http://repos.mkcl.org/mkcl/programs/egovernance/projects/els/source/trunk</connection>
@@ -298,7 +299,7 @@
 		<dependency>
 			<groupId>mysql</groupId>
 			<artifactId>mysql-connector-java</artifactId>
-			<version>5.1.14</version>
+			<version>5.1.19</version>
 		</dependency>
 		<dependency>
 			<groupId>org.hibernate.java-persistence</groupId>
@@ -455,7 +456,8 @@
 			<artifactId>junit</artifactId>
 			<version>4.7</version>
 			<scope>test</scope>
-		</dependency>
+		</dependency>	
+		
 	</dependencies>
 	
 	<repositories>
@@ -507,6 +509,7 @@
 					<source>${java-version}</source>
 					<target>${java-version}</target>
 					<showWarnings>true</showWarnings>
+					<encoding>UTF-8</encoding>
 				</configuration>
 			</plugin>
 			<plugin>
