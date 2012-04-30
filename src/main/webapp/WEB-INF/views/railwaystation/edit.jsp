@@ -3,26 +3,44 @@
 <html>
 <head>
 	<title>
-	<spring:message code="railwaystation" text="Railway Stations"/>
+	<spring:message code="railwaystation" text="RailwayStations"/>
 	</title>
 	<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>	
 	<script type="text/javascript">
-		$('document').ready(function(){
-			if($('#states').val()!=undefined){
-				$('#states').change(function(){
-					$.ajax({
-						url:'ref/state'+$('#states').val()+'/districts',
-						datatype:'json',
-						success:function(data){
-							$('#districts option').remove();
-							for(var i=0;i<data.length;i++){
-								$('#districts').append("<option value='"+data[i].id+"'>"+data[i].name+"</option>");
-							}
-						}							
-					});
-				});	
-			}    
-		});
+	$('document').ready(function(){	
+		initControls();
+		$('#key').val('');	
+	});		
+	</script>
+	<script type="text/javascript">
+	if($('#states').val()!=undefined){
+		$('#states').change(function(){
+			/* $.ajax({
+				url:'ref/'+$('#states').val()+'/districts',
+				datatype:'json',
+				success:function(data){
+					$('#districts option').remove();
+					for(var i=0;i<data.length;i++){
+						$('#districts').append("<option value='"+data[i].id+"'>"+data[i].name+"</option>");
+					}
+				}							
+			}); */
+			$.ajax({
+				url:'ref/state'+$('#states').val()+'/districts',
+				datatype:'json',
+				success:function(data){				
+				$('#districts option').empty();
+				var options="";
+				for(var i=0;i<data.length;i++){
+					options+="<option value='"+data[i].id+"'>"+data[i].name+"</option>";
+				}
+				$('#districts').html(options);
+				$('#districts').sexyselect('destroy');
+				$('#districts').sexyselect({width:250,showTitle: false, selectionMode: 'multiple', styleize: true});
+			}							
+			});
+		});	
+	}        
 	</script>
 </head>
 <body>
@@ -36,10 +54,10 @@
 	<form:errors path="version" cssClass="validationError"/>
 	<p>
 	<label class="small"><spring:message code="railwaystation.state" text="State"/>&nbsp;*</label>
-			<select name="state" id="states" class="sSelect">
-				<c:forEach items="${states}" var="i">
-					<option value="${i.id}"><c:out value="${i.name}"></c:out></option>
-				</c:forEach>
+			<select name="state" id="states">
+			<c:forEach items="${states}" var="i">
+			<option value="${i.id}"><c:out value="${i.name}"></c:out></option>
+			</c:forEach>
 			</select>
 			<%-- <form:errors path="state" cssClass="validationError"/> --%>
 	</p>  
