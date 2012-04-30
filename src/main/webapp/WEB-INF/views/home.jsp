@@ -52,7 +52,6 @@
 			<input type="hidden" id="timeformat" name="timeformat" value="${timeFormat}"/>
             <input type="hidden" id="authusername" name="authusername" value="${authusername}"/>
             <input type="hidden" id="authfullname" name="authfullname" value="${authtitle} ${authfirstname} ${authmiddlename} ${authlastname}"/>    
-            <input type="hidden" id="authphoto" name="authphoto" value="${authphoto}"/> 
             <input type="hidden" id="authhousetype" name="authhousetype" value="${authhousetype}"/>             
                         
 		<div id="container" class="clearfix">
