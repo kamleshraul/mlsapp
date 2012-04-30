@@ -7,7 +7,7 @@
 	<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>	
 	<script type="text/javascript">
 	$('document').ready(function(){	
-		//initControls();
+		initControls();
 		$('#key').val('');	
 	});		
 	</script>
@@ -38,7 +38,7 @@
 	<form:errors path="version" cssClass="validationError"/>
 		<p>
 			<label class="small"><spring:message code="airport.state" text="State"/>&nbsp;*</label>
-			<select name="state" id="states" class="sSelect">
+			<select name="state" id="states">
 			<c:forEach items="${states}" var="i">
 			<option value="${i.id}"><c:out value="${i.name}"></c:out></option>
 			</c:forEach>
