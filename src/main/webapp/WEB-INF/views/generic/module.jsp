@@ -9,12 +9,6 @@
 			$('#list_tab').click(function(){
 				showList();
 			});	
-			$('#details_tab').click(function(){
-				if($('#key').val() == '')
-					newRecord();
-				else
-					editRecord($('#key').val());
-			});	
 			$(document).keydown(function (e){
 				if(e.which==78 && e.ctrlKey){
 					newRecord();
