@@ -19,18 +19,17 @@
 		[<spring:message code="generic.id" text="Id"></spring:message>:&nbsp;
 		<spring:message code="generic.new" text="New"></spring:message>]
 	</h2>
-	<form:errors path="recordIndex" cssClass="validationError" cssStyle="color:red;"/>	
-	<p>
-		<label class="small"><spring:message code="member.house.houseType" text="Member Of"/></label>
-		<input type="text" readonly="readonly" name="houseType" id="houseType"  value="${houseType.name}">
-	</p>
+	<form:errors path="version" cssClass="validationError" cssStyle="color:red;"/>	
 	<p>
 	<c:choose>
-	<c:when test="${houseType.type=='lowerhouse'}">
+	<c:when test="${houseType=='lowerhouse'}">
 	<label class="small"><spring:message code="generic.lowerhouse" text="Assembly"/></label>
 	</c:when>
-	<c:when test="${houseType.type=='upperhouse'}">
+	<c:when test="${houseType=='upperhouse'}">
 	<label class="small"><spring:message code="generic.upperhouse" text="Council"/></label>
+	</c:when>
+	<c:when test="${houseType=='both'}">
+	<label class="small"><spring:message code="generic.bothhouse" text="House"/></label>
 	</c:when>
 	<c:otherwise>
 	<label class="small"><spring:message code="generic.defaulthouse" text="House"/></label>
@@ -50,12 +49,12 @@
 		<form:errors path="constituency" cssClass="validationError"/>		
 	</p>
 	<p>
-		<label class="small"><spring:message code="generic.fromdate" text="From Date"/></label>
+		<label class="small"><spring:message code="generic.fromDate" text="From Date"/></label>
 		<form:input path="fromDate" cssClass="sText datemask"/>
 		<form:errors path="fromDate" cssClass="validationError"/>	
 	</p>
 	<p>
-		<label class="small"><spring:message code="generic.todate" text="To Date"/></label>
+		<label class="small"><spring:message code="generic.toDate" text="To Date"/></label>
 		<form:input path="toDate" cssClass="sText datemask"/>
 		<form:errors path="toDate" cssClass="validationError"/>	
 	</p>

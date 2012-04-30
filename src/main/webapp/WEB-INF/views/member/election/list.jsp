@@ -9,37 +9,38 @@
 			$('#gridURLParams').val("member="+$('#key').val());		
 			$('#editDeleteLinks').show();		
 			$('#new_record').click(function(){
-				newRecord($('#key').val());
+				newElectionRecord($('#key').val());
 				$('#editDeleteLinks').hide();						
 			});
 			$('#edit_record').click(function(){
-				editRecord($('#internalKey').val(),$('#key').val());
+				editElectionRecord($('#internalKey').val(),$('#key').val());
 			});
 			$("#delete_record").click(function() {
-				deleteRecord($('#internalKey').val());
+				deleteElectionRecord($('#internalKey').val());
 			});
 			$("#list_record").click(function() {
-				listRecord($('#internalKey').val());
+				listElectionRecord($('#internalKey').val());
 			});
 		});
-		function listRecord(){
-			showTabByIdAndUrl('house_tab','member/election/list');	
+		function listElectionRecord(){
+			showTabByIdAndUrl('election_tab','member/election/list');	
 		}
-		function newRecord(member){
+		function newElectionRecord(member){
 				$.get('member/election/new?member='+member, function(data){					
 					$('#grid_container').html(data);
 					$('#list_record').show();					
 			});
 		}
-		function editRecord(row,member) {			
+		function editElectionRecord(row,member) {			
 			if(row==""){
 				$.prompt($('#selectRowFirstMessage').val());
 				return false;
 			}
-			$.get($('member/election/'+row+'/edit?member='+member, function(data){
-				$('#grid_container').html(data);
-				$('#list_record').show();					
-			});		
+			$.get('member/election/'+row+'/edit?member='+member,
+					 function(data){
+					$('#grid_container').html(data);
+					$('#list_record').show();					
+				});		
 		}
 		function rowDblClickHandler(rowid, iRow, iCol, e) {
 			var member=$('#key').val();
@@ -51,9 +52,9 @@
 		function rowSelectHandler(rowid,status){			
 			if($('#internalKey')){
 				$('#internalKey').val(rowid);
-			}						
+			}
 		}
-		function deleteRecord(row) {
+		function deleteElectionRecord(row) {
 			var member=$('#key').val();
 			if(row ==""){
 				$.prompt($('#selectRowFirstMessage').val());		
@@ -64,7 +65,7 @@
 					buttons: {Ok:true, Cancel:false}, callback: function(v){
 			        if(v){
 				        $.delete_('member/election/'+row+'/delete?member='+member, null, function(data, textStatus, XMLHttpRequest) {
-				        	listRecord();
+				        	listElectionRecord();
 				        });
 			        }
 				}});

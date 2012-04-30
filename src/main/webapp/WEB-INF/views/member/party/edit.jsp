@@ -16,22 +16,22 @@
 <form:form action="member/party" method="PUT" modelAttribute="domain">
 	<%@ include file="/common/info.jsp" %>
 	<h2><spring:message code="generic.edit.heading" text="Enter Details"/>
-		[<spring:message code="generic.id" text="Id"></spring:message>:&nbsp;
-		${domain.id}]
+		[<spring:message code="generic.member" text="Member"></spring:message>:&nbsp;
+		${domain.member.title.name} ${domain.member.firstName} ${domain.member.middleName} ${domain.member.lastName}]
 	</h2>
-	<form:errors path="version" cssClass="validationError"/>
+	<form:errors path="version" cssClass="validationError" cssStyle="color:red;"/>
 	<p>
 		<label class="small"><spring:message code="member.party.party" text="Party"/></label>
-		<form:select path="party" items="${parties}" itemLabel="department" itemValue="id" cssClass="sSelect"/>
+		<form:select path="party" items="${parties}" itemLabel="name" itemValue="id" cssClass="sSelect"/>
 		<form:errors path="party" cssClass="validationError"/>		
 	</p>	
 	<p>
-		<label class="small"><spring:message code="generic.fromdate" text="From Date"/></label>
+		<label class="small"><spring:message code="generic.fromDate" text="From Date"/></label>
 		<form:input path="fromDate" cssClass="sText datemask"/>
 		<form:errors path="fromDate" cssClass="validationError"/>	
 	</p>
 	<p>
-		<label class="small"><spring:message code="generic.todate" text="To Date"/></label>
+		<label class="small"><spring:message code="generic.toDate" text="To Date"/></label>
 		<form:input path="toDate" cssClass="sText datemask"/>
 		<form:errors path="toDate" cssClass="validationError"/>	
 	</p>
@@ -47,6 +47,7 @@
 		</p>
 	</div>
 	<form:hidden path="version" />
+	<form:hidden path="locale" />
 	<form:hidden path="recordIndex"/>
 	<input id="member" name="member" value="${member}" type="hidden">
 </form:form>

@@ -1,7 +1,7 @@
 <%@ include file="/common/taglibs.jsp" %>
 <html>
 <head>
-	<title><spring:message code="member.party.list" text="List of Parties"/></title>
+	<title><spring:message code="member.ministry.list" text="List of Ministries"/></title>
 	<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
 	<script type="text/javascript">
 		$(document).ready(function(){
@@ -9,41 +9,41 @@
 			$('#gridURLParams').val("member="+$('#key').val());		
 			$('#editDeleteLinks').show();		
 			$('#new_record').click(function(){
-				newPartyRecord($('#key').val());
+				newMinistryRecord($('#key').val());
 				$('#editDeleteLinks').hide();						
 			});
 			$('#edit_record').click(function(){
-				editPartyRecord($('#internalKey').val(),$('#key').val());
+				editMinistryRecord($('#internalKey').val(),$('#key').val());
 			});
 			$("#delete_record").click(function() {
-				deletePartyRecord($('#internalKey').val());
+				deleteMinistryRecord($('#internalKey').val());
 			});
 			$("#list_record").click(function() {
-				listPartyRecord($('#internalKey').val());
+				listMinistryRecord($('#internalKey').val());
 			});
 		});
-		function listPartyRecord(){
-			showTabByIdAndUrl('party_tab','member/party/list');	
+		function listMinistryRecord(){
+			showTabByIdAndUrl('house_tab','member/ministry/list');	
 		}
-		function newPartyRecord(member){
-				$.get('member/party/new?member='+member, function(data){					
+		function newMinistryRecord(member){
+				$.get('member/ministry/new?member='+member, function(data){					
 					$('#grid_container').html(data);
 					$('#list_record').show();					
 			});
 		}
-		function editPartyRecord(row,member) {			
+		function editMinistryRecord(row,member) {			
 			if(row==""){
 				$.prompt($('#selectRowFirstMessage').val());
 				return false;
 			}
-			$.get('member/party/'+row+'/edit?member='+member, function(data){
+			$.get('member/ministry/'+row+'/edit?member='+member, function(data){
 				$('#grid_container').html(data);
 				$('#list_record').show();					
 		});		
 		}
 		function rowDblClickHandler(rowid, iRow, iCol, e) {
 			var member=$('#key').val();
-			$.get('member/party/'+rowid+'/edit?member='+member, function(data){
+			$.get('member/ministry/'+rowid+'/edit?member='+member, function(data){
 				$('#grid_container').html(data);
 				$('#list_record').show();					
 		});
@@ -53,7 +53,7 @@
 				$('#internalKey').val(rowid);
 			}						
 		}
-		function deletePartyRecord(row) {
+		function deleteMinistryRecord(row) {
 			var member=$('#key').val();
 			if(row ==""){
 				$.prompt($('#selectRowFirstMessage').val());		
@@ -63,8 +63,8 @@
 				$.prompt($('#confirmDeleteMessage').val()+ row,{
 					buttons: {Ok:true, Cancel:false}, callback: function(v){
 			        if(v){
-				        $.delete_('member/party/'+row+'/delete?member='+member, null, function(data, textStatus, XMLHttpRequest) {
-				        	listPartyRecord();
+				        $.delete_('member/ministry/'+row+'/delete?member='+member, null, function(data, textStatus, XMLHttpRequest) {
+				        	listRecord();
 				        });
 			        }
 				}});
@@ -87,7 +87,8 @@
 			</a></span> |
 			<a href="#" id="list_record" class="butSim">
 				<spring:message code="generic.list" text="List"/>
-			</a>			
+			</a>
+			
 			<p>&nbsp;</p>
 		</div>
 	</div>

@@ -9,29 +9,29 @@
 			$('#gridURLParams').val("member="+$('#key').val());		
 			$('#editDeleteLinks').show();		
 			$('#new_record').click(function(){
-				newRecord($('#key').val());
+				newMinistryRecord($('#key').val());
 				$('#editDeleteLinks').hide();						
 			});
 			$('#edit_record').click(function(){
-				editRecord($('#internalKey').val(),$('#key').val());
+				editMinistryRecord($('#internalKey').val(),$('#key').val());
 			});
 			$("#delete_record").click(function() {
-				deleteRecord($('#internalKey').val());
+				deleteMinistryRecord($('#internalKey').val());
 			});
 			$("#list_record").click(function() {
-				listRecord($('#internalKey').val());
+				listMinistryRecord($('#internalKey').val());
 			});
 		});
-		function listRecord(){
+		function listMinistryRecord(){
 			showTabByIdAndUrl('house_tab','member/ministry/list');	
 		}
-		function newRecord(member){
+		function newMinistryRecord(member){
 				$.get('member/ministry/new?member='+member, function(data){					
 					$('#grid_container').html(data);
 					$('#list_record').show();					
 			});
 		}
-		function editRecord(row,member) {			
+		function editMinistryRecord(row,member) {			
 			if(row==""){
 				$.prompt($('#selectRowFirstMessage').val());
 				return false;
@@ -53,7 +53,7 @@
 				$('#internalKey').val(rowid);
 			}						
 		}
-		function deleteRecord(row) {
+		function deleteMinistryRecord(row) {
 			var member=$('#key').val();
 			if(row ==""){
 				$.prompt($('#selectRowFirstMessage').val());		
@@ -64,7 +64,7 @@
 					buttons: {Ok:true, Cancel:false}, callback: function(v){
 			        if(v){
 				        $.delete_('member/ministry/'+row+'/delete?member='+member, null, function(data, textStatus, XMLHttpRequest) {
-				        	listRecord();
+				        	listMinistryRecord();
 				        });
 			        }
 				}});

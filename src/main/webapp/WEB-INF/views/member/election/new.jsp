@@ -14,22 +14,22 @@
 		totalRivalCount=totalRivalCount+1;
 		var text="<div id='rival"+rivalCount+"'>"+
 				  "<p>"+
-	    		  "<label class='small'><spring:message code='member.election.rivalName' text='Name'/></label>"+
+	    		  "<label class='small'>"+$('#rivalNameMessage').val()+"</label>"+
 	    		  "<input name='rivalName"+rivalCount+"' id='rivalName"+rivalCount+"' class='sText'>"+
 	    		  "</p>"+
 	    		  "<p>"+
-	    		  "<label class='small'><spring:message code='member.election.rivalVotesReceived' text='Votes Received'/></label>"+
+	    		  "<label class='small'>"+$('#rivalVotesMessage').val()+"</label>"+
 	    		  "<input name='rivalVotesReceived"+rivalCount+"' id='rivalVotesReceived"+rivalCount+"' class='sText'>"+
 	    		  "</p>"+
 				  "<p>"+
-		              "<label class='small'><spring:message code='member.election.rivalParty' text='Party'/></label>"+
+		              "<label class='small'>"+$('#rivalPartyMessage').val()+"</label>"+
 		              "<select name='rivalParty"+rivalCount+"' id='rivalParty"+rivalCount+"' class='sSelect'>"+
 				      $('#partyMaster').html()+
 				      "</select>"+
 				      "</p>"+
 				      "<input type='button' class='button' id='"+rivalCount+"' value='"+$('#deleteRivalMessage').val()+"' onclick='deleteRival("+rivalCount+");'>"+
 					  "<input type='hidden' id='rivalId"+rivalCount+"' name='rivalId"+rivalCount+"'>"+
-					  "<input type='hidden' id='rivalLocale"+rivalCount+"' name='rivalLocale"+rivalCount+"' value='${domain.locale}'>"+
+					  "<input type='hidden' id='rivalLocale"+rivalCount+"' name='rivalLocale"+rivalCount+"' value='"+$('#locale').val()+"'>"+
 					  "<input type='hidden' id='rivalVersion"+rivalCount+"' name='rivalVersion"+rivalCount+"'>"+
 					  "</div>"; 
 				      var prevCount=rivalCount-1;
@@ -45,13 +45,16 @@
 		totalRivalCount=totalRivalCount-1;
 		if(id==rivalCount){
 			rivalCount=rivalCount-1;
-		}
+		}		
 	}	
 		$(document).ready(function(){
 			$('#partyMaster').hide();
 			$('#addRival').click(function(){
 				addRival();
 			});
+			if($('#constituencySelected').val()!=""){
+				$('#constituency').val($('#constituencySelected').val());
+			}
 		});
 	</script>
 </head>
@@ -61,8 +64,8 @@
 <form:form action="member/election" method="POST" modelAttribute="domain">
 	<%@ include file="/common/info.jsp" %>
 	<h2><spring:message code="generic.new.heading" text="Enter Details"/>
-		[<spring:message code="generic.member" text="Member"></spring:message>:&nbsp;
-		${domain.member.title.name} ${domain.member.firstName } ${domain.member.middleName} ${domain.member.lastName}]
+		[<spring:message code="generic.id" text="Id"></spring:message>:&nbsp;
+		<spring:message code="generic.new" text="New"></spring:message>]
 	</h2>
 	<form:errors path="version" cssClass="validationError" cssStyle="color:red;"/>	
 	<p>
@@ -71,13 +74,13 @@
 		<form:errors path="election" cssClass="validationError"/>			
 	</p>
 	<p>
-		<label class="small"><spring:message code="generic.constituency" text="Constituency"/></label>
+		<label class="small"><spring:message code="member.election.constituency" text="Constituency"/></label>
 		<form:select path="constituency" items="${constituencies}" itemLabel="name" itemValue="id" cssClass="sSelect"/>
 		<form:errors path="constituency" cssClass="validationError"/>			
 	</p>
 	<p>
 		<label class="small"><spring:message code="member.election.votingDate" text="Voting Date"/></label>
-		<form:input path="votingDate" cssClass="sText datemask"/>
+		<form:input path="votingDate" cssClass="datemask sText"/>
 		<form:errors path="votingDate" cssClass="validationError"/>	
 	</p>
 	<p>
@@ -94,7 +97,12 @@
 	<div>
 	<input type="button" class="button" id="addRival" value="<spring:message code='member.election.addRival' text='Add Rival Members'></spring:message>">
 	<input type="hidden" id="rivalCount" name="rivalCount" value="${rivalCount}"/>
+	
 	<input type="hidden" id="deleteRivalMessage" name="deleteRivalMessage" value="<spring:message code='member.election.deleteRival' text='Delete Rival Member'></spring:message>" disabled="disabled"/>
+	<input type="hidden" id="rivalNameMessage" name="rivalNameMessage" value="<spring:message code='member.election.rivalName' text='Name'></spring:message>" disabled="disabled"/>
+	<input type="hidden" id="rivalVotesMessage" name="rivalVotesMessage" value="<spring:message code='member.election.rivalVotesReceived' text='Votes Received'></spring:message>" disabled="disabled"/>
+	<input type="hidden" id="rivalPartyMessage" name="rivalPartyMessage" value="<spring:message code='member.election.rivalParty' text='Rival Party'></spring:message>" disabled="disabled"/>
+	
 	<select name="partyMaster" id="partyMaster" disabled="disabled">
 	<c:forEach items="${parties}" var="i">
 	<option value="${i.id}"><c:out value="${i.name}"></c:out></option>
@@ -114,20 +122,25 @@
 		<input name="rivalVotesReceived${count}" id="rivalVotesReceived${count}" class="sText" value="${outer.votesReceived}">
 	</p>
 	<p>
-	    <label class="small"><spring:message code="member.election.rivalParty" text="Rival party"/></label>
+	    <label class="small"><spring:message code="member.election.rivalParty" text="Rival Party"/></label>
 		<select name="rivalParty${count}" id="rivalParty${count}" class="sSelect">
 		<c:forEach items="${parties}" var="i">
-		<c:if test="${outer.party.id==i.id}">
-		<option value="${i.id}" selected="selected"><c:out value="${i.name}"></c:out></option>
-		</c:if>
+		<c:choose>
+		<c:when test="${outer.party.id==i.id}">
+	    <option value="${i.id}" selected="selected"><c:out value="${i.name}"></c:out></option>		
+		</c:when>
+		<c:otherwise>
+		<option value="${i.id}"><c:out value="${i.name}"></c:out></option>		
+		</c:otherwise>
+		</c:choose>		
 		</c:forEach>
 		</select>
 	</p>
-	<input type='button' class='button' id='${count}' value='<spring:message code="member.election.deleteRival" text="Delete Rival Member"></spring:message>' onclick='deleteRival(${count});'/>"
-	<c:set var="count" value="${count+1}"></c:set>	
+	<input type='button' class='button' id='${count}' value='<spring:message code="member.election.deleteRival" text="Delete Rival Member"></spring:message>' onclick='deleteRival(${count});'/>
 	<input type='hidden' id='rivalId${count}' name='rivalId${count}' value="${outer.id}">
 	<input type='hidden' id='rivalLocale${count}' name='rivalLocale${count}' value="${domain.locale}">
 	<input type='hidden' id='rivalVersion${count}' name='rivalVersion${count}' value="${outer.version}">
+	<c:set var="count" value="${count+1}"></c:set>	
 	</div>	
 	</c:forEach>
 	</c:if>
@@ -142,6 +155,7 @@
 	<form:hidden path="id"/>
 	<form:hidden path="locale"/>
 	<form:hidden path="version"/>	
+	<input id="constituencySelected" name="constituencySelected" value="${constituency}" type="hidden">	
 	<input id="member" name="member" value="${member}" type="hidden">
 </form:form>
 </div>

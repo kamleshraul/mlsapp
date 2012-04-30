@@ -2,7 +2,7 @@
 <html>
 <head>
 	<title>
-	<spring:message code="member.party" text="Member Party Details"/>
+	<spring:message code="member.ministry" text="Member Ministry Details"/>
 	</title>
 	<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
 	<script type="text/javascript">
@@ -13,32 +13,32 @@
 
 <body>
 <div class="fields clearfix">
-<form:form action="member/party" method="POST" modelAttribute="domain">
+<form:form action="member/ministry" method="PUT" modelAttribute="domain">
 	<%@ include file="/common/info.jsp" %>
-	<h2><spring:message code="generic.new.heading" text="Enter Details"/>
+	<h2><spring:message code="generic.edit.heading" text="Enter Details"/>
 		[<spring:message code="generic.id" text="Id"></spring:message>:&nbsp;
-		<spring:message code="generic.new" text="New"></spring:message>]
+		${domain.id}]
 	</h2>
-	<form:errors path="version" cssClass="validationError" cssStyle="color:red;"/>	
+	<form:errors path="version" cssClass="validationError"/>
 	<p>
-		<label class="small"><spring:message code="member.party.party" text="Party"/></label>
-		<form:select path="party" items="${parties}" itemLabel="name" itemValue="id" cssClass="sSelect"/>
-		<form:errors path="party" cssClass="validationError"/>		
+		<label class="small"><spring:message code="member.ministry.ministry" text="Ministry"/></label>
+		<form:select path="ministry" items="${ministries}" itemLabel="department" itemValue="id" cssClass="sSelect"/>
+		<form:errors path="ministry" cssClass="validationError"/>		
 	</p>	
 	<p>
-		<label class="small"><spring:message code="generic.fromDate" text="From Date"/></label>
+		<label class="small"><spring:message code="member.ministry.role" text="Status"/></label>
+		<form:select path="role" items="${roles}" itemLabel="name" itemValue="id" cssClass="sSelect"/>
+		<form:errors path="role" cssClass="validationError"/>	
+	</p>
+	<p>
+		<label class="small"><spring:message code="generic.fromdate" text="From Date"/></label>
 		<form:input path="fromDate" cssClass="sText datemask"/>
 		<form:errors path="fromDate" cssClass="validationError"/>	
 	</p>
 	<p>
-		<label class="small"><spring:message code="generic.toDate" text="To Date"/></label>
+		<label class="small"><spring:message code="generic.todate" text="To Date"/></label>
 		<form:input path="toDate" cssClass="sText datemask"/>
 		<form:errors path="toDate" cssClass="validationError"/>	
-	</p>
-	<p>
-		<label class="small"><spring:message code="member.party.sitting" text="Is Sitting"/></label>
-		<form:checkbox path="sitting" cssClass="sOption"/>
-		<form:errors path="sitting" cssClass="validationError"/>	
 	</p>	
 	<div class="fields">
 		<h2></h2>
@@ -47,7 +47,6 @@
 		</p>
 	</div>
 	<form:hidden path="version" />
-	<form:hidden path="locale" />
 	<form:hidden path="recordIndex"/>
 	<input id="member" name="member" value="${member}" type="hidden">
 </form:form>

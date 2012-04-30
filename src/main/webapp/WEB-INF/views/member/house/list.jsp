@@ -9,29 +9,29 @@
 			$('#gridURLParams').val("member="+$('#key').val());		
 			$('#editDeleteLinks').show();		
 			$('#new_record').click(function(){
-				newRecord($('#key').val());
+				newHouseRecord($('#key').val());
 				$('#editDeleteLinks').hide();						
 			});
 			$('#edit_record').click(function(){
-				editRecord($('#internalKey').val(),$('#key').val());
+				editHouseRecord($('#internalKey').val(),$('#key').val());
 			});
 			$("#delete_record").click(function() {
-				deleteRecord($('#internalKey').val());
+				deleteHouseRecord($('#internalKey').val());
 			});
 			$("#list_record").click(function() {
-				listRecord($('#internalKey').val());
+				listHouseRecord($('#internalKey').val());
 			});
 		});
-		function listRecord(){
+		function listHouseRecord(){
 			showTabByIdAndUrl('house_tab','member/house/list');	
 		}
-		function newRecord(member){
+		function newHouseRecord(member){
 				$.get('member/house/new?member='+member, function(data){					
 					$('#grid_container').html(data);
 					$('#list_record').show();					
 			});
 		}
-		function editRecord(row,member) {			
+		function editHouseRecord(row,member) {			
 			if(row==""){
 				$.prompt($('#selectRowFirstMessage').val());
 				return false;
@@ -53,7 +53,7 @@
 				$('#internalKey').val(rowid);
 			}						
 		}
-		function deleteRecord(row) {
+		function deleteHouseRecord(row) {
 			var member=$('#key').val();
 			if(row ==""){
 				$.prompt($('#selectRowFirstMessage').val());		

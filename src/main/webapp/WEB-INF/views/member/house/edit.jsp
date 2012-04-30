@@ -19,17 +19,17 @@
 		[<spring:message code="generic.member" text="Member"></spring:message>:&nbsp;
 		${domain.member.title.name} ${domain.member.firstName} ${domain.member.middleName} ${domain.member.lastName}]
 	</h2>
-	<p>
-		<label class="small"><spring:message code="member.house.houseType" text="Member Of"/></label>
-		<input type="text" readonly="readonly" name="houseType" id="houseType"  value="${houseType.name}">
-	</p>
+	<form:errors path="version" cssClass="validationError" cssStyle="color:red;"/>	
 	<p>
 	<c:choose>
-	<c:when test="${houseType.type=='lowerhouse'}">
+	<c:when test="${houseType=='lowerhouse'}">
 	<label class="small"><spring:message code="generic.lowerhouse" text="Assembly"/></label>
 	</c:when>
-	<c:when test="${houseType.type=='upperhouse'}">
+	<c:when test="${houseType=='upperhouse'}">
 	<label class="small"><spring:message code="generic.upperhouse" text="Council"/></label>
+	</c:when>
+	<c:when test="${houseType=='both'}">
+	<label class="small"><spring:message code="generic.bothhouse" text="Council"/></label>
 	</c:when>
 	<c:otherwise>
 	<label class="small"><spring:message code="generic.defaulthouse" text="House"/></label>
@@ -43,18 +43,18 @@
 		<form:select path="role" items="${roles}" itemLabel="name" itemValue="id" cssClass="sSelect"/>
 		<form:errors path="role" cssClass="validationError"/>		
 	</p>
-	<!-- <p>
+	<p>
 		<label class="small"><spring:message code="member.house.constituencies" text="Constituency"/></label>
 		<form:select path="constituency" items="${constituencies}" itemLabel="name" itemValue="id" cssClass="sSelect"/>
 		<form:errors path="constituency" cssClass="validationError"/>		
-	</p> -->
+	</p>
 	<p>
-		<label class="small"><spring:message code="generic.fromdate" text="From Date"/></label>
+		<label class="small"><spring:message code="generic.fromDate" text="From Date"/></label>
 		<form:input path="fromDate" cssClass="sText datemask"/>
 		<form:errors path="fromDate" cssClass="validationError"/>	
 	</p>
 	<p>
-		<label class="small"><spring:message code="generic.todate" text="To Date"/></label>
+		<label class="small"><spring:message code="generic.toDate" text="To Date"/></label>
 		<form:input path="toDate" cssClass="sText datemask"/>
 		<form:errors path="toDate" cssClass="validationError"/>	
 	</p>

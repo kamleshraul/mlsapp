@@ -15,6 +15,14 @@
 				deleteRecord($('#key').val());
 			});
 		});
+		function rowDblClickHandler(rowid, iRow, iCol, e) {
+			showTabByIdAndUrl('personal_tab', 'member/personal/'+rowid+'/edit');
+		}
+		function rowSelectHandler(rowid,status){			
+			if($('#key')){
+				$('#key').val(rowid);
+			}
+		}
 	</script>
 </head>
 <body>
@@ -29,7 +37,7 @@
 			</a> |
 			<a href="#" id="delete_record" class="butSim">
 				<spring:message code="generic.delete" text="Delete"/>
-			</a> |
+			</a> <!-- |
 			<a href="#" id="send_for_approval" class="butSim">
 				<spring:message code="generic.sendForApproval" text="Send For Approval"/>
 			</a> |
@@ -41,7 +49,7 @@
 			</a> |
 			<a href="#" id="publish" class="butSim">
 				<spring:message code="generic.publish" text="Publish"/>
-			</a> 
+			</a>  -->
 			<p>&nbsp;</p>
 		</div>
 	</div>

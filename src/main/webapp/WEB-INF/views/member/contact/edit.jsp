@@ -120,7 +120,7 @@
 		</p>
 		<p>
 			<label class="small"><spring:message code="generic.tehsil" text="Tehsil"/></label>
-			<form:select path="presentAddress.tehsil" items="${tehsils}" itemValue="id" itemLabel="name" cssClass="sSelect tehsil presentAddressTehsil"/>
+			<form:select path="presentAddress.tehsil" items="${tehsils2}" itemValue="id" itemLabel="name" cssClass="sSelect tehsil presentAddressTehsil"/>
 			<form:errors path="presentAddress.tehsil" cssClass="validationError"/>
 		</p>
 		<p>
@@ -154,7 +154,7 @@
 		</p>
 		<p>
 			<label class="small"><spring:message code="generic.tehsil" text="Tehsil"/></label>
-			<form:select path="permanentAddress.tehsil" items="${tehsils}" itemValue="id" itemLabel="name" cssClass="sSelect tehsil permanentAddressTehsil"/>
+			<form:select path="permanentAddress.tehsil" items="${tehsils1}" itemValue="id" itemLabel="name" cssClass="sSelect tehsil permanentAddressTehsil"/>
 			<form:errors path="permanentAddress.tehsil" cssClass="validationError"/>
 		</p>
 		<p>
@@ -187,7 +187,7 @@
 		</p>
 		<p>
 			<label class="small"><spring:message code="generic.tehsil" text="Tehsil"/></label>
-			<form:select path="officeAddress.tehsil" items="${tehsils}" itemValue="id" itemLabel="name" cssClass="sSelect tehsil officeAddressTehsil"/>
+			<form:select path="officeAddress.tehsil" items="${tehsils3}" itemValue="id" itemLabel="name" cssClass="sSelect tehsil officeAddressTehsil"/>
 			<form:errors path="officeAddress.tehsil" cssClass="validationError"/>
 		</p>
 		<p>

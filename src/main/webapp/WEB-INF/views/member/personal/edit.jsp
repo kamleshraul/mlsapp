@@ -255,23 +255,7 @@
 		<form:select path="professions" items="${professions}" itemValue="id" itemLabel="name"  multiple="true" size="5" cssClass="sSelect" cssStyle="height:100px;margin-top:5px;"/>
 		<form:errors path="professions" cssClass="validationError"/>
 	</p>	
-	<p>
-		<label class="small"><spring:message code="member.personal.paName" text="Personal Assistants Name"/></label>
-		<form:input path="paName" cssClass="sText"/>
-		<form:errors path="paName" cssClass="validationError"/>	
-	</p>
 	
-	<p>
-		<label class="small"><spring:message code="member.personal.paContactNo" text="Personal Assistants Contact Nos"/></label>
-		<form:input path="paContactNo" cssClass="sText"/>
-		<form:errors path="paContactNo" cssClass="validationError"/>	
-	</p>
-	
-	<p>
-		<label class="small"><spring:message code="member.personal.paAddress" text="Personal Assistants Address"/></label>
-		<form:textarea cssClass="wysiwyg sTextarea" path="paAddress"/>
-		<form:errors path="paAddress" cssClass="validationError"/>	
-	</p>
 	<div>
 	<input type="button" class="button" id="addFamily" value="<spring:message code='member.personal.addFamily' text='Add Family Members'></spring:message>">
 	<input type="hidden" id="familyCount" name="familyCount" value="${familyCount}"/>

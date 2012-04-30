@@ -14,20 +14,20 @@
 		totalPositionCount=totalPositionCount+1;
 		var text="<div id='position"+positionCount+"'>"+
 				  "<p>"+
-	    		  "<label class='small'><spring:message code='generic.fromDate' text='From Date'/></label>"+
-	    		  "<input name='positionFromDate"+positionCount+"' id='positionFromDate"+positionCount+"' class='datemask sText'>"+
+	    		  "<label class='small'>"+$('#fromDatePositionMessage').val()+"</label>"+
+	    		  "<input name='positionFromDate"+positionCount+"' id='positionFromDate"+positionCount+"' class='sText'>"+
 	    		  "</p>"+
 	    		  "<p>"+
-	    		  "<label class='small'><spring:message code='generic.toDate' text='To Date'/></label>"+
-	    		  "<input name='positionToDate"+positionCount+"' id='positionToDate"+positionCount+"' class='datemask sText'>"+
+	    		  "<label class='small'>"+$('#toDatePositionMessage').val()+"</label>"+
+	    		  "<input name='positionToDate"+positionCount+"' id='positionToDate"+positionCount+"' class='sText'>"+
 	    		  "</p>"+
 	    		  "<p>"+
-	    		  "<label class='small'><spring:message code='member.other.positionPosition' text='Votes Received'/></label>"+
+	    		  "<label class='small'>"+$('#positionPositionMessage').val()+"</label>"+
 	    		  "<textarea name='positionPosition"+positionCount+"' id='positionPosition"+positionCount+"' class='sText' rows='5' cols='50'></textarea>"+
 	    		  "</p>"+
 				      "<input type='button' class='button' id='"+positionCount+"' value='"+$('#deletePositionMessage').val()+"' onclick='deletePosition("+positionCount+");'>"+
 					  "<input type='hidden' id='positionId"+positionCount+"' name='positionId"+positionCount+"'>"+
-					  "<input type='hidden' id='positionLocale"+positionCount+"' name='positionLocale"+positionCount+"' value='${domain.locale}'>"+
+					  "<input type='hidden' id='positionLocale"+positionCount+"' name='positionLocale"+positionCount+"' value='"+$('#locale').val()+"'>"+
 					  "<input type='hidden' id='positionVersion"+positionCount+"' name='positionVersion"+positionCount+"'>"+
 				      "</div>"; 
 				      var prevCount=positionCount-1;
@@ -39,11 +39,22 @@
 				      $('#positionCount').val(positionCount); 				
 	}
 	function deletePosition(id){
-		$('#position'+id).remove();
-		totalPositionCount=totalPositionCount-1;
-		if(id==positionCount){
-			positionCount=positionCount-1;
-		}
+		var positionId=$('#positionId'+id).val();
+		if(positionId != ''){			
+	    $.delete_('member/other/position/'+positionId+'/delete', null, function(data, textStatus, XMLHttpRequest) {
+	    	$('#position'+id).remove();
+			totalPositionCount=totalPositionCount-1;
+			if(id==positionCount){
+				positionCount=positionCount-1;
+			}
+	    });	
+		}	else{
+			$('#position'+id).remove();
+			totalPositionCount=totalPositionCount-1;
+			if(id==positionCount){
+				positionCount=positionCount-1;
+			}
+		}		
 	}	
 		$(document).ready(function(){
 			$('#addPosition').click(function(){
@@ -65,29 +76,34 @@
 	<div>
 	<input type="button" class="button" id="addPosition" value="<spring:message code='member.other.addPosition' text='Add Position'></spring:message>">
 	<input type="hidden" id="positionCount" name="positionCount" value="${positionCount}"/>
+	
 	<input type="hidden" id="deletePositionMessage" name="deletePositionMessage" value="<spring:message code='member.other.deletePosition' text='Delete Position'></spring:message>" disabled="disabled"/>
+	<input type="hidden" id="fromDatePositionMessage" name="fromDatePositionMessage" value="<spring:message code='member.other.fromYear' text='From Year'></spring:message>" disabled="disabled"/>
+	<input type="hidden" id="toDatePositionMessage" name="toDatePositionMessage" value="<spring:message code='member.other.toYear' text='To Year'></spring:message>" disabled="disabled"/>
+	<input type="hidden" id="positionPositionMessage" name="positionPositionMessage" value="<spring:message code='member.other.positionPosition' text='Position'></spring:message>" disabled="disabled"/>
+	
 	<form:errors path="positionsHeld" cssClass="validationError"></form:errors>
 	<c:if test="${!(empty positions)}">
 	<c:set var="count" value="1"></c:set>
 	<c:forEach items="${positions}" var="outer">
 	<div id="position${count}">
 	<p>
-	    <label class="small"><spring:message code="generic.fromDate" text="From Date"/></label>
-		<input name="positionFromDate${count}" id="positionFromDate${count}" class="datemask sText" value="${outer.fromDate}">
+	    <label class="small"><spring:message code="member.other.fromYear" text="From Year"/></label>
+		<input name="positionFromDate${count}" id="positionFromDate${count}" class="sText" value="${outer.fromDate}">
 	</p>
 	<p>
-	    <label class="small"><spring:message code="generic.toDate" text="To Date"/></label>
-		<input name="positionToDate${count}" id="positionToDate${count}" class="datemask sText" value="${outer.toDate}">
+	    <label class="small"><spring:message code="member.other.toYear" text="To Year"/></label>
+		<input name="positionToDate${count}" id="positionToDate${count}" class="sText" value="${outer.toDate}">
 	</p>
 	<p>
 	    <label class="small"><spring:message code="member.other.positionPosition" text="Position"/></label>
 		<textarea name="positionPosition${count}" id="positionPosition${count}" class="sText" rows="5" cols="50">${outer.position}</textarea>
 	</p>
-	<input type='button' class='button' id='${count}' value='<spring:message code="member.other.deletePosition" text="Delete Position"></spring:message>' onclick='deletePosition(${count});'>"
-	<c:set var="count" value="${count+1}"></c:set>
+	<input type='button' class='button' id='${count}' value='<spring:message code="member.other.deletePosition" text="Delete Position"></spring:message>' onclick='deletePosition(${count});'>
 	<input type='hidden' id='positionId${count}' name='positionId${count}' value="${outer.id}">
 	<input type='hidden' id='positionLocale${count}' name='positionLocale${count}' value="${domain.locale}">
 	<input type='hidden' id='positionVersion${count}' name='positionVersion${count}' value="${outer.version}">
+	<c:set var="count" value="${count+1}"></c:set>	
 	</div>	
 	</c:forEach>
 	</c:if>

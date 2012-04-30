@@ -20,19 +20,15 @@
 			$('#house_tab').click(function(){
 				listMemberHouseDetails($('#key').val());
 			});	
-			$('#minister_tab').click(function(){
-				listMemberMinisterDetails($('#key').val());
-	
-			});		
+			$('#ministry_tab').click(function(){
+				listMemberMinistryDetails($('#key').val());
+			});	
 			$('#party_tab').click(function(){
 				listMemberPartyDetails($('#key').val());
 			});	
 			$('#election_tab').click(function(){
 				listMemberElectionDetails($('#key').val());
 			});	
-			$('#department_tab').click(function(){
-				listMemberDepartmentDetails($('#key').val());
-			});
 			$(document).keydown(function (e){
 				if(e.which==78 && e.ctrlKey){
 					newRecord();
@@ -133,13 +129,13 @@
 				showTabByIdAndUrl('house_tab','member/house/list');
 				}
 		}
-		function listMemberMinisterDetails(row) {
+		function listMemberMinistryDetails(row) {
 			if(row == null || row == ''){
 				$.prompt($('#selectRowFirstMessage').val());		
 				return;
 			}
 			else{
-				showTabByIdAndUrl('minister_tab','member/minister/list');
+				showTabByIdAndUrl('ministry_tab','member/ministry/list');
 				}
 		}
 		function listMemberPartyDetails(row) {
@@ -158,15 +154,6 @@
 			}
 			else{
 				showTabByIdAndUrl('election_tab','member/election/list');
-				}
-		}
-		function listMemberDepartmentDetails(row) {
-			if(row == null || row == ''){
-				$.prompt($('#selectRowFirstMessage').val());		
-				return;
-			}
-			else{
-				showTabByIdAndUrl('department_tab','member/department/list');
 				}
 		}
 			
@@ -222,8 +209,8 @@
 				</a>
 			</li>	
 			<li>
-				<a id="minister_tab" href="#" class="tab">
-				   <spring:message code="member.module.memberMinister" text="Minister">
+				<a id="ministry_tab" href="#" class="tab">
+				   <spring:message code="member.module.memberMinistry" text="Ministry">
 				   </spring:message>
 				</a>
 			</li>
@@ -236,12 +223,6 @@
 			<li>
 				<a id="election_tab" href="#" class="tab">
 				   <spring:message code="member.module.memberElectionDetails" text="Election Details">
-				   </spring:message>
-				</a>
-			</li>
-			<li>
-				<a id="department_tab" href="#" class="tab">
-				   <spring:message code="member.module.memberDepartment" text="Department">
 				   </spring:message>
 				</a>
 			</li>
