@@ -5,6 +5,12 @@
 	<spring:message code="maritalstatus" text="Marital Status"/>
 	</title>
 	<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>	
+	<script type="text/javascript">
+	$('document').ready(function(){	
+		initControls();
+		$('#key').val('');	
+	});		
+</script>
 </head>
 <body>
 
@@ -18,9 +24,10 @@
 	
 	<p>
 	<label class="small"><spring:message code="maritalstatus.name" text="Marital Status"/>&nbsp;*</label>
-			<form:input cssClass="sText" path="name"/>
+			<form:input cssClass="sSelect" path="name"/>
 			<form:errors path="name" cssClass="validationError"/>	
 	</p>
+	
 	
 	<div class="fields">
 		<h2></h2>
