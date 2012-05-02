@@ -24,7 +24,7 @@ import org.springframework.beans.factory.annotation.Configurable;
  */
 @Configurable
 @Entity
-@Table(name = "destinations")
+@Table(name = "designations")
 public class Designation extends BaseDomain {
 
     // ---------------------------------Attributes------------------------------------------
