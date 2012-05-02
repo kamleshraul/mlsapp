@@ -61,7 +61,7 @@ public class HouseController extends GenericController<House>{
 	private void customValidate(final House house,
 			final BindingResult result, final HttpServletRequest request) {
 		new HashMap<String, String>();
-			if(house.getType().equals("lowerhouse"))
+			if(house.getType().getType().equals("lowerhouse"))
 			{
 				Boolean isDuplicateParameter = house.isDuplicate("name",house.getName());
 				Object[] params = new Object[1];
@@ -128,5 +128,22 @@ public class HouseController extends GenericController<House>{
 		 HouseType housetype=HouseType.findByFieldName(HouseType.class, "type", htype, domain.getLocale());
 		 domain.setType(housetype);
 		}
-	
+@Override
+	protected void poulateCreateIfErrors(final ModelMap model,
+			final House domain,
+			final HttpServletRequest request) {
+	String htype=request.getParameter("houseType");
+	HouseType housetype=HouseType.findByFieldName(HouseType.class, "type", htype, domain.getLocale());
+	List<HouseType> housetypeList = HouseType.findAll(
+  		   HouseType.class, "type", "asc", domain.getLocale());
+	List<HouseType> newassemblycounciltype = new ArrayList<HouseType>();
+     newassemblycounciltype.add(housetype);
+     housetypeList.remove(housetype);
+     newassemblycounciltype.addAll(housetypeList);
+     model.addAttribute("assemblycounciltype", newassemblycounciltype);
+     domain.setType(housetype);
+		populateEdit(model, domain, request);
+		model.addAttribute("type", "error");
+		model.addAttribute("msg", "create_failed");
+	}
 }
