@@ -124,7 +124,8 @@ public class HouseController extends GenericController<House>{
 	@Override
 	 protected void preValidateCreate(final House domain,
 				final BindingResult result, final HttpServletRequest request) {
-		 HouseType housetype=HouseType.findByFieldName(HouseType.class, "type", domain.getType().getType(), domain.getLocale());
+		String htype=request.getParameter("houseType");
+		 HouseType housetype=HouseType.findByFieldName(HouseType.class, "type", htype, domain.getLocale());
 		 domain.setType(housetype);
 		}
 	
