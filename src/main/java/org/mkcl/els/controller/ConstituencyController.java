@@ -53,19 +53,17 @@ public class ConstituencyController extends GenericController<Constituency> {
 			final String locale, final HttpServletRequest request) {
 		String stateName = ((CustomParameter) CustomParameter.findByName(
 				CustomParameter.class, "DEFAULT_STATE", locale)).getValue();
-		String houseType = ((CustomParameter) CustomParameter.findByName(
+		String houseName = ((CustomParameter) CustomParameter.findByName(
 				CustomParameter.class, "DEFAULT_HOUSETYPE", locale)).getValue();
 		domain.setLocale(locale);
 		domain.setHouseType((HouseType) HouseType.findByFieldName(
-				HouseType.class, "type", houseType, locale));
+				HouseType.class, "name", houseName, locale));
 		// This is not needed as there will be a dropdown to select the house
 		// type
 		// String htype = this.getCurrentUser().getHouseType();
 		// HouseType houseType = HouseType.findByFieldName(HouseType.class,
 		// "type", htype, locale);
-		model.addAttribute("houseTypes", HouseType.findAllByFieldName(
-				HouseType.class, "locale", locale, "name",
-				ApplicationConstants.ASC, locale));
+		model.addAttribute("houseTypes", HouseType.findAll(HouseType.class, "type", "asc", domain.getLocale()));
 		List<State> states = State.findAll(State.class, "name", "asc", locale);
 		List<State> newStates = new ArrayList<State>();
 		State selectedState = State.findByName(State.class, stateName, locale);
@@ -114,15 +112,16 @@ public class ConstituencyController extends GenericController<Constituency> {
 		HouseType houseType = (HouseType) HouseType.findByFieldName(
 				HouseType.class, "type", hType, domain.getLocale());
 		model.addAttribute("houseType", houseType.getId());
-		model.addAttribute("housetype", houseType.getType());
-
+		model.addAttribute("housetype", houseType.getType());		
 		String stateName = "";
 		String divisionName = "";
-		if (!domain.getDistricts().isEmpty()) {
-			District district = domain.getDistricts().get(0);
-			stateName = district.getDivision().getState().getName();
-			divisionName = district.getDivision().getName();
-		}
+		if(domain.getHouseType().getType().equals("lowerhouse")) {
+			if (!domain.getDistricts().isEmpty()) {
+				District district = domain.getDistricts().get(0);
+				stateName = district.getDivision().getState().getName();
+				divisionName = district.getDivision().getName();
+			}
+		
 
 		List<State> states = State.findAll(State.class, "name", "asc", domain
 				.getLocale().toString());
@@ -173,6 +172,8 @@ public class ConstituencyController extends GenericController<Constituency> {
 		model.addAttribute("airports", airports);
 
 		model.addAttribute("isReserved", domain.getIsReserved());
+		
+		}
 	}
 
 	/* (non-Javadoc)
@@ -182,8 +183,9 @@ public class ConstituencyController extends GenericController<Constituency> {
 	public void preValidateCreate(final Constituency domain,
 			final BindingResult result, final HttpServletRequest request) {
 		HouseType houseType = HouseType.findByFieldName(HouseType.class,
-				"type", domain.getHouseType().getType(), domain.getLocale());
+				"type", request.getParameter("housetype"), domain.getLocale());
 		domain.setHouseType(houseType);
+		if(domain.getHouseType().getType().equals("lowerhouse")) {
 		if (domain.getIsReserved() == false) {
 			String reservedName = ((CustomParameter) CustomParameter
 					.findByName(CustomParameter.class, "DEFAULT_RESERVATION",
@@ -191,6 +193,7 @@ public class ConstituencyController extends GenericController<Constituency> {
 			Reservation selectedReservation = Reservation.findByName(
 					Reservation.class, reservedName, domain.getLocale());
 			domain.setReservedFor(selectedReservation);
+		}
 		}
 	}
 
@@ -200,6 +203,7 @@ public class ConstituencyController extends GenericController<Constituency> {
 	@Override
 	public void preValidateUpdate(final Constituency domain,
 			final BindingResult result, final HttpServletRequest request) {
+		if(domain.getHouseType().getType().equals("lowerhouse")) {
 		if (domain.getIsReserved() == false) {
 			String reservedName = ((CustomParameter) CustomParameter
 					.findByName(CustomParameter.class, "DEFAULT_RESERVATION",
@@ -207,6 +211,7 @@ public class ConstituencyController extends GenericController<Constituency> {
 			Reservation selectedReservation = Reservation.findByName(
 					Reservation.class, reservedName, domain.getLocale());
 			domain.setReservedFor(selectedReservation);
+		}
 		}
 	}
 
@@ -268,5 +273,23 @@ public class ConstituencyController extends GenericController<Constituency> {
 					"Duplicate Parameter");
 		}
 
+	}
+	
+	@Override
+	protected void poulateCreateIfErrors(final ModelMap model,
+			final Constituency domain,
+			final HttpServletRequest request) {
+		domain.setHouseType((HouseType) HouseType.findByFieldName(HouseType.class, "type", request.getParameter("housetype"), domain.getLocale()));
+		List<HouseType> houseTypes =HouseType.findAll(HouseType.class, "type", "asc", domain.getLocale());
+		List<HouseType> newHouseTypes = new ArrayList<HouseType>();
+		HouseType selectedHouseType = (HouseType) HouseType.findByFieldName(HouseType.class, "type", request.getParameter("housetype"), domain.getLocale());
+		newHouseTypes.add(selectedHouseType);
+		houseTypes.remove(selectedHouseType);
+		newHouseTypes.addAll(houseTypes);
+		model.addAttribute("houseTypes", newHouseTypes);
+		//model.addAttribute("houseTypes", HouseType.findAll(HouseType.class, "type", "asc", domain.getLocale()));
+		populateEdit(model, domain, request);
+		model.addAttribute("type", "error");
+		model.addAttribute("msg", "create_failed");
 	}
 }

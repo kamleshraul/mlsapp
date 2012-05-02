@@ -84,6 +84,24 @@
 		$('.hiddenAssemblyFields').hide();
 		$('.hiddenCommonFields').hide();
 		$('.tright').hide();
+		
+		if($('#houseTypes :selected').val()=="lowerhouse") {
+			$('.hiddenAssemblyFields').show();
+			$('.hiddenCommonFields').show();
+			$('.tright').show();
+		}
+		else if($('#houseTypes :selected').val()=="upperhouse") {
+			$('.hiddenCommonFields').show();
+			$('.hiddenAssemblyFields').hide();
+			$('.tright').show();
+		}
+		else {
+			$('.hiddenAssemblyFields').hide();
+			$('.hiddenCommonFields').hide();
+			$('.tright').hide();
+		}
+		
+		
 		if ($('#houseTypes').val() != undefined) {
 			$('#houseTypes').change(function() {
 				if($('#houseTypes :selected').val()=="lowerhouse") {
@@ -204,14 +222,20 @@
 						<label class="small"><spring:message
 								code="constituency.houseType"
 								text="House Type" /></label>
-						<form:select path="houseType.type"
-							items="${houseTypes}" itemValue="type" itemLabel="name"
-							id="houseTypes"></form:select>
-						<form:errors path="houseType"
-							cssClass="validationError" />						
+						<select id="houseTypes" name="housetype">
+						<c:forEach items="${houseTypes }" var="htype">
+						<c:choose>
+						<c:when test="${houseType==htype.type }">
+						<option value="${htype.type}" selected="selected">${htype.name}</option>
+						</c:when>
+						<c:otherwise>
+						<option value="${htype.type}">${htype.name}</option>
+						</c:otherwise>
+						</c:choose>
+						</c:forEach>
+						</select>											
 					</p>
-			<%-- <c:choose>
-				<c:when test="${ houseType == 1 or houseType == 3 }"> --%>
+			
 					<p class="hiddenAssemblyFields">
 						<label class="small"><spring:message
 								code="constituency.state" text="State" /></label> <select name="state"
