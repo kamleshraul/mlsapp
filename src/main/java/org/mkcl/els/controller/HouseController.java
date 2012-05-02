@@ -102,7 +102,7 @@ public class HouseController extends GenericController<House>{
 		house.setLocale(locale);
 		String housetype = ((CustomParameter) CustomParameter.findByName(
                  CustomParameter.class, "DEFAULT_HOUSETYPE", locale)).getValue();
-		HouseType defaultHouseType=HouseType.findByFieldName(HouseType.class, "type", housetype, locale);
+		HouseType defaultHouseType=HouseType.findByFieldName(HouseType.class, "name", housetype, locale);
 		house.setType(defaultHouseType);
 		List<HouseType> housetypeList = HouseType.findAll(
 	    		   HouseType.class, "type", "asc", locale);
