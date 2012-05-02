@@ -62,7 +62,7 @@ import org.springframework.beans.factory.annotation.Configurable;
     "memberPartyAssociations", "memberDepartmentAssociations", "books",
     "credential", "title", "maritalStatus", "gender", "professions",
     "nationality", "permanentAddress", "presentAddress", "contact",
-    "officeAddress","houseMemberRoleAssociations","memberMinisterAssociations"})
+    "officeAddress","houseMemberRoleAssociations"/*,"memberMinisterAssociations"*/})
     public class Member extends BaseDomain implements Serializable {
 
     // ---------------------------------Attributes------------------------------------------
@@ -255,9 +255,9 @@ import org.springframework.beans.factory.annotation.Configurable;
     private List<MemberPartyAssociation> memberPartyAssociations;
 
     // ----------------------------------Minister_Informations----------------------------------
-    /** The member minister associations. */
-    @OneToMany(mappedBy = "member", fetch = FetchType.LAZY,cascade=CascadeType.ALL)
-    private List<MemberMinisterAssociation> memberMinisterAssociations;
+//    /** The member minister associations. */
+//    @OneToMany(mappedBy = "member", fetch = FetchType.LAZY,cascade=CascadeType.ALL)
+//    private List<MemberMinisterAssociation> memberMinisterAssociations;
     // ----------------------------------House_Role_Informations----------------------------------
     /** The house member role associations. */
     @OneToMany(mappedBy = "member", fetch = FetchType.LAZY,cascade=CascadeType.ALL)
@@ -1186,25 +1186,25 @@ import org.springframework.beans.factory.annotation.Configurable;
         this.status = status;
     }
 	
-	/**
-	 * Gets the member minister associations.
-	 *
-	 * @return the member minister associations
-	 */
-	public List<MemberMinisterAssociation> getMemberMinisterAssociations() {
-		return memberMinisterAssociations;
-	}
-	
-	/**
-	 * Sets the member minister associations.
-	 *
-	 * @param memberMinisterAssociations the new member minister associations
-	 */
-	public void setMemberMinisterAssociations(
-			List<MemberMinisterAssociation> memberMinisterAssociations) {
-		this.memberMinisterAssociations = memberMinisterAssociations;
-	}
-    
+//	/**
+//	 * Gets the member minister associations.
+//	 *
+//	 * @return the member minister associations
+//	 */
+//	public List<MemberMinisterAssociation> getMemberMinisterAssociations() {
+//		return memberMinisterAssociations;
+//	}
+//	
+//	/**
+//	 * Sets the member minister associations.
+//	 *
+//	 * @param memberMinisterAssociations the new member minister associations
+//	 */
+//	public void setMemberMinisterAssociations(
+//			List<MemberMinisterAssociation> memberMinisterAssociations) {
+//		this.memberMinisterAssociations = memberMinisterAssociations;
+//	}
+//    
 	/**
 	 * Gets the pa name.
 	 *
