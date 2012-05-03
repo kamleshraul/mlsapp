@@ -15,11 +15,10 @@ import java.util.HashMap;
 import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
-import org.mkcl.els.common.vo.AuthUser;
+
 import org.mkcl.els.domain.CustomParameter;
 import org.mkcl.els.domain.House;
 import org.mkcl.els.domain.HouseType;
-import org.mkcl.els.domain.Session;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
 import org.springframework.validation.BindingResult;
@@ -35,22 +34,20 @@ import org.springframework.web.bind.annotation.RequestMapping;
 @Controller
 @RequestMapping("/house")
 public class HouseController extends GenericController<House>{
-	
-	/** The Constant ASC. */
-	private static final String ASC = "asc";
-	
-	
-	protected void customValidateCreate(final House domain,
+
+	@Override
+    protected void customValidateCreate(final House domain,
 			final BindingResult result, final HttpServletRequest request) {
 		customValidate(domain, result, request);
 	}
-	
-	
-	protected void customValidateUpdate(final House domain,
+
+
+	@Override
+    protected void customValidateUpdate(final House domain,
 			final BindingResult result, final HttpServletRequest request) {
 		customValidate(domain, result, request);
 	}
-	
+
 	/**
 	 * Custom validate.
 	 *
@@ -70,14 +67,14 @@ public class HouseController extends GenericController<House>{
 					result.rejectValue("name", "NonUnique", params,
 							"Duplicate Parameter");
 				}
-			
+
 				Date formationDate=house.getFormationDate();
 				Date dissolveDate=house.getDissolveDate();
 				if(formationDate.after(dissolveDate)){
 					result.rejectValue("formationDate","FormationDateLtDissolveDate","Invalid Date");
 				}
-			
-			
+
+
 				Date firstDate=house.getFirstDate();
 				Date endDate=house.getLastDate();
 				if(firstDate.after(endDate)){
@@ -87,15 +84,15 @@ public class HouseController extends GenericController<House>{
 			if (house.isVersionMismatch()) {
 				result.rejectValue("VersionMismatch", "version");
 			}
-			
-			
-			
+
+
+
 			if (result.hasErrors()) {
 			System.out.println("error");
 		}
 	}
-	
-	
+
+
 	@Override
 	protected void populateNew(final ModelMap model, final House house,
 			final String locale, final HttpServletRequest request) {
@@ -107,10 +104,10 @@ public class HouseController extends GenericController<House>{
 		List<HouseType> housetypeList = HouseType.findAll(
 	    		   HouseType.class, "type", "asc", locale);
 		model.addAttribute("assemblycounciltype", housetypeList);
-        
+
 	}
-	
-	
+
+
 	@Override
 	protected void populateEdit(final ModelMap model, final House house,
 			final HttpServletRequest request) {
@@ -120,7 +117,7 @@ public class HouseController extends GenericController<House>{
 		model.addAttribute("houseType", houseType.getType());
 		model.addAttribute("housetype",houseType.getId());
 	}
-	
+
 	@Override
 	 protected void preValidateCreate(final House domain,
 				final BindingResult result, final HttpServletRequest request) {
