@@ -129,7 +129,7 @@ public class HouseController extends GenericController<House>{
 		 domain.setType(housetype);
 		}
 @Override
-	protected void poulateCreateIfErrors(final ModelMap model,
+	protected void populateCreateIfErrors(final ModelMap model,
 			final House domain,
 			final HttpServletRequest request) {
 	String htype=request.getParameter("houseType");
