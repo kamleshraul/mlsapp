@@ -38,12 +38,11 @@ import org.mkcl.els.common.vo.MemberProfessionWiseReportVO;
 import org.mkcl.els.common.vo.MemberQualificationWiseReportVO;
 import org.mkcl.els.common.vo.MemberSearchPage;
 import org.mkcl.els.domain.associations.HouseMemberRoleAssociation;
-import org.mkcl.els.domain.associations.MemberDepartmentAssociation;
-//import org.mkcl.els.domain.associations.MemberMinisterAssociation;
 import org.mkcl.els.domain.associations.MemberPartyAssociation;
 import org.mkcl.els.repository.MemberRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Configurable;
+
 
 
 // TODO: Auto-generated Javadoc
@@ -59,10 +58,10 @@ import org.springframework.beans.factory.annotation.Configurable;
 @Table(name="members")
 @JsonIgnoreProperties({ "qualifications", "religion", "languages",
     "familyMembers", "positionsHeld", "reservation", "electionResults",
-    "memberPartyAssociations", "memberDepartmentAssociations", "books",
+    "memberPartyAssociations", "memberMinisters", "books",
     "credential", "title", "maritalStatus", "gender", "professions",
     "nationality", "permanentAddress", "presentAddress", "contact",
-    "officeAddress","houseMemberRoleAssociations"/*,"memberMinisterAssociations"*/})
+    "officeAddress","houseMemberRoleAssociations"})
     public class Member extends BaseDomain implements Serializable {
 
     // ---------------------------------Attributes------------------------------------------
@@ -254,19 +253,15 @@ import org.springframework.beans.factory.annotation.Configurable;
     @OneToMany(mappedBy = "member", fetch = FetchType.LAZY,cascade=CascadeType.ALL)
     private List<MemberPartyAssociation> memberPartyAssociations;
 
-    // ----------------------------------Minister_Informations----------------------------------
-//    /** The member minister associations. */
-//    @OneToMany(mappedBy = "member", fetch = FetchType.LAZY,cascade=CascadeType.ALL)
-//    private List<MemberMinisterAssociation> memberMinisterAssociations;
     // ----------------------------------House_Role_Informations----------------------------------
     /** The house member role associations. */
     @OneToMany(mappedBy = "member", fetch = FetchType.LAZY,cascade=CascadeType.ALL)
     private List<HouseMemberRoleAssociation> houseMemberRoleAssociations;
-    
-    // ----------------------------------Department_Informations----------------------------------
-    /** The member department associations. */
-    @OneToMany(mappedBy = "member", fetch = FetchType.LAZY,cascade=CascadeType.ALL)
-    private List<MemberDepartmentAssociation> memberDepartmentAssociations;
+
+    // ----------------------------------House_Role_Informations----------------------------------
+    /** The member ministers. */
+    @OneToMany(mappedBy="member", fetch=FetchType.LAZY, cascade=CascadeType.ALL)
+    private List<MemberMinister> memberMinisters;
 
     // ----------------------------------Book_Informations----------------------------------
     /** The books. */
@@ -280,11 +275,11 @@ import org.springframework.beans.factory.annotation.Configurable;
     /** The pa name. */
     @Column(length=900)
     private String paName;
-    
+
     /** The pa contact no. */
     @Column(length=1500)
     private String paContactNo;
-    
+
     /** The pa address. */
     @Column(length=3000)
     private String paAddress;
@@ -1130,26 +1125,6 @@ import org.springframework.beans.factory.annotation.Configurable;
             final List<HouseMemberRoleAssociation> houseMemberRoleAssociations) {
         this.houseMemberRoleAssociations = houseMemberRoleAssociations;
     }
-    
-    /**
-     * Gets the member department associations.
-     *
-     * @return the member department associations
-     */
-    public List<MemberDepartmentAssociation> getMemberDepartmentAssociations() {
-		return memberDepartmentAssociations;
-	}
-	
-	/**
-	 * Sets the member department associations.
-	 *
-	 * @param memberDepartmentAssociations the new member department associations
-	 */
-	public void setMemberDepartmentAssociations(
-			List<MemberDepartmentAssociation> memberDepartmentAssociations) {
-		this.memberDepartmentAssociations = memberDepartmentAssociations;
-	}
-
     /**
      * Gets the books.
      *
@@ -1185,7 +1160,7 @@ import org.springframework.beans.factory.annotation.Configurable;
     public void setStatus(final String status) {
         this.status = status;
     }
-	
+
 //	/**
 //	 * Gets the member minister associations.
 //	 *
@@ -1194,7 +1169,7 @@ import org.springframework.beans.factory.annotation.Configurable;
 //	public List<MemberMinisterAssociation> getMemberMinisterAssociations() {
 //		return memberMinisterAssociations;
 //	}
-//	
+//
 //	/**
 //	 * Sets the member minister associations.
 //	 *
@@ -1204,7 +1179,7 @@ import org.springframework.beans.factory.annotation.Configurable;
 //			List<MemberMinisterAssociation> memberMinisterAssociations) {
 //		this.memberMinisterAssociations = memberMinisterAssociations;
 //	}
-//    
+//
 	/**
 	 * Gets the pa name.
 	 *
@@ -1213,7 +1188,7 @@ import org.springframework.beans.factory.annotation.Configurable;
 	public String getPaName() {
 		return paName;
 	}
-	
+
 	/**
 	 * Sets the pa name.
 	 *
@@ -1222,7 +1197,7 @@ import org.springframework.beans.factory.annotation.Configurable;
 	public void setPaName(final String paName) {
 		this.paName = paName;
 	}
-	
+
 	/**
 	 * Gets the pa contact no.
 	 *
@@ -1231,7 +1206,7 @@ import org.springframework.beans.factory.annotation.Configurable;
 	public String getPaContactNo() {
 		return paContactNo;
 	}
-	
+
 	/**
 	 * Sets the pa contact no.
 	 *
@@ -1240,7 +1215,7 @@ import org.springframework.beans.factory.annotation.Configurable;
 	public void setPaContactNo(final String paContactNo) {
 		this.paContactNo = paContactNo;
 	}
-	
+
 	/**
 	 * Gets the pa address.
 	 *
@@ -1249,7 +1224,7 @@ import org.springframework.beans.factory.annotation.Configurable;
 	public String getPaAddress() {
 		return paAddress;
 	}
-	
+
 	/**
 	 * Sets the pa address.
 	 *
@@ -1258,5 +1233,23 @@ import org.springframework.beans.factory.annotation.Configurable;
 	public void setPaAddress(final String paAddress) {
 		this.paAddress = paAddress;
 	}
+
+    /**
+     * Gets the member ministers.
+     *
+     * @return the member ministers
+     */
+    public List<MemberMinister> getMemberMinisters() {
+        return memberMinisters;
+    }
+
+    /**
+     * Sets the member ministers.
+     *
+     * @param memberMinisters the new member ministers
+     */
+    public void setMemberMinisters(final List<MemberMinister> memberMinisters) {
+        this.memberMinisters = memberMinisters;
+    }
 
 }
