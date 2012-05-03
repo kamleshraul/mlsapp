@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
 <decorators defaultdir="/WEB-INF/decorators">
-	<decorator name="form" page="form.jsp">		
+	<decorator name="form" page="form.jsp">	
 		<pattern>/message</pattern>
 		<pattern>/message/new</pattern>
 		<pattern>/message/*/edit</pattern>
@@ -165,7 +165,12 @@
 		<pattern>/memberrole/new</pattern>
 		<pattern>/memberrole/*/edit</pattern>
 		<pattern>/memberrole/*/delete</pattern>
-		<pattern>/memberrole</pattern>			
+		<pattern>/memberrole</pattern>	
+		
+		<pattern>/designation/new</pattern>
+		<pattern>/designation/*/edit</pattern>
+		<pattern>/designation/*/delete</pattern>
+		<pattern>/designation</pattern>			
 			
     </decorator>
     <decorator name="mnu_form" page="mnu_form.jsp">
@@ -191,10 +196,10 @@
 		<pattern>/member/party/*/delete</pattern>
 		<pattern>/member/party</pattern>	
 		
-		<pattern>/member/ministry/new</pattern>
-		<pattern>/member/ministry/*/edit</pattern>
-		<pattern>/member/ministry/*/delete</pattern>
-		<pattern>/member/ministry</pattern>		
+		<pattern>/member/minister/new</pattern>
+		<pattern>/member/minister/*/edit</pattern>
+		<pattern>/member/minister/*/delete</pattern>
+		<pattern>/member/minister</pattern>	
 		
 		<pattern>/member/election/new</pattern>
 		<pattern>/member/election/*/edit</pattern>
