@@ -14,7 +14,6 @@ import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
 
-import org.mkcl.els.common.util.ApplicationConstants;
 import org.mkcl.els.domain.Airport;
 import org.mkcl.els.domain.Constituency;
 import org.mkcl.els.domain.CustomParameter;
@@ -32,7 +31,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 // TODO: Auto-generated Javadoc
 /**
  * The Class ConstituencyController.
- * 
+ *
  * @author dhananjayb
  * @since v1.0.0
  */
@@ -42,7 +41,7 @@ public class ConstituencyController extends GenericController<Constituency> {
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see
 	 * org.mkcl.els.controller.GenericController#populateNew(org.springframework
 	 * .ui.ModelMap, org.mkcl.els.domain.BaseDomain, java.util.Locale,
@@ -99,7 +98,7 @@ public class ConstituencyController extends GenericController<Constituency> {
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see
 	 * org.mkcl.els.controller.GenericController#populateEdit(org.springframework
 	 * .ui.ModelMap, org.mkcl.els.domain.BaseDomain,
@@ -112,7 +111,7 @@ public class ConstituencyController extends GenericController<Constituency> {
 		HouseType houseType = (HouseType) HouseType.findByFieldName(
 				HouseType.class, "type", hType, domain.getLocale());
 		model.addAttribute("houseType", houseType.getId());
-		model.addAttribute("housetype", houseType.getType());		
+		model.addAttribute("housetype", houseType.getType());
 		String stateName = "";
 		String divisionName = "";
 		if(domain.getHouseType().getType().equals("lowerhouse")) {
@@ -121,7 +120,7 @@ public class ConstituencyController extends GenericController<Constituency> {
 				stateName = district.getDivision().getState().getName();
 				divisionName = district.getDivision().getName();
 			}
-		
+
 
 		List<State> states = State.findAll(State.class, "name", "asc", domain
 				.getLocale().toString());
@@ -172,7 +171,7 @@ public class ConstituencyController extends GenericController<Constituency> {
 		model.addAttribute("airports", airports);
 
 		model.addAttribute("isReserved", domain.getIsReserved());
-		
+
 		}
 	}
 
@@ -217,7 +216,7 @@ public class ConstituencyController extends GenericController<Constituency> {
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see
 	 * org.mkcl.els.controller.GenericController#customValidateCreate(org.mkcl
 	 * .els.domain.BaseDomain, org.springframework.validation.BindingResult,
@@ -231,7 +230,7 @@ public class ConstituencyController extends GenericController<Constituency> {
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see
 	 * org.mkcl.els.controller.GenericController#customValidateUpdate(org.mkcl
 	 * .els.domain.BaseDomain, org.springframework.validation.BindingResult,
@@ -245,7 +244,7 @@ public class ConstituencyController extends GenericController<Constituency> {
 
 	/**
 	 * Custom validate.
-	 * 
+	 *
 	 * @param domain
 	 *            the domain
 	 * @param result
@@ -274,9 +273,9 @@ public class ConstituencyController extends GenericController<Constituency> {
 		}
 
 	}
-	
+
 	@Override
-	protected void poulateCreateIfErrors(final ModelMap model,
+	protected void populateCreateIfErrors(final ModelMap model,
 			final Constituency domain,
 			final HttpServletRequest request) {
 		domain.setHouseType((HouseType) HouseType.findByFieldName(HouseType.class, "type", request.getParameter("housetype"), domain.getLocale()));
