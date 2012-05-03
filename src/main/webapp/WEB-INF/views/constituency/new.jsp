@@ -19,13 +19,10 @@
 			}
 			$('#divisions').html(options);
 			if ($('#divisions').val() != undefined) {
-				populateDistricts($('#divisions').val());
-				//populateName($('#divisions').val());
+				populateDistricts($('#divisions').val());				
 			} else {
 				var options = "";
-				$('#districts').html(options);
-				//document.getElementById("name").value = "";
-				alert("There is NO division in selected state");
+				$('#districts').html(options);				
 			}
 		});
 	}
@@ -84,6 +81,8 @@
 		$('.hiddenAssemblyFields').hide();
 		$('.hiddenCommonFields').hide();
 		$('.tright').hide();
+		$('#rLabel').hide();
+		$('#reservedFor').hide();
 		
 		if($('#houseTypes :selected').val()=="lowerhouse") {
 			$('.hiddenAssemblyFields').show();
@@ -162,11 +161,21 @@
 				populateAirports(selectedDistricts);
 			}
 		});
+		$('#isReserved').click(function() {
+			if($('#isReserved').is(':checked'))
+	   		{
+				$('#rLabel').show();
+				$('#reservedFor').show();   	    
+			}
+			else {
+				$('#rLabel').hide();
+				$('#reservedFor').hide();
+			}
+		});
 		$('#submit').click(function() {		
 			var htype = $('#houseTypes :selected').val();
 			if( htype=="lowerhouse" ) {					
-				$('#divisionName').val($('#divisions option:selected').text().trim());
-				alert($('#divisionName').val());
+				$('#divisionName').val($('#divisions option:selected').text().trim());				
 				
 				if($('#isReserved').is(':checked'))
 			   	{
@@ -175,7 +184,7 @@
 				else
 			   	{ 				
 					$('#isReserved').val(false);				
-					$('#reservedFor').prop('selectedIndex', 0);
+					$('#reservedFor').prop('selectedIndex', -1);
 			   	};
 			   	
 			   	
@@ -189,8 +198,7 @@
 			   	};
 			}
 			else if( htype=="upperhouse" ) {
-				$('#divisionName').val($('#constituencyName').val());
-				alert($('#divisionName').val());				
+				$('#divisionName').val($('#constituencyName').val());							
 				$('#districts').prop('selectedIndex', -1);
 				$('#number').val(null);
 				$('#voters').val(null);	
@@ -291,7 +299,7 @@
 						<form:errors path="isReserved" cssClass="validationError" />
 					</p>
 					<p class="hiddenAssemblyFields">
-						<label class="small"><spring:message
+						<label class="small" id="rLabel"><spring:message
 								code="constituency.reservedFor" text="Reserved for" /></label>
 						<form:select cssClass="sOption" path="reservedFor" items="${reservations}" itemValue="id" itemLabel="name" id="reservedFor"></form:select>
 						<form:errors path="reservedFor" cssClass="validationError" />

@@ -19,12 +19,10 @@
 			}
 			$('#divisions').html(options);
 			if ($('#divisions').val() != undefined) {
-				populateDistricts($('#divisions').val());
-				//populateName($('#divisions').val());
+				populateDistricts($('#divisions').val());				
 			} else {
 				var options = "";
-				$('#districts').html(options);
-				//document.getElementById("name").value = "";
+				$('#districts').html(options);				
 				alert("There is NO division in selected state");
 			}
 		});
@@ -82,6 +80,15 @@
 
 	$(document).ready(function() {
 		//$('select[multiple="multiple"]').sexyselect({width:250,showTitle: false, selectionMode: 'multiple', styleize: true});		
+		if($('#isReserved').is(':checked'))
+	   	{
+			$('#rLabel').show();
+			$('#reservedFor').show();   	    
+		}
+		else {
+			$('#rLabel').hide();
+			$('#reservedFor').hide();
+		}
 		if ($('#states').val() != undefined) {
 			$('#states').change(function() {
 				populateDivisions($('#states').val());
@@ -124,6 +131,17 @@
 				populateAirports(selectedDistricts);
 			}
 		});
+		$('#isReserved').click(function() {
+			if($('#isReserved').is(':checked'))
+	   		{
+				$('#rLabel').show();
+				$('#reservedFor').show();   	    
+			}
+			else {
+				$('#rLabel').hide();
+				$('#reservedFor').hide();
+			}
+		});
 		$('#submit').click(function() {
 			var htype = ${housetype};
 			//alert("house type = " + htype);
@@ -142,7 +160,7 @@
 			else
 		   	{ 				
 				$('#isReserved').val(false);				
-				$('#reservedFor').prop('selectedIndex', 0);
+				$('#reservedFor').prop('selectedIndex', -1);
 		   	};
 		   	if($('#isRetired').is(':checked'))
 		   	{
@@ -228,15 +246,10 @@
 						<form:errors path="isReserved" cssClass="validationError" />
 					</p>
 					<p id="reservedFor">
-						<label class="small"><spring:message
-								code="constituency.reservedFor" text="Reserved for" /></label> <select
-							name="reservedFor">
-							<c:forEach items="${reservations}" var="i">
-								<option value="${i.id}">
-									<c:out value="${i.name}"></c:out>
-								</option>
-							</c:forEach>
-						</select>
+						<label class="small" id="rLabel"><spring:message
+								code="constituency.reservedFor" text="Reserved for" /></label> 
+						<form:select cssClass="sOption" path="reservedFor" items="${reservations}" itemValue="id" itemLabel="name" id="reservedFor"></form:select>
+						<form:errors path="reservedFor" cssClass="validationError" />							
 					</p>
 					<p>
 						<label class="small"><spring:message

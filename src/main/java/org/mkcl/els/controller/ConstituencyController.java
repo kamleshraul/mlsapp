@@ -81,12 +81,6 @@ public class ConstituencyController extends GenericController<Constituency> {
 
 		List<Reservation> reservations = Reservation.findAll(Reservation.class,
 				"name", "asc", locale);
-		String reservedName = ((CustomParameter) CustomParameter.findByName(
-				CustomParameter.class, "DEFAULT_RESERVATION", locale))
-				.getValue();
-		Reservation selectedReservation = Reservation.findByName(
-				Reservation.class, reservedName, locale);
-		domain.setReservedFor(selectedReservation);
 		model.addAttribute("reservations", reservations);
 
 		List<RailwayStation> railwayStations = new ArrayList<RailwayStation>();
@@ -114,64 +108,61 @@ public class ConstituencyController extends GenericController<Constituency> {
 		model.addAttribute("housetype", houseType.getType());
 		String stateName = "";
 		String divisionName = "";
-		if(domain.getHouseType().getType().equals("lowerhouse")) {
+		if (domain.getHouseType().getType().equals("lowerhouse")) {
 			if (!domain.getDistricts().isEmpty()) {
 				District district = domain.getDistricts().get(0);
 				stateName = district.getDivision().getState().getName();
 				divisionName = district.getDivision().getName();
 			}
 
+			List<State> states = State.findAll(State.class, "name", "asc",
+					domain.getLocale().toString());
+			List<State> newStates = new ArrayList<State>();
+			State selectedState = State.findByName(State.class, stateName,
+					domain.getLocale().toString());
+			newStates.add(selectedState);
+			states.remove(selectedState);
+			newStates.addAll(states);
+			model.addAttribute("states", newStates);
 
-		List<State> states = State.findAll(State.class, "name", "asc", domain
-				.getLocale().toString());
-		List<State> newStates = new ArrayList<State>();
-		State selectedState = State.findByName(State.class, stateName, domain
-				.getLocale().toString());
-		newStates.add(selectedState);
-		states.remove(selectedState);
-		newStates.addAll(states);
-		model.addAttribute("states", newStates);
+			List<Division> divisions = Division.findAllByFieldName(
+					Division.class, "state", selectedState, "name", "asc",
+					domain.getLocale().toString());
+			List<Division> newDivisions = new ArrayList<Division>();
+			Division selectedDivision = Division.findByName(Division.class,
+					divisionName, domain.getLocale().toString());
+			newDivisions.add(selectedDivision);
+			divisions.remove(selectedDivision);
+			newDivisions.addAll(divisions);
+			model.addAttribute("divisions", newDivisions);
 
-		List<Division> divisions = Division.findAllByFieldName(Division.class,
-				"state", selectedState, "name", "asc", domain.getLocale()
-						.toString());
-		List<Division> newDivisions = new ArrayList<Division>();
-		Division selectedDivision = Division.findByName(Division.class,
-				divisionName, domain.getLocale().toString());
-		newDivisions.add(selectedDivision);
-		divisions.remove(selectedDivision);
-		newDivisions.addAll(divisions);
-		model.addAttribute("divisions", newDivisions);
-
-		List<District> districts = District.findAllByFieldName(District.class,
-				"division", selectedDivision, "name", "asc", domain.getLocale()
-						.toString());
-		model.addAttribute("districts", districts);
-
-		List<Reservation> reservations = Reservation.findAll(Reservation.class,
-				"name", "asc", domain.getLocale().toString());
-		model.addAttribute("reservations", reservations);
-
-		List<RailwayStation> railwayStations = new ArrayList<RailwayStation>();
-		for (District selectedDistrict : domain.getDistricts()) {
-			List<RailwayStation> rs = RailwayStation.findAllByFieldName(
-					RailwayStation.class, "district", selectedDistrict, "name",
+			List<District> districts = District.findAllByFieldName(
+					District.class, "division", selectedDivision, "name",
 					"asc", domain.getLocale().toString());
-			railwayStations.addAll(rs);
-		}
-		model.addAttribute("railwayStations", railwayStations);
+			model.addAttribute("districts", districts);
 
-		List<Airport> airports = new ArrayList<Airport>();
-		for (District selectedDistrict : domain.getDistricts()) {
-			List<Airport> rs = Airport.findAllByFieldName(Airport.class,
-					"district", selectedDistrict, "name", "asc", domain
-							.getLocale().toString());
-			airports.addAll(rs);
-		}
-		model.addAttribute("airports", airports);
+			List<Reservation> reservations = Reservation.findAll(
+					Reservation.class, "name", "asc", domain.getLocale()
+							.toString());
+			model.addAttribute("reservations", reservations);
 
-		model.addAttribute("isReserved", domain.getIsReserved());
+			List<RailwayStation> railwayStations = new ArrayList<RailwayStation>();
+			for (District selectedDistrict : domain.getDistricts()) {
+				List<RailwayStation> rs = RailwayStation.findAllByFieldName(
+						RailwayStation.class, "district", selectedDistrict,
+						"name", "asc", domain.getLocale().toString());
+				railwayStations.addAll(rs);
+			}
+			model.addAttribute("railwayStations", railwayStations);
 
+			List<Airport> airports = new ArrayList<Airport>();
+			for (District selectedDistrict : domain.getDistricts()) {
+				List<Airport> rs = Airport.findAllByFieldName(Airport.class,
+						"district", selectedDistrict, "name", "asc", domain
+								.getLocale().toString());
+				airports.addAll(rs);
+			}
+			model.addAttribute("airports", airports);
 		}
 	}
 
@@ -186,12 +177,7 @@ public class ConstituencyController extends GenericController<Constituency> {
 		domain.setHouseType(houseType);
 		if(domain.getHouseType().getType().equals("lowerhouse")) {
 		if (domain.getIsReserved() == false) {
-			String reservedName = ((CustomParameter) CustomParameter
-					.findByName(CustomParameter.class, "DEFAULT_RESERVATION",
-							domain.getLocale())).getValue();
-			Reservation selectedReservation = Reservation.findByName(
-					Reservation.class, reservedName, domain.getLocale());
-			domain.setReservedFor(selectedReservation);
+			domain.setReservedFor(null);
 		}
 		}
 	}
@@ -204,12 +190,7 @@ public class ConstituencyController extends GenericController<Constituency> {
 			final BindingResult result, final HttpServletRequest request) {
 		if(domain.getHouseType().getType().equals("lowerhouse")) {
 		if (domain.getIsReserved() == false) {
-			String reservedName = ((CustomParameter) CustomParameter
-					.findByName(CustomParameter.class, "DEFAULT_RESERVATION",
-							domain.getLocale())).getValue();
-			Reservation selectedReservation = Reservation.findByName(
-					Reservation.class, reservedName, domain.getLocale());
-			domain.setReservedFor(selectedReservation);
+			domain.setReservedFor(null);
 		}
 		}
 	}
@@ -285,8 +266,7 @@ public class ConstituencyController extends GenericController<Constituency> {
 		newHouseTypes.add(selectedHouseType);
 		houseTypes.remove(selectedHouseType);
 		newHouseTypes.addAll(houseTypes);
-		model.addAttribute("houseTypes", newHouseTypes);
-		//model.addAttribute("houseTypes", HouseType.findAll(HouseType.class, "type", "asc", domain.getLocale()));
+		model.addAttribute("houseTypes", newHouseTypes);		
 		populateEdit(model, domain, request);
 		model.addAttribute("type", "error");
 		model.addAttribute("msg", "create_failed");
