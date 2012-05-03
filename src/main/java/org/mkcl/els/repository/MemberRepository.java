@@ -117,7 +117,11 @@ public class MemberRepository extends BaseRepository<Member, Long>{
 		        memberInfo.setConstituency("-");
 		    }else {
 		        if(i.getHouseMemberRoleAssociations().get(0).getConstituency()!=null){
-		            memberInfo.setConstituency(i.getHouseMemberRoleAssociations().get(0).getConstituency().getNumber()+"-"+i.getHouseMemberRoleAssociations().get(0).getConstituency().getName().trim()+", "+i.getHouseMemberRoleAssociations().get(0).getConstituency().getDistricts().get(0).getName());
+		            if(criteria1.equals("constituency")){
+                        memberInfo.setConstituency(i.getHouseMemberRoleAssociations().get(0).getConstituency().getName().trim()+"-"+i.getHouseMemberRoleAssociations().get(0).getConstituency().getNumber()+", "+i.getHouseMemberRoleAssociations().get(0).getConstituency().getDistricts().get(0).getName());
+		            }else{
+		                  memberInfo.setConstituency(i.getHouseMemberRoleAssociations().get(0).getConstituency().getNumber()+"-"+i.getHouseMemberRoleAssociations().get(0).getConstituency().getName().trim()+", "+i.getHouseMemberRoleAssociations().get(0).getConstituency().getDistricts().get(0).getName());
+		            }
 		        }else{
 	                  memberInfo.setConstituency("-");
 		        }
@@ -129,7 +133,11 @@ public class MemberRepository extends BaseRepository<Member, Long>{
 	                memberInfo.setConstituency("-");
 	            }else {
 	                if(i.getElectionResults().get(0).getConstituency()!=null){
-	                    memberInfo.setConstituency(i.getElectionResults().get(0).getConstituency().getNumber()+"-"+i.getElectionResults().get(0).getConstituency().getName().trim()+", "+i.getElectionResults().get(0).getConstituency().getDistricts().get(0).getName());
+	                    if(criteria1.equals("constituency")){
+	                        memberInfo.setConstituency(i.getElectionResults().get(0).getConstituency().getName().trim()+"-"+i.getElectionResults().get(0).getConstituency().getNumber()+", "+i.getElectionResults().get(0).getConstituency().getDistricts().get(0).getName());
+	                    }else{
+	                        memberInfo.setConstituency(i.getElectionResults().get(0).getConstituency().getNumber()+"-"+i.getElectionResults().get(0).getConstituency().getName().trim()+", "+i.getElectionResults().get(0).getConstituency().getDistricts().get(0).getName());
+	                    }
 	                }else{
 	                      memberInfo.setConstituency("-");
 	                }
