@@ -11,6 +11,9 @@
 		$('#addSymbol').click(function(){			
 			addSymbol();
 		});		
+					
+		$(".datemask").mask("99/99/9999");			
+		
 	});
 </script>
 
@@ -123,8 +126,15 @@
 			  		 "<input type='button' class='button' id='symbol"+fileID+"_delete' value='"+$('#deleteSymbolMessage').val()+"' onclick='deleteSymbol("+fileID+");'>"+
 		 			 "</div>";			
 			$('#symbol' + fileID).html(text);
+			
 			$('#file_symbol'+fileID+'_remove').click(function(){
 				removeFile(tag,fileID);
+			});
+			
+			$('.datemask').focus(function(){
+				if($(this).val()==""){
+					$(".datemask").mask("99/99/9999");
+				}
 			});
 			//alert("uploaded successfully " + $(data).contents());
 		}

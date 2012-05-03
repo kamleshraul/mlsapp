@@ -9,11 +9,8 @@
  */
 package org.mkcl.els.controller;
 
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
-
 import javax.servlet.http.HttpServletRequest;
 
 import org.mkcl.els.common.editors.BaseEditor;
@@ -25,7 +22,6 @@ import org.mkcl.els.domain.Party;
 import org.mkcl.els.domain.PartySymbol;
 import org.mkcl.els.domain.State;
 import org.mkcl.els.domain.Tehsil;
-import org.springframework.beans.propertyeditors.CustomDateEditor;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
 import org.springframework.validation.BindingResult;
@@ -152,16 +148,8 @@ public class PartyController extends GenericController<Party> {
             model.addAttribute("tehsilsS", tehsils);
 		}
 
-//		CustomParameter customParameter = CustomParameter.findByName(
-//				CustomParameter.class, "PHOTO_EXTENSION", null);
-//		model.addAttribute("photoExt", customParameter.getValue());
-//		CustomParameter customParameter1 = CustomParameter.findByName(
-//				CustomParameter.class, "PHOTO_SIZE", null);
-//		model.addAttribute("photoSize",
-//				Long.parseLong(customParameter1.getValue()) * 1024 * 1024);
-
 		int symbolCount = party.getPartySymbols().size();
-		model.addAttribute("symbolCount", symbolCount);
+		model.addAttribute("symbolCount", symbolCount);		
 	}
 
 	@Override
@@ -170,13 +158,7 @@ public class PartyController extends GenericController<Party> {
         binder.registerCustomEditor(Tehsil.class, new BaseEditor(new Tehsil()));
         binder.registerCustomEditor(District.class, new BaseEditor(
                 new District()));
-        binder.registerCustomEditor(State.class, new BaseEditor(new State()));
-        CustomParameter parameter = CustomParameter.findByName(
-				CustomParameter.class, "SERVER_DATEFORMAT", "");
-        SimpleDateFormat dateFormat = new SimpleDateFormat(parameter.getValue(),this.getUserLocale());
-		dateFormat.setLenient(true);
-		binder.registerCustomEditor(Date.class, new CustomDateEditor(
-				dateFormat, true));
+        binder.registerCustomEditor(State.class, new BaseEditor(new State()));       
     }
 
 	/**

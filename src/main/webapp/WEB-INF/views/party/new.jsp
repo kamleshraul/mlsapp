@@ -5,6 +5,9 @@
 		text="Add Party" /></title>
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
 <script type="text/javascript" src="./resources/js/jquery/jquery.fileupload.js"></script>
+<!-- <script type="text/javascript" src="./resources/js/common.js"></script>
+<script type="text/javascript" src="./resources/js/jquery/jquery.maskedinput.js"></script> -->
+
 <script type="text/javascript">
 	var symbolCount=parseInt($('#symbolCount').val());
 	var totalSymbolCount=0;
@@ -118,6 +121,12 @@
 			$('#symbol' + fileID).html(text);
 			$('#file_symbol'+fileID+'_remove').click(function(){
 				removeFile(tag,fileID);
+			});
+			
+			$('.datemask').focus(function(){
+				if($(this).val()==""){
+					$(".datemask").mask("99/99/9999");
+				}
 			});
 			//alert("uploaded successfully " + $(data).contents());
 		}
