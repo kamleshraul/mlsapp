@@ -576,8 +576,6 @@ public class GenericController<T extends BaseDomain> extends BaseController {
 		df.setDecimalFormatSymbols(dfs);
 		binder.registerCustomEditor(Integer.class, new CustomNumberEditor(Integer.class, nf, true));
 
-
-
 		CustomParameter parameter = CustomParameter.findByName(
 				CustomParameter.class, "SERVER_DATEFORMAT", "");
 		if(this.getUserLocale().equals(new Locale("mr","IN")))
