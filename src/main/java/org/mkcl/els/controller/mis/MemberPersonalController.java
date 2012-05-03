@@ -229,7 +229,7 @@ public class MemberPersonalController extends GenericController<Member> {
     }
     //in case of errors we need to re populate domain with populate edit logic
     @Override
-    protected void poulateCreateIfErrors(final ModelMap model,
+    protected void populateCreateIfErrors(final ModelMap model,
             final Member domain,
             final HttpServletRequest request) {
         populateEdit(model, domain, request);
@@ -237,7 +237,7 @@ public class MemberPersonalController extends GenericController<Member> {
         model.addAttribute("msg", "create_failed");
     }
     @Override
-    protected void poulateUpdateIfErrors(final ModelMap model, final Member domain,
+    protected void populateUpdateIfErrors(final ModelMap model, final Member domain,
             final HttpServletRequest request) {
         populateEdit(model, domain, request);
         model.addAttribute("type", "error");
