@@ -29,10 +29,7 @@
 			});	
 			$('#election_tab').click(function(){
 				listMemberElectionDetails($('#key').val());
-			});	
-			$('#department_tab').click(function(){
-				listMemberDepartmentDetails($('#key').val());
-			});
+			});				
 			$(document).keydown(function (e){
 				if(e.which==78 && e.ctrlKey){
 					newRecord();
@@ -159,16 +156,7 @@
 			else{
 				showTabByIdAndUrl('election_tab','member/election/list');
 				}
-		}
-		function listMemberDepartmentDetails(row) {
-			if(row == null || row == ''){
-				$.prompt($('#selectRowFirstMessage').val());		
-				return;
-			}
-			else{
-				showTabByIdAndUrl('department_tab','member/department/list');
-				}
-		}
+		}		
 			
 	</script>
 </head>
@@ -238,13 +226,7 @@
 				   <spring:message code="member.module.memberElectionDetails" text="Election Details">
 				   </spring:message>
 				</a>
-			</li>
-			<li>
-				<a id="department_tab" href="#" class="tab">
-				   <spring:message code="member.module.memberDepartment" text="Department">
-				   </spring:message>
-				</a>
-			</li>
+			</li>			
 		</ul>
 		<div class="tabContent clearfix">
 		</div>		
