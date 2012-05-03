@@ -218,7 +218,7 @@ public class GenericController<T extends BaseDomain> extends BaseController {
 		model.addAttribute("domain", domain);
 		if (result.hasErrors()) {
 			/*****Hook*************/
-			poulateCreateIfErrors(model,domain, request);
+			populateCreateIfErrors(model,domain, request);
 			/**********************/
 			return servletPath+"/" + "new";
 		}
@@ -263,7 +263,7 @@ public class GenericController<T extends BaseDomain> extends BaseController {
 		model.addAttribute("domain", domain);
 		if (result.hasErrors()) {
 			/*****Hook*************/
-			poulateUpdateIfErrors(model, domain, request);
+			populateUpdateIfErrors(model, domain, request);
 			/**********************/
 			return servletPath +"/"+ "edit";
 		}
@@ -659,7 +659,7 @@ public class GenericController<T extends BaseDomain> extends BaseController {
 	 * @param domain the domain
 	 * @param request the request
 	 */
-	protected void poulateCreateIfErrors(final ModelMap model,
+	protected void populateCreateIfErrors(final ModelMap model,
 			final T domain,
 			final HttpServletRequest request) {
 		populateEdit(model, domain, request);
@@ -686,7 +686,7 @@ public class GenericController<T extends BaseDomain> extends BaseController {
 	 * @param domain the domain
 	 * @param request the request
 	 */
-	protected void poulateUpdateIfErrors(final ModelMap model, final T domain,
+	protected void populateUpdateIfErrors(final ModelMap model, final T domain,
 			final HttpServletRequest request) {
 		populateEdit(model, domain, request);
 		model.addAttribute("type", "error");
