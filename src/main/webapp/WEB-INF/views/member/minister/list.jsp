@@ -6,7 +6,6 @@
 	<script type="text/javascript">
 		$(document).ready(function(){
 			$('#list_record').hide();
-			alert($('#key').val());
 			$('#gridURLParams').val("member="+$('#key').val());		
 			$('#editDeleteLinks').show();		
 			$('#new_record').click(function(){
@@ -27,9 +26,9 @@
 			showTabByIdAndUrl('minister_tab','member/minister/list');	
 		}
 		function newRecord(member){
-				$.get('member/minister/new?member='+member, function(data){					
-					$('#grid_container').html(data);
-					$('#list_record').show();					
+			$.get('member/minister/new?member='+member, function(data){					
+				$('#grid_container').html(data);
+				$('#list_record').show();					
 			});
 		}
 		function editRecord(row,member) {			
@@ -40,14 +39,14 @@
 			$.get('member/minister/'+row+'/edit?member='+member, function(data){
 				$('#grid_container').html(data);
 				$('#list_record').show();					
-		});		
+			});		
 		}
 		function rowDblClickHandler(rowid, iRow, iCol, e) {
 			var member=$('#key').val();
 			$.get('member/minister/'+rowid+'/edit?member='+member, function(data){
 				$('#grid_container').html(data);
 				$('#list_record').show();					
-		});
+			});
 		}
 		function rowSelectHandler(rowid,status){			
 			if($('#internalKey')){
