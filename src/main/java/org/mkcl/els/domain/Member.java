@@ -39,7 +39,6 @@ import org.mkcl.els.common.vo.MemberQualificationWiseReportVO;
 import org.mkcl.els.common.vo.MemberSearchPage;
 import org.mkcl.els.domain.associations.HouseMemberRoleAssociation;
 import org.mkcl.els.domain.associations.MemberDepartmentAssociation;
-import org.mkcl.els.domain.associations.MemberMinisterAssociation;
 import org.mkcl.els.domain.associations.MemberPartyAssociation;
 import org.mkcl.els.repository.MemberRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -262,7 +261,7 @@ import org.springframework.beans.factory.annotation.Configurable;
     /** The house member role associations. */
     @OneToMany(mappedBy = "member", fetch = FetchType.LAZY,cascade=CascadeType.ALL)
     private List<HouseMemberRoleAssociation> houseMemberRoleAssociations;
-    
+
     // ----------------------------------Department_Informations----------------------------------
     /** The member department associations. */
     @OneToMany(mappedBy = "member", fetch = FetchType.LAZY,cascade=CascadeType.ALL)
@@ -280,11 +279,11 @@ import org.springframework.beans.factory.annotation.Configurable;
     /** The pa name. */
     @Column(length=900)
     private String paName;
-    
+
     /** The pa contact no. */
     @Column(length=1500)
     private String paContactNo;
-    
+
     /** The pa address. */
     @Column(length=3000)
     private String paAddress;
@@ -1130,7 +1129,7 @@ import org.springframework.beans.factory.annotation.Configurable;
             final List<HouseMemberRoleAssociation> houseMemberRoleAssociations) {
         this.houseMemberRoleAssociations = houseMemberRoleAssociations;
     }
-    
+
     /**
      * Gets the member department associations.
      *
@@ -1139,14 +1138,14 @@ import org.springframework.beans.factory.annotation.Configurable;
     public List<MemberDepartmentAssociation> getMemberDepartmentAssociations() {
 		return memberDepartmentAssociations;
 	}
-	
+
 	/**
 	 * Sets the member department associations.
 	 *
 	 * @param memberDepartmentAssociations the new member department associations
 	 */
 	public void setMemberDepartmentAssociations(
-			List<MemberDepartmentAssociation> memberDepartmentAssociations) {
+			final List<MemberDepartmentAssociation> memberDepartmentAssociations) {
 		this.memberDepartmentAssociations = memberDepartmentAssociations;
 	}
 
@@ -1185,7 +1184,7 @@ import org.springframework.beans.factory.annotation.Configurable;
     public void setStatus(final String status) {
         this.status = status;
     }
-	
+
 //	/**
 //	 * Gets the member minister associations.
 //	 *
@@ -1194,7 +1193,7 @@ import org.springframework.beans.factory.annotation.Configurable;
 //	public List<MemberMinisterAssociation> getMemberMinisterAssociations() {
 //		return memberMinisterAssociations;
 //	}
-//	
+//
 //	/**
 //	 * Sets the member minister associations.
 //	 *
@@ -1204,7 +1203,7 @@ import org.springframework.beans.factory.annotation.Configurable;
 //			List<MemberMinisterAssociation> memberMinisterAssociations) {
 //		this.memberMinisterAssociations = memberMinisterAssociations;
 //	}
-//    
+//
 	/**
 	 * Gets the pa name.
 	 *
@@ -1213,7 +1212,7 @@ import org.springframework.beans.factory.annotation.Configurable;
 	public String getPaName() {
 		return paName;
 	}
-	
+
 	/**
 	 * Sets the pa name.
 	 *
@@ -1222,7 +1221,7 @@ import org.springframework.beans.factory.annotation.Configurable;
 	public void setPaName(final String paName) {
 		this.paName = paName;
 	}
-	
+
 	/**
 	 * Gets the pa contact no.
 	 *
@@ -1231,7 +1230,7 @@ import org.springframework.beans.factory.annotation.Configurable;
 	public String getPaContactNo() {
 		return paContactNo;
 	}
-	
+
 	/**
 	 * Sets the pa contact no.
 	 *
@@ -1240,7 +1239,7 @@ import org.springframework.beans.factory.annotation.Configurable;
 	public void setPaContactNo(final String paContactNo) {
 		this.paContactNo = paContactNo;
 	}
-	
+
 	/**
 	 * Gets the pa address.
 	 *
@@ -1249,7 +1248,7 @@ import org.springframework.beans.factory.annotation.Configurable;
 	public String getPaAddress() {
 		return paAddress;
 	}
-	
+
 	/**
 	 * Sets the pa address.
 	 *
