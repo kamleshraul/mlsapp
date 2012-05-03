@@ -27,5 +27,5 @@ public class ApplicationConstants {
 
     public static final String en_US_INFOFOUND="Information Available For";
 
-
+    public static final String SERVER_DATEFORMAT = "dd/MM/yyyy";
 }

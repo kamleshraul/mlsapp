@@ -30,6 +30,16 @@ public class FormaterUtil {
         return formatWithGrouping;
 	}
 	
+	public static SimpleDateFormat getDateFormatter(String locale){
+		SimpleDateFormat dateFormatter=null;
+        if(locale.equals("mr_IN")||locale.equals("hi_IN")){
+        	dateFormatter = new SimpleDateFormat(ApplicationConstants.SERVER_DATEFORMAT,new Locale("hi","IN"));
+        }else{
+        	dateFormatter = new SimpleDateFormat(ApplicationConstants.SERVER_DATEFORMAT,new Locale("en","US"));
+        }
+        return dateFormatter;
+	}
+	
 	public static SimpleDateFormat getDateFormatter(String dateFormat,String locale){
 		SimpleDateFormat dateFormatter=null;
         if(locale.equals("mr_IN")||locale.equals("hi_IN")){
