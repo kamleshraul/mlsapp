@@ -120,7 +120,7 @@
 	  		 		 "</span>"+
 			  		 "</p>"+
 			  		 "<p>"+
-					 	"<label class='small'><spring:message text='Date of Change' />&nbsp;*</label>"+
+					 	"<label class='small'><spring:message code='party.symbolChangeDate' text='Date of Change' />&nbsp;*</label>"+
 					 	"<input type='text' id='changeDate"+fileID+"' class='datemask sText' name='changeDate" + fileID +"' />"+									
 				 	 "</p>"+
 			  		 "<input type='button' class='button' id='symbol"+fileID+"_delete' value='"+$('#deleteSymbolMessage').val()+"' onclick='deleteSymbol("+fileID+");'>"+
@@ -271,7 +271,7 @@
 									</jsp:include>
 								</p>
 								<p>
-									<label class="small"><spring:message text="Change Date" />&nbsp;*</label>
+									<label class="small"><spring:message code='party.symbolChangeDate' text="Change Date" />&nbsp;*</label>
 									<input class="datemask sText" name="changeDate${count}" value="${partySymbol.changeDate}"/>
 								</p>
 								<input type='button' class='button' id='${count}'
@@ -288,7 +288,7 @@
 				</div>								
 			</div>			
 			<div class="fields clearfix">
-				<h3>Registered Office Address:</h3>
+				<h3><spring:message	code="party.registeredOfficeAddress" text="Registered Office Address:" /></h3>
 				<p>
 					<label class="small"><spring:message
 							code="party.state" text="State" /></label>
@@ -335,7 +335,7 @@
 			</div>			
 			
 			<div class="fields clearfix">
-				<h3>State Office Address:</h3>
+				<h3><spring:message	code="party.stateOfficeAddress" text="State Office Address:" /></h3>
 				<p>
 						<label class="small"><spring:message
 								code="party.state" text="State" /></label>
@@ -379,7 +379,7 @@
 			</div>
 			
 			<div class="fields clearfix">
-				<h3>Contact Details:</h3>
+				<h3><spring:message	code="party.contactDetails" text="Contact Details:" /></h3>
 				<p>
 					<label class="small"><spring:message
 							code="party.email1" text="Email 1" /></label>
