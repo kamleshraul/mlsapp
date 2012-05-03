@@ -10,20 +10,15 @@
 package org.mkcl.els.domain;
 
 import java.io.Serializable;
-import java.util.List;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
-import javax.persistence.FetchType;
 import javax.persistence.ManyToOne;
-import javax.persistence.OneToMany;
 import javax.persistence.Table;
 
 import org.codehaus.jackson.annotate.JsonIgnoreProperties;
 import org.hibernate.validator.constraints.NotEmpty;
-import org.mkcl.els.domain.associations.MemberDepartmentAssociation;
 import org.springframework.beans.factory.annotation.Configurable;
-// TODO: Auto-generated Javadoc
 
 /**
  * The Class Department.
@@ -46,14 +41,11 @@ public class Department extends BaseDomain implements Serializable {
     @NotEmpty
     private String name;
 
-  
+
     /** The parent id. */
     @ManyToOne
 	private Department parentId;
-    
-    /** The member party associations. */
-    @OneToMany(mappedBy = "department")    
-    private List<MemberDepartmentAssociation> memberDepartmentAssociations;	
+
 
 	// ---------------------------------Constructors----------------------------------------------
 	/**
@@ -62,7 +54,7 @@ public class Department extends BaseDomain implements Serializable {
 	public Department() {
 		super();
 	}
-	
+
 	/**
 	 * Instantiates a new department.
 	 *
@@ -83,16 +75,16 @@ public class Department extends BaseDomain implements Serializable {
 	public String getName() {
 		return name;
 	}
-	
+
 	/**
 	 * Sets the name.
 	 *
 	 * @param name the new name
 	 */
-	public void setName(String name) {
+	public void setName(final String name) {
 		this.name = name;
 	}
-	
+
 	/**
 	 * Gets the parent id.
 	 *
@@ -101,23 +93,14 @@ public class Department extends BaseDomain implements Serializable {
 	public Department getParentId() {
 		return parentId;
 	}
-	
+
 	/**
 	 * Sets the parent id.
 	 *
 	 * @param parentId the new parent id
 	 */
-	public void setParentId(Department parentId) {
+	public void setParentId(final Department parentId) {
 		this.parentId = parentId;
 	}
-	
-	public List<MemberDepartmentAssociation> getMemberDepartmentAssociations() {
-		return memberDepartmentAssociations;
-	}
 
-	public void setMemberDepartmentAssociations(
-			List<MemberDepartmentAssociation> memberDepartmentAssociations) {
-		this.memberDepartmentAssociations = memberDepartmentAssociations;
-	}
-	
 }
