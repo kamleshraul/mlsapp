@@ -13,7 +13,6 @@ import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Table;
 
-import org.hibernate.validator.constraints.NotEmpty;
 import org.springframework.beans.factory.annotation.Configurable;
 
 /**
@@ -32,8 +31,7 @@ public class Designation extends BaseDomain {
     private static final transient long serialVersionUID = 1L;
 
     /** The name. */
-    @NotEmpty
-    @Column(length = 900)
+    @Column(length = 600)
     private String name;
     // ---------------------------------Constructors----------------------------------------------
 
@@ -43,7 +41,7 @@ public class Designation extends BaseDomain {
     public Designation() {
 		super();
 	}
-    
+
 	/**
 	 * Instantiates a new designation.
 	 *
