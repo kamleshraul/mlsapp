@@ -30,7 +30,7 @@ import org.springframework.util.AutoPopulatingList;
 
 /**
  * The Class House.
- * 
+ *
  * @author amitd
  * @author sandeeps
  * @since v1.0.0
@@ -105,13 +105,13 @@ public class House extends BaseDomain implements Serializable {
 
     /**
      * Instantiates a new house.
-     * 
+     *
      * @param name the name
      * @param number the number
      * @param type the type
      * @param formationDate the formation date
      */
-    public House(String name, Integer number, HouseType type, Date formationDate) {
+    public House(final String name, final Integer number, final HouseType type, final Date formationDate) {
         super();
         this.name = name;
         this.number = number;
@@ -129,17 +129,17 @@ public class House extends BaseDomain implements Serializable {
         return houseRepository;
     }
 
-    public static House findCurrentHouse(String locale) {
+    public static House findCurrentHouse(final String locale) {
         return getHouseRepository().findCurrentHouse(locale);
     }
 
-    public static House findHouseByToFromDate(Date fromDate, Date toDate,
-            String locale) {
+    public static House findHouseByToFromDate(final Date fromDate, final Date toDate,
+            final String locale) {
         return getHouseRepository().findHouseByToFromDate(fromDate, toDate,
                 locale);
     }
-    
-    public static List<House> findByHouseType(String houseType, String locale) {
+
+    public static List<House> findByHouseType(final String houseType, final String locale) {
     	return getHouseRepository().findByHouseType(houseType, locale);
 	}
 
@@ -147,7 +147,7 @@ public class House extends BaseDomain implements Serializable {
 
     /**
      * Gets the name.
-     * 
+     *
      * @return the name
      */
     public String getName() {
@@ -156,16 +156,16 @@ public class House extends BaseDomain implements Serializable {
 
     /**
      * Sets the name.
-     * 
+     *
      * @param name the new name
      */
-    public void setName(String name) {
+    public void setName(final String name) {
         this.name = name;
     }
 
     /**
      * Gets the number.
-     * 
+     *
      * @return the number
      */
     public Integer getNumber() {
@@ -174,16 +174,16 @@ public class House extends BaseDomain implements Serializable {
 
     /**
      * Sets the number.
-     * 
+     *
      * @param number the new number
      */
-    public void setNumber(Integer number) {
+    public void setNumber(final Integer number) {
         this.number = number;
     }
 
     /**
      * Gets the type.
-     * 
+     *
      * @return the type
      */
     public HouseType getType() {
@@ -192,16 +192,16 @@ public class House extends BaseDomain implements Serializable {
 
     /**
      * Sets the type.
-     * 
+     *
      * @param type the new type
      */
-    public void setType(HouseType type) {
+    public void setType(final HouseType type) {
         this.type = type;
     }
 
     /**
      * Gets the formation date.
-     * 
+     *
      * @return the formation date
      */
     public Date getFormationDate() {
@@ -210,16 +210,16 @@ public class House extends BaseDomain implements Serializable {
 
     /**
      * Sets the formation date.
-     * 
+     *
      * @param formationDate the new formation date
      */
-    public void setFormationDate(Date formationDate) {
+    public void setFormationDate(final Date formationDate) {
         this.formationDate = formationDate;
     }
 
     /**
      * Gets the dissolve date.
-     * 
+     *
      * @return the dissolve date
      */
     public Date getDissolveDate() {
@@ -228,16 +228,16 @@ public class House extends BaseDomain implements Serializable {
 
     /**
      * Sets the dissolve date.
-     * 
+     *
      * @param dissolveDate the new dissolve date
      */
-    public void setDissolveDate(Date dissolveDate) {
+    public void setDissolveDate(final Date dissolveDate) {
         this.dissolveDate = dissolveDate;
     }
 
     /**
      * Gets the first date.
-     * 
+     *
      * @return the first date
      */
     public Date getFirstDate() {
@@ -246,16 +246,16 @@ public class House extends BaseDomain implements Serializable {
 
     /**
      * Sets the first date.
-     * 
+     *
      * @param firstDate the new first date
      */
-    public void setFirstDate(Date firstDate) {
+    public void setFirstDate(final Date firstDate) {
         this.firstDate = firstDate;
     }
 
     /**
      * Gets the last date.
-     * 
+     *
      * @return the last date
      */
     public Date getLastDate() {
@@ -264,16 +264,16 @@ public class House extends BaseDomain implements Serializable {
 
     /**
      * Sets the last date.
-     * 
+     *
      * @param lastDate the new last date
      */
-    public void setLastDate(Date lastDate) {
+    public void setLastDate(final Date lastDate) {
         this.lastDate = lastDate;
     }
 
     /**
      * Gets the governor address date.
-     * 
+     *
      * @return the governor address date
      */
     public Date getGovernorAddressDate() {
@@ -282,16 +282,16 @@ public class House extends BaseDomain implements Serializable {
 
     /**
      * Sets the governor address date.
-     * 
+     *
      * @param governorAddressDate the new governor address date
      */
-    public void setGovernorAddressDate(Date governorAddressDate) {
+    public void setGovernorAddressDate(final Date governorAddressDate) {
         this.governorAddressDate = governorAddressDate;
     }
 
     /**
      * Gets the total members.
-     * 
+     *
      * @return the total members
      */
     public Integer getTotalMembers() {
@@ -300,16 +300,16 @@ public class House extends BaseDomain implements Serializable {
 
     /**
      * Sets the total members.
-     * 
+     *
      * @param totalMembers the new total members
      */
-    public void setTotalMembers(Integer totalMembers) {
+    public void setTotalMembers(final Integer totalMembers) {
         this.totalMembers = totalMembers;
     }
 
     /**
      * Gets the remarks.
-     * 
+     *
      * @return the remarks
      */
     public String getRemarks() {
@@ -318,16 +318,16 @@ public class House extends BaseDomain implements Serializable {
 
     /**
      * Sets the remarks.
-     * 
+     *
      * @param remarks the new remarks
      */
-    public void setRemarks(String remarks) {
+    public void setRemarks(final String remarks) {
         this.remarks = remarks;
     }
 
     /**
      * Gets the sessions.
-     * 
+     *
      * @return the sessions
      */
     public List<Session> getSessions() {
@@ -336,10 +336,10 @@ public class House extends BaseDomain implements Serializable {
 
     /**
      * Sets the sessions.
-     * 
+     *
      * @param sessions the new sessions
      */
-    public void setSessions(List<Session> sessions) {
+    public void setSessions(final List<Session> sessions) {
         this.sessions = sessions;
     }
 }
