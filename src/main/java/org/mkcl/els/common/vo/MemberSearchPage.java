@@ -13,7 +13,6 @@ package org.mkcl.els.common.vo;
 import java.util.ArrayList;
 import java.util.List;
 
-// TODO: Auto-generated Javadoc
 /**
  * The Class MemberSearchPage.
  *

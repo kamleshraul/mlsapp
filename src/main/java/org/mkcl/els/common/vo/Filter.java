@@ -12,7 +12,6 @@ package org.mkcl.els.common.vo;
 
 import com.google.gson.Gson;
 
-
 /**
  * The Class Filter.
  *

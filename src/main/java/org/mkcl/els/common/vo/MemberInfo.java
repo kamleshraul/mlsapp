@@ -9,7 +9,6 @@
  */
 package org.mkcl.els.common.vo;
 
-
 /**
  * The Class MemberInfo.
  * @author amitd

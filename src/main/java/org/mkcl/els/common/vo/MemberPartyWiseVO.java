@@ -1,6 +1,24 @@
+/**
+ * See the file LICENSE for redistribution information.
+ *
+ * Copyright (c) 2012 MKCL.  All rights reserved.
+ *
+ * Project: e-Legislature
+ * File: org.mkcl.els.common.vo.MemberPartyWiseVO.java
+ * Created On: May 4, 2012
+ */
 package org.mkcl.els.common.vo;
 
+/**
+ * The Class MemberPartyWiseVO.
+ *
+ * @author amitd
+ * @author sandeeps
+ * @since v1.0.0
+ */
 public class MemberPartyWiseVO {
+
+	/** The party. */
 	private String party;
 
     /** The total member. */
@@ -12,35 +30,75 @@ public class MemberPartyWiseVO {
     /** The total male. */
     private String totalMale;
 
+	/**
+	 * Gets the party.
+	 *
+	 * @return the party
+	 */
 	public String getParty() {
 		return party;
 	}
 
-	public void setParty(String party) {
+	/**
+	 * Sets the party.
+	 *
+	 * @param party the new party
+	 */
+	public void setParty(final String party) {
 		this.party = party;
 	}
 
+	/**
+	 * Gets the total member.
+	 *
+	 * @return the total member
+	 */
 	public String getTotalMember() {
 		return totalMember;
 	}
 
-	public void setTotalMember(String totalMember) {
+	/**
+	 * Sets the total member.
+	 *
+	 * @param totalMember the new total member
+	 */
+	public void setTotalMember(final String totalMember) {
 		this.totalMember = totalMember;
 	}
 
+	/**
+	 * Gets the total female.
+	 *
+	 * @return the total female
+	 */
 	public String getTotalFemale() {
 		return totalFemale;
 	}
 
-	public void setTotalFemale(String totalFemale) {
+	/**
+	 * Sets the total female.
+	 *
+	 * @param totalFemale the new total female
+	 */
+	public void setTotalFemale(final String totalFemale) {
 		this.totalFemale = totalFemale;
 	}
 
+	/**
+	 * Gets the total male.
+	 *
+	 * @return the total male
+	 */
 	public String getTotalMale() {
 		return totalMale;
 	}
 
-	public void setTotalMale(String totalMale) {
+	/**
+	 * Sets the total male.
+	 *
+	 * @param totalMale the new total male
+	 */
+	public void setTotalMale(final String totalMale) {
 		this.totalMale = totalMale;
 	}
 }

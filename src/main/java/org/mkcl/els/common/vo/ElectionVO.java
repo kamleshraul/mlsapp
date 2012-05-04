@@ -9,7 +9,6 @@
  */
 package org.mkcl.els.common.vo;
 
-// TODO: Auto-generated Javadoc
 /**
  * The Class ElectionVO.
  *

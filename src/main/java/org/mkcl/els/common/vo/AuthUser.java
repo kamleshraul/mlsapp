@@ -17,10 +17,9 @@ import org.mkcl.els.domain.Role;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.User;
 
-// TODO: Auto-generated Javadoc
 /**
  * The Class AuthUser.
- * 
+ *
  * @author vishals
  * @version 1.0.0
  */
@@ -28,25 +27,25 @@ public class AuthUser extends User {
 
     /** The Constant serialVersionUID. */
     private static final long serialVersionUID = 1L;
-    
+
     private  String title;
-    
+
     /** The first name. */
     private  String firstName;
-    
+
     private  String middleName;
-    
+
     /** The last name. */
-    private  String lastName;   
-    
+    private  String lastName;
+
     /** The house type. */
-    private  String houseType;    
-    
-    private Set<Role> roles;    
+    private  String houseType;
+
+    private Set<Role> roles;
 
     /**
      * Instantiates a new auth user.
-     * 
+     *
      * @param username the username
      * @param password the password
      * @param enabled the enabled
@@ -58,11 +57,11 @@ public class AuthUser extends User {
      * @param lastName the last name
      * @param houseType the house type
      */
-    public AuthUser(String username, String password, boolean enabled,
-            boolean accountNonExpired, boolean credentialsNonExpired,
-            boolean accountNonLocked,
-            Collection<? extends GrantedAuthority> authorities,
-            String title,String firstName,String middleName, String lastName, String houseType,Set<Role> roles) {
+    public AuthUser(final String username, final String password, final boolean enabled,
+            final boolean accountNonExpired, final boolean credentialsNonExpired,
+            final boolean accountNonLocked,
+            final Collection<? extends GrantedAuthority> authorities,
+            final String title,final String firstName,final String middleName, final String lastName, final String houseType,final Set<Role> roles) {
         super(username, password, enabled, accountNonExpired,
                 credentialsNonExpired, accountNonLocked, authorities);
         this.title=title;
@@ -95,5 +94,5 @@ public class AuthUser extends User {
 
 	public Set<Role> getRoles() {
 		return roles;
-	}    
+	}
  }
