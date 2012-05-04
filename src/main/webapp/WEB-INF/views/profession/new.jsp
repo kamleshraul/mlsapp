@@ -28,7 +28,7 @@
 			<form:errors path="version" cssClass="validationError" />
 			<p>
 				<label class="small"><spring:message
-						code="profession.name" text="" />&nbsp;*</label>
+						code="profession.name" text="Profession" />&nbsp;*</label>
 				<form:input cssClass="sSelect " path="name" />
 				<form:errors path="name" cssClass="validationError" />
 			</p>
