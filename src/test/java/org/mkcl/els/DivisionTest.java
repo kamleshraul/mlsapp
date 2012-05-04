@@ -26,9 +26,7 @@ public class DivisionTest extends AbstractTest {
 		state.persist();
 		Division division = new Division("testDivision", state);
 		division.persist();
-		List<Division> divisions = Division.getDivisionRepository()
-				.findDivisionsByStateId(state.getId(), "name", "asc",
-						state.getLocale());
+		List<Division> divisions = Division.findAllByFieldName(Division.class, "state", state, "name", "asc", "en_US");		
 		Assert.assertNotNull("Divisions by State ID is :- ", divisions);
 	}
 
@@ -41,8 +39,7 @@ public class DivisionTest extends AbstractTest {
 		state.persist();
 		Division division = new Division("testDivision", state);
 		division.persist();
-		List<Division> divisions = Division.getDivisionRepository()
-				.findDivisionsByStateName(state.getName(), "name", "asc");
+		List<Division> divisions = Division.findAllByFieldName(Division.class, "state", state, "name", "asc", "en_US");
 		Assert.assertNotNull("Divisions by State ID is :- ", divisions);
 	}
 
