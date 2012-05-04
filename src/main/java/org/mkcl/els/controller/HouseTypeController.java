@@ -19,7 +19,6 @@ import org.springframework.stereotype.Controller;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.RequestMapping;
 
-// TODO: Auto-generated Javadoc
 /**
  * The Class AssemblyCouncilTypeController.
  *
@@ -27,9 +26,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
  * @since v1.0.0
  */
 @Controller
-@RequestMapping("/housetype") 
+@RequestMapping("/housetype")
 public class HouseTypeController extends GenericController<HouseType>{
-	
+
 	/**
 	 * Custom validate create.
 	 *
@@ -37,11 +36,12 @@ public class HouseTypeController extends GenericController<HouseType>{
 	 * @param result the result
 	 * @param request the request
 	 */
-	protected void customValidateCreate(final HouseType domain,
+	@Override
+    protected void customValidateCreate(final HouseType domain,
 			final BindingResult result, final HttpServletRequest request) {
 		customValidate(domain, result, request);
 	}
-	
+
 	/**
 	 * Custom validate update.
 	 *
@@ -49,11 +49,12 @@ public class HouseTypeController extends GenericController<HouseType>{
 	 * @param result the result
 	 * @param request the request
 	 */
-	protected void customValidateUpdate(final HouseType domain,
+	@Override
+    protected void customValidateUpdate(final HouseType domain,
 			final BindingResult result, final HttpServletRequest request) {
 		customValidate(domain, result, request);
 	}
-	
+
 	/**
 	 * Custom validate.
 	 *

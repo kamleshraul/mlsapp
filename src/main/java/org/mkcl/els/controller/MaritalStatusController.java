@@ -9,17 +9,10 @@
  */
 package org.mkcl.els.controller;
 
-import java.util.HashMap;
-import java.util.Map;
-
-import javax.servlet.http.HttpServletRequest;
-
 import org.mkcl.els.domain.MaritalStatus;
 import org.springframework.stereotype.Controller;
-import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.RequestMapping;
 
-// TODO: Auto-generated Javadoc
 /**
  * The Class MaritalStatusController.
  *
@@ -29,6 +22,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 @Controller
 @RequestMapping("/maritalstatus")
 public class MaritalStatusController extends GenericController<MaritalStatus>{
-	
-	
+
+
 }

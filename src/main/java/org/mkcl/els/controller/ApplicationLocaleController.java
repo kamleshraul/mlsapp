@@ -34,7 +34,10 @@ public class ApplicationLocaleController extends
         GenericController<ApplicationLocale> {
 
     /* (non-Javadoc)
-     * @see org.mkcl.els.controller.GenericController#customValidateCreate(org.mkcl.els.domain.BaseDomain, org.springframework.validation.BindingResult, javax.servlet.http.HttpServletRequest)
+     * @see org.mkcl.els.controller.GenericController
+     * #customValidateCreate(org.mkcl.els.domain.BaseDomain ,
+     * org.springframework.validation.BindingResult ,
+     * javax.servlet.http.HttpServletRequest)
      */
     @Override
     protected void customValidateCreate(final ApplicationLocale domain,
@@ -44,7 +47,10 @@ public class ApplicationLocaleController extends
     }
 
     /* (non-Javadoc)
-     * @see org.mkcl.els.controller.GenericController#customValidateUpdate(org.mkcl.els.domain.BaseDomain, org.springframework.validation.BindingResult, javax.servlet.http.HttpServletRequest)
+     * @see org.mkcl.els.controller.GenericController
+     * #customValidateUpdate(org.mkcl.els.domain.BaseDomain ,
+     * org.springframework.validation.BindingResult ,
+     * javax.servlet.http.HttpServletRequest)
      */
     @Override
     protected void customValidateUpdate(final ApplicationLocale domain,
@@ -85,7 +91,10 @@ public class ApplicationLocaleController extends
     }
 
     /* (non-Javadoc)
-     * @see org.mkcl.els.controller.GenericController#populateNew(org.springframework.ui.ModelMap, org.mkcl.els.domain.BaseDomain, java.util.Locale, javax.servlet.http.HttpServletRequest)
+     * @see org.mkcl.els.controller.GenericController
+     * #populateNew(org.springframework.ui.ModelMap ,
+     * org.mkcl.els.domain.BaseDomain ,
+     * java.util.Locale , javax.servlet.http.HttpServletRequest)
      */
     @Override
     protected void populateNew(final ModelMap model,

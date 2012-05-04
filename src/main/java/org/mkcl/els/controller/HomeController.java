@@ -10,34 +10,27 @@
 package org.mkcl.els.controller;
 
 import java.util.Date;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
-import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.mkcl.els.domain.ApplicationLocale;
-import org.mkcl.els.domain.Credential;
 import org.mkcl.els.domain.CustomParameter;
-import org.mkcl.els.domain.HouseType;
 import org.mkcl.els.domain.MenuItem;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.ui.ModelMap;
-import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.ResponseBody;
 
-// TODO: Auto-generated Javadoc
 /**
  * The Class HomeController.
- * 
+ *
  * @author amitd
  * @author sandeeps
  * @since v1.0.0
@@ -47,7 +40,7 @@ public class HomeController extends BaseController {
 
     /** The Constant logger. */
     private static final Logger logger = LoggerFactory
-            .getLogger(HomeController.class);
+    .getLogger(HomeController.class);
 
     /** The Constant DEFAULT_LOCALE. */
     private static final String DEFAULT_LOCALE = "mr_IN";
@@ -55,12 +48,9 @@ public class HomeController extends BaseController {
     /** The Constant ASC. */
     private static final String ASC = "asc";
 
-    /** The Constant DESC. */
-    private static final String DESC = "desc";
-
     /**
      * Login.
-     * 
+     *
      * @param lang the lang
      * @param model the model
      * @param request the request
@@ -86,7 +76,7 @@ public class HomeController extends BaseController {
 
     /**
      * Home.
-     * 
+     *
      * @param model the model
      * @param request the request
      * @param locale the locale
@@ -95,7 +85,7 @@ public class HomeController extends BaseController {
     @RequestMapping(value = "/home", method = RequestMethod.GET)
     public String home(final ModelMap model, final HttpServletRequest request,
             final Locale locale) {
-    	String menuXml = MenuItem.getMenuXml(locale.toString());
+        String menuXml = MenuItem.getMenuXml(locale.toString());
         model.addAttribute("menu_xml", menuXml);
         model.addAttribute("dateFormat",
                 ((CustomParameter) CustomParameter.findByName(
@@ -115,5 +105,5 @@ public class HomeController extends BaseController {
         model.addAttribute("logintime", new Date());
         model.addAttribute("authhousetype",this.getCurrentUser().getHouseType());
         return "home";
-    }    
+    }
 }

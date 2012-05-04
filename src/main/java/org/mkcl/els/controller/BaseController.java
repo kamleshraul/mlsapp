@@ -37,7 +37,7 @@ public abstract class BaseController {
      */
     protected AuthUser getCurrentUser() {
         return (AuthUser) SecurityContextHolder.getContext()
-                .getAuthentication().getPrincipal();
+        .getAuthentication().getPrincipal();
     }
 
     /**
@@ -56,11 +56,9 @@ public abstract class BaseController {
      * @return true, if is session valid
      */
     protected boolean isSessionValid() {
-        if (null == SecurityContextHolder.getContext().getAuthentication()
-                .getPrincipal()) {
+        if (SecurityContextHolder.getContext().getAuthentication().getPrincipal() == null) {
             return false;
-        }
-        else {
+        } else {
             return true;
         }
     }

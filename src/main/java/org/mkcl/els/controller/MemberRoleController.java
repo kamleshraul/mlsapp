@@ -10,7 +10,6 @@
 package org.mkcl.els.controller;
 
 import java.util.List;
-import java.util.Locale;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -21,7 +20,6 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.RequestMapping;
 
-// TODO: Auto-generated Javadoc
 /**
  * The Class MemberRoleController.
  *
@@ -31,7 +29,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 @Controller
 @RequestMapping("/memberrole")
 public class MemberRoleController extends GenericController<MemberRole>{
-	
+
 	/* (non-Javadoc)
 	 * @see org.mkcl.els.controller.GenericController#populateNew(org.springframework.ui.ModelMap, org.mkcl.els.domain.BaseDomain, java.lang.String, javax.servlet.http.HttpServletRequest)
 	 */
@@ -49,9 +47,9 @@ public class MemberRoleController extends GenericController<MemberRole>{
 		    	 List<HouseType> housetypelist = HouseType.findAll(
 			    		   HouseType.class, "type", "asc", locale.toString());
 		    	 model.addAttribute("assemblycounciltype", housetypelist);
-		        
+
 		    }
-				 
+
 		 /* (non-Javadoc)
  		 * @see org.mkcl.els.controller.GenericController#populateEdit(org.springframework.ui.ModelMap, org.mkcl.els.domain.BaseDomain, javax.servlet.http.HttpServletRequest)
  		 */
@@ -64,6 +62,6 @@ public class MemberRoleController extends GenericController<MemberRole>{
 		    		   HouseType.class, "type", "asc",domain.getLocale());
 	    	 model.addAttribute("assemblycounciltype", housetypelist);
 		     }
-	
+
 
 }

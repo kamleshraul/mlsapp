@@ -11,7 +11,6 @@ package org.mkcl.els.controller;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Locale;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -24,10 +23,9 @@ import org.springframework.ui.ModelMap;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.RequestMapping;
 
-// TODO: Auto-generated Javadoc
 /**
  * The Class TehsilController.
- * 
+ *
  * @author Dhananjay
  * @since v1.0.0
  */
@@ -37,7 +35,7 @@ public class TehsilController extends GenericController<Tehsil> {
 
 	/**
 	 * Populate model.
-	 * 
+	 *
 	 * @param model
 	 *            the model
 	 * @param domain
@@ -61,7 +59,7 @@ public class TehsilController extends GenericController<Tehsil> {
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see
 	 * org.mkcl.els.controller.GenericController#populateEdit(org.springframework
 	 * .ui.ModelMap, org.mkcl.els.domain.BaseDomain,
@@ -86,7 +84,7 @@ public class TehsilController extends GenericController<Tehsil> {
 
 	/**
 	 * Populate.
-	 * 
+	 *
 	 * @param model
 	 *            the model
 	 * @param domain
@@ -120,7 +118,7 @@ public class TehsilController extends GenericController<Tehsil> {
 			model.addAttribute("districts", districts);
 		}
 	}
-	
+
 	/**
 	 * Custom validate create.
 	 *
@@ -133,7 +131,7 @@ public class TehsilController extends GenericController<Tehsil> {
 			final BindingResult result, final HttpServletRequest request) {
 		customValidateTehsil(domain, result, request);
 	}
-	
+
 	/**
 	 * Custom validate update.
 	 *
@@ -146,7 +144,7 @@ public class TehsilController extends GenericController<Tehsil> {
 			final BindingResult result, final HttpServletRequest request) {
 		customValidateTehsil(domain, result, request);
 	}
-	
+
 	/**
 	 * Custom validate.
 	 *
@@ -160,6 +158,6 @@ public class TehsilController extends GenericController<Tehsil> {
 		if (domain.isVersionMismatch()) {
 			result.rejectValue("VersionMismatch", "version");
 		}
-	}	
+	}
 
 }

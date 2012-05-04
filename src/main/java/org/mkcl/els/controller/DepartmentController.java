@@ -9,17 +9,14 @@
  */
 package org.mkcl.els.controller;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
 
-import org.mkcl.els.domain.CustomParameter;
 import org.mkcl.els.domain.Department;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.RequestMapping;
-// TODO: Auto-generated Javadoc
 
 /**
  * The Class DepartmentController.
@@ -30,7 +27,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 @Controller
 @RequestMapping("/department")
 public class DepartmentController extends GenericController<Department>{
-	
+
 	 /* (non-Javadoc)
  	 * @see org.mkcl.els.controller.GenericController#populateNew(org.springframework.ui.ModelMap, org.mkcl.els.domain.BaseDomain, java.lang.String, javax.servlet.http.HttpServletRequest)
  	 */
@@ -44,8 +41,8 @@ public class DepartmentController extends GenericController<Department>{
 	    			 Department.class, "name", "asc", locale);
 	    	 model.addAttribute("parentDepartment", deptList);
 	    }
-	 
-	
+
+
 	   /* (non-Javadoc)
    	 * @see org.mkcl.els.controller.GenericController#populateEdit(org.springframework.ui.ModelMap, org.mkcl.els.domain.BaseDomain, javax.servlet.http.HttpServletRequest)
    	 */
@@ -58,6 +55,6 @@ public class DepartmentController extends GenericController<Department>{
 	          List<Department> deptList = Department.findAll(
 	    			 Department.class, "name", "asc", domain.getLocale());
 	        model.addAttribute("parentDepartment", deptList);
-	      
+
    	}
 }
