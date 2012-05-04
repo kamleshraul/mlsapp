@@ -30,28 +30,31 @@ import org.springframework.web.bind.annotation.ResponseBody;
 @RequestMapping("/ws/biography")
 public class MemberBiographyWebService {
 
-	/**
-	 * Gets the biography.
-	 *
-	 * @param id the id
-	 * @param locale the locale
-	 * @return the biography
-	 */
-	@RequestMapping(value="/{id}/{locale}")
-	public @ResponseBody MemberBiographyVO getBiography(@PathVariable("id") final long id,@PathVariable("locale") final String locale){
-		return Member.findBiography(id,locale);
-	}
+    /**
+     * Gets the biography.
+     *
+     * @param id the id
+     * @param locale the locale
+     * @return the biography
+     */
+    @RequestMapping(value = "/{id}/{locale}")
+    public @ResponseBody MemberBiographyVO getBiography(@PathVariable("id") final long id ,
+            @PathVariable("locale") final String locale){
+        return Member.findBiography(id , locale);
+    }
 
-	/**
-	 * Gets the photo.
-	 *
-	 * @param tag the tag
-	 * @param response the response
-	 * @return the photo
-	 */
-	@RequestMapping(value="/photo/{tag}")
-	public @ResponseBody byte[] getPhoto(@PathVariable("tag") final String tag,final HttpServletResponse response){
-		Document document=Document.findByTag(tag);
-		return document.getFileData();
-	}
+    /**
+     * Gets the photo.
+     *
+     * @param tag the tag
+     * @param response the response
+     * @return the photo
+     */
+    @RequestMapping(value="/photo/{tag}")
+    public @ResponseBody byte[] getPhoto(@PathVariable("tag")
+            final String tag ,
+            final HttpServletResponse response){
+        Document document = Document.findByTag(tag);
+        return document.getFileData();
+    }
 }

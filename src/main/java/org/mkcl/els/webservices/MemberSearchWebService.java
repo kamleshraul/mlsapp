@@ -27,17 +27,21 @@ import org.springframework.web.bind.annotation.ResponseBody;
 @RequestMapping("/ws/membersearch")
 public class MemberSearchWebService {
 
-	/**
-	 * Search.
-	 *
-	 * @param housetype the housetype
-	 * @param criteria1 the criteria1
-	 * @param criteria2 the criteria2
-	 * @param locale the locale
-	 * @return the member search page
-	 */
-	@RequestMapping(value="/{housetype}/{criteria1}/{criteria2}/{locale}")
-	public @ResponseBody MemberSearchPage search(@PathVariable final String housetype,@PathVariable final String criteria1,@PathVariable final Long criteria2,@PathVariable final String locale){
-		return Member.search(housetype,criteria1, criteria2,locale);
-	}
+    /**
+     * Search.
+     *
+     * @param housetype the housetype
+     * @param criteria1 the criteria1
+     * @param criteria2 the criteria2
+     * @param locale the locale
+     * @return the member search page
+     */
+    @RequestMapping(value = "/{housetype}/{criteria1}/{criteria2}/{locale}")
+    public @ResponseBody MemberSearchPage search(@PathVariable final String housetype ,
+            @PathVariable final String criteria1 ,
+            @PathVariable final Long criteria2 ,
+            @PathVariable final String locale){
+        return Member.search(housetype , criteria1 , criteria2
+                , locale);
+    }
 }
