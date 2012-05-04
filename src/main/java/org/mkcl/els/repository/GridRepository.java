@@ -80,8 +80,7 @@ public class GridRepository extends BaseRepository<Grid, Long> {
         if (!sidx.contains(".")) {
             countSelect = grid.getCountQuery();
             select = grid.getQuery() + " ORDER BY m." + sidx + " " + order;
-        }
-        else {
+        } else {
             countSelect = grid.getCountQuery();
             select = grid.getQuery() + " ORDER BY " + sidx + " " + order;
         }
@@ -94,8 +93,7 @@ public class GridRepository extends BaseRepository<Grid, Long> {
         if (countSelect.contains("=:locale")) {
             if (grid.getLocalized()) {
                 countQuery.setParameter("locale", locale.toString());
-            }
-            else {
+            } else {
                 countQuery.setParameter("locale", defaultLocale);
             }
         }
@@ -103,8 +101,7 @@ public class GridRepository extends BaseRepository<Grid, Long> {
         if (select.contains("=:locale")) {
             if (grid.getLocalized()) {
                 query.setParameter("locale", locale.toString());
-            }
-            else {
+            } else {
                 query.setParameter("locale", defaultLocale);
             }
         }
@@ -119,28 +116,22 @@ public class GridRepository extends BaseRepository<Grid, Long> {
                 if (i.getParameterType().getSimpleName().equals("String")) {
                     query.setParameter(i.getName(),
                             requestMap.get(i.getName())[0]);
-                }
-                else if (i.getParameterType().getSimpleName().equals("Long")) {
+                } else if (i.getParameterType().getSimpleName().equals("Long")) {
                     query.setParameter(i.getName(),
                             Long.parseLong(requestMap.get(i.getName())[0]));
-                }
-                else if (i.getParameterType().getSimpleName().equals("Integer")) {
+                } else if (i.getParameterType().getSimpleName().equals("Integer")) {
                     query.setParameter(i.getName(),
                             Integer.parseInt(requestMap.get(i.getName())[0]));
-                }
-                else if (i.getParameterType().getSimpleName().equals("Boolean")) {
+                } else if (i.getParameterType().getSimpleName().equals("Boolean")) {
                     query.setParameter(i.getName(), Boolean
                             .parseBoolean(requestMap.get(i.getName())[0]));
-                }
-                else if (i.getParameterType().getSimpleName().equals("Float")) {
+                } else if (i.getParameterType().getSimpleName().equals("Float")) {
                     query.setParameter(i.getName(),
                             Float.parseFloat(requestMap.get(i.getName())[0]));
-                }
-                else if (i.getParameterType().getSimpleName().equals("Double")) {
+                } else if (i.getParameterType().getSimpleName().equals("Double")) {
                     query.setParameter(i.getName(),
                             Double.parseDouble(requestMap.get(i.getName())[0]));
-                }
-                else if (i.getParameterType().getSimpleName()
+                } else if (i.getParameterType().getSimpleName()
                         .equals("Character")) {
                     query.setParameter(i.getName(),
                             requestMap.get(i.getName())[0]);
@@ -153,28 +144,22 @@ public class GridRepository extends BaseRepository<Grid, Long> {
                 if (i.getParameterType().getSimpleName().equals("String")) {
                     countQuery.setParameter(i.getName(),
                             requestMap.get(i.getName())[0]);
-                }
-                else if (i.getParameterType().getSimpleName().equals("Long")) {
+                } else if (i.getParameterType().getSimpleName().equals("Long")) {
                     countQuery.setParameter(i.getName(),
                             Long.parseLong(requestMap.get(i.getName())[0]));
-                }
-                else if (i.getParameterType().getSimpleName().equals("Integer")) {
+                } else if (i.getParameterType().getSimpleName().equals("Integer")) {
                     countQuery.setParameter(i.getName(),
                             Integer.parseInt(requestMap.get(i.getName())[0]));
-                }
-                else if (i.getParameterType().getSimpleName().equals("Boolean")) {
+                } else if (i.getParameterType().getSimpleName().equals("Boolean")) {
                     countQuery.setParameter(i.getName(), Boolean
                             .parseBoolean(requestMap.get(i.getName())[0]));
-                }
-                else if (i.getParameterType().getSimpleName().equals("Float")) {
+                } else if (i.getParameterType().getSimpleName().equals("Float")) {
                     countQuery.setParameter(i.getName(),
                             Float.parseFloat(requestMap.get(i.getName())[0]));
-                }
-                else if (i.getParameterType().getSimpleName().equals("Double")) {
+                } else if (i.getParameterType().getSimpleName().equals("Double")) {
                     countQuery.setParameter(i.getName(),
                             Double.parseDouble(requestMap.get(i.getName())[0]));
-                }
-                else if (i.getParameterType().getSimpleName()
+                } else if (i.getParameterType().getSimpleName()
                         .equals("Character")) {
                     countQuery.setParameter(i.getName(),
                             requestMap.get(i.getName())[0]);
@@ -229,8 +214,7 @@ public class GridRepository extends BaseRepository<Grid, Long> {
             countSelect = grid.getCountQuery() + filterSql;
             select = grid.getQuery() + filterSql + " ORDER BY m." + sidx + " "
                     + order;
-        }
-        else {
+        } else {
             countSelect = grid.getCountQuery() + filterSql;
             select = grid.getQuery() + filterSql + " ORDER BY " + sidx + " "
                     + order;
@@ -244,8 +228,7 @@ public class GridRepository extends BaseRepository<Grid, Long> {
         if (countSelect.contains("=:locale")) {
             if (grid.getLocalized()) {
                 countQuery.setParameter("locale", locale.toString());
-            }
-            else {
+            } else {
                 countQuery.setParameter("locale", defaultLocale);
             }
         }
@@ -253,8 +236,7 @@ public class GridRepository extends BaseRepository<Grid, Long> {
         if (select.contains("=:locale")) {
             if (grid.getLocalized()) {
                 query.setParameter("locale", locale.toString());
-            }
-            else {
+            } else {
                 query.setParameter("locale", defaultLocale);
             }
         }
@@ -265,28 +247,22 @@ public class GridRepository extends BaseRepository<Grid, Long> {
                 if (i.getParameterType().getSimpleName().equals("String")) {
                     query.setParameter(i.getName(),
                             requestMap.get(i.getName())[0]);
-                }
-                else if (i.getParameterType().getSimpleName().equals("Long")) {
+                } else if (i.getParameterType().getSimpleName().equals("Long")) {
                     query.setParameter(i.getName(),
                             Long.parseLong(requestMap.get(i.getName())[0]));
-                }
-                else if (i.getParameterType().getSimpleName().equals("Integer")) {
+                } else if (i.getParameterType().getSimpleName().equals("Integer")) {
                     query.setParameter(i.getName(),
                             Integer.parseInt(requestMap.get(i.getName())[0]));
-                }
-                else if (i.getParameterType().getSimpleName().equals("Boolean")) {
+                } else if (i.getParameterType().getSimpleName().equals("Boolean")) {
                     query.setParameter(i.getName(), Boolean
                             .parseBoolean(requestMap.get(i.getName())[0]));
-                }
-                else if (i.getParameterType().getSimpleName().equals("Float")) {
+                } else if (i.getParameterType().getSimpleName().equals("Float")) {
                     query.setParameter(i.getName(),
                             Float.parseFloat(requestMap.get(i.getName())[0]));
-                }
-                else if (i.getParameterType().getSimpleName().equals("Double")) {
+                } else if (i.getParameterType().getSimpleName().equals("Double")) {
                     query.setParameter(i.getName(),
                             Double.parseDouble(requestMap.get(i.getName())[0]));
-                }
-                else if (i.getParameterType().getSimpleName()
+                } else if (i.getParameterType().getSimpleName()
                         .equals("Character")) {
                     query.setParameter(i.getName(),
                             requestMap.get(i.getName())[0]);
@@ -299,28 +275,22 @@ public class GridRepository extends BaseRepository<Grid, Long> {
                 if (i.getParameterType().getSimpleName().equals("String")) {
                     countQuery.setParameter(i.getName(),
                             requestMap.get(i.getName())[0]);
-                }
-                else if (i.getParameterType().getSimpleName().equals("Long")) {
+                } else if (i.getParameterType().getSimpleName().equals("Long")) {
                     countQuery.setParameter(i.getName(),
                             Long.parseLong(requestMap.get(i.getName())[0]));
-                }
-                else if (i.getParameterType().getSimpleName().equals("Integer")) {
+                } else if (i.getParameterType().getSimpleName().equals("Integer")) {
                     countQuery.setParameter(i.getName(),
                             Integer.parseInt(requestMap.get(i.getName())[0]));
-                }
-                else if (i.getParameterType().getSimpleName().equals("Boolean")) {
+                } else if (i.getParameterType().getSimpleName().equals("Boolean")) {
                     countQuery.setParameter(i.getName(), Boolean
                             .parseBoolean(requestMap.get(i.getName())[0]));
-                }
-                else if (i.getParameterType().getSimpleName().equals("Float")) {
+                } else if (i.getParameterType().getSimpleName().equals("Float")) {
                     countQuery.setParameter(i.getName(),
                             Float.parseFloat(requestMap.get(i.getName())[0]));
-                }
-                else if (i.getParameterType().getSimpleName().equals("Double")) {
+                } else if (i.getParameterType().getSimpleName().equals("Double")) {
                     countQuery.setParameter(i.getName(),
                             Double.parseDouble(requestMap.get(i.getName())[0]));
-                }
-                else if (i.getParameterType().getSimpleName()
+                } else if (i.getParameterType().getSimpleName()
                         .equals("Character")) {
                     countQuery.setParameter(i.getName(),
                             requestMap.get(i.getName())[0]);

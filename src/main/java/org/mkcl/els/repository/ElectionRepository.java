@@ -15,7 +15,6 @@ import org.mkcl.els.common.util.ApplicationConstants;
 import org.mkcl.els.domain.Election;
 import org.springframework.stereotype.Repository;
 
-// TODO: Auto-generated Javadoc
 /**
  * The Class ElectionRepository.
  *

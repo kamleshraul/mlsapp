@@ -10,10 +10,9 @@ import org.springframework.stereotype.Repository;
 
 import com.trg.search.Search;
 
-// TODO: Auto-generated Javadoc
 /**
  * The Class DistrictRepository.
- * 
+ *
  * @author Dhananjay
  * @since v1.0.0
  */
@@ -23,12 +22,9 @@ public class DistrictRepository extends BaseRepository<District, Long> {
 	/** The Constant ASC. */
 	private static final String ASC = "asc";
 
-	/** The Constant DESC. */
-	private static final String DESC = "desc";
-
 	/**
 	 * Find districts by division id.
-	 * 
+	 *
 	 * @param divisionId
 	 *            the division id
 	 * @param orderBy
@@ -55,7 +51,7 @@ public class DistrictRepository extends BaseRepository<District, Long> {
 
 	/**
 	 * Find districts by constituency id.
-	 * 
+	 *
 	 * @param constituencyId
 	 *            the constituency id
 	 * @param orderBy
@@ -83,7 +79,7 @@ public class DistrictRepository extends BaseRepository<District, Long> {
 
 	/**
 	 * Find districts by division name.
-	 * 
+	 *
 	 * @param divisionName
 	 *            the division name
 	 * @param orderBy
@@ -94,8 +90,8 @@ public class DistrictRepository extends BaseRepository<District, Long> {
 	 * @author Dhananjay
 	 * @since v1.0.0
 	 */
-	public List<District> findDistrictsByDivisionName(String divisionName,
-			String orderBy, String sortOrder, String locale) {
+	public List<District> findDistrictsByDivisionName(final String divisionName,
+			final String orderBy, final String sortOrder, final String locale) {
 		Search search = new Search();
 		search.addFilterEqual("division.name", divisionName);
 		search.addFilterEqual("locale", locale);
@@ -109,7 +105,7 @@ public class DistrictRepository extends BaseRepository<District, Long> {
 
 	/**
 	 * Find districts by state id.
-	 * 
+	 *
 	 * @param StateId
 	 *            the state id
 	 * @param orderBy
@@ -124,7 +120,7 @@ public class DistrictRepository extends BaseRepository<District, Long> {
 	 */
 	@SuppressWarnings("unchecked")
 	public List<District> findDistrictsByStateId(final Long stateId,
-			final String orderBy, final String sortOrder, String locale) {
+			final String orderBy, final String sortOrder, final String locale) {
 		String query = "SELECT d FROM District d Join d.division div Join div.state s WHERE s.id="
 				+ stateId
 				+ " AND d.locale='"
@@ -136,7 +132,7 @@ public class DistrictRepository extends BaseRepository<District, Long> {
 
 	/**
 	 * Find districts by state name.
-	 * 
+	 *
 	 * @param StateName
 	 *            the state name
 	 * @param orderBy
@@ -147,8 +143,8 @@ public class DistrictRepository extends BaseRepository<District, Long> {
 	 * @author Dhananjay
 	 * @since v1.0.0
 	 */
-	public List<District> findDistrictsByStateName(String StateName,
-			String orderBy, String sortOrder) {
+	public List<District> findDistrictsByStateName(final String StateName,
+			final String orderBy, final String sortOrder) {
 		Search search = new Search();
 		search.addFilterEqual("State.name", StateName);
 		if (sortOrder.toLowerCase().equals(ASC)) {
@@ -159,8 +155,8 @@ public class DistrictRepository extends BaseRepository<District, Long> {
 		return this.search(search);
 	}
 
-	public List<Reference> findDistrictsRefByStateId(Long stateId,
-			String sortBy, String sortOrder, String locale) {
+	public List<Reference> findDistrictsRefByStateId(final Long stateId,
+			final String sortBy, final String sortOrder, final String locale) {
 		String query = "SELECT d.id,d.name FROM District d Join d.division div Join div.state s WHERE s.id="
 			+ stateId
 			+ " AND d.locale='"
@@ -172,7 +168,7 @@ public class DistrictRepository extends BaseRepository<District, Long> {
 	for(Object i:districts){
 		Object[] o=(Object[]) i;
 		Reference reference=new Reference(o[0].toString(),o[1].toString());
-		districtsRef.add(reference);	
+		districtsRef.add(reference);
 	}
 	return districtsRef;
 	}
