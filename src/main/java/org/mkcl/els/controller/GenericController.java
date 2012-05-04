@@ -143,6 +143,9 @@ public class GenericController<T extends BaseDomain> extends BaseController {
 		String messagePattern=urlPattern.replaceAll("\\/",".");
 		model.addAttribute("messagePattern", messagePattern);
 		model.addAttribute("urlPattern", urlPattern);
+		//THIS IS USED TO REMOVE THE BUG WHERE IN RECORD UPDATED MESSAGE
+        //APPEARS WHEN CLICKED ON NEW REOCRD
+        model.addAttribute("type", "");
 		T domain = null;
 		try {
 			domain = domainClass.newInstance();
