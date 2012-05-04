@@ -19,7 +19,7 @@
 		[<spring:message code="generic.member" text="Member"></spring:message>:&nbsp;
 		${domain.member.title.name} ${domain.member.firstName} ${domain.member.middleName} ${domain.member.lastName}]
 	</h2>
-	<form:errors path="version" cssClass="validationError" cssStyle="color:red;"/>	
+	<form:errors path="recordIndex" cssClass="validationError" cssStyle="color:red;"/>	
 	<p>
 	<c:choose>
 	<c:when test="${houseType=='lowerhouse'}">

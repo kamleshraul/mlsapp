@@ -21,8 +21,7 @@
 				listMemberHouseDetails($('#key').val());
 			});	
 			 $('#minister_tab').click(function(){
-				//listMemberMinisterDetails($('#key').val());  commented as it is not going to required
-	
+				listMemberMinisterDetails($('#key').val()); 	
 			}); 		
 			$('#party_tab').click(function(){
 				listMemberPartyDetails($('#key').val());
@@ -136,7 +135,7 @@
 				return;
 			}
 			else{
-				showTabByIdAndUrl('minister_tab','#');
+				showTabByIdAndUrl('minister_tab','member/minister/list');
 				}
 		}
 		function listMemberPartyDetails(row) {

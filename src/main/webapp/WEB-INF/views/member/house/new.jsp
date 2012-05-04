@@ -19,7 +19,7 @@
 		[<spring:message code="generic.id" text="Id"></spring:message>:&nbsp;
 		<spring:message code="generic.new" text="New"></spring:message>]
 	</h2>
-	<form:errors path="version" cssClass="validationError" cssStyle="color:red;"/>	
+	<form:errors path="recordIndex" cssClass="validationError" cssStyle="color:red;"/>	
 	<p>
 	<c:choose>
 	<c:when test="${houseType=='lowerhouse'}">

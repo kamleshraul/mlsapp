@@ -19,7 +19,7 @@
 				deleteHouseRecord($('#internalKey').val());
 			});
 			$("#list_record").click(function() {
-				listHouseRecord($('#internalKey').val());
+				listHouseRecord();
 			});
 		});
 		function listHouseRecord(){
@@ -64,7 +64,7 @@
 					buttons: {Ok:true, Cancel:false}, callback: function(v){
 			        if(v){
 				        $.delete_('member/house/'+row+'/delete?member='+member, null, function(data, textStatus, XMLHttpRequest) {
-				        	listRecord();
+				        	listHouseRecord();
 				        });
 			        }
 				}});
