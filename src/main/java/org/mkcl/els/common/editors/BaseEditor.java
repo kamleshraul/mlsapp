@@ -15,7 +15,7 @@ import org.mkcl.els.domain.BaseDomain;
 
 /**
  * The Class BaseEditor.
- * 
+ *
  * @author amitd
  * @author sandeeps
  * @since v1.0.0
@@ -27,7 +27,6 @@ public class BaseEditor extends PropertyEditorSupport {
 
     /**
      * Instantiates a new base editor.
-     * 
      * @param clazz the clazz
      */
     public BaseEditor(final BaseDomain clazz) {
@@ -36,7 +35,7 @@ public class BaseEditor extends PropertyEditorSupport {
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see java.beans.PropertyEditorSupport#setAsText(java.lang.String)
      */
     @Override
