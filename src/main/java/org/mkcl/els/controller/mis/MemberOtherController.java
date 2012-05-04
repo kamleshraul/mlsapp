@@ -1,3 +1,12 @@
+/**
+ * See the file LICENSE for redistribution information.
+ *
+ * Copyright (c) 2012 MKCL.  All rights reserved.
+ *
+ * Project: e-Legislature
+ * File: org.mkcl.els.controller.mis.MemberOtherController.java
+ * Created On: May 4, 2012
+ */
 package org.mkcl.els.controller.mis;
 
 import java.text.SimpleDateFormat;
@@ -20,16 +29,29 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 
+/**
+ * The Class MemberOtherController.
+ *
+ * @author amitd
+ * @author sandeeps
+ * @since v1.0.0
+ */
 @Controller
 @RequestMapping("member/other")
 public class MemberOtherController extends GenericController<Member>{
 
+	/* (non-Javadoc)
+	 * @see org.mkcl.els.controller.GenericController#preValidateUpdate(org.mkcl.els.domain.BaseDomain, org.springframework.validation.BindingResult, javax.servlet.http.HttpServletRequest)
+	 */
 	@Override
 	protected void preValidateUpdate(final Member domain,
             final BindingResult result, final HttpServletRequest request) {
 		populate(domain, result, request);
     }
 
+	/* (non-Javadoc)
+	 * @see org.mkcl.els.controller.GenericController#populateEdit(org.springframework.ui.ModelMap, org.mkcl.els.domain.BaseDomain, javax.servlet.http.HttpServletRequest)
+	 */
 	@Override
     protected void populateEdit(final ModelMap model, final Member domain,
             final HttpServletRequest request) {
@@ -41,6 +63,13 @@ public class MemberOtherController extends GenericController<Member>{
 		}
     }
 
+	/**
+	 * Populate.
+	 *
+	 * @param domain the domain
+	 * @param result the result
+	 * @param request the request
+	 */
 	private void populate(final Member domain,
             final BindingResult result, final HttpServletRequest request){
 			List<PositionHeld> positions = new ArrayList<PositionHeld>();
@@ -90,6 +119,9 @@ public class MemberOtherController extends GenericController<Member>{
 			 domain.setPositionsHeld(positions);
 	}
 
+	/* (non-Javadoc)
+	 * @see org.mkcl.els.controller.GenericController#customValidateUpdate(org.mkcl.els.domain.BaseDomain, org.springframework.validation.BindingResult, javax.servlet.http.HttpServletRequest)
+	 */
 	@Override
     protected void customValidateUpdate(final Member domain,
             final BindingResult result, final HttpServletRequest request) {
@@ -97,6 +129,10 @@ public class MemberOtherController extends GenericController<Member>{
             result.rejectValue("VersionMismatch", "version");
         }
     }
+
+	/* (non-Javadoc)
+	 * @see org.mkcl.els.controller.GenericController#customInitBinderSuperClass(java.lang.Class, org.springframework.web.bind.WebDataBinder)
+	 */
 	@Override
     @SuppressWarnings("rawtypes")
 	protected <E extends BaseDomain> void customInitBinderSuperClass(
@@ -111,6 +147,14 @@ public class MemberOtherController extends GenericController<Member>{
 	}
 
 
+    /**
+     * Delete position.
+     *
+     * @param id the id
+     * @param model the model
+     * @param request the request
+     * @return the string
+     */
     @RequestMapping(value = "/position/{id}/delete", method = RequestMethod.DELETE)
     public String deletePosition(final @PathVariable("id") Long id,
             final ModelMap model, final HttpServletRequest request) {

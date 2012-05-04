@@ -1,3 +1,12 @@
+/**
+ * See the file LICENSE for redistribution information.
+ *
+ * Copyright (c) 2012 MKCL.  All rights reserved.
+ *
+ * Project: e-Legislature
+ * File: org.mkcl.els.controller.mis.MemberPersonalController.java
+ * Created On: May 4, 2012
+ */
 package org.mkcl.els.controller.mis;
 
 import java.util.ArrayList;
@@ -34,11 +43,21 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 
+/**
+ * The Class MemberPersonalController.
+ *
+ * @author amitd
+ * @author sandeeps
+ * @since v1.0.0
+ */
 @Controller
 @RequestMapping("/member/personal")
 public class MemberPersonalController extends GenericController<Member> {
 
     //adding housetype
+    /* (non-Javadoc)
+     * @see org.mkcl.els.controller.GenericController#populateModule(org.springframework.ui.ModelMap, javax.servlet.http.HttpServletRequest, java.lang.String, org.mkcl.els.common.vo.AuthUser)
+     */
     @Override
     protected void populateModule(final ModelMap model,
             final HttpServletRequest request, final String locale,
@@ -47,6 +66,9 @@ public class MemberPersonalController extends GenericController<Member> {
     }
 
     //init binders
+    /* (non-Javadoc)
+     * @see org.mkcl.els.controller.GenericController#customInitBinderSuperClass(java.lang.Class, org.springframework.web.bind.WebDataBinder)
+     */
     @SuppressWarnings("rawtypes")
 	@Override
     protected <E extends BaseDomain> void customInitBinderSuperClass(
@@ -78,6 +100,13 @@ public class MemberPersonalController extends GenericController<Member> {
         binder.registerCustomEditor(Title.class, new BaseEditor(new Title()));
     }
     //logic for populating domain and model during new and edit request
+    /**
+     * Populate.
+     *
+     * @param model the model
+     * @param domain the domain
+     * @param request the request
+     */
     private void populate(final ModelMap model, final Member domain,
              final HttpServletRequest request){
         String locale=domain.getLocale();
@@ -106,6 +135,9 @@ public class MemberPersonalController extends GenericController<Member> {
                 locale));
     }
 
+    /* (non-Javadoc)
+     * @see org.mkcl.els.controller.GenericController#populateNew(org.springframework.ui.ModelMap, org.mkcl.els.domain.BaseDomain, java.lang.String, javax.servlet.http.HttpServletRequest)
+     */
     @Override
     protected void populateNew(final ModelMap model, final Member domain,
             final String locale, final HttpServletRequest request) {
@@ -115,6 +147,9 @@ public class MemberPersonalController extends GenericController<Member> {
         model.addAttribute("qualificationCount",0);
     }
 
+    /* (non-Javadoc)
+     * @see org.mkcl.els.controller.GenericController#populateEdit(org.springframework.ui.ModelMap, org.mkcl.els.domain.BaseDomain, javax.servlet.http.HttpServletRequest)
+     */
     @Override
     protected void populateEdit(final ModelMap model, final Member domain,
             final HttpServletRequest request) {
@@ -126,6 +161,13 @@ public class MemberPersonalController extends GenericController<Member> {
                 .size());
     }
     //private utility method for populating domain with family and qualifications
+    /**
+     * Populate family qualification.
+     *
+     * @param domain the domain
+     * @param request the request
+     * @param result the result
+     */
     private void populateFamilyQualification(final Member domain, final HttpServletRequest request,final BindingResult result){
         List<FamilyMember> familyMembers = new ArrayList<FamilyMember>();
         Integer familyCount = Integer.parseInt(request
@@ -217,17 +259,27 @@ public class MemberPersonalController extends GenericController<Member> {
         domain.setQualifications(qualifications);
     }
     //as we enter post and put we will populate domain with family members and qualifications
+    /* (non-Javadoc)
+     * @see org.mkcl.els.controller.GenericController#preValidateCreate(org.mkcl.els.domain.BaseDomain, org.springframework.validation.BindingResult, javax.servlet.http.HttpServletRequest)
+     */
     @Override
     protected void preValidateCreate(final Member domain,
             final BindingResult result, final HttpServletRequest request) {
         populateFamilyQualification(domain,request,result);
     }
+
+    /* (non-Javadoc)
+     * @see org.mkcl.els.controller.GenericController#preValidateUpdate(org.mkcl.els.domain.BaseDomain, org.springframework.validation.BindingResult, javax.servlet.http.HttpServletRequest)
+     */
     @Override
     protected void preValidateUpdate(final Member domain,
             final BindingResult result, final HttpServletRequest request) {
         populateFamilyQualification(domain,request,result);
     }
     //in case of errors we need to re populate domain with populate edit logic
+    /* (non-Javadoc)
+     * @see org.mkcl.els.controller.GenericController#populateCreateIfErrors(org.springframework.ui.ModelMap, org.mkcl.els.domain.BaseDomain, javax.servlet.http.HttpServletRequest)
+     */
     @Override
     protected void populateCreateIfErrors(final ModelMap model,
             final Member domain,
@@ -236,6 +288,10 @@ public class MemberPersonalController extends GenericController<Member> {
         model.addAttribute("type", "error");
         model.addAttribute("msg", "create_failed");
     }
+
+    /* (non-Javadoc)
+     * @see org.mkcl.els.controller.GenericController#populateUpdateIfErrors(org.springframework.ui.ModelMap, org.mkcl.els.domain.BaseDomain, javax.servlet.http.HttpServletRequest)
+     */
     @Override
     protected void populateUpdateIfErrors(final ModelMap model, final Member domain,
             final HttpServletRequest request) {
@@ -244,6 +300,9 @@ public class MemberPersonalController extends GenericController<Member> {
         model.addAttribute("msg", "update_failed");
     }
     //here we are just checking for version mis match in validation.there is no check for duplicate entries
+    /* (non-Javadoc)
+     * @see org.mkcl.els.controller.GenericController#customValidateCreate(org.mkcl.els.domain.BaseDomain, org.springframework.validation.BindingResult, javax.servlet.http.HttpServletRequest)
+     */
     @Override
     protected void customValidateCreate(final Member domain,
             final BindingResult result, final HttpServletRequest request) {
@@ -251,6 +310,10 @@ public class MemberPersonalController extends GenericController<Member> {
             result.rejectValue("VersionMismatch", "version");
         }
     }
+
+    /* (non-Javadoc)
+     * @see org.mkcl.els.controller.GenericController#customValidateUpdate(org.mkcl.els.domain.BaseDomain, org.springframework.validation.BindingResult, javax.servlet.http.HttpServletRequest)
+     */
     @Override
     protected void customValidateUpdate(final Member domain,
             final BindingResult result, final HttpServletRequest request) {
@@ -259,6 +322,14 @@ public class MemberPersonalController extends GenericController<Member> {
         }
     }
 
+    /**
+     * Delete family.
+     *
+     * @param id the id
+     * @param model the model
+     * @param request the request
+     * @return the string
+     */
     @RequestMapping(value = "/family/{id}/delete", method = RequestMethod.DELETE)
     public String deleteFamily(final @PathVariable("id") Long id,
             final ModelMap model, final HttpServletRequest request) {
@@ -267,6 +338,14 @@ public class MemberPersonalController extends GenericController<Member> {
         return "info";
     }
 
+    /**
+     * Delete qualification.
+     *
+     * @param id the id
+     * @param model the model
+     * @param request the request
+     * @return the string
+     */
     @RequestMapping(value = "/qualification/{id}/delete", method = RequestMethod.DELETE)
     public String deleteQualification(final @PathVariable("id") Long id,
             final ModelMap model, final HttpServletRequest request) {

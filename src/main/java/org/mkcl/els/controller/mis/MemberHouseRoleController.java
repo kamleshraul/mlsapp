@@ -1,3 +1,12 @@
+/**
+ * See the file LICENSE for redistribution information.
+ *
+ * Copyright (c) 2012 MKCL.  All rights reserved.
+ *
+ * Project: e-Legislature
+ * File: org.mkcl.els.controller.mis.MemberHouseRoleController.java
+ * Created On: May 4, 2012
+ */
 package org.mkcl.els.controller.mis;
 
 import java.text.SimpleDateFormat;
@@ -31,10 +40,26 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+/**
+ * The Class MemberHouseRoleController.
+ *
+ * @author amitd
+ * @author sandeeps
+ * @since v1.0.0
+ */
 @Controller
 @RequestMapping("member/house")
 public class MemberHouseRoleController extends BaseController {
 
+    /**
+     * List.
+     *
+     * @param formtype the formtype
+     * @param model the model
+     * @param locale the locale
+     * @param request the request
+     * @return the string
+     */
     @RequestMapping(value = "/list", method = RequestMethod.GET)
     public String list(@RequestParam(required = false) final String formtype,
             final ModelMap model, final Locale locale,
@@ -47,6 +72,14 @@ public class MemberHouseRoleController extends BaseController {
         return "member/house/list";
     }
 
+    /**
+     * New form.
+     *
+     * @param model the model
+     * @param locale the locale
+     * @param request the request
+     * @return the string
+     */
     @RequestMapping(value = "/new", method = RequestMethod.GET)
     public String newForm(final ModelMap model, final Locale locale,
             final HttpServletRequest request) {
@@ -58,6 +91,16 @@ public class MemberHouseRoleController extends BaseController {
         return "member/house/new";
     }
 
+    /**
+     * Edits the.
+     *
+     * @param recordIndex the record index
+     * @param model the model
+     * @param request the request
+     * @param member the member
+     * @param locale the locale
+     * @return the string
+     */
     @SuppressWarnings("unchecked")
     @RequestMapping(value = "/{recordIndex}/edit", method = RequestMethod.GET)
     public String edit(final @PathVariable("recordIndex") int recordIndex,
@@ -72,6 +115,17 @@ public class MemberHouseRoleController extends BaseController {
         return "member/house/edit";
     }
 
+    /**
+     * Creates the.
+     *
+     * @param model the model
+     * @param request the request
+     * @param redirectAttributes the redirect attributes
+     * @param locale the locale
+     * @param domain the domain
+     * @param result the result
+     * @return the string
+     */
     @RequestMapping(method = RequestMethod.POST)
     public String create(
             final ModelMap model,
@@ -98,6 +152,17 @@ public class MemberHouseRoleController extends BaseController {
         return returnUrl;
     }
 
+    /**
+     * Update.
+     *
+     * @param domain the domain
+     * @param result the result
+     * @param model the model
+     * @param redirectAttributes the redirect attributes
+     * @param request the request
+     * @param locale the locale
+     * @return the string
+     */
     @RequestMapping(method = RequestMethod.PUT)
     public String update(
             final @Valid @ModelAttribute("domain") HouseMemberRoleAssociation domain,
@@ -121,6 +186,15 @@ public class MemberHouseRoleController extends BaseController {
         return returnUrl;
     }
 
+    /**
+     * Delete.
+     *
+     * @param recordIndex the record index
+     * @param member the member
+     * @param model the model
+     * @param request the request
+     * @return the string
+     */
     @RequestMapping(value = "/{recordIndex}/delete",
             method = RequestMethod.DELETE)
     public String delete(final @PathVariable("recordIndex") int recordIndex,
@@ -134,6 +208,14 @@ public class MemberHouseRoleController extends BaseController {
         return "info";
     }
 
+    /**
+     * Populate new.
+     *
+     * @param model the model
+     * @param domain the domain
+     * @param locale the locale
+     * @param request the request
+     */
     protected void populateNew(final ModelMap model,
             final HouseMemberRoleAssociation domain, final String locale,
             final HttpServletRequest request) {
@@ -160,6 +242,14 @@ public class MemberHouseRoleController extends BaseController {
         domain.setLocale(locale.toString());
     }
 
+    /**
+     * Populate edit.
+     *
+     * @param model the model
+     * @param domain the domain
+     * @param request the request
+     * @param locale the locale
+     */
     private void populateEdit(final ModelMap model,
             final HouseMemberRoleAssociation domain,
             final HttpServletRequest request, final String locale) {
@@ -184,18 +274,41 @@ public class MemberHouseRoleController extends BaseController {
         model.addAttribute("constituencies",Constituency.findVOByDefaultStateAndHouseType(defaultState, houseType, locale.toString(), "name",ApplicationConstants.ASC));
     }
 
+    /**
+     * Poulate create if errors.
+     *
+     * @param model the model
+     * @param domain the domain
+     * @param request the request
+     * @param locale the locale
+     */
     private void poulateCreateIfErrors(final ModelMap model,
             final HouseMemberRoleAssociation domain, final HttpServletRequest request,
             final String locale) {
         populateNew(model, domain,locale,request);
     }
 
+    /**
+     * Poulate update if errors.
+     *
+     * @param model the model
+     * @param domain the domain
+     * @param request the request
+     * @param locale the locale
+     */
     private void poulateUpdateIfErrors(final ModelMap model,
             final HouseMemberRoleAssociation domain, final HttpServletRequest request,
             final String locale) {
     	populateNew(model, domain, locale, request);
     }
 
+    /**
+     * Validate create.
+     *
+     * @param domain the domain
+     * @param errors the errors
+     * @param request the request
+     */
     private void validateCreate(final HouseMemberRoleAssociation domain,
             final Errors errors, final HttpServletRequest request) {
         if (domain.isDuplicate()) {
@@ -211,6 +324,13 @@ public class MemberHouseRoleController extends BaseController {
         }
     }
 
+    /**
+     * Validate update.
+     *
+     * @param domain the domain
+     * @param result the result
+     * @param request the request
+     */
     private void validateUpdate(final HouseMemberRoleAssociation domain,
             final BindingResult result, final HttpServletRequest request) {
     	if (domain.isVersionMismatch()) {
@@ -218,6 +338,13 @@ public class MemberHouseRoleController extends BaseController {
         }
     }
 
+    /**
+     * Populate create if no errors.
+     *
+     * @param model the model
+     * @param domain the domain
+     * @param request the request
+     */
     private void populateCreateIfNoErrors(final ModelMap model,
             final HouseMemberRoleAssociation domain,
             final HttpServletRequest request) {
@@ -226,12 +353,24 @@ public class MemberHouseRoleController extends BaseController {
 
     }
 
+    /**
+     * Populate update if no errors.
+     *
+     * @param model the model
+     * @param domain the domain
+     * @param request the request
+     */
     private void populateUpdateIfNoErrors(final ModelMap model,
             final HouseMemberRoleAssociation domain, final HttpServletRequest request) {
     	request.getSession().setAttribute("member",
                 Long.parseLong(request.getParameter("member")));
     }
 
+    /**
+     * Inits the binder.
+     *
+     * @param binder the binder
+     */
     @SuppressWarnings("unused")
     @InitBinder(value = "domain")
     private void initBinder(final WebDataBinder binder) {
