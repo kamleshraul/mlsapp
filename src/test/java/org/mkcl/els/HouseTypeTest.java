@@ -22,16 +22,6 @@ public class HouseTypeTest extends AbstractTest {
 
 	@Test
 	@Transactional
-	public void testMerge() {
-		HouseType assemblycounciltype = new HouseType("testAssemblyCouncilType","testhouse");
-		assemblycounciltype.persist();
-		assemblycounciltype.setType("Default one");
-		assemblycounciltype.merge();
-		Assert.assertNotNull("Updated assemblyRole Data ", assemblycounciltype);
-	}
-
-	@Test
-	@Transactional
 	public void testRemove() {
 		HouseType assemblycounciltype = new HouseType("testAssemblyCouncilType","testhouse");
 		assemblycounciltype.persist();
