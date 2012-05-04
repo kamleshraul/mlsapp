@@ -17,7 +17,6 @@ import javax.persistence.Table;
 
 import org.springframework.beans.factory.annotation.Configurable;
 
-// TODO: Auto-generated Javadoc
 /**
  * The Class Role.
  *

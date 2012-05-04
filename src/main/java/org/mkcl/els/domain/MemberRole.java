@@ -22,7 +22,6 @@ import org.mkcl.els.repository.MemberRoleRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Configurable;
 
-// TODO: Auto-generated Javadoc
 /**
  * The Class MemberRole.
  *

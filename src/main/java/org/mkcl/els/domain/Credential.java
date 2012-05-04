@@ -11,7 +11,6 @@ package org.mkcl.els.domain;
 
 import java.io.Serializable;
 import java.util.Date;
-import java.util.List;
 import java.util.Set;
 
 import javax.persistence.Column;
@@ -20,18 +19,15 @@ import javax.persistence.FetchType;
 import javax.persistence.JoinColumn;
 import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
-import javax.persistence.OneToMany;
-import javax.persistence.OneToOne;
 import javax.persistence.Table;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
 
 import org.springframework.beans.factory.annotation.Configurable;
 
-// TODO: Auto-generated Javadoc
 /**
  * The Class Credential.
- * 
+ *
  * @author amitd
  * @author sandeeps
  * @since v1.0.0
@@ -54,8 +50,8 @@ public class Credential extends BaseDomain implements Serializable {
     private String password;
 
     /** The enabled. */
-    private boolean enabled;  
-    
+    private boolean enabled;
+
     @Column(length=200)
     private String email;
 
@@ -65,10 +61,10 @@ public class Credential extends BaseDomain implements Serializable {
             name = "credential_id", referencedColumnName = "id"),
             inverseJoinColumns = @JoinColumn(name = "role_id",
                     referencedColumnName = "id"))
-    private Set<Role> roles;    
-    
+    private Set<Role> roles;
+
     @Temporal(TemporalType.TIMESTAMP)
-    private Date lastLoginTime;   
+    private Date lastLoginTime;
 
     // ---------------------------------Constructors----------------------------------------------
     /**
@@ -78,8 +74,8 @@ public class Credential extends BaseDomain implements Serializable {
         super();
     }
 
-    public Credential(String username, String password, boolean enabled,
-			Set<Role> roles, Date lastLoginTime) {
+    public Credential(final String username, final String password, final boolean enabled,
+			final Set<Role> roles, final Date lastLoginTime) {
 		super();
 		this.username = username;
 		this.password = password;
@@ -93,7 +89,7 @@ public class Credential extends BaseDomain implements Serializable {
 		return username;
 	}
 
-	public void setUsername(String username) {
+	public void setUsername(final String username) {
 		this.username = username;
 	}
 
@@ -101,7 +97,7 @@ public class Credential extends BaseDomain implements Serializable {
 		return password;
 	}
 
-	public void setPassword(String password) {
+	public void setPassword(final String password) {
 		this.password = password;
 	}
 
@@ -109,7 +105,7 @@ public class Credential extends BaseDomain implements Serializable {
 		return enabled;
 	}
 
-	public void setEnabled(boolean enabled) {
+	public void setEnabled(final boolean enabled) {
 		this.enabled = enabled;
 	}
 
@@ -117,7 +113,7 @@ public class Credential extends BaseDomain implements Serializable {
 		return roles;
 	}
 
-	public void setRoles(Set<Role> roles) {
+	public void setRoles(final Set<Role> roles) {
 		this.roles = roles;
 	}
 
@@ -125,7 +121,7 @@ public class Credential extends BaseDomain implements Serializable {
 		return lastLoginTime;
 	}
 
-	public void setLastLoginTime(Date lastLoginTime) {
+	public void setLastLoginTime(final Date lastLoginTime) {
 		this.lastLoginTime = lastLoginTime;
 	}
 
@@ -133,7 +129,7 @@ public class Credential extends BaseDomain implements Serializable {
 		return email;
 	}
 
-	public void setEmail(String email) {
+	public void setEmail(final String email) {
 		this.email = email;
-	}	
+	}
 }
