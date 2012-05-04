@@ -9,10 +9,12 @@
  */
 package org.mkcl.els.common.exception;
 
+
 /**
  * The Class SessionExpiredException.
- * 
- * @author vishals
+ *
+ * @author amitd
+ * @author sandeeps
  * @since v1.0.0
  */
 public class SessionExpiredException extends Exception {
@@ -32,21 +34,21 @@ public class SessionExpiredException extends Exception {
 
     /**
      * Instantiates a new session expired exception.
-     * 
+     *
      * @param message the message
      */
-    public SessionExpiredException(String message) {
+    public SessionExpiredException(final String message) {
         this.message = message;
     }
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see java.lang.Throwable#getMessage()
      */
     @Override
     public String getMessage() {
         return message;
     }
-
 }
+

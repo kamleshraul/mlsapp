@@ -28,17 +28,18 @@ package org.mkcl.els.common.exception;
  * @author vishals
  * @version v1.0.0
  */
-public class RecordNotFoundException extends RuntimeException{
-	    
-    	/** The Constant serialVersionUID. */
-    	private static final long serialVersionUID = 4050482305178810162L;
+public class RecordNotFoundException extends RuntimeException {
 
-	    /**
-	     * Constructor for RecordExistsException.
-	     *
-	     * @param message exception message
-	     */
-	    public RecordNotFoundException(final String message) {
-	        super(message);
-	    }
+        /** The Constant serialVersionUID. */
+        private static final long serialVersionUID = 4050482305178810162L;
+
+        /**
+         * Constructor for RecordExistsException.
+         *
+         * @param message exception message
+         */
+        public RecordNotFoundException(final String message) {
+            super(message);
+        }
 }
+
