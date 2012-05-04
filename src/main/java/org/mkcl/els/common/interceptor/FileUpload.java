@@ -35,7 +35,7 @@ import org.mkcl.els.domain.Document;
 public class FileUpload extends HttpServlet {
 
     /** The Constant serialVersionUID. */
-    private transient static final long serialVersionUID = 1L;
+    private static final transient long serialVersionUID = 1L;
 
     /** The Constant log. */
     private static final Logger log = Logger.getLogger(FileUpload.class
@@ -69,8 +69,7 @@ public class FileUpload extends HttpServlet {
                     + String.valueOf(System.currentTimeMillis()));
             document = document.persist();
             res.sendRedirect("file/" + document.getTag() + "/info.json");
-
-        }
+            }
         catch (Exception ex) {
             throw new ServletException(ex);
         }
