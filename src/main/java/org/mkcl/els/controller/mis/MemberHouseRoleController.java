@@ -86,6 +86,9 @@ public class MemberHouseRoleController extends BaseController {
         final String urlPattern = request.getServletPath().split("\\/")[1];
         HouseMemberRoleAssociation domain = new HouseMemberRoleAssociation();
         populateNew(model, domain, locale.toString(), request);
+        //THIS IS USED TO REMOVE THE BUG WHERE IN RECORD UPDATED MESSAGE
+        //APPEARS WHEN CLICKED ON NEW REOCRD
+        model.addAttribute("type", "");
         model.addAttribute("domain", domain);
         model.addAttribute("urlPattern", urlPattern);
         return "member/house/new";
@@ -139,6 +142,7 @@ public class MemberHouseRoleController extends BaseController {
         model.addAttribute("domain", domain);
         if (result.hasErrors()) {
             poulateCreateIfErrors(model, domain, request, locale.toString());
+            model.addAttribute("type", "error");
             return "member/house/new";
         }
         populateCreateIfNoErrors(model, domain, request);
@@ -146,7 +150,7 @@ public class MemberHouseRoleController extends BaseController {
         request.getSession().setAttribute("refresh", "");
         redirectAttributes.addFlashAttribute("type", "success");
         redirectAttributes.addFlashAttribute("msg", "create_success");
-        String returnUrl = "redirect:/" + urlPattern + "/"
+        String returnUrl = "redirect:/member/house/"
                 + domain.getRecordIndex() + "/edit?member="
                 + request.getParameter("member");
         return returnUrl;
@@ -174,13 +178,14 @@ public class MemberHouseRoleController extends BaseController {
         model.addAttribute("domain", domain);
         if (result.hasErrors()) {
             poulateUpdateIfErrors(model, domain, request, locale.toString());
+            model.addAttribute("type", "error");
             return "member/house/edit";
         }
         populateUpdateIfNoErrors(model, domain, request);
         domain.merge();
         redirectAttributes.addFlashAttribute("type", "success");
         redirectAttributes.addFlashAttribute("msg", "update_success");
-        String returnUrl = "redirect:/" + urlPattern + "/"
+        String returnUrl = "redirect:/member/house/"
                 + domain.getRecordIndex() + "/edit?member="
                 + request.getParameter("member");
         return returnUrl;
@@ -265,11 +270,11 @@ public class MemberHouseRoleController extends BaseController {
         model.addAttribute("member", member);
         //since we are arranging the houses by formation date in descending order so houses[0] will
         //refer to the current house provided info for current house is set.
-        if(!houses.isEmpty()) {
-            domain.setFromDate(houses.get(0).getFirstDate());
-            domain.setToDate(houses.get(0).getLastDate());
-
-        }
+//        if(!houses.isEmpty()) {
+//            domain.setFromDate(houses.get(0).getFirstDate());
+//            domain.setToDate(houses.get(0).getLastDate());
+//
+//        }
         String defaultState=((CustomParameter)CustomParameter.findByName(CustomParameter.class,"DEFAULT_STATE",locale.toString())).getValue();
         model.addAttribute("constituencies",Constituency.findVOByDefaultStateAndHouseType(defaultState, houseType, locale.toString(), "name",ApplicationConstants.ASC));
     }
@@ -299,7 +304,7 @@ public class MemberHouseRoleController extends BaseController {
     private void poulateUpdateIfErrors(final ModelMap model,
             final HouseMemberRoleAssociation domain, final HttpServletRequest request,
             final String locale) {
-    	populateNew(model, domain, locale, request);
+        populateEdit(model, domain, request,locale);
     }
 
     /**

@@ -83,6 +83,9 @@ public class MemberPartyController extends BaseController{
          MemberPartyAssociation domain = new MemberPartyAssociation();
         populateNew(model, domain, locale, request);
         model.addAttribute("domain", domain);
+        //THIS IS USED TO REMOVE THE BUG WHERE IN RECORD UPDATED MESSAGE
+        //APPEARS WHEN CLICKED ON NEW REOCRD
+        model.addAttribute("type", "");
         return "member/party/new";
     }
 
