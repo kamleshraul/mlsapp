@@ -51,7 +51,7 @@ public class Constituency extends BaseDomain implements Serializable {
 
     /** The assembly council type. */
     @ManyToOne
-    @JoinColumn(name = "house_id")
+    @JoinColumn(name = "housetype_id")
     private HouseType houseType;
 
     /** The districts. */
