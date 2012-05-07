@@ -9,6 +9,7 @@
  */
 package org.mkcl.els.controller;
 
+import java.io.UnsupportedEncodingException;
 import java.util.Locale;
 import java.util.Map;
 
@@ -93,18 +94,28 @@ public class GridController extends GenericController<Grid> {
                  @RequestParam(value = "searchField", required = false) final String searchField,
                  @RequestParam(value = "searchString", required = false) final String searchString,
                  @RequestParam(value = "searchOper", required = false) final String searchOper,
-                 @RequestParam(value = "filters", required = false) final String filtersData,
+                 //@RequestParam(value = "filters", required = false) final String filtersData,
                  @RequestParam(value = "baseFilters", required = false) final String baseFilters,
                  final ModelMap model,
                  final HttpServletRequest request,
                  final Locale locale) throws ClassNotFoundException {
     	//Adding support for dynamic parameters in where clause of grid count and select query
+        //Here search is a get request and hence the parameters are encoded using ISO-8859-1 scheme .This
+        //needs to be converted to utf-8 before any search operations can be performed.
     	Map<String,String[]> requestMap=request.getParameterMap();
-        Filter filter = Filter.create(filtersData);
         GridData gridData=new GridData();
         if (search) {
-             gridData=gridService.getData(
-                    gridId, rows, page, sidx, order, filter.toSQl(), locale,requestMap);
+            try {
+                String param=request.getParameter("filters");
+                String decodedFiltersData=null;
+                decodedFiltersData = new String(param.getBytes("ISO-8859-1"), "UTF-8");
+                Filter filter = Filter.create(decodedFiltersData);
+                 gridData=gridService.getData(
+                        gridId, rows, page, sidx, order, filter.toSQl(), locale,requestMap);
+            }
+            catch (UnsupportedEncodingException e) {
+                e.printStackTrace();
+            }
         } else {
             gridData= gridService.getData(gridId, rows, page, sidx, order, locale,requestMap);
         }
