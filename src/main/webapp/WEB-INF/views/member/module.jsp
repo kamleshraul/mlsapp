@@ -155,7 +155,7 @@
 			else{
 				showTabByIdAndUrl('election_tab','member/election/list');
 				}
-		}		
+		}	
 			
 	</script>
 </head>

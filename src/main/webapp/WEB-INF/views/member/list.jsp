@@ -14,6 +14,9 @@
 			$("#delete_record").click(function() {
 				deleteRecord($('#key').val());
 			});
+			$("#search").click(function() {
+				searchRecord();
+			});
 		});
 		function rowDblClickHandler(rowid, iRow, iCol, e) {
 			showTabByIdAndUrl('personal_tab', 'member/personal/'+rowid+'/edit');
@@ -37,7 +40,11 @@
 			</a> |
 			<a href="#" id="delete_record" class="butSim">
 				<spring:message code="generic.delete" text="Delete"/>
-			</a> <!-- |
+			</a> |
+			<a href="#" id="search" class="butSim">
+				<spring:message code="generic.search" text="Search"/>
+			</a> 
+			<!-- |
 			<a href="#" id="send_for_approval" class="butSim">
 				<spring:message code="generic.sendForApproval" text="Send For Approval"/>
 			</a> |
