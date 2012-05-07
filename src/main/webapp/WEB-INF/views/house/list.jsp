@@ -14,6 +14,9 @@
 			$("#delete_record").click(function() {
 				deleteRecord($('#key').val());
 			});
+			$("#search").click(function() {
+				searchRecord();
+			});
 		});
 		
 	</script>
@@ -30,7 +33,10 @@
 			</a> |
 			<a href="#" id="delete_record" class="butSim">
 				<spring:message code="generic.delete" text="Delete"/>
-			</a>
+			</a>|
+			<a href="#" id="search" class="butSim">
+				<spring:message code="generic.search" text="Search"/>
+			</a> 
 			<p>&nbsp;</p>
 		</div>
 	</div>
