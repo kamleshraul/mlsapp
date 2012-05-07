@@ -151,6 +151,10 @@ function loadGrid(gridId, baseFilter) {
 	return c_grid;
 };
 
+function searchRecord(){
+	$("#grid").jqGrid('searchGrid', {multipleSearch:true,modal:true});
+}	
+
 function scrollTop(){
 	$('html').animate({scrollTop:0}, 'slow');
 	$('body').animate({scrollTop:0}, 'slow');	
