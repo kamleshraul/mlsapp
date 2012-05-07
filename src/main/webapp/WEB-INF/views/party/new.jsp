@@ -23,8 +23,7 @@
 						+ data[i].name + "</option>";
 			}
 			$('#districtR').html(options);
-			if ($('#districtR').val() != undefined) {
-				alert("selected districtR = " + $('#districtR').val());
+			if ($('#districtR').val() != undefined) {				
 				populateTehsilsR($('#districtR').val());
 			}
 		});	
@@ -39,8 +38,7 @@
 						+ data[i].name + "</option>";
 			}
 			$('#districtS').html(options);
-			if ($('#districtS').val() != undefined) {
-				alert("selected districtS = " + $('#districtS').val());
+			if ($('#districtS').val() != undefined) {				
 				populateTehsilsS($('#districtS').val());
 			}
 		});	
@@ -127,8 +125,7 @@
 				if($(this).val()==""){
 					$(".datemask").mask("99/99/9999");
 				}
-			});
-			//alert("uploaded successfully " + $(data).contents());
+			});			
 		}
 		});
 	};
