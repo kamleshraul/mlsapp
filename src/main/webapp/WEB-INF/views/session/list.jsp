@@ -19,6 +19,9 @@
 			$("#delete_record").click(function() {
 				deleteSession($('#key').val());
 			});
+			$("#search").click(function() {
+				searchRecord();
+			});
 			//$("#list_session").click(function() {
 			//	showTabByIdAndUrl('session_tab','session/list'+'?houseId='+houseId);
 			//});
@@ -88,12 +91,17 @@
 			</a> |
 			<a href="#" id="delete_record" class="butSim">
 				<spring:message code="generic.delete" text="Delete"/>
-			</a> <%--   |
+			</a> 
+			|
+			<a href="#" id="search" class="butSim">
+				<spring:message code="generic.search" text="Search"/>
+			</a> 
+			<p>&nbsp;</p><%--   |
 			<a href="#" id="list_session" class="butSim">
 				<spring:message code="generic.list" text="List"/>
 			</a>  --%>
 			
-			<p>&nbsp;</p>
+		
 		</div>
 	</div>
 	<%@ include file="/common/gridview.jsp" %>
