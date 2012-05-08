@@ -15,14 +15,10 @@
 	<div class="fields clearfix">
 		<form:form action="house" method="PUT" modelAttribute="domain">
 			<%@ include file="/common/info.jsp"%>
-			<h2>
-				<spring:message code="generic.new.heading" text="Enter Details" />
-				[
-				<spring:message code="generic.id" text="Id"></spring:message>
-				:&nbsp;
-				<spring:message code="generic.new" text="New"></spring:message>
-				]
-			</h2>
+			<h2><spring:message code="generic.edit.heading" text="Details"/>
+		[<spring:message code="generic.id" text="Id"></spring:message>:${domain.id}]
+	</h2>
+
 			<form:errors path="version" cssClass="validationError" />
 					
 		<c:choose>
@@ -33,7 +29,7 @@
 
 				<form:input path="name" cssClass="sText"></form:input>
 				<label class="small"><spring:message
-						code="house.assemblyNumberExample" text="e.g. Eleventh" /></label>
+						code="house.assemblyNameExample" text="e.g. Eleventh" /></label>
 				<form:errors path="name" cssClass="validationError"></form:errors>
 
 			</p>
