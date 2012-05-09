@@ -104,6 +104,7 @@ public class HomeController extends BaseController {
         model.addAttribute("authlastname", this.getCurrentUser().getLastName());
         model.addAttribute("logintime", new Date());
         model.addAttribute("authhousetype",this.getCurrentUser().getHouseType());
+        model.addAttribute("locale",locale.toString());
         return "home";
     }
 }
