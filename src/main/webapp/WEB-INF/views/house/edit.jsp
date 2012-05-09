@@ -88,7 +88,7 @@
 				<form:errors path="governorAddressDate" cssClass="validationError" />
 				</p>
 				<p>
-				<label class="small"><spring:message code="house.remarks"
+				<label class="labelcentered"><spring:message code="house.remarks"
 						text="Remarks" /></label>
 
 				<form:textarea cssClass="sTextarea" path="remarks" />
@@ -119,7 +119,7 @@
 				<form:errors path="governorAddressDate" cssClass="validationError" />
 				</p>								
 			<p>
-				<label class="small"><spring:message code="house.remarks"
+				<label class="labelcentered"><spring:message code="house.remarks"
 						text="Remarks" /></label>
 				<form:textarea cssClass="sTextarea" path="remarks" />
 				<form:errors path="remarks" cssClass="validationError" />

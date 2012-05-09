@@ -51,7 +51,7 @@
 			<form:errors path="version" cssClass="validationError" />
 		<p> 
 			<label class="small"><spring:message code="house.type" text="House Type"/></label>
-			<select id="HouseType" name="houseType" >
+			<select id="HouseType" name="houseType" class="sSelect" >
 			<c:forEach items="${assemblycounciltype}" var="htype">
 			<option value="${htype.type}">${htype.name}</option>
 			</c:forEach>
@@ -127,7 +127,7 @@
 				<form:errors path="governorAddressDate" cssClass="validationError" />
 				</p>
 				<p class="Common">
-				<label class="small"><spring:message code="house.remarks"
+				<label class="labelcentered"><spring:message code="house.remarks"
 						text="Remarks" /></label>
 
 				<form:textarea cssClass="sTextarea" path="remarks" />

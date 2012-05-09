@@ -86,7 +86,7 @@
 			
 		</p>
 		<p>
-				<label class="small"><spring:message code="session.remarks"
+				<label class="labelcentered"><spring:message code="session.remarks"
 						text="Remarks" /></label>
 				<form:textarea cssClass="sTextarea" path="remarks" />
 				<form:errors path="remarks" cssClass="validationError" />

@@ -47,12 +47,12 @@
 	<form:errors path="version" cssClass="validationError"/>		
 		<p> 
 			<label class="small"><spring:message code="department.name" text="Department"/></label>
-			<form:input cssClass="sSelect" path="name"/>
+			<form:input cssClass="sText" path="name"/>
 			<form:errors path="name" cssClass="validationError" />	
 		</p>	 
 		<p>
 			<label class="small"><spring:message code="department.isCategory" text="isCategory" /></label>
-			<input type="checkbox"  name="isCategory" id="isCategory"/>												
+			<input type="checkbox"  name="isCategory" id="isCategory" class="sCheck"/>												
 		</p>
 		
 		<p class="parent"> 
