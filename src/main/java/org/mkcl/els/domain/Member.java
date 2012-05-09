@@ -43,8 +43,6 @@ import org.mkcl.els.repository.MemberRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Configurable;
 
-
-
 /**
  * The Class Member.
  *
@@ -241,6 +239,10 @@ import org.springframework.beans.factory.annotation.Configurable;
     /** The educational cultural activities. */
     @Column(length = 30000)
     private String educationalCulturalActivities;
+
+    /** The publications. */
+    @Column(length=30000)
+    private String publications;
 
     // ----------------------------------Election_Results_Informations----------------------------------
     /** The election results. */
@@ -1249,6 +1251,24 @@ import org.springframework.beans.factory.annotation.Configurable;
      */
     public void setMemberMinisters(final List<MemberMinister> memberMinisters) {
         this.memberMinisters = memberMinisters;
+    }
+
+    /**
+     * Gets the publications.
+     *
+     * @return the publications
+     */
+    public String getPublications() {
+        return publications;
+    }
+
+    /**
+     * Sets the publications.
+     *
+     * @param publications the new publications
+     */
+    public void setPublications(final String publications) {
+        this.publications = publications;
     }
 
 }
