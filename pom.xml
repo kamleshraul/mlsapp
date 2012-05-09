@@ -541,9 +541,12 @@
 					<forkMode>once</forkMode>
 					<skipTests>false</skipTests>
 					<argLine>
-						-javaagent:C:/mvn_repos/org/springframework/spring-instrument/3.1.0.RELEASE/spring-instrument-3.1.0.RELEASE.jar
+						-javaagent:"C:/mvn_repos/org/springframework/spring-instrument/3.1.0.RELEASE/spring-instrument-3.1.0.RELEASE.jar"
 					</argLine>
-					<useSystemClassloader>true</useSystemClassloader>
+					<environmentVariables>
+					<spring.profiles.active>qa</spring.profiles.active>
+					</environmentVariables>
+					<useSystemClassloader>true</useSystemClassloader>               				
 				</configuration>
 			</plugin>
 			<plugin>
