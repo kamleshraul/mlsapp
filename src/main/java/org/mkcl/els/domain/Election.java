@@ -21,7 +21,6 @@ import javax.persistence.Table;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
 
-import org.codehaus.jackson.annotate.JsonIgnoreProperties;
 import org.mkcl.els.repository.ElectionRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Configurable;
@@ -36,7 +35,7 @@ import org.springframework.beans.factory.annotation.Configurable;
 @Configurable
 @Entity
 @Table(name = "elections")
-@JsonIgnoreProperties({"electionType"})
+//@JsonIgnoreProperties({"electionType"})
 public class Election extends BaseDomain implements Serializable {
 
     // ---------------------------------Attributes-------------------------------------------------
