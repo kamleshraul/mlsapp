@@ -983,6 +983,19 @@
 		border-bottom:1px solid #e0e1e0;
 	}
 	
+	.sSelectMultiple{
+	/*added by sandeeps.Increased the height of text boxes from 24 px to 28px;*/
+		height:112px;	
+		width:188px;
+		line-height:16px;
+		background:white url(../../images/template/th_blue/bk_field.png) repeat-x top right; 
+		padding:2px;
+		border-top:1px solid #8d8e8d;
+		border-left:1px solid #8d8e8d;
+		border-right:1px solid #e0e1e0;
+		border-bottom:1px solid #e0e1e0;
+	}
+	
 	.sText:focus{
 		border-top:1px solid black;
 		border-left:1px solid black;
