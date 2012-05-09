@@ -539,7 +539,7 @@
 				<version>2.5</version>
 				<configuration>
 					<forkMode>once</forkMode>
-					<skipTests>true</skipTests>
+					<skipTests>false</skipTests>
 					<argLine>
 						-javaagent:C:/mvn_repos/org/springframework/spring-instrument/3.1.0.RELEASE/spring-instrument-3.1.0.RELEASE.jar
 					</argLine>
