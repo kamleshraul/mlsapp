@@ -13,9 +13,10 @@ import java.util.List;
 
 /**
  * The Class MemberBiographyVO.
+ *
  * @author amitd
  * @author sandeeps
- * @version v1.0.0
+ * @since v1.0.0
  */
 public class MemberBiographyVO {
 
@@ -105,6 +106,9 @@ public class MemberBiographyVO {
 
     /** The literary artistic sc accomplishment. */
     private String literaryArtisticScAccomplishment;
+
+    /** The publications. */
+    private String publications;
 
     /** The special interests. */
     private String specialInterests;
@@ -961,4 +965,23 @@ public class MemberBiographyVO {
 	public void setRivalMembers(final List<RivalMemberVO> rivalMembers) {
 		this.rivalMembers = rivalMembers;
 	}
+
+    /**
+     * Gets the publications.
+     *
+     * @return the publications
+     */
+    public String getPublications() {
+        return publications;
+    }
+
+    /**
+     * Sets the publications.
+     *
+     * @param publications the new publications
+     */
+    public void setPublications(final String publications) {
+        this.publications = publications;
+    }
+
 }
