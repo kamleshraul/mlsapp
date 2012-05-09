@@ -1,28 +1,29 @@
-///**
-// * See the file LICENSE for redistribution information.
-// *
-// * Copyright (c) 2011 MKCL.  All rights reserved.
-// *
-// * Project: e-Legislature
-// * File: org.mkcl.els.TitleTest.java
-// * Created On: Dec 20, 2011
-// */
-//package org.mkcl.els;
-//
-//import java.util.List;
-//
-//import org.junit.Assert;
-//import org.junit.Test;
-//import org.mkcl.els.domain.Title;
-//import org.springframework.transaction.annotation.Transactional;
-//
-///**
-// * The Class TitleTest.
-// *
-// * @author samiksham
-// */
-//public class TitleTest extends AbstractTest {
-//
+/**
+ * See the file LICENSE for redistribution information.
+ *
+ * Copyright (c) 2011 MKCL.  All rights reserved.
+ *
+ * Project: e-Legislature
+ * File: org.mkcl.els.TitleTest.java
+ * Created On: Dec 20, 2011
+ */
+package org.mkcl.els;
+
+import java.lang.reflect.Member;
+import java.util.List;
+
+import org.junit.Assert;
+import org.junit.Test;
+import org.mkcl.els.domain.Title;
+import org.springframework.transaction.annotation.Transactional;
+
+/**
+ * The Class TitleTest.
+ *
+ * @author samiksham
+ */
+public class TitleTest extends AbstractTest {
+
 //    /**
 //     * Test persist.
 //     *
@@ -117,10 +118,13 @@
 //     * @author samiksham
 //     * @since v1.0.0
 //     */
-//    @Test
-//    public final void testFindAll() {
-//        List<Title> lstTitles = Title.findAll();
-//        Assert.assertNotNull(lstTitles);
-//    }
-//
-//}
+    @Test
+    @Transactional
+    public final void testFindAll() {
+    	org.mkcl.els.domain.Member member=org.mkcl.els.domain.Member.findById(org.mkcl.els.domain.Member.class,new Long(1));
+    	System.out.println(member.getTitle().getName());
+    	//Assert.assertNotNull(lstTitles);
+    	
+    }
+
+}
