@@ -21,6 +21,9 @@
 			$("#list_record").click(function() {
 				listHouseRecord();
 			});
+			$("#search").click(function() {
+				searchRecord();
+			});
 		});
 		function listHouseRecord(){
 			showTabByIdAndUrl('house_tab','member/house/list');	
@@ -88,6 +91,9 @@
 			<a href="#" id="list_record" class="butSim">
 				<spring:message code="generic.list" text="List"/>
 			</a>
+			<a href="#" id="search" class="butSim">
+				<spring:message code="generic.search" text="Search"/>
+			</a> 
 			
 			<p>&nbsp;</p>
 		</div>
