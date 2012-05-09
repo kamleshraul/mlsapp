@@ -172,6 +172,10 @@
 		<pattern>/designation/*/delete</pattern>
 		<pattern>/designation</pattern>			
 			
+		<pattern>/election/new</pattern>
+		<pattern>/election/*/edit</pattern>
+		<pattern>/election/*/delete</pattern>
+		<pattern>/election</pattern>
     </decorator>
     <decorator name="mnu_form" page="mnu_form.jsp">
 		 <pattern>/menu</pattern>
