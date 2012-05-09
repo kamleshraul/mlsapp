@@ -41,7 +41,7 @@
 /*The modal attribute of grid search dialog was not working properly as 
 it was getting displayed beneath the overlay even though modal is set to false.
 Hence for the time being setting overlay height to 0% is solving the problem*/
-.ui-widget-overlay { position: absolute; top: 0; left: 0; width: 100%; height: 0%; }
+.ui-widget-overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; }
 
 
 /*
