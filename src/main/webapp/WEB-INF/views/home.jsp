@@ -9,7 +9,7 @@
 		 <!-- Jquery directly from google servers--> 
 		<script type="text/javascript" src="./resources/js/jquery-1.6.2.min.js" ></script>
 		<script type="text/javascript" src="./resources/js/jquery-ui-1.8.15.custom.min.js"></script> 
-		<script type="text/javascript" src="./resources/js/i18n/grid.locale-en.js"></script>
+		<script type="text/javascript" src="./resources/js/i18n/grid.locale-${locale}.js"></script>
 		<script type="text/javascript" src="./resources/js/jquery.jqGrid.min.js"></script>
 		<script type="text/javascript" src="./resources/js/jquery/jquery-impromptu.3.2.min.js"></script>
 		<script type="text/javascript" src="./resources/js/jquery/jquery.iframe-transport.js"></script>
