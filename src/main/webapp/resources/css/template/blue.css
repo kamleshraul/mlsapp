@@ -31,6 +31,8 @@
 		margin-bottom:5px;
 		}
 		
+		
+		
 	#container {
 		width:950px;
 		padding:5px;
@@ -1102,3 +1104,10 @@
   text-align:right;
   }
 	
+		/*added by amitd and sandeeps
+		we want that the label incase of textarea must appear midway between the height of the textarea*/
+		.labelcentered{
+		position:relative;
+		top: -45px;
+		width: 150px;
+		}
