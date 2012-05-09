@@ -74,7 +74,7 @@
 		<form:errors path="isSitting" cssClass="validationError"/>	
 	</p>
 	<p>
-		<label class="small"><spring:message code="member.house.remarks" text="Remarks"/></label>
+		<label class="labelcentered"><spring:message code="member.house.remarks" text="Remarks"/></label>
 		<form:textarea path="remarks" cssClass="sTextarea" rows="5" cols="50"/>
 		<form:errors path="remarks" cssClass="validationError"/>	
 	</p>

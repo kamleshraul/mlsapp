@@ -109,38 +109,38 @@
 	</c:if>
 	</div>				
 	<p>
-		<label class="small"><spring:message code="member.other.socialCulturalActivities" text="Social Activities"/></label>
+		<label class="labelcentered"><spring:message code="member.other.socialCulturalActivities" text="Social Activities"/></label>
 		<form:textarea path="socialCulturalActivities" cssClass="sTextarea" cols="50" rows="5"></form:textarea>
 		<form:errors path="socialCulturalActivities" cssClass="validationError"/>	
 	</p>
 	
 	<p>
-		<label class="small"><spring:message code="member.other.educationalCulturalActivities" text="Educational and Cultural Activities"/></label>
+		<label class="labelcentered"><spring:message code="member.other.educationalCulturalActivities" text="Educational and Cultural Activities"/></label>
 		<form:textarea path="educationalCulturalActivities" cssClass="sTextarea" cols="50" rows="5"></form:textarea>
 		<form:errors path="educationalCulturalActivities" cssClass="validationError"/>	
 	</p>
 	<p>
-		<label class="small"><spring:message code="member.other.literaryArtisticScientificAccomplishments" text="Literary,Artistic and Scientific Accomplishments"/></label>
+		<label class="labelcentered"><spring:message code="member.other.literaryArtisticScientificAccomplishments" text="Literary,Artistic and Scientific Accomplishments"/></label>
 		<form:textarea path="literaryArtisticScientificAccomplishments" cssClass="sTextarea" cols="50" rows="5"></form:textarea>
 		<form:errors path="literaryArtisticScientificAccomplishments" cssClass="validationError"/>	
 	</p>
 	<p>
-		<label class="small"><spring:message code="member.other.publications" text="Publications"/></label>
+		<label class="labelcentered"><spring:message code="member.other.publications" text="Publications"/></label>
 		<form:textarea path="publications" cssClass="sTextarea" cols="50" rows="5"></form:textarea>
 		<form:errors path="publications" cssClass="validationError"/>	
 	</p>	 
 	<p>
-		<label class="small"><spring:message code="member.other.hobbySpecialInterests" text="Hobby and Special Interests"/></label>
+		<label class="labelcentered"><spring:message code="member.other.hobbySpecialInterests" text="Hobby and Special Interests"/></label>
 		<form:textarea path="hobbySpecialInterests" cssClass="sTextarea" cols="50" rows="5"></form:textarea>
 		<form:errors path="hobbySpecialInterests" cssClass="validationError"/>	
 	</p>	
 	<p>
-		<label class="small"><spring:message code="member.other.countriesVisited" text="Countries Visited"/></label>
+		<label class="labelcentered"><spring:message code="member.other.countriesVisited" text="Countries Visited"/></label>
 		<form:textarea path="countriesVisited" cssClass="sTextarea" cols="50" rows="5"></form:textarea>
 		<form:errors path="countriesVisited" cssClass="validationError"/>	
 	</p>	
 	<p>
-		<label class="small"><spring:message code="member.other.otherInformation" text="Other Information"/></label>
+		<label class="labelcentered"><spring:message code="member.other.otherInformation" text="Other Information"/></label>
 		<form:textarea path="otherInformation" cssClass="sTextarea" cols="50" rows="5"></form:textarea>
 		<form:errors path="otherInformation" cssClass="validationError"/>	
 	</p>	

@@ -70,7 +70,7 @@
 	      		 "</select>"+
 	     		 "</p>"+
 				  "<p>"+
-	    		  "<label class='small'>"+$('#qualificationDetailsMessage').val()+"</label>"+
+	    		  "<label class='labelcentered'>"+$('#qualificationDetailsMessage').val()+"</label>"+
 	    		  "<textarea name='qualificationDetail"+qualificationCount+"' id='qualificationDetail"+qualificationCount+"' class='sTextarea'></textarea>"+
 	    		  "</p>"+
 				  "<input type='button' class='button' id='"+qualificationCount+"' value='"+$('#deleteQualificationMessage').val()+"' onclick='deleteQualification("+qualificationCount+");'>"+
@@ -245,13 +245,13 @@
 	</p>
 
 	<p>
-		<label class="small"><spring:message code="member.personal.languages" text="Language Proficiency"/></label>
+		<label class="labelcentered"><spring:message code="member.personal.languages" text="Language Proficiency"/></label>
 		<form:select path="languages" items="${languages}" itemValue="id" itemLabel="name"  multiple="true" size="5" cssClass="sSelect" cssStyle="height:100px;margin-top:5px;"/>
 		<form:errors path="languages" cssClass="validationError"/>
 	</p>
 	
 	<p>
-		<label class="small"><spring:message code="member.personal.professions" text="Profession"/></label>
+		<label class="labelcentered"><spring:message code="member.personal.professions" text="Profession"/></label>
 		<form:select path="professions" items="${professions}" itemValue="id" itemLabel="name"  multiple="true" size="5" cssClass="sSelect" cssStyle="height:100px;margin-top:5px;"/>
 		<form:errors path="professions" cssClass="validationError"/>
 	</p>
@@ -268,7 +268,7 @@
 	</p>
 	
 	<p>
-		<label class="small"><spring:message code="member.personal.paAddress" text="Personal Assistants Address"/></label>
+		<label class="labelcentered"><spring:message code="member.personal.paAddress" text="Personal Assistants Address"/></label>
 		<form:textarea cssClass="wysiwyg sTextarea" path="paAddress"/>
 		<form:errors path="paAddress" cssClass="validationError"/>	
 	</p>	
@@ -353,7 +353,7 @@
 		</select>
 	</p>
 	<p>
-	    <label class="small"><spring:message code="member.personal.qualificationDetail" text="Details"/></label>
+	    <label class="labelcentered"><spring:message code="member.personal.qualificationDetail" text="Details"/></label>
 		<textarea name="qualificationDetail${count}" id="qualificationDetail${count}" class="sTextarea">${outer.details}</textarea>
 	</p>	
 	<input type='button' class='button' id='${count}' value='<spring:message code="member.personal.deleteQualification" text="Delete Qualification"></spring:message>' onclick='deleteQualification(${count});'/>

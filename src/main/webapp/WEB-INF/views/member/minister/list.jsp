@@ -9,32 +9,32 @@
 			$('#gridURLParams').val("member="+$('#key').val());		
 			$('#editDeleteLinks').show();		
 			$('#new_record').click(function(){
-				newRecord($('#key').val());
+				newMinisterRecord($('#key').val());
 				$('#editDeleteLinks').hide();						
 			});
 			$('#edit_record').click(function(){
-				editRecord($('#internalKey').val(),$('#key').val());
+				editMinisterRecord($('#internalKey').val(),$('#key').val());
 			});
 			$("#delete_record").click(function() {
-				deleteRecord($('#internalKey').val());
+				deleteMinisterRecord($('#internalKey').val());
 			});
 			$("#list_record").click(function() {
-				listRecord($('#internalKey').val());
+				listMinisterRecord($('#internalKey').val());
 			});
 			$("#search").click(function() {
 				searchRecord();
 			});
 		});
-		function listRecord(){
+		function listMinisterRecord(){
 			showTabByIdAndUrl('minister_tab','member/minister/list');	
 		}
-		function newRecord(member){
+		function newMinisterRecord(member){
 			$.get('member/minister/new?member='+member, function(data){					
 				$('#grid_container').html(data);
 				$('#list_record').show();					
 			});
 		}
-		function editRecord(row,member) {			
+		function editMinisterRecord(row,member) {			
 			if(row==""){
 				$.prompt($('#selectRowFirstMessage').val());
 				return false;
@@ -56,7 +56,7 @@
 				$('#internalKey').val(rowid);
 			}						
 		}
-		function deleteRecord(row) {
+		function deleteMinisterRecord(row) {
 			var member=$('#key').val();
 			if(row ==""){
 				$.prompt($('#selectRowFirstMessage').val());		
@@ -67,7 +67,7 @@
 					buttons: {Ok:true, Cancel:false}, callback: function(v){
 			        if(v){
 				        $.delete_('member/minister/'+row+'/delete?member='+member, null, function(data, textStatus, XMLHttpRequest) {
-				        	listRecord();
+				        	listMinisterRecord();
 				        });
 			        }
 				}});
