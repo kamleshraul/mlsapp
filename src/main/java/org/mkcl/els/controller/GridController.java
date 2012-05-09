@@ -94,7 +94,6 @@ public class GridController extends GenericController<Grid> {
                  @RequestParam(value = "searchField", required = false) final String searchField,
                  @RequestParam(value = "searchString", required = false) final String searchString,
                  @RequestParam(value = "searchOper", required = false) final String searchOper,
-                 //@RequestParam(value = "filters", required = false) final String filtersData,
                  @RequestParam(value = "baseFilters", required = false) final String baseFilters,
                  final ModelMap model,
                  final HttpServletRequest request,
