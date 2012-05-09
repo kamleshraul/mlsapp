@@ -46,7 +46,7 @@
 			<form:errors path="version" cssClass="validationError" />
 			<p>
 				<label class="small"><spring:message
-						code="district.state" text="State" />&nbsp;*</label> <select
+						code="district.state" text="State" />&nbsp;*</label> <select class="sSelect"
 					name="state" id="states">
 					<c:forEach items="${states}" var="i">
 						<option value="${i.id}">
@@ -66,14 +66,14 @@
 			<p>
 				<label class="small"><spring:message
 						code="district.name" text="Name" />&nbsp;*</label>
-				<form:input cssClass="sSelect" path="name" size="50" />
+				<form:input cssClass="sText" path="name" size="50" />
 				<form:errors path="name" cssClass="validationError" />
 			</p>
 			<p>
 				<label class="small"><spring:message
 						code="district.totalConstituencies"
 						text="No. of Constituencies" /></label>
-				<form:input cssClass="sSelect" path="totalConstituencies" />
+				<form:input cssClass="sText" path="totalConstituencies" />
 				<form:errors path="totalConstituencies" cssClass="validationError" />
 			</p>
 			<div class="fields">

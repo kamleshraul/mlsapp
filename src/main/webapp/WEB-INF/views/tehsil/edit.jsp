@@ -13,17 +13,7 @@
 	</script>
 	<script type="text/javascript">
 	if($('#states').val()!=undefined){
-		$('#states').change(function(){
-			/* $.ajax({
-				url:'ref/'+$('#states').val()+'/districts',
-				datatype:'json',
-				success:function(data){
-					$('#districts option').remove();
-					for(var i=0;i<data.length;i++){
-						$('#districts').append("<option value='"+data[i].id+"'>"+data[i].name+"</option>");
-					}
-				}							
-			}); */
+		$('#states').change(function(){			
 			$.ajax({
 				url:'ref/state'+$('#states').val()+'/districts',
 				datatype:'json',
@@ -53,7 +43,7 @@
 	<form:errors path="version" cssClass="validationError"/>
 	<p>
 	<label class="small"><spring:message code="tehsil.state" text="State"/>&nbsp;*</label>
-			<select name="state" id="states">
+			<select class="sSelect" name="state" id="states">
 			<c:forEach items="${states}" var="i">
 			<option value="${i.id}"><c:out value="${i.name}"></c:out></option>
 			</c:forEach>
@@ -67,7 +57,7 @@
 	</p>
 	<p>
 	<label class="small"><spring:message code="tehsil.name" text="Name"/>&nbsp;*</label>
-			<form:input cssClass="sSelect" path="name" size="50"/>	
+			<form:input cssClass="sText" path="name" size="50"/>	
 			<form:errors path="name" cssClass="validationError"/>	
 	</p>
 	<div class="fields">

@@ -121,7 +121,7 @@
 					 	"<label class='small'><spring:message code='party.symbolChangeDate' text='Date of Change' />&nbsp;*</label>"+
 					 	"<input type='text' id='changeDate"+fileID+"' class='datemask sText' name='changeDate" + fileID +"' />"+									
 				 	 "</p>"+
-			  		 "<input type='button' class='button' id='symbol"+fileID+"_delete' value='"+$('#deleteSymbolMessage').val()+"' onclick='deleteSymbol("+fileID+");'>"+
+			  		 "<input type='button' class='butDef' id='symbol"+fileID+"_delete' value='"+$('#deleteSymbolMessage').val()+"' onclick='deleteSymbol("+fileID+");'>"+
 		 			 "</div>";			
 			$('#symbol' + fileID).html(text);
 			
@@ -152,7 +152,7 @@
 					 "<span id='file_symbol_progress' style='display: none;'>File uploading. Please wait...</span>" +
 					 "</span>" +				 
 			  		 "</p>"+		  		 
-			  		 "<input type='button' class='button' id='symbol"+fileID+"_delete' value='"+$('#deleteSymbolMessage').val()+"' onclick='deleteSymbol("+fileID+");'>"+
+			  		 "<input type='button' class='butDef' id='symbol"+fileID+"_delete' value='"+$('#deleteSymbolMessage').val()+"' onclick='deleteSymbol("+fileID+");'>"+
 		 			 "</div>";						
 					$('#symbol'+fileID).replaceWith(text);
 				});
@@ -317,7 +317,7 @@
 					<form:errors path="registeredOfficeAddress.city" cssClass="validationError" />
 				</p>
 				<p>
-					<label class="small"><spring:message
+					<label class="labelcentered"><spring:message
 							code="party.details" text="Details" /></label>
 					<form:textarea cssClass="wysiwyg sTextarea" path="registeredOfficeAddress.details"
 					rows="3" cols="20" />
@@ -361,7 +361,7 @@
 					<form:errors path="stateOfficeAddress.city" cssClass="validationError" />
 				</p>
 				<p>
-					<label class="small"><spring:message
+					<label class="labelcentered"><spring:message
 							code="party.details" text="Details" /></label>
 					<form:textarea cssClass="wysiwyg sTextarea" path="stateOfficeAddress.details"
 					rows="3" cols="20" />					

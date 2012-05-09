@@ -39,7 +39,7 @@
 	<form:errors path="version" cssClass="validationError"/>		 
 		<p>
 			<label class="small"><spring:message code="railwaystation.state" text="State"/>&nbsp;*</label>
-			<select name="state" id="states">
+			<select class="sSelect" name="state" id="states">
 			<c:forEach items="${states}" var="i">
 			<option value="${i.id}"><c:out value="${i.name}"></c:out></option>
 			</c:forEach>
@@ -52,7 +52,7 @@
 		</p>		
 		<p> 
 			<label class="small"><spring:message code="railwaystation.name" text="Name"/></label>
-			<form:input cssClass="sSelect" path="name"/>
+			<form:input cssClass="sText" path="name"/>
 			<form:errors path="name" cssClass="validationError" />	
 		</p>				
 		<div class="fields">

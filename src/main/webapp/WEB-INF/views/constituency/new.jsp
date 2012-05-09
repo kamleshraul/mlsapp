@@ -230,7 +230,7 @@
 						<label class="small"><spring:message
 								code="constituency.houseType"
 								text="House Type" /></label>
-						<select id="houseTypes" name="housetype">
+						<select id="houseTypes" name="housetype" class="sSelect">
 						<c:forEach items="${houseTypes }" var="htype">
 						<c:choose>
 						<c:when test="${houseType==htype.type }">
@@ -246,7 +246,7 @@
 			
 					<p class="hiddenAssemblyFields">
 						<label class="small"><spring:message
-								code="constituency.state" text="State" /></label> <select name="state"
+								code="constituency.state" text="State" /></label> <select class="sSelect" name="state"
 							id="states">
 							<c:forEach items="${states}" var="i">
 								<option value="${i.id}">
@@ -257,7 +257,7 @@
 					</p>
 					<p class="hiddenAssemblyFields">
 						<label class="small"><spring:message
-								code="constituency.division" text="Division" /></label> <select
+								code="constituency.division" text="Division" /></label> <select class="sSelect"
 							name="division" id="divisions">
 							<c:forEach items="${divisions}" var="i">
 								<option value="${i.id}">
@@ -269,7 +269,7 @@
 					<p class="hiddenAssemblyFields">
 						<label class="small"><spring:message
 								code="constituency.district" text="Districts" /></label>
-						<form:select path="districts" items="${districts}" itemValue="id"
+						<form:select cssClass="sSelectMultiple" path="districts" items="${districts}" itemValue="id"
 							itemLabel="name" multiple="multiple" id="districts"
 							onclick="clearRA()"></form:select>
 						<form:errors path="districts" cssClass="validationError" />
@@ -277,19 +277,19 @@
 					<p class="hiddenCommonFields">
 						<label class="small"><spring:message
 								code="constituency.name" text="Name" /></label>
-						<form:input cssClass="sSelect" path="name" id="constituencyName" />
+						<form:input cssClass="sText" path="name" id="constituencyName" />
 						<form:errors path="name" cssClass="validationError" />
 					</p>
 					<p class="hiddenAssemblyFields">
 						<label class="small"><spring:message
 								code="constituency.number" text="Number" /></label>
-						<form:input cssClass="sSelect" path="number" id="number"/>
+						<form:input cssClass="sText" path="number" id="number"/>
 						<form:errors path="number" cssClass="validationError" />
 					</p>
 					<p class="hiddenAssemblyFields">
 						<label class="small"><spring:message
 								code="constituency.voters" text="Voters" /></label>
-						<form:input cssClass="sSelect" path="voters" id="voters"/>
+						<form:input cssClass="sText" path="voters" id="voters"/>
 						<form:errors path="voters" cssClass="validationError" />
 					</p>
 					<p class="hiddenAssemblyFields">
@@ -301,14 +301,14 @@
 					<p class="hiddenAssemblyFields">
 						<label class="small" id="rLabel"><spring:message
 								code="constituency.reservedFor" text="Reserved for" /></label>
-						<form:select cssClass="sOption" path="reservedFor" items="${reservations}" itemValue="id" itemLabel="name" id="reservedFor"></form:select>
+						<form:select cssClass="sSelect" path="reservedFor" items="${reservations}" itemValue="id" itemLabel="name" id="reservedFor"></form:select>
 						<form:errors path="reservedFor" cssClass="validationError" />
 					</p>					
 					<p class="hiddenAssemblyFields">
 						<label class="small"><spring:message
 								code="constituency.railwayStation"
 								text="Nearest Railway Station" /></label>
-						<form:select path="nearestRailwayStation"
+						<form:select cssClass="sSelect" path="nearestRailwayStation"
 							items="${railwayStations}" itemValue="id" itemLabel="name"
 							id="nearestRailwayStation" size="1"></form:select>
 						<form:errors path="nearestRailwayStation"
@@ -320,7 +320,7 @@
 					<p class="hiddenAssemblyFields">
 						<label class="small"><spring:message
 								code="constituency.airport" text="Nearest Airport" /></label>
-						<form:select path="nearestAirport" items="${airports}"
+						<form:select cssClass="sSelect" path="nearestAirport" items="${airports}"
 							itemValue="id" itemLabel="name" id="nearestAirport" size="1"></form:select>
 						<form:errors path="nearestAirport" cssClass="validationError" />
 						<input type="button" class="small"
@@ -330,7 +330,7 @@
 					<p class="hiddenAssemblyFields">
 						<label class="small"><spring:message
 								code="constituency.retired" text="Retired?" /></label>
-						<form:checkbox cssClass="sSelect" path="isRetired" id="isRetired"/>
+						<form:checkbox cssClass="sCheck" path="isRetired" id="isRetired"/>
 						<form:errors path="isRetired" cssClass="validationError" />
 					</p>					
 				<%-- </c:when>
