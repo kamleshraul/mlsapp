@@ -152,7 +152,7 @@ function loadGrid(gridId, baseFilter) {
 };
 
 function searchRecord(){
-	$("#grid").jqGrid('searchGrid', {multipleSearch:true,modal:true});
+	$("#grid").jqGrid('searchGrid', {multipleSearch:true,modal:true,overlay:false});
 }	
 
 function scrollTop(){
