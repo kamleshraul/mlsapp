@@ -21,6 +21,9 @@
 			$("#list_record").click(function() {
 				listElectionRecord($('#internalKey').val());
 			});
+			$("#search").click(function() {
+				searchRecord();
+			});
 		});
 		function listElectionRecord(){
 			showTabByIdAndUrl('election_tab','member/election/list');	
@@ -88,7 +91,10 @@
 			</a></span> |
 			<a href="#" id="list_record" class="butSim">
 				<spring:message code="generic.list" text="List"/>
-			</a>
+			</a> 
+			<a href="#" id="search" class="butSim">
+				<spring:message code="generic.search" text="Search"/>
+			</a> 
 			
 			<p>&nbsp;</p>
 		</div>
