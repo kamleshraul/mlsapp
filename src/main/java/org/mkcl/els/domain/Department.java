@@ -10,6 +10,7 @@
 package org.mkcl.els.domain;
 
 import java.io.Serializable;
+import java.util.List;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -18,6 +19,8 @@ import javax.persistence.Table;
 
 import org.codehaus.jackson.annotate.JsonIgnoreProperties;
 import org.hibernate.validator.constraints.NotEmpty;
+import org.mkcl.els.repository.DepartmentRepository;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Configurable;
 
 /**
@@ -46,6 +49,9 @@ public class Department extends BaseDomain implements Serializable {
     @ManyToOne
 	private Department parentId;
 
+    @Autowired
+    private transient DepartmentRepository departmentRepository;
+
 
 	// ---------------------------------Constructors----------------------------------------------
 	/**
@@ -66,6 +72,15 @@ public class Department extends BaseDomain implements Serializable {
 		this.name = name;
 		this.parentId = parentId;
 	}
+
+	public static DepartmentRepository getDepartmentRepository() {
+	    DepartmentRepository departmentRepository = new Department().departmentRepository;
+        if (departmentRepository == null) {
+            throw new IllegalStateException(
+                    "DepartmentRepository has not been injected in Department Domain");
+        }
+        return departmentRepository;
+    }
 	// ---------------------------------Getters and Setters----------------------------------------------
 	/**
 	 * Gets the name.
@@ -102,5 +117,11 @@ public class Department extends BaseDomain implements Serializable {
 	public void setParentId(final Department parentId) {
 		this.parentId = parentId;
 	}
+
+    public static List<Department> findAllSubDepartments(
+            final String sortBy, final String sortOrder, final String locale) {
+        return getDepartmentRepository().findAllSubDepartments(
+               sortBy,sortOrder, locale);
+    }
 
 }
