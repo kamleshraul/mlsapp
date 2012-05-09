@@ -87,13 +87,14 @@
 			</a> |
 			<a href="#" id="delete_record" class="butSim">
 				<spring:message code="generic.delete" text="Delete"/>
-			</a></span> |
-			<a href="#" id="list_record" class="butSim">
-				<spring:message code="generic.list" text="List"/>
-			</a> 
+			</a> |
 			<a href="#" id="search" class="butSim">
 				<spring:message code="generic.search" text="Search"/>
-			</a> 			
+			</a> 
+			</span> | 
+			<a href="#" id="list_record" class="butSim">
+				<spring:message code="generic.list" text="List"/>
+			</a>			
 			<p>&nbsp;</p>
 		</div>
 	</div>
