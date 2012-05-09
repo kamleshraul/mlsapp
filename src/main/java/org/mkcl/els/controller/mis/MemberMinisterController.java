@@ -160,7 +160,7 @@ public class MemberMinisterController extends GenericController<MemberMinister> 
 		List<Designation> designations =
 			Designation.findAll(Designation.class, "name", ApplicationConstants.ASC, locale);
 		List<Department> departments =
-			Department.findAll(Department.class, "name", ApplicationConstants.ASC, locale);
+			Department.findAllSubDepartments("name", ApplicationConstants.ASC, locale);
 		model.addAttribute("member", member);
 		model.addAttribute("designations", designations);
 		model.addAttribute("departments", departments);
