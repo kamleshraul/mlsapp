@@ -123,6 +123,11 @@
 		<label class="small"><spring:message code="member.other.literaryArtisticScientificAccomplishments" text="Literary,Artistic and Scientific Accomplishments"/></label>
 		<form:textarea path="literaryArtisticScientificAccomplishments" cssClass="sTextarea" cols="50" rows="5"></form:textarea>
 		<form:errors path="literaryArtisticScientificAccomplishments" cssClass="validationError"/>	
+	</p>
+	<p>
+		<label class="small"><spring:message code="member.other.publications" text="Publications"/></label>
+		<form:textarea path="publications" cssClass="sTextarea" cols="50" rows="5"></form:textarea>
+		<form:errors path="publications" cssClass="validationError"/>	
 	</p>	 
 	<p>
 		<label class="small"><spring:message code="member.other.hobbySpecialInterests" text="Hobby and Special Interests"/></label>
