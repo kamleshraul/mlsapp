@@ -234,23 +234,6 @@
 		<form:select path="professions" items="${professions}" itemValue="id" itemLabel="name"  multiple="true" size="5" cssClass="sSelect" cssStyle="height:100px;margin-top:5px;"/>
 		<form:errors path="professions" cssClass="validationError"/>
 	</p>	
-	<p>
-		<label class="small"><spring:message code="member.personal.paName" text="Personal Assistants Name"/></label>
-		<form:input path="paName" cssClass="sText"/>
-		<form:errors path="paName" cssClass="validationError"/>	
-	</p>
-	
-	<p>
-		<label class="small"><spring:message code="member.personal.paContactNo" text="Personal Assistants Contact Nos"/></label>
-		<form:input path="paContactNo" cssClass="sText"/>
-		<form:errors path="paContactNo" cssClass="validationError"/>	
-	</p>
-	
-	<p>
-		<label class="labelcentered"><spring:message code="member.personal.paAddress" text="Personal Assistants Address"/></label>
-		<form:textarea cssClass="wysiwyg sTextarea" path="paAddress"/>
-		<form:errors path="paAddress" cssClass="validationError"/>	
-	</p>
 	<div>
 	<input type="button" class="button" id="addFamily" value="<spring:message code='member.personal.addFamily' text='Add Family Members'></spring:message>">
 	<input type="hidden" id="familyCount" name="familyCount" value="${familyCount}"/>
@@ -345,6 +328,40 @@
 	</c:forEach>
 	</c:if>
 	</div>	
+	
+	<p>
+	    <label class="small"><spring:message code="member.personal.deathDate" text="Death Date"/></label>
+		<form:input path="deathDate" cssClass="datemask sText"/>
+		<form:errors path="deathDate" cssClass="validationError"/>	
+	</p>	
+	<p>
+		<label class="small"><spring:message code="member.personal.condolenceDate" text="Condolence Date"/></label>
+		<form:input path="condolenceDate" cssClass="datemask sText"/>
+		<form:errors path="condolenceDate" cssClass="validationError"/>	
+	</p>	
+	<p>
+		<label class="labelcentered"><spring:message code="member.personal.obituary" text="Obituary"/></label>
+		<form:textarea path="obituary" cssClass="sTextarea"></form:textarea>
+		<form:errors path="obituary" cssClass="validationError"/>	
+	</p>
+	
+	<p>
+		<label class="small"><spring:message code="member.personal.paName" text="Personal Assistants Name"/></label>
+		<form:input path="paName" cssClass="sText"/>
+		<form:errors path="paName" cssClass="validationError"/>	
+	</p>
+	
+	<p>
+		<label class="small"><spring:message code="member.personal.paContactNo" text="Personal Assistants Contact Nos"/></label>
+		<form:input path="paContactNo" cssClass="sText"/>
+		<form:errors path="paContactNo" cssClass="validationError"/>	
+	</p>
+	
+	<p>
+		<label class="labelcentered"><spring:message code="member.personal.paAddress" text="Personal Assistants Address"/></label>
+		<form:textarea cssClass="sTextarea" path="paAddress"/>
+		<form:errors path="paAddress" cssClass="validationError"/>	
+	</p>
 	
 	 <div class="fields">
 		<h2></h2>
