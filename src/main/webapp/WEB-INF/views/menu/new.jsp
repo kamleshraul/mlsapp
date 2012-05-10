@@ -21,27 +21,27 @@
 	<form:errors path="version" cssClass="validationError"/>	
 	<p>
 	<label class="small"><spring:message code="menu.parent" text="Parent Menu"/></label>
-				<form:input cssClass="sSelect" path="parent.text" readonly="true" /><form:errors path="parent.text" cssClass="validationError" />
+				<form:input cssClass="sText" path="parent.text" readonly="true" /><form:errors path="parent.text" cssClass="validationError" />
 				<form:hidden path="parent.id"/>	
 				<form:hidden path="parent.version"/>
 				<form:hidden path="parent.locale"/>
 	</p>		
 	<p>
 		<label class="small"><spring:message code="menu.textkey" text="Text Key"/>&nbsp;*</label>
-			<form:input cssClass="sSelect" path="textKey"/>
+			<form:input cssClass="sText" path="textKey"/>
 			<form:errors path="textKey" cssClass="validationError" />	
 	</p>
 	<p>
 		<label class="small"><spring:message code="menu.text" text="Text"/>&nbsp;*</label>
-			<form:input cssClass="sSelect" path="text"/><form:errors path="text" cssClass="validationError" />
+			<form:input cssClass="sText" path="text"/><form:errors path="text" cssClass="validationError" />
 	</p>
 	<p>
 		<label class="small"><spring:message code="menu.position" text="Position"/>&nbsp;*</label>
-			<form:input cssClass="integer sSelect" path="position"/><form:errors path="position" cssClass="validationError" />	
+			<form:input cssClass="integer sText" path="position"/><form:errors path="position" cssClass="validationError" />	
 	</p>
 	<p>
 		<label class="small"><spring:message code="menu.url" text="Url"/>&nbsp;*</label>
-			<form:input cssClass="sSelect" path="url"/><form:errors path="url" cssClass="validationError" />	
+			<form:input cssClass="sText" path="url"/><form:errors path="url" cssClass="validationError" />	
 	</p>
 	
 	<div class="fields" >
