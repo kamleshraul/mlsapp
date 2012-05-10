@@ -43,6 +43,7 @@ import org.mkcl.els.repository.MemberRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Configurable;
 
+
 /**
  * The Class Member.
  *
@@ -289,6 +290,22 @@ import org.springframework.beans.factory.annotation.Configurable;
     //this will denote the publication status of a member record.
     @Column(length=100)
     private String status;
+
+    // ----------------------------------Member_Death_Informations----------------------------------
+
+    /** The death date. */
+    @Temporal(TemporalType.DATE)
+    private Date deathDate;
+
+    /** The condolence date. */
+    @Temporal(TemporalType.DATE)
+    private Date condolenceDate;
+
+    /** The obituary. */
+    @Column(length=30000)
+    private String obituary;
+    // ----------------------------------------------------------------------------------------
+
 
     /** The member repository. */
     @Autowired
@@ -1269,6 +1286,60 @@ import org.springframework.beans.factory.annotation.Configurable;
      */
     public void setPublications(final String publications) {
         this.publications = publications;
+    }
+
+    /**
+     * Gets the death date.
+     *
+     * @return the death date
+     */
+    public Date getDeathDate() {
+        return deathDate;
+    }
+
+    /**
+     * Sets the death date.
+     *
+     * @param deathDate the new death date
+     */
+    public void setDeathDate(final Date deathDate) {
+        this.deathDate = deathDate;
+    }
+
+    /**
+     * Gets the condolence date.
+     *
+     * @return the condolence date
+     */
+    public Date getCondolenceDate() {
+        return condolenceDate;
+    }
+
+    /**
+     * Sets the condolence date.
+     *
+     * @param condolenceDate the new condolence date
+     */
+    public void setCondolenceDate(final Date condolenceDate) {
+        this.condolenceDate = condolenceDate;
+    }
+
+    /**
+     * Gets the obituary.
+     *
+     * @return the obituary
+     */
+    public String getObituary() {
+        return obituary;
+    }
+
+    /**
+     * Sets the obituary.
+     *
+     * @param obituary the new obituary
+     */
+    public void setObituary(final String obituary) {
+        this.obituary = obituary;
     }
 
 }
