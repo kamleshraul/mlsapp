@@ -1,17 +1,33 @@
+/**
+ * See the file LICENSE for redistribution information.
+ *
+ * Copyright (c) 2012 MKCL.  All rights reserved.
+ *
+ * Project: e-Legislature
+ * File: org.mkcl.els.DegreeTest.java
+ * Created On: May 11, 2012
+ */
 package org.mkcl.els;
 
 import static org.junit.Assert.*;
-
 import java.util.List;
-
 import junit.framework.Assert;
-
 import org.junit.Test;
 import org.mkcl.els.domain.Degree;
 import org.springframework.transaction.annotation.Transactional;
 
+// TODO: Auto-generated Javadoc
+/**
+ * The Class DegreeTest.
+ *
+ * @author Anand
+ * @since v1.0.0
+ */
 public class DegreeTest extends AbstractTest{
 
+	/**
+	 * Test persist.
+	 */
 	@Test
 	@Transactional
 	public void testPersist() {
@@ -20,6 +36,9 @@ public class DegreeTest extends AbstractTest{
 		Assert.assertNotNull("Saved Degree Data ", degree);
 	}
 
+	/**
+	 * Test merge.
+	 */
 	@Test
 	@Transactional
 	public void testMerge() {
@@ -31,6 +50,9 @@ public class DegreeTest extends AbstractTest{
 
 	}
 
+	/**
+	 * Test remove.
+	 */
 	@Test
 	@Transactional
 	public void testRemove() {
@@ -41,6 +63,9 @@ public class DegreeTest extends AbstractTest{
 
 	}
 
+	/**
+	 * Test find by id.
+	 */
 	@Test
 	@Transactional
 	public void testFindById() {
@@ -52,6 +77,9 @@ public class DegreeTest extends AbstractTest{
 				
 	}
 
+	/**
+	 * Test find by field name.
+	 */
 	@Test
 	@Transactional
 	public void testFindByFieldName() {
@@ -62,6 +90,9 @@ public class DegreeTest extends AbstractTest{
 
 	}
 
+	/**
+	 * Test find all.
+	 */
 	@Test
 	@Transactional
 	public void testFindAll() {
