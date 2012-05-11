@@ -1003,6 +1003,11 @@
 	
 	.sTextarea{
 		width:auto;
+		/*Added by amitd and sandeeps
+		added below styles to match the width of textarea with that of textbox*/
+		min-width:180px;
+		border-width:1px;
+		padding:3px;
 	}
 
 	.tleft 			{ text-align:left;}
