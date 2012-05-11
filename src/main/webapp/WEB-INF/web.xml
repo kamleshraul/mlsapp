@@ -9,7 +9,7 @@
 	<env-entry>
 		<env-entry-name>spring.profiles.active</env-entry-name>
 		<env-entry-type>java.lang.String</env-entry-type>
-		<env-entry-value>dev</env-entry-value>
+		<env-entry-value>prod</env-entry-value>
 	</env-entry>
 	<context-param>
 		<param-name>contextConfigLocation</param-name>
