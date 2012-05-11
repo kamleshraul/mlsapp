@@ -11,6 +11,7 @@ package org.mkcl.els.common.vo;
 
 import java.util.List;
 
+
 /**
  * The Class MemberPartyDistrictWiseVO.
  *
@@ -131,4 +132,5 @@ public class MemberPartyDistrictWiseVO {
     public void setDistrictsWiseCount(final List<Reference> districtsWiseCount) {
         this.districtsWiseCount = districtsWiseCount;
     }
+
 }

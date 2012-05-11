@@ -68,6 +68,15 @@ public class MemberBiographyVO {
     /** The birth date. */
     private String placeOfBirth;
 
+    /** The death date. */
+    private String deathDate;
+
+    /** The condolence date. */
+    private String condolenceDate;
+
+    /** The obituary. */
+    private String obituary;
+
     /** The marital status. */
     private String maritalStatus;
 
@@ -982,6 +991,60 @@ public class MemberBiographyVO {
      */
     public void setPublications(final String publications) {
         this.publications = publications;
+    }
+
+    /**
+     * Gets the death date.
+     *
+     * @return the death date
+     */
+    public String getDeathDate() {
+        return deathDate;
+    }
+
+    /**
+     * Sets the death date.
+     *
+     * @param deathDate the new death date
+     */
+    public void setDeathDate(final String deathDate) {
+        this.deathDate = deathDate;
+    }
+
+    /**
+     * Gets the condolence date.
+     *
+     * @return the condolence date
+     */
+    public String getCondolenceDate() {
+        return condolenceDate;
+    }
+
+    /**
+     * Sets the condolence date.
+     *
+     * @param condolenceDate the new condolence date
+     */
+    public void setCondolenceDate(final String condolenceDate) {
+        this.condolenceDate = condolenceDate;
+    }
+
+    /**
+     * Gets the obituary.
+     *
+     * @return the obituary
+     */
+    public String getObituary() {
+        return obituary;
+    }
+
+    /**
+     * Sets the obituary.
+     *
+     * @param obituary the new obituary
+     */
+    public void setObituary(final String obituary) {
+        this.obituary = obituary;
     }
 
 }
