@@ -134,9 +134,20 @@ public class MemberRepository extends BaseRepository<Member, Long>{
                 }else {
                     if(i.getElectionResults().get(0).getConstituency()!=null){
                         if(criteria1.equals("constituency")){
-                            memberInfo.setConstituency(i.getElectionResults().get(0).getConstituency().getName().trim()+"-"+i.getElectionResults().get(0).getConstituency().getNumber()+", "+i.getElectionResults().get(0).getConstituency().getDistricts().get(0).getName());
+                            //here we need to also take into account those constituencies which are nominated ones and
+                            //donot have any number.here we are assuming that for nominated members constituency
+                            //will have a name but no number and districts
+                            if(i.getElectionResults().get(0).getConstituency().getNumber()!=null){
+                                memberInfo.setConstituency(i.getElectionResults().get(0).getConstituency().getName().trim()+"-"+i.getElectionResults().get(0).getConstituency().getNumber()+", "+i.getElectionResults().get(0).getConstituency().getDistricts().get(0).getName());
+                            }else{
+                                memberInfo.setConstituency(i.getElectionResults().get(0).getConstituency().getName().trim());
+                            }
                         }else{
+                            if(i.getElectionResults().get(0).getConstituency().getNumber()!=null){
                             memberInfo.setConstituency(i.getElectionResults().get(0).getConstituency().getNumber()+"-"+i.getElectionResults().get(0).getConstituency().getName().trim()+", "+i.getElectionResults().get(0).getConstituency().getDistricts().get(0).getName());
+                            }else{
+                                memberInfo.setConstituency(i.getElectionResults().get(0).getConstituency().getName().trim());
+                            }
                         }
                     }else{
                         memberInfo.setConstituency("-");
@@ -266,6 +277,23 @@ public class MemberRepository extends BaseRepository<Member, Long>{
             memberBiographyVO.setBirthDate(dateFormat.format(m.getBirthDate()));
         }
         memberBiographyVO.setPlaceOfBirth(m.getBirthPlace().trim());
+
+        //death date,condolence date and obituary
+        if(m.getDeathDate()==null){
+            memberBiographyVO.setDeathDate("-");
+        }else{
+            memberBiographyVO.setDeathDate(dateFormat.format(m.getDeathDate()));
+        }
+        if(m.getCondolenceDate()==null){
+            memberBiographyVO.setCondolenceDate("-");
+        }else{
+            memberBiographyVO.setCondolenceDate(dateFormat.format(m.getCondolenceDate()));
+        }
+        if(m.getObituary()==null){
+            memberBiographyVO.setObituary("-");
+        }else{
+            memberBiographyVO.setObituary(m.getObituary().trim());
+        }
         //marital status and marriage date
         if(m.getMaritalStatus()==null){
             memberBiographyVO.setMaritalStatus("-");
@@ -807,17 +835,51 @@ public class MemberRepository extends BaseRepository<Member, Long>{
         for(Object i:results){
             Object[] o=(Object[]) i;
             MemberGeneralVO memberGeneralVO=new MemberGeneralVO();
-            memberGeneralVO.setFullName(o[0].toString()+", "+o[1].toString()+" "+o[2].toString()+" "+o[3].toString());
-            memberGeneralVO.setConstituencyNo(formatWithoutGrouping.format(Long.parseLong(o[4].toString().trim())));
-            memberGeneralVO.setConstituencyName(o[5].toString().trim());
-            memberGeneralVO.setConstituencyDistrict(o[6].toString().trim());
-            memberGeneralVO.setConstituencyReservation(o[7].toString().trim());
-            memberGeneralVO.setPartyName(o[8].toString().trim());
+            StringBuffer fullName = new StringBuffer();
+            if(o[0] != null){
+                fullName.append(o[0].toString()+", ");
+            }
+            if(o[1] != null){
+                fullName.append(o[1].toString()+" ");
+            }
+            if(o[2] != null){
+                fullName.append(o[2].toString()+" ");
+            }
+            if(o[3] != null){
+                fullName.append(o[3].toString());
+            }
+            memberGeneralVO.setFullName(fullName.toString());
+            if(o[4] != null){
+                memberGeneralVO.setConstituencyNo(formatWithoutGrouping.format(Long.parseLong(o[4].toString().trim())));
+            }else{
+                memberGeneralVO.setConstituencyNo("-");
+            }
+            if(o[5] != null){
+                memberGeneralVO.setConstituencyName(o[5].toString().trim());
+            }else{
+                memberGeneralVO.setConstituencyName("-");
+            }
+            if(o[6] != null){
+                memberGeneralVO.setConstituencyDistrict(o[6].toString().trim());
+            }else{
+                memberGeneralVO.setConstituencyDistrict("-");
+            }
+            if(o[7] != null){
+                memberGeneralVO.setConstituencyReservation(o[7].toString().trim());
+            }else{
+                memberGeneralVO.setConstituencyReservation("-");
+            }
+            if(o[8] != null){
+                memberGeneralVO.setPartyName(o[8].toString().trim());
+            }else{
+                memberGeneralVO.setPartyName("-");
+            }
             memberGeneralVOs.add(memberGeneralVO);
         }
         return memberGeneralVOs;
     }
 
+    @SuppressWarnings("rawtypes")
     public List<MemberGeneralVO> findMembersByLastName(final String locale) {
         NumberFormat formatWithoutGrouping=FormaterUtil.getNumberFormatterNoGrouping(locale);
         Query query=Query.findByFieldName(Query.class, "keyField", "MIS_REPORT_MEMBERS_LIST_LASTNAME_WISE", locale);
@@ -826,12 +888,45 @@ public class MemberRepository extends BaseRepository<Member, Long>{
         for(Object i:results){
             Object[] o=(Object[]) i;
             MemberGeneralVO memberGeneralVO=new MemberGeneralVO();
-            memberGeneralVO.setFullName(o[0].toString()+", "+o[1].toString()+" "+o[2].toString()+" "+o[3].toString());
-            memberGeneralVO.setConstituencyNo(formatWithoutGrouping.format(Long.parseLong(o[4].toString().trim())));
-            memberGeneralVO.setConstituencyName(o[5].toString().trim());
-            memberGeneralVO.setConstituencyDistrict(o[6].toString().trim());
-            memberGeneralVO.setConstituencyReservation(o[7].toString().trim());
-            memberGeneralVO.setPartyName(o[8].toString().trim());
+            StringBuffer fullName = new StringBuffer();
+            if(o[0] != null){
+                fullName.append(o[0].toString()+", ");
+            }
+            if(o[1] != null){
+                fullName.append(o[1].toString()+" ");
+            }
+            if(o[2] != null){
+                fullName.append(o[2].toString()+" ");
+            }
+            if(o[3] != null){
+                fullName.append(o[3].toString());
+            }
+            memberGeneralVO.setFullName(fullName.toString());
+            if(o[4] != null){
+                memberGeneralVO.setConstituencyNo(formatWithoutGrouping.format(Long.parseLong(o[4].toString().trim())));
+            }else{
+                memberGeneralVO.setConstituencyNo("-");
+            }
+            if(o[5] != null){
+                memberGeneralVO.setConstituencyName(o[5].toString().trim());
+            }else{
+                memberGeneralVO.setConstituencyName("-");
+            }
+            if(o[6] != null){
+                memberGeneralVO.setConstituencyDistrict(o[6].toString().trim());
+            }else{
+                memberGeneralVO.setConstituencyDistrict("-");
+            }
+            if(o[7] != null){
+                memberGeneralVO.setConstituencyReservation(o[7].toString().trim());
+            }else{
+                memberGeneralVO.setConstituencyReservation("-");
+            }
+            if(o[8] != null){
+                memberGeneralVO.setPartyName(o[8].toString().trim());
+            }else{
+                memberGeneralVO.setPartyName("-");
+            }
             memberGeneralVOs.add(memberGeneralVO);
         }
         return memberGeneralVOs;
@@ -845,12 +940,45 @@ public class MemberRepository extends BaseRepository<Member, Long>{
         for(Object i:results){
             Object[] o=(Object[]) i;
             MemberGeneralVO memberGeneralVO=new MemberGeneralVO();
-            memberGeneralVO.setFullName(o[0].toString()+", "+o[1].toString()+" "+o[2].toString()+" "+o[3].toString());
-            memberGeneralVO.setConstituencyNo(formatWithoutGrouping.format(Long.parseLong(o[4].toString().trim())));
-            memberGeneralVO.setConstituencyName(o[5].toString().trim());
-            memberGeneralVO.setConstituencyDistrict(o[6].toString().trim());
-            memberGeneralVO.setConstituencyReservation(o[7].toString().trim());
-            memberGeneralVO.setPartyName(o[8].toString().trim());
+            StringBuffer fullName = new StringBuffer();
+            if(o[0] != null){
+                fullName.append(o[0].toString()+", ");
+            }
+            if(o[1] != null){
+                fullName.append(o[1].toString()+" ");
+            }
+            if(o[2] != null){
+                fullName.append(o[2].toString()+" ");
+            }
+            if(o[3] != null){
+                fullName.append(o[3].toString());
+            }
+            memberGeneralVO.setFullName(fullName.toString());
+            if(o[4] != null){
+                memberGeneralVO.setConstituencyNo(formatWithoutGrouping.format(Long.parseLong(o[4].toString().trim())));
+            }else{
+                memberGeneralVO.setConstituencyNo("-");
+            }
+            if(o[5] != null){
+                memberGeneralVO.setConstituencyName(o[5].toString().trim());
+            }else{
+                memberGeneralVO.setConstituencyName("-");
+            }
+            if(o[6] != null){
+                memberGeneralVO.setConstituencyDistrict(o[6].toString().trim());
+            }else{
+                memberGeneralVO.setConstituencyDistrict("-");
+            }
+            if(o[7] != null){
+                memberGeneralVO.setConstituencyReservation(o[7].toString().trim());
+            }else{
+                memberGeneralVO.setConstituencyReservation("-");
+            }
+            if(o[8] != null){
+                memberGeneralVO.setPartyName(o[8].toString().trim());
+            }else{
+                memberGeneralVO.setPartyName("-");
+            }
             memberGeneralVOs.add(memberGeneralVO);
         }
         return memberGeneralVOs;

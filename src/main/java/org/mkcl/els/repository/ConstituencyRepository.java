@@ -55,28 +55,40 @@ public class ConstituencyRepository extends BaseRepository<Constituency, Long>{
 		 *************************************************************************************************/
 		String query=null;
 		if(houseType.equals(ApplicationConstants.BOTH_HOUSE)){
-			query="SELECT distinct(c.name),c.number,c.id FROM constituencies AS c "+
+			query="(SELECT distinct(c.name),c.number,c.id FROM constituencies AS c "+
 			  " WHERE c.id IN("+
 			  "SELECT constituency_id FROM constituencies_districts AS a WHERE district_id IN("+
 				"SELECT d.id FROM districts AS d JOIN divisions AS di JOIN states AS s "+
-				"WHERE s.locale='"+locale+"' AND s.name='"+defaultState+"' AND d.division_id=di.id AND di.state_id=s.id))"+
-				" ORDER BY c.name";
+				"WHERE s.locale='"+locale+"' AND s.name='"+defaultState+"' AND d.division_id=di.id AND di.state_id=s.id)) ORDER BY c.name)"+
+				" UNION " +
+				"(SELECT distinct(c.name),c.number,c.id FROM constituencies AS c " +
+				" WHERE c.id NOT IN (SELECT constituency_id FROM constituencies_districts ORDER BY c.name))";
 		}else{
-			query="SELECT distinct(c.name),c.number,c.id FROM constituencies AS c JOIN housetypes "+
+			query="(SELECT distinct(c.name),c.number,c.id FROM constituencies AS c JOIN housetypes "+
 			  "AS h WHERE h.type='"+houseType+"' AND c.id IN("+
 			  "SELECT constituency_id FROM constituencies_districts AS a WHERE district_id IN("+
 				"SELECT d.id FROM districts AS d JOIN divisions AS di JOIN states AS s "+
-				"WHERE s.locale='"+locale+"' AND s.name='"+defaultState+"' AND d.division_id=di.id AND di.state_id=s.id))"+
-				" ORDER BY c.name";
+				"WHERE s.locale='"+locale+"' AND s.name='"+defaultState+"' AND d.division_id=di.id AND di.state_id=s.id)) ORDER BY c.name)"+
+				" UNION " +
+                " (SELECT distinct(c.name),c.number,c.id FROM constituencies AS c JOIN housetypes as ht " +
+                " WHERE c.id NOT IN (SELECT constituency_id FROM constituencies_districts) AND ht.type='"+houseType+"' "+
+                " ORDER BY c.name)";
 		}
 		List constituencies= this.em().createNativeQuery(query).getResultList();
 		List<MasterVO> constituencyVOs=new ArrayList<MasterVO>();
 		NumberFormat numFormat=NumberFormat.getInstance(new Locale("hi","IN"));
 		for(Object i:constituencies){
 			Object[] o=(Object[]) i;
-			Long numb=Long.parseLong(o[1].toString().trim());
-			String number=numFormat.format(numb);
-			MasterVO constituencyVO=new MasterVO(Long.parseLong(o[2].toString()),o[0].toString().trim()+","+number);
+			Long numb=null;
+			String number="";
+			MasterVO constituencyVO=null;
+			if(o[1]!=null){
+			numb=Long.parseLong(o[1].toString().trim());
+			number=numFormat.format(numb);
+	        constituencyVO=new MasterVO(Long.parseLong(o[2].toString()),o[0].toString().trim()+","+number);
+			}else{
+		    constituencyVO=new MasterVO(Long.parseLong(o[2].toString()),o[0].toString().trim());
+			}
 			constituencyVOs.add(constituencyVO);
 		}
 		return constituencyVOs;
