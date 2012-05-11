@@ -57,4 +57,5 @@ public class ApplicationConstants {
 
     /** The Constant SERVER_DATEFORMAT. */
     public static final String SERVER_DATEFORMAT = "dd/MM/yyyy";
+
 }
