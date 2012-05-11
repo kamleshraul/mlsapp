@@ -343,7 +343,7 @@ import org.springframework.beans.factory.annotation.Configurable;
      * @param criteria2 the criteria2
      * @param locale the locale
      * @return the member search page
-     * @author compaq
+     * @author sandeep
      * @since v1.0.0
      */
     public static MemberSearchPage search(final String housetype, final String criteria1,
@@ -359,7 +359,7 @@ import org.springframework.beans.factory.annotation.Configurable;
      * @param id the id
      * @param locale the locale
      * @return the member biography vo
-     * @author compaq
+     * @author sandeep
      * @since v1.0.0
      */
     public static MemberBiographyVO findBiography(final long id, final String locale) {
@@ -371,7 +371,7 @@ import org.springframework.beans.factory.annotation.Configurable;
      *
      * @param locale the locale
      * @return the member age wise report vo
-     * @author compaq
+     * @author sandeep
      * @since v1.0.0
      */
     public static MemberAgeWiseReportVO findMembersByAge(final String locale){
@@ -383,7 +383,7 @@ import org.springframework.beans.factory.annotation.Configurable;
      *
      * @param locale the locale
      * @return the member qualification wise report vo
-     * @author compaq
+     * @author sandeep
      * @since v1.0.0
      */
     public static MemberQualificationWiseReportVO findMembersByQualification(final String locale){
@@ -395,7 +395,7 @@ import org.springframework.beans.factory.annotation.Configurable;
      *
      * @param locale the locale
      * @return the member profession wise report vo
-     * @author compaq
+     * @author sandeep
      * @since v1.0.0
      */
     public static MemberProfessionWiseReportVO findMembersByProfession(final String locale){
@@ -407,7 +407,7 @@ import org.springframework.beans.factory.annotation.Configurable;
      *
      * @param locale the locale
      * @return the member children wise report vo
-     * @author compaq
+     * @author sandeep
      * @since v1.0.0
      */
     public static MemberChildrenWiseReportVO findMembersByChildren(final String locale){
@@ -419,7 +419,7 @@ import org.springframework.beans.factory.annotation.Configurable;
      *
      * @param locale the locale
      * @return the member party wise report vo
-     * @author compaq
+     * @author sandeep
      * @since v1.0.0
      */
     public static MemberPartyWiseReportVO findMembersByParty(final String locale){
@@ -431,7 +431,7 @@ import org.springframework.beans.factory.annotation.Configurable;
      *
      * @param locale the locale
      * @return the list
-     * @author compaq
+     * @author sandeep
      * @since v1.0.0
      */
     public static List<MemberPartyDistrictWiseVO> findMembersByPartyDistrict(final String locale){
@@ -443,7 +443,7 @@ import org.springframework.beans.factory.annotation.Configurable;
      *
      * @param locale the locale
      * @return the list
-     * @author compaq
+     * @author sandeep
      * @since v1.0.0
      */
     public static List<MemberGeneralVO> findfemaleMembers(final String locale){
@@ -455,7 +455,7 @@ import org.springframework.beans.factory.annotation.Configurable;
      *
      * @param locale the locale
      * @return the list
-     * @author compaq
+     * @author sandeep
      * @since v1.0.0
      */
     public static List<MemberGeneralVO> findMembersByLastName(final String locale){
@@ -467,7 +467,7 @@ import org.springframework.beans.factory.annotation.Configurable;
      *
      * @param locale the locale
      * @return the list
-     * @author compaq
+     * @author sandeep
      * @since v1.0.0
      */
     public static List<MemberGeneralVO> findMembersByDistrict(final String locale){
