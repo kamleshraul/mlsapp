@@ -9,7 +9,6 @@
  */
 package org.mkcl.els.controller;
 
-import java.io.UnsupportedEncodingException;
 import java.util.Locale;
 import java.util.Map;
 
@@ -104,17 +103,23 @@ public class GridController extends GenericController<Grid> {
     	Map<String,String[]> requestMap=request.getParameterMap();
         GridData gridData=new GridData();
         if (search) {
-            try {
-                String param=request.getParameter("filters");
-                String decodedFiltersData=null;
-                decodedFiltersData = new String(param.getBytes("ISO-8859-1"), "UTF-8");
-                Filter filter = Filter.create(decodedFiltersData);
-                 gridData=gridService.getData(
-                        gridId, rows, page, sidx, order, filter.toSQl(), locale,requestMap);
-            }
-            catch (UnsupportedEncodingException e) {
-                e.printStackTrace();
-            }
+            //this for deployment on tomcat
+//            try {
+//                String param=request.getParameter("filters");
+//                String decodedFiltersData=null;
+//                decodedFiltersData = new String(param.getBytes("ISO-8859-1"), "UTF-8");
+//                Filter filter = Filter.create(decodedFiltersData);
+//                 gridData=gridService.getData(
+//                        gridId, rows, page, sidx, order, filter.toSQl(), locale,requestMap);
+//            }
+//            catch (UnsupportedEncodingException e) {
+//                e.printStackTrace();
+//            }
+            //this is for deployment on glassfish
+            String param=request.getParameter("filters");
+            Filter filter = Filter.create(param);
+            gridData=gridService.getData(
+                 gridId, rows, page, sidx, order, filter.toSQl(), locale,requestMap);
         } else {
             gridData= gridService.getData(gridId, rows, page, sidx, order, locale,requestMap);
         }
