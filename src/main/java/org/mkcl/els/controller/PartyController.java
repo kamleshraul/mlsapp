@@ -9,12 +9,15 @@
  */
 package org.mkcl.els.controller;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.List;
+
 import javax.servlet.http.HttpServletRequest;
 
 import org.mkcl.els.common.editors.BaseEditor;
 import org.mkcl.els.common.util.DateFormater;
+import org.mkcl.els.common.util.FormaterUtil;
 import org.mkcl.els.domain.BaseDomain;
 import org.mkcl.els.domain.CustomParameter;
 import org.mkcl.els.domain.District;
@@ -149,7 +152,14 @@ public class PartyController extends GenericController<Party> {
 		}
 
 		int symbolCount = party.getPartySymbols().size();
-		model.addAttribute("symbolCount", symbolCount);		
+		model.addAttribute("symbolCount", symbolCount);
+
+		//here this is a temporary fix as the custom editor for date is not getting applied in case of PartyController
+		SimpleDateFormat formatter=FormaterUtil.getDateFormatter(party.getLocale());
+		if(party.getEstablishmentDate()!=null){
+		String formattedEstablishmentDate=formatter.format(party.getEstablishmentDate());
+		model.addAttribute("formattedEstablishmentDate", formattedEstablishmentDate);
+		}
 	}
 
 	@Override
@@ -158,7 +168,7 @@ public class PartyController extends GenericController<Party> {
         binder.registerCustomEditor(Tehsil.class, new BaseEditor(new Tehsil()));
         binder.registerCustomEditor(District.class, new BaseEditor(
                 new District()));
-        binder.registerCustomEditor(State.class, new BaseEditor(new State()));       
+        binder.registerCustomEditor(State.class, new BaseEditor(new State()));
     }
 
 	/**
@@ -209,23 +219,23 @@ public class PartyController extends GenericController<Party> {
 
 	@Override
 	protected void preValidateUpdate(final Party domain,
-			final BindingResult result, final HttpServletRequest request) {		
-		
-        int symbolCount = Integer.parseInt(request.getParameter("symbolCount"));             
-        
+			final BindingResult result, final HttpServletRequest request) {
+
+        int symbolCount = Integer.parseInt(request.getParameter("symbolCount"));
+
         List<PartySymbol> partySymbols = new ArrayList<PartySymbol>();
-        
+
         for(int i=1; i<=symbolCount; i++) {
         	if(request.getParameter("symbol"+i)!=null) {
         		PartySymbol ps = new PartySymbol();
-        		
+
         		ps.setSymbol(request.getParameter("symbol"+i));
-        		
+
         		if(!request.getParameter("changeDate"+i).isEmpty()) {
         			DateFormater toDate = new DateFormater();
         			ps.setChangeDate(toDate.formatStringToDate((request.getParameter("changeDate"+i)), "dd/MM/yyyy"));
         		}
-        		
+
         		String id=request.getParameter("partySymbolId"+ i);
             	if(id!=null){
             		if(!id.isEmpty()){
@@ -245,9 +255,9 @@ public class PartyController extends GenericController<Party> {
      	        	if(!locale.isEmpty()){
      	        		ps.setLocale(locale);
      	        	}
-     	        }	
-        		partySymbols.add(ps);        	
-        	}        
+     	        }
+        		partySymbols.add(ps);
+        	}
         }
         domain.setPartySymbols(partySymbols);
 	}

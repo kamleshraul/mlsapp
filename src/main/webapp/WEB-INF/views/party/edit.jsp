@@ -10,9 +10,10 @@
 		$('#key').val('');	
 		$('#addSymbol').click(function(){			
 			addSymbol();
-		});		
-					
-		$(".datemask").mask("99/99/9999");			
+		});						
+		//$(".datemask").mask("99/99/9999");
+		//temporary fix as date is not getting formatted on the server side.	
+		$('#establishmentDate').val($('#formattedEstablishmentDate').val());		
 		
 	});
 </script>
@@ -469,7 +470,8 @@
 			<form:hidden path="registeredOfficeAddress.locale"/>
 			<form:hidden path="stateOfficeAddress.version"/>
 			<form:hidden path="stateOfficeAddress.id"/>
-			<form:hidden path="stateOfficeAddress.locale"/>		
+			<form:hidden path="stateOfficeAddress.locale"/>	
+			<input id="formattedEstablishmentDate" name="formattedEstablishmentDate" value="${formattedEstablishmentDate}" type="hidden">	
 			<%-- <c:forEach items="${party.partySymbols }" varStatus="counter">
 				<form:hidden path="partySymbols[${counter.count-1}].id"/>
 			</c:forEach> --%>
