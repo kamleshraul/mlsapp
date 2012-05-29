@@ -160,6 +160,14 @@ public class PartyController extends GenericController<Party> {
 		String formattedEstablishmentDate=formatter.format(party.getEstablishmentDate());
 		model.addAttribute("formattedEstablishmentDate", formattedEstablishmentDate);
 		}
+		if(!party.getPartySymbols().isEmpty()) {
+			List<String> changeDates = new ArrayList<String>();
+			for(PartySymbol partySymbol : party.getPartySymbols()) {
+				String formattedChangeDate=formatter.format(partySymbol.getChangeDate());
+				changeDates.add(formattedChangeDate);
+			}
+			model.addAttribute("changeDates", changeDates);
+		}
 	}
 
 	@Override
