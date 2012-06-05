@@ -67,6 +67,11 @@ import org.springframework.beans.factory.annotation.Configurable;
 
     /** The Constant serialVersionUID. */
     private transient static final long serialVersionUID = 1L;
+    
+    /** The member type. */
+    @ManyToOne
+    @JoinColumn(name = "member_type_id")
+    private MemberType memberType;
 
     /** **************Personal_Information************************. */
     /** The title. */
@@ -474,6 +479,19 @@ import org.springframework.beans.factory.annotation.Configurable;
         return getMemberRepository().findMembersByDistrict(locale);
     }
     // ------------------------------------------Getters/Setters-----------------------------------
+    /**
+     * Gets the member type.
+     *
+     * @return the member type
+     */
+    public MemberType getMemberType() {
+		return memberType;
+	}
+    
+	public void setMemberType(MemberType memberType) {
+		this.memberType = memberType;
+	}
+    
     /**
      * Gets the title.
      *

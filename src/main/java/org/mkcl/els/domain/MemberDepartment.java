@@ -18,6 +18,7 @@ import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
+import javax.persistence.criteria.Fetch;
 
 import org.codehaus.jackson.annotate.JsonIgnoreProperties;
 import org.mkcl.els.common.util.FormaterUtil;
@@ -44,6 +45,8 @@ public class MemberDepartment extends BaseDomain implements Serializable{
 	@ManyToOne(fetch=FetchType.LAZY)
 	private Department department;
 
+	@ManyToOne(fetch=FetchType.LAZY)
+	private DepartmentDetail subDepartment;
 	/** The from date. */
 	@Temporal(TemporalType.DATE)
 	private Date fromDate;
@@ -152,4 +155,13 @@ public class MemberDepartment extends BaseDomain implements Serializable{
 	public String formatFromDate(){
 		return FormaterUtil.getDateFormatter(this.getLocale()).format(this.getFromDate());
 	}
+
+	public DepartmentDetail getSubDepartment() {
+		return subDepartment;
+	}
+
+	public void setSubDepartment(DepartmentDetail subDepartment) {
+		this.subDepartment = subDepartment;
+	}
+	
 }

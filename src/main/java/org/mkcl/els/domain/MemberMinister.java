@@ -63,8 +63,9 @@ public class MemberMinister extends BaseDomain implements Serializable {
     private Date resignationDate;
 
     /** The minister. */
-    @Column(length=1500)
-    private String minister;
+    @ManyToOne
+    @JoinColumn(name="ministry_id")
+    private Ministry ministry;
 
     /** The ministry from date. */
     @Temporal(TemporalType.DATE)
@@ -76,7 +77,7 @@ public class MemberMinister extends BaseDomain implements Serializable {
 
     /** The member departments. */
     @OneToMany(cascade=CascadeType.ALL)
-    @JoinColumn(name="member_minister_id", referencedColumnName="id")
+    @JoinColumn(name="member_ministry_id", referencedColumnName="id")
     private List<MemberDepartment> memberDepartments;
 
     //------------------ Constructor ----------------------//
@@ -169,27 +170,7 @@ public class MemberMinister extends BaseDomain implements Serializable {
     }
 
 
-    /**
-     * Gets the minister.
-     *
-     * @return the minister
-     */
-    public String getMinister() {
-        return minister;
-    }
-
-
-    /**
-     * Sets the minister.
-     *
-     * @param minister the new minister
-     */
-    public void setMinister(final String minister) {
-        this.minister = minister;
-    }
-
-
-    /**
+        /**
      * Gets the ministry from date.
      *
      * @return the ministry from date
@@ -246,5 +227,14 @@ public class MemberMinister extends BaseDomain implements Serializable {
 	 */
 	public void setMemberDepartments(final List<MemberDepartment> memberDepartments) {
 		this.memberDepartments = memberDepartments;
+	}
+
+	public Ministry getMinistry() {
+		return ministry;
+	}
+
+
+	public void setMinistry(Ministry ministry) {
+		this.ministry = ministry;
 	}
 }
