@@ -23,12 +23,17 @@ import org.mkcl.els.common.util.ApplicationConstants;
 import org.mkcl.els.domain.Airport;
 import org.mkcl.els.domain.Constituency;
 import org.mkcl.els.domain.CustomParameter;
+import org.mkcl.els.domain.Department;
+import org.mkcl.els.domain.DepartmentDetail;
 import org.mkcl.els.domain.District;
 import org.mkcl.els.domain.Division;
+import org.mkcl.els.domain.Member;
+import org.mkcl.els.domain.MemberType;
 import org.mkcl.els.domain.RailwayStation;
 import org.mkcl.els.domain.Reference;
 import org.mkcl.els.domain.State;
 import org.mkcl.els.domain.Tehsil;
+import org.mkcl.els.domain.User;
 import org.mkcl.els.repository.DistrictRepository;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
@@ -64,6 +69,30 @@ public class ReferenceController extends BaseController {
         return District.findDistrictsRefByStateId(
                 stateId , "name" , ApplicationConstants.ASC ,
                 locale.toString());
+    }
+    
+    @RequestMapping(value="memberType/{memberType}/users",method=RequestMethod.GET)
+    public @ResponseBody List<User> getUsersByMemberType(
+    		@PathVariable("memberType") final Long memberType,final ModelMap map,final Locale locale){
+    	MemberType mType=MemberType.findById(MemberType.class, memberType);
+    	List<Member> members = Member.findAllByFieldName(Member.class, "memberType", mType,
+    			"firstName", "desc", this.getUserLocale().toString());
+		List<User> users=new ArrayList<User>();
+		for(Member m :members){
+			User user=User.findById(User.class, m.getId());
+			if(user!=null)
+				users.add(user);
+		}
+		return users;
+    }
+    
+    @RequestMapping(value="department/{department}/subDepartments",method=RequestMethod.GET)
+    public @ResponseBody List<DepartmentDetail> getSubDepartmentsByDepartment(
+    		@PathVariable("department") final Long department,final ModelMap map,final Locale locale){
+    	 		Department dept=Department.findById(Department.class, department);
+    	 		List<DepartmentDetail> subDepartments=DepartmentDetail.findAllByFieldName(DepartmentDetail.class, "department", dept, "name", "desc", locale.toString()); 
+		
+		return subDepartments;
     }
 
     /**
