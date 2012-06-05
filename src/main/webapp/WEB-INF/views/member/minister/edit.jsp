@@ -12,11 +12,18 @@
 	function addMemberDepartment(){
 		memberDepartmentCount=memberDepartmentCount+1;
 		totalMemberDepartmentCount=totalMemberDepartmentCount+1;
+		var sCount=0;
 		var text="<div id='memberDepartment"+memberDepartmentCount+"'>"+
 				  "<p>"+
 	              "<label class='small'>"+$('#memberDepartmentDepartmentMessage').val()+"</label>"+
 	              "<select name='memberDepartmentDepartment"+memberDepartmentCount+"' id='memberDepartmentDepartment"+memberDepartmentCount+"' class='sSelect'>"+
 			      $('#departmentMaster').html()+
+			      "</select>"+
+			      "</p>"+
+			      "<p>"+
+	              "<label class='small'>"+$('#memberDepartmentSubDepartmentMessage').val()+"</label>"+
+	              "<select name='memberDepartmentSubDepartment"+memberDepartmentCount+"' id='memberDepartmentSubDepartment"+memberDepartmentCount+"' class='sSelect'>"+
+			      $('#subDepartmentMaster').html()+
 			      "</select>"+
 			      "</p>"+
 			      "<p>"+
@@ -48,8 +55,26 @@
 			if($(this).val()==""){
 				$(".datemask").mask("99/99/9999");
 			}
-		});					
+		});		
+		sCount=memberDepartmentCount;
+		 if ($('#memberDepartmentDepartment'+memberDepartmentCount).val() != undefined) {
+				$('#memberDepartmentDepartment'+memberDepartmentCount).change(function() {
+					populateSubDepartments($('#memberDepartmentDepartment'+sCount).val(),sCount);
+				});
+		 }
 	}
+	function populateSubDepartments(department,count) {
+		$.get('ref/department/' + department + '/subDepartments', function(data) {
+			$('#memberDepartmentSubDepartment'+ count+' option').empty();
+			var options = "";
+			for ( var i = 0; i < data.length; i++) {
+				options += "<option value='"+data[i].id+"'>" + data[i].name
+						+ "</option>";
+			}
+			$('#memberDepartmentSubDepartment'+ count).html(options);
+			});
+	} 
+	
 	function deleteMemberDepartment(id){
 		var memberDepartmentId=$('#memberDepartmentId'+id).val();
 		if(memberDepartmentId != ''){			
@@ -70,9 +95,16 @@
 	}
 	$(document).ready(function(){
 		$('#departmentMaster').hide();
+		$('#subDepartmentMaster').hide();
 		$('#addMemberDepartment').click(function(){
 			addMemberDepartment();
 		});
+		var deptCount='${departments.size()}';
+		for(var i=1;i<=deptCount;i++){
+			if($('#memberDepartmentDepartment'+i).val()!=null){
+				populateSubDepartments($('#memberDepartmentDepartment'+i).val(),i);
+			}
+		}
 
 		var memberDepartmentCount=$('#memberDepartmentCount').val();
 		for(var i=1;i<=memberDepartmentCount;i++){
@@ -112,9 +144,9 @@
 	
 	<!-- Ministry related information -->
 	<p>
-		<label class="small"><spring:message code="member.minister.minister" text="Minister"/></label>
-		<form:input path="minister" cssClass="sText"/>
-		<form:errors path="minister" cssClass="validationError"/>	
+		<label class="small"><spring:message code="member.minister.ministry" text="Ministry"/></label>
+		<form:select path="ministry" items="${ministries}" itemLabel="name" itemValue="id" cssClass="sSelect"/>
+		<form:errors path="ministry" cssClass="validationError"/>		
 	</p>
 	<p>
 		<label class="small"><spring:message code="generic.fromdate" text="From Date"/></label>
@@ -143,6 +175,10 @@
 	value="<spring:message code='member.minister.department' text='Department'></spring:message>" 
 	disabled="disabled"/>
 	
+	<input type="hidden" id="memberDepartmentSubDepartmentMessage" name="memberDepartmentSubDepartmentMessage" 
+	value="<spring:message code='member.minister.subDepartment' text='Sub Department'></spring:message>" 
+	disabled="disabled"/>
+	
 	<input type="hidden" id="memberDepartmentFromDateMessage" name="memberDepartmentFromDateMessage" 
 	value="<spring:message code='member.minister.departmentFromDate' text='From Date'></spring:message>" 
 	disabled="disabled"/>
@@ -160,8 +196,13 @@
 			<option value="${i.id}"><c:out value="${i.name}"></c:out></option>
 		</c:forEach>
 	</select>
+	<select name="subDepartmentMaster" id="subDepartmentMaster" disabled="disabled">
+		<c:forEach items="${subDepartments}" var="i">
+			<option value="${i.id}"><c:out value="${i.name}"></c:out></option>
+		</c:forEach>
+	</select>
 	<form:errors path="memberDepartments" cssClass="validationError"></form:errors>
-	<c:if test="${!(empty memberDepartments)}">
+	 <c:if test="${!(empty memberDepartments)}"> 
 		<c:set var="count" value="1"></c:set>
 		<c:forEach items="${memberDepartments}" var="outer">
 		<div id="memberDepartment${count}">
@@ -175,6 +216,26 @@
 				</c:when>
 				<c:otherwise>
 				<option value="${i.id}"><c:out value="${i.name}"></c:out></option>		
+				</c:otherwise>
+			</c:choose>	
+			</c:forEach>
+			</select>
+		</p>
+		<p>
+			<label class="small"><spring:message code="member.minister.subDepartment" text="Sub Department"/></label>
+			<select name="memberDepartmentSubDepartment${count}" id="memberDepartmentSubDepartment${count}" class="sSelect">
+				<c:forEach items="${subDepartments}" var="i">
+				<c:choose>
+				<c:when test="${outer.subDepartment.id==i.id}">		
+				<option value="${i.id}" selected="selected"><c:out value="${i.name}"></c:out></option>		
+				</c:when>
+				<c:otherwise>
+				<c:choose>
+				<c:when test="${outer.subDepartment.id!=null}">
+					<option value="${i.id}"><c:out value="${i.name}"></c:out></option>
+				</c:when>
+				</c:choose>
+						
 				</c:otherwise>
 			</c:choose>	
 			</c:forEach>
@@ -201,7 +262,7 @@
 		<c:set var="count" value="${count+1}"></c:set>	
 		</div>
 		</c:forEach>
-	</c:if>	
+	 </c:if>	
 	</div>
 	
 	<div class="fields">
@@ -213,6 +274,7 @@
 	<form:hidden path="version" />
 	<form:hidden path="locale"/>
 	<form:hidden path="id"/>
+	
 	<input id="member" name="member" value="${member}" type="hidden">
 </form:form>
 </div>
