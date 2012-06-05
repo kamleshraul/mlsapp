@@ -3,8 +3,8 @@
 <head>
 	<title><spring:message code="member.list" text="List Of Members"/></title>
 	<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
-	<script type="text/javascript">
-		$(document).ready(function(){
+	<script type="text/javascript">	
+		$(document).ready(function(){			
 			$('#new_record').click(function(){
 				newRecord();
 			});
@@ -23,7 +23,20 @@
 		}
 		function rowSelectHandler(rowid,status){			
 			if($('#key')){
-				$('#key').val(rowid);
+				$('#key').val(rowid);	
+				var memberType = $('#grid').getCell(rowid, 'memberType.type');	
+				
+				if(memberType != "member") {					
+					$('#house_tab').hide();
+					$('#minister_tab').hide();
+					$('#party_tab').hide();
+					$('#election_tab').hide();
+				}else {
+					$('#house_tab').show();
+					$('#minister_tab').show();
+					$('#party_tab').show();
+					$('#election_tab').show();
+				}
 			}
 		}
 	</script>
@@ -59,7 +72,7 @@
 			</a>  -->
 			<p>&nbsp;</p>
 		</div>
-	</div>
+	</div>	
 	<%@ include file="/common/gridview.jsp" %>
 	<input type="hidden" id="grid_id" value="${gridId}">
 	</div>
