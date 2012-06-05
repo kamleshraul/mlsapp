@@ -9,21 +9,17 @@
 	$('document').ready(function(){	
 		initControls();
 		$('#key').val('');	
-		$('.parent').hide();
 	});		
-	$(':checkbox').click(function(){
-		if($('#isCategory').is(':checked'))
-			$('.parent').show();
-		else
-			{
-			$('.parent').hide();
-			}
-	});
+	
 	$('#submit').click(function(){
-		if($('#isCategory').is(':checked')){
+		if($('#isExpired').is(':checked'))
+	   	{
+			$('#isExpired').val(true);		   	    
 		}
 		else
-			$('#parent1').prop('selectedIndex',-1);
+	   	{ 				
+			$('#isExpired').val(false);				
+	   	};
 	});
 	
 </script>
@@ -42,16 +38,16 @@
 			<form:errors path="name" cssClass="validationError" />	
 		</p>	 
 		<p>
-			<label class="small"><spring:message code="department.isCategory" text="isCategory" /></label>
-			<input type="checkbox"  name="isCategory" id="isCategory" class="sCheck"/>												
+			<label class="small"><spring:message code="department.isExpired" text="Is Expired?" /></label>
+			<form:checkbox cssClass="sCheck" path="isExpired" id="isExpired"/>
+						<form:errors path="isExpired" cssClass="validationError" />
+		</p>
+		<p>
+			<label class="labelcentered"><spring:message code="department.remarks" text="Remarks" /></label>
+				<form:textarea cssClass="sTextarea" path="remarks" />
+				<form:errors path="remarks" cssClass="validationError" />
 		</p>
 		
-		<p class="parent"> 
-			<label class="small"><spring:message code="department.parentId" text="Parent Department"/></label>
-			<form:select id="parent1" path="parentId" items="${parentDepartment}" itemValue="id" itemLabel="name" cssClass="sSelect"></form:select>	
-	        <form:errors path="parentId" cssClass="validationError"/>	
-		</p>
-					
 		<div class="fields">
 			<h2></h2>
 			<p class="tright">
