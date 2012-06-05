@@ -14,9 +14,11 @@ import java.io.Serializable;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Table;
+import javax.validation.constraints.Pattern;
 
 import org.springframework.beans.factory.annotation.Configurable;
 
+// TODO: Auto-generated Javadoc
 /**
  * The Class Contact.
  *
@@ -34,10 +36,12 @@ public class Contact extends BaseDomain implements Serializable {
 
     /** The email1. */
     @Column(length = 1000)
+	@Pattern(regexp="[[A-Za-z0-9_.-]{0,50}[@][A-Za-z0-9]{0,30}[.](([A-Za-z]{3})|([A-Za-z]{1,2}[.][A-Za-z]{1,2}))]{0,85}")
     private String email1;
 
     /** The email2. */
     @Column(length = 1000)
+	@Pattern(regexp="[[A-Za-z0-9_.-]{0,50}[@][A-Za-z0-9]{0,30}[.](([A-Za-z]{3})|([A-Za-z]{1,2}[.][A-Za-z]{1,2}))]{0,85}")
     private String email2;
 
     /** The website1. */
@@ -264,6 +268,11 @@ public class Contact extends BaseDomain implements Serializable {
         this.mobile2 = mobile2;
     }
 
+	/**
+	 * Gets the email1.
+	 *
+	 * @return the email1
+	 */
 	public String getEmail1() {
 		return email1;
 	}
