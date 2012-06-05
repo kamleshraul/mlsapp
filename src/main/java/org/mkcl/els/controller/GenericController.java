@@ -520,7 +520,7 @@ public class GenericController<T extends BaseDomain> extends BaseController {
 						.split("<")[1].split(">")[0];
 						final Class<?> clazzField = Class.forName(itemClass);
 						binder.registerCustomEditor(Set.class, i.getName(),
-								new CustomCollectionEditor(List.class) {
+								new CustomCollectionEditor(Set.class) {
 
 							@Override
 							protected Object convertElement(
