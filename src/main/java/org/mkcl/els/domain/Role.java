@@ -34,11 +34,10 @@ public class Role extends BaseDomain implements Serializable {
     private static final long serialVersionUID = 1L;
 
     /** The name. */
-    @Column(length = 150)
+    @Column(length = 1000)
     private String name;
 
-    // ---------------- Constructors
-    // ------------------------------------------------------------------------------
+    // ---------------- Constructors----------------------------------------------------
     /**
      * Instantiates a new role.
      */
@@ -56,8 +55,7 @@ public class Role extends BaseDomain implements Serializable {
         this.name = name;
     }
 
-    // -------------- Getters & Setters
-    // --------------------------------------------------------------------------
+    // -------------- Getters & Setters--------------------------------
     /**
      * Gets the name.
      *
