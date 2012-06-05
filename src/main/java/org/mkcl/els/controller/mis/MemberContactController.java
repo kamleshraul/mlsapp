@@ -9,6 +9,8 @@
  */
 package org.mkcl.els.controller.mis;
 
+import java.math.BigInteger;
+import java.security.SecureRandom;
 import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
@@ -19,11 +21,13 @@ import org.mkcl.els.controller.GenericController;
 import org.mkcl.els.domain.Address;
 import org.mkcl.els.domain.BaseDomain;
 import org.mkcl.els.domain.Contact;
+import org.mkcl.els.domain.Credential;
 import org.mkcl.els.domain.CustomParameter;
 import org.mkcl.els.domain.District;
 import org.mkcl.els.domain.Member;
 import org.mkcl.els.domain.State;
 import org.mkcl.els.domain.Tehsil;
+import org.mkcl.els.domain.User;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
 import org.springframework.validation.BindingResult;
@@ -135,5 +139,50 @@ public class MemberContactController extends GenericController<Member> {
                 new District()));
         binder.registerCustomEditor(State.class, new BaseEditor(new State()));
     }
+    
+    @Override
+    protected void populateIfNoErrors(final ModelMap model, final Member domain,
+			final HttpServletRequest request) {
+	   	Member member=Member.findById(Member.class, domain.getId());
+    	  if(!member.getMemberType().getType().equals("member")){
+    		  Credential credential1=null;
+    		  if(member.getContact()!=null)
+    			  if(member.getContact().getEmail1()!="")
+    				  credential1=Credential.findByFieldName(Credential.class, "username", member.getContact().getEmail1(),null);
+    		  if(credential1==null){
+    			if(domain.getContact().getEmail1()!=""){
+    				credential1=new Credential();
+    				credential1.setUsername(domain.getContact().getEmail1());
+    				SecureRandom random = new SecureRandom();  
+    				String str = new BigInteger(60, random).toString(32);
+    				credential1.setPassword(str);
+    				credential1.setEnabled(false);
+    				credential1.setEmail(domain.getContact().getEmail1());
+    				credential1.persist();
+    			}
+    		 }else{
+    			 credential1.setUsername(domain.getContact().getEmail1());
+    			 credential1.setEmail(domain.getContact().getEmail1());
+    			 credential1.merge();
+    		 }
+    		  	User user1=User.findById(User.class, domain.getId());
+    		  	if(user1==null){
+    		  		if(domain.getContact().getEmail1()!=""){
+    		  			User user=new User();
+    		  			user.setFirstName(member.getFirstName());
+    		  			user.setMiddleName(member.getMiddleName());
+    		  			user.setLastName(member.getLastName());
+    		  			user.setTitle(member.getTitle().getName());
+    		  			user.setCredential(credential1);
+    		  			user.setLocale(domain.getLocale());    		  			
+    		  			user.persist();
+    		  			User.assignMemberId(domain.getId(), user.getId());
+    		  		}
+    		   	}
+        }
+        	
+        
+    		  
+  }
 
 }

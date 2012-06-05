@@ -9,6 +9,8 @@
  */
 package org.mkcl.els.controller.mis;
 
+import java.math.BigInteger;
+import java.security.SecureRandom;
 import java.text.SimpleDateFormat;
 import java.util.List;
 import java.util.Locale;
@@ -20,11 +22,13 @@ import org.mkcl.els.common.editors.BaseEditor;
 import org.mkcl.els.common.util.ApplicationConstants;
 import org.mkcl.els.controller.BaseController;
 import org.mkcl.els.domain.Constituency;
+import org.mkcl.els.domain.Credential;
 import org.mkcl.els.domain.CustomParameter;
 import org.mkcl.els.domain.Grid;
 import org.mkcl.els.domain.House;
 import org.mkcl.els.domain.Member;
 import org.mkcl.els.domain.MemberRole;
+import org.mkcl.els.domain.User;
 import org.mkcl.els.domain.associations.HouseMemberRoleAssociation;
 import org.springframework.beans.propertyeditors.CustomDateEditor;
 import org.springframework.stereotype.Controller;
@@ -355,8 +359,47 @@ public class MemberHouseRoleController extends BaseController {
             final HttpServletRequest request) {
         request.getSession().setAttribute("member",
                 Long.parseLong(request.getParameter("member")));
+        Member member=domain.getMember();
+        if(domain.getIsSitting()==true){
+  		  Credential credential1=null;
+  		  if(member.getContact()!=null)
+  			  if(! member.getContact().getEmail1().isEmpty())
+  				  credential1=Credential.findByFieldName(Credential.class, "username", member.getContact().getEmail1(),null);
+  		  if(credential1==null){
+  			if(! member.getContact().getEmail1().isEmpty()){
+  				credential1=new Credential();
+  				credential1.setUsername(member.getContact().getEmail1());
+  				SecureRandom random = new SecureRandom();  
+  				String str = new BigInteger(60, random).toString(32);
+  				credential1.setPassword(str);
+  				credential1.setEnabled(false);
+  				credential1.setEmail(member.getContact().getEmail1());
+  				credential1.persist();
+  			}
+  		 }else{
+  			 credential1.setUsername(member.getContact().getEmail1());
+  			 credential1.setEmail(member.getContact().getEmail1());
+  			 credential1.merge();
+  		 }
+  		  	User user1=User.findById(User.class, domain.getMember().getId());
+  		  	if(user1==null){
+  		  		if(! member.getContact().getEmail1().isEmpty()){
+  		  			User user=new User();
+  		  			user.setFirstName(member.getFirstName());
+  		  			user.setMiddleName(member.getMiddleName());
+  		  			user.setLastName(member.getLastName());
+  		  			user.setTitle(member.getTitle().getName());
+  		  			user.setCredential(credential1);
+  		  			user.setLocale(domain.getLocale());    		  			
+  		  			user.persist();
+  		  			User.assignMemberId(domain.getMember().getId(), user.getId());
+  		  		}
+  		   	}
+      }
+  		  
+}
 
-    }
+    
 
     /**
      * Populate update if no errors.
@@ -369,6 +412,45 @@ public class MemberHouseRoleController extends BaseController {
             final HouseMemberRoleAssociation domain, final HttpServletRequest request) {
     	request.getSession().setAttribute("member",
                 Long.parseLong(request.getParameter("member")));
+    	 Member member=domain.getMember();
+    	 if(domain.getIsSitting()==true){
+     		  Credential credential1=null;
+     		  if(member.getContact()!=null)
+     			  if(!member.getContact().getEmail1().isEmpty())
+     				  credential1=Credential.findByFieldName(Credential.class, "username", member.getContact().getEmail1(),null);
+     		  if(credential1==null){
+     			if(! member.getContact().getEmail1().isEmpty()){
+     				credential1=new Credential();
+     				credential1.setUsername(member.getContact().getEmail1());
+     				SecureRandom random = new SecureRandom();  
+     				String str = new BigInteger(60, random).toString(32);
+     				credential1.setPassword(str);
+     				credential1.setEnabled(false);
+     				credential1.setEmail(member.getContact().getEmail1());
+     				credential1.persist();
+     			}
+     		 }else{
+     			 credential1.setUsername(member.getContact().getEmail1());
+     			 credential1.setEmail(member.getContact().getEmail1());
+     			 credential1.merge();
+     		 }
+     		  	User user1=User.findById(User.class, domain.getMember().getId());
+     		  	if(user1==null){
+     		  		if(! member.getContact().getEmail1().isEmpty()){
+     		  			User user=new User();
+     		  			user.setFirstName(member.getFirstName());
+     		  			user.setMiddleName(member.getMiddleName());
+     		  			user.setLastName(member.getLastName());
+     		  			user.setTitle(member.getTitle().getName());
+     		  			user.setCredential(credential1);
+     		  			user.setLocale(domain.getLocale());    		  			
+     		  			user.persist();
+     		  			User.assignMemberId(domain.getMember().getId(), user.getId());
+     		  		}
+     		   	}
+         }
+     		  
+    	
     }
 
     /**

@@ -21,9 +21,11 @@ import org.mkcl.els.common.util.ApplicationConstants;
 import org.mkcl.els.controller.GenericController;
 import org.mkcl.els.domain.CustomParameter;
 import org.mkcl.els.domain.Department;
+import org.mkcl.els.domain.DepartmentDetail;
 import org.mkcl.els.domain.Designation;
 import org.mkcl.els.domain.MemberDepartment;
 import org.mkcl.els.domain.MemberMinister;
+import org.mkcl.els.domain.Ministry;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
 import org.springframework.validation.BindingResult;
@@ -51,6 +53,7 @@ public class MemberMinisterController extends GenericController<MemberMinister> 
 		domain.setLocale(locale);
 		populate(model, domain, locale, request);
 		model.addAttribute("memberDepartmentCount", 0);
+		
 	}
 
 	/* (non-Javadoc)
@@ -64,6 +67,14 @@ public class MemberMinisterController extends GenericController<MemberMinister> 
 		List<MemberDepartment>memberDepartments = domain.getMemberDepartments();
 		model.addAttribute("memberDepartments", memberDepartments);
 		model.addAttribute("memberDepartmentCount", memberDepartments.size());
+//		int count=1;
+//		for(MemberDepartment memberdept : memberDepartments){
+//			Department department=memberdept.getDepartment();
+//			List<DepartmentDetail> subDepts=DepartmentDetail.findAllByFieldName(DepartmentDetail.class, "department", department, "name", "desc",domain.getLocale());
+//			String subdept="subDepartments"+count;
+//			model.addAttribute(subdept,subDepts);
+//			count++;
+//		}
 	}
 
 	/* (non-Javadoc)
@@ -160,10 +171,17 @@ public class MemberMinisterController extends GenericController<MemberMinister> 
 		List<Designation> designations =
 			Designation.findAll(Designation.class, "name", ApplicationConstants.ASC, locale);
 		List<Department> departments =
-			Department.findAllSubDepartments("name", ApplicationConstants.ASC, locale);
+			Department.findAll(Department.class, "name", "desc", domain.getLocale());
+		
+		List<Ministry> ministries=Ministry.findAll(Ministry.class, "name", "desc", domain.getLocale());
+		List<DepartmentDetail> subDepartments=
+				DepartmentDetail.findAll(DepartmentDetail.class, "name", "desc", domain.getLocale());
+		model.addAttribute("subDepartments",subDepartments);
+		model.addAttribute("ministries",ministries);
 		model.addAttribute("member", member);
 		model.addAttribute("designations", designations);
 		model.addAttribute("departments", departments);
+		
 	}
 
 	/**
@@ -209,6 +227,12 @@ public class MemberMinisterController extends GenericController<MemberMinister> 
 					}
 				}
 
+				String subDepartment = request.getParameter("memberDepartmentSubDepartment" + i);
+				if(subDepartment != null){
+					if(! subDepartment.isEmpty()){
+						memberDepartment.setSubDepartment((DepartmentDetail) DepartmentDetail.findById(DepartmentDetail.class,Long.parseLong(subDepartment)));
+					}
+				}
 				CustomParameter serverDateFormat =
 					CustomParameter.findByName(CustomParameter.class, "SERVER_DATEFORMAT", "");
 

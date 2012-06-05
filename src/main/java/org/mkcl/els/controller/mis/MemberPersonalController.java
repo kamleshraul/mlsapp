@@ -27,6 +27,7 @@ import org.mkcl.els.domain.Gender;
 import org.mkcl.els.domain.Language;
 import org.mkcl.els.domain.MaritalStatus;
 import org.mkcl.els.domain.Member;
+import org.mkcl.els.domain.MemberType;
 import org.mkcl.els.domain.Nationality;
 import org.mkcl.els.domain.Profession;
 import org.mkcl.els.domain.Qualification;
@@ -145,6 +146,8 @@ public class MemberPersonalController extends GenericController<Member> {
         populate(model, domain,request);
         model.addAttribute("familyCount",0);
         model.addAttribute("qualificationCount",0);
+        model.addAttribute("memberTypes", MemberType.findAll(MemberType.class, "name",
+                ApplicationConstants.DESC, locale));
     }
 
     /* (non-Javadoc)
@@ -266,6 +269,9 @@ public class MemberPersonalController extends GenericController<Member> {
     protected void preValidateCreate(final Member domain,
             final BindingResult result, final HttpServletRequest request) {
         populateFamilyQualification(domain,request,result);
+        String mtype=request.getParameter("mType");
+		 MemberType memberType=MemberType.findByFieldName(MemberType.class, "type", mtype, domain.getLocale());
+		 domain.setMemberType(memberType);
     }
 
     /* (non-Javadoc)
