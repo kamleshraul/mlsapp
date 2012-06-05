@@ -23,6 +23,7 @@ import org.mkcl.els.repository.DepartmentRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Configurable;
 
+// TODO: Auto-generated Javadoc
 /**
  * The Class Department.
  *
@@ -32,7 +33,7 @@ import org.springframework.beans.factory.annotation.Configurable;
 @Configurable
 @Entity
 @Table(name = "departments")
-@JsonIgnoreProperties({"memberDepartmentAssociations"})
+//@JsonIgnoreProperties({"memberDepartmentAssociations"})
 public class Department extends BaseDomain implements Serializable {
 
     // ---------------------------------Attributes-------------------------------------------------
@@ -46,82 +47,101 @@ public class Department extends BaseDomain implements Serializable {
 
 
     /** The parent id. */
-    @ManyToOne
-	private Department parentId;
+   @Column 
+   private Boolean isExpired;
+   
+   /** The remarks. */
+   @Column(length=1000)
+   private String remarks;
 
-    @Autowired
-    private transient DepartmentRepository departmentRepository;
+//    @Autowired
+//    private transient DepartmentRepository departmentRepository;
 
 
 	// ---------------------------------Constructors----------------------------------------------
-	/**
-	 * Instantiates a new department.
-	 */
-	public Department() {
+   /**
+ * Instantiates a new department.
+ */
+public Department() {
 		super();
-	}
-
-	/**
-	 * Instantiates a new department.
-	 *
-	 * @param name the name
-	 * @param parentId the parent id
-	 */
-	public Department(final String name,final Department parentId) {
+   }
+   
+   /**
+    * Instantiates a new department.
+    *
+    * @param name the name
+    * @param isExpired the is expired
+    * @param remarks the remarks
+    */
+   public Department(String name, Boolean isExpired, String remarks) {
 		super();
 		this.name = name;
-		this.parentId = parentId;
+		this.isExpired = isExpired;
+		this.remarks = remarks;
 	}
-
-	public static DepartmentRepository getDepartmentRepository() {
-	    DepartmentRepository departmentRepository = new Department().departmentRepository;
-        if (departmentRepository == null) {
-            throw new IllegalStateException(
-                    "DepartmentRepository has not been injected in Department Domain");
-        }
-        return departmentRepository;
-    }
+//
+//	public static DepartmentRepository getDepartmentRepository() {
+//	    DepartmentRepository departmentRepository = new Department().departmentRepository;
+//        if (departmentRepository == null) {
+//            throw new IllegalStateException(
+//                    "DepartmentRepository has not been injected in Department Domain");
+//        }
+//        return departmentRepository;
+//    }
 	// ---------------------------------Getters and Setters----------------------------------------------
-	/**
-	 * Gets the name.
-	 *
-	 * @return the name
-	 */
-	public String getName() {
-		return name;
-	}
+/**
+ * Gets the name.
+ *
+ * @return the name
+ */
+public String getName() {
+	return name;
+}
 
-	/**
-	 * Sets the name.
-	 *
-	 * @param name the new name
-	 */
-	public void setName(final String name) {
-		this.name = name;
-	}
+/**
+ * Sets the name.
+ *
+ * @param name the new name
+ */
+public void setName(String name) {
+	this.name = name;
+}
 
-	/**
-	 * Gets the parent id.
-	 *
-	 * @return the parent id
-	 */
-	public Department getParentId() {
-		return parentId;
-	}
+/**
+ * Gets the checks if is expired.
+ *
+ * @return the checks if is expired
+ */
+public Boolean getIsExpired() {
+	return isExpired;
+}
 
-	/**
-	 * Sets the parent id.
-	 *
-	 * @param parentId the new parent id
-	 */
-	public void setParentId(final Department parentId) {
-		this.parentId = parentId;
-	}
+/**
+ * Sets the checks if is expired.
+ *
+ * @param isExpired the new checks if is expired
+ */
+public void setIsExpired(Boolean isExpired) {
+	this.isExpired = isExpired;
+}
 
-    public static List<Department> findAllSubDepartments(
-            final String sortBy, final String sortOrder, final String locale) {
-        return getDepartmentRepository().findAllSubDepartments(
-               sortBy,sortOrder, locale);
-    }
+/**
+ * Gets the remarks.
+ *
+ * @return the remarks
+ */
+public String getRemarks() {
+	return remarks;
+}
+
+/**
+ * Sets the remarks.
+ *
+ * @param remarks the new remarks
+ */
+public void setRemarks(String remarks) {
+	this.remarks = remarks;
+}
+	
 
 }
