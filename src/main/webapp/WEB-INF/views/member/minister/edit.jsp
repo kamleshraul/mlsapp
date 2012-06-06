@@ -208,7 +208,7 @@
 		<div id="memberDepartment${count}">
 		<p>
 			<label class="small"><spring:message code="member.minister.department" text="Department"/></label>
-			<select name="memberDepartmentDepartment${count}" id="memberDepartmentDepartment${count}" class="sSelect">
+			<select name="memberDepartmentDepartment${count}" id="memberDepartmentDepartment${count}" class="sSelect" onchange="populateSubDepartments(this.value,${count})">
 				<c:forEach items="${departments}" var="i">
 				<c:choose>
 				<c:when test="${outer.department.id==i.id}">		
