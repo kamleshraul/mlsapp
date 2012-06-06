@@ -3,7 +3,7 @@
 <html>
 <head>
 	<title>
-	<spring:message code="electiontype" text="Election Types"/>
+	<spring:message code="departmentdetail" text="Department Details"/>
 	</title>
 	<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>	
 	<script type="text/javascript">
@@ -26,7 +26,7 @@
 <body>
 
 <div class="fields clearfix">
-<form:form action="electiontype" method="PUT"  modelAttribute="domain">
+<form:form action="departmentdetail" method="PUT"  modelAttribute="domain">
 	<%@ include file="/common/info.jsp" %>
 	<h2><spring:message code="generic.edit.heading" text="Enter Details "/>
 		 [<spring:message code="generic.id" text="Id"></spring:message>:${domain.id}]
