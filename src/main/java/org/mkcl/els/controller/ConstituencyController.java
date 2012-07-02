@@ -24,6 +24,7 @@ import org.mkcl.els.domain.HouseType;
 import org.mkcl.els.domain.RailwayStation;
 import org.mkcl.els.domain.Reservation;
 import org.mkcl.els.domain.State;
+import org.mkcl.els.domain.UpperHouseConstituencyType;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
 import org.springframework.validation.BindingResult;
@@ -122,6 +123,7 @@ public class ConstituencyController extends GenericController<Constituency> {
         }else{
             model.addAttribute("noOfConstituencyTypes", 0);
         }
+        model.addAttribute("upperHouseConstituencyTypes", UpperHouseConstituencyType.findAll(UpperHouseConstituencyType.class,"name",ApplicationConstants.ASC, locale));
         //***********************Retired****************************
         domain.setIsRetired(false);
         //***********************Reserved**************************
@@ -231,6 +233,8 @@ public class ConstituencyController extends GenericController<Constituency> {
             //for populating constituency names types.we set a custom parameter "NO_OF_UH_CONSTITUENCY_TYPE"
             CustomParameter customParameter=CustomParameter.findByName(CustomParameter.class, "NO_OF_UH_CONSTITUENCY_TYPE", "");
             model.addAttribute("noOfConstituencyTypes", customParameter.getValue());
+            model.addAttribute("upperHouseConstituencyTypes", UpperHouseConstituencyType.findAll(UpperHouseConstituencyType.class,"name",ApplicationConstants.ASC, domain.getLocale()));
+
         }
     }
 

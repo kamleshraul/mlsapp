@@ -100,6 +100,10 @@ public class Constituency extends BaseDomain implements Serializable {
     @Column(length=500)
     private String divisionName;
 
+    @ManyToOne
+    @JoinColumn(name = "upperhouseconstituencytype_id")
+    private UpperHouseConstituencyType upperHouseConstituencyType;
+
     /** The constituency repository. */
     @Autowired
     private transient ConstituencyRepository constituencyRepository;
@@ -348,4 +352,13 @@ public class Constituency extends BaseDomain implements Serializable {
     }
 
 
+    public UpperHouseConstituencyType getUpperHouseConstituencyType() {
+        return upperHouseConstituencyType;
+    }
+
+
+    public void setUpperHouseConstituencyType(
+            final UpperHouseConstituencyType upperHouseConstituencyType) {
+        this.upperHouseConstituencyType = upperHouseConstituencyType;
+    }
 }
