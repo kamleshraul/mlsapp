@@ -9,6 +9,11 @@
  */
 package org.mkcl.els.common.vo;
 
+import java.text.ParseException;
+import java.util.Date;
+
+import org.mkcl.els.common.util.FormaterUtil;
+
 /**
  * The Class Rule.
  *
@@ -44,6 +49,7 @@ public class Rule {
         this.field = field;
         this.op = op;
         this.data = data;
+
     }
 
     /**
@@ -88,6 +94,16 @@ public class Rule {
      * @return the data
      */
     public String getData() {
+        if(getField().endsWith("Date")){
+            try {
+                Date dateInDDMMYYYY=FormaterUtil.getDateFormatter("dd/MM/yyyy", "en_US").parse(data);
+                String dateInYYYYMMDD=FormaterUtil.getDateFormatter("yyyy-MM-dd", "en_US").format(dateInDDMMYYYY);
+                this.data=dateInYYYYMMDD;
+            }
+            catch (ParseException e) {
+                e.printStackTrace();
+            }
+        }
         return data;
     }
 

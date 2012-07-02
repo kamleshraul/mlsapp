@@ -83,8 +83,26 @@ public class MemberHouseRoleRepository extends
         search.addFilterEqual("member", association.getMember());
         search.addFilterEqual("role", association.getRole());
         search.addFilterEqual("house", association.getHouse());
-        search.addFilterEqual("fromDate", association.getFromDate());
-        search.addFilterEqual("toDate", association.getToDate());
+        search.addFilterEqual("recordIndex", association.getRecordIndex());
+        if(association.getFromDate()==null){
+            search.addFilterNull("fromDate");
+        }else{
+            search.addFilterEqual("fromDate", association.getFromDate());
+        }
+        if(association.getToDate()==null){
+            search.addFilterNull("toDate");
+        }else{
+            search.addFilterEqual("toDate", association.getToDate());
+        }
         return (HouseMemberRoleAssociation) this.searchUnique(search);
     }
+
+	@SuppressWarnings("unchecked")
+	public List<HouseMemberRoleAssociation> findByMemberIdRolePriorityHouseId(
+			final Long member, final int rolepriority, final Long house, final String locale) {
+		String query="SELECT hmra FROM HouseMemberRoleAssociation hmra JOIN hmra.role r JOIN hmra.member m JOIN hmra.house h" +
+				" WHERE hmra.locale='"+locale+"' AND m.id="+member+" AND r.priority="+rolepriority+" AND h.id="+house;
+		List<HouseMemberRoleAssociation> houseMemberRoleAssociations=this.em().createQuery(query).getResultList();
+		return houseMemberRoleAssociations;
+	}
 }

@@ -12,7 +12,9 @@
 package org.mkcl.els.controller;
 
 import java.io.UnsupportedEncodingException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Locale;
@@ -20,20 +22,26 @@ import java.util.Locale;
 import javax.servlet.http.HttpServletRequest;
 
 import org.mkcl.els.common.util.ApplicationConstants;
+import org.mkcl.els.common.util.FormaterUtil;
+import org.mkcl.els.common.vo.ConstituencyCompleteVO;
+import org.mkcl.els.common.vo.MasterVO;
+import org.mkcl.els.common.vo.Reference;
 import org.mkcl.els.domain.Airport;
 import org.mkcl.els.domain.Constituency;
 import org.mkcl.els.domain.CustomParameter;
 import org.mkcl.els.domain.Department;
-import org.mkcl.els.domain.DepartmentDetail;
 import org.mkcl.els.domain.District;
 import org.mkcl.els.domain.Division;
+import org.mkcl.els.domain.Election;
+import org.mkcl.els.domain.ElectionType;
+import org.mkcl.els.domain.House;
+import org.mkcl.els.domain.HouseType;
 import org.mkcl.els.domain.Member;
-import org.mkcl.els.domain.MemberType;
+import org.mkcl.els.domain.MemberRole;
 import org.mkcl.els.domain.RailwayStation;
-import org.mkcl.els.domain.Reference;
 import org.mkcl.els.domain.State;
+import org.mkcl.els.domain.SubDepartment;
 import org.mkcl.els.domain.Tehsil;
-import org.mkcl.els.domain.User;
 import org.mkcl.els.repository.DistrictRepository;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
@@ -69,30 +77,6 @@ public class ReferenceController extends BaseController {
         return District.findDistrictsRefByStateId(
                 stateId , "name" , ApplicationConstants.ASC ,
                 locale.toString());
-    }
-    
-    @RequestMapping(value="memberType/{memberType}/users",method=RequestMethod.GET)
-    public @ResponseBody List<User> getUsersByMemberType(
-    		@PathVariable("memberType") final Long memberType,final ModelMap map,final Locale locale){
-    	MemberType mType=MemberType.findById(MemberType.class, memberType);
-    	List<Member> members = Member.findAllByFieldName(Member.class, "memberType", mType,
-    			"firstName", "desc", this.getUserLocale().toString());
-		List<User> users=new ArrayList<User>();
-		for(Member m :members){
-			User user=User.findById(User.class, m.getId());
-			if(user!=null)
-				users.add(user);
-		}
-		return users;
-    }
-    
-    @RequestMapping(value="department/{department}/subDepartments",method=RequestMethod.GET)
-    public @ResponseBody List<DepartmentDetail> getSubDepartmentsByDepartment(
-    		@PathVariable("department") final Long department,final ModelMap map,final Locale locale){
-    	 		Department dept=Department.findById(Department.class, department);
-    	 		List<DepartmentDetail> subDepartments=DepartmentDetail.findAllByFieldName(DepartmentDetail.class, "department", dept, "name", "desc", locale.toString()); 
-		
-		return subDepartments;
     }
 
     /**
@@ -400,5 +384,129 @@ public class ReferenceController extends BaseController {
             return districts;
         }
 
+    }
+
+    @RequestMapping(value="/{house}/firstdate")
+	public Reference getLastDate(@PathVariable("house") final Long houseid){
+		Reference reference=new Reference();
+		House house=House.findById(House.class, houseid);
+		reference.setId(house.getFirstDate().toString());
+		reference.setName(house.getFirstDate().toString());
+		return reference;
+	}
+
+    @RequestMapping(value="department/{department}/subDepartments",method=RequestMethod.GET)
+    public @ResponseBody List<SubDepartment> getSubDepartmentsByDepartment(
+            @PathVariable("department") final Long department,final ModelMap map,final Locale locale){
+        Department dept=Department.findById(Department.class, department);
+        List<SubDepartment> subDepartments=SubDepartment.findAllByFieldName(SubDepartment.class, "department", dept, "name", ApplicationConstants.ASC, locale.toString());
+        return subDepartments;
+    }
+
+    @RequestMapping(value="member/{memberId}/fullName", method=RequestMethod.GET)
+    public @ResponseBody Reference getMemberFullName(@PathVariable("memberId") final Long memberId){
+    	Member member = Member.findById(Member.class, memberId);
+    	Reference reference = new Reference();
+    	reference.setId(member.getId().toString());
+    	reference.setName(member.getFullname());
+    	return reference;
+    }
+
+    @RequestMapping(value="member/{memberId}/deathDate", method=RequestMethod.GET)
+    public @ResponseBody Reference getMemberDeathDate(@PathVariable("memberId") final Long memberId,
+    		final Locale locale){
+    	Member member = Member.findById(Member.class, memberId);
+    	Reference reference = new Reference();
+    	reference.setId(member.getId().toString());
+    	reference.setName("");
+    	Date deathDate = member.getDeathDate();
+    	if(deathDate != null){
+    		// Convert the date(in en_US) to the present locale
+    		SimpleDateFormat sdf = FormaterUtil.getDateFormatter(locale.toString());
+    		reference.setName(sdf.format(deathDate));
+    	}
+    	return reference;
+    }
+
+    @RequestMapping(value="divdis/{constituency}", method=RequestMethod.GET)
+    public @ResponseBody ConstituencyCompleteVO getDivisionDistrictsByConstituency(	@PathVariable("constituency") final Long constituency,
+    		final Locale locale){
+    	Constituency selectedConstituency=Constituency.findById(Constituency.class,constituency);
+    	ConstituencyCompleteVO constituencyCompleteVO=new ConstituencyCompleteVO();
+    	List<MasterVO> districtsToPopulate=new ArrayList<MasterVO>();
+    	if(!selectedConstituency.getDistricts().isEmpty()){
+    		if(selectedConstituency.getDistricts().get(0).getDivision()!=null){
+    			constituencyCompleteVO.setDivision(selectedConstituency.getDistricts().get(0).getDivision().getName());
+    		}
+    	}
+    	List<District> districts=selectedConstituency.getDistricts();
+    	for(District i:districts){
+    		districtsToPopulate.add(new MasterVO(i.getId(), i.getName()));
+    	}
+    	constituencyCompleteVO.setDistricts(districtsToPopulate);
+    	return constituencyCompleteVO;
+    }
+
+    @RequestMapping(value="houses/{houseType}", method=RequestMethod.GET)
+    public @ResponseBody List<MasterVO> getHousesByType(@PathVariable("houseType") final String houseType,
+    		 		final Locale locale){
+    	HouseType selectedHouseType=HouseType.findByFieldName(HouseType.class,"type",houseType, locale.toString());
+    	List<House> houses=House.findAllByFieldName(House.class, "type",selectedHouseType, "name",ApplicationConstants.ASC, locale.toString());
+    	List<MasterVO> housesVOs=new ArrayList<MasterVO>();
+    	for(House i:houses){
+    		housesVOs.add(new MasterVO(i.getId(), i.getDisplayName()));
+    	}
+    	return housesVOs;
+    }
+
+    @RequestMapping(value="memberroles/{houseType}", method=RequestMethod.GET)
+    public @ResponseBody List<MasterVO> getMemberRolesByType(@PathVariable("houseType") final String houseType,
+    		 		final Locale locale){
+    	HouseType selectedRole=HouseType.findByFieldName(HouseType.class,"type",houseType, locale.toString());
+    	List<MemberRole> roles=MemberRole.findAllByFieldName(MemberRole.class, "houseType",selectedRole, "name",ApplicationConstants.ASC, locale.toString());
+    	List<MasterVO> rolesVOs=new ArrayList<MasterVO>();
+    	for(MemberRole i:roles){
+    		rolesVOs.add(new MasterVO(i.getId(), i.getName()));
+    	}
+    	return rolesVOs;
+    }
+
+    @RequestMapping(value="elections/{houseType}", method=RequestMethod.GET)
+    public @ResponseBody List<MasterVO> getElectionsByType(@PathVariable("houseType") final String houseType,
+    		 		final Locale locale){
+    	List<Election> elections=Election.findByHouseType(houseType, locale.toString());
+    	List<MasterVO> rolesVOs=new ArrayList<MasterVO>();
+    	for(Election i:elections){
+    		rolesVOs.add(new MasterVO(i.getId(), i.getName()));
+    	}
+    	return rolesVOs;
+    }
+
+    @RequestMapping(value="constituencies/{houseType}", method=RequestMethod.GET)
+    public @ResponseBody List<MasterVO> getConstituenciesByType(@PathVariable("houseType") final String houseType,
+    		 		final Locale locale){
+    	List<MasterVO> constituenciesVOs=Constituency.findAllByHouseType(houseType, locale.toString());
+    	return constituenciesVOs;
+    }
+
+    @RequestMapping(value="election/{electionId}/electionType", method=RequestMethod.GET)
+    public @ResponseBody Reference getElectionType(@PathVariable("electionId") final Long electionId,
+            final Locale locale) {
+        Election election = Election.findById(Election.class, electionId);
+        ElectionType electionType = election.getElectionType();
+        Reference reference = new Reference();
+        reference.setId(String.valueOf(electionType.getId()));
+        reference.setName(electionType.getName());
+        return reference;
+    }
+
+    @RequestMapping(value="district/{tehsilId}", method=RequestMethod.GET)
+    public @ResponseBody Reference getDistrict(@PathVariable("tehsilId") final Long tehsilId,
+            final Locale locale) {
+        Tehsil tehsil=Tehsil.findById(Tehsil.class,tehsilId);
+        Reference reference = new Reference();
+        reference.setId(String.valueOf(tehsil.getId()));
+        reference.setName(tehsil.getName());
+        return reference;
     }
 }

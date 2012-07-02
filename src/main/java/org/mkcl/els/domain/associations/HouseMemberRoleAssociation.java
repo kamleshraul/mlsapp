@@ -11,6 +11,7 @@ package org.mkcl.els.domain.associations;
 
 import java.io.Serializable;
 import java.util.Date;
+import java.util.List;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -71,10 +72,21 @@ public class HouseMemberRoleAssociation implements Serializable {
     @Temporal(TemporalType.DATE)
     private Date oathDate;
 
+    /** The resignation date*/
+    @Temporal(TemporalType.DATE)
+    private Date resignationDate;
+
     /** The constituency. */
     @ManyToOne(fetch=FetchType.EAGER)
     @JoinColumn(name = "constituency_id")
     private Constituency constituency;
+
+    /** In Council, each constituency has a subtype.
+     * For eg: "Nominated by Teachers" Constituency may have
+     * "Nominated from Pune-Beed" as a subtype.
+     */
+    //@Column(length = 600)
+    //private String constituencySubtype;
 
     /** The internal poll date. */
     @Temporal(TemporalType.DATE)
@@ -205,7 +217,9 @@ public class HouseMemberRoleAssociation implements Serializable {
         Boolean retVal = false;
         HouseMemberRoleAssociation domain = getMemberHouseRoleRepository().findByPK(
                     this);
-        retVal = (!domain.getVersion().equals(this.version));
+        if(domain!=null){
+            retVal = (!domain.getVersion().equals(this.version));
+        }
         return retVal;
     }
 
@@ -413,4 +427,25 @@ public class HouseMemberRoleAssociation implements Serializable {
 		this.locale = locale;
 	}
 
+	public Date getResignationDate() {
+		return resignationDate;
+	}
+
+	public void setResignationDate(final Date resignationDate) {
+		this.resignationDate = resignationDate;
+	}
+
+	public static List<HouseMemberRoleAssociation> findByMemberIdRolePriorityHouseId(
+			final Long member, final int rolepriority, final Long house, final String locale) {
+		return getMemberHouseRoleRepository().findByMemberIdRolePriorityHouseId(
+				member,rolepriority,house,locale);
+	}
+
+	//public String getConstituencySubtype() {
+	//	return constituencySubtype;
+	//}
+
+	//public void setConstituencySubtype(String constituencySubtype) {
+	//	this.constituencySubtype = constituencySubtype;
+	//}
 }

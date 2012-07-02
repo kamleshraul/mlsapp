@@ -35,7 +35,7 @@ import org.springframework.beans.factory.annotation.Configurable;
 @Configurable
 @Entity
 @Table(name = "elections")
-//@JsonIgnoreProperties({"electionType"})
+//@JsonIgnoreProperties({"electionType","house"})
 public class Election extends BaseDomain implements Serializable {
 
     // ---------------------------------Attributes-------------------------------------------------
@@ -58,6 +58,10 @@ public class Election extends BaseDomain implements Serializable {
     /** The to date. */
     @Temporal(TemporalType.DATE)
     private Date toDate;
+
+    @ManyToOne
+    @JoinColumn(name="house_id")
+    private House house;
 
     @Autowired
     private transient ElectionRepository electionRepository;
@@ -175,5 +179,13 @@ public class Election extends BaseDomain implements Serializable {
     }
 
 
+    public House getHouse() {
+        return house;
+    }
+
+
+    public void setHouse(final House house) {
+        this.house = house;
+    }
 
 }

@@ -13,7 +13,6 @@ import org.mkcl.els.domain.User;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Repository;
-import org.springframework.transaction.annotation.Transactional;
 
 /**
  * The Class UserRepository.
@@ -44,10 +43,5 @@ public class UserRepository extends BaseRepository<User,Long>{
 			logger.error(e.getMessage());
 			return new User();
 		}
-	}
-	@Transactional(readOnly=false)
-	public void assignMemberId(final Long memberId,final Long userId){
-		String query="UPDATE User u SET u.id="+ memberId +"WHERE u.id="+userId;
-		this.em().createQuery(query).executeUpdate();
 	}
 }

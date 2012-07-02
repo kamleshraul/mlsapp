@@ -10,14 +10,16 @@
 package org.mkcl.els.domain;
 
 import java.io.Serializable;
+import java.util.List;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Table;
 
+import org.mkcl.els.repository.MinistryRepository;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Configurable;
 
-// TODO: Auto-generated Javadoc
 /**
  * The Class Ministry.
  *
@@ -35,14 +37,17 @@ public class Ministry extends BaseDomain implements Serializable{
     /** The name. */
     @Column(length = 900)
     private String name;
-    
+
     /** The is expired. */
     @Column
     private  Boolean isExpired;
-    
+
     /** The remarks. */
     @Column(length = 1000)
     private String remarks;
+
+    @Autowired
+    private transient MinistryRepository ministryRepository;
     // ---------------------------------Constructors----------------------------------------------
 
 	/**
@@ -51,7 +56,7 @@ public class Ministry extends BaseDomain implements Serializable{
     public Ministry() {
 		super();
 	}
-	
+
 	/**
 	 * Instantiates a new ministry.
 	 *
@@ -59,12 +64,27 @@ public class Ministry extends BaseDomain implements Serializable{
 	 * @param isExpired the is expired
 	 * @param remarks the remarks
 	 */
-	public Ministry(String name, Boolean isExpired, String remarks) {
+	public Ministry(final String name, final Boolean isExpired, final String remarks) {
 		super();
 		this.name = name;
 		this.isExpired = isExpired;
 		this.remarks = remarks;
 	}
+
+	// ---------------------------------Domain Methods----------------------------------------------
+    public static MinistryRepository getMinistryRepository() {
+        MinistryRepository repository = new Ministry().ministryRepository;
+        if (repository == null) {
+            throw new IllegalStateException(
+                    "MinistryRepository has not been injected in Ministry Domain");
+        }
+        return repository;
+    }
+
+    public static List<Ministry> findUnassignedMinistries(final String locale) {
+        return getMinistryRepository().findUnassignedMinistries(locale);
+    }
+
 	// ---------------------------------getters and setters----------------------------------------------
 	/**
 	 * Gets the name.
@@ -74,16 +94,16 @@ public class Ministry extends BaseDomain implements Serializable{
 	public String getName() {
 		return name;
 	}
-	
+
 	/**
 	 * Sets the name.
 	 *
 	 * @param name the new name
 	 */
-	public void setName(String name) {
+	public void setName(final String name) {
 		this.name = name;
 	}
-	
+
 	/**
 	 * Gets the checks if is expired.
 	 *
@@ -92,16 +112,16 @@ public class Ministry extends BaseDomain implements Serializable{
 	public Boolean getIsExpired() {
 		return isExpired;
 	}
-	
+
 	/**
 	 * Sets the checks if is expired.
 	 *
 	 * @param isExpired the new checks if is expired
 	 */
-	public void setIsExpired(Boolean isExpired) {
+	public void setIsExpired(final Boolean isExpired) {
 		this.isExpired = isExpired;
 	}
-	
+
 	/**
 	 * Gets the remarks.
 	 *
@@ -110,14 +130,14 @@ public class Ministry extends BaseDomain implements Serializable{
 	public String getRemarks() {
 		return remarks;
 	}
-	
+
 	/**
 	 * Sets the remarks.
 	 *
 	 * @param remarks the new remarks
 	 */
-	public void setRemarks(String remarks) {
+	public void setRemarks(final String remarks) {
 		this.remarks = remarks;
 	}
-	
+
 }

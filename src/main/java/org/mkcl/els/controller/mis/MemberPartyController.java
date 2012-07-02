@@ -10,6 +10,7 @@
 package org.mkcl.els.controller.mis;
 
 import java.text.SimpleDateFormat;
+import java.util.List;
 import java.util.Locale;
 
 import javax.servlet.http.HttpServletRequest;
@@ -17,12 +18,17 @@ import javax.validation.Valid;
 
 import org.mkcl.els.common.editors.BaseEditor;
 import org.mkcl.els.common.util.ApplicationConstants;
+import org.mkcl.els.common.util.FormaterUtil;
 import org.mkcl.els.controller.BaseController;
 import org.mkcl.els.domain.CustomParameter;
 import org.mkcl.els.domain.Grid;
+import org.mkcl.els.domain.House;
+import org.mkcl.els.domain.HouseType;
 import org.mkcl.els.domain.Member;
 import org.mkcl.els.domain.Party;
 import org.mkcl.els.domain.associations.MemberPartyAssociation;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.propertyeditors.CustomDateEditor;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
@@ -49,6 +55,8 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 @RequestMapping("member/party")
 public class MemberPartyController extends BaseController{
 
+    private static final Logger logger = LoggerFactory
+    .getLogger(MemberPartyController.class);
     /**
      * List.
      *
@@ -80,7 +88,7 @@ public class MemberPartyController extends BaseController{
     @RequestMapping(value = "/new", method = RequestMethod.GET)
     public String newForm(final ModelMap model, final Locale locale,
             final HttpServletRequest request) {
-         MemberPartyAssociation domain = new MemberPartyAssociation();
+        MemberPartyAssociation domain = new MemberPartyAssociation();
         populateNew(model, domain, locale, request);
         model.addAttribute("domain", domain);
         //THIS IS USED TO REMOVE THE BUG WHERE IN RECORD UPDATED MESSAGE
@@ -108,6 +116,15 @@ public class MemberPartyController extends BaseController{
                 .findByMemberIdAndId(member, recordIndex);
         populateEdit(model, domain, request, locale);
         model.addAttribute("domain", domain);
+        //this is done so as to remove the bug due to which update message appears even though there
+        //is a fresh new/edit request i.e after creating/updating records if we click on
+        //new /edit then success message appears
+        if(request.getSession().getAttribute("type")==null){
+            model.addAttribute("type","");
+        }else{
+          model.addAttribute("type","success");
+          request.getSession().removeAttribute("type");
+        }
         return "member/party/edit";
     }
 
@@ -133,12 +150,15 @@ public class MemberPartyController extends BaseController{
         validateCreate(domain, result, request);
         model.addAttribute("domain", domain);
         if (result.hasErrors()) {
+            model.addAttribute("type","error");
             poulateCreateIfErrors(model, domain, request, locale);
             return "member/party/new";
         }
+        populateCreateIfNoErrors(model, domain, request);
         domain.persist();
         request.getSession().setAttribute("refresh", "");
         redirectAttributes.addFlashAttribute("type", "success");
+        request.getSession().setAttribute("type", "success");
         redirectAttributes.addFlashAttribute("msg", "create_success");
         String returnUrl = "redirect:/member/party/"
                 + domain.getRecordIndex() + "/edit?member="
@@ -166,12 +186,14 @@ public class MemberPartyController extends BaseController{
         validateUpdate(domain, result, request);
         model.addAttribute("domain", domain);
         if (result.hasErrors()) {
+            model.addAttribute("type","error");
             poulateUpdateIfErrors(model, domain, request, locale);
             return "member/party/edit";
         }
         populateUpdateIfNoErrors(model, domain, request);
         domain.merge();
         redirectAttributes.addFlashAttribute("type", "success");
+        request.getSession().setAttribute("type", "success");
         redirectAttributes.addFlashAttribute("msg", "update_success");
         String returnUrl = "redirect:/member/party/"
                 + domain.getRecordIndex() + "/edit?member="
@@ -212,12 +234,29 @@ public class MemberPartyController extends BaseController{
     private void populateNew(final ModelMap model,
             final MemberPartyAssociation domain, final Locale locale,
             final HttpServletRequest request) {
+        //this will be used to display the image of assembly/council
+        String houseType=request.getParameter("houseType");
+        model.addAttribute("houseType",houseType);
+        //populating house types
+        List<HouseType> houseTypes=HouseType.findAll(HouseType.class, "name",ApplicationConstants.ASC, locale.toString());
+        model.addAttribute("houseTypes",houseTypes);
+        //populating houses.initially all display will be on the basis of selected house type
+        //but user can change the house type as per requirement.
+        List<House> houses=House.findByHouseType(houseType,locale.toString());
+        model.addAttribute("houses",houses);
+        //locale is set
         domain.setLocale(locale.toString());
+        //parties are populated sorted by name
         model.addAttribute("parties", Party.findAll(Party.class, "name",
                 ApplicationConstants.ASC, locale.toString()));
+        //member is added to model
         Long member = Long.parseLong(request.getParameter("member"));
         model.addAttribute("member",
                 Long.parseLong(request.getParameter("member")));
+        //full name will be displayed in the title of the page
+        Member selectedMember=Member.findById(Member.class,member);
+        model.addAttribute("fullname", selectedMember.getFullname());
+        //index value is set to 0 or latest value in db+1
         int index = MemberPartyAssociation.findHighestRecordIndex(member);
         domain.setRecordIndex(index + 1);
     }
@@ -233,19 +272,41 @@ public class MemberPartyController extends BaseController{
     private void populateEdit(final ModelMap model,
             final MemberPartyAssociation domain,
             final HttpServletRequest request, final Locale locale) {
-        model.addAttribute("parties", Party.findAll(Party.class, "name",
-                ApplicationConstants.ASC, locale.toString()));
-        //this is the case when u r editing a record by double clicking a row in grid.
+        //adding member to model.If its a request arising by double clicking /clicking edit link then
+        //member will be read from request.else if it is by redirection from post/put it will be read from
+        //session.
+        Long member=(long)0;
         if(request.getParameter("member")!=null){
-            model.addAttribute("member", Long.parseLong(request.getParameter("member")));
-        }//this is the case when we create/update a record and there is a redirection
-        else{
-            model.addAttribute("member", request.getSession()
-                    .getAttribute("member"));
+            member= Long.parseLong(request.getParameter("member"));
+        }else{
+        	member=(Long) request.getSession()
+            .getAttribute("member");
             request.getSession().removeAttribute("member");
         }
-
-
+        model.addAttribute("member",member);
+        //this will be used to display the image of assembly/council
+        String houseType=null;
+        if(request.getParameter("houseType")!=null){
+            houseType= request.getParameter("houseType");
+        }else{
+            houseType=(String) request.getSession()
+            .getAttribute("houseType");
+            request.getSession().removeAttribute("houseType");
+        }
+        model.addAttribute("houseType",houseType);
+        //adding house information
+        if(domain.getHouse()!=null){
+        House house=domain.getHouse();
+        model.addAttribute("houseName",house.getDisplayName());
+        model.addAttribute("houseId",house.getId());
+        }
+        //populating full name to be displayed as title
+        Member selectedMember=Member.findById(Member.class,member);
+        model.addAttribute("fullname", selectedMember.getFullname());
+        //populating party and party name as now party will not be a select box but a text box
+        Party selectedParty=domain.getParty();
+        model.addAttribute("party",selectedParty.getId());
+        model.addAttribute("partyName",selectedParty.getName());
     }
 
     /**
@@ -257,14 +318,35 @@ public class MemberPartyController extends BaseController{
      */
     private void validateCreate(final MemberPartyAssociation domain, final Errors errors,
             final HttpServletRequest request) {
+        //checking for duplicate entry
         if (domain.isDuplicate()) {
             Object[] params = new Object[3];
             params[0] = domain.getParty().getName();
-            params[1] = domain.getFromDate();
-            params[2] = domain.getToDate();
-            errors.rejectValue("version", "Duplicate", params,
-                    "Entry with Party:" + params[0] + "From Date:" + params[1]
-                            + ",To Date:" + params[2] + " already exists");
+            if(domain.getFromDate()==null){
+                params[1]="";
+            }else{
+                params[1] = FormaterUtil.getDateFormatter(domain.getLocale()).format(domain.getFromDate());
+            }
+            if(domain.getToDate()==null){
+                params[2]="";
+            }else{
+                params[2] = FormaterUtil.getDateFormatter(domain.getLocale()).format(domain.getToDate());
+            }
+            if(((String)params[1]).isEmpty()&&((String)params[2]).isEmpty()){
+                errors.rejectValue("version", "PARTYDUPLICATEFRMTODEFAULT", params,
+                        "Party:" + params[0] +" already exists");
+            }else if(((String)params[1]).isEmpty()){
+                errors.rejectValue("version", "PARTYDUPLICATETODEFAULT", params,
+                        "Party:" + params[0] + ", From Date:" + params[1]
+                                +  " already exists");
+            }else if(((String)params[2]).isEmpty()){
+                errors.rejectValue("version", "PARTYDUPLICATEFRMDEFAULT", params,
+                        "Party:" + params[0] +", To Date:" + params[2] + " already exists");
+            }else{
+            errors.rejectValue("version", "PARTYDUPLICATE", params,
+                    "Party:" + params[0] + ", From Date:" + params[1]
+                            + ", To Date:" + params[2] + " already exists");
+            }
         }
     }
 
@@ -277,6 +359,7 @@ public class MemberPartyController extends BaseController{
      */
     private void validateUpdate(final MemberPartyAssociation domain, final Errors errors,
             final HttpServletRequest request) {
+        //checking for version mismatch
     	if (domain.isVersionMismatch()) {
             errors.rejectValue("VersionMismatch", "version");
         }
@@ -293,6 +376,7 @@ public class MemberPartyController extends BaseController{
     private void poulateCreateIfErrors(final ModelMap model,
             final MemberPartyAssociation domain, final HttpServletRequest request,
             final Locale locale) {
+        //if there is validation error
         populateNew(model, domain, locale, request);
     }
 
@@ -307,6 +391,7 @@ public class MemberPartyController extends BaseController{
     private void poulateUpdateIfErrors(final ModelMap model,
             final MemberPartyAssociation domain, final HttpServletRequest request,
             final Locale locale) {
+        //if there is validation error
         populateEdit(model, domain, request, locale);
     }
 
@@ -319,7 +404,16 @@ public class MemberPartyController extends BaseController{
      */
     private void populateUpdateIfNoErrors(final ModelMap model,
             final MemberPartyAssociation domain, final HttpServletRequest request) {
+        //member is added to session so as to allow for redirection
+        request.getSession().setAttribute("member",request.getParameter("member"));
+        request.getSession().setAttribute("houseType",request.getParameter("houseType"));
+    }
 
+    private void populateCreateIfNoErrors(final ModelMap model,
+            final MemberPartyAssociation domain, final HttpServletRequest request) {
+        //member is added to session so as to allow for redirection
+        request.getSession().setAttribute("member",request.getParameter("member"));
+        request.getSession().setAttribute("houseType",request.getParameter("houseType"));
     }
 
     /**
@@ -347,5 +441,6 @@ public class MemberPartyController extends BaseController{
         binder.registerCustomEditor(Party.class, new BaseEditor(
                 new Party()));
         binder.registerCustomEditor(Member.class, new BaseEditor(new Member()));
+        binder.registerCustomEditor(House.class, new BaseEditor(new House()));
     }
 }

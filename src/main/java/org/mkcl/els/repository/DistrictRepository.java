@@ -3,9 +3,9 @@ package org.mkcl.els.repository;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.mkcl.els.common.vo.Reference;
 import org.mkcl.els.domain.Constituency;
 import org.mkcl.els.domain.District;
-import org.mkcl.els.domain.Reference;
 import org.springframework.stereotype.Repository;
 
 import com.trg.search.Search;
@@ -172,4 +172,6 @@ public class DistrictRepository extends BaseRepository<District, Long> {
 	}
 	return districtsRef;
 	}
+
+
 }

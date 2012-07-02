@@ -12,7 +12,7 @@ package org.mkcl.els.repository;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.mkcl.els.domain.Reference;
+import org.mkcl.els.common.vo.Reference;
 import org.mkcl.els.domain.Tehsil;
 import org.springframework.stereotype.Repository;
 
@@ -46,6 +46,12 @@ public class TehsilRepository extends BaseRepository<Tehsil,Long> {
 			tehsilsRef.add(reference);
 		}
 		return tehsilsRef;
+	}
+
+	@SuppressWarnings("unchecked")
+	public List<Tehsil> findByState(final Long stateId, final String locale) {
+		String query="SELECT t FROM Tehsil t JOIN t.district d JOIN d.state s WHERE s.id="+stateId+" AND t.locale='"+locale+"' ORDER BY t.name asc";
+		return this.em().createQuery(query).getResultList();
 	}
 
 }

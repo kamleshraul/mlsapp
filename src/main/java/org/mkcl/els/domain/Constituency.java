@@ -64,8 +64,8 @@ public class Constituency extends BaseDomain implements Serializable {
     private List<District> districts;
 
     /** The division. */
-    @Column(length = 600)
-    private String divisionName;
+    @Column(length = 10000)
+    private String displayName;
 
     /** The voters. */
     private Integer voters;
@@ -96,6 +96,9 @@ public class Constituency extends BaseDomain implements Serializable {
     /** The number. */
     @Column(length = 300)
     private String number;
+
+    @Column(length=500)
+    private String divisionName;
 
     /** The constituency repository. */
     @Autowired
@@ -143,6 +146,10 @@ public class Constituency extends BaseDomain implements Serializable {
         return getConstituencyRepository().findVOByDefaultStateAndHouseType(
                 defaultState, houseType, locale, sortBy, sortOrder);
     }
+
+    public static List<MasterVO> findAllByHouseType(final String houseType, final String locale) {
+		return getConstituencyRepository().findAllByHouseType(houseType,locale) ;
+	}
 
     // ------------------------------------------Getters/Setters-----------------------------------
     /**
@@ -199,22 +206,13 @@ public class Constituency extends BaseDomain implements Serializable {
         this.districts = districts;
     }
 
-    /**
-     * Gets the division name.
-     *
-     * @return the division name
-     */
-    public String getDivisionName() {
-        return divisionName;
+    public String getDisplayName() {
+        return displayName;
     }
 
-    /**
-     * Sets the division name.
-     *
-     * @param divisionName the new division name
-     */
-    public void setDivisionName(final String divisionName) {
-        this.divisionName = divisionName;
+
+    public void setDisplayName(final String displayName) {
+        this.displayName = displayName;
     }
 
     /**
@@ -316,11 +314,11 @@ public class Constituency extends BaseDomain implements Serializable {
         return isReserved;
     }
 
-    public void setIsReserved(Boolean isReserved) {
+    public void setIsReserved(final Boolean isReserved) {
 		this.isReserved = isReserved;
 	}
 
-	public void setIsRetired(Boolean isRetired) {
+	public void setIsRetired(final Boolean isRetired) {
 		this.isRetired = isRetired;
 	}
 
@@ -332,4 +330,22 @@ public class Constituency extends BaseDomain implements Serializable {
     public Boolean getIsRetired() {
         return isRetired;
     }
+
+	public static List<Constituency> findAllByDisplayName(final HouseType houseType,
+			final String displayName, final String locale) {
+		return getConstituencyRepository().findAllByDisplayName(houseType,
+				displayName, locale);
+	}
+
+
+    public String getDivisionName() {
+        return divisionName;
+    }
+
+
+    public void setDivisionName(final String divisionName) {
+        this.divisionName = divisionName;
+    }
+
+
 }

@@ -9,6 +9,10 @@
  */
 package org.mkcl.els.repository;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -17,9 +21,14 @@ import java.util.Set;
 import javax.persistence.Parameter;
 import javax.persistence.Query;
 
+//import org.activiti.engine.RepositoryService;
+//import org.activiti.engine.repository.Deployment;
+import org.mkcl.els.common.util.ApplicationConstants;
+import org.mkcl.els.common.util.FormaterUtil;
 import org.mkcl.els.common.vo.GridData;
 import org.mkcl.els.domain.CustomParameter;
 import org.mkcl.els.domain.Grid;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
 import com.trg.search.Search;
@@ -34,6 +43,8 @@ import com.trg.search.Search;
 @Repository
 public class GridRepository extends BaseRepository<Grid, Long> {
 
+//    @Autowired
+//    private RepositoryService repositoryService;
     /**
      * Find by detail view.
      *
@@ -135,6 +146,14 @@ public class GridRepository extends BaseRepository<Grid, Long> {
                         .equals("Character")) {
                     query.setParameter(i.getName(),
                             requestMap.get(i.getName())[0]);
+                } else if (i.getParameterType().getSimpleName()
+                        .equals("Date")) {                	
+                    try {
+						query.setParameter(i.getName(),
+						      new SimpleDateFormat(ApplicationConstants.DB_DATEFORMAT).parse(requestMap.get(i.getName())[0]));
+					} catch (ParseException e) {
+						e.printStackTrace();
+					}
                 }
             }
         }
@@ -163,6 +182,14 @@ public class GridRepository extends BaseRepository<Grid, Long> {
                         .equals("Character")) {
                     countQuery.setParameter(i.getName(),
                             requestMap.get(i.getName())[0]);
+                }else if (i.getParameterType().getSimpleName()
+                        .equals("Date")) {                	
+                    try {
+                    	countQuery.setParameter(i.getName(),
+						      new SimpleDateFormat(ApplicationConstants.DB_DATEFORMAT).parse(requestMap.get(i.getName())[0]));
+					} catch (ParseException e) {
+						e.printStackTrace();
+					}
                 }
             }
         }
@@ -266,6 +293,14 @@ public class GridRepository extends BaseRepository<Grid, Long> {
                         .equals("Character")) {
                     query.setParameter(i.getName(),
                             requestMap.get(i.getName())[0]);
+                }else if (i.getParameterType().getSimpleName()
+                        .equals("Date")) {                	
+                    try {
+						query.setParameter(i.getName(),
+						      new SimpleDateFormat(ApplicationConstants.DB_DATEFORMAT).parse(requestMap.get(i.getName())[0]));
+					} catch (ParseException e) {
+						e.printStackTrace();
+					}
                 }
             }
         }
@@ -294,6 +329,14 @@ public class GridRepository extends BaseRepository<Grid, Long> {
                         .equals("Character")) {
                     countQuery.setParameter(i.getName(),
                             requestMap.get(i.getName())[0]);
+                }else if (i.getParameterType().getSimpleName()
+                        .equals("Date")) {                	
+                    try {
+                    	countQuery.setParameter(i.getName(),
+						      new SimpleDateFormat(ApplicationConstants.DB_DATEFORMAT).parse(requestMap.get(i.getName())[0]));
+					} catch (ParseException e) {
+						e.printStackTrace();
+					}
                 }
             }
         }
@@ -318,4 +361,137 @@ public class GridRepository extends BaseRepository<Grid, Long> {
         GridData gridVO = new GridData(page, totalPages, count, records);
         return gridVO;
     }
-}
+
+//    /*
+//     * This method is used to get list of workflow deployments
+//     */
+//    public GridData getDeployments(final Long gridId, final Integer rows, Integer page,
+//            final String sidx, final String order, final Locale locale,
+//            final Map<String, String[]> requestMap) {
+//        List<Deployment> deployments=null;
+//        int lastResult=page*rows;
+//        long totalDeployments=repositoryService.createDeploymentQuery().count();
+//        int totalPages=0;
+//        if (totalDeployments > 0) {
+//            totalPages = (int) Math.ceil((float) totalDeployments / rows);
+//        }
+//        if (page > totalPages) {
+//            page = totalPages;
+//        }
+//        int firstResult=rows * page - rows;
+//        int maxResults=(int) (totalDeployments > rows ? totalDeployments : rows);
+//
+//        //Depending on the sidx and order
+//        if(sidx.equals("id")){
+//            if(order.equals(ApplicationConstants.ASC)){
+//                deployments=repositoryService.createDeploymentQuery().orderByDeploymentId().asc().listPage(firstResult,maxResults);
+//            }else{
+//                deployments=repositoryService.createDeploymentQuery().orderByDeploymentId().desc().listPage(firstResult,maxResults);
+//            }
+//        }else if(sidx.equals("name")){
+//            if(order.equals(ApplicationConstants.ASC)){
+//                deployments=repositoryService.createDeploymentQuery().orderByDeploymentName().asc().listPage(firstResult,maxResults);
+//            }else{
+//                deployments=repositoryService.createDeploymentQuery().orderByDeploymentName().desc().listPage(firstResult,maxResults);
+//            }
+//        }else{
+//            if(order.equals(ApplicationConstants.ASC)){
+//                deployments=repositoryService.createDeploymentQuery().orderByDeploymenTime().asc().listPage(firstResult,maxResults);
+//            }else{
+//                deployments=repositoryService.createDeploymentQuery().orderByDeploymenTime().desc().listPage(firstResult,maxResults);
+//            }
+//        }
+//        //converting List<Deployment> into List<Map<String,Object>>
+//        List<Map<String,Object>> records=new ArrayList<Map<String,Object>>();
+//        for(Deployment i:deployments){
+//            Map<String,String> eachRecord=new HashMap<String, String>();
+//            eachRecord.put("id", i.getId());
+//            eachRecord.put("name", i.getName());
+//            eachRecord.put("time", FormaterUtil.getDateFormatter(locale.toString()).format(i.getDeploymentTime()));
+//        }
+//        return new GridData(page, totalPages, totalDeployments, records);
+//    }
+
+//    public GridData getData(final Long gridId, final Integer rows, Integer page,
+//            final String sidx, final String order, final String searchField, final String searchValue,
+//            final Locale locale, final Map<String, String[]> requestMap) {
+//        List<Deployment> deployments=null;
+//        int lastResult=page*rows;
+//        long totalDeployments=repositoryService.createDeploymentQuery().count();
+//        int totalPages=0;
+//        if (totalDeployments > 0) {
+//            totalPages = (int) Math.ceil((float) totalDeployments / rows);
+//        }
+//        if (page > totalPages) {
+//            page = totalPages;
+//        }
+//        int firstResult=rows * page - rows;
+//        int maxResults=(int) (totalDeployments > rows ? totalDeployments : rows);
+//
+//        //Depending on the sidx and order
+//        if(searchField.equals("id")){
+//            if(sidx.equals("id")){
+//                if(order.equals(ApplicationConstants.ASC)){
+//                    deployments=repositoryService.createDeploymentQuery().deploymentId(searchValue).orderByDeploymentId().asc().listPage(firstResult,maxResults);
+//                }else{
+//                    deployments=repositoryService.createDeploymentQuery().deploymentId(searchValue).orderByDeploymentId().desc().listPage(firstResult,maxResults);
+//                }
+//            }else if(sidx.equals("name")){
+//                if(order.equals(ApplicationConstants.ASC)){
+//                    deployments=repositoryService.createDeploymentQuery().deploymentId(searchValue).orderByDeploymentName().asc().listPage(firstResult,maxResults);
+//                }else{
+//                    deployments=repositoryService.createDeploymentQuery().deploymentId(searchValue).orderByDeploymentName().desc().listPage(firstResult,maxResults);
+//                }
+//            }else{
+//                if(order.equals(ApplicationConstants.ASC)){
+//                    deployments=repositoryService.createDeploymentQuery().deploymentId(searchValue).orderByDeploymenTime().asc().listPage(firstResult,maxResults);
+//                }else{
+//                    deployments=repositoryService.createDeploymentQuery().deploymentId(searchValue).orderByDeploymenTime().desc().listPage(firstResult,maxResults);
+//                }
+//            }
+//        }else if(searchField.equals("name")){
+//            if(sidx.equals("id")){
+//                if(order.equals(ApplicationConstants.ASC)){
+//                    deployments=repositoryService.createDeploymentQuery().deploymentName(searchValue).orderByDeploymentId().asc().listPage(firstResult,maxResults);
+//                }else{
+//                    deployments=repositoryService.createDeploymentQuery().deploymentName(searchValue).orderByDeploymentId().desc().listPage(firstResult,maxResults);
+//                }
+//            }else if(sidx.equals("name")){
+//                if(order.equals(ApplicationConstants.ASC)){
+//                    deployments=repositoryService.createDeploymentQuery().deploymentName(searchValue).orderByDeploymentName().asc().listPage(firstResult,maxResults);
+//                }else{
+//                    deployments=repositoryService.createDeploymentQuery().deploymentName(searchValue).orderByDeploymentName().desc().listPage(firstResult,maxResults);
+//                }
+//            }else{
+//                if(order.equals(ApplicationConstants.ASC)){
+//                    deployments=repositoryService.createDeploymentQuery().deploymentName(searchValue).orderByDeploymenTime().asc().listPage(firstResult,maxResults);
+//                }else{
+//                    deployments=repositoryService.createDeploymentQuery().deploymentName(searchValue).orderByDeploymenTime().desc().listPage(firstResult,maxResults);
+//                }
+//            }
+//        }
+//        //converting List<Deployment> into List<Map<String,Object>>
+//        List<Map<String,Object>> records=new ArrayList<Map<String,Object>>();
+//        for(Deployment i:deployments){
+//            Map<String,String> eachRecord=new HashMap<String, String>();
+//            eachRecord.put("id", i.getId());
+//            eachRecord.put("name", i.getName());
+//            eachRecord.put("time", FormaterUtil.getDateFormatter(locale.toString()).format(i.getDeploymentTime()));
+//        }
+//        return new GridData(page, totalPages, totalDeployments, records);
+//
+//    }
+
+//    public GridData getMembers(final Long gridId, final Integer rows, final Integer page,
+//            final String sidx, final String order, final String filterSql, final Locale locale,
+//            final Map<String, String[]> requestMap) {
+//        return null;
+//    }
+//
+//    public GridData getMembers(final Long gridId, final Integer rows, final Integer page,
+//            final String sidx, final String order, final Locale locale,
+//            final Map<String, String[]> requestMap) {
+//
+//      return null;
+//    }
+    }

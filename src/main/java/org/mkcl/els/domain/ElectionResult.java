@@ -25,6 +25,8 @@ import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
 
 import org.codehaus.jackson.annotate.JsonIgnoreProperties;
+import org.mkcl.els.repository.ElectionResultRepository;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Configurable;
 
 /**
@@ -58,6 +60,9 @@ public class ElectionResult extends BaseDomain implements Serializable {
     @Temporal(TemporalType.DATE)
     private Date votingDate;
 
+    /** The total number of voters. */
+    private Integer noOfVoters;
+
     /** The total valid votes. */
     private Integer totalValidVotes;
 
@@ -76,6 +81,12 @@ public class ElectionResult extends BaseDomain implements Serializable {
     @ManyToOne
     @JoinColumn(name="member_id")
     private Member member;
+
+    @Temporal(TemporalType.DATE)
+    private Date electionResultDate;
+
+    @Autowired
+    private transient ElectionResultRepository electionResultRepository;
 
     // ---------------------------------Constructors----------------------------------------------
     /**
@@ -105,8 +116,35 @@ public class ElectionResult extends BaseDomain implements Serializable {
     }
 
     // -------------------------------Domain_Methods--------------------------------------
+    public static ElectionResultRepository getElectionResultRepository() {
+        ElectionResultRepository electionResultRepository = new ElectionResult().electionResultRepository;
+        if (electionResultRepository == null) {
+            throw new IllegalStateException(
+                    "ElectionResultRepository has not been injected in ElectionResult Domain");
+        }
+        return electionResultRepository;
+    }
 
-    // ------------------------------------------Getters/Setters-----------------------------------
+    public static List<ElectionResult> findByHouseAndMember(final long houseId,
+            final Long memberId, final String locale) {
+        return getElectionResultRepository().findByHouseAndMember(houseId, memberId, locale);
+    }
+
+    public Boolean isDuplicate() {
+        ElectionResult duplicate = ElectionResult
+                .findByMemberElectionConstituency(this.getMember(),this.getElection(),this.getConstituency(),this.getLocale());
+        if (duplicate == null) {
+            return false;
+        }
+        return true;
+    }
+    private static ElectionResult findByMemberElectionConstituency(
+			final Member member, final Election election, final Constituency constituency,final String locale) {
+		return getElectionResultRepository().findByMemberElectionConstituency(
+				member, election,constituency,locale);
+	}
+
+	// ------------------------------------------Getters/Setters-----------------------------------
     /**
      * Gets the election.
      *
@@ -222,5 +260,24 @@ public class ElectionResult extends BaseDomain implements Serializable {
 	public void setMember(final Member member) {
 		this.member = member;
 	}
+
+	public Integer getNoOfVoters() {
+		return noOfVoters;
+	}
+
+	public void setNoOfVoters(final Integer noOfVoters) {
+		this.noOfVoters = noOfVoters;
+	}
+
+
+    public Date getElectionResultDate() {
+        return electionResultDate;
+    }
+
+
+    public void setElectionResultDate(final Date electionResultDate) {
+        this.electionResultDate = electionResultDate;
+    }
+
 
 }

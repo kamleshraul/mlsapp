@@ -14,12 +14,18 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.mkcl.els.common.util.ApplicationConstants;
+import org.mkcl.els.common.util.FormaterUtil;
 import org.mkcl.els.common.vo.MasterVO;
+import org.mkcl.els.common.vo.Reference;
 import org.mkcl.els.domain.Constituency;
 import org.mkcl.els.domain.CustomParameter;
+import org.mkcl.els.domain.District;
 import org.mkcl.els.domain.Gender;
+import org.mkcl.els.domain.House;
+import org.mkcl.els.domain.HouseType;
 import org.mkcl.els.domain.MaritalStatus;
 import org.mkcl.els.domain.Party;
+import org.mkcl.els.domain.State;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -46,8 +52,27 @@ public class MasterWebService {
     @RequestMapping(value = "/constituencies/{housetype}/{locale}")
     public @ResponseBody
     List<MasterVO> getConstituencies(@PathVariable("locale") final String locale,@PathVariable("housetype") final String housetype) {
+        //if(housetype.equals(ApplicationConstants.LOWER_HOUSE)){
+        //String defaultstate=((CustomParameter)CustomParameter.findByName(CustomParameter.class, "DEFAULT_STATE", locale)).getValue();
+        //return Constituency.findVOByDefaultStateAndHouseType(defaultstate, housetype, locale,"name",ApplicationConstants.ASC);
+        //}else {
+        HouseType houseType2=HouseType.findByFieldName(HouseType.class, "type", housetype, locale);
+        List<Constituency> constituencies= Constituency.findAllByFieldName(Constituency.class, "houseType", houseType2, "name", ApplicationConstants.ASC, locale);
+        List<MasterVO> constituenciesVO=new ArrayList<MasterVO>();
+        for(Constituency i:constituencies){
+            MasterVO masterVO=new MasterVO(i.getId(),i.getDisplayName());
+            constituenciesVO.add(masterVO);
+        }
+        return constituenciesVO;
+        //}
+    }
+
+    @RequestMapping(value = "/districts/{housetype}/{locale}")
+    public @ResponseBody
+    List<Reference> getDistricts(@PathVariable("locale") final String locale,@PathVariable("housetype") final String housetype) {
         String defaultstate=((CustomParameter)CustomParameter.findByName(CustomParameter.class, "DEFAULT_STATE", locale)).getValue();
-    	return Constituency.findVOByDefaultStateAndHouseType(defaultstate, housetype, locale,"name",ApplicationConstants.ASC);
+        State state=State.findByName(State.class,defaultstate, locale);
+        return District.findDistrictsRefByStateId(state.getId(), "name", ApplicationConstants.ASC, locale);
     }
 
     /**
@@ -104,9 +129,35 @@ public class MasterWebService {
         return maritalStatusVOs;
     }
 
-//    @RequestMapping(value = "/terms/{housetype}/{locale}")
-//    public @ResponseBody
-//    Integer getNoOfTerms(@PathVariable final String housetype,@PathVariable final String locale) {
-//        return Member.maxNoOfTerms(housetype,locale);
-//    }
+    @RequestMapping(value = "/months/{locale}")
+    public @ResponseBody
+    List<MasterVO> getMonths(@PathVariable final String locale) {
+    	   return FormaterUtil.getMonths(locale);
+    }
+
+    @RequestMapping(value = "/houseType/{locale}")
+    public @ResponseBody
+    List<Reference> getHouseType(@PathVariable final String locale) {
+        List<HouseType> houseTypes= HouseType.findAll(HouseType.class,"name",ApplicationConstants.ASC, locale);
+        List<Reference> houseTypeVOs=new ArrayList<Reference>();
+        for(HouseType i:houseTypes){
+            Reference reference=new Reference(i.getType(),i.getName());
+            houseTypeVOs.add(reference);
+        }
+        return houseTypeVOs;
+    }
+
+    @RequestMapping(value = "/house/{houseType}/{locale}")
+    public @ResponseBody
+    List<Reference> getHouse(@PathVariable final String locale,@PathVariable final String houseType) {
+        List<House> houses= House.findByHouseType(houseType, locale);
+        List<Reference> houseVOs=new ArrayList<Reference>();
+        for(House i:houses){
+            Reference reference=new Reference(String.valueOf(i.getId()),i.getDisplayName());
+            houseVOs.add(reference);
+        }
+        return houseVOs;
+    }
+
+
 }

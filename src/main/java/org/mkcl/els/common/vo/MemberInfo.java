@@ -9,16 +9,21 @@
  */
 package org.mkcl.els.common.vo;
 
+
+// TODO: Auto-generated Javadoc
 /**
  * The Class MemberInfo.
+ *
  * @author amitd
  * @author sandeeps
- * @version v1.0.0
+ * @since v1.0.0
  */
 public class MemberInfo {
 
     /** The id. */
     private Long id;
+    
+    private String title;
 
     /** The member name. */
     private String firstName;
@@ -29,25 +34,26 @@ public class MemberInfo {
     /** The last name. */
     private String lastName;
 
+
     /** The member constituency. */
     private String constituency;
 
     /** The party. */
     private String party;
-
-    /** The gender. */
+    
+    private String district;
+    
+    private Integer recordIndex;
+    
+    private String partyFD;
+    
+    private String partyTD;
+    
     private String gender;
-
-    /** The marital status. */
+    
     private String maritalStatus;
-
-    /** The no of terms. */
-    private Integer noOfTerms;
-
-    /** The birth date. */
+    
     private String birthDate;
-
-    private String title;
 
     /**
      * Instantiates a new member info.
@@ -55,23 +61,6 @@ public class MemberInfo {
     public MemberInfo() {
         super();
     }
-
-    public MemberInfo(final Long id, final String firstName, final String middleName,
-            final String lastName, final String constituency, final String party, final String gender,
-            final String maritalStatus, final Integer noOfTerms, final String birthDate) {
-        super();
-        this.id = id;
-        this.firstName = firstName;
-        this.middleName = middleName;
-        this.lastName = lastName;
-        this.constituency = constituency;
-        this.party = party;
-        this.gender = gender;
-        this.maritalStatus = maritalStatus;
-        this.noOfTerms = noOfTerms;
-        this.birthDate = birthDate;
-    }
-
 
 
     /**
@@ -83,6 +72,7 @@ public class MemberInfo {
         return id;
     }
 
+
     /**
      * Sets the id.
      *
@@ -92,61 +82,50 @@ public class MemberInfo {
         this.id = id;
     }
 
-    /**
-     * Gets the first name.
-     *
-     * @return the first name
-     */
-    public String getFirstName() {
-        return firstName;
-    }
 
-    /**
-     * Sets the first name.
-     *
-     * @param firstName the new first name
-     */
-    public void setFirstName(final String firstName) {
-        this.firstName = firstName;
-    }
+   
 
-    /**
-     * Gets the middle name.
-     *
-     * @return the middle name
-     */
-    public String getMiddleName() {
-        return middleName;
-    }
+    public String getTitle() {
+		return title;
+	}
 
-    /**
-     * Sets the middle name.
-     *
-     * @param middleName the new middle name
-     */
-    public void setMiddleName(final String middleName) {
-        this.middleName = middleName;
-    }
 
-    /**
-     * Gets the last name.
-     *
-     * @return the last name
-     */
-    public String getLastName() {
-        return lastName;
-    }
+	public void setTitle(String title) {
+		this.title = title;
+	}
 
-    /**
-     * Sets the last name.
-     *
-     * @param lastName the new last name
-     */
-    public void setLastName(final String lastName) {
-        this.lastName = lastName;
-    }
 
-    /**
+	public String getFirstName() {
+		return firstName;
+	}
+
+
+	public void setFirstName(String firstName) {
+		this.firstName = firstName;
+	}
+
+
+	public String getMiddleName() {
+		return middleName;
+	}
+
+
+	public void setMiddleName(String middleName) {
+		this.middleName = middleName;
+	}
+
+
+	public String getLastName() {
+		return lastName;
+	}
+
+
+	public void setLastName(String lastName) {
+		this.lastName = lastName;
+	}
+
+
+	/**
      * Gets the constituency.
      *
      * @return the constituency
@@ -154,6 +133,7 @@ public class MemberInfo {
     public String getConstituency() {
         return constituency;
     }
+
 
     /**
      * Sets the constituency.
@@ -164,6 +144,7 @@ public class MemberInfo {
         this.constituency = constituency;
     }
 
+
     /**
      * Gets the party.
      *
@@ -172,6 +153,7 @@ public class MemberInfo {
     public String getParty() {
         return party;
     }
+
 
     /**
      * Sets the party.
@@ -182,77 +164,73 @@ public class MemberInfo {
         this.party = party;
     }
 
-    /**
-     * Gets the gender.
-     *
-     * @return the gender
-     */
-    public String getGender() {
-        return gender;
-    }
 
-    /**
-     * Sets the gender.
-     *
-     * @param gender the new gender
-     */
-    public void setGender(final String gender) {
-        this.gender = gender;
-    }
-
-    public String getMaritalStatus() {
-        return maritalStatus;
-    }
+	public String getDistrict() {
+		return district;
+	}
 
 
-    public void setMaritalStatus(final String maritalStatus) {
-        this.maritalStatus = maritalStatus;
-    }
-
-    /**
-     * Gets the no of terms.
-     *
-     * @return the no of terms
-     */
-    public Integer getNoOfTerms() {
-        return noOfTerms;
-    }
-
-    /**
-     * Sets the no of terms.
-     *
-     * @param noOfTerms the new no of terms
-     */
-    public void setNoOfTerms(final Integer noOfTerms) {
-        this.noOfTerms = noOfTerms;
-    }
-
-    /**
-     * Gets the birth date.
-     *
-     * @return the birth date
-     */
-    public String getBirthDate() {
-        return birthDate;
-    }
-
-    /**
-     * Sets the birth date.
-     *
-     * @param birthDate the new birth date
-     */
-    public void setBirthDate(final String birthDate) {
-        this.birthDate = birthDate;
-    }
+	public void setDistrict(String district) {
+		this.district = district;
+	}
 
 
-    public String getTitle() {
-        return title;
-    }
+	public Integer getRecordIndex() {
+		return recordIndex;
+	}
 
 
-    public void setTitle(final String title) {
-        this.title = title;
-    }
+	public void setRecordIndex(Integer recordIndex) {
+		this.recordIndex = recordIndex;
+	}
 
+
+	public String getPartyFD() {
+		return partyFD;
+	}
+
+
+	public void setPartyFD(String partyFD) {
+		this.partyFD = partyFD;
+	}
+
+
+	public String getPartyTD() {
+		return partyTD;
+	}
+
+
+	public void setPartyTD(String partyTD) {
+		this.partyTD = partyTD;
+	}
+
+
+	public String getGender() {
+		return gender;
+	}
+
+
+	public void setGender(String gender) {
+		this.gender = gender;
+	}
+
+
+	public String getMaritalStatus() {
+		return maritalStatus;
+	}
+
+
+	public void setMaritalStatus(String maritalStatus) {
+		this.maritalStatus = maritalStatus;
+	}
+
+
+	public String getBirthDate() {
+		return birthDate;
+	}
+
+
+	public void setBirthDate(String birthDate) {
+		this.birthDate = birthDate;
+	}		
 }

@@ -14,7 +14,6 @@ import java.util.Date;
 import java.util.List;
 
 import javax.persistence.CascadeType;
-import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.JoinColumn;
@@ -36,8 +35,7 @@ import org.springframework.beans.factory.annotation.Configurable;
  */
 @Configurable
 @Entity
-@Table(name="members_ministries") //The name is kept such so as to avoid collision
-                               // with a prior existing table with similar name
+@Table(name="members_ministries")
 @JsonIgnoreProperties({"member", "designation", "memberDepartments"})
 public class MemberMinister extends BaseDomain implements Serializable {
 
@@ -66,6 +64,10 @@ public class MemberMinister extends BaseDomain implements Serializable {
     @ManyToOne
     @JoinColumn(name="ministry_id")
     private Ministry ministry;
+
+    /** The ministry assignment date*/
+    @Temporal(TemporalType.DATE)
+    private Date ministryAssignmentDate;
 
     /** The ministry from date. */
     @Temporal(TemporalType.DATE)
@@ -234,7 +236,17 @@ public class MemberMinister extends BaseDomain implements Serializable {
 	}
 
 
-	public void setMinistry(Ministry ministry) {
+	public void setMinistry(final Ministry ministry) {
 		this.ministry = ministry;
+	}
+
+
+	public Date getMinistryAssignmentDate() {
+		return ministryAssignmentDate;
+	}
+
+
+	public void setMinistryAssignmentDate(final Date ministryAssignmentDate) {
+		this.ministryAssignmentDate = ministryAssignmentDate;
 	}
 }

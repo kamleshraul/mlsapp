@@ -185,6 +185,14 @@ public class GenericController<T extends BaseDomain> extends BaseController {
 		populateEdit(model, domain, request);
 		/***********************/
 		model.addAttribute("domain", domain);
+		//this is done so as to remove the bug due to which update message appears even though there
+        //is a fresh new/edit request i.e after creating/updating records if we click on
+        //new /edit then success message appears
+        if(request.getSession().getAttribute("type")==null){
+            model.addAttribute("type","");
+        }else{
+          request.getSession().removeAttribute("type");
+        }
 		return urlPattern+"/"+"edit";
 	}
 
@@ -230,12 +238,19 @@ public class GenericController<T extends BaseDomain> extends BaseController {
 		/**********************/
 	    trimString(model, domain, request);
 		((BaseDomain) domain).persist();
+		populateAfterCreate(model, domain, request);
 		redirectAttributes.addFlashAttribute("type", "success");
+		//this is done so as to remove the bug due to which update message appears even though there
+        //is a fresh new/edit request i.e after creating/updating records if we click on
+        //new /edit then success message appears
+        request.getSession().setAttribute("type","success");
 		redirectAttributes.addFlashAttribute("msg", "create_success");
 		String returnUrl = "redirect:/" + servletPath + "/"
 		+ ((BaseDomain) domain).getId() + "/edit";
 		return returnUrl;
 	}
+
+
 
 	/**
 	 * Update.
@@ -284,12 +299,19 @@ public class GenericController<T extends BaseDomain> extends BaseController {
 		/**********************************/
 		trimString(model, domain, request);
 		((BaseDomain) domain).merge();
+		populateAfterUpdate(model, domain, request);
 		redirectAttributes.addFlashAttribute("type", "success");
+		//this is done so as to remove the bug due to which update message appears even though there
+		//is a fresh new/edit request i.e after creating/updating records if we click on
+		//new /edit then success message appears
+		request.getSession().setAttribute("type","success");
 		redirectAttributes.addFlashAttribute("msg", "update_success");
 		String returnUrl = "redirect:/" + servletPath + "/"
 		+ ((BaseDomain) domain).getId() + "/edit";
 		return returnUrl;
 	}
+
+
 
 	@SuppressWarnings("unchecked")
 	private void partialUpdate(final T domain, final String partialUpdate, final Long id) {
@@ -520,7 +542,7 @@ public class GenericController<T extends BaseDomain> extends BaseController {
 						.split("<")[1].split(">")[0];
 						final Class<?> clazzField = Class.forName(itemClass);
 						binder.registerCustomEditor(Set.class, i.getName(),
-								new CustomCollectionEditor(Set.class) {
+								new CustomCollectionEditor(List.class) {
 
 							@Override
 							protected Object convertElement(
@@ -668,6 +690,10 @@ public class GenericController<T extends BaseDomain> extends BaseController {
 		model.addAttribute("msg", "create_failed");
 	}
 
+	protected void populateAfterCreate(final ModelMap model, final T domain,
+			final HttpServletRequest request) {
+	}
+
 	/**
 	 * Populate update if no errors.
 	 *
@@ -692,6 +718,10 @@ public class GenericController<T extends BaseDomain> extends BaseController {
 		populateEdit(model, domain, request);
 		model.addAttribute("type", "error");
 		model.addAttribute("msg", "update_failed");
+	}
+
+	protected void populateAfterUpdate(final ModelMap model, final T domain,
+			final HttpServletRequest request) {
 	}
 
 	/**

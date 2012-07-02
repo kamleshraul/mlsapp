@@ -9,6 +9,7 @@
  */
 package org.mkcl.els.controller;
 
+import java.io.UnsupportedEncodingException;
 import java.util.Locale;
 import java.util.Map;
 
@@ -54,9 +55,9 @@ public class GridController extends GenericController<Grid> {
     @RequestMapping(value = "/{gridId}/meta", method = RequestMethod.GET)
     public @ResponseBody
     GridConfig getConfig(@PathVariable final Long gridId,
-                         final ModelMap model,
-                         final HttpServletRequest request)
-            throws ClassNotFoundException {
+            final ModelMap model,
+            final HttpServletRequest request)
+    throws ClassNotFoundException {
         return Grid.getConfig(gridId);
     }
 
@@ -85,45 +86,134 @@ public class GridController extends GenericController<Grid> {
     @RequestMapping(value = "/data/{gridId}", method = RequestMethod.GET)
     public @ResponseBody
     GridData get(@PathVariable final Long gridId,
-                 @RequestParam(value = "page", required = false) final Integer page,
-                 @RequestParam(value = "rows", required = false) final Integer rows,
-                 @RequestParam(value = "sidx", required = false) final String sidx,
-                 @RequestParam(value = "sord", required = false) final String order,
-                 @RequestParam(value = "_search", required = false) final Boolean search,
-                 @RequestParam(value = "searchField", required = false) final String searchField,
-                 @RequestParam(value = "searchString", required = false) final String searchString,
-                 @RequestParam(value = "searchOper", required = false) final String searchOper,
-                 @RequestParam(value = "baseFilters", required = false) final String baseFilters,
-                 final ModelMap model,
-                 final HttpServletRequest request,
-                 final Locale locale) throws ClassNotFoundException {
-    	//Adding support for dynamic parameters in where clause of grid count and select query
+            @RequestParam(value = "page", required = false) final Integer page,
+            @RequestParam(value = "rows", required = false) final Integer rows,
+            @RequestParam(value = "sidx", required = false) final String sidx,
+            @RequestParam(value = "sord", required = false) final String order,
+            @RequestParam(value = "_search", required = false) final Boolean search,
+            @RequestParam(value = "searchField", required = false) final String searchField,
+            @RequestParam(value = "searchString", required = false) final String searchString,
+            @RequestParam(value = "searchOper", required = false) final String searchOper,
+            @RequestParam(value = "baseFilters", required = false) final String baseFilters,
+            final ModelMap model,
+            final HttpServletRequest request,
+            final Locale locale) throws ClassNotFoundException {
+        //Adding support for dynamic parameters in where clause of grid count and select query
         //Here search is a get request and hence the parameters are encoded using ISO-8859-1 scheme .This
         //needs to be converted to utf-8 before any search operations can be performed.
-    	Map<String,String[]> requestMap=request.getParameterMap();
+        Map<String,String[]> requestMap=request.getParameterMap();
         GridData gridData=new GridData();
         if (search) {
             //this for deployment on tomcat
-//            try {
-//                String param=request.getParameter("filters");
-//                String decodedFiltersData=null;
-//                decodedFiltersData = new String(param.getBytes("ISO-8859-1"), "UTF-8");
-//                Filter filter = Filter.create(decodedFiltersData);
-//                 gridData=gridService.getData(
-//                        gridId, rows, page, sidx, order, filter.toSQl(), locale,requestMap);
-//            }
-//            catch (UnsupportedEncodingException e) {
-//                e.printStackTrace();
-//            }
+                        try {
+                            String param=request.getParameter("filters");
+                            String decodedFiltersData=null;
+                            decodedFiltersData = new String(param.getBytes("ISO-8859-1"), "UTF-8");
+                            Filter filter = Filter.create(decodedFiltersData);
+                             gridData=gridService.getData(
+                                    gridId, rows, page, sidx, order, filter.toSQl(), locale,requestMap);
+                        }
+                        catch (UnsupportedEncodingException e) {
+                            e.printStackTrace();
+                        }
             //this is for deployment on glassfish
-            String param=request.getParameter("filters");
-            Filter filter = Filter.create(param);
-            gridData=gridService.getData(
-                 gridId, rows, page, sidx, order, filter.toSQl(), locale,requestMap);
+//            String param=request.getParameter("filters");
+//            Filter filter = Filter.create(param);
+//            gridData=gridService.getData(
+//                    gridId, rows, page, sidx, order, filter.toSQl(), locale,requestMap);
         } else {
             gridData= gridService.getData(gridId, rows, page, sidx, order, locale,requestMap);
         }
         return gridData;
     }
+
+//    @RequestMapping(value = "/member/{gridId}", method = RequestMethod.GET)
+//    public @ResponseBody
+//    GridData getMembers(@PathVariable final Long gridId,
+//            @RequestParam(value = "page", required = false) final Integer page,
+//            @RequestParam(value = "rows", required = false) final Integer rows,
+//            @RequestParam(value = "sidx", required = false) final String sidx,
+//            @RequestParam(value = "sord", required = false) final String order,
+//            @RequestParam(value = "_search", required = false) final Boolean search,
+//            @RequestParam(value = "searchField", required = false) final String searchField,
+//            @RequestParam(value = "searchString", required = false) final String searchString,
+//            @RequestParam(value = "searchOper", required = false) final String searchOper,
+//            @RequestParam(value = "baseFilters", required = false) final String baseFilters,
+//            final ModelMap model,
+//            final HttpServletRequest request,
+//            final Locale locale) throws ClassNotFoundException {
+//        //Adding support for dynamic parameters in where clause of grid count and select query
+//        //Here search is a get request and hence the parameters are encoded using ISO-8859-1 scheme .This
+//        //needs to be converted to utf-8 before any search operations can be performed.
+//        Map<String,String[]> requestMap=request.getParameterMap();
+//        GridData gridData=new GridData();
+//        if (search) {
+//            //this for deployment on tomcat
+//            //            try {
+//            //                String param=request.getParameter("filters");
+//            //                String decodedFiltersData=null;
+//            //                decodedFiltersData = new String(param.getBytes("ISO-8859-1"), "UTF-8");
+//            //                Filter filter = Filter.create(decodedFiltersData);
+//            //                 gridData=gridService.getData(
+//            //                        gridId, rows, page, sidx, order, filter.toSQl(), locale,requestMap);
+//            //            }
+//            //            catch (UnsupportedEncodingException e) {
+//            //                e.printStackTrace();
+//            //            }
+//            //this is for deployment on glassfish
+//            String param=request.getParameter("filters");
+//            Filter filter = Filter.create(param);
+//            gridData=gridService.getMembers(
+//                    gridId, rows, page, sidx, order, filter.toSQl(), locale,requestMap);
+//        } else {
+//            gridData= gridService.getMembers(gridId, rows, page, sidx, order, locale,requestMap);
+//        }
+//        return gridData;
+//    }
+//
+//
+//    @RequestMapping(value = "/data/deployments/{gridId}", method = RequestMethod.GET)
+//    public @ResponseBody
+//    GridData getDeployments(@PathVariable final Long gridId,
+//            @RequestParam(value = "page", required = false) final Integer page,
+//            @RequestParam(value = "rows", required = false) final Integer rows,
+//            @RequestParam(value = "sidx", required = false) final String sidx,
+//            @RequestParam(value = "sord", required = false) final String order,
+//            @RequestParam(value = "_search", required = false) final Boolean search,
+//            @RequestParam(value = "searchField", required = false) final String searchField,
+//            @RequestParam(value = "searchString", required = false) final String searchString,
+//            @RequestParam(value = "searchOper", required = false) final String searchOper,
+//            @RequestParam(value = "baseFilters", required = false) final String baseFilters,
+//            final ModelMap model,
+//            final HttpServletRequest request,
+//            final Locale locale) throws ClassNotFoundException {
+//        Map<String,String[]> requestMap=request.getParameterMap();
+//        GridData gridData=new GridData();
+//        if (search) {
+//            //this for deployment on tomcat
+//            try {
+//                String param=request.getParameter("filters");
+//                String decodedFiltersData=null;
+//                decodedFiltersData = new String(param.getBytes("ISO-8859-1"), "UTF-8");
+//                Filter filter = Filter.create(decodedFiltersData);
+//                Rule[] rules=filter.getRules();
+//                gridData=gridService.getDeployments(
+//                        gridId, rows, page, sidx, order, rules[0].getField(), rules[0].getData(), locale,requestMap);
+//            }
+//            catch (UnsupportedEncodingException e) {
+//                e.printStackTrace();
+//            }
+//            //this is for deployment on glassfish
+//            //            String param=request.getParameter("filters");
+//            //            Filter filter = Filter.create(param);
+//            //            Rule[] rules=filter.getRules();
+//            //            gridData=gridService.getData(
+//            //                 gridId, rows, page, sidx, order, rules[0].getField(), rules[0].getData(), locale,requestMap);
+//        } else {
+//            gridData= gridService.getDeployments(gridId, rows, page, sidx, order, locale,requestMap);
+//        }
+//        return gridData;
+//    }
+
 
 }

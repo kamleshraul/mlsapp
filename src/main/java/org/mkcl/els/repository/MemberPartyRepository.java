@@ -78,11 +78,23 @@ public class MemberPartyRepository extends
      * @return the member party association
      */
     public MemberPartyAssociation findByPK(final MemberPartyAssociation association) {
+        //lesson learnt:if a field is null and is added as a filter then to enable them to form part
+        //of where clause make sure null check is done otherwise null fields are not send as a part of where
+        //clause.
         Search search = new Search();
         search.addFilterEqual("member", association.getMember());
         search.addFilterEqual("party", association.getParty());
-        search.addFilterEqual("fromDate", association.getFromDate());
-        search.addFilterEqual("toDate", association.getToDate());
+        search.addFilterEqual("recordIndex", association.getRecordIndex());
+        if(association.getFromDate()==null){
+            search.addFilterNull("fromDate");
+        }else{
+            search.addFilterEqual("fromDate", association.getFromDate());
+        }
+        if(association.getToDate()==null){
+            search.addFilterNull("toDate");
+        }else{
+            search.addFilterEqual("toDate", association.getToDate());
+        }
         return (MemberPartyAssociation) this.searchUnique(search);
     }
 }

@@ -10,6 +10,7 @@
 package org.mkcl.els.controller.mis;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
@@ -24,10 +25,11 @@ import org.mkcl.els.domain.Contact;
 import org.mkcl.els.domain.Degree;
 import org.mkcl.els.domain.FamilyMember;
 import org.mkcl.els.domain.Gender;
+import org.mkcl.els.domain.House;
 import org.mkcl.els.domain.Language;
 import org.mkcl.els.domain.MaritalStatus;
 import org.mkcl.els.domain.Member;
-import org.mkcl.els.domain.MemberType;
+import org.mkcl.els.domain.MemberRole;
 import org.mkcl.els.domain.Nationality;
 import org.mkcl.els.domain.Profession;
 import org.mkcl.els.domain.Qualification;
@@ -35,6 +37,7 @@ import org.mkcl.els.domain.Relation;
 import org.mkcl.els.domain.Religion;
 import org.mkcl.els.domain.Reservation;
 import org.mkcl.els.domain.Title;
+import org.mkcl.els.domain.associations.HouseMemberRoleAssociation;
 import org.springframework.beans.propertyeditors.CustomCollectionEditor;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
@@ -63,7 +66,7 @@ public class MemberPersonalController extends GenericController<Member> {
     protected void populateModule(final ModelMap model,
             final HttpServletRequest request, final String locale,
             final AuthUser currentUser) {
-        model.addAttribute("housetype", currentUser.getHouseType());
+        model.addAttribute("housetype", request.getParameter("houseType"));
     }
 
     //init binders
@@ -127,8 +130,7 @@ public class MemberPersonalController extends GenericController<Member> {
                 "name", ApplicationConstants.ASC, locale));
         model.addAttribute("degrees", Degree.findAll(Degree.class, "name",
                 ApplicationConstants.ASC, locale));
-        model.addAttribute("languages", Language.findAll(Language.class,
-                "name", ApplicationConstants.ASC, locale));
+        model.addAttribute("languages", Language.findAllSortedByPriorityAndName(locale));
         model.addAttribute("professions", Profession.findAll(Profession.class,
                 "name", ApplicationConstants.ASC, locale));
         model.addAttribute("maritalStatuses", MaritalStatus.findAll(
@@ -146,9 +148,17 @@ public class MemberPersonalController extends GenericController<Member> {
         populate(model, domain,request);
         model.addAttribute("familyCount",0);
         model.addAttribute("qualificationCount",0);
-        model.addAttribute("memberTypes", MemberType.findAll(MemberType.class, "name",
-                ApplicationConstants.DESC, locale));
-    }
+        //alias will always be enabled.
+        domain.setAliasEnabled(true);
+        //initially nof of sons,daughters and children is set to 0
+        model.addAttribute("daughters",0);
+        model.addAttribute("sons",0);
+        model.addAttribute("children",0);
+        //will be used to create default role
+        model.addAttribute("house",request.getParameter("house"));
+        //will be sued to load appropriate background image
+        model.addAttribute("houseType",request.getParameter("houseType"));
+       }
 
     /* (non-Javadoc)
      * @see org.mkcl.els.controller.GenericController#populateEdit(org.springframework.ui.ModelMap, org.mkcl.els.domain.BaseDomain, javax.servlet.http.HttpServletRequest)
@@ -162,6 +172,38 @@ public class MemberPersonalController extends GenericController<Member> {
         model.addAttribute("qualifications", domain.getQualifications());
         model.addAttribute("qualificationCount", domain.getQualifications()
                 .size());
+        int noOfDaughters=0;
+        int noOfSons=0;
+        int noOfChildren=0;
+        String spouseName=null;
+        if(!domain.getFamilyMembers().isEmpty()){
+        for(FamilyMember i:domain.getFamilyMembers()){
+        	String relationName=i.getRelation().getName();
+        	if(relationName.equals(ApplicationConstants.mr_IN_DAUGHTER)||relationName.equals(ApplicationConstants.en_US_DAUGHTER)){
+        		noOfDaughters++;
+        	}else if(relationName.equals(ApplicationConstants.mr_IN_SON)||relationName.equals(ApplicationConstants.en_US_SON)){
+        		noOfSons++;
+        	}else if(relationName.equals(ApplicationConstants.mr_IN_HUSBAND)||relationName.equals(ApplicationConstants.mr_IN_WIFE)||relationName.equals(ApplicationConstants.en_US_WIFE)||relationName.equals(ApplicationConstants.en_US_HUSBAND)){
+        		spouseName=i.getName();
+        		model.addAttribute("spouseName",spouseName);
+        	}
+        }
+        }
+        noOfChildren=noOfSons+noOfDaughters;
+        model.addAttribute("daughters",noOfDaughters);
+        model.addAttribute("sons",noOfSons);
+        model.addAttribute("children",noOfChildren);
+      //will be used to create default role
+        model.addAttribute("house",request.getParameter("house"));
+        //will be sued to load appropriate background image
+        //this is set in session in case of post and put to display the image
+        if(request.getSession().getAttribute("houseType")==null){
+        model.addAttribute("houseType",request.getParameter("houseType"));
+        }else{
+            model.addAttribute("houseType",request.getSession().getAttribute("houseType"));
+            request.getSession().removeAttribute("houseType");
+        }
+        domain.setAliasEnabled(true);
     }
     //private utility method for populating domain with family and qualifications
     /**
@@ -269,9 +311,6 @@ public class MemberPersonalController extends GenericController<Member> {
     protected void preValidateCreate(final Member domain,
             final BindingResult result, final HttpServletRequest request) {
         populateFamilyQualification(domain,request,result);
-        String mtype=request.getParameter("mType");
-		 MemberType memberType=MemberType.findByFieldName(MemberType.class, "type", mtype, domain.getLocale());
-		 domain.setMemberType(memberType);
     }
 
     /* (non-Javadoc)
@@ -342,7 +381,7 @@ public class MemberPersonalController extends GenericController<Member> {
         FamilyMember familyMember=FamilyMember.findById(FamilyMember.class, id);
         familyMember.remove();
         return "info";
-    }
+    }   
 
     /**
      * Delete qualification.
@@ -359,4 +398,64 @@ public class MemberPersonalController extends GenericController<Member> {
         qualification.remove();
         return "info";
     }
+
+    @Override
+    protected void populateAfterCreate(final ModelMap model,
+			final Member domain, final HttpServletRequest request) {
+        //for displaying image on edit page after submission
+        request.getSession().setAttribute("houseType",request.getParameter("houseType"));
+    	//here when a new record is created an entry will be made in house member role asspciation
+    	//with default role.This is done so that a new record always belong to some house on creation.
+    	String isMember=request.getParameter("isMember");
+    	if(isMember!=null){
+    		if(!isMember.isEmpty()){
+    			if(isMember.equals("true")){
+    				Long houseId=Long.parseLong(request.getParameter("house"));
+    				HouseMemberRoleAssociation houseMemberRoleAssociation=new HouseMemberRoleAssociation();
+    				House house=House.findById(House.class,houseId);
+    				houseMemberRoleAssociation.setFromDate(house.getFirstDate());
+    				houseMemberRoleAssociation.setToDate(house.getLastDate());
+    				houseMemberRoleAssociation.setHouse(house);
+    				Date currentDate=new Date();
+    				if(house.getLastDate().after(currentDate)){
+    					houseMemberRoleAssociation.setIsSitting(true);
+    				}
+    				houseMemberRoleAssociation.setMember(domain);
+    				houseMemberRoleAssociation.setLocale(domain.getLocale());
+    				houseMemberRoleAssociation.setRecordIndex(1);
+    				String houseType=house.getType().getType();
+    				String defaultRole=null;
+    				//here locale based code
+    				if(domain.getLocale().equals("en_US")){
+    					if(houseType.equals(ApplicationConstants.LOWER_HOUSE)){
+    						defaultRole=ApplicationConstants.en_US_LOWERHOUSE_DEAFULTROLE;
+    					}else if(houseType.equals(ApplicationConstants.UPPER_HOUSE)){
+    						defaultRole=ApplicationConstants.en_US_UPPERHOUSE_DEAFULTROLE;
+    					}
+    				}else if(domain.getLocale().equals("mr_IN")){
+    					if(houseType.equals(ApplicationConstants.LOWER_HOUSE)){
+    						defaultRole=ApplicationConstants.mr_IN_LOWERHOUSE_DEAFULTROLE;
+    					}else if(houseType.equals(ApplicationConstants.UPPER_HOUSE)){
+    						defaultRole=ApplicationConstants.mr_IN_UPPERHOUSE_DEAFULTROLE;
+    					}
+    				}
+    				houseMemberRoleAssociation.setRole(MemberRole.findByNameHouseTypeLocale(defaultRole, house.getType().getId(), domain.getLocale()));
+    				houseMemberRoleAssociation.persist();
+    			}
+    		}
+    	}
+	}
+
+    @Override
+    protected void populateAfterUpdate(final ModelMap model, final Member domain,
+            final HttpServletRequest request) {
+      //for displaying image on edit page after submission
+       request.getSession().setAttribute("houseType",request.getParameter("houseType"));
+    }
+
+    @Override
+    protected void populateUpdateIfNoErrors(final ModelMap model,
+			final Member domain, final HttpServletRequest request) {
+		populateIfNoErrors(model, domain, request);
+	}
 }

@@ -132,6 +132,14 @@ public class Filter {
             sqlOp = " (" + field + " IN ( " + data + ")) ";
         } else if (op.equals("ni")) {
             sqlOp = " (" + field + " NOT IN ( " + data + ")) ";
+        } else if (op.equals("lt")) {
+            sqlOp = field + "<'" + data + "'";
+        } else if (op.equals("le")) {
+            sqlOp = field + "<='" + data + "'";
+        } else if (op.equals("gt")) {
+            sqlOp = field + ">'" + data + "'";
+        } else if (op.equals("ge")) {
+            sqlOp =field + ">='" + data + "'";
         }
         return sqlOp;
     }

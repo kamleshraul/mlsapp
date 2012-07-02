@@ -36,13 +36,15 @@ public class HouseMemberRoleAssociationPK implements Serializable {
     /** The house. */
     private House house;
 
+    private Integer recordIndex;
+
     /* (non-Javadoc)
      * @see java.lang.Object#hashCode()
      */
     @Override
     public int hashCode() {
         return ( member.hashCode()
-                + role.hashCode() + house.hashCode());
+                + role.hashCode() + house.hashCode()+recordIndex.hashCode());
     }
 
     /* (non-Javadoc)
@@ -54,7 +56,8 @@ public class HouseMemberRoleAssociationPK implements Serializable {
             HouseMemberRoleAssociationPK houseMemberRoleAssociationPK = (HouseMemberRoleAssociationPK) object;
             return (houseMemberRoleAssociationPK.member == this.member)
                     && (houseMemberRoleAssociationPK.role == this.role)
-                    && (houseMemberRoleAssociationPK.house == this.house);
+                    && (houseMemberRoleAssociationPK.house == this.house)
+                    && (houseMemberRoleAssociationPK.recordIndex == this.recordIndex);
         }
         return false;
     }

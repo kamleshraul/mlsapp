@@ -29,7 +29,11 @@ public class MasterVO {
 		this.name = name;
 	}
 
-	/**
+	public MasterVO() {
+        super();
+    }
+
+    /**
      * Gets the name.
      *
      * @return the name

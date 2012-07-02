@@ -33,6 +33,8 @@ public class Designation extends BaseDomain {
     /** The name. */
     @Column(length = 600)
     private String name;
+
+    private Integer priority;
     // ---------------------------------Constructors----------------------------------------------
 
     /**
@@ -69,4 +71,14 @@ public class Designation extends BaseDomain {
 	public void setName(final String name) {
 		this.name = name;
 	}
+
+
+    public Integer getPriority() {
+        return priority;
+    }
+
+
+    public void setPriority(final Integer priority) {
+        this.priority = priority;
+    }
 }

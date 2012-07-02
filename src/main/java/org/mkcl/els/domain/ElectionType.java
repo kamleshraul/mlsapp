@@ -50,6 +50,10 @@ public class ElectionType extends BaseDomain implements Serializable {
     @Autowired
     private transient ElectionTypeRepository electionTypeRepository;
 
+    //added this field so as to relate election type irrespective of locale
+    @Column(length=500)
+    private String type;
+
     // ---------------------------------Constructors----------------------------------------------
     /**
      * Instantiates a new election type.
@@ -99,6 +103,14 @@ public class ElectionType extends BaseDomain implements Serializable {
 
     public void setHouseType(final HouseType houseType) {
         this.houseType = houseType;
+    }
+
+    public String getType() {
+        return type;
+    }
+
+    public void setType(final String type) {
+        this.type = type;
     }
 
 }

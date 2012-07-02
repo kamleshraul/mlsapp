@@ -24,7 +24,7 @@ import org.springframework.beans.factory.annotation.Configurable;
 
 /**
  * The Class Tehsil.
- * 
+ *
  * @author dhananjay
  * @since v1.0.0
  */
@@ -46,7 +46,7 @@ public class Tehsil extends BaseDomain implements Serializable {
     @ManyToOne
     @JoinColumn(name = "district_id")
     private District district;
-    
+
     @Autowired
     private transient TehsilRepository tehsilRepository;
 
@@ -61,7 +61,7 @@ public class Tehsil extends BaseDomain implements Serializable {
 
     /**
      * Instantiates a new tehsil.
-     * 
+     *
      * @param name the name
      * @param district the district
      */
@@ -80,16 +80,20 @@ public class Tehsil extends BaseDomain implements Serializable {
         }
         return tehsilRepository;
     }
-    
-    public static List<Reference> findTehsilsRefByDistrictId(Long districtId,
-			String sortBy, String sortOrder, String locale) {
+
+    public static List<org.mkcl.els.common.vo.Reference> findTehsilsRefByDistrictId(final Long districtId,
+			final String sortBy, final String sortOrder, final String locale) {
 		return getTehsilRepository().findTehsilsRefByDistrictId(districtId,sortBy,sortOrder,locale);
+	}
+
+    public static List<Tehsil> findByState(final Long stateId, final String locale) {
+		return getTehsilRepository().findByState(stateId,locale);
 	}
     // ------------------------------------------Getters/Setters-----------------------------------
 
     /**
      * Gets the name.
-     * 
+     *
      * @return the name
      */
     public String getName() {
@@ -98,7 +102,7 @@ public class Tehsil extends BaseDomain implements Serializable {
 
     /**
      * Sets the name.
-     * 
+     *
      * @param name the new name
      */
     public void setName(final String name) {
@@ -107,7 +111,7 @@ public class Tehsil extends BaseDomain implements Serializable {
 
     /**
      * Gets the district.
-     * 
+     *
      * @return the district
      */
     public District getDistrict() {
@@ -116,13 +120,15 @@ public class Tehsil extends BaseDomain implements Serializable {
 
     /**
      * Sets the district.
-     * 
+     *
      * @param district the new district
      */
     public void setDistrict(final District district) {
         this.district = district;
     }
 
-	
+
+
+
 
 }

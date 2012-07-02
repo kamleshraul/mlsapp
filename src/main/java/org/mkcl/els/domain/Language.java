@@ -10,11 +10,14 @@
 package org.mkcl.els.domain;
 
 import java.io.Serializable;
+import java.util.List;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Table;
 
+import org.mkcl.els.repository.LanguageRepository;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Configurable;
 
 /**
@@ -35,6 +38,11 @@ public class Language extends BaseDomain implements Serializable {
     /** The language. */
     @Column(length = 300)
     private String name;
+    
+    private Integer priority;
+    
+    @Autowired
+    private transient LanguageRepository languageRepository;
 
     // ---------------------------------Constructors----------------------------------------------
     /**
@@ -55,7 +63,18 @@ public class Language extends BaseDomain implements Serializable {
     }
 
     // -------------------------------Domain_Methods----------------------------------------------
-
+    public static LanguageRepository getLanguageRepository() {
+    	LanguageRepository languageRepository = new Language().languageRepository;
+        if (languageRepository == null) {
+            throw new IllegalStateException(
+                    "LanguageRepository has not been injected in Language Domain");
+        }
+        return languageRepository;
+    }
+    
+	public static List<Language> findAllSortedByPriorityAndName(String locale){
+		return getLanguageRepository().findAllSortedByPriorityAndName(locale);
+	}
     // ------------------------------------------Getters/Setters-----------------------------------
     /**
      * Gets the language.
@@ -75,4 +94,11 @@ public class Language extends BaseDomain implements Serializable {
         this.name = name;
     }
 
+	public Integer getPriority() {
+		return priority;
+	}
+
+	public void setPriority(Integer priority) {
+		this.priority = priority;
+	}    
 }

@@ -28,9 +28,11 @@ import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
 
 import org.codehaus.jackson.annotate.JsonIgnoreProperties;
+import org.mkcl.els.common.vo.MasterVO;
 import org.mkcl.els.common.vo.MemberAgeWiseReportVO;
 import org.mkcl.els.common.vo.MemberBiographyVO;
 import org.mkcl.els.common.vo.MemberChildrenWiseReportVO;
+import org.mkcl.els.common.vo.MemberCompleteDetailVO;
 import org.mkcl.els.common.vo.MemberGeneralVO;
 import org.mkcl.els.common.vo.MemberPartyDistrictWiseVO;
 import org.mkcl.els.common.vo.MemberPartyWiseReportVO;
@@ -44,6 +46,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Configurable;
 
 
+// TODO: Auto-generated Javadoc
 /**
  * The Class Member.
  *
@@ -58,8 +61,9 @@ import org.springframework.beans.factory.annotation.Configurable;
     "familyMembers", "positionsHeld", "reservation", "electionResults",
     "memberPartyAssociations", "memberMinisters", "books",
     "credential", "title", "maritalStatus", "gender", "professions",
-    "nationality", "permanentAddress", "presentAddress", "contact",
-    "officeAddress","houseMemberRoleAssociations"})
+    "nationality", "permanentAddress","permanentAddress1","permanentAddress2","presentAddress","presentAddress1","presentAddress2"
+    ,"tempAddress1","tempAddress2", "contact",
+    "officeAddress","officeAddress1","officeAddress2","correspondenceAddress","houseMemberRoleAssociations"})
     public class Member extends BaseDomain implements Serializable {
 
     // ---------------------------------Attributes------------------------------------------
@@ -67,11 +71,6 @@ import org.springframework.beans.factory.annotation.Configurable;
 
     /** The Constant serialVersionUID. */
     private transient static final long serialVersionUID = 1L;
-    
-    /** The member type. */
-    @ManyToOne
-    @JoinColumn(name = "member_type_id")
-    private MemberType memberType;
 
     /** **************Personal_Information************************. */
     /** The title. */
@@ -185,19 +184,65 @@ import org.springframework.beans.factory.annotation.Configurable;
 
     /** ****************Contact Information*************************************. */
     /** The permanent address. */
-    @OneToOne(cascade=CascadeType.ALL)
+    @OneToOne(cascade=CascadeType.ALL,fetch=FetchType.LAZY)
     @JoinColumn(name = "permanentaddress_id")
     protected Address permanentAddress;
 
+    /** The permanent address1. */
+    @OneToOne(cascade=CascadeType.ALL,fetch=FetchType.LAZY)
+    @JoinColumn(name = "permanentaddress1_id")
+    protected Address permanentAddress1;
+
+    /** The permanent address2. */
+    @OneToOne(cascade=CascadeType.ALL,fetch=FetchType.LAZY)
+    @JoinColumn(name = "permanentaddress2_id")
+    protected Address permanentAddress2;
+
     /** The present address. */
-    @OneToOne(cascade=CascadeType.ALL)
+    @OneToOne(cascade=CascadeType.ALL,fetch=FetchType.LAZY)
     @JoinColumn(name = "presentaddress_id")
     protected Address presentAddress;
 
+    /** The present address. */
+    @OneToOne(cascade=CascadeType.ALL,fetch=FetchType.LAZY)
+    @JoinColumn(name = "presentaddress1_id")
+    protected Address presentAddress1;
+
+    /** The present address. */
+    @OneToOne(cascade=CascadeType.ALL,fetch=FetchType.LAZY)
+    @JoinColumn(name = "presentaddress2_id")
+    protected Address presentAddress2;
+
+
     /** The office address. */
-    @OneToOne(cascade = CascadeType.ALL)
+    @OneToOne(cascade = CascadeType.ALL,fetch=FetchType.LAZY)
     @JoinColumn(name = "officeaddress_id")
     private Address officeAddress;
+
+    /** The office address. */
+    @OneToOne(cascade = CascadeType.ALL,fetch=FetchType.LAZY)
+    @JoinColumn(name = "officeaddress1_id")
+    private Address officeAddress1;
+
+    /** The office address. */
+    @OneToOne(cascade = CascadeType.ALL,fetch=FetchType.LAZY)
+    @JoinColumn(name = "officeaddress2_id")
+    private Address officeAddress2;
+
+    /** The temp address1. */
+    @OneToOne(cascade = CascadeType.ALL,fetch=FetchType.LAZY)
+    @JoinColumn(name = "tempAddress1_id")
+    private Address tempAddress1;
+
+    /** The temp address2. */
+    @OneToOne(cascade = CascadeType.ALL,fetch=FetchType.LAZY)
+    @JoinColumn(name = "tempAddress2_id")
+    private Address tempAddress2;
+
+    /** The correspondence address. */
+    @OneToOne(cascade = CascadeType.ALL,fetch=FetchType.LAZY)
+    @JoinColumn(name = "correspondence_id")
+    private Address correspondenceAddress;
 
     /** The contact. */
     @OneToOne(fetch = FetchType.LAZY,cascade=CascadeType.ALL)
@@ -206,7 +251,7 @@ import org.springframework.beans.factory.annotation.Configurable;
 
     // ----------------------------------Other_Informations----------------------------------
     /** The positions held. */
-    @ManyToMany(cascade = CascadeType.ALL)
+    @ManyToMany(cascade = CascadeType.ALL,fetch=FetchType.LAZY)
     @JoinTable(name = "members_positionsheld",
             joinColumns = { @JoinColumn(name = "member_id",
                     referencedColumnName = "id") },
@@ -344,17 +389,19 @@ import org.springframework.beans.factory.annotation.Configurable;
      * Search.
      *
      * @param housetype the housetype
+     * @param house the house
      * @param criteria1 the criteria1
      * @param criteria2 the criteria2
      * @param locale the locale
      * @return the member search page
      * @author sandeep
+     * @param councilCriteria 
      * @since v1.0.0
      */
-    public static MemberSearchPage search(final String housetype, final String criteria1,
-            final Long criteria2, final String locale) {
-        return getMemberRepository().search(housetype,criteria1,
-                criteria2, locale);
+    public static MemberSearchPage search(final String housetype, final Long house, final String criteria1,
+            final Long criteria2, final String locale, String[] councilCriteria) {
+        return getMemberRepository().search(housetype,house,criteria1,
+                criteria2, locale,councilCriteria);
     }
 
 
@@ -365,10 +412,11 @@ import org.springframework.beans.factory.annotation.Configurable;
      * @param locale the locale
      * @return the member biography vo
      * @author sandeep
+     * @param data 
      * @since v1.0.0
      */
-    public static MemberBiographyVO findBiography(final long id, final String locale) {
-        return getMemberRepository().findBiography(id,locale);
+    public static MemberBiographyVO findBiography(final long id, final String locale, String[] data) {
+        return getMemberRepository().findBiography(id,locale,data);
     }
 
     /**
@@ -478,20 +526,38 @@ import org.springframework.beans.factory.annotation.Configurable;
     public static List<MemberGeneralVO> findMembersByDistrict(final String locale){
         return getMemberRepository().findMembersByDistrict(locale);
     }
-    // ------------------------------------------Getters/Setters-----------------------------------
+
     /**
-     * Gets the member type.
+     * Gets the fullname.
      *
-     * @return the member type
+     * @return the fullname
      */
-    public MemberType getMemberType() {
-		return memberType;
+    public String getFullname(){
+    	StringBuffer sb = new StringBuffer();
+    	sb.append(this.getTitle().getName());
+    	sb.append(this.getFirstName());
+    	sb.append(" ");
+    	if(this.getMiddleName() != null){
+    		if(! this.getMiddleName().equals("")){
+    			sb.append(this.getMiddleName());
+    	    	sb.append(" ");
+    		}
+    	}
+    	sb.append(this.getLastName());
+    	return sb.toString().trim();
+    }
+
+    /**
+     * Gets the complete detail.
+     *
+     * @param member the member
+     * @param locale the locale
+     * @return the complete detail
+     */
+    public static MemberCompleteDetailVO getCompleteDetail(final Long member, final String locale) {
+		return getMemberRepository().getCompleteDetail(member,locale);
 	}
-    
-	public void setMemberType(MemberType memberType) {
-		this.memberType = memberType;
-	}
-    
+    // ------------------------------------------Getters/Setters-----------------------------------
     /**
      * Gets the title.
      *
@@ -1359,5 +1425,192 @@ import org.springframework.beans.factory.annotation.Configurable;
     public void setObituary(final String obituary) {
         this.obituary = obituary;
     }
+
+	/**
+	 * Gets the temp address1.
+	 *
+	 * @return the temp address1
+	 */
+	public Address getTempAddress1() {
+		return tempAddress1;
+	}
+
+	/**
+	 * Sets the temp address1.
+	 *
+	 * @param tempAddress1 the new temp address1
+	 */
+	public void setTempAddress1(final Address tempAddress1) {
+		this.tempAddress1 = tempAddress1;
+	}
+
+	/**
+	 * Gets the temp address2.
+	 *
+	 * @return the temp address2
+	 */
+	public Address getTempAddress2() {
+		return tempAddress2;
+	}
+
+	/**
+	 * Sets the temp address2.
+	 *
+	 * @param tempAddress2 the new temp address2
+	 */
+	public void setTempAddress2(final Address tempAddress2) {
+		this.tempAddress2 = tempAddress2;
+	}
+
+	/**
+	 * Gets the permanent address1.
+	 *
+	 * @return the permanent address1
+	 */
+	public Address getPermanentAddress1() {
+		return permanentAddress1;
+	}
+
+	/**
+	 * Sets the permanent address1.
+	 *
+	 * @param permanentAddress1 the new permanent address1
+	 */
+	public void setPermanentAddress1(final Address permanentAddress1) {
+		this.permanentAddress1 = permanentAddress1;
+	}
+
+	/**
+	 * Gets the permanent address2.
+	 *
+	 * @return the permanent address2
+	 */
+	public Address getPermanentAddress2() {
+		return permanentAddress2;
+	}
+
+	/**
+	 * Sets the permanent address2.
+	 *
+	 * @param permanentAddress2 the new permanent address2
+	 */
+	public void setPermanentAddress2(final Address permanentAddress2) {
+		this.permanentAddress2 = permanentAddress2;
+	}
+
+	/**
+	 * Gets the present address1.
+	 *
+	 * @return the present address1
+	 */
+	public Address getPresentAddress1() {
+		return presentAddress1;
+	}
+
+	/**
+	 * Sets the present address1.
+	 *
+	 * @param presentAddress1 the new present address1
+	 */
+	public void setPresentAddress1(final Address presentAddress1) {
+		this.presentAddress1 = presentAddress1;
+	}
+
+	/**
+	 * Gets the present address2.
+	 *
+	 * @return the present address2
+	 */
+	public Address getPresentAddress2() {
+		return presentAddress2;
+	}
+
+	/**
+	 * Sets the present address2.
+	 *
+	 * @param presentAddress2 the new present address2
+	 */
+	public void setPresentAddress2(final Address presentAddress2) {
+		this.presentAddress2 = presentAddress2;
+	}
+
+	/**
+	 * Gets the office address1.
+	 *
+	 * @return the office address1
+	 */
+	public Address getOfficeAddress1() {
+		return officeAddress1;
+	}
+
+	/**
+	 * Sets the office address1.
+	 *
+	 * @param officeAddress1 the new office address1
+	 */
+	public void setOfficeAddress1(final Address officeAddress1) {
+		this.officeAddress1 = officeAddress1;
+	}
+
+	/**
+	 * Gets the office address2.
+	 *
+	 * @return the office address2
+	 */
+	public Address getOfficeAddress2() {
+		return officeAddress2;
+	}
+
+	/**
+	 * Sets the office address2.
+	 *
+	 * @param officeAddress2 the new office address2
+	 */
+	public void setOfficeAddress2(final Address officeAddress2) {
+		this.officeAddress2 = officeAddress2;
+	}
+
+    /**
+     * Gets the correspondence address.
+     *
+     * @return the correspondence address
+     */
+    public Address getCorrespondenceAddress() {
+        return correspondenceAddress;
+    }
+
+    /**
+     * Sets the correspondence address.
+     *
+     * @param correspondenceAddress the new correspondence address
+     */
+    public void setCorrespondenceAddress(final Address correspondenceAddress) {
+        this.correspondenceAddress = correspondenceAddress;
+    }
+
+    public static MasterVO findConstituencyByAssemblyId(final Long member,
+             final Long house) {
+        return getMemberRepository().findConstituencyByAssemblyId(member,
+                house);
+    }
+
+    public  static MasterVO findConstituencyByCouncilDates(final Long member,final Long house,final String criteria,
+            final String fromDate,final String toDate) {
+       return getMemberRepository().findConstituencyByCouncilDates(member,house,
+               criteria,fromDate,toDate);
+   }
+
+    public static MasterVO findPartyByAssemblyId(final Long member,
+            final Long house) {
+       return getMemberRepository().findPartyByAssemblyId(member,
+               house);
+   }
+
+   public  static MasterVO findPartyByCouncilDates(final Long member,final Long house,final String criteria,
+           final String fromDate,final String toDate) {
+      return getMemberRepository().findPartyByCouncilDates(member,house,
+              criteria,fromDate,toDate);
+  }
+
 
 }

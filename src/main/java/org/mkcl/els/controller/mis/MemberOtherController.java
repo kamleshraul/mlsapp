@@ -61,7 +61,14 @@ public class MemberOtherController extends GenericController<Member>{
 		}else{
 	        model.addAttribute("positionCount", 0);
 		}
-    }
+		//will be sued to load appropriate background image
+        //this is set in session in case of post and put to display the image
+        if(request.getSession().getAttribute("houseType")==null){
+        model.addAttribute("houseType",request.getParameter("houseType"));
+        }else{
+            model.addAttribute("houseType",request.getSession().getAttribute("houseType"));
+            request.getSession().removeAttribute("houseType");
+        }    }
 
 	/**
 	 * Populate.
@@ -161,6 +168,12 @@ public class MemberOtherController extends GenericController<Member>{
 	    PositionHeld positionHeld=PositionHeld.findById(PositionHeld.class, id);
 	    positionHeld.remove();
         return "info";
+    }
+
+    @Override
+    protected void populateAfterUpdate(final ModelMap model, final Member domain,
+            final HttpServletRequest request) {
+        request.getSession().setAttribute("houseType",request.getParameter("houseType"));
     }
 }
 

@@ -16,6 +16,7 @@ import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.Id;
 import javax.persistence.IdClass;
+import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.PrimaryKeyJoinColumn;
 import javax.persistence.Table;
@@ -25,6 +26,7 @@ import javax.persistence.Version;
 import javax.validation.constraints.NotNull;
 
 import org.codehaus.jackson.annotate.JsonIgnoreProperties;
+import org.mkcl.els.domain.House;
 import org.mkcl.els.domain.Member;
 import org.mkcl.els.domain.Party;
 import org.mkcl.els.repository.MemberPartyRepository;
@@ -72,8 +74,6 @@ public class MemberPartyAssociation implements Serializable {
     @Temporal(TemporalType.DATE)
     private Date toDate;
 
-    private Boolean sitting;
-
     /** The record index. */
     @NotNull
     private Integer recordIndex;
@@ -83,6 +83,11 @@ public class MemberPartyAssociation implements Serializable {
     private Long version;
 
     private String locale;
+
+    @Id
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "house_id")
+    private House house;
 
     @Autowired
     private transient MemberPartyRepository memberPartyRepository;
@@ -154,7 +159,9 @@ public class MemberPartyAssociation implements Serializable {
         Boolean retVal = false;
         MemberPartyAssociation domain = getMemberPartyRepository().findByPK(
                     this);
-        retVal = (!domain.getVersion().equals(this.version));
+        if(domain!=null){
+            retVal = (!domain.getVersion().equals(this.version));
+        }
         return retVal;
     }
 
@@ -232,14 +239,6 @@ public class MemberPartyAssociation implements Serializable {
         this.toDate = toDate;
     }
 
-    public Boolean getSitting() {
-        return sitting;
-    }
-
-    public void setSitting(final Boolean sitting) {
-        this.sitting = sitting;
-    }
-
     public Integer getRecordIndex() {
         return recordIndex;
     }
@@ -265,5 +264,17 @@ public class MemberPartyAssociation implements Serializable {
     public void setLocale(final String locale) {
         this.locale = locale;
     }
+
+
+    public House getHouse() {
+        return house;
+    }
+
+
+    public void setHouse(final House house) {
+        this.house = house;
+    }
+
+
 
 }

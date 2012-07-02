@@ -30,6 +30,7 @@ public class MemberPartyAssociationPK implements Serializable {
 
     private Party party;
 
+    private Integer recordIndex;
 
     /*
      * (non-Javadoc)
@@ -38,7 +39,7 @@ public class MemberPartyAssociationPK implements Serializable {
      */
     @Override
     public int hashCode() {
-        return (member.hashCode() + party.hashCode());
+        return (member.hashCode() + party.hashCode()+recordIndex.hashCode());
     }
 
     /*
@@ -51,7 +52,8 @@ public class MemberPartyAssociationPK implements Serializable {
         if (object instanceof MemberPartyAssociationPK) {
             MemberPartyAssociationPK memberPartyAssociationPK = (MemberPartyAssociationPK) object;
             return (memberPartyAssociationPK.member == this.member)
-                    && (memberPartyAssociationPK.party == this.party);
+                    && (memberPartyAssociationPK.party == this.party)
+                    && (memberPartyAssociationPK.recordIndex == this.recordIndex);
         }
         return false;
     }

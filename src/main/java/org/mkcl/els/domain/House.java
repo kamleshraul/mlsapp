@@ -84,6 +84,9 @@ public class House extends BaseDomain implements Serializable {
     @Column(length = 1000)
     private String remarks;
 
+    @Column(length=1000)
+    private String displayName;
+
     /** The sessions. */
     @OneToMany
     @JoinColumn(name = "house_id", referencedColumnName = "id")
@@ -341,5 +344,15 @@ public class House extends BaseDomain implements Serializable {
      */
     public void setSessions(final List<Session> sessions) {
         this.sessions = sessions;
+    }
+
+
+    public String getDisplayName() {
+        return displayName;
+    }
+
+
+    public void setDisplayName(final String displayName) {
+        this.displayName = displayName;
     }
 }

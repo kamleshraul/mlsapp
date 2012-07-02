@@ -691,7 +691,7 @@ public class MenuItem extends BaseDomain implements Serializable {
     @SuppressWarnings("unchecked")
     public static String getMenuXml(final String locale) {
         List<MenuItem> items = getMenuItemRepository().findAll(MenuItem.class,
-                "textKey", "asc", locale);
+                "position", "asc", locale);
         Element root = new Element("root");
         for (MenuItem item : items) {
             Element row = new Element("menu");

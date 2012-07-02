@@ -10,15 +10,19 @@
 package org.mkcl.els.domain;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
+import javax.persistence.JoinColumn;
+import javax.persistence.JoinTable;
 import javax.persistence.ManyToOne;
+import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
-import javax.persistence.criteria.Fetch;
 
 import org.codehaus.jackson.annotate.JsonIgnoreProperties;
 import org.mkcl.els.common.util.FormaterUtil;
@@ -33,10 +37,9 @@ import org.springframework.beans.factory.annotation.Configurable;
  */
 @Configurable
 @Entity
-@Table(name = "members_departments")	//The name is kept such so as to avoid collision
-									// with a prior existing table with similar name
-@JsonIgnoreProperties({"department"})
-public class MemberDepartment extends BaseDomain implements Serializable{
+@Table(name = "members_departments")
+@JsonIgnoreProperties({"department", "subDepartments"})
+public class MemberDepartment extends BaseDomain implements Serializable {
 
 	/** The Constant serialVersionUID. */
 	private static final long serialVersionUID = 1L;
@@ -45,8 +48,12 @@ public class MemberDepartment extends BaseDomain implements Serializable{
 	@ManyToOne(fetch=FetchType.LAZY)
 	private Department department;
 
-	@ManyToOne(fetch=FetchType.LAZY)
-	private DepartmentDetail subDepartment;
+	@OneToMany(fetch=FetchType.EAGER)
+	@JoinTable(name="memberdepartments_subdepartments",
+			joinColumns={@JoinColumn(name="member_department_id", referencedColumnName="id")},
+			inverseJoinColumns={@JoinColumn(name="subdepartment_id", referencedColumnName="id")})
+	private List<SubDepartment> subDepartments;
+
 	/** The from date. */
 	@Temporal(TemporalType.DATE)
 	private Date fromDate;
@@ -63,6 +70,7 @@ public class MemberDepartment extends BaseDomain implements Serializable{
 	 */
 	public MemberDepartment() {
 		super();
+		this.subDepartments = new ArrayList<SubDepartment>();
 	}
 
 	/**
@@ -137,6 +145,14 @@ public class MemberDepartment extends BaseDomain implements Serializable{
 		this.isIndependentCharge = isIndependentCharge;
 	}
 
+	public List<SubDepartment> getSubDepartments() {
+		return subDepartments;
+	}
+
+	public void setSubDepartments(final List<SubDepartment> subDepartments) {
+		this.subDepartments = subDepartments;
+	}
+
 	//---------------------------
 	/**
 	 * Format to date.
@@ -144,7 +160,11 @@ public class MemberDepartment extends BaseDomain implements Serializable{
 	 * @return the string
 	 */
 	public String formatToDate(){
-		return FormaterUtil.getDateFormatter(this.getLocale()).format(this.getToDate());
+		String retVal = "";
+		if(this.getFromDate() != null) {
+			retVal = FormaterUtil.getDateFormatter(this.getLocale()).format(this.getToDate());
+		}
+		return retVal;
 	}
 
 	/**
@@ -153,15 +173,11 @@ public class MemberDepartment extends BaseDomain implements Serializable{
 	 * @return the string
 	 */
 	public String formatFromDate(){
-		return FormaterUtil.getDateFormatter(this.getLocale()).format(this.getFromDate());
+		String retVal = "";
+		if(this.getFromDate() != null) {
+			retVal = FormaterUtil.getDateFormatter(this.getLocale()).format(this.getFromDate());
+		}
+		return retVal;
 	}
 
-	public DepartmentDetail getSubDepartment() {
-		return subDepartment;
-	}
-
-	public void setSubDepartment(DepartmentDetail subDepartment) {
-		this.subDepartment = subDepartment;
-	}
-	
 }

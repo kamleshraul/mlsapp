@@ -11,18 +11,13 @@ package org.mkcl.els.domain;
 
 import java.io.Serializable;
 
-import javax.persistence.AttributeOverride;
-import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
-import javax.persistence.GeneratedValue;
-import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 
-import org.codehaus.jackson.annotate.JsonIgnoreProperties;
 import org.mkcl.els.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Configurable;
@@ -37,13 +32,12 @@ import org.springframework.beans.factory.annotation.Configurable;
 @Configurable
 @Entity
 @Table(name="users")
-
 public class User extends BaseDomain implements Serializable {
 
     // ---------------------------------Attributes------------------------------------------
     /** The Constant serialVersionUID. */
     private transient static final long serialVersionUID = 1L;
-    
+
     /** The title. */
     @Column(length=300)
     private String title;
@@ -61,7 +55,7 @@ public class User extends BaseDomain implements Serializable {
     private String lastName;
 
     /** The credential. */
-    @ManyToOne(fetch=FetchType.LAZY,cascade=CascadeType.ALL)
+    @ManyToOne(fetch=FetchType.LAZY)
     @JoinColumn(name="credential_id")
     private Credential credential;
 
@@ -76,7 +70,6 @@ public class User extends BaseDomain implements Serializable {
      */
     public User() {
         super();
-      //  credential=new Credential();
     }
     // ----------------Domain_Methods------------------------------------------
     /**
@@ -102,10 +95,6 @@ public class User extends BaseDomain implements Serializable {
      */
     public static User findByUserName(final String username,final String locale){
     	return getUserRepository().findByUserName(username, locale);
-    }
-    
-    public static void assignMemberId(final Long memberId,final Long userId){
-    	getUserRepository().assignMemberId(memberId, userId);
     }
     // ------------------------------------------Getters/Setters-----------------------------------
 
@@ -198,7 +187,4 @@ public class User extends BaseDomain implements Serializable {
 	public void setCredential(final Credential credential) {
 		this.credential = credential;
 	}
-	
-	
-	
 }

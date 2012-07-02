@@ -14,6 +14,7 @@ import org.mkcl.els.domain.Member;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 /**
@@ -36,12 +37,17 @@ public class MemberSearchWebService {
      * @param locale the locale
      * @return the member search page
      */
-    @RequestMapping(value = "/{housetype}/{criteria1}/{criteria2}/{locale}")
+    @RequestMapping(value = "/{housetype}/{house}/{criteria1}/{criteria2}/{locale}")
     public @ResponseBody MemberSearchPage search(@PathVariable final String housetype ,
+            @PathVariable final Long house,
             @PathVariable final String criteria1 ,
             @PathVariable final Long criteria2 ,
-            @PathVariable final String locale){
-        return Member.search(housetype , criteria1 , criteria2
-                , locale);
+            @PathVariable final String locale,
+            @RequestParam final String parameterUH,
+            @RequestParam final String date1,
+            @RequestParam final String date2){
+    	String[] councilCriteria={parameterUH,date1,date2};
+        return Member.search(housetype ,house , criteria1 , criteria2
+                , locale,councilCriteria);
     }
 }
