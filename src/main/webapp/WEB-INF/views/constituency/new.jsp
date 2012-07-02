@@ -170,20 +170,25 @@
 
 	function setDisplayNameUH(){
 		if($("#houseTypeType").val()=="upperhouse"){
-		$("#name").val($("#constituencyNameUH").val().trim());			
-		var selectedName=$("#constituencyNameUH").val().trim();
+		console.log($("#upperHouseConstituencyType option:selected").text().trim());
+		$("#name").val($("#upperHouseConstituencyType option:selected").text().trim());			
+		var selectedName=$("#upperHouseConstituencyType option:selected").text().trim();
+		console.log(selectedName);
 		if(selectedName==$("#nominated").val().trim()||selectedName==$("#nominatedByAssemblyMembers").val().trim()){
+			console.log("1");
 			$("#stateP").hide();
 			$("#divisionP").hide();
 			$("#districtP").hide();
 			$("#displayName").val(selectedName);
 		}else if(selectedName==$("#degreeHolder").val().trim()||selectedName==$("#teacher").val().trim()){
+			console.log("2");
 			$("#stateP").show();
 			$("#divisionP").show();
 			$("#districtP").hide();				
 			var divisionName=$("#division option:selected").text();	
 			$("#displayName").val(divisionName.trim()+" "+selectedName.trim());
 		}else{
+			console.log("3");			
 			$("#stateP").show();
 			$("#divisionP").show();
 			$("#districtP").show();
@@ -213,13 +218,13 @@
 		//in first case nominated is the default value and in second case whatever wa set in name will be name on
 		//which decisions will be made.Now if name is set then we will also set the display name.
 		if($('#houseTypeType').val()=="upperhouse") {						
-			var selectedName=$("#name").val().trim();			
+			var selectedName=$("#upperHouseConstituencyType option:selected").text().trim();
 			//1.when its a new record.
 			if(selectedName==""){
 				$("#stateP").hide();
 				$("#divisionP").hide();
 				$("#districtP").hide();
-				$("#constituencyNameUH").val($("#nominated").val().trim());
+				//$("#constituencyNameUH").val($("#nominated").val().trim());
 				$("#name").val($("#nominated").val());
 				$("#displayName").val(selectedName);
 			}//2.validation error
@@ -237,7 +242,7 @@
 					$("#divisionP").show();
 					$("#districtP").show();			
 				}
-				$("#constituencyNameUH").val(selectedName);
+				//$("#constituencyNameUH").val(selectedName);
 				setDisplayNameUH();
 			}			
 			$('.hiddenCommonFields').show();
@@ -293,7 +298,7 @@
 					$("#stateP").hide();
 					$("#divisionP").hide();
 					$("#districtP").hide();
-					$("#constituencyNameUH").val($("#nominated").val().trim());
+					//$("#constituencyNameUH").val($("#nominated").val().trim());
 					$("#name").val($("#nominated").val());
 					var selectedName=$("#name").val();
 					$("#displayName").val(selectedName);
@@ -304,7 +309,7 @@
 				setDisplayNameLH();			
 		});		
 		//UH name change field
-		$("#constituencyNameUH").change(function(){
+		$("#upperHouseConstituencyType").change(function(){
 		    	setDisplayNameUH();					
 		});	
 		//states changed field
@@ -319,7 +324,7 @@
 				//if division changes in cas of housetype=upperhouse and constituencyNameUH=teacher or degree holder
 				//then display name must change too.	
 				if($("#houseTypeType").val()=="upperhouse"){
-					var selectedName=$("#constituencyNameUH").val().trim();
+					var selectedName=$("#upperHouseConstituencyType option:selected").text().trim();
 			        if(selectedName==$("#degreeHolder").val().trim()||selectedName==$("#teacher").val().trim()){
 			        	var divisionName=$("#division option:selected").text().trim();				
 						$("#displayName").val(divisionName+" "+selectedName);  
@@ -336,7 +341,7 @@
 		//districts change
 		$("#districts").change(function(){
 			if($("#houseTypeType").val()=="upperhouse"){
-				var selectedName=$("#constituencyNameUH").val().trim();
+				var selectedName=$("#upperHouseConstituencyType option:selected").text().trim();
 				if(selectedName==$("#localInstitutionNominated").val().trim()){
 					var districtPart="";
 					var selectedDistricts = [];			
@@ -454,13 +459,7 @@
 					<p class="hiddenCouncilFields">
 						<label class="small"><spring:message
 								code="constituency.name" text="Name" /></label>
-						<select id="constituencyNameUH" class="sSelect">
-						<c:forEach begin="1" end="${noOfConstituencyTypes}" var="i">
-						<option value="<spring:message code='upperhouse.constituencytype.${i}' text='Constituency${i}'/>">
-						<spring:message code='upperhouse.constituencytype.${i}' text='Constituency${i}'/>
-						</option>
-						</c:forEach>
-						</select>
+								<form:select path="upperHouseConstituencyType" itemLabel="name" itemValue="id" items="${upperHouseConstituencyTypes}" cssClass="sSelect"></form:select>
 					</p>
 					<form:hidden cssClass="sText" path="name"/>
 					<form:errors path="name" cssClass="validationError" />
