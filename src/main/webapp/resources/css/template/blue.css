@@ -1129,3 +1129,40 @@
 		top: -45px;
 		width: 150px;
 		}
+		
+		/*added by amitd and sandeeps
+		The label of multiselect fields must appear aligned with the top of multi select box*/
+		.labeltop{
+		position:relative;
+		top: -80px;
+		width: 150px;
+		}
+		
+		/*added by sandeep to control opacity of background image*/
+		.opacity20 {
+	filter:alpha(opacity=30);
+	-moz-opacity:0.2;
+    -khtml-opacity: 0.2;
+    opacity: 0.2;
+		}
+    
+    /*images on master pages*/
+    .vidhanmandalImg{
+    background-attachment: fixed;
+    background-image: url("/els/resources/images/vidhanmandal.jpg");
+    background-position: 600px 220px;
+    background-repeat: no-repeat;
+		}
+		
+		.expand{
+		margin-top:100px;
+		}
+		
+		/*added by sandeep singh*/
+		.watermark{
+		background-repeat: no-repeat;
+		background-position: 680px 280px;
+		position: static;
+		background-attachment: fixed;
+		}
+  

@@ -14,7 +14,7 @@
 </head>
 <body>
 
-<div class="fields clearfix">
+<div class="fields clearfix vidhanmandalImg">
 <form:form action="${urlPattern}" method="POST"  modelAttribute="domain">
 	<%@ include file="/common/info.jsp" %>
 	<h2><spring:message code="generic.new.heading" text="Enter Details"/>
@@ -38,10 +38,12 @@
 			<form:errors path="priority" cssClass="validationError"/>	
 		</p>	
 				
-		<div class="fields">
+		<div class="fields expand">
 			<h2></h2>
 			<p class="tright">
 				<input id="submit" type="submit" value="<spring:message code='generic.submit' text='Submit'/>" class="butDef">
+				<input id="cancel" type="button" value="<spring:message code='generic.cancel' text='Cancel'/>" class="butDef">
+				
 			</p>
 		</div>	
 	<form:hidden path="version" />

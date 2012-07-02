@@ -9,21 +9,36 @@
 	<script type="text/javascript" src="./resources/js/ui.sexyselect.min.0.55.js"></script>	 -->
 
 <script type="text/javascript">
+	function translateNumerals(input, locale) {
+	  console.log(input);
+	  var offset=null;
+	  //zero digit value must be defined for each locale 
+	  if(locale=="mr_IN"){
+		  offset=2358;
+	  }
+	  var formattedDigit=new Array();
+	  for (var i=0;i<input.length; i++) {
+	    var c = input.charCodeAt(i);
+	    var codepoint=parseInt(c)+offset;
+	    var unicode=String.fromCharCode(codepoint);	    
+	    formattedDigit.push(unicode);	    
+	  }	 
+	  return formattedDigit.join("");  
+	}
 	function populateDivisions(state) {
 		$.get('ref/' + state + '/divisions', function(data) {
-			$('#divisions option').empty();
+			$('#division option').empty();
 			var options = "";
 			for ( var i = 0; i < data.length; i++) {
 				options += "<option value='"+data[i].id+"'>" + data[i].name
 						+ "</option>";
 			}
-			$('#divisions').html(options);
-			if ($('#divisions').val() != undefined) {
-				populateDistricts($('#divisions').val());				
+			$('#division').html(options);
+			if ($('#division').val() != undefined) {
+				populateDistricts($('#division').val());				
 			} else {
 				var options = "";
 				$('#districts').html(options);				
-				alert("There is NO division in selected state");
 			}
 		});
 	}
@@ -78,38 +93,288 @@
 		$('#nearestAirport').prop('selectedIndex', -1);
 	}
 
+	function setDisplayNameLH(){
+		if($("#houseTypeType").val()=="lowerhouse"){
+		var constituencyName=$("#constituencyNameLH").val();		
+		if(constituencyName!=""){
+			$("#name").val(constituencyName);
+			constituencyNumber=$("#number").val();
+			constituencyIsReserved=$("#isReserved").val();
+			constituencyReservedFor=$("#reservedFor option:selected").text();				
+			var selectedDistricts = [];			
+			$('#districts :selected').each(function(i, selected) {
+			selectedDistricts[i] = $(selected).text();
+			});	
+			var constituencyDistrict="";
+			for(var i=0;i<selectedDistricts.length;i++){
+				if(i<selectedDistricts.length-1){
+				constituencyDistrict=constituencyDistrict+selectedDistricts[i].trim()+",";
+				}else{
+				constituencyDistrict=constituencyDistrict+selectedDistricts[i].trim();						
+				}//inside if else
+			}//for			
+			//**************algorithm*********for display name 
+			if(constituencyNumber!=""){
+				cNo=translateNumerals(constituencyNumber,$("#locale").val());
+				if(constituencyDistrict.length>1){	
+					if(constituencyIsReserved=="true"){
+						if(constituencyReservedFor!=""){
+							$("#displayName").val(cNo+"-"+constituencyName+"("+constituencyReservedFor+"), "+$("#districtMsg").val()+" "+constituencyDistrict);
+						}//reserved for
+						else{
+							alert($("#selectReservedForMsg").val());
+						}//reserved for
+					}//is reserved 
+					else{
+						$("#displayName").val(cNo+"-"+constituencyName+", "+$("#districtMsg").val()+" "+constituencyDistrict);			
+					}//is reserved 
+				}//district
+				else{
+					alert($("#selectDistrictMsg").val());							
+				}//district	
+			}//number
+			else{
+				if(constituencyDistrict.length>1){	
+					if(constituencyIsReserved=="true"){
+						if(constituencyReservedFor!=""){
+							$("#displayName").val(constituencyName+"("+constituencyReservedFor+"), "+$("#districtMsg").val()+" "+constituencyDistrict);
+						}//reserved for
+						else{
+							alert($("#selectReservedForMsg").val());
+						}//reserved for
+					}//is reserved 
+					else{
+						$("#displayName").val(constituencyName+", "+$("#districtMsg").val()+" "+constituencyDistrict);			
+					}//is reserved 
+				}//district
+				else{
+					if(constituencyIsReserved=="true"){
+						if(constituencyReservedFor!=""){
+							$("#displayName").val(constituencyName+"("+constituencyReservedFor+")");
+						}//reserved for
+						else{
+							alert($("#selectReservedForMsg").val());
+						}//reserved for
+					}//is reserved 
+					else{
+						$("#displayName").val(constituencyName);			
+					}//is reserved 			
+				}//district	
+			}//number				
+		}//name
+		else{
+			$("#name").val("");	
+			$("#displayName").val("");
+		}//name
+		}
+	}
+
+	function setDisplayNameUH(){
+		if($("#houseTypeType").val()=="upperhouse"){
+		$("#name").val($("#constituencyNameUH").val().trim());			
+		var selectedName=$("#constituencyNameUH").val().trim();
+		if(selectedName==$("#nominated").val().trim()||selectedName==$("#nominatedByAssemblyMembers").val().trim()){
+			$("#stateP").hide();
+			$("#divisionP").hide();
+			$("#districtP").hide();
+			$("#displayName").val(selectedName);
+		}else if(selectedName==$("#degreeHolder").val().trim()||selectedName==$("#teacher").val().trim()){
+			$("#stateP").show();
+			$("#divisionP").show();
+			$("#districtP").hide();				
+			var divisionName=$("#division option:selected").text();	
+			$("#displayName").val(divisionName.trim()+" "+selectedName.trim());
+		}else{
+			$("#stateP").show();
+			$("#divisionP").show();
+			$("#districtP").show();
+			var districtPart="";
+			var selectedDistricts = [];			
+			$('#districts :selected').each(function(i, selected) {
+				selectedDistricts[i] = $(selected).text();
+			});	
+			for(var i=0;i<selectedDistricts.length;i++){
+				if(i<selectedDistricts.length-1){
+				districtPart=districtPart+selectedDistricts[i].trim()+"-";
+				}else{
+					districtPart=districtPart+selectedDistricts[i].trim();						
+				}
+			}				
+			$("#displayName").val(districtPart.trim()+" "+selectedName);				
+		}
+		}
+	}
+
 	$(document).ready(function() {
-		//$('select[multiple="multiple"]').sexyselect({width:250,showTitle: false, selectionMode: 'multiple', styleize: true});		
-		if($('#isReserved').is(':checked'))
-	   	{
-			$('#rLabel').show();
-			$('#reservedFor').show();   	    
-		}
-		else {
-			$('#rLabel').hide();
-			$('#reservedFor').hide();
-		}
-		if ($('#states').val() != undefined) {
-			$('#states').change(function() {
-				populateDivisions($('#states').val());
+		$("#houseTypeMasterDiv").hide();
+		//Depending on the values of houseTypeType suitable controls will be made visible. 
+		//if houseTypeType is upperhouse then state,district and division field will be hidden.
+		//also we will start with nominated values. and so constituencyNameUH,name and displayname will
+		//be set to nominated values.Here two things can happen when we are arriving on new by cliking new or because of validation error
+		//in first case nominated is the default value and in second case whatever wa set in name will be name on
+		//which decisions will be made.Now if name is set then we will also set the display name.
+		if($('#houseTypeType').val()=="upperhouse") {
+			$('.hiddenCommonFields').show();
+			$('.hiddenAssemblyFields').hide();
+			$('.hiddenCouncilFields').show();			
+			$('.tright').show();			
+			var selectedName=$("#name").val().trim();
+			//1.when its a new record.
+			if(selectedName==""){
+				$("#stateP").hide();
+				$("#divisionP").hide();
+				$("#districtP").hide();
+				$("#constituencyNameUH").val($("#nominated").val().trim());
+				$("#name").val($("#nominated").val());
+				$("#displayName").val(selectedName);
+			}//2.validation error
+			else{
+				if(selectedName==$("#nominated").val().trim()||selectedName==$("#nominatedByAssemblyMembers").val().trim()){
+					$("#stateP").hide();
+					$("#divisionP").hide();
+					$("#districtP").hide();				
+				}else if(selectedName==$("#degreeHolder").val().trim()||selectedName==$("#teacher").val().trim()){
+					$("#stateP").show();
+					$("#divisionP").show();
+					$("#districtP").hide();	
+					$("#division").val($("#divisionId").val());			
+				}else{
+					$("#stateP").show();
+					$("#divisionP").show();
+					$("#districtP").show();	
+					$("#division").val($("#divisionId").val());							
+				}
+				$("#constituencyNameUH").val(selectedName);
+				if($("#displayName").val()==""){
+				setDisplayNameUH();
+				}
+			}					
+		} else if($('#houseTypeType').val()=="lowerhouse") {
+			$('.hiddenAssemblyFields').show();
+			$('.hiddenCommonFields').show();
+			$('.hiddenCouncilFields').hide();			
+			$('.tright').show();
+			var constituencyName=$("#name").val().trim();			
+			if(constituencyName!=""){
+				$("#constituencyNameLH").val(constituencyName);									
+				setDisplayNameLH();								
+			}else{
+				$("#constituencyNameLH").val("");
+				$("#displayName").val("");											
+			}				
+		}	
+		//set initial state and division
+		//housetype change	
+		$('#houseType').change(function() {	
+			//set the value of houseTypeType
+			var selectedHTId=$(this).val();
+			$("#houseTypeMaster").val(selectedHTId);
+			var houseTypeType=$("#houseTypeMaster option:selected").text().trim();
+			$("#houseTypeType").val(houseTypeType);	
+			var isReserved=$("#isReserved").val();
+			if(isReserved=="true"){
+				$('#rLabel').show();
+				$('#reservedFor').show();  
+				$("#isReservedCheck").attr("checked","checked");
+			}else{
+				$('#rLabel').hide();
+				$('#reservedFor').hide();  
+				$("#isReservedCheck").removeAttr("checked");
+			}
+			$("#isSittingSelect").val($("#isRetired").val());						
+			if($('#houseTypeType').val()=="lowerhouse") {
+					$('.hiddenAssemblyFields').show();
+					$('.hiddenCommonFields').show();
+					$('.hiddenCouncilFields').hide();			
+					$('.tright').show();
+					$("#name").val("");
+					$("#displayName").val("");
+					$("#constituencyNameLH").val("");
+			}
+			else if($('#houseTypeType').val()=="upperhouse") {
+					$('.hiddenCommonFields').show();
+					$('.hiddenAssemblyFields').hide();
+					$('.hiddenCouncilFields').show();				
+					$('.tright').show();					
+					$("#stateP").hide();
+					$("#divisionP").hide();
+					$("#districtP").hide();
+					$("#constituencyNameUH").val($("#nominated").val().trim());
+					$("#name").val($("#nominated").val());
+					var selectedName=$("#name").val();
+					$("#displayName").val(selectedName);
+			}								
+		}); 
+		//LH name change field		
+		$("#constituencyNameLH").change(function(){
+				setDisplayNameLH();			
+		});		
+		//UH name change field
+		$("#constituencyNameUH").change(function(){
+		    	setDisplayNameUH();					
+		});	
+		//states changed field
+		$('#state').change(function() {
+			populateDivisions($('#state').val());
+			clearRA();
+		}); 
+		//division change field
+		$('#division').change(function() {
+				populateDistricts($('#division').val());				
 				clearRA();
-			}); //change
-		} //if
-		if ($('#divisions').val() != undefined) {			
-			$('#divisions').change(function() {
-				populateDistricts($('#divisions').val());				
-				clearRA();				
-			}); //change
-		} //if	
-		if ($('#districts').val() != undefined) {
-			$('#districts').change(function() {
-				clearRA();
-			}); //change			
-		} //if
-		/* $('#isReserved').click(function() {
-			$("#reservedFor").toggle(this.checked);
-		}); */
-		$('#railwayStationsBySelectedDistricts').click(function() {
+				//if division changes in cas of housetype=upperhouse and constituencyNameUH=teacher or degree holder
+				//then display name must change too.	
+				if($("#houseTypeType").val()=="upperhouse"){
+					var selectedName=$("#constituencyNameUH").val().trim();
+			        if(selectedName==$("#degreeHolder").val().trim()||selectedName==$("#teacher").val().trim()){
+			        	var divisionName=$("#division option:selected").text().trim();				
+						$("#displayName").val(divisionName+" "+selectedName);  
+						$("#divisionName").val($("#division option:selected").text());
+						$("#divisionId").val($("#division").val());	
+					}else if(selectedName==$("#localInstitutionNominated").val().trim()){
+						var divisionName=$("#division option:selected").text().trim();				
+						$("#displayName").val(divisionName+" "+selectedName);  
+						$("#divisionName").val($("#division option:selected").text());
+						$("#divisionId").val($("#division").val());
+					}											
+				}//only in case of upperhouse has some effect			
+		});		
+		//districts change
+		$("#districts").change(function(){
+			if($("#houseTypeType").val()=="upperhouse"){
+				var selectedName=$("#constituencyNameUH").val().trim();
+				if(selectedName==$("#localInstitutionNominated").val().trim()){
+					var districtPart="";
+					var selectedDistricts = [];			
+					$('#districts :selected').each(function(i, selected) {
+						selectedDistricts[i] = $(selected).text().trim();
+					});	
+					for(var i=0;i<selectedDistricts.length;i++){
+						if(i<selectedDistricts.length-1){
+						districtPart=districtPart+selectedDistricts[i].trim()+"-";
+						}else{
+							districtPart=districtPart+selectedDistricts[i].trim();						
+						}
+					}				
+					$("#displayName").val(districtPart+" "+selectedName);	
+				}	
+			}//upperhouse
+			else if($("#houseTypeType").val()=="lowerhouse"){
+				setDisplayNameLH();
+			}//lowerhouse					
+		});		
+		//number changed function
+		$("#number").change(function(){
+			if($("#houseTypeType").val()=="lowerhouse"){
+				setDisplayNameLH();
+			}
+		});
+		//is retired change		
+		$("#isSittingSelect").change(function(){
+			$("#isRetired").val($(this).val());
+		});	
+		//railway station change  
+	    $('#railwayStationsBySelectedDistricts').click(function() {
 			var selectedDistricts = [];
 			$('#districts :selected').each(function(i, selected) {
 				selectedDistricts[i] = $(selected).val();
@@ -120,6 +385,7 @@
 				populateRailwayStations(selectedDistricts);
 			}
 		});
+		//airport change
 		$('#airportsBySelectedDistricts').click(function() {
 			var selectedDistricts = [];
 			$('#districts :selected').each(function(i, selected) {
@@ -131,52 +397,30 @@
 				populateAirports(selectedDistricts);
 			}
 		});
-		$('#isReserved').click(function() {
-			if($('#isReserved').is(':checked'))
+		//is reserved change		
+		$('#isReservedCheck').click(function() {
+			if($('#isReservedCheck').is(':checked'))
 	   		{
 				$('#rLabel').show();
-				$('#reservedFor').show();   	    
+				$('#reservedFor').show(); 
+				$("#isReserved").val("true");  	    
 			}
 			else {
 				$('#rLabel').hide();
 				$('#reservedFor').hide();
+				$("#isReserved").val("false"); 
 			}
-		});
-		$('#submit').click(function() {
-			var htype = ${housetype};
-			//alert("house type = " + htype);
-			if( htype=='lowerhouse' ) {				
-				$('#divisionName').val($('#divisions option:selected').text().trim());
-				//alert($('#divisionName').val());
-			}
-			else if( htype=='upperhouse' ) {
-				$('#divisionName').val($('#constituencyName').val());
-				//alert($('#divisionName').val());				
-			};
-			if($('#isReserved').is(':checked'))
-		   	{
-				$('#isReserved').val(true);		   	    
-			}
-			else
-		   	{ 				
-				$('#isReserved').val(false);				
-				$('#reservedFor').prop('selectedIndex', -1);
-		   	};
-		   	if($('#isRetired').is(':checked'))
-		   	{
-				$('#isRetired').val(true);		   	    
-			}
-			else
-		   	{ 				
-				$('#isRetired').val(false);				
-		   	};
-		});
-	});//document .ready
+			setDisplayNameLH();			
+		});	
+		$("#reservedFor").change(function(){
+			setDisplayNameLH();
+		});	
+	});
 </script>
 </head>
 <body>
-	<div class="fields clearfix">
-		<form:form action="constituency" method="PUT" id="form"
+<div class="fields clearfix vidhanmandalImg">
+		<form:form action="constituency" method="POST" id="form"
 			modelAttribute="domain">
 			<%@ include file="/common/info.jsp"%>
 			<h2>
@@ -188,74 +432,138 @@
 				]
 			</h2>
 			<form:errors path="version" cssClass="validationError" />
-			<c:choose>
-				<c:when test="${  housetype == 'lowerhouse' }">
 					<p>
 						<label class="small"><spring:message
-								code="constituency.state" text="State" /></label> <select class="sSelect" name="state"
-							id="states">
-							<c:forEach items="${states}" var="i">
-								<option value="${i.id}">
-									<c:out value="${i.name}"></c:out>
-								</option>
-							</c:forEach>
-						</select>
+								code="constituency.houseType"
+								text="House Type" /></label>
+						<form:select path="houseType" items="${houseTypes}" itemLabel="name" itemValue="id" cssClass="sSelect"></form:select>										
 					</p>
-					<p>
-						<label class="small"><spring:message
-								code="constituency.division" text="Division" /></label> <select class="sSelect"
-							name="division" id="divisions">
-							<c:forEach items="${divisions}" var="i">
-								<option value="${i.id}">
-									<c:out value="${i.name}"></c:out>
-								</option>
-							</c:forEach>
-						</select>
-					</p>
-					<p>
-						<label class="small"><spring:message
-								code="constituency.district" text="Districts" /></label>
-						<form:select cssClass="sSelect" path="districts" items="${districts}" itemValue="id"
-							itemLabel="name" multiple="multiple" id="districts"
-							onclick="clearRA()"></form:select>
-						<form:errors path="districts" cssClass="validationError" />
-					</p>
-					<p>
+					<input type="hidden" id="houseTypeType" name="houseTypeType" value="${houseTypeType}" >
+										
+					<p class="hiddenAssemblyFields">
 						<label class="small"><spring:message
 								code="constituency.name" text="Name" /></label>
-						<form:input cssClass="sText" path="name" id="custom" />
-						<form:errors path="name" cssClass="validationError" />
+						<input id="constituencyNameLH" type="text">						
 					</p>
-					<p>
+										
+					<p class="hiddenCouncilFields">
+						<label class="small"><spring:message
+								code="constituency.name" text="Name" /></label>
+						<select id="constituencyNameUH" class="sSelect">
+						<c:forEach begin="1" end="${noOfConstituencyTypes}" var="i">
+						<option value="<spring:message code='upperhouse.constituencytype.${i}' text='Constituency${i}'/>">
+						<spring:message code='upperhouse.constituencytype.${i}' text='Constituency${i}'/>
+						</option>
+						</c:forEach>
+						</select>
+					</p>
+					<form:hidden cssClass="sText" path="name"/>
+					<form:errors path="name" cssClass="validationError" />
+					<input type="hidden" id="nominated" value="<spring:message code='upperhouse.constituencytype.1' text='Constituency1'/>">	
+					<input type="hidden" id="degreeHolder" value="<spring:message code='upperhouse.constituencytype.2' text='Constituency2'/>">						
+					<input type="hidden" id="nominatedByAssemblyMembers" value="<spring:message code='upperhouse.constituencytype.3' text='Constituency3'/>">						
+					<input type="hidden" id="teacher" value="<spring:message code='upperhouse.constituencytype.4' text='Constituency4'/>">						
+					<input type="hidden" id="localInstitutionNominated" value="<spring:message code='upperhouse.constituencytype.5' text='Constituency5'/>">					
+					
+					<p class="hiddenCommonFields" id="stateP">
+						<label class="small"><spring:message
+								code="constituency.state" text="State" /></label>
+						    <select class="sSelect" name="state"
+							id="state">
+							<c:if test="${!(empty states)}">
+							<c:forEach items="${states}" var="i">
+							<c:choose>
+							<c:when test="${defaultState==i.id}">
+							<option value="${i.id}" selected="selected">
+									<c:out value="${i.name}"></c:out>
+								</option>
+							</c:when>
+							<c:otherwise>
+							<option value="${i.id}" selected="selected">
+									<c:out value="${i.name}"></c:out>
+								</option>
+							</c:otherwise>
+							</c:choose>
+							</c:forEach>							
+							</c:if>								
+						</select>
+					</p>
+					
+					<p class="hiddenCommonFields" id="divisionP">
+						<label class="small"><spring:message
+								code="constituency.division" text="Division" /></label>
+						<select class="sSelect" name="division"
+							id="division">
+							<c:if test="${!(empty divisions)}">
+							<c:forEach items="${divisions}" var="i">
+							<c:choose>
+							<c:when test="${selectedDivision==i.id}">
+							<option value="${i.id}" selected="selected">
+									<c:out value="${i.name}"></c:out>
+								</option>
+							</c:when>
+							<c:otherwise>
+							<option value="${i.id}" selected="selected">
+									<c:out value="${i.name}"></c:out>
+								</option>
+							</c:otherwise>
+							</c:choose>
+							</c:forEach>							
+							</c:if>								
+						</select>	
+						<form:hidden path="divisionName"/>
+						<input id="divisionId" name="divisionId" type="hidden" value="${selectedDivision}">											
+					</p>
+					
+					<p class="hiddenCommonFields" id="districtP">
+						<label class="labeltop" style="top: -40px;"><spring:message
+								code="constituency.district" text="Districts" /></label>
+						<form:select cssClass="sSelectMultiple" path="districts" items="${districts}" itemValue="id"
+							itemLabel="name" multiple="multiple" onclick="clearRA()"></form:select>
+						<form:errors path="districts" cssClass="validationError" />
+					</p>					
+					
+					<p class="hiddenAssemblyFields">
 						<label class="small"><spring:message
 								code="constituency.number" text="Number" /></label>
-						<form:input cssClass="sText" path="number" />
+						<form:input cssClass="sText" path="number" id="number"/>
 						<form:errors path="number" cssClass="validationError" />
 					</p>
-					<p>
+					
+					<p class="hiddenAssemblyFields">
 						<label class="small"><spring:message
 								code="constituency.voters" text="Voters" /></label>
-						<form:input cssClass="sText" path="voters" />
+						<form:input cssClass="sText" path="voters" id="voters"/>
 						<form:errors path="voters" cssClass="validationError" />
 					</p>
-					<p>
+					
+					<p class="hiddenAssemblyFields">
 						<label class="small"><spring:message
 								code="constituency.reserved" text="Reserved?" /></label>
-						<form:checkbox id="isReserved" cssClass="sCheck"
-							path="isReserved"/>
+						<input type="checkbox" id="isReservedCheck" name="isReservedCheck" class="sCheck">
+						<form:hidden path="isReserved"/>												
 						<form:errors path="isReserved" cssClass="validationError" />
 					</p>
-					<p id="reservedFor">
+					
+					<p class="hiddenAssemblyFields">
 						<label class="small" id="rLabel"><spring:message
-								code="constituency.reservedFor" text="Reserved for" /></label> 
+								code="constituency.reservedFor" text="Reserved for" /></label>
 						<form:select cssClass="sSelect" path="reservedFor" items="${reservations}" itemValue="id" itemLabel="name" id="reservedFor"></form:select>
-						<form:errors path="reservedFor" cssClass="validationError" />							
+						<form:errors path="reservedFor" cssClass="validationError" />
+					</p>	
+					
+					<p class="hiddenCommonFields">
+						<label class="labeltop" style="top: -40px;"><spring:message
+								code="constituency.displayname" text="Full Name" /></label>
+						<form:textarea cssClass="sTextarea" path="displayName" id="displayName"></form:textarea>
+						<form:errors path="displayName" cssClass="validationError" />
 					</p>
-					<p>
+									
+					<p class="hiddenAssemblyFields">
 						<label class="small"><spring:message
 								code="constituency.railwayStation"
 								text="Nearest Railway Station" /></label>
-						<form:select path="nearestRailwayStation" cssClass="sSelect"
+						<form:select cssClass="sSelect" path="nearestRailwayStation"
 							items="${railwayStations}" itemValue="id" itemLabel="name"
 							id="nearestRailwayStation" size="1"></form:select>
 						<form:errors path="nearestRailwayStation"
@@ -264,7 +572,8 @@
 							id="railwayStationsBySelectedDistricts"
 							value="list for selected districts" />
 					</p>
-					<p>
+					
+					<p class="hiddenAssemblyFields">
 						<label class="small"><spring:message
 								code="constituency.airport" text="Nearest Airport" /></label>
 						<form:select cssClass="sSelect" path="nearestAirport" items="${airports}"
@@ -273,54 +582,47 @@
 						<input type="button" class="small"
 							id="airportsBySelectedDistricts"
 							value="list for selected districts" />
-					</p>
-					<p>
+					</p>			
+					
+					<p class="hiddenAssemblyFields">
 						<label class="small"><spring:message
 								code="constituency.retired" text="Retired?" /></label>
-						<form:checkbox cssClass="sCheck" path="isRetired" id="isRetired"/>
-						<form:errors path="isRetired" cssClass="validationError" />
-					</p>					
-				</c:when>
-				<c:otherwise>
-					<p>
-						<label class="small"><spring:message
-								code="constituency.name" text="Constituency" /></label>
-						<form:input cssClass="sText" path="name" id="constituencyName"/>
-						<form:errors path="name" cssClass="validationError" />
-					</p>					
-					<%-- <p>
-						<label class="small"><spring:message
-								code="constituency.electionType" text="Election Type" /></label> <select
-							name="electionType" id="electionTypes">
-							<c:forEach items="${electionTypes}" var="i">
-								<option value="${i.id}">
-									<c:out value="${i.name}"></c:out>
-								</option>
-							</c:forEach>
+						<select id="isSittingSelect" name="isSittingSelect" class="sSelect">
+						<option value="false"><spring:message code="member.house.sitting" text="Sitting"></spring:message></option>
+						<option value="true"><spring:message code="member.house.ex" text="Ex"></spring:message></option>
 						</select>
-					</p> --%>
-				</c:otherwise>
-			</c:choose>
-			<p>
-				<input type="hidden" name="houseType" value="${houseType}" id="houseType"/>
-				<form:errors path="houseType" cssClass="validationError" />
-			</p>
-			<p>
-				<input type="hidden" name="divisionName" id="divisionName" />
-				<form:errors path="divisionName" cssClass="validationError" />
-			</p>
+						<form:hidden path="isRetired" />		
+						<form:errors path="isRetired" cssClass="validationError" />
+					</p>	
+				
+			
 			<div class="fields">
 				<h2></h2>
 				<p class="tright">
 					<input id="submit" type="submit"
 						value="<spring:message code='generic.submit' text='Submit'/>"
 						class="butDef">
+					<input id="cancel" type="button" value="<spring:message code='generic.cancel' text='Cancel'/>" class="butDef">
+						
 				</p>
 			</div>
 			<form:hidden path="version" />
 			<form:hidden path="id" />
-			<form:hidden path="locale" />									
+			<form:hidden path="locale" />			
 		</form:form>
+		<p id="houseTypeMasterDiv">
+						<label class="small"><spring:message
+								code="constituency.houseType"
+								text="House Type" /></label>
+						<select class="sSelect" id="houseTypeMaster">
+						<c:forEach items="${houseTypes}" var="i">
+						<option value="${i.id}"><c:out value="${i.type}"></c:out></option>
+						</c:forEach>
+						</select>										
+		</p>	
+		<input type="hidden" id="divisionMsg" name="divisionMsg" value="<spring:message code='constituency.division' text='Division'></spring:message>">
+		<input type="hidden" id="districtMsg" name="districtMsg" value="<spring:message code='constituency.districtMsg' text='District'></spring:message>">
+		<input type="hidden" id="selectDistrictMsg" name="selectDistrictMsg" value="<spring:message code='constituency.selectDistrictMsg' text='Please select atleat 1 district'></spring:message>">
 	</div>
 </body>
 </html>

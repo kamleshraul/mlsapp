@@ -12,7 +12,7 @@
 </script>
 </head>
 <body>
-	<div class="fields clearfix">
+<div class="fields clearfix vidhanmandalImg">
 		<form:form action="message" method="POST"
 			modelAttribute="domain">
 			<%@ include file="/common/info.jsp"%>
@@ -41,19 +41,21 @@
 				<form:input cssClass="sText large" path="value" />
 				<span><form:errors path="value" /></span>
 			</p>
-			<div class="fields">
-				<h2>
-					<spring:message code="message.description" text="Description" />
-				</h2>
-				<form:textarea cssClass="wysiwyg sTextarea" path="description"
-					rows="10" cols="78" />
-			</div>
+			<p>
+				<label class="small">
+				<spring:message code="message.description" text="Description"/>
+				</label>					
+				<form:textarea cssClass="sTextarea" path="description"
+					rows="5" cols="30" />
+			</p>
 			<div class="fields">
 				<h2></h2>
 				<p class="tright">
 					<input id="submit" type="submit"
 						value="<spring:message code='generic.submit' text='Submit'/>"
 						class="butDef">
+					<input id="cancel" type="button" value="<spring:message code='generic.cancel' text='Cancel'/>" class="butDef">
+						
 				</p>
 			</div>
 			<form:hidden path="id" />

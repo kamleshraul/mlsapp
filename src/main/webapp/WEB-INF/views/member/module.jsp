@@ -4,7 +4,17 @@
 	<title><spring:message code="member.list" text="List Of Members"/></title>
 	<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
 	<script type="text/javascript">
-		$(document).ready(function(){
+		$(document).ready(function(){	
+			//here we are trying to add date mask in grid search when field names
+			//ends with Date
+			$(".sf .field").change(function(){
+				console.log("hello");
+				var field=$(this).val();
+				console.log(field);
+				if(field.indexOf("Date")!=-1){
+					$(".sf .data").mask("99/99/9999");
+				}
+			});			
 			$('#list_tab').click(function(){
 				showList();
 			});	
@@ -49,29 +59,37 @@
 				if(e.keyCode == 38 || e.keyCode == 40){
 					scrollRowsInGrid(e);
 		        }
-			});			
-			showTabByIdAndUrl('list_tab','member/list');
-			
+			});
+			//houseType is passed so as to appropriately populate select assembly/council select box
+			showTabByIdAndUrl('list_tab','member/list?houseType='+$('#houseType').val());			
 		});
 				
 		function showList() {
-			showTabByIdAndUrl('list_tab','member/list');								
+			//houseType is passed so as to appropriately populate select assembly/council select box			
+			showTabByIdAndUrl('list_tab','member/list?houseType='+$('#houseType').val());								
 		}	
 		function newRecord() {
-			showTabByIdAndUrl('personal_tab','member/personal/new');
-				
+			//here house parameter will be used to add house member role association i.e default role and so need to be present in new.jsp/edit.jsp
+			//also housetype is needed to load proper background image
+			showTabByIdAndUrl('personal_tab','member/personal/new?house='+$('#house').val()+'&houseType='+$("#houseType").val());
+			$("#key").val("");			
+			$("#cancelFn").val("newRecord");
 		}
-		function editRecord(row) {
+		function editRecord(row) {			
+			var row=$('#key').val();
 			if(row==null||row==''){
 				$.prompt($('#selectRowFirstMessage').val());
 				return false;
 			}
-			showTabByIdAndUrl('personal_tab','member/personal/'+row+'/edit');
-		}		
+			$("#cancelFn").val("editRecord");
+			showTabByIdAndUrl('personal_tab','member/personal/'+row+'/edit?house='+$('#house').val()+'&houseType='+$("#houseType").val());			
+		}	
 
 		function rowDblClickHandler(rowid, iRow, iCol, e) {
-			showTabByIdAndUrl('personal_tab', 'member/personal/'+rowid+'/edit');
-		}		
+			var rowid=$('#key').val();
+			$("#cancelFn").val("rowDblClickHandler");
+			showTabByIdAndUrl('personal_tab', 'member/personal/'+rowid+'/edit?house='+$('#house').val()+'&houseType='+$("#houseType").val());
+		}			
 		
 		function deleteRecord(row) {
 			if(row == null || row == ''){
@@ -91,32 +109,38 @@
 		}	
 
 		function editMemberPersonalDetails(row) {
+			var row=$('#key').val();			
 			if(row == null || row == ''){
 				$.prompt($('#selectRowFirstMessage').val());		
 				return;
 			}
 			else{
-				showTabByIdAndUrl('personal_tab','member/personal/'+row+'/edit');
+				$("#cancelFn").val("editMemberPersonalDetails");
+				showTabByIdAndUrl('personal_tab','member/personal/'+row+'/edit?house='+$('#house').val()+'&houseType='+$("#houseType").val());				
 				}
 		}
 
 		function editMemberContactDetails(row) {
+			var row=$('#key').val();		
 			if(row == null || row == ''){
 				$.prompt($('#selectRowFirstMessage').val());		
 				return;
 			}
 			else{
-				showTabByIdAndUrl('contact_tab','member/contact/'+row+'/edit');
+				$("#cancelFn").val("editMemberContactDetails");
+				showTabByIdAndUrl('contact_tab','member/contact/'+row+'/edit?house='+$('#house').val()+'&houseType='+$("#houseType").val());				
 				}
 		}
 
 		function editMemberOtherDetails(row) {
+			var row=$('#key').val();
 			if(row == null || row == ''){
 				$.prompt($('#selectRowFirstMessage').val());		
 				return;
 			}
 			else{
-				showTabByIdAndUrl('other_tab','member/other/'+row+'/edit');
+				$("#cancelFn").val("editMemberOtherDetails");
+				showTabByIdAndUrl('other_tab','member/other/'+row+'/edit?house='+$('#house').val()+'&houseType='+$("#houseType").val());							
 				}
 		}
 
@@ -125,8 +149,16 @@
 				$.prompt($('#selectRowFirstMessage').val());		
 				return;
 			}
-			else{
-				showTabByIdAndUrl('house_tab','member/house/list');
+			else{							
+				var housetype=$('#houseType').val();
+				var house=$('#house').val();
+				//in case of lowerhouse pass member,houseType and house as parameter.
+				//in case of upperhouse pass member and houseType as parameter.
+				if(house!=""){				
+				showTabByIdAndUrl('house_tab','member/house/list?member='+$('#key').val()+'&houseType='+housetype+'&house='+house);				
+				}else{
+					showTabByIdAndUrl('house_tab','member/house/list?member='+$('#key').val()+'houseType='+housetype);	
+				}
 				}
 		}
 		function listMemberMinisterDetails(row) {
@@ -135,7 +167,7 @@
 				return;
 			}
 			else{
-				showTabByIdAndUrl('minister_tab','member/minister/list');
+				showTabByIdAndUrl('minister_tab','member/minister/list?house='+$('#house').val()+'&houseType='+$("#houseType").val());
 				}
 		}
 		function listMemberPartyDetails(row) {
@@ -144,7 +176,7 @@
 				return;
 			}
 			else{
-				showTabByIdAndUrl('party_tab','member/party/list');
+				showTabByIdAndUrl('party_tab','member/party/list?house='+$('#house').val()+'&houseType='+$("#houseType").val());
 				}
 		}
 		function listMemberElectionDetails(row) {
@@ -153,7 +185,8 @@
 				return;
 			}
 			else{
-				showTabByIdAndUrl('election_tab','member/election/list');
+				var housetype=$('#houseType').val();				
+				showTabByIdAndUrl('election_tab','member/election/list?house='+$('#house').val()+'&houseType='+$("#houseType").val());
 				}
 		}	
 			
@@ -190,19 +223,11 @@
 				<a id="house_tab" href="#" class="tab">
 					<c:choose>
 					<c:when test="${housetype=='lowerhouse'}">
-					<spring:message code="generic.lowerhouse" text="Assembly">
-				   	</spring:message>
-					</c:when>
-					<c:when test="${housetype=='upperhouse'}">
-					<spring:message code="generic.upperhouse" text="Council">
-				   	</spring:message>
-					</c:when>
-					<c:when test="${housetype=='both'}">
-					<spring:message code="generic.house" text="House">
+					<spring:message code="member.house.lowerhouserole" text="Assembly">
 				   	</spring:message>
 					</c:when>
 					<c:otherwise>
-					<spring:message code="generic.defaulthouse" text="House">
+					<spring:message code="member.house.upperhouserole" text="Council">
 				   	</spring:message>
 					</c:otherwise>
 					</c:choose>				   
@@ -232,6 +257,8 @@
 		<input type="hidden" id="key" name="key">
 		<input type="hidden" id="selectRowFirstMessage" name="selectRowFirstMessage" value="<spring:message code='generic.selectRowFirstMessage' text='Please select the desired row first'></spring:message>" disabled="disabled">
 		<input type="hidden" id="confirmDeleteMessage" name="confirmDeleteMessage" value="<spring:message code='generic.confirmDeleteMessage' text='Do you want to delete the row with Id: '></spring:message>" disabled="disabled">
+		<input type="hidden" name="houseType" id="houseType" value="${housetype}">
+		<input type="hidden" name="house" id="house" value="">		
 		</div> 
 </body>
 </html>

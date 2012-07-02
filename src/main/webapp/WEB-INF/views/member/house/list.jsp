@@ -6,7 +6,14 @@
 	<script type="text/javascript">
 		$(document).ready(function(){
 			$('#list_record').hide();
-			$('#gridURLParams').val("member="+$('#key').val());		
+			//here hrid url param will consist of member,housetype and house in case of lowerhouse whereas 
+			//it will consist of member and housetype in case of lowerhouse.
+			if($("#house").val()!=""){
+			$('#gridURLParams').val("member="+$('#key').val()+"&houseType="+$("#houseType").val()+"&house="+$("#house").val());
+			}else{
+				$('#gridURLParams').val("member="+$('#key').val()+"&houseType="+$("#houseType").val());				
+			}
+			//		
 			$('#editDeleteLinks').show();		
 			$('#new_record').click(function(){
 				newHouseRecord($('#key').val());
@@ -26,29 +33,39 @@
 			});
 		});
 		function listHouseRecord(){
-			showTabByIdAndUrl('house_tab','member/house/list');	
+			showTabByIdAndUrl('house_tab','member/house/list?'+$('#gridURLParams').val());	
 		}
 		function newHouseRecord(member){
-				$.get('member/house/new?member='+member, function(data){					
+			var member=$('#key').val();
+			$("#cancelFn").val("newHouseRecord");
+			$.get('member/house/new?'+$('#gridURLParams').val(), function(data){					
 					$('#grid_container').html(data);
-					$('#list_record').show();					
+					$('#list_record').show();
+					scrollTop();									
 			});
 		}
-		function editHouseRecord(row,member) {			
+		function editHouseRecord(row,member) {	
+			var row=$('#internalKey').val();
+			var member=$('#key').val();
+			$("#cancelFn").val("editHouseRecord");			
 			if(row==""){
 				$.prompt($('#selectRowFirstMessage').val());
 				return false;
 			}
-			$.get('member/house/'+row+'/edit?member='+member, function(data){
+			$.get('member/house/'+row+'/edit?'+$('#gridURLParams').val(), function(data){
 				$('#grid_container').html(data);
-				$('#list_record').show();					
+				$('#list_record').show();
+				scrollTop();									
 		});		
 		}
 		function rowDblClickHandler(rowid, iRow, iCol, e) {
 			var member=$('#key').val();
-			$.get('member/house/'+rowid+'/edit?member='+member, function(data){
+			var rowid=$('#internalKey').val();
+			$("#cancelFn").val("rowDblClickHandler");
+			$.get('member/house/'+rowid+'/edit?'+$('#gridURLParams').val(), function(data){
 				$('#grid_container').html(data);
-				$('#list_record').show();					
+				$('#list_record').show();
+				scrollTop();								
 		});
 		}
 		function rowSelectHandler(rowid,status){			
@@ -66,7 +83,7 @@
 				$.prompt($('#confirmDeleteMessage').val()+ row,{
 					buttons: {Ok:true, Cancel:false}, callback: function(v){
 			        if(v){
-				        $.delete_('member/house/'+row+'/delete?member='+member, null, function(data, textStatus, XMLHttpRequest) {
+				        $.delete_('member/house/'+row+'/delete?'+$('#gridURLParams').val(), null, function(data, textStatus, XMLHttpRequest) {
 				        	listHouseRecord();
 				        });
 			        }
@@ -80,16 +97,16 @@
 	<div class="commandbar">
 		<div class="commandbarContent">
 			<a href="#" id="new_record" class="butSim">
-				<spring:message code="generic.new" text="New"/>
+				<spring:message code="memberrole.new" text="New"/>
 			</a><span id="editDeleteLinks"> |
 			<a href="#" id="edit_record" class="butSim">
-			<spring:message code="generic.edit" text="Edit"/>
+			<spring:message code="memberrole.edit" text="Edit"/>
 			</a> |
 			<a href="#" id="delete_record" class="butSim">
-				<spring:message code="generic.delete" text="Delete"/>
+				<spring:message code="memberrole.delete" text="Delete"/>
 			</a> |
 			<a href="#" id="search" class="butSim">
-				<spring:message code="generic.search" text="Search"/>
+				<spring:message code="memberrole.search" text="Search"/>
 			</a> 
 			</span> | 
 			<a href="#" id="list_record" class="butSim">
@@ -102,7 +119,7 @@
 	<%@ include file="/common/gridview.jsp" %>
 	<input type="hidden" id="grid_id" value="${gridId}">
 	<input type="hidden" id="gridURLParams" name="gridURLParams">
-	<input type="hidden" id="internalKey" name="internalKey">	
+	<input type="hidden" id="internalKey" name="internalKey">		
 	</div>
 </body>
 </html>

@@ -11,7 +11,7 @@
 		$('#addSymbol').click(function(){			
 			addSymbol();
 		});						
-		$(".datemask").mask("99/99/9999");
+		//$(".datemask").mask("99/99/9999");
 		//temporary fix as date is not getting formatted on the server side.	
 		$('#establishmentDate').val($('#formattedEstablishmentDate').val());		
 		
@@ -214,7 +214,7 @@
 </script>
 </head>
 <body>
-	<div class="fields clearfix">
+<div class="fields clearfix vidhanmandalImg">
 		<form:form action="${urlPattern}" method="PUT"
 			modelAttribute="party">
 			<%@ include file="/common/info.jsp"%>
@@ -257,7 +257,7 @@
 						disabled="disabled" />					
 					<%-- <c:if test="${!(empty partySymbols[0].symbol)}"> --%>
 						<c:set var="count" value="0"></c:set>
-						<c:forEach items="${party.partySymbols}" var="partySymbol" varStatus="counter">
+						<c:forEach items="${party.partySymbols}" var="partySymbol">
 							<c:set var="count" value="${count+1}"></c:set>
 							<div id="symbol${count}">
 								<p>
@@ -270,7 +270,7 @@
 								</p>
 								<p>
 									<label class="small"><spring:message code='party.symbolChangeDate' text="Change Date" />&nbsp;*</label>
-									<input class="datemask sText" name="changeDate${count}" value="${changeDates[counter.count-1]}"/>
+									<input class="datemask sText" name="changeDate${count}" value="${partySymbol.changeDate}"/>
 								</p>
 								<input type='button' class='button' id='${count}'
 									value='<spring:message code="party.deleteSymbol" text="Delete Symbol"></spring:message>'
@@ -457,6 +457,8 @@
 					<input id="submit" type="submit"
 						value="<spring:message code='generic.submit' text='Submit'/>"
 						class="butDef">
+					<input id="cancel" type="button" value="<spring:message code='generic.cancel' text='Cancel'/>" class="butDef">
+						
 				</p>
 			</div>
 			<form:hidden path="id" />

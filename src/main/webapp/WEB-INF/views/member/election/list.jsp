@@ -6,11 +6,10 @@
 	<script type="text/javascript">
 		$(document).ready(function(){
 			$('#list_record').hide();
-			$('#gridURLParams').val("member="+$('#key').val());		
+			$('#gridURLParams').val("member="+$('#key').val()+"&houseType="+$("#houseType").val()+"&house="+$("#house").val());		
 			$('#editDeleteLinks').show();		
 			$('#new_record').click(function(){
-				newElectionRecord($('#key').val());
-				$('#editDeleteLinks').hide();						
+				newElectionRecord();
 			});
 			$('#edit_record').click(function(){
 				editElectionRecord($('#internalKey').val(),$('#key').val());
@@ -26,30 +25,38 @@
 			});
 		});
 		function listElectionRecord(){
-			showTabByIdAndUrl('election_tab','member/election/list');	
+			showTabByIdAndUrl('election_tab','member/election/list?'+$("#gridURLParams").val());	
 		}
-		function newElectionRecord(member){
-				$.get('member/election/new?member='+member, function(data){					
+		function newElectionRecord(member){				
+				$("#cancelFn").val("newElectionRecord");
+			    $('#editDeleteLinks').hide();			
+				$.get('member/election/new?'+$("#gridURLParams").val(), function(data){					
 					$('#grid_container').html(data);
-					$('#list_record').show();					
+					$('#list_record').show();
+					scrollTop();										
 			});
 		}
-		function editElectionRecord(row,member) {			
+		function editElectionRecord(row,member) {	
+			var row=$('#internalKey').val();
 			if(row==""){
 				$.prompt($('#selectRowFirstMessage').val());
 				return false;
-			}
-			$.get('member/election/'+row+'/edit?member='+member,
+			}				
+			$("#cancelFn").val("editElectionRecord");		
+			$.get('member/election/'+row+'/edit?'+$("#gridURLParams").val(),
 					 function(data){
 					$('#grid_container').html(data);
-					$('#list_record').show();					
+					$('#list_record').show();	
+					scrollTop();															
 				});		
 		}
 		function rowDblClickHandler(rowid, iRow, iCol, e) {
-			var member=$('#key').val();
-			$.get('member/election/'+rowid+'/edit?member='+member, function(data){
+			var rowid=$('#internalKey').val();			
+			$("#cancelFn").val("rowDblClickHandler");
+			$.get('member/election/'+rowid+'/edit?'+$("#gridURLParams").val(), function(data){
 				$('#grid_container').html(data);
-				$('#list_record').show();					
+				$('#list_record').show();
+				scrollTop();						
 		});
 		}
 		function rowSelectHandler(rowid,status){			
@@ -67,7 +74,7 @@
 				$.prompt($('#confirmDeleteMessage').val()+ row,{
 					buttons: {Ok:true, Cancel:false}, callback: function(v){
 			        if(v){
-				        $.delete_('member/election/'+row+'/delete?member='+member, null, function(data, textStatus, XMLHttpRequest) {
+				        $.delete_('member/election/'+row+'/delete?'+$("#gridURLParams").val(), null, function(data, textStatus, XMLHttpRequest) {
 				        	listElectionRecord();
 				        });
 			        }
@@ -81,16 +88,16 @@
 	<div class="commandbar">
 		<div class="commandbarContent">
 			<a href="#" id="new_record" class="butSim">
-				<spring:message code="generic.new" text="New"/>
+				<spring:message code="electionresult.new" text="New"/>
 			</a><span id="editDeleteLinks"> |
 			<a href="#" id="edit_record" class="butSim">
-			<spring:message code="generic.edit" text="Edit"/>
+			<spring:message code="electionresult.edit" text="Edit"/>
 			</a> |
 			<a href="#" id="delete_record" class="butSim">
-				<spring:message code="generic.delete" text="Delete"/>
+				<spring:message code="electionresult.delete" text="Delete"/>
 			</a> |
 			<a href="#" id="search" class="butSim">
-				<spring:message code="generic.search" text="Search"/>
+				<spring:message code="electionresult.search" text="Search"/>
 			</a> 
 			</span> | 
 			<a href="#" id="list_record" class="butSim">
@@ -103,7 +110,8 @@
 	<%@ include file="/common/gridview.jsp" %>
 	<input type="hidden" id="grid_id" value="${gridId}">
 	<input type="hidden" id="gridURLParams" name="gridURLParams">
-	<input type="hidden" id="internalKey" name="internalKey">	
+	<input type="hidden" id="internalKey" name="internalKey">
+	<input type="hidden" id="houseType" name="houseType" value="${houseType}">			
 	</div>
 </body>
 </html>

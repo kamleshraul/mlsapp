@@ -36,21 +36,34 @@
 			showTabByIdAndUrl('list_tab',urlPattern+'/list?formtype=g');
 		}	
 		function newRecord() {
+			$("#cancelFn").val("newRecord");
 			showTabByIdAndUrl('details_tab',urlPattern+'/new')	;
 		}
 		function editRecord(row) {
+			var row=$("#masterKey").val();
 			if(this.id =='edit_record' && row==null){
 				$.prompt($('#selectRowFirstMessage').val());
 				return false;
 			}
+			$("#cancelFn").val("editRecord");
 			showTabByIdAndUrl('details_tab',urlPattern+'/'+row+'/edit');
 		}
 
 		function rowDblClickHandler(rowid, iRow, iCol, e) {
+			var rowid=$("#masterKey").val();
+			$("#cancelFn").val("rowDblClickHandler");
 			showTabByIdAndUrl('details_tab', urlPattern+'/'+rowid+'/edit');
-		}
+		}	
+
+		function rowSelectHandler(rowid,status){			
+			if($('#key')){
+				$('#key').val(rowid);
+			}	
+			$("#masterKey").val(rowid);
+		}	
 		
 		function deleteRecord(row) {
+			var row=$("#masterKey").val();
 			if(row == null || row == ''){
 				$.prompt($('#selectRowFirstMessage').val());		
 				return;
@@ -90,6 +103,8 @@
 		<input type="hidden" id="urlPattern" name="urlPattern" value="${urlPattern}">
 		<input type="hidden" id="selectRowFirstMessage" name="selectRowFirstMessage" value="<spring:message code='generic.selectRowFirstMessage' text='Please select the desired row first'></spring:message>" disabled="disabled">
 		<input type="hidden" id="confirmDeleteMessage" name="confirmDeleteMessage" value="<spring:message code='generic.confirmDeleteMessage' text='Do you want to delete the row with Id: '></spring:message>" disabled="disabled">
+		<input type="hidden" id="masterKey" name="masterKey">
+		
 	</div> 
 </body>
 </html>

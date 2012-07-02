@@ -15,12 +15,23 @@
 	                               // due to slight rounding differences and font-family 
 	        }).superfish();  // call supersubs first, then superfish, so that subs are 
 
-	        $('.menu_link').click(function(){
+	        $('.menu_link').click(function(){				
+				//This is done so as to change authhousetype to the housetype of clicked menu					   
+				var text=$(this).text();						
+				if(text==$('#lowerhouse').val()){
+					   $('#authhousetype').val("lowerhouse");
+				}else if(text=="Assembly"){
+					   $('#authhousetype').val("lowerhouse");
+				}else if(text==$('#upperhouse').val()){
+					   $('#authhousetype').val("upperhouse");
+				}else if(text=="Council"){
+					   $('#authhousetype').val("upperhouse");
+				}        
 		        if(this.href.indexOf("home")==-1){
 		           $("#alertmod").remove();//this is done as fix to jqgrid warning box that shows up at bottom of the page 
 			       $('.content').load(this.href,function(data){
 			    	   var title = $(data).filter('title').text();
-						$('#module_title').html(title);
+					   $('#module_title').html(title);
 			       });
 		        }
 		        return false;
@@ -52,5 +63,8 @@
 	</c:set>
     <x:transform xml="${menu_xml}" xslt="${menu_xsl}">
     </x:transform>
+    <input type="hidden" id="lowerhouse" value="<spring:message code='generic.lowerhouse'></spring:message>">
+    <input type="hidden" id="upperhouse" value="<spring:message code='generic.upperhouse'></spring:message>">
+    
 </body>
 </html>

@@ -6,7 +6,17 @@
 </title>
 	<decorator:head/>			
 	<script type="text/javascript">
+		function scrollTop(){
+		$('html').animate({scrollTop:0}, 'slow');
+		$('body').animate({scrollTop:0}, 'slow');				 	   	
+		}
 		$(document).ready(function() {
+			$("#cancel").click(function(){							
+				var cancelFunction=$("#cancelFn").val();
+				var fnName=cancelFunction;
+				window[fnName]();									
+				return false;					
+			});
 			initControls();
 		    $(':input:visible:not([readonly]):first').focus();
 			$("form").submit(function(e){

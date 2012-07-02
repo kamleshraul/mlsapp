@@ -57,50 +57,178 @@
 				rivalCount=rivalCount-1;
 			}
 		}	
-	}	
+	}
+
+	function loadDivisionDistricts(constituency){
+	    $.get('ref/divdis/'+constituency,function(data){
+		    $("#division").val(data.division);
+		    var text="";
+		    if(data.districts.length>0){
+		    for(var i=0;i<data.districts.length;i++){
+			    text=text+"<option value='"+data.districts[i].id+"' selected='selected'>"+data.districts[i].name+"</option>";
+		    }
+		    $("#districts").empty();
+			$("#districts").html(text);
+		    }else{
+			$("#districts").empty();			    
+		    }			
+	    },'json');
+	}
+
+	function loadConstituencies(houseType){
+		$.get('ref/constituencies/'+houseType,function(data){
+			var text="";
+			if(data.length>0){
+			for(var i=0;i<data.length;i++){
+			    text=text+"<option value='"+data[i].id+"'>"+data[i].name+"</option>";
+			}
+			$("#constituency").empty();
+			$("#constituency").html(text);
+			loadDivisionDistricts(data[0].id);
+			}else{
+				$("#constituency").empty();
+				$("#division").val("");
+				$("#districts").empty();
+			}
+		},'json');
+	}
+
+	function loadElections(houseType){
+		$.get('ref/elections/'+houseType,function(data){
+			var text="";
+			if(data.length>0){
+			for(var i=0;i<data.length;i++){
+			    text=text+"<option value='"+data[i].id+"'>"+data[i].name+"</option>";
+			}
+			$("#election").empty();
+			$("#election").html(text);
+			}else{
+				$("#election").empty();
+			}
+			loadConstituencies(houseType);			
+		},'json');
+	}
+
+	function getElectionType(electionId) {
+		$.get('ref/election/' + electionId + '/electionType',
+			function(data){
+				$("#electionType").val(data.name);
+			},
+			'json');
+	}
+	
 		$(document).ready(function(){
 			$('#partyMaster').hide();
 			$('#addRival').click(function(){
 				addRival();
 			});
-			if($('#constituencySelected').val()!=""){
-				$('#constituency').val($('#constituencySelected').val());
+			if($('#currentConstituency').val()!=""){
+				$('#constituency').val($('#currentConstituency').val());
 			}
-			
-			//*****
+			$("#houseTypes").val($("#selectedhouseType").val());					
+			$("#houseTypes").change(function(){
+				loadElections($(this).val());
+				$("#selectedhouseType").val($(this).val());
+				$("span[id$='errors']").remove();
+			});
+			$("#constituency").change(function(){
+				loadDivisionDistricts($(this).val());
+			});
+			$('.election').change(function(){
+				getElectionType($(this).val());
+			});
 		});
 	</script>
 </head>
 
 <body>
-<div class="fields clearfix">
+<div class="fields clearfix watermark" style="background-image: url('/els/resources/images/${houseType}.jpg');">
 <form:form action="member/election" method="PUT" modelAttribute="domain">
 	<%@ include file="/common/info.jsp" %>
-	<h2><spring:message code="generic.new.heading" text="Enter Details"/>
-		[<spring:message code="generic.member" text="Member"></spring:message>:&nbsp;
-		${domain.member.title.name} ${domain.member.firstName } ${domain.member.middleName} ${domain.member.lastName}]
+	<h2><spring:message code="member.new.heading" text="Enter Details"/>:&nbsp;
+		${fullname}
+	</h2>
+	<h2>
+		<spring:message code="election.result" text="Election Result"/>
 	</h2>
 	<form:errors path="version" cssClass="validationError" cssStyle="color:red;"/>	
 	<p>
-		<label class="small"><spring:message code="member.election.election" text="Election"/></label>
-		<form:select path="election" items="${elections}" itemLabel="name" itemValue="id" cssClass="sSelect"/>
-		<form:errors path="election" cssClass="validationError"/>			
+	<label class="small"><spring:message code="member.house.houseType"	text="House Types" /></label>
+	<select id="houseTypes" name="houseTypes" class="sSelect">
+	<c:forEach items="${houseTypes }" var="i">
+	<option value="${i.type}">${i.name}</option>
+	</c:forEach>
+	</select>											
 	</p>
+	
 	<p>
-		<label class="small"><spring:message code="generic.constituency" text="Constituency"/></label>
-		<form:select path="constituency" items="${constituencies}" itemLabel="name" itemValue="id" cssClass="sSelect"/>
-		<form:errors path="constituency" cssClass="validationError"/>			
+		<label class="small"><spring:message code="member.election.election" text="Election"/></label>
+		<form:select path="election" items="${elections}" itemLabel="name" itemValue="id" cssClass="sSelect election"/>
+		<form:errors path="election" cssClass="validationError"/>			
+	</p>	
+	
+	<p>
+		<label class="small"><spring:message code="member.election.electionType" text="Election Type"/></label>
+		<input type="text" class="sText" id="electionType" name="electionType" value="${electionType}" readonly="readonly"/>
 	</p>
+	
+	<p>
+		<label class="small"><spring:message code="member.house.constituencies" text="Constituency"/></label>
+		<form:select path="constituency" items="${constituencies}" itemLabel="name" itemValue="id" cssClass="sSelect"/>
+		<form:errors path="constituency" cssClass="validationError"/>		
+	</p>
+	
+	<p>
+		<label class="small"><spring:message code="member.house.division" text="Division"/></label>
+		<input name="division" id="division" type="text" value="${division}" class="sText" readonly="readonly"/>
+	</p>
+	
+	<p>
+		<label class="small"><spring:message code="member.house.district" text="District"/></label>
+		<c:choose>
+		<c:when test="${!(empty districts) }">
+		<select name="districts" id="districts" class="sSelect" size="2" multiple="multiple">
+		<c:forEach items="${districts}" var="i">
+		<option value="${i.id}" selected="selected"><c:out value="${i.name}"></c:out></option>
+		</c:forEach>
+		</select>
+		</c:when>
+		<c:otherwise>
+		<select name="districts" id="districts" class="sSelect" size="2" multiple="multiple">
+		</select>
+		</c:otherwise>
+		</c:choose>
+	</p>
+	
 	<p>
 		<label class="small"><spring:message code="member.election.votingDate" text="Voting Date"/></label>
-		<form:input path="votingDate" cssClass="sText datemask"/>
+		<form:input path="votingDate" cssClass="datemask sText"/>
 		<form:errors path="votingDate" cssClass="validationError"/>	
 	</p>
+	
+	<p>
+		<label class="small"><spring:message code="member.election.electionResultDate" text="Election Result Date"/></label>
+		<form:input path="electionResultDate" cssClass="datemask sText"/>
+		<form:errors path="electionResultDate" cssClass="validationError"/>	
+	</p>
+	
+	<p>
+		<label class="small"><spring:message code="member.election.noOfVoters" text="No of Voters"/></label>
+		<form:input path="noOfVoters" cssClass="sText"/>
+		<form:errors path="noOfVoters" cssClass="validationError"/>	
+	</p>
+	
 	<p>
 		<label class="small"><spring:message code="member.election.totalValidVotes" text="Total Valid Votes"/></label>
 		<form:input path="totalValidVotes" cssClass="sText"/>
 		<form:errors path="totalValidVotes" cssClass="validationError"/>	
 	</p>
+	
+	<p>
+		<label class="small"><spring:message code="member.election.electedMemberName" text="Elected Member's Name"/></label>
+		<input type="text" class="sText" id="electedMemberName" name="electedMemberName" value="${fullname}" readonly="readonly"/>
+	</p>
+	
 	<p>
 		<label class="small"><spring:message code="member.election.votesReceived" text="Votes Received"/></label>
 		<form:input path="votesReceived" cssClass="sText"/>
@@ -163,13 +291,16 @@
 		<h2></h2>
 		<p class="tright">
 			<input id="submit" type="submit" value="<spring:message code='generic.submit' text='Submit'/>" class="butDef">
+			<input id="cancel" type="button" value="<spring:message code='generic.cancel' text='Cancel'/>" class="butDef">			
+			
 		</p>
 	</div>
 	<form:hidden path="id"/>
 	<form:hidden path="locale"/>
 	<form:hidden path="version"/>	
+	<input id="currentConstituency" name="currentConstituency" value="${currentConstituency}" type="hidden">	
 	<input id="member" name="member" value="${member}" type="hidden">
-	<input id="constituencySelected" name="constituencySelected" value="${constituency}" type="hidden">	
+	<input id="selectedhouseType" name="selectedhouseType" value="${houseType}" type="hidden">	
 	
 </form:form>
 </div>

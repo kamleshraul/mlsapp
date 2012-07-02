@@ -10,8 +10,7 @@
 			$("#list_session").hide();
 			$('#key').val("");
 			$('#new_record').click(function(){
-				newSession();
-				$('#edit_records').hide();
+				newSession();				
 			});
 			$('#edit_record').click(function(){
 				editSession($('#key').val());
@@ -30,11 +29,9 @@
 	</script>
 	<script>
 	function newSession()
-	{
-		/* $.get('session/new'+'?houseId=' +houseId, function(data){
-			$('#grid_container').html(data);
-			$('#list_session').show();					
-	});		 		 */	
+	{			 		 
+		$("#cancelFn").val(newSession);
+		$('#edit_records').hide();
 		showTabByIdAndUrl('session_tab','session/new'+'?houseId=' +houseId);
 	}
 	
@@ -43,10 +40,7 @@
 			alert("Please select the desired row to edit");
 			return false;
 		}
-		  /* $.get('session/'+row+'/edit', function(data){
-			$('#grid_container').html(data);
-			$('#list_session').show();	
-		});  */
+		$("#cancelFn").val(newSession);				  
 		 showTabByIdAndUrl('session_tab','session/'+row+'/edit');
 	}
 

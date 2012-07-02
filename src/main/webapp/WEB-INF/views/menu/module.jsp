@@ -6,8 +6,7 @@
 	<script type="text/javascript">
 		 $(document).ready(function(){
 			 var urlPattern=$('#urlPattern').val();
-			 	 showTabByIdAndUrl('menu_tab','menu/list');
-			
+			 	 showTabByIdAndUrl('menu_tab','menu/list');			
 		 });
 	
 	</script>	

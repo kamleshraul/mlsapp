@@ -65,12 +65,11 @@
 </head>
 
 <body>
-<div class="fields clearfix">
+<div class="fields clearfix watermark" style="background-image: url('/els/resources/images/${houseType}.jpg');">
 <form:form action="member/other" method="PUT" modelAttribute="domain">
 	<%@ include file="/common/info.jsp" %>
-	<h2><spring:message code="generic.new.heading" text="Enter Details"/>
-		[<spring:message code="generic.member" text="Member"></spring:message>:&nbsp;
-		${domain.title.name} ${domain.firstName} ${domain.middleName } ${domain.lastName }]
+	<h2><spring:message code="member.new.heading" text="Enter Details"/>:&nbsp;
+		${domain.title.name} ${domain.firstName} ${domain.middleName} ${domain.lastName}
 	</h2>
 	<form:errors path="version" cssClass="validationError" cssStyle="color:red;"/>
 	<div>
@@ -108,51 +107,54 @@
 	</c:forEach>
 	</c:if>
 	</div>				
-	<p>
+	<p style="display: none;">
 		<label class="labelcentered"><spring:message code="member.other.socialCulturalActivities" text="Social Activities"/></label>
 		<form:textarea path="socialCulturalActivities" cssClass="sTextarea" cols="50" rows="5"></form:textarea>
 		<form:errors path="socialCulturalActivities" cssClass="validationError"/>	
 	</p>
 	
-	<p>
+	<p style="display: none;">
 		<label class="labelcentered"><spring:message code="member.other.educationalCulturalActivities" text="Educational and Cultural Activities"/></label>
 		<form:textarea path="educationalCulturalActivities" cssClass="sTextarea" cols="50" rows="5"></form:textarea>
 		<form:errors path="educationalCulturalActivities" cssClass="validationError"/>	
 	</p>
-	<p>
+	<p style="display: none;">
 		<label class="labelcentered"><spring:message code="member.other.literaryArtisticScientificAccomplishments" text="Literary,Artistic and Scientific Accomplishments"/></label>
 		<form:textarea path="literaryArtisticScientificAccomplishments" cssClass="sTextarea" cols="50" rows="5"></form:textarea>
 		<form:errors path="literaryArtisticScientificAccomplishments" cssClass="validationError"/>	
 	</p>
 	<p>
-		<label class="labelcentered"><spring:message code="member.other.publications" text="Publications"/></label>
-		<form:textarea path="publications" cssClass="sTextarea" cols="50" rows="5"></form:textarea>
-		<form:errors path="publications" cssClass="validationError"/>	
-	</p>	 
+		<label class="labelcentered"><spring:message code="member.other.otherInformation" text="Other Information"/></label>
+		<form:textarea path="otherInformation" cssClass="sTextarea" cols="50" rows="5"></form:textarea>
+		<form:errors path="otherInformation" cssClass="validationError"/>	
+	</p>
 	<p>
 		<label class="labelcentered"><spring:message code="member.other.hobbySpecialInterests" text="Hobby and Special Interests"/></label>
 		<form:textarea path="hobbySpecialInterests" cssClass="sTextarea" cols="50" rows="5"></form:textarea>
 		<form:errors path="hobbySpecialInterests" cssClass="validationError"/>	
-	</p>	
+	</p>
 	<p>
 		<label class="labelcentered"><spring:message code="member.other.countriesVisited" text="Countries Visited"/></label>
 		<form:textarea path="countriesVisited" cssClass="sTextarea" cols="50" rows="5"></form:textarea>
 		<form:errors path="countriesVisited" cssClass="validationError"/>	
-	</p>	
+	</p>
 	<p>
-		<label class="labelcentered"><spring:message code="member.other.otherInformation" text="Other Information"/></label>
-		<form:textarea path="otherInformation" cssClass="sTextarea" cols="50" rows="5"></form:textarea>
-		<form:errors path="otherInformation" cssClass="validationError"/>	
-	</p>	
+		<label class="labelcentered"><spring:message code="member.other.publications" text="Publications"/></label>
+		<form:textarea path="publications" cssClass="sTextarea" cols="50" rows="5"></form:textarea>
+		<form:errors path="publications" cssClass="validationError"/>	
+	</p>		
 	<div class="fields">
 		<h2></h2>
 		<p class="tright">
 			<input id="submit" type="submit" value="<spring:message code='generic.submit' text='Submit'/>" class="butDef">
+			<input id="cancel" type="button" value="<spring:message code='generic.cancel' text='Cancel'/>" class="butDef">
+			
 		</p>
 	</div>
 	<form:hidden path="id"/>
 	<form:hidden path="locale"/>
 	<form:hidden path="version"/>	
+	<input type="hidden" id="houseType" name="houseType" value="${houseType}">
 </form:form>
 </div>
 </body>

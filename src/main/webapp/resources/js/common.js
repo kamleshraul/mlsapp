@@ -35,12 +35,15 @@ function initControls(){
 	});	
 	$('#dateformat').val();*/
 	/*$('select[multiple="multiple"]').sexyselect({width:250,showTitle: false, selectionMode: 'multiple', styleize: true,allowDelete:false,background:'#fff',allowInput:false});*/
-	$('.datemask').focus(function(){
+	$("input[class^='integer']").autoNumeric({mDec: 0});
+	$('.datemask').focus(function(){		
 		if($(this).val()==""){
 			$(".datemask").mask("99/99/9999");
 		}
 	});
 	$(':input:visible:not([readonly]):first').focus();
+	
+	
 };
 function resize_grid(){
 	$('#grid').fluidGrid({base:'#grid_container', offset:-0});
@@ -69,11 +72,20 @@ function scrollRowsInGrid(e) {
 }
 
 
-function loadGrid(gridId, baseFilter) {
+function loadGrid(gridId, gridurl, baseFilter) {
 	var c_grid = null;
-	//added by amitd and sandeeps.
-	//By default housetype is passed as parameter in all grid request
-	var url='grid/data/'+ gridId +'.json';
+	//added by amitd and sandeeps.	
+	//Allow use of controllers other than grid controllers i.e data in the grid can be fetched using custom startegy
+	var baseURL=null;
+	if(gridurl!=undefined){
+		baseURL=gridurl;
+	}else if(gridurl!=null){
+		baseURL=gridurl;
+	}else{
+		baseURL='grid/data/';
+	}
+	var url=baseURL+ gridId +'.json';
+	//housetype is passed as request parameter by default
 	var defaultParams="";
 	if($('#authhousetype').val()=='both'){
 		defaultParams="housetype1=lowerhouse&housetype2=upperhouse";
@@ -111,7 +123,7 @@ function loadGrid(gridId, baseFilter) {
 			loadComplete: function(data, obj) {
 				var curr_page = $(this).getGridParam('page');
 				if(curr_page==1) {
-					var top_rowid = $('#grid tbody:first-child tr:nth-child(2)').attr('id');
+					var top_rowid = $('#grid tbody:first-child tr:nth-child(1)').attr('id');
 					$(this).setSelection(top_rowid, true);
 				}//this is the case when we delete all the records in the grid and reload the list.If we click on 
 				//other tabs then key value has not been set and is still the previous value giving

@@ -57,6 +57,7 @@
 		}
 
 		function newRecord() {
+			$("#cancelFn").val("newRecord");
 			showTabByIdAndUrl('details_tab','house/new')	;
 		}
 
@@ -66,6 +67,7 @@
 				$.prompt("Please select the desired row to edit");
 				return false;
 			}
+			$("#cancelFn").val("editRecord");			
 			showTabByIdAndUrl('details_tab','house/'+row+'/edit');
 		}
 
@@ -90,6 +92,8 @@
 		}
 
 		function rowDblClickHandler(rowid, iRow, iCol, e) {
+			var rowid=$("#key").val();
+			$("#cancelFn").val("rowDblClickHandler");
 			showTabByIdAndUrl('details_tab', 'house/'+rowid+'/edit');
 		}
 		

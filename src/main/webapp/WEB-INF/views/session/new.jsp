@@ -13,7 +13,7 @@
 <body>
 	<div class="commandbar">
 	</div>
-	<div class="fields clearfix">
+<div class="fields clearfix vidhanmandalImg">
 		<form:form action="session" method="POST"
 			modelAttribute="domain">
 			<%@ include file="/common/info.jsp"%>
@@ -98,6 +98,8 @@
 					<input id="submit" type="submit"
 						value="<spring:message code='generic.submit' text='Submit'/>"
 						class="butDef">
+					<input id="cancel" type="button" value="<spring:message code='generic.cancel' text='Cancel'/>" class="butDef">
+						
 				</p>
 			</div>
 			<form:hidden path="id" />

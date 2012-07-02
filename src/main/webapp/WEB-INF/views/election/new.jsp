@@ -10,7 +10,7 @@
 	</script>
 </head>
 <body>
-<div class="fields clearfix">
+<div class="fields clearfix vidhanmandalImg">
 <form:form  action="election" method="POST" modelAttribute="domain">
 	<%@ include file="/common/info.jsp" %>
 	<h2><spring:message code="generic.new.heading" text="Enter Details"/>
@@ -24,10 +24,15 @@
 		<form:errors path="electionType" cssClass="validationError"/>		
 	</p>
 	<p> 
-		<label class="small"><spring:message code="election.name" text="Election"/></label>
-		<form:input cssClass="sSelect" path="name"/>
-		<form:errors path="name" cssClass="validationError" />	
+		<label class="small"><spring:message code="election.house" text="Assembly"/></label>
+		<form:select path="house" items="${houses}" itemLabel="name" itemValue="id" cssClass="sSelect"/>
+		<form:errors path="house" cssClass="validationError"/>	
 	</p>
+	<p> 
+		<label class="small"><spring:message code="election.name" text="Election"/></label>
+		<form:input cssClass="sText" path="name"/>
+		<form:errors path="name" cssClass="validationError" />	
+	</p>	
 	<p>
 		<label class="small"><spring:message code="generic.fromDate" text="From Date"/></label>
 		<form:input path="fromDate" cssClass="datemask sText"/>
@@ -42,6 +47,8 @@
 		<h2></h2>
 		<p class="tright">
 			<input id="submit" type="submit" value="<spring:message code='generic.submit' text='Submit'/>" class="butDef">
+			<input id="cancel" type="button" value="<spring:message code='generic.cancel' text='Cancel'/>" class="butDef">
+			
 		</p>
 	</div>	
 	<form:hidden path="id" />

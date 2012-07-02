@@ -7,7 +7,7 @@
 </head>
 <body>
 
-	<div class="fields clearfix">
+<div class="fields clearfix vidhanmandalImg">
 		<form:form action="relation" method="POST"
 			modelAttribute="domain">
 			<%@ include file="/common/info.jsp"%>
@@ -27,12 +27,14 @@
 				<form:errors path="name" cssClass="validationError" />
 			</p>
 			
-			<div class="fields">
+			<div class="fields" style="margin-top:100px;">
 				<h2></h2>
 				<p class="tright">
 					<input id="submit" type="submit"
 						value="<spring:message code='generic.submit' text='Submit'/>"
 						class="butDef"> 
+					<input id="cancel" type="button" value="<spring:message code='generic.cancel' text='Cancel'/>" class="butDef">
+						
 				</p>
 			</div>
 			<form:hidden path="locale" />

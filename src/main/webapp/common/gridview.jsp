@@ -4,7 +4,15 @@
 	<script type="text/javascript">
 		$(document).ready(function(){
 			var gridId = $('#grid_id').val();
-		    var grid = loadGrid(gridId);
+			var grid=null;
+			//Here if we want to load data in the grid using controller
+			//other than grid controller then we need to provide a hidden parameter having id as 
+			//gridURL in list.jsp
+			if($('#gridURL')!=undefined){
+			    grid = loadGrid(gridId,$('#gridURL').val());				
+			}else{
+			    grid = loadGrid(gridId);				
+			}
 		});
 	</script>
 </head>

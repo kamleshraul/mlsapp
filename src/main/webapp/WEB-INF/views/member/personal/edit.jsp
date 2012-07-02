@@ -6,6 +6,7 @@
 	</title>
 	<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
 	<script type="text/javascript">
+	var spouseIndex=$("select option:selected").val();	
 	var familyCount=parseInt($('#familyCount').val());
 	var totalFamilyCount=0;
 	totalFamilyCount=familyCount+totalFamilyCount;
@@ -29,28 +30,34 @@
 					  "<input type='hidden' id='familyMemberVersion"+familyCount+"' name='familyMemberVersion"+familyCount+"'>"+
 				      "</div>"; 
 				      var prevCount=familyCount-1;
+				      //here is the code to add the divs
 				      if(totalFamilyCount==1){
 					   $('#addFamily').after(text);
 					    }else{
 				      $('#family'+prevCount).after(text);
 				      }
-				      $('#familyCount').val(familyCount); 				
+				      $('#familyCount').val(familyCount); 	
+				      return familyCount;				      			
 	}
-	function deleteFamily(id){	
+	function deleteFamily(id,continous){	
 		var familyMemberId=$('#familyMemberId'+id).val();			
 		if(familyMemberId != ''){
 	    $.delete_('member/personal/family/'+familyMemberId+'/delete', null, function(data, textStatus, XMLHttpRequest) {
 	    	$('#family'+id).remove();
 			totalFamilyCount=totalFamilyCount-1;
 			if(id==familyCount){
+				if(continous==null){
 				familyCount=familyCount-1;
+				}				
 			}
 	    });	
 		}else{
 			$('#family'+id).remove();
 			totalFamilyCount=totalFamilyCount-1;
 			if(id==familyCount){
+				if(continous==null){
 				familyCount=familyCount-1;
+				}
 			}
 		}			
 	}
@@ -104,21 +111,57 @@
 		}
 		}		
 	}
-	
+
+	function autoAddFamily(){
+		var children=parseInt($("#noOfChildren").val());
+		var childrenAlreadyPresent=0;
+		var dcount=0;
+		var scount=0;
+		var daughters=parseInt($("#noOfDaughters").val());
+		var sons=parseInt($("#noOfSons").val());
+		var initialFamilyCount=familyCount;
+		for(var i=1;i<initialFamilyCount+1;i++){
+			if($('#family'+i).length>0){
+				var relation=$("#familyMemberRelation"+i).val();
+				var name=$("#familyMemberName"+i).val();				
+				if(daughters==0 && relation==6){
+					//if daughters=0 delete all daughters						
+					deleteFamily(i,"continous");
+					familyCount--;						
+				}else if(sons==0 && relation==5){
+					//if sons=0 delete all sons					
+					deleteFamily(i,"continous");
+					familyCount--;
+				}else if(children==0 && (relation==5 || relation==6)){
+					//if children=0 delete all children			
+					deleteFamily(i,"continous");
+					familyCount--;	
+				}else if(name.length==0 && (relation==5 ||relation==6)){
+					//if name is empty and relation is either son or daughter
+					deleteFamily(i,"continous");
+					familyCount--;
+				}else if(name.length!=0 && (relation==5 ||relation==6)){
+					//if name is not empty and relation is either son or daughter
+					childrenAlreadyPresent++;					
+				}
+			}				
+		}					
+		for(var j=0;j<children-childrenAlreadyPresent;j++){
+			var index=addFamily();
+			if(daughters!=0 && dcount!=daughters){
+				$("#familyMemberRelation"+index).val(6);				
+				dcount++;
+			}else{
+				if(sons!=0 && scount!=sons){
+					$("#familyMemberRelation"+index).val(5);					
+					scount++;
+				}	
+			}				
+		}	
+}	
 	$(document).ready(function(){	
 		$('#relationMaster').hide();
 		$('#degreeMaster').hide();
-		if('${domain.memberType.type}'!= "member") {					
-				$('#house_tab').hide();
-				$('#minister_tab').hide();
-				$('#party_tab').hide();
-				$('#election_tab').hide();
-			}else {
-				$('#house_tab').show();
-				$('#minister_tab').show();
-				$('#party_tab').show();
-				$('#election_tab').show();
-			}
 		$('#addFamily').click(function(){
 			addFamily();
 		});
@@ -126,33 +169,122 @@
 			addQualification();
 		});	
 		$('#key').val($('#id').val());
-	});
+		//on entering sons and daughters nos. children no. should be automatically calculated
+		$("#noOfDaughters").change(function(){
+			var daughters=0;
+			if($(this).val()!=""){
+				daughters=parseInt($(this).val());
+			}else{
+				$(this).val("0");				
+			}
+			var sons=0;
+			if($("#noOfSons").val()!=""){			
+			sons=parseInt($("#noOfSons").val());			
+			}else{
+				$("#noOfSons").val("0");
+			}
+			var children=sons+daughters;
+			$("#noOfChildren").val(children);
+			//change daughter label
+			if(daughters>1){
+				$("#daughterLabel").html($("#daughtersMsg").val());				
+			}else{
+				$("#daughterLabel").html($("#daughterMsg").val());				
+			}
+			autoAddFamily();			
+		});
+		$("#noOfSons").change(function(){
+			var sons=0;
+			if($(this).val()!=""){
+				sons=parseInt($(this).val());		
+			}else{
+				$(this).val("0");				
+			}
+			var daughters=0;
+			if($("#noOfDaughters").val()!=""){			
+			daughters=parseInt($("#noOfDaughters").val());
+			}else{
+				$("#noOfDaughters").val("0");				
+			}
+			var children=sons+daughters;
+			$("#noOfChildren").val(children);
+			//change son label
+			if(sons>1){
+				$("#sonLabel").html($("#sonsMsg").val());				
+			}else{
+				$("#sonLabel").html($("#sonMsg").val());				
+			}
+			autoAddFamily();
+		});	
+		$("#spouseName").change(function(){
+			//if spousename is not empty then a family is added 
+			if($(this).val().length>0){
+				spouseIndex=addFamily();
+				$("#familyMemberName"+spouseIndex).val($(this).val());
+				if($("#gender").val()==2){
+				$("#familyMemberRelation"+spouseIndex).val(3);
+				}else if($("#gender").val()==3){
+				$("#familyMemberRelation"+spouseIndex).val(4);
+				}								
+			}else{
+				if($("#family"+spouseIndex).length>0){
+				console.log(spouseIndex);
+				deleteFamily(spouseIndex,"continous");
+				familyCount--;
+				}
+			}
+		});	
+		//setting initial value of spouseindex
+		$("select[id^='familyMemberRelation']").each(function(){
+			if($(this).val()==3||$(this).val()==4){
+			spouseIndex=$(this).attr("id").split("familyMemberRelation")[1];
+			}
+		});
+		//just for time being
+		$("#aliasEnabled").attr("checked","checked");		
+		//on document load for appropriate sons,daughters in case of validation exceptions
+		//change son label
+		var initialNoOfSons=parseInt($("#noOfSons").val());
+		var initialNoOfDaughters=parseInt($("#noOfDaughters").val());
+		if(initialNoOfSons>1){
+			$("#sonLabel").empty();
+			$("#sonLabel").html($("#sonsMsg").val());				
+		}else{
+			$("#sonLabel").empty();			
+			$("#sonLabel").html($("#sonMsg").val());				
+		}
+		//change daughter label
+		if(initialNoOfDaughters>1){
+			$("#daughterLabel").empty();			
+			$("#daughterLabel").text($("#daughtersMsg").val());				
+		}else{
+			$("#daughterLabel").empty();		
+			$("#daughterLabel").text($("#daughterMsg").val());				
+		}
+	});//document.ready	
 	</script>
 </head>
 
 <body>
-<div class="fields clearfix">
+<div class="fields clearfix watermark" style="background-image: url('/els/resources/images/${houseType}.jpg');">
 <form:form action="member/personal" method="PUT" modelAttribute="domain">
 	<%@ include file="/common/info.jsp" %>
-	<h2><spring:message code="generic.new.heading" text="Enter Details"/>
-		[<spring:message code="generic.member" text="Member"></spring:message>:&nbsp;
-		${domain.title.name} ${domain.firstName} ${domain.middleName} ${domain.lastName}]
+	<h2><spring:message code="member.new.heading" text="Enter Details"/>:&nbsp;
+		${domain.title.name} ${domain.firstName} ${domain.middleName} ${domain.lastName}
 	</h2>
-	<form:errors path="version" cssClass="validationError"/>
-	<span id="image_gallery" style="float: right;right: 10px;">
-	<img alt="" src="" id="image_photo" width="70" height="70">
-	<img alt="" src="" id="image_specimenSignature" width="70" height="70">	
-	</span>
+	<form:errors path="version" cssClass="validationError"/>	
 	<p>
 		<label class="small"><spring:message code="member.personal.photo" text="Upload Photo"/></label>
+		<span id="image_gallery" style="display: inline;margin: 0px;padding: 0px;">
+		<img alt="" src="" id="image_photo" width="70" height="70">
+		</span>
 		<c:choose>
-		<c:when test="${empty domain.photo}">
+		<c:when test="${empty domain.photo}">		
 		<jsp:include page="/common/file_upload.jsp">
 			<jsp:param name="fileid" value="photo" />
-			<jsp:param name="fileid" value="photo" />			
 		</jsp:include>
 		</c:when>
-		<c:otherwise>
+		<c:otherwise>		
 		<jsp:include page="/common/file_download.jsp">
 			<jsp:param name="fileid" value="photo" />
 			<jsp:param name="filetag" value="${domain.photo}" />
@@ -163,6 +295,9 @@
 	</p>
 	<p>
 		<label class="small"><spring:message code="member.personal.specimenSignature" text="Specimen Signature"/></label>
+		<span id="image_gallery" style="display: inline;margin: 0px;padding: 0px;">
+		<img alt="" src="" id="image_specimenSignature" width="70" height="70">
+		</span>
 		<c:choose>
 		<c:when test="${empty domain.specimenSignature}">
 		<jsp:include page="/common/file_upload.jsp">
@@ -178,7 +313,6 @@
 		</c:choose>	
 		<form:errors path="specimenSignature" cssClass="validationError" />
 	</p>
-
 	<p>
 		<label class="small"><spring:message code="member.personal.title" text="Title"/></label>
 		<form:select path="title" items="${titles}" itemValue="id" itemLabel="name" cssClass="sSelect"/>
@@ -204,20 +338,10 @@
 		<form:input path="alias" cssClass="sText"/>
 		<form:errors path="alias" cssClass="validationError"/>	
 	</p>
-	<p>
+	<p style="display: none;">
 		<label class="small"><spring:message code="member.personal.aliasEnabled" text="Alias Enabled"/></label>
 		<form:checkbox path="aliasEnabled" cssClass="sCheck" value="true"/>
 		<form:errors path="aliasEnabled" cssClass="validationError"/>	
-	</p>
-	<p>
-		<label class="small"><spring:message code="member.personal.nationality" text="Nationality"/></label>
-		<form:select path="nationality" items="${nationalities}" itemValue="id" itemLabel="name" cssClass="sSelect"/>
-		<form:errors path="nationality" cssClass="validationError"/>
-	</p>
-	<p>
-		<label class="small"><spring:message code="member.personal.gender" text="Gender"/></label>
-		<form:select path="gender" items="${genders}" itemValue="id" itemLabel="name" cssClass="sSelect"/>
-		<form:errors path="gender" cssClass="validationError"/>
 	</p>
 	<p>
 		<label class="small"><spring:message code="member.personal.birthDate" text="Birth Date"/></label>
@@ -228,90 +352,17 @@
 		<label class="small"><spring:message code="member.personal.birthPlace" text="Birth Place"/></label>
 		<form:input path="birthPlace" cssClass="sText"/>
 		<form:errors path="birthPlace" cssClass="validationError"/>	
-	</p>
-	<p>
-		<label class="small"><spring:message code="member.personal.religion" text="Religion"/></label>
-		<form:select path="religion" items="${religions}" itemValue="id" itemLabel="name" cssClass="sSelect"/>
-		<form:errors path="religion" cssClass="validationError"/>
-	</p>
-	<p>
-		<label class="small"><spring:message code="member.personal.category" text="Category"/></label>
-		<form:select path="reservation" items="${reservations}" itemValue="id" itemLabel="name" cssClass="sSelect"/>
-		<form:errors path="reservation" cssClass="validationError"/>
-	</p>
-	<p>
-		<label class="small"><spring:message code="member.personal.caste" text="Caste"/></label>
-		<form:input path="caste" cssClass="sText"/>
-		<form:errors path="caste" cssClass="validationError"/>	
-	</p>
-	<p>
-		<label class="small"><spring:message code="member.personal.maritalStatus" text="Marital Status"/></label>
-		<form:select path="maritalStatus" items="${maritalStatuses}" itemValue="id" itemLabel="name" cssClass="sSelect"/>
-		<form:errors path="maritalStatus" cssClass="validationError"/>
-	</p>
-	<p>
-		<label class="small"><spring:message code="member.personal.marriageDate" text="Marriage Date"/></label>
-		<form:input path="marriageDate" cssClass="datemask sText" />
-		<form:errors path="marriageDate" cssClass="validationError"/>	
-	</p>
-
-	<p>
-		<label class="labelcentered"><spring:message code="member.personal.languages" text="Language Proficiency"/></label>
-		<form:select path="languages" items="${languages}" itemValue="id" itemLabel="name"  multiple="true" size="5" cssClass="sSelect" cssStyle="height:100px;margin-top:5px;"/>
-		<form:errors path="languages" cssClass="validationError"/>
-	</p>
-	
-	<p>
-		<label class="labelcentered"><spring:message code="member.personal.professions" text="Profession"/></label>
-		<form:select path="professions" items="${professions}" itemValue="id" itemLabel="name"  multiple="true" size="5" cssClass="sSelect" cssStyle="height:100px;margin-top:5px;"/>
-		<form:errors path="professions" cssClass="validationError"/>
-	</p>	
-	<div>
-	<input type="button" class="button" id="addFamily" value="<spring:message code='member.personal.addFamily' text='Add Family Members'></spring:message>">
-	<input type="hidden" id="familyCount" name="familyCount" value="${familyCount}"/>
-	<input type="hidden" id="deleteFamilyMessage" name="deleteFamilyMessage" value="<spring:message code='member.personal.deleteFamily' text='Delete Family Member'></spring:message>" disabled="disabled"/>
-	<input type="hidden" id="familyNameMessage" name="familyNameMessage" value="<spring:message code='member.personal.familyMemberName' text='Name'></spring:message>" disabled="disabled"/>
-	<input type="hidden" id="familyRelationMessage" name="familyRelationMessage" value="<spring:message code='member.personal.familyMemberRelation' text='Relation'></spring:message>" disabled="disabled"/>
-	
-	<select name="relationMaster" id="relationMaster" disabled="disabled">
-	<c:forEach items="${relations}" var="i">
-	<option value="${i.id}"><c:out value="${i.name}"></c:out></option>
-	</c:forEach>
-	</select>	
-	<form:errors path="familyMembers" cssClass="validationError"></form:errors>
-	<c:if test="${!(empty familyMembers)}">
-	<c:set var="count" value="1"></c:set>
-	<c:forEach items="${familyMembers}" var="outer">
-	<div id="family${count}">
-	<p>
-	    <label class="small"><spring:message code="member.personal.familyMemberName" text="Name"/></label>
-		<input name="familyMemberName${count}" id="familyMemberName${count}" class="sText" value="${outer.name}">
 	</p>	
 	<p>
-	    <label class="small"><spring:message code="member.personal.familyMemberRelation" text="Relation"/></label>
-		<select name="familyMemberRelation${count}" id="familyMemberRelation${count}" class="sSelect">
-		<c:forEach items="${relations}" var="i">
-		<c:choose>
-		<c:when test="${outer.relation.id==i.id}">		
-		<option value="${i.id}" selected="selected"><c:out value="${i.name}"></c:out></option>		
-		</c:when>
-		<c:otherwise>
-		<option value="${i.id}"><c:out value="${i.name}"></c:out></option>		
-		</c:otherwise>
-		</c:choose>			
-		</c:forEach>
-		</select>
+		<label class="small"><spring:message code="member.personal.nationality" text="Nationality"/></label>
+		<form:select path="nationality" items="${nationalities}" itemValue="id" itemLabel="name" cssClass="sSelect"/>
+		<form:errors path="nationality" cssClass="validationError"/>
 	</p>
-	<input type='button' class='button' id='${count}' value='<spring:message code="member.personal.deleteFamily" text="Delete Family Member"></spring:message>' onclick='deleteFamily(${count});'/>
-	<input type='hidden' id='familyMemberId${count}' name='familyMemberId${count}' value="${outer.id}">
-	<input type='hidden' id='familyMemberVersion${count}' name='familyMemberVersion${count}' value="${outer.version}">
-	<input type='hidden' id='familyMemberLocale${count}' name='familyMemberLocale${count}' value="${domain.locale}">
-	<c:set var="count" value="${count+1}"></c:set>	
-	</div>	
-	</c:forEach>
-	</c:if>
-	</div>	
-	
+	<p>
+		<label class="small"><spring:message code="member.personal.gender" text="Gender"/></label>
+		<form:select path="gender" items="${genders}" itemValue="id" itemLabel="name" cssClass="sSelect"/>
+		<form:errors path="gender" cssClass="validationError"/>
+	</p>
 	<div>
 	<input type="button" class="button" id="addQualification" value="<spring:message code='member.personal.addQualification' text='Add Qualification'></spring:message>">
 	<input type="hidden" id="qualificationCount" name="qualificationCount" value="${qualificationCount}"/>
@@ -357,7 +408,100 @@
 	</div>	
 	</c:forEach>
 	</c:if>
+	</div>		
+	<p>
+		<label class="small"><spring:message code="member.personal.religion" text="Religion"/></label>
+		<form:select path="religion" items="${religions}" itemValue="id" itemLabel="name" cssClass="sSelect"/>
+		<form:errors path="religion" cssClass="validationError"/>
+	</p>
+	<p>
+		<label class="small"><spring:message code="member.personal.category" text="Category"/></label>
+		<form:select path="reservation" items="${reservations}" itemValue="id" itemLabel="name" cssClass="sSelect"/>
+		<form:errors path="reservation" cssClass="validationError"/>
+	</p>
+	<p>
+		<label class="small"><spring:message code="member.personal.caste" text="Caste"/></label>
+		<form:input path="caste" cssClass="sText"/>
+		<form:errors path="caste" cssClass="validationError"/>	
+	</p>
+	<p>
+		<label class="small"><spring:message code="member.personal.maritalStatus" text="Marital Status"/></label>
+		<form:select path="maritalStatus" items="${maritalStatuses}" itemValue="id" itemLabel="name" cssClass="sSelect"/>
+		<form:errors path="maritalStatus" cssClass="validationError"/>
+	</p>
+	<p>
+		<label class="small"><spring:message code="member.personal.spouse" text="Spouse's Name"/></label>
+		<input type="text" class="sText" id="spouseName" name="spouseName" value="${spouseName}"/>
+	</p>
+	<p>
+		<label class="small"><spring:message code="member.personal.children" text="Children"/></label>
+		<label class="small" style="width: 80px;padding-left: 0px;" id="daughterLabel">					
+		<spring:message code="member.personal.noOfDaughters" text="Daughters"/>		
+		</label>
+		<input type="text" class="integer" id="noOfDaughters" name="noOfDaughters" value="${daughters}" style="width: 100px;"/>
+		<label class="small" style="width: 80px;padding-left: 10px;" id="sonLabel">
+		<spring:message code="member.personal.noOfSons" text="Sons"/>
+		</label>
+		<input type="text" class="integer" id="noOfSons" name="noOfSons" value="${sons}" style="width: 100px;"/>
+		<label class="small" style="width: 80px;padding-left: 10px;"><spring:message code="member.personal.noOfChildren" text="No. of Children"/></label>
+		<input type="text" class="integer" id="noOfChildren" name="noOfChildren" readonly="readonly" value="${children}" style="width: 100px;"/>				
+	</p>
+	<div>
+	<input type="button" class="button" id="addFamily" value="<spring:message code='member.personal.addFamily' text='Add Family Members'></spring:message>">
+	<input type="hidden" id="familyCount" name="familyCount" value="${familyCount}"/>
+	<input type="hidden" id="deleteFamilyMessage" name="deleteFamilyMessage" value="<spring:message code='member.personal.deleteFamily' text='Delete Family Member'></spring:message>" disabled="disabled"/>
+	<input type="hidden" id="familyNameMessage" name="familyNameMessage" value="<spring:message code='member.personal.familyMemberName' text='Name'></spring:message>" disabled="disabled"/>
+	<input type="hidden" id="familyRelationMessage" name="familyRelationMessage" value="<spring:message code='member.personal.familyMemberRelation' text='Relation'></spring:message>" disabled="disabled"/>
+	
+	<select name="relationMaster" id="relationMaster" disabled="disabled">
+	<c:forEach items="${relations}" var="i">
+	<option value="${i.id}"><c:out value="${i.name}"></c:out></option>
+	</c:forEach>
+	</select>	
+	<form:errors path="familyMembers" cssClass="validationError"></form:errors>
+	<c:if test="${!(empty familyMembers)}">
+	<c:set var="count" value="1"></c:set>
+	<c:forEach items="${familyMembers}" var="outer">
+	<div id="family${count}">
+	<p>
+	    <label class="small"><spring:message code="member.personal.familyMemberName" text="Name"/></label>
+		<input name="familyMemberName${count}" id="familyMemberName${count}" class="sText" value="${outer.name}">
+	</p>	
+	<p>
+	    <label class="small"><spring:message code="member.personal.familyMemberRelation" text="Relation"/></label>
+		<select name="familyMemberRelation${count}" id="familyMemberRelation${count}" class="sSelect">
+		<c:forEach items="${relations}" var="i">		
+		<c:choose>
+		<c:when test="${outer.relation.id==i.id}">		
+		<option value="${i.id}" selected="selected"><c:out value="${i.name}"></c:out></option>		
+		</c:when>
+		<c:otherwise>
+		<option value="${i.id}"><c:out value="${i.name}"></c:out></option>		
+		</c:otherwise>
+		</c:choose>			
+		</c:forEach>
+		</select>
+	</p>
+	<input type='button' class='button' id='${count}' value='<spring:message code="member.personal.deleteFamily" text="Delete Family Member"></spring:message>' onclick='deleteFamily(${count});'/>
+	<input type='hidden' id='familyMemberId${count}' name='familyMemberId${count}' value="${outer.id}">
+	<input type='hidden' id='familyMemberVersion${count}' name='familyMemberVersion${count}' value="${outer.version}">
+	<input type='hidden' id='familyMemberLocale${count}' name='familyMemberLocale${count}' value="${domain.locale}">
+	<c:set var="count" value="${count+1}"></c:set>	
 	</div>	
+	</c:forEach>
+	</c:if>
+	</div>		
+	<p>
+		<label class="labeltop"><spring:message code="member.personal.languages" text="Language Proficiency"/></label>
+		<form:select path="languages" items="${languages}" itemValue="id" itemLabel="name"  multiple="true" size="5" cssClass="sSelect" cssStyle="height:100px;margin-top:5px;"/>
+		<form:errors path="languages" cssClass="validationError"/>
+	</p>	
+	<p>
+		<label class="labeltop"><spring:message code="member.personal.professions" text="Profession"/></label>
+		<form:select path="professions" items="${professions}" itemValue="id" itemLabel="name"  multiple="true" size="5" cssClass="sSelect" cssStyle="height:100px;margin-top:5px;"/>
+		<form:errors path="professions" cssClass="validationError"/>
+	</p>	
+	
 	
 	<p>
 	    <label class="small"><spring:message code="member.personal.deathDate" text="Death Date"/></label>
@@ -369,7 +513,7 @@
 		<form:input path="condolenceDate" cssClass="datemask sText"/>
 		<form:errors path="condolenceDate" cssClass="validationError"/>	
 	</p>	
-	<p>
+	<p style="display: none;">
 		<label class="labelcentered"><spring:message code="member.personal.obituary" text="Obituary"/></label>
 		<form:textarea path="obituary" cssClass="sTextarea" cols="50" rows="5"></form:textarea>
 		<form:errors path="obituary" cssClass="validationError"/>	
@@ -396,11 +540,18 @@
 		<h2></h2>
 		<p class="tright">
 			<input id="submit" type="submit" value="<spring:message code='generic.submit' text='Submit'/>" class="butDef">
+			<input id="cancel" type="button" value="<spring:message code='generic.cancel' text='Cancel'/>" class="butDef">
 		</p>
 	</div>
 	<form:hidden path="version" />
 	<form:hidden path="id"/>
 	<form:hidden path="locale"/>
+	<input id="house" name="house" value="${house}" type="hidden">
+	<input id="houseType" name="houseType" value="${houseType}" type="hidden">
+	<input id="sonsMsg" name="sonsMsg" value="<spring:message code='member.personal.noOfSons' text='Sons'/>" type="hidden">
+    <input id="sonMsg" name="sonMsg" value="<spring:message code='member.personal.noOfSon' text='Son'/>" type="hidden">
+    <input id="daughtersMsg" name="daughtersMsg" value="<spring:message code='member.personal.noOfDaughters' text='Daughters'/>" type="hidden">
+	<input id="daughterMsg" name="daughterMsg" value="<spring:message code='member.personal.noOfDaughter' text='Daughter'/>" type="hidden">
 </form:form>
 </div>
 </body>

@@ -5,7 +5,7 @@
 	<div class="menu">
 		 <ul>
 		 <li class="selected">
-				<a href="#" onclick="showOnly('tabDashboard','dashWidget')" id="welcome"><img src="./resources/images/template/icons/home.png" alt="" width="27" height="27"/><spring:message code="home.welcome" text="Welcome to ELS"></spring:message></a>
+				<a href="#" onclick="showOnly('tabDashboard','dashWidget')" id="welcome"><img src="./resources/images/template/icons/home.png" alt="" width="37" height="37"/><spring:message code="home.welcome" text="Welcome to ELS"></spring:message></a>
 		</li>				
 		</ul>
 		<div class="info">
