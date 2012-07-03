@@ -354,6 +354,12 @@ import org.springframework.beans.factory.annotation.Configurable;
     /** The obituary. */
     @Column(length=30000)
     private String obituary;
+    
+    @Column(length=10000)
+    private String deathHouseDismissed;
+    
+    @Column(length=10000)
+    private String deathRemarks;
     // ----------------------------------------------------------------------------------------
 
 
@@ -1611,6 +1617,18 @@ import org.springframework.beans.factory.annotation.Configurable;
       return getMemberRepository().findPartyByCouncilDates(member,house,
               criteria,fromDate,toDate);
   }
+public String getDeathHouseDismissed() {
+	return deathHouseDismissed;
+}
+public void setDeathHouseDismissed(String deathHouseDismissed) {
+	this.deathHouseDismissed = deathHouseDismissed;
+}
+public String getDeathRemarks() {
+	return deathRemarks;
+}
+public void setDeathRemarks(String deathRemarks) {
+	this.deathRemarks = deathRemarks;
+}
 
 
 }
