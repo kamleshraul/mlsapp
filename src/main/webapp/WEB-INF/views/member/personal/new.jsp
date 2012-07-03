@@ -493,10 +493,15 @@
 		<form:input path="condolenceDate" cssClass="datemask sText"/>
 		<form:errors path="condolenceDate" cssClass="validationError"/>	
 	</p>	
-	<p style="display: none;">
-		<label class="labelcentered"><spring:message code="member.personal.obituary" text="Obituary"/></label>
-		<form:textarea path="obituary" cssClass="sTextarea"></form:textarea>
-		<form:errors path="obituary" cssClass="validationError"/>	
+	<p>
+		<label class="labelcentered"><spring:message code="member.personal.deathHouseDismissed" text="House Dismissed"/></label>
+		<form:textarea path="deathHouseDismissed" cssClass="sTextarea"></form:textarea>
+		<form:errors path="deathHouseDismissed" cssClass="validationError"/>	
+	</p>
+	<p>
+		<label class="labelcentered"><spring:message code="member.personal.deathRemarks" text="Remarks"/></label>
+		<form:textarea path="deathRemarks" cssClass="sTextarea"></form:textarea>
+		<form:errors path="deathRemarks" cssClass="validationError"/>	
 	</p>	
 	<p>
 		<label class="small"><spring:message code="member.personal.paName" text="Personal Assistants Name"/></label>
