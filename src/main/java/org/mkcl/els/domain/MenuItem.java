@@ -533,11 +533,11 @@ public class MenuItem extends BaseDomain implements Serializable {
     private transient static final long serialVersionUID = 1L;
 
     /** The text key. */
-    @Column(length = 30)
+    @Column(length = 500)
     private String textKey;
 
     /** The text. */
-    @Column(length = 50)
+    @Column(length = 500)
     private String text;
 
     /** The url. */
