@@ -181,6 +181,26 @@
 		<pattern>/subdepartment/*/edit</pattern>
 		<pattern>/subdepartment/*/delete</pattern>
 		<pattern>/subdepartment</pattern>
+		
+		<pattern>/questiontype</pattern>
+		<pattern>/questiontype/new</pattern>
+		<pattern>/questiontype/*/edit</pattern>
+		<pattern>/questiontype/*/delete</pattern>
+		
+		<pattern>/group</pattern>
+		<pattern>/group/new</pattern>
+		<pattern>/group/*/edit</pattern>
+		<pattern>/group/*/delete</pattern>
+		
+		<pattern>/groupinformation</pattern>
+		<pattern>/groupinformation/new</pattern>
+		<pattern>/groupinformation/*/edit</pattern>
+		<pattern>/groupinformation/*/delete</pattern>
+		
+		<pattern>/groupinformation/rotationorder/new</pattern>
+		<pattern>/groupinformation/rotationorder/*/edit</pattern>
+		<pattern>/groupinformation/rotationorder/*/delete</pattern>
+		<pattern>/groupinformation/rotationorder/</pattern>	
     </decorator>
     <decorator name="mnu_form" page="mnu_form.jsp">
 		 <pattern>/menu</pattern>
