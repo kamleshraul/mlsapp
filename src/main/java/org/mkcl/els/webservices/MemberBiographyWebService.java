@@ -15,12 +15,12 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.mkcl.els.common.vo.MemberBiographyVO;
+import org.mkcl.els.domain.CustomParameter;
 import org.mkcl.els.domain.Document;
 import org.mkcl.els.domain.Member;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 /**
@@ -50,7 +50,10 @@ public class MemberBiographyWebService {
     	String gender=null;
     	String maritalstatus=null;
     	//for tomcat
-		try {
+    	CustomParameter customParameter=CustomParameter.findByName(CustomParameter.class,"DEPLOYMENT_SERVER", "");
+		if(customParameter!=null){
+		if(customParameter.getValue().equals("TOMCAT")){
+    	try {
 			constituency = new String(request.getParameter("constituency").getBytes("ISO-8859-1"),"UTF-8");
 			party = new String(request.getParameter("party").getBytes("ISO-8859-1"),"UTF-8");
 			gender = new String(request.getParameter("gender").getBytes("ISO-8859-1"),"UTF-8");
@@ -58,11 +61,14 @@ public class MemberBiographyWebService {
 		} catch (UnsupportedEncodingException e) {
 			e.printStackTrace();
 		}
+		}else{
 		//for glassfish
-//		constituency = request.getParameter("constituency");
-//		party = request.getParameter("party");
-//		gender = request.getParameter("gender");
-//		maritalstatus = request.getParameter("maritalstatus");
+		constituency = request.getParameter("constituency");
+		party = request.getParameter("party");
+		gender = request.getParameter("gender");
+		maritalstatus = request.getParameter("maritalstatus");
+		}
+		}
     	String[] data={constituency,party,gender,maritalstatus};
         return Member.findBiography(id , locale,data);
     }
