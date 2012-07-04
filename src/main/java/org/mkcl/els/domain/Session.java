@@ -22,6 +22,8 @@ import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
 
 import org.codehaus.jackson.annotate.JsonIgnoreProperties;
+import org.mkcl.els.repository.SessionRepository;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Configurable;
 
 /**
@@ -78,10 +80,14 @@ public class Session extends BaseDomain implements Serializable {
     @Column(length = 1000)
     private String remarks;
 
-   @ManyToOne
-   @JoinColumn(name = "house_id")
-     private House house;
+    /** The house. */
+    @ManyToOne
+    @JoinColumn(name = "house_id")
+    private House house;
 
+    /** The session repository. */
+    @Autowired
+    private transient SessionRepository sessionRepository;
 
     // -------------------------------Constructors----------------------------------------------
 
@@ -115,6 +121,26 @@ public class Session extends BaseDomain implements Serializable {
     }
 
     // -------------------------------Domain_Methods----------------------------------------------
+    
+    /**
+     * Gets the session repository.
+     *
+     * @return the session repository
+     */
+    public static SessionRepository getSessionRepository() {
+        SessionRepository sessionRepository = new Session().sessionRepository;
+        if (sessionRepository == null) {
+            throw new IllegalStateException(
+                    "SessionRepository has not been injected in Session Domain");
+        }
+        return sessionRepository;
+    }
+    
+    public static Session findSessionByYearAndSessionType(final Integer year, final SessionType sessionType,
+            final String locale) {
+        return getSessionRepository().findSessionByYearAndSessionType(year, sessionType,
+                locale);
+    }
 
     // ------------------------------Getters/Setters-----------------------
     /**
