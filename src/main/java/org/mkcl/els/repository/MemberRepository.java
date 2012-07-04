@@ -179,7 +179,7 @@ public class MemberRepository extends BaseRepository<Member, Long>{
         	String toDate=councilCriteria[2];
         	Date fromDateServerFormat = null;
 			Date toDateServerFormat = null;
-			try {
+			try {				
 				fromDateServerFormat = FormaterUtil.getDateFormatter("dd/MM/yyyy", "en_US").parse(fromDate);
 				toDateServerFormat = FormaterUtil.getDateFormatter("dd/MM/yyyy", "en_US").parse(toDate);
 			} catch (ParseException e) {
@@ -189,9 +189,15 @@ public class MemberRepository extends BaseRepository<Member, Long>{
             String toDateDBFormat=FormaterUtil.getDateFormatter("yyyy-MM-dd", "en_US").format(toDateServerFormat);
             String upperHousePartyQuery=null;
         	if(criteria.equals("RANGE")){
-        		upperHousePartyQuery=" AND mp.from_date>='"+fromDateDBFormat+"' AND mp.to_date<='"+toDateDBFormat+"' ";
+        		upperHousePartyQuery=" AND ((mp.from_date<='"+fromDateDBFormat+"' AND mp.to_date>='"+toDateDBFormat+"') "+
+				 " OR (mp.from_date>='"+fromDateDBFormat+"' AND mp.to_date<='"+toDateDBFormat+"') "+
+				 " OR (mp.from_date>='"+fromDateDBFormat+"' AND mp.from_date<='"+toDateDBFormat+"') "+
+				 " OR (mp.to_date>='"+fromDateDBFormat+"' AND mp.to_date<='"+toDateDBFormat+"')) ";
             }else if(criteria.equals("YEAR")){
-            	upperHousePartyQuery=" AND mp.from_date>='"+fromDateDBFormat+"' AND mp.to_date<='"+toDateDBFormat+"' ";
+            	upperHousePartyQuery=" AND ((mp.from_date<='"+fromDateDBFormat+"' AND mp.to_date>='"+toDateDBFormat+"') "+
+            						 " OR (mp.from_date>='"+fromDateDBFormat+"' AND mp.from_date<='"+toDateDBFormat+"') "+
+            						 " OR (mp.to_date>='"+fromDateDBFormat+"' AND mp.to_date<='"+toDateDBFormat+"')) ";
+            							
             }else if(criteria.equals("DATE")){
             	upperHousePartyQuery=" AND mp.from_date<='"+fromDateDBFormat+"' AND mp.to_date>='"+toDateDBFormat+"' ";
             }else{
@@ -199,9 +205,14 @@ public class MemberRepository extends BaseRepository<Member, Long>{
             }
         	String upperHouseConstituencyQuery=null;
         	if(criteria.equals("RANGE")){
-        		upperHouseConstituencyQuery=" AND mhr.from_date>='"+fromDateDBFormat+"' AND mhr.to_date<='"+toDateDBFormat+"' ";
+        		upperHouseConstituencyQuery=" AND ((mhr.from_date<='"+fromDateDBFormat+"' AND mhr.to_date>='"+toDateDBFormat+"') "+
+				 " OR (mhr.from_date>='"+fromDateDBFormat+"' AND mhr.to_date<='"+toDateDBFormat+"') "+
+				 " OR (mhr.from_date>='"+fromDateDBFormat+"' AND mhr.from_date<='"+toDateDBFormat+"') "+
+				 " OR (mhr.to_date>='"+fromDateDBFormat+"' AND mhr.to_date<='"+toDateDBFormat+"')) ";
             }else if(criteria.equals("YEAR")){
-            	upperHouseConstituencyQuery=" AND mhr.from_date>='"+fromDateDBFormat+"' AND mhr.to_date<='"+toDateDBFormat+"' ";
+            	upperHouseConstituencyQuery=" AND ((mhr.from_date<='"+fromDateDBFormat+"' AND mhr.to_date>='"+toDateDBFormat+"') "+
+				 " OR (mhr.from_date>='"+fromDateDBFormat+"' AND mhr.from_date<='"+toDateDBFormat+"') "+
+				 " OR (mhr.to_date>='"+fromDateDBFormat+"' AND mhr.to_date<='"+toDateDBFormat+"')) ";
             }else if(criteria.equals("DATE")){
             	upperHouseConstituencyQuery=" AND mhr.from_date<='"+fromDateDBFormat+"' AND mhr.to_date>='"+toDateDBFormat+"'";
             }else{
@@ -292,6 +303,7 @@ public class MemberRepository extends BaseRepository<Member, Long>{
         NumberFormat formatWithoutGrouping=FormaterUtil.getNumberFormatterNoGrouping(locale);
         Member m=Member.findById(Member.class, id);
         MemberBiographyVO memberBiographyVO=new MemberBiographyVO();
+        memberBiographyVO.setId(m.getId());
         //the header in the biography page.
         //for the time being setting party flag to "-"
         memberBiographyVO.setPartyFlag("-");
