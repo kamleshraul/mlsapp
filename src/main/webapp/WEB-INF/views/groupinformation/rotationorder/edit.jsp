@@ -12,7 +12,7 @@
 		initControls();
 		var recordId = ${domain.id};
 		$('#key').val(recordId);	
-		alert($('#key').val());
+		
 		$(".datemask").mask("99/99/9999");
 		for(var i=0;i<count;i++){
 			

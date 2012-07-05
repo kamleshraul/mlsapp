@@ -71,8 +71,7 @@
 			else{
 				if(row!=$('#key').val()) {
 					row = $('#key').val();
-				}
-				alert(row);				
+				}								
 				showTabByIdAndUrl('details_tab','groupinformation/'+row+'/edit');
 			}
 		}
