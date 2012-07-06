@@ -7,6 +7,9 @@
 	$('document').ready(function(){	
 		initControls();
 		$('#key').val('');	
+		$("#type").change(function(){
+			$("#displayName").val($("#type :option:selected").text());
+		});
 	});		
 </script>
 	</head>
@@ -25,6 +28,7 @@
 				<label class="small"><spring:message
 						code="session.number" text="Session Number" />&nbsp;*</label>
 				<form:input path="number" cssClass="integer sText"></form:input>
+			</p>			
 			<p>
 				<label class="small"><spring:message
 						code="session.startDate" text="Start Date" />&nbsp;*</label>
@@ -43,7 +47,11 @@
 				<form:select cssClass="sSelect" path="type"
 					items="${sessionType}" itemValue="id" itemLabel="sessionType">
 				</form:select>
-
+			</p>
+			<p>
+				<label class="small"><spring:message
+						code="session.displayName" text="Session Name" />&nbsp;*</label>
+				<form:input path="displayName" cssClass="sText"></form:input>
 			</p>
 			<p>
 				<label class="small"><spring:message code="session.place" text="Session Place" />&nbsp;*</label>
