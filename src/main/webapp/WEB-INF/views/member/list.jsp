@@ -52,11 +52,14 @@
 			$("#print").click(function(){
 				printRecord();
 			});
-			$("#select_assembly").change(function(){
+			$("#assemblies").change(function(){
 				//here in case of council we need to get the last date of the selected council so that appropriate members are selected
 				$("#house").val($("#assemblies").val());
-				$("#gridURLParams").val("house="+$("#assemblies").val());
-				$("#grid").trigger("reloadGrid");										
+				var oldURL=$("#grid").getGridParam("url");
+				var newURL=oldURL.split("&house=")[0]+"&house="+$("#assemblies").val();
+				$("#gridURLParams").val("house="+$("#assemblies").val());					
+				$("#grid").setGridParam({"url":newURL});
+				$("#grid").trigger("reloadGrid");								
 			});			
 		});
 		function rowDblClickHandler(rowid, iRow, iCol, e) {
@@ -105,11 +108,11 @@
 				</c:otherwise>
 				</c:choose>
 			</a>
+			<select name="assemblies" id="assemblies" style="width:100px;height: 25px;">			
 			<c:forEach items="${assemblies}" var="i">
-			<select name="assemblies" id="assemblies" style="width:100px;height: 25px;">	
 			<option value="${i.id}"><c:out value="${i.name}"></c:out></option>
-			</select>
 			</c:forEach>
+			</select>			
 			<input id="selectedDate" name="selectedDate" class=" sText datemask" type="text" value="${selectedDate}" style="width:75px;"> |
 			<a href="#" id="new_record" class="butSim">
 				<spring:message code="member.new" text="New"/>
