@@ -9,16 +9,8 @@
 	$('document').ready(function(){	
 		initControls();
 		$('#key').val('');		
-		
-		$('#submit').click(function(){
-			var defaultHouseTypeId = ${defaultHouseTypeId};			
-			if($('#houseType').val()==defaultHouseTypeId) {
-				$.prompt($('#houseTypeErrorMsg').val());
-				return false;
-			};
-		}); 
 	});		
-</script>
+	</script>
 </head>
 <body>
 
@@ -115,7 +107,6 @@
 			<input id="submit" type="submit" value="<spring:message code='generic.submit' text='Submit'/>" class="butDef">
 		</p>
 	</div>	
-	<input type="hidden" id="houseTypeErrorMsg" value='<spring:message code="groupinformation.houseType.errormsg"/>'>
 	<form:hidden path="version" />
 	<form:hidden path="id"/>
 	<form:hidden path="locale"/>	

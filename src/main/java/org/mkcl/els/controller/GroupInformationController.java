@@ -60,18 +60,10 @@ public class GroupInformationController extends GenericController<GroupInformati
     @Override
     protected void populateNew(final ModelMap model, final GroupInformation domain,
 		final String locale, final HttpServletRequest request) {
-	domain.setLocale(locale);
-	String defaultHouseName = ((CustomParameter) CustomParameter.findByName(
-		CustomParameter.class, "DEFAULT_HOUSETYPE", locale)).getValue();
-	HouseType defaultHouseType = (HouseType) HouseType.findByFieldName(
-			HouseType.class, "name", defaultHouseName, locale);
-	domain.setHouseType(defaultHouseType);
-	model.addAttribute("defaultHouseTypeId", defaultHouseType.getId());
-	List<HouseType> houseTypes = HouseType.findAll(HouseType.class, "name", "desc", domain.getLocale());
-	model.addAttribute("houseTypes", houseTypes);	
-	List<Ministry> ministries = Ministry.findAll(Ministry.class, "name", ASC, domain.getLocale());
-	model.addAttribute("ministries", ministries);
-	populate(model, domain,request);	
+    	domain.setLocale(locale);		
+    	List<Ministry> ministries = Ministry.findAll(Ministry.class, "name", ASC, domain.getLocale());
+    	model.addAttribute("ministries", ministries);
+    	populate(model, domain,request);	
     }
     
     /* (non-Javadoc)
@@ -79,19 +71,13 @@ public class GroupInformationController extends GenericController<GroupInformati
      */
     @Override
     protected void populateEdit(final ModelMap model, final GroupInformation domain, final HttpServletRequest request) {	
-	List<HouseType> houseTypes = HouseType.findAll(HouseType.class, "name", "desc", domain.getLocale());
-	String defaultHouseName = ((CustomParameter) CustomParameter.findByName(
-			CustomParameter.class, "DEFAULT_HOUSETYPE", domain.getLocale())).getValue();
-	houseTypes.remove((HouseType) HouseType.findByFieldName(
-			HouseType.class, "name", defaultHouseName, domain.getLocale()));
-	model.addAttribute("houseTypes", houseTypes);
-	List<Ministry> modelMinistries = new ArrayList<Ministry>();
-	List<Ministry> ministries = Ministry.findAll(Ministry.class, "name", ASC, domain.getLocale());
-	ministries.removeAll(domain.getMinistries());
-	modelMinistries.addAll(domain.getMinistries());
-	modelMinistries.addAll(ministries);
-	model.addAttribute("ministries", modelMinistries);
-	populate(model, domain, request);	
+    	List<Ministry> modelMinistries = new ArrayList<Ministry>();
+    	List<Ministry> ministries = Ministry.findAll(Ministry.class, "name", ASC, domain.getLocale());
+    	ministries.removeAll(domain.getMinistries());
+    	modelMinistries.addAll(domain.getMinistries());
+    	modelMinistries.addAll(ministries);
+    	model.addAttribute("ministries", modelMinistries);
+    	populate(model, domain, request);	
     }
     
     /**
@@ -102,21 +88,24 @@ public class GroupInformationController extends GenericController<GroupInformati
      * @param request the request
      */
     private void populate(final ModelMap model, final GroupInformation domain, final HttpServletRequest request) {
-	List<Group> groups = Group.findAll(Group.class, "name", ASC, domain.getLocale());
-	model.addAttribute("groups", groups);
-	
-	List<SessionType> sessionTypes = SessionType.findAll(SessionType.class, "sessionType", ASC, domain.getLocale());
-	model.addAttribute("sessionTypes", sessionTypes);	
-	
-	//ending year will be current year
-	SimpleDateFormat df = new SimpleDateFormat("yyyy");
-	Integer currentYear = Integer.parseInt(df.format(new Date()));	
-	List<String> years = new ArrayList<String>();
-	//starting year will be 1937 as per analyst Kartik Sir
-	for(Integer i=currentYear; i>=1937; i--) {
-		years.add(i.toString());
-	}
-	model.addAttribute("years", years);		
+		List<Group> groups = Group.findAll(Group.class, "name", ASC, domain.getLocale());
+		model.addAttribute("groups", groups);
+
+		List<HouseType> houseTypes = HouseType.findAll(HouseType.class, "name", "desc", domain.getLocale());
+		model.addAttribute("houseTypes", houseTypes);
+
+		List<SessionType> sessionTypes = SessionType.findAll(SessionType.class, "sessionType", ASC, domain.getLocale());
+		model.addAttribute("sessionTypes", sessionTypes);
+
+		// ending year will be current year
+		SimpleDateFormat df = new SimpleDateFormat("yyyy");
+		Integer currentYear = Integer.parseInt(df.format(new Date()));
+		List<String> years = new ArrayList<String>();
+		// starting year will be 1937 as per analyst Kartik Sir
+		for (Integer i = currentYear; i >= 1937; i--) {
+			years.add(i.toString());
+		}
+		model.addAttribute("years", years);		
     }    
     
     /* (non-Javadoc)
