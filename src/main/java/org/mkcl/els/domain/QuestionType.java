@@ -33,31 +33,34 @@ import org.springframework.beans.factory.annotation.Configurable;
 public class QuestionType extends BaseDomain implements Serializable {
 
     // ---------------------------------Attributes------------------------//
-    
+
     /** The Constant serialVersionUID. */
     private static final transient long serialVersionUID = 1L;
-    
+
     /** The name. */
     @Column(length = 150)
     @NotEmpty
-    private String name;    
-    
+    private String name;
+
     /** The has question limit. */
     @Column
     private Boolean hasQuestionLimit;
-    
+
     /** The question limit. */
     @Column
     private Integer questionLimit;
-    
+
     /** The question limiting action. */
     @ManyToOne
     @JoinColumn(name = "question_limiting_action__id")
     private QuestionLimitingAction questionLimitingAction;
-    
+
     /** The warning message. */
     @Column(length=600)
     private String warningMessage;
+
+    @Column(length=100)
+    private String type;
 
     // ---------------------------------Constructors----------------------//
 
@@ -116,7 +119,7 @@ public class QuestionType extends BaseDomain implements Serializable {
      *
      * @param hasQuestionLimit the new checks for question limit
      */
-    public void setHasQuestionLimit(Boolean hasQuestionLimit) {
+    public void setHasQuestionLimit(final Boolean hasQuestionLimit) {
 	this.hasQuestionLimit = hasQuestionLimit;
     }
 
@@ -134,7 +137,7 @@ public class QuestionType extends BaseDomain implements Serializable {
      *
      * @param questionLimit the new question limit
      */
-    public void setQuestionLimit(Integer questionLimit) {
+    public void setQuestionLimit(final Integer questionLimit) {
 	this.questionLimit = questionLimit;
     }
 
@@ -153,7 +156,7 @@ public class QuestionType extends BaseDomain implements Serializable {
      * @param questionLimitingAction the new question limiting action
      */
     public void setQuestionLimitingAction(
-	    QuestionLimitingAction questionLimitingAction) {
+	    final QuestionLimitingAction questionLimitingAction) {
 	this.questionLimitingAction = questionLimitingAction;
     }
 
@@ -171,7 +174,18 @@ public class QuestionType extends BaseDomain implements Serializable {
      *
      * @param warningMessage the new warning message
      */
-    public void setWarningMessage(String warningMessage) {
+    public void setWarningMessage(final String warningMessage) {
 	this.warningMessage = warningMessage;
     }
+
+
+    public String getType() {
+        return type;
+    }
+
+
+    public void setType(final String type) {
+        this.type = type;
+    }
+
 }
