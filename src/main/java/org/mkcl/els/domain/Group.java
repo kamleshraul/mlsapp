@@ -63,16 +63,16 @@ public class Group extends BaseDomain implements Serializable {
     
         /** The ministries. */
     @ManyToMany(fetch = FetchType.LAZY)
-    @JoinTable(name = "groups_memberministries",
+    @JoinTable(name = "groups_ministries",
     joinColumns = @JoinColumn(name = "group_id",
     referencedColumnName = "id"),
-    inverseJoinColumns = @JoinColumn(name = "memberministry_id",
+    inverseJoinColumns = @JoinColumn(name = "ministry_id",
     referencedColumnName = "id"))
     private List<Ministry> ministries;    
     
     /** The question dates. */
     @OneToMany(cascade=CascadeType.ALL, fetch=FetchType.LAZY)
-    @JoinColumn(name = "group_information_id", referencedColumnName = "id")
+    @JoinColumn(name = "group_id", referencedColumnName = "id")
     private List<QuestionDates> questionDates;
     
     @Autowired
