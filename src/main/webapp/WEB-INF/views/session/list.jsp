@@ -8,7 +8,7 @@
 	
 		$(document).ready(function(){
 			$("#list_session").hide();
-			$('#key').val("");
+			 $('#key').val("");
 			$('#new_record').click(function(){
 				newSession();				
 			});
@@ -28,22 +28,23 @@
 		
 	</script>
 	<script>
-	function newSession()
-	{			 		 
-		$("#cancelFn").val(newSession);
-		$('#edit_records').hide();
-		showTabByIdAndUrl('session_tab','session/new'+'?houseId=' +houseId);
-	}
+	
 	
 	function editSession(row) {
 		if(this.id =='edit_session' && row==null){
 			alert("Please select the desired row to edit");
 			return false;
 		}
-		$("#cancelFn").val(newSession);				  
+		/* $("#cancelFn").val(newSession); */				  
 		 showTabByIdAndUrl('session_tab','session/'+row+'/edit');
 	}
 
+	function newSession()
+	{			 		 
+		alert($("#cancelFn").val());
+		/* $("#cancelFn").val(newSession);  */
+		showTabByIdAndUrl('session_tab','session/new'+'?houseId=' +houseId);
+	}
 	function deleteSession(row) {
 		if(row==null){
 			$.prompt("Please select the desired row to delete");		
@@ -62,14 +63,7 @@
 			//$("#grid").jqGrid('delGridRow',row,{reloadAfterSubmit:true, mtype:'DELETE', url:url+'/'+row+'/delete',modal:true});
 		}
 	}
-	/* function rowDblClickHandler(rowid, iRow, iCol, e) {
-		   $.get('session'+'/'+rowid+'/edit', function(data){
-			$('#grid_container').html(data);
-			$('#list_session').show();	
-		}); 
-		
-	showTabByIdAndUrl('session_tab', 'session'+'/'+rowid+'/edit');
-	}*/
+	
 
 	</script>
 </head>
