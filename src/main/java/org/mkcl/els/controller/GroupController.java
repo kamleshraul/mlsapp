@@ -63,10 +63,6 @@ public class GroupController extends GenericController<Group> {
 	domain.setLocale(locale);
 	List<Ministry> ministries = Ministry.findAll(Ministry.class, "name", ASC, domain.getLocale());
 	model.addAttribute("ministries", ministries);
-	String defaultGroupNumber = ((CustomParameter) CustomParameter.findByName(
-			CustomParameter.class, "DEFAULT_GROUP_NUMBER", domain.getLocale())).getValue();
-	Integer groupNo=Integer.parseInt(defaultGroupNumber);
-	model.addAttribute("groupNo",groupNo);
 	populate(model, domain,request);	
     }
     
@@ -75,10 +71,7 @@ public class GroupController extends GenericController<Group> {
      */
     @Override
     protected void populateEdit(final ModelMap model, final Group domain, final HttpServletRequest request) {	
-	String defaultGroupNumber = ((CustomParameter) CustomParameter.findByName(
-			CustomParameter.class, "DEFAULT_GROUP_NUMBER", domain.getLocale())).getValue();
-	Integer groupNo=Integer.parseInt(defaultGroupNumber);
-	model.addAttribute("groupNo",groupNo);
+
 	List<Ministry> modelMinistries = new ArrayList<Ministry>();
 	List<Ministry> ministries = Ministry.findAll(Ministry.class, "name", ASC, domain.getLocale());
 	ministries.removeAll(domain.getMinistries());
@@ -101,6 +94,11 @@ public class GroupController extends GenericController<Group> {
 	model.addAttribute("houseTypes", houseTypes);
 	List<SessionType> sessionTypes = SessionType.findAll(SessionType.class, "sessionType", ASC, domain.getLocale());
 	model.addAttribute("sessionTypes", sessionTypes);	
+	
+	String defaultGroupNumber = ((CustomParameter) CustomParameter.findByName(
+			CustomParameter.class, "DEFAULT_GROUP_NUMBER", null)).getValue();
+	Integer groupNo=Integer.parseInt(defaultGroupNumber);
+	model.addAttribute("groupNo",groupNo);
 	
 	//ending year will be current year
 	SimpleDateFormat df = new SimpleDateFormat("yyyy");
@@ -166,7 +164,7 @@ public class GroupController extends GenericController<Group> {
 		model.addAttribute("messagePattern", messagePattern);
 		model.addAttribute("urlPattern", urlPattern);
 		Group domain = Group.findById(Group.class, id);
-    	Session session =Session.findSessionByYearAndSessionType(domain.getYear(), domain.getSessionType(), domain.getLocale());
+    	Session session =Session.findSessionByHouseTypeSessionTypeYear(domain.getHouseType(), domain.getSessionType(), domain.getYear());
     	Date sessionStartDate= session.getStartDate();
     	Date sessionEndDate=session.getEndDate();
     	Calendar start = Calendar.getInstance();
