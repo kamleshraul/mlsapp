@@ -68,7 +68,7 @@ public class Group extends BaseDomain implements Serializable {
     referencedColumnName = "id"),
     inverseJoinColumns = @JoinColumn(name = "memberministry_id",
     referencedColumnName = "id"))
-    private List<MemberMinister> ministries;    
+    private List<Ministry> ministries;    
     
     /** The question dates. */
     @OneToMany(cascade=CascadeType.ALL, fetch=FetchType.LAZY)
@@ -126,11 +126,11 @@ public class Group extends BaseDomain implements Serializable {
 		this.number = number;
 	}	
 	
-	public List<MemberMinister> getMinistries() {
+	public List<Ministry> getMinistries() {
 		return ministries;
 	}
 
-	public void setMinistries(List<MemberMinister> ministries) {
+	public void setMinistries(List<Ministry> ministries) {
 		this.ministries = ministries;
 	}
 
