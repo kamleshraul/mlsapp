@@ -11,6 +11,7 @@ package org.mkcl.els.domain;
 
 import java.io.Serializable;
 import java.util.Date;
+import java.util.List;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -136,10 +137,22 @@ public class Session extends BaseDomain implements Serializable {
         return sessionRepository;
     }
     
-    public static Session findSessionByYearAndSessionType(final Integer year, final SessionType sessionType,
-            final String locale) {
-        return getSessionRepository().findSessionByYearAndSessionType(year, sessionType,
-                locale);
+    public static Session findLatestSession(final House house) {
+        return getSessionRepository().findLatestSession(house);
+    }
+    
+    public static List<Session> findSessionsByHouseAndYear(final House house,final Integer year){
+        return getSessionRepository().findSessionsByHouseAndYear(house, year);
+    }
+    
+    public static Session findSessionByHouseSessionTypeYear(final House house,
+			final SessionType sessionType, final Integer sessionYear) {
+        return getSessionRepository().findSessionByHouseSessionTypeYear(house, sessionType, sessionYear);
+    }
+    
+    public static Session findSessionByHouseTypeSessionTypeYear(final HouseType houseType,
+            final SessionType sessionType, final Integer sessionYear) {
+        return getSessionRepository().findSessionByHouseTypeSessionTypeYear(houseType, sessionType, sessionYear);
     }
 
     // ------------------------------Getters/Setters-----------------------
