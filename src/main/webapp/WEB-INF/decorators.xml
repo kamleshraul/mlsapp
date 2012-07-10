@@ -1,239 +1,231 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
 <decorators defaultdir="/WEB-INF/decorators">
-	<decorator name="form" page="form.jsp">	
+	<decorator name="form" page="form.jsp">
 		<pattern>/message</pattern>
 		<pattern>/message/new</pattern>
 		<pattern>/message/*/edit</pattern>
 		<pattern>/message/*/delete</pattern>
-		
+
 		<pattern>/grid</pattern>
 		<pattern>/grid/new</pattern>
 		<pattern>/grid/*/edit</pattern>
 		<pattern>/grid/*/delete</pattern>
-		
+
 		<pattern>/party</pattern>
 		<pattern>/party/new</pattern>
 		<pattern>/party/*/edit</pattern>
 		<pattern>/party/*/delete</pattern>
-				
+
 		<pattern>/state</pattern>
 		<pattern>/state/new</pattern>
 		<pattern>/state/*/edit</pattern>
-		<pattern>/state/*/delete</pattern>	
-			
+		<pattern>/state/*/delete</pattern>
+
 		<pattern>/district</pattern>
 		<pattern>/district/new</pattern>
 		<pattern>/district/*/edit</pattern>
-		<pattern>/district/*/delete</pattern>	
-			
+		<pattern>/district/*/delete</pattern>
+
 		<pattern>/tehsil</pattern>
 		<pattern>/tehsil/new</pattern>
 		<pattern>/tehsil/*/edit</pattern>
 		<pattern>/tehsil/*/delete</pattern>
-				
+
 		<pattern>/constituency</pattern>
 		<pattern>/constituency/new</pattern>
 		<pattern>/constituency/*/edit</pattern>
-		<pattern>/constituency/*/delete</pattern>	
-		
+		<pattern>/constituency/*/delete</pattern>
+
 		<pattern>/title</pattern>
 		<pattern>/title/new</pattern>
 		<pattern>/title/*/edit</pattern>
-		<pattern>/title/*/delete</pattern>	
-				
+		<pattern>/title/*/delete</pattern>
+
 		<pattern>/base/*/new</pattern>
 		<pattern>/base/*/edit</pattern>
 		<pattern>/base/*/delete</pattern>
 		<pattern>/base/*/create</pattern>
 		<pattern>/base/*/update</pattern>
-		
+
 		<pattern>/locale/new</pattern>
 		<pattern>/locale/*/edit</pattern>
 		<pattern>/locale/*/delete</pattern>
-		<pattern>/locale</pattern>	
-		
+		<pattern>/locale</pattern>
+
 		<pattern>/customparam/new</pattern>
 		<pattern>/customparam/*/edit</pattern>
 		<pattern>/customparam/*/delete</pattern>
-		<pattern>/customparam</pattern>	
-		
+		<pattern>/customparam</pattern>
+
 		<pattern>/member/personal/new</pattern>
 		<pattern>/member/personal/*/edit</pattern>
 		<pattern>/member/personal/*/delete</pattern>
 		<pattern>/member/personal</pattern>
-		
+
 		<pattern>/member/contact/new</pattern>
 		<pattern>/member/contact/*/edit</pattern>
 		<pattern>/member/contact/*/delete</pattern>
 		<pattern>/member/contact</pattern>
-		
+
 		<pattern>/member/other/new</pattern>
 		<pattern>/member/other/*/edit</pattern>
 		<pattern>/member/other/*/delete</pattern>
-		<pattern>/member/other</pattern>	
-		
+		<pattern>/member/other</pattern>
+
 		<pattern>/sessiontype/new</pattern>
 		<pattern>/sessiontype/*/edit</pattern>
 		<pattern>/sessiontype/*/delete</pattern>
-		<pattern>/sessiontype</pattern>	
-		
+		<pattern>/sessiontype</pattern>
+
 		<pattern>/division/new</pattern>
 		<pattern>/division/*/edit</pattern>
 		<pattern>/division/*/delete</pattern>
-		<pattern>/division</pattern>	
-		
+		<pattern>/division</pattern>
+
 		<pattern>/degree/new</pattern>
 		<pattern>/degree/*/edit</pattern>
 		<pattern>/degree/*/delete</pattern>
-		<pattern>/degree</pattern>	
-		
+		<pattern>/degree</pattern>
+
 		<pattern>/language/new</pattern>
 		<pattern>/language/*/edit</pattern>
 		<pattern>/language/*/delete</pattern>
-		<pattern>/language</pattern>	
-		
+		<pattern>/language</pattern>
+
 		<pattern>/ministry/new</pattern>
 		<pattern>/ministry/*/edit</pattern>
 		<pattern>/ministry/*/delete</pattern>
-		<pattern>/ministry</pattern>	
-		
+		<pattern>/ministry</pattern>
+
 		<pattern>/housetype/new</pattern>
 		<pattern>/housetype/*/edit</pattern>
 		<pattern>/housetype/*/delete</pattern>
 		<pattern>/housetype</pattern>
-		
+
 		<pattern>/electiontype/new</pattern>
 		<pattern>/electiontype/*/edit</pattern>
 		<pattern>/electiontype/*/delete</pattern>
 		<pattern>/electiontype</pattern>
-		
+
 		<pattern>/maritalstatus/new</pattern>
 		<pattern>/maritalstatus/*/edit</pattern>
 		<pattern>/maritalstatus/*/delete</pattern>
-		<pattern>/maritalstatus</pattern>	
-		
+		<pattern>/maritalstatus</pattern>
+
 		<pattern>/profession/new</pattern>
 		<pattern>/profession/*/edit</pattern>
 		<pattern>/profession/*/delete</pattern>
-		<pattern>/profession</pattern>	
-		
+		<pattern>/profession</pattern>
+
 		<pattern>/religion/new</pattern>
 		<pattern>/religion/*/edit</pattern>
 		<pattern>/religion/*/delete</pattern>
 		<pattern>/religion</pattern>
-		
+
 		<pattern>/reservation/new</pattern>
 		<pattern>/reservation/*/edit</pattern>
 		<pattern>/reservation/*/delete</pattern>
 		<pattern>/reservation</pattern>
-		
+
 		<pattern>/sessionplace/new</pattern>
 		<pattern>/sessionplace/*/edit</pattern>
 		<pattern>/sessionplace/*/delete</pattern>
 		<pattern>/sessionplace</pattern>
-		
+
 		<pattern>/relation/new</pattern>
 		<pattern>/relation/*/edit</pattern>
 		<pattern>/relation/*/delete</pattern>
 		<pattern>/relation</pattern>
-			
+
 		<pattern>/house/new</pattern>
 		<pattern>/house/*/edit</pattern>
 		<pattern>/house/*/delete</pattern>
 		<pattern>/house</pattern>
-		
+
 		<pattern>/session/new</pattern>
 		<pattern>/session/*/edit</pattern>
 		<pattern>/session/*/delete</pattern>
 		<pattern>/session/</pattern>
-		
+
 		<pattern>/airport/new</pattern>
 		<pattern>/airport/*/edit</pattern>
 		<pattern>/airport/*/delete</pattern>
 		<pattern>/airport</pattern>
-		
+
 		<pattern>/railwaystation/new</pattern>
 		<pattern>/railwaystation/*/edit</pattern>
 		<pattern>/railwaystation/*/delete</pattern>
-		<pattern>/railwaystation</pattern>	
-		
+		<pattern>/railwaystation</pattern>
+
 		<pattern>/department/new</pattern>
 		<pattern>/department/*/edit</pattern>
 		<pattern>/department/*/delete</pattern>
-		<pattern>/department</pattern>	
-		
+		<pattern>/department</pattern>
+
 		<pattern>/memberrole/new</pattern>
 		<pattern>/memberrole/*/edit</pattern>
 		<pattern>/memberrole/*/delete</pattern>
-		<pattern>/memberrole</pattern>	
-		
+		<pattern>/memberrole</pattern>
+
 		<pattern>/designation/new</pattern>
 		<pattern>/designation/*/edit</pattern>
 		<pattern>/designation/*/delete</pattern>
-		<pattern>/designation</pattern>			
-			
+		<pattern>/designation</pattern>
+
 		<pattern>/election/new</pattern>
 		<pattern>/election/*/edit</pattern>
 		<pattern>/election/*/delete</pattern>
 		<pattern>/election</pattern>
-		
+
 		<pattern>/subdepartment/new</pattern>
 		<pattern>/subdepartment/*/edit</pattern>
 		<pattern>/subdepartment/*/delete</pattern>
 		<pattern>/subdepartment</pattern>
-		
-		<pattern>/questiontype</pattern>
-		<pattern>/questiontype/new</pattern>
-		<pattern>/questiontype/*/edit</pattern>
-		<pattern>/questiontype/*/delete</pattern>
-		
-		<pattern>/group</pattern>
+
 		<pattern>/group/new</pattern>
 		<pattern>/group/*/edit</pattern>
 		<pattern>/group/*/delete</pattern>
-		
-		<pattern>/groupinformation</pattern>
-		<pattern>/groupinformation/new</pattern>
-		<pattern>/groupinformation/*/edit</pattern>
-		<pattern>/groupinformation/*/delete</pattern>
-		
-		<pattern>/groupinformation/rotationorder/new</pattern>
-		<pattern>/groupinformation/rotationorder/*/edit</pattern>
-		<pattern>/groupinformation/rotationorder/*/delete</pattern>
-		<pattern>/groupinformation/rotationorder/</pattern>	
-    </decorator>
-    <decorator name="mnu_form" page="mnu_form.jsp">
-		 <pattern>/menu</pattern>
+		<pattern>/group/rotationorder/*/edit</pattern>
+		<pattern>/group</pattern>
+
+		<pattern>/questiontype/new</pattern>
+		<pattern>/questiontype/*/edit</pattern>
+		<pattern>/questiontype/*/delete</pattern>
+		<pattern>/questiontype</pattern>
+	</decorator>
+	<decorator name="mnu_form" page="mnu_form.jsp">
+		<pattern>/menu</pattern>
 		<pattern>/menu/new</pattern>
 		<pattern>/menu/*/edit</pattern>
-		<pattern>/menu/*/delete</pattern>	
-   </decorator>  
-    <decorator name="acctform" page="acct_form.jsp">
-    	<pattern>/acct/**</pattern>
-    </decorator>  
-    
-    <!-- This decorator comes into play in the associations classes operations
-    where we want on submit the data should be written in the grid_container div -->
-    <decorator name="form_associations" page="form_associations.jsp">
-    	<pattern>/member/house/new</pattern>
+		<pattern>/menu/*/delete</pattern>
+	</decorator>
+	<decorator name="acctform" page="acct_form.jsp">
+		<pattern>/acct/**</pattern>
+	</decorator>
+
+	<!-- This decorator comes into play in the associations classes operations 
+		where we want on submit the data should be written in the grid_container 
+		div -->
+	<decorator name="form_associations" page="form_associations.jsp">
+		<pattern>/member/house/new</pattern>
 		<pattern>/member/house/*/edit</pattern>
 		<pattern>/member/house/*/delete</pattern>
 		<pattern>/member/house</pattern>
-		
+
 		<pattern>/member/party/new</pattern>
 		<pattern>/member/party/*/edit</pattern>
 		<pattern>/member/party/*/delete</pattern>
-		<pattern>/member/party</pattern>	
-		
+		<pattern>/member/party</pattern>
+
 		<pattern>/member/minister/new</pattern>
 		<pattern>/member/minister/*/edit</pattern>
 		<pattern>/member/minister/*/delete</pattern>
-		<pattern>/member/minister</pattern>	
-		
+		<pattern>/member/minister</pattern>
+
 		<pattern>/member/election/new</pattern>
 		<pattern>/member/election/*/edit</pattern>
 		<pattern>/member/election/*/delete</pattern>
-		<pattern>/member/election</pattern>		
-    </decorator>
-    
+		<pattern>/member/election</pattern>
+	</decorator>
+
 </decorators>
