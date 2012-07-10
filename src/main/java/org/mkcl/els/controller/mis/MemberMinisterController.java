@@ -47,22 +47,22 @@ import org.springframework.web.bind.annotation.RequestMethod;
 @Controller
 @RequestMapping("member/minister")
 public class MemberMinisterController extends GenericController<MemberMinister> {
-
+	
 	@Override
-	protected void populateNew(final ModelMap model, final MemberMinister domain,
-			final String locale, final HttpServletRequest request) {
+	protected void populateNew(ModelMap model, MemberMinister domain,
+			String locale, HttpServletRequest request) {
 		domain.setLocale(locale);
 		populate(model, domain, locale, request);
 		model.addAttribute("memberDepartmentCount", 0);
 		model.addAttribute("houseType", request.getParameter("houseType"));
 	}
-
+	
 	@Override
-	protected void preValidateCreate(final MemberMinister domain,
-			final BindingResult result, final HttpServletRequest request) {
+	protected void preValidateCreate(MemberMinister domain,
+			BindingResult result, HttpServletRequest request) {
 		this.populateMemberDepartments(domain, result, request);
 	}
-
+	
 	@Override
     protected void customValidateCreate(final MemberMinister domain,
             final BindingResult result, final HttpServletRequest request) {
@@ -70,22 +70,21 @@ public class MemberMinisterController extends GenericController<MemberMinister> 
             result.rejectValue("VersionMismatch", "version");
         }
     }
-
+	
 	@Override
 	protected void populateCreateIfNoErrors(final ModelMap model,
             final MemberMinister domain, final HttpServletRequest request) {
 		request.getSession().setAttribute("member", domain.getMember().getId());
-	    request.getSession().setAttribute("houseType", request.getParameter("houseType"));
-
+		request.getSession().setAttribute("houseType", request.getParameter("houseType"));
 	}
-
+	
 	@Override
-	protected void populateEdit(final ModelMap model, final MemberMinister domain,
-			final HttpServletRequest request) {
+	protected void populateEdit(ModelMap model, MemberMinister domain,
+			HttpServletRequest request) {
 		String locale = domain.getLocale();
 		populate(model, domain, locale, request);
 		populateEditDepartments(model, domain, locale, request);
-		List<MemberDepartment> memberDepartments = domain.getMemberDepartments();
+		List<MemberDepartment>memberDepartments = domain.getMemberDepartments();
 		model.addAttribute("memberDepartments", memberDepartments);
 		model.addAttribute("memberDepartmentCount", memberDepartments.size());
 		String houseType = request.getParameter("houseType");
@@ -95,13 +94,13 @@ public class MemberMinisterController extends GenericController<MemberMinister> 
 		}
 		model.addAttribute("houseType",houseType);
 	}
-
+	
 	@Override
 	protected void preValidateUpdate(final MemberMinister domain,
             final BindingResult result, final HttpServletRequest request) {
 		this.populateMemberDepartments(domain, result, request);
 	}
-
+	
 	@Override
     protected void customValidateUpdate(final MemberMinister domain,
             final BindingResult result, final HttpServletRequest request) {
@@ -109,15 +108,14 @@ public class MemberMinisterController extends GenericController<MemberMinister> 
             result.rejectValue("VersionMismatch", "version");
         }
     }
-
+	
 	@Override
 	protected void populateUpdateIfNoErrors(final ModelMap model,
             final MemberMinister domain, final HttpServletRequest request) {
 		request.getSession().setAttribute("member", domain.getMember().getId());
-        request.getSession().setAttribute("houseType", request.getParameter("houseType"));
-
+		request.getSession().setAttribute("houseType", request.getParameter("houseType"));
 	}
-
+	
 	@RequestMapping(value="/department/{id}/delete", method=RequestMethod.DELETE)
 	public String deleteMemberDepartment(final @PathVariable("id") Long id,
 	        final ModelMap model,
@@ -125,32 +123,20 @@ public class MemberMinisterController extends GenericController<MemberMinister> 
 	    MemberDepartment memberDepartment = MemberDepartment.findById(MemberDepartment.class, id);
 	    memberDepartment.remove();
 	    return "info";
+
 	}
-
-	//==================== INTERNAL METHODS ===============================================
-
+	
+	//==================== INTERNAL METHODS ====================
+	
 	private void populate(final ModelMap model, final MemberMinister domain,
             final String locale, final HttpServletRequest request){
-	    List<Designation> designations =
+		List<Designation> designations =
 	        Designation.findAll(Designation.class, "priority", ApplicationConstants.ASC, locale);
 	    model.addAttribute("designations", designations);
-
+		
 		this.populateMinistries(model, domain, locale, request);
-
-		List<Department> departments =
-			Department.findAll(Department.class, "name", ApplicationConstants.ASC, locale);
-		model.addAttribute("departments", departments);
-
-		if(departments != null){
-			if(departments.size() > 0){
-				Department department = departments.get(0);
-				List<SubDepartment> subdepartments =
-					SubDepartment.findAllByFieldName(SubDepartment.class,
-							"department", department, "name", ApplicationConstants.ASC, locale);
-				model.addAttribute("subdepartments", subdepartments);
-			}
-		}
-
+		this.populateDeptsAndSubDepts(model, domain, locale, request);
+		
 		Long memberId = (long) 0;
 		if(request.getParameter("member") == null) {
 			memberId = (Long) request.getSession().getAttribute("member");
@@ -158,27 +144,49 @@ public class MemberMinisterController extends GenericController<MemberMinister> 
 		} else {
 			memberId = Long.parseLong(request.getParameter("member"));
 		}
-
+		
 		Member member = Member.findById(Member.class, memberId);
 		model.addAttribute("member", memberId);
 		model.addAttribute("fullname", member.getFullname());
+		
+		CustomParameter parameter = 
+			CustomParameter.findByFieldName(CustomParameter.class, "name", "NON_PORTFOLIO_BASED_DESIGNATIONS", locale);
+		model.addAttribute("nonPortfolioDesignations", parameter.getValue());
 	}
-
+	
 	private void populateMinistries(final ModelMap model, final MemberMinister domain,
             final String locale, final HttpServletRequest request) {
-        // In case of New, always show the list of unassigned ministries for the user to
-        // select. In case of edit or update, however, show the current selection
-        // of the ministry in addition to the list of unassigned ministries.
-        List<Ministry> unassignedMinistries = Ministry.findUnassignedMinistries(locale);
-        List<Ministry> ministries = new ArrayList<Ministry>();
-        // Case of populateEdit
-        if(domain.getMinistry() != null){
-            ministries.add(domain.getMinistry());
-        }
-        ministries.addAll(unassignedMinistries);
-        model.addAttribute("ministries", ministries);
-    }
-
+		// In case of New, always show the list of unassigned ministries for the user to 
+		// select. In case of edit or update, however, show the current selection
+		// of the ministry in addition to the list of unassigned ministries.
+		List<Ministry> unassignedMinistries = Ministry.findUnassignedMinistries(locale);
+		List<Ministry> ministries = new ArrayList<Ministry>();
+		// Case of populateEdit
+		if(domain.getMinistry() != null){
+			ministries.add(domain.getMinistry());
+		} 
+		ministries.addAll(unassignedMinistries);
+		model.addAttribute("ministries", ministries);
+	}
+	
+	// TODO
+	private void populateDeptsAndSubDepts(final ModelMap model, final MemberMinister domain,
+            final String locale, final HttpServletRequest request) {
+		List<Department> departments =
+			Department.findAll(Department.class, "name", ApplicationConstants.ASC, locale);
+		model.addAttribute("departments", departments);
+		
+		if(departments != null){
+			if(departments.size() > 0){
+				Department department = departments.get(0);
+				List<SubDepartment> subdepartments = 
+					SubDepartment.findAllByFieldName(SubDepartment.class, 
+							"department", department, "name", ApplicationConstants.ASC, locale);
+				model.addAttribute("subdepartments", subdepartments);
+			}
+		}
+	}
+	
 	private void populateEditDepartments(final ModelMap model, final MemberMinister domain,
             final String locale, final HttpServletRequest request){
 		Map<Long, List<SubDepartment>> mapOfSubDepartmentList =
@@ -187,8 +195,8 @@ public class MemberMinisterController extends GenericController<MemberMinister> 
 		int size = memberDepartments.size();
 		for(int i = 0; i < size; i++) {
 			Department department = memberDepartments.get(i).getDepartment();
-			List<SubDepartment> subDepartments =
-				SubDepartment.findAllByFieldName(SubDepartment.class,
+			List<SubDepartment> subDepartments = 
+				SubDepartment.findAllByFieldName(SubDepartment.class, 
 						"department", department, "name", ApplicationConstants.ASC, locale);
 			// In the JSPs, the count is initialized to 1. Hence, the
 			// key must start with 1.
@@ -196,7 +204,7 @@ public class MemberMinisterController extends GenericController<MemberMinister> 
 		}
 		model.addAttribute("mapOfSubDepartmentList", mapOfSubDepartmentList);
 	}
-
+	
 	private void populateMemberDepartments(final MemberMinister domain,
             final BindingResult result, final HttpServletRequest request) {
 		List<MemberDepartment> memberDepartments = new ArrayList<MemberDepartment>();
@@ -206,12 +214,12 @@ public class MemberMinisterController extends GenericController<MemberMinister> 
 			String strDepartment = request.getParameter("memberDepartmentDepartment" + i);
 			if(strDepartment != null) {
 				MemberDepartment memberDepartment = new MemberDepartment();
-
+				
 				if(! strDepartment.isEmpty()){
 					Department department = Department.findById(Department.class, Long.parseLong(strDepartment));
 					memberDepartment.setDepartment(department);
 				}
-
+				
 				String id = request.getParameter("memberDepartmentId" + i);
 				if(id != null){
 					if(! id.isEmpty()){
@@ -225,26 +233,26 @@ public class MemberMinisterController extends GenericController<MemberMinister> 
 						memberDepartment.setLocale(locale);
 					}
 				}
-
+				
 				String version = request.getParameter("memberDepartmentVersion" + i);
 				if(version != null){
 					if(! version.isEmpty()){
 						memberDepartment.setVersion(Long.parseLong(version));
 					}
 				}
-
+				 
 				// The multiselect field "memberDepartmentSubDepartment" + i returns a String
 				// array of subdepartments selected by the user.
 				String[] strSubDepartments = request.getParameterValues("memberDepartmentSubDepartment" + i);
-                if(strSubDepartments != null){
-                    int noOfSubDepartments = strSubDepartments.length;
-                    for(int j = 0; j < noOfSubDepartments; j++){
-                        SubDepartment subDepartment =
-                            SubDepartment.findById(SubDepartment.class, Long.parseLong(strSubDepartments[j]));
-                        memberDepartment.getSubDepartments().add(subDepartment);
-                    }
-                }
-
+				if(strSubDepartments != null){
+					int noOfSubDepartments = strSubDepartments.length;
+					for(int j = 0; j < noOfSubDepartments; j++){
+						SubDepartment subDepartment = 
+							SubDepartment.findById(SubDepartment.class, Long.parseLong(strSubDepartments[j]));
+						memberDepartment.getSubDepartments().add(subDepartment);
+					}
+				}
+				
 				CustomParameter serverDateFormat =
 					CustomParameter.findByName(CustomParameter.class, "SERVER_DATEFORMAT", "");
 
