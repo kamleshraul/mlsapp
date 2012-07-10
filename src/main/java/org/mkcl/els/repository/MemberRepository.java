@@ -53,7 +53,6 @@ import org.mkcl.els.domain.ElectionResult;
 import org.mkcl.els.domain.FamilyMember;
 import org.mkcl.els.domain.Language;
 import org.mkcl.els.domain.Member;
-import org.mkcl.els.domain.Party;
 import org.mkcl.els.domain.PositionHeld;
 import org.mkcl.els.domain.Profession;
 import org.mkcl.els.domain.Qualification;
@@ -90,7 +89,7 @@ public class MemberRepository extends BaseRepository<Member, Long>{
         String selectClause=null;
         //similarly in case of lower house we will have joins to get districts but not in case of upperhouse
         String fromClause=null;
-        //in both houses we select members belonging to a particular house,having role as member and locale as 
+        //in both houses we select members belonging to a particular house,having role as member and locale as
         //locale.
         String whereClause=null;
         if(housetype.equals(ApplicationConstants.LOWER_HOUSE)){
@@ -106,8 +105,8 @@ public class MemberRepository extends BaseRepository<Member, Long>{
     		"LEFT JOIN genders AS g ON(g.id=m.gender_id) "+
     		"LEFT JOIN maritalstatus AS ms ON(ms.id=m.maritalstatus_id) "+
     		"LEFT JOIN constituencies_districts as cd ON(cd.constituency_id=c.id) "+
-			"LEFT JOIN districts as d ON(d.id=cd.district_id) ";        	
-        	whereClause=" WHERE m.locale='"+locale+"' and mr.priority=0 and mhr.house_id="+house+ " ";            
+			"LEFT JOIN districts as d ON(d.id=cd.district_id) ";
+        	whereClause=" WHERE m.locale='"+locale+"' and mr.priority=0 and mhr.house_id="+house+ " and m.death_date is null";
         }else{
         	selectClause="SELECT rs.title,rs.id,rs.firstname,rs.middlename,rs.lastname,rs.constituency,rs.partyname,rs.recordindex,rs.fromdate,rs.todate,rs.gender,rs.maritalstatus,rs.birthdate FROM(" +
         			"SELECT t.name as title,m.id as id,m.first_name as firstname,m.middle_name as middlename,m.last_name as lastname,c.display_name as constituency,p.name as partyname,mhr.record_index as recordindex,mp.from_date as fromdate,mp.to_date as todate,g.name as gender,ms.name as maritalstatus,m.birth_date as birthdate ";
@@ -120,8 +119,8 @@ public class MemberRepository extends BaseRepository<Member, Long>{
     		"LEFT JOIN memberroles AS mr ON (mr.id=mhr.role) "+
     		"LEFT JOIN genders AS g ON(g.id=m.gender_id) "+
     		"LEFT JOIN maritalstatus AS ms ON(ms.id=m.maritalstatus_id) ";
-        	whereClause=" WHERE m.locale='"+locale+"' and mr.priority=0 and mhr.house_id="+house+ " ";
-        }      
+        	whereClause=" WHERE m.locale='"+locale+"' and mr.priority=0 and mhr.house_id="+house+ " and m.death_date is null ";
+        }
         //search criterias as selected by user.
         String queryCriteriaClause=null;
         if(criteria1.equals("constituency")){
@@ -172,14 +171,14 @@ public class MemberRepository extends BaseRepository<Member, Long>{
         }
         String query=null;
         if(housetype.equals(ApplicationConstants.LOWER_HOUSE)){
-        	query=selectClause+fromClause+whereClause+queryCriteriaClause+queryOrderByClause+") as rs";	
+        	query=selectClause+fromClause+whereClause+queryCriteriaClause+queryOrderByClause+") as rs";
         }else{
         	String criteria=councilCriteria[0];
         	String fromDate=councilCriteria[1];
         	String toDate=councilCriteria[2];
         	Date fromDateServerFormat = null;
 			Date toDateServerFormat = null;
-			try {				
+			try {
 				fromDateServerFormat = FormaterUtil.getDateFormatter("dd/MM/yyyy", "en_US").parse(fromDate);
 				toDateServerFormat = FormaterUtil.getDateFormatter("dd/MM/yyyy", "en_US").parse(toDate);
 			} catch (ParseException e) {
@@ -197,7 +196,7 @@ public class MemberRepository extends BaseRepository<Member, Long>{
             	upperHousePartyQuery=" AND ((mp.from_date<='"+fromDateDBFormat+"' AND mp.to_date>='"+toDateDBFormat+"') "+
             						 " OR (mp.from_date>='"+fromDateDBFormat+"' AND mp.from_date<='"+toDateDBFormat+"') "+
             						 " OR (mp.to_date>='"+fromDateDBFormat+"' AND mp.to_date<='"+toDateDBFormat+"')) ";
-            							
+
             }else if(criteria.equals("DATE")){
             	upperHousePartyQuery=" AND mp.from_date<='"+fromDateDBFormat+"' AND mp.to_date>='"+toDateDBFormat+"' ";
             }else{
@@ -219,7 +218,7 @@ public class MemberRepository extends BaseRepository<Member, Long>{
             	upperHouseConstituencyQuery="";
             }
         	query=selectClause+fromClause+whereClause+queryCriteriaClause+upperHousePartyQuery+upperHouseConstituencyQuery+queryOrderByClause+") as rs";
-        }        
+        }
         List records=this.em().createNativeQuery(query).getResultList();
         Long currentId=new Long(0);
         int size=0;
@@ -232,7 +231,7 @@ public class MemberRepository extends BaseRepository<Member, Long>{
             memberInfo.setId(o[1]!=null?Long.parseLong(o[1].toString().trim()):0);
             memberInfo.setFirstName(o[2]!=null?o[2].toString().trim():"-");
             memberInfo.setMiddleName(o[3]!=null?o[3].toString().trim():"-");
-            memberInfo.setLastName(o[4]!=null?o[4].toString().trim():"-"); 
+            memberInfo.setLastName(o[4]!=null?o[4].toString().trim():"-");
             memberInfo.setConstituency(o[5]!=null?o[5].toString():"-");
         	memberInfo.setParty(o[6]!=null?o[6].toString():"");
             memberInfo.setRecordIndex(o[7]!=null?Integer.parseInt(o[7].toString()):0);
@@ -259,7 +258,7 @@ public class MemberRepository extends BaseRepository<Member, Long>{
         	}
             if(memberInfo.getId()==currentId){
             		if(memberInfos.get(size-1).getRecordIndex()>memberInfo.getRecordIndex()){
-            			
+
             		}else{
             			memberInfos.get(size-1).setConstituency(memberInfo.getConstituency());
             			if(housetype.equals(ApplicationConstants.LOWER_HOUSE)){
@@ -269,7 +268,7 @@ public class MemberRepository extends BaseRepository<Member, Long>{
             		SimpleDateFormat format=new SimpleDateFormat("yyyy-MM-dd");
             		try {
 						if(format.parse(memberInfos.get(size-1).getPartyFD()).after(format.parse(memberInfo.getPartyFD()))){
-							
+
 						}else{
 							memberInfos.get(size-1).setParty(memberInfo.getParty());
 						}
@@ -277,9 +276,9 @@ public class MemberRepository extends BaseRepository<Member, Long>{
 						e.printStackTrace();
 					}
             }else{
-            	currentId=memberInfo.getId();            	
-                memberInfos.add(memberInfo); 
-            }       
+            	currentId=memberInfo.getId();
+                memberInfos.add(memberInfo);
+            }
             size=memberInfos.size();
         }
         memberSearchPage.setPageItems(memberInfos);
@@ -292,7 +291,7 @@ public class MemberRepository extends BaseRepository<Member, Long>{
      *
      * @param id the id
      * @param locale the locale
-     * @param data 
+     * @param data
      * @return the member biography vo
      */
     public MemberBiographyVO findBiography(final long id, final String locale,final String[] data) {
@@ -329,7 +328,7 @@ public class MemberRepository extends BaseRepository<Member, Long>{
         memberBiographyVO.setConstituency(data[0]);
         memberBiographyVO.setPartyName(data[1]);
         memberBiographyVO.setGender(data[2]);
-        memberBiographyVO.setMaritalStatus(data[3]);        
+        memberBiographyVO.setMaritalStatus(data[3]);
         //the member biography fields in the order it appears in use case.
         //family details
         memberBiographyVO.setFatherName("-");
@@ -399,7 +398,7 @@ public class MemberRepository extends BaseRepository<Member, Long>{
             memberBiographyVO.setObituary("-");
         }else{
             memberBiographyVO.setObituary(m.getObituary().trim());
-        }        
+        }
         if(m.getMarriageDate()==null){
             memberBiographyVO.setMarriageDate("-");
         }else{
@@ -687,9 +686,9 @@ public class MemberRepository extends BaseRepository<Member, Long>{
             if(presentAddress.getDetails()!=null){
                 if(!presentAddress.getDetails().trim().isEmpty()){
                     if(presentAddress.getTehsil()!=null){
-                        memberBiographyVO.setPresentAddress(presentAddress.getDetails()+"<br>"+presentAddress.getTehsil().getName()+","+presentAddress.getDistrict().getName()+","+ApplicationConstants.STATE_mr_IN+"-"+presentAddress.getState().getName()+" "+presentAddress.getPincode());
+                        memberBiographyVO.setPresentAddress(presentAddress.getDetails()+"<br>"+ApplicationConstants.TEHSIL_mr_IN+"-"+presentAddress.getTehsil().getName()+","+ApplicationConstants.DISTRICT_mr_IN+"-"+presentAddress.getDistrict().getName()+","+ApplicationConstants.STATE_mr_IN+"-"+presentAddress.getState().getName()+" "+presentAddress.getPincode());
                     }else{
-                        memberBiographyVO.setPresentAddress(presentAddress.getDetails()+"<br>"+presentAddress.getDistrict().getName()+","+ApplicationConstants.STATE_mr_IN+"-"+presentAddress.getState().getName()+" "+presentAddress.getPincode());
+                        memberBiographyVO.setPresentAddress(presentAddress.getDetails()+"<br>"+ApplicationConstants.DISTRICT_mr_IN+"-"+presentAddress.getDistrict().getName()+","+ApplicationConstants.STATE_mr_IN+"-"+presentAddress.getState().getName()+" "+presentAddress.getPincode());
                     }
                 }
             }
@@ -701,9 +700,9 @@ public class MemberRepository extends BaseRepository<Member, Long>{
             if(presentAddress1.getDetails()!=null){
                 if(!presentAddress1.getDetails().trim().isEmpty()){
                     if(presentAddress1.getTehsil()!=null){
-                        memberBiographyVO.setPresentAddress1(presentAddress1.getDetails()+"<br>"+presentAddress1.getTehsil().getName()+","+presentAddress1.getDistrict().getName()+","+ApplicationConstants.STATE_mr_IN+"-"+presentAddress1.getState().getName()+" "+presentAddress1.getPincode());
+                        memberBiographyVO.setPresentAddress1(presentAddress1.getDetails()+"<br>"+ApplicationConstants.TEHSIL_mr_IN+"-"+presentAddress1.getTehsil().getName()+","+ApplicationConstants.DISTRICT_mr_IN+"-"+presentAddress1.getDistrict().getName()+","+ApplicationConstants.STATE_mr_IN+"-"+presentAddress1.getState().getName()+" "+presentAddress1.getPincode());
                     }else{
-                        memberBiographyVO.setPresentAddress1(presentAddress1.getDetails()+"<br>"+presentAddress1.getDistrict().getName()+","+ApplicationConstants.STATE_mr_IN+"-"+presentAddress1.getState().getName()+" "+presentAddress1.getPincode());
+                        memberBiographyVO.setPresentAddress1(presentAddress1.getDetails()+"<br>"+ApplicationConstants.DISTRICT_mr_IN+"-"+presentAddress1.getDistrict().getName()+","+ApplicationConstants.STATE_mr_IN+"-"+presentAddress1.getState().getName()+" "+presentAddress1.getPincode());
                     }
                 }
             }
@@ -714,9 +713,9 @@ public class MemberRepository extends BaseRepository<Member, Long>{
             if(presentAddress2.getDetails()!=null){
                 if(!presentAddress2.getDetails().trim().isEmpty()){
                     if(presentAddress2.getTehsil()!=null){
-                        memberBiographyVO.setPresentAddress2(presentAddress2.getDetails()+"<br>"+presentAddress2.getTehsil().getName()+","+presentAddress2.getDistrict().getName()+","+ApplicationConstants.STATE_mr_IN+"-"+presentAddress2.getState().getName()+" "+presentAddress2.getPincode());
+                        memberBiographyVO.setPresentAddress2(presentAddress2.getDetails()+"<br>"+ApplicationConstants.TEHSIL_mr_IN+"-"+presentAddress2.getTehsil().getName()+","+ApplicationConstants.DISTRICT_mr_IN+"-"+presentAddress2.getDistrict().getName()+","+ApplicationConstants.STATE_mr_IN+"-"+presentAddress2.getState().getName()+" "+presentAddress2.getPincode());
                     }else{
-                        memberBiographyVO.setPresentAddress2(presentAddress2.getDetails()+"<br>"+presentAddress2.getDistrict().getName()+","+ApplicationConstants.STATE_mr_IN+"-"+presentAddress2.getState().getName()+" "+presentAddress2.getPincode());
+                        memberBiographyVO.setPresentAddress2(presentAddress2.getDetails()+"<br>"+ApplicationConstants.DISTRICT_mr_IN+"-"+presentAddress2.getDistrict().getName()+","+ApplicationConstants.STATE_mr_IN+"-"+presentAddress2.getState().getName()+" "+presentAddress2.getPincode());
                     }
                 }
             }
@@ -727,9 +726,9 @@ public class MemberRepository extends BaseRepository<Member, Long>{
             if(permanentAddress.getDetails()!=null){
                 if(!permanentAddress.getDetails().trim().isEmpty()) {
                     if(permanentAddress.getTehsil()!=null){
-                        memberBiographyVO.setPermanentAddress(permanentAddress.getDetails()+"<br>"+permanentAddress.getTehsil().getName()+","+permanentAddress.getDistrict().getName()+","+ApplicationConstants.STATE_mr_IN+"-"+permanentAddress.getState().getName()+" "+permanentAddress.getPincode());
+                        memberBiographyVO.setPermanentAddress(permanentAddress.getDetails()+"<br>"+ApplicationConstants.TEHSIL_mr_IN+"-"+permanentAddress.getTehsil().getName()+","+ApplicationConstants.DISTRICT_mr_IN+"-"+permanentAddress.getDistrict().getName()+","+ApplicationConstants.STATE_mr_IN+"-"+permanentAddress.getState().getName()+" "+permanentAddress.getPincode());
                     }else{
-                        memberBiographyVO.setPermanentAddress(permanentAddress.getDetails()+"<br>"+permanentAddress.getDistrict().getName()+","+ApplicationConstants.STATE_mr_IN+"-"+permanentAddress.getState().getName()+" "+permanentAddress.getPincode());
+                        memberBiographyVO.setPermanentAddress(permanentAddress.getDetails()+"<br>"+ApplicationConstants.DISTRICT_mr_IN+"-"+permanentAddress.getDistrict().getName()+","+ApplicationConstants.STATE_mr_IN+"-"+permanentAddress.getState().getName()+" "+permanentAddress.getPincode());
                     }
                 }
             }
@@ -740,9 +739,9 @@ public class MemberRepository extends BaseRepository<Member, Long>{
             if(permanentAddress1.getDetails()!=null){
                 if(!permanentAddress1.getDetails().trim().isEmpty()) {
                     if(permanentAddress1.getTehsil()!=null){
-                        memberBiographyVO.setPermanentAddress1(permanentAddress1.getDetails()+"<br>"+permanentAddress1.getTehsil().getName()+","+permanentAddress1.getDistrict().getName()+","+ApplicationConstants.STATE_mr_IN+"-"+permanentAddress1.getState().getName()+" "+permanentAddress1.getPincode());
+                        memberBiographyVO.setPermanentAddress1(permanentAddress1.getDetails()+"<br>"+ApplicationConstants.TEHSIL_mr_IN+"-"+permanentAddress1.getTehsil().getName()+","+ApplicationConstants.DISTRICT_mr_IN+"-"+permanentAddress1.getDistrict().getName()+","+ApplicationConstants.STATE_mr_IN+"-"+permanentAddress1.getState().getName()+" "+permanentAddress1.getPincode());
                     }else{
-                        memberBiographyVO.setPermanentAddress1(permanentAddress1.getDetails()+"<br>"+permanentAddress1.getDistrict().getName()+","+ApplicationConstants.STATE_mr_IN+"-"+permanentAddress1.getState().getName()+" "+permanentAddress1.getPincode());
+                        memberBiographyVO.setPermanentAddress1(permanentAddress1.getDetails()+"<br>"+ApplicationConstants.DISTRICT_mr_IN+"-"+permanentAddress1.getDistrict().getName()+","+ApplicationConstants.STATE_mr_IN+"-"+permanentAddress1.getState().getName()+" "+permanentAddress1.getPincode());
                     }
                 }
             }
@@ -753,9 +752,9 @@ public class MemberRepository extends BaseRepository<Member, Long>{
             if(permanentAddress2.getDetails()!=null){
                 if(!permanentAddress2.getDetails().trim().isEmpty()) {
                     if(permanentAddress2.getTehsil()!=null){
-                        memberBiographyVO.setPermanentAddress2(permanentAddress2.getDetails()+"<br>"+permanentAddress2.getTehsil().getName()+","+permanentAddress2.getDistrict().getName()+","+ApplicationConstants.STATE_mr_IN+"-"+permanentAddress2.getState().getName()+" "+permanentAddress2.getPincode());
+                        memberBiographyVO.setPermanentAddress2(permanentAddress2.getDetails()+"<br>"+ApplicationConstants.TEHSIL_mr_IN+"-"+permanentAddress2.getTehsil().getName()+","+ApplicationConstants.DISTRICT_mr_IN+"-"+permanentAddress2.getDistrict().getName()+","+ApplicationConstants.STATE_mr_IN+"-"+permanentAddress2.getState().getName()+" "+permanentAddress2.getPincode());
                     }else{
-                        memberBiographyVO.setPermanentAddress2(permanentAddress2.getDetails()+"<br>"+permanentAddress2.getDistrict().getName()+","+ApplicationConstants.STATE_mr_IN+"-"+permanentAddress2.getState().getName()+" "+permanentAddress2.getPincode());
+                        memberBiographyVO.setPermanentAddress2(permanentAddress2.getDetails()+"<br>"+ApplicationConstants.DISTRICT_mr_IN+"-"+permanentAddress2.getDistrict().getName()+","+ApplicationConstants.STATE_mr_IN+"-"+permanentAddress2.getState().getName()+" "+permanentAddress2.getPincode());
                     }
                 }
             }
@@ -766,9 +765,9 @@ public class MemberRepository extends BaseRepository<Member, Long>{
             if(officeAddress.getDetails()!=null){
                 if(!officeAddress.getDetails().trim().isEmpty()){
                     if(officeAddress.getTehsil()!=null){
-                        memberBiographyVO.setOfficeAddress(officeAddress.getDetails()+"<br>"+officeAddress.getTehsil().getName()+","+officeAddress.getDistrict().getName()+","+ApplicationConstants.STATE_mr_IN+"-"+officeAddress.getState().getName()+" "+officeAddress.getPincode());
+                        memberBiographyVO.setOfficeAddress(officeAddress.getDetails()+"<br>"+ApplicationConstants.TEHSIL_mr_IN+"-"+officeAddress.getTehsil().getName()+","+ApplicationConstants.DISTRICT_mr_IN+"-"+officeAddress.getDistrict().getName()+","+ApplicationConstants.STATE_mr_IN+"-"+officeAddress.getState().getName()+" "+officeAddress.getPincode());
                     }else{
-                        memberBiographyVO.setOfficeAddress(officeAddress.getDetails()+"<br>"+officeAddress.getDistrict().getName()+","+ApplicationConstants.STATE_mr_IN+"-"+officeAddress.getState().getName()+" "+officeAddress.getPincode());
+                        memberBiographyVO.setOfficeAddress(officeAddress.getDetails()+"<br>"+ApplicationConstants.DISTRICT_mr_IN+"-"+officeAddress.getDistrict().getName()+","+ApplicationConstants.STATE_mr_IN+"-"+officeAddress.getState().getName()+" "+officeAddress.getPincode());
                     }
                 }
             }
@@ -779,9 +778,9 @@ public class MemberRepository extends BaseRepository<Member, Long>{
             if(officeAddress1.getDetails()!=null){
                 if(!officeAddress1.getDetails().trim().isEmpty()){
                     if(officeAddress1.getTehsil()!=null){
-                        memberBiographyVO.setOfficeAddress1(officeAddress.getDetails()+"<br>"+officeAddress.getTehsil().getName()+","+officeAddress.getDistrict().getName()+","+ApplicationConstants.STATE_mr_IN+"-"+officeAddress.getState().getName()+" "+officeAddress.getPincode());
+                        memberBiographyVO.setOfficeAddress1(officeAddress.getDetails()+"<br>"+ApplicationConstants.TEHSIL_mr_IN+"-"+officeAddress.getTehsil().getName()+","+ApplicationConstants.DISTRICT_mr_IN+"-"+officeAddress.getDistrict().getName()+","+ApplicationConstants.STATE_mr_IN+"-"+officeAddress.getState().getName()+" "+officeAddress.getPincode());
                     }else{
-                        memberBiographyVO.setOfficeAddress1(officeAddress.getDetails()+"<br>"+officeAddress.getDistrict().getName()+","+ApplicationConstants.STATE_mr_IN+"-"+officeAddress.getState().getName()+" "+officeAddress.getPincode());
+                        memberBiographyVO.setOfficeAddress1(officeAddress.getDetails()+"<br>"+ApplicationConstants.DISTRICT_mr_IN+"-"+officeAddress.getDistrict().getName()+","+ApplicationConstants.STATE_mr_IN+"-"+officeAddress.getState().getName()+" "+officeAddress.getPincode());
                     }
                 }
             }
@@ -793,9 +792,9 @@ public class MemberRepository extends BaseRepository<Member, Long>{
         }else{
             if(!officeAddress2.getDetails().trim().isEmpty()){
                 if(officeAddress2.getTehsil()!=null){
-                    memberBiographyVO.setOfficeAddress2(officeAddress2.getDetails()+"<br>"+officeAddress2.getTehsil().getName()+","+officeAddress2.getDistrict().getName()+","+ApplicationConstants.STATE_mr_IN+"-"+officeAddress2.getState().getName()+" "+officeAddress2.getPincode());
+                    memberBiographyVO.setOfficeAddress2(officeAddress2.getDetails()+"<br>"+ApplicationConstants.TEHSIL_mr_IN+"-"+officeAddress2.getTehsil().getName()+","+ApplicationConstants.DISTRICT_mr_IN+"-"+officeAddress2.getDistrict().getName()+","+ApplicationConstants.STATE_mr_IN+"-"+officeAddress2.getState().getName()+" "+officeAddress2.getPincode());
                 }else{
-                    memberBiographyVO.setOfficeAddress2(officeAddress2.getDetails()+"<br>"+officeAddress2.getDistrict().getName()+","+ApplicationConstants.STATE_mr_IN+"-"+officeAddress2.getState().getName()+" "+officeAddress2.getPincode());
+                    memberBiographyVO.setOfficeAddress2(officeAddress2.getDetails()+"<br>"+ApplicationConstants.DISTRICT_mr_IN+"-"+officeAddress2.getDistrict().getName()+","+ApplicationConstants.STATE_mr_IN+"-"+officeAddress2.getState().getName()+" "+officeAddress2.getPincode());
                 }
             }else{
                 memberBiographyVO.setOfficeAddress2("-");
@@ -807,9 +806,9 @@ public class MemberRepository extends BaseRepository<Member, Long>{
             if(tempAddress1.getDetails()!=null){
                 if(!tempAddress1.getDetails().trim().isEmpty()){
                     if(tempAddress1.getTehsil()!=null){
-                        memberBiographyVO.setTempAddress1(tempAddress1.getDetails()+"<br>"+tempAddress1.getTehsil().getName()+","+tempAddress1.getDistrict().getName()+","+ApplicationConstants.STATE_mr_IN+"-"+tempAddress1.getState().getName()+" "+tempAddress1.getPincode());
+                        memberBiographyVO.setTempAddress1(tempAddress1.getDetails()+"<br>"+ApplicationConstants.TEHSIL_mr_IN+"-"+tempAddress1.getTehsil().getName()+","+ApplicationConstants.DISTRICT_mr_IN+"-"+tempAddress1.getDistrict().getName()+","+ApplicationConstants.STATE_mr_IN+"-"+tempAddress1.getState().getName()+" "+tempAddress1.getPincode());
                     }else{
-                        memberBiographyVO.setTempAddress1(tempAddress1.getDetails()+"<br>"+tempAddress1.getDistrict().getName()+","+ApplicationConstants.STATE_mr_IN+"-"+tempAddress1.getState().getName()+" "+tempAddress1.getPincode());
+                        memberBiographyVO.setTempAddress1(tempAddress1.getDetails()+"<br>"+ApplicationConstants.DISTRICT_mr_IN+"-"+tempAddress1.getDistrict().getName()+","+ApplicationConstants.STATE_mr_IN+"-"+tempAddress1.getState().getName()+" "+tempAddress1.getPincode());
                     }
                 }
             }
@@ -821,9 +820,9 @@ public class MemberRepository extends BaseRepository<Member, Long>{
                 if(tempAddress2.getDetails()!=null){
                     if(!tempAddress2.getDetails().trim().isEmpty()){
                         if(tempAddress2.getTehsil()!=null){
-                            memberBiographyVO.setTempAddress2(tempAddress2.getDetails()+"<br>"+tempAddress2.getTehsil().getName()+","+tempAddress2.getDistrict().getName()+","+ApplicationConstants.STATE_mr_IN+"-"+tempAddress2.getState().getName()+" "+tempAddress2.getPincode());
+                            memberBiographyVO.setTempAddress2(tempAddress2.getDetails()+"<br>"+ApplicationConstants.TEHSIL_mr_IN+"-"+tempAddress2.getTehsil().getName()+","+ApplicationConstants.DISTRICT_mr_IN+"-"+tempAddress2.getDistrict().getName()+","+ApplicationConstants.STATE_mr_IN+"-"+tempAddress2.getState().getName()+" "+tempAddress2.getPincode());
                         }else{
-                            memberBiographyVO.setTempAddress2(tempAddress2.getDetails()+"<br>"+tempAddress2.getDistrict().getName()+","+ApplicationConstants.STATE_mr_IN+"-"+tempAddress2.getState().getName()+" "+tempAddress2.getPincode());
+                            memberBiographyVO.setTempAddress2(tempAddress2.getDetails()+"<br>"+ApplicationConstants.DISTRICT_mr_IN+"-"+tempAddress2.getDistrict().getName()+","+ApplicationConstants.STATE_mr_IN+"-"+tempAddress2.getState().getName()+" "+tempAddress2.getPincode());
                         }
                     }else{
                         memberBiographyVO.setTempAddress2("-");
@@ -959,6 +958,16 @@ public class MemberRepository extends BaseRepository<Member, Long>{
                 memberBiographyVO.setNoOfVoters(FormaterUtil.formatToINS(formatWithGrouping.format(electionResults.get(0).getNoOfVoters())));
             }else{
                 memberBiographyVO.setNoOfVoters("-");
+            }
+            if(electionResults.get(0).getElectionResultDate()!=null){
+                memberBiographyVO.setElectionResultDate(FormaterUtil.formatMonthsMarathi(dateFormat.format(electionResults.get(0).getElectionResultDate()),locale));
+            }else{
+                memberBiographyVO.setElectionResultDate("-");
+            }
+            if(electionResults.get(0).getVotingDate()!=null){
+                memberBiographyVO.setVotingDate(FormaterUtil.formatMonthsMarathi(dateFormat.format(electionResults.get(0).getVotingDate()),locale));
+            }else{
+                memberBiographyVO.setVotingDate("-");
             }
             List<RivalMember> rivals=electionResults.get(0).getRivalMembers();
             List<RivalMemberVO> rivalMemberVOs=new ArrayList<RivalMemberVO>();
@@ -2239,7 +2248,7 @@ public class MemberRepository extends BaseRepository<Member, Long>{
             }else if(criteria.equals("DATE")){
                 query2=" AND mhr.from_date<='"+fromDateDBFormat+"' AND mhr.to_date>='"+toDateDBFormat+"' ORDER BY  mhr.record_index DESC LIMIT 0,1";
             }
-            
+
             try {
 				Object o=this.em().createNativeQuery(query1+query2).getSingleResult();
 				Object[] i=(Object[]) o;
