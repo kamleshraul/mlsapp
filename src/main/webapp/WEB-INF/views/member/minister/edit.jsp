@@ -67,9 +67,9 @@
 	    	    null, 
 	    	    function(data, textStatus, XMLHttpRequest) {
 	    			$('#memberDepartment'+id).remove();
-	    			totalMemberDepartmentCount = totalMemberDepartmentCount-1;
-					if(id == memberDepartmentCount){
-						memberDepartmentCount = memberDepartmentCount-1;
+	    			totalMemberDepartmentCount=totalMemberDepartmentCount-1;
+					if(id==memberDepartmentCount){
+						memberDepartmentCount=memberDepartmentCount-1;
 					}
 	    		}
     		);	
@@ -102,17 +102,39 @@
 			addMemberDepartment();
 		});
 
+		$('#ministry').prepend("<option value=''>SELECT</option>");
+		var options = $('#designation')[0].outerHTML;
+		// selected="selected" because this option was selected during creation & hence this option
+		// will be returned as a selected option
+		var tempStr = options.split('<option value="' + $('#designation').val() + '" selected="selected">')[1];
+		var designation = tempStr.split("</option>")[0];
+		var stateMinister = $('#nonPortfolioDesignations').val();
+		if(designation == stateMinister){
+			$('#ministryDiv').hide();
+		}
+		
+		$('.designationClass').change(function(){
+			var options = $(this).context.outerHTML;
+			var tempStr = options.split('<option value="' + $(this).val() + '"')[1].split("</option>")[0];
+			var designation = tempStr.split(">")[1];
+			var stateMinister = $('#nonPortfolioDesignations').val();
+			if(designation == stateMinister){
+				$('#ministryDiv').hide();
+				$('#ministry').val("");
+				$('#ministryAssignmentDate').val('');
+				$('#ministryFromDate').val('');
+				$('#ministryToDate').val('');
+			} else {
+				$('#ministryDiv').show();
+			}
+		});	
+
 		var memberDepartmentCount = $('#memberDepartmentCount').val();
 		for(var i = 1; i <= memberDepartmentCount; i++){
 			if($('#memberDepartmentIsIndependentCharge'+i).val() == "true"){
-				$('#memberDepartmentIsIndependentCharge'+i).attr("checked",true);
+				$('#memberDepartmentIsIndependentCharge'+i).attr("checked", true);
 			}
 		}	
-		
-		//$('.departmentClass').change(function(){
-		//	console.log("Change department triggered");
-		//	populateSubDepartments($(this).val(), $(this).attr("id").split('memberDepartmentDepartment')[1]);
-		//});
 	});
 	</script>
 </head>
@@ -125,14 +147,14 @@
 		${fullname}
 	</h2>
 	<h2>
-		<spring:message code="member.minister" text="Minister"/>
+		<spring:message code="member.minister" text="Election Result"/>
 	</h2>
 	<form:errors path="version" cssClass="validationError"/>
 	
 	<!-- Designation related fields -->
 	<p>
 		<label class="small"><spring:message code="member.minister.designation" text="Designation"/></label>
-		<form:select path="designation" items="${designations}" itemLabel="name" itemValue="id" cssClass="sSelect"></form:select>
+		<form:select path="designation" items="${designations}" itemLabel="name" itemValue="id" cssClass="sSelect designationClass"></form:select>
 		<form:errors path="designation" cssClass="validationError"/>		
 	</p>	
 	<p>
@@ -145,12 +167,12 @@
 		<form:input path="resignationDate" cssClass="datemask sText"/>
 		<form:errors path="resignationDate" cssClass="validationError"/>	
 	</p>	
-		
-		
+			
 	<!-- Ministry related information -->
+	<div id="ministryDiv">
 	<p>
 		<label class="small"><spring:message code="member.minister.ministry" text="Ministry"/></label>
-		<form:select path="ministry" items="${ministries}" itemLabel="name" itemValue="id" cssClass="sSelect"/>
+		<form:select path="ministry" items="${ministries}" itemLabel="name" itemValue="id" cssClass="sSelect ministerClass"/>
 		<form:errors path="ministry" cssClass="validationError"/>		
 	</p>
 	<p>
@@ -168,7 +190,7 @@
 		<form:input path="ministryToDate" cssClass="datemask sText"/>
 		<form:errors path="ministryToDate" cssClass="validationError"/>	
 	</p>
-	
+	</div>
 	
 	<!-- Dynamic Addition of Departments -->
 	<div>
@@ -253,7 +275,6 @@
 			value='<spring:message code="member.minister.deleteDepartment" text="Delete Department"></spring:message>' 
 			onclick='deleteMemberDepartment(${count});'/>
 			
-			
 			<!-- Hidden variables required for each instance of MemberDepartment -->
 			<input type='hidden' id='memberDepartmentId${count}' name='memberDepartmentId${count}' 
 			value="${outer.id}">
@@ -269,7 +290,6 @@
 		</c:forEach>
 		</c:if>
 		
-	
 		<!-- To be used from Javascript functions when a MemberDepartment is to be
 			 added dynamically
 		 -->
@@ -327,7 +347,7 @@
 	<form:hidden path="id"/>
 	<input id="member" name="member" value="${member}" type="hidden">
 	<input id="houseType" name="houseType" value="${houseType}" type="hidden">
-	
+	<input id="nonPortfolioDesignations" name="nonPortfolioDesignations" value="${nonPortfolioDesignations}" type="hidden">
 </form:form>
 </div>
 </body>

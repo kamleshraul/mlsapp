@@ -87,10 +87,23 @@
 		$('#addMemberDepartment').click(function(){
 			addMemberDepartment();
 		});
-		//$('.departmentClass').change(function(){
-		//	console.log("Change department triggered");
-		//	populateSubDepartments($(this).val(), $(this).attr("id").split('memberDepartmentDepartment')[1]);
-		//});
+
+		$('#ministry').prepend("<option value=''>SELECT</option>");
+		$('.designationClass').change(function(){
+			var options = $(this).context.outerHTML;
+			var tempStr = options.split('<option value="' + $(this).val() + '">')[1];
+			var designation = tempStr.split("</option>")[0];
+			var stateMinister = $('#nonPortfolioDesignations').val();
+			if(designation == stateMinister){
+				$('#ministryDiv').hide();
+				$('#ministry').val("");
+				$('#ministryAssignmentDate').val('');
+				$('#ministryFromDate').val('');
+				$('#ministryToDate').val('');
+			} else {
+				$('#ministryDiv').show();
+			}
+		});	
 	});
 	</script>
 </head>
@@ -107,11 +120,10 @@
 	</h2>
 	<form:errors path="version" cssClass="validationError"/>
 	
-	
 	<!-- Designation related fields -->
 	<p>
 		<label class="small"><spring:message code="member.minister.designation" text="Designation"/></label>
-		<form:select path="designation" items="${designations}" itemLabel="name" itemValue="id" cssClass="sSelect"/>
+		<form:select path="designation" items="${designations}" itemLabel="name" itemValue="id" cssClass="sSelect designationClass"/>
 		<form:errors path="designation" cssClass="validationError"/>		
 	</p>	
 	<p>
@@ -125,11 +137,11 @@
 		<form:errors path="resignationDate" cssClass="validationError"/>	
 	</p>	
 		
-		
 	<!-- Ministry related information -->
+	<div id="ministryDiv">
 	<p>
 		<label class="small"><spring:message code="member.minister.ministry" text="Ministry"/></label>
-		<form:select path="ministry" items="${ministries}" itemLabel="name" itemValue="id" cssClass="sSelect"/>
+		<form:select path="ministry" items="${ministries}" itemLabel="name" itemValue="id" cssClass="sSelect ministerClass"/>
 		<form:errors path="ministry" cssClass="validationError"/>		
 	</p>
 	<p>
@@ -147,7 +159,7 @@
 		<form:input path="ministryToDate" cssClass="datemask sText"/>
 		<form:errors path="ministryToDate" cssClass="validationError"/>	
 	</p>
-	
+	</div>
 	
 	<!-- Dynamic Addition of Departments -->
 	<div>
@@ -248,7 +260,6 @@
 		</c:forEach>
 		</c:if>
 		
-	
 		<!-- To be used from Javascript functions when a MemberDepartment is to be
 			 added dynamically
 		 -->
@@ -264,7 +275,7 @@
 			</c:forEach>
 		</select>
 	
-	
+
 		<!-- Hidden Messages to preserve the localization of the field names -->
 		<input type="hidden" id="memberDepartmentCount" name="memberDepartmentCount" value="${memberDepartmentCount}"/>
 		
@@ -306,7 +317,7 @@
 	<form:hidden path="id"/>
 	<input id="member" name="member" value="${member}" type="hidden">
 	<input id="houseType" name="houseType" value="${houseType}" type="hidden">
-	
+	<input id="nonPortfolioDesignations" name="nonPortfolioDesignations" value="${nonPortfolioDesignations}" type="hidden">
 </form:form>
 </div>
 </body>
