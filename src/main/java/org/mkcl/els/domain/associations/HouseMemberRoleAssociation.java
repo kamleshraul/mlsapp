@@ -10,6 +10,7 @@
 package org.mkcl.els.domain.associations;
 
 import java.io.Serializable;
+import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
 
@@ -27,16 +28,20 @@ import javax.persistence.TemporalType;
 import javax.persistence.Version;
 
 import org.codehaus.jackson.annotate.JsonIgnoreProperties;
+import org.mkcl.els.common.util.ApplicationConstants;
+import org.mkcl.els.common.vo.MasterVO;
 import org.mkcl.els.domain.Constituency;
 import org.mkcl.els.domain.House;
 import org.mkcl.els.domain.Member;
 import org.mkcl.els.domain.MemberRole;
+import org.mkcl.els.domain.Session;
 import org.mkcl.els.repository.MemberHouseRoleRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Configurable;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.sun.istack.NotNull;
+import com.trg.search.Search;
 
 /**
  * The Class HouseMemberRoleAssociation.
@@ -439,6 +444,12 @@ public class HouseMemberRoleAssociation implements Serializable {
 			final Long member, final int rolepriority, final Long house, final String locale) {
 		return getMemberHouseRoleRepository().findByMemberIdRolePriorityHouseId(
 				member,rolepriority,house,locale);
+	}
+
+	public static List<MasterVO> findAllActiveMemberVOSInSession(House house,
+			Session session, String locale) {
+		return getMemberHouseRoleRepository().findAllActiveMemberVOSInSession(house,
+				session,locale);	
 	}
 
 	//public String getConstituencySubtype() {
