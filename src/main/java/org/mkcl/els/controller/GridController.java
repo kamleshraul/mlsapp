@@ -106,7 +106,7 @@ public class GridController extends GenericController<Grid> {
 		GridData gridData=new GridData();
 		if (search) {
 			//this for deployment on tomcat
-			CustomParameter customParameter=CustomParameter.findByName(CustomParameter.class,"DEPLOYMENT_SERVER", locale.toString());
+			CustomParameter customParameter=CustomParameter.findByName(CustomParameter.class,"DEPLOYMENT_SERVER", "");
 			if(customParameter!=null){
 				if(customParameter.equals("TOMCAT")){
 					try {
@@ -130,7 +130,7 @@ public class GridController extends GenericController<Grid> {
 			}
 		} else {
 			gridData= gridService.getData(gridId, rows, page, sidx, order, locale,requestMap);
-		}        
+		}
 		return gridData;
 	}
 
