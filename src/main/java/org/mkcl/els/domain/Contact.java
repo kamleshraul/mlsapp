@@ -17,7 +17,6 @@ import javax.persistence.Table;
 
 import org.springframework.beans.factory.annotation.Configurable;
 
-// TODO: Auto-generated Javadoc
 /**
  * The Class Contact.
  *
@@ -72,12 +71,12 @@ public class Contact extends BaseDomain implements Serializable {
     @Column(length = 1000)
     private String telephone3;
 
-    //aamdar niwas 1
+    //aamdar niwas 1(mumbai)
     /** The telephone4. */
     @Column(length = 1000)
     private String telephone4;
 
-    //aamdar niwas 2
+    //aamdar niwas 2(nagpur)
     /** The telephone5. */
     @Column(length = 1000)
     private String telephone5;
@@ -112,7 +111,7 @@ public class Contact extends BaseDomain implements Serializable {
     @Column(length = 1000)
     private String telephone11;
 
-    //correspondence address2
+    //correspondence address
     /** The telephone12. */
     @Column(length = 1000)
     private String telephone12;
