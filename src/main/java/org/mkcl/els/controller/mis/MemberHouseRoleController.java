@@ -332,16 +332,16 @@ public class MemberHouseRoleController extends BaseController {
 				House selectedHouse=House.findById(House.class,selectedHouseid);
 				domain.setFromDate(selectedHouse.getFirstDate());
 				domain.setToDate(selectedHouse.getLastDate());
+				//populating sitting/ex
+				if(domain.getToDate()!=null){
+		        if(domain.getToDate().after(new Date())){
+		            domain.setIsSitting(true);
+		        }else{
+		            domain.setIsSitting(false);
+		        }
+				}
 			}
 		}
-
-		//populating sitting/ex
-		if(domain.getToDate().after(new Date())){
-			domain.setIsSitting(true);
-		}else{
-			domain.setIsSitting(false);
-		}
-
 		// setting the value of the recordIndex field
 		int index = HouseMemberRoleAssociation.findHighestRecordIndex(member);
 		domain.setRecordIndex(index + 1);
