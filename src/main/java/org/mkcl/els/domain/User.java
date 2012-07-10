@@ -10,6 +10,7 @@
 package org.mkcl.els.domain;
 
 import java.io.Serializable;
+import java.util.Date;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -17,6 +18,8 @@ import javax.persistence.FetchType;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
+import javax.persistence.Temporal;
+import javax.persistence.TemporalType;
 
 import org.mkcl.els.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -53,6 +56,12 @@ public class User extends BaseDomain implements Serializable {
     /** The last name. */
     @Column(length=300)
     private String lastName;
+    
+    @Temporal(TemporalType.DATE)
+    private Date birthDate;
+    
+    @Column(length=100)
+    private String birthPlace;
 
     /** The credential. */
     @ManyToOne(fetch=FetchType.LAZY)
@@ -187,4 +196,18 @@ public class User extends BaseDomain implements Serializable {
 	public void setCredential(final Credential credential) {
 		this.credential = credential;
 	}
+	public Date getBirthDate() {
+		return birthDate;
+	}
+	public void setBirthDate(Date birthDate) {
+		this.birthDate = birthDate;
+	}
+	public String getBirthPlace() {
+		return birthPlace;
+	}
+	public void setBirthPlace(String birthPlace) {
+		this.birthPlace = birthPlace;
+	}
+	
+	
 }
