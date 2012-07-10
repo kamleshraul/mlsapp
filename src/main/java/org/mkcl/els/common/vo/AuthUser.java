@@ -61,7 +61,8 @@ public class AuthUser extends User {
             final boolean accountNonExpired, final boolean credentialsNonExpired,
             final boolean accountNonLocked,
             final Collection<? extends GrantedAuthority> authorities,
-            final String title,final String firstName,final String middleName, final String lastName, final String houseType,final Set<Role> roles) {
+            final String title,final String firstName,final String middleName, final String lastName, final String houseType,final Set<Role> roles
+            ) {
         super(username, password, enabled, accountNonExpired,
                 credentialsNonExpired, accountNonLocked, authorities);
         this.title=title;
@@ -95,4 +96,5 @@ public class AuthUser extends User {
 	public Set<Role> getRoles() {
 		return roles;
 	}
+
  }
