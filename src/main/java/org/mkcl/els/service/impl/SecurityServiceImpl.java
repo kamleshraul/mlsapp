@@ -13,7 +13,6 @@ import java.util.Collection;
 import java.util.Date;
 import java.util.HashSet;
 
-import org.mkcl.els.common.util.ApplicationConstants;
 import org.mkcl.els.common.vo.AuthUser;
 import org.mkcl.els.domain.Credential;
 import org.mkcl.els.domain.Role;
@@ -64,19 +63,6 @@ public class SecurityServiceImpl implements UserDetailsService {
                 }
                 for (Role role : credential.getRoles()) {
                     roles.add(new GrantedAuthorityImpl(role.getName()));
-                    if (role.getName().equals("DATA_ENTRY_OPERATOR_LOWERHOUSE")
-                            || role.getName().equals("ADMIN_LOWERHOUSE")) {
-                        houseType = ApplicationConstants.LOWER_HOUSE;
-                    } else if (role.getName().equals("DATA_ENTRY_OPERATOR_UPPERHOUSE")
-                            || role.getName().equals("ADMIN_UPPERHOUSE")) {
-                        houseType = ApplicationConstants.UPPER_HOUSE;
-                    } else if (role.getName().equals("DATA_ENTRY_OPERATOR_BOTHHOUSE")
-                            || role.getName().equals("ADMIN_BOTHHOUSE")) {
-                        houseType = ApplicationConstants.BOTH_HOUSE;
-                    } else if (role.getName().equals("DATA_ENTRY_OPERATOR_DEFAULTHOUSE")
-                            || role.getName().equals("ADMIN_DEFAULTHOUSE")) {
-                        houseType = ApplicationConstants.DEFAULT_HOUSE;
-                    }
                 }
                 credential.setLastLoginTime(new Date());
                 credential.merge();
