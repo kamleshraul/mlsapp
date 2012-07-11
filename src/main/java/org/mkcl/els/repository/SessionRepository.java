@@ -13,10 +13,9 @@ import com.trg.search.Search;
 @Repository
 public class SessionRepository extends BaseRepository<Session, Long>{
 
-    public Session findLatestSession(final House house){
+    public Session findLatestSession(final HouseType houseType){
         Search search=new Search();
-        search.addFilterEqual("house", house);
-        search.addSort("startDate",true);
+        search.addSort("number",true);
         List<Session> sessions=this.search(search);
         if(!sessions.isEmpty()){
           return sessions.get(0);
