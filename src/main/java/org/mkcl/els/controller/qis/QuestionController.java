@@ -35,24 +35,32 @@ public class QuestionController extends GenericController<Question>{
     @Override
     protected void populateModule(final ModelMap model, final HttpServletRequest request,
             final String locale, final AuthUser currentUser) {
-        //Lets assume that housetype now we are reading from role by splitting
-        //role name at _.
+        //QIS submission is role based.so first we obtain the roles assigned to the authenticated
+        //user.
         Set<Role> roles=currentUser.getRoles();
-        //Now we will check if the user is an actor of starred question module.
-        //starred question module has following axtors:MEMBER,MEMBERPA,DEO,ASSISTANT
         String houseType =null;
-        for(Role i:roles){
-            if(i.getName().startsWith("MEMBER")||i.getName().startsWith("QUESTION_DATA_ENTRY_OPERATOR")
-                    ||i.getName().startsWith("MEMBERPA")||i.getName().startsWith("QUESTIONASSISTANT")){
-                String temp[]=i.getName().split("_");
-                houseType=temp[temp.length-1].toLowerCase();
-            }
+        //In custom parameter QIS_ACTOR_LIST we have defined the list of actors involved in QIS submision
+        //and name QIS_ACTOR_LIST is defined as application constant.
+        CustomParameter customParameter=CustomParameter.findByName(CustomParameter.class,ApplicationConstants.QIS_ACTOR_LIST_CUSTOMPARAM_NAME, "");
+        if(customParameter!=null){
+             String actors=customParameter.getValue();
+             //now logic involved here to obtain house type is:we first split role name at _(roles must be of form
+             //ROLE_HOUSENAME).we first check if temp[0] is contained in the list of actors defined in custom param
+             //and if it is then temp[1] becomes the house type.
+             for(Role i:roles){
+                 String temp[]=i.getName().split("_");
+                 if(actors.contains(temp[0])){
+                     houseType=temp[1].toLowerCase();
+                     break;
+                 }
+             }
         }
-        //now if the user has allowed roles then only they will be permitted to view
-        //the module.otherwise error message will be visible.
         if(houseType!=null){
-            //to handle both house cases
-            model.addAttribute("houseType",houseType);
+            //actual check is performed to prevent sql injection.Only these three are
+            //allowed house type
+            if(houseType.equals(ApplicationConstants.LOWER_HOUSE)||houseType.equals(ApplicationConstants.UPPER_HOUSE)||houseType.equals(ApplicationConstants.BOTH_HOUSE)){
+                model.addAttribute("houseType",houseType);
+            }
         }
         //adding question type to model.This will be obtained from request and will vary
         //according to the link clicked by user
@@ -67,19 +75,12 @@ public class QuestionController extends GenericController<Question>{
             final String locale, final AuthUser currentUser) {
         //**********************populating housetype******************
         String houseType = request.getParameter("houseType");
+        HouseType selectedHouseType=HouseType.findByFieldName(HouseType.class,"type",houseType, locale);
         model.addAttribute("houseType",houseType);
         //*********************populating housetypes**********************
         //housetypes are arranged in increasing order of their type
         List<HouseType> houseTypes = HouseType.findAll(HouseType.class, "type", ApplicationConstants.ASC, locale);
         model.addAttribute("houseTypes", houseTypes);
-        //*********************populating houses**********************
-        //houses are arranged in decreasing order of their formation date
-        List<House> houses = House.findByHouseType(houseType, locale);
-        model.addAttribute("houses", houses);
-        House currentHouse = null;
-        if(! houses.isEmpty()){
-            currentHouse = houses.get(0);
-        }
         //*****************populating sessions***************************
         //Current house is the first entry of houses
         //latest session is find by ararnging current house session in decreasing order
@@ -90,18 +91,10 @@ public class QuestionController extends GenericController<Question>{
         //**********************populating session type and latest session type********************
         List<SessionType> sessionTypes=SessionType.findAll(SessionType.class,"sessionType", ApplicationConstants.ASC, locale);
         model.addAttribute("sessionTypes",sessionTypes);
-        //List<Session> sessions = new ArrayList<Session>();
-        if(currentHouse != null){
-            model.addAttribute("house", currentHouse.getId());
-            Session latestSession=Session.findLatestSession(currentHouse);
-            if(latestSession.getId()!=null){
-                SessionType sessionType=latestSession.getType();
-                if(sessionType!=null){
-                    model.addAttribute("sessionType",sessionType.getId());
-                }
-            }
+        Session latestSession=Session.findLatestSession(selectedHouseType);
+        if(latestSession.getId()!=null){
+            model.addAttribute("sessionType",latestSession.getType().getId());
         }
-        //model.addAttribute("sessions", sessions);
         //*********************populating questiontypes**********************
         //questiontypes are arranged in increasing order of their name
         List<QuestionType> questionTypes = QuestionType.findAll(QuestionType.class, "name", ApplicationConstants.ASC, locale);
