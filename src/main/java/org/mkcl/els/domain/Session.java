@@ -122,7 +122,7 @@ public class Session extends BaseDomain implements Serializable {
     }
 
     // -------------------------------Domain_Methods----------------------------------------------
-    
+
     /**
      * Gets the session repository.
      *
@@ -136,20 +136,20 @@ public class Session extends BaseDomain implements Serializable {
         }
         return sessionRepository;
     }
-    
-    public static Session findLatestSession(final House house) {
-        return getSessionRepository().findLatestSession(house);
+
+    public static Session findLatestSession(final HouseType houseType) {
+        return getSessionRepository().findLatestSession(houseType);
     }
-    
+
     public static List<Session> findSessionsByHouseAndYear(final House house,final Integer year){
         return getSessionRepository().findSessionsByHouseAndYear(house, year);
     }
-    
+
     public static Session findSessionByHouseSessionTypeYear(final House house,
 			final SessionType sessionType, final Integer sessionYear) {
         return getSessionRepository().findSessionByHouseSessionTypeYear(house, sessionType, sessionYear);
     }
-    
+
     public static Session findSessionByHouseTypeSessionTypeYear(final HouseType houseType,
             final SessionType sessionType, final Integer sessionYear) {
         return getSessionRepository().findSessionByHouseTypeSessionTypeYear(houseType, sessionType, sessionYear);
