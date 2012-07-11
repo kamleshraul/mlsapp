@@ -6,61 +6,42 @@
 	<script type="text/javascript">	
 		$(document).ready(function(){
 			//on change of houseType,house,session,questionType
-			$("#gridURLParams").val("houseType="+$("#selectedHouseType").val()+"&house="+$("#selectedHouse").val()+"&sessionYear="+$("#selectedSessionYear").val()+"&sessionType="+$("#selectedSessionType").val()+"&questionType="+$("#selectedQuestionType").val());			
+			$("#gridURLParams").val("houseType="+$("#selectedHouseType").val()+"&sessionYear="+$("#selectedSessionYear").val()+"&sessionType="+$("#selectedSessionType").val()+"&questionType="+$("#selectedQuestionType").val());			
 			//Initially values in module must be set to the values read from model.
 			$("#houseType").val($("#selectedHouseType").val());
-			$("#house").val($("#selectedHouse").val());
 			$("#sessionYear").val($("#selectedSessionYear").val());
 			$("#sessionType").val($("#selectedSessionType").val());
-			$("#questionType").val($("#selectedQuestionType").val());
-			
+			$("#questionType").val($("#selectedQuestionType").val());	
+			//removing houseType options on the basis of houseTypeFromRole value.
+			var houseType=$("#houseTypeFromRole").val();
+			if(houseType=="lowerhouse"){
+				$("#selectedHouseType option[value='upperhouse']").remove();
+			}else if(houseType=="upperhouse"){
+				$("#selectedHouseType option[value='lowerhouse']").remove();
+			}	
 			$("#selectedHouseType").change(function(){
 				var value=$(this).val();
-				if(value!=""){
-					$.get('ref/houses/'+value,function(data){
-						if(data.length>0){
-							var text="";
-							for(var i=0;i<data.length;i++){
-								text=text+"<option value='"+data[i].id+"'>"+data[i].name+"</option>";
-							}
-							$("#selectedHouse").empty();
-							$("#selectedHouse").html(text);
+				if(value!=""){					
 							$("#houseType").val(value);
 							//if we are changing the house type at module level and then we try to reload grid then 
 							//we need to change the housetype1 and housetype2 parameters in grid url.
 							//also gridURLParams value will be passed as query string.
-							$("#gridURLParams").val("houseType="+$("#selectedHouseType").val()+"&house="+$("#selectedHouse").val()+"&sessionYear="+$("#selectedSessionYear").val()+"&sessionType="+$("#selectedSessionType").val()+"&questionType="+$("#selectedQuestionType").val());			
+							$("#gridURLParams").val("houseType="+$("#selectedHouseType").val()+"&sessionYear="+$("#selectedSessionYear").val()+"&sessionType="+$("#selectedSessionType").val()+"&questionType="+$("#selectedQuestionType").val());			
 							var oldURL=$("#grid").getGridParam("url");
 							var baseURL=oldURL.split("?")[0];
-							newURL=baseURL+"?housetype1="+value+"&housetype2="+value+"&"+$("#gridURLParams").val();
+							newURL=baseURL+"?"+$("#gridURLParams").val();
 							$("#grid").setGridParam({"url":newURL});
-							$("#grid").trigger("reloadGrid");
-							
-						}
-					});					
-				}
-			});
-			$("#selectedHouse").change(function(){
-				var value=$(this).val();
-				if(value!=""){					
-					$("#house").val(value);
-					$("#selectedSessionYear").val("");
-					$("#gridURLParams").val("houseType="+$("#selectedHouseType").val()+"&house="+$("#selectedHouse").val()+"&sessionYear="+$("#selectedSessionYear").val()+"&sessionType="+$("#selectedSessionType").val()+"&questionType="+$("#selectedQuestionType").val());			
-					var oldURL=$("#grid").getGridParam("url");
-					var baseURL=oldURL.split("?")[0];
-					newURL=baseURL+"?housetype1="+value+"&housetype2="+value+"&"+$("#gridURLParams").val();
-					$("#grid").setGridParam({"url":newURL});
-					$("#grid").trigger("reloadGrid");					
-				}
-			});
+							$("#grid").trigger("reloadGrid");							
+				}				
+			});			
 			$("#selectedSessionYear").change(function(){
 				var value=$(this).val();
 				if(value!=""){
 					$("#sessionYear").val(value);
-					$("#gridURLParams").val("houseType="+$("#selectedHouseType").val()+"&house="+$("#selectedHouse").val()+"&sessionYear="+$("#selectedSessionYear").val()+"&sessionType="+$("#selectedSessionType").val()+"&questionType="+$("#selectedQuestionType").val());			
+					$("#gridURLParams").val("houseType="+$("#selectedHouseType").val()+"&sessionYear="+$("#selectedSessionYear").val()+"&sessionType="+$("#selectedSessionType").val()+"&questionType="+$("#selectedQuestionType").val());			
 					var oldURL=$("#grid").getGridParam("url");
 					var baseURL=oldURL.split("?")[0];
-					newURL=baseURL+"?housetype1="+value+"&housetype2="+value+"&"+$("#gridURLParams").val();
+					newURL=baseURL+"?"+$("#gridURLParams").val();
 					$("#grid").setGridParam({"url":newURL});
 					$("#grid").trigger("reloadGrid");					
 				}			
@@ -69,10 +50,10 @@
 				var value=$(this).val();
 				if(value!=""){
 					$("#sessionYear").val(value);
-					$("#gridURLParams").val("houseType="+$("#selectedHouseType").val()+"&house="+$("#selectedHouse").val()+"&sessionYear="+$("#selectedSessionYear").val()+"&sessionType="+$("#selectedSessionType").val()+"&questionType="+$("#selectedQuestionType").val());			
+					$("#gridURLParams").val("houseType="+$("#selectedHouseType").val()+"&sessionYear="+$("#selectedSessionYear").val()+"&sessionType="+$("#selectedSessionType").val()+"&questionType="+$("#selectedQuestionType").val());			
 					var oldURL=$("#grid").getGridParam("url");
 					var baseURL=oldURL.split("?")[0];
-					newURL=baseURL+"?housetype1="+value+"&housetype2="+value+"&"+$("#gridURLParams").val();
+					newURL=baseURL+"?"+$("#gridURLParams").val();
 					$("#grid").setGridParam({"url":newURL});
 					$("#grid").trigger("reloadGrid");					
 				}					
@@ -81,10 +62,10 @@
 				var value=$(this).val();
 				if(value!=""){
 					$("#questionType").val(value);
-					$("#gridURLParams").val("houseType="+$("#selectedHouseType").val()+"&house="+$("#selectedHouse").val()+"&sessionYear="+$("#selectedSessionYear").val()+"&sessionType="+$("#selectedSessionType").val()+"&questionType="+$("#selectedQuestionType").val());			
+					$("#gridURLParams").val("houseType="+$("#selectedHouseType").val()+"&sessionYear="+$("#selectedSessionYear").val()+"&sessionType="+$("#selectedSessionType").val()+"&questionType="+$("#selectedQuestionType").val());			
 					var oldURL=$("#grid").getGridParam("url");
 					var baseURL=oldURL.split("?")[0];
-					newURL=baseURL+"?housetype1="+value+"&housetype2="+value+"&"+$("#gridURLParams").val();
+					newURL=baseURL+"?"+$("#gridURLParams").val();
 					$("#grid").setGridParam({"url":newURL});
 					$("#grid").trigger("reloadGrid");					
 				}
@@ -129,30 +110,12 @@
 			</c:otherwise>
 			</c:choose>
 			</c:forEach>
-			</select> |
-			
-			<a href="#" id="select_house" class="butSim">
-				<spring:message code="question.house" text="House"/>
-			</a>
-			<select name="selectedHouse" id="selectedHouse" style="width:50px;height: 25px;">			
-			<c:forEach items="${houses}" var="i">
-			<c:choose>
-			<c:when test="${house==i.id}">
-			<option value="${i.id}" selected="selected"><c:out value="${i.displayName}"></c:out></option>			
-			</c:when>
-			<c:otherwise>
-			<option value="${i.id}"><c:out value="${i.displayName}"></c:out></option>			
-			</c:otherwise>
-			</c:choose>
-			</c:forEach>
-			</select> |
-			
+			</select> |				
 			<a href="#" id="select_session_year" class="butSim">
 				<spring:message code="question.sessionyear" text="Year"/>
 			</a>
 			<input name="selectedSessionYear" id="selectedSessionYear" style="width:50px;height: 25px;" type="text" class="integer" value="${sessionYear}">				
-			 |
-			
+			 |			
 			<a href="#" id="select_sessionType" class="butSim">
 				<spring:message code="question.sessionType" text="Session Type"/>
 			</a>
@@ -167,8 +130,7 @@
 			</c:otherwise>
 			</c:choose>			
 			</c:forEach> 
-			</select> |
-			
+			</select> |			
 			<a href="#" id="select_questionType" class="butSim">
 				<spring:message code="question.questionType" text="Question Type"/>
 			</a>
@@ -184,7 +146,6 @@
 			</c:choose>
 			</c:forEach>
 			</select>				
-					
 			<p>&nbsp;</p>
 		</div>
 		<div class="commandbarContent">				

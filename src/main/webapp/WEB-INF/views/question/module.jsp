@@ -5,6 +5,14 @@
 	<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
 	<script type="text/javascript">
 		$(document).ready(function(){
+			//setting the house type.If housetypefromrole is bothhouse we will initially
+			//display lowerhouse module along with facility to get upperhouse module
+			var houseType=$("#houseTypeFromRole").val();
+			if(houseType=="bothhouse"){
+				$("#houseType").val("lowerhouse");
+			}else if(houseType=="lowerhouse"||houseType=="upperhouse"){
+				$("#houseType").val(houseType);				
+			}
 			//here we are trying to add date mask in grid search when field names
 			//ends with Date
 			$(".sf .field").change(function(){
@@ -112,11 +120,11 @@
 		<input type="hidden" id="key" name="key">
 		<input type="hidden" id="selectRowFirstMessage" name="selectRowFirstMessage" value="<spring:message code='generic.selectRowFirstMessage' text='Please select the desired row first'></spring:message>" disabled="disabled">
 		<input type="hidden" id="confirmDeleteMessage" name="confirmDeleteMessage" value="<spring:message code='generic.confirmDeleteMessage' text='Do you want to delete the row with Id: '></spring:message>" disabled="disabled">
-		<input type="hidden" name="houseType" id="houseType" value="${houseType}">
-		<input type="hidden" name="house" id="house" value="${house}">	
+		<input type="hidden" name="houseType" id="houseType">
 		<input type="hidden" name="sessionYear" id="sessionYear" value="${sessionYear}">		
 		<input type="hidden" name="sessionType" id="sessionType" value="${sessionType}">		
  		<input type="hidden" name="questionType" id="questionType" value="${questionType}">
+ 		<input type="hidden" name="houseTypeFromRole" id="houseTypeFromRole" value="${houseType}">		
 		</div> 
 </body>
 </html>
