@@ -15,12 +15,14 @@ import javax.persistence.Table;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
 
+import org.codehaus.jackson.annotate.JsonIgnoreProperties;
 import org.springframework.beans.factory.annotation.Configurable;
 
 
 @Configurable
 @Entity
 @Table(name = "questions")
+@JsonIgnoreProperties({"houseType","session","type","primaryMember","supportingMembers","group","ministry","department","referencedQuestions"})
 public class Question extends BaseDomain implements Serializable{
     /**
      *
@@ -62,11 +64,11 @@ public class Question extends BaseDomain implements Serializable{
 
     @ManyToOne(fetch=FetchType.LAZY)
     @JoinColumn(name="ministry_id")
-    private MemberMinister ministry;
+    private Ministry ministry;
 
     @ManyToOne(fetch=FetchType.LAZY)
     @JoinColumn(name="department")
-    private MemberDepartment department;
+    private Department department;
 
     @Temporal(TemporalType.TIMESTAMP)
     private Date answeringDate;
@@ -160,23 +162,24 @@ public class Question extends BaseDomain implements Serializable{
 		this.group = group;
 	}
 
-	public MemberMinister getMinistry() {
-		return ministry;
-	}
+    public Ministry getMinistry() {
+        return ministry;
+    }
 
-	public void setMinistry(final MemberMinister ministry) {
-		this.ministry = ministry;
-	}
+    public void setMinistry(final Ministry ministry) {
+        this.ministry = ministry;
+    }
 
-	public MemberDepartment getDepartment() {
-		return department;
-	}
+    public Department getDepartment() {
+        return department;
+    }
 
-	public void setDepartment(final MemberDepartment department) {
-		this.department = department;
-	}
 
-	public Date getAnsweringDate() {
+    public void setDepartment(final Department department) {
+        this.department = department;
+    }
+
+    public Date getAnsweringDate() {
 		return answeringDate;
 	}
 
