@@ -84,18 +84,10 @@ function loadGrid(gridId, gridurl, baseFilter) {
 	}else{
 		baseURL='grid/data/';
 	}
-	var url=baseURL+ gridId +'.json';
-	//housetype is passed as request parameter by default
-	var defaultParams="";
-	if($('#authhousetype').val()=='both'){
-		defaultParams="housetype1=lowerhouse&housetype2=upperhouse";
-	}else {
-		defaultParams="housetype1="+$('#authhousetype').val()+"&housetype2="+$('#authhousetype').val();
-	}
-	url=url+'?'+defaultParams;
-	//for additional parameters have a field with name gridURLParams in name=valye format separated by '&'
+	var url=baseURL+ gridId +'.json';	
+	//for parameters have a field with name gridURLParams in name=valye format separated by '&'
 	if($('#gridURLParams').val()!=undefined){
-		url=url+'&'+$('#gridURLParams').val();
+		url=url+'?'+$('#gridURLParams').val();
 	}
 	$.ajax({async:false,url:'grid/' + gridId + '/meta.json', success:function(grid) {
 			c_grid = $('#grid').jqGrid({
