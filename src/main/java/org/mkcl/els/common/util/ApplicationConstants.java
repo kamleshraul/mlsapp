@@ -105,5 +105,8 @@ public class ApplicationConstants {
     public static final String LOWERHOUSEGRID="MEMBER_LOWERHOUSEGRID";
 
     public static final String UPPERHOUSEGRID="MEMBER_UPPERHOUSEGRID";
+    //related to question module
+    public static final String QIS_ACTOR_LIST_CUSTOMPARAM_NAME="QIS_ACTOR_LIST";
+
 
 }
