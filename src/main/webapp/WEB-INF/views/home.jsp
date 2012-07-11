@@ -21,7 +21,7 @@
 		<!-- Multiselect -->				
 		<script type="text/javascript" src="./resources/js/jquery.multiselect.js"></script>
 
-		<script type="text/javascript" src="./resources/js/common.js"></script> 
+		<script type="text/javascript" src="./resources/js/common.js?v=1234"></script> 
 		 <!-- WYSIWYG Editor --> 
 		<script type="text/javascript" src="./resources/js/template/jquery.wysiwyg.js"></script> 
 		<link rel="stylesheet" type="text/css" media="all" href="./resources/css/jquery.multiselect.css" />
@@ -81,7 +81,6 @@
 			<input type="hidden" id="timeformat" name="timeformat" value="${timeFormat}"/>
             <input type="hidden" id="authusername" name="authusername" value="${authusername}"/>
             <input type="hidden" id="authfullname" name="authfullname" value="${authtitle} ${authfirstname} ${authmiddlename} ${authlastname}"/>    
-            <input type="hidden" id="authhousetype" name="authhousetype" value="${authhousetype}"/>  
             <input type="hidden" id="authlocale" name="authlocale" value="${locale}"/> 
             <input type="hidden" name="cancelFn" id="cancelFn"/>	
             <!-- This is done to remove a bug wherein messages Download/Remove in file uploading donot canges to locale specific.
