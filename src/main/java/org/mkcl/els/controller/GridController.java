@@ -108,7 +108,7 @@ public class GridController extends GenericController<Grid> {
 			//this for deployment on tomcat
 			CustomParameter customParameter=CustomParameter.findByName(CustomParameter.class,"DEPLOYMENT_SERVER", "");
 			if(customParameter!=null){
-				if(customParameter.equals("TOMCAT")){
+				if(customParameter.getValue().equals("TOMCAT")){
 					try {
 						String param=request.getParameter("filters");
 						String decodedFiltersData=null;
