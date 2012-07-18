@@ -121,7 +121,7 @@ public class Member extends BaseDomain implements Serializable {
     private List<Profession> professions;
 
     /** The nationality. */
-    @ManyToOne(fetch=FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "nationality_id")
     private Nationality nationality;
 
