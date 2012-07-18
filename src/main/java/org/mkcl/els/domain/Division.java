@@ -10,7 +10,6 @@
 package org.mkcl.els.domain;
 
 import java.io.Serializable;
-import java.util.List;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -66,21 +65,7 @@ public class Division extends BaseDomain implements Serializable {
 
     // -------------------------------Domain_Methods----------------------------------------------
 
-    // TO BE IMPLEMENTED
-    /**
-     * Find divisions by state id.
-     *
-     * @param stateId the state id
-     * @param orderBy the order by
-     * @param sortOrder the sort order
-     * @param locale the locale
-     * @return the list
-     */
-    public static List<Division> findDivisionsByStateId(Long stateId,
-            String orderBy, String sortOrder, String locale) {
-        // TODO Auto-generated method stub
-        return null;
-    }
+
 
     // ------------------------------------------Getters/Setters-----------------------------------
 
