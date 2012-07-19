@@ -208,8 +208,8 @@
 	</p>
 	
 	<p>
-		<label class="labelcentered"><spring:message code="member.house.remarks" text="Remarks"/></label>
-		<form:textarea path="remarks" cssClass="sTextarea" rows="5" cols="50"/>
+		<label class="small"><spring:message code="member.house.remarks" text="Remarks"/></label>
+		<form:textarea path="remarks" cssClass="wysiwyg" rows="5" cols="50"/>
 		<form:errors path="remarks" cssClass="validationError"/>	
 	</p>	
 	
