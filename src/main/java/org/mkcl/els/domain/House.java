@@ -16,6 +16,7 @@ import java.util.List;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.JoinColumn;
 import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
@@ -23,6 +24,7 @@ import javax.persistence.Table;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
 
+import org.codehaus.jackson.annotate.JsonIgnoreProperties;
 import org.mkcl.els.repository.HouseRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Configurable;
@@ -38,6 +40,7 @@ import org.springframework.util.AutoPopulatingList;
 @Configurable
 @Entity
 @Table(name = "houses")
+@JsonIgnoreProperties({"sessions"})
 public class House extends BaseDomain implements Serializable {
 
     // ---------------------------------Attributes------------------------------------------
@@ -53,7 +56,7 @@ public class House extends BaseDomain implements Serializable {
     private Integer number;
 
     /** The type. */
-    @OneToOne
+    @OneToOne(fetch=FetchType.EAGER)
     @JoinColumn(name = "housetype_id")
     private HouseType type;
 
@@ -88,7 +91,7 @@ public class House extends BaseDomain implements Serializable {
     private String displayName;
 
     /** The sessions. */
-    @OneToMany
+    @OneToMany(fetch=FetchType.LAZY)
     @JoinColumn(name = "house_id", referencedColumnName = "id")
     private List<Session> sessions = new ArrayList<Session>();
 

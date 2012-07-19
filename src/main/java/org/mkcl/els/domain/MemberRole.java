@@ -14,6 +14,7 @@ import java.util.List;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
@@ -51,7 +52,7 @@ public class MemberRole extends BaseDomain implements Serializable {
     /** The priority. */
     private Integer priority;
 
-    @ManyToOne
+    @ManyToOne(fetch=FetchType.EAGER)
     @JoinColumn(name = "housetype_id")
     private HouseType houseType;
 

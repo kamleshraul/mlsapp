@@ -16,13 +16,15 @@ import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
 
 import org.codehaus.jackson.annotate.JsonIgnoreProperties;
+import org.mkcl.els.repository.QuestionRepository;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Configurable;
 
 
 @Configurable
 @Entity
 @Table(name = "questions")
-@JsonIgnoreProperties({"houseType","session","type","primaryMember","supportingMembers","group","ministry","department","referencedQuestions"})
+@JsonIgnoreProperties({"houseType","session","type","supportingMembers","ministry","department","subDepartment","referencedQuestions"})
 public class Question extends BaseDomain implements Serializable{
     /**
      *
@@ -67,8 +69,12 @@ public class Question extends BaseDomain implements Serializable{
     private Ministry ministry;
 
     @ManyToOne(fetch=FetchType.LAZY)
-    @JoinColumn(name="department")
+    @JoinColumn(name="department_id")
     private Department department;
+
+    @ManyToOne(fetch=FetchType.LAZY)
+    @JoinColumn(name="subdepartment_id")
+    private SubDepartment subDepartment;
 
     @Temporal(TemporalType.TIMESTAMP)
     private Date answeringDate;
@@ -92,8 +98,28 @@ public class Question extends BaseDomain implements Serializable{
     @Column(length=100)
     private String status;
 
+    @Autowired
+    private transient QuestionRepository questionRepository;
+
     public Question() {
         super();
+    }
+
+    public static QuestionRepository getQuestionRepository() {
+        QuestionRepository questionRepository = new Question().questionRepository;
+        if (questionRepository == null) {
+            throw new IllegalStateException(
+                    "QuestionRepository has not been injected in Question Domain");
+        }
+        return questionRepository;
+    }
+
+    public static Integer findLastStarredUnstarredShortNoticeQuestionNo(final House house,final Session currentSession) {
+        return getQuestionRepository().findLastStarredUnstarredShortNoticeQuestionNo(house,currentSession);
+    }
+
+    public static Integer findLastHalfHourDiscussionQuestionNo(final House house,final Session currentSession) {
+        return getQuestionRepository().findLastHalfHourDiscussionQuestionNo(house,currentSession);
     }
 
 	public HouseType getHouseType() {
@@ -180,14 +206,15 @@ public class Question extends BaseDomain implements Serializable{
     }
 
     public Date getAnsweringDate() {
-		return answeringDate;
-	}
+        return answeringDate;
+    }
 
-	public void setAnsweringDate(final Date answeringDate) {
-		this.answeringDate = answeringDate;
-	}
 
-	public String getSubject() {
+    public void setAnsweringDate(final Date answeringDate) {
+        this.answeringDate = answeringDate;
+    }
+
+    public String getSubject() {
 		return subject;
 	}
 
@@ -227,4 +254,21 @@ public class Question extends BaseDomain implements Serializable{
 	public void setStatus(final String status) {
 		this.status = status;
 	}
+
+    public static Integer assignQuestionNo(final HouseType houseType,
+            final Session session, final QuestionType questionType) {
+        return getQuestionRepository().assignQuestionNo(houseType,
+                session,questionType);
+    }
+
+
+    public SubDepartment getSubDepartment() {
+        return subDepartment;
+    }
+
+
+    public void setSubDepartment(final SubDepartment subDepartment) {
+        this.subDepartment = subDepartment;
+    }
+
 }

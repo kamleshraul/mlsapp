@@ -18,7 +18,6 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 
-import org.codehaus.jackson.annotate.JsonIgnoreProperties;
 import org.mkcl.els.repository.ElectionTypeRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Configurable;
@@ -32,7 +31,6 @@ import org.springframework.beans.factory.annotation.Configurable;
 @Configurable
 @Entity
 @Table(name = "electiontypes")
-@JsonIgnoreProperties({"houseType"})
 public class ElectionType extends BaseDomain implements Serializable {
 
     // ---------------------------------Attributes-------------------------------------------------

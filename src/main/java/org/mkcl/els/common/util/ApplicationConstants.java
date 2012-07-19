@@ -108,5 +108,11 @@ public class ApplicationConstants {
     //related to question module
     public static final String QIS_ACTOR_LIST_CUSTOMPARAM_NAME="QIS_ACTOR_LIST";
 
+    public static final String STARRED_QUESTION="starred";
 
+    public static final String UNSTARRED_QUESTION="unstarred";
+
+    public static final String SHORT_NOTICE_QUESTION="shortnotice";
+
+    public static final String HALF_HOUR_DISCUSSION_QUESTION="halfhourdiscussion";
 }

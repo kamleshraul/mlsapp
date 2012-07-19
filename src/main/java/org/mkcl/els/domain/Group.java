@@ -10,7 +10,6 @@
 package org.mkcl.els.domain;
 
 import java.io.Serializable;
-import java.util.Date;
 import java.util.List;
 
 import javax.persistence.CascadeType;
@@ -24,6 +23,7 @@ import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
 
+import org.codehaus.jackson.annotate.JsonIgnoreProperties;
 import org.mkcl.els.repository.GroupRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Configurable;
@@ -38,29 +38,30 @@ import org.springframework.beans.factory.annotation.Configurable;
 @Configurable
 @Entity
 @Table(name = "groups")
+@JsonIgnoreProperties({"ministries","questionDates"})
 public class Group extends BaseDomain implements Serializable {
-    
+
     // ---------------------------------Attributes------------------------//
     /** The Constant serialVersionUID. */
     private static final transient long serialVersionUID = 1L;
-    
+
     /** The house type. */
-    @ManyToOne
+    @ManyToOne(fetch=FetchType.LAZY)
     @JoinColumn(name="housetype_id")
     private HouseType houseType;
-    
+
     /** The year. */
-    @Column
+    @Column(name="group_year")
     private Integer year;
-    
+
     /** The session type. */
-    @ManyToOne
+    @ManyToOne(fetch=FetchType.LAZY)
     @JoinColumn(name="sessiontype_id")
     private SessionType sessionType;
-    
+
     /** The group. */
-    private Integer number;     
-    
+    private Integer number;
+
         /** The ministries. */
     @ManyToMany(fetch = FetchType.LAZY)
     @JoinTable(name = "groups_ministries",
@@ -68,22 +69,22 @@ public class Group extends BaseDomain implements Serializable {
     referencedColumnName = "id"),
     inverseJoinColumns = @JoinColumn(name = "ministry_id",
     referencedColumnName = "id"))
-    private List<Ministry> ministries;    
-    
+    private List<Ministry> ministries;
+
     /** The question dates. */
     @OneToMany(cascade=CascadeType.ALL, fetch=FetchType.LAZY)
     @JoinColumn(name = "group_id", referencedColumnName = "id")
     private List<QuestionDates> questionDates;
-    
+
     @Autowired
     private transient GroupRepository groupRepository;
 
-    // ---------------------------------Constructors----------------------//    
-    
+    // ---------------------------------Constructors----------------------//
+
     public Group() {
 		super();
 	}
-    
+
     public static GroupRepository getGroupRepository() {
     	GroupRepository groupRepository = new Group().groupRepository;
         if (groupRepository == null) {
@@ -98,23 +99,26 @@ public class Group extends BaseDomain implements Serializable {
 		return houseType;
 	}
 
-	public void setHouseType(HouseType houseType) {
+	public void setHouseType(final HouseType houseType) {
 		this.houseType = houseType;
 	}
 
-	public Integer getYear() {
-		return year;
-	}
 
-	public void setYear(Integer year) {
-		this.year = year;
-	}
 
-	public SessionType getSessionType() {
+    public Integer getYear() {
+        return year;
+    }
+
+
+    public void setYear(final Integer year) {
+        this.year = year;
+    }
+
+    public SessionType getSessionType() {
 		return sessionType;
 	}
 
-	public void setSessionType(SessionType sessionType) {
+	public void setSessionType(final SessionType sessionType) {
 		this.sessionType = sessionType;
 	}
 
@@ -122,15 +126,15 @@ public class Group extends BaseDomain implements Serializable {
 		return number;
 	}
 
-	public void setNumber(Integer number) {
+	public void setNumber(final Integer number) {
 		this.number = number;
-	}	
-	
+	}
+
 	public List<Ministry> getMinistries() {
 		return ministries;
 	}
 
-	public void setMinistries(List<Ministry> ministries) {
+	public void setMinistries(final List<Ministry> ministries) {
 		this.ministries = ministries;
 	}
 
@@ -138,16 +142,16 @@ public class Group extends BaseDomain implements Serializable {
 		return questionDates;
 	}
 
-	public void setQuestionDates(List<QuestionDates> questionDates) {
+	public void setQuestionDates(final List<QuestionDates> questionDates) {
 		this.questionDates = questionDates;
 	}
 	public static List<Group> findByHouseTypeSessionTypeYear(
-			HouseType houseType, SessionType sessionType, Integer sessionYear) {
+			final HouseType houseType, final SessionType sessionType, final Integer sessionYear) {
 		return getGroupRepository().findByHouseTypeSessionTypeYear(
 				houseType,sessionType,sessionYear);
 	}
 
-	public static List<String> findAnsweringDates(Long id) {
+	public static List<String> findAnsweringDates(final Long id) {
 		return getGroupRepository().findAnsweringDates(id);
-	}	
+	}
 }

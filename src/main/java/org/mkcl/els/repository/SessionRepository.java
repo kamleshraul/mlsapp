@@ -13,8 +13,16 @@ import com.trg.search.Search;
 @Repository
 public class SessionRepository extends BaseRepository<Session, Long>{
 
-    public Session findLatestSession(final HouseType houseType){
+    public Session findLatestSession(final HouseType houseType,final Integer sessionYear){
+        //Inorder to find latest session we need two things.first housetype and then session year
+        //This is because session are numbered from 1,2,3,4,.. each year.The session whose start date occurs
+        //before is given a small number than the one that occurs after.e.g budget session which occurs
+        //in the month of march is given number 1 and so on.
+        //we will sort all the sessions of given house type and session year according to number in descending
+        //order and the one at position 0(top) will be the latest session
         Search search=new Search();
+        search.addFilterEqual("house.type",houseType);
+        search.addFilterEqual("year",sessionYear);
         search.addSort("number",true);
         List<Session> sessions=this.search(search);
         if(!sessions.isEmpty()){
@@ -50,4 +58,6 @@ public class SessionRepository extends BaseRepository<Session, Long>{
         search.addFilterEqual("year",sessionYear);
         return this.searchUnique(search);
     }
+
+
 }

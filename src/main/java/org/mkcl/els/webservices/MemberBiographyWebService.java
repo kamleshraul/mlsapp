@@ -21,6 +21,7 @@ import org.mkcl.els.domain.Member;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 /**
@@ -41,8 +42,8 @@ public class MemberBiographyWebService {
      * @param locale the locale
      * @return the biography
      */
-    @RequestMapping(value = "/{id}/{locale}")
-    public @ResponseBody MemberBiographyVO getBiography(@PathVariable("id") final long id ,    		
+    @RequestMapping(value = "/{id}/{locale}",method=RequestMethod.GET)
+    public @ResponseBody MemberBiographyVO getBiography(@PathVariable("id") final long id ,
             @PathVariable("locale") final String locale,
             final HttpServletRequest request){
     	String constituency = null;

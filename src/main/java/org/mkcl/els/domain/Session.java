@@ -15,6 +15,7 @@ import java.util.List;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToOne;
@@ -36,7 +37,7 @@ import org.springframework.beans.factory.annotation.Configurable;
 @Configurable
 @Entity
 @Table(name = "sessions")
-@JsonIgnoreProperties({"house"})
+@JsonIgnoreProperties({"house","type","place"})
 public class Session extends BaseDomain implements Serializable {
 
     // ---------------------------------Attributes------------------------------------------
@@ -56,16 +57,17 @@ public class Session extends BaseDomain implements Serializable {
     private Date endDate;
 
     /** The type. */
-    @OneToOne
+    @OneToOne(fetch=FetchType.LAZY)
     @JoinColumn(name = "sessiontype_id")
     private SessionType type;
 
     /** The place. */
-    @OneToOne
+    @OneToOne(fetch=FetchType.LAZY)
     @JoinColumn(name = "sessionplace_id")
     private SessionPlace place;
 
     /** The year. */
+    @Column(name="session_year")
     private Integer year;
 
     /** The duration in days. */
@@ -82,7 +84,7 @@ public class Session extends BaseDomain implements Serializable {
     private String remarks;
 
     /** The house. */
-    @ManyToOne
+    @ManyToOne(fetch=FetchType.LAZY)
     @JoinColumn(name = "house_id")
     private House house;
 
@@ -109,17 +111,7 @@ public class Session extends BaseDomain implements Serializable {
      * @param place the place
      * @param year the year
      */
-    public Session(final Integer number, final Date startDate, final Date endDate,
-            final SessionType type, final SessionPlace place, final Integer year,final House house) {
-        super();
-        this.number = number;
-        this.startDate = startDate;
-        this.endDate = endDate;
-        this.type = type;
-        this.place = place;
-        this.year = year;
-        this.house=house;
-    }
+
 
     // -------------------------------Domain_Methods----------------------------------------------
 
@@ -137,8 +129,8 @@ public class Session extends BaseDomain implements Serializable {
         return sessionRepository;
     }
 
-    public static Session findLatestSession(final HouseType houseType) {
-        return getSessionRepository().findLatestSession(houseType);
+    public static Session findLatestSession(final HouseType houseType,final Integer sessionYear) {
+        return getSessionRepository().findLatestSession(houseType,sessionYear);
     }
 
     public static List<Session> findSessionsByHouseAndYear(final House house,final Integer year){
@@ -154,6 +146,7 @@ public class Session extends BaseDomain implements Serializable {
             final SessionType sessionType, final Integer sessionYear) {
         return getSessionRepository().findSessionByHouseTypeSessionTypeYear(houseType, sessionType, sessionYear);
     }
+
 
     // ------------------------------Getters/Setters-----------------------
     /**
@@ -246,20 +239,11 @@ public class Session extends BaseDomain implements Serializable {
         this.place = place;
     }
 
-    /**
-     * Gets the year.
-     *
-     * @return the year
-     */
     public Integer getYear() {
         return year;
     }
 
-    /**
-     * Sets the year.
-     *
-     * @param year the new year
-     */
+
     public void setYear(final Integer year) {
         this.year = year;
     }

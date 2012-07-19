@@ -1,5 +1,6 @@
 package org.mkcl.els.controller.qis;
 
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
@@ -9,13 +10,17 @@ import java.util.Set;
 import javax.servlet.http.HttpServletRequest;
 
 import org.mkcl.els.common.util.ApplicationConstants;
+import org.mkcl.els.common.util.FormaterUtil;
 import org.mkcl.els.common.vo.AuthUser;
 import org.mkcl.els.common.vo.MasterVO;
 import org.mkcl.els.controller.GenericController;
 import org.mkcl.els.domain.CustomParameter;
+import org.mkcl.els.domain.Department;
 import org.mkcl.els.domain.Group;
 import org.mkcl.els.domain.House;
 import org.mkcl.els.domain.HouseType;
+import org.mkcl.els.domain.Member;
+import org.mkcl.els.domain.MemberMinister;
 import org.mkcl.els.domain.Ministry;
 import org.mkcl.els.domain.Question;
 import org.mkcl.els.domain.QuestionDates;
@@ -26,6 +31,7 @@ import org.mkcl.els.domain.SessionType;
 import org.mkcl.els.domain.associations.HouseMemberRoleAssociation;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.RequestMapping;
 
 @Controller
@@ -35,38 +41,54 @@ public class QuestionController extends GenericController<Question>{
     @Override
     protected void populateModule(final ModelMap model, final HttpServletRequest request,
             final String locale, final AuthUser currentUser) {
-        //QIS submission is role based.so first we obtain the roles assigned to the authenticated
-        //user.
         Set<Role> roles=currentUser.getRoles();
-        String houseType =null;
-        //In custom parameter QIS_ACTOR_LIST we have defined the list of actors involved in QIS submision
-        //and name QIS_ACTOR_LIST is defined as application constant.
-        CustomParameter customParameter=CustomParameter.findByName(CustomParameter.class,ApplicationConstants.QIS_ACTOR_LIST_CUSTOMPARAM_NAME, "");
-        if(customParameter!=null){
-             String actors=customParameter.getValue();
-             //now logic involved here to obtain house type is:we first split role name at _(roles must be of form
-             //ROLE_HOUSENAME).we first check if temp[0] is contained in the list of actors defined in custom param
-             //and if it is then temp[1] becomes the house type.
-             for(Role i:roles){
-                 String temp[]=i.getName().split("_");
-                 if(actors.contains(temp[0])){
-                     houseType=temp[1].toLowerCase();
-                     break;
-                 }
-             }
-        }
-        if(houseType!=null){
-            //actual check is performed to prevent sql injection.Only these three are
-            //allowed house type
-            if(houseType.equals(ApplicationConstants.LOWER_HOUSE)||houseType.equals(ApplicationConstants.UPPER_HOUSE)||houseType.equals(ApplicationConstants.BOTH_HOUSE)){
-                model.addAttribute("houseType",houseType);
+        if(roles.isEmpty()){
+            model.addAttribute("errorcode", "requiredrolenotfound");
+        }else{
+            String houseType =null;
+            //housetype is obtained from role defined for the authenticated user
+            //defining the actors that are allowed to view qis
+            CustomParameter customParameter=CustomParameter.findByName(CustomParameter.class,ApplicationConstants.QIS_ACTOR_LIST_CUSTOMPARAM_NAME, "");
+            if(customParameter!=null){
+                String actors=customParameter.getValue();
+                //all roles must be of the pattern NAME_HOUSETYPE
+                //all uppercase,NAME part shouldnot contain any _
+                for(Role i:roles){
+                    String temp[]=i.getName().split("_");
+                    if(actors.contains(temp[0])){
+                        houseType=temp[1].toLowerCase();
+                        break;
+                    }
+                }
+                if(houseType!=null){
+                    //actual check is performed to prevent sql injection.Only these three are
+                    //allowed house type
+                    if(houseType.equals(ApplicationConstants.LOWER_HOUSE)||houseType.equals(ApplicationConstants.UPPER_HOUSE)||houseType.equals(ApplicationConstants.BOTH_HOUSE)){
+                        model.addAttribute("houseType",houseType);
+                    }else{
+                        model.addAttribute("errorcode", "undefinedhousetype");
+                    }
+                }else{
+                    model.addAttribute("errorcode", "requiredrolenotfound");
+                }
+                //question type is obtained when user clicks on device name
+                QuestionType questionType=QuestionType.findByFieldName(QuestionType.class, "type",request.getParameter("type"), locale);
+                if(questionType!=null){
+                    model.addAttribute("questionType",questionType.getId());
+                }else{
+                    model.addAttribute("errorcode", "questiontypeundefined");
+                }
+                //populating current year as sessionYear
+                Calendar calendar=new GregorianCalendar();
+                Integer sessionYear=calendar.get(Calendar.YEAR);
+                model.addAttribute("sessionYear",sessionYear);
+                //populating current session type
+                HouseType hType=HouseType.findByFieldName(HouseType.class,"type",houseType, locale);
+                Session currentSession=Session.findLatestSession(hType, sessionYear);
+                model.addAttribute("sessionType", currentSession.getType().getId());
+            }else{
+                model.addAttribute("errorcode", "actorlistnotset");
             }
-        }
-        //adding question type to model.This will be obtained from request and will vary
-        //according to the link clicked by user
-        QuestionType questionType=QuestionType.findByFieldName(QuestionType.class, "type",request.getParameter("type"), locale);
-        if(questionType!=null){
-            model.addAttribute("questionType",questionType.getId());
         }
     }
 
@@ -75,39 +97,56 @@ public class QuestionController extends GenericController<Question>{
             final String locale, final AuthUser currentUser) {
         //**********************populating housetype******************
         String houseType = request.getParameter("houseType");
-        HouseType selectedHouseType=HouseType.findByFieldName(HouseType.class,"type",houseType, locale);
         model.addAttribute("houseType",houseType);
         //*********************populating housetypes**********************
-        //housetypes are arranged in increasing order of their type
         List<HouseType> houseTypes = HouseType.findAll(HouseType.class, "type", ApplicationConstants.ASC, locale);
         model.addAttribute("houseTypes", houseTypes);
-        //*****************populating sessions***************************
-        //Current house is the first entry of houses
-        //latest session is find by ararnging current house session in decreasing order
-        //of their start date
-        //sessions will be looked according to the year and house id
-        Integer year=new GregorianCalendar().get(Calendar.YEAR);
+        //*********************populating session years************
+        String strYear=request.getParameter("sessionYear");
+        Integer year=0;
+        if(strYear==null){
+            year=new GregorianCalendar().get(Calendar.YEAR);
+        }else{
+            year=Integer.parseInt(strYear);
+        }
         model.addAttribute("sessionYear",year);
-        //**********************populating session type and latest session type********************
+        CustomParameter houseFormationYear=CustomParameter.findByName(CustomParameter.class, "HOUSE_FORMATION_YEAR", "");
+        List<Integer> years=new ArrayList<Integer>();
+        if(houseFormationYear!=null){
+            Integer formationYear=Integer.parseInt(houseFormationYear.getValue());
+            for(int i=year;i>=formationYear;i--){
+                years.add(i);
+            }
+        }else{
+            model.addAttribute("errorcode", "houseformationyearnotset");
+        }
+        model.addAttribute("years",years);
+        //********************populating session types***************
+        HouseType selectedHouseType=HouseType.findByFieldName(HouseType.class,"type",houseType, locale);
         List<SessionType> sessionTypes=SessionType.findAll(SessionType.class,"sessionType", ApplicationConstants.ASC, locale);
         model.addAttribute("sessionTypes",sessionTypes);
-        Session latestSession=Session.findLatestSession(selectedHouseType);
-        if(latestSession.getId()!=null){
-            model.addAttribute("sessionType",latestSession.getType().getId());
+        String strSessionType=request.getParameter("sessionType");
+        Session latestSession=null;
+        if(strSessionType==null){
+            latestSession=Session.findLatestSession(selectedHouseType,year);
+            if(latestSession!=null){
+                model.addAttribute("sessionType",latestSession.getType().getId());
+            }else{
+                model.addAttribute("errorcode", "latestsessionnotset");
+            }
+        }else{
+            model.addAttribute("sessionType",Long.parseLong(strSessionType));
         }
         //*********************populating questiontypes**********************
-        //questiontypes are arranged in increasing order of their name
         List<QuestionType> questionTypes = QuestionType.findAll(QuestionType.class, "name", ApplicationConstants.ASC, locale);
         model.addAttribute("questionTypes", questionTypes);
-        QuestionType questionType=QuestionType.findById(QuestionType.class, Long.parseLong(request.getParameter("questionType")));
-        if(questionType!=null){
-            model.addAttribute("questionType",questionType.getId());
-        }
+        model.addAttribute("questionType", Long.parseLong(request.getParameter("questionType")));
     }
 
     @Override
     protected void populateNew(final ModelMap model, final Question domain, final String locale,
             final HttpServletRequest request) {
+        domain.setLocale(locale);
         //*************populating housetypes*****************
         List<HouseType> houseTypes=HouseType.findAll(HouseType.class, "type",ApplicationConstants.ASC, locale);
         model.addAttribute("houseTypes",houseTypes);
@@ -118,6 +157,7 @@ public class QuestionController extends GenericController<Question>{
             if(!selectedHouseType.isEmpty()){
                 houseType=HouseType.findByFieldName(HouseType.class,"type",selectedHouseType, locale);
                 domain.setHouseType(houseType);
+                model.addAttribute("houseType",selectedHouseType);
             }
         }
         //*******************populating year in view****************
@@ -129,6 +169,16 @@ public class QuestionController extends GenericController<Question>{
                 model.addAttribute("sessionYear",sessionYear);
             }
         }
+        Integer year=new GregorianCalendar().get(Calendar.YEAR);
+        CustomParameter houseFormationYear=CustomParameter.findByName(CustomParameter.class, "HOUSE_FORMATION_YEAR", "");
+        List<Integer> years=new ArrayList<Integer>();
+        if(houseFormationYear!=null){
+            Integer formationYear=Integer.parseInt(houseFormationYear.getValue());
+            for(int i=year;i>=formationYear;i--){
+                years.add(i);
+            }
+        }
+        model.addAttribute("years",years);
         //******************populating session types**********************
         List<SessionType> sessionTypes=SessionType.findAll(SessionType.class,"sessionType", ApplicationConstants.ASC, locale);
         model.addAttribute("sessionTypes",sessionTypes);
@@ -143,10 +193,14 @@ public class QuestionController extends GenericController<Question>{
         }
         //***************populating session*****************************
         Session selectedSession=null;
+        House house=null;
         if(houseType!=null&&selectedYear!=null&&sessionType!=null){
-        	selectedSession=Session.findSessionByHouseTypeSessionTypeYear(houseType, sessionType, sessionYear);
-        	domain.setSession(selectedSession);
-        	model.addAttribute("session",selectedSession.getId());
+            selectedSession=Session.findSessionByHouseTypeSessionTypeYear(houseType, sessionType, sessionYear);
+            //domain.setSession(selectedSession);
+            if(selectedSession!=null){
+                model.addAttribute("session",selectedSession.getId());
+                house=selectedSession.getHouse();
+            }
         }
         //***********populating question types***************************
         List<QuestionType> questionTypes=QuestionType.findAll(QuestionType.class,"name",ApplicationConstants.ASC, locale);
@@ -161,20 +215,11 @@ public class QuestionController extends GenericController<Question>{
 
             }
         }
-        //******************populating submission date in domain to current date*****************************
-        domain.setSubmissionDate(new Date());
         //*****************populating primary members and supporting members**********
         //The same model attribute 'members' will be used to populate both primary and supporting members.
         //It will be populated with list of members who will be/were active during a particular session.
         //This can be found by searching for entries in members_houses_roles table where role.priority=0,
         //member.locale='locale',house='house' and to_date>=session.start_date and to_date>=session.end_date
-        String selectedHouse=request.getParameter("house");
-        House house=null;
-        if(selectedHouse!=null){
-        	if(!selectedHouse.isEmpty()){
-        		house=House.findById(House.class, Long.parseLong(selectedHouse));
-        	}
-        }
         List<MasterVO> members=HouseMemberRoleAssociation.findAllActiveMemberVOSInSession(house,selectedSession,locale);
         model.addAttribute("members",members);
         //*********************populating groups*********************************
@@ -182,23 +227,173 @@ public class QuestionController extends GenericController<Question>{
         model.addAttribute("groups",groups);
         //*********************populating ministries*****************************
         if(!groups.isEmpty()){
-        	List<Ministry> ministries=groups.get(0).getMinistries();
-        	model.addAttribute("ministries",ministries);
+            List<Ministry> ministries=groups.get(0).getMinistries();
+            model.addAttribute("ministries",ministries);
             //******************populating departments**************************
-        	if(!ministries.isEmpty()){
-        		//model.addAttribute("departments",ministries.get(0).getMemberDepartments());
-        	}
+            if(!ministries.isEmpty()){
+                List<Department> departments=MemberMinister.findAssignedDepartments(ministries.get(0),  locale);
+                model.addAttribute("departments",departments);
+                if(!departments.isEmpty()){
+                    //*****************populating sub departments***********************//
+                    model.addAttribute("subDepartments",MemberMinister.findAssignedSubDepartments(ministries.get(0), departments.get(0),  locale));
+                }
+            }
         }
         //********************populating answering dates**************************
         if(!groups.isEmpty()){
-        	List<QuestionDates> answeringDates=groups.get(0).getQuestionDates();
-        	model.addAttribute("answeringDates",answeringDates);
+            List<QuestionDates> answeringDates=groups.get(0).getQuestionDates();
+            model.addAttribute("answeringDates",answeringDates);
         }
         //********************populating priorities******************************
         //This will be populated from custom parameter 'HIGHEST_QUESTION_PRIORITY'
         CustomParameter customParameter=CustomParameter.findByName(CustomParameter.class, "HIGHEST_QUESTION_PRIORITY", "");
         if(customParameter!=null){
-        	model.addAttribute("priority",customParameter.getValue());
+            model.addAttribute("priority",customParameter.getValue());
+            model.addAttribute("selectedPriority", customParameter.getValue());
         }
+        //populating submission date
+        domain.setSubmissionDate(new Date());
     }
+
+    @Override
+    protected void populateEdit(final ModelMap model, final Question domain,
+            final HttpServletRequest request) {
+        //**************Initializing locale************************
+        String locale=domain.getLocale();
+        //*************populating housetypes*****************
+        List<HouseType> houseTypes=HouseType.findAll(HouseType.class, "type",ApplicationConstants.ASC, locale);
+        model.addAttribute("houseTypes",houseTypes);
+        //************populating house type in domain in order to display appropriate watermark*********************
+        HouseType houseType=domain.getHouseType();
+        if(houseType!=null){
+            model.addAttribute("houseType",houseType.getType());
+        }
+        //*******************populating year in view****************
+        Session selectedSession=domain.getSession();
+        Integer sessionYear=0;
+        House house=null;
+        SessionType sessionType=null;
+        model.addAttribute("session",selectedSession.getId());
+        sessionYear=selectedSession.getYear();
+        model.addAttribute("sessionYear",sessionYear);
+        if(selectedSession.getType()!=null){
+            sessionType=selectedSession.getType();
+            model.addAttribute("sessionType",sessionType.getId());
+        }
+        if(selectedSession.getHouse()!=null){
+            house=selectedSession.getHouse();
+        }
+
+        Integer year=new GregorianCalendar().get(Calendar.YEAR);
+        CustomParameter houseFormationYear=CustomParameter.findByName(CustomParameter.class, "HOUSE_FORMATION_YEAR", "");
+        List<Integer> years=new ArrayList<Integer>();
+        if(houseFormationYear!=null){
+            Integer formationYear=Integer.parseInt(houseFormationYear.getValue());
+            for(int i=year;i>=formationYear;i--){
+                years.add(i);
+            }
+        }
+        model.addAttribute("years",years);
+        //******************populating session types**********************
+        List<SessionType> sessionTypes=SessionType.findAll(SessionType.class,"sessionType", ApplicationConstants.ASC, locale);
+        model.addAttribute("sessionTypes",sessionTypes);
+        //***********populating question types***************************
+        List<QuestionType> questionTypes=QuestionType.findAll(QuestionType.class,"name",ApplicationConstants.ASC, locale);
+        model.addAttribute("questionTypes",questionTypes);
+        //*****************populating primary members and supporting members**********
+        //The same model attribute 'members' will be used to populate both primary and supporting members.
+        //It will be populated with list of members who will be/were active during a particular session.
+        //This can be found by searching for entries in members_houses_roles table where role.priority=0,
+        //member.locale='locale',house='house' and to_date>=session.start_date and to_date>=session.end_date
+        //this is added
+        List<MasterVO> members=HouseMemberRoleAssociation.findAllActiveMemberVOSInSession(house,selectedSession,locale);
+        model.addAttribute("members",members);
+        //*********************populating groups*********************************
+        List<Group> groups=Group.findByHouseTypeSessionTypeYear(houseType,sessionType,sessionYear);
+        model.addAttribute("groups",groups);
+        //*********************populating ministries*****************************
+        if(!groups.isEmpty()){
+            List<Ministry> ministries=domain.getGroup().getMinistries();
+            model.addAttribute("ministries",ministries);
+            //******************populating departments**************************
+            if(!ministries.isEmpty()){
+                model.addAttribute("departments",MemberMinister.findAssignedDepartments(domain.getMinistry(),locale));
+                if(domain.getDepartment()!=null){
+                    model.addAttribute("subDepartments",MemberMinister.findAssignedSubDepartments(domain.getMinistry(),domain.getDepartment(), locale));
+                }
+            }
+        }
+        //********************populating answering dates**************************
+        if(!groups.isEmpty()){
+            List<QuestionDates> answeringDates=domain.getGroup().getQuestionDates();
+            model.addAttribute("answeringDates",answeringDates);
+        }
+        //********************populating priorities******************************
+        //This will be populated from custom parameter 'HIGHEST_QUESTION_PRIORITY'
+        CustomParameter customParameter=CustomParameter.findByName(CustomParameter.class, "HIGHEST_QUESTION_PRIORITY", "");
+        if(customParameter!=null){
+            model.addAttribute("priority",customParameter.getValue());
+            //populating selected priority
+            model.addAttribute("selectedPriority",domain.getPriority());
+        }
+        //*************populating primary member*****************
+        if(domain.getPrimaryMember()!=null){
+            model.addAttribute("primaryMember",domain.getPrimaryMember().getId());
+            model.addAttribute("primaryMemberName",domain.getPrimaryMember().getFullname());
+        }
+        //***********populating supporting members**********
+        List<Member> supportingMembers=domain.getSupportingMembers();
+        model.addAttribute("supportingMembers",supportingMembers);
+        if(!supportingMembers.isEmpty()){
+            StringBuffer buffer=new StringBuffer();
+            for(Member i:supportingMembers){
+                buffer.append(i.getFullname()+",");
+            }
+            buffer.deleteCharAt(buffer.length()-1);
+            model.addAttribute("supportingMembersName", buffer.toString());
+        }
+        //************************setting answering dates********************
+        if(domain.getAnsweringDate()!=null){
+            model.addAttribute("selectedAnsweringDate", FormaterUtil.getDateFormatter(ApplicationConstants.SERVER_DATEFORMAT, locale).format(domain.getAnsweringDate()));
+        }
+        //initializing number to be displayed as title
+        model.addAttribute("number",FormaterUtil.getNumberFormatterNoGrouping(locale).format(domain.getNumber()));
+    }
+
+    @Override
+    protected void populateCreateIfNoErrors(final ModelMap model, final Question domain,
+            final HttpServletRequest request) {
+        //request.getSession().setAttribute("houseType",request.getParameter("houseType"));
+        //request.getSession().setAttribute("session",request.getParameter("session"));
+
+    }
+
+    @Override
+    protected void populateUpdateIfNoErrors(final ModelMap model, final Question domain,
+            final HttpServletRequest request) {
+    }
+
+    @Override
+    protected void populateCreateIfErrors(final ModelMap model, final Question domain,
+            final HttpServletRequest request) {
+        populateEdit(model, domain, request);
+    }
+
+    @Override
+    protected void populateUpdateIfErrors(final ModelMap model, final Question domain,
+            final HttpServletRequest request) {
+        populateEdit(model, domain, request);
+    }
+
+    @Override
+    protected void customValidateCreate(final Question domain, final BindingResult result,
+            final HttpServletRequest request) {
+    }
+
+    @Override
+    protected void customValidateUpdate(final Question domain, final BindingResult result,
+            final HttpServletRequest request) {
+    }
+
+
 }

@@ -36,16 +36,16 @@ public class SubDepartment extends BaseDomain implements Serializable{
     /** The type. */
     @Column(length = 600)
     private String name;
-    
+
     /** The department. */
     @ManyToOne
     @JoinColumn(name = "department_id")
     private Department department;
-    
+
     /** The remarks. */
     @Column(length=1000)
     private String remarks;
-    
+
     /** The is expired. */
     @Column
     private Boolean isExpired;
@@ -57,7 +57,7 @@ public class SubDepartment extends BaseDomain implements Serializable{
     public SubDepartment() {
 		super();
 	}
-	
+
 	/**
 	 * Instantiates a new department detail.
 	 *
@@ -66,8 +66,8 @@ public class SubDepartment extends BaseDomain implements Serializable{
 	 * @param remarks the remarks
 	 * @param isExpired the is expired
 	 */
-	public SubDepartment(String name, Department department, String remarks,
-			Boolean isExpired) {
+	public SubDepartment(final String name, final Department department, final String remarks,
+			final Boolean isExpired) {
 		super();
 		this.name = name;
 		this.department = department;
@@ -83,16 +83,16 @@ public class SubDepartment extends BaseDomain implements Serializable{
 	public String getName() {
 		return name;
 	}
-	
+
 	/**
 	 * Sets the name.
 	 *
 	 * @param name the new name
 	 */
-	public void setName(String name) {
+	public void setName(final String name) {
 		this.name = name;
 	}
-	
+
 	/**
 	 * Gets the department.
 	 *
@@ -101,16 +101,16 @@ public class SubDepartment extends BaseDomain implements Serializable{
 	public Department getDepartment() {
 		return department;
 	}
-	
+
 	/**
 	 * Sets the department.
 	 *
 	 * @param department the new department
 	 */
-	public void setDepartment(Department department) {
+	public void setDepartment(final Department department) {
 		this.department = department;
 	}
-	
+
 	/**
 	 * Gets the remarks.
 	 *
@@ -119,16 +119,16 @@ public class SubDepartment extends BaseDomain implements Serializable{
 	public String getRemarks() {
 		return remarks;
 	}
-	
+
 	/**
 	 * Sets the remarks.
 	 *
 	 * @param remarks the new remarks
 	 */
-	public void setRemarks(String remarks) {
+	public void setRemarks(final String remarks) {
 		this.remarks = remarks;
 	}
-	
+
 	/**
 	 * Gets the checks if is expired.
 	 *
@@ -137,15 +137,15 @@ public class SubDepartment extends BaseDomain implements Serializable{
 	public Boolean getIsExpired() {
 		return isExpired;
 	}
-	
+
 	/**
 	 * Sets the checks if is expired.
 	 *
 	 * @param isExpired the new checks if is expired
 	 */
-	public void setIsExpired(Boolean isExpired) {
+	public void setIsExpired(final Boolean isExpired) {
 		this.isExpired = isExpired;
 	}
 
-	
+
 }

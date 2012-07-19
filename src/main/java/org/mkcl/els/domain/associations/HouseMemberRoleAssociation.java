@@ -10,7 +10,6 @@
 package org.mkcl.els.domain.associations;
 
 import java.io.Serializable;
-import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
 
@@ -28,7 +27,6 @@ import javax.persistence.TemporalType;
 import javax.persistence.Version;
 
 import org.codehaus.jackson.annotate.JsonIgnoreProperties;
-import org.mkcl.els.common.util.ApplicationConstants;
 import org.mkcl.els.common.vo.MasterVO;
 import org.mkcl.els.domain.Constituency;
 import org.mkcl.els.domain.House;
@@ -41,7 +39,6 @@ import org.springframework.beans.factory.annotation.Configurable;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.sun.istack.NotNull;
-import com.trg.search.Search;
 
 /**
  * The Class HouseMemberRoleAssociation.
@@ -54,7 +51,7 @@ import com.trg.search.Search;
 @Configurable
 @Table(name = "members_houses_roles")
 @IdClass(value = HouseMemberRoleAssociationPK.class)
-@JsonIgnoreProperties({"member"})
+@JsonIgnoreProperties({"member","constituency"})
 public class HouseMemberRoleAssociation implements Serializable {
 
     // ---------------------------------Attributes-------------------------------------------------
@@ -82,7 +79,7 @@ public class HouseMemberRoleAssociation implements Serializable {
     private Date resignationDate;
 
     /** The constituency. */
-    @ManyToOne(fetch=FetchType.EAGER)
+    @ManyToOne(fetch=FetchType.LAZY)
     @JoinColumn(name = "constituency_id")
     private Constituency constituency;
 
@@ -103,7 +100,7 @@ public class HouseMemberRoleAssociation implements Serializable {
 
     /** The member. */
     @Id
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     @PrimaryKeyJoinColumn(name = "member_id", referencedColumnName = "id")
     private Member member;
 
@@ -446,11 +443,17 @@ public class HouseMemberRoleAssociation implements Serializable {
 				member,rolepriority,house,locale);
 	}
 
-	public static List<MasterVO> findAllActiveMemberVOSInSession(House house,
-			Session session, String locale) {
+	public static List<MasterVO> findAllActiveMemberVOSInSession(final House house,
+			final Session session, final String locale) {
 		return getMemberHouseRoleRepository().findAllActiveMemberVOSInSession(house,
-				session,locale);	
+				session,locale);
 	}
+
+	public static List<MasterVO> findAllActiveMemberVOSInSession(final House house,
+            final Session session, final String locale,final String param) {
+        return getMemberHouseRoleRepository().findAllActiveMemberVOSInSession(house,
+                session,locale,param);
+    }
 
 	//public String getConstituencySubtype() {
 	//	return constituencySubtype;

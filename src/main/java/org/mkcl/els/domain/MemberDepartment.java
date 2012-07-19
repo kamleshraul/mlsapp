@@ -45,7 +45,7 @@ public class MemberDepartment extends BaseDomain implements Serializable {
 	private static final long serialVersionUID = 1L;
 
 	/** The department. */
-	@ManyToOne(fetch=FetchType.LAZY)
+	@ManyToOne(fetch=FetchType.EAGER)
 	private Department department;
 
 	@OneToMany(fetch=FetchType.EAGER)

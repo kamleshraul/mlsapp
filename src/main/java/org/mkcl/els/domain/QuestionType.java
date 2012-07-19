@@ -13,10 +13,12 @@ import java.io.Serializable;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 
+import org.codehaus.jackson.annotate.JsonIgnoreProperties;
 import org.hibernate.validator.constraints.NotEmpty;
 import org.springframework.beans.factory.annotation.Configurable;
 
@@ -30,6 +32,7 @@ import org.springframework.beans.factory.annotation.Configurable;
 @Configurable
 @Entity
 @Table(name = "questiontypes")
+@JsonIgnoreProperties({"questionLimitingAction"})
 public class QuestionType extends BaseDomain implements Serializable {
 
     // ---------------------------------Attributes------------------------//
@@ -51,7 +54,7 @@ public class QuestionType extends BaseDomain implements Serializable {
     private Integer questionLimit;
 
     /** The question limiting action. */
-    @ManyToOne
+    @ManyToOne(fetch=FetchType.LAZY)
     @JoinColumn(name = "question_limiting_action__id")
     private QuestionLimitingAction questionLimitingAction;
 

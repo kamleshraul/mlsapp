@@ -24,6 +24,8 @@ import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
 
 import org.codehaus.jackson.annotate.JsonIgnoreProperties;
+import org.mkcl.els.repository.MemberMinisterRepository;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Configurable;
 
 /**
@@ -36,16 +38,21 @@ import org.springframework.beans.factory.annotation.Configurable;
 @Configurable
 @Entity
 @Table(name="members_ministries")
-@JsonIgnoreProperties({"member", "designation", "memberDepartments"})
+@JsonIgnoreProperties({"member", "designation", "memberDepartments", "house"})
 public class MemberMinister extends BaseDomain implements Serializable {
 
     /** The Constant serialVersionUID. */
+
     private static final long serialVersionUID = 1L;
 
     /** The member. */
     @ManyToOne(fetch=FetchType.LAZY)
     @JoinColumn(name="member_id")
     private Member member;
+
+    @ManyToOne(fetch=FetchType.LAZY)
+    @JoinColumn(name="house_id")
+    private House house;
 
     /** The designation. */
     @ManyToOne(fetch=FetchType.LAZY)
@@ -82,6 +89,9 @@ public class MemberMinister extends BaseDomain implements Serializable {
     @JoinColumn(name="member_ministry_id", referencedColumnName="id")
     private List<MemberDepartment> memberDepartments;
 
+    @Autowired
+    private transient MemberMinisterRepository repository;
+
     //------------------ Constructor ----------------------//
     /**
      * Instantiates a new member minister.
@@ -90,8 +100,29 @@ public class MemberMinister extends BaseDomain implements Serializable {
         super();
     }
 
+    //------------------ Domain Methods --------------------//
+    public static MemberMinisterRepository getMemberMinisterRepository() {
+    	MemberMinisterRepository repository = new MemberMinister().repository;
+    	if (repository == null) {
+    		throw new IllegalStateException(
+                  "MemberMinisterRepository has not been injected in MemberMinister Domain");
+    	}
+    	return repository;
+    }
 
-    //------------------ Getters & Setters ----------------------//
+    public static List<Department> findAssignedDepartments(final Ministry ministry, final String locale){
+    	return getMemberMinisterRepository().findAssignedDepartments(ministry,  locale);
+    }
+
+    public static List<SubDepartment> findAssignedSubDepartments(final Ministry ministry, final Department department,
+    		 final String locale){
+    	return getMemberMinisterRepository().
+    		findAssignedSubDepartments(ministry, department, locale);
+    }
+
+
+
+    //------------------ Getters & Setters -----------------//
     /**
      * Gets the member.
      *
@@ -111,8 +142,16 @@ public class MemberMinister extends BaseDomain implements Serializable {
         this.member = member;
     }
 
+    public House getHouse() {
+		return house;
+	}
 
-    /**
+
+	public void setHouse(final House house) {
+		this.house = house;
+	}
+
+	/**
      * Gets the designation.
      *
      * @return the designation
