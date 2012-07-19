@@ -519,8 +519,8 @@
 		<form:errors path="deathHouseDismissed" cssClass="validationError"/>	
 	</p>
 	<p>
-		<label class="labelcentered"><spring:message code="member.personal.deathRemarks" text="Remarks"/></label>
-		<form:textarea path="deathRemarks" cssClass="sTextarea"></form:textarea>
+		<label class="small"><spring:message code="member.personal.deathRemarks" text="Remarks"/></label>
+		<form:textarea path="deathRemarks" cssClass="wysiwyg"></form:textarea>
 		<form:errors path="deathRemarks" cssClass="validationError"/>	
 	</p>
 	
@@ -537,8 +537,8 @@
 	</p>
 	
 	<p>
-		<label class="labelcentered"><spring:message code="member.personal.paAddress" text="Personal Assistants Address"/></label>
-		<form:textarea cssClass="wysiwyg sTextarea" path="paAddress"/>
+		<label class="small"><spring:message code="member.personal.paAddress" text="Personal Assistants Address"/></label>
+		<form:textarea cssClass="wysiwyg" path="paAddress"/>
 		<form:errors path="paAddress" cssClass="validationError"/>	
 	</p>	
 	 <div class="fields">
