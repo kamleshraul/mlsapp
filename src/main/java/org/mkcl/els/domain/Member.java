@@ -46,6 +46,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Configurable;
 
 
+// TODO: Auto-generated Javadoc
 /**
  * The Class Member.
  *
@@ -55,15 +56,15 @@ import org.springframework.beans.factory.annotation.Configurable;
  */
 @Configurable
 @Entity
-@Table(name = "members")
-@JsonIgnoreProperties({ "qualifications", "religion", "languages", "familyMembers",
-    "positionsHeld", "reservation", "electionResults", "memberPartyAssociations",
-    "memberMinisters", "books", "credential", "title", "maritalStatus", "gender",
-    "professions", "nationality", "permanentAddress", "permanentAddress1", "permanentAddress2",
-    "presentAddress", "presentAddress1", "presentAddress2", "tempAddress1", "tempAddress2",
-    "contact", "officeAddress", "officeAddress1", "officeAddress2", "correspondenceAddress",
-"houseMemberRoleAssociations" })
-public class Member extends BaseDomain implements Serializable {
+@Table(name="members")
+@JsonIgnoreProperties({ "qualifications", "religion", "languages",
+    "familyMembers", "positionsHeld", "reservation", "electionResults",
+    "memberPartyAssociations", "memberMinisters", "books",
+    "credential", "title", "maritalStatus", "gender", "professions",
+    "nationality", "permanentAddress","permanentAddress1","permanentAddress2","presentAddress","presentAddress1","presentAddress2"
+    ,"tempAddress1","tempAddress2", "contact",
+    "officeAddress","officeAddress1","officeAddress2","correspondenceAddress","houseMemberRoleAssociations"})
+    public class Member extends BaseDomain implements Serializable {
 
     // ---------------------------------Attributes------------------------------------------
     // ----------------------------------Personal_Informations------------------------------
@@ -73,8 +74,8 @@ public class Member extends BaseDomain implements Serializable {
 
     /** **************Personal_Information************************. */
     /** The title. */
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "title_id")
+    @ManyToOne(fetch=FetchType.LAZY)
+    @JoinColumn(name="title_id")
     private Title title;
 
     /** The first name. */
@@ -98,7 +99,7 @@ public class Member extends BaseDomain implements Serializable {
     private String birthPlace;
 
     /** The marital status. */
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch=FetchType.LAZY)
     @JoinColumn(name = "maritalstatus_id")
     private MaritalStatus maritalStatus;
 
@@ -107,21 +108,21 @@ public class Member extends BaseDomain implements Serializable {
     private Date marriageDate;
 
     /** The gender. */
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch=FetchType.LAZY)
     @JoinColumn(name = "gender_id")
     private Gender gender;
 
     /** The profession. */
-    @ManyToMany(fetch = FetchType.LAZY)
+    @ManyToMany(fetch=FetchType.LAZY)
     @JoinTable(name = "members_professions",
-    joinColumns = { @JoinColumn(name = "member_id",
-    referencedColumnName = "id") },
-    inverseJoinColumns = { @JoinColumn(name = "profession_id",
-    referencedColumnName = "id") })
-    private List<Profession> professions;
+            joinColumns = { @JoinColumn(name = "member_id",
+                    referencedColumnName = "id") },
+                    inverseJoinColumns = { @JoinColumn(name = "profession_id",
+                            referencedColumnName = "id") })
+                            private List<Profession> professions;
 
     /** The nationality. */
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch=FetchType.LAZY)
     @JoinColumn(name = "nationality_id")
     private Nationality nationality;
 
@@ -148,29 +149,29 @@ public class Member extends BaseDomain implements Serializable {
     /** The languages. */
     @ManyToMany(fetch = FetchType.LAZY)
     @JoinTable(name = "members_languages",
-    joinColumns = { @JoinColumn(name = "member_id",
-    referencedColumnName = "id") },
-    inverseJoinColumns = { @JoinColumn(name = "language_id",
-    referencedColumnName = "id") })
-    private List<Language> languages;
+            joinColumns = { @JoinColumn(name = "member_id",
+                    referencedColumnName = "id") },
+                    inverseJoinColumns = { @JoinColumn(name = "language_id",
+                            referencedColumnName = "id") })
+                            private List<Language> languages;
 
     /** The degrees. */
-    @ManyToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @ManyToMany(fetch = FetchType.LAZY,cascade=CascadeType.ALL)
     @JoinTable(name = "members_qualifications",
-    joinColumns = { @JoinColumn(name = "member_id",
-    referencedColumnName = "id") },
-    inverseJoinColumns = { @JoinColumn(name = "qualification_id",
-    referencedColumnName = "id") })
-    private List<Qualification> qualifications;
+            joinColumns = { @JoinColumn(name = "member_id",
+                    referencedColumnName = "id") },
+                    inverseJoinColumns = { @JoinColumn(name = "qualification_id",
+                            referencedColumnName = "id") })
+                            private List<Qualification> qualifications;
 
     /** The family members. */
     @ManyToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @JoinTable(name = "members_familymembers",
-    joinColumns = { @JoinColumn(name = "member_id",
-    referencedColumnName = "id") },
-    inverseJoinColumns = { @JoinColumn(name = "familymember_id",
-    referencedColumnName = "id") })
-    private List<FamilyMember> familyMembers;
+            joinColumns = { @JoinColumn(name = "member_id",
+                    referencedColumnName = "id") },
+                    inverseJoinColumns = { @JoinColumn(name = "familymember_id",
+                            referencedColumnName = "id") })
+                            private List<FamilyMember> familyMembers;
 
     /** The reservation. */
     @ManyToOne(fetch = FetchType.LAZY)
@@ -183,80 +184,80 @@ public class Member extends BaseDomain implements Serializable {
 
     /** ****************Contact Information*************************************. */
     /** The permanent address. */
-    @OneToOne(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @OneToOne(cascade=CascadeType.ALL,fetch=FetchType.LAZY)
     @JoinColumn(name = "permanentaddress_id")
     protected Address permanentAddress;
 
     /** The permanent address1. */
-    @OneToOne(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @OneToOne(cascade=CascadeType.ALL,fetch=FetchType.LAZY)
     @JoinColumn(name = "permanentaddress1_id")
     protected Address permanentAddress1;
 
     /** The permanent address2. */
-    @OneToOne(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @OneToOne(cascade=CascadeType.ALL,fetch=FetchType.LAZY)
     @JoinColumn(name = "permanentaddress2_id")
     protected Address permanentAddress2;
 
     /** The present address. */
-    @OneToOne(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @OneToOne(cascade=CascadeType.ALL,fetch=FetchType.LAZY)
     @JoinColumn(name = "presentaddress_id")
     protected Address presentAddress;
 
     /** The present address. */
-    @OneToOne(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @OneToOne(cascade=CascadeType.ALL,fetch=FetchType.LAZY)
     @JoinColumn(name = "presentaddress1_id")
     protected Address presentAddress1;
 
     /** The present address. */
-    @OneToOne(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @OneToOne(cascade=CascadeType.ALL,fetch=FetchType.LAZY)
     @JoinColumn(name = "presentaddress2_id")
     protected Address presentAddress2;
 
 
     /** The office address. */
-    @OneToOne(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @OneToOne(cascade = CascadeType.ALL,fetch=FetchType.LAZY)
     @JoinColumn(name = "officeaddress_id")
     private Address officeAddress;
 
     /** The office address. */
-    @OneToOne(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @OneToOne(cascade = CascadeType.ALL,fetch=FetchType.LAZY)
     @JoinColumn(name = "officeaddress1_id")
     private Address officeAddress1;
 
     /** The office address. */
-    @OneToOne(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @OneToOne(cascade = CascadeType.ALL,fetch=FetchType.LAZY)
     @JoinColumn(name = "officeaddress2_id")
     private Address officeAddress2;
 
     /** The temp address1. */
-    @OneToOne(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @OneToOne(cascade = CascadeType.ALL,fetch=FetchType.LAZY)
     @JoinColumn(name = "tempAddress1_id")
     private Address tempAddress1;
 
     /** The temp address2. */
-    @OneToOne(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @OneToOne(cascade = CascadeType.ALL,fetch=FetchType.LAZY)
     @JoinColumn(name = "tempAddress2_id")
     private Address tempAddress2;
 
     /** The correspondence address. */
-    @OneToOne(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @OneToOne(cascade = CascadeType.ALL,fetch=FetchType.LAZY)
     @JoinColumn(name = "correspondence_id")
     private Address correspondenceAddress;
 
     /** The contact. */
-    @OneToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @OneToOne(fetch = FetchType.LAZY,cascade=CascadeType.ALL)
     @JoinColumn(name = "contactdetails_id")
     protected Contact contact;
 
     // ----------------------------------Other_Informations----------------------------------
     /** The positions held. */
-    @ManyToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @ManyToMany(cascade = CascadeType.ALL,fetch=FetchType.LAZY)
     @JoinTable(name = "members_positionsheld",
-    joinColumns = { @JoinColumn(name = "member_id",
-    referencedColumnName = "id") },
-    inverseJoinColumns = { @JoinColumn(name = "positionheld_id",
-    referencedColumnName = "id") })
-    private List<PositionHeld> positionsHeld;
+            joinColumns = { @JoinColumn(name = "member_id",
+                    referencedColumnName = "id") },
+                    inverseJoinColumns = { @JoinColumn(name = "positionheld_id",
+                            referencedColumnName = "id") })
+                            private List<PositionHeld> positionsHeld;
 
     /** The social cultural activities. */
     @Column(length = 30000)
@@ -294,37 +295,37 @@ public class Member extends BaseDomain implements Serializable {
     @Column(length=30000)
     private String publications;
 
-    // ----------------------------------Election_Results_Informations-----------------------------
+    // ----------------------------------Election_Results_Informations----------------------------------
     /** The election results. */
-    @OneToMany(mappedBy = "member", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "member", fetch = FetchType.LAZY,cascade=CascadeType.ALL)
     private List<ElectionResult> electionResults;
 
     // ----------------------------------Party_Informations----------------------------------
     /** The member party associations. */
-    @OneToMany(mappedBy = "member", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "member", fetch = FetchType.LAZY,cascade=CascadeType.ALL)
     private List<MemberPartyAssociation> memberPartyAssociations;
 
     // ----------------------------------House_Role_Informations----------------------------------
     /** The house member role associations. */
-    @OneToMany(mappedBy = "member", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "member", fetch = FetchType.LAZY,cascade=CascadeType.ALL)
     private List<HouseMemberRoleAssociation> houseMemberRoleAssociations;
 
     // ----------------------------------House_Role_Informations----------------------------------
     /** The member ministers. */
-    @OneToMany(mappedBy = "member", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @OneToMany(mappedBy="member", fetch=FetchType.LAZY, cascade=CascadeType.ALL)
     private List<MemberMinister> memberMinisters;
 
     // ----------------------------------Book_Informations----------------------------------
     /** The books. */
-    @ManyToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @ManyToMany(fetch = FetchType.LAZY,cascade=CascadeType.ALL)
     @JoinTable(name = "members_books", joinColumns = @JoinColumn(
             name = "member_id", referencedColumnName = "id"),
             inverseJoinColumns = @JoinColumn(name = "book_id",
-            referencedColumnName = "id"))
-    private List<Book> books;
-    // ----------------------------------Members PA Information---------------------------------
+                    referencedColumnName = "id"))
+                    private List<Book> books;
+ // ----------------------------------Members PA Information---------------------------------
     /** The pa name. */
-    @Column(length = 900)
+    @Column(length=900)
     private String paName;
 
     /** The pa contact no. */
@@ -332,12 +333,12 @@ public class Member extends BaseDomain implements Serializable {
     private String paContactNo;
 
     /** The pa address. */
-    @Column(length = 3000)
+    @Column(length=3000)
     private String paAddress;
-    // ----------------------------------Member_Record_Status_Informations-------------------------
+    // ----------------------------------Member_Record_Status_Informations----------------------------------
     /** The credential. */
     //this will denote the publication status of a member record.
-    @Column(length = 100)
+    @Column(length=100)
     private String status;
 
     // ----------------------------------Member_Death_Informations----------------------------------
@@ -351,14 +352,13 @@ public class Member extends BaseDomain implements Serializable {
     private Date condolenceDate;
 
     /** The obituary. */
-    @Column(length = 30000)
+    @Column(length=30000)
     private String obituary;
 
-    @Column(length = 10000)
+    @Column(length=10000)
     private String deathHouseDismissed;
 
-    /** The death remarks. */
-    @Column(length = 10000)
+    @Column(length=10000)
     private String deathRemarks;
     // ----------------------------------------------------------------------------------------
 
@@ -386,7 +386,7 @@ public class Member extends BaseDomain implements Serializable {
         MemberRepository memberRepository = new Member().memberRepository;
         if (memberRepository == null) {
             throw new IllegalStateException(
-                    "MemberRepository has not been injected in Member Domain");
+            "MemberRepository has not been injected in Member Domain");
         }
         return memberRepository;
     }
@@ -399,18 +399,15 @@ public class Member extends BaseDomain implements Serializable {
      * @param criteria1 the criteria1
      * @param criteria2 the criteria2
      * @param locale the locale
-     * @param councilCriteria the council criteria
      * @return the member search page
      * @author sandeep
+     * @param councilCriteria
      * @since v1.0.0
      */
-    public static MemberSearchPage search(
-            final String housetype,
-            final Long house,
-            final String criteria1,
-            final Long criteria2, final String locale, String[] councilCriteria) {
-        return getMemberRepository().search(housetype, house, criteria1,
-                criteria2, locale, councilCriteria);
+    public static MemberSearchPage search(final String housetype, final Long house, final String criteria1,
+            final Long criteria2, final String locale, final String[] councilCriteria) {
+        return getMemberRepository().search(housetype,house,criteria1,
+                criteria2, locale,councilCriteria);
     }
 
 
@@ -419,13 +416,13 @@ public class Member extends BaseDomain implements Serializable {
      *
      * @param id the id
      * @param locale the locale
-     * @param data the data
      * @return the member biography vo
      * @author sandeep
+     * @param data
      * @since v1.0.0
      */
-    public static MemberBiographyVO findBiography(final long id, final String locale, String[] data) {
-        return getMemberRepository().findBiography(id, locale, data);
+    public static MemberBiographyVO findBiography(final long id, final String locale, final String[] data) {
+        return getMemberRepository().findBiography(id,locale,data);
     }
 
     /**
@@ -448,7 +445,7 @@ public class Member extends BaseDomain implements Serializable {
      * @author sandeep
      * @since v1.0.0
      */
-    public static MemberQualificationWiseReportVO findMembersByQualification(final String locale) {
+    public static MemberQualificationWiseReportVO findMembersByQualification(final String locale){
         return getMemberRepository().findMembersByQualification(locale);
     }
 
@@ -460,7 +457,7 @@ public class Member extends BaseDomain implements Serializable {
      * @author sandeep
      * @since v1.0.0
      */
-    public static MemberProfessionWiseReportVO findMembersByProfession(final String locale) {
+    public static MemberProfessionWiseReportVO findMembersByProfession(final String locale){
         return getMemberRepository().findMembersByProfession(locale);
     }
 
@@ -472,7 +469,7 @@ public class Member extends BaseDomain implements Serializable {
      * @author sandeep
      * @since v1.0.0
      */
-    public static MemberChildrenWiseReportVO findMembersByChildren(final String locale) {
+    public static MemberChildrenWiseReportVO findMembersByChildren(final String locale){
         return getMemberRepository().findMembersByChildren(locale);
     }
 
@@ -484,7 +481,7 @@ public class Member extends BaseDomain implements Serializable {
      * @author sandeep
      * @since v1.0.0
      */
-    public static MemberPartyWiseReportVO findMembersByParty(final String locale) {
+    public static MemberPartyWiseReportVO findMembersByParty(final String locale){
         return getMemberRepository().findMembersByParty(locale);
     }
 
@@ -496,7 +493,7 @@ public class Member extends BaseDomain implements Serializable {
      * @author sandeep
      * @since v1.0.0
      */
-    public static List<MemberPartyDistrictWiseVO> findMembersByPartyDistrict(final String locale) {
+    public static List<MemberPartyDistrictWiseVO> findMembersByPartyDistrict(final String locale){
         return getMemberRepository().findMembersByPartyDistrict(locale);
     }
 
@@ -508,7 +505,7 @@ public class Member extends BaseDomain implements Serializable {
      * @author sandeep
      * @since v1.0.0
      */
-    public static List<MemberGeneralVO> findfemaleMembers(final String locale) {
+    public static List<MemberGeneralVO> findfemaleMembers(final String locale){
         return getMemberRepository().findfemaleMembers(locale);
     }
 
@@ -520,7 +517,7 @@ public class Member extends BaseDomain implements Serializable {
      * @author sandeep
      * @since v1.0.0
      */
-    public static List<MemberGeneralVO> findMembersByLastName(final String locale) {
+    public static List<MemberGeneralVO> findMembersByLastName(final String locale){
         return getMemberRepository().findMembersByLastName(locale);
     }
 
@@ -532,7 +529,7 @@ public class Member extends BaseDomain implements Serializable {
      * @author sandeep
      * @since v1.0.0
      */
-    public static List<MemberGeneralVO> findMembersByDistrict(final String locale) {
+    public static List<MemberGeneralVO> findMembersByDistrict(final String locale){
         return getMemberRepository().findMembersByDistrict(locale);
     }
 
@@ -541,18 +538,34 @@ public class Member extends BaseDomain implements Serializable {
      *
      * @return the fullname
      */
-    public String getFullname() {
+    public String getFullname(){
+    	StringBuffer sb = new StringBuffer();
+    	sb.append(this.getTitle().getName().trim());
+    	sb.append(this.getFirstName().trim());
+    	sb.append(" ");
+    	if(this.getMiddleName() != null){
+    		if(! this.getMiddleName().equals("")){
+    			sb.append(this.getMiddleName().trim());
+    	    	sb.append(" ");
+    		}
+    	}
+    	sb.append(this.getLastName().trim());
+    	return sb.toString().trim();
+    }
+
+    public String getFullnameLastNameFirst(){
         StringBuffer sb = new StringBuffer();
-        sb.append(this.getTitle().getName());
-        sb.append(this.getFirstName());
+        sb.append(this.getLastName().trim());
+        sb.append(", ");
+        sb.append(this.getTitle().getName().trim());
         sb.append(" ");
-        if (this.getMiddleName() != null) {
-            if (!this.getMiddleName().equals("")) {
-                sb.append(this.getMiddleName());
-                sb.append(" ");
+        sb.append(this.getFirstName().trim());
+        sb.append(" ");
+        if(this.getMiddleName() != null){
+            if(! this.getMiddleName().equals("")){
+                sb.append(this.getMiddleName().trim());
             }
         }
-        sb.append(this.getLastName());
         return sb.toString().trim();
     }
 
@@ -564,8 +577,8 @@ public class Member extends BaseDomain implements Serializable {
      * @return the complete detail
      */
     public static MemberCompleteDetailVO getCompleteDetail(final Long member, final String locale) {
-        return getMemberRepository().getCompleteDetail(member, locale);
-    }
+		return getMemberRepository().getCompleteDetail(member,locale);
+	}
     // ------------------------------------------Getters/Setters-----------------------------------
     /**
      * Gets the title.
@@ -1065,8 +1078,7 @@ public class Member extends BaseDomain implements Serializable {
     /**
      * Sets the literary artistic scientific accomplishments.
      *
-     * @param literaryArtisticScientificAccomplishments
-     *            the new literary artistic scientific accomplishments
+     * @param literaryArtisticScientificAccomplishments the new literary artistic scientific accomplishments
      */
     public void setLiteraryArtisticScientificAccomplishments(
             final String literaryArtisticScientificAccomplishments) {
@@ -1273,78 +1285,78 @@ public class Member extends BaseDomain implements Serializable {
         this.status = status;
     }
 
-    //	/**
-    //	 * Gets the member minister associations.
-    //	 *
-    //	 * @return the member minister associations
-    //	 */
-    //	public List<MemberMinisterAssociation> getMemberMinisterAssociations() {
-    //		return memberMinisterAssociations;
-    //	}
-    //
-    //	/**
-    //	 * Sets the member minister associations.
-    //	 *
-    //	 * @param memberMinisterAssociations the new member minister associations
-    //	 */
-    //	public void setMemberMinisterAssociations(
-    //			List<MemberMinisterAssociation> memberMinisterAssociations) {
-    //		this.memberMinisterAssociations = memberMinisterAssociations;
-    //	}
-    //
-    /**
-     * Gets the pa name.
-     *
-     * @return the pa name
-     */
-    public String getPaName() {
-        return paName;
-    }
+//	/**
+//	 * Gets the member minister associations.
+//	 *
+//	 * @return the member minister associations
+//	 */
+//	public List<MemberMinisterAssociation> getMemberMinisterAssociations() {
+//		return memberMinisterAssociations;
+//	}
+//
+//	/**
+//	 * Sets the member minister associations.
+//	 *
+//	 * @param memberMinisterAssociations the new member minister associations
+//	 */
+//	public void setMemberMinisterAssociations(
+//			List<MemberMinisterAssociation> memberMinisterAssociations) {
+//		this.memberMinisterAssociations = memberMinisterAssociations;
+//	}
+//
+	/**
+	 * Gets the pa name.
+	 *
+	 * @return the pa name
+	 */
+	public String getPaName() {
+		return paName;
+	}
 
-    /**
-     * Sets the pa name.
-     *
-     * @param paName the new pa name
-     */
-    public void setPaName(final String paName) {
-        this.paName = paName;
-    }
+	/**
+	 * Sets the pa name.
+	 *
+	 * @param paName the new pa name
+	 */
+	public void setPaName(final String paName) {
+		this.paName = paName;
+	}
 
-    /**
-     * Gets the pa contact no.
-     *
-     * @return the pa contact no
-     */
-    public String getPaContactNo() {
-        return paContactNo;
-    }
+	/**
+	 * Gets the pa contact no.
+	 *
+	 * @return the pa contact no
+	 */
+	public String getPaContactNo() {
+		return paContactNo;
+	}
 
-    /**
-     * Sets the pa contact no.
-     *
-     * @param paContactNo the new pa contact no
-     */
-    public void setPaContactNo(final String paContactNo) {
-        this.paContactNo = paContactNo;
-    }
+	/**
+	 * Sets the pa contact no.
+	 *
+	 * @param paContactNo the new pa contact no
+	 */
+	public void setPaContactNo(final String paContactNo) {
+		this.paContactNo = paContactNo;
+	}
 
-    /**
-     * Gets the pa address.
-     *
-     * @return the pa address
-     */
-    public String getPaAddress() {
-        return paAddress;
-    }
+	/**
+	 * Gets the pa address.
+	 *
+	 * @return the pa address
+	 */
+	public String getPaAddress() {
+		return paAddress;
+	}
 
-    /**
-     * Sets the pa address.
-     *
-     * @param paAddress the new pa address
-     */
-    public void setPaAddress(final String paAddress) {
-        this.paAddress = paAddress;
-    }
+	/**
+	 * Sets the pa address.
+	 *
+	 * @param paAddress the new pa address
+	 */
+	public void setPaAddress(final String paAddress) {
+		this.paAddress = paAddress;
+	}
 
     /**
      * Gets the member ministers.
@@ -1436,149 +1448,149 @@ public class Member extends BaseDomain implements Serializable {
         this.obituary = obituary;
     }
 
-    /**
-     * Gets the temp address1.
-     *
-     * @return the temp address1
-     */
-    public Address getTempAddress1() {
-        return tempAddress1;
-    }
+	/**
+	 * Gets the temp address1.
+	 *
+	 * @return the temp address1
+	 */
+	public Address getTempAddress1() {
+		return tempAddress1;
+	}
 
-    /**
-     * Sets the temp address1.
-     *
-     * @param tempAddress1 the new temp address1
-     */
-    public void setTempAddress1(final Address tempAddress1) {
-        this.tempAddress1 = tempAddress1;
-    }
+	/**
+	 * Sets the temp address1.
+	 *
+	 * @param tempAddress1 the new temp address1
+	 */
+	public void setTempAddress1(final Address tempAddress1) {
+		this.tempAddress1 = tempAddress1;
+	}
 
-    /**
-     * Gets the temp address2.
-     *
-     * @return the temp address2
-     */
-    public Address getTempAddress2() {
-        return tempAddress2;
-    }
+	/**
+	 * Gets the temp address2.
+	 *
+	 * @return the temp address2
+	 */
+	public Address getTempAddress2() {
+		return tempAddress2;
+	}
 
-    /**
-     * Sets the temp address2.
-     *
-     * @param tempAddress2 the new temp address2
-     */
-    public void setTempAddress2(final Address tempAddress2) {
-        this.tempAddress2 = tempAddress2;
-    }
+	/**
+	 * Sets the temp address2.
+	 *
+	 * @param tempAddress2 the new temp address2
+	 */
+	public void setTempAddress2(final Address tempAddress2) {
+		this.tempAddress2 = tempAddress2;
+	}
 
-    /**
-     * Gets the permanent address1.
-     *
-     * @return the permanent address1
-     */
-    public Address getPermanentAddress1() {
-        return permanentAddress1;
-    }
+	/**
+	 * Gets the permanent address1.
+	 *
+	 * @return the permanent address1
+	 */
+	public Address getPermanentAddress1() {
+		return permanentAddress1;
+	}
 
-    /**
-     * Sets the permanent address1.
-     *
-     * @param permanentAddress1 the new permanent address1
-     */
-    public void setPermanentAddress1(final Address permanentAddress1) {
-        this.permanentAddress1 = permanentAddress1;
-    }
+	/**
+	 * Sets the permanent address1.
+	 *
+	 * @param permanentAddress1 the new permanent address1
+	 */
+	public void setPermanentAddress1(final Address permanentAddress1) {
+		this.permanentAddress1 = permanentAddress1;
+	}
 
-    /**
-     * Gets the permanent address2.
-     *
-     * @return the permanent address2
-     */
-    public Address getPermanentAddress2() {
-        return permanentAddress2;
-    }
+	/**
+	 * Gets the permanent address2.
+	 *
+	 * @return the permanent address2
+	 */
+	public Address getPermanentAddress2() {
+		return permanentAddress2;
+	}
 
-    /**
-     * Sets the permanent address2.
-     *
-     * @param permanentAddress2 the new permanent address2
-     */
-    public void setPermanentAddress2(final Address permanentAddress2) {
-        this.permanentAddress2 = permanentAddress2;
-    }
+	/**
+	 * Sets the permanent address2.
+	 *
+	 * @param permanentAddress2 the new permanent address2
+	 */
+	public void setPermanentAddress2(final Address permanentAddress2) {
+		this.permanentAddress2 = permanentAddress2;
+	}
 
-    /**
-     * Gets the present address1.
-     *
-     * @return the present address1
-     */
-    public Address getPresentAddress1() {
-        return presentAddress1;
-    }
+	/**
+	 * Gets the present address1.
+	 *
+	 * @return the present address1
+	 */
+	public Address getPresentAddress1() {
+		return presentAddress1;
+	}
 
-    /**
-     * Sets the present address1.
-     *
-     * @param presentAddress1 the new present address1
-     */
-    public void setPresentAddress1(final Address presentAddress1) {
-        this.presentAddress1 = presentAddress1;
-    }
+	/**
+	 * Sets the present address1.
+	 *
+	 * @param presentAddress1 the new present address1
+	 */
+	public void setPresentAddress1(final Address presentAddress1) {
+		this.presentAddress1 = presentAddress1;
+	}
 
-    /**
-     * Gets the present address2.
-     *
-     * @return the present address2
-     */
-    public Address getPresentAddress2() {
-        return presentAddress2;
-    }
+	/**
+	 * Gets the present address2.
+	 *
+	 * @return the present address2
+	 */
+	public Address getPresentAddress2() {
+		return presentAddress2;
+	}
 
-    /**
-     * Sets the present address2.
-     *
-     * @param presentAddress2 the new present address2
-     */
-    public void setPresentAddress2(final Address presentAddress2) {
-        this.presentAddress2 = presentAddress2;
-    }
+	/**
+	 * Sets the present address2.
+	 *
+	 * @param presentAddress2 the new present address2
+	 */
+	public void setPresentAddress2(final Address presentAddress2) {
+		this.presentAddress2 = presentAddress2;
+	}
 
-    /**
-     * Gets the office address1.
-     *
-     * @return the office address1
-     */
-    public Address getOfficeAddress1() {
-        return officeAddress1;
-    }
+	/**
+	 * Gets the office address1.
+	 *
+	 * @return the office address1
+	 */
+	public Address getOfficeAddress1() {
+		return officeAddress1;
+	}
 
-    /**
-     * Sets the office address1.
-     *
-     * @param officeAddress1 the new office address1
-     */
-    public void setOfficeAddress1(final Address officeAddress1) {
-        this.officeAddress1 = officeAddress1;
-    }
+	/**
+	 * Sets the office address1.
+	 *
+	 * @param officeAddress1 the new office address1
+	 */
+	public void setOfficeAddress1(final Address officeAddress1) {
+		this.officeAddress1 = officeAddress1;
+	}
 
-    /**
-     * Gets the office address2.
-     *
-     * @return the office address2
-     */
-    public Address getOfficeAddress2() {
-        return officeAddress2;
-    }
+	/**
+	 * Gets the office address2.
+	 *
+	 * @return the office address2
+	 */
+	public Address getOfficeAddress2() {
+		return officeAddress2;
+	}
 
-    /**
-     * Sets the office address2.
-     *
-     * @param officeAddress2 the new office address2
-     */
-    public void setOfficeAddress2(final Address officeAddress2) {
-        this.officeAddress2 = officeAddress2;
-    }
+	/**
+	 * Sets the office address2.
+	 *
+	 * @param officeAddress2 the new office address2
+	 */
+	public void setOfficeAddress2(final Address officeAddress2) {
+		this.officeAddress2 = officeAddress2;
+	}
 
     /**
      * Gets the correspondence address.
@@ -1599,40 +1611,40 @@ public class Member extends BaseDomain implements Serializable {
     }
 
     public static MasterVO findConstituencyByAssemblyId(final Long member,
-            final Long house) {
+             final Long house) {
         return getMemberRepository().findConstituencyByAssemblyId(member,
                 house);
     }
 
     public  static MasterVO findConstituencyByCouncilDates(final Long member,final Long house,final String criteria,
             final String fromDate,final String toDate) {
-        return getMemberRepository().findConstituencyByCouncilDates(member,house,
-                criteria,fromDate,toDate);
-    }
+       return getMemberRepository().findConstituencyByCouncilDates(member,house,
+               criteria,fromDate,toDate);
+   }
 
     public static MasterVO findPartyByAssemblyId(final Long member,
             final Long house) {
-        return getMemberRepository().findPartyByAssemblyId(member,
-                house);
-    }
+       return getMemberRepository().findPartyByAssemblyId(member,
+               house);
+   }
 
-    public  static MasterVO findPartyByCouncilDates(final Long member,final Long house,final String criteria,
-            final String fromDate,final String toDate) {
-        return getMemberRepository().findPartyByCouncilDates(member,house,
-                criteria,fromDate,toDate);
-    }
-    public String getDeathHouseDismissed() {
-        return deathHouseDismissed;
-    }
-    public void setDeathHouseDismissed(String deathHouseDismissed) {
-        this.deathHouseDismissed = deathHouseDismissed;
-    }
-    public String getDeathRemarks() {
-        return deathRemarks;
-    }
-    public void setDeathRemarks(String deathRemarks) {
-        this.deathRemarks = deathRemarks;
-    }
+   public  static MasterVO findPartyByCouncilDates(final Long member,final Long house,final String criteria,
+           final String fromDate,final String toDate) {
+      return getMemberRepository().findPartyByCouncilDates(member,house,
+              criteria,fromDate,toDate);
+  }
+public String getDeathHouseDismissed() {
+	return deathHouseDismissed;
+}
+public void setDeathHouseDismissed(final String deathHouseDismissed) {
+	this.deathHouseDismissed = deathHouseDismissed;
+}
+public String getDeathRemarks() {
+	return deathRemarks;
+}
+public void setDeathRemarks(final String deathRemarks) {
+	this.deathRemarks = deathRemarks;
+}
 
 
 }
