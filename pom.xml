@@ -18,8 +18,6 @@
 		<org.springframework.security-version>3.1.0.RELEASE </org.springframework.security-version>
 		<org.aspectj-version>1.6.9</org.aspectj-version>
 		<org.slf4j-version>1.5.10</org.slf4j-version>
-		<activiti-version>5.9</activiti-version>
-		<activiti-spring-version>5.9</activiti-spring-version>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 	</properties>
 	<scm>
@@ -458,22 +456,6 @@
 			<scope>test</scope>
 		</dependency>	
 		
-		<!-- Activiti -->
-		<dependency>
-			<groupId>org.activiti</groupId>
-			<artifactId>activiti-engine</artifactId>
-			<version>${activiti-version}</version>
-		</dependency>
-		<dependency>
-			<groupId>org.activiti</groupId>
-			<artifactId>activiti-spring</artifactId>
-			<version>${activiti-spring-version}</version>
-		</dependency>
-		<dependency>
-			<groupId>org.mybatis</groupId>
-			<artifactId>mybatis</artifactId>
-			<version>3.0.1</version>
-		</dependency>
 		<!-- <dependency>
 			<groupId>org.apache.commons</groupId>
 			<artifactId>commons-email</artifactId>
@@ -561,7 +543,7 @@
 				<version>2.5</version>
 				<configuration>
 					<forkMode>once</forkMode>
-					<skipTests>true</skipTests>
+					<skipTests>false</skipTests>
 					<argLine>
 						-javaagent:"C:/mvn_repos/org/springframework/spring-instrument/3.1.0.RELEASE/spring-instrument-3.1.0.RELEASE.jar"
 					</argLine>
