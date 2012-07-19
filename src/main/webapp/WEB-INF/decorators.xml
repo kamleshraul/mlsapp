@@ -192,6 +192,11 @@
 		<pattern>/questiontype/*/edit</pattern>
 		<pattern>/questiontype/*/delete</pattern>
 		<pattern>/questiontype</pattern>
+		
+		<pattern>/question/new</pattern>
+		<pattern>/question/*/edit</pattern>
+		<pattern>/question/*/delete</pattern>
+		<pattern>/question</pattern>
 	</decorator>
 	<decorator name="mnu_form" page="mnu_form.jsp">
 		<pattern>/menu</pattern>

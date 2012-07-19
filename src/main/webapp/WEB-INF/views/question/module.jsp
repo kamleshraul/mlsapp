@@ -22,27 +22,27 @@
 				}
 			});			
 			$('#list_tab').click(function(){
-				showList();
+				showQuestionList();
 			});	
 			$('#details_tab').click(function(){
-				details($('#key').val());
+				editQuestion($('#key').val());
 			});
 							
 			$(document).keydown(function (e){
 				if(e.which==78 && e.ctrlKey){
-					newRecord();
+					newQuestion();
 				}
 				if(e.which==83 && e.ctrlKey){
 					$('#submit').trigger('click');
 				}
 				if(e.which==76 && e.ctrlKey){
-					showList();
+					showQuestionList();
 				}
 				if(e.which==79 && e.ctrlKey){
-					editRecord($('#key').val());
+					editQuestion($('#key').val());
 				}
 				if(e.which==8 && e.ctrlKey){
-					deleteRecord($('#key').val());
+					deleteQuestion($('#key').val());
 				}
 				
 				if(e.keyCode == 38 || e.keyCode == 40){
@@ -51,27 +51,32 @@
 			});
 			//houseType is passed so as to appropriately populate select assembly/council select box
 			//showTabByIdAndUrl('list_tab','member/list?houseType='+$('#houseType').val());	
-			showList();	
+			showQuestionList();	
 		});
 				
-		function showList() {
-			//houseType is passed so as to appropriately populate select assembly/council select box			
-			showTabByIdAndUrl('list_tab','question/list?houseType='+$('#houseType').val()+'&questionType='+$("#questionType").val());								
+		function showQuestionList() {
+			//houseType is passed so as to appropriately populate select assembly/council select box
+			var sessionYear=$("#sessionYear").val();
+			if(sessionYear==""){						
+				showTabByIdAndUrl('list_tab','question/list?houseType='+$('#houseType').val()+'&questionType='+$("#questionType").val());
+			}else{
+				showTabByIdAndUrl('list_tab','question/list?houseType='+$('#houseType').val()+'&questionType='+$("#questionType").val()+'&sessionYear='+$("#sessionYear").val()+'&sessionType='+$("#sessionType").val());				
+			}							
 		}	
-		function newRecord() {
+		function newQuestion() {
 			//here house parameter will be used to add house member role association i.e default role and so need to be present in new.jsp/edit.jsp
 			//also housetype is needed to load proper background image
 			showTabByIdAndUrl('details_tab','question/new?'+$("#gridURLParams").val());
 			$("#key").val("");			
-			$("#cancelFn").val("newRecord");
+			$("#cancelFn").val("newQuestion");
 		}
-		function editRecord(row) {			
+		function editQuestion(row) {			
 			var row=$('#key').val();
 			if(row==null||row==''){
 				$.prompt($('#selectRowFirstMessage').val());
 				return false;
 			}
-			$("#cancelFn").val("editRecord");
+			$("#cancelFn").val("editQuestion");
 			showTabByIdAndUrl('details_tab','question/'+row+'/edit?'+$("#gridURLParams").val());			
 		}	
 
@@ -81,7 +86,7 @@
 			showTabByIdAndUrl('details_tab', 'question/'+rowid+'/edit?'+$("#gridURLParams").val());
 		}			
 		
-		function deleteRecord(row) {
+		function deleteQuestion(row) {
 			if(row == null || row == ''){
 				$.prompt($('#selectRowFirstMessage').val());		
 				return;
@@ -91,7 +96,7 @@
 					buttons: {Ok:true, Cancel:false}, callback: function(v){
 			        if(v){
 				        $.delete_('question/'+row+'/delete', null, function(data, textStatus, XMLHttpRequest) {
-					    showList();
+					    showQuestionList();
 				        });
 			        }
 				}});

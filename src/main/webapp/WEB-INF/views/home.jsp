@@ -21,9 +21,9 @@
 		<!-- Multiselect -->				
 		<script type="text/javascript" src="./resources/js/jquery.multiselect.js"></script>
 
-		<script type="text/javascript" src="./resources/js/common.js?v=1234"></script> 
+		<script type="text/javascript" src="./resources/js/common.js?v=1367"></script> 
 		 <!-- WYSIWYG Editor --> 
-		<script type="text/javascript" src="./resources/js/template/jquery.wysiwyg.js"></script> 
+		<script type="text/javascript" src="./resources/js/jquery.wysiwyg.js?q=1234"></script> 
 		<link rel="stylesheet" type="text/css" media="all" href="./resources/css/jquery.multiselect.css" />
 		
 		 <!-- Style switcher --> 
@@ -33,9 +33,10 @@
 		<script type="text/javascript" src="./resources/js/jquery.fancybox-thumbs.js"></script>
 		<script type="text/javascript" src="./resources/js/jquery.fancybox-buttons.js"></script>
 		<script type="text/javascript" src="./resources/js/template/stylesheetToggle.js"></script>
+	    <script type="text/javascript" src="./resources/js/jquery.fcbkcomplete.js?q=123"></script>
 		
 		<link rel="stylesheet" type="text/css" media="all" href="./resources/css/template/reset.css" />
-		<link rel="stylesheet" type="text/css" media="all" href="./resources/css/template/blue.css" />
+		<link rel="stylesheet" type="text/css" media="all" href="./resources/css/template/blue.css?q=1259" />
 		<link rel="stylesheet" rel="stylesheet" href="./resources/css/ui.jqgrid.css"  />
 		<link rel="stylesheet" rel="stylesheet" href="./resources/css/jquery-impromptu.css"  />
 		<link rel="stylesheet" rel="stylesheet" href="./resources/css/cupertino/jquery-ui-1.8.16.custom.css"  />
@@ -45,6 +46,7 @@
 		<link rel="stylesheet" type="text/css" media="screen" href="./resources/css/jquery.fancybox-buttons.css" />
 		<link rel="stylesheet" type="text/css" media="screen" href="./resources/css/jquery.fancybox-thumbs.css" />
 		<link rel="stylesheet" type="text/css" media="screen" href="./resources/css/jquery.fancybox.css" />
+		<link rel="stylesheet" type="text/css" media="screen" href="./resources/css/jquery.wysiwyg.css?q=1327" />
 		
 		
 		

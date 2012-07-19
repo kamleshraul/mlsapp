@@ -71,13 +71,13 @@
 				}
 			});							
 			$('#new_record').click(function(){
-				newRecord();
+				newQuestion();
 			});
 			$('#edit_record').click(function(){
-				editRecord($('#key').val());
+				editQuestion($('#key').val());
 			});
 			$("#delete_record").click(function() {
-				deleteRecord($('#key').val());
+				deleteQuestion($('#key').val());
 			});					
 		});
 		function rowDblClickHandler(rowid, iRow, iCol, e) {
@@ -114,8 +114,11 @@
 			<a href="#" id="select_session_year" class="butSim">
 				<spring:message code="question.sessionyear" text="Year"/>
 			</a>
-			<input name="selectedSessionYear" id="selectedSessionYear" style="width:50px;height: 25px;" type="text" class="integer" value="${sessionYear}">				
-			 |			
+			<select name="selectedSessionYear" id="selectedSessionYear" style="width:100px;height: 25px;">				
+			<c:forEach var="i" items="${years}">
+			<option value="${i}" ><c:out value="${i}"></c:out></option>				
+			</c:forEach> 
+			</select> |			
 			<a href="#" id="select_sessionType" class="butSim">
 				<spring:message code="question.sessionType" text="Session Type"/>
 			</a>

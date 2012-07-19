@@ -42,6 +42,20 @@ function initControls(){
 		}
 	});
 	$(':input:visible:not([readonly]):first').focus();
+	$('.wysiwyg').wysiwyg({
+		resizeOptions: true,
+			controls:{
+			strikeThrough: { visible: true },
+			underline: { visible: true },
+			subscript: { visible: true },
+			superscript: { visible: true },
+			insertOrderedList  : { visible : true},
+			increaseFontSize:{visible:true},
+			decreaseFontSize:{visible:true},
+			highlight: {visible:true},
+			
+		}
+	});
 	
 	
 };

@@ -104,6 +104,7 @@
 			}
 		});
 	}
+
 	function loadSession(){
 		$.get('ref/session/'+$("#houseType").val()+'/'+$("#sessionYear").val()+'/'+$("#sessionType").val(),function(data){
 			$("#session").val(data.id);
@@ -117,7 +118,7 @@
 	function extractLast( term ) {
 		return split( term ).pop();
 	}	
-	var controlName=$(".autosuggestmultiple").attr("id");	
+	var controlName=$(".autosuggestmultiple").attr("id");		
 	$(document).ready(function(){
 		$("#group").change(function(){
 			loadMinistriesDepartmentsSubDeptAnsweringDates($(this).val());
@@ -146,7 +147,6 @@
 		//removing houseType options on the basis of houseTypeFromRole value.
 		var houseType=$("#houseTypeFromRole").val();
 		$("#houseTypesMaster").hide();
-		//logic is we want to remove upperhouse option when houseType is lowerhouse and vice versa.
 		if(houseType=="lowerhouse"){
 			$("#houseTypesMaster").val("upperhouse");
 			var id=$("#houseTypesMaster option:selected").text();
@@ -155,7 +155,7 @@
 			$("#houseTypesMaster").val("lowerhouse");
 			var id=$("#houseTypesMaster option:selected").text();
 			$("#houseType option[value='"+id+"']").remove();
-		}	
+		}			
 		//autosuggest		
 		$( ".autosuggest" ).autocomplete({
 			minLength:3,			
@@ -170,7 +170,6 @@
 		$("select[name='"+controlName+"']").hide();			
 		$( ".autosuggestmultiple" ).change(function(){
 			var value=$(this).val();
-			console.log(value);
 			$("select[name='"+controlName+"'] option:selected").each(function(){
 				if(value.indexOf($(this).attr("class"))==-1){
 					$(this).remove();
@@ -223,7 +222,13 @@
 			}
 		});	
 		//adding please select option in answering dates
-		$("#answeringDate").prepend("<option value='' selected='selected'>----"+$("#pleaseSelectMessage").val()+"----</option>");
+		var answeringDate=$("#selectedAnsweringDate").val();
+		if(answeringDate!=''){
+		$("#answeringDate").prepend("<option value=''>----"+$("#pleaseSelectMessage").val()+"----</option>");
+		$("#answeringDate").val(answeringDate);
+		}else{
+		$("#answeringDate").prepend("<option value='' selected='selected'>----"+$("#pleaseSelectMessage").val()+"----</option>");			
+		}
 		//hiding subDepartments
 		if($("#subDepartment").val()==null){
 		$("#subDepartment").prev().hide();
@@ -234,19 +239,19 @@
 			$("#subDepartment").hide();	
 			$("#department").prev().hide();
 			$("#department").hide();
-		}
+		}			
 	});
 	</script>
 </head>
 
 <body>
 <div class="fields clearfix watermark" style="background-image: url('/els/resources/images/${houseType}.jpg');">
-<form:form action="question" method="POST" modelAttribute="domain">
+<form:form action="question" method="PUT" modelAttribute="domain">
 	<%@ include file="/common/info.jsp" %>
-	<h2><spring:message code="question.new.heading" text="Enter Question Details"/>		
+	<h2><spring:message code="question.edit.heading" text="Question No."/> ${number}	
 	</h2>
-	<form:errors path="version" cssClass="validationError"/>	
-		
+	<form:errors path="version" cssClass="validationError"/>
+	
 	<p>
 		<label class="small"><spring:message code="question.houseType" text="House Type"/></label>
 		<form:select path="houseType" items="${houseTypes}" itemValue="id" itemLabel="name" cssClass="sSelect"/>
@@ -256,7 +261,7 @@
 		<option value="${i.type}"><c:out value="${i.id}"></c:out></option>
 		</c:forEach>
 		</select>
-	</p>	
+	</p>
 	
 	<p>
 		<label class="small"><spring:message code="question.year" text="Year"/></label>
@@ -308,7 +313,6 @@
 		<form:input path="submissionDate" cssClass="datemask sText"/>
 		<form:errors path="submissionDate" cssClass="validationError"/>
 	</p>
-		
 	
 	<p>
 		<label class="small"><spring:message code="question.primaryMember" text="Primary Member"/></label>
@@ -322,10 +326,10 @@
 	<p>
 		<label class="small"><spring:message code="question.supportingMembers" text="Supporting Members"/></label>
 		<textarea id="supportingMembers"  class="autosuggestmultiple" rows="2" cols="50">${supportingMembersName}</textarea>
-		<c:if test="${!(empty supporingMembers)}">
+		<c:if test="${!(empty supportingMembers)}">
 		<select  name="supportingMembers" multiple="multiple">
 		<c:forEach items="${supportingMembers}" var="i">
-		<option value="${i.id}" class="${i.getFullnameLastNameFirst()}"></option>
+		<option value="${i.id}" class="${i.getFullnameLastNameFirst()}" selected="selected"></option>
 		</c:forEach>		
 		</select>
 		</c:if>
@@ -376,13 +380,20 @@
 	
 	<p>
 		<label class="small"><spring:message code="question.priority" text="Priority"/></label>
-		<form:select path="priority" cssClass="sSelect">
+		<select id="priority" class="sSelect" name="priority">
 		<c:forEach var="i" begin="1" end="${priority}" step="1">
-		<option value="${i}"><c:out value="${i}"></c:out></option>
+		<c:choose>
+		<c:when test="${selectedPriority==i}">
+	    <option value="${i}" selected="selected"><c:out value="${i}"></c:out></option>		
+		</c:when>
+		<c:otherwise>
+		<option value="${i}"><c:out value="${i}"></c:out></option>		
+		</c:otherwise>
+		</c:choose>
 		</c:forEach>
-		</form:select>
+		</select>
 		<form:errors path="priority" cssClass="validationError"/>	
-	</p>	
+	</p>
 	 <div class="fields">
 		<h2></h2>
 		<p class="tright">
@@ -394,7 +405,11 @@
 	<form:hidden path="id"/>
 	<form:hidden path="locale"/>
 	<form:hidden path="submissionDate" />	
+	<input type="hidden" id="primaryMemberId" name="primaryMemberId" value="${primaryMemberId}"/>
+	<input type="hidden" id="supportingMembersId" name="supportingMembersId" value="${supportingMembersId}"/>
+	<input type="hidden" id="selectedAnsweringDate" name="selectedAnsweringDate" value="${selectedAnsweringDate}"/>	
 	<input id="pleaseSelectMessage" value="<spring:message code='please.select' text='Please Select'/>" type="hidden">
+		
 </form:form>
 </div>
 </body>
