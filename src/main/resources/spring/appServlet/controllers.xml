@@ -74,6 +74,7 @@
 			<list>
 				<bean
 					class="org.springframework.web.servlet.view.json.MappingJacksonJsonView">
+					<property name="prefixJson" value="false" />					
 				</bean>
 			</list>
 		</property>
