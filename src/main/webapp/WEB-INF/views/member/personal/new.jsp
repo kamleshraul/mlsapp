@@ -494,8 +494,8 @@
 		<form:errors path="condolenceDate" cssClass="validationError"/>	
 	</p>	
 	<p>
-		<label class="labelcentered"><spring:message code="member.personal.deathHouseDismissed" text="House Dismissed"/></label>
-		<form:textarea path="deathHouseDismissed" cssClass="sTextarea"></form:textarea>
+		<label class="small"><spring:message code="member.personal.deathHouseDismissed" text="House Dismissed"/></label>
+		<form:textarea path="deathHouseDismissed" cssClass="wysiwyg"></form:textarea>
 		<form:errors path="deathHouseDismissed" cssClass="validationError"/>	
 	</p>
 	<p>
