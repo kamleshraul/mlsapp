@@ -182,6 +182,7 @@ String.prototype.trim = function () {
                 				}
                 			})
                 			.click(function(){
+                				alert("All " + initElem.attr('id') + " Checked");
                 				$.each($('#'+initElem.attr('id')).sexyselect('elements'), function (idx, item) {
                 					 $('#'+initElem.attr('id')).sexyselect('selectOption', $(this), true);			      
                 				 });			 
@@ -230,6 +231,7 @@ String.prototype.trim = function () {
                 				}
                 			})
                 			.click(function(){
+                				alert("All " + initElem.attr('id') + " Unchecked");
                 				$.each($('#'+initElem.attr('id')).sexyselect('elements'), function (idx, item) {
                 					 $('#'+initElem.attr('id')).sexyselect('selectOption', $(this), false);			      
                 				 });			 
@@ -717,7 +719,7 @@ String.prototype.trim = function () {
                     stop: function(event, ui)
                     {   
                         ui.item.find('input').removeAttr('rel');
-                    }
+                    },
                    
                 });
                 if(self.options.connectedList != null)

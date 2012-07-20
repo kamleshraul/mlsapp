@@ -55,8 +55,8 @@ function initControls(){
 			highlight: {visible:true}			
 		}
 	});	
-	$("select[multiple='multiple']").parents("p").css("position","relative");
-	$('.mSexySelect,select[multiple="multiple"]').sexyselect({			
+	$(".multiselect").parents("p").css("position","relative");
+	$('.multiselect').sexyselect({			
 		showTitle: false,			
 		allowFilter: true,			
 		allowDelete: false,
