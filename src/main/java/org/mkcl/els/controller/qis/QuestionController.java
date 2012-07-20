@@ -357,7 +357,9 @@ public class QuestionController extends GenericController<Question>{
             model.addAttribute("selectedAnsweringDate", FormaterUtil.getDateFormatter(ApplicationConstants.SERVER_DATEFORMAT, locale).format(domain.getAnsweringDate()));
         }
         //initializing number to be displayed as title
+        if(domain.getNumber()!=null){
         model.addAttribute("number",FormaterUtil.getNumberFormatterNoGrouping(locale).format(domain.getNumber()));
+        }
     }
 
     @Override
