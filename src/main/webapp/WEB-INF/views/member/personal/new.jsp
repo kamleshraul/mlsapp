@@ -474,12 +474,12 @@
 	</c:if>
 	</div>		
 	<p>
-		<label class="labeltop"><spring:message code="member.personal.languages" text="Language Proficiency"/></label>
+		<label class="small"><spring:message code="member.personal.languages" text="Language Proficiency"/></label>
 		<form:select path="languages" items="${languages}" itemValue="id" itemLabel="name"  multiple="true" size="5" cssClass="sSelect" cssStyle="height:100px;margin-top:5px;"/>
 		<form:errors path="languages" cssClass="validationError"/>
 	</p>	
 	<p>
-		<label class="labeltop"><spring:message code="member.personal.professions" text="Profession"/></label>
+		<label class="small"><spring:message code="member.personal.professions" text="Profession"/></label>
 		<form:select path="professions" items="${professions}" itemValue="id" itemLabel="name"  multiple="true" size="5" cssClass="sSelect" cssStyle="height:100px;margin-top:5px;"/>
 		<form:errors path="professions" cssClass="validationError"/>
 	</p>

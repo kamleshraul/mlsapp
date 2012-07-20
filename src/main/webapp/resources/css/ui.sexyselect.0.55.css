@@ -4,9 +4,9 @@
     line-height:12px;
     font-size:12px;
     cursor:pointer;
-    color:#fff;
+    color:#707070;
     padding-left:18px;
-   /* background-image: url(../images/checkbox_set-1.png);*/
+    background-image: url(../images/checkbox_set-1.png);
     background-repeat:no-repeat;
     background-color:transparent;
 }
@@ -19,7 +19,7 @@
     cursor:default;
     color:#707070;
     padding-left:18px;
-    /*background-image: url(../images/checkbox_set-1.png);*/
+    background-image: url(../images/checkbox_set-1.png);
     background-repeat:no-repeat;
     background-color:transparent;
 }
@@ -69,7 +69,7 @@
 
 
 
-/*.ui-sexyselect-modal-title-icon { background: url(../images/alert.png) no-repeat 0 0; display:inline-block; width:16px; height:16px;opacity:0.8;  }*/
+.ui-sexyselect-modal-title-icon { background: url(../images/alert.png) no-repeat 0 0; display:inline-block; width:16px; height:16px;opacity:0.8;  }
 .ui-sexyselect-styleize-label
 {
     height:12px;
@@ -77,4 +77,29 @@
     font-size:12px;
     cursor:pointer;
     color:#707070;
+}
+
+div.ui-sexyselect-wrapper {
+	top: -20px !important;
+	left: 165px !important;	
+} 
+
+div.ui-sexyselect-item-holder {
+	height: 200px !important;
+}
+
+ul.ui-sexyselect-listholder {
+	background: none !important;
+}
+
+li.ui-sexyselect-listitem {
+	float: none !important;
+}
+
+.ui-sexyselect-checkbox {
+	width: 20px;
+}
+
+.ui-sexyselect-radiobox {
+	width: 20px;
 }

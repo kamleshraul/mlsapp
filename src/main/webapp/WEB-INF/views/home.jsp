@@ -15,13 +15,13 @@
 		<script type="text/javascript" src="./resources/js/jquery/jquery.iframe-transport.js"></script>
 		<script type="text/javascript" src="./resources/js/jquery/jquery.fileupload.js"></script>
 		<script type="text/javascript" src="./resources/js/jquery/jquery.maskedinput.js"></script>	
-		<script type="text/javascript" src="./resources/js/jquery/jquery.sexyselect.min.0.55.js"></script>
+		<script type="text/javascript" src="./resources/js/ui.sexyselect.0.6.js?v=2000"></script>
 		<script type="text/javascript" src="./resources/js/jquery/blockUI.js"></script>				
 		<script type="text/javascript" src="./resources/js/autoNumeric-1.5.4.js"></script>
 		<!-- Multiselect -->				
 		<script type="text/javascript" src="./resources/js/jquery.multiselect.js"></script>
 
-		<script type="text/javascript" src="./resources/js/common.js?v=1367"></script> 
+		<script type="text/javascript" src="./resources/js/common.js?v=2003"></script> 
 		 <!-- WYSIWYG Editor --> 
 		<script type="text/javascript" src="./resources/js/jquery.wysiwyg.js?q=1234"></script> 
 		<link rel="stylesheet" type="text/css" media="all" href="./resources/css/jquery.multiselect.css" />
@@ -42,7 +42,7 @@
 		<link rel="stylesheet" rel="stylesheet" href="./resources/css/cupertino/jquery-ui-1.8.16.custom.css"  />
 		<!-- comment extra.css for css validation -->
 		<link rel="stylesheet" type="text/css" media="all" href="./resources/css/template/extra.css" />
-		<link rel="stylesheet" rel="stylesheet" href="./resources/css/jquery.sexyselect.0.55.css"  />
+		<link rel="stylesheet" rel="stylesheet" href="./resources/css/ui.sexyselect.0.55.css?v=1234"  />
 		<link rel="stylesheet" type="text/css" media="screen" href="./resources/css/jquery.fancybox-buttons.css" />
 		<link rel="stylesheet" type="text/css" media="screen" href="./resources/css/jquery.fancybox-thumbs.css" />
 		<link rel="stylesheet" type="text/css" media="screen" href="./resources/css/jquery.fancybox.css" />

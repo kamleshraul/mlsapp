@@ -52,12 +52,18 @@ function initControls(){
 			insertOrderedList  : { visible : true},
 			increaseFontSize:{visible:true},
 			decreaseFontSize:{visible:true},
-			highlight: {visible:true},
-			
+			highlight: {visible:true}			
 		}
-	});
-	
-	
+	});	
+	$("select[multiple='multiple']").parents("p").css("position","relative");
+	$('.mSexySelect,select[multiple="multiple"]').sexyselect({			
+		showTitle: false,			
+		allowFilter: true,			
+		allowDelete: false,
+		selectionMode: 'multiple',	
+		defaultCheckAllText: $('#defaultCheckAllText').val(),
+		defaultUnCheckAllText: $('#defaultUnCheckAllText').val()
+	});	
 };
 function resize_grid(){
 	$('#grid').fluidGrid({base:'#grid_container', offset:-0});
