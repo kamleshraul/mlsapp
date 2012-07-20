@@ -38,7 +38,7 @@ import org.springframework.beans.factory.annotation.Configurable;
 @Configurable
 @Entity
 @Table(name="members_ministries")
-@JsonIgnoreProperties({"member", "designation", "memberDepartments", "house"})
+@JsonIgnoreProperties({"member", "memberDepartments", "house"})
 public class MemberMinister extends BaseDomain implements Serializable {
 
     /** The Constant serialVersionUID. */
