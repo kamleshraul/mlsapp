@@ -38,7 +38,7 @@ public class ApplicationConstants {
     public static final String UPPER_HOUSE="upperhouse";
 
     /** The Constant BOTH_HOUSE. */
-    public static final String BOTH_HOUSE="both";
+    public static final String BOTH_HOUSE="bothhouse";
 
     /** The Constant DEFAULT_HOUSE. */
     public static final String DEFAULT_HOUSE="defaulthouse";
