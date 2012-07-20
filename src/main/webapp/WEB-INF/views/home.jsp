@@ -7,46 +7,46 @@
 		<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
 		
 		 <!-- Jquery directly from google servers--> 
-		<script type="text/javascript" src="./resources/js/jquery-1.6.2.min.js" ></script>
-		<script type="text/javascript" src="./resources/js/jquery-ui-1.8.15.custom.min.js"></script> 
-		<script type="text/javascript" src="./resources/js/i18n/grid.locale-${locale}.js"></script>
-		<script type="text/javascript" src="./resources/js/jquery.jqGrid.min.js"></script>
-		<script type="text/javascript" src="./resources/js/jquery/jquery-impromptu.3.2.min.js"></script>
-		<script type="text/javascript" src="./resources/js/jquery/jquery.iframe-transport.js"></script>
-		<script type="text/javascript" src="./resources/js/jquery/jquery.fileupload.js"></script>
-		<script type="text/javascript" src="./resources/js/jquery/jquery.maskedinput.js"></script>	
-		<script type="text/javascript" src="./resources/js/ui.sexyselect.0.6.js?v=2000"></script>
-		<script type="text/javascript" src="./resources/js/jquery/blockUI.js"></script>				
-		<script type="text/javascript" src="./resources/js/autoNumeric-1.5.4.js"></script>
+		<script type="text/javascript" src="./resources/js/jquery-1.6.2.min.js?v=1" ></script>
+		<script type="text/javascript" src="./resources/js/jquery-ui-1.8.15.custom.min.js?v=1"></script> 
+		<script type="text/javascript" src="./resources/js/i18n/grid.locale-${locale}.js?v=1"></script>
+		<script type="text/javascript" src="./resources/js/jquery.jqGrid.min.js?v=1"></script>
+		<script type="text/javascript" src="./resources/js/jquery/jquery-impromptu.3.2.min.js?v=1"></script>
+		<script type="text/javascript" src="./resources/js/jquery/jquery.iframe-transport.js?v=1"></script>
+		<script type="text/javascript" src="./resources/js/jquery/jquery.fileupload.js?v=1"></script>
+		<script type="text/javascript" src="./resources/js/jquery/jquery.maskedinput.js?v=1"></script>	
+		<script type="text/javascript" src="./resources/js/ui.sexyselect.0.6.js?v=1"></script>
+		<script type="text/javascript" src="./resources/js/jquery/blockUI.js?v=1"></script>				
+		<script type="text/javascript" src="./resources/js/autoNumeric-1.5.4.js?v=1"></script>
 		<!-- Multiselect -->				
-		<script type="text/javascript" src="./resources/js/jquery.multiselect.js"></script>
+		<script type="text/javascript" src="./resources/js/jquery.multiselect.js?v=1"></script>
 
-		<script type="text/javascript" src="./resources/js/common.js?v=2003"></script> 
+		<script type="text/javascript" src="./resources/js/common.js?v=2004?v=1"></script> 
 		 <!-- WYSIWYG Editor --> 
-		<script type="text/javascript" src="./resources/js/jquery.wysiwyg.js?q=1234"></script> 
-		<link rel="stylesheet" type="text/css" media="all" href="./resources/css/jquery.multiselect.css" />
+		<script type="text/javascript" src="./resources/js/jquery.wysiwyg.js?v=1"></script> 
+		<link rel="stylesheet" type="text/css" media="all" href="./resources/css/jquery.multiselect.css?v=1" />
 		
 		 <!-- Style switcher --> 
-		<script type="text/javascript" src="./resources/js/template/stylesheetToggle.js"></script>
+		<script type="text/javascript" src="./resources/js/template/stylesheetToggle.js?v=1"></script>
 		
-		<script type="text/javascript" src="./resources/js/jquery.fancybox.pack.js"></script>
-		<script type="text/javascript" src="./resources/js/jquery.fancybox-thumbs.js"></script>
-		<script type="text/javascript" src="./resources/js/jquery.fancybox-buttons.js"></script>
-		<script type="text/javascript" src="./resources/js/template/stylesheetToggle.js"></script>
-	    <script type="text/javascript" src="./resources/js/jquery.fcbkcomplete.js?q=123"></script>
+		<script type="text/javascript" src="./resources/js/jquery.fancybox.pack.js?v=1"></script>
+		<script type="text/javascript" src="./resources/js/jquery.fancybox-thumbs.js?v=1"></script>
+		<script type="text/javascript" src="./resources/js/jquery.fancybox-buttons.js?v=1"></script>
+		<script type="text/javascript" src="./resources/js/template/stylesheetToggle.js?v=1"></script>
+	    <script type="text/javascript" src="./resources/js/jquery.fcbkcomplete.js?q=123?v=1"></script>
 		
-		<link rel="stylesheet" type="text/css" media="all" href="./resources/css/template/reset.css" />
-		<link rel="stylesheet" type="text/css" media="all" href="./resources/css/template/blue.css?q=1259" />
-		<link rel="stylesheet" rel="stylesheet" href="./resources/css/ui.jqgrid.css"  />
-		<link rel="stylesheet" rel="stylesheet" href="./resources/css/jquery-impromptu.css"  />
-		<link rel="stylesheet" rel="stylesheet" href="./resources/css/cupertino/jquery-ui-1.8.16.custom.css"  />
+		<link rel="stylesheet" type="text/css" media="all" href="./resources/css/template/reset.css?v=1" />
+		<link rel="stylesheet" type="text/css" media="all" href="./resources/css/template/blue.css?v=1" />
+		<link rel="stylesheet" rel="stylesheet" href="./resources/css/ui.jqgrid.css?v=1"  />
+		<link rel="stylesheet" rel="stylesheet" href="./resources/css/jquery-impromptu.css?v=1"  />
+		<link rel="stylesheet" rel="stylesheet" href="./resources/css/cupertino/jquery-ui-1.8.16.custom.css?v=1"  />
 		<!-- comment extra.css for css validation -->
-		<link rel="stylesheet" type="text/css" media="all" href="./resources/css/template/extra.css" />
-		<link rel="stylesheet" rel="stylesheet" href="./resources/css/ui.sexyselect.0.55.css?v=1234"  />
-		<link rel="stylesheet" type="text/css" media="screen" href="./resources/css/jquery.fancybox-buttons.css" />
-		<link rel="stylesheet" type="text/css" media="screen" href="./resources/css/jquery.fancybox-thumbs.css" />
-		<link rel="stylesheet" type="text/css" media="screen" href="./resources/css/jquery.fancybox.css" />
-		<link rel="stylesheet" type="text/css" media="screen" href="./resources/css/jquery.wysiwyg.css?q=1327" />
+		<link rel="stylesheet" type="text/css" media="all" href="./resources/css/template/extra.css?v=1" />
+		<link rel="stylesheet" rel="stylesheet" href="./resources/css/ui.sexyselect.0.55.css?v=1"  />
+		<link rel="stylesheet" type="text/css" media="screen" href="./resources/css/jquery.fancybox-buttons.css?v=1" />
+		<link rel="stylesheet" type="text/css" media="screen" href="./resources/css/jquery.fancybox-thumbs.css?v=1" />
+		<link rel="stylesheet" type="text/css" media="screen" href="./resources/css/jquery.fancybox.css?v=1" />
+		<link rel="stylesheet" type="text/css" media="screen" href="./resources/css/jquery.wysiwyg.css?v=1" />
 		
 		
 		

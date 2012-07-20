@@ -839,8 +839,8 @@
 		</p>
 		<p>
 			<label class="small"><spring:message code="generic.fax" text="Fax"/></label>
-			<form:input path="contact.fax11" cssClass="sText"/>
-			<form:errors path="contact.fax11" cssClass="validationError"/>	
+			<form:input path="contact.fax10" cssClass="sText"/>
+			<form:errors path="contact.fax10" cssClass="validationError"/>	
 		</p>
 	</fieldset>
    </div>
@@ -888,8 +888,8 @@
 		</p>
 		<p>
 			<label class="small"><spring:message code="generic.fax" text="Fax"/></label>
-			<form:input path="contact.fax11" cssClass="sText"/>
-			<form:errors path="contact.fax11" cssClass="validationError"/>	
+			<form:input path="contact.fax10" cssClass="sText"/>
+			<form:errors path="contact.fax10" cssClass="validationError"/>	
 		</p>
 	</fieldset>
    </div>

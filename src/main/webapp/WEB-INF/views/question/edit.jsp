@@ -158,7 +158,7 @@
 		}			
 		//autosuggest		
 		$( ".autosuggest" ).autocomplete({
-			minLength:3,			
+			minLength:1,			
 			source:'ref/members?session='+$("#session").val(),
 			select:function(event,ui){
 			var text="<input type='hidden' name='"+$(this).attr("id")+"' value='"+ui.item.id+"'>";

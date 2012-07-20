@@ -117,7 +117,8 @@
 	function extractLast( term ) {
 		return split( term ).pop();
 	}	
-	var controlName=$(".autosuggestmultiple").attr("id");	
+	var controlName=$(".autosuggestmultiple").attr("id");
+	var primaryMemberControlName=$(".autosuggest").attr("id");	
 	$(document).ready(function(){
 		$("#group").change(function(){
 			loadMinistriesDepartmentsSubDeptAnsweringDates($(this).val());
@@ -167,6 +168,26 @@
 			$(this).append(text);
 		}	
 		});	
+		
+		$(".autosuggest").change(function(){
+			console.log(primaryMemberControlName);
+			var value=$("[name='"+primaryMemberControlName+"']").val();
+			console.log(value);
+			if(value!=undefined){
+			$.get('ref/member/'+value+'/constituency?session='+$("#session").val(),function(data){
+				if(data!=null){
+					if(data.length>0){
+					$("#constituency").val(data.name);
+					}else{
+						$("#constituency").val("");
+					}
+				}else{
+					$("#constituency").val("");
+				}
+			});			
+			}
+		});
+		
 		$("select[name='"+controlName+"']").hide();			
 		$( ".autosuggestmultiple" ).change(function(){
 			var value=$(this).val();
@@ -179,7 +200,7 @@
 			$("select[name='"+controlName+"']").hide();				
 		});
 		$( ".autosuggestmultiple" ).autocomplete({
-			minLength:3,
+			minLength:1,
 			source: function( request, response ) {
 				$.getJSON( 'ref/members?session='+$("#session").val(), {
 					term: extractLast( request.term )
@@ -317,6 +338,11 @@
 		<input name="primaryMember" value="${primaryMember}" type="hidden">
 		</c:if>
 		<form:errors path="primaryMember" cssClass="validationError"/>	
+	</p>
+	
+	<p>
+		<label class="small"><spring:message code="question.constituency" text="Constituency"/></label>
+		<input id="constituency" class="sText" type="text"/>
 	</p>
 	
 	<p>
