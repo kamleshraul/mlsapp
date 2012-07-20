@@ -111,6 +111,10 @@
 		var stateMinister = $('#nonPortfolioDesignations').val();
 		if(designation == stateMinister){
 			$('#ministryDiv').hide();
+			$('#ministry').val("");
+			$('#ministryAssignmentDate').val('');
+			$('#ministryFromDate').val('');
+			$('#ministryToDate').val('');
 		}
 		
 		$('.designationClass').change(function(){
