@@ -550,15 +550,15 @@ public class ReferenceController extends BaseController {
         groupVO.setDepartments(departmentVOs);
         //populating subdepartments
         if(departments.size()>0){
-        List<SubDepartment> subDepartments=MemberMinister.findAssignedSubDepartments(ministries.get(0), departments.get(0), locale.toString());
-        List<MasterVO> subDepartmentVOs=new ArrayList<MasterVO>();
-        for(SubDepartment i:subDepartments){
-            MasterVO masterVO=new MasterVO();
-            masterVO.setId(i.getId());
-            masterVO.setName(i.getName());
-            subDepartmentVOs.add(masterVO);
-        }
-        groupVO.setSubDepartments(subDepartmentVOs);
+            List<SubDepartment> subDepartments=MemberMinister.findAssignedSubDepartments(ministries.get(0), departments.get(0), locale.toString());
+            List<MasterVO> subDepartmentVOs=new ArrayList<MasterVO>();
+            for(SubDepartment i:subDepartments){
+                MasterVO masterVO=new MasterVO();
+                masterVO.setId(i.getId());
+                masterVO.setName(i.getName());
+                subDepartmentVOs.add(masterVO);
+            }
+            groupVO.setSubDepartments(subDepartmentVOs);
         }
         //populating answering dates
         List<QuestionDates> dates=selectedGroup.getQuestionDates();
@@ -699,5 +699,28 @@ public class ReferenceController extends BaseController {
         return dynamicSelectVOs;
     }
 
-
+    @RequestMapping(value="/member/{memberid}/{constituency}", method=RequestMethod.GET)
+    public @ResponseBody MasterVO getMemberConstituency(
+            @PathVariable("memberid") final Long memberid,
+            final Locale locale,
+            @RequestParam("session") final Long session){
+        Session selectedSession=Session.findById(Session.class,session);
+        House selectedHouse=selectedSession.getHouse();
+        Long house=selectedHouse.getId();
+        HouseType houseType=selectedHouse.getType();
+        String sessionStartDate="";
+        String sessionEndDate="";
+        MasterVO masterVO=new MasterVO();
+        if(houseType.getType().equals(ApplicationConstants.UPPER_HOUSE)){
+            if(selectedSession.getStartDate()!=null&&selectedSession.getEndDate()!=null){
+                sessionStartDate=FormaterUtil.getDateFormatter("dd/MM/yyyy", "en_US").format(selectedSession.getStartDate());
+                sessionEndDate=FormaterUtil.getDateFormatter("dd/MM/yyyy", "en_US").format(selectedSession.getEndDate());
+                masterVO=Member.findConstituencyByCouncilDates(memberid, house,"RANGE",sessionStartDate,sessionEndDate);
+            }
+        }
+        else if(houseType.equals(ApplicationConstants.LOWER_HOUSE)){
+            masterVO=Member.findConstituencyByAssemblyId(memberid, house);
+        }
+        return masterVO;
+    }
 }

@@ -381,7 +381,7 @@ public class MemberPersonalController extends GenericController<Member> {
         FamilyMember familyMember=FamilyMember.findById(FamilyMember.class, id);
         familyMember.remove();
         return "info";
-    }   
+    }
 
     /**
      * Delete qualification.
@@ -417,8 +417,10 @@ public class MemberPersonalController extends GenericController<Member> {
     				houseMemberRoleAssociation.setToDate(house.getLastDate());
     				houseMemberRoleAssociation.setHouse(house);
     				Date currentDate=new Date();
+    				if(house.getLastDate()!=null){
     				if(house.getLastDate().after(currentDate)){
     					houseMemberRoleAssociation.setIsSitting(true);
+    				}
     				}
     				houseMemberRoleAssociation.setMember(domain);
     				houseMemberRoleAssociation.setLocale(domain.getLocale());

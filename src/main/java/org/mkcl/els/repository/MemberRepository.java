@@ -18,6 +18,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Set;
+import java.util.TreeSet;
 
 import javax.persistence.NoResultException;
 
@@ -434,12 +436,14 @@ public class MemberRepository extends BaseRepository<Member, Long>{
             memberBiographyVO.setLanguagesKnown("-");
         }else{
             Map<Integer,Language> languageMap=new HashMap<Integer, Language>();
+            Set<Integer> keys=new TreeSet<Integer>();
             for(Language i:m.getLanguages()){
                 languageMap.put(i.getPriority(),i);
+                keys.add(i.getPriority());
             }
             List<Language> sortedLanguage=new ArrayList<Language>();
-            for(Entry<Integer, Language> j:languageMap.entrySet()){
-                sortedLanguage.add(j.getValue());
+            for(Integer i:keys){
+                sortedLanguage.add(languageMap.get(i));
             }
             StringBuffer buffer=new StringBuffer();
             int size=sortedLanguage.size();
@@ -540,65 +544,65 @@ public class MemberRepository extends BaseRepository<Member, Long>{
             memberBiographyVO.setEmail(contact.getEmail1()+"<br>"+contact.getEmail2());
             memberBiographyVO.setWebsite(contact.getWebsite1()+"<br>"+contact.getWebsite2());
             if(contact.getFax1()!=null){
-                if(!contact.getFax1().isEmpty()){
-                    memberBiographyVO.setFax1(contact.getFax1());
+                if(!contact.getFax1().trim().isEmpty()){
+                    memberBiographyVO.setFax1(contact.getFax1().trim());
                 }
             }
             if(contact.getFax2()!=null){
-                if(!contact.getFax2().isEmpty()){
-                    memberBiographyVO.setFax2(contact.getFax2());
+                if(!contact.getFax2().trim().isEmpty()){
+                    memberBiographyVO.setFax2(contact.getFax2().trim());
                 }
             }
             if(contact.getFax3()!=null){
-                if(!contact.getFax3().isEmpty()){
-                    memberBiographyVO.setFax3(contact.getFax3());
+                if(!contact.getFax3().trim().isEmpty()){
+                    memberBiographyVO.setFax3(contact.getFax3().trim());
                 }
             }
             if(contact.getFax4()!=null){
-                if(!contact.getFax4().isEmpty()){
-                    memberBiographyVO.setFax4(contact.getFax4());
+                if(!contact.getFax4().trim().isEmpty()){
+                    memberBiographyVO.setFax4(contact.getFax4().trim());
                 }
             }
             if(contact.getFax5()!=null){
-                if(!contact.getFax5().isEmpty()){
-                    memberBiographyVO.setFax5(contact.getFax5());
+                if(!contact.getFax5().trim().isEmpty()){
+                    memberBiographyVO.setFax5(contact.getFax5().trim());
                 }
             }
 
             if(contact.getFax6()!=null){
-                if(!contact.getFax6().isEmpty()){
-                    memberBiographyVO.setFax6(contact.getFax6());
+                if(!contact.getFax6().trim().isEmpty()){
+                    memberBiographyVO.setFax6(contact.getFax6().trim());
                 }
             }
             if(contact.getFax7()!=null){
-                if(!contact.getFax7().isEmpty()){
-                    memberBiographyVO.setFax7(contact.getFax7());
+                if(!contact.getFax7().trim().isEmpty()){
+                    memberBiographyVO.setFax7(contact.getFax7().trim());
                 }
             }
             if(contact.getFax8()!=null){
-                if(!contact.getFax8().isEmpty()){
-                    memberBiographyVO.setFax8(contact.getFax8());
+                if(!contact.getFax8().trim().isEmpty()){
+                    memberBiographyVO.setFax8(contact.getFax8().trim());
                 }
             }
             if(contact.getFax9()!=null){
-                if(!contact.getFax9().isEmpty()){
-                    memberBiographyVO.setFax9(contact.getFax9());
+                if(!contact.getFax9().trim().isEmpty()){
+                    memberBiographyVO.setFax9(contact.getFax9().trim());
                 }
             }
             if(contact.getFax10()!=null){
-                if(!contact.getFax10().isEmpty()){
-                    memberBiographyVO.setFax10(contact.getFax10());
+                if(!contact.getFax10().trim().isEmpty()){
+                    memberBiographyVO.setFax10(contact.getFax10().trim());
                 }
             }
 
             if(contact.getFax11()!=null){
-                if(!contact.getFax11().isEmpty()){
-                    memberBiographyVO.setFax11(contact.getFax11());
+                if(!contact.getFax11().trim().isEmpty()){
+                    memberBiographyVO.setFax11(contact.getFax11().trim());
                 }
             }
             if(contact.getFax12()!=null){
-                if(!contact.getFax12().isEmpty()){
-                    memberBiographyVO.setFax12(contact.getFax12());
+                if(!contact.getFax12().trim().isEmpty()){
+                    memberBiographyVO.setFax12(contact.getFax12().trim());
                 }
             }
 
