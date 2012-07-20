@@ -95,7 +95,9 @@
 	</div>	
 	<form:hidden path="version" />
 	<form:hidden path="id"/>
-	<form:hidden path="locale"/>	
+	<form:hidden path="locale"/>
+	<form:hidden path="type"/>
+		
 </form:form>
 </div>	
 </body>

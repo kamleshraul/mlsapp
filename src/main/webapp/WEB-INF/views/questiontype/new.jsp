@@ -86,7 +86,8 @@
 		<label class="labelcentered"><spring:message code="questiontype.warningMessage" text="Warning Message" /></label>
 		<form:textarea cssClass="wysiwyg sTextarea" path="warningMessage" rows="3" cols="20" />
 		<form:errors path="warningMessage" id="warningMessage" cssClass="validationError" />
-	</p>		
+	</p>	
+	
 	<div class="fields">
 		<h2></h2>
 		<p class="tright">
@@ -95,7 +96,9 @@
 	</div>	
 	<form:hidden path="version" />
 	<form:hidden path="id"/>
-	<form:hidden path="locale"/>	
+	<form:hidden path="locale"/>
+	<form:hidden path="type"/>
+		
 </form:form>
 </div>	
 </body>
