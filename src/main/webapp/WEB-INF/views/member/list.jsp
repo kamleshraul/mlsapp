@@ -53,12 +53,11 @@
 				printRecord();
 			});
 			$("#assemblies").change(function(){
-				//here in case of council we need to get the last date of the selected council so that appropriate members are selected
 				$("#house").val($("#assemblies").val());
 				var oldURL=$("#grid").getGridParam("url");
-				var newURL=oldURL.split("&house=")[0]+"&house="+$("#assemblies").val();
-				$("#gridURLParams").val("house="+$("#assemblies").val());					
-				$("#grid").setGridParam({"url":newURL});
+				var newURL=oldURL.split("?house=")[0]+"?house="+$("#house").val();
+				$("#gridURLParams").val("house="+$("#house").val());					
+				$("#grid").setGridParam({"url":newURL});				
 				$("#grid").trigger("reloadGrid");								
 			});			
 		});
