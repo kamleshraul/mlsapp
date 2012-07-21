@@ -26,7 +26,14 @@
 			initControls();
 		    $(':input:visible:not([readonly]):first').focus();
 			$("form").submit(function(e){
-				$.blockUI({ message: '<img src="./resources/images/waitAnimated.gif" />' }); 					
+				$.blockUI({ message: '<img src="./resources/images/waitAnimated.gif" />' }); 
+				//removing <p><br></p>  from wysiwyg editor
+				$(".wysiwyg").each(function(){
+					var wysiwygVal=$(this).val().trim();
+					if(wysiwygVal=="<p></p>"||wysiwygVal=="<p><br></p>"||wysiwygVal=="<br><p></p>"){
+						$(this).val("");
+					}
+				});								
 				$.post($('form').attr('action'),  
 		            $("form").serialize(),  
 		            function(data){
