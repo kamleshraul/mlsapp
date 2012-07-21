@@ -22,7 +22,13 @@
 			});
 			$('#session_tab').click(function(){
 				var row = $("#grid").jqGrid('getGridParam','selrow');
-				showTabByIdAndUrl('session_tab','session/list'+'?houseId='+row);
+				if(row==null){
+					$.prompt("Please select the desired row to Assign Session");
+				}
+				else
+					{
+					showTabByIdAndUrl('session_tab','session/list'+'?houseId='+row);
+					}
 			});
 			
 			$(document).keydown(function (e){
@@ -90,7 +96,8 @@
 				//$("#grid").jqGrid('delGridRow',row,{reloadAfterSubmit:true, mtype:'DELETE', url:url+'/'+row+'/delete',modal:true});
 			}
 		}
-
+		
+		
 		function rowDblClickHandler(rowid, iRow, iCol, e) {
 			var rowid=$("#key").val();
 			$("#cancelFn").val("rowDblClickHandler");
