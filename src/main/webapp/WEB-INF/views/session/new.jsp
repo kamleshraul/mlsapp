@@ -55,12 +55,7 @@
 				<form:select cssClass="sSelect" path="type"
 					items="${sessionType}" itemValue="id" itemLabel="sessionType">
 				</form:select>
-			</p>
-			<p>
-				<label class="small"><spring:message
-						code="session.displayName" text="Session Name" />&nbsp;*</label>
-				<form:input path="displayName" cssClass="sText"></form:input>
-			</p>
+			</p>			
 			<p>
 				<label class="small"><spring:message code="session.place" text="Session Place" />&nbsp;*</label>
 				<form:select cssClass="sSelect" path="place"
