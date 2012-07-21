@@ -1,123 +1,115 @@
-///**
-// * See the file LICENSE for redistribution information.
-// *
-// * Copyright (c) 2011 MKCL.  All rights reserved.
-// *
-// * Project: e-Legislature
-// * File: org.mkcl.els.TitleTest.java
-// * Created On: Dec 20, 2011
-// */
-//package org.mkcl.els;
-//
-//
-///**
-// * The Class TitleTest.
-// *
-// * @author samiksham
-// */
-//public class TitleTest extends AbstractTest {
-//
-////    /**
-////     * Test persist.
-////     *
-////     * @author samiksham
-////     * @since v1.0.0
-////     */
-////    @Transactional
-////    @Test
-////    public final void testPersist() {
-////        final Title title = new Title("Mr", "en", 0L);
-////        title.persist();
-////    }
-////
-////    /**
-////     * Test update.
-////     *
-////     * @author samiksham
-////     * @since v1.0.0
-////     */
-////    @Transactional
-////    @Test
-////    public final void testUpdate() {
-////        final Title titlePersist = new Title("Mr", "en", 0L);
-////        titlePersist.persist();
-////        final Title title = Title.findById(titlePersist.getId());
-////        title.setName("Miss Test");
-////        Title updated = title.update();
-////        Assert.assertEquals("Miss Test", updated.getName());
-////    }
-////
-////    /**
-////     * Test delete.
-////     *
-////     * @author samiksham
-////     * @since v1.0.0
-////     */
-////    @Transactional
-////    @Test
-////    public final void testDelete() {
-////        final Title titlePersist = new Title("Mrs", "en", 0L);
-////        titlePersist.persist();
-////        final Title title = Title.findById(titlePersist.getId());
-////        title.remove();
-////        Assert.assertNull(Title.findById(titlePersist.getId()));
-////    }
-////
-////    /**
-////     * Test findby id.
-////     *
-////     * @author samiksham
-////     * @since v1.0.0
-////     */
-////    @Test
-////    @Transactional
-////    public final void testFindbyId() {
-////        final Title titlePersist = new Title("Mrs", "en", 0L);
-////        titlePersist.persist();
-////        Title title = Title.findById(titlePersist.getId());
-////        Assert.assertEquals("Mrs", title.getName());
-////    }
-////
-////    /**
-////     * Test findby name.
-////     *
-////     * @author samiksham
-////     * @since v1.0.0
-////     */
-////    @Test
-////    @Transactional
-////    public final void testFindbyName() {
-////        final Title titlePersist = new Title("Mrs", "en", 0L);
-////        titlePersist.persist();
-////        Title title = Title.findByName("Mrs");
-////        Assert.assertEquals("Mrs", title.getName());
-////    }
-////
-////    /**
-////     * Test find all sorted.
-////     *
-////     * @author samiksham
-////     * @since v1.0.0
-////     */
-////    @Test
-////    public final void testFindAllSorted() {
-////        List<Title> lstTitles = Title.findAllSorted("name", "en", false);
-////        Assert.assertNotNull(lstTitles);
-////    }
-////
-////    /**
-////     * Test find all.
-////     *
-////     * @author samiksham
-////     * @since v1.0.0
-////     */
-////    @Test
-////    @Transactional
-////    public final void testFindAll() {
-////    	org.mkcl.els.domain.Member member=org.mkcl.els.domain.Member.findById(org.mkcl.els.domain.Member.class,new Long(1));
-////    	System.out.println(member.getTitle().getName());
-////    	//Assert.assertNotNull(lstTitles);
-////
-////    }
-//
-//}
+/**
+ * See the file LICENSE for redistribution information.
+ *
+ * Copyright (c) 2011 MKCL.  All rights reserved.
+ *
+ * Project: e-Legislature
+ * File: org.mkcl.els.TitleTest.java
+ * Created On: Dec 20, 2011
+ */
+package org.mkcl.els;
+
+import java.util.List;
+
+import junit.framework.Assert;
+
+import org.junit.Test;
+import org.mkcl.els.domain.Title;
+import org.springframework.transaction.annotation.Transactional;
+
+
+/**
+ * The Class TitleTest.
+ *
+ * @author samiksham
+ */
+public class TitleTest extends AbstractTest {
+
+    /**
+     * Test persist.
+     *
+     * @author samiksham
+     * @since v1.0.0
+     */
+    @Transactional
+    @Test
+    public final void testPersist() {
+        Title title = new Title("Mr", "en", 0L);
+        title.persist();
+    }
+
+    /**
+     * Test update.
+     *
+     * @author samiksham
+     * @since v1.0.0
+     */
+    @Transactional
+    @Test
+    public final void testUpdate() {
+        Title titlePersist = new Title("Mr", "en", 0L);
+        titlePersist.persist();
+        Title title = Title.findById(Title.class,titlePersist.getId());
+        title.setName("Miss Test");
+        Title updated = (Title) title.merge();
+        Assert.assertEquals("Miss Test", updated.getName());
+    }
+
+    /**
+     * Test delete.
+     *
+     * @author samiksham
+     * @since v1.0.0
+     */
+    @Transactional
+    @Test
+    public final void testDelete() {
+        Title titlePersist = new Title("Mrs", "en", 0L);
+        titlePersist.persist();
+        Title title = Title.findById(Title.class,titlePersist.getId());
+        title.remove();
+        Assert.assertNull(Title.findById(Title.class,titlePersist.getId()));
+    }
+
+    /**
+     * Test findby id.
+     *
+     * @author samiksham
+     * @since v1.0.0
+     */
+    @Test
+    @Transactional
+    public final void testFindbyId() {
+        Title titlePersist = new Title("Mrs", "en", 0L);
+        titlePersist.persist();
+        Title title = Title.findById(Title.class,titlePersist.getId());
+        Assert.assertEquals("Mrs", title.getName());
+    }
+
+    /**
+     * Test findby name.
+     *
+     * @author samiksham
+     * @since v1.0.0
+     */
+    @Test
+    @Transactional
+    public final void testFindbyName() {
+        Title titlePersist = new Title("Mrs",null, 0L);
+        titlePersist.persist();
+        Title title = Title.findByName(Title.class, "Mrs", null);
+        Assert.assertEquals("Mrs", title.getName());
+    }
+
+     
+  
+    @Test
+    @Transactional
+    public final void testFindAll() {
+    	  Title titlePersist = new Title("Mrs", null, 0L);
+          titlePersist.persist();
+          List<Title> titles=Title.findAll(Title.class, "name", "desc", null);
+          Assert.assertEquals(true,	titles.size()>0);
+    }
+
+}
