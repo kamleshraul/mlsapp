@@ -31,7 +31,7 @@ public class StateTest extends AbstractTest {
     @Test
     @Transactional
     public final void testPersist() {
-        final State state = new State("Karnataka");
+        State state = new State("Karnataka");
         state.persist();
         Assert.assertNotNull("Saved state Data ", state);
     }
@@ -40,8 +40,11 @@ public class StateTest extends AbstractTest {
      * Test find all.
      */
     @Test
+    @Transactional
     public final void testFindAll() {
-        final List<State> lstState = State.findAll(State.class,"name","desc",null);
+    	 State state = new State("Karnataka");
+         state.persist();
+         List<State> lstState = State.findAll(State.class,"name","desc","mr_IN");
         Assert.assertNotNull(lstState);
     }
 
@@ -51,9 +54,9 @@ public class StateTest extends AbstractTest {
     @Test
     @Transactional
     public final void testFindById() {
-        final State statePersist = new State("Karnataka");
+         State statePersist = new State("Karnataka");
         statePersist.persist();
-        final State state = State.findById(State.class,statePersist.getId());
+         State state = State.findById(State.class,statePersist.getId());
         Assert.assertEquals("Karnataka", state.getName());
     }
 
@@ -63,10 +66,10 @@ public class StateTest extends AbstractTest {
     @Test
     @Transactional
     public final void testFindByName() {
-        final State statePersist = new State("Karnataka");
+        State statePersist = new State("Karnataka");
         statePersist.persist();
-        final State state = State.findByName(State.class,"Karnataka",null);
-        Assert.assertEquals("Karnataka", state.getName());
+        State state = State.findByName(State.class,statePersist.getName(),statePersist.getLocale());
+        Assert.assertNotNull("Finding state Data ",state);
     }
 
     /**
@@ -75,9 +78,9 @@ public class StateTest extends AbstractTest {
     @Test
     @Transactional
     public final void testUpdateState() {
-        final State statePersist = new State("Karnataka");
+        State statePersist = new State("Karnataka");
         statePersist.persist();
-        final State state = State.findById(State.class,statePersist.getId());
+        State state = State.findById(State.class,statePersist.getId());
         state.setName("KarnatakaState");
         state.merge();
         Assert.assertNotNull("updated state Data ", state);
@@ -91,9 +94,8 @@ public class StateTest extends AbstractTest {
     public final void testRemoveState() {
         State statePresist = new State("Karnataka");
         statePresist.persist();
-        final State state = State.findByName(State.class,"Karnataka",null);
-        state.remove();
-        Assert.assertNotNull("removed state Data ", state);
+        statePresist.remove();
+        Assert.assertNotNull("removed state Data ",statePresist);
     }
 
 }
