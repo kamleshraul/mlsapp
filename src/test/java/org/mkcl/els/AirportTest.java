@@ -1,3 +1,12 @@
+/**
+ * See the file LICENSE for redistribution information.
+ *
+ * Copyright (c) 2012 MKCL.  All rights reserved.
+ *
+ * Project: e-Legislature
+ * File: org.mkcl.els.AirportTest.java
+ * Created On: 26 Jul, 2012
+ */
 package org.mkcl.els;
 
 import org.junit.Test;
@@ -9,8 +18,18 @@ import org.mkcl.els.domain.State;
 import org.mkcl.els.domain.Airport;
 import org.springframework.transaction.annotation.Transactional;
 
+// TODO: Auto-generated Javadoc
+/**
+ * The Class AirportTest.
+ *
+ * @author Dhananjay
+ * @since v1.0.0
+ */
 public class AirportTest extends AbstractTest {
 
+	/**
+	 * Test persist.
+	 */
 	@Test
 	@Transactional
 	public void testPersist() {
@@ -25,6 +44,9 @@ public class AirportTest extends AbstractTest {
 		Assert.assertNotNull("Saved Airport Data ", airport);
 	}
 
+	/**
+	 * Test merge.
+	 */
 	@Test
 	@Transactional
 	public void testMerge() {
@@ -41,6 +63,9 @@ public class AirportTest extends AbstractTest {
 		Assert.assertNotNull("Updated Airport Data", airport);
 	}
 
+	/**
+	 * Test remove.
+	 */
 	@Test
 	@Transactional
 	public void testRemove() {
@@ -56,6 +81,9 @@ public class AirportTest extends AbstractTest {
 		Assert.assertNotNull("Deleted Airport Data", airport);
 	}
 
+	/**
+	 * Test find by id.
+	 */
 	@Test
 	@Transactional
 	public void testFindById() {
@@ -72,6 +100,9 @@ public class AirportTest extends AbstractTest {
 		Assert.assertNotNull("Getting Airport Data by ID ", airport2);
 	}
 
+	/**
+	 * Test find by name.
+	 */
 	@Test
 	@Transactional
 	public void testFindByName() {
@@ -93,6 +124,9 @@ public class AirportTest extends AbstractTest {
 		Assert.assertNotNull("Getting Airport Data by Name ", airport2);
 	}
 
+	/**
+	 * Test find all.
+	 */
 	@Test
 	@Transactional
 	public void testFindAll() {		

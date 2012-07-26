@@ -1,3 +1,12 @@
+/**
+ * See the file LICENSE for redistribution information.
+ *
+ * Copyright (c) 2012 MKCL.  All rights reserved.
+ *
+ * Project: e-Legislature
+ * File: org.mkcl.els.DivisionTest.java
+ * Created On: 26 Jul, 2012
+ */
 package org.mkcl.els;
 
 import java.util.List;
@@ -104,15 +113,9 @@ public class DivisionTest extends AbstractTest {
 	public void testFindByName() {
 		State state = new State("testState");
 		state.persist();
-		Division division = new Division("uniqueDivision6", state); // update
-																	// with
-																	// unique
-																	// number
-																	// each time
-																	// you run
+		Division division = new Division("uniqueDivision6", state); // update with unique number each time you run
 		division.persist();
-		Division division2 = Division.getBaseRepository().findByName(
-				Division.class, division.getName(), division.getLocale());
+		Division division2 = Division.getBaseRepository().findByName(Division.class, division.getName(), division.getLocale());
 		Assert.assertNotNull("Getting Division Data by Name ", division2);
 	}
 
@@ -121,20 +124,11 @@ public class DivisionTest extends AbstractTest {
 	 */
 	@Test
 	public void testFindByFieldName() {
-		State state = new State("uniqueState2"); // update with unique number
-													// each time you
-													// run
+		State state = new State("uniqueState2"); // update with unique number each time you run
 		state.persist();
-		Division division = new Division("uniqueDivision7", state); // update
-																	// with
-																	// unique
-																	// number
-																	// each time
-																	// you run
+		Division division = new Division("uniqueDivision7", state); // update with unique number each time you run
 		division.persist();
-		Division division2 = Division.findByFieldName(Division.class,
-				"state.name", division.getState().getName(),
-				division.getLocale());
+		Division division2 = Division.findByFieldName(Division.class, "state.name", division.getState().getName(), division.getLocale());
 		Assert.assertNotNull("Getting Division Data by Field State ", division2);
 	}
 
