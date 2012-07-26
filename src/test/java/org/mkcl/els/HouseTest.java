@@ -9,9 +9,12 @@
  */
 package org.mkcl.els;
 
+import java.text.DateFormat;
 import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
 import java.text.NumberFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
 
@@ -22,6 +25,13 @@ import org.mkcl.els.domain.House;
 import org.mkcl.els.domain.HouseType;
 import org.springframework.transaction.annotation.Transactional;
 
+// TODO: Auto-generated Javadoc
+/**
+ * The Class HouseTest.
+ *
+ * @author Anand
+ * @since v1.0.0
+ */
 public class HouseTest extends AbstractTest{
 
 	/**
@@ -43,6 +53,9 @@ public class HouseTest extends AbstractTest{
 		Assert.assertNotNull("Saved House Data ",house);
 	}
 
+	/**
+	 * Test merge.
+	 */
 	@Test
 	@Transactional
 	public void testMerge() {
@@ -56,6 +69,9 @@ public class HouseTest extends AbstractTest{
 		Assert.assertNotNull("Updated House Data ",house);
 	}
 
+	/**
+	 * Test remove.
+	 */
 	@Test
 	@Transactional
 	public void testRemove() {
@@ -68,6 +84,9 @@ public class HouseTest extends AbstractTest{
 		Assert.assertNotNull("Removed House Data ",house);
 	}
 
+	/**
+	 * Test find by id.
+	 */
 	@Test
 	@Transactional
 	public void testFindById() {
@@ -80,6 +99,9 @@ public class HouseTest extends AbstractTest{
 		Assert.assertNotNull("Finding  House Data by id ",house1);
 	}
 
+	/**
+	 * Test find by field name class string string string.
+	 */
 	@Test
 	@Transactional
 	public void testFindByFieldNameClassStringStringString() {
@@ -92,6 +114,9 @@ public class HouseTest extends AbstractTest{
 		Assert.assertNotNull("Finding  House Data by field name ",house1);
 	}
 
+	/**
+	 * Test find all.
+	 */
 	@Test
 	@Transactional
 	public void testFindAll() {
@@ -104,4 +129,61 @@ public class HouseTest extends AbstractTest{
 		Assert.assertNotNull("Finding  House Data by field name ",houses);
 	}
 
+	/**
+	 * Test find current house.
+	 * @throws ParseException 
+	 */
+	@Test
+	@Transactional
+	public void testFindCurrentHouse() throws ParseException{
+		HouseType housetype=new HouseType("testHouseType","testhouse");
+		housetype.setLocale("mr_IN");
+		housetype.persist();
+		DateFormat df=new SimpleDateFormat("dd/MM/yyyy");
+		House house=new House("testname", 2, housetype, df.parse("12/01/2012"));
+		house.setLastDate(df.parse("12/10/2012"));
+		house.setFirstDate(df.parse("12/01/2012"));
+		house.setLocale("mr_IN");
+		house.persist();
+		House h=House.findCurrentHouse(house.getLocale());
+		Assert.assertNotNull("Finding  House Data ",h);
+	}
+	
+	/**
+	 * Test find house by to from date.
+	 * @throws ParseException 
+	 */
+	@Transactional
+	@Test
+	public void testFindHouseByToFromDate() throws ParseException{
+		HouseType housetype=new HouseType("testHouseType","testhouse");
+		housetype.persist();
+		DateFormat df=new SimpleDateFormat("dd/MM/yyyy");
+		House house=new House("testname", 2, housetype, df.parse("12/01/2012"));
+		house.setLastDate(df.parse("12/10/2012"));
+		house.setFirstDate(df.parse("12/01/2012"));
+		house.persist();
+		House h=House.findHouseByToFromDate(df.parse("12/01/2012"),df.parse("12/01/2012"), house.getLocale());
+		Assert.assertNotNull("Finding  House Data ",h);
+	}
+	
+	/**
+	 * Test find by house type.
+	 */
+	@Transactional
+	@Test
+	public void testFindByHouseType(){
+		HouseType housetype=new HouseType("testHouseType","testhouse");
+		housetype.setLocale("mr_IN");
+		housetype.persist();
+		Date d=new Date(12/01/2012);
+		Date d1=new Date(12/10/2012);
+		House house=new House("testname", 2, housetype, d);
+		house.setFirstDate(d);
+		house.setLastDate(d1);
+		house.setLocale("mr_IN");
+		house.persist();
+		List<House> houses=House.findByHouseType(housetype.getType(), house.getLocale());
+		Assert.assertEquals(true,houses.size()>0);
+	}
 }

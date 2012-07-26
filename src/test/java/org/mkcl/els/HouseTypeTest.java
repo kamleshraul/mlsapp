@@ -1,3 +1,12 @@
+/**
+ * See the file LICENSE for redistribution information.
+ *
+ * Copyright (c) 2012 MKCL.  All rights reserved.
+ *
+ * Project: e-Legislature
+ * File: org.mkcl.els.HouseTypeTest.java
+ * Created On: Jul 25, 2012
+ */
 package org.mkcl.els;
 
 import static org.junit.Assert.*;
@@ -10,8 +19,18 @@ import org.junit.Test;
 import org.mkcl.els.domain.HouseType;
 import org.springframework.transaction.annotation.Transactional;
 
+// TODO: Auto-generated Javadoc
+/**
+ * The Class HouseTypeTest.
+ *
+ * @author Anand
+ * @since v1.0.0
+ */
 public class HouseTypeTest extends AbstractTest {
 
+	/**
+	 * Test persist.
+	 */
 	@Test
 	@Transactional
 	public void testPersist() {
@@ -20,6 +39,9 @@ public class HouseTypeTest extends AbstractTest {
        Assert.assertNotNull("Saved assemblyCouncilType Data ", assemblycounciltype);
 	}
 
+	/**
+	 * Test remove.
+	 */
 	@Test
 	@Transactional
 	public void testRemove() {
@@ -29,6 +51,9 @@ public class HouseTypeTest extends AbstractTest {
 		Assert.assertNotNull("Removed assemblyRole Data ", assemblycounciltype);
 	}
 
+	/**
+	 * Test find by id.
+	 */
 	@Test
 	@Transactional
 	public void testFindById() {
@@ -38,6 +63,9 @@ public class HouseTypeTest extends AbstractTest {
 	     Assert.assertNotNull("testFindByFieldName assemblycounciltype Data ", assemblycounciltype);
 	}
 
+	/**
+	 * Test find by field name.
+	 */
 	@Test
 	@Transactional
 	public void testFindByFieldName() {
@@ -48,6 +76,9 @@ public class HouseTypeTest extends AbstractTest {
 	}
 
 	
+	/**
+	 * Test find all.
+	 */
 	@Test
 	@Transactional
 	public void testFindAll() {

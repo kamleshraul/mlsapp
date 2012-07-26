@@ -117,4 +117,16 @@ public class ElectionTypeTest extends AbstractTest {
 	    Assert.assertNotNull("testFindAllSorted Election Type Data ", listElectionType);
 	}
 
+	@Test
+	@Transactional
+	public void testfindByHouseType(){
+		HouseType houseType = new HouseType("testAssemblyCouncilType","testhouse");
+		houseType.setLocale("mr_IN");
+		houseType.persist();
+		ElectionType electionType= new ElectionType("testname", houseType);
+		electionType.setLocale("mr_IN");
+		electionType.persist();
+		List<ElectionType> electiontypes=ElectionType.findByHouseType(houseType.getType(), electionType.getLocale());
+		Assert.assertEquals(true,electiontypes.size()>0);
+	}
 }

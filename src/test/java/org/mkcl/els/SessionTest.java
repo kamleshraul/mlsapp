@@ -1,3 +1,12 @@
+/**
+ * See the file LICENSE for redistribution information.
+ *
+ * Copyright (c) 2012 MKCL.  All rights reserved.
+ *
+ * Project: e-Legislature
+ * File: org.mkcl.els.SessionTest.java
+ * Created On: Jul 25, 2012
+ */
 package org.mkcl.els;
 
 import static org.junit.Assert.*;
@@ -15,8 +24,18 @@ import org.mkcl.els.domain.SessionPlace;
 import org.mkcl.els.domain.SessionType;
 import org.springframework.transaction.annotation.Transactional;
 
+// TODO: Auto-generated Javadoc
+/**
+ * The Class SessionTest.
+ *
+ * @author Anand
+ * @since v1.0.0
+ */
 public class SessionTest extends AbstractTest{
 
+	/**
+	 * Test persist.
+	 */
 	@Test
 	@Transactional
 	public void testPersist() {
@@ -43,6 +62,9 @@ public class SessionTest extends AbstractTest{
 
 	}
 
+	/**
+	 * Test merge.
+	 */
 	@Test
 	@Transactional
 	public void testMerge() {
@@ -70,6 +92,9 @@ public class SessionTest extends AbstractTest{
 
 	}
 
+	/**
+	 * Test remove.
+	 */
 	@Test
 	@Transactional
 	public void testRemove() {
@@ -96,6 +121,9 @@ public class SessionTest extends AbstractTest{
 
 	}
 
+	/**
+	 * Test find by id.
+	 */
 	@Test
 	@Transactional
 	public void testFindById() {
@@ -123,6 +151,9 @@ public class SessionTest extends AbstractTest{
 	}
 
 	
+	/**
+	 * Test find all.
+	 */
 	@Test
 	@Transactional
 	public void testFindAll() {
@@ -148,5 +179,118 @@ public class SessionTest extends AbstractTest{
 		Assert.assertNotNull("Finding session data ",sessions);
 
 	}
-
+	
+	/**
+	 * Test find latest session.
+	 */
+	@Transactional
+	@Test
+	public void testFindLatestSession(){
+		HouseType housetype=new HouseType("testhousetype","testhouse");
+		housetype.persist();
+		Date d=new Date(1988-20-12);
+		Date startDate=new Date(1988-20-12);
+		Date endDate=new Date(1988-18-11);
+		SessionPlace place=new SessionPlace("testPlace");
+		place.persist();
+		SessionType type=new SessionType("testsession");
+		type.persist();
+		House house=new House("testhouse",2,housetype,d);
+		house.persist();
+		Session session=new Session();
+		session.setHouse(house);
+		session.setStartDate(startDate);
+		session.setEndDate(endDate);
+		session.setPlace(place);
+		session.setType(type);
+		session.setYear(1988);
+		session.persist();
+		Session session1=Session.findLatestSession(housetype, session.getYear());
+		Assert.assertNotNull("finding session data ",session1);
+	}
+	
+	/**
+	 * Test find session by house and year.
+	 */
+	public void testFindSessionByHouseAndYear(){
+		HouseType housetype=new HouseType("testhousetype","testhouse");
+		housetype.persist();
+		Date d=new Date(1988-20-12);
+		Date startDate=new Date(1988-20-12);
+		Date endDate=new Date(1988-18-11);
+		SessionPlace place=new SessionPlace("testPlace");
+		place.persist();
+		SessionType type=new SessionType("testsession");
+		type.persist();
+		House house=new House("testhouse",2,housetype,d);
+		house.persist();
+		Session session=new Session();
+		session.setHouse(house);
+		session.setStartDate(startDate);
+		session.setEndDate(endDate);
+		session.setPlace(place);
+		session.setType(type);
+		session.setYear(1988);
+		session.persist();
+		List<Session> sessions= Session.findSessionsByHouseAndYear(house, session.getYear());
+		Assert.assertEquals(true,	sessions.size()>0);
+	}
+	
+	/**
+	 * Test find session by house session typeyear.
+	 */
+	@Transactional
+	@Test
+	public void testFindSessionByHouseSessionTypeyear(){
+		HouseType housetype=new HouseType("testhousetype","testhouse");
+		housetype.persist();
+		Date d=new Date(1988-20-12);
+		Date startDate=new Date(1988-20-12);
+		Date endDate=new Date(1988-18-11);
+		SessionPlace place=new SessionPlace("testPlace");
+		place.persist();
+		SessionType type=new SessionType("testsession");
+		type.persist();
+		House house=new House("testhouse",2,housetype,d);
+		house.persist();
+		Session session=new Session();
+		session.setHouse(house);
+		session.setStartDate(startDate);
+		session.setEndDate(endDate);
+		session.setPlace(place);
+		session.setType(type);
+		session.setYear(1988);
+		session.persist();
+		Session session1=Session.findSessionByHouseSessionTypeYear(house, type, session.getYear());
+		Assert.assertNotNull("finding session data ",session1);
+	}
+	
+	/**
+	 * Test find session by house type session type year.
+	 */
+	@Transactional
+	@Test
+	public void testFindSessionByHouseTypeSessionTypeYear(){
+		HouseType housetype=new HouseType("testhousetype","testhouse");
+		housetype.persist();
+		Date d=new Date(1988-20-12);
+		Date startDate=new Date(1988-20-12);
+		Date endDate=new Date(1988-18-11);
+		SessionPlace place=new SessionPlace("testPlace");
+		place.persist();
+		SessionType type=new SessionType("testsession");
+		type.persist();
+		House house=new House("testhouse",2,housetype,d);
+		house.persist();
+		Session session=new Session();
+		session.setHouse(house);
+		session.setStartDate(startDate);
+		session.setEndDate(endDate);
+		session.setPlace(place);
+		session.setType(type);
+		session.setYear(1988);
+		session.persist();
+		Session session1=Session.findSessionByHouseTypeSessionTypeYear(housetype, type, session.getYear());
+		Assert.assertNotNull("finding session data ",session1);
+	}
 }
