@@ -1,13 +1,15 @@
 /**
  * See the file LICENSE for redistribution information.
  *
- * Copyright (c) 2011 MKCL.  All rights reserved.
+ * Copyright (c) 2012 MKCL.  All rights reserved.
  *
  * Project: e-Legislature
  * File: org.mkcl.els.PartyTest.java
- * Created On: Dec 20, 2011
+ * Created On: Jul 25, 2012
  */
 package org.mkcl.els;
+
+import static org.junit.Assert.*;
 
 import java.util.Date;
 import java.util.List;
@@ -15,93 +17,89 @@ import java.util.List;
 import junit.framework.Assert;
 
 import org.junit.Test;
+import org.mkcl.els.domain.BaseDomain;
 import org.mkcl.els.domain.Party;
 import org.springframework.transaction.annotation.Transactional;
 
+// TODO: Auto-generated Javadoc
 /**
  * The Class PartyTest.
  *
- * @author meenalw
+ * @author Anand
  * @since v1.0.0
  */
 public class PartyTest extends AbstractTest {
 
-    /**
-     * Test persist.
-     */
-    @Test
-    @Transactional
-    public final void testPersist() {
-        Party party = new Party("Indian National Congress", "INC", new Date());
-        party.persist();
-        Assert.assertNotNull("Saved state Data ", party);
-    }
+	/**
+	 * Test persist.
+	 */
+	@Test
+	@Transactional
+	public void testPersist() {
+		Party party=new Party("testname", "tt", new Date(12-10-2000));
+		party.persist();
+		Assert.assertNotNull("Saving Party data ", party);
+	}
 
-    /**
-     * Test update party.
-     */
-    @Test
-    @Transactional
-    public final void testUpdateParty() {
-        Party list = new Party("Indian National", "Ind Nat", new Date());
-        list.persist();
-        Party party = Party.findById(Party.class, list.getId());
-        party.setName("Indian National Congress");
-        party.setShortName("INC");
-        party.merge();
-        Assert.assertNotNull("Party data updated", party);
-    }
+	/**
+	 * Test merge.
+	 */
+	@Test
+	@Transactional
+	public void testMerge() {
+		Party party=new Party("testname", "tt", new Date(12-10-2000));
+		party.persist();
+		party.setName("new name");
+		party.merge();
+		Assert.assertNotNull("Updating Party data ", party);
+	}
 
-    /**
-     * Test remove party.
-     */
-    @Test
-    @Transactional
-    public final void testRemoveParty() {
-        Party party = new Party("Indian National", "INC", new Date());
-        party.persist();
-        Party id = Party.findById(Party.class, party.getId());
-        id.remove();
-        Assert.assertNotNull(id);
+	/**
+	 * Test remove.
+	 */
+	@Test
+	@Transactional
+	public void testRemove() {
+		Party party=new Party("testname", "tt", new Date(12-10-2000));
+		party.persist();
+		party.remove();
+		Assert.assertNotNull("Removing Party data ", party);
+	}
 
-    }
+	/**
+	 * Test find by id.
+	 */
+	@Test
+	@Transactional
+	public void testFindById() {
+		Party party=new Party("testname", "tt", new Date(12-10-2000));
+		party.persist();
+		Party party1=Party.findById(Party.class, party.getId());
+		Assert.assertNotNull("Finding Party data ", party1);
+	}
 
-    /**
-     * Test find by id.
-     */
-    @Test
-    @Transactional
-    public final void testFindById() {
-    	Party party = new Party("Indian National", "INC", new Date());
-        party.persist();
-        final Party party1 = Party.findById(Party.class, party.getId());
-        Assert.assertNotNull("Indian National Congress", party1.getName());
-    }
+	/**
+	 * Test find by name.
+	 */
+	@Test
+	@Transactional
+	public void testFindByName() {
+		Party party=new Party("testname", "tt", new Date(12-10-2000));
+		party.persist();
+		Party party1=Party.findByName(Party.class, "testname", party.getLocale());
+		Assert.assertNotNull("Finding Party data ", party1);
+	}
 
-    /**
-     * Test find by name.
-     */
-    @Test
-    @Transactional
-    public final void testFindByName() {
-    	Party party = new Party("Kandriye Samaj Mandal", "KSM", new Date());        
-        party.persist();
-        Party lst = Party.findByName(Party.class, party.getName(), null);
-        Assert.assertEquals("Kandriye Samaj Mandal", lst.getName());
-    }
+	/**
+	 * Test find all.
+	 */
+	@Test
+	@Transactional
+	public void testFindAll() {
+		Party party=new Party("testname", "tt", new Date(12-10-2000));
+		party.persist();
+		List<Party> parties=Party.findAll(Party.class, "name", "desc", party.getLocale());
+		 Assert.assertEquals(true,parties.size()>0);
+	}
 
-    /**
-     * Test find all.
-     */
-    @Test
-    @Transactional
-    public final void testFindAll() {
-    	Party party = new Party("Kandriye Samaj Mandal", "KSM", new Date());  
-    	Party party1 = new Party("Indian National", "INC", new Date());
-        party.persist();
-        party1.persist();
-        List<Party> list = Party.findAll(Party.class, "name", "asc", null);
-        Assert.assertEquals(true, list.size() > 0);
-    }
-    
 }
