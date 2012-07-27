@@ -15,6 +15,7 @@ import org.junit.Assert;
 import org.junit.Test;
 import org.mkcl.els.domain.District;
 import org.mkcl.els.domain.Division;
+import org.mkcl.els.domain.State;
 import org.springframework.transaction.annotation.Transactional;
 
 // TODO: Auto-generated Javadoc
@@ -145,7 +146,16 @@ public class DistrictTest extends AbstractTest {
 	@Test
 	@Transactional
 	public void testFindDistrictsByStateId() {
-		List<District> result = District.getDistrictRepository().findDistrictsByStateId(new Long(7), "name", "asc", "mr_IN");
+		State state = new State("state1");
+		state.setLocale("mr_IN");
+		state.persist();
+		Division division = new Division("division1", state);
+		division.setLocale("mr_IN");
+		division.persist();
+		District district = new District("district1", division);
+		district.setLocale("mr_IN");
+		district.persist();
+		List<District> result = District.getDistrictRepository().findDistrictsByStateId(state.getId(), "name", "asc", "mr_IN");
 		Assert.assertEquals(true, result.size()>0);
 	}
 
