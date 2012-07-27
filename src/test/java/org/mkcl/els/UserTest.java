@@ -112,7 +112,7 @@ public class UserTest extends AbstractTest {
 	
 	/**
 	 * Test assign member id.
-	 */
+	 *//*
 	@Transactional
 	@Test
 	public void testAssignMemberId(){
@@ -125,5 +125,5 @@ public class UserTest extends AbstractTest {
 		Assert.assertNotNull("assigning member id to user id",user);
 		
 		
-	}
+	}*/
 }
