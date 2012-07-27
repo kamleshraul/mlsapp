@@ -43,7 +43,7 @@ public class GroupRepository extends BaseRepository<Group, Long> {
 				}
 			}
 		}
-		return null;
+		return answeringDates;
 	}
 
 	
