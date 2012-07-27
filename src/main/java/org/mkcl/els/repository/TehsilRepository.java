@@ -38,7 +38,7 @@ public class TehsilRepository extends BaseRepository<Tehsil,Long> {
 	public List<Reference> findTehsilsRefByDistrictId(final Long districtId,
 			final String sortBy, final String sortOrder, final String locale) {
 		String query="SELECT t.id,t.name FROM Tehsil t WHERE t.district.id="+districtId+" AND t.locale='"+locale+"' ORDER BY t."+sortBy+" "+sortOrder;
-		List tehsils=this.em().createQuery(query).getResultList();
+		List<Tehsil> tehsils=this.em().createQuery(query).getResultList();
 		List<Reference> tehsilsRef=new ArrayList<Reference>();
 		for(Object i:tehsils){
 			Object[] o=(Object[]) i;
@@ -50,7 +50,7 @@ public class TehsilRepository extends BaseRepository<Tehsil,Long> {
 
 	@SuppressWarnings("unchecked")
 	public List<Tehsil> findByState(final Long stateId, final String locale) {
-		String query="SELECT t FROM Tehsil t JOIN t.district d JOIN d.state s WHERE s.id="+stateId+" AND t.locale='"+locale+"' ORDER BY t.name asc";
+		String query="SELECT t FROM Tehsil t JOIN t.district d JOIN d.division.state s WHERE s.id="+stateId+" AND t.locale='"+locale+"' ORDER BY t.name asc";
 		return this.em().createQuery(query).getResultList();
 	}
 
