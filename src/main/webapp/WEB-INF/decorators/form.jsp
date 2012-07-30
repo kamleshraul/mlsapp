@@ -30,6 +30,7 @@
 				//removing <p><br></p>  from wysiwyg editor
 				$(".wysiwyg").each(function(){
 					var wysiwygVal=$(this).val().trim();
+					$(this).val(wysiwygVal);
 					if(wysiwygVal=="<p></p>"||wysiwygVal=="<p><br></p>"||wysiwygVal=="<br><p></p>"){
 						$(this).val("");
 					}
