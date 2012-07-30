@@ -21,9 +21,9 @@
 		<!-- Multiselect -->				
 		<script type="text/javascript" src="./resources/js/jquery.multiselect.js?v=1"></script>
 
-		<script type="text/javascript" src="./resources/js/common.js?v=2004?v=1"></script> 
+		<script type="text/javascript" src="./resources/js/common.js?v=2005"></script> 
 		 <!-- WYSIWYG Editor --> 
-		<script type="text/javascript" src="./resources/js/jquery.wysiwyg.js?v=1"></script> 
+		<script type="text/javascript" src="./resources/js/jquery.wysiwyg.js?v=2017"></script> 
 		<link rel="stylesheet" type="text/css" media="all" href="./resources/css/jquery.multiselect.css?v=1" />
 		
 		 <!-- Style switcher --> 
