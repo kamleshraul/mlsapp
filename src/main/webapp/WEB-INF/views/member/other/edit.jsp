@@ -118,7 +118,7 @@
 		<form:textarea path="educationalCulturalActivities" cssClass="sTextarea" cols="50" rows="5"></form:textarea>
 		<form:errors path="educationalCulturalActivities" cssClass="validationError"/>	
 	</p>
-	<p style="display: none;">
+	<p>
 		<label class="labelcentered"><spring:message code="member.other.literaryArtisticScientificAccomplishments" text="Literary,Artistic and Scientific Accomplishments"/></label>
 		<form:textarea path="literaryArtisticScientificAccomplishments" cssClass="sTextarea" cols="50" rows="5"></form:textarea>
 		<form:errors path="literaryArtisticScientificAccomplishments" cssClass="validationError"/>	
