@@ -35,6 +35,7 @@ public class TehsilRepository extends BaseRepository<Tehsil,Long> {
 	 * @param locale the locale
 	 * @return the list
 	 */
+	@SuppressWarnings("unchecked")
 	public List<Reference> findTehsilsRefByDistrictId(final Long districtId,
 			final String sortBy, final String sortOrder, final String locale) {
 		String query="SELECT t.id,t.name FROM Tehsil t WHERE t.district.id="+districtId+" AND t.locale='"+locale+"' ORDER BY t."+sortBy+" "+sortOrder;
