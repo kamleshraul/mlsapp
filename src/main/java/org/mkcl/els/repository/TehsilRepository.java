@@ -50,8 +50,11 @@ public class TehsilRepository extends BaseRepository<Tehsil,Long> {
 
 	@SuppressWarnings("unchecked")
 	public List<Tehsil> findByState(final Long stateId, final String locale) {
-		String query="SELECT t FROM Tehsil t JOIN t.district d JOIN d.state s WHERE s.id="+stateId+" AND t.locale='"+locale+"' ORDER BY t.name asc";
+		String query="SELECT t FROM Tehsil t JOIN t.district d JOIN d.division.state s WHERE s.id="+stateId+" AND t.locale='"+locale+"' ORDER BY t.name asc";
 		return this.em().createQuery(query).getResultList();
+		
 	}
+	
+	
 
 }
