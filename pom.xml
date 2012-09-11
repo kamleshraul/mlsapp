@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+<project xmlns="http://maven.apache.org/POM/4.0.0" 
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	<organization>
@@ -19,6 +20,8 @@
 		<org.aspectj-version>1.6.9</org.aspectj-version>
 		<org.slf4j-version>1.5.10</org.slf4j-version>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+		<activiti-version>5.9</activiti-version>
+		<activiti-spring-version>5.9</activiti-spring-version>
 	</properties>
 	<scm>
 		<connection>scm:svn:http://repos.mkcl.org/mkcl/programs/egovernance/projects/els/source/trunk</connection>
@@ -383,6 +386,7 @@
 			<artifactId>aspectjweaver</artifactId>
 			<version>${org.aspectj-version}</version>
 		</dependency>
+		
 		<!-- Logging -->
 		<dependency>
 			<groupId>org.slf4j</groupId>
@@ -434,13 +438,11 @@
 		</dependency>
 
 		<!-- Servlet -->
-
 		<dependency>
 			<groupId>javax.servlet</groupId>
 			<artifactId>jstl</artifactId>
 			<version>1.2</version>
 		</dependency>
-
 
 		<!-- Testing Dependencies -->
 		<dependency>
@@ -456,12 +458,30 @@
 			<scope>test</scope>
 		</dependency>	
 		
-		<!-- <dependency>
+		<!--
+		<dependency>
 			<groupId>org.apache.commons</groupId>
 			<artifactId>commons-email</artifactId>
 			<version>1.2</version>
 		</dependency>
 		-->
+		
+		<!-- Activiti -->
+		<dependency>
+			<groupId>org.activiti</groupId>
+			<artifactId>activiti-engine</artifactId>
+			<version>${activiti-version}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.activiti</groupId>
+			<artifactId>activiti-spring</artifactId>
+			<version>${activiti-spring-version}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.mybatis</groupId>
+			<artifactId>mybatis</artifactId>
+			<version>3.0.6</version>
+		</dependency>
 	</dependencies>
 	
 	<repositories>
@@ -543,7 +563,7 @@
 				<version>2.5</version>
 				<configuration>
 					<forkMode>once</forkMode>
-					<skipTests>false</skipTests>
+					<skipTests>true</skipTests>
 					<argLine>
 						-javaagent:"C:/mvn_repos/org/springframework/spring-instrument/3.1.0.RELEASE/spring-instrument-3.1.0.RELEASE.jar"
 					</argLine>
