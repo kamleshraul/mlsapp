@@ -31,7 +31,24 @@ public interface IGridService {
             String sidx, String order, Locale locale,
             Map<String, String[]> requestMap);
 
-
+    /**
+     * Returns GridData for Process Deployments.
+     */
+    public GridData getDeploymentsData(Long gridId, Integer rows, Integer page,
+            String sidx, String order, Locale locale);
+    
+    /**
+     * Returns GridData for My Tasks.
+     */
+    public GridData getMyTasksData(Long gridId, String username, Integer rows, Integer page,
+            String sidx, String order, Locale locale);
+    
+    /**
+     * Returns GridData for Group Tasks.
+     */
+    public GridData getGroupTasksData(Long gridId, String username, Integer rows, Integer page,
+            String sidx, String order, Locale locale);
+    
 //    public GridData getDeployments(Long gridId, Integer rows, Integer page,
 //            String sidx, String order, String searchField, String searchValue, Locale locale,
 //            Map<String, String[]> requestMap);

@@ -13,12 +13,14 @@ import java.io.Serializable;
 import java.util.Date;
 import java.util.Set;
 
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.JoinColumn;
 import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
+import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
@@ -57,7 +59,7 @@ public class Credential extends BaseDomain implements Serializable {
     private String email;
 
     /** The roles. */
-    @ManyToMany(fetch = FetchType.LAZY)
+    @ManyToMany(fetch = FetchType.LAZY,cascade=CascadeType.ALL)
     @JoinTable(name = "credentials_roles", joinColumns = @JoinColumn(
             name = "credential_id", referencedColumnName = "id"),
             inverseJoinColumns = @JoinColumn(name = "role_id",
@@ -67,6 +69,11 @@ public class Credential extends BaseDomain implements Serializable {
     /** The last login time. */
     @Temporal(TemporalType.TIMESTAMP)
     private Date lastLoginTime;
+
+    @OneToMany(mappedBy = "credential", fetch = FetchType.LAZY,cascade=CascadeType.ALL)
+    private Set<UserGroup> userGroups;
+
+
 
     // ---------------------------------Constructors----------------------------------------------
     /**
@@ -86,13 +93,14 @@ public class Credential extends BaseDomain implements Serializable {
      * @param lastLoginTime the last login time
      */
     public Credential(final String username, final String password, final boolean enabled,
-            final Set<Role> roles, final Date lastLoginTime) {
+            final Set<Role> roles, final Date lastLoginTime,final Set<UserGroup> userGroups) {
         super();
         this.username = username;
         this.password = password;
         this.enabled = enabled;
         this.roles = roles;
         this.lastLoginTime = lastLoginTime;
+        this.userGroups=userGroups;
     }
     // -------------------------------Domain_Methods----------------------------------------------
     // ------------------------------------------Getters/Setters-----------------------------------
@@ -140,6 +148,7 @@ public class Credential extends BaseDomain implements Serializable {
     public boolean isEnabled() {
         return enabled;
     }
+
 
     /**
      * Sets the enabled.
@@ -203,4 +212,14 @@ public class Credential extends BaseDomain implements Serializable {
     public void setEmail(final String email) {
         this.email = email;
     }
+
+	public Set<UserGroup> getUserGroups() {
+		return userGroups;
+	}
+
+	public void setUserGroups(final Set<UserGroup> userGroups) {
+		this.userGroups = userGroups;
+	}
+
+
 }

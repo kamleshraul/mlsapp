@@ -11,8 +11,6 @@ package org.mkcl.els.repository;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -21,14 +19,10 @@ import java.util.Set;
 import javax.persistence.Parameter;
 import javax.persistence.Query;
 
-//import org.activiti.engine.RepositoryService;
-//import org.activiti.engine.repository.Deployment;
 import org.mkcl.els.common.util.ApplicationConstants;
-import org.mkcl.els.common.util.FormaterUtil;
 import org.mkcl.els.common.vo.GridData;
 import org.mkcl.els.domain.CustomParameter;
 import org.mkcl.els.domain.Grid;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
 import com.trg.search.Search;
@@ -340,7 +334,6 @@ public class GridRepository extends BaseRepository<Grid, Long> {
                 }
             }
         }
-        //
 
         Long count = (Long) countQuery.getSingleResult();
         Integer totalPages = 0;

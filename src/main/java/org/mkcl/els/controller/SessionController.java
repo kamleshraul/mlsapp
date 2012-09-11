@@ -9,21 +9,27 @@
  */
 package org.mkcl.els.controller;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
 
 import org.mkcl.els.common.vo.AuthUser;
+import org.mkcl.els.domain.BaseDomain;
 import org.mkcl.els.domain.CustomParameter;
+import org.mkcl.els.domain.Group;
 import org.mkcl.els.domain.House;
+import org.mkcl.els.domain.HouseType;
 import org.mkcl.els.domain.Session;
 import org.mkcl.els.domain.SessionPlace;
 import org.mkcl.els.domain.SessionType;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
 import org.springframework.validation.BindingResult;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
 
 /**
  * The Class SessionController.
@@ -79,7 +85,7 @@ public class SessionController extends GenericController<Session> {
                                final String locale,
                                final HttpServletRequest request) {
 		domain.setLocale(locale.toString());
-		 String sessiontype = ((CustomParameter) CustomParameter.findByName(
+		String sessiontype = ((CustomParameter) CustomParameter.findByName(
                  CustomParameter.class, "DEFAULT_SESSIONTYPE", locale.toString())).getValue();
 		 SessionType defaultSessionType = SessionType.findByFieldName(SessionType.class, "sessionType", sessiontype, locale.toString());
 		 domain.setType(defaultSessionType);
@@ -95,10 +101,11 @@ public class SessionController extends GenericController<Session> {
     	 List<SessionPlace> sessionPlace = SessionPlace.findAll(
 	    		   SessionPlace.class, "place", "asc", locale.toString());
     	 model.addAttribute("place",sessionPlace);
+    	 List<HouseType> houseTypes=HouseType.findAll(HouseType.class, "name", "desc", locale.toString());
+    	 model.addAttribute("houseTypes",houseTypes);
+   
 
-    	 model.addAttribute("houseId",request.getParameter("houseId"));
-
-    }
+       }
 
 	/* (non-Javadoc)
 	 * @see org.mkcl.els.controller.GenericController#populateEdit(org.springframework.ui.ModelMap, org.mkcl.els.domain.BaseDomain, javax.servlet.http.HttpServletRequest)
@@ -108,7 +115,6 @@ public class SessionController extends GenericController<Session> {
                                 final Session domain,
                                 final HttpServletRequest request) {
 
-    	House house=domain.getHouse();
     	 List<SessionType> sessionTypes = SessionType.findAll(
 	    		   SessionType.class, "sessionType", "asc", domain.getLocale());
     	 model.addAttribute("sessionType", sessionTypes);
@@ -116,21 +122,32 @@ public class SessionController extends GenericController<Session> {
     	 List<SessionPlace> sessionPlace = SessionPlace.findAll(
 	    		   SessionPlace.class, "place", "asc", domain.getLocale());
     	 model.addAttribute("place",sessionPlace);
-
-    	 model.addAttribute("houseId", house.getId());
+    	 List<HouseType> houseTypes1=HouseType.findAll(HouseType.class, "name", "desc", domain.getLocale());
+    	 model.addAttribute("houseTypes",houseTypes1);
+    	 List<House> houses=House.findAll(House.class, "name", "desc", domain.getLocale());
+    	 model.addAttribute("houses", houses);
       }
 
+	@RequestMapping(value="/{id}/viewRotationOrder", method = RequestMethod.GET)
+    public String viewRotationOrder(final @PathVariable("id") Long id, final ModelMap model,
+            final HttpServletRequest request) {
+        final String servletPath = request.getServletPath().replaceFirst("\\/","");
+        String urlPattern=servletPath.split("\\/viewRotationOrder")[0].replace("/"+id,"");
+        String messagePattern=urlPattern.replaceAll("\\/",".");
+        model.addAttribute("messagePattern", messagePattern);
+        model.addAttribute("urlPattern", urlPattern);
+        Session domain = Session.findById(Session.class, id);
+        model.addAttribute("domain", domain);
+       List<Group> groups=Group.findByHouseTypeSessionTypeYear(domain.getHouse().getType(), domain.getType(), domain.getYear());
+       model.addAttribute("groups", groups);
+        if(request.getSession().getAttribute("type")==null){
+            model.addAttribute("type","");
+        }else{
+            request.getSession().removeAttribute("type");
+        }
+        return urlPattern+"/"+"viewrotationorder";
+    }
 
-
-
-	 /* (non-Javadoc)
- 	 * @see org.mkcl.els.controller.GenericController#populateList(org.springframework.ui.ModelMap, javax.servlet.http.HttpServletRequest, java.lang.String, org.mkcl.els.common.vo.AuthUser)
- 	 */
-	@Override
- 	protected void populateList(final ModelMap model, final HttpServletRequest request,
-				final String locale, final AuthUser currentUser) {
-		 model.addAttribute("houseId",request.getParameter("houseId"));
-		}
 
 
 }

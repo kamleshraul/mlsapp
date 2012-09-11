@@ -24,7 +24,7 @@ import org.mkcl.els.domain.MemberMinister;
 import org.mkcl.els.domain.Ministry;
 import org.mkcl.els.domain.Question;
 import org.mkcl.els.domain.QuestionDates;
-import org.mkcl.els.domain.QuestionType;
+import org.mkcl.els.domain.DeviceType;
 import org.mkcl.els.domain.Role;
 import org.mkcl.els.domain.Session;
 import org.mkcl.els.domain.SessionType;
@@ -72,7 +72,7 @@ public class QuestionController extends GenericController<Question>{
                     model.addAttribute("errorcode", "requiredrolenotfound");
                 }
                 //question type is obtained when user clicks on device name
-                QuestionType questionType=QuestionType.findByFieldName(QuestionType.class, "type",request.getParameter("type"), locale);
+                DeviceType questionType=DeviceType.findByFieldName(DeviceType.class, "type",request.getParameter("type"), locale);
                 if(questionType!=null){
                     model.addAttribute("questionType",questionType.getId());
                 }else{
@@ -138,7 +138,7 @@ public class QuestionController extends GenericController<Question>{
             model.addAttribute("sessionType",Long.parseLong(strSessionType));
         }
         //*********************populating questiontypes**********************
-        List<QuestionType> questionTypes = QuestionType.findAll(QuestionType.class, "name", ApplicationConstants.ASC, locale);
+        List<DeviceType> questionTypes = DeviceType.findAll(DeviceType.class, "name", ApplicationConstants.ASC, locale);
         model.addAttribute("questionTypes", questionTypes);
         model.addAttribute("questionType", Long.parseLong(request.getParameter("questionType")));
     }
@@ -203,14 +203,14 @@ public class QuestionController extends GenericController<Question>{
             }
         }
         //***********populating question types***************************
-        List<QuestionType> questionTypes=QuestionType.findAll(QuestionType.class,"name",ApplicationConstants.ASC, locale);
+        List<DeviceType> questionTypes=DeviceType.findAll(DeviceType.class,"name",ApplicationConstants.ASC, locale);
         model.addAttribute("questionTypes",questionTypes);
         //*************populating question type in domain*****************
         String selectedQuestionType=request.getParameter("questionType");
-        QuestionType questionType=null;
+        DeviceType questionType=null;
         if(selectedQuestionType!=null){
             if(!selectedQuestionType.isEmpty()){
-                questionType=QuestionType.findById(QuestionType.class,Long.parseLong(selectedQuestionType));
+                questionType=DeviceType.findById(DeviceType.class,Long.parseLong(selectedQuestionType));
                 domain.setType(questionType);
 
             }
@@ -298,7 +298,7 @@ public class QuestionController extends GenericController<Question>{
         List<SessionType> sessionTypes=SessionType.findAll(SessionType.class,"sessionType", ApplicationConstants.ASC, locale);
         model.addAttribute("sessionTypes",sessionTypes);
         //***********populating question types***************************
-        List<QuestionType> questionTypes=QuestionType.findAll(QuestionType.class,"name",ApplicationConstants.ASC, locale);
+        List<DeviceType> questionTypes=DeviceType.findAll(DeviceType.class,"name",ApplicationConstants.ASC, locale);
         model.addAttribute("questionTypes",questionTypes);
         //*****************populating primary members and supporting members**********
         //The same model attribute 'members' will be used to populate both primary and supporting members.

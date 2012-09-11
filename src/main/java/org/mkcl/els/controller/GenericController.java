@@ -511,7 +511,8 @@ public class GenericController<T extends BaseDomain> extends BaseController {
                     || strClassType.equals("boolean")
                     || strClassType.equals("float")
                     || strClassType.equals("double")
-                    || strClassType.endsWith("Association")) {
+                    || strClassType.endsWith("Association")
+                    || strClassType.endsWith("Map")) {
 
             }
             else if (strClassType.equals("List")) {

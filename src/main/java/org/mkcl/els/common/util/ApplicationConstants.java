@@ -115,4 +115,5 @@ public class ApplicationConstants {
     public static final String SHORT_NOTICE_QUESTION="shortnotice";
 
     public static final String HALF_HOUR_DISCUSSION_QUESTION="halfhourdiscussion";
+    //parameters for starred question
 }

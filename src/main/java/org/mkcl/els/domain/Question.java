@@ -20,17 +20,16 @@ import org.mkcl.els.repository.QuestionRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Configurable;
 
-
 @Configurable
 @Entity
 @Table(name = "questions")
-@JsonIgnoreProperties({"houseType","session","type","supportingMembers","ministry","department","subDepartment","referencedQuestions"})
-public class Question extends BaseDomain implements Serializable{
-    /**
-     *
-     */
+@JsonIgnoreProperties({"houseType","session","type","supportingMembers",
+	"ministry","department","subDepartment","referencedQuestions","drafts"})
+public class Question extends BaseDomain implements Serializable {
+
     private static final long serialVersionUID = 1L;
 
+    // No need, since session has house which in turn has houseType
     @ManyToOne(fetch=FetchType.LAZY)
     @JoinColumn(name = "houseType_id")
     private HouseType houseType;
@@ -41,7 +40,7 @@ public class Question extends BaseDomain implements Serializable{
 
     @ManyToOne(fetch=FetchType.LAZY)
     @JoinColumn(name="questionType_id")
-    private QuestionType type;
+    private DeviceType type;
 
     private Integer number;
 
@@ -54,11 +53,9 @@ public class Question extends BaseDomain implements Serializable{
 
     @ManyToMany(fetch=FetchType.LAZY)
     @JoinTable(name = "questions_supportingmembers",
-            joinColumns = { @JoinColumn(name = "question_id",
-                    referencedColumnName = "id") },
-                    inverseJoinColumns = { @JoinColumn(name = "supportingmember_id",
-                            referencedColumnName = "id") })
-                            private List<Member> supportingMembers;
+    		joinColumns = { @JoinColumn(name = "question_id", referencedColumnName = "id") },
+            inverseJoinColumns = { @JoinColumn(name = "supportingmember_id", referencedColumnName = "id") })
+    private List<Member> supportingMembers;
 
     @ManyToOne(fetch=FetchType.LAZY)
     @JoinColumn(name="group_id")
@@ -85,18 +82,25 @@ public class Question extends BaseDomain implements Serializable{
     @Column(length=30000)
     private String questionText;
 
+    @Column(length=30000)
+    private String answer;
+
     private Integer priority;
 
     @ManyToMany(fetch=FetchType.LAZY)
     @JoinTable(name = "questions_references",
-            joinColumns = { @JoinColumn(name = "question_id",
-                    referencedColumnName = "id") },
-                    inverseJoinColumns = { @JoinColumn(name = "reference_id",
-                            referencedColumnName = "id") })
-                            private List<Question> referencedQuestions;
+            joinColumns = { @JoinColumn(name = "question_id", referencedColumnName = "id") },
+            inverseJoinColumns = { @JoinColumn(name = "reference_id", referencedColumnName = "id") })
+    private List<Question> referencedQuestions;
 
     @Column(length=100)
     private String status;
+
+    @ManyToMany(fetch=FetchType.LAZY)
+    @JoinTable(name="questions_drafts_association",
+    		joinColumns={@JoinColumn(name="question_id", referencedColumnName="id")},
+    		inverseJoinColumns={@JoinColumn(name="question_draft_id", referencedColumnName="id")})
+    private List<QuestionDraft> drafts;
 
     @Autowired
     private transient QuestionRepository questionRepository;
@@ -122,6 +126,13 @@ public class Question extends BaseDomain implements Serializable{
         return getQuestionRepository().findLastHalfHourDiscussionQuestionNo(house,currentSession);
     }
 
+    public static Integer assignQuestionNo(final HouseType houseType,
+            final Session session, final DeviceType questionType) {
+        return getQuestionRepository().assignQuestionNo(houseType,
+                session,questionType);
+    }
+
+    //========== Getters & Setters ==========
 	public HouseType getHouseType() {
 		return houseType;
 	}
@@ -129,7 +140,6 @@ public class Question extends BaseDomain implements Serializable{
 	public void setHouseType(final HouseType houseType) {
 		this.houseType = houseType;
 	}
-
 
 	public Session getSession() {
 		return session;
@@ -139,11 +149,16 @@ public class Question extends BaseDomain implements Serializable{
 		this.session = session;
 	}
 
-	public QuestionType getType() {
-		return type;
+	public DeviceType getType() {
+		DeviceType qt = this.type;
+		QuestionDraft draft = this.getLatestDraft();
+		if(draft != null) {
+			qt = draft.getType();
+		}
+		return qt;
 	}
 
-	public void setType(final QuestionType type) {
+	public void setType(final DeviceType type) {
 		this.type = type;
 	}
 
@@ -153,7 +168,6 @@ public class Question extends BaseDomain implements Serializable{
 
 	public void setNumber(final Integer number) {
 		this.number = number;
-
 	}
 
 	public Date getSubmissionDate() {
@@ -173,7 +187,12 @@ public class Question extends BaseDomain implements Serializable{
 	}
 
 	public List<Member> getSupportingMembers() {
-		return supportingMembers;
+		List<Member> sm = this.supportingMembers;
+		QuestionDraft draft = this.getLatestDraft();
+		if(draft != null) {
+			sm = draft.getSupportingMembers();
+		}
+		return sm;
 	}
 
 	public void setSupportingMembers(final List<Member> supportingMembers) {
@@ -181,7 +200,12 @@ public class Question extends BaseDomain implements Serializable{
 	}
 
 	public Group getGroup() {
-		return group;
+		Group g = this.group;
+		QuestionDraft draft = this.getLatestDraft();
+		if(draft != null) {
+			g = draft.getGroup();
+		}
+		return g;
 	}
 
 	public void setGroup(final Group group) {
@@ -189,7 +213,12 @@ public class Question extends BaseDomain implements Serializable{
 	}
 
     public Ministry getMinistry() {
-        return ministry;
+    	Ministry m = this.ministry;
+		QuestionDraft draft = this.getLatestDraft();
+		if(draft != null) {
+			m = draft.getMinistry();
+		}
+		return m;
     }
 
     public void setMinistry(final Ministry ministry) {
@@ -197,25 +226,33 @@ public class Question extends BaseDomain implements Serializable{
     }
 
     public Department getDepartment() {
-        return department;
+    	Department d = this.department;
+		QuestionDraft draft = this.getLatestDraft();
+		if(draft != null) {
+			d = draft.getDepartment();
+		}
+		return d;
     }
-
 
     public void setDepartment(final Department department) {
         this.department = department;
     }
 
     public Date getAnsweringDate() {
-        return answeringDate;
+    	Date date = this.answeringDate;
+		QuestionDraft draft = this.getLatestDraft();
+		if(draft != null) {
+			date = draft.getAnsweringDate();
+		}
+		return date;
     }
-
 
     public void setAnsweringDate(final Date answeringDate) {
         this.answeringDate = answeringDate;
     }
 
     public String getSubject() {
-		return subject;
+    	return subject;
 	}
 
 	public void setSubject(final String subject) {
@@ -226,13 +263,17 @@ public class Question extends BaseDomain implements Serializable{
         return questionText;
     }
 
-
     public void setQuestionText(final String questionText) {
         this.questionText = questionText;
     }
 
     public Integer getPriority() {
-		return priority;
+    	Integer p = this.priority;
+		QuestionDraft draft = this.getLatestDraft();
+		if(draft != null) {
+			p = draft.getPriority();
+		}
+		return p;
 	}
 
 	public void setPriority(final Integer priority) {
@@ -240,7 +281,12 @@ public class Question extends BaseDomain implements Serializable{
 	}
 
 	public List<Question> getReferencedQuestions() {
-		return referencedQuestions;
+		List<Question> rq = this.referencedQuestions;
+		QuestionDraft draft = this.getLatestDraft();
+		if(draft != null) {
+			rq = draft.getReferencedQuestions();
+		}
+		return rq;
 	}
 
 	public void setReferencedQuestions(final List<Question> referencedQuestions) {
@@ -248,27 +294,79 @@ public class Question extends BaseDomain implements Serializable{
 	}
 
 	public String getStatus() {
-		return status;
+		String s = this.status;
+		QuestionDraft draft = this.getLatestDraft();
+		if(draft != null) {
+			s = draft.getStatus();
+		}
+		return s;
 	}
 
 	public void setStatus(final String status) {
 		this.status = status;
 	}
 
-    public static Integer assignQuestionNo(final HouseType houseType,
-            final Session session, final QuestionType questionType) {
-        return getQuestionRepository().assignQuestionNo(houseType,
-                session,questionType);
+	public SubDepartment getSubDepartment() {
+		SubDepartment sd = this.subDepartment;
+		QuestionDraft draft = this.getLatestDraft();
+		if(draft != null) {
+			sd = draft.getSubDepartment();
+		}
+		return sd;
     }
-
-
-    public SubDepartment getSubDepartment() {
-        return subDepartment;
-    }
-
 
     public void setSubDepartment(final SubDepartment subDepartment) {
         this.subDepartment = subDepartment;
     }
+
+    public List<QuestionDraft> getDrafts() {
+		return drafts;
+	}
+
+	public void setDrafts(final List<QuestionDraft> drafts) {
+		this.drafts = drafts;
+	}
+
+	public String getAnswer() {
+		return answer;
+	}
+
+	public void setAnswer(final String answer) {
+		this.answer = answer;
+	}
+
+	//========== Derived Methods ==========
+	public String getRevisedSubject() {
+		String revisedSubject = this.getSubject();
+		QuestionDraft latestDraft = this.getLatestDraft();
+		if(latestDraft != null) {
+			revisedSubject = latestDraft.getSubject();
+		}
+		return revisedSubject;
+	}
+
+	public String getRevisedQuestionText() {
+		String revisedQuestionText = this.getRevisedQuestionText();
+		QuestionDraft latestDraft = this.getLatestDraft();
+		if(latestDraft != null) {
+			revisedQuestionText = latestDraft.getQuestionText();
+		}
+		return revisedQuestionText;
+	}
+
+	//========== Internal Methods ==========
+	private QuestionDraft getLatestDraft() {
+		QuestionDraft draft = null;
+		Integer size=0;
+		if(this.getDrafts()!=null){
+		size = this.getDrafts().size();
+		}
+		if(size != 0) {
+			draft = this.getDrafts().get(size - 1);
+		}else{
+		    draft=new QuestionDraft();
+		}
+		return draft;
+	}
 
 }

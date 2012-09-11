@@ -15,6 +15,7 @@ import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
 
+import org.mkcl.els.common.vo.AuthUser;
 import org.mkcl.els.common.vo.Filter;
 import org.mkcl.els.common.vo.GridConfig;
 import org.mkcl.els.common.vo.GridData;
@@ -134,6 +135,71 @@ public class GridController extends GenericController<Grid> {
 		return gridData;
 	}
 
+	
+	/**
+	 * Handles process deployments' grid request.
+	 */
+	@RequestMapping(value="deployment/data/{gridId}", method=RequestMethod.GET)
+	public @ResponseBody GridData getDeploymentData(@PathVariable final Long gridId,
+			@RequestParam(value = "page", required = false) final Integer page,
+			@RequestParam(value = "rows", required = false) final Integer rows,
+			@RequestParam(value = "sidx", required = false) final String sidx,
+			@RequestParam(value = "sord", required = false) final String order,
+			@RequestParam(value = "_search", required = false) final Boolean search,
+			@RequestParam(value = "searchField", required = false) final String searchField,
+			@RequestParam(value = "searchString", required = false) final String searchString,
+			@RequestParam(value = "searchOper", required = false) final String searchOper,
+			@RequestParam(value = "baseFilters", required = false) final String baseFilters,
+			final ModelMap model,
+			final HttpServletRequest request,
+			final Locale locale) throws ClassNotFoundException {
+		return this.gridService.getDeploymentsData(gridId, rows, page, sidx, order, locale);
+	}
+	
+	/**
+	 * Handles My Tasks' grid request.
+	 */
+	@RequestMapping(value="myTasks/data/{gridId}", method=RequestMethod.GET)
+	public @ResponseBody GridData getMyTasksData(@PathVariable final Long gridId,
+			@RequestParam(value = "page", required = false) final Integer page,
+			@RequestParam(value = "rows", required = false) final Integer rows,
+			@RequestParam(value = "sidx", required = false) final String sidx,
+			@RequestParam(value = "sord", required = false) final String order,
+			@RequestParam(value = "_search", required = false) final Boolean search,
+			@RequestParam(value = "searchField", required = false) final String searchField,
+			@RequestParam(value = "searchString", required = false) final String searchString,
+			@RequestParam(value = "searchOper", required = false) final String searchOper,
+			@RequestParam(value = "baseFilters", required = false) final String baseFilters,
+			final ModelMap model,
+			final HttpServletRequest request,
+			final Locale locale) throws ClassNotFoundException {
+		AuthUser user = this.getCurrentUser();
+		return this.gridService.getMyTasksData(gridId, user.getUsername(), 
+				rows, page, sidx, order, locale);
+	}
+	
+	/**
+	 * Handles Group Tasks' grid request.
+	 */
+	@RequestMapping(value="groupTasks/data/{gridId}", method=RequestMethod.GET)
+	public @ResponseBody GridData getGroupTasksData(@PathVariable final Long gridId,
+			@RequestParam(value = "page", required = false) final Integer page,
+			@RequestParam(value = "rows", required = false) final Integer rows,
+			@RequestParam(value = "sidx", required = false) final String sidx,
+			@RequestParam(value = "sord", required = false) final String order,
+			@RequestParam(value = "_search", required = false) final Boolean search,
+			@RequestParam(value = "searchField", required = false) final String searchField,
+			@RequestParam(value = "searchString", required = false) final String searchString,
+			@RequestParam(value = "searchOper", required = false) final String searchOper,
+			@RequestParam(value = "baseFilters", required = false) final String baseFilters,
+			final ModelMap model,
+			final HttpServletRequest request,
+			final Locale locale) throws ClassNotFoundException {
+		AuthUser user = this.getCurrentUser();
+		return this.gridService.getGroupTasksData(gridId, user.getUsername(),
+				rows, page, sidx, order, locale);
+	}
+	
 	//    @RequestMapping(value = "/member/{gridId}", method = RequestMethod.GET)
 	//    public @ResponseBody
 	//    GridData getMembers(@PathVariable final Long gridId,

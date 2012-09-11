@@ -6,7 +6,7 @@ import org.mkcl.els.common.util.ApplicationConstants;
 import org.mkcl.els.domain.House;
 import org.mkcl.els.domain.HouseType;
 import org.mkcl.els.domain.Question;
-import org.mkcl.els.domain.QuestionType;
+import org.mkcl.els.domain.DeviceType;
 import org.mkcl.els.domain.Session;
 import org.springframework.stereotype.Repository;
 
@@ -40,7 +40,7 @@ public class QuestionRepository extends BaseRepository<Question, Long>{
     }
 
     public Integer assignQuestionNo(final HouseType houseType, final Session session,
-            final QuestionType questionType) {
+            final DeviceType questionType) {
         //query to generate question no in assembly and council will differ a bit.Also query will
         //vary according to question type
         //for assembly

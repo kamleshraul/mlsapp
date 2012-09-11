@@ -38,7 +38,7 @@ import org.springframework.beans.factory.annotation.Configurable;
 @Configurable
 @Entity
 @Table(name = "groups")
-@JsonIgnoreProperties({"ministries","questionDates"})
+@JsonIgnoreProperties({"ministries","questionDates","sessionType"})
 public class Group extends BaseDomain implements Serializable {
 
     // ---------------------------------Attributes------------------------//
@@ -94,6 +94,16 @@ public class Group extends BaseDomain implements Serializable {
         return groupRepository;
     }
     // ----------------------------Domain Methods-------------------------//
+    
+    public static List<Group> findByHouseTypeSessionTypeYear(
+			final HouseType houseType, final SessionType sessionType, final Integer sessionYear) {
+		return getGroupRepository().findByHouseTypeSessionTypeYear(
+				houseType,sessionType,sessionYear);
+	}
+
+	public static List<String> findAnsweringDates(final Long id) {
+		return getGroupRepository().findAnsweringDates(id);
+	}
     // ----------------------------Getters/Setters------------------------//
 	public HouseType getHouseType() {
 		return houseType;
@@ -145,13 +155,5 @@ public class Group extends BaseDomain implements Serializable {
 	public void setQuestionDates(final List<QuestionDates> questionDates) {
 		this.questionDates = questionDates;
 	}
-	public static List<Group> findByHouseTypeSessionTypeYear(
-			final HouseType houseType, final SessionType sessionType, final Integer sessionYear) {
-		return getGroupRepository().findByHouseTypeSessionTypeYear(
-				houseType,sessionType,sessionYear);
-	}
-
-	public static List<String> findAnsweringDates(final Long id) {
-		return getGroupRepository().findAnsweringDates(id);
-	}
+	
 }

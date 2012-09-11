@@ -28,6 +28,7 @@ import org.mkcl.els.repository.SessionRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Configurable;
 
+// TODO: Auto-generated Javadoc
 /**
  * The Class Session.
  *
@@ -37,7 +38,7 @@ import org.springframework.beans.factory.annotation.Configurable;
 @Configurable
 @Entity
 @Table(name = "sessions")
-@JsonIgnoreProperties({"house","type","place"})
+@JsonIgnoreProperties({"house"})
 public class Session extends BaseDomain implements Serializable {
 
     // ---------------------------------Attributes------------------------------------------
@@ -83,10 +84,31 @@ public class Session extends BaseDomain implements Serializable {
     @Column(length = 1000)
     private String remarks;
 
+    /** The rotation order publishing date. */
+    @Temporal(TemporalType.DATE)
+    private Date rotationOrderPublishingDate;
+    
+    /** The question submission start date. */
+    @Temporal(TemporalType.DATE)
+    private Date questionSubmissionStartDate;
+    
+    /** The first ballot date. */
+    @Temporal(TemporalType.DATE)
+    private Date firstBallotDate;
+    
+    /** The question submission first batch date. */
+    @Temporal(TemporalType.DATE)
+    private Date questionSubmissionFirstBatchDate;
+    
+    /** The number of question in first batch. */
+    private Integer numberOfQuestionInFirstBatch;
+    
     /** The house. */
     @ManyToOne(fetch=FetchType.LAZY)
     @JoinColumn(name = "house_id")
     private House house;
+    
+    
 
     /** The session repository. */
     @Autowired
@@ -101,18 +123,7 @@ public class Session extends BaseDomain implements Serializable {
         super();
     }
 
-    /**
-     * Instantiates a new session.
-     *
-     * @param number the number
-     * @param startDate the start date
-     * @param endDate the end date
-     * @param type the type
-     * @param place the place
-     * @param year the year
-     */
-
-
+   
     // -------------------------------Domain_Methods----------------------------------------------
 
     /**
@@ -129,19 +140,57 @@ public class Session extends BaseDomain implements Serializable {
         return sessionRepository;
     }
 
+    /**
+     * Find latest session.
+     *
+     * @param houseType the house type
+     * @param sessionYear the session year
+     * @return the session
+     * @author compaq
+     * @since v1.0.0
+     */
     public static Session findLatestSession(final HouseType houseType,final Integer sessionYear) {
         return getSessionRepository().findLatestSession(houseType,sessionYear);
     }
 
+    /**
+     * Find sessions by house and year.
+     *
+     * @param house the house
+     * @param year the year
+     * @return the list< session>
+     * @author compaq
+     * @since v1.0.0
+     */
     public static List<Session> findSessionsByHouseAndYear(final House house,final Integer year){
         return getSessionRepository().findSessionsByHouseAndYear(house, year);
     }
 
+    /**
+     * Find session by house session type year.
+     *
+     * @param house the house
+     * @param sessionType the session type
+     * @param sessionYear the session year
+     * @return the session
+     * @author compaq
+     * @since v1.0.0
+     */
     public static Session findSessionByHouseSessionTypeYear(final House house,
 			final SessionType sessionType, final Integer sessionYear) {
         return getSessionRepository().findSessionByHouseSessionTypeYear(house, sessionType, sessionYear);
     }
 
+    /**
+     * Find session by house type session type year.
+     *
+     * @param houseType the house type
+     * @param sessionType the session type
+     * @param sessionYear the session year
+     * @return the session
+     * @author compaq
+     * @since v1.0.0
+     */
     public static Session findSessionByHouseTypeSessionTypeYear(final HouseType houseType,
             final SessionType sessionType, final Integer sessionYear) {
         return getSessionRepository().findSessionByHouseTypeSessionTypeYear(houseType, sessionType, sessionYear);
@@ -239,11 +288,21 @@ public class Session extends BaseDomain implements Serializable {
         this.place = place;
     }
 
+    /**
+     * Gets the year.
+     *
+     * @return the year
+     */
     public Integer getYear() {
         return year;
     }
 
 
+    /**
+     * Sets the year.
+     *
+     * @param year the new year
+     */
     public void setYear(final Integer year) {
         this.year = year;
     }
@@ -320,12 +379,125 @@ public class Session extends BaseDomain implements Serializable {
         this.remarks = remarks;
     }
 
+	/**
+	 * Gets the house.
+	 *
+	 * @return the house
+	 */
 	public House getHouse() {
 		return house;
 	}
 
+	/**
+	 * Sets the house.
+	 *
+	 * @param house the new house
+	 */
 	public void setHouse(final House house) {
 		this.house = house;
 	}
+
+
+	/**
+	 * Gets the rotation order publishing date.
+	 *
+	 * @return the rotation order publishing date
+	 */
+	public Date getRotationOrderPublishingDate() {
+		return rotationOrderPublishingDate;
+	}
+
+
+	/**
+	 * Sets the rotation order publishing date.
+	 *
+	 * @param rotationOrderPublishingDate the new rotation order publishing date
+	 */
+	public void setRotationOrderPublishingDate(Date rotationOrderPublishingDate) {
+		this.rotationOrderPublishingDate = rotationOrderPublishingDate;
+	}
+
+
+	/**
+	 * Gets the question submission start date.
+	 *
+	 * @return the question submission start date
+	 */
+	public Date getQuestionSubmissionStartDate() {
+		return questionSubmissionStartDate;
+	}
+
+
+	/**
+	 * Sets the question submission start date.
+	 *
+	 * @param questionSubmissionStartDate the new question submission start date
+	 */
+	public void setQuestionSubmissionStartDate(Date questionSubmissionStartDate) {
+		this.questionSubmissionStartDate = questionSubmissionStartDate;
+	}
+
+
+	/**
+	 * Gets the first ballot date.
+	 *
+	 * @return the first ballot date
+	 */
+	public Date getFirstBallotDate() {
+		return firstBallotDate;
+	}
+
+
+	/**
+	 * Sets the first ballot date.
+	 *
+	 * @param firstBallotDate the new first ballot date
+	 */
+	public void setFirstBallotDate(Date firstBallotDate) {
+		this.firstBallotDate = firstBallotDate;
+	}
+
+
+	/**
+	 * Gets the question submission first batch date.
+	 *
+	 * @return the question submission first batch date
+	 */
+	public Date getQuestionSubmissionFirstBatchDate() {
+		return questionSubmissionFirstBatchDate;
+	}
+
+
+	/**
+	 * Sets the question submission first batch date.
+	 *
+	 * @param questionSubmissionFirstBatchDate the new question submission first batch date
+	 */
+	public void setQuestionSubmissionFirstBatchDate(
+			Date questionSubmissionFirstBatchDate) {
+		this.questionSubmissionFirstBatchDate = questionSubmissionFirstBatchDate;
+	}
+
+
+	/**
+	 * Gets the number of question in first batch.
+	 *
+	 * @return the number of question in first batch
+	 */
+	public Integer getNumberOfQuestionInFirstBatch() {
+		return numberOfQuestionInFirstBatch;
+	}
+
+
+	/**
+	 * Sets the number of question in first batch.
+	 *
+	 * @param numberOfQuestionInFirstBatch the new number of question in first batch
+	 */
+	public void setNumberOfQuestionInFirstBatch(Integer numberOfQuestionInFirstBatch) {
+		this.numberOfQuestionInFirstBatch = numberOfQuestionInFirstBatch;
+	}
+	
+	
 
 }

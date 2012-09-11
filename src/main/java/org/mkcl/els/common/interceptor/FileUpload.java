@@ -23,6 +23,7 @@ import org.apache.commons.fileupload.FileItem;
 import org.apache.commons.fileupload.FileItemFactory;
 import org.apache.commons.fileupload.disk.DiskFileItemFactory;
 import org.apache.commons.fileupload.servlet.ServletFileUpload;
+import org.mkcl.els.common.util.FileUtil;
 import org.mkcl.els.domain.CustomParameter;
 import org.mkcl.els.domain.Document;
 
@@ -68,10 +69,16 @@ public class FileUpload extends HttpServlet {
             document.setTag(customParameter.getValue()
                     + String.valueOf(System.currentTimeMillis()));
             document = document.persist();
-            res.sendRedirect("file/" + document.getTag() + "/info.json");
+            // If the file uploaded is a Process file
+            if(FileUtil.fileExtension(file.getName()).equals("bar")){
+                res.sendRedirect("workflow/deploy/" + document.getTag() + "/create.json");
+            } else {
+                res.sendRedirect("file/" + document.getTag() + "/info.json");
             }
+        }
         catch (Exception ex) {
             throw new ServletException(ex);
         }
     }
+
 }

@@ -37,6 +37,7 @@ import org.mkcl.els.domain.District;
 import org.mkcl.els.domain.Division;
 import org.mkcl.els.domain.Election;
 import org.mkcl.els.domain.ElectionType;
+import org.mkcl.els.domain.Grid;
 import org.mkcl.els.domain.Group;
 import org.mkcl.els.domain.House;
 import org.mkcl.els.domain.HouseType;
@@ -722,5 +723,31 @@ public class ReferenceController extends BaseController {
             masterVO=Member.findConstituencyByAssemblyId(memberid, house);
         }
         return masterVO;
+    }
+    
+    @RequestMapping(value = "titles", method = RequestMethod.GET)
+	public @ResponseBody String showTitles(final ModelMap model, final HttpServletRequest request, final Locale locale) {
+		Grid grid = Grid.findByDetailView("house", locale.toString());
+		model.addAttribute("gridId", grid.getId());
+		model.addAttribute("houseType", this.getCurrentUser().getHouseType());
+		model.addAttribute("messagePattern", "house");
+		model.addAttribute("urlPattern", "house");		
+		return "house/list";
+	}
+    
+    @RequestMapping(value = "/{houseType}/house",
+            method = RequestMethod.GET)
+            public @ResponseBody
+            List<House> getHousesByHouseType(
+                    @PathVariable("houseType") final Long houseTypeId,
+                    final ModelMap map, final Locale locale) {
+        List<House> houses = new ArrayList<House>();
+        HouseType houseType = HouseType.findById(HouseType.class, houseTypeId);
+        if (houseType != null) {
+            houses = House.findAllByFieldName(House.class, "type",
+            		houseType, "name", "asc", locale.toString());
+        }
+
+        return houses;
     }
 }
