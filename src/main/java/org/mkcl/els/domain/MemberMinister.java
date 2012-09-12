@@ -24,6 +24,7 @@ import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
 
 import org.codehaus.jackson.annotate.JsonIgnoreProperties;
+import org.mkcl.els.common.vo.MasterVO;
 import org.mkcl.els.repository.MemberMinisterRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Configurable;
@@ -118,6 +119,14 @@ public class MemberMinister extends BaseDomain implements Serializable {
     		 final String locale){
     	return getMemberMinisterRepository().
     		findAssignedSubDepartments(ministry, department, locale);
+    }
+
+    public static List<MasterVO> findAssignedDepartmentsVO(final Group group,final String locale){
+        return getMemberMinisterRepository().findAssignedDepartmentsVO(group, locale);
+    }
+
+    public static List<MasterVO> findAssignedSubDepartmentsVO(final Group group,final String locale){
+        return getMemberMinisterRepository().findAssignedSubDepartmentsVO(group, locale);
     }
 
 
@@ -288,4 +297,16 @@ public class MemberMinister extends BaseDomain implements Serializable {
 	public void setMinistryAssignmentDate(final Date ministryAssignmentDate) {
 		this.ministryAssignmentDate = ministryAssignmentDate;
 	}
+
+    public static List<MasterVO> findfindAssignedDepartmentsVO(
+            final Integer[] groupNumbers, final HouseType houseType,
+            final SessionType sessionType, final Integer year, final String locale) {
+        return getMemberMinisterRepository().findAssignedDepartmentsVO(groupNumbers, houseType, sessionType, year, locale);
+    }
+
+    public static List<MasterVO> findfindAssignedSubDepartmentsVO(
+            final Integer[] groupNumbers, final HouseType houseType,
+            final SessionType sessionType, final Integer year, final String locale) {
+        return getMemberMinisterRepository().findAssignedDepartmentsVO(groupNumbers, houseType, sessionType, year, locale);
+    }
 }

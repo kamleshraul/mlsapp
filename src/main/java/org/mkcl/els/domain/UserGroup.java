@@ -10,6 +10,7 @@
 package org.mkcl.els.domain;
 
 import java.io.Serializable;
+import java.util.Date;
 import java.util.Map;
 
 import javax.persistence.CollectionTable;
@@ -21,6 +22,8 @@ import javax.persistence.ManyToOne;
 import javax.persistence.MapKeyColumn;
 import javax.persistence.PrimaryKeyJoinColumn;
 import javax.persistence.Table;
+import javax.persistence.Temporal;
+import javax.persistence.TemporalType;
 
 import org.codehaus.jackson.annotate.JsonIgnoreProperties;
 import org.springframework.beans.factory.annotation.Configurable;
@@ -47,6 +50,9 @@ public class UserGroup extends BaseDomain implements Serializable {
 	@Column(length=1000)
 	private String name;
 
+	@Column(length=1000)
+	private String type;
+
 	/** The parameters. */
 	@ElementCollection
     @MapKeyColumn(name="parameter_key")
@@ -58,18 +64,20 @@ public class UserGroup extends BaseDomain implements Serializable {
     @PrimaryKeyJoinColumn(name = "credential_id", referencedColumnName = "id")
     private Credential credential;
 
+    @Temporal(TemporalType.DATE)
+    private Date activeFrom;
 
     public UserGroup() {
         super();
     }
 
-
     public UserGroup(final String name, final Map<String, String> parameters,
-            final Credential credential) {
+            final Credential credential, final Date activeFrom) {
         super();
         this.name = name;
         this.parameters = parameters;
         this.credential = credential;
+        this.activeFrom = activeFrom;
     }
 
 
@@ -100,6 +108,26 @@ public class UserGroup extends BaseDomain implements Serializable {
 
     public void setCredential(final Credential credential) {
         this.credential = credential;
+    }
+
+
+    public Date getActiveFrom() {
+        return activeFrom;
+    }
+
+
+    public void setActiveFrom(final Date activeFrom) {
+        this.activeFrom = activeFrom;
+    }
+
+
+    public String getType() {
+        return type;
+    }
+
+
+    public void setType(final String type) {
+        this.type = type;
     }
 
 

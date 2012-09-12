@@ -91,7 +91,16 @@ public class DeviceTypeController extends GenericController<DeviceType> {
         for(Entry<String,String[]> i:params.entrySet()){
             String key=i.getKey();
             if(key.startsWith("param_")){
-                deviceTypeParams.put(key.split("param_")[1],params.get(i.getKey())[0]);
+                String[] values=params.get(key);
+                if(values.length==1){
+                deviceTypeParams.put(key.split("param_")[1],values[0]);
+                }else{
+                    StringBuffer buffer=new StringBuffer();
+                    for(String j:values){
+                        buffer.append(j+"##");
+                    }
+                    deviceTypeParams.put(key.split("param_")[1],buffer.toString());
+                }
             }
         }
         domain.setParameters(deviceTypeParams);
@@ -110,7 +119,16 @@ public class DeviceTypeController extends GenericController<DeviceType> {
         for(Entry<String,String[]> i:params.entrySet()){
             String key=i.getKey();
             if(key.startsWith("param_")){
-                deviceTypeParams.put(key.split("param_")[1],params.get(i.getKey())[0]);
+                String[] values=params.get(key);
+                if(values.length==1){
+                deviceTypeParams.put(key.split("param_")[1],values[0]);
+                }else{
+                    StringBuffer buffer=new StringBuffer();
+                    for(String j:values){
+                        buffer.append(j+"##");
+                    }
+                    deviceTypeParams.put(key.split("param_")[1],buffer.toString());
+                }
             }
         }
         domain.setParameters(deviceTypeParams);

@@ -26,7 +26,7 @@ public class GroupRepository extends BaseRepository<Group, Long> {
 		return this.search(search);
 	}
 
-	public List<String> findAnsweringDates(Long id) {
+	public List<String> findAnsweringDates(final Long id) {
 		String query="SELECT answering_date,locale FROM question_dates WHERE id="+id+" ORDER BY answering_date asc";
 		List dates=this.em().createNativeQuery(query).getResultList();
 		List<String> answeringDates=new ArrayList<String>();
@@ -46,5 +46,15 @@ public class GroupRepository extends BaseRepository<Group, Long> {
 		return answeringDates;
 	}
 
-	
+    public Group findByNumberHouseTypeSessionTypeYear(final Integer groupNumber,
+            final HouseType houseType, final SessionType sessionType, final Integer year) {
+        Search search=new Search();
+        search.addFilterEqual("houseType",houseType);
+        search.addFilterEqual("sessionType",sessionType);
+        search.addFilterEqual("year",year);
+        search.addFilterEqual("number",groupNumber);
+        return this.searchUnique(search);
+    }
+
+
 }

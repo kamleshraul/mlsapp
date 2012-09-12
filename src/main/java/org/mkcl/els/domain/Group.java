@@ -94,16 +94,24 @@ public class Group extends BaseDomain implements Serializable {
         return groupRepository;
     }
     // ----------------------------Domain Methods-------------------------//
-    
+
     public static List<Group> findByHouseTypeSessionTypeYear(
 			final HouseType houseType, final SessionType sessionType, final Integer sessionYear) {
 		return getGroupRepository().findByHouseTypeSessionTypeYear(
 				houseType,sessionType,sessionYear);
 	}
 
+
+
 	public static List<String> findAnsweringDates(final Long id) {
 		return getGroupRepository().findAnsweringDates(id);
 	}
+
+	 public static Group findByNumberHouseTypeSessionTypeYear(final Integer groupNumber,
+	            final HouseType houseType, final SessionType sessionType, final Integer year) {
+	        return getGroupRepository().findByNumberHouseTypeSessionTypeYear(groupNumber,
+	                houseType, sessionType, year);
+	    }
     // ----------------------------Getters/Setters------------------------//
 	public HouseType getHouseType() {
 		return houseType;
@@ -155,5 +163,7 @@ public class Group extends BaseDomain implements Serializable {
 	public void setQuestionDates(final List<QuestionDates> questionDates) {
 		this.questionDates = questionDates;
 	}
-	
+
+
+
 }
