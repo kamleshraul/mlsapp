@@ -7,11 +7,34 @@
 	$('document').ready(function() {
 		initControls();
 		$('#key').val('');
-		$("#type").change(function(){
-			$("#displayName").val($("#type :option:selected").text());
-		});
+		$('.council').hide();
+		if('${domain.house.type.type}'=="upperhouse"){
+			$('.council').show();
+		}
+	$('#tentativeStartDate').change(function(){
+		$('#startDate').val($('#tentativeStartDate').val());
 	});
-</script>
+	
+	$('#tentativeEndDate').change(function(){
+		$('#endDate').val($('#tentativeEndDate').val());
+	});
+	$('#houseType').change(function(){
+		populateHouse($('#houseType').val());
+	});
+	});
+	function populateHouse(houseType) {
+		$.get('ref/' + houseType + '/house', function(data) {
+			$('#house option').empty();
+			var options = "";
+			for ( var i = 0; i < data.length; i++) {
+				options += "<option value='"+data[i].id+"'>" + data[i].displayName
+						+ "</option>";
+			}
+			$('#house').html(options);
+			
+		});
+	}
+	</script>
 </head>
 <body>
 	<div class="commandbar">
@@ -19,7 +42,7 @@
 <div class="fields clearfix vidhanmandalImg">
 		<form:form action="session" method="POST"
 			modelAttribute="domain">
-			<%@ include file="/common/info.jsp"%>
+			<%@ include file="/common/info.jsp" %>
 			<h2>
 				<spring:message code="generic.new.heading" text="Enter Details" />
 				[
@@ -29,16 +52,50 @@
 				]
 			</h2>
 			<form:errors path="version" cssClass="validationError" />
-			
+			<p>
+			<label class="small"><spring:message
+								code="session.houseType" text="House Type" /></label>
+			 <select class="sSelect" name="houseType" id="houseType">
+					<c:if test="${!(empty houseTypes)}">
+							<c:forEach items="${houseTypes}" var="i">
+								<option value="${i.id}" selected="selected">
+									<c:out value="${i.name}"></c:out>
+								</option>
+							</c:forEach>							
+					</c:if>								
+			</select>
+			</p>
+			<p>
+				<label class="small"><spring:message code="session.house" text="House" /></label>
+					<form:select cssClass="sSelect" path="house" items="${houses}"
+							itemValue="id" itemLabel="displayName" id="house" size="1">
+					</form:select>
+				<form:errors path="house" cssClass="validationError" />			
+			</p>
 			<p>
 				<label class="small"><spring:message
 						code="session.number" text="Session Number" />&nbsp;*</label>
 				<form:input path="number" cssClass="integer sText"></form:input>
-			</p>			
+			</p>
+			<p>
+				<label class="small"><spring:message
+						code="session.tentativeStartDate" text="Tentative Start Date" />&nbsp;*</label>
+				<form:input id="tentativeStartDate" cssClass="datemask sText" path="tentativeStartDate" />
+				<form:errors path="tentativeStartDate" cssClass="validationError" />
+
+			</p>
+
+			<p>
+				<label class="small"><spring:message code="session.tentativeEndDate"
+						text="Tentative End Date" /></label>
+				<form:input id="tentativeEndDate" cssClass="datemask sText" path="tentativeEndDate" />
+				<form:errors path="tentativeEndDate" cssClass="validationError" />
+
+			</p>
 			<p>
 				<label class="small"><spring:message
 						code="session.startDate" text="Start Date" />&nbsp;*</label>
-				<form:input cssClass="datemask sText" path="startDate" />
+				<form:input id="startDate" cssClass="datemask sText" path="startDate" />
 				<form:errors path="startDate" cssClass="validationError" />
 
 			</p>
@@ -46,7 +103,7 @@
 			<p>
 				<label class="small"><spring:message code="session.endDate"
 						text="End Date" /></label>
-				<form:input cssClass="datemask sText" path="endDate" />
+				<form:input id="endDate" cssClass="datemask sText" path="endDate" />
 				<form:errors path="endDate" cssClass="validationError" />
 
 			</p>
@@ -55,7 +112,8 @@
 				<form:select cssClass="sSelect" path="type"
 					items="${sessionType}" itemValue="id" itemLabel="sessionType">
 				</form:select>
-			</p>			
+
+			</p>
 			<p>
 				<label class="small"><spring:message code="session.place" text="Session Place" />&nbsp;*</label>
 				<form:select cssClass="sSelect" path="place"
@@ -88,12 +146,46 @@
 			
 		</p>
 		<p>
+				<label class="small"><spring:message code="session.rotationOrderPublishingDate"
+						text="Rotation Order Publishing Date" /></label>
+				<form:input cssClass="datemask sText" path="rotationOrderPublishingDate" />
+				<form:errors path="rotationOrderPublishingDate" cssClass="validationError" />
+
+		</p>
+		<p>
+				<label class="small"><spring:message code="session.questionSubmissionStartDate"
+						text="Question Submission Start Date" /></label>
+				<form:input cssClass="datemask sText" path="questionSubmissionStartDate" />
+				<form:errors path="questionSubmissionStartDate" cssClass="validationError" />
+
+		</p>
+		<p>
+				<label class="small"><spring:message code="session.firstBallotDate"
+						text="Date of First Ballot" /></label>
+				<form:input cssClass="datemask sText" path="firstBallotDate" />
+				<form:errors path="firstBallotDate" cssClass="validationError" />
+
+		</p>
+		<p class="council">
+				<label class="small"><spring:message code="session.questionSubmissionFirstBatchDate"
+						text=" First Batch Date Of Question Submission " /></label>
+				<form:input cssClass="datemask sText" path="questionSubmissionFirstBatchDate" />
+				<form:errors path="questionSubmissionFirstBatchDate" cssClass="validationError" />
+
+		</p>
+		<p class="council">
+		<label class="small"><spring:message code="session.numberOfQuestionInFirstBatch" text="Number Of Question in First Batch"/>&nbsp;*</label>
+				<form:input cssClass="integer sText" path="numberOfQuestionInFirstBatch"/>
+				<form:errors path="numberOfQuestionInFirstBatch" cssClass="validationError" />	
+			
+		</p>
+		<p>
 				<label class="labelcentered"><spring:message code="session.remarks"
 						text="Remarks" /></label>
 				<form:textarea cssClass="sTextarea" path="remarks" />
 				<form:errors path="remarks" cssClass="validationError" />
 
-			</p>
+		</p>
 			<div class="fields">
 				<h2></h2>
 				<p class="tright">
@@ -107,8 +199,6 @@
 			<form:hidden path="id" />
 			<form:hidden path="version" />
 			<form:hidden path="locale" />
-			<form:hidden path="house" value="${houseId}" name="houseId"/>
-			
 		</form:form>
 	</div>
 </body>
