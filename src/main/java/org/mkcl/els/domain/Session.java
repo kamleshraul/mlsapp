@@ -103,6 +103,14 @@ public class Session extends BaseDomain implements Serializable {
     /** The number of question in first batch. */
     private Integer numberOfQuestionInFirstBatch;
     
+    /** The tentative start date. */
+    @Temporal(TemporalType.DATE)
+    private Date tentativeStartDate;
+    
+    /** The tentative end date. */
+    @Temporal(TemporalType.DATE)
+    private Date tentativeEndDate;
+    
     /** The house. */
     @ManyToOne(fetch=FetchType.LAZY)
     @JoinColumn(name = "house_id")
@@ -496,6 +504,46 @@ public class Session extends BaseDomain implements Serializable {
 	 */
 	public void setNumberOfQuestionInFirstBatch(Integer numberOfQuestionInFirstBatch) {
 		this.numberOfQuestionInFirstBatch = numberOfQuestionInFirstBatch;
+	}
+
+
+	/**
+	 * Gets the tentative start date.
+	 *
+	 * @return the tentative start date
+	 */
+	public Date getTentativeStartDate() {
+		return tentativeStartDate;
+	}
+
+
+	/**
+	 * Sets the tentative start date.
+	 *
+	 * @param tentativeStartDate the new tentative start date
+	 */
+	public void setTentativeStartDate(Date tentativeStartDate) {
+		this.tentativeStartDate = tentativeStartDate;
+	}
+
+
+	/**
+	 * Gets the tentative end date.
+	 *
+	 * @return the tentative end date
+	 */
+	public Date getTentativeEndDate() {
+		return tentativeEndDate;
+	}
+
+
+	/**
+	 * Sets the tentative end date.
+	 *
+	 * @param tentativeEndDate the new tentative end date
+	 */
+	public void setTentativeEndDate(Date tentativeEndDate) {
+		this.tentativeEndDate = tentativeEndDate;
 	}
 	
 	
