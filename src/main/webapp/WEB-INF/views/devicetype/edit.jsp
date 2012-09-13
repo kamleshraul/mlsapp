@@ -5,34 +5,35 @@
 	<spring:message code="questiontype.title" text="Question Types"/>
 	</title>
 	<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>	
-	<script type="text/javascript">
+		<script type="text/javascript">
 	$('document').ready(function(){	
 		initControls();
 		$('#key').val('');	
 		var hasLimit = $('#hasQuestionLimit').val();
+		var locale=$("#locale").val();
 		if(hasLimit == 'true') {
-			$('#param_STARRED_QUESTION_HAS_LIMIT').attr("checked","checked");
+			$('#param_STARRED_QUESTION_HAS_LIMIT_'+locale).attr("checked","checked");
 			$(".p").show();
-			$("#param_STARRED_QUESTION_LIMIT").removeAttr("disabled");
-			$("#param_STARRED_QUESTION_LIMIT_ACTION").removeAttr("disabled");
-			$("#param_STARRED_QUESTION_WARNING_MESSAGE").removeAttr("disabled");	 
+			$("#param_STARRED_QUESTION_LIMIT_"+locale).removeAttr("disabled");
+			$("#param_STARRED_QUESTION_LIMIT_ACTION_"+locale).removeAttr("disabled");
+			$("#param_STARRED_QUESTION_WARNING_MESSAGE_"+locale).removeAttr("disabled");	 
 		} else {
-			$('#param_STARRED_QUESTION_HAS_LIMIT').removeAttr("checked");			
-			$("#param_STARRED_QUESTION_LIMIT").attr("disabled","disabled");
-			$("#param_STARRED_QUESTION_LIMIT_ACTION").attr("disabled","disabled");
-			$("#param_STARRED_QUESTION_WARNING_MESSAGE").attr("disabled","disabled");	
+			$('#param_STARRED_QUESTION_HAS_LIMIT_'+locale).removeAttr("checked");			
+			$("#param_STARRED_QUESTION_LIMIT_"+locale).attr("disabled","disabled");
+			$("#param_STARRED_QUESTION_LIMIT_ACTION_"+locale).attr("disabled","disabled");
+			$("#param_STARRED_QUESTION_WARNING_MESSAGE_"+locale).attr("disabled","disabled");	
 			$(".p").hide();		
 		}			
-		$('#param_STARRED_QUESTION_HAS_LIMIT').click(function() {
-			if($('#param_STARRED_QUESTION_HAS_LIMIT').is(':checked')){
+		$('#param_STARRED_QUESTION_HAS_LIMIT_'+locale).click(function() {
+			if($('#param_STARRED_QUESTION_HAS_LIMIT_'+locale).is(':checked')){
 				$(".p").show();  
-				$("#param_STARRED_QUESTION_LIMIT").removeAttr("disabled");
-				$("#param_STARRED_QUESTION_LIMIT_ACTION").removeAttr("disabled");
-				$("#param_STARRED_QUESTION_WARNING_MESSAGE").removeAttr("disabled");	 
+				$("#param_STARRED_QUESTION_LIMIT_"+locale).removeAttr("disabled");
+				$("#param_STARRED_QUESTION_LIMIT_ACTION_"+locale).removeAttr("disabled");
+				$("#param_STARRED_QUESTION_WARNING_MESSAGE_"+locale).removeAttr("disabled");	 
 			}else {
-				$("#param_STARRED_QUESTION_LIMIT").attr("disabled","disabled");
-				$("#param_STARRED_QUESTION_LIMIT_ACTION").attr("disabled","disabled");
-				$("#param_STARRED_QUESTION_WARNING_MESSAGE").attr("disabled","disabled");	
+				$("#param_STARRED_QUESTION_LIMIT_"+locale).attr("disabled","disabled");
+				$("#param_STARRED_QUESTION_LIMIT_ACTION_"+locale).attr("disabled","disabled");
+				$("#param_STARRED_QUESTION_WARNING_MESSAGE_"+locale).attr("disabled","disabled");	
 				$(".p").hide();											
 			}
 		});			
@@ -61,19 +62,19 @@
 		<legend> <spring:message code="starredquestion.parameters" text="Only For Starred Questions"/> </legend>
 	<p>
 		<label class="small"><spring:message code="starredquestion.hasQuestionLimit" text="Starred Question Limit?" /></label>
-		<input type="checkbox" class="sCheck" id="param_STARRED_QUESTION_HAS_LIMIT" name="param_STARRED_QUESTION_HAS_LIMIT" value="true">
+		<input type="checkbox" class="sCheck" id="param_STARRED_QUESTION_HAS_LIMIT_${locale}" name="param_STARRED_QUESTION_HAS_LIMIT_${locale}" value="true">
 	</p>	
 	<p class="p"> 
 		<label class="small"><spring:message code="starredquestion.questionLimit" text="Starred Question Limit"/></label>
-		<input type="text" class="sText" id="param_STARRED_QUESTION_LIMIT" name="param_STARRED_QUESTION_LIMIT" value="${parameters.STARRED_QUESTION_LIMIT }">
+		<input type="text" class="sText" id="param_STARRED_QUESTION_LIMIT_${locale}" name="param_STARRED_QUESTION_LIMIT_${locale}" value="${questionlimit}">
 	</p>
 	<p class="p">
 		<label class="small"><spring:message code="starredquestiontype.questionLimitingAction" text="Starred Question Limit Reached Action" /></label>			
-		<select class="sSelect" id="param_STARRED_QUESTION_LIMIT_ACTION" name="param_STARRED_QUESTION_LIMIT_ACTION">
+		<select class="sSelect" id="param_STARRED_QUESTION_LIMIT_ACTION_${locale}" name="param_STARRED_QUESTION_LIMIT_ACTION_${locale}">
 			<option value=""><spring:message code='please.select' text='Please Select'/></option>
 			<c:forEach items="${questionLimitingActions}" var="i">	
 			<c:choose>
-			<c:when test="${parameters.STARRED_QUESTION_LIMIT_ACTION ==i.name}">
+			<c:when test="${limitaction ==i.name}">
 			<option value="${i.name}" selected="selected">${i.name}</option>
 			</c:when>
 			<c:otherwise>
@@ -85,7 +86,7 @@
 	</p>	
 	<p class="p">
 		<label class="small"><spring:message code="questiontype.warningMessage" text="Warning Message" /></label>
-		<textarea class="wysiwyg sTextarea" id="param_STARRED_QUESTION_WARNING_MESSAGE" name="param_STARRED_QUESTION_WARNING_MESSAGE" rows="3" cols="20">${parameters.STARRED_QUESTION_WARNING_MESSAGE}</textarea>
+		<textarea class="wysiwyg sTextarea" id="param_STARRED_QUESTION_WARNING_MESSAGE_${locale}" name="param_STARRED_QUESTION_WARNING_MESSAGE_${locale}" rows="3" cols="20">${warningmessage}</textarea>
 	</p>	
 	</fieldset>
 	
