@@ -80,7 +80,7 @@
 					buttons: {Ok:true, Cancel:false}, callback: function(v){
 			        if(v){
 				        $.delete_('usergroup/'+row+'/delete?'+$('#gridURLParams').val(), null, function(data, textStatus, XMLHttpRequest) {
-				        	listPartyRecord();
+				        	listUserGroupRecord();
 				        });
 			        }
 				}});

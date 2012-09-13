@@ -65,25 +65,6 @@
 			}
 		});	
 	}
-
-	function loadSubDepartments(group,department,housetype,year,sessiontype){
-		var locale=$("#locale").val();	
-		console.log(department);	
-		$.get('ref/departments/subdepartments?group='+group+'&department='+department+'&housetype='+housetype+'&year='+year+'&sessiontype='+sessiontype,function(data){
-			$("#param_SUBDEPARTMENT_"+locale).empty();
-			var text="";
-			console.log("Sub Departments:"+data.length);			
-			if(data.length>0){
-				for(var i=0;i<data.length;i++){
-					text+="<option value='"+data[i].name+"' selected='selected'>"+data[i].name+"</option>";
-				}
-				$("#param_SUBDEPARTMENT_"+locale).html(text);
-				$.unblockUI();				
-			}else{
-				$.unblockUI();				
-			}
-		});	
-	}
 	
 	$('document').ready(function(){	
 		initControls();
@@ -127,32 +108,18 @@
 			$("#param_SUBDEPARTMENT_"+locale).empty();		
 		}
 		}
-		});		
-
-		$("#param_DEPARTMENT_"+locale).change(function(){
-			if($("#param_HOUSETYPE_"+locale).val()!=null){				
-				if($("#param_GROUP_"+locale).val()!=null){
-				if($("#param_DEPARTMENT_"+locale).val()!=null){
-				$.blockUI({ message: '<img src="./resources/images/waitAnimated.gif" />' }); 		
-				loadSubDepartments($("#param_GROUP_"+locale).val(),$("#param_DEPARTMENT_"+locale).val(),$("#param_HOUSETYPE_"+locale).val(),$("#param_YEAR_"+locale).val(),$("#param_SESSIONTYPE_"+locale).val());
-				}else{
-					$("#param_SUBDEPARTMENT_"+locale).empty();		
-				}
-				}
-			}	
-		});	
+		});			
 	});		
 </script>
 </head>
 <body>
 <div class="fields clearfix">
-<form:form action="usergroup" method="POST"  modelAttribute="domain">
+<form:form action="usergroup" method="PUT"  modelAttribute="domain">
 	<%@ include file="/common/info.jsp" %>
-	<h2><spring:message code="generic.new.heading" text="Enter Details"/>
-		[<spring:message code="generic.id" text="Id"></spring:message>:&nbsp;<spring:message code="generic.new" text="New"></spring:message>]
-	</h2>	
+	<h2><spring:message code="generic.edit.heading" text="Details"/>
+		[<spring:message code="generic.id" text="Id"></spring:message>:${domain.id}]</h2>
 	<form:errors path="version" cssClass="validationError"/>		 
-	<p> 
+		<p> 
 		<label class="small"><spring:message code="usergroup.name" text="Name"/></label>
 		<form:input cssClass="sText" path="name"/>
 		<form:errors path="name" cssClass="validationError"/>	
@@ -215,7 +182,7 @@
 	<p>
 		<label class="small"><spring:message code="usergroup.devicetype" text="Device Type" /></label>			
 		<select  id="param_DEVICETYPE_${locale}" name="param_DEVICETYPE_${locale}" multiple="multiple" size="5">
-			<c:forEach items="${deviceTypes}" var="i">				
+			<c:forEach items="${deviceTypes}" var="i">
 			<c:choose>
 			<c:when test="${fn:contains(selectedDeviceType,i.name)}">
 			<option value="${i.name}" selected="selected">${i.name}</option>			
@@ -223,7 +190,7 @@
 			<c:otherwise>
 			<option value="${i.name}">${i.name}</option>	
 			</c:otherwise>
-			</c:choose>
+			</c:choose>				
 			</c:forEach>
 		</select>
 	</p>
@@ -247,7 +214,7 @@
 	<p>
 		<label class="small"><spring:message code="usergroup.department" text="Departments" /></label>			
 		<select  id="param_DEPARTMENT_${locale}" name="param_DEPARTMENT_${locale}" multiple="multiple" size="5">
-			<c:forEach items="${departments}" var="i">				
+			<c:forEach items="${departments}" var="i">	
 			<c:choose>
 			<c:when test="${fn:contains(selectedDepartment,i.name) }">
 			<option value="${i.name}" selected="selected">${i.name}</option>			
@@ -255,14 +222,14 @@
 			<c:otherwise>
 			<option value="${i.name}">${i.name}</option>			
 			</c:otherwise>
-			</c:choose>				
+			</c:choose>			
 			</c:forEach>
 		</select>
 	</p>	
 	<p>
 		<label class="small"><spring:message code="usergroup.subdepartment" text="Sub-Departments" /></label>			
 		<select  id="param_SUBDEPARTMENT_${locale}" name="param_SUBDEPARTMENT_${locale}" multiple="multiple" size="5">
-			<c:forEach items="${subdepartments}" var="i">				
+			<c:forEach items="${subdepartments}" var="i">
 			<c:choose>
 			<c:when test="${fn:contains(selectedSubDepartment,i.name) }">
 			<option value="${i.name}" selected="selected">${i.name}</option>
@@ -270,7 +237,7 @@
 			<c:otherwise>
 			<option value="${i.name}">${i.name}</option>			
 			</c:otherwise>
-			</c:choose>							
+			</c:choose>				
 			</c:forEach>
 		</select>
 	</p>	
@@ -285,7 +252,7 @@
 	<form:hidden path="id"/>
 	<form:hidden path="locale"/>
 	<input type="hidden" id="credential" name="credential" value="${domain.credential.id}">	
-	<input type="hidden" id="currentDate" value="${currentdate}">	
+	<input type="hidden" id="currentDate" value="${currentdate}">
 </form:form>
 </div>	
 </body>
