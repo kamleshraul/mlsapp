@@ -307,6 +307,6 @@ public class MemberMinister extends BaseDomain implements Serializable {
     public static List<MasterVO> findfindAssignedSubDepartmentsVO(
             final Integer[] groupNumbers, final HouseType houseType,
             final SessionType sessionType, final Integer year, final String locale) {
-        return getMemberMinisterRepository().findAssignedDepartmentsVO(groupNumbers, houseType, sessionType, year, locale);
+        return getMemberMinisterRepository().findAssignedSubDepartmentsVO(groupNumbers, houseType, sessionType, year, locale);
     }
 }

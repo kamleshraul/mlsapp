@@ -162,6 +162,9 @@ public class MemberMinisterRepository extends BaseRepository<MemberMinister, Lon
             }else{
                 buffer.append(" OR g.number="+group[i].getNumber()+" ");
             }
+            if(1==group.length){
+                buffer.append(") ");
+            }
         }
         List results=this.em().createNativeQuery(query+buffer.toString()).getResultList();
         List<MasterVO> references=new ArrayList<MasterVO>();
@@ -189,6 +192,9 @@ public class MemberMinisterRepository extends BaseRepository<MemberMinister, Lon
                 buffer.append(" OR g.number="+groupNumbers[i]+" )");
             }else{
                 buffer.append(" OR g.number="+groupNumbers[i]+" ");
+            }
+            if(1==groupNumbers.length){
+                buffer.append(") ");
             }
         }
         List results=this.em().createNativeQuery(query+buffer.toString()).getResultList();
@@ -255,6 +261,9 @@ public class MemberMinisterRepository extends BaseRepository<MemberMinister, Lon
             }else{
                 buffer.append(" OR g.number="+group[i].getNumber()+" ");
             }
+            if(1==group.length){
+                buffer.append(") ");
+            }
         }
 
         List results=this.em().createNativeQuery(query+buffer.toString()).getResultList();
@@ -284,6 +293,9 @@ public class MemberMinisterRepository extends BaseRepository<MemberMinister, Lon
                 buffer.append(" OR g.number="+groupNumbers[i]+" )");
             }else{
                 buffer.append(" OR g.number="+groupNumbers[i]+" ");
+            }
+            if(1==groupNumbers.length){
+                buffer.append(") ");
             }
         }
 

@@ -761,33 +761,25 @@ public class ReferenceController extends BaseController {
       List<Group> groups=new ArrayList<Group>();
       if(customParameter!=null){
           String server=customParameter.getValue();
+          String strhouseType=request.getParameter("housetype");
+          String stryear=request.getParameter("year");
+          String strsessionType=request.getParameter("sessiontype");
+          String houseType=strhouseType;
+          String sessionType=strsessionType;
           if(server.equals("TOMCAT")){
-              String strhouseType=request.getParameter("housetype");
-              String stryear=request.getParameter("year");
-              String strsessionType=request.getParameter("sessiontype");
-              String strlocale=locale.toString();
               try {
-                  String houseType=new String(strhouseType.getBytes("ISO-8859-1"),"UTF-8");
-                  HouseType selectedHouseType=HouseType.findByName(HouseType.class, houseType, strlocale);
-                  String sessionType=new String(strsessionType.getBytes("ISO-8859-1"),"UTF-8");
-                  SessionType selectedSessionType=SessionType.findByFieldName(SessionType.class, "sessionType", sessionType, strlocale);
-                  Integer year=Integer.parseInt(stryear);
-                  groups=Group.findByHouseTypeSessionTypeYear(selectedHouseType, selectedSessionType, year);
-
-              }
+                  houseType=new String(strhouseType.getBytes("ISO-8859-1"),"UTF-8");
+                  sessionType=new String(strsessionType.getBytes("ISO-8859-1"),"UTF-8");
+                  }
               catch (UnsupportedEncodingException e) {
                   e.printStackTrace();
               }
           }else{
-              String strhouseType=request.getParameter("housetype");
-              String strlocale=locale.toString();
-              HouseType selectedHouseType=HouseType.findByName(HouseType.class, strhouseType, strlocale);
-              String stryear=request.getParameter("year");
-              Integer year=Integer.parseInt(stryear);
-              String strsessionType=request.getParameter("sessiontype");
-              SessionType selectedSessionType=SessionType.findByFieldName(SessionType.class, "sessionType", strsessionType, strlocale);
-              groups=Group.findByHouseTypeSessionTypeYear(selectedHouseType, selectedSessionType, year);
           }
+          HouseType selectedHouseType=HouseType.findByName(HouseType.class, houseType, locale.toString());
+          SessionType selectedSessionType=SessionType.findByFieldName(SessionType.class, "sessionType", sessionType, locale.toString());
+          Integer year=Integer.parseInt(stryear);
+          groups=Group.findByHouseTypeSessionTypeYear(selectedHouseType, selectedSessionType, year);
       }
       for(Group i:groups){
           MasterVO masterVO=new MasterVO(i.getId(),String.valueOf(i.getNumber()));
@@ -800,47 +792,34 @@ public class ReferenceController extends BaseController {
     public @ResponseBody List<MasterVO> loadDepartments(final HttpServletRequest request,final Locale locale){
       CustomParameter customParameter=CustomParameter.findByName(CustomParameter.class, "DEPLOYMENT_SERVER", "");
       List<MasterVO> masterVOs=new ArrayList<MasterVO>();
-      List<Group> groups=new ArrayList<Group>();
       if(customParameter!=null){
           String server=customParameter.getValue();
+          String strhouseType=request.getParameter("housetype");
+          String stryear=request.getParameter("year");
+          String strsessionType=request.getParameter("sessiontype");
+          String strlocale=locale.toString();
+          String strGroup=request.getParameter("group");
+          String houseType=strhouseType;
+          String sessionType=strsessionType;
           if(server.equals("TOMCAT")){
-              String strhouseType=request.getParameter("housetype");
-              String stryear=request.getParameter("year");
-              String strsessionType=request.getParameter("sessiontype");
-              String strlocale=locale.toString();
-              String strGroup=request.getParameter("group");
               try {
-                  String houseType=new String(strhouseType.getBytes("ISO-8859-1"),"UTF-8");
-                  HouseType selectedHouseType=HouseType.findByName(HouseType.class, houseType, strlocale);
-                  String sessionType=new String(strsessionType.getBytes("ISO-8859-1"),"UTF-8");
-                  SessionType selectedSessionType=SessionType.findByFieldName(SessionType.class, "sessionType", sessionType, strlocale);
-                  Integer year=Integer.parseInt(stryear);
-                  String[] delimitedgroups=strGroup.split(",");
-                  Integer[] newgroups=new Integer[delimitedgroups.length];
-                  for(int i=0;i<delimitedgroups.length;i++){
-                      newgroups[i]=Integer.parseInt(delimitedgroups[i]);
-                  }
-                  masterVOs=MemberMinister.findfindAssignedDepartmentsVO(newgroups,selectedHouseType,selectedSessionType,year, strlocale);
+                  houseType=new String(strhouseType.getBytes("ISO-8859-1"),"UTF-8");
+                  sessionType=new String(strsessionType.getBytes("ISO-8859-1"),"UTF-8");
               }
               catch (UnsupportedEncodingException e) {
                   e.printStackTrace();
               }
           }else{
-              String strhouseType=request.getParameter("housetype");
-              String stryear=request.getParameter("year");
-              String strsessionType=request.getParameter("sessiontype");
-              String strlocale=locale.toString();
-              String strGroup=request.getParameter("group");
-              HouseType selectedHouseType=HouseType.findByName(HouseType.class, strhouseType, strlocale);
-              SessionType selectedSessionType=SessionType.findByFieldName(SessionType.class, "sessionType", strsessionType, strlocale);
-              Integer year=Integer.parseInt(stryear);
-              String[] delimitedgroups=strGroup.split(",");
-              Integer[] newgroups=new Integer[delimitedgroups.length];
-              for(int i=0;i<delimitedgroups.length;i++){
-                  newgroups[i]=Integer.parseInt(delimitedgroups[i]);
-              }
-              masterVOs=MemberMinister.findfindAssignedDepartmentsVO(newgroups,selectedHouseType,selectedSessionType,year, strlocale);
           }
+          HouseType selectedHouseType=HouseType.findByName(HouseType.class, houseType, strlocale);
+          SessionType selectedSessionType=SessionType.findByFieldName(SessionType.class, "sessionType", sessionType, strlocale);
+          Integer year=Integer.parseInt(stryear);
+          String[] delimitedgroups=strGroup.split(",");
+          Integer[] newgroups=new Integer[delimitedgroups.length];
+          for(int i=0;i<delimitedgroups.length;i++){
+              newgroups[i]=Integer.parseInt(delimitedgroups[i]);
+          }
+          masterVOs=MemberMinister.findfindAssignedDepartmentsVO(newgroups,selectedHouseType,selectedSessionType,year, strlocale);
       }
       return masterVOs;
     }
@@ -849,47 +828,75 @@ public class ReferenceController extends BaseController {
     public @ResponseBody List<MasterVO> loadSubDepartments(final HttpServletRequest request,final Locale locale){
       CustomParameter customParameter=CustomParameter.findByName(CustomParameter.class, "DEPLOYMENT_SERVER", "");
       List<MasterVO> masterVOs=new ArrayList<MasterVO>();
-      List<Group> groups=new ArrayList<Group>();
       if(customParameter!=null){
           String server=customParameter.getValue();
+          String strhouseType=request.getParameter("housetype");
+          String stryear=request.getParameter("year");
+          String strsessionType=request.getParameter("sessiontype");
+          String strlocale=locale.toString();
+          String strGroup=request.getParameter("group");
+          String houseType=strhouseType;
+          String sessionType=strsessionType;
           if(server.equals("TOMCAT")){
-              String strhouseType=request.getParameter("housetype");
-              String stryear=request.getParameter("year");
-              String strsessionType=request.getParameter("sessiontype");
-              String strlocale=locale.toString();
-              String strGroup=request.getParameter("group");
+
               try {
-                  String houseType=new String(strhouseType.getBytes("ISO-8859-1"),"UTF-8");
-                  HouseType selectedHouseType=HouseType.findByName(HouseType.class, houseType, strlocale);
-                  String sessionType=new String(strsessionType.getBytes("ISO-8859-1"),"UTF-8");
-                  SessionType selectedSessionType=SessionType.findByFieldName(SessionType.class, "sessionType", sessionType, strlocale);
-                  Integer year=Integer.parseInt(stryear);
-                  String[] delimitedgroups=strGroup.split(",");
-                  Integer[] newgroups=new Integer[delimitedgroups.length];
-                  for(int i=0;i<delimitedgroups.length;i++){
-                      newgroups[i]=Integer.parseInt(delimitedgroups[i]);
-                  }
-                  masterVOs=MemberMinister.findfindAssignedSubDepartmentsVO(newgroups,selectedHouseType,selectedSessionType,year, strlocale);
+                  houseType=new String(strhouseType.getBytes("ISO-8859-1"),"UTF-8");
+                  sessionType=new String(strsessionType.getBytes("ISO-8859-1"),"UTF-8");
               }
               catch (UnsupportedEncodingException e) {
                   e.printStackTrace();
               }
           }else{
-              String strhouseType=request.getParameter("housetype");
-              String stryear=request.getParameter("year");
-              String strsessionType=request.getParameter("sessiontype");
-              String strlocale=locale.toString();
-              String strGroup=request.getParameter("group");
-              HouseType selectedHouseType=HouseType.findByName(HouseType.class, strhouseType, strlocale);
-              SessionType selectedSessionType=SessionType.findByFieldName(SessionType.class, "sessionType", strsessionType, strlocale);
-              Integer year=Integer.parseInt(stryear);
-              String[] delimitedgroups=strGroup.split(",");
-              Integer[] newgroups=new Integer[delimitedgroups.length];
-              for(int i=0;i<delimitedgroups.length;i++){
-                  newgroups[i]=Integer.parseInt(delimitedgroups[i]);
-              }
-              masterVOs=MemberMinister.findfindAssignedSubDepartmentsVO(newgroups,selectedHouseType,selectedSessionType,year, strlocale);
           }
+          HouseType selectedHouseType=HouseType.findByName(HouseType.class, houseType, strlocale);
+          SessionType selectedSessionType=SessionType.findByFieldName(SessionType.class, "sessionType", sessionType, strlocale);
+          Integer year=Integer.parseInt(stryear);
+          String[] delimitedgroups=strGroup.split(",");
+          Integer[] newgroups=new Integer[delimitedgroups.length];
+          for(int i=0;i<delimitedgroups.length;i++){
+              newgroups[i]=Integer.parseInt(delimitedgroups[i]);
+          }
+          masterVOs=MemberMinister.findfindAssignedSubDepartmentsVO(newgroups,selectedHouseType,selectedSessionType,year, strlocale);
+      }
+      return masterVOs;
+    }
+
+    @RequestMapping(value="/departments/subdepartments")
+    public @ResponseBody List<MasterVO> loadSubDepartmentsByDeptNames(final HttpServletRequest request,final Locale locale){
+      CustomParameter customParameter=CustomParameter.findByName(CustomParameter.class, "DEPLOYMENT_SERVER", "");
+      List<MasterVO> masterVOs=new ArrayList<MasterVO>();
+      if(customParameter!=null){
+          String server=customParameter.getValue();
+          String strhouseType=request.getParameter("housetype");
+          String stryear=request.getParameter("year");
+          String strsessionType=request.getParameter("sessiontype");
+          String strlocale=locale.toString();
+          String strGroup=request.getParameter("group");
+          String houseType=strhouseType;
+          String sessionType=strsessionType;
+          String strDepartment=request.getParameter("department");
+          String department=strDepartment;
+          if(server.equals("TOMCAT")){
+              try {
+                  houseType=new String(strhouseType.getBytes("ISO-8859-1"),"UTF-8");
+                  sessionType=new String(strsessionType.getBytes("ISO-8859-1"),"UTF-8");
+                  department=new String(strDepartment.getBytes("ISO-8859-1"),"UTF-8");
+              }
+              catch (UnsupportedEncodingException e) {
+                  e.printStackTrace();
+              }
+          }else{
+          }
+          String[] departments=department.split(",");
+          HouseType selectedHouseType=HouseType.findByName(HouseType.class, houseType, strlocale);
+          SessionType selectedSessionType=SessionType.findByFieldName(SessionType.class, "sessionType", sessionType, strlocale);
+          Integer year=Integer.parseInt(stryear);
+          String[] delimitedgroups=strGroup.split(",");
+          Integer[] newgroups=new Integer[delimitedgroups.length];
+          for(int i=0;i<delimitedgroups.length;i++){
+              newgroups[i]=Integer.parseInt(delimitedgroups[i]);
+          }
+          masterVOs=MemberMinister.findfindAssignedSubDepartmentsVO(newgroups,selectedHouseType,selectedSessionType,year, strlocale);
       }
       return masterVOs;
     }

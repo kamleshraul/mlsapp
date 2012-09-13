@@ -52,6 +52,7 @@ public class DeviceTypeController extends GenericController<DeviceType> {
                 locale);
         model.addAttribute("questionLimitingActions", questionLimitingActions);
         model.addAttribute("hasQuestionLimit", "false");
+        model.addAttribute("locale",locale);
     }
 
     @Override
@@ -62,11 +63,13 @@ public class DeviceTypeController extends GenericController<DeviceType> {
          * name and type:HAS_STARRED_QUESTION_LIMIT,STARRED_QUESTION_LIMIT,STARRED_QUESTION_LIMITING_ACTIONS,
          * STARRED_QUESTION_WARNING_MESSAGE
          */
+        String locale=domain.getLocale();
          List<QuestionLimitingAction> questionLimitingActions = QuestionLimitingAction.findAll(QuestionLimitingAction.class, "name", ASC,
                  domain.getLocale());
          model.addAttribute("questionLimitingActions", questionLimitingActions);
-         if(domain.getParameterValue("STARRED_QUESTION_HAS_LIMIT")!=null){
-             if(!domain.getParameterValue("STARRED_QUESTION_HAS_LIMIT").isEmpty()){
+         String hasLimit=domain.getParameterValue("STARRED_QUESTION_HAS_LIMIT_"+locale);
+         if(hasLimit!=null){
+             if(!hasLimit.isEmpty()){
                  model.addAttribute("hasQuestionLimit", "true");
              }else{
                  model.addAttribute("hasQuestionLimit", "false");
@@ -74,7 +77,19 @@ public class DeviceTypeController extends GenericController<DeviceType> {
          }else{
              model.addAttribute("hasQuestionLimit", "false");
          }
-         model.addAttribute("parameters",domain.getParameters());
+         String questionLimit=domain.getParameterValue("STARRED_QUESTION_LIMIT_"+locale);
+         if(questionLimit!=null){
+            model.addAttribute("questionlimit",questionLimit);
+         }
+         String limitAction=domain.getParameterValue("STARRED_QUESTION_LIMIT_ACTION_"+locale);
+         if(limitAction!=null){
+            model.addAttribute("limitaction",limitAction);
+         }
+         String warningMessage=domain.getParameterValue("STARRED_QUESTION_WARNING_MESSAGE__"+locale);
+         if(warningMessage!=null){
+            model.addAttribute("warningmessage",warningMessage);
+         }
+         model.addAttribute("locale",domain.getLocale());
     }
 
     @SuppressWarnings("unchecked")

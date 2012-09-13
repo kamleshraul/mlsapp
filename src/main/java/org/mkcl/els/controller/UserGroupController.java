@@ -14,6 +14,7 @@ import javax.servlet.http.HttpServletRequest;
 import org.mkcl.els.common.util.ApplicationConstants;
 import org.mkcl.els.common.util.FormaterUtil;
 import org.mkcl.els.common.vo.MasterVO;
+import org.mkcl.els.domain.Credential;
 import org.mkcl.els.domain.CustomParameter;
 import org.mkcl.els.domain.DeviceType;
 import org.mkcl.els.domain.Group;
@@ -21,6 +22,7 @@ import org.mkcl.els.domain.HouseType;
 import org.mkcl.els.domain.MemberMinister;
 import org.mkcl.els.domain.Session;
 import org.mkcl.els.domain.SessionType;
+import org.mkcl.els.domain.User;
 import org.mkcl.els.domain.UserGroup;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
@@ -34,6 +36,11 @@ public class UserGroupController extends GenericController<UserGroup>{
     @Override
     protected void populateNew(final ModelMap model, final UserGroup domain, final String locale,
             final HttpServletRequest request) {
+        String strUser=request.getParameter("user");
+        Long userId=Long.parseLong(strUser);
+        User user=User.findById(User.class, userId);
+        Credential credential=user.getCredential();
+        domain.setCredential(credential);
         /*
          * In case of starred question we need following parameters:HOUSETYPE,
          * DEVICETYPE,YEAR,SESSIONTYPE,GROUP,DEPARTMENT,SUBDEPARTMENT.
@@ -41,7 +48,7 @@ public class UserGroupController extends GenericController<UserGroup>{
         List<HouseType> houseTypes=HouseType.findAll(HouseType.class,"type",ApplicationConstants.ASC, locale);
         model.addAttribute("housetypes",houseTypes);
         if(!houseTypes.isEmpty()){
-        model.addAttribute("selectedhousetype",houseTypes.get(0).getName());
+        model.addAttribute("selectedHouseType",houseTypes.get(0).getName());
         }
 
         Integer year=0;
@@ -55,7 +62,7 @@ public class UserGroupController extends GenericController<UserGroup>{
             }
         }
         model.addAttribute("years",years);
-        model.addAttribute("selectedyear",year);
+        model.addAttribute("selectedYear",year);
 
         List<SessionType> sessionTypes=SessionType.findAll(SessionType.class,"sessionType", ApplicationConstants.ASC, locale);
         model.addAttribute("sessionTypes",sessionTypes);
@@ -63,7 +70,7 @@ public class UserGroupController extends GenericController<UserGroup>{
         if(!houseTypes.isEmpty()){
         currentSession=Session.findLatestSession(houseTypes.get(0),year);
         if(currentSession!=null){
-            model.addAttribute("selectedsessiontype",currentSession.getType().getSessionType());
+            model.addAttribute("selectedSessionType",currentSession.getType().getSessionType());
         }
         }
 
@@ -85,6 +92,76 @@ public class UserGroupController extends GenericController<UserGroup>{
         model.addAttribute("selectedgroup",groups.get(0).getNumber());
         model.addAttribute("departments",departments);
         model.addAttribute("subdepartments", subdepartments);
+        model.addAttribute("locale",locale);
+        String currentDate=FormaterUtil.getDateFormatter(locale).format(new Date());
+        model.addAttribute("currentdate", currentDate);
+        domain.setLocale(locale);
+    }
+
+    @Override
+    protected void populateEdit(final ModelMap model, final UserGroup domain,
+            final HttpServletRequest request) {
+        String locale=domain.getLocale();
+        /*
+         * In case of starred question we need following parameters:HOUSETYPE,
+         * DEVICETYPE,YEAR,SESSIONTYPE,GROUP,DEPARTMENT,SUBDEPARTMENT.
+         */
+        List<HouseType> houseTypes=HouseType.findAll(HouseType.class,"type",ApplicationConstants.ASC, locale);
+        model.addAttribute("housetypes",houseTypes);
+        String strHouseType=domain.getParameterValue("HOUSETYPE_"+locale);
+        if(!houseTypes.isEmpty()){
+        model.addAttribute("selectedHouseType",strHouseType);
+        }
+        HouseType houseType=HouseType.findByName(HouseType.class,strHouseType, locale);
+
+        Integer year=0;
+        year=new GregorianCalendar().get(Calendar.YEAR);
+        CustomParameter houseFormationYear=CustomParameter.findByName(CustomParameter.class, "HOUSE_FORMATION_YEAR", "");
+        List<Integer> years=new ArrayList<Integer>();
+        if(houseFormationYear!=null){
+            Integer formationYear=Integer.parseInt(houseFormationYear.getValue());
+            for(int i=year;i>=formationYear;i--){
+                years.add(i);
+            }
+        }
+        model.addAttribute("years",years);
+        Integer selectedYear=Integer.parseInt(domain.getParameterValue("YEAR_"+locale));
+        model.addAttribute("selectedYear",selectedYear);
+
+        List<SessionType> sessionTypes=SessionType.findAll(SessionType.class,"sessionType", ApplicationConstants.ASC, locale);
+        model.addAttribute("sessionTypes",sessionTypes);
+        String strSessionType=domain.getParameterValue("SESSIONTYPE_"+locale);
+        model.addAttribute("selectedSessionType",strSessionType);
+        SessionType sessionType=SessionType.findByFieldName(SessionType.class,"sessionType",strSessionType, locale);
+
+
+
+        List<DeviceType> deviceTypes=DeviceType.findAll(DeviceType.class, "type",ApplicationConstants.ASC, locale);
+        model.addAttribute("deviceTypes", deviceTypes);
+        model.addAttribute("selectedDeviceType",domain.getParameterValue("DEVICETYPE_"+locale));
+
+        List<Group> groups=Group.findByHouseTypeSessionTypeYear(houseType,sessionType,selectedYear);
+        model.addAttribute("groups",groups);
+        String strGroup=domain.getParameterValue("GROUP_"+locale);
+        String[] strGroups=strGroup.split("##");
+        Integer[] selectedGroupNumbers=new Integer[strGroups.length];
+        for(int i=0;i<strGroups.length;i++){
+            selectedGroupNumbers[i]=Integer.parseInt(strGroups[i]);
+        }
+        model.addAttribute("selectedGroup",domain.getParameterValue("GROUP_"+locale));
+        model.addAttribute("groups",groups);
+
+        List<MasterVO> departments=new ArrayList<MasterVO>();
+        List<MasterVO> subdepartments=new ArrayList<MasterVO>();
+        if(!groups.isEmpty()){
+            departments=MemberMinister.findfindAssignedDepartmentsVO(selectedGroupNumbers, houseType, sessionType, selectedYear, locale);
+            subdepartments=MemberMinister.findfindAssignedSubDepartmentsVO(selectedGroupNumbers, houseType, sessionType, selectedYear, locale);
+
+        }
+        model.addAttribute("departments",departments);
+        model.addAttribute("subdepartments", subdepartments);
+        model.addAttribute("selectedDepartment",domain.getParameterValue("DEPARTMENT_"+locale));
+        model.addAttribute("selectedSubDepartment",domain.getParameterValue("SUBDEPARTMENT_"+locale));
 
         model.addAttribute("locale",locale);
 

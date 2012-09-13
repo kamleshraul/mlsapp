@@ -40,7 +40,7 @@ import org.springframework.beans.factory.annotation.Configurable;
 @Configurable
 @Entity
 @Table(name="user_group")
-@JsonIgnoreProperties({"credentials","parameters"})
+@JsonIgnoreProperties({"credential","parameters"})
 public class UserGroup extends BaseDomain implements Serializable {
 
 	/** The Constant serialVersionUID. */
@@ -56,7 +56,7 @@ public class UserGroup extends BaseDomain implements Serializable {
 	/** The parameters. */
 	@ElementCollection
     @MapKeyColumn(name="parameter_key")
-    @Column(name="parameter_value")
+    @Column(name="parameter_value",length=10000)
     @CollectionTable(name="usergroup_parameters")
 	private Map<String,String> parameters;
 
@@ -130,5 +130,16 @@ public class UserGroup extends BaseDomain implements Serializable {
         this.type = type;
     }
 
-
+    public String getParameterValue(final String key){
+        Map<String,String> params=this.getParameters();
+        if(params!=null){
+        if(params.containsKey(key)){
+            return params.get(key);
+        }else{
+            return "";
+        }
+        }else{
+            return "";
+        }
+    }
 }

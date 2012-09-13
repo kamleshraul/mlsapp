@@ -48,7 +48,7 @@ public class DeviceType extends BaseDomain implements Serializable {
 
     @ElementCollection
     @MapKeyColumn(name="parameter_key")
-    @Column(name="parameter_value")
+    @Column(name="parameter_value",length=10000)
     @CollectionTable(name="devicetype_parameters")
     private Map<String,String> parameters;
 

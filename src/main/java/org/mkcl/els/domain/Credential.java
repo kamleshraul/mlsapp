@@ -25,6 +25,7 @@ import javax.persistence.Table;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
 
+import org.codehaus.jackson.annotate.JsonIgnoreProperties;
 import org.springframework.beans.factory.annotation.Configurable;
 
 /**
@@ -37,6 +38,7 @@ import org.springframework.beans.factory.annotation.Configurable;
 @Entity
 @Configurable
 @Table(name = "credentials")
+@JsonIgnoreProperties({"roles","userGroups"})
 public class Credential extends BaseDomain implements Serializable {
 
     // ---------------------------------Attributes-------------------------------------------------
