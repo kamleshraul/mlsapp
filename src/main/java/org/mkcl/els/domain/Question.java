@@ -4,7 +4,7 @@
  * Copyright (c) 2012 MKCL.  All rights reserved.
  *
  * Project: e-Legislature
- * File: org.mkcl.els.domain.Question.java
+ * File: org.mkcl.els.domain.QuestionDraft.java
  * Created On: Sep 14, 2012
  */
 package org.mkcl.els.domain;
@@ -22,62 +22,55 @@ import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
+
 import org.codehaus.jackson.annotate.JsonIgnoreProperties;
-import org.mkcl.els.repository.QuestionRepository;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.junit.Ignore;
 import org.springframework.beans.factory.annotation.Configurable;
 
 // TODO: Auto-generated Javadoc
 /**
- * The Class Question.
+ * The Class QuestionDraft.
  *
- * @author Sandeep
  * @author Amit
+ * @author Sandeep
  * @since v1.0.0
  */
 @Configurable
 @Entity
-@Table(name="questions")
-@JsonIgnoreProperties({"houseType", "session","language","type", "supportingMembers", "ministry", "department", 
-	"subDepartment", "referencedQuestions", "drafts"})
-public class Question extends BaseDomain
+@Table(name="question_drafts")
+@JsonIgnoreProperties({"referencedQuestions","type","language","supportingMembers","group","ministry","department","subDepartment",
+				"editedBy","editedAs","status"})
+public class QuestionDraft extends BaseDomain
   implements Serializable
 {
   
   /** The Constant serialVersionUID. */
   private static final long serialVersionUID = 1L;
 
-  /** The house type. */
-  @ManyToOne(fetch=FetchType.LAZY)
-  @JoinColumn(name="houseType_id")
-  private HouseType houseType;
-
-  /** The session. */
-  @ManyToOne(fetch=FetchType.LAZY)
-  @JoinColumn(name="session_id")
-  private Session session;
-
   /** The type. */
   @ManyToOne(fetch=FetchType.LAZY)
   @JoinColumn(name="questionType_id")
   private QuestionType type;
-  
-  /** The number. */
-  private Integer number;
-
-  /** The submission date. */
-  @Temporal(TemporalType.TIMESTAMP)
-  private Date submissionDate;
-
-  /** The primary member. */
-  @ManyToOne(fetch=FetchType.LAZY)
-  @JoinColumn(name="member_id")
-  private Member primaryMember;
 
   /** The supporting members. */
   @ManyToMany(fetch=FetchType.LAZY)
-  @JoinTable(name="questions_supportingmembers", joinColumns={@JoinColumn(name="question_id", referencedColumnName="id")}, inverseJoinColumns={@JoinColumn(name="supportingmember_id", referencedColumnName="id")})
+  @JoinTable(name="questionsdrafts_supportingmembers", joinColumns={@JoinColumn(name="questiondraft_id", referencedColumnName="id")}, inverseJoinColumns={@JoinColumn(name="supportingmember_id", referencedColumnName="id")})
   private List<Member> supportingMembers;
+
+  /** The answering date. */
+  @Temporal(TemporalType.TIMESTAMP)
+  private Date answeringDate;
+  
+  /** The priority. */
+  private Integer priority;
+
+  /** The subject. */
+  @Column(length=3000)
+  private String subject;
+  
+  /** The question text. */
+  @Column(length=30000)
+  private String questionText;
 
   /** The group. */
   @ManyToOne(fetch=FetchType.LAZY)
@@ -91,166 +84,58 @@ public class Question extends BaseDomain
 
   /** The department. */
   @ManyToOne(fetch=FetchType.LAZY)
-  @JoinColumn(name="department_id")
+  @JoinColumn(name="department")
   private Department department;
 
   /** The sub department. */
   @ManyToOne(fetch=FetchType.LAZY)
   @JoinColumn(name="subdepartment_id")
   private SubDepartment subDepartment;
-
-  /** The answering date. */
-  @Temporal(TemporalType.TIMESTAMP)
-  private Date answeringDate;
   
-  /** The language. */
-  // Added to Capture the language of the question entered
-  @ManyToOne
-  @JoinColumn(name="language_id")
-  private Language language;
-
-  /** The subject. */
-  @Column(length=3000)
-  private String subject;
-
-  /** The question text. */
-  @Column(length=30000)
-  private String questionText;
-
-  /** The answer. */
-  @Column(length=30000)
-  private String answer;
   
-  /** The priority. */
-  private Integer priority;
+
+/** The content. */
+@Column(length=30000)
+  private String content;
 
   /** The referenced questions. */
   @ManyToMany(fetch=FetchType.LAZY)
-  @JoinTable(name="questions_references", joinColumns={@JoinColumn(name="question_id", referencedColumnName="id")}, inverseJoinColumns={@JoinColumn(name="reference_id", referencedColumnName="id")})
+  @JoinTable(name="questionsdrafts_references", joinColumns={@JoinColumn(name="questiondraft_id", referencedColumnName="id")}, inverseJoinColumns={@JoinColumn(name="reference_id", referencedColumnName="id")})
   private List<Question> referencedQuestions;
-
-  /** The status. */
-  @ManyToOne(fetch=FetchType.LAZY)
-  @JoinColumn(name="status_id")
+  
+ /** The status. */
+ @ManyToOne(fetch=FetchType.LAZY)
+ @JoinColumn(name="status_id")
   private Status status;
 
- 
+ /** The edited by. */
+ @ManyToOne(fetch=FetchType.LAZY)
+  @JoinColumn(name="editedby_id")
+  private User editedBy;
 
-/** The drafts. */
-@ManyToMany(fetch=FetchType.LAZY)
-  @JoinTable(name="questions_drafts_association", joinColumns={@JoinColumn(name="question_id", referencedColumnName="id")}, inverseJoinColumns={@JoinColumn(name="question_draft_id", referencedColumnName="id")})
-  private List<QuestionDraft> drafts;
+  /** The edited as. */
+  @ManyToOne(fetch=FetchType.LAZY)
+  @JoinColumn(name="editedas_id")
+  private Role editedAs;
 
-  /** The question repository. */
-  @Autowired
-  private transient QuestionRepository questionRepository;
-
-  /**
-   * Gets the question repository.
-   *
-   * @return the question repository
-   */
-  public static QuestionRepository getQuestionRepository()
-  {
-    QuestionRepository questionRepository = new Question().questionRepository;
-    if (questionRepository == null) {
-      throw new IllegalStateException(
-        "QuestionRepository has not been injected in Question Domain");
-    }
-    return questionRepository;
-  }
-
-  /**
-   * Find last starred unstarred short notice question no.
-   *
-   * @param house the house
-   * @param currentSession the current session
-   * @return the integer
-   * @author compaq
-   * @since v1.0.0
-   */
-  public static Integer findLastStarredUnstarredShortNoticeQuestionNo(House house, Session currentSession) {
-    return getQuestionRepository().findLastStarredUnstarredShortNoticeQuestionNo(house, currentSession);
-  }
-
-  /**
-   * Find last half hour discussion question no.
-   *
-   * @param house the house
-   * @param currentSession the current session
-   * @return the integer
-   * @author compaq
-   * @since v1.0.0
-   */
-  public static Integer findLastHalfHourDiscussionQuestionNo(House house, Session currentSession) {
-    return getQuestionRepository().findLastHalfHourDiscussionQuestionNo(house, currentSession);
-  }
-
-  /**
-   * Assign question no.
-   *
-   * @param houseType the house type
-   * @param session the session
-   * @param questionType the question type
-   * @return the integer
-   * @author compaq
-   * @since v1.0.0
-   */
-  public static Integer assignQuestionNo(HouseType houseType, Session session, QuestionType questionType)
-  {
-    return getQuestionRepository().assignQuestionNo(houseType, 
-      session, questionType);
-  }
-
-  /**
-   * Gets the house type.
-   *
-   * @return the house type
-   */
-  public HouseType getHouseType()
-  {
-    return this.houseType;
-  }
-
-  /**
-   * Sets the house type.
-   *
-   * @param houseType the new house type
-   */
-  public void setHouseType(HouseType houseType) {
-    this.houseType = houseType;
-  }
-
-  /**
-   * Gets the session.
-   *
-   * @return the session
-   */
-  public Session getSession() {
-    return this.session;
-  }
-
-  /**
-   * Sets the session.
-   *
-   * @param session the new session
-   */
-  public void setSession(Session session) {
-    this.session = session;
-  }
+  /** The edited on. */
+  @Temporal(TemporalType.TIMESTAMP)
+  @JoinColumn(name="editedon")
+  private Date editedOn;
+  
+  /** The language. */
+  @ManyToOne
+  @JoinColumn(name="language_id")
+  private Language language;
 
   /**
    * Gets the type.
    *
    * @return the type
    */
-  public QuestionType getType() {
-    QuestionType qt = this.type;
-    QuestionDraft draft = getLatestDraft();
-    if (draft != null) {
-      qt = draft.getType();
-    }
-    return qt;
+  public QuestionType getType()
+  {
+    return this.type;
   }
 
   /**
@@ -258,62 +143,9 @@ public class Question extends BaseDomain
    *
    * @param type the new type
    */
-  public void setType(QuestionType type) {
+  public void setType(QuestionType type)
+  {
     this.type = type;
-  }
-
-  /**
-   * Gets the number.
-   *
-   * @return the number
-   */
-  public Integer getNumber() {
-    return this.number;
-  }
-
-  /**
-   * Sets the number.
-   *
-   * @param number the new number
-   */
-  public void setNumber(Integer number) {
-    this.number = number;
-  }
-
-  /**
-   * Gets the submission date.
-   *
-   * @return the submission date
-   */
-  public Date getSubmissionDate() {
-    return this.submissionDate;
-  }
-
-  /**
-   * Sets the submission date.
-   *
-   * @param submissionDate the new submission date
-   */
-  public void setSubmissionDate(Date submissionDate) {
-    this.submissionDate = submissionDate;
-  }
-
-  /**
-   * Gets the primary member.
-   *
-   * @return the primary member
-   */
-  public Member getPrimaryMember() {
-    return this.primaryMember;
-  }
-
-  /**
-   * Sets the primary member.
-   *
-   * @param primaryMember the new primary member
-   */
-  public void setPrimaryMember(Member primaryMember) {
-    this.primaryMember = primaryMember;
   }
 
   /**
@@ -321,13 +153,9 @@ public class Question extends BaseDomain
    *
    * @return the supporting members
    */
-  public List<Member> getSupportingMembers() {
-    List sm = this.supportingMembers;
-    QuestionDraft draft = getLatestDraft();
-    if (draft != null) {
-      sm = draft.getSupportingMembers();
-    }
-    return sm;
+  public List<Member> getSupportingMembers()
+  {
+    return this.supportingMembers;
   }
 
   /**
@@ -335,77 +163,9 @@ public class Question extends BaseDomain
    *
    * @param supportingMembers the new supporting members
    */
-  public void setSupportingMembers(List<Member> supportingMembers) {
+  public void setSupportingMembers(List<Member> supportingMembers)
+  {
     this.supportingMembers = supportingMembers;
-  }
-
-  /**
-   * Gets the group.
-   *
-   * @return the group
-   */
-  public Group getGroup() {
-    Group g = this.group;
-    QuestionDraft draft = getLatestDraft();
-    if (draft != null) {
-      g = draft.getGroup();
-    }
-    return g;
-  }
-
-  /**
-   * Sets the group.
-   *
-   * @param group the new group
-   */
-  public void setGroup(Group group) {
-    this.group = group;
-  }
-
-  /**
-   * Gets the ministry.
-   *
-   * @return the ministry
-   */
-  public Ministry getMinistry() {
-    Ministry m = this.ministry;
-    QuestionDraft draft = getLatestDraft();
-    if (draft != null) {
-      m = draft.getMinistry();
-    }
-    return m;
-  }
-
-  /**
-   * Sets the ministry.
-   *
-   * @param ministry the new ministry
-   */
-  public void setMinistry(Ministry ministry) {
-    this.ministry = ministry;
-  }
-
-  /**
-   * Gets the department.
-   *
-   * @return the department
-   */
-  public Department getDepartment() {
-    Department d = this.department;
-    QuestionDraft draft = getLatestDraft();
-    if (draft != null) {
-      d = draft.getDepartment();
-    }
-    return d;
-  }
-
-  /**
-   * Sets the department.
-   *
-   * @param department the new department
-   */
-  public void setDepartment(Department department) {
-    this.department = department;
   }
 
   /**
@@ -413,13 +173,9 @@ public class Question extends BaseDomain
    *
    * @return the answering date
    */
-  public Date getAnsweringDate() {
-    Date date = this.answeringDate;
-    QuestionDraft draft = getLatestDraft();
-    if (draft != null) {
-      date = draft.getAnsweringDate();
-    }
-    return date;
+  public Date getAnsweringDate()
+  {
+    return this.answeringDate;
   }
 
   /**
@@ -427,8 +183,29 @@ public class Question extends BaseDomain
    *
    * @param answeringDate the new answering date
    */
-  public void setAnsweringDate(Date answeringDate) {
+  public void setAnsweringDate(Date answeringDate)
+  {
     this.answeringDate = answeringDate;
+  }
+
+  /**
+   * Gets the priority.
+   *
+   * @return the priority
+   */
+  public Integer getPriority()
+  {
+    return this.priority;
+  }
+
+  /**
+   * Sets the priority.
+   *
+   * @param priority the new priority
+   */
+  public void setPriority(Integer priority)
+  {
+    this.priority = priority;
   }
 
   /**
@@ -436,7 +213,8 @@ public class Question extends BaseDomain
    *
    * @return the subject
    */
-  public String getSubject() {
+  public String getSubject()
+  {
     return this.subject;
   }
 
@@ -445,49 +223,89 @@ public class Question extends BaseDomain
    *
    * @param subject the new subject
    */
-  public void setSubject(String subject) {
+  public void setSubject(String subject)
+  {
     this.subject = subject;
   }
 
   /**
-   * Gets the question text.
+   * Gets the group.
    *
-   * @return the question text
+   * @return the group
    */
-  public String getQuestionText() {
-    return this.questionText;
+  public Group getGroup()
+  {
+    return this.group;
   }
 
   /**
-   * Sets the question text.
+   * Sets the group.
    *
-   * @param questionText the new question text
+   * @param group the new group
    */
-  public void setQuestionText(String questionText) {
-    this.questionText = questionText;
+  public void setGroup(Group group)
+  {
+    this.group = group;
   }
 
   /**
-   * Gets the priority.
+   * Gets the ministry.
    *
-   * @return the priority
+   * @return the ministry
    */
-  public Integer getPriority() {
-    Integer p = this.priority;
-    QuestionDraft draft = getLatestDraft();
-    if (draft != null) {
-      p = draft.getPriority();
-    }
-    return p;
+  public Ministry getMinistry()
+  {
+    return this.ministry;
   }
 
   /**
-   * Sets the priority.
+   * Sets the ministry.
    *
-   * @param priority the new priority
+   * @param ministry the new ministry
    */
-  public void setPriority(Integer priority) {
-    this.priority = priority;
+  public void setMinistry(Ministry ministry)
+  {
+    this.ministry = ministry;
+  }
+
+  /**
+   * Gets the department.
+   *
+   * @return the department
+   */
+  public Department getDepartment()
+  {
+    return this.department;
+  }
+
+  /**
+   * Sets the department.
+   *
+   * @param department the new department
+   */
+  public void setDepartment(Department department)
+  {
+    this.department = department;
+  }
+
+  /**
+   * Gets the content.
+   *
+   * @return the content
+   */
+  public String getContent()
+  {
+    return this.content;
+  }
+
+  /**
+   * Sets the content.
+   *
+   * @param content the new content
+   */
+  public void setContent(String content)
+  {
+    this.content = content;
   }
 
   /**
@@ -495,13 +313,9 @@ public class Question extends BaseDomain
    *
    * @return the referenced questions
    */
-  public List<Question> getReferencedQuestions() {
-    List rq = this.referencedQuestions;
-    QuestionDraft draft = getLatestDraft();
-    if (draft != null) {
-      rq = draft.getReferencedQuestions();
-    }
-    return rq;
+  public List<Question> getReferencedQuestions()
+  {
+    return this.referencedQuestions;
   }
 
   /**
@@ -509,32 +323,70 @@ public class Question extends BaseDomain
    *
    * @param referencedQuestions the new referenced questions
    */
-  public void setReferencedQuestions(List<Question> referencedQuestions) {
+  public void setReferencedQuestions(List<Question> referencedQuestions)
+  {
     this.referencedQuestions = referencedQuestions;
   }
-  
+
   /**
-   * Gets the status.
+   * Gets the edited by.
    *
-   * @return the status
+   * @return the edited by
    */
-  public Status getStatus() {
-	  Status s=this.status;
-	  QuestionDraft draft =getLatestDraft();
-	  if(draft!=null){
-		  s=draft.getStatus();
-	  }
-		return s;
-	}
-  
+  public User getEditedBy()
+  {
+    return this.editedBy;
+  }
+
   /**
-   * Sets the status.
+   * Sets the edited by.
    *
-   * @param status the new status
+   * @param editedBy the new edited by
    */
-  public void setStatus(Status status) {
-		this.status = status;
-	}
+  public void setEditedBy(User editedBy)
+  {
+    this.editedBy = editedBy;
+  }
+
+  /**
+   * Gets the edited as.
+   *
+   * @return the edited as
+   */
+  public Role getEditedAs()
+  {
+    return this.editedAs;
+  }
+
+  /**
+   * Sets the edited as.
+   *
+   * @param editedAs the new edited as
+   */
+  public void setEditedAs(Role editedAs)
+  {
+    this.editedAs = editedAs;
+  }
+
+  /**
+   * Gets the edited on.
+   *
+   * @return the edited on
+   */
+  public Date getEditedOn()
+  {
+    return this.editedOn;
+  }
+
+  /**
+   * Sets the edited on.
+   *
+   * @param editedOn the new edited on
+   */
+  public void setEditedOn(Date editedOn)
+  {
+    this.editedOn = editedOn;
+  }
 
   /**
    * Gets the sub department.
@@ -542,128 +394,71 @@ public class Question extends BaseDomain
    * @return the sub department
    */
   public SubDepartment getSubDepartment() {
-    SubDepartment sd = this.subDepartment;
-    QuestionDraft draft = getLatestDraft();
-    if (draft != null) {
-      sd = draft.getSubDepartment();
-    }
-    return sd;
-  }
+		return subDepartment;
+	}
 
-  
+	/**
+	 * Sets the sub department.
+	 *
+	 * @param subDepartment the new sub department
+	 */
+	public void setSubDepartment(SubDepartment subDepartment) {
+		this.subDepartment = subDepartment;
+	}
 
-/**
- * Sets the sub department.
- *
- * @param subDepartment the new sub department
- */
-public void setSubDepartment(SubDepartment subDepartment) {
-    this.subDepartment = subDepartment;
-  }
+	 /**
+ 	 * Gets the question text.
+ 	 *
+ 	 * @return the question text
+ 	 */
+ 	public String getQuestionText() {
+			return questionText;
+		}
 
-  /**
-   * Gets the drafts.
-   *
-   * @return the drafts
-   */
-  public List<QuestionDraft> getDrafts() {
-    return this.drafts;
-  }
+		/**
+		 * Sets the question text.
+		 *
+		 * @param questionText the new question text
+		 */
+		public void setQuestionText(String questionText) {
+			this.questionText = questionText;
+		}
 
-  /**
-   * Sets the drafts.
-   *
-   * @param drafts the new drafts
-   */
-  public void setDrafts(List<QuestionDraft> drafts) {
-    this.drafts = drafts;
-  }
+		/**
+		 * Gets the status.
+		 *
+		 * @return the status
+		 */
+		public Status getStatus() {
+			return status;
+		}
 
-  /**
-   * Gets the answer.
-   *
-   * @return the answer
-   */
-  public String getAnswer() {
-    return this.answer;
-  }
+		/**
+		 * Sets the status.
+		 *
+		 * @param status the new status
+		 */
+		public void setStatus(Status status) {
+			this.status = status;
+		}
 
-  /**
-   * Sets the answer.
-   *
-   * @param answer the new answer
-   */
-  public void setAnswer(String answer) {
-    this.answer = answer;
-  }
-  
-   /**
-    * Gets the language.
-    *
-    * @return the language
-    */
-   public Language getLanguage() {
-	   Language l = this.language;
-	   QuestionDraft latestDraft = getLatestDraft();
-	   if(latestDraft != null){
-		   l=latestDraft.getLanguage();
-	   }
-	return l;
-}
+		/**
+		 * Gets the language.
+		 *
+		 * @return the language
+		 */
+		public Language getLanguage() {
+			return language;
+		}
 
-/**
- * Sets the language.
- *
- * @param language the new language
- */
-public void setLanguage(Language language) {
-	this.language = language;
-}
+		/**
+		 * Sets the language.
+		 *
+		 * @param language the new language
+		 */
+		public void setLanguage(Language language) {
+			this.language = language;
+		}
 
-/**
- * Gets the revised subject.
- *
- * @return the revised subject
- */
-public String getRevisedSubject()
-  {
-    String revisedSubject = getSubject();
-    QuestionDraft latestDraft = getLatestDraft();
-    if (latestDraft != null) {
-      revisedSubject = latestDraft.getSubject();
-    }
-    return revisedSubject;
-  }
-
-  /**
-   * Gets the revised question text.
-   *
-   * @return the revised question text
-   */
-  public String getRevisedQuestionText() {
-    String revisedQuestionText = getQuestionText();
-    QuestionDraft latestDraft = getLatestDraft();
-    if (latestDraft != null) {
-      revisedQuestionText = latestDraft.getQuestionText();
-    }
-    return revisedQuestionText;
-  }
-
-  /**
-   * Gets the latest draft.
-   *
-   * @return the latest draft
-   */
-  private QuestionDraft getLatestDraft()
-  {
-    QuestionDraft draft = null;
-    Integer size =0;
-    if(getDrafts()!=null){
-    	size=Integer.valueOf(getDrafts().size());
-    }
-    if (size.intValue() != 0) {
-         draft = (QuestionDraft)getDrafts().get(size.intValue() - 1);
-    }
-    return draft;
-  }
+		
 }
