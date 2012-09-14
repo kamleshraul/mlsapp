@@ -9,6 +9,42 @@
 			$('#list_tab').click(function(){
 				showList();
 			});	
+			$('#details_tab').click(function(){
+				var row = $("#grid").jqGrid('getGridParam','selrow');
+				if(row == null){
+					if($('#key').val()!=""){							
+						editRecord();
+					}else{
+						newRecord();
+					};					
+				}
+				else{					
+					editRecord();
+				}
+			});
+			$('#roles_tab').click(function(){
+				var row = $("#grid").jqGrid('getGridParam','selrow');
+				if(row==null){
+					if($('#key').val()!=""){
+						if(row!=$('#key').val()) {
+						row = $('#key').val();
+					}
+					}
+					else{
+						$.prompt("Please select the desired row to Assign Roles");
+						return false;	
+					}
+				}
+				showTabByIdAndUrl('roles_tab','user/role'+'?user='+row);
+			});
+			$('#groups_tab').click(function(){
+				var row = $("#key").val();
+				if(row==null||row!=""){
+					$.prompt($('#selectRowFirstMessage').val());		
+					return false;
+				}
+				showTabByIdAndUrl('groups_tab','usergroup/list'+'?user='+row);
+			});
 			$(document).keydown(function (e){
 				if(e.which==78 && e.ctrlKey){
 					newRecord();
@@ -37,17 +73,46 @@
 		}	
 		
 		function editRecord(row) {
-			if(this.id =='edit_record' && row==null){
+			
+			var row = $("#grid").jqGrid('getGridParam','selrow');
+			if(this.id =='edit_record' && row==null){				
 				$.prompt($('#selectRowFirstMessage').val());
-				return false;
+				return false;							
+			} 
+			else{
+				if(row!=$('#key').val()) {
+					row = $('#key').val();
+				}
+				showTabByIdAndUrl('details_tab','user/'+row+'/edit');
 			}
-			showTabByIdAndUrl('details_tab','user/'+row+'/edit');
 		}
-
+			
+				
+		function newRecord() {
+			showTabByIdAndUrl('details_tab','user/new');
+			$("#key").val("");			
+			$("#cancelFn").val("newRecord");
+		}
 		function rowDblClickHandler(rowid, iRow, iCol, e) {
 			showTabByIdAndUrl('details_tab', 'user/'+rowid+'/edit');
 		}
 		
+		function deleteRecord(row) {
+			if(row == null || row == ''){
+				$.prompt($('#selectRowFirstMessage').val());		
+				return;
+			}
+			else{
+				$.prompt($('#confirmDeleteMessage').val()+ row,{
+					buttons: {Ok:true, Cancel:false}, callback: function(v){
+			        if(v){
+				        $.delete_('user/'+row+'/delete', null, function(data, textStatus, XMLHttpRequest) {
+					    showList();
+				        });
+			        }
+				}});
+			}
+		}	
 		
 			
 	</script>
@@ -65,7 +130,17 @@
 				<a id="details_tab" href="#" class="tab">
 				   <spring:message code="generic.details" text="Details"></spring:message>
 				</a>
-			</li>			
+			</li>	
+			<li>
+				<a id="roles_tab" href="#" class="tab">
+				   <spring:message code="user.roles" text="Roles"></spring:message>
+				</a>
+			</li>
+			<li>
+				<a id="groups_tab" href="#" class="tab">
+				   <spring:message code="user.groups" text="Groups"></spring:message>
+				</a>
+			</li>		
 		</ul>
 		<div class="tabContent clearfix">
 		</div>

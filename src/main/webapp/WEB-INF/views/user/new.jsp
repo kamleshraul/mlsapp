@@ -7,13 +7,7 @@
 <script type="text/javascript">
 	$('document').ready(function(){	
 		initControls();
-		var recordId = ${domain.id};
-		$('#key').val(recordId);		
-		
-		var enabled = ${domain.credential.enabled};
-		if(enabled == true){
-			$("#isEnabled").attr("checked","checked");
-		}
+		$('#key').val('');	
 		
 		$('#submit').click(function() {
 			if ($('#isEnabled').is(':checked')) {
@@ -22,17 +16,22 @@
 				$('#isEnabled').val(false);
 			};
 		});
-	});		
+	});
 </script>
 </head>
 <body>
 
 <div class="fields clearfix vidhanmandalImg">
-		<form:form action="user" method="PUT"
+		<form:form action="user" method="POST"
 			modelAttribute="domain">
 			<%@ include file="/common/info.jsp"%>
-			<h2><spring:message code="generic.edit.heading" text="Details"/>
-				[<spring:message code="generic.id" text="Id"></spring:message>:${domain.id}]
+			<h2>
+				<spring:message code="generic.new.heading" text="Enter Details" />
+				[
+				<spring:message code="generic.id" text="Id"></spring:message>
+				:&nbsp;
+				<spring:message code="generic.new" text="New"></spring:message>
+				]
 			</h2>
 			<form:errors path="version" cssClass="validationError" />
 		<p>
@@ -76,13 +75,13 @@
 			<p>
 				<label class="small"><spring:message
 						code="user.email" text="Email ID" />&nbsp;*</label>
-				<input type="text" class="sText" name="email" value="${domain.credential.email}" />
+				<input  type="text" class="sText" name="email"  />
 			</p>
 			
 			<p>
 				<label class="small"><spring:message code="user.enabled" text="Enabled?" /></label>
 				<input type="checkbox" name="isEnabled" id="isEnabled" class="sCheck">
-			</p>
+			</p>			
 			
 			<div class="fields expand">
 				<h2></h2>
@@ -95,14 +94,6 @@
 				</p>
 			</div>
 			<input type="hidden" name="userId" value="${domain.id}"/>
-			<input type="hidden" id="key" name="key">
-			<form:hidden path="credential.id"/>
-			<form:hidden path="credential.version"/>
-			<form:hidden path="credential.email"/>
-			<form:hidden path="credential.username"/>
-			<form:hidden path="credential.password"/>
-			<form:hidden path="credential.lastLoginTime"/>
-			<form:hidden path="credential.locale"/>
 			<form:hidden path="locale" />
 			<form:hidden path="id" />
 			<form:hidden path="version" />
