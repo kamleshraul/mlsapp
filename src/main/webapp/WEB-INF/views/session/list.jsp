@@ -4,67 +4,27 @@
 	<title><spring:message code="session.list"/></title>
 	<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
 	<script type="text/javascript">
-	var houseId=$('#houseId').val();
-	
 		$(document).ready(function(){
-			$("#list_session").hide();
-			 $('#key').val("");
 			$('#new_record').click(function(){
-				newSession();				
+				newRecord();				
 			});
 			$('#edit_record').click(function(){
-				editSession($('#key').val());
+				editRecord($('#key').val());
 			});
 			$("#delete_record").click(function() {
-				deleteSession($('#key').val());
+				deleteRecord($('#key').val());
 			});
 			$("#search").click(function() {
 				searchRecord();
 			});
-			//$("#list_session").click(function() {
-			//	showTabByIdAndUrl('session_tab','session/list'+'?houseId='+houseId);
-			//});
+			$("#rotation_order_report").click(function() {
+				viewRotationOrderReport($('#key').val());
+			});
+			$("#rotation_order_publish").click(function() {
+				publishRotationOrderReport();
+			});
 		});
 		
-	</script>
-	<script>
-	
-	
-	function editSession(row) {
-		if(this.id =='edit_session' && row==null){
-			alert("Please select the desired row to edit");
-			return false;
-		}
-		/* $("#cancelFn").val(newSession); */				  
-		 showTabByIdAndUrl('session_tab','session/'+row+'/edit');
-	}
-
-	function newSession()
-	{			 		 
-		alert($("#cancelFn").val());
-		/* $("#cancelFn").val(newSession);  */
-		showTabByIdAndUrl('session_tab','session/new'+'?houseId=' +houseId);
-	}
-	function deleteSession(row) {
-		if(row==null){
-			$.prompt("Please select the desired row to delete");		
-		}
-		else{
-			$.prompt('Are you sure you want to delete the record with Id: '+ row,{
-				buttons: {Ok:true, Cancel:false}, callback: function(v){
-		        if(v){
-			        $.delete_('session'+'/'+row +'/delete', null, function(data, textStatus, XMLHttpRequest) {
-			            $('#grid').trigger("reloadGrid");
-			        });
-		        }
-			}});
-			
-
-			//$("#grid").jqGrid('delGridRow',row,{reloadAfterSubmit:true, mtype:'DELETE', url:url+'/'+row+'/delete',modal:true});
-		}
-	}
-	
-
 	</script>
 </head>
 <body>
@@ -79,15 +39,18 @@
 			</a> |
 			<a href="#" id="delete_record" class="butSim">
 				<spring:message code="generic.delete" text="Delete"/>
-			</a> 
-			|
+			</a> |
 			<a href="#" id="search" class="butSim">
 				<spring:message code="generic.search" text="Search"/>
-			</a> 
-			<p>&nbsp;</p><%--   |
-			<a href="#" id="list_session" class="butSim">
-				<spring:message code="generic.list" text="List"/>
-			</a>  --%>
+			</a> |
+			<a href="#" id="rotation_order_report" class="butSim">
+				<spring:message code="session.rotationOrderReport" text="Rotation order report"/>
+			</a> |
+			<a href="#" id="rotation_order_publish" class="butSim">
+				<spring:message code="generic.rotationOrderpublish" text="Publish Rotation Order Report"/>
+			</a>
+			
+			<p>&nbsp;</p>
 			
 		
 		</div>
