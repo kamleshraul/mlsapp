@@ -9,6 +9,7 @@
 			$('#list_tab').click(function(){
 				showList();
 			});	
+			
 			$(document).keydown(function (e){
 				if(e.which==78 && e.ctrlKey){
 					newRecord();
