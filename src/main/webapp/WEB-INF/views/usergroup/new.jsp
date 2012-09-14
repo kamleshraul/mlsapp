@@ -59,20 +59,18 @@
 					text+="<option value='"+data[i].name+"' selected='selected'>"+data[i].name+"</option>";
 				}
 				$("#param_SUBDEPARTMENT_"+locale).html(text);
-				$.unblockUI();				
+				$.unblockUI();	
 			}else{
-				$.unblockUI();				
+				$.unblockUI();	
 			}
 		});	
 	}
 
-	function loadSubDepartments(group,department,housetype,year,sessiontype){
+	function loadSubDepartmentsByDepartments(group,department,housetype,year,sessiontype){
 		var locale=$("#locale").val();	
-		console.log(department);	
 		$.get('ref/departments/subdepartments?group='+group+'&department='+department+'&housetype='+housetype+'&year='+year+'&sessiontype='+sessiontype,function(data){
 			$("#param_SUBDEPARTMENT_"+locale).empty();
 			var text="";
-			console.log("Sub Departments:"+data.length);			
 			if(data.length>0){
 				for(var i=0;i<data.length;i++){
 					text+="<option value='"+data[i].name+"' selected='selected'>"+data[i].name+"</option>";
@@ -95,10 +93,11 @@
 		
 		var locale=$("#locale").val();
 		
-		$("#param_YEAR_"+locale).change(function(){
+		$("#param_YEAR_"+locale).change(function(event){
 		if($("#param_HOUSETYPE_"+locale).val()!=null){				
 		$.blockUI({ message: '<img src="./resources/images/waitAnimated.gif" />' }); 			
 		loadGroups($("#param_HOUSETYPE_"+locale).val(),$("#param_YEAR_"+locale).val(),$("#param_SESSIONTYPE_"+locale).val());
+		event.stopImmediatePropagation();		
 		}else{
 			$("#param_GROUP_"+locale).empty();
 			$("#param_DEPARTMENT_"+locale).empty();
@@ -106,10 +105,11 @@
 		}
 		});
 
-		$("#param_SESSIONTYPE_"+locale).change(function(){
+		$("#param_SESSIONTYPE_"+locale).change(function(event){
 		if($("#param_HOUSETYPE_"+locale).val()!=null){
 		$.blockUI({ message: '<img src="./resources/images/waitAnimated.gif" />' });	
 		loadGroups($("#param_HOUSETYPE_"+locale).val(),$("#param_YEAR_"+locale).val(),$("#param_SESSIONTYPE_"+locale).val());
+		event.stopImmediatePropagation();
 		}else{
 			$("#param_GROUP_"+locale).empty();
 			$("#param_DEPARTMENT_"+locale).empty();
@@ -117,11 +117,12 @@
 		}
 		});
 		
-		$("#param_GROUP_"+locale).change(function(){
+		$("#param_GROUP_"+locale).change(function(event){
 		if($("#param_HOUSETYPE_"+locale).val()!=null){				
 		if($("#param_GROUP_"+locale).val()!=null){
 		$.blockUI({ message: '<img src="./resources/images/waitAnimated.gif" />' }); 		
 		loadDepartments($("#param_GROUP_"+locale).val(),$("#param_HOUSETYPE_"+locale).val(),$("#param_YEAR_"+locale).val(),$("#param_SESSIONTYPE_"+locale).val());
+		event.stopImmediatePropagation();		
 		}else{
 			$("#param_DEPARTMENT_"+locale).empty();
 			$("#param_SUBDEPARTMENT_"+locale).empty();		
@@ -134,7 +135,7 @@
 				if($("#param_GROUP_"+locale).val()!=null){
 				if($("#param_DEPARTMENT_"+locale).val()!=null){
 				$.blockUI({ message: '<img src="./resources/images/waitAnimated.gif" />' }); 		
-				loadSubDepartments($("#param_GROUP_"+locale).val(),$("#param_DEPARTMENT_"+locale).val(),$("#param_HOUSETYPE_"+locale).val(),$("#param_YEAR_"+locale).val(),$("#param_SESSIONTYPE_"+locale).val());
+				loadSubDepartmentsByDepartments($("#param_GROUP_"+locale).val(),$("#param_DEPARTMENT_"+locale).val(),$("#param_HOUSETYPE_"+locale).val(),$("#param_YEAR_"+locale).val(),$("#param_SESSIONTYPE_"+locale).val());
 				}else{
 					$("#param_SUBDEPARTMENT_"+locale).empty();		
 				}
@@ -154,14 +155,9 @@
 	<form:errors path="version" cssClass="validationError"/>		 
 	<p> 
 		<label class="small"><spring:message code="usergroup.name" text="Name"/></label>
-		<form:input cssClass="sText" path="name"/>
-		<form:errors path="name" cssClass="validationError"/>	
-	</p>
-	<p> 
-		<label class="small"><spring:message code="usergroup.type" text="Type"/></label>
-		<form:input cssClass="sText" path="type"/>
-		<form:errors path="type" cssClass="validationError"/>	
-	</p>
+		<form:select cssClass="sSelect" path="userGroupType" items="${userGroupTypes}" itemLabel="name" itemValue="id"/>
+		<form:errors path="userGroupType" cssClass="validationError"/>	
+	</p>	
 	<p> 
 		<label class="small"><spring:message code="usergroup.activefrom" text="Active From"/></label>
 		<form:input cssClass="datemask sText" path="activeFrom"/>

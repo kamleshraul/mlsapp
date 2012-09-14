@@ -6,44 +6,47 @@
 	<script type="text/javascript">
 		$(document).ready(function(){
 			$('#list_record').hide();
+			console.log("user:"+$('#key').val());
 			$('#gridURLParams').val("user="+$('#key').val());
 			$('#editDeleteLinks').show();		
 			$('#new_record').click(function(){
-				newUserGroupRecord($('#key').val());										
+				console.log("before"+$("#key").val());
+				newUserGroupRecord();
+				console.log("after"+$("#key").val());														
 			});
 			$('#edit_record').click(function(){
-				editUserGroupRecord($('#internalKey').val(),$('#key').val());
+				editUserGroupRecord();
 			});
 			$("#delete_record").click(function() {
-				deleteUserGroupRecord($('#internalKey').val());
+				deleteUserGroupRecord();
 			});
 			$("#list_record").click(function() {
-				listUserGroupRecord($('#internalKey').val());
+				listUserGroupRecord();
 			});
 			$("#search").click(function() {
 				searchRecord();
 			});
 		});
-		function listUserGroupRecord(){
-			showTabByIdAndUrl('group_tab','usergroup/list?'+$('#gridURLParams').val());	
+		function listUserGroupRecord(){			
+			showTabByIdAndUrl('groups_tab','usergroup/list?'+$('#gridURLParams').val());	
 		}
-		function newUserGroupRecord(member){
+		function newUserGroupRecord(){
+				console.log("fn call"+$("#key").val());
 				$('#editDeleteLinks').hide();
-				var user=$('#key').val();
 				$("#cancelFn").val("newUserGroupRecord");
 				$.get('usergroup/new?'+$('#gridURLParams').val(), function(data){					
+					console.log("ajax call"+$("#key").val());
 					$('#grid_container').html(data);
 					$('#list_record').show();
 					scrollTop();					
 			});
 				
 		}
-		function editUserGroupRecord(row,member) {
+		function editUserGroupRecord() {
 			$('#editDeleteLinks').hide();
 			var row=$('#internalKey').val();
-			var user=$('#key').val();
 			$("#cancelFn").val("editUserGroupRecord");									
-			if(row==""){
+			if(row==null||row==""){
 				$.prompt($('#selectRowFirstMessage').val());
 				return false;
 			}
@@ -54,11 +57,11 @@
 		});		
 		}
 		function rowDblClickHandler(rowid, iRow, iCol, e) {
-			$('#editDeleteLinks').hide();			
-			var user=$('#key').val();
-			var rowid=$('#internalKey').val();
+			$('#editDeleteLinks').hide();
+			$("#internalKey").val(rowid);			
+			var row=$('#internalKey').val();
 			$("#cancelFn").val("rowDblClickHandler");						
-			$.get('usergroup/'+rowid+'/edit?'+$('#gridURLParams').val(), function(data){
+			$.get('usergroup/'+row+'/edit?'+$('#gridURLParams').val(), function(data){
 				$('#grid_container').html(data);
 				$('#list_record').show();
 				scrollTop();							
@@ -69,9 +72,9 @@
 				$('#internalKey').val(rowid);
 			}						
 		}
-		function deleteUserGroupRecord(row) {
-			var member=$('#key').val();
-			if(row ==""){
+		function deleteUserGroupRecord() {
+			var row=$('#internalKey').val();
+			if(row==null||row ==""){
 				$.prompt($('#selectRowFirstMessage').val());		
 				return;
 			}
