@@ -35,7 +35,8 @@ public class HouseType extends BaseDomain implements Serializable {
     /** The type. */
     @Column(length = 150)
     private String type;
-
+    
+    @Column(length=600)
     private String name;
 
     // ---------------------------------Constructors----------------------------------------------
