@@ -11,12 +11,18 @@ package org.mkcl.els.domain;
 
 import java.io.Serializable;
 import java.util.Date;
+import java.util.List;
 
+import javax.persistence.AttributeOverride;
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
+import javax.persistence.GeneratedValue;
+import javax.persistence.Id;
 import javax.persistence.JoinColumn;
+import javax.persistence.JoinTable;
+import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import javax.persistence.Temporal;
@@ -37,14 +43,13 @@ import org.springframework.beans.factory.annotation.Configurable;
 @Configurable
 @Entity
 @Table(name="users")
-@JsonIgnoreProperties({"credential"})
 
 public class User extends BaseDomain implements Serializable {
 
     // ---------------------------------Attributes------------------------------------------
     /** The Constant serialVersionUID. */
     private transient static final long serialVersionUID = 1L;
-
+    
     /** The title. */
     @Column(length=300)
     private String title;
@@ -60,10 +65,10 @@ public class User extends BaseDomain implements Serializable {
     /** The last name. */
     @Column(length=300)
     private String lastName;
-
+    
     @Temporal(TemporalType.DATE)
     private Date birthDate;
-
+    
     @Column(length=100)
     private String birthPlace;
 
@@ -71,9 +76,9 @@ public class User extends BaseDomain implements Serializable {
     @ManyToOne(fetch=FetchType.EAGER,cascade=CascadeType.ALL)
     @JoinColumn(name="credential_id")
     private Credential credential;
-
+    
     /** The user repository. */
-
+    
     @Autowired
     private transient UserRepository userRepository;
 
@@ -111,7 +116,7 @@ public class User extends BaseDomain implements Serializable {
     public static User findByUserName(final String username,final String locale){
     	return getUserRepository().findByUserName(username, locale);
     }
-
+    
 //    public static void assignMemberId(final Long memberId,final Long userId){
 //    	getUserRepository().assignMemberId(memberId, userId);
 //    }
@@ -210,14 +215,14 @@ public class User extends BaseDomain implements Serializable {
 	public Date getBirthDate() {
 		return birthDate;
 	}
-	public void setBirthDate(final Date birthDate) {
+	public void setBirthDate(Date birthDate) {
 		this.birthDate = birthDate;
 	}
 	public String getBirthPlace() {
 		return birthPlace;
 	}
-	public void setBirthPlace(final String birthPlace) {
+	public void setBirthPlace(String birthPlace) {
 		this.birthPlace = birthPlace;
 	}
-
+	
 }
