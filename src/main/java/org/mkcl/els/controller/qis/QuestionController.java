@@ -19,6 +19,7 @@ import org.mkcl.els.domain.Department;
 import org.mkcl.els.domain.Group;
 import org.mkcl.els.domain.House;
 import org.mkcl.els.domain.HouseType;
+import org.mkcl.els.domain.Language;
 import org.mkcl.els.domain.Member;
 import org.mkcl.els.domain.MemberMinister;
 import org.mkcl.els.domain.Ministry;
@@ -28,6 +29,7 @@ import org.mkcl.els.domain.DeviceType;
 import org.mkcl.els.domain.Role;
 import org.mkcl.els.domain.Session;
 import org.mkcl.els.domain.SessionType;
+import org.mkcl.els.domain.Status;
 import org.mkcl.els.domain.associations.HouseMemberRoleAssociation;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
@@ -251,6 +253,9 @@ public class QuestionController extends GenericController<Question>{
             model.addAttribute("priority",customParameter.getValue());
             model.addAttribute("selectedPriority", customParameter.getValue());
         }
+        //***********populating Languages**********
+        List<Language> languages=Language.findAll(Language.class, "name", "desc", domain.getLocale());
+        model.addAttribute("languages", languages);
         //populating submission date
         domain.setSubmissionDate(new Date());
     }
@@ -352,6 +357,10 @@ public class QuestionController extends GenericController<Question>{
             buffer.deleteCharAt(buffer.length()-1);
             model.addAttribute("supportingMembersName", buffer.toString());
         }
+        //***********populating Languages**********
+        List<Language> languages=Language.findAll(Language.class, "name", "desc", domain.getLocale());
+        model.addAttribute("languages", languages);
+        
         //************************setting answering dates********************
         if(domain.getAnsweringDate()!=null){
             model.addAttribute("selectedAnsweringDate", FormaterUtil.getDateFormatter(ApplicationConstants.SERVER_DATEFORMAT, locale).format(domain.getAnsweringDate()));
@@ -367,12 +376,32 @@ public class QuestionController extends GenericController<Question>{
             final HttpServletRequest request) {
         //request.getSession().setAttribute("houseType",request.getParameter("houseType"));
         //request.getSession().setAttribute("session",request.getParameter("session"));
+    	if(domain.getHouseType()!=null && request.getParameter("sessionYear")!="" && request.getParameter("sessionType")!=""
+    			&&  domain.getType()!=null && domain.getPrimaryMember()!=null && domain.getMinistry()!=null && 
+    			domain.getDepartment()!=null && domain.getSubject()!=""){
+    		Status status=Status.findByFieldName(Status.class, "type", "complete", domain.getLocale());
+    		domain.setStatus(status);
+    	}
+    	else{
+    		Status status=Status.findByFieldName(Status.class, "type", "incomplete", domain.getLocale());
+    		domain.setStatus(status);
+    	}
 
     }
 
     @Override
     protected void populateUpdateIfNoErrors(final ModelMap model, final Question domain,
             final HttpServletRequest request) {
+    	if(domain.getHouseType()!=null && request.getParameter("sessionYear")!="" && request.getParameter("sessionType")!=""
+    			&&  domain.getType()!=null && domain.getPrimaryMember()!=null && domain.getMinistry()!=null && 
+    			domain.getDepartment()!=null && domain.getSubject()!=""){
+    		Status status=Status.findByFieldName(Status.class, "type", "complete", domain.getLocale());
+    		domain.setStatus(status);
+    	}
+    	else{
+    		Status status=Status.findByFieldName(Status.class, "type", "incomplete", domain.getLocale());
+    		domain.setStatus(status);
+    	}
     }
 
     @Override
