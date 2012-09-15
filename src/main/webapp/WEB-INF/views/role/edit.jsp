@@ -8,7 +8,8 @@
 	<script type="text/javascript">
 	$('document').ready(function(){	
 		initControls();
-		$('#key').val('');	
+		var recordId = ${domain.id};
+		$('#key').val(recordId);
 	});		
 </script>
 </head>
@@ -27,6 +28,12 @@
 			<form:input cssClass="sText" path="name"/>
 			<form:errors path="name" cssClass="validationError"/>	
 	</p>
+	<p>
+				<label class="small"><spring:message
+						code="role.type" text="Role" />&nbsp;*</label>
+				<form:input cssClass="sText " path="type" />
+				<form:errors path="type" cssClass="validationError" />
+			</p>
 	
 	
 	<div class="fields">
@@ -35,6 +42,7 @@
 			<input id="submit" type="submit" value="<spring:message code='generic.submit' text='Submit'/>" class="butDef">
 		</p>
 	</div>
+	<input type="hidden" id="key" name="key">
 	<form:hidden path="locale" />
 	<form:hidden path="id"/>	
 	<form:hidden path="version"/>
