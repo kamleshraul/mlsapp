@@ -24,7 +24,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 
 // TODO: Auto-generated Javadoc
 /**
- * The Class QuestionTypeController.
+ * The Class DevicTypeController.
  *
  * @author Dhananjay
  * @since v1.1.0
@@ -148,6 +148,8 @@ public class DeviceTypeController extends GenericController<DeviceType> {
         }
         domain.setParameters(deviceTypeParams);
     }
-
-
 }
+
+
+
+
