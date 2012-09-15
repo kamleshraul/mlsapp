@@ -21,11 +21,15 @@
 	</h2>
 	<form:errors path="version" cssClass="validationError"/>			 
 		<p> 
+			<label class="small"><spring:message code="housetype.name" text="Name"/></label>
+			<form:input cssClass="sText" path="name"/>
+			<form:errors path="name" cssClass="validationError"/>	
+		</p>
+		<p> 
 			<label class="small"><spring:message code="housetype.type" text="Type"/></label>
 			<form:input cssClass="sText" path="type"/>
 			<form:errors path="type" cssClass="validationError"/>	
 		</p>
-		
 		<div class="fields expand">
 			<h2></h2>
 			<p class="tright">
