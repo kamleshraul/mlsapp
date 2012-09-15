@@ -364,7 +364,11 @@
 		<form:select path="answeringDate" cssClass="datemask sSelect" items="${answeringDates}" itemLabel="answeringDate" itemValue="answeringDate"/>
 		<form:errors path="answeringDate" cssClass="validationError"/>	
 	</p>
-	
+	<p>
+		<label class="small"><spring:message code="question.language" text="Question Language"/></label>
+		<form:select path="language" cssClass="sSelect" items="${languages}" itemLabel="name" itemValue="id"/>
+		<form:errors path="language" cssClass="validationError"/>	
+	</p>
 	<p>
 		<label class="small"><spring:message code="question.subject" text="Subject"/></label>
 		<form:textarea path="subject" cssClass="wysiwyg"></form:textarea>
