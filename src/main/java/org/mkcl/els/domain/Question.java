@@ -195,10 +195,10 @@ public class Question extends BaseDomain
    * @author compaq
    * @since v1.0.0
    */
-  public static Integer assignQuestionNo(HouseType houseType, Session session, QuestionType questionType)
+  public static Integer assignQuestionNo(HouseType houseType, Session session, DeviceType deviceType)
   {
     return getQuestionRepository().assignQuestionNo(houseType, 
-      session, questionType);
+      session, deviceType);
   }
 
   /**
