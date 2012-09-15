@@ -1,3 +1,12 @@
+/**
+ * See the file LICENSE for redistribution information.
+ *
+ * Copyright (c) 2012 MKCL.  All rights reserved.
+ *
+ * Project: e-Legislature
+ * File: org.mkcl.els.controller.UserGroupController.java
+ * Created On: Sep 15, 2012
+ */
 package org.mkcl.els.controller;
 
 import java.util.ArrayList;
@@ -29,10 +38,20 @@ import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.RequestMapping;
 
 
+// TODO: Auto-generated Javadoc
+/**
+ * The Class UserGroupController.
+ *
+ * @author Sandeep
+ * @since v1.0.0
+ */
 @Controller
 @RequestMapping("/usergroup")
 public class UserGroupController extends GenericController<UserGroup>{
 
+    /* (non-Javadoc)
+     * @see org.mkcl.els.controller.GenericController#populateNew(org.springframework.ui.ModelMap, org.mkcl.els.domain.BaseDomain, java.lang.String, javax.servlet.http.HttpServletRequest)
+     */
     @Override
     protected void populateNew(final ModelMap model, final UserGroup domain, final String locale,
             final HttpServletRequest request) {
@@ -98,6 +117,9 @@ public class UserGroupController extends GenericController<UserGroup>{
         domain.setLocale(locale);
     }
 
+    /* (non-Javadoc)
+     * @see org.mkcl.els.controller.GenericController#populateEdit(org.springframework.ui.ModelMap, org.mkcl.els.domain.BaseDomain, javax.servlet.http.HttpServletRequest)
+     */
     @Override
     protected void populateEdit(final ModelMap model, final UserGroup domain,
             final HttpServletRequest request) {
@@ -171,6 +193,9 @@ public class UserGroupController extends GenericController<UserGroup>{
     }
 
 
+    /* (non-Javadoc)
+     * @see org.mkcl.els.controller.GenericController#populateCreateIfNoErrors(org.springframework.ui.ModelMap, org.mkcl.els.domain.BaseDomain, javax.servlet.http.HttpServletRequest)
+     */
     @SuppressWarnings("unchecked")
     @Override
     protected void populateCreateIfNoErrors(final ModelMap model, final UserGroup domain,
@@ -200,6 +225,9 @@ public class UserGroupController extends GenericController<UserGroup>{
         domain.setParameters(deviceTypeParams);
     }
 
+    /* (non-Javadoc)
+     * @see org.mkcl.els.controller.GenericController#populateUpdateIfNoErrors(org.springframework.ui.ModelMap, org.mkcl.els.domain.BaseDomain, javax.servlet.http.HttpServletRequest)
+     */
     @Override
     protected void populateUpdateIfNoErrors(final ModelMap model, final UserGroup domain,
             final HttpServletRequest request) {
