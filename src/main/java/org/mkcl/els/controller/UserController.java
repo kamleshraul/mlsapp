@@ -152,7 +152,7 @@ public class UserController extends GenericController<User>{
 		 @RequestMapping(value="/role",method=RequestMethod.GET)
 		protected void populateRole(final ModelMap model, final User domain,
 				final HttpServletRequest request, final Locale locale) {
-			User user=User.findById(User.class, Long.parseLong(request.getParameter("userId")));
+			User user=User.findById(User.class, Long.parseLong(request.getParameter("user")));
 			List<Role> roles=Role.findAll(Role.class, "name", "desc",locale.toString());
 			model.addAttribute("roles",roles);
 			model.addAttribute("domain", user);
