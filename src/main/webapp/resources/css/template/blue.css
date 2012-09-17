@@ -1025,6 +1025,10 @@
 		width:auto;
 	}
 	
+	.cbox {
+		width:auto;
+	}
+	
 	.sText{
 		/* added by sandeeps .changed height from 18px to 24px to 
 		accomodate proper display of various marathi ligatures*/
