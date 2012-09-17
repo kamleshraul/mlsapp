@@ -57,16 +57,30 @@ public class UserGroup extends BaseDomain implements Serializable {
     @CollectionTable(name="usergroups_parameters")
 	private Map<String,String> parameters;
 
+    /** The credential. */
     @ManyToOne(fetch=FetchType.LAZY)
     @PrimaryKeyJoinColumn(name = "credential_id", referencedColumnName = "id")
     private Credential credential;
 
+    /** The active from. */
     @Temporal(TemporalType.DATE)
     private Date activeFrom;
 
+    /**
+     * Instantiates a new user group.
+     */
     public UserGroup() {
         super();
     }
+    
+    /**
+     * Instantiates a new user group.
+     *
+     * @param userGroupType the user group type
+     * @param parameters the parameters
+     * @param credential the credential
+     * @param activeFrom the active from
+     */
     public UserGroup(final UserGroupType userGroupType,
             final Map<String, String> parameters, final Credential credential,
             final Date activeFrom) {
@@ -77,38 +91,84 @@ public class UserGroup extends BaseDomain implements Serializable {
         this.activeFrom = activeFrom;
     }
 
+    /**
+     * Gets the user group type.
+     *
+     * @return the user group type
+     */
     public UserGroupType getUserGroupType() {
         return userGroupType;
     }
 
+    /**
+     * Sets the user group type.
+     *
+     * @param userGroupType the new user group type
+     */
     public void setUserGroupType(final UserGroupType userGroupType) {
         this.userGroupType = userGroupType;
     }
 
+    /**
+     * Gets the parameters.
+     *
+     * @return the parameters
+     */
     public Map<String, String> getParameters() {
         return parameters;
     }
 
+    /**
+     * Sets the parameters.
+     *
+     * @param parameters the parameters
+     */
     public void setParameters(final Map<String, String> parameters) {
         this.parameters = parameters;
     }
 
+    /**
+     * Gets the credential.
+     *
+     * @return the credential
+     */
     public Credential getCredential() {
         return credential;
     }
 
+    /**
+     * Sets the credential.
+     *
+     * @param credential the new credential
+     */
     public void setCredential(final Credential credential) {
         this.credential = credential;
     }
 
+    /**
+     * Gets the active from.
+     *
+     * @return the active from
+     */
     public Date getActiveFrom() {
         return activeFrom;
     }
 
+    /**
+     * Sets the active from.
+     *
+     * @param activeFrom the new active from
+     */
     public void setActiveFrom(final Date activeFrom) {
         this.activeFrom = activeFrom;
     }
 
+    /**
+     * Gets the parameter value.
+     *
+     * @param key the key
+     * @return the parameter value
+     */
     public String getParameterValue(final String key){
         Map<String,String> params=this.getParameters();
         if(params!=null){
