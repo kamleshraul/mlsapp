@@ -125,8 +125,42 @@ public class MemberMinister extends BaseDomain implements Serializable {
         return getMemberMinisterRepository().findAssignedDepartmentsVO(group, locale);
     }
 
+    public static List<MasterVO> findAssignedDepartmentsVO(final Group[] group, final String locale) {
+        return getMemberMinisterRepository().findAssignedDepartmentsVO(group, locale);
+    }
+
+
+    public static List<MasterVO> findAssignedDepartmentsVO(final Integer[] groupNumbers,
+            final HouseType houseType,final SessionType sessionType,final Integer year, final String locale) {
+        return getMemberMinisterRepository().findAssignedDepartmentsVO(groupNumbers, houseType, sessionType, year, locale);
+    }
+
+
     public static List<MasterVO> findAssignedSubDepartmentsVO(final Group group,final String locale){
         return getMemberMinisterRepository().findAssignedSubDepartmentsVO(group, locale);
+    }
+
+    public static List<MasterVO> findAssignedSubDepartmentsVO(final Integer groupNumber,
+            final HouseType houseType,final SessionType sessionType,final Integer year, final String locale) {
+        return getMemberMinisterRepository().findAssignedDepartmentsVO(groupNumber,
+                houseType, sessionType, year, locale);
+    }
+
+    public static List<MasterVO> findAssignedSubDepartmentsVO(final Group[] group, final String locale) {
+        return getMemberMinisterRepository().findAssignedDepartmentsVO(group, locale);
+    }
+
+    public static List<MasterVO> findAssignedSubDepartmentsVO(final Integer[] groupNumbers,
+            final HouseType houseType,final SessionType sessionType,final Integer year, final String locale) {
+        return getMemberMinisterRepository().findAssignedDepartmentsVO(groupNumbers, houseType,
+                sessionType, year, locale);
+    }
+
+    public static List<MasterVO> findAssignedSubDepartmentsVO(final Integer[] groupNumbers,
+            final String[] departmentNames, final HouseType houseType,
+            final SessionType sessionType, final Integer year, final String locale){
+        return getMemberMinisterRepository().findAssignedSubDepartmentsVO(groupNumbers,
+                departmentNames, houseType, sessionType, year, locale);
     }
 
 
