@@ -9,32 +9,21 @@
  */
 package org.mkcl.els.controller;
 
-import java.lang.reflect.Field;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
-import java.lang.reflect.Modifier;
 import java.math.BigInteger;
 import java.security.SecureRandom;
-import java.util.HashMap;
-
-import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
-import java.util.Map;
 import java.util.Set;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 
-import org.mkcl.els.common.editors.BaseEditor;
-import org.mkcl.els.domain.ApplicationLocale;
+import org.mkcl.els.common.util.ApplicationConstants;
 import org.mkcl.els.domain.BaseDomain;
 import org.mkcl.els.domain.Credential;
-import org.mkcl.els.domain.Member;
-import org.mkcl.els.domain.PartialUpdate;
+import org.mkcl.els.domain.HouseType;
 import org.mkcl.els.domain.Role;
-import org.mkcl.els.domain.Title;
 import org.mkcl.els.domain.User;
 import org.mkcl.els.domain.UserGroup;
 import org.springframework.beans.propertyeditors.CustomCollectionEditor;
@@ -42,11 +31,9 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.WebDataBinder;
-import org.springframework.web.bind.annotation.InitBinder;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 // TODO: Auto-generated Javadoc
@@ -60,8 +47,21 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 @RequestMapping("/user")
 public class UserController extends GenericController<User>{
 
-	
 
+
+    @Override
+    protected void populateNew(final ModelMap model, final User domain, final String locale,
+            final HttpServletRequest request) {
+        domain.setLocale(locale);
+        List<HouseType> houseTypes=HouseType.findAllNoExclude("type",ApplicationConstants.ASC, locale);
+        model.addAttribute("houseTypes",houseTypes);
+    }
+    @Override
+    protected void populateEdit(final ModelMap model, final User domain,
+            final HttpServletRequest request) {
+        List<HouseType> houseTypes=HouseType.findAllNoExclude("type",ApplicationConstants.ASC, domain.getLocale());
+        model.addAttribute("houseTypes",houseTypes);
+    }
 	/* (non-Javadoc)
 	 * @see org.mkcl.els.controller.GenericController#customValidateCreate(org.mkcl.els.domain.BaseDomain, org.springframework.validation.BindingResult, javax.servlet.http.HttpServletRequest)
 	 */
@@ -80,7 +80,7 @@ public class UserController extends GenericController<User>{
         customValidate(domain, result, request);
     }
 
-	
+
 	 /**
  	 * Custom validate.
  	 *
@@ -93,7 +93,7 @@ public class UserController extends GenericController<User>{
 
 	    }
 
-	
+
  		/* (non-Javadoc)
 		  * @see org.mkcl.els.controller.GenericController#populateCreateIfNoErrors(org.springframework.ui.ModelMap, org.mkcl.els.domain.BaseDomain, javax.servlet.http.HttpServletRequest)
 		  */
@@ -111,17 +111,17 @@ public class UserController extends GenericController<User>{
  	 	      credential.setUsername(request.getParameter("email"));
  	 	      credential.setEnabled(Boolean.parseBoolean(request.getParameter("isEnabled")));
  	 	      credential.setLocale(null);
- 	 	      SecureRandom random = new SecureRandom();  
+ 	 	      SecureRandom random = new SecureRandom();
  	 	      String str = new BigInteger(60, random).toString(32);
  			  credential.setPassword(str);
  			  credential.persist();
  			  domain.setCredential(credential);
-	
+
  	    }
- 		  
+
  	    }
- 		
- 		
+
+
 		 /* (non-Javadoc)
  		 * @see org.mkcl.els.controller.GenericController#populateUpdateIfNoErrors(org.springframework.ui.ModelMap, org.mkcl.els.domain.BaseDomain, javax.servlet.http.HttpServletRequest)
  		 */
@@ -137,10 +137,10 @@ public class UserController extends GenericController<User>{
  			if(!domain.getCredential().isEnabled()==Boolean.parseBoolean(request.getParameter("isEnabled"))) {
  				domain.getCredential().setEnabled(Boolean.parseBoolean(request.getParameter("isEnabled")));
  			}
- 			
+
  		}
- 		
- 		
+
+
  		/**
 		  * Populate role.
 		  *
@@ -152,7 +152,7 @@ public class UserController extends GenericController<User>{
 		 @RequestMapping(value="/role",method=RequestMethod.GET)
 		protected void populateRole(final ModelMap model, final User domain,
 				final HttpServletRequest request, final Locale locale) {
-			User user=User.findById(User.class, Long.parseLong(request.getParameter("user")));
+			User user=User.findById(User.class, Long.parseLong(request.getParameter("userId")));
 			List<Role> roles=Role.findAll(Role.class, "name", "desc",locale.toString());
 			model.addAttribute("roles",roles);
 			model.addAttribute("domain", user);
@@ -162,7 +162,7 @@ public class UserController extends GenericController<User>{
 	            request.getSession().removeAttribute("type");
 	        }
 		}
-	
+
 	/**
 	 * Update role.
 	 *
@@ -179,7 +179,7 @@ public class UserController extends GenericController<User>{
 		protected String UpdateRole(final ModelMap model,
 				final RedirectAttributes redirectAttributes, final @Valid @ModelAttribute("domain") User domain,
 				final HttpServletRequest request, final String Locale){
-				
+
 			final String servletPath = request.getServletPath().replaceFirst("\\/","");
 	        String messagePattern=servletPath.replaceAll("\\/",".");
 	        model.addAttribute("messagePattern", messagePattern);
@@ -189,7 +189,7 @@ public class UserController extends GenericController<User>{
 			domain.getCredential().setUserGroups(user.getCredential().getUserGroups());
 			domain.getCredential().setLastLoginTime(user.getCredential().getLastLoginTime());
 			String[] roleTypes=request.getParameterValues("roles");
-			if(roleTypes!=null){		
+			if(roleTypes!=null){
 			Set<Role> roles= new HashSet<Role>();
 			for(int i=0;i<roleTypes.length;i++){
 				List<Role> rolesByType= Role.findRolesByRoleType(Role.class, "type", roleTypes[i], "name", "desc");
@@ -201,11 +201,11 @@ public class UserController extends GenericController<User>{
 			redirectAttributes.addFlashAttribute("type", "success");
 	        request.getSession().setAttribute("type","success");
 	        redirectAttributes.addFlashAttribute("msg", "update_success");
-	        String returnUrl = "redirect:/" + servletPath+"?userId="+domain.getId(); 
+	        String returnUrl = "redirect:/" + servletPath+"?userId="+domain.getId();
 	        return returnUrl;
-			
+
 		}
-	
+
 	/**
 	 * Populate user group.
 	 *
@@ -256,16 +256,16 @@ public class UserController extends GenericController<User>{
 		redirectAttributes.addFlashAttribute("type", "success");
         request.getSession().setAttribute("type","success");
         redirectAttributes.addFlashAttribute("msg", "update_success");
-        String returnUrl = "redirect:/" + servletPath+"?userId="+domain.getId(); 
+        String returnUrl = "redirect:/" + servletPath+"?userId="+domain.getId();
         return returnUrl;
-		
+
 	}
- 		
-	
+
+
 	/* (non-Javadoc)
 	 * @see org.mkcl.els.controller.GenericController#customInitBinderSuperClass(java.lang.Class, org.springframework.web.bind.WebDataBinder)
 	 */
-	@Override	
+	@Override
     protected <E extends BaseDomain> void customInitBinderSuperClass(
 	            final Class clazz, final WebDataBinder binder) {
 		         binder.registerCustomEditor(Set.class,"credential.roles",
@@ -283,8 +283,8 @@ public class UserController extends GenericController<User>{
 										: null;
 					}
 				});
-		   
-	 
+
+
 		       binder.registerCustomEditor(Set.class,"credential.userGroups",
 				new CustomCollectionEditor(Set.class) {
 		    	   @Override
@@ -300,15 +300,15 @@ public class UserController extends GenericController<User>{
 									: null;
 				}
 		       });
-		       
+
 		 }
-	
+
 }
 
- 		
- 		
- 		
- 		
- 		
- 		
+
+
+
+
+
+
 
