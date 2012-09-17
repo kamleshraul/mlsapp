@@ -30,26 +30,26 @@ import org.springframework.web.bind.annotation.ResponseBody;
 public class WorkflowController extends BaseController {
 
 	private final Logger logger = LoggerFactory.getLogger(getClass());
-	
+
 	@Autowired
 	private IProcessService processService;
-	
+
 	//==================== Deployment Methods ====================
-	
+
 	@RequestMapping(value="deploy/module", method=RequestMethod.GET)
 	public String deployModule(final ModelMap model,
 			final HttpServletRequest request,
 			final Locale locale) {
 		return this.module(model, request, locale);
 	}
-	
+
 	@RequestMapping(value="deploy/list", method=RequestMethod.GET)
 	public String deployList(final ModelMap model,
 			final HttpServletRequest request,
 			final Locale locale) {
 		return this.list(model, request, locale);
 	}
-	
+
 	@RequestMapping(value="deploy/new", method=RequestMethod.GET)
 	public String deployNew(final ModelMap model,
 			final HttpServletRequest request,
@@ -57,7 +57,7 @@ public class WorkflowController extends BaseController {
 		model.addAttribute("type", "");
 		return this.getResourcePath(request);
 	}
-	
+
 	@RequestMapping(value="deploy/{docTag}/create", method=RequestMethod.GET)
 	public @ResponseBody String deployCreate(final ModelMap model,
 			final HttpServletRequest request,
@@ -69,7 +69,7 @@ public class WorkflowController extends BaseController {
 			this.processService.deploy(document.getOriginalFileName(), is);
 			try {
 				is.close();
-			} 
+			}
 			catch (IOException e) {
 				this.logger.error(e.getMessage());
 			}
@@ -79,9 +79,9 @@ public class WorkflowController extends BaseController {
 		}
 		return "";
 	}
-	
-	// Deletes the process definition, cascades deletion to process instances, 
-	// history process instances and jobs. 
+
+	// Deletes the process definition, cascades deletion to process instances,
+	// history process instances and jobs.
 	@RequestMapping(value="deploy/{procDefId}/delete", method=RequestMethod.DELETE)
 	public String deployDelete(final ModelMap model,
 			final HttpServletRequest request,
@@ -91,23 +91,23 @@ public class WorkflowController extends BaseController {
 		processService.undeploy(processDefinition, true);
 		return "info";
 	}
-	
+
 	//==================== My Task Methods ====================
-	
+
 	@RequestMapping(value="myTasks/module", method=RequestMethod.GET)
 	public String myTasksModule(final ModelMap model,
 			final HttpServletRequest request,
 			final Locale locale) {
 		return this.getResourcePath(request);
 	}
-	
+
 	@RequestMapping(value="myTasks/list", method=RequestMethod.GET)
 	public String myTasksList(final ModelMap model,
 			final HttpServletRequest request,
 			final Locale locale) {
 		return this.list(model, request, locale);
 	}
-	
+
 	/**
 	 * Follow a convention where URL path corresponds to JSP folder structure.
 	 * If a JSP exists with following folder structure
@@ -124,35 +124,37 @@ public class WorkflowController extends BaseController {
 			final Locale locale) {
 		Task task = this.processService.findTaskById(taskId);
 		String formKey = this.processService.getFormKey(task);
+		//add taskId to the request
+		request.setAttribute("taskId",taskId);
 		if(formKey != null) {
 			try {
 				request.getRequestDispatcher("/" + formKey).forward(request, response);
-			} 
+			}
 			catch (ServletException e) {
 				this.logger.error(e.getMessage());
-			} 
+			}
 			catch (IOException e) {
 				this.logger.error(e.getMessage());
 			}
 		}
 	}
-	
+
 	//==================== Group Task Methods ===================
-	
+
 	@RequestMapping(value="groupTasks/module", method=RequestMethod.GET)
 	public String groupTasksModule(final ModelMap model,
 			final HttpServletRequest request,
 			final Locale locale) {
 		return this.getResourcePath(request);
 	}
-	
+
 	@RequestMapping(value="groupTasks/list", method=RequestMethod.GET)
 	public String groupTasksList(final ModelMap model,
 			final HttpServletRequest request,
 			final Locale locale) {
 		return this.list(model, request, locale);
 	}
-	
+
 	// TODO
 	@RequestMapping(value="groupTasks/{taskId}/claim", method=RequestMethod.GET)
 	public String groupTasksClaim(final ModelMap model,
@@ -162,15 +164,15 @@ public class WorkflowController extends BaseController {
 			final Locale locale) {
 		return null;
 	}
-	
+
 	//==================== Internal Methods ===================
-	
+
 	private String module(final ModelMap model,
 			final HttpServletRequest request,
 			final Locale locale) {
 		return this.getResourcePath(request);
 	}
-	
+
 	private String list(final ModelMap model,
 			final HttpServletRequest request,
 			final Locale locale) {
@@ -180,10 +182,10 @@ public class WorkflowController extends BaseController {
 		model.addAttribute("gridId", grid.getId());
 		return resourcePath;
 	}
-	
-	private String getResourcePath(HttpServletRequest request) {
+
+	private String getResourcePath(final HttpServletRequest request) {
 		String resourcePath = request.getServletPath().replaceFirst("\\/", "");
 		return resourcePath;
 	}
-	
+
 }
