@@ -39,7 +39,7 @@ import org.springframework.beans.factory.annotation.Configurable;
  */
 @Configurable
 @Entity
-@Table(name="user_group")
+@Table(name="usergroups")
 @JsonIgnoreProperties({"credential","parameters"})
 public class UserGroup extends BaseDomain implements Serializable {
 
@@ -47,17 +47,14 @@ public class UserGroup extends BaseDomain implements Serializable {
 	private static final long serialVersionUID = 2415572645448037836L;
 
 	/** The name. */
-	@Column(length=1000)
-	private String name;
-
-	@Column(length=1000)
-	private String type;
+	@ManyToOne(fetch=FetchType.LAZY)
+	private UserGroupType userGroupType;
 
 	/** The parameters. */
 	@ElementCollection
     @MapKeyColumn(name="parameter_key")
     @Column(name="parameter_value",length=10000)
-    @CollectionTable(name="usergroup_parameters")
+    @CollectionTable(name="usergroups_parameters")
 	private Map<String,String> parameters;
 
     @ManyToOne(fetch=FetchType.LAZY)
@@ -70,64 +67,46 @@ public class UserGroup extends BaseDomain implements Serializable {
     public UserGroup() {
         super();
     }
-
-    public UserGroup(final String name, final Map<String, String> parameters,
-            final Credential credential, final Date activeFrom) {
+    public UserGroup(final UserGroupType userGroupType,
+            final Map<String, String> parameters, final Credential credential,
+            final Date activeFrom) {
         super();
-        this.name = name;
+        this.userGroupType = userGroupType;
         this.parameters = parameters;
         this.credential = credential;
         this.activeFrom = activeFrom;
     }
 
-
-    public String getName() {
-        return name;
+    public UserGroupType getUserGroupType() {
+        return userGroupType;
     }
 
-
-    public void setName(final String name) {
-        this.name = name;
+    public void setUserGroupType(final UserGroupType userGroupType) {
+        this.userGroupType = userGroupType;
     }
-
 
     public Map<String, String> getParameters() {
         return parameters;
     }
 
-
     public void setParameters(final Map<String, String> parameters) {
         this.parameters = parameters;
     }
-
 
     public Credential getCredential() {
         return credential;
     }
 
-
     public void setCredential(final Credential credential) {
         this.credential = credential;
     }
-
 
     public Date getActiveFrom() {
         return activeFrom;
     }
 
-
     public void setActiveFrom(final Date activeFrom) {
         this.activeFrom = activeFrom;
-    }
-
-
-    public String getType() {
-        return type;
-    }
-
-
-    public void setType(final String type) {
-        this.type = type;
     }
 
     public String getParameterValue(final String key){
