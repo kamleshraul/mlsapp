@@ -35,6 +35,7 @@ import org.activiti.engine.repository.ProcessDefinition;
 import org.activiti.engine.repository.ProcessDefinitionQuery;
 import org.activiti.engine.runtime.ProcessInstance;
 import org.activiti.engine.runtime.ProcessInstanceQuery;
+import org.activiti.engine.task.IdentityLinkType;
 import org.activiti.engine.task.Task;
 import org.mkcl.els.common.util.DateFormater;
 import org.mkcl.els.common.util.FileUtil;
@@ -83,6 +84,7 @@ public class ProcessServiceImpl implements IProcessService {
 	@Autowired
 	private IRuleService ruleService;
 
+	//==================== Deployment Queries ===================
 	/**
 	 * The process file to be deployed (& on which the InputStream is created) 
 	 * should have the following structure:
@@ -136,14 +138,12 @@ public class ProcessServiceImpl implements IProcessService {
 		this.repositoryService.deleteDeployment(processDefinition.getDeploymentId(), cascade);
 	}
 
+	//==================== ProcessDefinition Queries ==================
 	@Override
 	public List<org.mkcl.els.common.vo.ProcessDefinition> getDeployedProcesses() {
 		List<org.mkcl.els.common.vo.ProcessDefinition> processDefinitions = 
 			new ArrayList<org.mkcl.els.common.vo.ProcessDefinition>();
 		ProcessDefinitionQuery query = this.repositoryService.createProcessDefinitionQuery();
-
-		// List<ProcessDefinition> processDefinitions = query.orderByProcessDefinitionName()
-		//	   .orderByProcessDefinitionKey().latestVersion().asc().list();
 		
 		List<ProcessDefinition> actProcDefs = query.orderByProcessDefinitionName()
 		  .orderByProcessDefinitionKey().asc().list();
@@ -189,32 +189,19 @@ public class ProcessServiceImpl implements IProcessService {
 	}
 	
 	/**
-	 * Returns null if their exists no Process Instance with the given id.
+	 * Returns null if their exists no form key for the given Process Definition. 
 	 */
 	@Override
-	public org.mkcl.els.common.vo.ProcessInstance findProcessInstanceById(String processInstanceId) {
-		org.mkcl.els.common.vo.ProcessInstance processInstance = null;
-		ProcessInstanceQuery query = this.runtimeService.createProcessInstanceQuery(); 
-		ProcessInstance actProcInst = query.processInstanceId(processInstanceId).singleResult();
-		if(actProcInst != null) {
-			processInstance = this.createProcessInstance(actProcInst);
+	public String getFormKey(org.mkcl.els.common.vo.ProcessDefinition process) {
+		String formKey = null;
+		StartFormData sfd = this.formService.getStartFormData(process.getId());
+		if(sfd != null) {
+			formKey = sfd.getFormKey();
 		}
-		return processInstance;
+		return formKey;		
 	}
 	
-	/**
-	 * Returns null if their exists no Task for the given taskId. 
-	 */
-	@Override
-	public org.mkcl.els.common.vo.Task findTaskById(String taskId) {
-		org.mkcl.els.common.vo.Task task = null;
-		Task actTask = this.taskService.createTaskQuery().taskId(taskId).singleResult();
-		if(actTask != null) {
-			task = this.createTask(actTask);
-		}
-		return task;
-	}
-	
+	//==================== ProcessInstance Queries ====================
 	/**
 	 * Creates an instance of the Process defined by the given ProcessDefinition
 	 * & adds properties to the Process instance. Note that this properties can
@@ -222,7 +209,6 @@ public class ProcessServiceImpl implements IProcessService {
 	 * 	getVariables(Task task) 
 	 * 	getVariablesLocal(Task task)
 	 */
-	// TODO: Should the parameter signature be changed to Map<String, Object>?
 	@Override
 	public org.mkcl.els.common.vo.ProcessInstance createProcessInstance(
 			org.mkcl.els.common.vo.ProcessDefinition process,
@@ -241,96 +227,38 @@ public class ProcessServiceImpl implements IProcessService {
 			String reason) {
 		this.runtimeService.deleteProcessInstance(process.getId(), reason);
 	}
-
-	/**
-	 * Completes the task & adds properties to the Process instance. 
-	 * Note that this properties can be later retrieved using the methods:
-	 * 	getVariables(Task task) 
-	 * 	getVariablesLocal(Task task)
-	 */
-	// TODO: Should the parameter signature be changed to Map<String, Object>?
-	@Override
-	public void submitTask(org.mkcl.els.common.vo.Task task, 
-			Map<String, String> properties) {
-		this.formService.submitTaskFormData(task.getId(), properties);
-	}
 	
 	/**
-	 * The given user is made assignee for the task. Note that a user can 
-	 * assign task to himself/herself (task claim) or a higher authority
-	 * could assign a task to a user (task assign).
+	 * Returns null if their exists no Process Instance with the given id.
 	 */
 	@Override
-	public void assignTask(org.mkcl.els.common.vo.Task task, 
-			String userId) {
-		this.taskService.claim(task.getId(), userId);
-	}
-
-	/**
-	 * Delegates the task to another user.
-	 */
-	// TODO: Note that this implementation will work only for Unclaimed tasks.
-	//
-	// What if a claimed task is to be delegated? We will need to overload the
-	// delegateTask method. What will be the parameters to this method?
-	// Refer DelegatedTaskRepository.delegateTask() method from Insync.
-	//
-	// We can look at the problem other way around. Write an unassignTask method
-	// complementary to the assignTask method above. This way, the implementation
-	// of delegateTask need not be changed, neither will there be any need to
-	// overload delegateTask method. Refer ClaimedTaskRepository.unclaimTask()
-	//
-	// I suppose, i will need to delete the task, create a new task & restore the 
-	// previous IdentityLinks from ProcessDefinition. You can study the implementation
-	// of taskService.claim and then write a complementary method undoing what it does.
-	
-	// TODO: An assigner could delegate a task to multiple users. The following signature
-	// is insufficient for that. I will need to overload the following method with an
-	// array of userIds.
-	@Override
-	public void delegateTask(org.mkcl.els.common.vo.Task task, 
-			String userId) {
-		this.taskService.delegateTask(task.getId(), userId);
-	}
-	
-	/**
-	 * Deletes the given task.
-	 */
-	@Override
-	public void deleteTask(org.mkcl.els.common.vo.Task task) {
-		this.taskService.deleteTask(task.getId());
-	}
-
-	/**
-	 * Returns null if their exists no form key for the given Process Definition. 
-	 */
-	@Override
-	public String getFormKey(org.mkcl.els.common.vo.ProcessDefinition process) {
-		String formKey = null;
-		StartFormData sfd = this.formService.getStartFormData(process.getId());
-		if(sfd != null) {
-			formKey = sfd.getFormKey();
+	public org.mkcl.els.common.vo.ProcessInstance findProcessInstanceById(String processInstanceId) {
+		org.mkcl.els.common.vo.ProcessInstance processInstance = null;
+		ProcessInstanceQuery query = this.runtimeService.createProcessInstanceQuery(); 
+		ProcessInstance actProcInst = query.processInstanceId(processInstanceId).singleResult();
+		if(actProcInst != null) {
+			processInstance = this.createProcessInstance(actProcInst);
 		}
-		return formKey;		
+		return processInstance;
 	}
-
+	
+	//==================== Task Queries ===============================
 	/**
-	 * Returns null if their exists no form key for the given Task.
+	 * Returns null if their exists no Task for the given taskId. 
 	 */
 	@Override
-	public String getFormKey(org.mkcl.els.common.vo.Task task) {
-		String formKey = null;
-		TaskFormData tfd = this.formService.getTaskFormData(task.getId());
-		if(tfd != null) {
-			formKey = tfd.getFormKey();
+	public org.mkcl.els.common.vo.Task findTaskById(String taskId) {
+		org.mkcl.els.common.vo.Task task = null;
+		Task actTask = this.taskService.createTaskQuery().taskId(taskId).singleResult();
+		if(actTask != null) {
+			task = this.createTask(actTask);
 		}
-		return formKey;		
+		return task;
 	}
 
 	/**
 	 * Gets the list of (pending) tasks of the user with the given userId.
 	 */
-	// TODO: Should i pass org.mkcl.domain.User object instead of userId?
 	@Override
 	public List<org.mkcl.els.common.vo.Task> getMyTasks(String userId) {
 		List<org.mkcl.els.common.vo.Task> tasks = new ArrayList<org.mkcl.els.common.vo.Task>();
@@ -349,7 +277,6 @@ public class ProcessServiceImpl implements IProcessService {
 	 * Gets the list of (pending) tasks of the group to which the user 
 	 * with the given userId belongs.
 	 */
-	// TODO: Should i pass org.mkcl.domain.User object instead of userId?
 	@Override
 	public List<org.mkcl.els.common.vo.Task> getGroupTasks(String userId) {
 		List<org.mkcl.els.common.vo.Task> tasks = new ArrayList<org.mkcl.els.common.vo.Task>();
@@ -367,7 +294,6 @@ public class ProcessServiceImpl implements IProcessService {
 	/**
 	 * Gets the count of pending tasks of the user with the given userId.
 	 */
-	// TODO: Should i pass org.mkcl.domain.User object instead of userId?
 	@Override
 	public Long getPendingMyTaskCount(String userId) {
 		return this.taskService.createTaskQuery().taskAssignee(userId).count();
@@ -377,19 +303,127 @@ public class ProcessServiceImpl implements IProcessService {
 	 * Gets the count of pending tasks of the group to which the user 
 	 * with the given userId belongs.
 	 */
-	// TODO: Should i pass org.mkcl.domain.User object instead of userId?
 	@Override
 	public Long getPendingGroupTaskCount(String userId) {
 		return this.taskService.createTaskQuery().taskCandidateUser(userId).count();
 	}
 	
 	/**
+	 * The given user is made assignee for the task. Note that a user can 
+	 * assign task to himself/herself (task claim) or a higher authority
+	 * could assign a task to a user (task assign).
+	 */
+	@Override
+	public void assignTask(org.mkcl.els.common.vo.Task task, 
+			String userId) {
+		this.taskService.claim(task.getId(), userId);
+	}
+	
+	/**
+	 * Unassign (Unclaim) an assigned (claimed) task.
+	 */
+	@Override
+	public void unassignTask(org.mkcl.els.common.vo.Task task, String userId) {
+		this.taskService.deleteUserIdentityLink(task.getId(), userId, IdentityLinkType.ASSIGNEE);
+		this.deleteTask(task);
+	}
+
+	/**
+	 * Delegates the task to another user.
+	 */
+	// TODO: Note that this implementation will work only for Unclaimed tasks.
+	//
+	// What if a claimed task is to be delegated? We will need to overload the
+	// delegateTask method. What will be the parameters to this method?
+	// Refer DelegatedTaskRepository.delegateTask() method from Insync.
+	//
+	// We can look at the problem other way around. Write an unassignTask method
+	// complementary to the assignTask method above. This way, the implementation
+	// of delegateTask need not be changed, neither will there be any need to
+	// overload delegateTask method. Refer ClaimedTaskRepository.unclaimTask()
+	// I suppose, i will need to delete the task, create a new task & restore the 
+	// previous IdentityLinks from ProcessDefinition. You can study the implementation
+	// of taskService.claim and then write a complementary method undoing what it does.
+	
+	// TODO: An assigner could delegate a task to multiple users. The following signature
+	// is insufficient for that. I will need to overload the following method with an
+	// array of userIds.
+	@Override
+	public void delegateTask(org.mkcl.els.common.vo.Task task, 
+			String userId) {
+		this.taskService.delegateTask(task.getId(), userId);
+	}
+	
+	/**
+	 * Completes the task. 
+	 */
+	@Override
+	public void completeTask(org.mkcl.els.common.vo.Task task) {
+		this.taskService.complete(task.getId());
+	}
+
+	/**
+	 * Completes the task & adds properties to the Process instance. 
+	 * Note that this properties can be later retrieved using the methods:
+	 * 	getVariables(Task task) 
+	 * 	getVariablesLocal(Task task)
+	 */
+	@Override
+	public void completeTask(org.mkcl.els.common.vo.Task task, 
+			Map<String, String> properties) {
+		this.formService.submitTaskFormData(task.getId(), properties);
+	}
+	
+	/**
+	 * Deletes the given task.
+	 */
+	@Override
+	public void deleteTask(org.mkcl.els.common.vo.Task task) {
+		this.taskService.deleteTask(task.getId());
+	}
+
+	/**
+	 * Returns null if their exists no form key for the given Task.
+	 */
+	@Override
+	public String getFormKey(org.mkcl.els.common.vo.Task task) {
+		String formKey = null;
+		TaskFormData tfd = this.formService.getTaskFormData(task.getId());
+		if(tfd != null) {
+			formKey = tfd.getFormKey();
+		}
+		return formKey;		
+	}
+	
+	/**
+	 * Returns a value of the specified process variable visible from the 
+	 * given execution scope (including parent scope). Returns null if their
+	 * exists no key in the given execution scope (including parent scope).
+	 */
+	@Override
+	public String getVariable(org.mkcl.els.common.vo.Task task, String key) {
+		String value = (String) this.runtimeService.getVariable(task.getId(), key);
+		return value;
+	}
+
+	/**
+	 * Returns a value of the specified process variable visible from the
+	 * execution scope without taking outer scopes into account. Returns null 
+	 * if their exists no key in the given execution scope.
+	 */
+	@Override
+	public String getVariableLocal(org.mkcl.els.common.vo.Task task, String key) {
+		String value = (String) this.runtimeService.getVariableLocal(task.getId(), key);
+		return value;
+	}
+
+	/**
 	 * Returns a map of all the variables visible from the given execution
 	 * scope (including parent scope).
 	 */
 	@Override
 	public Map<String, Object> getVariables(org.mkcl.els.common.vo.Task task) {
-		return this.runtimeService.getVariables(task.getExecutionId());
+		return this.runtimeService.getVariablesLocal(task.getExecutionId());
 	}
 	
 	/**
@@ -401,6 +435,10 @@ public class ProcessServiceImpl implements IProcessService {
 		return this.runtimeService.getVariablesLocal(task.getExecutionId());
 	}
 	
+	//==================== Identity Queries ===============================
+	/**
+	 * Creates User as well as Group.
+	 */
 	@Override
 	public void createUser(User user) {
 		String username = user.getCredential().getUsername();
@@ -424,6 +462,9 @@ public class ProcessServiceImpl implements IProcessService {
 		}
 	}
 
+	/**
+	 * Updates User as well as Group.
+	 */
 	@Override
 	public void updateUser(User user) {
 		String username = user.getCredential().getUsername();
@@ -460,6 +501,9 @@ public class ProcessServiceImpl implements IProcessService {
 		
 	}
 	
+	/**
+	 * Deletes User.
+	 */
 	@Override
 	public void deleteUser(User user) {
 		UserQuery userQuery = this.identityService.createUserQuery();
@@ -605,8 +649,18 @@ public class ProcessServiceImpl implements IProcessService {
 		task.setName(t.getName());
 		task.setProcessDefinitionId(t.getProcessDefinitionId());
 		task.setAssignee(t.getAssignee());
-		task.setCreateTime(t.getCreateTime());
-		task.setDueDate(t.getDueDate());
+		
+		DateFormater df = new DateFormater();
+		CustomParameter cp1 = CustomParameter.findByName(CustomParameter.class, 
+				"DATEPICKER_TIMEFORMAT", "");
+		String strCreateTime = df.formatDateToString(t.getCreateTime(), cp1.getValue());
+		task.setCreateTime(strCreateTime);
+		
+		CustomParameter cp2 = CustomParameter.findByName(CustomParameter.class, 
+				"SERVER_DATETIMEFORMAT", "");
+		String strDueDate = df.formatDateToString(t.getCreateTime(), cp2.getValue());
+		task.setDueDate(strDueDate);
+		
 		task.setPriority(t.getPriority());
 		task.setOwner(t.getOwner());
 		task.setDescription(t.getDescription());
