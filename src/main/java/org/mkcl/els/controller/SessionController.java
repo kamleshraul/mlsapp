@@ -31,7 +31,6 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 
-// TODO: Auto-generated Javadoc
 /**
  * The Class SessionController.
  *
@@ -129,16 +128,6 @@ public class SessionController extends GenericController<Session> {
     	 model.addAttribute("houses", houses);
       }
 
-	/**
-	 * View rotation order.
-	 *
-	 * @param id the id
-	 * @param model the model
-	 * @param request the request
-	 * @return the string
-	 * @author compaq
-	 * @since v1.0.0
-	 */
 	@RequestMapping(value="/{id}/viewRotationOrder", method = RequestMethod.GET)
     public String viewRotationOrder(final @PathVariable("id") Long id, final ModelMap model,
             final HttpServletRequest request) {
