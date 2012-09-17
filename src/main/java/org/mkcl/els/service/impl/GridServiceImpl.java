@@ -59,8 +59,8 @@ public class GridServiceImpl implements IGridService {
     }
 
 	@Override
-	public GridData getDeploymentsData(Long gridId, Integer rows, Integer page,
-			String sidx, String order, Locale locale) {		
+	public GridData getDeploymentsData(final Long gridId, final Integer rows, Integer page,
+			final String sidx, final String order, final Locale locale) {
 		List<ProcessDefinition> processDefns = processService.getDeployedProcesses();
 		List<Map<String, Object>> records = new ArrayList<Map<String,Object>>();
 		for(ProcessDefinition p : processDefns) {
@@ -74,7 +74,7 @@ public class GridServiceImpl implements IGridService {
 			tuple.put("deploymentTime", p.getDeploymentTime());
 			records.add(tuple);
 		}
-		
+
 		Integer totalPages = 0;
 		Integer count = processDefns.size();
 		if(count > 0) {
@@ -84,7 +84,7 @@ public class GridServiceImpl implements IGridService {
 			page = totalPages;
 		}
 		return new GridData(page, totalPages, count, records);
-		
+
 //		List processDefns = processService.getDeployedProcesses();
 //		List<Map<String, Object>> records = processDefns;
 //		Integer totalPages = 0;
@@ -99,31 +99,35 @@ public class GridServiceImpl implements IGridService {
 	}
 
 	@Override
-	public GridData getMyTasksData(Long gridId, String username, Integer rows,
-			Integer page, String sidx, String order, Locale locale) {
+	public GridData getMyTasksData(final Long gridId, final String username, final Integer rows,
+			final Integer page, final String sidx, final String order, final Locale locale) {
 		return this.getTasksData(gridId, username, rows, page, sidx, order, locale);
 	}
 
 	@Override
-	public GridData getGroupTasksData(Long gridId, String username,
-			Integer rows, Integer page, String sidx, String order, Locale locale) {
+	public GridData getGroupTasksData(final Long gridId, final String username,
+			final Integer rows, final Integer page, final String sidx, final String order, final Locale locale) {
 		return this.getTasksData(gridId, username, rows, page, sidx, order, locale);
 	}
-	
-	private GridData getTasksData(Long gridId, String username,
-			Integer rows, Integer page, String sidx, String order, Locale locale) {
+
+	private GridData getTasksData(final Long gridId, final String username,
+			final Integer rows, Integer page, final String sidx, final String order, final Locale locale) {
 		List<Task> tasks = processService.getMyTasks(username);
 		List<Map<String, Object>> records = new ArrayList<Map<String,Object>>();
 		for(Task t : tasks) {
 			Map<String, Object> tuple = new HashMap<String, Object>();
 			tuple.put("id", t.getId());
-			tuple.put("name", t.getName());
-			tuple.put("description", t.getDescription());
 			tuple.put("createTime", t.getCreateTime());
-			tuple.put("dueDate", t.getDueDate());
+			//here we will read the process variables from each task.Some process variables are needed for each task
+			Map<String,Object> processVariables=processService.getVariables(t);
+			tuple.put("deviceId", processVariables.get("deviceId"));
+			tuple.put("deviceType",processVariables.get("deviceType"));
+	        tuple.put("deviceNumber", processVariables.get("deviceNumber"));
+			tuple.put("userGroup",processVariables.get("userGroup"));
+	        tuple.put("primaryMember",processVariables.get("primaryMember"));
+	        tuple.put("subject",processVariables.get("subject"));
 			records.add(tuple);
 		}
-		
 		Integer totalPages = 0;
 		Integer count = tasks.size();
 		if(count > 0) {
@@ -134,7 +138,7 @@ public class GridServiceImpl implements IGridService {
 		}
 		return new GridData(page, totalPages, count, records);
 	}
-	
+
 //    @Override
 //    public GridData getDeployments(final Long gridId, final Integer rows, final Integer page,
 //            final String sidx, final String order, final Locale locale,
