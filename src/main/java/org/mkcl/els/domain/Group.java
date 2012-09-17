@@ -38,7 +38,7 @@ import org.springframework.beans.factory.annotation.Configurable;
 @Configurable
 @Entity
 @Table(name = "groups")
-@JsonIgnoreProperties({"ministries","questionDates","sessionType"})
+@JsonIgnoreProperties({"ministries","questionDates"})
 public class Group extends BaseDomain implements Serializable {
 
     // ---------------------------------Attributes------------------------//
