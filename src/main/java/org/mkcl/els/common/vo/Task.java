@@ -1,16 +1,15 @@
 package org.mkcl.els.common.vo;
 
-import java.util.Date;
 
 /**
- * Captures the attributes of a Process' task in execution. 
+ * Captures the attributes of a Process' task in execution.
  */
 public class Task {
 
 	private String id;
-	
+
 	private String name;
-	
+
 	private String executionId;
 
 	private String processDefinitionId;
@@ -19,17 +18,23 @@ public class Task {
 
 	private String assignee;
 
-	private Date createTime;
+	private String createTime;
 
-	private Date dueDate;
+	private String dueDate;
 
 	private Integer priority;
 
 	private String owner;
-	
+
 	private String description;
 
-	public Task(String id, String executionId, String processInstanceId) {
+	private String deviceId;
+
+	private String deviceType;
+
+	private String userGroup;
+
+	public Task(final String id, final String executionId, final String processInstanceId) {
 		super();
 		this.setId(id);
 		this.setExecutionId(executionId);
@@ -40,7 +45,7 @@ public class Task {
 		return id;
 	}
 
-	public void setId(String id) {
+	public void setId(final String id) {
 		this.id = id;
 	}
 
@@ -48,7 +53,7 @@ public class Task {
 		return name;
 	}
 
-	public void setName(String name) {
+	public void setName(final String name) {
 		this.name = name;
 	}
 
@@ -56,7 +61,7 @@ public class Task {
 		return executionId;
 	}
 
-	public void setExecutionId(String executionId) {
+	public void setExecutionId(final String executionId) {
 		this.executionId = executionId;
 	}
 
@@ -64,7 +69,7 @@ public class Task {
 		return processDefinitionId;
 	}
 
-	public void setProcessDefinitionId(String processDefinitionId) {
+	public void setProcessDefinitionId(final String processDefinitionId) {
 		this.processDefinitionId = processDefinitionId;
 	}
 
@@ -72,7 +77,7 @@ public class Task {
 		return processInstanceId;
 	}
 
-	public void setProcessInstanceId(String processInstanceId) {
+	public void setProcessInstanceId(final String processInstanceId) {
 		this.processInstanceId = processInstanceId;
 	}
 
@@ -80,31 +85,31 @@ public class Task {
 		return assignee;
 	}
 
-	public void setAssignee(String assignee) {
+	public void setAssignee(final String assignee) {
 		this.assignee = assignee;
 	}
 
-	public Date getCreateTime() {
-		return createTime;
-	}
+    public String getCreateTime() {
+        return createTime;
+    }
 
-	public void setCreateTime(Date createTime) {
-		this.createTime = createTime;
-	}
+    public void setCreateTime(final String createTime) {
+        this.createTime = createTime;
+    }
 
-	public Date getDueDate() {
-		return dueDate;
-	}
+    public String getDueDate() {
+        return dueDate;
+    }
 
-	public void setDueDate(Date dueDate) {
-		this.dueDate = dueDate;
-	}
+    public void setDueDate(final String dueDate) {
+        this.dueDate = dueDate;
+    }
 
-	public Integer getPriority() {
+    public Integer getPriority() {
 		return priority;
 	}
 
-	public void setPriority(Integer priority) {
+	public void setPriority(final Integer priority) {
 		this.priority = priority;
 	}
 
@@ -112,7 +117,7 @@ public class Task {
 		return owner;
 	}
 
-	public void setOwner(String owner) {
+	public void setOwner(final String owner) {
 		this.owner = owner;
 	}
 
@@ -120,8 +125,37 @@ public class Task {
 		return description;
 	}
 
-	public void setDescription(String description) {
+	public void setDescription(final String description) {
 		this.description = description;
 	}
-	
+
+
+    public String getDeviceId() {
+        return deviceId;
+    }
+
+
+    public void setDeviceId(final String deviceId) {
+        this.deviceId = deviceId;
+    }
+
+
+    public String getDeviceType() {
+        return deviceType;
+    }
+
+
+    public void setDeviceType(final String deviceType) {
+        this.deviceType = deviceType;
+    }
+
+
+    public String getUserGroup() {
+        return userGroup;
+    }
+
+
+    public void setUserGroup(final String userGroup) {
+        this.userGroup = userGroup;
+    }
 }
