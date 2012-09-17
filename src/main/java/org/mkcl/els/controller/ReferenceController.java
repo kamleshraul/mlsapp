@@ -819,7 +819,7 @@ public class ReferenceController extends BaseController {
           for(int i=0;i<delimitedgroups.length;i++){
               newgroups[i]=Integer.parseInt(delimitedgroups[i]);
           }
-          masterVOs=MemberMinister.findfindAssignedDepartmentsVO(newgroups,selectedHouseType,selectedSessionType,year, strlocale);
+          masterVOs=MemberMinister.findAssignedDepartmentsVO(newgroups,selectedHouseType,selectedSessionType,year, strlocale);
       }
       return masterVOs;
     }
@@ -856,7 +856,7 @@ public class ReferenceController extends BaseController {
           for(int i=0;i<delimitedgroups.length;i++){
               newgroups[i]=Integer.parseInt(delimitedgroups[i]);
           }
-          masterVOs=MemberMinister.findfindAssignedSubDepartmentsVO(newgroups,selectedHouseType,selectedSessionType,year, strlocale);
+          masterVOs=MemberMinister.findAssignedSubDepartmentsVO(newgroups,selectedHouseType,selectedSessionType,year, strlocale);
       }
       return masterVOs;
     }
@@ -896,7 +896,7 @@ public class ReferenceController extends BaseController {
           for(int i=0;i<delimitedgroups.length;i++){
               newgroups[i]=Integer.parseInt(delimitedgroups[i]);
           }
-          masterVOs=MemberMinister.findfindAssignedSubDepartmentsVO(newgroups,selectedHouseType,selectedSessionType,year, strlocale);
+          masterVOs=MemberMinister.findAssignedSubDepartmentsVO(newgroups,departments,selectedHouseType,selectedSessionType,year, strlocale);
       }
       return masterVOs;
     }
