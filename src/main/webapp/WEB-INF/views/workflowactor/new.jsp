@@ -22,7 +22,7 @@
 	<form:errors path="version" cssClass="validationError"/>		 
 		<p> 
 			<label class="small"><spring:message code="workflowactor.userGroup" text="User Group"/></label>
-			<form:select path="userGroup" items="${userGroups}" itemValue="id" itemLabel="name" cssClass="sSelect"></form:select>	
+			<form:select path="userGroup" items="${userGroups}" itemValue="id" itemLabel="userGroupType.name" cssClass="sSelect"></form:select>	
 	        <form:errors path="userGroup" cssClass="validationError"/>	
 		</p>
 		<p> 
