@@ -54,13 +54,13 @@ public interface IProcessService {
 	 */
 	public ProcessDefinition findProcessDefinitionByKey(String key);
 	
+	/**
+	 * Returns null if their exists no form key for the given Process Definition. 
+	 */
+	public String getFormKey(ProcessDefinition process);
+	
 	
 	//==================== ProcessInstance Queries ====================
-	/**
-	 * Returns null if their exists no Process Instance with the given id.
-	 */
-	public ProcessInstance findProcessInstanceById(String processInstanceId);
-	
 	/**
 	 * Creates an instance of the Process defined by the given ProcessDefinition
 	 * & adds properties to the Process instance. Note that this properties can
@@ -75,6 +75,11 @@ public interface IProcessService {
 	 * Deletes an existing runtime process instance.
 	 */
 	public void deleteProcessInstance(ProcessInstance process, String reason);
+	
+	/**
+	 * Returns null if their exists no Process Instance with the given id.
+	 */
+	public ProcessInstance findProcessInstanceById(String processInstanceId);
 	
 	
 	//==================== Task Queries ===============================
@@ -113,14 +118,19 @@ public interface IProcessService {
 	public void assignTask(Task task, String userId);
 	
 	/**
+	 * Unassign (Unclaim) an assigned (claimed) task.
+	 */
+	public void unassignTask(Task task, String userId);
+	
+	/**
 	 * Delegates the task to another user.
 	 */
 	public void delegateTask(Task task, String userId);
 	
 	/**
-	 * Deletes the given task.
+	 * Completes the task. 
 	 */
-	public void deleteTask(Task task);
+	public void completeTask(Task task);
 	
 	/**
 	 * Completes the task & adds properties to the Process instance. 
@@ -128,27 +138,29 @@ public interface IProcessService {
 	 * 	getVariables(Task task) 
 	 * 	getVariablesLocal(Task task)
 	 */
-	public void submitTask(Task task, Map<String, String> properties);
+	public void completeTask(Task task, Map<String, String> properties);
 	
-	
-	//==================== Identity Queries ===============================
-	public void createUser(User user);
-	
-	public void updateUser(User user);
-	
-	public void deleteUser(User user);
-	
-
-	//==================== Misc Queries ===============================
 	/**
-	 * Returns null if their exists no form key for the given Process Definition. 
+	 * Deletes the given task.
 	 */
-	public String getFormKey(ProcessDefinition process);
+	public void deleteTask(Task task);
 	
 	/**
 	 * Returns null if their exists no form key for the given Task.
 	 */
 	public String getFormKey(Task task);
+	
+	/**
+	 * Returns a value of the specified process variable visible from the 
+	 * given execution scope (including parent scope).
+	 */
+	public String getVariable(Task task, String key);
+	
+	/**
+	 * Returns a value of the specified process variable visible from the
+	 * execution scope without taking outer scopes into account.
+	 */
+	public String getVariableLocal(Task task, String key);
 	
 	/**
 	 * Returns a map of all the variables visible from the given execution
@@ -161,5 +173,22 @@ public interface IProcessService {
 	 * without taking outer scopes into account.
 	 */
 	public Map<String, Object> getVariablesLocal(Task task);
+	
+	
+	//==================== Identity Queries ===============================
+	/**
+	 * Creates User as well as Group.
+	 */
+	public void createUser(User user);
+	
+	/**
+	 * Updates User as well as Group.
+	 */
+	public void updateUser(User user);
+	
+	/**
+	 * Deletes User.
+	 */
+	public void deleteUser(User user);
 	
 }
