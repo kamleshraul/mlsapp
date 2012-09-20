@@ -98,7 +98,8 @@ public class QuestionDraft extends BaseDomain implements Serializable{
 
     // The status of a Question should be tracked throughout it's lifecycle
     /** The status. */
-    @Column(length=100)
+    @ManyToOne(fetch=FetchType.LAZY)
+    @JoinColumn(name="status_id")
     private Status status;
     
     /** The edited by. */
