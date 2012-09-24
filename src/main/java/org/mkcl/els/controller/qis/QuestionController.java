@@ -5,6 +5,7 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.List;
+import java.util.Locale;
 import java.util.Set;
 
 import javax.servlet.http.HttpServletRequest;
@@ -32,9 +33,14 @@ import org.mkcl.els.domain.SessionType;
 import org.mkcl.els.domain.Status;
 import org.mkcl.els.domain.associations.HouseMemberRoleAssociation;
 import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
 import org.springframework.ui.ModelMap;
 import org.springframework.validation.BindingResult;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 @Controller
 @RequestMapping("question")
@@ -132,17 +138,26 @@ public class QuestionController extends GenericController<Question>{
         if(strSessionType==null){
             latestSession=Session.findLatestSession(selectedHouseType,year);
             if(latestSession!=null){
-                model.addAttribute("sessionType",latestSession.getType().getId());
+                model.addAttribute("sessionType",latestSession.getType().getId());                
+                model.addAttribute("questionSubmissionStartDate", latestSession.getQuestionSubmissionStartDate().getTime());
             }else{
                 model.addAttribute("errorcode", "latestsessionnotset");
             }
         }else{
             model.addAttribute("sessionType",Long.parseLong(strSessionType));
+            Session selectedSession = Session.findLatestSession(selectedHouseType,year);            
+            model.addAttribute("questionSubmissionStartDate", selectedSession.getQuestionSubmissionStartDate().getTime());            
         }
         //*********************populating questiontypes**********************
         List<DeviceType> questionTypes = DeviceType.findAll(DeviceType.class, "name", ApplicationConstants.ASC, locale);
         model.addAttribute("questionTypes", questionTypes);
         model.addAttribute("questionType", Long.parseLong(request.getParameter("questionType")));
+        if(request.getSession().getAttribute("type")==null){
+            model.addAttribute("type","");
+        }else{
+        	model.addAttribute("type", request.getSession().getAttribute("type"));
+        	request.getSession().removeAttribute("type");
+        }
     }
 
     @Override
@@ -379,11 +394,11 @@ public class QuestionController extends GenericController<Question>{
     	if(domain.getHouseType()!=null && request.getParameter("sessionYear")!="" && request.getParameter("sessionType")!=""
     			&&  domain.getType()!=null && domain.getPrimaryMember()!=null && domain.getMinistry()!=null && 
     			domain.getDepartment()!=null && domain.getSubject()!=""){
-    		Status status=Status.findByFieldName(Status.class, "type", "complete", domain.getLocale());
+    		Status status=Status.findByFieldName(Status.class, "type", "question_init_complete", domain.getLocale());
     		domain.setStatus(status);
     	}
     	else{
-    		Status status=Status.findByFieldName(Status.class, "type", "incomplete", domain.getLocale());
+    		Status status=Status.findByFieldName(Status.class, "type", "question_init_incomplete", domain.getLocale());
     		domain.setStatus(status);
     	}
 
@@ -395,11 +410,11 @@ public class QuestionController extends GenericController<Question>{
     	if(domain.getHouseType()!=null && request.getParameter("sessionYear")!="" && request.getParameter("sessionType")!=""
     			&&  domain.getType()!=null && domain.getPrimaryMember()!=null && domain.getMinistry()!=null && 
     			domain.getDepartment()!=null && domain.getSubject()!=""){
-    		Status status=Status.findByFieldName(Status.class, "type", "complete", domain.getLocale());
+    		Status status=Status.findByFieldName(Status.class, "type", "question_init_complete", domain.getLocale());
     		domain.setStatus(status);
     	}
     	else{
-    		Status status=Status.findByFieldName(Status.class, "type", "incomplete", domain.getLocale());
+    		Status status=Status.findByFieldName(Status.class, "type", "question_init_incomplete", domain.getLocale());
     		domain.setStatus(status);
     	}
     }
@@ -425,6 +440,49 @@ public class QuestionController extends GenericController<Question>{
     protected void customValidateUpdate(final Question domain, final BindingResult result,
             final HttpServletRequest request) {
     }
-
-
+    
+    @RequestMapping(value="/{selectedQuestions}/submit",method=RequestMethod.GET)
+   	protected String submitQuestions(final Model model, final @PathVariable String selectedQuestions, final HttpServletRequest request, final Locale locale, final RedirectAttributes redirectAttributes) {
+       	
+    	List<Question> questions= new ArrayList<Question>();
+       	String[] questionIds=selectedQuestions.split(",");       	
+       	for(int i=0;i<questionIds.length;i++){
+       		Question question= Question.findById(Question.class, Long.parseLong(questionIds[i]));
+       		questions.add(question);
+       	}
+       	model.addAttribute("questions", questions);
+       	return "question/submit";
+       	
+       }
+    
+    @RequestMapping(value="/{selectedQuestions}/submit",method=RequestMethod.POST)
+   	protected @ResponseBody String  updateSubmittedQuestions(final @PathVariable String selectedQuestions, final RedirectAttributes redirectAttributes,final ModelMap model, final HttpServletRequest request, final Locale locale) {
+    	String[] submittedQuestionIds=selectedQuestions.split(",");
+    	Question qt=Question.findById(Question.class, Long.parseLong(submittedQuestionIds[0]));
+       	Date questionSubmissionStartDate = qt.getSession().getQuestionSubmissionStartDate();
+       	if(questionSubmissionStartDate != null) {
+       		if(new Date().before(questionSubmissionStartDate)) {
+       			//result.reject("question.dateBeforeSubmissionStartDateMessage", "You cannot submit before question submission start date");
+       			String errorUrl = "question/list?houseType="+qt.getHouseType().getType()+"&questionType="+qt.getType().getId()+"&sessionYear="+qt.getSession().getYear()+"&sessionType="+qt.getSession().getType().getId();
+       			redirectAttributes.addFlashAttribute("type", "error");        
+       	        request.getSession().setAttribute("type","error");
+       	        redirectAttributes.addFlashAttribute("msg", "update_failed");
+       			return errorUrl;
+       		}
+       	}
+    	Status status=Status.findByFieldName(Status.class, "type", "question_init_submit", locale.toString());    	
+    	for(int i=0;i<submittedQuestionIds.length;i++){
+    		Question question1=Question.findById(Question.class, Long.parseLong(submittedQuestionIds[i]));
+    		question1.setStatus(status);
+    		question1.merge();
+    	}
+    	Question question=Question.findById(Question.class, Long.parseLong(submittedQuestionIds[0]));
+        redirectAttributes.addFlashAttribute("type", "success");        
+        request.getSession().setAttribute("type","success");
+        redirectAttributes.addFlashAttribute("msg", "update_success");
+        String returnUrl = "question/list?houseType="+question.getHouseType().getType()+"&questionType="+question.getType().getId()+"&sessionYear="+question.getSession().getYear()+"&sessionType="+question.getSession().getType().getId();
+        return returnUrl;
+    }
+    
 }
+
