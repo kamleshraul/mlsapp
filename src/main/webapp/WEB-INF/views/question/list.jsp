@@ -4,7 +4,7 @@
 	<title><spring:message code="question.list" text="List Of Questions"/></title>
 	<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
 	<script type="text/javascript">	
-		$(document).ready(function(){
+		$(document).ready(function(){				
 			//on change of houseType,house,session,questionType
 			$("#gridURLParams").val("houseType="+$("#selectedHouseType").val()+"&sessionYear="+$("#selectedSessionYear").val()+"&sessionType="+$("#selectedSessionType").val()+"&questionType="+$("#selectedQuestionType").val());			
 			//Initially values in module must be set to the values read from model.
@@ -78,7 +78,40 @@
 			});
 			$("#delete_record").click(function() {
 				deleteQuestion($('#key').val());
-			});					
+			});	
+			$("#submitQuestion").click(function() {			
+				var selectedRows = $('#grid').getGridParam('selarrrow');				
+				var qssd = ${questionSubmissionStartDate};				
+				var questionSubmissionStartDate = new Date(qssd);				
+				if(selectedRows == null || selectedRows.length==0){
+					$.prompt($('#selectRowFirstMessage').val());
+					return false;
+				} else if(questionSubmissionStartDate > new Date()) {					
+					$.prompt($('#dateBeforeSubmissionStartedMessage').val());
+					return false;
+				}
+				else {					
+				var completed = true; //flag for checking whether all selected questions are completed & ready for submission
+				var incompleteQuestions = new Array();
+				var j=0; //count for incompleted questions
+				//check for any incomplete questions
+				for(var i=0; i<selectedRows.length; i++){						
+					var status = $('#grid').getCell(selectedRows[i], 'status.type');					
+					if(status != 'question_init_complete') {
+						completed = false;
+						incompleteQuestions[j] = $('#grid').getCell(selectedRows[i], 'number');
+						j++;
+					};				
+				}
+				if(completed == true) {
+					$.get('question/'+selectedRows+'/submit', function(data) {
+						$.fancybox.open(data);
+					});
+				} else {
+					$.prompt($('#questionNumberMessage').val() + " " + incompleteQuestions + " " + $('#questionIncompleteOrSubmittedMessage').val());
+				};	
+				};
+			});	 
 		});
 		function rowDblClickHandler(rowid, iRow, iCol, e) {
 			var rowid=$('#key').val();
@@ -163,13 +196,21 @@
 			</a> |
 			<a href="#" id="search" class="butSim">
 				<spring:message code="question.search" text="Search"/>
+			</a> |
+			<a href="#" id="submitQuestion" class="butSim">
+				<spring:message code="question.submit" text="submit"/>
 			</a>		
 			<p>&nbsp;</p>
 		</div>
 	</div>
+	<%@ include file="/common/info.jsp" %>
 	<%@ include file="/common/gridview.jsp" %>
 	<input type="hidden" id="grid_id" value="${gridId}">
-	<input type="hidden" id="gridURLParams" name="gridURLParams">	
+	<input type="hidden" id="gridURLParams" name="gridURLParams">
+	<input type="hidden" id="selectRowFirstMessage" value='<spring:message code="generic.selectRowFirstMessage" text='Please select the desired row first'></spring:message>'>
+	<input type="hidden" id="dateBeforeSubmissionStartedMessage" value='<spring:message code="question.dateBeforeSubmissionStartDateMessage" text='You cannot submit before question submission start date'></spring:message>'>
+	<input type="hidden" id="questionNumberMessage" value='<spring:message code="question.questionNumberMessage" text='Question No.'></spring:message>'>
+	<input type="hidden" id="questionIncompleteOrSubmittedMessage" value='<spring:message code="question.questionIncompleteOrSubmittedMessage" text='are either incomplete or submitted already'></spring:message>'>
 	</div>
 </body>
 </html>
