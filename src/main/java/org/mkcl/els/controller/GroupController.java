@@ -197,7 +197,7 @@ public class GroupController extends GenericController<Group> {
     	    	if(sf.format(current).equals("Monday")){
     	    		answeringDates.add(current);
     	    		aDates.add(dateFormat.format(current));
-    	    		QuestionDates qd = QuestionDates.findByFieldName(QuestionDates.class, "answeringDate", current, domain.getLocale());
+    	    		QuestionDates qd = domain.findQuestionDatesByGroupAndAnsweringDate(current);//QuestionDates.findByFieldName(QuestionDates.class, "answeringDate", current, domain.getLocale());
     	    		if(qd!=null) {
     	    			select = "true";
     	    		}  
@@ -210,7 +210,7 @@ public class GroupController extends GenericController<Group> {
     	    	if(sf.format(current).equals("Tuesday")){
     	    		answeringDates.add(current);
     	    		aDates.add(dateFormat.format(current));
-    	    		QuestionDates qd = QuestionDates.findByFieldName(QuestionDates.class, "answeringDate", current, domain.getLocale());
+    	    		QuestionDates qd = domain.findQuestionDatesByGroupAndAnsweringDate(current);//QuestionDates.findByFieldName(QuestionDates.class, "answeringDate", current, domain.getLocale());
     	    		if(qd!=null) {
     	    			select = "true";
     	    		}  
@@ -223,7 +223,7 @@ public class GroupController extends GenericController<Group> {
     	    	if(sf.format(current).equals("Wednesday")){
     	    		answeringDates.add(current);
     	    		aDates.add(dateFormat.format(current));
-    	    		QuestionDates qd = QuestionDates.findByFieldName(QuestionDates.class, "answeringDate", current, domain.getLocale());
+    	    		QuestionDates qd = domain.findQuestionDatesByGroupAndAnsweringDate(current);//QuestionDates.findByFieldName(QuestionDates.class, "answeringDate", current, domain.getLocale());
     	    		if(qd!=null) {
     	    			select = "true";
     	    		}  
@@ -236,7 +236,7 @@ public class GroupController extends GenericController<Group> {
     	    	if(sf.format(current).equals("Thursday")){
     	    		answeringDates.add(current);
     	    		aDates.add(dateFormat.format(current));
-    	    		QuestionDates qd = QuestionDates.findByFieldName(QuestionDates.class, "answeringDate", current, domain.getLocale());
+    	    		QuestionDates qd = domain.findQuestionDatesByGroupAndAnsweringDate(current);//QuestionDates.findByFieldName(QuestionDates.class, "answeringDate", current, domain.getLocale());
     	    		if(qd!=null) {
     	    			select = "true";
     	    		}  
@@ -249,7 +249,7 @@ public class GroupController extends GenericController<Group> {
     	    	if(sf.format(current).equals("Friday")){
     	    		answeringDates.add(current);
     	    		aDates.add(dateFormat.format(current));
-    	    		QuestionDates qd = QuestionDates.findByFieldName(QuestionDates.class, "answeringDate", current, domain.getLocale());
+    	    		QuestionDates qd = domain.findQuestionDatesByGroupAndAnsweringDate(current);//QuestionDates.findByFieldName(QuestionDates.class, "answeringDate", current, domain.getLocale());
     	    		if(qd!=null) {
     	    			select = "true";
     	    		}  
@@ -266,7 +266,8 @@ public class GroupController extends GenericController<Group> {
     		submissionDate.setTime(d);
     		submissionDate.add(Calendar.DATE, -31);
     		Date sDate=submissionDate.getTime();
-    		QuestionDates qd=QuestionDates.findByFieldName(QuestionDates.class, "answeringDate", d, domain.getLocale());
+    		QuestionDates qd = domain.findQuestionDatesByGroupAndAnsweringDate(d);//QuestionDates.findByFieldName(QuestionDates.class, "answeringDate", current, domain.getLocale());
+    		//QuestionDates qd=QuestionDates.findByFieldName(QuestionDates.class, "answeringDate", d, domain.getLocale());
     		if(qd!=null){
     			submissionDates.add(dateFormat.format(qd.getFinalSubmissionDate()));
     		}
@@ -334,7 +335,8 @@ public class GroupController extends GenericController<Group> {
 						e.printStackTrace();
 					}
 					
-					QuestionDates qd = QuestionDates.findByFieldName(QuestionDates.class, "answeringDate", answeringDate, domain.getLocale());
+					QuestionDates qd= domain.findQuestionDatesByGroupAndAnsweringDate( answeringDate);
+					//QuestionDates qd = QuestionDates.findByFieldName(QuestionDates.class, "answeringDate", answeringDate, domain.getLocale());
 					if(qd!=null){
 						qd.setAnsweringDate(answeringDate);
 						qd.setFinalSubmissionDate(submissionDate);
@@ -359,7 +361,8 @@ public class GroupController extends GenericController<Group> {
 				} catch (ParseException e) {
 						e.printStackTrace();
 				}
-				QuestionDates qd = QuestionDates.findByFieldName(QuestionDates.class, "answeringDate", answeringDate, domain.getLocale());
+				QuestionDates qd= domain.findQuestionDatesByGroupAndAnsweringDate( answeringDate);
+			//	QuestionDates qd = QuestionDates.findByFieldName(QuestionDates.class, "answeringDate", answeringDate, domain.getLocale());
 				if(qd!=null){
 					qd.remove();
 				}
