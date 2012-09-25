@@ -10,6 +10,7 @@
 package org.mkcl.els.domain;
 
 import java.io.Serializable;
+import java.util.Date;
 import java.util.List;
 
 import javax.persistence.CascadeType;
@@ -112,6 +113,17 @@ public class Group extends BaseDomain implements Serializable {
 	        return getGroupRepository().findByNumberHouseTypeSessionTypeYear(groupNumber,
 	                houseType, sessionType, year);
 	    }
+	 
+	 public  QuestionDates findQuestionDatesByGroupAndAnsweringDate(final Date answeringDate){
+		 //Group group=Group.findById(Group.class, groupId);
+		 List<QuestionDates> questionDates=this.getQuestionDates();
+		 for(QuestionDates q:questionDates){
+			 if(q.getAnsweringDate().equals(answeringDate)){
+				 return q;
+			 }
+		 }
+		 return null;
+    }
     // ----------------------------Getters/Setters------------------------//
 	public HouseType getHouseType() {
 		return houseType;
