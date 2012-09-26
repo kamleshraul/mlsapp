@@ -10,11 +10,14 @@
 package org.mkcl.els.domain;
 
 import java.io.Serializable;
+import java.util.List;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Table;
 
+import org.mkcl.els.repository.HouseTypeRepository;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Configurable;
 
 /**
@@ -35,9 +38,12 @@ public class HouseType extends BaseDomain implements Serializable {
     /** The type. */
     @Column(length = 150)
     private String type;
-    
+
     @Column(length=600)
     private String name;
+
+    @Autowired
+    private transient HouseTypeRepository houseTypeRepository;
 
     // ---------------------------------Constructors----------------------------------------------
 
@@ -51,7 +57,24 @@ public class HouseType extends BaseDomain implements Serializable {
 		this.name = name;
 	}
 
+    public static HouseTypeRepository getHouseTypeRepository() {
+        HouseTypeRepository houseTypeRepository = new HouseType().houseTypeRepository;
+        if (houseTypeRepository == null) {
+            throw new IllegalStateException(
+                    "HouseTypeRepository has not been injected in HouseType Domain");
+        }
+        return houseTypeRepository;
+    }
 
+    public static List<HouseType> findAllNoExclude(final String sortBy, final String sortOrder, final String locale){
+        return getHouseTypeRepository().findAllNoExclude(sortBy, sortOrder, locale);
+    }
+
+    @SuppressWarnings("unchecked")
+    public static List<HouseType> findAll(final Class persistenceClass,
+            final String sortBy, final String sortOrder, final String locale) {
+    return getHouseTypeRepository().findAll(persistenceClass, sortBy, sortOrder, locale);
+    }
 
 	// -------------------------------Domain_Methods----------------------------------------------
 
