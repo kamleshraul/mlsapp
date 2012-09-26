@@ -76,6 +76,7 @@
 				<label class="small"><spring:message
 						code="user.email" text="Email ID" />&nbsp;*</label>
 				<input  type="text" class="sText" name="email"  />
+				<form:errors path="credential.email" cssClass="validationError" />
 			</p>
 			
 			<p>
