@@ -13,17 +13,16 @@ import java.math.BigInteger;
 import java.security.SecureRandom;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Locale;
 import java.util.Set;
 
 import javax.servlet.http.HttpServletRequest;
-import javax.validation.Valid;
 
 import org.mkcl.els.common.util.ApplicationConstants;
 import org.mkcl.els.domain.BaseDomain;
 import org.mkcl.els.domain.Credential;
 import org.mkcl.els.domain.HouseType;
 import org.mkcl.els.domain.Role;
+import org.mkcl.els.domain.Title;
 import org.mkcl.els.domain.User;
 import org.mkcl.els.domain.UserGroup;
 import org.springframework.beans.propertyeditors.CustomCollectionEditor;
@@ -31,10 +30,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.WebDataBinder;
-import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 // TODO: Auto-generated Javadoc
 /**
@@ -47,20 +43,34 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 @RequestMapping("/user")
 public class UserController extends GenericController<User>{
 
-
-
     @Override
     protected void populateNew(final ModelMap model, final User domain, final String locale,
             final HttpServletRequest request) {
         domain.setLocale(locale);
         List<HouseType> houseTypes=HouseType.findAllNoExclude("type",ApplicationConstants.ASC, locale);
         model.addAttribute("houseTypes",houseTypes);
+        List<Title> titles=Title.findAll(Title.class,"name",ApplicationConstants.ASC, locale);
+        model.addAttribute("titles",titles);
+        List<Role> roles=Role.findAll(Role.class, "name", "desc",locale.toString());
+        model.addAttribute("roles",roles);
     }
     @Override
     protected void populateEdit(final ModelMap model, final User domain,
             final HttpServletRequest request) {
         List<HouseType> houseTypes=HouseType.findAllNoExclude("type",ApplicationConstants.ASC, domain.getLocale());
         model.addAttribute("houseTypes",houseTypes);
+        List<Title> titles=Title.findAll(Title.class,"name",ApplicationConstants.ASC, domain.getLocale());
+        model.addAttribute("titles",titles);
+        List<Role> roles=Role.findAll(Role.class, "name", "desc",domain.getLocale());
+        model.addAttribute("roles",roles);
+        StringBuffer buffer=new StringBuffer();
+        Credential credential=domain.getCredential();
+        model.addAttribute("credential",credential.getId());
+        for(Role i:credential.getRoles()){
+            buffer.append(i.getId()+",");
+        }
+        buffer.deleteCharAt(buffer.length()-1);
+        model.addAttribute("selectedRoles",buffer.toString());
     }
 	/* (non-Javadoc)
 	 * @see org.mkcl.els.controller.GenericController#customValidateCreate(org.mkcl.els.domain.BaseDomain, org.springframework.validation.BindingResult, javax.servlet.http.HttpServletRequest)
@@ -108,17 +118,22 @@ public class UserController extends GenericController<User>{
  	    {
  	    	  Credential credential=new Credential();
  	 	      credential.setEmail(request.getParameter("email"));
- 	 	      credential.setUsername(request.getParameter("email"));
+ 	 	      credential.setUsername(request.getParameter("email").split("@")[0]);
  	 	      credential.setEnabled(Boolean.parseBoolean(request.getParameter("isEnabled")));
  	 	      credential.setLocale(null);
  	 	      SecureRandom random = new SecureRandom();
  	 	      String str = new BigInteger(60, random).toString(32);
  			  credential.setPassword(str);
+ 			  String[] selectedRoles=request.getParameterValues("roles");
+ 			  Set<Role> roles=new HashSet<Role>();
+ 			  for(String i:selectedRoles){
+ 			      Role role=Role.findById(Role.class, Long.parseLong(i));
+ 			      roles.add(role);
+ 			  }
+ 			  credential.setRoles(roles);
  			  credential.persist();
  			  domain.setCredential(credential);
-
  	    }
-
  	    }
 
 
@@ -128,138 +143,25 @@ public class UserController extends GenericController<User>{
  		@Override
  	 	  protected void populateUpdateIfNoErrors(final ModelMap model,
  	 	            final User domain, final HttpServletRequest request) {
- 			User user= User.findById(User.class, domain.getId());
- 			domain.setCredential(user.getCredential());
- 			if(!domain.getCredential().getEmail().equals(request.getParameter("email"))){
- 				domain.getCredential().setEmail(request.getParameter("email"));
- 				domain.getCredential().setUsername(request.getParameter("email"));
+ 			//User user= User.findById(User.class, domain.getId());
+ 			Credential credential=domain.getCredential();
+ 			if(!credential.getEmail().equals(request.getParameter("email"))){
+ 				credential.setEmail(request.getParameter("email"));
+ 				credential.setUsername(request.getParameter("email").split("@")[0]);
  			}
- 			if(!domain.getCredential().isEnabled()==Boolean.parseBoolean(request.getParameter("isEnabled"))) {
- 				domain.getCredential().setEnabled(Boolean.parseBoolean(request.getParameter("isEnabled")));
+ 			if(!credential.isEnabled()==Boolean.parseBoolean(request.getParameter("isEnabled"))) {
+ 				credential.setEnabled(Boolean.parseBoolean(request.getParameter("isEnabled")));
  			}
-
+ 			String[] selectedRoles=request.getParameterValues("roles");
+            Set<Role> roles=new HashSet<Role>();
+            for(String i:selectedRoles){
+                Role role=Role.findById(Role.class, Long.parseLong(i));
+                roles.add(role);
+            }
+            credential.setRoles(roles);
+            credential.merge();
+            domain.setCredential(credential);
  		}
-
-
- 		/**
-		  * Populate role.
-		  *
-		  * @param model the model
-		  * @param domain the domain
-		  * @param request the request
-		  * @param Locale the locale
-		  */
-		 @RequestMapping(value="/role",method=RequestMethod.GET)
-		protected void populateRole(final ModelMap model, final User domain,
-				final HttpServletRequest request, final Locale locale) {
-			User user=User.findById(User.class, Long.parseLong(request.getParameter("userId")));
-			List<Role> roles=Role.findAll(Role.class, "name", "desc",locale.toString());
-			model.addAttribute("roles",roles);
-			model.addAttribute("domain", user);
-			if(request.getSession().getAttribute("type")==null){
-	            model.addAttribute("type","");
-	        }else{
-	            request.getSession().removeAttribute("type");
-	        }
-		}
-
-	/**
-	 * Update role.
-	 *
-	 * @param model the model
-	 * @param redirectAttributes the redirect attributes
-	 * @param domain the domain
-	 * @param request the request
-	 * @param Locale the locale
-	 * @return the string
-	 * @author compaq
-	 * @since v1.0.0
-	 */
-	@RequestMapping(value="/role",method=RequestMethod.PUT)
-		protected String UpdateRole(final ModelMap model,
-				final RedirectAttributes redirectAttributes, final @Valid @ModelAttribute("domain") User domain,
-				final HttpServletRequest request, final String Locale){
-
-			final String servletPath = request.getServletPath().replaceFirst("\\/","");
-	        String messagePattern=servletPath.replaceAll("\\/",".");
-	        model.addAttribute("messagePattern", messagePattern);
-	        model.addAttribute("urlPattern", servletPath);
-			model.addAttribute("domain", domain);
-			User user=User.findById(User.class, domain.getId());
-			domain.getCredential().setUserGroups(user.getCredential().getUserGroups());
-			domain.getCredential().setLastLoginTime(user.getCredential().getLastLoginTime());
-			String[] roleTypes=request.getParameterValues("roles");
-			if(roleTypes!=null){
-			Set<Role> roles= new HashSet<Role>();
-			for(int i=0;i<roleTypes.length;i++){
-				List<Role> rolesByType= Role.findRolesByRoleType(Role.class, "type", roleTypes[i], "name", "desc");
-				roles.addAll(rolesByType);
-			}
-			domain.getCredential().setRoles(roles);
-			}
-			domain.merge();
-			redirectAttributes.addFlashAttribute("type", "success");
-	        request.getSession().setAttribute("type","success");
-	        redirectAttributes.addFlashAttribute("msg", "update_success");
-	        String returnUrl = "redirect:/" + servletPath+"?userId="+domain.getId();
-	        return returnUrl;
-
-		}
-
-	/**
-	 * Populate user group.
-	 *
-	 * @param model the model
-	 * @param domain the domain
-	 * @param request the request
-	 * @param Locale the locale
-	 */
-	@RequestMapping(value="/usergroup",method=RequestMethod.GET)
-	protected void populateUserGroup(final ModelMap model, final User domain,
-			final HttpServletRequest request, final String Locale) {
-		User user=User.findById(User.class, Long.parseLong(request.getParameter("userId")));
-		List<UserGroup> userGroups=UserGroup.findAll(UserGroup.class, "name", "desc", user.getLocale());
-		model.addAttribute("userGroups",userGroups);
-		model.addAttribute("domain", user);
-		if(request.getSession().getAttribute("type")==null){
-            model.addAttribute("type","");
-        }else{
-            request.getSession().removeAttribute("type");
-        }
-	}
-
-
-/**
- * Update user group.
- *
- * @param model the model
- * @param redirectAttributes the redirect attributes
- * @param domain the domain
- * @param request the request
- * @param Locale the locale
- * @return the string
- * @author compaq
- * @since v1.0.0
- */
-@RequestMapping(value="/usergroup",method=RequestMethod.PUT)
-	protected String UpdateUserGroup(final ModelMap model,final RedirectAttributes redirectAttributes, final  @Valid @ModelAttribute("domain") User domain,
-			final HttpServletRequest request, final String Locale){
-		final String servletPath = request.getServletPath().replaceFirst("\\/","");
-        String messagePattern=servletPath.replaceAll("\\/",".");
-        model.addAttribute("messagePattern", messagePattern);
-        model.addAttribute("urlPattern", servletPath);
-        model.addAttribute("domain", domain);
-        User user=User.findById(User.class, domain.getId());
-		domain.getCredential().setRoles(user.getCredential().getRoles());
-		domain.getCredential().setLastLoginTime(user.getCredential().getLastLoginTime());
-		domain.merge();
-		redirectAttributes.addFlashAttribute("type", "success");
-        request.getSession().setAttribute("type","success");
-        redirectAttributes.addFlashAttribute("msg", "update_success");
-        String returnUrl = "redirect:/" + servletPath+"?userId="+domain.getId();
-        return returnUrl;
-
-	}
 
 
 	/* (non-Javadoc)
