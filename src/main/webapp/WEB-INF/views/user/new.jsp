@@ -16,6 +16,8 @@
 				$('#isEnabled').val(false);
 			};
 		});
+
+		
 	});
 </script>
 </head>
@@ -33,13 +35,20 @@
 				<spring:message code="generic.new" text="New"></spring:message>
 				]
 			</h2>
-			<form:errors path="version" cssClass="validationError" />
-		<p>
-			<label class="small"><spring:message code="user.title" text="Title"/></label>
-			<form:input cssClass="sText " path="title" />
-			<form:errors path="title" cssClass="validationError"/>
-		</p>
+			<form:errors path="version" cssClass="validationError" />		
+			<p>
+				<label class="small"><spring:message
+						code="user.houseType" text="House Type" />&nbsp;*</label>
+				<form:select cssClass="sSelect " path="houseType" items="${houseTypes}" itemLabel="name" itemValue="id" />
+				<form:errors path="houseType" cssClass="validationError" />
+			</p>
 			
+			<p>
+			<label class="small"><spring:message code="user.title" text="Title"/></label>
+			<form:select cssClass="sSelect " path="title" items="${titles}" itemLabel="name" itemValue="name" />
+			<form:errors path="title" cssClass="validationError"/>
+			</p>
+						
 			<p>
 				<label class="small"><spring:message
 						code="user.firstName" text="First Name" />&nbsp;*</label>
@@ -76,20 +85,36 @@
 				<label class="small"><spring:message
 						code="user.email" text="Email ID" />&nbsp;*</label>
 				<input  type="text" class="sText" name="email"  />
-				<form:errors path="credential.email" cssClass="validationError" />
 			</p>
 			
 			<p>
 				<label class="small"><spring:message code="user.enabled" text="Enabled?" /></label>
 				<input type="checkbox" name="isEnabled" id="isEnabled" class="sCheck">
-			</p>			
+			</p>	
+			
+			<p>
+			<label class="small"><spring:message
+								code="user.role" text="Roles" /></label>
+								<select id="roles" name="roles" multiple="multiple" size="5" style="width:188px;">
+								<c:forEach items="${roles}" var="i">
+								<option value="${i.id}"><c:out value="${i.name}"></c:out></option>
+								</c:forEach>
+								</select>
+								
+			</p>		
 			
 			<div class="fields expand">
 				<h2></h2>
 				<p class="tright">
 					<input id="submit" type="submit"
 						value="<spring:message code='generic.submit' text='Submit'/>"
-						class="butDef"> 
+						class="butDef">
+					<input id="sendfroapproval" type="button"
+						value="<spring:message code='generic.sendforapproval' text='Send For Approval'/>"
+						class="butDef">
+					<input id="submitquestion" type="submit"
+						value="<spring:message code='generic.submitquestion' text='Submit Question'/>"
+						class="butDef">   
 					<input id="cancel" type="button" value="<spring:message code='generic.cancel' text='Cancel'/>" class="butDef">
 						
 				</p>

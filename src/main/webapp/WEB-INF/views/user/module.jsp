@@ -10,40 +10,22 @@
 				showList();
 			});	
 			$('#details_tab').click(function(){
-				var row = $("#grid").jqGrid('getGridParam','selrow');
-				if(row == null){
-					if($('#key').val()!=""){							
-						editRecord();
-					}else{
-						newRecord();
-					};					
-				}
-				else{					
+				var row = $("#key").val();
+				if(row==null||row==""){
+					$.prompt($('#selectRowFirstMessage').val());		
+					return false;
+				}else{					
 					editRecord();
 				}
 			});
-			$('#roles_tab').click(function(){
-				var row = $("#grid").jqGrid('getGridParam','selrow');
-				if(row==null){
-					if($('#key').val()!=""){
-						if(row!=$('#key').val()) {
-						row = $('#key').val();
-					}
-					}
-					else{
-						$.prompt("Please select the desired row to Assign Roles");
-						return false;	
-					}
-				}
-				showTabByIdAndUrl('roles_tab','user/role'+'?user='+row);
-			});
 			$('#groups_tab').click(function(){
 				var row = $("#key").val();
-				if(row==null||row!=""){
+				if(row==null||row==""){
 					$.prompt($('#selectRowFirstMessage').val());		
 					return false;
+				}else{
+					showTabByIdAndUrl('groups_tab','usergroup/list'+'?user='+row);
 				}
-				showTabByIdAndUrl('groups_tab','usergroup/list'+'?user='+row);
 			});
 			$(document).keydown(function (e){
 				if(e.which==78 && e.ctrlKey){
@@ -69,38 +51,42 @@
 			showTabByIdAndUrl('list_tab','user/list');	
 		});	
 		function showList() {
+			//here grid will be displayed and the key will be set automatically
 			showTabByIdAndUrl('list_tab','user/list');
 		}	
-		
-		function editRecord(row) {
-			
-			var row = $("#grid").jqGrid('getGridParam','selrow');
-			if(this.id =='edit_record' && row==null){				
-				$.prompt($('#selectRowFirstMessage').val());
-				return false;							
-			} 
-			else{
-				if(row!=$('#key').val()) {
-					row = $('#key').val();
-				}
-				showTabByIdAndUrl('details_tab','user/'+row+'/edit');
-			}
-		}
-			
-				
-		function newRecord() {
-			showTabByIdAndUrl('details_tab','user/new');
-			$("#key").val("");			
-			$("#cancelFn").val("newRecord");
+		function rowSelectHandler(rowid,status){
+			//on row select key will be set
+			if($('#key')){
+				$('#key').val(rowid);					
+			}		 
 		}
 		function rowDblClickHandler(rowid, iRow, iCol, e) {
+			//here when we are clicking a particular row then we will first set the key and then load the edit
+			//page. 
+			$("#key").val(rowid);
 			showTabByIdAndUrl('details_tab', 'user/'+rowid+'/edit');
 		}
-		
+		function newRecord() {
+			//on clicking new record key set to empty as the user id has not been created till then
+			$("#key").val("");			
+			$("#cancelFn").val("newRecord");
+			showTabByIdAndUrl('details_tab','user/new');			
+		}		
+		function editRecord() {
+			//this function will be called on double clicking row in grid or by cliking edit link on list page.
+			//this function is also called when details tab is clicked
+			var row = $("#key").val();
+			if(row==null||row==""){				
+				$.prompt($('#selectRowFirstMessage').val());
+				return false;							
+			}else{
+				showTabByIdAndUrl('details_tab','user/'+row+'/edit');
+			}
+		}		
 		function deleteRecord(row) {
 			if(row == null || row == ''){
 				$.prompt($('#selectRowFirstMessage').val());		
-				return;
+				return false;
 			}
 			else{
 				$.prompt($('#confirmDeleteMessage').val()+ row,{
@@ -112,9 +98,7 @@
 			        }
 				}});
 			}
-		}	
-		
-			
+		}				
 	</script>
 </head>
 <body>
@@ -131,11 +115,6 @@
 				   <spring:message code="generic.details" text="Details"></spring:message>
 				</a>
 			</li>	
-			<li>
-				<a id="roles_tab" href="#" class="tab">
-				   <spring:message code="user.roles" text="Roles"></spring:message>
-				</a>
-			</li>
 			<li>
 				<a id="groups_tab" href="#" class="tab">
 				   <spring:message code="user.groups" text="Groups"></spring:message>

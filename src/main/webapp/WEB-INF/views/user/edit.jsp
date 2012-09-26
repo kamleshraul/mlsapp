@@ -22,6 +22,11 @@
 				$('#isEnabled').val(false);
 			};
 		});
+
+		var roles=$("#selectedRoles").val().split(",");
+		for(var i=0;i<roles.length;i++){
+			$("#roles option[value='"+roles[i]+"']").attr("selected","selected");
+		}
 	});		
 </script>
 </head>
@@ -35,11 +40,18 @@
 				[<spring:message code="generic.id" text="Id"></spring:message>:${domain.id}]
 			</h2>
 			<form:errors path="version" cssClass="validationError" />
-		<p>
+			<p>
+				<label class="small"><spring:message
+						code="user.houseType" text="House Type" />&nbsp;*</label>
+				<form:select cssClass="sSelect " path="houseType" items="${houseTypes}" itemLabel="name" itemValue="id" />
+				<form:errors path="houseType" cssClass="validationError" />
+			</p>
+			
+			<p>
 			<label class="small"><spring:message code="user.title" text="Title"/></label>
-			<form:input cssClass="sText " path="title" />
+			<form:select cssClass="sSelect " path="title" items="${titles}" itemLabel="name" itemValue="name" />
 			<form:errors path="title" cssClass="validationError"/>
-		</p>
+			</p>
 			
 			<p>
 				<label class="small"><spring:message
@@ -77,7 +89,6 @@
 				<label class="small"><spring:message
 						code="user.email" text="Email ID" />&nbsp;*</label>
 				<input type="text" class="sText" name="email" value="${domain.credential.email}" />
-				<form:errors path="credential.email" cssClass="validationError" />
 			</p>
 			
 			<p>
@@ -85,25 +96,37 @@
 				<input type="checkbox" name="isEnabled" id="isEnabled" class="sCheck">
 			</p>
 			
+			<p>
+			<label class="small"><spring:message
+								code="user.role" text="Roles" /></label>
+								<select id="roles" name="roles" multiple="multiple" size="5" style="width:188px;">
+								<c:forEach items="${roles}" var="i">
+								<option value="${i.id}"><c:out value="${i.name}"></c:out></option>
+								</c:forEach>
+								</select>
+								
+			</p>	
+			
 			<div class="fields expand">
 				<h2></h2>
 				<p class="tright">
 					<input id="submit" type="submit"
 						value="<spring:message code='generic.submit' text='Submit'/>"
-						class="butDef"> 
+						class="butDef">
+					<input id="sendfroapproval" type="button"
+						value="<spring:message code='generic.sendforapproval' text='Send For Approval'/>"
+						class="butDef">
+					<input id="submitquestion" type="submit"
+						value="<spring:message code='generic.submitquestion' text='Submit Question'/>"
+						class="butDef">   
 					<input id="cancel" type="button" value="<spring:message code='generic.cancel' text='Cancel'/>" class="butDef">
 						
 				</p>
 			</div>
 			<input type="hidden" name="userId" value="${domain.id}"/>
 			<input type="hidden" id="key" name="key">
-			<form:hidden path="credential.id"/>
-			<form:hidden path="credential.version"/>
-			<form:hidden path="credential.email"/>
-			<form:hidden path="credential.username"/>
-			<form:hidden path="credential.password"/>
-			<form:hidden path="credential.lastLoginTime"/>
-			<form:hidden path="credential.locale"/>
+			<input type="hidden" id="selectedRoles" name="selectedRoles" value="${selectedRoles}">	
+			<input type="hidden" id="credential" name="credential" value="${credential}">					
 			<form:hidden path="locale" />
 			<form:hidden path="id" />
 			<form:hidden path="version" />
