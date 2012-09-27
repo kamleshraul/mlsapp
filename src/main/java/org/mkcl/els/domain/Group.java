@@ -114,6 +114,7 @@ public class Group extends BaseDomain implements Serializable {
 	                houseType, sessionType, year);
 	    }
 	 
+	 //To have get the rotation order (question_dates) of the group
 	 public  QuestionDates findQuestionDatesByGroupAndAnsweringDate(final Date answeringDate){
 		 //Group group=Group.findById(Group.class, groupId);
 		 List<QuestionDates> questionDates=this.getQuestionDates();
