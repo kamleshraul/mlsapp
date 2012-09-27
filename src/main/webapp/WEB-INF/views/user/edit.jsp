@@ -89,6 +89,7 @@
 				<label class="small"><spring:message
 						code="user.email" text="Email ID" />&nbsp;*</label>
 				<input type="text" class="sText" name="email" value="${domain.credential.email}" />
+				<form:errors path="credential.email" cssClass="validationError" />
 			</p>
 			
 			<p>
@@ -113,12 +114,6 @@
 					<input id="submit" type="submit"
 						value="<spring:message code='generic.submit' text='Submit'/>"
 						class="butDef">
-					<input id="sendfroapproval" type="button"
-						value="<spring:message code='generic.sendforapproval' text='Send For Approval'/>"
-						class="butDef">
-					<input id="submitquestion" type="submit"
-						value="<spring:message code='generic.submitquestion' text='Submit Question'/>"
-						class="butDef">   
 					<input id="cancel" type="button" value="<spring:message code='generic.cancel' text='Cancel'/>" class="butDef">
 						
 				</p>
