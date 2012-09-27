@@ -204,6 +204,9 @@ public class Session extends BaseDomain implements Serializable {
         return getSessionRepository().findSessionByHouseTypeSessionTypeYear(houseType, sessionType, sessionYear);
     }
 
+    public static List<Session> findSessionsByHouseTypeAndYear(final HouseType houseType,final Integer year){
+        return getSessionRepository().findSessionsByHouseTypeAndYear(houseType, year);
+    }
 
     // ------------------------------Getters/Setters-----------------------
     /**
