@@ -14,12 +14,15 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 
+import org.mkcl.els.common.vo.Reference;
 import org.mkcl.els.domain.CustomParameter;
 import org.mkcl.els.domain.Group;
 //import org.mkcl.els.domain.GroupInformation;
@@ -63,7 +66,8 @@ public class GroupController extends GenericController<Group> {
 	domain.setLocale(locale);
 	List<Ministry> ministries = Ministry.findAll(Ministry.class, "name", ASC, domain.getLocale());
 	model.addAttribute("ministries", ministries);
-	populate(model, domain,request);	
+	populate(model, domain,request);
+	
     }
     
     /* (non-Javadoc)
@@ -78,7 +82,8 @@ public class GroupController extends GenericController<Group> {
 	modelMinistries.addAll(domain.getMinistries());
 	modelMinistries.addAll(ministries);
 	model.addAttribute("ministries", modelMinistries);
-	populate(model, domain, request);	
+	populate(model, domain, request);
+	
     }
     
     /**
@@ -92,9 +97,7 @@ public class GroupController extends GenericController<Group> {
 	
 	List<HouseType> houseTypes = HouseType.findAll(HouseType.class, "name", "desc", domain.getLocale());
 	model.addAttribute("houseTypes", houseTypes);
-	List<SessionType> sessionTypes = SessionType.findAll(SessionType.class, "sessionType", ASC, domain.getLocale());
-	model.addAttribute("sessionTypes", sessionTypes);	
-	
+		
 	String defaultGroupNumber = ((CustomParameter) CustomParameter.findByName(
 			CustomParameter.class, "DEFAULT_GROUP_NUMBER", null)).getValue();
 	Integer groupNo=Integer.parseInt(defaultGroupNumber);
@@ -108,17 +111,39 @@ public class GroupController extends GenericController<Group> {
 	for(Integer i=currentYear; i>=1937; i--) {
 		years.add(i.toString());
 	}
-	model.addAttribute("years", years);		
-    }    
-    
+	model.addAttribute("years", years);
+	//To populate the sessiontype as per the housetype and year
+	List<Session> sessions=new ArrayList<Session>();
+	if(domain.getHouseType()!=null){
+		 sessions=Session.findSessionsByHouseTypeAndYear(domain.getHouseType(), currentYear);
+	}
+	else{
+		 sessions=Session.findSessionsByHouseTypeAndYear(houseTypes.get(0), currentYear);
+	}
+		
+	List<SessionType> sessionTypes=new ArrayList<SessionType>();
+	if(!sessions.isEmpty()){
+		for(Session s:sessions){
+    		sessionTypes.add(s.getType());
+    	}
+    }
+	model.addAttribute("sessionTypes", sessionTypes);
+	
+    }
     /* (non-Javadoc)
      * @see org.mkcl.els.controller.GenericController#customValidateCreate(org.mkcl.els.domain.BaseDomain, org.springframework.validation.BindingResult, javax.servlet.http.HttpServletRequest)
      */
     @Override
     protected void customValidateCreate(final Group domain,
 		final BindingResult result, final HttpServletRequest request) {
+    	Group group=Group.findByNumberHouseTypeSessionTypeYear(domain.getNumber(), domain.getHouseType(), domain.getSessionType(), domain.getYear());
+    	if(group!=null){
+    		result.rejectValue("number", "NonUnique", "Group already Exist");           
+    		
+    	}
     	customValidateGroupInformation(domain, result, request);
-    }
+    	
+     }
     
     /* (non-Javadoc)
      * @see org.mkcl.els.controller.GenericController#customValidateUpdate(org.mkcl.els.domain.BaseDomain, org.springframework.validation.BindingResult, javax.servlet.http.HttpServletRequest)
@@ -126,6 +151,15 @@ public class GroupController extends GenericController<Group> {
     @Override
     protected void customValidateUpdate(final Group domain,
 		final BindingResult result, final HttpServletRequest request) {
+    	//To check whether the group has Changed
+    	Group group=Group.findById(Group.class,domain.getId());
+    	if(!group.getNumber().equals(domain.getNumber()) ||!group.getHouseType().equals(domain.getHouseType())||
+    			!group.getSessionType().equals(domain.getSessionType())||!group.getYear().equals(domain.getYear())){
+    		Group duplicateGroup=Group.findByNumberHouseTypeSessionTypeYear(domain.getNumber(), domain.getHouseType(), domain.getSessionType(), domain.getYear());
+    		if(duplicateGroup!=null){
+    			result.rejectValue("number", "NonUnique", "Group already Exist");
+    		}
+       	}
     	customValidateGroupInformation(domain, result, request);
     }
     
@@ -142,9 +176,6 @@ public class GroupController extends GenericController<Group> {
     	if (domain.isVersionMismatch()) {
     		result.rejectValue("VersionMismatch", "version");
     	}
-    	
-    	// Check for duplicate instance
-    	
     }
     
     /**
@@ -334,7 +365,7 @@ public class GroupController extends GenericController<Group> {
 						// TODO Auto-generated catch block
 						e.printStackTrace();
 					}
-					
+					//
 					QuestionDates qd= domain.findQuestionDatesByGroupAndAnsweringDate( answeringDate);
 					//QuestionDates qd = QuestionDates.findByFieldName(QuestionDates.class, "answeringDate", answeringDate, domain.getLocale());
 					if(qd!=null){
