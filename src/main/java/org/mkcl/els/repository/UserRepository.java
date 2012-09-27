@@ -9,11 +9,16 @@
  */
 package org.mkcl.els.repository;
 
+import java.util.List;
+
+import org.mkcl.els.domain.Credential;
 import org.mkcl.els.domain.User;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
+
+import com.trg.search.Search;
 
 /**
  * The Class UserRepository.
@@ -49,5 +54,13 @@ public class UserRepository extends BaseRepository<User,Long>{
 	public void assignMemberId(final Long memberId,final Long userId){
 		String query="UPDATE User u SET u.id="+ memberId +"WHERE u.id="+userId;
 		this.em().createQuery(query).executeUpdate();
+	}
+	
+	public List<User> findUsersByCredential(final Long credentialId){
+		final Search search = new Search();
+		Credential credential=Credential.findById(Credential.class, credentialId);
+		search.addFilterEqual("credential", credential);
+        final List<User> records = this._search(User.class, search);
+        return records;
 	}
 }
