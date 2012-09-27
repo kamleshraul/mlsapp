@@ -11,6 +11,7 @@ package org.mkcl.els.domain;
 
 import java.io.Serializable;
 import java.util.Date;
+import java.util.List;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
@@ -68,7 +69,7 @@ public class User extends BaseDomain implements Serializable {
     private String birthPlace;
 
     /** The credential. */
-    @ManyToOne(fetch=FetchType.EAGER,cascade=CascadeType.REMOVE)
+    @ManyToOne(fetch=FetchType.LAZY,cascade=CascadeType.ALL)
     @JoinColumn(name="credential_id")
     private Credential credential;
 
@@ -118,6 +119,10 @@ public class User extends BaseDomain implements Serializable {
 //    public static void assignMemberId(final Long memberId,final Long userId){
 //    	getUserRepository().assignMemberId(memberId, userId);
 //    }
+    
+    public static List<User> findUsersByCredential(final Long credentialId){
+    	return getUserRepository().findUsersByCredential(credentialId);
+    }
     // ------------------------------------------Getters/Setters-----------------------------------
 
     /**
