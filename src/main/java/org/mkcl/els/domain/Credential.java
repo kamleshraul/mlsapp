@@ -61,7 +61,7 @@ public class Credential extends BaseDomain implements Serializable {
     private String email;
 
     /** The roles. */
-    @ManyToMany(fetch = FetchType.LAZY,cascade=CascadeType.ALL)
+    @ManyToMany(fetch = FetchType.LAZY)
     @JoinTable(name = "credentials_roles", joinColumns = @JoinColumn(
             name = "credential_id", referencedColumnName = "id"),
             inverseJoinColumns = @JoinColumn(name = "role_id",
