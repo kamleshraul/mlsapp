@@ -58,6 +58,14 @@ public class SessionRepository extends BaseRepository<Session, Long>{
         search.addFilterEqual("year",sessionYear);
         return this.searchUnique(search);
     }
+    
+    public List<Session> findSessionsByHouseTypeAndYear(final HouseType houseType,
+             final Integer sessionYear) {
+        Search search=new Search();
+        search.addFilterEqual("house.type",houseType);
+        search.addFilterEqual("year",sessionYear);
+        return this.search(search);
+    }
 
 
 }
