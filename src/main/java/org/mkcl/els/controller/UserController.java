@@ -10,6 +10,7 @@
 package org.mkcl.els.controller;
 
 import java.math.BigInteger;
+
 import java.security.SecureRandom;
 import java.util.HashSet;
 import java.util.List;
@@ -30,7 +31,9 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.WebDataBinder;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
 
 // TODO: Auto-generated Javadoc
 /**
@@ -65,12 +68,18 @@ public class UserController extends GenericController<User>{
         model.addAttribute("roles",roles);
         StringBuffer buffer=new StringBuffer();
         Credential credential=domain.getCredential();
-        model.addAttribute("credential",credential.getId());
-        for(Role i:credential.getRoles()){
-            buffer.append(i.getId()+",");
+        if(credential.getEmail()!=null){
+        	 model.addAttribute("credential",credential.getId());
+        	 if(!credential.getRoles().isEmpty()){
+        		 for(Role i:credential.getRoles()){
+                     buffer.append(i.getId()+",");
+                 }
+                 buffer.deleteCharAt(buffer.length()-1);
+                 model.addAttribute("selectedRoles",buffer.toString());
+        	 }
+            
         }
-        buffer.deleteCharAt(buffer.length()-1);
-        model.addAttribute("selectedRoles",buffer.toString());
+         
     }
 	/* (non-Javadoc)
 	 * @see org.mkcl.els.controller.GenericController#customValidateCreate(org.mkcl.els.domain.BaseDomain, org.springframework.validation.BindingResult, javax.servlet.http.HttpServletRequest)
@@ -78,6 +87,10 @@ public class UserController extends GenericController<User>{
 	@Override
     protected void customValidateCreate(final User domain,
             final BindingResult result, final HttpServletRequest request) {
+		User user=User.findByUserName(request.getParameter("email").split("@")[0], domain.getLocale());
+		if(user.getId()!=null){
+			result.rejectValue("credential.email", "NonUnique", "User already Exist");
+		}
         customValidate(domain, result, request);
     }
 
@@ -87,6 +100,13 @@ public class UserController extends GenericController<User>{
 	@Override
     protected void customValidateUpdate(final User domain,
             final BindingResult result, final HttpServletRequest request) {
+		User user=User.findById(User.class, domain.getId());
+		if(!user.getCredential().getEmail().equals(request.getParameter("email"))){
+			User duplicateUser=User.findByUserName(request.getParameter("email").split("@")[0], domain.getLocale());
+			if(duplicateUser.getId()!=null){
+				result.rejectValue("credential.email", "NonUnique", "User already Exist");
+			}
+		}
         customValidate(domain, result, request);
     }
 
@@ -100,7 +120,9 @@ public class UserController extends GenericController<User>{
  	 */
  	private void customValidate(final User domain,
 	            final BindingResult result, final HttpServletRequest request) {
-
+ 		if (domain.isVersionMismatch()) {
+    		result.rejectValue("VersionMismatch", "version");
+    	}
 	    }
 
 
@@ -126,9 +148,12 @@ public class UserController extends GenericController<User>{
  			  credential.setPassword(str);
  			  String[] selectedRoles=request.getParameterValues("roles");
  			  Set<Role> roles=new HashSet<Role>();
- 			  for(String i:selectedRoles){
- 			      Role role=Role.findById(Role.class, Long.parseLong(i));
- 			      roles.add(role);
+ 			 // included the following condition  to avoid null pointer exception
+ 			  if(selectedRoles!=null){
+ 				 for(String i:selectedRoles){
+ 	 			      Role role=Role.findById(Role.class, Long.parseLong(i));
+ 	 			      roles.add(role);
+ 	 			  } 
  			  }
  			  credential.setRoles(roles);
  			  credential.persist();
@@ -154,56 +179,80 @@ public class UserController extends GenericController<User>{
  			}
  			String[] selectedRoles=request.getParameterValues("roles");
             Set<Role> roles=new HashSet<Role>();
-            for(String i:selectedRoles){
-                Role role=Role.findById(Role.class, Long.parseLong(i));
-                roles.add(role);
+            // included the following condition  to avoid null pointer exception
+            if(selectedRoles!=null){
+            	for(String i:selectedRoles){
+                    Role role=Role.findById(Role.class, Long.parseLong(i));
+                    roles.add(role);
+                }
             }
+            credential.setLocale(null);
             credential.setRoles(roles);
             credential.merge();
             domain.setCredential(credential);
  		}
-
-
+ 		
+ 		/*Overiding the Delete method because cannot use the hooks provided in the generics as the domain
+ 		 * passed in predelete has id=null and the post delete cannot be used
+ 		 */
+ 		@Override
+ 		 @RequestMapping(value = "/{id}/delete", method = RequestMethod.DELETE)
+ 	    public String delete(final @PathVariable("id") Long id,
+ 	            final ModelMap model, final HttpServletRequest request) {
+ 	       
+ 			User user=User.findById(User.class, id);
+ 			Long credentialId=user.getCredential().getId();
+ 			List<User> users=User.findUsersByCredential(credentialId);
+ 			for(User i:users){
+ 				i.setCredential(null);
+ 				i.remove();
+ 			}
+ 	       Credential credential= Credential.findById(Credential.class, credentialId);
+ 	       credential.remove();
+ 			
+ 	        return "info";
+ 	    }
+ 		
 	/* (non-Javadoc)
 	 * @see org.mkcl.els.controller.GenericController#customInitBinderSuperClass(java.lang.Class, org.springframework.web.bind.WebDataBinder)
 	 */
-	@Override
-    protected <E extends BaseDomain> void customInitBinderSuperClass(
-	            final Class clazz, final WebDataBinder binder) {
-		         binder.registerCustomEditor(Set.class,"credential.roles",
-						new CustomCollectionEditor(Set.class) {
-					@Override
-					protected Object convertElement(
-							final Object element) {
-						String id = null;
-						if (element instanceof String) {
-							id = (String) element;
-						}
-						return id != null ? BaseDomain
-								.findById(Role.class,
-										Long.valueOf(id))
-										: null;
-					}
-				});
-
-
-		       binder.registerCustomEditor(Set.class,"credential.userGroups",
-				new CustomCollectionEditor(Set.class) {
-		    	   @Override
-		    	   protected Object convertElement(
-						final Object element) {
-			    		   String id = null;
-			    		   if (element instanceof String) {
-			    			   	id = (String) element;
-			    		   }
-			    		   return id != null ? BaseDomain
-							.findById(UserGroup.class,
-									Long.valueOf(id))
-									: null;
-				}
-		       });
-
-		 }
+//	@Override
+//    protected <E extends BaseDomain> void customInitBinderSuperClass(
+//	            final Class clazz, final WebDataBinder binder) {
+//		         binder.registerCustomEditor(Set.class,"credential.roles",
+//						new CustomCollectionEditor(Set.class) {
+//					@Override
+//					protected Object convertElement(
+//							final Object element) {
+//						String id = null;
+//						if (element instanceof String) {
+//							id = (String) element;
+//						}
+//						return id != null ? BaseDomain
+//								.findById(Role.class,
+//										Long.valueOf(id))
+//										: null;
+//					}
+//				});
+//
+//
+//		       binder.registerCustomEditor(Set.class,"credential.userGroups",
+//				new CustomCollectionEditor(Set.class) {
+//		    	   @Override
+//		    	   protected Object convertElement(
+//						final Object element) {
+//			    		   String id = null;
+//			    		   if (element instanceof String) {
+//			    			   	id = (String) element;
+//			    		   }
+//			    		   return id != null ? BaseDomain
+//							.findById(UserGroup.class,
+//									Long.valueOf(id))
+//									: null;
+//				}
+//		       });
+//
+//		 }
 
 }
 
