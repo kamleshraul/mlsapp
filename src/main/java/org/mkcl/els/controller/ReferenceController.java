@@ -819,7 +819,7 @@ public class ReferenceController extends BaseController {
           for(int i=0;i<delimitedgroups.length;i++){
               newgroups[i]=Integer.parseInt(delimitedgroups[i]);
           }
-          masterVOs=MemberMinister.findAssignedDepartmentsVO(newgroups,selectedHouseType,selectedSessionType,year, strlocale);
+          masterVOs=MemberMinister.findfindAssignedDepartmentsVO(newgroups,selectedHouseType,selectedSessionType,year, strlocale);
       }
       return masterVOs;
     }
@@ -856,7 +856,7 @@ public class ReferenceController extends BaseController {
           for(int i=0;i<delimitedgroups.length;i++){
               newgroups[i]=Integer.parseInt(delimitedgroups[i]);
           }
-          masterVOs=MemberMinister.findAssignedSubDepartmentsVO(newgroups,selectedHouseType,selectedSessionType,year, strlocale);
+          masterVOs=MemberMinister.findfindAssignedSubDepartmentsVO(newgroups,selectedHouseType,selectedSessionType,year, strlocale);
       }
       return masterVOs;
     }
@@ -896,8 +896,32 @@ public class ReferenceController extends BaseController {
           for(int i=0;i<delimitedgroups.length;i++){
               newgroups[i]=Integer.parseInt(delimitedgroups[i]);
           }
-          masterVOs=MemberMinister.findAssignedSubDepartmentsVO(newgroups,departments,selectedHouseType,selectedSessionType,year, strlocale);
+          masterVOs=MemberMinister.findfindAssignedSubDepartmentsVO(newgroups,selectedHouseType,selectedSessionType,year, strlocale);
       }
       return masterVOs;
+    }
+    
+    //method to get SessionType of those session whose Session exists
+    @RequestMapping(value = "/{year}/{houseType}/sessionType", method = RequestMethod.GET)
+    public @ResponseBody
+    List<Reference> getSessionTypesByHouseTypeYear(
+            @PathVariable("year") final Integer year,
+            @PathVariable("houseType") final Long houseTypeId,
+            final ModelMap map,
+            final Locale locale) {
+    	HouseType houseType=HouseType.findById(HouseType.class, houseTypeId);
+    	List<Session> sessions=Session.findSessionsByHouseTypeAndYear(houseType, year);
+    	List<SessionType> sessionTypes=new ArrayList<SessionType>();
+    	List<Reference> sessionTypesRef=new ArrayList<Reference>();
+    	if(!sessions.isEmpty()){
+    		for(Session s:sessions){
+        		sessionTypes.add(s.getType());
+        	}
+    	  	for(SessionType i:sessionTypes){
+    	  		Reference reference=new Reference(i.getId().toString(),i.getSessionType());
+    	  		sessionTypesRef.add(reference);
+    	  	}
+       	}
+    	return sessionTypesRef;
     }
 }
