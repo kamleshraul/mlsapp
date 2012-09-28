@@ -85,7 +85,7 @@
 	
 	$('document').ready(function(){	
 		initControls();
-		$('#key').val('');
+		//$('#key').val('');
 		if($("#activeFrom").val()==""){	
 		$("#activeFrom").val($("#currentDate").val());
 		}
