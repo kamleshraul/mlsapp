@@ -20,6 +20,12 @@
 				$('#key').val(rowid);
 			}
 		}
+		function rowDblClickHandler(rowid, iRow, iCol, e) {
+			//here when we are clicking a particular row then we will first set the key and then load the edit
+			//page. 
+			$("#key").val(rowid);
+			showTabByIdAndUrl('details_tab', 'user/'+rowid+'/edit');
+		}
 	</script>
 </head>
 <body>

@@ -24,7 +24,11 @@
 					$.prompt($('#selectRowFirstMessage').val());		
 					return false;
 				}else{
-					showTabByIdAndUrl('groups_tab','usergroup/list'+'?user='+row);
+					var userName = $('#grid').getCell(row, 'credential.username');
+					if(userName!=""){
+						$('#userName').val(userName);
+					}
+					showTabByIdAndUrl('groups_tab',"usergroup/list?user="+$('#key').val()+"&userName="+$('#userName').val());
 				}
 			});
 			$(document).keydown(function (e){
@@ -60,12 +64,7 @@
 				$('#key').val(rowid);					
 			}		 
 		}
-		function rowDblClickHandler(rowid, iRow, iCol, e) {
-			//here when we are clicking a particular row then we will first set the key and then load the edit
-			//page. 
-			$("#key").val(rowid);
-			showTabByIdAndUrl('details_tab', 'user/'+rowid+'/edit');
-		}
+		
 		function newRecord() {
 			//on clicking new record key set to empty as the user id has not been created till then
 			$("#key").val("");			
@@ -125,6 +124,7 @@
 		</div>
 		<input type="hidden" id="key" name="key">
 		<input type="hidden" id="urlPattern" name="urlPattern" value="${urlPattern}">
+		<input type="hidden" id="userName" name="userName" >
 		<input type="hidden" id="selectRowFirstMessage" name="selectRowFirstMessage" value="<spring:message code='generic.selectRowFirstMessage' text='Please select the desired row first'></spring:message>" disabled="disabled">
 		<input type="hidden" id="confirmDeleteMessage" name="confirmDeleteMessage" value="<spring:message code='generic.confirmDeleteMessage' text='Do you want to delete the row with Id: '></spring:message>" disabled="disabled">
 	</div> 

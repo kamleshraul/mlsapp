@@ -7,7 +7,7 @@
 <script type="text/javascript">
 	$('document').ready(function(){	
 		initControls();
-		$('#key').val('');	
+		//$('#key').val('');
 		
 		$('#submit').click(function() {
 			if ($('#isEnabled').is(':checked')) {

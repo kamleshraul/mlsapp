@@ -8,8 +8,10 @@
 	$('document').ready(function(){	
 		initControls();
 		var recordId = ${domain.id};
-		$('#key').val(recordId);		
-		
+		$('#key').val(recordId);
+		var recordUserName="${domain.credential.username}";
+		$('#userName').val(recordUserName);
+		alert($('#key').val());
 		var enabled = ${domain.credential.enabled};
 		if(enabled == true){
 			$("#isEnabled").attr("checked","checked");
@@ -20,7 +22,7 @@
 				$('#isEnabled').val(true);
 			} else {
 				$('#isEnabled').val(false);
-			};
+			}
 		});
 
 		var roles=$("#selectedRoles").val().split(",");
