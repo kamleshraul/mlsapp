@@ -24,7 +24,8 @@
 			});
 		});
 		$('#cancel').click(function(){
-			parent.$.fancybox.close();			
+			parent.$.fancybox.close();
+			showTabByIdAndUrl('list_tab', data);
 		});
 	});
 	</script>
