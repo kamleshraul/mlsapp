@@ -22,11 +22,13 @@ import org.mkcl.els.domain.HouseType;
 import org.mkcl.els.domain.MemberMinister;
 import org.mkcl.els.domain.Session;
 import org.mkcl.els.domain.SessionType;
+import org.mkcl.els.domain.Tehsil;
 import org.mkcl.els.domain.User;
 import org.mkcl.els.domain.UserGroup;
 import org.mkcl.els.domain.UserGroupType;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.RequestMapping;
 
 
@@ -275,5 +277,40 @@ public class UserGroupController extends GenericController<UserGroup>{
         }
         domain.setParameters(deviceTypeParams);
     }
+
+    
+    @Override
+	protected void customValidateCreate(final UserGroup domain,
+			final BindingResult result, final HttpServletRequest request) {
+		customValidate(domain, result, request);
+	}
+
+	/**
+	 * Custom validate update.
+	 *
+	 * @param domain the domain
+	 * @param result the result
+	 * @param request the request
+	 */
+	@Override
+	protected void customValidateUpdate(final UserGroup domain,
+			final BindingResult result, final HttpServletRequest request) {
+		customValidate(domain, result, request);
+	}
+
+	/**
+	 * Custom validate.
+	 *
+	 * @param domain the domain
+	 * @param result the result
+	 * @param request the request
+	 */
+	private void customValidate(final UserGroup domain, final BindingResult result,
+			final HttpServletRequest request) {
+		// Check for version mismatch
+		if (domain.isVersionMismatch()) {
+			result.rejectValue("VersionMismatch", "version");
+		}
+	}
 
 }
