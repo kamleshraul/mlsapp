@@ -31,7 +31,6 @@
 					//assigned the key value to userId so that the value of key is retained in userId as the key becomes empty when it is passed to list of usergroup 
 					//after creation of user
 					$('#userId').val($('#key').val());
-					alert($('#key').val());
 					showTabByIdAndUrl('groups_tab',"usergroup/list?user="+$('#key').val()+"&userName="+$('#userName').val());
 				}
 			});

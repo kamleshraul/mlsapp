@@ -11,7 +11,6 @@
 		$('#key').val(recordId);
 		var recordUserName="${domain.credential.username}";
 		$('#userName').val(recordUserName);
-		alert($('#key').val());
 		var enabled = ${domain.credential.enabled};
 		if(enabled == true){
 			$("#isEnabled").attr("checked","checked");
