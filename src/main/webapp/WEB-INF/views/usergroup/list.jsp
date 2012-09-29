@@ -7,12 +7,13 @@
 	
 		$(document).ready(function(){
 			$('#list_record').hide();
+			if($('#key').val()==""){
+				$('#key').val($('#userId').val());
+			}
 			$('#gridURLParams').val("user="+$('#key').val()+"&userName="+$('#userName').val());
 			$('#editDeleteLinks').show();		
 			$('#new_record').click(function(){
-				
 				newUserGroupRecord();
-																	
 			});
 			$('#edit_record').click(function(){
 				editUserGroupRecord();
@@ -31,7 +32,6 @@
 			showTabByIdAndUrl('groups_tab','usergroup/list?'+$('#gridURLParams').val());	
 		}
 		function newUserGroupRecord(){
-				
 				$('#editDeleteLinks').hide();
 				$("#cancelFn").val("newUserGroupRecord");
 				$.get('usergroup/new?'+$('#gridURLParams').val(), function(data){					
@@ -50,6 +50,7 @@
 				$.prompt($('#selectRowFirstMessage').val());
 				return false;
 			}
+			
 			$.get('usergroup/'+row+'/edit?'+$('#gridURLParams').val(), function(data){
 				$('#grid_container').html(data);
 				$('#list_record').show();
@@ -60,7 +61,8 @@
 			$('#editDeleteLinks').hide();
 			$("#internalKey").val(rowid);			
 			var row=$('#internalKey').val();
-			$("#cancelFn").val("rowDblClickHandler");	
+			$("#cancelFn").val("rowDblClickHandler");
+			
 			$.get('usergroup/'+row+'/edit?'+$('#gridURLParams').val(), function(data){
 				$('#grid_container').html(data);
 				$('#list_record').show();
@@ -82,6 +84,7 @@
 				$.prompt($('#confirmDeleteMessage').val()+ row,{
 					buttons: {Ok:true, Cancel:false}, callback: function(v){
 			        if(v){
+			        
 			        	  $.delete_('usergroup/'+row+'/delete?'+$('#gridURLParams').val(), null, function(data, textStatus, XMLHttpRequest) {
 				        	listUserGroupRecord();
 				        });
@@ -118,8 +121,6 @@
 	<%@ include file="/common/gridview.jsp" %>
 	<input type="hidden" id="grid_id" value="${gridId}">
 	<input type="hidden" id="gridURLParams" name="gridURLParams">
-	<input type="hidden" id="userParams" name="userParams" >
-	
 	<input type="hidden" id="internalKey" name="internalKey">	
 	</div>
 </body>
