@@ -28,6 +28,10 @@
 					if(userName!=""){
 						$('#userName').val(userName);
 					}
+					//assigned the key value to userId so that the value of key is retained in userId as the key becomes empty when it is passed to list of usergroup 
+					//after creation of user
+					$('#userId').val($('#key').val());
+					alert($('#key').val());
 					showTabByIdAndUrl('groups_tab',"usergroup/list?user="+$('#key').val()+"&userName="+$('#userName').val());
 				}
 			});
@@ -123,8 +127,9 @@
 		<div class="tabContent clearfix">
 		</div>
 		<input type="hidden" id="key" name="key">
-		<input type="hidden" id="urlPattern" name="urlPattern" value="${urlPattern}">
+		<input type="hidden" id="userId" name="userId">
 		<input type="hidden" id="userName" name="userName" >
+		<input type="hidden" id="urlPattern" name="urlPattern" value="${urlPattern}">
 		<input type="hidden" id="selectRowFirstMessage" name="selectRowFirstMessage" value="<spring:message code='generic.selectRowFirstMessage' text='Please select the desired row first'></spring:message>" disabled="disabled">
 		<input type="hidden" id="confirmDeleteMessage" name="confirmDeleteMessage" value="<spring:message code='generic.confirmDeleteMessage' text='Do you want to delete the row with Id: '></spring:message>" disabled="disabled">
 	</div> 
