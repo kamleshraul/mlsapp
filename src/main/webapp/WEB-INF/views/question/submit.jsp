@@ -37,7 +37,6 @@
 	<%@ include file="/common/info.jsp" %>
 	<h2><spring:message code="question.submit.heading" text="Submit Questions"/></h2>		
 	
-	<label class="small"><spring:message code="question.submitQuestion" text="Question"/></label>
 	<select id="questions" name="questions" class="multipleSelect" multiple="multiple">
 	<c:forEach items="${questions}" var="i" >
 		<option value="${i.id}"><c:out value="${i.subject}"></c:out></option>
