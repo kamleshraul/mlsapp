@@ -34,6 +34,9 @@
 		<script type="text/javascript" src="./resources/js/jquery.fancybox-buttons.js?v=1"></script>
 		<script type="text/javascript" src="./resources/js/template/stylesheetToggle.js?v=1"></script>
 	    <script type="text/javascript" src="./resources/js/jquery.fcbkcomplete.js?q=123?v=1"></script>
+	    <script type="text/javascript" src="./resources/js/ui.multiselect.js?q=123?v=1"></script>
+	    <script type="text/javascript" src="./resources/js/jquery.tmpl.1.1.1.js?q=123?v=1"></script>	    
+	    <script type="text/javascript" src="./resources/js/jquery.localisation.js?q=123?v=1"></script>
 		
 		<link rel="stylesheet" type="text/css" media="all" href="./resources/css/template/reset.css?v=1" />
 		<link rel="stylesheet" type="text/css" media="all" href="./resources/css/template/blue.css?v=1" />
@@ -47,7 +50,8 @@
 		<link rel="stylesheet" type="text/css" media="screen" href="./resources/css/jquery.fancybox-thumbs.css?v=1" />
 		<link rel="stylesheet" type="text/css" media="screen" href="./resources/css/jquery.fancybox.css?v=1" />
 		<link rel="stylesheet" type="text/css" media="screen" href="./resources/css/jquery.wysiwyg.css?v=1" />
-		
+		<link rel="stylesheet" type="text/css" media="screen" href="./resources/css/ui.multiselect.css?v=1" />
+				
 		
 		
 		<!-- See Interface Configuration --> 
