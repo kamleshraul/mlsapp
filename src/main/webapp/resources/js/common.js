@@ -55,6 +55,18 @@ function initControls(){
 			highlight: {visible:true}			
 		}
 	});	
+	//code to avoid editing readonly rich textarea
+	$('.wysiwyg').change(function(){		
+		var idval = this.id;
+		if($('#'+idval).is('[readonly]')){ 
+			//actually we should have done:
+			//var initialContent = $('#'+idval).wysiwyg('getContent');
+			//$('#'+idval).wysiwyg('setContent', initialContent);			
+			//but this is leading to recursion due to setContent method
+			//so we did following:
+			$.prompt($('#readOnlyMessage').val());			
+		}
+	});
 	$(".multiselect").parents("p").css("position","relative");
 	$('.multiselect').sexyselect({			
 		showTitle: false,			

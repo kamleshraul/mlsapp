@@ -21,9 +21,9 @@
 		<!-- Multiselect -->				
 		<script type="text/javascript" src="./resources/js/jquery.multiselect.js?v=1"></script>
 
-		<script type="text/javascript" src="./resources/js/common.js?v=2005"></script> 
+		<script type="text/javascript" src="./resources/js/common.js?v=2032"></script> 
 		 <!-- WYSIWYG Editor --> 
-		<script type="text/javascript" src="./resources/js/jquery.wysiwyg.js?v=2017"></script> 
+		<script type="text/javascript" src="./resources/js/jquery.wysiwyg.js?v=2018"></script> 
 		<link rel="stylesheet" type="text/css" media="all" href="./resources/css/jquery.multiselect.css?v=1" />
 		
 		 <!-- Style switcher --> 
@@ -94,7 +94,7 @@
             <input type="hidden" name="downloadUploadedFile" id="downloadUploadedFile" value="<spring:message code='file.download' text='Download'></spring:message>"/>	
             <input type="hidden" name="removeUploadedFile" id="removeUploadedFile" value="<spring:message code='file.remove' text='Remove'></spring:message>"/>	
             <input type="hidden" name="cancelFn" id="cancelFn"/>	
-            
+            <input type="hidden" name="readOnlyMessage" id="readOnlyMessage" value="<spring:message code='readOnlyMessage' text='This Text Cannot be Edited Now'></spring:message>"/>
                              
                         
 		<div id="container" class="clearfix">
