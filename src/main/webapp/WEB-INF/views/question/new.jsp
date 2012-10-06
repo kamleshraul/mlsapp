@@ -104,6 +104,38 @@
 			}
 		});
 	}
+
+	function loadAnsweringDates(group,ministry){
+		$.get('ref/group/'+group+'/answeringdates',function(data){
+			console.log(data.length);
+			console.log();
+			if(data.length>0){
+				$("#answeringDate").empty();				
+				var answeringDatesText="";
+				var answeringDatesText="<option value='' selected='selected'>----"+$("#pleaseSelectMessage").val()+"----</option>";
+				for(var i=0;i<data.length;i++){
+					answeringDatesText+="<option value='"+data[i].id+"'>"+data[i].name;
+				}
+				$("#answeringDate").html(answeringDatesText);				
+			}else{
+				var answeringDatesText="";
+				var answeringDatesText="<option value='' selected='selected'>----"+$("#pleaseSelectMessage").val()+"----</option>";
+				$("#answeringDate").empty();
+				$("#answeringDate").html(answeringDatesText);
+			}			
+			loadDepartments(ministry);
+		});
+	}
+
+	function loadGroup(ministry){
+		$.get('ref/ministry/'+ministry+'/group?houseType='+$("#houseType").val()+'&sessionYear='+$("#sessionYear").val()+'&sessionType='+$("#sessionType").val(),function(data){
+			$("#groupNumber").val(data.name);
+			$("#group").val(data.id);
+			//loadAnsweringDates(data.id,ministry);
+			loadDepartments(ministry);
+			
+		});
+	}
 	function loadSession(){
 		$.get('ref/session/'+$("#houseType").val()+'/'+$("#sessionYear").val()+'/'+$("#sessionType").val(),function(data){
 			$("#session").val(data.id);
@@ -120,12 +152,8 @@
 	var controlName=$(".autosuggestmultiple").attr("id");
 	var primaryMemberControlName=$(".autosuggest").attr("id");	
 	$(document).ready(function(){
-		$("#group").change(function(){
-			loadMinistriesDepartmentsSubDeptAnsweringDates($(this).val());
-			
-		});
 		$("#ministry").change(function(){
-			loadDepartments($(this).val());
+			loadGroup($(this).val());
 		});
 
 		$("#department").change(function(){
@@ -228,16 +256,70 @@
 		//adding please select option in answering dates
 		$("#answeringDate").prepend("<option value='' selected='selected'>----"+$("#pleaseSelectMessage").val()+"----</option>");
 		//hiding subDepartments
+		if($("#subDepartment").attr("disabled")!="disabled"){		
 		if($("#subDepartment").val()==null){
 		$("#subDepartment").prev().hide();
 		$("#subDepartment").hide();	
 		}
+		}
+		if($("#department").attr("disabled")!="disabled"){
 		if($("#department").val()==null){
 			$("#subDepartment").prev().hide();
 			$("#subDepartment").hide();	
 			$("#department").prev().hide();
 			$("#department").hide();
 		}
+		}
+		//send for approval
+		$("#sendforapproval").click(function(e){
+			//removing <p><br></p>  from wysiwyg editor
+			$(".wysiwyg").each(function(){
+				var wysiwygVal=$(this).val().trim();
+				if(wysiwygVal=="<p></p>"||wysiwygVal=="<p><br></p>"||wysiwygVal=="<br><p></p>"){
+					$(this).val("");
+				}
+			});	
+			$.prompt($('#confirmSupportingMembersMessage').val()+$("#selectedSupportingMembers").val(),{
+				buttons: {Ok:true, Cancel:false}, callback: function(v){
+		        if(v){
+					$.blockUI({ message: '<img src="./resources/images/waitAnimated.gif" />' }); 			        
+		        	$.post($('form').attr('action')+'?operation=approval',  
+		    	            $("form").serialize(),  
+		    	            function(data){
+		       					$('.tabContent').html(data);
+		       					$('html').animate({scrollTop:0}, 'slow');
+		       				 	$('body').animate({scrollTop:0}, 'slow');	
+		    					$.unblockUI();	   				 	   				
+		    	            });
+		        }
+			}});			
+	        return false;  
+	    }); 
+		//send for submission
+		$("#submitquestion").click(function(e){
+			//removing <p><br></p>  from wysiwyg editor
+			$(".wysiwyg").each(function(){
+				var wysiwygVal=$(this).val().trim();
+				if(wysiwygVal=="<p></p>"||wysiwygVal=="<p><br></p>"||wysiwygVal=="<br><p></p>"){
+					$(this).val("");
+				}
+			});	
+			$.prompt($('#confirmQuestionSubmission').val(),{
+				buttons: {Ok:true, Cancel:false}, callback: function(v){
+		        if(v){
+					$.blockUI({ message: '<img src="./resources/images/waitAnimated.gif" />' }); 			        
+		        	$.post($('form').attr('action')+'?operation=submit',  
+		    	            $("form").serialize(),  
+		    	            function(data){
+		       					$('.tabContent').html(data);
+		       					$('html').animate({scrollTop:0}, 'slow');
+		       				 	$('body').animate({scrollTop:0}, 'slow');	
+		    					$.unblockUI();	   				 	   				
+		    	            });
+		        }
+			}});			
+	        return false;  
+	    }); 
 	});
 	</script>
 </head>
@@ -251,7 +333,7 @@
 	<form:errors path="version" cssClass="validationError"/>	
 		
 	<p>
-		<label class="small"><spring:message code="question.houseType" text="House Type"/></label>
+		<label class="small"><spring:message code="question.houseType" text="House Type"/>*</label>
 		<form:select path="houseType" items="${houseTypes}" itemValue="id" itemLabel="name" cssClass="sSelect"/>
 		<form:errors path="houseType" cssClass="validationError"/>
 		<select id="houseTypesMaster" name="houseTypesMaster">
@@ -262,11 +344,11 @@
 	</p>	
 	
 	<p>
-		<label class="small"><spring:message code="question.year" text="Year"/></label>
+		<label class="small"><spring:message code="question.year" text="Year"/>*</label>
 		<select id="sessionYear" name="sessionYear" class="sSelect">
 		<c:forEach items="${years}" var="i">
 		<c:choose>
-		<c:when test="${sessionYear==i}">
+		<c:when test="${sessionYearSelected==i}">
 		<option selected="selected" value="${i}"><c:out value="${i}"></c:out></option>
 		</c:when>
 		<c:otherwise>
@@ -278,11 +360,11 @@
 	</p>
 	
 	<p>
-		<label class="small"><spring:message code="question.sessionType" text="Session Type"/></label>		
+		<label class="small"><spring:message code="question.sessionType" text="Session Type"/>*</label>		
 		<select id="sessionType" name="sessionType" class="sSelect">
 		<c:forEach items="${sessionTypes}" var="i">
 		<c:choose>
-		<c:when test="${sessionType==i.id}">
+		<c:when test="${sessionTypeSelected==i.id}">
 		<option selected="selected" value="${i.id}"><c:out value="${i.sessionType}"></c:out></option>
 		</c:when>
 		<c:otherwise>
@@ -295,27 +377,14 @@
 	</p>
 	
 	<p>
-		<label class="small"><spring:message code="question.type" text="Type"/></label>
+		<label class="small"><spring:message code="question.type" text="Type"/>*</label>
 		<form:select path="type" items="${questionTypes}" itemValue="id" itemLabel="name" cssClass="sSelect"/>
 		<form:errors path="type" cssClass="validationError"/>	
-	</p>
-	
-	<p>
-		<label class="small"><spring:message code="question.number" text="Question Number"/></label>
-		<form:input path="number" cssClass="integer sText"/>
-		<form:errors path="number" cssClass="validationError"/>
-	</p>
-	
-	<p>
-		<label class="small"><spring:message code="question.submissionDate" text="Submission Date"/></label>
-		<form:input path="submissionDate" cssClass="datemask sText"/>
-		<form:errors path="submissionDate" cssClass="validationError"/>
-	</p>
+	</p>	
 		
-	
 	<p>
-		<label class="small"><spring:message code="question.primaryMember" text="Primary Member"/></label>
-		<input id="primaryMember" class="autosuggest" type="text"  value="${primaryMemberName}">
+		<label class="small"><spring:message code="question.primaryMember" text="Primary Member"/>*</label>
+		<input id="primaryMember" class="autosuggest" type="text"  value="${primaryMemberName}" readonly="readonly" style="height: 28px;">
 		<c:if test="${!(empty primaryMember)}">
 		<input name="primaryMember" value="${primaryMember}" type="hidden">
 		</c:if>
@@ -324,11 +393,11 @@
 	
 	<p>
 		<label class="small"><spring:message code="question.supportingMembers" text="Supporting Members"/></label>
-		<textarea id="supportingMembers"  class="autosuggestmultiple" rows="2" cols="50">${supportingMembersName}</textarea>
+		<textarea id="selectedSupportingMembers"  class="autosuggestmultiple" rows="2" cols="50">${supportingMembersName}</textarea>
 		<c:if test="${!(empty supporingMembers)}">
-		<select  name="supportingMembers" multiple="multiple">
+		<select  name="selectedSupportingMembers" multiple="multiple">
 		<c:forEach items="${supportingMembers}" var="i">
-		<option value="${i.id}" class="${i.getFullnameLastNameFirst()}"></option>
+		<option value="${i.id}" class="${i.member.getFullnameLastNameFirst()}"></option>
 		</c:forEach>		
 		</select>
 		</c:if>
@@ -336,25 +405,56 @@
 	</p>
 	
 	<p>
-		<label class="small"><spring:message code="question.group" text="Group"/></label>
-		<form:select path="group" cssClass="sSelect" items="${groups}" itemLabel="number" itemValue="id"/>
-		<form:errors path="group" cssClass="validationError"/>	
+		<label class="small"><spring:message code="question.subject" text="Subject"/>*</label>
+		<form:textarea path="subject" cssClass="wysiwyg"></form:textarea>
+		<form:errors path="subject" cssClass="validationError" cssStyle="float:right;margin-top:-100px;margin-right:40px;"/>	
+	</p>
+
+	<p>
+		<label class="small"><spring:message code="question.language" text="Question Language"/>*</label>
+		<form:select path="language" cssClass="sSelect" items="${languages}" itemLabel="name" itemValue="id"/>
+		<form:errors path="language" cssClass="validationError"/>	
+	</p>	
+	
+	<p>
+		<label class="small"><spring:message code="question.details" text="Details"/>*</label>
+		<form:textarea path="questionText" cssClass="wysiwyg"></form:textarea>
+		<form:errors path="questionText" cssClass="validationError" cssStyle="float:right;margin-top:-100px;margin-right:40px;"/>	
 	</p>
 	
 	<p>
-		<label class="small"><spring:message code="question.ministry" text="Ministry"/></label>
+		<label class="small"><spring:message code="question.priority" text="Priority"/>*</label>
+		<form:select path="priority" cssClass="sSelect">
+		<c:forEach var="i" begin="1" end="${priority}" step="1">
+		<option value="${i}"><c:out value="${i}"></c:out></option>
+		</c:forEach>
+		</form:select>
+		<form:errors path="priority" cssClass="validationError"/>	
+	</p>	
+	
+	<c:choose>
+	<c:when test="${! empty ministries}">
+	<p>
+		<label class="small"><spring:message code="question.ministry" text="Ministry"/>*</label>
 		<form:select path="ministry" cssClass="sSelect" items="${ministries}" itemLabel="name" itemValue="id"/>
 		<form:errors path="ministry" cssClass="validationError"/>	
 	</p>
 	
 	<p>
-		<label class="small"><spring:message code="question.department" text="Department"/></label>
+		<label class="small"><spring:message code="question.group" text="Group"/>*</label>
+		<input type="text" class="sText" id="groupNumber" name="groupNumber" value="${group.number}">		
+		<input type="hidden" id="group" name="group" value="${group.id}">
+		<form:errors path="group" cssClass="validationError"/>	
+	</p>
+	
+	<p>
+		<label class="small"><spring:message code="question.department" text="Department"/>*</label>
 		<form:select path="department" cssClass="sSelect" items="${departments}" itemLabel="name" itemValue="id"/>
 		<form:errors path="department" cssClass="validationError"/>	
 	</p>
 	
 	<p>
-		<label class="small"><spring:message code="question.subdepartment" text="Sub Department"/></label>
+		<label class="small"><spring:message code="question.subdepartment" text="Sub Department"/>*</label>
 		<form:select path="subDepartment" cssClass="sSelect" items="${subDepartments}" itemLabel="name" itemValue="id"/>
 		<form:errors path="subDepartment" cssClass="validationError"/>	
 	</p>
@@ -363,46 +463,68 @@
 		<label class="small"><spring:message code="question.answeringDate" text="Answering Date"/></label>
 		<form:select path="answeringDate" cssClass="datemask sSelect" items="${answeringDates}" itemLabel="answeringDate" itemValue="answeringDate"/>
 		<form:errors path="answeringDate" cssClass="validationError"/>	
-	</p>
-	<p>
-		<label class="small"><spring:message code="question.language" text="Question Language"/></label>
-		<form:select path="language" cssClass="sSelect" items="${languages}" itemLabel="name" itemValue="id"/>
-		<form:errors path="language" cssClass="validationError"/>	
-	</p>
-	<p>
-		<label class="small"><spring:message code="question.subject" text="Subject"/></label>
-		<form:textarea path="subject" cssClass="wysiwyg"></form:textarea>
-		<form:errors path="subject" cssClass="validationError"/>	
-	</p>
-	
-	<p>
-		<label class="small"><spring:message code="question.details" text="Details"/></label>
-		<form:textarea path="questionText" cssClass="wysiwyg"></form:textarea>
-		<form:errors path="questionText" cssClass="validationError"/>	
-	</p>
-	
-	<p>
-		<label class="small"><spring:message code="question.priority" text="Priority"/></label>
-		<form:select path="priority" cssClass="sSelect">
-		<c:forEach var="i" begin="1" end="${priority}" step="1">
-		<option value="${i}"><c:out value="${i}"></c:out></option>
-		</c:forEach>
-		</form:select>
-		<form:errors path="priority" cssClass="validationError"/>	
 	</p>	
+	</c:when>	
+	<c:otherwise>		
+	<div class="toolTip tpGreen clearfix">
+		<p>
+			<img src="./resources/images/template/icons/light-bulb-off.png">
+			<spring:message code="rotationordernotpublished" text="Follwoing fields will be activated on {0},{1} {2}(Rotation Order Publishing Date)" arguments="${rotationOrderPublishDate}"/>
+		</p>
+		<p></p>
+	</div>
+	<p>
+		<label class="small"><spring:message code="question.ministry" text="Ministry"/></label>
+		<form:select path="ministry" cssClass="sSelect" items="${ministries}" itemLabel="name" itemValue="id" disabled="true"/>
+		<form:errors path="ministry" cssClass="validationError"/>	
+	</p>
+	
+	<p>
+		<label class="small"><spring:message code="question.group" text="Group"/></label>
+		<input type="text" class="sText" id="groupNumber" name="groupNumber" value="${group.number}" disabled="disabled">		
+		<input type="hidden" id="group" name="group" value="${group.id}" disabled="disabled">
+		<form:errors path="group" cssClass="validationError"/>	
+	</p>
+	
+	<p>
+		<label class="small"><spring:message code="question.department" text="Department"/></label>
+		<form:select path="department" cssClass="sSelect" items="${departments}" itemLabel="name" itemValue="id" disabled="true"/>
+		<form:errors path="department" cssClass="validationError"/>	
+	</p>
+	
+	<p>
+		<label class="small"><spring:message code="question.subdepartment" text="Sub Department"/></label>
+		<form:select path="subDepartment" cssClass="sSelect" items="${subDepartments}" itemLabel="name" itemValue="id" disabled="true"/>
+		<form:errors path="subDepartment" cssClass="validationError"/>	
+	</p>
+		
+	<p>
+		<label class="small"><spring:message code="question.answeringDate" text="Answering Date"/></label>
+		<form:select path="answeringDate" cssClass="datemask sSelect" items="${answeringDates}" itemLabel="answeringDate" itemValue="answeringDate" disabled="true"/>
+		<form:errors path="answeringDate" cssClass="validationError"/>	
+	</p>	
+	</c:otherwise>
+	</c:choose>
+	
 	 <div class="fields">
 		<h2></h2>
 		<p class="tright">
 			<input id="submit" type="submit" value="<spring:message code='generic.submit' text='Submit'/>" class="butDef">
+			<input id="sendforapproval" type="button" value="<spring:message code='generic.sendforapproval' text='Send For Approval'/>" class="butDef">
+			<input id="submitquestion" type="button" value="<spring:message code='generic.submitquestion' text='Submit Question'/>" class="butDef">
 			<input id="cancel" type="button" value="<spring:message code='generic.cancel' text='Cancel'/>" class="butDef">
 		</p>
 	</div>
+	
 	<form:hidden path="version" />
 	<form:hidden path="id"/>
 	<form:hidden path="locale"/>
-	<form:hidden path="submissionDate" />	
+	<form:hidden path="createdBy"/>
+	<form:hidden path="creationDate"/>
+	
 	<input id="pleaseSelectMessage" value="<spring:message code='please.select' text='Please Select'/>" type="hidden">
 </form:form>
+<input id="confirmSupportingMembersMessage" value="<spring:message code='confirm.supportingmembers.message' text='A request for approval will be sent to the following members:'></spring:message>" type="hidden">
 </div>
 </body>
 </html>
