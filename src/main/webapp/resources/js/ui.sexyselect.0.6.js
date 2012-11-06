@@ -182,7 +182,7 @@ String.prototype.trim = function () {
                 				}
                 			})
                 			.click(function(){
-                				alert("All " + initElem.attr('id') + " Checked");
+                				//alert("All " + initElem.attr('id') + " Checked");
                 				$.each($('#'+initElem.attr('id')).sexyselect('elements'), function (idx, item) {
                 					 $('#'+initElem.attr('id')).sexyselect('selectOption', $(this), true);			      
                 				 });			 
@@ -231,7 +231,7 @@ String.prototype.trim = function () {
                 				}
                 			})
                 			.click(function(){
-                				alert("All " + initElem.attr('id') + " Unchecked");
+                				//alert("All " + initElem.attr('id') + " Unchecked");
                 				$.each($('#'+initElem.attr('id')).sexyselect('elements'), function (idx, item) {
                 					 $('#'+initElem.attr('id')).sexyselect('selectOption', $(this), false);			      
                 				 });			 
