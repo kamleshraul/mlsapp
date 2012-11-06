@@ -788,108 +788,41 @@
 	/**
 	****** UI Components - Table  ****************************************************************
 	**/	
-	.uiTable {
-		width:100%;
-		border-left:1px solid #e9eef0;
-		border-top:1px solid #e9eef0;
-		border-bottom:none;
-		margin:auto;
-		}
-		
-	.uiTable th {
-		background:url(../../images/template/th_blue/table/header-bg.gif); 
-		text-align:left; 
-		color:#2b1e03; 
-		border:1px solid #fff; 
-		border-right:none
-		}
-		
-	.uiTable th h3 {
-		font-size:10px; 
-		padding:6px 8px 8px
-		}
-		
-	.uiTable td {
-		padding:4px 6px 6px;
-		border-bottom:1px solid #e9eef0;
-		border-right:1px solid #e9eef0;
-		color:#4c748c;
-		}
-		
-	.uiTable .head h3 {
-		background:url(../../images/template/th_blue/table/sort.gif) 7px center no-repeat; 
-		cursor:pointer; 
-		padding-left:18px
-		}
-		
-	.uiTable .desc, .sortable .asc {
-		background:url(../../images/template/th_blue/table/header-selected-bg.gif);
-		}
-		
-	.uiTable .desc h3 {
-		background:url(../../images/template/th_blue/table/desc.gif) 7px center no-repeat; 
-		cursor:pointer; 
-		padding-left:18px
-		}
-		
-	.uiTable .asc h3 {
-		background:url(../../images/template/th_blue/table/asc.gif) 7px  center no-repeat; 
-		cursor:pointer; 
-		padding-left:18px
-		}
-		
-	.uiTable .head:hover, 
-	.uiTable .desc:hover, 
-	.uiTable .asc:hover { 
-		color:#fff; 
-		}
-
-	.uiTable .evenrow td {
-		background:#f9fafa;
-		}
-		
-	.uiTable .oddrow td {
-		background:#f7f8f9;
-		}
-		
-	.uiTable td.evenselected {
-		background:#f7f8f9;
-		}
-
-	.uiTable td.oddselected {
-		background:#f3f5f6;
-		}
-		
-	.uiTable tfoot {
-		background:#fff; 
-		font-weight:bold;
-		}
-		
-	.uiTable tfoot td {
-		padding:6px 8px 8px;
-		}
 	
-	.uiTable a {
-		color:#4c748c;
-		text-decoration:none;
+	.uiTable
+	{
+		font-family: "Lucida Sans Unicode", "Lucida Grande", Sans-Serif;
+		font-size: 12px;	
+		width: 480px;
+		text-align: left;
+		border-collapse: collapse;
+		border-left: 2px solid #999999;
+		border-right: 2px solid #999999;
+		border-bottom: 2px solid #999999;
 	}
-	
-	.uiTable .ceck{
-		width:20px;
-		background:none;
+	.uiTable th
+	{
+		font-size: 13px;
+		font-weight: bold;
+		padding: 8px;
+		/* background: #FEFFD1; */	
+		border-top: 2px solid #999999;
+		border-bottom: 1px solid #999999;
+		/* color: #039; */
 	}
-	
-	.uiTable tr th.ceck h3{ background:transparent;}
-	
-	
-	.uiTable a:link 			{ }
-	.uiTable a:visited		{ }
-	.uiTable a:hover 		{ text-decoration:underline;}
-	.uiTable a:active 		{ color:black;}
-	.uiTable input 			{ width:auto;margin:3px;padding:0px;}
-	
-	
-	
+	.uiTable td
+	{
+		padding: 8px;
+		/* background: #e8edff; */
+		border-bottom: 1px solid #999999;
+		/* color: #669; */
+		border-top: 1px solid transparent;
+	}
+	/* .box-table tr:hover td
+	{
+		background: #d0dafd;
+		color: #339;
+	} */	
 	
 	/**
 	****** Form components ****************************************************************
@@ -1142,6 +1075,22 @@
 		width: 150px;
 		}
 		
+		.centerlabel{
+		position:relative;
+		top: -30px;
+		width: 150px;
+		}
+		
+		.wysiwyglabel{
+		position:relative;
+		top: 60px;
+		width: 150px;
+		}
+		
+		.pRelative{
+		position:relative;
+		}
+		
 		/*added by sandeep to control opacity of background image*/
 		.opacity20 {
 	filter:alpha(opacity=30);
@@ -1197,4 +1146,3 @@ ul.holder li.bit-input input.smallinput { width: 20px !important; }
 #demo ul.holder li.bit-input input { padding: 2px 0 1px; border: 1px solid #999; }
 .ie6fix {height:1px;width:1px; position:absolute;top:0px;left:0px;z-index:1;}
 		
-  
