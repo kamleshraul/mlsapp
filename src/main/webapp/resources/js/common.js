@@ -42,9 +42,21 @@ function initControls(){
 		}
 	});
 	$(':input:visible:not([readonly]):first').focus();
-	$('.wysiwyg').wysiwyg({
-		resizeOptions: true,
-			controls:{
+	
+	$('.wysiwyg').each(function(){		
+		var idval = this.id;		
+		if($('#'+idval).is('[readonly]')){			
+			$('#'+idval).css('color', '#999999');
+			$('<input>').attr({
+			    type: 'hidden',
+			    id: 'copyOf'+idval,
+			    value: $('#'+idval).val()
+			}).appendTo($('#'+idval));
+		}
+	});	
+	$('.wysiwyg').wysiwyg({		
+		resizeOptions: true,		
+		controls:{			
 			strikeThrough: { visible: true },
 			underline: { visible: true },
 			subscript: { visible: true },
@@ -54,17 +66,16 @@ function initControls(){
 			decreaseFontSize:{visible:true},
 			highlight: {visible:true}			
 		}
-	});	
-	//code to avoid editing readonly rich textarea
-	$('.wysiwyg').change(function(){		
-		var idval = this.id;
-		if($('#'+idval).is('[readonly]')){ 
-			//actually we should have done:
-			//var initialContent = $('#'+idval).wysiwyg('getContent');
-			//$('#'+idval).wysiwyg('setContent', initialContent);			
-			//but this is leading to recursion due to setContent method
-			//so we did following:
-			$.prompt($('#readOnlyMessage').val());			
+	});		
+	$('.wysiwyg').change(function(e){
+		var idval = this.id;			
+		if($('#'+idval).is('[readonly]')){
+			$('#'+idval+'-wysiwyg-iframe').contents().find('html').html($('#copyOf'+idval).val());			
+		} else {
+			if($('#'+idval).val()=="<p></p>"){						
+				$('#'+idval+'-wysiwyg-iframe').focus();				
+				$('#'+idval+'-wysiwyg-iframe').contents().find('html').html("<br><p></p>");				
+			}
 		}
 	});
 	$(".multiselect").parents("p").css("position","relative");
@@ -122,7 +133,9 @@ function loadGrid(gridId, gridurl, baseFilter) {
 		url=url+'?'+$('#gridURLParams').val();
 	}
 	$.ajax({async:false,url:'grid/' + gridId + '/meta.json', success:function(grid) {
-			c_grid = $('#grid').jqGrid({
+		console.log(eval(grid.subGrid));
+		console.log(grid.groupField);
+		c_grid = $('#grid').jqGrid({
 			scroll:1,
 			altRows:true,
 			autowidth:true,
@@ -140,7 +153,41 @@ function loadGrid(gridId, gridurl, baseFilter) {
 			viewrecords: true,
 			jsonReader: { repeatitems : false},
 			gridview:true,
-			multiselect:eval(grid.multiSelect),
+			multiselect:eval(grid.multiSelect),	
+			grouping:eval(grid.group),
+			groupingView : { groupField : [grid.groupField],
+							 groupText : ['<b>{0} - {1} Items(s)</b>'],
+							 groupColumnShow : [false],
+							 groupCollapse : false,
+							 groupOrder: ['desc']},
+			subGrid:eval(grid.subGrid),	
+			subGridRowExpanded: function(subgrid_id, row_id) {			    
+			       var subgrid_table_id;
+			       subgrid_table_id = subgrid_id+"_t";
+			       jQuery("#"+subgrid_id).html("<table id='"+subgrid_table_id+"' class='scroll'></table>");
+			       var subgridId=eval(grid.subGridId);			       
+			       $.ajax({async:false,url:'grid/' + subgridId + '/meta.json', success:function(subgrid) {			    	   
+			    	   	c1_grid = $("#"+subgrid_table_id).jqGrid({
+						scroll:1,
+						altRows:true,
+						autowidth:true,
+						height:'100%',
+						ajaxGridOptions:{async:false},
+						url:'grid/data/'+eval(grid.subGridId)+'.json'+'?parent='+row_id,
+						datatype: 'json',
+						mtype: 'GET',
+						colNames:eval(subgrid.colNames),
+						colModel :eval(subgrid.colModel),
+						rowNum:subgrid.pageSize,
+						sortname: subgrid.sortField,
+						sortorder:subgrid.sortOrder,
+						viewrecords: true,
+						jsonReader: { repeatitems : false},
+						gridview:true,
+						multiselect:eval(subgrid.multiSelect)
+						});	
+					}});			       
+			},			
 			postData: {
 				"baseFilters": baseFilter
 			},
@@ -166,7 +213,7 @@ function loadGrid(gridId, gridurl, baseFilter) {
 					rowSelectHandler(rowid,status);			    			
 		    	}else if($('#key')){
 					$('#key').val(rowid);					
-				}		    	
+				}
 		    },
 		    ondblClickRow: function(rowid,
 		    		iRow,
@@ -188,7 +235,7 @@ function loadGrid(gridId, gridurl, baseFilter) {
 };
 
 function searchRecord(){
-	$("#grid").jqGrid('searchGrid', {multipleSearch:true,modal:true,overlay:false});
+	$("#grid").jqGrid('searchGrid', {multipleSearch:true,overlay:false});
 }	
 
 function scrollTop(){
@@ -240,6 +287,7 @@ function loadTehsilsByDistrictId(id,type){
 
 /*Code for uploading files*/
 function unUploadify(element){
+	console.log("unUploadify Called. Line no: 231");
 	$(element).unbind("uploadifyComplete");
 	$(element).next(element+"Uploader").remove();
 	$(element).next(element+"Queue").remove();
@@ -249,6 +297,7 @@ function unUploadify(element){
 };
 	
 	function uploadify(element,ext,size,url){
+		console.log("uploadify Called. Line no: 241");
 		var sizeInMB=size/(1024*1024);	
 		var extTokens=ext.split(",");
 		var extType="";
@@ -284,17 +333,23 @@ function unUploadify(element){
 	$(element+"Remove").hide();
 };
 function uploadify_oncomplete(event, ID, fileObj, response, data){
+	console.log("uploadify_oncomplete Called. Line no: 277");
 	try{
 		var file = $.parseJSON(response);
+		console.log(file);
 		var element = '#'+event.target.id;
+		console.log(event.target.id);
 		$(element).val(file.file.originalFileName);
+		console.log(file.file.originalFileName);
 		$(element).attr("readonly","true");
 		$(element+'Field').val(file.file.tag);
+		console.log(file.file.tag);
 		unUploadify(element);
 		if(event.target.id=='photo'){
-					 		$('#photoDisplay').attr('src','/els/file/photo/'+$('#'+event.target.id+'Field').val());
-				   		   	   $('#photoDiv').removeClass('hideDiv').addClass('showDiv');
-			}
+			console.log("INSIDE PHOTO");
+			$('#photoDisplay').attr('src','/els/file/photo/'+$('#'+event.target.id+'Field').val());
+			$('#photoDiv').removeClass('hideDiv').addClass('showDiv');
+		}
 	}
 	catch(ex){
 		alert("File is not uploaded...please try uploading again");
@@ -304,7 +359,7 @@ function uploadify_oncomplete(event, ID, fileObj, response, data){
 };
 function removeUpload(element,ext)
 {
-	
+	console.log("removeUpload Called. Line no: 303");	
 $.ajax({
    				    type: "DELETE",
    				    url: "file/remove/"+$(element).val(),
