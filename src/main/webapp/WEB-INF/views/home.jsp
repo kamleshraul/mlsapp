@@ -6,52 +6,62 @@
 		<title><spring:message code="home.title" text="ELS - Home"></spring:message></title>
 		<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
 		
-		 <!-- Jquery directly from google servers--> 
-		<script type="text/javascript" src="./resources/js/jquery-1.6.2.min.js?v=1" ></script>
-		<script type="text/javascript" src="./resources/js/jquery-ui-1.8.15.custom.min.js?v=1"></script> 
-		<script type="text/javascript" src="./resources/js/i18n/grid.locale-${locale}.js?v=1"></script>
-		<script type="text/javascript" src="./resources/js/jquery.jqGrid.min.js?v=1"></script>
-		<script type="text/javascript" src="./resources/js/jquery/jquery-impromptu.3.2.min.js?v=1"></script>
-		<script type="text/javascript" src="./resources/js/jquery/jquery.iframe-transport.js?v=1"></script>
-		<script type="text/javascript" src="./resources/js/jquery/jquery.fileupload.js?v=1"></script>
-		<script type="text/javascript" src="./resources/js/jquery/jquery.maskedinput.js?v=1"></script>	
-		<script type="text/javascript" src="./resources/js/ui.sexyselect.0.6.js?v=1"></script>
-		<script type="text/javascript" src="./resources/js/jquery/blockUI.js?v=1"></script>				
-		<script type="text/javascript" src="./resources/js/autoNumeric-1.5.4.js?v=1"></script>
+		<script type="text/javascript" src="./resources/js/jquery-1.6.2.min.js?v=2" ></script>
+		<script type="text/javascript" src="./resources/js/jquery-ui-1.8.15.custom.min.js?v=2"></script> 
+		<script type="text/javascript" src="./resources/js/i18n/grid.locale-${locale}.js?v=2"></script>
+		<script type="text/javascript" src="./resources/js/jquery.jqGrid.min.js?v=2"></script>
+		<script type="text/javascript" src="./resources/js/grid.subgrid.js?v=2"></script>		
+		<script type="text/javascript" src="./resources/js/jquery/jquery-impromptu.3.2.min.js?v=2"></script>
+		<script type="text/javascript" src="./resources/js/jquery/jquery.iframe-transport.js?v=2"></script>
+		<script type="text/javascript" src="./resources/js/jquery/jquery.fileupload.js?v=2"></script>
+		<script type="text/javascript" src="./resources/js/jquery/jquery.maskedinput.js?v=2"></script>	
+		<script type="text/javascript" src="./resources/js/jquery/blockUI.js?v=2"></script>				
+		<script type="text/javascript" src="./resources/js/autoNumeric-1.5.4.js?v=2"></script>
+		
 		<!-- Multiselect -->				
-		<script type="text/javascript" src="./resources/js/jquery.multiselect.js?v=1"></script>
+		<script type="text/javascript" src="./resources/js/ui.sexyselect.0.6.js?v=2"></script>
 
 		<script type="text/javascript" src="./resources/js/common.js?v=2032"></script> 
-		 <!-- WYSIWYG Editor --> 
-		<script type="text/javascript" src="./resources/js/jquery.wysiwyg.js?v=2018"></script> 
-		<link rel="stylesheet" type="text/css" media="all" href="./resources/css/jquery.multiselect.css?v=1" />
 		
+		<!-- WYSIWYG Editor --> 
+		<script type="text/javascript" src="./resources/js/jquery.wysiwyg.js?v=2"></script>		
+		<!-- Context Menu -->
+		<script type="text/javascript" src="./resources/js/jquery.contextMenu.js?v=2"></script>
+		<!-- Tooltip -->
+		<script type="text/javascript" src="./resources/js/jquery.qtip-1.0.0-rc3.min.js?v=2"></script>
 		 <!-- Style switcher --> 
-		<script type="text/javascript" src="./resources/js/template/stylesheetToggle.js?v=1"></script>
+		<script type="text/javascript" src="./resources/js/template/stylesheetToggle.js?v=2"></script>
 		
-		<script type="text/javascript" src="./resources/js/jquery.fancybox.pack.js?v=1"></script>
-		<script type="text/javascript" src="./resources/js/jquery.fancybox-thumbs.js?v=1"></script>
-		<script type="text/javascript" src="./resources/js/jquery.fancybox-buttons.js?v=1"></script>
-		<script type="text/javascript" src="./resources/js/template/stylesheetToggle.js?v=1"></script>
-	    <script type="text/javascript" src="./resources/js/jquery.fcbkcomplete.js?q=123?v=1"></script>
+		<script type="text/javascript" src="./resources/js/jquery.fancybox.pack.js?v=2"></script>
+		<script type="text/javascript" src="./resources/js/jquery.fancybox-thumbs.js?v=2"></script>
+		<script type="text/javascript" src="./resources/js/jquery.fancybox-buttons.js?v=2"></script>
+		<script type="text/javascript" src="./resources/js/template/stylesheetToggle.js?v=2"></script>
+	    <script type="text/javascript" src="./resources/js/jquery.fcbkcomplete.js?q=123?v=2"></script>
+	    
+	    <!-- 2 way multiselect -->
 	    <script type="text/javascript" src="./resources/js/ui.multiselect.js?q=123?v=1"></script>
 	    <script type="text/javascript" src="./resources/js/jquery.tmpl.1.1.1.js?q=123?v=1"></script>	    
-	    <script type="text/javascript" src="./resources/js/jquery.localisation.js?q=123?v=1"></script>
+	    <script type="text/javascript" src="./resources/js/jquery.localisation.js?q=123?v=1"></script>     
 		
-		<link rel="stylesheet" type="text/css" media="all" href="./resources/css/template/reset.css?v=1" />
-		<link rel="stylesheet" type="text/css" media="all" href="./resources/css/template/blue.css?v=1" />
-		<link rel="stylesheet" rel="stylesheet" href="./resources/css/ui.jqgrid.css?v=1"  />
-		<link rel="stylesheet" rel="stylesheet" href="./resources/css/jquery-impromptu.css?v=1"  />
-		<link rel="stylesheet" rel="stylesheet" href="./resources/css/cupertino/jquery-ui-1.8.16.custom.css?v=1"  />
+		<link rel="stylesheet" type="text/css" media="all" href="./resources/css/template/reset.css?v=2" />
+		<link rel="stylesheet" type="text/css" media="all" href="./resources/css/template/blue.css?v=2" />
+		<link rel="stylesheet" rel="stylesheet" href="./resources/css/ui.jqgrid.css?v=2"  />
+		<link rel="stylesheet" rel="stylesheet" href="./resources/css/jquery-impromptu.css?v=2"  />
+		<link rel="stylesheet" rel="stylesheet" href="./resources/css/cupertino/jquery-ui-1.8.16.custom.css?v=2"  />
 		<!-- comment extra.css for css validation -->
-		<link rel="stylesheet" type="text/css" media="all" href="./resources/css/template/extra.css?v=1" />
-		<link rel="stylesheet" rel="stylesheet" href="./resources/css/ui.sexyselect.0.55.css?v=1"  />
-		<link rel="stylesheet" type="text/css" media="screen" href="./resources/css/jquery.fancybox-buttons.css?v=1" />
-		<link rel="stylesheet" type="text/css" media="screen" href="./resources/css/jquery.fancybox-thumbs.css?v=1" />
-		<link rel="stylesheet" type="text/css" media="screen" href="./resources/css/jquery.fancybox.css?v=1" />
-		<link rel="stylesheet" type="text/css" media="screen" href="./resources/css/jquery.wysiwyg.css?v=1" />
+		<link rel="stylesheet" type="text/css" media="all" href="./resources/css/template/extra.css?v=2" />
+		<link rel="stylesheet" rel="stylesheet" href="./resources/css/ui.sexyselect.0.55.css?v=2"  />
+		<link rel="stylesheet" type="text/css" media="screen" href="./resources/css/jquery.fancybox-buttons.css?v=2" />
+		<link rel="stylesheet" type="text/css" media="screen" href="./resources/css/jquery.fancybox-thumbs.css?v=2" />
+		<link rel="stylesheet" type="text/css" media="screen" href="./resources/css/jquery.fancybox.css?v=2" />
+		<link rel="stylesheet" type="text/css" media="screen" href="./resources/css/jquery.wysiwyg.css?v=2" />
+		
+		<!-- 2 way multiselect -->
 		<link rel="stylesheet" type="text/css" media="screen" href="./resources/css/ui.multiselect.css?v=1" />
-				
+		<link rel="stylesheet" type="text/css" media="screen" href="./resources/css/ui.multiselect.common.css?v=1" />
+		
+		<!-- Context Menu -->
+		<link rel="stylesheet" type="text/css" media="screen" href="./resources/css/jquery.contextMenu.css?v=2" />
 		
 		
 		<!-- See Interface Configuration --> 
@@ -94,7 +104,7 @@
             <input type="hidden" name="downloadUploadedFile" id="downloadUploadedFile" value="<spring:message code='file.download' text='Download'></spring:message>"/>	
             <input type="hidden" name="removeUploadedFile" id="removeUploadedFile" value="<spring:message code='file.remove' text='Remove'></spring:message>"/>	
             <input type="hidden" name="cancelFn" id="cancelFn"/>	
-            <input type="hidden" name="readOnlyMessage" id="readOnlyMessage" value="<spring:message code='readOnlyMessage' text='This Text Cannot be Edited Now'></spring:message>"/>
+            
                              
                         
 		<div id="container" class="clearfix">
