@@ -21,7 +21,7 @@ abbr,acronym {border:0;}
 
 /* end of yahoo reset and fonts */
 
-body 						{color:#333; background: #232f2e; line-height:1.3;}
+body 						{line-height:1.3;}
 p							{margin:0 0 20px;}
 a							{color:#636363;}
 a:hover					{text-decoration:none;}
