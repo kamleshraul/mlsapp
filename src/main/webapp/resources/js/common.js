@@ -70,7 +70,9 @@ function initControls(){
 	$('.wysiwyg').change(function(e){
 		var idval = this.id;			
 		if($('#'+idval).is('[readonly]')){
-			$('#'+idval+'-wysiwyg-iframe').contents().find('html').html($('#copyOf'+idval).val());			
+			if($('#'+idval).val()!=$('#copyOf'+idval).val()) {
+				$('#'+idval+'-wysiwyg-iframe').contents().find('html').html($('#copyOf'+idval).val());			
+			}			
 		} else {
 			if($('#'+idval).val()=="<p></p>"){						
 				$('#'+idval+'-wysiwyg-iframe').focus();				
