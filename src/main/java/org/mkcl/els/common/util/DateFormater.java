@@ -35,7 +35,7 @@ public class DateFormater {
         Date formatDate = null;
         try {
             formatDate = df.parse(strDate);
-            System.out.println("Formated date is = " + df.format(formatDate));
+            //System.out.println("Formated date is = " + df.format(formatDate));
         } catch (ParseException e) {
             e.printStackTrace();
         }
@@ -56,7 +56,7 @@ public class DateFormater {
         String strFormatDate = null;
         try {
             strFormatDate = df.format(date);
-            System.out.println("Formated date is = " + strFormatDate);
+            //System.out.println("Formated date is = " + strFormatDate);
         } catch (Exception e) {
             e.printStackTrace();
         }
