@@ -51,15 +51,17 @@ public class FormaterUtil {
 
     private static final String DEC="डिसेंबर";
 
+    private static final String TUE="मंगळवार";
+
 
     /**
-	 * Gets the number formatter no grouping.
-	 *
-	 * @param locale the locale
-	 * @return the number formatter no grouping
-	 */
-	public static NumberFormat getNumberFormatterNoGrouping(final String locale){
-		NumberFormat formatWithoutGrouping=null;
+     * Gets the number formatter no grouping.
+     *
+     * @param locale the locale
+     * @return the number formatter no grouping
+     */
+    public static NumberFormat getNumberFormatterNoGrouping(final String locale){
+        NumberFormat formatWithoutGrouping=null;
         if(locale.equals("mr_IN")||locale.equals("hi_IN")){
             formatWithoutGrouping=NumberFormat.getInstance(new Locale("hi","IN"));
             formatWithoutGrouping.setGroupingUsed(false);
@@ -68,16 +70,16 @@ public class FormaterUtil {
             formatWithoutGrouping.setGroupingUsed(false);
         }
         return formatWithoutGrouping;
-	}
+    }
 
-	/**
-	 * Gets the number formatter grouping.
-	 *
-	 * @param locale the locale
-	 * @return the number formatter grouping
-	 */
-	public static NumberFormat getNumberFormatterGrouping(final String locale){
-		NumberFormat formatWithGrouping=null;
+    /**
+     * Gets the number formatter grouping.
+     *
+     * @param locale the locale
+     * @return the number formatter grouping
+     */
+    public static NumberFormat getNumberFormatterGrouping(final String locale){
+        NumberFormat formatWithGrouping=null;
         if(locale.equals("mr_IN")||locale.equals("hi_IN")){
             formatWithGrouping=NumberFormat.getInstance(new Locale("hi","IN"));
             formatWithGrouping.setGroupingUsed(true);
@@ -86,123 +88,171 @@ public class FormaterUtil {
             formatWithGrouping.setGroupingUsed(true);
         }
         return formatWithGrouping;
-	}
+    }
 
-	/**
-	 * Gets the date formatter.
-	 *
-	 * @param locale the locale
-	 * @return the date formatter
-	 */
-	public static SimpleDateFormat getDateFormatter(final String locale){
-		SimpleDateFormat dateFormatter=null;
+    /**
+     * Gets the date formatter.
+     *
+     * @param locale the locale
+     * @return the date formatter
+     */
+    public static SimpleDateFormat getDateFormatter(final String locale){
+        SimpleDateFormat dateFormatter=null;
         if(locale.equals("mr_IN")||locale.equals("hi_IN")){
-        	dateFormatter = new SimpleDateFormat(ApplicationConstants.SERVER_DATEFORMAT,new Locale("hi","IN"));
+            dateFormatter = new SimpleDateFormat(ApplicationConstants.SERVER_DATEFORMAT,new Locale("hi","IN"));
         }else{
-        	dateFormatter = new SimpleDateFormat(ApplicationConstants.SERVER_DATEFORMAT,new Locale("en","US"));
+            dateFormatter = new SimpleDateFormat(ApplicationConstants.SERVER_DATEFORMAT,new Locale("en","US"));
         }
         return dateFormatter;
-	}
+    }
 
-	/**
-	 * Gets the date formatter.
-	 *
-	 * @param dateFormat the date format
-	 * @param locale the locale
-	 * @return the date formatter
-	 */
-	public static SimpleDateFormat getDateFormatter(final String dateFormat,final String locale){
-		SimpleDateFormat dateFormatter=null;
+    /**
+     * Gets the date formatter.
+     *
+     * @param dateFormat the date format
+     * @param locale the locale
+     * @return the date formatter
+     */
+    public static SimpleDateFormat getDateFormatter(final String dateFormat,final String locale){
+        SimpleDateFormat dateFormatter=null;
         if(locale.equals("mr_IN")||locale.equals("hi_IN")){
-        	dateFormatter = new SimpleDateFormat(dateFormat,new Locale("hi","IN"));
+            dateFormatter = new SimpleDateFormat(dateFormat,new Locale("hi","IN"));
         }else{
-        	dateFormatter = new SimpleDateFormat(dateFormat,new Locale("en","US"));
+            dateFormatter = new SimpleDateFormat(dateFormat,new Locale("en","US"));
         }
         return dateFormatter;
-	}
+    }
 
-	public static String formatMonthsMarathi(final String date,final String locale){
-	    if(locale.equals("mr_IN")){
-	        String parts[]=date.split(" ");
-	        if(parts.length>0){
-	        String month=parts[1].trim();
-	        String newDate="";
-	        if(month.equals("जनवरी")){
-                newDate=date.replace(month,JAN);
-            } else if(month.equals("फ़रवरी")){
-                newDate=date.replace(month,FEB);
-            } else if(month.equals("मार्च")){
-                newDate=date.replace(month,MAR);
-            } else if(month.equals("अप्रैल")){
-                newDate=date.replace(month,APR);
-            } else if(month.equals("मई")){
-                newDate=date.replace(month,MAY);
-            } else if(month.equals("जून")){
-                newDate=date.replace(month,JUNE);
-            } else if(month.equals("जुलाई")){
-                newDate=date.replace(month,JULY);
-            } else if(month.equals("अगस्त")){
-                newDate=date.replace(month,AUG);
-            } else if(month.equals("सितंबर")){
-                newDate=date.replace(month,SEP);
-            } else if(month.equals("अक्‍तूबर")){
-                newDate=date.replace(month,OCT);
-            } else if(month.equals("नवंबर")){
-                newDate=date.replace(month,NOV);
-            } else if(month.equals("दिसंबर")){
-                newDate=date.replace(month,DEC);
-            }else {
-                newDate=date;
+    public static String formatMonthsMarathi(final String date,final String locale){
+        if(locale.equals("mr_IN")){
+            String parts[]=date.split(" ");
+            if(parts.length>0){
+                String month=parts[1].trim();
+                String newDate="";
+                if(month.equals("जनवरी")){
+                    newDate=date.replace(month,JAN);
+                } else if(month.equals("फ़रवरी")){
+                    newDate=date.replace(month,FEB);
+                } else if(month.equals("मार्च")){
+                    newDate=date.replace(month,MAR);
+                } else if(month.equals("अप्रैल")){
+                    newDate=date.replace(month,APR);
+                } else if(month.equals("मई")){
+                    newDate=date.replace(month,MAY);
+                } else if(month.equals("जून")){
+                    newDate=date.replace(month,JUNE);
+                } else if(month.equals("जुलाई")){
+                    newDate=date.replace(month,JULY);
+                } else if(month.equals("अगस्त")){
+                    newDate=date.replace(month,AUG);
+                } else if(month.equals("सितंबर")){
+                    newDate=date.replace(month,SEP);
+                } else if(month.equals("अक्‍तूबर")){
+                    newDate=date.replace(month,OCT);
+                } else if(month.equals("नवंबर")){
+                    newDate=date.replace(month,NOV);
+                } else if(month.equals("दिसंबर")){
+                    newDate=date.replace(month,DEC);
+                }else {
+                    newDate=date;
+                }
+                return newDate;
+            }else{
+                return date;
             }
-	        return newDate;
-	        }else{
-	            return date;
-	        }
-	    }else{
-	        return date;
-	    }
-	}
+        }else{
+            return date;
+        }
+    }
 
-	public static String formatToINS(final String unformattedString){
-	    String withoutCommas=unformattedString.replaceAll(",","");
-	    String formattedString=null;
-	    StringBuffer buffer=new StringBuffer(withoutCommas);
-	    StringBuffer reversedBuffer=buffer.reverse();
-	    if(withoutCommas.length()>3){
-	        for(int i=3;i<reversedBuffer.length();i=i+3){
-	            reversedBuffer.insert(i, ",");
-	        }
-	        formattedString=reversedBuffer.reverse().toString();
-	    }else
-	    {
-	        formattedString=unformattedString;
-	    }
-	    return formattedString;
-	}
-	
-	public static List<MasterVO> getMonths(String locale){
-		String [] months=new DateFormatSymbols(new Locale(locale)).getMonths();
-		List<MasterVO> masterVOs=new ArrayList<MasterVO>();
-		int count=1;
-		for(String i:months){
-			MasterVO masterVO=new MasterVO();
-			if(locale.equals("mr_IN")){
-				masterVO.setId(new Long(count));
-				masterVO.setName(convertToMarathiMonth(count));
-			}else{
-				masterVO.setId(new Long(count));
-				masterVO.setName(i);
-			}
-			count++;
-			if(!i.isEmpty()){
-			masterVOs.add(masterVO);
-			}
-		}
-		return masterVOs;
-	}
+    public static String getMonthInMarathi(final String month,final String locale){
+        String formattedMonth="";
+        if(locale.equals("mr_IN")){
+            if(month.equals("जनवरी")){
+                formattedMonth=JAN;
+            } else if(month.equals("फ़रवरी")){
+                formattedMonth=FEB;;
+            } else if(month.equals("मार्च")){
+                formattedMonth=MAR;;
+            } else if(month.equals("अप्रैल")){
+                formattedMonth=APR;;
+            } else if(month.equals("मई")){
+                formattedMonth=MAY;;
+            } else if(month.equals("जून")){
+                formattedMonth=JUNE;;
+            } else if(month.equals("जुलाई")){
+                formattedMonth=JULY;;
+            } else if(month.equals("अगस्त")){
+                formattedMonth=AUG;;
+            } else if(month.equals("सितंबर")){
+                formattedMonth=SEP;;
+            } else if(month.equals("अक्‍तूबर")){
+                formattedMonth=OCT;;
+            } else if(month.equals("नवंबर")){
+                formattedMonth=NOV;;
+            } else if(month.equals("दिसंबर")){
+                formattedMonth=DEC;;
+            }
+        }else{
+            return month;
+        }
+        return formattedMonth;
+    }
 
-	private static String convertToMarathiMonth(int count){
-		if(count==1){
+    public static String getDayInMarathi(final String day,final String locale){
+        String formattedDay="";
+        if(locale.equals("mr_IN")){
+            if(day.equals("Tuesday")||day.equals("Tue")||day.contains("Tue")||day.equals("मंगलवार")||day.equals("मंगल")||day.contains("मंगल")){
+                formattedDay=TUE;
+            }else{
+                return day;
+            }
+        }else{
+            return day;
+        }
+        return formattedDay;
+    }
+
+    public static String formatToINS(final String unformattedString){
+        String withoutCommas=unformattedString.replaceAll(",","");
+        String formattedString=null;
+        StringBuffer buffer=new StringBuffer(withoutCommas);
+        StringBuffer reversedBuffer=buffer.reverse();
+        if(withoutCommas.length()>3){
+            for(int i=3;i<reversedBuffer.length();i=i+3){
+                reversedBuffer.insert(i, ",");
+            }
+            formattedString=reversedBuffer.reverse().toString();
+        }else
+        {
+            formattedString=unformattedString;
+        }
+        return formattedString;
+    }
+
+    public static List<MasterVO> getMonths(final String locale){
+        String [] months=new DateFormatSymbols(new Locale(locale)).getMonths();
+        List<MasterVO> masterVOs=new ArrayList<MasterVO>();
+        int count=1;
+        for(String i:months){
+            MasterVO masterVO=new MasterVO();
+            if(locale.equals("mr_IN")){
+                masterVO.setId(new Long(count));
+                masterVO.setName(convertToMarathiMonth(count));
+            }else{
+                masterVO.setId(new Long(count));
+                masterVO.setName(i);
+            }
+            count++;
+            if(!i.isEmpty()){
+                masterVOs.add(masterVO);
+            }
+        }
+        return masterVOs;
+    }
+
+    private static String convertToMarathiMonth(final int count){
+        if(count==1){
             return JAN;
         } else if(count==2){
             return FEB;
@@ -226,6 +276,6 @@ public class FormaterUtil {
             return NOV;
         }else{
             return DEC;
-        }	
-	}
+        }
+    }
 }
