@@ -120,12 +120,12 @@ public class GridServiceImpl implements IGridService {
 			tuple.put("createTime", t.getCreateTime());
 			//here we will read the process variables from each task.Some process variables are needed for each task
 			Map<String,Object> processVariables=processService.getVariables(t);
-			tuple.put("deviceId", processVariables.get("deviceId"));
-			tuple.put("deviceType",processVariables.get("deviceType"));
-	        tuple.put("deviceNumber", processVariables.get("deviceNumber"));
-			tuple.put("userGroup",processVariables.get("userGroup"));
-	        tuple.put("primaryMember",processVariables.get("primaryMember"));
-	        tuple.put("subject",processVariables.get("subject"));
+			tuple.put("deviceId", processVariables.get("pv_deviceId"));
+			tuple.put("deviceType",processVariables.get("pv_deviceType"));
+	        tuple.put("deviceNumber", processVariables.get("pv_deviceNumber"));
+	        tuple.put("primaryMember",processVariables.get("pv_primaryMemberFullName"));
+	        tuple.put("subject",processVariables.get("pv_subject"));
+	        tuple.put("description", t.getDescription());
 			records.add(tuple);
 		}
 		Integer totalPages = 0;

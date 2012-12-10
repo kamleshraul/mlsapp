@@ -10,7 +10,6 @@ import java.util.Date;
 import java.util.Enumeration;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.UUID;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
@@ -25,8 +24,6 @@ import org.activiti.engine.RuntimeService;
 import org.activiti.engine.TaskService;
 import org.activiti.engine.form.StartFormData;
 import org.activiti.engine.form.TaskFormData;
-import org.activiti.engine.identity.Group;
-import org.activiti.engine.identity.GroupQuery;
 import org.activiti.engine.identity.UserQuery;
 import org.activiti.engine.repository.Deployment;
 import org.activiti.engine.repository.DeploymentBuilder;
@@ -41,7 +38,6 @@ import org.mkcl.els.common.util.DateFormater;
 import org.mkcl.els.common.util.FileUtil;
 import org.mkcl.els.domain.CustomParameter;
 import org.mkcl.els.domain.User;
-import org.mkcl.els.domain.UserGroup;
 import org.mkcl.els.service.IProcessService;
 import org.mkcl.els.service.IRuleService;
 import org.slf4j.Logger;
@@ -103,16 +99,16 @@ public class ProcessServiceImpl implements IProcessService {
 		ZipFile zf = this.getZipFile(is);
 		if(zf != null) {
 			Enumeration<? extends ZipEntry> zipEnum = zf.entries();
-		    while(zipEnum.hasMoreElements()) {
-		    	ZipEntry item = zipEnum.nextElement();
-		    	String fileExt = FileUtil.fileExtension(item.getName());
-		    	if(fileExt.equals("png") || fileExt.equals("jpg")) {
-			    	this.addFileItem(zf, item, builder);
-		    	}
-		    	if(fileExt.equals("zip")) {
-			    	this.addZipItem(zf, item, builder);
-		    	}
-		    }
+			while(zipEnum.hasMoreElements()) {
+				ZipEntry item = zipEnum.nextElement();
+				String fileExt = FileUtil.fileExtension(item.getName());
+				if(fileExt.equals("png") || fileExt.equals("jpg")) {
+					this.addFileItem(zf, item, builder);
+				}
+				if(fileExt.equals("zip")) {
+					this.addZipItem(zf, item, builder);
+				}
+			}
 		}
 
 		builder.deploy();
@@ -146,7 +142,7 @@ public class ProcessServiceImpl implements IProcessService {
 		ProcessDefinitionQuery query = this.repositoryService.createProcessDefinitionQuery();
 
 		List<ProcessDefinition> actProcDefs = query.orderByProcessDefinitionName()
-		  .orderByProcessDefinitionKey().asc().list();
+		.orderByProcessDefinitionKey().asc().list();
 
 		for(ProcessDefinition actProcDef : actProcDefs) {
 			org.mkcl.els.common.vo.ProcessDefinition process =
@@ -180,7 +176,7 @@ public class ProcessServiceImpl implements IProcessService {
 		org.mkcl.els.common.vo.ProcessDefinition processDefinition = null;
 		ProcessDefinitionQuery query = this.repositoryService.createProcessDefinitionQuery();
 		ProcessDefinition actProcDef = query.processDefinitionKey(key)
-			.latestVersion().singleResult();
+		.latestVersion().singleResult();
 
 		if(actProcDef != null) {
 			processDefinition = this.createProcessDefinition(actProcDef);
@@ -214,8 +210,7 @@ public class ProcessServiceImpl implements IProcessService {
 			final org.mkcl.els.common.vo.ProcessDefinition process,
 			final Map<String, String> properties) {
 		ProcessInstance actProcInst = this.formService
-			.submitStartFormData(process.getId(), properties);
-
+		.submitStartFormData(process.getId(), properties);
 		return this.createProcessInstance(actProcInst);
 	}
 
@@ -263,7 +258,7 @@ public class ProcessServiceImpl implements IProcessService {
 	public List<org.mkcl.els.common.vo.Task> getMyTasks(final String userId) {
 		List<org.mkcl.els.common.vo.Task> tasks = new ArrayList<org.mkcl.els.common.vo.Task>();
 		List<Task> actTasks = this.taskService.createTaskQuery()
-			.taskAssignee(userId).orderByTaskCreateTime().desc().list();
+		.taskAssignee(userId).orderByTaskCreateTime().desc().list();
 
 		for(Task actTask : actTasks) {
 			org.mkcl.els.common.vo.Task task = this.createTask(actTask);
@@ -281,7 +276,7 @@ public class ProcessServiceImpl implements IProcessService {
 	public List<org.mkcl.els.common.vo.Task> getGroupTasks(final String userId) {
 		List<org.mkcl.els.common.vo.Task> tasks = new ArrayList<org.mkcl.els.common.vo.Task>();
 		List<Task> actTasks = this.taskService.createTaskQuery()
-			.taskCandidateUser(userId).orderByTaskCreateTime().desc().list();
+		.taskCandidateUser(userId).orderByTaskCreateTime().desc().list();
 
 		for(Task actTask : actTasks) {
 			org.mkcl.els.common.vo.Task task = this.createTask(actTask);
@@ -423,7 +418,7 @@ public class ProcessServiceImpl implements IProcessService {
 	 */
 	@Override
 	public Map<String, Object> getVariables(final org.mkcl.els.common.vo.Task task) {
-		return this.runtimeService.getVariablesLocal(task.getExecutionId());
+		return this.runtimeService.getVariables(task.getExecutionId());
 	}
 
 	/**
@@ -450,16 +445,6 @@ public class ProcessServiceImpl implements IProcessService {
 		actUser.setLastName(user.getLastName());
 		actUser.setEmail(user.getCredential().getEmail());
 		this.identityService.saveUser(actUser);
-
-		// If org.mkcl.els.domain.User is composed of UserGroups, & if those
-		// UserGroups are not present in Activiti then create the missing Groups
-		Set<UserGroup> userGroups = user.getCredential().getUserGroups();
-		this.createGroups(userGroups);
-
-		// Create a membership between User & Group
-		for(UserGroup ug : userGroups) {
-			this.identityService.createMembership(username, ug.getUserGroupType().getName());
-		}
 	}
 
 	/**
@@ -468,7 +453,6 @@ public class ProcessServiceImpl implements IProcessService {
 	@Override
 	public void updateUser(final User user) {
 		String username = user.getCredential().getUsername();
-
 		UserQuery userQuery = this.identityService.createUserQuery();
 		org.activiti.engine.identity.User actUser = userQuery.userId(username).singleResult();
 		if(actUser != null) {
@@ -478,27 +462,15 @@ public class ProcessServiceImpl implements IProcessService {
 			actUser.setLastName(user.getLastName());
 			actUser.setEmail(user.getCredential().getEmail());
 			this.identityService.saveUser(actUser);
-
-			// Fetch all the existing Groups of this User
-			GroupQuery groupQuery = this.identityService.createGroupQuery();
-			List<Group> groups = groupQuery.groupMember(actUser.getId()).list();
-
-			// Delete the membership of the User from all the existing Groups
-			for(Group g : groups) {
-				this.identityService.deleteMembership(actUser.getId(), g.getId());
-			}
-
-			// Get the UserGroups from User, check if all the groups are present
-			// in Activiti (if not then create the groups).
-			Set<UserGroup> userGroups = user.getCredential().getUserGroups();
-			this.createGroups(userGroups);
-
-			// Create membership between User & Group
-			for(UserGroup ug : userGroups) {
-				this.identityService.createMembership(username,  ug.getUserGroupType().getName());
-			}
+		}else{
+			// Create a User
+			org.activiti.engine.identity.User actUserNew = this.identityService.newUser(username);
+			actUserNew.setPassword(user.getCredential().getPassword());
+			actUserNew.setFirstName(user.getFirstName());
+			actUserNew.setLastName(user.getLastName());
+			actUserNew.setEmail(user.getCredential().getEmail());
+			this.identityService.saveUser(actUserNew);
 		}
-
 	}
 
 	/**
@@ -509,17 +481,7 @@ public class ProcessServiceImpl implements IProcessService {
 		UserQuery userQuery = this.identityService.createUserQuery();
 		org.activiti.engine.identity.User actUser =
 			userQuery.userId(user.getCredential().getUsername()).singleResult();
-
 		if(actUser != null) {
-			// Fetch all the Groups of this User
-			GroupQuery groupQuery = this.identityService.createGroupQuery();
-			List<Group> groups = groupQuery.groupMember(actUser.getId()).list();
-
-			// Delete the membership of the User from all the Groups
-			for(Group g : groups) {
-				this.identityService.deleteMembership(actUser.getId(), g.getId());
-			}
-
 			// Delete the User
 			this.identityService.deleteUser(actUser.getId());
 		}
@@ -541,25 +503,25 @@ public class ProcessServiceImpl implements IProcessService {
 			File file = File.createTempFile(filePrefix, "zip");
 			out = new FileOutputStream(file);
 			int read = 0;
-	    	byte[] bytes = new byte[1024];
+			byte[] bytes = new byte[1024];
 
-	    	while ((read = is.read(bytes)) != -1) {
-	    		out.write(bytes, 0, read);
-	    	}
-	    	out.flush();
-	    	zipFile = new ZipFile(file);
+			while ((read = is.read(bytes)) != -1) {
+				out.write(bytes, 0, read);
+			}
+			out.flush();
+			zipFile = new ZipFile(file);
 		}
 		catch (IOException e) {
 			this.logger.error(e.getMessage());
 		}
 		finally {
 			if(out != null) {
-		    	try {
+				try {
 					out.close();
 				}
-		    	catch (IOException e) {
+				catch (IOException e) {
 					this.logger.error("The OutputStream failed to close. This may result " +
-							"in resource (file handle) leak.");
+					"in resource (file handle) leak.");
 				}
 			}
 		}
@@ -651,9 +613,9 @@ public class ProcessServiceImpl implements IProcessService {
 		task.setAssignee(t.getAssignee());
 
 		DateFormater df = new DateFormater();
-		CustomParameter cp1 = CustomParameter.findByName(CustomParameter.class,
-				"DATEPICKER_TIMEFORMAT", "");
-		String strCreateTime = df.formatDateToString(t.getCreateTime(), cp1.getValue());
+		//CustomParameter cp1 = CustomParameter.findByName(CustomParameter.class,
+				//"yyyy-MM-dd HH:mm:ss", "");
+		String strCreateTime = df.formatDateToString(t.getCreateTime(), "yyyy-MM-dd HH:mm:ss");
 		task.setCreateTime(strCreateTime);
 
 		CustomParameter cp2 = CustomParameter.findByName(CustomParameter.class,
@@ -666,21 +628,6 @@ public class ProcessServiceImpl implements IProcessService {
 		task.setDescription(t.getDescription());
 
 		return task;
-	}
-
-	private void createGroups(final Set<UserGroup> userGroups) {
-		for(UserGroup ug : userGroups) {
-			// Check if the Group already exists
-			GroupQuery query = this.identityService.createGroupQuery();
-			Group group = query.groupId( ug.getUserGroupType().getName()).singleResult();
-
-			// The group does not exist, so create one
-			if(group == null) {
-				group = this.identityService.newGroup( ug.getUserGroupType().getName());
-				group.setName( ug.getUserGroupType().getName());
-				this.identityService.saveGroup(group);
-			}
-		}
 	}
 
 	/**
