@@ -7,7 +7,6 @@ import org.mkcl.els.domain.HouseType;
 import org.mkcl.els.domain.Session;
 import org.mkcl.els.domain.SessionType;
 import org.springframework.stereotype.Repository;
-
 import com.trg.search.Search;
 
 @Repository
@@ -40,8 +39,8 @@ public class SessionRepository extends BaseRepository<Session, Long>{
         return this.search(search);
     }
 
-	public Session findSessionByHouseSessionTypeYear(final House house,
-			final SessionType sessionType, final Integer sessionYear) {
+	public Session findSessionByHouseSessionTypeYear(final House house,final SessionType sessionType,
+			final Integer sessionYear) {
 		Search search=new Search();
 		search.addFilterEqual("house",house);
 		search.addFilterEqual("type",sessionType);
@@ -57,6 +56,24 @@ public class SessionRepository extends BaseRepository<Session, Long>{
         search.addFilterEqual("type",sessionType);
         search.addFilterEqual("year",sessionYear);
         return this.searchUnique(search);
+    }
+
+    public Session findLatestSession(final HouseType houseType) {
+        /*
+         * to find the most recent session by housetype we select all those sessions having given house
+         * arranged according to their start date in decreasing order.The entry at 0 position is
+         * the most recent session.Also if no entries are present in session then we return an empty session object
+         * which must be checked before performing any operation.This is done to catch JPA exception "NoEntityFound"
+         */
+        Search search=new Search();
+        search.addFilterEqual("house.type",houseType);
+        search.addSort("startDate",true);
+        List<Session> sessions=this.search(search);
+        if(!sessions.isEmpty()){
+          return sessions.get(0);
+        }else{
+            return new Session();
+        }
     }
     
     public List<Session> findSessionsByHouseTypeAndYear(final HouseType houseType,
