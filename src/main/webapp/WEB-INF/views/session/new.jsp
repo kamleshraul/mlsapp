@@ -8,8 +8,13 @@
 		initControls();
 		$('#key').val('');
 		$('.council').hide();
-		if('${domain.house.type.type}'=="upperhouse"){
+		if($('#houseType').val()=="upperhouse"){
 			$('.council').show();
+			$('.assembly').hide();
+		}
+		else{
+			$('.council').hide();
+			$('.assembly').show();
 		}
 	$('#tentativeStartDate').change(function(){
 		$('#startDate').val($('#tentativeStartDate').val());
@@ -20,6 +25,17 @@
 	});
 	$('#houseType').change(function(){
 		populateHouse($('#houseType').val());
+		if($('#houseType').val()=="upperhouse"){
+			$('.council').show();
+			$('.assembly').hide();
+		}
+		else{
+			$('.council').hide();
+			$('.assembly').show();
+		}
+	});		
+	$('#deviceTypesEnabled').change(function(){		
+		populateDeviceTypesNeedBallot($('#deviceTypesEnabled').val());
 	});
 	});
 	function populateHouse(houseType) {
@@ -32,6 +48,47 @@
 			}
 			$('#house').html(options);
 			
+		});
+	}
+	function populateDeviceTypesNeedBallot(deviceTypesEnabled) {
+		//get selected deviceTypesEnabled for deviceTypesNeedBallot		
+		$.get('ref/' + deviceTypesEnabled + '/deviceTypesNeedBallot', function(data) {
+			var options = "";
+			//if atleast one deviceTypesNeedBallot is selected
+			if($('#deviceTypesNeedBallot').val()!=null) {								
+				$('#deviceTypesNeedBallot option').empty();						
+				for ( var i = 0; i < data.length; i++) {
+					//flag for whether element was already selected or not
+					var selected = false;
+					//check whether element was selected already
+					for(var j=0; j<$('#deviceTypesNeedBallot').val().length; j++) {		
+						//here data[i].id is not id, but type of DeviceType
+						if(data[i].id == $('#deviceTypesNeedBallot').val()[j]) {
+							//in case element was already selected, make flag true
+							selected = true;							
+						}					
+					}	
+					if(selected==true) {
+						//add element as selected option
+						options += "<option value='"+data[i].id+"' selected='selected'>" + data[i].name
+						+ "</option>";
+					}
+					else {
+						//add element as option but should not be selected
+						options += "<option value='"+data[i].id+"'>" + data[i].name
+						+ "</option>";	
+					}
+				}
+			}
+			//if no deviceTypesNeedBallot is selected
+			else {				
+				$('#deviceTypesNeedBallot option').empty();						
+				for ( var i = 0; i < data.length; i++) {
+					options += "<option value='"+data[i].id+"'>" + data[i].name
+					+ "</option>";	
+				}
+			}
+			$('#deviceTypesNeedBallot').html(options);			
 		});
 	}
 	</script>
@@ -52,25 +109,68 @@
 				]
 			</h2>
 			<form:errors path="version" cssClass="validationError" />
+			
 			<p>
 			<label class="small"><spring:message
 								code="session.houseType" text="House Type" /></label>
 			 <select class="sSelect" name="houseType" id="houseType">
 					<c:if test="${!(empty houseTypes)}">
 							<c:forEach items="${houseTypes}" var="i">
-								<option value="${i.id}" selected="selected">
+								<c:choose>
+								<c:when test="${houseTypeSelected==i.id}">
+								<option value="${i.type}" selected="selected">
 									<c:out value="${i.name}"></c:out>
 								</option>
+								</c:when>
+								<c:otherwise>
+								<option value="${i.type}" >
+									<c:out value="${i.name}"></c:out>
+								</option>
+								</c:otherwise>
+								</c:choose>								
 							</c:forEach>							
 					</c:if>								
 			</select>
 			</p>
+			
 			<p>
 				<label class="small"><spring:message code="session.house" text="House" /></label>
 					<form:select cssClass="sSelect" path="house" items="${houses}"
 							itemValue="id" itemLabel="displayName" id="house" size="1">
 					</form:select>
 				<form:errors path="house" cssClass="validationError" />			
+			</p>
+			
+			<p>
+			<label class="small"><spring:message code="session.year" text="Session Year"/>&nbsp;*</label>
+				<select id="year" name="year" class="sSelect">
+				<c:forEach items="${years}" var="i">
+				<c:choose>
+				<c:when test="${sessionYearSelected==i}">
+				<option selected="selected" value="${i}"><c:out value="${i}"></c:out></option>
+				</c:when>
+				<c:otherwise>
+				<option value="${i}"><c:out value="${i}"></c:out></option>
+				</c:otherwise>
+				</c:choose>
+				</c:forEach>		
+				</select>
+			<form:errors path="year" cssClass="validationError" />			
+			</p>
+			
+			<p>
+				<label class="small"><spring:message code="session.type" text="Session Type" />&nbsp;*</label>
+				<form:select cssClass="sSelect" path="type"
+					items="${sessionType}" itemValue="id" itemLabel="sessionType">
+				</form:select>
+
+			</p>
+			<p>
+				<label class="small"><spring:message code="session.place" text="Session Place" />&nbsp;*</label>
+				<form:select cssClass="sSelect" path="place"
+					items="${place}" itemValue="id" itemLabel="place">
+				</form:select>
+
 			</p>
 			<p>
 				<label class="small"><spring:message
@@ -107,26 +207,8 @@
 				<form:errors path="endDate" cssClass="validationError" />
 
 			</p>
-			<p>
-				<label class="small"><spring:message code="session.type" text="Session Type" />&nbsp;*</label>
-				<form:select cssClass="sSelect" path="type"
-					items="${sessionType}" itemValue="id" itemLabel="sessionType">
-				</form:select>
-
-			</p>
-			<p>
-				<label class="small"><spring:message code="session.place" text="Session Place" />&nbsp;*</label>
-				<form:select cssClass="sSelect" path="place"
-					items="${place}" itemValue="id" itemLabel="place">
-				</form:select>
-
-			</p>
-			<p>
-		<label class="small"><spring:message code="session.year" text="Session Year"/>&nbsp;*</label>
-				<form:input cssClass="integer sText" path="year"/>
-				<form:errors path="year" cssClass="validationError" />	
 			
-		</p>
+			
 		<p>
 		<label class="small"><spring:message code="session.durationInDays" text="Session Duration In days"/>&nbsp;*</label>
 				<form:input cssClass="integer sText" path="durationInDays"/>
@@ -147,37 +229,98 @@
 		</p>
 		<p>
 				<label class="small"><spring:message code="session.rotationOrderPublishingDate"
-						text="Rotation Order Publishing Date" /></label>
+						text="Rotation Order Publishing Date " /></label>
 				<form:input cssClass="datemask sText" path="rotationOrderPublishingDate" />
 				<form:errors path="rotationOrderPublishingDate" cssClass="validationError" />
 
 		</p>
-		<p>
-				<label class="small"><spring:message code="session.questionSubmissionStartDate"
-						text="Question Submission Start Date" /></label>
-				<form:input cssClass="datemask sText" path="questionSubmissionStartDate" />
-				<form:errors path="questionSubmissionStartDate" cssClass="validationError" />
+		
+		<p class="assembly">
+				<label class="small"><spring:message code="session.questionSubmissionStartDateLH"
+						text="Question Submission Start Date for Lower House" /></label>
+				<input Class="datetimemask sText" name="questionSubmissionStartDateLH" />
+				<form:errors path="questionSubmissionStartDateLH" cssClass="validationError" />
+
+		</p>
+			
+		<p class="assembly">
+				<label class="small"><spring:message code="session.questionSubmissionEndDateLH"
+						text="Question Submission End Time for Lower House" /></label>
+				<input Class="datetimemask sText" name="questionSubmissionEndDateLH" />
+				<form:errors path="questionSubmissionEndDateLH" cssClass="validationError" />
+
+		</p>	
+		<p class="council">
+				<label class="small"><spring:message code="session.questionSubmissionFirstBatchStartDateUH"
+						text="Question Submission First Batch Date for Upper House" /></label>
+				<input Class="datetimemask sText" name="questionSubmissionFirstBatchStartDateUH" />
+				<form:errors path="questionSubmissionFirstBatchStartDateUH" cssClass="validationError" />
+
+		</p>
+			
+		<p class="council">
+				<label class="small"><spring:message code="session.questionSubmissionFirstBatchEndDateUH"
+						text="Question Submission First Batch End Time for Upper House" /></label>
+				<input Class="datetimemask sText" name="questionSubmissionFirstBatchEndDateUH" />
+				<form:errors path="questionSubmissionFirstBatchEndDateUH" cssClass="validationError" />
+
+		</p>	
+		<p class="council">
+				<label class="small"><spring:message code="session.questionSubmissionSecondBatchStartDateUH"
+						text="Question Submission Second Batch Date for Upper House" /></label>
+				<input Class="datetimemask sText" name="questionSubmissionSecondBatchStartDateUH" />
+				<form:errors path="questionSubmissionSecondBatchStartDateUH" cssClass="validationError" />
+
+		</p>
+		<p class="council">
+				<label class="small"><spring:message code="session.questionSubmissionSecondBatchEndDateUH"
+						text="Question Submission Second Batch End Time for Upper House" /></label>
+				<input Class="datetimemask sText" name="questionSubmissionSecondBatchEndDateUH" />
+				<form:errors path="questionSubmissionSecondBatchEndDateUH" cssClass="validationError" />
 
 		</p>
 		<p>
 				<label class="small"><spring:message code="session.firstBallotDate"
-						text="Date of First Ballot" /></label>
+						text="First Ballot Date" /></label>
 				<form:input cssClass="datemask sText" path="firstBallotDate" />
 				<form:errors path="firstBallotDate" cssClass="validationError" />
 
 		</p>
 		<p class="council">
-				<label class="small"><spring:message code="session.questionSubmissionFirstBatchDate"
-						text=" First Batch Date Of Question Submission " /></label>
-				<form:input cssClass="datemask sText" path="questionSubmissionFirstBatchDate" />
-				<form:errors path="questionSubmissionFirstBatchDate" cssClass="validationError" />
+				<label class="small"><spring:message code="session.numberOfQuestionInFirstBatchUH"
+						text="Number Of Questions In First Batch for Upper House" /></label>
+				<form:input cssClass="sText" path="numberOfQuestionInFirstBatchUH" />
+				<form:errors path="numberOfQuestionInFirstBatchUH" cssClass="validationError" />
 
 		</p>
-		<p class="council">
-		<label class="small"><spring:message code="session.numberOfQuestionInFirstBatch" text="Number Of Question in First Batch"/>&nbsp;*</label>
-				<form:input cssClass="integer sText" path="numberOfQuestionInFirstBatch"/>
-				<form:errors path="numberOfQuestionInFirstBatch" cssClass="validationError" />	
-			
+		<p>
+				<label class="small"><spring:message code="session.deviceTypesEnabled"
+						text="Device Types Enabled" /></label>
+				<select class="sSelectMultiple" name="deviceTypesEnabled" id="deviceTypesEnabled" multiple="multiple">
+					<c:forEach items="${deviceTypes}" var="i">
+						<option value="${i.type}" ><c:out value="${i.name}"></c:out></option>
+					</c:forEach>											
+				</select>
+				<form:errors path="deviceTypesEnabled" cssClass="validationError" />
+
+		</p>	
+		<p>
+				<label class="small"><spring:message code="session.deviceTypesNeedBallot"
+						text="Device Types Need Ballot" /></label>
+				<select class="sSelectMultiple" name="deviceTypesNeedBallot" id="deviceTypesNeedBallot" multiple="multiple">
+					<c:forEach items="${deviceTypes}" var="i">
+						<option value="${i.type}" ><c:out value="${i.name}"></c:out></option>
+					</c:forEach>	
+				</select>
+				<form:errors path="deviceTypesNeedBallot" cssClass="validationError" />
+
+		</p>
+		<p>
+				<label class="wysiwyglabel"><spring:message code="session.rotationOrderText"
+						text="Rotation Order Text " /></label>
+				<form:textarea cssClass="wysiwyg" path="rotationOrderText" />
+				<form:errors path="rotationOrderText" cssClass="validationError" />
+
 		</p>
 		<p>
 				<label class="labelcentered"><spring:message code="session.remarks"
@@ -185,15 +328,15 @@
 				<form:textarea cssClass="sTextarea" path="remarks" />
 				<form:errors path="remarks" cssClass="validationError" />
 
-		</p>
+		</p>			
+		
 			<div class="fields">
 				<h2></h2>
 				<p class="tright">
 					<input id="submit" type="submit"
 						value="<spring:message code='generic.submit' text='Submit'/>"
 						class="butDef">
-					<input id="cancel" type="button" value="<spring:message code='generic.cancel' text='Cancel'/>" class="butDef">
-						
+					<input id="cancel" type="button" value="<spring:message code='generic.cancel' text='Cancel'/>"class="butDef"> 
 				</p>
 			</div>
 			<form:hidden path="id" />
