@@ -13,8 +13,6 @@ import java.io.Serializable;
 import java.util.Date;
 
 import javax.persistence.Entity;
-import javax.persistence.FetchType;
-import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
@@ -36,7 +34,7 @@ public class QuestionDates extends BaseDomain implements Serializable {
     // ---------------------------------Attributes------------------------//
     /** The Constant serialVersionUID. */
     private static final transient long serialVersionUID = 1L;
-    
+
     /** The final submission date. */
     @Temporal(TemporalType.DATE)
     private Date finalSubmissionDate;
@@ -45,7 +43,28 @@ public class QuestionDates extends BaseDomain implements Serializable {
     @Temporal(TemporalType.DATE)
     private Date answeringDate;
 
-      
+    @Temporal(TemporalType.DATE)
+    private Date lastSendingDateToDepartment;
+
+    @Temporal(TemporalType.DATE)
+    private Date lastReceivingDateFromDepartment;
+
+    @Temporal(TemporalType.DATE)
+    private Date yaadiPrintingDate;
+
+    @Temporal(TemporalType.DATE)
+    private Date yaadiReceivingDate;
+
+    @Temporal(TemporalType.DATE)
+    private Date suchhiPrintingDate;
+
+    @Temporal(TemporalType.DATE)
+    private Date suchhiReceivingDate;
+
+    @Temporal(TemporalType.DATE)
+    private Date suchhiDistributionDate;
+
+
     // ---------------------------------Constructors----------------------//
 
     /**
@@ -53,11 +72,11 @@ public class QuestionDates extends BaseDomain implements Serializable {
      */
     public QuestionDates() {
         super();
-    }    
+    }
 
     // ----------------------------Domain Methods-------------------------//
 
-    // ----------------------------Getters/Setters------------------------//    
+    // ----------------------------Getters/Setters------------------------//
     /**
      * Gets the final submission date.
      *
@@ -72,7 +91,7 @@ public class QuestionDates extends BaseDomain implements Serializable {
      *
      * @param finalSubmissionDate the new final submission date
      */
-    public void setFinalSubmissionDate(Date finalSubmissionDate) {
+    public void setFinalSubmissionDate(final Date finalSubmissionDate) {
         this.finalSubmissionDate = finalSubmissionDate;
     }
 
@@ -90,10 +109,81 @@ public class QuestionDates extends BaseDomain implements Serializable {
      *
      * @param answeringDate the new answering date
      */
-    public void setAnsweringDate(Date answeringDate) {
+    public void setAnsweringDate(final Date answeringDate) {
         this.answeringDate = answeringDate;
     }
 
 
-    
+    public Date getLastSendingDateToDepartment() {
+        return lastSendingDateToDepartment;
+    }
+
+
+    public void setLastSendingDateToDepartment(final Date lastSendingDateToDepartment) {
+        this.lastSendingDateToDepartment = lastSendingDateToDepartment;
+    }
+
+
+    public Date getLastReceivingDateFromDepartment() {
+        return lastReceivingDateFromDepartment;
+    }
+
+
+    public void setLastReceivingDateFromDepartment(
+            final Date lastReceivingDateFromDepartment) {
+        this.lastReceivingDateFromDepartment = lastReceivingDateFromDepartment;
+    }
+
+
+    public Date getYaadiPrintingDate() {
+        return yaadiPrintingDate;
+    }
+
+
+    public void setYaadiPrintingDate(final Date yaadiPrintingDate) {
+        this.yaadiPrintingDate = yaadiPrintingDate;
+    }
+
+
+    public Date getYaadiReceivingDate() {
+        return yaadiReceivingDate;
+    }
+
+
+    public void setYaadiReceivingDate(final Date yaadiReceivingDate) {
+        this.yaadiReceivingDate = yaadiReceivingDate;
+    }
+
+
+    public Date getSuchhiPrintingDate() {
+        return suchhiPrintingDate;
+    }
+
+
+    public void setSuchhiPrintingDate(final Date suchhiPrintingDate) {
+        this.suchhiPrintingDate = suchhiPrintingDate;
+    }
+
+
+    public Date getSuchhiReceivingDate() {
+        return suchhiReceivingDate;
+    }
+
+
+    public void setSuchhiReceivingDate(final Date suchhiReceivingDate) {
+        this.suchhiReceivingDate = suchhiReceivingDate;
+    }
+
+
+    public Date getSuchhiDistributionDate() {
+        return suchhiDistributionDate;
+    }
+
+
+    public void setSuchhiDistributionDate(final Date suchhiDistributionDate) {
+        this.suchhiDistributionDate = suchhiDistributionDate;
+    }
+
+
+
 }
