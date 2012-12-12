@@ -117,7 +117,8 @@ public class GenericController<T extends BaseDomain> extends BaseController {
         final String servletPath = request.getServletPath().replaceFirst("\\/","");
         String urlPattern=servletPath.split("\\/list")[0];
         String messagePattern=urlPattern.replaceAll("\\/",".");
-        Grid grid = Grid.findByDetailView(urlPattern, locale.toString());
+        String newurlPattern=modifyURLPattern(urlPattern,request,model,locale.toString());
+        Grid grid = Grid.findByDetailView(newurlPattern, locale.toString());
         model.addAttribute("gridId", grid.getId());
         /******* Hook **********/
         populateList(model, request, locale.toString(), this.getCurrentUser());
@@ -131,10 +132,19 @@ public class GenericController<T extends BaseDomain> extends BaseController {
         }
         //here making provisions for displaying error pages
         if(model.containsAttribute("errorcode")){
-            return servletPath.replace("module","error");
+            return servletPath.replace("list","error");
         }else{
             return servletPath;
         }
+    }
+
+    /*
+     * This gives chance to client to modify urlpattern so as to
+     * select grid based on user group.for this attach usergroup=? as a
+     * parameter in urlpattern
+     */
+    protected String modifyURLPattern(final String urlPattern, final HttpServletRequest request, final ModelMap model, final String string) {
+        return urlPattern;
     }
 
     /**
@@ -170,6 +180,17 @@ public class GenericController<T extends BaseDomain> extends BaseController {
         populateNew(model, domain, locale.toString(), request);
         /***********************/
         model.addAttribute("domain", domain);
+        //here making provisions for displaying error pages
+        if(model.containsAttribute("errorcode")){
+            return servletPath.replace("new","error");
+        }else{
+            String modifiedNewUrlPattern=modifyNewUrlPattern(servletPath,request,model,locale.toString());
+            return modifiedNewUrlPattern;
+        }
+    }
+
+    protected String modifyNewUrlPattern(final String servletPath,
+            final HttpServletRequest request, final ModelMap model, final String string) {
         return servletPath;
     }
 
@@ -203,7 +224,18 @@ public class GenericController<T extends BaseDomain> extends BaseController {
         }else{
             request.getSession().removeAttribute("type");
         }
-        return urlPattern+"/"+"edit";
+        //here making provisions for displaying error pages
+        if(model.containsAttribute("errorcode")){
+            return urlPattern+"/"+"error";
+        }else{
+            String newUrlPattern=urlPattern+"/edit";
+            String modifiedEditUrlPattern=modifyEditUrlPattern(newUrlPattern,request,model,domain.getLocale());
+            return modifiedEditUrlPattern;
+        }
+    }
+
+    protected String modifyEditUrlPattern(final String newUrlPattern, final HttpServletRequest request, final ModelMap model, final String locale) {
+        return newUrlPattern;
     }
 
     /**
@@ -420,12 +452,19 @@ public class GenericController<T extends BaseDomain> extends BaseController {
         }
         BaseDomain domain = object;
         /**********Hook**************/
-        preDelete(model, domain, request);
+        Boolean status=preDelete(model, domain, request,id);
         /****************************/
-        domain.findById(domainClass, id).remove();
+        if(status){
+        	try{
+        		domain.findById(domainClass, id).remove();
+        	}catch(Exception ex){        		
+        		status=false;
+        	}        
+        }
         /**********Hook**************/
         postDelete(model, domain, request);
         /****************************/
+        model.addAttribute("status",status);
         return "info";
     }
 
@@ -813,10 +852,12 @@ public class GenericController<T extends BaseDomain> extends BaseController {
      * @param model the model
      * @param domain the domain
      * @param request the request
+     * @param id 
+     * @return 
      */
-    protected void preDelete(final ModelMap model, final BaseDomain domain,
-            final HttpServletRequest request) {
-
+    protected Boolean preDelete(final ModelMap model, final BaseDomain domain,
+            final HttpServletRequest request, Long id) {
+    	return true;
     }
 
     /**
