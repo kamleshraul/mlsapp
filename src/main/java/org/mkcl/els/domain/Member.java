@@ -1,5 +1,4 @@
 /**
- * See the file LICENSE for redistribution information.
  *
  * Copyright (c) 2012 MKCL.  All rights reserved.
  *
@@ -10,6 +9,9 @@
 package org.mkcl.els.domain;
 
 import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
 
@@ -28,11 +30,13 @@ import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
 
 import org.codehaus.jackson.annotate.JsonIgnoreProperties;
+import org.mkcl.els.common.util.ApplicationConstants;
 import org.mkcl.els.common.vo.MasterVO;
 import org.mkcl.els.common.vo.MemberAgeWiseReportVO;
 import org.mkcl.els.common.vo.MemberBiographyVO;
 import org.mkcl.els.common.vo.MemberChildrenWiseReportVO;
 import org.mkcl.els.common.vo.MemberCompleteDetailVO;
+import org.mkcl.els.common.vo.MemberContactVO;
 import org.mkcl.els.common.vo.MemberGeneralVO;
 import org.mkcl.els.common.vo.MemberPartyDistrictWiseVO;
 import org.mkcl.els.common.vo.MemberPartyWiseReportVO;
@@ -579,6 +583,79 @@ import org.springframework.beans.factory.annotation.Configurable;
     public static MemberCompleteDetailVO getCompleteDetail(final Long member, final String locale) {
 		return getMemberRepository().getCompleteDetail(member,locale);
 	}
+
+    /**
+     * Find all the active members in the house for the given date.
+     * An active member is defined as a user who has a role "MEMBER"
+     * on a given date.
+     *
+     * Returns an empty list if there are no active Members.
+     */
+    public static List<Member> findActiveMembers(final House house,
+            final Date date,
+            final String sortOrder,
+            final String locale) {
+//      List<Member> activeMembers = new ArrayList<Member>();
+//
+//      MemberRole role = MemberRole.find(house.getType(), "MEMBER", locale);
+//      List<HouseMemberRoleAssociation> associations =
+//          HouseMemberRoleAssociation.findActiveHouseMemberRoles(house, role, date, locale);
+//
+//      for(HouseMemberRoleAssociation hmra : associations) {
+//          activeMembers.add(hmra.getMember());
+//      }
+//      return Member.sortByLastname(activeMembers, sortOrder);
+        MemberRole role = MemberRole.find(house.getType(), "MEMBER", locale);
+        return getMemberRepository().findActiveMembers(house, role, date, sortOrder, locale);
+    }
+
+    /**
+	 * Sort the Members as per @param sortOrder by lastName. If multiple Members
+	 * have same lastName, then break the tie by firstName.
+	 *
+	 * @param members SHOULD NOT BE NULL
+	 *
+	 * Does not sort in place, returns a new list.
+	 */
+    public static List<Member> sortByLastname(final List<Member> members,
+    		final String sortOrder) {
+    	List<Member> newMList = new ArrayList<Member>();
+    	newMList.addAll(members);
+
+    	if(sortOrder.equals(ApplicationConstants.ASC)) {
+    		Comparator<Member> c = new Comparator<Member>() {
+
+				@Override
+				public int compare(final Member m1, final Member m2) {
+					int i = m1.getLastName().compareTo(m2.getLastName());
+					if(i == 0) {
+						int j = m1.getFirstName().compareTo(m2.getFirstName());
+						return j;
+					}
+					return i;
+				}
+			};
+			Collections.sort(newMList, c);
+    	}
+    	else if(sortOrder.equals(ApplicationConstants.DESC)) {
+    		Comparator<Member> c = new Comparator<Member>() {
+
+				@Override
+				public int compare(final Member m1, final Member m2) {
+					int i = m2.getLastName().compareTo(m1.getLastName());
+					if(i == 0) {
+						int j = m2.getFirstName().compareTo(m1.getFirstName());
+						return j;
+					}
+					return i;
+				}
+			};
+			Collections.sort(newMList, c);
+    	}
+
+    	return newMList;
+    }
+
     // ------------------------------------------Getters/Setters-----------------------------------
     /**
      * Gets the title.
@@ -1644,6 +1721,14 @@ public String getDeathRemarks() {
 }
 public void setDeathRemarks(final String deathRemarks) {
 	this.deathRemarks = deathRemarks;
+}
+public static Member findMember(final String firstName, final String middleName,
+        final String lastName, final Date birthDate, final String locale) {
+    return getMemberRepository().findMember(firstName,middleName,
+            lastName,birthDate,locale);
+}
+public static List<MemberContactVO> getContactDetails(final String[] members) {
+	return getMemberRepository().getContactDetails(members);
 }
 
 
