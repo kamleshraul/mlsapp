@@ -184,7 +184,7 @@
 						if (this.options.resizeOptions && $.fn.resizable) {
 							// if element.height still the same after frame was shown
 							if (elementHeight === this.element.height()) {
-								this.element.height(elementHeight + this.editor.height());
+								this.element.height(elementHeight + this.editor.height()+1);
 							}
 
 							this.element.resizable($.extend(true, {
