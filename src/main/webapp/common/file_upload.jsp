@@ -3,7 +3,9 @@
 <head>
 	<script type="text/javascript">
 		$('document').ready(function(){
-			$('#file_${param.fileid}').fileupload({url: 'fileupload?authusername='+$('#authusername').val(), formData:null});
+			$('#file_${param.fileid}').fileupload({
+				url: 'fileupload?authusername='+$('#authusername').val(), 
+				formData:null});
 		});
 	</script>
 </head>

@@ -12,7 +12,7 @@
 			<div><a id="logout" class="icOff" href="<c:url value="/j_spring_security_logout" />"><spring:message code="logout" text="Logout"/></a></div>
 			<div class="user">
 				<img width="27" height="27" src="./resources/images/template/user_icon.png" alt=" " />			
-				<span>${authtitle}&nbsp;${authlastname}&nbsp;${authfirstname}&nbsp;${authmiddlename}</span>
+				<span>${authtitle}&nbsp;${authfirstname}&nbsp;${authmiddlename}&nbsp;${authlastname}</span>
 				<span>${logintime}</span>
 			</div>
 		</div>
