@@ -16,14 +16,13 @@ import java.util.Set;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
-import javax.persistence.JoinTable;
 import javax.persistence.JoinColumn;
+import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
 import javax.persistence.Table;
 
 import org.codehaus.jackson.annotate.JsonIgnoreProperties;
 import org.mkcl.els.repository.RoleRepository;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Configurable;
 
@@ -50,14 +49,14 @@ public class Role extends BaseDomain implements Serializable {
 
     @Column(length=250)
     private String type;
-    
+
     @ManyToMany
     @JoinTable(name = "credentials_roles", joinColumns =
     @JoinColumn(name = "role_id", referencedColumnName = "id"),
             inverseJoinColumns = @JoinColumn(name = "credential_id",
                     referencedColumnName = "id"))
     private Set<Credential> credentials = new HashSet<Credential>();
-    
+
     @Autowired
     private transient RoleRepository roleRepository;
     // ---------------- Constructors
@@ -74,17 +73,17 @@ public class Role extends BaseDomain implements Serializable {
      *
      * @param name the name
      */
-   
-    public Role(String name, String type, Set<Credential> credentials) {
+
+    public Role(final String name, final String type, final Set<Credential> credentials) {
 		super();
 		this.name = name;
 		this.type = type;
 		this.credentials = credentials;
 	}
-    
+
     // -------------- Domain Methods --------------------------------------------------------------------------
-    
-    
+
+
     public static RoleRepository getRoleRepository() {
     	RoleRepository roleRepository = new Role().roleRepository;
         if (roleRepository == null) {
@@ -95,11 +94,11 @@ public class Role extends BaseDomain implements Serializable {
     }
 
     public static List<Role> findRolesByRoleType(
-            final Class persistenceClass, String fieldName, String fieldValue,
-            String sortBy, String sortOrder) {
+            final Class persistenceClass, final String fieldName, final String fieldValue,
+            final String sortBy, final String sortOrder) {
         return getRoleRepository().findRolesByRoleType(persistenceClass,fieldName,fieldValue,sortBy, sortOrder);
     }
-    
+
     // -------------- Getters & Setters
     // --------------------------------------------------------------------------
     /**
@@ -111,7 +110,7 @@ public class Role extends BaseDomain implements Serializable {
         return name;
     }
 
-    
+
 
 	/**
      * Sets the name.
@@ -126,7 +125,7 @@ public class Role extends BaseDomain implements Serializable {
 		return type;
 	}
 
-	public void setType(String type) {
+	public void setType(final String type) {
 		this.type = type;
 	}
 
@@ -134,9 +133,12 @@ public class Role extends BaseDomain implements Serializable {
 		return credentials;
 	}
 
-	public void setCredentials(Set<Credential> credentials) {
+	public void setCredentials(final Set<Credential> credentials) {
 		this.credentials = credentials;
 	}
 
-	
+
+
+
+
 }
