@@ -145,7 +145,14 @@
 		<pattern>/session/new</pattern>
 		<pattern>/session/*/edit</pattern>
 		<pattern>/session/*/delete</pattern>
+		<pattern>/session/*/viewrotationorder</pattern>
 		<pattern>/session/</pattern>
+		
+		<pattern>/session/workflowconfig/new</pattern>
+		<pattern>/session/workflowconfig/*/edit</pattern>
+		<pattern>/session/workflowconfig/*/delete</pattern>
+		<pattern>/session/workflowconfig/actor/*/delete</pattern>
+		<pattern>/session/workflowconfig/</pattern>
 
 		<pattern>/airport/new</pattern>
 		<pattern>/airport/*/edit</pattern>
@@ -188,15 +195,40 @@
 		<pattern>/group/rotationorder/*/edit</pattern>
 		<pattern>/group</pattern>
 
-		<pattern>/questiontype/new</pattern>
-		<pattern>/questiontype/*/edit</pattern>
-		<pattern>/questiontype/*/delete</pattern>
-		<pattern>/questiontype</pattern>
+		<pattern>/devicetype/new</pattern>
+		<pattern>/devicetype/*/edit</pattern>
+		<pattern>/devicetype/*/delete</pattern>
+		<pattern>/devicetype</pattern>
 		
 		<pattern>/question/new</pattern>
 		<pattern>/question/*/edit</pattern>
 		<pattern>/question/*/delete</pattern>
 		<pattern>/question</pattern>
+		
+		<pattern>/usergroup/new</pattern>
+		<pattern>/usergroup/*/edit</pattern>
+		<pattern>/usergroup/*/delete</pattern>
+		<pattern>/usergroup</pattern>
+		
+		<pattern>/user/new</pattern>
+		<pattern>/user/*/edit</pattern>
+		<pattern>/user/*/delete</pattern>
+		<pattern>/user</pattern>
+		
+		<pattern>/role/new</pattern>
+		<pattern>/role/*/edit</pattern>
+		<pattern>/role/*/delete</pattern>
+		<pattern>/role/user</pattern>
+		<pattern>/role</pattern>
+		
+		<pattern>/ballot/memberballot</pattern>
+				
+		<pattern>/workflow/question/supportingmember</pattern>	
+		<pattern>/workflow/myTasks/*/process</pattern>	
+		
+		
+			
+		
 	</decorator>
 	<decorator name="mnu_form" page="mnu_form.jsp">
 		<pattern>/menu</pattern>
