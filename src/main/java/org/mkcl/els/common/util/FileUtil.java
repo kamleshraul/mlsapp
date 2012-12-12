@@ -9,7 +9,8 @@ public class FileUtil {
      * If there is no period in the file name, returns the name 
      * as it is.
      */
-    public static String fileExtension(String fileName) {		
+    public static String fileExtension(String fileName) {	
+
 		String strFileName = fileName;
 		while(strFileName.contains(".")){
 			strFileName = strFileName.split("\\.", 2)[1];
