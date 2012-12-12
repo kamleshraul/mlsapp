@@ -22,6 +22,13 @@
 			<form:errors path="sessionType" cssClass="validationError"/>	
 	</p>
 	
+	<p>
+			<label class="small"><spring:message
+						code="sessiontype.type" text="Type" />&nbsp;*</label>
+			<form:input cssClass="sText" path="type" />
+			<form:errors path="type" cssClass="validationError" />
+	</p>
+	
 	
 	<div class="fields expand">
 		<h2></h2>
