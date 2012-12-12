@@ -9,6 +9,7 @@ import org.mkcl.els.common.util.ApplicationConstants;
 import org.mkcl.els.common.util.FormaterUtil;
 import org.mkcl.els.domain.Group;
 import org.mkcl.els.domain.HouseType;
+import org.mkcl.els.domain.Ministry;
 import org.mkcl.els.domain.SessionType;
 import org.springframework.stereotype.Repository;
 
@@ -54,6 +55,14 @@ public class GroupRepository extends BaseRepository<Group, Long> {
         search.addFilterEqual("year",year);
         search.addFilterEqual("number",groupNumber);
         return this.searchUnique(search);
+    }
+
+    public Group find(final Ministry ministry, final HouseType houseType,
+            final Integer sessionYear, final SessionType sessionType, final String locale) {
+        String query="SELECT g FROM Group g JOIN g.ministries m WHERE g.locale='"+locale+"' AND g.houseType.id="+houseType.getId()+" AND "+
+                    " g.year="+sessionYear+" AND g.sessionType.id="+sessionType.getId()+" AND "+
+                    " m.id="+ministry.getId();
+        return (Group) this.em().createQuery(query).getSingleResult();
     }
 
 
