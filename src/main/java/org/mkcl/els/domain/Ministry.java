@@ -16,6 +16,7 @@ import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Table;
 
+import org.codehaus.jackson.annotate.JsonIgnoreProperties;
 import org.mkcl.els.repository.MinistryRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Configurable;
@@ -29,6 +30,7 @@ import org.springframework.beans.factory.annotation.Configurable;
 @Configurable
 @Entity
 @Table(name = "ministries")
+@JsonIgnoreProperties({"groups"})
 public class Ministry extends BaseDomain implements Serializable{
 	  // ---------------------------------Attributes------------------------------------------
     /** The Constant serialVersionUID. */
@@ -83,6 +85,11 @@ public class Ministry extends BaseDomain implements Serializable{
 
     public static List<Ministry> findUnassignedMinistries(final String locale) {
         return getMinistryRepository().findUnassignedMinistries(locale);
+    }
+
+    public static List<Ministry> findMinistriesAssignedToGroups(final HouseType houseType,final Integer sessionYear,final SessionType sessionType,final String locale){
+        return getMinistryRepository().findMinistriesAssignedToGroups(houseType,sessionYear,sessionType,locale);
+
     }
 
 	// ---------------------------------getters and setters----------------------------------------------
