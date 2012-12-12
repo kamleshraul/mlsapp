@@ -16,9 +16,13 @@ import java.util.Locale;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.mkcl.els.common.util.FormaterUtil;
+import org.mkcl.els.common.vo.AuthUser;
 import org.mkcl.els.domain.ApplicationLocale;
+import org.mkcl.els.domain.Credential;
 import org.mkcl.els.domain.CustomParameter;
 import org.mkcl.els.domain.MenuItem;
+import org.mkcl.els.domain.User;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Controller;
@@ -85,16 +89,20 @@ public class HomeController extends BaseController {
     @RequestMapping(value = "/home", method = RequestMethod.GET)
     public String home(final ModelMap model, final HttpServletRequest request,
             final Locale locale) {
-        String menuXml = MenuItem.getMenuXml(locale.toString());
-        model.addAttribute("menu_xml", menuXml);
-        model.addAttribute("dateFormat",
-                ((CustomParameter) CustomParameter.findByName(
-                        CustomParameter.class, "DATEPICKER_DATEFORMAT", ""))
-                        .getValue());
-        model.addAttribute("timeFormat",
-                ((CustomParameter) CustomParameter.findByName(
-                        CustomParameter.class, "DATEPICKER_TIMEFORMAT", ""))
-                        .getValue());
+        //here we will initialize authuser wih locale dependent data such as
+        //firstname,middlename,lastname,title and housetype.
+        //This housetype will be same as the housetype alloted to user while
+        //creating user entry.
+        AuthUser user=this.getCurrentUser();
+        Credential credential=Credential.findByFieldName(Credential.class, "username",user.getUsername(), "");
+        User authenticatedUser=User.findByFieldName(User.class,"credential",credential, locale.toString());
+        this.getCurrentUser().setFirstName(authenticatedUser.getFirstName());
+        this.getCurrentUser().setMiddleName(authenticatedUser.getMiddleName());
+        this.getCurrentUser().setLastName(authenticatedUser.getLastName());
+        this.getCurrentUser().setTitle(authenticatedUser.getTitle());
+        this.getCurrentUser().setHouseType(authenticatedUser.getHouseType().getType());
+        this.getCurrentUser().setUserId(authenticatedUser.getId());
+        this.getCurrentUser().setBirthDate(authenticatedUser.getBirthDate());
         model.addAttribute("authusername", this.getCurrentUser().getUsername());
         model.addAttribute("authtitle", this.getCurrentUser().getTitle());
         model.addAttribute("authfirstname", this.getCurrentUser()
@@ -102,7 +110,21 @@ public class HomeController extends BaseController {
         model.addAttribute("authmiddlename", this.getCurrentUser()
                 .getMiddleName());
         model.addAttribute("authlastname", this.getCurrentUser().getLastName());
-        model.addAttribute("logintime", new Date());
+        //setting date and time formats to be used.
+        String dateFormat= ((CustomParameter) CustomParameter.findByName(
+                CustomParameter.class, "DATEPICKER_DATEFORMAT", ""))
+                .getValue();
+        model.addAttribute("dateFormat",dateFormat);
+        String timeFormat=((CustomParameter) CustomParameter.findByName(
+                CustomParameter.class, "DATEPICKER_TIMEFORMAT", ""))
+                .getValue();
+        model.addAttribute("timeFormat",timeFormat);
+        //right now all menus are visible to all.
+        String menuXml = MenuItem.getMenuXml(locale.toString());
+        model.addAttribute("menu_xml", menuXml);
+        //adding login time
+        model.addAttribute("logintime", FormaterUtil.getDateFormatter(timeFormat, locale.toString()).format(new Date()));
+        //adding locale
         model.addAttribute("locale",locale.toString());
         return "home";
     }
