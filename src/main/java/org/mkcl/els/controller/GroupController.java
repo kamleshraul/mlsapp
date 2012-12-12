@@ -58,7 +58,9 @@ public class GroupController extends GenericController<Group> {
     private static final String ASC = "asc";
     
     /* (non-Javadoc)
-     * @see org.mkcl.els.controller.GenericController#populateNew(org.springframework.ui.ModelMap, org.mkcl.els.domain.BaseDomain, java.lang.String, javax.servlet.http.HttpServletRequest)
+     * @see org.mkcl.els.controller.GenericController#populateNew(org.springframework.ui.ModelMap, org.mkcl.els.domain.BaseDomain, java.lang.String, 
+
+javax.servlet.http.HttpServletRequest)
      */
     @Override
     protected void populateNew(final ModelMap model, final Group domain,
@@ -71,7 +73,9 @@ public class GroupController extends GenericController<Group> {
     }
     
     /* (non-Javadoc)
-     * @see org.mkcl.els.controller.GenericController#populateEdit(org.springframework.ui.ModelMap, org.mkcl.els.domain.BaseDomain, javax.servlet.http.HttpServletRequest)
+     * @see org.mkcl.els.controller.GenericController#populateEdit(org.springframework.ui.ModelMap, org.mkcl.els.domain.BaseDomain, 
+
+javax.servlet.http.HttpServletRequest)
      */
     @Override
     protected void populateEdit(final ModelMap model, final Group domain, final HttpServletRequest request) {	
@@ -131,7 +135,9 @@ public class GroupController extends GenericController<Group> {
 	
     }
     /* (non-Javadoc)
-     * @see org.mkcl.els.controller.GenericController#customValidateCreate(org.mkcl.els.domain.BaseDomain, org.springframework.validation.BindingResult, javax.servlet.http.HttpServletRequest)
+     * @see org.mkcl.els.controller.GenericController#customValidateCreate(org.mkcl.els.domain.BaseDomain, 
+
+org.springframework.validation.BindingResult, javax.servlet.http.HttpServletRequest)
      */
     @Override
     protected void customValidateCreate(final Group domain,
@@ -146,7 +152,9 @@ public class GroupController extends GenericController<Group> {
      }
     
     /* (non-Javadoc)
-     * @see org.mkcl.els.controller.GenericController#customValidateUpdate(org.mkcl.els.domain.BaseDomain, org.springframework.validation.BindingResult, javax.servlet.http.HttpServletRequest)
+     * @see org.mkcl.els.controller.GenericController#customValidateUpdate(org.mkcl.els.domain.BaseDomain, 
+
+org.springframework.validation.BindingResult, javax.servlet.http.HttpServletRequest)
      */
     @Override
     protected void customValidateUpdate(final Group domain,
@@ -155,7 +163,7 @@ public class GroupController extends GenericController<Group> {
     	Group group=Group.findById(Group.class,domain.getId());
     	if(!group.getNumber().equals(domain.getNumber()) ||!group.getHouseType().equals(domain.getHouseType())||
     			!group.getSessionType().equals(domain.getSessionType())||!group.getYear().equals(domain.getYear())){
-    		Group duplicateGroup=Group.findByNumberHouseTypeSessionTypeYear(domain.getNumber(), domain.getHouseType(), domain.getSessionType(), domain.getYear());
+    		Group duplicateGroup=Group.findByNumberHouseTypeSessionTypeYear(domain.getNumber(), domain.getHouseType(), domain.getSessionType(),domain.getYear());
     		if(duplicateGroup!=null){
     			result.rejectValue("number", "NonUnique", "Group already Exist");
     		}
@@ -205,6 +213,13 @@ public class GroupController extends GenericController<Group> {
     	List<Date> answeringDates=new ArrayList<Date>();
     	List<String> aDates=new ArrayList<String>();
     	List<String> submissionDates=new ArrayList<String>();
+    	List<String> lastSendingDatesToDepartment=new ArrayList<String>();
+    	List<String> lastReceivingDatesFromDepartment=new ArrayList<String>();
+    	List<String> yaadiPrintingDates=new ArrayList<String>();
+    	List<String> yaadiReceivingDates=new ArrayList<String>();
+    	List<String> suchhiPrintingDates=new ArrayList<String>();
+    	List<String> suchhiReceivingDates=new ArrayList<String>();
+    	List<String> suchhiDistributionDates=new ArrayList<String>();
     	List<String> selects = new ArrayList<String>();
     	SimpleDateFormat sf=new SimpleDateFormat("EEEE");
     	CustomParameter parameter = CustomParameter.findByName(
@@ -228,7 +243,7 @@ public class GroupController extends GenericController<Group> {
     	    	if(sf.format(current).equals("Monday")){
     	    		answeringDates.add(current);
     	    		aDates.add(dateFormat.format(current));
-    	    		QuestionDates qd = domain.findQuestionDatesByGroupAndAnsweringDate(current);//QuestionDates.findByFieldName(QuestionDates.class, "answeringDate", current, domain.getLocale());
+    	    		QuestionDates qd = domain.findQuestionDatesByGroupAndAnsweringDate(current);//QuestionDates.findByFieldName (QuestionDates.class, "answeringDate", current, domain.getLocale());
     	    		if(qd!=null) {
     	    			select = "true";
     	    		}  
@@ -297,18 +312,65 @@ public class GroupController extends GenericController<Group> {
     		submissionDate.setTime(d);
     		submissionDate.add(Calendar.DATE, -31);
     		Date sDate=submissionDate.getTime();
-    		QuestionDates qd = domain.findQuestionDatesByGroupAndAnsweringDate(d);//QuestionDates.findByFieldName(QuestionDates.class, "answeringDate", current, domain.getLocale());
+    		QuestionDates qd = domain.findQuestionDatesByGroupAndAnsweringDate(d);//QuestionDates.findByFieldName(QuestionDates.class,"answeringDate", current, domain.getLocale());
     		//QuestionDates qd=QuestionDates.findByFieldName(QuestionDates.class, "answeringDate", d, domain.getLocale());
     		if(qd!=null){
     			submissionDates.add(dateFormat.format(qd.getFinalSubmissionDate()));
+    			if(qd.getLastSendingDateToDepartment()!=null) {
+    				lastSendingDatesToDepartment.add(dateFormat.format(qd.getLastSendingDateToDepartment()));
+    			}
+    			else {
+    				lastSendingDatesToDepartment.add("");
+    			}
+    			if(qd.getLastReceivingDateFromDepartment()!=null) {
+    				lastReceivingDatesFromDepartment.add(dateFormat.format(qd.getLastReceivingDateFromDepartment()));
+    			}
+    			else {
+    				lastReceivingDatesFromDepartment.add("");
+    			}
+    			if(qd.getYaadiPrintingDate()!=null) {
+    				yaadiPrintingDates.add(dateFormat.format(qd.getYaadiPrintingDate()));
+    			}
+    			else {
+    				yaadiPrintingDates.add("");
+    			}
+    			if(qd.getYaadiReceivingDate()!=null) {
+    				yaadiReceivingDates.add(dateFormat.format(qd.getYaadiReceivingDate()));
+    			}
+    			else {
+    				yaadiReceivingDates.add("");
+    			}
+    			if(qd.getSuchhiPrintingDate()!=null) {
+    				suchhiPrintingDates.add(dateFormat.format(qd.getSuchhiPrintingDate()));
+    			}
+    			else {
+    				suchhiPrintingDates.add("");
+    			}
+    			if(qd.getSuchhiReceivingDate()!=null) {
+    				suchhiReceivingDates.add(dateFormat.format(qd.getSuchhiReceivingDate()));
+    			}
+    			else {
+    				suchhiReceivingDates.add("");
+    			}
+    			if(qd.getSuchhiDistributionDate()!=null) {
+    				suchhiDistributionDates.add(dateFormat.format(qd.getSuchhiDistributionDate()));
+    			}
+    			else {
+    				suchhiDistributionDates.add("");
+    			}    			
     		}
     		else{
     			submissionDates.add(dateFormat.format(sDate));
-    		}
-    		
-    	} 
-    	
+    		}    		
+    	}    	
     	model.addAttribute("submissionDates",submissionDates);
+    	model.addAttribute("lastSendingDatesToDepartment",lastSendingDatesToDepartment);
+    	model.addAttribute("lastReceivingDatesFromDepartment",lastReceivingDatesFromDepartment);
+    	model.addAttribute("yaadiPrintingDates",yaadiPrintingDates);
+    	model.addAttribute("yaadiReceivingDates",yaadiReceivingDates);
+    	model.addAttribute("suchhiPrintingDates",suchhiPrintingDates);
+    	model.addAttribute("suchhiReceivingDates",suchhiReceivingDates);
+    	model.addAttribute("suchhiDistributionDates",suchhiDistributionDates);
 	    model.addAttribute("dateCount",answeringDates.size());
 	    model.addAttribute("domain", domain);
 		return urlPattern+"/"+"edit";
@@ -343,11 +405,16 @@ public class GroupController extends GenericController<Group> {
 		}
 		else{
 			sf=new SimpleDateFormat("dd/MM/yyyy",new Locale(domain.getLocale()));
-		}
-			
-		
+		}		
 		Date answeringDate=new Date();
 		Date submissionDate=new Date();
+		Date lastSendingDateToDepartment=null;
+		Date lastReceivingDateFromDepartment=null;
+		Date yaadiPrintingDate=null;
+		Date yaadiReceivingDate=null;
+		Date suchhiPrintingDate=null;
+		Date suchhiReceivingDate=null;
+		Date suchhiDistributionDate=null;
 		for(int i=0;i<dateCount;i++){
 			if(request.getParameter("date"+i)!=null){				
 				if(request.getParameter("date"+i).equals("true")){
@@ -365,25 +432,80 @@ public class GroupController extends GenericController<Group> {
 						// TODO Auto-generated catch block
 						e.printStackTrace();
 					}
-					//
+					String strLastSendingDateToDepartment=request.getParameter("lastSendingDateToDepartment"+i);
+					try {
+						if(!strLastSendingDateToDepartment.isEmpty())
+							lastSendingDateToDepartment=sf.parse(strLastSendingDateToDepartment);
+					} catch (ParseException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+					String strLastReceivingDateFromDepartment=request.getParameter("lastReceivingDateFromDepartment"+i);
+					try {
+						if(!strLastReceivingDateFromDepartment.isEmpty())
+							lastReceivingDateFromDepartment=sf.parse(strLastReceivingDateFromDepartment);
+					} catch (ParseException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+					String strYaadiPrintingDate=request.getParameter("yaadiPrintingDate"+i);
+					try {
+						if(!strYaadiPrintingDate.isEmpty())
+							yaadiPrintingDate=sf.parse(strYaadiPrintingDate);
+					} catch (ParseException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+					String strYaadiReceivingDate=request.getParameter("yaadiReceivingDate"+i);
+					try {
+						if(!strYaadiReceivingDate.isEmpty())
+							yaadiReceivingDate=sf.parse(strYaadiReceivingDate);
+					} catch (ParseException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+					String strSuchhiPrintingDate=request.getParameter("suchhiPrintingDate"+i);
+					try {
+						if(!strSuchhiPrintingDate.isEmpty())
+							suchhiPrintingDate=sf.parse(strSuchhiPrintingDate);
+					} catch (ParseException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+					String strSuchhiReceivingDate=request.getParameter("suchhiReceivingDate"+i);
+					try {
+						if(!strSuchhiReceivingDate.isEmpty())
+							suchhiReceivingDate=sf.parse(strSuchhiReceivingDate);
+					} catch (ParseException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+					String strSuchhiDistributionDate=request.getParameter("suchhiDistributionDate"+i);
+					try {
+						if(!strSuchhiDistributionDate.isEmpty())
+							suchhiDistributionDate=sf.parse(strSuchhiDistributionDate);
+					} catch (ParseException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+					QuestionDates questionDate= new QuestionDates();
 					QuestionDates qd= domain.findQuestionDatesByGroupAndAnsweringDate( answeringDate);
-					//QuestionDates qd = QuestionDates.findByFieldName(QuestionDates.class, "answeringDate", answeringDate, domain.getLocale());
+					//QuestionDates qd = QuestionDates.findByFieldName(QuestionDates.class, "answeringDate", answeringDate,domain.getLocale());
 					if(qd!=null){
-						qd.setAnsweringDate(answeringDate);
-						qd.setFinalSubmissionDate(submissionDate);
-						questionDates.add(qd);
-					}
-					else{
-						QuestionDates questionDate= new QuestionDates();
-						questionDate.setAnsweringDate(answeringDate);
-						questionDate.setFinalSubmissionDate(submissionDate);
-						questionDate.setLocale(domain.getLocale());
-						questionDates.add(questionDate);
-					}
-						
-					
-				}
-				
+						questionDate=qd;
+					}					
+					questionDate.setAnsweringDate(answeringDate);
+					questionDate.setFinalSubmissionDate(submissionDate);
+					questionDate.setLastSendingDateToDepartment(lastSendingDateToDepartment);
+					questionDate.setLastReceivingDateFromDepartment(lastReceivingDateFromDepartment);
+					questionDate.setYaadiPrintingDate(yaadiPrintingDate);
+					questionDate.setYaadiReceivingDate(yaadiReceivingDate);
+					questionDate.setSuchhiPrintingDate(suchhiPrintingDate);
+					questionDate.setSuchhiReceivingDate(suchhiReceivingDate);
+					questionDate.setSuchhiDistributionDate(suchhiDistributionDate);
+					questionDate.setLocale(domain.getLocale());
+					questionDates.add(questionDate);					
+				}				
 			}
 			else{
 				String aDate=request.getParameter("answeringDate"+i);
@@ -393,7 +515,7 @@ public class GroupController extends GenericController<Group> {
 						e.printStackTrace();
 				}
 				QuestionDates qd= domain.findQuestionDatesByGroupAndAnsweringDate( answeringDate);
-			//	QuestionDates qd = QuestionDates.findByFieldName(QuestionDates.class, "answeringDate", answeringDate, domain.getLocale());
+			//	QuestionDates qd = QuestionDates.findByFieldName(QuestionDates.class, "answeringDate", answeringDate,domain.getLocale());
 				if(qd!=null){
 					qd.remove();
 				}
