@@ -14,6 +14,8 @@ import java.io.Serializable;
 import javax.persistence.Entity;
 import javax.persistence.Table;
 
+import org.mkcl.els.repository.MessageResourceRepository;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Configurable;
 
 /**
@@ -39,6 +41,9 @@ public class MessageResource extends BaseDomain implements Serializable {
 
     /** The description. */
     private String description;
+
+    @Autowired
+    private transient MessageResourceRepository messageResourceRepository;
 
     // ---------------------------------Constructors----------------------------------------------
 
@@ -66,7 +71,19 @@ public class MessageResource extends BaseDomain implements Serializable {
     }
 
     // -------------------------------Domain_Methods----------------------------------------------
+    public static MessageResourceRepository getMessageResourceRepository() {
+        MessageResourceRepository messageResourceRepository = new MessageResource().messageResourceRepository;
+        if (messageResourceRepository == null) {
+            throw new IllegalStateException(
+                    "MessageResourceRepository has not been injected in MessageResource Domain");
+        }
+        return messageResourceRepository;
+    }
 
+    public String findByLocaleAndCode(final String locale,
+            final String code) {
+        return getMessageResourceRepository().findByLocaleAndCode(locale, code).getValue();
+    }
     // ------------------------------------------Getters/Setters-----------------------------------
 
     /**
