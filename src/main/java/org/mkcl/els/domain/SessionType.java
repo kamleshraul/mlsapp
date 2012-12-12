@@ -36,6 +36,11 @@ public class SessionType extends BaseDomain implements Serializable {
     @Column(length = 300)
     private String sessionType;
 
+    @Column(length= 300)
+    private String type;
+
+
+
     // ---------------------------------Constructors----------------------------------------------
 
     /**
@@ -76,4 +81,13 @@ public class SessionType extends BaseDomain implements Serializable {
         this.sessionType = sessiontype;
     }
 
-}
+
+    public String getType() {
+        return type;
+    }
+
+
+    public void setType(final String type) {
+        this.type = type;
+    }
+    }
