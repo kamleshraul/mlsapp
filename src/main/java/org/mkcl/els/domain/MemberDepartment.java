@@ -161,7 +161,7 @@ public class MemberDepartment extends BaseDomain implements Serializable {
 	 */
 	public String formatToDate(){
 		String retVal = "";
-		if(this.getFromDate() != null) {
+		if(this.getToDate() != null) {
 			retVal = FormaterUtil.getDateFormatter(this.getLocale()).format(this.getToDate());
 		}
 		return retVal;
