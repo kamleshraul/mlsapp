@@ -20,6 +20,8 @@ import javax.persistence.NoResultException;
 import org.mkcl.els.common.util.ApplicationConstants;
 import org.mkcl.els.common.vo.MasterVO;
 import org.mkcl.els.domain.House;
+import org.mkcl.els.domain.Member;
+import org.mkcl.els.domain.MemberRole;
 import org.mkcl.els.domain.Session;
 import org.mkcl.els.domain.associations.HouseMemberRoleAssociation;
 import org.springframework.stereotype.Repository;
@@ -162,16 +164,16 @@ BaseRepository<HouseMemberRoleAssociation, Serializable> {
                 String strSessionEndDate=format.format(sessionEndDate);
                 query="SELECT m.id,t.name,m.first_name,m.middle_name,m.last_name FROM members_houses_roles as mhr JOIN members as m JOIN memberroles as mr "+
                 " JOIN titles as t WHERE t.id=m.title_id and mr.id=mhr.role and mhr.member=m.id and m.locale='"+locale+"' "+
-                " and mhr.to_date>='"+strSessionStartDate+"' and mhr.to_date>='"+strSessionEndDate+"' and mr.priority=0 and mhr.house_id="+house.getId()+" and (m.first_name LIKE '%"+param+"%' OR m.middle_name LIKE '%"+param+"%' OR m.last_name LIKE '%"+param+"%' OR concat(m.last_name,' ',m.first_name) LIKE '%"+param+"%' OR concat(m.first_name,' ',m.last_name) LIKE '%"+param+"%' OR concat(m.last_name,' ',m.first_name,' ',m.middle_name) LIKE '%"+param+"%' OR concat(m.last_name,', ',t.name,' ',m.first_name,' ',m.middle_name) LIKE '%"+param+"%' OR concat(m.first_name,' ',m.middle_name,' ',m.last_name) LIKE '%"+param+"%')  ORDER BY m.last_name asc";
+                " and mhr.to_date>='"+strSessionStartDate+"' and mhr.to_date>='"+strSessionEndDate+"' and mr.priority=0 and mhr.house_id="+house.getId()+" and (m.first_name LIKE '%"+param+"%' OR m.middle_name LIKE '%"+param+"%' OR m.last_name LIKE '%"+param+"%' OR concat(m.last_name,' ',m.first_name) LIKE '%"+param+"%' OR concat(m.first_name,' ',m.last_name) LIKE '%"+param+"%' OR concat(m.last_name,' ',m.first_name,' ',m.middle_name) LIKE '%"+param+"%' OR concat(m.last_name,', ',t.name,' ',m.first_name,' ',m.middle_name) LIKE '%"+param+"%' OR concat(m.first_name,' ',m.middle_name,' ',m.last_name) LIKE '%"+param+"%')  ORDER BY m.first_name asc";
                 List members=this.em().createNativeQuery(query).getResultList();
                 for(Object i:members){
                     Object[] o=(Object[]) i;
                     MasterVO masterVO=new MasterVO();
                     masterVO.setId(Long.parseLong(o[0].toString()));
                     if(o[3]!=null){
-                        masterVO.setName(o[4].toString()+", "+o[1].toString()+" "+o[2].toString()+" "+o[3].toString());
+                        masterVO.setName(o[1].toString()+", "+o[2].toString()+" "+o[3].toString()+" "+o[4].toString());
                     }else{
-                        masterVO.setName(o[4].toString()+", "+o[1].toString()+" "+o[2].toString());
+                        masterVO.setName(o[1].toString()+", "+o[2].toString()+" "+o[3].toString());
                     }
                     memberVOS.add(masterVO);
                 }
@@ -182,4 +184,38 @@ BaseRepository<HouseMemberRoleAssociation, Serializable> {
             return memberVOS;
         }
         }
+	
+	/**
+	 * Returns null if there are no active house member roles.
+	 */
+	public List<HouseMemberRoleAssociation> findActiveHouseMemberRoles(final House house,
+			final MemberRole role, 
+			final Date date,
+			final String locale) {
+		Search search = new Search();
+		search.addFilterLessOrEqual("fromDate", date);
+		search.addFilterGreaterOrEqual("toDate", date);
+		search.addFilterEqual("role", role);
+		search.addFilterEqual("house", house);
+		search.addFilterEqual("locale", locale);
+		
+		List<HouseMemberRoleAssociation> associations = this.search(search);
+		return associations;
+	}
+
+	public List<MasterVO> findAllActiveMemberVOSInSession(Session session,
+			String locale) {
+		House house=session.getHouse();
+		return findAllActiveMemberVOSInSession(house, session, locale);
+	}
+
+	@SuppressWarnings("unchecked")
+	public List<Member> findAllActiveMembersInSession(Session session,
+			String locale) {
+		String query="SELECT m FROM HouseMemberRoleAssociation hmra JOIN hmra.member m JOIN hmra.role r"+
+					 " WHERE m.locale='"+locale+"' AND hmra.fromDate>="+session.getStartDate()+" AND hmra.toDate>="+session.getEndDate()+" "+
+					 " AND hmra.house.id="+session.getHouse().getId()+" AND r.priority=0 ORDER BY m.lastName asc";
+		List<Member> members=this.em().createQuery(query).getResultList();
+		return members;
+	}
 }
