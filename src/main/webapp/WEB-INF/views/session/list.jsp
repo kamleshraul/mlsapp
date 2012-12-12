@@ -127,13 +127,13 @@
 			</a> |
 			<a href="#" id="search" class="butSim">
 				<spring:message code="generic.search" text="Search"/>
-			</a> |
-			<a href="#" id="rotation_order_report" class="butSim">
+			</a><%-- |
+			 <a href="#" id="rotation_order_report" class="butSim">
 				<spring:message code="session.rotationOrderReport" text="Rotation order report"/>
 			</a> |
 			<a href="#" id="rotation_order_publish" class="butSim">
 				<spring:message code="generic.rotationOrderpublish" text="Publish Rotation Order Report"/>
-			</a>
+			</a> --%>
 			
 			<p>&nbsp;</p>
 			
