@@ -90,6 +90,21 @@ public class Grid extends BaseDomain implements Serializable {
     /** The native query. */
     private boolean nativeQuery = false;
 
+    /*
+     * for subgrids we need to add two additional parameters
+     */
+    private Long subGridId;
+
+    private boolean subGrid=false;
+    /*
+     * for grouping
+     */
+    private boolean grouping=false;
+
+    private String groupField;
+
+    private boolean groupingCollapsed=false;
+
     /** The grid repository. */
     @Autowired
     private transient GridRepository gridRepository;
@@ -196,7 +211,8 @@ public class Grid extends BaseDomain implements Serializable {
         GridConfig gridConfig = new GridConfig(grid.getTitle(),
                 grid.getColNames(), grid.getColModel(), grid.getHeight(),
                 grid.getWidth(), grid.getPageSize(), grid.getSortOrder(),
-                grid.getDetailView(), grid.isMultiSelect(),grid.getSortField());
+                grid.getDetailView(), grid.isMultiSelect(),grid.getSortField(),grid.isSubGrid(),grid.getSubGridId()
+                ,grid.isGrouping(),grid.getGroupField(),grid.isGroupingCollapsed());
         return gridConfig;
     }
 
@@ -470,4 +486,53 @@ public class Grid extends BaseDomain implements Serializable {
     public void setNativeQuery(final boolean nativeQuery) {
         this.nativeQuery = nativeQuery;
     }
+
+
+    public Long getSubGridId() {
+        return subGridId;
+    }
+
+
+    public void setSubGridId(final Long subGridId) {
+        this.subGridId = subGridId;
+    }
+
+
+    public boolean isSubGrid() {
+        return subGrid;
+    }
+
+
+    public void setSubGrid(final boolean subGrid) {
+        this.subGrid = subGrid;
+    }
+
+    public boolean isGrouping() {
+        return grouping;
+    }
+
+
+    public void setGrouping(final boolean grouping) {
+        this.grouping = grouping;
+    }
+
+    public String getGroupField() {
+        return groupField;
+    }
+
+
+    public void setGroupField(final String groupField) {
+        this.groupField = groupField;
+    }
+
+
+    public boolean isGroupingCollapsed() {
+        return groupingCollapsed;
+    }
+
+
+    public void setGroupingCollapsed(final boolean groupingCollapsed) {
+        this.groupingCollapsed = groupingCollapsed;
+    }
+
 }
