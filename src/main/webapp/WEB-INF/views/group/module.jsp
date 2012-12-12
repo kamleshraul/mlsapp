@@ -58,8 +58,12 @@
 
 		}
 
-		function newRecord() {
+		function newRecord(copy) {
+			if(copy==null||copy==undefined){
 			showTabByIdAndUrl('details_tab','group/new')	;
+			}else{
+				showTabByIdAndUrl('details_tab','group/new?copy='+$("#key").val())	;
+			}
 		}
 
 		function editRecord() {

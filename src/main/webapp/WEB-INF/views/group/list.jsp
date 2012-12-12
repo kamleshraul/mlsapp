@@ -17,6 +17,9 @@
 			$("#search").click(function() {
 				searchRecord();
 			});
+			$("#copy").click(function() {
+				newRecord("copy");
+			});
 		});		
 	</script>
 </head>
@@ -35,6 +38,9 @@
 			</a>|
 			<a href="#" id="search" class="butSim">
 				<spring:message code="generic.search" text="Search"/>
+			</a> |
+			<a href="#" id="copy" class="butSim">
+				<spring:message code="generic.copy" text="Copy Ministries"/>
 			</a> 
 			<p>&nbsp;</p>
 		</div>
