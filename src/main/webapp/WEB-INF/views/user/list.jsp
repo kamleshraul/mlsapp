@@ -14,11 +14,15 @@
 			$("#delete_record").click(function() {
 				deleteRecord($('#key').val());
 			});			
+			$("#search").click(function() {
+				searchRecord();
+			});
 		});
-		function rowSelectHandler(rowid,status){			
+		function rowSelectHandler(rowid,status){
+			//on row select key will be set
 			if($('#key')){
-				$('#key').val(rowid);
-			}
+				$('#key').val(rowid);					
+			}		 
 		}
 		function rowDblClickHandler(rowid, iRow, iCol, e) {
 			//here when we are clicking a particular row then we will first set the key and then load the edit
@@ -40,6 +44,9 @@
 			</a> |
 			<a href="#" id="delete_record" class="butSim">
 				<spring:message code="generic.delete" text="Delete"/>
+			</a> |
+			<a href="#" id="search" class="butSim">
+				<spring:message code="question.search" text="Search"/>
 			</a>
 			<p>&nbsp;</p>
 		</div>
