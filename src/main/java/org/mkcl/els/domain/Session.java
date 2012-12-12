@@ -251,6 +251,11 @@ public class Session extends BaseDomain implements Serializable {
             final SessionType sessionType, final Integer sessionYear) {
         return getSessionRepository().findSessionByHouseTypeSessionTypeYear(houseType, sessionType, sessionYear);
     }
+    
+    public static List<Session> findSessionsByHouseTypeAndYear(
+			HouseType houseType, Integer sessionYear) {
+		return getSessionRepository().findSessionsByHouseTypeAndYear(houseType,sessionYear);
+	}
     // ------------------------------Getters/Setters-----------------------
 
 
@@ -769,6 +774,9 @@ public class Session extends BaseDomain implements Serializable {
 	public void setRotationOrderText(String rotationOrderText) {
 		this.rotationOrderText = rotationOrderText;
 	}
+
+
+	
     
 	
     }
