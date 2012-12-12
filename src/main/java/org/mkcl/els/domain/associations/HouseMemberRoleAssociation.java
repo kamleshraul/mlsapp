@@ -10,6 +10,7 @@
 package org.mkcl.els.domain.associations;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -448,6 +449,18 @@ public class HouseMemberRoleAssociation implements Serializable {
 		return getMemberHouseRoleRepository().findAllActiveMemberVOSInSession(house,
 				session,locale);
 	}
+	
+	public static List<MasterVO> findAllActiveMemberVOSInSession(
+			final Session session, final String locale) {
+		return getMemberHouseRoleRepository().findAllActiveMemberVOSInSession(
+				session,locale);
+	}
+	
+	public static List<Member> findAllActiveMembersInSession(
+			final Session session, final String locale) {
+		return getMemberHouseRoleRepository().findAllActiveMembersInSession(
+				session,locale);
+	}
 
 	public static List<MasterVO> findAllActiveMemberVOSInSession(final House house,
             final Session session, final String locale,final String param) {
@@ -462,4 +475,23 @@ public class HouseMemberRoleAssociation implements Serializable {
 	//public void setConstituencySubtype(String constituencySubtype) {
 	//	this.constituencySubtype = constituencySubtype;
 	//}
+	
+	/**
+	 * Find all the HouseMemberRoles that have House as @param house, Memberole 
+	 * as @param role and @param date is between fromDate and toDate (both dates
+	 * are inclusive) 
+	 * 
+	 * Returns an empty list if there are no active Members.
+	 */
+	public static List<HouseMemberRoleAssociation> findActiveHouseMemberRoles(final House house,
+			final MemberRole role, 
+			final Date date,
+			final String locale) {
+		List<HouseMemberRoleAssociation> associations = HouseMemberRoleAssociation.
+			getMemberHouseRoleRepository().findActiveHouseMemberRoles(house, role, date, locale);
+		if(associations == null) {
+			associations = new ArrayList<HouseMemberRoleAssociation>();
+		}
+		return associations;
+	}
 }
