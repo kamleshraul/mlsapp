@@ -4,13 +4,9 @@
 	<title><spring:message code="user.usergroup.list" text="List of User Groups"/></title>
 	<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
 	<script type="text/javascript">
-	
 		$(document).ready(function(){
 			$('#list_record').hide();
-			if($('#key').val()==""){
-				$('#key').val($('#userId').val());
-			}
-			$('#gridURLParams').val("user="+$('#key').val()+"&userName="+$('#userName').val());
+			$('#gridURLParams').val("credential="+$('#credential').val()+"&user="+$("#user").val());
 			$('#editDeleteLinks').show();		
 			$('#new_record').click(function(){
 				newUserGroupRecord();
@@ -35,7 +31,6 @@
 				$('#editDeleteLinks').hide();
 				$("#cancelFn").val("newUserGroupRecord");
 				$.get('usergroup/new?'+$('#gridURLParams').val(), function(data){					
-					//console.log("ajax call"+$('#key').val());
 					$('#grid_container').html(data);
 					$('#list_record').show();
 					scrollTop();					
@@ -50,7 +45,6 @@
 				$.prompt($('#selectRowFirstMessage').val());
 				return false;
 			}
-			
 			$.get('usergroup/'+row+'/edit?'+$('#gridURLParams').val(), function(data){
 				$('#grid_container').html(data);
 				$('#list_record').show();
@@ -61,8 +55,7 @@
 			$('#editDeleteLinks').hide();
 			$("#internalKey").val(rowid);			
 			var row=$('#internalKey').val();
-			$("#cancelFn").val("rowDblClickHandler");
-			
+			$("#cancelFn").val("rowDblClickHandler");						
 			$.get('usergroup/'+row+'/edit?'+$('#gridURLParams').val(), function(data){
 				$('#grid_container').html(data);
 				$('#list_record').show();
@@ -84,8 +77,7 @@
 				$.prompt($('#confirmDeleteMessage').val()+ row,{
 					buttons: {Ok:true, Cancel:false}, callback: function(v){
 			        if(v){
-			        
-			        	  $.delete_('usergroup/'+row+'/delete?'+$('#gridURLParams').val(), null, function(data, textStatus, XMLHttpRequest) {
+				        $.delete_('usergroup/'+row+'/delete?'+$('#gridURLParams').val(), null, function(data, textStatus, XMLHttpRequest) {
 				        	listUserGroupRecord();
 				        });
 			        }
@@ -122,6 +114,10 @@
 	<input type="hidden" id="grid_id" value="${gridId}">
 	<input type="hidden" id="gridURLParams" name="gridURLParams">
 	<input type="hidden" id="internalKey" name="internalKey">	
+	<input type="hidden" id="credential" name="credential" value="${credential}">
+	<input type="hidden" id="user" name="user" value="${user}">
+	
+	
 	</div>
 </body>
 </html>

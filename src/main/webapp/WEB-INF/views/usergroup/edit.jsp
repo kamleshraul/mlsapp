@@ -85,7 +85,7 @@
 	
 	$('document').ready(function(){	
 		initControls();
-		//$('#key').val('');
+		$('#key').val('');
 		if($("#activeFrom").val()==""){	
 		$("#activeFrom").val($("#currentDate").val());
 		}
@@ -162,6 +162,11 @@
 		<form:input cssClass="datemask sText" path="activeFrom"/>
 		<form:errors path="activeFrom" cssClass="validationError"/>	
 	</p>	
+	<p> 
+		<label class="small"><spring:message code="usergroup.activeto" text="Active Upto"/></label>
+		<form:input cssClass="datemask sText" path="activeTo"/>
+		<form:errors path="activeTo" cssClass="validationError"/>	
+	</p>
 	<p>
 		<label class="small"><spring:message code="usergroup.housetype" text="House Type" /></label>			
 		<select  id="param_HOUSETYPE_${locale}" name="param_HOUSETYPE_${locale}" class="sSelect">
