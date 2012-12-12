@@ -28,8 +28,10 @@ import org.mkcl.els.common.vo.ConstituencyCompleteVO;
 import org.mkcl.els.common.vo.DynamicSelectVO;
 import org.mkcl.els.common.vo.GroupVO;
 import org.mkcl.els.common.vo.MasterVO;
+import org.mkcl.els.common.vo.QuestionSearchVO;
 import org.mkcl.els.common.vo.Reference;
 import org.mkcl.els.domain.Airport;
+import org.mkcl.els.domain.Chart;
 import org.mkcl.els.domain.Constituency;
 import org.mkcl.els.domain.CustomParameter;
 import org.mkcl.els.domain.Department;
@@ -45,6 +47,7 @@ import org.mkcl.els.domain.Member;
 import org.mkcl.els.domain.MemberMinister;
 import org.mkcl.els.domain.MemberRole;
 import org.mkcl.els.domain.Ministry;
+import org.mkcl.els.domain.Question;
 import org.mkcl.els.domain.QuestionDates;
 import org.mkcl.els.domain.RailwayStation;
 import org.mkcl.els.domain.Session;
@@ -52,6 +55,7 @@ import org.mkcl.els.domain.SessionType;
 import org.mkcl.els.domain.State;
 import org.mkcl.els.domain.SubDepartment;
 import org.mkcl.els.domain.Tehsil;
+import org.mkcl.els.domain.WorkflowConfig;
 import org.mkcl.els.domain.associations.HouseMemberRoleAssociation;
 import org.mkcl.els.repository.DistrictRepository;
 import org.springframework.stereotype.Controller;
@@ -62,6 +66,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
+// TODO: Auto-generated Javadoc
 /**
  * The Class ReferenceController.
  *
@@ -398,6 +403,12 @@ public class ReferenceController extends BaseController {
 
     }
 
+    /**
+     * Gets the last date.
+     *
+     * @param houseid the houseid
+     * @return the last date
+     */
     @RequestMapping(value="/{house}/firstdate")
     public Reference getLastDate(@PathVariable("house") final Long houseid){
         Reference reference=new Reference();
@@ -407,6 +418,14 @@ public class ReferenceController extends BaseController {
         return reference;
     }
 
+    /**
+     * Gets the sub departments by department.
+     *
+     * @param department the department
+     * @param map the map
+     * @param locale the locale
+     * @return the sub departments by department
+     */
     @RequestMapping(value="department/{department}/subDepartments",method=RequestMethod.GET)
     public @ResponseBody List<SubDepartment> getSubDepartmentsByDepartment(
             @PathVariable("department") final Long department,final ModelMap map,final Locale locale){
@@ -415,6 +434,12 @@ public class ReferenceController extends BaseController {
         return subDepartments;
     }
 
+    /**
+     * Gets the member full name.
+     *
+     * @param memberId the member id
+     * @return the member full name
+     */
     @RequestMapping(value="member/{memberId}/fullName", method=RequestMethod.GET)
     public @ResponseBody Reference getMemberFullName(@PathVariable("memberId") final Long memberId){
         Member member = Member.findById(Member.class, memberId);
@@ -424,6 +449,13 @@ public class ReferenceController extends BaseController {
         return reference;
     }
 
+    /**
+     * Gets the member death date.
+     *
+     * @param memberId the member id
+     * @param locale the locale
+     * @return the member death date
+     */
     @RequestMapping(value="member/{memberId}/deathDate", method=RequestMethod.GET)
     public @ResponseBody Reference getMemberDeathDate(@PathVariable("memberId") final Long memberId,
             final Locale locale){
@@ -440,6 +472,13 @@ public class ReferenceController extends BaseController {
         return reference;
     }
 
+    /**
+     * Gets the division districts by constituency.
+     *
+     * @param constituency the constituency
+     * @param locale the locale
+     * @return the division districts by constituency
+     */
     @RequestMapping(value="divdis/{constituency}", method=RequestMethod.GET)
     public @ResponseBody ConstituencyCompleteVO getDivisionDistrictsByConstituency(	@PathVariable("constituency") final Long constituency,
             final Locale locale){
@@ -459,6 +498,13 @@ public class ReferenceController extends BaseController {
         return constituencyCompleteVO;
     }
 
+    /**
+     * Gets the houses by type.
+     *
+     * @param houseType the house type
+     * @param locale the locale
+     * @return the houses by type
+     */
     @RequestMapping(value="houses/{houseType}", method=RequestMethod.GET)
     public @ResponseBody List<MasterVO> getHousesByType(@PathVariable("houseType") final String houseType,
             final Locale locale){
@@ -471,6 +517,13 @@ public class ReferenceController extends BaseController {
         return housesVOs;
     }
 
+    /**
+     * Gets the member roles by type.
+     *
+     * @param houseType the house type
+     * @param locale the locale
+     * @return the member roles by type
+     */
     @RequestMapping(value="memberroles/{houseType}", method=RequestMethod.GET)
     public @ResponseBody List<MasterVO> getMemberRolesByType(@PathVariable("houseType") final String houseType,
             final Locale locale){
@@ -483,6 +536,13 @@ public class ReferenceController extends BaseController {
         return rolesVOs;
     }
 
+    /**
+     * Gets the elections by type.
+     *
+     * @param houseType the house type
+     * @param locale the locale
+     * @return the elections by type
+     */
     @RequestMapping(value="elections/{houseType}", method=RequestMethod.GET)
     public @ResponseBody List<MasterVO> getElectionsByType(@PathVariable("houseType") final String houseType,
             final Locale locale){
@@ -494,6 +554,13 @@ public class ReferenceController extends BaseController {
         return rolesVOs;
     }
 
+    /**
+     * Gets the constituencies by type.
+     *
+     * @param houseType the house type
+     * @param locale the locale
+     * @return the constituencies by type
+     */
     @RequestMapping(value="constituencies/{houseType}", method=RequestMethod.GET)
     public @ResponseBody List<MasterVO> getConstituenciesByType(@PathVariable("houseType") final String houseType,
             final Locale locale){
@@ -501,6 +568,13 @@ public class ReferenceController extends BaseController {
         return constituenciesVOs;
     }
 
+    /**
+     * Gets the election type.
+     *
+     * @param electionId the election id
+     * @param locale the locale
+     * @return the election type
+     */
     @RequestMapping(value="election/{electionId}/electionType", method=RequestMethod.GET)
     public @ResponseBody Reference getElectionType(@PathVariable("electionId") final Long electionId,
             final Locale locale) {
@@ -512,6 +586,13 @@ public class ReferenceController extends BaseController {
         return reference;
     }
 
+    /**
+     * Gets the district.
+     *
+     * @param tehsilId the tehsil id
+     * @param locale the locale
+     * @return the district
+     */
     @RequestMapping(value="district/{tehsilId}", method=RequestMethod.GET)
     public @ResponseBody Reference getDistrict(@PathVariable("tehsilId") final Long tehsilId,
             final Locale locale) {
@@ -522,6 +603,13 @@ public class ReferenceController extends BaseController {
         return reference;
     }
 
+    /**
+     * Gets the group vo.
+     *
+     * @param group the group
+     * @param locale the locale
+     * @return the group vo
+     */
     @RequestMapping(value="/ministrydeptsubdeptdates/{group}", method=RequestMethod.GET)
     public @ResponseBody GroupVO getGroupVO(
             @PathVariable("group") final Long group,
@@ -576,6 +664,13 @@ public class ReferenceController extends BaseController {
         return groupVO;
     }
 
+    /**
+     * Gets the departments.
+     *
+     * @param ministry the ministry
+     * @param locale the locale
+     * @return the departments
+     */
     @RequestMapping(value="/departments/{ministry}", method=RequestMethod.GET)
     public @ResponseBody List<MasterVO> getDepartments(
             @PathVariable("ministry") final Long ministry,
@@ -594,6 +689,14 @@ public class ReferenceController extends BaseController {
         return departmentVOs;
     }
 
+    /**
+     * Gets the sub departments.
+     *
+     * @param ministry the ministry
+     * @param department the department
+     * @param locale the locale
+     * @return the sub departments
+     */
     @RequestMapping(value="/subdepartments/{ministry}/{department}", method=RequestMethod.GET)
     public @ResponseBody List<MasterVO> getSubDepartments(
             @PathVariable("ministry") final Long ministry,
@@ -614,6 +717,15 @@ public class ReferenceController extends BaseController {
         return subDepartmentVOs;
     }
 
+    /**
+     * Gets the session.
+     *
+     * @param locale the locale
+     * @param houseType the house type
+     * @param sessionYear the session year
+     * @param sessionType the session type
+     * @return the session
+     */
     @RequestMapping(value="/session/{houseType}/{sessionYear}/{sessionType}", method=RequestMethod.GET)
     public @ResponseBody MasterVO getSession(
             final Locale locale,
@@ -633,6 +745,15 @@ public class ReferenceController extends BaseController {
         }
     }
 
+    /**
+     * Gets the members.
+     *
+     * @param request the request
+     * @param locale the locale
+     * @param session the session
+     * @param model the model
+     * @return the members
+     */
     @RequestMapping(value="/members",method=RequestMethod.GET)
     public @ResponseBody List<AutoCompleteVO> getMembers(final HttpServletRequest request,final Locale locale,@RequestParam("session")final Long session
             ,final ModelMap model){
@@ -667,6 +788,15 @@ public class ReferenceController extends BaseController {
         return autoCompleteVOs;
     }
 
+    /**
+     * Gets the supporting members.
+     *
+     * @param request the request
+     * @param locale the locale
+     * @param session the session
+     * @param model the model
+     * @return the supporting members
+     */
     @RequestMapping(value="/supportingmembers",method=RequestMethod.GET)
     public @ResponseBody List<DynamicSelectVO> getSupportingMembers(final HttpServletRequest request,final Locale locale,@RequestParam("session")final Long session
             ,final ModelMap model){
@@ -700,6 +830,14 @@ public class ReferenceController extends BaseController {
         return dynamicSelectVOs;
     }
 
+    /**
+     * Gets the member constituency.
+     *
+     * @param memberid the memberid
+     * @param locale the locale
+     * @param session the session
+     * @return the member constituency
+     */
     @RequestMapping(value="/member/{memberid}/{constituency}", method=RequestMethod.GET)
     public @ResponseBody MasterVO getMemberConstituency(
             @PathVariable("memberid") final Long memberid,
@@ -725,16 +863,34 @@ public class ReferenceController extends BaseController {
         return masterVO;
     }
 
+    /**
+     * Show titles.
+     *
+     * @param model the model
+     * @param request the request
+     * @param locale the locale
+     * @return the string
+     * @author compaq
+     * @since v1.0.0
+     */
     @RequestMapping(value = "titles", method = RequestMethod.GET)
-	public @ResponseBody String showTitles(final ModelMap model, final HttpServletRequest request, final Locale locale) {
-		Grid grid = Grid.findByDetailView("house", locale.toString());
-		model.addAttribute("gridId", grid.getId());
-		model.addAttribute("houseType", this.getCurrentUser().getHouseType());
-		model.addAttribute("messagePattern", "house");
-		model.addAttribute("urlPattern", "house");
-		return "house/list";
-	}
+    public @ResponseBody String showTitles(final ModelMap model, final HttpServletRequest request, final Locale locale) {
+        Grid grid = Grid.findByDetailView("house", locale.toString());
+        model.addAttribute("gridId", grid.getId());
+        model.addAttribute("houseType", this.getCurrentUser().getHouseType());
+        model.addAttribute("messagePattern", "house");
+        model.addAttribute("urlPattern", "house");
+        return "house/list";
+    }
 
+    /**
+     * Gets the houses by house type.
+     *
+     * @param houseTypeId the house type id
+     * @param map the map
+     * @param locale the locale
+     * @return the houses by house type
+     */
     @RequestMapping(value = "/{houseType}/house",
             method = RequestMethod.GET)
             public @ResponseBody
@@ -745,183 +901,351 @@ public class ReferenceController extends BaseController {
         HouseType houseType = HouseType.findById(HouseType.class, houseTypeId);
         if (houseType != null) {
             houses = House.findAllByFieldName(House.class, "type",
-            		houseType, "name", "asc", locale.toString());
+                    houseType, "firstDate", ApplicationConstants.DESC, locale.toString());
         }
 
         return houses;
     }
 
-/*
- * loadGroups,loadDepartments and loadSubDepartments are used in user group jsp
- */
+    /*
+     * loadGroups,loadDepartments and loadSubDepartments are used in user group jsp
+     */
+    /**
+     * Load groups.
+     *
+     * @param request the request
+     * @param locale the locale
+     * @return the list< master v o>
+     * @author compaq
+     * @since v1.0.0
+     */
     @RequestMapping(value="/groups")
     public @ResponseBody List<MasterVO> loadGroups(final HttpServletRequest request,final Locale locale){
-      CustomParameter customParameter=CustomParameter.findByName(CustomParameter.class, "DEPLOYMENT_SERVER", "");
-      List<MasterVO> masterVOs=new ArrayList<MasterVO>();
-      List<Group> groups=new ArrayList<Group>();
-      if(customParameter!=null){
-          String server=customParameter.getValue();
-          String strhouseType=request.getParameter("housetype");
-          String stryear=request.getParameter("year");
-          String strsessionType=request.getParameter("sessiontype");
-          String houseType=strhouseType;
-          String sessionType=strsessionType;
-          if(server.equals("TOMCAT")){
-              try {
-                  houseType=new String(strhouseType.getBytes("ISO-8859-1"),"UTF-8");
-                  sessionType=new String(strsessionType.getBytes("ISO-8859-1"),"UTF-8");
-                  }
-              catch (UnsupportedEncodingException e) {
-                  e.printStackTrace();
-              }
-          }else{
-          }
-          HouseType selectedHouseType=HouseType.findByName(HouseType.class, houseType, locale.toString());
-          SessionType selectedSessionType=SessionType.findByFieldName(SessionType.class, "sessionType", sessionType, locale.toString());
-          Integer year=Integer.parseInt(stryear);
-          groups=Group.findByHouseTypeSessionTypeYear(selectedHouseType, selectedSessionType, year);
-      }
-      for(Group i:groups){
-          MasterVO masterVO=new MasterVO(i.getId(),String.valueOf(i.getNumber()));
-          masterVOs.add(masterVO);
-      }
-      return masterVOs;
+        //CustomParameter customParameter=CustomParameter.findByName(CustomParameter.class, "DEPLOYMENT_SERVER", "");
+        List<MasterVO> masterVOs=new ArrayList<MasterVO>();
+        List<Group> groups=new ArrayList<Group>();
+        String strhouseType=request.getParameter("houseType");
+        String stryear=request.getParameter("year");
+        String strsessionType=request.getParameter("sessionType");
+        if(strhouseType!=null&&stryear!=null&&strsessionType!=null){
+            HouseType selectedHouseType=HouseType.findByFieldName(HouseType.class, "type",strhouseType, locale.toString());
+            SessionType selectedSessionType=SessionType.findById(SessionType.class, Long.parseLong(strsessionType));
+            Integer year=Integer.parseInt(stryear);
+            groups=Group.findByHouseTypeSessionTypeYear(selectedHouseType, selectedSessionType, year);
+            for(Group i:groups){
+                MasterVO masterVO=new MasterVO(i.getId(),String.valueOf(i.getNumber()));
+                masterVOs.add(masterVO);
+            }
+        }
+        return masterVOs;
     }
 
+    /**
+     * Load departments.
+     *
+     * @param request the request
+     * @param locale the locale
+     * @return the list< master v o>
+     * @author compaq
+     * @since v1.0.0
+     */
     @RequestMapping(value="/departments")
     public @ResponseBody List<MasterVO> loadDepartments(final HttpServletRequest request,final Locale locale){
-      CustomParameter customParameter=CustomParameter.findByName(CustomParameter.class, "DEPLOYMENT_SERVER", "");
-      List<MasterVO> masterVOs=new ArrayList<MasterVO>();
-      if(customParameter!=null){
-          String server=customParameter.getValue();
-          String strhouseType=request.getParameter("housetype");
-          String stryear=request.getParameter("year");
-          String strsessionType=request.getParameter("sessiontype");
-          String strlocale=locale.toString();
-          String strGroup=request.getParameter("group");
-          String houseType=strhouseType;
-          String sessionType=strsessionType;
-          if(server.equals("TOMCAT")){
-              try {
-                  houseType=new String(strhouseType.getBytes("ISO-8859-1"),"UTF-8");
-                  sessionType=new String(strsessionType.getBytes("ISO-8859-1"),"UTF-8");
-              }
-              catch (UnsupportedEncodingException e) {
-                  e.printStackTrace();
-              }
-          }else{
-          }
-          HouseType selectedHouseType=HouseType.findByName(HouseType.class, houseType, strlocale);
-          SessionType selectedSessionType=SessionType.findByFieldName(SessionType.class, "sessionType", sessionType, strlocale);
-          Integer year=Integer.parseInt(stryear);
-          String[] delimitedgroups=strGroup.split(",");
-          Integer[] newgroups=new Integer[delimitedgroups.length];
-          for(int i=0;i<delimitedgroups.length;i++){
-              newgroups[i]=Integer.parseInt(delimitedgroups[i]);
-          }
-          masterVOs=MemberMinister.findfindAssignedDepartmentsVO(newgroups,selectedHouseType,selectedSessionType,year, strlocale);
-      }
-      return masterVOs;
+        CustomParameter customParameter=CustomParameter.findByName(CustomParameter.class, "DEPLOYMENT_SERVER", "");
+        List<MasterVO> masterVOs=new ArrayList<MasterVO>();
+        if(customParameter!=null){
+            String server=customParameter.getValue();
+            String strhouseType=request.getParameter("housetype");
+            String stryear=request.getParameter("year");
+            String strsessionType=request.getParameter("sessiontype");
+            String strlocale=locale.toString();
+            String strGroup=request.getParameter("group");
+            String houseType=strhouseType;
+            String sessionType=strsessionType;
+            if(server.equals("TOMCAT")){
+                try {
+                    houseType=new String(strhouseType.getBytes("ISO-8859-1"),"UTF-8");
+                    sessionType=new String(strsessionType.getBytes("ISO-8859-1"),"UTF-8");
+                }
+                catch (UnsupportedEncodingException e) {
+                    e.printStackTrace();
+                }
+            }else{
+            }
+            HouseType selectedHouseType=HouseType.findByName(HouseType.class, houseType, strlocale);
+            SessionType selectedSessionType=SessionType.findByFieldName(SessionType.class, "sessionType", sessionType, strlocale);
+            Integer year=Integer.parseInt(stryear);
+            String[] delimitedgroups=strGroup.split(",");
+            Integer[] newgroups=new Integer[delimitedgroups.length];
+            for(int i=0;i<delimitedgroups.length;i++){
+                newgroups[i]=Integer.parseInt(delimitedgroups[i]);
+            }
+            masterVOs=MemberMinister.findAssignedDepartmentsVO(newgroups,selectedHouseType,selectedSessionType,year, strlocale);
+        }
+        return masterVOs;
     }
 
+    /**
+     * Load sub departments.
+     *
+     * @param request the request
+     * @param locale the locale
+     * @return the list< master v o>
+     * @author compaq
+     * @since v1.0.0
+     */
     @RequestMapping(value="/subdepartments")
     public @ResponseBody List<MasterVO> loadSubDepartments(final HttpServletRequest request,final Locale locale){
-      CustomParameter customParameter=CustomParameter.findByName(CustomParameter.class, "DEPLOYMENT_SERVER", "");
-      List<MasterVO> masterVOs=new ArrayList<MasterVO>();
-      if(customParameter!=null){
-          String server=customParameter.getValue();
-          String strhouseType=request.getParameter("housetype");
-          String stryear=request.getParameter("year");
-          String strsessionType=request.getParameter("sessiontype");
-          String strlocale=locale.toString();
-          String strGroup=request.getParameter("group");
-          String houseType=strhouseType;
-          String sessionType=strsessionType;
-          if(server.equals("TOMCAT")){
+        CustomParameter customParameter=CustomParameter.findByName(CustomParameter.class, "DEPLOYMENT_SERVER", "");
+        List<MasterVO> masterVOs=new ArrayList<MasterVO>();
+        if(customParameter!=null){
+            String server=customParameter.getValue();
+            String strhouseType=request.getParameter("housetype");
+            String stryear=request.getParameter("year");
+            String strsessionType=request.getParameter("sessiontype");
+            String strlocale=locale.toString();
+            String strGroup=request.getParameter("group");
+            String houseType=strhouseType;
+            String sessionType=strsessionType;
+            if(server.equals("TOMCAT")){
 
-              try {
-                  houseType=new String(strhouseType.getBytes("ISO-8859-1"),"UTF-8");
-                  sessionType=new String(strsessionType.getBytes("ISO-8859-1"),"UTF-8");
-              }
-              catch (UnsupportedEncodingException e) {
-                  e.printStackTrace();
-              }
-          }else{
-          }
-          HouseType selectedHouseType=HouseType.findByName(HouseType.class, houseType, strlocale);
-          SessionType selectedSessionType=SessionType.findByFieldName(SessionType.class, "sessionType", sessionType, strlocale);
-          Integer year=Integer.parseInt(stryear);
-          String[] delimitedgroups=strGroup.split(",");
-          Integer[] newgroups=new Integer[delimitedgroups.length];
-          for(int i=0;i<delimitedgroups.length;i++){
-              newgroups[i]=Integer.parseInt(delimitedgroups[i]);
-          }
-          masterVOs=MemberMinister.findfindAssignedSubDepartmentsVO(newgroups,selectedHouseType,selectedSessionType,year, strlocale);
-      }
-      return masterVOs;
+                try {
+                    houseType=new String(strhouseType.getBytes("ISO-8859-1"),"UTF-8");
+                    sessionType=new String(strsessionType.getBytes("ISO-8859-1"),"UTF-8");
+                }
+                catch (UnsupportedEncodingException e) {
+                    e.printStackTrace();
+                }
+            }else{
+            }
+            HouseType selectedHouseType=HouseType.findByName(HouseType.class, houseType, strlocale);
+            SessionType selectedSessionType=SessionType.findByFieldName(SessionType.class, "sessionType", sessionType, strlocale);
+            Integer year=Integer.parseInt(stryear);
+            String[] delimitedgroups=strGroup.split(",");
+            Integer[] newgroups=new Integer[delimitedgroups.length];
+            for(int i=0;i<delimitedgroups.length;i++){
+                newgroups[i]=Integer.parseInt(delimitedgroups[i]);
+            }
+            masterVOs=MemberMinister.findAssignedSubDepartmentsVO(newgroups,selectedHouseType,selectedSessionType,year, strlocale);
+        }
+        return masterVOs;
     }
 
+    /**
+     * Load sub departments by dept names.
+     *
+     * @param request the request
+     * @param locale the locale
+     * @return the list< master v o>
+     * @author compaq
+     * @since v1.0.0
+     */
     @RequestMapping(value="/departments/subdepartments")
     public @ResponseBody List<MasterVO> loadSubDepartmentsByDeptNames(final HttpServletRequest request,final Locale locale){
-      CustomParameter customParameter=CustomParameter.findByName(CustomParameter.class, "DEPLOYMENT_SERVER", "");
-      List<MasterVO> masterVOs=new ArrayList<MasterVO>();
-      if(customParameter!=null){
-          String server=customParameter.getValue();
-          String strhouseType=request.getParameter("housetype");
-          String stryear=request.getParameter("year");
-          String strsessionType=request.getParameter("sessiontype");
-          String strlocale=locale.toString();
-          String strGroup=request.getParameter("group");
-          String houseType=strhouseType;
-          String sessionType=strsessionType;
-          String strDepartment=request.getParameter("department");
-          String department=strDepartment;
-          if(server.equals("TOMCAT")){
-              try {
-                  houseType=new String(strhouseType.getBytes("ISO-8859-1"),"UTF-8");
-                  sessionType=new String(strsessionType.getBytes("ISO-8859-1"),"UTF-8");
-                  department=new String(strDepartment.getBytes("ISO-8859-1"),"UTF-8");
-              }
-              catch (UnsupportedEncodingException e) {
-                  e.printStackTrace();
-              }
-          }else{
-          }
-          String[] departments=department.split(",");
-          HouseType selectedHouseType=HouseType.findByName(HouseType.class, houseType, strlocale);
-          SessionType selectedSessionType=SessionType.findByFieldName(SessionType.class, "sessionType", sessionType, strlocale);
-          Integer year=Integer.parseInt(stryear);
-          String[] delimitedgroups=strGroup.split(",");
-          Integer[] newgroups=new Integer[delimitedgroups.length];
-          for(int i=0;i<delimitedgroups.length;i++){
-              newgroups[i]=Integer.parseInt(delimitedgroups[i]);
-          }
-          masterVOs=MemberMinister.findfindAssignedSubDepartmentsVO(newgroups,selectedHouseType,selectedSessionType,year, strlocale);
-      }
-      return masterVOs;
+        CustomParameter customParameter=CustomParameter.findByName(CustomParameter.class, "DEPLOYMENT_SERVER", "");
+        List<MasterVO> masterVOs=new ArrayList<MasterVO>();
+        if(customParameter!=null){
+            String server=customParameter.getValue();
+            String strhouseType=request.getParameter("housetype");
+            String stryear=request.getParameter("year");
+            String strsessionType=request.getParameter("sessiontype");
+            String strlocale=locale.toString();
+            String strGroup=request.getParameter("group");
+            String houseType=strhouseType;
+            String sessionType=strsessionType;
+            String strDepartment=request.getParameter("department");
+            String department=strDepartment;
+            if(server.equals("TOMCAT")){
+                try {
+                    houseType=new String(strhouseType.getBytes("ISO-8859-1"),"UTF-8");
+                    sessionType=new String(strsessionType.getBytes("ISO-8859-1"),"UTF-8");
+                    department=new String(strDepartment.getBytes("ISO-8859-1"),"UTF-8");
+                }
+                catch (UnsupportedEncodingException e) {
+                    e.printStackTrace();
+                }
+            }else{
+            }
+            String[] departments=department.split(",");
+            HouseType selectedHouseType=HouseType.findByName(HouseType.class, houseType, strlocale);
+            SessionType selectedSessionType=SessionType.findByFieldName(SessionType.class, "sessionType", sessionType, strlocale);
+            Integer year=Integer.parseInt(stryear);
+            String[] delimitedgroups=strGroup.split(",");
+            Integer[] newgroups=new Integer[delimitedgroups.length];
+            for(int i=0;i<delimitedgroups.length;i++){
+                newgroups[i]=Integer.parseInt(delimitedgroups[i]);
+            }
+            masterVOs=MemberMinister.findAssignedSubDepartmentsVO(newgroups,departments,selectedHouseType,selectedSessionType,year, strlocale);
+        }
+        return masterVOs;
     }
-    
-    //method to get SessionType of those session whose Session exists
-    @RequestMapping(value = "/{year}/{houseType}/sessionType", method = RequestMethod.GET)
-    public @ResponseBody
-    List<Reference> getSessionTypesByHouseTypeYear(
-            @PathVariable("year") final Integer year,
-            @PathVariable("houseType") final Long houseTypeId,
-            final ModelMap map,
-            final Locale locale) {
-    	HouseType houseType=HouseType.findById(HouseType.class, houseTypeId);
-    	List<Session> sessions=Session.findSessionsByHouseTypeAndYear(houseType, year);
-    	List<SessionType> sessionTypes=new ArrayList<SessionType>();
-    	List<Reference> sessionTypesRef=new ArrayList<Reference>();
-    	if(!sessions.isEmpty()){
-    		for(Session s:sessions){
-        		sessionTypes.add(s.getType());
-        	}
-    	  	for(SessionType i:sessionTypes){
-    	  		Reference reference=new Reference(i.getId().toString(),i.getSessionType());
-    	  		sessionTypesRef.add(reference);
-    	  	}
-       	}
-    	return sessionTypesRef;
+
+    /**
+     * Gets the group.
+     *
+     * @param request the request
+     * @param ministryId the ministry id
+     * @param locale the locale
+     * @return the group
+     */
+    @RequestMapping(value="/ministry/{ministryId}/group")
+    public @ResponseBody MasterVO getGroup(final HttpServletRequest request,
+            @PathVariable("ministryId") final Long ministryId,
+            final Locale locale){
+        Ministry ministry=Ministry.findById(Ministry.class, ministryId);
+        HouseType houseType=HouseType.findById(HouseType.class,Long.parseLong(request.getParameter("houseType")));
+        Integer sessionYear=Integer.parseInt(request.getParameter("sessionYear"));
+        SessionType sessionType=SessionType.findById(SessionType.class, Long.parseLong(request.getParameter("sessionType")));
+        Group group=Group.find(ministry, houseType, sessionYear, sessionType, locale.toString());
+        MasterVO masterVO=new MasterVO();
+        if(group!=null){
+            masterVO.setId(group.getId());
+            masterVO.setName(String.valueOf(group.getNumber()));
+        }
+        return masterVO;
     }
+
+    /**
+     * Gets the answering dates.
+     *
+     * @param request the request
+     * @param groupId the group id
+     * @param locale the locale
+     * @return the answering dates
+     */
+    @RequestMapping(value="/group/{groupId}/answeringdates")
+    public @ResponseBody List<MasterVO> getAnsweringDates(final HttpServletRequest request,
+            @PathVariable("groupId") final Long groupId,
+            final Locale locale){
+        Group group=Group.findById(Group.class,groupId);
+        List<QuestionDates> answeringDates=group.getQuestionDates();
+        List<MasterVO> masterVOs=new ArrayList<MasterVO>();
+        for(QuestionDates i:answeringDates){
+            MasterVO masterVO=new MasterVO();
+            masterVO.setId(i.getId());
+            masterVO.setName(FormaterUtil.getDateFormatter(locale.toString()).format(i.getAnsweringDate()));
+            masterVOs.add(masterVO);
+        }
+        return masterVOs;
+    }
+
+    /**
+     * Gets the ministries.
+     *
+     * @param request the request
+     * @param sessionId the session id
+     * @param locale the locale
+     * @return the ministries
+     */
+    @RequestMapping(value="/session/{sessionId}/ministries")
+    public @ResponseBody List<MasterVO> getMinistries(final HttpServletRequest request,
+            @PathVariable("sessionId") final Long sessionId,
+            final Locale locale){
+        Session session=Session.findById(Session.class,sessionId);
+        List<Ministry> ministries=Ministry.findMinistriesAssignedToGroups(session.getHouse().getType(), session.getYear(), session.getType(), locale.toString());
+        List<MasterVO> masterVOs=new ArrayList<MasterVO>();
+        for(Ministry i:ministries){
+            MasterVO masterVO=new MasterVO();
+            masterVO.setId(i.getId());
+            masterVO.setName(i.getName());
+            masterVOs.add(masterVO);
+        }
+        return masterVOs;
+    }
+
+    /**
+     * Gets the question search.
+     *
+     * @param request the request
+     * @param locale the locale
+     * @return the question search
+     */
+    @RequestMapping(value="/question/search",method=RequestMethod.POST)
+    public @ResponseBody List<QuestionSearchVO> getQuestionSearch(final HttpServletRequest request,
+            final Locale locale){
+        //this is where we are going to search for questions which are candidate
+        //for clubbing.
+       // CustomParameter customParameter=CustomParameter.findByName(CustomParameter.class, "DEPLOYMENT_SERVER", "");
+        List<QuestionSearchVO> questionSearchVOs=new ArrayList<QuestionSearchVO>();
+       // if(customParameter!=null){
+            //String server=customParameter.getValue();
+            String param=request.getParameter("param").trim();
+            //String queryParam=null;
+            //if(server.equals("TOMCAT")){
+                //try {
+                   // queryParam=new String(param.getBytes("ISO-8859-1"),"UTF-8");
+                //}
+               // catch (UnsupportedEncodingException e) {
+                  //  e.printStackTrace();
+               // }
+           // }else{
+               // queryParam=param;
+           // }
+            String questionId=request.getParameter("question");
+            if(questionId!=null){
+                if(!questionId.isEmpty()){
+                    Question question=Question.findById(Question.class, Long.parseLong(questionId));
+                    Group group=question.getGroup();
+                    Session session=question.getSession();
+                    Chart currentChart=Chart.find(question);
+                    //clubbing takes place among questions of charts belonging to the same group and session.
+                    if(group!=null&&session!=null){
+                        questionSearchVOs=Question.fullTextSearchClubbing(param,session.getId(),group.getId(),currentChart.getId(),question.getId(),locale.toString());
+                    }
+                }
+            }
+       // }
+        return questionSearchVOs;
+    }
+
+    /**
+     * Find actors.
+     *
+     * @param request the request
+     * @param model the model
+     * @param locale the locale
+     * @return the list< reference>
+     * @author compaq
+     * @since v1.0.0
+     */
+    @RequestMapping(value="/actors",method=RequestMethod.POST)
+    public @ResponseBody List<Reference> findActors(final HttpServletRequest request,final ModelMap model,
+    		final Locale locale){
+    	Long sessionId=Long.parseLong(request.getParameter("sessionId"));
+    	Long deviceTypeId=Long.parseLong(request.getParameter("deviceTypeId"));
+    	String workflowType=request.getParameter("workflowType");
+    	Integer groupNumber=Integer.parseInt(request.getParameter("groupNumber"));
+    	Long workflowConfigId=Long.parseLong(request.getParameter("workflowConfigId"));
+    	Integer level=Integer.parseInt(request.getParameter("level"));
+    	String sortorder=request.getParameter("sortorder");
+    	List<Reference> references=WorkflowConfig.findActors(sessionId, deviceTypeId, workflowType, groupNumber, workflowConfigId, level, sortorder);
+    	return references;
+
+    }
+
+    /**
+     * Find latest workflow config.
+     *
+     * @param request the request
+     * @param model the model
+     * @param locale the locale
+     * @return the reference
+     * @author compaq
+     * @since v1.0.0
+     */
+    @RequestMapping(value="/wfconfig",method=RequestMethod.POST)
+    public @ResponseBody Reference findLatestWorkflowConfig(final HttpServletRequest request,final ModelMap model,
+    		final Locale locale){
+    	Long sessionId=Long.parseLong(request.getParameter("sessionId"));
+    	Long deviceTypeId=Long.parseLong(request.getParameter("deviceTypeId"));
+    	String workflowType=request.getParameter("workflowType");
+    	WorkflowConfig workflowConfig=WorkflowConfig.findLatest(sessionId, deviceTypeId, workflowType);
+    	Reference reference=new Reference();
+    	reference.setId(String.valueOf(workflowConfig.getId()));
+    	reference.setName(String.valueOf(workflowConfig.getId()));
+    	return reference;
+
+    }
+
+
 }
