@@ -43,6 +43,9 @@ public class MemberRole extends BaseDomain implements Serializable {
     /** The name. */
     @Column(length = 600)
     private String name;
+    
+    @Column(length=250)
+    private String type;
 
     /*
      * Member can have multiple roles but the role with highest priority only
@@ -104,7 +107,9 @@ public class MemberRole extends BaseDomain implements Serializable {
 				locale);
 	}
 
-
+    public static MemberRole find(HouseType houseType, String type, String locale) {
+		return MemberRole.getMemberRoleRepository().find(houseType, type, locale);
+	}
 
     // ------------------------------------------Getters/Setters-----------------------------------
     /**
@@ -151,4 +156,11 @@ public class MemberRole extends BaseDomain implements Serializable {
         this.houseType = houseType;
     }
 
+    public String getType() {
+		return type;
+	}
+
+	public void setType(String type) {
+		this.type = type;
+	}
 }
