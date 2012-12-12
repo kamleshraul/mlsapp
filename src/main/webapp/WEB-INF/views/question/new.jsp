@@ -6,79 +6,33 @@
 	</title>
 	<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
 	<script type="text/javascript">
-	function loadMinistriesDepartmentsSubDeptAnsweringDates(group){
-		$.get('ref/ministrydeptsubdeptdates/'+group,function(data){
-			$("#ministry").empty();
-			var ministries=data.ministries;
-			var ministryText="";
-			if(ministries.length>0){
-			for(var i=0;i<ministries.length;i++){
-				ministryText+="<option value='"+ministries[i].id+"'>"+ministries[i].name;
-			}
-			$("#ministry").html(ministryText);
-			}
-
-			$("#department").empty();
-			var departments=data.departments;
-			var departmentText="";
-			if(departments.length>0){
-			for(var i=0;i<departments.length;i++){
-				departmentText+="<option value='"+departments[i].id+"'>"+departments[i].name;
-			}
-			$("#department").html(departmentText);
-			$("#department").prev().show();
-			$("#department").show();
-			}else{
-				$("#department").prev().hide();
-				$("#department").hide();	
-			}
-
-			$("#subDepartment").empty();
-			var subDepartments=data.subDepartments;
-			var subDepartmentText="";
-			if(subDepartments!=null){
-			if(subDepartments.length>0){
-			for(var i=0;i<subDepartments.length;i++){
-				subDepartmentText+="<option value='"+subDepartments[i].id+"'>"+subDepartments[i].name;
-			}
-			$("#subDepartment").html(subDepartmentText);
-			$("#subDepartment").prev().show();
-			$("#subDepartment").show();	
-			}else{
-				$("#subDepartment").prev().hide();
-				$("#subDepartment").hide();					
-			}
-			}else{
-				$("#subDepartment").prev().hide();				
-				$("#subDepartment").hide();	
-			}
-			
-			$("#answeringDate").empty();
-			var answeringDates=data.answeringDates;
-			var answeringDatesText="<option value='' selected='selected'>----"+$("#pleaseSelectMessage").val()+"----</option>";
-			if(answeringDates.length>0){
-			for(var i=0;i<answeringDates.length;i++){
-				answeringDatesText+="<option value='"+answeringDates[i].id+"'>"+answeringDates[i].name;
-			}
-			$("#answeringDate").html(answeringDatesText);
-			}			
-		});
-	}
-
+	//this is for autosuggest
+	function split( val ) {
+		return val.split( /,\s*/ );
+	}	
+	function extractLast( term ) {
+		return split( term ).pop();
+	}	
+	var controlName=$(".autosuggestmultiple").attr("id");
+	var primaryMemberControlName=$(".autosuggest").attr("id");
+	//this is for loading sessions,ministries,group,departments,subdepartments,answering dates
 	function loadSubDepartments(ministry,department){
-		$.get('ref/subdepartments/'+ministry+'/'+$("#department").val(),function(data){
+		$.get('ref/subdepartments/'+ministry+'/'+department,function(data){
 			$("#subDepartment").empty();
-			var subDepartmentText="";
+			var subDepartmentText="<option value='' selected='selected'>----"+$("#pleaseSelectMessage").val()+"----</option>";
 			if(data.length>0){
 			for(var i=0;i<data.length;i++){
 				subDepartmentText+="<option value='"+data[i].id+"'>"+data[i].name;
 			}
 			$("#subDepartment").html(subDepartmentText);
-			$("#subDepartment").prev().show();
-			$("#subDepartment").show();	
+			//$("#subDepartment").prev().show();
+			//$("#subDepartment").show();	
 			}else{
-				$("#subDepartment").prev().hide();
-				$("#subDepartment").hide();	
+				$("#subDepartment").empty();
+				var subDepartmentText="<option value='' selected='selected'>----"+$("#pleaseSelectMessage").val()+"----</option>";				
+				$("#subDepartment").html(subDepartmentText);
+				//$("#subDepartment").prev().hide();
+				//$("#subDepartment").hide();	
 			}
 		});
 	}
@@ -86,42 +40,45 @@
 	function loadDepartments(ministry){
 		$.get('ref/departments/'+ministry,function(data){
 			$("#department").empty();
-			var departmentText="";
+			var departmentText="<option value='' selected='selected'>----"+$("#pleaseSelectMessage").val()+"----</option>";
 			if(data.length>0){
 			for(var i=0;i<data.length;i++){
 				departmentText+="<option value='"+data[i].id+"'>"+data[i].name;
 			}
 			$("#department").html(departmentText);
-			$("#department").prev().show();
-			$("#department").show();	
+			//$("#department").prev().show();
+			//$("#department").show();	
 			loadSubDepartments(ministry,data[0].id);
 			}else{
-				$("#subDepartment").empty();
-				$("#department").prev().hide();
-				$("#department").hide();
-				$("#subDepartment").prev().hide();
-				$("#subDepartment").hide();
+				$("#department").empty();
+				var departmentText="<option value='' selected='selected'>----"+$("#pleaseSelectMessage").val()+"----</option>";
+				$("#department").html(departmentText);				
+				//$("#department").prev().hide();
+				//$("#department").hide();
+				$("#subDepartment").empty();				
+				//$("#subDepartment").prev().hide();
+				//$("#subDepartment").hide();
 			}
 		});
 	}
 
 	function loadAnsweringDates(group,ministry){
 		$.get('ref/group/'+group+'/answeringdates',function(data){
-			console.log(data.length);
-			console.log();
 			if(data.length>0){
 				$("#answeringDate").empty();				
-				var answeringDatesText="";
 				var answeringDatesText="<option value='' selected='selected'>----"+$("#pleaseSelectMessage").val()+"----</option>";
 				for(var i=0;i<data.length;i++){
 					answeringDatesText+="<option value='"+data[i].id+"'>"+data[i].name;
 				}
-				$("#answeringDate").html(answeringDatesText);				
-			}else{
-				var answeringDatesText="";
-				var answeringDatesText="<option value='' selected='selected'>----"+$("#pleaseSelectMessage").val()+"----</option>";
-				$("#answeringDate").empty();
 				$("#answeringDate").html(answeringDatesText);
+				//$("#answeringDate").prev().show();
+				//$("#answeringDate").show();				
+			}else{
+				$("#answeringDate").empty();
+				var answeringDatesText="<option value='' selected='selected'>----"+$("#pleaseSelectMessage").val()+"----</option>";
+				$("#answeringDate").html(answeringDatesText);				
+				//$("#answeringDate").prev().hide();
+				//$("#answeringDate").hide();
 			}			
 			loadDepartments(ministry);
 		});
@@ -131,33 +88,72 @@
 		$.get('ref/ministry/'+ministry+'/group?houseType='+$("#houseType").val()+'&sessionYear='+$("#sessionYear").val()+'&sessionType='+$("#sessionType").val(),function(data){
 			$("#groupNumber").val(data.name);
 			$("#group").val(data.id);
-			//loadAnsweringDates(data.id,ministry);
-			loadDepartments(ministry);
-			
+			//$("#groupNumber").prev().show();
+			//$("#groupNumber").show();
+			loadAnsweringDates(data.id,ministry);			
 		});
 	}
+
+	function loadMinistries(session){
+		$.get('ref/session/'+session+'/ministries',function(data){
+			if(data.length>0){
+				var minsitryText="<option value=''>----"+$("#pleaseSelectMessage").val()+"----</option>";
+				for(var i=0;i<data.length;i++){
+					minsitryText+="<option value='"+data[i].id+"'>"+data[i].name;				
+				}
+				$("#ministry").empty();
+				$("#ministry").html(minsitryText);
+				loadGroup(data[i].id);
+			}else{
+				$("#ministry").empty();
+				$("#groupNumber").val("");
+				$("#group").val("");
+				//$("#groupNumber").hide();
+				//$("#groupNumber").prev().hide();
+				$("#department").empty();
+				//$("#department").hide();
+				//$("#department").prev().hide();
+				$("#subDepartment").empty();
+				//$("#subDepartment").hide();
+				//$("#subDepartment").prev().hide();
+				$("#answeringDate").empty();
+				//$("#answeringDate").hide();			
+				//$("#answeringDate").prev().hide();
+			}
+		});
+	}
+	
 	function loadSession(){
 		$.get('ref/session/'+$("#houseType").val()+'/'+$("#sessionYear").val()+'/'+$("#sessionType").val(),function(data){
 			$("#session").val(data.id);
+			loadMinistries(data.id);			
 		});
-	}
-
-	function split( val ) {
-		return val.split( /,\s*/ );
-	}
-	
-	function extractLast( term ) {
-		return split( term ).pop();
 	}	
-	var controlName=$(".autosuggestmultiple").attr("id");
-	var primaryMemberControlName=$(".autosuggest").attr("id");	
 	$(document).ready(function(){
 		$("#ministry").change(function(){
+			if($(this).val()!=''){
 			loadGroup($(this).val());
+			}else{
+				$("#groupNumber").val("");
+				$("#group").val("");
+				//$("#groupNumber").hide();
+				//$("#groupNumber").prev().hide();
+				$("#department").empty();
+				//$("#department").hide();
+				//$("#department").prev().hide();
+				$("#subDepartment").empty();
+				//$("#subDepartment").hide();
+				//$("#subDepartment").prev().hide();
+				$("#answeringDate").empty();
+				//$("#answeringDate").hide();			
+				//$("#answeringDate").prev().hide();	
+			}
 		});
 
 		$("#department").change(function(){
+			if($(this).val()!=''){
 			loadSubDepartments($("#ministry").val(),$(this).val());
+			}
 		});
 
 		$("#sessionYear").change(function(){
@@ -172,19 +168,40 @@
 			loadSession();	
 		});
 
-		//removing houseType options on the basis of houseTypeFromRole value.
-		var houseType=$("#houseTypeFromRole").val();
-		$("#houseTypesMaster").hide();
-		//logic is we want to remove upperhouse option when houseType is lowerhouse and vice versa.
-		if(houseType=="lowerhouse"){
-			$("#houseTypesMaster").val("upperhouse");
-			var id=$("#houseTypesMaster option:selected").text();
-			$("#houseType option[value='"+id+"']").remove();
-		}else if(houseType=="upperhouse"){
-			$("#houseTypesMaster").val("lowerhouse");
-			var id=$("#houseTypesMaster option:selected").text();
-			$("#houseType option[value='"+id+"']").remove();
-		}	
+		//initially only minsitry will be visible as either disabled or enabled
+		if($("#group").val()==""){
+		//$("#groupNumber").hide();
+		//$("#groupNumber").prev().hide();
+		}
+		if($("#department").val()==null||$("#department").val()==''){
+		//$("#department").hide();
+		//$("#department").prev().hide();
+		$("#department").prepend("<option value='' selected='selected'>----"+$("#pleaseSelectMessage").val()+"----</option>");
+		}else{
+		$("#department").prepend("<option value=''>----"+$("#pleaseSelectMessage").val()+"----</option>");
+		}
+		if($("#subDepartment").val()==null||$("#subDepartment").val()==''){
+		//$("#subDepartment").hide();
+		//$("#subDepartment").prev().hide();
+		$("#subDepartment").prepend("<option value='' selected='selected'>----"+$("#pleaseSelectMessage").val()+"----</option>");
+		
+		}else{
+			$("#subDepartment").prepend("<option value=''>----"+$("#pleaseSelectMessage").val()+"----</option>");
+		}
+		if($("#answeringDate").val()==null||$("#answeringDate").val()==''){
+		//$("#answeringDate").hide();
+		//$("#answeringDate").prev().hide();
+		$("#answeringDate").prepend("<option value='' selected='selected'>----"+$("#pleaseSelectMessage").val()+"----</option>");
+		
+		}else{
+			$("#answeringDate").prepend("<option value=''>----"+$("#pleaseSelectMessage").val()+"----</option>");
+		}
+		if($("#ministrySelected").val()==""){
+		$("#ministry").prepend("<option value='' selected='selected'>----"+$("#pleaseSelectMessage").val()+"----</option>");
+		}else{
+			$("#ministry").prepend("<option value=''>----"+$("#pleaseSelectMessage").val()+"----</option>");
+		}
+
 		//autosuggest		
 		$( ".autosuggest" ).autocomplete({
 			minLength:3,			
@@ -196,21 +213,25 @@
 			$(this).append(text);
 		}	
 		});			
-		
-		
 		$("select[name='"+controlName+"']").hide();			
 		$( ".autosuggestmultiple" ).change(function(){
+			//if we are removing a value from autocomplete box then that value needs to be removed from the attached select box also.
+			//for this we iterate through the slect box selected value and check if that value is present in the 
+			//current value of autocomplete.if a value is found which is there in autocomplete but not in select box
+			//then that value will be removed from the select box.
 			var value=$(this).val();
-			console.log(value);
 			$("select[name='"+controlName+"'] option:selected").each(function(){
-				if(value.indexOf($(this).attr("class"))==-1){
-					$(this).remove();
+				var optionClass=$(this).attr("class");
+				console.log(optionClass);
+				if(value.indexOf(optionClass)==-1){
+					$("select[name='"+controlName+"'] option[class='"+optionClass+"']").remove();
 				}		
 			});	
 			$("select[name='"+controlName+"']").hide();				
 		});
+		//http://api.jqueryui.com/autocomplete/#event-select
 		$( ".autosuggestmultiple" ).autocomplete({
-			minLength:1,
+			minLength:3,
 			source: function( request, response ) {
 				$.getJSON( 'ref/members?session='+$("#session").val(), {
 					term: extractLast( request.term )
@@ -226,50 +247,42 @@
 				return false;
 			},
 			select: function( event, ui ) {
+				//what happens when we are selecting a value from drop down
 				var terms = $(this).val().split(",");
-				terms.pop();
-				terms.push( ui.item.value );
-				terms.push( "" );
-				this.value = terms.join( "," );
-				//adding multiple values
-				var text="";
-				if(terms.length==2){
-					text="<select name='"+$(this).attr("id")+"'  multiple='multiple'>";
-					textoption="<option value='"+ui.item.id+"' selected='selected' class='"+ui.item.value+"'></option>";
-					text=text+textoption+"</select>";	
-					if($("select[name='"+controlName+"']").length==0){
-						$(this).after(text);						
-					}else{	
-						$("select[name='"+controlName+"']").append(textoption);
-					}											
-				}else if(terms.length>2){
+				//if select box is already present i.e atleast one option is already added
+				if($("select[name='"+controlName+"']").length>0){
 					if($("select[name='"+controlName+"'] option[value='"+ui.item.id+"']").length>0){
+					//if option being selected is already present then do nothing
+					this.value = $(this).val();					
+					$("select[name='"+controlName+"']").hide();						
 					}else{
-					text=text+"<option value='"+ui.item.id+"' selected='selected' class='"+ui.item.value+"'></option>";
+					//if option is not present then add it in select box and autocompletebox
+					if(ui.item.id!=undefined&&ui.item.value!=undefined){
+					var text="<option value='"+ui.item.id+"' selected='selected' class='"+ui.item.value+"'></option>";
 					$("select[name='"+controlName+"']").append(text);
+					terms.pop();
+					terms.push( ui.item.value );
+					terms.push( "" );
+					this.value = terms.join( "," );
+					}							
+					$("select[name='"+controlName+"']").hide();								
 					}
-				}
-				$("select[name='"+controlName+"']").hide();
+				}else{
+					if(ui.item.id!=undefined&&ui.item.value!=undefined){
+					text="<select name='"+$(this).attr("id")+"'  multiple='multiple'>";
+					textoption="<option value='"+ui.item.id+"' selected='selected' class='"+ui.item.value+"'></option>";				
+					text=text+textoption+"</select>";
+					$(this).after(text);
+					terms.pop();
+					terms.push( ui.item.value );
+					terms.push( "" );
+					this.value = terms.join( "," );
+					}	
+					$("select[name='"+controlName+"']").hide();									
+				}		
 				return false;
 			}
 		});	
-		//adding please select option in answering dates
-		$("#answeringDate").prepend("<option value='' selected='selected'>----"+$("#pleaseSelectMessage").val()+"----</option>");
-		//hiding subDepartments
-		if($("#subDepartment").attr("disabled")!="disabled"){		
-		if($("#subDepartment").val()==null){
-		$("#subDepartment").prev().hide();
-		$("#subDepartment").hide();	
-		}
-		}
-		if($("#department").attr("disabled")!="disabled"){
-		if($("#department").val()==null){
-			$("#subDepartment").prev().hide();
-			$("#subDepartment").hide();	
-			$("#department").prev().hide();
-			$("#department").hide();
-		}
-		}
 		//send for approval
 		$("#sendforapproval").click(function(e){
 			//removing <p><br></p>  from wysiwyg editor
@@ -278,7 +291,23 @@
 				if(wysiwygVal=="<p></p>"||wysiwygVal=="<p><br></p>"||wysiwygVal=="<br><p></p>"){
 					$(this).val("");
 				}
-			});	
+			});
+			if($("#primaryMember").val()==null||$("primaryMember").val()==""){
+				alert($("#primaryMemberEmpty").val());
+				return false;
+			}
+			if($("#subject").val()==null||$("subject").val()==""){
+				alert($("#subjectEmpty").val());
+				return false;
+			}
+			if($("#questionText").val()==null||$("questionText").val()==""){
+				alert($("#questionEmpty").val());
+				return false;
+			}	
+			if($("#selectedSupportingMembers").val()==null||$("selectedSupportingMembers").val()==""){
+				alert($("#supportingMemberEmpty").val());
+				return false;
+			}
 			$.prompt($('#confirmSupportingMembersMessage').val()+$("#selectedSupportingMembers").val(),{
 				buttons: {Ok:true, Cancel:false}, callback: function(v){
 		        if(v){
@@ -304,6 +333,26 @@
 					$(this).val("");
 				}
 			});	
+			if($("#primaryMember").val()==null||$("primaryMember").val()==""){
+				alert($("#primaryMemberEmpty").val());
+				return false;
+			}
+			if($("#subject").val()==null||$("subject").val()==""){
+				alert($("#subjectEmpty").val());
+				return false;
+			}
+			if($("#questionText").val()==null||$("questionText").val()==""){
+				alert($("#questionEmpty").val());
+				return false;
+			}	
+			if($("#selectedSupportingMembers").val()==null||$("selectedSupportingMembers").val()==""){
+				alert($("#supportingMemberEmpty").val());
+				return false;
+			}
+			if($("#ministry").val()==null||$("ministry").val()==""){
+				alert($("#ministryEmpty").val());
+				return false;
+			}
 			$.prompt($('#confirmQuestionSubmission').val(),{
 				buttons: {Ok:true, Cancel:false}, callback: function(v){
 		        if(v){
@@ -325,25 +374,21 @@
 </head>
 
 <body>
-<div class="fields clearfix watermark" style="background-image: url('/els/resources/images/${houseType}.jpg');">
+<div class="fields clearfix watermark">
 <form:form action="question" method="POST" modelAttribute="domain">
 	<%@ include file="/common/info.jsp" %>
 	<h2><spring:message code="question.new.heading" text="Enter Question Details"/>		
 	</h2>
 	<form:errors path="version" cssClass="validationError"/>	
 		
-	<p>
+	<p style="display:none;">
 		<label class="small"><spring:message code="question.houseType" text="House Type"/>*</label>
-		<form:select path="houseType" items="${houseTypes}" itemValue="id" itemLabel="name" cssClass="sSelect"/>
+		<input id="houseTypeName" name="houseTypeName" value="${houseTypeName}" class="sText" readonly="readonly">
+		<input id="houseType" name="houseType" value="${houseTypeId}" type="hidden">
 		<form:errors path="houseType" cssClass="validationError"/>
-		<select id="houseTypesMaster" name="houseTypesMaster">
-		<c:forEach items="${houseTypes}" var="i">
-		<option value="${i.type}"><c:out value="${i.id}"></c:out></option>
-		</c:forEach>
-		</select>
 	</p>	
 	
-	<p>
+	<p style="display:none;">
 		<label class="small"><spring:message code="question.year" text="Year"/>*</label>
 		<select id="sessionYear" name="sessionYear" class="sSelect">
 		<c:forEach items="${years}" var="i">
@@ -359,7 +404,7 @@
 		</select>
 	</p>
 	
-	<p>
+	<p style="display:none;">
 		<label class="small"><spring:message code="question.sessionType" text="Session Type"/>*</label>		
 		<select id="sessionType" name="sessionType" class="sSelect">
 		<c:forEach items="${sessionTypes}" var="i">
@@ -374,12 +419,14 @@
 		</c:forEach>		
 		</select>
 		<input type="hidden" id="session" name="session" value="${session}"/>
+		<form:errors path="type" cssClass="validationError"/>		
+		
 	</p>
 	
-	<p>
+	<p style="display:none;">
 		<label class="small"><spring:message code="question.type" text="Type"/>*</label>
 		<form:select path="type" items="${questionTypes}" itemValue="id" itemLabel="name" cssClass="sSelect"/>
-		<form:errors path="type" cssClass="validationError"/>	
+		<form:errors path="type" cssClass="validationError"/>		
 	</p>	
 		
 	<p>
@@ -388,16 +435,16 @@
 		<c:if test="${!(empty primaryMember)}">
 		<input name="primaryMember" value="${primaryMember}" type="hidden">
 		</c:if>
-		<form:errors path="primaryMember" cssClass="validationError"/>	
+		<form:errors path="primaryMember" cssClass="validationError"/>		
 	</p>	
 	
 	<p>
-		<label class="small"><spring:message code="question.supportingMembers" text="Supporting Members"/></label>
+		<label class="centerlabel"><spring:message code="question.supportingMembers" text="Supporting Members"/></label>
 		<textarea id="selectedSupportingMembers"  class="autosuggestmultiple" rows="2" cols="50">${supportingMembersName}</textarea>
 		<c:if test="${!(empty supporingMembers)}">
 		<select  name="selectedSupportingMembers" multiple="multiple">
 		<c:forEach items="${supportingMembers}" var="i">
-		<option value="${i.id}" class="${i.member.getFullnameLastNameFirst()}"></option>
+		<option value="${i.id}" class="${i.member.getFullname()}"></option>
 		</c:forEach>		
 		</select>
 		</c:if>
@@ -405,31 +452,25 @@
 	</p>
 	
 	<p>
-		<label class="small"><spring:message code="question.subject" text="Subject"/>*</label>
-		<form:textarea path="subject" cssClass="wysiwyg"></form:textarea>
-		<form:errors path="subject" cssClass="validationError" cssStyle="float:right;margin-top:-100px;margin-right:40px;"/>	
-	</p>
-
+		<label class="centerlabel"><spring:message code="question.subject" text="Subject"/>*</label>
+		<form:textarea path="subject" rows="2" cols="50"></form:textarea>
+		<form:errors path="subject" cssClass="validationError" />	
+	</p>	
+	
 	<p>
+		<label class="wysiwyglabel"><spring:message code="question.details" text="Details"/>*</label>
+		<form:textarea path="questionText" cssClass="wysiwyg"></form:textarea>
+		<form:errors path="questionText" cssClass="validationError" cssStyle="float:right;margin-top:-100px;margin-right:40px;"/>	
+	</p>
+	
+	<p style="display:none;">
 		<label class="small"><spring:message code="question.language" text="Question Language"/>*</label>
 		<form:select path="language" cssClass="sSelect" items="${languages}" itemLabel="name" itemValue="id"/>
 		<form:errors path="language" cssClass="validationError"/>	
 	</p>	
 	
 	<p>
-		<label class="small"><spring:message code="question.details" text="Details"/>*</label>
-		<form:textarea path="questionText" cssClass="wysiwyg"></form:textarea>
-		<form:errors path="questionText" cssClass="validationError" cssStyle="float:right;margin-top:-100px;margin-right:40px;"/>	
-	</p>
-	
-	<p>
-		<label class="small"><spring:message code="question.priority" text="Priority"/>*</label>
-		<form:select path="priority" cssClass="sSelect">
-		<c:forEach var="i" begin="1" end="${priority}" step="1">
-		<option value="${i}"><c:out value="${i}"></c:out></option>
-		</c:forEach>
-		</form:select>
-		<form:errors path="priority" cssClass="validationError"/>	
+		
 	</p>	
 	
 	<c:choose>
@@ -437,32 +478,36 @@
 	<p>
 		<label class="small"><spring:message code="question.ministry" text="Ministry"/>*</label>
 		<form:select path="ministry" cssClass="sSelect" items="${ministries}" itemLabel="name" itemValue="id"/>
-		<form:errors path="ministry" cssClass="validationError"/>	
-	</p>
-	
-	<p>
+		<form:errors path="ministry" cssClass="validationError"/>
+		
 		<label class="small"><spring:message code="question.group" text="Group"/>*</label>
-		<input type="text" class="sText" id="groupNumber" name="groupNumber" value="${group.number}">		
+		<input type="text" class="sText" id="groupNumber" name="groupNumber" value="${group.number}" readonly="readonly">		
 		<input type="hidden" id="group" name="group" value="${group.id}">
-		<form:errors path="group" cssClass="validationError"/>	
-	</p>
+		<form:errors path="group" cssClass="validationError"/>		
+	</p>	
 	
 	<p>
-		<label class="small"><spring:message code="question.department" text="Department"/>*</label>
+		<label class="small"><spring:message code="question.department" text="Department"/></label>
 		<form:select path="department" cssClass="sSelect" items="${departments}" itemLabel="name" itemValue="id"/>
 		<form:errors path="department" cssClass="validationError"/>	
-	</p>
-	
-	<p>
-		<label class="small"><spring:message code="question.subdepartment" text="Sub Department"/>*</label>
+		
+		<label class="small"><spring:message code="question.subdepartment" text="Sub Department"/></label>
 		<form:select path="subDepartment" cssClass="sSelect" items="${subDepartments}" itemLabel="name" itemValue="id"/>
 		<form:errors path="subDepartment" cssClass="validationError"/>	
-	</p>
+	</p>	
 		
 	<p>
 		<label class="small"><spring:message code="question.answeringDate" text="Answering Date"/></label>
-		<form:select path="answeringDate" cssClass="datemask sSelect" items="${answeringDates}" itemLabel="answeringDate" itemValue="answeringDate"/>
+		<form:select path="answeringDate" cssClass="datemask sSelect" items="${answeringDates}" itemLabel="name" itemValue="id"/>
 		<form:errors path="answeringDate" cssClass="validationError"/>	
+		
+		<label class="small"><spring:message code="question.priority" text="Priority"/>*</label>
+		<form:select path="priority" cssClass="sSelect">
+		<c:forEach var="i" begin="1" end="${priority}" step="1">
+		<option value="${i}"><c:out value="${i}"></c:out></option>
+		</c:forEach>
+		</form:select>
+		<form:errors path="priority" cssClass="validationError"/>	
 	</p>	
 	</c:when>	
 	<c:otherwise>		
@@ -477,32 +522,7 @@
 		<label class="small"><spring:message code="question.ministry" text="Ministry"/></label>
 		<form:select path="ministry" cssClass="sSelect" items="${ministries}" itemLabel="name" itemValue="id" disabled="true"/>
 		<form:errors path="ministry" cssClass="validationError"/>	
-	</p>
-	
-	<p>
-		<label class="small"><spring:message code="question.group" text="Group"/></label>
-		<input type="text" class="sText" id="groupNumber" name="groupNumber" value="${group.number}" disabled="disabled">		
-		<input type="hidden" id="group" name="group" value="${group.id}" disabled="disabled">
-		<form:errors path="group" cssClass="validationError"/>	
-	</p>
-	
-	<p>
-		<label class="small"><spring:message code="question.department" text="Department"/></label>
-		<form:select path="department" cssClass="sSelect" items="${departments}" itemLabel="name" itemValue="id" disabled="true"/>
-		<form:errors path="department" cssClass="validationError"/>	
-	</p>
-	
-	<p>
-		<label class="small"><spring:message code="question.subdepartment" text="Sub Department"/></label>
-		<form:select path="subDepartment" cssClass="sSelect" items="${subDepartments}" itemLabel="name" itemValue="id" disabled="true"/>
-		<form:errors path="subDepartment" cssClass="validationError"/>	
-	</p>
-		
-	<p>
-		<label class="small"><spring:message code="question.answeringDate" text="Answering Date"/></label>
-		<form:select path="answeringDate" cssClass="datemask sSelect" items="${answeringDates}" itemLabel="answeringDate" itemValue="answeringDate" disabled="true"/>
-		<form:errors path="answeringDate" cssClass="validationError"/>	
-	</p>	
+	</p>		
 	</c:otherwise>
 	</c:choose>
 	
@@ -516,15 +536,22 @@
 		</p>
 	</div>
 	
+	
 	<form:hidden path="version" />
 	<form:hidden path="id"/>
 	<form:hidden path="locale"/>
-	<form:hidden path="createdBy"/>
-	<form:hidden path="creationDate"/>
-	
-	<input id="pleaseSelectMessage" value="<spring:message code='please.select' text='Please Select'/>" type="hidden">
 </form:form>
 <input id="confirmSupportingMembersMessage" value="<spring:message code='confirm.supportingmembers.message' text='A request for approval will be sent to the following members:'></spring:message>" type="hidden">
+<input id="pleaseSelectMessage" value="<spring:message code='please.select' text='Please Select'/>" type="hidden">
+<input id="supportingMemberEmpty" value="<spring:message code='question.supportingmembers.empty' text='Supporting Members cannot be empty'></spring:message>" type="hidden">
+<input id="subjectEmpty" value="<spring:message code='question.subject.empty' text='Subject cannot be empty'></spring:message>" type="hidden">
+<input id="questionEmpty" value="<spring:message code='question.text.empty' text='Question cannot be empty'></spring:message>" type="hidden">
+<input id="primaryMemberEmpty" value="<spring:message code='question.primaryMember.empty' text='Primary Member cannot be empty'></spring:message>" type="hidden">
+<input id="ministryEmpty" value="<spring:message code='question.ministry.empty' text='Ministry cannot be empty'></spring:message>" type="hidden">
+<input id="confirmQuestionSubmission" value="<spring:message code='confirm.questionsubmission.message' text='Do you want to submit the question.'></spring:message>" type="hidden">
+<input type="hidden" id="ministrySelected" name="ministrySelected" value="${ministrySelected}">
+<input type="hidden" id="requestSendTo" value="${supportingMembersName}">
+
 </div>
 </body>
 </html>

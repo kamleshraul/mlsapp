@@ -4,15 +4,8 @@
 	<title><spring:message code="question.list" text="List Of Questions"/></title>
 	<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
 	<script type="text/javascript">
-		$(document).ready(function(){
-			//setting the house type.If housetypefromrole is bothhouse we will initially
-			//display lowerhouse module along with facility to get upperhouse module
-			var houseType=$("#houseTypeFromRole").val();
-			if(houseType=="bothhouse"){
-				$("#houseType").val("lowerhouse");
-			}else if(houseType=="lowerhouse"||houseType=="upperhouse"){
-				$("#houseType").val(houseType);				
-			}
+		$(document).ready(function(){	
+			$(".toolTip").hide();					
 			//here we are trying to add date mask in grid search when field names
 			//ends with Date
 			$(".sf .field").change(function(){
@@ -22,12 +15,125 @@
 				}
 			});			
 			$('#list_tab').click(function(){
+				$("#selectionDiv1").show();
+				$("#selectionDiv2").show();
 				showQuestionList();
 			});	
 			$('#details_tab').click(function(){
-				editQuestion($('#key').val());
+				$("#selectionDiv1").hide();
+				$("#selectionDiv2").hide();
+				editQuestion();
 			});
-							
+			$('#chart_tab').click(function(){
+				$("#selectionDiv1").hide();
+				$("#selectionDiv2").hide();
+				viewChart();
+			});	
+			$('#ballot_tab').click(function(){
+				$("#selectionDiv1").hide();
+				$("#selectionDiv2").hide();
+				viewBallot();
+			});	
+			$("#view_chart").click(function() {
+				$("#selectionDiv1").hide();
+				$("#selectionDiv2").hide();
+				viewChart();
+			});	
+				
+			$("#create_chart").click(function() {
+				$.blockUI({ message: '<img src="./resources/images/waitAnimated.gif" />' });
+				var parameters = $("#gridURLParams").val() + "&answeringDate=" + $("#selectedAnsweringDate").val();
+				var resourceURL = 'question/chart/create?' + parameters;
+				$.get(resourceURL, function(data) {
+					var displayMessage = data;
+					if(data == "CREATED") {
+						displayMessage = "Chart is successfully created.";
+					}
+					else if(data == "ALREADY_EXISTS") {
+						displayMessage = "Chart already exists.";
+					}
+					else if(data == "PREVIOUS_CHART_IS_NOT_PROCESSED") {
+						displayMessage = "Previos Chart is not Processed. Kindly process it before creating a new Chart.";
+					}
+					$.unblockUI();
+					$.fancybox.open(displayMessage);
+				});
+			}); 
+			
+			$("#view_ballot").click(function() {
+				$("#selectionDiv1").hide();
+				$("#selectionDiv2").hide();
+				viewBallot();
+			});	
+				
+			$("#create_ballot").click(function() {
+				$.blockUI({ message: '<img src="./resources/images/waitAnimated.gif" />' });
+				var parameters = $("#gridURLParams").val() + "&answeringDate=" + $("#selectedAnsweringDate").val();
+				var resourceURL = 'question/ballot/create?' + parameters;
+				$.get(resourceURL, function(data) {
+					var displayMessage = data;
+					if(data == "CREATED") {
+						displayMessage = "Ballot is successfully created.";
+					}
+					else if(data == "ALREADY_EXISTS") {
+						displayMessage = "Ballot already exists.";
+					}
+					$.unblockUI();
+					$.fancybox.open(displayMessage);
+				});
+				
+			});				
+			//If house type changes then we need to change the value of selected house type,grid url param
+			// and reload the grid			
+			$("#selectedHouseType").change(function(){
+				var value=$(this).val();
+				if(value!=""){
+					if($("#selectedGroup").length>0){
+					loadSessionGroups();					
+					}else{
+					reloadQuestionGrid();
+					}
+				}	
+			});	
+			//If session year changes then we need to change the value of selected session year,grid url param
+			// and reload the grid		
+			$("#selectedSessionYear").change(function(){
+				var value=$(this).val();
+				if(value!=""){
+					if($("#selectedGroup").length>0){
+					loadSessionGroups();					
+					}else{
+					reloadQuestionGrid();
+					}
+				}			
+			});
+			//If session type changes then we need to change the value of selected session type,grid url param
+			// and reload the grid	
+			$("#selectedSessionType").change(function(){
+				var value=$(this).val();
+				if(value!=""){
+					if($("#selectedGroup").length>0){
+					loadSessionGroups();					
+					}else{
+					reloadQuestionGrid();
+					}
+				}	
+			});
+			//If question type changes then we need to change the value of selected question type,grid url param
+			// and reload the grid	
+			$("#selectedQuestionType").change(function(){
+				var value=$(this).val();
+				if(value!=""){				
+				reloadQuestionGrid();
+				}
+			});	
+
+			$("#selectedGroup").change(function(){
+				var value=$(this).val();
+				if(value!=""){				
+					loadAnsweringDates(value)
+				}
+			});				
 			$(document).keydown(function (e){
 				if(e.which==78 && e.ctrlKey){
 					newQuestion();
@@ -49,44 +155,53 @@
 					scrollRowsInGrid(e);
 		        }
 			});
-			//houseType is passed so as to appropriately populate select assembly/council select box
-			//showTabByIdAndUrl('list_tab','member/list?houseType='+$('#houseType').val());	
+			//show question list method is called by default.
 			showQuestionList();	
 		});
 				
 		function showQuestionList() {
-			//houseType is passed so as to appropriately populate select assembly/council select box
+			//If no session entry has been created then just house type and question type is passed else all four parameters are
+			//passed.
 			var sessionYear=$("#sessionYear").val();
 			if(sessionYear==""){						
-				showTabByIdAndUrl('list_tab','question/list?houseType='+$('#houseType').val()+'&questionType='+$("#questionType").val());
+				showTabByIdAndUrl('list_tab','question/list?houseType='+$('#selectedHouseType').val()+'&questionType='+$("#selectedQuestionType").val()+'&usergroup='+$("#usergroup").val()+'&userrole='+$("#userrole").val()+'&group='+$("#selectedGroup").val());
 			}else{
-				showTabByIdAndUrl('list_tab','question/list?houseType='+$('#houseType').val()+'&questionType='+$("#questionType").val()+'&sessionYear='+$("#sessionYear").val()+'&sessionType='+$("#sessionType").val());				
+				showTabByIdAndUrl('list_tab','question/list?houseType='+$('#selectedHouseType').val()+'&questionType='+$("#selectedQuestionType").val()+'&sessionYear='+$("#selectedSessionYear").val()+'&sessionType='+$("#selectedSessionType").val()+'&usergroup='+$("#usergroup").val()+'&userrole='+$("#userrole").val()+'&group='+$("#selectedGroup").val());				
 			}							
 		}	
 		function newQuestion() {
-			//here house parameter will be used to add house member role association i.e default role and so need to be present in new.jsp/edit.jsp
-			//also housetype is needed to load proper background image
-			showTabByIdAndUrl('details_tab','question/new?'+$("#gridURLParams").val());
-			$("#key").val("");			
 			$("#cancelFn").val("newQuestion");
+			//since id of question has not been created so key is set to empty value
+			$("#key").val("");				
+			showTabByIdAndUrl('details_tab','question/new?'+$("#gridURLParams").val());
 		}
-		function editQuestion(row) {			
+		function editQuestion() {
+			$("#cancelFn").val("editQuestion");						
 			var row=$('#key').val();
 			if(row==null||row==''){
 				$.prompt($('#selectRowFirstMessage').val());
 				return false;
-			}
-			$("#cancelFn").val("editQuestion");
-			showTabByIdAndUrl('details_tab','question/'+row+'/edit?'+$("#gridURLParams").val());			
+			}else{
+			showTabByIdAndUrl('details_tab','question/'+row+'/edit?'+$("#gridURLParams").val());
+			}			
 		}	
-
+		function editQuestion(row) {
+			$("#cancelFn").val("editQuestion");						
+			if(row==null||row==''){
+				$.prompt($('#selectRowFirstMessage').val());
+				return false;
+			}else{
+			showTabByIdAndUrl('details_tab','question/'+row+'/edit?'+$("#gridURLParams").val());
+			}			
+		}	
 		function rowDblClickHandler(rowid, iRow, iCol, e) {
-			var rowid=$('#key').val();
-			$("#cancelFn").val("rowDblClickHandler");
+			$("#cancelFn").val("rowDblClickHandler");			
+			$('#key').val(rowid);
 			showTabByIdAndUrl('details_tab', 'question/'+rowid+'/edit?'+$("#gridURLParams").val());
 		}			
 		
-		function deleteQuestion(row) {
+		function deleteQuestion() {
+			var row=$("#key").val();
 			if(row == null || row == ''){
 				$.prompt($('#selectRowFirstMessage').val());		
 				return;
@@ -101,6 +216,75 @@
 			        }
 				}});
 			}
+		}
+
+		function loadSessionGroups(){
+			$.get("ref/groups?houseType="+$("#selectedHouseType").val()+"&year="+$("#selectedSessionYear").val()+"&sessionType="+$("#selectedSessionType").val(),function(data){
+				var groupsAllowed=$("#groupsAllowed").val();
+				if(data.length>0){
+					$("#selectedGroup").empty();
+					$("#selectedAnsweringDate").empty();
+					console.log(data.length);					
+					for(var i=0;i<data.length;i++){
+						if(groupsAllowed.indexOf(data[i].name)!=-1){						
+						text+="<option value='"+data[i].id+"'>"+data[i].name+"</option>"
+						}
+					}
+					$("#selectedGroup").html(text);
+					$("#selectedAnsweringDate").html(text);
+					$("#ugparam").val(data[0].id);					
+					loadSessionAnsweringDates(data[0].id);	
+				}else{
+					var text="<option value='-'>"+$("#pleaseSelect").val()+"</option>";					
+					$("#selectedGroup").empty();
+					$("#selectedAnsweringDate").empty();
+					$("#selectedGroup").html(text);
+					$("#selectedAnsweringDate").html(text);					
+				}
+			});
+		}
+
+		function loadSessionAnsweringDates(group){
+			$.get("ref/group/"+group+"/answeringdates",function(data){
+				if(data.length>0){
+					$("#selectedAnsweringDate").empty();
+					for(var i=0;i<data.length;i++){
+						if(i==0){
+						text+="<option value='"+data[i].id+"' selected='selected'>"+data[i].name+"</option>"
+						}else{
+							text+="<option value='"+data[i].id+"'>"+data[i].name+"</option>"							
+						}
+					}
+					$("#selectedAnsweringDate").html(text);
+					reloadQuestionGrid();
+				}else{
+					var text="<option value='-'>"+$("#pleaseSelect").val()+"</option>";					
+					$("#selectedGroup").empty();
+					$("#selectedAnsweringDate").empty();
+					$("#selectedGroup").html(text);
+					$("#selectedAnsweringDate").html(text);					
+				}
+			});
+		}	
+
+		function reloadQuestionGrid(){
+				$("#gridURLParams").val("houseType="+$("#selectedHouseType").val()+"&sessionYear="+$("#selectedSessionYear").val()+"&sessionType="+$("#selectedSessionType").val()+"&questionType="+$("#selectedQuestionType").val()+"&ugparam="+$("#ugparam").val());			
+				var oldURL=$("#grid").getGridParam("url");
+				var baseURL=oldURL.split("?")[0];
+				newURL=baseURL+"?"+$("#gridURLParams").val();
+				$("#grid").setGridParam({"url":newURL});
+				$("#grid").trigger("reloadGrid");							
+		}
+
+		function viewChart() {
+			var parameters = $("#gridURLParams").val() + "&answeringDate=" + $("#selectedAnsweringDate").val();
+			var resourceURL = 'question/chart/view?' + parameters;
+			showTabByIdAndUrl('chart_tab', resourceURL);
+		}	
+		function viewBallot() {
+			var parameters = $("#gridURLParams").val() + "&answeringDate=" + $("#selectedAnsweringDate").val();
+			var resourceURL = 'question/ballot/view?' + parameters;
+			showTabByIdAndUrl('ballot_tab', resourceURL);
 		}	
 	</script>
 </head>
@@ -118,18 +302,129 @@
 				   <spring:message code="generic.details" text="Details">
 				   </spring:message>
 				</a>
-			</li>	
+			</li>
+			<c:if test="${usergroupType=='assistant'}">
+			<li>
+				<a id="chart_tab" href="#" class="tab">
+				   <spring:message code="question.chart" text="Chart"></spring:message>
+				</a>
+			</li>
+			<li>
+				<a id="ballot_tab" href="#" class="tab">
+				   <spring:message code="question.ballot" text="Ballot"></spring:message>
+				</a>
+			</li>
+			</c:if>
 		</ul>
+		
+		<div class="commandbarContent" style="margin-top: 10px;" id="selectionDiv1">		
+			<a href="#" id="select_houseType" class="butSim">
+				<spring:message code="question.houseType" text="House Type"/>
+			</a>
+			<select name="selectedHouseType" id="selectedHouseType" style="width:100px;height: 25px;">			
+			<c:forEach items="${houseTypes}" var="i">
+			<c:choose>
+			<c:when test="${houseTypeSelected==i.type}">
+			<option value="${i.type}" selected="selected"><c:out value="${i.name}"></c:out></option>			
+			</c:when>
+			<c:otherwise>
+			<option value="${i.type}"><c:out value="${i.name}"></c:out></option>			
+			</c:otherwise>
+			</c:choose>
+			</c:forEach>
+			</select> |					
+			<a href="#" id="select_session_year" class="butSim">
+				<spring:message code="question.sessionyear" text="Year"/>
+			</a>
+			<select name="selectedSessionYear" id="selectedSessionYear" style="width:100px;height: 25px;">				
+			<c:forEach var="i" items="${years}">
+			<c:choose>
+			<c:when test="${i==sessionYear }">
+			<option value="${i}" selected="selected"><c:out value="${i}"></c:out></option>				
+			</c:when>
+			<c:otherwise>
+			<option value="${i}" ><c:out value="${i}"></c:out></option>			
+			</c:otherwise>
+			</c:choose>
+			</c:forEach> 
+			</select> |						
+			<a href="#" id="select_sessionType" class="butSim">
+				<spring:message code="question.sessionType" text="Session Type"/>
+			</a>
+			<select name="selectedSessionType" id="selectedSessionType" style="width:100px;height: 25px;">				
+			<c:forEach items="${sessionTypes}" var="i">
+			<c:choose>
+			<c:when test="${sessionType==i.id}">
+			<option value="${i.id}" selected="selected"><c:out value="${i.sessionType}"></c:out></option>				
+			</c:when>
+			<c:otherwise>
+			<option value="${i.id}"><c:out value="${i.sessionType}"></c:out></option>			
+			</c:otherwise>
+			</c:choose>			
+			</c:forEach> 
+			</select> |				
+			<a href="#" id="select_questionType" class="butSim">
+				<spring:message code="question.questionType" text="Question Type"/>
+			</a>
+			<select name="selectedQuestionType" id="selectedQuestionType" style="width:100px;height: 25px;">			
+			<c:forEach items="${questionTypes}" var="i">
+			<c:choose>
+			<c:when test="${questionType==i.id}">
+			<option value="${i.id}" selected="selected"><c:out value="${i.name}"></c:out></option>			
+			</c:when>
+			<c:otherwise>
+			<option value="${i.id}"><c:out value="${i.name}"></c:out></option>			
+			</c:otherwise>
+			</c:choose>
+			</c:forEach>
+			</select> |						
+		</div>
+				
+		<div class="commandbarContent" style="margin-top: 10px;" id="selectionDiv2">		
+		<c:if test="${usergroupType!='member'}">
+		<c:if test="${userrole!='CLERK' }">
+			<a href="#" id="select_group" class="butSim">
+				<spring:message code="question.group" text="Group"/>
+			</a>
+			<select name="selectedGroup" id="selectedGroup" style="width:100px;height: 25px;">				
+			<c:forEach items="${groups}" var="i">			
+			<option value="${i.id}"><c:out value="${i.number}"></c:out></option>	
+			</c:forEach> 
+			</select> | 
+			<a href="#" id="select_answeringdate" class="butSim">
+				<spring:message code="question.answeringdate" text="Answering Date"/>
+			</a>
+			<select name="selectedAnsweringDate" id="selectedAnsweringDate" style="width:100px;height: 25px;">				
+			<c:forEach items="${answeringDates}" var="i">			
+			<option value="${i.id}"><c:out value="${i.name}"></c:out></option>	
+			</c:forEach> 
+			</select> | 			
+			<a href="#" id="create_chart" class="butSim">
+				<spring:message code="question.createChart" text="Create Chart"/>
+			</a> |
+			<a href="#" id="view_chart" class="butSim">
+				<spring:message code="question.viewChart" text="View Chart"/>
+			</a> |
+			<a href="#" id="create_ballot" class="butSim">
+				<spring:message code="question.createBallot" text="Create Ballot"/>
+			</a> |
+			<a href="#" id="view_ballot" class="butSim">
+				<spring:message code="question.viewBallot" text="View Ballot"/>
+			</a> 
+			</c:if>
+			</c:if>	
+		</div>
 		<div class="tabContent clearfix">
 		</div>		
 		<input type="hidden" id="key" name="key">
 		<input type="hidden" id="selectRowFirstMessage" name="selectRowFirstMessage" value="<spring:message code='generic.selectRowFirstMessage' text='Please select the desired row first'></spring:message>" disabled="disabled">
 		<input type="hidden" id="confirmDeleteMessage" name="confirmDeleteMessage" value="<spring:message code='generic.confirmDeleteMessage' text='Do you want to delete the row with Id: '></spring:message>" disabled="disabled">
-		<input type="hidden" name="houseType" id="houseType">
-		<input type="hidden" name="sessionYear" id="sessionYear" value="${sessionYear}">		
-		<input type="hidden" name="sessionType" id="sessionType" value="${sessionType}">		
- 		<input type="hidden" name="questionType" id="questionType" value="${questionType}">
- 		<input type="hidden" name="houseTypeFromRole" id="houseTypeFromRole" value="${houseType}">		
-		</div> 
+		<input type="hidden" name="usergroup" id="usergroup" value="${usergroup}">	
+		<input type="hidden" name="usergroupType" id="usergroupType" value="${usergroupType}">	
+		<input type="hidden" name="userrole" id="userrole" value="${userrole}">	
+		<input type="hidden" name="groupsAllowed" id="groupsAllowed" value="${groupsAllowed}">		
+		<input type="hidden" name="pleaseSelect" id="pleaseSelect" value="<spring:message code='please.select' text='Please Select'/>">	
+					
+		</div> 		
 </body>
 </html>
