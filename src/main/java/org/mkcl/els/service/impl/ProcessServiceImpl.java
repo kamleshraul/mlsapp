@@ -1,6 +1,7 @@
 package org.mkcl.els.service.impl;
 
 import java.io.File;
+
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -39,7 +40,6 @@ import org.mkcl.els.common.util.FileUtil;
 import org.mkcl.els.domain.CustomParameter;
 import org.mkcl.els.domain.User;
 import org.mkcl.els.service.IProcessService;
-import org.mkcl.els.service.IRuleService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -76,10 +76,7 @@ public class ProcessServiceImpl implements IProcessService {
 	@Autowired
 	private HistoryService historyService;
 
-	@SuppressWarnings("unused")
-	@Autowired
-	private IRuleService ruleService;
-
+	
 	//==================== Deployment Queries ===================
 	/**
 	 * The process file to be deployed (& on which the InputStream is created)
