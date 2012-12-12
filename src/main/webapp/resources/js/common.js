@@ -1,4 +1,6 @@
 /*Common javascript functions to be used across jsp files */
+currentGridPage=1;
+currentSelectedRow=1;
 function _ajax_request(url, data, callback, type, method) {
     if (jQuery.isFunction(data)) {
         callback = data;
@@ -41,22 +43,12 @@ function initControls(){
 			$(".datemask").mask("99/99/9999");
 		}
 	});
+	$('.datetimemask').mask("99/99/9999 99:99:99");
 	$(':input:visible:not([readonly]):first').focus();
 	
-	$('.wysiwyg').each(function(){		
-		var idval = this.id;		
-		if($('#'+idval).is('[readonly]')){			
-			$('#'+idval).css('color', '#999999');
-			$('<input>').attr({
-			    type: 'hidden',
-			    id: 'copyOf'+idval,
-			    value: $('#'+idval).val()
-			}).appendTo($('#'+idval));
-		}
-	});	
-	$('.wysiwyg').wysiwyg({		
-		resizeOptions: true,		
-		controls:{			
+	$('.wysiwyg').wysiwyg({
+		resizeOptions: true,
+			controls:{
 			strikeThrough: { visible: true },
 			underline: { visible: true },
 			subscript: { visible: true },
@@ -66,18 +58,28 @@ function initControls(){
 			decreaseFontSize:{visible:true},
 			highlight: {visible:true}			
 		}
-	});		
+	});	
 	$('.wysiwyg').change(function(e){
 		var idval = this.id;			
 		if($('#'+idval).is('[readonly]')){
 			if($('#'+idval).val()!=$('#copyOf'+idval).val()) {
-				$('#'+idval+'-wysiwyg-iframe').contents().find('html').html($('#copyOf'+idval).val());			
-			}			
+				$('#'+idval+'-wysiwyg-iframe').contents().find('html').html($('#copyOf'+idval).val());
+			}
 		} else {
 			if($('#'+idval).val()=="<p></p>"){						
 				$('#'+idval+'-wysiwyg-iframe').focus();				
 				$('#'+idval+'-wysiwyg-iframe').contents().find('html').html("<br><p></p>");				
 			}
+		}
+	});
+	$('.wysiwyg').each(function(){
+		var idval = this.id;
+		if($('#'+idval).is('[readonly]')){
+			$('<input>').attr({
+			    type: 'hidden',
+			    id: 'copyOf'+idval,
+			    value: $('#'+idval).val()
+			}).appendTo($('#'+idval));
 		}
 	});
 	$(".multiselect").parents("p").css("position","relative");
@@ -135,8 +137,6 @@ function loadGrid(gridId, gridurl, baseFilter) {
 		url=url+'?'+$('#gridURLParams').val();
 	}
 	$.ajax({async:false,url:'grid/' + gridId + '/meta.json', success:function(grid) {
-		console.log(eval(grid.subGrid));
-		console.log(grid.groupField);
 		c_grid = $('#grid').jqGrid({
 			scroll:1,
 			altRows:true,
@@ -149,6 +149,7 @@ function loadGrid(gridId, gridurl, baseFilter) {
 			colNames:eval(grid.colNames),
 			colModel :eval(grid.colModel),
 			pager: '#grid_pager',
+			page: currentGridPage,
 			rowNum:grid.pageSize,
 			sortname: grid.sortField,
 			sortorder:grid.sortOrder,
@@ -158,8 +159,8 @@ function loadGrid(gridId, gridurl, baseFilter) {
 			multiselect:eval(grid.multiSelect),	
 			grouping:eval(grid.group),
 			groupingView : { groupField : [grid.groupField],
-							 groupText : ['<b>{0} - {1} Items(s)</b>'],
-							 groupColumnShow : [false],
+							 groupText :['<b>{0} - {1} Items(s)</b>'],
+							 groupColumnShow : [true],
 							 groupCollapse : false,
 							 groupOrder: ['desc']},
 			subGrid:eval(grid.subGrid),	
@@ -194,17 +195,30 @@ function loadGrid(gridId, gridurl, baseFilter) {
 				"baseFilters": baseFilter
 			},
 			loadComplete: function(data, obj) {
-				var curr_page = $(this).getGridParam('page');
-				if(curr_page==1) {
+//				var curr_page = $(this).getGridParam('page');
+//				if(curr_page==1) {
+//					var top_rowid = $('#grid tbody:first-child tr:nth-child(1)').attr('id');
+//					$(this).setSelection(top_rowid, true);
+//				}
+//				else{
+					currentGridPage=1;
+				//}
+				if(currentSelectedRow==1){
 					var top_rowid = $('#grid tbody:first-child tr:nth-child(1)').attr('id');
 					$(this).setSelection(top_rowid, true);
-				}//this is the case when we delete all the records in the grid and reload the list.If we click on 
+					//$(this).setSelection(currentSelectedRow,true);
+				}
+				else{
+					$(this).setSelection(currentSelectedRow,true);
+					currentSelectedRow=1;
+				}
+				//this is the case when we delete all the records in the grid and reload the list.If we click on 
 				//other tabs then key value has not been set and is still the previous value giving
 				//exceptions
 				//else{
 					//$('#key').val("");
 				//}
-			},
+				},
 			onSelectRow: function(rowid,status) {
 				//added by sandeeps
 				//first we must ckeck for presence of the handler so that custom logic rather than generic logic
@@ -289,7 +303,6 @@ function loadTehsilsByDistrictId(id,type){
 
 /*Code for uploading files*/
 function unUploadify(element){
-	console.log("unUploadify Called. Line no: 231");
 	$(element).unbind("uploadifyComplete");
 	$(element).next(element+"Uploader").remove();
 	$(element).next(element+"Queue").remove();
@@ -299,7 +312,6 @@ function unUploadify(element){
 };
 	
 	function uploadify(element,ext,size,url){
-		console.log("uploadify Called. Line no: 241");
 		var sizeInMB=size/(1024*1024);	
 		var extTokens=ext.split(",");
 		var extType="";
@@ -335,20 +347,14 @@ function unUploadify(element){
 	$(element+"Remove").hide();
 };
 function uploadify_oncomplete(event, ID, fileObj, response, data){
-	console.log("uploadify_oncomplete Called. Line no: 277");
 	try{
 		var file = $.parseJSON(response);
-		console.log(file);
 		var element = '#'+event.target.id;
-		console.log(event.target.id);
 		$(element).val(file.file.originalFileName);
-		console.log(file.file.originalFileName);
 		$(element).attr("readonly","true");
 		$(element+'Field').val(file.file.tag);
-		console.log(file.file.tag);
 		unUploadify(element);
 		if(event.target.id=='photo'){
-			console.log("INSIDE PHOTO");
 			$('#photoDisplay').attr('src','/els/file/photo/'+$('#'+event.target.id+'Field').val());
 			$('#photoDiv').removeClass('hideDiv').addClass('showDiv');
 		}
@@ -361,7 +367,6 @@ function uploadify_oncomplete(event, ID, fileObj, response, data){
 };
 function removeUpload(element,ext)
 {
-	console.log("removeUpload Called. Line no: 303");	
 $.ajax({
    				    type: "DELETE",
    				    url: "file/remove/"+$(element).val(),
