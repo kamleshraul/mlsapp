@@ -11,16 +11,15 @@ package org.mkcl.els.domain;
 
 import java.io.Serializable;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.Set;
 
-import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.JoinColumn;
 import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
-import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
@@ -66,16 +65,11 @@ public class Credential extends BaseDomain implements Serializable {
             name = "credential_id", referencedColumnName = "id"),
             inverseJoinColumns = @JoinColumn(name = "role_id",
             referencedColumnName = "id"))
-    private Set<Role> roles;
+    private Set<Role> roles=new HashSet<Role>();
 
     /** The last login time. */
     @Temporal(TemporalType.TIMESTAMP)
     private Date lastLoginTime;
-
-    @OneToMany(mappedBy = "credential", fetch = FetchType.LAZY,cascade=CascadeType.ALL)
-    private Set<UserGroup> userGroups;
-
-
 
     // ---------------------------------Constructors----------------------------------------------
     /**
@@ -102,7 +96,6 @@ public class Credential extends BaseDomain implements Serializable {
         this.enabled = enabled;
         this.roles = roles;
         this.lastLoginTime = lastLoginTime;
-        this.userGroups=userGroups;
     }
     // -------------------------------Domain_Methods----------------------------------------------
     // ------------------------------------------Getters/Setters-----------------------------------
@@ -215,13 +208,7 @@ public class Credential extends BaseDomain implements Serializable {
         this.email = email;
     }
 
-	public Set<UserGroup> getUserGroups() {
-		return userGroups;
-	}
 
-	public void setUserGroups(final Set<UserGroup> userGroups) {
-		this.userGroups = userGroups;
-	}
 
 
 }
