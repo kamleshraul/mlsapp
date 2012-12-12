@@ -20,7 +20,7 @@
 	<div class="commandbar">
 		<div class="commandbarContent">
 			<a href="#" id="process_record" class="butSim">
-				<spring:message code="workflow.myTasks.process" text="Process"/>
+				<spring:message code="generic.details" text="Process"/>
 			</a>  |
 			<a href="#" id="search" class="butSim">
 				<spring:message code="generic.search" text="Search"/>

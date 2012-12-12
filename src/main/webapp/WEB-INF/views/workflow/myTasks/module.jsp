@@ -59,7 +59,7 @@
 			</li>	
 			<li>
 				<a id="process_tab" href="#" class="tab">
-				   <spring:message code="workflow.myTasks.process" text="Process"></spring:message>
+				   <spring:message code="generic.details" text="Details"></spring:message>
 				</a>
 			</li>		
 		</ul>
