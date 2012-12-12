@@ -11,7 +11,6 @@ package org.mkcl.els.domain;
 
 import java.io.Serializable;
 import java.util.Date;
-import java.util.List;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
@@ -38,7 +37,7 @@ import org.springframework.beans.factory.annotation.Configurable;
 @Configurable
 @Entity
 @Table(name="users")
-@JsonIgnoreProperties({"houseType"})
+@JsonIgnoreProperties()
 
 public class User extends BaseDomain implements Serializable {
 
@@ -69,7 +68,7 @@ public class User extends BaseDomain implements Serializable {
     private String birthPlace;
 
     /** The credential. */
-    @ManyToOne(fetch=FetchType.LAZY,cascade=CascadeType.ALL)
+    @ManyToOne(fetch=FetchType.EAGER,cascade=CascadeType.REMOVE)
     @JoinColumn(name="credential_id")
     private Credential credential;
 
@@ -116,13 +115,13 @@ public class User extends BaseDomain implements Serializable {
     	return getUserRepository().findByUserName(username, locale);
     }
 
+    public static User find(final Member member){
+        return getUserRepository().find(member);
+    }
+
 //    public static void assignMemberId(final Long memberId,final Long userId){
 //    	getUserRepository().assignMemberId(memberId, userId);
 //    }
-    
-    public static List<User> findUsersByCredential(final Long credentialId){
-    	return getUserRepository().findUsersByCredential(credentialId);
-    }
     // ------------------------------------------Getters/Setters-----------------------------------
 
     /**
