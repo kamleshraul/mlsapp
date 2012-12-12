@@ -42,66 +42,53 @@ public class QuestionDraft extends BaseDomain implements Serializable{
     /** The Constant serialVersionUID. */
     private static final long serialVersionUID = 1L;
 
+    //---------------------------Basic Characteristics--------------------------
     /** The type. */
     @ManyToOne(fetch=FetchType.LAZY)
-    @JoinColumn(name="questionType_id")
+    @JoinColumn(name="devicetype_id")
     private DeviceType type;
 
-    /** The supporting members. */
-    @ManyToMany(fetch=FetchType.LAZY)
-    @JoinTable(name = "questionsdrafts_supportingmembers",
-            joinColumns = { @JoinColumn(name = "questiondraft_id", referencedColumnName = "id") },
-            inverseJoinColumns = { @JoinColumn(name = "supportingmember_id", referencedColumnName = "id") })
-    private List<Member> supportingMembers;
-
-    /** The group. */
-    @ManyToOne(fetch=FetchType.LAZY)
-    @JoinColumn(name="group_id")
-    private Group group;
-    
-    /** The ministry. */
-    @ManyToOne(fetch=FetchType.LAZY)
-    @JoinColumn(name="ministry_id")
-    private Ministry ministry;
-    
-    /** The department. */
-    @ManyToOne(fetch=FetchType.LAZY)
-    @JoinColumn(name="department")
-    private Department department;
-    
-    /** The sub department. */
-    @ManyToOne(fetch=FetchType.LAZY)
-    @JoinColumn(name="subdepartment_id")
-    private SubDepartment subDepartment;
-    
     /** The answering date. */
-    @Temporal(TemporalType.TIMESTAMP)
-    private Date answeringDate;
+    @ManyToOne(fetch=FetchType.LAZY)
+    private QuestionDates answeringDate;
+
+    /** The language. */
+    @ManyToOne(fetch=FetchType.LAZY)
+    @JoinColumn(name="language_id")
+    private Language language;
 
     /** The subject. */
-    @Column(length=3000)
+    @Column(length=30000)
     private String subject;
 
     /** The question text. */
     @Column(length=30000)
     private String questionText;
-    
-    /** The priority. */
-    private Integer priority;
 
-    /** The referenced questions. */
-    @ManyToMany(fetch=FetchType.LAZY)
-    @JoinTable(name = "questionsdrafts_references",
-            joinColumns = { @JoinColumn(name = "questiondraft_id", referencedColumnName = "id") },
-            inverseJoinColumns = { @JoinColumn(name = "reference_id", referencedColumnName = "id") })
-    private List<Question> referencedQuestions;
+    /** The answer. */
+    @Column(length=30000)
+    private String answer;
 
-    // The status of a Question should be tracked throughout it's lifecycle
     /** The status. */
     @ManyToOne(fetch=FetchType.LAZY)
     @JoinColumn(name="status_id")
     private Status status;
-    
+
+    @ManyToOne(fetch=FetchType.LAZY)
+    @JoinColumn(name="internalstatus_id")
+    private Status internalStatus;
+
+    @ManyToOne(fetch=FetchType.LAZY)
+    @JoinColumn(name="recommendationstatus_id")
+    private Status recommendationStatus;
+
+    @ManyToOne(fetch=FetchType.LAZY)
+    @JoinColumn(name="clarification_neededfrom_id")
+    private ClarificationNeededFrom clarificationNeededFrom;
+
+    @Column(length=30000)
+    private String remarks;
+
     /** The edited by. */
     @ManyToOne(fetch=FetchType.LAZY)
     @JoinColumn(name="editedby_id")
@@ -109,314 +96,246 @@ public class QuestionDraft extends BaseDomain implements Serializable{
 
     /** The edited as. */
     @ManyToOne(fetch=FetchType.LAZY)
-    @JoinColumn(name="editedas_id")
-    private Role editedAs;
+    @JoinColumn(name="editedastype_id")
+    private UserGroupType editedAs;
 
     /** The edited on. */
     @Temporal(TemporalType.TIMESTAMP)
     @JoinColumn(name="editedon")
     private Date editedOn;
-    
-    /** The language. */
-    @ManyToOne
-    @JoinColumn(name="language_id")
-    private Language language;
 
-    /**
-     * Instantiates a new question draft.
-     */
-    public QuestionDraft() {
-        super();
-    }
+    private Boolean markAsAnswered;
 
-    /**
-     * Gets the type.
-     *
-     * @return the type
-     */
-    public DeviceType getType() {
-        return type;
-    }
+    //---------------------------Primary and supporting members-----------------
+    /** The supporting members. */
+    @ManyToMany(fetch=FetchType.LAZY)
+    @JoinTable(name="questionsdrafts_supportingmembers",
+            joinColumns={@JoinColumn(name="questiondraft_id",
+                    referencedColumnName="id")},
+                    inverseJoinColumns={@JoinColumn(name="supportingmember_id",
+                            referencedColumnName="id")})
+                            private List<SupportingMember> supportingMembers;
 
-    /**
-     * Sets the type.
-     *
-     * @param type the new type
-     */
-    public void setType(final DeviceType type) {
-        this.type = type;
-    }
+    //------------------------Group Information--------------------------------
+    /** The group. */
+    @ManyToOne(fetch=FetchType.LAZY)
+    @JoinColumn(name="group_id")
+    private Group group;
 
-    /**
-     * Gets the supporting members.
-     *
-     * @return the supporting members
-     */
-    public List<Member> getSupportingMembers() {
-        return supportingMembers;
-    }
+    /** The ministry. */
+    @ManyToOne(fetch=FetchType.LAZY)
+    @JoinColumn(name="ministry_id")
+    private Ministry ministry;
 
-    /**
-     * Sets the supporting members.
-     *
-     * @param supportingMembers the new supporting members
-     */
-    public void setSupportingMembers(final List<Member> supportingMembers) {
-        this.supportingMembers = supportingMembers;
-    }
+    /** The department. */
+    @ManyToOne(fetch=FetchType.LAZY)
+    @JoinColumn(name="department_id")
+    private Department department;
 
-    /**
-     * Gets the answering date.
-     *
-     * @return the answering date
-     */
-    public Date getAnsweringDate() {
-        return answeringDate;
-    }
+    /** The sub department. */
+    @ManyToOne(fetch=FetchType.LAZY)
+    @JoinColumn(name="subdepartment_id")
+    private SubDepartment subDepartment;
 
-    /**
-     * Sets the answering date.
-     *
-     * @param answeringDate the new answering date
-     */
-    public void setAnsweringDate(final Date answeringDate) {
-        this.answeringDate = answeringDate;
-    }
+    //---------------------------Referenced Questions---------------------------
+    /** The referenced questions. */
+    @ManyToMany(fetch=FetchType.LAZY)
+    @JoinTable(name="questionsdrafts_references", joinColumns={@JoinColumn(name="questiondraft_id", referencedColumnName="id")}, inverseJoinColumns=
 
-    /**
-     * Gets the priority.
-     *
-     * @return the priority
-     */
-    public Integer getPriority() {
-        return priority;
-    }
+{@JoinColumn(name="reference_id", referencedColumnName="id")})
+    private List<Question> referencedQuestions;
 
-    /**
-     * Sets the priority.
-     *
-     * @param priority the new priority
-     */
-    public void setPriority(final Integer priority) {
-        this.priority = priority;
-    }
-    
-    
+    //--------------------------Clubbing------------------------------------------
+    /** The drafts. */
+    @ManyToMany(fetch=FetchType.LAZY)
+    @JoinTable(name="questionsdrafts_clubbing", joinColumns={@JoinColumn(name="primary_questiondraft_id", referencedColumnName="id")}, 
 
-    /**
-     * Gets the language.
-     *
-     * @return the language
-     */
-    public Language getLanguage() {
+inverseJoinColumns={@JoinColumn(name="clubbed_question_id", referencedColumnName="id")})
+    private List<Question> clubbings;
+
+	public QuestionDraft() {
+		super();
+	}
+
+	public DeviceType getType() {
+		return type;
+	}
+
+	public void setType(final DeviceType type) {
+		this.type = type;
+	}
+
+	public QuestionDates getAnsweringDate() {
+		return answeringDate;
+	}
+
+	public void setAnsweringDate(final QuestionDates answeringDate) {
+		this.answeringDate = answeringDate;
+	}
+
+	public Language getLanguage() {
 		return language;
 	}
 
-	/**
-	 * Sets the language.
-	 *
-	 * @param language the new language
-	 */
-	public void setLanguage(Language language) {
+	public void setLanguage(final Language language) {
 		this.language = language;
 	}
 
-	/**
-	 * Gets the subject.
-	 *
-	 * @return the subject
-	 */
 	public String getSubject() {
-        return subject;
-    }
-
-    /**
-     * Sets the subject.
-     *
-     * @param subject the new subject
-     */
-    public void setSubject(final String subject) {
-        this.subject = subject;
-    }
-
-    /**
-     * Gets the group.
-     *
-     * @return the group
-     */
-    public Group getGroup() {
-        return group;
-    }
-
-    /**
-     * Sets the group.
-     *
-     * @param group the new group
-     */
-    public void setGroup(final Group group) {
-        this.group = group;
-    }
-
-    /**
-     * Gets the ministry.
-     *
-     * @return the ministry
-     */
-    public Ministry getMinistry() {
-        return ministry;
-    }
-
-    /**
-     * Sets the ministry.
-     *
-     * @param ministry the new ministry
-     */
-    public void setMinistry(final Ministry ministry) {
-        this.ministry = ministry;
-    }
-
-    /**
-     * Gets the department.
-     *
-     * @return the department
-     */
-    public Department getDepartment() {
-        return department;
-    }
-
-    /**
-     * Sets the department.
-     *
-     * @param department the new department
-     */
-    public void setDepartment(final Department department) {
-        this.department = department;
-    }
-
-    /**
-     * Gets the question text.
-     *
-     * @return the question text
-     */
-    public String getQuestionText() {
-        return questionText;
-    }
-
-    /**
-     * Sets the question text.
-     *
-     * @param questionText the new question text
-     */
-    public void setQuestionText(final String questionText) {
-        this.questionText = questionText;
-    }
-
-    /**
-     * Gets the referenced questions.
-     *
-     * @return the referenced questions
-     */
-    public List<Question> getReferencedQuestions() {
-        return referencedQuestions;
-    }
-
-    /**
-     * Sets the referenced questions.
-     *
-     * @param referencedQuestions the new referenced questions
-     */
-    public void setReferencedQuestions(final List<Question> referencedQuestions) {
-        this.referencedQuestions = referencedQuestions;
-    }
-
-    /**
-     * Gets the edited by.
-     *
-     * @return the edited by
-     */
-    public User getEditedBy() {
-        return editedBy;
-    }
-
-    /**
-     * Sets the edited by.
-     *
-     * @param editedBy the new edited by
-     */
-    public void setEditedBy(final User editedBy) {
-        this.editedBy = editedBy;
-    }
-
-    /**
-     * Gets the edited as.
-     *
-     * @return the edited as
-     */
-    public Role getEditedAs() {
-        return editedAs;
-    }
-
-    /**
-     * Sets the edited as.
-     *
-     * @param editedAs the new edited as
-     */
-    public void setEditedAs(final Role editedAs) {
-        this.editedAs = editedAs;
-    }
-
-    /**
-     * Gets the edited on.
-     *
-     * @return the edited on
-     */
-    public Date getEditedOn() {
-        return editedOn;
-    }
-
-    /**
-     * Sets the edited on.
-     *
-     * @param editedOn the new edited on
-     */
-    public void setEditedOn(final Date editedOn) {
-        this.editedOn = editedOn;
-    }
-
-	/**
-	 * Gets the sub department.
-	 *
-	 * @return the sub department
-	 */
-	public SubDepartment getSubDepartment() {
-		return subDepartment;
+		return subject;
 	}
 
-	/**
-	 * Sets the sub department.
-	 *
-	 * @param subDepartment the new sub department
-	 */
-	public void setSubDepartment(SubDepartment subDepartment) {
-		this.subDepartment = subDepartment;
+	public void setSubject(final String subject) {
+		this.subject = subject;
 	}
 
-	/**
-	 * Gets the status.
-	 *
-	 * @return the status
-	 */
+	public String getQuestionText() {
+		return questionText;
+	}
+
+	public void setQuestionText(final String questionText) {
+		this.questionText = questionText;
+	}
+
+	public String getAnswer() {
+		return answer;
+	}
+
+	public void setAnswer(final String answer) {
+		this.answer = answer;
+	}
+
 	public Status getStatus() {
 		return status;
 	}
 
-	/**
-	 * Sets the status.
-	 *
-	 * @param status the new status
-	 */
-	public void setStatus(Status status) {
+	public void setStatus(final Status status) {
 		this.status = status;
 	}
- 
+
+	public Status getInternalStatus() {
+		return internalStatus;
+	}
+
+	public void setInternalStatus(final Status internalStatus) {
+		this.internalStatus = internalStatus;
+	}
+
+	public ClarificationNeededFrom getClarificationNeededFrom() {
+		return clarificationNeededFrom;
+	}
+
+	public void setClarificationNeededFrom(
+			final ClarificationNeededFrom clarificationNeededFrom) {
+		this.clarificationNeededFrom = clarificationNeededFrom;
+	}
+
+	public String getRemarks() {
+		return remarks;
+	}
+
+	public void setRemarks(final String remarks) {
+		this.remarks = remarks;
+	}
+
+	public User getEditedBy() {
+		return editedBy;
+	}
+
+	public void setEditedBy(final User editedBy) {
+		this.editedBy = editedBy;
+	}
+
+	public UserGroupType getEditedAs() {
+		return editedAs;
+	}
+
+	public void setEditedAs(final UserGroupType editedAs) {
+		this.editedAs = editedAs;
+	}
+
+	public Date getEditedOn() {
+		return editedOn;
+	}
+
+	public void setEditedOn(final Date editedOn) {
+		this.editedOn = editedOn;
+	}
+
+	public List<SupportingMember> getSupportingMembers() {
+		return supportingMembers;
+	}
+
+	public void setSupportingMembers(final List<SupportingMember> supportingMembers) {
+		this.supportingMembers = supportingMembers;
+	}
+
+	public Group getGroup() {
+		return group;
+	}
+
+	public void setGroup(final Group group) {
+		this.group = group;
+	}
+
+	public Ministry getMinistry() {
+		return ministry;
+	}
+
+	public void setMinistry(final Ministry ministry) {
+		this.ministry = ministry;
+	}
+
+	public Department getDepartment() {
+		return department;
+	}
+
+	public void setDepartment(final Department department) {
+		this.department = department;
+	}
+
+	public SubDepartment getSubDepartment() {
+		return subDepartment;
+	}
+
+	public void setSubDepartment(final SubDepartment subDepartment) {
+		this.subDepartment = subDepartment;
+	}
+
+	public List<Question> getReferencedQuestions() {
+		return referencedQuestions;
+	}
+
+	public void setReferencedQuestions(final List<Question> referencedQuestions) {
+		this.referencedQuestions = referencedQuestions;
+	}
+
+	public List<Question> getClubbings() {
+		return clubbings;
+	}
+
+	public void setClubbings(final List<Question> clubbings) {
+		this.clubbings = clubbings;
+	}
+
+	public Status getRecommendationStatus() {
+		return recommendationStatus;
+	}
+
+	public void setRecommendationStatus(final Status recommendationStatus) {
+		this.recommendationStatus = recommendationStatus;
+	}
+
+
+    public Boolean getMarkAsAnswered() {
+        return markAsAnswered;
+    }
+
+
+    public void setMarkAsAnswered(final Boolean markAsAnswered) {
+        this.markAsAnswered = markAsAnswered;
+    }
+
+
+
 }
