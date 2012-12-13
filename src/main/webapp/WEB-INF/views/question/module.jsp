@@ -383,6 +383,7 @@
 		<div class="commandbarContent" style="margin-top: 10px;" id="selectionDiv2">		
 		<c:if test="${usergroupType!='member'}">
 		<c:if test="${userrole!='CLERK' }">
+		<c:if test="${questionTypeType!='questions_unstarred'}">
 			<a href="#" id="select_group" class="butSim">
 				<spring:message code="question.group" text="Group"/>
 			</a>
@@ -411,6 +412,7 @@
 			<a href="#" id="view_ballot" class="butSim">
 				<spring:message code="question.viewBallot" text="View Ballot"/>
 			</a> 
+			</c:if>
 			</c:if>
 			</c:if>	
 		</div>
