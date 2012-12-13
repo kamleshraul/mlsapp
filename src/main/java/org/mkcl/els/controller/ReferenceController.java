@@ -35,6 +35,7 @@ import org.mkcl.els.domain.Chart;
 import org.mkcl.els.domain.Constituency;
 import org.mkcl.els.domain.CustomParameter;
 import org.mkcl.els.domain.Department;
+import org.mkcl.els.domain.DeviceType;
 import org.mkcl.els.domain.District;
 import org.mkcl.els.domain.Division;
 import org.mkcl.els.domain.Election;
@@ -1245,6 +1246,17 @@ public class ReferenceController extends BaseController {
     	reference.setName(String.valueOf(workflowConfig.getId()));
     	return reference;
 
+    }
+    
+    @RequestMapping(value = "/{deviceTypesEnabled}/deviceTypesNeedBallot", method = RequestMethod.GET)
+    public @ResponseBody List<Reference> getDeviceTypesNeedBallot(@PathVariable("deviceTypesEnabled") final String deviceTypesEnabled,final HttpServletRequest request, final ModelMap model, final Locale locale) {  
+    	List<Reference> deviceTypesRef = new ArrayList<Reference>();
+    	for(String deviceTypeEnabled : deviceTypesEnabled.split(",")) {
+    		DeviceType deviceType = DeviceType.findByType(deviceTypeEnabled, locale.toString());
+    		Reference reference = new Reference(deviceType.getType(), deviceType.getName());
+    		deviceTypesRef.add(reference);
+    	}    	
+		return deviceTypesRef;    	
     }
 
 
