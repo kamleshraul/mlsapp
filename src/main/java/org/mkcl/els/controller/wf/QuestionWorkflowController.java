@@ -446,7 +446,8 @@ public class QuestionWorkflowController  extends BaseController{
 				    noOfComparisons=0;
 				    noOfSuccess=0;
 					if(i.getActiveFrom().before(new Date())||i.getActiveFrom().equals(new Date())){
-						if(i.getUserGroupType().getType().equals("member")){
+					    String userType=i.getUserGroupType().getType();
+						if(userType.equals("member")){
 							return i.getCredential().getUsername();
 						}
 						Map<String,String> map=i.getParameters();
@@ -470,9 +471,11 @@ public class QuestionWorkflowController  extends BaseController{
 						}
 						if(map.get("HOUSETYPE_"+locale)!=null&&domain.getHouseType()!=null){
 							noOfComparisons++;
-							if(map.get("HOUSETYPE_"+locale).equals(domain.getHouseType().getName())){
-								noOfSuccess++;
-							}
+							if(map.get("HOUSETYPE_"+locale).equals("Both House")&&userType.equals("principal_secretary")){
+                                noOfSuccess++;
+                            }else if(map.get("HOUSETYPE_"+locale).equals(domain.getHouseType().getName())){
+                                noOfSuccess++;
+                            }
 						}
 						if(map.get("SESSIONTYPE_"+locale)!=null&&domain.getSession()!=null){
 							noOfComparisons++;
