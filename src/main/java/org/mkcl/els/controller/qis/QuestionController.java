@@ -88,6 +88,8 @@ public class QuestionController extends GenericController<Question>{
 			List<DeviceType> deviceTypes = DeviceType.findDeviceTypesStartingWith("questions", locale);
 			model.addAttribute("questionTypes", deviceTypes);
 			model.addAttribute("questionType",deviceType.getId());
+	        model.addAttribute("questionTypeType",deviceType.getType());
+
 			/*
 			 * adding housetype of authenticated user and list of house types to model
 			 */
@@ -163,27 +165,21 @@ public class QuestionController extends GenericController<Question>{
 									List<Group> groups=new ArrayList<Group>();
 									if(lastSessionCreated!=null){
 										for(String k:strgroups){
-											Group group=Group.findByNumberHouseTypeSessionTypeYear
-
-(Integer.parseInt(k),  authUserHouseType, lastSessionCreated.getType(), year);
+											Group group=Group.findByNumberHouseTypeSessionTypeYear(Integer.parseInt(k),  authUserHouseType, lastSessionCreated.getType(), year);
 											if(group!=null){
 												groups.add(group);
 											}
 										}
 										model.addAttribute("groups",groups);
 										if(!groups.isEmpty()){
-											List<QuestionDates> questionDates=groups.get
-
-(0).getQuestionDates();
+											List<QuestionDates> questionDates=groups.get(0).getQuestionDates();
 											List<MasterVO> masterVOs=new ArrayList<MasterVO>();
 											if(questionDates!=null){
 												if(!questionDates.isEmpty()){
 													for(QuestionDates qd:questionDates){
 														MasterVO masterVO=new MasterVO();
 														masterVO.setId(qd.getId());
-														masterVO.setName
-
-(FormaterUtil.getDateFormatter(locale).format(qd.getAnsweringDate()));
+														masterVO.setName(FormaterUtil.getDateFormatter(locale).format(qd.getAnsweringDate()));
 														masterVOs.add(masterVO);
 													}
 												}
@@ -352,9 +348,7 @@ public class QuestionController extends GenericController<Question>{
 		/*
 		 * adding primary member to model
 		 */
-		Member member=Member.findMember(this.getCurrentUser().getFirstName(),this.getCurrentUser().getMiddleName(),this.getCurrentUser
-
-().getLastName(),this.getCurrentUser().getBirthDate(),locale);
+		Member member=Member.findMember(this.getCurrentUser().getFirstName(),this.getCurrentUser().getMiddleName(),this.getCurrentUser().getLastName(),this.getCurrentUser().getBirthDate(),locale);
 		if(member.getId()!=null){
 			domain.setPrimaryMember(member);
 			model.addAttribute("primaryMember",member.getId());
@@ -383,30 +377,26 @@ public class QuestionController extends GenericController<Question>{
 						rotationOrderPubDate=selectedSession.getRotationOrderPublishingDate();
 					}else if(houseType.getType().equals("upperhouse")){
 						rotationOrderPubDate=selectedSession.getRotationOrderPublishingDate();
-					}					CustomParameter rotationOrderDateFormat=CustomParameter.findByName
-
-(CustomParameter.class,"ROTATION_ORDER_DATE_FORMAT", "");
+					}					CustomParameter rotationOrderDateFormat=CustomParameter.findByName(CustomParameter.class,"ROTATION_ORDER_DATE_FORMAT", "");
 					if(rotationOrderDateFormat!=null){
 						if(rotationOrderPubDate!=null){
 							/*
 							 * adding rotation order publishing date
 							 */
-							String tempDate=FormaterUtil.getDateFormatter(rotationOrderDateFormat.getValue(), 
-
-locale).format(rotationOrderPubDate);
+							String tempDate=FormaterUtil.getDateFormatter(rotationOrderDateFormat.getValue(), locale).format(rotationOrderPubDate);
 							String[] temp=tempDate.split(",");
 							String formattedDay=FormaterUtil.getDayInMarathi(temp[0], locale);
 							String formattedDate=temp[1].split(" ")[0];
 							String formattedMonth=FormaterUtil.getMonthInMarathi(temp[1].split(" ")[1], locale);
 							String formattedYear=temp[2];
-							model.addAttribute("rotationOrderPublishDate", formattedDay+","+formattedDate+""+formattedMonth+","+formattedYear);
+							model.addAttribute("rotationOrderPublishDate", formattedDay+","+formattedDate+" "+formattedMonth+","+formattedYear);
 
 							Date currentDate=new Date();
 							if(currentDate.equals(rotationOrderPubDate)||currentDate.after(rotationOrderPubDate)){
 								/*
 								 * adding ministries
 								 */
-								List<Ministry> ministries=Ministry.findMinistriesAssignedToGroups(houseType,sessionYear, sessionType, locale);
+								List<Ministry> ministries=Ministry.findMinistriesAssignedToGroups(houseType, sessionYear, sessionType, locale);
 								model.addAttribute("ministries",ministries);
 							}
 						}else{
@@ -419,7 +409,7 @@ locale).format(rotationOrderPubDate);
 					/*
 					 * adding ministries
 					 */
-					List<Ministry> ministries=Ministry.findMinistriesAssignedToGroups(houseType, sessionYear, sessionType,locale);
+					List<Ministry> ministries=Ministry.findMinistriesAssignedToGroups(houseType, sessionYear, sessionType, locale);
 					model.addAttribute("ministries",ministries);
 				}
 			}else{
@@ -563,24 +553,20 @@ locale).format(rotationOrderPubDate);
 					/*
 					 * adding rotation order publishing date
 					 */
-					String tempDate=FormaterUtil.getDateFormatter(rotationOrderDateFormat.getValue(), locale).format
-
-(rotationOrderPubDate);
+					String tempDate=FormaterUtil.getDateFormatter(rotationOrderDateFormat.getValue(), locale).format(rotationOrderPubDate);
 					String[] temp=tempDate.split(",");
 					String formattedDay=FormaterUtil.getDayInMarathi(temp[0], locale);
 					String formattedDate=temp[1].split(" ")[0];
 					String formattedMonth=FormaterUtil.getMonthInMarathi(temp[1].split(" ")[1], locale);
 					String formattedYear=temp[2];
-					model.addAttribute("rotationOrderPublishDate", formattedDay+","+formattedDate+" "+formattedMonth
-
-+","+formattedYear);
+					model.addAttribute("rotationOrderPublishDate", formattedDay+","+formattedDate+" "+formattedMonth+","+formattedYear);
 					Date currentDate=new Date();
 					if(currentDate.equals(rotationOrderPubDate)||currentDate.after(rotationOrderPubDate)){
 
 						/*
 						 * adding ministries
 						 */
-						List<Ministry> ministries=Ministry.findMinistriesAssignedToGroups(houseType, sessionYear,sessionType, locale);
+						List<Ministry> ministries=Ministry.findMinistriesAssignedToGroups(houseType, sessionYear, sessionType, locale);
 						model.addAttribute("ministries",ministries);
 						if(domain.getMinistry()!=null){
 							model.addAttribute("ministrySelected",domain.getMinistry().getId());
@@ -766,7 +752,7 @@ locale).format(rotationOrderPubDate);
 						/*
 						 * adding decision status in model and clarification needed from               *
 						 */
-						List<Status> internalStatus=Status.findStartingWith("question_workflow_decisionstatus", "name",ApplicationConstants.ASC, domain.getLocale());
+						List<Status> internalStatus=Status.findStartingWith("question_workflow_decisionstatus", "name", ApplicationConstants.ASC, domain.getLocale());
 						model.addAttribute("internalStatus",internalStatus);
 						if(domain.getInternalStatus()!=null){
 							model.addAttribute("internalStatusSelected",domain.getInternalStatus().getId());
@@ -1008,7 +994,7 @@ locale).format(rotationOrderPubDate);
 							/*
 							 *set status
 							 */
-							Status newstatus=Status.findByFieldName(Status.class, "type", "questions_submit",domain.getLocale());
+							Status newstatus=Status.findByFieldName(Status.class, "type", "questions_submit", domain.getLocale());
 							domain.setStatus(newstatus);
 							domain.setInternalStatus(newstatus);
 						}
@@ -1254,7 +1240,7 @@ locale).format(rotationOrderPubDate);
 							/*
 							 *set status
 							 */
-							Status newstatus=Status.findByFieldName(Status.class, "type", "questions_submit",domain.getLocale());
+							Status newstatus=Status.findByFieldName(Status.class, "type", "questions_submit", domain.getLocale());
 							domain.setStatus(newstatus);
 							domain.setInternalStatus(newstatus);
 							domain.setRecommendationStatus(newstatus);
@@ -1299,7 +1285,7 @@ locale).format(rotationOrderPubDate);
 							Question question = Question.findById(Question.class, id);
 							String internalStatus = question.getInternalStatus().getType();
 							if(internalStatus.equals("questions_submit")&&domain.getMinistry()!=null&&domain.getGroup()!=null&&domain.getDepartment()!=null) {
-								Status ASSISTANT_PROCESSED = Status.findByType("question_assistantprocessed",domain.getLocale());
+								Status ASSISTANT_PROCESSED = Status.findByType("question_assistantprocessed", domain.getLocale());
 								domain.setInternalStatus(ASSISTANT_PROCESSED);
 								domain.setRecommendationStatus(ASSISTANT_PROCESSED);
 							}
@@ -1393,7 +1379,7 @@ locale).format(rotationOrderPubDate);
 
 		private String findNextUser(final Question domain,final String actor,final String locale){
 			UserGroupType userGroupType=UserGroupType.findByFieldName(UserGroupType.class, "type",actor, domain.getLocale());
-			List<UserGroup> userGroups=UserGroup.findAllByFieldName(UserGroup.class,"userGroupType",userGroupType,"activeFrom",ApplicationConstants.DESC, domain.getLocale());
+			List<UserGroup> userGroups=UserGroup.findAllByFieldName(UserGroup.class,"userGroupType", userGroupType,"activeFrom",ApplicationConstants.DESC, domain.getLocale());
 			Credential credential=null;
 			int noOfComparisons=0;
 			int noOfSuccess=0;
@@ -1401,6 +1387,10 @@ locale).format(rotationOrderPubDate);
 				if(!userGroups.isEmpty()){
 					for(UserGroup i:userGroups){
 						if(i.getActiveFrom().before(new Date())||i.getActiveFrom().equals(new Date())){
+						    String userType=i.getUserGroupType().getType();
+	                        if(userType.equals("member")){
+	                            return i.getCredential().getUsername();
+	                        }
 							Map<String,String> map=i.getParameters();
 							if(map.get("DEPARTMENT_"+locale)!=null&&domain.getDepartment()!=null){
 								noOfComparisons++;
@@ -1422,9 +1412,11 @@ locale).format(rotationOrderPubDate);
 							}
 							if(map.get("HOUSETYPE_"+locale)!=null&&domain.getHouseType()!=null){
 								noOfComparisons++;
-								if(map.get("HOUSETYPE_"+locale).equals(domain.getHouseType().getName())){
-									noOfSuccess++;
-								}
+								if(map.get("HOUSETYPE_"+locale).equals("Both House")&&userType.equals("principal_secretary")){
+	                                noOfSuccess++;
+	                            }else if(map.get("HOUSETYPE_"+locale).equals(domain.getHouseType().getName())){
+	                                noOfSuccess++;
+	                            }
 							}
 							if(map.get("SESSIONTYPE_"+locale)!=null&&domain.getSession()!=null){
 								noOfComparisons++;
@@ -1498,7 +1490,7 @@ locale).format(rotationOrderPubDate);
 							 * the supporting member doesn't exists then its status will be assigned.Now tasks will be created for all
 							 * the supporting members whose status is assigned.And once task has been created the status will change to pending.
 							 */
-							supportingMember.setDecisionStatus((Status) Status.findByFieldName(Status.class,"type","supportingmember_assigned", domain.getLocale()));
+							supportingMember.setDecisionStatus((Status) Status.findByFieldName(Status.class, "type","supportingmember_assigned", domain.getLocale()));
 						}
 						supportingMembers.add(supportingMember);
 					}
@@ -1561,9 +1553,10 @@ locale).format(rotationOrderPubDate);
 		}
 
 		@RequestMapping(value="/citations/{deviceType}",method=RequestMethod.GET)
-		public String getCitations(final Locale locale,@PathVariable("deviceType")  final Long type,final ModelMap model){
+		public String getCitations(final Locale locale,@PathVariable("deviceType")  final Long type,
+				final ModelMap model){
 			DeviceType deviceType=DeviceType.findById(DeviceType.class,type);
-			List<Citation> citations=Citation.findAllByFieldName(Citation.class,"deviceType",deviceType, "text",ApplicationConstants.ASC,locale.toString());
+			List<Citation> citations=Citation.findAllByFieldName(Citation.class,"deviceType",deviceType, "text",ApplicationConstants.ASC, locale.toString());
 			model.addAttribute("citations",citations);
 			return "question/citation";
 		}
@@ -1595,8 +1588,10 @@ locale).format(rotationOrderPubDate);
          */
         @Transactional
         @RequestMapping(value="chart/create", method=RequestMethod.GET)
-        public @ResponseBody String createChart(final HttpServletRequest request,final Locale locale) {
+        public @ResponseBody String createChart(final HttpServletRequest request,
+                final Locale locale) {
             String retVal = "ALREADY_EXISTS";
+
             String strLocale = locale.toString();
             String strHouseType = request.getParameter("houseType");
             String strYear = request.getParameter("sessionYear");
@@ -1604,10 +1599,14 @@ locale).format(rotationOrderPubDate);
             String strTempDate=request.getParameter("answeringDate");
             QuestionDates questionDates=QuestionDates.findById(QuestionDates.class,Long.parseLong(strTempDate));
 
-            HouseType houseType = HouseType.findByFieldName(HouseType.class, "type", strHouseType, strLocale);
-            SessionType sessionType = SessionType.findById(SessionType.class, Long.valueOf(strSessionTypeId));
+            HouseType houseType =
+                HouseType.findByFieldName(HouseType.class, "type", strHouseType, strLocale);
+            SessionType sessionType =
+                SessionType.findById(SessionType.class, Long.valueOf(strSessionTypeId));
             Integer year = Integer.valueOf(strYear);
+
             Session session = Session.findSessionByHouseTypeSessionTypeYear(houseType, sessionType, year);
+
             Group group = null;
             List<UserGroup> userGroups = this.getCurrentUser().getUserGroups();
             if(userGroups != null){
@@ -1656,10 +1655,14 @@ locale).format(rotationOrderPubDate);
             QuestionDates questionDates=QuestionDates.findById(QuestionDates.class,Long.parseLong(strTempDate));
             //String strAnsweringDate = request.getParameter("answeringDate");
 
-			HouseType houseType = HouseType.findByFieldName(HouseType.class, "type", strHouseType, strLocale);
-			SessionType sessionType = SessionType.findById(SessionType.class, Long.valueOf(strSessionTypeId));
+			HouseType houseType =
+				HouseType.findByFieldName(HouseType.class, "type", strHouseType, strLocale);
+			SessionType sessionType =
+				SessionType.findById(SessionType.class, Long.valueOf(strSessionTypeId));
 			Integer year = Integer.valueOf(strYear);
+
 			Session session = Session.findSessionByHouseTypeSessionTypeYear(houseType, sessionType, year);
+
 			Group group = null;
 			List<UserGroup> userGroups = this.getCurrentUser().getUserGroups();
 			if(userGroups != null){
@@ -1690,8 +1693,10 @@ locale).format(rotationOrderPubDate);
 				List<ChartVO> chartVOs = Chart.getChartVOs(session, group, answeringDate, strLocale);
 				model.addAttribute("chartVOs", chartVOs);
 
-				CustomParameter parameter = CustomParameter.findByName(CustomParameter.class, "DB_DATEFORMAT", "");
-				String strAnsweringDate = new DateFormater().formatDateToString(answeringDate, parameter.getValue());
+				CustomParameter parameter =
+				    CustomParameter.findByName(CustomParameter.class, "DB_DATEFORMAT", "");
+				String strAnsweringDate =
+				    new DateFormater().formatDateToString(answeringDate, parameter.getValue());
 				model.addAttribute("answeringDate", strAnsweringDate);
 			}
 			else {
@@ -1888,8 +1893,10 @@ locale).format(rotationOrderPubDate);
             QuestionDates questionDates=QuestionDates.findById(QuestionDates.class,Long.parseLong(strTempDate));
             //String strAnsweringDate = request.getParameter("answeringDate");
 
-			HouseType houseType = HouseType.findByFieldName(HouseType.class, "type", strHouseType, strLocale);
-			SessionType sessionType = SessionType.findById(SessionType.class, Long.valueOf(strSessionTypeId));
+			HouseType houseType =
+				HouseType.findByFieldName(HouseType.class, "type", strHouseType, strLocale);
+			SessionType sessionType =
+				SessionType.findById(SessionType.class, Long.valueOf(strSessionTypeId));
 			Integer year = Integer.valueOf(strYear);
 
 			Session session = Session.findSessionByHouseTypeSessionTypeYear(houseType, sessionType, year);
