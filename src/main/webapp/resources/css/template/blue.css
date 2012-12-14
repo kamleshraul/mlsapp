@@ -975,6 +975,18 @@
 		border-bottom:1px solid #e0e1e0;
 	}
 	
+	.sText:disabled{
+		/* added by sandeeps .changed height from 18px to 24px to 
+		accomodate proper display of various marathi ligatures*/
+		height:18px;	
+		line-height:16px;
+		background:#fff url(../../images/template/th_blue/bk_field_disabled.png) repeat top right; 
+		padding:3px;
+		border-top:1px solid #8d8e8d;
+		border-left:1px solid #8d8e8d;
+		border-right:1px solid #e0e1e0;
+		border-bottom:1px solid #e0e1e0;
+	}
 	
 	
 	

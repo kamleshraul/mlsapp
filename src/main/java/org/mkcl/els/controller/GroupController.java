@@ -312,8 +312,7 @@ org.springframework.validation.BindingResult, javax.servlet.http.HttpServletRequ
     		submissionDate.setTime(d);
     		submissionDate.add(Calendar.DATE, -31);
     		Date sDate=submissionDate.getTime();
-    		QuestionDates qd = domain.findQuestionDatesByGroupAndAnsweringDate(d);//QuestionDates.findByFieldName(QuestionDates.class,"answeringDate", current, domain.getLocale());
-    		//QuestionDates qd=QuestionDates.findByFieldName(QuestionDates.class, "answeringDate", d, domain.getLocale());
+    		QuestionDates qd = domain.findQuestionDatesByGroupAndAnsweringDate(d);
     		if(qd!=null){
     			submissionDates.add(dateFormat.format(qd.getFinalSubmissionDate()));
     			if(qd.getLastSendingDateToDepartment()!=null) {
@@ -361,6 +360,13 @@ org.springframework.validation.BindingResult, javax.servlet.http.HttpServletRequ
     		}
     		else{
     			submissionDates.add(dateFormat.format(sDate));
+    			lastSendingDatesToDepartment.add("");
+    			lastReceivingDatesFromDepartment.add("");
+    			yaadiPrintingDates.add("");
+    			yaadiReceivingDates.add("");
+    			suchhiPrintingDates.add("");
+    			suchhiReceivingDates.add("");
+    			suchhiDistributionDates.add("");
     		}    		
     	}    	
     	model.addAttribute("submissionDates",submissionDates);
@@ -406,16 +412,17 @@ org.springframework.validation.BindingResult, javax.servlet.http.HttpServletRequ
 		else{
 			sf=new SimpleDateFormat("dd/MM/yyyy",new Locale(domain.getLocale()));
 		}		
-		Date answeringDate=new Date();
-		Date submissionDate=new Date();
-		Date lastSendingDateToDepartment=null;
-		Date lastReceivingDateFromDepartment=null;
-		Date yaadiPrintingDate=null;
-		Date yaadiReceivingDate=null;
-		Date suchhiPrintingDate=null;
-		Date suchhiReceivingDate=null;
-		Date suchhiDistributionDate=null;
+		List<QuestionDates> questionDatesToRemove = new ArrayList<QuestionDates>();
 		for(int i=0;i<dateCount;i++){
+			Date answeringDate=null;
+			Date submissionDate=null;
+			Date lastSendingDateToDepartment=null;
+			Date lastReceivingDateFromDepartment=null;
+			Date yaadiPrintingDate=null;
+			Date yaadiReceivingDate=null;
+			Date suchhiPrintingDate=null;
+			Date suchhiReceivingDate=null;
+			Date suchhiDistributionDate=null;
 			if(request.getParameter("date"+i)!=null){				
 				if(request.getParameter("date"+i).equals("true")){
 					String aDate=request.getParameter("answeringDate"+i);
@@ -489,8 +496,7 @@ org.springframework.validation.BindingResult, javax.servlet.http.HttpServletRequ
 						e.printStackTrace();
 					}
 					QuestionDates questionDate= new QuestionDates();
-					QuestionDates qd= domain.findQuestionDatesByGroupAndAnsweringDate( answeringDate);
-					//QuestionDates qd = QuestionDates.findByFieldName(QuestionDates.class, "answeringDate", answeringDate,domain.getLocale());
+					QuestionDates qd= domain.findQuestionDatesByGroupAndAnsweringDate( answeringDate);					
 					if(qd!=null){
 						questionDate=qd;
 					}					
@@ -514,10 +520,9 @@ org.springframework.validation.BindingResult, javax.servlet.http.HttpServletRequ
 				} catch (ParseException e) {
 						e.printStackTrace();
 				}
-				QuestionDates qd= domain.findQuestionDatesByGroupAndAnsweringDate( answeringDate);
-			//	QuestionDates qd = QuestionDates.findByFieldName(QuestionDates.class, "answeringDate", answeringDate,domain.getLocale());
+				QuestionDates qd= domain.findQuestionDatesByGroupAndAnsweringDate( answeringDate);				
 				if(qd!=null){
-					qd.remove();
+					questionDatesToRemove.add(qd);
 				}
 			}
 
@@ -525,6 +530,9 @@ org.springframework.validation.BindingResult, javax.servlet.http.HttpServletRequ
 		if(!questionDates.isEmpty()){
 			domain.setQuestionDates(questionDates);					
 			((Group) domain).merge();
+			for(QuestionDates qdr : questionDatesToRemove) {
+				qdr.remove();
+			}
 		}
 		model.addAttribute("domain", domain);	
 		redirectAttributes.addFlashAttribute("type", "success");
