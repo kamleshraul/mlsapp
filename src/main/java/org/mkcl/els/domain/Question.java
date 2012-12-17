@@ -222,8 +222,7 @@ inverseJoinColumns={@JoinColumn(name="question_draft_id", referencedColumnName="
 	/** The drafts. */
 	@ManyToMany(fetch=FetchType.LAZY)
 	@JoinTable(name="questions_clubbing", joinColumns={@JoinColumn(name="primary_question_id", referencedColumnName="id")}, inverseJoinColumns=
-
-{@JoinColumn(name="clubbed_question_id", referencedColumnName="id")})
+	{@JoinColumn(name="clubbed_question_id", referencedColumnName="id")})
 	private List<Question> clubbings;
 
 	@Column(length=5000)
@@ -1119,9 +1118,7 @@ inverseJoinColumns={@JoinColumn(name="question_draft_id", referencedColumnName="
 	}
 
 	public static List<QuestionSearchVO> fullTextSearchClubbing(final String textToSearch,final Long sessionToSearchOn,final Long 
-
-groupToSearchOn,
-			final Long currentChartId, final Long questionId, final String locale) {
+				groupToSearchOn,final Long currentChartId, final Long questionId, final String locale) {
 		return getQuestionRepository().fullTextSearchClubbing(textToSearch,sessionToSearchOn,groupToSearchOn,
 				currentChartId,questionId,locale);
 	}
