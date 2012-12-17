@@ -32,8 +32,8 @@ public class QuestionRepository extends BaseRepository<Question, Long>{
 
     public Integer findLastStarredUnstarredShortNoticeQuestionNo(final House house,final Session currentSession){
         String query="SELECT q.number FROM questions AS q JOIN sessions AS s JOIN houses AS h "+
-        "JOIN questiontypes AS qt WHERE q.session_id=s.id AND s.house_id=h.id "+
-        "AND h.id="+house.getId()+" AND s.id="+currentSession.getId()+" AND qt.id=q.question_type_id AND qt.type!='halfhourdiscussion' ORDER BY q.id DESC LIMIT 0,1";
+        "JOIN devicetypes AS dt WHERE q.session_id=s.id AND s.house_id=h.id "+
+        "AND h.id="+house.getId()+" AND s.id="+currentSession.getId()+" AND dt.id=q.devicetype_id AND dt.type!='halfhourdiscussion' ORDER BY q.id DESC LIMIT 0,1";
         List result=this.em().createNativeQuery(query).getResultList();
         Integer lastNumber=0;
         if(!result.isEmpty()){
@@ -45,8 +45,8 @@ public class QuestionRepository extends BaseRepository<Question, Long>{
 
     public Integer findLastHalfHourDiscussionQuestionNo(final House house,final Session currentSession){
         String query="SELECT q.number FROM questions AS q JOIN sessions AS s JOIN houses AS h "+
-        "JOIN questiontypes AS qt WHERE q.session_id=s.id AND s.house_id=h.id "+
-        "AND h.id="+house.getId()+" AND s.id="+currentSession.getId()+" AND qt.id=q.question_type_id AND qt.type=='halfhourdiscussion' ORDER BY q.id DESC LIMIT 0,1";
+        "JOIN devicetypes AS dt WHERE q.session_id=s.id AND s.house_id=h.id "+
+        "AND h.id="+house.getId()+" AND s.id="+currentSession.getId()+" AND dt.id=q.devicetype_id AND dt.type=='halfhourdiscussion' ORDER BY q.id DESC LIMIT 0,1";
         List result=this.em().createNativeQuery(query).getResultList();
         Integer lastNumber=0;
         if(!result.isEmpty()){
