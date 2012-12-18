@@ -383,7 +383,7 @@
 		<div class="commandbarContent" style="margin-top: 10px;" id="selectionDiv2">		
 		<c:if test="${usergroupType!='member'}">
 		<c:if test="${userrole!='CLERK' }">
-		<c:if test="${questionTypeType!='questions_unstarred'}">
+		<c:if test="${questionTypeType!='questions_unstarred'&& questionTypeType!='questions_shortnotice'}">
 			<a href="#" id="select_group" class="butSim">
 				<spring:message code="question.group" text="Group"/>
 			</a>

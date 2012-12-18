@@ -16,8 +16,6 @@
 				newQuestion();
 			});
 			$('#edit_record').click(function(){
-				currentGridPage=$('#grid').getGridParam('page');
-				currentSelectedRow=$('#grid').getGridParam('selarrrow');
 				$("#selectionDiv1").hide();	
 				$("#selectionDiv2").hide();		
 				editQuestion();
@@ -56,9 +54,7 @@
 		});	
 		function rowDblClickHandler(rowid, iRow, iCol, e) {
 			$("#selectionDiv1").hide();	
-			$("#selectionDiv2").hide();	
-			currentGridPage=$('#grid').getGridParam('page');
-			currentSelectedRow=rowid;
+			$("#selectionDiv2").hide();					
 			$('#key').val(rowid);
 			$("#cancelFn").val("rowDblClickHandler");
 			showTabByIdAndUrl('details_tab', 'question/'+rowid+'/edit?'+$("#gridURLParams").val());
