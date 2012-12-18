@@ -436,7 +436,12 @@
 		<input name="primaryMember" value="${primaryMember}" type="hidden">
 		</c:if>
 		<form:errors path="primaryMember" cssClass="validationError"/>		
-	</p>	
+	</p>
+	
+	<p>
+		<label class="small"><spring:message code="question.primaryMemberConstituency" text="Constituency"/>*</label>
+		<input type="text" readonly="readonly" value="${primaryMemberConstituency}" class="sText">
+	</p>		
 	
 	<p>
 		<label class="centerlabel"><spring:message code="question.supportingMembers" text="Supporting Members"/></label>
@@ -462,6 +467,14 @@
 		<form:textarea path="questionText" cssClass="wysiwyg"></form:textarea>
 		<form:errors path="questionText" cssClass="validationError" cssStyle="float:right;margin-top:-100px;margin-right:40px;"/>	
 	</p>
+	
+	<c:if test="${selectedQuestionType=='questions_shortnotice'}">
+	<p>
+		<label class="wysiwyglabel"><spring:message code="question.reason" text="Reason"/>*</label>
+		<form:textarea path="reason" cssClass="wysiwyg"></form:textarea>
+		<form:errors path="reason" cssClass="validationError" cssStyle="float:right;margin-top:-100px;margin-right:40px;"/>	
+	</p>
+	</c:if>
 	
 	<p style="display:none;">
 		<label class="small"><spring:message code="question.language" text="Question Language"/>*</label>
