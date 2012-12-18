@@ -432,7 +432,7 @@
 	<label class="wysiwyglabel"><spring:message code="question.details" text="Details"/></label>
 	<form:textarea path="questionText" readonly="true" cssClass="wysiwyg"></form:textarea>
 	<form:errors path="questionText" cssClass="validationError"/>	
-	</p>
+	</p>	
 	
 	<p style="display:none;">
 	<a href="#" id="reviseSubjectText" style="margin-left: 162px;margin-right: 20px;"><spring:message code="question.reviseSubjectText" text="Revise Subject and Question"></spring:message></a>
@@ -452,6 +452,14 @@
 	<form:errors path="revisedQuestionText" cssClass="validationError" cssStyle="float:right;margin-top:-100px;margin-right:40px;"/>
 	<a href="#" id="copyQuestionText" style="display:none;float:right;margin-top:-100px;margin-right:40px;"><spring:message code="question.viewcitation" text="Copy original question"></spring:message></a>	
 	</p>
+	
+	<c:if test="${selectedQuestionType=='questions_shortnotice'}">
+	<p>
+		<label class="wysiwyglabel"><spring:message code="question.reason" text="Reason"/>*</label>
+		<form:textarea path="reason" cssClass="wysiwyg" readonly="true"></form:textarea>
+		<form:errors path="reason" cssClass="validationError" cssStyle="float:right;margin-top:-100px;margin-right:40px;"/>	
+	</p>
+	</c:if>
 	
 	<c:if test="${internalStatusType!='questions_submit'&&internalStatusType!='question_before_workflow_clubbed'}">		
 	<p>
@@ -498,6 +506,16 @@
 	<input type="hidden" id="recommendationStatus"  name="recommendationStatus" value="${internalStatusSelected }">	
 	<p style="display:none;">
 	<a href="#" id="viewCitation" style="margin-left: 162px;"><spring:message code="question.viewcitation" text="View Citations"></spring:message></a>	
+	</p>
+	
+	<p>
+	<label class="small"><spring:message code="question.tobeAnsweredByMinister" text="To be answered by Minister?"/></label>
+	<input type="checkbox" id="toBeAnsweredByMinister" class="sCheck" name="toBeAnsweredByMinister"/>
+	</p>	
+	
+	<p>
+	<label class="small"><spring:message code="question.dateOfAnsweringByMinister" text="Date of Answering By Minister"/></label>
+	<form:input path="dateOfAnsweringByMinister" cssClass="datemask sText"/>
 	</p>
 	
 	<p>

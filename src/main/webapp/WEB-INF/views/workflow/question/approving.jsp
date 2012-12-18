@@ -430,7 +430,7 @@
 	<label class="wysiwyglabel"><spring:message code="question.details" text="Details"/></label>
 	<form:textarea path="questionText" readonly="true" cssClass="wysiwyg"></form:textarea>
 	<form:errors path="questionText" cssClass="validationError"/>	
-	</p>
+	</p>	
 	
 	<p>
 	<a href="#" id="reviseSubjectText" style="display:none;"><spring:message code="question.reviseSubjectText" text="Revise Subject and Question"></spring:message></a>
@@ -450,6 +450,14 @@
 	<form:errors path="revisedQuestionText" cssClass="validationError" cssStyle="float:right;margin-top:-100px;margin-right:40px;"/>
 	<a href="#" id="copyQuestionText" style="display:none;float:right;margin-top:-100px;margin-right:40px;"><spring:message code="question.viewcitation" text="Copy original question"></spring:message></a>	
 	</p>
+	
+	<c:if test="${selectedQuestionType=='questions_shortnotice'}">
+	<p>
+		<label class="wysiwyglabel"><spring:message code="question.reason" text="Reason"/>*</label>
+		<form:textarea path="reason" cssClass="wysiwyg" readonly="true"></form:textarea>
+		<form:errors path="reason" cssClass="validationError" cssStyle="float:right;margin-top:-100px;margin-right:40px;"/>	
+	</p>
+	</c:if>
 	
 	<c:if test="${internalStatusType!='questions_submit'&&internalStatusType!='question_before_workflow_clubbed'}">		
 	<p>

@@ -438,6 +438,14 @@
 	<form:errors path="questionText" cssClass="validationError"/>	
 	</p>
 	
+	<c:if test="${selectedQuestionType=='questions_shortnotice'}">
+	<p>
+		<label class="wysiwyglabel"><spring:message code="question.reason" text="Reason"/>*</label>
+		<form:textarea path="reason" cssClass="wysiwyg" readonly="true"></form:textarea>
+		<form:errors path="reason" cssClass="validationError" cssStyle="float:right;margin-top:-100px;margin-right:40px;"/>	
+	</p>
+	</c:if>
+	
 	<p>
 	<a href="#" id="reviseSubjectText" style="margin-left: 162px;margin-right: 20px;"><spring:message code="question.reviseSubjectText" text="Revise Subject and Question"></spring:message></a>
 	<a href="#" id="viewRevision"><spring:message code="question.viewrevisions" text="View Revisions"></spring:message></a>
@@ -505,12 +513,22 @@
 	</p>
 	
 	<p>
+	<label class="small"><spring:message code="question.tobeAnsweredByMinister" text="To be answered by Minister?"/></label>
+	<input type="checkbox" id="toBeAnsweredByMinister" class="sCheck" name="toBeAnsweredByMinister"/>
+	</p>	
+	
+	<p>
+	<label class="small"><spring:message code="question.dateOfAnsweringByMinister" text="Date of Answering By Minister"/></label>
+	<form:input path="dateOfAnsweringByMinister" cssClass="datemask sText"/>
+	</p>
+	
+	<p>
 	<label class="wysiwyglabel"><spring:message code="question.answer" text="Answer"/></label>
 	<form:textarea path="answer" cssClass="wysiwyg"></form:textarea>
 	</p>
 	
 	<p>
-	<label class="wysiwyglabel"><spring:message code="question.markasanswered" text="Mark as answered"/></label>
+	<label class="small"><spring:message code="question.markasanswered" text="Mark as answered"/></label>
 	<input type="checkbox" id="markAsAnswered" class="sCheck" name="markAsAnswered"/>
 	</p>	
 	
