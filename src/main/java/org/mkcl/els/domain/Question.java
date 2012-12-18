@@ -47,9 +47,7 @@ import org.springframework.beans.factory.annotation.Configurable;
 @Configurable
 @Entity
 @Table(name="questions")
-@JsonIgnoreProperties({"answeringDate","recommendationStatus","houseType", "session","language","type","supportingMembers", "subDepartment", 
-
-"referencedQuestions", "drafts","clubbings","group","editedBy","editedAs"})
+@JsonIgnoreProperties({"answeringDate","recommendationStatus","houseType", "session","language","type","supportingMembers", "subDepartment", "referencedQuestions", "drafts","clubbings","group","editedBy","editedAs"})
 public class Question extends BaseDomain
 implements Serializable
 {
@@ -162,6 +160,16 @@ implements Serializable
 	 */
 	private Boolean assistantProcessed=false;
 
+	/*
+	 * short notice specific attribute
+	 */
+	private String reason;
+
+	private Boolean toBeAnsweredByMinister=false;
+
+	@Temporal(TemporalType.DATE)
+	private Date dateOfAnsweringByMinister;
+
 
 	//---------------------------Primary and supporting members-----------------
 	/** The primary member. */
@@ -202,17 +210,13 @@ implements Serializable
 	//---------------------------Referenced Questions---------------------------
 	/** The referenced questions. */
 	@ManyToMany(fetch=FetchType.LAZY)
-	@JoinTable(name="questions_references", joinColumns={@JoinColumn(name="question_id", referencedColumnName="id")}, inverseJoinColumns=
-
-{@JoinColumn(name="reference_id", referencedColumnName="id")})
+	@JoinTable(name="questions_references", joinColumns={@JoinColumn(name="question_id", referencedColumnName="id")}, inverseJoinColumns={@JoinColumn(name="reference_id", referencedColumnName="id")})
 	private List<Question> referencedQuestions;
 
 	//--------------------------Drafts------------------------------------------
 	/** The drafts. */
 	@ManyToMany(fetch=FetchType.LAZY,cascade=CascadeType.ALL)
-	@JoinTable(name="questions_drafts_association", joinColumns={@JoinColumn(name="question_id", referencedColumnName="id")}, 
-
-inverseJoinColumns={@JoinColumn(name="question_draft_id", referencedColumnName="id")})
+	@JoinTable(name="questions_drafts_association", joinColumns={@JoinColumn(name="question_id", referencedColumnName="id")}, inverseJoinColumns={@JoinColumn(name="question_draft_id", referencedColumnName="id")})
 	private List<QuestionDraft> drafts;
 
 	//--------------------------Clubbing------------------------------------------
@@ -221,8 +225,7 @@ inverseJoinColumns={@JoinColumn(name="question_draft_id", referencedColumnName="
 
 	/** The drafts. */
 	@ManyToMany(fetch=FetchType.LAZY)
-	@JoinTable(name="questions_clubbing", joinColumns={@JoinColumn(name="primary_question_id", referencedColumnName="id")}, inverseJoinColumns=
-	{@JoinColumn(name="clubbed_question_id", referencedColumnName="id")})
+	@JoinTable(name="questions_clubbing", joinColumns={@JoinColumn(name="primary_question_id", referencedColumnName="id")}, inverseJoinColumns={@JoinColumn(name="clubbed_question_id", referencedColumnName="id")})
 	private List<Question> clubbings;
 
 	@Column(length=5000)
@@ -1117,8 +1120,8 @@ inverseJoinColumns={@JoinColumn(name="question_draft_id", referencedColumnName="
 		return getQuestionRepository().getRevisions(questionId,locale);
 	}
 
-	public static List<QuestionSearchVO> fullTextSearchClubbing(final String textToSearch,final Long sessionToSearchOn,final Long 
-				groupToSearchOn,final Long currentChartId, final Long questionId, final String locale) {
+	public static List<QuestionSearchVO> fullTextSearchClubbing(final String textToSearch,final Long sessionToSearchOn,final Long groupToSearchOn,
+			final Long currentChartId, final Long questionId, final String locale) {
 		return getQuestionRepository().fullTextSearchClubbing(textToSearch,sessionToSearchOn,groupToSearchOn,
 				currentChartId,questionId,locale);
 	}
@@ -1484,6 +1487,30 @@ inverseJoinColumns={@JoinColumn(name="question_draft_id", referencedColumnName="
         }
 
         return questions;
+    }
+
+    public String getReason() {
+        return reason;
+    }
+
+    public void setReason(final String reason) {
+        this.reason = reason;
+    }
+
+    public Boolean getToBeAnsweredByMinister() {
+        return toBeAnsweredByMinister;
+    }
+
+    public void setToBeAnsweredByMinister(final Boolean toBeAnsweredByMinister) {
+        this.toBeAnsweredByMinister = toBeAnsweredByMinister;
+    }
+
+    public Date getDateOfAnsweringByMinister() {
+        return dateOfAnsweringByMinister;
+    }
+
+    public void setDateOfAnsweringByMinister(final Date dateOfAnsweringByMinister) {
+        this.dateOfAnsweringByMinister = dateOfAnsweringByMinister;
     }
 
 }
