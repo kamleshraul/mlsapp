@@ -1,24 +1,34 @@
 <%@ include file="/common/taglibs.jsp"%>
 <html>
 <head>
-<title><spring:message code="question.citation"
-	text="Citations" /></title>
+<title><spring:message code="question.citation"	text="Citations" /></title>
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
 <script type="text/javascript">
-$(document).ready(function(){		
-	var orderedContent = $("#remarks").wysiwyg("getContent");
-	var content = orderedContent.split(",");
+$(document).ready(function(){	
+	//first split specific for jwysiwyg plugin
+	var existingCitations = $("#remarks").wysiwyg("getContent").split("<p></p>")[1].split(",");
+	$('#Citations').val(existingCitations);
+	
 	$('#citations option').each(function(){
-		for(var i=0; i<content.length; i++) {
-			if($(this).attr('value')==content[i]){
+		for(var i=0; i<existingCitations.length; i++) {
+			if($(this).attr('value')==existingCitations[i]){
 				$(this).attr('selected', 'selected');
 			}
 		}
 	});		
 	
-	$("#addCitations").click(function(){
-		//alert("added " + $("#citations").val());		
-		$("#remarks").wysiwyg("setContent",orderedContent);
+	$("#addCitations").click(function(){		
+		var currentCitations = $('#Citations').val().split(",");
+		var updatedCitations = new Array();
+		var j = 0;
+		for(var i=0; i<currentCitations.length; i++) {
+			if(currentCitations[i] != "") {
+				updatedCitations[j] = currentCitations[i];
+				j++;
+			}
+		}
+		$('#Citations').val(updatedCitations);
+		$("#remarks").wysiwyg("setContent","<p></p>" + $('#Citations').val());
 	    $.fancybox.close();	    	
 	});
 	
@@ -30,16 +40,29 @@ $(document).ready(function(){
 		selectionMode: 'multiple',	
 		defaultCheckAllText: $('#defaultCheckAllText').val(),
 		defaultUnCheckAllText: $('#defaultUnCheckAllText').val(),
-		onItemSelected:function(element,options){
+		onItemSelected:function(element,options){			
 			if(element.is(':checked')){				
-				if(orderedContent.contains(element.attr('value'))) {
-					orderedContent.append(","+element.attr('value'));
-				}				
+				var currentCitations = $('#Citations').val();	
+				if(currentCitations == "") {
+					$('#Citations').val(currentCitations + element.attr('value'));	
+				}
+				else {
+					$('#Citations').val(currentCitations + "," + element.attr('value'));		
+				}
 			} 
-			else {
-				orderedContent.replace(','+element.attr('value'),'');
-			}
-			alert(orderedContent);
+			else {				
+				var currentCitations = $('#Citations').val().split(",");					
+				for(var i=0; i<currentCitations.length; i++) {					
+					if(currentCitations[i] == element.attr('value')) {					
+
+	
+						currentCitations[i] = '';							
+
+				
+					}
+				}				
+				$('#Citations').val(currentCitations);
+			}			
 		}
 	});
 });
@@ -57,11 +80,15 @@ $(document).ready(function(){
 			</select>
 		</p>	
 		<p class="tright">
-			<input id="addCitations" type="button" value="<spring:message code='citation.addCitations' text='Add Citations'/>" class="butDef">
+			<input id="addCitations" type="button" value="<spring:message code='citation.addCitations' text='Add 
+
+Citations'/>" class="butDef">
 		</p>	
 	</c:when>
 	<c:otherwise>
 		<spring:message code="question.no citations" text="No citations found"></spring:message>
 	</c:otherwise>
 </c:choose>	
-
+<input type="hidden" id="Citations">
+</body>
+</html>
