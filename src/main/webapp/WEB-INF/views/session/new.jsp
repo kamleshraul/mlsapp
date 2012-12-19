@@ -308,9 +308,9 @@
 				<label class="small"><spring:message code="session.deviceTypesNeedBallot"
 						text="Device Types Need Ballot" /></label>
 				<select class="sSelectMultiple" name="deviceTypesNeedBallot" id="deviceTypesNeedBallot" multiple="multiple">
-					<c:forEach items="${deviceTypes}" var="i">
+					<%-- <c:forEach items="${deviceTypes}" var="i">
 						<option value="${i.type}" ><c:out value="${i.name}"></c:out></option>
-					</c:forEach>	
+					</c:forEach> --%>	
 				</select>
 				<form:errors path="deviceTypesNeedBallot" cssClass="validationError" />
 
