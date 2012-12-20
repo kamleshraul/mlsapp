@@ -223,7 +223,7 @@
 	    });	    
 
 	       
-	    $("#selecedtInternalStatus").change(function(){
+	    $("#changeInternalStatus").change(function(){
 		    $("#clarificationDiv").hide();		    
 		    var value=$(this).val();
 		    var type=$("#internalStatusMaster option[value='"+value+"']").text();
@@ -253,25 +253,27 @@
 			    $("#recommendationStatus").val($("#selectedInternalStatus").val());			    	    
 		    }
 		    
-	    });  
-	    //if there is revised text then show it
+	    });  	   
+	    //initially on page load the last set internal status should be visible
+	    var internalStatus=$("#internalStatus").val();
+	    $("#internalStatusMaster option").each(function(){
+		    var valueToBeSet=$(this).val();
+		    if(valueToBeSet==internalStatus){
+			    $("#changeInternalStatus").val(valueToBeSet) ;
+		    }
+	    });
+	    //initially on page load if last internal status is not one from the workflow status
+	    //then actor div will be invisible
+	    if($("#changeInternalStatus").val()=='-'){
+		    $("#actorDiv").hide();
+	    }
+	    //on page load if there is revised subject and text then show it
 	    if($("#revisedSubject").val()!=''){
 		    $("#revisedSubjectDiv").show();
 	    }
 	    if($("#revisedSubject").val()!=''){
 	    	$("#revisedQuestionTextDiv").show();
 	    }	    
-	    //if question is in processing then appropriate value should be indicated
-	    var internalStatus=$("#internalStatus").val();
-	    $("#internalStatusMaster option").each(function(){
-		    var valueToBeSet=$(this).val();
-		    if(valueToBeSet==internalStatus){
-			    $("#selectedInternalStatus").val(valueToBeSet) ;
-		    }
-	    });
-	    if($("#selectedInternalStatus").val()=='-'){
-		    $("#actorDiv").hide();
-	    }
 	    
 	});
 
@@ -405,7 +407,12 @@
 		</c:forEach>		
 		</select>
 	</c:if>	
-	</p>	
+	</p>
+	
+	<p>
+		<label class="small"><spring:message code="question.primaryMemberConstituency" text="Constituency"/>*</label>
+		<input type="text" readonly="readonly" value="${primaryMemberConstituency}" class="sText">
+	</p>			
 	
 	<p>
 	<a href="#" id="viewContacts" style="margin-left:162px;margin-right: 20px;"><img src="/els/resources/images/contactus.jpg" width="40" height="25"></a>
@@ -416,7 +423,6 @@
 	<a href="#" id="p${parent}" onclick="viewQuestionDetail(${parent});"><c:out value="${parentNumber}"></c:out></a>
 	<input type="hidden" id="parent" name="parent" value="${parent}">
 	</p>	
-
 	<p>
 	<label class="small"><spring:message code="question.clubbedquestions" text="Clubbed Questions"></spring:message></label>
 	<c:choose>
@@ -478,7 +484,7 @@
 	<c:if test="${internalStatusType!='questions_submit'&&internalStatusType!='question_before_workflow_clubbed'}">		
 	<p>
 	<label class="small"><spring:message code="question.putupfor" text="Put up for"/></label>
-	<select id="selecedtInternalStatus">
+	<select id="changeInternalStatus">
 	<option value="-"><spring:message code='please.select' text='Please Select'/></option>
 	<c:forEach items="${internalStatus}" var="i">
 	<c:if test="${(i.type!='question_workflow_decisionstatus_discuss'&&i.type!='question_workflow_decisionstatus_sendback') }">
