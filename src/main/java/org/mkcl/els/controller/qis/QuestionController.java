@@ -366,6 +366,20 @@ public class QuestionController extends GenericController<Question>{
 			if(selectedSession!=null){
 				model.addAttribute("session",selectedSession.getId());
 				domain.setSession(selectedSession);
+				/*
+				 *adding constituency of primary member
+				 */
+                Long houseId=selectedSession.getHouse().getId();
+                MasterVO constituency=null;
+				if(selectedHouseType.equals("lowerhouse")){
+				    constituency=Member.findConstituencyByAssemblyId(member.getId(), houseId);
+				    model.addAttribute("primaryMemberConstituency",constituency.getName());
+				}else if(selectedHouseType.equals("upperhouse")){
+				   Date currentDate=new Date();
+				   String date=FormaterUtil.getDateFormatter("en_US").format(currentDate);
+				   constituency=Member.findConstituencyByCouncilDates(member.getId(), houseId, "DATE", date, date);
+	               model.addAttribute("primaryMemberConstituency",constituency.getName());
+				}
 
 				/*
 				 *In case of starred questions minsitry,groups,departments,subdepartments,answering dates will
@@ -672,6 +686,20 @@ public class QuestionController extends GenericController<Question>{
 			memberNames=primaryMemberName;
 			model.addAttribute("primaryMemberName",primaryMemberName);
 		}
+		/*
+         *adding constituency of primary member
+         */
+        Long houseId=selectedSession.getHouse().getId();
+        MasterVO constituency=null;
+        if(houseType.getType().equals("lowerhouse")){
+            constituency=Member.findConstituencyByAssemblyId(member.getId(), houseId);
+            model.addAttribute("primaryMemberConstituency",constituency.getName());
+        }else if(houseType.getType().equals("upperhouse")){
+           Date currentDate=new Date();
+           String date=FormaterUtil.getDateFormatter("en_US").format(currentDate);
+           constituency=Member.findConstituencyByCouncilDates(member.getId(), houseId, "DATE", date, date);
+           model.addAttribute("primaryMemberConstituency",constituency.getName());
+        }
 
 		/*
 		 * adding list of supporting members to model.
