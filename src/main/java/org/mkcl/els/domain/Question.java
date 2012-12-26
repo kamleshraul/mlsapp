@@ -273,7 +273,7 @@ implements Serializable
 			if(this.getNumber()==null){
 				synchronized (this) {
 					Integer number = Question.assignQuestionNo(this.getHouseType(),
-							this.getSession(), this.getType());
+							this.getSession(), this.getType(),this.getLocale());
 					this.setNumber(number+1);
 					//updating clubbing
 					Question oldQuestion=Question.findById(Question.class,getId());
@@ -317,7 +317,7 @@ implements Serializable
 			if(this.getNumber()==null){
 				synchronized (this) {
 					Integer number = Question.assignQuestionNo(this.getHouseType(),
-							this.getSession(), this.getType());
+							this.getSession(), this.getType(),this.getLocale());
 					this.setNumber(number+1);
 					question=(Question) super.persist();
 					addQuestionDraft();
@@ -375,10 +375,10 @@ implements Serializable
 	 * @author compaq
 	 * @since v1.0.0
 	 */
-	public static Integer assignQuestionNo(final HouseType houseType, final Session session, final DeviceType deviceType)
+	public static Integer assignQuestionNo(final HouseType houseType, final Session session, final DeviceType deviceType,final String locale)
 	{
 		return getQuestionRepository().assignQuestionNo(houseType,
-				session, deviceType);
+				session, deviceType,locale);
 	}
 
 	private void addQuestionDraft() {
@@ -1511,6 +1511,12 @@ implements Serializable
 
     public void setDateOfAnsweringByMinister(final Date dateOfAnsweringByMinister) {
         this.dateOfAnsweringByMinister = dateOfAnsweringByMinister;
+    }
+
+    public static List<MemberBallotAttendance> createMemberBallotAttendance(final Session session,
+            final DeviceType questionType, final String locale) {
+        return getQuestionRepository().createMemberBallotAttendance(session,
+                questionType,locale);
     }
 
 }

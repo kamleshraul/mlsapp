@@ -19,6 +19,8 @@ import javax.persistence.FlushModeType;
 import javax.persistence.PersistenceContext;
 
 import org.mkcl.els.common.util.ApplicationConstants;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
@@ -28,7 +30,7 @@ import com.trg.search.jpa.JPASearchProcessor;
 
 /**
  * The Class BaseRepository.
- * 
+ *
  * @param <T> the generic type
  * @param <ID> the generic type
  * @author amitd
@@ -39,9 +41,12 @@ import com.trg.search.jpa.JPASearchProcessor;
 public class BaseRepository<T, ID extends Serializable> extends
         GenericDAOImpl<T, ID> {
 
+    /** The Constant logger. */
+    protected static final Logger logger = LoggerFactory
+            .getLogger(BaseRepository.class);
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see
      * com.trg.dao.jpa.JPABaseDAO#setEntityManager(javax.persistence.EntityManager
      * )
@@ -55,7 +60,7 @@ public class BaseRepository<T, ID extends Serializable> extends
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see com.trg.dao.jpa.JPABaseDAO#setSearchProcessor(com.trg.search.jpa.
      * JPASearchProcessor)
      */
@@ -69,20 +74,20 @@ public class BaseRepository<T, ID extends Serializable> extends
 
     /**
      * Find by id.
-     * 
+     *
      * @param <U> the generic type
      * @param persistenceClass the persistence class
      * @param id the id
      * @return the u
      */
     @SuppressWarnings({ "unchecked", "rawtypes" })
-	public <U extends T> U findById(final Class persistenceClass, ID id) {
+	public <U extends T> U findById(final Class persistenceClass, final ID id) {
         return (U) _find(persistenceClass, id);
     }
 
     /**
      * Find by name.
-     * 
+     *
      * @param <U> the generic type
      * @param persistenceClass the persistence class
      * @param fieldValue the field value
@@ -90,8 +95,8 @@ public class BaseRepository<T, ID extends Serializable> extends
      * @return the u
      */
     @SuppressWarnings({ "unchecked", "rawtypes" })
-    public <U extends T> U findByName(Class persistenceClass,
-            String fieldValue, String locale) {
+    public <U extends T> U findByName(final Class persistenceClass,
+            final String fieldValue, final String locale) {
         final Search search = new Search();
         search.addFilterEqual("name", fieldValue);
         if (locale == null) {
@@ -108,7 +113,7 @@ public class BaseRepository<T, ID extends Serializable> extends
 
         /**
      * Find by field name.
-     * 
+     *
      * @param <U> the generic type
      * @param persistenceClass the persistence class
      * @param fieldName the field name
@@ -135,7 +140,7 @@ public class BaseRepository<T, ID extends Serializable> extends
 
     /**
      * Find by field names.
-     * 
+     *
      * @param <U> the generic type
      * @param persistenceClass the persistence class
      * @param names the names
@@ -163,7 +168,7 @@ public class BaseRepository<T, ID extends Serializable> extends
 
     /**
      * Find all.
-     * 
+     *
      * @param <U> the generic type
      * @param persistenceClass the persistence class
      * @param sortBy the sort by
@@ -197,7 +202,7 @@ public class BaseRepository<T, ID extends Serializable> extends
 
      /**
      * Find all by field name.
-     * 
+     *
      * @param <U> the generic type
      * @param persistenceClass the persistence class
      * @param fieldName the field name
@@ -209,8 +214,8 @@ public class BaseRepository<T, ID extends Serializable> extends
      */
     @SuppressWarnings({ "rawtypes", "unchecked" })
 	public <U extends T,V> List<U> findAllByFieldName(
-            final Class persistenceClass, String fieldName, V fieldValue,
-            String sortBy, String sortOrder, String locale) {
+            final Class persistenceClass, final String fieldName, final V fieldValue,
+            final String sortBy, final String sortOrder, final String locale) {
         final Search search = new Search();
         if (sortOrder.toLowerCase().equals(ApplicationConstants.ASC)) {
             search.addSortAsc(sortBy);
@@ -234,7 +239,7 @@ public class BaseRepository<T, ID extends Serializable> extends
 
     /**
      * Find all by starting with.
-     * 
+     *
      * @param <U> the generic type
      * @param persistenceClass the persistence class
      * @param fieldName the field name
@@ -246,8 +251,8 @@ public class BaseRepository<T, ID extends Serializable> extends
      */
     @SuppressWarnings({ "rawtypes", "unchecked" })
 	public <U extends T> List<U> findAllByStartingWith(
-            final Class persistenceClass, String fieldName,
-            String startingWith, String sortBy, String sortOrder, String locale) {
+            final Class persistenceClass, final String fieldName,
+            final String startingWith, final String sortBy, final String sortOrder, final String locale) {
         final Search search = new Search();
         if (sortOrder.toLowerCase().equals(ApplicationConstants.ASC)) {
             search.addSortAsc(sortBy);

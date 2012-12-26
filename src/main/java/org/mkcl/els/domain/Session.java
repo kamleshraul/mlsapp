@@ -43,7 +43,7 @@ public class Session extends BaseDomain implements Serializable {
 
     /** The Constant serialVersionUID. */
     private transient static final long serialVersionUID = 1L;
-    
+
     /** The house. */
     @ManyToOne(fetch=FetchType.LAZY)
     @JoinColumn(name = "house_id")
@@ -52,7 +52,7 @@ public class Session extends BaseDomain implements Serializable {
     /** The year. */
     @Column(name="session_year")
     private Integer year;
-    
+
     /** The type. */
     @OneToOne(fetch=FetchType.LAZY)
     @JoinColumn(name = "sessiontype_id")
@@ -62,7 +62,7 @@ public class Session extends BaseDomain implements Serializable {
     @OneToOne(fetch=FetchType.LAZY)
     @JoinColumn(name = "sessionplace_id")
     private SessionPlace place;
-    
+
     /** The number. */
     private Integer number;
 
@@ -73,7 +73,7 @@ public class Session extends BaseDomain implements Serializable {
     /** The end date. */
     @Temporal(TemporalType.DATE)
     private Date endDate;
-    
+
     /** The tentative start date. */
     @Temporal(TemporalType.DATE)
     private Date tentativeStartDate;
@@ -81,54 +81,54 @@ public class Session extends BaseDomain implements Serializable {
     /** The tentative end date. */
     @Temporal(TemporalType.DATE)
     private Date tentativeEndDate;
-    
+
     /** The rotation order publishing date. */
     @Temporal(TemporalType.DATE)
     private Date rotationOrderPublishingDate;
-    
-   
+
+
     /** The question submission start date. */
     @Temporal(TemporalType.TIMESTAMP)
     private Date questionSubmissionStartDateLH;
-    
+
     /** The question submission end date lh. */
     @Temporal(TemporalType.TIMESTAMP)
     private Date questionSubmissionEndDateLH;
-    
+
     /** The question submission first batch start date uh. */
     @Temporal(TemporalType.TIMESTAMP)
     private Date questionSubmissionFirstBatchStartDateUH;
-    
+
    /** The question submission first batch end date uh. */
    @Temporal(TemporalType.TIMESTAMP)
     private Date questionSubmissionFirstBatchEndDateUH;
-    
+
     /** The question submission second batch start date uh. */
     @Temporal(TemporalType.TIMESTAMP)
     private Date questionSubmissionSecondBatchStartDateUH;
-    
+
     /** The question submission second batch end date uh. */
     @Temporal(TemporalType.TIMESTAMP)
     private Date questionSubmissionSecondBatchEndDateUH;
-    
+
 
     /** The first ballot date. */
     @Temporal(TemporalType.DATE)
     private Date firstBallotDate;
-    
-    
-    /** The question submission first batch date. */    
+
+
+    /** The question submission first batch date. */
 
     /** The number of question in first batch. */
     private Integer numberOfQuestionInFirstBatchUH;
-    
+
     /*
      * devices enabled for a session.This will be a list of enabled device type separated
      * by comma
      */
     /** The device types enabled. */
     @Column(length=1000)
-    private String deviceTypesEnabled;    
+    private String deviceTypesEnabled;
     /*
      * devices which require balloting.This will be a lsit of enabled device type separated
      * by comma.
@@ -148,12 +148,12 @@ public class Session extends BaseDomain implements Serializable {
 
     /** The remarks. */
     @Column(length = 1000)
-    private String remarks;   
-    
+    private String remarks;
+
     /** The rotation order text. */
     @Column(length = 30000)
-    private String rotationOrderText;   
-    
+    private String rotationOrderText;
+
     /** The session repository. */
     @Autowired
     private transient SessionRepository sessionRepository;
@@ -251,9 +251,9 @@ public class Session extends BaseDomain implements Serializable {
             final SessionType sessionType, final Integer sessionYear) {
         return getSessionRepository().findSessionByHouseTypeSessionTypeYear(houseType, sessionType, sessionYear);
     }
-    
+
     public static List<Session> findSessionsByHouseTypeAndYear(
-			HouseType houseType, Integer sessionYear) {
+			final HouseType houseType, final Integer sessionYear) {
 		return getSessionRepository().findSessionsByHouseTypeAndYear(houseType,sessionYear);
 	}
     // ------------------------------Getters/Setters-----------------------
@@ -274,7 +274,7 @@ public class Session extends BaseDomain implements Serializable {
 	 *
 	 * @param house the new house
 	 */
-	public void setHouse(House house) {
+	public void setHouse(final House house) {
 		this.house = house;
 	}
 
@@ -294,7 +294,7 @@ public class Session extends BaseDomain implements Serializable {
 	 *
 	 * @param year the new year
 	 */
-	public void setYear(Integer year) {
+	public void setYear(final Integer year) {
 		this.year = year;
 	}
 
@@ -314,7 +314,7 @@ public class Session extends BaseDomain implements Serializable {
 	 *
 	 * @param type the new type
 	 */
-	public void setType(SessionType type) {
+	public void setType(final SessionType type) {
 		this.type = type;
 	}
 
@@ -334,7 +334,7 @@ public class Session extends BaseDomain implements Serializable {
 	 *
 	 * @param place the new place
 	 */
-	public void setPlace(SessionPlace place) {
+	public void setPlace(final SessionPlace place) {
 		this.place = place;
 	}
 
@@ -354,7 +354,7 @@ public class Session extends BaseDomain implements Serializable {
 	 *
 	 * @param number the new number
 	 */
-	public void setNumber(Integer number) {
+	public void setNumber(final Integer number) {
 		this.number = number;
 	}
 
@@ -374,7 +374,7 @@ public class Session extends BaseDomain implements Serializable {
 	 *
 	 * @param startDate the new start date
 	 */
-	public void setStartDate(Date startDate) {
+	public void setStartDate(final Date startDate) {
 		this.startDate = startDate;
 	}
 
@@ -394,7 +394,7 @@ public class Session extends BaseDomain implements Serializable {
 	 *
 	 * @param endDate the new end date
 	 */
-	public void setEndDate(Date endDate) {
+	public void setEndDate(final Date endDate) {
 		this.endDate = endDate;
 	}
 
@@ -414,7 +414,7 @@ public class Session extends BaseDomain implements Serializable {
 	 *
 	 * @param tentativeStartDate the new tentative start date
 	 */
-	public void setTentativeStartDate(Date tentativeStartDate) {
+	public void setTentativeStartDate(final Date tentativeStartDate) {
 		this.tentativeStartDate = tentativeStartDate;
 	}
 
@@ -434,12 +434,12 @@ public class Session extends BaseDomain implements Serializable {
 	 *
 	 * @param tentativeEndDate the new tentative end date
 	 */
-	public void setTentativeEndDate(Date tentativeEndDate) {
+	public void setTentativeEndDate(final Date tentativeEndDate) {
 		this.tentativeEndDate = tentativeEndDate;
 	}
 
 
-	
+
 
 	/**
 	 * Gets the question submission start date lh.
@@ -456,7 +456,7 @@ public class Session extends BaseDomain implements Serializable {
 	 *
 	 * @param questionSubmissionStartDateLH the new question submission start date lh
 	 */
-	public void setQuestionSubmissionStartDateLH(Date questionSubmissionStartDateLH) {
+	public void setQuestionSubmissionStartDateLH(final Date questionSubmissionStartDateLH) {
 		this.questionSubmissionStartDateLH = questionSubmissionStartDateLH;
 	}
 
@@ -476,7 +476,7 @@ public class Session extends BaseDomain implements Serializable {
 	 *
 	 * @param questionSubmissionEndDateLH the new question submission end date lh
 	 */
-	public void setQuestionSubmissionEndDateLH(Date questionSubmissionEndDateLH) {
+	public void setQuestionSubmissionEndDateLH(final Date questionSubmissionEndDateLH) {
 		this.questionSubmissionEndDateLH = questionSubmissionEndDateLH;
 	}
 
@@ -497,7 +497,7 @@ public class Session extends BaseDomain implements Serializable {
 	 * @param questionSubmissionFirstBatchStartDateUH the new question submission first batch start date uh
 	 */
 	public void setQuestionSubmissionFirstBatchStartDateUH(
-			Date questionSubmissionFirstBatchStartDateUH) {
+			final Date questionSubmissionFirstBatchStartDateUH) {
 		this.questionSubmissionFirstBatchStartDateUH = questionSubmissionFirstBatchStartDateUH;
 	}
 
@@ -518,7 +518,7 @@ public class Session extends BaseDomain implements Serializable {
 	 * @param questionSubmissionFirstBatchEndDateUH the new question submission first batch end date uh
 	 */
 	public void setQuestionSubmissionFirstBatchEndDateUH(
-			Date questionSubmissionFirstBatchEndDateUH) {
+			final Date questionSubmissionFirstBatchEndDateUH) {
 		this.questionSubmissionFirstBatchEndDateUH = questionSubmissionFirstBatchEndDateUH;
 	}
 
@@ -539,7 +539,7 @@ public class Session extends BaseDomain implements Serializable {
 	 * @param questionSubmissionSecondBatchStartDateUH the new question submission second batch start date uh
 	 */
 	public void setQuestionSubmissionSecondBatchStartDateUH(
-			Date questionSubmissionSecondBatchStartDateUH) {
+			final Date questionSubmissionSecondBatchStartDateUH) {
 		this.questionSubmissionSecondBatchStartDateUH = questionSubmissionSecondBatchStartDateUH;
 	}
 
@@ -560,7 +560,7 @@ public class Session extends BaseDomain implements Serializable {
 	 * @param questionSubmissionSecondBatchEndDateUH the new question submission second batch end date uh
 	 */
 	public void setQuestionSubmissionSecondBatchEndDateUH(
-			Date questionSubmissionSecondBatchEndDateUH) {
+			final Date questionSubmissionSecondBatchEndDateUH) {
 		this.questionSubmissionSecondBatchEndDateUH = questionSubmissionSecondBatchEndDateUH;
 	}
 
@@ -581,7 +581,7 @@ public class Session extends BaseDomain implements Serializable {
 	 * @param numberOfQuestionInFirstBatchUH the new number of question in first batch uh
 	 */
 	public void setNumberOfQuestionInFirstBatchUH(
-			Integer numberOfQuestionInFirstBatchUH) {
+			final Integer numberOfQuestionInFirstBatchUH) {
 		this.numberOfQuestionInFirstBatchUH = numberOfQuestionInFirstBatchUH;
 	}
 
@@ -601,7 +601,7 @@ public class Session extends BaseDomain implements Serializable {
 	 *
 	 * @param deviceTypesEnabled the new device types enabled
 	 */
-	public void setDeviceTypesEnabled(String deviceTypesEnabled) {
+	public void setDeviceTypesEnabled(final String deviceTypesEnabled) {
 		this.deviceTypesEnabled = deviceTypesEnabled;
 	}
 
@@ -621,7 +621,7 @@ public class Session extends BaseDomain implements Serializable {
 	 *
 	 * @param deviceTypesNeedBallot the new device types need ballot
 	 */
-	public void setDeviceTypesNeedBallot(String deviceTypesNeedBallot) {
+	public void setDeviceTypesNeedBallot(final String deviceTypesNeedBallot) {
 		this.deviceTypesNeedBallot = deviceTypesNeedBallot;
 	}
 
@@ -641,7 +641,7 @@ public class Session extends BaseDomain implements Serializable {
 	 *
 	 * @param durationInDays the new duration in days
 	 */
-	public void setDurationInDays(Integer durationInDays) {
+	public void setDurationInDays(final Integer durationInDays) {
 		this.durationInDays = durationInDays;
 	}
 
@@ -661,7 +661,7 @@ public class Session extends BaseDomain implements Serializable {
 	 *
 	 * @param durationInHrs the new duration in hrs
 	 */
-	public void setDurationInHrs(Integer durationInHrs) {
+	public void setDurationInHrs(final Integer durationInHrs) {
 		this.durationInHrs = durationInHrs;
 	}
 
@@ -681,7 +681,7 @@ public class Session extends BaseDomain implements Serializable {
 	 *
 	 * @param durationInMins the new duration in mins
 	 */
-	public void setDurationInMins(Integer durationInMins) {
+	public void setDurationInMins(final Integer durationInMins) {
 		this.durationInMins = durationInMins;
 	}
 
@@ -701,7 +701,7 @@ public class Session extends BaseDomain implements Serializable {
 	 *
 	 * @param remarks the new remarks
 	 */
-	public void setRemarks(String remarks) {
+	public void setRemarks(final String remarks) {
 		this.remarks = remarks;
 	}
 
@@ -711,7 +711,7 @@ public class Session extends BaseDomain implements Serializable {
 	 *
 	 * @param sessionRepository the new session repository
 	 */
-	public void setSessionRepository(SessionRepository sessionRepository) {
+	public void setSessionRepository(final SessionRepository sessionRepository) {
 		this.sessionRepository = sessionRepository;
 	}
 
@@ -731,7 +731,7 @@ public class Session extends BaseDomain implements Serializable {
 	 *
 	 * @param rotationOrderPublishingDate the new rotation order publishing date
 	 */
-	public void setRotationOrderPublishingDate(Date rotationOrderPublishingDate) {
+	public void setRotationOrderPublishingDate(final Date rotationOrderPublishingDate) {
 		this.rotationOrderPublishingDate = rotationOrderPublishingDate;
 	}
 
@@ -751,7 +751,7 @@ public class Session extends BaseDomain implements Serializable {
 	 *
 	 * @param firstBallotDate the new first ballot date
 	 */
-	public void setFirstBallotDate(Date firstBallotDate) {
+	public void setFirstBallotDate(final Date firstBallotDate) {
 		this.firstBallotDate = firstBallotDate;
 	}
 
@@ -771,12 +771,13 @@ public class Session extends BaseDomain implements Serializable {
 	 *
 	 * @param rotationOrderText the new rotation order text
 	 */
-	public void setRotationOrderText(String rotationOrderText) {
+	public void setRotationOrderText(final String rotationOrderText) {
 		this.rotationOrderText = rotationOrderText;
 	}
 
 
-	
-    
-	
+    public static Session find(final Integer sessionyear, final String sessiontype, final String housetype) {
+     return getSessionRepository().find(sessionyear,sessiontype,housetype);
+    }
+
     }

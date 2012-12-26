@@ -7,6 +7,7 @@ import org.mkcl.els.domain.HouseType;
 import org.mkcl.els.domain.Session;
 import org.mkcl.els.domain.SessionType;
 import org.springframework.stereotype.Repository;
+
 import com.trg.search.Search;
 
 @Repository
@@ -75,13 +76,22 @@ public class SessionRepository extends BaseRepository<Session, Long>{
             return new Session();
         }
     }
-    
+
     public List<Session> findSessionsByHouseTypeAndYear(final HouseType houseType,
              final Integer sessionYear) {
         Search search=new Search();
         search.addFilterEqual("house.type",houseType);
         search.addFilterEqual("year",sessionYear);
         return this.search(search);
+    }
+
+    public Session find(final Integer sessionyear, final String sessiontype,
+            final String housetype) {
+        Search search=new Search();
+        search.addFilterEqual("year", sessionyear);
+        search.addFilterEqual("type.type", sessiontype);
+        search.addFilterEqual("house.type.type", housetype);
+        return this.searchUnique(search);
     }
 
 

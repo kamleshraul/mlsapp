@@ -27,7 +27,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 /**
  * The Class BaseDomain.
- * 
+ *
  * @author amitd
  * @author sandeeps
  * @since v1.0.0
@@ -64,7 +64,7 @@ public class BaseDomain {
 
     /**
      * Instantiates a new base domain.
-     * 
+     *
      * @param locale the locale
      */
     public BaseDomain(final String locale) {
@@ -74,7 +74,7 @@ public class BaseDomain {
 
     /**
      * Gets the base repository.
-     * 
+     *
      * @return the base repository
      */
     public static BaseRepository<BaseDomain, Serializable> getBaseRepository() {
@@ -89,7 +89,7 @@ public class BaseDomain {
     // ==================== Domain Methods ====================
     /**
      * Persist.
-     * 
+     *
      * @return the base domain
      * @author sandeeps
      * @since v1.0.0
@@ -103,7 +103,7 @@ public class BaseDomain {
 
     /**
      * Merge.
-     * 
+     *
      * @return the base domain
      * @author sandeeps
      * @since v1.0.0
@@ -117,7 +117,7 @@ public class BaseDomain {
 
     /**
      * Removes the.
-     * 
+     *
      * @return true, if successful
      * @author sandeeps
      * @since v1.0.0
@@ -129,7 +129,7 @@ public class BaseDomain {
 
     /**
      * Find by id.
-     * 
+     *
      * @param <T> the generic type
      * @param <U> the generic type
      * @param persistenceClass the persistence class
@@ -147,7 +147,7 @@ public class BaseDomain {
 
     /**
      * Find by name.
-     * 
+     *
      * @param <T> the generic type
      * @param persistenceClass the persistence class
      * @param fieldValue the field value
@@ -167,7 +167,7 @@ public class BaseDomain {
 
     /**
      * Find by field name.
-     * 
+     *
      * @param <T> the generic type
      * @param persistenceClass the persistence class
      * @param fieldName the field name
@@ -188,7 +188,7 @@ public class BaseDomain {
 
     /**
      * Find by field name.
-     * 
+     *
      * @param <T> the generic type
      * @param persistenceClass the persistence class
      * @param fieldName the field name
@@ -207,7 +207,7 @@ public class BaseDomain {
 
     /**
      * Find by field names.
-     * 
+     *
      * @param <T> the generic type
      * @param persistenceClass the persistence class
      * @param names the names
@@ -227,7 +227,7 @@ public class BaseDomain {
 
     /**
      * Find all.
-     * 
+     *
      * @param <T> the generic type
      * @param persistenceClass the persistence class
      * @param sortBy the sort by
@@ -248,7 +248,7 @@ public class BaseDomain {
 
     /**
      * Find all by field name.
-     * 
+     *
      * @param <T> the generic type
      * @param persistenceClass the persistence class
      * @param fieldName the field name
@@ -279,7 +279,7 @@ public class BaseDomain {
     }
     /**
      * Checks if is duplicate.
-     * 
+     *
      * @param fieldName the field name
      * @param fieldValue the field value
      * @return true, if is duplicate
@@ -305,7 +305,7 @@ public class BaseDomain {
 
     /**
      * Checks if is duplicate.
-     * 
+     *
      * @param names the names
      * @return true, if is duplicate
      */
@@ -323,7 +323,7 @@ public class BaseDomain {
 
     /**
      * Checks if is version mismatch.
-     * 
+     *
      * @return true, if is version mismatch
      */
     @Transactional(readOnly = true)
@@ -340,7 +340,7 @@ public class BaseDomain {
     // ==================== Getters & Setters ====================
     /**
      * Gets the id.
-     * 
+     *
      * @return the id
      */
     public Long getId() {
@@ -349,7 +349,7 @@ public class BaseDomain {
 
     /**
      * Sets the id.
-     * 
+     *
      * @param id the new id
      */
     public void setId(final Long id) {
@@ -358,7 +358,7 @@ public class BaseDomain {
 
     /**
      * Gets the version.
-     * 
+     *
      * @return the version
      */
     public Long getVersion() {
@@ -367,7 +367,7 @@ public class BaseDomain {
 
     /**
      * Sets the version.
-     * 
+     *
      * @param version the new version
      */
     public void setVersion(final Long version) {
@@ -376,7 +376,7 @@ public class BaseDomain {
 
     /**
      * Gets the locale.
-     * 
+     *
      * @return the locale
      */
     public String getLocale() {
@@ -385,10 +385,14 @@ public class BaseDomain {
 
     /**
      * Sets the locale.
-     * 
+     *
      * @param locale the new locale
      */
     public void setLocale(final String locale) {
         this.locale = locale;
     }
+
+
+
+
 }

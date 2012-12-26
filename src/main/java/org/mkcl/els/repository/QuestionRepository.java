@@ -19,6 +19,7 @@ import org.mkcl.els.domain.Group;
 import org.mkcl.els.domain.House;
 import org.mkcl.els.domain.HouseType;
 import org.mkcl.els.domain.Member;
+import org.mkcl.els.domain.MemberBallotAttendance;
 import org.mkcl.els.domain.Question;
 import org.mkcl.els.domain.Session;
 import org.mkcl.els.domain.Status;
@@ -29,6 +30,7 @@ import com.trg.search.Search;
 
 @Repository
 public class QuestionRepository extends BaseRepository<Question, Long>{
+
 
     public Integer findLastStarredUnstarredShortNoticeQuestionNo(final House house,final Session currentSession){
         String query="SELECT q.number FROM questions AS q JOIN sessions AS s JOIN houses AS h "+
@@ -57,47 +59,50 @@ public class QuestionRepository extends BaseRepository<Question, Long>{
     }
 
     public Integer assignQuestionNo(final HouseType houseType, final Session session,
-            final DeviceType questionType) {
-        //query to generate question no in assembly and council will differ a bit.Also query will
-        //vary according to question type
-        //for assembly
+            final DeviceType questionType,final String locale) {
         String strHouseType=houseType.getType();
         String strQuestionType=questionType.getType();
         Long house=session.getHouse().getId();
-        Long sessionId=session.getId();
         String query=null;
         if(strHouseType.equals(ApplicationConstants.LOWER_HOUSE)){
             if(strQuestionType.equals("questions_starred")||strQuestionType.equals("questions_unstarred")||strQuestionType.equals("questions_shortnotice")){
-                query="SELECT q.number FROM questions AS q JOIN sessions AS s JOIN houses AS h "+
-                "JOIN devicetypes AS qt WHERE q.session_id=s.id AND qt.id=q.devicetype_id  AND s.house_id=h.id "+
-                "AND h.id="+house+"  AND (qt.type='questions_shortnotice' OR qt.type='questions_starred' OR qt.type='questions_unstarred') ORDER BY q.number DESC LIMIT 0,1";
+                query="SELECT q FROM Question q JOIN q.session JOIN s.house h JOIN q.type dt WHERE "+
+                " h.id="+house+"  AND (dt.type='questions_shortnotice' OR dt.type='questions_starred' OR dt.type='questions_unstarred') ORDER BY q.number "+ApplicationConstants.DESC;
             }else if(strQuestionType.equals("questions_halfhourdiscussion")){
-                query="SELECT q.number FROM questions AS q JOIN sessions AS s JOIN houses AS h "+
-                "JOIN devicetypes AS qt WHERE q.session_id=s.id AND qt.id=q.devicetype_id  AND s.house_id=h.id "+
-                "AND h.id="+house+" AND s.id="+sessionId+" AND (qt.type='questions_halfhourdiscussion') ORDER BY q.number DESC LIMIT 0,1";
+                query="SELECT q FROM Question q JOIN q.session JOIN s.house h JOIN q.type dt WHERE "+
+                " h.id="+house+"  AND (dt.type='questions_halfhourdiscussion') ORDER BY q.number "+ApplicationConstants.DESC;
             }
         }else if(strHouseType.equals(ApplicationConstants.UPPER_HOUSE)){
+            Session lowerHouseSession=Session.find(session.getYear(),session.getType().getType(),ApplicationConstants.LOWER_HOUSE);
+            House lowerHouse=lowerHouseSession.getHouse();
+            CustomParameter dbDateFormat=CustomParameter.findByName(CustomParameter.class,"DB_DATETIMEFORMAT", "");
+            SimpleDateFormat simpleDateFormat=FormaterUtil.getDateFormatter(dbDateFormat.getValue(),"en_US");
+            String lowerHouseFormationDate=simpleDateFormat.format(lowerHouse.getFormationDate());
             if(strQuestionType.equals("questions_starred")||strQuestionType.equals("questions_unstarred")||strQuestionType.equals("questions_shortnotice")){
-                //here we will first check  for the house where housetype=lowerhouse,session type=session type of passed
-                //session and year =year of passed session and find the formation date of the house.
-                House lowerHouse=House.findByHouseType("lowerhouse",session.getLocale()).get(0);
-                query="SELECT q.number FROM questions AS q  "+
-                "JOIN devicetypes AS qt JOIN housetypes as ht WHERE ht.id=q.house_type_id AND qt.id=q.devicetype_id AND ht.type='upperhouse' "+
-                "AND q.submission_date>="+lowerHouse.getFormationDate()+"  AND (qt.type='questions_shortnotice' OR qt.type='questions_starred' OR qt.type='questions_unstarred') ORDER BY q.number DESC LIMIT 0,1";
+                query="SELECT q FROM Question q JOIN q.type dt JOIN q.houseType ht WHERE "+
+                " ht.type='"+ApplicationConstants.UPPER_HOUSE+"' AND q.submissionDate>='"+lowerHouseFormationDate+"' "+
+                " AND (dt.type='questions_shortnotice' OR dt.type='questions_starred' OR dt.type='questions_unstarred') ORDER BY q.number "+ApplicationConstants.DESC;
             }else if(strQuestionType.equals("questions_halfhourdiscussion")){
-                query="SELECT q.number FROM questions AS q JOIN sessions AS s JOIN houses AS h "+
-                "JOIN devicetypes AS qt WHERE q.session_id=s.id AND AND qt.id=q.devicetype_id  AND s.house_id=h.id "+
-                "AND h.id="+house+" AND s.id="+sessionId+" AND (qt.type='questions_halfhourdiscussion') ORDER BY q.number DESC LIMIT 0,1";
+                query="SELECT q FROM Question q JOIN q.type dt JOIN q.houseType ht WHERE "+
+                " ht.type='"+ApplicationConstants.UPPER_HOUSE+"' AND q.submissionDate>='"+lowerHouseFormationDate+"' "+
+                " AND (dt.type='questions_halfhourdiscussion') ORDER BY q.number "+ApplicationConstants.DESC;
             }
         }
         try{
-            Integer number=(Integer) this.em().createNativeQuery(query).getSingleResult();
-            if(number==null){
+            List<Question> questions=this.em().createQuery(query).setFirstResult(0).setMaxResults(1).getResultList();
+            if(questions==null){
+                return 0;
+            }else if(questions.isEmpty()){
                 return 0;
             }else{
-                return number;
+                if(questions.get(0).getNumber()==null){
+                    return 0;
+                }else{
+                    return questions.get(0).getNumber();
+                }
             }
         }catch(Exception e){
+            e.printStackTrace();
             return 0;
         }
     }
@@ -455,35 +460,35 @@ public class QuestionRepository extends BaseRepository<Question, Long>{
     @SuppressWarnings("unchecked")
     public List<Question> findAllFirstBatch(final Member currentMember, final Session session,
             final DeviceType deviceType, final Status internalStatus) {
-          List<Question> questions=new ArrayList<Question>();
-//        Date firstBatchDate=session.getQuestionSubmissionFirstBatchDate();
-//        Date firstBatchStartTime=session.getQuestionSubmissionFirstBatchStartTimeUH();
-//        Date firstBatchEndTime=session.getQuestionSubmissionFirstBatchEndTimeUH();
-//        if(firstBatchDate!=null&&firstBatchStartTime!=null&&firstBatchEndTime!=null){
-//            Calendar calendar1=new GregorianCalendar();
-//            calendar1.setTime(firstBatchDate);
-//
-//            Calendar startTime=new GregorianCalendar();
-//            startTime.setTime(firstBatchStartTime);
-//            startTime.set(Calendar.YEAR,calendar1.get(Calendar.YEAR));
-//            startTime.set(Calendar.MONTH,calendar1.get(Calendar.MONTH));
-//            startTime.set(Calendar.DATE,calendar1.get(Calendar.DATE));
-//
-//            Calendar endTime=new GregorianCalendar();
-//            endTime.setTime(firstBatchEndTime);
-//            endTime.set(Calendar.YEAR,calendar1.get(Calendar.YEAR));
-//            endTime.set(Calendar.MONTH,calendar1.get(Calendar.MONTH));
-//            endTime.set(Calendar.DATE,calendar1.get(Calendar.DATE));
-//
-//            CustomParameter customParameter=CustomParameter.findByName(CustomParameter.class, "DB_DATETIMEFORMAT", "");
-//            if(customParameter!=null){
-//                SimpleDateFormat format= FormaterUtil.getDateFormatter(customParameter.getValue(), "en_US");
-//                String query="SELECT q FROM Question q WHERE q.primaryMember.id="+currentMember.getId()+" "+
-//                " AND q.session.id="+session.getId()+" AND q.type.id="+deviceType.getId()+" "+
-//                " AND q.internalStatus.id="+internalStatus.getId()+" AND q.submissionDate>='"+format.format(startTime.getTime())+"' AND q.submissionDate>='"+format.format(endTime.getTime())+"' ORDER BY q.number "+ApplicationConstants.ASC;
-//                questions=this.em().createQuery(query).getResultList();
-//            }
-//        }
+        List<Question> questions=new ArrayList<Question>();
+        //        Date firstBatchDate=session.getQuestionSubmissionFirstBatchDate();
+        //        Date firstBatchStartTime=session.getQuestionSubmissionFirstBatchStartTimeUH();
+        //        Date firstBatchEndTime=session.getQuestionSubmissionFirstBatchEndTimeUH();
+        //        if(firstBatchDate!=null&&firstBatchStartTime!=null&&firstBatchEndTime!=null){
+        //            Calendar calendar1=new GregorianCalendar();
+        //            calendar1.setTime(firstBatchDate);
+        //
+        //            Calendar startTime=new GregorianCalendar();
+        //            startTime.setTime(firstBatchStartTime);
+        //            startTime.set(Calendar.YEAR,calendar1.get(Calendar.YEAR));
+        //            startTime.set(Calendar.MONTH,calendar1.get(Calendar.MONTH));
+        //            startTime.set(Calendar.DATE,calendar1.get(Calendar.DATE));
+        //
+        //            Calendar endTime=new GregorianCalendar();
+        //            endTime.setTime(firstBatchEndTime);
+        //            endTime.set(Calendar.YEAR,calendar1.get(Calendar.YEAR));
+        //            endTime.set(Calendar.MONTH,calendar1.get(Calendar.MONTH));
+        //            endTime.set(Calendar.DATE,calendar1.get(Calendar.DATE));
+        //
+        //            CustomParameter customParameter=CustomParameter.findByName(CustomParameter.class, "DB_DATETIMEFORMAT", "");
+        //            if(customParameter!=null){
+        //                SimpleDateFormat format= FormaterUtil.getDateFormatter(customParameter.getValue(), "en_US");
+        //                String query="SELECT q FROM Question q WHERE q.primaryMember.id="+currentMember.getId()+" "+
+        //                " AND q.session.id="+session.getId()+" AND q.type.id="+deviceType.getId()+" "+
+        //                " AND q.internalStatus.id="+internalStatus.getId()+" AND q.submissionDate>='"+format.format(startTime.getTime())+"' AND q.submissionDate>='"+format.format(endTime.getTime())+"' ORDER BY q.number "+ApplicationConstants.ASC;
+        //                questions=this.em().createQuery(query).getResultList();
+        //            }
+        //        }
         return questions;
     }
 
@@ -491,34 +496,34 @@ public class QuestionRepository extends BaseRepository<Question, Long>{
     public List<Question> findAllSecondBatch(final Member currentMember, final Session session,
             final DeviceType deviceType, final Status internalStatus) {
         List<Question> questions=new ArrayList<Question>();
-//        Date secondBatchDate=session.getQuestionSubmissionSecondBatchDateUH();
-//        Date secondBatchStartTime=session.getQuestionSubmissionSecondBatchStartTimeUH();
-//        Date secondBatchEndTime=session.getQuestionSubmissionSecondBatchEndTimeUH();
-//        if(secondBatchDate!=null&&secondBatchStartTime!=null&&secondBatchEndTime!=null){
-//            Calendar calendar1=new GregorianCalendar();
-//            calendar1.setTime(secondBatchDate);
-//
-//            Calendar startTime=new GregorianCalendar();
-//            startTime.setTime(secondBatchStartTime);
-//            startTime.set(Calendar.YEAR,calendar1.get(Calendar.YEAR));
-//            startTime.set(Calendar.MONTH,calendar1.get(Calendar.MONTH));
-//            startTime.set(Calendar.DATE,calendar1.get(Calendar.DATE));
-//
-//            Calendar endTime=new GregorianCalendar();
-//            endTime.setTime(secondBatchEndTime);
-//            endTime.set(Calendar.YEAR,calendar1.get(Calendar.YEAR));
-//            endTime.set(Calendar.MONTH,calendar1.get(Calendar.MONTH));
-//            endTime.set(Calendar.DATE,calendar1.get(Calendar.DATE));
-//
-//            CustomParameter customParameter=CustomParameter.findByName(CustomParameter.class, "DB_DATETIMEFORMAT", "");
-//            if(customParameter!=null){
-//                SimpleDateFormat format= FormaterUtil.getDateFormatter(customParameter.getValue(), "en_US");
-//                String query="SELECT q FROM Question q WHERE q.primaryMember.id="+currentMember.getId()+" "+
-//                " AND q.session.id="+session.getId()+" AND q.type.id="+deviceType.getId()+" "+
-//                " AND q.internalStatus.id="+internalStatus.getId()+" AND q.submissionDate>='"+format.format(startTime.getTime())+"' AND q.submissionDate>='"+format.format(endTime.getTime())+"' ORDER BY q.number "+ApplicationConstants.ASC;
-//                questions=this.em().createQuery(query).getResultList();
-//            }
-//        }
+        //        Date secondBatchDate=session.getQuestionSubmissionSecondBatchDateUH();
+        //        Date secondBatchStartTime=session.getQuestionSubmissionSecondBatchStartTimeUH();
+        //        Date secondBatchEndTime=session.getQuestionSubmissionSecondBatchEndTimeUH();
+        //        if(secondBatchDate!=null&&secondBatchStartTime!=null&&secondBatchEndTime!=null){
+        //            Calendar calendar1=new GregorianCalendar();
+        //            calendar1.setTime(secondBatchDate);
+        //
+        //            Calendar startTime=new GregorianCalendar();
+        //            startTime.setTime(secondBatchStartTime);
+        //            startTime.set(Calendar.YEAR,calendar1.get(Calendar.YEAR));
+        //            startTime.set(Calendar.MONTH,calendar1.get(Calendar.MONTH));
+        //            startTime.set(Calendar.DATE,calendar1.get(Calendar.DATE));
+        //
+        //            Calendar endTime=new GregorianCalendar();
+        //            endTime.setTime(secondBatchEndTime);
+        //            endTime.set(Calendar.YEAR,calendar1.get(Calendar.YEAR));
+        //            endTime.set(Calendar.MONTH,calendar1.get(Calendar.MONTH));
+        //            endTime.set(Calendar.DATE,calendar1.get(Calendar.DATE));
+        //
+        //            CustomParameter customParameter=CustomParameter.findByName(CustomParameter.class, "DB_DATETIMEFORMAT", "");
+        //            if(customParameter!=null){
+        //                SimpleDateFormat format= FormaterUtil.getDateFormatter(customParameter.getValue(), "en_US");
+        //                String query="SELECT q FROM Question q WHERE q.primaryMember.id="+currentMember.getId()+" "+
+        //                " AND q.session.id="+session.getId()+" AND q.type.id="+deviceType.getId()+" "+
+        //                " AND q.internalStatus.id="+internalStatus.getId()+" AND q.submissionDate>='"+format.format(startTime.getTime())+"' AND q.submissionDate>='"+format.format(endTime.getTime())+"' ORDER BY q.number "+ApplicationConstants.ASC;
+        //                questions=this.em().createQuery(query).getResultList();
+        //            }
+        //        }
         return questions;
     }
 
@@ -952,7 +957,7 @@ public class QuestionRepository extends BaseRepository<Question, Long>{
                 " AND q.submissionDate >= '" + strStartTime + "'" +
                 " AND q.submissionDate <= '" + strEndTime + "'" +
                 " AND q.locale = '" + locale + "'"
-                );
+        );
         query.append(this.getStatusFilters(internalStatuses));
         query.append(" ORDER BY q.answeringDate.answeringDate DESC, q.number ASC");
 
@@ -994,7 +999,7 @@ public class QuestionRepository extends BaseRepository<Question, Long>{
                 " AND q.submissionDate >= '" + strStartTime + "'" +
                 " AND q.submissionDate <= '" + strEndTime + "'" +
                 " AND q.locale = '" + locale + "'"
-                );
+        );
         query.append(this.getStatusFilters(internalStatuses));
         if(sortOrder.equals(ApplicationConstants.ASC)) {
             query.append(" ORDER BY q.number ASC");
@@ -1038,7 +1043,7 @@ public class QuestionRepository extends BaseRepository<Question, Long>{
                 " AND q.submissionDate >= '" + strStartTime + "'" +
                 " AND q.submissionDate <= '" + strEndTime + "'" +
                 " AND q.locale = '" + locale + "'"
-                );
+        );
         query.append(this.getStatusFilters(internalStatuses));
         query.append(" ORDER BY q.answeringDate.answeringDate DESC, q.number ASC");
 
@@ -1074,7 +1079,7 @@ public class QuestionRepository extends BaseRepository<Question, Long>{
                 " AND q.submissionDate >= '" + strStartTime + "'" +
                 " AND q.submissionDate <= '" + strEndTime + "'" +
                 " AND q.locale = '" + locale + "'"
-                );
+        );
         query.append(this.getStatusFilters(internalStatuses));
         if(sortOrder.equals(ApplicationConstants.ASC)) {
             query.append(" ORDER BY q.number ASC");
@@ -1088,4 +1093,55 @@ public class QuestionRepository extends BaseRepository<Question, Long>{
         return questions;
     }
 
+    @SuppressWarnings("unchecked")
+    public List<MemberBallotAttendance> createMemberBallotAttendance(
+            final Session session, final DeviceType questionType, final String locale) {
+        /*
+         * first we will check if attendance has already been created for particular
+         * session ,device type and locale
+         */
+        Boolean status=memberBallotCreated(session,questionType,locale);
+        List<MemberBallotAttendance> memberBallotAttendances=new ArrayList<MemberBallotAttendance>();
+        if(!status){
+            List<Member> members=new ArrayList<Member>();
+            CustomParameter customParameter=CustomParameter.findByName(CustomParameter.class,"DB_TIMESTAMP", "");
+            if(customParameter!=null){
+                SimpleDateFormat format=FormaterUtil.getDateFormatter(customParameter.getValue(),"en_US");
+                if(session.getQuestionSubmissionFirstBatchStartDateUH()!=null&&session.getQuestionSubmissionFirstBatchEndDateUH()!=null){
+                    String startTime=format.format(session.getQuestionSubmissionFirstBatchStartDateUH());
+                    String endTime=format.format(session.getQuestionSubmissionFirstBatchEndDateUH());
+                    String query="SELECT DISTINCT m FROM Question q JOIN q.primaryMember m JOIN m.title t WHERE q.session.id="+session.getId()+
+                    " AND q.type.id="+questionType.getId()+" AND q.submissionDate>='"+startTime+"' AND q.submissionDate<='"+endTime+"'"+
+                    " ORDER BY m.lastName "+ApplicationConstants.ASC;
+                    members=this.em().createQuery(query).getResultList();
+                    for(Member i:members){
+                        MemberBallotAttendance memberBallotAttendance=new MemberBallotAttendance(session,questionType,i,false,locale);
+                        memberBallotAttendance.persist();
+                        memberBallotAttendances.add(memberBallotAttendance);
+                    }
+                }else if(session.getQuestionSubmissionFirstBatchStartDateUH()==null){
+                    logger.error("**** First Batch Submission Start Date not set ****");
+                }else if(session.getQuestionSubmissionFirstBatchEndDateUH()==null){
+                    logger.error("**** First Batch Submission End Date not set ****");
+                }
+            }else{
+                logger.error("**** Custom Parameter 'DB_TIMESTAMP(yyyy-MM-dd HH:mm:ss)' not set ****");
+            }
+        }else{
+           memberBallotAttendances=MemberBallotAttendance.findAll(session,questionType, locale);
+        }
+        return memberBallotAttendances;
+    }
+
+    private Boolean memberBallotCreated(final Session session, final DeviceType questionType,
+            final String locale) {
+        String query="SELECT m FROM MemberBallotAttendance m WHERE m.session.id="+session.getId()+
+        " AND m.deviceType="+questionType.getId()+" AND m.locale='"+locale+"'";
+        Integer count=this.em().createQuery(query).getResultList().size();
+        if(count>0){
+            return true;
+        }else{
+            return false;
+        }
+    }
 }
