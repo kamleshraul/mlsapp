@@ -328,10 +328,10 @@
 	</p>
 		
 	
-	<p>
+	<p>		
 	<label class="small"><spring:message code="question.submissionDate" text="Submitted On"/></label>
-	<form:input path="submissionDate" cssClass="sText" readonly="true"/>
-	<form:errors path="submissionDate" cssClass="validationError"/>	
+	<input id="setSubmissionDate" name="setSubmissionDate" type="text" class="sText" value="${submissionDate}">	
+	<input id="setCreationDate" name="setSubmissionDate" type="hidden" value="${creationDate}">	
 	
 	<label class="small"><spring:message code="question.answeringDate" text="Answering Date"/></label>
 	<input id="answeringDateLabel" name="answeringDateLabel" type="text" value="${answeringDate}" class="sText"/>

@@ -4,6 +4,10 @@
 <title><spring:message code="question.revisions"
 	text="Revisions" /></title>
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<style>
+td{min-width:200px; max-width:400px;min-height:30px;}
+th{min-width:200px; max-width:400px;min-height:30px;}
+</style>
 </head>
 <body>
 <c:choose>
@@ -35,6 +39,5 @@
 <spring:message code="question.norevisions" text="No Revisions Found"></spring:message>
 </c:otherwise>
 </c:choose>
-
 </body>
 </html>

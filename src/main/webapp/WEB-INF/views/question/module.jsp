@@ -33,7 +33,18 @@
 				$("#selectionDiv1").hide();
 				$("#selectionDiv2").hide();
 				viewBallot();
+			});
+			$('#attendance_tab').click(function(){
+				$("#selectionDiv1").hide();
+				$("#selectionDiv2").hide();
+				markAttendance();
 			});	
+			$('#mark_attendance').click(function(){
+				$("#selectionDiv1").hide();
+				$("#selectionDiv2").hide();
+				$.blockUI({ message: '<img src="./resources/images/waitAnimated.gif" />' });
+				markAttendance();
+			});		
 			$("#view_chart").click(function() {
 				$("#selectionDiv1").hide();
 				$("#selectionDiv2").hide();
@@ -286,6 +297,12 @@
 			var resourceURL = 'question/ballot/view?' + parameters;
 			showTabByIdAndUrl('ballot_tab', resourceURL);
 		}	
+		function markAttendance(){
+			var parameters = $("#gridURLParams").val();
+			var resourceURL = 'question/attendance?' + parameters;
+			showTabByIdAndUrl('attendance_tab', resourceURL);
+			$.unblockUI();		
+		}		
 	</script>
 </head>
 <body>
@@ -314,6 +331,19 @@
 				   <spring:message code="question.ballot" text="Ballot"></spring:message>
 				</a>
 			</li>
+			</c:if>
+			<c:if test="${usergroupType!='member'}">
+			<c:if test="${userrole!='CLERK' }">
+			<c:if test="${questionTypeType!='questions_unstarred'&& questionTypeType!='questions_shortnotice'&& questionTypeType!='questions_halfhourdiscussion'}">
+			<c:if test="${houseType=='upperhouse'}">
+			<li>
+				<a id="attendance_tab" href="#" class="tab">
+				   <spring:message code="question.attendance" text="Attendance"></spring:message>
+				</a>
+			</li>
+			</c:if>
+			</c:if>
+			</c:if>
 			</c:if>
 		</ul>
 		
@@ -416,6 +446,22 @@
 			</c:if>
 			</c:if>	
 		</div>
+		
+		<div class="commandbarContent" style="margin-top: 10px;" id="selectionDiv2">		
+		<c:if test="${usergroupType!='member'}">
+		<c:if test="${userrole!='CLERK' }">
+		<c:if test="${questionTypeType!='questions_unstarred'&& questionTypeType!='questions_shortnotice'&& questionTypeType!='questions_halfhourdiscussion'}">
+			<c:if test="${houseType=='upperhouse'}">
+			<a href="#" id="mark_attendance" class="butSim">
+				<spring:message code="question.attendance" text="Attendance"/>
+			</a> |	
+			</c:if>		
+			</c:if>
+			</c:if>
+			</c:if>	
+		</div>
+		
+		
 		<div class="tabContent clearfix">
 		</div>		
 		<input type="hidden" id="key" name="key">

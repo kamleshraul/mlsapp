@@ -388,6 +388,14 @@
 	</p>
 	</c:if>
 	
+	<c:if test="${!(empty submissionDate)}">
+	<p>
+	<label class="small"><spring:message code="question.submissionDate" text="Submitted On"/></label>
+	<input id="setSubmissionDate" name="setSubmissionDate" type="text" class="sText" value="${submissionDate}">	
+	<input id="setCreationDate" name="setCreationDate" type="hidden" value="${creationDate}">		
+	</p>
+	</c:if>
+	
 	<p style="display:none;">
 		<label class="small"><spring:message code="question.houseType" text="House Type"/>*</label>
 		<input id="houseTypeName" name="houseTypeName" value="${houseTypeName}" class="sText" readonly="readonly">
@@ -626,8 +634,7 @@
 	<form:hidden path="locale"/>	
 	<form:hidden path="createdBy"/>
 	<input id="status" name="status" value="${status}" type="hidden">
-	<input id="creationDate" name="creationDate" value="${creationDate}" type="hidden">
-	<input id="submissionDate" name="submissionDate" value="${submissionDate}" type="hidden">
+	
 </form:form>
 <input id="confirmSupportingMembersMessage" value="<spring:message code='confirm.supportingmembers.message' text='A request for approval will be sent to the following members:'></spring:message>" type="hidden">
 <input id="pleaseSelectMessage" value="<spring:message code='please.select' text='Please Select'/>" type="hidden">
