@@ -37,6 +37,7 @@
 			$('#attendance_tab').click(function(){
 				$("#selectionDiv1").hide();
 				$("#selectionDiv2").hide();
+				$.blockUI({ message: '<img src="./resources/images/waitAnimated.gif" />' });
 				markAttendance();
 			});	
 			$('#mark_attendance').click(function(){
@@ -299,9 +300,17 @@
 		}	
 		function markAttendance(){
 			var parameters = $("#gridURLParams").val();
+			if(parameters==undefined){
+				parameters="houseType="+$("#selectedHouseType").val()+"&sessionYear="+$("#selectedSessionYear").val()+"&sessionType="+$("#selectedSessionType").val()+"&questionType="+$("#selectedQuestionType").val()+"&ugparam="+$("#ugparam").val();
+			}
 			var resourceURL = 'question/attendance?' + parameters;
 			showTabByIdAndUrl('attendance_tab', resourceURL);
-			$.unblockUI();		
+			$.get(resourceURL,function(data){
+			$('a').removeClass('selected');
+			$('#attendance_tab').addClass('selected');
+			$('.tabContent').html(data);
+			$.unblockUI();				
+			},'html');			
 		}		
 	</script>
 </head>

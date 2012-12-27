@@ -23,6 +23,10 @@
 
 		<script type="text/javascript" src="./resources/js/common.js?v=2032"></script> 
 		
+		<!-- Dual Listbox -->
+	    <script type="text/javascript" src="./resources/js/jquery.dualListBox-1.3.min.js?v=2032"></script> 
+		
+		
 		<!-- WYSIWYG Editor --> 
 		<script type="text/javascript" src="./resources/js/jquery.wysiwyg.js?v=2"></script>		
 		<!-- Context Menu -->

@@ -53,12 +53,8 @@ $(document).ready(function(){
 			else {				
 				var currentCitations = $('#Citations').val().split(",");					
 				for(var i=0; i<currentCitations.length; i++) {					
-					if(currentCitations[i] == element.attr('value')) {					
-
-	
-						currentCitations[i] = '';							
-
-				
+					if(currentCitations[i] == element.attr('value')) {
+						currentCitations[i] = '';
 					}
 				}				
 				$('#Citations').val(currentCitations);
