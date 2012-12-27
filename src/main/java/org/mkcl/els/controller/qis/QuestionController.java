@@ -2050,4 +2050,38 @@ public class QuestionController extends GenericController<Question>{
         return "question/attendance";
     }
 
+    @RequestMapping(value="/attendance",method=RequestMethod.PUT)
+    public String updateAttendance(final HttpServletRequest request,final ModelMap model,final Locale locale){
+//        String strId=request.getParameter("id");
+//        String strAttendance=request.getParameter("attendance");
+//        MasterVO masterVO=null;
+//        if(strId!=null&&strAttendance!=null){
+//            MemberBallotAttendance memberBallotAttendance=MemberBallotAttendance.findById(MemberBallotAttendance.class,Long.parseLong(strId));
+//            Boolean attendance=Boolean.parseBoolean(strAttendance);
+//            if(attendance){
+//                memberBallotAttendance.setAttendance(attendance);
+//                memberBallotAttendance.setAttendanceTime(new Date());
+//                CustomParameter customParameter=CustomParameter.findByName(CustomParameter.class,"ATTENDANCE_TIME_FORMAT", "");
+//                if(customParameter!=null){
+//                    SimpleDateFormat format=FormaterUtil.getDateFormatter(customParameter.getValue(),"en_US");
+//                    masterVO=new MasterVO(memberBallotAttendance.getId(), format.format(memberBallotAttendance.getAttendanceTime()));
+//                }else{
+//                    logger.error("**** Custom Parameter 'ATTENDANCE_TIME_FORMAT(hh:mm:ss aaa)' not set ****");
+//                }
+//            }else{
+//                memberBallotAttendance.setAttendance(attendance);
+//                memberBallotAttendance.setAttendanceTime(null);
+//            }
+//            memberBallotAttendance.merge();
+//        }else{
+//            logger.error("**** Check request parameter 'id and present' for null value ****");
+//        }
+//        if(masterVO==null){
+//            return new MasterVO();
+//        }else{
+//            return masterVO;
+//        }
+        return null;
+    }
+
 }

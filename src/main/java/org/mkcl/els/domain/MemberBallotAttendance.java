@@ -1,14 +1,11 @@
 package org.mkcl.els.domain;
 
 import java.io.Serializable;
-import java.util.Date;
 import java.util.List;
 
 import javax.persistence.Entity;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
-import javax.persistence.Temporal;
-import javax.persistence.TemporalType;
 
 import org.mkcl.els.repository.MemberBallotAttendanceRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,10 +25,9 @@ public class MemberBallotAttendance extends BaseDomain implements Serializable{
     @ManyToOne
     private Member member;
 
-    private Boolean present;
+    private Boolean attendance;
 
-    @Temporal(TemporalType.TIMESTAMP)
-    private Date attendanceTime;
+    private Integer position;
 
     @Autowired
     private transient MemberBallotAttendanceRepository memberBallotAttendanceRepository;
@@ -41,12 +37,12 @@ public class MemberBallotAttendance extends BaseDomain implements Serializable{
     }
 
     public MemberBallotAttendance(final Session session, final DeviceType deviceType,
-            final Member member, final Boolean present,final String locale) {
+            final Member member, final Boolean attendance,final String locale) {
         super(locale);
         this.session = session;
         this.deviceType = deviceType;
         this.member = member;
-        this.present = present;
+        this.attendance = attendance;
     }
 
     public static MemberBallotAttendanceRepository getMemberBallotAttendanceRepository() {
@@ -87,22 +83,22 @@ public class MemberBallotAttendance extends BaseDomain implements Serializable{
     }
 
 
-    public Boolean getPresent() {
-        return present;
-    }
-
-    public void setPresent(final Boolean present) {
-        this.present = present;
+    public Boolean getAttendance() {
+        return attendance;
     }
 
 
-    public Date getAttendanceTime() {
-        return attendanceTime;
+    public void setAttendance(final Boolean attendance) {
+        this.attendance = attendance;
+    }
+
+    public Integer getPosition() {
+        return position;
     }
 
 
-    public void setAttendanceTime(final Date attendanceTime) {
-        this.attendanceTime = attendanceTime;
+    public void setPosition(final Integer position) {
+        this.position = position;
     }
 
     public static List<MemberBallotAttendance> findAll(
