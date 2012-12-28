@@ -1206,7 +1206,6 @@ public class ReferenceController extends BaseController {
      * @param model the model
      * @param locale the locale
      * @return the list< reference>
-     * @author compaq
      * @since v1.0.0
      */
     @RequestMapping(value="/actors",method=RequestMethod.POST)
@@ -1231,7 +1230,6 @@ public class ReferenceController extends BaseController {
      * @param model the model
      * @param locale the locale
      * @return the reference
-     * @author compaq
      * @since v1.0.0
      */
     @RequestMapping(value="/wfconfig",method=RequestMethod.POST)
@@ -1256,8 +1254,8 @@ public class ReferenceController extends BaseController {
     		Reference reference = new Reference(deviceType.getType(), deviceType.getName());
     		deviceTypesRef.add(reference);
     	}    	
-		return deviceTypesRef;    	
-    }
+		return deviceTypesRef; 
+		}
 
 
 }
