@@ -1,0 +1,140 @@
+package org.mkcl.els.domain;
+
+import java.io.Serializable;
+import java.util.Date;
+import java.util.List;
+
+import javax.persistence.CascadeType;
+import javax.persistence.Entity;
+import javax.persistence.FetchType;
+import javax.persistence.JoinColumn;
+import javax.persistence.JoinTable;
+import javax.persistence.ManyToMany;
+import javax.persistence.ManyToOne;
+import javax.persistence.Table;
+import javax.persistence.Temporal;
+import javax.persistence.TemporalType;
+
+@Entity
+@Table(name="memberballot")
+public class MemberBallot extends BaseDomain implements Serializable {
+
+    /**
+     *
+     */
+    private static final long serialVersionUID = 1L;
+
+    @ManyToOne
+    private Session session;
+
+    @ManyToOne
+    private DeviceType deviceType;
+
+    @ManyToOne
+    private Member member;
+
+    @Temporal(TemporalType.TIMESTAMP)
+    private Date ballotDate;
+
+    private Integer round;
+
+    @ManyToMany(cascade = CascadeType.ALL,fetch=FetchType.LAZY)
+    @JoinTable(name = "memberballot_choice_association",
+            joinColumns = { @JoinColumn(name = "memberballot_id",
+                    referencedColumnName = "id") },
+                    inverseJoinColumns = { @JoinColumn(name = "mamberballot_choice_id",
+                            referencedColumnName = "id") })
+                            private List<MemberBallotChoice> questionChoices;
+
+    private Integer position;
+
+    private Boolean attendance;
+
+
+    public Session getSession() {
+        return session;
+    }
+
+
+    public void setSession(final Session session) {
+        this.session = session;
+    }
+
+
+    public DeviceType getDeviceType() {
+        return deviceType;
+    }
+
+
+    public void setDeviceType(final DeviceType deviceType) {
+        this.deviceType = deviceType;
+    }
+
+
+    public Member getMember() {
+        return member;
+    }
+
+
+    public void setMember(final Member member) {
+        this.member = member;
+    }
+
+
+
+    public Date getBallotDate() {
+        return ballotDate;
+    }
+
+
+
+    public void setBallotDate(final Date ballotDate) {
+        this.ballotDate = ballotDate;
+    }
+
+
+
+    public Integer getRound() {
+        return round;
+    }
+
+
+
+    public void setRound(final Integer round) {
+        this.round = round;
+    }
+
+    public List<MemberBallotChoice> getQuestionChoices() {
+        return questionChoices;
+    }
+
+
+
+    public void setQuestionChoices(final List<MemberBallotChoice> questionChoices) {
+        this.questionChoices = questionChoices;
+    }
+
+
+    public Boolean getAttendance() {
+        return attendance;
+    }
+
+
+
+    public void setAttendance(final Boolean attendance) {
+        this.attendance = attendance;
+    }
+
+
+
+    public Integer getPosition() {
+        return position;
+    }
+
+
+
+    public void setPosition(final Integer position) {
+        this.position = position;
+    }
+
+}

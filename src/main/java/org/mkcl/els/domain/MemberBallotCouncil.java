@@ -42,7 +42,7 @@ public class MemberBallotCouncil extends BaseDomain implements Serializable{
 					referencedColumnName = "id") },
 					inverseJoinColumns = { @JoinColumn(name = "mamber_ballot_choice_id",
 							referencedColumnName = "id") })
-							private List<MemberBallotChoiceCouncil> questionChoices;
+							private List<MemberBallotChoice> questionChoices;
 
 	@Temporal(TemporalType.TIMESTAMP)
 	private Date ballotDate;
@@ -97,11 +97,11 @@ public class MemberBallotCouncil extends BaseDomain implements Serializable{
 		this.round = round;
 	}
 
-	public List<MemberBallotChoiceCouncil> getQuestionChoices() {
+	public List<MemberBallotChoice> getQuestionChoices() {
 		return questionChoices;
 	}
 
-	public void setQuestionChoices(final List<MemberBallotChoiceCouncil> questionChoices) {
+	public void setQuestionChoices(final List<MemberBallotChoice> questionChoices) {
 		this.questionChoices = questionChoices;
 	}
 

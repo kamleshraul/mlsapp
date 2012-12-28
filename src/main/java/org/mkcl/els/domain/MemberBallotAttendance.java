@@ -102,12 +102,17 @@ public class MemberBallotAttendance extends BaseDomain implements Serializable{
     }
 
     public static List<MemberBallotAttendance> findAll(
-            final Session session,
-            final DeviceType questionType, final String locale) {
+            final Session session, final DeviceType questionType,
+            final String attendance,final String sortBy,
+            final String locale) {
         return getMemberBallotAttendanceRepository().findAll(
-                session,
-                questionType,locale);
+                session, questionType,attendance,sortBy, locale);
     }
 
+    public static List<Member> findMembersByAttendance(final Session session,
+            final DeviceType deviceType, final Boolean attendanceType, final String locale) {
+        return getMemberBallotAttendanceRepository().findMembersByAttendance(session,
+                deviceType,attendanceType,locale);
+    }
 
 }

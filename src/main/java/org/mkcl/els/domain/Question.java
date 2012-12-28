@@ -1879,7 +1879,7 @@ implements Serializable
      * @param locale the locale
      * @return the list
      */
-    public static List<MemberBallotAttendance> createMemberBallotAttendance(final Session session,
+    public static Boolean createMemberBallotAttendance(final Session session,
             final DeviceType questionType, final String locale) {
         return getQuestionRepository().createMemberBallotAttendance(session,
                 questionType,locale);

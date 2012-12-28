@@ -8,8 +8,8 @@ import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 
 @Entity
-@Table(name="member_ballot_choice_council")
-public class MemberBallotChoiceCouncil extends BaseDomain implements Serializable{
+@Table(name="memberballot_choice")
+public class MemberBallotChoice extends BaseDomain implements Serializable{
 
 	/**
 	 *
@@ -24,7 +24,7 @@ public class MemberBallotChoiceCouncil extends BaseDomain implements Serializabl
 
 	private Integer choice;
 
-	public MemberBallotChoiceCouncil() {
+	public MemberBallotChoice() {
 		super();
 	}
 

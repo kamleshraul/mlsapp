@@ -1094,13 +1094,14 @@ public class QuestionRepository extends BaseRepository<Question, Long>{
     }
 
     @SuppressWarnings("unchecked")
-    public List<MemberBallotAttendance> createMemberBallotAttendance(
+    public Boolean createMemberBallotAttendance(
             final Session session, final DeviceType questionType, final String locale) {
         /*
          * first we will check if attendance has already been created for particular
          * session ,device type and locale
          */
         Boolean status=memberBallotCreated(session,questionType,locale);
+        Boolean operationStatus=false;
         List<MemberBallotAttendance> memberBallotAttendances=new ArrayList<MemberBallotAttendance>();
         if(!status){
             List<Member> members=new ArrayList<Member>();
@@ -1119,6 +1120,7 @@ public class QuestionRepository extends BaseRepository<Question, Long>{
                         memberBallotAttendance.persist();
                         memberBallotAttendances.add(memberBallotAttendance);
                     }
+                    operationStatus=true;
                 }else if(session.getQuestionSubmissionFirstBatchStartDateUH()==null){
                     logger.error("**** First Batch Submission Start Date not set ****");
                 }else if(session.getQuestionSubmissionFirstBatchEndDateUH()==null){
@@ -1127,10 +1129,8 @@ public class QuestionRepository extends BaseRepository<Question, Long>{
             }else{
                 logger.error("**** Custom Parameter 'DB_TIMESTAMP(yyyy-MM-dd HH:mm:ss)' not set ****");
             }
-        }else{
-           memberBallotAttendances=MemberBallotAttendance.findAll(session,questionType, locale);
         }
-        return memberBallotAttendances;
+        return operationStatus;
     }
 
     private Boolean memberBallotCreated(final Session session, final DeviceType questionType,

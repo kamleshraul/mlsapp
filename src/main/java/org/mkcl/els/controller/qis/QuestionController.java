@@ -2032,6 +2032,7 @@ public class QuestionController extends GenericController<Question>{
         String strSessionType=request.getParameter("sessionType");
         String strSessionYear=request.getParameter("sessionYear");
         String strQuestionType=request.getParameter("questionType");
+        String strOperation=request.getParameter("operation");
         if(strHouseType!=null&&strSessionType!=null&&strSessionYear!=null&&strQuestionType!=null){
             HouseType houseType=HouseType.findByFieldName(HouseType.class,"type",strHouseType, locale.toString());
             SessionType sessionType=SessionType.findById(SessionType.class,Long.parseLong(strSessionType));
@@ -2039,8 +2040,30 @@ public class QuestionController extends GenericController<Question>{
             Session session=Session.findSessionByHouseTypeSessionTypeYear(houseType, sessionType, sessionYear);
             DeviceType questionType=DeviceType.findById(DeviceType.class,Long.parseLong(strQuestionType));
             if(session!=null){
-                List<MemberBallotAttendance> attendance=Question.createMemberBallotAttendance(session,questionType,locale.toString());
-                model.addAttribute("attendance",attendance);
+                Boolean created=Question.createMemberBallotAttendance(session,questionType,locale.toString());
+                if(created){
+                    logger.info("Member Ballot Attendance Entries Created");
+                }else{
+                    logger.info("Member Ballot Attendance Entries Already Created");
+                }
+                List<MemberBallotAttendance> allItems=null;
+                List<MemberBallotAttendance> selectedItems=null;
+                if(strOperation.equals("presentees")){
+                allItems=MemberBallotAttendance.findAll(session,questionType,"false","member",locale.toString());
+                selectedItems=MemberBallotAttendance.findAll(session,questionType,"true","position",locale.toString());
+                }else{
+                allItems=MemberBallotAttendance.findAll(session,questionType,"true","member",locale.toString());
+                selectedItems=MemberBallotAttendance.findAll(session,questionType,"false","position",locale.toString());
+                }
+                List<MemberBallotAttendance> eligibles=MemberBallotAttendance.findAll(session,questionType,"","member",locale.toString());
+                model.addAttribute("allItems",allItems);
+                model.addAttribute("selectedItems",selectedItems);
+                model.addAttribute("eligibles",eligibles);
+                model.addAttribute("session",session.getId());
+                model.addAttribute("questionType",strQuestionType);
+                model.addAttribute("houseType",strHouseType);
+                model.addAttribute("sessionType",strSessionType);
+                model.addAttribute("sessionYear",strSessionYear);
             }else{
                 logger.error("**** Session not defined for selected houseType,sessionType and sessionYear ****");
             }
@@ -2051,37 +2074,61 @@ public class QuestionController extends GenericController<Question>{
     }
 
     @RequestMapping(value="/attendance",method=RequestMethod.PUT)
-    public String updateAttendance(final HttpServletRequest request,final ModelMap model,final Locale locale){
-//        String strId=request.getParameter("id");
-//        String strAttendance=request.getParameter("attendance");
-//        MasterVO masterVO=null;
-//        if(strId!=null&&strAttendance!=null){
-//            MemberBallotAttendance memberBallotAttendance=MemberBallotAttendance.findById(MemberBallotAttendance.class,Long.parseLong(strId));
-//            Boolean attendance=Boolean.parseBoolean(strAttendance);
-//            if(attendance){
-//                memberBallotAttendance.setAttendance(attendance);
-//                memberBallotAttendance.setAttendanceTime(new Date());
-//                CustomParameter customParameter=CustomParameter.findByName(CustomParameter.class,"ATTENDANCE_TIME_FORMAT", "");
-//                if(customParameter!=null){
-//                    SimpleDateFormat format=FormaterUtil.getDateFormatter(customParameter.getValue(),"en_US");
-//                    masterVO=new MasterVO(memberBallotAttendance.getId(), format.format(memberBallotAttendance.getAttendanceTime()));
-//                }else{
-//                    logger.error("**** Custom Parameter 'ATTENDANCE_TIME_FORMAT(hh:mm:ss aaa)' not set ****");
-//                }
-//            }else{
-//                memberBallotAttendance.setAttendance(attendance);
-//                memberBallotAttendance.setAttendanceTime(null);
-//            }
-//            memberBallotAttendance.merge();
-//        }else{
-//            logger.error("**** Check request parameter 'id and present' for null value ****");
-//        }
-//        if(masterVO==null){
-//            return new MasterVO();
-//        }else{
-//            return masterVO;
-//        }
-        return null;
+    public @ResponseBody String updateAttendance(final HttpServletRequest request,final ModelMap model,final Locale locale){
+        String selectedItems=request.getParameter("items");
+        String[] items=selectedItems.split(",");
+        String strAttendance=request.getParameter("attendance");
+        String strQuestionType=request.getParameter("questionType");
+        String strSession=request.getParameter("session");
+        Session session=Session.findById(Session.class,Long.parseLong(strSession));
+        DeviceType questionType=DeviceType.findById(DeviceType.class,Long.parseLong(strQuestionType));
+        Boolean attendance=Boolean.parseBoolean(strAttendance);
+        int position=0;
+        for(String i:items){
+            MemberBallotAttendance memberBallotAttendance=MemberBallotAttendance.findById(MemberBallotAttendance.class,Long.parseLong(i));
+            position++;
+            memberBallotAttendance.setPosition(position);
+            memberBallotAttendance.setAttendance(attendance);
+            memberBallotAttendance.merge();
+        }
+        List<MemberBallotAttendance> memberBallotAttendances=MemberBallotAttendance.findAll(session, questionType, "", "position", locale.toString());
+        for(MemberBallotAttendance i:memberBallotAttendances){
+            if(!selectedItems.contains(String.valueOf(i.getId()))){
+                i.setAttendance(!attendance);
+                i.merge();
+            }
+        }
+        return "success";
     }
 
+    @RequestMapping(value="/preballot",method=RequestMethod.GET)
+    public String preBallot(final HttpServletRequest request,final ModelMap model,final Locale locale){
+        String strHouseType=request.getParameter("houseType");
+        String strSessionType=request.getParameter("sessionType");
+        String strSessionYear=request.getParameter("sessionYear");
+        String strQuestionType=request.getParameter("questionType");
+        String strAttendance=request.getParameter("attendance");
+        model.addAttribute("attendance",strAttendance);
+        if(strHouseType!=null&&strSessionType!=null&&strSessionYear!=null&&strQuestionType!=null){
+            HouseType houseType=HouseType.findByFieldName(HouseType.class,"type",strHouseType, locale.toString());
+            SessionType sessionType=SessionType.findById(SessionType.class,Long.parseLong(strSessionType));
+            Integer sessionYear=Integer.parseInt(strSessionYear);
+            Session session=Session.findSessionByHouseTypeSessionTypeYear(houseType, sessionType, sessionYear);
+            DeviceType questionType=DeviceType.findById(DeviceType.class,Long.parseLong(strQuestionType));
+            if(session!=null){
+                List<MemberBallotAttendance> memberBallotAttendances=null;
+                if(strAttendance.equals("present")){
+                    memberBallotAttendances=MemberBallotAttendance.findAll(session,questionType,"true","position",locale.toString());
+                }else{
+                    memberBallotAttendances=MemberBallotAttendance.findAll(session,questionType,"false","position",locale.toString());
+                }
+                model.addAttribute("selectedItems",memberBallotAttendances);
+            }else{
+                logger.error("**** Session not defined for selected houseType,sessionType and sessionYear ****");
+            }
+        }else{
+            logger.error("**** Check request parameter 'houseType,sessionType,sessionYear,questionType' for null values ****");
+        }
+        return "question/preballot";
+    }
 }
