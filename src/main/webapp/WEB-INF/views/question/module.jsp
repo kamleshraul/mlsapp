@@ -17,38 +17,43 @@
 			$('#list_tab').click(function(){
 				$("#selectionDiv1").show();
 				$("#selectionDiv2").show();
+				$("#selectionDiv3").show();				
 				showQuestionList();
 			});	
 			$('#details_tab').click(function(){
 				$("#selectionDiv1").hide();
 				$("#selectionDiv2").hide();
+				$("#selectionDiv3").hide();				
 				editQuestion();
 			});
 			$('#chart_tab').click(function(){
 				$("#selectionDiv1").hide();
 				$("#selectionDiv2").hide();
+				$("#selectionDiv3").hide();		
 				viewChart();
 			});	
 			$('#ballot_tab').click(function(){
 				$("#selectionDiv1").hide();
 				$("#selectionDiv2").hide();
+				$("#selectionDiv3").hide();					
 				viewBallot();
 			});
-			$('#attendance_tab').click(function(){
+			/*$('#attendance_tab').click(function(){
 				$("#selectionDiv1").hide();
 				$("#selectionDiv2").hide();
-				$.blockUI({ message: '<img src="./resources/images/waitAnimated.gif" />' });
-				markAttendance();
-			});	
+				$("#selectionDiv3").hide();					
+				markAttendance("presentees");
+			});*/	
 			$('#mark_attendance').click(function(){
 				$("#selectionDiv1").hide();
 				$("#selectionDiv2").hide();
-				$.blockUI({ message: '<img src="./resources/images/waitAnimated.gif" />' });
-				markAttendance();
+				$("#selectionDiv3").hide();					
+				markAttendance("presentees");
 			});		
 			$("#view_chart").click(function() {
 				$("#selectionDiv1").hide();
 				$("#selectionDiv2").hide();
+				$("#selectionDiv3").hide();					
 				viewChart();
 			});	
 				
@@ -75,6 +80,7 @@
 			$("#view_ballot").click(function() {
 				$("#selectionDiv1").hide();
 				$("#selectionDiv2").hide();
+				$("#selectionDiv3").hide();					
 				viewBallot();
 			});	
 				
@@ -145,7 +151,34 @@
 				if(value!=""){				
 					loadAnsweringDates(value)
 				}
-			});				
+			});	
+
+			$("#selectPreBallot").change(function(){
+				$("#selectionDiv1").hide();
+				$("#selectionDiv2").hide();
+				$("#selectionDiv3").hide();	
+				var val=$(this).val();
+				if(val!='-'){
+					preBallot(val);
+				}else{
+					$("#selectionDiv1").show();
+					$("#selectionDiv2").show();
+					$("#selectionDiv3").show();	
+				}				
+			});	
+			/*$("#preballot_tab").click(function(){
+				$("#selectionDiv1").hide();
+				$("#selectionDiv2").hide();
+				$("#selectionDiv3").hide();	
+				var val=$("#selectPreBallot").val();
+				if(val!='-'){
+					preBallot(val);
+				}else{
+					$("#selectionDiv1").show();
+					$("#selectionDiv2").show();
+					$("#selectionDiv3").show();	
+				}	
+			});*/
 			$(document).keydown(function (e){
 				if(e.which==78 && e.ctrlKey){
 					newQuestion();
@@ -298,20 +331,37 @@
 			var resourceURL = 'question/ballot/view?' + parameters;
 			showTabByIdAndUrl('ballot_tab', resourceURL);
 		}	
-		function markAttendance(){
-			var parameters = $("#gridURLParams").val();
+		function markAttendance(operation){
+			$.blockUI({ message: '<img src="./resources/images/waitAnimated.gif" />' });
+			var parameters = $("#gridURLParams").val()+"&operation="+operation;
 			if(parameters==undefined){
-				parameters="houseType="+$("#selectedHouseType").val()+"&sessionYear="+$("#selectedSessionYear").val()+"&sessionType="+$("#selectedSessionType").val()+"&questionType="+$("#selectedQuestionType").val()+"&ugparam="+$("#ugparam").val();
+				parameters="houseType="+$("#selectedHouseType").val()+"&sessionYear="+$("#selectedSessionYear").val()+"&sessionType="+$("#selectedSessionType").val()+"&questionType="+$("#selectedQuestionType").val()+"&operation="+operation;
+			}
+			if(parameters==undefined){
+				parameters="houseType="+$("#houseType").val()+"&sessionYear="+$("#sessionYear").val()+"&sessionType="+$("#sessionType").val()+"&questionType="+$("#questionType").val()+"&operation="+operation;
 			}
 			var resourceURL = 'question/attendance?' + parameters;
-			showTabByIdAndUrl('attendance_tab', resourceURL);
 			$.get(resourceURL,function(data){
 			$('a').removeClass('selected');
 			$('#attendance_tab').addClass('selected');
 			$('.tabContent').html(data);
 			$.unblockUI();				
 			},'html');			
-		}		
+		}	
+		function preBallot(attendance){
+			$.blockUI({ message: '<img src="./resources/images/waitAnimated.gif" />' });
+			var parameters = $("#gridURLParams").val()+"&attendance="+attendance;
+			if(parameters==undefined){
+				parameters="houseType="+$("#selectedHouseType").val()+"&sessionYear="+$("#selectedSessionYear").val()+"&sessionType="+$("#selectedSessionType").val()+"&questionType="+$("#selectedQuestionType").val()+"&attendance="+attendance;
+			}
+			var resourceURL = 'question/preballot?' + parameters;
+			$.get(resourceURL,function(data){
+			$('a').removeClass('selected');
+			$('#preballot_tab').addClass('selected');
+			$('.tabContent').html(data);
+			$.unblockUI();				
+			},'html');			
+		}			
 	</script>
 </head>
 <body>
@@ -348,8 +398,13 @@
 			<li>
 				<a id="attendance_tab" href="#" class="tab">
 				   <spring:message code="question.attendance" text="Attendance"></spring:message>
-				</a>
+				</a>				
 			</li>
+			<li>
+				<a id="preballot_tab" href="#" class="tab">
+				   <spring:message code="question.preballot" text="Pre-Ballot"></spring:message>
+				</a>				
+			</li>			
 			</c:if>
 			</c:if>
 			</c:if>
@@ -456,7 +511,7 @@
 			</c:if>	
 		</div>
 		
-		<div class="commandbarContent" style="margin-top: 10px;" id="selectionDiv2">		
+		<div class="commandbarContent" style="margin-top: 10px;" id="selectionDiv3">		
 		<c:if test="${usergroupType!='member'}">
 		<c:if test="${userrole!='CLERK' }">
 		<c:if test="${questionTypeType!='questions_unstarred'&& questionTypeType!='questions_shortnotice'&& questionTypeType!='questions_halfhourdiscussion'}">
@@ -464,6 +519,30 @@
 			<a href="#" id="mark_attendance" class="butSim">
 				<spring:message code="question.attendance" text="Attendance"/>
 			</a> |	
+			<a href="#" id="preballot" class="butSim">
+				<spring:message code="question.preballot" text="Pre-Ballot"/>
+			</a> 
+			<select name="selectPreBallot" id="selectPreBallot" style="width:100px;height: 25px;">
+			<option value='-'><spring:message code='please.select' text='Please Select'/></option>				
+			<option value="present"><spring:message code='attendance.present' text='Present'/></option>	
+			<option value="absent"><spring:message code='attendance.absent' text='Absent'/></option>			
+			</select> |	
+			<a href="#" id="memberballot" class="butSim">
+				<spring:message code="question.memberballot" text="Member Ballot"/>
+			</a> 
+			<select name="selectAttendanceType" id="selectAttendanceType" style="width:100px;height: 25px;">
+			<option value='-'><spring:message code='please.select' text='Please Select'/></option>				
+			<option value="present"><spring:message code='attendance.present' text='Present'/></option>	
+			<option value="absent"><spring:message code='attendance.absent' text='Absent'/></option>			
+			</select>
+			<select name="selectRound" id="selectRound" style="width:100px;height: 25px;">
+			<option value='-'><spring:message code='please.select' text='Please Select'/></option>				
+			<option value="1"><c:out value="1"></c:out></option>	
+			<option value="2"><c:out value="2"></c:out></option>
+			<option value="3"><c:out value="3"></c:out></option>	
+			<option value="4"><c:out value="4"></c:out></option>
+			<option value="5"><c:out value="5"></c:out></option>				
+			</select>
 			</c:if>		
 			</c:if>
 			</c:if>

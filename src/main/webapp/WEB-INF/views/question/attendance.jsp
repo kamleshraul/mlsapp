@@ -59,7 +59,55 @@
 				current.text(nextText);				
 			}
 		});
+		$("#submit").click(function(){
+			var items=new Array();
+			$("#selectedItems option").each(function(){
+				items.push($(this).val());
+			});
+			if(items.length!=0){
+			$.ajax({
+				url:'question/attendance?items='+items+'&attendance='+$("#attendance").val()+'&session='+$("#session").val()+"&questionType="+$("#questionType").val(),
+				type:'PUT',
+				success:function(data){
+				 if(data='success'){
+					 $("#successDiv").show();
+				 }
+				}
+			});
+			}else{
+				$.prompt($('#selectItemFirstMessage').val());				
+			}
 		});
+		$("#presentees").click(function(){			
+			markAtt("presentees");			
+		});
+		$("#absentees").click(function(){			
+			markAtt("absentees");			
+		});
+		$("#presenteesList").show();
+		$("#absenteesList").hide();
+		});
+		function markAtt(operation){
+			$.blockUI({ message: '<img src="./resources/images/waitAnimated.gif" />' });
+			var parameters = $("#gridURLParams").val();
+			if(parameters==undefined){
+				parameters="houseType="+$("#houseType").val()+"&sessionYear="+$("#sessionYear").val()+"&sessionType="+$("#sessionType").val()+"&questionType="+$("#questionType").val()+"&operation="+operation;
+			}
+			var resourceURL = 'question/attendance?' + parameters;
+			$.get(resourceURL,function(data){			
+			$('.tabContent').html(data);
+			if(operation=='presentees'){
+			$("#attendance").val("true");
+			$("#presenteesList").show();
+			$("#absenteesList").hide();
+			}else{
+				$("#attendance").val("false");	
+				$("#presenteesList").hide();
+				$("#absenteesList").show();	
+			}
+			$.unblockUI();				
+			},'html');			
+		}	
 	</script>
 	
 	<style type="text/css">
@@ -74,13 +122,41 @@
 </head>
 
 <body>
-<c:choose>
-<c:when test="${!(empty attendance) }">
+<div class="commandbarContent" style="margin: 20px;" id="selectionDiv3">		
+			<a href="#" id="presentees" class="butSim">
+				<spring:message code="question.presentees" text="Presentees"/>
+			</a> |	
+			<a href="#" id="absentees" class="butSim">
+				<spring:message code="question.absentees" text="Absentees"/>
+			</a> 			
+</div>
+<div class="toolTip tpGreen clearfix" id="successDiv" style="display:none;height:30px;">
+		<p style="font-size: 12px;">
+			<img src="./resources/images/template/icons/light-bulb-off.png">
+			<spring:message code="update_success" text="Data saved successfully."/>
+		</p>
+		<p></p>
+</div>
 <table>
 <tr>
+<th>
+<spring:message code="attendance.eligiblesList" text="List of Members"></spring:message>
+</th>
+<th>
+</th>
+<th>
+<span id="presenteesList" style="display:none;">
+<spring:message code="attendance.presenteesList" text="List of Present Members"></spring:message>
+</span>
+<span id="absenteesList" style="display:none;">
+<spring:message code="attendance.absenteesList" text="List of Absent Members"></spring:message>
+</span>
+</th>
+</tr>
+<tr>
 <td>
-<select id="allItems" multiple="multiple" style="height:300px;width:300px;">
-<c:forEach items="${attendance }" var="i">
+<select id="allItems" multiple="multiple" style="height:300px;width:300px;margin-top:-50px;">
+<c:forEach items="${allItems }" var="i">
 <option value="${i.id}"><c:out value="${i.member.getFullname()}"></c:out></option>
 </c:forEach>
 </select>
@@ -94,12 +170,12 @@
 </td>
 <td>
 <select id="selectedItems" multiple="multiple" style="height:300px;width:300px;">
-<c:forEach items="${attendance }" var="i">
-<c:if test="${i.attendance==true }">
+<c:forEach items="${selectedItems}" var="i">
 <option value="${i.id}"><c:out value="${i.member.getFullname()}"></c:out></option>
-</c:if>
 </c:forEach>
 </select>
+<br>
+<input type="button" value="<spring:message code='generic.submit' text='Submit'/>" id="submit" style="width:100px;height:40px;margin: 5px;margin-left:100px; ">
 </td>
 <td>
 <input id="up" type="button" value="&#x2191;" />
@@ -108,15 +184,17 @@
 </td>
 </tr>
 </table>
-</c:when>
-<c:otherwise>
-<spring:message code="attendance.noeligible" text="No Eligible Members Found"></spring:message>
-</c:otherwise>
-</c:choose>
 <select id="itemMaster" style="display:none;">
-<c:forEach items="${attendance }" var="i">
+<c:forEach items="${eligibles }" var="i">
 <option value="${i.id}"><c:out value="${i.member.getFullname()}"></c:out></option>
 </c:forEach>
 </select>
+<input id="selectItemFirstMessage" value="<spring:message code='attendance.selectitem' text='Select an item first'/>" type="hidden">
+<input id="session" value="${session}" type="hidden">
+<input id="questionType" value="${questionType}" type="hidden">
+<input id="sessionType" value="${sessionType}" type="hidden">
+<input id="houseType" value="${houseType}" type="hidden">
+<input id="sessionYear" value="${sessionYear}" type="hidden">
+<input id="attendance" value="true" type="hidden">
 </body>
 </html>

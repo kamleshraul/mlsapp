@@ -7,17 +7,20 @@
 		$(document).ready(function(){
 			$(".toolTip").hide();
 			$("#selectionDiv1").show();	
-			$("#selectionDiv2").show();		
+			$("#selectionDiv2").show();	
+			$("#selectionDiv3").show();					
 			//setting grid url param to initial selected values added to model in /list request.
 			$("#gridURLParams").val("houseType="+$("#selectedHouseType").val()+"&sessionYear="+$("#selectedSessionYear").val()+"&sessionType="+$("#selectedSessionType").val()+"&questionType="+$("#selectedQuestionType").val()+"&ugparam="+$("#ugparam").val()+'&usergroup='+$("#usergroup").val()+'&userrole='+$("#userrole").val());										
 			$('#new_record').click(function(){
 				$("#selectionDiv1").hide();	
-				$("#selectionDiv2").hide();		
+				$("#selectionDiv2").hide();	
+				$("#selectionDiv3").hide();						
 				newQuestion();
 			});
 			$('#edit_record').click(function(){
 				$("#selectionDiv1").hide();	
-				$("#selectionDiv2").hide();		
+				$("#selectionDiv2").hide();	
+				$("#selectionDiv3").hide();						
 				editQuestion();
 			});
 			$("#delete_record").click(function() {
@@ -54,7 +57,8 @@
 		});	
 		function rowDblClickHandler(rowid, iRow, iCol, e) {
 			$("#selectionDiv1").hide();	
-			$("#selectionDiv2").hide();					
+			$("#selectionDiv2").hide();		
+			$("#selectionDiv3").hide();							
 			$('#key').val(rowid);
 			$("#cancelFn").val("rowDblClickHandler");
 			showTabByIdAndUrl('details_tab', 'question/'+rowid+'/edit?'+$("#gridURLParams").val());
