@@ -109,7 +109,13 @@
 				$("#selectionDiv2").hide();
 				$("#selectionDiv3").hide();	
 				viewMemberBallot();
-			});		
+			});	
+			$("#memberballot_choices").click(function(){
+				$("#selectionDiv1").hide();
+				$("#selectionDiv2").hide();
+				$("#selectionDiv3").hide();	
+				viewMemberBallotChoice();
+			});			
 			//If house type changes then we need to change the value of selected house type,grid url param
 			// and reload the grid			
 			$("#selectedHouseType").change(function(){
@@ -421,7 +427,22 @@
 				$.unblockUI();				
 				$.prompt($("#selectAttendanceRoundMsg").val());
 			}						
-		}				
+		}
+		function viewMemberBallotChoice(){
+			$.blockUI({ message: '<img src="./resources/images/waitAnimated.gif" />' });
+			var parameters = $("#gridURLParams").val();
+			if(parameters==undefined){
+				parameters="houseType="+$("#selectedHouseType").val()+"&sessionYear="+$("#selectedSessionYear").val()+"&sessionType="+$("#selectedSessionType").val()+"&questionType="+$("#selectedQuestionType").val();
+			}
+			parameters=parameters;
+			var resourceURL = 'question/memberballotchoice?' + parameters;
+				$.get(resourceURL,function(data){
+					$('a').removeClass('selected');
+					$('#memberballotchoice_tab').addClass('selected');
+					$('.tabContent').html(data);
+					$.unblockUI();					
+				},'html');						
+		}								
 	</script>
 </head>
 <body>
@@ -469,7 +490,12 @@
 				<a id="memberballot_tab" href="#" class="tab">
 				   <spring:message code="question.memberballot" text="Member Ballot"></spring:message>
 				</a>				
-			</li>				
+			</li>	
+			<li>
+				<a id="memberballochoice_tab" href="#" class="tab">
+				   <spring:message code="question.memberballotchoice" text="Member Ballot Choice"></spring:message>
+				</a>				
+			</li>					
 			</c:if>
 			</c:if>
 			</c:if>
@@ -575,7 +601,8 @@
 			</c:if>
 			</c:if>	
 		</div>
-		
+				
+				
 		<div class="commandbarContent" style="margin-top: 10px;" id="selectionDiv3">		
 		<c:if test="${usergroupType!='member'}">
 		<c:if test="${userrole!='CLERK' }">
@@ -610,13 +637,15 @@
 			</a> 
 			<a href="#" id="viewMemberballot" class="butSim">
 				<spring:message code="question.viewMemberballot" text="View Member Ballot"/>
-			</a> 			
+			</a> |
+			<a href="#" id="memberballot_choices" class="butSim">
+				<spring:message code="question.memberballotchoices" text="Member ballot Choices"/>
+			</a>				
 			</c:if>		
 			</c:if>
 			</c:if>
 			</c:if>	
-		</div>
-		
+		</div>		
 		
 		<div class="tabContent clearfix">
 		</div>		
