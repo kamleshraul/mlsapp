@@ -15,6 +15,9 @@ import javax.persistence.Table;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
 
+import org.mkcl.els.repository.MemberBallotRepository;
+import org.springframework.beans.factory.annotation.Autowired;
+
 @Entity
 @Table(name="memberballot")
 public class MemberBallot extends BaseDomain implements Serializable {
@@ -49,6 +52,18 @@ public class MemberBallot extends BaseDomain implements Serializable {
     private Integer position;
 
     private Boolean attendance;
+
+    @Autowired
+    private transient MemberBallotRepository memberBallotRepository;
+
+    public static MemberBallotRepository getMemberballotRepository() {
+        MemberBallotRepository memberBallotRepository = new MemberBallot().memberBallotRepository;
+        if (memberBallotRepository == null) {
+            throw new IllegalStateException(
+                    "MemberBallotRepository has not been injected in MemberBallot Domain");
+        }
+        return memberBallotRepository;
+    }
 
 
     public Session getSession() {
@@ -136,5 +151,25 @@ public class MemberBallot extends BaseDomain implements Serializable {
     public void setPosition(final Integer position) {
         this.position = position;
     }
+
+
+    public static Boolean createMemberBallot(final Session session,
+            final DeviceType deviceType, final boolean attendance, final int round,
+            final String locale) {
+        return getMemberballotRepository().createMemberBallot(session,
+                deviceType, attendance, round,
+                locale);
+    }
+
+
+    public static List<MemberBallot> viewMemberBallot(final Session session,
+            final DeviceType deviceType,final boolean attendance, final int round,
+            final String locale) {
+        return getMemberballotRepository().viewMemberBallot(session,
+                deviceType,attendance,round,
+                locale);
+    }
+
+
 
 }

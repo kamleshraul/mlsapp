@@ -39,6 +39,7 @@ import org.mkcl.els.domain.Group;
 import org.mkcl.els.domain.HouseType;
 import org.mkcl.els.domain.Language;
 import org.mkcl.els.domain.Member;
+import org.mkcl.els.domain.MemberBallot;
 import org.mkcl.els.domain.MemberBallotAttendance;
 import org.mkcl.els.domain.MemberMinister;
 import org.mkcl.els.domain.Ministry;
@@ -2130,5 +2131,62 @@ public class QuestionController extends GenericController<Question>{
             logger.error("**** Check request parameter 'houseType,sessionType,sessionYear,questionType' for null values ****");
         }
         return "question/preballot";
+    }
+
+    @RequestMapping(value="/memberballot",method=RequestMethod.POST)
+    public @ResponseBody String createMemberBallot(final HttpServletRequest request,final ModelMap model,final Locale locale){
+        String strHouseType=request.getParameter("houseType");
+        String strSessionType=request.getParameter("sessionType");
+        String strSessionYear=request.getParameter("sessionYear");
+        String strQuestionType=request.getParameter("questionType");
+        String strAttendance=request.getParameter("attendance");
+        String strRound=request.getParameter("round");
+        if(strHouseType!=null&&strSessionType!=null&&strSessionYear!=null&&strQuestionType!=null&&strAttendance!=null&&strRound!=null){
+            HouseType houseType=HouseType.findByFieldName(HouseType.class,"type",strHouseType, locale.toString());
+            SessionType sessionType=SessionType.findById(SessionType.class,Long.parseLong(strSessionType));
+            Integer sessionYear=Integer.parseInt(strSessionYear);
+            Session session=Session.findSessionByHouseTypeSessionTypeYear(houseType, sessionType, sessionYear);
+            DeviceType questionType=DeviceType.findById(DeviceType.class,Long.parseLong(strQuestionType));
+            if(session!=null){
+                Boolean status=MemberBallot.createMemberBallot(session,questionType,Boolean.parseBoolean(strAttendance),Integer.parseInt(strRound),locale.toString());
+                if(status){
+                    return "success";
+                }else{
+                    return "alreadycreated";
+                }
+            }else{
+                logger.error("**** Session not defined for selected houseType,sessionType and sessionYear ****");
+                return "failed";
+            }
+        }else{
+            logger.error("**** Check request parameter 'houseType,sessionType,sessionYear,questionType,attendance and round' for null values ****");
+            return "failed";
+        }
+    }
+
+    @RequestMapping(value="/memberballot",method=RequestMethod.GET)
+    public String viewMemberBallot(final HttpServletRequest request,final ModelMap model,final Locale locale){
+        String strHouseType=request.getParameter("houseType");
+        String strSessionType=request.getParameter("sessionType");
+        String strSessionYear=request.getParameter("sessionYear");
+        String strQuestionType=request.getParameter("questionType");
+        String strAttendance=request.getParameter("attendance");
+        String strRound=request.getParameter("round");
+        if(strHouseType!=null&&strSessionType!=null&&strSessionYear!=null&&strQuestionType!=null&&strAttendance!=null&&strRound!=null){
+            HouseType houseType=HouseType.findByFieldName(HouseType.class,"type",strHouseType, locale.toString());
+            SessionType sessionType=SessionType.findById(SessionType.class,Long.parseLong(strSessionType));
+            Integer sessionYear=Integer.parseInt(strSessionYear);
+            Session session=Session.findSessionByHouseTypeSessionTypeYear(houseType, sessionType, sessionYear);
+            DeviceType questionType=DeviceType.findById(DeviceType.class,Long.parseLong(strQuestionType));
+            if(session!=null){
+                List<MemberBallot> memberBallots=MemberBallot.viewMemberBallot(session,questionType,Boolean.parseBoolean(strAttendance),Integer.parseInt(strRound),locale.toString());
+                model.addAttribute("memberBallots",memberBallots);
+            }else{
+                logger.error("**** Session not defined for selected houseType,sessionType and sessionYear ****");
+            }
+        }else{
+            logger.error("**** Check request parameter 'houseType,sessionType,sessionYear,questionType,attendance and round' for null values ****");
+        }
+        return "question/memberballot";
     }
 }

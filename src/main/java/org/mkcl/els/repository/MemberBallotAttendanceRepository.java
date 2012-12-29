@@ -38,7 +38,7 @@ public class MemberBallotAttendanceRepository extends BaseRepository<MemberBallo
     @SuppressWarnings("unchecked")
     public List<Member> findMembersByAttendance(final Session session,
             final DeviceType deviceType, final Boolean attendanceType, final String locale) {
-        String query="SELECT m FROM MemberBallotAttendance mba JOIN mba.member WHERE "+
+        String query="SELECT m FROM MemberBallotAttendance mba JOIN mba.member m WHERE "+
                      " mba.session.id="+session.getId()+" AND mba.deviceType.id="+deviceType.getId()+" "+
                      " AND mba.attendance="+attendanceType+" AND mba.locale='"+locale+"' ORDER BY mba.position";
         return this.em().createQuery(query).getResultList();
