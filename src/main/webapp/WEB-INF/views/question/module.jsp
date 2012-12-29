@@ -100,7 +100,16 @@
 					$.fancybox.open(displayMessage);
 				});
 				
-			});				
+			});		
+			$("#createMemberballot").click(function(){
+				createMemberBallot();
+			});	
+			$("#viewMemberballot").click(function(){
+				$("#selectionDiv1").hide();
+				$("#selectionDiv2").hide();
+				$("#selectionDiv3").hide();	
+				viewMemberBallot();
+			});		
 			//If house type changes then we need to change the value of selected house type,grid url param
 			// and reload the grid			
 			$("#selectedHouseType").change(function(){
@@ -361,7 +370,58 @@
 			$('.tabContent').html(data);
 			$.unblockUI();				
 			},'html');			
-		}			
+		}	
+
+		function createMemberBallot(){
+			$.blockUI({ message: '<img src="./resources/images/waitAnimated.gif" />' });
+			var parameters = $("#gridURLParams").val();
+			if(parameters==undefined){
+				parameters="houseType="+$("#selectedHouseType").val()+"&sessionYear="+$("#selectedSessionYear").val()+"&sessionType="+$("#selectedSessionType").val()+"&questionType="+$("#selectedQuestionType").val();
+			}
+			var attendance=$("#selectAttendanceType").val();
+			var round=$("#selectRound").val();
+			if(attendance!='-'&&round!='-'){
+				parameters=parameters+'&attendance='+attendance+'&round='+round;
+				var resourceURL = 'question/memberballot?' + parameters;
+				$.post(resourceURL,function(data){
+					if(data=='success'){
+						$.unblockUI();							
+						$.prompt($("#ballotSuccessMsg").val());
+					}else if(data=='alreadycreated'){
+						$.unblockUI();						
+						$.prompt($("#ballotAlreadyCreatedMsg").val());
+					}else{
+						$.unblockUI();						
+						$.prompt($("#ballotFailedMsg").val());
+					}		
+				},'html');
+			}else{
+				$.unblockUI();				
+				$.prompt($("#selectAttendanceRoundMsg").val());
+			}						
+		}
+		function viewMemberBallot(){
+			$.blockUI({ message: '<img src="./resources/images/waitAnimated.gif" />' });
+			var parameters = $("#gridURLParams").val();
+			if(parameters==undefined){
+				parameters="houseType="+$("#selectedHouseType").val()+"&sessionYear="+$("#selectedSessionYear").val()+"&sessionType="+$("#selectedSessionType").val()+"&questionType="+$("#selectedQuestionType").val();
+			}
+			var attendance=$("#selectAttendanceType").val();
+			var round=$("#selectRound").val();
+			if(attendance!='-'&&round!='-'){
+				parameters=parameters+'&attendance='+attendance+'&round='+round;
+				var resourceURL = 'question/memberballot?' + parameters;
+				$.get(resourceURL,function(data){
+					$('a').removeClass('selected');
+					$('#memberballot_tab').addClass('selected');
+					$('.tabContent').html(data);
+					$.unblockUI();					
+				},'html');
+			}else{
+				$.unblockUI();				
+				$.prompt($("#selectAttendanceRoundMsg").val());
+			}						
+		}				
 	</script>
 </head>
 <body>
@@ -404,7 +464,12 @@
 				<a id="preballot_tab" href="#" class="tab">
 				   <spring:message code="question.preballot" text="Pre-Ballot"></spring:message>
 				</a>				
-			</li>			
+			</li>
+			<li>
+				<a id="memberballot_tab" href="#" class="tab">
+				   <spring:message code="question.memberballot" text="Member Ballot"></spring:message>
+				</a>				
+			</li>				
 			</c:if>
 			</c:if>
 			</c:if>
@@ -518,22 +583,19 @@
 			<c:if test="${houseType=='upperhouse'}">
 			<a href="#" id="mark_attendance" class="butSim">
 				<spring:message code="question.attendance" text="Attendance"/>
-			</a> |	
-			<a href="#" id="preballot" class="butSim">
-				<spring:message code="question.preballot" text="Pre-Ballot"/>
-			</a> 
+			</a> |
 			<select name="selectPreBallot" id="selectPreBallot" style="width:100px;height: 25px;">
 			<option value='-'><spring:message code='please.select' text='Please Select'/></option>				
 			<option value="present"><spring:message code='attendance.present' text='Present'/></option>	
 			<option value="absent"><spring:message code='attendance.absent' text='Absent'/></option>			
-			</select> |	
-			<a href="#" id="memberballot" class="butSim">
-				<spring:message code="question.memberballot" text="Member Ballot"/>
-			</a> 
+			</select>	
+			<a href="#" id="preballot" class="butSim">
+				<spring:message code="question.preballot" text="Pre-Ballot"/>
+			</a> |
 			<select name="selectAttendanceType" id="selectAttendanceType" style="width:100px;height: 25px;">
 			<option value='-'><spring:message code='please.select' text='Please Select'/></option>				
-			<option value="present"><spring:message code='attendance.present' text='Present'/></option>	
-			<option value="absent"><spring:message code='attendance.absent' text='Absent'/></option>			
+			<option value="true"><spring:message code='attendance.present' text='Present'/></option>	
+			<option value="false"><spring:message code='attendance.absent' text='Absent'/></option>			
 			</select>
 			<select name="selectRound" id="selectRound" style="width:100px;height: 25px;">
 			<option value='-'><spring:message code='please.select' text='Please Select'/></option>				
@@ -542,7 +604,13 @@
 			<option value="3"><c:out value="3"></c:out></option>	
 			<option value="4"><c:out value="4"></c:out></option>
 			<option value="5"><c:out value="5"></c:out></option>				
-			</select>
+			</select>	
+			<a href="#" id="createMemberballot" class="butSim">
+				<spring:message code="question.createMemberballot" text="Create Member Ballot"/>
+			</a> 
+			<a href="#" id="viewMemberballot" class="butSim">
+				<spring:message code="question.viewMemberballot" text="View Member Ballot"/>
+			</a> 			
 			</c:if>		
 			</c:if>
 			</c:if>
@@ -560,7 +628,11 @@
 		<input type="hidden" name="userrole" id="userrole" value="${userrole}">	
 		<input type="hidden" name="groupsAllowed" id="groupsAllowed" value="${groupsAllowed}">		
 		<input type="hidden" name="pleaseSelect" id="pleaseSelect" value="<spring:message code='please.select' text='Please Select'/>">	
-					
+		<input type="hidden" id="ballotSuccessMsg" value="<spring:message code='ballot.success' text='Member Ballot Created Succesfully'/>">			
+		<input type="hidden" id="ballotAlreadyCreatedMsg" value="<spring:message code='ballot.success' text='Member Ballot Already Created'/>">			
+		<input type="hidden" id="ballotFailedMsg" value="<spring:message code='ballot.failed' text='Member Ballot Couldnot be Created.Try Again'/>">			
+		<input type="hidden" id="selectAttendanceRoundMsg" value="<spring:message code='ballot.selectattendanceround' text='Please Select Attendance Type And Round First'/>">			
+		
 		</div> 		
 </body>
 </html>
