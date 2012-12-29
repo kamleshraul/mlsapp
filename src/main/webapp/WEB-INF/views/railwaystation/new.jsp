@@ -11,7 +11,6 @@
 		$('#key').val('');	
 	});		
 	</script>
-	</script>
 	<script type="text/javascript">
 	if($('#states').val()!=undefined){
 		$('#states').change(function(){
