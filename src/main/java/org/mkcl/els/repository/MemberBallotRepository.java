@@ -63,4 +63,15 @@ public class MemberBallotRepository extends BaseRepository<MemberBallot, Seriali
         memberBallots=this.em().createQuery(query).getResultList();
         return memberBallots;
     }
+
+    public List<MemberBallot> findByMember(final Session session,
+            final DeviceType deviceType, final Member member, final String locale) {
+        Search search=new Search();
+        search.addFilterEqual("session.id",session.getId());
+        search.addFilterEqual("deviceType.id",deviceType.getId());
+        search.addFilterEqual("member.id",member.getId());
+        search.addFilterEqual("locale",locale);
+        search.addSort("round",false);
+        return this.search(search);
+    }
 }

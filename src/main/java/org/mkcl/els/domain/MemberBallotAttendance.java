@@ -115,4 +115,12 @@ public class MemberBallotAttendance extends BaseDomain implements Serializable{
                 deviceType,attendanceType,locale);
     }
 
+    public static List<Member> findEligibleMembers(final Session session,
+            final DeviceType deviceType, final String locale) {
+        return getMemberBallotAttendanceRepository().findEligibleMembers(session,
+                deviceType,locale);
+    }
+
+
+
 }

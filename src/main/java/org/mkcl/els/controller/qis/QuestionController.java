@@ -2050,11 +2050,11 @@ public class QuestionController extends GenericController<Question>{
                 List<MemberBallotAttendance> allItems=null;
                 List<MemberBallotAttendance> selectedItems=null;
                 if(strOperation.equals("presentees")){
-                allItems=MemberBallotAttendance.findAll(session,questionType,"false","member",locale.toString());
-                selectedItems=MemberBallotAttendance.findAll(session,questionType,"true","position",locale.toString());
+                    allItems=MemberBallotAttendance.findAll(session,questionType,"false","member",locale.toString());
+                    selectedItems=MemberBallotAttendance.findAll(session,questionType,"true","position",locale.toString());
                 }else{
-                allItems=MemberBallotAttendance.findAll(session,questionType,"true","member",locale.toString());
-                selectedItems=MemberBallotAttendance.findAll(session,questionType,"false","position",locale.toString());
+                    allItems=MemberBallotAttendance.findAll(session,questionType,"true","member",locale.toString());
+                    selectedItems=MemberBallotAttendance.findAll(session,questionType,"false","position",locale.toString());
                 }
                 List<MemberBallotAttendance> eligibles=MemberBallotAttendance.findAll(session,questionType,"","member",locale.toString());
                 model.addAttribute("allItems",allItems);
@@ -2188,5 +2188,46 @@ public class QuestionController extends GenericController<Question>{
             logger.error("**** Check request parameter 'houseType,sessionType,sessionYear,questionType,attendance and round' for null values ****");
         }
         return "question/memberballot";
+    }
+
+    @RequestMapping(value="/memberballotchoice",method=RequestMethod.GET)
+    public String viewMemberBallotChoice(final HttpServletRequest request,final ModelMap model,final Locale locale){
+        String strHouseType=request.getParameter("houseType");
+        String strSessionType=request.getParameter("sessionType");
+        String strSessionYear=request.getParameter("sessionYear");
+        String strQuestionType=request.getParameter("questionType");
+        if(strHouseType!=null&&strSessionType!=null&&strSessionYear!=null&&strQuestionType!=null){
+            HouseType houseType=HouseType.findByFieldName(HouseType.class,"type",strHouseType, locale.toString());
+            SessionType sessionType=SessionType.findById(SessionType.class,Long.parseLong(strSessionType));
+            Integer sessionYear=Integer.parseInt(strSessionYear);
+            Session session=Session.findSessionByHouseTypeSessionTypeYear(houseType, sessionType, sessionYear);
+            DeviceType questionType=DeviceType.findById(DeviceType.class,Long.parseLong(strQuestionType));
+            if(session!=null){
+                List<Member> eligibleMembers=MemberBallotAttendance.findEligibleMembers(session, questionType, locale.toString());
+                model.addAttribute("eligibleMembers", eligibleMembers);
+                if(!eligibleMembers.isEmpty()){
+                    CustomParameter customParameter=CustomParameter.findByName(CustomParameter.class,"STARRED_MEMBERBALLOTCOUNCIL_TOTALROUNDS", "");
+                    if(customParameter!=null){
+                        int rounds=Integer.parseInt(customParameter.getValue());
+                        request.setAttribute("totalRounds", rounds);
+                        for(int i=1;i<=rounds;i++){
+                            CustomParameter questionsInEachRound=CustomParameter.findByName(CustomParameter.class,"STARRED_MEMBERBALLOTCOUNCIL_ROUND"+i, "");
+                            if(questionsInEachRound!=null){
+                                request.setAttribute("round"+i, Integer.parseInt(questionsInEachRound.getValue()));
+                            }else{
+                                logger.error("**** Custom Parameter 'STARRED_MEMBERBALLOTCOUNCIL_ROUND'"+i+" not set");
+                            }
+                        }
+                    }else{
+                        logger.error("**** Custom Parameter 'STARRED_MEMBERBALLOTCOUNCIL_TOTALROUNDS' not set");
+                    }
+                }
+            }else{
+                logger.error("**** Session not defined for selected houseType,sessionType and sessionYear ****");
+            }
+        }else{
+            logger.error("**** Check request parameter 'houseType,sessionType,sessionYear,questionType' for null values ****");
+        }
+        return "question/memberballotchoice";
     }
 }

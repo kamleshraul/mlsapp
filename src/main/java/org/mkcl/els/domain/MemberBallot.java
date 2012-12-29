@@ -56,7 +56,7 @@ public class MemberBallot extends BaseDomain implements Serializable {
     @Autowired
     private transient MemberBallotRepository memberBallotRepository;
 
-    public static MemberBallotRepository getMemberballotRepository() {
+    public static MemberBallotRepository getMemberBallotRepository() {
         MemberBallotRepository memberBallotRepository = new MemberBallot().memberBallotRepository;
         if (memberBallotRepository == null) {
             throw new IllegalStateException(
@@ -156,7 +156,7 @@ public class MemberBallot extends BaseDomain implements Serializable {
     public static Boolean createMemberBallot(final Session session,
             final DeviceType deviceType, final boolean attendance, final int round,
             final String locale) {
-        return getMemberballotRepository().createMemberBallot(session,
+        return getMemberBallotRepository().createMemberBallot(session,
                 deviceType, attendance, round,
                 locale);
     }
@@ -165,9 +165,16 @@ public class MemberBallot extends BaseDomain implements Serializable {
     public static List<MemberBallot> viewMemberBallot(final Session session,
             final DeviceType deviceType,final boolean attendance, final int round,
             final String locale) {
-        return getMemberballotRepository().viewMemberBallot(session,
+        return getMemberBallotRepository().viewMemberBallot(session,
                 deviceType,attendance,round,
                 locale);
+    }
+
+
+    public static List<MemberBallot> findByMember(final Session session,
+            final DeviceType deviceType, final Member member, final String locale) {
+        return getMemberBallotRepository().findByMember(session,
+                deviceType,member,locale);
     }
 
 

@@ -28,9 +28,9 @@ public class MemberBallotAttendanceRepository extends BaseRepository<MemberBallo
             search.addFilterEqual("attendance", false);
         }
         if(sortBy.equals("member")){
-        search.addSort("member.lastName",false);
+            search.addSort("member.lastName",false);
         }else{
-        search.addSort("position",false);
+            search.addSort("position",false);
         }
         return this.search(search);
     }
@@ -39,8 +39,16 @@ public class MemberBallotAttendanceRepository extends BaseRepository<MemberBallo
     public List<Member> findMembersByAttendance(final Session session,
             final DeviceType deviceType, final Boolean attendanceType, final String locale) {
         String query="SELECT m FROM MemberBallotAttendance mba JOIN mba.member m WHERE "+
-                     " mba.session.id="+session.getId()+" AND mba.deviceType.id="+deviceType.getId()+" "+
-                     " AND mba.attendance="+attendanceType+" AND mba.locale='"+locale+"' ORDER BY mba.position";
+        " mba.session.id="+session.getId()+" AND mba.deviceType.id="+deviceType.getId()+" "+
+        " AND mba.attendance="+attendanceType+" AND mba.locale='"+locale+"' ORDER BY mba.position";
         return this.em().createQuery(query).getResultList();
     }
+
+    @SuppressWarnings("unchecked")
+    public List<Member> findEligibleMembers(final Session session,
+            final DeviceType deviceType, final String locale) {
+        String query="SELECT m FROM MemberBallotAttendance mba JOIN mba.member m WHERE "+
+        " mba.session.id="+session.getId()+" AND mba.deviceType.id="+deviceType.getId()+" "+
+        " AND mba.locale='"+locale+"' ORDER BY m.lastName";
+        return this.em().createQuery(query).getResultList();    }
 }
