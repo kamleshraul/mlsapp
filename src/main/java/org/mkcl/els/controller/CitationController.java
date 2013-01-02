@@ -9,6 +9,7 @@
  */
 package org.mkcl.els.controller;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
@@ -16,8 +17,11 @@ import javax.servlet.http.HttpServletRequest;
 
 import org.mkcl.els.domain.Citation;
 import org.mkcl.els.domain.DeviceType;
+import org.mkcl.els.domain.SessionType;
+import org.mkcl.els.domain.Status;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.RequestMapping;
 
 // TODO: Auto-generated Javadoc
@@ -40,6 +44,9 @@ public class CitationController extends GenericController<Citation>{
 		domain.setLocale(locale);
         List<DeviceType> deviceTypes=DeviceType.findAll(DeviceType.class, "name", "desc", locale);
         model.addAttribute("deviceTypes", deviceTypes);
+        
+        List<Status> statuses=Status.findAll(Status.class, "type", "desc", domain.getLocale());
+        model.addAttribute("statuses", statuses);
     }
 	
 	
@@ -51,6 +58,17 @@ public class CitationController extends GenericController<Citation>{
             final HttpServletRequest request) {
 		List<DeviceType> deviceTypes=DeviceType.findAll(DeviceType.class, "name", "desc", domain.getLocale());
         model.addAttribute("deviceTypes", deviceTypes);
+        List<Status> statuses=Status.findAll(Status.class, "type", "desc", domain.getLocale());
+        model.addAttribute("statuses", statuses);
     }
 
+	@Override 	
+	protected void customValidateUpdate(final Citation domain,
+            final BindingResult result, final HttpServletRequest request) {
+	}
+	
+	@Override
+	protected void customValidateCreate(final Citation domain,
+            final BindingResult result, final HttpServletRequest request) {
+	}
 }
