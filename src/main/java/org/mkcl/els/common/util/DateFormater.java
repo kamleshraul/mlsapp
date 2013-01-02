@@ -13,6 +13,7 @@ import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.Locale;
 
 /**
  * The Class DateFormater.
@@ -62,4 +63,17 @@ public class DateFormater {
         }
         return strFormatDate;
     }
+    
+    public static Date formatStringToDate(final String strDate, final String formatType, String locale) {
+    	SimpleDateFormat sdf = new SimpleDateFormat(formatType, new Locale(locale));
+        Date formatDate = null;
+        try {
+            formatDate = sdf.parse(strDate);
+            //System.out.println("Formated date is = " + df.format(formatDate));
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
+        return formatDate;
+    }
+    
 }
