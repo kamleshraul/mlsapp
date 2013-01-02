@@ -1613,11 +1613,23 @@ public class QuestionController extends GenericController<Question>{
     }
 
     @RequestMapping(value="/citations/{deviceType}",method=RequestMethod.GET)
-    public String getCitations(final Locale locale,@PathVariable("deviceType")  final Long type,
+    public String getCitations(final HttpServletRequest request,final Locale locale,@PathVariable("deviceType")  final Long type,
             final ModelMap model){
         DeviceType deviceType=DeviceType.findById(DeviceType.class,type);
-        List<Citation> citations=Citation.findAllByFieldName(Citation.class,"deviceType",deviceType, "text",ApplicationConstants.ASC, locale.toString());
+        List<Citation> deviceTypeBasedcitations=Citation.findAllByFieldName(Citation.class,"deviceType",deviceType, "text",ApplicationConstants.ASC, locale.toString());
+        Status status=Status.findById(Status.class, Long.parseLong(request.getParameter("status")));
+        List<Citation> citations=new ArrayList<Citation>();
+        if(status!=null){
+        	 for(Citation i:deviceTypeBasedcitations){
+            	if(i.getStatus()!=null){
+            		if(i.getStatus().equals(status.getType())){
+            			citations.add(i);
+            		}
+            	}
+            }
+         }
         model.addAttribute("citations",citations);
+        
         return "question/citation";
     }
 
