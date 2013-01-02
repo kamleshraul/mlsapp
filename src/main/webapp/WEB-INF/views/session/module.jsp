@@ -93,6 +93,19 @@
 				showTabByIdAndUrl('workflowconfig_tab','session/workflowconfig/list?houseType='+$("#houseType").val()+'&session='+row);
 			}
 		});
+		
+		//session_devicetype_config_tab
+		$('#session_devicetype_config_tab').click(function(){
+			var row = $("#key").val();
+			if(row == null || row == ''){
+				$.prompt($('#selectRowFirstMessage').val());		
+				return;
+			}
+			else{
+				showTabByIdAndUrl('session_devicetype_config_tab','session/'+row +'/devicetypeconfig');
+			}
+		});
+		
 			
 	</script>
 </head>
@@ -108,6 +121,11 @@
 			<li>
 				<a id="details_tab" href="#" class="tab">
 				   <spring:message code="generic.module.details" text="Details"></spring:message>
+				</a>
+			</li>
+			<li>
+				<a id="session_devicetype_config_tab" href="#" class="tab">
+				   <spring:message code="session.module.sessiondevicetypeconfig" text="Session Config"></spring:message>
 				</a>
 			</li>
 			<li>

@@ -34,9 +34,6 @@
 			$('.assembly').show();
 		}
 	});		
-	$('#deviceTypesEnabled').change(function(){		
-		populateDeviceTypesNeedBallot($('#deviceTypesEnabled').val());
-	});
 	});
 	function populateHouse(houseType) {
 		$.get('ref/' + houseType + '/house', function(data) {
@@ -50,47 +47,7 @@
 			
 		});
 	}
-	function populateDeviceTypesNeedBallot(deviceTypesEnabled) {
-		//get selected deviceTypesEnabled for deviceTypesNeedBallot		
-		$.get('ref/' + deviceTypesEnabled + '/deviceTypesNeedBallot', function(data) {
-			var options = "";
-			//if atleast one deviceTypesNeedBallot is selected
-			if($('#deviceTypesNeedBallot').val()!=null) {								
-				$('#deviceTypesNeedBallot option').empty();						
-				for ( var i = 0; i < data.length; i++) {
-					//flag for whether element was already selected or not
-					var selected = false;
-					//check whether element was selected already
-					for(var j=0; j<$('#deviceTypesNeedBallot').val().length; j++) {		
-						//here data[i].id is not id, but type of DeviceType
-						if(data[i].id == $('#deviceTypesNeedBallot').val()[j]) {
-							//in case element was already selected, make flag true
-							selected = true;							
-						}					
-					}	
-					if(selected==true) {
-						//add element as selected option
-						options += "<option value='"+data[i].id+"' selected='selected'>" + data[i].name
-						+ "</option>";
-					}
-					else {
-						//add element as option but should not be selected
-						options += "<option value='"+data[i].id+"'>" + data[i].name
-						+ "</option>";	
-					}
-				}
-			}
-			//if no deviceTypesNeedBallot is selected
-			else {				
-				$('#deviceTypesNeedBallot option').empty();						
-				for ( var i = 0; i < data.length; i++) {
-					options += "<option value='"+data[i].id+"'>" + data[i].name
-					+ "</option>";	
-				}
-			}
-			$('#deviceTypesNeedBallot').html(options);			
-		});
-	}
+	
 	</script>
 </head>
 <body>
@@ -228,72 +185,6 @@
 			
 		</p>
 		<p>
-				<label class="small"><spring:message code="session.rotationOrderPublishingDate"
-						text="Rotation Order Publishing Date " /></label>
-				<form:input cssClass="datemask sText" path="rotationOrderPublishingDate" />
-				<form:errors path="rotationOrderPublishingDate" cssClass="validationError" />
-
-		</p>
-		
-		<p class="assembly">
-				<label class="small"><spring:message code="session.questionSubmissionStartDateLH"
-						text="Question Submission Start Date for Lower House" /></label>
-				<input Class="datetimemask sText" name="questionSubmissionStartDateLH" />
-				<form:errors path="questionSubmissionStartDateLH" cssClass="validationError" />
-
-		</p>
-			
-		<p class="assembly">
-				<label class="small"><spring:message code="session.questionSubmissionEndDateLH"
-						text="Question Submission End Time for Lower House" /></label>
-				<input Class="datetimemask sText" name="questionSubmissionEndDateLH" />
-				<form:errors path="questionSubmissionEndDateLH" cssClass="validationError" />
-
-		</p>	
-		<p class="council">
-				<label class="small"><spring:message code="session.questionSubmissionFirstBatchStartDateUH"
-						text="Question Submission First Batch Date for Upper House" /></label>
-				<input Class="datetimemask sText" name="questionSubmissionFirstBatchStartDateUH" />
-				<form:errors path="questionSubmissionFirstBatchStartDateUH" cssClass="validationError" />
-
-		</p>
-			
-		<p class="council">
-				<label class="small"><spring:message code="session.questionSubmissionFirstBatchEndDateUH"
-						text="Question Submission First Batch End Time for Upper House" /></label>
-				<input Class="datetimemask sText" name="questionSubmissionFirstBatchEndDateUH" />
-				<form:errors path="questionSubmissionFirstBatchEndDateUH" cssClass="validationError" />
-
-		</p>	
-		<p class="council">
-				<label class="small"><spring:message code="session.questionSubmissionSecondBatchStartDateUH"
-						text="Question Submission Second Batch Date for Upper House" /></label>
-				<input Class="datetimemask sText" name="questionSubmissionSecondBatchStartDateUH" />
-				<form:errors path="questionSubmissionSecondBatchStartDateUH" cssClass="validationError" />
-
-		</p>
-		<p class="council">
-				<label class="small"><spring:message code="session.questionSubmissionSecondBatchEndDateUH"
-						text="Question Submission Second Batch End Time for Upper House" /></label>
-				<input Class="datetimemask sText" name="questionSubmissionSecondBatchEndDateUH" />
-				<form:errors path="questionSubmissionSecondBatchEndDateUH" cssClass="validationError" />
-
-		</p>
-		<p>
-				<label class="small"><spring:message code="session.firstBallotDate"
-						text="First Ballot Date" /></label>
-				<form:input cssClass="datemask sText" path="firstBallotDate" />
-				<form:errors path="firstBallotDate" cssClass="validationError" />
-
-		</p>
-		<p class="council">
-				<label class="small"><spring:message code="session.numberOfQuestionInFirstBatchUH"
-						text="Number Of Questions In First Batch for Upper House" /></label>
-				<form:input cssClass="sText" path="numberOfQuestionInFirstBatchUH" />
-				<form:errors path="numberOfQuestionInFirstBatchUH" cssClass="validationError" />
-
-		</p>
-		<p>
 				<label class="small"><spring:message code="session.deviceTypesEnabled"
 						text="Device Types Enabled" /></label>
 				<select class="sSelectMultiple" name="deviceTypesEnabled" id="deviceTypesEnabled" multiple="multiple">
@@ -305,21 +196,10 @@
 
 		</p>	
 		<p>
-				<label class="small"><spring:message code="session.deviceTypesNeedBallot"
-						text="Device Types Need Ballot" /></label>
-				<select class="sSelectMultiple" name="deviceTypesNeedBallot" id="deviceTypesNeedBallot" multiple="multiple">
-					<%-- <c:forEach items="${deviceTypes}" var="i">
-						<option value="${i.type}" ><c:out value="${i.name}"></c:out></option>
-					</c:forEach> --%>	
-				</select>
-				<form:errors path="deviceTypesNeedBallot" cssClass="validationError" />
-
-		</p>
-		<p>
-				<label class="wysiwyglabel"><spring:message code="session.rotationOrderText"
-						text="Rotation Order Text " /></label>
-				<form:textarea cssClass="wysiwyg" path="rotationOrderText" />
-				<form:errors path="rotationOrderText" cssClass="validationError" />
+				<label class="small"><spring:message code="session.rotationOrderPublishingDate"
+						text="Rotation Order Publishing Date " /></label>
+				<form:input id="rotationOrderPublishingDate" cssClass="datemask sText" path="rotationOrderPublishingDate" />
+				<form:errors path="rotationOrderPublishingDate" cssClass="validationError" />
 
 		</p>
 		<p>
