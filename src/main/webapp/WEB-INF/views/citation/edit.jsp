@@ -8,6 +8,10 @@
 	<script type="text/javascript">
 	$('document').ready(function(){	
 		initControls();
+		$("#status").prepend("<option value=''>----"+$("#pleaseSelectMessage").val()+"----</option>");
+		if("${domain.status}"==''){
+			$('#status').val('');
+		}		
 		$('#key').val('');	
 	});		
 </script>
@@ -22,17 +26,22 @@
 	</h2>
 	<form:errors path="version" cssClass="validationError"/>
 	
-	<p> 
+		<p> 
 			<label class="small"><spring:message code="citation.deviceType" text="Device Type"/></label>
 			<form:select path="deviceType" items="${deviceTypes}" itemValue="id" itemLabel="name" cssClass="sSelect"></form:select>	
 	        <form:errors path="deviceType" cssClass="validationError"/>	
 			</p>
-			<p>
-				<label class="labelcentered"><spring:message
+		<p> 
+			<label class="small"><spring:message code="citation.status" text="Status"/></label>
+			<form:select path="status" items="${statuses}" itemValue="type" itemLabel="name" cssClass="sSelect"></form:select>	
+	        <form:errors path="status" cssClass="validationError"/>	
+		</p>
+		<p>
+			<label class="labelcentered"><spring:message
 						code="citation.text" text="Citation" />&nbsp;*</label>
-				<form:textarea cssClass="sTextarea" path="text" />
-				<form:errors path="text" cssClass="validationError" />
-			</p>
+			<form:textarea cssClass="sTextarea" path="text" />
+			<form:errors path="text" cssClass="validationError" />
+		</p>
 	<div class="fields expand">
 		<h2></h2>
 		<p class="tright">
@@ -41,6 +50,7 @@
 			
 		</p>
 	</div>
+	<input id="pleaseSelectMessage" value="<spring:message code='please.select' text='Please Select'/>" type="hidden">
 	<form:hidden path="locale" />
 	<form:hidden path="id"/>	
 	<form:hidden path="version"/>

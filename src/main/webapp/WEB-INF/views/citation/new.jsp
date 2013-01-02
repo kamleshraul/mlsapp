@@ -7,7 +7,11 @@
 <script type="text/javascript">
 	$('document').ready(function(){	
 		initControls();
+		$("#status").prepend("<option value=''>----"+$("#pleaseSelectMessage").val()+"----</option>");
 		$('#key').val('');	
+		if("${domain.status}"==''){
+			$('#status').val('');
+		}		
 	});		
 </script>
 </head>
@@ -31,6 +35,12 @@
 			<form:select path="deviceType" items="${deviceTypes}" itemValue="id" itemLabel="name" cssClass="sSelect"></form:select>	
 	        <form:errors path="deviceType" cssClass="validationError"/>	
 			</p>
+			
+			<p> 
+			<label class="small"><spring:message code="citation.status" text="Status"/></label>
+			<form:select name="status" path="status" items="${statuses}" itemValue="type" itemLabel="name" cssClass="sSelect"></form:select>	
+	        <form:errors path="status" cssClass="validationError"/>	
+			</p>
 			<p>
 				<label class="labelcentered"><spring:message
 						code="citation.text" text="Citation" />&nbsp;*</label>
@@ -47,6 +57,7 @@
 						
 				</p>
 			</div>
+			<input id="pleaseSelectMessage" value="<spring:message code='please.select' text='Please Select'/>" type="hidden">
 			<form:hidden path="locale" />
 			<form:hidden path="id" />
 			<form:hidden path="version" />
