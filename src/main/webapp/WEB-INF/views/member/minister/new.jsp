@@ -159,6 +159,11 @@
 		<form:input path="ministryToDate" cssClass="datemask sText"/>
 		<form:errors path="ministryToDate" cssClass="validationError"/>	
 	</p>
+	<p>
+		<label class="small"><spring:message code="member.minister.priority" text="Ministry Priority"/></label>
+		<form:input path="priority" cssClass="sText"/>
+		<form:errors path="priority" cssClass="validationError"/>
+	</p>
 	</div>
 	
 	<!-- Dynamic Addition of Departments -->
