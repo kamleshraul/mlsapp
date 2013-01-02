@@ -62,8 +62,11 @@
 			<td align="center">
 				<a href="#" class="questionNumber" id="${questionVO.id}" >${questionVO.number}</a>
 				<c:choose>
-				<c:when test="${questionVO.status == 'question_before_workflow_tobeputup' || questionVO.status == 'question_before_workflow_clubbed'}">
+				<c:when test="${questionVO.status == 'question_before_workflow_tobeputup'}">
 					<img src="./resources/images/template/icons/red_check.jpg" class="toolTip clearfix" width="2" height="10">
+				</c:when>
+				<c:when test="${questionVO.status == 'question_before_workflow_clubbed'}">
+					<img src="./resources/images/template/icons/blue_check.jpg" class="toolTip clearfix" width="2" height="10">
 				</c:when>
 				<c:otherwise>
 					<img src="./resources/images/template/icons/green_check.jpg" class="toolTip clearfix" width="2" height="10">
