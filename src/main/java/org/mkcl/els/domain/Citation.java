@@ -22,15 +22,19 @@ public class Citation extends BaseDomain implements Serializable{
 
     @Column(length=10000)
     private String text;
+    
+    @Column(length=10000)
+    private String status;
 
     public Citation() {
         super();
     }
 
-    public Citation(final DeviceType deviceType, final String text) {
+    public Citation(final DeviceType deviceType, final String text,final String status) {
         super();
         this.deviceType = deviceType;
         this.text = text;
+        this.status=status;
     }
 
 
@@ -53,4 +57,13 @@ public class Citation extends BaseDomain implements Serializable{
         this.text = text;
     }
 
+	public String getStatus() {
+		return status;
+	}
+
+	public void setStatus(String status) {
+		this.status = status;
+	}
+
+    
 }
