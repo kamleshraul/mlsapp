@@ -1,9 +1,12 @@
 package org.mkcl.els.domain;
 
 import java.io.Serializable;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Entity;
@@ -17,6 +20,7 @@ import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
 
 import org.mkcl.els.common.util.ApplicationConstants;
+import org.mkcl.els.common.util.DateFormater;
 import org.mkcl.els.common.util.DateUtil;
 import org.mkcl.els.common.vo.ChartVO;
 import org.mkcl.els.common.vo.QuestionVO;
@@ -296,6 +300,8 @@ public class Chart extends BaseDomain implements Serializable {
 	 * Questions on the Chart.
 	 */
 	private Chart createUH() {
+		CustomParameter datePattern = CustomParameter.findByName(CustomParameter.class, "SERVER_DATEFORMAT", "");		
+			
 		boolean isPreviousChartProcessed = Chart.isPreviousChartProcessed(this.getSession(), 
 				this.getGroup(), this.getAnsweringDate(), this.getLocale());
 		
@@ -308,9 +314,12 @@ public class Chart extends BaseDomain implements Serializable {
 				List<Member> activeMembers = Member.findActiveMembers(this.getSession().getHouse(), 
 						currentDate, ApplicationConstants.ASC, this.getLocale());
 				
-				Date startTime = this.getSession().getQuestionSubmissionFirstBatchStartDateUH();
-				Date endTime = this.getSession().getQuestionSubmissionFirstBatchEndDateUH();
 				DeviceType deviceType = DeviceType.findByType("questions_starred", this.getLocale());
+				
+				Date startTime = DateFormater.formatStringToDate(this.getSession().getParamater(deviceType.getType() +"_submissionFirstBatchStartDate"), datePattern.getValue(), this.getLocale());
+				Date endTime = DateFormater.formatStringToDate(this.getSession().getParamater(deviceType.getType() +"_submissionFirstBatchEndDate"), datePattern.getValue(), this.getLocale());
+
+			
 				Status ASSISTANT_PROCESSED = 
 					Status.findByType("question_assistantprocessed", this.getLocale());
 				
@@ -633,9 +642,10 @@ public class Chart extends BaseDomain implements Serializable {
 	}
 	
 	private static boolean isFirstBatchQuestionUH(final Question question) {
+		CustomParameter datePattern = CustomParameter.findByName(CustomParameter.class, "SERVER_DATEFORMAT", "");
 		Session session = question.getSession();
-		Date startTime = session.getQuestionSubmissionFirstBatchStartDateUH();
-		Date endTime = session.getQuestionSubmissionFirstBatchEndDateUH();
+		Date startTime = DateFormater.formatStringToDate(session.getParamater(question.getType().getType() +"_submissionFirstBatchStartDate"), datePattern.getValue(), question.getLocale());
+		Date endTime = DateFormater.formatStringToDate(session.getParamater(question.getType().getType() +"_submissionFirstBatchEndDate"), datePattern.getValue(), question.getLocale());
 		Date submissionTime = question.getSubmissionDate();
 		if((submissionTime.compareTo(startTime) >= 0) &&
 				(submissionTime.compareTo(endTime) <= 0)) {
@@ -645,9 +655,10 @@ public class Chart extends BaseDomain implements Serializable {
 	}
 	
 	private static boolean isSecondBatchQuestionUH(final Question question) {
+		CustomParameter datePattern = CustomParameter.findByName(CustomParameter.class, "SERVER_DATEFORMAT", "");
 		Session session = question.getSession();
-		Date startTime = session.getQuestionSubmissionSecondBatchStartDateUH();
-		Date endTime = session.getQuestionSubmissionSecondBatchEndDateUH();
+		Date startTime = DateFormater.formatStringToDate(session.getParamater(question.getType().getType() +"_submissionSecondBatchStartDate"), datePattern.getValue(), question.getLocale());
+		Date endTime = DateFormater.formatStringToDate(session.getParamater(question.getType().getType() +"_submissionSecondBatchEndDate"), datePattern.getValue(), question.getLocale());
 		Date submissionTime = question.getSubmissionDate();
 		if((submissionTime.compareTo(startTime) >= 0) &&
 				(submissionTime.compareTo(endTime) <= 0)) {
