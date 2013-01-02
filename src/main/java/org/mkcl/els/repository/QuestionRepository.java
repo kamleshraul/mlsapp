@@ -1108,11 +1108,13 @@ public class QuestionRepository extends BaseRepository<Question, Long>{
             CustomParameter customParameter=CustomParameter.findByName(CustomParameter.class,"DB_TIMESTAMP", "");
             if(customParameter!=null){
                 SimpleDateFormat format=FormaterUtil.getDateFormatter(customParameter.getValue(),"en_US");
-                if(session.getQuestionSubmissionFirstBatchStartDateUH()!=null&&session.getQuestionSubmissionFirstBatchEndDateUH()!=null){
-                    String startTime=format.format(session.getQuestionSubmissionFirstBatchStartDateUH());
-                    String endTime=format.format(session.getQuestionSubmissionFirstBatchEndDateUH());
+                Date startTime = DateFormater.formatStringToDate(session.getParamater(questionType.getType() +"_submissionFirstBatchStartDate"), customParameter.getValue(), session.getLocale());
+				Date endTime = DateFormater.formatStringToDate(session.getParamater(questionType.getType() +"_submissionFirstBatchEndDate"), customParameter.getValue(), session.getLocale());
+                if(startTime!=null && endTime!=null){
+                    String startTimeStr=format.format(startTime);
+                    String endTimeStr=format.format(endTime);
                     String query="SELECT DISTINCT m FROM Question q JOIN q.primaryMember m JOIN m.title t WHERE q.session.id="+session.getId()+
-                    " AND q.type.id="+questionType.getId()+" AND q.submissionDate>='"+startTime+"' AND q.submissionDate<='"+endTime+"'"+
+                    " AND q.type.id="+questionType.getId()+" AND q.submissionDate>='"+startTimeStr+"' AND q.submissionDate<='"+endTimeStr+"'"+
                     " ORDER BY m.lastName "+ApplicationConstants.ASC;
                     members=this.em().createQuery(query).getResultList();
                     for(Member i:members){
@@ -1121,9 +1123,9 @@ public class QuestionRepository extends BaseRepository<Question, Long>{
                         memberBallotAttendances.add(memberBallotAttendance);
                     }
                     operationStatus=true;
-                }else if(session.getQuestionSubmissionFirstBatchStartDateUH()==null){
+                }else if(startTime==null){
                     logger.error("**** First Batch Submission Start Date not set ****");
-                }else if(session.getQuestionSubmissionFirstBatchEndDateUH()==null){
+                }else if(endTime==null){
                     logger.error("**** First Batch Submission End Date not set ****");
                 }
             }else{
