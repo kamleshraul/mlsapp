@@ -216,6 +216,11 @@
 		<pattern>/user/*/delete</pattern>
 		<pattern>/user</pattern>
 		
+		<pattern>/citation/new</pattern>
+		<pattern>/citation/*/edit</pattern>
+		<pattern>/citation/*/delete</pattern>
+		<pattern>/citation</pattern>
+		
 		<pattern>/role/new</pattern>
 		<pattern>/role/*/edit</pattern>
 		<pattern>/role/*/delete</pattern>
