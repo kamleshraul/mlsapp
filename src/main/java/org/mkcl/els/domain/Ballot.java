@@ -50,6 +50,9 @@ public class Ballot extends BaseDomain implements Serializable {
 			inverseJoinColumns={ @JoinColumn(name="ballot_entry_id", referencedColumnName="id") })
 	private List<BallotEntry> ballotEntries;
 	
+	@Temporal(TemporalType.TIMESTAMP)
+	private Date ballotDate;
+	
 	@Autowired
 	private transient BallotRepository repository;
 	
@@ -62,11 +65,13 @@ public class Ballot extends BaseDomain implements Serializable {
 	public Ballot(final Session session,
 			final Group group,
 			final Date answeringDate,
+			final Date ballotDate,
 			final String locale) {
 		super(locale);
 		this.setSession(session);
 		this.setGroup(group);
 		this.setAnsweringDate(answeringDate);
+		this.setBallotDate(ballotDate);
 		this.setBallotEntries(new ArrayList<BallotEntry>());
 	}
 	
@@ -445,4 +450,13 @@ public class Ballot extends BaseDomain implements Serializable {
 	public void setBallotEntries(final List<BallotEntry> ballotEntries) {
 		this.ballotEntries = ballotEntries;
 	}
+
+	public Date getBallotDate() {
+		return ballotDate;
+	}
+
+	public void setBallotDate(Date ballotDate) {
+		this.ballotDate = ballotDate;
+	}
+	
 }
