@@ -1932,7 +1932,7 @@ public class QuestionController extends GenericController<Question>{
         if(answeringDate != null) {
             Ballot ballot = Ballot.find(session, group, answeringDate, strLocale);
             if(ballot == null) {
-                Ballot newBallot = new Ballot(session, group, answeringDate, strLocale);
+                Ballot newBallot = new Ballot(session, group, answeringDate, new Date(), strLocale);
                 newBallot.create();
                 retVal = "CREATED";
             }
