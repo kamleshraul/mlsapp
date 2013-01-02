@@ -111,7 +111,7 @@
 		});
 		
 		$("#viewCitation").click(function(){
-			$.get('question/citations/'+$("#type").val(),function(data){
+			$.get('question/citations/'+$("#type").val()+"?status="+ $("#internalStatus").val(),function(data){
 			    $.fancybox.open(data, {autoSize: false, width: 600, height:600});
 		    },'html');
 		    return false;
