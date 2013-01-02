@@ -149,7 +149,7 @@ public class ChartRepository extends BaseRepository<Chart, Long> {
         " AND c.group.id = " + group.getId() +
         " AND c.answeringDate = '" + date + "'" +
         " AND c.locale = '" + locale + "'" +
-        " AND q.internalStatus.type LIKE '" + excludeInternalStatus + "%'";
+        " AND q.internalStatus.type = '" + excludeInternalStatus + "'";
 
         TypedQuery<Long> query = this.em().createQuery(strQuery, Long.class);
         long count = query.getSingleResult();
@@ -159,7 +159,7 @@ public class ChartRepository extends BaseRepository<Chart, Long> {
         return false;
     }
 
-/**
+	/**
      * Update the internalStatus of all the Questions on @param chart to
      * @param internalStatus
      */
