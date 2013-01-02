@@ -177,8 +177,7 @@ public class Chart extends BaseDomain implements Serializable {
 	
 	/**
 	 * A Chart is said to be processed if all the Questions on the
-	 * Chart have internalStatus != 'TO_BE_PUT_UP' and internalStatus
-	 * does not begin with "question_before_workflow".
+	 * Chart have internalStatus type != 'question_before_workflow_tobeputup'.
 	 * 
 	 * Returns true if a Chart is processed or if a Chart does not exist, 
 	 * else returns false.
@@ -189,7 +188,7 @@ public class Chart extends BaseDomain implements Serializable {
 			final String locale) {
 		Chart chart = Chart.find(session, group, answeringDate, locale);
 		if(chart != null) {
-			String excludeInternalStatus = "question_before_workflow";
+			String excludeInternalStatus = "question_before_workflow_tobeputup";
 			return Chart.getChartRepository().isProcessed(session, group, answeringDate, 
 					excludeInternalStatus, locale);
 		}
