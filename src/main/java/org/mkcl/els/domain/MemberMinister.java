@@ -43,7 +43,6 @@ import org.springframework.beans.factory.annotation.Configurable;
 public class MemberMinister extends BaseDomain implements Serializable {
 
     /** The Constant serialVersionUID. */
-
     private static final long serialVersionUID = 1L;
 
     /** The member. */
@@ -90,6 +89,8 @@ public class MemberMinister extends BaseDomain implements Serializable {
     @JoinColumn(name="member_ministry_id", referencedColumnName="id")
     private List<MemberDepartment> memberDepartments;
 
+    private Integer priority;
+    
     @Autowired
     private transient MemberMinisterRepository repository;
 
@@ -343,4 +344,13 @@ public class MemberMinister extends BaseDomain implements Serializable {
             final SessionType sessionType, final Integer year, final String locale) {
         return getMemberMinisterRepository().findAssignedSubDepartmentsVO(groupNumbers, houseType, sessionType, year, locale);
     }
+
+	public Integer getPriority() {
+		return priority;
+	}
+
+	public void setPriority(Integer priority) {
+		this.priority = priority;
+	}
+    
 }
