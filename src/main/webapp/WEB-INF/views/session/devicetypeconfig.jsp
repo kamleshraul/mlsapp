@@ -12,7 +12,21 @@
 
 	//as all controls get loaded all divs wil be hiddden
 	$('document').ready(function(){
-				hideDivs();
+		hideDivs();
+	});
+	
+	 $("#deviceType").change(function(){
+		
+		var isBallotingRequired = "#"+$('#deviceType').val()+"_isBallotingRequired";
+		var isBallotingRequiredValue = $(isBallotingRequired).val();
+		//alert($.type($(isBallotingRequired).val()));
+		if(isBallotingRequiredValue.length==4){
+			//alert(isBallotingRequired+":"+isBallotingRequiredValue);
+			$(isBallotingRequired).attr('checked','checked');
+		}else if(isBallotingRequiredValue.length==5){
+			//alert("nononnoo");
+			$(isBallotingRequired).removeAttr('checked');
+		}
 	});
 
 	//show the particular div as option is selected
@@ -162,7 +176,7 @@
 					<p>
 						<label class="small"><spring:message code="session.deviceType.isBallotingRequired" text="is Ballotng Required" /></label>
 						<c:set var="key" value="${i.type}_isBallotingRequired"></c:set>
-						<input type="checkbox" class="sCheck" name="${i.type}_isBallotingRequired" id="${i.type}_isBallotingRequired" value="${domain.parameters[key]}" />
+						<input type="checkbox" class="sCheck" name="${i.type}_isBallotingRequired" id="${i.type}_isBallotingRequired" value="${domain.parameters[key]}" />					
 					</p>
 
 					<p>
@@ -190,7 +204,7 @@
 		<form:hidden path="version"  />
 		<form:hidden id="id" path="id" />
 		<form:hidden path="locale"/>
-		<input type="hidden" name="deviceTypeSelected" />
+		<input type="hidden" name="deviceTypeSelected" id="deviceTypeSelected" />
 		</form:form>
 		</div>
 </body>
