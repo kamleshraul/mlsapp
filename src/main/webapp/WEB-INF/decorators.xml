@@ -146,6 +146,7 @@
 		<pattern>/session/*/edit</pattern>
 		<pattern>/session/*/delete</pattern>
 		<pattern>/session/*/viewrotationorder</pattern>
+		<pattern>/session/*/devicetypeconfig</pattern>
 		<pattern>/session/</pattern>
 		
 		<pattern>/session/workflowconfig/new</pattern>
