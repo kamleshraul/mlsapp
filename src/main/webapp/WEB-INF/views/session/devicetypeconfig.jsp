@@ -31,6 +31,17 @@
 
 	//show the particular div as option is selected
 	$('document').ready(function(){
+		
+		$('.datemask').focus(function(){		
+			if($(this).val()==""){
+				$(".datemask").mask("99/99/9999");
+			}
+		});
+		$('.datetimemask').focus(function(){		
+			if($(this).val()==""){
+				$(".datetimemask").mask("99/99/9999 99:99:99");
+			}
+		});
 		$('#deviceType').change(function(){
 	      var selVal=$('#deviceType').val();
 	      var selectedDiv='#'+selVal;
@@ -51,7 +62,7 @@
 				var submissionFirstBatchEndDate=deviceType+"_submissionFirstBatchEndDate";
 				var submissionSecondBatchStartDate=deviceType+"_submissionSecondBatchStartDate";
 				var submissionSecondBatchEndDate=deviceType+"_submissionSecondBatchEndDate";
-				var rotationOrderPublishingDate=deviceType+"_rotationOrderPublishingDate";
+				
 				var firstBallotDate=deviceType+"_firstBallotDate";
 				var NumberOfQuestionInFirstBatch=deviceType+"_NumberOfQuestionInFirstBatch";
 				var NumberOfQuestionInSecondBatch=deviceType+"_NumberOfQuestionInSecondBatch";
@@ -67,7 +78,7 @@
 				params[submissionFirstBatchEndDate]=$("#"+submissionFirstBatchEndDate).val();
 				params[submissionSecondBatchStartDate]=$("#"+submissionSecondBatchStartDate).val();
 				params[submissionSecondBatchEndDate]=$("#"+submissionSecondBatchEndDate).val();
-				params[rotationOrderPublishingDate]=$("#"+rotationOrderPublishingDate).val();
+				
 				params[firstBallotDate]=$("#"+firstBallotDate).val();
 				params[NumberOfQuestionInFirstBatch]=$("#"+NumberOfQuestionInFirstBatch).val();
 				params[NumberOfQuestionInSecondBatch]=$("#"+NumberOfQuestionInSecondBatch).val();
@@ -83,8 +94,7 @@
 				params[isBallotingRequired]=($("#"+isBallotingRequired).val());
 	 
 				$('#deviceTypeSelected').val(deviceType);
-				 $.post("session/devicetypeconfig" , params
-				);
+				 $.post("session/devicetypeconfig" , params);
 			}
 			else {
 				return false;
@@ -150,11 +160,7 @@
 						<c:set var="key" value="${i.type}_submissionSecondBatchEndDate"></c:set>
 						<input type="text" class="datetimemask sText" name="${i.type}_submissionSecondBatchEndDate" id="${i.type}_submissionSecondBatchEndDate" value="${domain.parameters[key]}"/>
 					</p>
-					<p>
-						<label class="small"><spring:message code="session.deviceType.rotationOrderPublishingDate" text="Rotation Order Publishing Date"/></label>
-						<c:set var="key" value="${i.type}_rotationOrderPublishingDate"></c:set>
-						<input type="text" class="datemask sText" name="${i.type}_rotationOrderPublishingDate" id="${i.type}_rotationOrderPublishingDate" value="${domain.parameters[key]}"/>
-					</p>
+					
 					<p>
 						<label class="small"><spring:message code="session.deviceType.firstBallotDate" text="First Ballot Date"/></label>
 						<c:set var="key" value="${i.type}_firstBallotDate"></c:set>
