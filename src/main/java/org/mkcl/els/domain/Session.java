@@ -807,8 +807,13 @@ public class Session extends BaseDomain implements Serializable {
 				for (Map.Entry<String, String> entry : localParameters.entrySet()){
 				
 					if(entry.getKey().endsWith("Date")){
-						
-						CustomParameter parameter = CustomParameter.findByName(CustomParameter.class, "SERVER_DATEFORMAT", "");		
+						CustomParameter parameter;
+						if(entry.getValue().length()>10){
+							 parameter = CustomParameter.findByName(CustomParameter.class, "SERVER_DATETIMEFORMAT", "");
+						}
+						else{
+							 parameter = CustomParameter.findByName(CustomParameter.class, "SERVER_DATEFORMAT", "");
+						}		
 						SimpleDateFormat dateFormat;
 						Date date;
 						
@@ -877,10 +882,15 @@ public class Session extends BaseDomain implements Serializable {
 			if((localParameters != null) & (!(localParameters.isEmpty()))){
 				
 				for (Map.Entry<String, String> entry : localParameters.entrySet()){
-				
+					CustomParameter parameter;
 					if(entry.getKey().endsWith("Date")){
-						
-						CustomParameter parameter = CustomParameter.findByName(CustomParameter.class, "SERVER_DATEFORMAT", "");		
+						if(entry.getValue().length()>10){
+							 parameter = CustomParameter.findByName(CustomParameter.class, "SERVER_DATETIMEFORMAT", "");
+						}
+						else{
+							 parameter = CustomParameter.findByName(CustomParameter.class, "SERVER_DATEFORMAT", "");
+						}
+								
 						SimpleDateFormat dateFormat = new SimpleDateFormat(parameter.getValue(),new Locale("en","US"));
 						Date date;
 						
