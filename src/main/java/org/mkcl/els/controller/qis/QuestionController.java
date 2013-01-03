@@ -1617,7 +1617,11 @@ public class QuestionController extends GenericController<Question>{
             final ModelMap model){
         DeviceType deviceType=DeviceType.findById(DeviceType.class,type);
         List<Citation> deviceTypeBasedcitations=Citation.findAllByFieldName(Citation.class,"deviceType",deviceType, "text",ApplicationConstants.ASC, locale.toString());
-        Status status=Status.findById(Status.class, Long.parseLong(request.getParameter("status")));
+        Status status=null;
+        if(request.getParameter("status")!=null){
+        	  status=Status.findById(Status.class, Long.parseLong(request.getParameter("status")));	
+        }
+       
         List<Citation> citations=new ArrayList<Citation>();
         if(status!=null){
         	 for(Citation i:deviceTypeBasedcitations){
