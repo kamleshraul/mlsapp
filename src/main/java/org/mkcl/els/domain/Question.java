@@ -48,7 +48,7 @@ import org.springframework.beans.factory.annotation.Configurable;
 @Configurable
 @Entity
 @Table(name="questions")
-@JsonIgnoreProperties({"answeringDate","recommendationStatus","houseType", "session","language","type","supportingMembers", "subDepartment", "referencedQuestions", "drafts","clubbings","group","editedBy","editedAs"})
+@JsonIgnoreProperties({"answeringDate","recommendationStatus","houseType", "session","language","type","supportingMembers", "subDepartment", "referencedQuestions", "drafts","clubbings","group","editedBy","editedAs","clarificationNeededFrom"})
 public class Question extends BaseDomain
 implements Serializable
 {
