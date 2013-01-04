@@ -331,7 +331,7 @@
 	<p>		
 	<label class="small"><spring:message code="question.submissionDate" text="Submitted On"/></label>
 	<input id="setSubmissionDate" name="setSubmissionDate" type="text" class="sText" value="${submissionDate}">	
-	<input id="setCreationDate" name="setSubmissionDate" type="hidden" value="${creationDate}">	
+	<input id="setCreationDate" name="setCreationDate" type="hidden" value="${creationDate}">	
 	
 	<label class="small"><spring:message code="question.answeringDate" text="Answering Date"/></label>
 	<input id="answeringDateLabel" name="answeringDateLabel" type="text" value="${answeringDate}" class="sText"/>
