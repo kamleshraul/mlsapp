@@ -66,10 +66,10 @@ public class QuestionRepository extends BaseRepository<Question, Long>{
         String query=null;
         if(strHouseType.equals(ApplicationConstants.LOWER_HOUSE)){
             if(strQuestionType.equals("questions_starred")||strQuestionType.equals("questions_unstarred")||strQuestionType.equals("questions_shortnotice")){
-                query="SELECT q FROM Question q JOIN q.session JOIN s.house h JOIN q.type dt WHERE "+
+                query="SELECT q FROM Question q JOIN q.session s JOIN s.house h JOIN q.type dt WHERE "+
                 " h.id="+house+"  AND (dt.type='questions_shortnotice' OR dt.type='questions_starred' OR dt.type='questions_unstarred') ORDER BY q.number "+ApplicationConstants.DESC;
             }else if(strQuestionType.equals("questions_halfhourdiscussion")){
-                query="SELECT q FROM Question q JOIN q.session JOIN s.house h JOIN q.type dt WHERE "+
+                query="SELECT q FROM Question q JOIN q.session s JOIN s.house h JOIN q.type dt WHERE "+
                 " h.id="+house+"  AND (dt.type='questions_halfhourdiscussion') ORDER BY q.number "+ApplicationConstants.DESC;
             }
         }else if(strHouseType.equals(ApplicationConstants.UPPER_HOUSE)){
@@ -524,8 +524,8 @@ public class QuestionRepository extends BaseRepository<Question, Long>{
         //                questions=this.em().createQuery(query).getResultList();
         //            }
         //        }
-        return questions;
-    }
+       return questions;
+   }
 
     public Boolean club(final Long questionBeingProcessed,
             final Long questionBeingClubbed,final String locale) {
@@ -1146,4 +1146,5 @@ public class QuestionRepository extends BaseRepository<Question, Long>{
             return false;
         }
     }
+
 }
