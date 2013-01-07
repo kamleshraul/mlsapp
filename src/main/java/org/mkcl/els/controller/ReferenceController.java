@@ -1257,5 +1257,12 @@ public class ReferenceController extends BaseController {
 		return deviceTypesRef; 
 		}
 
+    @RequestMapping(value="{houseType}/houses", method=RequestMethod.GET)
+    public @ResponseBody List<House> getHouseByType(@PathVariable("houseType") final String houseType,
+            final Locale locale){
+        HouseType selectedHouseType=HouseType.findByFieldName(HouseType.class,"type",houseType, locale.toString());
+        List<House> houses=House.findAllByFieldName(House.class, "type",selectedHouseType, "firstDate",ApplicationConstants.DESC, locale.toString());
+        return houses;
+    }
 
 }
