@@ -196,13 +196,6 @@
 
 		</p>	
 		<p>
-				<label class="small"><spring:message code="session.rotationOrderPublishingDate"
-						text="Rotation Order Publishing Date " /></label>
-				<form:input id="rotationOrderPublishingDate" cssClass="datemask sText" path="rotationOrderPublishingDate" />
-				<form:errors path="rotationOrderPublishingDate" cssClass="validationError" />
-
-		</p>
-		<p>
 				<label class="labelcentered"><spring:message code="session.remarks"
 						text="Remarks" /></label>
 				<form:textarea cssClass="sTextarea" path="remarks" />
