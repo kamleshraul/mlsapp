@@ -38,7 +38,7 @@
 
 	});
 	function populateHouse(houseType) {
-			$.get('ref/' + houseType + '/houses', function(data) {
+			$.get('ref/' + houseType + '/house', function(data) {
 				$('#house option').empty();
 				var options = "";
 				for ( var i = 0; i < data.length; i++) {
@@ -202,14 +202,6 @@
 				<form:errors path="deviceTypesEnabled" cssClass="validationError" />
 
 		</p>	
-		
-		<p>
-				<label class="small"><spring:message code="session.rotationOrderPublishingDate"
-						text="Rotation Order Publishing Date " /></label>
-				<form:input id="rotationOrderPublishingDate" cssClass="datemask sText" path="rotationOrderPublishingDate" />
-				<form:errors path="rotationOrderPublishingDate" cssClass="validationError" />
-
-		</p>
 		<p>
 				<label class="labelcentered"><spring:message code="session.remarks"
 						text="Remarks" /></label>
