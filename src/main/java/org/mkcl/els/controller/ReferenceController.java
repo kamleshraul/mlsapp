@@ -14,6 +14,8 @@ package org.mkcl.els.controller;
 import java.io.UnsupportedEncodingException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Collections;
 import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
@@ -1265,4 +1267,79 @@ public class ReferenceController extends BaseController {
         return houses;
     }
 
+    /**
+     * @param id to find the session 
+     * @param discussionDays days submitted by user
+     * @return List<Reference> of Dates on which submitted days come
+     * 
+     */
+    @SuppressWarnings("unused")
+	@RequestMapping(value="/session/{id}/devicetypeconfig/{discussionDays}/discussiondates", method=RequestMethod.GET)
+    public @ResponseBody List<Reference> getDiscussionDates(@PathVariable("id") final Long id, @PathVariable("discussionDays") final String discussionDays){
+        
+    	String[] days = discussionDays.split(",");
+    	
+    	Session domain = Session.findById(Session.class, id);
+    	
+    	//------------------find dates---------------------------
+    	
+    	
+    	Date sessionStartDate= domain.getStartDate();
+    	Date sessionEndDate=domain.getEndDate();
+    	List<Reference> references = new ArrayList<Reference>();
+    	
+    	if((sessionStartDate != null) && (sessionStartDate != null)){
+	    	Calendar start = Calendar.getInstance();
+	    	
+	    	Calendar end = Calendar.getInstance();
+	    	
+	    	List<Date> dates = new ArrayList<Date>();
+	    	
+	    	SimpleDateFormat sf=new SimpleDateFormat("EEEE");
+	    	CustomParameter parameter = CustomParameter.findByName(CustomParameter.class, "SERVER_DATEFORMAT", "");
+	    	SimpleDateFormat dateFormat=null;
+	    	
+			if (domain.getLocale().equals("mr_IN")) {
+				
+				dateFormat = new SimpleDateFormat(parameter.getValue(), new Locale("hi", "IN"));
+			} else {
+				
+				dateFormat = new SimpleDateFormat(parameter.getValue(), new Locale(domain.getLocale()));
+			}
+			dateFormat.setLenient(true);
+			
+			for(String day: days){
+			
+				
+				start.setTime(sessionStartDate);
+		    	end.setTime(sessionEndDate);
+				
+		    	
+				for (; !start.after(end); start.add(Calendar.DATE, 1)) {
+		    	    Date current = start.getTime();
+		    	    String select="false";
+		    	    
+		    	    if(sf.format(current).equals(day)){
+		    	    	
+	    	    		dates.add(current);
+	    	    	}
+				}
+			}
+	    	//--------------------------------------------------------
+	        
+			Collections.sort(dates);
+			
+			for(Date date: dates){
+				
+				Reference reference = new Reference();
+		        
+		        reference.setId(dateFormat.format(date));
+		        reference.setName(dateFormat.format(date));
+		        
+		        references.add(reference);    
+			}
+    	}
+        return references;
+    }
+  
 }
