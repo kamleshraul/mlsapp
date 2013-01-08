@@ -391,11 +391,14 @@ public class QuestionController extends GenericController<Question>{
                  */
                 if(questionType.getType().trim().equals("questions_starred")){
                     Date rotationOrderPubDate=null;
+                    CustomParameter serverDateFormat = CustomParameter.findByName(CustomParameter.class, "SERVER_DATEFORMAT", "");
                     if(houseType.getType().equals("lowerhouse")){
-                        rotationOrderPubDate=selectedSession.getRotationOrderPublishingDate();
+                    	String strRotationOrderPubDate = selectedSession.getParamater("questions_starred_rotationOrderPublishingDate");
+                        rotationOrderPubDate = new DateFormater().formatStringToDate(strRotationOrderPubDate, serverDateFormat.getValue());
                     }else if(houseType.getType().equals("upperhouse")){
-                        rotationOrderPubDate=selectedSession.getRotationOrderPublishingDate();
-                    }					CustomParameter rotationOrderDateFormat=CustomParameter.findByName(CustomParameter.class,"ROTATION_ORDER_DATE_FORMAT", "");
+                    	String strRotationOrderPubDate = selectedSession.getParamater("questions_starred_rotationOrderPublishingDate");
+                        rotationOrderPubDate = new DateFormater().formatStringToDate(strRotationOrderPubDate, serverDateFormat.getValue());
+                    }	CustomParameter rotationOrderDateFormat=CustomParameter.findByName(CustomParameter.class,"ROTATION_ORDER_DATE_FORMAT", "");
                     if(rotationOrderDateFormat!=null){
                         if(rotationOrderPubDate!=null){
                             /*
@@ -559,10 +562,13 @@ public class QuestionController extends GenericController<Question>{
          */
         if(questionType.getType().trim().equals("questions_starred")){
             Date rotationOrderPubDate=null;
+            CustomParameter serverDateFormat = CustomParameter.findByName(CustomParameter.class, "SERVER_DATEFORMAT", "");
             if(houseType.getType().equals("lowerhouse")){
-                rotationOrderPubDate=selectedSession.getRotationOrderPublishingDate();
+            	String strRotationOrderPubDate = selectedSession.getParamater("questions_starred_rotationOrderPublishingDate");
+                rotationOrderPubDate = new DateFormater().formatStringToDate(strRotationOrderPubDate, serverDateFormat.getValue());
             }else if(houseType.getType().equals("upperhouse")){
-                rotationOrderPubDate=selectedSession.getRotationOrderPublishingDate();
+            	String strRotationOrderPubDate = selectedSession.getParamater("questions_starred_rotationOrderPublishingDate");
+                rotationOrderPubDate = new DateFormater().formatStringToDate(strRotationOrderPubDate, serverDateFormat.getValue());
             }
             CustomParameter rotationOrderDateFormat=CustomParameter.findByName(CustomParameter.class,"ROTATION_ORDER_DATE_FORMAT", "");
             if(rotationOrderDateFormat!=null){
@@ -1621,7 +1627,6 @@ public class QuestionController extends GenericController<Question>{
         if(request.getParameter("status")!=null){
         	  status=Status.findById(Status.class, Long.parseLong(request.getParameter("status")));	
         }
-       
         List<Citation> citations=new ArrayList<Citation>();
         if(status!=null){
         	 for(Citation i:deviceTypeBasedcitations){
