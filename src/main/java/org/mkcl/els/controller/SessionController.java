@@ -9,23 +9,18 @@
  */
 package org.mkcl.els.controller;
 
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.Date;
 import java.util.Enumeration;
 import java.util.GregorianCalendar;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Locale;
 import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 
 import org.mkcl.els.common.util.ApplicationConstants;
-import org.mkcl.els.domain.BaseDomain;
 import org.mkcl.els.domain.CustomParameter;
 import org.mkcl.els.domain.DeviceType;
 import org.mkcl.els.domain.Group;
@@ -41,9 +36,7 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.ResponseBody;
-
-import com.sun.mail.iap.Response;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 /**
  * The Class SessionController.
@@ -125,7 +118,6 @@ javax.servlet.http.HttpServletRequest)
 //			domain.setQuestionSubmissionSecondBatchStartDateUH(df.parse(request.getParameter("questionSubmissionSecondBatchStartDateUH")));
 //			domain.setQuestionSubmissionStartDateLH(df.parse(request.getParameter("questionSubmissionStartDateLH")));
 //    	} catch (ParseException e) {
-//			// TODO Auto-generated catch block
 //			e.printStackTrace();
 //		}
     	
@@ -285,7 +277,6 @@ javax.servlet.http.HttpServletRequest)
 //			domain.setQuestionSubmissionSecondBatchStartDateUH(df.parse(request.getParameter("questionSubmissionSecondBatchStartDateUH")));
 //			domain.setQuestionSubmissionStartDateLH(df.parse(request.getParameter("questionSubmissionStartDateLH")));
 //    	} catch (ParseException e) {
-//			// TODO Auto-generated catch block
 //			e.printStackTrace();
 //		}
 //    	
@@ -313,11 +304,14 @@ javax.servlet.http.HttpServletRequest)
     @RequestMapping(value="{id}/devicetypeconfig", method=RequestMethod.GET)
     public String editSessionDeviceTypeConfig(@PathVariable("id") final Long id,final ModelMap model,
             final HttpServletRequest request ){
+    	
     	 final String servletPath = request.getServletPath().replaceFirst("\\/","");
          String urlPattern=servletPath.split("\\/viewRotationOrder")[0].replace("/"+id,"");
          String messagePattern=urlPattern.replaceAll("\\/",".");
          model.addAttribute("messagePattern", messagePattern);
          model.addAttribute("urlPattern", urlPattern);
+         model.addAttribute("deviceTypeSelected", request.getParameter("deviceTypeSelected"));
+         
          Session domain= Session.findById(Session.class, id);
          List<DeviceType> deviceTypesEnabled = new ArrayList<DeviceType>();
          String deviceTypesEnabledStr = domain.getDeviceTypesEnabled();
@@ -331,15 +325,25 @@ javax.servlet.http.HttpServletRequest)
         }
         model.addAttribute("deviceTypesEnabled", deviceTypesEnabled);
         model.addAttribute("domain", domain);
-		return urlPattern ;		
-    	
-    }
-    
-    
+        
+        //----to show ribbon
+        if(request.getSession().getAttribute("type")==null){
+            model.addAttribute("type","");
+        }else{
+            request.getSession().removeAttribute("type");
+        }
+        //here making provisions for displaying error pages
+        if(model.containsAttribute("errorcode")){
+            return urlPattern+"/"+"error";
+        }else{
+        	return urlPattern ;	
+        }
+        //----
+    }    
    
 	@RequestMapping(method= RequestMethod.POST,value="/devicetypeconfig")
     public String updateSessionDeviceTypeConfig(@Valid @ModelAttribute("domain") Session session, BindingResult result,final ModelMap model,
-            final HttpServletRequest request ){ 
+            final HttpServletRequest request, RedirectAttributes redirectAttributes ){ 
 		
     	Long id = Long.parseLong(request.getParameter("id"));
     	final String servletPath = request.getServletPath().replaceFirst("\\/","");
@@ -353,33 +357,61 @@ javax.servlet.http.HttpServletRequest)
         Map<String, String> parameters;
         
         parameters = domain.getParameters();
-
-    	Enumeration paramNames = request.getParameterNames();
+        
+    	@SuppressWarnings("rawtypes")
+		Enumeration paramNames = request.getParameterNames();
 		if (paramNames != null) {
 			while (paramNames.hasMoreElements()) {
 				
 				String name = (String) paramNames.nextElement();
-				String value = request.getParameter(name);
-				
-				if ((value != null)) {
-					if ((!value.isEmpty())) {
-						parameters.put(name, value);
+				if(!(name.equalsIgnoreCase("id")) && !(name.equalsIgnoreCase("version")) && !(name.equalsIgnoreCase("locale")) && !(name.equalsIgnoreCase("deviceTypeSelected"))){
+					
+					String[] tempValue = request.getParameterValues(name);
+					String value= "";
+					
+					for(int i = 0; i < tempValue.length; i++){
+						
+						if((i == (tempValue.length - 1))){
+							
+							if(!tempValue[i].isEmpty()){
+								value += tempValue[i];
+							}
+						}else{
+							value += tempValue[i] + "#";
+						}
+					}
+					
+					System.out.println(name+": "+value);
+					
+					if(value.isEmpty()){
+						if(parameters.containsKey(name)){
+							parameters.remove(name);
+						}
+					}
+						
+					if ((value != null)) {
+						if(!(value.isEmpty())){
+							parameters.put(name, value);
+						}
 					}
 				}
 			}
 		}
-    	
-    	/*System.out.println(request.getParameter("submissionStartDate"));
-    	for(Map.Entry<String, String> entry: parameters.entrySet()){
-    		System.out.println(entry.getKey()+":"+entry.getValue());
-    	}*/
-    	
+    	   	
     	domain.setParameters(parameters);
     	domain.merge();
-    	returnUrl = "redirect:/" + returnUrl;
     	
-    	return returnUrl;
+    	redirectAttributes.addFlashAttribute("type", "success");
+        //this is done so as to remove the bug due to which update message appears even though there
+        //is a fresh new/edit request i.e after creating/updating records if we click on
+        //new /edit then success message appears
+        request.getSession().setAttribute("type","success");
+        redirectAttributes.addFlashAttribute("msg", "create_success");
     	
+        String deviceTypeSelected = request.getParameter("deviceTypeSelected");
+    	returnUrl = "redirect:/" + returnUrl+ "?deviceTypeSelected="+ deviceTypeSelected;
+    	    	    	    	
+    	return returnUrl;    	
     }
 
 }
