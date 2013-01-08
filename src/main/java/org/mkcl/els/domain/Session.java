@@ -16,11 +16,9 @@ import java.text.NumberFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
-import java.util.Map.Entry;
 
 import javax.persistence.CollectionTable;
 import javax.persistence.Column;
@@ -39,7 +37,6 @@ import org.mkcl.els.repository.SessionRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Configurable;
 
-// TODO: Auto-generated Javadoc
 /**
  * The Class Session.
  *
@@ -94,46 +91,6 @@ public class Session extends BaseDomain implements Serializable {
     @Temporal(TemporalType.DATE)
     private Date tentativeEndDate;
 
-    /** The rotation order publishing date. */
-    @Temporal(TemporalType.DATE)
-    private Date rotationOrderPublishingDate;
-
-//
-//    /** The question submission start date. */
-//    @Temporal(TemporalType.TIMESTAMP)
-//    private Date questionSubmissionStartDateLH;
-//
-//    /** The question submission end date lh. */
-//    @Temporal(TemporalType.TIMESTAMP)
-//    private Date questionSubmissionEndDateLH;
-//
-//    /** The question submission first batch start date uh. */
-//    @Temporal(TemporalType.TIMESTAMP)
-//    private Date questionSubmissionFirstBatchStartDateUH;
-//
-//   /** The question submission first batch end date uh. */
-//   @Temporal(TemporalType.TIMESTAMP)
-//    private Date questionSubmissionFirstBatchEndDateUH;
-//
-//    /** The question submission second batch start date uh. */
-//    @Temporal(TemporalType.TIMESTAMP)
-//    private Date questionSubmissionSecondBatchStartDateUH;
-//
-//    /** The question submission second batch end date uh. */
-//    @Temporal(TemporalType.TIMESTAMP)
-//    private Date questionSubmissionSecondBatchEndDateUH;
-//
-//
-//    /** The first ballot date. */
-//    @Temporal(TemporalType.DATE)
-//    private Date firstBallotDate;
-//
-//
-//    /** The question submission first batch date. */
-//
-//    /** The number of question in first batch. */
-//    private Integer numberOfQuestionInFirstBatchUH;
-
     /*
      * devices enabled for a session.This will be a list of enabled device type separated
      * by comma
@@ -145,9 +102,6 @@ public class Session extends BaseDomain implements Serializable {
      * devices which require balloting.This will be a lsit of enabled device type separated
      * by comma.
      */
-//    /** The device types need ballot. */
-//    @Column(length=1000)
-//    private String deviceTypesNeedBallot;
 
     /** The duration in days. */
     private Integer durationInDays;
@@ -161,11 +115,7 @@ public class Session extends BaseDomain implements Serializable {
     /** The remarks. */
     @Column(length = 1000)
     private String remarks;
-
-    /** The rotation order text. */
-  /*  @Column(length = 30000)
-    private String rotationOrderText;*/
-    
+   
     /** The parameters. */
 	@ElementCollection
     @MapKeyColumn(name="parameter_key")
@@ -458,154 +408,6 @@ public class Session extends BaseDomain implements Serializable {
 		this.tentativeEndDate = tentativeEndDate;
 	}
 
-
-
-//
-//	/**
-//	 * Gets the question submission start date lh.
-//	 *
-//	 * @return the question submission start date lh
-//	 */
-//	public Date getQuestionSubmissionStartDateLH() {
-//		return questionSubmissionStartDateLH;
-//	}
-//
-//
-//	/**
-//	 * Sets the question submission start date lh.
-//	 *
-//	 * @param questionSubmissionStartDateLH the new question submission start date lh
-//	 */
-//	public void setQuestionSubmissionStartDateLH(final Date questionSubmissionStartDateLH) {
-//		this.questionSubmissionStartDateLH = questionSubmissionStartDateLH;
-//	}
-//
-//
-//	/**
-//	 * Gets the question submission end date lh.
-//	 *
-//	 * @return the question submission end date lh
-//	 */
-//	public Date getQuestionSubmissionEndDateLH() {
-//		return questionSubmissionEndDateLH;
-//	}
-//
-//
-//	/**
-//	 * Sets the question submission end date lh.
-//	 *
-//	 * @param questionSubmissionEndDateLH the new question submission end date lh
-//	 */
-//	public void setQuestionSubmissionEndDateLH(final Date questionSubmissionEndDateLH) {
-//		this.questionSubmissionEndDateLH = questionSubmissionEndDateLH;
-//	}
-//
-//
-//	/**
-//	 * Gets the question submission first batch start date uh.
-//	 *
-//	 * @return the question submission first batch start date uh
-//	 */
-//	public Date getQuestionSubmissionFirstBatchStartDateUH() {
-//		return questionSubmissionFirstBatchStartDateUH;
-//	}
-//
-//
-//	/**
-//	 * Sets the question submission first batch start date uh.
-//	 *
-//	 * @param questionSubmissionFirstBatchStartDateUH the new question submission first batch start date uh
-//	 */
-//	public void setQuestionSubmissionFirstBatchStartDateUH(
-//			final Date questionSubmissionFirstBatchStartDateUH) {
-//		this.questionSubmissionFirstBatchStartDateUH = questionSubmissionFirstBatchStartDateUH;
-//	}
-//
-//
-//	/**
-//	 * Gets the question submission first batch end date uh.
-//	 *
-//	 * @return the question submission first batch end date uh
-//	 */
-//	public Date getQuestionSubmissionFirstBatchEndDateUH() {
-//		return questionSubmissionFirstBatchEndDateUH;
-//	}
-//
-//
-//	/**
-//	 * Sets the question submission first batch end date uh.
-//	 *
-//	 * @param questionSubmissionFirstBatchEndDateUH the new question submission first batch end date uh
-//	 */
-//	public void setQuestionSubmissionFirstBatchEndDateUH(
-//			final Date questionSubmissionFirstBatchEndDateUH) {
-//		this.questionSubmissionFirstBatchEndDateUH = questionSubmissionFirstBatchEndDateUH;
-//	}
-//
-//
-//	/**
-//	 * Gets the question submission second batch start date uh.
-//	 *
-//	 * @return the question submission second batch start date uh
-//	 */
-//	public Date getQuestionSubmissionSecondBatchStartDateUH() {
-//		return questionSubmissionSecondBatchStartDateUH;
-//	}
-//
-//
-//	/**
-//	 * Sets the question submission second batch start date uh.
-//	 *
-//	 * @param questionSubmissionSecondBatchStartDateUH the new question submission second batch start date uh
-//	 */
-//	public void setQuestionSubmissionSecondBatchStartDateUH(
-//			final Date questionSubmissionSecondBatchStartDateUH) {
-//		this.questionSubmissionSecondBatchStartDateUH = questionSubmissionSecondBatchStartDateUH;
-//	}
-//
-//
-//	/**
-//	 * Gets the question submission second batch end date uh.
-//	 *
-//	 * @return the question submission second batch end date uh
-//	 */
-//	public Date getQuestionSubmissionSecondBatchEndDateUH() {
-//		return questionSubmissionSecondBatchEndDateUH;
-//	}
-//
-//
-//	/**
-//	 * Sets the question submission second batch end date uh.
-//	 *
-//	 * @param questionSubmissionSecondBatchEndDateUH the new question submission second batch end date uh
-//	 */
-//	public void setQuestionSubmissionSecondBatchEndDateUH(
-//			final Date questionSubmissionSecondBatchEndDateUH) {
-//		this.questionSubmissionSecondBatchEndDateUH = questionSubmissionSecondBatchEndDateUH;
-//	}
-//
-//
-//	/**
-//	 * Gets the number of question in first batch uh.
-//	 *
-//	 * @return the number of question in first batch uh
-//	 */
-//	public Integer getNumberOfQuestionInFirstBatchUH() {
-//		return numberOfQuestionInFirstBatchUH;
-//	}
-//
-//
-//	/**
-//	 * Sets the number of question in first batch uh.
-//	 *
-//	 * @param numberOfQuestionInFirstBatchUH the new number of question in first batch uh
-//	 */
-//	public void setNumberOfQuestionInFirstBatchUH(
-//			final Integer numberOfQuestionInFirstBatchUH) {
-//		this.numberOfQuestionInFirstBatchUH = numberOfQuestionInFirstBatchUH;
-//	}
-
-
 	/**
 	 * Gets the device types enabled.
 	 *
@@ -624,27 +426,6 @@ public class Session extends BaseDomain implements Serializable {
 	public void setDeviceTypesEnabled(final String deviceTypesEnabled) {
 		this.deviceTypesEnabled = deviceTypesEnabled;
 	}
-
-
-//	/**
-//	 * Gets the device types need ballot.
-//	 *
-//	 * @return the device types need ballot
-//	 */
-//	public String getDeviceTypesNeedBallot() {
-//		return deviceTypesNeedBallot;
-//	}
-//
-//
-//	/**
-//	 * Sets the device types need ballot.
-//	 *
-//	 * @param deviceTypesNeedBallot the new device types need ballot
-//	 */
-//	public void setDeviceTypesNeedBallot(final String deviceTypesNeedBallot) {
-//		this.deviceTypesNeedBallot = deviceTypesNeedBallot;
-//	}
-
 
 	/**
 	 * Gets the duration in days.
@@ -734,66 +515,6 @@ public class Session extends BaseDomain implements Serializable {
 	public void setSessionRepository(final SessionRepository sessionRepository) {
 		this.sessionRepository = sessionRepository;
 	}
-
-
-	/**
-	 * Gets the rotation order publishing date.
-	 *
-	 * @return the rotation order publishing date
-	 */
-	public Date getRotationOrderPublishingDate() {
-		return rotationOrderPublishingDate;
-	}
-
-
-	/**
-	 * Sets the rotation order publishing date.
-	 *
-	 * @param rotationOrderPublishingDate the new rotation order publishing date
-	 */
-	public void setRotationOrderPublishingDate(final Date rotationOrderPublishingDate) {
-		this.rotationOrderPublishingDate = rotationOrderPublishingDate;
-	}
-//
-//
-//	/**
-//	 * Gets the first ballot date.
-//	 *
-//	 * @return the first ballot date
-//	 */
-//	public Date getFirstBallotDate() {
-//		return firstBallotDate;
-//	}
-//
-//
-//	/**
-//	 * Sets the first ballot date.
-//	 *
-//	 * @param firstBallotDate the new first ballot date
-//	 */
-//	public void setFirstBallotDate(final Date firstBallotDate) {
-//		this.firstBallotDate = firstBallotDate;
-//	}
-
-
-	/**
-	 * Gets the rotation order text.
-	 *
-	 * @return the rotation order text
-	 */
-	/*public String getRotationOrderText() {
-		return rotationOrderText;
-	}*/
-
-
-	/**
-	 * Sets the rotation order text.
-	 *
-	 * @param rotationOrderText the new rotation order text
-	 */
-	/*public void setRotationOrderText(final String rotationOrderText) {
-		this.rotationOrderText = rotationOrderText;
-	}*/
 	
 	public Map<String, String> getParameters() {
 		
@@ -805,8 +526,8 @@ public class Session extends BaseDomain implements Serializable {
 			if((localParameters != null) & (!(localParameters.isEmpty()))){
 				
 				for (Map.Entry<String, String> entry : localParameters.entrySet()){
-				
-					if(entry.getKey().endsWith("Date")){
+					
+					if((entry.getKey().endsWith(("Date")))){
 						CustomParameter parameter;
 						if(entry.getValue().length()>10){
 							 parameter = CustomParameter.findByName(CustomParameter.class, "SERVER_DATETIMEFORMAT", "");
@@ -837,9 +558,59 @@ public class Session extends BaseDomain implements Serializable {
 						} catch (ParseException e) {
 
 							e.printStackTrace();
-						}		
+						}
 						
-						System.out.println(entry.getKey() + ":" + entry.getValue());
+					}else if((entry.getKey().endsWith(("Dates")))){
+						
+						String[] dates = entry.getValue().split("#");
+						
+						for(int i = 0; i < dates.length; i++){
+							
+							CustomParameter parameter;
+							
+							if(dates[i].length()>10){
+								 parameter = CustomParameter.findByName(CustomParameter.class, "SERVER_DATETIMEFORMAT", "");
+							}
+							else{
+								 parameter = CustomParameter.findByName(CustomParameter.class, "SERVER_DATEFORMAT", "");
+							}		
+							SimpleDateFormat dateFormat;
+							Date date;
+							
+							try {
+
+								if (this.getLocale().equalsIgnoreCase("mr_IN")) {
+									
+									dateFormat = new SimpleDateFormat(parameter.getValue(), new Locale("hi", "IN"));
+									
+								} else {
+
+									dateFormat = new SimpleDateFormat(parameter.getValue(), new Locale(this.getLocale()));
+								}
+
+								dateFormat.setLenient(true);
+
+								date = dateFormat.parse(dates[i]);
+								
+								dates[i] = dateFormat.format(date);
+								
+							} catch (ParseException e) {
+
+								e.printStackTrace();
+							}
+						}
+						
+						String value= ""; 
+						for(int i = 0; i < dates.length; i++){
+							
+							if((i == (dates.length - 1))){
+								value += dates[i];
+							}else{
+								value += dates[i] + "#";
+							}
+						}
+						entry.setValue(value);
+						
 					}else{
 						
 						try {
@@ -883,7 +654,8 @@ public class Session extends BaseDomain implements Serializable {
 				
 				for (Map.Entry<String, String> entry : localParameters.entrySet()){
 					CustomParameter parameter;
-					if(entry.getKey().endsWith("Date")){
+					
+					if((entry.getKey().endsWith(("Date")))){
 						if(entry.getValue().length()>10){
 							 parameter = CustomParameter.findByName(CustomParameter.class, "SERVER_DATETIMEFORMAT", "");
 						}
@@ -907,7 +679,46 @@ public class Session extends BaseDomain implements Serializable {
 							e.printStackTrace();
 						}		
 						
-						System.out.println(entry.getKey() + ":" + entry.getValue());
+					}else if((entry.getKey().endsWith(("Dates")))){
+						
+						String[] dates = entry.getValue().split("#");
+						for(int i = 0; i < dates.length; i++){
+						
+							if(dates[i].length()>10){
+								 parameter = CustomParameter.findByName(CustomParameter.class, "SERVER_DATETIMEFORMAT", "");
+							}
+							else{
+								 parameter = CustomParameter.findByName(CustomParameter.class, "SERVER_DATEFORMAT", "");
+							}
+									
+							SimpleDateFormat dateFormat = new SimpleDateFormat(parameter.getValue(),new Locale("en","US"));
+							Date date;
+							
+							try {
+	
+								dateFormat.setLenient(true);
+	
+								date = dateFormat.parse(dates[i]);
+								
+								dates[i] = dateFormat.format(date);
+								
+							} catch (ParseException e) {
+	
+								e.printStackTrace();
+							}		
+						}
+						
+						String value= ""; 
+						for(int i = 0; i < dates.length; i++){
+							
+							if((i == (dates.length - 1))){
+								value += dates[i];
+							}else{
+								value += dates[i] + "#";
+							}
+						}
+						entry.setValue(value);
+						
 					}else{
 						
 						try {
@@ -947,8 +758,6 @@ public class Session extends BaseDomain implements Serializable {
 	}
 
 	public static Session find(final Integer sessionyear, final String sessiontype, final String housetype) {
-     return getSessionRepository().find(sessionyear,sessiontype,housetype);
+		return getSessionRepository().find(sessionyear,sessiontype,housetype);
     }
-   
-    
-    }
+ }
