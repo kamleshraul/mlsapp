@@ -14,25 +14,23 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
-import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
-import java.util.Map;
+import java.util.Set;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 
-import org.mkcl.els.common.vo.Reference;
+import org.mkcl.els.common.vo.QuestionDatesVO;
 import org.mkcl.els.domain.CustomParameter;
 import org.mkcl.els.domain.Group;
-//import org.mkcl.els.domain.GroupInformation;
+import org.mkcl.els.domain.Holiday;
 import org.mkcl.els.domain.HouseType;
 import org.mkcl.els.domain.Ministry;
-import org.mkcl.els.domain.PartialUpdate;
 import org.mkcl.els.domain.QuestionDates;
 import org.mkcl.els.domain.Session;
 import org.mkcl.els.domain.SessionType;
-import org.springframework.jdbc.core.SqlOutParameter;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
 import org.springframework.validation.BindingResult;
@@ -119,7 +117,7 @@ javax.servlet.http.HttpServletRequest)
 	//To populate the sessiontype as per the housetype and year
 	List<Session> sessions=new ArrayList<Session>();
 	if(domain.getHouseType()!=null){
-		 sessions=Session.findSessionsByHouseTypeAndYear(domain.getHouseType(), currentYear);
+		 sessions=Session.findSessionsByHouseTypeAndYear(domain.getHouseType(), domain.getYear());
 	}
 	else{
 		 sessions=Session.findSessionsByHouseTypeAndYear(houseTypes.get(0), currentYear);
@@ -131,6 +129,8 @@ javax.servlet.http.HttpServletRequest)
     		sessionTypes.add(s.getType());
     	}
     }
+	Set<SessionType> uniqueSessionTypes = new HashSet<SessionType>(sessionTypes);
+	sessionTypes = new ArrayList<SessionType>(uniqueSessionTypes);
 	model.addAttribute("sessionTypes", sessionTypes);
 	
     }
@@ -220,6 +220,7 @@ org.springframework.validation.BindingResult, javax.servlet.http.HttpServletRequ
     	List<String> suchhiPrintingDates=new ArrayList<String>();
     	List<String> suchhiReceivingDates=new ArrayList<String>();
     	List<String> suchhiDistributionDates=new ArrayList<String>();
+    	List<String> speakerSendingDates=new ArrayList<String>();
     	List<String> selects = new ArrayList<String>();
     	SimpleDateFormat sf=new SimpleDateFormat("EEEE");
     	CustomParameter parameter = CustomParameter.findByName(
@@ -312,9 +313,71 @@ org.springframework.validation.BindingResult, javax.servlet.http.HttpServletRequ
     		submissionDate.setTime(d);
     		submissionDate.add(Calendar.DATE, -31);
     		Date sDate=submissionDate.getTime();
+    		sDate = Holiday.getLastWorkingDate(sDate, domain.getLocale());
+    		
+    		Calendar lastReceivingDatesFromDepartment1= Calendar.getInstance();
+    		lastReceivingDatesFromDepartment1.setTime(d);
+    		lastReceivingDatesFromDepartment1.add(Calendar.DATE, -6);
+    		Date lRDateFromDepartment=lastReceivingDatesFromDepartment1.getTime();
+    		lRDateFromDepartment = Holiday.getLastWorkingDate(lRDateFromDepartment, domain.getLocale());
+    		
+    		Calendar lastSendingDateToDepartment= Calendar.getInstance();
+    		lastSendingDateToDepartment.setTime(d);
+    		lastSendingDateToDepartment.add(Calendar.DATE, -24);
+    		Date lSendingDateToDepartment=lastSendingDateToDepartment.getTime();
+    		lSendingDateToDepartment = Holiday.getLastWorkingDate(lSendingDateToDepartment, domain.getLocale());
+    		
+    		Calendar yaadiPrintingDate= Calendar.getInstance();
+    		yaadiPrintingDate.setTime(d);
+    		yaadiPrintingDate.add(Calendar.DATE, -5);
+    		Date yPrintingDate =yaadiPrintingDate.getTime();
+    		yPrintingDate = Holiday.getLastWorkingDate(yPrintingDate, domain.getLocale());
+    		
+    		Calendar yaadiReceivingDate= Calendar.getInstance();
+    		yaadiReceivingDate.setTime(d);
+    		yaadiReceivingDate.add(Calendar.DATE, -2);
+    		Date yReceivingDate=yaadiReceivingDate.getTime();
+    		yReceivingDate = Holiday.getLastWorkingDate(yReceivingDate, domain.getLocale());
+    		
+    		Calendar suchhiPrintingDate= Calendar.getInstance();
+    		suchhiPrintingDate.setTime(d);
+    		suchhiPrintingDate.add(Calendar.DATE,-3);
+    		Date sPrintingDate=suchhiPrintingDate.getTime();
+    		sPrintingDate = Holiday.getLastWorkingDate(sPrintingDate, domain.getLocale());
+    		
+    		Calendar suchhiReceivingDate= Calendar.getInstance();
+    		suchhiReceivingDate.setTime(d);
+    		suchhiReceivingDate.add(Calendar.DATE,-2);
+    		Date sReceivingDate=suchhiReceivingDate.getTime();
+    		sReceivingDate = Holiday.getLastWorkingDate(sReceivingDate, domain.getLocale());
+    		
+    		Calendar suchhiDistributionDate= Calendar.getInstance();
+    		suchhiDistributionDate.setTime(d);
+    		suchhiDistributionDate.add(Calendar.DATE, -1);
+    		Date sDistributionDate=suchhiDistributionDate.getTime();
+    		sDistributionDate = Holiday.getLastWorkingDate(sDistributionDate, domain.getLocale());
+    		
+    		Calendar speakerSendingDate= Calendar.getInstance();
+    		speakerSendingDate.setTime(d);
+    		speakerSendingDate.add(Calendar.DATE, -26);
+    		Date sSendingDate=speakerSendingDate.getTime();
+    		sSendingDate = Holiday.getLastWorkingDate(sSendingDate, domain.getLocale());
+    		
     		QuestionDates qd = domain.findQuestionDatesByGroupAndAnsweringDate(d);
     		if(qd!=null){
-    			submissionDates.add(dateFormat.format(qd.getFinalSubmissionDate()));
+    			if(qd.getFinalSubmissionDate()!=null) {
+    				submissionDates.add(dateFormat.format(qd.getFinalSubmissionDate()));
+    			}
+    			else {
+    				submissionDates.add("");
+    			}
+//    			lastSendingDatesToDepartment.add(dateFormat.format(qd.getLastSendingDateToDepartment()));
+//    			lastReceivingDatesFromDepartment.add(dateFormat.format(qd.getLastReceivingDateFromDepartment()));
+//    			yaadiPrintingDates.add(dateFormat.format(qd.getYaadiPrintingDate()));
+//    			yaadiReceivingDates.add(dateFormat.format(qd.getYaadiReceivingDate()));
+//    			suchhiPrintingDates.add(dateFormat.format(qd.getSuchhiPrintingDate()));
+//    			suchhiReceivingDates.add(dateFormat.format(qd.getSuchhiReceivingDate()));
+//    			suchhiDistributionDates.add(dateFormat.format(qd.getSuchhiDistributionDate()));
     			if(qd.getLastSendingDateToDepartment()!=null) {
     				lastSendingDatesToDepartment.add(dateFormat.format(qd.getLastSendingDateToDepartment()));
     			}
@@ -356,17 +419,31 @@ org.springframework.validation.BindingResult, javax.servlet.http.HttpServletRequ
     			}
     			else {
     				suchhiDistributionDates.add("");
-    			}    			
+    			}    
+    			if(qd.getSpeakerSendingDate()!=null) {
+    				speakerSendingDates.add(dateFormat.format(qd.getSpeakerSendingDate()));
+    			}
+    			else {
+    				speakerSendingDates.add("");
+    			}    
     		}
     		else{
     			submissionDates.add(dateFormat.format(sDate));
-    			lastSendingDatesToDepartment.add("");
-    			lastReceivingDatesFromDepartment.add("");
-    			yaadiPrintingDates.add("");
-    			yaadiReceivingDates.add("");
-    			suchhiPrintingDates.add("");
-    			suchhiReceivingDates.add("");
-    			suchhiDistributionDates.add("");
+    			lastReceivingDatesFromDepartment.add(dateFormat.format(lRDateFromDepartment));
+    			lastSendingDatesToDepartment.add(dateFormat.format(lSendingDateToDepartment));
+    			yaadiPrintingDates.add(dateFormat.format(yPrintingDate));
+    			yaadiReceivingDates.add(dateFormat.format(yReceivingDate));
+    			suchhiPrintingDates.add(dateFormat.format(sPrintingDate));
+    			suchhiReceivingDates.add(dateFormat.format(sReceivingDate));
+    			suchhiDistributionDates.add(dateFormat.format(sDistributionDate));
+    			speakerSendingDates.add(dateFormat.format(sSendingDate));
+//    			lastSendingDatesToDepartment.add("");
+//    			lastReceivingDatesFromDepartment.add("");
+//    			yaadiPrintingDates.add("");
+//    			yaadiReceivingDates.add("");
+//    			suchhiPrintingDates.add("");
+//    			suchhiReceivingDates.add("");
+//    			suchhiDistributionDates.add("");
     		}    		
     	}    	
     	model.addAttribute("submissionDates",submissionDates);
@@ -377,6 +454,7 @@ org.springframework.validation.BindingResult, javax.servlet.http.HttpServletRequ
     	model.addAttribute("suchhiPrintingDates",suchhiPrintingDates);
     	model.addAttribute("suchhiReceivingDates",suchhiReceivingDates);
     	model.addAttribute("suchhiDistributionDates",suchhiDistributionDates);
+    	model.addAttribute("speakerSendingDates",speakerSendingDates);
 	    model.addAttribute("dateCount",answeringDates.size());
 	    model.addAttribute("domain", domain);
 		return urlPattern+"/"+"edit";
@@ -423,6 +501,7 @@ org.springframework.validation.BindingResult, javax.servlet.http.HttpServletRequ
 			Date suchhiPrintingDate=null;
 			Date suchhiReceivingDate=null;
 			Date suchhiDistributionDate=null;
+			Date speakerSendingDate=null;
 			if(request.getParameter("date"+i)!=null){				
 				if(request.getParameter("date"+i).equals("true")){
 					String aDate=request.getParameter("answeringDate"+i);
@@ -495,6 +574,15 @@ org.springframework.validation.BindingResult, javax.servlet.http.HttpServletRequ
 						// TODO Auto-generated catch block
 						e.printStackTrace();
 					}
+					String strSpeakerSendingDate=request.getParameter("speakerSendingDate"+i);
+					try {
+						if(!strSpeakerSendingDate.isEmpty())
+							speakerSendingDate=sf.parse(strSpeakerSendingDate);
+					} catch (ParseException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+
 					QuestionDates questionDate= new QuestionDates();
 					QuestionDates qd= domain.findQuestionDatesByGroupAndAnsweringDate( answeringDate);					
 					if(qd!=null){
@@ -509,6 +597,7 @@ org.springframework.validation.BindingResult, javax.servlet.http.HttpServletRequ
 					questionDate.setSuchhiPrintingDate(suchhiPrintingDate);
 					questionDate.setSuchhiReceivingDate(suchhiReceivingDate);
 					questionDate.setSuchhiDistributionDate(suchhiDistributionDate);
+					questionDate.setSpeakerSendingDate(speakerSendingDate);
 					questionDate.setLocale(domain.getLocale());
 					questionDates.add(questionDate);					
 				}				
@@ -541,5 +630,20 @@ org.springframework.validation.BindingResult, javax.servlet.http.HttpServletRequ
 		+ ((Group) domain).getId() + "/edit";
 		return returnUrl;
 	}
-
+    
+    
+    @RequestMapping(value="/report",method=RequestMethod.GET)
+    public String printReport(final HttpServletRequest request,final Locale locale,final ModelMap model){      	
+        String strHouseType=request.getParameter("houseType");
+        String strSessionType=request.getParameter("sessionType");
+        String strSessionYear=request.getParameter("sessionYear");
+        if(strHouseType!=null&&strSessionType!=null&&strSessionYear!=null){
+            HouseType houseType=HouseType.findByFieldName(HouseType.class,"type",strHouseType, locale.toString());
+            SessionType sessionType=SessionType.findById(SessionType.class,Long.parseLong(strSessionType));
+            Integer sessionYear=Integer.parseInt(strSessionYear);
+            List<QuestionDatesVO> questionDates=Group.findAllGroupDatesFormatted(houseType, sessionType, sessionYear,locale.toString());
+            model.addAttribute("dates",questionDates);
+        }
+        return "group/report";
+    }
 }
