@@ -10,12 +10,12 @@
 package org.mkcl.els.domain;
 
 import java.io.Serializable;
+import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
-
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -26,10 +26,11 @@ import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
-
 import org.codehaus.jackson.annotate.JsonIgnoreProperties;
 import org.mkcl.els.common.util.ApplicationConstants;
 import org.mkcl.els.common.util.DateFormater;
+import org.mkcl.els.common.util.FormaterUtil;
+import org.mkcl.els.common.vo.QuestionDatesVO;
 import org.mkcl.els.repository.GroupRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Configurable;
@@ -198,6 +199,13 @@ public class Group extends BaseDomain implements Serializable {
 			 return null;
 	    }
 
+		 
+		
+		 public static List<QuestionDatesVO> findAllGroupDatesFormatted(final HouseType houseType,
+		            final SessionType sessionType, final Integer sessionYear, final String string) {
+		        return getGroupRepository().findAllGroupDatesFormatted(houseType,
+		               sessionType,sessionYear,string);
+		    }
     // ----------------------------Getters/Setters------------------------//
 	public HouseType getHouseType() {
 		return houseType;
@@ -254,5 +262,10 @@ public class Group extends BaseDomain implements Serializable {
             final Integer sessionYear, final SessionType sessionType, final String locale) {
         return getGroupRepository().find(ministry,houseType,
                 sessionYear,sessionType,locale);
+    }
+    
+    public String formatNumber(){
+        NumberFormat format=FormaterUtil.getNumberFormatterNoGrouping(this.getLocale());
+        return format.format(this.getNumber());
     }
 }
