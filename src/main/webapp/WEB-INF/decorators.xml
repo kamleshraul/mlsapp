@@ -233,8 +233,10 @@
 		<pattern>/workflow/question/supportingmember</pattern>	
 		<pattern>/workflow/myTasks/*/process</pattern>	
 		
-		
-			
+		<pattern>/holiday</pattern>
+		<pattern>/holiday/new</pattern>
+		<pattern>/holiday/*/edit</pattern>
+		<pattern>/holiday/*/delete</pattern>				
 		
 	</decorator>
 	<decorator name="mnu_form" page="mnu_form.jsp">
