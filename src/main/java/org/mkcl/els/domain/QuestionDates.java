@@ -63,6 +63,9 @@ public class QuestionDates extends BaseDomain implements Serializable {
 
     @Temporal(TemporalType.DATE)
     private Date suchhiDistributionDate;
+    
+    @Temporal(TemporalType.DATE)
+    private Date speakerSendingDate;
 
 
     // ---------------------------------Constructors----------------------//
@@ -183,6 +186,14 @@ public class QuestionDates extends BaseDomain implements Serializable {
     public void setSuchhiDistributionDate(final Date suchhiDistributionDate) {
         this.suchhiDistributionDate = suchhiDistributionDate;
     }
+
+	public Date getSpeakerSendingDate() {
+		return speakerSendingDate;
+	}
+
+	public void setSpeakerSendingDate(Date speakerSendingDate) {
+		this.speakerSendingDate = speakerSendingDate;
+	}
 
 
 
