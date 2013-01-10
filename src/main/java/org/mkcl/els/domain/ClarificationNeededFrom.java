@@ -6,6 +6,9 @@ import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Table;
 
+import org.springframework.beans.factory.annotation.Configurable;
+
+@Configurable
 @Entity
 @Table(name="clarification_needed_from")
 public class ClarificationNeededFrom extends BaseDomain implements Serializable{
