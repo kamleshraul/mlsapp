@@ -5,7 +5,7 @@ import java.util.List;
 
 import javax.persistence.TypedQuery;
 
-import org.mkcl.els.common.util.DateFormater;
+import org.mkcl.els.common.util.FormaterUtil;
 import org.mkcl.els.domain.Chart;
 import org.mkcl.els.domain.CustomParameter;
 import org.mkcl.els.domain.Group;
@@ -42,7 +42,7 @@ public class ChartRepository extends BaseRepository<Chart, Long> {
 		//	CustomParameter.findByName(CustomParameter.class, "DB_DATEFORMAT", "");
 		// String date = new DateFormater().formatDateToString(answeringDate, parameter.getValue());
 
-		String date = new DateFormater().formatDateToString(answeringDate, "yyyy-MM-dd");
+		String date = FormaterUtil.formatDateToString(answeringDate, "yyyy-MM-dd");
 		String strQuery = "SELECT m" +
 				" FROM Chart c JOIN c.chartEntries ce JOIN ce.member m" +
 				" WHERE c.session.id = " + session.getId() +
@@ -62,7 +62,7 @@ public class ChartRepository extends BaseRepository<Chart, Long> {
 		CustomParameter parameter =
 			CustomParameter.findByName(CustomParameter.class, "DB_DATEFORMAT", "");
 
-		String date = new DateFormater().formatDateToString(answeringDate, parameter.getValue());
+		String date = FormaterUtil.formatDateToString(answeringDate, parameter.getValue());
 		String strQuery = "SELECT q" +
 				" FROM Chart c JOIN c.chartEntries ce JOIN ce.questions q" +
 				" WHERE c.session.id = " + session.getId() +
@@ -83,7 +83,7 @@ public class ChartRepository extends BaseRepository<Chart, Long> {
 		CustomParameter parameter =
 			CustomParameter.findByName(CustomParameter.class, "DB_DATEFORMAT", "");
 
-		String date = new DateFormater().formatDateToString(answeringDate, parameter.getValue());
+		String date = FormaterUtil.formatDateToString(answeringDate, parameter.getValue());
 		String strQuery = "SELECT q" +
 				" FROM Chart c JOIN c.chartEntries ce JOIN ce.questions q" +
 				" WHERE c.session.id = " + session.getId() +
@@ -107,7 +107,7 @@ public class ChartRepository extends BaseRepository<Chart, Long> {
 		//	CustomParameter.findByName(CustomParameter.class, "DB_DATEFORMAT", "");
 		// String date = new DateFormater().formatDateToString(answeringDate, parameter.getValue());
 
-		String date = new DateFormater().formatDateToString(answeringDate, "yyyy-MM-dd");
+		String date = FormaterUtil.formatDateToString(answeringDate, "yyyy-MM-dd");
 		String strQuery = "SELECT q" +
 				" FROM Chart c JOIN c.chartEntries ce JOIN ce.questions q" +
 				" WHERE c.session.id = " + session.getId() +
@@ -141,7 +141,7 @@ public class ChartRepository extends BaseRepository<Chart, Long> {
             final String locale) {
         CustomParameter parameter =
                 CustomParameter.findByName(CustomParameter.class, "DB_DATEFORMAT", "");
-        String date = new DateFormater().formatDateToString(answeringDate, parameter.getValue());
+        String date = FormaterUtil.formatDateToString(answeringDate, parameter.getValue());
 
         String strQuery = "SELECT COUNT(q)" +
         " FROM Chart c JOIN c.chartEntries ce JOIN ce.questions q" +
@@ -171,7 +171,7 @@ public class ChartRepository extends BaseRepository<Chart, Long> {
 
         CustomParameter parameter =
             CustomParameter.findByName(CustomParameter.class, "DB_DATEFORMAT", "");
-        String date = new DateFormater().formatDateToString(answeringDate, parameter.getValue());
+        String date = FormaterUtil.formatDateToString(answeringDate, parameter.getValue());
 
         String query = "UPDATE questions" +
             " SET internalstatus_id = " + internalStatus.getId() +
