@@ -11,6 +11,7 @@
 package org.mkcl.els.domain;
 
 import java.io.Serializable;
+import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -31,6 +32,7 @@ import javax.persistence.TemporalType;
 
 import org.codehaus.jackson.annotate.JsonIgnoreProperties;
 import org.mkcl.els.common.util.ApplicationConstants;
+import org.mkcl.els.common.util.FormaterUtil;
 import org.mkcl.els.common.vo.QuestionRevisionVO;
 import org.mkcl.els.common.vo.QuestionSearchVO;
 import org.mkcl.els.repository.QuestionRepository;
@@ -48,7 +50,7 @@ import org.springframework.beans.factory.annotation.Configurable;
 @Configurable
 @Entity
 @Table(name="questions")
-@JsonIgnoreProperties({"answeringDate","recommendationStatus","houseType", "session","language","type","supportingMembers", "subDepartment", "referencedQuestions", "drafts","clubbings","group","editedBy","editedAs","clarificationNeededFrom"})
+@JsonIgnoreProperties({"answeringDate","recommendationStatus","houseType", "session","language","type","supportingMembers", "subDepartment", "referencedQuestions", "drafts","clubbings","group","editedBy","editedAs"})
 public class Question extends BaseDomain
 implements Serializable
 {
@@ -245,6 +247,18 @@ implements Serializable
     @Column(length=5000)
     private String prospectiveClubbings;
 
+    //--------------------------Clubbing Entities------------------------------------------
+    @ManyToMany(fetch=FetchType.LAZY)
+    @JoinTable(name="questions_clubbingentities", joinColumns={@JoinColumn(name="question_id", referencedColumnName="id")}, inverseJoinColumns={@JoinColumn(name="clubbed_entity_id", referencedColumnName="id")})
+    private List<ClubbedEntity> clubbedEntities;
+
+    //--------------------------Referenced Entities------------------------------------------
+    @ManyToMany(fetch=FetchType.LAZY)
+    @JoinTable(name="questions_referencedentities", joinColumns={@JoinColumn(name="question_id", referencedColumnName="id")}, inverseJoinColumns={@JoinColumn(name="referenced_entity_id", referencedColumnName="id")})
+    private List<ReferencedEntity> referencedEntities;
+
+
+
     /** The question repository. */
     @Autowired
     private transient QuestionRepository questionRepository;
@@ -418,7 +432,7 @@ implements Serializable
             }
         }
     }
-
+    
     /**
      * Find last starred unstarred short notice question no.
      *
@@ -1884,5 +1898,34 @@ implements Serializable
         return getQuestionRepository().createMemberBallotAttendance(session,
                 questionType,locale);
     }
+    public static List<Question> findAdmittedStarredQuestionsUH(
+            final Session session, final DeviceType questionType, final Member member,
+            final String locale) {
+        return getQuestionRepository().findAdmittedStarredQuestionsUH(
+                session,questionType,member,
+                locale);
+    }
+
+    public String findFormattedNumber(){
+        NumberFormat format=FormaterUtil.getNumberFormatterNoGrouping(this.getLocale());
+        return format.format(this.getNumber());
+    }
+
+    public List<ClubbedEntity> getClubbedEntities() {
+        return clubbedEntities;
+    }
+
+    public void setClubbedEntities(final List<ClubbedEntity> clubbedEntities) {
+        this.clubbedEntities = clubbedEntities;
+    }
+    public void setReferencedEntities(final List<ReferencedEntity> referencedEntities) {
+        this.referencedEntities = referencedEntities;
+    }
+    public List<ReferencedEntity> getReferencedEntities() {
+        return referencedEntities;
+    }
+
+
+
 
 }
