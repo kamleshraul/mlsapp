@@ -9,7 +9,6 @@ import java.util.List;
 import javax.persistence.TypedQuery;
 
 import org.mkcl.els.common.util.ApplicationConstants;
-import org.mkcl.els.common.util.DateFormater;
 import org.mkcl.els.common.util.FormaterUtil;
 import org.mkcl.els.common.vo.QuestionRevisionVO;
 import org.mkcl.els.common.vo.QuestionSearchVO;
@@ -898,7 +897,7 @@ public class QuestionRepository extends BaseRepository<Question, Long>{
         // CustomParameter parameter = CustomParameter.findByName(CustomParameter.class,
         //		"DB_TIMESTAMP", "");
         // String strDate = new DateFormater().formatDateToString(date, parameter.getValue());
-        String strDate = new DateFormater().formatDateToString(date, "yyyy-MM-dd HH:mm:ss");
+        String strDate = FormaterUtil.formatDateToString(date, "yyyy-MM-dd HH:mm:ss");
         String str = strDate.replaceFirst("00:00:00", "23:59:59");
         return str;
     }
@@ -908,7 +907,7 @@ public class QuestionRepository extends BaseRepository<Question, Long>{
         // CustomParameter parameter = CustomParameter.findByName(CustomParameter.class,
         //		"DB_DATEFORMAT", "");
         // String strDate = new DateFormater().formatDateToString(date, parameter.getValue());
-        String strDate = new DateFormater().formatDateToString(date, "yyyy-MM-dd");
+        String strDate = FormaterUtil.formatDateToString(date, "yyyy-MM-dd");
         String str = strDate.replaceFirst("00:00:00", "23:59:59");
         return str;
     }
@@ -943,8 +942,8 @@ public class QuestionRepository extends BaseRepository<Question, Long>{
         // CustomParameter parameter = CustomParameter.findByName(CustomParameter.class,
         //      "DB_TIMESTAMP", "");
         // String strDate = new DateFormater().formatDateToString(date, parameter.getValue());
-        String strStartTime = new DateFormater().formatDateToString(startTime, "yyyy-MM-dd HH:mm:ss");
-        String strEndTime = new DateFormater().formatDateToString(endTime, "yyyy-MM-dd HH:mm:ss");
+        String strStartTime = FormaterUtil.formatDateToString(startTime, "yyyy-MM-dd HH:mm:ss");
+        String strEndTime = FormaterUtil.formatDateToString(endTime, "yyyy-MM-dd HH:mm:ss");
 
         StringBuffer query = new StringBuffer(
                 " SELECT q" +
@@ -985,8 +984,8 @@ public class QuestionRepository extends BaseRepository<Question, Long>{
         // CustomParameter parameter = CustomParameter.findByName(CustomParameter.class,
         //      "DB_TIMESTAMP", "");
         // String strDate = new DateFormater().formatDateToString(date, parameter.getValue());
-        String strStartTime = new DateFormater().formatDateToString(startTime, "yyyy-MM-dd HH:mm:ss");
-        String strEndTime = new DateFormater().formatDateToString(endTime, "yyyy-MM-dd HH:mm:ss");
+        String strStartTime = FormaterUtil.formatDateToString(startTime, "yyyy-MM-dd HH:mm:ss");
+        String strEndTime = FormaterUtil.formatDateToString(endTime, "yyyy-MM-dd HH:mm:ss");
 
         StringBuffer query = new StringBuffer(
                 " SELECT q" +
@@ -1029,8 +1028,8 @@ public class QuestionRepository extends BaseRepository<Question, Long>{
         // CustomParameter parameter = CustomParameter.findByName(CustomParameter.class,
         //      "DB_TIMESTAMP", "");
         // String strDate = new DateFormater().formatDateToString(date, parameter.getValue());
-        String strStartTime = new DateFormater().formatDateToString(startTime, "yyyy-MM-dd HH:mm:ss");
-        String strEndTime = new DateFormater().formatDateToString(endTime, "yyyy-MM-dd HH:mm:ss");
+        String strStartTime = FormaterUtil.formatDateToString(startTime, "yyyy-MM-dd HH:mm:ss");
+        String strEndTime = FormaterUtil.formatDateToString(endTime, "yyyy-MM-dd HH:mm:ss");
 
         StringBuffer query = new StringBuffer(
                 " SELECT q" +
@@ -1065,8 +1064,8 @@ public class QuestionRepository extends BaseRepository<Question, Long>{
         // CustomParameter parameter = CustomParameter.findByName(CustomParameter.class,
         //      "DB_TIMESTAMP", "");
         // String strDate = new DateFormater().formatDateToString(date, parameter.getValue());
-        String strStartTime = new DateFormater().formatDateToString(startTime, "yyyy-MM-dd HH:mm:ss");
-        String strEndTime = new DateFormater().formatDateToString(endTime, "yyyy-MM-dd HH:mm:ss");
+        String strStartTime = FormaterUtil.formatDateToString(startTime, "yyyy-MM-dd HH:mm:ss");
+        String strEndTime = FormaterUtil.formatDateToString(endTime, "yyyy-MM-dd HH:mm:ss");
 
         StringBuffer query = new StringBuffer(
                 " SELECT q" +
@@ -1108,8 +1107,8 @@ public class QuestionRepository extends BaseRepository<Question, Long>{
             CustomParameter customParameter=CustomParameter.findByName(CustomParameter.class,"DB_TIMESTAMP", "");
             if(customParameter!=null){
                 SimpleDateFormat format=FormaterUtil.getDateFormatter(customParameter.getValue(),"en_US");
-                Date startTime = DateFormater.formatStringToDate(session.getParamater(questionType.getType() +"_submissionFirstBatchStartDate"), customParameter.getValue(), session.getLocale());
-				Date endTime = DateFormater.formatStringToDate(session.getParamater(questionType.getType() +"_submissionFirstBatchEndDate"), customParameter.getValue(), session.getLocale());
+                Date startTime = FormaterUtil.formatStringToDate(session.getParamater(questionType.getType() +"_submissionFirstBatchStartDate"), customParameter.getValue(), session.getLocale());
+				Date endTime = FormaterUtil.formatStringToDate(session.getParamater(questionType.getType() +"_submissionFirstBatchEndDate"), customParameter.getValue(), session.getLocale());
                 if(startTime!=null && endTime!=null){
                     String startTimeStr=format.format(startTime);
                     String endTimeStr=format.format(endTime);
@@ -1145,6 +1144,78 @@ public class QuestionRepository extends BaseRepository<Question, Long>{
         }else{
             return false;
         }
+    }
+
+    public List<Question> find(final Session session,
+    		final DeviceType deviceType,
+    		final Date startTime,
+    		final Date endTime,
+    		final Status[] internalStatuses,
+    		final String sortOrder,
+    		final String locale) {
+    	// Removed for performance reason. Uncomment when Caching mechanism is added
+        // CustomParameter parameter = CustomParameter.findByName(CustomParameter.class,
+        //      "DB_TIMESTAMP", "");
+        // String strDate = new DateFormater().formatDateToString(date, parameter.getValue());
+        String strStartTime = FormaterUtil.formatDateToString(startTime, "yyyy-MM-dd HH:mm:ss");
+        String strEndTime = FormaterUtil.formatDateToString(endTime, "yyyy-MM-dd HH:mm:ss");
+        
+        StringBuffer query = new StringBuffer(
+                " SELECT q" +
+                " FROM Question q" +
+                " WHERE q.session.id = " + session.getId() +
+                " AND q.type.id = " + deviceType.getId() +
+                " AND q.submissionDate >= '" + strStartTime + "'" +
+                " AND q.submissionDate <= '" + strEndTime + "'" +
+                " AND q.locale = '" + locale + "'"
+        );
+        query.append(this.getStatusFilters(internalStatuses));
+        if(sortOrder.equals(ApplicationConstants.ASC)) {
+            query.append(" ORDER BY q.number ASC");
+        }
+        else if(sortOrder.equals(ApplicationConstants.DESC)) {
+            query.append(" ORDER BY q.number DESC");
+        }
+
+        TypedQuery<Question> tQuery = this.em().createQuery(query.toString(), Question.class);
+        List<Question> questions = tQuery.getResultList();
+        return questions;
+    }
+    
+    public List<Member> findPrimaryMembers(final Session session,
+    		final DeviceType deviceType,
+    		final Date startTime,
+    		final Date endTime,
+    		final Status[] internalStatuses,
+    		final String sortOrder,
+    		final String locale) {
+    	// Removed for performance reason. Uncomment when Caching mechanism is added
+        // CustomParameter parameter = CustomParameter.findByName(CustomParameter.class,
+        //      "DB_TIMESTAMP", "");
+        // String strDate = new DateFormater().formatDateToString(date, parameter.getValue());
+        String strStartTime = FormaterUtil.formatDateToString(startTime, "yyyy-MM-dd HH:mm:ss");
+        String strEndTime = FormaterUtil.formatDateToString(endTime, "yyyy-MM-dd HH:mm:ss");
+        
+        StringBuffer query = new StringBuffer(
+                " SELECT UNIQUE(q.primaryMember)" +
+                " FROM Question q" +
+                " WHERE q.session.id = " + session.getId() +
+                " AND q.type.id = " + deviceType.getId() +
+                " AND q.submissionDate >= '" + strStartTime + "'" +
+                " AND q.submissionDate <= '" + strEndTime + "'" +
+                " AND q.locale = '" + locale + "'"
+        );
+        query.append(this.getStatusFilters(internalStatuses));
+        if(sortOrder.equals(ApplicationConstants.ASC)) {
+            query.append(" ORDER BY q.number ASC");
+        }
+        else if(sortOrder.equals(ApplicationConstants.DESC)) {
+            query.append(" ORDER BY q.number DESC");
+        }
+
+        TypedQuery<Member> tQuery = this.em().createQuery(query.toString(), Member.class);
+        List<Member> members = tQuery.getResultList();
+        return members;
     }
 
 }
