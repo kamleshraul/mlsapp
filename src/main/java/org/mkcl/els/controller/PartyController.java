@@ -16,7 +16,6 @@ import java.util.List;
 import javax.servlet.http.HttpServletRequest;
 
 import org.mkcl.els.common.editors.BaseEditor;
-import org.mkcl.els.common.util.DateFormater;
 import org.mkcl.els.common.util.FormaterUtil;
 import org.mkcl.els.domain.BaseDomain;
 import org.mkcl.els.domain.CustomParameter;
@@ -209,8 +208,7 @@ public class PartyController extends GenericController<Party> {
         for(int i=1; i<=symbolCount; i++) {
         	PartySymbol ps = new PartySymbol();
             ps.setSymbol(request.getParameter("symbol"+i));
-            DateFormater toDate = new DateFormater();
-            ps.setChangeDate(toDate.formatStringToDate((request.getParameter("changeDate"+i)), "dd/MM/yyyy"));
+            ps.setChangeDate(FormaterUtil.formatStringToDate((request.getParameter("changeDate"+i)), "dd/MM/yyyy"));
             ps.setLocale(domain.getLocale());
             partySymbols.add(ps);
             //ps.persist();
@@ -232,8 +230,7 @@ public class PartyController extends GenericController<Party> {
         		ps.setSymbol(request.getParameter("symbol"+i));
 
         		if(!request.getParameter("changeDate"+i).isEmpty()) {
-        			DateFormater toDate = new DateFormater();
-        			ps.setChangeDate(toDate.formatStringToDate((request.getParameter("changeDate"+i)), "dd/MM/yyyy"));
+        			ps.setChangeDate(FormaterUtil.formatStringToDate((request.getParameter("changeDate"+i)), "dd/MM/yyyy"));
         		}
 
         		String id=request.getParameter("partySymbolId"+ i);
