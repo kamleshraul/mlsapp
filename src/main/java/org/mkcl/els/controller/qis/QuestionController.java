@@ -1,5 +1,6 @@
 package org.mkcl.els.controller.qis;
 
+import java.text.NumberFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -40,6 +41,7 @@ import org.mkcl.els.domain.Language;
 import org.mkcl.els.domain.Member;
 import org.mkcl.els.domain.MemberBallot;
 import org.mkcl.els.domain.MemberBallotAttendance;
+import org.mkcl.els.domain.MemberBallotChoice;
 import org.mkcl.els.domain.MemberMinister;
 import org.mkcl.els.domain.Ministry;
 import org.mkcl.els.domain.Question;
@@ -208,6 +210,18 @@ public class QuestionController extends GenericController<Question>{
             }
         }else{
             model.addAttribute("errorcode","workunderprogress");
+        }
+        CustomParameter totalRoundsCouncilBallot=CustomParameter.findByName(CustomParameter.class,"STARRED_MEMBERBALLOTCOUNCIL_TOTALROUNDS", "");
+        if(totalRoundsCouncilBallot!=null){
+            int rounds=Integer.parseInt(totalRoundsCouncilBallot.getValue());
+            List<Reference> references=new ArrayList<Reference>();
+            NumberFormat format=FormaterUtil.getNumberFormatterNoGrouping(locale);
+            for(int i=1;i<=rounds;i++){
+                references.add(new Reference(String.valueOf(i),String.valueOf(format.format(i))));
+            }
+            model.addAttribute("rounds",references);
+        }else{
+            logger.error("**** Custom Parameter 'STARRED_MEMBERBALLOTCOUNCIL_TOTALROUNDS' not set");
         }
     }
 
@@ -392,12 +406,13 @@ public class QuestionController extends GenericController<Question>{
                     Date rotationOrderPubDate=null;
                     CustomParameter serverDateFormat = CustomParameter.findByName(CustomParameter.class, "DB_DATEFORMAT", "");
                     if(houseType.getType().equals("lowerhouse")){
-                    	String strRotationOrderPubDate = selectedSession.getParamater("questions_starred_rotationOrderPublishingDate");
+                        String strRotationOrderPubDate = selectedSession.getParamater("questions_starred_rotationOrderPublishingDate");
                         rotationOrderPubDate = FormaterUtil.formatStringToDate(strRotationOrderPubDate, serverDateFormat.getValue());
                     }else if(houseType.getType().equals("upperhouse")){
-                    	String strRotationOrderPubDate = selectedSession.getParamater("questions_starred_rotationOrderPublishingDate");
+                        String strRotationOrderPubDate = selectedSession.getParamater("questions_starred_rotationOrderPublishingDate");
                         rotationOrderPubDate = FormaterUtil.formatStringToDate(strRotationOrderPubDate, serverDateFormat.getValue());
-                    }	CustomParameter rotationOrderDateFormat=CustomParameter.findByName(CustomParameter.class,"ROTATION_ORDER_DATE_FORMAT", "");
+                    }   CustomParameter rotationOrderDateFormat=CustomParameter.findByName(CustomParameter.class,"ROTATION_ORDER_DATE_FORMAT", "");
+
                     if(rotationOrderDateFormat!=null){
                         if(rotationOrderPubDate!=null){
                             /*
@@ -563,10 +578,10 @@ public class QuestionController extends GenericController<Question>{
             Date rotationOrderPubDate=null;
             CustomParameter serverDateFormat = CustomParameter.findByName(CustomParameter.class, "DB_DATEFORMAT", "");
             if(houseType.getType().equals("lowerhouse")){
-            	String strRotationOrderPubDate = selectedSession.getParamater("questions_starred_rotationOrderPublishingDate");
+                String strRotationOrderPubDate = selectedSession.getParamater("questions_starred_rotationOrderPublishingDate");
                 rotationOrderPubDate = FormaterUtil.formatStringToDate(strRotationOrderPubDate, serverDateFormat.getValue());
             }else if(houseType.getType().equals("upperhouse")){
-            	String strRotationOrderPubDate = selectedSession.getParamater("questions_starred_rotationOrderPublishingDate");
+                String strRotationOrderPubDate = selectedSession.getParamater("questions_starred_rotationOrderPublishingDate");
                 rotationOrderPubDate = FormaterUtil.formatStringToDate(strRotationOrderPubDate, serverDateFormat.getValue());
             }
             CustomParameter rotationOrderDateFormat=CustomParameter.findByName(CustomParameter.class,"ROTATION_ORDER_DATE_FORMAT", "");
@@ -1341,8 +1356,8 @@ public class QuestionController extends GenericController<Question>{
         /*
          * updating submission date and creation date
          */
-        String strCreationDate=request.getParameter("setSubmissionDate");
-        String strSubmissionDate=request.getParameter("setCreationDate");
+        String strCreationDate=request.getParameter("setCreationDate");
+        String strSubmissionDate=request.getParameter("setSubmissionDate");
         CustomParameter dateTimeFormat=CustomParameter.findByName(CustomParameter.class,"SERVER_DATETIMEFORMAT", "");
         if(dateTimeFormat!=null){
             SimpleDateFormat format=FormaterUtil.getDateFormatter(dateTimeFormat.getValue(),domain.getLocale());
@@ -1618,26 +1633,26 @@ public class QuestionController extends GenericController<Question>{
     }
 
     @RequestMapping(value="/citations/{deviceType}",method=RequestMethod.GET)
-    public String getCitations(final HttpServletRequest request,final Locale locale,@PathVariable("deviceType")  final Long type,
+    public String getCitations(final HttpServletRequest request, final Locale locale,@PathVariable("deviceType")  final Long type,
             final ModelMap model){
         DeviceType deviceType=DeviceType.findById(DeviceType.class,type);
         List<Citation> deviceTypeBasedcitations=Citation.findAllByFieldName(Citation.class,"deviceType",deviceType, "text",ApplicationConstants.ASC, locale.toString());
         Status status=null;
         if(request.getParameter("status")!=null){
-        	  status=Status.findById(Status.class, Long.parseLong(request.getParameter("status")));	
+              status=Status.findById(Status.class, Long.parseLong(request.getParameter("status"))); 
         }
         List<Citation> citations=new ArrayList<Citation>();
         if(status!=null){
-        	 for(Citation i:deviceTypeBasedcitations){
-            	if(i.getStatus()!=null){
-            		if(i.getStatus().equals(status.getType())){
-            			citations.add(i);
-            		}
-            	}
+             for(Citation i:deviceTypeBasedcitations){
+                if(i.getStatus()!=null){
+                    if(i.getStatus().equals(status.getType())){
+                        citations.add(i);
+                    }
+                }
             }
          }
-        model.addAttribute("citations",citations);
         
+        model.addAttribute("citations",citations);
         return "question/citation";
     }
 
@@ -1776,7 +1791,7 @@ public class QuestionController extends GenericController<Question>{
             CustomParameter parameter =
                 CustomParameter.findByName(CustomParameter.class, "DB_DATEFORMAT", "");
             String strAnsweringDate =
-            	FormaterUtil.formatDateToString(answeringDate, parameter.getValue());
+                FormaterUtil.formatDateToString(answeringDate, parameter.getValue());
             model.addAttribute("answeringDate", strAnsweringDate);
         }
         else {
@@ -2014,7 +2029,7 @@ public class QuestionController extends GenericController<Question>{
             CustomParameter parameter =
                 CustomParameter.findByName(CustomParameter.class, "DB_DATEFORMAT", "");
             String strAnsweringDate =
-            	FormaterUtil.formatDateToString(answeringDate, parameter.getValue());
+                FormaterUtil.formatDateToString(answeringDate, parameter.getValue());
             model.addAttribute("answeringDate", strAnsweringDate);
         }
         else {
@@ -2190,6 +2205,46 @@ public class QuestionController extends GenericController<Question>{
         String strSessionType=request.getParameter("sessionType");
         String strSessionYear=request.getParameter("sessionYear");
         String strQuestionType=request.getParameter("questionType");
+        model.addAttribute("houseType",strHouseType);
+        model.addAttribute("sessionType",strSessionType);
+        model.addAttribute("sessionYear",strSessionYear);
+        model.addAttribute("questionType",strQuestionType);
+        if(strHouseType!=null&&strSessionType!=null&&strSessionYear!=null&&strQuestionType!=null){
+            HouseType houseType=HouseType.findByFieldName(HouseType.class,"type",strHouseType, locale.toString());
+            SessionType sessionType=SessionType.findById(SessionType.class,Long.parseLong(strSessionType));
+            Integer sessionYear=Integer.parseInt(strSessionYear);
+            Session session=Session.findSessionByHouseTypeSessionTypeYear(houseType, sessionType, sessionYear);
+            if(session!=null){
+                List<Group> groups=Group.findByHouseTypeSessionTypeYear(houseType, sessionType, sessionYear);
+                model.addAttribute("groups",groups);
+                CustomParameter totalRoundsCouncilBallot=CustomParameter.findByName(CustomParameter.class,"STARRED_MEMBERBALLOTCOUNCIL_TOTALROUNDS", "");
+                if(totalRoundsCouncilBallot!=null){
+                    int rounds=Integer.parseInt(totalRoundsCouncilBallot.getValue());
+                    List<Reference> references=new ArrayList<Reference>();
+                    NumberFormat format=FormaterUtil.getNumberFormatterNoGrouping(locale.toString());
+                    for(int i=1;i<=rounds;i++){
+                        references.add(new Reference(String.valueOf(i),String.valueOf(format.format(i))));
+                    }
+                    model.addAttribute("rounds",references);
+                }else{
+                    logger.error("**** Custom Parameter 'STARRED_MEMBERBALLOTCOUNCIL_TOTALROUNDS' not set");
+                }
+            }else{
+                logger.error("**** Session not defined for selected houseType,sessionType and sessionYear ****");
+            }
+        }else{
+            logger.error("**** Check request parameter 'houseType,sessionType,sessionYear,questionType,attendance and round' for null values ****");
+        }
+        return "question/memberballot";
+    }
+
+
+    @RequestMapping(value="/memberballotresult",method=RequestMethod.GET)
+    public String viewMemberBallotResult(final HttpServletRequest request,final ModelMap model,final Locale locale){
+        String strHouseType=request.getParameter("houseType");
+        String strSessionType=request.getParameter("sessionType");
+        String strSessionYear=request.getParameter("sessionYear");
+        String strQuestionType=request.getParameter("questionType");
         String strAttendance=request.getParameter("attendance");
         String strRound=request.getParameter("round");
         if(strHouseType!=null&&strSessionType!=null&&strSessionYear!=null&&strQuestionType!=null&&strAttendance!=null&&strRound!=null){
@@ -2199,7 +2254,20 @@ public class QuestionController extends GenericController<Question>{
             Session session=Session.findSessionByHouseTypeSessionTypeYear(houseType, sessionType, sessionYear);
             DeviceType questionType=DeviceType.findById(DeviceType.class,Long.parseLong(strQuestionType));
             if(session!=null){
-                List<MemberBallot> memberBallots=MemberBallot.viewMemberBallot(session,questionType,Boolean.parseBoolean(strAttendance),Integer.parseInt(strRound),locale.toString());
+                String strGroup=request.getParameter("group");
+                String strAnsweringDate=request.getParameter("answeringDate");
+                List<MemberBallot> memberBallots=null;
+                if(strGroup==null&&strAnsweringDate==null){
+                    memberBallots=MemberBallot.viewMemberBallot(session,questionType,Boolean.parseBoolean(strAttendance),Integer.parseInt(strRound),locale.toString());
+                }else if(strGroup.equals("-")&&strAnsweringDate.equals("-")){
+                    memberBallots=MemberBallot.viewMemberBallot(session,questionType,Boolean.parseBoolean(strAttendance),Integer.parseInt(strRound),locale.toString());
+                }else if((!strGroup.equals("-"))&&strAnsweringDate.equals("-")){
+                    Group group=Group.findById(Group.class,Long.parseLong(strGroup));
+                    memberBallots=MemberBallot.viewMemberBallot(session,questionType,Boolean.parseBoolean(strAttendance),Integer.parseInt(strRound),group,locale.toString());
+                }else if((!strGroup.equals("-"))&&(!strAnsweringDate.equals("-"))){
+                    QuestionDates answeringDate=Question.findById(QuestionDates.class,Long.parseLong(strAnsweringDate));
+                    memberBallots=MemberBallot.viewMemberBallot(session,questionType,Boolean.parseBoolean(strAttendance),Integer.parseInt(strRound),answeringDate,locale.toString());
+                }
                 model.addAttribute("memberBallots",memberBallots);
             }else{
                 logger.error("**** Session not defined for selected houseType,sessionType and sessionYear ****");
@@ -2207,7 +2275,7 @@ public class QuestionController extends GenericController<Question>{
         }else{
             logger.error("**** Check request parameter 'houseType,sessionType,sessionYear,questionType,attendance and round' for null values ****");
         }
-        return "question/memberballot";
+        return "question/memberballotresult";
     }
 
     @RequestMapping(value="/memberballotchoice",method=RequestMethod.GET)
@@ -2223,25 +2291,10 @@ public class QuestionController extends GenericController<Question>{
             Session session=Session.findSessionByHouseTypeSessionTypeYear(houseType, sessionType, sessionYear);
             DeviceType questionType=DeviceType.findById(DeviceType.class,Long.parseLong(strQuestionType));
             if(session!=null){
+                model.addAttribute("session",session.getId());
+                model.addAttribute("questionType",questionType.getId());
                 List<Member> eligibleMembers=MemberBallotAttendance.findEligibleMembers(session, questionType, locale.toString());
                 model.addAttribute("eligibleMembers", eligibleMembers);
-                if(!eligibleMembers.isEmpty()){
-                    CustomParameter customParameter=CustomParameter.findByName(CustomParameter.class,"STARRED_MEMBERBALLOTCOUNCIL_TOTALROUNDS", "");
-                    if(customParameter!=null){
-                        int rounds=Integer.parseInt(customParameter.getValue());
-                        request.setAttribute("totalRounds", rounds);
-                        for(int i=1;i<=rounds;i++){
-                            CustomParameter questionsInEachRound=CustomParameter.findByName(CustomParameter.class,"STARRED_MEMBERBALLOTCOUNCIL_ROUND"+i, "");
-                            if(questionsInEachRound!=null){
-                                request.setAttribute("round"+i, Integer.parseInt(questionsInEachRound.getValue()));
-                            }else{
-                                logger.error("**** Custom Parameter 'STARRED_MEMBERBALLOTCOUNCIL_ROUND'"+i+" not set");
-                            }
-                        }
-                    }else{
-                        logger.error("**** Custom Parameter 'STARRED_MEMBERBALLOTCOUNCIL_TOTALROUNDS' not set");
-                    }
-                }
             }else{
                 logger.error("**** Session not defined for selected houseType,sessionType and sessionYear ****");
             }
@@ -2250,4 +2303,134 @@ public class QuestionController extends GenericController<Question>{
         }
         return "question/memberballotchoice";
     }
+
+    @RequestMapping(value="/listmemberballotchoice",method=RequestMethod.GET)
+    public String listMemberBallotChoice(final HttpServletRequest request,final ModelMap model,final Locale locale){
+        String strQuestionType=request.getParameter("deviceType");
+        String strSession=request.getParameter("session");
+        String strMember=request.getParameter("member");
+        if(strQuestionType!=null&&strSession!=null&&strMember!=null){
+            Session session=Session.findById(Session.class,Long.parseLong(strSession));
+            DeviceType questionType=DeviceType.findById(DeviceType.class,Long.parseLong(strQuestionType));
+            Member member=Member.findById(Member.class,Long.parseLong(strMember));
+            List<Question> questions=Question.findAdmittedStarredQuestionsUH(session,questionType,member,locale.toString());
+            model.addAttribute("admittedQuestions",questions);
+            model.addAttribute("noOfAdmittedQuestions",questions.size());
+            List<MemberBallot> memberBallots=MemberBallot.findByMember(session, questionType, member, locale.toString());
+            model.addAttribute("memberBallots",memberBallots);
+            int rounds=memberBallots.size();
+            model.addAttribute("totalRounds", rounds);
+            List<MemberBallotChoice> memberBallotChoices=MemberBallotChoice.findByMember(session,questionType, member, locale.toString());
+            if(memberBallotChoices.isEmpty()){
+                model.addAttribute("flag","new");
+                request.setAttribute("totalRounds", rounds);
+                for(int i=1;i<=rounds;i++){
+                    CustomParameter questionsInEachRound=CustomParameter.findByName(CustomParameter.class,"STARRED_MEMBERBALLOTCOUNCIL_ROUND"+i, "");
+                    if(questionsInEachRound!=null){
+                        request.setAttribute("round"+i, Integer.parseInt(questionsInEachRound.getValue()));
+                    }else{
+                        logger.error("**** Custom Parameter 'STARRED_MEMBERBALLOTCOUNCIL_ROUND'"+i+" not set");
+                    }
+                }
+            }else{
+                model.addAttribute("flag","edit");
+            }
+
+        }else{
+            logger.error("**** Check request parameter 'session,deviceType and member' for null values ****");
+        }
+        return "question/listmemberballotchoice";
+    }
+
+    @RequestMapping(value="/memberballotchoice",method=RequestMethod.POST)
+    public @ResponseBody String updateMemberBallotChoice(final HttpServletRequest request,final ModelMap model,final Locale locale){
+        String strQuestionType=request.getParameter("deviceType");
+        String strSession=request.getParameter("session");
+        String strMember=request.getParameter("member");
+        String strTotalRounds=request.getParameter("totalRounds");
+        String strNoOfAdmittedQuestions=request.getParameter("noOfAdmittedQuestions");
+        int count=1;
+        int noOfAdmittedQuestions=Integer.parseInt(strNoOfAdmittedQuestions);
+        if(strQuestionType!=null&&strSession!=null&&strMember!=null&&strTotalRounds!=null&&strNoOfAdmittedQuestions!=null){
+            Session session=Session.findById(Session.class,Long.parseLong(strSession));
+            DeviceType questionType=DeviceType.findById(DeviceType.class,Long.parseLong(strQuestionType));
+            Member member=Member.findById(Member.class,Long.parseLong(strMember));
+            Boolean status=true;
+            for(int i=1;i<=Integer.parseInt(strTotalRounds);i++){
+                if(count>noOfAdmittedQuestions){
+                    break;
+                }
+                if(status){
+                    MemberBallot memberBallot=MemberBallot.findByMemberRound(session, questionType, member,i, locale.toString());
+                    List<MemberBallotChoice> memberBallotChoices=new ArrayList<MemberBallotChoice>();
+                    CustomParameter questionsInEachRound=CustomParameter.findByName(CustomParameter.class,"STARRED_MEMBERBALLOTCOUNCIL_ROUND"+i, "");
+                    for(int j=1;j<=Integer.parseInt(questionsInEachRound.getValue());j++){
+                        String strChoice=request.getParameter("choice"+count);
+                        String strQuestion=request.getParameter("question"+count);
+                        String strAnsweringDate=request.getParameter("answeringDate"+count);
+                        if(strChoice!=null&&strQuestion!=null&&strAnsweringDate!=null){
+                            MemberBallotChoice memberBallotChoice=null;
+                            String strMemberChoice=request.getParameter("memberBallotchoiceId"+count);
+                            if(strMemberChoice!=null){
+                                memberBallotChoice=MemberBallotChoice.findById(MemberBallotChoice.class,Long.parseLong(strMemberChoice));
+                            }else{
+                                memberBallotChoice=new MemberBallotChoice();
+                            }
+                            if(!strChoice.isEmpty()){
+                                memberBallotChoice.setChoice(Integer.parseInt(strChoice));
+                            }
+                            if(!strQuestion.equals("-")){
+                                Question question=Question.findById(Question.class,Long.parseLong(strQuestion));
+                                if(!strAnsweringDate.equals("-")){
+                                    QuestionDates questionDates=QuestionDates.findById(QuestionDates.class,Long.parseLong(strAnsweringDate));
+                                    memberBallotChoice.setNewAnsweringDate(questionDates);
+                                    question.setAnsweringDate(questionDates);
+                                }
+                                memberBallotChoice.setQuestion(question);
+                                question.merge();
+                            }
+                            memberBallotChoice.setLocale(locale.toString());
+                            memberBallotChoices.add(memberBallotChoice);
+                        }else{
+                            status=false;
+                            break;
+                        }
+                        count++;
+                    }
+                    if(status){
+                        memberBallot.setQuestionChoices(memberBallotChoices);
+                        memberBallot.merge();
+                    }else{
+                        break;
+                    }
+                }
+            }
+        }else{
+            logger.error("**** Check request parameter 'session,deviceType,member,totalRounds and noOfAdmittedQuestions' for null values ****");
+            return "failure";
+        }
+        return "success";
+    }
+
+    @Transactional
+    @RequestMapping(value="/memberballot/updateclubbing",method=RequestMethod.PUT)
+    public Boolean updateClubbingMemberBallot(final HttpServletRequest request,final Locale locale){
+        Boolean status=false;
+        String strSession=request.getParameter("session");
+        String strDeviceType=request.getParameter("deviceType");
+        if(strSession!=null&&strDeviceType!=null){
+            Session session=Session.findById(Session.class,Long.parseLong(strSession));
+            DeviceType deviceType=DeviceType.findById(DeviceType.class,Long.parseLong(strDeviceType));
+            Integer primaryInMBCount=MemberBallot.findPrimaryCount(session,deviceType,locale.toString());
+            int start=0;
+            int size=50;
+            for(int i=start;i<primaryInMBCount;i=i+size){
+                status=MemberBallot.updateClubbing(session,deviceType,i,i+size,locale.toString());
+            }
+        }else{
+            logger.error("**** Check request parameters 'session and deviceType' for null values ****");
+        }
+        return status;
+    }
 }
+
