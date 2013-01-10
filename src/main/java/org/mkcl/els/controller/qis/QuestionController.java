@@ -15,7 +15,6 @@ import java.util.Set;
 import javax.servlet.http.HttpServletRequest;
 
 import org.mkcl.els.common.util.ApplicationConstants;
-import org.mkcl.els.common.util.DateFormater;
 import org.mkcl.els.common.util.FormaterUtil;
 import org.mkcl.els.common.vo.AuthUser;
 import org.mkcl.els.common.vo.BallotVO;
@@ -394,10 +393,10 @@ public class QuestionController extends GenericController<Question>{
                     CustomParameter serverDateFormat = CustomParameter.findByName(CustomParameter.class, "DB_DATEFORMAT", "");
                     if(houseType.getType().equals("lowerhouse")){
                     	String strRotationOrderPubDate = selectedSession.getParamater("questions_starred_rotationOrderPublishingDate");
-                        rotationOrderPubDate = new DateFormater().formatStringToDate(strRotationOrderPubDate, serverDateFormat.getValue());
+                        rotationOrderPubDate = FormaterUtil.formatStringToDate(strRotationOrderPubDate, serverDateFormat.getValue());
                     }else if(houseType.getType().equals("upperhouse")){
                     	String strRotationOrderPubDate = selectedSession.getParamater("questions_starred_rotationOrderPublishingDate");
-                        rotationOrderPubDate = new DateFormater().formatStringToDate(strRotationOrderPubDate, serverDateFormat.getValue());
+                        rotationOrderPubDate = FormaterUtil.formatStringToDate(strRotationOrderPubDate, serverDateFormat.getValue());
                     }	CustomParameter rotationOrderDateFormat=CustomParameter.findByName(CustomParameter.class,"ROTATION_ORDER_DATE_FORMAT", "");
                     if(rotationOrderDateFormat!=null){
                         if(rotationOrderPubDate!=null){
@@ -565,10 +564,10 @@ public class QuestionController extends GenericController<Question>{
             CustomParameter serverDateFormat = CustomParameter.findByName(CustomParameter.class, "DB_DATEFORMAT", "");
             if(houseType.getType().equals("lowerhouse")){
             	String strRotationOrderPubDate = selectedSession.getParamater("questions_starred_rotationOrderPublishingDate");
-                rotationOrderPubDate = new DateFormater().formatStringToDate(strRotationOrderPubDate, serverDateFormat.getValue());
+                rotationOrderPubDate = FormaterUtil.formatStringToDate(strRotationOrderPubDate, serverDateFormat.getValue());
             }else if(houseType.getType().equals("upperhouse")){
             	String strRotationOrderPubDate = selectedSession.getParamater("questions_starred_rotationOrderPublishingDate");
-                rotationOrderPubDate = new DateFormater().formatStringToDate(strRotationOrderPubDate, serverDateFormat.getValue());
+                rotationOrderPubDate = FormaterUtil.formatStringToDate(strRotationOrderPubDate, serverDateFormat.getValue());
             }
             CustomParameter rotationOrderDateFormat=CustomParameter.findByName(CustomParameter.class,"ROTATION_ORDER_DATE_FORMAT", "");
             if(rotationOrderDateFormat!=null){
@@ -1777,7 +1776,7 @@ public class QuestionController extends GenericController<Question>{
             CustomParameter parameter =
                 CustomParameter.findByName(CustomParameter.class, "DB_DATEFORMAT", "");
             String strAnsweringDate =
-                new DateFormater().formatDateToString(answeringDate, parameter.getValue());
+            	FormaterUtil.formatDateToString(answeringDate, parameter.getValue());
             model.addAttribute("answeringDate", strAnsweringDate);
         }
         else {
@@ -2015,7 +2014,7 @@ public class QuestionController extends GenericController<Question>{
             CustomParameter parameter =
                 CustomParameter.findByName(CustomParameter.class, "DB_DATEFORMAT", "");
             String strAnsweringDate =
-                new DateFormater().formatDateToString(answeringDate, parameter.getValue());
+            	FormaterUtil.formatDateToString(answeringDate, parameter.getValue());
             model.addAttribute("answeringDate", strAnsweringDate);
         }
         else {
