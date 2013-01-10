@@ -1,7 +1,6 @@
 package org.mkcl.els.service.impl;
 
 import java.io.File;
-
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -35,8 +34,8 @@ import org.activiti.engine.runtime.ProcessInstance;
 import org.activiti.engine.runtime.ProcessInstanceQuery;
 import org.activiti.engine.task.IdentityLinkType;
 import org.activiti.engine.task.Task;
-import org.mkcl.els.common.util.DateFormater;
 import org.mkcl.els.common.util.FileUtil;
+import org.mkcl.els.common.util.FormaterUtil;
 import org.mkcl.els.domain.CustomParameter;
 import org.mkcl.els.domain.User;
 import org.mkcl.els.service.IProcessService;
@@ -588,8 +587,7 @@ public class ProcessServiceImpl implements IProcessService {
 
 		CustomParameter cp = CustomParameter.findByName(CustomParameter.class,
 				"SERVER_DATETIMEFORMAT", "");
-		DateFormater df = new DateFormater();
-		String strDeploymentTime = df.formatDateToString(deploymentTime, cp.getValue());
+		String strDeploymentTime = FormaterUtil.formatDateToString(deploymentTime, cp.getValue());
 
 		return new org.mkcl.els.common.vo.ProcessDefinition(p.getId(), p.getKey(), p.getName(),
 				p.getCategory(), p.getDiagramResourceName(), p.getDeploymentId(),
@@ -609,15 +607,14 @@ public class ProcessServiceImpl implements IProcessService {
 		task.setProcessDefinitionId(t.getProcessDefinitionId());
 		task.setAssignee(t.getAssignee());
 
-		DateFormater df = new DateFormater();
 		//CustomParameter cp1 = CustomParameter.findByName(CustomParameter.class,
 				//"yyyy-MM-dd HH:mm:ss", "");
-		String strCreateTime = df.formatDateToString(t.getCreateTime(), "yyyy-MM-dd HH:mm:ss");
+		String strCreateTime = FormaterUtil.formatDateToString(t.getCreateTime(), "yyyy-MM-dd HH:mm:ss");
 		task.setCreateTime(strCreateTime);
 
 		CustomParameter cp2 = CustomParameter.findByName(CustomParameter.class,
 				"SERVER_DATETIMEFORMAT", "");
-		String strDueDate = df.formatDateToString(t.getCreateTime(), cp2.getValue());
+		String strDueDate = FormaterUtil.formatDateToString(t.getCreateTime(), cp2.getValue());
 		task.setDueDate(strDueDate);
 
 		task.setPriority(t.getPriority());
