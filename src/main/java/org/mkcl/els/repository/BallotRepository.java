@@ -5,7 +5,7 @@ import java.util.List;
 
 import javax.persistence.TypedQuery;
 
-import org.mkcl.els.common.util.DateFormater;
+import org.mkcl.els.common.util.FormaterUtil;
 import org.mkcl.els.domain.Ballot;
 import org.mkcl.els.domain.Group;
 import org.mkcl.els.domain.Member;
@@ -41,7 +41,7 @@ public class BallotRepository extends BaseRepository<Ballot, Long> {
 		//	CustomParameter.findByName(CustomParameter.class, "DB_DATEFORMAT", "");
 		// String date = new DateFormater().formatDateToString(answeringDate, parameter.getValue());
 		
-		String date = new DateFormater().formatDateToString(answeringDate, "yyyy-MM-dd");
+		String date = FormaterUtil.formatDateToString(answeringDate, "yyyy-MM-dd");
 		String strQuery = "SELECT q" +
 				" FROM Ballot b JOIN b.ballotEntries be JOIN be.questionSequences qs" +
 				" JOIN qs.question q" +
