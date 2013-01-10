@@ -1,3 +1,12 @@
+/**
+ * See the file LICENSE for redistribution information.
+ *
+ * Copyright (c) 2013 MKCL.  All rights reserved.
+ *
+ * Project: e-Legislature
+ * File: org.mkcl.els.repository.QuestionRepository.java
+ * Created On: Jan 10, 2013
+ */
 package org.mkcl.els.repository;
 
 import java.text.ParseException;
@@ -27,10 +36,24 @@ import org.springframework.stereotype.Repository;
 
 import com.trg.search.Search;
 
+/**
+ * The Class QuestionRepository.
+ *
+ * @author amitd
+ * @author sandeeps
+ * @since v1.0.0
+ */
 @Repository
 public class QuestionRepository extends BaseRepository<Question, Long>{
 
 
+    /**
+     * Find last starred unstarred short notice question no.
+     *
+     * @param house the house
+     * @param currentSession the current session
+     * @return the integer
+     */
     public Integer findLastStarredUnstarredShortNoticeQuestionNo(final House house,final Session currentSession){
         String query="SELECT q.number FROM questions AS q JOIN sessions AS s JOIN houses AS h "+
         "JOIN devicetypes AS dt WHERE q.session_id=s.id AND s.house_id=h.id "+
@@ -44,6 +67,13 @@ public class QuestionRepository extends BaseRepository<Question, Long>{
         return lastNumber;
     }
 
+    /**
+     * Find last half hour discussion question no.
+     *
+     * @param house the house
+     * @param currentSession the current session
+     * @return the integer
+     */
     public Integer findLastHalfHourDiscussionQuestionNo(final House house,final Session currentSession){
         String query="SELECT q.number FROM questions AS q JOIN sessions AS s JOIN houses AS h "+
         "JOIN devicetypes AS dt WHERE q.session_id=s.id AND s.house_id=h.id "+
@@ -57,6 +87,15 @@ public class QuestionRepository extends BaseRepository<Question, Long>{
         return lastNumber;
     }
 
+    /**
+     * Assign question no.
+     *
+     * @param houseType the house type
+     * @param session the session
+     * @param questionType the question type
+     * @param locale the locale
+     * @return the integer
+     */
     public Integer assignQuestionNo(final HouseType houseType, final Session session,
             final DeviceType questionType,final String locale) {
         String strHouseType=houseType.getType();
@@ -106,6 +145,13 @@ public class QuestionRepository extends BaseRepository<Question, Long>{
         }
     }
 
+    /**
+     * Gets the revisions.
+     *
+     * @param questionId the question id
+     * @param locale the locale
+     * @return the revisions
+     */
     @SuppressWarnings("rawtypes")
     public List<QuestionRevisionVO> getRevisions(final Long questionId,final String locale) {
         String query="SELECT rs.usergroup,rs.fullname,rs.editedon,rs.status,rs.question,rs.subject,rs.remark FROM ("+
@@ -142,6 +188,18 @@ public class QuestionRepository extends BaseRepository<Question, Long>{
     /**
      * Returns null if there is no result, else returns a List
      * of Questions.
+     *
+     * @param session the session
+     * @param member the member
+     * @param deviceType the device type
+     * @param group the group
+     * @param answeringDate the answering date
+     * @param finalSubmissionDate the final submission date
+     * @param internalStatuses the internal statuses
+     * @param maxNoOfQuestions the max no of questions
+     * @param sortOrder the sort order
+     * @param locale the locale
+     * @return the list
      */
     public List<Question> find(final Session session,
             final Member member,
@@ -184,6 +242,18 @@ public class QuestionRepository extends BaseRepository<Question, Long>{
     /**
      * Returns null if there is no result, else returns a List
      * of Questions.
+     *
+     * @param session the session
+     * @param member the member
+     * @param deviceType the device type
+     * @param group the group
+     * @param answeringDate the answering date
+     * @param finalSubmissionDate the final submission date
+     * @param internalStatuses the internal statuses
+     * @param maxNoOfQuestions the max no of questions
+     * @param sortOrder the sort order
+     * @param locale the locale
+     * @return the list
      */
     public List<Question> findBeforeAnsweringDate(final Session session,
             final Member member,
@@ -225,6 +295,17 @@ public class QuestionRepository extends BaseRepository<Question, Long>{
     /**
      * Returns null if there is no result, else returns a List
      * of Questions.
+     *
+     * @param session the session
+     * @param member the member
+     * @param deviceType the device type
+     * @param group the group
+     * @param finalSubmissionDate the final submission date
+     * @param internalStatuses the internal statuses
+     * @param maxNoOfQuestions the max no of questions
+     * @param sortOrder the sort order
+     * @param locale the locale
+     * @return the list
      */
     public List<Question> findNonAnsweringDate(final Session session,
             final Member member,
@@ -262,6 +343,20 @@ public class QuestionRepository extends BaseRepository<Question, Long>{
         return questions;
     }
 
+    /**
+     * Find dated questions.
+     *
+     * @param session the session
+     * @param member the member
+     * @param deviceType the device type
+     * @param group the group
+     * @param answeringDate the answering date
+     * @param finalSubmissionDate the final submission date
+     * @param internalStatuses the internal statuses
+     * @param maxNoOfQuestions the max no of questions
+     * @param locale the locale
+     * @return the list
+     */
     public List<Question> findDatedQuestions(final Session session,
             final Member member,
             final DeviceType deviceType,
@@ -294,6 +389,13 @@ public class QuestionRepository extends BaseRepository<Question, Long>{
         return questions;
     }
 
+    /**
+     * Find.
+     *
+     * @param session the session
+     * @param number the number
+     * @return the question
+     */
     public Question find(final Session session, final Integer number) {
         Search search = new Search();
         search.addFilterEqual("session", session);
@@ -301,6 +403,12 @@ public class QuestionRepository extends BaseRepository<Question, Long>{
         return this.searchUnique(search);
     }
 
+    /**
+     * Gets the status filters.
+     *
+     * @param internalStatuses the internal statuses
+     * @return the status filters
+     */
     private String getStatusFilters(final Status[] internalStatuses) {
         StringBuffer sb = new StringBuffer();
         sb.append(" AND(");
@@ -315,6 +423,17 @@ public class QuestionRepository extends BaseRepository<Question, Long>{
         return sb.toString();
     }
 
+    /**
+     * Full text search clubbing.
+     *
+     * @param param the param
+     * @param sessionId the session id
+     * @param groupId the group id
+     * @param currentChartId the current chart id
+     * @param questionId the question id
+     * @param locale the locale
+     * @return the list
+     */
     @SuppressWarnings("rawtypes")
     public List<QuestionSearchVO> fullTextSearchClubbing(final String param,final Long sessionId,final Long groupId, final Long currentChartId, final Long questionId, final String locale) {
         /*
@@ -445,6 +564,15 @@ public class QuestionRepository extends BaseRepository<Question, Long>{
         return questionSearchVOs;
     }
 
+    /**
+     * Find all.
+     *
+     * @param currentMember the current member
+     * @param session the session
+     * @param deviceType the device type
+     * @param internalStatus the internal status
+     * @return the list
+     */
     @SuppressWarnings("unchecked")
     public List<Question> findAll(final Member currentMember, final Session session,
             final DeviceType deviceType, final Status internalStatus) {
@@ -456,6 +584,15 @@ public class QuestionRepository extends BaseRepository<Question, Long>{
         return questions;
     }
 
+    /**
+     * Find all first batch.
+     *
+     * @param currentMember the current member
+     * @param session the session
+     * @param deviceType the device type
+     * @param internalStatus the internal status
+     * @return the list
+     */
     @SuppressWarnings("unchecked")
     public List<Question> findAllFirstBatch(final Member currentMember, final Session session,
             final DeviceType deviceType, final Status internalStatus) {
@@ -491,6 +628,15 @@ public class QuestionRepository extends BaseRepository<Question, Long>{
         return questions;
     }
 
+    /**
+     * Find all second batch.
+     *
+     * @param currentMember the current member
+     * @param session the session
+     * @param deviceType the device type
+     * @param internalStatus the internal status
+     * @return the list
+     */
     @SuppressWarnings("unchecked")
     public List<Question> findAllSecondBatch(final Member currentMember, final Session session,
             final DeviceType deviceType, final Status internalStatus) {
@@ -526,6 +672,14 @@ public class QuestionRepository extends BaseRepository<Question, Long>{
        return questions;
    }
 
+    /**
+     * Club.
+     *
+     * @param questionBeingProcessed the question being processed
+     * @param questionBeingClubbed the question being clubbed
+     * @param locale the locale
+     * @return the boolean
+     */
     public Boolean club(final Long questionBeingProcessed,
             final Long questionBeingClubbed,final String locale) {
         Boolean status=true;
@@ -728,6 +882,14 @@ public class QuestionRepository extends BaseRepository<Question, Long>{
         return status;
     }
 
+    /**
+     * Unclub.
+     *
+     * @param questionBeingProcessed the question being processed
+     * @param questionBeingClubbed the question being clubbed
+     * @param locale the locale
+     * @return the boolean
+     */
     public Boolean unclub(final Long questionBeingProcessed,
             final Long questionBeingClubbed, final String locale) {
         Boolean status=true;
@@ -766,6 +928,19 @@ public class QuestionRepository extends BaseRepository<Question, Long>{
     /**
      * Returns null if there is no result, else returns a List
      * of Questions.
+     *
+     * @param session the session
+     * @param member the member
+     * @param deviceType the device type
+     * @param group the group
+     * @param answeringDate the answering date
+     * @param finalSubmissionDate the final submission date
+     * @param internalStatuses the internal statuses
+     * @param excludeQuestions the exclude questions
+     * @param maxNoOfQuestions the max no of questions
+     * @param sortOrder the sort order
+     * @param locale the locale
+     * @return the list
      */
     public List<Question> find(final Session session,
             final Member member,
@@ -810,6 +985,19 @@ public class QuestionRepository extends BaseRepository<Question, Long>{
     /**
      * Returns null if there is no result, else returns a List
      * of Questions.
+     *
+     * @param session the session
+     * @param member the member
+     * @param deviceType the device type
+     * @param group the group
+     * @param answeringDate the answering date
+     * @param finalSubmissionDate the final submission date
+     * @param internalStatuses the internal statuses
+     * @param excludeQuestions the exclude questions
+     * @param maxNoOfQuestions the max no of questions
+     * @param sortOrder the sort order
+     * @param locale the locale
+     * @return the list
      */
     public List<Question> findBeforeAnsweringDate(final Session session,
             final Member member,
@@ -853,6 +1041,18 @@ public class QuestionRepository extends BaseRepository<Question, Long>{
     /**
      * Returns null if there is no result, else returns a List
      * of Questions.
+     *
+     * @param session the session
+     * @param member the member
+     * @param deviceType the device type
+     * @param group the group
+     * @param finalSubmissionDate the final submission date
+     * @param internalStatuses the internal statuses
+     * @param excludeQuestions the exclude questions
+     * @param maxNoOfQuestions the max no of questions
+     * @param sortOrder the sort order
+     * @param locale the locale
+     * @return the list
      */
     public List<Question> findNonAnsweringDate(final Session session,
             final Member member,
@@ -892,6 +1092,12 @@ public class QuestionRepository extends BaseRepository<Question, Long>{
         return questions;
     }
 
+    /**
+     * Submission date as string.
+     *
+     * @param date the date
+     * @return the string
+     */
     private String submissionDateAsString(final Date date) {
         // Removed for performance reason. Uncomment when Caching mechanism is added
         // CustomParameter parameter = CustomParameter.findByName(CustomParameter.class,
@@ -902,6 +1108,12 @@ public class QuestionRepository extends BaseRepository<Question, Long>{
         return str;
     }
 
+    /**
+     * Answering date as string.
+     *
+     * @param date the date
+     * @return the string
+     */
     private String answeringDateAsString(final Date date) {
         // Removed for performance reason. Uncomment when Caching mechanism is added
         // CustomParameter parameter = CustomParameter.findByName(CustomParameter.class,
@@ -912,6 +1124,12 @@ public class QuestionRepository extends BaseRepository<Question, Long>{
         return str;
     }
 
+    /**
+     * Gets the question filters.
+     *
+     * @param excludeQuestions the exclude questions
+     * @return the question filters
+     */
     private String getQuestionFilters(final Question[] excludeQuestions) {
         StringBuffer sb = new StringBuffer();
         sb.append(" AND(");
@@ -926,6 +1144,21 @@ public class QuestionRepository extends BaseRepository<Question, Long>{
         return sb.toString();
     }
 
+    /**
+     * Find dated questions.
+     *
+     * @param session the session
+     * @param member the member
+     * @param deviceType the device type
+     * @param group the group
+     * @param answeringDate the answering date
+     * @param startTime the start time
+     * @param endTime the end time
+     * @param internalStatuses the internal statuses
+     * @param maxNoOfQuestions the max no of questions
+     * @param locale the locale
+     * @return the list
+     */
     public List<Question> findDatedQuestions(final Session session,
             final Member member,
             final DeviceType deviceType,
@@ -969,6 +1202,18 @@ public class QuestionRepository extends BaseRepository<Question, Long>{
     /**
      * Returns null if there is no result, else returns a List
      * of Questions.
+     *
+     * @param session the session
+     * @param member the member
+     * @param deviceType the device type
+     * @param group the group
+     * @param startTime the start time
+     * @param endTime the end time
+     * @param internalStatuses the internal statuses
+     * @param maxNoOfQuestions the max no of questions
+     * @param sortOrder the sort order
+     * @param locale the locale
+     * @return the list
      */
     public List<Question> findNonAnsweringDate(final Session session,
             final Member member,
@@ -1013,6 +1258,20 @@ public class QuestionRepository extends BaseRepository<Question, Long>{
         return questions;
     }
 
+    /**
+     * Find dated questions.
+     *
+     * @param session the session
+     * @param member the member
+     * @param deviceType the device type
+     * @param group the group
+     * @param answeringDate the answering date
+     * @param startTime the start time
+     * @param endTime the end time
+     * @param internalStatuses the internal statuses
+     * @param locale the locale
+     * @return the list
+     */
     public List<Question> findDatedQuestions(final Session session,
             final Member member,
             final DeviceType deviceType,
@@ -1051,6 +1310,20 @@ public class QuestionRepository extends BaseRepository<Question, Long>{
         return questions;
     }
 
+    /**
+     * Find non answering date.
+     *
+     * @param session the session
+     * @param member the member
+     * @param deviceType the device type
+     * @param group the group
+     * @param startTime the start time
+     * @param endTime the end time
+     * @param internalStatuses the internal statuses
+     * @param sortOrder the sort order
+     * @param locale the locale
+     * @return the list
+     */
     public List<Question> findNonAnsweringDate(final Session session,
             final Member member,
             final DeviceType deviceType,
@@ -1092,6 +1365,14 @@ public class QuestionRepository extends BaseRepository<Question, Long>{
         return questions;
     }
 
+    /**
+     * Creates the member ballot attendance.
+     *
+     * @param session the session
+     * @param questionType the question type
+     * @param locale the locale
+     * @return the boolean
+     */
     @SuppressWarnings("unchecked")
     public Boolean createMemberBallotAttendance(
             final Session session, final DeviceType questionType, final String locale) {
@@ -1134,6 +1415,14 @@ public class QuestionRepository extends BaseRepository<Question, Long>{
         return operationStatus;
     }
 
+    /**
+     * Member ballot created.
+     *
+     * @param session the session
+     * @param questionType the question type
+     * @param locale the locale
+     * @return the boolean
+     */
     private Boolean memberBallotCreated(final Session session, final DeviceType questionType,
             final String locale) {
         String query="SELECT m FROM MemberBallotAttendance m WHERE m.session.id="+session.getId()+
@@ -1146,6 +1435,18 @@ public class QuestionRepository extends BaseRepository<Question, Long>{
         }
     }
 
+    /**
+     * Find.
+     *
+     * @param session the session
+     * @param deviceType the device type
+     * @param startTime the start time
+     * @param endTime the end time
+     * @param internalStatuses the internal statuses
+     * @param sortOrder the sort order
+     * @param locale the locale
+     * @return the list
+     */
     public List<Question> find(final Session session,
     		final DeviceType deviceType,
     		final Date startTime,
@@ -1159,7 +1460,7 @@ public class QuestionRepository extends BaseRepository<Question, Long>{
         // String strDate = new DateFormater().formatDateToString(date, parameter.getValue());
         String strStartTime = FormaterUtil.formatDateToString(startTime, "yyyy-MM-dd HH:mm:ss");
         String strEndTime = FormaterUtil.formatDateToString(endTime, "yyyy-MM-dd HH:mm:ss");
-        
+
         StringBuffer query = new StringBuffer(
                 " SELECT q" +
                 " FROM Question q" +
@@ -1181,7 +1482,19 @@ public class QuestionRepository extends BaseRepository<Question, Long>{
         List<Question> questions = tQuery.getResultList();
         return questions;
     }
-    
+
+    /**
+     * Find primary members.
+     *
+     * @param session the session
+     * @param deviceType the device type
+     * @param startTime the start time
+     * @param endTime the end time
+     * @param internalStatuses the internal statuses
+     * @param sortOrder the sort order
+     * @param locale the locale
+     * @return the list
+     */
     public List<Member> findPrimaryMembers(final Session session,
     		final DeviceType deviceType,
     		final Date startTime,
@@ -1195,7 +1508,7 @@ public class QuestionRepository extends BaseRepository<Question, Long>{
         // String strDate = new DateFormater().formatDateToString(date, parameter.getValue());
         String strStartTime = FormaterUtil.formatDateToString(startTime, "yyyy-MM-dd HH:mm:ss");
         String strEndTime = FormaterUtil.formatDateToString(endTime, "yyyy-MM-dd HH:mm:ss");
-        
+
         StringBuffer query = new StringBuffer(
                 " SELECT UNIQUE(q.primaryMember)" +
                 " FROM Question q" +
@@ -1216,6 +1529,34 @@ public class QuestionRepository extends BaseRepository<Question, Long>{
         TypedQuery<Member> tQuery = this.em().createQuery(query.toString(), Member.class);
         List<Member> members = tQuery.getResultList();
         return members;
+    }
+
+    /**
+     * Find admitted starred questions uh.
+     *
+     * @param session the session
+     * @param questionType the question type
+     * @param member the member
+     * @param locale the locale
+     * @return the list
+     */
+    @SuppressWarnings("unchecked")
+    public List<Question> findAdmittedStarredQuestionsUH(final Session session,
+            final DeviceType questionType, final Member member, final String locale) {
+            CustomParameter customParameter=CustomParameter.findByName(CustomParameter.class,"DB_DATETIMEFORMAT", "");
+            List<Question> questions=new ArrayList<Question>();
+            if(customParameter!=null){
+                SimpleDateFormat format=FormaterUtil.getDateFormatter(customParameter.getValue(), "en_US");
+                String query="SELECT q FROM Question q JOIN q.primaryMember m JOIN q.session s JOIN q.type qt "+
+                             " WHERE m.id="+member.getId()+" AND s.id="+session.getId()+" AND qt.id="+questionType.getId()+
+                             " AND q.locale='"+locale+"' AND q.internalStatus.type='question_workflow_approving_admission'  "+
+                             " AND q.submissionDate>='"+format.format(session.getParamater("questions_starred_submissionFirstBatchStartDate"))+"' "+
+                             " AND q.submissionDate<='"+format.format(session.getParamater("questions_starred_submissionFirstBatchEndDate"))+"' ORDER BY q.number "+ApplicationConstants.ASC;
+                questions=this.em().createQuery(query).getResultList();
+            }else{
+             logger.error("Custom Parameter 'DB_DATETIMEFORMAT' not set");
+            }
+            return questions;
     }
 
 }
