@@ -45,9 +45,7 @@ public class ApplicationConstants {
     public static final String DEFAULT_HOUSE="defaulthouse";
 
     /** The Constant en_US_INFONOTFOUND. */
-    public static final String 
-
-en_US_INFONOTFOUND="Information Not Available For";
+    public static final String en_US_INFONOTFOUND="Information Not Available For";
 
     /** The Constant mr_IN_INFONOTFOUND. */
     public static final String mr_IN_INFONOTFOUND="माहिती प्राप्‍त झालेली नाही";
