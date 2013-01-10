@@ -18,6 +18,7 @@ import java.util.List;
 
 import org.mkcl.els.common.util.ApplicationConstants;
 import org.mkcl.els.common.util.FormaterUtil;
+import org.mkcl.els.common.vo.MasterVO;
 import org.mkcl.els.common.vo.QuestionDatesVO;
 import org.mkcl.els.domain.CustomParameter;
 import org.mkcl.els.domain.Group;
@@ -203,6 +204,12 @@ public class GroupRepository extends BaseRepository<Group, Long> {
         }
         return questionDatesVOs;
 
+    }
+
+    public List<MasterVO> findQuestionDateByGroup(final HouseType houseType,
+            final SessionType sessionType, final Integer sessionYear, final int groupNumber,
+            final String locale) {
+        return null;
     }
 
 
