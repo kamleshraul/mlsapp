@@ -1,3 +1,12 @@
+/**
+ * See the file LICENSE for redistribution information.
+ *
+ * Copyright (c) 2013 MKCL.  All rights reserved.
+ *
+ * Project: e-Legislature
+ * File: org.mkcl.els.domain.Workflow.java
+ * Created On: Jan 10, 2013
+ */
 package org.mkcl.els.domain;
 
 import javax.persistence.Column;
@@ -6,12 +15,15 @@ import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 
 import org.codehaus.jackson.annotate.JsonIgnoreProperties;
+import org.springframework.beans.factory.annotation.Configurable;
 
+@Configurable
 @Entity
 @Table(name="workflows")
 @JsonIgnoreProperties({"deviceType"})
 public class Workflow extends BaseDomain{
 
+    /** The name. */
     @Column(length=1000)
     private String name;
 
