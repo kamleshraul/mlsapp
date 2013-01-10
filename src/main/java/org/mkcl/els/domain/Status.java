@@ -1,3 +1,12 @@
+/**
+ * See the file LICENSE for redistribution information.
+ *
+ * Copyright (c) 2013 MKCL.  All rights reserved.
+ *
+ * Project: e-Legislature
+ * File: org.mkcl.els.domain.Status.java
+ * Created On: Jan 10, 2013
+ */
 package org.mkcl.els.domain;
 
 import java.io.Serializable;
@@ -11,6 +20,14 @@ import org.mkcl.els.repository.StatusRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Configurable;
 
+// TODO: Auto-generated Javadoc
+/**
+ * The Class Status.
+ *
+ * @author amitd
+ * @author sandeeps
+ * @since v1.0.0
+ */
 @Configurable
 @Entity
 @Table(name = "status")
@@ -23,23 +40,39 @@ public class Status extends BaseDomain implements Serializable{
     @Column(length = 150)
     private String type;
 
+    /** The name. */
     @Column(length=600)
     private String name;
 
+    /** The status repository. */
     @Autowired
     private transient StatusRepository statusRepository;
  // ---------------------------------Constructors----------------------------------------------
 
-	public Status() {
+	/**
+  * Instantiates a new status.
+  */
+ public Status() {
 		super();
 	}
 
+	/**
+	 * Instantiates a new status.
+	 *
+	 * @param type the type
+	 * @param name the name
+	 */
 	public Status(final String type, final String name) {
 		super();
 		this.type = type;
 		this.name = name;
 	}
 	// -------------------------------Domain_Methods----------------------------------------------
+	/**
+	 * Gets the status repository.
+	 *
+	 * @return the status repository
+	 */
 	public static StatusRepository getStatusRepository() {
 	    StatusRepository statusRepository = new Status().statusRepository;
         if (statusRepository == null) {
@@ -49,26 +82,62 @@ public class Status extends BaseDomain implements Serializable{
         return statusRepository;
     }
 
+    /**
+     * Find starting with.
+     *
+     * @param pattern the pattern
+     * @param sortBy the sort by
+     * @param sortOrder the sort order
+     * @param locale the locale
+     * @return the list
+     */
     public static List<Status> findStartingWith(final String pattern,final String sortBy,final String sortOrder,final String locale){
         return getStatusRepository().findStartingWith(pattern,sortBy,sortOrder,locale);
     }
 
-    public static Status findByType(String typeName, String locale) {
+    /**
+     * Find by type.
+     *
+     * @param typeName the type name
+     * @param locale the locale
+     * @return the status
+     */
+    public static Status findByType(final String typeName, final String locale) {
 		return Status.findByFieldName(Status.class, "type", typeName, locale);
 	}
     // ------------------------------------------Getters/Setters-----------------------------------
-	public String getType() {
+	/**
+     * Gets the type.
+     *
+     * @return the type
+     */
+    public String getType() {
 		return type;
 	}
 
+	/**
+	 * Sets the type.
+	 *
+	 * @param type the new type
+	 */
 	public void setType(final String type) {
 		this.type = type;
 	}
 
+	/**
+	 * Gets the name.
+	 *
+	 * @return the name
+	 */
 	public String getName() {
 		return name;
 	}
 
+	/**
+	 * Sets the name.
+	 *
+	 * @param name the new name
+	 */
 	public void setName(final String name) {
 		this.name = name;
 	}
