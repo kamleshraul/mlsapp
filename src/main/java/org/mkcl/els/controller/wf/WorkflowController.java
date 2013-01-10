@@ -1,3 +1,12 @@
+/**
+ * See the file LICENSE for redistribution information.
+ *
+ * Copyright (c) 2013 MKCL.  All rights reserved.
+ *
+ * Project: e-Legislature
+ * File: org.mkcl.els.controller.wf.WorkflowController.java
+ * Created On: Jan 10, 2013
+ */
 package org.mkcl.els.controller.wf;
 
 import java.io.ByteArrayInputStream;
@@ -25,17 +34,35 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 
+// TODO: Auto-generated Javadoc
+/**
+ * The Class WorkflowController.
+ *
+ * @author amitd
+ * @author sandeeps
+ * @since v1.0.0
+ */
 @Controller
 @RequestMapping("/workflow")
 public class WorkflowController extends BaseController {
 
+	/** The logger. */
 	private final Logger logger = LoggerFactory.getLogger(getClass());
 
+	/** The process service. */
 	@Autowired
 	private IProcessService processService;
 
 	//==================== Deployment Methods ====================
 
+	/**
+	 * Deploy module.
+	 *
+	 * @param model the model
+	 * @param request the request
+	 * @param locale the locale
+	 * @return the string
+	 */
 	@RequestMapping(value="deploy/module", method=RequestMethod.GET)
 	public String deployModule(final ModelMap model,
 			final HttpServletRequest request,
@@ -43,6 +70,14 @@ public class WorkflowController extends BaseController {
 		return this.module(model, request, locale);
 	}
 
+	/**
+	 * Deploy list.
+	 *
+	 * @param model the model
+	 * @param request the request
+	 * @param locale the locale
+	 * @return the string
+	 */
 	@RequestMapping(value="deploy/list", method=RequestMethod.GET)
 	public String deployList(final ModelMap model,
 			final HttpServletRequest request,
@@ -50,6 +85,14 @@ public class WorkflowController extends BaseController {
 		return this.list(model, request, locale);
 	}
 
+	/**
+	 * Deploy new.
+	 *
+	 * @param model the model
+	 * @param request the request
+	 * @param locale the locale
+	 * @return the string
+	 */
 	@RequestMapping(value="deploy/new", method=RequestMethod.GET)
 	public String deployNew(final ModelMap model,
 			final HttpServletRequest request,
@@ -58,6 +101,15 @@ public class WorkflowController extends BaseController {
 		return this.getResourcePath(request);
 	}
 
+	/**
+	 * Deploy create.
+	 *
+	 * @param model the model
+	 * @param request the request
+	 * @param docTag the doc tag
+	 * @param locale the locale
+	 * @return the string
+	 */
 	@RequestMapping(value="deploy/{docTag}/create", method=RequestMethod.GET)
 	public @ResponseBody String deployCreate(final ModelMap model,
 			final HttpServletRequest request,
@@ -82,6 +134,15 @@ public class WorkflowController extends BaseController {
 
 	// Deletes the process definition, cascades deletion to process instances,
 	// history process instances and jobs.
+	/**
+	 * Deploy delete.
+	 *
+	 * @param model the model
+	 * @param request the request
+	 * @param procDefId the proc def id
+	 * @param locale the locale
+	 * @return the string
+	 */
 	@RequestMapping(value="deploy/{procDefId}/delete", method=RequestMethod.DELETE)
 	public String deployDelete(final ModelMap model,
 			final HttpServletRequest request,
@@ -94,6 +155,14 @@ public class WorkflowController extends BaseController {
 
 	//==================== My Task Methods ====================
 
+	/**
+	 * My tasks module.
+	 *
+	 * @param model the model
+	 * @param request the request
+	 * @param locale the locale
+	 * @return the string
+	 */
 	@RequestMapping(value="myTasks/module", method=RequestMethod.GET)
 	public String myTasksModule(final ModelMap model,
 			final HttpServletRequest request,
@@ -101,6 +170,14 @@ public class WorkflowController extends BaseController {
 		return this.getResourcePath(request);
 	}
 
+	/**
+	 * My tasks list.
+	 *
+	 * @param model the model
+	 * @param request the request
+	 * @param locale the locale
+	 * @return the string
+	 */
 	@RequestMapping(value="myTasks/list", method=RequestMethod.GET)
 	public String myTasksList(final ModelMap model,
 			final HttpServletRequest request,
@@ -111,10 +188,16 @@ public class WorkflowController extends BaseController {
 	/**
 	 * Follow a convention where URL path corresponds to JSP folder structure.
 	 * If a JSP exists with following folder structure
-	 *     question
-	 * 	   |- starred
-	 *        |- process.jsp
+	 * question
+	 * |- starred
+	 * |- process.jsp
 	 * then the URL path must be question/starred/process.
+	 *
+	 * @param model the model
+	 * @param request the request
+	 * @param response the response
+	 * @param taskId the task id
+	 * @param locale the locale
 	 */
 	@RequestMapping(value="myTasks/{taskId}/process", method=RequestMethod.GET)
 	public void myTasksProcess(final ModelMap model,
@@ -141,6 +224,14 @@ public class WorkflowController extends BaseController {
 
 	//==================== Group Task Methods ===================
 
+	/**
+	 * Group tasks module.
+	 *
+	 * @param model the model
+	 * @param request the request
+	 * @param locale the locale
+	 * @return the string
+	 */
 	@RequestMapping(value="groupTasks/module", method=RequestMethod.GET)
 	public String groupTasksModule(final ModelMap model,
 			final HttpServletRequest request,
@@ -148,6 +239,14 @@ public class WorkflowController extends BaseController {
 		return this.getResourcePath(request);
 	}
 
+	/**
+	 * Group tasks list.
+	 *
+	 * @param model the model
+	 * @param request the request
+	 * @param locale the locale
+	 * @return the string
+	 */
 	@RequestMapping(value="groupTasks/list", method=RequestMethod.GET)
 	public String groupTasksList(final ModelMap model,
 			final HttpServletRequest request,
@@ -156,6 +255,16 @@ public class WorkflowController extends BaseController {
 	}
 
 	// TODO
+	/**
+	 * Group tasks claim.
+	 *
+	 * @param model the model
+	 * @param request the request
+	 * @param response the response
+	 * @param taskId the task id
+	 * @param locale the locale
+	 * @return the string
+	 */
 	@RequestMapping(value="groupTasks/{taskId}/claim", method=RequestMethod.GET)
 	public String groupTasksClaim(final ModelMap model,
 			final HttpServletRequest request,
@@ -167,12 +276,28 @@ public class WorkflowController extends BaseController {
 
 	//==================== Internal Methods ===================
 
+	/**
+	 * Module.
+	 *
+	 * @param model the model
+	 * @param request the request
+	 * @param locale the locale
+	 * @return the string
+	 */
 	private String module(final ModelMap model,
 			final HttpServletRequest request,
 			final Locale locale) {
 		return this.getResourcePath(request);
 	}
 
+	/**
+	 * List.
+	 *
+	 * @param model the model
+	 * @param request the request
+	 * @param locale the locale
+	 * @return the string
+	 */
 	private String list(final ModelMap model,
 			final HttpServletRequest request,
 			final Locale locale) {
@@ -183,6 +308,12 @@ public class WorkflowController extends BaseController {
 		return resourcePath;
 	}
 
+	/**
+	 * Gets the resource path.
+	 *
+	 * @param request the request
+	 * @return the resource path
+	 */
 	private String getResourcePath(final HttpServletRequest request) {
 		String resourcePath = request.getServletPath().replaceFirst("\\/", "");
 		return resourcePath;
