@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-import org.mkcl.els.common.util.DateUtil;
+import org.mkcl.els.common.util.FormaterUtil;
 import org.mkcl.els.common.vo.MasterVO;
 import org.mkcl.els.domain.CustomParameter;
 import org.mkcl.els.domain.Department;
@@ -26,7 +26,7 @@ public class MemberMinisterRepository extends BaseRepository<MemberMinister, Lon
 	public MemberMinister findMemberMinister(final Ministry ministry, final String locale) {
 		CustomParameter parameter =
 			CustomParameter.findByFieldName(CustomParameter.class, "name", "DB_DATEFORMAT", "");
-		Date currentDate = DateUtil.getCurrentDate(parameter.getValue());
+		Date currentDate = FormaterUtil.getCurrentDate(parameter.getValue());
 
 		Search search = new Search();
 		search.addFilterEqual("ministry", ministry);
@@ -45,7 +45,7 @@ public class MemberMinisterRepository extends BaseRepository<MemberMinister, Lon
 		
 		CustomParameter parameter =
 			CustomParameter.findByFieldName(CustomParameter.class, "name", "DB_DATEFORMAT", "");
-		Date currentDate = DateUtil.getCurrentDate(parameter.getValue());
+		Date currentDate = FormaterUtil.getCurrentDate(parameter.getValue());
 
 		List<MemberDepartment> memberDepartments = new ArrayList<MemberDepartment>();
 		if(memberMinister != null) {
@@ -74,7 +74,7 @@ public class MemberMinisterRepository extends BaseRepository<MemberMinister, Lon
 
 		CustomParameter parameter =
 			CustomParameter.findByFieldName(CustomParameter.class, "name", "DB_DATEFORMAT", "");
-		Date currentDate = DateUtil.getCurrentDate(parameter.getValue());
+		Date currentDate = FormaterUtil.getCurrentDate(parameter.getValue());
 
 		List<MemberDepartment> memberDepartments = new ArrayList<MemberDepartment>();
         if(memberMinister != null) {
