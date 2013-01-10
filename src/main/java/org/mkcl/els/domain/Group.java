@@ -28,7 +28,6 @@ import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import org.codehaus.jackson.annotate.JsonIgnoreProperties;
 import org.mkcl.els.common.util.ApplicationConstants;
-import org.mkcl.els.common.util.DateFormater;
 import org.mkcl.els.common.util.FormaterUtil;
 import org.mkcl.els.common.vo.QuestionDatesVO;
 import org.mkcl.els.repository.GroupRepository;
@@ -177,10 +176,10 @@ public class Group extends BaseDomain implements Serializable {
 					CustomParameter parameter =
 						CustomParameter.findByName(CustomParameter.class, "DB_TIMESTAMP", "");
 					String formatType = parameter.getValue();
-					String strDate = new DateFormater().formatDateToString(date, formatType);
+					String strDate = FormaterUtil.formatDateToString(date, formatType);
 					String newStrDate = strDate.replaceFirst("00:00:00", "23:59:59");
 					Date submissionDate = 
-						new DateFormater().formatStringToDate(newStrDate, formatType);
+						FormaterUtil.formatStringToDate(newStrDate, formatType);
 					return submissionDate;
 				}
 			}
