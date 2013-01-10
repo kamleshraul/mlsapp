@@ -13,6 +13,8 @@ import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Table;
 
+import org.springframework.beans.factory.annotation.Configurable;
+
 /**
  * The Class Query.
  *
@@ -20,6 +22,7 @@ import javax.persistence.Table;
  * @author sandeeps
  * @since v1.0.0
  */
+@Configurable
 @Entity
 @Table(name="queries")
 public class Query extends BaseDomain{
