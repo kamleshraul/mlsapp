@@ -33,7 +33,7 @@ import javax.persistence.Table;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
 
-import org.mkcl.els.common.util.DateFormater;
+import org.mkcl.els.common.util.FormaterUtil;
 import org.mkcl.els.repository.SessionRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Configurable;
@@ -562,7 +562,7 @@ public class Session extends BaseDomain implements Serializable {
 							else {
 								serverFormat = SERVER_DATEFORMAT;
 							}
-							entry.setValue(new DateFormater().formatDateToString(date, 
+							entry.setValue(FormaterUtil.formatDateToString(date, 
 									serverFormat.getValue()));
 						} catch (ParseException e) {}
 						
@@ -596,7 +596,7 @@ public class Session extends BaseDomain implements Serializable {
 								else {
 									serverFormat = SERVER_DATEFORMAT;
 								}
-								dates[i] = new DateFormater().formatDateToString(date, 
+								dates[i] = FormaterUtil.formatDateToString(date, 
 										serverFormat.getValue());
 							} catch (ParseException e) {}
 						}
@@ -676,7 +676,7 @@ public class Session extends BaseDomain implements Serializable {
 							else {
 								dbFormat = DB_DATEFORMAT;
 							}
-							entry.setValue(new DateFormater().formatDateToString(date, 
+							entry.setValue(FormaterUtil.formatDateToString(date, 
 									dbFormat.getValue()));
 							
 						} catch (ParseException e) {}		
@@ -705,7 +705,7 @@ public class Session extends BaseDomain implements Serializable {
 								else {
 									dbFormat = DB_DATEFORMAT;
 								}
-								dates[i] = new DateFormater().formatDateToString(date, 
+								dates[i] = FormaterUtil.formatDateToString(date, 
 										dbFormat.getValue());
 								
 							} catch (ParseException e) {}		
