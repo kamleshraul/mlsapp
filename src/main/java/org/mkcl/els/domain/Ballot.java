@@ -1,3 +1,12 @@
+/**
+ * See the file LICENSE for redistribution information.
+ *
+ * Copyright (c) 2013 MKCL.  All rights reserved.
+ *
+ * Project: e-Legislature
+ * File: org.mkcl.els.domain.Ballot.java
+ * Created On: Jan 10, 2013
+ */
 package org.mkcl.els.domain;
 
 import java.io.Serializable;
@@ -25,43 +34,69 @@ import org.mkcl.els.repository.BallotRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Configurable;
 
+// TODO: Auto-generated Javadoc
+/**
+ * The Class Ballot.
+ *
+ * @author amitd
+ * @since v1.0.0
+ */
 @Configurable
 @Entity
 @Table(name="ballots")
 public class Ballot extends BaseDomain implements Serializable {
 
+	/** The Constant serialVersionUID. */
 	private static final long serialVersionUID = 8638638668842050930L;
-	
+
 	//=============== ATTRIBUTES ====================
+	/** The session. */
 	@ManyToOne(fetch=FetchType.LAZY)
 	@JoinColumn(name="session_id")
 	private Session session;
-	
+
+	/** The group. */
 	@ManyToOne(fetch=FetchType.LAZY)
 	@JoinColumn(name="group_id")
 	private Group group;
-	
+
+	/** The answering date. */
 	@Temporal(TemporalType.DATE)
 	private Date answeringDate;
-	
+
+	/** The ballot entries. */
 	@ManyToMany(fetch=FetchType.LAZY, cascade=CascadeType.ALL)
 	@JoinTable(name="ballots_ballot_entries",
 			joinColumns={ @JoinColumn(name="ballot_id", referencedColumnName="id") },
 			inverseJoinColumns={ @JoinColumn(name="ballot_entry_id", referencedColumnName="id") })
 	private List<BallotEntry> ballotEntries;
-	
+
+	/** The ballot date. */
 	@Temporal(TemporalType.TIMESTAMP)
 	private Date ballotDate;
-	
+
+	/** The repository. */
 	@Autowired
 	private transient BallotRepository repository;
-	
-	
+
+
 	//=============== CONSTRUCTORS ==================
+	/**
+	 * Instantiates a new ballot.
+	 */
 	public Ballot() {
 		super();
 	}
-	
+
+	/**
+	 * Instantiates a new ballot.
+	 *
+	 * @param session the session
+	 * @param group the group
+	 * @param answeringDate the answering date
+	 * @param ballotDate the ballot date
+	 * @param locale the locale
+	 */
 	public Ballot(final Session session,
 			final Group group,
 			final Date answeringDate,
@@ -74,15 +109,21 @@ public class Ballot extends BaseDomain implements Serializable {
 		this.setBallotDate(ballotDate);
 		this.setBallotEntries(new ArrayList<BallotEntry>());
 	}
-	
-	
+
+
 	//=============== VIEW METHODS ==================
 	/**
 	 * Returns null if Ballot does not exist for the specified parameters
 	 * OR
 	 * Returns an empty list if there are no entries for the Ballot
 	 * OR
-	 * Returns a list of BallotVO
+	 * Returns a list of BallotVO.
+	 *
+	 * @param session the session
+	 * @param group the group
+	 * @param answeringDate the answering date
+	 * @param locale the locale
+	 * @return the ballot v os
 	 */
 	public static List<BallotVO> getBallotVOs(final Session session,
 			final Group group,
@@ -90,16 +131,16 @@ public class Ballot extends BaseDomain implements Serializable {
 			final String locale) {
 		List<BallotVO> ballotVOs = new ArrayList<BallotVO>();
 		Ballot ballot = Ballot.find(session, group, answeringDate, locale);
-		
+
 		if(ballot != null) {
 			List<BallotEntry> ballotEntries = ballot.getBallotEntries();
 			for(BallotEntry be : ballotEntries) {
 				Long memberId = be.getMember().getId();
 				String memberName = be.getMember().getFullnameLastNameFirst();
-				
-				List<QuestionSequenceVO> questionSequenceVOs = 
+
+				List<QuestionSequenceVO> questionSequenceVOs =
 					Ballot.getQuestionSequenceVOs(be.getQuestionSequences());
-				
+
 				BallotVO ballotVO = new BallotVO(memberId, memberName, questionSequenceVOs);
 				ballotVOs.add(ballotVO);
 			}
@@ -109,84 +150,115 @@ public class Ballot extends BaseDomain implements Serializable {
 		}
 		return ballotVOs;
 	}
-	
-	private static List<QuestionSequenceVO> getQuestionSequenceVOs(List<QuestionSequence> sequences) {
+
+	/**
+	 * Gets the question sequence v os.
+	 *
+	 * @param sequences the sequences
+	 * @return the question sequence v os
+	 */
+	private static List<QuestionSequenceVO> getQuestionSequenceVOs(final List<QuestionSequence> sequences) {
 		List<QuestionSequenceVO> questionSequenceVOs = new ArrayList<QuestionSequenceVO>();
 		for(QuestionSequence qs : sequences) {
 			QuestionSequenceVO seqVO = new QuestionSequenceVO(qs.getQuestion().getId(),
-					qs.getQuestion().getNumber(), 
+					qs.getQuestion().getNumber(),
 					qs.getSequenceNo());
-			
+
 			questionSequenceVOs.add(seqVO);
 		}
 		return questionSequenceVOs;
 	}
-	
-	
+
+
 	//=============== DOMAIN METHODS ================
 	/**
 	 * 3 stepped process:
 	 * 1> Compute Ballot entries.
 	 * 2> Randomize Ballot entries.
-	 * 3> Add sequence numbers. 
-	 * 
+	 * 3> Add sequence numbers.
+	 *
 	 * Creates a new Ballot. If a ballot already exists then return the
 	 * existing Ballot.
+	 *
+	 * @return the ballot
 	 */
 	public Ballot create() {
-		Ballot ballot = Ballot.find(this.getSession(), this.getGroup(), 
+		Ballot ballot = Ballot.find(this.getSession(), this.getGroup(),
 				this.getAnsweringDate(), this.getLocale());
-		
+
 		if(ballot == null) {
 			Integer noOfRounds = Ballot.getNoOfRounds();
-			
-			List<BallotEntry> computedList = Ballot.compute(this.getSession(), 
+
+			List<BallotEntry> computedList = Ballot.compute(this.getSession(),
 					this.getGroup(), this.getAnsweringDate(), noOfRounds, this.getLocale());
 			List<BallotEntry> randomizedList = Ballot.randomize(computedList);
 			List<BallotEntry> sequencedList = Ballot.addSequenceNumbers(randomizedList, noOfRounds);
-			
+
 			this.setBallotEntries(sequencedList);
 			ballot = (Ballot) this.persist();
 		}
-		
+
 		return ballot;
 	}
-	
+
+	/**
+	 * Checks if is exists.
+	 *
+	 * @return the boolean
+	 */
 	public Boolean isExists() {
-		Ballot ballot = Ballot.find(this.getSession(), this.getGroup(), 
+		Ballot ballot = Ballot.find(this.getSession(), this.getGroup(),
 				this.getAnsweringDate(), this.getLocale());
 		if(ballot == null) {
 			return false;
 		}
 		return true;
 	}
-	
+
 	/**
 	 * Returns null if there is no Ballot for the specified parameters.
+	 *
+	 * @param session the session
+	 * @param group the group
+	 * @param answeringDate the answering date
+	 * @param locale the locale
+	 * @return the ballot
 	 */
-	public static Ballot find(final Session session, 
-			final Group group, 
+	public static Ballot find(final Session session,
+			final Group group,
 			final Date answeringDate,
 			final String locale) {
 		return Ballot.getBallotRepository().find(session, group, answeringDate, locale);
 	}
-	
+
 	/**
 	 * Returns the list of Questions of @param member taken in a Ballot
 	 * for the particular @param answeringDate.
-	 * 
+	 *
 	 * Returns an empty list if there are no Questions for member.
+	 *
+	 * @param member the member
+	 * @param session the session
+	 * @param group the group
+	 * @param answeringDate the answering date
+	 * @param locale the locale
+	 * @return the list
 	 */
 	public static List<Question> findQuestions(final Member member,
-			final Session session, 
-			final Group group, 
+			final Session session,
+			final Group group,
 			final Date answeringDate,
 			final String locale) {
 		return Ballot.getBallotRepository().find(member, session, group, answeringDate, locale);
 	}
-	
-	
+
+
 	//=============== INTERNAL METHODS ==============
+	/**
+	 * Gets the ballot repository.
+	 *
+	 * @return the ballot repository
+	 */
 	private static BallotRepository getBallotRepository() {
 		BallotRepository repository = new Ballot().repository;
 		if(repository == null) {
@@ -195,16 +267,28 @@ public class Ballot extends BaseDomain implements Serializable {
 		}
 		return repository;
 	}
-	
+
+	/**
+	 * Gets the no of rounds.
+	 *
+	 * @return the no of rounds
+	 */
 	private static Integer getNoOfRounds() {
-		CustomParameter parameter = CustomParameter.findByName(CustomParameter.class, 
+		CustomParameter parameter = CustomParameter.findByName(CustomParameter.class,
 				"QUESTION_BALLOT_NO_OF_ROUNDS", "");
 		return Integer.valueOf(parameter.getValue());
 	}
-	
+
 	/**
 	 * Only members having any Question eligible for this ballot will
 	 * appear in the Ballot.
+	 *
+	 * @param session the session
+	 * @param group the group
+	 * @param answeringDate the answering date
+	 * @param noOfRounds the no of rounds
+	 * @param locale the locale
+	 * @return the list
 	 */
 	private static List<BallotEntry> compute(final Session session,
 			final Group group,
@@ -212,24 +296,24 @@ public class Ballot extends BaseDomain implements Serializable {
 			final Integer noOfRounds,
 			final String locale) {
 		List<BallotEntry> ballotEntryList = new ArrayList<BallotEntry>();
-		
+
 		List<Date> groupAnsweringDates = group.getAnsweringDates(ApplicationConstants.ASC);
-		List<Date> previousAnsweringDates = 
+		List<Date> previousAnsweringDates =
 			Ballot.getPreviousDates(groupAnsweringDates, answeringDate);
-		
+
 		List<Member> members = Chart.findMembers(session, group, answeringDate, locale);
 		for(Member m : members) {
-			BallotEntry ballotEntry = Ballot.compute(m, session, group, 
+			BallotEntry ballotEntry = Ballot.compute(m, session, group,
 					answeringDate, previousAnsweringDates, noOfRounds, locale);
-			
+
 			if(ballotEntry != null) {
 				ballotEntryList.add(ballotEntry);
 			}
 		}
-		
+
 		return ballotEntryList;
 	}
-	
+
 	/**
 	 * Algorithm:
 	 * 1> Create a list of Questions eligible for ballot for all the answeringDates
@@ -239,9 +323,18 @@ public class Ballot extends BaseDomain implements Serializable {
 	 * Questions for the current Ballot.
 	 * 4> Choose as many as @param noOfRounds Questions from Step 3 list. These are the
 	 * Questions to be taken on the current ballot.
-	 * 
+	 *
 	 * Returns null if at the end of Step 4 the @param member do not have any Questions
 	 * in the list.
+	 *
+	 * @param member the member
+	 * @param session the session
+	 * @param group the group
+	 * @param currentAnsweringDate the current answering date
+	 * @param previousAnsweringDates the previous answering dates
+	 * @param noOfRounds the no of rounds
+	 * @param locale the locale
+	 * @return the ballot entry
 	 */
 	// TODO: Started with a crude implementation. I will optimize it later if required.
 	private static BallotEntry compute(final Member member,
@@ -252,27 +345,30 @@ public class Ballot extends BaseDomain implements Serializable {
 			final Integer noOfRounds,
 			final String locale) {
 		BallotEntry ballotEntry = null;
-		
-		List<Question> questionsQueue = Ballot.createQuestionQueue(member, session, group, 
+
+		List<Question> questionsQueue = Ballot.createQuestionQueue(member, session, group,
 				currentAnsweringDate, previousAnsweringDates, noOfRounds, locale);
-		
-		List<Question> ballotedQList = Ballot.ballotedQuestions(member, session, group, 
+
+		List<Question> ballotedQList = Ballot.ballotedQuestions(member, session, group,
 				previousAnsweringDates, locale);
-		
+
 		List<Question> eligibleQList = Ballot.listDifference(questionsQueue, ballotedQList);
 		if(! eligibleQList.isEmpty()) {
 			List<Question> selectedQList = Ballot.selectForBallot(eligibleQList, noOfRounds);
-			
-			List<QuestionSequence> questionSequences = 
+
+			List<QuestionSequence> questionSequences =
 				Ballot.createQuestionSequences(selectedQList, locale);
-			
+
 			ballotEntry = new BallotEntry(member, questionSequences, locale);
 		}
 		return ballotEntry;
 	}
-	
+
 	/**
 	 * Does not shuffle in place, returns a new list.
+	 *
+	 * @param ballotEntryList the ballot entry list
+	 * @return the list
 	 */
 	private static List<BallotEntry> randomize(final List<BallotEntry> ballotEntryList) {
 		List<BallotEntry> newBallotEntryList = new ArrayList<BallotEntry>();
@@ -282,15 +378,19 @@ public class Ballot extends BaseDomain implements Serializable {
 		Collections.shuffle(newBallotEntryList, rnd);
 		return newBallotEntryList;
 	}
-	
+
 	/**
 	 * Returns a new list.
+	 *
+	 * @param ballotEntryList the ballot entry list
+	 * @param noOfRounds the no of rounds
+	 * @return the list
 	 */
 	private static List<BallotEntry> addSequenceNumbers(final List<BallotEntry> ballotEntryList,
 			final Integer noOfRounds) {
 		List<BallotEntry> newBallotEntryList = new ArrayList<BallotEntry>();
 		newBallotEntryList.addAll(ballotEntryList);
-		
+
 		Integer sequenceNo = new Integer(0);
 		for(int i = 0; i < noOfRounds; i++) {
 			for(BallotEntry be : newBallotEntryList) {
@@ -303,11 +403,15 @@ public class Ballot extends BaseDomain implements Serializable {
 		}
 		return newBallotEntryList;
 	}
-	
+
 	/**
-	 * Returns a subset of @param dates where each date in @param dates is 
+	 * Returns a subset of @param dates where each date in @param dates is
 	 * less than @param date. Returns an empty list if no such dates
 	 * could be found
+	 *
+	 * @param dates the dates
+	 * @param date the date
+	 * @return the previous dates
 	 */
 	private static List<Date> getPreviousDates(final List<Date> dates, final Date date) {
 		List<Date> dateList = new ArrayList<Date>();
@@ -318,7 +422,19 @@ public class Ballot extends BaseDomain implements Serializable {
 		}
 		return dateList;
 	}
-	
+
+	/**
+	 * Creates the question queue.
+	 *
+	 * @param member the member
+	 * @param session the session
+	 * @param group the group
+	 * @param currentAnsweringDate the current answering date
+	 * @param previousAnsweringDates the previous answering dates
+	 * @param noOfRounds the no of rounds
+	 * @param locale the locale
+	 * @return the list
+	 */
 	private static List<Question> createQuestionQueue(final Member member,
 			final Session session,
 			final Group group,
@@ -327,7 +443,7 @@ public class Ballot extends BaseDomain implements Serializable {
 			final Integer noOfRounds,
 			final String locale) {
 		List<Question> questionQueue = new ArrayList<Question>();
-		
+
 		List<Date> dates = new ArrayList<Date>();
 		dates.addAll(previousAnsweringDates);
 		dates.add(currentAnsweringDate);
@@ -336,10 +452,20 @@ public class Ballot extends BaseDomain implements Serializable {
 			List<Question> eligibleQList = Ballot.eligibleForBallot(qList, locale);
 			questionQueue.addAll(eligibleQList);
 		}
-		
+
 		return questionQueue;
 	}
-	
+
+	/**
+	 * Balloted questions.
+	 *
+	 * @param member the member
+	 * @param session the session
+	 * @param group the group
+	 * @param answeringDates the answering dates
+	 * @param locale the locale
+	 * @return the list
+	 */
 	private static List<Question> ballotedQuestions(final Member member,
 			final Session session,
 			final Group group,
@@ -352,8 +478,15 @@ public class Ballot extends BaseDomain implements Serializable {
 		}
 		return ballotedQList;
 	}
-	
-	private static List<Question> listDifference(final List<Question> list1, 
+
+	/**
+	 * List difference.
+	 *
+	 * @param list1 the list1
+	 * @param list2 the list2
+	 * @return the list
+	 */
+	private static List<Question> listDifference(final List<Question> list1,
 			final List<Question> list2) {
 		List<Question> questions = new ArrayList<Question>();
 		for(Question q1 : list1) {
@@ -371,7 +504,14 @@ public class Ballot extends BaseDomain implements Serializable {
 		}
 		return questions;
 	}
-	
+
+	/**
+	 * Creates the question sequences.
+	 *
+	 * @param questions the questions
+	 * @param locale the locale
+	 * @return the list
+	 */
 	private static List<QuestionSequence> createQuestionSequences(final List<Question> questions,
 			final String locale) {
 		List<QuestionSequence> questionSequences = new ArrayList<QuestionSequence>();
@@ -382,81 +522,139 @@ public class Ballot extends BaseDomain implements Serializable {
 		}
 		return questionSequences;
 	}
-	
+
 	/**
 	 * A Question is eligible for ballot only if its internal status = "ADMITTED" and
 	 * it has no parent Question. If a Question has a parent, then it's parent
-	 * may be considered for the Ballot. The kid will never be considered for the 
+	 * may be considered for the Ballot. The kid will never be considered for the
 	 * Ballot.
-	 * 
-	 * Returns a subset of @param questions sorted by priority. If there are no 
-	 * questions eligible for the ballot, returns an empty list. 
+	 *
+	 * Returns a subset of @param questions sorted by priority. If there are no
+	 * questions eligible for the ballot, returns an empty list.
+	 *
+	 * @param questions the questions
+	 * @param locale the locale
+	 * @return the list
 	 */
 	private static List<Question> eligibleForBallot(final List<Question> questions,
 			final String locale) {
 		String ADMITTED = "question_workflow_approving_admission";
 		List<Question> eligibleQList = new ArrayList<Question>();
-		for(Question q : questions) { 
+		for(Question q : questions) {
 			if(q.getInternalStatus().getType().equals(ADMITTED) && q.getParent() == null) {
 				eligibleQList.add(q);
 			}
 		}
 		return Question.sortByPriority(eligibleQList, ApplicationConstants.ASC);
 	}
-	
+
 	/**
 	 * A subset of eligible Questions of size @param noOfRounds are taken in Ballot.
+	 *
+	 * @param questions the questions
+	 * @param noOfRounds the no of rounds
+	 * @return the list
 	 */
 	private static List<Question> selectForBallot(final List<Question> questions,
 			final Integer noOfRounds) {
 		List<Question> selectedQList = new ArrayList<Question>();
 		selectedQList.addAll(questions);
 		if(selectedQList.size() >= noOfRounds) {
-			selectedQList = selectedQList.subList(0, noOfRounds); 
+			selectedQList = selectedQList.subList(0, noOfRounds);
 		}
 		return selectedQList;
 	}
-	
-	
+
+
 	//=============== GETTERS/SETTERS ===============
+	/**
+	 * Gets the session.
+	 *
+	 * @return the session
+	 */
 	public Session getSession() {
 		return session;
 	}
 
+	/**
+	 * Sets the session.
+	 *
+	 * @param session the new session
+	 */
 	public void setSession(final Session session) {
 		this.session = session;
 	}
 
+	/**
+	 * Gets the group.
+	 *
+	 * @return the group
+	 */
 	public Group getGroup() {
 		return group;
 	}
 
+	/**
+	 * Sets the group.
+	 *
+	 * @param group the new group
+	 */
 	public void setGroup(final Group group) {
 		this.group = group;
 	}
 
+	/**
+	 * Gets the answering date.
+	 *
+	 * @return the answering date
+	 */
 	public Date getAnsweringDate() {
 		return answeringDate;
 	}
 
+	/**
+	 * Sets the answering date.
+	 *
+	 * @param answeringDate the new answering date
+	 */
 	public void setAnsweringDate(final Date answeringDate) {
 		this.answeringDate = answeringDate;
 	}
 
+	/**
+	 * Gets the ballot entries.
+	 *
+	 * @return the ballot entries
+	 */
 	public List<BallotEntry> getBallotEntries() {
 		return ballotEntries;
 	}
 
+	/**
+	 * Sets the ballot entries.
+	 *
+	 * @param ballotEntries the new ballot entries
+	 */
 	public void setBallotEntries(final List<BallotEntry> ballotEntries) {
 		this.ballotEntries = ballotEntries;
 	}
 
+	/**
+	 * Gets the ballot date.
+	 *
+	 * @return the ballot date
+	 */
 	public Date getBallotDate() {
 		return ballotDate;
 	}
 
-	public void setBallotDate(Date ballotDate) {
+	/**
+	 * Sets the ballot date.
+	 *
+	 * @param ballotDate the new ballot date
+	 */
+	public void setBallotDate(final Date ballotDate) {
 		this.ballotDate = ballotDate;
 	}
-	
+
 }
