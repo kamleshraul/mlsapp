@@ -17,7 +17,8 @@ package org.mkcl.els.common.vo;
  * deployed process while org.mkcl.els.common.vo.ProcessInstance
  * captures the runtime (execution) information of process.
  *
- * @author compaq
+ * @author amitd
+ * @author sandeeps
  * @since v1.0.0
  */
 public class ProcessDefinition {
@@ -33,13 +34,13 @@ public class ProcessDefinition {
 
 	/** The category. */
 	private String category;
-	
+
 	/** The process image. */
 	private String processImage;
-	
+
 	/** The deployment id. */
 	private String deploymentId;
-	
+
 	/** The deployment time. */
 	private String deploymentTime;
 
@@ -57,7 +58,7 @@ public class ProcessDefinition {
 		this.setId(id);
 		this.setKey(key);
 	}
-	
+
 	/**
 	 * Instantiates a new process definition.
 	 *
@@ -70,8 +71,8 @@ public class ProcessDefinition {
 	 * @param deploymentTime the deployment time
 	 * @param version the version
 	 */
-	public ProcessDefinition(final String id, final String key, final String name, 
-			final String category, final String processImage, 
+	public ProcessDefinition(final String id, final String key, final String name,
+			final String category, final String processImage,
 			final String deploymentId,
 			final String deploymentTime, final Integer version) {
 		super();
@@ -99,7 +100,7 @@ public class ProcessDefinition {
 	 *
 	 * @param id the new id
 	 */
-	public void setId(String id) {
+	public void setId(final String id) {
 		this.id = id;
 	}
 
@@ -117,7 +118,7 @@ public class ProcessDefinition {
 	 *
 	 * @param key the new key
 	 */
-	public void setKey(String key) {
+	public void setKey(final String key) {
 		this.key = key;
 	}
 
@@ -135,7 +136,7 @@ public class ProcessDefinition {
 	 *
 	 * @param name the new name
 	 */
-	public void setName(String name) {
+	public void setName(final String name) {
 		this.name = name;
 	}
 
@@ -153,7 +154,7 @@ public class ProcessDefinition {
 	 *
 	 * @param category the new category
 	 */
-	public void setCategory(String category) {
+	public void setCategory(final String category) {
 		this.category = category;
 	}
 
@@ -171,7 +172,7 @@ public class ProcessDefinition {
 	 *
 	 * @param processImage the new process image
 	 */
-	public void setProcessImage(String processImage) {
+	public void setProcessImage(final String processImage) {
 		this.processImage = processImage;
 	}
 
@@ -189,7 +190,7 @@ public class ProcessDefinition {
 	 *
 	 * @param version the new version
 	 */
-	public void setVersion(Integer version) {
+	public void setVersion(final Integer version) {
 		this.version = version;
 	}
 
@@ -207,7 +208,7 @@ public class ProcessDefinition {
 	 *
 	 * @param deploymentId the new deployment id
 	 */
-	public void setDeploymentId(String deploymentId) {
+	public void setDeploymentId(final String deploymentId) {
 		this.deploymentId = deploymentId;
 	}
 
@@ -225,7 +226,7 @@ public class ProcessDefinition {
 	 *
 	 * @param deploymentTime the new deployment time
 	 */
-	public void setDeploymentTime(String deploymentTime) {
+	public void setDeploymentTime(final String deploymentTime) {
 		this.deploymentTime = deploymentTime;
 	}
 
