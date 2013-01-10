@@ -17,8 +17,7 @@ import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
 import javax.persistence.Transient;
 
-import org.mkcl.els.common.util.DateUtil;
-import org.mkcl.els.repository.DocumentRepository;
+import org.mkcl.els.common.util.FormaterUtil;
 import org.mkcl.els.repository.HolidayRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Configurable;
@@ -124,14 +123,13 @@ public class Holiday extends BaseDomain implements Serializable {
 		try {
 			return getHolidayRepository().findAllSecondAndForthSaturdaysInYear(year);
 		} catch (ParseException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		return dates;
 	}
     
     public static List<Date> findAllSundayHolidaysInYear(final Integer year) {    	
-		return DateUtil.findAllSundaysInYear(year);
+		return FormaterUtil.findAllSundaysInYear(year);
 	}
     
     public static List<Date> findAllHolidayDatesByYear(final Integer year, String locale) {  
