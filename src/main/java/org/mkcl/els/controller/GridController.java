@@ -135,7 +135,7 @@ public class GridController extends GenericController<Grid> {
 		return gridData;
 	}
 
-	
+
 	/**
 	 * Handles process deployments' grid request.
 	 */
@@ -155,7 +155,7 @@ public class GridController extends GenericController<Grid> {
 			final Locale locale) throws ClassNotFoundException {
 		return this.gridService.getDeploymentsData(gridId, rows, page, sidx, order, locale);
 	}
-	
+
 	/**
 	 * Handles My Tasks' grid request.
 	 */
@@ -174,10 +174,10 @@ public class GridController extends GenericController<Grid> {
 			final HttpServletRequest request,
 			final Locale locale) throws ClassNotFoundException {
 		AuthUser user = this.getCurrentUser();
-		return this.gridService.getMyTasksData(gridId, user.getUsername(), 
+		return this.gridService.getMyTasksData(gridId, user.getUsername(),
 				rows, page, sidx, order, locale);
 	}
-	
+
 	/**
 	 * Handles Group Tasks' grid request.
 	 */
@@ -199,7 +199,7 @@ public class GridController extends GenericController<Grid> {
 		return this.gridService.getGroupTasksData(gridId, user.getUsername(),
 				rows, page, sidx, order, locale);
 	}
-	
+
 	//    @RequestMapping(value = "/member/{gridId}", method = RequestMethod.GET)
 	//    public @ResponseBody
 	//    GridData getMembers(@PathVariable final Long gridId,
