@@ -1,3 +1,12 @@
+/**
+ * See the file LICENSE for redistribution information.
+ *
+ * Copyright (c) 2013 MKCL.  All rights reserved.
+ *
+ * Project: e-Legislature
+ * File: org.mkcl.els.service.impl.ProcessServiceImpl.java
+ * Created On: Jan 10, 2013
+ */
 package org.mkcl.els.service.impl;
 
 import java.io.File;
@@ -44,48 +53,63 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+// TODO: Auto-generated Javadoc
 /**
  * Activiti BPMN specific implementation of the IProcessService.
+ *
+ * @author amitd
+ * @author sandeeps
+ * @since v1.0.0
  */
 @Service("processService")
 public class ProcessServiceImpl implements IProcessService {
 
+	/** The logger. */
 	private final Logger logger = LoggerFactory.getLogger(getClass());
 
+	/** The repository service. */
 	@Autowired
 	private RepositoryService repositoryService;
 
+	/** The task service. */
 	@Autowired
 	private TaskService taskService;
 
+	/** The identity service. */
 	@Autowired
 	private IdentityService identityService;
 
+	/** The form service. */
 	@Autowired
 	private FormService formService;
 
+	/** The runtime service. */
 	@Autowired
 	private RuntimeService runtimeService;
 
+	/** The management service. */
 	@SuppressWarnings("unused")
 	@Autowired
 	private ManagementService managementService;
 
+	/** The history service. */
 	@SuppressWarnings("unused")
 	@Autowired
 	private HistoryService historyService;
 
-	
+
 	//==================== Deployment Queries ===================
 	/**
 	 * The process file to be deployed (& on which the InputStream is created)
 	 * should have the following structure:
 	 *
-	 * 		.bar(a zip file with bar extension)
-	 * 		|- .png OR .jpg (an image file)
-	 * 		|- .zip
-	 * 			|- .xml (the process definition file)
+	 * .bar(a zip file with bar extension)
+	 * |- .png OR .jpg (an image file)
+	 * |- .zip
+	 * |- .xml (the process definition file)
 	 *
+	 * @param name the name
+	 * @param is the is
 	 */
 	@Override
 	public void deploy(final String name, final InputStream is) {
@@ -112,6 +136,8 @@ public class ProcessServiceImpl implements IProcessService {
 
 	/**
 	 * Deletes the given deployment.
+	 *
+	 * @param processDefinition the process definition
 	 */
 	@Override
 	public void undeploy(
@@ -122,6 +148,9 @@ public class ProcessServiceImpl implements IProcessService {
 	/**
 	 * Deletes the given deployment and cascade deletion to process instances,
 	 * history process instances and jobs.
+	 *
+	 * @param processDefinition the process definition
+	 * @param cascade the cascade
 	 */
 	@Override
 	public void undeploy(
@@ -131,6 +160,9 @@ public class ProcessServiceImpl implements IProcessService {
 	}
 
 	//==================== ProcessDefinition Queries ==================
+	/* (non-Javadoc)
+	 * @see org.mkcl.els.service.IProcessService#getDeployedProcesses()
+	 */
 	@Override
 	public List<org.mkcl.els.common.vo.ProcessDefinition> getDeployedProcesses() {
 		List<org.mkcl.els.common.vo.ProcessDefinition> processDefinitions =
@@ -151,6 +183,9 @@ public class ProcessServiceImpl implements IProcessService {
 
 	/**
 	 * Returns null if their exists no Process Definition with the given id.
+	 *
+	 * @param id the id
+	 * @return the org.mkcl.els.common.vo. process definition
 	 */
 	@Override
 	public org.mkcl.els.common.vo.ProcessDefinition findProcessDefinitionById(final String id) {
@@ -166,6 +201,9 @@ public class ProcessServiceImpl implements IProcessService {
 
 	/**
 	 * Returns null if their exists no Process Definition with the given key.
+	 *
+	 * @param key the key
+	 * @return the org.mkcl.els.common.vo. process definition
 	 */
 	@Override
 	public org.mkcl.els.common.vo.ProcessDefinition findProcessDefinitionByKey(final String key) {
@@ -182,6 +220,9 @@ public class ProcessServiceImpl implements IProcessService {
 
 	/**
 	 * Returns null if their exists no form key for the given Process Definition.
+	 *
+	 * @param process the process
+	 * @return the form key
 	 */
 	@Override
 	public String getFormKey(final org.mkcl.els.common.vo.ProcessDefinition process) {
@@ -198,8 +239,12 @@ public class ProcessServiceImpl implements IProcessService {
 	 * Creates an instance of the Process defined by the given ProcessDefinition
 	 * & adds properties to the Process instance. Note that this properties can
 	 * be later retrieved using the methods:
-	 * 	getVariables(Task task)
-	 * 	getVariablesLocal(Task task)
+	 * getVariables(Task task)
+	 * getVariablesLocal(Task task)
+	 *
+	 * @param process the process
+	 * @param properties the properties
+	 * @return the org.mkcl.els.common.vo. process instance
 	 */
 	@Override
 	public org.mkcl.els.common.vo.ProcessInstance createProcessInstance(
@@ -212,6 +257,9 @@ public class ProcessServiceImpl implements IProcessService {
 
 	/**
 	 * Deletes an existing runtime process instance.
+	 *
+	 * @param process the process
+	 * @param reason the reason
 	 */
 	@Override
 	public void deleteProcessInstance(final org.mkcl.els.common.vo.ProcessInstance process,
@@ -221,6 +269,9 @@ public class ProcessServiceImpl implements IProcessService {
 
 	/**
 	 * Returns null if their exists no Process Instance with the given id.
+	 *
+	 * @param processInstanceId the process instance id
+	 * @return the org.mkcl.els.common.vo. process instance
 	 */
 	@Override
 	public org.mkcl.els.common.vo.ProcessInstance findProcessInstanceById(final String processInstanceId) {
@@ -236,6 +287,9 @@ public class ProcessServiceImpl implements IProcessService {
 	//==================== Task Queries ===============================
 	/**
 	 * Returns null if their exists no Task for the given taskId.
+	 *
+	 * @param taskId the task id
+	 * @return the org.mkcl.els.common.vo. task
 	 */
 	@Override
 	public org.mkcl.els.common.vo.Task findTaskById(final String taskId) {
@@ -249,6 +303,9 @@ public class ProcessServiceImpl implements IProcessService {
 
 	/**
 	 * Gets the list of (pending) tasks of the user with the given userId.
+	 *
+	 * @param userId the user id
+	 * @return the my tasks
 	 */
 	@Override
 	public List<org.mkcl.els.common.vo.Task> getMyTasks(final String userId) {
@@ -267,6 +324,9 @@ public class ProcessServiceImpl implements IProcessService {
 	/**
 	 * Gets the list of (pending) tasks of the group to which the user
 	 * with the given userId belongs.
+	 *
+	 * @param userId the user id
+	 * @return the group tasks
 	 */
 	@Override
 	public List<org.mkcl.els.common.vo.Task> getGroupTasks(final String userId) {
@@ -284,6 +344,9 @@ public class ProcessServiceImpl implements IProcessService {
 
 	/**
 	 * Gets the count of pending tasks of the user with the given userId.
+	 *
+	 * @param userId the user id
+	 * @return the pending my task count
 	 */
 	@Override
 	public Long getPendingMyTaskCount(final String userId) {
@@ -293,6 +356,9 @@ public class ProcessServiceImpl implements IProcessService {
 	/**
 	 * Gets the count of pending tasks of the group to which the user
 	 * with the given userId belongs.
+	 *
+	 * @param userId the user id
+	 * @return the pending group task count
 	 */
 	@Override
 	public Long getPendingGroupTaskCount(final String userId) {
@@ -303,6 +369,9 @@ public class ProcessServiceImpl implements IProcessService {
 	 * The given user is made assignee for the task. Note that a user can
 	 * assign task to himself/herself (task claim) or a higher authority
 	 * could assign a task to a user (task assign).
+	 *
+	 * @param task the task
+	 * @param userId the user id
 	 */
 	@Override
 	public void assignTask(final org.mkcl.els.common.vo.Task task,
@@ -312,6 +381,9 @@ public class ProcessServiceImpl implements IProcessService {
 
 	/**
 	 * Unassign (Unclaim) an assigned (claimed) task.
+	 *
+	 * @param task the task
+	 * @param userId the user id
 	 */
 	@Override
 	public void unassignTask(final org.mkcl.els.common.vo.Task task, final String userId) {
@@ -321,6 +393,9 @@ public class ProcessServiceImpl implements IProcessService {
 
 	/**
 	 * Delegates the task to another user.
+	 *
+	 * @param task the task
+	 * @param userId the user id
 	 */
 	// TODO: Note that this implementation will work only for Unclaimed tasks.
 	//
@@ -347,6 +422,8 @@ public class ProcessServiceImpl implements IProcessService {
 
 	/**
 	 * Completes the task.
+	 *
+	 * @param task the task
 	 */
 	@Override
 	public void completeTask(final org.mkcl.els.common.vo.Task task) {
@@ -356,8 +433,11 @@ public class ProcessServiceImpl implements IProcessService {
 	/**
 	 * Completes the task & adds properties to the Process instance.
 	 * Note that this properties can be later retrieved using the methods:
-	 * 	getVariables(Task task)
-	 * 	getVariablesLocal(Task task)
+	 * getVariables(Task task)
+	 * getVariablesLocal(Task task)
+	 *
+	 * @param task the task
+	 * @param properties the properties
 	 */
 	@Override
 	public void completeTask(final org.mkcl.els.common.vo.Task task,
@@ -367,6 +447,8 @@ public class ProcessServiceImpl implements IProcessService {
 
 	/**
 	 * Deletes the given task.
+	 *
+	 * @param task the task
 	 */
 	@Override
 	public void deleteTask(final org.mkcl.els.common.vo.Task task) {
@@ -375,6 +457,9 @@ public class ProcessServiceImpl implements IProcessService {
 
 	/**
 	 * Returns null if their exists no form key for the given Task.
+	 *
+	 * @param task the task
+	 * @return the form key
 	 */
 	@Override
 	public String getFormKey(final org.mkcl.els.common.vo.Task task) {
@@ -390,6 +475,10 @@ public class ProcessServiceImpl implements IProcessService {
 	 * Returns a value of the specified process variable visible from the
 	 * given execution scope (including parent scope). Returns null if their
 	 * exists no key in the given execution scope (including parent scope).
+	 *
+	 * @param task the task
+	 * @param key the key
+	 * @return the variable
 	 */
 	@Override
 	public String getVariable(final org.mkcl.els.common.vo.Task task, final String key) {
@@ -401,6 +490,10 @@ public class ProcessServiceImpl implements IProcessService {
 	 * Returns a value of the specified process variable visible from the
 	 * execution scope without taking outer scopes into account. Returns null
 	 * if their exists no key in the given execution scope.
+	 *
+	 * @param task the task
+	 * @param key the key
+	 * @return the variable local
 	 */
 	@Override
 	public String getVariableLocal(final org.mkcl.els.common.vo.Task task, final String key) {
@@ -411,6 +504,9 @@ public class ProcessServiceImpl implements IProcessService {
 	/**
 	 * Returns a map of all the variables visible from the given execution
 	 * scope (including parent scope).
+	 *
+	 * @param task the task
+	 * @return the variables
 	 */
 	@Override
 	public Map<String, Object> getVariables(final org.mkcl.els.common.vo.Task task) {
@@ -420,6 +516,9 @@ public class ProcessServiceImpl implements IProcessService {
 	/**
 	 * Returns a map of all the variables defined in the execution scope
 	 * without taking outer scopes into account.
+	 *
+	 * @param task the task
+	 * @return the variables local
 	 */
 	@Override
 	public Map<String, Object> getVariablesLocal(final org.mkcl.els.common.vo.Task task) {
@@ -429,6 +528,8 @@ public class ProcessServiceImpl implements IProcessService {
 	//==================== Identity Queries ===============================
 	/**
 	 * Creates User as well as Group.
+	 *
+	 * @param user the user
 	 */
 	@Override
 	public void createUser(final User user) {
@@ -445,6 +546,8 @@ public class ProcessServiceImpl implements IProcessService {
 
 	/**
 	 * Updates User as well as Group.
+	 *
+	 * @param user the user
 	 */
 	@Override
 	public void updateUser(final User user) {
@@ -471,6 +574,8 @@ public class ProcessServiceImpl implements IProcessService {
 
 	/**
 	 * Deletes User.
+	 *
+	 * @param user the user
 	 */
 	@Override
 	public void deleteUser(final User user) {
@@ -487,6 +592,9 @@ public class ProcessServiceImpl implements IProcessService {
 	/**
 	 * Creates & returns an instance of ZipFile from an InputStream.
 	 * Returns null if the aforementioned operation could not be performed.
+	 *
+	 * @param is the is
+	 * @return the zip file
 	 */
 	private ZipFile getZipFile(final InputStream is) {
 		ZipFile zipFile = null;
@@ -524,6 +632,13 @@ public class ProcessServiceImpl implements IProcessService {
 		return zipFile;
 	}
 
+	/**
+	 * Adds the file item.
+	 *
+	 * @param zf the zf
+	 * @param item the item
+	 * @param builder the builder
+	 */
 	private void addFileItem(final ZipFile zf, final ZipEntry item, final DeploymentBuilder builder) {
 		InputStream is = null;
 		try {
@@ -546,6 +661,13 @@ public class ProcessServiceImpl implements IProcessService {
 		}
 	}
 
+	/**
+	 * Adds the zip item.
+	 *
+	 * @param zf the zf
+	 * @param item the item
+	 * @param builder the builder
+	 */
 	private void addZipItem(final ZipFile zf, final ZipEntry item, final DeploymentBuilder builder) {
 		InputStream is = null;
 		ZipInputStream zis = null;
@@ -580,6 +702,12 @@ public class ProcessServiceImpl implements IProcessService {
 		}
 	}
 
+	/**
+	 * Creates the process definition.
+	 *
+	 * @param p the p
+	 * @return the org.mkcl.els.common.vo. process definition
+	 */
 	private org.mkcl.els.common.vo.ProcessDefinition createProcessDefinition(final ProcessDefinition p) {
 		DeploymentQuery query = this.repositoryService.createDeploymentQuery();
 		Deployment deployment = query.deploymentId(p.getDeploymentId()).singleResult();
@@ -594,11 +722,23 @@ public class ProcessServiceImpl implements IProcessService {
 				strDeploymentTime, p.getVersion());
 	}
 
+	/**
+	 * Creates the process instance.
+	 *
+	 * @param p the p
+	 * @return the org.mkcl.els.common.vo. process instance
+	 */
 	private org.mkcl.els.common.vo.ProcessInstance createProcessInstance(final ProcessInstance p) {
 		return new org.mkcl.els.common.vo.ProcessInstance(p.getProcessInstanceId(),
 				p.getProcessDefinitionId());
 	}
 
+	/**
+	 * Creates the task.
+	 *
+	 * @param t the t
+	 * @return the org.mkcl.els.common.vo. task
+	 */
 	private org.mkcl.els.common.vo.Task createTask(final Task t) {
 		org.mkcl.els.common.vo.Task task = new org.mkcl.els.common.vo.Task(t.getId(),
 				t.getExecutionId(),
@@ -627,6 +767,8 @@ public class ProcessServiceImpl implements IProcessService {
 	/**
 	 * The method is written with the assumption that hashCode()
 	 * of UUID is always unique.
+	 *
+	 * @return the string
 	 */
 	private String generateUUID() {
 		UUID uuid = UUID.randomUUID();

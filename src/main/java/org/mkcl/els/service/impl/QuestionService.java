@@ -1,3 +1,12 @@
+/**
+ * See the file LICENSE for redistribution information.
+ *
+ * Copyright (c) 2013 MKCL.  All rights reserved.
+ *
+ * Project: e-Legislature
+ * File: org.mkcl.els.service.impl.QuestionService.java
+ * Created On: Jan 10, 2013
+ */
 package org.mkcl.els.service.impl;
 
 import java.io.UnsupportedEncodingException;
@@ -7,21 +16,31 @@ import java.util.List;
 import org.mkcl.els.domain.Credential;
 import org.mkcl.els.domain.MessageResource;
 import org.mkcl.els.domain.Question;
-import org.mkcl.els.domain.Status;
 import org.mkcl.els.domain.SupportingMember;
 import org.mkcl.els.domain.User;
 import org.mkcl.els.service.IQuestionService;
 import org.springframework.stereotype.Service;
 
+// TODO: Auto-generated Javadoc
+/**
+ * The Class QuestionService.
+ *
+ * @author amitd
+ * @author sandeeps
+ * @since v1.0.0
+ */
 @Service
 public class QuestionService implements IQuestionService{
 
+    /* (non-Javadoc)
+     * @see org.mkcl.els.service.IQuestionService#findSupportingMembers(java.lang.String)
+     */
     @Override
     public List<String> findSupportingMembers(final String strQuestionId) {
     	/*
-    	 * Here we will create tasks for those supporting members for which task 
+    	 * Here we will create tasks for those supporting members for which task
     	 * has not already been created i.e for those supporting members whose
-    	 * decision status is assigned.Once task is created its status will change to pending. 
+    	 * decision status is assigned.Once task is created its status will change to pending.
     	 */
         List<String> supportingMembersNames=new ArrayList<String>();
         Question question=Question.findById(Question.class,Long.parseLong(strQuestionId));
@@ -35,12 +54,18 @@ public class QuestionService implements IQuestionService{
         return supportingMembersNames;
     }
 
+    /* (non-Javadoc)
+     * @see org.mkcl.els.service.IQuestionService#findEmailByUsername(java.lang.String)
+     */
     @Override
     public String findEmailByUsername(final String username) {
         Credential credential=Credential.findByFieldName(Credential.class, "username", username, "");
         return credential.getEmail();
     }
 
+    /* (non-Javadoc)
+     * @see org.mkcl.els.service.IQuestionService#findByLocaleAndCode(java.lang.String, java.lang.String)
+     */
     @Override
     public String findByLocaleAndCode(final String locale, final String code) {
         MessageResource messageResource=new MessageResource();
