@@ -1,3 +1,12 @@
+/**
+ * See the file LICENSE for redistribution information.
+ *
+ * Copyright (c) 2013 MKCL.  All rights reserved.
+ *
+ * Project: e-Legislature
+ * File: org.mkcl.els.controller.wf.QuestionWorkflowController.java
+ * Created On: Jan 10, 2013
+ */
 package org.mkcl.els.controller.wf;
 
 import java.text.ParseException;
@@ -55,13 +64,29 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 
+// TODO: Auto-generated Javadoc
+/**
+ * The Class QuestionWorkflowController.
+ *
+ * @author sandeeps
+ * @since v1.0.0
+ */
 @Controller
 @RequestMapping("/workflow/question")
 public class QuestionWorkflowController  extends BaseController{
 
+	/** The process service. */
 	@Autowired
 	private IProcessService processService;
 
+	/**
+	 * Inits the supporting member.
+	 *
+	 * @param model the model
+	 * @param request the request
+	 * @param locale the locale
+	 * @return the string
+	 */
 	@RequestMapping(value="supportingmember",method=RequestMethod.GET)
 	public String initSupportingMember(final ModelMap model,
 			final HttpServletRequest request,
@@ -112,6 +137,14 @@ public class QuestionWorkflowController  extends BaseController{
 		return "workflow/question/supportingmember";
 	}
 
+	/**
+	 * Populate supporting member.
+	 *
+	 * @param model the model
+	 * @param question the question
+	 * @param supportingMembers the supporting members
+	 * @param locale the locale
+	 */
 	private void populateSupportingMember(final ModelMap model,final Question question, final List<SupportingMember> supportingMembers,final String locale){
 		/*
 		 * adding question type in the model which is same as that of question
@@ -167,6 +200,15 @@ public class QuestionWorkflowController  extends BaseController{
 		model.addAttribute("priority",question.getPriority());
 	}
 
+	/**
+	 * Update supporting member.
+	 *
+	 * @param model the model
+	 * @param request the request
+	 * @param locale the locale
+	 * @param domain the domain
+	 * @return the string
+	 */
 	@RequestMapping(value="supportingmember",method=RequestMethod.PUT)
 	public String updateSupportingMember(final ModelMap model,
 			final HttpServletRequest request,
@@ -195,6 +237,11 @@ public class QuestionWorkflowController  extends BaseController{
 
 
 
+	/**
+	 * Inits the binder.
+	 *
+	 * @param binder the binder
+	 */
 	@SuppressWarnings("unused")
 	@InitBinder(value = "domain")
 	private void initBinder(final WebDataBinder binder) {
@@ -277,6 +324,14 @@ public class QuestionWorkflowController  extends BaseController{
 				new SubDepartment()));
 	}
 
+	/**
+	 * Inits the secretary.
+	 *
+	 * @param model the model
+	 * @param request the request
+	 * @param locale the locale
+	 * @return the string
+	 */
 	@RequestMapping(value="secretary",method=RequestMethod.GET)
 	public String initSecretary(final ModelMap model,
 			final HttpServletRequest request,
@@ -347,6 +402,16 @@ public class QuestionWorkflowController  extends BaseController{
 		return "workflow/question/secretary";
 	}
 
+	/**
+	 * Update secretary.
+	 *
+	 * @param model the model
+	 * @param request the request
+	 * @param locale the locale
+	 * @param domain the domain
+	 * @param result the result
+	 * @return the string
+	 */
 	@RequestMapping(value="secretary",method=RequestMethod.PUT)
 	public String updateSecretary(final ModelMap model,
 			final HttpServletRequest request,
@@ -454,6 +519,14 @@ public class QuestionWorkflowController  extends BaseController{
 	}
 
 
+	/**
+	 * Find next user.
+	 *
+	 * @param domain the domain
+	 * @param actor the actor
+	 * @param locale the locale
+	 * @return the string
+	 */
 	private String findNextUser(final Question domain,final String actor,final String locale){
 		UserGroupType userGroupType=UserGroupType.findByFieldName(UserGroupType.class, "type",actor, domain.getLocale());
 
@@ -539,6 +612,19 @@ public class QuestionWorkflowController  extends BaseController{
 	}
 
 
+	/**
+	 * Populate actors.
+	 *
+	 * @param domain the domain
+	 * @param model the model
+	 * @param request the request
+	 * @param sessionId the session id
+	 * @param deviceTypeId the device type id
+	 * @param workflowType the workflow type
+	 * @param groupNumber the group number
+	 * @param workflowConfigId2 the workflow config id2
+	 * @param level the level
+	 */
 	private void populateActors(final Question domain, final ModelMap model,
 			final HttpServletRequest request, final Long sessionId, final Long deviceTypeId, final String workflowType, final Integer groupNumber, final Long workflowConfigId2, final Integer level) {
 		List<UserGroup> userGroups=this.getCurrentUser().getUserGroups();
@@ -649,6 +735,13 @@ public class QuestionWorkflowController  extends BaseController{
 		}
 	}
 
+	/**
+	 * Populate secretary model.
+	 *
+	 * @param domain the domain
+	 * @param model the model
+	 * @param request the request
+	 */
 	private void populateSecretaryModel(final Question domain, final ModelMap model,
 			final HttpServletRequest request) {
 		/*
@@ -931,6 +1024,12 @@ public class QuestionWorkflowController  extends BaseController{
 		}
 	}
 
+	/**
+	 * Update supporting members.
+	 *
+	 * @param domain the domain
+	 * @param request the request
+	 */
 	private void updateSupportingMembers(final Question domain,final HttpServletRequest request){
 		/*
 		 * here we are obtaining the supporting members id from the jsp
