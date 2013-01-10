@@ -25,7 +25,6 @@ import javax.persistence.NoResultException;
 import javax.persistence.TypedQuery;
 
 import org.mkcl.els.common.util.ApplicationConstants;
-import org.mkcl.els.common.util.DateFormater;
 import org.mkcl.els.common.util.FormaterUtil;
 import org.mkcl.els.common.vo.ElectionResultVO;
 import org.mkcl.els.common.vo.MasterVO;
@@ -2436,7 +2435,7 @@ public class MemberRepository extends BaseRepository<Member, Long>{
             final String locale) {
         CustomParameter parameter =
             CustomParameter.findByName(CustomParameter.class, "DB_DATEFORMAT", "");
-        String strDate = new DateFormater().formatDateToString(date, parameter.getValue());
+        String strDate = FormaterUtil.formatDateToString(date, parameter.getValue());
 
         String strQuery = "SELECT m" +
                 " FROM HouseMemberRoleAssociation hmra JOIN hmra.member m" +
