@@ -16,6 +16,7 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
+
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -26,9 +27,11 @@ import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
+
 import org.codehaus.jackson.annotate.JsonIgnoreProperties;
 import org.mkcl.els.common.util.ApplicationConstants;
 import org.mkcl.els.common.util.FormaterUtil;
+import org.mkcl.els.common.vo.MasterVO;
 import org.mkcl.els.common.vo.QuestionDatesVO;
 import org.mkcl.els.repository.GroupRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -168,7 +171,7 @@ public class Group extends BaseDomain implements Serializable {
 		 * Returns null if @param answeringDate is not one of the
 		 * answering dates mentioned for this Group.
 		 */
-		public Date getFinalSubmissionDate(Date answeringDate) {
+		public Date getFinalSubmissionDate(final Date answeringDate) {
 			List<QuestionDates> qDateList = this.getQuestionDates();
 			for(QuestionDates qd : qDateList) {
 				if(qd.getAnsweringDate().equals(answeringDate)) {
@@ -178,14 +181,14 @@ public class Group extends BaseDomain implements Serializable {
 					String formatType = parameter.getValue();
 					String strDate = FormaterUtil.formatDateToString(date, formatType);
 					String newStrDate = strDate.replaceFirst("00:00:00", "23:59:59");
-					Date submissionDate = 
+					Date submissionDate =
 						FormaterUtil.formatStringToDate(newStrDate, formatType);
 					return submissionDate;
 				}
 			}
 			return null;
 		}
-		
+
 		//To have get the rotation order (question_dates) of the group
 		 public  QuestionDates findQuestionDatesByGroupAndAnsweringDate(final Date answeringDate){
 			 //Group group=Group.findById(Group.class, groupId);
@@ -198,8 +201,8 @@ public class Group extends BaseDomain implements Serializable {
 			 return null;
 	    }
 
-		 
-		
+
+
 		 public static List<QuestionDatesVO> findAllGroupDatesFormatted(final HouseType houseType,
 		            final SessionType sessionType, final Integer sessionYear, final String string) {
 		        return getGroupRepository().findAllGroupDatesFormatted(houseType,
@@ -262,9 +265,15 @@ public class Group extends BaseDomain implements Serializable {
         return getGroupRepository().find(ministry,houseType,
                 sessionYear,sessionType,locale);
     }
-    
+
     public String formatNumber(){
         NumberFormat format=FormaterUtil.getNumberFormatterNoGrouping(this.getLocale());
         return format.format(this.getNumber());
+    }
+
+    public static List<MasterVO> findQuestionDateByGroup(final HouseType houseType,final SessionType sessionType,
+            final Integer sessionYear,final int groupNumber,final String locale) {
+        return getGroupRepository().findQuestionDateByGroup(houseType,sessionType,
+               sessionYear,groupNumber,locale);
     }
 }
