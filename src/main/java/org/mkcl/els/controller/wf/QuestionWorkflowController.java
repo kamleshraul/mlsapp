@@ -1,5 +1,6 @@
 package org.mkcl.els.controller.wf;
 
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -392,6 +393,26 @@ public class QuestionWorkflowController  extends BaseController{
 				//domain.setStatus(domain.getInternalStatus());
 			//}
 		//}
+		 /*
+         * updating submission date and creation date
+         */
+        String strCreationDate=request.getParameter("setCreationDate");
+        String strSubmissionDate=request.getParameter("setSubmissionDate");
+        CustomParameter dateTimeFormat=CustomParameter.findByName(CustomParameter.class,"SERVER_DATETIMEFORMAT", "");
+        if(dateTimeFormat!=null){
+            SimpleDateFormat format=FormaterUtil.getDateFormatter(dateTimeFormat.getValue(),"en_US");
+            try {
+                if(strSubmissionDate!=null){
+                    domain.setSubmissionDate(format.parse(strSubmissionDate));
+                }
+                if(strCreationDate!=null){
+                    domain.setCreationDate(format.parse(strCreationDate));
+                }
+            }
+            catch (ParseException e) {
+                e.printStackTrace();
+            }
+        }
 		domain.merge();
 		/*
 		 * complete task
@@ -545,7 +566,8 @@ public class QuestionWorkflowController  extends BaseController{
 							||strType.equals("chairman")
 							||strType.equals("section_officer")
 							||strType.equals("department")
-							||strType.equals("member")){
+							||strType.equals("member")
+							||strType.equals("under_secretary_committee")){
 						strUserGroup=strType;
 						model.addAttribute("usergroup",strUserGroup);
 						/*
@@ -698,16 +720,15 @@ public class QuestionWorkflowController  extends BaseController{
 		if(questionType.getType().trim().equals("questions_starred")){
 			Date rotationOrderPubDate=null;
 			CustomParameter serverDateFormat = CustomParameter.findByName(CustomParameter.class, "DB_DATEFORMAT", "");
-			if(houseType.getType().equals("lowerhouse")){
-				String strRotationOrderPubDate = selectedSession.getParamater("questions_starred_rotationOrderPublishingDate");
+            if(houseType.getType().equals("lowerhouse")){
+                String strRotationOrderPubDate = selectedSession.getParamater("questions_starred_rotationOrderPublishingDate");
                 rotationOrderPubDate = FormaterUtil.formatStringToDate(strRotationOrderPubDate, serverDateFormat.getValue());
-			}else if(houseType.equals("upperhouse")){
-				String strRotationOrderPubDate = selectedSession.getParamater("questions_starred_rotationOrderPublishingDate");
+            }else if(houseType.equals("upperhouse")){
+                String strRotationOrderPubDate = selectedSession.getParamater("questions_starred_rotationOrderPublishingDate");
                 rotationOrderPubDate = FormaterUtil.formatStringToDate(strRotationOrderPubDate, serverDateFormat.getValue());
-			}	CustomParameter rotationOrderDateFormat=CustomParameter.findByName(CustomParameter.class,"ROTATION_ORDER_DATE_FORMAT", "");
-			if(rotationOrderDateFormat!=null){
-				if(rotationOrderPubDate!=null){
-
+            }   CustomParameter rotationOrderDateFormat=CustomParameter.findByName(CustomParameter.class,"ROTATION_ORDER_DATE_FORMAT", "");
+            if(rotationOrderDateFormat!=null){
+                if(rotationOrderPubDate!=null){
 					/*
 					 * adding rotation order publishing date
 					 */
@@ -876,14 +897,17 @@ public class QuestionWorkflowController  extends BaseController{
 			model.addAttribute("errorcode","highestquestionprioritynotset");
 		}
 		/*
-		 * adding creation date and submission date
-		 */
-		if(domain.getCreationDate()!=null){
-			model.addAttribute("creationDate",FormaterUtil.getDateFormatter("en_US").format(domain.getCreationDate()));
-		}
-		if(domain.getSubmissionDate()!=null){
-			model.addAttribute("submissionDate",FormaterUtil.getDateFormatter("en_US").format(domain.getSubmissionDate()));
-		}
+         * adding creation date and submission date
+         */
+        CustomParameter dateTimeFormat=CustomParameter.findByName(CustomParameter.class,"SERVER_DATETIMEFORMAT", "");
+        if(dateTimeFormat!=null){
+            if(domain.getCreationDate()!=null){
+                model.addAttribute("creationDate",FormaterUtil.getDateFormatter(dateTimeFormat.getValue(),"en_US").format(domain.getCreationDate()));
+            }
+            if(domain.getSubmissionDate()!=null){
+                model.addAttribute("submissionDate",FormaterUtil.getDateFormatter(dateTimeFormat.getValue(),"en_US").format(domain.getSubmissionDate()));
+            }
+        }
 		/*
 		 * adding status
 		 */
@@ -901,6 +925,9 @@ public class QuestionWorkflowController  extends BaseController{
 			model.addAttribute("internalStatusId",iStatus.getId());
 			model.addAttribute("internalStatusType",iStatus.getType());
 			model.addAttribute("internalStatusName",iStatus.getName());
+			if(iStatus.getType().contains("question_workflow_decisionstatus")){
+	        model.addAttribute("internalStatusEndsWith",iStatus.getType().split("question_workflow_decisionstatus")[1]);
+			}
 		}
 	}
 
