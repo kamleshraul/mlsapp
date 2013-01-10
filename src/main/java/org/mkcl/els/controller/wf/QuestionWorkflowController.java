@@ -15,7 +15,6 @@ import javax.validation.Valid;
 
 import org.mkcl.els.common.editors.BaseEditor;
 import org.mkcl.els.common.util.ApplicationConstants;
-import org.mkcl.els.common.util.DateFormater;
 import org.mkcl.els.common.util.FormaterUtil;
 import org.mkcl.els.common.vo.MasterVO;
 import org.mkcl.els.common.vo.Reference;
@@ -701,10 +700,10 @@ public class QuestionWorkflowController  extends BaseController{
 			CustomParameter serverDateFormat = CustomParameter.findByName(CustomParameter.class, "DB_DATEFORMAT", "");
 			if(houseType.getType().equals("lowerhouse")){
 				String strRotationOrderPubDate = selectedSession.getParamater("questions_starred_rotationOrderPublishingDate");
-                rotationOrderPubDate = new DateFormater().formatStringToDate(strRotationOrderPubDate, serverDateFormat.getValue());
+                rotationOrderPubDate = FormaterUtil.formatStringToDate(strRotationOrderPubDate, serverDateFormat.getValue());
 			}else if(houseType.equals("upperhouse")){
 				String strRotationOrderPubDate = selectedSession.getParamater("questions_starred_rotationOrderPublishingDate");
-                rotationOrderPubDate = new DateFormater().formatStringToDate(strRotationOrderPubDate, serverDateFormat.getValue());
+                rotationOrderPubDate = FormaterUtil.formatStringToDate(strRotationOrderPubDate, serverDateFormat.getValue());
 			}	CustomParameter rotationOrderDateFormat=CustomParameter.findByName(CustomParameter.class,"ROTATION_ORDER_DATE_FORMAT", "");
 			if(rotationOrderDateFormat!=null){
 				if(rotationOrderPubDate!=null){
