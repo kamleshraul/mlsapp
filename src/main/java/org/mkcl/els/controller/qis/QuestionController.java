@@ -404,7 +404,7 @@ public class QuestionController extends GenericController<Question>{
                  */
                 if(questionType.getType().trim().equals("questions_starred")){
                     Date rotationOrderPubDate=null;
-                    CustomParameter serverDateFormat = CustomParameter.findByName(CustomParameter.class, "DB_DATEFORMAT", "");
+                    CustomParameter serverDateFormat = CustomParameter.findByName(CustomParameter.class, "SERVER_DATEFORMAT", "");
                     if(houseType.getType().equals("lowerhouse")){
                         String strRotationOrderPubDate = selectedSession.getParameter("questions_starred_rotationOrderPublishingDate");
                         rotationOrderPubDate = FormaterUtil.formatStringToDate(strRotationOrderPubDate, serverDateFormat.getValue());
@@ -580,7 +580,7 @@ public class QuestionController extends GenericController<Question>{
          */
         if(questionType.getType().trim().equals("questions_starred")){
             Date rotationOrderPubDate=null;
-            CustomParameter serverDateFormat = CustomParameter.findByName(CustomParameter.class, "DB_DATEFORMAT", "");
+            CustomParameter serverDateFormat = CustomParameter.findByName(CustomParameter.class, "SERVER_DATEFORMAT", "");
             if(houseType.getType().equals("lowerhouse")){
                 String strRotationOrderPubDate = selectedSession.getParameter("questions_starred_rotationOrderPublishingDate");
                 rotationOrderPubDate = FormaterUtil.formatStringToDate(strRotationOrderPubDate, serverDateFormat.getValue());
