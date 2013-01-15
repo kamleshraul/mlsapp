@@ -372,4 +372,14 @@ public class FormaterUtil {
         }
         return formatDate;
     }
+    
+    /**
+     * @param value number to be formatted
+     * @param locale locale in whi9ch number to be formatted 
+     * @return formatted number as string
+     */
+    public static String formatNumberNoGrouping(Object value , String locale){
+    	
+    	return getNumberFormatterNoGrouping(locale).format(value);
+    }
 }
