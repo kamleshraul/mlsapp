@@ -194,7 +194,7 @@
 				</select>
 				<form:errors path="deviceTypesEnabled" cssClass="validationError" />
 
-		</p>	
+		</p>
 		<p>
 				<label class="labelcentered"><spring:message code="session.remarks"
 						text="Remarks" /></label>

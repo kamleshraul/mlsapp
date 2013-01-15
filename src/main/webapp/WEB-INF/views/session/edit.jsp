@@ -38,7 +38,7 @@
 
 	});
 	function populateHouse(houseType) {
-			$.get('ref/' + houseType + '/house', function(data) {
+			$.get('ref/' + houseType + '/houses', function(data) {
 				$('#house option').empty();
 				var options = "";
 				for ( var i = 0; i < data.length; i++) {
@@ -201,7 +201,7 @@
 				</select>
 				<form:errors path="deviceTypesEnabled" cssClass="validationError" />
 
-		</p>	
+		</p>
 		<p>
 				<label class="labelcentered"><spring:message code="session.remarks"
 						text="Remarks" /></label>
