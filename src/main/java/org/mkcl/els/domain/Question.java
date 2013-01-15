@@ -50,7 +50,7 @@ import org.springframework.beans.factory.annotation.Configurable;
 @Configurable
 @Entity
 @Table(name="questions")
-@JsonIgnoreProperties({"answeringDate","recommendationStatus","houseType", "session","language","type","supportingMembers", "subDepartment", "referencedQuestions", "drafts","clubbings","group","editedBy","editedAs"})
+@JsonIgnoreProperties({"answeringDate","recommendationStatus","houseType", "session","language","type","supportingMembers", "subDepartment", "referencedQuestions", "drafts","clubbings","group","editedBy","editedAs","halfHourDiscusionFromQuestionReference"})
 public class Question extends BaseDomain
 implements Serializable
 {
@@ -77,9 +77,16 @@ implements Serializable
     /** The number. */
     private Integer number;
 
-    /** The submission date. */
+  
+	/** The submission date. */
     @Temporal(TemporalType.TIMESTAMP)
     private Date submissionDate;
+    
+    
+    /**Discussion date for halfhour discussions(standalone & from question)     */
+    @Temporal(TemporalType.DATE)
+    private Date discussionDate;
+    
 
     /** The creation date. */
     @Temporal(TemporalType.TIMESTAMP)
@@ -184,6 +191,11 @@ implements Serializable
     @Temporal(TemporalType.DATE)
     private Date dateOfAnsweringByMinister;
 
+    @Column(length=30000)
+    private String briefExplanation;
+    
+    @ManyToOne(fetch=FetchType.LAZY)
+    private Question halfHourDiscusionFromQuestionReference;
 
     //---------------------------Primary and supporting members-----------------
     /** The primary member. */
@@ -247,7 +259,7 @@ implements Serializable
     @Column(length=5000)
     private String prospectiveClubbings;
 
-    //--------------------------Clubbing Entities------------------------------------------
+	//--------------------------Clubbing Entities------------------------------------------
     @ManyToMany(fetch=FetchType.LAZY)
     @JoinTable(name="questions_clubbingentities", joinColumns={@JoinColumn(name="question_id", referencedColumnName="id")}, inverseJoinColumns={@JoinColumn(name="clubbed_entity_id", referencedColumnName="id")})
     private List<ClubbedEntity> clubbedEntities;
@@ -256,9 +268,7 @@ implements Serializable
     @ManyToMany(fetch=FetchType.LAZY)
     @JoinTable(name="questions_referencedentities", joinColumns={@JoinColumn(name="question_id", referencedColumnName="id")}, inverseJoinColumns={@JoinColumn(name="referenced_entity_id", referencedColumnName="id")})
     private List<ReferencedEntity> referencedEntities;
-
-
-
+    
     /** The question repository. */
     @Autowired
     private transient QuestionRepository questionRepository;
@@ -432,7 +442,7 @@ implements Serializable
             }
         }
     }
-    
+
     /**
      * Find last starred unstarred short notice question no.
      *
@@ -726,7 +736,13 @@ implements Serializable
     public static Question find(final Session session, final Integer number) {
         return Question.getQuestionRepository().find(session, number);
     }
+    
 
+    
+    public static Question findBySessionDeviceTypeQuestionNumber(final Session session, final DeviceType deviceType , final Integer number) {
+        return Question.getQuestionRepository().find(session, number);
+    }
+    
     //-----------------------Getters and Setters--------------------------------
 
     /**
@@ -800,6 +816,20 @@ implements Serializable
     public void setNumber(final Integer number) {
         this.number = number;
     }
+    
+    /**
+     * @return discussionDate
+     */
+    public Date getDiscussionDate() {
+  		return discussionDate;
+  	}
+  	/**
+  	 * sets discussionDate
+  	 * @param discussionDate
+  	 */
+  	public void setDiscussionDate(Date discussionDate) {
+  		this.discussionDate = discussionDate;
+  	}
 
     /**
      * Gets the submission date.
@@ -1298,7 +1328,21 @@ implements Serializable
         return getQuestionRepository().getRevisions(questionId,locale);
     }
 
-    /**
+    public String getBriefExplanation() {
+		return briefExplanation;
+	}
+	public void setBriefExplanation(String briefExplanation) {
+		this.briefExplanation = briefExplanation;
+	}
+
+	public Question getHalfHourDiscusionFromQuestionReference() {
+		return halfHourDiscusionFromQuestionReference;
+	}
+	public void setHalfHourDiscusionFromQuestionReference(
+			Question halfHourDiscusionFromQuestionReference) {
+		this.halfHourDiscusionFromQuestionReference = halfHourDiscusionFromQuestionReference;
+	}
+	/**
      * Full text search clubbing.
      *
      * @param textToSearch the text to search
@@ -1898,7 +1942,8 @@ implements Serializable
         return getQuestionRepository().createMemberBallotAttendance(session,
                 questionType,locale);
     }
-    public static List<Question> findAdmittedStarredQuestionsUH(
+    
+     public static List<Question> findAdmittedStarredQuestionsUH(
             final Session session, final DeviceType questionType, final Member member,
             final String locale) {
         return getQuestionRepository().findAdmittedStarredQuestionsUH(
@@ -1924,8 +1969,23 @@ implements Serializable
     public List<ReferencedEntity> getReferencedEntities() {
         return referencedEntities;
     }
-
-
-
+    
+    
+    /**
+     * Full text search clubbing for half hour discussion from question.
+     *
+     * @param textToSearch the text to search
+     * @param sessionToSearchOn the session to search on
+     * @param groupToSearchOn the group to search on
+     * @param currentChartId the current chart id
+     * @param memberID the member id
+     * @param questionId the question id
+     * @param locale the locale
+     * @return the list
+     */
+    public static List<QuestionSearchVO> fullTextSearchClubbingForHalfHourDiscussionFromQuestion(final String textToSearch,final Long sessionToSearchOn,final Long groupToSearchOn,
+            final Long memberId, final Long questionId, final String locale) {
+        return getQuestionRepository().fullTextSearchClubbingForHalfHourDiscussionFromQuestion(textToSearch,sessionToSearchOn,groupToSearchOn, memberId, questionId,locale);
+    }
 
 }
