@@ -1104,6 +1104,7 @@ public class QuestionController extends GenericController<Question>{
             }
         }
         
+        //------------------------vikas dhananjay-------------------------------------
         //------------------------------to find referred question for half hour discussion from question 
         if(domain!=null && domain.getType() != null){
     		
@@ -1417,6 +1418,7 @@ public class QuestionController extends GenericController<Question>{
             }
         }
         
+        //------------------------vikas dhananjay-------------------------------------
         //-----TO FIND REFERRED QUESTION FOR HalfHourDiscussionFromQuestion
         if(domain!=null && domain.getType() != null){
     		
@@ -2510,7 +2512,7 @@ public class QuestionController extends GenericController<Question>{
         return status;
     }
     
- 
+  //------------------------vikas dhananjay-------------------------------------
     @RequestMapping(value="/viewquestion",method=RequestMethod.GET)
     public String viewQuestion(final HttpServletRequest request,final ModelMap model,final Locale locale){
     	
@@ -2531,6 +2533,7 @@ public class QuestionController extends GenericController<Question>{
     	}
     }
     
+    //------------------------vikas dhananjay-------------------------------------
     /**
      * To add parameters for new half hour discussion
      * @param model  
@@ -2633,6 +2636,7 @@ public class QuestionController extends GenericController<Question>{
 		}         
     }
     
+    //------------------------vikas dhananjay-------------------------------------
     /**
      * To add required parameters for half hour discussion when edit mode 
      * @param model

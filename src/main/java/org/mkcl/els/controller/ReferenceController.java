@@ -1268,7 +1268,9 @@ public class ReferenceController extends BaseController {
         return houses;
     }
 
-
+	
+	
+	//------------------------vikas-------------------------------------------------
     /**
      * @param id to find the session 
      * @param discussionDays days submitted by user
@@ -1381,7 +1383,7 @@ public class ReferenceController extends BaseController {
 
 		return masterVOs;
 	}
- 
+	//------------------------vikas, dhananjay-------------------------------------------------
 	@RequestMapping(value="/questionid",method=RequestMethod.GET)
 	public @ResponseBody MasterVO getQuestionId(ModelMap model, HttpServletRequest request){
 		
@@ -1440,4 +1442,5 @@ public class ReferenceController extends BaseController {
 		
 		return masterVO;
 	}
+	//------------------------vikas dhananjay------------------------------------------
 }
