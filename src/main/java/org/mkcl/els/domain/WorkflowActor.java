@@ -41,10 +41,7 @@ public class WorkflowActor extends BaseDomain implements Serializable,Comparable
 
     /** The level. */
     private Integer level;
-
-    /** The group name. */
-    private String groupName;
-
+    
     /**
      * Instantiates a new workflow actor.
      */
@@ -105,25 +102,5 @@ public class WorkflowActor extends BaseDomain implements Serializable,Comparable
 		int result=this.level-o.level;
 		return result;
 	}
-
-	/**
-	 * Gets the group name.
-	 *
-	 * @return the group name
-	 */
-	public String getGroupName() {
-		return groupName;
-	}
-
-	/**
-	 * Sets the group name.
-	 *
-	 * @param groupName the new group name
-	 */
-	public void setGroupName(final String groupName) {
-		this.groupName = groupName;
-	}
-
-
 
 }
