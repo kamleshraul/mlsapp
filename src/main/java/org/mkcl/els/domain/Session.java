@@ -15,6 +15,7 @@ import java.text.DecimalFormatSymbols;
 import java.text.NumberFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
@@ -746,7 +747,7 @@ public class Session extends BaseDomain implements Serializable {
 		}
 	}
 
-	public String getParamater(String key){
+	public String getParameter(String key){
 		
 		if((key != null) & (!key.isEmpty())){
 			if(parameters.containsKey(key)){
@@ -759,4 +760,54 @@ public class Session extends BaseDomain implements Serializable {
 	public static Session find(final Integer sessionyear, final String sessiontype, final String housetype) {
 		return getSessionRepository().find(sessionyear,sessiontype,housetype);
     }
+	
+	/**
+	 * to find the previous session of the given session 
+	 * @param session given session
+	 * @return previous session 
+	 */
+	public static Session findPreviousSession(final Session session){
+		
+		List<Session> totalSessions = new ArrayList<Session>();
+		
+		List<Session> sessionListCurrent = Session.findSessionsByHouseAndYear(session.getHouse(), session.getYear());		
+		sessionListCurrent.remove(session);
+		totalSessions.addAll(sessionListCurrent);
+		
+		List<Session> sessionListLast = Session.findSessionsByHouseAndYear(session.getHouse(), session.getYear()-1);
+				
+		if(sessionListLast.size() > 0){
+			Session lastSessionPrevYear = sessionListLast.get(0);
+			totalSessions.add(lastSessionPrevYear);
+		}
+				
+		return compareSession(totalSessions, session);
+	}
+	
+	/**
+	 * helper method to find the previous session 
+	 * @param sessionList 
+	 * @param session
+	 * @return
+	 */
+	private static Session compareSession(List<Session> sessionList, final Session session){
+	
+		Object[] sessions = sessionList.toArray();
+		long minDiff=((Session)sessions[0]).getEndDate().getTime()-session.getStartDate().getTime();
+		int indexer=-1;
+		
+		for(int i = 1; i < sessions.length; i++){
+			
+			long tempTimeDifference = (((Session)sessions[i]).getEndDate().getTime()-session.getStartDate().getTime()); 
+			
+			if(tempTimeDifference <= minDiff){
+				minDiff = tempTimeDifference;
+				indexer = i;
+			}
+		}
+		if(indexer >= 0)
+			return ((Session)sessions[indexer]);
+		else
+			return null;
+	}
  }
