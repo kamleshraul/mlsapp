@@ -12,6 +12,7 @@ package org.mkcl.els.controller;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
+import java.util.Set;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -22,6 +23,7 @@ import org.mkcl.els.domain.ApplicationLocale;
 import org.mkcl.els.domain.Credential;
 import org.mkcl.els.domain.CustomParameter;
 import org.mkcl.els.domain.MenuItem;
+import org.mkcl.els.domain.Role;
 import org.mkcl.els.domain.User;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -103,6 +105,8 @@ public class HomeController extends BaseController {
         this.getCurrentUser().setHouseType(authenticatedUser.getHouseType().getType());
         this.getCurrentUser().setUserId(authenticatedUser.getId());
         this.getCurrentUser().setBirthDate(authenticatedUser.getBirthDate());
+        this.getCurrentUser().setGroupsAllowed(authenticatedUser.getGroupsAllowed());
+        this.getCurrentUser().setStartURL(authenticatedUser.getStartURL());
         model.addAttribute("authusername", this.getCurrentUser().getUsername());
         model.addAttribute("authtitle", this.getCurrentUser().getTitle());
         model.addAttribute("authfirstname", this.getCurrentUser()
@@ -120,12 +124,29 @@ public class HomeController extends BaseController {
                 .getValue();
         model.addAttribute("timeFormat",timeFormat);
         //right now all menus are visible to all.
-        String menuXml = MenuItem.getMenuXml(locale.toString());
+        Set<Role> roles=this.getCurrentUser().getRoles();
+        StringBuffer buffer=new StringBuffer();
+        for(Role i:roles){
+        	if(i.getMenusAllowed()!=null){
+        		if(!i.getMenusAllowed().isEmpty()){
+        			buffer.append(i.getMenusAllowed().replaceAll("##",","));
+                	buffer.append(",");	
+        		}        	
+        	}
+        }
+        String menuIds="";
+        if(buffer.length()>0){
+        	buffer.deleteCharAt(buffer.length()-1);
+        	menuIds=buffer.toString();
+        }     
+        String menuXml = MenuItem.getMenuXml(menuIds,locale.toString());
         model.addAttribute("menu_xml", menuXml);
         //adding login time
         model.addAttribute("logintime", FormaterUtil.getDateFormatter(timeFormat, locale.toString()).format(new Date()));
         //adding locale
         model.addAttribute("locale",locale.toString());
+        //starting url that will be triggered
+        model.addAttribute("startURL",this.getCurrentUser().getStartURL());
         return "home";
     }
 }

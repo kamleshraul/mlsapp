@@ -35,6 +35,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.propertyeditors.CustomCollectionEditor;
 import org.springframework.beans.propertyeditors.CustomDateEditor;
 import org.springframework.beans.propertyeditors.CustomNumberEditor;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.ui.ModelMap;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.WebDataBinder;
@@ -222,6 +223,7 @@ public class GenericController<T extends BaseDomain> extends BaseController {
         if(request.getSession().getAttribute("type")==null){
             model.addAttribute("type","");
         }else{
+        	model.addAttribute("type",request.getSession().getAttribute("type"));
             request.getSession().removeAttribute("type");
         }
         //here making provisions for displaying error pages
@@ -249,6 +251,7 @@ public class GenericController<T extends BaseDomain> extends BaseController {
      * @param result the result
      * @return the string
      */
+    @Transactional
     @RequestMapping(method = RequestMethod.POST)
     public String create(final ModelMap model,
             final HttpServletRequest request,
@@ -304,6 +307,7 @@ public class GenericController<T extends BaseDomain> extends BaseController {
      * @param request the request
      * @return the string
      */
+    @Transactional
     @RequestMapping(method = RequestMethod.PUT)
     public String update(final @Valid @ModelAttribute("domain") T domain,
             final BindingResult result, final ModelMap model,
@@ -437,6 +441,7 @@ public class GenericController<T extends BaseDomain> extends BaseController {
      * @return the string
      */
     @SuppressWarnings("static-access")
+    @Transactional
     @RequestMapping(value = "/{id}/delete", method = RequestMethod.DELETE)
     public String delete(final @PathVariable("id") Long id,
             final ModelMap model, final HttpServletRequest request) {

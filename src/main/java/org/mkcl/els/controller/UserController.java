@@ -19,6 +19,7 @@ import org.mkcl.els.common.util.ApplicationConstants;
 import org.mkcl.els.domain.BaseDomain;
 import org.mkcl.els.domain.Credential;
 import org.mkcl.els.domain.HouseType;
+import org.mkcl.els.domain.MenuItem;
 import org.mkcl.els.domain.Role;
 import org.mkcl.els.domain.Title;
 import org.mkcl.els.domain.User;
@@ -53,6 +54,8 @@ public class UserController extends GenericController<User>{
 		model.addAttribute("titles",titles);
 		List<Role> roles=Role.findAll(Role.class, "name", "desc",locale.toString());
 		model.addAttribute("roles",roles);
+		List<MenuItem> menus=MenuItem.findAll(MenuItem.class,"text",ApplicationConstants.ASC, locale.toString());
+		model.addAttribute("menus",menus);
 	}
 	@Override
 	protected void populateEdit(final ModelMap model, final User domain,
@@ -74,6 +77,8 @@ public class UserController extends GenericController<User>{
 		model.addAttribute("selectedRoles",buffer.toString());
 		model.addAttribute("isEnabled",credential.isEnabled());
 		}
+		List<MenuItem> menus=MenuItem.findAll(MenuItem.class,"text",ApplicationConstants.ASC, domain.getLocale());
+		model.addAttribute("menus",menus);
 	}
 	/* (non-Javadoc)
 	 * @see org.mkcl.els.controller.GenericController#customValidateCreate(org.mkcl.els.domain.BaseDomain, 
