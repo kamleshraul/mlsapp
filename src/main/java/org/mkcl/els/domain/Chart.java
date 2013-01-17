@@ -1,3 +1,12 @@
+/**
+ * See the file LICENSE for redistribution information.
+ *
+ * Copyright (c) 2013 MKCL.  All rights reserved.
+ *
+ * Project: e-Legislature
+ * File: org.mkcl.els.domain.Chart.java
+ * Created On: Jan 10, 2013
+ */
 package org.mkcl.els.domain;
 
 import java.io.Serializable;
@@ -24,41 +33,64 @@ import org.mkcl.els.repository.ChartRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Configurable;
 
+/**
+ * The Class Chart.
+ * 
+ * @author amitd
+ * @since v1.0.0
+ */
 @Configurable
 @Entity
 @Table(name="charts")
 public class Chart extends BaseDomain implements Serializable {
 
+	/** The Constant serialVersionUID. */
 	private static final long serialVersionUID = 2139509586805589388L;
 	
 	
 	//=============== ATTRIBUTES ====================
+	/** The session. */
 	@ManyToOne(fetch=FetchType.LAZY)
 	@JoinColumn(name="session_id")
 	private Session session;
 	
+	/** The group. */
 	@ManyToOne(fetch=FetchType.LAZY)
 	@JoinColumn(name="group_id")
 	private Group group;
 	
+	/** The answering date. */
 	@Temporal(TemporalType.DATE)
 	private Date answeringDate;
 	
+	/** The chart entries. */
 	@ManyToMany(fetch=FetchType.LAZY, cascade=CascadeType.ALL)
 	@JoinTable(name="charts_chart_entries",
 			joinColumns={ @JoinColumn(name="chart_id", referencedColumnName="id") },
 			inverseJoinColumns={ @JoinColumn(name="chart_entry_id", referencedColumnName="id") })
 	private List<ChartEntry> chartEntries;
 	
+	/** The repository. */
 	@Autowired
 	private transient ChartRepository repository;
 	
 	
 	//=============== CONSTRUCTORS ==================
+	/**
+	 * Instantiates a new chart.
+	 */
 	public Chart() {
 		super();
 	}
 
+	/**
+	 * Instantiates a new chart.
+	 *
+	 * @param session the session
+	 * @param group the group
+	 * @param answeringDate the answering date
+	 * @param locale the locale
+	 */
 	public Chart(final Session session,
 			final Group group,
 			final Date answeringDate,
@@ -77,7 +109,13 @@ public class Chart extends BaseDomain implements Serializable {
 	 * OR
 	 * Returns an empty list if there are no Questions asked by any Member
 	 * OR
-	 * Returns a list of ChartVOs
+	 * Returns a list of ChartVOs.
+	 *
+	 * @param session the session
+	 * @param group the group
+	 * @param answeringDate the answering date
+	 * @param locale the locale
+	 * @return the chart v os
 	 */
 	public static List<ChartVO> getChartVOs(final Session session,
 			final Group group,
@@ -120,6 +158,12 @@ public class Chart extends BaseDomain implements Serializable {
 		return chartVOs;
 	}
 	
+	/**
+	 * Gets the question v os.
+	 *
+	 * @param questions the questions
+	 * @return the question v os
+	 */
 	private static List<QuestionVO> getQuestionVOs(List<Question> questions) {
 		List<QuestionVO> questionVOs = new ArrayList<QuestionVO>();
 		for(Question q : questions) {
@@ -134,6 +178,11 @@ public class Chart extends BaseDomain implements Serializable {
 	
 	
 	//=============== DOMAIN METHODS ================
+	/**
+	 * Creates the.
+	 *
+	 * @return the chart
+	 */
 	public Chart create() {
 		Chart chart = null;
 		HouseType houseType = this.getSession().getHouse().getType();
@@ -149,6 +198,9 @@ public class Chart extends BaseDomain implements Serializable {
 	
 	/**
 	 * Returns true if @param q is added to Chart, else returns false.
+	 *
+	 * @param q the q
+	 * @return the boolean
 	 */
 	public static Boolean addToChart(final Question q) {
 		Session session = q.getSession();
@@ -163,6 +215,12 @@ public class Chart extends BaseDomain implements Serializable {
 		return false;
 	}
 	
+	/**
+	 * Group change.
+	 *
+	 * @param question the question
+	 * @param affectedGroup the affected group
+	 */
 	public static void groupChange(final Question question, final Group affectedGroup) {
 		Session session = question.getSession();
 		HouseType houseType = session.getHouse().getType();
@@ -179,8 +237,14 @@ public class Chart extends BaseDomain implements Serializable {
 	 * A Chart is said to be processed if all the Questions on the
 	 * Chart have internalStatus type != 'question_before_workflow_tobeputup'.
 	 * 
-	 * Returns true if a Chart is processed or if a Chart does not exist, 
+	 * Returns true if a Chart is processed or if a Chart does not exist,
 	 * else returns false.
+	 *
+	 * @param session the session
+	 * @param group the group
+	 * @param answeringDate the answering date
+	 * @param locale the locale
+	 * @return the boolean
 	 */
 	public static Boolean isProcessed(final Session session, 
 			final Group group, 
@@ -195,12 +259,24 @@ public class Chart extends BaseDomain implements Serializable {
 		return true;
 	}
 	
+	/**
+	 * Find.
+	 *
+	 * @param question the question
+	 * @return the chart
+	 */
 	public static Chart find(final Question question) {
 	    return getChartRepository().find(question);
 	}
 	
 	/**
 	 * Returns null if there is no Chart for the specified parameters.
+	 *
+	 * @param session the session
+	 * @param group the group
+	 * @param answeringDate the answering date
+	 * @param locale the locale
+	 * @return the chart
 	 */
 	public static Chart find(final Session session, 
 			final Group group, 
@@ -210,10 +286,15 @@ public class Chart extends BaseDomain implements Serializable {
 	}
 	
 	/**
-	 * For @param group, check for existence of a Chart for a given 
+	 * For @param group, check for existence of a Chart for a given
 	 * answeringDate in the descending order of the answering dates.
 	 * 
 	 * Returns null if there is no Chart for the specified parameters.
+	 *
+	 * @param session the session
+	 * @param group the group
+	 * @param locale the locale
+	 * @return the chart
 	 */
 	public static Chart findLatestChart(final Session session,
 			final Group group, 
@@ -233,6 +314,13 @@ public class Chart extends BaseDomain implements Serializable {
 	 * for the particular @param answeringDate.
 	 * 
 	 * Returns an empty list if there are no Questions for member.
+	 *
+	 * @param member the member
+	 * @param session the session
+	 * @param group the group
+	 * @param answeringDate the answering date
+	 * @param locale the locale
+	 * @return the list
 	 */
 	public static List<Question> findQuestions(final Member member,
 			final Session session, 
@@ -247,6 +335,12 @@ public class Chart extends BaseDomain implements Serializable {
 	 * Returns an unsorted list of Questions.
 	 * OR
 	 * Returns an empty list if there are no Questions.
+	 *
+	 * @param session the session
+	 * @param group the group
+	 * @param answeringDate the answering date
+	 * @param locale the locale
+	 * @return the list
 	 */
 	public static List<Question> findQuestions(final Session session, 
 			final Group group, 
@@ -256,10 +350,17 @@ public class Chart extends BaseDomain implements Serializable {
 	}
 	
 	/**
-	 * Returns a list of Questions sorted on Question number according 
+	 * Returns a list of Questions sorted on Question number according
 	 * to @param sortOrder.
 	 * OR
 	 * Returns an empty list if there are no Questions.
+	 *
+	 * @param session the session
+	 * @param group the group
+	 * @param answeringDate the answering date
+	 * @param sortOrder the sort order
+	 * @param locale the locale
+	 * @return the list
 	 */
 	public static List<Question> findQuestions(final Session session, 
 			final Group group, 
@@ -274,6 +375,12 @@ public class Chart extends BaseDomain implements Serializable {
 	 * Returns a list of Members on Chart.
 	 * OR
 	 * Returns an empty list if there are no Members.
+	 *
+	 * @param session the session
+	 * @param group the group
+	 * @param answeringDate the answering date
+	 * @param locale the locale
+	 * @return the list
 	 */
 	public static List<Member> findMembers(final Session session, 
 			final Group group, 
@@ -289,11 +396,13 @@ public class Chart extends BaseDomain implements Serializable {
 	 * existing Chart. If a previous dated Chart exists & is unprocessed
 	 * then don't create a new Chart and return null.
 	 * 
-	 * The Questions submitted only for first batch are to be taken on 
+	 * The Questions submitted only for first batch are to be taken on
 	 * the Chart while creating the Chart. Besides if the Chart is being
 	 * created for the final answeringDate of a Group then (in a worst
 	 * case scenario) it may have Session.numberOfQuestionInFirstBatchUH
 	 * Questions on the Chart.
+	 *
+	 * @return the chart
 	 */
 	private Chart createUH() {
 		boolean isPreviousChartProcessed = Chart.isPreviousChartProcessed(this.getSession(), 
@@ -312,11 +421,12 @@ public class Chart extends BaseDomain implements Serializable {
 				
 				CustomParameter datePattern = CustomParameter.findByName(CustomParameter.class, 
 						"SERVER_DATEFORMAT", "");
+
 				Date startTime = FormaterUtil.formatStringToDate(this.getSession().
-						getParamater(deviceType.getType() + "_submissionFirstBatchStartDate"), 
+						getParameter(deviceType.getType() + "_submissionFirstBatchStartDate"), 
 						datePattern.getValue(), this.getLocale());
 				Date endTime = FormaterUtil.formatStringToDate(this.getSession().
-						getParamater(deviceType.getType() + "_submissionFirstBatchEndDate"), 
+						getParameter(deviceType.getType() + "_submissionFirstBatchEndDate"), 
 						datePattern.getValue(), this.getLocale());
 
 				Status ASSISTANT_PROCESSED = 
@@ -366,25 +476,28 @@ public class Chart extends BaseDomain implements Serializable {
 	 * 1. Check if internalStatus of @param q is "ASSISTANT_PROCESSED"?
 	 * 
 	 * 2. If the Question is submitted for First Batch do the following:
-	 * 	a> Find latest Chart.
-	 * 	b> If chart.answeringDate is the last answeringDate for 
-	 *     chart.group then simply add the @param q to the Chart.
-	 * 	c> If chart.answeringDate is not the last answeringDate for
-	 *     chart.group then use the algorithm "ADD TO CHART IF APPLICABLE" 
-	 *     as mentioned in addToChartIfApplicable/3.
+	 * a> Find latest Chart.
+	 * b> If chart.answeringDate is the last answeringDate for
+	 * chart.group then simply add the @param q to the Chart.
+	 * c> If chart.answeringDate is not the last answeringDate for
+	 * chart.group then use the algorithm "ADD TO CHART IF APPLICABLE"
+	 * as mentioned in addToChartIfApplicable/3.
 	 * 
 	 * 3. If the Question is submitted for the Second Batch do the following:
-	 * 	a> If @param q does not specify any answeringDate (q.answeringDate == null)
-	 *     then beginning from first Chart for the group, find if @param q 
-	 *     could fit into the Chart using algorithm "ADD TO CHART IF APPLICABLE" as 
-	 *     mentioned in addToChartIfApplicable/3. Stop when @param q is successfully 
-	 *     added to some Chart or when all Charts are exhausted.
-	 * 	   
-	 * 	b> If @param q specifies an answeringDate then beginning from Chart with
-	 * 	   answeringDate == q.answeringDate, find if @param q could fit into the 
-	 *     Chart using algorithm "ADD TO CHART IF APPLICABLE" as mentioned in 
-	 *     addToChartIfApplicable/3. Stop when @param q is successfully added to some 
-	 *     Chart or when all Charts are exhausted.
+	 * a> If @param q does not specify any answeringDate (q.answeringDate == null)
+	 * then beginning from first Chart for the group, find if @param q
+	 * could fit into the Chart using algorithm "ADD TO CHART IF APPLICABLE" as
+	 * mentioned in addToChartIfApplicable/3. Stop when @param q is successfully
+	 * added to some Chart or when all Charts are exhausted.
+	 * 
+	 * b> If @param q specifies an answeringDate then beginning from Chart with
+	 * answeringDate == q.answeringDate, find if @param q could fit into the
+	 * Chart using algorithm "ADD TO CHART IF APPLICABLE" as mentioned in
+	 * addToChartIfApplicable/3. Stop when @param q is successfully added to some
+	 * Chart or when all Charts are exhausted.
+	 *
+	 * @param q the q
+	 * @return the boolean
 	 */
 	private static Boolean addToChartUH(final Question q) {
 		Boolean isAddedToChart = false;
@@ -456,24 +569,24 @@ public class Chart extends BaseDomain implements Serializable {
 	 * If the @param question is a First batch Question then remove the Question
 	 * from the "affectedGroup" Chart (if it is at all taken on that Chart).
 	 * 
-	 * If the @param question is a Second batch Question then remove the Question 
+	 * If the @param question is a Second batch Question then remove the Question
 	 * from the "affectedGroup" Chart (if it is at all taken on that Chart). Since
-	 * 1 Question has left the Chart, find if there is another eligible Question 
+	 * 1 Question has left the Chart, find if there is another eligible Question
 	 * which could be added to the Chart. Following is the algorithm:
 	 * 1. Consider the Questions with status = "ASSISTANT_PROCESSED" for Chart.
 	 * 
-	 * 2. Select the Questions which have the answeringDate attribute 
+	 * 2. Select the Questions which have the answeringDate attribute
 	 * explicitly set to the expected answeringDate.
 	 * 
-	 * 3. Select the Questions which have an answeringDate attribute 
+	 * 3. Select the Questions which have an answeringDate attribute
 	 * explicitly set to a date before the expected answeringDate.
 	 * 
 	 * 4. Select the Questions which don't have any answeringDate.
 	 * 
 	 * 5. If any Question is selected for the Chart then set its internalStatus
 	 * to "TO_BE_PUT_UP"
-	 * 
-	 * @param question
+	 *
+	 * @param question the question
 	 * @param affectedGroup the group from which this question was removed
 	 */
 	private static void groupChangeUH(final Question question, final Group affectedGroup) {
@@ -520,12 +633,22 @@ public class Chart extends BaseDomain implements Serializable {
 		}
 	}
 	
+	/**
+	 * Process all remaining qns for last date uh.
+	 *
+	 * @return the string
+	 */
 	private static String processAllRemainingQnsForLastDateUH() {
 		CustomParameter parameter = CustomParameter.findByName(CustomParameter.class, 
 				"COUNCIL_PROCESS_ALL_REMAINING_QNS_FOR_LASTDATE", "");
 		return parameter.getValue();
 	}
 	
+	/**
+	 * Max questions on chart uh.
+	 *
+	 * @return the integer
+	 */
 	private static Integer maxQuestionsOnChartUH() {
 		CustomParameter noOfQuestionsParameter = CustomParameter.
 			findByFieldName(CustomParameter.class, "name", "NO_OF_QUESTIONS_ON_MEMBER_CHART_UH", "");
@@ -538,18 +661,28 @@ public class Chart extends BaseDomain implements Serializable {
 	 * 
 	 * Search for at most @param maxNoOfQuestions according to the following
 	 * algorithm. Search only for those Questions which are submitted between
-	 * @param startTime and @param endTime (both time inclusive) and are verified 
+	 *
+	 * @param session the session
+	 * @param member the member
+	 * @param deviceType the device type
+	 * @param group the group
+	 * @param answeringDate the answering date
+	 * @param startTime and @param endTime (both time inclusive) and are verified
 	 * by the assistant ("ASSISTANT_PROCESSED")
 	 * 
-	 * 1. Select the Questions which have the answeringDate attribute 
+	 * 1. Select the Questions which have the answeringDate attribute
 	 * explicitly set to the expected answeringDate.
 	 * 
-	 * 2. Select the Questions which have an answeringDate attribute 
+	 * 2. Select the Questions which have an answeringDate attribute
 	 * explicitly set to a date before the expected answeringDate.
 	 * 
 	 * 3. Select the Questions which don't have any answeringDate.
 	 * 
 	 * Returns an empty list if there are no Questions.
+	 * @param endTime the end time
+	 * @param ASSISTANT_PROCESSED the aSSISTAN t_ processed
+	 * @param locale the locale
+	 * @return the chart entry
 	 */
 	private static ChartEntry newChartEntryUH(final Session session, 
 			final Member member,
@@ -586,18 +719,29 @@ public class Chart extends BaseDomain implements Serializable {
 	 * 
 	 * Search for at most @param maxNoOfQuestions according to the following
 	 * algorithm. Search only for those Questions which are submitted between
-	 * @param startTime and @param endTime (both time inclusive) and are verified 
+	 *
+	 * @param session the session
+	 * @param member the member
+	 * @param deviceType the device type
+	 * @param group the group
+	 * @param answeringDate the answering date
+	 * @param startTime and @param endTime (both time inclusive) and are verified
 	 * by the assistant ("ASSISTANT_PROCESSED")
 	 * 
-	 * 1. Select the Questions which have the answeringDate attribute 
+	 * 1. Select the Questions which have the answeringDate attribute
 	 * explicitly set to the expected answeringDate.
 	 * 
-	 * 2. Select the Questions which have an answeringDate attribute 
+	 * 2. Select the Questions which have an answeringDate attribute
 	 * explicitly set to a date before the expected answeringDate.
 	 * 
 	 * 3. Select the Questions which don't have any answeringDate.
 	 * 
 	 * Returns an empty list if there are no Questions.
+	 * @param endTime the end time
+	 * @param maxQuestionsOnChart the max questions on chart
+	 * @param ASSISTANT_PROCESSED the aSSISTAN t_ processed
+	 * @param locale the locale
+	 * @return the chart entry
 	 */
 	private static ChartEntry newChartEntryUH(final Session session, 
 			final Member member,
@@ -640,15 +784,21 @@ public class Chart extends BaseDomain implements Serializable {
 		return chartEntry;
 	}
 	
+	/**
+	 * Checks if is first batch question uh.
+	 *
+	 * @param question the question
+	 * @return true, if is first batch question uh
+	 */
 	private static boolean isFirstBatchQuestionUH(final Question question) {
 		CustomParameter datePattern = CustomParameter.findByName(CustomParameter.class, 
 				"SERVER_DATEFORMAT", "");
 		
 		Session session = question.getSession();
-		Date startTime = FormaterUtil.formatStringToDate(session.getParamater(question.getType().
+		Date startTime = FormaterUtil.formatStringToDate(session.getParameter(question.getType().
 				getType() + "_submissionFirstBatchStartDate"), 
 				datePattern.getValue(), question.getLocale());
-		Date endTime = FormaterUtil.formatStringToDate(session.getParamater(question.getType().
+		Date endTime = FormaterUtil.formatStringToDate(session.getParameter(question.getType().
 				getType() + "_submissionFirstBatchEndDate"), 
 				datePattern.getValue(), question.getLocale());
 		Date submissionTime = question.getSubmissionDate();
@@ -659,15 +809,21 @@ public class Chart extends BaseDomain implements Serializable {
 		return false;
 	}
 	
+	/**
+	 * Checks if is second batch question uh.
+	 *
+	 * @param question the question
+	 * @return true, if is second batch question uh
+	 */
 	private static boolean isSecondBatchQuestionUH(final Question question) {
 		CustomParameter datePattern = CustomParameter.findByName(CustomParameter.class, 
 				"SERVER_DATEFORMAT", "");
 		
 		Session session = question.getSession();
-		Date startTime = FormaterUtil.formatStringToDate(session.getParamater(question.getType().
+		Date startTime = FormaterUtil.formatStringToDate(session.getParameter(question.getType().
 				getType() + "_submissionSecondBatchStartDate"), 
 				datePattern.getValue(), question.getLocale());
-		Date endTime = FormaterUtil.formatStringToDate(session.getParamater(question.getType().
+		Date endTime = FormaterUtil.formatStringToDate(session.getParameter(question.getType().
 				getType() + "_submissionSecondBatchEndDate"), 
 				datePattern.getValue(), question.getLocale());
 		Date submissionTime = question.getSubmissionDate();
@@ -684,6 +840,8 @@ public class Chart extends BaseDomain implements Serializable {
 	 * Creates a new Chart. If a chart already exists then returns the
 	 * existing Chart. If a previous dated Chart exists & is unprocessed
 	 * then don't create a new Chart and return null.
+	 *
+	 * @return the chart
 	 */
 	private Chart createLH() {
 		boolean isPreviousChartProcessed = Chart.isPreviousChartProcessed(this.getSession(), 
@@ -733,13 +891,16 @@ public class Chart extends BaseDomain implements Serializable {
 	}	
 	
 	/**
-	 * Algorithm:   
+	 * Algorithm:
 	 * 1. Check if Question internalStatus is "ASSISTANT PROCESSED"?
 	 * 2. Check if a latest chart exists?
 	 * 3. Check if Question is eligible to be added to the Chart?
 	 * If answer to all 1, 2, 3 is YES then proceed to Step 4
 	 * 4. Use the algorithm "ADD TO CHART IF APPLICABLE" as mentioned
-	 *    in addToChartIfApplicable/3
+	 * in addToChartIfApplicable/3
+	 *
+	 * @param q the q
+	 * @return the boolean
 	 */
 	private static Boolean addToChartLH(final Question q) {
 		if(Chart.isAssistantProcessed(q)) {
@@ -760,23 +921,23 @@ public class Chart extends BaseDomain implements Serializable {
 	
 	/**
 	 * Removes the Question from the "affectedGroup" Chart (if it is at all taken on that
-	 * Chart). Since 1 Question has left the Chart, find if there is another eligible 
+	 * Chart). Since 1 Question has left the Chart, find if there is another eligible
 	 * Question which could be added to the Chart. Following is the algorithm:
 	 * 
 	 * 1. Consider the Questions with status = "ASSISTANT_PROCESSED" for Chart.
 	 * 
-	 * 2. Select the Questions which have the answeringDate attribute 
+	 * 2. Select the Questions which have the answeringDate attribute
 	 * explicitly set to the expected answeringDate.
 	 * 
-	 * 3. Select the Questions which have an answeringDate attribute 
+	 * 3. Select the Questions which have an answeringDate attribute
 	 * explicitly set to a date before the expected answeringDate.
 	 * 
 	 * 4. Select the Questions which don't have any answeringDate.
 	 * 
 	 * 5. If any Question is selected for the Chart then set its internalStatus
 	 * to "TO_BE_PUT_UP"
-	 * 
-	 * @param question
+	 *
+	 * @param question the question
 	 * @param affectedGroup the group from which this question was removed
 	 */
 	private static void groupChangeLH(final Question question, final Group affectedGroup) {
@@ -820,6 +981,11 @@ public class Chart extends BaseDomain implements Serializable {
 		}
 	}
 	
+	/**
+	 * Max questions on chart lh.
+	 *
+	 * @return the integer
+	 */
 	private static Integer maxQuestionsOnChartLH() {
 		CustomParameter noOfQuestionsParameter = CustomParameter.
 			findByFieldName(CustomParameter.class, "name", "NO_OF_QUESTIONS_ON_MEMBER_CHART_LH", "");
@@ -832,18 +998,29 @@ public class Chart extends BaseDomain implements Serializable {
 	 * 
 	 * Search for at most @param maxNoOfQuestions according to the following
 	 * algorithm. Search only for those Questions which are submitted prior
-	 * to the finalSubmissionDate and are verified by the assistant 
+	 * to the finalSubmissionDate and are verified by the assistant
 	 * ("ASSISTANT_PROCESSED")
 	 * 
-	 * 1. Select the Questions which have the answeringDate attribute 
+	 * 1. Select the Questions which have the answeringDate attribute
 	 * explicitly set to the expected answeringDate.
 	 * 
-	 * 2. Select the Questions which have an answeringDate attribute 
+	 * 2. Select the Questions which have an answeringDate attribute
 	 * explicitly set to a date before the expected answeringDate.
 	 * 
 	 * 3. Select the Questions which don't have any answeringDate.
 	 * 
 	 * Returns an empty list if there are no Questions.
+	 *
+	 * @param session the session
+	 * @param member the member
+	 * @param deviceType the device type
+	 * @param group the group
+	 * @param answeringDate the answering date
+	 * @param finalSubmissionDate the final submission date
+	 * @param maxQuestionsOnChart the max questions on chart
+	 * @param ASSISTANT_PROCESSED the aSSISTAN t_ processed
+	 * @param locale the locale
+	 * @return the chart entry
 	 */
 	private static ChartEntry newChartEntryLH(final Session session, 
 			final Member member,
@@ -890,9 +1067,13 @@ public class Chart extends BaseDomain implements Serializable {
 	/**
 	 * 1. Check if Question.submissionDate <= chart.finalSubmissionDate?
 	 * 2. Check if Question.answeringDate == null OR
-	 * 		Question.answeringDate == LatestChart.answeringDate OR
-	 * 		Question.answeringDate < LatestChart.answeringDate? (Case of Group Change)
+	 * Question.answeringDate == LatestChart.answeringDate OR
+	 * Question.answeringDate < LatestChart.answeringDate? (Case of Group Change)
 	 * 3. If the answer to 1 and 2 is YES then return true
+	 *
+	 * @param chart the chart
+	 * @param q the q
+	 * @return true, if is eligible for chart lh
 	 */
 	private static boolean isEligibleForChartLH(final Chart chart, final Question q) {
 		Date chartAnsweringDate = chart.getAnsweringDate();
@@ -913,6 +1094,11 @@ public class Chart extends BaseDomain implements Serializable {
 
 	
 	//=============== COMMON INTERNAL METHODS =======
+	/**
+	 * Gets the chart repository.
+	 *
+	 * @return the chart repository
+	 */
 	private static ChartRepository getChartRepository() {
 		ChartRepository repository = new Chart().repository;
 		if(repository == null) {
@@ -925,32 +1111,37 @@ public class Chart extends BaseDomain implements Serializable {
 	/**
 	 * Algorithm: "ADD TO CHART IF APPLICABLE"
 	 * 1. If a member has less than 5 Questions on Chart simply add the Question
-	 *    to the chart, & update the chart. Set the status of Question to 
-	 *    "TO_BE_PUT_UP"
+	 * to the chart, & update the chart. Set the status of Question to
+	 * "TO_BE_PUT_UP"
 	 * 
-	 * 2. If a member has exactly 5 questions then, 
-	 * 	a> The Questions which are in the Workflow (internalStatus != "TO_BE_PUT_UP") 
-	 *     wont get affected.
-	 *    
-	 *  b> The questions which are not in Workflow (internalStatus = "TO_BE_PUT_UP"),
-	 *     will compete with @param q for a slot in Chart. At the end of this step all
-	 *     the Questions on the Chart which are not in the Workflow will have 
-	 *     internalStatus = "TO_BE_PUT_UP". The Question which leaves the Chart will
-	 *     have internalStatus = "ASSISTANT_PROCESSED".
-	 *     
-	 * Constraints: 
-	 * 1> If this question is added to the chart, it's internalStatus should 
-	 * change to "TO_BE_PUT_UP". 
+	 * 2. If a member has exactly 5 questions then,
+	 * a> The Questions which are in the Workflow (internalStatus != "TO_BE_PUT_UP")
+	 * wont get affected.
 	 * 
-	 * 2> In lieu of this question entering the Chart, if some Question leaves 
-	 * the Chart then the internalStatus of that Question should be set to 
-	 * "ASSISTANT_PROCESSED". 
+	 * b> The questions which are not in Workflow (internalStatus = "TO_BE_PUT_UP"),
+	 * will compete with @param q for a slot in Chart. At the end of this step all
+	 * the Questions on the Chart which are not in the Workflow will have
+	 * internalStatus = "TO_BE_PUT_UP". The Question which leaves the Chart will
+	 * have internalStatus = "ASSISTANT_PROCESSED".
 	 * 
-	 * 3> The internalStatuses of the rest of the Questions on the Chart should 
+	 * Constraints:
+	 * 1> If this question is added to the chart, it's internalStatus should
+	 * change to "TO_BE_PUT_UP".
+	 * 
+	 * 2> In lieu of this question entering the Chart, if some Question leaves
+	 * the Chart then the internalStatus of that Question should be set to
+	 * "ASSISTANT_PROCESSED".
+	 * 
+	 * 3> The internalStatuses of the rest of the Questions on the Chart should
 	 * remain unaffected.
 	 * 
 	 * Returns true if the @param q is added to the @param chart, else returns
 	 * false
+	 *
+	 * @param chart the chart
+	 * @param q the q
+	 * @param maxNoOfQuestions the max no of questions
+	 * @return true, if successful
 	 */
 	private static boolean addToChartIfApplicable(final Chart chart, 
 			final Question q,
@@ -1034,6 +1225,17 @@ public class Chart extends BaseDomain implements Serializable {
 		return isAddedToChart;
 	}
 	
+	/**
+	 * On group change add question.
+	 *
+	 * @param session the session
+	 * @param member the member
+	 * @param group the group
+	 * @param answeringDate the answering date
+	 * @param excludeQuestions the exclude questions
+	 * @param locale the locale
+	 * @return the question
+	 */
 	private static Question onGroupChangeAddQuestion(final Session session,
 			final Member member,
 			final Group group,
@@ -1079,9 +1281,13 @@ public class Chart extends BaseDomain implements Serializable {
 	/**
 	 * Orders the @param questions in order defined as follows:
 	 * 1. Dated Questions sorted by number in increasing order
-	 * 2. Previously dated Questions sorted by answeringDate in increasing order. 
-	 *    Break the tie using Question number
+	 * 2. Previously dated Questions sorted by answeringDate in increasing order.
+	 * Break the tie using Question number
 	 * 3. Non dated Questions sorted by number in increasing order
+	 *
+	 * @param questions the questions
+	 * @param answeringDate the answering date
+	 * @return the list
 	 */
 	private static List<Question> updateCandidateQuestions(final List<Question> questions,
 			final Date answeringDate) {
@@ -1114,6 +1320,15 @@ public class Chart extends BaseDomain implements Serializable {
 		return candidateQList;
 	}
 	
+	/**
+	 * Checks if is previous chart processed.
+	 *
+	 * @param session the session
+	 * @param group the group
+	 * @param answeringDate the answering date
+	 * @param locale the locale
+	 * @return the boolean
+	 */
 	private static Boolean isPreviousChartProcessed(final Session session, 
 			final Group group, 
 			final Date answeringDate,
@@ -1126,10 +1341,14 @@ public class Chart extends BaseDomain implements Serializable {
 	}
 	
 	/**
-	 * The Questions on Chart have status "TO_BE_PUT_UP". Hence, only those 
+	 * The Questions on Chart have status "TO_BE_PUT_UP". Hence, only those
 	 * Questions on Chart with internalStatus != "TO_BE_PUT_UP" and
 	 * internalStatus not beginning with "question_before_workflow" are in
 	 * the Workflow.
+	 *
+	 * @param questions the questions
+	 * @param locale the locale
+	 * @return the list
 	 */
 	private static List<Question> questionsInWorkflow(final List<Question> questions,
 			final String locale) {
@@ -1145,10 +1364,14 @@ public class Chart extends BaseDomain implements Serializable {
 	}
 	
 	/**
-	 * The Questions on Chart have status "TO_BE_PUT_UP". Hence, only those 
+	 * The Questions on Chart have status "TO_BE_PUT_UP". Hence, only those
 	 * Questions on Chart with internalStatus != "TO_BE_PUT_UP" and
 	 * internalStatus not beginning with "question_before_workflow" are in
 	 * the Workflow.
+	 *
+	 * @param questions the questions
+	 * @param locale the locale
+	 * @return the list
 	 */
 	private static List<Question> questionsNotInWorkflow(final List<Question> questions,
 			final String locale) {
@@ -1164,8 +1387,12 @@ public class Chart extends BaseDomain implements Serializable {
 	}
 
 	/**
-	 * Returns null if @param answeringDate is the first answeringDate 
+	 * Returns null if @param answeringDate is the first answeringDate
 	 * of the @param group, else returns previous answeringDate.
+	 *
+	 * @param group the group
+	 * @param answeringDate the answering date
+	 * @return the previous answering date
 	 */
 	private static Date getPreviousAnsweringDate(final Group group,
 			final Date answeringDate) {
@@ -1179,8 +1406,11 @@ public class Chart extends BaseDomain implements Serializable {
 	}
 	
 	/**
-	 * If the @param answeringDate is the last answering date for the
+	 * If the @param answeringDate is the last answering date for the.
+	 *
 	 * @param group then return true, else return false.
+	 * @param answeringDate the answering date
+	 * @return true, if is last answering date
 	 */
 	private static boolean isLastAnsweringDate(final Group group, 
 			final Date answeringDate) {
@@ -1195,8 +1425,11 @@ public class Chart extends BaseDomain implements Serializable {
 	}
 	
 	/**
-	 * Returns a list of @param group answeringDates greater than or equal to 
-	 * @param answeringDate.
+	 * Returns a list of @param group answeringDates greater than or equal to.
+	 *
+	 * @param group the group
+	 * @param answeringDate the answering date
+	 * @return the answering dates gteq
 	 */
 	private static List<Date> getAnsweringDatesGTEQ(final Group group,
 			final Date answeringDate) {
@@ -1210,6 +1443,12 @@ public class Chart extends BaseDomain implements Serializable {
 		return answeringDates;
 	}
 	
+	/**
+	 * Checks if is assistant processed.
+	 *
+	 * @param q the q
+	 * @return true, if is assistant processed
+	 */
 	private static boolean isAssistantProcessed(Question q) {
 		String ASSISTANT_PROCESSED = "question_assistantprocessed";
 		Status internalStatus = q.getInternalStatus();
@@ -1222,6 +1461,10 @@ public class Chart extends BaseDomain implements Serializable {
 	/**
 	 * Find ChartEntry among @param chartEntries where ChartEntry.member == @param member.
 	 * Returns null if ChartEntry could not be found.
+	 *
+	 * @param chartEntries the chart entries
+	 * @param member the member
+	 * @return the chart entry
 	 */
 	private static ChartEntry find(final List<ChartEntry> chartEntries, final Member member) {
 		for(ChartEntry ce : chartEntries) {
@@ -1232,6 +1475,11 @@ public class Chart extends BaseDomain implements Serializable {
 		return null;
 	}
 	
+	/**
+	 * Gets the current date.
+	 *
+	 * @return the current date
+	 */
 	private static Date getCurrentDate() {
 		CustomParameter dbDateFormat =
 			CustomParameter.findByName(CustomParameter.class, "DB_DATEFORMAT", "");
@@ -1240,34 +1488,74 @@ public class Chart extends BaseDomain implements Serializable {
 
 	
 	//=============== GETTERS/SETTERS ===============
+	/**
+	 * Gets the session.
+	 *
+	 * @return the session
+	 */
 	public Session getSession() {
 		return session;
 	}
 
+	/**
+	 * Sets the session.
+	 *
+	 * @param session the new session
+	 */
 	private void setSession(final Session session) {
 		this.session = session;
 	}
 
+	/**
+	 * Gets the group.
+	 *
+	 * @return the group
+	 */
 	public Group getGroup() {
 		return group;
 	}
 
+	/**
+	 * Sets the group.
+	 *
+	 * @param group the new group
+	 */
 	private void setGroup(final Group group) {
 		this.group = group;
 	}
 
+	/**
+	 * Gets the answering date.
+	 *
+	 * @return the answering date
+	 */
 	public Date getAnsweringDate() {
 		return answeringDate;
 	}
 
+	/**
+	 * Sets the answering date.
+	 *
+	 * @param answeringDate the new answering date
+	 */
 	private void setAnsweringDate(final Date answeringDate) {
 		this.answeringDate = answeringDate;
 	}
 
+	/**
+	 * Gets the chart entries.
+	 *
+	 * @return the chart entries
+	 */
 	public List<ChartEntry> getChartEntries() {
 		return chartEntries;
 	}
 
+	/**
+	 * Sets the chart entries.
+	 *
+	 * @param chartEntries the new chart entries
+	 */
 	public void setChartEntries(final List<ChartEntry> chartEntries) {
 		this.chartEntries = chartEntries;
 	}
