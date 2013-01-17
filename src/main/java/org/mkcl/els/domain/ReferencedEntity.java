@@ -12,6 +12,8 @@ package org.mkcl.els.domain;
 import java.io.Serializable;
 
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
+import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 
 import org.springframework.beans.factory.annotation.Configurable;
@@ -35,7 +37,11 @@ public class ReferencedEntity extends BaseDomain implements Serializable{
     private Integer position;
 
     /** The question. */
+    @ManyToOne(fetch=FetchType.LAZY)
     private Question question;
+    
+    @ManyToOne(fetch=FetchType.LAZY)
+    private DeviceType deviceType;
 
     /**
      * Instantiates a new referenced entity.
@@ -83,4 +89,14 @@ public class ReferencedEntity extends BaseDomain implements Serializable{
     public void setQuestion(final Question question) {
         this.question = question;
     }
+
+
+	public void setDeviceType(DeviceType deviceType) {
+		this.deviceType = deviceType;
+	}
+
+
+	public DeviceType getDeviceType() {
+		return deviceType;
+	}
 }

@@ -70,6 +70,7 @@ public class Credential extends BaseDomain implements Serializable {
     /** The last login time. */
     @Temporal(TemporalType.TIMESTAMP)
     private Date lastLoginTime;
+    
 
     // ---------------------------------Constructors----------------------------------------------
     /**
@@ -207,8 +208,5 @@ public class Credential extends BaseDomain implements Serializable {
     public void setEmail(final String email) {
         this.email = email;
     }
-
-
-
 
 }

@@ -16,6 +16,8 @@ import javax.persistence.FetchType;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 
+import org.mkcl.els.repository.ClubbedEntityRepository;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Configurable;
 
 // TODO: Auto-generated Javadoc
@@ -45,13 +47,25 @@ public class ClubbedEntity extends BaseDomain implements Serializable{
     @ManyToOne(fetch=FetchType.LAZY)
     private Question question;
 
+    @Autowired
+    private transient ClubbedEntityRepository clubbedEntityRepository;
     /**
      * Instantiates a new clubbed entity.
      */
     public ClubbedEntity() {
         super();
     }
+    
+    public static ClubbedEntityRepository getClubbedEntityRepository() {
+    	ClubbedEntityRepository clubbedEntityRepository = new ClubbedEntity().clubbedEntityRepository;
+        if (clubbedEntityRepository == null) {
+            throw new IllegalStateException(
+                    "ClubbedEntityRepository has not been injected in Clubbed Entity Domain");
+        }
+        return clubbedEntityRepository;
+    }
 
+    
 
     /**
      * Gets the position.

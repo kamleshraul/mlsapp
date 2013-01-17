@@ -45,6 +45,8 @@ public class Role extends BaseDomain implements Serializable {
 
     /** The name. */
     @Column(length = 500)
+    private String localizedName;
+    
     private String name;
 
     @Column(length=250)
@@ -56,6 +58,9 @@ public class Role extends BaseDomain implements Serializable {
             inverseJoinColumns = @JoinColumn(name = "credential_id",
                     referencedColumnName = "id"))
     private Set<Credential> credentials = new HashSet<Credential>();
+    
+    @Column(length=5000)
+    private String menusAllowed;
 
     @Autowired
     private transient RoleRepository roleRepository;
@@ -135,6 +140,26 @@ public class Role extends BaseDomain implements Serializable {
 
 	public void setCredentials(final Set<Credential> credentials) {
 		this.credentials = credentials;
+	}
+
+	public void setMenusAllowed(String menusAllowed) {
+		this.menusAllowed = menusAllowed;
+	}
+
+	public String getMenusAllowed() {
+		return menusAllowed;
+	}
+
+	public void setLocalizedName(String localizedName) {
+		this.localizedName = localizedName;
+	}
+
+	public String getLocalizedName() {
+		return localizedName;
+	}
+
+	public static String findDelimitedQISRoles(final String locale) {
+		return getRoleRepository().findDelimitedQISRoles(locale);
 	}
 
 

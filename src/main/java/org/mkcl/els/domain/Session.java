@@ -10,14 +10,11 @@
 package org.mkcl.els.domain;
 
 import java.io.Serializable;
-import java.lang.reflect.Array;
 import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
 import java.text.NumberFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
@@ -36,8 +33,6 @@ import javax.persistence.Table;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
 
-import org.apache.commons.lang.builder.CompareToBuilder;
-import org.codehaus.jackson.annotate.JsonIgnoreProperties;
 import org.mkcl.els.common.util.FormaterUtil;
 import org.mkcl.els.repository.SessionRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -52,7 +47,6 @@ import org.springframework.beans.factory.annotation.Configurable;
 @Configurable
 @Entity
 @Table(name = "sessions")
-@JsonIgnoreProperties({"parameters"})
 public class Session extends BaseDomain implements Serializable {
 
     // ---------------------------------Attributes------------------------------------------
@@ -752,7 +746,7 @@ public class Session extends BaseDomain implements Serializable {
 		}
 	}
 
-	public String getParameter(String key){
+	public String getParamater(String key){
 		
 		if((key != null) & (!key.isEmpty())){
 			if(parameters.containsKey(key)){
@@ -765,54 +759,4 @@ public class Session extends BaseDomain implements Serializable {
 	public static Session find(final Integer sessionyear, final String sessiontype, final String housetype) {
 		return getSessionRepository().find(sessionyear,sessiontype,housetype);
     }
-	
-	/**
-	 * to find the previous session of the given session 
-	 * @param session given session
-	 * @return previous session 
-	 */
-	public static Session findPreviousSession(final Session session){
-		
-		List<Session> totalSessions = new ArrayList<Session>();
-		
-		List<Session> sessionListCurrent = Session.findSessionsByHouseAndYear(session.getHouse(), session.getYear());		
-		sessionListCurrent.remove(session);
-		totalSessions.addAll(sessionListCurrent);
-		
-		List<Session> sessionListLast = Session.findSessionsByHouseAndYear(session.getHouse(), session.getYear()-1);
-				
-		if(sessionListLast.size() > 0){
-			Session lastSessionPrevYear = sessionListLast.get(0);
-			totalSessions.add(lastSessionPrevYear);
-		}
-				
-		return compareSession(totalSessions, session);
-	}
-	
-	/**
-	 * helper method to find the previous session 
-	 * @param sessionList 
-	 * @param session
-	 * @return
-	 */
-	private static Session compareSession(List<Session> sessionList, final Session session){
-	
-		Object[] sessions = sessionList.toArray();
-		long minDiff=(session.getStartDate().getTime() - (((Session)sessions[0]).getEndDate().getTime()));
-		int indexer=-1;
-		
-		for(int i = 0; i < sessions.length; i++){
-			
-			long tempTimeDifference = (session.getStartDate().getTime() - (((Session)sessions[i]).getEndDate().getTime()));
-			
-			if(tempTimeDifference <= minDiff){
-				minDiff = tempTimeDifference;
-				indexer = i;
-			}
-		}
-		if(indexer >= 0)
-			return ((Session)sessions[indexer]);
-		else
-			return null;
-	}
  }

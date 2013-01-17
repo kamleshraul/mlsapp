@@ -43,6 +43,8 @@ public class Status extends BaseDomain implements Serializable{
     /** The name. */
     @Column(length=600)
     private String name;
+    
+    private Integer priority;
 
     /** The status repository. */
     @Autowired
@@ -141,5 +143,21 @@ public class Status extends BaseDomain implements Serializable{
 	public void setName(final String name) {
 		this.name = name;
 	}
+
+	public static List<Status> findAssistantQuestionStatus(final String sortBY,final String sortOrder,
+			final String locale) {
+		return getStatusRepository().findAssistantQuestionStatus(sortBY,sortOrder,
+				locale);
+	}
+
+	public Integer getPriority() {
+		return priority;
+	}
+
+	public void setPriority(Integer priority) {
+		this.priority = priority;
+	}
+	
+	
 
 }

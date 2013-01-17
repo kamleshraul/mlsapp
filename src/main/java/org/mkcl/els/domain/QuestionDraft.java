@@ -42,15 +42,7 @@ public class QuestionDraft extends BaseDomain implements Serializable{
 
     /** The Constant serialVersionUID. */
     private static final long serialVersionUID = 1L;
-
-    /** The type. */
-    @ManyToOne(fetch=FetchType.LAZY)
-    @JoinColumn(name="session_id")
-    private Session session;
-
-    /** The number. */
-    private Integer number;
-
+    
     /** The type. */
     @ManyToOne(fetch=FetchType.LAZY)
     @JoinColumn(name="devicetype_id")
@@ -59,11 +51,6 @@ public class QuestionDraft extends BaseDomain implements Serializable{
     /** The answering date. */
     @ManyToOne(fetch=FetchType.LAZY)
     private QuestionDates answeringDate;
-
-    /** The language. */
-    @ManyToOne(fetch=FetchType.LAZY)
-    @JoinColumn(name="language_id")
-    private Language language;
 
     /** The subject. */
     @Column(length=30000)
@@ -101,33 +88,21 @@ public class QuestionDraft extends BaseDomain implements Serializable{
     @Column(length=30000)
     private String remarks;
 
-    /** The edited by. */
-    @ManyToOne(fetch=FetchType.LAZY)
-    @JoinColumn(name="editedby_id")
-    private User editedBy;
-
-    /** The edited as. */
-    @ManyToOne(fetch=FetchType.LAZY)
-    @JoinColumn(name="editedastype_id")
-    private UserGroupType editedAs;
-
     /** The edited on. */
     @Temporal(TemporalType.TIMESTAMP)
     @JoinColumn(name="editedon")
-    private Date editedOn;
+    private Date editedOn; 
+    
+    /** The edited by. */
+    @Column(length=1000)
+    private String editedBy;
+
+    /** The edited as. */
+    @Column(length=1000)
+    private String editedAs;
 
     /** The mark as answered. */
     private Boolean markAsAnswered;
-
-    //---------------------------Primary and supporting members-----------------
-    /** The supporting members. */
-    @ManyToMany(fetch=FetchType.LAZY)
-    @JoinTable(name="questionsdrafts_supportingmembers",
-            joinColumns={@JoinColumn(name="questiondraft_id",
-                    referencedColumnName="id")},
-                    inverseJoinColumns={@JoinColumn(name="supportingmember_id",
-                            referencedColumnName="id")})
-                            private List<SupportingMember> supportingMembers;
 
     //------------------------Group Information--------------------------------
     /** The group. */
@@ -149,21 +124,17 @@ public class QuestionDraft extends BaseDomain implements Serializable{
     @ManyToOne(fetch=FetchType.LAZY)
     @JoinColumn(name="subdepartment_id")
     private SubDepartment subDepartment;
-
-    //---------------------------Referenced Questions---------------------------
-    /** The referenced questions. */
+        
+    //--------------------------Clubbing Entities------------------------------------------
     @ManyToMany(fetch=FetchType.LAZY)
-    @JoinTable(name="questionsdrafts_references", joinColumns={@JoinColumn(name="questiondraft_id", referencedColumnName="id")}, inverseJoinColumns=
+    @JoinTable(name="questionsdrafts_clubbingentities", joinColumns={@JoinColumn(name="questiondraft_id", referencedColumnName="id")}, inverseJoinColumns={@JoinColumn(name="clubbed_entity_id", referencedColumnName="id")})
+    private List<ClubbedEntity> clubbedEntities;
 
-{@JoinColumn(name="reference_id", referencedColumnName="id")})
-    private List<Question> referencedQuestions;
-
-    //--------------------------Clubbing------------------------------------------
-    /** The drafts. */
+    //--------------------------Referenced Entities------------------------------------------
     @ManyToMany(fetch=FetchType.LAZY)
-    @JoinTable(name="questionsdrafts_clubbing", joinColumns={@JoinColumn(name="primary_questiondraft_id", referencedColumnName="id")},
-            inverseJoinColumns={@JoinColumn(name="clubbed_question_id", referencedColumnName="id")})
-    private List<Question> clubbings;
+    @JoinTable(name="questiondrafts_referencedentities", joinColumns={@JoinColumn(name="questiondraft_id", referencedColumnName="id")}, inverseJoinColumns={@JoinColumn(name="referenced_entity_id", referencedColumnName="id")})
+    private List<ReferencedEntity> referencedEntities;
+
 
 	/**
 	 * Instantiates a new question draft.
@@ -207,25 +178,7 @@ public class QuestionDraft extends BaseDomain implements Serializable{
 	public void setAnsweringDate(final QuestionDates answeringDate) {
 		this.answeringDate = answeringDate;
 	}
-
-	/**
-	 * Gets the language.
-	 *
-	 * @return the language
-	 */
-	public Language getLanguage() {
-		return language;
-	}
-
-	/**
-	 * Sets the language.
-	 *
-	 * @param language the new language
-	 */
-	public void setLanguage(final Language language) {
-		this.language = language;
-	}
-
+	
 	/**
 	 * Gets the subject.
 	 *
@@ -351,44 +304,7 @@ public class QuestionDraft extends BaseDomain implements Serializable{
 	 */
 	public void setRemarks(final String remarks) {
 		this.remarks = remarks;
-	}
-
-	/**
-	 * Gets the edited by.
-	 *
-	 * @return the edited by
-	 */
-	public User getEditedBy() {
-		return editedBy;
-	}
-
-	/**
-	 * Sets the edited by.
-	 *
-	 * @param editedBy the new edited by
-	 */
-	public void setEditedBy(final User editedBy) {
-		this.editedBy = editedBy;
-	}
-
-	/**
-	 * Gets the edited as.
-	 *
-	 * @return the edited as
-	 */
-	public UserGroupType getEditedAs() {
-		return editedAs;
-	}
-
-	/**
-	 * Sets the edited as.
-	 *
-	 * @param editedAs the new edited as
-	 */
-	public void setEditedAs(final UserGroupType editedAs) {
-		this.editedAs = editedAs;
-	}
-
+	}	
 	/**
 	 * Gets the edited on.
 	 *
@@ -406,25 +322,7 @@ public class QuestionDraft extends BaseDomain implements Serializable{
 	public void setEditedOn(final Date editedOn) {
 		this.editedOn = editedOn;
 	}
-
-	/**
-	 * Gets the supporting members.
-	 *
-	 * @return the supporting members
-	 */
-	public List<SupportingMember> getSupportingMembers() {
-		return supportingMembers;
-	}
-
-	/**
-	 * Sets the supporting members.
-	 *
-	 * @param supportingMembers the new supporting members
-	 */
-	public void setSupportingMembers(final List<SupportingMember> supportingMembers) {
-		this.supportingMembers = supportingMembers;
-	}
-
+	
 	/**
 	 * Gets the group.
 	 *
@@ -498,42 +396,6 @@ public class QuestionDraft extends BaseDomain implements Serializable{
 	}
 
 	/**
-	 * Gets the referenced questions.
-	 *
-	 * @return the referenced questions
-	 */
-	public List<Question> getReferencedQuestions() {
-		return referencedQuestions;
-	}
-
-	/**
-	 * Sets the referenced questions.
-	 *
-	 * @param referencedQuestions the new referenced questions
-	 */
-	public void setReferencedQuestions(final List<Question> referencedQuestions) {
-		this.referencedQuestions = referencedQuestions;
-	}
-
-	/**
-	 * Gets the clubbings.
-	 *
-	 * @return the clubbings
-	 */
-	public List<Question> getClubbings() {
-		return clubbings;
-	}
-
-	/**
-	 * Sets the clubbings.
-	 *
-	 * @param clubbings the new clubbings
-	 */
-	public void setClubbings(final List<Question> clubbings) {
-		this.clubbings = clubbings;
-	}
-
-	/**
 	 * Gets the recommendation status.
 	 *
 	 * @return the recommendation status
@@ -571,44 +433,37 @@ public class QuestionDraft extends BaseDomain implements Serializable{
         this.markAsAnswered = markAsAnswered;
     }
 
+	public void setClubbedEntities(List<ClubbedEntity> clubbedEntities) {
+		this.clubbedEntities = clubbedEntities;
+	}
 
-    /**
-     * Gets the session.
-     *
-     * @return the session
-     */
-    public Session getSession() {
-        return session;
+	public List<ClubbedEntity> getClubbedEntities() {
+		return clubbedEntities;
+	}
+
+	public void setReferencedEntities(List<ReferencedEntity> referencedEntities) {
+		this.referencedEntities = referencedEntities;
+	}
+
+	public List<ReferencedEntity> getReferencedEntities() {
+		return referencedEntities;
+	}
+
+	public void setEditedBy(String editedBy) {
+		this.editedBy = editedBy;
+	}
+
+	public String getEditedBy() {
+		return editedBy;
+	}
+
+	public void setEditedAs(String editedAs) {
+		this.editedAs = editedAs;
+	}
+
+	public String getEditedAs() {
+		return editedAs;
+	}
+
+
     }
-
-
-    /**
-     * Sets the session.
-     *
-     * @param session the new session
-     */
-    public void setSession(final Session session) {
-        this.session = session;
-    }
-
-
-    /**
-     * Gets the number.
-     *
-     * @return the number
-     */
-    public Integer getNumber() {
-        return number;
-    }
-
-
-    /**
-     * Sets the number.
-     *
-     * @param number the new number
-     */
-    public void setNumber(final Integer number) {
-        this.number = number;
-    }
-
-}

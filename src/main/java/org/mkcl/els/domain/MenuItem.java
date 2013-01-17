@@ -499,6 +499,7 @@ package org.mkcl.els.domain;
 import java.io.IOException;
 import java.io.Serializable;
 import java.io.StringWriter;
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.persistence.Column;
@@ -528,301 +529,345 @@ import org.springframework.beans.factory.annotation.Configurable;
 @Table(name = "menus")
 public class MenuItem extends BaseDomain implements Serializable {
 
-    // ----------------------- Attributes ----------------------- //
-    /** The Constant serialVersionUID. */
-    private transient static final long serialVersionUID = 1L;
+	// ----------------------- Attributes ----------------------- //
+	/** The Constant serialVersionUID. */
+	private transient static final long serialVersionUID = 1L;
 
-    /** The text key. */
-    @Column(length = 500)
-    private String textKey;
+	/** The text key. */
+	@Column(length = 500)
+	private String textKey;
 
-    /** The text. */
-    @Column(length = 500)
-    private String text;
+	/** The text. */
+	@Column(length = 500)
+	private String text;
 
-    /** The url. */
-    @Column(length = 1000)
-    private String url;
+	/** The url. */
+	@Column(length = 1000)
+	private String url;
 
-    /** The params. */
-    @Column(length = 2000)
-    private String params;
+	/** The params. */
+	@Column(length = 2000)
+	private String params;
 
-    /** The parent. */
-    @ManyToOne()
-    @JoinColumn(name = "parent")
-    private MenuItem parent;
+	/** The parent. */
+	@ManyToOne()
+	@JoinColumn(name = "parent")
+	private MenuItem parent;
 
-    /** The position. */
-    private Integer position;
+	/** The position. */
+	private Integer position;
 
-    /** The menu item repository. */
-    @Autowired
-    private transient MenuItemRepository menuItemRepository;
+	/** The menu item repository. */
+	@Autowired
+	private transient MenuItemRepository menuItemRepository;
 
-    /** The Constant menuLogger. */
-    private transient static final Logger menuLogger = LoggerFactory
-            .getLogger(MenuItem.class);
+	/** The Constant menuLogger. */
+	private transient static final Logger menuLogger = LoggerFactory
+	.getLogger(MenuItem.class);
 
-    // -------------------- Constructors -------------------------//
+	// -------------------- Constructors -------------------------//
 
-    /**
-     * Instantiates a new menu item.
-     */
-    public MenuItem() {
-        super();
-    }
+	/**
+	 * Instantiates a new menu item.
+	 */
+	public MenuItem() {
+		super();
+	}
 
-    /**
-     * Instantiates a new menu item.
-     *
-     * @param textKey the text key
-     * @param text the text
-     * @param url the url
-     * @param params the params
-     * @param position the position
-     */
-    public MenuItem(final String textKey, final String text, final String url,
-            final String params, final Integer position) {
-        super();
-        this.textKey = textKey;
-        this.text = text;
-        this.url = url;
-        this.params = params;
-        this.setPosition(position);
-    }
+	/**
+	 * Instantiates a new menu item.
+	 *
+	 * @param textKey the text key
+	 * @param text the text
+	 * @param url the url
+	 * @param params the params
+	 * @param position the position
+	 */
+	public MenuItem(final String textKey, final String text, final String url,
+			final String params, final Integer position) {
+		super();
+		this.textKey = textKey;
+		this.text = text;
+		this.url = url;
+		this.params = params;
+		this.setPosition(position);
+	}
 
-    /**
-     * Instantiates a new menu item.
-     *
-     * @param textKey the text key
-     * @param text the text
-     * @param url the url
-     * @param params the params
-     * @param position the position
-     * @param parent the parent
-     */
-    public MenuItem(final String textKey, final String text, final String url,
-            final String params, final Integer position, final MenuItem parent) {
-        super();
-        this.textKey = textKey;
-        this.text = text;
-        this.url = url;
-        this.params = params;
-        this.setPosition(position);
-        this.parent = parent;
-    }
+	/**
+	 * Instantiates a new menu item.
+	 *
+	 * @param textKey the text key
+	 * @param text the text
+	 * @param url the url
+	 * @param params the params
+	 * @param position the position
+	 * @param parent the parent
+	 */
+	public MenuItem(final String textKey, final String text, final String url,
+			final String params, final Integer position, final MenuItem parent) {
+		super();
+		this.textKey = textKey;
+		this.text = text;
+		this.url = url;
+		this.params = params;
+		this.setPosition(position);
+		this.parent = parent;
+	}
 
-    /**
-     * Instantiates a new menu item.
-     *
-     * @param textKey the text key
-     * @param text the text
-     * @param url the url
-     * @param params the params
-     * @param parent the parent
-     * @param position the position
-     */
-    public MenuItem(final String textKey, final String text, final String url,
-            final String params, final MenuItem parent, final Integer position) {
-        super();
-        this.textKey = textKey;
-        this.text = text;
-        this.url = url;
-        this.params = params;
-        this.parent = parent;
-        this.position = position;
-    }
+	/**
+	 * Instantiates a new menu item.
+	 *
+	 * @param textKey the text key
+	 * @param text the text
+	 * @param url the url
+	 * @param params the params
+	 * @param parent the parent
+	 * @param position the position
+	 */
+	public MenuItem(final String textKey, final String text, final String url,
+			final String params, final MenuItem parent, final Integer position) {
+		super();
+		this.textKey = textKey;
+		this.text = text;
+		this.url = url;
+		this.params = params;
+		this.parent = parent;
+		this.position = position;
+	}
 
-    /**
-     * Gets the menu item repository.
-     *
-     * @return the menu item repository
-     */
-    public static MenuItemRepository getMenuItemRepository() {
-        MenuItemRepository menuItemRepository = new MenuItem().menuItemRepository;
-        if (menuItemRepository == null) {
-            throw new IllegalStateException(
-                    "AssemblyRepository has not been injected in Assembly Domain");
-        }
-        return menuItemRepository;
-    }
+	/**
+	 * Gets the menu item repository.
+	 *
+	 * @return the menu item repository
+	 */
+	public static MenuItemRepository getMenuItemRepository() {
+		MenuItemRepository menuItemRepository = new MenuItem().menuItemRepository;
+		if (menuItemRepository == null) {
+			throw new IllegalStateException(
+					"AssemblyRepository has not been injected in Assembly Domain");
+		}
+		return menuItemRepository;
+	}
 
-    // -------------------- Domain Methods ---------------------//
+	// -------------------- Domain Methods ---------------------//
 
-    /**
-     * Gets the menu xml.
-     *
-     * @return the menu xml
-     */
-    @SuppressWarnings("unchecked")
-    public static String getMenuXml() {
-        List<MenuItem> items = getMenuItemRepository().findAll(MenuItem.class,
-                "textKey", "asc", "");
-        Element root = new Element("root");
-        for (MenuItem item : items) {
-            Element row = new Element("menu");
-            row.setAttribute(new Attribute("id", item.getId() + ""));
-            row.setAttribute(new Attribute("text", item.getText()));
-            row.setAttribute(new Attribute("url", item.getUrl()));
-            if (item.getParent() != null) {
-                row.setAttribute(new Attribute("parent", item.getParent()
-                        .getId() + ""));
-            }
-            root.addContent(row);
-        }
-        StringWriter writer = new StringWriter();
-        XMLOutputter serializer = new XMLOutputter();
-        try {
-            serializer.output(root, writer);
-        }
-        catch (IOException e) {
-            menuLogger.error(e.toString());
-        }
-        return writer.toString();
-    }
+	/**
+	 * Gets the menu xml.
+	 *
+	 * @return the menu xml
+	 */
+	@SuppressWarnings("unchecked")
+	public static String getMenuXml() {
+		List<MenuItem> items = getMenuItemRepository().findAll(MenuItem.class,
+				"textKey", "asc", "");
+		Element root = new Element("root");
+		for (MenuItem item : items) {
+			Element row = new Element("menu");
+			row.setAttribute(new Attribute("id", item.getId() + ""));
+			row.setAttribute(new Attribute("text", item.getText()));
+			row.setAttribute(new Attribute("url", item.getUrl()));
+			if (item.getParent() != null) {
+				row.setAttribute(new Attribute("parent", item.getParent()
+						.getId() + ""));
+			}
+			root.addContent(row);
+		}
+		StringWriter writer = new StringWriter();
+		XMLOutputter serializer = new XMLOutputter();
+		try {
+			serializer.output(root, writer);
+		}
+		catch (IOException e) {
+			menuLogger.error(e.toString());
+		}
+		return writer.toString();
+	}
 
-    /**
-     * Gets the menu xml.
-     *
-     * @param locale the locale
-     * @return the menu xml
-     */
-    @SuppressWarnings("unchecked")
-    public static String getMenuXml(final String locale) {
-        List<MenuItem> items = getMenuItemRepository().findAll(MenuItem.class,
-                "position", "asc", locale);
-        Element root = new Element("root");
-        for (MenuItem item : items) {
-            Element row = new Element("menu");
-            row.setAttribute(new Attribute("id", item.getId() + ""));
-            row.setAttribute(new Attribute("text", item.getText()));
-            row.setAttribute(new Attribute("url", item.getUrl()));
-            if (item.getParent() != null) {
-                row.setAttribute(new Attribute("parent", item.getParent()
-                        .getId() + ""));
-            }
-            root.addContent(row);
-        }
-        StringWriter writer = new StringWriter();
-        XMLOutputter serializer = new XMLOutputter();
-        try {
-            serializer.output(root, writer);
-        }
-        catch (IOException e) {
-            menuLogger.error(e.toString());
-        }
-        return writer.toString();
-    }
+	/**
+	 * Gets the menu xml.
+	 *
+	 * @param locale the locale
+	 * @return the menu xml
+	 */
+	@SuppressWarnings("unchecked")
+	public static String getMenuXml(final String locale) {
+		List<MenuItem> items = getMenuItemRepository().findAll(MenuItem.class,
+				"position", "asc", locale);
+		Element root = new Element("root");
+		for (MenuItem item : items) {
+			Element row = new Element("menu");
+			row.setAttribute(new Attribute("id", item.getId() + ""));
+			row.setAttribute(new Attribute("text", item.getText()));
+			row.setAttribute(new Attribute("url", item.getUrl()));
+			if (item.getParent() != null) {
+				row.setAttribute(new Attribute("parent", item.getParent()
+						.getId() + ""));
+			}
+			root.addContent(row);
+		}
+		StringWriter writer = new StringWriter();
+		XMLOutputter serializer = new XMLOutputter();
+		try {
+			serializer.output(root, writer);
+		}
+		catch (IOException e) {
+			menuLogger.error(e.toString());
+		}
+		return writer.toString();
+	}
 
-    // ------------------------ Getters/Setters ----------------------------- //
+	@SuppressWarnings("unchecked")
+	public static String getMenuXml(final String menuItemIds,final String locale) {
+		List<MenuItem> items=new ArrayList<MenuItem>();
+		if(menuItemIds!=null){
+			if(!menuItemIds.isEmpty()){
+				items = getMenuItemRepository().findAllByIds(menuItemIds,
+						"position", "asc", locale);
+			}else{
+				items = getMenuItemRepository().findAll(MenuItem.class,
+						"position", "asc", locale);
+			}
+		}else{
+			    items = getMenuItemRepository().findAll(MenuItem.class,
+					"position", "asc", locale);
+		}
 
-    /**
-     * Gets the key.
-     *
-     * @return the key
-     */
-    public String getTextKey() {
-        return textKey;
-    }
+		Element root = new Element("root");
+		for (MenuItem item : items) {
+			Element row = new Element("menu");
+			row.setAttribute(new Attribute("id", item.getId() + ""));
+			row.setAttribute(new Attribute("text", item.getText()));
+			row.setAttribute(new Attribute("url", item.getUrl()));
+			if (item.getParent() != null) {
+				row.setAttribute(new Attribute("parent", item.getParent()
+						.getId() + ""));
+			}
+			root.addContent(row);
+		}
+		StringWriter writer = new StringWriter();
+		XMLOutputter serializer = new XMLOutputter();
+		try {
+			serializer.output(root, writer);
+		}
+		catch (IOException e) {
+			menuLogger.error(e.toString());
+		}
+		return writer.toString();
+	}
 
-    /**
-     * Sets the key.
-     *
-     * @param textKey the new text key
-     */
-    public void setTextKey(final String textKey) {
-        this.textKey = textKey;
-    }
 
-    /**
-     * Gets the text.
-     *
-     * @return the text
-     */
-    public String getText() {
-        return text;
-    }
+	// ------------------------ Getters/Setters ----------------------------- //
 
-    /**
-     * Sets the text.
-     *
-     * @param text the new text
-     */
-    public void setText(final String text) {
-        this.text = text;
-    }
+	/**
+	 * Gets the key.
+	 *
+	 * @return the key
+	 */
+	public String getTextKey() {
+		return textKey;
+	}
 
-    /**
-     * Gets the url.
-     *
-     * @return the url
-     */
-    public String getUrl() {
-        return url;
-    }
+	/**
+	 * Sets the key.
+	 *
+	 * @param textKey the new text key
+	 */
+	public void setTextKey(final String textKey) {
+		this.textKey = textKey;
+	}
 
-    /**
-     * Sets the url.
-     *
-     * @param url the new url
-     */
-    public void setUrl(final String url) {
-        this.url = url;
-    }
+	/**
+	 * Gets the text.
+	 *
+	 * @return the text
+	 */
+	public String getText() {
+		return text;
+	}
 
-    /**
-     * Gets the params.
-     *
-     * @return the params
-     */
-    public String getParams() {
-        return params;
-    }
+	/**
+	 * Sets the text.
+	 *
+	 * @param text the new text
+	 */
+	public void setText(final String text) {
+		this.text = text;
+	}
 
-    /**
-     * Sets the params.
-     *
-     * @param params the new params
-     */
-    public void setParams(final String params) {
-        this.params = params;
-    }
+	/**
+	 * Gets the url.
+	 *
+	 * @return the url
+	 */
+	public String getUrl() {
+		return url;
+	}
 
-    /**
-     * Gets the parent.
-     *
-     * @return the parent
-     */
-    public MenuItem getParent() {
-        return parent;
-    }
+	/**
+	 * Sets the url.
+	 *
+	 * @param url the new url
+	 */
+	public void setUrl(final String url) {
+		this.url = url;
+	}
 
-    /**
-     * Sets the parent.
-     *
-     * @param parent the new parent
-     */
-    public void setParent(final MenuItem parent) {
-        this.parent = parent;
-    }
+	/**
+	 * Gets the params.
+	 *
+	 * @return the params
+	 */
+	public String getParams() {
+		return params;
+	}
 
-    /**
-     * Gets the position.
-     *
-     * @return the position
-     */
-    public Integer getPosition() {
-        return position;
-    }
+	/**
+	 * Sets the params.
+	 *
+	 * @param params the new params
+	 */
+	public void setParams(final String params) {
+		this.params = params;
+	}
 
-    /**
-     * Sets the position.
-     *
-     * @param position the new position
-     */
-    public void setPosition(final Integer position) {
-        this.position = position;
-    }
+	/**
+	 * Gets the parent.
+	 *
+	 * @return the parent
+	 */
+	public MenuItem getParent() {
+		return parent;
+	}
+
+	/**
+	 * Sets the parent.
+	 *
+	 * @param parent the new parent
+	 */
+	public void setParent(final MenuItem parent) {
+		this.parent = parent;
+	}
+
+	/**
+	 * Gets the position.
+	 *
+	 * @return the position
+	 */
+	public Integer getPosition() {
+		return position;
+	}
+
+	/**
+	 * Sets the position.
+	 *
+	 * @param position the new position
+	 */
+	public void setPosition(final Integer position) {
+		this.position = position;
+	}	
+
+	public static List<MenuItem> findByParents(String parentsDelimitedBYComma, String locale) {
+		return getMenuItemRepository().findByParents(parentsDelimitedBYComma,locale);
+	}
 
 }

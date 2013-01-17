@@ -50,7 +50,10 @@ import org.springframework.beans.factory.annotation.Configurable;
 @Configurable
 @Entity
 @Table(name="questions")
-@JsonIgnoreProperties({"answeringDate","recommendationStatus","houseType", "session","language","type","supportingMembers", "subDepartment", "referencedQuestions", "drafts","clubbings","group","editedBy","editedAs","halfHourDiscusionFromQuestionReference"})
+@JsonIgnoreProperties({"answeringDate","recommendationStatus","houseType", "session",
+    "language","type","supportingMembers", "subDepartment", "referencedQuestions",
+    "drafts","clubbings","group","editedBy","editedAs","clubbedEntities","referencedEntities","parent","parentReferencing",
+    "clarificationNeededFrom"})
 public class Question extends BaseDomain
 implements Serializable
 {
@@ -77,16 +80,9 @@ implements Serializable
     /** The number. */
     private Integer number;
 
-  
-	/** The submission date. */
+    /** The submission date. */
     @Temporal(TemporalType.TIMESTAMP)
     private Date submissionDate;
-    
-    
-    /**Discussion date for halfhour discussions(standalone & from question)     */
-    @Temporal(TemporalType.DATE)
-    private Date discussionDate;
-    
 
     /** The creation date. */
     @Temporal(TemporalType.TIMESTAMP)
@@ -95,6 +91,19 @@ implements Serializable
     /** The created by. */
     @Column(length=1000)
     private String createdBy;
+    
+    /** The edited on. */
+    @Temporal(TemporalType.TIMESTAMP)
+    @JoinColumn(name="editedon")
+    private Date editedOn; 
+    
+    /** The edited by. */
+    @Column(length=1000)
+    private String editedBy;
+
+    /** The edited as. */
+    @Column(length=1000)
+    private String editedAs;
 
     /** The answering date. */
     @ManyToOne(fetch=FetchType.LAZY)
@@ -154,21 +163,7 @@ implements Serializable
     @Column(length=30000)
     private String remarks;
 
-    /** The edited by. */
-    @ManyToOne(fetch=FetchType.LAZY)
-    @JoinColumn(name="editedby_id")
-    private User editedBy;
-
-    /** The edited as. */
-    @ManyToOne(fetch=FetchType.LAZY)
-    @JoinColumn(name="editedastype_id")
-    private UserGroupType editedAs;
-
-    /** The edited on. */
-    @Temporal(TemporalType.TIMESTAMP)
-    @JoinColumn(name="editedon")
-    private Date editedOn;
-
+    
     /** The mark as answered. */
     private Boolean markAsAnswered;
 
@@ -191,11 +186,6 @@ implements Serializable
     @Temporal(TemporalType.DATE)
     private Date dateOfAnsweringByMinister;
 
-    @Column(length=30000)
-    private String briefExplanation;
-    
-    @ManyToOne(fetch=FetchType.LAZY)
-    private Question halfHourDiscusionFromQuestionReference;
 
     //---------------------------Primary and supporting members-----------------
     /** The primary member. */
@@ -246,9 +236,7 @@ implements Serializable
     private List<QuestionDraft> drafts;
 
     //--------------------------Clubbing------------------------------------------
-    /** The parent. */
-    @ManyToOne(fetch=FetchType.LAZY)
-    private Question parent;
+    
 
     /** The drafts. */
     @ManyToMany(fetch=FetchType.LAZY)
@@ -259,16 +247,26 @@ implements Serializable
     @Column(length=5000)
     private String prospectiveClubbings;
 
-	//--------------------------Clubbing Entities------------------------------------------
+    //--------------------------Clubbing Entities------------------------------------------
+    /** The parent. */
+    @ManyToOne(fetch=FetchType.LAZY)
+    private Question parent;
+    
     @ManyToMany(fetch=FetchType.LAZY)
     @JoinTable(name="questions_clubbingentities", joinColumns={@JoinColumn(name="question_id", referencedColumnName="id")}, inverseJoinColumns={@JoinColumn(name="clubbed_entity_id", referencedColumnName="id")})
     private List<ClubbedEntity> clubbedEntities;
 
     //--------------------------Referenced Entities------------------------------------------
+    /** The parent. */
+    @ManyToOne(fetch=FetchType.LAZY)
+    private Question parentReferencing;
+    
     @ManyToMany(fetch=FetchType.LAZY)
     @JoinTable(name="questions_referencedentities", joinColumns={@JoinColumn(name="question_id", referencedColumnName="id")}, inverseJoinColumns={@JoinColumn(name="referenced_entity_id", referencedColumnName="id")})
     private List<ReferencedEntity> referencedEntities;
-    
+
+
+
     /** The question repository. */
     @Autowired
     private transient QuestionRepository questionRepository;
@@ -325,11 +323,11 @@ implements Serializable
                 }
             }else{
             Question oldQuestion=Question.findById(Question.class,getId());
-            if(getClubbings()==null){
-                this.clubbings=oldQuestion.getClubbings();
+            if(getClubbedEntities()==null){
+                this.clubbedEntities=oldQuestion.getClubbedEntities();
             }
-            if(getReferencedQuestions()==null){
-                this.referencedQuestions=oldQuestion.getReferencedQuestions();
+            if(getReferencedEntities()==null){
+                this.referencedEntities=oldQuestion.getReferencedEntities();
             }
             addQuestionDraft();
             question=(Question) super.merge();
@@ -341,12 +339,12 @@ implements Serializable
             if(internalStatus.getType().equals("questions_incomplete")||internalStatus.getType().equals("questions_complete")){
                 return (Question) super.merge();
             }else{
-                Question oldQuestion=Question.findById(Question.class,getId());
-                if(getClubbings()==null){
-                    this.clubbings=oldQuestion.getClubbings();
+            	Question oldQuestion=Question.findById(Question.class,getId());
+                if(getClubbedEntities()==null){
+                    this.clubbedEntities=oldQuestion.getClubbedEntities();
                 }
-                if(getReferencedQuestions()==null){
-                    this.referencedQuestions=oldQuestion.getReferencedQuestions();
+                if(getReferencedEntities()==null){
+                    this.referencedEntities=oldQuestion.getReferencedEntities();
                 }
                 addQuestionDraft();
                 return (Question) super.merge();
@@ -398,33 +396,33 @@ implements Serializable
             draft.setAnswer(getAnswer());
             draft.setAnsweringDate(getAnsweringDate());
             draft.setClarificationNeededFrom(getClarificationNeededFrom());
-            draft.setClubbings(getClubbings());
+            draft.setClubbedEntities(getClubbedEntities());
             draft.setDepartment(getDepartment());
             draft.setEditedAs(getEditedAs());
             draft.setEditedBy(getEditedBy());
             draft.setEditedOn(getEditedOn());
             draft.setGroup(getGroup());
             draft.setInternalStatus(getInternalStatus());
-            draft.setLanguage(getLanguage());
-            draft.setLocale(getLocale());
             draft.setMinistry(getMinistry());
-            draft.setNumber(getNumber());
-            if(getEditedAs()!=null){
+            if(getRevisedQuestionText()!=null&&getRevisedSubject()!=null){
                 draft.setQuestionText(getRevisedQuestionText());
                 draft.setSubject(getRevisedSubject());
-            }else{
+            }else if(getRevisedQuestionText()!=null){
+            	draft.setQuestionText(getRevisedQuestionText());
+                draft.setSubject(getSubject());
+            }else if(getRevisedSubject()!=null){
                 draft.setQuestionText(getQuestionText());
+                draft.setSubject(getRevisedSubject());
+            }else{
+            	draft.setQuestionText(getQuestionText());
                 draft.setSubject(getSubject());
             }
-            draft.setReferencedQuestions(getReferencedQuestions());
+            draft.setReferencedEntities(getReferencedEntities());
             draft.setRemarks(getRemarks());
             draft.setRecommendationStatus(getRecommendationStatus());
-            draft.setSession(getSession());
             draft.setStatus(getStatus());
             draft.setSubDepartment(getSubDepartment());
-            draft.setSupportingMembers(getSupportingMembers());
             draft.setType(getType());
-            draft.setMarkAsAnswered(getMarkAsAnswered());
             if(getId()!=null){
                 Question question=Question.findById(Question.class,getId());
                 List<QuestionDraft> originalDrafts=question.getDrafts();
@@ -736,13 +734,7 @@ implements Serializable
     public static Question find(final Session session, final Integer number) {
         return Question.getQuestionRepository().find(session, number);
     }
-    
 
-    
-    public static Question findBySessionDeviceTypeQuestionNumber(final Session session, final DeviceType deviceType , final Integer number) {
-        return Question.getQuestionRepository().find(session, number);
-    }
-    
     //-----------------------Getters and Setters--------------------------------
 
     /**
@@ -816,20 +808,6 @@ implements Serializable
     public void setNumber(final Integer number) {
         this.number = number;
     }
-    
-    /**
-     * @return discussionDate
-     */
-    public Date getDiscussionDate() {
-  		return discussionDate;
-  	}
-  	/**
-  	 * sets discussionDate
-  	 * @param discussionDate
-  	 */
-  	public void setDiscussionDate(Date discussionDate) {
-  		this.discussionDate = discussionDate;
-  	}
 
     /**
      * Gets the submission date.
@@ -1263,24 +1241,7 @@ implements Serializable
         this.remarks = remarks;
     }
 
-    /**
-     * Gets the edited by.
-     *
-     * @return the edited by
-     */
-    public User getEditedBy() {
-        return editedBy;
-    }
-
-    /**
-     * Sets the edited by.
-     *
-     * @param editedBy the new edited by
-     */
-    public void setEditedBy(final User editedBy) {
-        this.editedBy = editedBy;
-    }
-
+    
     /**
      * Gets the edited on.
      *
@@ -1299,24 +1260,7 @@ implements Serializable
         this.editedOn = editedOn;
     }
 
-    /**
-     * Gets the edited as.
-     *
-     * @return the edited as
-     */
-    public UserGroupType getEditedAs() {
-        return editedAs;
-    }
-
-    /**
-     * Sets the edited as.
-     *
-     * @param editedAs the new edited as
-     */
-    public void setEditedAs(final UserGroupType editedAs) {
-        this.editedAs = editedAs;
-    }
-
+    
     /**
      * Gets the revisions.
      *
@@ -1328,21 +1272,7 @@ implements Serializable
         return getQuestionRepository().getRevisions(questionId,locale);
     }
 
-    public String getBriefExplanation() {
-		return briefExplanation;
-	}
-	public void setBriefExplanation(String briefExplanation) {
-		this.briefExplanation = briefExplanation;
-	}
-
-	public Question getHalfHourDiscusionFromQuestionReference() {
-		return halfHourDiscusionFromQuestionReference;
-	}
-	public void setHalfHourDiscusionFromQuestionReference(
-			Question halfHourDiscusionFromQuestionReference) {
-		this.halfHourDiscusionFromQuestionReference = halfHourDiscusionFromQuestionReference;
-	}
-	/**
+    /**
      * Full text search clubbing.
      *
      * @param textToSearch the text to search
@@ -1353,11 +1283,7 @@ implements Serializable
      * @param locale the locale
      * @return the list
      */
-    public static List<QuestionSearchVO> fullTextSearchClubbing(final String textToSearch,final Long sessionToSearchOn,final Long groupToSearchOn,
-            final Long currentChartId, final Long questionId, final String locale) {
-        return getQuestionRepository().fullTextSearchClubbing(textToSearch,sessionToSearchOn,groupToSearchOn,
-                currentChartId,questionId,locale);
-    }
+    
     /*
      * This method is used to obtain all the questions of a member of a particular device type ,
      * belonging to a particular session and having internal status as specified
@@ -1942,8 +1868,7 @@ implements Serializable
         return getQuestionRepository().createMemberBallotAttendance(session,
                 questionType,locale);
     }
-    
-     public static List<Question> findAdmittedStarredQuestionsUH(
+    public static List<Question> findAdmittedStarredQuestionsUH(
             final Session session, final DeviceType questionType, final Member member,
             final String locale) {
         return getQuestionRepository().findAdmittedStarredQuestionsUH(
@@ -1969,23 +1894,49 @@ implements Serializable
     public List<ReferencedEntity> getReferencedEntities() {
         return referencedEntities;
     }
-    
-    
-    /**
-     * Full text search clubbing for half hour discussion from question.
-     *
-     * @param textToSearch the text to search
-     * @param sessionToSearchOn the session to search on
-     * @param groupToSearchOn the group to search on
-     * @param currentChartId the current chart id
-     * @param memberID the member id
-     * @param questionId the question id
-     * @param locale the locale
-     * @return the list
-     */
-    public static List<QuestionSearchVO> fullTextSearchClubbingForHalfHourDiscussionFromQuestion(final String textToSearch,final Long sessionToSearchOn,final Long groupToSearchOn,
-            final Long memberId, final Long questionId, final String locale) {
-        return getQuestionRepository().fullTextSearchClubbingForHalfHourDiscussionFromQuestion(textToSearch,sessionToSearchOn,groupToSearchOn, memberId, questionId,locale);
-    }
+	public void setEditedBy(String editedBy) {
+		this.editedBy = editedBy;
+	}
+	public String getEditedBy() {
+		return editedBy;
+	}
+	public void setEditedAs(String editedAs) {
+		this.editedAs = editedAs;
+	}
+	public String getEditedAs() {
+		return editedAs;
+	}
+	public static List<ClubbedEntity> findClubbedEntitiesByPosition(final Question question) {
+		return getQuestionRepository().findClubbedEntitiesByPosition(question);
+	}
+	public void setParentReferencing(Question parentReferencing) {
+		this.parentReferencing = parentReferencing;
+	}
+	public Question getParentReferencing() {
+		return parentReferencing;
+	}
+	
+	public List<ClubbedEntity> findClubbedEntitiesByQuestionNumber(final String sortOrder,
+			final String locale) {
+		return getQuestionRepository().findClubbedEntitiesByQuestionNumber(this,sortOrder,
+				locale);
+	}
+	public static Boolean referencing(final Long primaryId,final Long referencingId,
+			final String locale) {
+		return getQuestionRepository().referencing(primaryId,referencingId,
+				locale);
+	}
+	public static Boolean deReferencing(final Long primaryId,final Long referencedId,final String locale) {
+		return getQuestionRepository().deReferencing(primaryId,referencedId,locale);
+	}
+	public static List<QuestionSearchVO> fullTextSearchClubbing(final String param,
+			final Question question,final int start,final int noOfRecords,final String locale) {
+		return getQuestionRepository().fullTextSearchClubbing(param, question, start, noOfRecords, locale);
+	}
+	public static List<QuestionSearchVO> fullTextSearchReferencing(
+			final String param,
+			final Question question,final int start,final int noOfRecords,final String locale) {
+		return getQuestionRepository().fullTextSearchReferencing(param, question, start, noOfRecords, locale);
+	}
 
 }

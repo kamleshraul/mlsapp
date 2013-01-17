@@ -74,6 +74,11 @@ public class User extends BaseDomain implements Serializable {
 
     @ManyToOne(fetch=FetchType.LAZY)
     private HouseType houseType;
+    
+    @Column(length=1000)
+    private String startURL;
+    
+    private String groupsAllowed;
 
     /** The user repository. */
 
@@ -234,4 +239,16 @@ public class User extends BaseDomain implements Serializable {
     public void setHouseType(final HouseType houseType) {
         this.houseType = houseType;
     }
+	public void setStartURL(String startURL) {
+		this.startURL = startURL;
+	}
+	public String getStartURL() {
+		return startURL;
+	}
+	public void setGroupsAllowed(String groupsAllowed) {
+		this.groupsAllowed = groupsAllowed;
+	}
+	public String getGroupsAllowed() {
+		return groupsAllowed;
+	}
 }
