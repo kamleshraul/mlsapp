@@ -66,6 +66,10 @@ public class AuthUser extends User {
 
     /** The actual email. */
     private String actualEmail;
+    
+    private String startURL;
+    
+    private String groupsAllowed;
 
     /**
      * Instantiates a new auth user.
@@ -277,6 +281,22 @@ public class AuthUser extends User {
      */
     public List<UserGroup> getUserGroups() {
         return userGroups;
-    }
+    }	
+
+	public String getStartURL() {
+		return startURL;
+	}
+
+	public void setStartURL(String startURL) {
+		this.startURL = startURL;
+	}
+
+	public void setGroupsAllowed(String groupsAllowed) {
+		this.groupsAllowed = groupsAllowed;
+	}
+
+	public String getGroupsAllowed() {
+		return groupsAllowed;
+	}	
 
  }

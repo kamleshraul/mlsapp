@@ -21,7 +21,15 @@ public class MasterVO {
 
     /** The name. */
     private String name;
+    
+    private Integer number;
 
+
+	public MasterVO(Integer number,String name) {
+		super();
+		this.name = name;
+		this.number = number;
+	}
 
 	public MasterVO(final Long id, final String name) {
 		super();
@@ -57,5 +65,13 @@ public class MasterVO {
 
 	public void setId(final Long id) {
 		this.id = id;
+	}
+
+	public void setNumber(Integer number) {
+		this.number = number;
+	}
+
+	public Integer getNumber() {
+		return number;
 	}
 }

@@ -23,6 +23,8 @@ public class Reference {
 
     /** The name. */
     private String name;
+    
+    private String number;
 
     // ---------------------------------Constructors-----------------------------------------------
     /**
@@ -80,5 +82,13 @@ public class Reference {
     public void setName(final String name) {
         this.name = name;
     }
+
+	public void setNumber(String number) {
+		this.number = number;
+	}
+
+	public String getNumber() {
+		return number;
+	}
 
 }
