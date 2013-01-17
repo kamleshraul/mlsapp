@@ -1222,16 +1222,19 @@ public class QuestionController extends GenericController<Question>{
 		}
 
 		Status internalStatus = domain.getInternalStatus();
+		String deviceType=domain.getType().getType();
 		// If the internalStatus of the Question is ASSISTANT_PROCESSED then
 		// add to Chart if applicable
-		if(internalStatus.getType().equals("question_assistantprocessed")) {
+		if(internalStatus.getType().equals("question_assistantprocessed")
+				&& deviceType.equals(ApplicationConstants.STARRED_QUESTION)) {
 			Question question = Question.findById(Question.class, domain.getId());
 			Chart.addToChart(question);
 		}
 		// If the internalStatus of the Question is GROUP_CHANGED then do the
 		// following
 		else if(internalStatus.getType().
-				equals("question_workflow_decisionstatus_groupchanged")) {
+				equals("question_workflow_decisionstatus_groupchanged")
+				&&deviceType.equals(ApplicationConstants.STARRED_QUESTION)) {
 			Question question = Question.findById(Question.class, domain.getId());
 			QuestionDraft draft = question.findPreviousDraft();
 			Group affectedGroup = draft.getGroup();
