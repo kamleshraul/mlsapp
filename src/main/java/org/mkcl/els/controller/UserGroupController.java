@@ -21,6 +21,7 @@ import org.mkcl.els.domain.DeviceType;
 import org.mkcl.els.domain.Group;
 import org.mkcl.els.domain.HouseType;
 import org.mkcl.els.domain.MemberMinister;
+import org.mkcl.els.domain.Ministry;
 import org.mkcl.els.domain.Session;
 import org.mkcl.els.domain.SessionType;
 import org.mkcl.els.domain.User;
@@ -78,53 +79,9 @@ public class UserGroupController extends GenericController<UserGroup>{
         if(!houseTypes.isEmpty()){
             model.addAttribute("selectedHouseType",houseTypes.get(0).getName());
         }
-        /*
-         * setting years and selected year
-         */
-        Integer year=0;
-        year=new GregorianCalendar().get(Calendar.YEAR);
-        CustomParameter houseFormationYear=CustomParameter.findByName(CustomParameter.class, "HOUSE_FORMATION_YEAR", "");
-        List<Integer> years=new ArrayList<Integer>();
-        if(houseFormationYear!=null){
-            Integer formationYear=Integer.parseInt(houseFormationYear.getValue());
-            for(int i=year;i>=formationYear;i--){
-                years.add(i);
-            }
-        }
-        model.addAttribute("years",years);
-        model.addAttribute("selectedYear",year);
-        /*
-         * setting session types amd selected session type
-         */
-        List<SessionType> sessionTypes=SessionType.findAll(SessionType.class,"sessionType", ApplicationConstants.ASC, locale);
-        model.addAttribute("sessionTypes",sessionTypes);
-        Session currentSession=null;
-        if(!houseTypes.isEmpty()){
-            currentSession=Session.findLatestSession(houseTypes.get(0),year);
-            if(currentSession!=null){
-                if(currentSession.getId()!=null){
-                    model.addAttribute("selectedSessionType",currentSession.getType().getSessionType());
-                    /*
-                     * setting groups and selected group
-                     */
-                    List<Group> groups=Group.findByHouseTypeSessionTypeYear(houseTypes.get(0), sessionTypes.get(0),years.get(0));
-                    model.addAttribute("groups",groups);
-                    model.addAttribute("selectedgroup",groups.get(0).getNumber());
-                    /*
-                     * setting departments,sub-departments,selected departments and selected sub departments
-                     */
-                    List<MasterVO> departments=new ArrayList<MasterVO>();
-                    List<MasterVO> subdepartments=new ArrayList<MasterVO>();
-                    if(!groups.isEmpty()){
-                        departments=MemberMinister.findAssignedDepartmentsVO(groups.get(0), locale);
-                        subdepartments=MemberMinister.findAssignedSubDepartmentsVO(groups.get(0), locale);
-
-                    }
-                    model.addAttribute("departments",departments);
-                    model.addAttribute("subdepartments", subdepartments);
-                }
-            }
-        }
+        /**** Ministry ****/
+        List<Ministry> ministries=Ministry.findAssignedMinistries(locale);
+        model.addAttribute("ministries",ministries);       
         /*
          * setting device types and there is no initial selected device type
          */
