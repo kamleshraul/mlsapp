@@ -1,6 +1,5 @@
 package org.mkcl.els.controller;
 
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -8,9 +7,8 @@ import java.util.List;
 import javax.servlet.http.HttpServletRequest;
 
 import org.mkcl.els.common.util.ApplicationConstants;
-import org.mkcl.els.common.util.FormaterUtil;
 import org.mkcl.els.domain.DeviceType;
-import org.mkcl.els.domain.Session;
+import org.mkcl.els.domain.HouseType;
 import org.mkcl.els.domain.UserGroupType;
 import org.mkcl.els.domain.Workflow;
 import org.mkcl.els.domain.WorkflowActor;
@@ -24,76 +22,50 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 
 @Controller
-@RequestMapping("/session/workflowconfig")
+@RequestMapping("/workflowconfig")
 public class WorkflowConfigController extends GenericController<WorkflowConfig>{
 
 
     @Override
     protected void populateNew(final ModelMap model, final WorkflowConfig domain,
             final String locale, final HttpServletRequest request) {
-        /*
-         * setting locale
-         */
+        /**** locale ****/
         domain.setLocale(locale);
-        /*
-         * setting workflows
-         */
+        /**** HouseTypes ****/
+        List<HouseType> houseTypes=HouseType.findAll(HouseType.class,"type",ApplicationConstants.ASC, locale);
+        model.addAttribute("houseTypes",houseTypes);
+        /**** workflows ****/
         List<Workflow> workflows=Workflow.findAll(Workflow.class,"name",ApplicationConstants.ASC, locale);
         model.addAttribute("workflows",workflows);
-        /*
-         * setting usergroups
-         */
+        /**** usergroups ****/
         List<UserGroupType> userGroupTypes=UserGroupType.findAll(UserGroupType.class,"name",ApplicationConstants.ASC, locale);
         model.addAttribute("userGroupTypes",userGroupTypes);
-        /*
-         * setting session
-         */
-        Long sessionId=Long.parseLong(request.getParameter("session"));
-        Session selectedSession=Session.findById(Session.class, sessionId);
-        model.addAttribute("houseType",selectedSession.getHouse().getType().getType());
-        model.addAttribute("session",sessionId);
-        /*
-         * setting device types
-         */
+        /**** device types ****/
         List<DeviceType> deviceTypes=DeviceType.findAll(DeviceType.class, "name",ApplicationConstants.ASC, locale);
         model.addAttribute("deviceTypes",deviceTypes);
-        /*
-         * setting workflow actor count
-         */
-        model.addAttribute("workflowactorCount", 0);
-        
-        
+        /**** workflow actor count ****/
+        model.addAttribute("workflowactorCount", 0);     
     }
 
     @Override
     protected void populateEdit(final ModelMap model, final WorkflowConfig domain,
             final HttpServletRequest request) {
         String locale=domain.getLocale();
-        /*
-         * setting workflows
-         */
+        /**** HouseTypes ****/
+        List<HouseType> houseTypes=HouseType.findAll(HouseType.class,"type",ApplicationConstants.ASC, locale);
+        model.addAttribute("houseTypes",houseTypes);
+        /**** workflows ****/
         List<Workflow> workflows=Workflow.findAll(Workflow.class,"name",ApplicationConstants.ASC, locale);
         model.addAttribute("workflows",workflows);
-        /*
-         * setting usergroups
-         */
+        /**** usergroups ****/
         List<UserGroupType> userGroupTypes=UserGroupType.findAll(UserGroupType.class,"name",ApplicationConstants.ASC, locale);
         model.addAttribute("userGroupTypes",userGroupTypes);
-        /*
-         * setting session
-         */
-        model.addAttribute("session",domain.getSession().getId());
-        model.addAttribute("houseType",domain.getSession().getHouse().getType().getType());
-        /*
-         * populating workflow actors
-         */
-        model.addAttribute("workflowactors", domain.getWorkflowactors());
-        model.addAttribute("workflowactorCount", domain.getWorkflowactors().size());
-        /*
-         * setting device types
-         */
+        /**** device types ****/
         List<DeviceType> deviceTypes=DeviceType.findAll(DeviceType.class, "name",ApplicationConstants.ASC, locale);
-        model.addAttribute("deviceTypes",deviceTypes);        
+        model.addAttribute("deviceTypes",deviceTypes);
+        /**** workflow actors ****/
+        model.addAttribute("workflowactors", domain.getWorkflowactors());
+        model.addAttribute("workflowactorCount", domain.getWorkflowactors().size());                
     }
 
     private void populateWorkflowActors(final WorkflowConfig domain, final HttpServletRequest request,final BindingResult result){
@@ -106,14 +78,7 @@ public class WorkflowConfigController extends GenericController<WorkflowConfig>{
             String level=request.getParameter("workflowactorLevel"+i);
             if(level!=null){
                 workflowActor.setLevel(Integer.parseInt(level));
-            }
-            
-            //group is required only in case when there are more than one actors on the same level
-            //group is comma separated list of group numbers
-            String group=request.getParameter("workflowactorGroup"+i);
-           if(group!=null){
-              workflowActor.setGroupName(group);
-           }
+            }           
 
             String strUserGroupType=request.getParameter("workflowactorName"+ i);
             if(strUserGroupType!=null){
