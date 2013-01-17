@@ -343,7 +343,7 @@
 					<c:set var="key" value="questions_starred_submissionEndDate"></c:set>
 					<input type="text" class="datetimemask sText" name="questions_starred_submissionEndDate" id="questions_starred_submissionEndDate" value="${domain.parameters[key]}" />
 				</p>
-				<c:if test="${domain.house.type.type eq 'upperhouse'}">
+
 				<p>
 					<label class="small"><spring:message code="session.deviceType.submissionFirstBatchStartDate" text="Submission First Batch Start Date" /></label>
 					<c:set var="key" value="questions_starred_submissionFirstBatchStartDate"></c:set>
@@ -367,7 +367,7 @@
 					<c:set var="key" value="questions_starred_submissionSecondBatchEndDate"></c:set>
 					<input type="text" class="datetimemask sText" name="questions_starred_submissionSecondBatchEndDate" id="questions_starred_submissionSecondBatchEndDate" value="${domain.parameters[key]}" />
 				</p>
-				</c:if>
+
 				<p>
 					<label class="small"><spring:message code="session.deviceType.firstBallotDate" text="First Ballot Date" /></label>
 					<c:set var="key" value="questions_starred_firstBallotDate"></c:set>
@@ -380,13 +380,12 @@
 					<input type="text" class="sInteger" name="questions_starred_NumberOfQuestionInFirstBatch" id="questions_starred_NumberOfQuestionInFirstBatch" value="${domain.parameters[key]}" />
 				</p>
 
-				<c:if test="${domain.house.type.type eq 'upperhouse'}">
 				<p>
 					<label class="small"><spring:message code="session.deviceType.NumberOfQuestionInSecondBatch" text="Number of Question In Second Batch" /></label>
 					<c:set var="key" value="questions_starred_NumberOfQuestionInSecondBatch"></c:set>
 					<input type="text" class="sInteger" name="questions_starred_NumberOfQuestionInSecondBatch" id="questions_starred_NumberOfQuestionInSecondBatch" value="${domain.parameters[key]}" />
 				</p>
-				</c:if>
+
 				<p>
 					<label class="small"><spring:message code="session.deviceType.isBallotingRequired" text="is Ballotng Required" /></label>
 					<c:set var="key" value="questions_starred_isBallotingRequired"></c:set>
@@ -416,6 +415,18 @@
 					<label class="small"><spring:message code="session.deviceType.rotationOrderFooter" text="Rotation Order Footer" /></label>
 					<c:set var="key" value="questions_starred_rotationOrderFooter"></c:set>
 					<textarea class="wysiwyg" cols="50" rows="5" id="questions_starred_rotationOrderFooter" name="questions_starred_rotationOrderFooter">${domain.parameters[key]}</textarea>
+				</p>
+				
+				<p>
+					<label class="small"><spring:message code="session.deviceType.totalRoundsMemberBallot" text="Total Rounds In Member Ballot" /></label>
+					<c:set var="key" value="questions_starred_totalRoundsMemberBallot"></c:set>
+					<textarea class="wysiwyg" cols="50" rows="5" id="questions_starred_totalRoundsMemberBallot" name="questions_starred_totalRoundsMemberBallot">${domain.parameters[key]}</textarea>
+				</p>
+				
+				<p>
+					<label class="small"><spring:message code="session.deviceType.totalRoundsFinalBallot" text="Total Rounds In Final Ballot" /></label>
+					<c:set var="key" value="questions_starred_totalRoundsFinalBallot"></c:set>
+					<textarea class="wysiwyg" cols="50" rows="5" id="questions_starred_totalRoundsFinalBallot" name="questions_starred_totalRoundsFinalBallot">${domain.parameters[key]}</textarea>
 				</p>
 			</div>
 		</c:if>
