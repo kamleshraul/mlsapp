@@ -9,14 +9,12 @@
  */
 package org.mkcl.els.repository;
 
-import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
 import javax.persistence.TypedQuery;
-import javax.swing.text.Position;
 
 import org.mkcl.els.common.util.ApplicationConstants;
 import org.mkcl.els.common.util.FormaterUtil;
@@ -2079,8 +2077,8 @@ public class QuestionRepository extends BaseRepository<Question, Long>{
 			CustomParameter customParameter=CustomParameter.findByName(CustomParameter.class,"DB_TIMESTAMP", "");
 			if(customParameter!=null){
 				SimpleDateFormat format=FormaterUtil.getDateFormatter(customParameter.getValue(),"en_US");
-				Date startTime = FormaterUtil.formatStringToDate(session.getParamater(questionType.getType() +"_submissionFirstBatchStartDate"), customParameter.getValue(), session.getLocale());
-				Date endTime = FormaterUtil.formatStringToDate(session.getParamater(questionType.getType() +"_submissionFirstBatchEndDate"), customParameter.getValue(), session.getLocale());
+				Date startTime = FormaterUtil.formatStringToDate(session.getParameter(questionType.getType() +"_submissionFirstBatchStartDate"), customParameter.getValue(), session.getLocale());
+				Date endTime = FormaterUtil.formatStringToDate(session.getParameter(questionType.getType() +"_submissionFirstBatchEndDate"), customParameter.getValue(), session.getLocale());
 				if(startTime!=null && endTime!=null){
 					String startTimeStr=format.format(startTime);
 					String endTimeStr=format.format(endTime);
@@ -2127,100 +2125,108 @@ public class QuestionRepository extends BaseRepository<Question, Long>{
 	}
 
 	/**
-	 * Find.
-	 *
-	 * @param session the session
-	 * @param deviceType the device type
-	 * @param startTime the start time
-	 * @param endTime the end time
-	 * @param internalStatuses the internal statuses
-	 * @param sortOrder the sort order
-	 * @param locale the locale
-	 * @return the list
-	 */
-	public List<Question> find(final Session session,
-			final DeviceType deviceType,
-			final Date startTime,
-			final Date endTime,
-			final Status[] internalStatuses,
-			final String sortOrder,
-			final String locale) {
-		// Removed for performance reason. Uncomment when Caching mechanism is added
-		// CustomParameter parameter = CustomParameter.findByName(CustomParameter.class,
-		//      "DB_TIMESTAMP", "");
-		// String strDate = new DateFormater().formatDateToString(date, parameter.getValue());
-		String strStartTime = FormaterUtil.formatDateToString(startTime, "yyyy-MM-dd HH:mm:ss");
-		String strEndTime = FormaterUtil.formatDateToString(endTime, "yyyy-MM-dd HH:mm:ss");
+     * Find.
+     *
+     * @param session the session
+     * @param deviceType the device type
+     * @param startTime the start time
+     * @param endTime the end time
+     * @param internalStatuses the internal statuses
+     * @param sortOrder the sort order
+     * @param locale the locale
+     * @return the list
+     */
+    public List<Question> find(final Session session,
+    		final DeviceType deviceType,
+    		final Date startTime,
+    		final Date endTime,
+    		final Status[] internalStatuses,
+    		final Boolean hasParent,
+    		final String sortOrder,
+    		final String locale) {
+    	// Removed for performance reason. Uncomment when Caching mechanism is added
+        // CustomParameter parameter = CustomParameter.findByName(CustomParameter.class,
+        //      "DB_TIMESTAMP", "");
+        // String strDate = new DateFormater().formatDateToString(date, parameter.getValue());
+        String strStartTime = FormaterUtil.formatDateToString(startTime, "yyyy-MM-dd HH:mm:ss");
+        String strEndTime = FormaterUtil.formatDateToString(endTime, "yyyy-MM-dd HH:mm:ss");
 
-		StringBuffer query = new StringBuffer(
-				" SELECT q" +
-				" FROM Question q" +
-				" WHERE q.session.id = " + session.getId() +
-				" AND q.type.id = " + deviceType.getId() +
-				" AND q.submissionDate >= '" + strStartTime + "'" +
-				" AND q.submissionDate <= '" + strEndTime + "'" +
-				" AND q.locale = '" + locale + "'"
-		);
-		query.append(this.getStatusFilters(internalStatuses));
-		if(sortOrder.equals(ApplicationConstants.ASC)) {
-			query.append(" ORDER BY q.number ASC");
-		}
-		else if(sortOrder.equals(ApplicationConstants.DESC)) {
-			query.append(" ORDER BY q.number DESC");
-		}
+        StringBuffer query = new StringBuffer(
+                " SELECT q" +
+                " FROM Question q" +
+                " WHERE q.session.id = " + session.getId() +
+                " AND q.type.id = " + deviceType.getId() +
+                " AND q.submissionDate >= '" + strStartTime + "'" +
+                " AND q.submissionDate <= '" + strEndTime + "'" +
+                " AND q.locale = '" + locale + "'"
+        );
+        query.append(this.getStatusFilters(internalStatuses));
+        if(! hasParent) {
+            query.append(" AND q.parent = " + null);
+        }
+        if(sortOrder.equals(ApplicationConstants.ASC)) {
+            query.append(" ORDER BY q.number ASC");
+        }
+        else if(sortOrder.equals(ApplicationConstants.DESC)) {
+            query.append(" ORDER BY q.number DESC");
+        }
 
-		TypedQuery<Question> tQuery = this.em().createQuery(query.toString(), Question.class);
-		List<Question> questions = tQuery.getResultList();
-		return questions;
-	}
+        TypedQuery<Question> tQuery = this.em().createQuery(query.toString(), Question.class);
+        List<Question> questions = tQuery.getResultList();
+        return questions;
+    }
 
 	/**
-	 * Find primary members.
-	 *
-	 * @param session the session
-	 * @param deviceType the device type
-	 * @param startTime the start time
-	 * @param endTime the end time
-	 * @param internalStatuses the internal statuses
-	 * @param sortOrder the sort order
-	 * @param locale the locale
-	 * @return the list
-	 */
-	public List<Member> findPrimaryMembers(final Session session,
-			final DeviceType deviceType,
-			final Date startTime,
-			final Date endTime,
-			final Status[] internalStatuses,
-			final String sortOrder,
-			final String locale) {
-		// Removed for performance reason. Uncomment when Caching mechanism is added
-		// CustomParameter parameter = CustomParameter.findByName(CustomParameter.class,
-		//      "DB_TIMESTAMP", "");
-		// String strDate = new DateFormater().formatDateToString(date, parameter.getValue());
-		String strStartTime = FormaterUtil.formatDateToString(startTime, "yyyy-MM-dd HH:mm:ss");
-		String strEndTime = FormaterUtil.formatDateToString(endTime, "yyyy-MM-dd HH:mm:ss");
+     * Find primary members.
+     *
+     * @param session the session
+     * @param deviceType the device type
+     * @param startTime the start time
+     * @param endTime the end time
+     * @param internalStatuses the internal statuses
+     * @param sortOrder the sort order
+     * @param locale the locale
+     * @return the list
+     */
+    public List<Member> findPrimaryMembers(final Session session,
+    		final DeviceType deviceType,
+    		final Date startTime,
+    		final Date endTime,
+    		final Status[] internalStatuses,
+    		final Boolean hasParent,
+    		final String sortOrder,
+    		final String locale) {
+    	// Removed for performance reason. Uncomment when Caching mechanism is added
+        // CustomParameter parameter = CustomParameter.findByName(CustomParameter.class,
+        //      "DB_TIMESTAMP", "");
+        // String strDate = new DateFormater().formatDateToString(date, parameter.getValue());
+        String strStartTime = FormaterUtil.formatDateToString(startTime, "yyyy-MM-dd HH:mm:ss");
+        String strEndTime = FormaterUtil.formatDateToString(endTime, "yyyy-MM-dd HH:mm:ss");
 
-		StringBuffer query = new StringBuffer(
-				" SELECT UNIQUE(q.primaryMember)" +
-				" FROM Question q" +
-				" WHERE q.session.id = " + session.getId() +
-				" AND q.type.id = " + deviceType.getId() +
-				" AND q.submissionDate >= '" + strStartTime + "'" +
-				" AND q.submissionDate <= '" + strEndTime + "'" +
-				" AND q.locale = '" + locale + "'"
-		);
-		query.append(this.getStatusFilters(internalStatuses));
-		if(sortOrder.equals(ApplicationConstants.ASC)) {
-			query.append(" ORDER BY q.number ASC");
-		}
-		else if(sortOrder.equals(ApplicationConstants.DESC)) {
-			query.append(" ORDER BY q.number DESC");
-		}
+        StringBuffer query = new StringBuffer(
+                " SELECT UNIQUE(q.primaryMember)" +
+                " FROM Question q" +
+                " WHERE q.session.id = " + session.getId() +
+                " AND q.type.id = " + deviceType.getId() +
+                " AND q.submissionDate >= '" + strStartTime + "'" +
+                " AND q.submissionDate <= '" + strEndTime + "'" +
+                " AND q.locale = '" + locale + "'"
+        );
+        query.append(this.getStatusFilters(internalStatuses));
+        if(! hasParent) {
+            query.append(" AND q.parent = " + null);
+        }
+        if(sortOrder.equals(ApplicationConstants.ASC)) {
+            query.append(" ORDER BY q.number ASC");
+        }
+        else if(sortOrder.equals(ApplicationConstants.DESC)) {
+            query.append(" ORDER BY q.number DESC");
+        }
 
-		TypedQuery<Member> tQuery = this.em().createQuery(query.toString(), Member.class);
-		List<Member> members = tQuery.getResultList();
-		return members;
-	}
+        TypedQuery<Member> tQuery = this.em().createQuery(query.toString(), Member.class);
+        List<Member> members = tQuery.getResultList();
+        return members;
+    }
 
 	/**
 	 * Find admitted starred questions uh.
@@ -2241,8 +2247,8 @@ public class QuestionRepository extends BaseRepository<Question, Long>{
 			String query="SELECT q FROM Question q JOIN q.primaryMember m JOIN q.session s JOIN q.type qt "+
 			" WHERE m.id="+member.getId()+" AND s.id="+session.getId()+" AND qt.id="+questionType.getId()+
 			" AND q.locale='"+locale+"' AND q.internalStatus.type='question_workflow_approving_admission'  "+
-			" AND q.submissionDate>='"+format.format(session.getParamater("questions_starred_submissionFirstBatchStartDate"))+"' "+
-			" AND q.submissionDate<='"+format.format(session.getParamater("questions_starred_submissionFirstBatchEndDate"))+"' ORDER BY q.number "+ApplicationConstants.ASC;
+			" AND q.submissionDate>='"+format.format(session.getParameter("questions_starred_submissionFirstBatchStartDate"))+"' "+
+			" AND q.submissionDate<='"+format.format(session.getParameter("questions_starred_submissionFirstBatchEndDate"))+"' ORDER BY q.number "+ApplicationConstants.ASC;
 			questions=this.em().createQuery(query).getResultList();
 		}else{
 			logger.error("Custom Parameter 'DB_DATETIMEFORMAT' not set");
