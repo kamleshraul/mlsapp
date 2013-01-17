@@ -28,7 +28,7 @@
 					</p>
 					<p>
 						<label class="small"><spring:message code="role.users" text="Users" /></label>
-						<form:select cssClass="sexySelect" path="credentials" multiple="multiple" id="users">
+						<form:select cssClass="sexySelect" path="credentials" multiple="multiple" id="users" cssStyle="width:360px;" size="15">
 							<c:forEach items="${users}" var="i">
 								<c:set var="flag" value="false"/>
 								<c:forEach items="${domain.credentials}" var="j">
