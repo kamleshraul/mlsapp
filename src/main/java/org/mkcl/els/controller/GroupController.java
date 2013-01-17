@@ -189,278 +189,253 @@ org.springframework.validation.BindingResult, javax.servlet.http.HttpServletRequ
 	}
 
 	/**
-	 * Assign rotation order.
-	 *
-	 * @param id the id
-	 * @param model the model
-	 * @param request the request
-	 * @return the string
-	 */
-	@SuppressWarnings("unused")
-	@RequestMapping(value="/rotationorder/{id}/edit", method=RequestMethod.GET)
-	private String assignRotationOrder(final @PathVariable("id") Long id,final ModelMap model,final HttpServletRequest request){
-		final String servletPath = request.getServletPath().replaceFirst("\\/","");
+     * Assign rotation order.
+     *
+     * @param id the id
+     * @param model the model
+     * @param request the request
+     * @return the string
+     */
+    @SuppressWarnings("unused")
+    @RequestMapping(value="/rotationorder/{id}/edit", method=RequestMethod.GET)
+    private String assignRotationOrder(final @PathVariable("id") Long id,final ModelMap model,final HttpServletRequest request){
+    	final String servletPath = request.getServletPath().replaceFirst("\\/","");
 		String urlPattern=servletPath.split("\\/edit")[0].replace("/"+id,"");
 		String messagePattern=urlPattern.replaceAll("\\/",".");
 		model.addAttribute("messagePattern", messagePattern);
 		model.addAttribute("urlPattern", urlPattern);
 		Group domain = Group.findById(Group.class, id);
-		Session session =Session.findSessionByHouseTypeSessionTypeYear(domain.getHouseType(), domain.getSessionType(), domain.getYear());
-		Date sessionStartDate= session.getStartDate();
-		Date sessionEndDate=session.getEndDate();
-		Calendar start = Calendar.getInstance();
-		start.setTime(sessionStartDate);    	
-		Calendar end = Calendar.getInstance();
-		end.setTime(sessionEndDate);
-		List<Date> answeringDates=new ArrayList<Date>();
-		List<String> aDates=new ArrayList<String>();
-		List<String> submissionDates=new ArrayList<String>();
-		List<String> lastSendingDatesToDepartment=new ArrayList<String>();
-		List<String> lastReceivingDatesFromDepartment=new ArrayList<String>();
-		List<String> yaadiPrintingDates=new ArrayList<String>();
-		List<String> yaadiReceivingDates=new ArrayList<String>();
-		List<String> suchhiPrintingDates=new ArrayList<String>();
-		List<String> suchhiReceivingDates=new ArrayList<String>();
-		List<String> suchhiDistributionDates=new ArrayList<String>();
-		List<String> speakerSendingDates=new ArrayList<String>();
-		List<String> selects = new ArrayList<String>();
-		SimpleDateFormat sf=new SimpleDateFormat("EEEE");
-		CustomParameter parameter = CustomParameter.findByName(
+    	Session session =Session.findSessionByHouseTypeSessionTypeYear(domain.getHouseType(), domain.getSessionType(), domain.getYear());
+    	Date sessionStartDate= session.getStartDate();
+    	Date sessionEndDate=session.getEndDate();
+    	Calendar start = Calendar.getInstance();
+    	start.setTime(sessionStartDate);    	
+    	Calendar end = Calendar.getInstance();
+    	end.setTime(sessionEndDate);
+    	List<Date> answeringDates=new ArrayList<Date>();
+    	List<String> aDates=new ArrayList<String>();
+    	List<String> submissionDates=new ArrayList<String>();
+    	List<String> lastSendingDatesToDepartment=new ArrayList<String>();
+    	List<String> lastReceivingDatesFromDepartment=new ArrayList<String>();
+    	List<String> yaadiPrintingDates=new ArrayList<String>();
+    	List<String> yaadiReceivingDates=new ArrayList<String>();
+    	List<String> suchhiPrintingDates=new ArrayList<String>();
+    	List<String> suchhiReceivingDates=new ArrayList<String>();
+    	List<String> suchhiDistributionDates=new ArrayList<String>();
+    	List<String> speakerSendingDates=new ArrayList<String>();
+    	List<String> selects = new ArrayList<String>();
+    	SimpleDateFormat sf=new SimpleDateFormat("EEEE");
+    	CustomParameter parameter = CustomParameter.findByName(
 				CustomParameter.class, "SERVER_DATEFORMAT", "");
-		SimpleDateFormat dateFormat=null;
-		if(domain.getLocale().equals("mr_IN")){
-			dateFormat=new SimpleDateFormat(parameter.getValue(),new Locale("hi","IN"));
+    	SimpleDateFormat dateFormat=null;
+	if(domain.getLocale().equals("mr_IN")){
+		dateFormat=new SimpleDateFormat(parameter.getValue(),new Locale("hi","IN"));
 		}
 		else{
 			dateFormat=new SimpleDateFormat(parameter.getValue(),new Locale(domain.getLocale()));
 		}
 		dateFormat.setLenient(true);
-
-		for (; !start.after(end); start.add(Calendar.DATE, 1)) {
-			Date current = start.getTime();
-			String select="false";	    
-			switch(domain.getNumber())
-			{
-			case 1:
-
-				if(sf.format(current).equals("Monday")){
-					answeringDates.add(current);
-					aDates.add(dateFormat.format(current));
-					QuestionDates qd = domain.findQuestionDatesByGroupAndAnsweringDate(current);//QuestionDates.findByFieldName (QuestionDates.class, "answeringDate", current, domain.getLocale());
-					if(qd!=null) {
-						select = "true";
-					}  
-					selects.add(select);
-				}
-				break;
-
-			case 2:
-
-				if(sf.format(current).equals("Tuesday")){
-					answeringDates.add(current);
-					aDates.add(dateFormat.format(current));
-					QuestionDates qd = domain.findQuestionDatesByGroupAndAnsweringDate(current);//QuestionDates.findByFieldName(QuestionDates.class, "answeringDate", current, domain.getLocale());
-					if(qd!=null) {
-						select = "true";
-					}  
-					selects.add(select);
-				}
-				break;
-
-			case 3:
-
-				if(sf.format(current).equals("Wednesday")){
-					answeringDates.add(current);
-					aDates.add(dateFormat.format(current));
-					QuestionDates qd = domain.findQuestionDatesByGroupAndAnsweringDate(current);//QuestionDates.findByFieldName(QuestionDates.class, "answeringDate", current, domain.getLocale());
-					if(qd!=null) {
-						select = "true";
-					}  
-					selects.add(select);
-				}
-				break;
-
-			case 4:
-
-				if(sf.format(current).equals("Thursday")){
-					answeringDates.add(current);
-					aDates.add(dateFormat.format(current));
-					QuestionDates qd = domain.findQuestionDatesByGroupAndAnsweringDate(current);//QuestionDates.findByFieldName(QuestionDates.class, "answeringDate", current, domain.getLocale());
-					if(qd!=null) {
-						select = "true";
-					}  
-					selects.add(select);
-				}
-				break;
-
-			case 5:
-
-				if(sf.format(current).equals("Friday")){
-					answeringDates.add(current);
-					aDates.add(dateFormat.format(current));
-					QuestionDates qd = domain.findQuestionDatesByGroupAndAnsweringDate(current);//QuestionDates.findByFieldName(QuestionDates.class, "answeringDate", current, domain.getLocale());
-					if(qd!=null) {
-						select = "true";
-					}  
-					selects.add(select);
-				}
-				break;
-
-			}    	    
-		}    	
-		model.addAttribute("answeringDates", aDates);
-		model.addAttribute("selects", selects);
-		for(Date d:answeringDates){
-			Calendar submissionDate = Calendar.getInstance();
-			submissionDate.setTime(d);
-			submissionDate.add(Calendar.DATE, -31);
-			Date sDate=submissionDate.getTime();
-			sDate = Holiday.getLastWorkingDate(sDate, domain.getLocale());
-
-			Calendar lastReceivingDatesFromDepartment1= Calendar.getInstance();
-			lastReceivingDatesFromDepartment1.setTime(d);
-			lastReceivingDatesFromDepartment1.add(Calendar.DATE, -6);
-			Date lRDateFromDepartment=lastReceivingDatesFromDepartment1.getTime();
-			lRDateFromDepartment = Holiday.getLastWorkingDate(lRDateFromDepartment, domain.getLocale());
-
-			Calendar lastSendingDateToDepartment= Calendar.getInstance();
-			lastSendingDateToDepartment.setTime(d);
-			lastSendingDateToDepartment.add(Calendar.DATE, -24);
-			Date lSendingDateToDepartment=lastSendingDateToDepartment.getTime();
-			lSendingDateToDepartment = Holiday.getLastWorkingDate(lSendingDateToDepartment, domain.getLocale());
-
-			Calendar yaadiPrintingDate= Calendar.getInstance();
-			yaadiPrintingDate.setTime(d);
-			yaadiPrintingDate.add(Calendar.DATE, -5);
-			Date yPrintingDate =yaadiPrintingDate.getTime();
-			yPrintingDate = Holiday.getLastWorkingDate(yPrintingDate, domain.getLocale());
-
-			Calendar yaadiReceivingDate= Calendar.getInstance();
-			yaadiReceivingDate.setTime(d);
-			yaadiReceivingDate.add(Calendar.DATE, -2);
-			Date yReceivingDate=yaadiReceivingDate.getTime();
-			yReceivingDate = Holiday.getLastWorkingDate(yReceivingDate, domain.getLocale());
-
-			Calendar suchhiPrintingDate= Calendar.getInstance();
-			suchhiPrintingDate.setTime(d);
-			suchhiPrintingDate.add(Calendar.DATE,-3);
-			Date sPrintingDate=suchhiPrintingDate.getTime();
-			sPrintingDate = Holiday.getLastWorkingDate(sPrintingDate, domain.getLocale());
-
-			Calendar suchhiReceivingDate= Calendar.getInstance();
-			suchhiReceivingDate.setTime(d);
-			suchhiReceivingDate.add(Calendar.DATE,-2);
-			Date sReceivingDate=suchhiReceivingDate.getTime();
-			sReceivingDate = Holiday.getLastWorkingDate(sReceivingDate, domain.getLocale());
-
-			Calendar suchhiDistributionDate= Calendar.getInstance();
-			suchhiDistributionDate.setTime(d);
-			suchhiDistributionDate.add(Calendar.DATE, -1);
-			Date sDistributionDate=suchhiDistributionDate.getTime();
-			sDistributionDate = Holiday.getLastWorkingDate(sDistributionDate, domain.getLocale());
-
-			Calendar speakerSendingDate= Calendar.getInstance();
-			speakerSendingDate.setTime(d);
-			speakerSendingDate.add(Calendar.DATE, -26);
-			Date sSendingDate=speakerSendingDate.getTime();
-			sSendingDate = Holiday.getLastWorkingDate(sSendingDate, domain.getLocale());
-
-			QuestionDates qd = domain.findQuestionDatesByGroupAndAnsweringDate(d);
-			if(qd!=null){
-				if(qd.getFinalSubmissionDate()!=null) {
-					submissionDates.add(dateFormat.format(qd.getFinalSubmissionDate()));
-				}
-				else {
-					submissionDates.add("");
-				}
-				//    			lastSendingDatesToDepartment.add(dateFormat.format(qd.getLastSendingDateToDepartment()));
-				//    			lastReceivingDatesFromDepartment.add(dateFormat.format(qd.getLastReceivingDateFromDepartment()));
-				//    			yaadiPrintingDates.add(dateFormat.format(qd.getYaadiPrintingDate()));
-				//    			yaadiReceivingDates.add(dateFormat.format(qd.getYaadiReceivingDate()));
-				//    			suchhiPrintingDates.add(dateFormat.format(qd.getSuchhiPrintingDate()));
-				//    			suchhiReceivingDates.add(dateFormat.format(qd.getSuchhiReceivingDate()));
-				//    			suchhiDistributionDates.add(dateFormat.format(qd.getSuchhiDistributionDate()));
-				if(qd.getLastSendingDateToDepartment()!=null) {
-					lastSendingDatesToDepartment.add(dateFormat.format(qd.getLastSendingDateToDepartment()));
-				}
-				else {
-					lastSendingDatesToDepartment.add("");
-				}
-				if(qd.getLastReceivingDateFromDepartment()!=null) {
-					lastReceivingDatesFromDepartment.add(dateFormat.format(qd.getLastReceivingDateFromDepartment()));
-				}
-				else {
-					lastReceivingDatesFromDepartment.add("");
-				}
-				if(qd.getYaadiPrintingDate()!=null) {
-					yaadiPrintingDates.add(dateFormat.format(qd.getYaadiPrintingDate()));
-				}
-				else {
-					yaadiPrintingDates.add("");
-				}
-				if(qd.getYaadiReceivingDate()!=null) {
-					yaadiReceivingDates.add(dateFormat.format(qd.getYaadiReceivingDate()));
-				}
-				else {
-					yaadiReceivingDates.add("");
-				}
-				if(qd.getSuchhiPrintingDate()!=null) {
-					suchhiPrintingDates.add(dateFormat.format(qd.getSuchhiPrintingDate()));
-				}
-				else {
-					suchhiPrintingDates.add("");
-				}
-				if(qd.getSuchhiReceivingDate()!=null) {
-					suchhiReceivingDates.add(dateFormat.format(qd.getSuchhiReceivingDate()));
-				}
-				else {
-					suchhiReceivingDates.add("");
-				}
-				if(qd.getSuchhiDistributionDate()!=null) {
-					suchhiDistributionDates.add(dateFormat.format(qd.getSuchhiDistributionDate()));
-				}
-				else {
-					suchhiDistributionDates.add("");
-				}    
-				if(qd.getSpeakerSendingDate()!=null) {
-					speakerSendingDates.add(dateFormat.format(qd.getSpeakerSendingDate()));
-				}
-				else {
-					speakerSendingDates.add("");
-				}    
-			}
-			else{
-				submissionDates.add(dateFormat.format(sDate));
-				lastReceivingDatesFromDepartment.add(dateFormat.format(lRDateFromDepartment));
-				lastSendingDatesToDepartment.add(dateFormat.format(lSendingDateToDepartment));
-				yaadiPrintingDates.add(dateFormat.format(yPrintingDate));
-				yaadiReceivingDates.add(dateFormat.format(yReceivingDate));
-				suchhiPrintingDates.add(dateFormat.format(sPrintingDate));
-				suchhiReceivingDates.add(dateFormat.format(sReceivingDate));
-				suchhiDistributionDates.add(dateFormat.format(sDistributionDate));
-				speakerSendingDates.add(dateFormat.format(sSendingDate));
-				//    			lastSendingDatesToDepartment.add("");
-				//    			lastReceivingDatesFromDepartment.add("");
-				//    			yaadiPrintingDates.add("");
-				//    			yaadiReceivingDates.add("");
-				//    			suchhiPrintingDates.add("");
-				//    			suchhiReceivingDates.add("");
-				//    			suchhiDistributionDates.add("");
-			}    		
-		}    	
-		model.addAttribute("submissionDates",submissionDates);
-		model.addAttribute("lastSendingDatesToDepartment",lastSendingDatesToDepartment);
-		model.addAttribute("lastReceivingDatesFromDepartment",lastReceivingDatesFromDepartment);
-		model.addAttribute("yaadiPrintingDates",yaadiPrintingDates);
-		model.addAttribute("yaadiReceivingDates",yaadiReceivingDates);
-		model.addAttribute("suchhiPrintingDates",suchhiPrintingDates);
-		model.addAttribute("suchhiReceivingDates",suchhiReceivingDates);
-		model.addAttribute("suchhiDistributionDates",suchhiDistributionDates);
-		model.addAttribute("speakerSendingDates",speakerSendingDates);
-		model.addAttribute("dateCount",answeringDates.size());
-		model.addAttribute("domain", domain);
+		
+    	for (; !start.after(end); start.add(Calendar.DATE, 1)) {
+    	    Date current = start.getTime();
+    	    String select="false";	    
+    	    switch(domain.getNumber())
+    	    {
+    	    case 1:
+    	    	
+    	    	if(sf.format(current).equals("Monday")){
+    	    		answeringDates.add(current);
+    	    		aDates.add(dateFormat.format(current));
+    	    		QuestionDates qd = domain.findQuestionDatesByGroupAndAnsweringDate(current);//QuestionDates.findByFieldName (QuestionDates.class, "answeringDate", current, domain.getLocale());
+    	    		if(qd!=null) {
+    	    			select = "true";
+    	    		}  
+    	    		selects.add(select);
+    	    	}
+    	    	break;
+    	    	
+    	    case 2:
+    	    	
+    	    	if(sf.format(current).equals("Tuesday")){
+    	    		answeringDates.add(current);
+    	    		aDates.add(dateFormat.format(current));
+    	    		QuestionDates qd = domain.findQuestionDatesByGroupAndAnsweringDate(current);//QuestionDates.findByFieldName(QuestionDates.class, "answeringDate", current, domain.getLocale());
+    	    		if(qd!=null) {
+    	    			select = "true";
+    	    		}  
+    	    		selects.add(select);
+       	    	}
+    	    	break;
+    	    	
+    	    case 3:
+    	    	
+    	    	if(sf.format(current).equals("Wednesday")){
+    	    		answeringDates.add(current);
+    	    		aDates.add(dateFormat.format(current));
+    	    		QuestionDates qd = domain.findQuestionDatesByGroupAndAnsweringDate(current);//QuestionDates.findByFieldName(QuestionDates.class, "answeringDate", current, domain.getLocale());
+    	    		if(qd!=null) {
+    	    			select = "true";
+    	    		}  
+    	    		selects.add(select);
+       	    	}
+    	    	break;
+    	    	
+    	    case 4:
+    	    	
+    	    	if(sf.format(current).equals("Thursday")){
+    	    		answeringDates.add(current);
+    	    		aDates.add(dateFormat.format(current));
+    	    		QuestionDates qd = domain.findQuestionDatesByGroupAndAnsweringDate(current);//QuestionDates.findByFieldName(QuestionDates.class, "answeringDate", current, domain.getLocale());
+    	    		if(qd!=null) {
+    	    			select = "true";
+    	    		}  
+    	    		selects.add(select);
+    	    	}
+    	    	break;
+    	    	
+    	    case 5:
+    	    	
+    	    	if(sf.format(current).equals("Friday")){
+    	    		answeringDates.add(current);
+    	    		aDates.add(dateFormat.format(current));
+    	    		QuestionDates qd = domain.findQuestionDatesByGroupAndAnsweringDate(current);//QuestionDates.findByFieldName(QuestionDates.class, "answeringDate", current, domain.getLocale());
+    	    		if(qd!=null) {
+    	    			select = "true";
+    	    		}  
+    	    		selects.add(select);
+       	    	}
+    	    	break;
+    	    
+    	    }    	    
+    	}    	
+    	model.addAttribute("answeringDates", aDates);
+    	model.addAttribute("selects", selects);
+    	for(Date d:answeringDates){
+    		Calendar dateField = Calendar.getInstance();
+    		
+    		int difference = Integer.parseInt(session.getParamater("questions_starred_finalSubmissionDate_difference"));
+    		Date submissionDate = Holiday.getLastWorkingDateFrom(dateField, d, difference, domain.getLocale());
+    		
+    		difference = Integer.parseInt(session.getParamater("questions_starred_lastReceivingDateFromDepartment_difference"));
+    		Date lastReceivingDateFromDepartment = Holiday.getLastWorkingDateFrom(dateField, d, -6, domain.getLocale());
+    		
+    		difference = Integer.parseInt(session.getParamater("questions_starred_lastSendingDateToDepartment_difference"));
+    		Date lastSendingDateToDepartment = Holiday.getLastWorkingDateFrom(dateField, d, -24, domain.getLocale());
+    		
+    		difference = Integer.parseInt(session.getParamater("questions_starred_yaadiPrintingDate_difference"));
+    		Date yaadiPrintingDate = Holiday.getLastWorkingDateFrom(dateField, d, -5, domain.getLocale());
+    		
+    		difference = Integer.parseInt(session.getParamater("questions_starred_yaadiReceivingDate_difference"));
+    		Date yaadiReceivingDate = Holiday.getLastWorkingDateFrom(dateField, d, -2, domain.getLocale());
+    		
+    		difference = Integer.parseInt(session.getParamater("questions_starred_suchhiPrintingDate_difference"));
+    		Date suchhiPrintingDate = Holiday.getLastWorkingDateFrom(dateField, d, -3, domain.getLocale());
+    		
+    		difference = Integer.parseInt(session.getParamater("questions_starred_suchhiReceivingDate_difference"));
+    		Date suchhiReceivingDate = Holiday.getLastWorkingDateFrom(dateField, d, -2, domain.getLocale());
+    		
+    		difference = Integer.parseInt(session.getParamater("questions_starred_suchhiDistributionDate_difference"));
+    		Date suchhiDistributionDate = Holiday.getLastWorkingDateFrom(dateField, d, -1, domain.getLocale());
+   		
+    		difference = Integer.parseInt(session.getParamater("questions_starred_speakerSendingDate_difference"));
+    		Date speakerSendingDate = Holiday.getLastWorkingDateFrom(dateField, d, -26, domain.getLocale());
+    		
+    		QuestionDates qd = domain.findQuestionDatesByGroupAndAnsweringDate(d);
+    		if(qd!=null){
+    			if(qd.getFinalSubmissionDate()!=null) {
+    				submissionDates.add(dateFormat.format(qd.getFinalSubmissionDate()));
+    			}
+    			else {
+    				submissionDates.add("");
+    			}
+//    			lastSendingDatesToDepartment.add(dateFormat.format(qd.getLastSendingDateToDepartment()));
+//    			lastReceivingDatesFromDepartment.add(dateFormat.format(qd.getLastReceivingDateFromDepartment()));
+//    			yaadiPrintingDates.add(dateFormat.format(qd.getYaadiPrintingDate()));
+//    			yaadiReceivingDates.add(dateFormat.format(qd.getYaadiReceivingDate()));
+//    			suchhiPrintingDates.add(dateFormat.format(qd.getSuchhiPrintingDate()));
+//    			suchhiReceivingDates.add(dateFormat.format(qd.getSuchhiReceivingDate()));
+//    			suchhiDistributionDates.add(dateFormat.format(qd.getSuchhiDistributionDate()));
+    			if(qd.getLastSendingDateToDepartment()!=null) {
+    				lastSendingDatesToDepartment.add(dateFormat.format(qd.getLastSendingDateToDepartment()));
+    			}
+    			else {
+    				lastSendingDatesToDepartment.add("");
+    			}
+    			if(qd.getLastReceivingDateFromDepartment()!=null) {
+    				lastReceivingDatesFromDepartment.add(dateFormat.format(qd.getLastReceivingDateFromDepartment()));
+    			}
+    			else {
+    				lastReceivingDatesFromDepartment.add("");
+    			}
+    			if(qd.getYaadiPrintingDate()!=null) {
+    				yaadiPrintingDates.add(dateFormat.format(qd.getYaadiPrintingDate()));
+    			}
+    			else {
+    				yaadiPrintingDates.add("");
+    			}
+    			if(qd.getYaadiReceivingDate()!=null) {
+    				yaadiReceivingDates.add(dateFormat.format(qd.getYaadiReceivingDate()));
+    			}
+    			else {
+    				yaadiReceivingDates.add("");
+    			}
+    			if(qd.getSuchhiPrintingDate()!=null) {
+    				suchhiPrintingDates.add(dateFormat.format(qd.getSuchhiPrintingDate()));
+    			}
+    			else {
+    				suchhiPrintingDates.add("");
+    			}
+    			if(qd.getSuchhiReceivingDate()!=null) {
+    				suchhiReceivingDates.add(dateFormat.format(qd.getSuchhiReceivingDate()));
+    			}
+    			else {
+    				suchhiReceivingDates.add("");
+    			}
+    			if(qd.getSuchhiDistributionDate()!=null) {
+    				suchhiDistributionDates.add(dateFormat.format(qd.getSuchhiDistributionDate()));
+    			}
+    			else {
+    				suchhiDistributionDates.add("");
+    			}    
+    			if(qd.getSpeakerSendingDate()!=null) {
+    				speakerSendingDates.add(dateFormat.format(qd.getSpeakerSendingDate()));
+    			}
+    			else {
+    				speakerSendingDates.add("");
+    			}    
+    		}
+    		else{
+    			submissionDates.add(dateFormat.format(submissionDate));
+    			lastReceivingDatesFromDepartment.add(dateFormat.format(lastReceivingDateFromDepartment));
+    			lastSendingDatesToDepartment.add(dateFormat.format(lastSendingDateToDepartment));
+    			yaadiPrintingDates.add(dateFormat.format(yaadiPrintingDate));
+    			yaadiReceivingDates.add(dateFormat.format(yaadiReceivingDate));
+    			suchhiPrintingDates.add(dateFormat.format(suchhiPrintingDate));
+    			suchhiReceivingDates.add(dateFormat.format(suchhiReceivingDate));
+    			suchhiDistributionDates.add(dateFormat.format(suchhiDistributionDate));
+    			speakerSendingDates.add(dateFormat.format(speakerSendingDate));
+//    			lastSendingDatesToDepartment.add("");
+//    			lastReceivingDatesFromDepartment.add("");
+//    			yaadiPrintingDates.add("");
+//    			yaadiReceivingDates.add("");
+//    			suchhiPrintingDates.add("");
+//    			suchhiReceivingDates.add("");
+//    			suchhiDistributionDates.add("");
+    		}    		
+    	}    	
+    	model.addAttribute("submissionDates",submissionDates);
+    	model.addAttribute("lastSendingDatesToDepartment",lastSendingDatesToDepartment);
+    	model.addAttribute("lastReceivingDatesFromDepartment",lastReceivingDatesFromDepartment);
+    	model.addAttribute("yaadiPrintingDates",yaadiPrintingDates);
+    	model.addAttribute("yaadiReceivingDates",yaadiReceivingDates);
+    	model.addAttribute("suchhiPrintingDates",suchhiPrintingDates);
+    	model.addAttribute("suchhiReceivingDates",suchhiReceivingDates);
+    	model.addAttribute("suchhiDistributionDates",suchhiDistributionDates);
+    	model.addAttribute("speakerSendingDates",speakerSendingDates);
+	    model.addAttribute("dateCount",answeringDates.size());
+	    model.addAttribute("domain", domain);
 		return urlPattern+"/"+"edit";
-	}
+    }
 
 
 	/**

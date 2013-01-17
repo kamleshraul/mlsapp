@@ -43,7 +43,11 @@ function initControls(){
 			$(".datemask").mask("99/99/9999");
 		}
 	});
-	$('.datetimemask').mask("99/99/9999 99:99:99");
+	$('.datetimemask').focus(function(){		
+		if($(this).val()==""){
+			$(".datetimemask").mask("99/99/9999 99:99:99");
+		}
+	});
 	$(':input:visible:not([readonly]):first').focus();
 	
 	$('.wysiwyg').wysiwyg({

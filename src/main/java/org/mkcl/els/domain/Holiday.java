@@ -106,7 +106,7 @@ public class Holiday extends BaseDomain implements Serializable {
         final HolidayRepository repository = new Holiday().holidayRepository;
         if (repository == null) {
             throw new IllegalStateException(
-                    "DocumentRepository has not been injected");
+                    "HolidayRepository has not been injected");
         }
         return repository;
     }
@@ -201,48 +201,45 @@ public class Holiday extends BaseDomain implements Serializable {
 		else {
 			return null;
 		}		
-	}
+	} 
     
-    public static Date getLastWorkingDate(Date date, String locale) {
-    	if(date != null) {	
-//    		SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy",new Locale(locale));
-//			String dateStr = dateFormat.format(date);	
-//			try {
-//				date = dateFormat.parse(dateStr);
-//			} catch (ParseException e) {
-//				// TODO Auto-generated catch block
-//				e.printStackTrace();
-//			}
-			Calendar dateField = Calendar.getInstance();  
-			dateField.setTime(date); 
+    public static Date getLastWorkingDateFrom(Calendar dateField, Date fromDate, int difference, String locale) {
+    	if(fromDate != null) { 
+    		dateField.setTime(fromDate); 
+    		if(difference != 0){     			
+    			dateField.add(Calendar.DATE, difference);
+    		}
+			
+    		Date checkDate = dateField.getTime();
+    		dateField.setTime(checkDate); 
 	        SimpleDateFormat sf=new SimpleDateFormat("EEEE");
-			while(Holiday.isHolidayOnDate(date, locale)){
-    			if(sf.format(date).equals("Monday")){
-    				dateField.setTime(date);
+			while(Holiday.isHolidayOnDate(checkDate, locale)){
+    			if(sf.format(checkDate).equals("Monday")){
+    				dateField.setTime(checkDate);
     				dateField.add(Calendar.DATE, -2);
-    				date=dateField.getTime();
-    				if(Holiday.isHolidayOnSecondOrForthSaturday(date, locale)){
-    					dateField.setTime(date);
+    				checkDate=dateField.getTime();
+    				if(Holiday.isHolidayOnSecondOrForthSaturday(checkDate, locale)){
+    					dateField.setTime(checkDate);
         				dateField.add(Calendar.DATE, -1);
-        				date=dateField.getTime();
+        				checkDate=dateField.getTime();
     				}
-    			} else if(sf.format(date).equals("Sunday")){
-    				dateField.setTime(date);
+    			} else if(sf.format(checkDate).equals("Sunday")){
+    				dateField.setTime(checkDate);
     				dateField.add(Calendar.DATE, -1);
-    				date=dateField.getTime();
-    				if(Holiday.isHolidayOnSecondOrForthSaturday(date, locale)){
-    					dateField.setTime(date);
+    				checkDate=dateField.getTime();
+    				if(Holiday.isHolidayOnSecondOrForthSaturday(checkDate, locale)){
+    					dateField.setTime(checkDate);
         				dateField.add(Calendar.DATE, -1);
-        				date=dateField.getTime();
+        				checkDate=dateField.getTime();
     				}
     			} else {
-    				dateField.setTime(date);
+    				dateField.setTime(checkDate);
     				dateField.add(Calendar.DATE, -1);
-    				date=dateField.getTime();
+    				checkDate=dateField.getTime();
     			}    			
     		}
-			return date;
-    	}
+			return checkDate;
+    	} 
     	else {
     		return null;
     	}

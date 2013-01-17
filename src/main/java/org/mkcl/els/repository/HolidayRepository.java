@@ -19,9 +19,8 @@ import org.springframework.stereotype.Repository;
 
 
 /**
- * The Class DocumentRepository.
- * @author amitd
- * @author sandeeps
+ * The Class HolidayRepository.
+ * @author dhananjayb 
  * @version v1.0.0
  */
 @Repository
