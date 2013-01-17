@@ -42,9 +42,6 @@
 				
 				$('#suchhiDistributionDate'+i).val("");
 				$('#suchhiDistributionDate'+i).attr('disabled', true);
-				
-				$('#speakerSendingDate'+i).val("");
-				$('#speakerSendingDate'+i).attr('disabled', true);
 			};			
 		};
 		
@@ -77,9 +74,6 @@
 				
 				$('#suchhiDistributionDate'+j).attr('disabled', false);
 				$('#suchhiDistributionDate'+j).val($('#suchhiDistributionDateHidden'+j).val());
-				
-				$('#speakerSendingDate'+j).attr('disabled', false);
-				$('#speakerSendingDate'+j).val($('#speakerSendingDateHidden'+j).val());
 			}
 			else{
 				$('#submissionDate'+j).attr('disabled', true);
@@ -112,10 +106,6 @@
 				$('#suchhiDistributionDateHidden'+j).val($('#suchhiDistributionDate'+j).val());
 				$('#suchhiDistributionDate'+j).attr('disabled', true);
 				$('#suchhiDistributionDate'+j).val("");
-				
-				$('#sspeakerSendingDateHidden'+j).val($('#speakerSendingDate'+j).val());
-				$('#speakerSendingDate'+j).attr('disabled', true);
-				$('#speakerSendingDate'+j).val("");
 			};			
 		});
 		
@@ -214,17 +204,6 @@
 						<tr></tr>
 						
 						<tr>
-							<th><label style="width: 250px;"><spring:message code="group.rotationorder.speakerSendingDate" text="Last Sending Date to Speaker"/></label></th>
-							<c:forEach begin="1" end="${dateCount}" varStatus="i">
-							<td>							
-								<input style="width: 70px;" class="datemask sText" type="text" id="speakerSendingDate${i.count-1}" name="speakerSendingDate${i.count-1}" value="${speakerSendingDates[i.count-1]}">	
-								<input type="hidden" id="speakerSendingDateHidden${i.count-1}" value="${speakerSendingDates[i.count-1]}">	
-							</td>
-							</c:forEach>
-						</tr>						
-						<tr></tr>
-						
-						<tr>
 							<th><label style="width: 250px;"><spring:message code="group.rotationorder.lastSendingDateToDepartment" text="Last Sending Date To Department"/></label></th>
 							<c:forEach begin="1" end="${dateCount}" varStatus="i">
 							<td>							
@@ -300,8 +279,6 @@
 							</c:forEach>
 						</tr>						
 						<tr></tr>
-						
-						
 					
 					</table>
 				</td>
