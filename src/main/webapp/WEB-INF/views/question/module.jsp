@@ -1,3 +1,5 @@
+<%@page import="org.mkcl.els.common.util.FormaterUtil"%>
+<%@page import="java.text.NumberFormat"%>
 <%@ include file="/common/taglibs.jsp" %>
 <html>
 <head>
@@ -5,236 +7,105 @@
 	<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
 	<script type="text/javascript">
 		$(document).ready(function(){	
+			/*Tooltip*/
 			$(".toolTip").hide();					
-			//here we are trying to add date mask in grid search when field names
-			//ends with Date
+			/**** here we are trying to add date mask in grid search when field names ends with date ****/
 			$(".sf .field").change(function(){
 				var field=$(this).val();
 				if(field.indexOf("Date")!=-1){
 					$(".sf .data").mask("99/99/9999");
 				}
-			});			
+			});	
+			/**** displaying grid ****/		
 			$('#list_tab').click(function(){
-				$("#selectionDiv1").show();
-				$("#selectionDiv2").show();
-				$("#selectionDiv3").show();				
+				$("#selectionDiv1").show();								
 				showQuestionList();
-			});	
-			$('#details_tab').click(function(){
-				$("#selectionDiv1").hide();
-				$("#selectionDiv2").hide();
-				$("#selectionDiv3").hide();				
-				editQuestion();
-			});
-			$('#chart_tab').click(function(){
-				$("#selectionDiv1").hide();
-				$("#selectionDiv2").hide();
-				$("#selectionDiv3").hide();		
-				viewChart();
-			});	
-			$('#ballot_tab').click(function(){
-				$("#selectionDiv1").hide();
-				$("#selectionDiv2").hide();
-				$("#selectionDiv3").hide();					
-				viewBallot();
-			});
-			/*$('#attendance_tab').click(function(){
-				$("#selectionDiv1").hide();
-				$("#selectionDiv2").hide();
-				$("#selectionDiv3").hide();					
-				markAttendance("presentees");
-			});*/	
-			$('#mark_attendance').click(function(){
-				$("#selectionDiv1").hide();
-				$("#selectionDiv2").hide();
-				$("#selectionDiv3").hide();					
-				markAttendance("presentees");
-			});		
-			$("#view_chart").click(function() {
-				$("#selectionDiv1").hide();
-				$("#selectionDiv2").hide();
-				$("#selectionDiv3").hide();					
-				viewChart();
-			});	
-				
-			$("#create_chart").click(function() {
-				$.blockUI({ message: '<img src="./resources/images/waitAnimated.gif" />' });
-				var parameters = $("#gridURLParams").val() + "&answeringDate=" + $("#selectedAnsweringDate").val();
-				var resourceURL = 'question/chart/create?' + parameters;
-				$.get(resourceURL, function(data) {
-					var displayMessage = data;
-					if(data == "CREATED") {
-						displayMessage = "Chart is successfully created.";
-					}
-					else if(data == "ALREADY_EXISTS") {
-						displayMessage = "Chart already exists.";
-					}
-					else if(data == "PREVIOUS_CHART_IS_NOT_PROCESSED") {
-						displayMessage = "Previos Chart is not Processed. Kindly process it before creating a new Chart.";
-					}
-					$.unblockUI();
-					$.fancybox.open(displayMessage);
-				});
-			}); 
-			
-			$("#view_ballot").click(function() {
-				$("#selectionDiv1").hide();
-				$("#selectionDiv2").hide();
-				$("#selectionDiv3").hide();					
-				viewBallot();
-			});	
-				
-			$("#create_ballot").click(function() {
-				$.blockUI({ message: '<img src="./resources/images/waitAnimated.gif" />' });
-				var parameters = $("#gridURLParams").val() + "&answeringDate=" + $("#selectedAnsweringDate").val();
-				var resourceURL = 'question/ballot/create?' + parameters;
-				$.get(resourceURL, function(data) {
-					var displayMessage = data;
-					if(data == "CREATED") {
-						displayMessage = "Ballot is successfully created.";
-					}
-					else if(data == "ALREADY_EXISTS") {
-						displayMessage = "Ballot already exists.";
-					}
-					$.unblockUI();
-					$.fancybox.open(displayMessage);
-				});
-				
-			});		
-			$("#createMemberballot").click(function(){
-				createMemberBallot();
-			});	
-			$("#viewMemberballot").click(function(){
-				$("#selectionDiv1").hide();
-				$("#selectionDiv2").hide();
-				$("#selectionDiv3").hide();	
-				viewMemberBallot();
-			});	
-			$("#memberballot_choices").click(function(){
-				$("#selectionDiv1").hide();
-				$("#selectionDiv2").hide();
-				$("#selectionDiv3").hide();	
-				viewMemberBallotChoice();
 			});			
-			//If house type changes then we need to change the value of selected house type,grid url param
-			// and reload the grid			
+			/**** house type changes then reload grid****/			
 			$("#selectedHouseType").change(function(){
 				var value=$(this).val();
-				if(value!=""){
-					if($("#selectedGroup").length>0){
-					loadSessionGroups();					
-					}else{
-					reloadQuestionGrid();
-					}
+				if(value!=""){					
+					reloadQuestionGrid();					
 				}	
 			});	
-			//If session year changes then we need to change the value of selected session year,grid url param
-			// and reload the grid		
+			/**** session year changes then reload grid****/			
 			$("#selectedSessionYear").change(function(){
 				var value=$(this).val();
-				if(value!=""){
-					if($("#selectedGroup").length>0){
-					loadSessionGroups();					
-					}else{
-					reloadQuestionGrid();
-					}
+				if(value!=""){					
+					reloadQuestionGrid();					
 				}			
 			});
-			//If session type changes then we need to change the value of selected session type,grid url param
-			// and reload the grid	
+			/**** session type changes then reload grid****/
 			$("#selectedSessionType").change(function(){
 				var value=$(this).val();
-				if(value!=""){
-					if($("#selectedGroup").length>0){
-					loadSessionGroups();					
-					}else{
-					reloadQuestionGrid();
-					}
-				}	
+				if(value!=""){					
+					reloadQuestionGrid();					
+				}			
 			});
-			//If question type changes then we need to change the value of selected question type,grid url param
-			// and reload the grid	
+			/**** question type changes then reload grid****/			
 			$("#selectedQuestionType").change(function(){
 				var value=$(this).val();
 				if(value!=""){				
 				reloadQuestionGrid();
 				}
 			});	
-
+			/**** status changes then reload grid****/			
+			$("#selectedStatus").change(function(){
+				var value=$(this).val();
+				if(value!=""){				
+				reloadQuestionGrid();
+				}
+			});
+			/**** group changes then reload grid ****/
 			$("#selectedGroup").change(function(){
 				var value=$(this).val();
 				if(value!=""){				
-					loadAnsweringDates(value)
+				reloadQuestionGrid();
 				}
-			});	
-
-			$("#selectPreBallot").change(function(){
+			});		
+			/**** Chart Tab ****/
+			$('#chart_tab').click(function(){
 				$("#selectionDiv1").hide();
-				$("#selectionDiv2").hide();
-				$("#selectionDiv3").hide();	
-				var val=$(this).val();
-				if(val!='-'){
-					preBallot(val);
-				}else{
-					$("#selectionDiv1").show();
-					$("#selectionDiv2").show();
-					$("#selectionDiv3").show();	
-				}				
-			});	
-			/*$("#preballot_tab").click(function(){
+				viewChart();
+			});		
+			/**** Ballot Tab ****/
+			$('#ballot_tab').click(function(){
 				$("#selectionDiv1").hide();
-				$("#selectionDiv2").hide();
-				$("#selectionDiv3").hide();	
-				var val=$("#selectPreBallot").val();
-				if(val!='-'){
-					preBallot(val);
-				}else{
-					$("#selectionDiv1").show();
-					$("#selectionDiv2").show();
-					$("#selectionDiv3").show();	
-				}	
-			});*/
-			$(document).keydown(function (e){
-				if(e.which==78 && e.ctrlKey){
-					newQuestion();
-				}
-				if(e.which==83 && e.ctrlKey){
-					$('#submit').trigger('click');
-				}
-				if(e.which==76 && e.ctrlKey){
-					showQuestionList();
-				}
-				if(e.which==79 && e.ctrlKey){
-					editQuestion($('#key').val());
-				}
-				if(e.which==8 && e.ctrlKey){
-					deleteQuestion($('#key').val());
-				}
-				
-				if(e.keyCode == 38 || e.keyCode == 40){
-					scrollRowsInGrid(e);
-		        }
-			});
-			//show question list method is called by default.
+				viewBallot();
+			});		
+			/**** Rotation Order Tab ****/
+			$('#rotationorder_tab').click(function(){
+				$("#selectionDiv1").hide();
+				viewRotationOrder();
+			});		
+			/**** Member Ballot Tab ****/
+			$('#memberballot_tab').click(function(){
+				$("#selectionDiv1").hide();
+				viewMemberBallot();
+			});		
+			/**** show question list method is called by default.****/
 			showQuestionList();	
 		});
-				
+
+		/**** displaying grid ****/					
 		function showQuestionList() {
-			//If no session entry has been created then just house type and question type is passed else all four parameters are
-			//passed.
-			var sessionYear=$("#sessionYear").val();
-			if(sessionYear==""){						
-				showTabByIdAndUrl('list_tab','question/list?houseType='+$('#selectedHouseType').val()+'&questionType='+$("#selectedQuestionType").val()+'&usergroup='+$("#usergroup").val()+'&userrole='+$("#userrole").val()+'&group='+$("#selectedGroup").val());
-			}else{
-				showTabByIdAndUrl('list_tab','question/list?houseType='+$('#selectedHouseType').val()+'&questionType='+$("#selectedQuestionType").val()+'&sessionYear='+$("#selectedSessionYear").val()+'&sessionType='+$("#selectedSessionType").val()+'&usergroup='+$("#usergroup").val()+'&userrole='+$("#userrole").val()+'&group='+$("#selectedGroup").val());				
-			}							
-		}	
+				console.log($("#srole").val());						
+				showTabByIdAndUrl('list_tab','question/list?houseType='+$('#selectedHouseType').val()
+						+'&questionType='+$("#selectedQuestionType").val()+'&sessionYear='
+						+$("#selectedSessionYear").val()+'&sessionType='+$("#selectedSessionType").val()+
+						"&ugparam="+$("#ugparam").val()
+						+"&status="+$("#selectedStatus").val()
+						+"&role="+$("#srole").val()
+						);
+		}
+		/**** new question ****/
 		function newQuestion() {
 			$("#cancelFn").val("newQuestion");
 			//since id of question has not been created so key is set to empty value
 			$("#key").val("");				
 			showTabByIdAndUrl('details_tab','question/new?'+$("#gridURLParams").val());
 		}
+		/**** edit question ****/		
 		function editQuestion() {
 			$("#cancelFn").val("editQuestion");						
 			var row=$('#key').val();
@@ -254,12 +125,13 @@
 			showTabByIdAndUrl('details_tab','question/'+row+'/edit?'+$("#gridURLParams").val());
 			}			
 		}	
+		/**** double clicking record in grid handler ****/		
 		function rowDblClickHandler(rowid, iRow, iCol, e) {
 			$("#cancelFn").val("rowDblClickHandler");			
 			$('#key').val(rowid);
 			showTabByIdAndUrl('details_tab', 'question/'+rowid+'/edit?'+$("#gridURLParams").val());
-		}			
-		
+		}	
+		/**** delete question ****/	
 		function deleteQuestion() {
 			var row=$("#key").val();
 			if(row == null || row == ''){
@@ -277,176 +149,50 @@
 				}});
 			}
 		}
-
-		function loadSessionGroups(){
-			$.get("ref/groups?houseType="+$("#selectedHouseType").val()+"&year="+$("#selectedSessionYear").val()+"&sessionType="+$("#selectedSessionType").val(),function(data){
-				var groupsAllowed=$("#groupsAllowed").val();
-				if(data.length>0){
-					$("#selectedGroup").empty();
-					$("#selectedAnsweringDate").empty();
-					console.log(data.length);					
-					for(var i=0;i<data.length;i++){
-						if(groupsAllowed.indexOf(data[i].name)!=-1){						
-						text+="<option value='"+data[i].id+"'>"+data[i].name+"</option>"
-						}
-					}
-					$("#selectedGroup").html(text);
-					$("#selectedAnsweringDate").html(text);
-					$("#ugparam").val(data[0].id);					
-					loadSessionAnsweringDates(data[0].id);	
-				}else{
-					var text="<option value='-'>"+$("#pleaseSelect").val()+"</option>";					
-					$("#selectedGroup").empty();
-					$("#selectedAnsweringDate").empty();
-					$("#selectedGroup").html(text);
-					$("#selectedAnsweringDate").html(text);					
-				}
-			});
-		}
-
-		function loadSessionAnsweringDates(group){
-			$.get("ref/group/"+group+"/answeringdates",function(data){
-				if(data.length>0){
-					$("#selectedAnsweringDate").empty();
-					for(var i=0;i<data.length;i++){
-						if(i==0){
-						text+="<option value='"+data[i].id+"' selected='selected'>"+data[i].name+"</option>"
-						}else{
-							text+="<option value='"+data[i].id+"'>"+data[i].name+"</option>"							
-						}
-					}
-					$("#selectedAnsweringDate").html(text);
-					reloadQuestionGrid();
-				}else{
-					var text="<option value='-'>"+$("#pleaseSelect").val()+"</option>";					
-					$("#selectedGroup").empty();
-					$("#selectedAnsweringDate").empty();
-					$("#selectedGroup").html(text);
-					$("#selectedAnsweringDate").html(text);					
-				}
-			});
-		}	
-
+		/**** reload grid ****/
 		function reloadQuestionGrid(){
-				$("#gridURLParams").val("houseType="+$("#selectedHouseType").val()+"&sessionYear="+$("#selectedSessionYear").val()+"&sessionType="+$("#selectedSessionType").val()+"&questionType="+$("#selectedQuestionType").val()+"&ugparam="+$("#ugparam").val());			
+				$("#gridURLParams").val("houseType="+$("#selectedHouseType").val()
+						+"&sessionYear="+$("#selectedSessionYear").val()+
+						"&sessionType="+$("#selectedSessionType").val()+
+						"&questionType="+$("#selectedQuestionType").val()
+						+"&ugparam="+$("#ugparam").val()
+						+"&status="+$("#selectedStatus").val()
+						+"&role="+$("#srole").val()
+						);
 				var oldURL=$("#grid").getGridParam("url");
 				var baseURL=oldURL.split("?")[0];
 				newURL=baseURL+"?"+$("#gridURLParams").val();
 				$("#grid").setGridParam({"url":newURL});
 				$("#grid").trigger("reloadGrid");							
 		}
-
+		/**** Chart Tab ****/
 		function viewChart() {
-			var parameters = $("#gridURLParams").val() + "&answeringDate=" + $("#selectedAnsweringDate").val();
-			var resourceURL = 'question/chart/view?' + parameters;
+			var parameters = $("#gridURLParams").val() + "&group=" + $("#selectedGroup").val();
+			var resourceURL = 'chart/init?' + parameters;
 			showTabByIdAndUrl('chart_tab', resourceURL);
-		}	
+		}
+		/**** Ballot Tab ****/
 		function viewBallot() {
-			var parameters = $("#gridURLParams").val() + "&answeringDate=" + $("#selectedAnsweringDate").val();
-			var resourceURL = 'question/ballot/view?' + parameters;
+			var parameters = $("#gridURLParams").val() + "&group=" + $("#selectedGroup").val();
+			var resourceURL = 'ballot/init?' + parameters;
 			showTabByIdAndUrl('ballot_tab', resourceURL);
 		}	
-		function markAttendance(operation){
-			$.blockUI({ message: '<img src="./resources/images/waitAnimated.gif" />' });
-			var parameters = $("#gridURLParams").val()+"&operation="+operation;
-			if(parameters==undefined){
-				parameters="houseType="+$("#selectedHouseType").val()+"&sessionYear="+$("#selectedSessionYear").val()+"&sessionType="+$("#selectedSessionType").val()+"&questionType="+$("#selectedQuestionType").val()+"&operation="+operation;
-			}
-			if(parameters==undefined){
-				parameters="houseType="+$("#houseType").val()+"&sessionYear="+$("#sessionYear").val()+"&sessionType="+$("#sessionType").val()+"&questionType="+$("#questionType").val()+"&operation="+operation;
-			}
-			var resourceURL = 'question/attendance?' + parameters;
-			$.get(resourceURL,function(data){
-			$('a').removeClass('selected');
-			$('#attendance_tab').addClass('selected');
-			$('.tabContent').html(data);
-			$.unblockUI();				
-			},'html');			
+		/**** Rotation Order Tab ****/
+		function viewRotationOrder() {
+			var parameters = $("#gridURLParams").val() + "&group=" + $("#selectedGroup").val();
+			var resourceURL = 'rotationorder/init?' + parameters;
+			showTabByIdAndUrl('rotationorder_tab', resourceURL);
 		}	
-		function preBallot(attendance){
-			$.blockUI({ message: '<img src="./resources/images/waitAnimated.gif" />' });
-			var parameters = $("#gridURLParams").val()+"&attendance="+attendance;
-			if(parameters==undefined){
-				parameters="houseType="+$("#selectedHouseType").val()+"&sessionYear="+$("#selectedSessionYear").val()+"&sessionType="+$("#selectedSessionType").val()+"&questionType="+$("#selectedQuestionType").val()+"&attendance="+attendance;
-			}
-			var resourceURL = 'question/preballot?' + parameters;
-			$.get(resourceURL,function(data){
-			$('a').removeClass('selected');
-			$('#preballot_tab').addClass('selected');
-			$('.tabContent').html(data);
-			$.unblockUI();				
-			},'html');			
+		/**** Member Ballot Tab ****/
+		function viewMemberBallot() {
+			var parameters = $("#gridURLParams").val() + "&group=" + $("#selectedGroup").val();
+			var resourceURL = 'ballot/memberballot/init?' + parameters;
+			showTabByIdAndUrl('memberballot_tab', resourceURL);
 		}	
-
-		function createMemberBallot(){
-			$.blockUI({ message: '<img src="./resources/images/waitAnimated.gif" />' });
-			var parameters = $("#gridURLParams").val();
-			if(parameters==undefined){
-				parameters="houseType="+$("#selectedHouseType").val()+"&sessionYear="+$("#selectedSessionYear").val()+"&sessionType="+$("#selectedSessionType").val()+"&questionType="+$("#selectedQuestionType").val();
-			}
-			var attendance=$("#selectAttendanceType").val();
-			var round=$("#selectRound").val();
-			if(attendance!='-'&&round!='-'){
-				parameters=parameters+'&attendance='+attendance+'&round='+round;
-				var resourceURL = 'question/memberballot?' + parameters;
-				$.post(resourceURL,function(data){
-					if(data=='success'){
-						$.unblockUI();							
-						$.prompt($("#ballotSuccessMsg").val());
-					}else if(data=='alreadycreated'){
-						$.unblockUI();						
-						$.prompt($("#ballotAlreadyCreatedMsg").val());
-					}else{
-						$.unblockUI();						
-						$.prompt($("#ballotFailedMsg").val());
-					}		
-				},'html');
-			}else{
-				$.unblockUI();				
-				$.prompt($("#selectAttendanceRoundMsg").val());
-			}						
-		}
-		function viewMemberBallot(){
-			$.blockUI({ message: '<img src="./resources/images/waitAnimated.gif" />' });
-			var parameters = $("#gridURLParams").val();
-			if(parameters==undefined){
-				parameters="houseType="+$("#selectedHouseType").val()+"&sessionYear="+$("#selectedSessionYear").val()+"&sessionType="+$("#selectedSessionType").val()+"&questionType="+$("#selectedQuestionType").val();
-			}
-			var attendance=$("#selectAttendanceType").val();
-			var round=$("#selectRound").val();
-			if(attendance!='-'&&round!='-'){
-				parameters=parameters+'&attendance='+attendance+'&round='+round;
-				var resourceURL = 'question/memberballot?' + parameters;
-				$.get(resourceURL,function(data){
-					$('a').removeClass('selected');
-					$('#memberballot_tab').addClass('selected');
-					$('.tabContent').html(data);
-					$.unblockUI();					
-				},'html');
-			}else{
-				$.unblockUI();				
-				$.prompt($("#selectAttendanceRoundMsg").val());
-			}						
-		}
-		function viewMemberBallotChoice(){
-			$.blockUI({ message: '<img src="./resources/images/waitAnimated.gif" />' });
-			var parameters = $("#gridURLParams").val();
-			if(parameters==undefined){
-				parameters="houseType="+$("#selectedHouseType").val()+"&sessionYear="+$("#selectedSessionYear").val()+"&sessionType="+$("#selectedSessionType").val()+"&questionType="+$("#selectedQuestionType").val();
-			}
-			parameters=parameters;
-			var resourceURL = 'question/memberballotchoice?' + parameters;
-				$.get(resourceURL,function(data){
-					$('a').removeClass('selected');
-					$('#memberballotchoice_tab').addClass('selected');
-					$('.tabContent').html(data);
-					$.unblockUI();					
-				},'html');						
-		}								
+		
 	</script>
 </head>
 <body>
-	<!-- .section -->
 	<div class="clearfix tabbar">
 		<ul class="tabs">
 			<li>
@@ -460,46 +206,39 @@
 				   </spring:message>
 				</a>
 			</li>
-			<c:if test="${usergroupType=='assistant'}">
+			<security:authorize access="hasAnyRole('QIS_ASSISTANT','QIS_UNDER_SECRETARY',
+			'QIS_DEPUTY_SECRETARY','QIS_PRINCIPAL_SECRETARY','QIS_SPEAKER','QIS_JOINT_SECRETARY',
+			'QIS_SECRETARY','QIS_OFFICER_ON_SPECIAL_DUTY','QIS_DEPUTY_SPEAKER','QIS_CHAIRMAN','QIS_DEPUTY_CHAIRMAN',
+			'QIS_SECTION_OFFICER','QIS_UNDER_SECRETARY_COMMITTEE','SUPER_ADMIN')">
+			<c:if test="${questionTypeType!='questions_unstarred'&& questionTypeType!='questions_shortnotice'}">
+			<c:if test="${questionTypeType!='questions_halfhourdiscussion_standalone'&&questionTypeType!='questions_halfhourdiscussion_from_question'}">
+			<li>
+				<a id="rotationorder_tab" href="#" class="tab">
+				   <spring:message code="question.rotationorder" text="Rotation Order"></spring:message>
+				</a>
+			</li>
 			<li>
 				<a id="chart_tab" href="#" class="tab">
 				   <spring:message code="question.chart" text="Chart"></spring:message>
 				</a>
 			</li>
+			</c:if>
+			<c:if test="${houseType=='upperhouse'}">			
+			<li>
+				<a id="memberballot_tab" href="#" class="tab">
+				   <spring:message code="question.memberballot" text="Ballot"></spring:message>
+				</a>
+			</li>
+			</c:if>
+			<c:if test="${houseType=='lowerhouse'}">						
 			<li>
 				<a id="ballot_tab" href="#" class="tab">
 				   <spring:message code="question.ballot" text="Ballot"></spring:message>
 				</a>
 			</li>
 			</c:if>
-			<c:if test="${usergroupType!='member'}">
-			<c:if test="${userrole!='CLERK' }">
-			<c:if test="${questionTypeType!='questions_unstarred'&& questionTypeType!='questions_shortnotice'&& questionTypeType!='questions_halfhourdiscussion'}">
-			<c:if test="${houseType=='upperhouse'}">
-			<li>
-				<a id="attendance_tab" href="#" class="tab">
-				   <spring:message code="question.attendance" text="Attendance"></spring:message>
-				</a>				
-			</li>
-			<li>
-				<a id="preballot_tab" href="#" class="tab">
-				   <spring:message code="question.preballot" text="Pre-Ballot"></spring:message>
-				</a>				
-			</li>
-			<li>
-				<a id="memberballot_tab" href="#" class="tab">
-				   <spring:message code="question.memberballot" text="Member Ballot"></spring:message>
-				</a>				
-			</li>	
-			<li>
-				<a id="memberballochoice_tab" href="#" class="tab">
-				   <spring:message code="question.memberballotchoice" text="Member Ballot Choice"></spring:message>
-				</a>				
-			</li>					
-			</c:if>
-			</c:if>
-			</c:if>
-			</c:if>
+			</c:if>							
+			</security:authorize>
 		</ul>
 		
 		<div class="commandbarContent" style="margin-top: 10px;" id="selectionDiv1">		
@@ -509,7 +248,7 @@
 			<select name="selectedHouseType" id="selectedHouseType" style="width:100px;height: 25px;">			
 			<c:forEach items="${houseTypes}" var="i">
 			<c:choose>
-			<c:when test="${houseTypeSelected==i.type}">
+			<c:when test="${houseType==i.type}">
 			<option value="${i.type}" selected="selected"><c:out value="${i.name}"></c:out></option>			
 			</c:when>
 			<c:otherwise>
@@ -562,106 +301,64 @@
 			</c:otherwise>
 			</c:choose>
 			</c:forEach>
-			</select> |						
-		</div>
-				
-		<div class="commandbarContent" style="margin-top: 10px;" id="selectionDiv2">		
-		<c:if test="${usergroupType!='member'}">
-		<c:if test="${userrole!='CLERK' }">
-		<c:if test="${questionTypeType!='questions_unstarred'&& questionTypeType!='questions_shortnotice'}">
+			</select> |			
+			<security:authorize access="hasAnyRole('QIS_ASSISTANT','QIS_UNDER_SECRETARY',
+			'QIS_DEPUTY_SECRETARY','QIS_PRINCIPAL_SECRETARY','QIS_SPEAKER','QIS_JOINT_SECRETARY',
+			'QIS_SECRETARY','QIS_OFFICER_ON_SPECIAL_DUTY','QIS_DEPUTY_SPEAKER','QIS_CHAIRMAN','QIS_DEPUTY_CHAIRMAN',
+			'QIS_SECTION_OFFICER','QIS_UNDER_SECRETARY_COMMITTEE')">
+			<hr>
+			<c:if test="${questionTypeType!='questions_unstarred'&& questionTypeType!='questions_shortnotice'}">
 			<a href="#" id="select_group" class="butSim">
 				<spring:message code="question.group" text="Group"/>
 			</a>
 			<select name="selectedGroup" id="selectedGroup" style="width:100px;height: 25px;">				
 			<c:forEach items="${groups}" var="i">			
-			<option value="${i.id}"><c:out value="${i.number}"></c:out></option>	
+			<option value="${i.id}"><c:out value="${i.formatNumber()}"></c:out></option>	
 			</c:forEach> 
-			</select> | 
-			<a href="#" id="select_answeringdate" class="butSim">
-				<spring:message code="question.answeringdate" text="Answering Date"/>
+			</select> |
+			</c:if>
+			<a href="#" id="select_status" class="butSim">
+				<spring:message code="question.status" text="Status"/>
 			</a>
-			<select name="selectedAnsweringDate" id="selectedAnsweringDate" style="width:100px;height: 25px;">				
-			<c:forEach items="${answeringDates}" var="i">			
+			<select name="selectedStatus" id="selectedStatus" style="width:250px;height: 25px;">			
+			<c:forEach items="${status}" var="i">
 			<option value="${i.id}"><c:out value="${i.name}"></c:out></option>	
-			</c:forEach> 
-			</select> | 			
-			<a href="#" id="create_chart" class="butSim">
-				<spring:message code="question.createChart" text="Create Chart"/>
-			</a> |
-			<a href="#" id="view_chart" class="butSim">
-				<spring:message code="question.viewChart" text="View Chart"/>
-			</a> |
-			<a href="#" id="create_ballot" class="butSim">
-				<spring:message code="question.createBallot" text="Create Ballot"/>
-			</a> |
-			<a href="#" id="view_ballot" class="butSim">
-				<spring:message code="question.viewBallot" text="View Ballot"/>
-			</a> 
-			</c:if>
-			</c:if>
-			</c:if>	
-		</div>
-				
-				
-		<div class="commandbarContent" style="margin-top: 10px;" id="selectionDiv3">		
-		<c:if test="${usergroupType!='member'}">
-		<c:if test="${userrole!='CLERK' }">
-		<c:if test="${questionTypeType!='questions_unstarred'&& questionTypeType!='questions_shortnotice'&& questionTypeType!='questions_halfhourdiscussion'}">
-			<c:if test="${houseType=='upperhouse'}">
-			<a href="#" id="mark_attendance" class="butSim">
-				<spring:message code="question.attendance" text="Attendance"/>
-			</a> |
-			<select name="selectPreBallot" id="selectPreBallot" style="width:100px;height: 25px;">
-			<option value='-'><spring:message code='please.select' text='Please Select'/></option>				
-			<option value="present"><spring:message code='attendance.present' text='Present'/></option>	
-			<option value="absent"><spring:message code='attendance.absent' text='Absent'/></option>			
-			</select>	
-			<a href="#" id="preballot" class="butSim">
-				<spring:message code="question.preballot" text="Pre-Ballot"/>
-			</a> |
-			<select name="selectAttendanceType" id="selectAttendanceType" style="width:100px;height: 25px;">
-			<option value='-'><spring:message code='please.select' text='Please Select'/></option>				
-			<option value="true"><spring:message code='attendance.present' text='Present'/></option>	
-			<option value="false"><spring:message code='attendance.absent' text='Absent'/></option>			
-			</select>
-			<select name="selectRound" id="selectRound" style="width:100px;height: 25px;">
-			<option value='-'><spring:message code='please.select' text='Please Select'/></option>				
-			<option value="1"><c:out value="1"></c:out></option>	
-			<option value="2"><c:out value="2"></c:out></option>
-			<option value="3"><c:out value="3"></c:out></option>	
-			<option value="4"><c:out value="4"></c:out></option>
-			<option value="5"><c:out value="5"></c:out></option>				
-			</select>	
-			<a href="#" id="createMemberballot" class="butSim">
-				<spring:message code="question.createMemberballot" text="Create Member Ballot"/>
-			</a> 
-			<a href="#" id="viewMemberballot" class="butSim">
-				<spring:message code="question.viewMemberballot" text="View Member Ballot"/>
-			</a> |
-			<a href="#" id="memberballot_choices" class="butSim">
-				<spring:message code="question.memberballotchoices" text="Member ballot Choices"/>
-			</a>				
-			</c:if>		
-			</c:if>
-			</c:if>
-			</c:if>	
+			</c:forEach>
+			</select> |			 
+			</security:authorize>
+			
+			<security:authorize access="hasAnyRole('MEMBER_LOWERHOUSE','MEMBER_UPPERHOUSE','QIS_CLERK')">
+			<a href="#" id="select_status" class="butSim">
+				<spring:message code="question.status" text="Status"/>
+			</a>
+			<select name="selectedStatus" id="selectedStatus" style="width:100px;height: 25px;">			
+			<c:forEach items="${status}" var="i">
+			<option value="${i.id}"><c:out value="${i.name}"></c:out></option>	
+			</c:forEach>
+			</select> |
+			<select name="selectedGroup" id="selectedGroup" style="width:100px;height: 25px;display:none;">			 
+			</select>			 
+			</security:authorize>						
+			<hr>						
 		</div>		
+				
 		
-		<div class="tabContent clearfix">
-		</div>		
-		<input type="hidden" id="key" name="key">
-		<input type="hidden" id="selectRowFirstMessage" name="selectRowFirstMessage" value="<spring:message code='generic.selectRowFirstMessage' text='Please select the desired row first'></spring:message>" disabled="disabled">
-		<input type="hidden" id="confirmDeleteMessage" name="confirmDeleteMessage" value="<spring:message code='generic.confirmDeleteMessage' text='Do you want to delete the row with Id: '></spring:message>" disabled="disabled">
-		<input type="hidden" name="usergroup" id="usergroup" value="${usergroup}">	
-		<input type="hidden" name="usergroupType" id="usergroupType" value="${usergroupType}">	
-		<input type="hidden" name="userrole" id="userrole" value="${userrole}">	
-		<input type="hidden" name="groupsAllowed" id="groupsAllowed" value="${groupsAllowed}">		
+		<div class="tabContent">
+		</div>
+		
+		<input type="hidden" id="key" name="key">		
+		
+		<input type="hidden" name="ugparam" id="ugparam" value="${ugparam }">
+		
+		<input type="hidden" name="srole" id="srole" value="${role }">		
+		
 		<input type="hidden" name="pleaseSelect" id="pleaseSelect" value="<spring:message code='please.select' text='Please Select'/>">	
 		<input type="hidden" id="ballotSuccessMsg" value="<spring:message code='ballot.success' text='Member Ballot Created Succesfully'/>">			
 		<input type="hidden" id="ballotAlreadyCreatedMsg" value="<spring:message code='ballot.success' text='Member Ballot Already Created'/>">			
 		<input type="hidden" id="ballotFailedMsg" value="<spring:message code='ballot.failed' text='Member Ballot Couldnot be Created.Try Again'/>">			
 		<input type="hidden" id="selectAttendanceRoundMsg" value="<spring:message code='ballot.selectattendanceround' text='Please Select Attendance Type And Round First'/>">			
-		
+		<input type="hidden" id="selectRowFirstMessage" name="selectRowFirstMessage" value="<spring:message code='generic.selectRowFirstMessage' text='Please select the desired row first'></spring:message>" disabled="disabled">
+		<input type="hidden" id="confirmDeleteMessage" name="confirmDeleteMessage" value="<spring:message code='generic.confirmDeleteMessage' text='Do you want to delete the row with Id: '></spring:message>" disabled="disabled">
 		</div> 		
 </body>
 </html>
