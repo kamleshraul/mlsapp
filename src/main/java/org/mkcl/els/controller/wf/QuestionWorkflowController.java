@@ -12,9 +12,7 @@ package org.mkcl.els.controller.wf;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.Date;
-import java.util.GregorianCalendar;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
@@ -31,6 +29,7 @@ import org.mkcl.els.common.vo.Reference;
 import org.mkcl.els.common.vo.Task;
 import org.mkcl.els.controller.BaseController;
 import org.mkcl.els.domain.ClarificationNeededFrom;
+import org.mkcl.els.domain.ClubbedEntity;
 import org.mkcl.els.domain.Credential;
 import org.mkcl.els.domain.CustomParameter;
 import org.mkcl.els.domain.Department;
@@ -43,6 +42,7 @@ import org.mkcl.els.domain.MemberMinister;
 import org.mkcl.els.domain.Ministry;
 import org.mkcl.els.domain.Question;
 import org.mkcl.els.domain.QuestionDates;
+import org.mkcl.els.domain.ReferencedEntity;
 import org.mkcl.els.domain.Session;
 import org.mkcl.els.domain.SessionType;
 import org.mkcl.els.domain.Status;
@@ -341,30 +341,21 @@ public class QuestionWorkflowController  extends BaseController{
 		/*
 		 * Obtain question domain
 		 */
-		String strTaskId=(String) request.getAttribute("taskId");
+		String strTaskId=(String) request.getAttribute("pv_taskId");
 		Task task=processService.findTaskById(strTaskId);
 		model.addAttribute("task",strTaskId);
 		Map<String,Object> variables=processService.getVariables(task);
-		String questionId=variables.get("pv_deviceId").toString();
+		String questionId=variables.get("pv_deviceid").toString();
 		model.addAttribute("question",questionId);
-		Question domain=Question.findById(Question.class,Long.parseLong(questionId));
-		/*
-		 * populate model
-		 */
-		Long sessionId=Long.parseLong(variables.get("pv_sessionId").toString());
-		Long deviceTypeId=Long.parseLong(variables.get("pv_deviceTypeId").toString());
-		String workflowType=variables.get("pv_workflowType").toString();
-		Integer groupNumber=Integer.parseInt(variables.get("pv_groupNumber").toString());
-		Long workflowConfigId=Long.parseLong(variables.get("pv_workflowConfigId").toString());
 		Integer level=Integer.parseInt(variables.get("pv_level").toString())+1;
-		model.addAttribute("sessionId", sessionId);
-		model.addAttribute("deviceTypeId", deviceTypeId);
-		model.addAttribute("workflowType", workflowType);
-		model.addAttribute("groupNumber", groupNumber);
-		model.addAttribute("workflowConfigId", workflowConfigId);
 		model.addAttribute("level", level);
+		Question domain=Question.findById(Question.class,Long.parseLong(questionId));
+		Long workflowConfigId=Long.parseLong(variables.get("pv_wc_id_"+domain.getInternalStatus().getType()).toString());
+		model.addAttribute("pv_workflowconfig_Id", workflowConfigId);
+		/**** populate model ****/		
 		populateSecretaryModel(domain,model,request);
-		populateActors(domain,model,request,sessionId,deviceTypeId,workflowType,groupNumber,workflowConfigId,level);
+		/**** populate actors on the basis of last internal status ****/
+		populateActorsAndUsers(domain,model,request,workflowConfigId,level);
 		/*
 		 * add domain to model
 		 */
@@ -403,6 +394,241 @@ public class QuestionWorkflowController  extends BaseController{
 		}
 		return "workflow/question/secretary";
 	}
+	
+	private void populateActorsAndUsers(Question domain, ModelMap model,
+			HttpServletRequest request, Long workflowConfigId, Integer level) {
+				
+	}
+
+	private void populateSecretaryModel(final Question domain, final ModelMap model,
+			final HttpServletRequest request) {
+		/**** clear remarks ****/
+		domain.setRemarks("");
+		
+		/**** Locale ****/
+		String locale=domain.getLocale();
+
+		/**** House Type ****/
+		HouseType houseType=domain.getHouseType();
+		model.addAttribute("formattedHouseType",houseType.getName());
+		model.addAttribute("houseType",houseType.getId());
+
+		/**** Session ****/
+		Session selectedSession=domain.getSession();
+		model.addAttribute("session",selectedSession.getId());
+
+		/**** Session Year ****/
+		Integer sessionYear=0;
+		sessionYear=selectedSession.getYear();
+		model.addAttribute("formattedSessionYear",FormaterUtil.getNumberFormatterNoGrouping(locale).format(sessionYear));
+		model.addAttribute("sessionYear",sessionYear);
+
+		/**** Session Type ****/
+		SessionType  sessionType=selectedSession.getType();
+		model.addAttribute("formattedSessionType",sessionType.getSessionType());
+		model.addAttribute("sessionType",sessionType.getId());        
+
+		/**** Question Type ****/
+		DeviceType questionType=domain.getType();
+		model.addAttribute("formattedQuestionType",questionType.getName());
+		model.addAttribute("questionType",questionType.getId());
+
+		/**** Primary Member ****/
+		String memberNames=null;
+		String primaryMemberName=null;
+		Member member=domain.getPrimaryMember();
+		if(member!=null){
+			model.addAttribute("primaryMember",member.getId());
+			primaryMemberName=member.getFullname();
+			memberNames=primaryMemberName;
+			model.addAttribute("formattedPrimaryMember",primaryMemberName);
+		}
+		/**** Constituency ****/
+		Long houseId=selectedSession.getHouse().getId();
+		MasterVO constituency=null;
+		if(houseType.getType().equals("lowerhouse")){
+			constituency=Member.findConstituencyByAssemblyId(member.getId(), houseId);
+			model.addAttribute("constituency",constituency.getName());
+		}else if(houseType.getType().equals("upperhouse")){
+			Date currentDate=new Date();
+			String date=FormaterUtil.getDateFormatter("en_US").format(currentDate);
+			constituency=Member.findConstituencyByCouncilDates(member.getId(), houseId, "DATE", date, date);
+			model.addAttribute("constituency",constituency.getName());
+		}
+		/**** Supporting Members ****/
+		List<SupportingMember> selectedSupportingMembers=domain.getSupportingMembers();
+		List<Member> supportingMembers=new ArrayList<Member>();
+		if(selectedSupportingMembers!=null){
+			if(!selectedSupportingMembers.isEmpty()){
+				StringBuffer bufferFirstNamesFirst=new StringBuffer();
+				for(SupportingMember i:selectedSupportingMembers){
+					Member m=i.getMember();
+					bufferFirstNamesFirst.append(m.getFullname()+",");
+					supportingMembers.add(m);
+				}
+				bufferFirstNamesFirst.deleteCharAt(bufferFirstNamesFirst.length()-1);
+				model.addAttribute("supportingMembersName", bufferFirstNamesFirst.toString());
+				model.addAttribute("supportingMembers",supportingMembers);
+				memberNames=primaryMemberName+","+bufferFirstNamesFirst.toString();
+				model.addAttribute("memberNames",memberNames);
+			}else{
+				model.addAttribute("memberNames",memberNames);
+			}
+		}else{
+			model.addAttribute("memberNames",memberNames);
+		}
+
+		/**** Priorities ****/
+		CustomParameter customParameter=CustomParameter.findByName(CustomParameter.class, "HIGHEST_QUESTION_PRIORITY", "");
+		if(customParameter!=null){
+			List<MasterVO> priorities=new ArrayList<MasterVO>();
+			for(int i=1;i<=Integer.parseInt(customParameter.getValue());i++){
+				priorities.add(new MasterVO(i,FormaterUtil.getNumberFormatterNoGrouping(locale).format(i)));
+			}
+			model.addAttribute("priorities",priorities);
+		}else{
+			logger.error("**** Custom Parameter 'HIGHEST_QUESTION_PRIORITY' not set ****");
+			model.addAttribute("errorcode","highestquestionprioritynotset");
+		}
+		model.addAttribute("priority",domain.getPriority());
+		model.addAttribute("formattedPriority",FormaterUtil.getNumberFormatterNoGrouping(locale).format(domain.getNumber()));
+
+		List<Ministry> ministries=Ministry.findMinistriesAssignedToGroups(houseType, sessionYear, sessionType, locale);
+		model.addAttribute("ministries",ministries);
+		Ministry ministry=domain.getMinistry();
+		if(ministry!=null){
+			model.addAttribute("ministrySelected",ministry.getId());
+			/**** Group ****/
+			Group group=domain.getGroup();
+			model.addAttribute("formattedGroup",FormaterUtil.getNumberFormatterNoGrouping(locale).format(domain.getGroup().getNumber()));
+			model.addAttribute("group",domain.getGroup().getId());
+
+			/**** Departments ****/
+			List<Department> departments=MemberMinister.findAssignedDepartments(ministry, locale);
+			model.addAttribute("departments",departments);
+			Department department=domain.getDepartment();
+			if(department!=null){  
+				model.addAttribute("departmentSelected",department.getId());
+				/**** Sub Departments ****/
+				List<SubDepartment> subDepartments=MemberMinister.findAssignedSubDepartments(ministry,department, locale);
+				model.addAttribute("subDepartments",subDepartments); 
+				SubDepartment subDepartment=domain.getSubDepartment();
+				if(subDepartment!=null){
+					model.addAttribute("subDepartmentSelected",subDepartment.getId());
+				}
+			}
+
+			/**** Answering Dates ****/
+			if(group!=null){
+				List<QuestionDates> answeringDates=group.getQuestionDates();
+				List<MasterVO> masterVOs=new ArrayList<MasterVO>();
+				for(QuestionDates i:answeringDates){
+					MasterVO masterVO=new MasterVO(i.getId(),FormaterUtil.getDateFormatter(locale).format(i.getAnsweringDate()));
+					masterVOs.add(masterVO);
+				}
+				model.addAttribute("answeringDates",masterVOs);
+				if(domain.getAnsweringDate()!=null){
+					model.addAttribute("answeringDateSelected",domain.getAnsweringDate().getId());
+				}
+			}
+		}
+		/**** Submission Date and Creation date****/ 
+		CustomParameter dateTimeFormat=CustomParameter.findByName(CustomParameter.class,"SERVER_DATETIMEFORMAT", "");
+		if(dateTimeFormat!=null){            
+			if(domain.getSubmissionDate()!=null){
+				model.addAttribute("submissionDate",FormaterUtil.getDateFormatter(dateTimeFormat.getValue(),"en_US").format(domain.getSubmissionDate()));
+				model.addAttribute("formattedSubmissionDate",FormaterUtil.getDateFormatter(dateTimeFormat.getValue(),locale).format(domain.getSubmissionDate()));
+			}
+			if(domain.getCreationDate()!=null){
+				model.addAttribute("creationDate",FormaterUtil.getDateFormatter(dateTimeFormat.getValue(),"en_US").format(domain.getCreationDate()));
+			}
+		}
+		/**** Number ****/
+		if(domain.getNumber()!=null){
+			model.addAttribute("formattedNumber",FormaterUtil.getNumberFormatterNoGrouping(locale).format(domain.getNumber()));
+		}
+		/**** Created By ****/
+		model.addAttribute("createdBy",domain.getCreatedBy());
+		/**** Status,Internal Status and recommendation Status ****/
+		Status status=domain.getStatus();
+		Status internalStatus=domain.getInternalStatus();
+		Status recommendationStatus=domain.getRecommendationStatus();
+		if(status!=null){
+			model.addAttribute("status",status.getId());
+		}
+		if(internalStatus!=null){
+			model.addAttribute("internalStatus",internalStatus.getId());
+			model.addAttribute("internalStatusType", internalStatus.getType());
+		}
+		if(recommendationStatus!=null){
+			model.addAttribute("recommendationStatus",recommendationStatus.getId());
+		}
+		/**** role ****/
+		String role=request.getParameter("role");
+		if(role!=null){
+			model.addAttribute("role",role);
+		}else{
+			role=(String) request.getSession().getAttribute("role");
+			model.addAttribute("role",role);
+			request.getSession().removeAttribute("role");
+		}
+		/**** Internal Status****/
+		List<Status> internalStatuses=Status.findStartingWith("question_workflow_decisionstatus", "name", ApplicationConstants.ASC, domain.getLocale());
+		model.addAttribute("internalStatuses",internalStatuses);
+		/**** Referenced Questions are collected in refentities****/
+		List<Reference> refentities=new ArrayList<Reference>();
+		List<ReferencedEntity> referencedEntities=domain.getReferencedEntities();
+		for(ReferencedEntity re:referencedEntities){
+			Reference reference=new Reference();
+			reference.setId(String.valueOf(re.getId()));
+			reference.setName(FormaterUtil.getNumberFormatterNoGrouping(locale).format(re.getQuestion().getNumber()));
+			reference.setNumber(String.valueOf(re.getQuestion().getId()));
+			refentities.add(reference);			
+		}
+		model.addAttribute("referencedQuestions",refentities);
+		/**** Clubbed Questions are collected in references ****/
+		List<Reference> references=new ArrayList<Reference>();
+		List<ClubbedEntity> clubbedEntities=Question.findClubbedEntitiesByPosition(domain);
+		StringBuffer buffer1=new StringBuffer();
+		buffer1.append(memberNames+",");			
+		for(ClubbedEntity ce:clubbedEntities){
+			Reference reference=new Reference();
+			reference.setId(String.valueOf(ce.getId()));
+			reference.setName(FormaterUtil.getNumberFormatterNoGrouping(locale).format(ce.getQuestion().getNumber()));
+			reference.setNumber(String.valueOf(ce.getQuestion().getId()));
+			references.add(reference);
+			String tempPrimary=ce.getQuestion().getPrimaryMember().getFullname();
+			if(!buffer1.toString().contains(tempPrimary)){
+				buffer1.append(ce.getQuestion().getPrimaryMember().getFullname()+",");
+			}
+			List<SupportingMember> clubbedSupportingMember=ce.getQuestion().getSupportingMembers();
+			if(clubbedSupportingMember!=null){
+				if(!clubbedSupportingMember.isEmpty()){
+					for(SupportingMember l:clubbedSupportingMember){
+						String tempSupporting=l.getMember().getFullname();
+						if(!buffer1.toString().contains(tempSupporting)){
+							buffer1.append(tempSupporting+",");
+						}
+					}
+				}
+			}
+		}
+		if(!buffer1.toString().isEmpty()){
+			buffer1.deleteCharAt(buffer1.length()-1);
+		}
+		String allMembersNames=buffer1.toString();
+		model.addAttribute("memberNames",allMembersNames);
+		if(!references.isEmpty()){
+			model.addAttribute("clubbedQuestions",references);
+		}else{
+			if(domain.getParent()!=null){
+				model.addAttribute("formattedParentNumber",FormaterUtil.getNumberFormatterNoGrouping(locale).format(domain.getParent().getNumber()));
+				model.addAttribute("parent",domain.getParent().getId());
+			}
+		}
+	}
+	
+	
 
 	/**
 	 * Update secretary.
@@ -456,30 +682,30 @@ public class QuestionWorkflowController  extends BaseController{
 		//for traversing the workflow we need two variables pv_nextactor and pv_nextuser
 		String actor=request.getParameter("actor");
 		//if(actor!=null){
-			//if(actor.isEmpty()){
-				//domain.setStatus(domain.getInternalStatus());
-			//}
+		//if(actor.isEmpty()){
+		//domain.setStatus(domain.getInternalStatus());
 		//}
-		 /*
-         * updating submission date and creation date
-         */
-        String strCreationDate=request.getParameter("setCreationDate");
-        String strSubmissionDate=request.getParameter("setSubmissionDate");
-        CustomParameter dateTimeFormat=CustomParameter.findByName(CustomParameter.class,"SERVER_DATETIMEFORMAT", "");
-        if(dateTimeFormat!=null){
-            SimpleDateFormat format=FormaterUtil.getDateFormatter(dateTimeFormat.getValue(),"en_US");
-            try {
-                if(strSubmissionDate!=null){
-                    domain.setSubmissionDate(format.parse(strSubmissionDate));
-                }
-                if(strCreationDate!=null){
-                    domain.setCreationDate(format.parse(strCreationDate));
-                }
-            }
-            catch (ParseException e) {
-                e.printStackTrace();
-            }
-        }
+		//}
+		/*
+		 * updating submission date and creation date
+		 */
+		String strCreationDate=request.getParameter("setCreationDate");
+		String strSubmissionDate=request.getParameter("setSubmissionDate");
+		CustomParameter dateTimeFormat=CustomParameter.findByName(CustomParameter.class,"SERVER_DATETIMEFORMAT", "");
+		if(dateTimeFormat!=null){
+			SimpleDateFormat format=FormaterUtil.getDateFormatter(dateTimeFormat.getValue(),"en_US");
+			try {
+				if(strSubmissionDate!=null){
+					domain.setSubmissionDate(format.parse(strSubmissionDate));
+				}
+				if(strCreationDate!=null){
+					domain.setCreationDate(format.parse(strCreationDate));
+				}
+			}
+			catch (ParseException e) {
+				e.printStackTrace();
+			}
+		}
 		domain.merge();
 		/*
 		 * complete task
@@ -491,26 +717,26 @@ public class QuestionWorkflowController  extends BaseController{
 		String endflag=request.getParameter("pv_endflag");
 		properties.put("pv_endflag", endflag);
 		if(!endflag.equals("end")){
-		if(actor!=null){
-			if(!actor.isEmpty()){
-			  //variables needed for finding next actors
-		        properties.put("pv_sessionId",request.getParameter("sessionId"));
-		        properties.put("pv_deviceTypeId",request.getParameter("deviceTypeId"));
-		        properties.put("pv_workflowType",request.getParameter("workflowType"));
-		        properties.put("pv_groupNumber",request.getParameter("groupNumber"));
-		        String workflowConfigId=request.getParameter("workflowConfigId");
-		        properties.put("pv_workflowConfigId",workflowConfigId );
-				properties.put("pv_nextactor",actor);
-				String nextuser=findNextUser(domain, actor, domain.getLocale());
-				properties.put("pv_nextuser",nextuser);
-				Integer level=WorkflowConfig.getLevel(Long.parseLong(workflowConfigId), actor);
-		        properties.put("pv_level",String.valueOf(level));
+			if(actor!=null){
+				if(!actor.isEmpty()){
+					//variables needed for finding next actors
+					properties.put("pv_sessionId",request.getParameter("sessionId"));
+					properties.put("pv_deviceTypeId",request.getParameter("deviceTypeId"));
+					properties.put("pv_workflowType",request.getParameter("workflowType"));
+					properties.put("pv_groupNumber",request.getParameter("groupNumber"));
+					String workflowConfigId=request.getParameter("workflowConfigId");
+					properties.put("pv_workflowConfigId",workflowConfigId );
+					properties.put("pv_nextactor",actor);
+					String nextuser=findNextUser(domain, actor, domain.getLocale());
+					properties.put("pv_nextuser",nextuser);
+					Integer level=WorkflowConfig.getLevel(Long.parseLong(workflowConfigId), actor);
+					properties.put("pv_level",String.valueOf(level));
+				}else{
+					properties.put("pv_nextactor","");
+				}
 			}else{
 				properties.put("pv_nextactor","");
 			}
-		}else{
-            properties.put("pv_nextactor","");
-		}
 		}
 		processService.completeTask(task, properties);
 		/*
@@ -539,10 +765,10 @@ public class QuestionWorkflowController  extends BaseController{
 		if(userGroups!=null){
 			if(!userGroups.isEmpty()){
 				for(UserGroup i:userGroups){
-				    noOfComparisons=0;
-				    noOfSuccess=0;
+					noOfComparisons=0;
+					noOfSuccess=0;
 					if(i.getActiveFrom().before(new Date())||i.getActiveFrom().equals(new Date())){
-					    String userType=i.getUserGroupType().getType();
+						String userType=i.getUserGroupType().getType();
 						if(userType.equals("member")){
 							return i.getCredential().getUsername();
 						}
@@ -568,10 +794,10 @@ public class QuestionWorkflowController  extends BaseController{
 						if(map.get("HOUSETYPE_"+locale)!=null&&domain.getHouseType()!=null){
 							noOfComparisons++;
 							if(map.get("HOUSETYPE_"+locale).equals("Both House")&&userType.equals("principal_secretary")){
-                                noOfSuccess++;
-                            }else if(map.get("HOUSETYPE_"+locale).equals(domain.getHouseType().getName())){
-                                noOfSuccess++;
-                            }
+								noOfSuccess++;
+							}else if(map.get("HOUSETYPE_"+locale).equals(domain.getHouseType().getName())){
+								noOfSuccess++;
+							}
 						}
 						if(map.get("SESSIONTYPE_"+locale)!=null&&domain.getSession()!=null){
 							noOfComparisons++;
@@ -594,13 +820,13 @@ public class QuestionWorkflowController  extends BaseController{
 						//in case of actor=department we want to check if user belongs to mantralaya user
 						//as role.
 						//if(actor.equals("department")){
-							//noOfComparisons++;
-							//Set<Role> roles=i.getCredential().getRoles();
-							//for(Role j:roles){
-								//if(j.getType().equals("MANTRALAYA USER")){
-									//noOfSuccess++;
-								//}
-							//}
+						//noOfComparisons++;
+						//Set<Role> roles=i.getCredential().getRoles();
+						//for(Role j:roles){
+						//if(j.getType().equals("MANTRALAYA USER")){
+						//noOfSuccess++;
+						//}
+						//}
 						//}
 						if(noOfComparisons!=0&&noOfSuccess!=0&&noOfComparisons==noOfSuccess){
 							credential=i.getCredential();
@@ -621,122 +847,9 @@ public class QuestionWorkflowController  extends BaseController{
 	 * @param model the model
 	 * @param request the request
 	 * @param sessionId the session id
-	 * @param deviceTypeId the device type id
-	 * @param workflowType the workflow type
 	 * @param groupNumber the group number
-	 * @param workflowConfigId2 the workflow config id2
-	 * @param level the level
 	 */
-	private void populateActors(final Question domain, final ModelMap model,
-			final HttpServletRequest request, final Long sessionId, final Long deviceTypeId, final String workflowType, final Integer groupNumber, final Long workflowConfigId2, final Integer level) {
-		List<UserGroup> userGroups=this.getCurrentUser().getUserGroups();
-		String reprocess=request.getParameter("reprocess");
-		String strUserGroup=null;
-		if(userGroups!=null){
-			if(!userGroups.isEmpty()){
-				/*
-				 *first we will check if the user is an assistant
-				 */
-				for(UserGroup i:userGroups){
-					UserGroup userGroup=UserGroup.findById(UserGroup.class, i.getId());
-					UserGroupType userGroupType=userGroup.getUserGroupType();
-					String strType=userGroupType.getType();
-					if(strType.equals("assistant")
-							||strType.equals("under_secretary")
-							||strType.equals("deputy_secretary")
-							||strType.equals("officer_special_duty")
-							||strType.equals("joint_secretary")
-							||strType.equals("secretary")
-							||strType.equals("principal_secretary")
-							||strType.equals("deputy_speaker")
-							||strType.equals("speaker")
-							||strType.equals("deputy_chairman")
-							||strType.equals("chairman")
-							||strType.equals("section_officer")
-							||strType.equals("department")
-							||strType.equals("member")
-							||strType.equals("under_secretary_committee")){
-						strUserGroup=strType;
-						model.addAttribute("usergroup",strUserGroup);
-						/*
-						 * adding decision status in model and clarification needed from               *
-						 */
-						if(strType.equals("deputy_speaker")
-								||strType.equals("speaker")
-								||strType.equals("deputy_chairman")
-								||strType.equals("chairman")){
-							List<Status> internalStatus=Status.findStartingWith("question_workflow_approving", "name", ApplicationConstants.ASC, domain.getLocale());
-							model.addAttribute("internalStatus",internalStatus);
-						} else if((strType.equals("assistant")
-								||strType.equals("section_officer")
-								||strType.equals("department")
-								||strType.equals("member"))&&domain.getInternalStatus().getType().contains("approving")){
-							List<Status> internalStatus=Status.findStartingWith("question_workflow_approving", "name", ApplicationConstants.ASC, domain.getLocale());
-							model.addAttribute("internalStatus",internalStatus);
-						}else{
-							List<Status> internalStatus=Status.findStartingWith("question_workflow_decisionstatus", "name", ApplicationConstants.ASC, domain.getLocale());
-							model.addAttribute("internalStatus",internalStatus);
-							if(domain.getInternalStatus()!=null){
-								model.addAttribute("internalStatusSelected",domain.getInternalStatus().getId());
-							}
-						}
-
-						List<ClarificationNeededFrom> clarificationNeededFroms=ClarificationNeededFrom.findAll(ClarificationNeededFrom.class, "name",ApplicationConstants.ASC,domain.getLocale());
-						model.addAttribute("clarificationsNeededFrom",clarificationNeededFroms);
-						if(domain.getClarificationNeededFrom()!=null){
-							model.addAttribute("clarificationsNeededSelected",domain.getClarificationNeededFrom().getId());
-						}
-						/*
-						 * adding list of next actors.This we can get from the workflow config of a session
-						 */
-						if(strType.equals("department")){
-						List<Reference> actorsDecreasingOrder=WorkflowConfig.findActors(sessionId, deviceTypeId, workflowType, groupNumber, workflowConfigId2, level, ApplicationConstants.DESC);
-	                    model.addAttribute("actors",actorsDecreasingOrder);
-						}else{
-						List<Reference> actorsIncreasingOrder=WorkflowConfig.findActors(sessionId, deviceTypeId, workflowType, groupNumber, workflowConfigId2, level, ApplicationConstants.ASC);
-						model.addAttribute("actors",actorsIncreasingOrder);
-						}
-					      //add clubbing
-                        List<Reference> references=new ArrayList<Reference>();
-                        List<Question> clubbedQuestions=domain.getClubbings();
-                        StringBuffer buffer1=new StringBuffer();
-                        for(Question q:clubbedQuestions){
-                            Reference reference=new Reference();
-                            reference.setId(String.valueOf(q.getId()));
-                            reference.setName(String.valueOf(q.getNumber()));
-                            references.add(reference);
-                            buffer1.append(q.getPrimaryMember().getFullname()+",");
-                            List<SupportingMember> clubbedSupportingMember=q.getSupportingMembers();
-                            if(clubbedSupportingMember!=null){
-                                if(!clubbedSupportingMember.isEmpty()){
-                                    for(SupportingMember l:clubbedSupportingMember){
-                                        buffer1.append(l.getMember().getFullname()+",");
-                                    }
-                                }
-                            }
-
-                        }
-                        if(!buffer1.toString().isEmpty()){
-                            buffer1.deleteCharAt(buffer1.length()-1);
-                        }
-                        String memberNames=model.get("memberNames").toString();
-                        String allMembersNames=memberNames+","+buffer1.toString();
-                        model.addAttribute("memberNames",allMembersNames);
-                        if(!references.isEmpty()){
-                        model.addAttribute("clubbedQuestions",references);
-                        }else{
-                        if(domain.getParent()!=null){
-                        model.addAttribute("parentNumber",domain.getParent().getNumber());
-                        model.addAttribute("parent",domain.getParent().getId());
-                        }
-                        }
-						break;
-					}
-				}
-			}
-		}
-	}
-
+	
 	/**
 	 * Populate secretary model.
 	 *
@@ -744,287 +857,8 @@ public class QuestionWorkflowController  extends BaseController{
 	 * @param model the model
 	 * @param request the request
 	 */
-	private void populateSecretaryModel(final Question domain, final ModelMap model,
-			final HttpServletRequest request) {
-		/*
-		 * clear remarks
-		 */
-		domain.setRemarks("");
-		/*
-		 * adding locale
-		 */
-		String locale=domain.getLocale();
-
-		/*
-		 * adding housetypes and selected house type
-		 */
-		HouseType houseType=domain.getHouseType();
-		model.addAttribute("houseType",houseType.getType());
-		model.addAttribute("houseTypeName",houseType.getName());
-		model.addAttribute("houseTypeId",houseType.getId());
 
 
-		/*
-		 * adding session
-		 */
-		Session selectedSession=domain.getSession();
-		model.addAttribute("session",selectedSession.getId());
-
-		/*
-		 * adding years and selected session year
-		 */
-		Integer sessionYear=0;
-		sessionYear=selectedSession.getYear();
-		model.addAttribute("sessionYearSelected",sessionYear);
-		Integer year=new GregorianCalendar().get(Calendar.YEAR);
-		CustomParameter houseFormationYear=CustomParameter.findByName(CustomParameter.class, "HOUSE_FORMATION_YEAR", "");
-		List<Integer> years=new ArrayList<Integer>();
-		if(houseFormationYear!=null){
-			Integer formationYear=Integer.parseInt(houseFormationYear.getValue());
-			for(int i=year;i>=formationYear;i--){
-				years.add(i);
-			}
-		}
-		model.addAttribute("years",years);
-
-
-		/*
-		 * adding session types and selected session types
-		 */
-		List<SessionType> sessionTypes=SessionType.findAll(SessionType.class,"sessionType", ApplicationConstants.ASC, locale);
-		model.addAttribute("sessionTypes",sessionTypes);
-		SessionType sessionType=null;
-		if(selectedSession.getType()!=null){
-			sessionType=selectedSession.getType();
-			model.addAttribute("sessionTypeSelected",sessionType.getId());
-		}
-
-
-		/*
-		 * adding list of available question types and selected question type
-		 */
-		List<DeviceType> questionTypes=DeviceType.findAll(DeviceType.class,"name",ApplicationConstants.ASC, locale);
-		model.addAttribute("questionTypes",questionTypes);
-		DeviceType questionType=domain.getType();
-		model.addAttribute("deviceTypeSelected",questionType.getId());
-		model.addAttribute("deviceType",questionType.getName());
-
-		/*
-		 * adding ministries,groups,departments,sub-departments,answering dates
-		 */
-		if(questionType.getType().trim().equals("questions_starred")){
-			Date rotationOrderPubDate=null;
-			CustomParameter serverDateFormat = CustomParameter.findByName(CustomParameter.class, "DB_DATEFORMAT", "");
-            if(houseType.getType().equals("lowerhouse")){
-                String strRotationOrderPubDate = selectedSession.getParamater("questions_starred_rotationOrderPublishingDate");
-                rotationOrderPubDate = FormaterUtil.formatStringToDate(strRotationOrderPubDate, serverDateFormat.getValue());
-            }else if(houseType.equals("upperhouse")){
-                String strRotationOrderPubDate = selectedSession.getParamater("questions_starred_rotationOrderPublishingDate");
-                rotationOrderPubDate = FormaterUtil.formatStringToDate(strRotationOrderPubDate, serverDateFormat.getValue());
-            }   CustomParameter rotationOrderDateFormat=CustomParameter.findByName(CustomParameter.class,"ROTATION_ORDER_DATE_FORMAT", "");
-            if(rotationOrderDateFormat!=null){
-                if(rotationOrderPubDate!=null){
-					/*
-					 * adding rotation order publishing date
-					 */
-					String tempDate=FormaterUtil.getDateFormatter(rotationOrderDateFormat.getValue(), locale).format(rotationOrderPubDate);
-					String[] temp=tempDate.split(",");
-					String formattedDay=FormaterUtil.getDayInMarathi(temp[0], locale);
-					String formattedDate=temp[1].split(" ")[0];
-					String formattedMonth=FormaterUtil.getMonthInMarathi(temp[1].split(" ")[1], locale);
-					String formattedYear=temp[2];
-					model.addAttribute("rotationOrderPublishDate", formattedDay+","+formattedDate+" "+formattedMonth+","+formattedYear);
-					Date currentDate=new Date();
-					if(currentDate.equals(rotationOrderPubDate)||currentDate.after(rotationOrderPubDate)){
-
-						/*
-						 * adding ministries
-						 */
-						List<Ministry> ministries=Ministry.findMinistriesAssignedToGroups(houseType, sessionYear, sessionType, locale);
-						model.addAttribute("ministries",ministries);
-						if(domain.getMinistry()!=null){
-							model.addAttribute("ministrySelected",domain.getMinistry().getId());
-						}
-
-						/*
-						 * adding group
-						 */
-						Ministry ministry=domain.getMinistry();
-						if(ministry!=null){
-							Group group=domain.getGroup();
-							model.addAttribute("group",domain.getGroup());
-
-							/*
-							 * adding deparments
-							 */
-							List<Department> departments=MemberMinister.findAssignedDepartments(ministry, locale);
-							model.addAttribute("departments",departments);
-							Department department=domain.getDepartment();
-							if(department!=null){
-								model.addAttribute("departmentSelected",department.getId());
-								/*
-								 * adding sub-departments
-								 */
-								List<SubDepartment> subDepartments=MemberMinister.findAssignedSubDepartments(ministry,department, locale);
-								model.addAttribute("subDepartments",subDepartments);
-								if(domain.getSubDepartment()!=null){
-									model.addAttribute("subDepartmentSelected",domain.getSubDepartment().getId());
-								}
-							}
-							/*
-							 * adding answering dates in case of starred questions
-							 */
-							if(group!=null){
-								List<QuestionDates> answeringDates=group.getQuestionDates();
-								List<MasterVO> masterVOs=new ArrayList<MasterVO>();
-								for(QuestionDates i:answeringDates){
-									MasterVO masterVO=new MasterVO();
-									masterVO.setId(i.getId());
-									masterVO.setName(FormaterUtil.getDateFormatter(locale).format(i.getAnsweringDate()));
-									masterVOs.add(masterVO);
-								}
-								model.addAttribute("answeringDates",masterVOs);
-								if(domain.getAnsweringDate()!=null){
-									model.addAttribute("answeringDateSelected", domain.getAnsweringDate().getId());
-									model.addAttribute("answeringDate",FormaterUtil.getDateFormatter(locale).format(domain.getAnsweringDate().getAnsweringDate()));
-								}
-							}
-						}
-
-					}
-				}
-			}
-		}else{
-			/*
-			 * adding ministries
-			 */
-			List<Ministry> ministries=Ministry.findMinistriesAssignedToGroups(houseType, sessionYear, sessionType, locale);
-			model.addAttribute("ministries",ministries);
-			if(domain.getMinistry()!=null){
-				model.addAttribute("ministrySelected",domain.getMinistry().getId());
-			}
-
-			/*
-			 * adding group
-			 */
-			Ministry ministry=domain.getMinistry();
-			if(ministry!=null){
-				Group group=domain.getGroup();
-				model.addAttribute("group",group);
-
-				/*
-				 * adding deparments
-				 */
-				List<Department> departments=MemberMinister.findAssignedDepartments(ministry, locale);
-				model.addAttribute("departments",departments);
-				Department department=domain.getDepartment();
-				if(department!=null){
-					model.addAttribute("departmentSelected",department.getId());
-					/*
-					 * adding sub-departments
-					 */
-					List<SubDepartment> subDepartments=MemberMinister.findAssignedSubDepartments(ministry,department, locale);
-					model.addAttribute("subDepartments",subDepartments);
-					if(domain.getSubDepartment()!=null){
-						model.addAttribute("subDepartmentSelected",domain.getSubDepartment().getId());
-					}
-				}
-			}
-		}
-
-		/*
-         * adding primary member id and name to model.in case of member screen primary member name will
-         * be displayed with last name first whereas in case of assistant it will be displayed with first name
-         * first.
-         */
-        String memberNames=null;
-        String primaryMemberName=null;
-        Member member=domain.getPrimaryMember();
-        if(member!=null){
-            model.addAttribute("primaryMember",member.getId());
-            primaryMemberName=member.getFullname();
-            memberNames=primaryMemberName;
-            model.addAttribute("primaryMemberName",primaryMemberName);
-        }
-
-        /*
-         * adding list of supporting members to model.
-         */
-        List<SupportingMember> selectedSupportingMembers=domain.getSupportingMembers();
-        List<Member> supportingMembers=new ArrayList<Member>();
-        if(selectedSupportingMembers!=null){
-            if(!selectedSupportingMembers.isEmpty()){
-                StringBuffer bufferFirstNamesFirst=new StringBuffer();
-                for(SupportingMember i:selectedSupportingMembers){
-                    Member m=i.getMember();
-                    bufferFirstNamesFirst.append(m.getFullname()+",");
-                    supportingMembers.add(m);
-                }
-                bufferFirstNamesFirst.deleteCharAt(bufferFirstNamesFirst.length()-1);
-                model.addAttribute("supportingMembersName", bufferFirstNamesFirst.toString());
-                model.addAttribute("supportingMembers",supportingMembers);
-                memberNames=primaryMemberName+","+bufferFirstNamesFirst.toString();
-                model.addAttribute("memberNames",memberNames);
-            }else{
-                 model.addAttribute("memberNames",memberNames);
-            }
-        }else{
-            model.addAttribute("memberNames",memberNames);
-        }
-
-		/*
-		 * adding list of available languages to model
-		 */
-		List<Language> languages=Language.findAll(Language.class, "priority", ApplicationConstants.ASC, domain.getLocale());
-		model.addAttribute("languages", languages);
-		if(domain.getLanguage()!=null){
-			model.addAttribute("languageSelected",domain.getLanguage().getId());
-		}
-
-		/*
-		 * adding list of available priorities to model
-		 */
-		CustomParameter customParameter=CustomParameter.findByName(CustomParameter.class, "HIGHEST_QUESTION_PRIORITY", "");
-		if(customParameter!=null){
-			model.addAttribute("priority",customParameter.getValue());
-			model.addAttribute("prioritySelected",domain.getPriority());
-		}else{
-			model.addAttribute("errorcode","highestquestionprioritynotset");
-		}
-		/*
-         * adding creation date and submission date
-         */
-        CustomParameter dateTimeFormat=CustomParameter.findByName(CustomParameter.class,"SERVER_DATETIMEFORMAT", "");
-        if(dateTimeFormat!=null){
-            if(domain.getCreationDate()!=null){
-                model.addAttribute("creationDate",FormaterUtil.getDateFormatter(dateTimeFormat.getValue(),"en_US").format(domain.getCreationDate()));
-            }
-            if(domain.getSubmissionDate()!=null){
-                model.addAttribute("submissionDate",FormaterUtil.getDateFormatter(dateTimeFormat.getValue(),"en_US").format(domain.getSubmissionDate()));
-            }
-        }
-		/*
-		 * adding status
-		 */
-		Status status=domain.getStatus();
-		if(domain.getStatus()!=null){
-			model.addAttribute("status",status.getId());
-			model.addAttribute("statusType",status.getType());
-		}
-
-		/*
-		 * adding internal status
-		 */
-		Status iStatus=domain.getInternalStatus();
-		if(iStatus!=null){
-			model.addAttribute("internalStatusId",iStatus.getId());
-			model.addAttribute("internalStatusType",iStatus.getType());
-			model.addAttribute("internalStatusName",iStatus.getName());
-			if(iStatus.getType().contains("question_workflow_decisionstatus")){
-	        model.addAttribute("internalStatusEndsWith",iStatus.getType().split("question_workflow_decisionstatus")[1]);
-			}
-		}
-	}
 
 	/**
 	 * Update supporting members.
