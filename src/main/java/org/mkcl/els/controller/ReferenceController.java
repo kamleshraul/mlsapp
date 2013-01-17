@@ -640,10 +640,25 @@ public class ReferenceController extends BaseController {
     @RequestMapping(value="/departments/{ministry}", method=RequestMethod.GET)
     public @ResponseBody List<MasterVO> getDepartments(
             @PathVariable("ministry") final Long ministry,
-            final Locale locale
-    ) {
+            final Locale locale){
         Ministry selectedMinistry=Ministry.findById(Ministry.class, ministry);
         //populating departments
+        List<Department> departments=MemberMinister.findAssignedDepartments(selectedMinistry, locale.toString());
+        List<MasterVO> departmentVOs=new ArrayList<MasterVO>();
+        for(Department i:departments){
+            MasterVO masterVO=new MasterVO();
+            masterVO.setId(i.getId());
+            masterVO.setName(i.getName());
+            departmentVOs.add(masterVO);
+        }
+        return departmentVOs;
+    }
+    
+    @RequestMapping(value="/departments/{ministry}/byname", method=RequestMethod.POST)
+    public @ResponseBody List<MasterVO> getDepartmentsByMinistryName(
+            @PathVariable("ministry") final String ministry,
+            final Locale locale){
+        Ministry selectedMinistry=Ministry.findByName(Ministry.class, ministry,locale.toString());
         List<Department> departments=MemberMinister.findAssignedDepartments(selectedMinistry, locale.toString());
         List<MasterVO> departmentVOs=new ArrayList<MasterVO>();
         for(Department i:departments){
@@ -667,10 +682,28 @@ public class ReferenceController extends BaseController {
     public @ResponseBody List<MasterVO> getSubDepartments(
             @PathVariable("ministry") final Long ministry,
             @PathVariable("department") final Long department,
-            final Locale locale
-    ) {
+            final Locale locale){
         Ministry selectedMinistry=Ministry.findById(Ministry.class, ministry);
         Department selectedDepartment=Department.findById(Department.class,department);
+        //populating sub departments
+        List<SubDepartment> subDepartments=MemberMinister.findAssignedSubDepartments(selectedMinistry,selectedDepartment, locale.toString());
+        List<MasterVO> subDepartmentVOs=new ArrayList<MasterVO>();
+        for(SubDepartment i:subDepartments){
+            MasterVO masterVO=new MasterVO();
+            masterVO.setId(i.getId());
+            masterVO.setName(i.getName());
+            subDepartmentVOs.add(masterVO);
+        }
+        return subDepartmentVOs;
+    }
+    
+    @RequestMapping(value="/subdepartments/{ministry}/{department}/byname", method=RequestMethod.POST)
+    public @ResponseBody List<MasterVO> getSubDepartmentsByMinistryDepartmentNames(
+            @PathVariable("ministry") final String ministry,
+            @PathVariable("department") final String department,
+            final Locale locale){
+        Ministry selectedMinistry=Ministry.findByName(Ministry.class, ministry,locale.toString());
+        Department selectedDepartment=Department.findByName(Department.class,department,locale.toString());
         //populating sub departments
         List<SubDepartment> subDepartments=MemberMinister.findAssignedSubDepartments(selectedMinistry,selectedDepartment, locale.toString());
         List<MasterVO> subDepartmentVOs=new ArrayList<MasterVO>();
