@@ -78,7 +78,6 @@ org.springframework.validation.BindingResult, javax.servlet.http.HttpServletRequ
      */
     private void customValidate(final Session sessiondetails,
             final BindingResult result, final HttpServletRequest request) {
-        new HashMap<String, String>();
         if (sessiondetails.isVersionMismatch()) {
             result.rejectValue("VersionMismatch", "version");
         }
@@ -339,7 +338,7 @@ javax.servlet.http.HttpServletRequest)
         	return urlPattern ;	
         }
         //----
-    }    
+    }
    
 	@RequestMapping(method= RequestMethod.POST,value="/devicetypeconfig")
     public String updateSessionDeviceTypeConfig(@Valid @ModelAttribute("domain") Session session, BindingResult result,final ModelMap model,
