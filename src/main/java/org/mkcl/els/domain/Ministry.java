@@ -86,6 +86,10 @@ public class Ministry extends BaseDomain implements Serializable{
     public static List<Ministry> findUnassignedMinistries(final String locale) {
         return getMinistryRepository().findUnassignedMinistries(locale);
     }
+    
+    public static List<Ministry> findAssignedMinistries(final String locale) {
+        return getMinistryRepository().findAssignedMinistries(locale);
+    }
 
     public static List<Ministry> findMinistriesAssignedToGroups(final HouseType houseType,final Integer sessionYear,final SessionType sessionType,final String locale){
         return getMinistryRepository().findMinistriesAssignedToGroups(houseType,sessionYear,sessionType,locale);
