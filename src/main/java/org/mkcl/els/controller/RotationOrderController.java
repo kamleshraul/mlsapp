@@ -21,7 +21,7 @@ public class RotationOrderController {
 	@RequestMapping(value="/init",method=RequestMethod.GET)
 	public String getBallotPage(final HttpServletRequest request,final ModelMap model,
 			final Locale locale){
-		return "question/rotationorderinit";
+		return "rotationorder/rotationorderinit";
 	}
 	
 	@RequestMapping(value="/aadwachart",method=RequestMethod.GET)
@@ -36,6 +36,6 @@ public class RotationOrderController {
             List<QuestionDatesVO> questionDates=Group.findAllGroupDatesFormatted(houseType, sessionType, sessionYear,locale.toString());
             model.addAttribute("dates",questionDates);
         }
-        return "question/aadwachart";
+        return "rotationorder/aadwachart";
     }
 }
