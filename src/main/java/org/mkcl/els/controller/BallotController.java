@@ -67,7 +67,7 @@ public class BallotController extends BaseController{
 			}
 			model.addAttribute("answeringDates",masterVOs);
 		}
-		return "question/ballotinit";
+		return "ballot/ballotinit";
 	}
 	
 	/**
@@ -116,13 +116,6 @@ public class BallotController extends BaseController{
 		}
 
 		Date answeringDate = questionDates.getAnsweringDate();
-		//			if(strAnsweringDate != null) {
-		//				CustomParameter parameter =
-		//					CustomParameter.findByName(CustomParameter.class, "DB_DATEFORMAT", "");
-		//				answeringDate = new DateFormater().formatStringToDate(strAnsweringDate,
-		//						parameter.getValue());
-		//			}
-
 		if(answeringDate != null) {
 			Ballot ballot = Ballot.find(session, group, answeringDate, strLocale);
 			if(ballot == null) {
@@ -174,13 +167,6 @@ public class BallotController extends BaseController{
 		}
 
 		Date answeringDate = questionDates.getAnsweringDate();
-		//			if(strAnsweringDate != null) {
-		//				CustomParameter parameter =
-		//					CustomParameter.findByName(CustomParameter.class, "DB_DATEFORMAT", "");
-		//				answeringDate = new DateFormater().formatStringToDate(strAnsweringDate,
-		//						parameter.getValue());
-		//			}
-
 		if(answeringDate != null) {
 			List<BallotVO> ballotVOs = Ballot.getBallotVOs(session, group, answeringDate, strLocale);
 			model.addAttribute("ballotVOs", ballotVOs);
@@ -195,7 +181,7 @@ public class BallotController extends BaseController{
 			model.addAttribute("errorcode", "answeringDateNotSelected");
 		}
 
-		return "question/ballot";
+		return "ballot/ballot";
 	}
 
 	
@@ -204,7 +190,7 @@ public class BallotController extends BaseController{
     @RequestMapping(value="/memberballot/init",method=RequestMethod.GET)
     public String viewMemberBallot(final HttpServletRequest request,
             final Locale locale){
-        return "question/memberballotinit";
+        return "ballot/memberballotinit";
     }
     /**
      * Creates the final member ballot.
@@ -269,7 +255,7 @@ public class BallotController extends BaseController{
 		}else{
 			logger.error("**** Check request parameter 'houseType,sessionType,sessionYear,questionType' for null values ****");
 		}
-		return "question/attendance";
+		return "ballot/attendance";
 	}
 
 	@RequestMapping(value="/attendance",method=RequestMethod.PUT)
@@ -328,7 +314,7 @@ public class BallotController extends BaseController{
 		}else{
 			logger.error("**** Check request parameter 'houseType,sessionType,sessionYear,questionType' for null values ****");
 		}
-		return "question/preballot";
+		return "ballot/preballot";
 	}
 
 	@RequestMapping(value="/memberballot/create",method=RequestMethod.POST)
@@ -398,7 +384,7 @@ public class BallotController extends BaseController{
 		}else{
 			logger.error("**** Check request parameter 'houseType,sessionType,sessionYear,questionType,attendance and round' for null values ****");
 		}
-		return "question/memberballot";
+		return "ballot/memberballot";
 	}
 
 
@@ -438,7 +424,7 @@ public class BallotController extends BaseController{
 		}else{
 			logger.error("**** Check request parameter 'houseType,sessionType,sessionYear,questionType,attendance and round' for null values ****");
 		}
-		return "question/memberballotresult";
+		return "ballot/memberballotresult";
 	}
 
 	@RequestMapping(value="/memberballotchoice",method=RequestMethod.GET)
@@ -464,7 +450,7 @@ public class BallotController extends BaseController{
 		}else{
 			logger.error("**** Check request parameter 'houseType,sessionType,sessionYear,questionType' for null values ****");
 		}
-		return "question/memberballotchoice";
+		return "ballot/memberballotchoice";
 	}
 
 	@RequestMapping(value="/listmemberballotchoice",method=RequestMethod.GET)
@@ -502,7 +488,7 @@ public class BallotController extends BaseController{
 		}else{
 			logger.error("**** Check request parameter 'session,deviceType and member' for null values ****");
 		}
-		return "question/listmemberballotchoice";
+		return "ballot/listmemberballotchoice";
 	}
 
 	@RequestMapping(value="/memberballotchoice",method=RequestMethod.POST)
