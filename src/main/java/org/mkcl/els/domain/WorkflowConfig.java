@@ -49,16 +49,18 @@ public class WorkflowConfig extends BaseDomain implements Serializable {
 	/** The Constant serialVersionUID. */
 	private static final long serialVersionUID = -527613490139348330L;
 
-	/** The workflow. */
 	@ManyToOne(fetch=FetchType.LAZY)
-	@JoinColumn(name="workflow_id")
-	private Workflow workflow;
-
-
+	private HouseType houseType;
+	
 	/** The device type. */
 	@ManyToOne(fetch=FetchType.LAZY)
 	@JoinColumn(name="devicetype_id")
 	private DeviceType deviceType;
+	
+	/** The workflow. */
+	@ManyToOne(fetch=FetchType.LAZY)
+	@JoinColumn(name="workflow_id")
+	private Workflow workflow;
 
 	/** The workflowactors. */
 	@ManyToMany(fetch=FetchType.LAZY,cascade=CascadeType.ALL)
@@ -156,5 +158,17 @@ public class WorkflowConfig extends BaseDomain implements Serializable {
 			final String workflowType,final String locale){
 		return getWorkflowConfigRepository().findLatest(deviceTypeId,
 				workflowType,locale);
+	}
+
+	public void setHouseType(HouseType houseType) {
+		this.houseType = houseType;
+	}
+
+	public HouseType getHouseType() {
+		return houseType;
+	}
+
+	public static void removeActor(Long workflowconfigId, Long workflowactorId) {
+		getWorkflowConfigRepository().removeActor(workflowconfigId, workflowactorId);
 	}
 }
