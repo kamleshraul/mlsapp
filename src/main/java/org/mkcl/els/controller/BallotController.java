@@ -18,9 +18,11 @@ import java.util.Locale;
 import javax.servlet.http.HttpServletRequest;
 
 import org.mkcl.els.common.util.FormaterUtil;
-import org.mkcl.els.common.vo.BallotVO;
+import org.mkcl.els.common.vo.HalfHourBallotMemberVO;
+import org.mkcl.els.common.vo.HalfHourBallotVO;
 import org.mkcl.els.common.vo.MasterVO;
 import org.mkcl.els.common.vo.Reference;
+import org.mkcl.els.common.vo.StarredBallotVO;
 import org.mkcl.els.domain.Ballot;
 import org.mkcl.els.domain.CustomParameter;
 import org.mkcl.els.domain.DeviceType;
@@ -81,111 +83,148 @@ public class BallotController extends BaseController{
 			final Locale locale) {
 		String retVal = "ALREADY_EXISTS";
 
-		String strLocale = locale.toString();
-		String strHouseType = request.getParameter("houseType");
-		String strYear = request.getParameter("sessionYear");
-		String strSessionTypeId = request.getParameter("sessionType");
-		String strTempDate=request.getParameter("answeringDate");
-		QuestionDates questionDates=QuestionDates.findById(QuestionDates.class,Long.parseLong(strTempDate));
-		//String strAnsweringDate = request.getParameter("answeringDate");
+        String strLocale = locale.toString();
+        String strHouseType = request.getParameter("houseType");
+        String strYear = request.getParameter("sessionYear");
+        String strSessionTypeId = request.getParameter("sessionType");
+        
+        HouseType houseType =
+            HouseType.findByFieldName(HouseType.class, "type", strHouseType, strLocale);
+        SessionType sessionType =
+            SessionType.findById(SessionType.class, Long.valueOf(strSessionTypeId));
+        Integer year = Integer.valueOf(strYear);
 
-		HouseType houseType =
-			HouseType.findByFieldName(HouseType.class, "type", strHouseType, strLocale);
-		SessionType sessionType =
-			SessionType.findById(SessionType.class, Long.valueOf(strSessionTypeId));
-		Integer year = Integer.valueOf(strYear);
+        Session session = Session.findSessionByHouseTypeSessionTypeYear(houseType, sessionType, year);
 
-		Session session = Session.findSessionByHouseTypeSessionTypeYear(houseType, sessionType, year);
+        Group group = null;
+        List<UserGroup> userGroups = this.getCurrentUser().getUserGroups();
+        if(userGroups != null){
+            if(! userGroups.isEmpty()){
+                for(UserGroup i : userGroups) {
+                    UserGroup j = UserGroup.findById(UserGroup.class,i.getId());
+                    String strType = j.getUserGroupType().getType();
+                    if(strType.equals("assistant")) {
+                        String groupNumber = j.getParameterValue("GROUP_" + strLocale);
+                        if(sessionType != null){
+                            group = Group.findByNumberHouseTypeSessionTypeYear(
+                                    Integer.parseInt(groupNumber), houseType, sessionType, year);
+                        }
+                    }
+                }
+            }
+        }
 
-		Group group = null;
-		List<UserGroup> userGroups = this.getCurrentUser().getUserGroups();
-		if(userGroups != null){
-			if(! userGroups.isEmpty()){
-				for(UserGroup i : userGroups) {
-					UserGroup j = UserGroup.findById(UserGroup.class,i.getId());
-					String strType = j.getUserGroupType().getType();
-					if(strType.equals("assistant")) {
-						String groupNumber = j.getParameterValue("GROUP_" + strLocale);
-						if(sessionType != null){
-							group = Group.findByNumberHouseTypeSessionTypeYear(
-									Integer.parseInt(groupNumber), houseType, sessionType, year);
-						}
-					}
-				}
-			}
-		}
+        String strTempDate = request.getParameter("answeringDate");
+        QuestionDates questionDates = QuestionDates.findById(QuestionDates.class, Long.parseLong(strTempDate));
+        Date answeringDate = questionDates.getAnsweringDate();
+        
+        String strDeviceType = request.getParameter("questionType");
+        DeviceType deviceType = DeviceType.findById(DeviceType.class, Long.parseLong(strDeviceType));
+        
+        if(answeringDate != null) {
+        	if(deviceType.getType().equals("questions_starred")) {
+        		Ballot ballot = Ballot.find(session, deviceType, group, answeringDate, strLocale);
+                if(ballot == null) {
+                    Ballot newBallot = 
+                    	new Ballot(session, deviceType, group, answeringDate, new Date(), strLocale);
+                    newBallot.create();
+                    retVal = "CREATED";
+                }
+        	}
+        	else if(deviceType.getType().equals("questions_halfhourdiscussion_from_question")) {
+        		Ballot ballot = Ballot.find(session, deviceType, answeringDate, strLocale);
+                if(ballot == null) {
+                    Ballot newBallot = 
+                    	new Ballot(session, deviceType, answeringDate, new Date(), strLocale);
+                    newBallot.create();
+                    retVal = "CREATED";
+                }
+        	}
+            
+        }
 
-		Date answeringDate = questionDates.getAnsweringDate();
-		if(answeringDate != null) {
-			Ballot ballot = Ballot.find(session, group, answeringDate, strLocale);
-			if(ballot == null) {
-				Ballot newBallot = new Ballot(session, group, answeringDate, new Date(), strLocale);
-				newBallot.create();
-				retVal = "CREATED";
-			}
-		}
-
-		return retVal;
-	}
+        return retVal;	}
 
 	@RequestMapping(value="/view", method=RequestMethod.GET)
 	public String viewBallot(final ModelMap model,
 			final HttpServletRequest request,
 			final Locale locale) {
-		String strLocale = locale.toString();
-		String strHouseType = request.getParameter("houseType");
-		String strYear = request.getParameter("sessionYear");
-		String strSessionTypeId = request.getParameter("sessionType");
-		String strTempDate=request.getParameter("answeringDate");
-		QuestionDates questionDates=QuestionDates.findById(QuestionDates.class,Long.parseLong(strTempDate));
-		//String strAnsweringDate = request.getParameter("answeringDate");
+		String retVal = "question/error";
+    	
+        String strLocale = locale.toString();
+        String strHouseType = request.getParameter("houseType");
+        String strYear = request.getParameter("sessionYear");
+        String strSessionTypeId = request.getParameter("sessionType");
+        
+        HouseType houseType =
+            HouseType.findByFieldName(HouseType.class, "type", strHouseType, strLocale);
+        SessionType sessionType =
+            SessionType.findById(SessionType.class, Long.valueOf(strSessionTypeId));
+        Integer year = Integer.valueOf(strYear);
 
-		HouseType houseType =
-			HouseType.findByFieldName(HouseType.class, "type", strHouseType, strLocale);
-		SessionType sessionType =
-			SessionType.findById(SessionType.class, Long.valueOf(strSessionTypeId));
-		Integer year = Integer.valueOf(strYear);
+        Session session = Session.findSessionByHouseTypeSessionTypeYear(houseType, sessionType, year);
 
-		Session session = Session.findSessionByHouseTypeSessionTypeYear(houseType, sessionType, year);
+        Group group = null;
+        List<UserGroup> userGroups = this.getCurrentUser().getUserGroups();
+        if(userGroups != null){
+            if(! userGroups.isEmpty()){
+                for(UserGroup i : userGroups) {
+                    UserGroup j = UserGroup.findById(UserGroup.class,i.getId());
+                    String strType = j.getUserGroupType().getType();
+                    if(strType.equals("assistant")) {
+                        String groupNumber = j.getParameterValue("GROUP_" + strLocale);
+                        if(sessionType != null){
+                            group = Group.findByNumberHouseTypeSessionTypeYear(
+                                    Integer.parseInt(groupNumber), houseType, sessionType, year);
+                        }
+                    }
+                }
+            }
+        }
 
-		Group group = null;
-		List<UserGroup> userGroups = this.getCurrentUser().getUserGroups();
-		if(userGroups != null){
-			if(! userGroups.isEmpty()){
-				for(UserGroup i : userGroups) {
-					UserGroup j = UserGroup.findById(UserGroup.class,i.getId());
-					String strType = j.getUserGroupType().getType();
-					if(strType.equals("assistant")) {
-						String groupNumber = j.getParameterValue("GROUP_" + strLocale);
-						if(sessionType != null){
-							group = Group.findByNumberHouseTypeSessionTypeYear(
-									Integer.parseInt(groupNumber), houseType, sessionType, year);
-						}
-					}
-				}
-			}
-		}
+        String strDeviceType = request.getParameter("questionType");
+        DeviceType deviceType = DeviceType.findById(DeviceType.class, Long.parseLong(strDeviceType));
+        
+        String strTempDate=request.getParameter("answeringDate");
+        QuestionDates questionDates=QuestionDates.findById(QuestionDates.class,Long.parseLong(strTempDate));
+        Date answeringDate = questionDates.getAnsweringDate();
 
-		Date answeringDate = questionDates.getAnsweringDate();
-		if(answeringDate != null) {
-			List<BallotVO> ballotVOs = Ballot.getBallotVOs(session, group, answeringDate, strLocale);
-			model.addAttribute("ballotVOs", ballotVOs);
-
-			CustomParameter parameter =
-				CustomParameter.findByName(CustomParameter.class, "DB_DATEFORMAT", "");
-			String strAnsweringDate =
-				FormaterUtil.formatDateToString(answeringDate, parameter.getValue());
-			model.addAttribute("answeringDate", strAnsweringDate);
-		}
-		else {
-			model.addAttribute("errorcode", "answeringDateNotSelected");
-		}
-
-		return "ballot/ballot";
-	}
-
-	
-	
+        if(answeringDate != null) {
+        	CustomParameter parameter =
+        		CustomParameter.findByName(CustomParameter.class, "DB_DATEFORMAT", "");
+        	String strAnsweringDate =
+        		FormaterUtil.formatDateToString(answeringDate, parameter.getValue());
+        	model.addAttribute("answeringDate", strAnsweringDate);
+        		
+        	if(houseType.getType().equals("lowerhouse")) {
+            	if(deviceType.getType().equals("questions_starred")) {
+            		List<StarredBallotVO> ballotVOs = 
+                    	Ballot.findStarredBallotVOs(session, group, answeringDate, strLocale);
+                    model.addAttribute("ballotVOs", ballotVOs);
+                    retVal = "ballot/ballot";
+    			}
+    			else if(deviceType.getType().equals("questions_halfhourdiscussion_from_question")) {
+    				List<HalfHourBallotMemberVO> ballotVOs = 
+    					Ballot.findHalfHourBallotedMemberVOs(session, answeringDate, strLocale);
+    				model.addAttribute("ballotVOs", ballotVOs);
+    				retVal = "ballot/halfhour_member_ballot";
+    			}
+            }
+            else if(houseType.getType().equals("upperhouse")) {
+            	if(deviceType.getType().equals("questions_halfhourdiscussion_from_question")) {
+            		List<HalfHourBallotVO> ballotVOs = 
+            			Ballot.findHalfHourBallotedVOs(session, answeringDate, strLocale);
+            		model.addAttribute("ballotVOs", ballotVOs);
+            		retVal = "ballot/halfhour_ballot";
+    			}
+            }
+        }
+        else {
+        	model.addAttribute("errorcode", "answeringDateNotSelected");
+        }
+        
+        return retVal;
+    }
 
     @RequestMapping(value="/memberballot/init",method=RequestMethod.GET)
     public String viewMemberBallot(final HttpServletRequest request,
