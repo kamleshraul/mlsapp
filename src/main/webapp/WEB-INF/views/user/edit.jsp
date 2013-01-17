@@ -111,7 +111,18 @@
 								</c:forEach>
 								</select>
 								
-			</p>	
+			</p>
+			
+			<p>
+				<label class="small"><spring:message code="user.groupsallowed" text="Groups Allowed" /></label>
+				<form:input path="groupsAllowed" cssClass="sText"></form:input>
+			</p>
+			
+			<p>
+				<label class="small"><spring:message code="user.starturl" text="Start URL" /></label>
+				<form:select path="startURL" cssClass="sSelect" items="${menus }" itemLabel="text" itemValue="url"></form:select>
+			</p>		
+				
 			
 			<div class="fields expand">
 				<h2></h2>
