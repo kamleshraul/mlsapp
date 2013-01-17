@@ -42,7 +42,7 @@ public class ChartController extends BaseController{
 			}
 			model.addAttribute("answeringDates",masterVOs);
 		}
-		return "question/chartinit";
+		return "chart/chartinit";
 	}
 
 	/**
@@ -140,7 +140,7 @@ public class ChartController extends BaseController{
 			model.addAttribute("errorcode", "answeringDateNotSelected");
 		}
 
-		return "question/chart";
+		return "chart/chart";
 	}
 
 }
