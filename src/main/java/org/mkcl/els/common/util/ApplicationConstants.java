@@ -134,16 +134,29 @@ public class ApplicationConstants {
     /** The Constant QIS_ACTOR_LIST_CUSTOMPARAM_NAME. */
     public static final String QIS_ACTOR_LIST_CUSTOMPARAM_NAME="QIS_ACTOR_LIST";
 
+        //parameters for starred question
+
+    //Session Keys
+    public static final String QUESTIONS_STARRED_TOTALROUNDS_MEMBERBALLOT="questions_starred_totalRoundsMemberBallot";
+
+    public static final String QUESTIONS_STARRED_TOTALROUNDS_FINALBALLOT="questions_starred_totalRoundsFinalBallot";
+
+    /**** Question Types ****/
     /** The Constant STARRED_QUESTION. */
-    public static final String STARRED_QUESTION="starred";
+    public static final String STARRED_QUESTION="questions_starred";
 
     /** The Constant UNSTARRED_QUESTION. */
-    public static final String UNSTARRED_QUESTION="unstarred";
+    public static final String UNSTARRED_QUESTION="questions_unstarred";
 
     /** The Constant SHORT_NOTICE_QUESTION. */
-    public static final String SHORT_NOTICE_QUESTION="shortnotice";
+    public static final String SHORT_NOTICE_QUESTION="questions_shortnotice";
 
-    /** The Constant HALF_HOUR_DISCUSSION_QUESTION. */
-    public static final String HALF_HOUR_DISCUSSION_QUESTION="halfhourdiscussion";
-    //parameters for starred question
+    /** The Constant HALF_HOUR_DISCUSSION_QUESTION_STANDALONE. */
+    public static final String HALF_HOUR_DISCUSSION_QUESTION_STANDALONE="questions_halfhourdiscussion_standalone";
+
+    /** The Constant HALF_HOUR_DISCUSSION_QUESTION_FROM_QUESTION. */
+    public static final String HALF_HOUR_DISCUSSION_QUESTION_FROM_QUESTION="questions_halfhourdiscussion_from_question";
+    
+    /**** Question Status ****/
+    public static final String QUESTION_ASSISTANT_PROCESSED="question_assistantprocessed";
 }
