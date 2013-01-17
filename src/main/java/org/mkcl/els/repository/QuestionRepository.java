@@ -16,21 +16,27 @@ import java.util.Date;
 import java.util.List;
 
 import javax.persistence.TypedQuery;
+import javax.swing.text.Position;
 
 import org.mkcl.els.common.util.ApplicationConstants;
 import org.mkcl.els.common.util.FormaterUtil;
 import org.mkcl.els.common.vo.QuestionRevisionVO;
 import org.mkcl.els.common.vo.QuestionSearchVO;
+import org.mkcl.els.domain.ClubbedEntity;
 import org.mkcl.els.domain.CustomParameter;
+import org.mkcl.els.domain.Department;
 import org.mkcl.els.domain.DeviceType;
 import org.mkcl.els.domain.Group;
 import org.mkcl.els.domain.House;
 import org.mkcl.els.domain.HouseType;
 import org.mkcl.els.domain.Member;
 import org.mkcl.els.domain.MemberBallotAttendance;
+import org.mkcl.els.domain.Ministry;
 import org.mkcl.els.domain.Question;
+import org.mkcl.els.domain.ReferencedEntity;
 import org.mkcl.els.domain.Session;
 import org.mkcl.els.domain.Status;
+import org.mkcl.els.domain.SubDepartment;
 import org.mkcl.els.domain.UserGroupType;
 import org.springframework.stereotype.Repository;
 
@@ -47,1667 +53,2282 @@ import com.trg.search.Search;
 public class QuestionRepository extends BaseRepository<Question, Long>{
 
 
-    /**
-     * Find last starred unstarred short notice question no.
-     *
-     * @param house the house
-     * @param currentSession the current session
-     * @return the integer
-     */
-    public Integer findLastStarredUnstarredShortNoticeQuestionNo(final House house,final Session currentSession){
-        String query="SELECT q.number FROM questions AS q JOIN sessions AS s JOIN houses AS h "+
-        "JOIN devicetypes AS dt WHERE q.session_id=s.id AND s.house_id=h.id "+
-        "AND h.id="+house.getId()+" AND s.id="+currentSession.getId()+" AND dt.id=q.devicetype_id AND dt.type!='halfhourdiscussion' ORDER BY q.id DESC LIMIT 0,1";
-        List result=this.em().createNativeQuery(query).getResultList();
-        Integer lastNumber=0;
-        if(!result.isEmpty()){
-            Object i=result.get(0);
-            lastNumber=Integer.parseInt(i.toString());
-        }
-        return lastNumber;
-    }
+	/**
+	 * Find last starred unstarred short notice question no.
+	 *
+	 * @param house the house
+	 * @param currentSession the current session
+	 * @return the integer
+	 */
+	public Integer findLastStarredUnstarredShortNoticeQuestionNo(final House house,final Session currentSession){
+		String query="SELECT q.number FROM questions AS q JOIN sessions AS s JOIN houses AS h "+
+		"JOIN devicetypes AS dt WHERE q.session_id=s.id AND s.house_id=h.id "+
+		"AND h.id="+house.getId()+" AND s.id="+currentSession.getId()+" AND dt.id=q.devicetype_id AND dt.type!='halfhourdiscussion' ORDER BY q.id DESC LIMIT 0,1";
+		List result=this.em().createNativeQuery(query).getResultList();
+		Integer lastNumber=0;
+		if(!result.isEmpty()){
+			Object i=result.get(0);
+			lastNumber=Integer.parseInt(i.toString());
+		}
+		return lastNumber;
+	}
 
-    /**
-     * Find last half hour discussion question no.
-     *
-     * @param house the house
-     * @param currentSession the current session
-     * @return the integer
-     */
-    public Integer findLastHalfHourDiscussionQuestionNo(final House house,final Session currentSession){
-        String query="SELECT q.number FROM questions AS q JOIN sessions AS s JOIN houses AS h "+
-        "JOIN devicetypes AS dt WHERE q.session_id=s.id AND s.house_id=h.id "+
-        "AND h.id="+house.getId()+" AND s.id="+currentSession.getId()+" AND dt.id=q.devicetype_id AND dt.type=='halfhourdiscussion' ORDER BY q.id DESC LIMIT 0,1";
-        List result=this.em().createNativeQuery(query).getResultList();
-        Integer lastNumber=0;
-        if(!result.isEmpty()){
-            Object i=result.get(0);
-            lastNumber=Integer.parseInt(i.toString());
-        }
-        return lastNumber;
-    }
+	/**
+	 * Find last half hour discussion question no.
+	 *
+	 * @param house the house
+	 * @param currentSession the current session
+	 * @return the integer
+	 */
+	public Integer findLastHalfHourDiscussionQuestionNo(final House house,final Session currentSession){
+		String query="SELECT q.number FROM questions AS q JOIN sessions AS s JOIN houses AS h "+
+		"JOIN devicetypes AS dt WHERE q.session_id=s.id AND s.house_id=h.id "+
+		"AND h.id="+house.getId()+" AND s.id="+currentSession.getId()+" AND dt.id=q.devicetype_id AND dt.type=='halfhourdiscussion' ORDER BY q.id DESC LIMIT 0,1";
+		List result=this.em().createNativeQuery(query).getResultList();
+		Integer lastNumber=0;
+		if(!result.isEmpty()){
+			Object i=result.get(0);
+			lastNumber=Integer.parseInt(i.toString());
+		}
+		return lastNumber;
+	}
 
-    /**
-     * Assign question no.
-     *
-     * @param houseType the house type
-     * @param session the session
-     * @param questionType the question type
-     * @param locale the locale
-     * @return the integer
-     */
-    public Integer assignQuestionNo(final HouseType houseType, final Session session,
-            final DeviceType questionType,final String locale) {
-        String strHouseType=houseType.getType();
-        String strQuestionType=questionType.getType();
-        Long house=session.getHouse().getId();
-        String query=null;
-        if(strHouseType.equals(ApplicationConstants.LOWER_HOUSE)){
-            if(strQuestionType.equals("questions_starred")||strQuestionType.equals("questions_unstarred")||strQuestionType.equals("questions_shortnotice")){
-                query="SELECT q FROM Question q JOIN q.session s JOIN s.house h JOIN q.type dt WHERE "+
-                " h.id="+house+"  AND (dt.type='questions_shortnotice' OR dt.type='questions_starred' OR dt.type='questions_unstarred') ORDER BY q.number "+ApplicationConstants.DESC;
-            }else if(strQuestionType.equals("questions_halfhourdiscussion_from_question")){
-                query="SELECT q FROM Question q JOIN q.session s JOIN s.house h JOIN q.type dt WHERE "+
-                " h.id="+house+"  AND (dt.type='questions_halfhourdiscussion_from_question') ORDER BY q.number "+ApplicationConstants.DESC;
-            }
-        }else if(strHouseType.equals(ApplicationConstants.UPPER_HOUSE)){
-            Session lowerHouseSession=Session.find(session.getYear(),session.getType().getType(),ApplicationConstants.LOWER_HOUSE);
-            House lowerHouse=lowerHouseSession.getHouse();
-            CustomParameter dbDateFormat=CustomParameter.findByName(CustomParameter.class,"DB_DATETIMEFORMAT", "");
-            SimpleDateFormat simpleDateFormat=FormaterUtil.getDateFormatter(dbDateFormat.getValue(),"en_US");
-            String lowerHouseFormationDate=simpleDateFormat.format(lowerHouse.getFormationDate());
-            if(strQuestionType.equals("questions_starred")||strQuestionType.equals("questions_unstarred")||strQuestionType.equals("questions_shortnotice")){
-                query="SELECT q FROM Question q JOIN q.type dt JOIN q.houseType ht WHERE "+
-                " ht.type='"+ApplicationConstants.UPPER_HOUSE+"' AND q.submissionDate>='"+lowerHouseFormationDate+"' "+
-                " AND (dt.type='questions_shortnotice' OR dt.type='questions_starred' OR dt.type='questions_unstarred') ORDER BY q.number "+ApplicationConstants.DESC;
-            }else if(strQuestionType.equals("questions_halfhourdiscussion_from_question")){
-                query="SELECT q FROM Question q JOIN q.type dt JOIN q.houseType ht WHERE "+
-                " ht.type='"+ApplicationConstants.UPPER_HOUSE+"' AND q.submissionDate>='"+lowerHouseFormationDate+"' "+
-                " AND (dt.type='questions_halfhourdiscussion_from_question') ORDER BY q.number "+ApplicationConstants.DESC;
-            }
-        }
-        try{
-            List<Question> questions=this.em().createQuery(query).setFirstResult(0).setMaxResults(1).getResultList();
-            if(questions==null){
-                return 0;
-            }else if(questions.isEmpty()){
-                return 0;
-            }else{
-                if(questions.get(0).getNumber()==null){
-                    return 0;
-                }else{
-                    return questions.get(0).getNumber();
-                }
-            }
-        }catch(Exception e){
-            e.printStackTrace();
-            return 0;
-        }
-    }
+	/**
+	 * Assign question no.
+	 *
+	 * @param houseType the house type
+	 * @param session the session
+	 * @param questionType the question type
+	 * @param locale the locale
+	 * @return the integer
+	 */
+	public Integer assignQuestionNo(final HouseType houseType, final Session session,
+			final DeviceType questionType,final String locale) {
+		String strHouseType=houseType.getType();
+		String strQuestionType=questionType.getType();
+		Long house=session.getHouse().getId();
+		String query=null;
+		if(strHouseType.equals(ApplicationConstants.LOWER_HOUSE)){
+			if(strQuestionType.equals("questions_starred")||strQuestionType.equals("questions_unstarred")||strQuestionType.equals("questions_shortnotice")){
+				query="SELECT q FROM Question q JOIN q.session s JOIN s.house h JOIN q.type dt WHERE "+
+				" h.id="+house+"  AND (dt.type='questions_shortnotice' OR dt.type='questions_starred' OR dt.type='questions_unstarred') ORDER BY q.number "+ApplicationConstants.DESC;
+			}else if(strQuestionType.equals("questions_halfhourdiscussion")){
+				query="SELECT q FROM Question q JOIN q.session s JOIN s.house h JOIN q.type dt WHERE "+
+				" h.id="+house+"  AND (dt.type='questions_halfhourdiscussion') ORDER BY q.number "+ApplicationConstants.DESC;
+			}
+		}else if(strHouseType.equals(ApplicationConstants.UPPER_HOUSE)){
+			Session lowerHouseSession=Session.find(session.getYear(),session.getType().getType(),ApplicationConstants.LOWER_HOUSE);
+			House lowerHouse=lowerHouseSession.getHouse();
+			CustomParameter dbDateFormat=CustomParameter.findByName(CustomParameter.class,"DB_DATETIMEFORMAT", "");
+			SimpleDateFormat simpleDateFormat=FormaterUtil.getDateFormatter(dbDateFormat.getValue(),"en_US");
+			String lowerHouseFormationDate=simpleDateFormat.format(lowerHouse.getFormationDate());
+			if(strQuestionType.equals("questions_starred")||strQuestionType.equals("questions_unstarred")||strQuestionType.equals("questions_shortnotice")){
+				query="SELECT q FROM Question q JOIN q.type dt JOIN q.houseType ht WHERE "+
+				" ht.type='"+ApplicationConstants.UPPER_HOUSE+"' AND q.submissionDate>='"+lowerHouseFormationDate+"' "+
+				" AND (dt.type='questions_shortnotice' OR dt.type='questions_starred' OR dt.type='questions_unstarred') ORDER BY q.number "+ApplicationConstants.DESC;
+			}else if(strQuestionType.equals("questions_halfhourdiscussion")){
+				query="SELECT q FROM Question q JOIN q.type dt JOIN q.houseType ht WHERE "+
+				" ht.type='"+ApplicationConstants.UPPER_HOUSE+"' AND q.submissionDate>='"+lowerHouseFormationDate+"' "+
+				" AND (dt.type='questions_halfhourdiscussion') ORDER BY q.number "+ApplicationConstants.DESC;
+			}
+		}
+		try{
+			List<Question> questions=this.em().createQuery(query).setFirstResult(0).setMaxResults(1).getResultList();
+			if(questions==null){
+				return 0;
+			}else if(questions.isEmpty()){
+				return 0;
+			}else{
+				if(questions.get(0).getNumber()==null){
+					return 0;
+				}else{
+					return questions.get(0).getNumber();
+				}
+			}
+		}catch(Exception e){
+			e.printStackTrace();
+			return 0;
+		}
+	}
 
-    /**
-     * Gets the revisions.
-     *
-     * @param questionId the question id
-     * @param locale the locale
-     * @return the revisions
-     */
-    @SuppressWarnings("rawtypes")
-    public List<QuestionRevisionVO> getRevisions(final Long questionId,final String locale) {
-        String query="SELECT rs.usergroup,rs.fullname,rs.editedon,rs.status,rs.question,rs.subject,rs.remark FROM ("+
-        "SELECT ugt.name as usergroup,concat(u.title,' ',u.first_name,' ',u.middle_name,' ',u.last_name) as fullname,qd.edited_on as editedon,"+
-        "s.name as status,qd.question_text as question,qd.subject as subject,qd.remarks as remark FROM questions as q JOIN questions_drafts_association as qda "+
-        " JOIN question_drafts as qd LEFT JOIN usergroups_types as ugt ON qd.editedastype_id=ugt.id JOIN users as u JOIN "+
-        " status as s WHERE q.id=qda.question_id AND qda.question_draft_id=qd.id AND "+
-        "  qd.editedby_id=u.id AND qd.recommendationstatus_id=s.id "+
-        " AND q.id="+questionId +" ORDER BY qd.edited_on desc ) as rs";
-        List results=this.em().createNativeQuery(query).getResultList();
-        List<QuestionRevisionVO> questionRevisionVOs=new ArrayList<QuestionRevisionVO>();
-        for(Object i:results){
-            Object[] o=(Object[]) i;
-            QuestionRevisionVO questionRevisionVO=new QuestionRevisionVO();
-            if(o[0]!=null){
-                questionRevisionVO.setEditedAs(o[0].toString());
-            }else{
-                UserGroupType userGroupType=UserGroupType.findByFieldName(UserGroupType.class,"type","member", locale);
-                questionRevisionVO.setEditedAs(userGroupType.getName());
-            }
-            questionRevisionVO.setEditedBY(o[1].toString());
-            questionRevisionVO.setEditedOn(o[2].toString());
-            questionRevisionVO.setStatus(o[3].toString());
-            questionRevisionVO.setQuestion(o[4].toString());
-            questionRevisionVO.setSubject(o[5].toString());
-            if(o[6]!=null){
-                questionRevisionVO.setRemarks(o[6].toString());
-            }
-            questionRevisionVOs.add(questionRevisionVO);
-        }
-        return questionRevisionVOs;
-    }
+	/**
+	 * Gets the revisions.
+	 *
+	 * @param questionId the question id
+	 * @param locale the locale
+	 * @return the revisions
+	 */
+	@SuppressWarnings("rawtypes")
+	public List<QuestionRevisionVO> getRevisions(final Long questionId,final String locale) {
+		String query="SELECT rs.usergroup,rs.fullname,rs.editedon,rs.status,rs.question,rs.subject,rs.remark FROM ("+
+		"SELECT qd.edited_as as usergroup,concat(u.title,' ',u.first_name,' ',u.middle_name,' ',u.last_name) as fullname,qd.edited_on as editedon,"+
+		"s.name as status,qd.question_text as question,qd.subject as subject,qd.remarks as remark FROM questions as q JOIN questions_drafts_association as qda "+
+		" JOIN question_drafts as qd JOIN users as u JOIN credentials as c JOIN "+
+		" status as s WHERE q.id=qda.question_id AND qda.question_draft_id=qd.id  "+
+		"  AND qd.recommendationstatus_id=s.id and "+
+		" u.credential_id=c.id and c.username=qd.edited_by  "+
+		" AND q.id="+questionId +" ORDER BY qd.edited_on desc ) as rs";
+		List results=this.em().createNativeQuery(query).getResultList();
+		List<QuestionRevisionVO> questionRevisionVOs=new ArrayList<QuestionRevisionVO>();
+		for(Object i:results){
+			Object[] o=(Object[]) i;
+			QuestionRevisionVO questionRevisionVO=new QuestionRevisionVO();
+			if(o[0]!=null){
+				questionRevisionVO.setEditedAs(o[0].toString());
+			}else{
+				UserGroupType userGroupType=UserGroupType.findByFieldName(UserGroupType.class,"type","member", locale);
+				questionRevisionVO.setEditedAs(userGroupType.getName());
+			}
+			questionRevisionVO.setEditedBY(o[1].toString());
+			questionRevisionVO.setEditedOn(o[2].toString());
+			questionRevisionVO.setStatus(o[3].toString());
+			questionRevisionVO.setQuestion(o[4].toString());
+			questionRevisionVO.setSubject(o[5].toString());
+			if(o[6]!=null){
+				questionRevisionVO.setRemarks(o[6].toString());
+			}
+			questionRevisionVOs.add(questionRevisionVO);
+		}
+		return questionRevisionVOs;
+	}
 
-    /**
-     * Returns null if there is no result, else returns a List
-     * of Questions.
-     *
-     * @param session the session
-     * @param member the member
-     * @param deviceType the device type
-     * @param group the group
-     * @param answeringDate the answering date
-     * @param finalSubmissionDate the final submission date
-     * @param internalStatuses the internal statuses
-     * @param maxNoOfQuestions the max no of questions
-     * @param sortOrder the sort order
-     * @param locale the locale
-     * @return the list
-     */
-    public List<Question> find(final Session session,
-            final Member member,
-            final DeviceType deviceType,
-            final Group group,
-            final Date answeringDate,
-            final Date finalSubmissionDate,
-            final Status[] internalStatuses,
-            final Integer maxNoOfQuestions,
-            final String sortOrder,
-            final String locale) {
-        String strAnsweringDate = this.answeringDateAsString(answeringDate);
-        String strFinalSubmissionDate = this.submissionDateAsString(finalSubmissionDate);
+	/**
+	 * Returns null if there is no result, else returns a List
+	 * of Questions.
+	 *
+	 * @param session the session
+	 * @param member the member
+	 * @param deviceType the device type
+	 * @param group the group
+	 * @param answeringDate the answering date
+	 * @param finalSubmissionDate the final submission date
+	 * @param internalStatuses the internal statuses
+	 * @param maxNoOfQuestions the max no of questions
+	 * @param sortOrder the sort order
+	 * @param locale the locale
+	 * @return the list
+	 */
+	public List<Question> find(final Session session,
+			final Member member,
+			final DeviceType deviceType,
+			final Group group,
+			final Date answeringDate,
+			final Date finalSubmissionDate,
+			final Status[] internalStatuses,
+			final Integer maxNoOfQuestions,
+			final String sortOrder,
+			final String locale) {
+		String strAnsweringDate = this.answeringDateAsString(answeringDate);
+		String strFinalSubmissionDate = this.submissionDateAsString(finalSubmissionDate);
 
-        StringBuffer query = new StringBuffer(
-                " SELECT q" +
-                " FROM Question q" +
-                " WHERE q.session.id = " + session.getId() +
-                " AND q.primaryMember.id = " + member.getId() +
-                " AND q.type.id = " + deviceType.getId() +
-                " AND q.group.id = " + group.getId() +
-                " AND q.answeringDate.answeringDate = '" + strAnsweringDate + "'" +
-                " AND q.submissionDate <= '" + strFinalSubmissionDate + "'" +
-                " AND q.locale = '" + locale + "'"
-        );
-        query.append(this.getStatusFilters(internalStatuses));
-        if(sortOrder.equals(ApplicationConstants.ASC)) {
-            query.append(" ORDER BY q.number ASC");
-        }
-        else if(sortOrder.equals(ApplicationConstants.DESC)) {
-            query.append(" ORDER BY q.number DESC");
-        }
+		StringBuffer query = new StringBuffer(
+				" SELECT q" +
+				" FROM Question q" +
+				" WHERE q.session.id = " + session.getId() +
+				" AND q.primaryMember.id = " + member.getId() +
+				" AND q.type.id = " + deviceType.getId() +
+				" AND q.group.id = " + group.getId() +
+				" AND q.answeringDate.answeringDate = '" + strAnsweringDate + "'" +
+				" AND q.submissionDate <= '" + strFinalSubmissionDate + "'" +
+				" AND q.locale = '" + locale + "'"
+		);
+		query.append(this.getStatusFilters(internalStatuses));
+		if(sortOrder.equals(ApplicationConstants.ASC)) {
+			query.append(" ORDER BY q.number ASC");
+		}
+		else if(sortOrder.equals(ApplicationConstants.DESC)) {
+			query.append(" ORDER BY q.number DESC");
+		}
 
-        TypedQuery<Question> tQuery = this.em().createQuery(query.toString(), Question.class);
-        tQuery.setMaxResults(maxNoOfQuestions);
-        List<Question> questions = tQuery.getResultList();
-        return questions;
-    }
+		TypedQuery<Question> tQuery = this.em().createQuery(query.toString(), Question.class);
+		tQuery.setMaxResults(maxNoOfQuestions);
+		List<Question> questions = tQuery.getResultList();
+		return questions;
+	}
 
-    /**
-     * Returns null if there is no result, else returns a List
-     * of Questions.
-     *
-     * @param session the session
-     * @param member the member
-     * @param deviceType the device type
-     * @param group the group
-     * @param answeringDate the answering date
-     * @param finalSubmissionDate the final submission date
-     * @param internalStatuses the internal statuses
-     * @param maxNoOfQuestions the max no of questions
-     * @param sortOrder the sort order
-     * @param locale the locale
-     * @return the list
-     */
-    public List<Question> findBeforeAnsweringDate(final Session session,
-            final Member member,
-            final DeviceType deviceType,
-            final Group group,
-            final Date answeringDate,
-            final Date finalSubmissionDate,
-            final Status[] internalStatuses,
-            final Integer maxNoOfQuestions,
-            final String sortOrder,
-            final String locale) {
-        String strAnsweringDate = this.answeringDateAsString(answeringDate);
-        String strFinalSubmissionDate = this.submissionDateAsString(finalSubmissionDate);
+	/**
+	 * Returns null if there is no result, else returns a List
+	 * of Questions.
+	 *
+	 * @param session the session
+	 * @param member the member
+	 * @param deviceType the device type
+	 * @param group the group
+	 * @param answeringDate the answering date
+	 * @param finalSubmissionDate the final submission date
+	 * @param internalStatuses the internal statuses
+	 * @param maxNoOfQuestions the max no of questions
+	 * @param sortOrder the sort order
+	 * @param locale the locale
+	 * @return the list
+	 */
+	public List<Question> findBeforeAnsweringDate(final Session session,
+			final Member member,
+			final DeviceType deviceType,
+			final Group group,
+			final Date answeringDate,
+			final Date finalSubmissionDate,
+			final Status[] internalStatuses,
+			final Integer maxNoOfQuestions,
+			final String sortOrder,
+			final String locale) {
+		String strAnsweringDate = this.answeringDateAsString(answeringDate);
+		String strFinalSubmissionDate = this.submissionDateAsString(finalSubmissionDate);
 
-        StringBuffer query = new StringBuffer(
-                " SELECT q" +
-                " FROM Question q" +
-                " WHERE q.session.id = " + session.getId() +
-                " AND q.primaryMember.id = " + member.getId() +
-                " AND q.type.id = " + deviceType.getId() +
-                " AND q.group.id = " + group.getId() +
-                " AND q.answeringDate.answeringDate < '" + strAnsweringDate + "'" +
-                " AND q.submissionDate <= '" + strFinalSubmissionDate + "'" +
-                " AND q.locale = '" + locale + "'"
-        );
-        query.append(this.getStatusFilters(internalStatuses));
+		StringBuffer query = new StringBuffer(
+				" SELECT q" +
+				" FROM Question q" +
+				" WHERE q.session.id = " + session.getId() +
+				" AND q.primaryMember.id = " + member.getId() +
+				" AND q.type.id = " + deviceType.getId() +
+				" AND q.group.id = " + group.getId() +
+				" AND q.answeringDate.answeringDate < '" + strAnsweringDate + "'" +
+				" AND q.submissionDate <= '" + strFinalSubmissionDate + "'" +
+				" AND q.locale = '" + locale + "'"
+		);
+		query.append(this.getStatusFilters(internalStatuses));
 
-        TypedQuery<Question> tQuery = this.em().createQuery(query.toString(), Question.class);
-        List<Question> questions = tQuery.getResultList();
-        if(questions != null) {
-            questions = Question.sortByAnsweringDate(questions, sortOrder);
-            if(questions.size() >= maxNoOfQuestions) {
-                return questions.subList(0, maxNoOfQuestions);
-            }
-        }
-        return questions;
-    }
+		TypedQuery<Question> tQuery = this.em().createQuery(query.toString(), Question.class);
+		List<Question> questions = tQuery.getResultList();
+		if(questions != null) {
+			questions = Question.sortByAnsweringDate(questions, sortOrder);
+			if(questions.size() >= maxNoOfQuestions) {
+				return questions.subList(0, maxNoOfQuestions);
+			}
+		}
+		return questions;
+	}
 
-    /**
-     * Returns null if there is no result, else returns a List
-     * of Questions.
-     *
-     * @param session the session
-     * @param member the member
-     * @param deviceType the device type
-     * @param group the group
-     * @param finalSubmissionDate the final submission date
-     * @param internalStatuses the internal statuses
-     * @param maxNoOfQuestions the max no of questions
-     * @param sortOrder the sort order
-     * @param locale the locale
-     * @return the list
-     */
-    public List<Question> findNonAnsweringDate(final Session session,
-            final Member member,
-            final DeviceType deviceType,
-            final Group group,
-            final Date finalSubmissionDate,
-            final Status[] internalStatuses,
-            final Integer maxNoOfQuestions,
-            final String sortOrder,
-            final String locale) {
-        String strFinalSubmissionDate = this.submissionDateAsString(finalSubmissionDate);
+	/**
+	 * Returns null if there is no result, else returns a List
+	 * of Questions.
+	 *
+	 * @param session the session
+	 * @param member the member
+	 * @param deviceType the device type
+	 * @param group the group
+	 * @param finalSubmissionDate the final submission date
+	 * @param internalStatuses the internal statuses
+	 * @param maxNoOfQuestions the max no of questions
+	 * @param sortOrder the sort order
+	 * @param locale the locale
+	 * @return the list
+	 */
+	public List<Question> findNonAnsweringDate(final Session session,
+			final Member member,
+			final DeviceType deviceType,
+			final Group group,
+			final Date finalSubmissionDate,
+			final Status[] internalStatuses,
+			final Integer maxNoOfQuestions,
+			final String sortOrder,
+			final String locale) {
+		String strFinalSubmissionDate = this.submissionDateAsString(finalSubmissionDate);
 
-        StringBuffer query = new StringBuffer(
-                " SELECT q" +
-                " FROM Question q" +
-                " WHERE q.session.id = " + session.getId() +
-                " AND q.primaryMember.id = " + member.getId() +
-                " AND q.type.id = " + deviceType.getId() +
-                " AND q.group.id = " + group.getId() +
-                " AND q.answeringDate = " + null +
-                " AND q.submissionDate <= '" + strFinalSubmissionDate + "'" +
-                " AND q.locale = '" + locale + "'"
-        );
-        query.append(this.getStatusFilters(internalStatuses));
-        if(sortOrder.equals(ApplicationConstants.ASC)) {
-            query.append(" ORDER BY q.number ASC");
-        }
-        else if(sortOrder.equals(ApplicationConstants.DESC)) {
-            query.append(" ORDER BY q.number DESC");
-        }
+		StringBuffer query = new StringBuffer(
+				" SELECT q" +
+				" FROM Question q" +
+				" WHERE q.session.id = " + session.getId() +
+				" AND q.primaryMember.id = " + member.getId() +
+				" AND q.type.id = " + deviceType.getId() +
+				" AND q.group.id = " + group.getId() +
+				" AND q.answeringDate = " + null +
+				" AND q.submissionDate <= '" + strFinalSubmissionDate + "'" +
+				" AND q.locale = '" + locale + "'"
+		);
+		query.append(this.getStatusFilters(internalStatuses));
+		if(sortOrder.equals(ApplicationConstants.ASC)) {
+			query.append(" ORDER BY q.number ASC");
+		}
+		else if(sortOrder.equals(ApplicationConstants.DESC)) {
+			query.append(" ORDER BY q.number DESC");
+		}
 
-        TypedQuery<Question> tQuery = this.em().createQuery(query.toString(), Question.class);
-        tQuery.setMaxResults(maxNoOfQuestions);
-        List<Question> questions = tQuery.getResultList();
-        return questions;
-    }
+		TypedQuery<Question> tQuery = this.em().createQuery(query.toString(), Question.class);
+		tQuery.setMaxResults(maxNoOfQuestions);
+		List<Question> questions = tQuery.getResultList();
+		return questions;
+	}
 
-    /**
-     * Find dated questions.
-     *
-     * @param session the session
-     * @param member the member
-     * @param deviceType the device type
-     * @param group the group
-     * @param answeringDate the answering date
-     * @param finalSubmissionDate the final submission date
-     * @param internalStatuses the internal statuses
-     * @param maxNoOfQuestions the max no of questions
-     * @param locale the locale
-     * @return the list
-     */
-    public List<Question> findDatedQuestions(final Session session,
-            final Member member,
-            final DeviceType deviceType,
-            final Group group,
-            final Date answeringDate,
-            final Date finalSubmissionDate,
-            final Status[] internalStatuses,
-            final Integer maxNoOfQuestions,
-            final String locale) {
-        String strAnsweringDate = this.answeringDateAsString(answeringDate);
-        String strFinalSubmissionDate = this.submissionDateAsString(finalSubmissionDate);
+	/**
+	 * Find dated questions.
+	 *
+	 * @param session the session
+	 * @param member the member
+	 * @param deviceType the device type
+	 * @param group the group
+	 * @param answeringDate the answering date
+	 * @param finalSubmissionDate the final submission date
+	 * @param internalStatuses the internal statuses
+	 * @param maxNoOfQuestions the max no of questions
+	 * @param locale the locale
+	 * @return the list
+	 */
+	public List<Question> findDatedQuestions(final Session session,
+			final Member member,
+			final DeviceType deviceType,
+			final Group group,
+			final Date answeringDate,
+			final Date finalSubmissionDate,
+			final Status[] internalStatuses,
+			final Integer maxNoOfQuestions,
+			final String locale) {
+		String strAnsweringDate = this.answeringDateAsString(answeringDate);
+		String strFinalSubmissionDate = this.submissionDateAsString(finalSubmissionDate);
 
-        StringBuffer query = new StringBuffer(
-                " SELECT q" +
-                " FROM Question q" +
-                " WHERE q.session.id = " + session.getId() +
-                " AND q.primaryMember.id = " + member.getId() +
-                " AND q.type.id = " + deviceType.getId() +
-                " AND q.group.id = " + group.getId() +
-                " AND q.answeringDate.answeringDate <= '" + strAnsweringDate + "'" +
-                " AND q.submissionDate <= '" + strFinalSubmissionDate + "'" +
-                " AND q.locale = '" + locale + "'"
-        );
-        query.append(this.getStatusFilters(internalStatuses));
-        query.append(" ORDER BY q.answeringDate.answeringDate DESC, q.number ASC");
+		StringBuffer query = new StringBuffer(
+				" SELECT q" +
+				" FROM Question q" +
+				" WHERE q.session.id = " + session.getId() +
+				" AND q.primaryMember.id = " + member.getId() +
+				" AND q.type.id = " + deviceType.getId() +
+				" AND q.group.id = " + group.getId() +
+				" AND q.answeringDate.answeringDate <= '" + strAnsweringDate + "'" +
+				" AND q.submissionDate <= '" + strFinalSubmissionDate + "'" +
+				" AND q.locale = '" + locale + "'"
+		);
+		query.append(this.getStatusFilters(internalStatuses));
+		query.append(" ORDER BY q.answeringDate.answeringDate DESC, q.number ASC");
 
-        TypedQuery<Question> tQuery = this.em().createQuery(query.toString(), Question.class);
-        tQuery.setMaxResults(maxNoOfQuestions);
-        List<Question> questions = tQuery.getResultList();
-        return questions;
-    }
+		TypedQuery<Question> tQuery = this.em().createQuery(query.toString(), Question.class);
+		tQuery.setMaxResults(maxNoOfQuestions);
+		List<Question> questions = tQuery.getResultList();
+		return questions;
+	}
 
-    /**
-     * Find.
-     *
-     * @param session the session
-     * @param number the number
-     * @return the question
-     */
-    public Question find(final Session session, final Integer number) {
-        Search search = new Search();
-        search.addFilterEqual("session", session);
-        search.addFilterEqual("number", number);
-        return this.searchUnique(search);
-    }
-    
-    public Question findBySessionDeviceTypeQuestionNumber(final Session session, final DeviceType deviceType , final Integer number){
-        Search search = new Search();
-        search.addFilterEqual("session", session);
-        search.addFilterEqual("type", deviceType);
-        search.addFilterEqual("number", number);
-        return this.searchUnique(search);
-    }
+	/**
+	 * Find.
+	 *
+	 * @param session the session
+	 * @param number the number
+	 * @return the question
+	 */
+	public Question find(final Session session, final Integer number) {
+		Search search = new Search();
+		search.addFilterEqual("session", session);
+		search.addFilterEqual("number", number);
+		return this.searchUnique(search);
+	}
 
-    /**
-     * Gets the status filters.
-     *
-     * @param internalStatuses the internal statuses
-     * @return the status filters
-     */
-    private String getStatusFilters(final Status[] internalStatuses) {
-        StringBuffer sb = new StringBuffer();
-        sb.append(" AND(");
-        int n = internalStatuses.length;
-        for(int i = 0; i < n; i++) {
-            sb.append(" q.internalStatus.id = " + internalStatuses[i].getId());
-            if(i < n - 1) {
-                sb.append(" OR");
-            }
-        }
-        sb.append(")");
-        return sb.toString();
-    }
+	/**
+	 * Gets the status filters.
+	 *
+	 * @param internalStatuses the internal statuses
+	 * @return the status filters
+	 */
+	private String getStatusFilters(final Status[] internalStatuses) {
+		StringBuffer sb = new StringBuffer();
+		sb.append(" AND(");
+		int n = internalStatuses.length;
+		for(int i = 0; i < n; i++) {
+			sb.append(" q.internalStatus.id = " + internalStatuses[i].getId());
+			if(i < n - 1) {
+				sb.append(" OR");
+			}
+		}
+		sb.append(")");
+		return sb.toString();
+	}
 
-    /**
-     * Full text search clubbing.
-     *
-     * @param param the param
-     * @param sessionId the session id
-     * @param groupId the group id
-     * @param currentChartId the current chart id
-     * @param questionId the question id
-     * @param locale the locale
-     * @return the list
-     */
-    @SuppressWarnings("rawtypes")
-    public List<QuestionSearchVO> fullTextSearchClubbing(final String param,final Long sessionId,final Long groupId, final Long currentChartId, final Long questionId, final String locale) {
-        /*
-         * data to fetch and from where.
-         */
-        String initialQuery="SELECT q.id as id,q.number as number,q.subject as subject "+
-        ",q.question_text as questionText,q.revised_subject as revisedSubject "+
-        ",q.revised_question_text as revisedQuestionText,t.name as title "+
-        ",m.first_name as firstName,m.middle_name as middleName,m.last_name as lastName "+
-        ",mi.name as ministry,d.name as department,sd.name as subdepartment,c.answering_date as answeringdate,g.number as groupnumber "+
-        ",st.name as statusname "+
-        "FROM questions as q "+
-        "left join members as m on(q.member_id=m.id ) "+
-        "left join titles as t on(t.id=m.title_id) "+
-        "left join ministries as mi on(q.ministry_id=mi.id) "+
-        "left join departments as d on(q.department_id=d.id) "+
-        "left join subdepartments as sd on(q.subdepartment_id=sd.id) "+
-        "join charts as c "+
-        "join charts_chart_entries as cce "+
-        "join chart_entries_questions as ceq "+
-        "left join groups as g on(q.group_id=g.id) "+
-        "join sessions as s join status as st "+
-        "WHERE c.group_id=q.group_id and "+
-        "c.session_id=s.id and cce.chart_id=c.id and ceq.chart_entry_id=cce.chart_entry_id "+
-        "and ceq.question_id=q.id and st.id=q.internalstatus_id and "+
-        "g.id="+groupId+" and s.id="+sessionId+" and c.id<="+currentChartId+" and q.parent is null "+
-        "and q.id<>"+questionId;
-        /*
-         * fulltext query
-         */
-        String searchQuery=null;
-        if(!param.contains("+")&&!param.contains("-")){
-            searchQuery=" AND match(q.subject,q.question_text,q.revised_subject,q.revised_question_text) "+
-            "against('"+param+"' in natural language mode)";
-        }else if(param.contains("+")&&!param.contains("-")){
-            String[] parameters=param.split("\\+");
-            StringBuffer buffer=new StringBuffer();
-            for(String i:parameters){
-                buffer.append("+"+i+" ");
-            }
-            searchQuery=" AND match(q.subject,q.question_text,q.revised_subject,q.revised_question_text) "+
-            "against('"+buffer.toString()+"' in boolean  mode)";
-        }else if(!param.contains("+")&&param.contains("-")){
-            String[] parameters=param.split("-");
-            StringBuffer buffer=new StringBuffer();
-            for(String i:parameters){
-                buffer.append(i+" "+"-");
-            }
-            buffer.deleteCharAt(buffer.length()-1);
-            searchQuery=" AND match(q.subject,q.question_text,q.revised_subject,q.revised_question_text) "+
-            "against('"+buffer.toString()+"' in boolean  mode)";
-        }else if(param.contains("+")||param.contains("-")){
-            searchQuery=" AND match(q.subject,q.question_text,q.revised_subject,q.revised_question_text) "+
-            "against('"+param+"' in boolean  mode)";
-        }
-        /*
-         * order by query.It is arranged first by answering date descending and then group number descending
-         */
-        String orderByQuery=" ORDER BY c.answering_date desc,q.number "+ApplicationConstants.DESC;
-        String query=initialQuery+searchQuery+orderByQuery;
-        String finalQuery="SELECT rs.id,rs.number,rs.subject,rs.questionText,rs.revisedSubject"+
-        ",rs.revisedQuestionText,rs.title,rs.firstName,rs.middleName,rs.lastName"+
-        ",rs.ministry,rs.department,rs.subdepartment,rs.answeringdate,rs.groupnumber,rs.statusname FROM ("+query+") as rs";
-        List results=this.em().createNativeQuery(finalQuery).getResultList();
-        List<QuestionSearchVO> questionSearchVOs=new ArrayList<QuestionSearchVO>();
-        SimpleDateFormat format=FormaterUtil.getDateFormatter(locale);
-        CustomParameter customParameter=CustomParameter.findByName(CustomParameter.class,"DB_DATEFORMAT","");
-        SimpleDateFormat dbFormat=FormaterUtil.getDateFormatter(customParameter.getValue(), locale);
-        if(results!=null){
-            for(Object i:results){
-                Object[] o=(Object[]) i;
-                QuestionSearchVO questionSearchVO=new QuestionSearchVO();
-                if(o[0]!=null){
-                    questionSearchVO.setId(Long.parseLong(o[0].toString()));
-                }
-                if(o[1]!=null){
-                    questionSearchVO.setNumber(Integer.parseInt(o[1].toString()));
-                }
-                if(o[2]!=null){
-                    questionSearchVO.setSubject(o[2].toString());
-                }
-                if(o[3]!=null){
-                    questionSearchVO.setQuestionText(o[3].toString());
-                }
-                if(o[4]!=null){
-                    questionSearchVO.setRevisedSubject(o[4].toString());
-                }
-                if(o[5]!=null){
-                    questionSearchVO.setRevisedQuestionText(o[5].toString());
-                }
-                if(o[6]!=null){
-                    if(o[8]!=null){
-                        questionSearchVO.setPrimaryMember(o[6].toString()+" "+o[7].toString()+" "+o[8].toString()+" "+o[9].toString());
-                    }else{
-                        questionSearchVO.setPrimaryMember(o[6].toString()+" "+o[7].toString()+" "+o[9].toString());
-                    }
-                }else{
-                    questionSearchVO.setPrimaryMember(o[7].toString()+" "+o[8].toString()+" "+o[9].toString());
-                }
-                if(o[10]!=null){
-                    questionSearchVO.setMinistry(o[10].toString());
-                }
-                if(o[11]!=null){
-                    questionSearchVO.setDepartment(o[11].toString());
-                }
-                if(o[12]!=null){
-                    questionSearchVO.setSubDepartment(o[12].toString());
-                }
-                if(o[13]!=null){
-                    Date dbDate;
-                    try {
-                        dbDate = dbFormat.parse(o[13].toString());
-                        questionSearchVO.setAnsweringDate(format.format(dbDate));
-                    }
-                    catch (ParseException e) {
-                        e.printStackTrace();
-                    }
-                }
-                if(o[14]!=null){
-                    questionSearchVO.setGroup(o[14].toString());
-                }
-                if(o[15]!=null){
-                    questionSearchVO.setStatus(o[15].toString());
-                }
-                questionSearchVOs.add(questionSearchVO);
-            }
-        }
-        return questionSearchVOs;
-    }
+	/**
+	 * Full text search clubbing.
+	 *
+	 * @param param the param
+	 * @param sessionId the session id
+	 * @param groupId the group id
+	 * @param currentChartId the current chart id
+	 * @param questionId the question id
+	 * @param locale the locale
+	 * @return the list
+	 */
+	@SuppressWarnings("rawtypes")
+	public List<QuestionSearchVO> fullTextSearchClubbing(final String param, final Question question,
+			final Integer start,final Integer noofRecords,
+			final String locale) {
+		/**** Data to fetch and from where ****/
+		String selectQuery="SELECT q.id as id,q.number as number, "+
+		" q.subject as subject,q.revised_subject as revisedSubject, "+
+		" q.question_text as questionText,q.revised_question_text as revisedQuestionText, "+
+		" st.name as status,dt.name as deviceType,s.session_year as sessionYear,sety.session_type as sessionType "+
+		" FROM questions as q "+
+		" JOIN sessions as s "+
+		" JOIN sessiontypes as sety"+
+		" JOIN status as st "+
+		" JOIN devicetypes as dt "+
+		" JOIN members as m"+
+		" JOIN titles as t"+
+		" LEFT JOIN ministries as mi ON(q.ministry_id=mi.id) "+
+		" LEFT JOIN departments as d ON(q.department_id=d.id) "+
+		" LEFT JOIN subdepartments as sd ON(q.subdepartment_id=sd.id) "+
+		" WHERE q.session_id=s.id AND s.sessiontype_id=sety.id AND q.recommendationstatus_id=st.id AND "+
+		" q.devicetype_id=dt.id AND q.member_id=m.id AND"+
+		" m.title_id=t.id AND q.id<>"+question.getId()+" ";
 
-    /**
-     * Find all.
-     *
-     * @param currentMember the current member
-     * @param session the session
-     * @param deviceType the device type
-     * @param internalStatus the internal status
-     * @return the list
-     */
-    @SuppressWarnings("unchecked")
-    public List<Question> findAll(final Member currentMember, final Session session,
-            final DeviceType deviceType, final Status internalStatus) {
-        List<Question> questions=new ArrayList<Question>();
-        String query="SELECT q FROM Question q WHERE q.primaryMember.id="+currentMember.getId()+" "+
-        " AND q.session.id="+session.getId()+" AND q.type.id="+deviceType.getId()+" "+
-        " AND q.internalStatus.id="+internalStatus.getId()+" ORDER BY q.number "+ApplicationConstants.ASC;
-        questions=this.em().createQuery(query).getResultList();
-        return questions;
-    }
+		/**** Candidate questions must be from same ministry,department and subdepartment ****/
+		StringBuffer minDepSubDepQuery=new StringBuffer();
+		Ministry ministry=question.getMinistry();
+		if(question.getMinistry()!=null){
+			minDepSubDepQuery.append(" AND mi.id="+ministry.getId());
+		}else{
+			minDepSubDepQuery.append(" AND mi.id IS NULL");
+		}
+		Department department=question.getDepartment();
+		if(question.getDepartment()!=null){
+			minDepSubDepQuery.append(" AND d.id="+department.getId());
+		}else{
+			minDepSubDepQuery.append(" AND d.id IS NULL");
+		}
+		SubDepartment subDepartment=question.getSubDepartment();
+		if(question.getSubDepartment()!=null){
+			minDepSubDepQuery.append(" AND sd.id="+subDepartment.getId());
+		}else{
+			minDepSubDepQuery.append(" AND sd.id IS NULL");
+		}
 
-    /**
-     * Find all first batch.
-     *
-     * @param currentMember the current member
-     * @param session the session
-     * @param deviceType the device type
-     * @param internalStatus the internal status
-     * @return the list
-     */
-    @SuppressWarnings("unchecked")
-    public List<Question> findAllFirstBatch(final Member currentMember, final Session session,
-            final DeviceType deviceType, final Status internalStatus) {
-        List<Question> questions=new ArrayList<Question>();
-        //        Date firstBatchDate=session.getQuestionSubmissionFirstBatchDate();
-        //        Date firstBatchStartTime=session.getQuestionSubmissionFirstBatchStartTimeUH();
-        //        Date firstBatchEndTime=session.getQuestionSubmissionFirstBatchEndTimeUH();
-        //        if(firstBatchDate!=null&&firstBatchStartTime!=null&&firstBatchEndTime!=null){
-        //            Calendar calendar1=new GregorianCalendar();
-        //            calendar1.setTime(firstBatchDate);
-        //
-        //            Calendar startTime=new GregorianCalendar();
-        //            startTime.setTime(firstBatchStartTime);
-        //            startTime.set(Calendar.YEAR,calendar1.get(Calendar.YEAR));
-        //            startTime.set(Calendar.MONTH,calendar1.get(Calendar.MONTH));
-        //            startTime.set(Calendar.DATE,calendar1.get(Calendar.DATE));
-        //
-        //            Calendar endTime=new GregorianCalendar();
-        //            endTime.setTime(firstBatchEndTime);
-        //            endTime.set(Calendar.YEAR,calendar1.get(Calendar.YEAR));
-        //            endTime.set(Calendar.MONTH,calendar1.get(Calendar.MONTH));
-        //            endTime.set(Calendar.DATE,calendar1.get(Calendar.DATE));
-        //
-        //            CustomParameter customParameter=CustomParameter.findByName(CustomParameter.class, "DB_DATETIMEFORMAT", "");
-        //            if(customParameter!=null){
-        //                SimpleDateFormat format= FormaterUtil.getDateFormatter(customParameter.getValue(), "en_US");
-        //                String query="SELECT q FROM Question q WHERE q.primaryMember.id="+currentMember.getId()+" "+
-        //                " AND q.session.id="+session.getId()+" AND q.type.id="+deviceType.getId()+" "+
-        //                " AND q.internalStatus.id="+internalStatus.getId()+" AND q.submissionDate>='"+format.format(startTime.getTime())+"' AND q.submissionDate>='"+format.format(endTime.getTime())+"' ORDER BY q.number "+ApplicationConstants.ASC;
-        //                questions=this.em().createQuery(query).getResultList();
-        //            }
-        //        }
-        return questions;
-    }
+		DeviceType deviceType=question.getType();
+		StringBuffer deviceTypeQuery=new StringBuffer();
+		String orderByQuery="";
+		HouseType housetype=question.getHouseType();
+		if(deviceType!=null){
+			/**** Starred Questions :only primary questions,recommendation status >=assistant_processed,
+			 * starred question from same session or unstarred question of same housetype but across any session
+			 ****/
+			if(deviceType.getType().equals(ApplicationConstants.STARRED_QUESTION)){
+				deviceTypeQuery.append(" AND q.parent IS NULL ");	
+				deviceTypeQuery.append(" AND st.priority>=(SELECT priority FROM status as sst WHERE sst.type='"+ApplicationConstants.QUESTION_ASSISTANT_PROCESSED+"')");
+				deviceTypeQuery.append(" AND (" +
+						" (s.id="+question.getSession().getId() +" AND dt.type='"+ApplicationConstants.STARRED_QUESTION +"')"+
+						" OR (dt.type='"+ApplicationConstants.UNSTARRED_QUESTION+"' AND q.housetype_id="+housetype.getId()+")"+
+				" )");
+				orderByQuery=" ORDER BY dt.type "+ApplicationConstants.ASC+" ,s.start_date "+ApplicationConstants.DESC+
+				" ,q.number "+ApplicationConstants.ASC+" ,st.priority "+ApplicationConstants.ASC;
+			}else if(deviceType.getType().equals(ApplicationConstants.UNSTARRED_QUESTION)){
+				/**** Starred Questions :only primary questions,recommendation status >=assistant_processed,
+				 * unstarred question of same housetype but across any session
+				 ****/
+				deviceTypeQuery.append(" AND q.parent IS NULL");
+				deviceTypeQuery.append(" AND st.priority>=(SELECT priority FROM status as sst WHERE sst.type='"+ApplicationConstants.QUESTION_ASSISTANT_PROCESSED+"')");
+				deviceTypeQuery.append(" AND dt.type='"+ApplicationConstants.UNSTARRED_QUESTION+"'AND q.housetype_id="+housetype.getId()+" ");
+				orderByQuery=" ORDER BY s.start_date "+ApplicationConstants.DESC+
+				" ,q.number "+ApplicationConstants.ASC+" ,st.priority "+ApplicationConstants.ASC;
+			}else if(deviceType.getType().equals(ApplicationConstants.SHORT_NOTICE_QUESTION)){
+				/**** Short Notice Questions :
+				 ****/
+				deviceTypeQuery.append(" AND q.parent IS NULL");
+				deviceTypeQuery.append(" AND st.priority>=(SELECT priority FROM status as sst WHERE sst.type='"+ApplicationConstants.QUESTION_ASSISTANT_PROCESSED+"')");
+			}else if(deviceType.getType().equals(ApplicationConstants.HALF_HOUR_DISCUSSION_QUESTION_STANDALONE)){
+				/**** Half hour discussion standalone Questions :
+				 ****/
+				deviceTypeQuery.append(" AND q.parent IS NULL");
+				deviceTypeQuery.append(" AND st.priority>=(SELECT priority FROM status as sst WHERE sst.type='"+ApplicationConstants.QUESTION_ASSISTANT_PROCESSED+"')");
+			}else if(deviceType.getType().equals(ApplicationConstants.HALF_HOUR_DISCUSSION_QUESTION_FROM_QUESTION)){
+				/**** Half hour discussion from questions Questions :
+				 ****/
+				deviceTypeQuery.append(" AND q.parent IS NULL");
+				deviceTypeQuery.append(" AND st.priority>=(SELECT priority FROM status as sst WHERE sst.type='"+ApplicationConstants.QUESTION_ASSISTANT_PROCESSED+"')");
+			}
+		}		
 
-    /**
-     * Find all second batch.
-     *
-     * @param currentMember the current member
-     * @param session the session
-     * @param deviceType the device type
-     * @param internalStatus the internal status
-     * @return the list
-     */
-    @SuppressWarnings("unchecked")
-    public List<Question> findAllSecondBatch(final Member currentMember, final Session session,
-            final DeviceType deviceType, final Status internalStatus) {
-        List<Question> questions=new ArrayList<Question>();
-        //        Date secondBatchDate=session.getQuestionSubmissionSecondBatchDateUH();
-        //        Date secondBatchStartTime=session.getQuestionSubmissionSecondBatchStartTimeUH();
-        //        Date secondBatchEndTime=session.getQuestionSubmissionSecondBatchEndTimeUH();
-        //        if(secondBatchDate!=null&&secondBatchStartTime!=null&&secondBatchEndTime!=null){
-        //            Calendar calendar1=new GregorianCalendar();
-        //            calendar1.setTime(secondBatchDate);
-        //
-        //            Calendar startTime=new GregorianCalendar();
-        //            startTime.setTime(secondBatchStartTime);
-        //            startTime.set(Calendar.YEAR,calendar1.get(Calendar.YEAR));
-        //            startTime.set(Calendar.MONTH,calendar1.get(Calendar.MONTH));
-        //            startTime.set(Calendar.DATE,calendar1.get(Calendar.DATE));
-        //
-        //            Calendar endTime=new GregorianCalendar();
-        //            endTime.setTime(secondBatchEndTime);
-        //            endTime.set(Calendar.YEAR,calendar1.get(Calendar.YEAR));
-        //            endTime.set(Calendar.MONTH,calendar1.get(Calendar.MONTH));
-        //            endTime.set(Calendar.DATE,calendar1.get(Calendar.DATE));
-        //
-        //            CustomParameter customParameter=CustomParameter.findByName(CustomParameter.class, "DB_DATETIMEFORMAT", "");
-        //            if(customParameter!=null){
-        //                SimpleDateFormat format= FormaterUtil.getDateFormatter(customParameter.getValue(), "en_US");
-        //                String query="SELECT q FROM Question q WHERE q.primaryMember.id="+currentMember.getId()+" "+
-        //                " AND q.session.id="+session.getId()+" AND q.type.id="+deviceType.getId()+" "+
-        //                " AND q.internalStatus.id="+internalStatus.getId()+" AND q.submissionDate>='"+format.format(startTime.getTime())+"' AND q.submissionDate>='"+format.format(endTime.getTime())+"' ORDER BY q.number "+ApplicationConstants.ASC;
-        //                questions=this.em().createQuery(query).getResultList();
-        //            }
-        //        }
-       return questions;
-   }
+		/**** fulltext query ****/
+		String searchQuery=null;
+		if(!param.contains("+")&&!param.contains("-")){
+			searchQuery=" AND match(q.subject,q.question_text,q.revised_subject,q.revised_question_text) "+
+			"against('"+param+"' in natural language mode)";
+		}else if(param.contains("+")&&!param.contains("-")){
+			String[] parameters=param.split("\\+");
+			StringBuffer buffer=new StringBuffer();
+			for(String i:parameters){
+				buffer.append("+"+i+" ");
+			}
+			searchQuery=" AND match(q.subject,q.question_text,q.revised_subject,q.revised_question_text) "+
+			"against('"+buffer.toString()+"' in boolean  mode)";
+		}else if(!param.contains("+")&&param.contains("-")){
+			String[] parameters=param.split("-");
+			StringBuffer buffer=new StringBuffer();
+			for(String i:parameters){
+				buffer.append(i+" "+"-");
+			}
+			buffer.deleteCharAt(buffer.length()-1);
+			searchQuery=" AND match(q.subject,q.question_text,q.revised_subject,q.revised_question_text) "+
+			"against('"+buffer.toString()+"' in boolean  mode)";
+		}else if(param.contains("+")||param.contains("-")){
+			searchQuery=" AND match(q.subject,q.question_text,q.revised_subject,q.revised_question_text) "+
+			"against('"+param+"' in boolean  mode)";
+		}		
+		/**** Final Query ****/
+		String query=selectQuery+minDepSubDepQuery.toString()+deviceTypeQuery.toString()+searchQuery+orderByQuery;
+		String finalQuery="SELECT rs.id,rs.number,rs.subject,rs.revisedSubject,rs.questionText, "+
+		" rs.revisedQuestionText,rs.status,rs.deviceType,rs.sessionYear,rs.sessionType FROM ("+query+") as rs LIMIT "+start+","+noofRecords;
 
-    /**
-     * Club.
-     *
-     * @param questionBeingProcessed the question being processed
-     * @param questionBeingClubbed the question being clubbed
-     * @param locale the locale
-     * @return the boolean
-     */
-    public Boolean club(final Long questionBeingProcessed,
-            final Long questionBeingClubbed,final String locale) {
-        Boolean status=true;
-        Question beingProcessedQuestion=Question.findById(Question.class,questionBeingProcessed);
-        Question beingClubbedQuestion=Question.findById(Question.class,questionBeingClubbed);
-        List<Question> beingProcessedClubbing=beingProcessedQuestion.getClubbings();
-        if(beingProcessedClubbing==null){
-            beingProcessedClubbing=new ArrayList<Question>();
-        }
-        List<Question> beingClubbedClubbing=beingClubbedQuestion.getClubbings();
-        if(beingClubbedClubbing==null){
-            beingClubbedClubbing=new ArrayList<Question>();
-        }
-        Status oldPQStatus=beingProcessedQuestion.getInternalStatus();
-        Status oldCQStatus=beingClubbedQuestion.getInternalStatus();
-        Status newPQStatus=beingProcessedQuestion.getInternalStatus();
-        Status newCQStatus=beingClubbedQuestion.getInternalStatus();
-        String processedType=oldPQStatus.getType();
-        String clubbedType=oldCQStatus.getType();
-        if(beingProcessedQuestion.getNumber()<beingClubbedQuestion.getNumber()){
-            if(processedType.equals("question_before_workflow_tobeputup")
-                    &&clubbedType.equals("question_before_workflow_tobeputup")){
-                List<Question> cClubbings=beingClubbedQuestion.getClubbings();
-                beingClubbedQuestion.setClubbings(null);
-                beingProcessedClubbing.add(beingClubbedQuestion);
-                if(cClubbings!=null){
-                    if(!cClubbings.isEmpty()){
-                        for(Question k:cClubbings){
-                            k.setParent(beingProcessedQuestion);
-                            k.merge();
-                        }
-                        for(Question k:cClubbings){
-                            beingProcessedClubbing.add(k);
-                        }
-                    }
-                }
-                beingClubbedQuestion.setParent(beingProcessedQuestion);
-                newPQStatus=Status.findByType("question_before_workflow_tobeputup", locale);
-                newCQStatus=Status.findByType("question_before_workflow_clubbed", locale);
-                beingProcessedQuestion.setInternalStatus(newPQStatus);
-                beingProcessedQuestion.setRecommendationStatus(newPQStatus);
-                beingClubbedQuestion.setInternalStatus(newCQStatus);
-                beingClubbedQuestion.setRecommendationStatus(newCQStatus);
-                beingProcessedQuestion.merge();
-            }else if(processedType.equals("question_before_workflow_tobeputup")
-                    &&(clubbedType.equals("question_workflow_approving_admission")
-                            ||clubbedType.equals("question_workflow_approving_rejection")
-                            ||clubbedType.equals("question_workflow_approving_converttounstarred"))){
-                newPQStatus=Status.findByType("question_before_workflow_nameclub", locale);
-                beingProcessedQuestion.setInternalStatus(newPQStatus);
-                beingProcessedQuestion.setRecommendationStatus(newPQStatus);
-                beingProcessedQuestion.setProspectiveClubbings(beingProcessedQuestion.getProspectiveClubbings()+"##NAMECLUB~"+beingClubbedQuestion.getId()+"##");
-            }else if(processedType.equals("question_before_workflow_tobeputup")
-                    &&clubbedType.equals("question_workflow_approving_clarificationneeded")){
-                newPQStatus=Status.findByType("question_before_workflow_putonhold", locale);
-                beingProcessedQuestion.setInternalStatus(newPQStatus);
-                beingProcessedQuestion.setRecommendationStatus(newPQStatus);
-                beingProcessedQuestion.setProspectiveClubbings(beingProcessedQuestion.getProspectiveClubbings()+"##PUTONHOLD~"+beingClubbedQuestion.getId()+"##");
-            }else if(processedType.equals("question_before_workflow_tobeputup")
-                    &&(clubbedType.equals("question_workflow_decisionstatus_admission")
-                            ||clubbedType.equals("question_workflow_decisionstatus_rejection")
-                            ||clubbedType.equals("question_workflow_decisionstatus_converttounstarred")
-                            ||clubbedType.equals("question_workflow_decisionstatus_onhold")
-                            ||clubbedType.equals("question_workflow_decisionstatus_discuss")
-                            ||clubbedType.equals("question_workflow_decisionstatus_clarificationneeded")
-                            ||clubbedType.equals("question_workflow_decisionstatus_nameclubbing")
-                            ||clubbedType.equals("question_workflow_decisionstatus_sendback")
-                            ||clubbedType.equals("question_workflow_decisionstatus_groupchanged")
-                            ||clubbedType.equals("question_workflow_decisionstatus_clarificationreceived")
-                            ||clubbedType.equals("question_workflow_decisionstatus_clarificationnotreceived")
-                    )){
-                newPQStatus=Status.findByType("question_before_workflow_clubwithpending", locale);
-                beingProcessedQuestion.setInternalStatus(newPQStatus);
-                beingProcessedQuestion.setRecommendationStatus(newPQStatus);
-                beingProcessedQuestion.setProspectiveClubbings(beingProcessedQuestion.getProspectiveClubbings()+"##CLUBWITHPENDING~"+beingClubbedQuestion.getId()+"##");
-            }else if(clubbedType.equals("question_before_workflow_tobeputup")
-                    &&(processedType.equals("question_workflow_approving_admission")
-                            ||processedType.equals("question_workflow_approving_rejection")
-                            ||processedType.equals("question_workflow_approving_converttounstarred"))){
-                newCQStatus=Status.findByType("question_before_workflow_nameclub", locale);
-                beingClubbedQuestion.setInternalStatus(newCQStatus);
-                beingClubbedQuestion.setRecommendationStatus(newCQStatus);
-                beingClubbedQuestion.setProspectiveClubbings(beingClubbedQuestion.getProspectiveClubbings()+"##NAMECLUB~"+beingProcessedQuestion.getId()+"##");
-            }else if(clubbedType.equals("question_before_workflow_tobeputup")
-                    &&processedType.equals("question_workflow_approving_clarificationneeded")){
-                newCQStatus=Status.findByType("question_before_workflow_putonhold", locale);
-                beingClubbedQuestion.setInternalStatus(newCQStatus);
-                beingClubbedQuestion.setRecommendationStatus(newCQStatus);
-                beingClubbedQuestion.setProspectiveClubbings(beingClubbedQuestion.getProspectiveClubbings()+"##PUTONHOLD~"+beingProcessedQuestion.getId()+"##");
-            }else if(clubbedType.equals("question_before_workflow_tobeputup")
-                    &&(processedType.equals("question_workflow_decisionstatus_admission")
-                            ||processedType.equals("question_workflow_decisionstatus_rejection")
-                            ||processedType.equals("question_workflow_decisionstatus_converttounstarred")
-                            ||processedType.equals("question_workflow_decisionstatus_onhold")
-                            ||processedType.equals("question_workflow_decisionstatus_discuss")
-                            ||processedType.equals("question_workflow_decisionstatus_clarificationneeded")
-                            ||processedType.equals("question_workflow_decisionstatus_nameclubbing")
-                            ||processedType.equals("question_workflow_decisionstatus_sendback")
-                            ||processedType.equals("question_workflow_decisionstatus_groupchanged")
-                            ||processedType.equals("question_workflow_decisionstatus_clarificationreceived")
-                            ||processedType.equals("question_workflow_decisionstatus_clarificationnotreceived")
-                    )){
-                newCQStatus=Status.findByType("question_before_workflow_clubwithpending", locale);
-                beingClubbedQuestion.setInternalStatus(newCQStatus);
-                beingClubbedQuestion.setRecommendationStatus(newCQStatus);
-                beingClubbedQuestion.setProspectiveClubbings(beingClubbedQuestion.getProspectiveClubbings()+"##CLUBWITHPENDING~"+beingProcessedQuestion.getId()+"##");
-            }
-        }else if(beingProcessedQuestion.getNumber()>beingClubbedQuestion.getNumber()){
-            if(processedType.equals("question_before_workflow_tobeputup")
-                    &&clubbedType.equals("question_before_workflow_tobeputup")){
-                List<Question> pClubbings=beingProcessedQuestion.getClubbings();
-                beingProcessedQuestion.setClubbings(null);
-                beingClubbedClubbing.add(beingProcessedQuestion);
-                if(pClubbings!=null){
-                    if(!pClubbings.isEmpty()){
-                        for(Question k:pClubbings){
-                            k.setParent(beingClubbedQuestion);
-                            k.merge();
-                        }
-                        for(Question k:pClubbings){
-                            beingClubbedClubbing.add(k);
-                        }
-                    }
-                }
-                beingProcessedQuestion.setParent(beingClubbedQuestion);
-                newPQStatus=Status.findByType("question_before_workflow_clubbed", locale);
-                newCQStatus=Status.findByType("question_before_workflow_tobeputup", locale);
-                beingProcessedQuestion.setInternalStatus(newPQStatus);
-                beingProcessedQuestion.setRecommendationStatus(newPQStatus);
-                beingClubbedQuestion.setInternalStatus(newCQStatus);
-                beingClubbedQuestion.setRecommendationStatus(newCQStatus);
-            }else if(processedType.equals("question_before_workflow_tobeputup")
-                    &&(clubbedType.equals("question_workflow_approving_admission")
-                            ||clubbedType.equals("question_workflow_approving_rejection")
-                            ||clubbedType.equals("question_workflow_approving_converttounstarred"))){
-                newPQStatus=Status.findByType("question_before_workflow_nameclub", locale);
-                beingProcessedQuestion.setInternalStatus(newPQStatus);
-                beingProcessedQuestion.setRecommendationStatus(newPQStatus);
-                beingProcessedQuestion.setProspectiveClubbings(beingProcessedQuestion.getProspectiveClubbings()+"##NAMECLUB~"+beingClubbedQuestion.getId()+"##");
-            }else if(processedType.equals("question_before_workflow_tobeputup")
-                    &&clubbedType.equals("question_workflow_approving_clarificationneeded")){
-                newPQStatus=Status.findByType("question_before_workflow_putonhold", locale);
-                beingProcessedQuestion.setInternalStatus(newPQStatus);
-                beingProcessedQuestion.setRecommendationStatus(newPQStatus);
-                beingProcessedQuestion.setProspectiveClubbings(beingProcessedQuestion.getProspectiveClubbings()+"##PUTONHOLD~"+beingClubbedQuestion.getId()+"##");
-            }else if(processedType.equals("question_before_workflow_tobeputup")
-                    &&(clubbedType.equals("question_workflow_decisionstatus_admission")
-                            ||clubbedType.equals("question_workflow_decisionstatus_rejection")
-                            ||clubbedType.equals("question_workflow_decisionstatus_converttounstarred")
-                            ||clubbedType.equals("question_workflow_decisionstatus_onhold")
-                            ||clubbedType.equals("question_workflow_decisionstatus_discuss")
-                            ||clubbedType.equals("question_workflow_decisionstatus_clarificationneeded")
-                            ||clubbedType.equals("question_workflow_decisionstatus_nameclubbing")
-                            ||clubbedType.equals("question_workflow_decisionstatus_sendback")
-                            ||clubbedType.equals("question_workflow_decisionstatus_groupchanged")
-                            ||clubbedType.equals("question_workflow_decisionstatus_clarificationreceived")
-                            ||clubbedType.equals("question_workflow_decisionstatus_clarificationnotreceived")
-                    )){
-                newPQStatus=Status.findByType("question_before_workflow_clubwithpending", locale);
-                beingProcessedQuestion.setInternalStatus(newPQStatus);
-                beingProcessedQuestion.setRecommendationStatus(newPQStatus);
-                beingProcessedQuestion.setProspectiveClubbings(beingProcessedQuestion.getProspectiveClubbings()+"##CLUBWITHPENDING~"+beingClubbedQuestion.getId()+"##");
-            }else if(clubbedType.equals("question_before_workflow_tobeputup")
-                    &&(processedType.equals("question_workflow_approving_admission")
-                            ||processedType.equals("question_workflow_approving_rejection")
-                            ||processedType.equals("question_workflow_approving_converttounstarred"))){
-                newCQStatus=Status.findByType("question_before_workflow_nameclub", locale);
-                beingClubbedQuestion.setInternalStatus(newCQStatus);
-                beingClubbedQuestion.setRecommendationStatus(newCQStatus);
-                beingClubbedQuestion.setProspectiveClubbings(beingClubbedQuestion.getProspectiveClubbings()+"##NAMECLUB~"+beingProcessedQuestion.getId()+"##");
-            }else if(clubbedType.equals("question_before_workflow_tobeputup")
-                    &&processedType.equals("question_workflow_approving_clarificationneeded")){
-                newCQStatus=Status.findByType("question_before_workflow_putonhold", locale);
-                beingClubbedQuestion.setInternalStatus(newCQStatus);
-                beingClubbedQuestion.setRecommendationStatus(newCQStatus);
-                beingClubbedQuestion.setProspectiveClubbings(beingClubbedQuestion.getProspectiveClubbings()+"##PUTONHOLD~"+beingProcessedQuestion.getId()+"##");
-            }else if(clubbedType.equals("question_before_workflow_tobeputup")
-                    &&(processedType.equals("question_workflow_decisionstatus_admission")
-                            ||processedType.equals("question_workflow_decisionstatus_rejection")
-                            ||processedType.equals("question_workflow_decisionstatus_converttounstarred")
-                            ||processedType.equals("question_workflow_decisionstatus_onhold")
-                            ||processedType.equals("question_workflow_decisionstatus_discuss")
-                            ||processedType.equals("question_workflow_decisionstatus_clarificationneeded")
-                            ||processedType.equals("question_workflow_decisionstatus_nameclubbing")
-                            ||processedType.equals("question_workflow_decisionstatus_sendback")
-                            ||processedType.equals("question_workflow_decisionstatus_groupchanged")
-                            ||processedType.equals("question_workflow_decisionstatus_clarificationreceived")
-                            ||processedType.equals("question_workflow_decisionstatus_clarificationnotreceived")
-                    )){
-                newCQStatus=Status.findByType("question_before_workflow_clubwithpending", locale);
-                beingClubbedQuestion.setInternalStatus(newCQStatus);
-                beingClubbedQuestion.setRecommendationStatus(newCQStatus);
-                beingClubbedQuestion.setProspectiveClubbings(beingClubbedQuestion.getProspectiveClubbings()+"##CLUBWITHPENDING~"+beingProcessedQuestion.getId()+"##");
-            }
-        }else{
-            status= false;
-        }
-        beingProcessedQuestion.merge();
-        beingClubbedQuestion.merge();
-        return status;
-    }
-
-    /**
-     * Unclub.
-     *
-     * @param questionBeingProcessed the question being processed
-     * @param questionBeingClubbed the question being clubbed
-     * @param locale the locale
-     * @return the boolean
-     */
-    public Boolean unclub(final Long questionBeingProcessed,
-            final Long questionBeingClubbed, final String locale) {
-        Boolean status=true;
-        Question beingProcessedQuestion=Question.findById(Question.class,questionBeingProcessed);
-        Question beingClubbedQuestion=Question.findById(Question.class,questionBeingClubbed);
-        if(beingProcessedQuestion.getNumber()<beingClubbedQuestion.getNumber()){
-            List<Question> oldClubbedQuestions=beingProcessedQuestion.getClubbings();
-            List<Question> newClubbedQuestions=new ArrayList<Question>();
-            for(Question i:oldClubbedQuestions){
-                if(i.getId()!=beingClubbedQuestion.getId()){
-                    newClubbedQuestions.add(i);
-                }
-            }
-            beingProcessedQuestion.setClubbings(newClubbedQuestions);
-            beingClubbedQuestion.setParent(null);
-        }else if(beingProcessedQuestion.getNumber()>beingClubbedQuestion.getNumber()){
-            List<Question> oldClubbedQuestions=beingClubbedQuestion.getClubbings();
-            List<Question> newClubbedQuestions=new ArrayList<Question>();
-            for(Question i:oldClubbedQuestions){
-                if(i.getId()!=beingProcessedQuestion.getId()){
-                    newClubbedQuestions.add(i);
-                }
-            }
-            beingClubbedQuestion.setClubbings(newClubbedQuestions);
-            beingProcessedQuestion.setParent(null);
-        }else{
-            status= false;
-        }
-        beingProcessedQuestion.merge();
-        beingClubbedQuestion.merge();
-        return status;
-    }
+		List results=this.em().createNativeQuery(finalQuery).getResultList();
+		List<QuestionSearchVO> questionSearchVOs=new ArrayList<QuestionSearchVO>();
+		if(results!=null){
+			for(Object i:results){
+				Object[] o=(Object[]) i;
+				QuestionSearchVO questionSearchVO=new QuestionSearchVO();
+				if(o[0]!=null){
+					questionSearchVO.setId(Long.parseLong(o[0].toString()));
+				}
+				if(o[1]!=null){
+					questionSearchVO.setNumber(FormaterUtil.getNumberFormatterNoGrouping(locale).format(Integer.parseInt(o[1].toString())));
+				}
+				if(o[3]!=null){
+					if(!o[3].toString().isEmpty()){
+						questionSearchVO.setSubject(higlightText(o[3].toString(),param));
+					}else{
+						questionSearchVO.setSubject(higlightText(o[2].toString(),param));
+					}
+				}else{
+					questionSearchVO.setSubject(higlightText(o[2].toString(),param));
+				}				
+				if(o[5]!=null){
+					if(!o[5].toString().isEmpty()){
+						questionSearchVO.setQuestionText(higlightText(o[5].toString(),param));
+					}else{
+						questionSearchVO.setQuestionText(higlightText(o[4].toString(),param));
+					}
+				}else{
+					questionSearchVO.setQuestionText(higlightText(o[4].toString(),param));
+				}
+				if(o[6]!=null){
+					questionSearchVO.setStatus(o[6].toString());
+				}
+				if(o[7]!=null){
+					questionSearchVO.setDeviceType(o[7].toString());
+				}
+				if(o[8]!=null){
+					questionSearchVO.setSessionYear(o[8].toString());
+				}
+				if(o[9]!=null){
+					questionSearchVO.setSessionType(o[9].toString());
+				}
+				questionSearchVOs.add(questionSearchVO);
+			}
+		}
+		return questionSearchVOs;
+	}
 
 
-    //=========== ADD FOLLOWING METHODS ==========================
-    /**
-     * Returns null if there is no result, else returns a List
-     * of Questions.
-     *
-     * @param session the session
-     * @param member the member
-     * @param deviceType the device type
-     * @param group the group
-     * @param answeringDate the answering date
-     * @param finalSubmissionDate the final submission date
-     * @param internalStatuses the internal statuses
-     * @param excludeQuestions the exclude questions
-     * @param maxNoOfQuestions the max no of questions
-     * @param sortOrder the sort order
-     * @param locale the locale
-     * @return the list
-     */
-    public List<Question> find(final Session session,
-            final Member member,
-            final DeviceType deviceType,
-            final Group group,
-            final Date answeringDate,
-            final Date finalSubmissionDate,
-            final Status[] internalStatuses,
-            final Question[] excludeQuestions,
-            final Integer maxNoOfQuestions,
-            final String sortOrder,
-            final String locale) {
-        String strAnsweringDate = this.answeringDateAsString(answeringDate);
-        String strFinalSubmissionDate = this.submissionDateAsString(finalSubmissionDate);
+	private String higlightText(final String textToHiglight,final String pattern) {
 
-        StringBuffer query = new StringBuffer(
-                " SELECT q" +
-                " FROM Question q" +
-                " WHERE q.session.id = " + session.getId() +
-                " AND q.primaryMember.id = " + member.getId() +
-                " AND q.type.id = " + deviceType.getId() +
-                " AND q.group.id = " + group.getId() +
-                " AND q.answeringDate.answeringDate = '" + strAnsweringDate + "'" +
-                " AND q.submissionDate <= '" + strFinalSubmissionDate + "'" +
-                " AND q.locale = '" + locale + "'"
-        );
-        query.append(this.getStatusFilters(internalStatuses));
-        query.append(this.getQuestionFilters(excludeQuestions));
-        if(sortOrder.equals(ApplicationConstants.ASC)) {
-            query.append(" ORDER BY q.number ASC");
-        }
-        else if(sortOrder.equals(ApplicationConstants.DESC)) {
-            query.append(" ORDER BY q.number DESC");
-        }
+		String highlightedText=textToHiglight;
+		String replaceMentText="<span class='bold'>";
+		String replaceMentTextEnd="</span>";
+		if((!pattern.contains("+"))&&(!pattern.contains("-"))){
+			String[] temp=pattern.trim().split(" ");
+			for(String j:temp){
+				if(!highlightedText.contains(replaceMentText+j.trim()+replaceMentTextEnd)){
+					highlightedText=highlightedText.replaceAll(j.trim(),replaceMentText+j.trim()+replaceMentTextEnd);
+				}
+			}			
+		}else if((pattern.contains("+"))&&(!pattern.contains("-"))){
+			String[] temp=pattern.trim().split("\\+");
+			for(String j:temp){
+				if(!highlightedText.contains(replaceMentText+j.trim()+replaceMentTextEnd)){
+					highlightedText=highlightedText.replaceAll(j.trim(),replaceMentText+j.trim()+replaceMentTextEnd);
+				}
+			}			
+		}else if((!pattern.contains("+"))&&(pattern.contains("-"))){
+			String[] temp=pattern.trim().split("\\-");
+			String[] temp1=temp[0].trim().split(" ");
+			for(String j:temp1){
+				if(!highlightedText.contains(replaceMentText+j.trim()+replaceMentTextEnd)){
+					highlightedText=highlightedText.replaceAll(j.trim(),replaceMentText+j.trim()+replaceMentTextEnd);
+				}
+			}		
+		}else if(pattern.contains("+")&& pattern.contains("-")){
+			String[] temp=pattern.trim().split("\\-");
+			String[] temp1=temp[0].trim().split("\\+");
+			for(String j:temp1){
+				String[] temp2=j.trim().split(" ");
+				for(String k:temp2){
+					if(!highlightedText.contains(replaceMentText+k.trim()+replaceMentTextEnd)){
+						highlightedText=highlightedText.replaceAll(k.trim(),replaceMentText+k.trim()+replaceMentTextEnd);
+					}
+				}
+			}		
+		}
+		return highlightedText;
+	}
 
-        TypedQuery<Question> tQuery = this.em().createQuery(query.toString(), Question.class);
-        tQuery.setMaxResults(maxNoOfQuestions);
-        List<Question> questions = tQuery.getResultList();
-        return questions;
-    }
+	@SuppressWarnings("rawtypes")
+	public List<QuestionSearchVO> fullTextSearchReferencing( String param, final Question question,
+			final Integer start,final Integer noofRecords,
+			final String locale) {
+		/**** Data to fetch and from where ****/
+		String selectQuery="SELECT q.id as id,q.number as number, "+
+		" q.subject as subject,q.revised_subject as revisedSubject, "+
+		" q.question_text as questionText,q.revised_question_text as revisedQuestionText, "+
+		" st.name as status,dt.name as deviceType,s.session_year as sessionYear,sety.session_type as sessionType "+
+		" FROM questions as q "+
+		" JOIN sessions as s "+
+		" JOIN sessiontypes as sety"+
+		" JOIN status as st "+
+		" JOIN devicetypes as dt "+
+		" JOIN members as m"+
+		" JOIN titles as t"+
+		" LEFT JOIN ministries as mi ON(q.ministry_id=mi.id) "+
+		" LEFT JOIN departments as d ON(q.department_id=d.id) "+
+		" LEFT JOIN subdepartments as sd ON(q.subdepartment_id=sd.id) "+
+		" WHERE q.session_id=s.id AND s.sessiontype_id=sety.id AND q.recommendationstatus_id=st.id AND "+
+		" q.devicetype_id=dt.id AND q.member_id=m.id AND"+
+		" m.title_id=t.id AND q.id<>"+question.getId()+" ";
 
-    /**
-     * Returns null if there is no result, else returns a List
-     * of Questions.
-     *
-     * @param session the session
-     * @param member the member
-     * @param deviceType the device type
-     * @param group the group
-     * @param answeringDate the answering date
-     * @param finalSubmissionDate the final submission date
-     * @param internalStatuses the internal statuses
-     * @param excludeQuestions the exclude questions
-     * @param maxNoOfQuestions the max no of questions
-     * @param sortOrder the sort order
-     * @param locale the locale
-     * @return the list
-     */
-    public List<Question> findBeforeAnsweringDate(final Session session,
-            final Member member,
-            final DeviceType deviceType,
-            final Group group,
-            final Date answeringDate,
-            final Date finalSubmissionDate,
-            final Status[] internalStatuses,
-            final Question[] excludeQuestions,
-            final Integer maxNoOfQuestions,
-            final String sortOrder,
-            final String locale) {
-        String strAnsweringDate = this.answeringDateAsString(answeringDate);
-        String strFinalSubmissionDate = this.submissionDateAsString(finalSubmissionDate);
+		/**** Candidate questions must be from same ministry,department and subdepartment ****/
+		StringBuffer minDepSubDepQuery=new StringBuffer();
+		Ministry ministry=question.getMinistry();
+		if(question.getMinistry()!=null){
+			minDepSubDepQuery.append(" AND mi.id="+ministry.getId());
+		}else{
+			minDepSubDepQuery.append(" AND mi.id IS NULL");
+		}
+		Department department=question.getDepartment();
+		if(question.getDepartment()!=null){
+			minDepSubDepQuery.append(" AND d.id="+department.getId());
+		}else{
+			minDepSubDepQuery.append(" AND d.id IS NULL");
+		}
+		SubDepartment subDepartment=question.getSubDepartment();
+		if(question.getSubDepartment()!=null){
+			minDepSubDepQuery.append(" AND sd.id="+subDepartment.getId());
+		}else{
+			minDepSubDepQuery.append(" AND sd.id IS NULL");
+		}
 
-        StringBuffer query = new StringBuffer(
-                " SELECT q" +
-                " FROM Question q" +
-                " WHERE q.session.id = " + session.getId() +
-                " AND q.primaryMember.id = " + member.getId() +
-                " AND q.type.id = " + deviceType.getId() +
-                " AND q.group.id = " + group.getId() +
-                " AND q.answeringDate.answeringDate < '" + strAnsweringDate + "'" +
-                " AND q.submissionDate <= '" + strFinalSubmissionDate + "'" +
-                " AND q.locale = '" + locale + "'"
-        );
-        query.append(this.getStatusFilters(internalStatuses));
-        query.append(this.getQuestionFilters(excludeQuestions));
+		DeviceType deviceType=question.getType();
+		StringBuffer deviceTypeQuery=new StringBuffer();
+		String orderByQuery="";
+		HouseType housetype=question.getHouseType();
+		if(deviceType!=null){
+			/**** Starred Questions :only primary questions,recommendation status >=assistant_processed,
+			 * starred question from same session or unstarred question of same housetype but across any session
+			 ****/
+			if(deviceType.getType().equals(ApplicationConstants.STARRED_QUESTION)){
+				deviceTypeQuery.append(" AND q.parent IS NULL ");	
+				deviceTypeQuery.append(" AND st.priority>=(SELECT priority FROM status as sst WHERE sst.type='"+ApplicationConstants.QUESTION_ASSISTANT_PROCESSED+"')");
+				deviceTypeQuery.append(" AND (" +
+						" (s.id="+question.getSession().getId() +" AND dt.type='"+ApplicationConstants.STARRED_QUESTION +"')"+
+						" OR (dt.type='"+ApplicationConstants.UNSTARRED_QUESTION+"' AND q.housetype_id="+housetype.getId()+")"+
+				" )");
+				orderByQuery=" ORDER BY dt.type "+ApplicationConstants.ASC+" ,s.start_date "+ApplicationConstants.DESC+
+				" ,q.number "+ApplicationConstants.ASC+" ,st.priority "+ApplicationConstants.ASC;
+			}else if(deviceType.getType().equals(ApplicationConstants.UNSTARRED_QUESTION)){
+				/**** Starred Questions :only primary questions,recommendation status >=assistant_processed,
+				 * unstarred question of same housetype but across any session
+				 ****/
+				deviceTypeQuery.append(" AND q.parent IS NULL");
+				deviceTypeQuery.append(" AND st.priority>=(SELECT priority FROM status as sst WHERE sst.type='"+ApplicationConstants.QUESTION_ASSISTANT_PROCESSED+"')");
+				deviceTypeQuery.append(" AND dt.type='"+ApplicationConstants.UNSTARRED_QUESTION+"'AND q.housetype_id="+housetype.getId()+" ");
+				orderByQuery=" ORDER BY s.start_date "+ApplicationConstants.DESC+
+				" ,q.number "+ApplicationConstants.ASC+" ,st.priority "+ApplicationConstants.ASC;
+			}else if(deviceType.getType().equals(ApplicationConstants.SHORT_NOTICE_QUESTION)){
+				/**** Short Notice Questions :
+				 ****/
+				deviceTypeQuery.append(" AND q.parent IS NULL");
+				deviceTypeQuery.append(" AND st.priority>=(SELECT priority FROM status as sst WHERE sst.type='"+ApplicationConstants.QUESTION_ASSISTANT_PROCESSED+"')");
+			}else if(deviceType.getType().equals(ApplicationConstants.HALF_HOUR_DISCUSSION_QUESTION_STANDALONE)){
+				/**** Half hour discussion standalone Questions :
+				 ****/
+				deviceTypeQuery.append(" AND q.parent IS NULL");
+				deviceTypeQuery.append(" AND st.priority>=(SELECT priority FROM status as sst WHERE sst.type='"+ApplicationConstants.QUESTION_ASSISTANT_PROCESSED+"')");
+			}else if(deviceType.getType().equals(ApplicationConstants.HALF_HOUR_DISCUSSION_QUESTION_FROM_QUESTION)){
+				/**** Half hour discussion from questions Questions :
+				 ****/
+				deviceTypeQuery.append(" AND q.parent IS NULL");
+				deviceTypeQuery.append(" AND st.priority>=(SELECT priority FROM status as sst WHERE sst.type='"+ApplicationConstants.QUESTION_ASSISTANT_PROCESSED+"')");
+			}
+		}		
 
-        TypedQuery<Question> tQuery = this.em().createQuery(query.toString(), Question.class);
-        List<Question> questions = tQuery.getResultList();
-        if(questions != null) {
-            questions = Question.sortByAnsweringDate(questions, sortOrder);
-            if(questions.size() >= maxNoOfQuestions) {
-                return questions.subList(0, maxNoOfQuestions);
-            }
-        }
-        return questions;
-    }
+		/**** fulltext query ****/
+		String searchQuery=null;
+		if(!param.contains("+")&&!param.contains("-")){
+			searchQuery=" AND match(q.subject,q.question_text,q.revised_subject,q.revised_question_text) "+
+			"against('"+param+"' in natural language mode)";
+		}else if(param.contains("+")&&!param.contains("-")){
+			String[] parameters=param.split("\\+");
+			StringBuffer buffer=new StringBuffer();
+			for(String i:parameters){
+				buffer.append("+"+i+" ");
+			}
+			searchQuery=" AND match(q.subject,q.question_text,q.revised_subject,q.revised_question_text) "+
+			"against('"+buffer.toString()+"' in boolean  mode)";
+		}else if(!param.contains("+")&&param.contains("-")){
+			String[] parameters=param.split("-");
+			StringBuffer buffer=new StringBuffer();
+			for(String i:parameters){
+				buffer.append(i+" "+"-");
+			}
+			buffer.deleteCharAt(buffer.length()-1);
+			searchQuery=" AND match(q.subject,q.question_text,q.revised_subject,q.revised_question_text) "+
+			"against('"+buffer.toString()+"' in boolean  mode)";
+		}else if(param.contains("+")||param.contains("-")){
+			searchQuery=" AND match(q.subject,q.question_text,q.revised_subject,q.revised_question_text) "+
+			"against('"+param+"' in boolean  mode)";
+		}		
+		/**** Final Query ****/
+		String query=selectQuery+minDepSubDepQuery.toString()+deviceTypeQuery.toString()+searchQuery+orderByQuery;
+		String finalQuery="SELECT rs.id,rs.number,rs.subject,rs.revisedSubject,rs.questionText, "+
+		" rs.revisedQuestionText,rs.status,rs.deviceType,rs.sessionYear,rs.sessionType FROM ("+query+") as rs LIMIT "+start+","+noofRecords;
 
-    /**
-     * Returns null if there is no result, else returns a List
-     * of Questions.
-     *
-     * @param session the session
-     * @param member the member
-     * @param deviceType the device type
-     * @param group the group
-     * @param finalSubmissionDate the final submission date
-     * @param internalStatuses the internal statuses
-     * @param excludeQuestions the exclude questions
-     * @param maxNoOfQuestions the max no of questions
-     * @param sortOrder the sort order
-     * @param locale the locale
-     * @return the list
-     */
-    public List<Question> findNonAnsweringDate(final Session session,
-            final Member member,
-            final DeviceType deviceType,
-            final Group group,
-            final Date finalSubmissionDate,
-            final Status[] internalStatuses,
-            final Question[] excludeQuestions,
-            final Integer maxNoOfQuestions,
-            final String sortOrder,
-            final String locale) {
-        String strFinalSubmissionDate = this.submissionDateAsString(finalSubmissionDate);
+		List results=this.em().createNativeQuery(finalQuery).getResultList();
+		List<QuestionSearchVO> questionSearchVOs=new ArrayList<QuestionSearchVO>();
+		if(results!=null){
+			for(Object i:results){
+				Object[] o=(Object[]) i;
+				QuestionSearchVO questionSearchVO=new QuestionSearchVO();
+				if(o[0]!=null){
+					questionSearchVO.setId(Long.parseLong(o[0].toString()));
+				}
+				if(o[1]!=null){
+					questionSearchVO.setNumber(FormaterUtil.getNumberFormatterNoGrouping(locale).format(Integer.parseInt(o[1].toString())));
+				}
+				if(o[3]!=null){
+					if(!o[3].toString().isEmpty()){
+						questionSearchVO.setSubject(higlightText(o[3].toString(),param));
+					}else{
+						questionSearchVO.setSubject(higlightText(o[2].toString(),param));
+					}
+				}else{
+					questionSearchVO.setSubject(higlightText(o[2].toString(),param));
+				}				
+				if(o[5]!=null){
+					if(!o[5].toString().isEmpty()){
+						questionSearchVO.setQuestionText(higlightText(o[5].toString(),param));
+					}else{
+						questionSearchVO.setQuestionText(higlightText(o[4].toString(),param));
+					}
+				}else{
+					questionSearchVO.setQuestionText(higlightText(o[4].toString(),param));
+				}
+				if(o[6]!=null){
+					questionSearchVO.setStatus(o[6].toString());
+				}
+				if(o[7]!=null){
+					questionSearchVO.setDeviceType(o[7].toString());
+				}
+				if(o[8]!=null){
+					questionSearchVO.setSessionYear(o[8].toString());
+				}
+				if(o[9]!=null){
+					questionSearchVO.setSessionType(o[9].toString());
+				}
+				questionSearchVOs.add(questionSearchVO);
+			}
+		}
+		return questionSearchVOs;
+	}
 
-        StringBuffer query = new StringBuffer(
-                " SELECT q" +
-                " FROM Question q" +
-                " WHERE q.session.id = " + session.getId() +
-                " AND q.primaryMember.id = " + member.getId() +
-                " AND q.type.id = " + deviceType.getId() +
-                " AND q.group.id = " + group.getId() +
-                " AND q.answeringDate = " + null +
-                " AND q.submissionDate <= '" + strFinalSubmissionDate + "'" +
-                " AND q.locale = '" + locale + "'"
-        );
-        query.append(this.getStatusFilters(internalStatuses));
-        query.append(this.getQuestionFilters(excludeQuestions));
-        if(sortOrder.equals(ApplicationConstants.ASC)) {
-            query.append(" ORDER BY q.number ASC");
-        }
-        else if(sortOrder.equals(ApplicationConstants.DESC)) {
-            query.append(" ORDER BY q.number DESC");
-        }
+	/**
+	 * Find all.
+	 *
+	 * @param currentMember the current member
+	 * @param session the session
+	 * @param deviceType the device type
+	 * @param internalStatus the internal status
+	 * @return the list
+	 */
+	@SuppressWarnings("unchecked")
+	public List<Question> findAll(final Member currentMember, final Session session,
+			final DeviceType deviceType, final Status internalStatus) {
+		List<Question> questions=new ArrayList<Question>();
+		String query="SELECT q FROM Question q WHERE q.primaryMember.id="+currentMember.getId()+" "+
+		" AND q.session.id="+session.getId()+" AND q.type.id="+deviceType.getId()+" "+
+		" AND q.internalStatus.id="+internalStatus.getId()+" ORDER BY q.number "+ApplicationConstants.ASC;
+		questions=this.em().createQuery(query).getResultList();
+		return questions;
+	}
 
-        TypedQuery<Question> tQuery = this.em().createQuery(query.toString(), Question.class);
-        tQuery.setMaxResults(maxNoOfQuestions);
-        List<Question> questions = tQuery.getResultList();
-        return questions;
-    }
+	/**
+	 * Find all first batch.
+	 *
+	 * @param currentMember the current member
+	 * @param session the session
+	 * @param deviceType the device type
+	 * @param internalStatus the internal status
+	 * @return the list
+	 */
+	@SuppressWarnings("unchecked")
+	public List<Question> findAllFirstBatch(final Member currentMember, final Session session,
+			final DeviceType deviceType, final Status internalStatus) {
+		List<Question> questions=new ArrayList<Question>();
+		//        Date firstBatchDate=session.getQuestionSubmissionFirstBatchDate();
+		//        Date firstBatchStartTime=session.getQuestionSubmissionFirstBatchStartTimeUH();
+		//        Date firstBatchEndTime=session.getQuestionSubmissionFirstBatchEndTimeUH();
+		//        if(firstBatchDate!=null&&firstBatchStartTime!=null&&firstBatchEndTime!=null){
+		//            Calendar calendar1=new GregorianCalendar();
+		//            calendar1.setTime(firstBatchDate);
+		//
+		//            Calendar startTime=new GregorianCalendar();
+		//            startTime.setTime(firstBatchStartTime);
+		//            startTime.set(Calendar.YEAR,calendar1.get(Calendar.YEAR));
+		//            startTime.set(Calendar.MONTH,calendar1.get(Calendar.MONTH));
+		//            startTime.set(Calendar.DATE,calendar1.get(Calendar.DATE));
+		//
+		//            Calendar endTime=new GregorianCalendar();
+		//            endTime.setTime(firstBatchEndTime);
+		//            endTime.set(Calendar.YEAR,calendar1.get(Calendar.YEAR));
+		//            endTime.set(Calendar.MONTH,calendar1.get(Calendar.MONTH));
+		//            endTime.set(Calendar.DATE,calendar1.get(Calendar.DATE));
+		//
+		//            CustomParameter customParameter=CustomParameter.findByName(CustomParameter.class, "DB_DATETIMEFORMAT", "");
+		//            if(customParameter!=null){
+		//                SimpleDateFormat format= FormaterUtil.getDateFormatter(customParameter.getValue(), "en_US");
+		//                String query="SELECT q FROM Question q WHERE q.primaryMember.id="+currentMember.getId()+" "+
+		//                " AND q.session.id="+session.getId()+" AND q.type.id="+deviceType.getId()+" "+
+		//                " AND q.internalStatus.id="+internalStatus.getId()+" AND q.submissionDate>='"+format.format(startTime.getTime())+"' AND q.submissionDate>='"+format.format(endTime.getTime())+"' ORDER BY q.number "+ApplicationConstants.ASC;
+		//                questions=this.em().createQuery(query).getResultList();
+		//            }
+		//        }
+		return questions;
+	}
 
-    /**
-     * Submission date as string.
-     *
-     * @param date the date
-     * @return the string
-     */
-    private String submissionDateAsString(final Date date) {
-        // Removed for performance reason. Uncomment when Caching mechanism is added
-        // CustomParameter parameter = CustomParameter.findByName(CustomParameter.class,
-        //		"DB_TIMESTAMP", "");
-        // String strDate = new DateFormater().formatDateToString(date, parameter.getValue());
-        String strDate = FormaterUtil.formatDateToString(date, "yyyy-MM-dd HH:mm:ss");
-        String str = strDate.replaceFirst("00:00:00", "23:59:59");
-        return str;
-    }
+	/**
+	 * Find all second batch.
+	 *
+	 * @param currentMember the current member
+	 * @param session the session
+	 * @param deviceType the device type
+	 * @param internalStatus the internal status
+	 * @return the list
+	 */
+	@SuppressWarnings("unchecked")
+	public List<Question> findAllSecondBatch(final Member currentMember, final Session session,
+			final DeviceType deviceType, final Status internalStatus) {
+		List<Question> questions=new ArrayList<Question>();
+		//        Date secondBatchDate=session.getQuestionSubmissionSecondBatchDateUH();
+		//        Date secondBatchStartTime=session.getQuestionSubmissionSecondBatchStartTimeUH();
+		//        Date secondBatchEndTime=session.getQuestionSubmissionSecondBatchEndTimeUH();
+		//        if(secondBatchDate!=null&&secondBatchStartTime!=null&&secondBatchEndTime!=null){
+		//            Calendar calendar1=new GregorianCalendar();
+		//            calendar1.setTime(secondBatchDate);
+		//
+		//            Calendar startTime=new GregorianCalendar();
+		//            startTime.setTime(secondBatchStartTime);
+		//            startTime.set(Calendar.YEAR,calendar1.get(Calendar.YEAR));
+		//            startTime.set(Calendar.MONTH,calendar1.get(Calendar.MONTH));
+		//            startTime.set(Calendar.DATE,calendar1.get(Calendar.DATE));
+		//
+		//            Calendar endTime=new GregorianCalendar();
+		//            endTime.setTime(secondBatchEndTime);
+		//            endTime.set(Calendar.YEAR,calendar1.get(Calendar.YEAR));
+		//            endTime.set(Calendar.MONTH,calendar1.get(Calendar.MONTH));
+		//            endTime.set(Calendar.DATE,calendar1.get(Calendar.DATE));
+		//
+		//            CustomParameter customParameter=CustomParameter.findByName(CustomParameter.class, "DB_DATETIMEFORMAT", "");
+		//            if(customParameter!=null){
+		//                SimpleDateFormat format= FormaterUtil.getDateFormatter(customParameter.getValue(), "en_US");
+		//                String query="SELECT q FROM Question q WHERE q.primaryMember.id="+currentMember.getId()+" "+
+		//                " AND q.session.id="+session.getId()+" AND q.type.id="+deviceType.getId()+" "+
+		//                " AND q.internalStatus.id="+internalStatus.getId()+" AND q.submissionDate>='"+format.format(startTime.getTime())+"' AND q.submissionDate>='"+format.format(endTime.getTime())+"' ORDER BY q.number "+ApplicationConstants.ASC;
+		//                questions=this.em().createQuery(query).getResultList();
+		//            }
+		//        }
+		return questions;
+	}
 
-    /**
-     * Answering date as string.
-     *
-     * @param date the date
-     * @return the string
-     */
-    private String answeringDateAsString(final Date date) {
-        // Removed for performance reason. Uncomment when Caching mechanism is added
-        // CustomParameter parameter = CustomParameter.findByName(CustomParameter.class,
-        //		"DB_DATEFORMAT", "");
-        // String strDate = new DateFormater().formatDateToString(date, parameter.getValue());
-        String strDate = FormaterUtil.formatDateToString(date, "yyyy-MM-dd");
-        String str = strDate.replaceFirst("00:00:00", "23:59:59");
-        return str;
-    }
+	/**
+	 * Club.
+	 *
+	 * @param questionBeingProcessed the question being processed
+	 * @param questionBeingClubbed the question being clubbed
+	 * @param locale the locale
+	 * @return the boolean
+	 */
+	public Boolean club(final Long questionBeingProcessed,
+			final Long questionBeingClubbed,final String locale) {
+		Boolean status=true;		
+		/**** Processed Question ****/
+		Question beingProcessedQuestion=Question.findById(Question.class,questionBeingProcessed);
+		/**** To be Clubbed Question ****/
+		Question beingClubbedQuestion=Question.findById(Question.class,questionBeingClubbed);
+		if(beingProcessedQuestion!=null&&beingClubbedQuestion!=null){
+			if(!alreadyClubbed(beingProcessedQuestion,beingClubbedQuestion,locale)){
+				/**** Processed Question's Clubbing ****/
+				List<ClubbedEntity> beingProcessedClubbing=new ArrayList<ClubbedEntity>();
+				if(beingProcessedQuestion.getClubbedEntities()!=null){
+					if(!beingProcessedQuestion.getClubbedEntities().isEmpty()){
+						for(ClubbedEntity i:beingProcessedQuestion.getClubbedEntities()){
+							beingProcessedClubbing.add(i);
+						}
+					}
+				}    
+				/**** To be Clubbed Question's clubbing ****/
+				List<ClubbedEntity> beingClubbedClubbing=new ArrayList<ClubbedEntity>();
+				if(beingClubbedQuestion.getClubbedEntities()!=null){
+					if(!beingClubbedQuestion.getClubbedEntities().isEmpty()){
+						for(ClubbedEntity i:beingClubbedQuestion.getClubbedEntities()){
+							beingClubbedClubbing.add(i);
+						}
+					}
+				}  
+				/**** Current status of processed and clubbed question ****/
+				Status oldPQStatus=beingProcessedQuestion.getInternalStatus();
+				Status oldCQStatus=beingClubbedQuestion.getInternalStatus();
+				Status newPQStatus=beingProcessedQuestion.getInternalStatus();
+				Status newCQStatus=beingClubbedQuestion.getInternalStatus();				
+				/**** Device Type of processed and clubbed question ****/
+				DeviceType beingProcessedQuestionType=beingProcessedQuestion.getType();
+				DeviceType beingClubbedQuestionType=beingClubbedQuestion.getType();
+				if(beingProcessedQuestionType.getType().equals(ApplicationConstants.STARRED_QUESTION)&&
+						beingClubbedQuestionType.getType().equals(ApplicationConstants.STARRED_QUESTION)){
+					/**** Starred Clubbed With Starred ****/
+					starredClubbedWithStarred(beingProcessedQuestion,beingClubbedQuestion,beingProcessedClubbing
+							,beingClubbedClubbing,oldPQStatus,oldCQStatus,newPQStatus,newCQStatus);
+				}else if(beingProcessedQuestionType.getType().equals(ApplicationConstants.STARRED_QUESTION)&&
+						beingClubbedQuestionType.getType().endsWith(ApplicationConstants.UNSTARRED_QUESTION)){
+					/**** Starred Clubbed With Unstarred ****/
+					starredClubbedWithUnstarred(beingProcessedQuestion,beingClubbedQuestion,beingProcessedClubbing
+							,beingClubbedClubbing,oldPQStatus,oldCQStatus,newPQStatus,newCQStatus);
+				}else if(beingProcessedQuestionType.getType().equals(ApplicationConstants.UNSTARRED_QUESTION)&&
+						beingClubbedQuestionType.getType().endsWith(ApplicationConstants.UNSTARRED_QUESTION)){
+					/**** UnStarred Clubbed With Unstarred ****/
+					unstarredClubbedWithUnstarred(beingProcessedQuestion,beingClubbedQuestion,beingProcessedClubbing
+							,beingClubbedClubbing,oldPQStatus,oldCQStatus,newPQStatus,newCQStatus);
+				}else if(beingProcessedQuestionType.getType().equals(ApplicationConstants.SHORT_NOTICE_QUESTION)&&
+						beingClubbedQuestionType.getType().endsWith(ApplicationConstants.SHORT_NOTICE_QUESTION)){
+					/**** Short Notice Clubbed With Short Notice ****/
+					shortNoticeClubbedWithShortNotice(beingProcessedQuestion,beingClubbedQuestion,beingProcessedClubbing
+							,beingClubbedClubbing,oldPQStatus,oldCQStatus,newPQStatus,newCQStatus);
+				}else if(beingProcessedQuestionType.getType().equals(ApplicationConstants.HALF_HOUR_DISCUSSION_QUESTION_STANDALONE)&&
+						beingClubbedQuestionType.getType().endsWith(ApplicationConstants.HALF_HOUR_DISCUSSION_QUESTION_STANDALONE)){
+					/**** Half Hour Discussion Standalone Clubbed With Half Hour Discussion Standalone****/
+					HalfHourDiscussionSAClubbedWithHalfHourDiscussionSA(beingProcessedQuestion,beingClubbedQuestion,beingProcessedClubbing
+							,beingClubbedClubbing,oldPQStatus,oldCQStatus,newPQStatus,newCQStatus);
+				}else if(beingProcessedQuestionType.getType().equals(ApplicationConstants.HALF_HOUR_DISCUSSION_QUESTION_FROM_QUESTION)&&
+						beingClubbedQuestionType.getType().endsWith(ApplicationConstants.HALF_HOUR_DISCUSSION_QUESTION_FROM_QUESTION)){
+					/**** Half Hour Discussion From Question Clubbed With Half Hour Discussion From Question ****/
+					HalfHourDiscussionFQClubbedWithHalfHourDiscussionFQ(beingProcessedQuestion,beingClubbedQuestion,beingProcessedClubbing
+							,beingClubbedClubbing,oldPQStatus,oldCQStatus,newPQStatus,newCQStatus);
+				}
+			}
+		}
+		return status;
 
-    /**
-     * Gets the question filters.
-     *
-     * @param excludeQuestions the exclude questions
-     * @return the question filters
-     */
-    private String getQuestionFilters(final Question[] excludeQuestions) {
-        StringBuffer sb = new StringBuffer();
-        sb.append(" AND(");
-        int n = excludeQuestions.length;
-        for(int i = 0; i < n; i++) {
-            sb.append(" q.id != " + excludeQuestions[i].getId());
-            if(i < n - 1) {
-                sb.append(" AND");
-            }
-        }
-        sb.append(")");
-        return sb.toString();
-    }
+	}
 
-    /**
-     * Find dated questions.
-     *
-     * @param session the session
-     * @param member the member
-     * @param deviceType the device type
-     * @param group the group
-     * @param answeringDate the answering date
-     * @param startTime the start time
-     * @param endTime the end time
-     * @param internalStatuses the internal statuses
-     * @param maxNoOfQuestions the max no of questions
-     * @param locale the locale
-     * @return the list
-     */
-    public List<Question> findDatedQuestions(final Session session,
-            final Member member,
-            final DeviceType deviceType,
-            final Group group,
-            final Date answeringDate,
-            final Date startTime,
-            final Date endTime,
-            final Status[] internalStatuses,
-            final Integer maxNoOfQuestions,
-            final String locale) {
-        String strAnsweringDate = this.answeringDateAsString(answeringDate);
+	private void HalfHourDiscussionFQClubbedWithHalfHourDiscussionFQ(
+			Question beingProcessedQuestion, Question beingClubbedQuestion,
+			List<ClubbedEntity> beingProcessedClubbing,
+			List<ClubbedEntity> beingClubbedClubbing, Status oldPQStatus,
+			Status oldCQStatus, Status newPQStatus, Status newCQStatus) {
+		if(beingProcessedQuestion.getNumber()<beingClubbedQuestion.getNumber()){
+			beingProcessedIsPrimary(beingProcessedQuestion,
+					beingClubbedQuestion,
+					beingProcessedClubbing,
+					beingClubbedClubbing,
+					oldPQStatus,oldCQStatus,newPQStatus,newCQStatus);
+		}else{
+			beingClubbedIsPrimary(beingProcessedQuestion,
+					beingClubbedQuestion,
+					beingProcessedClubbing,
+					beingClubbedClubbing,
+					oldPQStatus,oldCQStatus,newPQStatus,newCQStatus);
+		}
+	}
 
-        // Removed for performance reason. Uncomment when Caching mechanism is added
-        // CustomParameter parameter = CustomParameter.findByName(CustomParameter.class,
-        //      "DB_TIMESTAMP", "");
-        // String strDate = new DateFormater().formatDateToString(date, parameter.getValue());
-        String strStartTime = FormaterUtil.formatDateToString(startTime, "yyyy-MM-dd HH:mm:ss");
-        String strEndTime = FormaterUtil.formatDateToString(endTime, "yyyy-MM-dd HH:mm:ss");
+	private void HalfHourDiscussionSAClubbedWithHalfHourDiscussionSA(
+			Question beingProcessedQuestion, Question beingClubbedQuestion,
+			List<ClubbedEntity> beingProcessedClubbing,
+			List<ClubbedEntity> beingClubbedClubbing, Status oldPQStatus,
+			Status oldCQStatus, Status newPQStatus, Status newCQStatus) {
+		if(beingProcessedQuestion.getNumber()<beingClubbedQuestion.getNumber()){
+			beingProcessedIsPrimary(beingProcessedQuestion,
+					beingClubbedQuestion,
+					beingProcessedClubbing,
+					beingClubbedClubbing,
+					oldPQStatus,oldCQStatus,newPQStatus,newCQStatus);
+		}else{
+			beingClubbedIsPrimary(beingProcessedQuestion,
+					beingClubbedQuestion,
+					beingProcessedClubbing,
+					beingClubbedClubbing,
+					oldPQStatus,oldCQStatus,newPQStatus,newCQStatus);
+		}
+	}
 
-        StringBuffer query = new StringBuffer(
-                " SELECT q" +
-                " FROM Question q" +
-                " WHERE q.session.id = " + session.getId() +
-                " AND q.primaryMember.id = " + member.getId() +
-                " AND q.type.id = " + deviceType.getId() +
-                " AND q.group.id = " + group.getId() +
-                " AND q.answeringDate.answeringDate <= '" + strAnsweringDate + "'" +
-                " AND q.submissionDate >= '" + strStartTime + "'" +
-                " AND q.submissionDate <= '" + strEndTime + "'" +
-                " AND q.locale = '" + locale + "'"
-        );
-        query.append(this.getStatusFilters(internalStatuses));
-        query.append(" ORDER BY q.answeringDate.answeringDate DESC, q.number ASC");
+	private void shortNoticeClubbedWithShortNotice(
+			Question beingProcessedQuestion, Question beingClubbedQuestion,
+			List<ClubbedEntity> beingProcessedClubbing,
+			List<ClubbedEntity> beingClubbedClubbing, Status oldPQStatus,
+			Status oldCQStatus, Status newPQStatus, Status newCQStatus) {
+		if(beingProcessedQuestion.getNumber()<beingClubbedQuestion.getNumber()){
+			beingProcessedIsPrimary(beingProcessedQuestion,
+					beingClubbedQuestion,
+					beingProcessedClubbing,
+					beingClubbedClubbing,
+					oldPQStatus,oldCQStatus,newPQStatus,newCQStatus);
+		}else{
+			beingClubbedIsPrimary(beingProcessedQuestion,
+					beingClubbedQuestion,
+					beingProcessedClubbing,
+					beingClubbedClubbing,
+					oldPQStatus,oldCQStatus,newPQStatus,newCQStatus);
+		}
+	}
 
-        TypedQuery<Question> tQuery = this.em().createQuery(query.toString(), Question.class);
-        tQuery.setMaxResults(maxNoOfQuestions);
-        List<Question> questions = tQuery.getResultList();
-        return questions;
-    }
+	private void unstarredClubbedWithUnstarred(Question beingProcessedQuestion,
+			Question beingClubbedQuestion,
+			List<ClubbedEntity> beingProcessedClubbing,
+			List<ClubbedEntity> beingClubbedClubbing, Status oldPQStatus,
+			Status oldCQStatus, Status newPQStatus, Status newCQStatus) {
+		if(beingProcessedQuestion.getNumber()<beingClubbedQuestion.getNumber()){
+			beingProcessedIsPrimary(beingProcessedQuestion,
+					beingClubbedQuestion,
+					beingProcessedClubbing,
+					beingClubbedClubbing,
+					oldPQStatus,oldCQStatus,newPQStatus,newCQStatus);
+		}else{
+			beingClubbedIsPrimary(beingProcessedQuestion,
+					beingClubbedQuestion,
+					beingProcessedClubbing,
+					beingClubbedClubbing,
+					oldPQStatus,oldCQStatus,newPQStatus,newCQStatus);
+		}
+	}
 
-    /**
-     * Returns null if there is no result, else returns a List
-     * of Questions.
-     *
-     * @param session the session
-     * @param member the member
-     * @param deviceType the device type
-     * @param group the group
-     * @param startTime the start time
-     * @param endTime the end time
-     * @param internalStatuses the internal statuses
-     * @param maxNoOfQuestions the max no of questions
-     * @param sortOrder the sort order
-     * @param locale the locale
-     * @return the list
-     */
-    public List<Question> findNonAnsweringDate(final Session session,
-            final Member member,
-            final DeviceType deviceType,
-            final Group group,
-            final Date startTime,
-            final Date endTime,
-            final Status[] internalStatuses,
-            final Integer maxNoOfQuestions,
-            final String sortOrder,
-            final String locale) {
-        // Removed for performance reason. Uncomment when Caching mechanism is added
-        // CustomParameter parameter = CustomParameter.findByName(CustomParameter.class,
-        //      "DB_TIMESTAMP", "");
-        // String strDate = new DateFormater().formatDateToString(date, parameter.getValue());
-        String strStartTime = FormaterUtil.formatDateToString(startTime, "yyyy-MM-dd HH:mm:ss");
-        String strEndTime = FormaterUtil.formatDateToString(endTime, "yyyy-MM-dd HH:mm:ss");
+	private void starredClubbedWithUnstarred(Question beingProcessedQuestion,
+			Question beingClubbedQuestion,
+			List<ClubbedEntity> beingProcessedClubbing,
+			List<ClubbedEntity> beingClubbedClubbing, Status oldPQStatus,
+			Status oldCQStatus, Status newPQStatus, Status newCQStatus) {
+		beingClubbedIsPrimary(beingProcessedQuestion,
+				beingClubbedQuestion,
+				beingProcessedClubbing,
+				beingClubbedClubbing,
+				oldPQStatus,oldCQStatus,newPQStatus,newCQStatus);
+	}
 
-        StringBuffer query = new StringBuffer(
-                " SELECT q" +
-                " FROM Question q" +
-                " WHERE q.session.id = " + session.getId() +
-                " AND q.primaryMember.id = " + member.getId() +
-                " AND q.type.id = " + deviceType.getId() +
-                " AND q.group.id = " + group.getId() +
-                " AND q.answeringDate = " + null +
-                " AND q.submissionDate >= '" + strStartTime + "'" +
-                " AND q.submissionDate <= '" + strEndTime + "'" +
-                " AND q.locale = '" + locale + "'"
-        );
-        query.append(this.getStatusFilters(internalStatuses));
-        if(sortOrder.equals(ApplicationConstants.ASC)) {
-            query.append(" ORDER BY q.number ASC");
-        }
-        else if(sortOrder.equals(ApplicationConstants.DESC)) {
-            query.append(" ORDER BY q.number DESC");
-        }
+	private void starredClubbedWithStarred(Question beingProcessedQuestion,
+			Question beingClubbedQuestion,
+			List<ClubbedEntity> beingProcessedClubbing,
+			List<ClubbedEntity> beingClubbedClubbing, Status oldPQStatus,
+			Status oldCQStatus, Status newPQStatus, Status newCQStatus) {
+		if(beingProcessedQuestion.getNumber()<beingClubbedQuestion.getNumber()){
+			beingProcessedIsPrimary(beingProcessedQuestion,
+					beingClubbedQuestion,
+					beingProcessedClubbing,
+					beingClubbedClubbing,
+					oldPQStatus,oldCQStatus,newPQStatus,newCQStatus);
+		}else{
+			beingClubbedIsPrimaryUnstarred(beingProcessedQuestion,
+					beingClubbedQuestion,
+					beingProcessedClubbing,
+					beingClubbedClubbing,
+					oldPQStatus,oldCQStatus,newPQStatus,newCQStatus);
+		}
+	}
 
-        TypedQuery<Question> tQuery = this.em().createQuery(query.toString(), Question.class);
-        tQuery.setMaxResults(maxNoOfQuestions);
-        List<Question> questions = tQuery.getResultList();
-        return questions;
-    }
+	private void beingClubbedIsPrimaryUnstarred(
+			Question beingProcessedQuestion, Question beingClubbedQuestion,
+			List<ClubbedEntity> beingProcessedClubbing,
+			List<ClubbedEntity> beingClubbedClubbing, Status oldPQStatus,
+			Status oldCQStatus, Status newPQStatus, Status newCQStatus) {
+		String locale=beingProcessedQuestion.getLocale();
+		String processedType=oldPQStatus.getType();
+		String clubbedType=oldCQStatus.getType();
+		if(processedType.equals("question_before_workflow_tobeputup")
+				&&clubbedType.equals("question_before_workflow_tobeputup")){
+			/**** Processed Question 
+			 * a.parent=clubbed question
+			 * b.clubbedentities=null
+			 * c.internalstatus=recommednationstatus=clubbed
+			 * d.merge****/
+			beingProcessedQuestion.setParent(beingClubbedQuestion);
+			beingProcessedQuestion.setClubbedEntities(null);
+			newPQStatus=Status.findByType("question_before_workflow_clubbed", locale);
+			beingProcessedQuestion.setInternalStatus(newCQStatus);
+			beingProcessedQuestion.setRecommendationStatus(newCQStatus);
+			beingProcessedQuestion.simpleMerge();                
+			/**** create new clubbed entity****/
+			ClubbedEntity clubbedEntity=new ClubbedEntity();
+			clubbedEntity.setDeviceType(beingProcessedQuestion.getType());
+			clubbedEntity.setLocale(beingProcessedQuestion.getLocale());
+			clubbedEntity.setQuestion(beingProcessedQuestion);
+			clubbedEntity.persist();                
+			/**** add this as clubbed entity in clubbed clubbed entity ****/
+			beingClubbedClubbing.add(clubbedEntity);                
+			/*** add clubbed entities of processed question in clubbed question ****/
+			if(beingProcessedClubbing!=null){
+				if(!beingProcessedClubbing.isEmpty()){
+					for(ClubbedEntity k:beingProcessedClubbing){
+						Question question=k.getQuestion();
+						question.setParent(beingClubbedQuestion);
+						question.setInternalStatus(newPQStatus);
+						question.setRecommendationStatus(newPQStatus);
+						question.simpleMerge();
+						k.setQuestion(question);
+						k.merge();
+						beingClubbedClubbing.add(k);
+					}                        
+				}
+			}
+			/**** update being clubbed question ****/
+			beingClubbedQuestion.setParent(null);
+			//newCQStatus=Status.findByType("question_before_workflow_tobeputup", locale);
+			//beingClubbedQuestion.setInternalStatus(newCQStatus);
+			//beingClubbedQuestion.setRecommendationStatus(newCQStatus);
+			beingClubbedQuestion.setClubbedEntities(beingClubbedClubbing);
+			beingClubbedQuestion.simpleMerge();
+			List<ClubbedEntity> clubbedEntities=beingClubbedQuestion.findClubbedEntitiesByQuestionNumber(ApplicationConstants.ASC,locale);
+			Integer position=1;
+			for(ClubbedEntity i:clubbedEntities){
+				i.setPosition(position);
+				position++;
+				i.merge();
+			}
+		}else if(processedType.equals("question_before_workflow_tobeputup")
+				&&(clubbedType.equals("question_workflow_approving_admission")
+						||clubbedType.equals("question_workflow_approving_rejection")
+						||clubbedType.equals("question_workflow_approving_converttounstarred"))){
+			newPQStatus=Status.findByType("question_before_workflow_tobenameclubbed", locale);
+			beingProcessedQuestion.setInternalStatus(newPQStatus);
+			beingProcessedQuestion.setRecommendationStatus(newPQStatus);
+			beingProcessedQuestion.setProspectiveClubbings(beingProcessedQuestion.getProspectiveClubbings()+"##NAMECLUB~"+beingClubbedQuestion.getId()+"##");
+			beingProcessedQuestion.simpleMerge();
+		}else if(processedType.equals("question_before_workflow_tobeputup")
+				&&clubbedType.equals("question_workflow_approving_clarificationneeded")){
+			newPQStatus=Status.findByType("question_before_workflow_putonhold", locale);
+			beingProcessedQuestion.setInternalStatus(newPQStatus);
+			beingProcessedQuestion.setRecommendationStatus(newPQStatus);
+			beingProcessedQuestion.setProspectiveClubbings(beingProcessedQuestion.getProspectiveClubbings()+"##PUTONHOLD~"+beingClubbedQuestion.getId()+"##");
+			beingProcessedQuestion.simpleMerge();
+		}else if(processedType.equals("question_before_workflow_tobeputup")
+				&&(clubbedType.equals("question_workflow_decisionstatus_admission")
+						||clubbedType.equals("question_workflow_decisionstatus_rejection")
+						||clubbedType.equals("question_workflow_decisionstatus_converttounstarred")
+						||clubbedType.equals("question_workflow_decisionstatus_onhold")
+						||clubbedType.equals("question_workflow_decisionstatus_discuss")
+						||clubbedType.equals("question_workflow_decisionstatus_clarificationneeded")
+						||clubbedType.equals("question_workflow_decisionstatus_nameclubbing")
+						||clubbedType.equals("question_workflow_decisionstatus_sendback")
+						||clubbedType.equals("question_workflow_decisionstatus_groupchanged")
+						||clubbedType.equals("question_workflow_decisionstatus_clarificationreceived")
+						||clubbedType.equals("question_workflow_decisionstatus_clarificationnotreceived")
+				)){
+			newPQStatus=Status.findByType("question_before_workflow_tobeclubbedwithpending", locale);
+			beingProcessedQuestion.setInternalStatus(newPQStatus);
+			beingProcessedQuestion.setRecommendationStatus(newPQStatus);
+			beingProcessedQuestion.setProspectiveClubbings(beingProcessedQuestion.getProspectiveClubbings()+"##CLUBWITHPENDING~"+beingClubbedQuestion.getId()+"##");
+			beingProcessedQuestion.simpleMerge();
+		}else if(clubbedType.equals("questi" +
+		"on_before_workflow_tobeputup")
+		&&(processedType.equals("question_workflow_approving_admission")
+				||processedType.equals("question_workflow_approving_rejection")
+				||processedType.equals("question_workflow_approving_converttounstarred"))){
+			newCQStatus=Status.findByType("question_before_workflow_nameclub", locale);
+			beingClubbedQuestion.setInternalStatus(newCQStatus);
+			beingClubbedQuestion.setRecommendationStatus(newCQStatus);
+			beingClubbedQuestion.setProspectiveClubbings(beingClubbedQuestion.getProspectiveClubbings()+"##NAMECLUB~"+beingProcessedQuestion.getId()+"##");
+			beingClubbedQuestion.simpleMerge();
+		}else if(clubbedType.equals("question_before_workflow_tobeputup")
+				&&processedType.equals("question_workflow_approving_clarificationneeded")){
+			newCQStatus=Status.findByType("question_before_workflow_putonhold", locale);
+			beingClubbedQuestion.setInternalStatus(newCQStatus);
+			beingClubbedQuestion.setRecommendationStatus(newCQStatus);
+			beingClubbedQuestion.setProspectiveClubbings(beingClubbedQuestion.getProspectiveClubbings()+"##PUTONHOLD~"+beingProcessedQuestion.getId()+"##");
+			beingClubbedQuestion.simpleMerge();
+		}else if(clubbedType.equals("question_before_workflow_tobeputup")
+				&&(processedType.equals("question_workflow_decisionstatus_admission")
+						||processedType.equals("question_workflow_decisionstatus_rejection")
+						||processedType.equals("question_workflow_decisionstatus_converttounstarred")
+						||processedType.equals("question_workflow_decisionstatus_onhold")
+						||processedType.equals("question_workflow_decisionstatus_discuss")
+						||processedType.equals("question_workflow_decisionstatus_clarificationneeded")
+						||processedType.equals("question_workflow_decisionstatus_nameclubbing")
+						||processedType.equals("question_workflow_decisionstatus_sendback")
+						||processedType.equals("question_workflow_decisionstatus_groupchanged")
+						||processedType.equals("question_workflow_decisionstatus_clarificationreceived")
+						||processedType.equals("question_workflow_decisionstatus_clarificationnotreceived")
+				)){
+			newCQStatus=Status.findByType("question_before_workflow_tobeclubbedwithpending", locale);
+			beingClubbedQuestion.setInternalStatus(newCQStatus);
+			beingClubbedQuestion.setRecommendationStatus(newCQStatus);
+			beingClubbedQuestion.setProspectiveClubbings(beingClubbedQuestion.getProspectiveClubbings()+"##CLUBWITHPENDING~"+beingProcessedQuestion.getId()+"##");
+			beingClubbedQuestion.simpleMerge();
+		}
+	}
 
-    /**
-     * Find dated questions.
-     *
-     * @param session the session
-     * @param member the member
-     * @param deviceType the device type
-     * @param group the group
-     * @param answeringDate the answering date
-     * @param startTime the start time
-     * @param endTime the end time
-     * @param internalStatuses the internal statuses
-     * @param locale the locale
-     * @return the list
-     */
-    public List<Question> findDatedQuestions(final Session session,
-            final Member member,
-            final DeviceType deviceType,
-            final Group group,
-            final Date answeringDate,
-            final Date startTime,
-            final Date endTime,
-            final Status[] internalStatuses,
-            final String locale) {
-        String strAnsweringDate = this.answeringDateAsString(answeringDate);
+	private void beingClubbedIsPrimary(Question beingProcessedQuestion,
+			Question beingClubbedQuestion,
+			List<ClubbedEntity> beingProcessedClubbing,
+			List<ClubbedEntity> beingClubbedClubbing, Status oldPQStatus,
+			Status oldCQStatus, Status newPQStatus, Status newCQStatus) {
+		String locale=beingProcessedQuestion.getLocale();
+		String processedType=oldPQStatus.getType();
+		String clubbedType=oldCQStatus.getType();
+		if(processedType.equals("question_before_workflow_tobeputup")
+				&&clubbedType.equals("question_before_workflow_tobeputup")){
+			/**** Processed Question 
+			 * a.parent=clubbed question
+			 * b.clubbedentities=null
+			 * c.internalstatus=recommednationstatus=clubbed
+			 * d.merge****/
+			beingProcessedQuestion.setParent(beingClubbedQuestion);
+			beingProcessedQuestion.setClubbedEntities(null);
+			newPQStatus=Status.findByType("question_before_workflow_clubbed", locale);
+			beingProcessedQuestion.setInternalStatus(newCQStatus);
+			beingProcessedQuestion.setRecommendationStatus(newCQStatus);
+			beingProcessedQuestion.simpleMerge();                
+			/**** create new clubbed entity****/
+			ClubbedEntity clubbedEntity=new ClubbedEntity();
+			clubbedEntity.setDeviceType(beingProcessedQuestion.getType());
+			clubbedEntity.setLocale(beingProcessedQuestion.getLocale());
+			clubbedEntity.setQuestion(beingProcessedQuestion);
+			clubbedEntity.persist();                
+			/**** add this as clubbed entity in clubbed clubbed entity ****/
+			beingClubbedClubbing.add(clubbedEntity);                
+			/*** add clubbed entities of processed question in clubbed question ****/
+			if(beingProcessedClubbing!=null){
+				if(!beingProcessedClubbing.isEmpty()){
+					for(ClubbedEntity k:beingProcessedClubbing){
+						Question question=k.getQuestion();
+						question.setParent(beingClubbedQuestion);
+						question.setInternalStatus(newPQStatus);
+						question.setRecommendationStatus(newPQStatus);
+						question.simpleMerge();
+						k.setQuestion(question);
+						k.merge();
+						beingClubbedClubbing.add(k);
+					}                        
+				}
+			}
+			/**** update being clubbed question ****/
+			beingClubbedQuestion.setParent(null);
+			//newCQStatus=Status.findByType("question_before_workflow_tobeputup", locale);
+			//beingClubbedQuestion.setInternalStatus(newCQStatus);
+			//beingClubbedQuestion.setRecommendationStatus(newCQStatus);
+			beingClubbedQuestion.setClubbedEntities(beingClubbedClubbing);
+			beingClubbedQuestion.simpleMerge();
+			List<ClubbedEntity> clubbedEntities=beingClubbedQuestion.findClubbedEntitiesByQuestionNumber(ApplicationConstants.ASC,locale);
+			Integer position=1;
+			for(ClubbedEntity i:clubbedEntities){
+				i.setPosition(position);
+				position++;
+				i.merge();
+			}
+		}else if(processedType.equals("question_before_workflow_tobeputup")
+				&&(clubbedType.equals("question_workflow_approving_admission")
+						||clubbedType.equals("question_workflow_approving_rejection")
+						||clubbedType.equals("question_workflow_approving_converttounstarred"))){
+			newPQStatus=Status.findByType("question_before_workflow_tobenameclubbed", locale);
+			beingProcessedQuestion.setInternalStatus(newPQStatus);
+			beingProcessedQuestion.setRecommendationStatus(newPQStatus);
+			beingProcessedQuestion.setProspectiveClubbings(beingProcessedQuestion.getProspectiveClubbings()+"##NAMECLUB~"+beingClubbedQuestion.getId()+"##");
+			beingProcessedQuestion.simpleMerge();
+		}else if(processedType.equals("question_before_workflow_tobeputup")
+				&&clubbedType.equals("question_workflow_approving_clarificationneeded")){
+			newPQStatus=Status.findByType("question_before_workflow_putonhold", locale);
+			beingProcessedQuestion.setInternalStatus(newPQStatus);
+			beingProcessedQuestion.setRecommendationStatus(newPQStatus);
+			beingProcessedQuestion.setProspectiveClubbings(beingProcessedQuestion.getProspectiveClubbings()+"##PUTONHOLD~"+beingClubbedQuestion.getId()+"##");
+			beingProcessedQuestion.simpleMerge();
+		}else if(processedType.equals("question_before_workflow_tobeputup")
+				&&(clubbedType.equals("question_workflow_decisionstatus_admission")
+						||clubbedType.equals("question_workflow_decisionstatus_rejection")
+						||clubbedType.equals("question_workflow_decisionstatus_converttounstarred")
+						||clubbedType.equals("question_workflow_decisionstatus_onhold")
+						||clubbedType.equals("question_workflow_decisionstatus_discuss")
+						||clubbedType.equals("question_workflow_decisionstatus_clarificationneeded")
+						||clubbedType.equals("question_workflow_decisionstatus_nameclubbing")
+						||clubbedType.equals("question_workflow_decisionstatus_sendback")
+						||clubbedType.equals("question_workflow_decisionstatus_groupchanged")
+						||clubbedType.equals("question_workflow_decisionstatus_clarificationreceived")
+						||clubbedType.equals("question_workflow_decisionstatus_clarificationnotreceived")
+				)){
+			newPQStatus=Status.findByType("question_before_workflow_tobeclubbedwithpending", locale);
+			beingProcessedQuestion.setInternalStatus(newPQStatus);
+			beingProcessedQuestion.setRecommendationStatus(newPQStatus);
+			beingProcessedQuestion.setProspectiveClubbings(beingProcessedQuestion.getProspectiveClubbings()+"##CLUBWITHPENDING~"+beingClubbedQuestion.getId()+"##");
+			beingProcessedQuestion.simpleMerge();
+		}else if(clubbedType.equals("questi" +
+		"on_before_workflow_tobeputup")
+		&&(processedType.equals("question_workflow_approving_admission")
+				||processedType.equals("question_workflow_approving_rejection")
+				||processedType.equals("question_workflow_approving_converttounstarred"))){
+			newCQStatus=Status.findByType("question_before_workflow_nameclub", locale);
+			beingClubbedQuestion.setInternalStatus(newCQStatus);
+			beingClubbedQuestion.setRecommendationStatus(newCQStatus);
+			beingClubbedQuestion.setProspectiveClubbings(beingClubbedQuestion.getProspectiveClubbings()+"##NAMECLUB~"+beingProcessedQuestion.getId()+"##");
+			beingClubbedQuestion.simpleMerge();
+		}else if(clubbedType.equals("question_before_workflow_tobeputup")
+				&&processedType.equals("question_workflow_approving_clarificationneeded")){
+			newCQStatus=Status.findByType("question_before_workflow_putonhold", locale);
+			beingClubbedQuestion.setInternalStatus(newCQStatus);
+			beingClubbedQuestion.setRecommendationStatus(newCQStatus);
+			beingClubbedQuestion.setProspectiveClubbings(beingClubbedQuestion.getProspectiveClubbings()+"##PUTONHOLD~"+beingProcessedQuestion.getId()+"##");
+			beingClubbedQuestion.simpleMerge();
+		}else if(clubbedType.equals("question_before_workflow_tobeputup")
+				&&(processedType.equals("question_workflow_decisionstatus_admission")
+						||processedType.equals("question_workflow_decisionstatus_rejection")
+						||processedType.equals("question_workflow_decisionstatus_converttounstarred")
+						||processedType.equals("question_workflow_decisionstatus_onhold")
+						||processedType.equals("question_workflow_decisionstatus_discuss")
+						||processedType.equals("question_workflow_decisionstatus_clarificationneeded")
+						||processedType.equals("question_workflow_decisionstatus_nameclubbing")
+						||processedType.equals("question_workflow_decisionstatus_sendback")
+						||processedType.equals("question_workflow_decisionstatus_groupchanged")
+						||processedType.equals("question_workflow_decisionstatus_clarificationreceived")
+						||processedType.equals("question_workflow_decisionstatus_clarificationnotreceived")
+				)){
+			newCQStatus=Status.findByType("question_before_workflow_tobeclubbedwithpending", locale);
+			beingClubbedQuestion.setInternalStatus(newCQStatus);
+			beingClubbedQuestion.setRecommendationStatus(newCQStatus);
+			beingClubbedQuestion.setProspectiveClubbings(beingClubbedQuestion.getProspectiveClubbings()+"##CLUBWITHPENDING~"+beingProcessedQuestion.getId()+"##");
+			beingClubbedQuestion.simpleMerge();
+		}
 
-        // Removed for performance reason. Uncomment when Caching mechanism is added
-        // CustomParameter parameter = CustomParameter.findByName(CustomParameter.class,
-        //      "DB_TIMESTAMP", "");
-        // String strDate = new DateFormater().formatDateToString(date, parameter.getValue());
-        String strStartTime = FormaterUtil.formatDateToString(startTime, "yyyy-MM-dd HH:mm:ss");
-        String strEndTime = FormaterUtil.formatDateToString(endTime, "yyyy-MM-dd HH:mm:ss");
+	}
 
-        StringBuffer query = new StringBuffer(
-                " SELECT q" +
-                " FROM Question q" +
-                " WHERE q.session.id = " + session.getId() +
-                " AND q.primaryMember.id = " + member.getId() +
-                " AND q.type.id = " + deviceType.getId() +
-                " AND q.group.id = " + group.getId() +
-                " AND q.answeringDate.answeringDate <= '" + strAnsweringDate + "'" +
-                " AND q.submissionDate >= '" + strStartTime + "'" +
-                " AND q.submissionDate <= '" + strEndTime + "'" +
-                " AND q.locale = '" + locale + "'"
-        );
-        query.append(this.getStatusFilters(internalStatuses));
-        query.append(" ORDER BY q.answeringDate.answeringDate DESC, q.number ASC");
+	private void beingProcessedIsPrimary(Question beingProcessedQuestion,
+			Question beingClubbedQuestion,
+			List<ClubbedEntity> beingProcessedClubbing,
+			List<ClubbedEntity> beingClubbedClubbing, Status oldPQStatus,
+			Status oldCQStatus, Status newPQStatus, Status newCQStatus) {
+		String locale=beingProcessedQuestion.getLocale();
+		String processedType=oldPQStatus.getType();
+		String clubbedType=oldCQStatus.getType();
+		/**** both questions are still to be sent for approval 
+		 * a.processed question parent=null(primary question)
+		 * b.clubbed question parent=processed question
+		 * c.clubbed question clubbing=null
+		 * d.save current clubbed question entity
+		 * e.*****/
+		if(processedType.equals("question_before_workflow_tobeputup")
+				&&clubbedType.equals("question_before_workflow_tobeputup")){
+			/**** Clubbed Question 
+			 * a.parent=processed question
+			 * b.clubbedentities=null
+			 * c.internalstatus=recommednationstatus=clubbed
+			 * d.merge****/
+			beingClubbedQuestion.setParent(beingProcessedQuestion);
+			beingClubbedQuestion.setClubbedEntities(null);
+			newCQStatus=Status.findByType("question_before_workflow_clubbed", locale);
+			beingClubbedQuestion.setInternalStatus(newCQStatus);
+			beingClubbedQuestion.setRecommendationStatus(newCQStatus);
+			beingClubbedQuestion.simpleMerge();                
+			/**** create new clubbed entity****/
+			ClubbedEntity clubbedEntity=new ClubbedEntity();
+			clubbedEntity.setDeviceType(beingClubbedQuestion.getType());
+			clubbedEntity.setLocale(beingClubbedQuestion.getLocale());
+			clubbedEntity.setQuestion(beingClubbedQuestion);
+			clubbedEntity.persist();                
+			/**** add this as clubbed entity in processed clubbed entity ****/
+			beingProcessedClubbing.add(clubbedEntity);                
+			/*** add clubbed entities of clubbed question in processed question ****/
+			if(beingClubbedClubbing!=null){
+				if(!beingClubbedClubbing.isEmpty()){
+					for(ClubbedEntity k:beingClubbedClubbing){
+						Question question=k.getQuestion();
+						question.setParent(beingProcessedQuestion);
+						question.setInternalStatus(newCQStatus);
+						question.setRecommendationStatus(newCQStatus);
+						question.simpleMerge();
+						k.setQuestion(question);
+						k.merge();
+						beingProcessedClubbing.add(k);
+					}                        
+				}
+			}
+			/**** update being processed question ****/
+			beingProcessedQuestion.setParent(null);
+			beingProcessedQuestion.setClubbedEntities(beingProcessedClubbing);
+			beingProcessedQuestion.simpleMerge();
+			List<ClubbedEntity> clubbedEntities=beingProcessedQuestion.findClubbedEntitiesByQuestionNumber(ApplicationConstants.ASC,locale);
+			Integer position=1;
+			for(ClubbedEntity i:clubbedEntities){
+				i.setPosition(position);
+				position++;
+				i.merge();
+			}
+		}else if(processedType.equals("question_before_workflow_tobeputup")
+				&&(clubbedType.equals("question_workflow_approving_admission")
+						||clubbedType.equals("question_workflow_approving_rejection")
+						||clubbedType.equals("question_workflow_approving_converttounstarred"))){
+			newPQStatus=Status.findByType("question_before_workflow_tobenameclubbed", locale);
+			beingProcessedQuestion.setInternalStatus(newPQStatus);
+			beingProcessedQuestion.setRecommendationStatus(newPQStatus);
+			beingProcessedQuestion.setProspectiveClubbings(beingProcessedQuestion.getProspectiveClubbings()+"##NAMECLUB~"+beingClubbedQuestion.getId()+"##");
+			beingProcessedQuestion.simpleMerge();
+		}else if(processedType.equals("question_before_workflow_tobeputup")
+				&&clubbedType.equals("question_workflow_approving_clarificationneeded")){
+			newPQStatus=Status.findByType("question_before_workflow_putonhold", locale);
+			beingProcessedQuestion.setInternalStatus(newPQStatus);
+			beingProcessedQuestion.setRecommendationStatus(newPQStatus);
+			beingProcessedQuestion.setProspectiveClubbings(beingProcessedQuestion.getProspectiveClubbings()+"##PUTONHOLD~"+beingClubbedQuestion.getId()+"##");
+			beingProcessedQuestion.simpleMerge();
+		}else if(processedType.equals("question_before_workflow_tobeputup")
+				&&(clubbedType.equals("question_workflow_decisionstatus_admission")
+						||clubbedType.equals("question_workflow_decisionstatus_rejection")
+						||clubbedType.equals("question_workflow_decisionstatus_converttounstarred")
+						||clubbedType.equals("question_workflow_decisionstatus_onhold")
+						||clubbedType.equals("question_workflow_decisionstatus_discuss")
+						||clubbedType.equals("question_workflow_decisionstatus_clarificationneeded")
+						||clubbedType.equals("question_workflow_decisionstatus_nameclubbing")
+						||clubbedType.equals("question_workflow_decisionstatus_sendback")
+						||clubbedType.equals("question_workflow_decisionstatus_groupchanged")
+						||clubbedType.equals("question_workflow_decisionstatus_clarificationreceived")
+						||clubbedType.equals("question_workflow_decisionstatus_clarificationnotreceived")
+				)){
+			newPQStatus=Status.findByType("question_before_workflow_tobeclubbedwithpending", locale);
+			beingProcessedQuestion.setInternalStatus(newPQStatus);
+			beingProcessedQuestion.setRecommendationStatus(newPQStatus);
+			beingProcessedQuestion.setProspectiveClubbings(beingProcessedQuestion.getProspectiveClubbings()+"##CLUBWITHPENDING~"+beingClubbedQuestion.getId()+"##");
+			beingProcessedQuestion.simpleMerge();
+		}else if(clubbedType.equals("question_before_workflow_tobeputup")
+				&&(processedType.equals("question_workflow_approving_admission")
+						||processedType.equals("question_workflow_approving_rejection")
+						||processedType.equals("question_workflow_approving_converttounstarred"))){
+			newCQStatus=Status.findByType("question_before_workflow_tobenameclubbed", locale);
+			beingClubbedQuestion.setInternalStatus(newCQStatus);
+			beingClubbedQuestion.setRecommendationStatus(newCQStatus);
+			beingClubbedQuestion.setProspectiveClubbings(beingClubbedQuestion.getProspectiveClubbings()+"##NAMECLUB~"+beingProcessedQuestion.getId()+"##");
+			beingClubbedQuestion.simpleMerge();
+		}else if(clubbedType.equals("question_before_workflow_tobeputup")
+				&&processedType.equals("question_workflow_approving_clarificationneeded")){
+			newCQStatus=Status.findByType("question_before_workflow_putonhold", locale);
+			beingClubbedQuestion.setInternalStatus(newCQStatus);
+			beingClubbedQuestion.setRecommendationStatus(newCQStatus);
+			beingClubbedQuestion.setProspectiveClubbings(beingClubbedQuestion.getProspectiveClubbings()+"##PUTONHOLD~"+beingProcessedQuestion.getId()+"##");
+			beingClubbedQuestion.simpleMerge();
+		}else if(clubbedType.equals("question_before_workflow_tobeputup")
+				&&(processedType.equals("question_workflow_decisionstatus_admission")
+						||processedType.equals("question_workflow_decisionstatus_rejection")
+						||processedType.equals("question_workflow_decisionstatus_converttounstarred")
+						||processedType.equals("question_workflow_decisionstatus_onhold")
+						||processedType.equals("question_workflow_decisionstatus_discuss")
+						||processedType.equals("question_workflow_decisionstatus_clarificationneeded")
+						||processedType.equals("question_workflow_decisionstatus_nameclubbing")
+						||processedType.equals("question_workflow_decisionstatus_sendback")
+						||processedType.equals("question_workflow_decisionstatus_groupchanged")
+						||processedType.equals("question_workflow_decisionstatus_clarificationreceived")
+						||processedType.equals("question_workflow_decisionstatus_clarificationnotreceived")
+				)){
+			newCQStatus=Status.findByType("question_before_workflow_tobeclubbedwithpending", locale);
+			beingClubbedQuestion.setInternalStatus(newCQStatus);
+			beingClubbedQuestion.setRecommendationStatus(newCQStatus);
+			beingClubbedQuestion.setProspectiveClubbings(beingClubbedQuestion.getProspectiveClubbings()+"##CLUBWITHPENDING~"+beingProcessedQuestion.getId()+"##");
+			beingClubbedQuestion.simpleMerge();
+		}
+	}
 
-        TypedQuery<Question> tQuery = this.em().createQuery(query.toString(), Question.class);
-        List<Question> questions = tQuery.getResultList();
-        return questions;
-    }
+	private Boolean alreadyClubbed(final Question beingProcessedQuestion,
+			final Question beingClubbedQuestion,final String locale) {
+		ClubbedEntity clubbedEntity1=ClubbedEntity.findByFieldName(ClubbedEntity.class,"question",
+				beingClubbedQuestion, locale);
+		if(clubbedEntity1!=null){
+			return true;
+		}else{
+			ClubbedEntity clubbedEntity2=ClubbedEntity.findByFieldName(ClubbedEntity.class,"question",
+					beingProcessedQuestion, locale);
+			if(clubbedEntity2!=null){
+				return true;
+			}else{
+				return false;
+			}
+		}
+	}
 
-    /**
-     * Find non answering date.
-     *
-     * @param session the session
-     * @param member the member
-     * @param deviceType the device type
-     * @param group the group
-     * @param startTime the start time
-     * @param endTime the end time
-     * @param internalStatuses the internal statuses
-     * @param sortOrder the sort order
-     * @param locale the locale
-     * @return the list
-     */
-    public List<Question> findNonAnsweringDate(final Session session,
-            final Member member,
-            final DeviceType deviceType,
-            final Group group,
-            final Date startTime,
-            final Date endTime,
-            final Status[] internalStatuses,
-            final String sortOrder,
-            final String locale) {
-        // Removed for performance reason. Uncomment when Caching mechanism is added
-        // CustomParameter parameter = CustomParameter.findByName(CustomParameter.class,
-        //      "DB_TIMESTAMP", "");
-        // String strDate = new DateFormater().formatDateToString(date, parameter.getValue());
-        String strStartTime = FormaterUtil.formatDateToString(startTime, "yyyy-MM-dd HH:mm:ss");
-        String strEndTime = FormaterUtil.formatDateToString(endTime, "yyyy-MM-dd HH:mm:ss");
+	/**
+	 * Unclub.
+	 *
+	 * @param questionBeingProcessed the question being processed
+	 * @param questionBeingClubbed the question being clubbed
+	 * @param locale the locale
+	 * @return the boolean
+	 */
+	public Boolean unclub(final Long questionBeingProcessed,
+			final Long questionBeingClubbed, final String locale) {
+		Boolean status=true;
+		Question beingProcessedQuestion=Question.findById(Question.class,questionBeingProcessed);
+		Question beingClubbedQuestion=Question.findById(Question.class,questionBeingClubbed);
+		Status newstatus=Status.findByFieldName(Status.class,"type", "question_before_workflow_tobeputup", locale);
+		ClubbedEntity clubbedEntityToRemove=null;
 
-        StringBuffer query = new StringBuffer(
-                " SELECT q" +
-                " FROM Question q" +
-                " WHERE q.session.id = " + session.getId() +
-                " AND q.primaryMember.id = " + member.getId() +
-                " AND q.type.id = " + deviceType.getId() +
-                " AND q.group.id = " + group.getId() +
-                " AND q.answeringDate = " + null +
-                " AND q.submissionDate >= '" + strStartTime + "'" +
-                " AND q.submissionDate <= '" + strEndTime + "'" +
-                " AND q.locale = '" + locale + "'"
-        );
-        query.append(this.getStatusFilters(internalStatuses));
-        if(sortOrder.equals(ApplicationConstants.ASC)) {
-            query.append(" ORDER BY q.number ASC");
-        }
-        else if(sortOrder.equals(ApplicationConstants.DESC)) {
-            query.append(" ORDER BY q.number DESC");
-        }
+		/**** If processed question's number is less than clubbed question's number
+		 * then clubbed question is removed from the clubbing of processed question
+		 * ,clubbed question's parent is set to null ,new clubbing of processed 
+		 * question is set,their position is updated****/
+		if(beingProcessedQuestion.getNumber()<beingClubbedQuestion.getNumber()){
+			List<ClubbedEntity> oldClubbedQuestions=beingProcessedQuestion.getClubbedEntities();
+			List<ClubbedEntity> newClubbedQuestions=new ArrayList<ClubbedEntity>();
+			Integer position=0;
+			boolean found=false;
+			for(ClubbedEntity i:oldClubbedQuestions){
+				if(i.getQuestion().getId()!=beingClubbedQuestion.getId()){
+					if(found){
+						i.setPosition(position);
+						position++;
+						i.merge();
+						newClubbedQuestions.add(i);
+					}else{
+						newClubbedQuestions.add(i);                		
+					}
+				}else{
+					found=true;
+					position=i.getPosition();
+					clubbedEntityToRemove=i;
+				}
+			}
+			if(!newClubbedQuestions.isEmpty()){
+				beingProcessedQuestion.setClubbedEntities(newClubbedQuestions);
+			}else{
+				beingProcessedQuestion.setClubbedEntities(null);
+			}            
+			beingProcessedQuestion.simpleMerge();
+			clubbedEntityToRemove.remove();
+			beingClubbedQuestion.setParent(null);
+			beingClubbedQuestion.setInternalStatus(newstatus);
+			beingClubbedQuestion.setRecommendationStatus(newstatus);
+			beingClubbedQuestion.simpleMerge();
+		}else if(beingProcessedQuestion.getNumber()>beingClubbedQuestion.getNumber()){
+			List<ClubbedEntity> oldClubbedQuestions=beingClubbedQuestion.getClubbedEntities();
+			List<ClubbedEntity> newClubbedQuestions=new ArrayList<ClubbedEntity>();
+			Integer position=0;
+			boolean found=false;
+			for(ClubbedEntity i:oldClubbedQuestions){
+				if(i.getQuestion().getId()!=beingProcessedQuestion.getId()){
+					if(found){
+						i.setPosition(position);
+						position++;
+						i.merge();
+						newClubbedQuestions.add(i);
+					}else{
+						newClubbedQuestions.add(i);                		
+					}
+				}else{
+					found=true;
+					position=i.getPosition();
+					clubbedEntityToRemove=i;
+				}
+			}
+			beingClubbedQuestion.setClubbedEntities(newClubbedQuestions);
+			beingClubbedQuestion.simpleMerge();
+			clubbedEntityToRemove.remove();
+			beingProcessedQuestion.setParent(null);
+			beingProcessedQuestion.setInternalStatus(newstatus);
+			beingProcessedQuestion.setRecommendationStatus(newstatus);
+			beingProcessedQuestion.simpleMerge();
+		}else{
+			status= false;
+		}		
+		return status;
+	}
 
-        TypedQuery<Question> tQuery = this.em().createQuery(query.toString(), Question.class);
-        List<Question> questions = tQuery.getResultList();
-        return questions;
-    }
 
-    /**
-     * Creates the member ballot attendance.
-     *
-     * @param session the session
-     * @param questionType the question type
-     * @param locale the locale
-     * @return the boolean
-     */
-    @SuppressWarnings("unchecked")
-    public Boolean createMemberBallotAttendance(
-            final Session session, final DeviceType questionType, final String locale) {
-        /*
-         * first we will check if attendance has already been created for particular
-         * session ,device type and locale
-         */
-        Boolean status=memberBallotCreated(session,questionType,locale);
-        Boolean operationStatus=false;
-        List<MemberBallotAttendance> memberBallotAttendances=new ArrayList<MemberBallotAttendance>();
-        if(!status){
-            List<Member> members=new ArrayList<Member>();
-            CustomParameter customParameter=CustomParameter.findByName(CustomParameter.class,"DB_TIMESTAMP", "");
-            if(customParameter!=null){
-                SimpleDateFormat format=FormaterUtil.getDateFormatter(customParameter.getValue(),"en_US");
-                Date startTime = FormaterUtil.formatStringToDate(session.getParameter(questionType.getType() +"_submissionFirstBatchStartDate"), customParameter.getValue(), session.getLocale());
-				Date endTime = FormaterUtil.formatStringToDate(session.getParameter(questionType.getType() +"_submissionFirstBatchEndDate"), customParameter.getValue(), session.getLocale());
-                if(startTime!=null && endTime!=null){
-                    String startTimeStr=format.format(startTime);
-                    String endTimeStr=format.format(endTime);
-                    String query="SELECT DISTINCT m FROM Question q JOIN q.primaryMember m JOIN m.title t WHERE q.session.id="+session.getId()+
-                    " AND q.type.id="+questionType.getId()+" AND q.submissionDate>='"+startTimeStr+"' AND q.submissionDate<='"+endTimeStr+"'"+
-                    " ORDER BY m.lastName "+ApplicationConstants.ASC;
-                    members=this.em().createQuery(query).getResultList();
-                    for(Member i:members){
-                        MemberBallotAttendance memberBallotAttendance=new MemberBallotAttendance(session,questionType,i,false,locale);
-                        memberBallotAttendance.persist();
-                        memberBallotAttendances.add(memberBallotAttendance);
-                    }
-                    operationStatus=true;
-                }else if(startTime==null){
-                    logger.error("**** First Batch Submission Start Date not set ****");
-                }else if(endTime==null){
-                    logger.error("**** First Batch Submission End Date not set ****");
-                }
-            }else{
-                logger.error("**** Custom Parameter 'DB_TIMESTAMP(yyyy-MM-dd HH:mm:ss)' not set ****");
-            }
-        }
-        return operationStatus;
-    }
+	//=========== ADD FOLLOWING METHODS ==========================
+	/**
+	 * Returns null if there is no result, else returns a List
+	 * of Questions.
+	 *
+	 * @param session the session
+	 * @param member the member
+	 * @param deviceType the device type
+	 * @param group the group
+	 * @param answeringDate the answering date
+	 * @param finalSubmissionDate the final submission date
+	 * @param internalStatuses the internal statuses
+	 * @param excludeQuestions the exclude questions
+	 * @param maxNoOfQuestions the max no of questions
+	 * @param sortOrder the sort order
+	 * @param locale the locale
+	 * @return the list
+	 */
+	public List<Question> find(final Session session,
+			final Member member,
+			final DeviceType deviceType,
+			final Group group,
+			final Date answeringDate,
+			final Date finalSubmissionDate,
+			final Status[] internalStatuses,
+			final Question[] excludeQuestions,
+			final Integer maxNoOfQuestions,
+			final String sortOrder,
+			final String locale) {
+		String strAnsweringDate = this.answeringDateAsString(answeringDate);
+		String strFinalSubmissionDate = this.submissionDateAsString(finalSubmissionDate);
 
-    /**
-     * Member ballot created.
-     *
-     * @param session the session
-     * @param questionType the question type
-     * @param locale the locale
-     * @return the boolean
-     */
-    private Boolean memberBallotCreated(final Session session, final DeviceType questionType,
-            final String locale) {
-        String query="SELECT m FROM MemberBallotAttendance m WHERE m.session.id="+session.getId()+
-        " AND m.deviceType="+questionType.getId()+" AND m.locale='"+locale+"'";
-        Integer count=this.em().createQuery(query).getResultList().size();
-        if(count>0){
-            return true;
-        }else{
-            return false;
-        }
-    }
+		StringBuffer query = new StringBuffer(
+				" SELECT q" +
+				" FROM Question q" +
+				" WHERE q.session.id = " + session.getId() +
+				" AND q.primaryMember.id = " + member.getId() +
+				" AND q.type.id = " + deviceType.getId() +
+				" AND q.group.id = " + group.getId() +
+				" AND q.answeringDate.answeringDate = '" + strAnsweringDate + "'" +
+				" AND q.submissionDate <= '" + strFinalSubmissionDate + "'" +
+				" AND q.locale = '" + locale + "'"
+		);
+		query.append(this.getStatusFilters(internalStatuses));
+		query.append(this.getQuestionFilters(excludeQuestions));
+		if(sortOrder.equals(ApplicationConstants.ASC)) {
+			query.append(" ORDER BY q.number ASC");
+		}
+		else if(sortOrder.equals(ApplicationConstants.DESC)) {
+			query.append(" ORDER BY q.number DESC");
+		}
 
-    /**
-     * Find.
-     *
-     * @param session the session
-     * @param deviceType the device type
-     * @param startTime the start time
-     * @param endTime the end time
-     * @param internalStatuses the internal statuses
-     * @param sortOrder the sort order
-     * @param locale the locale
-     * @return the list
-     */
-    public List<Question> find(final Session session,
-    		final DeviceType deviceType,
-    		final Date startTime,
-    		final Date endTime,
-    		final Status[] internalStatuses,
-    		final String sortOrder,
-    		final String locale) {
-    	// Removed for performance reason. Uncomment when Caching mechanism is added
-        // CustomParameter parameter = CustomParameter.findByName(CustomParameter.class,
-        //      "DB_TIMESTAMP", "");
-        // String strDate = new DateFormater().formatDateToString(date, parameter.getValue());
-        String strStartTime = FormaterUtil.formatDateToString(startTime, "yyyy-MM-dd HH:mm:ss");
-        String strEndTime = FormaterUtil.formatDateToString(endTime, "yyyy-MM-dd HH:mm:ss");
+		TypedQuery<Question> tQuery = this.em().createQuery(query.toString(), Question.class);
+		tQuery.setMaxResults(maxNoOfQuestions);
+		List<Question> questions = tQuery.getResultList();
+		return questions;
+	}
 
-        StringBuffer query = new StringBuffer(
-                " SELECT q" +
-                " FROM Question q" +
-                " WHERE q.session.id = " + session.getId() +
-                " AND q.type.id = " + deviceType.getId() +
-                " AND q.submissionDate >= '" + strStartTime + "'" +
-                " AND q.submissionDate <= '" + strEndTime + "'" +
-                " AND q.locale = '" + locale + "'"
-        );
-        query.append(this.getStatusFilters(internalStatuses));
-        if(sortOrder.equals(ApplicationConstants.ASC)) {
-            query.append(" ORDER BY q.number ASC");
-        }
-        else if(sortOrder.equals(ApplicationConstants.DESC)) {
-            query.append(" ORDER BY q.number DESC");
-        }
+	/**
+	 * Returns null if there is no result, else returns a List
+	 * of Questions.
+	 *
+	 * @param session the session
+	 * @param member the member
+	 * @param deviceType the device type
+	 * @param group the group
+	 * @param answeringDate the answering date
+	 * @param finalSubmissionDate the final submission date
+	 * @param internalStatuses the internal statuses
+	 * @param excludeQuestions the exclude questions
+	 * @param maxNoOfQuestions the max no of questions
+	 * @param sortOrder the sort order
+	 * @param locale the locale
+	 * @return the list
+	 */
+	public List<Question> findBeforeAnsweringDate(final Session session,
+			final Member member,
+			final DeviceType deviceType,
+			final Group group,
+			final Date answeringDate,
+			final Date finalSubmissionDate,
+			final Status[] internalStatuses,
+			final Question[] excludeQuestions,
+			final Integer maxNoOfQuestions,
+			final String sortOrder,
+			final String locale) {
+		String strAnsweringDate = this.answeringDateAsString(answeringDate);
+		String strFinalSubmissionDate = this.submissionDateAsString(finalSubmissionDate);
 
-        TypedQuery<Question> tQuery = this.em().createQuery(query.toString(), Question.class);
-        List<Question> questions = tQuery.getResultList();
-        return questions;
-    }
+		StringBuffer query = new StringBuffer(
+				" SELECT q" +
+				" FROM Question q" +
+				" WHERE q.session.id = " + session.getId() +
+				" AND q.primaryMember.id = " + member.getId() +
+				" AND q.type.id = " + deviceType.getId() +
+				" AND q.group.id = " + group.getId() +
+				" AND q.answeringDate.answeringDate < '" + strAnsweringDate + "'" +
+				" AND q.submissionDate <= '" + strFinalSubmissionDate + "'" +
+				" AND q.locale = '" + locale + "'"
+		);
+		query.append(this.getStatusFilters(internalStatuses));
+		query.append(this.getQuestionFilters(excludeQuestions));
 
-    /**
-     * Find primary members.
-     *
-     * @param session the session
-     * @param deviceType the device type
-     * @param startTime the start time
-     * @param endTime the end time
-     * @param internalStatuses the internal statuses
-     * @param sortOrder the sort order
-     * @param locale the locale
-     * @return the list
-     */
-    public List<Member> findPrimaryMembers(final Session session,
-    		final DeviceType deviceType,
-    		final Date startTime,
-    		final Date endTime,
-    		final Status[] internalStatuses,
-    		final String sortOrder,
-    		final String locale) {
-    	// Removed for performance reason. Uncomment when Caching mechanism is added
-        // CustomParameter parameter = CustomParameter.findByName(CustomParameter.class,
-        //      "DB_TIMESTAMP", "");
-        // String strDate = new DateFormater().formatDateToString(date, parameter.getValue());
-        String strStartTime = FormaterUtil.formatDateToString(startTime, "yyyy-MM-dd HH:mm:ss");
-        String strEndTime = FormaterUtil.formatDateToString(endTime, "yyyy-MM-dd HH:mm:ss");
+		TypedQuery<Question> tQuery = this.em().createQuery(query.toString(), Question.class);
+		List<Question> questions = tQuery.getResultList();
+		if(questions != null) {
+			questions = Question.sortByAnsweringDate(questions, sortOrder);
+			if(questions.size() >= maxNoOfQuestions) {
+				return questions.subList(0, maxNoOfQuestions);
+			}
+		}
+		return questions;
+	}
 
-        StringBuffer query = new StringBuffer(
-                " SELECT UNIQUE(q.primaryMember)" +
-                " FROM Question q" +
-                " WHERE q.session.id = " + session.getId() +
-                " AND q.type.id = " + deviceType.getId() +
-                " AND q.submissionDate >= '" + strStartTime + "'" +
-                " AND q.submissionDate <= '" + strEndTime + "'" +
-                " AND q.locale = '" + locale + "'"
-        );
-        query.append(this.getStatusFilters(internalStatuses));
-        if(sortOrder.equals(ApplicationConstants.ASC)) {
-            query.append(" ORDER BY q.number ASC");
-        }
-        else if(sortOrder.equals(ApplicationConstants.DESC)) {
-            query.append(" ORDER BY q.number DESC");
-        }
+	/**
+	 * Returns null if there is no result, else returns a List
+	 * of Questions.
+	 *
+	 * @param session the session
+	 * @param member the member
+	 * @param deviceType the device type
+	 * @param group the group
+	 * @param finalSubmissionDate the final submission date
+	 * @param internalStatuses the internal statuses
+	 * @param excludeQuestions the exclude questions
+	 * @param maxNoOfQuestions the max no of questions
+	 * @param sortOrder the sort order
+	 * @param locale the locale
+	 * @return the list
+	 */
+	public List<Question> findNonAnsweringDate(final Session session,
+			final Member member,
+			final DeviceType deviceType,
+			final Group group,
+			final Date finalSubmissionDate,
+			final Status[] internalStatuses,
+			final Question[] excludeQuestions,
+			final Integer maxNoOfQuestions,
+			final String sortOrder,
+			final String locale) {
+		String strFinalSubmissionDate = this.submissionDateAsString(finalSubmissionDate);
 
-        TypedQuery<Member> tQuery = this.em().createQuery(query.toString(), Member.class);
-        List<Member> members = tQuery.getResultList();
-        return members;
-    }
+		StringBuffer query = new StringBuffer(
+				" SELECT q" +
+				" FROM Question q" +
+				" WHERE q.session.id = " + session.getId() +
+				" AND q.primaryMember.id = " + member.getId() +
+				" AND q.type.id = " + deviceType.getId() +
+				" AND q.group.id = " + group.getId() +
+				" AND q.answeringDate = " + null +
+				" AND q.submissionDate <= '" + strFinalSubmissionDate + "'" +
+				" AND q.locale = '" + locale + "'"
+		);
+		query.append(this.getStatusFilters(internalStatuses));
+		query.append(this.getQuestionFilters(excludeQuestions));
+		if(sortOrder.equals(ApplicationConstants.ASC)) {
+			query.append(" ORDER BY q.number ASC");
+		}
+		else if(sortOrder.equals(ApplicationConstants.DESC)) {
+			query.append(" ORDER BY q.number DESC");
+		}
 
-    /**
-     * Find admitted starred questions uh.
-     *
-     * @param session the session
-     * @param questionType the question type
-     * @param member the member
-     * @param locale the locale
-     * @return the list
-     */
-    @SuppressWarnings("unchecked")
-    public List<Question> findAdmittedStarredQuestionsUH(final Session session,
-            final DeviceType questionType, final Member member, final String locale) {
-            CustomParameter customParameter=CustomParameter.findByName(CustomParameter.class,"DB_DATETIMEFORMAT", "");
-            List<Question> questions=new ArrayList<Question>();
-            if(customParameter!=null){
-                SimpleDateFormat format=FormaterUtil.getDateFormatter(customParameter.getValue(), "en_US");
-                String query="SELECT q FROM Question q JOIN q.primaryMember m JOIN q.session s JOIN q.type qt "+
-                             " WHERE m.id="+member.getId()+" AND s.id="+session.getId()+" AND qt.id="+questionType.getId()+
-                             " AND q.locale='"+locale+"' AND q.internalStatus.type='question_workflow_approving_admission'  "+
-                             " AND q.submissionDate>='"+format.format(session.getParameter("questions_starred_submissionFirstBatchStartDate"))+"' "+
-                             " AND q.submissionDate<='"+format.format(session.getParameter("questions_starred_submissionFirstBatchEndDate"))+"' ORDER BY q.number "+ApplicationConstants.ASC;
-                questions=this.em().createQuery(query).getResultList();
-            }else{
-             logger.error("Custom Parameter 'DB_DATETIMEFORMAT' not set");
-            }
-            return questions;
-    }
-    
-    
-    /**
-     * Full text search clubbing for half hour discussion from question.
-     *
-     * @param param the param
-     * @param sessionId the session id
-     * @param groupId the group id
-     * @param currentChartId the current chart id
-     * @param memberId the member id 
-     * @param questionId the question id
-     * @param locale the locale
-     * @return the list
-     */
-    @SuppressWarnings("rawtypes")
-    public List<QuestionSearchVO> fullTextSearchClubbingForHalfHourDiscussionFromQuestion(final String param,final Long sessionId,final Long groupId, final Long memberId, final Long questionId, final String locale) {
-        /*
-         * data to fetch and from where.
-         */
-        String initialQuery="SELECT q.id as id,q.number as number,q.subject as subject "+
-        ",q.question_text as questionText,q.revised_subject as revisedSubject "+
-        ",q.revised_question_text as revisedQuestionText,t.name as title "+
-        ",m.first_name as firstName,m.middle_name as middleName,m.last_name as lastName "+
-        ",mi.name as ministry,d.name as department,sd.name as subdepartment,c.answering_date as answeringdate,g.number as groupnumber "+
-        ",st.name as statusname "+
-        "FROM questions as q "+
-        "left join members as m on(q.member_id=m.id ) "+
-        "left join titles as t on(t.id=m.title_id) "+
-        "left join ministries as mi on(q.ministry_id=mi.id) "+
-        "left join departments as d on(q.department_id=d.id) "+
-        "left join subdepartments as sd on(q.subdepartment_id=sd.id) "+
-//        "join charts as c "+
-//        "join charts_chart_entries as cce "+
-//        "join chart_entries_questions as ceq "+
-        "left join groups as g on(q.group_id=g.id) "+
-        "join sessions as s join status as st "+
-        /*"WHERE c.group_id=q.group_id and "+
-        "c.session_id=s.id and cce.chart_id=c.id and ceq.chart_entry_id=cce.chart_entry_id "+
-        "and ceq.question_id=q.id*/ "and st.id=q.internalstatus_id and "+
-        "g.id="+groupId+" and s.id="+sessionId+" and m.id="+memberId/*+" and c.id<="+currentChartId*/+" and q.parent is null "+
-        "and q.id<>"+questionId;
-        /*
-         * fulltext query
-         */
-        String searchQuery=null;
-        if(!param.contains("+")&&!param.contains("-")){
-            searchQuery=" AND match(q.subject,q.question_text,q.revised_subject,q.revised_question_text) "+
-            "against('"+param+"' in natural language mode)";
-        }else if(param.contains("+")&&!param.contains("-")){
-            String[] parameters=param.split("\\+");
-            StringBuffer buffer=new StringBuffer();
-            for(String i:parameters){
-                buffer.append("+"+i+" ");
-            }
-            searchQuery=" AND match(q.subject,q.question_text,q.revised_subject,q.revised_question_text) "+
-            "against('"+buffer.toString()+"' in boolean  mode)";
-        }else if(!param.contains("+")&&param.contains("-")){
-            String[] parameters=param.split("-");
-            StringBuffer buffer=new StringBuffer();
-            for(String i:parameters){
-                buffer.append(i+" "+"-");
-            }
-            buffer.deleteCharAt(buffer.length()-1);
-            searchQuery=" AND match(q.subject,q.question_text,q.revised_subject,q.revised_question_text) "+
-            "against('"+buffer.toString()+"' in boolean  mode)";
-        }else if(param.contains("+")||param.contains("-")){
-            searchQuery=" AND match(q.subject,q.question_text,q.revised_subject,q.revised_question_text) "+
-            "against('"+param+"' in boolean  mode)";
-        }
-        /*
-         * order by query.It is arranged first by answering date descending and then group number descending
-         */
-        String orderByQuery=" ORDER BY c.answering_date desc,q.number "+ApplicationConstants.DESC;
-        String query=initialQuery+searchQuery+orderByQuery;
-        String finalQuery="SELECT rs.id,rs.number,rs.subject,rs.questionText,rs.revisedSubject"+
-        ",rs.revisedQuestionText,rs.title,rs.firstName,rs.middleName,rs.lastName"+
-        ",rs.ministry,rs.department,rs.subdepartment,rs.answeringdate,rs.groupnumber,rs.statusname FROM ("+query+") as rs";
-        List results=this.em().createNativeQuery(finalQuery).getResultList();
-        List<QuestionSearchVO> questionSearchVOs=new ArrayList<QuestionSearchVO>();
-        SimpleDateFormat format=FormaterUtil.getDateFormatter(locale);
-        CustomParameter customParameter=CustomParameter.findByName(CustomParameter.class,"DB_DATEFORMAT","");
-        SimpleDateFormat dbFormat=FormaterUtil.getDateFormatter(customParameter.getValue(), locale);
-        if(results!=null){
-            for(Object i:results){
-                Object[] o=(Object[]) i;
-                QuestionSearchVO questionSearchVO=new QuestionSearchVO();
-                if(o[0]!=null){
-                    questionSearchVO.setId(Long.parseLong(o[0].toString()));
-                }
-                if(o[1]!=null){
-                    questionSearchVO.setNumber(Integer.parseInt(o[1].toString()));
-                }
-                if(o[2]!=null){
-                    questionSearchVO.setSubject(o[2].toString());
-                }
-                if(o[3]!=null){
-                    questionSearchVO.setQuestionText(o[3].toString());
-                }
-                if(o[4]!=null){
-                    questionSearchVO.setRevisedSubject(o[4].toString());
-                }
-                if(o[5]!=null){
-                    questionSearchVO.setRevisedQuestionText(o[5].toString());
-                }
-                if(o[6]!=null){
-                    if(o[8]!=null){
-                        questionSearchVO.setPrimaryMember(o[6].toString()+" "+o[7].toString()+" "+o[8].toString()+" "+o[9].toString());
-                    }else{
-                        questionSearchVO.setPrimaryMember(o[6].toString()+" "+o[7].toString()+" "+o[9].toString());
-                    }
-                }else{
-                    questionSearchVO.setPrimaryMember(o[7].toString()+" "+o[8].toString()+" "+o[9].toString());
-                }
-                if(o[10]!=null){
-                    questionSearchVO.setMinistry(o[10].toString());
-                }
-                if(o[11]!=null){
-                    questionSearchVO.setDepartment(o[11].toString());
-                }
-                if(o[12]!=null){
-                    questionSearchVO.setSubDepartment(o[12].toString());
-                }
-                if(o[13]!=null){
-                    Date dbDate;
-                    try {
-                        dbDate = dbFormat.parse(o[13].toString());
-                        questionSearchVO.setAnsweringDate(format.format(dbDate));
-                    }
-                    catch (ParseException e) {
-                        e.printStackTrace();
-                    }
-                }
-                if(o[14]!=null){
-                    questionSearchVO.setGroup(o[14].toString());
-                }
-                if(o[15]!=null){
-                    questionSearchVO.setStatus(o[15].toString());
-                }
-                questionSearchVOs.add(questionSearchVO);
-            }
-        }
-        return questionSearchVOs;
-    }
+		TypedQuery<Question> tQuery = this.em().createQuery(query.toString(), Question.class);
+		tQuery.setMaxResults(maxNoOfQuestions);
+		List<Question> questions = tQuery.getResultList();
+		return questions;
+	}
+
+	/**
+	 * Submission date as string.
+	 *
+	 * @param date the date
+	 * @return the string
+	 */
+	private String submissionDateAsString(final Date date) {
+		// Removed for performance reason. Uncomment when Caching mechanism is added
+		// CustomParameter parameter = CustomParameter.findByName(CustomParameter.class,
+		//		"DB_TIMESTAMP", "");
+		// String strDate = new DateFormater().formatDateToString(date, parameter.getValue());
+		String strDate = FormaterUtil.formatDateToString(date, "yyyy-MM-dd HH:mm:ss");
+		String str = strDate.replaceFirst("00:00:00", "23:59:59");
+		return str;
+	}
+
+	/**
+	 * Answering date as string.
+	 *
+	 * @param date the date
+	 * @return the string
+	 */
+	private String answeringDateAsString(final Date date) {
+		// Removed for performance reason. Uncomment when Caching mechanism is added
+		// CustomParameter parameter = CustomParameter.findByName(CustomParameter.class,
+		//		"DB_DATEFORMAT", "");
+		// String strDate = new DateFormater().formatDateToString(date, parameter.getValue());
+		String strDate = FormaterUtil.formatDateToString(date, "yyyy-MM-dd");
+		String str = strDate.replaceFirst("00:00:00", "23:59:59");
+		return str;
+	}
+
+	/**
+	 * Gets the question filters.
+	 *
+	 * @param excludeQuestions the exclude questions
+	 * @return the question filters
+	 */
+	private String getQuestionFilters(final Question[] excludeQuestions) {
+		StringBuffer sb = new StringBuffer();
+		sb.append(" AND(");
+		int n = excludeQuestions.length;
+		for(int i = 0; i < n; i++) {
+			sb.append(" q.id != " + excludeQuestions[i].getId());
+			if(i < n - 1) {
+				sb.append(" AND");
+			}
+		}
+		sb.append(")");
+		return sb.toString();
+	}
+
+	/**
+	 * Find dated questions.
+	 *
+	 * @param session the session
+	 * @param member the member
+	 * @param deviceType the device type
+	 * @param group the group
+	 * @param answeringDate the answering date
+	 * @param startTime the start time
+	 * @param endTime the end time
+	 * @param internalStatuses the internal statuses
+	 * @param maxNoOfQuestions the max no of questions
+	 * @param locale the locale
+	 * @return the list
+	 */
+	public List<Question> findDatedQuestions(final Session session,
+			final Member member,
+			final DeviceType deviceType,
+			final Group group,
+			final Date answeringDate,
+			final Date startTime,
+			final Date endTime,
+			final Status[] internalStatuses,
+			final Integer maxNoOfQuestions,
+			final String locale) {
+		String strAnsweringDate = this.answeringDateAsString(answeringDate);
+
+		// Removed for performance reason. Uncomment when Caching mechanism is added
+		// CustomParameter parameter = CustomParameter.findByName(CustomParameter.class,
+		//      "DB_TIMESTAMP", "");
+		// String strDate = new DateFormater().formatDateToString(date, parameter.getValue());
+		String strStartTime = FormaterUtil.formatDateToString(startTime, "yyyy-MM-dd HH:mm:ss");
+		String strEndTime = FormaterUtil.formatDateToString(endTime, "yyyy-MM-dd HH:mm:ss");
+
+		StringBuffer query = new StringBuffer(
+				" SELECT q" +
+				" FROM Question q" +
+				" WHERE q.session.id = " + session.getId() +
+				" AND q.primaryMember.id = " + member.getId() +
+				" AND q.type.id = " + deviceType.getId() +
+				" AND q.group.id = " + group.getId() +
+				" AND q.answeringDate.answeringDate <= '" + strAnsweringDate + "'" +
+				" AND q.submissionDate >= '" + strStartTime + "'" +
+				" AND q.submissionDate <= '" + strEndTime + "'" +
+				" AND q.locale = '" + locale + "'"
+		);
+		query.append(this.getStatusFilters(internalStatuses));
+		query.append(" ORDER BY q.answeringDate.answeringDate DESC, q.number ASC");
+
+		TypedQuery<Question> tQuery = this.em().createQuery(query.toString(), Question.class);
+		tQuery.setMaxResults(maxNoOfQuestions);
+		List<Question> questions = tQuery.getResultList();
+		return questions;
+	}
+
+	/**
+	 * Returns null if there is no result, else returns a List
+	 * of Questions.
+	 *
+	 * @param session the session
+	 * @param member the member
+	 * @param deviceType the device type
+	 * @param group the group
+	 * @param startTime the start time
+	 * @param endTime the end time
+	 * @param internalStatuses the internal statuses
+	 * @param maxNoOfQuestions the max no of questions
+	 * @param sortOrder the sort order
+	 * @param locale the locale
+	 * @return the list
+	 */
+	public List<Question> findNonAnsweringDate(final Session session,
+			final Member member,
+			final DeviceType deviceType,
+			final Group group,
+			final Date startTime,
+			final Date endTime,
+			final Status[] internalStatuses,
+			final Integer maxNoOfQuestions,
+			final String sortOrder,
+			final String locale) {
+		// Removed for performance reason. Uncomment when Caching mechanism is added
+		// CustomParameter parameter = CustomParameter.findByName(CustomParameter.class,
+		//      "DB_TIMESTAMP", "");
+		// String strDate = new DateFormater().formatDateToString(date, parameter.getValue());
+		String strStartTime = FormaterUtil.formatDateToString(startTime, "yyyy-MM-dd HH:mm:ss");
+		String strEndTime = FormaterUtil.formatDateToString(endTime, "yyyy-MM-dd HH:mm:ss");
+
+		StringBuffer query = new StringBuffer(
+				" SELECT q" +
+				" FROM Question q" +
+				" WHERE q.session.id = " + session.getId() +
+				" AND q.primaryMember.id = " + member.getId() +
+				" AND q.type.id = " + deviceType.getId() +
+				" AND q.group.id = " + group.getId() +
+				" AND q.answeringDate = " + null +
+				" AND q.submissionDate >= '" + strStartTime + "'" +
+				" AND q.submissionDate <= '" + strEndTime + "'" +
+				" AND q.locale = '" + locale + "'"
+		);
+		query.append(this.getStatusFilters(internalStatuses));
+		if(sortOrder.equals(ApplicationConstants.ASC)) {
+			query.append(" ORDER BY q.number ASC");
+		}
+		else if(sortOrder.equals(ApplicationConstants.DESC)) {
+			query.append(" ORDER BY q.number DESC");
+		}
+
+		TypedQuery<Question> tQuery = this.em().createQuery(query.toString(), Question.class);
+		tQuery.setMaxResults(maxNoOfQuestions);
+		List<Question> questions = tQuery.getResultList();
+		return questions;
+	}
+
+	/**
+	 * Find dated questions.
+	 *
+	 * @param session the session
+	 * @param member the member
+	 * @param deviceType the device type
+	 * @param group the group
+	 * @param answeringDate the answering date
+	 * @param startTime the start time
+	 * @param endTime the end time
+	 * @param internalStatuses the internal statuses
+	 * @param locale the locale
+	 * @return the list
+	 */
+	public List<Question> findDatedQuestions(final Session session,
+			final Member member,
+			final DeviceType deviceType,
+			final Group group,
+			final Date answeringDate,
+			final Date startTime,
+			final Date endTime,
+			final Status[] internalStatuses,
+			final String locale) {
+		String strAnsweringDate = this.answeringDateAsString(answeringDate);
+
+		// Removed for performance reason. Uncomment when Caching mechanism is added
+		// CustomParameter parameter = CustomParameter.findByName(CustomParameter.class,
+		//      "DB_TIMESTAMP", "");
+		// String strDate = new DateFormater().formatDateToString(date, parameter.getValue());
+		String strStartTime = FormaterUtil.formatDateToString(startTime, "yyyy-MM-dd HH:mm:ss");
+		String strEndTime = FormaterUtil.formatDateToString(endTime, "yyyy-MM-dd HH:mm:ss");
+
+		StringBuffer query = new StringBuffer(
+				" SELECT q" +
+				" FROM Question q" +
+				" WHERE q.session.id = " + session.getId() +
+				" AND q.primaryMember.id = " + member.getId() +
+				" AND q.type.id = " + deviceType.getId() +
+				" AND q.group.id = " + group.getId() +
+				" AND q.answeringDate.answeringDate <= '" + strAnsweringDate + "'" +
+				" AND q.submissionDate >= '" + strStartTime + "'" +
+				" AND q.submissionDate <= '" + strEndTime + "'" +
+				" AND q.locale = '" + locale + "'"
+		);
+		query.append(this.getStatusFilters(internalStatuses));
+		query.append(" ORDER BY q.answeringDate.answeringDate DESC, q.number ASC");
+
+		TypedQuery<Question> tQuery = this.em().createQuery(query.toString(), Question.class);
+		List<Question> questions = tQuery.getResultList();
+		return questions;
+	}
+
+	/**
+	 * Find non answering date.
+	 *
+	 * @param session the session
+	 * @param member the member
+	 * @param deviceType the device type
+	 * @param group the group
+	 * @param startTime the start time
+	 * @param endTime the end time
+	 * @param internalStatuses the internal statuses
+	 * @param sortOrder the sort order
+	 * @param locale the locale
+	 * @return the list
+	 */
+	public List<Question> findNonAnsweringDate(final Session session,
+			final Member member,
+			final DeviceType deviceType,
+			final Group group,
+			final Date startTime,
+			final Date endTime,
+			final Status[] internalStatuses,
+			final String sortOrder,
+			final String locale) {
+		// Removed for performance reason. Uncomment when Caching mechanism is added
+		// CustomParameter parameter = CustomParameter.findByName(CustomParameter.class,
+		//      "DB_TIMESTAMP", "");
+		// String strDate = new DateFormater().formatDateToString(date, parameter.getValue());
+		String strStartTime = FormaterUtil.formatDateToString(startTime, "yyyy-MM-dd HH:mm:ss");
+		String strEndTime = FormaterUtil.formatDateToString(endTime, "yyyy-MM-dd HH:mm:ss");
+
+		StringBuffer query = new StringBuffer(
+				" SELECT q" +
+				" FROM Question q" +
+				" WHERE q.session.id = " + session.getId() +
+				" AND q.primaryMember.id = " + member.getId() +
+				" AND q.type.id = " + deviceType.getId() +
+				" AND q.group.id = " + group.getId() +
+				" AND q.answeringDate = " + null +
+				" AND q.submissionDate >= '" + strStartTime + "'" +
+				" AND q.submissionDate <= '" + strEndTime + "'" +
+				" AND q.locale = '" + locale + "'"
+		);
+		query.append(this.getStatusFilters(internalStatuses));
+		if(sortOrder.equals(ApplicationConstants.ASC)) {
+			query.append(" ORDER BY q.number ASC");
+		}
+		else if(sortOrder.equals(ApplicationConstants.DESC)) {
+			query.append(" ORDER BY q.number DESC");
+		}
+
+		TypedQuery<Question> tQuery = this.em().createQuery(query.toString(), Question.class);
+		List<Question> questions = tQuery.getResultList();
+		return questions;
+	}
+
+	/**
+	 * Creates the member ballot attendance.
+	 *
+	 * @param session the session
+	 * @param questionType the question type
+	 * @param locale the locale
+	 * @return the boolean
+	 */
+	@SuppressWarnings("unchecked")
+	public Boolean createMemberBallotAttendance(
+			final Session session, final DeviceType questionType, final String locale) {
+		/*
+		 * first we will check if attendance has already been created for particular
+		 * session ,device type and locale
+		 */
+		Boolean status=memberBallotCreated(session,questionType,locale);
+		Boolean operationStatus=false;
+		List<MemberBallotAttendance> memberBallotAttendances=new ArrayList<MemberBallotAttendance>();
+		if(!status){
+			List<Member> members=new ArrayList<Member>();
+			CustomParameter customParameter=CustomParameter.findByName(CustomParameter.class,"DB_TIMESTAMP", "");
+			if(customParameter!=null){
+				SimpleDateFormat format=FormaterUtil.getDateFormatter(customParameter.getValue(),"en_US");
+				Date startTime = FormaterUtil.formatStringToDate(session.getParamater(questionType.getType() +"_submissionFirstBatchStartDate"), customParameter.getValue(), session.getLocale());
+				Date endTime = FormaterUtil.formatStringToDate(session.getParamater(questionType.getType() +"_submissionFirstBatchEndDate"), customParameter.getValue(), session.getLocale());
+				if(startTime!=null && endTime!=null){
+					String startTimeStr=format.format(startTime);
+					String endTimeStr=format.format(endTime);
+					String query="SELECT DISTINCT m FROM Question q JOIN q.primaryMember m JOIN m.title t WHERE q.session.id="+session.getId()+
+					" AND q.type.id="+questionType.getId()+" AND q.submissionDate>='"+startTimeStr+"' AND q.submissionDate<='"+endTimeStr+"'"+
+					" ORDER BY m.lastName "+ApplicationConstants.ASC;
+					members=this.em().createQuery(query).getResultList();
+					for(Member i:members){
+						MemberBallotAttendance memberBallotAttendance=new MemberBallotAttendance(session,questionType,i,false,locale);
+						memberBallotAttendance.persist();
+						memberBallotAttendances.add(memberBallotAttendance);
+					}
+					operationStatus=true;
+				}else if(startTime==null){
+					logger.error("**** First Batch Submission Start Date not set ****");
+				}else if(endTime==null){
+					logger.error("**** First Batch Submission End Date not set ****");
+				}
+			}else{
+				logger.error("**** Custom Parameter 'DB_TIMESTAMP(yyyy-MM-dd HH:mm:ss)' not set ****");
+			}
+		}
+		return operationStatus;
+	}
+
+	/**
+	 * Member ballot created.
+	 *
+	 * @param session the session
+	 * @param questionType the question type
+	 * @param locale the locale
+	 * @return the boolean
+	 */
+	private Boolean memberBallotCreated(final Session session, final DeviceType questionType,
+			final String locale) {
+		String query="SELECT m FROM MemberBallotAttendance m WHERE m.session.id="+session.getId()+
+		" AND m.deviceType="+questionType.getId()+" AND m.locale='"+locale+"'";
+		Integer count=this.em().createQuery(query).getResultList().size();
+		if(count>0){
+			return true;
+		}else{
+			return false;
+		}
+	}
+
+	/**
+	 * Find.
+	 *
+	 * @param session the session
+	 * @param deviceType the device type
+	 * @param startTime the start time
+	 * @param endTime the end time
+	 * @param internalStatuses the internal statuses
+	 * @param sortOrder the sort order
+	 * @param locale the locale
+	 * @return the list
+	 */
+	public List<Question> find(final Session session,
+			final DeviceType deviceType,
+			final Date startTime,
+			final Date endTime,
+			final Status[] internalStatuses,
+			final String sortOrder,
+			final String locale) {
+		// Removed for performance reason. Uncomment when Caching mechanism is added
+		// CustomParameter parameter = CustomParameter.findByName(CustomParameter.class,
+		//      "DB_TIMESTAMP", "");
+		// String strDate = new DateFormater().formatDateToString(date, parameter.getValue());
+		String strStartTime = FormaterUtil.formatDateToString(startTime, "yyyy-MM-dd HH:mm:ss");
+		String strEndTime = FormaterUtil.formatDateToString(endTime, "yyyy-MM-dd HH:mm:ss");
+
+		StringBuffer query = new StringBuffer(
+				" SELECT q" +
+				" FROM Question q" +
+				" WHERE q.session.id = " + session.getId() +
+				" AND q.type.id = " + deviceType.getId() +
+				" AND q.submissionDate >= '" + strStartTime + "'" +
+				" AND q.submissionDate <= '" + strEndTime + "'" +
+				" AND q.locale = '" + locale + "'"
+		);
+		query.append(this.getStatusFilters(internalStatuses));
+		if(sortOrder.equals(ApplicationConstants.ASC)) {
+			query.append(" ORDER BY q.number ASC");
+		}
+		else if(sortOrder.equals(ApplicationConstants.DESC)) {
+			query.append(" ORDER BY q.number DESC");
+		}
+
+		TypedQuery<Question> tQuery = this.em().createQuery(query.toString(), Question.class);
+		List<Question> questions = tQuery.getResultList();
+		return questions;
+	}
+
+	/**
+	 * Find primary members.
+	 *
+	 * @param session the session
+	 * @param deviceType the device type
+	 * @param startTime the start time
+	 * @param endTime the end time
+	 * @param internalStatuses the internal statuses
+	 * @param sortOrder the sort order
+	 * @param locale the locale
+	 * @return the list
+	 */
+	public List<Member> findPrimaryMembers(final Session session,
+			final DeviceType deviceType,
+			final Date startTime,
+			final Date endTime,
+			final Status[] internalStatuses,
+			final String sortOrder,
+			final String locale) {
+		// Removed for performance reason. Uncomment when Caching mechanism is added
+		// CustomParameter parameter = CustomParameter.findByName(CustomParameter.class,
+		//      "DB_TIMESTAMP", "");
+		// String strDate = new DateFormater().formatDateToString(date, parameter.getValue());
+		String strStartTime = FormaterUtil.formatDateToString(startTime, "yyyy-MM-dd HH:mm:ss");
+		String strEndTime = FormaterUtil.formatDateToString(endTime, "yyyy-MM-dd HH:mm:ss");
+
+		StringBuffer query = new StringBuffer(
+				" SELECT UNIQUE(q.primaryMember)" +
+				" FROM Question q" +
+				" WHERE q.session.id = " + session.getId() +
+				" AND q.type.id = " + deviceType.getId() +
+				" AND q.submissionDate >= '" + strStartTime + "'" +
+				" AND q.submissionDate <= '" + strEndTime + "'" +
+				" AND q.locale = '" + locale + "'"
+		);
+		query.append(this.getStatusFilters(internalStatuses));
+		if(sortOrder.equals(ApplicationConstants.ASC)) {
+			query.append(" ORDER BY q.number ASC");
+		}
+		else if(sortOrder.equals(ApplicationConstants.DESC)) {
+			query.append(" ORDER BY q.number DESC");
+		}
+
+		TypedQuery<Member> tQuery = this.em().createQuery(query.toString(), Member.class);
+		List<Member> members = tQuery.getResultList();
+		return members;
+	}
+
+	/**
+	 * Find admitted starred questions uh.
+	 *
+	 * @param session the session
+	 * @param questionType the question type
+	 * @param member the member
+	 * @param locale the locale
+	 * @return the list
+	 */
+	@SuppressWarnings("unchecked")
+	public List<Question> findAdmittedStarredQuestionsUH(final Session session,
+			final DeviceType questionType, final Member member, final String locale) {
+		CustomParameter customParameter=CustomParameter.findByName(CustomParameter.class,"DB_DATETIMEFORMAT", "");
+		List<Question> questions=new ArrayList<Question>();
+		if(customParameter!=null){
+			SimpleDateFormat format=FormaterUtil.getDateFormatter(customParameter.getValue(), "en_US");
+			String query="SELECT q FROM Question q JOIN q.primaryMember m JOIN q.session s JOIN q.type qt "+
+			" WHERE m.id="+member.getId()+" AND s.id="+session.getId()+" AND qt.id="+questionType.getId()+
+			" AND q.locale='"+locale+"' AND q.internalStatus.type='question_workflow_approving_admission'  "+
+			" AND q.submissionDate>='"+format.format(session.getParamater("questions_starred_submissionFirstBatchStartDate"))+"' "+
+			" AND q.submissionDate<='"+format.format(session.getParamater("questions_starred_submissionFirstBatchEndDate"))+"' ORDER BY q.number "+ApplicationConstants.ASC;
+			questions=this.em().createQuery(query).getResultList();
+		}else{
+			logger.error("Custom Parameter 'DB_DATETIMEFORMAT' not set");
+		}
+		return questions;
+	}
+
+	@SuppressWarnings("unchecked")
+	public List<ClubbedEntity> findClubbedEntitiesByPosition(final Question question) {
+		String query="SELECT ce FROM Question m JOIN m.clubbedEntities ce WHERE m.id="+question.getId()+
+		" ORDER BY ce.position "+ApplicationConstants.ASC;
+		return this.em().createQuery(query).getResultList();
+	}
+
+	@SuppressWarnings("unchecked")
+	public List<ClubbedEntity> findClubbedEntitiesByQuestionNumber(
+			final Question question,final String sortOrder,final String locale) {
+		String query="SELECT m FROM Question q JOIN q.clubbedEntities m WHERE q.id="+question.getId()+" ORDER BY "+
+		" m.question.number "+sortOrder;
+		return this.em().createQuery(query).getResultList();
+	}
+
+	public Boolean referencing(Long primaryId, Long referencingId, String locale) {
+		boolean refStatus=true;
+		Question primaryQuestion=Question.findById(Question.class,primaryId);
+		Question referencedQuestion=Question.findById(Question.class,referencingId);
+		List<ReferencedEntity> referencedEntities=new ArrayList<ReferencedEntity>();
+		referencedEntities=primaryQuestion.getReferencedEntities();		
+		boolean alreadyRefered=false;
+		int position=0;
+		for(ReferencedEntity i:referencedEntities){
+			if(i.getQuestion().getId()==referencedQuestion.getId()){
+				alreadyRefered=true;
+			}
+			position++;
+		}
+		if(!alreadyRefered){
+			ReferencedEntity referencedEntity=new ReferencedEntity();
+			referencedEntity.setLocale(referencedQuestion.getLocale());
+			referencedEntity.setQuestion(referencedQuestion);
+			referencedEntity.setPosition(position+1);
+			referencedEntity.setDeviceType(referencedQuestion.getType());
+			referencedEntity.persist();
+			referencedEntities.add(referencedEntity);
+			if(!referencedEntities.isEmpty()){
+				primaryQuestion.setReferencedEntities(referencedEntities);
+			}else{
+				primaryQuestion.setReferencedEntities(null);
+			}
+			Status status=Status.findByFieldName(Status.class,"type","question_contains_references", locale);
+			primaryQuestion.setInternalStatus(status);
+			primaryQuestion.setRecommendationStatus(status);
+			primaryQuestion.simpleMerge();
+		}else{
+			refStatus=false;
+		}
+		return refStatus;
+	}
+
+	public Boolean deReferencing(Long primaryId, Long referencingId, String locale) {
+		boolean derefStatus=true;
+		Question primaryQuestion=Question.findById(Question.class,primaryId);
+		Question referencedQuestion=Question.findById(Question.class,referencingId);
+		List<ReferencedEntity> referencedEntities=new ArrayList<ReferencedEntity>();
+		List<ReferencedEntity> newReferencedEntities=new ArrayList<ReferencedEntity>();
+		referencedEntities=primaryQuestion.getReferencedEntities();
+		ReferencedEntity referencedEntityToRemove=null;
+		for(ReferencedEntity i:referencedEntities){
+			if(i.getQuestion().getId()==referencedQuestion.getId()){
+				referencedEntityToRemove=i;				
+			}else{
+				newReferencedEntities.add(i);
+			}
+		}
+		if(!newReferencedEntities.isEmpty()){
+			primaryQuestion.setReferencedEntities(newReferencedEntities);
+		}else{
+			primaryQuestion.setReferencedEntities(null);
+			Status status=Status.findByFieldName(Status.class,"type","question_before_workflow_tobeputup", locale);
+			primaryQuestion.setInternalStatus(status);
+			primaryQuestion.setRecommendationStatus(status);
+		}		
+		primaryQuestion.simpleMerge();
+		referencedEntityToRemove.remove();
+		return derefStatus;
+	}
+
 
 }

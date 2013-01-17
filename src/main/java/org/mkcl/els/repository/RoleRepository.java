@@ -26,4 +26,17 @@ public class RoleRepository extends BaseRepository<Role, Long>{
         return records;
     }
 
+	@SuppressWarnings("unchecked")
+	public String findDelimitedQISRoles(String locale) {
+		String query="SELECT m FROM Role m WHERE m.locale='"+locale+
+					"' AND (m.type LIKE 'QIS_%' OR m.type='SUPER_ADMIN')  ORDER BY m.type";
+		List<Role> roles=this.em().createQuery(query).getResultList();
+		StringBuffer buffer=new StringBuffer();
+		for(Role i:roles){
+			buffer.append(i.getType()+",");
+		}
+		buffer.deleteCharAt(buffer.length()-1);
+		return buffer.toString();
+	}
+
 }

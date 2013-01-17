@@ -93,4 +93,6 @@ public class SessionRepository extends BaseRepository<Session, Long>{
         search.addFilterEqual("house.type.type", housetype);
         return this.searchUnique(search);
     }
+
+
 }

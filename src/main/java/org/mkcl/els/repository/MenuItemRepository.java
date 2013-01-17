@@ -132,4 +132,24 @@ public class MenuItemRepository extends BaseRepository<MenuItem, Long> {
 		}
 		return this.search(search);
 	}
+
+	@SuppressWarnings("unchecked")
+	public List<MenuItem> findByParents(String parentIdsDelimitedBYComma,
+			String locale) {
+		String query=null;
+		if(parentIdsDelimitedBYComma.isEmpty()){
+			query="SELECT m FROM MenuItem m WHERE m.parent=null and m.locale='"+locale+"' ORDER BY m.text";	
+		}else{
+			query="SELECT m FROM MenuItem m JOIN m.parent p WHERE p.id IN("+parentIdsDelimitedBYComma+") and m.locale='"+locale+"' ORDER BY m.text";
+		}		
+		return this.em().createQuery(query).getResultList();
+	}
+
+	@SuppressWarnings("unchecked")
+	public List<MenuItem> findAllByIds(String menuItemIds, String sortBy, String sortOrder, String locale) {
+		String query="SELECT m FROM MenuItem m WHERE m.id IN("+menuItemIds+") ORDER BY "+sortBy+" "+sortOrder;
+		return this.em().createQuery(query).getResultList();
+	}
+
+	
 }

@@ -22,4 +22,13 @@ public class StatusRepository extends BaseRepository<Status, Serializable>{
         }
         return this.search(search);
     }
+
+	@SuppressWarnings("unchecked")
+	public List<Status> findAssistantQuestionStatus(final String sortBY,
+			final String sortOrder,final String locale) {
+		String query="SELECT m FROM Status m WHERE m.locale='"+locale+"' AND (m.type LIKE 'question_%' OR m.type='questions_submit')"+
+					 "AND m.type<>'questions_complete' and m.type<>'questions_incomplete'"+
+					 " ORDER BY m.priority "+ApplicationConstants.ASC;
+        return this.em().createQuery(query).getResultList();
+	}
 }
