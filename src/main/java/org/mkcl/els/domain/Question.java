@@ -1939,4 +1939,50 @@ implements Serializable
 		return getQuestionRepository().fullTextSearchReferencing(param, question, start, noOfRecords, locale);
 	}
 
+	/**
+     * Find a list of Questions for the given @param session
+     * of a given @param deviceType submitted between @param
+     * startTime & @param endTime (both date inclusive) having
+     * either of the @param internalStatuses.
+     * 
+     * Sort the resulting list of Questions by number according
+     * to the @param sortOrder.
+     * 
+     * Returns an empty list if there are no Questions.
+     */
+    public static List<Question> find(final Session session,
+    		final DeviceType deviceType,
+    		final Date startTime,
+    		final Date endTime,
+    		final Status[] internalStatuses,
+    		final Boolean hasParent,
+    		final String sortOrder,
+    		final String locale) {
+    	return Question.getQuestionRepository().find(session, deviceType, startTime, endTime, 
+    			internalStatuses, hasParent, sortOrder, locale);
+    }
+    
+    /**
+     * Find a list (without repetitions) of Primary Members who
+     * have submitted Question(s) between @param startTime & 
+     * @param endTime (both date inclusive) for the given @param 
+     * session of a given @param deviceType submitted  having
+     * either of the @param internalStatuses.
+     * 
+     * Sort the resulting list of Members by Question number according
+     * to the @param sortOrder.
+     * 
+     * Returns an empty list if there are no Members.
+     */
+    public static List<Member> findPrimaryMembers(final Session session,
+    		final DeviceType deviceType,
+    		final Date startTime,
+    		final Date endTime,
+    		final Status[] internalStatuses,
+    		final Boolean hasParent,
+    		final String sortOrder,
+    		final String locale) {
+    	return Question.getQuestionRepository().findPrimaryMembers(session, deviceType, 
+    			startTime, endTime, internalStatuses, hasParent, sortOrder, locale);
+    }
 }
