@@ -111,7 +111,7 @@
 		});
 		
 		$("#viewCitation").click(function(){
-			$.get('question/citations/'+$("#type").val()+ "?status=" + $("#internalStatus").val(),function(data){
+			$.get('question/citations/'+$("#type").val(),function(data){
 			    $.fancybox.open(data, {autoSize: false, width: 600, height:600});
 		    },'html');
 		    return false;
@@ -256,6 +256,9 @@
 	    if($("#selectedInternalStatus").val()=='-'){
 		    $("#actorDiv").hide();
 	    }
+	    //since status is different from the domain status
+	    $("#internalStatus").val($("#selecedtInternalStatus").val());
+	    $("#recommendationStatus").val($("#selecedtInternalStatus").val());
 	    
 	});
 
@@ -465,16 +468,14 @@
 	<select id="selecedtInternalStatus">
 	<option value="-"><spring:message code='please.select' text='Please Select'/></option>
 	<c:forEach items="${internalStatus}" var="i">
-	<c:if test="${(i.type!='question_workflow_decisionstatus_discuss'&&i.type!='question_workflow_decisionstatus_sendback') }">
 	<c:choose>
-	<c:when test="${i.type=='question_workflow_decisionstatus_groupchanged' }">
-	<option value="${i.id}" style="display: none;"><c:out value="${i.name}"></c:out></option>	
+	<c:when test="${fn:endsWith(i.type,internalStatusEndsWith) }">
+	<option value="${i.id}" selected="selected"><c:out value="${i.name}"></c:out></option>	
 	</c:when>
 	<c:otherwise>
-	<option value="${i.id}"><c:out value="${i.name}"></c:out></option>	
+	<option value="${i.id}"><c:out value="${i.name}"></c:out></option>		
 	</c:otherwise>
-	</c:choose>
-	</c:if>
+	</c:choose>		
 	</c:forEach>
 	</select>
 	<select id="internalStatusMaster">
@@ -500,8 +501,8 @@
 	<form:errors path="clarificationNeededFrom" cssClass="validationError" />	
 	</p>
 	</c:if>
-	<input type="hidden" id="internalStatus"  name="internalStatus" value="${internalStatusSelected }">
-	<input type="hidden" id="recommendationStatus"  name="recommendationStatus" value="${internalStatusSelected }">	
+	<input type="hidden" id="internalStatus"  name="internalStatus" value="${internalStatusId }">
+	<input type="hidden" id="recommendationStatus"  name="recommendationStatus" value="${internalStatusId }">	
 	<p style="display:none;">
 	<a href="#" id="viewCitation" style="margin-left: 162px;"><spring:message code="question.viewcitation" text="View Citations"></spring:message></a>	
 	</p>

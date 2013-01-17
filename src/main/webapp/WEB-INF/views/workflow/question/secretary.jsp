@@ -111,7 +111,7 @@
 		});
 		
 		$("#viewCitation").click(function(){
-			$.get('question/citations/'+$("#type").val()+"?status="+ $("#internalStatus").val(),function(data){
+			$.get('question/citations/'+$("#type").val(),function(data){
 			    $.fancybox.open(data, {autoSize: false, width: 600, height:600});
 		    },'html');
 		    return false;
@@ -312,7 +312,8 @@
 	
 	<p>
 	<label class="small"><spring:message code="question.submissionDate" text="Submitted On"/></label>
-	<form:input path="submissionDate" cssClass="sText" readonly="true"/>
+	<input id="setSubmissionDate" name="setSubmissionDate" type="text" class="sText" value="${submissionDate}" readonly="readonly">	
+	<input id="setCreationDate" name="setCreationDate" type="hidden" value="${creationDate}">	
 	<form:errors path="submissionDate" cssClass="validationError"/>	
 	
 	<label class="small"><spring:message code="question.answeringDate" text="Answering Date"/></label>
@@ -471,7 +472,14 @@
 	<option value="${i.id}" style="display: none;"><c:out value="${i.name}"></c:out></option>	
 	</c:when>
 	<c:otherwise>
-	<option value="${i.id}"><c:out value="${i.name}"></c:out></option>	
+	<c:choose>
+	<c:when test="${i.id==internalStatusId }">
+	<option value="${i.id}" selected="selected"><c:out value="${i.name}"></c:out></option>	
+	</c:when>
+	<c:otherwise>
+	<option value="${i.id}"><c:out value="${i.name}"></c:out></option>		
+	</c:otherwise>
+	</c:choose>
 	</c:otherwise>
 	</c:choose>
 	</c:if>
@@ -500,8 +508,8 @@
 	<form:errors path="clarificationNeededFrom" cssClass="validationError" />	
 	</p>
 	</c:if>
-	<input type="hidden" id="internalStatus"  name="internalStatus" value="${internalStatusSelected }">
-	<input type="hidden" id="recommendationStatus"  name="recommendationStatus" value="${internalStatusSelected }">	
+	<input type="hidden" id="internalStatus"  name="internalStatus" value="${internalStatusId }">
+	<input type="hidden" id="recommendationStatus"  name="recommendationStatus" value="${internalStatusId }">	
 	<p>
 	<a href="#" id="viewCitation" style="margin-left: 162px;"><spring:message code="question.viewcitation" text="View Citations"></spring:message></a>	
 	</p>
