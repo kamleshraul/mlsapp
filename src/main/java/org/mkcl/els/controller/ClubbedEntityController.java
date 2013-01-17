@@ -9,11 +9,8 @@ import javax.servlet.http.HttpServletRequest;
 import org.mkcl.els.common.util.FormaterUtil;
 import org.mkcl.els.common.vo.QuestionSearchVO;
 import org.mkcl.els.common.vo.Reference;
-import org.mkcl.els.domain.Chart;
 import org.mkcl.els.domain.ClubbedEntity;
-import org.mkcl.els.domain.Group;
 import org.mkcl.els.domain.Question;
-import org.mkcl.els.domain.Session;
 import org.springframework.stereotype.Controller;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.ui.ModelMap;
@@ -108,7 +105,7 @@ public class ClubbedEntityController extends BaseController{
 			}
 		}
 		model.addAttribute("status",status);
-		return "question/clubbingresult";
+		return "clubbing/clubbingresult";
 	}
 
 	@Transactional
@@ -130,7 +127,7 @@ public class ClubbedEntityController extends BaseController{
 			}
 		}
 		model.addAttribute("unclubbingstatus",status);
-		return "question/clubbingresult";
+		return "clubbing/clubbingresult";
 	}
 
 }
