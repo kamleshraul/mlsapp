@@ -83,10 +83,15 @@
 		$(document).ready(function(){
 			//triggering mis lowerhouse module on login
 			var locale=$('#authlocale').val();
-			$('.content').load('member/module?houseType=lowerhouse',function(data){
+			var startURL=$("#startURL").val();
+			var resourceURL='member/module?houseType=lowerhouse';
+			if(startURL!=''){
+				resourceURL=startURL;
+			}
+			$('.content').load(resourceURL,function(data){
 			    var title = $(data).filter('title').text();
 				$('#module_title').html(title);
-				$('#authhousetype').val("lowerhouse");				
+				//$('#authhousetype').val("lowerhouse");				
 			});			
 		});
 		
@@ -101,7 +106,8 @@
             <input type="hidden" id="authusername" name="authusername" value="${authusername}"/>
             <input type="hidden" id="authfullname" name="authfullname" value="${authtitle} ${authfirstname} ${authmiddlename} ${authlastname}"/>    
             <input type="hidden" id="authlocale" name="authlocale" value="${locale}"/> 
-            <input type="hidden" name="cancelFn" id="cancelFn"/>	
+            <input type="hidden" name="cancelFn" id="cancelFn"/>
+            <input type="hidden" id="startURL" name="startURL" value="${startURL}"/>	
             <!-- This is done to remove a bug wherein messages Download/Remove in file uploading donot canges to locale specific.
             values as the reuest for jsp is not passing through Resource Bundle Filter -->
             <input type="hidden" name="downloadUploadedFile" id="downloadUploadedFile" value="<spring:message code='file.download' text='Download'></spring:message>"/>	
