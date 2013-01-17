@@ -38,6 +38,31 @@ public class MinistryRepository extends BaseRepository<Ministry, Long> {
 		List<Ministry> ministries = this.em().createQuery(query).getResultList();
 		return ministries;
 	}
+	
+	@SuppressWarnings("unchecked")
+	public List<Ministry> findAssignedMinistries(String locale) {
+		CustomParameter dbDateFormat =
+			CustomParameter.findByName(CustomParameter.class, "DB_DATEFORMAT", "");
+		Date currDate = new Date();
+		SimpleDateFormat sdf = new SimpleDateFormat(dbDateFormat.getValue());
+		String strCurrDate = sdf.format(currDate);
+
+		/**
+		 * I am trying to mimic mm.ministryToDate > CURDATE(), but since
+		 * CURDATE() is MySQL specific i am using DB_DATEFORMAT from
+		 * custom_parameters.
+		 */
+		String query = "SELECT m " +
+		"FROM Ministry m " +
+		"WHERE m.locale = '" + locale + "' AND " +
+		"m.id IN " +
+			"(SELECT m.id " +
+			"FROM MemberMinister mm JOIN mm.ministry m " +
+			"WHERE mm.ministryToDate IS NULL OR mm.ministryToDate > '" + strCurrDate + "') " +
+		"ORDER BY m.name";
+		List<Ministry> ministries = this.em().createQuery(query).getResultList();
+		return ministries;
+	}
 
     @SuppressWarnings("rawtypes")
     public List<Ministry> findMinistriesAssignedToGroups(final HouseType houseType,
@@ -61,4 +86,6 @@ public class MinistryRepository extends BaseRepository<Ministry, Long> {
         }
         return ministries;
     }
+
+	
 }
