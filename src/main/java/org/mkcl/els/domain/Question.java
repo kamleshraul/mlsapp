@@ -54,8 +54,7 @@ import org.springframework.beans.factory.annotation.Configurable;
     "language","type","supportingMembers", "subDepartment", "referencedQuestions",
     "drafts","clubbings","group","editedBy","editedAs","clubbedEntities","referencedEntities","parent","parentReferencing",
     "clarificationNeededFrom"})
-public class Question extends BaseDomain
-implements Serializable
+public class Question extends BaseDomain implements Serializable
 {
 
     /** The Constant serialVersionUID. */
