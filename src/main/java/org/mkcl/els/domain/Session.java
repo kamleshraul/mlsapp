@@ -126,7 +126,6 @@ public class Session extends BaseDomain implements Serializable {
     @CollectionTable(name="session_devicetype_config")
 	private Map<String,String> parameters;
  
-
     /** The session repository. */
     @Autowired
     private transient SessionRepository sessionRepository;
