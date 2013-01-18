@@ -1185,7 +1185,6 @@ public class ReferenceController extends BaseController {
     	String sortorder=request.getParameter("sortorder");
     	List<Reference> references=WorkflowConfig.findActors(sessionId, deviceTypeId, workflowType, groupNumber, workflowConfigId, level, sortorder);
     	return references;
-
     }
 
     /**
@@ -1209,7 +1208,6 @@ public class ReferenceController extends BaseController {
     	reference.setId(String.valueOf(workflowConfig.getId()));
     	reference.setName(String.valueOf(workflowConfig.getId()));
     	return reference;
-
     }
 
     @RequestMapping(value = "/{deviceTypesEnabled}/deviceTypesNeedBallot", method = RequestMethod.GET)
