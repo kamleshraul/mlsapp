@@ -300,6 +300,7 @@ javax.servlet.http.HttpServletRequest)
         return urlPattern+"/"+"viewrotationorder";
     }
     
+    //---------------------------Added by anand, vikas & dhananjay-------------------------------------
     @RequestMapping(value="{id}/devicetypeconfig", method=RequestMethod.GET)
     public String editSessionDeviceTypeConfig(@PathVariable("id") final Long id,final ModelMap model,
             final HttpServletRequest request ){
@@ -338,8 +339,9 @@ javax.servlet.http.HttpServletRequest)
         	return urlPattern ;	
         }
         //----
-    }
+    }    
    
+    //---------------------------Added by anand, vikas & dhananjay-------------------------------------
 	@RequestMapping(method= RequestMethod.POST,value="/devicetypeconfig")
     public String updateSessionDeviceTypeConfig(@Valid @ModelAttribute("domain") Session session, BindingResult result,final ModelMap model,
             final HttpServletRequest request, RedirectAttributes redirectAttributes ){ 
