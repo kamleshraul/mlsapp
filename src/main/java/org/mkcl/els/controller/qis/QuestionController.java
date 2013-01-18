@@ -324,7 +324,7 @@ public class QuestionController extends GenericController<Question>{
 				if(questionType.getType().trim().equals("questions_starred")){
 					Date rotationOrderPubDate=null;
 					CustomParameter serverDateFormat = CustomParameter.findByName(CustomParameter.class, "DB_DATEFORMAT", "");
-					String strRotationOrderPubDate = selectedSession.getParamater("questions_starred_rotationOrderPublishingDate");
+					String strRotationOrderPubDate = selectedSession.getParameter("questions_starred_rotationOrderPublishingDate");
 					if(strRotationOrderPubDate!=null){
 						try {
 							rotationOrderPubDate = FormaterUtil.getDateFormatter(serverDateFormat.getValue(), "en_US").parse(strRotationOrderPubDate);
@@ -391,6 +391,12 @@ public class QuestionController extends GenericController<Question>{
 		}
 		/**** role ****/
 		model.addAttribute("role",request.getParameter("role"));
+		
+		//---------------------------Added by vikas & dhananjay-------------------------------------
+        if(questionType.getType().equals("questions_halfhourdiscussion_from_question") || questionType.getType().equals("questions_halfhourdiscussion_standalone")){
+        	populateForHalfHourDiscussionNew(model, domain, request);
+        }
+		//---------------------------Added by vikas & dhananjay-------------------------------------
 	}
 
 	@Override
@@ -512,7 +518,7 @@ public class QuestionController extends GenericController<Question>{
 		if(questionType.getType().trim().equals("questions_starred")){
 			Date rotationOrderPubDate=null;
 			CustomParameter serverDateFormat = CustomParameter.findByName(CustomParameter.class, "DB_DATEFORMAT", "");
-			String strRotationOrderPubDate = selectedSession.getParamater("questions_starred_rotationOrderPublishingDate");
+			String strRotationOrderPubDate = selectedSession.getParameter("questions_starred_rotationOrderPublishingDate");
 			if(strRotationOrderPubDate!=null){
 				try {
 					rotationOrderPubDate = FormaterUtil.getDateFormatter(serverDateFormat.getValue(), "en_US").parse(strRotationOrderPubDate);
@@ -708,6 +714,13 @@ public class QuestionController extends GenericController<Question>{
 			}
 
 		}
+		
+		//---------------------------Added by vikas & dhananjay-------------------------------------
+        if(questionType.getType().equals("questions_halfhourdiscussion_from_question") || questionType.getType().equals("questions_halfhourdiscussion_standalone")){
+	        
+			populateForHalfHourDiscussionEdit(model, domain, request);
+		}
+		//---------------------------Added by vikas & dhananjay-------------------------------------
 	}
 
 
@@ -903,6 +916,42 @@ public class QuestionController extends GenericController<Question>{
 		if(role!=null){
 			domain.setEditedAs(role.getLocalizedName());
 		}
+		
+		//---------------------------Added by vikas & dhananjay-----------------------------------------------------------------
+        //---------------------------to find referred question for half hour discussion from question---------------------------
+        if(domain!=null && domain.getType() != null){
+    		
+    		Question refQuestion = null;
+    		
+	    	if(domain.getType().getType().equalsIgnoreCase("questions_halfhourdiscussion_from_question")){
+	    		String strQuestionId = request.getParameter("halfHourDiscussionReference_questionId_H");
+	    		String strQuestionNumber = request.getParameter("halfHourDiscussionReference_questionId"); 
+	    		
+	    		if(strQuestionId!=null && !strQuestionId.isEmpty()){
+			    	Long questionId = new Long(strQuestionId);
+			    	refQuestion = Question.findById(Question.class, questionId);
+	    		}else if(strQuestionNumber != null && !strQuestionNumber.isEmpty()){
+
+					Integer qNumber = null;
+					
+					try {
+						qNumber=new Integer(FormaterUtil.getNumberFormatterNoGrouping(domain.getLocale()).parse(strQuestionNumber).intValue());
+					} catch (ParseException e) {
+						logger.error("Number parse exception.");							
+					}
+	    			
+					Session currentSession = Session.findById(Session.class, new Long(domain.getSession().getId()));
+					Session prevSession = Session.findPreviousSession(currentSession);
+	    	    				    	
+			    	refQuestion = Question.find(currentSession, qNumber);
+			    	if(refQuestion == null){
+			    		refQuestion = Question.find(prevSession, qNumber);
+			    	}
+	    		}
+	    		domain.setHalfHourDiscusionFromQuestionReference(refQuestion);
+		    }
+    	}
+		//---------------------------Added by vikas & dhananjay-------------------------------------
 	}
 
 	@Override
@@ -1156,6 +1205,42 @@ public class QuestionController extends GenericController<Question>{
 				e.printStackTrace();
 			}
 		}
+		
+		//---------------------------Added by vikas & dhananjay------------------------------------
+        //-----TO FIND REFERRED QUESTION FOR HalfHourDiscussionFromQuestion
+        if(domain!=null && domain.getType() != null){
+    		
+    		Question refQuestion = null;
+    		
+	    	if(domain.getType().getType().equalsIgnoreCase("questions_halfhourdiscussion_from_question")){
+	    		String strQuestionId = request.getParameter("halfHourDiscussionReference_questionId_H");
+	    		String strQuestionNumber = request.getParameter("halfHourDiscussionReference_questionId"); 
+	    		
+	    		if(strQuestionId!=null && !strQuestionId.isEmpty()){
+			    	Long questionId = new Long(strQuestionId);
+			    	refQuestion = Question.findById(Question.class, questionId);
+	    		}else if(strQuestionNumber != null && !strQuestionNumber.isEmpty()){   			
+	    			
+					Integer qNumber = null;
+					
+					try {
+						qNumber=new Integer(FormaterUtil.getNumberFormatterNoGrouping(domain.getLocale()).parse(strQuestionNumber).intValue());
+					} catch (ParseException e) {
+						logger.error("Number parse exception.");							
+					}
+	    			
+					Session currentSession = Session.findById(Session.class, new Long(domain.getSession().getId()));
+					Session prevSession = Session.findPreviousSession(currentSession);
+	    	    				    	
+					refQuestion = Question.find(currentSession, qNumber);
+			    	if(refQuestion == null){
+			    		refQuestion = Question.find(prevSession, qNumber);
+			    	}
+	    		}
+	    		domain.setHalfHourDiscusionFromQuestionReference(refQuestion);
+		    }
+    	}
+		//------------------------------added by vikas & dhananjay-------------------------------
 	}
 
 
@@ -1448,7 +1533,229 @@ public class QuestionController extends GenericController<Question>{
 		return masterVO;
 	}
 
+	//---------------------------Added by vikas & dhananjay----------------------------------------------
+    @RequestMapping(value="/viewquestion",method=RequestMethod.GET)
+    public String viewQuestion(final HttpServletRequest request,final ModelMap model,final Locale locale){
+    	
+    	String strQuestionId = request.getParameter("qid");
+    	if(strQuestionId != null && !strQuestionId.isEmpty()){
+    		
+    		Long id = new Long(strQuestionId);
+    		Question q = Question.findById(Question.class, id);
+    		model.addAttribute("referredQuestion",q);
+    			
+    		Member member=  q.getPrimaryMember();
+    		if(member.getId()!=null){          
+    			model.addAttribute("primaryMemberName",member.getFullname());
+    		}
+    		return "question/viewquestion";
+    	}else{
+    		return "question/viewquestion";
+    	}
+    }
+    
+	//---------------------------Added by vikas & dhananjay----------------------------------------------
+    /**
+     * To add parameters for new half hour discussion
+     * @param model  
+     * @param domain
+     * @param request
+     */
+    private void populateForHalfHourDiscussionNew(final ModelMap model, final Question domain, final HttpServletRequest request){
 
+    	Session selectedSession = domain.getSession();
+    	    	
+		if (selectedSession != null) {
+			if (domain.getType().getType().equals("questions_halfhourdiscussion_from_question")) {
+				
+				Integer selYear = selectedSession.getYear();
+				List<Reference> halfhourdiscussion_sessionYears = new ArrayList<Reference> ();
+				
+				Reference reference = new Reference();
+				
+				reference.setId(selYear.toString());
+				reference.setName(FormaterUtil.formatNumberNoGrouping(new Integer(selYear), "mr_IN"));
+				halfhourdiscussion_sessionYears.add(reference);
+				
+				reference = null;
+				reference = new Reference();
+				
+				reference.setId((new Integer(selYear.intValue()-1)).toString());
+				reference.setName(FormaterUtil.formatNumberNoGrouping(new Integer(selYear-1), "mr_IN"));
+				halfhourdiscussion_sessionYears.add(reference);
+				model.addAttribute("halfhourdiscussion_sessionYears",halfhourdiscussion_sessionYears);
+
+				Session session = Session.findById(Session.class, domain.getSession().getId());
+
+				if (session != null) {
+
+					String[] dates = session
+							.getParameter("questions_halfhourdiscussion_from_question_discussionDates").split("#");
+					List<String> discussionDates = new ArrayList<String>();
+
+					try {
+						SimpleDateFormat sdf = FormaterUtil.getDateFormatter(session.getLocale());
+						for (int i = 0; i < dates.length; i++) {
+							discussionDates.add(sdf.format(sdf.parse(dates[i])));
+						}
+						model.addAttribute("discussionDates",discussionDates);
+					} catch (ParseException e) {
+
+						e.printStackTrace();
+					}
+
+				}
+				
+				
+				/*
+                 * adding session.parameters.numberOfSupprtingMembers and
+                 * session.parametrs.numberOfSupprtingMembersComparator
+                 */
+				DeviceType questionType = domain.getType();
+                String numberOfSupportingMembers = selectedSession.getParameter(questionType.getType()+"_numberOfSupportingMembers");
+                String numberOfSupportingMembersComparator = selectedSession.getParameter(questionType.getType()+"_numberOfSupportingMembersComparator");
+                
+                if((numberOfSupportingMembers != null) && (numberOfSupportingMembersComparator != null)){
+    	            model.addAttribute("numberOfSupportingMembers", numberOfSupportingMembers);            
+    	            model.addAttribute("numberOfSupportingMembersComparator", numberOfSupportingMembersComparator);
+    	            
+    	            if(numberOfSupportingMembersComparator.equalsIgnoreCase("eq")){
+    	            	
+    	            	numberOfSupportingMembersComparator = "&#61;";
+    	            	
+    	            }else if(numberOfSupportingMembersComparator.equalsIgnoreCase("lt")){
+    	            	
+    	            	numberOfSupportingMembersComparator = "&lt;";
+    	            	
+    	            }else if(numberOfSupportingMembersComparator.equalsIgnoreCase("gt")){
+    	            	
+    	            	numberOfSupportingMembersComparator = "&gt;";
+    	            	
+    	            }else if(numberOfSupportingMembersComparator.equalsIgnoreCase("le")){
+    	            	
+    	            	numberOfSupportingMembersComparator = "&le;";
+    	            	
+    	            }else if(numberOfSupportingMembersComparator.equalsIgnoreCase("ge")){
+    	            	
+    	            	numberOfSupportingMembersComparator = "&ge;";
+    	            }
+    	            
+    	            model.addAttribute("numberOfSupportingMembersComparatorHTML", numberOfSupportingMembersComparator);
+    	            
+    	            CustomParameter dateFormatS = CustomParameter.findByFieldName(CustomParameter.class, "name", "SERVER_DATETIMEFORMAT", null);
+    	            CustomParameter dateFormatDB = CustomParameter.findByFieldName(CustomParameter.class, "name", "DB_DATETIMEFORMAT", null);
+    	            
+    	            if(dateFormatS != null && dateFormatDB != null ){
+    	            	Date startDate = FormaterUtil.formatStringToDate(domain.getSession().getParameter("questions_halfhourdiscussion_from_question_submissionStartDate"),dateFormatS.getValue());
+    	            	Date endDate = FormaterUtil.formatStringToDate(domain.getSession().getParameter("questions_halfhourdiscussion_from_question_submissionEndDate"), dateFormatS.getValue());
+    	            	
+    	            	model.addAttribute("startDate",FormaterUtil.formatDateToString(startDate, "yyyy/MM/dd hh:mm:ss"));
+    	            	model.addAttribute("endDate",FormaterUtil.formatDateToString(endDate, "yyyy/MM/dd hh:mm:ss"));
+    	            }
+                }
+			}
+		}         
+    }
+    
+    //---------------------------Added by vikas & dhananjay-------------------------------------------------
+    /**
+     * To add required parameters for half hour discussion when edit mode 
+     * @param model
+     * @param domain
+     * @param request
+     */
+    private void populateForHalfHourDiscussionEdit(final ModelMap model, final Question domain, final HttpServletRequest request) {
+		Session selectedSession = domain.getSession();
+		DeviceType questionType = domain.getType();
+
+		if (selectedSession != null) {
+
+			Integer selYear = selectedSession.getYear();
+			List<Reference> halfhourdiscussion_sessionYears = new ArrayList<Reference> ();
+			
+			Reference reference = new Reference();
+			
+			reference.setId(selYear.toString());
+			reference.setName(FormaterUtil.formatNumberNoGrouping(new Integer(selYear), "mr_IN"));
+			halfhourdiscussion_sessionYears.add(reference);
+			
+			reference = null;
+			reference = new Reference();
+			
+			reference.setId((new Integer(selYear.intValue()-1)).toString());
+			reference.setName(FormaterUtil.formatNumberNoGrouping(new Integer(selYear-1), "mr_IN"));
+			halfhourdiscussion_sessionYears.add(reference);				
+
+			model.addAttribute("halfhourdiscussion_sessionYears", halfhourdiscussion_sessionYears);
+
+			/*
+			 * adding session.parameters.numberOfSupprtingMembers and
+			 * session.parametrs.numberOfSupprtingMembersComparator
+			 */
+			String numberOfSupportingMembers = selectedSession.getParameter(questionType.getType()+ "_numberOfSupportingMembers");
+			String numberOfSupportingMembersComparator = selectedSession.getParameter(questionType.getType()+ "_numberOfSupportingMembersComparator");
+
+			if ((numberOfSupportingMembers != null) && (numberOfSupportingMembersComparator != null)) {
+				model.addAttribute("numberOfSupportingMembers", numberOfSupportingMembers);
+				model.addAttribute("numberOfSupportingMembersComparator", numberOfSupportingMembersComparator);
+
+				if (numberOfSupportingMembersComparator.equalsIgnoreCase("eq")) {
+
+					numberOfSupportingMembersComparator = "&#61;";
+
+				} else if (numberOfSupportingMembersComparator.equalsIgnoreCase("lt")) {
+
+					numberOfSupportingMembersComparator = "&lt;";
+
+				} else if (numberOfSupportingMembersComparator.equalsIgnoreCase("gt")) {
+
+					numberOfSupportingMembersComparator = "&gt;";
+
+				} else if (numberOfSupportingMembersComparator.equalsIgnoreCase("le")) {
+
+					numberOfSupportingMembersComparator = "&le;";
+
+				} else if (numberOfSupportingMembersComparator.equalsIgnoreCase("ge")) {
+
+					numberOfSupportingMembersComparator = "&ge;";
+				}
+
+				model.addAttribute("numberOfSupportingMembersComparatorHTML",numberOfSupportingMembersComparator);
+
+				if ((domain.getType().getType().equalsIgnoreCase("questions_halfhourdiscussion_from_question"))|| (domain.getType().getType().equalsIgnoreCase("questions_halfhourdiscussion_standalone"))) {
+
+					Session session = domain.getSession();
+					List<String> discussionDates = new ArrayList<String>();
+					SimpleDateFormat sdf = null;
+
+					if (session != null) {
+
+						String[] dates = session.getParameter("questions_halfhourdiscussion_from_question_discussionDates").split("#");
+
+						try {
+							sdf = FormaterUtil.getDateFormatter(session.getLocale());
+							for (int i = 0; i < dates.length; i++) {
+								discussionDates.add(sdf.format(sdf.parse(dates[i])));
+							}
+							model.addAttribute("discussionDates", discussionDates);
+						} catch (ParseException e) {
+
+							e.printStackTrace();
+						}
+
+						if (domain.getDiscussionDate() != null) {
+							model.addAttribute("discussionDateSelected",sdf.format(domain.getDiscussionDate()));
+						}
+						if (domain.getHalfHourDiscusionFromQuestionReference() != null) {
+							if (domain.getHalfHourDiscusionFromQuestionReference()!= null) {
+								model.addAttribute("referredQuestionNumber", FormaterUtil.getNumberFormatterNoGrouping(domain.getLocale()).format(domain.getHalfHourDiscusionFromQuestionReference().getNumber()));
+							}
+						}
+					}
+				}
+			}
+		}
+	}	
 
 }
 
