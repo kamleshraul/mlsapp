@@ -83,6 +83,11 @@ implements Serializable
     /** The submission date. */
     @Temporal(TemporalType.TIMESTAMP)
     private Date submissionDate;
+    
+    //---------------------------Added by vikas-------------------------------------
+    /**Discussion date for halfhour discussions(standalone & from question)     */
+    @Temporal(TemporalType.DATE)
+    private Date discussionDate;
 
     /** The creation date. */
     @Temporal(TemporalType.TIMESTAMP)
@@ -185,6 +190,13 @@ implements Serializable
     /** The date of answering by minister. */
     @Temporal(TemporalType.DATE)
     private Date dateOfAnsweringByMinister;
+    
+    //---------------------------Added by vikas & dhananjay-------------------------------------
+    @Column(length=30000)
+    private String briefExplanation;
+    //---------------------------Added by vikas-------------------------------------
+    @ManyToOne(fetch=FetchType.LAZY)
+    private Question halfHourDiscusionFromQuestionReference;
 
 
     //---------------------------Primary and supporting members-----------------
@@ -1271,6 +1283,38 @@ implements Serializable
     public static List<QuestionRevisionVO> getRevisions(final Long questionId,final String locale) {
         return getQuestionRepository().getRevisions(questionId,locale);
     }
+    
+  //---------------------Added by vikas & dhananjay--------------------------------
+  	public String getBriefExplanation() {
+  		return briefExplanation;
+  	}
+  	public void setBriefExplanation(String briefExplanation) {
+  		this.briefExplanation = briefExplanation;
+  	}
+
+  	public Question getHalfHourDiscusionFromQuestionReference() {
+  		return halfHourDiscusionFromQuestionReference;
+  	}
+  	public void setHalfHourDiscusionFromQuestionReference(
+  			Question halfHourDiscusionFromQuestionReference) {
+  		this.halfHourDiscusionFromQuestionReference = halfHourDiscusionFromQuestionReference;
+  	}
+  	
+	/**
+	 * @return discussionDate
+	 */
+	public Date getDiscussionDate() {
+		return discussionDate;
+	}
+
+	/**
+	 * sets discussionDate
+	 * 
+	 * @param discussionDate
+	 */
+	public void setDiscussionDate(Date discussionDate) {
+		this.discussionDate = discussionDate;
+	}
 
     /**
      * Full text search clubbing.

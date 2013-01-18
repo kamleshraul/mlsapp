@@ -118,6 +118,7 @@ public class Session extends BaseDomain implements Serializable {
     @Column(length = 1000)
     private String remarks;
    
+    //---------------------Added by anand, vikas & dhananjay--------------------------------
     /** The parameters. */
 	@ElementCollection
     @MapKeyColumn(name="parameter_key")
@@ -518,6 +519,7 @@ public class Session extends BaseDomain implements Serializable {
 		this.sessionRepository = sessionRepository;
 	}
 	
+	//---------------------Added by vikas & dhananjay--------------------------------
 	public Map<String, String> getParameters() {
 		CustomParameter SERVER_TIMESTAMP = CustomParameter.findByName(CustomParameter.class, 
 				"SERVER_TIMESTAMP", "");
@@ -639,7 +641,7 @@ public class Session extends BaseDomain implements Serializable {
 		return parameters;
 	}
 
-
+	//---------------------Added by vikas & dhananjay--------------------------------
 	public void setParameters(Map<String, String> parameters) {
 		CustomParameter SERVER_TIMESTAMP = CustomParameter.findByName(CustomParameter.class, 
 				"SERVER_TIMESTAMP", "");
@@ -747,6 +749,7 @@ public class Session extends BaseDomain implements Serializable {
 		}
 	}
 
+	//---------------------Added by vikas & dhananjay--------------------------------
 	public String getParameter(String key){
 		
 		if((key != null) & (!key.isEmpty())){
@@ -761,6 +764,7 @@ public class Session extends BaseDomain implements Serializable {
 		return getSessionRepository().find(sessionyear,sessiontype,housetype);
     }
 	
+	//---------------------Added by vikas & dhananjay--------------------------------
 	/**
 	 * to find the previous session of the given session 
 	 * @param session given session
