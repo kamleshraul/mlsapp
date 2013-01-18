@@ -11,6 +11,7 @@
 package org.mkcl.els.controller;
 
 import java.io.UnsupportedEncodingException;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -1266,80 +1267,179 @@ public class ReferenceController extends BaseController {
         return houses;
     }
 
+    //---------------------------Added by vikas & dhananjay-------------------------------------
     /**
-     * @param id to find the session
+     * @param id to find the session 
      * @param discussionDays days submitted by user
      * @return List<Reference> of Dates on which submitted days come
-     *
+     * 
      */
     @SuppressWarnings("unused")
-    @RequestMapping(value="/session/{id}/devicetypeconfig/{discussionDays}/discussiondates", method=RequestMethod.GET)
+	@RequestMapping(value="/session/{id}/devicetypeconfig/{discussionDays}/discussiondates", method=RequestMethod.GET)
     public @ResponseBody List<Reference> getDiscussionDates(@PathVariable("id") final Long id, @PathVariable("discussionDays") final String discussionDays){
-
-        String[] days = discussionDays.split(",");
-
-        Session domain = Session.findById(Session.class, id);
-
-        //------------------find dates---------------------------
-
-
-        Date sessionStartDate= domain.getStartDate();
-        Date sessionEndDate=domain.getEndDate();
-        List<Reference> references = new ArrayList<Reference>();
-
-        if((sessionStartDate != null) && (sessionStartDate != null)){
-            Calendar start = Calendar.getInstance();
-
-            Calendar end = Calendar.getInstance();
-
-            List<Date> dates = new ArrayList<Date>();
-
-            SimpleDateFormat sf=new SimpleDateFormat("EEEE");
-            CustomParameter parameter = CustomParameter.findByName(CustomParameter.class, "SERVER_DATEFORMAT", "");
-            SimpleDateFormat dateFormat=null;
-
-            if (domain.getLocale().equals("mr_IN")) {
-
-                dateFormat = new SimpleDateFormat(parameter.getValue(), new Locale("hi", "IN"));
-            } else {
-
-                dateFormat = new SimpleDateFormat(parameter.getValue(), new Locale(domain.getLocale()));
-            }
-            dateFormat.setLenient(true);
-
-            for(String day: days){
-
-
-                start.setTime(sessionStartDate);
-                end.setTime(sessionEndDate);
-
-
-                for (; !start.after(end); start.add(Calendar.DATE, 1)) {
-                    Date current = start.getTime();
-                    String select="false";
-
-                    if(sf.format(current).equals(day)){
-
-                        dates.add(current);
-                    }
-                }
-            }
-            //--------------------------------------------------------
-
-            Collections.sort(dates);
-
-            for(Date date: dates){
-
-                Reference reference = new Reference();
-
-                reference.setId(dateFormat.format(date));
-                reference.setName(dateFormat.format(date));
-
-                references.add(reference);
-            }
-        }
+        
+    	String[] days = discussionDays.split(",");
+    	
+    	Session domain = Session.findById(Session.class, id);
+    	
+    	//------------------find dates---------------------------
+    	
+    	
+    	Date sessionStartDate= domain.getStartDate();
+    	Date sessionEndDate=domain.getEndDate();
+    	List<Reference> references = new ArrayList<Reference>();
+    	
+    	if((sessionStartDate != null) && (sessionStartDate != null)){
+	    	Calendar start = Calendar.getInstance();
+	    	
+	    	Calendar end = Calendar.getInstance();
+	    	
+	    	List<Date> dates = new ArrayList<Date>();
+	    	
+	    	SimpleDateFormat sf=new SimpleDateFormat("EEEE");
+	    	CustomParameter parameter = CustomParameter.findByName(CustomParameter.class, "SERVER_DATEFORMAT", "");
+	    	SimpleDateFormat dateFormat=null;
+	    	
+			if (domain.getLocale().equals("mr_IN")) {
+				
+				dateFormat = new SimpleDateFormat(parameter.getValue(), new Locale("hi", "IN"));
+			} else {
+				
+				dateFormat = new SimpleDateFormat(parameter.getValue(), new Locale(domain.getLocale()));
+			}
+			dateFormat.setLenient(true);
+			
+			for(String day: days){
+			
+				
+				start.setTime(sessionStartDate);
+		    	end.setTime(sessionEndDate);
+				
+		    	
+				for (; !start.after(end); start.add(Calendar.DATE, 1)) {
+		    	    Date current = start.getTime();
+		    	    String select="false";
+		    	    
+		    	    if(sf.format(current).equals(day)){
+		    	    	
+	    	    		dates.add(current);
+	    	    	}
+				}
+			}
+	    	//--------------------------------------------------------
+	        
+			Collections.sort(dates);
+			
+			for(Date date: dates){
+				
+				Reference reference = new Reference();
+		        
+		        reference.setId(dateFormat.format(date));
+		        reference.setName(dateFormat.format(date));
+		        
+		        references.add(reference);    
+			}
+    	}
         return references;
     }
+      
+    //---------------------------Added by vikas & dhananjay-------------------------------------
+    /**
+     * @param id to find the session 
+     * @param discussionDays days submitted by user
+     * @return List<Reference> of Dates on which submitted days come
+     * 
+     */
+	@RequestMapping(value="/session/{id}/devicetypeconfig/discussiondates", method=RequestMethod.GET)
+	public @ResponseBody
+	List<MasterVO> getSessionConfigAnsweringDates(@PathVariable("id") final Long id) {
+
+		Session session = Session.findById(Session.class, id);
+		List<MasterVO> masterVOs = new ArrayList<MasterVO>();
+		
+		if (session != null) {
+
+			String[] dates = session.getParameter("questions_halfhourdiscussion_from_question_discussionDates").split("#");
+
+			try {
+				for (int i = 0; i < dates.length; i++) {
+					
+					Date date = FormaterUtil.getDateFormatter("en_US").parse(dates[i]);
+					
+					MasterVO masterVO = new MasterVO();
+					masterVO.setId(new Long(i));
+					masterVO.setName(FormaterUtil.getDateFormatter(session.getLocale().toString()).format(date));
+					masterVOs.add(masterVO);
+				}
+			} catch (ParseException e) {
+
+				e.printStackTrace();
+			}
+
+		}
+
+		return masterVOs;
+	} 
+ 
+	//---------------------------Added by vikas & dhananjay-------------------------------------
+	@RequestMapping(value="/questionid",method=RequestMethod.GET)
+	public @ResponseBody MasterVO getQuestionId(ModelMap model, HttpServletRequest request){
+		
+		MasterVO masterVO = new MasterVO();
+		
+		String strNumber=request.getParameter("strQuestionNumber");
+		String strSessionId = request.getParameter("strSessionId");
+		String locale = request.getParameter("locale");
+		
+		CustomParameter customParameter=CustomParameter.findByName(CustomParameter.class, "DEPLOYMENT_SERVER", "");
+				
+		Integer qNumber=null;
+		
+		if(strNumber!=null && strSessionId!=null && locale!=null){
+				if(strNumber.trim().length() > 0 && locale.trim().length() > 0 && strSessionId.trim().length() > 0){
+					if(customParameter!=null){
+						String server=customParameter.getValue();
+						if(server.equals("TOMCAT")){
+							 try {
+								 strNumber=new String(strNumber.getBytes("ISO-8859-1"),"UTF-8");						
+				                }
+				                catch (UnsupportedEncodingException e) {
+				                    e.printStackTrace();
+				                }
+						}
+						try {
+							qNumber=new Integer(FormaterUtil.getNumberFormatterNoGrouping(locale).parse(strNumber).intValue());
+						} catch (ParseException e) {
+							logger.error("Number parse exception.");
+							masterVO.setId(new Long(-1));
+							masterVO.setName("undefined");
+							
+							return masterVO;
+						}
+					}	
+					
+					Session currentSession = Session.findById(Session.class, new Long(strSessionId));
+					Session prevSession = Session.findPreviousSession(currentSession);
+	    	    	
+			    	Question question = null;
+			    	
+			    	question = Question.find(currentSession, qNumber);
+			    	if(question == null){
+			    		question = Question.find(prevSession, qNumber);
+			    	}
+			    	
+					if(question != null){
+						masterVO.setId(question.getId());
+						masterVO.setName(question.getId().toString());
+					}else{
+						masterVO.setId(new Long(0));
+						masterVO.setName("undefined");				
+					}
+				}
+		}
+		
+		return masterVO;
+	}
     
     @RequestMapping(value="/menusbyparents",method=RequestMethod.GET)
     public @ResponseBody List<MasterVO> getMenuItemsByParent(final HttpServletRequest request,
