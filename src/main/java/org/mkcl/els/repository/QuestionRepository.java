@@ -61,7 +61,7 @@ public class QuestionRepository extends BaseRepository<Question, Long>{
 	public Integer findLastStarredUnstarredShortNoticeQuestionNo(final House house,final Session currentSession){
 		String query="SELECT q.number FROM questions AS q JOIN sessions AS s JOIN houses AS h "+
 		"JOIN devicetypes AS dt WHERE q.session_id=s.id AND s.house_id=h.id "+
-		"AND h.id="+house.getId()+" AND s.id="+currentSession.getId()+" AND dt.id=q.devicetype_id AND dt.type!='halfhourdiscussion' ORDER BY q.id DESC LIMIT 0,1";
+		"AND h.id="+house.getId()+" AND s.id="+currentSession.getId()+" AND dt.id=q.devicetype_id AND dt.type!='questions_halfhourdiscussion_from_question' ORDER BY q.id DESC LIMIT 0,1";
 		List result=this.em().createNativeQuery(query).getResultList();
 		Integer lastNumber=0;
 		if(!result.isEmpty()){
@@ -81,7 +81,7 @@ public class QuestionRepository extends BaseRepository<Question, Long>{
 	public Integer findLastHalfHourDiscussionQuestionNo(final House house,final Session currentSession){
 		String query="SELECT q.number FROM questions AS q JOIN sessions AS s JOIN houses AS h "+
 		"JOIN devicetypes AS dt WHERE q.session_id=s.id AND s.house_id=h.id "+
-		"AND h.id="+house.getId()+" AND s.id="+currentSession.getId()+" AND dt.id=q.devicetype_id AND dt.type=='halfhourdiscussion' ORDER BY q.id DESC LIMIT 0,1";
+		"AND h.id="+house.getId()+" AND s.id="+currentSession.getId()+" AND dt.id=q.devicetype_id AND dt.type=='questions_halfhourdiscussion_from_question' ORDER BY q.id DESC LIMIT 0,1";
 		List result=this.em().createNativeQuery(query).getResultList();
 		Integer lastNumber=0;
 		if(!result.isEmpty()){
@@ -110,9 +110,9 @@ public class QuestionRepository extends BaseRepository<Question, Long>{
 			if(strQuestionType.equals("questions_starred")||strQuestionType.equals("questions_unstarred")||strQuestionType.equals("questions_shortnotice")){
 				query="SELECT q FROM Question q JOIN q.session s JOIN s.house h JOIN q.type dt WHERE "+
 				" h.id="+house+"  AND (dt.type='questions_shortnotice' OR dt.type='questions_starred' OR dt.type='questions_unstarred') ORDER BY q.number "+ApplicationConstants.DESC;
-			}else if(strQuestionType.equals("questions_halfhourdiscussion")){
+			}else if(strQuestionType.equals("questions_halfhourdiscussion_from_question")){
 				query="SELECT q FROM Question q JOIN q.session s JOIN s.house h JOIN q.type dt WHERE "+
-				" h.id="+house+"  AND (dt.type='questions_halfhourdiscussion') ORDER BY q.number "+ApplicationConstants.DESC;
+				" h.id="+house+"  AND (dt.type='questions_halfhourdiscussion_from_question') ORDER BY q.number "+ApplicationConstants.DESC;
 			}
 		}else if(strHouseType.equals(ApplicationConstants.UPPER_HOUSE)){
 			Session lowerHouseSession=Session.find(session.getYear(),session.getType().getType(),ApplicationConstants.LOWER_HOUSE);
@@ -124,10 +124,10 @@ public class QuestionRepository extends BaseRepository<Question, Long>{
 				query="SELECT q FROM Question q JOIN q.type dt JOIN q.houseType ht WHERE "+
 				" ht.type='"+ApplicationConstants.UPPER_HOUSE+"' AND q.submissionDate>='"+lowerHouseFormationDate+"' "+
 				" AND (dt.type='questions_shortnotice' OR dt.type='questions_starred' OR dt.type='questions_unstarred') ORDER BY q.number "+ApplicationConstants.DESC;
-			}else if(strQuestionType.equals("questions_halfhourdiscussion")){
+			}else if(strQuestionType.equals("questions_halfhourdiscussion_from_question")){
 				query="SELECT q FROM Question q JOIN q.type dt JOIN q.houseType ht WHERE "+
 				" ht.type='"+ApplicationConstants.UPPER_HOUSE+"' AND q.submissionDate>='"+lowerHouseFormationDate+"' "+
-				" AND (dt.type='questions_halfhourdiscussion') ORDER BY q.number "+ApplicationConstants.DESC;
+				" AND (dt.type='questions_halfhourdiscussion_from_question') ORDER BY q.number "+ApplicationConstants.DESC;
 			}
 		}
 		try{
@@ -523,7 +523,8 @@ public class QuestionRepository extends BaseRepository<Question, Long>{
 				/**** Half hour discussion from questions Questions :
 				 ****/
 				deviceTypeQuery.append(" AND q.parent IS NULL");
-				deviceTypeQuery.append(" AND st.priority>=(SELECT priority FROM status as sst WHERE sst.type='"+ApplicationConstants.QUESTION_ASSISTANT_PROCESSED+"')");
+				deviceTypeQuery.append(" AND m.id = " + question.getPrimaryMember().getId());
+				deviceTypeQuery.append(" AND st.priority>=(SELECT priority FROM status as sst WHERE sst.type='"+ApplicationConstants.QUESTION_ASSISTANT_PROCESSED+"')");				
 			}
 		}		
 
