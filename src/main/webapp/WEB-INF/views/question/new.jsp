@@ -209,6 +209,61 @@
 				return false;
 			}
 		});	
+		
+		//--------vikas dhananjay-----------------------------		
+		//submit(draft) 
+		$("#submit").click(function(e){
+			var deviceTypeTemp='${domain.type.type}';
+						
+			//-----------------------------------------------------------------------------------------------------------------------------
+			if((deviceTypeTemp=='questions_halfhourdiscussion_standalone') || (deviceTypeTemp=='questions_halfhourdiscussion_from_question')){
+				
+				var memberNumbers=0;
+				var memberComparator='${numberOfSupportingMembersComparator}';
+				var selectedMembers=Math.floor(parseInt($("#selectedSupportingMembers").val().split(",").length)/2);
+				
+				memberNumbers=parseInt('${numberOfSupportingMembers}');				
+				
+				//added to validate session year and quetion number for half hour discussion--
+				if($('#halfHourDiscussionReference_questionNumber').val()==null || $('#halfHourDiscussionReference_questionNumber').val()==""){
+					$.prompt('Provide proper reference question number.');
+					return false;
+				}				
+				//-----------------------------------------------------------------------------
+				
+				if((memberNumbers > 0) && (memberComparator!=null) &&(memberComparator!="")){
+										
+					if(memberComparator=="eq"){
+						if(!(selectedMembers == memberNumbers)){
+							$.prompt($("#supportError").attr('title'));
+							return false;
+						}	
+					}else if(memberComparator=="le"){
+						if(!(selectedMembers <= memberNumbers)){
+							$.prompt($("#supportError").attr('title'));
+							return false;
+						}						
+					}else if(memberComparator=="ge"){
+						if(!(selectedMembers >= memberNumbers)){
+							$.prompt($("#supportError").attr('title'));
+							return false;
+						}						
+					}else if(memberComparator=="gt"){
+						if(!(selectedMembers > memberNumbers)){
+							$.prompt($("#supportError").attr('title'));
+							return false;
+						}						
+					}else if(memberComparator=="lt"){
+						if(!(selectedMembers < memberNumbers)){
+							$.prompt($("#supportError").attr('title'));
+							return false;
+						}						
+					}					
+				}
+			}
+		});
+		
+		
 		//send for approval
 		$("#sendforapproval").click(function(e){
 			//removing <p><br></p>  from wysiwyg editor
@@ -218,6 +273,55 @@
 					$(this).val("");
 				}
 			});			
+			//----------------vikas dhananjay----------------------------------------------------------------------------------------------
+			var deviceTypeTemp='${domain.type.type}';
+			if((deviceTypeTemp=='questions_halfhourdiscussion_standalone') || (deviceTypeTemp=='questions_halfhourdiscussion_from_question')){
+				
+				var memberNumbers=0;
+				var memberComparator='${numberOfSupportingMembersComparator}';
+				var selectedMembers=Math.floor(parseInt($("#selectedSupportingMembers").val().split(",").length)/2);
+				
+				memberNumbers=parseInt('${numberOfSupportingMembers}');				
+				
+				//added to validate session year and quetion number for half hour discussion--
+				if($('#halfHourDiscussionReference_questionNumber').val()==null || $('#halfHourDiscussionReference_questionNumber').val()==""){
+					$.prompt('Provide proper reference question number.');
+					return false;
+				}
+				//-----------------------------------------------------------------------------
+				
+				if((memberNumbers > 0) && (memberComparator!=null) &&(memberComparator!="")){
+										
+					if(memberComparator=="eq"){
+						if(!(selectedMembers == memberNumbers)){
+							$.prompt($("#supportError").attr('title'));
+							return false;
+						}	
+					}else if(memberComparator=="le"){
+						if(!(selectedMembers <= memberNumbers)){
+							$.prompt($("#supportError").attr('title'));
+							return false;
+						}						
+					}else if(memberComparator=="ge"){
+						if(!(selectedMembers >= memberNumbers)){
+							$.prompt($("#supportError").attr('title'));
+							return false;
+						}						
+					}else if(memberComparator=="gt"){
+						if(!(selectedMembers > memberNumbers)){
+							$.prompt($("#supportError").attr('title'));
+							return false;
+						}						
+					}else if(memberComparator=="lt"){
+						if(!(selectedMembers < memberNumbers)){
+							$.prompt($("#supportError").attr('title'));
+							return false;
+						}						
+					}					
+				}
+			}			
+			//--------------------------------------------------
+			
 			$.prompt($('#confirmSupportingMembersMessage').val()+$("#selectedSupportingMembers").val(),{
 				buttons: {Ok:true, Cancel:false}, callback: function(v){
 		        if(v){
@@ -242,7 +346,70 @@
 				if(wysiwygVal=="<p></p>"||wysiwygVal=="<p><br></p>"||wysiwygVal=="<br><p></p>"){
 					$(this).val("");
 				}
-			});			
+			});		
+			
+			//---------------------vikas dhananjay---------------------
+			var deviceTypeTemp='${domain.type.type}';
+			
+			if((deviceTypeTemp=='questions_halfhourdiscussion_standalone') || (deviceTypeTemp=='questions_halfhourdiscussion_from_question')){
+				
+				var submissionStartDate= '${startDate}';
+				var submissionEndDate= '${endDate}';
+				
+				if( (new Date().getTime() < new Date(submissionStartDate).getTime())){
+					$.prompt('Too early to submit.');
+				    return false;
+				}
+				if( (new Date().getTime() > new Date(submissionEndDate).getTime())){
+					$.prompt('Too late to submit.');
+				    return false;
+				}
+				
+				var memberNumbers=0;
+				var memberComparator='${numberOfSupportingMembersComparator}';
+				var selectedMembers=Math.floor(parseInt($("#selectedSupportingMembers").val().split(",").length)/2);
+				
+				memberNumbers=parseInt('${numberOfSupportingMembers}');
+				
+				//added to validate session year and quetion number for half hour discussion--
+				if($('#halfHourDiscussionReference_questionNumber').val()==null || $('#halfHourDiscussionReference_questionNumber').val()==""){
+					$.prompt('Provide proper reference question number.');
+					return false;
+				}
+				//-----------------------------------------------------------------------------
+				
+				if((memberNumbers > 0) && (memberComparator!=null) &&(memberComparator!="")){
+					
+					if(memberComparator=="eq"){
+						if(!(selectedMembers == memberNumbers)){
+							$.prompt($("#supportError").attr('title'));
+							return false;
+						}
+					}else if(memberComparator=="le"){
+						if(!(selectedMembers <= memberNumbers)){
+							$.prompt($("#supportError").attr('title'));
+							return false;
+						}					
+					}else if(memberComparator=="ge"){
+						if(!(selectedMembers >= memberNumbers)){
+							$.prompt($("#supportError").attr('title'));
+							return false;
+						}					
+					}else if(memberComparator=="gt"){
+						if(!(selectedMembers > memberNumbers)){
+							$.prompt($("#supportError").attr('title'));
+							return false;
+						}						
+					}else if(memberComparator=="lt"){
+						if(!(selectedMembers < memberNumbers)){
+							$.prompt($("#supportError").attr('title'));
+							return false;
+						}					
+					}					
+				}
+			}			
+			//------------------------------------------------------------
+			
 			$.prompt($('#confirmQuestionSubmission').val(),{
 				buttons: {Ok:true, Cancel:false}, callback: function(v){
 		        if(v){
@@ -259,6 +426,39 @@
 			}});			
 	        return false;  
 	    }); 
+		
+		
+		//--------------vikas dhananjay-----------------------------------
+		//for viewing the refernced question
+		$('#halfhourdiscussion_referred_question').click(function(){
+			
+			var questionNumber = $('#halfHourDiscussionReference_questionNumber').val();
+			if(questionNumber!=""){
+				
+				var sessionId = '${domain.session.id}';
+				var locale='${domain.locale}';
+				
+				
+				var url = 'ref/questionid?strQuestionNumber='+questionNumber+'&strSessionId='+sessionId+'&locale='+locale+'&view=view';
+				
+				//alert(url);
+				
+				$.get(url, function(data) {
+					if(data.id==0){
+						$.prompt('No question found.');
+					}else if(data.id==-1){
+						$.prompt('Please provide valid question number.');
+					}else{
+						$('#halfHourDiscussionReference_questionId_H').val(data.id);
+						$.get('question/viewquestion?qid='+data.id,function(data){
+							$.fancybox.open(data,{autoSize: false, width: 800, height:700});				
+						},'html');
+					}
+				});
+			}else{
+				$.prompt('Please provide valid question number.');
+			}
+		});
 	});
 	</script>
 </head>
@@ -309,11 +509,23 @@
 	<p>
 		<label class="small"><spring:message code="question.primaryMemberConstituency" text="Constituency"/>*</label>
 		<input type="text" readonly="readonly" value="${constituency}" class="sText" id="constituency" name="constituency">
-	</p>		
+	</p>
+	
+	<c:if test="${domain.type.type=='questions_halfhourdiscussion_from_question'}">
+		<p>
+			<label class="small"><spring:message code="question.halfhour.questionref" text="Reference Question Number: "/>*</label>
+			<input class="sText" type="text" name="halfHourDiscussionReference_questionNumber" id="halfHourDiscussionReference_questionNumber" />
+			<form:errors path="halfHourDiscusionFromQuestionReference" cssClass="validationError" cssStyle="float:right;margin-top:-100px;margin-right:40px;"/>
+			<label class="small"><a id="halfhourdiscussion_referred_question" href="#" ><spring:message code="question.halfhour.questionrefview" text="See Referred Question"/></a></label>	
+		</p>
+	</c:if>		
 	
 	<p>
 		<label class="centerlabel"><spring:message code="question.supportingMembers" text="Supporting Members"/></label>
 		<textarea id="selectedSupportingMembers"  class="autosuggestmultiple" rows="2" cols="50">${supportingMembersName}</textarea>
+		<c:if test="${(domain.type.type=='questions_halfhourdiscussion_from_question' or domain.type.type=='questions_halfhourdiscussion_standalone') and (!(empty numberOfSupportingMembersComparator) and !(empty numberOfSupportingMembers))}">
+			<label style="display: inline; border: 1px double blue; padding: 5px; background-color: #DCE4EF; font-weight: bold;" class="centerlabel" id="supportingMemberMessage"><spring:message code="question.numberOfsupportingMembers" text="Number of Supporting Members"></spring:message>&nbsp;${numberOfSupportingMembersComparatorHTML}&nbsp;${numberOfSupportingMembers}</label>										
+		</c:if>
 		<c:if test="${!(empty supporingMembers)}">
 		<select  name="selectedSupportingMembers" multiple="multiple">
 		<c:forEach items="${supportingMembers}" var="i">
@@ -336,13 +548,21 @@
 		<form:errors path="questionText" cssClass="validationError" cssStyle="float:right;margin-top:-100px;margin-right:40px;"/>	
 	</p>
 	
-	<c:if test="${selectedQuestionType=='questions_shortnotice'}">
+	<c:if test="${selectedQuestionType=='questions_shortnotice' or selectedQuestionType=='questions_halfhourdiscussion_from_question'}">
 	<p>
 		<label class="wysiwyglabel"><spring:message code="question.reason" text="Reason"/>*</label>
 		<form:textarea path="reason" cssClass="wysiwyg"></form:textarea>
 		<form:errors path="reason" cssClass="validationError" cssStyle="float:right;margin-top:-100px;margin-right:40px;"/>	
 	</p>
-	</c:if>		
+	</c:if>	
+	
+	<c:if test="${selectedQuestionType=='questions_halfhourdiscussion_from_question' or selectedQuestionType=='questions_halfhourdiscussion_standalone'}">
+	<p>
+		<label class="wysiwyglabel"><spring:message code="question.briefExplanation" text="Brief Explanation"/>*</label>
+		<form:textarea path="briefExplanation" cssClass="wysiwyg"></form:textarea>
+		<form:errors path="briefExplanation" cssClass="validationError" cssStyle="float:right;margin-top:-100px;margin-right:40px;"/>	
+	</p>
+	</c:if>	
 	
 	<c:choose>
 	<c:when test="${! empty ministries}">
@@ -365,28 +585,32 @@
 		<form:select path="subDepartment" cssClass="sSelect" items="${subDepartments}" itemLabel="name" itemValue="id"/>
 		<form:errors path="subDepartment" cssClass="validationError"/>	
 	</p>	
+	
 		
 	<p>
-		<label class="small"><spring:message code="question.answeringDate" text="Answering Date"/></label>
-		<select name="answeringDate" id="answeringDate" class="sSelect">
-		<c:forEach items="${answeringDates }" var="i">
-		<c:choose>
-		<c:when test="${i.id==answeringDateSelected }">
-		<option value="${i.id }" selected="selected">${i.name}</option>
-		</c:when>
-		<c:otherwise>
-		<option value="${i.id }" >${i.name}</option>
-		</c:otherwise>
-		</c:choose>
-		</c:forEach>
-		</select>		
-		<form:errors path="answeringDate" cssClass="validationError"/>	
+		<c:if test="${selectedQuestionType=='questions_starred'}">
+			<label class="small"><spring:message code="question.answeringDate" text="Answering Date"/></label>
+			<select name="answeringDate" id="answeringDate" class="sSelect">
+			<c:forEach items="${answeringDates }" var="i">
+			<c:choose>
+			<c:when test="${i.id==answeringDateSelected }">
+			<option value="${i.id }" selected="selected">${i.name}</option>
+			</c:when>
+			<c:otherwise>
+			<option value="${i.id }" >${i.name}</option>
+			</c:otherwise>
+			</c:choose>
+			</c:forEach>
+			</select>		
+			<form:errors path="answeringDate" cssClass="validationError"/>
+		</c:if>
 		
-		<label class="small"><spring:message code="question.priority" text="Priority"/>*</label>
-		<form:select path="priority" cssClass="sSelect" items="${priorities}" itemLabel="name" itemValue="number">
-		</form:select>
-		<form:errors path="priority" cssClass="validationError"/>	
-	</p>	
+		<c:if test="${selectedQuestionType!='questions_halfhourdiscussion_from_question'}">
+			<label class="small"><spring:message code="question.priority" text="Priority"/>*</label>
+			<form:select path="priority" cssClass="sSelect" items="${priorities}" itemLabel="name" itemValue="number"></form:select>
+			<form:errors path="priority" cssClass="validationError"/>
+		</c:if>			
+	</p>
 	</c:when>	
 	<c:otherwise>		
 	<div class="toolTip tpGreen clearfix">
@@ -413,7 +637,7 @@
 	<form:hidden path="version" />
 	<form:hidden path="locale"/>
 	<input id="role" name="role" value="${role}" type="hidden">
-	
+	<input type="hidden" name="halfHourDiscussionReference_questionId_H" id="halfHourDiscussionReference_questionId_H" />
 </form:form>
 
 <input id="confirmSupportingMembersMessage" value="<spring:message code='confirm.supportingmembers.message' text='A request for approval will be sent to the following members:'></spring:message>" type="hidden">
