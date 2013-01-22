@@ -96,23 +96,8 @@ public class BallotController extends BaseController{
 
         Session session = Session.findSessionByHouseTypeSessionTypeYear(houseType, sessionType, year);
 
-        Group group = null;
-        List<UserGroup> userGroups = this.getCurrentUser().getUserGroups();
-        if(userGroups != null){
-            if(! userGroups.isEmpty()){
-                for(UserGroup i : userGroups) {
-                    UserGroup j = UserGroup.findById(UserGroup.class,i.getId());
-                    String strType = j.getUserGroupType().getType();
-                    if(strType.equals("assistant")) {
-                        String groupNumber = j.getParameterValue("GROUP_" + strLocale);
-                        if(sessionType != null){
-                            group = Group.findByNumberHouseTypeSessionTypeYear(
-                                    Integer.parseInt(groupNumber), houseType, sessionType, year);
-                        }
-                    }
-                }
-            }
-        }
+        String ugparam=request.getParameter("group");
+		Group group = Group.findById(Group.class, Long.parseLong(ugparam));
 
         String strTempDate = request.getParameter("answeringDate");
         QuestionDates questionDates = QuestionDates.findById(QuestionDates.class, Long.parseLong(strTempDate));
@@ -164,23 +149,8 @@ public class BallotController extends BaseController{
 
         Session session = Session.findSessionByHouseTypeSessionTypeYear(houseType, sessionType, year);
 
-        Group group = null;
-        List<UserGroup> userGroups = this.getCurrentUser().getUserGroups();
-        if(userGroups != null){
-            if(! userGroups.isEmpty()){
-                for(UserGroup i : userGroups) {
-                    UserGroup j = UserGroup.findById(UserGroup.class,i.getId());
-                    String strType = j.getUserGroupType().getType();
-                    if(strType.equals("assistant")) {
-                        String groupNumber = j.getParameterValue("GROUP_" + strLocale);
-                        if(sessionType != null){
-                            group = Group.findByNumberHouseTypeSessionTypeYear(
-                                    Integer.parseInt(groupNumber), houseType, sessionType, year);
-                        }
-                    }
-                }
-            }
-        }
+        String ugparam=request.getParameter("group");
+		Group group = Group.findById(Group.class, Long.parseLong(ugparam));
 
         String strDeviceType = request.getParameter("questionType");
         DeviceType deviceType = DeviceType.findById(DeviceType.class, Long.parseLong(strDeviceType));
