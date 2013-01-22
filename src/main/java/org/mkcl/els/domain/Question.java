@@ -50,11 +50,12 @@ import org.springframework.beans.factory.annotation.Configurable;
 @Configurable
 @Entity
 @Table(name="questions")
-@JsonIgnoreProperties({"answeringDate","recommendationStatus","houseType", "session",
+@JsonIgnoreProperties({"halfHourDiscusionFromQuestionReference","answeringDate","recommendationStatus","houseType", "session",
     "language","type","supportingMembers", "subDepartment", "referencedQuestions",
     "drafts","clubbings","group","editedBy","editedAs","clubbedEntities","referencedEntities","parent","parentReferencing",
     "clarificationNeededFrom"})
-public class Question extends BaseDomain implements Serializable
+public class Question extends BaseDomain
+implements Serializable
 {
 
     /** The Constant serialVersionUID. */
@@ -82,11 +83,6 @@ public class Question extends BaseDomain implements Serializable
     /** The submission date. */
     @Temporal(TemporalType.TIMESTAMP)
     private Date submissionDate;
-    
-    //---------------------------Added by vikas-------------------------------------
-    /**Discussion date for halfhour discussions(standalone & from question)     */
-    @Temporal(TemporalType.DATE)
-    private Date discussionDate;
 
     /** The creation date. */
     @Temporal(TemporalType.TIMESTAMP)
@@ -157,11 +153,7 @@ public class Question extends BaseDomain implements Serializable
     @ManyToOne(fetch=FetchType.LAZY)
     @JoinColumn(name="recommendationstatus_id")
     private Status recommendationStatus;
-
-    /** The clarification needed from. */
-    @ManyToOne(fetch=FetchType.LAZY)
-    @JoinColumn(name="clarification_neededfrom_id")
-    private ClarificationNeededFrom clarificationNeededFrom;
+   
 
     /** The remarks. */
     @Column(length=30000)
@@ -170,12 +162,6 @@ public class Question extends BaseDomain implements Serializable
     
     /** The mark as answered. */
     private Boolean markAsAnswered;
-
-    /*
-     * a flag to indicate if question has been processed by assistant
-     */
-    /** The assistant processed. */
-    private Boolean assistantProcessed=false;
 
     /*
      * short notice specific attribute
@@ -190,7 +176,10 @@ public class Question extends BaseDomain implements Serializable
     @Temporal(TemporalType.DATE)
     private Date dateOfAnsweringByMinister;
     
-    //---------------------------Added by vikas & dhananjay-------------------------------------
+    /**Discussion date for halfhour discussions(standalone & from question)     */
+    @Temporal(TemporalType.DATE)
+    private Date discussionDate;
+	//---------------------------Added by vikas & dhananjay-------------------------------------
     @Column(length=30000)
     private String briefExplanation;
     //---------------------------Added by vikas-------------------------------------
@@ -234,26 +223,12 @@ public class Question extends BaseDomain implements Serializable
     @JoinColumn(name="subdepartment_id")
     private SubDepartment subDepartment;
 
-    //---------------------------Referenced Questions---------------------------
-    /** The referenced questions. */
-    @ManyToMany(fetch=FetchType.LAZY)
-    @JoinTable(name="questions_references", joinColumns={@JoinColumn(name="question_id", referencedColumnName="id")}, inverseJoinColumns={@JoinColumn(name="reference_id", referencedColumnName="id")})
-    private List<Question> referencedQuestions;
-
     //--------------------------Drafts------------------------------------------
     /** The drafts. */
     @ManyToMany(fetch=FetchType.LAZY,cascade=CascadeType.ALL)
     @JoinTable(name="questions_drafts_association", joinColumns={@JoinColumn(name="question_id", referencedColumnName="id")}, inverseJoinColumns={@JoinColumn(name="question_draft_id", referencedColumnName="id")})
     private List<QuestionDraft> drafts;
-
-    //--------------------------Clubbing------------------------------------------
     
-
-    /** The drafts. */
-    @ManyToMany(fetch=FetchType.LAZY)
-    @JoinTable(name="questions_clubbing", joinColumns={@JoinColumn(name="primary_question_id", referencedColumnName="id")}, inverseJoinColumns={@JoinColumn(name="clubbed_question_id", referencedColumnName="id")})
-    private List<Question> clubbings;
-
     /** The prospective clubbings. */
     @Column(length=5000)
     private String prospectiveClubbings;
@@ -268,13 +243,14 @@ public class Question extends BaseDomain implements Serializable
     private List<ClubbedEntity> clubbedEntities;
 
     //--------------------------Referenced Entities------------------------------------------
-    /** The parent. */
-    @ManyToOne(fetch=FetchType.LAZY)
-    private Question parentReferencing;
     
     @ManyToMany(fetch=FetchType.LAZY)
     @JoinTable(name="questions_referencedentities", joinColumns={@JoinColumn(name="question_id", referencedColumnName="id")}, inverseJoinColumns={@JoinColumn(name="referenced_entity_id", referencedColumnName="id")})
     private List<ReferencedEntity> referencedEntities;
+    
+    /**** last date of receive of answer ****/
+    @Temporal(TemporalType.DATE)
+    private Date lastDateOfAnswerReceiving;
 
 
 
@@ -406,7 +382,6 @@ public class Question extends BaseDomain implements Serializable
             QuestionDraft draft=new QuestionDraft();
             draft.setAnswer(getAnswer());
             draft.setAnsweringDate(getAnsweringDate());
-            draft.setClarificationNeededFrom(getClarificationNeededFrom());
             draft.setClubbedEntities(getClubbedEntities());
             draft.setDepartment(getDepartment());
             draft.setEditedAs(getEditedAs());
@@ -1069,26 +1044,7 @@ public class Question extends BaseDomain implements Serializable
      */
     public void setSubDepartment(final SubDepartment subDepartment) {
         this.subDepartment = subDepartment;
-    }
-
-    /**
-     * Gets the referenced questions.
-     *
-     * @return the referenced questions
-     */
-    public List<Question> getReferencedQuestions() {
-        return referencedQuestions;
-    }
-
-    /**
-     * Sets the referenced questions.
-     *
-     * @param referencedQuestions the new referenced questions
-     */
-    public void setReferencedQuestions(final List<Question> referencedQuestions) {
-        this.referencedQuestions = referencedQuestions;
-    }
-
+    }   
     /**
      * Gets the drafts.
      *
@@ -1105,26 +1061,7 @@ public class Question extends BaseDomain implements Serializable
      */
     public void setDrafts(final List<QuestionDraft> drafts) {
         this.drafts = drafts;
-    }
-
-    /**
-     * Gets the clubbings.
-     *
-     * @return the clubbings
-     */
-    public List<Question> getClubbings() {
-        return clubbings;
-    }
-
-    /**
-     * Sets the clubbings.
-     *
-     * @param clubbings the new clubbings
-     */
-    public void setClubbings(final List<Question> clubbings) {
-        this.clubbings = clubbings;
-    }
-
+    }    
     /**
      * Gets the creation date.
      *
@@ -1215,26 +1152,7 @@ public class Question extends BaseDomain implements Serializable
         this.internalStatus = internalStatus;
     }
 
-    /**
-     * Gets the clarification needed from.
-     *
-     * @return the clarification needed from
-     */
-    public ClarificationNeededFrom getClarificationNeededFrom() {
-        return clarificationNeededFrom;
-    }
-
-    /**
-     * Sets the clarification needed from.
-     *
-     * @param clarificationNeededFrom the new clarification needed from
-     */
-    public void setClarificationNeededFrom(
-            final ClarificationNeededFrom clarificationNeededFrom) {
-        this.clarificationNeededFrom = clarificationNeededFrom;
-    }
-
-    /**
+     /**
      * Gets the remarks.
      *
      * @return the remarks
@@ -1282,38 +1200,6 @@ public class Question extends BaseDomain implements Serializable
     public static List<QuestionRevisionVO> getRevisions(final Long questionId,final String locale) {
         return getQuestionRepository().getRevisions(questionId,locale);
     }
-    
-  //---------------------Added by vikas & dhananjay--------------------------------
-  	public String getBriefExplanation() {
-  		return briefExplanation;
-  	}
-  	public void setBriefExplanation(String briefExplanation) {
-  		this.briefExplanation = briefExplanation;
-  	}
-
-  	public Question getHalfHourDiscusionFromQuestionReference() {
-  		return halfHourDiscusionFromQuestionReference;
-  	}
-  	public void setHalfHourDiscusionFromQuestionReference(
-  			Question halfHourDiscusionFromQuestionReference) {
-  		this.halfHourDiscusionFromQuestionReference = halfHourDiscusionFromQuestionReference;
-  	}
-  	
-	/**
-	 * @return discussionDate
-	 */
-	public Date getDiscussionDate() {
-		return discussionDate;
-	}
-
-	/**
-	 * sets discussionDate
-	 * 
-	 * @param discussionDate
-	 */
-	public void setDiscussionDate(Date discussionDate) {
-		this.discussionDate = discussionDate;
-	}
 
     /**
      * Full text search clubbing.
@@ -1374,26 +1260,7 @@ public class Question extends BaseDomain implements Serializable
             final Session session, final DeviceType deviceType, final Status internalStatus) {
         return getQuestionRepository().findAllSecondBatch(currentMember,
                 session,deviceType,internalStatus);
-    }
-
-    /**
-     * Gets the assistant processed.
-     *
-     * @return the assistant processed
-     */
-    public Boolean getAssistantProcessed() {
-        return assistantProcessed;
-    }
-
-    /**
-     * Sets the assistant processed.
-     *
-     * @param assistantProcessed the new assistant processed
-     */
-    public void setAssistantProcessed(final Boolean assistantProcessed) {
-        this.assistantProcessed = assistantProcessed;
-    }
-
+    }   
 
     /**
      * Gets the parent.
@@ -1952,13 +1819,7 @@ public class Question extends BaseDomain implements Serializable
 	public static List<ClubbedEntity> findClubbedEntitiesByPosition(final Question question) {
 		return getQuestionRepository().findClubbedEntitiesByPosition(question);
 	}
-	public void setParentReferencing(Question parentReferencing) {
-		this.parentReferencing = parentReferencing;
-	}
-	public Question getParentReferencing() {
-		return parentReferencing;
-	}
-	
+		
 	public List<ClubbedEntity> findClubbedEntitiesByQuestionNumber(final String sortOrder,
 			final String locale) {
 		return getQuestionRepository().findClubbedEntitiesByQuestionNumber(this,sortOrder,
@@ -1981,12 +1842,14 @@ public class Question extends BaseDomain implements Serializable
 			final Question question,final int start,final int noOfRecords,final String locale) {
 		return getQuestionRepository().fullTextSearchReferencing(param, question, start, noOfRecords, locale);
 	}
-
+	
 	/**
      * Find a list of Questions for the given @param session
      * of a given @param deviceType submitted between @param
      * startTime & @param endTime (both date inclusive) having
-     * either of the @param internalStatuses.
+     * either of the @param internalStatuses. The Questions
+     * should have discussionDate = null OR 
+     * discussionDate <= @param answeringDate
      * 
      * Sort the resulting list of Questions by number according
      * to the @param sortOrder.
@@ -1995,14 +1858,15 @@ public class Question extends BaseDomain implements Serializable
      */
     public static List<Question> find(final Session session,
     		final DeviceType deviceType,
-    		final Date startTime,
-    		final Date endTime,
+    		final Date answeringDate,
     		final Status[] internalStatuses,
     		final Boolean hasParent,
+    		final Date startTime,
+    		final Date endTime,
     		final String sortOrder,
     		final String locale) {
-    	return Question.getQuestionRepository().find(session, deviceType, startTime, endTime, 
-    			internalStatuses, hasParent, sortOrder, locale);
+    	return Question.getQuestionRepository().find(session, deviceType, answeringDate, 
+    			internalStatuses, hasParent, startTime, endTime, sortOrder, locale);
     }
     
     /**
@@ -2010,7 +1874,9 @@ public class Question extends BaseDomain implements Serializable
      * have submitted Question(s) between @param startTime & 
      * @param endTime (both date inclusive) for the given @param 
      * session of a given @param deviceType submitted  having
-     * either of the @param internalStatuses.
+     * either of the @param internalStatuses. The Questions
+     * should have discussionDate = null OR 
+     * discussionDate <= @param answeringDate
      * 
      * Sort the resulting list of Members by Question number according
      * to the @param sortOrder.
@@ -2019,13 +1885,86 @@ public class Question extends BaseDomain implements Serializable
      */
     public static List<Member> findPrimaryMembers(final Session session,
     		final DeviceType deviceType,
-    		final Date startTime,
-    		final Date endTime,
+    		final Date answeringDate,
     		final Status[] internalStatuses,
     		final Boolean hasParent,
+    		final Date startTime,
+    		final Date endTime,
     		final String sortOrder,
     		final String locale) {
     	return Question.getQuestionRepository().findPrimaryMembers(session, deviceType, 
-    			startTime, endTime, internalStatuses, hasParent, sortOrder, locale);
+    			answeringDate, internalStatuses, hasParent, startTime, 
+    			endTime, sortOrder, locale);
     }
+
+    public static List<Member> findActiveMembersWithQuestions(final Session session,
+			final Date activeOn,
+			final DeviceType deviceType,
+			final Group group,
+			final Status[] internalStatuses,
+			final Date answeringDate,
+			final Date startTime,
+			final Date endTime,
+			final String sortOrder,
+			final String locale) {
+    	MemberRole role = MemberRole.find(session.getHouse().getType(), "MEMBER", locale);
+    	return Question.getQuestionRepository().findActiveMembersWithQuestions(session, 
+    			role, activeOn, deviceType, group, internalStatuses, answeringDate, 
+    			startTime, endTime, sortOrder, locale);
+    }
+    
+    public static List<Member> findActiveMembersWithoutQuestions(final Session session,
+			final Date activeOn,
+			final DeviceType deviceType,
+			final Group group,
+			final Status[] internalStatuses,
+			final Date answeringDate,
+			final Date startTime,
+			final Date endTime,
+			final String sortOrder,
+			final String locale) {
+    	MemberRole role = MemberRole.find(session.getHouse().getType(), "MEMBER", locale);
+    	return Question.getQuestionRepository().findActiveMembersWithoutQuestions(session, 
+    			role, activeOn, deviceType, group, internalStatuses, answeringDate, 
+    			startTime, endTime, sortOrder, locale);
+    }
+	public void setDiscussionDate(Date discussionDate) {
+		this.discussionDate = discussionDate;
+	}
+	public Date getDiscussionDate() {
+		return discussionDate;
+	}
+	public void setBriefExplanation(String briefExplanation) {
+		this.briefExplanation = briefExplanation;
+	}
+	public String getBriefExplanation() {
+		return briefExplanation;
+	}
+	public void setHalfHourDiscusionFromQuestionReference(
+			Question halfHourDiscusionFromQuestionReference) {
+		this.halfHourDiscusionFromQuestionReference = halfHourDiscusionFromQuestionReference;
+	}
+	public Question getHalfHourDiscusionFromQuestionReference() {
+		return halfHourDiscusionFromQuestionReference;
+	}
+	
+	//------------------------------added by vikas & dhananjay 20012013------------------------------------
+    /**
+     * Find.
+     *
+     * @param session the session
+     * @param number the number
+     * @return the question
+     */
+    public static Question find(final Session session, final Integer number, Long deviceTypeId) {
+        return Question.getQuestionRepository().find(session, number, deviceTypeId);
+    }
+	public void setLastDateOfAnswerReceiving(Date lastDateOfAnswerReceiving) {
+		this.lastDateOfAnswerReceiving = lastDateOfAnswerReceiving;
+	}
+	public Date getLastDateOfAnswerReceiving() {
+		return lastDateOfAnswerReceiving;
+	}
+	
+
 }
