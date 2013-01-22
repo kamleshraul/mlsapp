@@ -28,7 +28,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 
 
 @Controller
-@RequestMapping("/usergroup")
+@RequestMapping("/user/usergroup")
 public class UserGroupController extends GenericController<UserGroup>{
 
 	@Override
@@ -59,36 +59,16 @@ public class UserGroupController extends GenericController<UserGroup>{
 		model.addAttribute("userGroupTypes",userGroupTypes);
 		/**** House Types and Selected House Type ****/
 		List<HouseType> houseTypes=HouseType.findAllNoExclude("name",ApplicationConstants.ASC, locale);
-		model.addAttribute("housetypes",houseTypes);
-		if(!houseTypes.isEmpty()){
-			model.addAttribute("selectedHouseType",houseTypes.get(0).getName());
-		}
+		model.addAttribute("housetypes",houseTypes);		
 		/**** Ministry ****/
 		List<Ministry> ministries=Ministry.findAssignedMinistries(locale);
-		model.addAttribute("ministries",ministries);
-		if(ministries!=null){
-			if(!ministries.isEmpty()){
-				/**** Departments ****/
-				List<Department> departments=MemberMinister.findAssignedDepartments(ministries.get(0), locale);
-				model.addAttribute("departments",departments);
-				if(departments!=null){
-					if(!departments.isEmpty()){
-						/**** Sub Departments****/
-						List<SubDepartment> subDepartments=MemberMinister.findAssignedSubDepartments(ministries.get(0),departments.get(0), locale);
-						model.addAttribute("subDepartments",subDepartments);
-					}
-				}
-			}
-		}
+		model.addAttribute("ministries",ministries);		
 		/**** Device Types ****/
-		List<DeviceType> deviceTypes=DeviceType.findAll(DeviceType.class, "type",ApplicationConstants.ASC, locale);
+		List<DeviceType> deviceTypes=DeviceType.findAll(DeviceType.class, "name",ApplicationConstants.ASC, locale);
 		model.addAttribute("deviceTypes", deviceTypes);
 		/**** Locale ****/
 		domain.setLocale(locale);
-		model.addAttribute("locale",locale);
-		/**** Current Date ****/
-		String currentDate=FormaterUtil.getDateFormatter(locale).format(new Date());
-		model.addAttribute("currentdate", currentDate);
+		model.addAttribute("locale",locale);		
 	}
 
 	@Override
@@ -101,11 +81,8 @@ public class UserGroupController extends GenericController<UserGroup>{
 		List<HouseType> houseTypes=HouseType.findAllNoExclude("name",ApplicationConstants.ASC, locale);
 		model.addAttribute("housetypes",houseTypes);
 		String strHouseType=domain.getParameterValue("HOUSETYPE_"+locale).trim();
-		HouseType houseType=null;
-		if(!houseTypes.isEmpty()){
-			if(!strHouseType.isEmpty()){
-				model.addAttribute("selectedHouseType",strHouseType);
-			}
+		if(!strHouseType.isEmpty()){
+			model.addAttribute("selectedHouseType",strHouseType);
 		}
 		/**** Device Types ****/
 		List<DeviceType> deviceTypes=DeviceType.findAll(DeviceType.class, "type",ApplicationConstants.ASC, locale);
@@ -118,27 +95,24 @@ public class UserGroupController extends GenericController<UserGroup>{
 		if(strMinistry!=null){
 			if(!strMinistry.isEmpty()){
 				model.addAttribute("selectedMinistry",strMinistry);
-				Ministry selectedMinistry=Ministry.findByName(Ministry.class,strMinistry, locale);
+				String[] ministriesList=strMinistry.split("##");
 				/**** Departments ****/
-				List<Department> departments=MemberMinister.findAssignedDepartments(selectedMinistry, locale);
+				List<Department> departments=MemberMinister.findAssignedDepartments(ministriesList, locale);
 				model.addAttribute("departments",departments);
 				String strDepartment=domain.getParameterValue("DEPARTMENT_"+locale);
 				if(strDepartment!=null){
-					if(strDepartment.isEmpty()){
+					if(!strDepartment.isEmpty()){
 						model.addAttribute("selectedDepartment",strDepartment);
-						Department selectedDepartment=Department.findByName(Department.class,strDepartment, locale);
 						/**** Sub Departments ****/
-						List<SubDepartment> subDepartments=MemberMinister.findAssignedSubDepartments(selectedMinistry, selectedDepartment, locale);
+						String[] departmentList=strDepartment.split("##");
+						List<SubDepartment> subDepartments=MemberMinister.findAssignedSubDepartments(ministriesList,departmentList, locale);
 						model.addAttribute("subdepartments", subDepartments);
 						String strSubDepartment=domain.getParameterValue("SUBDEPARTMENT_"+locale);
-						model.addAttribute("selectedDepartment",strSubDepartment);
+						model.addAttribute("selectedSubDepartment",strSubDepartment);
 					}
 				}
 			}
-		}
-		/**** Current Date ****/
-		String currentDate=FormaterUtil.getDateFormatter(locale).format(new Date());
-		model.addAttribute("currentdate", currentDate);
+		}		
 		/**** User Group Types ****/
 		List<UserGroupType> userGroupTypes=UserGroupType.findAll(UserGroupType.class,"name",ApplicationConstants.ASC, locale);
 		model.addAttribute("userGroupTypes",userGroupTypes);
