@@ -73,12 +73,8 @@ public class ChartController extends BaseController{
 
 		Session session = Session.findSessionByHouseTypeSessionTypeYear(houseType, sessionType, year);
 
-		Group group = null;
 		String ugparam=request.getParameter("group");
-		if(sessionType != null){
-			group = Group.findByNumberHouseTypeSessionTypeYear(
-					Integer.parseInt(ugparam), houseType, sessionType, year);
-		}
+		Group group = Group.findById(Group.class, Long.parseLong(ugparam));
 		
 		Date answeringDate = questionDates.getAnsweringDate();
 		if(answeringDate != null) {
@@ -117,13 +113,9 @@ public class ChartController extends BaseController{
 
 		Session session = Session.findSessionByHouseTypeSessionTypeYear(houseType, sessionType, year);
 
-		Group group = null;
 		String ugparam=request.getParameter("group");
-		if(sessionType != null){
-			group = Group.findByNumberHouseTypeSessionTypeYear(
-					Integer.parseInt(ugparam), houseType, sessionType, year);
-		}		
-
+		Group group = Group.findById(Group.class, Long.parseLong(ugparam));
+		
 		Date answeringDate = questionDates.getAnsweringDate();
 		
 		if(answeringDate != null) {
@@ -142,5 +134,4 @@ public class ChartController extends BaseController{
 
 		return "chart/chart";
 	}
-
 }
