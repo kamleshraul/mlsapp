@@ -381,4 +381,29 @@ public class FormaterUtil {
     public static String formatNumberNoGrouping(Object value , String locale){
     	return getNumberFormatterNoGrouping(locale).format(value);
     }
+
+    
+    //-------vikas dhananjay------------------
+	public static SimpleDateFormat getDBDateParser(final String locale){
+		 SimpleDateFormat dateFormatter = null;
+	     if(locale.equals("mr_IN") || locale.equals("hi_IN")){
+	         dateFormatter = new SimpleDateFormat(ApplicationConstants.DB_DATEFORMAT,
+	         		new Locale("hi", "IN"));
+	     }else{
+	         dateFormatter = new SimpleDateFormat(ApplicationConstants.DB_DATEFORMAT,
+	         		new Locale("en", "US"));
+	     }
+	     return dateFormatter;  	
+	}
+	
+	public static String formatDateToString(final Date date, final String formatType, String locale) {
+	    SimpleDateFormat df = getDateFormatter(formatType, locale);
+	    String strFormatDate = null;
+	    try {
+	        strFormatDate = df.format(date);
+	    } catch (Exception e) {
+	        e.printStackTrace();
+	    }
+	    return strFormatDate;
+	}
 }
