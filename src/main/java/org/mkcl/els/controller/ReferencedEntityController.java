@@ -77,7 +77,7 @@ public class ReferencedEntityController {
 	
 	@Transactional
 	@RequestMapping(value="/referencing",method=RequestMethod.POST)
-	public  String referencing(final HttpServletRequest request,final ModelMap model,final Locale locale){
+	public @ResponseBody String referencing(final HttpServletRequest request,final ModelMap model,final Locale locale){
 		String strpId=request.getParameter("pId");
 		String strcId=request.getParameter("rId");
 		Boolean status=false;
@@ -88,13 +88,16 @@ public class ReferencedEntityController {
 				status=Question.referencing(primaryId, clubbingId, locale.toString());				
 			}
 		}
-		model.addAttribute("status",status);
-		return "referencing/referencingresult";
+		if(status){
+			return "SUCCESS";
+		}else{
+			return "FAILED";
+		}				
 	}
 
 	@Transactional
 	@RequestMapping(value="/dereferencing",method=RequestMethod.POST)
-	public  String dereferencing(final HttpServletRequest request,final ModelMap model,final Locale locale){
+	public  @ResponseBody String dereferencing(final HttpServletRequest request,final ModelMap model,final Locale locale){
 		String strpId=request.getParameter("pId");
 		String strcId=request.getParameter("rId");
 		Boolean status=false;
@@ -105,10 +108,10 @@ public class ReferencedEntityController {
 				status=Question.deReferencing(primaryId, clubbingId, locale.toString());				
 			}
 		}
-		model.addAttribute("status",status);
-		return "referencing/referencingresult";
+		if(status){
+			return "SUCCESS";
+		}else{
+			return "FAILED";
+		}		
 	}
-
-
-
 }
