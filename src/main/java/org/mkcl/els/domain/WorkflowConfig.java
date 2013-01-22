@@ -12,6 +12,7 @@ package org.mkcl.els.domain;
 import java.io.Serializable;
 import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Entity;
@@ -25,6 +26,7 @@ import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
 
 import org.codehaus.jackson.annotate.JsonIgnoreProperties;
+import org.mkcl.els.common.vo.MasterVO;
 import org.mkcl.els.common.vo.Reference;
 import org.mkcl.els.repository.WorkflowConfigRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -43,7 +45,7 @@ import org.springframework.beans.factory.annotation.Configurable;
 @Configurable
 @Entity
 @Table(name="wf_config")
-@JsonIgnoreProperties({"session", "workflowactors","deviceType"})
+@JsonIgnoreProperties({"workflowactors"})
 public class WorkflowConfig extends BaseDomain implements Serializable {
 
 	/** The Constant serialVersionUID. */
@@ -70,12 +72,10 @@ public class WorkflowConfig extends BaseDomain implements Serializable {
 	private List<WorkflowActor> workflowactors;
 
 	/** The created on. */
-	@Temporal(TemporalType.TIMESTAMP)
+	@Temporal(TemporalType.DATE)
 	private Date createdOn;
 	
-	private Boolean isLocked;
-	
-	private Boolean isLatest;
+	private Boolean isLocked=false;	
 
 	/** The workflow config repository. */
 	@Autowired
@@ -136,30 +136,8 @@ public class WorkflowConfig extends BaseDomain implements Serializable {
 
 	public Boolean getIsLocked() {
 		return isLocked;
-	}	
-
-	public void setIsLatest(Boolean isLatest) {
-		this.isLatest = isLatest;
-	}
-
-	public Boolean getIsLatest() {
-		return isLatest;
 	}
 	
-	public static List<WorkflowActor> findActors(final Long workflowConfgigId,
-			final Integer level,
-			final String sortOrder,
-			final String locale){
-				return getWorkflowConfigRepository().
-				findActors(workflowConfgigId, level, sortOrder, locale);
-	}
-	
-	public static WorkflowConfig findLatest(final Long deviceTypeId,
-			final String workflowType,final String locale){
-		return getWorkflowConfigRepository().findLatest(deviceTypeId,
-				workflowType,locale);
-	}
-
 	public void setHouseType(HouseType houseType) {
 		this.houseType = houseType;
 	}
@@ -168,7 +146,24 @@ public class WorkflowConfig extends BaseDomain implements Serializable {
 		return houseType;
 	}
 
-	public static void removeActor(Long workflowconfigId, Long workflowactorId) {
-		getWorkflowConfigRepository().removeActor(workflowconfigId, workflowactorId);
+	public static Boolean removeActor(Long workflowconfigId, Long workflowactorId) {
+		return getWorkflowConfigRepository().removeActor(workflowconfigId, workflowactorId);
 	}
+	
+	public static List<Reference> findQuestionActorsVO(final Question question,
+			final Status internalStatus,final UserGroup userGroup,final int level, final String locale) {
+		return getWorkflowConfigRepository().findQuestionActorsVO(question,
+				internalStatus, 
+				userGroup,level,locale);
+	}
+	
+	public static List<WorkflowActor> findQuestionActors(final Question question,
+			final Status internalStatus,
+			final UserGroup userGroup,final int level, final String locale) {
+		return getWorkflowConfigRepository().findQuestionActors(question,
+				internalStatus,
+				userGroup,level,locale);
+	}
+
+	
 }

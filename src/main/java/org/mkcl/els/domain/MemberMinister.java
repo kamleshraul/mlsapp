@@ -12,6 +12,7 @@ package org.mkcl.els.domain;
 import java.io.Serializable;
 import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Entity;
@@ -351,6 +352,18 @@ public class MemberMinister extends BaseDomain implements Serializable {
 
 	public void setPriority(Integer priority) {
 		this.priority = priority;
+	}
+
+	public static List<Department> findAssignedDepartments(
+			final String[] ministriesNames,final String locale) {
+		return getMemberMinisterRepository().findAssignedDepartments(
+				ministriesNames,locale);
+	}
+
+	public static List<SubDepartment> findAssignedSubDepartments(final String[] ministries,
+			final String[] departmentsNames,final String locale) {
+		return getMemberMinisterRepository().findAssignedSubDepartments(ministries,
+				departmentsNames,locale);
 	}
     
 }

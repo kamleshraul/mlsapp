@@ -37,11 +37,7 @@ public class Workflow extends BaseDomain{
     /** The type. */
     @Column(length=5000)
     private String type;
-
-    /** The device type. */
-    @ManyToOne
-    private DeviceType deviceType;
-
+    
     /**
      * Instantiates a new workflow.
      */
@@ -60,7 +56,6 @@ public class Workflow extends BaseDomain{
         super();
         this.name = name;
         this.type = type;
-        this.deviceType = deviceType;
     }
 
 
@@ -103,23 +98,4 @@ public class Workflow extends BaseDomain{
         this.type = type;
     }
 
-
-    /**
-     * Gets the device type.
-     *
-     * @return the device type
-     */
-    public DeviceType getDeviceType() {
-        return deviceType;
     }
-
-
-    /**
-     * Sets the device type.
-     *
-     * @param deviceType the new device type
-     */
-    public void setDeviceType(final DeviceType deviceType) {
-        this.deviceType = deviceType;
-    }
-}
