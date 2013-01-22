@@ -159,4 +159,49 @@ public class ApplicationConstants {
     
     /**** Question Status ****/
     public static final String QUESTION_ASSISTANT_PROCESSED="question_assistantprocessed";
+    
+    public static final String QUESTION_ADMISSION="question_workflow_decisionstatus_admission";
+    
+    public static final String QUESTION_APPROVING_ADMISSION="question_workflow_approving_admission";
+    
+    public static final String QUESTION_REJECTION="question_workflow_decisionstatus_rejection";
+    
+    public static final String QUESTION_APPROVING_REJECTION="question_workflow_approving_rejection";
+    
+    public static final String QUESTION_CONVERT_TO_UNSTARRED="question_workflow_decisionstatus_converttounstarred";
+    
+    public static final String QUESTION_APPROVING_CONVERT_TO_UNSTARRED="question_workflow_approving_converttounstarred";
+    
+    public static final String QUESTION_CLARIFICATION_NEEDED="question_workflow_decisionstatus_clarificationneeded";
+    
+    public static final String QUESTION_APPROVING_CLARIFICATION_NEEDED="question_workflow_approving_clarificationneeded";
+    
+    public static final String QUESTION_DISCUSS="question_workflow_decisionstatus_discuss";
+    
+    public static final String QUESTION_APPROVING_DISCUSS="question_workflow_approving_discuss";
+    
+    public static final String QUESTION_SENDBACK="question_workflow_decisionstatus_sendback";
+    
+    public static final String QUESTION_NAMECLUBBING="question_workflow_decisionstatus_nameclubbing";
+    	
+    public static final String QUESTION_GROUPCHANGED="question_workflow_decisionstatus_groupchanged";
+       
+    /**** Approval Workflow(Name of the workflow process that is used for approval cycles) ****/
+    public static final String APPROVAL_WORKFLOW="APPROVAL_WORKFLOW";
+    
+    /**** Question Ministry,Department and Subdepartment parameters key in UserGroup ****/
+    public static final String HOUSETYPE_KEY="HOUSETYPE";
+    
+    public static final String DEVICETYPE_KEY="DEVICETYPE";
+    
+    public static final String MINISTRY_KEY="MINISTRY";
+    
+    public static final String DEPARTMENT_KEY="DEPARTMENT";
+    
+    public static final String SUBDEPARTMENT_KEY="SUBDEPARTMENT";
+    
+    /**** Approving Authority ****/
+    public static final String CHAIRMAN="chairman";
+    
+    public static final String SPEAKER="speaker";
 }
