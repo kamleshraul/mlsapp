@@ -88,7 +88,7 @@ public class ClubbedEntityController extends BaseController{
 	
 	@Transactional
 	@RequestMapping(value="/clubbing",method=RequestMethod.POST)
-	public  String clubbing(final HttpServletRequest request,final ModelMap model,final Locale locale){
+	public @ResponseBody String clubbing(final HttpServletRequest request,final ModelMap model,final Locale locale){
 		String strpId=request.getParameter("pId");
 		String strcId=request.getParameter("cId");
 		Boolean status=false;
@@ -96,21 +96,19 @@ public class ClubbedEntityController extends BaseController{
 			if(!strpId.isEmpty()&&!strcId.isEmpty()){
 				Long primaryId=Long.parseLong(strpId);
 				Long clubbingId=Long.parseLong(strcId);
-				try{
-					status=Question.club(primaryId, clubbingId, locale.toString());
-				}catch(Exception ex){
-					ex.printStackTrace();
-					status=false;
-				}
+				status=Question.club(primaryId, clubbingId, locale.toString());
 			}
 		}
-		model.addAttribute("status",status);
-		return "clubbing/clubbingresult";
+		if(status){
+			return "SUCCESS";
+		}else{
+			return "FAILED";
+		}		
 	}
 
 	@Transactional
 	@RequestMapping(value="/unclubbing",method=RequestMethod.POST)
-	public  String unclubbing(final HttpServletRequest request,final ModelMap model,final Locale locale){
+	public  @ResponseBody String unclubbing(final HttpServletRequest request,final ModelMap model,final Locale locale){
 		String strpId=request.getParameter("pId");
 		String strcId=request.getParameter("cId");
 		Boolean status=false;
@@ -118,16 +116,14 @@ public class ClubbedEntityController extends BaseController{
 			if(!strpId.isEmpty()&&!strcId.isEmpty()){
 				Long primaryId=Long.parseLong(strpId);
 				Long clubbingId=Long.parseLong(strcId);
-				try{
-					status=Question.unclub(primaryId, clubbingId, locale.toString());
-				}catch(Exception ex){
-					ex.printStackTrace();
-					status=false;
-				}
+				status=Question.unclub(primaryId, clubbingId, locale.toString());
 			}
 		}
-		model.addAttribute("unclubbingstatus",status);
-		return "clubbing/clubbingresult";
+		if(status){
+			return "SUCCESS";
+		}else{
+			return "FAILED";
+		}		
 	}
 
 }
