@@ -317,28 +317,28 @@ org.springframework.validation.BindingResult, javax.servlet.http.HttpServletRequ
     		Date submissionDate = Holiday.getLastWorkingDateFrom(dateField, d, difference, domain.getLocale());
     		
     		difference = Integer.parseInt(session.getParameter("questions_starred_lastReceivingDateFromDepartment_difference"));
-    		Date lastReceivingDateFromDepartment = Holiday.getLastWorkingDateFrom(dateField, d, -6, domain.getLocale());
+    		Date lastReceivingDateFromDepartment = Holiday.getLastWorkingDateFrom(dateField, d, difference, domain.getLocale());
     		
     		difference = Integer.parseInt(session.getParameter("questions_starred_lastSendingDateToDepartment_difference"));
-    		Date lastSendingDateToDepartment = Holiday.getLastWorkingDateFrom(dateField, d, -24, domain.getLocale());
+    		Date lastSendingDateToDepartment = Holiday.getLastWorkingDateFrom(dateField, d, difference, domain.getLocale());
     		
     		difference = Integer.parseInt(session.getParameter("questions_starred_yaadiPrintingDate_difference"));
-    		Date yaadiPrintingDate = Holiday.getLastWorkingDateFrom(dateField, d, -5, domain.getLocale());
+    		Date yaadiPrintingDate = Holiday.getLastWorkingDateFrom(dateField, d, difference, domain.getLocale());
     		
     		difference = Integer.parseInt(session.getParameter("questions_starred_yaadiReceivingDate_difference"));
-    		Date yaadiReceivingDate = Holiday.getLastWorkingDateFrom(dateField, d, -2, domain.getLocale());
+    		Date yaadiReceivingDate = Holiday.getLastWorkingDateFrom(dateField, d, difference, domain.getLocale());
     		
     		difference = Integer.parseInt(session.getParameter("questions_starred_suchhiPrintingDate_difference"));
-    		Date suchhiPrintingDate = Holiday.getLastWorkingDateFrom(dateField, d, -3, domain.getLocale());
+    		Date suchhiPrintingDate = Holiday.getLastWorkingDateFrom(dateField, d, difference, domain.getLocale());
     		
     		difference = Integer.parseInt(session.getParameter("questions_starred_suchhiReceivingDate_difference"));
-    		Date suchhiReceivingDate = Holiday.getLastWorkingDateFrom(dateField, d, -2, domain.getLocale());
+    		Date suchhiReceivingDate = Holiday.getLastWorkingDateFrom(dateField, d, difference, domain.getLocale());
     		
     		difference = Integer.parseInt(session.getParameter("questions_starred_suchhiDistributionDate_difference"));
-    		Date suchhiDistributionDate = Holiday.getLastWorkingDateFrom(dateField, d, -1, domain.getLocale());
+    		Date suchhiDistributionDate = Holiday.getLastWorkingDateFrom(dateField, d, difference, domain.getLocale());
    		
     		difference = Integer.parseInt(session.getParameter("questions_starred_speakerSendingDate_difference"));
-    		Date speakerSendingDate = Holiday.getLastWorkingDateFrom(dateField, d, -26, domain.getLocale());
+    		Date speakerSendingDate = Holiday.getLastWorkingDateFrom(dateField, d, difference, domain.getLocale());
     		
     		QuestionDates qd = domain.findQuestionDatesByGroupAndAnsweringDate(d);
     		if(qd!=null){
