@@ -13,6 +13,7 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Locale;
+import java.util.Map;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
@@ -205,20 +206,23 @@ public class WorkflowController extends BaseController {
 			final HttpServletResponse response,
 			final @PathVariable("taskId") String taskId,
 			final Locale locale) {
-		Task task = this.processService.findTaskById(taskId);
-		String formKey = this.processService.getFormKey(task);
+		//Task task = this.processService.findTaskById(taskId);
+		//String formKey = this.processService.getFormKey(task);
 		//add taskId to the request
+		String form=request.getParameter("form");
+		String urlpattern=request.getParameter("urlpattern");
 		request.setAttribute("taskId",taskId);
-		if(formKey != null) {
-			try {
-				request.getRequestDispatcher("/" + formKey).forward(request, response);
-			}
-			catch (ServletException e) {
-				this.logger.error(e.getMessage());
-			}
-			catch (IOException e) {
-				this.logger.error(e.getMessage());
-			}
+		request.setAttribute("form",form);
+		request.setAttribute("urlpattern",urlpattern);
+		System.out.println(request.getParameter("dateOfAnswerReceiving"));
+		try {
+			request.getRequestDispatcher("/"+urlpattern).forward(request, response);
+		}
+		catch (ServletException e) {
+			this.logger.error(e.getMessage());
+		}
+		catch (IOException e) {
+			this.logger.error(e.getMessage());
 		}
 	}
 

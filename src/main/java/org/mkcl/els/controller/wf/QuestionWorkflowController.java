@@ -30,32 +30,31 @@ import org.mkcl.els.common.vo.Task;
 import org.mkcl.els.controller.BaseController;
 import org.mkcl.els.domain.ClarificationNeededFrom;
 import org.mkcl.els.domain.ClubbedEntity;
-import org.mkcl.els.domain.Credential;
 import org.mkcl.els.domain.CustomParameter;
 import org.mkcl.els.domain.Department;
 import org.mkcl.els.domain.DeviceType;
 import org.mkcl.els.domain.Group;
 import org.mkcl.els.domain.HouseType;
-import org.mkcl.els.domain.Language;
 import org.mkcl.els.domain.Member;
 import org.mkcl.els.domain.MemberMinister;
 import org.mkcl.els.domain.Ministry;
 import org.mkcl.els.domain.Question;
 import org.mkcl.els.domain.QuestionDates;
 import org.mkcl.els.domain.ReferencedEntity;
+import org.mkcl.els.domain.Role;
 import org.mkcl.els.domain.Session;
 import org.mkcl.els.domain.SessionType;
 import org.mkcl.els.domain.Status;
 import org.mkcl.els.domain.SubDepartment;
 import org.mkcl.els.domain.SupportingMember;
-import org.mkcl.els.domain.User;
 import org.mkcl.els.domain.UserGroup;
-import org.mkcl.els.domain.UserGroupType;
 import org.mkcl.els.domain.WorkflowConfig;
 import org.mkcl.els.service.IProcessService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.propertyeditors.CustomCollectionEditor;
 import org.springframework.beans.propertyeditors.CustomDateEditor;
 import org.springframework.stereotype.Controller;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.ui.ModelMap;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.WebDataBinder;
@@ -98,6 +97,7 @@ public class QuestionWorkflowController  extends BaseController{
 		 * with the task id
 		 */
 		String strTaskId=(String) request.getAttribute("taskId");
+		String form=(String) request.getAttribute("form");
 		Task task=processService.findTaskById(strTaskId);
 		model.addAttribute("task",strTaskId);
 		Map<String,Object> variables=processService.getVariables(task);
@@ -136,7 +136,7 @@ public class QuestionWorkflowController  extends BaseController{
 		}
 
 		populateSupportingMember(model, question,supportingMembers,locale.toString());
-		return "workflow/question/supportingmember";
+		return form;
 	}
 
 	/**
@@ -234,7 +234,7 @@ public class QuestionWorkflowController  extends BaseController{
 		 * Once both update of domain and task is completed we can show a message indicating the same
 		 */
 		model.addAttribute("type","taskcompleted");
-		return "workflow/question/info";
+		return "workflow/info";
 	}
 
 
@@ -247,83 +247,101 @@ public class QuestionWorkflowController  extends BaseController{
 	@SuppressWarnings("unused")
 	@InitBinder(value = "domain")
 	private void initBinder(final WebDataBinder binder) {
-		/*
-		 * adding date
-		 */
+		/**** Date ****/
 		SimpleDateFormat dateFormat = new SimpleDateFormat();
 		dateFormat.setLenient(true);
 		binder.registerCustomEditor(java.util.Date.class, new CustomDateEditor(
 				dateFormat, true));
-		/*
-		 * adding member
-		 */
+		/**** Member ****/
 		binder.registerCustomEditor(Member.class, new BaseEditor(
-				new Member()));
-		/*
-		 * adding status
-		 */
+				new Member()));		
+		/**** Status ****/
 		binder.registerCustomEditor(Status.class, new BaseEditor(
 				new Status()));
-		/*
-		 * adding house type
-		 */
+		/**** House Type ****/
 		binder.registerCustomEditor(HouseType.class, new BaseEditor(
 				new HouseType()));
-		/*
-		 * adding session
-		 */
+		/**** Session ****/
 		binder.registerCustomEditor(Session.class, new BaseEditor(
 				new Session()));
-		/*
-		 * adding device type
-		 */
+		/**** Device Type ****/
 		binder.registerCustomEditor(DeviceType.class, new BaseEditor(
 				new DeviceType()));
-		/*
-		 * adding question dates
-		 */
+		/**** Question Dates ****/
 		binder.registerCustomEditor(QuestionDates.class, new BaseEditor(
 				new QuestionDates()));
-		/*
-		 * adding language
-		 */
-		binder.registerCustomEditor(Language.class, new BaseEditor(
-				new Language()));
-		/*
-		 * adding clarification needed from
-		 */
+		/**** Clarification Needed from ****/
 		binder.registerCustomEditor(ClarificationNeededFrom.class, new BaseEditor(
 				new ClarificationNeededFrom()));
-		/*
-		 * adding user
-		 */
-		binder.registerCustomEditor(User.class, new BaseEditor(
-				new User()));
-		/*
-		 * adding user group type
-		 */
-		binder.registerCustomEditor(UserGroupType.class, new BaseEditor(
-				new UserGroupType()));
-		/*
-		 * adding group
-		 */
+		/**** Group ****/
 		binder.registerCustomEditor(Group.class, new BaseEditor(
 				new Group()));
-		/*
-		 * adding ministry
-		 */
+		/**** Ministry ****/
 		binder.registerCustomEditor(Ministry.class, new BaseEditor(
 				new Ministry()));
-		/*
-		 * adding department
-		 */
+		/**** Department ****/
 		binder.registerCustomEditor(Department.class, new BaseEditor(
 				new Department()));
-		/*
-		 * adding subdepartment
-		 */
+		/**** Sub Department ****/
 		binder.registerCustomEditor(SubDepartment.class, new BaseEditor(
 				new SubDepartment()));
+		/**** Supporting Member ****/
+		binder.registerCustomEditor(List.class, "SupportingMember",
+				new CustomCollectionEditor(List.class) {
+			@Override
+			protected Object convertElement(
+					final Object element) {
+				String id = null;
+
+				if (element instanceof String) {
+					id = (String) element;
+				}
+				return id != null ? SupportingMember
+						.findById(SupportingMember.class,
+								Long.valueOf(id))
+								: null;
+			}
+		});
+
+		/**** Clubbed Entity ****/
+		binder.registerCustomEditor(List.class, "ClubbedEntity",
+				new CustomCollectionEditor(List.class) {
+			@Override
+			protected Object convertElement(
+					final Object element) {
+				String id = null;
+
+				if (element instanceof String) {
+					id = (String) element;
+				}
+				return id != null ? ClubbedEntity
+						.findById(ClubbedEntity.class,
+								Long.valueOf(id))
+								: null;
+			}
+		});
+
+		/**** Referenced Entity ****/
+		binder.registerCustomEditor(List.class, "ReferencedEntity",
+				new CustomCollectionEditor(List.class) {
+			@Override
+			protected Object convertElement(
+					final Object element) {
+				String id = null;
+
+				if (element instanceof String) {
+					id = (String) element;
+				}
+				return id != null ? ReferencedEntity
+						.findById(ReferencedEntity.class,
+								Long.valueOf(id))
+								: null;
+			}
+		});
+
+		//----------21012013--------------------------
+		/**** Referenced Question for half hour discussion from question ****/
+		binder.registerCustomEditor(Question.class, new BaseEditor(new Question()));
 	}
 
 	/**
@@ -334,79 +352,41 @@ public class QuestionWorkflowController  extends BaseController{
 	 * @param locale the locale
 	 * @return the string
 	 */
-	@RequestMapping(value="secretary",method=RequestMethod.GET)
+	@RequestMapping(value="mytask",method=RequestMethod.GET)
 	public String initSecretary(final ModelMap model,
 			final HttpServletRequest request,
 			final Locale locale) {
-		/*
-		 * Obtain question domain
-		 */
-		String strTaskId=(String) request.getAttribute("pv_taskId");
+		/**** Workflow ****/
+		String strTaskId=(String) request.getAttribute("taskId");
 		Task task=processService.findTaskById(strTaskId);
-		model.addAttribute("task",strTaskId);
+		model.addAttribute("taskid",strTaskId);
 		Map<String,Object> variables=processService.getVariables(task);
-		String questionId=variables.get("pv_deviceid").toString();
-		model.addAttribute("question",questionId);
-		Integer level=Integer.parseInt(variables.get("pv_level").toString())+1;
-		model.addAttribute("level", level);
+		String questionId=variables.get("pv_deviceId").toString();
 		Question domain=Question.findById(Question.class,Long.parseLong(questionId));
-		Long workflowConfigId=Long.parseLong(variables.get("pv_wc_id_"+domain.getInternalStatus().getType()).toString());
-		model.addAttribute("pv_workflowconfig_Id", workflowConfigId);
+		String usergroup=variables.get("pv_usergroupid").toString();
+		String form=variables.get("pv_form").toString();
+		String level=variables.get("pv_level").toString();
+		model.addAttribute("level",level);
+		model.addAttribute("usergroup",usergroup);
 		/**** populate model ****/		
-		populateSecretaryModel(domain,model,request);
-		/**** populate actors on the basis of last internal status ****/
-		populateActorsAndUsers(domain,model,request,workflowConfigId,level);
-		/*
-		 * add domain to model
-		 */
-		model.addAttribute("domain",domain);
-		/*
-		 * in case of approving authority we need to change the form to approving.jsp
-		 */
-		List<UserGroup> userGroupsTemp=this.getCurrentUser().getUserGroups();
-		if(userGroupsTemp!=null){
-			if(!userGroupsTemp.isEmpty()){
-				for(UserGroup i:userGroupsTemp){
-					UserGroup j=UserGroup.findById(UserGroup.class,i.getId());
-					String strType=j.getUserGroupType().getType();
-					if(strType.equals("deputy_speaker")
-							||strType.equals("speaker")
-							||strType.equals("deputy_chairman")
-							||strType.equals("chairman")){
-						if(domain.getRevisedSubject().isEmpty()){
-							domain.setRevisedSubject(domain.getSubject());
-						}
-						if(domain.getRevisedQuestionText().isEmpty()){
-							domain.setRevisedQuestionText(domain.getQuestionText());
-						}
-						return "workflow/question/approving";
-					}else if(strType.equals("section_officer")){
-						return "workflow/question/sectionofficer";
-					}else if(strType.equals("department")){
-						return "workflow/question/department";
-					}else if(strType.equals("member")){
-						return "workflow/question/member";
-					}else if(strType.equals("assistant")){
-						return "workflow/question/assistant";
-					}
-				}
-			}
-		}
-		return "workflow/question/secretary";
-	}
-	
-	private void populateActorsAndUsers(Question domain, ModelMap model,
-			HttpServletRequest request, Long workflowConfigId, Integer level) {
-				
+		populateModel(domain,model,request,usergroup,level);		
+		return form;
 	}
 
-	private void populateSecretaryModel(final Question domain, final ModelMap model,
-			final HttpServletRequest request) {
-		/**** clear remarks ****/
-		domain.setRemarks("");
-		
+	private void populateModel(final Question domain, final ModelMap model,
+			final HttpServletRequest request,final String usergroup,final String level) {
 		/**** Locale ****/
 		String locale=domain.getLocale();
+		/**** In case of short notice ****/
+		if(domain.getDateOfAnsweringByMinister()!=null){
+			String strFormat=FormaterUtil.getDateFormatter(locale).format(domain.getDateOfAnsweringByMinister());
+			model.addAttribute("formattedDate",strFormat);
+		}	
+		
+		/**** clear remarks ****/
+		domain.setRemarks("");
+
+		
 
 		/**** House Type ****/
 		HouseType houseType=domain.getHouseType();
@@ -490,9 +470,13 @@ public class QuestionWorkflowController  extends BaseController{
 			logger.error("**** Custom Parameter 'HIGHEST_QUESTION_PRIORITY' not set ****");
 			model.addAttribute("errorcode","highestquestionprioritynotset");
 		}
+		if(domain.getPriority()!=null){
 		model.addAttribute("priority",domain.getPriority());
-		model.addAttribute("formattedPriority",FormaterUtil.getNumberFormatterNoGrouping(locale).format(domain.getNumber()));
+		model.addAttribute("formattedPriority",FormaterUtil.getNumberFormatterNoGrouping(locale).format(domain.getPriority()));
+		}
 
+
+		/**** Ministries ****/
 		List<Ministry> ministries=Ministry.findMinistriesAssignedToGroups(houseType, sessionYear, sessionType, locale);
 		model.addAttribute("ministries",ministries);
 		Ministry ministry=domain.getMinistry();
@@ -531,7 +515,7 @@ public class QuestionWorkflowController  extends BaseController{
 					model.addAttribute("answeringDateSelected",domain.getAnsweringDate().getId());
 				}
 			}
-		}
+		}	
 		/**** Submission Date and Creation date****/ 
 		CustomParameter dateTimeFormat=CustomParameter.findByName(CustomParameter.class,"SERVER_DATETIMEFORMAT", "");
 		if(dateTimeFormat!=null){            
@@ -559,21 +543,57 @@ public class QuestionWorkflowController  extends BaseController{
 		if(internalStatus!=null){
 			model.addAttribute("internalStatus",internalStatus.getId());
 			model.addAttribute("internalStatusType", internalStatus.getType());
+			model.addAttribute("formattedInternalStatus", internalStatus.getName());
 		}
 		if(recommendationStatus!=null){
 			model.addAttribute("recommendationStatus",recommendationStatus.getId());
 		}
-		/**** role ****/
-		String role=request.getParameter("role");
-		if(role!=null){
-			model.addAttribute("role",role);
-		}else{
-			role=(String) request.getSession().getAttribute("role");
-			model.addAttribute("role",role);
-			request.getSession().removeAttribute("role");
-		}
+
 		/**** Internal Status****/
-		List<Status> internalStatuses=Status.findStartingWith("question_workflow_decisionstatus", "name", ApplicationConstants.ASC, domain.getLocale());
+		UserGroup userGroupTemp=UserGroup.findById(UserGroup.class,Long.parseLong(usergroup));
+		String userGroupType=userGroupTemp.getUserGroupType().getType();
+		List<Status> internalStatuses=new ArrayList<Status>();
+		if((userGroupType.equals("under_secretary")
+				||userGroupType.equals("principal_secretary")
+				||userGroupType.equals("deputy_secretary")
+				||userGroupType.equals("speaker")
+				||userGroupType.equals("section_officer")
+				)&&domain.getRecommendationStatus().getType().equals("question_after_approval_put_for_dateapproval")){
+			Status dateApprovalStatus=Status.findByFieldName(Status.class,"type","question_after_approval_put_for_dateapproval", locale);
+			List<Reference> dateapprovalactors=WorkflowConfig.findQuestionActorsVO(domain, dateApprovalStatus, userGroupTemp, Integer.parseInt(level), locale);
+			model.addAttribute("dateapprovalactors",dateapprovalactors);
+			model.addAttribute("newRecommendationStatus", "question_after_approval_put_for_dateapproval");
+			
+		}else if(userGroupType.equals("speaker")||userGroupType.equals("chairman")){
+			internalStatuses=Status.findStartingWith("question_workflow_approving_", "name", ApplicationConstants.ASC, domain.getLocale());
+		}else if(userGroupType.equals("assistant")){
+			List<Reference> actors=WorkflowConfig.findQuestionActorsVO(domain, domain.getInternalStatus(), userGroupTemp, Integer.parseInt(level), locale);
+			model.addAttribute("actors",actors);
+		}else if(userGroupType.equals("section_officer")){
+			if(!domain.getRecommendationStatus().getType().equals("question_after_approval_department_sent_answer")){
+			List<Reference> actors=WorkflowConfig.findQuestionActorsVO(domain, domain.getInternalStatus(), userGroupTemp, Integer.parseInt(level), locale);
+			model.addAttribute("actors",actors);
+			Status sendbackStatus=Status.findByFieldName(Status.class,"type","question_workflow_decisionstatus_sendback", locale);
+			List<Reference> sendbackactors=WorkflowConfig.findQuestionActorsVO(domain, sendbackStatus, userGroupTemp, Integer.parseInt(level), locale);
+			model.addAttribute("sendbackactors",sendbackactors);
+			model.addAttribute("newRecommendationStatus", "question_after_approval_send_to_department");
+			}else if(domain.getRecommendationStatus().getType().equals("question_after_approval_department_sent_answer")
+					&&domain.getType().getType().equals("questions_shortnotice")){
+				Status dateApprovalStatus=Status.findByFieldName(Status.class,"type","question_after_approval_put_for_dateapproval", locale);
+				List<Reference> dateapprovalactors=WorkflowConfig.findQuestionActorsVO(domain, dateApprovalStatus, userGroupTemp, 1, locale);
+				model.addAttribute("dateapprovalactors",dateapprovalactors);
+				model.addAttribute("newRecommendationStatus", "question_after_approval_put_for_dateapproval");
+			}else{
+			model.addAttribute("newRecommendationStatus", "question_after_approval_department_sent_answer");
+			}
+			
+		}else if(userGroupType.equals("department")){
+			Status sendbackStatus=Status.findByFieldName(Status.class,"type","question_workflow_decisionstatus_sendback", locale);
+			List<Reference> sendbackactors=WorkflowConfig.findQuestionActorsVO(domain, sendbackStatus, userGroupTemp, Integer.parseInt(level), locale);
+			model.addAttribute("sendbackactors",sendbackactors);			
+		}else{
+			internalStatuses=Status.findStartingWith("question_workflow_decisionstatus_", "name", ApplicationConstants.ASC, domain.getLocale());
+		}
 		model.addAttribute("internalStatuses",internalStatuses);
 		/**** Referenced Questions are collected in refentities****/
 		List<Reference> refentities=new ArrayList<Reference>();
@@ -626,9 +646,109 @@ public class QuestionWorkflowController  extends BaseController{
 				model.addAttribute("parent",domain.getParent().getId());
 			}
 		}
+
+		//---------------------------Added by vikas & dhananjay-------------------------------------
+		if(questionType.getType().equals("questions_halfhourdiscussion_from_question") || questionType.getType().equals("questions_halfhourdiscussion_standalone")){
+			populateForHalfHourDiscussionEdit(model, domain, request);
+		}
+		//---------------------------Added by vikas & dhananjay-------------------------------------
+		/**** add domain to model ****/
+		model.addAttribute("domain",domain);
 	}
-	
-	
+	private void populateForHalfHourDiscussionEdit(final ModelMap model, final Question domain, final HttpServletRequest request) {
+		Session selectedSession = domain.getSession();
+		DeviceType questionType = domain.getType();
+
+		if (selectedSession != null) {
+
+			Integer selYear = selectedSession.getYear();
+			List<Reference> halfhourdiscussion_sessionYears = new ArrayList<Reference> ();
+
+			Reference reference = new Reference();
+
+			reference.setId(selYear.toString());
+			reference.setName(FormaterUtil.formatNumberNoGrouping(new Integer(selYear), "mr_IN"));
+			halfhourdiscussion_sessionYears.add(reference);
+
+			reference = null;
+			reference = new Reference();
+
+			reference.setId((new Integer(selYear.intValue()-1)).toString());
+			reference.setName(FormaterUtil.formatNumberNoGrouping(new Integer(selYear-1), "mr_IN"));
+			halfhourdiscussion_sessionYears.add(reference);				
+
+			model.addAttribute("halfhourdiscussion_sessionYears", halfhourdiscussion_sessionYears);
+
+			/*
+			 * adding session.parameters.numberOfSupprtingMembers and
+			 * session.parametrs.numberOfSupprtingMembersComparator
+			 */
+			String numberOfSupportingMembers = selectedSession.getParameter(questionType.getType()+ "_numberOfSupportingMembers");
+			String numberOfSupportingMembersComparator = selectedSession.getParameter(questionType.getType()+ "_numberOfSupportingMembersComparator");
+
+			if ((numberOfSupportingMembers != null) && (numberOfSupportingMembersComparator != null)) {
+				model.addAttribute("numberOfSupportingMembers", numberOfSupportingMembers);
+				model.addAttribute("numberOfSupportingMembersComparator", numberOfSupportingMembersComparator);
+
+				if (numberOfSupportingMembersComparator.equalsIgnoreCase("eq")) {
+
+					numberOfSupportingMembersComparator = "&#61;";
+
+				} else if (numberOfSupportingMembersComparator.equalsIgnoreCase("lt")) {
+
+					numberOfSupportingMembersComparator = "&lt;";
+
+				} else if (numberOfSupportingMembersComparator.equalsIgnoreCase("gt")) {
+
+					numberOfSupportingMembersComparator = "&gt;";
+
+				} else if (numberOfSupportingMembersComparator.equalsIgnoreCase("le")) {
+
+					numberOfSupportingMembersComparator = "&le;";
+
+				} else if (numberOfSupportingMembersComparator.equalsIgnoreCase("ge")) {
+
+					numberOfSupportingMembersComparator = "&ge;";
+				}
+
+				model.addAttribute("numberOfSupportingMembersComparatorHTML",numberOfSupportingMembersComparator);
+
+				if ((domain.getType().getType().equalsIgnoreCase("questions_halfhourdiscussion_from_question"))|| (domain.getType().getType().equalsIgnoreCase("questions_halfhourdiscussion_standalone"))) {
+
+					Session session = domain.getSession();
+					List<String> discussionDates = new ArrayList<String>();
+					SimpleDateFormat sdf = null;
+
+					if (session != null) {
+
+						String[] dates = session.getParameter("questions_halfhourdiscussion_from_question_discussionDates").split("#");
+
+						try {
+							sdf = FormaterUtil.getDBDateParser(session.getLocale());
+							for (int i = 0; i < dates.length; i++) {
+								discussionDates.add(FormaterUtil.getDateFormatter("dd/MM/yyyy", selectedSession.getLocale()).format(sdf.parse(dates[i])));
+							}
+							model.addAttribute("discussionDates", discussionDates);
+						} catch (ParseException e) {
+
+							e.printStackTrace();
+						}
+
+						if (domain.getDiscussionDate() != null) {
+							model.addAttribute("discussionDateSelected",FormaterUtil.getDateFormatter("dd/MM/yyyy", selectedSession.getLocale()).format(domain.getDiscussionDate()));
+						}
+						if (domain.getHalfHourDiscusionFromQuestionReference() != null) {
+							if (domain.getHalfHourDiscusionFromQuestionReference()!= null) {
+								model.addAttribute("referredQuestionNumber", FormaterUtil.getNumberFormatterNoGrouping(domain.getLocale()).format(domain.getHalfHourDiscusionFromQuestionReference().getNumber()));
+								//-------------21012013
+								model.addAttribute("refQuestionId", domain.getHalfHourDiscusionFromQuestionReference().getId());
+							}
+						}
+					}
+				}
+			}
+		}
+	}	
 
 	/**
 	 * Update secretary.
@@ -640,55 +760,34 @@ public class QuestionWorkflowController  extends BaseController{
 	 * @param result the result
 	 * @return the string
 	 */
-	@RequestMapping(value="secretary",method=RequestMethod.PUT)
+	@Transactional
+	@RequestMapping(value="mytask",method=RequestMethod.PUT)
 	public String updateSecretary(final ModelMap model,
 			final HttpServletRequest request,
 			final Locale locale,@Valid @ModelAttribute("domain") final Question domain,final BindingResult result) {
-		updateSupportingMembers(domain, request);
-		// Check for version mismatch
-		if (domain.isVersionMismatch()) {
-			result.rejectValue("VersionMismatch", "version");
-		}
-		/*
-		 * add edited on,edited as,edited by
-		 */
+		String strusergroup=request.getParameter("usergroup");
+		/**** Updating domain ****/
 		domain.setEditedOn(new Date());
-		User user=User.findByUserName(this.getCurrentUser().getActualUsername(), domain.getLocale());
-		domain.setEditedBy(user);
-		List<UserGroup> userGroupsTemp=this.getCurrentUser().getUserGroups();
-		if(userGroupsTemp!=null){
-			if(!userGroupsTemp.isEmpty()){
-				for(UserGroup i:userGroupsTemp){
-					UserGroup j=UserGroup.findById(UserGroup.class,i.getId());
-					String strType=j.getUserGroupType().getType();
-					if(strType.equals("under_secretary")
-							||strType.equals("deputy_secretary")
-							||strType.equals("officer_special_duty")
-							||strType.equals("joint_secretary")
-							||strType.equals("secretary")
-							||strType.equals("principal_secretary")
-							||strType.equals("deputy_speaker")
-							||strType.equals("speaker")
-							||strType.equals("deputy_chairman")
-							||strType.equals("chairman")
-							||strType.equals("assistant")
-							||strType.equals("section_officer")){
-						domain.setEditedAs(i.getUserGroupType());
-						break;
-					}
+		domain.setEditedBy(this.getCurrentUser().getActualUsername());
+		UserGroup userGroup=UserGroup.findById(UserGroup.class,Long.parseLong(strusergroup));
+		domain.setEditedAs(userGroup.getUserGroupType().getName());
+		String strDateOfAnsweringByMinister=request.getParameter("dateOfAnsweringByMinister");
+		Date dateOfAnsweringByMinister=null;
+		try {
+			if(strDateOfAnsweringByMinister!=null){
+				if(!strDateOfAnsweringByMinister.isEmpty()){
+					dateOfAnsweringByMinister=FormaterUtil.getDateFormatter("en_US").parse(strDateOfAnsweringByMinister);
 				}
 			}
+		} catch (ParseException e1) {
+			try {
+				dateOfAnsweringByMinister=FormaterUtil.getDateFormatter(locale.toString()).parse(strDateOfAnsweringByMinister);
+			} catch (ParseException e) {
+				logger.error(e.getMessage());
+			}			
 		}
-		//for traversing the workflow we need two variables pv_nextactor and pv_nextuser
-		String actor=request.getParameter("actor");
-		//if(actor!=null){
-		//if(actor.isEmpty()){
-		//domain.setStatus(domain.getInternalStatus());
-		//}
-		//}
-		/*
-		 * updating submission date and creation date
-		 */
+		domain.setDateOfAnsweringByMinister(dateOfAnsweringByMinister);
+		/**** updating submission date and creation date ****/
 		String strCreationDate=request.getParameter("setCreationDate");
 		String strSubmissionDate=request.getParameter("setSubmissionDate");
 		CustomParameter dateTimeFormat=CustomParameter.findByName(CustomParameter.class,"SERVER_DATETIMEFORMAT", "");
@@ -706,216 +805,142 @@ public class QuestionWorkflowController  extends BaseController{
 				e.printStackTrace();
 			}
 		}
+		String flag=request.getParameter("flag");
+		if(flag!=null){
+			if(!flag.isEmpty()){
+				Status status=Status.findByFieldName(Status.class,"type",flag, locale.toString());
+				domain.setRecommendationStatus(status);				
+			}
+		}
+		//--------21012013
+		String refQuestionId = request.getParameter("halfHourDiscusionFromQuestionReference");
+		Question refQuestion = null;
+		if(refQuestionId!= null && !refQuestionId.isEmpty()){
+			refQuestion = Question.findById(Question.class, Long.parseLong(refQuestionId));
+		}
+		
+		domain.setHalfHourDiscusionFromQuestionReference(refQuestion);
+		
+		String strDiscussionDate = request.getParameter("discussionDate");
+		Date discussionDate = null;
+		if(strDiscussionDate!=null && !strDiscussionDate.isEmpty()){
+			CustomParameter serverDateFormat = CustomParameter.findByFieldName(CustomParameter.class, "name", "SERVER_DATEFORMAT", null);
+			CustomParameter dbDateFormat = CustomParameter.findByFieldName(CustomParameter.class, "name", "DB_DATEFORMAT", null);
+			try {
+				if(dbDateFormat!=null){
+					SimpleDateFormat serverDateFormater = FormaterUtil.getDateFormatter(serverDateFormat.getValue(), locale.toString());
+					SimpleDateFormat dbDateFormater = FormaterUtil.getDateFormatter(dbDateFormat.getValue(), locale.toString());
+					
+					String iStrdiscussionDate = dbDateFormater.format(serverDateFormater.parse(strDiscussionDate));
+					discussionDate = FormaterUtil.getDateFormatter(dbDateFormat.getValue(),"en_US").parse(iStrdiscussionDate);
+				}
+			} catch (ParseException e) {
+				e.printStackTrace();
+			}
+		}
+		domain.setDiscussionDate(discussionDate);
+		//------------------------
+		performAction(domain);
 		domain.merge();
 		/*
 		 * complete task
 		 */
-		String strTaskId=request.getParameter("task");
+		String strTaskId=request.getParameter("taskid");
 		Task task=processService.findTaskById(strTaskId);
-		model.addAttribute("task",strTaskId);
-		Map<String,String> properties=new HashMap<String, String>();
-		String endflag=request.getParameter("pv_endflag");
-		properties.put("pv_endflag", endflag);
-		if(!endflag.equals("end")){
-			if(actor!=null){
-				if(!actor.isEmpty()){
-					//variables needed for finding next actors
-					properties.put("pv_sessionId",request.getParameter("sessionId"));
-					properties.put("pv_deviceTypeId",request.getParameter("deviceTypeId"));
-					properties.put("pv_workflowType",request.getParameter("workflowType"));
-					properties.put("pv_groupNumber",request.getParameter("groupNumber"));
-					String workflowConfigId=request.getParameter("workflowConfigId");
-					properties.put("pv_workflowConfigId",workflowConfigId );
-					properties.put("pv_nextactor",actor);
-					String nextuser=findNextUser(domain, actor, domain.getLocale());
-					properties.put("pv_nextuser",nextuser);
-					Integer level=WorkflowConfig.getLevel(Long.parseLong(workflowConfigId), actor);
-					properties.put("pv_level",String.valueOf(level));
-				}else{
-					properties.put("pv_nextactor","");
-				}
+		String sendbackactor=request.getParameter("sendbackactor");
+		String nextuser=null;
+		if(sendbackactor!=null){
+			if(!sendbackactor.isEmpty()){
+				nextuser=sendbackactor;
 			}else{
-				properties.put("pv_nextactor","");
+				nextuser=request.getParameter("actor");	
 			}
-		}
+		}else{
+			nextuser=request.getParameter("actor");
+		}		
+		Map<String,String> properties=new HashMap<String, String>();
+		/**** My Task grid ****/
+		properties.put("pv_deviceType",domain.getType().getName());
+		properties.put("pv_internalStatus",domain.getInternalStatus().getName());
+		properties.put("pv_RecommendationStatus",domain.getRecommendationStatus().getName());
+		/**** Next user and usergroup ****/
+		if(nextuser!=null){
+			if(!nextuser.isEmpty()){
+				String[] temp=nextuser.split("#");
+				properties.put("pv_user",temp[0]);
+				properties.put("pv_usergroup",temp[1]);
+				properties.put("pv_usergroupid",temp[2]);
+				properties.put("pv_level",temp[4]);
+				properties.put("pv_form","workflow/question/"+temp[1]);
+			}
+		}	
+		properties.put("pv_endflag",request.getParameter("endflag"));
 		processService.completeTask(task, properties);
 		/*
 		 * Once both update of domain and task is completed we can show a message indicating the same
 		 */
 		model.addAttribute("type","taskcompleted");
-		return "workflow/question/info";
+		
+		return "workflow/info";
 	}
 
-
-	/**
-	 * Find next user.
-	 *
-	 * @param domain the domain
-	 * @param actor the actor
-	 * @param locale the locale
-	 * @return the string
-	 */
-	private String findNextUser(final Question domain,final String actor,final String locale){
-		UserGroupType userGroupType=UserGroupType.findByFieldName(UserGroupType.class, "type",actor, domain.getLocale());
-
-		List<UserGroup> userGroups=UserGroup.findAllByFieldName(UserGroup.class,"userGroupType", userGroupType,"activeFrom",ApplicationConstants.DESC, domain.getLocale());
-		Credential credential=null;
-		int noOfComparisons=0;
-		int noOfSuccess=0;
-		if(userGroups!=null){
-			if(!userGroups.isEmpty()){
-				for(UserGroup i:userGroups){
-					noOfComparisons=0;
-					noOfSuccess=0;
-					if(i.getActiveFrom().before(new Date())||i.getActiveFrom().equals(new Date())){
-						String userType=i.getUserGroupType().getType();
-						if(userType.equals("member")){
-							return i.getCredential().getUsername();
-						}
-						Map<String,String> map=i.getParameters();
-						if(map.get("DEPARTMENT_"+locale)!=null&&domain.getDepartment()!=null){
-							noOfComparisons++;
-							if(map.get("DEPARTMENT_"+locale).contains(domain.getDepartment().getName())){
-								noOfSuccess++;
-							}
-						}
-						if(map.get("DEVICETYPE_"+locale)!=null&&domain.getType()!=null){
-							noOfComparisons++;
-							if(map.get("DEVICETYPE_"+locale).contains(domain.getType().getName())){
-								noOfSuccess++;
-							}
-						}
-						if(map.get("GROUP_"+locale)!=null&&domain.getGroup()!=null){
-							noOfComparisons++;
-							if(map.get("GROUP_"+locale).contains(String.valueOf(domain.getGroup().getNumber()))){
-								noOfSuccess++;
-							}
-						}
-						if(map.get("HOUSETYPE_"+locale)!=null&&domain.getHouseType()!=null){
-							noOfComparisons++;
-							if(map.get("HOUSETYPE_"+locale).equals("Both House")&&userType.equals("principal_secretary")){
-								noOfSuccess++;
-							}else if(map.get("HOUSETYPE_"+locale).equals(domain.getHouseType().getName())){
-								noOfSuccess++;
-							}
-						}
-						if(map.get("SESSIONTYPE_"+locale)!=null&&domain.getSession()!=null){
-							noOfComparisons++;
-							if(map.get("SESSIONTYPE_"+locale).equals(domain.getSession().getType().getSessionType())){
-								noOfSuccess++;
-							}
-						}
-						if(map.get("YEAR_"+locale)!=null&&domain.getSession()!=null){
-							noOfComparisons++;
-							if(map.get("YEAR_"+locale).equals(String.valueOf(domain.getSession().getYear()))){
-								noOfSuccess++;
-							}
-						}
-						if(map.get("SUBDEPARTMENT_"+locale)!=null&&domain.getSubDepartment()!=null){
-							noOfComparisons++;
-							if(map.get("SUBDEPARTMENT_"+locale).contains(domain.getSubDepartment().getName())){
-								noOfSuccess++;
-							}
-						}
-						//in case of actor=department we want to check if user belongs to mantralaya user
-						//as role.
-						//if(actor.equals("department")){
-						//noOfComparisons++;
-						//Set<Role> roles=i.getCredential().getRoles();
-						//for(Role j:roles){
-						//if(j.getType().equals("MANTRALAYA USER")){
-						//noOfSuccess++;
-						//}
-						//}
-						//}
-						if(noOfComparisons!=0&&noOfSuccess!=0&&noOfComparisons==noOfSuccess){
-							credential=i.getCredential();
-							return credential.getUsername();
-						}
-					}
-				}
-			}
-		}
-		return "";
-	}
-
-
-	/**
-	 * Populate actors.
-	 *
-	 * @param domain the domain
-	 * @param model the model
-	 * @param request the request
-	 * @param sessionId the session id
-	 * @param groupNumber the group number
-	 */
-	
-	/**
-	 * Populate secretary model.
-	 *
-	 * @param domain the domain
-	 * @param model the model
-	 * @param request the request
-	 */
-
-
-
-	/**
-	 * Update supporting members.
-	 *
-	 * @param domain the domain
-	 * @param request the request
-	 */
-	private void updateSupportingMembers(final Question domain,final HttpServletRequest request){
-		/*
-		 * here we are obtaining the supporting members id from the jsp
-		 * This method will be called from create,send for approval and submit.status that need to be set is
-		 */
-		String[] selectedSupportingMembers=request.getParameterValues("selectedSupportingMembers");
-		List<SupportingMember> supportingMembers=new ArrayList<SupportingMember>();
-		if(selectedSupportingMembers!=null){
-			if(selectedSupportingMembers.length>0){
-				List<SupportingMember> members=new ArrayList<SupportingMember>();
-				if(domain.getId()!=null){
-					Question question=Question.findById(Question.class,domain.getId());
-					members=question.getSupportingMembers();
-				}
-				for(String i:selectedSupportingMembers){
-					SupportingMember supportingMember=null;
-					Member member=Member.findById(Member.class, Long.parseLong(i));
-					/*
-					 * first we are iterating over the already present supporting members of domain to find out
-					 * if the supporting members already exists.if yes then we add this supporting member to the list without modifing it.
-					 */
-					for(SupportingMember j:members){
-						if(j.getMember().getId()==member.getId()){
-							supportingMember=j;
-						}
-					}
-
-					/*
-					 * if the supporting member is a new supporting member.In that case we will set its member,locale,and status.
-					 * Status will be set to assigned when question is first created,will be pending when it is send for approval,
-					 * will be approved,rejected when set through my task of supporting members
-					 */
-					if(supportingMember==null){
-						supportingMember=new SupportingMember();
-						supportingMember.setMember(member);
-						supportingMember.setLocale(domain.getLocale());
-						/*
-						 * Initially when create is clicked status will be assigned.Also when send for approval is clicked and
-						 * the supporting member doesn't exists then its status will be assigned.Now tasks will be created for all
-						 * the supporting members whose status is assigned.And once task has been created the status will change to pending.
-						 */
-						supportingMember.setDecisionStatus((Status) Status.findByFieldName(Status.class, "type","supportingmember_assigned", domain.getLocale()));
-					}
-					supportingMembers.add(supportingMember);
-				}
-				domain.setSupportingMembers(supportingMembers);
-			}
+	private void performAction(Question domain) {
+		String internalStatus=domain.getInternalStatus().getType();
+		String recommendationStatus=domain.getRecommendationStatus().getType();
+		if(internalStatus.equals(ApplicationConstants.QUESTION_APPROVING_ADMISSION)
+				&&recommendationStatus.equals(ApplicationConstants.QUESTION_APPROVING_ADMISSION)){
+			performActionOnAdmission(domain);
+		}else if(internalStatus.equals(ApplicationConstants.QUESTION_APPROVING_REJECTION)
+				&&recommendationStatus.equals(ApplicationConstants.QUESTION_APPROVING_REJECTION)){
+			performActionOnRejection(domain);
+		}else if(internalStatus.equals(ApplicationConstants.QUESTION_APPROVING_CONVERT_TO_UNSTARRED)
+				&&recommendationStatus.equals(ApplicationConstants.QUESTION_APPROVING_CONVERT_TO_UNSTARRED)){
+			performActionOnConvertToUnstarred(domain);
 		}
 	}
 
+	private void performActionOnConvertToUnstarred(Question domain) {
+		/**** All Clubbed questions internal status,recommendation status
+		 * revised subject and revised text will be set same as parent 
+		 * question's ****/
+		List<ClubbedEntity> clubbedEntities=domain.getClubbedEntities();
+		String subject=null;
+		String questionText=null;
+		if(domain.getRevisedSubject()!=null){
+			if(!domain.getRevisedSubject().isEmpty()){
+				subject=domain.getRevisedSubject();
+			}else{
+				subject=domain.getSubject();
+			}
+		}else{
+			subject=domain.getSubject();
+		}
+		if(domain.getRevisedQuestionText()!=null){
+			if(!domain.getRevisedQuestionText().isEmpty()){
+				questionText=domain.getRevisedQuestionText();
+			}else{
+				questionText=domain.getQuestionText();
+			}
+		}else{
+			questionText=domain.getQuestionText();
+		}
+		Status internalStatus=domain.getInternalStatus();
+		Status recommendationStatus=domain.getRecommendationStatus();
+		for(ClubbedEntity i:clubbedEntities){
+			Question question=i.getQuestion();
+			question.setRevisedSubject(subject);
+			question.setRevisedQuestionText(questionText);
+			question.setInternalStatus(internalStatus);
+			question.setRecommendationStatus(recommendationStatus);
+			question.simpleMerge();
+		}
+	}
 
+	private void performActionOnRejection(Question domain) {
 
+	}
+
+	private void performActionOnAdmission(Question domain) {
+
+	}
 }
