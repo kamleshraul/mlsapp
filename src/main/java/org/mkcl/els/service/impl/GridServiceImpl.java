@@ -18,6 +18,7 @@ import java.util.Map;
 import org.mkcl.els.common.vo.GridData;
 import org.mkcl.els.common.vo.ProcessDefinition;
 import org.mkcl.els.common.vo.Task;
+import org.mkcl.els.domain.CustomParameter;
 import org.mkcl.els.repository.GridRepository;
 import org.mkcl.els.service.IGridService;
 import org.mkcl.els.service.IProcessService;
@@ -126,6 +127,10 @@ public class GridServiceImpl implements IGridService {
 	        tuple.put("primaryMember",processVariables.get("pv_primaryMemberFullName"));
 	        tuple.put("subject",processVariables.get("pv_subject"));
 	        tuple.put("description", t.getDescription());
+	        tuple.put("internalStatus",processVariables.get("pv_internalStatus"));
+	        tuple.put("recommendationStatus", processVariables.get("pv_recommendationStatus"));
+	        tuple.put("urlpattern", processVariables.get("pv_mytaskurlpattern"));
+			tuple.put("form", processVariables.get("pv_form"));
 			records.add(tuple);
 		}
 		Integer totalPages = 0;
