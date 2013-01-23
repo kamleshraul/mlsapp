@@ -83,7 +83,9 @@
 	<input type="hidden" id="member" name="member" value="${member}">
 	<input type="hidden" id="question" name="question" value="${question}">
 	<input type="hidden" id="task" name="task" value="${task}">	
-		
+	<%--21012013 --%>
+	<input type="hidden" name="halfHourDiscusionFromQuestionReference" id="halfHourDiscusionFromQuestionReference" value="${refQuestionId}" />
+	<input type="hidden" name="discussionDate" id="discussionDate" value="${discussionDateSelected}" />	
 </form:form>
 </div>
 </body>

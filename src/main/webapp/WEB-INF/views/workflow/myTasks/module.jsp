@@ -38,13 +38,17 @@
 				return false;
 			}
 			$("#cancelFn").val("process");
-			showTabByIdAndUrl('process_tab', 'workflow/myTasks/' + row + '/process');			
+			var form=$("#grid").jqGrid('getCell',row,'form');
+			var urlpattern=$("#grid").jqGrid('getCell',row,'urlpattern');			
+			showTabByIdAndUrl('process_tab', 'workflow/myTasks/' + row + '/process?form='+form+'&urlpattern='+urlpattern);			
 		}			
 
 		function rowDblClickHandler(row, iRow, iCol, e) {
 			var row = $('#key').val();
 			$("#cancelFn").val("rowDblClickHandler");
-			showTabByIdAndUrl('process_tab', 'workflow/myTasks/' + row + '/process');
+			var form=$("#grid").jqGrid('getCell',row,'form');
+			var urlpattern=$("#grid").jqGrid('getCell',row,'urlpattern');			
+			showTabByIdAndUrl('process_tab', 'workflow/myTasks/' + row + '/process?form='+form+'&urlpattern='+urlpattern);
 		}		
 	</script>
 </head>
