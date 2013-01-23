@@ -452,8 +452,8 @@
 	</c:if>
 	<c:if test="${domain.type.type=='questions_halfhourdiscussion_from_question'}">
 		<label class="small"><spring:message code="question.discussionDate" text="Discussion Date"/></label>
-		<input id="discussionDate" name="discussionDate" value="${discussionDateSelected }" class="sText" readonly="readonly">
-		<form:errors path="discussionDate" cssClass="validationError"/>
+		<input id="formattedDiscussionDate" name="formattedDiscussionDate" value="${discussionDateSelected }" class="sText" readonly="readonly">
+		<%-- <form:errors path="discussionDate" cssClass="validationError"/> --%>
 	</c:if>
 	</p>
 	
