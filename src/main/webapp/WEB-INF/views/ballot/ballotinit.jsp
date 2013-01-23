@@ -40,7 +40,7 @@
 								 +"&status="+$("#selectedStatus").val()
 								 +"&role="+$("#srole").val() 
 								 + "&answeringDate=" + $("#selectedAnsweringDate").val();
-				var resourceURL = 'chart/view?' + parameters;
+				var resourceURL = 'ballot/view?' + parameters;
 				$.get(resourceURL,function(data){
 					$("#ballotResultDiv").empty();
 					$("#ballotResultDiv").html(data);
