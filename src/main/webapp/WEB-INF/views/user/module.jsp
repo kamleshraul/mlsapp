@@ -20,16 +20,16 @@
 			});
 			$('#groups_tab').click(function(){
 				var row = $("#key").val();
-				if(row==null||row==""){
+				if(typeof row=="undefined"||row==""){
+					var row = $("#user").val();
+					if(typeof row==undefined||row==""){
 					$.prompt($('#selectRowFirstMessage').val());		
 					return false;
+					}else{
+						showTabByIdAndUrl('groups_tab','user/usergroup/list'+'?user='+row);
+					}
 				}else{
-					//if(username==null||username==""){
-						//$.prompt("Please enter username first in selected user");
-						//return false;
-					//}else{
-					showTabByIdAndUrl('groups_tab','usergroup/list'+'?user='+row);
-				//	}
+					showTabByIdAndUrl('groups_tab','user/usergroup/list'+'?user='+row);
 				}
 			});
 			$(document).keydown(function (e){
@@ -73,7 +73,6 @@
 		}
 		function newRecord() {
 			//on clicking new record key set to empty as the user id has not been created till then
-			$("#key").val("");			
 			$("#cancelFn").val("newRecord");
 			showTabByIdAndUrl('details_tab','user/new');			
 		}		
