@@ -3,6 +3,7 @@ package org.mkcl.els.repository;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 
 import org.mkcl.els.common.util.FormaterUtil;
 import org.mkcl.els.common.vo.MasterVO;
@@ -337,5 +338,52 @@ public class MemberMinisterRepository extends BaseRepository<MemberMinister, Lon
             references.add(masterVO);
         }
         return references;    }
+
+
+	@SuppressWarnings("unchecked")
+	public List<Department> findAssignedDepartments(final String[] ministriesArray,
+			final String locale) {
+		CustomParameter parameter =
+			CustomParameter.findByFieldName(CustomParameter.class, "name", "DB_DATEFORMAT", "");
+		String strCurrentDate=FormaterUtil.getDateFormatter(parameter.getValue(),"en_US").format(new Date());
+		String initialQuery="SELECT DISTINCT(d) FROM MemberMinister mm JOIN mm.ministry mi "+
+					 " JOIN mm.memberDepartments md JOIN md.department d WHERE "+
+					 " (mm.ministryToDate >='"+strCurrentDate+"' OR mm.ministryToDate=null )"+
+					 " AND mm.locale='"+locale+"' AND mi.name IN ( ";
+		StringBuffer buffer=new StringBuffer();
+		for(String i:ministriesArray){
+		buffer.append("'"+i+"',");	
+		}
+		buffer.deleteCharAt(buffer.length()-1);
+		String query=initialQuery+buffer.toString()+") ORDER BY d.name";
+		return this.em().createQuery(query).getResultList();
+	}
+
+
+	@SuppressWarnings("unchecked")
+	public List<SubDepartment> findAssignedSubDepartments(final String[] ministries,
+			final String[] departmentsNames,final String locale) {
+		CustomParameter parameter =
+			CustomParameter.findByFieldName(CustomParameter.class, "name", "DB_DATEFORMAT", "");
+		String strCurrentDate=FormaterUtil.getDateFormatter(parameter.getValue(),"en_US").format(new Date());
+		String initialQuery="SELECT DISTINCT(sd) FROM MemberMinister mm JOIN mm.ministry mi "+
+					 " JOIN mm.memberDepartments md JOIN md.department d JOIN md.subDepartments sd WHERE "+
+					 " (mm.ministryToDate >='"+strCurrentDate+"' OR mm.ministryToDate=null) "+
+					 " AND mm.locale='"+locale+"' AND d.name IN ( ";
+		StringBuffer buffer=new StringBuffer();
+		for(String i:departmentsNames){
+		buffer.append("'"+i+"',");	
+		}
+		buffer.deleteCharAt(buffer.length()-1);
+		String query=initialQuery+buffer.toString()+")";
+		StringBuffer buffer2=new StringBuffer();
+		buffer2.append(" AND mi.name IN(");
+		for(String j:ministries){
+			buffer2.append("'"+j+"',");
+		}
+		buffer2.deleteCharAt(buffer2.length()-1);
+		String finalQuery=query+buffer2.toString()+") ORDER BY sd.name";
+		return this.em().createQuery(finalQuery).getResultList();
+	}
 
 }
