@@ -73,16 +73,16 @@
 		function clubbing(clubId){
 			var questionId=$("#questionId").val();			
 			$.post('clubentity/clubbing?pId='+questionId+"&cId="+clubId,function(data){
-					if(data.id=='success'){
+					if(data=='SUCCESS'){
 					$("#clubbingResult").empty();
 					$("#clubbingResult").html(data);
 					$("#operation"+clubId).empty();
-					$("#operation"+clubId).text("<a onclick='unclubbing("+clubId+");' style='margin:10px;'>"+$("#unclubMsg").val()+"</a>");
+					$("#operation"+clubId).html("<a onclick='unclubbing("+clubId+");' style='margin:10px;'>"+$("#unclubMsg").val()+"</a>");
 					}else{
 						$("#clubbingResult").empty();
 						$("#clubbingResult").html(data);
 						$("#operation"+clubId).empty();
-						$("#operation"+clubId).text("<a onclick='clubbing("+clubId+");' style='margin:10px;'>"+$("#clubMsg").val()+"</a>");
+						$("#operation"+clubId).html("<a onclick='clubbing("+clubId+");' style='margin:10px;'>"+$("#clubMsg").val()+"</a>");
 					}
 			},'html');
 			return false;
@@ -90,16 +90,16 @@
 		function unclubbing(clubId){
 			var questionId=$("#questionId").val();
 			$.post('clubentity/unclubbing?pId='+questionId+"&cId="+clubId,function(data){
-				if(data.id=='success'){
+				if(data=='SUCCESS'){
 					$("#clubbingResult").empty();
 					$("#clubbingResult").html(data);
 					$("#operation"+clubId).empty();
-					$("#operation"+clubId).text("<a onclick='clubbing("+clubId+");' style='margin:10px;'>"+$("#clubMsg").val()+"</a>");
+					$("#operation"+clubId).html("<a onclick='clubbing("+clubId+");' style='margin:10px;'>"+$("#clubMsg").val()+"</a>");
 					}else{
 						$("#clubbingResult").empty();
 						$("#clubbingResult").html(data);
 						$("#operation"+clubId).empty();
-						$("#operation"+clubId).text("<a onclick='unclubbing("+clubId+");' style='margin:10px;'>"+$("#unclubMsg").val()+"</a>");
+						$("#operation"+clubId).html("<a onclick='unclubbing("+clubId+");' style='margin:10px;'>"+$("#unclubMsg").val()+"</a>");
 					}				
 			},'html');
 			return false;
