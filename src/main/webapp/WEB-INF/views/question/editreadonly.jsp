@@ -7,21 +7,17 @@
 	<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
 	<script type="text/javascript">
 		$(document).ready(function(){
-		if($("#selectedDepartment").val()==null||$("#selectedDepartment").val()==''){
+			console.log($("#selectedDepartment").val()+":"+$("#selectedSubDepartment").val());
+		if(typeof $("#edit_selectedDepartment").val()=='undefined'||$("#edit_selectedDepartment").val()==null||$("#edit_selectedDepartment").val()==''){
 		$("#department").prepend("<option value='' selected='selected'>----"+$("#pleaseSelectMessage").val()+"----</option>");
 		}else{
 		$("#department").prepend("<option value=''>----"+$("#pleaseSelectMessage").val()+"----</option>");
 		}
-		if($("#selectedSubDepartment").val()==null||$("#subDepartment").val()==''){
+		if($("#edit_selectedSubDepartment").val()==null||$("#edit_subDepartment").val()==''){
 			$("#subDepartment").prepend("<option value='' selected='selected'>----"+$("#pleaseSelectMessage").val()+"----</option>");
 		}else{
 			$("#subDepartment").prepend("<option value=''>----"+$("#pleaseSelectMessage").val()+"----</option>");
-		}				
-		if($("#selectedClarificationNeeded").val()==null||$("#selectedClarificationNeeded").val()==''){
-			$("#clarificationNeededFrom").prepend("<option value='' selected='selected'>----"+$("#pleaseSelectMessage").val()+"----</option>");
-		}else{
-			$("#clarificationNeededFrom").prepend("<option value=''>----"+$("#pleaseSelectMessage").val()+"----</option>");
-		}
+		}		
 		if($("#revisedSubject").val()!=''){
 			$("#revisedSubjectDiv").show();
 		}
@@ -54,10 +50,20 @@
 	<input id="number" name="number" value="${domain.number}" type="hidden">
 	<form:errors path="number" cssClass="validationError"/>
 	
-	<label class="small"><spring:message code="question.priority" text="Priority"/>*</label>
-	<input name="formattedPriority" id="formattedPriority" class="sText" type="text" value="${formattedPriority }" readonly="readonly">
-	<input name="priority" id="priority"  type="hidden" value="${priority }">	
-	<form:errors path="priority" cssClass="validationError"/>
+	<c:if test="${domain.type.type=='questions_halfhourdiscussion_from_question'}">
+		
+		<label class="small"><spring:message code="question.halfhour.questionref" text="Reference Question Number: "/>*</label>
+		<input class="sText" readonly="readonly" type="text" name="halfHourDiscussionReference_questionNumber" value="${referredQuestionNumber}" id="halfHourDiscussionReference_questionNumber" />
+		<form:errors path="halfHourDiscusionFromQuestionReference" cssClass="validationError" cssStyle="float:right;margin-top:-100px;margin-right:40px;"/>	
+		
+	</c:if>
+	
+	<c:if test="${domain.type.type!='questions_halfhourdiscussion_from_question'}">
+		<label class="small"><spring:message code="question.priority" text="Priority"/>*</label>
+		<input name="formattedPriority" id="formattedPriority" class="sText" type="text" value="${formattedPriority }" readonly="readonly">
+		<input name="priority" id="priority"  type="hidden" value="${priority }">	
+		<form:errors path="priority" cssClass="validationError"/>
+	</c:if>
 	</p>
 		
 	<p>		
@@ -65,9 +71,16 @@
 	<input id="formattedSubmissionDate" name="formattedSubmissionDate" value="${formattedSubmissionDate }" class="sText" readonly="readonly">
 	<input id="setSubmissionDate" name="setSubmissionDate" type="hidden"  value="${submissionDate}">
 	
-	<label class="small"><spring:message code="question.answeringDate" text="Answering Date"/></label>
-	<input id="formattedAnsweringDate" name="formattedAnsweringDate" value="${formattedAnsweringDate }" class="sText" readonly="readonly">
-	<input id="answeringDate" name="answeringDate" type="hidden"  value="${answeringDate}">
+	<c:if test="${domain.type.type!='questions_halfhourdiscussion_from_question'}">
+		<label class="small"><spring:message code="question.answeringDate" text="Answering Date"/></label>
+		<input id="formattedAnsweringDate" name="formattedAnsweringDate" value="${formattedAnsweringDate }" class="sText" readonly="readonly">
+		<input id="answeringDate" name="answeringDate" type="hidden"  value="${answeringDate}">
+	</c:if>
+	<c:if test="${domain.type.type=='questions_halfhourdiscussion_from_question'}">
+		<label class="small"><spring:message code="question.discussionDate" text="Discussion Date"/></label>
+		<input id="discussionDate" name="discussionDate" value="${discussionDateSelected }" class="sText" readonly="readonly">
+		<form:errors path="discussionDate" cssClass="validationError"/>
+	</c:if>
 	</p>
 	
 	<p>
@@ -189,13 +202,21 @@
 	<form:errors path="questionText" cssClass="validationError"/>	
 	</p>
 	
-	<c:if test="${selectedQuestionType=='questions_shortnotice'}">
+	<c:if test="${domain.type.type=='questions_shortnotice' or domain.type.type=='questions_halfhourdiscussion_from_question'}">
 	<p>
 		<label class="wysiwyglabel"><spring:message code="question.reason" text="Reason"/>*</label>
 		<form:textarea path="reason" cssClass="wysiwyg" readonly="true"></form:textarea>
 		<form:errors path="reason" cssClass="validationError" cssStyle="float:right;margin-top:-100px;margin-right:40px;"/>	
 	</p>
-	</c:if>	
+	</c:if>
+	
+	<c:if test="${domain.type.type=='questions_halfhourdiscussion_from_question' or domain.type.type=='questions_halfhourdiscussion_standalone'}">
+		<p>
+			<label class="wysiwyglabel"><spring:message code="question.briefExplanation" text="Brief Explanation"/>*</label>
+			<form:textarea path="briefExplanation" cssClass="wysiwyg"></form:textarea>
+			<form:errors path="briefExplanation" cssClass="validationError" cssStyle="float:right;margin-top:-100px;margin-right:40px;"/>	
+		</p>
+	</c:if>
 	
 	<p style="display:none;" class="revise" id="revisedSubjectDiv">
 	<label class="centerlabel"><spring:message code="question.revisedSubject" text="Revised Subject"/></label>
@@ -233,12 +254,11 @@
 	</c:if>
 	</c:forEach>
 	</select>	
-		
+	</p>
 	<p id="clarificationDiv" style="display:none;">
 	<label class="small"><spring:message code="question.clarificationneededfrom" text="Clarification Needed from"/></label>
 	<select id="clarificationNeededFrom" name="clarificationNeededFrom" class="sSelect">	
 	</select>
-	<form:errors path="clarificationNeededFrom" cssClass="validationError" />	
 	</p>	
 	
 	<p>
@@ -246,10 +266,10 @@
 	<form:textarea path="remarks" cssClass="wysiwyg"></form:textarea>
 	</p>
 
-<input id="ministrySelected" value="${ministrySelected }" type="hidden">
-<input id="departmentSelected" value="${ departmentSelected}" type="hidden">
-<input id="subDepartmentSelected" value="${subDepartmentSelected }" type="hidden">
-<input id="answeringDateSelected" value="${ answeringDateSelected}" type="hidden">
+<input id="edit_ministrySelected" value="${ministrySelected }" type="hidden">
+<input id="edit_departmentSelected" value="${ departmentSelected}" type="hidden">
+<input id="edit_subDepartmentSelected" value="${subDepartmentSelected }" type="hidden">
+<input id="edit_answeringDateSelected" value="${ answeringDate}" type="hidden">
 </form:form>
 </div>
 </body>

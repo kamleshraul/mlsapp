@@ -24,22 +24,22 @@
 			/**** house type changes then reload grid****/			
 			$("#selectedHouseType").change(function(){
 				var value=$(this).val();
-				if(value!=""){					
-					reloadQuestionGrid();					
+				if(value!=""){	
+					loadGroupsFromSessions();									
 				}	
 			});	
 			/**** session year changes then reload grid****/			
 			$("#selectedSessionYear").change(function(){
 				var value=$(this).val();
-				if(value!=""){					
-					reloadQuestionGrid();					
+				if(value!=""){		
+					loadGroupsFromSessions();								
 				}			
 			});
 			/**** session type changes then reload grid****/
 			$("#selectedSessionType").change(function(){
 				var value=$(this).val();
-				if(value!=""){					
-					reloadQuestionGrid();					
+				if(value!=""){			
+					loadGroupsFromSessions();							
 				}			
 			});
 			/**** question type changes then reload grid****/			
@@ -59,7 +59,8 @@
 			/**** group changes then reload grid ****/
 			$("#selectedGroup").change(function(){
 				var value=$(this).val();
-				if(value!=""){				
+				if(value!=""){
+			    $("#ugparam").val(value);	
 				reloadQuestionGrid();
 				}
 			});		
@@ -84,12 +85,32 @@
 				viewMemberBallot();
 			});		
 			/**** show question list method is called by default.****/
-			showQuestionList();	
+			showQuestionList();				
 		});
+		function loadGroupsFromSessions(){
+			if($("#selectedGroup").length>0){
+			params="houseType="+$('#selectedHouseType').val()
+			+'&sessionYear='+$("#selectedSessionYear").val()
+			+'&sessionType='+$("#selectedSessionType").val()
+			+'&allowedgroups='+$("#allowedGroups").val();
+			$.get('ref/allowedgroups?'+params,function(data){
+				if(data.length>0){
+					var text="";					
+					for(var i=0;i<data.length;i++){
+						text+="<option value='"+data[i].id+"'>"+data[i].name+"</option>";
+					}
+					$("#selectedGroup").empty();
+					$("#selectedGroup").html(text);
+				}else{
+					$("#selectedGroup").empty();
+				}
+			});
+			}
+			reloadQuestionGrid();			
+		}
 
 		/**** displaying grid ****/					
 		function showQuestionList() {
-				console.log($("#srole").val());						
 				showTabByIdAndUrl('list_tab','question/list?houseType='+$('#selectedHouseType').val()
 						+'&questionType='+$("#selectedQuestionType").val()+'&sessionYear='
 						+$("#selectedSessionYear").val()+'&sessionType='+$("#selectedSessionType").val()+
@@ -307,7 +328,6 @@
 			'QIS_SECRETARY','QIS_OFFICER_ON_SPECIAL_DUTY','QIS_DEPUTY_SPEAKER','QIS_CHAIRMAN','QIS_DEPUTY_CHAIRMAN',
 			'QIS_SECTION_OFFICER','QIS_UNDER_SECRETARY_COMMITTEE')">
 			<hr>
-			<c:if test="${questionTypeType!='questions_unstarred'&& questionTypeType!='questions_shortnotice'}">
 			<a href="#" id="select_group" class="butSim">
 				<spring:message code="question.group" text="Group"/>
 			</a>
@@ -315,8 +335,7 @@
 			<c:forEach items="${groups}" var="i">			
 			<option value="${i.id}"><c:out value="${i.formatNumber()}"></c:out></option>	
 			</c:forEach> 
-			</select> |
-			</c:if>
+			</select> |			
 			<a href="#" id="select_status" class="butSim">
 				<spring:message code="question.status" text="Status"/>
 			</a>
@@ -359,6 +378,8 @@
 		<input type="hidden" id="selectAttendanceRoundMsg" value="<spring:message code='ballot.selectattendanceround' text='Please Select Attendance Type And Round First'/>">			
 		<input type="hidden" id="selectRowFirstMessage" name="selectRowFirstMessage" value="<spring:message code='generic.selectRowFirstMessage' text='Please select the desired row first'></spring:message>" disabled="disabled">
 		<input type="hidden" id="confirmDeleteMessage" name="confirmDeleteMessage" value="<spring:message code='generic.confirmDeleteMessage' text='Do you want to delete the row with Id: '></spring:message>" disabled="disabled">
+		<input type="hidden" id="allowedGroups" name="allowedGroups" value="${allowedGroups }">
+		
 		</div> 		
 </body>
 </html>
