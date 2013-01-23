@@ -34,6 +34,7 @@ import javax.persistence.Table;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
 
+import org.codehaus.jackson.annotate.JsonIgnoreProperties;
 import org.mkcl.els.common.util.FormaterUtil;
 import org.mkcl.els.repository.SessionRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -48,6 +49,10 @@ import org.springframework.beans.factory.annotation.Configurable;
 @Configurable
 @Entity
 @Table(name = "sessions")
+
+//------------------added by vikasg----------------------
+@JsonIgnoreProperties({"parameters"})
+
 public class Session extends BaseDomain implements Serializable {
 
     // ---------------------------------Attributes------------------------------------------
@@ -520,124 +525,145 @@ public class Session extends BaseDomain implements Serializable {
 	
 	//---------------------Added by vikas & dhananjay--------------------------------
 	public Map<String, String> getParameters() {
-		CustomParameter SERVER_TIMESTAMP = CustomParameter.findByName(CustomParameter.class, 
-				"SERVER_TIMESTAMP", "");
-		CustomParameter SERVER_DATEFORMAT = CustomParameter.findByName(CustomParameter.class, 
-				"SERVER_DATEFORMAT", "");
-		CustomParameter DB_DATEFORMAT = CustomParameter.findByName(CustomParameter.class, 
-				"DB_DATEFORMAT", "");
-		CustomParameter DB_TIMESTAMP = CustomParameter.findByName(CustomParameter.class, 
-				"DB_TIMESTAMP", "");
-		
+						
 		//to get the date parameters formatted in current locale
-		if(! this.getLocale().equalsIgnoreCase("en_US")) {	
-			Map<String, String> localParameters = this.parameters;
-			if((localParameters != null) & (!(localParameters.isEmpty()))) {
-				for (Map.Entry<String, String> entry : localParameters.entrySet()) {
-					CustomParameter dbFormat = null;
-					if((entry.getKey().endsWith(("Date")))) {
-						if(entry.getValue().length() > 10) {
-							dbFormat = DB_TIMESTAMP;
-						}
-						else {
-							dbFormat = DB_DATEFORMAT;
-						}
+				if(!this.getLocale().equalsIgnoreCase("en_US")){	
+					
+					Map<String, String> localParameters = this.parameters;
+					
+					if((localParameters != null) & (!(localParameters.isEmpty()))){
 						
-						SimpleDateFormat dateFormat;
-						Date date;
-						try {
-							if (this.getLocale().equalsIgnoreCase("mr_IN")) {
-								dateFormat = new SimpleDateFormat(dbFormat.getValue(), 
-										new Locale("hi", "IN"));
-							} 
-							else {
-								dateFormat = new SimpleDateFormat(dbFormat.getValue(), 
-										new Locale(this.getLocale()));
-							}
-							dateFormat.setLenient(true);
-							date = dateFormat.parse(entry.getValue());
+						for (Map.Entry<String, String> entry : localParameters.entrySet()){
 							
-							CustomParameter serverFormat = null;
-							if(dbFormat.getName().equalsIgnoreCase("DB_TIMESTAMP")) {
-								serverFormat = SERVER_TIMESTAMP;
-							}
-							else {
-								serverFormat = SERVER_DATEFORMAT;
-							}
-							entry.setValue(FormaterUtil.formatDateToString(date, 
-									serverFormat.getValue()));
-						} catch (ParseException e) {}
-						
-					}
-					else if((entry.getKey().endsWith(("Dates")))) {
-						String[] dates = entry.getValue().split("#");
-						for(int i = 0; i < dates.length; i++) {
-							if(dates[i].length() > 10){
-								dbFormat = DB_TIMESTAMP;
-							}
-							else{
-								dbFormat = DB_DATEFORMAT;
-							}		
-							SimpleDateFormat dateFormat;
-							Date date;
-							try {
-								if (this.getLocale().equalsIgnoreCase("mr_IN")) {
-									dateFormat = new SimpleDateFormat(dbFormat.getValue(), 
-											new Locale("hi", "IN"));
-								} else {
-									dateFormat = new SimpleDateFormat(dbFormat.getValue(), 
-											new Locale(this.getLocale()));
+							if((entry.getKey().endsWith(("Date")))){
+								if(!entry.getValue().contains("/")){
+									CustomParameter parameter;
+									CustomParameter dbParameter;
+									if(entry.getValue().length()>10){
+										 parameter = CustomParameter.findByName(CustomParameter.class, "SERVER_DATETIMEFORMAT", "");
+										 dbParameter = CustomParameter.findByName(CustomParameter.class, "DB_DATETIMEFORMAT", "");
+									}
+									else{
+										 parameter = CustomParameter.findByName(CustomParameter.class, "SERVER_DATEFORMAT", "");
+										 dbParameter = CustomParameter.findByName(CustomParameter.class, "DB_DATEFORMAT", "");
+									}		
+									SimpleDateFormat dateFormat;
+									SimpleDateFormat dbDateFormat;
+									Date date;
+									
+									try {
+	
+										if (this.getLocale().equalsIgnoreCase("mr_IN")) {
+											
+											dateFormat = new SimpleDateFormat(parameter.getValue(), new Locale("hi", "IN"));
+											dbDateFormat = new SimpleDateFormat(dbParameter.getValue(), new Locale("hi", "IN"));
+											
+										} else {
+	
+											dateFormat = new SimpleDateFormat(parameter.getValue(), new Locale(this.getLocale()));
+											dbDateFormat = new SimpleDateFormat(dbParameter.getValue(), new Locale(this.getLocale()));
+										}
+	
+										dateFormat.setLenient(true);
+	
+										date = dbDateFormat.parse(entry.getValue());
+										
+										entry.setValue(dateFormat.format(date));
+										
+									} catch (ParseException e) {
+	
+										e.printStackTrace();
+									}
 								}
-								dateFormat.setLenient(true);
-								date = dateFormat.parse(dates[i]);
 								
-								CustomParameter serverFormat = null;
-								if(dbFormat.getName().equalsIgnoreCase("DB_TIMESTAMP")) {
-									serverFormat = SERVER_TIMESTAMP;
+							}else if((entry.getKey().endsWith(("Dates")))){
+								
+								String[] dates = entry.getValue().split("#");
+								
+								for(int i = 0; i < dates.length; i++){
+								
+									if(!entry.getValue().contains("/")){
+										CustomParameter parameter;
+										CustomParameter dbParameter;
+										
+										if(dates[i].length()>10){
+											 parameter = CustomParameter.findByName(CustomParameter.class, "SERVER_DATETIMEFORMAT", "");
+											 dbParameter = CustomParameter.findByName(CustomParameter.class, "DB_DATETIMEFORMAT", "");
+										}
+										else{
+											 parameter = CustomParameter.findByName(CustomParameter.class, "SERVER_DATEFORMAT", "");
+											 dbParameter = CustomParameter.findByName(CustomParameter.class, "DB_DATEFORMAT", "");
+										}		
+										SimpleDateFormat dateFormat;
+										SimpleDateFormat dbDateFormat;
+										Date date;
+										
+										try {
+	
+											if (this.getLocale().equalsIgnoreCase("mr_IN")) {
+												
+												dateFormat = new SimpleDateFormat(parameter.getValue(), new Locale("hi", "IN"));
+												dbDateFormat = new SimpleDateFormat(dbParameter.getValue(), new Locale("hi", "IN"));
+												
+											} else {
+	
+												dateFormat = new SimpleDateFormat(parameter.getValue(), new Locale(this.getLocale()));
+												dbDateFormat = new SimpleDateFormat(dbParameter.getValue(), new Locale(this.getLocale()));
+											}
+	
+											dateFormat.setLenient(true);
+	
+											date = dbDateFormat.parse(dates[i]);
+											
+											dates[i] = dateFormat.format(date);
+											
+										} catch (ParseException e) {
+	
+											e.printStackTrace();
+										}
+									}
 								}
-								else {
-									serverFormat = SERVER_DATEFORMAT;
+								
+								String value= ""; 
+								for(int i = 0; i < dates.length; i++){
+									
+									if((i == (dates.length - 1))){
+										value += dates[i];
+									}else{
+										value += dates[i] + "#";
+									}
 								}
-								dates[i] = FormaterUtil.formatDateToString(date, 
-										serverFormat.getValue());
-							} catch (ParseException e) {}
+								entry.setValue(value);
+								
+							}else{
+								
+								try {
+									
+									Integer i = Integer.parseInt(entry.getValue());
+									
+									NumberFormat nf = NumberFormat.getInstance();
+							        DecimalFormat df = (DecimalFormat) nf;
+							        DecimalFormatSymbols dfs = df.getDecimalFormatSymbols();
+							        
+							        if(this.getLocale().toString().equals("en_US")){
+							            dfs.setZeroDigit('\u0030');
+							        }
+							        else if(this.getLocale().toString().equals("mr_IN")){
+							            dfs.setZeroDigit('\u0966');
+							        }
+							        df.setDecimalFormatSymbols(dfs);
+									entry.setValue(df.format(i));
+									
+								} catch (NumberFormatException nfe) {
+									
+								}
+							}
 						}
 						
-						String value= ""; 
-						for(int i = 0; i < dates.length; i++) {
-							if((i == (dates.length - 1))) {
-								value += dates[i];
-							}
-							else {
-								value += dates[i] + "#";
-							}
-						}
-						entry.setValue(value);
-					}
-					else {
-						try {
-							Integer i = Integer.parseInt(entry.getValue());
-							
-							NumberFormat nf = NumberFormat.getInstance();
-					        DecimalFormat df = (DecimalFormat) nf;
-					        DecimalFormatSymbols dfs = df.getDecimalFormatSymbols();
-					        
-					        if(this.getLocale().toString().equals("en_US")) {
-					            dfs.setZeroDigit('\u0030');
-					        }
-					        else if(this.getLocale().toString().equals("mr_IN")) {
-					            dfs.setZeroDigit('\u0966');
-					        }
-					        df.setDecimalFormatSymbols(dfs);
-							entry.setValue(df.format(i));
-							
-						} catch (NumberFormatException nfe) {}
+						return localParameters;
 					}
 				}
-				return localParameters;
-			}
-		}
-		return parameters;
+				return parameters;
 	}
 
 	//---------------------Added by vikas & dhananjay--------------------------------
