@@ -72,16 +72,16 @@
 		function referencing(referId){
 			var questionId=$("#questionId").val();			
 			$.post('refentity/referencing?pId='+questionId+"&cId="+referId,function(data){
-					if(data.id=='success'){
+					if(data=='SUCCESS'){
 					$("#referencingResult").empty();
 					$("#referencingResult").html(data);
 					$("#operation"+referId).empty();
-					$("#operation"+referId).text("<a onclick='dereferencing("+referId+");' style='margin:10px;'>"+$("#referMsg").val()+"</a>");
+					$("#operation"+referId).html("<a onclick='dereferencing("+referId+");' style='margin:10px;'>"+$("#referMsg").val()+"</a>");
 					}else{
 						$("#referencingResult").empty();
 						$("#referencingResult").html(data);
 						$("#operation"+referId).empty();
-						$("#operation"+referId).text("<a onclick='referencing("+referId+");' style='margin:10px;'>"+$("#dereferMsg").val()+"</a>");
+						$("#operation"+referId).html("<a onclick='referencing("+referId+");' style='margin:10px;'>"+$("#dereferMsg").val()+"</a>");
 					}
 			},'html');
 			return false;
@@ -89,16 +89,16 @@
 		function dereferencing(referId){
 			var questionId=$("#questionId").val();
 			$.post('refentity/dereferencing?pId='+questionId+"&cId="+referId,function(data){
-				if(data.id=='success'){
+				if(data=='SUCCESS'){
 					$("#referencingResult").empty();
 					$("#referencingResult").html(data);
 					$("#operation"+referId).empty();
-					$("#operation"+referId).text("<a onclick='referencing("+referId+");' style='margin:10px;'>"+$("#referMsg").val()+"</a>");
+					$("#operation"+referId).html("<a onclick='referencing("+referId+");' style='margin:10px;'>"+$("#referMsg").val()+"</a>");
 					}else{
 						$("#referencingResult").empty();
 						$("#referencingResult").html(data);
 						$("#operation"+referId).empty();
-						$("#operation"+referId).text("<a onclick='dereferencing("+referId+");' style='margin:10px;'>"+$("#dereferMsg").val()+"</a>");
+						$("#operation"+referId).html("<a onclick='dereferencing("+referId+");' style='margin:10px;'>"+$("#dereferMsg").val()+"</a>");
 					}				
 			},'html');
 			return false;
