@@ -29,6 +29,7 @@ import org.mkcl.els.domain.House;
 import org.mkcl.els.domain.HouseType;
 import org.mkcl.els.domain.Member;
 import org.mkcl.els.domain.MemberBallotAttendance;
+import org.mkcl.els.domain.MemberRole;
 import org.mkcl.els.domain.Ministry;
 import org.mkcl.els.domain.Question;
 import org.mkcl.els.domain.ReferencedEntity;
@@ -61,7 +62,7 @@ public class QuestionRepository extends BaseRepository<Question, Long>{
 	public Integer findLastStarredUnstarredShortNoticeQuestionNo(final House house,final Session currentSession){
 		String query="SELECT q.number FROM questions AS q JOIN sessions AS s JOIN houses AS h "+
 		"JOIN devicetypes AS dt WHERE q.session_id=s.id AND s.house_id=h.id "+
-		"AND h.id="+house.getId()+" AND s.id="+currentSession.getId()+" AND dt.id=q.devicetype_id AND dt.type!='questions_halfhourdiscussion_from_question' ORDER BY q.id DESC LIMIT 0,1";
+		"AND h.id="+house.getId()+" AND s.id="+currentSession.getId()+" AND dt.id=q.devicetype_id AND dt.type!='halfhourdiscussion' ORDER BY q.id DESC LIMIT 0,1";
 		List result=this.em().createNativeQuery(query).getResultList();
 		Integer lastNumber=0;
 		if(!result.isEmpty()){
@@ -81,7 +82,7 @@ public class QuestionRepository extends BaseRepository<Question, Long>{
 	public Integer findLastHalfHourDiscussionQuestionNo(final House house,final Session currentSession){
 		String query="SELECT q.number FROM questions AS q JOIN sessions AS s JOIN houses AS h "+
 		"JOIN devicetypes AS dt WHERE q.session_id=s.id AND s.house_id=h.id "+
-		"AND h.id="+house.getId()+" AND s.id="+currentSession.getId()+" AND dt.id=q.devicetype_id AND dt.type=='questions_halfhourdiscussion_from_question' ORDER BY q.id DESC LIMIT 0,1";
+		"AND h.id="+house.getId()+" AND s.id="+currentSession.getId()+" AND dt.id=q.devicetype_id AND dt.type=='halfhourdiscussion' ORDER BY q.id DESC LIMIT 0,1";
 		List result=this.em().createNativeQuery(query).getResultList();
 		Integer lastNumber=0;
 		if(!result.isEmpty()){
@@ -514,6 +515,7 @@ public class QuestionRepository extends BaseRepository<Question, Long>{
 				 ****/
 				deviceTypeQuery.append(" AND q.parent IS NULL");
 				deviceTypeQuery.append(" AND st.priority>=(SELECT priority FROM status as sst WHERE sst.type='"+ApplicationConstants.QUESTION_ASSISTANT_PROCESSED+"')");
+				deviceTypeQuery.append(" AND s.id=" +question.getSession().getId()+" AND dt.type='"+ApplicationConstants.SHORT_NOTICE_QUESTION +"'");			
 			}else if(deviceType.getType().equals(ApplicationConstants.HALF_HOUR_DISCUSSION_QUESTION_STANDALONE)){
 				/**** Half hour discussion standalone Questions :
 				 ****/
@@ -524,7 +526,8 @@ public class QuestionRepository extends BaseRepository<Question, Long>{
 				 ****/
 				deviceTypeQuery.append(" AND q.parent IS NULL");
 				deviceTypeQuery.append(" AND m.id = " + question.getPrimaryMember().getId());
-				deviceTypeQuery.append(" AND st.priority>=(SELECT priority FROM status as sst WHERE sst.type='"+ApplicationConstants.QUESTION_ASSISTANT_PROCESSED+"')");				
+				deviceTypeQuery.append(" AND st.priority>=(SELECT priority FROM status as sst WHERE sst.type='"+ApplicationConstants.QUESTION_ASSISTANT_PROCESSED+"')");
+				deviceTypeQuery.append(" AND s.id=" +question.getSession().getId()+" AND dt.type='"+ApplicationConstants.HALF_HOUR_DISCUSSION_QUESTION_FROM_QUESTION +"'");			
 			}
 		}		
 
@@ -971,53 +974,52 @@ public class QuestionRepository extends BaseRepository<Question, Long>{
 				if(beingProcessedQuestionType.getType().equals(ApplicationConstants.STARRED_QUESTION)&&
 						beingClubbedQuestionType.getType().equals(ApplicationConstants.STARRED_QUESTION)){
 					/**** Starred Clubbed With Starred ****/
-					starredClubbedWithStarred(beingProcessedQuestion,beingClubbedQuestion,beingProcessedClubbing
+					return starredClubbedWithStarred(beingProcessedQuestion,beingClubbedQuestion,beingProcessedClubbing
 							,beingClubbedClubbing,oldPQStatus,oldCQStatus,newPQStatus,newCQStatus);
 				}else if(beingProcessedQuestionType.getType().equals(ApplicationConstants.STARRED_QUESTION)&&
 						beingClubbedQuestionType.getType().endsWith(ApplicationConstants.UNSTARRED_QUESTION)){
 					/**** Starred Clubbed With Unstarred ****/
-					starredClubbedWithUnstarred(beingProcessedQuestion,beingClubbedQuestion,beingProcessedClubbing
+					return starredClubbedWithUnstarred(beingProcessedQuestion,beingClubbedQuestion,beingProcessedClubbing
 							,beingClubbedClubbing,oldPQStatus,oldCQStatus,newPQStatus,newCQStatus);
 				}else if(beingProcessedQuestionType.getType().equals(ApplicationConstants.UNSTARRED_QUESTION)&&
 						beingClubbedQuestionType.getType().endsWith(ApplicationConstants.UNSTARRED_QUESTION)){
 					/**** UnStarred Clubbed With Unstarred ****/
-					unstarredClubbedWithUnstarred(beingProcessedQuestion,beingClubbedQuestion,beingProcessedClubbing
+					return unstarredClubbedWithUnstarred(beingProcessedQuestion,beingClubbedQuestion,beingProcessedClubbing
 							,beingClubbedClubbing,oldPQStatus,oldCQStatus,newPQStatus,newCQStatus);
 				}else if(beingProcessedQuestionType.getType().equals(ApplicationConstants.SHORT_NOTICE_QUESTION)&&
 						beingClubbedQuestionType.getType().endsWith(ApplicationConstants.SHORT_NOTICE_QUESTION)){
 					/**** Short Notice Clubbed With Short Notice ****/
-					shortNoticeClubbedWithShortNotice(beingProcessedQuestion,beingClubbedQuestion,beingProcessedClubbing
+					return shortNoticeClubbedWithShortNotice(beingProcessedQuestion,beingClubbedQuestion,beingProcessedClubbing
 							,beingClubbedClubbing,oldPQStatus,oldCQStatus,newPQStatus,newCQStatus);
 				}else if(beingProcessedQuestionType.getType().equals(ApplicationConstants.HALF_HOUR_DISCUSSION_QUESTION_STANDALONE)&&
 						beingClubbedQuestionType.getType().endsWith(ApplicationConstants.HALF_HOUR_DISCUSSION_QUESTION_STANDALONE)){
 					/**** Half Hour Discussion Standalone Clubbed With Half Hour Discussion Standalone****/
-					HalfHourDiscussionSAClubbedWithHalfHourDiscussionSA(beingProcessedQuestion,beingClubbedQuestion,beingProcessedClubbing
+					return HalfHourDiscussionSAClubbedWithHalfHourDiscussionSA(beingProcessedQuestion,beingClubbedQuestion,beingProcessedClubbing
 							,beingClubbedClubbing,oldPQStatus,oldCQStatus,newPQStatus,newCQStatus);
 				}else if(beingProcessedQuestionType.getType().equals(ApplicationConstants.HALF_HOUR_DISCUSSION_QUESTION_FROM_QUESTION)&&
 						beingClubbedQuestionType.getType().endsWith(ApplicationConstants.HALF_HOUR_DISCUSSION_QUESTION_FROM_QUESTION)){
 					/**** Half Hour Discussion From Question Clubbed With Half Hour Discussion From Question ****/
-					HalfHourDiscussionFQClubbedWithHalfHourDiscussionFQ(beingProcessedQuestion,beingClubbedQuestion,beingProcessedClubbing
+					return HalfHourDiscussionFQClubbedWithHalfHourDiscussionFQ(beingProcessedQuestion,beingClubbedQuestion,beingProcessedClubbing
 							,beingClubbedClubbing,oldPQStatus,oldCQStatus,newPQStatus,newCQStatus);
 				}
 			}
 		}
 		return status;
-
 	}
 
-	private void HalfHourDiscussionFQClubbedWithHalfHourDiscussionFQ(
+	private Boolean HalfHourDiscussionFQClubbedWithHalfHourDiscussionFQ(
 			Question beingProcessedQuestion, Question beingClubbedQuestion,
 			List<ClubbedEntity> beingProcessedClubbing,
 			List<ClubbedEntity> beingClubbedClubbing, Status oldPQStatus,
 			Status oldCQStatus, Status newPQStatus, Status newCQStatus) {
 		if(beingProcessedQuestion.getNumber()<beingClubbedQuestion.getNumber()){
-			beingProcessedIsPrimary(beingProcessedQuestion,
+			return beingProcessedIsPrimary(beingProcessedQuestion,
 					beingClubbedQuestion,
 					beingProcessedClubbing,
 					beingClubbedClubbing,
 					oldPQStatus,oldCQStatus,newPQStatus,newCQStatus);
 		}else{
-			beingClubbedIsPrimary(beingProcessedQuestion,
+			return beingClubbedIsPrimary(beingProcessedQuestion,
 					beingClubbedQuestion,
 					beingProcessedClubbing,
 					beingClubbedClubbing,
@@ -1025,19 +1027,19 @@ public class QuestionRepository extends BaseRepository<Question, Long>{
 		}
 	}
 
-	private void HalfHourDiscussionSAClubbedWithHalfHourDiscussionSA(
+	private Boolean HalfHourDiscussionSAClubbedWithHalfHourDiscussionSA(
 			Question beingProcessedQuestion, Question beingClubbedQuestion,
 			List<ClubbedEntity> beingProcessedClubbing,
 			List<ClubbedEntity> beingClubbedClubbing, Status oldPQStatus,
 			Status oldCQStatus, Status newPQStatus, Status newCQStatus) {
 		if(beingProcessedQuestion.getNumber()<beingClubbedQuestion.getNumber()){
-			beingProcessedIsPrimary(beingProcessedQuestion,
+			return beingProcessedIsPrimary(beingProcessedQuestion,
 					beingClubbedQuestion,
 					beingProcessedClubbing,
 					beingClubbedClubbing,
 					oldPQStatus,oldCQStatus,newPQStatus,newCQStatus);
 		}else{
-			beingClubbedIsPrimary(beingProcessedQuestion,
+			return beingClubbedIsPrimary(beingProcessedQuestion,
 					beingClubbedQuestion,
 					beingProcessedClubbing,
 					beingClubbedClubbing,
@@ -1045,19 +1047,19 @@ public class QuestionRepository extends BaseRepository<Question, Long>{
 		}
 	}
 
-	private void shortNoticeClubbedWithShortNotice(
+	private Boolean shortNoticeClubbedWithShortNotice(
 			Question beingProcessedQuestion, Question beingClubbedQuestion,
 			List<ClubbedEntity> beingProcessedClubbing,
 			List<ClubbedEntity> beingClubbedClubbing, Status oldPQStatus,
 			Status oldCQStatus, Status newPQStatus, Status newCQStatus) {
 		if(beingProcessedQuestion.getNumber()<beingClubbedQuestion.getNumber()){
-			beingProcessedIsPrimary(beingProcessedQuestion,
+			return beingProcessedIsPrimary(beingProcessedQuestion,
 					beingClubbedQuestion,
 					beingProcessedClubbing,
 					beingClubbedClubbing,
 					oldPQStatus,oldCQStatus,newPQStatus,newCQStatus);
 		}else{
-			beingClubbedIsPrimary(beingProcessedQuestion,
+			return beingClubbedIsPrimary(beingProcessedQuestion,
 					beingClubbedQuestion,
 					beingProcessedClubbing,
 					beingClubbedClubbing,
@@ -1065,19 +1067,19 @@ public class QuestionRepository extends BaseRepository<Question, Long>{
 		}
 	}
 
-	private void unstarredClubbedWithUnstarred(Question beingProcessedQuestion,
+	private Boolean unstarredClubbedWithUnstarred(Question beingProcessedQuestion,
 			Question beingClubbedQuestion,
 			List<ClubbedEntity> beingProcessedClubbing,
 			List<ClubbedEntity> beingClubbedClubbing, Status oldPQStatus,
 			Status oldCQStatus, Status newPQStatus, Status newCQStatus) {
 		if(beingProcessedQuestion.getNumber()<beingClubbedQuestion.getNumber()){
-			beingProcessedIsPrimary(beingProcessedQuestion,
+			return beingProcessedIsPrimary(beingProcessedQuestion,
 					beingClubbedQuestion,
 					beingProcessedClubbing,
 					beingClubbedClubbing,
 					oldPQStatus,oldCQStatus,newPQStatus,newCQStatus);
 		}else{
-			beingClubbedIsPrimary(beingProcessedQuestion,
+			return beingClubbedIsPrimary(beingProcessedQuestion,
 					beingClubbedQuestion,
 					beingProcessedClubbing,
 					beingClubbedClubbing,
@@ -1085,31 +1087,35 @@ public class QuestionRepository extends BaseRepository<Question, Long>{
 		}
 	}
 
-	private void starredClubbedWithUnstarred(Question beingProcessedQuestion,
+	private Boolean starredClubbedWithUnstarred(Question beingProcessedQuestion,
 			Question beingClubbedQuestion,
 			List<ClubbedEntity> beingProcessedClubbing,
 			List<ClubbedEntity> beingClubbedClubbing, Status oldPQStatus,
 			Status oldCQStatus, Status newPQStatus, Status newCQStatus) {
-		beingClubbedIsPrimary(beingProcessedQuestion,
+		/**** Clubbed question is primary and unstarred ****/
+		return beingClubbedIsPrimaryUnstarred(beingProcessedQuestion,
 				beingClubbedQuestion,
 				beingProcessedClubbing,
 				beingClubbedClubbing,
 				oldPQStatus,oldCQStatus,newPQStatus,newCQStatus);
 	}
 
-	private void starredClubbedWithStarred(Question beingProcessedQuestion,
+	private Boolean starredClubbedWithStarred(Question beingProcessedQuestion,
 			Question beingClubbedQuestion,
 			List<ClubbedEntity> beingProcessedClubbing,
 			List<ClubbedEntity> beingClubbedClubbing, Status oldPQStatus,
 			Status oldCQStatus, Status newPQStatus, Status newCQStatus) {
+		/**** Processed question is primary ****/
 		if(beingProcessedQuestion.getNumber()<beingClubbedQuestion.getNumber()){
-			beingProcessedIsPrimary(beingProcessedQuestion,
+			return beingProcessedIsPrimary(beingProcessedQuestion,
 					beingClubbedQuestion,
 					beingProcessedClubbing,
 					beingClubbedClubbing,
 					oldPQStatus,oldCQStatus,newPQStatus,newCQStatus);
-		}else{
-			beingClubbedIsPrimaryUnstarred(beingProcessedQuestion,
+		}
+		/**** Clubbed question is primary ****/
+		else{
+			return beingClubbedIsPrimary(beingProcessedQuestion,
 					beingClubbedQuestion,
 					beingProcessedClubbing,
 					beingClubbedClubbing,
@@ -1117,397 +1123,426 @@ public class QuestionRepository extends BaseRepository<Question, Long>{
 		}
 	}
 
-	private void beingClubbedIsPrimaryUnstarred(
+	private Boolean beingClubbedIsPrimaryUnstarred(
 			Question beingProcessedQuestion, Question beingClubbedQuestion,
 			List<ClubbedEntity> beingProcessedClubbing,
 			List<ClubbedEntity> beingClubbedClubbing, Status oldPQStatus,
 			Status oldCQStatus, Status newPQStatus, Status newCQStatus) {
-		String locale=beingProcessedQuestion.getLocale();
-		String processedType=oldPQStatus.getType();
-		String clubbedType=oldCQStatus.getType();
-		if(processedType.equals("question_before_workflow_tobeputup")
-				&&clubbedType.equals("question_before_workflow_tobeputup")){
-			/**** Processed Question 
-			 * a.parent=clubbed question
-			 * b.clubbedentities=null
-			 * c.internalstatus=recommednationstatus=clubbed
-			 * d.merge****/
-			beingProcessedQuestion.setParent(beingClubbedQuestion);
-			beingProcessedQuestion.setClubbedEntities(null);
-			newPQStatus=Status.findByType("question_before_workflow_clubbed", locale);
-			beingProcessedQuestion.setInternalStatus(newCQStatus);
-			beingProcessedQuestion.setRecommendationStatus(newCQStatus);
-			beingProcessedQuestion.simpleMerge();                
-			/**** create new clubbed entity****/
-			ClubbedEntity clubbedEntity=new ClubbedEntity();
-			clubbedEntity.setDeviceType(beingProcessedQuestion.getType());
-			clubbedEntity.setLocale(beingProcessedQuestion.getLocale());
-			clubbedEntity.setQuestion(beingProcessedQuestion);
-			clubbedEntity.persist();                
-			/**** add this as clubbed entity in clubbed clubbed entity ****/
-			beingClubbedClubbing.add(clubbedEntity);                
-			/*** add clubbed entities of processed question in clubbed question ****/
-			if(beingProcessedClubbing!=null){
-				if(!beingProcessedClubbing.isEmpty()){
-					for(ClubbedEntity k:beingProcessedClubbing){
-						Question question=k.getQuestion();
-						question.setParent(beingClubbedQuestion);
-						question.setInternalStatus(newPQStatus);
-						question.setRecommendationStatus(newPQStatus);
-						question.simpleMerge();
-						k.setQuestion(question);
-						k.merge();
-						beingClubbedClubbing.add(k);
-					}                        
+		try {
+			String locale=beingProcessedQuestion.getLocale();
+			String processedType=oldPQStatus.getType();
+			String clubbedType=oldCQStatus.getType();
+			if(processedType.equals("question_before_workflow_tobeputup")
+					&&clubbedType.equals("question_before_workflow_tobeputup")){
+				/**** Processed Question 
+				 * a.parent=clubbed question
+				 * b.clubbedentities=null
+				 * c.internalstatus=recommednationstatus=clubbed
+				 * d.merge****/
+				beingProcessedQuestion.setParent(beingClubbedQuestion);
+				beingProcessedQuestion.setClubbedEntities(null);
+				newPQStatus=Status.findByType("question_before_workflow_clubbed", locale);
+				beingProcessedQuestion.setInternalStatus(newCQStatus);
+				beingProcessedQuestion.setRecommendationStatus(newCQStatus);
+				beingProcessedQuestion.simpleMerge();                
+				/**** create new clubbed entity****/
+				ClubbedEntity clubbedEntity=new ClubbedEntity();
+				clubbedEntity.setDeviceType(beingProcessedQuestion.getType());
+				clubbedEntity.setLocale(beingProcessedQuestion.getLocale());
+				clubbedEntity.setQuestion(beingProcessedQuestion);
+				clubbedEntity.persist();                
+				/**** add this as clubbed entity in clubbed clubbed entity ****/
+				beingClubbedClubbing.add(clubbedEntity);                
+				/*** add clubbed entities of processed question in clubbed question ****/
+				if(beingProcessedClubbing!=null){
+					if(!beingProcessedClubbing.isEmpty()){
+						for(ClubbedEntity k:beingProcessedClubbing){
+							Question question=k.getQuestion();
+							question.setParent(beingClubbedQuestion);
+							question.setInternalStatus(newPQStatus);
+							question.setRecommendationStatus(newPQStatus);
+							question.simpleMerge();
+							k.setQuestion(question);
+							k.merge();
+							beingClubbedClubbing.add(k);
+						}                        
+					}
 				}
+				/**** update being clubbed question ****/
+				beingClubbedQuestion.setParent(null);
+				//newCQStatus=Status.findByType("question_before_workflow_tobeputup", locale);
+				//beingClubbedQuestion.setInternalStatus(newCQStatus);
+				//beingClubbedQuestion.setRecommendationStatus(newCQStatus);
+				beingClubbedQuestion.setClubbedEntities(beingClubbedClubbing);
+				beingClubbedQuestion.simpleMerge();
+				List<ClubbedEntity> clubbedEntities=beingClubbedQuestion.findClubbedEntitiesByQuestionNumber(ApplicationConstants.ASC,locale);
+				Integer position=1;
+				for(ClubbedEntity i:clubbedEntities){
+					i.setPosition(position);
+					position++;
+					i.merge();
+				}
+			}else if(processedType.equals("question_before_workflow_tobeputup")
+					&&(clubbedType.equals("question_workflow_approving_admission")
+							||clubbedType.equals("question_workflow_approving_rejection")
+							||clubbedType.equals("question_workflow_approving_converttounstarred"))){
+				newPQStatus=Status.findByType("question_before_workflow_tobenameclubbed", locale);
+				beingProcessedQuestion.setInternalStatus(newPQStatus);
+				beingProcessedQuestion.setRecommendationStatus(newPQStatus);
+				beingProcessedQuestion.setProspectiveClubbings(beingProcessedQuestion.getProspectiveClubbings()+"##NAMECLUB~"+beingClubbedQuestion.getId()+"##");
+				beingProcessedQuestion.simpleMerge();
+			}else if(processedType.equals("question_before_workflow_tobeputup")
+					&&clubbedType.equals("question_workflow_approving_clarificationneeded")){
+				newPQStatus=Status.findByType("question_before_workflow_putonhold", locale);
+				beingProcessedQuestion.setInternalStatus(newPQStatus);
+				beingProcessedQuestion.setRecommendationStatus(newPQStatus);
+				beingProcessedQuestion.setProspectiveClubbings(beingProcessedQuestion.getProspectiveClubbings()+"##PUTONHOLD~"+beingClubbedQuestion.getId()+"##");
+				beingProcessedQuestion.simpleMerge();
+			}else if(processedType.equals("question_before_workflow_tobeputup")
+					&&(clubbedType.equals("question_workflow_decisionstatus_admission")
+							||clubbedType.equals("question_workflow_decisionstatus_rejection")
+							||clubbedType.equals("question_workflow_decisionstatus_converttounstarred")
+							||clubbedType.equals("question_workflow_decisionstatus_onhold")
+							||clubbedType.equals("question_workflow_decisionstatus_discuss")
+							||clubbedType.equals("question_workflow_decisionstatus_clarificationneeded")
+							||clubbedType.equals("question_workflow_decisionstatus_nameclubbing")
+							||clubbedType.equals("question_workflow_decisionstatus_sendback")
+							||clubbedType.equals("question_workflow_decisionstatus_groupchanged")
+							||clubbedType.equals("question_workflow_decisionstatus_clarificationreceived")
+							||clubbedType.equals("question_workflow_decisionstatus_clarificationnotreceived")
+					)){
+				newPQStatus=Status.findByType("question_before_workflow_tobeclubbedwithpending", locale);
+				beingProcessedQuestion.setInternalStatus(newPQStatus);
+				beingProcessedQuestion.setRecommendationStatus(newPQStatus);
+				beingProcessedQuestion.setProspectiveClubbings(beingProcessedQuestion.getProspectiveClubbings()+"##CLUBWITHPENDING~"+beingClubbedQuestion.getId()+"##");
+				beingProcessedQuestion.simpleMerge();
+			}else if(clubbedType.equals("questi" +
+			"on_before_workflow_tobeputup")
+			&&(processedType.equals("question_workflow_approving_admission")
+					||processedType.equals("question_workflow_approving_rejection")
+					||processedType.equals("question_workflow_approving_converttounstarred"))){
+				newCQStatus=Status.findByType("question_before_workflow_nameclub", locale);
+				beingClubbedQuestion.setInternalStatus(newCQStatus);
+				beingClubbedQuestion.setRecommendationStatus(newCQStatus);
+				beingClubbedQuestion.setProspectiveClubbings(beingClubbedQuestion.getProspectiveClubbings()+"##NAMECLUB~"+beingProcessedQuestion.getId()+"##");
+				beingClubbedQuestion.simpleMerge();
+			}else if(clubbedType.equals("question_before_workflow_tobeputup")
+					&&processedType.equals("question_workflow_approving_clarificationneeded")){
+				newCQStatus=Status.findByType("question_before_workflow_putonhold", locale);
+				beingClubbedQuestion.setInternalStatus(newCQStatus);
+				beingClubbedQuestion.setRecommendationStatus(newCQStatus);
+				beingClubbedQuestion.setProspectiveClubbings(beingClubbedQuestion.getProspectiveClubbings()+"##PUTONHOLD~"+beingProcessedQuestion.getId()+"##");
+				beingClubbedQuestion.simpleMerge();
+			}else if(clubbedType.equals("question_before_workflow_tobeputup")
+					&&(processedType.equals("question_workflow_decisionstatus_admission")
+							||processedType.equals("question_workflow_decisionstatus_rejection")
+							||processedType.equals("question_workflow_decisionstatus_converttounstarred")
+							||processedType.equals("question_workflow_decisionstatus_onhold")
+							||processedType.equals("question_workflow_decisionstatus_discuss")
+							||processedType.equals("question_workflow_decisionstatus_clarificationneeded")
+							||processedType.equals("question_workflow_decisionstatus_nameclubbing")
+							||processedType.equals("question_workflow_decisionstatus_sendback")
+							||processedType.equals("question_workflow_decisionstatus_groupchanged")
+							||processedType.equals("question_workflow_decisionstatus_clarificationreceived")
+							||processedType.equals("question_workflow_decisionstatus_clarificationnotreceived")
+					)){
+				newCQStatus=Status.findByType("question_before_workflow_tobeclubbedwithpending", locale);
+				beingClubbedQuestion.setInternalStatus(newCQStatus);
+				beingClubbedQuestion.setRecommendationStatus(newCQStatus);
+				beingClubbedQuestion.setProspectiveClubbings(beingClubbedQuestion.getProspectiveClubbings()+"##CLUBWITHPENDING~"+beingProcessedQuestion.getId()+"##");
+				beingClubbedQuestion.simpleMerge();
 			}
-			/**** update being clubbed question ****/
-			beingClubbedQuestion.setParent(null);
-			//newCQStatus=Status.findByType("question_before_workflow_tobeputup", locale);
-			//beingClubbedQuestion.setInternalStatus(newCQStatus);
-			//beingClubbedQuestion.setRecommendationStatus(newCQStatus);
-			beingClubbedQuestion.setClubbedEntities(beingClubbedClubbing);
-			beingClubbedQuestion.simpleMerge();
-			List<ClubbedEntity> clubbedEntities=beingClubbedQuestion.findClubbedEntitiesByQuestionNumber(ApplicationConstants.ASC,locale);
-			Integer position=1;
-			for(ClubbedEntity i:clubbedEntities){
-				i.setPosition(position);
-				position++;
-				i.merge();
-			}
-		}else if(processedType.equals("question_before_workflow_tobeputup")
-				&&(clubbedType.equals("question_workflow_approving_admission")
-						||clubbedType.equals("question_workflow_approving_rejection")
-						||clubbedType.equals("question_workflow_approving_converttounstarred"))){
-			newPQStatus=Status.findByType("question_before_workflow_tobenameclubbed", locale);
-			beingProcessedQuestion.setInternalStatus(newPQStatus);
-			beingProcessedQuestion.setRecommendationStatus(newPQStatus);
-			beingProcessedQuestion.setProspectiveClubbings(beingProcessedQuestion.getProspectiveClubbings()+"##NAMECLUB~"+beingClubbedQuestion.getId()+"##");
-			beingProcessedQuestion.simpleMerge();
-		}else if(processedType.equals("question_before_workflow_tobeputup")
-				&&clubbedType.equals("question_workflow_approving_clarificationneeded")){
-			newPQStatus=Status.findByType("question_before_workflow_putonhold", locale);
-			beingProcessedQuestion.setInternalStatus(newPQStatus);
-			beingProcessedQuestion.setRecommendationStatus(newPQStatus);
-			beingProcessedQuestion.setProspectiveClubbings(beingProcessedQuestion.getProspectiveClubbings()+"##PUTONHOLD~"+beingClubbedQuestion.getId()+"##");
-			beingProcessedQuestion.simpleMerge();
-		}else if(processedType.equals("question_before_workflow_tobeputup")
-				&&(clubbedType.equals("question_workflow_decisionstatus_admission")
-						||clubbedType.equals("question_workflow_decisionstatus_rejection")
-						||clubbedType.equals("question_workflow_decisionstatus_converttounstarred")
-						||clubbedType.equals("question_workflow_decisionstatus_onhold")
-						||clubbedType.equals("question_workflow_decisionstatus_discuss")
-						||clubbedType.equals("question_workflow_decisionstatus_clarificationneeded")
-						||clubbedType.equals("question_workflow_decisionstatus_nameclubbing")
-						||clubbedType.equals("question_workflow_decisionstatus_sendback")
-						||clubbedType.equals("question_workflow_decisionstatus_groupchanged")
-						||clubbedType.equals("question_workflow_decisionstatus_clarificationreceived")
-						||clubbedType.equals("question_workflow_decisionstatus_clarificationnotreceived")
-				)){
-			newPQStatus=Status.findByType("question_before_workflow_tobeclubbedwithpending", locale);
-			beingProcessedQuestion.setInternalStatus(newPQStatus);
-			beingProcessedQuestion.setRecommendationStatus(newPQStatus);
-			beingProcessedQuestion.setProspectiveClubbings(beingProcessedQuestion.getProspectiveClubbings()+"##CLUBWITHPENDING~"+beingClubbedQuestion.getId()+"##");
-			beingProcessedQuestion.simpleMerge();
-		}else if(clubbedType.equals("questi" +
-		"on_before_workflow_tobeputup")
-		&&(processedType.equals("question_workflow_approving_admission")
-				||processedType.equals("question_workflow_approving_rejection")
-				||processedType.equals("question_workflow_approving_converttounstarred"))){
-			newCQStatus=Status.findByType("question_before_workflow_nameclub", locale);
-			beingClubbedQuestion.setInternalStatus(newCQStatus);
-			beingClubbedQuestion.setRecommendationStatus(newCQStatus);
-			beingClubbedQuestion.setProspectiveClubbings(beingClubbedQuestion.getProspectiveClubbings()+"##NAMECLUB~"+beingProcessedQuestion.getId()+"##");
-			beingClubbedQuestion.simpleMerge();
-		}else if(clubbedType.equals("question_before_workflow_tobeputup")
-				&&processedType.equals("question_workflow_approving_clarificationneeded")){
-			newCQStatus=Status.findByType("question_before_workflow_putonhold", locale);
-			beingClubbedQuestion.setInternalStatus(newCQStatus);
-			beingClubbedQuestion.setRecommendationStatus(newCQStatus);
-			beingClubbedQuestion.setProspectiveClubbings(beingClubbedQuestion.getProspectiveClubbings()+"##PUTONHOLD~"+beingProcessedQuestion.getId()+"##");
-			beingClubbedQuestion.simpleMerge();
-		}else if(clubbedType.equals("question_before_workflow_tobeputup")
-				&&(processedType.equals("question_workflow_decisionstatus_admission")
-						||processedType.equals("question_workflow_decisionstatus_rejection")
-						||processedType.equals("question_workflow_decisionstatus_converttounstarred")
-						||processedType.equals("question_workflow_decisionstatus_onhold")
-						||processedType.equals("question_workflow_decisionstatus_discuss")
-						||processedType.equals("question_workflow_decisionstatus_clarificationneeded")
-						||processedType.equals("question_workflow_decisionstatus_nameclubbing")
-						||processedType.equals("question_workflow_decisionstatus_sendback")
-						||processedType.equals("question_workflow_decisionstatus_groupchanged")
-						||processedType.equals("question_workflow_decisionstatus_clarificationreceived")
-						||processedType.equals("question_workflow_decisionstatus_clarificationnotreceived")
-				)){
-			newCQStatus=Status.findByType("question_before_workflow_tobeclubbedwithpending", locale);
-			beingClubbedQuestion.setInternalStatus(newCQStatus);
-			beingClubbedQuestion.setRecommendationStatus(newCQStatus);
-			beingClubbedQuestion.setProspectiveClubbings(beingClubbedQuestion.getProspectiveClubbings()+"##CLUBWITHPENDING~"+beingProcessedQuestion.getId()+"##");
-			beingClubbedQuestion.simpleMerge();
+		} catch (Exception e) {
+			logger.error(e.getMessage());
+			return false;
 		}
+		return true;
 	}
 
-	private void beingClubbedIsPrimary(Question beingProcessedQuestion,
+	private Boolean beingClubbedIsPrimary(Question beingProcessedQuestion,
 			Question beingClubbedQuestion,
 			List<ClubbedEntity> beingProcessedClubbing,
 			List<ClubbedEntity> beingClubbedClubbing, Status oldPQStatus,
 			Status oldCQStatus, Status newPQStatus, Status newCQStatus) {
-		String locale=beingProcessedQuestion.getLocale();
-		String processedType=oldPQStatus.getType();
-		String clubbedType=oldCQStatus.getType();
-		if(processedType.equals("question_before_workflow_tobeputup")
-				&&clubbedType.equals("question_before_workflow_tobeputup")){
-			/**** Processed Question 
-			 * a.parent=clubbed question
-			 * b.clubbedentities=null
-			 * c.internalstatus=recommednationstatus=clubbed
-			 * d.merge****/
-			beingProcessedQuestion.setParent(beingClubbedQuestion);
-			beingProcessedQuestion.setClubbedEntities(null);
-			newPQStatus=Status.findByType("question_before_workflow_clubbed", locale);
-			beingProcessedQuestion.setInternalStatus(newCQStatus);
-			beingProcessedQuestion.setRecommendationStatus(newCQStatus);
-			beingProcessedQuestion.simpleMerge();                
-			/**** create new clubbed entity****/
-			ClubbedEntity clubbedEntity=new ClubbedEntity();
-			clubbedEntity.setDeviceType(beingProcessedQuestion.getType());
-			clubbedEntity.setLocale(beingProcessedQuestion.getLocale());
-			clubbedEntity.setQuestion(beingProcessedQuestion);
-			clubbedEntity.persist();                
-			/**** add this as clubbed entity in clubbed clubbed entity ****/
-			beingClubbedClubbing.add(clubbedEntity);                
-			/*** add clubbed entities of processed question in clubbed question ****/
-			if(beingProcessedClubbing!=null){
-				if(!beingProcessedClubbing.isEmpty()){
-					for(ClubbedEntity k:beingProcessedClubbing){
-						Question question=k.getQuestion();
-						question.setParent(beingClubbedQuestion);
-						question.setInternalStatus(newPQStatus);
-						question.setRecommendationStatus(newPQStatus);
-						question.simpleMerge();
-						k.setQuestion(question);
-						k.merge();
-						beingClubbedClubbing.add(k);
-					}                        
-				}
-			}
-			/**** update being clubbed question ****/
-			beingClubbedQuestion.setParent(null);
-			//newCQStatus=Status.findByType("question_before_workflow_tobeputup", locale);
-			//beingClubbedQuestion.setInternalStatus(newCQStatus);
-			//beingClubbedQuestion.setRecommendationStatus(newCQStatus);
-			beingClubbedQuestion.setClubbedEntities(beingClubbedClubbing);
-			beingClubbedQuestion.simpleMerge();
-			List<ClubbedEntity> clubbedEntities=beingClubbedQuestion.findClubbedEntitiesByQuestionNumber(ApplicationConstants.ASC,locale);
-			Integer position=1;
-			for(ClubbedEntity i:clubbedEntities){
-				i.setPosition(position);
-				position++;
-				i.merge();
-			}
-		}else if(processedType.equals("question_before_workflow_tobeputup")
-				&&(clubbedType.equals("question_workflow_approving_admission")
-						||clubbedType.equals("question_workflow_approving_rejection")
-						||clubbedType.equals("question_workflow_approving_converttounstarred"))){
-			newPQStatus=Status.findByType("question_before_workflow_tobenameclubbed", locale);
-			beingProcessedQuestion.setInternalStatus(newPQStatus);
-			beingProcessedQuestion.setRecommendationStatus(newPQStatus);
-			beingProcessedQuestion.setProspectiveClubbings(beingProcessedQuestion.getProspectiveClubbings()+"##NAMECLUB~"+beingClubbedQuestion.getId()+"##");
-			beingProcessedQuestion.simpleMerge();
-		}else if(processedType.equals("question_before_workflow_tobeputup")
-				&&clubbedType.equals("question_workflow_approving_clarificationneeded")){
-			newPQStatus=Status.findByType("question_before_workflow_putonhold", locale);
-			beingProcessedQuestion.setInternalStatus(newPQStatus);
-			beingProcessedQuestion.setRecommendationStatus(newPQStatus);
-			beingProcessedQuestion.setProspectiveClubbings(beingProcessedQuestion.getProspectiveClubbings()+"##PUTONHOLD~"+beingClubbedQuestion.getId()+"##");
-			beingProcessedQuestion.simpleMerge();
-		}else if(processedType.equals("question_before_workflow_tobeputup")
-				&&(clubbedType.equals("question_workflow_decisionstatus_admission")
-						||clubbedType.equals("question_workflow_decisionstatus_rejection")
-						||clubbedType.equals("question_workflow_decisionstatus_converttounstarred")
-						||clubbedType.equals("question_workflow_decisionstatus_onhold")
-						||clubbedType.equals("question_workflow_decisionstatus_discuss")
-						||clubbedType.equals("question_workflow_decisionstatus_clarificationneeded")
-						||clubbedType.equals("question_workflow_decisionstatus_nameclubbing")
-						||clubbedType.equals("question_workflow_decisionstatus_sendback")
-						||clubbedType.equals("question_workflow_decisionstatus_groupchanged")
-						||clubbedType.equals("question_workflow_decisionstatus_clarificationreceived")
-						||clubbedType.equals("question_workflow_decisionstatus_clarificationnotreceived")
-				)){
-			newPQStatus=Status.findByType("question_before_workflow_tobeclubbedwithpending", locale);
-			beingProcessedQuestion.setInternalStatus(newPQStatus);
-			beingProcessedQuestion.setRecommendationStatus(newPQStatus);
-			beingProcessedQuestion.setProspectiveClubbings(beingProcessedQuestion.getProspectiveClubbings()+"##CLUBWITHPENDING~"+beingClubbedQuestion.getId()+"##");
-			beingProcessedQuestion.simpleMerge();
-		}else if(clubbedType.equals("questi" +
-		"on_before_workflow_tobeputup")
-		&&(processedType.equals("question_workflow_approving_admission")
-				||processedType.equals("question_workflow_approving_rejection")
-				||processedType.equals("question_workflow_approving_converttounstarred"))){
-			newCQStatus=Status.findByType("question_before_workflow_nameclub", locale);
-			beingClubbedQuestion.setInternalStatus(newCQStatus);
-			beingClubbedQuestion.setRecommendationStatus(newCQStatus);
-			beingClubbedQuestion.setProspectiveClubbings(beingClubbedQuestion.getProspectiveClubbings()+"##NAMECLUB~"+beingProcessedQuestion.getId()+"##");
-			beingClubbedQuestion.simpleMerge();
-		}else if(clubbedType.equals("question_before_workflow_tobeputup")
-				&&processedType.equals("question_workflow_approving_clarificationneeded")){
-			newCQStatus=Status.findByType("question_before_workflow_putonhold", locale);
-			beingClubbedQuestion.setInternalStatus(newCQStatus);
-			beingClubbedQuestion.setRecommendationStatus(newCQStatus);
-			beingClubbedQuestion.setProspectiveClubbings(beingClubbedQuestion.getProspectiveClubbings()+"##PUTONHOLD~"+beingProcessedQuestion.getId()+"##");
-			beingClubbedQuestion.simpleMerge();
-		}else if(clubbedType.equals("question_before_workflow_tobeputup")
-				&&(processedType.equals("question_workflow_decisionstatus_admission")
-						||processedType.equals("question_workflow_decisionstatus_rejection")
-						||processedType.equals("question_workflow_decisionstatus_converttounstarred")
-						||processedType.equals("question_workflow_decisionstatus_onhold")
-						||processedType.equals("question_workflow_decisionstatus_discuss")
-						||processedType.equals("question_workflow_decisionstatus_clarificationneeded")
-						||processedType.equals("question_workflow_decisionstatus_nameclubbing")
-						||processedType.equals("question_workflow_decisionstatus_sendback")
-						||processedType.equals("question_workflow_decisionstatus_groupchanged")
-						||processedType.equals("question_workflow_decisionstatus_clarificationreceived")
-						||processedType.equals("question_workflow_decisionstatus_clarificationnotreceived")
-				)){
-			newCQStatus=Status.findByType("question_before_workflow_tobeclubbedwithpending", locale);
-			beingClubbedQuestion.setInternalStatus(newCQStatus);
-			beingClubbedQuestion.setRecommendationStatus(newCQStatus);
-			beingClubbedQuestion.setProspectiveClubbings(beingClubbedQuestion.getProspectiveClubbings()+"##CLUBWITHPENDING~"+beingProcessedQuestion.getId()+"##");
-			beingClubbedQuestion.simpleMerge();
-		}
 
+		try {
+			String locale=beingProcessedQuestion.getLocale();
+			String processedType=oldPQStatus.getType();
+			String clubbedType=oldCQStatus.getType();
+			if(	(processedType.equals("question_before_workflow_tobeputup") 
+					&& clubbedType.equals("question_before_workflow_tobeputup"))||
+					(processedType.equals("question_assistantprocessed") && clubbedType.equals("question_assistantprocessed"))){
+				/**** Processed Question 
+				 * a.parent=clubbed question
+				 * b.clubbedentities=null
+				 * c.internalstatus=recommednationstatus=clubbed
+				 * d.merge****/
+				beingProcessedQuestion.setParent(beingClubbedQuestion);
+				beingProcessedQuestion.setClubbedEntities(null);
+				newPQStatus=Status.findByType("question_before_workflow_clubbed", locale);
+				beingProcessedQuestion.setInternalStatus(newCQStatus);
+				beingProcessedQuestion.setRecommendationStatus(newCQStatus);
+				beingProcessedQuestion.simpleMerge();                
+				/**** create new clubbed entity****/
+				ClubbedEntity clubbedEntity=new ClubbedEntity();
+				clubbedEntity.setDeviceType(beingProcessedQuestion.getType());
+				clubbedEntity.setLocale(beingProcessedQuestion.getLocale());
+				clubbedEntity.setQuestion(beingProcessedQuestion);
+				clubbedEntity.persist();                
+				/**** add this as clubbed entity in clubbed clubbed entity ****/
+				beingClubbedClubbing.add(clubbedEntity);                
+				/*** add clubbed entities of processed question in clubbed question ****/
+				if(beingProcessedClubbing!=null){
+					if(!beingProcessedClubbing.isEmpty()){
+						for(ClubbedEntity k:beingProcessedClubbing){
+							Question question=k.getQuestion();
+							question.setParent(beingClubbedQuestion);
+							question.setInternalStatus(newPQStatus);
+							question.setRecommendationStatus(newPQStatus);
+							question.simpleMerge();
+							k.setQuestion(question);
+							k.merge();
+							beingClubbedClubbing.add(k);
+						}                        
+					}
+				}
+				/**** update being clubbed question ****/
+				beingClubbedQuestion.setParent(null);
+				//newCQStatus=Status.findByType("question_before_workflow_tobeputup", locale);
+				//beingClubbedQuestion.setInternalStatus(newCQStatus);
+				//beingClubbedQuestion.setRecommendationStatus(newCQStatus);
+				beingClubbedQuestion.setClubbedEntities(beingClubbedClubbing);
+				beingClubbedQuestion.simpleMerge();
+				List<ClubbedEntity> clubbedEntities=beingClubbedQuestion.findClubbedEntitiesByQuestionNumber(ApplicationConstants.ASC,locale);
+				Integer position=1;
+				for(ClubbedEntity i:clubbedEntities){
+					i.setPosition(position);
+					position++;
+					i.merge();
+				}
+				/**** Name Clubbing with Admitted Question ****/
+			}else if((processedType.equals("question_assistantprocessed")||
+					processedType.equals("question_before_workflow_tobeputup"))
+					&&(clubbedType.equals("question_workflow_approving_admission"))){
+				newPQStatus=Status.findByType("question_contains_name_clubbings", locale);
+				beingProcessedQuestion.setInternalStatus(newPQStatus);
+				beingProcessedQuestion.setRecommendationStatus(newPQStatus);
+				beingProcessedQuestion.setProspectiveClubbings(beingProcessedQuestion.getProspectiveClubbings()+"##NAMECLUB~"+beingClubbedQuestion.getId()+"##");
+				beingProcessedQuestion.simpleMerge();
+			}else if((processedType.equals("question_assistantprocessed")||
+					processedType.equals("question_before_workflow_tobeputup"))
+					&&clubbedType.equals("question_workflow_approving_clarificationneeded")){
+				newPQStatus=Status.findByType("question_before_workflow_putonhold", locale);
+				beingProcessedQuestion.setInternalStatus(newPQStatus);
+				beingProcessedQuestion.setRecommendationStatus(newPQStatus);
+				beingProcessedQuestion.setProspectiveClubbings(beingProcessedQuestion.getProspectiveClubbings()+"##PUTONHOLD~"+beingClubbedQuestion.getId()+"##");
+				beingProcessedQuestion.simpleMerge();
+			}else if((processedType.equals("question_assistantprocessed")||
+					processedType.equals("question_before_workflow_tobeputup"))
+					&&(clubbedType.equals("question_workflow_decisionstatus_admission")
+							||clubbedType.equals("question_workflow_decisionstatus_rejection")
+							||clubbedType.equals("question_workflow_decisionstatus_converttounstarred")
+							||clubbedType.equals("question_workflow_decisionstatus_onhold")
+							||clubbedType.equals("question_workflow_decisionstatus_discuss")
+							||clubbedType.equals("question_workflow_decisionstatus_clarificationneeded")
+							||clubbedType.equals("question_workflow_decisionstatus_nameclubbing")
+							||clubbedType.equals("question_workflow_decisionstatus_sendback")
+							||clubbedType.equals("question_workflow_decisionstatus_groupchanged")
+							||clubbedType.equals("question_workflow_decisionstatus_clarificationreceived")
+							||clubbedType.equals("question_workflow_decisionstatus_clarificationnotreceived")
+					)){
+				newPQStatus=Status.findByType("question_before_workflow_tobeclubbedwithpending", locale);
+				beingProcessedQuestion.setInternalStatus(newPQStatus);
+				beingProcessedQuestion.setRecommendationStatus(newPQStatus);
+				beingProcessedQuestion.setProspectiveClubbings(beingProcessedQuestion.getProspectiveClubbings()+"##CLUBWITHPENDING~"+beingClubbedQuestion.getId()+"##");
+				beingProcessedQuestion.simpleMerge();
+			}else if((clubbedType.equals("question_before_workflow_tobeputup")
+					||clubbedType.equals("question_assistantprocessed"))
+			&&(processedType.equals("question_workflow_approving_admission")
+					||processedType.equals("question_workflow_approving_rejection")
+					||processedType.equals("question_workflow_approving_converttounstarred"))){
+				newCQStatus=Status.findByType("question_before_workflow_nameclub", locale);
+				beingClubbedQuestion.setInternalStatus(newCQStatus);
+				beingClubbedQuestion.setRecommendationStatus(newCQStatus);
+				beingClubbedQuestion.setProspectiveClubbings(beingClubbedQuestion.getProspectiveClubbings()+"##NAMECLUB~"+beingProcessedQuestion.getId()+"##");
+				beingClubbedQuestion.simpleMerge();
+			}else if((clubbedType.equals("question_before_workflow_tobeputup")
+					||clubbedType.equals("question_assistantprocessed"))
+					&&processedType.equals("question_workflow_approving_clarificationneeded")){
+				newCQStatus=Status.findByType("question_before_workflow_putonhold", locale);
+				beingClubbedQuestion.setInternalStatus(newCQStatus);
+				beingClubbedQuestion.setRecommendationStatus(newCQStatus);
+				beingClubbedQuestion.setProspectiveClubbings(beingClubbedQuestion.getProspectiveClubbings()+"##PUTONHOLD~"+beingProcessedQuestion.getId()+"##");
+				beingClubbedQuestion.simpleMerge();
+			}else if((clubbedType.equals("question_before_workflow_tobeputup")
+					||clubbedType.equals("question_assistantprocessed"))
+					&&(processedType.equals("question_workflow_decisionstatus_admission")
+							||processedType.equals("question_workflow_decisionstatus_rejection")
+							||processedType.equals("question_workflow_decisionstatus_converttounstarred")
+							||processedType.equals("question_workflow_decisionstatus_onhold")
+							||processedType.equals("question_workflow_decisionstatus_discuss")
+							||processedType.equals("question_workflow_decisionstatus_clarificationneeded")
+							||processedType.equals("question_workflow_decisionstatus_nameclubbing")
+							||processedType.equals("question_workflow_decisionstatus_sendback")
+							||processedType.equals("question_workflow_decisionstatus_groupchanged")
+							||processedType.equals("question_workflow_decisionstatus_clarificationreceived")
+							||processedType.equals("question_workflow_decisionstatus_clarificationnotreceived")
+					)){
+				newCQStatus=Status.findByType("question_before_workflow_tobeclubbedwithpending", locale);
+				beingClubbedQuestion.setInternalStatus(newCQStatus);
+				beingClubbedQuestion.setRecommendationStatus(newCQStatus);
+				beingClubbedQuestion.setProspectiveClubbings(beingClubbedQuestion.getProspectiveClubbings()+"##CLUBWITHPENDING~"+beingProcessedQuestion.getId()+"##");
+				beingClubbedQuestion.simpleMerge();
+			}
+		} catch (Exception e) {
+			logger.error(e.getMessage());
+			return false;
+		}
+		return true;		
 	}
 
-	private void beingProcessedIsPrimary(Question beingProcessedQuestion,
+	private Boolean beingProcessedIsPrimary(Question beingProcessedQuestion,
 			Question beingClubbedQuestion,
 			List<ClubbedEntity> beingProcessedClubbing,
 			List<ClubbedEntity> beingClubbedClubbing, Status oldPQStatus,
 			Status oldCQStatus, Status newPQStatus, Status newCQStatus) {
-		String locale=beingProcessedQuestion.getLocale();
-		String processedType=oldPQStatus.getType();
-		String clubbedType=oldCQStatus.getType();
-		/**** both questions are still to be sent for approval 
-		 * a.processed question parent=null(primary question)
-		 * b.clubbed question parent=processed question
-		 * c.clubbed question clubbing=null
-		 * d.save current clubbed question entity
-		 * e.*****/
-		if(processedType.equals("question_before_workflow_tobeputup")
-				&&clubbedType.equals("question_before_workflow_tobeputup")){
-			/**** Clubbed Question 
-			 * a.parent=processed question
-			 * b.clubbedentities=null
-			 * c.internalstatus=recommednationstatus=clubbed
-			 * d.merge****/
-			beingClubbedQuestion.setParent(beingProcessedQuestion);
-			beingClubbedQuestion.setClubbedEntities(null);
-			newCQStatus=Status.findByType("question_before_workflow_clubbed", locale);
-			beingClubbedQuestion.setInternalStatus(newCQStatus);
-			beingClubbedQuestion.setRecommendationStatus(newCQStatus);
-			beingClubbedQuestion.simpleMerge();                
-			/**** create new clubbed entity****/
-			ClubbedEntity clubbedEntity=new ClubbedEntity();
-			clubbedEntity.setDeviceType(beingClubbedQuestion.getType());
-			clubbedEntity.setLocale(beingClubbedQuestion.getLocale());
-			clubbedEntity.setQuestion(beingClubbedQuestion);
-			clubbedEntity.persist();                
-			/**** add this as clubbed entity in processed clubbed entity ****/
-			beingProcessedClubbing.add(clubbedEntity);                
-			/*** add clubbed entities of clubbed question in processed question ****/
-			if(beingClubbedClubbing!=null){
-				if(!beingClubbedClubbing.isEmpty()){
-					for(ClubbedEntity k:beingClubbedClubbing){
-						Question question=k.getQuestion();
-						question.setParent(beingProcessedQuestion);
-						question.setInternalStatus(newCQStatus);
-						question.setRecommendationStatus(newCQStatus);
-						question.simpleMerge();
-						k.setQuestion(question);
-						k.merge();
-						beingProcessedClubbing.add(k);
-					}                        
+		try {
+			String locale=beingProcessedQuestion.getLocale();
+			String processedType=oldPQStatus.getType();
+			String clubbedType=oldCQStatus.getType();
+			/**** both questions are still to be sent for approval 
+			 * a.processed question parent=null(primary question)
+			 * b.clubbed question parent=processed question
+			 * c.clubbed question clubbing=null
+			 * d.save current clubbed question entity
+			 * e.*****/
+			if(	(processedType.equals("question_before_workflow_tobeputup") && clubbedType.equals("question_before_workflow_tobeputup"))||
+					(processedType.equals("question_assistantprocessed") && clubbedType.equals("question_assistantprocessed"))){
+				/**** Clubbed Question 
+				 * a.parent=processed question
+				 * b.clubbedentities=null
+				 * c.internalstatus=recommednationstatus=clubbed
+				 * d.merge****/
+				beingClubbedQuestion.setParent(beingProcessedQuestion);
+				beingClubbedQuestion.setClubbedEntities(null);
+				newCQStatus=Status.findByType("question_before_workflow_clubbed", locale);
+				beingClubbedQuestion.setInternalStatus(newCQStatus);
+				beingClubbedQuestion.setRecommendationStatus(newCQStatus);
+				beingClubbedQuestion.simpleMerge();                
+				/**** create new clubbed entity****/
+				ClubbedEntity clubbedEntity=new ClubbedEntity();
+				clubbedEntity.setDeviceType(beingClubbedQuestion.getType());
+				clubbedEntity.setLocale(beingClubbedQuestion.getLocale());
+				clubbedEntity.setQuestion(beingClubbedQuestion);
+				clubbedEntity.persist();                
+				/**** add this as clubbed entity in processed clubbed entity ****/
+				beingProcessedClubbing.add(clubbedEntity);                
+				/*** add clubbed entities of clubbed question in processed question ****/
+				if(beingClubbedClubbing!=null){
+					if(!beingClubbedClubbing.isEmpty()){
+						for(ClubbedEntity k:beingClubbedClubbing){
+							Question question=k.getQuestion();
+							question.setParent(beingProcessedQuestion);
+							question.setInternalStatus(newCQStatus);
+							question.setRecommendationStatus(newCQStatus);
+							question.simpleMerge();
+							k.setQuestion(question);
+							k.merge();
+							beingProcessedClubbing.add(k);
+						}                        
+					}
 				}
+				/**** update being processed question ****/
+				beingProcessedQuestion.setParent(null);
+				beingProcessedQuestion.setClubbedEntities(beingProcessedClubbing);
+				beingProcessedQuestion.simpleMerge();
+				List<ClubbedEntity> clubbedEntities=beingProcessedQuestion.findClubbedEntitiesByQuestionNumber(ApplicationConstants.ASC,locale);
+				Integer position=1;
+				for(ClubbedEntity i:clubbedEntities){
+					i.setPosition(position);
+					position++;
+					i.merge();
+				}
+			}else if((processedType.equals("question_before_workflow_tobeputup")||
+					processedType.equals("question_assistantprocessed"))
+					&&(clubbedType.equals("question_workflow_approving_admission")
+							||clubbedType.equals("question_workflow_approving_rejection")
+							||clubbedType.equals("question_workflow_approving_converttounstarred"))){
+				newPQStatus=Status.findByType("question_before_workflow_tobenameclubbed", locale);
+				beingProcessedQuestion.setInternalStatus(newPQStatus);
+				beingProcessedQuestion.setRecommendationStatus(newPQStatus);
+				beingProcessedQuestion.setProspectiveClubbings(beingProcessedQuestion.getProspectiveClubbings()+"##NAMECLUB~"+beingClubbedQuestion.getId()+"##");
+				beingProcessedQuestion.simpleMerge();
+			}else if((processedType.equals("question_before_workflow_tobeputup")||
+					processedType.equals("question_assistantprocessed"))
+					&&clubbedType.equals("question_workflow_approving_clarificationneeded")){
+				newPQStatus=Status.findByType("question_before_workflow_putonhold", locale);
+				beingProcessedQuestion.setInternalStatus(newPQStatus);
+				beingProcessedQuestion.setRecommendationStatus(newPQStatus);
+				beingProcessedQuestion.setProspectiveClubbings(beingProcessedQuestion.getProspectiveClubbings()+"##PUTONHOLD~"+beingClubbedQuestion.getId()+"##");
+				beingProcessedQuestion.simpleMerge();
+			}else if((processedType.equals("question_before_workflow_tobeputup")||
+					processedType.equals("question_assistantprocessed"))
+					&&(clubbedType.equals("question_workflow_decisionstatus_admission")
+							||clubbedType.equals("question_workflow_decisionstatus_rejection")
+							||clubbedType.equals("question_workflow_decisionstatus_converttounstarred")
+							||clubbedType.equals("question_workflow_decisionstatus_onhold")
+							||clubbedType.equals("question_workflow_decisionstatus_discuss")
+							||clubbedType.equals("question_workflow_decisionstatus_clarificationneeded")
+							||clubbedType.equals("question_workflow_decisionstatus_nameclubbing")
+							||clubbedType.equals("question_workflow_decisionstatus_sendback")
+							||clubbedType.equals("question_workflow_decisionstatus_groupchanged")
+							||clubbedType.equals("question_workflow_decisionstatus_clarificationreceived")
+							||clubbedType.equals("question_workflow_decisionstatus_clarificationnotreceived")
+					)){
+				newPQStatus=Status.findByType("question_before_workflow_tobeclubbedwithpending", locale);
+				beingProcessedQuestion.setInternalStatus(newPQStatus);
+				beingProcessedQuestion.setRecommendationStatus(newPQStatus);
+				beingProcessedQuestion.setProspectiveClubbings(beingProcessedQuestion.getProspectiveClubbings()+"##CLUBWITHPENDING~"+beingClubbedQuestion.getId()+"##");
+				beingProcessedQuestion.simpleMerge();
+			}else if((clubbedType.equals("question_before_workflow_tobeputup")||
+					clubbedType.equals("question_assistantprocessed"))
+					&&(processedType.equals("question_workflow_approving_admission")
+							||processedType.equals("question_workflow_approving_rejection")
+							||processedType.equals("question_workflow_approving_converttounstarred"))){
+				newCQStatus=Status.findByType("question_before_workflow_tobenameclubbed", locale);
+				beingClubbedQuestion.setInternalStatus(newCQStatus);
+				beingClubbedQuestion.setRecommendationStatus(newCQStatus);
+				beingClubbedQuestion.setProspectiveClubbings(beingClubbedQuestion.getProspectiveClubbings()+"##NAMECLUB~"+beingProcessedQuestion.getId()+"##");
+				beingClubbedQuestion.simpleMerge();
+			}else if((clubbedType.equals("question_before_workflow_tobeputup")||
+					clubbedType.equals("question_assistantprocessed"))
+					&&processedType.equals("question_workflow_approving_clarificationneeded")){
+				newCQStatus=Status.findByType("question_before_workflow_putonhold", locale);
+				beingClubbedQuestion.setInternalStatus(newCQStatus);
+				beingClubbedQuestion.setRecommendationStatus(newCQStatus);
+				beingClubbedQuestion.setProspectiveClubbings(beingClubbedQuestion.getProspectiveClubbings()+"##PUTONHOLD~"+beingProcessedQuestion.getId()+"##");
+				beingClubbedQuestion.simpleMerge();
+			}else if((clubbedType.equals("question_before_workflow_tobeputup")||
+					clubbedType.equals("question_assistantprocessed"))
+					&&(processedType.equals("question_workflow_decisionstatus_admission")
+							||processedType.equals("question_workflow_decisionstatus_rejection")
+							||processedType.equals("question_workflow_decisionstatus_converttounstarred")
+							||processedType.equals("question_workflow_decisionstatus_onhold")
+							||processedType.equals("question_workflow_decisionstatus_discuss")
+							||processedType.equals("question_workflow_decisionstatus_clarificationneeded")
+							||processedType.equals("question_workflow_decisionstatus_nameclubbing")
+							||processedType.equals("question_workflow_decisionstatus_sendback")
+							||processedType.equals("question_workflow_decisionstatus_groupchanged")
+							||processedType.equals("question_workflow_decisionstatus_clarificationreceived")
+							||processedType.equals("question_workflow_decisionstatus_clarificationnotreceived")
+					)){
+				newCQStatus=Status.findByType("question_before_workflow_tobeclubbedwithpending", locale);
+				beingClubbedQuestion.setInternalStatus(newCQStatus);
+				beingClubbedQuestion.setRecommendationStatus(newCQStatus);
+				beingClubbedQuestion.setProspectiveClubbings(beingClubbedQuestion.getProspectiveClubbings()+"##CLUBWITHPENDING~"+beingProcessedQuestion.getId()+"##");
+				beingClubbedQuestion.simpleMerge();
 			}
-			/**** update being processed question ****/
-			beingProcessedQuestion.setParent(null);
-			beingProcessedQuestion.setClubbedEntities(beingProcessedClubbing);
-			beingProcessedQuestion.simpleMerge();
-			List<ClubbedEntity> clubbedEntities=beingProcessedQuestion.findClubbedEntitiesByQuestionNumber(ApplicationConstants.ASC,locale);
-			Integer position=1;
-			for(ClubbedEntity i:clubbedEntities){
-				i.setPosition(position);
-				position++;
-				i.merge();
-			}
-		}else if(processedType.equals("question_before_workflow_tobeputup")
-				&&(clubbedType.equals("question_workflow_approving_admission")
-						||clubbedType.equals("question_workflow_approving_rejection")
-						||clubbedType.equals("question_workflow_approving_converttounstarred"))){
-			newPQStatus=Status.findByType("question_before_workflow_tobenameclubbed", locale);
-			beingProcessedQuestion.setInternalStatus(newPQStatus);
-			beingProcessedQuestion.setRecommendationStatus(newPQStatus);
-			beingProcessedQuestion.setProspectiveClubbings(beingProcessedQuestion.getProspectiveClubbings()+"##NAMECLUB~"+beingClubbedQuestion.getId()+"##");
-			beingProcessedQuestion.simpleMerge();
-		}else if(processedType.equals("question_before_workflow_tobeputup")
-				&&clubbedType.equals("question_workflow_approving_clarificationneeded")){
-			newPQStatus=Status.findByType("question_before_workflow_putonhold", locale);
-			beingProcessedQuestion.setInternalStatus(newPQStatus);
-			beingProcessedQuestion.setRecommendationStatus(newPQStatus);
-			beingProcessedQuestion.setProspectiveClubbings(beingProcessedQuestion.getProspectiveClubbings()+"##PUTONHOLD~"+beingClubbedQuestion.getId()+"##");
-			beingProcessedQuestion.simpleMerge();
-		}else if(processedType.equals("question_before_workflow_tobeputup")
-				&&(clubbedType.equals("question_workflow_decisionstatus_admission")
-						||clubbedType.equals("question_workflow_decisionstatus_rejection")
-						||clubbedType.equals("question_workflow_decisionstatus_converttounstarred")
-						||clubbedType.equals("question_workflow_decisionstatus_onhold")
-						||clubbedType.equals("question_workflow_decisionstatus_discuss")
-						||clubbedType.equals("question_workflow_decisionstatus_clarificationneeded")
-						||clubbedType.equals("question_workflow_decisionstatus_nameclubbing")
-						||clubbedType.equals("question_workflow_decisionstatus_sendback")
-						||clubbedType.equals("question_workflow_decisionstatus_groupchanged")
-						||clubbedType.equals("question_workflow_decisionstatus_clarificationreceived")
-						||clubbedType.equals("question_workflow_decisionstatus_clarificationnotreceived")
-				)){
-			newPQStatus=Status.findByType("question_before_workflow_tobeclubbedwithpending", locale);
-			beingProcessedQuestion.setInternalStatus(newPQStatus);
-			beingProcessedQuestion.setRecommendationStatus(newPQStatus);
-			beingProcessedQuestion.setProspectiveClubbings(beingProcessedQuestion.getProspectiveClubbings()+"##CLUBWITHPENDING~"+beingClubbedQuestion.getId()+"##");
-			beingProcessedQuestion.simpleMerge();
-		}else if(clubbedType.equals("question_before_workflow_tobeputup")
-				&&(processedType.equals("question_workflow_approving_admission")
-						||processedType.equals("question_workflow_approving_rejection")
-						||processedType.equals("question_workflow_approving_converttounstarred"))){
-			newCQStatus=Status.findByType("question_before_workflow_tobenameclubbed", locale);
-			beingClubbedQuestion.setInternalStatus(newCQStatus);
-			beingClubbedQuestion.setRecommendationStatus(newCQStatus);
-			beingClubbedQuestion.setProspectiveClubbings(beingClubbedQuestion.getProspectiveClubbings()+"##NAMECLUB~"+beingProcessedQuestion.getId()+"##");
-			beingClubbedQuestion.simpleMerge();
-		}else if(clubbedType.equals("question_before_workflow_tobeputup")
-				&&processedType.equals("question_workflow_approving_clarificationneeded")){
-			newCQStatus=Status.findByType("question_before_workflow_putonhold", locale);
-			beingClubbedQuestion.setInternalStatus(newCQStatus);
-			beingClubbedQuestion.setRecommendationStatus(newCQStatus);
-			beingClubbedQuestion.setProspectiveClubbings(beingClubbedQuestion.getProspectiveClubbings()+"##PUTONHOLD~"+beingProcessedQuestion.getId()+"##");
-			beingClubbedQuestion.simpleMerge();
-		}else if(clubbedType.equals("question_before_workflow_tobeputup")
-				&&(processedType.equals("question_workflow_decisionstatus_admission")
-						||processedType.equals("question_workflow_decisionstatus_rejection")
-						||processedType.equals("question_workflow_decisionstatus_converttounstarred")
-						||processedType.equals("question_workflow_decisionstatus_onhold")
-						||processedType.equals("question_workflow_decisionstatus_discuss")
-						||processedType.equals("question_workflow_decisionstatus_clarificationneeded")
-						||processedType.equals("question_workflow_decisionstatus_nameclubbing")
-						||processedType.equals("question_workflow_decisionstatus_sendback")
-						||processedType.equals("question_workflow_decisionstatus_groupchanged")
-						||processedType.equals("question_workflow_decisionstatus_clarificationreceived")
-						||processedType.equals("question_workflow_decisionstatus_clarificationnotreceived")
-				)){
-			newCQStatus=Status.findByType("question_before_workflow_tobeclubbedwithpending", locale);
-			beingClubbedQuestion.setInternalStatus(newCQStatus);
-			beingClubbedQuestion.setRecommendationStatus(newCQStatus);
-			beingClubbedQuestion.setProspectiveClubbings(beingClubbedQuestion.getProspectiveClubbings()+"##CLUBWITHPENDING~"+beingProcessedQuestion.getId()+"##");
-			beingClubbedQuestion.simpleMerge();
+		} catch (Exception e) {
+			logger.error(e.getMessage());
+			return false;
 		}
+		return true;
 	}
 
 	private Boolean alreadyClubbed(final Question beingProcessedQuestion,
@@ -1537,80 +1572,100 @@ public class QuestionRepository extends BaseRepository<Question, Long>{
 	 */
 	public Boolean unclub(final Long questionBeingProcessed,
 			final Long questionBeingClubbed, final String locale) {
-		Boolean status=true;
-		Question beingProcessedQuestion=Question.findById(Question.class,questionBeingProcessed);
-		Question beingClubbedQuestion=Question.findById(Question.class,questionBeingClubbed);
-		Status newstatus=Status.findByFieldName(Status.class,"type", "question_before_workflow_tobeputup", locale);
-		ClubbedEntity clubbedEntityToRemove=null;
+		try {
+			Question beingProcessedQuestion=Question.findById(Question.class,questionBeingProcessed);
+			Question beingClubbedQuestion=Question.findById(Question.class,questionBeingClubbed);
+			ClubbedEntity clubbedEntityToRemove=null;
 
-		/**** If processed question's number is less than clubbed question's number
-		 * then clubbed question is removed from the clubbing of processed question
-		 * ,clubbed question's parent is set to null ,new clubbing of processed 
-		 * question is set,their position is updated****/
-		if(beingProcessedQuestion.getNumber()<beingClubbedQuestion.getNumber()){
-			List<ClubbedEntity> oldClubbedQuestions=beingProcessedQuestion.getClubbedEntities();
-			List<ClubbedEntity> newClubbedQuestions=new ArrayList<ClubbedEntity>();
-			Integer position=0;
-			boolean found=false;
-			for(ClubbedEntity i:oldClubbedQuestions){
-				if(i.getQuestion().getId()!=beingClubbedQuestion.getId()){
-					if(found){
-						i.setPosition(position);
-						position++;
-						i.merge();
-						newClubbedQuestions.add(i);
+			/**** If processed question's number is less than clubbed question's number
+			 * then clubbed question is removed from the clubbing of processed question
+			 * ,clubbed question's parent is set to null ,new clubbing of processed 
+			 * question is set,their position is updated****/
+			if(beingProcessedQuestion.getNumber()<beingClubbedQuestion.getNumber()){
+				List<ClubbedEntity> oldClubbedQuestions=beingProcessedQuestion.getClubbedEntities();
+				List<ClubbedEntity> newClubbedQuestions=new ArrayList<ClubbedEntity>();
+				Integer position=0;
+				boolean found=false;
+				for(ClubbedEntity i:oldClubbedQuestions){
+					if(i.getQuestion().getId()!=beingClubbedQuestion.getId()){
+						if(found){
+							i.setPosition(position);
+							position++;
+							i.merge();
+							newClubbedQuestions.add(i);
+						}else{
+							newClubbedQuestions.add(i);                		
+						}
 					}else{
-						newClubbedQuestions.add(i);                		
+						found=true;
+						position=i.getPosition();
+						clubbedEntityToRemove=i;
 					}
-				}else{
-					found=true;
-					position=i.getPosition();
-					clubbedEntityToRemove=i;
 				}
-			}
-			if(!newClubbedQuestions.isEmpty()){
-				beingProcessedQuestion.setClubbedEntities(newClubbedQuestions);
+				if(!newClubbedQuestions.isEmpty()){
+					beingProcessedQuestion.setClubbedEntities(newClubbedQuestions);
+				}else{
+					beingProcessedQuestion.setClubbedEntities(null);
+				}            
+				beingProcessedQuestion.simpleMerge();
+				clubbedEntityToRemove.remove();
+				beingClubbedQuestion.setParent(null);
+				String clubbedDeviceType=beingClubbedQuestion.getType().getType();
+				Status newstatus=null;
+				if(clubbedDeviceType.equals("questions_unstarred")
+						||clubbedDeviceType.equals("questions_halfhourdiscussion_from_question")
+						||clubbedDeviceType.equals("questions_shortnotice")){
+					newstatus=Status.findByFieldName(Status.class,"type","question_assistantprocessed", locale);
+				}else{
+					newstatus=Status.findByFieldName(Status.class,"type","question_before_workflow_tobeputup", locale);
+				}
+				beingClubbedQuestion.setInternalStatus(newstatus);
+				beingClubbedQuestion.setRecommendationStatus(newstatus);
+				beingClubbedQuestion.simpleMerge();
+			}else if(beingProcessedQuestion.getNumber()>beingClubbedQuestion.getNumber()){
+				List<ClubbedEntity> oldClubbedQuestions=beingClubbedQuestion.getClubbedEntities();
+				List<ClubbedEntity> newClubbedQuestions=new ArrayList<ClubbedEntity>();
+				Integer position=0;
+				boolean found=false;
+				for(ClubbedEntity i:oldClubbedQuestions){
+					if(i.getQuestion().getId()!=beingProcessedQuestion.getId()){
+						if(found){
+							i.setPosition(position);
+							position++;
+							i.merge();
+							newClubbedQuestions.add(i);
+						}else{
+							newClubbedQuestions.add(i);                		
+						}
+					}else{
+						found=true;
+						position=i.getPosition();
+						clubbedEntityToRemove=i;
+					}
+				}
+				beingClubbedQuestion.setClubbedEntities(newClubbedQuestions);
+				beingClubbedQuestion.simpleMerge();
+				clubbedEntityToRemove.remove();
+				beingProcessedQuestion.setParent(null);
+				String clubbedDeviceType=beingClubbedQuestion.getType().getType();
+				Status newstatus=null;
+				if(clubbedDeviceType.equals("questions_unstarred")
+						||clubbedDeviceType.equals("questions_halfhourdiscussion_from_question")
+						||clubbedDeviceType.equals("questions_shortnotice")){
+					newstatus=Status.findByFieldName(Status.class,"type","question_assistantprocessed", locale);
+				}else{
+					newstatus=Status.findByFieldName(Status.class,"type","question_before_workflow_tobeputup", locale);
+				}
+				beingProcessedQuestion.setInternalStatus(newstatus);
+				beingProcessedQuestion.setRecommendationStatus(newstatus);
+				beingProcessedQuestion.simpleMerge();
 			}else{
-				beingProcessedQuestion.setClubbedEntities(null);
-			}            
-			beingProcessedQuestion.simpleMerge();
-			clubbedEntityToRemove.remove();
-			beingClubbedQuestion.setParent(null);
-			beingClubbedQuestion.setInternalStatus(newstatus);
-			beingClubbedQuestion.setRecommendationStatus(newstatus);
-			beingClubbedQuestion.simpleMerge();
-		}else if(beingProcessedQuestion.getNumber()>beingClubbedQuestion.getNumber()){
-			List<ClubbedEntity> oldClubbedQuestions=beingClubbedQuestion.getClubbedEntities();
-			List<ClubbedEntity> newClubbedQuestions=new ArrayList<ClubbedEntity>();
-			Integer position=0;
-			boolean found=false;
-			for(ClubbedEntity i:oldClubbedQuestions){
-				if(i.getQuestion().getId()!=beingProcessedQuestion.getId()){
-					if(found){
-						i.setPosition(position);
-						position++;
-						i.merge();
-						newClubbedQuestions.add(i);
-					}else{
-						newClubbedQuestions.add(i);                		
-					}
-				}else{
-					found=true;
-					position=i.getPosition();
-					clubbedEntityToRemove=i;
-				}
+				return false;
 			}
-			beingClubbedQuestion.setClubbedEntities(newClubbedQuestions);
-			beingClubbedQuestion.simpleMerge();
-			clubbedEntityToRemove.remove();
-			beingProcessedQuestion.setParent(null);
-			beingProcessedQuestion.setInternalStatus(newstatus);
-			beingProcessedQuestion.setRecommendationStatus(newstatus);
-			beingProcessedQuestion.simpleMerge();
-		}else{
-			status= false;
+		} catch (Exception e) {
+			logger.error(e.getMessage());
 		}		
-		return status;
+		return true;
 	}
 
 
@@ -2126,109 +2181,134 @@ public class QuestionRepository extends BaseRepository<Question, Long>{
 	}
 
 	/**
-     * Find.
-     *
-     * @param session the session
-     * @param deviceType the device type
-     * @param startTime the start time
-     * @param endTime the end time
-     * @param internalStatuses the internal statuses
-     * @param sortOrder the sort order
-     * @param locale the locale
-     * @return the list
-     */
-    public List<Question> find(final Session session,
-    		final DeviceType deviceType,
-    		final Date startTime,
-    		final Date endTime,
-    		final Status[] internalStatuses,
-    		final Boolean hasParent,
-    		final String sortOrder,
-    		final String locale) {
-    	// Removed for performance reason. Uncomment when Caching mechanism is added
-        // CustomParameter parameter = CustomParameter.findByName(CustomParameter.class,
-        //      "DB_TIMESTAMP", "");
-        // String strDate = new DateFormater().formatDateToString(date, parameter.getValue());
-        String strStartTime = FormaterUtil.formatDateToString(startTime, "yyyy-MM-dd HH:mm:ss");
-        String strEndTime = FormaterUtil.formatDateToString(endTime, "yyyy-MM-dd HH:mm:ss");
+	 * Find.
+	 *
+	 * @param session the session
+	 * @param deviceType the device type
+	 * @param startTime the start time
+	 * @param endTime the end time
+	 * @param internalStatuses the internal statuses
+	 * @param sortOrder the sort order
+	 * @param locale the locale
+	 * @return the list
+	 */
+	public List<Question> find(final Session session,
+			final DeviceType deviceType,
+			final Date answeringDate,
+			final Status[] internalStatuses,
+			final Boolean hasParent,
+			final Date startTime,
+			final Date endTime,
+			final String sortOrder,
+			final String locale) {
+		// Removed for performance reason. Uncomment when Caching mechanism is added
 
-        StringBuffer query = new StringBuffer(
-                " SELECT q" +
-                " FROM Question q" +
-                " WHERE q.session.id = " + session.getId() +
-                " AND q.type.id = " + deviceType.getId() +
-                " AND q.submissionDate >= '" + strStartTime + "'" +
-                " AND q.submissionDate <= '" + strEndTime + "'" +
-                " AND q.locale = '" + locale + "'"
-        );
-        query.append(this.getStatusFilters(internalStatuses));
-        if(! hasParent) {
-            query.append(" AND q.parent = " + null);
-        }
-        if(sortOrder.equals(ApplicationConstants.ASC)) {
-            query.append(" ORDER BY q.number ASC");
-        }
-        else if(sortOrder.equals(ApplicationConstants.DESC)) {
-            query.append(" ORDER BY q.number DESC");
-        }
+		// CustomParameter dbDateFormat =
+		//    	CustomParameter.findByName(CustomParameter.class, "DB_DATEFORMAT", "");
+		// String strAnsweringDate = 
+		//		FormaterUtil.formatDateToString(answeringDate, dbDateFormat.getValue());
 
-        TypedQuery<Question> tQuery = this.em().createQuery(query.toString(), Question.class);
-        List<Question> questions = tQuery.getResultList();
-        return questions;
-    }
+		// CustomParameter parameter = 
+		//		CustomParameter.findByName(CustomParameter.class, "DB_TIMESTAMP", "");
+		// String strDate = new DateFormater().formatDateToString(date, parameter.getValue());
+
+		String strDiscussionDate = FormaterUtil.formatDateToString(answeringDate, "yyyy-MM-dd");
+		String strStartTime = FormaterUtil.formatDateToString(startTime, "yyyy-MM-dd HH:mm:ss");
+		String strEndTime = FormaterUtil.formatDateToString(endTime, "yyyy-MM-dd HH:mm:ss");
+
+		StringBuffer query = new StringBuffer(
+				" SELECT q" +
+				" FROM Question q" +
+				" WHERE q.session.id = " + session.getId() +
+				" AND q.type.id = " + deviceType.getId() +
+				" AND" +
+				" ( q.discussionDate = " + null +
+				" OR" +
+				" q.discussionDate <= '" + strDiscussionDate  + "' )" +
+				" AND q.submissionDate >= '" + strStartTime + "'" +
+				" AND q.submissionDate <= '" + strEndTime + "'" +
+				" AND q.locale = '" + locale + "'"
+		);
+		query.append(this.getStatusFilters(internalStatuses));
+		if(! hasParent) {
+			query.append(" AND q.parent = " + null);
+		}
+		if(sortOrder.equals(ApplicationConstants.ASC)) {
+			query.append(" ORDER BY q.number ASC");
+		}
+		else if(sortOrder.equals(ApplicationConstants.DESC)) {
+			query.append(" ORDER BY q.number DESC");
+		}
+
+		TypedQuery<Question> tQuery = this.em().createQuery(query.toString(), Question.class);
+		List<Question> questions = tQuery.getResultList();
+		return questions;
+	}
 
 	/**
-     * Find primary members.
-     *
-     * @param session the session
-     * @param deviceType the device type
-     * @param startTime the start time
-     * @param endTime the end time
-     * @param internalStatuses the internal statuses
-     * @param sortOrder the sort order
-     * @param locale the locale
-     * @return the list
-     */
-    public List<Member> findPrimaryMembers(final Session session,
-    		final DeviceType deviceType,
-    		final Date startTime,
-    		final Date endTime,
-    		final Status[] internalStatuses,
-    		final Boolean hasParent,
-    		final String sortOrder,
-    		final String locale) {
-    	// Removed for performance reason. Uncomment when Caching mechanism is added
-        // CustomParameter parameter = CustomParameter.findByName(CustomParameter.class,
-        //      "DB_TIMESTAMP", "");
-        // String strDate = new DateFormater().formatDateToString(date, parameter.getValue());
-        String strStartTime = FormaterUtil.formatDateToString(startTime, "yyyy-MM-dd HH:mm:ss");
-        String strEndTime = FormaterUtil.formatDateToString(endTime, "yyyy-MM-dd HH:mm:ss");
+	 * Find primary members.
+	 *
+	 * @param session the session
+	 * @param deviceType the device type
+	 * @param startTime the start time
+	 * @param endTime the end time
+	 * @param internalStatuses the internal statuses
+	 * @param sortOrder the sort order
+	 * @param locale the locale
+	 * @return the list
+	 */
+	public List<Member> findPrimaryMembers(final Session session,
+			final DeviceType deviceType,
+			final Date answeringDate,
+			final Status[] internalStatuses,
+			final Boolean hasParent,
+			final Date startTime,
+			final Date endTime,
+			final String sortOrder,
+			final String locale) {
+		// Removed for performance reason. Uncomment when Caching mechanism is added
 
-        StringBuffer query = new StringBuffer(
-                " SELECT UNIQUE(q.primaryMember)" +
-                " FROM Question q" +
-                " WHERE q.session.id = " + session.getId() +
-                " AND q.type.id = " + deviceType.getId() +
-                " AND q.submissionDate >= '" + strStartTime + "'" +
-                " AND q.submissionDate <= '" + strEndTime + "'" +
-                " AND q.locale = '" + locale + "'"
-        );
-        query.append(this.getStatusFilters(internalStatuses));
-        if(! hasParent) {
-            query.append(" AND q.parent = " + null);
-        }
-        if(sortOrder.equals(ApplicationConstants.ASC)) {
-            query.append(" ORDER BY q.number ASC");
-        }
-        else if(sortOrder.equals(ApplicationConstants.DESC)) {
-            query.append(" ORDER BY q.number DESC");
-        }
+		// CustomParameter dbDateFormat =
+		//    	CustomParameter.findByName(CustomParameter.class, "DB_DATEFORMAT", "");
+		// String strAnsweringDate = 
+		//		FormaterUtil.formatDateToString(answeringDate, dbDateFormat.getValue());
 
-        TypedQuery<Member> tQuery = this.em().createQuery(query.toString(), Member.class);
-        List<Member> members = tQuery.getResultList();
-        return members;
-    }
+		// CustomParameter parameter = 
+		//		CustomParameter.findByName(CustomParameter.class, "DB_TIMESTAMP", "");
+		// String strDate = new DateFormater().formatDateToString(date, parameter.getValue());
 
+		String strDiscussionDate = FormaterUtil.formatDateToString(answeringDate, "yyyy-MM-dd");
+		String strStartTime = FormaterUtil.formatDateToString(startTime, "yyyy-MM-dd HH:mm:ss");
+		String strEndTime = FormaterUtil.formatDateToString(endTime, "yyyy-MM-dd HH:mm:ss");
+
+		StringBuffer query = new StringBuffer(
+				" SELECT DISTINCT(q.primaryMember)" +
+				" FROM Question q" +
+				" WHERE q.session.id = " + session.getId() +
+				" AND q.type.id = " + deviceType.getId() +
+				" AND" +
+				" ( q.discussionDate = " + null +
+				" OR" +
+				" q.discussionDate <= '" + strDiscussionDate  + "' )" +
+				" AND q.submissionDate >= '" + strStartTime + "'" +
+				" AND q.submissionDate <= '" + strEndTime + "'" +
+				" AND q.locale = '" + locale + "'"
+		);
+		query.append(this.getStatusFilters(internalStatuses));
+		if(! hasParent) {
+			query.append(" AND q.parent = " + null);
+		}
+		if(sortOrder.equals(ApplicationConstants.ASC)) {
+			query.append(" ORDER BY q.number ASC");
+		}
+		else if(sortOrder.equals(ApplicationConstants.DESC)) {
+			query.append(" ORDER BY q.number DESC");
+		}
+
+		TypedQuery<Member> tQuery = this.em().createQuery(query.toString(), Member.class);
+		List<Member> members = tQuery.getResultList();
+		return members;
+	}
 	/**
 	 * Find admitted starred questions uh.
 	 *
@@ -2273,69 +2353,226 @@ public class QuestionRepository extends BaseRepository<Question, Long>{
 	}
 
 	public Boolean referencing(Long primaryId, Long referencingId, String locale) {
-		boolean refStatus=true;
-		Question primaryQuestion=Question.findById(Question.class,primaryId);
-		Question referencedQuestion=Question.findById(Question.class,referencingId);
-		List<ReferencedEntity> referencedEntities=new ArrayList<ReferencedEntity>();
-		referencedEntities=primaryQuestion.getReferencedEntities();		
-		boolean alreadyRefered=false;
-		int position=0;
-		for(ReferencedEntity i:referencedEntities){
-			if(i.getQuestion().getId()==referencedQuestion.getId()){
-				alreadyRefered=true;
+		try {
+			Question primaryQuestion=Question.findById(Question.class,primaryId);
+			Question referencedQuestion=Question.findById(Question.class,referencingId);
+			List<ReferencedEntity> referencedEntities=new ArrayList<ReferencedEntity>();
+			referencedEntities=primaryQuestion.getReferencedEntities();		
+			boolean alreadyRefered=false;
+			int position=0;
+			for(ReferencedEntity i:referencedEntities){
+				if(i.getQuestion().getId()==referencedQuestion.getId()){
+					alreadyRefered=true;
+				}
+				position++;
 			}
-			position++;
-		}
-		if(!alreadyRefered){
-			ReferencedEntity referencedEntity=new ReferencedEntity();
-			referencedEntity.setLocale(referencedQuestion.getLocale());
-			referencedEntity.setQuestion(referencedQuestion);
-			referencedEntity.setPosition(position+1);
-			referencedEntity.setDeviceType(referencedQuestion.getType());
-			referencedEntity.persist();
-			referencedEntities.add(referencedEntity);
-			if(!referencedEntities.isEmpty()){
-				primaryQuestion.setReferencedEntities(referencedEntities);
+			if(!alreadyRefered){
+				ReferencedEntity referencedEntity=new ReferencedEntity();
+				referencedEntity.setLocale(referencedQuestion.getLocale());
+				referencedEntity.setQuestion(referencedQuestion);
+				referencedEntity.setPosition(position+1);
+				referencedEntity.setDeviceType(referencedQuestion.getType());
+				referencedEntity.persist();
+				referencedEntities.add(referencedEntity);
+				if(!referencedEntities.isEmpty()){
+					primaryQuestion.setReferencedEntities(referencedEntities);
+				}else{
+					primaryQuestion.setReferencedEntities(null);
+				}
+				Status status=Status.findByFieldName(Status.class,"type","question_contains_references", locale);
+				primaryQuestion.setInternalStatus(status);
+				primaryQuestion.setRecommendationStatus(status);
+				primaryQuestion.simpleMerge();
 			}else{
-				primaryQuestion.setReferencedEntities(null);
-			}
-			Status status=Status.findByFieldName(Status.class,"type","question_contains_references", locale);
-			primaryQuestion.setInternalStatus(status);
-			primaryQuestion.setRecommendationStatus(status);
-			primaryQuestion.simpleMerge();
-		}else{
-			refStatus=false;
+				return false;
+			}			
+		} catch (Exception e) {
+			logger.error(e.getMessage());
+			return false;
 		}
-		return refStatus;
+		return true;
 	}
 
 	public Boolean deReferencing(Long primaryId, Long referencingId, String locale) {
-		boolean derefStatus=true;
-		Question primaryQuestion=Question.findById(Question.class,primaryId);
-		Question referencedQuestion=Question.findById(Question.class,referencingId);
-		List<ReferencedEntity> referencedEntities=new ArrayList<ReferencedEntity>();
-		List<ReferencedEntity> newReferencedEntities=new ArrayList<ReferencedEntity>();
-		referencedEntities=primaryQuestion.getReferencedEntities();
-		ReferencedEntity referencedEntityToRemove=null;
-		for(ReferencedEntity i:referencedEntities){
-			if(i.getQuestion().getId()==referencedQuestion.getId()){
-				referencedEntityToRemove=i;				
-			}else{
-				newReferencedEntities.add(i);
+		try {
+			Question primaryQuestion=Question.findById(Question.class,primaryId);
+			Question referencedQuestion=Question.findById(Question.class,referencingId);
+			List<ReferencedEntity> referencedEntities=new ArrayList<ReferencedEntity>();
+			List<ReferencedEntity> newReferencedEntities=new ArrayList<ReferencedEntity>();
+			referencedEntities=primaryQuestion.getReferencedEntities();
+			ReferencedEntity referencedEntityToRemove=null;
+			for(ReferencedEntity i:referencedEntities){
+				if(i.getQuestion().getId()==referencedQuestion.getId()){
+					referencedEntityToRemove=i;				
+				}else{
+					newReferencedEntities.add(i);
+				}
 			}
+			if(!newReferencedEntities.isEmpty()){
+				primaryQuestion.setReferencedEntities(newReferencedEntities);
+			}else{
+				primaryQuestion.setReferencedEntities(null);
+				Status status=Status.findByFieldName(Status.class,"type","question_before_workflow_tobeputup", locale);
+				primaryQuestion.setInternalStatus(status);
+				primaryQuestion.setRecommendationStatus(status);
+			}		
+			primaryQuestion.simpleMerge();
+			referencedEntityToRemove.remove();
+		} catch (Exception e) {
+			logger.error(e.getMessage());
+			return false;
 		}
-		if(!newReferencedEntities.isEmpty()){
-			primaryQuestion.setReferencedEntities(newReferencedEntities);
-		}else{
-			primaryQuestion.setReferencedEntities(null);
-			Status status=Status.findByFieldName(Status.class,"type","question_before_workflow_tobeputup", locale);
-			primaryQuestion.setInternalStatus(status);
-			primaryQuestion.setRecommendationStatus(status);
-		}		
-		primaryQuestion.simpleMerge();
-		referencedEntityToRemove.remove();
-		return derefStatus;
+		return true;
 	}
 
+	public List<Member> findActiveMembersWithQuestions(final Session session,
+			final MemberRole role,
+			final Date activeOn,
+			final DeviceType deviceType,
+			final Group group,
+			final Status[] internalStatuses,
+			final Date answeringDate,
+			final Date startTime,
+			final Date endTime,
+			final String sortOrder,
+			final String locale) {
+		// Removed for performance reason. Uncomment when Caching mechanism is added
+
+		// CustomParameter dbDateFormat =
+		//    	CustomParameter.findByName(CustomParameter.class, "DB_DATEFORMAT", "");
+		// String strActiveOn = FormaterUtil.formatDateToString(activeOn, dbDateFormat.getValue());
+		// String strAnsweringDate = 
+		//		FormaterUtil.formatDateToString(answeringDate, dbDateFormat.getValue());
+
+		// CustomParameter dbTimestamp = 
+		//		CustomParameter.findByName(CustomParameter.class, "DB_TIMESTAMP", "");
+		// String strStartTime = 
+		//		new DateFormater().formatDateToString(startTime, dbTimestamp.getValue());
+		// String strEndTime = 
+		//		new DateFormater().formatDateToString(endTime, dbTimestamp.getValue());
+
+		String strActiveOn = FormaterUtil.formatDateToString(activeOn, "yyyy-MM-dd");
+		String strAnsweringDate = FormaterUtil.formatDateToString(answeringDate, "yyyy-MM-dd");
+		String strStartTime = FormaterUtil.formatDateToString(startTime, "yyyy-MM-dd HH:mm:ss");
+		String strEndTime = FormaterUtil.formatDateToString(endTime, "yyyy-MM-dd HH:mm:ss");
+
+		StringBuffer query = new StringBuffer();
+		query.append("SELECT m" +
+				" FROM HouseMemberRoleAssociation hmra JOIN hmra.member m" +
+				" WHERE hmra.fromDate <= '" + strActiveOn + "'" +
+				" AND hmra.toDate >= '" + strActiveOn + "'" +
+				" AND hmra.role.id = " + role.getId() +
+				" AND hmra.house.id = " + session.getHouse().getId() +
+				" AND hmra.locale = '" + locale + "'" +
+		" AND m.id IN");
+
+		query.append(" (");
+		query.append(" SELECT DISTINCT(q.primaryMember.id)" +
+				" FROM Question q LEFT JOIN q.answeringDate qd" +
+				" WHERE q.session.id = " + session.getId() +
+				" AND q.type.id = " + deviceType.getId() +
+				" AND q.group.id = " + group.getId() +
+				" AND " +
+				" (qd.answeringDate <= '" + strAnsweringDate + "'" +
+				" OR" +
+				" qd = " + null + ")" +
+				" AND q.submissionDate >= '" + strStartTime + "'" +
+				" AND q.submissionDate <= '" + strEndTime + "'" +
+				" AND q.locale = '" + locale + "'");
+		query.append(this.getStatusFilters(internalStatuses));
+		query.append(" )");
+
+		query.append(" ORDER BY m.lastName " + sortOrder);
+
+		TypedQuery<Member> tQuery = this.em().createQuery(query.toString(), Member.class);
+		List<Member> members = tQuery.getResultList();
+		return members;
+	}
+
+	public List<Member> findActiveMembersWithoutQuestions(final Session session,
+			final MemberRole role,
+			final Date activeOn,
+			final DeviceType deviceType,
+			final Group group,
+			final Status[] internalStatuses,
+			final Date answeringDate,
+			final Date startTime,
+			final Date endTime,
+			final String sortOrder,
+			final String locale) {
+		// Removed for performance reason. Uncomment when Caching mechanism is added
+
+		// CustomParameter dbDateFormat =
+		//    	CustomParameter.findByName(CustomParameter.class, "DB_DATEFORMAT", "");
+		// String strActiveOn = FormaterUtil.formatDateToString(activeOn, dbDateFormat.getValue());
+		// String strAnsweringDate = 
+		//		FormaterUtil.formatDateToString(answeringDate, dbDateFormat.getValue());
+
+		// CustomParameter dbTimestamp = 
+		//		CustomParameter.findByName(CustomParameter.class, "DB_TIMESTAMP", "");
+		// String strStartTime = 
+		//		new DateFormater().formatDateToString(startTime, dbTimestamp.getValue());
+		// String strEndTime = 
+		//		new DateFormater().formatDateToString(endTime, dbTimestamp.getValue());
+
+		String strActiveOn = FormaterUtil.formatDateToString(activeOn, "yyyy-MM-dd");
+		String strAnsweringDate = FormaterUtil.formatDateToString(answeringDate, "yyyy-MM-dd");
+		String strStartTime = FormaterUtil.formatDateToString(startTime, "yyyy-MM-dd HH:mm:ss");
+		String strEndTime = FormaterUtil.formatDateToString(endTime, "yyyy-MM-dd HH:mm:ss");
+
+		StringBuffer query = new StringBuffer();
+		query.append("SELECT m" +
+				" FROM HouseMemberRoleAssociation hmra JOIN hmra.member m" +
+				" WHERE hmra.fromDate <= '" + strActiveOn + "'" +
+				" AND hmra.toDate >= '" + strActiveOn + "'" +
+				" AND hmra.role.id = " + role.getId() +
+				" AND hmra.house.id = " + session.getHouse().getId() +
+				" AND hmra.locale = '" + locale + "'" +
+		" AND m.id NOT IN");
+
+		query.append(" (");
+		query.append(" SELECT DISTINCT(q.primaryMember.id)" +
+				" FROM Question q LEFT JOIN q.answeringDate qd" +
+				" WHERE q.session.id = " + session.getId() +
+				" AND q.type.id = " + deviceType.getId() +
+				" AND q.group.id = " + group.getId() +
+				" AND " +
+				" (qd.answeringDate <= '" + strAnsweringDate + "'" +
+				" OR" +
+				" qd = " + null + ")" +
+				" AND q.submissionDate >= '" + strStartTime + "'" +
+				" AND q.submissionDate <= '" + strEndTime + "'" +
+				" AND q.locale = '" + locale + "'");
+		query.append(this.getStatusFilters(internalStatuses));
+		query.append(" )");
+
+		query.append(" ORDER BY m.lastName " + sortOrder);
+
+		TypedQuery<Member> tQuery = this.em().createQuery(query.toString(), Member.class);
+		List<Member> members = tQuery.getResultList();
+		return members;
+	}
+	
+	//------------------------------added by vikas & dhananjay 21012013------------------------------------
+	/**
+	 * Find.
+	 *
+	 * @param session the session
+	 * @param number the number
+	 * @return the question
+	 */
+	public Question find(final Session session, final Integer number, Long deviceTypeId) {
+		if(session != null && number != null && deviceTypeId != null){
+			DeviceType deviceType = DeviceType.findById(DeviceType.class, deviceTypeId);
+			Search search = new Search();
+			search.addFilterEqual("session", session);
+			search.addFilterEqual("number", number);
+			search.addFilterNotEqual("type", deviceType);
+			return this.searchUnique(search);
+		}else{
+			return null;
+		}
+	}
+	
 
 }
