@@ -34,6 +34,7 @@
 		
 		
 	#container {
+		margin-top: 20px;
 		width:950px;
 		padding:5px;
 		float:left;
@@ -1003,6 +1004,7 @@
 		border-left:1px solid #8d8e8d;
 		border-right:1px solid #e0e1e0;
 		border-bottom:1px solid #e0e1e0;
+		width: 600px !important;
 		}
 		
 	div.wysiwyg * { margin: 0; padding: 0; }
