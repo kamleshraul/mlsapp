@@ -6,7 +6,16 @@
 	<script type="text/javascript">
 		$(document).ready(function() {			
 			$(".questionNumber").click(function(){
-				showTabByIdAndUrl('details_tab','question/'+$(this).attr("id")+'/edit');
+				var parameters="houseType="+$("#selectedHouseType").val()
+				+"&sessionYear="+$("#selectedSessionYear").val()
+				+"&sessionType="+$("#selectedSessionType").val()
+				+"&questionType="+$("#selectedQuestionType").val()
+				+"&ugparam="+$("#ugparam").val()
+				+"&status="+$("#selectedStatus").val()
+				+"&role="+$("#srole").val()
+				+"&edit=true";
+				var resourceURL='question/'+$(this).attr("id")+'/edit?'+parameters;
+				showTabByIdAndUrl('details_tab', resourceURL);
 			});
 			
 			$(".questionNumber").contextMenu({
@@ -15,21 +24,48 @@
 		        function(action, el, pos) {
 				var id=$(el).attr("id");
 				if(action=='view'){
-					$.get('question/'+id+'/edit',function(data){
-						$.fancybox.open(data,{autoSize:false,width:750,height:700});
-					},'html');	
+					viewQuestionDetail(id);
 				}else if(action=='clubbing'){
-					$.get('question/clubbing?id='+id,function(data){
-						$.fancybox.open(data,{autoSize:false,width:750,height:700});
-					},'html');
+					clubbingInt(id);
 				}else if(action=='referencing'){
-					$.get('question/referencing?id='+id,function(data){
-						$.fancybox.open(data,{autoSize:false,width:750,height:700});
-					},'html');
+					referencingInt(id);
 				}
 		    	});
 			
-		});		
+		});	
+		/**** Question Details ****/
+		function viewQuestionDetail(id){
+			$.blockUI({ message: '<img src="./resources/images/waitAnimated.gif" />' });	
+			var parameters="houseType="+$("#selectedHouseType").val()
+			+"&sessionYear="+$("#selectedSessionYear").val()
+			+"&sessionType="+$("#selectedSessionType").val()
+			+"&questionType="+$("#selectedQuestionType").val()
+			+"&ugparam="+$("#ugparam").val()
+			+"&status="+$("#selectedStatus").val()
+			+"&role="+$("#srole").val()
+			+"&edit=false";
+			var resourceURL='question/'+id+'/edit?'+parameters;
+			$.get(resourceURL,function(data){
+				$.unblockUI();
+				$.fancybox.open(data,{autoSize:false,width:750,height:700});
+			},'html');	
+		}	
+		/**** Clubbing ****/			
+		function clubbingInt(id){
+			$.blockUI({ message: '<img src="./resources/images/waitAnimated.gif" />' });		
+			$.get('clubentity/init?id='+id,function(data){
+				$.unblockUI();	
+				$.fancybox.open(data,{autoSize:false,width:750,height:700});
+			},'html');
+		}
+		/**** Referencing ****/
+		function referencingInt(id){
+			$.blockUI({ message: '<img src="./resources/images/waitAnimated.gif" />' });
+			$.get('refentity/init?id='+id,function(data){
+				$.unblockUI();			
+				$.fancybox.open(data,{autoSize:false,width:750,height:700});
+			},'html');
+		}
 	</script>
 </head>
 
@@ -62,8 +98,11 @@
 			<td align="center">
 				<a href="#" class="questionNumber" id="${questionVO.id}" >${questionVO.number}</a>
 				<c:choose>
-				<c:when test="${questionVO.status == 'question_before_workflow_tobeputup' || questionVO.status == 'question_before_workflow_clubbed'}">
+				<c:when test="${questionVO.status == 'question_before_workflow_tobeputup'}">
 					<img src="./resources/images/template/icons/red_check.jpg" class="toolTip clearfix" width="2" height="10">
+				</c:when>
+				<c:when test="${questionVO.status == 'question_before_workflow_clubbed'}">
+					<img src="./resources/images/template/icons/blue_check.jpg" class="toolTip clearfix" width="2" height="10">
 				</c:when>
 				<c:otherwise>
 					<img src="./resources/images/template/icons/green_check.jpg" class="toolTip clearfix" width="2" height="10">
@@ -77,6 +116,8 @@
 <ul id="contextMenuItems" >
 <li><a href="#clubbing" class="edit"><spring:message code="generic.clubbing" text="Clubbing"></spring:message></a></li>
 <li><a href="#referencing" class="edit"><spring:message code="generic.referencing" text="Referencing"></spring:message></a></li>
+<li><a href="#view" class="edit"><spring:message code="generic.view" text="View Details"></spring:message></a></li>
+
 </ul>
 </c:otherwise>
 </c:choose>
