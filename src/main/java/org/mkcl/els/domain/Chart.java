@@ -414,14 +414,11 @@ public class Chart extends BaseDomain implements Serializable {
 			
 			if(chart == null) {
 				Date currentDate = Chart.getCurrentDate();
-				List<Member> activeMembers = Member.findActiveMembers(this.getSession().getHouse(), 
-						currentDate, ApplicationConstants.ASC, this.getLocale());
-				
+			
 				DeviceType deviceType = DeviceType.findByType("questions_starred", this.getLocale());
 				
 				CustomParameter datePattern = CustomParameter.findByName(CustomParameter.class, 
-						"SERVER_DATEFORMAT", "");
-
+						"DB_TIMESTAMP", "");
 				Date startTime = FormaterUtil.formatStringToDate(this.getSession().
 						getParameter(deviceType.getType() + "_submissionFirstBatchStartDate"), 
 						datePattern.getValue(), this.getLocale());
@@ -431,10 +428,17 @@ public class Chart extends BaseDomain implements Serializable {
 
 				Status ASSISTANT_PROCESSED = 
 					Status.findByType("question_assistantprocessed", this.getLocale());
+				Status[] internalStatuses = new Status[] { ASSISTANT_PROCESSED };
+				
+				List<Member> activeMembersWithQuestions = 
+					Question.findActiveMembersWithQuestions(this.getSession(), 
+							currentDate, deviceType, this.getGroup(), internalStatuses, 
+							this.getAnsweringDate(), startTime, endTime, ApplicationConstants.ASC, 
+							this.getLocale());
 				
 				if((Chart.isLastAnsweringDate(this.getGroup(), this.getAnsweringDate()) == true) && 
 						(Chart.processAllRemainingQnsForLastDateUH().equalsIgnoreCase("TRUE"))) {
-					for(Member m : activeMembers) {
+					for(Member m : activeMembersWithQuestions) {
 						ChartEntry chartEntry = Chart.newChartEntryUH(this.getSession(), m, 
 								deviceType, this.getGroup(), this.getAnsweringDate(), startTime, 
 								endTime, ASSISTANT_PROCESSED, this.getLocale());
@@ -443,7 +447,7 @@ public class Chart extends BaseDomain implements Serializable {
 				}
 				else {
 					Integer maxQuestionsOnChart = Chart.maxQuestionsOnChartUH();
-					for(Member m : activeMembers) {
+					for(Member m : activeMembersWithQuestions) {
 						ChartEntry chartEntry = Chart.newChartEntryUH(this.getSession(), m, 
 								deviceType, this.getGroup(), this.getAnsweringDate(), startTime, 
 								endTime, maxQuestionsOnChart, ASSISTANT_PROCESSED, 
@@ -451,6 +455,17 @@ public class Chart extends BaseDomain implements Serializable {
 						this.getChartEntries().add(chartEntry);
 					}
 				}
+				
+				List<Member> activeMembersWithoutQuestions = 
+					Question.findActiveMembersWithoutQuestions(this.getSession(), 
+							currentDate, deviceType, this.getGroup(), internalStatuses, 
+							this.getAnsweringDate(), startTime, endTime, ApplicationConstants.ASC, 
+							this.getLocale());
+				for(Member m : activeMembersWithoutQuestions) {
+					ChartEntry chartEntry = Chart.newEmptyChartEntry(m, this.getLocale());
+					this.getChartEntries().add(chartEntry);
+				}
+				
 				chart = (Chart) this.persist();
 				
 				Status TO_BE_PUT_UP = 
@@ -661,14 +676,6 @@ public class Chart extends BaseDomain implements Serializable {
 	 * 
 	 * Search for at most @param maxNoOfQuestions according to the following
 	 * algorithm. Search only for those Questions which are submitted between
-	 *
-	 * @param session the session
-	 * @param member the member
-	 * @param deviceType the device type
-	 * @param group the group
-	 * @param answeringDate the answering date
-	 * @param startTime and @param endTime (both time inclusive) and are verified
-	 * by the assistant ("ASSISTANT_PROCESSED")
 	 * 
 	 * 1. Select the Questions which have the answeringDate attribute
 	 * explicitly set to the expected answeringDate.
@@ -679,10 +686,14 @@ public class Chart extends BaseDomain implements Serializable {
 	 * 3. Select the Questions which don't have any answeringDate.
 	 * 
 	 * Returns an empty list if there are no Questions.
-	 * @param endTime the end time
-	 * @param ASSISTANT_PROCESSED the aSSISTAN t_ processed
-	 * @param locale the locale
-	 * @return the chart entry
+	 * 
+	 * @param session the session
+	 * @param member the member
+	 * @param deviceType the device type
+	 * @param group the group
+	 * @param answeringDate the answering date
+	 * @param startTime and @param endTime (both time inclusive) and are verified
+	 * by the assistant ("ASSISTANT_PROCESSED")
 	 */
 	private static ChartEntry newChartEntryUH(final Session session, 
 			final Member member,
@@ -792,7 +803,7 @@ public class Chart extends BaseDomain implements Serializable {
 	 */
 	private static boolean isFirstBatchQuestionUH(final Question question) {
 		CustomParameter datePattern = CustomParameter.findByName(CustomParameter.class, 
-				"SERVER_DATEFORMAT", "");
+				"DB_TIMESTAMP", "");
 		
 		Session session = question.getSession();
 		Date startTime = FormaterUtil.formatStringToDate(session.getParameter(question.getType().
@@ -817,7 +828,7 @@ public class Chart extends BaseDomain implements Serializable {
 	 */
 	private static boolean isSecondBatchQuestionUH(final Question question) {
 		CustomParameter datePattern = CustomParameter.findByName(CustomParameter.class, 
-				"SERVER_DATEFORMAT", "");
+				"DB_TIMESTAMP", "");
 		
 		Session session = question.getSession();
 		Date startTime = FormaterUtil.formatStringToDate(session.getParameter(question.getType().
@@ -853,23 +864,44 @@ public class Chart extends BaseDomain implements Serializable {
 			
 			if(chart == null) {
 				Date currentDate = Chart.getCurrentDate();
-				List<Member> activeMembers = Member.findActiveMembers(this.getSession().getHouse(), 
-						currentDate, ApplicationConstants.ASC, this.getLocale());
-				
 				Integer maxQuestionsOnChart = Chart.maxQuestionsOnChartLH();
 				DeviceType deviceType = DeviceType.findByType("questions_starred", this.getLocale());
-				Date finalSubmissionDate = this.getGroup().
+				
+				CustomParameter datePattern = CustomParameter.findByName(CustomParameter.class, 
+						"DB_TIMESTAMP", "");
+				Date startTime = FormaterUtil.formatStringToDate(session.getParameter(
+						"questions_starred_submissionStartDate"), 
+						datePattern.getValue(), this.getLocale());
+				Date finalSubmissionTime = this.getGroup().
 					getFinalSubmissionDate(this.getAnsweringDate());
+				
 				Status ASSISTANT_PROCESSED = 
 					Status.findByType("question_assistantprocessed", this.getLocale());
+				Status[] internalStatuses = new Status[] { ASSISTANT_PROCESSED };
 				
-				for(Member m : activeMembers) {
+				List<Member> activeMembersWithQuestions = 
+					Question.findActiveMembersWithQuestions(this.getSession(), currentDate, 
+							deviceType, this.getGroup(), internalStatuses, this.getAnsweringDate(), 
+							startTime, finalSubmissionTime, ApplicationConstants.ASC, 
+							this.getLocale());
+				for(Member m : activeMembersWithQuestions) {
 					ChartEntry chartEntry = Chart.newChartEntryLH(this.getSession(), m, 
 							deviceType, this.getGroup(), this.getAnsweringDate(), 
-							finalSubmissionDate, maxQuestionsOnChart, ASSISTANT_PROCESSED, 
+							finalSubmissionTime, maxQuestionsOnChart, ASSISTANT_PROCESSED, 
 							this.getLocale());
 					this.getChartEntries().add(chartEntry);
 				}
+				
+				List<Member> activeMembersWithoutQuestions = 
+					Question.findActiveMembersWithoutQuestions(this.getSession(), currentDate, 
+							deviceType, this.getGroup(), internalStatuses, this.getAnsweringDate(), 
+							startTime, finalSubmissionTime, ApplicationConstants.ASC, 
+							this.getLocale());
+				for(Member m : activeMembersWithoutQuestions) {
+					ChartEntry chartEntry = Chart.newEmptyChartEntry(m, this.getLocale());
+					this.getChartEntries().add(chartEntry);
+				}
+				
 				chart = (Chart) this.persist();
 				
 				Status TO_BE_PUT_UP = 
@@ -1106,6 +1138,18 @@ public class Chart extends BaseDomain implements Serializable {
 				"ChartRepository has not been injected in Chart Domain");
 		}
 		return repository;
+	}
+	
+	/**
+	 * Create empty ChartEntry for @param member. This ChartEntry wont
+	 * have any questions.
+	 */
+	private static ChartEntry newEmptyChartEntry(final Member member,
+			final String locale) {
+		ChartEntry chartEntry = new ChartEntry();
+		chartEntry.setLocale(locale);
+		chartEntry.setMember(member);
+		return chartEntry;
 	}
 	
 	/**
