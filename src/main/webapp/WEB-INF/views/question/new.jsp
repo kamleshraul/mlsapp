@@ -5,7 +5,7 @@
 	<spring:message code="question" text="Question Information System"/>
 	</title>
 	<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
-	<script type="text/javascript">
+	<script type="text/javascript"><!--
 	//this is for autosuggest
 	function split( val ) {
 		return val.split( /,\s*/ );
@@ -213,7 +213,7 @@
 		//--------vikas dhananjay-----------------------------		
 		//submit(draft) 
 		$("#submit").click(function(e){
-			var deviceTypeTemp='${domain.type.type}';
+			var deviceTypeTemp='${selectedQuestionType}';
 						
 			//-----------------------------------------------------------------------------------------------------------------------------
 			if((deviceTypeTemp=='questions_halfhourdiscussion_standalone') || (deviceTypeTemp=='questions_halfhourdiscussion_from_question')){
@@ -232,7 +232,7 @@
 				//-----------------------------------------------------------------------------
 				
 				if((memberNumbers > 0) && (memberComparator!=null) &&(memberComparator!="")){
-										
+					
 					if(memberComparator=="eq"){
 						if(!(selectedMembers == memberNumbers)){
 							$.prompt($("#supportError").attr('title'));
@@ -274,7 +274,7 @@
 				}
 			});			
 			//----------------vikas dhananjay----------------------------------------------------------------------------------------------
-			var deviceTypeTemp='${domain.type.type}';
+			var deviceTypeTemp='${selectedQuestionType}';
 			if((deviceTypeTemp=='questions_halfhourdiscussion_standalone') || (deviceTypeTemp=='questions_halfhourdiscussion_from_question')){
 				
 				var memberNumbers=0;
@@ -349,7 +349,7 @@
 			});		
 			
 			//---------------------vikas dhananjay---------------------
-			var deviceTypeTemp='${domain.type.type}';
+			var deviceTypeTemp='${selectedQuestionType}';
 			
 			if((deviceTypeTemp=='questions_halfhourdiscussion_standalone') || (deviceTypeTemp=='questions_halfhourdiscussion_from_question')){
 				
@@ -364,6 +364,25 @@
 					$.prompt('Too late to submit.');
 				    return false;
 				}
+				//------21012013
+				
+				/* if($("#primaryMember").val()==null||$("primaryMember").val()==""){
+					alert($("#primaryMemberEmpty").attr('title'));					
+					return false;
+				}
+				
+				if($("#subject").val()==null||$("subject").val()==""){
+					alert($("#subjectEmpty").attr('title'));					
+					return false;
+				}
+				if($("#questionText").attr('title')==null||$("questionText").val()==""){
+					alert($("#questionEmpty").attr('title'));					
+					return false;
+				}					
+				if($("#ministryEmpty").attr('title')==null||$("ministry").val()==""){
+					alert($("#ministryEmpty").attr('title'));					
+					return false;
+				} */
 				
 				var memberNumbers=0;
 				var memberComparator='${numberOfSupportingMembersComparator}';
@@ -428,18 +447,19 @@
 	    }); 
 		
 		
-		//--------------vikas dhananjay-----------------------------------
+		//--------------vikas dhananjay 20012013--------------------------
 		//for viewing the refernced question
 		$('#halfhourdiscussion_referred_question').click(function(){
 			
 			var questionNumber = $('#halfHourDiscussionReference_questionNumber').val();
+			var deviceTypeTemp='${questionType}';
 			if(questionNumber!=""){
 				
-				var sessionId = '${domain.session.id}';
+				var sessionId = '${session}';
 				var locale='${domain.locale}';
 				
 				
-				var url = 'ref/questionid?strQuestionNumber='+questionNumber+'&strSessionId='+sessionId+'&locale='+locale+'&view=view';
+				var url = 'ref/questionid?strQuestionNumber='+questionNumber+'&strSessionId='+sessionId+'&deviceTypeId='+deviceTypeTemp+'&locale='+locale+'&view=view';
 				
 				//alert(url);
 				
@@ -511,7 +531,7 @@
 		<input type="text" readonly="readonly" value="${constituency}" class="sText" id="constituency" name="constituency">
 	</p>
 	
-	<c:if test="${domain.type.type=='questions_halfhourdiscussion_from_question'}">
+	<c:if test="${selectedQuestionType=='questions_halfhourdiscussion_from_question'}">
 		<p>
 			<label class="small"><spring:message code="question.halfhour.questionref" text="Reference Question Number: "/>*</label>
 			<input class="sText" type="text" name="halfHourDiscussionReference_questionNumber" id="halfHourDiscussionReference_questionNumber" />
@@ -523,7 +543,7 @@
 	<p>
 		<label class="centerlabel"><spring:message code="question.supportingMembers" text="Supporting Members"/></label>
 		<textarea id="selectedSupportingMembers"  class="autosuggestmultiple" rows="2" cols="50">${supportingMembersName}</textarea>
-		<c:if test="${(domain.type.type=='questions_halfhourdiscussion_from_question' or domain.type.type=='questions_halfhourdiscussion_standalone') and (!(empty numberOfSupportingMembersComparator) and !(empty numberOfSupportingMembers))}">
+		<c:if test="${(selectedQuestionType=='questions_halfhourdiscussion_from_question' or selectedQuestionType=='questions_halfhourdiscussion_standalone') and (!(empty numberOfSupportingMembersComparator) and !(empty numberOfSupportingMembers))}">
 			<label style="display: inline; border: 1px double blue; padding: 5px; background-color: #DCE4EF; font-weight: bold;" class="centerlabel" id="supportingMemberMessage"><spring:message code="question.numberOfsupportingMembers" text="Number of Supporting Members"></spring:message>&nbsp;${numberOfSupportingMembersComparatorHTML}&nbsp;${numberOfSupportingMembers}</label>										
 		</c:if>
 		<c:if test="${!(empty supporingMembers)}">
@@ -605,7 +625,32 @@
 			<form:errors path="answeringDate" cssClass="validationError"/>
 		</c:if>
 		
-		<c:if test="${selectedQuestionType!='questions_halfhourdiscussion_from_question'}">
+		<%----changed 21012013-----------------------%>
+		<%---------------------------Added by vikas & dhananjay-------------------------------------%>
+		<c:choose>
+			<c:when test="${selectedQuestionType=='questions_halfhourdiscussion_from_question' && !(empty discussionDates)}">
+				<label class="small"><spring:message code="question.discussionDate" text="Discussion Date"/></label>
+				<form:select path="discussionDate" cssClass="datemask sSelect" >
+					<option value="">---<spring:message code='please.select' text='Please Select'/>---</option>
+					<c:forEach items="${discussionDates}" var="i">
+						<option value="${i}">${i}</option>
+					</c:forEach>
+				</form:select>			
+				<%-- <form:errors path="discussionDate" cssClass="validationError"/> --%>	
+			</c:when>
+			
+			<c:when test="${selectedQuestionType=='questions_halfhourdiscussion_from_question'}">		
+				<div class="toolTip tpGreen clearfix">
+					<p>
+						<img src="./resources/images/template/icons/light-bulb-off.png">
+						<spring:message code="discussionDatesNotSet" text="Discussion Dates Not Set for This Session"/>
+					</p>
+					<p></p>
+				</div>			
+			</c:when>
+		</c:choose>
+		
+		<c:if test="${selectedQuestionType=='questions_starred'}">
 			<label class="small"><spring:message code="question.priority" text="Priority"/>*</label>
 			<form:select path="priority" cssClass="sSelect" items="${priorities}" itemLabel="name" itemValue="number"></form:select>
 			<form:errors path="priority" cssClass="validationError"/>
@@ -643,6 +688,12 @@
 <input id="confirmSupportingMembersMessage" value="<spring:message code='confirm.supportingmembers.message' text='A request for approval will be sent to the following members:'></spring:message>" type="hidden">
 <input id="pleaseSelectMessage" value="<spring:message code='please.select' text='Please Select'/>" type="hidden">
 <input id="confirmQuestionSubmission" value="<spring:message code='confirm.questionsubmission.message' text='Do you want to submit the question.'></spring:message>" type="hidden">
+
+<label id="supportError" title='<spring:message code="question.limit.supportingmemebers" text="Please provide proper number of supporting members."></spring:message>'></label>
+<label id="primaryMemberEmpty" title='<spring:message code="question.primaryMemberEmpty" text="Primary Member can not be empty."></spring:message>'></label>
+<label id="subjectEmpty" title='<spring:message code="question.subjectEmpty" text="Subject can not be empty."></spring:message>'></label>
+<label id="questionEmpty" title='<spring:message code="question.questionEmpty" text="Question Details can not be empty."></spring:message>'></label>
+<label id="ministryEmpty" title='<spring:message code="question.ministry" text="Ministry can not be empty."></spring:message>'></label>
 </div>
 </body>
 </html>

@@ -360,27 +360,24 @@
 					$.prompt('Too late to submit.');
 				    return false;
 				}	
-				if($("#primaryMember").val()==null||$("primaryMember").val()==""){
-					alert($("#primaryMemberEmpty").val());
+				//-------21012013
+				/* if($("#primaryMember").val()==null||$("primaryMember").val()==""){
+					alert($("#primaryMemberEmpty").attr('title'));					
 					return false;
 				}
 				
 				if($("#subject").val()==null||$("subject").val()==""){
-					alert($("#subjectEmpty").val());
+					alert($("#subjectEmpty").attr('title'));					
 					return false;
 				}
-				if($("#questionText").val()==null||$("questionText").val()==""){
-					alert($("#questionEmpty").val());
+				if($("#questionText").attr('title')==null||$("questionText").val()==""){
+					alert($("#questionEmpty").attr('title'));					
 					return false;
-				}	
-				if($("#selectedSupportingMembers").val()==null||$("selectedSupportingMembers").val()==""){
-					alert($("#supportingMemberEmpty").val());
+				}					
+				if($("#ministryEmpty").attr('title')==null||$("ministry").val()==""){
+					alert($("#ministryEmpty").attr('title'));					
 					return false;
-				}
-				if($("#ministry").val()==null||$("ministry").val()==""){
-					alert($("#ministry").val());
-					return false;
-				}
+				} */
 				
 				var memberNumbers=0;
 				var memberComparator='${numberOfSupportingMembersComparator}';
@@ -393,11 +390,11 @@
 					$.prompt('Provide proper reference question number.');
 					return false;
 				}
-				
+				alert("selected members: " + selectedMembers + "member numbers: " + selectedMembers);
 				if((memberNumbers > 0) && (memberComparator!=null) &&(memberComparator!="")){
 										
 					if(memberComparator=="eq"){
-						if(!(selectedMembers == memberNumbers)){
+						if(!(selectedMembers == c)){
 							$.prompt($("#supportError").attr('title'));
 							return false;
 						}
@@ -455,17 +452,19 @@
 		    return false;
 	    });
 	    
-	    //to view the referencing question
+	  //--------------vikas dhananjay-----------------------------------
+		//for viewing the refernced question
 		$('#halfhourdiscussion_referred_question').click(function(){
 			
-			var questionNumber = $('#halfHourDiscussionReference_questionId').val();
+			var questionNumber = $('#halfHourDiscussionReference_questionNumber').val();
+			var deviceTypeTemp='${questionType}';
 			if(questionNumber!=""){
 				
-				var sessionId = '${domain.session.id}';
+				var sessionId = '${session}';
 				var locale='${domain.locale}';
 				
 				
-				var url = 'ref/questionid?strQuestionNumber='+questionNumber+'&strSessionId='+sessionId+'&locale='+locale+'&view=view';
+				var url = 'ref/questionid?strQuestionNumber='+questionNumber+'&strSessionId='+sessionId+'&deviceTypeId='+deviceTypeTemp+'&locale='+locale+'&view=view';
 				
 				//alert(url);
 				
@@ -493,7 +492,7 @@
 <div class="fields clearfix watermark">
 <form:form action="question" method="PUT" modelAttribute="domain">
 	<%@ include file="/common/info.jsp" %>
-	<h2>${questionType} ${formattedNumber}</h2>
+	<h2>${formattedQuestionType} ${formattedNumber}</h2>
 	<form:errors path="version" cssClass="validationError"/>
 	<c:if test="${!(empty domain.number)}">
 	<p>
@@ -543,7 +542,7 @@
 	<p>
 		<label class="small"><spring:message code="question.primaryMember" text="Primary Member"/>*</label>
 		<input id="formattedPrimaryMember" name="formattedPrimaryMember"  value="${formattedPrimaryMember}" type="text" class="sText"  readonly="readonly" class="sText">
-		<input name="primaryMember" name="primaryMember" value="${primaryMember}" type="hidden">		
+		<input name="primaryMember" id="primaryMember" name="primaryMember" value="${primaryMember}" type="hidden">		
 		<form:errors path="primaryMember" cssClass="validationError"/>		
 	</p>
 	
@@ -552,7 +551,7 @@
 		<input type="text" readonly="readonly" value="${constituency}" class="sText" id="constituency" name="constituency">
 	</p>
 	
-	<c:if test="${selectedQuestionType=='questions_halfhourdiscussion_from_question'}">
+	<c:if test="${domain.type.type=='questions_halfhourdiscussion_from_question'}">
 		<p>
 			<label class="small"><spring:message code="question.halfhour.questionref" text="Reference Question Number: "/>*</label>
 			<input class="sText" type="text" name="halfHourDiscussionReference_questionNumber" value="${referredQuestionNumber}" id="halfHourDiscussionReference_questionNumber" />
@@ -590,7 +589,7 @@
 		<form:errors path="questionText" cssClass="validationError" cssStyle="float:right;margin-top:-100px;margin-right:40px;"/>	
 	</p>
 	
-	<c:if test="${selectedQuestionType=='questions_shortnotice'}">
+	<c:if test="${domain.type.type=='questions_shortnotice' or domain.type.type=='questions_halfhourdiscussion_from_question' }">
 	<p>
 		<label class="wysiwyglabel"><spring:message code="question.reason" text="Reason"/>*</label>
 		<form:textarea path="reason" cssClass="wysiwyg"></form:textarea>
@@ -598,12 +597,12 @@
 	</p>
 	</c:if>		
 	
-	<c:if test="${selectedQuestionType=='questions_halfhourdiscussion_from_question' or domain.type.type=='questions_halfhourdiscussion_standalone'}">
-	<p>
-		<label class="wysiwyglabel"><spring:message code="question.briefExplanation" text="Brief Explanation"/>*</label>
-		<form:textarea path="briefExplanation" cssClass="wysiwyg"></form:textarea>
-		<form:errors path="briefExplanation" cssClass="validationError" cssStyle="float:right;margin-top:-100px;margin-right:40px;"/>	
-	</p>
+	<c:if test="${domain.type.type=='questions_halfhourdiscussion_from_question' or domain.type.type=='questions_halfhourdiscussion_standalone'}">
+		<p>
+			<label class="wysiwyglabel"><spring:message code="question.briefExplanation" text="Brief Explanation"/>*</label>
+			<form:textarea path="briefExplanation" cssClass="wysiwyg"></form:textarea>
+			<form:errors path="briefExplanation" cssClass="validationError" cssStyle="float:right;margin-top:-100px;margin-right:40px;"/>	
+		</p>
 	</c:if>
 	
 	<c:choose>
@@ -662,7 +661,7 @@
 	</p>	
 		
 	<p>
-		<c:if test="${selectedQuestionType=='questions_starred'}">
+		<c:if test="${domain.type.type=='questions_starred'}">
 			<label class="small"><spring:message code="question.answeringDate" text="Answering Date"/></label>
 			<select name="answeringDate" id="answeringDate" class="sSelect">
 				<c:forEach items="${answeringDates }" var="i">
@@ -678,25 +677,38 @@
 			</select>
 		<form:errors path="answeringDate" cssClass="validationError"/>
 		</c:if>	
-		<c:if test="${selectedQuestionType=='questions_halfhourdiscussion_from_question'}">
-			<label class="small"><spring:message code="question.discussionDate" text="Discussion Date"/></label>
-			<form:select path="discussionDate" cssClass="datemask sSelect" >
-				<option value="<spring:message code='please.select' text='Please Select'/>">---<spring:message code='please.select' text='Please Select'/>---</option>
-				<c:forEach items="${discussionDates}" var="i">
-					<c:choose>
-						<c:when  test="${i==discussionDateSelected}">
-							<option value="${i}" selected="selected">${i}</option>
-						</c:when>
-						<c:otherwise>
-							<option value="${i}">${i}</option>
-						</c:otherwise>					
-					</c:choose>
-				</c:forEach>					
-			</form:select>
-			<form:errors path="discussionDate" cssClass="validationError"/>
-		</c:if>
+		<%----changed 21012013-----------------------%>
+		<%---------------------------Added by vikas & dhananjay-------------------------------------%>
+		<c:choose>
+			<c:when test="${domain.type.type=='questions_halfhourdiscussion_from_question' && !(empty discussionDates)}">
+				<label class="small"><spring:message code="question.discussionDate" text="Discussion Date"/></label>
+				<form:select path="discussionDate" cssClass="datemask sSelect" >
+					<option value="<spring:message code='please.select' text='Please Select'/>">---<spring:message code='please.select' text='Please Select'/>---</option>
+					<c:forEach items="${discussionDates}" var="i">
+						<c:choose>
+							<c:when  test="${i==discussionDateSelected}">
+								<option value="${i}" selected="selected">${i}</option>
+							</c:when>
+							<c:otherwise>
+								<option value="${i}">${i}</option>
+							</c:otherwise>					
+						</c:choose>
+					</c:forEach>					
+				</form:select>
+				<%-- <form:errors path="discussionDate" cssClass="validationError"/> --%>
+			</c:when>
+			<c:when test="${domain.type.type=='questions_halfhourdiscussion_from_question'}">		
+				<div class="toolTip tpGreen clearfix">
+					<p>
+						<img src="./resources/images/template/icons/light-bulb-off.png">
+						<spring:message code="discussionDatesNotSet" text="Discussion Dates Not Set for This Session"/>
+					</p>
+					<p></p>
+				</div>			
+			</c:when>
+		</c:choose>
 		
-		<c:if test="${selectedQuestionType=='questions_halfhourdiscussion_from_question'}">
+		<c:if test="${domain.type.type=='questions_starred'}">
 			<label class="small"><spring:message code="question.priority" text="Priority"/>*</label>
 			<form:select path="priority" cssClass="sSelect" items="${priorities}" itemLabel="name" itemValue="number">
 			</form:select>
@@ -718,7 +730,7 @@
 	 <div class="fields">
 		<h2></h2>
 		<c:choose>
-		<c:when test="${statusType=='questions_submit'}">
+		<c:when test="${internalStatusType=='questions_submit'}">
 		<p class="tright">
 			<input id="submit" type="submit" value="<spring:message code='generic.submit' text='Submit'/>" class="butDef" disabled="disabled">
 			<input id="sendforapproval" type="button" value="<spring:message code='generic.sendforapproval' text='Send For Approval'/>" class="butDef" disabled="disabled">
@@ -747,7 +759,9 @@
 	<input type="hidden" name="setCreationDate" id="setCreationDate" value="${creationDate }">
 	<input id="role" name="role" value="${role}" type="hidden">
 	<input type="hidden" name="halfHourDiscussionReference_questionId_H" id="halfHourDiscussionReference_questionId_H" />
-	
+	<%--21012013 --%>
+	<input type="hidden" name="halfHourDiscusionFromQuestionReference" id="halfHourDiscusionFromQuestionReference" value="${refQuestionId}" />
+	<input type="hidden" name="discussionDate" id="discussionDate" value="${discussionDateSelected}" />
 	
 </form:form>
 <input id="confirmSupportingMembersMessage" value="<spring:message code='confirm.supportingmembers.message' text='A request for approval will be sent to the following members:'></spring:message>" type="hidden">
@@ -758,6 +772,12 @@
 <input id="departmentSelected" value="${ departmentSelected}" type="hidden">
 <input id="subDepartmentSelected" value="${subDepartmentSelected }" type="hidden">
 <input id="answeringDateSelected" value="${ answeringDateSelected}" type="hidden">
+
+<label id="supportError" title='<spring:message code="question.limit.supportingmemebers" text="Please provide proper number of supporting members."></spring:message>'></label>
+<label id="primaryMemberEmpty" title='<spring:message code="question.primaryMemberEmpty" text="Primary Member can not be empty."></spring:message>'></label>
+<label id="subjectEmpty" title='<spring:message code="question.subjectEmpty" text="Subject can not be empty."></spring:message>'></label>
+<label id="questionEmpty" title='<spring:message code="question.questionEmpty" text="Question Details can not be empty."></spring:message>'></label>
+<label id="ministryEmpty" title='<spring:message code="question.ministry" text="Ministry can not be empty."></spring:message>'></label>
 </div>
 </body>
 </html>
