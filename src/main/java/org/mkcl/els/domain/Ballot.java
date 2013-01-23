@@ -178,26 +178,29 @@ public class Ballot extends BaseDomain implements Serializable {
 	 * Use it prior to the Ballot.
 	 */
 	public static List<HalfHourBallotVO> findHalfHourPreNoticeBallotVOs(final Session session,
+			final Date answeringDate,
 			final String locale) {
-		return Ballot.findPreBallotVOs(session, locale);
+		return Ballot.findPreBallotVOs(session, answeringDate, locale);
 	}
 	
 	/**
 	 * Use it prior to the Ballot.
 	 */
 	public static List<HalfHourBallotVO> findHalfHourPreMemberBallotVOs(final Session session,
+			final Date answeringDate,
 			final String locale) {
-		return Ballot.findPreBallotVOs(session, locale);
+		return Ballot.findPreBallotVOs(session, answeringDate, locale);
 	}
 	
 	/**
 	 * Applicable for Member Ballot. Use it prior to the Ballot.
 	 */
 	public static List<HalfHourBallotMemberVO> findPreBallotMemberVOs(final Session session,
+			final Date answeringDate,
 			final String locale) {
 		List<HalfHourBallotMemberVO> memberVOs = new ArrayList<HalfHourBallotMemberVO>();
 		
-		List<Member> members = Ballot.computeMembers(session, locale);
+		List<Member> members = Ballot.computeMembers(session, answeringDate, locale);
 		for(Member m: members) {
 			HalfHourBallotMemberVO memberVO = new HalfHourBallotMemberVO();
 			memberVO.setMemberName(m.getFullname());
@@ -299,10 +302,11 @@ public class Ballot extends BaseDomain implements Serializable {
 	}
 
 	private static List<HalfHourBallotVO> findPreBallotVOs(final Session session,
+			final Date answeringDate,
 			final String locale) {
 		List<HalfHourBallotVO> preBallotVOs = new ArrayList<HalfHourBallotVO>();
 		
-		List<Question> questions = Ballot.computeQuestions(session, locale);
+		List<Question> questions = Ballot.computeQuestions(session, answeringDate, locale);
 		for(Question q : questions) {
 			HalfHourBallotVO preBallotVO = new HalfHourBallotVO();
 			preBallotVO.setMemberName(q.getPrimaryMember().getFullname());
@@ -764,6 +768,7 @@ public class Ballot extends BaseDomain implements Serializable {
 		
 		if(ballot == null) {
 			List<Member> computedList = Ballot.computeMembers(this.getSession(),
+					this.getAnsweringDate(),
 					this.getLocale());
 			List<Member> randomizedList = Ballot.randomizeMembers(computedList);
 			// Read the constant 2 as a configurable parameter
@@ -789,18 +794,21 @@ public class Ballot extends BaseDomain implements Serializable {
 	}
 	
 	private static List<Member> computeMembers(final Session session,
+			final Date answeringDate,
 			final String locale) {
 		CustomParameter datePattern = CustomParameter.findByName(CustomParameter.class, 
 				"DB_TIMESTAMP", "");
-		DeviceType deviceType = DeviceType.findByType("questions_half_hour_discussion_from_question", 
+		DeviceType deviceType = DeviceType.findByType("questions_halfhourdiscussion_from_question", 
 				locale);
-	
+		
+		//-------------------dhananjay_22012013------------------------
 		Date startTime = FormaterUtil.formatStringToDate(session.getParameter(
-				deviceType.getType() + "_submissionStartDate"), 
+				deviceType.getType() + "_submission_start_date"), 
 				datePattern.getValue(), locale);
 		Date endTime = FormaterUtil.formatStringToDate(session.getParameter(
-				deviceType.getType() + "_submissionEndDate"), 
+				deviceType.getType() + "_submission_end_date"), 
 				datePattern.getValue(), locale);
+		//-------------------------------------------------------------------
 		
 		Status ADMITTED = Status.findByType("question_workflow_approving_admission", locale);
 		Status[] internalStatuses = new Status[] { ADMITTED };
@@ -815,7 +823,8 @@ public class Ballot extends BaseDomain implements Serializable {
 		// picked up for this Ballot.
 		
 		List<Member> members = Question.findPrimaryMembers(session, deviceType, 
-				startTime, endTime, internalStatuses, false, ApplicationConstants.ASC, locale);
+				 answeringDate, internalStatuses, false, startTime, endTime, 
+				 ApplicationConstants.ASC, locale);
 		
 		return members;
 	}
@@ -890,6 +899,7 @@ public class Ballot extends BaseDomain implements Serializable {
 		
 		if(ballot == null) {
 			List<Question> computedList = Ballot.computeQuestions(this.getSession(),
+					this.getAnsweringDate(),
 					this.getLocale());
 			List<Question> randomizedList = Ballot.randomizeQuestions(computedList);
 			// Read the constant 2 as a configurable parameter
@@ -906,18 +916,21 @@ public class Ballot extends BaseDomain implements Serializable {
 	}
 	
 	private static List<Question> computeQuestions(final Session session,
+			final Date answeringDate,
 			final String locale) {
 		CustomParameter datePattern = CustomParameter.findByName(CustomParameter.class, 
 				"DB_TIMESTAMP", "");
 		DeviceType deviceType = DeviceType.findByType("questions_halfhourdiscussion_from_question", 
 				locale);
-	
+		
+		//-------------------dhananjay_22012013------------------------
 		Date startTime = FormaterUtil.formatStringToDate(session.
-				getParameter(deviceType.getType() + "_submissionStartDate"), 
+				getParameter(deviceType.getType() + "_submission_start_date"), 
 				datePattern.getValue(), locale);
 		Date endTime = FormaterUtil.formatStringToDate(session.
-				getParameter(deviceType.getType() + "_submissionEndDate"), 
+				getParameter(deviceType.getType() + "_submission_end_date"), 
 				datePattern.getValue(), locale);
+		//-------------------------------------------------------------------
 		
 		Status ADMITTED = Status.findByType("question_workflow_approving_admission", locale);
 		Status[] internalStatuses = new Status[] { ADMITTED };
@@ -932,7 +945,8 @@ public class Ballot extends BaseDomain implements Serializable {
 		// picked up for this Ballot.
 		
 		List<Question> questions = Question.find(session, deviceType, 
-				startTime, endTime, internalStatuses, false, ApplicationConstants.ASC, locale);
+				answeringDate, internalStatuses, false, startTime, endTime, 
+				ApplicationConstants.ASC, locale);
 		
 		return questions;
 	}
