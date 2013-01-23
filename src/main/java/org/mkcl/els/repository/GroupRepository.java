@@ -49,8 +49,8 @@ public class GroupRepository extends BaseRepository<Group, Long> {
 	 */
 	public List<Group> findByHouseTypeSessionTypeYear(final HouseType houseType,final SessionType sessionType,final Integer year){
 		Search search=new Search();
-		search.addFilterEqual("houseType",houseType);
-		search.addFilterEqual("sessionType",sessionType);
+		search.addFilterEqual("houseType.id",houseType.getId());
+		search.addFilterEqual("sessionType.id",sessionType.getId());
 		search.addFilterEqual("year",year);
 		search.addSort("number",false);
 		return this.search(search);
