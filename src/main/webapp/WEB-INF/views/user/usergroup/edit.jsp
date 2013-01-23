@@ -6,8 +6,12 @@
 	</title>
 	<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>	
 	<script type="text/javascript">	
-	function loadSubDepartments(ministry,department){
-		$.post('ref/subdepartments/'+ministry+'/'+department+'/byname',function(data){
+	function loadSubDepartments(){
+		var locale=$("#locale").val();		
+		var departments=$("#param_DEPARTMENT_"+locale).val();
+		var ministries=$("#param_MINISTRY_"+locale).val();
+		if(departments!=''&&ministries!=''){
+		$.post('ref/subdepartments/byministriesdepartmentsname',{'departments':departments,'ministries':ministries},function(data){
 			$("#param_SUBDEPARTMENT_"+locale).empty();
 			var text="";
 			if(data.length>0){
@@ -20,10 +24,17 @@
 				$.unblockUI();				
 			}
 		});	
+		}else{
+			$("#param_SUBDEPARTMENT_"+locale).empty();
+			$.unblockUI();			
+		}
 	}
 
-	function loadDepartments(ministry){
-		$.post('ref/departments/'+ministry+'/byname',function(data){
+	function loadDepartments(){
+		var locale=$("#locale").val();		
+		var ministries=$("#param_MINISTRY_"+locale).val();
+		if(ministries!=''){
+		$.post('ref/departments/byministriesname',{'ministries':ministries},function(data){
 			$("#param_DEPARTMENT_"+locale).empty();
 			var text="";
 			if(data.length>0){
@@ -31,61 +42,44 @@
 					text+="<option value='"+data[i].name+"' selected='selected'>"+data[i].name+"</option>";
 				}
 				$("#param_DEPARTMENT_"+locale).html(text);
-				loadSubDepartments(ministry,data[0].name);
+				loadSubDepartments();
 			}else{
+				$("#param_DEPARTMENT_"+locale).empty();
+				$("#param_SUBDEPARTMENT_"+locale).empty();
 				$.unblockUI();				
 			}
 		});	
+	}else{
+		$("#param_DEPARTMENT_"+locale).empty();
+		$("#param_SUBDEPARTMENT_"+locale).empty();
+		$.unblockUI();				
 	}
-
+	}
 	
 	$('document').ready(function(){	
 		initControls();
 		$('#key').val('');
-		if($("#activeFrom").val()==""){	
-		$("#activeFrom").val($("#currentDate").val());
-		}
-		$("select[multiple='multiple']").css("width","188px");
-		
-		var locale=$("#locale").val();
-
+		$("select[multiple='multiple']").css("width","188px");		
+		var locale=$("#locale").val();		
 		$("#param_MINISTRY_"+locale).change(function(event){
-			$.blockUI({ message: '<img src="./resources/images/waitAnimated.gif" />' }); 		
-			loadDepartments($(this).val());
-			//event.stopImmediatePropagation();
-			});		
+		$.blockUI({ message: '<img src="./resources/images/waitAnimated.gif" />' }); 		
+		loadDepartments();
+		});		
 
 		$("#param_DEPARTMENT_"+locale).change(function(){
-			$.blockUI({ message: '<img src="./resources/images/waitAnimated.gif" />' }); 		
-			loadSubDepartments($("#param_MINISTRY_"+locale).val(),$(this).val());		
-			});	
-			
-
+		$.blockUI({ message: '<img src="./resources/images/waitAnimated.gif" />' }); 		
+		loadSubDepartments();		
+		});	
 	});		
 </script>
 </head>
 <body>
 <div class="fields clearfix">
-<form:form action="usergroup" method="PUT"  modelAttribute="domain">
+<form:form action="user/usergroup" method="PUT"  modelAttribute="domain">
 	<%@ include file="/common/info.jsp" %>
 	<h2><spring:message code="generic.edit.heading" text="Details"/>
 		[<spring:message code="generic.id" text="Id"></spring:message>:${domain.id}]</h2>
 	<form:errors path="version" cssClass="validationError"/>		 
-	<p> 
-		<label class="small"><spring:message code="usergroup.name" text="Name"/></label>
-		<form:select cssClass="sSelect" path="userGroupType" items="${userGroupTypes}" itemLabel="name" itemValue="id"/>
-		<form:errors path="userGroupType" cssClass="validationError"/>	
-	</p>	
-	<p> 
-		<label class="small"><spring:message code="usergroup.activefrom" text="Active From"/></label>
-		<form:input cssClass="datemask sText" path="activeFrom"/>
-		<form:errors path="activeFrom" cssClass="validationError"/>	
-	</p>	
-	<p> 
-		<label class="small"><spring:message code="usergroup.activeto" text="Active Upto"/></label>
-		<form:input cssClass="datemask sText" path="activeTo"/>
-		<form:errors path="activeTo" cssClass="validationError"/>	
-	</p>
 	<p>
 		<label class="small"><spring:message code="usergroup.housetype" text="House Type" /></label>			
 		<select  id="param_HOUSETYPE_${locale}" name="param_HOUSETYPE_${locale}" class="sSelect">
@@ -101,6 +95,11 @@
 			</c:forEach>
 		</select>
 	</p>
+	<p> 
+		<label class="small"><spring:message code="usergroup.name" text="Name"/></label>
+		<form:select cssClass="sSelect" path="userGroupType" items="${userGroupTypes}" itemLabel="name" itemValue="id"/>
+		<form:errors path="userGroupType" cssClass="validationError"/>	
+	</p>
 	<p>
 		<label class="small"><spring:message code="usergroup.devicetype" text="Device Type" /></label>			
 		<select  id="param_DEVICETYPE_${locale}" name="param_DEVICETYPE_${locale}" multiple="multiple" size="5">
@@ -115,17 +114,27 @@
 			</c:choose>
 			</c:forEach>
 		</select>
+	</p>	
+	<p> 
+		<label class="small"><spring:message code="usergroup.activefrom" text="Active From"/></label>
+		<form:input cssClass="datemask sText" path="activeFrom"/>
+		<form:errors path="activeFrom" cssClass="validationError"/>	
+	</p>
+	<p> 
+		<label class="small"><spring:message code="usergroup.activeto" text="Active Upto"/></label>
+		<form:input cssClass="datemask sText" path="activeTo"/>
+		<form:errors path="activeTo" cssClass="validationError"/>	
 	</p>
 	<p>
-		<label class="small"><spring:message code="usergroup.group" text="Groups Type" /></label>			
+		<label class="small"><spring:message code="usergroup.ministry" text="Ministry" /></label>			
 		<select  id="param_MINISTRY_${locale}" name="param_MINISTRY_${locale}" multiple="multiple" size="5">
-			<c:forEach items="${groups}" var="i">	
+			<c:forEach items="${ministries}" var="i">	
 			<c:choose>
-			<c:when test="${fn:contains(selectedGroup,i.number) }">
-			<option value="${i.number}" selected="selected">${i.number}</option>			
+			<c:when test="${fn:contains(selectedMinistry,i.name) }">
+			<option value="${i.name}" selected="selected">${i.name}</option>			
 			</c:when>
 			<c:otherwise>
-			<option value="${i.number}">${i.number}</option>	
+			<option value="${i.name}">${i.name}</option>	
 			</c:otherwise>
 			</c:choose>			
 			</c:forEach>

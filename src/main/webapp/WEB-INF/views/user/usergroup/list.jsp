@@ -5,7 +5,6 @@
 	<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
 	<script type="text/javascript">
 		$(document).ready(function(){
-			$('#list_record').hide();
 			$('#gridURLParams').val("credential="+$('#credential').val()+"&user="+$("#user").val());
 			$('#editDeleteLinks').show();		
 			$('#new_record').click(function(){
@@ -22,17 +21,16 @@
 			});
 			$("#search").click(function() {
 				searchRecord();
-			});
+			});			
 		});
 		function listUserGroupRecord(){	
-			showTabByIdAndUrl('groups_tab','usergroup/list?'+$('#gridURLParams').val());	
+			showTabByIdAndUrl('groups_tab','user/usergroup/list?'+$('#gridURLParams').val());	
 		}
 		function newUserGroupRecord(){
 				$('#editDeleteLinks').hide();
 				$("#cancelFn").val("newUserGroupRecord");
-				$.get('usergroup/new?'+$('#gridURLParams').val(), function(data){					
+				$.get('user/usergroup/new?'+$('#gridURLParams').val(), function(data){					
 					$('#grid_container').html(data);
-					$('#list_record').show();
 					scrollTop();					
 			});
 				
@@ -45,9 +43,8 @@
 				$.prompt($('#selectRowFirstMessage').val());
 				return false;
 			}
-			$.get('usergroup/'+row+'/edit?'+$('#gridURLParams').val(), function(data){
+			$.get('user/usergroup/'+row+'/edit?'+$('#gridURLParams').val(), function(data){
 				$('#grid_container').html(data);
-				$('#list_record').show();
 				scrollTop();								
 		});		
 		}
@@ -56,9 +53,8 @@
 			$("#internalKey").val(rowid);			
 			var row=$('#internalKey').val();
 			$("#cancelFn").val("rowDblClickHandler");						
-			$.get('usergroup/'+row+'/edit?'+$('#gridURLParams').val(), function(data){
+			$.get('user/usergroup/'+row+'/edit?'+$('#gridURLParams').val(), function(data){
 				$('#grid_container').html(data);
-				$('#list_record').show();
 				scrollTop();							
 		});
 		}
@@ -77,7 +73,7 @@
 				$.prompt($('#confirmDeleteMessage').val()+ row,{
 					buttons: {Ok:true, Cancel:false}, callback: function(v){
 			        if(v){
-				        $.delete_('usergroup/'+row+'/delete?'+$('#gridURLParams').val(), null, function(data, textStatus, XMLHttpRequest) {
+				        $.delete_('user/usergroup/'+row+'/delete?'+$('#gridURLParams').val(), null, function(data, textStatus, XMLHttpRequest) {
 				        	listUserGroupRecord();
 				        });
 			        }
@@ -101,11 +97,8 @@
 			</a> |
 			<a href="#" id="search" class="butSim">
 				<spring:message code="usergroup.search" text="Search"/>
-			</a> 
-			</span> | 
-			<a href="#" id="list_record" class="butSim">
-				<spring:message code="generic.list" text="List"/>
-			</a>			
+			</a> |
+			</span>			
 			<p>&nbsp;</p>
 		</div>
 	</div>
@@ -115,9 +108,7 @@
 	<input type="hidden" id="gridURLParams" name="gridURLParams">
 	<input type="hidden" id="internalKey" name="internalKey">	
 	<input type="hidden" id="credential" name="credential" value="${credential}">
-	<input type="hidden" id="user" name="user" value="${user}">
-	
-	
+	<input type="hidden" id="user" name="user" value="${user}">	
 	</div>
 </body>
 </html>
