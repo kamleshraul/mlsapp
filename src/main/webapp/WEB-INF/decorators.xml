@@ -149,11 +149,11 @@
 		<pattern>/session/*/devicetypeconfig</pattern>
 		<pattern>/session/</pattern>
 		
-		<pattern>/session/workflowconfig/new</pattern>
-		<pattern>/session/workflowconfig/*/edit</pattern>
-		<pattern>/session/workflowconfig/*/delete</pattern>
-		<pattern>/session/workflowconfig/actor/*/delete</pattern>
-		<pattern>/session/workflowconfig/</pattern>
+		<pattern>/workflowconfig/new</pattern>
+		<pattern>/workflowconfig/*/edit</pattern>
+		<pattern>/workflowconfig/*/delete</pattern>
+		<pattern>/workflowconfig/actor/*/delete</pattern>
+		<pattern>/workflowconfig/</pattern>
 
 		<pattern>/airport/new</pattern>
 		<pattern>/airport/*/edit</pattern>
@@ -207,10 +207,10 @@
 		<pattern>/question</pattern>
 		
 		
-		<pattern>/usergroup/new</pattern>
-		<pattern>/usergroup/*/edit</pattern>
-		<pattern>/usergroup/*/delete</pattern>
-		<pattern>/usergroup</pattern>
+		<pattern>/user/usergroup/new</pattern>
+		<pattern>/user/usergroup/*/edit</pattern>
+		<pattern>/user/usergroup/*/delete</pattern>
+		<pattern>/user/usergroup</pattern>
 		
 		<pattern>/user/new</pattern>
 		<pattern>/user/*/edit</pattern>
