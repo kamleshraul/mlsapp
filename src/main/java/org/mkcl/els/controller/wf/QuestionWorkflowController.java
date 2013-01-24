@@ -9,6 +9,7 @@
  */
 package org.mkcl.els.controller.wf;
 
+import java.text.Format;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -21,6 +22,7 @@ import java.util.Map;
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 
+import org.joda.time.format.FormatUtils;
 import org.mkcl.els.common.editors.BaseEditor;
 import org.mkcl.els.common.util.ApplicationConstants;
 import org.mkcl.els.common.util.FormaterUtil;
@@ -338,7 +340,7 @@ public class QuestionWorkflowController  extends BaseController{
 								: null;
 			}
 		});
-
+		
 		//----------21012013--------------------------
 		/**** Referenced Question for half hour discussion from question ****/
 		binder.registerCustomEditor(Question.class, new BaseEditor(new Question()));
@@ -553,6 +555,7 @@ public class QuestionWorkflowController  extends BaseController{
 		UserGroup userGroupTemp=UserGroup.findById(UserGroup.class,Long.parseLong(usergroup));
 		String userGroupType=userGroupTemp.getUserGroupType().getType();
 		List<Status> internalStatuses=new ArrayList<Status>();
+		/**** Here whenever new situation arises internal statuses needs to added ****/
 		if((userGroupType.equals("under_secretary")
 				||userGroupType.equals("principal_secretary")
 				||userGroupType.equals("deputy_secretary")
@@ -562,8 +565,7 @@ public class QuestionWorkflowController  extends BaseController{
 			Status dateApprovalStatus=Status.findByFieldName(Status.class,"type","question_after_approval_put_for_dateapproval", locale);
 			List<Reference> dateapprovalactors=WorkflowConfig.findQuestionActorsVO(domain, dateApprovalStatus, userGroupTemp, Integer.parseInt(level), locale);
 			model.addAttribute("dateapprovalactors",dateapprovalactors);
-			model.addAttribute("newRecommendationStatus", "question_after_approval_put_for_dateapproval");
-			
+			model.addAttribute("newRecommendationStatus", "question_after_approval_put_for_dateapproval");			
 		}else if(userGroupType.equals("speaker")||userGroupType.equals("chairman")){
 			internalStatuses=Status.findStartingWith("question_workflow_approving_", "name", ApplicationConstants.ASC, domain.getLocale());
 		}else if(userGroupType.equals("assistant")){
@@ -586,14 +588,35 @@ public class QuestionWorkflowController  extends BaseController{
 			}else{
 			model.addAttribute("newRecommendationStatus", "question_after_approval_department_sent_answer");
 			}
-			
 		}else if(userGroupType.equals("department")){
 			Status sendbackStatus=Status.findByFieldName(Status.class,"type","question_workflow_decisionstatus_sendback", locale);
 			List<Reference> sendbackactors=WorkflowConfig.findQuestionActorsVO(domain, sendbackStatus, userGroupTemp, Integer.parseInt(level), locale);
 			model.addAttribute("sendbackactors",sendbackactors);			
+		}else if(userGroupType.equals("under_secretary")//-----------------------
+				||userGroupType.equals("deputy_secretary")
+				||userGroupType.equals("principal_secretary")
+				||userGroupType.equals("joint_secretary")
+				||userGroupType.equals("officer_on_special_duty")
+				||userGroupType.equals("deputy_speaker")
+				||userGroupType.equals("deputy_chairman")
+				||userGroupType.equals("under_secretary_committee")){
+			internalStatuses=Status.findStartingWith("question_workflow_decisionstatus_", "name",ApplicationConstants.ASC, locale);
+		}else if(userGroupType.equals("speaker")
+				||userGroupType.equals("chairman")){
+			internalStatuses=Status.findStartingWith("question_workflow_approving_", "name",ApplicationConstants.ASC, locale);
+		}else if(userGroupType.equals("assistant")
+				&&(domain.getInternalStatus().getType().equals("question_workflow_approving_discuss")
+						||domain.getInternalStatus().getType().equals("question_workflow_decisionstatus_discuss")
+						||domain.getInternalStatus().getType().equals("question_workflow_decisionstatus_sendback")
+						||domain.getInternalStatus().getType().equals("question_workflow_decisionstatus_sendback"))){
+			internalStatuses=Status.findStartingWith("question_workflow_decisionstatus_", "name",ApplicationConstants.ASC, locale);
+		}else if(userGroupType.equals("assistant")
+				&&domain.getInternalStatus().getType().equals("question_workflow_approving_admission")){
+			internalStatuses=Status.findStartingWith("question_workflow_approving_", "name",ApplicationConstants.ASC, locale);//-------------
 		}else{
 			internalStatuses=Status.findStartingWith("question_workflow_decisionstatus_", "name", ApplicationConstants.ASC, domain.getLocale());
-		}
+		}	
+		
 		model.addAttribute("internalStatuses",internalStatuses);
 		/**** Referenced Questions are collected in refentities****/
 		List<Reference> refentities=new ArrayList<Reference>();
@@ -771,22 +794,6 @@ public class QuestionWorkflowController  extends BaseController{
 		domain.setEditedBy(this.getCurrentUser().getActualUsername());
 		UserGroup userGroup=UserGroup.findById(UserGroup.class,Long.parseLong(strusergroup));
 		domain.setEditedAs(userGroup.getUserGroupType().getName());
-		String strDateOfAnsweringByMinister=request.getParameter("dateOfAnsweringByMinister");
-		Date dateOfAnsweringByMinister=null;
-		try {
-			if(strDateOfAnsweringByMinister!=null){
-				if(!strDateOfAnsweringByMinister.isEmpty()){
-					dateOfAnsweringByMinister=FormaterUtil.getDateFormatter("en_US").parse(strDateOfAnsweringByMinister);
-				}
-			}
-		} catch (ParseException e1) {
-			try {
-				dateOfAnsweringByMinister=FormaterUtil.getDateFormatter(locale.toString()).parse(strDateOfAnsweringByMinister);
-			} catch (ParseException e) {
-				logger.error(e.getMessage());
-			}			
-		}
-		domain.setDateOfAnsweringByMinister(dateOfAnsweringByMinister);
 		/**** updating submission date and creation date ****/
 		String strCreationDate=request.getParameter("setCreationDate");
 		String strSubmissionDate=request.getParameter("setSubmissionDate");
@@ -812,6 +819,7 @@ public class QuestionWorkflowController  extends BaseController{
 				domain.setRecommendationStatus(status);				
 			}
 		}
+		
 		//--------21012013
 		String refQuestionId = request.getParameter("halfHourDiscusionFromQuestionReference");
 		Question refQuestion = null;
@@ -840,6 +848,7 @@ public class QuestionWorkflowController  extends BaseController{
 		}
 		domain.setDiscussionDate(discussionDate);
 		//------------------------
+				
 		performAction(domain);
 		domain.merge();
 		/*
@@ -879,7 +888,8 @@ public class QuestionWorkflowController  extends BaseController{
 		/*
 		 * Once both update of domain and task is completed we can show a message indicating the same
 		 */
-		model.addAttribute("type","taskcompleted");
+		model.addAttribute("type","taskcompleted");		
+		
 		
 		return "workflow/info";
 	}
