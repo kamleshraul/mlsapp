@@ -2,7 +2,7 @@
 <html>
 <head>
 	<title>
-	<spring:message code="session.workflowconfig.personal" text="Workflow Settings"/>
+	<spring:message code="workflowconfig.personal" text="Workflow Settings"/>
 	</title>
 	<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
 	<script type="text/javascript">
@@ -16,10 +16,6 @@
 		totalWorkflowActorCount=totalWorkflowActorCount+1;
 		var text="<div id='workflowactor"+workflowactorCount+"'>"+
 				  "<p>"+
-	    		  "<label class='small'>"+$('#workflowactorLevelMessage').val()+"</label>"+
-	    		  "<input name='workflowactorLevel"+workflowactorCount+"' id='workflowactorLevel"+workflowactorCount+"' style='width:100px;'>"+
-	    		  "<label class='small'>"+$('#workflowactorGroupMessage').val()+"</label>"+
-	    		  "<input name='workflowactorGroup"+workflowactorCount+"' id='workflowactorGroup"+workflowactorCount+"' style='width:100px;'>"+
 		              "<label class='small'>"+$('#workflowactorNameMessage').val()+"</label>"+
 		              "<select name='workflowactorName"+workflowactorCount+"' id='workflowactorName"+workflowactorCount+"' style='width:100px;'>"+
 				      $('#usergroupTypeMaster').html()+
@@ -29,6 +25,7 @@
 				      "<input type='hidden' id='workflowactorId"+workflowactorCount+"' name='workflowactorId"+workflowactorCount+"'>"+
 					  "<input type='hidden' id='workflowactorLocale"+workflowactorCount+"' name='workflowactorLocale"+workflowactorCount+"' value='"+$('#locale').val()+"'>"+
 					  "<input type='hidden' id='workflowactorVersion"+workflowactorCount+"' name='workflowactorVersion"+workflowactorCount+"'>"+
+					  "<input type='hidden' id='workflowactorLevel"+workflowactorCount+"' name='workflowactorLevel"+workflowactorCount+"' value='"+workflowactorCount+"'>"+
 					  "</div>"; 
 				      var prevCount=workflowactorCount-1;
 				      if(totalWorkflowActorCount==1){
@@ -44,7 +41,8 @@
 	function deleteWorkflowActor(id,continous){	
 		var workflowactorId=$('#workflowactorId'+id).val();			
 		if(workflowactorId != ''){
-	    $.delete_('session/workflowconfig/workflowactor/'+$("#id").val()+"/"+workflowactorId+'/delete', null, function(data, textStatus, XMLHttpRequest) {
+	    $.delete_('workflowconfig/'+$("#id").val()+"/"+workflowactorId+'/delete', null, function(data, textStatus, XMLHttpRequest) {
+		    if(data=='SUCCESS'){
 	    	$('#workflowactor'+id).remove();
 	    	totalWorkflowActorCount=totalWorkflowActorCount-1;
 			if(id==workflowactorCount){
@@ -52,6 +50,9 @@
 					workflowactorCount=workflowactorCount-1;
 				}				
 			}
+		    }else{
+			    $.prompt($("#deleteFailedMessage").val());
+		    }
 	    });	
 		}else{
 			$('#workflowactor'+id).remove();
@@ -75,28 +76,31 @@
 
 <body>
 <div class="fields clearfix watermark" >
-<form:form action="session/workflowconfig" method="PUT" modelAttribute="domain">
+<form:form action="workflowconfig" method="PUT" modelAttribute="domain">
 	<%@ include file="/common/info.jsp" %>
-	<h2><spring:message code="session.workflowconfig.new.heading" text="Enter Workflow Settings"/>		
+	<h2><spring:message code="workflowconfig.new.heading" text="Enter Workflow Settings"/>		
 	</h2>
-	<form:errors path="version" cssClass="validationError"/>	
+	<form:errors path="version" cssClass="validationError"/>
 	<p>
-		<label class="small"><spring:message code="session.workflowconfig.devicetype" text="Device Type"/></label>
+		<label class="small"><spring:message code="workflowconfig.devicetype" text="Device Type"/></label>
 		<form:select path="deviceType" items="${deviceTypes}" itemValue="id" itemLabel="name" cssClass="sSelect"/>
 		<form:errors path="deviceType" cssClass="validationError"/>
 	</p>
 	<p>
-		<label class="small"><spring:message code="session.workflowconfig.workflow" text="Workflow"/></label>
+		<label class="small"><spring:message code="workflowconfig.workflow" text="Workflow"/></label>
 		<form:select path="workflow" items="${workflows}" itemValue="id" itemLabel="name" cssClass="sSelect"/>
 		<form:errors path="workflow" cssClass="validationError"/>
 	</p>	
+	<p>
+		<label class="small"><spring:message code="workflowconfig.islocked" text="Lock This Configuration"/></label>
+		<form:checkbox path="isLocked"  cssClass="sCheck" value="true"/>
+		<form:errors path="isLocked" cssClass="validationError"/>
+	</p>
 	<div>
-	<input type="button" class="button" id="addWorkflowActor" value="<spring:message code='session.workflowconfig.addWorkflowActor' text='Add Workflow Actors'></spring:message>">
+	<input type="button" class="button" id="addWorkflowActor" value="<spring:message code='workflowconfig.addWorkflowActor' text='Add Workflow Actors'></spring:message>">
 	<input type="hidden" id="workflowactorCount" name="workflowactorCount" value="${workflowactorCount}"/>	
-	<input type="hidden" id="deleteWorkflowActorMessage" name="deleteWorkflowActorMessage" value="<spring:message code='session.workflowconfig.deleteWorkflowActor' text='Delete Workflow Actor'></spring:message>" disabled="disabled"/>
-	<input type="hidden" id="workflowactorLevelMessage" name="workflowactorLevelMessage" value="<spring:message code='session.workflowconfig.workflowactorLevel' text='Level'></spring:message>" disabled="disabled"/>
-	<input type="hidden" id="workflowactorNameMessage" name="workflowactorNameMessage" value="<spring:message code='session.workflowconfig.workflowactorName' text='User Group'></spring:message>" disabled="disabled"/>
-	<input type="hidden" id="workflowactorGroupMessage" name="workflowactorGroupMessage" value="<spring:message code='session.workflowconfig.workflowactorGroup' text='Group'></spring:message>" disabled="disabled"/>
+	<input type="hidden" id="deleteWorkflowActorMessage" name="deleteWorkflowActorMessage" value="<spring:message code='workflowconfig.deleteWorkflowActor' text='Delete Workflow Actor'></spring:message>" disabled="disabled"/>
+	<input type="hidden" id="workflowactorNameMessage" name="workflowactorNameMessage" value="<spring:message code='workflowconfig.workflowactorName' text='User Group'></spring:message>" disabled="disabled"/>
 
 	<select name="usergroupTypeMaster" id="usergroupTypeMaster" disabled="disabled">
 	<c:forEach items="${userGroupTypes}" var="i">
@@ -109,13 +113,7 @@
 	<c:forEach items="${domain.workflowactors}" var="outer">
 	<div id="workflowactor${count}">
 	<p>
-	    <label class="small"><spring:message code="session.workflowconfig.workflowactorLevel" text="Level"/></label>
-		<input name="workflowactorLevel${count}" id="workflowactorLevel${count}"  value="${outer.level}" style='width:100px;'>
-	
-	    <label class="small"><spring:message code="session.workflowconfig.workflowactorGroup" text="Group"/></label>
-		<input name="workflowactorGroup${count}" id="workflowactorGroup${count}"  value="${outer.groupName}" style='width:100px;'>
-	
-	    <label class="small"><spring:message code="session.workflowconfig.workflowactorName" text="User Group"/></label>
+	    <label class="small"><spring:message code="workflowconfig.workflowactorName" text="User Group"/></label>
 		<select name="workflowactorName${count}" id="workflowactorName${count}" style='width:100px;'>
 		<c:forEach items="${userGroupTypes}" var="i">
 		<c:choose>
@@ -129,10 +127,11 @@
 		</c:forEach>
 		</select>
 	</p>
-	<input type='button' class='button' id='${count}' value='<spring:message code="session.workflowconfig.deleteWorkflowActor" text="Delete Workflow Actor"></spring:message>' onclick='deleteWorkflowActor(${count});'/>
+	<input type='button' class='button' id='${count}' value='<spring:message code="workflowconfig.deleteWorkflowActor" text="Delete Workflow Actor"></spring:message>' onclick='deleteWorkflowActor(${count});'/>
 	<input type='hidden' id='workflowactorId${count}' name='workflowactorId${count}' value="${outer.id}">
 	<input type='hidden' id='workflowactorVersion${count}' name='workflowactorVersion${count}' value="${outer.version}">
 	<input type='hidden' id='workflowactorLocale${count}' name='workflowactorLocale${count}' value="${domain.locale}">
+	<input type='hidden' id='workflowactorLevel${count}' name='workflowactorLevel${count}' value="${count}">
 	<c:set var="count" value="${count+1}"></c:set>	
 	</div>	
 	</c:forEach>
@@ -141,18 +140,25 @@
 	<div class="fields">
 		<h2></h2>
 		<p class="tright">
-			<input id="submit" type="submit" value="<spring:message code='generic.submit' text='Submit'/>" class="butDef">
+			<c:choose>
+			<c:when test="${domain.isLocked==true }">
+			<input id="submit" type="submit" value="<spring:message code='generic.submit' text='Submit'/>" class="butDef" disabled="disabled">
+			</c:when>
+			<c:otherwise>
+			<input id="submit" type="submit" value="<spring:message code='generic.submit' text='Submit'/>" class="butDef">	
+			</c:otherwise>
+			</c:choose>
 			<input id="cancel" type="button" value="<spring:message code='generic.cancel' text='Cancel'/>" class="butDef">
 		</p>
 	</div>
 	<form:hidden path="version" />
 	<form:hidden path="id"/>
-	<form:hidden path="locale"/>
-	<form:hidden path="createdOn"/>	
+	<form:hidden path="locale"/>		
 	<input type="hidden" id="workflowactorCount" name="workflowactorCount" value="${workflowactorCount}">
-	<input id="session" name="session" value="${session}" type="hidden">
-	<input id="houseType" name="houseType" value="${houseType}" type="hidden">	
-	
+	<input type="hidden" id="createdOn" name="createdOn" value="${createdOn}">
+	<input type="hidden" id="houseType" name="houseType" value="${houseType}">
+	<input type="hidden" id="deleteFailedMessage" name="deleteFailedMessage" value="<spring:message code='workflowconfig.deletefailedmsg' text='Cannot Be Deleted'/>">	
+		
 </form:form>
 </div>
 </body>
