@@ -22,6 +22,8 @@ public class MasterVO {
     /** The name. */
     private String name;
     
+    private String value;
+    
     private Integer number;
 
 
@@ -73,5 +75,13 @@ public class MasterVO {
 
 	public Integer getNumber() {
 		return number;
+	}
+
+	public String getValue() {
+		return value;
+	}
+
+	public void setValue(String value) {
+		this.value = value;
 	}
 }
