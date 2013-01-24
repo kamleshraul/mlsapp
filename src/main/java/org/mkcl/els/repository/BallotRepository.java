@@ -18,7 +18,6 @@ import org.mkcl.els.common.util.FormaterUtil;
 import org.mkcl.els.domain.Ballot;
 import org.mkcl.els.domain.BallotEntry;
 import org.mkcl.els.domain.DeviceType;
-import org.mkcl.els.domain.Group;
 import org.mkcl.els.domain.Member;
 import org.mkcl.els.domain.Question;
 import org.mkcl.els.domain.Session;
@@ -42,21 +41,6 @@ public class BallotRepository extends BaseRepository<Ballot, Long> {
 		Search search = new Search();
 		search.addFilterEqual("session", session);
 		search.addFilterEqual("deviceType", deviceType);
-		search.addFilterEqual("answeringDate", answeringDate);
-		search.addFilterEqual("locale", locale);
-		Ballot ballot = this.searchUnique(search);
-		return ballot;
-	}
-	
-	public Ballot find(final Session session,
-			final DeviceType deviceType,
-			final Group group, 
-			final Date answeringDate,
-			final String locale) {
-		Search search = new Search();
-		search.addFilterEqual("session", session);
-		search.addFilterEqual("deviceType", deviceType);
-		search.addFilterEqual("group", group);
 		search.addFilterEqual("answeringDate", answeringDate);
 		search.addFilterEqual("locale", locale);
 		Ballot ballot = this.searchUnique(search);
@@ -90,35 +74,6 @@ public class BallotRepository extends BaseRepository<Ballot, Long> {
 		return questions;
 	}
 	
-	public List<Question> findBallotedQuestions(final Member member,
-			final Session session,
-			final DeviceType deviceType,
-			final Group group, 
-			final Date answeringDate,
-			final String locale) {
-		/**
-		 * Commented for performance reason. Uncomment when Caching mechanism is added
-		 */
-		// CustomParameter parameter = 
-		//	CustomParameter.findByName(CustomParameter.class, "DB_DATEFORMAT", "");
-		// String date = new DateFormater().formatDateToString(answeringDate, parameter.getValue());
-		
-		String date = FormaterUtil.formatDateToString(answeringDate, "yyyy-MM-dd");
-		String strQuery = "SELECT q" +
-				" FROM Ballot b JOIN b.ballotEntries be JOIN be.questionSequences qs" +
-				" JOIN qs.question q" +
-				" WHERE b.session.id = " + session.getId() +
-				" AND b.deviceType.id = " + deviceType.getId() +
-				" AND b.group.id = " + group.getId() +
-				" AND b.answeringDate = '" + date + "'" +
-				" AND b.locale = '" + locale + "'" +
-				" AND be.member.id = " + member.getId();
-		
-		TypedQuery<Question> query = this.em().createQuery(strQuery, Question.class);
-		List<Question> questions = query.getResultList();
-		return questions;
-	}
-
 	public BallotEntry find(final Member member,
 			final Session session,
 			final DeviceType deviceType,
