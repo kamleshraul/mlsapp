@@ -390,7 +390,7 @@
 					$.prompt('Provide proper reference question number.');
 					return false;
 				}
-				alert("selected members: " + selectedMembers + "member numbers: " + selectedMembers);
+				
 				if((memberNumbers > 0) && (memberComparator!=null) &&(memberComparator!="")){
 										
 					if(memberComparator=="eq"){
