@@ -220,46 +220,62 @@
 				<a id="list_tab" class="selected tab" href="#">
 					<spring:message code="generic.list" text="List"></spring:message>
 				</a>
-			</li>	
+			</li>
+			
 			<li>
 				<a id="details_tab" href="#" class="tab">
 				   <spring:message code="generic.details" text="Details">
 				   </spring:message>
 				</a>
 			</li>
-			<security:authorize access="hasAnyRole('QIS_ASSISTANT','QIS_UNDER_SECRETARY',
-			'QIS_DEPUTY_SECRETARY','QIS_PRINCIPAL_SECRETARY','QIS_SPEAKER','QIS_JOINT_SECRETARY',
-			'QIS_SECRETARY','QIS_OFFICER_ON_SPECIAL_DUTY','QIS_DEPUTY_SPEAKER','QIS_CHAIRMAN','QIS_DEPUTY_CHAIRMAN',
-			'QIS_SECTION_OFFICER','QIS_UNDER_SECRETARY_COMMITTEE','SUPER_ADMIN')">
-			<c:if test="${questionTypeType!='questions_unstarred'&& questionTypeType!='questions_shortnotice'}">
-			<c:if test="${questionTypeType!='questions_halfhourdiscussion_standalone'&&questionTypeType!='questions_halfhourdiscussion_from_question'}">
+			
+			<c:if test="${questionTypeType == 'questions_starred'}">
+			<security:authorize access="hasAnyRole('QIS_ASSISTANT', 'QIS_UNDER_SECRETARY',
+				'QIS_DEPUTY_SECRETARY', 'QIS_PRINCIPAL_SECRETARY', 'QIS_SPEAKER', 'QIS_JOINT_SECRETARY',
+				'QIS_SECRETARY', 'QIS_OFFICER_ON_SPECIAL_DUTY', 'QIS_DEPUTY_SPEAKER', 'QIS_CHAIRMAN',
+				'QIS_DEPUTY_CHAIRMAN', 'QIS_SECTION_OFFICER', 'QIS_UNDER_SECRETARY_COMMITTEE',
+				'SUPER_ADMIN')">
 			<li>
 				<a id="rotationorder_tab" href="#" class="tab">
 				   <spring:message code="question.rotationorder" text="Rotation Order"></spring:message>
 				</a>
 			</li>
+			</security:authorize>
+			
+			<security:authorize access="hasAnyRole('QIS_ASSISTANT', 'QIS_UNDER_SECRETARY',
+				'QIS_DEPUTY_SECRETARY', 'QIS_PRINCIPAL_SECRETARY', 'QIS_JOINT_SECRETARY',
+				'QIS_SECRETARY', 'QIS_OFFICER_ON_SPECIAL_DUTY', 'QIS_SECTION_OFFICER', 
+				'QIS_UNDER_SECRETARY_COMMITTEE','SUPER_ADMIN')">
 			<li>
 				<a id="chart_tab" href="#" class="tab">
 				   <spring:message code="question.chart" text="Chart"></spring:message>
 				</a>
 			</li>
-			</c:if>
-			<c:if test="${houseType=='upperhouse'}">			
-			<li>
-				<a id="memberballot_tab" href="#" class="tab">
-				   <spring:message code="question.memberballot" text="Ballot"></spring:message>
-				</a>
-			</li>
-			</c:if>
-			<c:if test="${houseType=='lowerhouse'}">						
-			<li>
-				<a id="ballot_tab" href="#" class="tab">
-				   <spring:message code="question.ballot" text="Ballot"></spring:message>
-				</a>
-			</li>
-			</c:if>
-			</c:if>							
 			</security:authorize>
+			</c:if>
+
+			<security:authorize access="hasAnyRole('QIS_ASSISTANT', 'QIS_UNDER_SECRETARY',
+				'QIS_DEPUTY_SECRETARY', 'QIS_PRINCIPAL_SECRETARY', 'QIS_SPEAKER', 'QIS_JOINT_SECRETARY',
+				'QIS_SECRETARY', 'QIS_OFFICER_ON_SPECIAL_DUTY', 'QIS_DEPUTY_SPEAKER', 'QIS_CHAIRMAN',
+				'QIS_DEPUTY_CHAIRMAN', 'QIS_SECTION_OFFICER', 'QIS_UNDER_SECRETARY_COMMITTEE',
+				'SUPER_ADMIN')">
+			<c:choose>
+				<c:when test="${questionTypeType == 'questions_starred' && houseType=='upperhouse'}">
+					<li>
+					<a id="memberballot_tab" href="#" class="tab">
+				   		<spring:message code="question.memberballot" text="Ballot"></spring:message>
+					</a>
+					</li>
+				</c:when>
+				<c:otherwise>
+					<li>
+					<a id="ballot_tab" href="#" class="tab">
+				   		<spring:message code="question.ballot" text="Ballot"></spring:message>
+					</a>
+					</li>
+				</c:otherwise>
+			</c:choose>
+			</security:authorize>				
 		</ul>
 		
 		<div class="commandbarContent" style="margin-top: 10px;" id="selectionDiv1">		
