@@ -276,4 +276,17 @@ public class Group extends BaseDomain implements Serializable {
         return getGroupRepository().findQuestionDateByGroup(houseType,sessionType,
                sessionYear,groupNumber,locale);
     }
+    
+    /**
+	 * Find Group based on @param session & where group has a
+	 * QuestionDates object which has attribute 
+	 * answeringDate = @param answeringDate. 
+	 * 
+	 * Returns null if such a Group does not exist.
+	 */
+	public static Group find(final Session session, 
+			final Date answeringDate,
+			final String locale) {
+		return Group.getGroupRepository().find(session, answeringDate, locale);
+	}
 }
