@@ -31,8 +31,8 @@
 		}
 	    
 	    hideDivs();
-	    $(selectedDiv).show();
-		  
+	    $(selectedDiv).show();		  
+	    
 	    if(isBallotingRequiredValue != undefined){
 		    if(isBallotingRequiredValue.length==4){
 		    	
@@ -331,122 +331,159 @@
 			<c:if test="${i.type eq 'questions_starred'}">					
 			<div id="questions_starred" class="formDiv">
 				<p >
-					<label class="small"><spring:message code="session.deviceType.submissionStartDate"
-							text="Submission Start Date" /></label>
-					<c:set var="key" value="questions_starred_submissionStartDate"></c:set>
-					<input type="text" class="datetimemask sText" name="questions_starred_submissionStartDate" id="questions_starred_submissionStartDate"
-						value="${domain.parameters[key]}" />
+					<label class="small"><spring:message code="session.deviceType.submissionStartDate" text="Submission Start Date" /></label>
+					<input type="text" class="datetimemask sText" name="questions_starred_submissionStartDate" id="questions_starred_submissionStartDate" value="${questions_starred_submissionstartdate}" />
 				</p>
 
 				<p>
 					<label class="small"><spring:message code="session.deviceType.submissionEndDate" text="Submission End Date" /></label>
-					<c:set var="key" value="questions_starred_submissionEndDate"></c:set>
-					<input type="text" class="datetimemask sText" name="questions_starred_submissionEndDate" id="questions_starred_submissionEndDate" value="${domain.parameters[key]}" />
+					<input type="text" class="datetimemask sText" name="questions_starred_submissionEndDate" id="questions_starred_submissionEndDate" value="${questions_starred_submissionenddate}" />
 				</p>
+				
 				<c:if test="${domain.house.type.type eq 'upperhouse'}">
 				<p>
 					<label class="small"><spring:message code="session.deviceType.submissionFirstBatchStartDate" text="Submission First Batch Start Date" /></label>
-					<c:set var="key" value="questions_starred_submissionFirstBatchStartDate"></c:set>
-					<input type="text" class="datetimemask sText" name="questions_starred_submissionFirstBatchStartDate" id="questions_starred_submissionFirstBatchStartDate" value="${domain.parameters[key]}" />
+					<input type="text" class="datetimemask sText" name="questions_starred_submissionFirstBatchStartDate" id="questions_starred_submissionFirstBatchStartDate" value="${questions_starred_submissionfirstbatchstartdate}" />
 				</p>
 
 				<p>
 					<label class="small"><spring:message code="session.deviceType.submissionFirstBatchEndDate" text="Submission First Batch End Date" /></label>
-					<c:set var="key" value="questions_starred_submissionFirstBatchEndDate"></c:set>
-					<input type="text" class="datetimemask sText" name="questions_starred_submissionFirstBatchEndDate" id="questions_starred_submissionFirstBatchEndDate" value="${domain.parameters[key]}" />
+					<input type="text" class="datetimemask sText" name="questions_starred_submissionFirstBatchEndDate" id="questions_starred_submissionFirstBatchEndDate" value="${questions_starred_submissionfirstbatchenddate}" />
 				</p>
 
 				<p>
 					<label class="small"><spring:message code="session.deviceType.submissionSecondBatchStartDate" text="Submission Second Batch Start Date" /></label>
-					<c:set var="key" value="questions_starred_submissionSecondBatchStartDate"></c:set>
-					<input type="text" class="datetimemask sText" name="questions_starred_submissionSecondBatchStartDate" id="questions_starred_submissionSecondBatchStartDate" value="${domain.parameters[key]}" />
+					<input type="text" class="datetimemask sText" name="questions_starred_submissionSecondBatchStartDate" id="questions_starred_submissionSecondBatchStartDate" value="${questions_starred_submissionsecondbatchstartdate}" />
 				</p>
 
 				<p>
 					<label class="small"><spring:message code="session.deviceType.submissionSecondBatchEndDate" text="Submission Second Batch End Date" /></label>
-					<c:set var="key" value="questions_starred_submissionSecondBatchEndDate"></c:set>
-					<input type="text" class="datetimemask sText" name="questions_starred_submissionSecondBatchEndDate" id="questions_starred_submissionSecondBatchEndDate" value="${domain.parameters[key]}" />
-				</p>
+					<input type="text" class="datetimemask sText" name="questions_starred_submissionSecondBatchEndDate" id="questions_starred_submissionSecondBatchEndDate" value="${questions_starred_submissionsecondbatchenddate}" />
+				</p>				
 				</c:if>
+				
 				<p>
 					<label class="small"><spring:message code="session.deviceType.firstBallotDate" text="First Ballot Date" /></label>
-					<c:set var="key" value="questions_starred_firstBallotDate"></c:set>
-					<input type="text" class="datetimemask sText" name="questions_starred_firstBallotDate" id="questions_starred_firstBallotDate" value="${domain.parameters[key]}" />
+					<input type="text" class="datetimemask sText" name="questions_starred_firstBallotDate" id="questions_starred_firstBallotDate" value="${questions_starred_firstballotdate}" />
 				</p>
 
 				<p>
 					<label class="small"><spring:message code="session.deviceType.NumberOfQuestionInFirstBatch" text="Number of Question In First Batch" /></label>
-					<c:set var="key" value="questions_starred_NumberOfQuestionInFirstBatch"></c:set>
-					<input type="text" class="sInteger" name="questions_starred_NumberOfQuestionInFirstBatch" id="questions_starred_NumberOfQuestionInFirstBatch" value="${domain.parameters[key]}" />
+					<input type="text" class="sInteger" name="questions_starred_NumberOfQuestionInFirstBatch" id="questions_starred_NumberOfQuestionInFirstBatch" value="${questions_starred_numberofquestioninfirstbatch}" />
 				</p>
 
 				<c:if test="${domain.house.type.type eq 'upperhouse'}">
 				<p>
 					<label class="small"><spring:message code="session.deviceType.NumberOfQuestionInSecondBatch" text="Number of Question In Second Batch" /></label>
-					<c:set var="key" value="questions_starred_NumberOfQuestionInSecondBatch"></c:set>
-					<input type="text" class="sInteger" name="questions_starred_NumberOfQuestionInSecondBatch" id="questions_starred_NumberOfQuestionInSecondBatch" value="${domain.parameters[key]}" />
+					<input type="text" class="sInteger" name="questions_starred_NumberOfQuestionInSecondBatch" id="questions_starred_NumberOfQuestionInSecondBatch" value="${questions_starred_numberofquestioninsecondbatch}" />
 				</p>
 				</c:if>
+				
 				<p>
-					<label class="small"><spring:message code="session.deviceType.isBallotingRequired" text="is Ballotng Required" /></label>
-					<c:set var="key" value="questions_starred_isBallotingRequired"></c:set>
-					<input type="checkbox" class="sCheck" id="questions_starred_isBallotingRequired" value="${domain.parameters[key]}" >
+					<label class="small"><spring:message code="session.deviceType.isBallotingRequired" text="is Balloting Required" /></label>
+					<input type="checkbox" class="sCheck" id="questions_starred_isBallotingRequired" value="${questions_starred_isballotingrequired}" >
 					<input type="hidden" id="questions_starred_isBallotingRequired_Hidden" name="questions_starred_isBallotingRequired" value="" />
 				</p>
 				
 				<p>
 					<label class="small"><spring:message code="session.rotationOrderPublishingDate" text="Rotation Order Publishing Date " /></label>
-					<c:set var="key" value="questions_starred_rotationOrderPublishingDate"></c:set>
-					<input id="questions_starred_rotationOrderPublishingDate" name="questions_starred_rotationOrderPublishingDate" class="datemask sText" value="${domain.parameters[key]}" />
+					<input id="questions_starred_rotationOrderPublishingDate" name="questions_starred_rotationOrderPublishingDate" class="datemask sText" value="${questions_starred_rotationorderpublishingdate}" />
 				</p>
 				
 				<p>
 					<label class="small"><spring:message code="session.deviceType.rotationOrderCover" text="Rotation Order Covering Letter" /></label>
-					<c:set var="key" value="questions_starred_rotationOrderCover"></c:set>
-					<textarea class="wysiwyg" cols="50" rows="5" id="questions_starred_rotationOrderCover" name="questions_starred_rotationOrderCover">${domain.parameters[key]}</textarea>
+					<textarea class="wysiwyg" cols="50" rows="5" id="questions_starred_rotationOrderCover" name="questions_starred_rotationOrderCover">${questions_starred_rotationordercover}</textarea>
 				</p>
 					
 				<p>
 					<label class="small"><spring:message code="session.deviceType.rotationOrderHeader" text="Rotation Order Header" /></label>
-					<c:set var="key" value="questions_starred_rotationOrderHeader"></c:set>
-					<textarea class="wysiwyg" cols="50" rows="5" id="questions_starred_rotationOrderHeader" name="questions_starred_rotationOrderHeader">${domain.parameters[key]}</textarea>
+					<textarea class="wysiwyg" cols="50" rows="5" id="questions_starred_rotationOrderHeader" name="questions_starred_rotationOrderHeader">${questions_starred_rotationorderheader}</textarea>
 				</p>
 
 				<p>
 					<label class="small"><spring:message code="session.deviceType.rotationOrderFooter" text="Rotation Order Footer" /></label>
-					<c:set var="key" value="questions_starred_rotationOrderFooter"></c:set>
-					<textarea class="wysiwyg" cols="50" rows="5" id="questions_starred_rotationOrderFooter" name="questions_starred_rotationOrderFooter">${domain.parameters[key]}</textarea>
-				</p>				
-								
+					<textarea class="wysiwyg" cols="50" rows="5" id="questions_starred_rotationOrderFooter" name="questions_starred_rotationOrderFooter">${questions_starred_rotationorderfooter}</textarea>
+				</p>							
+				
 				<p>
 					<label class="small"><spring:message code="session.deviceType.totalRoundsMemberBallot" text="Total Rounds In Member Ballot" /></label>
 					<c:set var="key" value="questions_starred_totalRoundsMemberBallot"></c:set>
-					<textarea class="wysiwyg" cols="50" rows="5" id="questions_starred_totalRoundsMemberBallot" name="questions_starred_totalRoundsMemberBallot">${domain.parameters[key]}</textarea>
+					<input type="text" class="sText" id="questions_starred_totalRoundsMemberBallot" name="questions_starred_totalRoundsMemberBallot" value="${questions_starred_totalroundsmemberballot}" />
 				</p>
 				
 				<p>
 					<label class="small"><spring:message code="session.deviceType.totalRoundsFinalBallot" text="Total Rounds In Final Ballot" /></label>
 					<c:set var="key" value="questions_starred_totalRoundsFinalBallot"></c:set>
-					<textarea class="wysiwyg" cols="50" rows="5" id="questions_starred_totalRoundsFinalBallot" name="questions_starred_totalRoundsFinalBallot">${domain.parameters[key]}</textarea>
+					<input type="text" class="sText" id="questions_starred_totalRoundsFinalBallot" name="questions_starred_totalRoundsFinalBallot" value="${questions_starred_totalroundsfinalballot}" />
 				</p>
 				
+				<p>
+					<label class="small"><spring:message code="session.deviceType.questions_starred_finalSubmissionDate_difference" text="Final SubmissionDate Difference" /></label>
+					<c:set var="key" value="questions_starred_finalSubmissionDate_difference"></c:set>
+					<input type="text" class="sText" id=questions_starred_finalSubmissionDate_difference name="questions_starred_finalSubmissionDate_difference" value="${questions_starred_finalsubmissiondate_difference}" />
+				</p>
+				
+				<p>
+					<label class="small"><spring:message code="session.deviceType.questions_starred_lastReceivingDateFromDepartment_difference" text="Last Receiving Date From Department Difference" /></label>
+					<c:set var="key" value="questions_starred_lastReceivingDateFromDepartment_difference"></c:set>
+					<input type="text" class="sText" id="questions_starred_lastReceivingDateFromDepartment_difference" name="questions_starred_lastReceivingDateFromDepartment_difference" value="${questions_starred_lastreceivingdatefromdepartment_difference}" />
+				</p>
+				
+				<p>
+					<label class="small"><spring:message code="session.deviceType.questions_starred_lastSendingDateToDepartment_difference" text="Last Sending Date To Department Difference" /></label>
+					<c:set var="key" value="questions_starred_lastSendingDateToDepartment_difference"></c:set>
+					<input type="text" class="sText" id="questions_starred_lastSendingDateToDepartment_difference" name="questions_starred_lastSendingDateToDepartment_difference" value="${questions_starred_lastsendingdatetodepartment_difference}" />
+				</p>
+				
+				<p>
+					<label class="small"><spring:message code="session.deviceType.questions_starred_speakerSendingDate_difference" text="Speaker Sending Date Difference" /></label>
+					<c:set var="key" value="questions_starred_speakerSendingDate_difference"></c:set>
+					<input type="text" class="sText" id="questions_starred_speakerSendingDate_difference" name="questions_starred_speakerSendingDate_difference" value="${questions_starred_speakersendingdate_difference}" />
+				</p>
+				
+				<p>
+					<label class="small"><spring:message code="session.deviceType.questions_starred_yaadiPrintingDate_difference" text="Yaadi Printing Date Difference" /></label>
+					<c:set var="key" value="questions_starred_yaadiPrintingDate_difference"></c:set>
+					<input type="text" class="sText" id="questions_starred_yaadiPrintingDate_difference" name="questions_starred_yaadiPrintingDate_difference" value="${questions_starred_yaadiprintingdate_difference}" />
+				</p>
+				
+				<p>
+					<label class="small"><spring:message code="session.deviceType.questions_starred_yaadiReceivingDate_difference" text="Yaadi Receiving Date Difference" /></label>
+					<c:set var="key" value="questions_starred_yaadiReceivingDate_difference"></c:set>
+					<input type="text" class="sText" id="questions_starred_yaadiReceivingDate_difference" name="questions_starred_yaadiReceivingDate_difference" value="${questions_starred_yaadireceivingdate_difference}" />
+				</p>
+				
+				<p>
+					<label class="small"><spring:message code="session.deviceType.questions_starred_suchhiPrintingDate_difference" text="Suchhi Printing Date Difference" /></label>
+					<c:set var="key" value="questions_starred_suchhiPrintingDate_difference"></c:set>
+					<input type="text" class="sText" id="questions_starred_suchhiPrintingDate_difference" name="questions_starred_suchhiPrintingDate_difference" value="${questions_starred_suchhiprintingdate_difference}" />
+				</p>
+				
+				<p>				
+					<label class="small"><spring:message code="session.deviceType.questions_starred_suchhiReceivingDate_difference" text="Suchhi Receiving Date Difference" /></label>
+					<c:set var="key" value="questions_starred_suchhiReceivingDate_difference"></c:set>
+					<input type="text" class="sText" id="questions_starred_suchhiReceivingDate_difference" name="questions_starred_suchhiReceivingDate_difference" value="${questions_starred_suchhireceivingdate_difference}" />
+				</p>
+				<p>
+					<label class="small"><spring:message code="session.deviceType.questions_starred_suchhiDistributionDate_difference" text="Suchhi Distribution Date Difference" /></label>
+					<c:set var="key" value="questions_starred_suchhiDistributionDate_difference"></c:set>
+					<input type="text" class="sText" id="questions_starred_suchhiDistributionDate_difference" name="questions_starred_suchhiDistributionDate_difference" value="${questions_starred_suchhidistributiondate_difference}" />
+				</p>				
 			</div>
 		</c:if>
 		
 		<c:if test="${i.type eq 'questions_unstarred'}">					
-			<div id="questions_unstarred" class="formDiv">
+			<div id="questions_unstarred" class="formDiv">				
 				<p >
 					<label class="small"><spring:message code="session.deviceType.submissionStartDate"
 							text="Submission Start Date" /></label>
-					<c:set var="key" value="questions_unstarred_submissionStartDate"></c:set>
 					<input type="text" class="datetimemask sText" name="questions_unstarred_submissionStartDate" id="questions_unstarred_submissionStartDate"
-						value="${domain.parameters[key]}" />
+						value="${questions_unstarred_submissionstartdate}" />
 				</p>
 
 				<p>
 					<label class="small"><spring:message code="session.deviceType.submissionEndDate" text="Submission End Date" /></label>
-					<c:set var="key" value="questions_unstarred_submissionEndDate"></c:set>
-					<input type="text" class="datetimemask sText" name="questions_unstarred_submissionEndDate" id="questions_unstarred_submissionEndDate" value="${domain.parameters[key]}" />
+					<input type="text" class="datetimemask sText" name="questions_unstarred_submissionEndDate" id="questions_unstarred_submissionEndDate" value="${questions_unstarred_submissionenddate}" />
 				</p>
 			</div>
 		</c:if>
@@ -456,41 +493,34 @@
 				<p >
 					<label class="small"><spring:message code="session.deviceType.submissionStartDate"
 							text="Submission Start Date" /></label>
-					<c:set var="key" value="questions_halfhourdiscussion_standalone_submissionStartDate"></c:set>
 					<input type="text" class="datetimemask sText" name="questions_halfhourdiscussion_standalone_submissionStartDate" id="questions_halfhourdiscussion_standalone_submissionStartDate"
-						value="${domain.parameters[key]}" />
+						value="${questions_halfhourdiscussion_standalone_submissionstartdate}" />
 				</p>
 
 				<p>
 					<label class="small"><spring:message code="session.deviceType.submissionEndDate" text="Submission End Date" /></label>
-					<c:set var="key" value="questions_halfhourdiscussion_standalone_submissionEndDate"></c:set>
-					<input type="text" class="datetimemask sText" name="questions_halfhourdiscussion_standalone_submissionEndDate" id="questions_halfhourdiscussion_standalone_submissionEndDate" value="${domain.parameters[key]}" />
+					<input type="text" class="datetimemask sText" name="questions_halfhourdiscussion_standalone_submissionEndDate" id="questions_halfhourdiscussion_standalone_submissionEndDate" value="${questions_halfhourdiscussion_standalone_submissionenddate}" />
 				</p>
 				
 				<p>
 					<label class="small"><spring:message code="session.deviceType.isBallotingRequired" text="is Ballotng Required" /></label>
-					<c:set var="key" value="questions_halfhourdiscussion_standalone_isBallotingRequired"></c:set>
-					<input type="checkbox" class="sCheck" id="questions_halfhourdiscussion_standalone_isBallotingRequired" value="${domain.parameters[key]}" >
+					<input type="checkbox" class="sCheck" id="questions_halfhourdiscussion_standalone_isBallotingRequired" value="${questions_halfhourdiscussion_standalone_isballotingrequired}" >
 					<input type="hidden" id="questions_halfhourdiscussion_standalone_isBallotingRequired_Hidden" name="questions_halfhourdiscussion_standalone_isBallotingRequired" value="" />
-				</p>
-				
+				</p>				
 
 				<p>
 					<label class="small"><spring:message code="session.deviceType.firstBallotDate" text="First Ballot Date" /></label>
-					<c:set var="key" value="questions_halfhourdiscussion_standalone_firstBallotDate"></c:set>
-					<input type="text" class="datetimemask sText" name="questions_halfhourdiscussion_standalone_firstBallotDate" id="questions_halfhourdiscussion_standalone_firstBallotDate" value="${domain.parameters[key]}" />
+					<input type="text" class="datetimemask sText" name="questions_halfhourdiscussion_standalone_firstBallotDate" id="questions_halfhourdiscussion_standalone_firstBallotDate" value="${questions_halfhourdiscussion_standalone_firstballotdate}" />
 				</p>
 				
 				<p>
 					<label class="small"><spring:message code="session.deviceType.numberOfQuestions" text="Number of Questions" /></label>
-					<c:set var="key" value="questions_halfhourdiscussion_standalone_numberOfQuestions"></c:set>
-					<input type="text" class="sInteger" name="questions_halfhourdiscussion_standalone_numberOfQuestions" id="questions_halfhourdiscussion_standalone_numberOfQuestions" value="${domain.parameters[key]}" />
+					<input type="text" class="sInteger" name="questions_halfhourdiscussion_standalone_numberOfQuestions" id="questions_halfhourdiscussion_standalone_numberOfQuestions" value="${questions_halfhourdiscussion_standalone_numberofquestions}" />
 				</p>
 				
 				<p style="display: inline;">
 					<%-- <label class="small"><spring:message code="session.deviceType.numberOfSupportingMembersComparator" text="Number of Supporting Members Comparator" /></label> --%>
 					<label class="small"><spring:message code="session.deviceType.numberOfSupportingMembers" text="Number of Supporting Members" /></label>
-					<c:set var="key" value="questions_halfhourdiscussion_standalone_numberOfSupportingMembersComparator"></c:set>
 					<select class="sSelect" name="questions_halfhourdiscussion_standalone_numberOfSupportingMembersComparator" id="questions_halfhourdiscussion_standalone_numberOfSupportingMembersComparator" style="width: 50px; height: 22px; border: solid 1px #8d8e8d;">
 						<option value="eq">&#61;</option>
 						<option value="lt">&lt;</option>
@@ -498,17 +528,15 @@
 						<option value="le">&le;</option>
 						<option value="ge">&ge;</option>
 					</select>
-					<label id="comparator_hidden_standalone" title="${domain.parameters[key]}"></label>
+					<label id="comparator_hidden_standalone" title="${questions_halfhourdiscussion_standalone_numberofsupportingmemberscomparator}"></label>
 				</p>
 				
 				<p style="display: inline;">		
-					<c:set var="key" value="questions_halfhourdiscussion_standalone_numberOfSupportingMembers"></c:set>
-					<input type="text" class="sInteger" name="questions_halfhourdiscussion_standalone_numberOfSupportingMembers" id="questions_halfhourdiscussion_standalone_numberOfSupportingMembers" value="${domain.parameters[key]}" style="width: 112px" />
+					<input type="text" class="sInteger" name="questions_halfhourdiscussion_standalone_numberOfSupportingMembers" id="questions_halfhourdiscussion_standalone_numberOfSupportingMembers" value="${questions_halfhourdiscussion_standalone_numberofsupportingmembers}" style="width: 112px" />
 				</p>
 				
 				<p>
 					<label class="small"><spring:message code="session.deviceType.discussionDays" text="Discussion Days" /></label>
-					<c:set var="key" value="questions_halfhourdiscussion_standalone_discussionDays"></c:set>
 					<select class="sSelectMultiple" name="questions_halfhourdiscussion_standalone_discussionDays" id="questions_halfhourdiscussion_standalone_discussionDays" multiple="multiple">
 						<option value="Monday"><spring:message code="week.days.monday" text="Monday" /></option>
 						<option value="Tuesday"><spring:message code="week.days.tuesday" text="Tuesday" /></option>
@@ -517,16 +545,15 @@
 						<option value="Friday"><spring:message code="week.days.friday" text="Friday" /></option>
 						<option value="Saturday"><spring:message code="week.days.saturday" text="Saturday" /></option>
 					</select>
-					<label id="questions_halfhourdiscussion_standalone_discussion_days_hidden" title="${domain.parameters[key]}"></label>
+					<label id="questions_halfhourdiscussion_standalone_discussion_days_hidden" title="${questions_halfhourdiscussion_standalone_discussiondays}"></label>
 					<input type="hidden" id="discussion_days_hidden_standalone" name="questions_halfhourdiscussion_standalone_discussionDays" />
 				</p>
 				
 				<p id="discussion_dates_para_standalone">
 					<label class="small"><spring:message code="session.deviceType.discussionDates" text="Discussion Datess" /></label>
-					<c:set var="key" value="questions_halfhourdiscussion_standalone_discussionDates"></c:set>
 					<select class="sSelectMultiple" name="questions_halfhourdiscussion_standalone_discussionDates" id="questions_halfhourdiscussion_standalone_discussionDates" multiple="multiple">
 					</select>
-					<label id="questions_halfhourdiscussion_standalone_discussion_dates_hidden" title="${domain.parameters[key]}"></label>
+					<label id="questions_halfhourdiscussion_standalone_discussion_dates_hidden" title="${questions_halfhourdiscussion_standalone_discussiondates}"></label>
 					<input type="hidden" id="discussion_dates_hidden_standalone" name="questions_halfhourdiscussion_standalone_discussionDates" />
 				</p>
 				
@@ -538,17 +565,14 @@
 				<p >
 					<label class="small"><spring:message code="session.deviceType.submissionStartDate"
 							text="Submission Start Date" /></label>
-					<c:set var="key" value="questions_shortnotice_submissionStartDate"></c:set>
 					<input type="text" class="datetimemask sText" name="questions_shortnotice_submissionStartDate" id="questions_shortnotice_submissionStartDate"
-						value="${domain.parameters[key]}" />
+						value="${questions_shortnotice_submissionstartdate}" />
 				</p>
 
 				<p>
 					<label class="small"><spring:message code="session.deviceType.submissionEndDate" text="Submission End Date" /></label>
-					<c:set var="key" value="questions_shortnotice_submissionEndDate"></c:set>
-					<input type="text" class="datetimemask sText" name="questions_shortnotice_submissionEndDate" id="questions_shortnotice_submissionEndDate" value="${domain.parameters[key]}" />
-				</p>
-				
+					<input type="text" class="datetimemask sText" name="questions_shortnotice_submissionEndDate" id="questions_shortnotice_submissionEndDate" value="${questions_shortnotice_submissionenddate}" />
+				</p>				
 			</div>
 		</c:if>
 		
@@ -557,41 +581,35 @@
 				<p >
 					<label class="small"><spring:message code="session.deviceType.submissionStartDate"
 							text="Submission Start Date" /></label>
-					<c:set var="key" value="questions_halfhourdiscussion_from_question_submissionStartDate"></c:set>
 					<input type="text" class="datetimemask sText" name="questions_halfhourdiscussion_from_question_submissionStartDate" id="questions_halfhourdiscussion_from_question_submissionStartDate"
-						value="${domain.parameters[key]}" />
+						value="${questions_halfhourdiscussion_from_question_submissionstartdate}" />
 				</p>
 
 				<p>
 					<label class="small"><spring:message code="session.deviceType.submissionEndDate" text="Submission End Date" /></label>
-					<c:set var="key" value="questions_halfhourdiscussion_from_question_submissionEndDate"></c:set>
-					<input type="text" class="datetimemask sText" name="questions_halfhourdiscussion_from_question_submissionEndDate" id="questions_halfhourdiscussion_from_question_submissionEndDate" value="${domain.parameters[key]}" />
+					<input type="text" class="datetimemask sText" name="questions_halfhourdiscussion_from_question_submissionEndDate" id="questions_halfhourdiscussion_from_question_submissionEndDate" value="${questions_halfhourdiscussion_from_question_submissionenddate}" />
 				</p>
 				
 				<p>
 					<label class="small"><spring:message code="session.deviceType.isBallotingRequired" text="is Ballotng Required" /></label>
-					<c:set var="key" value="questions_halfhourdiscussion_from_question_isBallotingRequired"></c:set>
-					<input type="checkbox" class="sCheck" id="questions_halfhourdiscussion_from_question_isBallotingRequired" value="${domain.parameters[key]}" >
+					<input type="checkbox" class="sCheck" id="questions_halfhourdiscussion_from_question_isBallotingRequired" value="${questions_halfhourdiscussion_from_question_isballotingrequired}" >
 					<input type="hidden" id="questions_halfhourdiscussion_from_question_isBallotingRequired_Hidden" name="questions_halfhourdiscussion_from_question_isBallotingRequired" value="" />
 				</p>
 				
 
 				<p>
 					<label class="small"><spring:message code="session.deviceType.firstBallotDate" text="First Ballot Date" /></label>
-					<c:set var="key" value="questions_halfhourdiscussion_from_question_firstBallotDate"></c:set>
-					<input type="text" class="datetimemask sText" name="questions_halfhourdiscussion_from_question_firstBallotDate" id="questions_halfhourdiscussion_from_question_firstBallotDate" value="${domain.parameters[key]}" />
+					<input type="text" class="datetimemask sText" name="questions_halfhourdiscussion_from_question_firstBallotDate" id="questions_halfhourdiscussion_from_question_firstBallotDate" value="${questions_halfhourdiscussion_from_question_firstballotdate}" />
 				</p>
 				
 				<p>
 					<label class="small"><spring:message code="session.deviceType.numberOfQuestions" text="Number of Questions" /></label>
-					<c:set var="key" value="questions_halfhourdiscussion_from_question_numberOfQuestions"></c:set>
-					<input type="text" class="sInteger" name="questions_halfhourdiscussion_from_question_numberOfQuestions" id="questions_halfhourdiscussion_from_question_numberOfQuestions" value="${domain.parameters[key]}" />
+					<input type="text" class="sInteger" name="questions_halfhourdiscussion_from_question_numberOfQuestions" id="questions_halfhourdiscussion_from_question_numberOfQuestions" value="${questions_halfhourdiscussion_from_question_numberofquestions}" />
 				</p>
 				
 				<p style="display: inline;">
 					<%-- <label class="small"><spring:message code="session.deviceType.numberOfSupportingMembersComparator" text="Number of Supporting Members Comparator" /></label> --%>
 					<label class="small"><spring:message code="session.deviceType.numberOfSupportingMembers" text="Number of Supporting Members" /></label>
-					<c:set var="key" value="questions_halfhourdiscussion_from_question_numberOfSupportingMembersComparator"></c:set>
 					<select class="sSelect" name="questions_halfhourdiscussion_from_question_numberOfSupportingMembersComparator" id="questions_halfhourdiscussion_from_question_numberOfSupportingMembersComparator" style="width: 50px; height: 22px; border: solid 1px #8d8e8d;">
 						<option value="eq">&#61;</option>
 						<option value="lt">&lt;</option>
@@ -599,17 +617,15 @@
 						<option value="le">&le;</option>
 						<option value="ge">&ge;</option>
 					</select>
-					<label id="comparator_hidden_from_question" title="${domain.parameters[key]}"></label>
+					<label id="comparator_hidden_from_question" title="${questions_halfhourdiscussion_from_question_numberofsupportingmemberscomparator}"></label>
 				</p>
 				
 				<p style="display: inline;">		
-					<c:set var="key" value="questions_halfhourdiscussion_from_question_numberOfSupportingMembers"></c:set>
-					<input type="text" class="sInteger" name="questions_halfhourdiscussion_from_question_numberOfSupportingMembers" id="questions_halfhourdiscussion_from_question_numberOfSupportingMembers" value="${domain.parameters[key]}" style="width: 112px" />
+					<input type="text" class="sInteger" name="questions_halfhourdiscussion_from_question_numberOfSupportingMembers" id="questions_halfhourdiscussion_from_question_numberOfSupportingMembers" value="${questions_halfhourdiscussion_from_question_numberofsupportingmembers}" style="width: 112px" />
 				</p>
 				
 				<p>
 					<label class="small"><spring:message code="session.deviceType.discussionDays" text="Discussion Days" /></label>
-					<c:set var="key" value="questions_halfhourdiscussion_from_question_discussionDays"></c:set>
 					<select class="sSelectMultiple" name="questions_halfhourdiscussion_from_question_discussionDays" id="questions_halfhourdiscussion_from_question_discussionDays" multiple="multiple">
 						<option value="Monday"><spring:message code="week.days.monday" text="Monday" /></option>
 						<option value="Tuesday"><spring:message code="week.days.tuesday" text="Tuesday" /></option>
@@ -618,19 +634,17 @@
 						<option value="Friday"><spring:message code="week.days.friday" text="Friday" /></option>
 						<option value="Saturday"><spring:message code="week.days.saturday" text="Saturday" /></option>
 					</select>
-					<label id="questions_halfhourdiscussion_from_question_discussion_days_hidden" title="${domain.parameters[key]}"></label>
+					<label id="questions_halfhourdiscussion_from_question_discussion_days_hidden" title="${questions_halfhourdiscussion_from_question_discussiondays}"></label>
 					<input type="hidden" id="discussion_days_hidden_from_question" name="questions_halfhourdiscussion_from_question_discussionDays" />
 				</p>
 				
 				<p id="discussion_dates_para_from_question">
 					<label class="small"><spring:message code="session.deviceType.discussionDates" text="Discussion Datess" /></label>
-					<c:set var="key" value="questions_halfhourdiscussion_from_question_discussionDates"></c:set>
 					<select class="sSelectMultiple" name="questions_halfhourdiscussion_from_question_discussionDates" id="questions_halfhourdiscussion_from_question_discussionDates" multiple="multiple">
 					</select>
-					<label id="questions_halfhourdiscussion_from_question_discussion_dates_hidden" title="${domain.parameters[key]}"></label>
+					<label id="questions_halfhourdiscussion_from_question_discussion_dates_hidden" title="${questions_halfhourdiscussion_from_question_discussiondates}"></label>
 					<input type="hidden" id="discussion_dates_hidden_from_question" name="questions_halfhourdiscussion_from_question_discussionDates" />
-				</p>
-				
+				</p>				
 			</div>
 		</c:if>
 		
