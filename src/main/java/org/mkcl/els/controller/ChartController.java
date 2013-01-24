@@ -28,8 +28,9 @@ import org.springframework.web.bind.annotation.ResponseBody;
 @RequestMapping("/chart")
 public class ChartController extends BaseController{
 
-	@RequestMapping(value="/init",method=RequestMethod.GET)
-	public String getChartPage(final HttpServletRequest request,final ModelMap model,
+	@RequestMapping(value="/init", method=RequestMethod.GET)
+	public String getChartPage(final HttpServletRequest request,
+			final ModelMap model,
 			final Locale locale){
 		String strGroup=request.getParameter("group");
 		if(strGroup!=null){
@@ -124,9 +125,9 @@ public class ChartController extends BaseController{
 
 			CustomParameter parameter =
 				CustomParameter.findByName(CustomParameter.class, "DB_DATEFORMAT", "");
-			String strAnsweringDate =
-				FormaterUtil.formatDateToString(answeringDate, parameter.getValue());
-			model.addAttribute("answeringDate", strAnsweringDate);
+			String localizedAnsweringDate =
+				FormaterUtil.formatDateToString(answeringDate, parameter.getValue(), strLocale);
+			model.addAttribute("answeringDate", localizedAnsweringDate);
 		}
 		else {
 			model.addAttribute("errorcode", "answeringDateNotSelected");
