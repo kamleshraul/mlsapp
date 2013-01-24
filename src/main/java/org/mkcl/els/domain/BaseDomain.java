@@ -277,6 +277,17 @@ public class BaseDomain {
         return getBaseRepository().findAllByFieldName(persistenceClass,
                 fieldName, fieldValue, sortBy, sortOrder, locale);
     }
+    
+    //-------------------dhananjay_23012013------------------------
+    @SuppressWarnings({ "rawtypes" })
+    @Transactional(readOnly = true)
+    public static <U extends BaseDomain> List<U> findAllByStartingWith(
+            final Class persistenceClass, final String fieldName,
+            final String startingWith, final String sortBy, final String sortOrder, final String locale) {
+        return getBaseRepository().findAllByStartingWith(persistenceClass, fieldName, startingWith, sortBy, sortOrder, locale);
+    }
+    //-------------------------------------------------------------
+    
     /**
      * Checks if is duplicate.
      *
