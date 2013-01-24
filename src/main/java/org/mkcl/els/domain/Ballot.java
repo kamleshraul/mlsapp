@@ -29,8 +29,8 @@ import javax.persistence.TemporalType;
 
 import org.mkcl.els.common.util.ApplicationConstants;
 import org.mkcl.els.common.util.FormaterUtil;
-import org.mkcl.els.common.vo.HalfHourBallotMemberVO;
-import org.mkcl.els.common.vo.HalfHourBallotVO;
+import org.mkcl.els.common.vo.BallotMemberVO;
+import org.mkcl.els.common.vo.BallotVO;
 import org.mkcl.els.common.vo.QuestionSequenceVO;
 import org.mkcl.els.common.vo.StarredBallotVO;
 import org.mkcl.els.repository.BallotRepository;
@@ -74,6 +74,13 @@ public class Ballot extends BaseDomain implements Serializable {
 	@Temporal(TemporalType.DATE)
 	private Date answeringDate;
 	
+	// TODO: Remove this attribute once you are sure that the Council Starred
+	// Ballot does not require group attribute. Even if it is, the dependency
+	// can be removed because given a session & answeringDate, group can be determined.
+	@ManyToOne(fetch=FetchType.LAZY)
+	@JoinColumn(name="group_id")
+	private Group group;
+	
 	@ManyToMany(fetch=FetchType.LAZY, cascade=CascadeType.ALL)
 	@JoinTable(name="ballots_ballot_entries",
 			joinColumns={ @JoinColumn(name="ballot_id", referencedColumnName="id") },
@@ -82,13 +89,6 @@ public class Ballot extends BaseDomain implements Serializable {
 
 	@Temporal(TemporalType.TIMESTAMP)
 	private Date ballotDate;
-	
-	/**
-	 * Required for the deviceType = "STARRED_QUESTION"
-	 */
-	@ManyToOne(fetch=FetchType.LAZY)
-	@JoinColumn(name="group_id")
-	private Group group;
 	
 	@Autowired
 	private transient BallotRepository repository;
@@ -117,24 +117,6 @@ public class Ballot extends BaseDomain implements Serializable {
 		this.setAnsweringDate(answeringDate);
 		this.setBallotDate(ballotDate);
 	}
-	
-	/**
-	 * To be used for deviceType = "STARRED_QUESTION"
-	 */
-	public Ballot(final Session session,
-			final DeviceType deviceType,
-			final Group group,
-			final Date answeringDate,
-			final Date ballotDate,
-			final String locale) {
-		super(locale);
-		this.setSession(session);
-		this.setDeviceType(deviceType);
-		this.setGroup(group);
-		this.setAnsweringDate(answeringDate);
-		this.setBallotDate(ballotDate);
-		this.setBallotEntries(new ArrayList<BallotEntry>());
-	}
 
 	
 	//=============== VIEW METHODS ==================
@@ -147,13 +129,12 @@ public class Ballot extends BaseDomain implements Serializable {
 	 *
 	 */
 	public static List<StarredBallotVO> findStarredBallotVOs(final Session session,
-			final Group group,
 			final Date answeringDate,
 			final String locale) {
 		List<StarredBallotVO> ballotVOs = new ArrayList<StarredBallotVO>();
 		
 		DeviceType deviceType = DeviceType.findByType("questions_starred", locale);
-		Ballot ballot = Ballot.find(session, deviceType, group, answeringDate, locale);
+		Ballot ballot = Ballot.find(session, deviceType, answeringDate, locale);
 		if(ballot != null) {
 			List<BallotEntry> ballotEntries = ballot.getBallotEntries();
 			for(BallotEntry be : ballotEntries) {
@@ -174,120 +155,6 @@ public class Ballot extends BaseDomain implements Serializable {
 		return ballotVOs;
 	}
 
-	/**
-	 * Use it prior to the Ballot.
-	 */
-	public static List<HalfHourBallotVO> findHalfHourPreNoticeBallotVOs(final Session session,
-			final Date answeringDate,
-			final String locale) {
-		return Ballot.findPreBallotVOs(session, answeringDate, locale);
-	}
-	
-	/**
-	 * Use it prior to the Ballot.
-	 */
-	public static List<HalfHourBallotVO> findHalfHourPreMemberBallotVOs(final Session session,
-			final Date answeringDate,
-			final String locale) {
-		return Ballot.findPreBallotVOs(session, answeringDate, locale);
-	}
-	
-	/**
-	 * Applicable for Member Ballot. Use it prior to the Ballot.
-	 */
-	public static List<HalfHourBallotMemberVO> findPreBallotMemberVOs(final Session session,
-			final Date answeringDate,
-			final String locale) {
-		List<HalfHourBallotMemberVO> memberVOs = new ArrayList<HalfHourBallotMemberVO>();
-		
-		List<Member> members = Ballot.computeMembers(session, answeringDate, locale);
-		for(Member m: members) {
-			HalfHourBallotMemberVO memberVO = new HalfHourBallotMemberVO();
-			memberVO.setMemberName(m.getFullname());
-			
-			memberVOs.add(memberVO);
-		}
-		
-		return memberVOs;
-	}
-	
-	/**
-	 * Applicable for Member Ballot. Use it post Ballot.
-	 * 
-	 * Returns null if Ballot does not exist for the specified parameters
-	 * OR
-	 * Returns an empty list if there are no entries for the Ballot
-	 * OR
-	 * Returns a list of HalfHourBallotMemberVO.
-	 *
-	 */
-	public static List<HalfHourBallotMemberVO> findHalfHourBallotedMemberVOs(
-			final Session session,
-			final Date answeringDate,
-			final String locale) {
-		List<HalfHourBallotMemberVO> memberVOs = new ArrayList<HalfHourBallotMemberVO>();
-	
-		DeviceType deviceType = DeviceType.findByType(
-				"questions_halfhourdiscussion_from_question", locale);
-		Ballot ballot = Ballot.find(session, deviceType, answeringDate, locale);
-		if(ballot != null) {
-			List<BallotEntry> entries = ballot.getBallotEntries();
-			for(BallotEntry entry : entries) {
-				HalfHourBallotMemberVO memberVO = new HalfHourBallotMemberVO();
-				memberVO.setMemberName(entry.getMember().getFullname());
-				memberVOs.add(memberVO);
-			}
-		}
-		else {
-			memberVOs = null;
-		}
-		
-		return memberVOs;
-	}
-	
-	/**
-	 * Applicable for both Notice & Member Ballot. Use it post Ballot.
-	 * 
-	 * Returns null if Ballot does not exist for the specified parameters
-	 * OR
-	 * Returns an empty list if there are no entries for the Ballot
-	 * OR
-	 * Returns a list of HalfHourBallotVO.
-	 *
-	 */
-	public static List<HalfHourBallotVO> findHalfHourBallotedVOs(final Session session,
-			final Date answeringDate,
-			final String locale) {
-		List<HalfHourBallotVO> ballotVOs = new ArrayList<HalfHourBallotVO>();
-		
-		DeviceType deviceType = DeviceType.findByType(
-				"questions_halfhourdiscussion_from_question", locale);
-		Ballot ballot = Ballot.find(session, deviceType, answeringDate, locale);
-		if(ballot != null) {
-			List<BallotEntry> entries = ballot.getBallotEntries();
-			for(BallotEntry entry : entries) {
-				HalfHourBallotVO ballotVO = new HalfHourBallotVO();
-				ballotVO.setMemberName(entry.getMember().getFullname());
-				
-				QuestionSequence qs = entry.getQuestionSequences().get(0);
-				Question q = qs.getQuestion();
-				ballotVO.setQuestionNumber(q.getNumber());
-				if(q.getRevisedSubject() != null) {
-					ballotVO.setQuestionSubject(q.getRevisedSubject());
-				}
-				else {
-					ballotVO.setQuestionSubject(q.getSubject());
-				}
-				ballotVOs.add(ballotVO);
-			}
-		}
-		else {
-			ballotVOs = null;
-		}
-		
-		return ballotVOs;
-	}
-	
 	private static List<QuestionSequenceVO> getQuestionSequenceVOs(
 			final List<QuestionSequence> sequences) {
 		List<QuestionSequenceVO> questionSequenceVOs = new ArrayList<QuestionSequenceVO>();
@@ -301,28 +168,131 @@ public class Ballot extends BaseDomain implements Serializable {
 		return questionSequenceVOs;
 	}
 
-	private static List<HalfHourBallotVO> findPreBallotVOs(final Session session,
+	public static List<BallotVO> findPreBallotVO(final Session session,
+			final DeviceType deviceType,
 			final Date answeringDate,
 			final String locale) {
-		List<HalfHourBallotVO> preBallotVOs = new ArrayList<HalfHourBallotVO>();
+		List<BallotVO> preBallotVOs = new ArrayList<BallotVO>();
 		
-		List<Question> questions = Ballot.computeQuestions(session, answeringDate, locale);
-		for(Question q : questions) {
-			HalfHourBallotVO preBallotVO = new HalfHourBallotVO();
-			preBallotVO.setMemberName(q.getPrimaryMember().getFullname());
-			preBallotVO.setQuestionNumber(q.getNumber());
-			if(q.getRevisedSubject() != null) {
-				preBallotVO.setQuestionSubject(q.getRevisedSubject());
+		if(deviceType.getType().equals(
+				ApplicationConstants.HALF_HOUR_DISCUSSION_QUESTION_FROM_QUESTION)) {
+			List<Question> questions = Ballot.computeQuestions(session, answeringDate, locale);
+			for(Question q : questions) {
+				BallotVO preBallotVO = new BallotVO();
+				preBallotVO.setMemberName(q.getPrimaryMember().getFullname());
+				preBallotVO.setQuestionNumber(q.getNumber());
+				if(q.getRevisedSubject() != null) {
+					preBallotVO.setQuestionSubject(q.getRevisedSubject());
+				}
+				else {
+					preBallotVO.setQuestionSubject(q.getSubject());
+				}
+				preBallotVOs.add(preBallotVO);
 			}
-			else {
-				preBallotVO.setQuestionSubject(q.getSubject());
-			}
-			preBallotVOs.add(preBallotVO);
 		}
 		
 		return preBallotVOs;
 	}
-
+	
+	public static List<BallotMemberVO> findPreBallotMemberVO(final Session session,
+			final DeviceType deviceType,
+			final Date answeringDate,
+			final String locale) {
+		List<BallotMemberVO> preBallotMemberVOs = new ArrayList<BallotMemberVO>();
+		
+		if(deviceType.getType().equals(
+				ApplicationConstants.HALF_HOUR_DISCUSSION_QUESTION_FROM_QUESTION)) {
+			List<Member> members = Ballot.computeMembers(session, answeringDate, locale);
+			for(Member m: members) {
+				BallotMemberVO preBallotMemberVO = new BallotMemberVO();
+				preBallotMemberVO.setMemberName(m.getFullname());
+				
+				preBallotMemberVOs.add(preBallotMemberVO);
+			}
+		}
+		
+		return preBallotMemberVOs;
+	}
+	
+	/**
+	 * Use it post Ballot.
+	 * 
+	 * Returns null if Ballot does not exist for the specified parameters
+	 * OR
+	 * Returns an empty list if there are no entries for the Ballot
+	 * OR
+	 * Returns a list of HalfHourBallotVO.
+	 *
+	 */
+	public static List<BallotVO> findBallotedVO(final Session session,
+			final DeviceType deviceType,
+			final Date answeringDate,
+			final String locale) {
+		List<BallotVO> ballotedVOs = new ArrayList<BallotVO>();
+		
+		Ballot ballot = Ballot.find(session, deviceType, answeringDate, locale);
+		if(ballot != null) {
+			List<BallotEntry> entries = ballot.getBallotEntries();
+			for(BallotEntry entry : entries) {
+				BallotVO ballotedVO = new BallotVO();
+				ballotedVO.setMemberName(entry.getMember().getFullname());
+				
+				// Hard coding for now. In case of notice ballot, a member 
+				// could appear twice.
+				QuestionSequence qs = entry.getQuestionSequences().get(0);
+				Question q = qs.getQuestion();
+				ballotedVO.setQuestionNumber(q.getNumber());
+				
+				if(q.getRevisedSubject() != null) {
+					ballotedVO.setQuestionSubject(q.getRevisedSubject());
+				}
+				else {
+					ballotedVO.setQuestionSubject(q.getSubject());
+				}
+				
+				ballotedVOs.add(ballotedVO);
+			}
+		}
+		else {
+			ballotedVOs = null;
+		}
+		
+		return ballotedVOs;
+	}
+	
+	/**
+	 * Use it post Ballot.
+	 * 
+	 * Returns null if Ballot does not exist for the specified parameters
+	 * OR
+	 * Returns an empty list if there are no entries for the Ballot
+	 * OR
+	 * Returns a list of HalfHourBallotMemberVO.
+	 *
+	 */
+	public static List<BallotMemberVO> findBallotedMemberVO(final Session session,
+			final DeviceType deviceType,
+			final Date answeringDate,
+			final String locale) {
+		List<BallotMemberVO> ballotedMemberVOs = new ArrayList<BallotMemberVO>();
+		
+		Ballot ballot = Ballot.find(session, deviceType, answeringDate, locale);
+		if(ballot != null) {
+			List<BallotEntry> entries = ballot.getBallotEntries();
+			for(BallotEntry entry : entries) {
+				BallotMemberVO ballotedmemberVO = new BallotMemberVO();
+				ballotedmemberVO.setMemberName(entry.getMember().getFullname());
+				
+				ballotedMemberVOs.add(ballotedmemberVO);
+			}
+		}
+		else {
+			ballotedMemberVOs = null;
+		}
+		
+		return ballotedMemberVOs;
+	}
+	
 	
 	//=============== DOMAIN METHODS ================
 	/**
@@ -373,73 +343,13 @@ public class Ballot extends BaseDomain implements Serializable {
 	}
 	
 	/**
-	 * Use this method to find Ballot of deviceType = "HALF_HOUR_DISCUSSION".
-	 * 
-	 * Do not use this method to find Ballot of deviceType = "STARRED_QUESTION",
-	 * else the method will throw IllegalArgumentException since
-	 * org.mkcl.els.domain.Group is mandatory for Starred_Question Ballot.
-	 * 
 	 * Returns null if there is no Ballot for the specified parameters.
 	 */
 	public static Ballot find(final Session session,
 			final DeviceType deviceType,
 			final Date answeringDate,
 			final String locale) {
-		if(deviceType.getType().equals("questions_starred")) {
-			throw new IllegalArgumentException(
-					"Starred Question device requires Group as a parameter." +
-					" Use find method with group as a parameter.");
-		}
-		else if (deviceType.getType().equals("questions_halfhourdiscussion_from_question")) {
-			return Ballot.getRepository().find(session, deviceType, answeringDate, locale);
-		}
-		return null;
-	}
-	
-	/**
-	 * Returns null if there is no Ballot for the specified parameters.
-	 */
-	public static Ballot find(final Session session,
-			final DeviceType deviceType,
-			final Group group,
-			final Date answeringDate,
-			final String locale) {
-		if (deviceType.getType().equals("questions_starred")) {
-			return Ballot.getRepository().find(session, deviceType, group, answeringDate, locale);
-		}
-		else if(deviceType.getType().equals("questions_halfhourdiscussion_from_question")) {
-			return Ballot.getRepository().find(session, deviceType, answeringDate, locale);
-		} 
-		return null;
-	}
-	
-	/**
-	 * Use this method to find Balloted Questions of deviceType = "HALF_HOUR_DISCUSSION".
-	 * 
-	 * Do not use this method to find Balloted Questions  of deviceType = "STARRED_QUESTION",
-	 * else the method will throw IllegalArgumentException since
-	 * org.mkcl.els.domain.Group is mandatory for Starred_Question Ballot.
-	 * 
-	 * Returns the list of Questions of @param member taken in a Ballot
-	 * for the particular @param answeringDate.
-	 *
-	 * Returns an empty list if there are no Questions for member.
-	 */
-	public static List<Question> findBallotedQuestions(final Member member,
-			final Session session,
-			final DeviceType deviceType,
-			final Date answeringDate,
-			final String locale) {
-		if(deviceType.getType().equals("questions_starred")) {
-			throw new IllegalArgumentException(
-					"Starred Question device requires Group as a parameter." +
-					" Use findQuestions method with group as a parameter.");
-		}
-		else if (deviceType.getType().equals("questions_halfhourdiscussion_from_question")) {
-			return Ballot.getRepository().findBallotedQuestions(member, 
-					session, deviceType, answeringDate, locale);
-		}
-		return null;
+		return Ballot.getRepository().find(session, deviceType, answeringDate, locale);
 	}
 	
 	/**
@@ -451,19 +361,12 @@ public class Ballot extends BaseDomain implements Serializable {
 	public static List<Question> findBallotedQuestions(final Member member,
 			final Session session,
 			final DeviceType deviceType,
-			final Group group,
 			final Date answeringDate,
 			final String locale) {
-		if (deviceType.getType().equals("questions_starred")) {
-			return Ballot.getRepository().findBallotedQuestions(member, session, 
-					deviceType, group, answeringDate, locale);
-		}
-		else if(deviceType.getType().equals("questions_halfhourdiscussion_from_question")) {
-			return Ballot.getRepository().findBallotedQuestions(member, session, 
-					deviceType, answeringDate, locale);
-		} 
-		return null;
+		return Ballot.getRepository().findBallotedQuestions(member, 
+				session, deviceType, answeringDate, locale);
 	}
+	
 	
 	//=============== ASSEMBLY: STARRED QUESTION BALLOT ==============
 	/**
@@ -476,14 +379,15 @@ public class Ballot extends BaseDomain implements Serializable {
 	 * existing Ballot.
 	 */
 	private Ballot createStarredAssemblyBallot() {
+		Group group = Group.find(this.getSession(), this.getAnsweringDate(), this.getLocale());
 		Ballot ballot = Ballot.find(this.getSession(), this.getDeviceType(), 
-				this.getGroup(), this.getAnsweringDate(), this.getLocale());
+				this.getAnsweringDate(), this.getLocale());
 		
 		if(ballot == null) {
 			Integer noOfRounds = Ballot.getNoOfRounds();
 			
 			List<BallotEntry> computedList = Ballot.compute(this.getSession(),
-					this.getGroup(), this.getAnsweringDate(), noOfRounds, this.getLocale());
+					group, this.getAnsweringDate(), noOfRounds, this.getLocale());
 			List<BallotEntry> randomizedList = Ballot.randomize(computedList);
 			List<BallotEntry> sequencedList = Ballot.addSequenceNumbers(randomizedList, noOfRounds);
 
@@ -559,7 +463,7 @@ public class Ballot extends BaseDomain implements Serializable {
 				currentAnsweringDate, previousAnsweringDates, noOfRounds, locale);
 
 		List<Question> ballotedQList = Ballot.ballotedQuestions(member, session, deviceType,
-				group, previousAnsweringDates, locale);
+				previousAnsweringDates, locale);
 
 		List<Question> eligibleQList = Ballot.listDifference(questionsQueue, ballotedQList);
 		if(! eligibleQList.isEmpty()) {
@@ -651,13 +555,12 @@ public class Ballot extends BaseDomain implements Serializable {
 	private static List<Question> ballotedQuestions(final Member member,
 			final Session session,
 			final DeviceType deviceType,
-			final Group group,
 			final List<Date> answeringDates,
 			final String locale) {
 		List<Question> ballotedQList = new ArrayList<Question>();
 		for(Date d : answeringDates) {
 			List<Question> qList = Ballot.findBallotedQuestions(member, session, deviceType,
-					group, d, locale);
+					d, locale);
 			ballotedQList.addAll(qList);
 		}
 		return ballotedQList;
@@ -800,15 +703,13 @@ public class Ballot extends BaseDomain implements Serializable {
 				"DB_TIMESTAMP", "");
 		DeviceType deviceType = DeviceType.findByType("questions_halfhourdiscussion_from_question", 
 				locale);
-		
-		//-------------------dhananjay_22012013------------------------
+	
 		Date startTime = FormaterUtil.formatStringToDate(session.getParameter(
-				deviceType.getType() + "_submission_start_date"), 
+				deviceType.getType() + "_submissionStartDate"), 
 				datePattern.getValue(), locale);
 		Date endTime = FormaterUtil.formatStringToDate(session.getParameter(
-				deviceType.getType() + "_submission_end_date"), 
+				deviceType.getType() + "_submissionEndDate"), 
 				datePattern.getValue(), locale);
-		//-------------------------------------------------------------------
 		
 		Status ADMITTED = Status.findByType("question_workflow_approving_admission", locale);
 		Status[] internalStatuses = new Status[] { ADMITTED };
@@ -922,15 +823,13 @@ public class Ballot extends BaseDomain implements Serializable {
 				"DB_TIMESTAMP", "");
 		DeviceType deviceType = DeviceType.findByType("questions_halfhourdiscussion_from_question", 
 				locale);
-		
-		//-------------------dhananjay_22012013------------------------
+	
 		Date startTime = FormaterUtil.formatStringToDate(session.
-				getParameter(deviceType.getType() + "_submission_start_date"), 
+				getParameter(deviceType.getType() + "_submissionStartDate"), 
 				datePattern.getValue(), locale);
 		Date endTime = FormaterUtil.formatStringToDate(session.
-				getParameter(deviceType.getType() + "_submission_end_date"), 
+				getParameter(deviceType.getType() + "_submissionEndDate"), 
 				datePattern.getValue(), locale);
-		//-------------------------------------------------------------------
 		
 		Status ADMITTED = Status.findByType("question_workflow_approving_admission", locale);
 		Status[] internalStatuses = new Status[] { ADMITTED };
@@ -1034,6 +933,14 @@ public class Ballot extends BaseDomain implements Serializable {
 	public void setAnsweringDate(Date answeringDate) {
 		this.answeringDate = answeringDate;
 	}
+	
+	public Group getGroup() {
+		return group;
+	}
+
+	public void setGroup(Group group) {
+		this.group = group;
+	}
 
 	public List<BallotEntry> getBallotEntries() {
 		return ballotEntries;
@@ -1049,13 +956,5 @@ public class Ballot extends BaseDomain implements Serializable {
 
 	public void setBallotDate(Date ballotDate) {
 		this.ballotDate = ballotDate;
-	}
-
-	public Group getGroup() {
-		return group;
-	}
-
-	public void setGroup(Group group) {
-		this.group = group;
 	}
 }
