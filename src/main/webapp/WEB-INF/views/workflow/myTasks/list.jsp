@@ -30,7 +30,8 @@
 	</div>
 	<%@ include file="/common/gridview.jsp" %>
 	<input type="hidden" id="grid_id" value="${gridId}">
-	<input type="hidden" id="gridURL" value="/els/grid/myTasks/data/">
+	<%--value="els/grid/myTasks/data" changed to value="grid/myTasks/data" context changed --%>
+	<input type="hidden" id="gridURL" value="grid/myTasks/data/">
 	</div>
 </body>
 </html>
