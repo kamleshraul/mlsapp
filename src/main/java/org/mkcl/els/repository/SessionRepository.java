@@ -1,6 +1,9 @@
 package org.mkcl.els.repository;
 
+import java.util.ArrayList;
 import java.util.List;
+
+import javax.persistence.Query;
 
 import org.mkcl.els.domain.House;
 import org.mkcl.els.domain.HouseType;
@@ -94,5 +97,22 @@ public class SessionRepository extends BaseRepository<Session, Long>{
         return this.searchUnique(search);
     }
 
-
+    //--------------------------23012013---------------------------------
+  	public List<String> getParametersSetForDeviceType(Long sessionId, String deviceType) {
+  		String queryStr ="SELECT sc.parameter_key FROM session_devicetype_config sc " +
+  					  "LEFT JOIN sessions s ON (sc.session=s.id) " +
+  					  "WHERE parameter_key  LIKE '"+deviceType+"%' AND s.id="+sessionId;		
+  		
+  		Query query = this.em().createNativeQuery(queryStr);
+  		
+  		List results = query.getResultList();
+  		List<String> parameterKeys = new ArrayList<String>();
+  		
+  		for(Object i:results){
+  			String parameterKey = i.toString();  
+  			parameterKeys.add(parameterKey);
+  		}
+  		
+  		return parameterKeys;
+  	}
 }
