@@ -406,4 +406,40 @@ public class FormaterUtil {
 	    }
 	    return strFormatDate;
 	}
+	
+	/**
+	 * Extract dates from a String of dates delimited by @param delimiter
+	 * and of the format @param formatType.
+	 */
+	public static List<Date> formatDelimitedStringToDates(final String strDates,
+			final String delimiter,
+			final String formatType) {
+		List<Date> dates = new ArrayList<Date>();
+		
+		String[] strDatesArr = strDates.split(delimiter);
+		for(String s : strDatesArr) {
+			Date date = FormaterUtil.formatStringToDate(s, formatType);
+			dates.add(date);
+		}
+		
+		return dates;
+	}
+	
+	/**
+	 * Create a list of localized dates (of type string)
+	 * in the format @param formatType, of the @param locale 
+	 */
+	public static List<String> formatDatesToString(final List<Date> dates,
+			final String formatType,
+			final String locale) {
+		List<String> strs = new ArrayList<String>();
+		
+		for(Date d : dates) {
+			String str = FormaterUtil.formatDateToString(d, formatType, locale);
+			strs.add(str);
+		}
+		
+		return strs;
+	}
+
 }
