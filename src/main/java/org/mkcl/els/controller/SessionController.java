@@ -9,17 +9,22 @@
  */
 package org.mkcl.els.controller;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Date;
 import java.util.Enumeration;
 import java.util.GregorianCalendar;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 
 import org.mkcl.els.common.util.ApplicationConstants;
+import org.mkcl.els.common.util.FormaterUtil;
 import org.mkcl.els.domain.CustomParameter;
 import org.mkcl.els.domain.DeviceType;
 import org.mkcl.els.domain.Group;
@@ -319,6 +324,78 @@ javax.servlet.http.HttpServletRequest)
         		DeviceType deviceTypeEnabled = DeviceType.findByType(deviceTypeEnabledStr, domain.getLocale());
         		if(deviceTypeEnabled != null) {
         			deviceTypesEnabled.add(deviceTypeEnabled);
+        			//-------------------dhananjay_23012013------------------------
+        			if(domain.getParameters()!=null){
+        				List<String> parametersForDeviceType = Session.getParametersSetForDeviceType(domain.getId(), deviceTypeEnabled.getType());
+        				if(parametersForDeviceType.isEmpty()){
+        					List<CustomParameter> customParameters = CustomParameter.findAllByStartingWith(CustomParameter.class, "name", deviceTypeEnabled.getType()+'%', "name", ApplicationConstants.ASC, null);
+    	        			for(CustomParameter i: customParameters) {     
+    	        				String key = i.getName().toLowerCase();    	        				
+	        					if(i.getValue()!=null && !i.getValue().isEmpty()) {
+	        						if(key.endsWith("date")) {
+	        							CustomParameter parameter;
+										CustomParameter dbParameter;
+										if(i.getValue().length()>10){
+											 parameter = CustomParameter.findByName(CustomParameter.class, "SERVER_DATETIMEFORMAT", "");
+											 dbParameter = CustomParameter.findByName(CustomParameter.class, "DB_DATETIMEFORMAT", "");
+										}
+										else{
+											 parameter = CustomParameter.findByName(CustomParameter.class, "SERVER_DATEFORMAT", "");
+											 dbParameter = CustomParameter.findByName(CustomParameter.class, "DB_DATEFORMAT", "");
+										}		
+										SimpleDateFormat dateFormat;
+										SimpleDateFormat dbDateFormat;
+										Date date;
+										
+										try {
+		
+											if (domain.getLocale().equalsIgnoreCase("mr_IN")) {
+												
+												dateFormat = new SimpleDateFormat(parameter.getValue(), new Locale("hi", "IN"));
+												dbDateFormat = new SimpleDateFormat(dbParameter.getValue(), new Locale("hi", "IN"));
+												
+											} else {
+		
+												dateFormat = new SimpleDateFormat(parameter.getValue(), new Locale(domain.getLocale()));
+												dbDateFormat = new SimpleDateFormat(dbParameter.getValue(), new Locale(domain.getLocale()));
+											}
+		
+											dateFormat.setLenient(true);
+		
+											date = dbDateFormat.parse(i.getValue());
+											
+											model.addAttribute(key, dateFormat.format(date)); 										
+											
+										} catch (ParseException e) {
+		
+											e.printStackTrace();
+										}
+	        						} else if(key.endsWith("dates")) {
+	        							// add formatting as done for the same type in getParameters() of Session.java
+	        						} else {
+		        						try {
+		        							Integer num = Integer.parseInt(i.getValue());
+		        							String value = FormaterUtil.formatNumberNoGrouping(num, domain.getLocale());
+		        							model.addAttribute(key, value);
+		        						} 
+		        						//if parameter value is not a number
+		        						catch(NumberFormatException ne) {
+		        							model.addAttribute(key, i.getValue());   							
+		        						}  
+	        						}
+	        					}
+	        					else {
+	        						model.addAttribute(key, "");
+	        					}     	        				
+    	        			}
+        				}
+        				else{
+        					for(String parameterKey : parametersForDeviceType) {
+        						model.addAttribute(parameterKey.toLowerCase(), domain.getParameter(parameterKey));
+        					}
+        				}
+        			}
+        			//-----------------------------------------------------------------
         		}
         	}    
         }
