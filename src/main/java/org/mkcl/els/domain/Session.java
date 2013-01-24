@@ -784,6 +784,11 @@ public class Session extends BaseDomain implements Serializable {
 		}
 		return null;
 	}
+	
+	//------------------dhananjayb_23012013----------------------------
+	public static List<String> getParametersSetForDeviceType(final Long sessionId, final String deviceType) {
+		return getSessionRepository().getParametersSetForDeviceType(sessionId,deviceType);
+    }
 
 	public static Session find(final Integer sessionyear, final String sessiontype, final String housetype) {
 		return getSessionRepository().find(sessionyear,sessiontype,housetype);
