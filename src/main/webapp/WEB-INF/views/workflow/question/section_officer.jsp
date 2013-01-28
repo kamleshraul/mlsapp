@@ -725,8 +725,8 @@
 	</p>
 	<c:if test="${!(empty domain.answer) }">
 	<p>
-	<label class="wysiwyglabel"><spring:message code="question.answer" text="Answer"/></label>
-	<form:textarea path="answer" cssClass="wysiwyg"></form:textarea>
+	<label class="wysiwyglabel"><spring:message code="question.answer" text="Answer" /></label>
+	<form:textarea path="answer" cssClass="wysiwyg" readonly="true"></form:textarea>
 	</p>	
 	</c:if>	
 	
