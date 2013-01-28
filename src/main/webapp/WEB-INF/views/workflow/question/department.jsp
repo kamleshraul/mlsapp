@@ -350,6 +350,10 @@
 				$.prompt('Please provide valid question number.');
 			}
 		});
+	  	//-----------------------
+	  	var createDate = $('#creationTime').val();
+	  	var crtDate = createDate.substring(8,10) + '/' + createDate.substring(5,7)+'/'+ createDate.substring(0,4) + ' ' + createDate.substring(11,19); 
+		$('#createTime').val(crtDate);
 	});
 	</script>
 	 <style type="text/css">
@@ -402,6 +406,11 @@
 	<input id="number" name="number" value="${domain.number}" type="hidden">
 	<form:errors path="number" cssClass="validationError"/>
 	
+	<c:if test="${domain.type.type=='questions_starred'}">
+		<label class="small"><spring:message code="question.task.creationtime" text="Task Created On"/></label>
+		<input id="createTime" name="createdTime" value="" class="sText datetimemask" readonly="readonly">
+	</c:if>
+	
 	<c:if test="${domain.type.type=='questions_halfhourdiscussion_from_question'}">
 		
 		<label class="small"><spring:message code="question.halfhour.questionref" text="Reference Question Number: "/>*</label>
@@ -431,6 +440,9 @@
 		<label class="small"><spring:message code="question.answeringDate" text="Answering Date"/></label>
 		<input id="formattedAnsweringDate" name="formattedAnsweringDate" value="${formattedAnsweringDate }" class="sText" readonly="readonly">
 		<input id="answeringDate" name="answeringDate" type="hidden"  value="${answeringDate}">
+		
+		<label class="small"><spring:message code="question.lastDAteFromDepartment" text="Last Date From Department"/></label>
+		<input id="lastDateFromDept" name="lastDateFromDept" value="${lastReceivingDateFromDepartment}" class="sText" readonly="readonly">
 	</c:if>
 	<c:if test="${domain.type.type=='questions_halfhourdiscussion_from_question'}">
 		<label class="small"><spring:message code="question.discussionDate" text="Discussion Date"/></label>
@@ -587,7 +599,7 @@
 	<c:if test="${!(empty  domain.revisedQuestionText)}">
 	<p style="display:none;">
 	<label class="wysiwyglabel"><spring:message code="question.details" text="Details"/></label>
-	<form:textarea path="questionText" readonly="true" cssClass="wysiwyg" ></form:textarea>
+	<form:textarea path="questionText" readonly="true" cssClass="wysiwyg"></form:textarea>
 	<form:errors path="questionText" cssClass="validationError"/>	
 	</p>
 	<p  class="revise" id="revisedQuestionTextDiv">
@@ -599,7 +611,7 @@
 	<c:if test="${empty  domain.revisedQuestionText}">
 	<p>
 	<label class="wysiwyglabel"><spring:message code="question.details" text="Details"/></label>
-	<form:textarea path="questionText" readonly="true" cssClass="wysiwyg" ></form:textarea>
+	<form:textarea path="questionText" readonly="true" cssClass="wysiwyg"></form:textarea>
 	<form:errors path="questionText" cssClass="validationError"/>	
 	</p>
 	<p  class="revise" id="revisedQuestionTextDiv" style="display:none;">
