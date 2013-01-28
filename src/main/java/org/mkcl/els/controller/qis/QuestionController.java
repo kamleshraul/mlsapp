@@ -132,7 +132,7 @@ public class QuestionController extends GenericController<Question>{
 			List<Status> status=new ArrayList<Status>();
 			for(Role i:roles){
 				if(i.getType().startsWith("MEMBER_")){
-					status=Status.findStartingWith("questions_","priority",ApplicationConstants.ASC, locale);
+					status=Status.findStartingWith("questions_","type",ApplicationConstants.DESC, locale);
 					model.addAttribute("status",status);
 					model.addAttribute("role",i.getType());
 					break;
