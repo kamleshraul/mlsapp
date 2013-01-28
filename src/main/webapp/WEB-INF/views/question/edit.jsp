@@ -605,6 +605,21 @@
 		</p>
 	</c:if>
 	
+	<c:if test="${internalStatusType != null }">
+		<c:if test="${!empty internalStatusType}">
+			<c:if test="${sectionofficer_remark != null}">
+				<c:if test="${! empty sectionofficer_remark}">
+					<c:if test="${internalStatusType=='question_workflow_approving_rejection'}">
+						<p>
+							<label class="wysiwyglabel"><spring:message code="question.remarks" text="Remarks"/></label>
+							<form:textarea path="remarks" cssClass="wysiwyg" readonly="true"></form:textarea>
+						</p>
+					</c:if>
+				</c:if>
+			</c:if>
+		</c:if>
+	</c:if>
+	
 	<c:choose>
 	<c:when test="${! empty ministries}">
 	<p>
