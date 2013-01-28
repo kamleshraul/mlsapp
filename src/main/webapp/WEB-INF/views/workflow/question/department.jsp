@@ -560,8 +560,8 @@
 	
 	<c:if test="${!(empty domain.revisedSubject) }">
 	<p  class="revise" id="revisedSubjectDiv">
-	<label class="centerlabel"><spring:message code="question.revisedSubject" text="Revised Subject"/></label>
-	<form:textarea path="revisedSubject" rows="2" cols="50"></form:textarea>
+	<label class="centerlabel"><spring:message code="question.revisedSubject" text="Subject"/></label>
+	<form:textarea path="revisedSubject" rows="2" cols="50" readonly="true"></form:textarea>
 	<form:errors path="revisedSubject" cssClass="validationError" cssStyle="float:right;margin-top:-100px;margin-right:40px;"/>
 	</p>
 	<p style="display:none;">	
@@ -573,8 +573,8 @@
 	
 	<c:if test="${empty domain.revisedSubject }">
 	<p  class="revise" id="revisedSubjectDiv" style="display:none;">
-	<label class="centerlabel"><spring:message code="question.revisedSubject" text="Revised Subject"/></label>
-	<form:textarea path="revisedSubject" rows="2" cols="50"></form:textarea>
+	<label class="centerlabel"><spring:message code="question.revisedSubject" text="Subject"/></label>
+	<form:textarea path="revisedSubject" rows="2" cols="50" readonly="true"></form:textarea>
 	<form:errors path="revisedSubject" cssClass="validationError" cssStyle="float:right;margin-top:-100px;margin-right:40px;"/>
 	</p>
 	<p>	
@@ -587,24 +587,24 @@
 	<c:if test="${!(empty  domain.revisedQuestionText)}">
 	<p style="display:none;">
 	<label class="wysiwyglabel"><spring:message code="question.details" text="Details"/></label>
-	<form:textarea path="questionText" readonly="true" cssClass="wysiwyg"></form:textarea>
+	<form:textarea path="questionText" readonly="true" cssClass="wysiwyg" ></form:textarea>
 	<form:errors path="questionText" cssClass="validationError"/>	
 	</p>
 	<p  class="revise" id="revisedQuestionTextDiv">
-	<label class="wysiwyglabel"><spring:message code="question.revisedDetails" text="Revised Details"/></label>
-	<form:textarea path="revisedQuestionText" cssClass="wysiwyg"></form:textarea>
+	<label class="wysiwyglabel"><spring:message code="question.revisedDetails" text="Details"/></label>
+	<form:textarea path="revisedQuestionText" cssClass="wysiwyg" readonly="true"></form:textarea>
 	<form:errors path="revisedQuestionText" cssClass="validationError" cssStyle="float:right;margin-top:-100px;margin-right:40px;"/>
 	</p>
 	</c:if>
 	<c:if test="${empty  domain.revisedQuestionText}">
 	<p>
 	<label class="wysiwyglabel"><spring:message code="question.details" text="Details"/></label>
-	<form:textarea path="questionText" readonly="true" cssClass="wysiwyg"></form:textarea>
+	<form:textarea path="questionText" readonly="true" cssClass="wysiwyg" ></form:textarea>
 	<form:errors path="questionText" cssClass="validationError"/>	
 	</p>
 	<p  class="revise" id="revisedQuestionTextDiv" style="display:none;">
-	<label class="wysiwyglabel"><spring:message code="question.revisedDetails" text="Revised Details"/></label>
-	<form:textarea path="revisedQuestionText" cssClass="wysiwyg"></form:textarea>
+	<label class="wysiwyglabel"><spring:message code="question.revisedDetails" text="Details"/></label>
+	<form:textarea path="revisedQuestionText" cssClass="wysiwyg" readonly="true"></form:textarea>
 	<form:errors path="revisedQuestionText" cssClass="validationError" cssStyle="float:right;margin-top:-100px;margin-right:40px;"/>
 	</p>
 	</c:if>
