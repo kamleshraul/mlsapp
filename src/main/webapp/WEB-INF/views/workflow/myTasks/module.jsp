@@ -47,7 +47,9 @@
 			var row = $('#key').val();
 			$("#cancelFn").val("rowDblClickHandler");
 			var form=$("#grid").jqGrid('getCell',row,'form');
-			var urlpattern=$("#grid").jqGrid('getCell',row,'urlpattern');			
+			var urlpattern=$("#grid").jqGrid('getCell',row,'urlpattern');
+			var crdt =$('#grid').jqGrid('getCell', row, 'createTime');
+			$('#creationTime').val(crdt);
 			showTabByIdAndUrl('process_tab', 'workflow/myTasks/' + row + '/process?form='+form+'&urlpattern='+urlpattern);
 		}		
 	</script>
@@ -71,6 +73,7 @@
 		<input type="hidden" id="key" name="key">
 		<input type="hidden" id="selectRowFirstMessage" name="selectRowFirstMessage" value="<spring:message code='generic.selectRowFirstMessage' text='Please select the desired row first'></spring:message>" disabled="disabled">
 		<input type="hidden" id="confirmDeleteMessage" name="confirmDeleteMessage" value="<spring:message code='generic.confirmDeleteMessage' text='Do you want to delete the row with Id: '></spring:message>" disabled="disabled">
-	</div> 
+		<input type="hidden" id="creationTime" name="creationTime" value="" />
+  	</div> 
 </body>
 </html>
