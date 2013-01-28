@@ -1267,8 +1267,35 @@ public class QuestionController extends GenericController<Question>{
 						refQuestion = Question.find(prevSession, qNumber, domain.getType().getId());
 					}
 					//-------------------------------------------------
-				}
+				}				
 				domain.setHalfHourDiscusionFromQuestionReference(refQuestion);
+				
+//				String discussionDateStr = request.getParameter("formattedDiscussionDate");
+//				if(discussionDateStr!= null){
+//					if(!discussionDateStr.isEmpty()){
+//						CustomParameter serverFormat = CustomParameter.findByFieldName(CustomParameter.class, "name", "SERVER_DATEFORMAT", null);
+//						CustomParameter dbFormat = CustomParameter.findByFieldName(CustomParameter.class, "name", "DB_DATEFORMAT", null);
+//							
+//						Date serverDate = null;
+//						Date dbDate = null;						
+//						
+//						try {
+//							serverDate = FormaterUtil.getDateFormatter(serverFormat.getValue(), domain.getLocale()).parse(discussionDateStr);
+//						} catch (ParseException e) {
+//							e.printStackTrace();
+//						}
+//						
+//						String dbDateStr = FormaterUtil.getDateFormatter(dbFormat.getValue(), "en_US").format(serverDate);												
+//						try {
+//							dbDate = FormaterUtil.getDateFormatter(dbFormat.getValue(), "en_US").parse(dbDateStr);
+//						} catch (ParseException e) {
+//							e.printStackTrace();
+//						}
+//						domain.setDiscussionDate(dbDate);
+//					}else{
+//						domain.setDiscussionDate(null);
+//					}
+//				}
 			}
 		}
 		//------------------------------added by vikas & dhananjay-------------------------------
@@ -1694,6 +1721,8 @@ public class QuestionController extends GenericController<Question>{
 			
 			if (domain.getDiscussionDate() != null) {
 				model.addAttribute("discussionDateSelected",FormaterUtil.getDateFormatter("dd/MM/yyyy", selectedSession.getLocale()).format(domain.getDiscussionDate()));
+			}else{
+				model.addAttribute("discussionDateSelected",null);
 			}
 			if (domain.getHalfHourDiscusionFromQuestionReference() != null) {
 				if (domain.getHalfHourDiscusionFromQuestionReference()!= null) {
@@ -1724,7 +1753,5 @@ public class QuestionController extends GenericController<Question>{
 			return "question/viewquestion";
 		}
 	}
-
-
 }
 
