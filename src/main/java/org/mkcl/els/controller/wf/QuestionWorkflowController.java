@@ -515,6 +515,7 @@ public class QuestionWorkflowController  extends BaseController{
 				model.addAttribute("answeringDates",masterVOs);
 				if(domain.getAnsweringDate()!=null){
 					model.addAttribute("answeringDateSelected",domain.getAnsweringDate().getId());
+					model.addAttribute("lastReceivingDateFromDepartment", FormaterUtil.getDateFormatter(locale).format(domain.getAnsweringDate().getLastReceivingDateFromDepartment()));
 				}
 			}
 		}	
