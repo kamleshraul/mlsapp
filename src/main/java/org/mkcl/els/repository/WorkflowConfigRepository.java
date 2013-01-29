@@ -40,20 +40,19 @@ public class WorkflowConfigRepository extends BaseRepository<WorkflowConfig, Ser
 	public List<Reference> findQuestionActorsVO(final Question question,
 			final Status internalStatus,final UserGroup userGroup,final int level,final String locale) {
 		String status=internalStatus.getType();
-		Status recommendationStatus=question.getRecommendationStatus();
 		WorkflowConfig workflowConfig=null;
 		UserGroupType userGroupType=null;
 		WorkflowActor currentWorkflowActor=null;
 		List<Reference> references=new ArrayList<Reference>();
 		List<WorkflowActor> allEligibleActors=new ArrayList<WorkflowActor>();
-		if(status.equals(ApplicationConstants.QUESTION_GROUPCHANGED)){
+		if(status.equals(ApplicationConstants.QUESTION_SYSTEM_GROUPCHANGED)){
 
 		}else{			
 			/**** Note :Here this can be configured so that list of workflows which
 			 * goes back is read  dynamically ****/
-			if(status.equals(ApplicationConstants.QUESTION_SENDBACK)
-					||status.equals(ApplicationConstants.QUESTION_DISCUSS)
-					||status.equals(ApplicationConstants.QUESTION_APPROVING_DISCUSS)){
+			if(status.equals(ApplicationConstants.QUESTION_RECOMMEND_SENDBACK)
+					||status.equals(ApplicationConstants.QUESTION_RECOMMEND_DISCUSS)
+					){
 				workflowConfig=getLatest(question,question.getInternalStatus().getType(),locale.toString());
 				userGroupType=userGroup.getUserGroupType();
 				currentWorkflowActor=getWorkflowActor(workflowConfig,userGroupType,level);
@@ -133,7 +132,7 @@ public class WorkflowConfigRepository extends BaseRepository<WorkflowConfig, Ser
 					/**** Include Leave Module ****/
 					if(noOfComparisons==noOfSuccess){
 						Reference reference=new Reference();
-						reference.setId(j.getCredential().getUsername()+"#"+j.getUserGroupType().getType()+"#"+j.getId()+"#"+i.getId()+"#"+i.getLevel());
+						reference.setId(j.getCredential().getUsername()+"#"+j.getUserGroupType().getType()+"#"+i.getLevel());
 						reference.setName(userGroupTypeTemp.getName());
 						references.add(reference);
 						break;
@@ -150,7 +149,7 @@ public class WorkflowConfigRepository extends BaseRepository<WorkflowConfig, Ser
 		String status=internalStatus.getType();
 		WorkflowConfig workflowConfig=null;
 		List<WorkflowActor> actualActors=new ArrayList<WorkflowActor>();
-		if(status.equals(ApplicationConstants.QUESTION_GROUPCHANGED)){
+		if(status.equals(ApplicationConstants.QUESTION_SYSTEM_GROUPCHANGED)){
 
 		}else{
 			workflowConfig=getLatest(question,status,locale.toString());
@@ -159,9 +158,8 @@ public class WorkflowConfigRepository extends BaseRepository<WorkflowConfig, Ser
 			List<WorkflowActor> allEligibleActors=new ArrayList<WorkflowActor>();
 			/**** Note :Here this can be configured so that list of workflows which
 			 * goes back is read  dynamically ****/
-			if(status.equals(ApplicationConstants.QUESTION_SENDBACK)
-					||status.equals(ApplicationConstants.QUESTION_DISCUSS)
-					||status.equals(ApplicationConstants.QUESTION_APPROVING_DISCUSS)){
+			if(status.equals(ApplicationConstants.QUESTION_RECOMMEND_SENDBACK)
+					||status.equals(ApplicationConstants.QUESTION_RECOMMEND_DISCUSS)){
 				allEligibleActors=getWorkflowActorsExcludingCurrent(workflowConfig,currentWorkflowActor,ApplicationConstants.DESC);
 			}else{
 				allEligibleActors=getWorkflowActorsExcludingCurrent(workflowConfig,currentWorkflowActor,ApplicationConstants.ASC);
