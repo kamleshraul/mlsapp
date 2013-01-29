@@ -29,8 +29,10 @@ public class WorkflowDetails extends BaseDomain implements Serializable{
 	
 	private String assignee;
 	
-	private String assigneeUserGroup;
+	private String assigneeUserGroupType;
 	
+	private String assigneeUserGroupId;
+		
 	private String assigneeUserGroupName;
 	
 	private String assigneeLevel;
@@ -120,15 +122,7 @@ public class WorkflowDetails extends BaseDomain implements Serializable{
 
 	public void setAssignee(String assignee) {
 		this.assignee = assignee;
-	}
-
-	public String getAssigneeUserGroup() {
-		return assigneeUserGroup;
-	}
-
-	public void setAssigneeUserGroup(String assigneeUserGroup) {
-		this.assigneeUserGroup = assigneeUserGroup;
-	}
+	}	
 	
 	public void setStatus(String status) {
 		this.status = status;
@@ -251,9 +245,9 @@ public class WorkflowDetails extends BaseDomain implements Serializable{
 	}
 
 	public static WorkflowDetails create(final Question question,final Task task,final String workflowType,
-			final String assigneeUserGroup,final String assigneeUserGroupName,final String assigneeLevel) {
+			final String assigneeLevel) {
 		return getWorkflowDetailsRepository().create(question,task,workflowType,
-				assigneeUserGroup,assigneeUserGroupName,assigneeLevel);
+				assigneeLevel);
 	}
 
 	public void setAssigneeUserGroupName(String assigneeUserGroupName) {
@@ -273,11 +267,9 @@ public class WorkflowDetails extends BaseDomain implements Serializable{
 	}
 
 	public static List<WorkflowDetails> create(final Question question,final List<Task> tasks,
-			final String workflowType,final String assigneeUserGroup,
-			final String assigneeUserGroupName,final String assigneeLevel) {
+			final String workflowType,final String assigneeLevel) {
 		return getWorkflowDetailsRepository().create(question,tasks,
-				workflowType,assigneeUserGroup,
-				assigneeUserGroupName,assigneeLevel);
+				workflowType,assigneeLevel);
 	}
 
 	public void setAssignmentTime(Date assignmentTime) {
@@ -306,5 +298,21 @@ public class WorkflowDetails extends BaseDomain implements Serializable{
 
 	public String getWorkflowSubType() {
 		return workflowSubType;
+	}
+
+	public void setAssigneeUserGroupId(String assigneeUserGroupId) {
+		this.assigneeUserGroupId = assigneeUserGroupId;
+	}
+
+	public String getAssigneeUserGroupId() {
+		return assigneeUserGroupId;
+	}
+
+	public void setAssigneeUserGroupType(String assigneeUserGroupType) {
+		this.assigneeUserGroupType = assigneeUserGroupType;
+	}
+
+	public String getAssigneeUserGroupType() {
+		return assigneeUserGroupType;
 	}	
 }
