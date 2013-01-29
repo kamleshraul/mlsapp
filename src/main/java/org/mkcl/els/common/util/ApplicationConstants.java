@@ -235,7 +235,9 @@ public class ApplicationConstants {
     /**** Approving Authority ****/
     public static final String CHAIRMAN="chairman";
     
-    public static final String SPEAKER="speaker";    
+    public static final String SPEAKER="speaker";   
+    
+    public static final String ASSISTANT="assistant";
     /**** My Task Status ****/
     public static final String MYTASK_PENDING="PENDING";
     
