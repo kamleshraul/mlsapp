@@ -33,6 +33,8 @@ import org.mkcl.els.domain.Grid;
 import org.mkcl.els.domain.HouseType;
 import org.mkcl.els.domain.Session;
 import org.mkcl.els.domain.SessionType;
+import org.mkcl.els.domain.Status;
+import org.mkcl.els.domain.UserGroup;
 import org.mkcl.els.domain.WorkflowDetails;
 import org.mkcl.els.service.IProcessService;
 import org.slf4j.Logger;
@@ -178,6 +180,7 @@ public class WorkflowController extends BaseController {
 	public String myTasksModule(final ModelMap model,
 			final HttpServletRequest request,
 			final Locale applocale) {
+		String errorpage=this.getResourcePath(request).replace("module","error");
 		String locale=applocale.toString();
 		/**** This is for getting only the tasks of current user ****/
 		model.addAttribute("assignee",this.getCurrentUser().getActualUsername());
@@ -211,6 +214,7 @@ public class WorkflowController extends BaseController {
 			model.addAttribute("sessionType",lastSessionCreated.getType().getId());
 		}else{
 			model.addAttribute("errorcode","nosessionentriesfound");
+			return errorpage;
 		}
 		model.addAttribute("sessionTypes",sessionTypes);
 		/**** Years ****/
@@ -223,9 +227,63 @@ public class WorkflowController extends BaseController {
 			}
 		}else{
 			model.addAttribute("errorcode", "houseformationyearnotset");
+			return errorpage;
 		}
 		model.addAttribute("years",years);
 		model.addAttribute("sessionYear",year);
+		/**** Types of Workflows ****/
+		/**** added by sandeep singh(jan 29 2013) ****/
+		/**** Custom Parameter To Determine The Usergroup and usergrouptype of qis users ****/			
+		List<UserGroup> userGroups=this.getCurrentUser().getUserGroups();
+		List<String> workflowTypes=new ArrayList<String>();
+		if(userGroups!=null){
+			if(!userGroups.isEmpty()){
+				CustomParameter customParameter=CustomParameter.findByName(CustomParameter.class,"QIS_ALLOWED_USERGROUPTYPES", "");
+				if(customParameter!=null){
+					String allowedUserGroups=customParameter.getValue(); 
+					for(UserGroup i:userGroups){
+						if(allowedUserGroups.contains(i.getUserGroupType().getType())){
+							/**** Authenticated User's usergroup and usergroupType ****/
+							String userGroupType=i.getUserGroupType().getType();
+							/**** Question Status Allowed ****/
+							CustomParameter allowedWorkflowTypes=CustomParameter.findByName(CustomParameter.class,"MYTASK_GRID_WORKFLOW_TYPES_ALLOWED_"+userGroupType.toUpperCase(), locale);
+							if(allowedWorkflowTypes!=null){
+								String[] allowed=allowedWorkflowTypes.getValue().split(",");
+								for(String j:allowed){
+									if(!j.isEmpty()){
+										workflowTypes.add(j.trim());										
+									}
+								}								
+							}else{
+								CustomParameter defaultAllowedWorkflowTypes=CustomParameter.findByName(CustomParameter.class,"MYTASK_GRID_WORKFLOW_TYPES_ALLOWED_BY_DEFAULT", locale);
+								if(defaultAllowedWorkflowTypes!=null){
+									String[] allowed=defaultAllowedWorkflowTypes.getValue().split(",");
+									for(String j:allowed){
+										if(!j.isEmpty()){
+											workflowTypes.add(j.trim());										
+										}
+									}	
+								}else{
+									model.addAttribute("errorcode","mytask_grid_workflow_types_allowed_by_default_notset");
+									return errorpage;
+								}
+							}
+							model.addAttribute("workflowTypes",workflowTypes);
+							break;
+						}
+					}
+				}else{
+					model.addAttribute("errorcode","qis_allowed_usergroups_notset");
+					return errorpage;
+				}
+			}else{
+				model.addAttribute("errorcode","current_user_has_no_usergroups");
+				return errorpage;
+			}
+		}else{
+			model.addAttribute("errorcode","current_user_has_no_usergroups");
+			return errorpage;
+		}
 		return this.getResourcePath(request);
 	}
 
