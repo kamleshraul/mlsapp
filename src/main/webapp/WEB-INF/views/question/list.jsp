@@ -16,6 +16,8 @@
 					+"&ugparam="+$("#ugparam").val()
 					+"&status="+$("#selectedStatus").val()
 					+"&role="+$("#srole").val()
+					+"&usergroup="+$("#currentusergroup").val()
+					+"&usergroupType="+$("#currentusergroupType").val()
 					);
 			/**** new question ****/
 			$('#new_record').click(function(){

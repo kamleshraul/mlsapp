@@ -16,6 +16,8 @@
 		+"&ugparam="+$("#ugparam").val()
 		+"&status="+$("#selectedStatus").val()
 		+"&role="+$("#srole").val()
+		+"&usergroup="+$("#currentusergroup").val()
+		+"&usergroupType="+$("#currentusergroupType").val()
 		+"&edit=false";
 		var resourceURL='question/'+id+'/edit?'+parameters;
 		$.get(resourceURL,function(data){
@@ -25,18 +27,34 @@
 	}	
 	/**** Clubbing ****/
 	function clubbingInt(id){
-		$.blockUI({ message: '<img src="./resources/images/waitAnimated.gif" />' });		
-		$.get('clubentity/init?id='+id,function(data){
+		$.blockUI({ message: '<img src="./resources/images/waitAnimated.gif" />' });
+		var params="id="+id
+					+"&usergroup="+$("#currentusergroup").val()
+			        +"&usergroupType="+$("#currentusergroupType").val();		
+		$.get('clubentity/init?'+params,function(data){
 			$.unblockUI();	
-			$.fancybox.open(data,{autoSize:false,width:750,height:700});
+			//$.fancybox.open(data,{autoSize:false,width:750,height:700});
+			$("#clubbingResultDiv").html(data);
+			$("#clubbingResultDiv").show();
+			$("#referencingResultDiv").hide();
+			$("#assistantDiv").hide();
+			$("#backToQuestionDiv").show();			
 		},'html');
 	}
 	/**** Referencing ****/
 	function referencingInt(id){
 		$.blockUI({ message: '<img src="./resources/images/waitAnimated.gif" />' });
-		$.get('refentity/init?id='+id,function(data){
+		var params="id="+id
+		+"&usergroup="+$("#currentusergroup").val()
+        +"&usergroupType="+$("#currentusergroupType").val();
+		$.get('refentity/init?'+params,function(data){
 			$.unblockUI();			
-			$.fancybox.open(data,{autoSize:false,width:750,height:700});
+			//$.fancybox.open(data,{autoSize:false,width:750,height:700});
+			$("#referencingResultDiv").html(data);
+			$("#referencingResultDiv").show();
+			$("#clubbingResultDiv").hide();
+			$("#assistantDiv").hide();
+			$("#backToQuestionDiv").show();			
 		},'html');
 	}
 	/**** refresh clubbing and referencing ****/
@@ -48,13 +66,19 @@
 		+"&questionType="+$("#selectedQuestionType").val()
 		+"&ugparam="+$("#ugparam").val()
 		+"&status="+$("#selectedStatus").val()
-		+"&role="+$("#srole").val();
+		+"&role="+$("#srole").val()
+		+"&usergroup="+$("#currentusergroup").val()
+        +"&usergroupType="+$("#currentusergroupType").val();
+		
 		var resourceURL='question/'+id+'/edit?'+parameters;
 		$('a').removeClass('selected');
 		//id refers to the tab name and it is used just to highlight the selected tab
 		$('#'+ id).addClass('selected');
 		//tabcontent is the content area where result of the url load will be displayed
 		$('.tabContent').load(resourceURL);
+		$("#referencingResultDiv").hide();
+		$("#clubbingResultDiv").hide();
+		$("#assistantDiv").show();
 		scrollTop();
 		$.unblockUI();			
 	}
@@ -64,6 +88,8 @@
 		var params="question="+$("#id").val()+"&status="+value+
 		"&usergroup="+$("#usergroup").val()+"&level="+$("#level").val();
 		var resourceURL='ref/question/actors?'+params;
+	    var sendback=$("#internalStatusMaster option[value='question_recommend_sendback']").text();			
+	    var discuss=$("#internalStatusMaster option[value='question_recommend_discuss']").text();		
 		$.post(resourceURL,function(data){
 			if(data!=undefined||data!=null||data!=''){
 				var length=data.length;
@@ -74,12 +100,18 @@
 				}
 				$("#actor").html(text);
 				$("#actorDiv").show();				
+				/**** in case of sendback and discuss only recommendation status is changed ****/
+				if(value!=sendback&&value!=discuss){
 				$("#internalStatus").val(value);
-			    $("#recommendationStatus").val(value);						
+				}
+				$("#recommendationStatus").val(value);						
 			}else{
 			$("#actor").empty();
 			$("#actorDiv").hide();
+			/**** in case of sendback and discuss only recommendation status is changed ****/
+			if(value!=sendback&&value!=discuss){
 			$("#internalStatus").val(value);
+			}
 		    $("#recommendationStatus").val(value);
 			}
 		});
@@ -92,17 +124,34 @@
 	}
 	/**** group changed ****/
 	function groupChanged(){
-		/*var newgroup=$("#group").val();
+		var newgroup=$("#group").val();
+		if(newgroup==''){
+		    var groupChanged=$("#internalStatusMaster option[value='question_system_groupchanged']").text();			
+			$("#changeInternalStatus").val("-");
+		    $("#changeInternalStatus option").show();			    
+		    $("#changeInternalStatus option[value=']"+groupChanged+"'").hide();
+		    $("#internalStatus").val($("#oldInternalStatus").val());
+		    $("#recommendationStatus").val($("#oldRecommendationStatus").val());
+		    $.prompt($("#ministryEmptyMsg").val());
+		    return false;
+		}
 	    var oldgroup=$("#oldgroup").val();
 		    if(oldgroup!=newgroup){
-			    var newStatus=$("#internalStatusMaster option[value='question_workflow_decisionstatus_groupchanged']").text();
+			    var groupChanged=$("#internalStatusMaster option[value='question_system_groupchanged']").text();
 			    $("#changeInternalStatus").val(newStatus);
-			    $("#changeInternalStatus option[value==']"+newStatus+"'").show();
-			    $("#internalStatus").val(newStatus);
-			    $("#recommendationStatus").val(newStatus);
+			    $("#changeInternalStatus option").hide();			    
+			    $("#changeInternalStatus option[value=']"+groupChanged+"'").show();
+			    $("#internalStatus").val(groupChanged);
+			    $("#recommendationStatus").val(groupChanged);
 		    }else{
-			    
-		    }*/	    
+		    	var groupChanged=$("#internalStatusMaster option[value='question_system_groupchanged']").text();
+			    $("#changeInternalStatus").val("-");
+			    $("#changeInternalStatus option").show();			    
+			    $("#changeInternalStatus option[value=']"+groupChanged+"'").hide();
+			    $("#internalStatus").val($("#oldInternalStatus").val());
+			    $("#recommendationStatus").val($("#oldRecommendationStatus").val());			    
+		    }  
+		    return false;  
 	}
 	/**** sub departments ****/
 	function loadSubDepartments(ministry,department){
@@ -170,6 +219,15 @@
 		});
 	}
 	$(document).ready(function(){
+		/**** Back To Question ****/
+		$("#backToQuestion").click(function(){
+			$("#clubbingResultDiv").hide();
+			$("#referencingResultDiv").hide();
+			$("#backToQuestionDiv").hide();
+			$("#assistantDiv").show();
+			/**** Hide update success/failure message on coming back to question ****/
+			$(".toolTip").hide();
+		});
 		/**** Ministry Changes ****/
 		$("#ministry").change(function(){
 			if($(this).val()!=''){
@@ -236,19 +294,13 @@
 		    var value=$(this).val();
 		    if(value!='-'){
 			    var statusType=$("#internalStatusMaster option[value='"+value+"']").text();
-			    if(statusType=='question_workflow_decisionstatus_clarificationneeded'){
-				 loadClarifications();   
-			    }else{
-			    loadActors(value);
-			    }
+			    loadActors(value);			    
 		    }else{
 			    $("#actor").empty();
 			    $("#actorDiv").hide();
 			    $("#internalStatus").val($("#oldInternalStatus").val());
 			    $("#recommendationStatus").val($("#oldRecommendationStatus").val());
-			    $("#clarificationNeededFrom").empty();
-			    $("#clarificationDiv").hide();
-		    }		    
+			}		    
 	    });
 	    /**** Put Up ****/
 		$("#startworkflow").click(function(e){
@@ -384,6 +436,8 @@
 
 <body>
 <div class="fields clearfix watermark">
+
+<div id="assistantDiv">
 <form:form action="question" method="PUT" modelAttribute="domain">
 	<%@ include file="/common/info.jsp" %>
 	<h2>${formattedQuestionType}: ${formattedNumber}</h2>
@@ -423,7 +477,7 @@
 	<input id="number" name="number" value="${domain.number}" type="hidden">
 	<form:errors path="number" cssClass="validationError"/>
 	
-	<c:if test="${domain.type.type=='questions_halfhourdiscussion_from_question'}">
+	<c:if test="${selectedQuestionType=='questions_halfhourdiscussion_from_question'}">
 		
 		<label class="small"><spring:message code="question.halfhour.questionref" text="Reference Question Number: "/>*</label>
 		<input class="sText" readonly="readonly" type="text" name="halfHourDiscussionReference_questionNumber" value="${referredQuestionNumber}" id="halfHourDiscussionReference_questionNumber" />
@@ -432,7 +486,7 @@
 		
 	</c:if>
 	
-	<c:if test="${domain.type.type=='questions_starred'}">
+	<c:if test="${selectedQuestionType=='questions_starred'}">
 		<label class="small"><spring:message code="question.priority" text="Priority"/>*</label>
 		<input name="formattedPriority" id="formattedPriority" class="sText" type="text" value="${formattedPriority }" readonly="readonly">
 		<input name="priority" id="priority"  type="hidden" value="${priority }">	
@@ -445,15 +499,15 @@
 	<input id="formattedSubmissionDate" name="formattedSubmissionDate" value="${formattedSubmissionDate }" class="sText" readonly="readonly">
 	<input id="setSubmissionDate" name="setSubmissionDate" type="hidden"  value="${submissionDate}">
 	
-	<c:if test="${domain.type.type=='questions_starred'}">
+	<c:if test="${selectedQuestionType=='questions_starred'}">
 		<label class="small"><spring:message code="question.answeringDate" text="Answering Date"/></label>
 		<input id="formattedAnsweringDate" name="formattedAnsweringDate" value="${formattedAnsweringDate }" class="sText" readonly="readonly">
 		<input id="answeringDate" name="answeringDate" type="hidden"  value="${answeringDate}">
 	</c:if>
-	<c:if test="${domain.type.type=='questions_halfhourdiscussion_from_question'}">
+	<c:if test="${selectedQuestionType=='questions_halfhourdiscussion_from_question'}">
 		<label class="small"><spring:message code="question.discussionDate" text="Discussion Date"/></label>
-		<input id="formattedDiscussionDate" name="formattedDiscussionDate" value="${discussionDateSelected }" class="sText" readonly="readonly">
-		<%-- <form:errors path="discussionDate" cssClass="validationError"/> --%>
+		<input id="discussionDate" name="discussionDate" value="${discussionDateSelected }" class="sText" readonly="readonly">
+		<form:errors path="discussionDate" cssClass="validationError"/>
 	</c:if>
 	</p>
 	
@@ -533,14 +587,13 @@
 		<a href="#" id="viewContacts" style="margin-left:20px;margin-right: 20px;"><img src="/els/resources/images/contactus.jpg" width="40" height="25"></a>		
 	</p>			
 	
-	<c:if test="${internalStatusType!='questions_submit'}">
-		<p>
+	<p>
 		<a href="#" id="clubbing" onclick="clubbingInt(${domain.id});" style="margin-left: 162px;margin-right: 20px;margin-bottom: 20px;margin-top: 20px;"><spring:message code="question.clubbing" text="Clubbing"></spring:message></a>
 		<a href="#" id="referencing" onclick="referencingInt(${domain.id});" style="margin: 20px;"><spring:message code="question.referencing" text="Referencing"></spring:message></a>
 		<a href="#" id="refresh" onclick="refreshEdit(${domain.id});" style="margin: 20px;"><spring:message code="question.refresh" text="Refresh"></spring:message></a>	
-		</p>	
+	</p>	
 		
-		<p>
+	<p>
 		<label class="small"><spring:message code="question.parentquestion" text="Clubbed To"></spring:message></label>
 		<a href="#" id="p${parent}" onclick="viewQuestionDetail(${parent});"><c:out value="${formattedParentNumber}"></c:out></a>
 		<input type="hidden" id="parent" name="parent" value="${parent}">
@@ -580,8 +633,8 @@
 		<option value="${i.id}" selected="selected"></option>
 		</c:forEach>
 		</select>
-		</p>
-	</c:if>
+	</p>
+	
 	
 	<p>	
 	<label class="centerlabel"><spring:message code="question.subject" text="Subject"/></label>
@@ -595,7 +648,7 @@
 	<form:errors path="questionText" cssClass="validationError"/>	
 	</p>
 	
-	<c:if test="${domain.type.type=='questions_shortnotice' or domain.type.type=='questions_halfhourdiscussion_from_question'}">
+	<c:if test="${selectedQuestionType=='questions_shortnotice' or selectedQuestionType=='questions_halfhourdiscussion_from_question'}">
 	<p>
 		<label class="wysiwyglabel"><spring:message code="question.reason" text="Reason"/>*</label>
 		<form:textarea path="reason" cssClass="wysiwyg" readonly="true"></form:textarea>
@@ -603,7 +656,7 @@
 	</p>
 	</c:if>
 	
-	<c:if test="${domain.type.type=='questions_halfhourdiscussion_from_question' or domain.type.type=='questions_halfhourdiscussion_standalone'}">
+	<c:if test="${selectedQuestionType=='questions_halfhourdiscussion_from_question' or selectedQuestionType=='questions_halfhourdiscussion_standalone'}">
 		<p>
 			<label class="wysiwyglabel"><spring:message code="question.briefExplanation" text="Brief Explanation"/>*</label>
 			<form:textarea path="briefExplanation" cssClass="wysiwyg"></form:textarea>
@@ -628,20 +681,23 @@
 	<form:errors path="revisedQuestionText" cssClass="validationError" cssStyle="float:right;margin-top:-100px;margin-right:40px;"/>
 	</p>
 	
-	<c:if test="${internalStatusType=='question_before_workflow_tobeputup'
-	||internalStatusType=='question_before_workflow_tobenameclubbed'
-	||internalStatusType=='question_contains_references'
-	||(internalStatusType=='question_assistantprocessed'&&domain.type.type=='questions_shortnotice')
-	||(internalStatusType=='question_assistantprocessed'&&domain.type.type=='questions_halfhourdiscussion_from_question')
-	||(internalStatusType=='question_assistantprocessed'&&domain.type.type=='questions_unstarred')}">		
+	<p id="internalStatusDiv">
+	<label class="small"><spring:message code="question.currentStatus" text="Current Status"/></label>
+	<input id="formattedInternalStatus" name="formattedInternalStatus" value="${formattedInternalStatus }" type="text" readonly="readonly">
+	</p>
+	
+	<c:if test="${(internalStatusType=='question_system_putup'&&selectedQuestionType=='questions_starred')
+	||(internalStatusType=='question_system_assistantprocessed'&&selectedQuestionType=='questions_shortnotice')
+	||(internalStatusType=='question_system_assistantprocessed'&&selectedQuestionType=='questions_halfhourdiscussion_from_question')
+	||(internalStatusType=='question_system_assistantprocessed'&&selectedQuestionType=='questions_unstarred')}">		
 	<p>
 	<label class="small"><spring:message code="question.putupfor" text="Put up for"/></label>
 	<select id="changeInternalStatus" class="sSelect">
 	<option value="-"><spring:message code='please.select' text='Please Select'/></option>
 	<c:forEach items="${internalStatuses}" var="i">
-	<c:if test="${(i.type!='question_workflow_decisionstatus_discuss'&&i.type!='question_workflow_decisionstatus_sendback') }">
+	<c:if test="${(i.type!='question_recommend_sendback'&&i.type!='question_recommend_discuss') }">
 	<c:choose>
-	<c:when test="${i.type=='question_workflow_decisionstatus_groupchanged' }">
+	<c:when test="${i.type=='question_system_groupchanged' }">
 	<option value="${i.id}" style="display: none;"><c:out value="${i.name}"></c:out></option>	
 	</c:when>
 	<c:otherwise>
@@ -672,26 +728,9 @@
 	<select id="actor" name="actor" class="sSelect">	
 	</select>
 	</p>
+	
+	</c:if>		
 		
-	<p id="clarificationDiv" style="display:none;">
-	<label class="small"><spring:message code="question.clarificationneededfrom" text="Clarification Needed from"/></label>
-	<select id="clarificationNeededFrom" name="clarificationNeededFrom" class="sSelect">	
-	</select>
-	</p>
-	
-	</c:if>
-	
-	<c:if test="${internalStatusType!='question_before_workflow_tobeputup'
-	&&internalStatusType!='question_before_workflow_tobenameclubbed'
-	&&internalStatusType=='question_contains_references'
-	&&!(internalStatusType=='question_assistantprocessed'&&domain.type.type=='questions_shortnotice')
-	&&!(internalStatusType=='question_assistantprocessed'&&domain.type.type=='questions_halfhourdiscussion_from_question')
-	&&!(internalStatusType=='question_assistantprocessed'&&domain.type.type=='questions_unstarred')}">			
-	<p id="internalStatusDiv">
-	<label class="small"><spring:message code="question.currentStatus" text="Current Status"/></label>
-	<input id="formattedInternalStatus" name="formattedInternalStatus" value="${formattedInternalStatus }" type="text" readonly="readonly">	
-	</c:if>
-	
 	<input type="hidden" id="internalStatus"  name="internalStatus" value="${internalStatus }">
 	<input type="hidden" id="recommendationStatus"  name="recommendationStatus" value="${recommendationStatus}">
 		
@@ -707,17 +746,16 @@
 	<div class="fields">
 		<h2></h2>
 		<p class="tright">
-		<c:if test="${internalStatusType=='question_before_workflow_tobeputup'||
-		internalStatusType=='question_before_workflow_tobenameclubbed'
-		||internalStatusType=='question_contains_references'
-		||internalStatusType=='questions_submit'
-		||internalStatusType=='question_assistantprocessed'}">	
+		<c:if test="${internalStatusType=='question_submit'
+					||internalStatusType=='question_system_putup'
+					||internalStatusType=='question_system_assistantprocessed'
+					}">	
 		<input id="submit" type="submit" value="<spring:message code='generic.submit' text='Submit'/>" class="butDef">
 		</c:if>
-		<c:if test="${internalStatusType=='question_before_workflow_tobeputup'||
-		internalStatusType=='question_before_workflow_tobenameclubbed'
-		||internalStatusType=='question_contains_references'
-		||(internalStatusType=='question_assistantprocessed')}">		
+		<c:if test="${(internalStatusType=='question_system_putup'&&selectedQuestionType=='questions_starred')
+					||(internalStatusType=='question_system_assistantprocessed'&&selectedQuestionType=='questions_shortnotice')
+					||(internalStatusType=='question_system_assistantprocessed'&&selectedQuestionType=='questions_halfhourdiscussion_from_question')
+					||(internalStatusType=='question_system_assistantprocessed'&&selectedQuestionType=='questions_unstarred')}">		
 		<input id="startworkflow" type="button" value="<spring:message code='generic.startworkflow' text='Put Up Question'/>" class="butDef">
 		</c:if>
 	</p>
@@ -732,12 +770,12 @@
 	<input id="endflag" name="endflag" value="continue" type="hidden">
 	<input id="taskid" name="taskid" value="${taskid}" type="hidden">
 	<input id="level" name="level" value="${level }" type="hidden">	
-	<%--21012013 --%>
-	<input type="hidden" name="halfHourDiscusionFromQuestionReference" id="halfHourDiscusionFromQuestionReference" value="${refQuestionId}" />
-	<input type="hidden" name="discussionDate" id="discussionDate" value="${discussionDateSelected}" />		
+	<input id="usergroup" name="usergroup" value="${usergroup}" type="hidden">
+	<input id="usergroupType" name="usergroupType" value="${usergroupType}" type="hidden">	
 		
 </form:form>
 <input id="usergroup" name="usergroup" type="hidden" value="${usergroup}">
+<input id="usergroupType" name="usergroupType" type="hidden" value="${usergroupType}">
 <input id="oldgroup" name="oldgroup" value="${group}" type="hidden">
 <input id="formattedoldgroup" name="formattedoldgroup" value="${formattedGroup}" type="hidden">
 
@@ -751,12 +789,27 @@
 <input id="answeringDateSelected" value="${ answeringDateSelected}" type="hidden">
 <input id="oldInternalStatus" value="${ internalStatus}" type="hidden">
 <input id="oldRecommendationStatus" value="${ RecommendationStatus}" type="hidden">
+<input id="ministryEmptyMsg" value='<spring:message code="client.error.ministryempty" text="Ministry can not be empty."></spring:message>' type="hidden">
 
 
-</div>
 <ul id="contextMenuItems" >
 <li><a href="#unclubbing" class="edit"><spring:message code="generic.unclubbing" text="Unclubbing"></spring:message></a></li>
 <li><a href="#dereferencing" class="edit"><spring:message code="generic.dereferencing" text="Dereferencing"></spring:message></a></li>
 </ul>
+</div>
+
+</div>
+
+<div id="backToQuestionDiv" style="display:none;">
+<a href="#" id="backToQuestion"><spring:message code="question.backtoquestion" text="Back To Question"></spring:message></a>
+</div>
+
+<div id="clubbingResultDiv" style="display:none;">
+</div>
+
+<div id="referencingresultDiv" style="display:none;">
+</div>
+
+
 </body>
 </html>

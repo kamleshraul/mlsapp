@@ -159,11 +159,47 @@
 		<p></p>
 	</div>
 </c:when>
-<c:when test="${errorcode eq 'insufficientParametersForBallotCreation'}">
+<c:when test="${errorcode eq 'qis_allowed_usergroups_notset'}">
 	<div class="toolTip tpRed clearfix">
 		<p>
 			<img src="./resources/images/template/icons/light-bulb-off.png">
-			<spring:message code="question.errorcode.insufficientParametersForBallotCreation" text="Insufficient parameters for Ballot Creation"/>
+			<spring:message code="question.errorcode.qis_allowed_usergroups_notset" text="Custom Parameter 'QIS_ALLOWED_USERGROUPTYPES' not set"/>
+		</p>
+		<p></p>
+	</div>
+</c:when>
+<c:when test="${errorcode eq 'current_user_has_no_usergroups'}">
+	<div class="toolTip tpRed clearfix">
+		<p>
+			<img src="./resources/images/template/icons/light-bulb-off.png">
+			<spring:message code="question.errorcode.current_user_has_no_usergroups" text="No QIS usergroup set for current user"/>
+		</p>
+		<p></p>
+	</div>
+</c:when>
+<c:when test="${errorcode eq 'question_status_allowed_by_default_not_set'}">
+	<div class="toolTip tpRed clearfix">
+		<p>
+			<img src="./resources/images/template/icons/light-bulb-off.png">
+			<spring:message code="question.errorcode.question_status_allowed_by_default_not_set" text="Custom Parameter 'QUESTION_STATUS_ALLOWED_BY_DEFAULT' not set"/>
+		</p>
+		<p></p>
+	</div>
+</c:when>
+<c:when test="${errorcode eq 'question_putup_options_recommend_notset'}">
+	<div class="toolTip tpRed clearfix">
+		<p>
+			<img src="./resources/images/template/icons/light-bulb-off.png">
+			<spring:message code="question.errorcode.question_putup_options_recommend_notset" text="Custom Parameter 'QUESTION_PUT_UP_OPTIONS_RECOMMEND' not set"/>
+		</p>
+		<p></p>
+	</div>
+</c:when>
+<c:when test="${errorcode eq 'question_putup_options_final_notset'}">
+	<div class="toolTip tpRed clearfix">
+		<p>
+			<img src="./resources/images/template/icons/light-bulb-off.png">
+			<spring:message code="question.errorcode.question_putup_options_final_notset" text="Custom Parameter 'QUESTION_PUT_UP_OPTIONS_FINAL' not set"/>
 		</p>
 		<p></p>
 	</div>

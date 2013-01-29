@@ -117,6 +117,8 @@
 						"&ugparam="+$("#ugparam").val()
 						+"&status="+$("#selectedStatus").val()
 						+"&role="+$("#srole").val()
+						+"&usergroup="+$("#currentusergroup").val()
+						+"&usergroupType="+$("#currentusergroupType").val()						
 						);
 		}
 		/**** new question ****/
@@ -179,6 +181,8 @@
 						+"&ugparam="+$("#ugparam").val()
 						+"&status="+$("#selectedStatus").val()
 						+"&role="+$("#srole").val()
+						+"&usergroup="+$("#currentusergroup").val()
+						+"&usergroupType="+$("#currentusergroupType").val()
 						);
 				var oldURL=$("#grid").getGridParam("url");
 				var baseURL=oldURL.split("?")[0];
@@ -206,7 +210,20 @@
 		}	
 		/**** Member Ballot Tab ****/
 		function viewMemberBallot() {
-			var parameters = $("#gridURLParams").val() + "&group=" + $("#selectedGroup").val();
+			var parameters = $("#gridURLParams").val();
+			if(parameters==undefined){
+				parameters = "houseType="+$("#selectedHouseType").val()
+				 +"&sessionYear="+$("#selectedSessionYear").val()
+				 +"&sessionType="+$("#selectedSessionType").val()
+				 +"&questionType="+$("#selectedQuestionType").val()
+				 +"&ugparam="+$("#ugparam").val()
+				 +"&status="+$("#selectedStatus").val()
+				 +"&role="+$("#srole").val()
+				 +"&usergroup="+$("#currentusergroup").val()
+				 +"&usergroupType="+$("#currentusergroupType").val();
+			}
+			parameters+= "&group=" + $("#selectedGroup").val()
+					+"&round=1";
 			var resourceURL = 'ballot/memberballot/init?' + parameters;
 			showTabByIdAndUrl('memberballot_tab', resourceURL);
 		}	
@@ -220,62 +237,46 @@
 				<a id="list_tab" class="selected tab" href="#">
 					<spring:message code="generic.list" text="List"></spring:message>
 				</a>
-			</li>
-			
+			</li>	
 			<li>
 				<a id="details_tab" href="#" class="tab">
 				   <spring:message code="generic.details" text="Details">
 				   </spring:message>
 				</a>
 			</li>
-			
-			<c:if test="${questionTypeType == 'questions_starred'}">
-			<security:authorize access="hasAnyRole('QIS_ASSISTANT', 'QIS_UNDER_SECRETARY',
-				'QIS_DEPUTY_SECRETARY', 'QIS_PRINCIPAL_SECRETARY', 'QIS_SPEAKER', 'QIS_JOINT_SECRETARY',
-				'QIS_SECRETARY', 'QIS_OFFICER_ON_SPECIAL_DUTY', 'QIS_DEPUTY_SPEAKER', 'QIS_CHAIRMAN',
-				'QIS_DEPUTY_CHAIRMAN', 'QIS_SECTION_OFFICER', 'QIS_UNDER_SECRETARY_COMMITTEE',
-				'SUPER_ADMIN')">
+			<security:authorize access="hasAnyRole('QIS_ASSISTANT','QIS_UNDER_SECRETARY',
+			'QIS_DEPUTY_SECRETARY','QIS_PRINCIPAL_SECRETARY','QIS_SPEAKER','QIS_JOINT_SECRETARY',
+			'QIS_SECRETARY','QIS_OFFICER_ON_SPECIAL_DUTY','QIS_DEPUTY_SPEAKER','QIS_CHAIRMAN','QIS_DEPUTY_CHAIRMAN',
+			'QIS_SECTION_OFFICER','QIS_UNDER_SECRETARY_COMMITTEE','SUPER_ADMIN')">
+			<c:if test="${questionTypeType!='questions_unstarred'&& questionTypeType!='questions_shortnotice'}">
+			<c:if test="${questionTypeType!='questions_halfhourdiscussion_standalone'&&questionTypeType!='questions_halfhourdiscussion_from_question'}">
 			<li>
 				<a id="rotationorder_tab" href="#" class="tab">
 				   <spring:message code="question.rotationorder" text="Rotation Order"></spring:message>
 				</a>
 			</li>
-			</security:authorize>
-			
-			<security:authorize access="hasAnyRole('QIS_ASSISTANT', 'QIS_UNDER_SECRETARY',
-				'QIS_DEPUTY_SECRETARY', 'QIS_PRINCIPAL_SECRETARY', 'QIS_JOINT_SECRETARY',
-				'QIS_SECRETARY', 'QIS_OFFICER_ON_SPECIAL_DUTY', 'QIS_SECTION_OFFICER', 
-				'QIS_UNDER_SECRETARY_COMMITTEE','SUPER_ADMIN')">
 			<li>
 				<a id="chart_tab" href="#" class="tab">
 				   <spring:message code="question.chart" text="Chart"></spring:message>
 				</a>
 			</li>
-			</security:authorize>
 			</c:if>
-
-			<security:authorize access="hasAnyRole('QIS_ASSISTANT', 'QIS_UNDER_SECRETARY',
-				'QIS_DEPUTY_SECRETARY', 'QIS_PRINCIPAL_SECRETARY', 'QIS_SPEAKER', 'QIS_JOINT_SECRETARY',
-				'QIS_SECRETARY', 'QIS_OFFICER_ON_SPECIAL_DUTY', 'QIS_DEPUTY_SPEAKER', 'QIS_CHAIRMAN',
-				'QIS_DEPUTY_CHAIRMAN', 'QIS_SECTION_OFFICER', 'QIS_UNDER_SECRETARY_COMMITTEE',
-				'SUPER_ADMIN')">
-			<c:choose>
-				<c:when test="${questionTypeType == 'questions_starred' && houseType=='upperhouse'}">
-					<li>
-					<a id="memberballot_tab" href="#" class="tab">
-				   		<spring:message code="question.memberballot" text="Ballot"></spring:message>
-					</a>
-					</li>
-				</c:when>
-				<c:otherwise>
-					<li>
-					<a id="ballot_tab" href="#" class="tab">
-				   		<spring:message code="question.ballot" text="Ballot"></spring:message>
-					</a>
-					</li>
-				</c:otherwise>
-			</c:choose>
-			</security:authorize>				
+			<c:if test="${houseType=='upperhouse'}">			
+			<li>
+				<a id="memberballot_tab" href="#" class="tab">
+				   <spring:message code="question.memberballot" text="Ballot"></spring:message>
+				</a>
+			</li>
+			</c:if>
+			<c:if test="${houseType=='lowerhouse'}">						
+			<li>
+				<a id="ballot_tab" href="#" class="tab">
+				   <spring:message code="question.ballot" text="Ballot"></spring:message>
+				</a>
+			</li>
+			</c:if>
+			</c:if>							
+			</security:authorize>
 		</ul>
 		
 		<div class="commandbarContent" style="margin-top: 10px;" id="selectionDiv1">		
@@ -384,8 +385,9 @@
 		<input type="hidden" id="key" name="key">		
 		
 		<input type="hidden" name="ugparam" id="ugparam" value="${ugparam }">
-		
 		<input type="hidden" name="srole" id="srole" value="${role }">		
+		<input type="hidden" name="currentusergroup" id="currentusergroup" value="${usergroup}">		
+		<input type="hidden" name="currentusergroupType" id="currentusergroupType" value="${usergroupType}">		
 		
 		<input type="hidden" name="pleaseSelect" id="pleaseSelect" value="<spring:message code='please.select' text='Please Select'/>">	
 		<input type="hidden" id="ballotSuccessMsg" value="<spring:message code='ballot.success' text='Member Ballot Created Succesfully'/>">			
