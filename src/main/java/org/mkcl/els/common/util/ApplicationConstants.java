@@ -142,53 +142,86 @@ public class ApplicationConstants {
     public static final String QUESTIONS_STARRED_TOTALROUNDS_FINALBALLOT="questions_starred_totalRoundsFinalBallot";
 
     /**** Question Types ****/
-    /** The Constant STARRED_QUESTION. */
     public static final String STARRED_QUESTION="questions_starred";
 
-    /** The Constant UNSTARRED_QUESTION. */
     public static final String UNSTARRED_QUESTION="questions_unstarred";
 
-    /** The Constant SHORT_NOTICE_QUESTION. */
     public static final String SHORT_NOTICE_QUESTION="questions_shortnotice";
 
-    /** The Constant HALF_HOUR_DISCUSSION_QUESTION_STANDALONE. */
     public static final String HALF_HOUR_DISCUSSION_QUESTION_STANDALONE="questions_halfhourdiscussion_standalone";
 
-    /** The Constant HALF_HOUR_DISCUSSION_QUESTION_FROM_QUESTION. */
     public static final String HALF_HOUR_DISCUSSION_QUESTION_FROM_QUESTION="questions_halfhourdiscussion_from_question";
     
     /**** Question Status ****/
-    public static final String QUESTION_ASSISTANT_PROCESSED="question_assistantprocessed";
+    /**** Member *****/
+    public static final String QUESTION_INCOMPLETE="question_incomplete";
     
-    public static final String QUESTION_ADMISSION="question_workflow_decisionstatus_admission";
+    public static final String QUESTION_COMPLETE="question_complete";
     
-    public static final String QUESTION_APPROVING_ADMISSION="question_workflow_approving_admission";
+    public static final String QUESTION_SUBMIT="question_submit";    
+    /**** Supporting Member ****/
+    public static final String QUESTION_SUPPORTING_MEMBER_APPROVED="supportingmember_approved";
     
-    public static final String QUESTION_REJECTION="question_workflow_decisionstatus_rejection";
+    public static final String QUESTION_SUPPORTING_MEMBER_REJECTED="supportingmember_rejected";
     
-    public static final String QUESTION_APPROVING_REJECTION="question_workflow_approving_rejection";
+    public static final String QUESTION_SUPPORTING_MEMBER_PENDING="supportingmember_pending";
     
-    public static final String QUESTION_CONVERT_TO_UNSTARRED="question_workflow_decisionstatus_converttounstarred";
+    public static final String QUESTION_SUPPORTING_MEMBER_NOTSEND="supportingmember_notsend";    
+    /**** System ****/    
+    public static final String QUESTION_SYSTEM_ASSISTANT_PROCESSED="question_system_assistantprocessed";
     
-    public static final String QUESTION_APPROVING_CONVERT_TO_UNSTARRED="question_workflow_approving_converttounstarred";
+    public static final String QUESTION_SYSTEM_TO_BE_PUTUP="question_system_putup";
+
+    public static final String QUESTION_SYSTEM_GROUPCHANGED="question_system_groupchanged";
+
+    public static final String QUESTION_SYSTEM_CLUBBED="question_system_clubbed";
+
+    public static final String QUESTION_SYSTEM_CLUBBED_WITH_PENDING="question_system_clubbedwithpending";
+    /**** Recommendation ****/
+    public static final String QUESTION_RECOMMEND_ADMISSION="question_recommend_admission";
     
-    public static final String QUESTION_CLARIFICATION_NEEDED="question_workflow_decisionstatus_clarificationneeded";
+    public static final String QUESTION_RECOMMEND_REJECTION="question_recommend_rejection";
     
-    public static final String QUESTION_APPROVING_CLARIFICATION_NEEDED="question_workflow_approving_clarificationneeded";
+    public static final String QUESTION_RECOMMEND_CONVERT_TO_UNSTARRED="question_recommend_convertToUnstarred";
     
-    public static final String QUESTION_DISCUSS="question_workflow_decisionstatus_discuss";
+    public static final String QUESTION_RECOMMEND_CONVERT_TO_UNSTARRED_AND_ADMIT="question_recommend_convertToUnstarredAndAdmit";
     
-    public static final String QUESTION_APPROVING_DISCUSS="question_workflow_approving_discuss";
+    public static final String QUESTION_RECOMMEND_CLARIFICATION_FROM_MEMBER="question_recommend_clarificationNeededFromMember";
     
-    public static final String QUESTION_SENDBACK="question_workflow_decisionstatus_sendback";
+    public static final String QUESTION_RECOMMEND_CLARIFICATION_FROM_DEPARTMENT="question_recommend_clarificationNeededFromDepartment";
     
-    public static final String QUESTION_NAMECLUBBING="question_workflow_decisionstatus_nameclubbing";
-    	
-    public static final String QUESTION_GROUPCHANGED="question_workflow_decisionstatus_groupchanged";
-       
-    /**** Approval Workflow(Name of the workflow process that is used for approval cycles) ****/
-    public static final String APPROVAL_WORKFLOW="APPROVAL_WORKFLOW";
+    public static final String QUESTION_RECOMMEND_CLARIFICATION_FROM_GOVT="question_recommend_clarificationNeededFromGovt";
     
+    public static final String QUESTION_RECOMMEND_CLARIFICATION_FROM_MEMBER_AND_DEPARTMENT="question_recommend_clarificationNeededFromMemberAndDepartment";
+    
+    public static final String QUESTION_RECOMMEND_NAMECLUBBING="question_recommend_nameclubbing";
+    
+    public static final String QUESTION_RECOMMEND_PUTONHOLD="question_recommend_putonhold";
+    
+    public static final String QUESTION_RECOMMEND_SENDBACK="question_recommend_sendback";
+    
+    public static final String QUESTION_RECOMMEND_DISCUSS="question_recommend_discuss";
+    /**** Final ****/ 
+    public static final String QUESTION_FINAL_ADMISSION="question_final_admission";
+
+    public static final String QUESTION_FINAL_REJECTION="question_final_rejection";
+
+    public static final String QUESTION_FINAL_CONVERT_TO_UNSTARRED_AND_ADMIT="question_final_convertToUnstarredAndAdmit";
+
+    public static final String QUESTION_FINAL_CLARIFICATION_NOT_RECEIVED_FROM_MEMBER="question_final_clarificationNotReceivedFromMember";
+    /**** Put Up ****/
+    public static final String QUESTION_PUTUP_NAMECLUBBING="question_putup_nameclubbing";
+
+    public static final String QUESTION_PUTUP_ONHOLD="question_putup_onhold";
+
+    public static final String QUESTION_PUTUP_CONVERT_TO_UNSTARRED="question_putup_convertToUnstarred";
+
+    public static final String QUESTION_PUTUP_REJECTION="question_putup_rejection";
+    
+    public static final String QUESTION_PUTUP_CONVERT_TO_UNSTARRED_AND_ADMIT="question_putup_convertToUnstarredAndAdmit";
+
+    /**** Processed Status ****/
+    public static final String QUESTION_PROCESSED_YAADILAID="question_processed_yaadilaid";
     /**** Question Ministry,Department and Subdepartment parameters key in UserGroup ****/
     public static final String HOUSETYPE_KEY="HOUSETYPE";
     
@@ -198,10 +231,29 @@ public class ApplicationConstants {
     
     public static final String DEPARTMENT_KEY="DEPARTMENT";
     
-    public static final String SUBDEPARTMENT_KEY="SUBDEPARTMENT";
-    
+    public static final String SUBDEPARTMENT_KEY="SUBDEPARTMENT";    
     /**** Approving Authority ****/
     public static final String CHAIRMAN="chairman";
     
-    public static final String SPEAKER="speaker";
+    public static final String SPEAKER="speaker";    
+    /**** My Task Status ****/
+    public static final String MYTASK_PENDING="PENDING";
+    
+    public static final String MYTASK_COMPLETED="COMPLETED";    
+    /**** Workflow Types ****/
+    public static final String APPROVAL_WORKFLOW="APPROVAL_WORKFLOW";
+    
+    public static final String SUPPORTING_MEMBER_WORKFLOW="Supporting_Members_Approval_Process";    
+    /**** URL Pattern of Various Workflows ****/
+    public static final String APPROVAL_WORKFLOW_URLPATTERN="workflow/question/mytask";
+
+    public static final String SUPPORTING_MEMBER_WORKFLOW_URLPATTERN="workflow/question/supportingmember";    
+    /**** Advanced Search Status Filter ****/
+    public static final String UNPROCESSED_FILTER="UNPROCESSED";
+    
+    public static final String PENDING_FILTER="PENDING";
+    
+    public static final String APPROVED_FILTER="APPROVED";
+
+    
 }
