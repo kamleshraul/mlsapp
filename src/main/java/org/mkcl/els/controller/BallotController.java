@@ -253,103 +253,237 @@ public class BallotController extends BaseController{
         return retVal;
     }
 	
-    @RequestMapping(value="/memberballot/init",method=RequestMethod.GET)
-    public String viewMemberBallot(final HttpServletRequest request,
-            final Locale locale){
-        return "ballot/memberballotinit";
-    }
-    /**
-     * Creates the final member ballot.
-     *
-     * @param request the request
-     * @param locale the locale
-     * @return the string
-     */
-    @RequestMapping(value="/memberballot/final",method=RequestMethod.POST)
-    public String createFinalMemberBallot(final HttpServletRequest request,
-            final ModelMap model,final Locale locale){
-        return null;
-    }
-    
-    @RequestMapping(value="/attendance",method=RequestMethod.GET)
-	public String markAttendance(final HttpServletRequest request,final ModelMap model,final Locale locale){
-		/*
-		 * here we want to populate all those members in council who have submitted
-		 * atleast 1 question or a maximum of 31 questions in first round of
-		 * question submission.
-		 *
-		 */
+	/****** Member Ballot For Council ******/
+	@RequestMapping(value="/memberballot/init",method=RequestMethod.GET)
+	public String viewMemberBallotInit(final HttpServletRequest request,
+			final ModelMap model,
+			final Locale locale){
 		String strHouseType=request.getParameter("houseType");
 		String strSessionType=request.getParameter("sessionType");
 		String strSessionYear=request.getParameter("sessionYear");
 		String strQuestionType=request.getParameter("questionType");
-		String strOperation=request.getParameter("operation");
-		if(strHouseType!=null&&strSessionType!=null&&strSessionYear!=null&&strQuestionType!=null){
-			HouseType houseType=HouseType.findByFieldName(HouseType.class,"type",strHouseType, locale.toString());
-			SessionType sessionType=SessionType.findById(SessionType.class,Long.parseLong(strSessionType));
-			Integer sessionYear=Integer.parseInt(strSessionYear);
-			Session session=Session.findSessionByHouseTypeSessionTypeYear(houseType, sessionType, sessionYear);
-			DeviceType questionType=DeviceType.findById(DeviceType.class,Long.parseLong(strQuestionType));
-			if(session!=null){
-				Boolean created=Question.createMemberBallotAttendance(session,questionType,locale.toString());
-				if(created){
-					logger.info("Member Ballot Attendance Entries Created");
-				}else{
-					logger.info("Member Ballot Attendance Entries Already Created");
+		String strRound=request.getParameter("round");
+		if(strHouseType!=null&&strSessionType!=null&&strSessionYear!=null&&strQuestionType!=null&&strRound!=null){
+			if((!strHouseType.isEmpty())
+					&&(!strSessionType.isEmpty())
+					&&(!strSessionYear.isEmpty())
+					&&(!strQuestionType.isEmpty())
+					&&(!strRound.isEmpty())){
+				HouseType houseType=HouseType.findByFieldName(HouseType.class,"type",strHouseType, locale.toString());
+				SessionType sessionType=SessionType.findById(SessionType.class,Long.parseLong(strSessionType));
+				Integer sessionYear=Integer.parseInt(strSessionYear);
+				Session session=Session.findSessionByHouseTypeSessionTypeYear(houseType, sessionType, sessionYear);
+				DeviceType questionType=DeviceType.findById(DeviceType.class,Long.parseLong(strQuestionType));
+				Integer round=Integer.parseInt(strRound);				
+				String noOfRounds=session.getParameter("questions_starred_totalRoundsMemberBallot");
+				List<Reference> rounds=new ArrayList<Reference>();
+				for(int i=1;i<=Integer.parseInt(noOfRounds);i++){
+					Reference reference=new Reference(String.valueOf(i),FormaterUtil.getNumberFormatterNoGrouping(locale.toString()).format(i));
+					rounds.add(reference);
 				}
-				List<MemberBallotAttendance> allItems=null;
-				List<MemberBallotAttendance> selectedItems=null;
-				if(strOperation.equals("presentees")){
-					allItems=MemberBallotAttendance.findAll(session,questionType,"false","member",locale.toString());
-					selectedItems=MemberBallotAttendance.findAll(session,questionType,"true","position",locale.toString());
-				}else{
-					allItems=MemberBallotAttendance.findAll(session,questionType,"true","member",locale.toString());
-					selectedItems=MemberBallotAttendance.findAll(session,questionType,"false","position",locale.toString());
+				List<Group> groups=Group.findByHouseTypeSessionTypeYear(houseType,sessionType,sessionYear);
+				List<MasterVO> masterVOs=new ArrayList<MasterVO>();
+				for(Group i:groups){
+					MasterVO masterVO=new MasterVO(i.getId(),FormaterUtil.getNumberFormatterNoGrouping(locale.toString()).format(i.getNumber()));
+					masterVOs.add(masterVO);
 				}
-				List<MemberBallotAttendance> eligibles=MemberBallotAttendance.findAll(session,questionType,"","member",locale.toString());
-				model.addAttribute("allItems",allItems);
-				model.addAttribute("selectedItems",selectedItems);
-				model.addAttribute("eligibles",eligibles);
+				model.addAttribute("groups",masterVOs);
+				model.addAttribute("rounds",rounds);
+				model.addAttribute("selectedRound",round);
 				model.addAttribute("session",session.getId());
-				model.addAttribute("questionType",strQuestionType);
-				model.addAttribute("houseType",strHouseType);
-				model.addAttribute("sessionType",strSessionType);
-				model.addAttribute("sessionYear",strSessionYear);
+				model.addAttribute("questionType", questionType.getId());
+				model.addAttribute("noOfRounds",noOfRounds);
 			}else{
-				logger.error("**** Session not defined for selected houseType,sessionType and sessionYear ****");
+				logger.error("**** Check request parameter 'houseType,sessionType,sessionYear,questionType' for empty values ****");
+				model.addAttribute("type", "REQUEST_PARAMETER_EMPTY");
+				return "ballot/error";
 			}
 		}else{
 			logger.error("**** Check request parameter 'houseType,sessionType,sessionYear,questionType' for null values ****");
-		}
-		return "ballot/attendance";
+			model.addAttribute("type", "REQUEST_PARAMETER_NULL");
+			return "ballot/error";
+		}		
+		return "ballot/memberballotinit";
 	}
-
-	@RequestMapping(value="/attendance",method=RequestMethod.PUT)
-	public @ResponseBody String updateAttendance(final HttpServletRequest request,final ModelMap model,final Locale locale){
-		String selectedItems=request.getParameter("items");
-		String[] items=selectedItems.split(",");
-		String strAttendance=request.getParameter("attendance");
-		String strQuestionType=request.getParameter("questionType");
+		
+	@RequestMapping(value="/memberballot/attendance",method=RequestMethod.GET)
+	public String markAttendance(final HttpServletRequest request,final ModelMap model,final Locale locale){
+		String errorpage="ballot/error";
 		String strSession=request.getParameter("session");
-		Session session=Session.findById(Session.class,Long.parseLong(strSession));
-		DeviceType questionType=DeviceType.findById(DeviceType.class,Long.parseLong(strQuestionType));
-		Boolean attendance=Boolean.parseBoolean(strAttendance);
-		int position=0;
-		for(String i:items){
-			MemberBallotAttendance memberBallotAttendance=MemberBallotAttendance.findById(MemberBallotAttendance.class,Long.parseLong(i));
-			position++;
-			memberBallotAttendance.setPosition(position);
-			memberBallotAttendance.setAttendance(attendance);
-			memberBallotAttendance.merge();
-		}
-		List<MemberBallotAttendance> memberBallotAttendances=MemberBallotAttendance.findAll(session, questionType, "", "position", locale.toString());
-		for(MemberBallotAttendance i:memberBallotAttendances){
-			if(!selectedItems.contains(String.valueOf(i.getId()))){
-				i.setAttendance(!attendance);
-				i.merge();
+		String strQuestionType=request.getParameter("questionType");
+		String strRound=request.getParameter("round");
+		String strAttendance=request.getParameter("attendance");
+		String strNoOfRounds=request.getParameter("noofrounds");
+		if(strSession!=null&&strQuestionType!=null&&strRound!=null&&strAttendance!=null&&strNoOfRounds!=null){
+			if((!strSession.isEmpty())&&(!strQuestionType.isEmpty())&&(!strRound.isEmpty())&&(!strAttendance.isEmpty())&&(!strNoOfRounds.isEmpty())){
+				Session session=Session.findById(Session.class,Long.parseLong(strSession));
+				DeviceType questionType=DeviceType.findById(DeviceType.class,Long.parseLong(strQuestionType));
+				Integer round=Integer.parseInt(strRound);
+				Boolean attendance=Boolean.parseBoolean(strAttendance);
+				Integer noOfRounds=Integer.parseInt(strNoOfRounds);
+				Boolean previousRoundPresenteesLocked=true;
+				Boolean previousRoundAbsenteesLocked=true;
+				if(round!=1){
+					previousRoundPresenteesLocked=MemberBallotAttendance.areMembersLocked(session,questionType,round-1,true,noOfRounds,locale.toString());
+					previousRoundAbsenteesLocked=MemberBallotAttendance.areMembersLocked(session,questionType,round-1,false,noOfRounds,locale.toString());
+				}
+				if(previousRoundPresenteesLocked&&previousRoundAbsenteesLocked){
+					Boolean attendanceCreatedAlready=MemberBallotAttendance.memberBallotCreated(session,questionType,round,locale.toString());
+					if(!attendanceCreatedAlready){
+						String flag=MemberBallotAttendance.createMemberBallotAttendance(session,questionType,round,locale.toString());
+						if(!flag.contains("SUCCESS")){
+							model.addAttribute("type", flag);
+							return errorpage;
+						}
+					}
+					List<MemberBallotAttendance> allItems=null;
+					List<MemberBallotAttendance> selectedItems=null;
+					if(attendance){
+						allItems=MemberBallotAttendance.findAll(session,questionType,"false",round,"member",locale.toString());
+						selectedItems=MemberBallotAttendance.findAll(session,questionType,"true",round,"position",locale.toString());
+					}else{
+						allItems=MemberBallotAttendance.findAll(session,questionType,"true",round,"member",locale.toString());
+						selectedItems=MemberBallotAttendance.findAll(session,questionType,"false",round,"position",locale.toString());
+					}
+					List<MemberBallotAttendance> eligibles=MemberBallotAttendance.findAll(session,questionType,"",round,"member",locale.toString());
+					model.addAttribute("allItems",allItems);
+					model.addAttribute("allItemsCount",allItems.size());
+					model.addAttribute("selectedItems",selectedItems);
+					model.addAttribute("selectedItemsCount",selectedItems.size());
+					model.addAttribute("eligibles",eligibles);
+					if(attendance){
+						Boolean currentRoundPresenteesLocked=MemberBallotAttendance.areMembersLocked(session,questionType,round,true,noOfRounds,locale.toString());
+						model.addAttribute("membersLocked",currentRoundPresenteesLocked);
+					}else{
+						Boolean currentRoundAbsenteesLocked=MemberBallotAttendance.areMembersLocked(session,questionType,round,false,noOfRounds,locale.toString());
+						model.addAttribute("membersLocked",currentRoundAbsenteesLocked);
+					}
+				}else if(previousRoundPresenteesLocked==false&&previousRoundAbsenteesLocked==false){
+					model.addAttribute("type","PREVIOUS_ROUND_NOT_LOCKED");
+					return errorpage;
+				}else if(previousRoundAbsenteesLocked==false){
+					model.addAttribute("type","PREVIOUS_ROUND_ABSENTEES_NOT_LOCKED");
+					return errorpage;
+				}else if(previousRoundPresenteesLocked==false){
+					model.addAttribute("type","PREVIOUS_ROUND_PRESENTEES_NOT_LOCKED");
+					return errorpage;
+				}
+			}else{
+				logger.error("**** Check request parameter 'session,questionType,round and attendance' for empty values ****");
+				model.addAttribute("type", "ATTENDANCE_REQUEST_PARAMETER_EMPTY");
+				return "ballot/error";
 			}
+		}else{
+			logger.error("**** Check request parameter 'session,questionType,round and attendance' for null values ****");
+			model.addAttribute("type", "ATTENDANCE_REQUEST_PARAMETER_NULL");
+			return "ballot/error";
+		}			
+		return "ballot/memberballotattendance";		
+	}
+	
+	@RequestMapping(value="/memberballot/attendance",method=RequestMethod.PUT)
+	public @ResponseBody String updateAttendance(final HttpServletRequest request,final ModelMap model,final Locale locale){
+		try{
+			String selectedItems=request.getParameter("items");
+			String[] items=selectedItems.split(",");
+			String strAttendance=request.getParameter("attendance");
+			String strQuestionType=request.getParameter("questionType");
+			String strSession=request.getParameter("session");
+			String strRound=request.getParameter("round");
+			String strLocked=request.getParameter("locked");
+			String strNoOfRounds=request.getParameter("noofrounds");
+			Session session=Session.findById(Session.class,Long.parseLong(strSession));
+			DeviceType questionType=DeviceType.findById(DeviceType.class,Long.parseLong(strQuestionType));
+			Boolean attendance=Boolean.parseBoolean(strAttendance);
+			Integer round=Integer.parseInt(strRound);
+			Boolean locked=Boolean.parseBoolean(strLocked);
+			Integer noofRounds=Integer.parseInt(strNoOfRounds);
+			Boolean currentRoundPresenteesLocked=MemberBallotAttendance.areMembersLocked(session,questionType,round,true,noofRounds,locale.toString());
+			Boolean currentRoundAbsenteesLocked=MemberBallotAttendance.areMembersLocked(session,questionType,round,false,noofRounds,locale.toString());
+			if(selectedItems.isEmpty()){
+				if(currentRoundAbsenteesLocked==true&&currentRoundPresenteesLocked==true){
+					return "locked";
+				}else{
+					return "success";
+				}
+			}
+			if(currentRoundPresenteesLocked==false||currentRoundAbsenteesLocked==false){		
+				int position=0;
+				/**** setting position,attendance and round of selected member ballot attendance entries****/
+				for(String i:items){
+					MemberBallotAttendance memberBallotAttendance=MemberBallotAttendance.findById(MemberBallotAttendance.class,Long.parseLong(i));
+					position++;
+					memberBallotAttendance.setPosition(position);
+					memberBallotAttendance.setAttendance(attendance);
+					memberBallotAttendance.setRound(round);
+					memberBallotAttendance.setLocked(locked);
+					memberBallotAttendance.merge();
+				}
+				/**** setting attendance of not selected items ****/
+				List<MemberBallotAttendance> memberBallotAttendances=MemberBallotAttendance.findAll(session, questionType, "",round, "position", locale.toString());
+				for(MemberBallotAttendance i:memberBallotAttendances){
+					if(!selectedItems.contains(String.valueOf(i.getId()))){
+						i.setAttendance(!attendance);
+						i.merge();
+					}
+				}				
+				return "success";
+			}else{
+				return "locked";
+			}
+
+		}catch(Exception ex){
+			logger.error("failed",ex);
+			return "failed";
 		}
-		return "success";
+	}
+	
+	@RequestMapping(value="/memberballot/preballot",method=RequestMethod.GET)
+	public String councilStarredPreBallot(final HttpServletRequest request,final ModelMap model,final Locale locale){
+		String errorpage="ballot/error";
+		try{
+			String strAttendance=request.getParameter("attendance");
+			String strQuestionType=request.getParameter("questionType");
+			String strSession=request.getParameter("session");
+			String strRound=request.getParameter("round");
+			String strNoOfRounds=request.getParameter("noofrounds");
+			Session session=Session.findById(Session.class,Long.parseLong(strSession));
+			DeviceType questionType=DeviceType.findById(DeviceType.class,Long.parseLong(strQuestionType));
+			Boolean attendance=Boolean.parseBoolean(strAttendance);
+			Integer round=Integer.parseInt(strRound);
+			Integer noofRounds=Integer.parseInt(strNoOfRounds);
+			Boolean previousRoundPresenteesLocked=true;
+			Boolean previousRoundAbsenteesLocked=true;
+			if(round!=1){
+				previousRoundPresenteesLocked=MemberBallotAttendance.areMembersLocked(session,questionType,round-1,true,noofRounds,locale.toString());
+				previousRoundAbsenteesLocked=MemberBallotAttendance.areMembersLocked(session,questionType,round-1,false,noofRounds,locale.toString());
+			}
+			if(previousRoundPresenteesLocked&&previousRoundAbsenteesLocked){
+				List<MemberBallotAttendance> memberBallotAttendances=null;
+				if(attendance){
+					memberBallotAttendances=MemberBallotAttendance.findAll(session,questionType,"true",round,"position",locale.toString());
+				}else{
+					memberBallotAttendances=MemberBallotAttendance.findAll(session,questionType,"false",round,"position",locale.toString());
+				}
+				model.addAttribute("selectedItems",memberBallotAttendances);
+				model.addAttribute("attendance",attendance);
+			}else if(previousRoundAbsenteesLocked==false&&previousRoundPresenteesLocked==false){
+				model.addAttribute("type","PREVIOUS_ROUND_NOT_LOCKED");
+				return errorpage;
+			}else if(previousRoundAbsenteesLocked==false){
+				model.addAttribute("type","PREVIOUS_ROUND_ABSENTEES_NOT_LOCKED");
+				return errorpage;
+			}else if(previousRoundPresenteesLocked==false){
+				model.addAttribute("type","PREVIOUS_ROUND_PRESENTEES_NOT_LOCKED");
+				return errorpage;
+			}		
+
+		}catch(Exception ex){
+			logger.error("failed",ex);
+			model.addAttribute("type","DB_EXCEPTION");
+			return errorpage;
+		}
+		return "ballot/memberballotpreballot";
 	}
 
 	@RequestMapping(value="/preballot",method=RequestMethod.GET)
@@ -365,10 +499,7 @@ public class BallotController extends BaseController{
 				DeviceType.findById(DeviceType.class, Long.parseLong(strQuestionType));
 			
 			if(houseType.equals(ApplicationConstants.UPPER_HOUSE)) {
-				if(deviceType.getType().equals(ApplicationConstants.STARRED_QUESTION)) {
-					retVal = this.councilStarredPreBallot(request, model, deviceType, locale);
-				}
-				else if(deviceType.getType().equals(
+				if(deviceType.getType().equals(
 						ApplicationConstants.HALF_HOUR_DISCUSSION_QUESTION_FROM_QUESTION)) {
 					retVal = this.halfHourPreBallot(request, model, deviceType, locale);
 				}
@@ -386,40 +517,7 @@ public class BallotController extends BaseController{
 		}
 		return retVal;
 	}
-	
-	private String councilStarredPreBallot(final HttpServletRequest request,
-			final ModelMap model,
-			final DeviceType deviceType,
-			final Locale locale) {
-		String strHouseType = request.getParameter("houseType");
-		String strSessionType = request.getParameter("sessionType");
-		String strSessionYear = request.getParameter("sessionYear");
-		String strQuestionType = request.getParameter("questionType");
-		String strAttendance = request.getParameter("attendance");
-		model.addAttribute("attendance",strAttendance);
-		if(strHouseType!=null&&strSessionType!=null&&strSessionYear!=null&&strQuestionType!=null){
-			HouseType houseType=HouseType.findByFieldName(HouseType.class,"type",strHouseType, locale.toString());
-			SessionType sessionType=SessionType.findById(SessionType.class,Long.parseLong(strSessionType));
-			Integer sessionYear=Integer.parseInt(strSessionYear);
-			Session session=Session.findSessionByHouseTypeSessionTypeYear(houseType, sessionType, sessionYear);
-			//DeviceType questionType=DeviceType.findById(DeviceType.class,Long.parseLong(strQuestionType));
-			if(session!=null){
-				List<MemberBallotAttendance> memberBallotAttendances=null;
-				if(strAttendance.equals("present")){
-					memberBallotAttendances=MemberBallotAttendance.findAll(session,deviceType,"true","position",locale.toString());
-				}else{
-					memberBallotAttendances=MemberBallotAttendance.findAll(session,deviceType,"false","position",locale.toString());
-				}
-				model.addAttribute("selectedItems",memberBallotAttendances);
-			}else{
-				logger.error("**** Session not defined for selected houseType,sessionType and sessionYear ****");
-			}
-		}else{
-			logger.error("**** Check request parameter 'houseType,sessionType,sessionYear,questionType' for null values ****");
-		}
-		return "ballot/preballot";
-	}
-	
+		
 	private String halfHourPreBallot(final HttpServletRequest request,
 			final ModelMap model,
 			final DeviceType deviceType,
@@ -460,143 +558,113 @@ public class BallotController extends BaseController{
 		return "ballot/halfhour_ballot";
 	}
 	
-	@RequestMapping(value="/memberballot/create",method=RequestMethod.POST)
-	public @ResponseBody String createMemberBallot(final HttpServletRequest request,final ModelMap model,final Locale locale){
-		String strHouseType=request.getParameter("houseType");
-		String strSessionType=request.getParameter("sessionType");
-		String strSessionYear=request.getParameter("sessionYear");
-		String strQuestionType=request.getParameter("questionType");
-		String strAttendance=request.getParameter("attendance");
-		String strRound=request.getParameter("round");
-		if(strHouseType!=null&&strSessionType!=null&&strSessionYear!=null&&strQuestionType!=null&&strAttendance!=null&&strRound!=null){
-			HouseType houseType=HouseType.findByFieldName(HouseType.class,"type",strHouseType, locale.toString());
-			SessionType sessionType=SessionType.findById(SessionType.class,Long.parseLong(strSessionType));
-			Integer sessionYear=Integer.parseInt(strSessionYear);
-			Session session=Session.findSessionByHouseTypeSessionTypeYear(houseType, sessionType, sessionYear);
-			DeviceType questionType=DeviceType.findById(DeviceType.class,Long.parseLong(strQuestionType));
-			if(session!=null){
-				Boolean status=MemberBallot.createMemberBallot(session,questionType,Boolean.parseBoolean(strAttendance),Integer.parseInt(strRound),locale.toString());
-				if(status){
-					return "success";
-				}else{
-					return "alreadycreated";
-				}
-			}else{
-				logger.error("**** Session not defined for selected houseType,sessionType and sessionYear ****");
-				return "failed";
-			}
-		}else{
-			logger.error("**** Check request parameter 'houseType,sessionType,sessionYear,questionType,attendance and round' for null values ****");
-			return "failed";
-		}
-	}
-
 	@RequestMapping(value="/memberballot/view",method=RequestMethod.GET)
-	public String viewMemberBallot(final HttpServletRequest request,final ModelMap model,final Locale locale){
-		String strHouseType=request.getParameter("houseType");
-		String strSessionType=request.getParameter("sessionType");
-		String strSessionYear=request.getParameter("sessionYear");
-		String strQuestionType=request.getParameter("questionType");
-		model.addAttribute("houseType",strHouseType);
-		model.addAttribute("sessionType",strSessionType);
-		model.addAttribute("sessionYear",strSessionYear);
-		model.addAttribute("questionType",strQuestionType);
-		if(strHouseType!=null&&strSessionType!=null&&strSessionYear!=null&&strQuestionType!=null){
-			HouseType houseType=HouseType.findByFieldName(HouseType.class,"type",strHouseType, locale.toString());
-			SessionType sessionType=SessionType.findById(SessionType.class,Long.parseLong(strSessionType));
-			Integer sessionYear=Integer.parseInt(strSessionYear);
-			Session session=Session.findSessionByHouseTypeSessionTypeYear(houseType, sessionType, sessionYear);
-			if(session!=null){
-				List<Group> groups=Group.findByHouseTypeSessionTypeYear(houseType, sessionType, sessionYear);
-				model.addAttribute("groups",groups);
-				CustomParameter totalRoundsCouncilBallot=CustomParameter.findByName(CustomParameter.class,"STARRED_MEMBERBALLOTCOUNCIL_TOTALROUNDS", "");
-				if(totalRoundsCouncilBallot!=null){
-					int rounds=Integer.parseInt(totalRoundsCouncilBallot.getValue());
-					List<Reference> references=new ArrayList<Reference>();
-					NumberFormat format=FormaterUtil.getNumberFormatterNoGrouping(locale.toString());
-					for(int i=1;i<=rounds;i++){
-						references.add(new Reference(String.valueOf(i),String.valueOf(format.format(i))));
+	public String createMemberBallot(final HttpServletRequest request,final ModelMap model,final Locale locale){
+		String errorpage="ballot/error";
+		try{
+			String strAttendance=request.getParameter("attendance");
+			String strQuestionType=request.getParameter("questionType");
+			String strSession=request.getParameter("session");
+			String strRound=request.getParameter("round");
+			String strNoOfRounds=request.getParameter("noofrounds");
+			String strGroup=request.getParameter("group");
+			String strAnsweringDate=request.getParameter("answeringDate");
+
+			if(strSession!=null&&strQuestionType!=null
+					&&strAttendance!=null&&strRound!=null&&strNoOfRounds!=null
+			){
+				if((!strSession.isEmpty())&&(!strQuestionType.isEmpty())
+						&&(!strAttendance.isEmpty())&&(!strRound.isEmpty())
+						&&(!strNoOfRounds.isEmpty())){
+					Session session=Session.findById(Session.class,Long.parseLong(strSession));
+					DeviceType questionType=DeviceType.findById(DeviceType.class,Long.parseLong(strQuestionType));
+					Boolean attendance=Boolean.parseBoolean(strAttendance);
+					Integer round=Integer.parseInt(strRound);
+					Integer noofRounds=Integer.parseInt(strNoOfRounds);
+
+					Boolean previousRoundPresenteesLocked=true;
+					Boolean previousRoundAbsenteesLocked=true;
+					if(round!=1){
+						previousRoundPresenteesLocked=MemberBallotAttendance.areMembersLocked(session,questionType,round-1,true,noofRounds,locale.toString());
+						previousRoundAbsenteesLocked=MemberBallotAttendance.areMembersLocked(session,questionType,round-1,false,noofRounds,locale.toString());
 					}
-					model.addAttribute("rounds",references);
+					if(previousRoundPresenteesLocked&&previousRoundAbsenteesLocked){
+						MemberBallot.createMemberBallot(session,questionType,attendance,round,locale.toString());
+						List<MemberBallot> memberBallots=null;
+						if(strGroup==null&&strAnsweringDate==null){
+							memberBallots=MemberBallot.viewMemberBallot(session,questionType,attendance,round,locale.toString());
+						}else if(strGroup.equals("-")&&strAnsweringDate.equals("-")){
+							memberBallots=MemberBallot.viewMemberBallot(session,questionType,attendance,round,locale.toString());
+						}else if((!strGroup.equals("-"))&&strAnsweringDate.equals("-")){
+							Group group=Group.findById(Group.class,Long.parseLong(strGroup));
+							memberBallots=MemberBallot.viewMemberBallot(session,questionType,attendance,round,group,locale.toString());
+						}else if((!strGroup.equals("-"))&&(!strAnsweringDate.equals("-"))){
+							QuestionDates answeringDate=Question.findById(QuestionDates.class,Long.parseLong(strAnsweringDate));
+							memberBallots=MemberBallot.viewMemberBallot(session,questionType,attendance,round,answeringDate,locale.toString());
+						}
+						model.addAttribute("memberBallots",memberBallots);								
+					}else if(previousRoundAbsenteesLocked==false&&previousRoundPresenteesLocked==false){
+						model.addAttribute("type","PREVIOUS_ROUND_NOT_LOCKED");
+						return errorpage;
+					}else if(previousRoundAbsenteesLocked==false){
+						model.addAttribute("type","PREVIOUS_ROUND_ABSENTEES_NOT_LOCKED");
+						return errorpage;
+					}else if(previousRoundPresenteesLocked==false){
+						model.addAttribute("type","PREVIOUS_ROUND_PRESENTEES_NOT_LOCKED");
+						return errorpage;
+					}
 				}else{
-					logger.error("**** Custom Parameter 'STARRED_MEMBERBALLOTCOUNCIL_TOTALROUNDS' not set");
+					logger.error("**** Check request parameter 'session,questionType,round,attendance,noofrounds' for empty values ****");
+					model.addAttribute("type", "MEMBERBALLOT_REQUEST_PARAMETER_EMPTY");
+					return errorpage;
 				}
+
 			}else{
-				logger.error("**** Session not defined for selected houseType,sessionType and sessionYear ****");
-			}
-		}else{
-			logger.error("**** Check request parameter 'houseType,sessionType,sessionYear,questionType,attendance and round' for null values ****");
+				logger.error("**** Check request parameter 'session,questionType,round,attendance,noofrounds' for null values ****");
+				model.addAttribute("type", "MEMBERBALLOT_REQUEST_PARAMETER_NULL");
+				return errorpage;
+			}						
+		}catch(Exception ex){
+			logger.error("failed",ex);
+			model.addAttribute("type","DB_EXCEPTION");
+			return errorpage;
 		}
-		return "ballot/memberballot";
+		return "ballot/memberballot";		
 	}
 
-
-	@RequestMapping(value="/memberballotresult",method=RequestMethod.GET)
-	public String viewMemberBallotResult(final HttpServletRequest request,final ModelMap model,final Locale locale){
-		String strHouseType=request.getParameter("houseType");
-		String strSessionType=request.getParameter("sessionType");
-		String strSessionYear=request.getParameter("sessionYear");
-		String strQuestionType=request.getParameter("questionType");
-		String strAttendance=request.getParameter("attendance");
-		String strRound=request.getParameter("round");
-		if(strHouseType!=null&&strSessionType!=null&&strSessionYear!=null&&strQuestionType!=null&&strAttendance!=null&&strRound!=null){
-			HouseType houseType=HouseType.findByFieldName(HouseType.class,"type",strHouseType, locale.toString());
-			SessionType sessionType=SessionType.findById(SessionType.class,Long.parseLong(strSessionType));
-			Integer sessionYear=Integer.parseInt(strSessionYear);
-			Session session=Session.findSessionByHouseTypeSessionTypeYear(houseType, sessionType, sessionYear);
-			DeviceType questionType=DeviceType.findById(DeviceType.class,Long.parseLong(strQuestionType));
-			if(session!=null){
-				String strGroup=request.getParameter("group");
-				String strAnsweringDate=request.getParameter("answeringDate");
-				List<MemberBallot> memberBallots=null;
-				if(strGroup==null&&strAnsweringDate==null){
-					memberBallots=MemberBallot.viewMemberBallot(session,questionType,Boolean.parseBoolean(strAttendance),Integer.parseInt(strRound),locale.toString());
-				}else if(strGroup.equals("-")&&strAnsweringDate.equals("-")){
-					memberBallots=MemberBallot.viewMemberBallot(session,questionType,Boolean.parseBoolean(strAttendance),Integer.parseInt(strRound),locale.toString());
-				}else if((!strGroup.equals("-"))&&strAnsweringDate.equals("-")){
-					Group group=Group.findById(Group.class,Long.parseLong(strGroup));
-					memberBallots=MemberBallot.viewMemberBallot(session,questionType,Boolean.parseBoolean(strAttendance),Integer.parseInt(strRound),group,locale.toString());
-				}else if((!strGroup.equals("-"))&&(!strAnsweringDate.equals("-"))){
-					QuestionDates answeringDate=Question.findById(QuestionDates.class,Long.parseLong(strAnsweringDate));
-					memberBallots=MemberBallot.viewMemberBallot(session,questionType,Boolean.parseBoolean(strAttendance),Integer.parseInt(strRound),answeringDate,locale.toString());
-				}
-				model.addAttribute("memberBallots",memberBallots);
-			}else{
-				logger.error("**** Session not defined for selected houseType,sessionType and sessionYear ****");
-			}
-		}else{
-			logger.error("**** Check request parameter 'houseType,sessionType,sessionYear,questionType,attendance and round' for null values ****");
-		}
-		return "ballot/memberballotresult";
-	}
-
-	@RequestMapping(value="/memberballotchoice",method=RequestMethod.GET)
+	@RequestMapping(value="/memberballot/choices",method=RequestMethod.GET)
 	public String viewMemberBallotChoice(final HttpServletRequest request,final ModelMap model,final Locale locale){
-		String strHouseType=request.getParameter("houseType");
-		String strSessionType=request.getParameter("sessionType");
-		String strSessionYear=request.getParameter("sessionYear");
-		String strQuestionType=request.getParameter("questionType");
-		if(strHouseType!=null&&strSessionType!=null&&strSessionYear!=null&&strQuestionType!=null){
-			HouseType houseType=HouseType.findByFieldName(HouseType.class,"type",strHouseType, locale.toString());
-			SessionType sessionType=SessionType.findById(SessionType.class,Long.parseLong(strSessionType));
-			Integer sessionYear=Integer.parseInt(strSessionYear);
-			Session session=Session.findSessionByHouseTypeSessionTypeYear(houseType, sessionType, sessionYear);
-			DeviceType questionType=DeviceType.findById(DeviceType.class,Long.parseLong(strQuestionType));
-			if(session!=null){
-				model.addAttribute("session",session.getId());
-				model.addAttribute("questionType",questionType.getId());
-				List<Member> eligibleMembers=MemberBallotAttendance.findEligibleMembers(session, questionType, locale.toString());
-				model.addAttribute("eligibleMembers", eligibleMembers);
+		String errorpage="ballot/error";
+		try{
+			String strQuestionType=request.getParameter("questionType");
+			String strSession=request.getParameter("session");
+			if(strSession!=null&&strQuestionType!=null){
+				if((!strSession.isEmpty())&&(!strQuestionType.isEmpty())){
+					Session session=Session.findById(Session.class,Long.parseLong(strSession));
+					DeviceType questionType=DeviceType.findById(DeviceType.class,Long.parseLong(strQuestionType));
+					List<Member> eligibleMembers=MemberBallotAttendance.findEligibleMembers(session, questionType, locale.toString());
+					model.addAttribute("eligibleMembers", eligibleMembers);
+					model.addAttribute("session",session.getId());
+					model.addAttribute("questionType",questionType.getId());
+				}else{
+					logger.error("**** Check request parameter 'session,questionType' for empty values ****");
+					model.addAttribute("type", "MEMBERBALLOTCHOICE_REQUEST_PARAMETER_EMPTY");
+					return errorpage;
+				}
 			}else{
-				logger.error("**** Session not defined for selected houseType,sessionType and sessionYear ****");
-			}
-		}else{
-			logger.error("**** Check request parameter 'houseType,sessionType,sessionYear,questionType' for null values ****");
+				logger.error("**** Check request parameter 'session,questionType' for null values ****");
+				model.addAttribute("type", "MEMBERBALLOTCHOICE_REQUEST_PARAMETER_NULL");
+				return errorpage;
+			}						
+		}catch(Exception ex){
+			logger.error("failed",ex);
+			model.addAttribute("type","DB_EXCEPTION");
+			return errorpage;
 		}
 		return "ballot/memberballotchoice";
 	}
 
-	@RequestMapping(value="/listmemberballotchoice",method=RequestMethod.GET)
+	@RequestMapping(value="/memberballot/listchoices",method=RequestMethod.GET)
 	public String listMemberBallotChoice(final HttpServletRequest request,final ModelMap model,final Locale locale){
 		String strQuestionType=request.getParameter("deviceType");
 		String strSession=request.getParameter("session");
@@ -634,7 +702,7 @@ public class BallotController extends BaseController{
 		return "ballot/listmemberballotchoice";
 	}
 
-	@RequestMapping(value="/memberballotchoice",method=RequestMethod.POST)
+	@RequestMapping(value="/memberballot/choices",method=RequestMethod.POST)
 	public @ResponseBody String updateMemberBallotChoice(final HttpServletRequest request,final ModelMap model,final Locale locale){
 		String strQuestionType=request.getParameter("deviceType");
 		String strSession=request.getParameter("session");
@@ -723,6 +791,12 @@ public class BallotController extends BaseController{
 			logger.error("**** Check request parameters 'session and deviceType' for null values ****");
 		}
 		return status;
+	}
+
+	@RequestMapping(value="/memberballot/final",method=RequestMethod.POST)
+	public String createFinalMemberBallot(final HttpServletRequest request,
+			final ModelMap model,final Locale locale){
+		return null;
 	}
 
 }
