@@ -51,7 +51,7 @@ import org.springframework.beans.factory.annotation.Configurable;
 @Configurable
 @Entity
 @Table(name="questions")
-@JsonIgnoreProperties({"halfHourDiscusionFromQuestionReference","answeringDate","recommendationStatus","houseType", "session",
+@JsonIgnoreProperties({"halfHourDiscusionFromQuestionReference","answeringDate","chartAnsweringDate","recommendationStatus","houseType", "session",
     "language","type","supportingMembers", "subDepartment", "referencedQuestions",
     "drafts","clubbings","group","editedBy","editedAs","clubbedEntities","referencedEntities","parent","parentReferencing",
     "clarificationNeededFrom"})
@@ -110,6 +110,9 @@ implements Serializable
     @ManyToOne(fetch=FetchType.LAZY)
     private QuestionDates answeringDate;    
 
+    @ManyToOne(fetch=FetchType.LAZY)
+    private QuestionDates chartAnsweringDate;
+    
     /** The subject. */
     @Column(length=30000)
     private String subject;
@@ -1942,7 +1945,11 @@ implements Serializable
 	public Date getLastDateOfAnswerReceiving() {
 		return lastDateOfAnswerReceiving;
 	}
-	
-	
+	public QuestionDates getChartAnsweringDate() {
+		return chartAnsweringDate;
+	}
+	public void setChartAnsweringDate(QuestionDates chartAnsweringDate) {
+		this.chartAnsweringDate = chartAnsweringDate;
+	}
 
 }
