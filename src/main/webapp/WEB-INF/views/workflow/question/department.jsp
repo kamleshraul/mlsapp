@@ -16,6 +16,8 @@
 		+"&ugparam="+$("#ugparam").val()
 		+"&status="+$("#selectedStatus").val()
 		+"&role="+$("#srole").val()
+		+"&usergroup="+$("#currentusergroup").val()
+		+"&usergroupType="+$("#currentusergroupType").val()
 		+"&edit=false";
 		var resourceURL='question/'+id+'/edit?'+parameters;
 		$.get(resourceURL,function(data){
@@ -25,18 +27,34 @@
 	}	
 	/**** Clubbing ****/
 	function clubbingInt(id){
-		$.blockUI({ message: '<img src="./resources/images/waitAnimated.gif" />' });		
-		$.get('clubentity/init?id='+id,function(data){
+		$.blockUI({ message: '<img src="./resources/images/waitAnimated.gif" />' });
+		var params="id="+id
+					+"&usergroup="+$("#currentusergroup").val()
+			        +"&usergroupType="+$("#currentusergroupType").val();		
+		$.get('clubentity/init?'+params,function(data){
 			$.unblockUI();	
-			$.fancybox.open(data,{autoSize:false,width:750,height:700});
+			//$.fancybox.open(data,{autoSize:false,width:750,height:700});
+			$("#clubbingResultDiv").html(data);
+			$("#clubbingResultDiv").show();
+			$("#referencingResultDiv").hide();
+			$("#assistantDiv").hide();
+			$("#backToQuestionDiv").show();			
 		},'html');
 	}
 	/**** Referencing ****/
 	function referencingInt(id){
 		$.blockUI({ message: '<img src="./resources/images/waitAnimated.gif" />' });
-		$.get('refentity/init?id='+id,function(data){
+		var params="id="+id
+		+"&usergroup="+$("#currentusergroup").val()
+        +"&usergroupType="+$("#currentusergroupType").val();
+		$.get('refentity/init?'+params,function(data){
 			$.unblockUI();			
-			$.fancybox.open(data,{autoSize:false,width:750,height:700});
+			//$.fancybox.open(data,{autoSize:false,width:750,height:700});
+			$("#referencingResultDiv").html(data);
+			$("#referencingResultDiv").show();
+			$("#clubbingResultDiv").hide();
+			$("#assistantDiv").hide();
+			$("#backToQuestionDiv").show();			
 		},'html');
 	}
 	/**** refresh clubbing and referencing ****/
@@ -48,19 +66,32 @@
 		+"&questionType="+$("#selectedQuestionType").val()
 		+"&ugparam="+$("#ugparam").val()
 		+"&status="+$("#selectedStatus").val()
-		+"&role="+$("#srole").val();
+		+"&role="+$("#srole").val()
+		+"&usergroup="+$("#currentusergroup").val()
+        +"&usergroupType="+$("#currentusergroupType").val();
+		
 		var resourceURL='question/'+id+'/edit?'+parameters;
 		$('a').removeClass('selected');
 		//id refers to the tab name and it is used just to highlight the selected tab
 		$('#'+ id).addClass('selected');
 		//tabcontent is the content area where result of the url load will be displayed
 		$('.tabContent').load(resourceURL);
+		$("#referencingResultDiv").hide();
+		$("#clubbingResultDiv").hide();
+		$("#assistantDiv").show();
 		scrollTop();
 		$.unblockUI();			
 	}
 	/**** load actors ****/
 	function loadActors(value){
-		if(value!='-'){
+		//var valueToSend="";
+		if(value!='-'){		
+		//var type=$("#internalStatusMaster option[value='"+value+"']").text();			
+	   // if(type=='question_processed_sendToDepartment'){
+		 //   valueToSend=$("#internalStatus").val();
+	   // }else{
+		//    valueToSend=value;
+	   // }				
 		var params="question="+$("#id").val()+"&status="+value+
 		"&usergroup="+$("#usergroup").val()+"&level="+$("#level").val();
 		var resourceURL='ref/question/actors?'+params;
@@ -73,36 +104,59 @@
 				text+="<option value='"+data[i].id+"'>"+data[i].name+"</option>";
 				}
 				$("#actor").html(text);
-				$("#actorDiv").show();				
-				$("#internalStatus").val(value);
-			    $("#recommendationStatus").val(value);						
+				$("#actorDiv").hide();				
+				/**** in case of sendback and discuss only recommendation status is changed ****/
+				//if(value!=sendback&&value!=discuss){
+				//$("#internalStatus").val(value);
+				//}
+				$("#recommendationStatus").val(value);						
 			}else{
 			$("#actor").empty();
 			$("#actorDiv").hide();
-			$("#internalStatus").val(value);
+			/**** in case of sendback and discuss only recommendation status is changed ****/
+			//if(value!=sendback&&value!=discuss){
+			//$("#internalStatus").val(value);
+			//}
 		    $("#recommendationStatus").val(value);
 			}
 		});
 		}else{
 			$("#actor").empty();
 			$("#actorDiv").hide();
-			$("#internalStatus").val($("#oldInternalStatus").val());
+			//$("#internalStatus").val($("#oldInternalStatus").val());
 		    $("#recommendationStatus").val($("#oldRecommendationStatus").val());
 		}
 	}
 	/**** group changed ****/
 	function groupChanged(){
-		/*var newgroup=$("#group").val();
+		var newgroup=$("#group").val();
+		if(newgroup==''){
+		    var groupChanged=$("#internalStatusMaster option[value='question_system_groupchanged']").text();			
+			$("#changeInternalStatus").val("-");
+		    $("#changeInternalStatus option").show();			    
+		    $("#changeInternalStatus option[value=']"+groupChanged+"'").hide();
+		    $("#internalStatus").val($("#oldInternalStatus").val());
+		    $("#recommendationStatus").val($("#oldRecommendationStatus").val());
+		    $.prompt($("#ministryEmptyMsg").val());
+		    return false;
+		}
 	    var oldgroup=$("#oldgroup").val();
 		    if(oldgroup!=newgroup){
-			    var newStatus=$("#internalStatusMaster option[value='question_workflow_decisionstatus_groupchanged']").text();
+			    var groupChanged=$("#internalStatusMaster option[value='question_system_groupchanged']").text();
 			    $("#changeInternalStatus").val(newStatus);
-			    $("#changeInternalStatus option[value==']"+newStatus+"'").show();
-			    $("#internalStatus").val(newStatus);
-			    $("#recommendationStatus").val(newStatus);
+			    $("#changeInternalStatus option").hide();			    
+			    $("#changeInternalStatus option[value=']"+groupChanged+"'").show();
+			    $("#internalStatus").val(groupChanged);
+			    $("#recommendationStatus").val(groupChanged);
 		    }else{
-			    
-		    }*/	    
+		    	var groupChanged=$("#internalStatusMaster option[value='question_system_groupchanged']").text();
+			    $("#changeInternalStatus").val("-");
+			    $("#changeInternalStatus option").show();			    
+			    $("#changeInternalStatus option[value=']"+groupChanged+"'").hide();
+			    $("#internalStatus").val($("#oldInternalStatus").val());
+			    $("#recommendationStatus").val($("#oldRecommendationStatus").val());			    
+		    }  
+		    return false;  
 	}
 	/**** sub departments ****/
 	function loadSubDepartments(ministry,department){
@@ -152,7 +206,35 @@
 		});
 		}
 	}		
+	/**** Load Clarifications ****/
+	function loadClarifications(){
+		$.get('ref/clarifications',function(data){
+			if(data.length>0){
+				var text="";
+				for( var i=0;i<data.length;i++){
+					text+="<option value='"+data[i].id+"'>"+data[i].name+"</option>";
+				}
+				$("#clarificationNeededFrom").empty();
+				$("#clarificationNeededFrom").html(text);
+				$("#clarificationDiv").show();								
+			}else{
+				$("#clarificationNeededFrom").empty();
+				$("#clarificationDiv").hide();
+			}
+		});
+	}
 	$(document).ready(function(){
+		loadActors($("#changeInternalStatus").val());
+		
+		/**** Back To Question ****/
+		$("#backToQuestion").click(function(){
+			$("#clubbingResultDiv").hide();
+			$("#referencingResultDiv").hide();
+			$("#backToQuestionDiv").hide();
+			$("#assistantDiv").show();
+			/**** Hide update success/failure message on coming back to question ****/
+			$(".toolTip").hide();
+		});
 		/**** Ministry Changes ****/
 		$("#ministry").change(function(){
 			if($(this).val()!=''){
@@ -181,15 +263,22 @@
 		    return false;
 		});								
 		/**** Revise subject and text****/
-		$("#reviseSubjectText").click(function(){
-			$(".revise").toggle();
+		$("#reviseSubject").click(function(){
+			$(".revise1").toggle();
 			if($("#revisedSubjectDiv").css("display")=="none"){
 				$("#revisedSubject").val("");	
-				$("#revisedQuestionText").val("setContent","");
 			}else{
 				$("#revisedSubject").val($("#subject").val());
+			}						
+			return false;			
+		});	
+		$("#reviseQuestionText").click(function(){
+			$(".revise2").toggle();		
+			if($("#revisedQuestionTextDiv").css("display")=="none"){
+				$("#revisedQuestionText").wysiwyg("setContent","");
+			}else{
 				$("#revisedQuestionText").wysiwyg("setContent",$("#questionText").val());				
-			}			
+			}				
 			return false;			
 		});	
 		/**** Revisions ****/
@@ -218,31 +307,29 @@
 	    $("#changeInternalStatus").change(function(){
 		    var value=$(this).val();
 		    if(value!='-'){
-			    loadActors(value);
+			   // var statusType=$("#internalStatusMaster option[value='"+value+"']").text();
+			    loadActors(value);			    
 		    }else{
 			    $("#actor").empty();
 			    $("#actorDiv").hide();
 			    $("#internalStatus").val($("#oldInternalStatus").val());
 			    $("#recommendationStatus").val($("#oldRecommendationStatus").val());
-		    }		    
-	    });	    
-	    /**** Send Back ****/
-	    $("#sendback").click(function(e){
+			}		    
+	    });
+	    /**** Put Up ****/
+		$("#startworkflow").click(function(e){
 			//removing <p><br></p>  from wysiwyg editor
 			$(".wysiwyg").each(function(){
 				var wysiwygVal=$(this).val().trim();
 				if(wysiwygVal=="<p></p>"||wysiwygVal=="<p><br></p>"||wysiwygVal=="<br><p></p>"){
 					$(this).val("");
 				}
-			});	
-			$("#sendbackactor").val($("#backactor").val());
-			console.log($("#dateOfAnsweringByMinister").val());
-					
+			});			
 			$.prompt($('#startWorkflowMessage').val(),{
 				buttons: {Ok:true, Cancel:false}, callback: function(v){
 		        if(v){
 					$.blockUI({ message: '<img src="./resources/images/waitAnimated.gif" />' }); 			        
-		        	$.post($('form').attr('action'),  
+		        	$.post($('form').attr('action')+'?operation=startworkflow',  
 		    	            $("form").serialize(),  
 		    	            function(data){
 		       					$('.tabContent').html(data);
@@ -350,6 +437,12 @@
 				$.prompt('Please provide valid question number.');
 			}
 		});
+		//************Hiding Unselected Options In Ministry,Department,SubDepartment ***************//
+		$("#ministry option[selected!='selected']").hide();
+		$("#department option[selected!='selected']").hide();
+		$("#subDepartment option[selected!='selected']").hide();
+		//**** Load Actors On page Load ****/
+		loadActors($("#changeInternalStatus").val());
 	});
 	</script>
 	 <style type="text/css">
@@ -363,9 +456,23 @@
 
 <body>
 <div class="fields clearfix watermark">
-<form:form action="workflow/question/mytask" method="PUT" modelAttribute="domain">
+
+<div id="assistantDiv">
+<form:form action="workflow/question" method="PUT" modelAttribute="domain">
 	<%@ include file="/common/info.jsp" %>
-	<h2>${formattedQuestionType}: ${formattedNumber}</h2>
+	<h2>
+	<c:choose>
+	<c:when test="${workflowstatus=='COMPLETED'}">
+	<spring:message code="generic.taskcompleted" text="Task Already Completed Successfully"/>
+	<br>
+	${formattedQuestionType}: ${formattedNumber}		
+	</c:when>
+	<c:otherwise>
+	${formattedQuestionType}: ${formattedNumber}		
+	</c:otherwise>
+	</c:choose>
+	</h2>
+	
 	<form:errors path="version" cssClass="validationError"/>
 	
 	<p style="display:none;">
@@ -412,21 +519,18 @@
 	</c:if>
 	
 	<c:if test="${selectedQuestionType=='questions_starred'}">
-	<p style="display:none;">
 		<label class="small"><spring:message code="question.priority" text="Priority"/>*</label>
-		<input  name="formattedPriority" id="formattedPriority" class="sText" type="text" value="${formattedPriority }" readonly="readonly">
+		<input name="formattedPriority" id="formattedPriority" class="sText" type="text" value="${formattedPriority }" readonly="readonly">
 		<input name="priority" id="priority"  type="hidden" value="${priority }">	
 		<form:errors path="priority" cssClass="validationError"/>
-	</p>
 	</c:if>
 	</p>
 		
-	<p style="display:none;">		
+	<p>		
 	<label class="small"><spring:message code="question.submissionDate" text="Submitted On"/></label>
 	<input id="formattedSubmissionDate" name="formattedSubmissionDate" value="${formattedSubmissionDate }" class="sText" readonly="readonly">
 	<input id="setSubmissionDate" name="setSubmissionDate" type="hidden"  value="${submissionDate}">
-	</p>
-	<p>
+	
 	<c:if test="${selectedQuestionType=='questions_starred'}">
 		<label class="small"><spring:message code="question.answeringDate" text="Answering Date"/></label>
 		<input id="formattedAnsweringDate" name="formattedAnsweringDate" value="${formattedAnsweringDate }" class="sText" readonly="readonly">
@@ -441,7 +545,7 @@
 	
 	<p>
 	<label class="small"><spring:message code="question.ministry" text="Ministry"/>*</label>
-	<select name="ministry" id="ministry" class="sSelect">
+	<select name="ministry" id="ministry" class="sSelect" >
 	<c:forEach items="${ministries }" var="i">
 	<c:choose>
 	<c:when test="${i.id==ministrySelected }">
@@ -463,7 +567,7 @@
 	
 	<p>
 	<label class="small"><spring:message code="question.department" text="Department"/></label>
-	<select name="department" id="department" class="sSelect">
+	<select name="department" id="department" class="sSelect" >
 	<c:forEach items="${departments }" var="i">
 	<c:choose>
 	<c:when test="${i.id==departmentSelected }">
@@ -478,7 +582,7 @@
 	<form:errors path="department" cssClass="validationError"/>	
 	
 	<label class="small"><spring:message code="question.subdepartment" text="Sub Department"/></label>
-	<select name="subDepartment" id="subDepartment" class="sSelect">
+	<select name="subDepartment" id="subDepartment" class="sSelect" >
 	<c:forEach items="${subDepartments }" var="i">
 	<c:choose>
 	<c:when test="${i.id==subDepartmentSelected }">
@@ -509,18 +613,24 @@
 	</c:if>	
 	</p>
 	
-	<p style="display:none;">
+	<p>
 		<label class="small"><spring:message code="question.primaryMemberConstituency" text="Constituency"/>*</label>
 		<input type="text" readonly="readonly" value="${constituency}" class="sText">
 		<a href="#" id="viewContacts" style="margin-left:20px;margin-right: 20px;"><img src="/els/resources/images/contactus.jpg" width="40" height="25"></a>		
+	</p>			
+	
+	<p style="display:none;">
+		<a href="#" id="clubbing" onclick="clubbingInt(${domain.id});" style="margin-left: 162px;margin-right: 20px;margin-bottom: 20px;margin-top: 20px;"><spring:message code="question.clubbing" text="Clubbing"></spring:message></a>
+		<a href="#" id="referencing" onclick="referencingInt(${domain.id});" style="margin: 20px;"><spring:message code="question.referencing" text="Referencing"></spring:message></a>
+		<a href="#" id="refresh" onclick="refreshEdit(${domain.id});" style="margin: 20px;"><spring:message code="question.refresh" text="Refresh"></spring:message></a>	
 	</p>	
 		
-	<p style="display:none;">
+	<p>
 		<label class="small"><spring:message code="question.parentquestion" text="Clubbed To"></spring:message></label>
 		<a href="#" id="p${parent}" onclick="viewQuestionDetail(${parent});"><c:out value="${formattedParentNumber}"></c:out></a>
 		<input type="hidden" id="parent" name="parent" value="${parent}">
 		</p>	
-		<p style="display:none;">
+		<p>
 		<label class="small"><spring:message code="question.clubbedquestions" text="Clubbed Questions"></spring:message></label>
 		<c:choose>
 		<c:when test="${!(empty clubbedQuestions) }">
@@ -538,7 +648,7 @@
 		</c:forEach>
 		</select>
 		</p>
-		<p style="display:none;">
+		<p>
 		<label class="small"><spring:message code="question.referencedquestions" text="Referenced Questions"></spring:message></label>
 		<c:choose>
 		<c:when test="${!(empty referencedQuestions) }">
@@ -558,60 +668,20 @@
 	</p>
 	
 	
-	<c:if test="${!(empty domain.revisedSubject) }">
-	<p  class="revise" id="revisedSubjectDiv">
-	<label class="centerlabel"><spring:message code="question.revisedSubject" text="Revised Subject"/></label>
-	<form:textarea path="revisedSubject" rows="2" cols="50"></form:textarea>
-	<form:errors path="revisedSubject" cssClass="validationError" cssStyle="float:right;margin-top:-100px;margin-right:40px;"/>
-	</p>
-	<p style="display:none;">	
-	<label class="centerlabel"><spring:message code="question.subject" text="Subject"/></label>
-	<form:textarea path="subject" readonly="true" rows="2" cols="50"></form:textarea>
-	<form:errors path="subject" cssClass="validationError"/>	
-	</p>
-	</c:if>
-	
-	<c:if test="${empty domain.revisedSubject }">
-	<p  class="revise" id="revisedSubjectDiv" style="display:none;">
-	<label class="centerlabel"><spring:message code="question.revisedSubject" text="Revised Subject"/></label>
-	<form:textarea path="revisedSubject" rows="2" cols="50"></form:textarea>
-	<form:errors path="revisedSubject" cssClass="validationError" cssStyle="float:right;margin-top:-100px;margin-right:40px;"/>
-	</p>
 	<p>	
 	<label class="centerlabel"><spring:message code="question.subject" text="Subject"/></label>
 	<form:textarea path="subject" readonly="true" rows="2" cols="50"></form:textarea>
 	<form:errors path="subject" cssClass="validationError"/>	
 	</p>
-	</c:if>
 	
-	<c:if test="${!(empty  domain.revisedQuestionText)}">
-	<p style="display:none;">
-	<label class="wysiwyglabel"><spring:message code="question.details" text="Details"/></label>
-	<form:textarea path="questionText" readonly="true" cssClass="wysiwyg"></form:textarea>
-	<form:errors path="questionText" cssClass="validationError"/>	
-	</p>
-	<p  class="revise" id="revisedQuestionTextDiv">
-	<label class="wysiwyglabel"><spring:message code="question.revisedDetails" text="Revised Details"/></label>
-	<form:textarea path="revisedQuestionText" cssClass="wysiwyg"></form:textarea>
-	<form:errors path="revisedQuestionText" cssClass="validationError" cssStyle="float:right;margin-top:-100px;margin-right:40px;"/>
-	</p>
-	</c:if>
-	<c:if test="${empty  domain.revisedQuestionText}">
 	<p>
 	<label class="wysiwyglabel"><spring:message code="question.details" text="Details"/></label>
 	<form:textarea path="questionText" readonly="true" cssClass="wysiwyg"></form:textarea>
 	<form:errors path="questionText" cssClass="validationError"/>	
 	</p>
-	<p  class="revise" id="revisedQuestionTextDiv" style="display:none;">
-	<label class="wysiwyglabel"><spring:message code="question.revisedDetails" text="Revised Details"/></label>
-	<form:textarea path="revisedQuestionText" cssClass="wysiwyg"></form:textarea>
-	<form:errors path="revisedQuestionText" cssClass="validationError" cssStyle="float:right;margin-top:-100px;margin-right:40px;"/>
-	</p>
-	</c:if>
-	
 	
 	<c:if test="${selectedQuestionType=='questions_shortnotice' or selectedQuestionType=='questions_halfhourdiscussion_from_question'}">
-	<p style="display:none;">
+	<p>
 		<label class="wysiwyglabel"><spring:message code="question.reason" text="Reason"/>*</label>
 		<form:textarea path="reason" cssClass="wysiwyg" readonly="true"></form:textarea>
 		<form:errors path="reason" cssClass="validationError" cssStyle="float:right;margin-top:-100px;margin-right:40px;"/>	
@@ -619,71 +689,113 @@
 	</c:if>
 	
 	<c:if test="${selectedQuestionType=='questions_halfhourdiscussion_from_question' or selectedQuestionType=='questions_halfhourdiscussion_standalone'}">
-		<p style="display:none;">
+		<p>
 			<label class="wysiwyglabel"><spring:message code="question.briefExplanation" text="Brief Explanation"/>*</label>
 			<form:textarea path="briefExplanation" cssClass="wysiwyg"></form:textarea>
 			<form:errors path="briefExplanation" cssClass="validationError" cssStyle="float:right;margin-top:-100px;margin-right:40px;"/>	
 		</p>
 	</c:if>
-		
-	<p id="internalStatusDiv" style="display:none;">
-	<label class="small"><spring:message code="question.currentStatus" text="Current Status"/></label>
-	<input id="formattedInternalStatus" name="formattedInternalStatus" value="${formattedInternalStatus }" type="text" readonly="readonly">	
-	<input type="hidden" id="internalStatus"  name="internalStatus" value="${internalStatus }">
-	<input type="hidden" id="recommendationStatus"  name="recommendationStatus" value="${recommendationStatus}">
-	</p>	
 	
-	<p id="sendbackactorDiv" style="display:none;">
+	<p>
+	<a href="#" id="reviseSubject" style="margin-left: 162px;margin-right: 20px;"><spring:message code="question.reviseSubject" text="Revise Subject"></spring:message></a>
+	<a href="#" id="reviseQuestionText" style="margin-right: 20px;"><spring:message code="question.reviseQuestionText" text="Revise Question"></spring:message></a>
+	<a href="#" id="viewRevision"><spring:message code="question.viewrevisions" text="View Revisions"></spring:message></a>
+	</p>
+	
+	<p style="display:none;" class="revise1" id="revisedSubjectDiv">
+	<label class="centerlabel"><spring:message code="question.revisedSubject" text="Revised Subject"/></label>
+	<form:textarea path="revisedSubject" rows="2" cols="50"></form:textarea>
+	<form:errors path="revisedSubject" cssClass="validationError" cssStyle="float:right;margin-top:-100px;margin-right:40px;"/>
+	</p>
+	
+	<p style="display:none;" class="revise2" id="revisedQuestionTextDiv">
+	<label class="wysiwyglabel"><spring:message code="question.revisedDetails" text="Revised Details"/></label>
+	<form:textarea path="revisedQuestionText" cssClass="wysiwyg"></form:textarea>
+	<form:errors path="revisedQuestionText" cssClass="validationError" cssStyle="float:right;margin-top:-100px;margin-right:40px;"/>
+	</p>
+	
+	<p id="internalStatusDiv">
+	<label class="small"><spring:message code="question.currentStatus" text="Current Status"/></label>
+	<input id="formattedInternalStatus" name="formattedInternalStatus" value="${formattedInternalStatus }" type="text" readonly="readonly">
+	</p>
+	
+	<c:if test="${workflowstatus!='COMPLETED' }">	
+	<p>
+	<label class="small"><spring:message code="question.putupfor" text="Put up for"/></label>
+	<select id="changeInternalStatus" class="sSelect">
+	<c:forEach items="${internalStatuses}" var="i">
+	<c:choose>
+	<c:when test="${i.type=='question_system_groupchanged' }">
+	<option value="${i.id}" style="display: none;"><c:out value="${i.name}"></c:out></option>	
+	</c:when>
+	<c:otherwise>
+	<c:choose>
+	<c:when test="${i.id==internalStatus }">
+	<option value="${i.id}" selected="selected"><c:out value="${i.name}"></c:out></option>	
+	</c:when>
+	<c:otherwise>
+	<option value="${i.id}"><c:out value="${i.name}"></c:out></option>		
+	</c:otherwise>
+	</c:choose>
+	</c:otherwise>
+	</c:choose>
+	</c:forEach>
+	</select>
+	
+	<select id="internalStatusMaster" style="display:none;">
+	<c:forEach items="${internalStatuses}" var="i">
+	<option value="${i.type}"><c:out value="${i.id}"></c:out></option>
+	</c:forEach>
+	</select>	
+	<form:errors path="internalStatus" cssClass="validationError"/>	
+	</p>
+	
+	<p id="actorDiv" style="display:none;">
 	<label class="small"><spring:message code="question.nextactor" text="Next Users"/></label>
-	<select id="sendbackactor" name="sendbackactor" class="sSelect">
-	<c:forEach items="${sendbackactors}" var="i">
-	<option value="${i.id}">${i.name }</option>
-	</c:forEach>	
+	<select id="actor" name="actor" class="sSelect">	
+	<c:forEach items="${actors}" var="i">
+	<option value="${i.id}">${i.name}</option>
+	</c:forEach>
 	</select>
 	</p>		
-	
-	<c:if test="${selectedQuestionType=='questions_shortnotice'}">
-	<p>
-	<label class="small"><spring:message code="question.toBeAnsweredByMinister" text="To Be Answered By Minister?"/></label>
-	<form:checkbox path="toBeAnsweredByMinister" cssClass="sCheck"></form:checkbox>
-	</p>
-	
-	<p>
-	<label class="small"><spring:message code="question.dateOfAnsweringByMinister" text="Date of Answering By Minister"/></label>
-	<input id="dateOfAnsweringByMinister" name="dateOfAnsweringByMinister" class="datemask sText" type="text">
-	</p>
 	</c:if>
-	
+		
+	<input type="hidden" id="internalStatus"  name="internalStatus" value="${internalStatus }">
+	<input type="hidden" id="recommendationStatus"  name="recommendationStatus" value="${recommendationStatus}">
+		
 	<p>
-	<label class="wysiwyglabel"><spring:message code="question.answer" text="Answer"/></label>
-	<form:textarea path="answer" cssClass="wysiwyg"></form:textarea>
-	</p>	
+	<a href="#" id="viewCitation" style="margin-left: 162px;margin-top: 30px;"><spring:message code="question.viewcitation" text="View Citations"></spring:message></a>	
+	</p>
 	
 	<p>
 	<label class="wysiwyglabel"><spring:message code="question.remarks" text="Remarks"/></label>
 	<form:textarea path="remarks" cssClass="wysiwyg"></form:textarea>
 	</p>	
 	
+	<p>
+	<label class="wysiwyglabel"><spring:message code="question.answer" text="Answer"/></label>
+	<form:textarea path="answer" cssClass="wysiwyg"></form:textarea>
+	</p>
+	
+	<c:if test="${workflowstatus!='COMPLETED' }">
 	<div class="fields">
 		<h2></h2>
-		<p class="tright">
-		<input id="sendback" type="button" value="<spring:message code='generic.sendback' text='Send Answer'/>" class="butDef">
-		</p>
+		<p class="tright">		
+		<input id="submit" type="submit" value="<spring:message code='generic.submit' text='Submit'/>" class="butDef">
+	</p>
 	</div>
+	</c:if>
 	<form:hidden path="id"/>
 	<form:hidden path="locale"/>
 	<form:hidden path="version"/>
 	<input type="hidden" name="status" id="status" value="${status }">
 	<input type="hidden" name="createdBy" id="createdBy" value="${createdBy }">
 	<input type="hidden" name="setCreationDate" id="setCreationDate" value="${creationDate }">
-	<input id="role" name="role" value="${role}" type="hidden">
 	<input id="endflag" name="endflag" value="continue" type="hidden">
-	<input id="taskid" name="taskid" value="${taskid}" type="hidden">
+	<input id="workflowdetails" name="workflowdetails" value="${workflowdetails}" type="hidden">	
 	<input id="level" name="level" value="${level }" type="hidden">	
-	<input id="usergroup" name="usergroup" type="hidden" value="${usergroup}">
-	<input id="flag" name="flag" type="hidden" value="question_after_approval_department_sent_answer">
-			
-		
+	<input id="usergroup" name="usergroup" value="${usergroup}" type="hidden">
+	<input id="usergroupType" name="usergroupType" value="${usergroupType}" type="hidden">			
 </form:form>
 <input id="oldgroup" name="oldgroup" value="${group}" type="hidden">
 <input id="formattedoldgroup" name="formattedoldgroup" value="${formattedGroup}" type="hidden">
@@ -698,12 +810,26 @@
 <input id="answeringDateSelected" value="${ answeringDateSelected}" type="hidden">
 <input id="oldInternalStatus" value="${ internalStatus}" type="hidden">
 <input id="oldRecommendationStatus" value="${ RecommendationStatus}" type="hidden">
+<input id="ministryEmptyMsg" value='<spring:message code="client.error.ministryempty" text="Ministry can not be empty."></spring:message>' type="hidden">
 
-
-</div>
 <ul id="contextMenuItems" >
 <li><a href="#unclubbing" class="edit"><spring:message code="generic.unclubbing" text="Unclubbing"></spring:message></a></li>
 <li><a href="#dereferencing" class="edit"><spring:message code="generic.dereferencing" text="Dereferencing"></spring:message></a></li>
 </ul>
+</div>
+
+</div>
+
+<div id="backToQuestionDiv" style="display:none;">
+<a href="#" id="backToQuestion"><spring:message code="question.backtoquestion" text="Back To Question"></spring:message></a>
+</div>
+
+<div id="clubbingResultDiv" style="display:none;">
+</div>
+
+<div id="referencingresultDiv" style="display:none;">
+</div>
+
+
 </body>
 </html>
