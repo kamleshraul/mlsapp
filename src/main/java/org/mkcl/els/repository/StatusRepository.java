@@ -46,7 +46,8 @@ public class StatusRepository extends BaseRepository<Status, Serializable>{
 		}
 		buffer.deleteCharAt(buffer.length()-1);
 		buffer.deleteCharAt(buffer.length()-1);
-		String query=initialQuery+" AND ("+buffer.toString()+") ORDER BY s.name";
+		String query=initialQuery+" AND ("+buffer.toString()+") ORDER BY s.priority "+ApplicationConstants.DESC
+		+",s.name "+ApplicationConstants.ASC;
 		return this.em().createQuery(query).getResultList();
 	}
 }
