@@ -21,7 +21,7 @@ import com.trg.search.Search;
 @Repository
 public class MemberBallotRepository extends BaseRepository<MemberBallot, Serializable>{
 
-    public Boolean createMemberBallot(final Session session,final DeviceType deviceType,final Boolean attendanceType,final Integer round,final String locale){
+    public Boolean createMemberBallot(final Session session,final DeviceType deviceType,final Boolean attendance,final Integer round,final String locale){
         /*
          * First we make a check of whether member ballot for given session,device type,round and
          * attendance(present or absent) has already taken .
@@ -30,10 +30,10 @@ public class MemberBallotRepository extends BaseRepository<MemberBallot, Seriali
         search.addFilterEqual("session.id",session.getId());
         search.addFilterEqual("deviceType.id",deviceType.getId());
         search.addFilterEqual("round",round);
-        search.addFilterEqual("attendance",attendanceType);
+        search.addFilterEqual("attendance",attendance);
         int count=this.count(search);
         if(count==0){
-            List<Member> input=MemberBallotAttendance.findMembersByAttendance(session,deviceType,attendanceType,locale);
+            List<Member> input=MemberBallotAttendance.findMembersByAttendance(session,deviceType,attendance,round,locale);
             int order=1;
             Collections.shuffle(input);
             Date date=new Date();
@@ -45,7 +45,7 @@ public class MemberBallotRepository extends BaseRepository<MemberBallot, Seriali
                 memberBallot.setBallotDate(date);
                 memberBallot.setRound(round);
                 memberBallot.setPosition(order);
-                memberBallot.setAttendance(attendanceType);
+                memberBallot.setAttendance(attendance);
                 memberBallot.setLocale(locale);
                 memberBallot.persist();
                 order++;
