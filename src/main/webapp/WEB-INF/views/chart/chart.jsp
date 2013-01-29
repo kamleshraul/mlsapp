@@ -4,7 +4,15 @@
 	<title></title>
 	<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
 	<script type="text/javascript">
-		$(document).ready(function() {			
+		$(document).ready(function() {	
+			/**** Back to chart ****/
+			$("#backToChart").click(function(){
+				$("#chartResultDiv").show();
+				$("#clubbingResultDiv").hide();
+				$("#referencingResultDiv").hide();
+				$("#backDiv").hide();		
+			});		
+			/**** On clicking a question on the chart ****/
 			$(".questionNumber").click(function(){
 				var parameters="houseType="+$("#selectedHouseType").val()
 				+"&sessionYear="+$("#selectedSessionYear").val()
@@ -17,7 +25,7 @@
 				var resourceURL='question/'+$(this).attr("id")+'/edit?'+parameters;
 				showTabByIdAndUrl('details_tab', resourceURL);
 			});
-			
+			/**** On right clicking a question on the chart ****/
 			$(".questionNumber").contextMenu({
 		        menu: 'contextMenuItems'
 		    },
@@ -54,8 +62,14 @@
 		function clubbingInt(id){
 			$.blockUI({ message: '<img src="./resources/images/waitAnimated.gif" />' });		
 			$.get('clubentity/init?id='+id,function(data){
-				$.unblockUI();	
-				$.fancybox.open(data,{autoSize:false,width:750,height:700});
+				$.unblockUI();
+				$("#clubbingResultDiv").empty();
+				$("#clubbingResultDiv").html(data);
+				$("#chartResultDiv").hide();
+				$("#clubbingResultDiv").show();
+				$("#referencingResultDiv").hide();
+				$("#backDiv").show();					
+				//$.fancybox.open(data,{autoSize:false,width:750,height:700});
 			},'html');
 		}
 		/**** Referencing ****/
@@ -63,13 +77,20 @@
 			$.blockUI({ message: '<img src="./resources/images/waitAnimated.gif" />' });
 			$.get('refentity/init?id='+id,function(data){
 				$.unblockUI();			
-				$.fancybox.open(data,{autoSize:false,width:750,height:700});
+				$("#referencingResultDiv").empty();
+				$("#referencingResultDiv").html(data);
+				$("#chartResultDiv").hide();
+				$("#clubbingResultDiv").hide();
+				$("#referencingResultDiv").show();
+				$("#backDiv").show();				
+				//$.fancybox.open(data,{autoSize:false,width:750,height:700});
 			},'html');
 		}
 	</script>
 </head>
 
 <body>
+<div id="chartResultDiv">
 <c:choose>
 <c:when test="${chartVOs == null}">
 	<spring:message code="question.chart.notCreated" text="Chart is not Created"/>
@@ -121,9 +142,17 @@
 </ul>
 </c:otherwise>
 </c:choose>
-<div id="clubbingPage">
 </div>
-<div id="referencingPage">
+
+<div id="backDiv">
+<a href="#" id="backToChart"><spring:message code="chart.backtochart" text="Back To Chart"></spring:message></a>
 </div>
+
+<div id="clubbingResultDiv">
+</div>
+
+<div id="referencingresultDiv">
+</div>
+
 </body>
 </html>
