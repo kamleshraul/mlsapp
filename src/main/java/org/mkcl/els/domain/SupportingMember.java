@@ -23,7 +23,6 @@ import javax.persistence.TemporalType;
 import org.codehaus.jackson.annotate.JsonIgnoreProperties;
 import org.springframework.beans.factory.annotation.Configurable;
 
-// TODO: Auto-generated Javadoc
 /**
  * The Class SupportingMember.
  *
@@ -34,7 +33,7 @@ import org.springframework.beans.factory.annotation.Configurable;
 @Configurable
 @Entity
 @Table(name="supportingmembers")
-@JsonIgnoreProperties({"member","decisionStatus","questions"})
+@JsonIgnoreProperties({"member","decisionStatus"})
 public class SupportingMember extends BaseDomain implements Serializable{
 
     /** The Constant serialVersionUID. */
@@ -67,9 +66,6 @@ public class SupportingMember extends BaseDomain implements Serializable{
     /** The remarks. */
     @Column(length=30000)
     private String remarks;
-
-    /** The workflow created. */
-    private Boolean workflowCreated;
 
     /**
      * Instantiates a new supporting member.
@@ -218,26 +214,4 @@ public class SupportingMember extends BaseDomain implements Serializable{
     public void setRemarks(final String remarks) {
         this.remarks = remarks;
     }
-
-
-	/**
-	 * Gets the workflow created.
-	 *
-	 * @return the workflow created
-	 */
-	public Boolean getWorkflowCreated() {
-		return workflowCreated;
-	}
-
-
-	/**
-	 * Sets the workflow created.
-	 *
-	 * @param workflowCreated the new workflow created
-	 */
-	public void setWorkflowCreated(final Boolean workflowCreated) {
-		this.workflowCreated = workflowCreated;
-	}
-
-
 }
