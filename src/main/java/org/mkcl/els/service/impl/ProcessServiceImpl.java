@@ -748,7 +748,7 @@ public class ProcessServiceImpl implements IProcessService {
 		task.setAssignee(t.getAssignee());
 
 		//CustomParameter cp1 = CustomParameter.findByName(CustomParameter.class,
-				//"yyyy-MM-dd HH:mm:ss", "");
+		//"yyyy-MM-dd HH:mm:ss", "");
 		String strCreateTime = FormaterUtil.formatDateToString(t.getCreateTime(), "yyyy-MM-dd HH:mm:ss");
 		task.setCreateTime(strCreateTime);
 
@@ -775,4 +775,41 @@ public class ProcessServiceImpl implements IProcessService {
 		return String.valueOf(uuid.hashCode());
 	}
 
+	/**** Added By Sandeep Singh ****/
+	/**** This will fetch the current task given a process instance ****/
+	public org.mkcl.els.common.vo.Task getCurrentTask(final org.mkcl.els.common.vo.ProcessInstance processInstance){
+		Task currTask=this.taskService.createTaskQuery().processInstanceId(processInstance.getId()).singleResult();
+		org.mkcl.els.common.vo.Task task=new org.mkcl.els.common.vo.Task();
+		task.setAssignee(currTask.getAssignee());
+		CustomParameter customParameter=CustomParameter.findByName(CustomParameter.class,"DB_TIMESTAMP","");
+		task.setCreateTime(FormaterUtil.getDateFormatter(customParameter.getValue(),"en_US").format(currTask.getCreateTime()));
+		task.setDescription(currTask.getDescription());
+		task.setExecutionId(currTask.getExecutionId());
+		task.setId(currTask.getId());
+		task.setName(currTask.getName());
+		task.setProcessDefinitionId(currTask.getProcessDefinitionId());
+		task.setProcessInstanceId(currTask.getProcessInstanceId());
+		return task;
+	}
+	/**** This will fetch all the current tasks given a process instance ****/
+	@Override
+	public List<org.mkcl.els.common.vo.Task> getCurrentTasks(
+			org.mkcl.els.common.vo.ProcessInstance processInstance) {
+		List<Task> currTasks=this.taskService.createTaskQuery().processInstanceId(processInstance.getId()).list();
+		List<org.mkcl.els.common.vo.Task> tasks=new ArrayList<org.mkcl.els.common.vo.Task>();
+		CustomParameter customParameter=CustomParameter.findByName(CustomParameter.class,"DB_TIMESTAMP","");
+		for(Task i:currTasks){
+			org.mkcl.els.common.vo.Task task=new org.mkcl.els.common.vo.Task();
+			task.setAssignee(i.getAssignee());
+			task.setCreateTime(FormaterUtil.getDateFormatter(customParameter.getValue(),"en_US").format(i.getCreateTime()));
+			task.setDescription(i.getDescription());
+			task.setExecutionId(i.getExecutionId());
+			task.setId(i.getId());
+			task.setName(i.getName());
+			task.setProcessDefinitionId(i.getProcessDefinitionId());
+			task.setProcessInstanceId(i.getProcessInstanceId());
+			tasks.add(task);
+		}
+		return tasks;
+	}
 }
