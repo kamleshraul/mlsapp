@@ -42,6 +42,20 @@ public class QuestionSearchVO {
 	/** ** The Session Type ***. */
 	private String sessionType;	
 	
+	private String group;
+	
+	private String formattedGroup;
+	
+	private String ministry;
+	
+	private String department;
+	
+	private String subDepartment;
+	
+	private String classification;
+	
+	private String statusType;
+	
 	/**
 	 * Gets the id.
 	 *
@@ -184,6 +198,62 @@ public class QuestionSearchVO {
 	 */
 	public void setSessionType(String sessionType) {
 		this.sessionType = sessionType;
+	}
+
+	public String getGroup() {
+		return group;
+	}
+
+	public void setGroup(String group) {
+		this.group = group;
+	}
+
+	public void setMinistry(String ministry) {
+		this.ministry = ministry;
+	}
+
+	public String getMinistry() {
+		return ministry;
+	}
+
+	public void setDepartment(String department) {
+		this.department = department;
+	}
+
+	public String getDepartment() {
+		return department;
+	}
+
+	public void setSubDepartment(String subDepartment) {
+		this.subDepartment = subDepartment;
+	}
+
+	public String getSubDepartment() {
+		return subDepartment;
+	}
+
+	public void setClassification(String classification) {
+		this.classification = classification;
+	}
+
+	public String getClassification() {
+		return classification;
+	}
+
+	public void setStatusType(String statusType) {
+		this.statusType = statusType;
+	}
+
+	public String getStatusType() {
+		return statusType;
+	}
+
+	public void setFormattedGroup(String formattedGroup) {
+		this.formattedGroup = formattedGroup;
+	}
+
+	public String getFormattedGroup() {
+		return formattedGroup;
 	}
 
 	
