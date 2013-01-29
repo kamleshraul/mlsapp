@@ -139,12 +139,12 @@ public class QuestionController extends GenericController<Question>{
 								String userGroupType=i.getUserGroupType().getType();
 								model.addAttribute("usergroupType",userGroupType);
 								/**** Question Status Allowed ****/
-								CustomParameter allowedStatus=CustomParameter.findByName(CustomParameter.class,"QUESTION_STATUS_ALLOWED_FOR_"+userGroupType.toUpperCase(), "");
+								CustomParameter allowedStatus=CustomParameter.findByName(CustomParameter.class,"QUESTION_GRID_STATUS_ALLOWED_"+userGroupType.toUpperCase(), "");
 								List<Status> status=new ArrayList<Status>();
 								if(allowedStatus!=null){
 									status=Status.findStatusContainedIn(allowedStatus.getValue(),locale);
 								}else{
-									CustomParameter defaultAllowedStatus=CustomParameter.findByName(CustomParameter.class,"QUESTION_STATUS_ALLOWED_BY_DEFAULT", "");
+									CustomParameter defaultAllowedStatus=CustomParameter.findByName(CustomParameter.class,"QUESTION_GRID_STATUS_ALLOWED_BY_DEFAULT", "");
 									if(defaultAllowedStatus!=null){
 										status=Status.findStatusContainedIn(defaultAllowedStatus.getValue(),locale);
 									}else{
@@ -1120,13 +1120,7 @@ public class QuestionController extends GenericController<Question>{
 					properties.put("pv_deviceId",String.valueOf(domain.getId()));
 					ProcessInstance processInstance=processService.createProcessInstance(processDefinition, properties);
 					List<Task> tasks=processService.getCurrentTasks(processInstance);
-					String strUserGroupType=request.getParameter("usergroupType");
-					if(strUserGroupType!=null){
-						UserGroupType userGroupType=UserGroupType.findByFieldName(UserGroupType.class,"type",strUserGroupType,domain.getLocale());
-						WorkflowDetails.create(domain,tasks,ApplicationConstants.SUPPORTING_MEMBER_WORKFLOW,strUserGroupType,userGroupType.getName(),"");
-					}else{
-						WorkflowDetails.create(domain,tasks,ApplicationConstants.SUPPORTING_MEMBER_WORKFLOW,"","","");
-					}
+					WorkflowDetails.create(domain,tasks,ApplicationConstants.SUPPORTING_MEMBER_WORKFLOW,"0");	
 					/**** Supporting members status changed to pending ****/
 					Question question=Question.findById(Question.class,domain.getId());
 					List<SupportingMember> supportingMembers=question.getSupportingMembers();
@@ -1393,14 +1387,8 @@ public class QuestionController extends GenericController<Question>{
 					properties.put("pv_deviceId",String.valueOf(domain.getId()));
 					ProcessInstance processInstance=processService.createProcessInstance(processDefinition, properties);
 					/**** Workflow Details Entries are created ****/
-					List<Task> tasks=processService.getCurrentTasks(processInstance);
-					String strUserGroupType=request.getParameter("usergroupType");
-					if(strUserGroupType!=null){
-						UserGroupType userGroupType=UserGroupType.findByFieldName(UserGroupType.class,"type",strUserGroupType,domain.getLocale());
-						WorkflowDetails.create(domain,tasks,ApplicationConstants.SUPPORTING_MEMBER_WORKFLOW,strUserGroupType,userGroupType.getName(),"");
-					}else{
-						WorkflowDetails.create(domain,tasks,ApplicationConstants.SUPPORTING_MEMBER_WORKFLOW,"","","");
-					}
+					List<Task> tasks=processService.getCurrentTasks(processInstance);					
+					WorkflowDetails.create(domain,tasks,ApplicationConstants.SUPPORTING_MEMBER_WORKFLOW,"");
 					/**** Not Send supporting members status are changed to pending ****/
 					Question question=Question.findById(Question.class,domain.getId());
 					List<SupportingMember> supportingMembers=question.getSupportingMembers();
@@ -1417,13 +1405,11 @@ public class QuestionController extends GenericController<Question>{
 					Map<String,String> properties=new HashMap<String, String>();					
 					/**** Next user and usergroup ****/
 					String nextuser=request.getParameter("actor");
-					String nextUserGroupType="";
 					String level="";
 					if(nextuser!=null){
 						if(!nextuser.isEmpty()){
 							String[] temp=nextuser.split("#");
 							properties.put("pv_user",temp[0]);
-							nextUserGroupType=temp[1];
 							level=temp[2];
 						}
 					}
@@ -1437,9 +1423,8 @@ public class QuestionController extends GenericController<Question>{
 					if(endflag!=null){
 						if(!endflag.isEmpty()){
 							if(endflag.equals("continue")){
-								UserGroupType userGroupType=UserGroupType.findByFieldName(UserGroupType.class,"type",nextUserGroupType, domain.getLocale());
 								/**** Workflow Detail entry made only if its not the end of workflow ****/
-								WorkflowDetails.create(domain,task,ApplicationConstants.APPROVAL_WORKFLOW,userGroupType.getType(),userGroupType.getName(),level);
+								WorkflowDetails.create(domain,task,ApplicationConstants.APPROVAL_WORKFLOW,level);
 							}
 						}
 					}
