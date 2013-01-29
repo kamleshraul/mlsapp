@@ -3,6 +3,7 @@ package org.mkcl.els.repository;
 import java.io.Serializable;
 import java.util.List;
 
+import org.mkcl.els.common.util.ApplicationConstants;
 import org.mkcl.els.domain.DeviceType;
 import org.springframework.stereotype.Repository;
 
@@ -18,4 +19,12 @@ public class DeviceTypeRepository extends BaseRepository<DeviceType, Serializabl
         search.addFilterLike("type",pattern+"%");
         return this.search(search);
     }
+
+	@SuppressWarnings("unchecked")
+	public List<DeviceType> getAllowedTypesInStarredClubbing(String locale) {
+		String query="SELECT m FROM DeviceType m WHERE (m.type='"+ApplicationConstants.STARRED_QUESTION+"' OR  "+
+					 " m.type='"+ApplicationConstants.UNSTARRED_QUESTION+"') AND m.locale='"+locale+"'"+
+					 " ORDER BY m.name "+ApplicationConstants.ASC;
+		return this.em().createQuery(query).getResultList();
+	}
 }
