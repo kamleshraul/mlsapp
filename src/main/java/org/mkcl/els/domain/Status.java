@@ -157,6 +157,10 @@ public class Status extends BaseDomain implements Serializable{
 	public void setPriority(Integer priority) {
 		this.priority = priority;
 	}
+
+	public static List<Status> findStatusContainedIn(final String commadelimitedStatusTypes,final String locale) {
+		return getStatusRepository().findStatusContainedIn(commadelimitedStatusTypes, locale);
+	}
 	
 	
 
