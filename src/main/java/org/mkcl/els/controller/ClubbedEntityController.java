@@ -108,7 +108,7 @@ public class ClubbedEntityController extends BaseController{
 						||recommendationStatusType.equals(ApplicationConstants.QUESTION_RECOMMEND_SENDBACK)
 						||internalStatusType.equals(ApplicationConstants.QUESTION_FINAL_ADMISSION))
 						&&workflowDetails.getId()!=null){
-					if(workflowDetails.getAssigneeUserGroup().equals("assistant")
+					if(workflowDetails.getAssigneeUserGroupType().equals("assistant")
 							&&usergroupType!=null){
 						if(usergroupType.equals("assistant")){
 							return true;
