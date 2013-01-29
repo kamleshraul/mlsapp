@@ -1,12 +1,37 @@
-<%@ page language="java" contentType="text/html; charset=ISO-8859-1"
-    pageEncoding="ISO-8859-1"%>
-<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
-<html>
-<head>
-<meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
-<title>Insert title here</title>
-</head>
-<body>
-
-</body>
-</html>
+<%@ include file="/common/taglibs.jsp" %>
+<c:choose>
+<c:when test="${!(empty memberBallots)}">
+<table class="uiTable">
+	<tr>
+	<th><spring:message code="memberballot.position" text="S.no"/></th>
+	<th>	
+	<spring:message code="memberballot.member" text="Members"/>
+	</th>
+	<th>	
+	<spring:message code="memberballot.question" text="Question No."/>
+	</th>		
+	</tr>
+	<c:forEach items="${memberBallots}" var="i">
+	<tr>
+		<td>${i.position}</td>
+		<td>${i.member.getFullname()}</td>	
+		<td>
+		<c:choose>
+		<c:when test="${!(empty i.questionChoices) }">
+		<c:forEach items="${i.questionChoices}" var="j">
+		<span style="margin-right:5px;">${j.question.findFormattedNumber()}&nbsp;&nbsp;(${j.newAnsweringDate.findFormattedAnsweringDate()})</span>
+		</c:forEach>
+		</c:when>
+		<c:otherwise>
+		-
+		</c:otherwise>
+		</c:choose>
+		</td>		
+	</tr>
+	</c:forEach>
+</table>
+</c:when>
+<c:otherwise>
+<spring:message code="memberballot.noballot" text="No Member Ballot Found"/>
+</c:otherwise>
+</c:choose>
