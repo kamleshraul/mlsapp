@@ -44,7 +44,7 @@
 				}
 			});
 			/**** workflow changes then reload grid****/			
-			$("#selectedWorkflow").change(function(){
+			$("#selectedSubWorkflow").change(function(){
 				var value=$(this).val();
 				if(value!=""){				
 					reloadMyTaskGrid();
@@ -191,7 +191,7 @@
 			</a>
 			<select id="selectedSubWorkflow" name="selectedSubWorkflow">
 			<c:forEach items="${workflowTypes}" var="i">
-			<option value="${i}">${i}</option>
+			<option value="${i.type}">${i.name}</option>
 			</c:forEach>			
 			</select> |		
 			<hr>		
