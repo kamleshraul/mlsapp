@@ -533,6 +533,8 @@ public class QuestionWorkflowController  extends BaseController{
 				model.addAttribute("parent",domain.getParent().getId());
 			}
 		}
+		/**** level ****/
+		model.addAttribute("level",workflowDetails.getAssigneeLevel());
 
 		//---------------------------Added by vikas & dhananjay-------------------------------------
 		if(questionType.getType().equals("questions_halfhourdiscussion_from_question") || questionType.getType().equals("questions_halfhourdiscussion_standalone")){
