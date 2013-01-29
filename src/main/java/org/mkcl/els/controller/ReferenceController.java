@@ -932,7 +932,7 @@ public class ReferenceController extends BaseController {
 			Integer year=Integer.parseInt(stryear);
 			groups=Group.findByHouseTypeSessionTypeYear(selectedHouseType, selectedSessionType, year);
 			for(Group i:groups){
-				MasterVO masterVO=new MasterVO(i.getId(),String.valueOf(i.getNumber()));
+				MasterVO masterVO=new MasterVO(i.getId(),FormaterUtil.getNumberFormatterNoGrouping(locale.toString()).format(i.getNumber()));
 				masterVOs.add(masterVO);
 			}
 		}
@@ -1488,4 +1488,19 @@ public class ReferenceController extends BaseController {
 		}
 		return masterVOs;
 	}	
+	
+	@RequestMapping(value="/group/{groupid}/ministries",method=RequestMethod.GET)
+	public @ResponseBody List<MasterVO> getMinistriesByGroup(
+			@PathVariable("groupid")final Long groupid,
+			final HttpServletRequest request,
+			final Locale locale){
+		List<Ministry> ministries=Group.findMinistriesByName(groupid);
+		List<MasterVO> masterVOs=new ArrayList<MasterVO>();
+		for(Ministry i:ministries){
+			MasterVO masterVO=new MasterVO(i.getId(),i.getName());
+			masterVOs.add(masterVO);
+		}
+		return masterVOs;
+	}
+	
 }
