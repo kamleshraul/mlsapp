@@ -17,6 +17,7 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
@@ -107,12 +108,7 @@ implements Serializable
 
     /** The answering date. */
     @ManyToOne(fetch=FetchType.LAZY)
-    private QuestionDates answeringDate;
-
-    /** The language. */
-    @ManyToOne(fetch=FetchType.LAZY)
-    @JoinColumn(name="language_id")
-    private Language language;
+    private QuestionDates answeringDate;    
 
     /** The subject. */
     @Column(length=30000)
@@ -158,43 +154,17 @@ implements Serializable
     /** The remarks. */
     @Column(length=30000)
     private String remarks;
-
     
-    /** The mark as answered. */
-    private Boolean markAsAnswered;
-
-    /*
-     * short notice specific attribute
-     */
-    /** The reason. */
-    private String reason;
-
-    /** The to be answered by minister. */
-    private Boolean toBeAnsweredByMinister=false;
-
-    /** The date of answering by minister. */
-    @Temporal(TemporalType.DATE)
-    private Date dateOfAnsweringByMinister;
-    
-    /**Discussion date for halfhour discussions(standalone & from question)     */
-    @Temporal(TemporalType.DATE)
-    private Date discussionDate;
-	//---------------------------Added by vikas & dhananjay-------------------------------------
-    @Column(length=30000)
-    private String briefExplanation;
-    //---------------------------Added by vikas-------------------------------------
-    @ManyToOne(fetch=FetchType.LAZY)
-    private Question halfHourDiscusionFromQuestionReference;
-
-
     //---------------------------Primary and supporting members-----------------
     /** The primary member. */
     @ManyToOne(fetch=FetchType.LAZY)
     @JoinColumn(name="member_id")
     private Member primaryMember;
 
+    /**** Added By Sandeep Singh ****/
+    /**** Changed cascade type to all ****/
     /** The supporting members. */
-    @ManyToMany(fetch=FetchType.LAZY,cascade={CascadeType.PERSIST,CascadeType.MERGE})
+    @ManyToMany(fetch=FetchType.LAZY,cascade=CascadeType.ALL)
     @JoinTable(name="questions_supportingmembers",
             joinColumns={@JoinColumn(name="question_id",
                     referencedColumnName="id")},
@@ -227,32 +197,63 @@ implements Serializable
     /** The drafts. */
     @ManyToMany(fetch=FetchType.LAZY,cascade=CascadeType.ALL)
     @JoinTable(name="questions_drafts_association", joinColumns={@JoinColumn(name="question_id", referencedColumnName="id")}, inverseJoinColumns={@JoinColumn(name="question_draft_id", referencedColumnName="id")})
-    private List<QuestionDraft> drafts;
-    
-    /** The prospective clubbings. */
-    @Column(length=5000)
-    private String prospectiveClubbings;
+    private List<QuestionDraft> drafts;    
 
     //--------------------------Clubbing Entities------------------------------------------
     /** The parent. */
     @ManyToOne(fetch=FetchType.LAZY)
     private Question parent;
     
-    @ManyToMany(fetch=FetchType.LAZY)
+    @ManyToMany(fetch=FetchType.LAZY,cascade=CascadeType.REMOVE)
     @JoinTable(name="questions_clubbingentities", joinColumns={@JoinColumn(name="question_id", referencedColumnName="id")}, inverseJoinColumns={@JoinColumn(name="clubbed_entity_id", referencedColumnName="id")})
     private List<ClubbedEntity> clubbedEntities;
 
     //--------------------------Referenced Entities------------------------------------------
     
-    @ManyToMany(fetch=FetchType.LAZY)
+    @ManyToMany(fetch=FetchType.LAZY,cascade=CascadeType.REMOVE)
     @JoinTable(name="questions_referencedentities", joinColumns={@JoinColumn(name="question_id", referencedColumnName="id")}, inverseJoinColumns={@JoinColumn(name="referenced_entity_id", referencedColumnName="id")})
     private List<ReferencedEntity> referencedEntities;
+    /***************************Common Fields End ****************************************/
     
+    /**** Remove Fields ****/
+    
+    /** The language. */
+    @ManyToOne(fetch=FetchType.LAZY)
+    @JoinColumn(name="language_id")
+    private Language language;
+    
+    /** The prospective clubbings. */
+    @Column(length=5000)
+    private String prospectiveClubbings;
+    
+    /** The mark as answered. */
+    private Boolean markAsAnswered;
+
+    /**** Short Notice Fields ****/
+    
+    /** The reason. */
+    private String reason;
+
+    /** The to be answered by minister. */
+    private Boolean toBeAnsweredByMinister=false;
+
+    /** The date of answering by minister. */
+    @Temporal(TemporalType.DATE)
+    private Date dateOfAnsweringByMinister;
+    
+    /**** Half Hour Discussion Fields ****/
+    @Temporal(TemporalType.DATE)
+    private Date discussionDate;
+
+    @Column(length=30000)
+    private String briefExplanation;
+
+    @ManyToOne(fetch=FetchType.LAZY)
+    private Question halfHourDiscusionFromQuestionReference;
+
     /**** last date of receive of answer ****/
     @Temporal(TemporalType.DATE)
-    private Date lastDateOfAnswerReceiving;
-
-
+    private Date lastDateOfAnswerReceiving;    
 
     /** The question repository. */
     @Autowired
@@ -299,7 +300,7 @@ implements Serializable
     @Override
     public Question merge() {
         Question question=null;
-        if(internalStatus.getType().equals("questions_submit")) {
+        if(internalStatus.getType().equals(ApplicationConstants.QUESTION_SUBMIT)) {
             if(this.getNumber()==null){
                 synchronized (this) {
                     Integer number = Question.assignQuestionNo(this.getHouseType(),
@@ -323,7 +324,8 @@ implements Serializable
         if(question!=null){
             return question;
         }else{
-            if(internalStatus.getType().equals("questions_incomplete")||internalStatus.getType().equals("questions_complete")){
+            if(internalStatus.getType().equals(ApplicationConstants.QUESTION_INCOMPLETE)||
+            		internalStatus.getType().equals(ApplicationConstants.QUESTION_COMPLETE)){
                 return (Question) super.merge();
             }else{
             	Question oldQuestion=Question.findById(Question.class,getId());
@@ -344,7 +346,7 @@ implements Serializable
      */
     @Override
     public Question persist() {
-        if(status.getType().equals("questions_submit")) {
+        if(status.getType().equals(ApplicationConstants.QUESTION_SUBMIT)) {
             if(this.getNumber()==null){
                 synchronized (this) {
                     Integer number = Question.assignQuestionNo(this.getHouseType(),
@@ -378,7 +380,8 @@ implements Serializable
      * Adds the question draft.
      */
     private void addQuestionDraft() {
-        if(!status.getType().equals("questions_incomplete") && !status.getType().equals("questions_complete")) {
+        if(!status.getType().equals(ApplicationConstants.QUESTION_INCOMPLETE) &&
+        		!status.getType().equals(ApplicationConstants.QUESTION_COMPLETE)) {
             QuestionDraft draft=new QuestionDraft();
             draft.setAnswer(getAnswer());
             draft.setAnsweringDate(getAnsweringDate());
@@ -436,22 +439,22 @@ implements Serializable
      * @author compaq
      * @since v1.0.0
      */
-    public static Integer findLastStarredUnstarredShortNoticeQuestionNo(final House house, final Session currentSession) {
-        return getQuestionRepository().findLastStarredUnstarredShortNoticeQuestionNo(house, currentSession);
-    }
-
-    /**
-     * Find last half hour discussion question no.
-     *
-     * @param house the house
-     * @param currentSession the current session
-     * @return the integer
-     * @author compaq
-     * @since v1.0.0
-     */
-    public static Integer findLastHalfHourDiscussionQuestionNo(final House house, final Session currentSession) {
-        return getQuestionRepository().findLastHalfHourDiscussionQuestionNo(house, currentSession);
-    }
+//    public static Integer findLastStarredUnstarredShortNoticeQuestionNo(final House house, final Session currentSession) {
+//        return getQuestionRepository().findLastStarredUnstarredShortNoticeQuestionNo(house, currentSession);
+//    }
+//
+//    /**
+//     * Find last half hour discussion question no.
+//     *
+//     * @param house the house
+//     * @param currentSession the current session
+//     * @return the integer
+//     * @author compaq
+//     * @since v1.0.0
+//     */
+//    public static Integer findLastHalfHourDiscussionQuestionNo(final House house, final Session currentSession) {
+//        return getQuestionRepository().findLastHalfHourDiscussionQuestionNo(house, currentSession);
+//    }
 
     /**
      * Find @param maxNoOfQuestions Questions of a @param member for a
@@ -1288,9 +1291,7 @@ implements Serializable
      * @param locale the locale
      * @return the boolean
      */
-    public static Boolean club(final Long questionBeingProcessed,final Long questionBeingClubbed,final String locale){
-        return getQuestionRepository().club(questionBeingProcessed,questionBeingClubbed,locale);
-    }
+    
 
     /**
      * Unclub.
@@ -1300,9 +1301,7 @@ implements Serializable
      * @param locale the locale
      * @return the boolean
      */
-    public static Boolean unclub(final Long questionBeingProcessed,final Long questionBeingClubbed,final String locale){
-        return getQuestionRepository().unclub(questionBeingProcessed,questionBeingClubbed,locale);
-    }
+    
 
     /**
      * Gets the prospective clubbings.
@@ -1773,11 +1772,7 @@ implements Serializable
      * @param locale the locale
      * @return the list
      */
-    public static Boolean createMemberBallotAttendance(final Session session,
-            final DeviceType questionType, final String locale) {
-        return getQuestionRepository().createMemberBallotAttendance(session,
-                questionType,locale);
-    }
+    
     public static List<Question> findAdmittedStarredQuestionsUH(
             final Session session, final DeviceType questionType, final Member member,
             final String locale) {
@@ -1824,25 +1819,7 @@ implements Serializable
 			final String locale) {
 		return getQuestionRepository().findClubbedEntitiesByQuestionNumber(this,sortOrder,
 				locale);
-	}
-	public static Boolean referencing(final Long primaryId,final Long referencingId,
-			final String locale) {
-		return getQuestionRepository().referencing(primaryId,referencingId,
-				locale);
-	}
-	public static Boolean deReferencing(final Long primaryId,final Long referencedId,final String locale) {
-		return getQuestionRepository().deReferencing(primaryId,referencedId,locale);
-	}
-	public static List<QuestionSearchVO> fullTextSearchClubbing(final String param,
-			final Question question,final int start,final int noOfRecords,final String locale) {
-		return getQuestionRepository().fullTextSearchClubbing(param, question, start, noOfRecords, locale);
-	}
-	public static List<QuestionSearchVO> fullTextSearchReferencing(
-			final String param,
-			final Question question,final int start,final int noOfRecords,final String locale) {
-		return getQuestionRepository().fullTextSearchReferencing(param, question, start, noOfRecords, locale);
-	}
-	
+	}	
 	/**
      * Find a list of Questions for the given @param session
      * of a given @param deviceType submitted between @param
@@ -1965,6 +1942,7 @@ implements Serializable
 	public Date getLastDateOfAnswerReceiving() {
 		return lastDateOfAnswerReceiving;
 	}
+	
 	
 
 }
