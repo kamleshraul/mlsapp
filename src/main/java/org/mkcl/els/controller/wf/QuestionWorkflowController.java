@@ -25,6 +25,7 @@ import org.mkcl.els.common.editors.BaseEditor;
 import org.mkcl.els.common.util.ApplicationConstants;
 import org.mkcl.els.common.util.FormaterUtil;
 import org.mkcl.els.common.vo.MasterVO;
+import org.mkcl.els.common.vo.ProcessInstance;
 import org.mkcl.els.common.vo.Reference;
 import org.mkcl.els.common.vo.Task;
 import org.mkcl.els.controller.BaseController;
@@ -79,7 +80,7 @@ public class QuestionWorkflowController  extends BaseController{
 	/** The process service. */
 	@Autowired
 	private IProcessService processService;
-	
+
 	@RequestMapping(value="supportingmember",method=RequestMethod.GET)
 	public String initSupportingMember(final ModelMap model,
 			final HttpServletRequest request,
@@ -114,11 +115,11 @@ public class QuestionWorkflowController  extends BaseController{
 		model.addAttribute("task",workflowDetails.getTaskId());
 		model.addAttribute("workflowdetails",workflowDetails.getId());
 		model.addAttribute("status",workflowDetails.getStatus());
-		
+
 		return workflowDetails.getForm();
 	}
 
-	
+
 	private void populateSupportingMember(final ModelMap model,final Question question, final List<SupportingMember> supportingMembers,final String locale){
 		/**** Question Type ****/
 		DeviceType questionType=question.getType();
@@ -162,7 +163,7 @@ public class QuestionWorkflowController  extends BaseController{
 		/**** Priority ****/
 		model.addAttribute("priority",question.getPriority());
 	}
-	
+
 	@RequestMapping(value="supportingmember",method=RequestMethod.PUT)
 	public String updateSupportingMember(final ModelMap model,
 			final HttpServletRequest request,
@@ -188,7 +189,7 @@ public class QuestionWorkflowController  extends BaseController{
 		model.addAttribute("type","taskcompleted");
 		return "workflow/info";
 	}
-	
+
 	@SuppressWarnings("unused")
 	@InitBinder(value = "domain")
 	private void initBinder(final WebDataBinder binder) {
@@ -288,7 +289,7 @@ public class QuestionWorkflowController  extends BaseController{
 		binder.registerCustomEditor(Question.class, new BaseEditor(new Question()));
 
 	}
-	
+
 	@RequestMapping(method=RequestMethod.GET)
 	public String initMyTask(final ModelMap model,
 			final HttpServletRequest request,
@@ -298,6 +299,7 @@ public class QuestionWorkflowController  extends BaseController{
 		WorkflowDetails workflowDetails=WorkflowDetails.findById(WorkflowDetails.class,longWorkflowdetails);
 		/**** Adding workflowdetails and task to model ****/
 		model.addAttribute("workflowdetails",workflowDetails.getId());
+		model.addAttribute("workflowstatus",workflowDetails.getStatus());
 		Question domain=Question.findById(Question.class,Long.parseLong(workflowDetails.getDeviceId()));
 		/**** Populate Model ****/		
 		populateModel(domain,model,request,workflowDetails);		
@@ -308,7 +310,7 @@ public class QuestionWorkflowController  extends BaseController{
 			final HttpServletRequest request,final WorkflowDetails workflowDetails) {
 		/**** clear remarks ****/
 		domain.setRemarks("");	
-		
+
 		/**** Locale ****/
 		String locale=domain.getLocale();					
 
@@ -396,8 +398,8 @@ public class QuestionWorkflowController  extends BaseController{
 			model.addAttribute("errorcode","highestquestionprioritynotset");
 		}
 		if(domain.getPriority()!=null){
-		model.addAttribute("priority",domain.getPriority());
-		model.addAttribute("formattedPriority",FormaterUtil.getNumberFormatterNoGrouping(locale).format(domain.getPriority()));
+			model.addAttribute("priority",domain.getPriority());
+			model.addAttribute("formattedPriority",FormaterUtil.getNumberFormatterNoGrouping(locale).format(domain.getPriority()));
 		}
 
 		/**** Ministries ****/
@@ -459,11 +461,11 @@ public class QuestionWorkflowController  extends BaseController{
 		}
 		/**** Created By ****/
 		model.addAttribute("createdBy",domain.getCreatedBy());	
-		
+
 		/**** UserGroup and UserGroup Type ****/
 		model.addAttribute("usergroup",workflowDetails.getAssigneeUserGroupId());
 		model.addAttribute("usergroupType",workflowDetails.getAssigneeUserGroupType());
-		
+
 		/**** Status,Internal Status and recommendation Status ****/
 		Status status=domain.getStatus();
 		Status internalStatus=domain.getInternalStatus();
@@ -477,7 +479,7 @@ public class QuestionWorkflowController  extends BaseController{
 			model.addAttribute("formattedInternalStatus", internalStatus.getName());
 			/**** list of put up options available ****/
 			/**** added by sandeep singh(jan 29 2013) ****/
-			populateInternalStatus(model,internalStatus.getType(),workflowDetails.getAssigneeUserGroupType(),locale);
+			populateInternalStatus(model,domain,workflowDetails);
 		}
 		if(recommendationStatus!=null){
 			model.addAttribute("recommendationStatus",recommendationStatus.getId());
@@ -544,10 +546,16 @@ public class QuestionWorkflowController  extends BaseController{
 		/**** add domain to model ****/
 		model.addAttribute("domain",domain);
 	}
-	
-	private void populateInternalStatus(ModelMap model, String type,
-			String userGroupType, String locale) {	
+
+	private void populateInternalStatus(ModelMap model,Question question,WorkflowDetails workflowDetails) {	
 		List<Status> internalStatuses=new ArrayList<Status>();
+		Status internalStatus=question.getInternalStatus();
+		String type=internalStatus.getType();
+		String userGroupType=workflowDetails.getAssigneeUserGroupType();
+		String locale=question.getLocale();
+		String level=workflowDetails.getAssigneeLevel();
+		String strUsergroup=workflowDetails.getAssigneeUserGroupId();
+		UserGroup userGroup=UserGroup.findById(UserGroup.class,Long.parseLong(strUsergroup));
 		/**** Since in case of send back and discuss internal status doesnot change.so it will come in case 1****/
 		if(type.equals(ApplicationConstants.QUESTION_SYSTEM_ASSISTANT_PROCESSED)
 				||type.equals(ApplicationConstants.QUESTION_SYSTEM_TO_BE_PUTUP)
@@ -558,11 +566,10 @@ public class QuestionWorkflowController  extends BaseController{
 				||type.equals(ApplicationConstants.QUESTION_RECOMMEND_CLARIFICATION_FROM_MEMBER_AND_DEPARTMENT)
 				||type.equals(ApplicationConstants.QUESTION_RECOMMEND_CONVERT_TO_UNSTARRED)
 				||type.equals(ApplicationConstants.QUESTION_RECOMMEND_CONVERT_TO_UNSTARRED_AND_ADMIT)
-				||type.equals(ApplicationConstants.QUESTION_RECOMMEND_REJECTION)
-		){
+				||type.equals(ApplicationConstants.QUESTION_RECOMMEND_REJECTION)){
 			if(userGroupType.equals(ApplicationConstants.CHAIRMAN)
 					||userGroupType.equals(ApplicationConstants.SPEAKER)){
-				CustomParameter customParameter=CustomParameter.findByName(CustomParameter.class,"QUESTION_PUT_UP_OPTIONS_FINAL","");
+				CustomParameter customParameter=CustomParameter.findByName(CustomParameter.class,"QUESTION_PUT_UP_OPTIONS_ADMISSION_","");
 				if(customParameter!=null){
 					internalStatuses=Status.findStatusContainedIn(customParameter.getValue(), locale);
 				}else{
@@ -577,7 +584,25 @@ public class QuestionWorkflowController  extends BaseController{
 				}		
 			}
 		}
-		/**** In case of put up status ****/
+		/**** In case of final Status ****/
+		/**** Admitted ****/
+		else if(type.equals(ApplicationConstants.QUESTION_FINAL_ADMISSION)){
+			if(userGroupType.equals(ApplicationConstants.ASSISTANT)){
+				CustomParameter customParameter=CustomParameter.findByName(CustomParameter.class,"QUESTION_PUT_UP_OPTIONS_"+type.toUpperCase()+"_"+userGroupType.toUpperCase(),"");
+				if(customParameter!=null){
+					internalStatuses=Status.findStatusContainedIn(customParameter.getValue(), locale);
+				}else{
+					CustomParameter defaultCustomParameter=CustomParameter.findByName(CustomParameter.class,"QUESTION_PUT_UP_OPTIONS_BY_DEFAULT","");
+					if(defaultCustomParameter!=null){
+						internalStatuses=Status.findStatusContainedIn(defaultCustomParameter.getValue(), locale);
+					}else{
+						model.addAttribute("errorcode","question_putup_options_final_notset");
+					}		
+				}
+				List<Reference> actors=WorkflowConfig.findQuestionActorsVO(question, internalStatus, userGroup,Integer.parseInt(level), locale);
+				model.addAttribute("actors",actors);
+			}
+		}
 		/**** Internal Status****/
 		model.addAttribute("internalStatuses",internalStatuses);
 	}
@@ -646,14 +671,14 @@ public class QuestionWorkflowController  extends BaseController{
 			SimpleDateFormat sdf = null;
 
 			if (selectedSession != null) {
-				
+
 				//------changed 21012013-----------------
 				String strDates = selectedSession.getParameter("questions_halfhourdiscussion_from_question_discussionDates");
 				//-----------21012013
 				if(strDates != null && !strDates.isEmpty()){
-				
+
 					String[] dates = strDates.split("#");
-					
+
 					try {
 						sdf = FormaterUtil.getDBDateParser(selectedSession.getLocale());
 						for (int i = 0; i < dates.length; i++) {
@@ -666,7 +691,7 @@ public class QuestionWorkflowController  extends BaseController{
 					}
 				}
 			}
-			
+
 			if (domain.getDiscussionDate() != null) {
 				model.addAttribute("discussionDateSelected",FormaterUtil.getDateFormatter("dd/MM/yyyy", selectedSession.getLocale()).format(domain.getDiscussionDate()));
 			}else{
@@ -757,11 +782,13 @@ public class QuestionWorkflowController  extends BaseController{
 		String strTaskId=workflowDetails.getTaskId();
 		Task task=processService.findTaskById(strTaskId);
 		processService.completeTask(task,properties);
+		ProcessInstance processInstance = processService.findProcessInstanceById(task.getProcessInstanceId());
+		Task newtask=processService.getCurrentTask(processInstance);
 		if(endflag!=null){
 			if(!endflag.isEmpty()){
 				if(endflag.equals("continue")){
 					/**** Workflow Detail entry made only if its not the end of workflow ****/
-					WorkflowDetails.create(domain,task,ApplicationConstants.APPROVAL_WORKFLOW,level);
+					WorkflowDetails.create(domain,newtask,ApplicationConstants.APPROVAL_WORKFLOW,level);
 				}
 			}
 		}
@@ -933,42 +960,46 @@ public class QuestionWorkflowController  extends BaseController{
 	}	
 
 	private void performActionOnAdmission(Question domain) {
+		//Question question=Question.findById(Question.class ,domain.getId());
+
 		List<ClubbedEntity> clubbedEntities=domain.getClubbedEntities();
-		String subject=null;
-		String questionText=null;
-		if(domain.getRevisedSubject()!=null){
-			if(!domain.getRevisedSubject().isEmpty()){
-				subject=domain.getRevisedSubject();
+		if(clubbedEntities!=null){
+			String subject=null;
+			String questionText=null;
+			if(domain.getRevisedSubject()!=null){
+				if(!domain.getRevisedSubject().isEmpty()){
+					subject=domain.getRevisedSubject();
+				}else{
+					subject=domain.getSubject();
+				}
 			}else{
 				subject=domain.getSubject();
 			}
-		}else{
-			subject=domain.getSubject();
-		}
-		if(domain.getRevisedQuestionText()!=null){
-			if(!domain.getRevisedQuestionText().isEmpty()){
-				questionText=domain.getRevisedQuestionText();
+			if(domain.getRevisedQuestionText()!=null){
+				if(!domain.getRevisedQuestionText().isEmpty()){
+					questionText=domain.getRevisedQuestionText();
+				}else{
+					questionText=domain.getQuestionText();
+				}
 			}else{
 				questionText=domain.getQuestionText();
 			}
-		}else{
-			questionText=domain.getQuestionText();
-		}
-		Status internalStatus=domain.getInternalStatus();
-		Status recommendationStatus=domain.getRecommendationStatus();
-		Status status=Status.findByType(ApplicationConstants.QUESTION_PUTUP_NAMECLUBBING, domain.getLocale());
-		for(ClubbedEntity i:clubbedEntities){
-			Question question=i.getQuestion();
-			if(question.getInternalStatus().getType().equals(ApplicationConstants.QUESTION_SYSTEM_CLUBBED)){
-				question.setRevisedSubject(subject);
-				question.setRevisedQuestionText(questionText);
-				question.setInternalStatus(internalStatus);
-				question.setRecommendationStatus(recommendationStatus);
-			}else{
-				question.setInternalStatus(status);
-				question.setRecommendationStatus(status);
-			}			
-			question.simpleMerge();
+			Status internalStatus=domain.getInternalStatus();
+			Status recommendationStatus=domain.getRecommendationStatus();
+			Status status=Status.findByType(ApplicationConstants.QUESTION_PUTUP_NAMECLUBBING, domain.getLocale());
+			for(ClubbedEntity i:clubbedEntities){
+				Question question=i.getQuestion();
+				if(question.getInternalStatus().getType().equals(ApplicationConstants.QUESTION_SYSTEM_CLUBBED)){
+					question.setRevisedSubject(subject);
+					question.setRevisedQuestionText(questionText);
+					question.setInternalStatus(internalStatus);
+					question.setRecommendationStatus(recommendationStatus);
+				}else{
+					question.setInternalStatus(status);
+					question.setRecommendationStatus(status);
+				}			
+				question.simpleMerge();
+			}
 		}
 	}
 }
