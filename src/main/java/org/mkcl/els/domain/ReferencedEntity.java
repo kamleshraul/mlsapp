@@ -10,12 +10,16 @@
 package org.mkcl.els.domain;
 
 import java.io.Serializable;
+import java.util.List;
 
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 
+import org.mkcl.els.common.vo.QuestionSearchVO;
+import org.mkcl.els.repository.ReferencedEntityRepository;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Configurable;
 
 // TODO: Auto-generated Javadoc
@@ -42,12 +46,24 @@ public class ReferencedEntity extends BaseDomain implements Serializable{
     
     @ManyToOne(fetch=FetchType.LAZY)
     private DeviceType deviceType;
+    
+    @Autowired
+    private transient ReferencedEntityRepository referencedEntityRepository;
 
     /**
      * Instantiates a new referenced entity.
      */
     public ReferencedEntity() {
         super();
+    }
+    
+    public static ReferencedEntityRepository getReferencedEntityRepository() {
+    	ReferencedEntityRepository referencedEntityRepository = new ReferencedEntity().referencedEntityRepository;
+        if (referencedEntityRepository == null) {
+            throw new IllegalStateException(
+                    "ReferencedEntityRepository has not been injected in Refrenced Entity Domain");
+        }
+        return referencedEntityRepository;
     }
 
 
@@ -98,5 +114,20 @@ public class ReferencedEntity extends BaseDomain implements Serializable{
 
 	public DeviceType getDeviceType() {
 		return deviceType;
+	}
+	
+	public static Boolean referencing(final Long primaryId,final Long referencingId,
+			final String locale) {
+		return getReferencedEntityRepository().referencing(primaryId,referencingId,
+				locale);
+	}
+	public static Boolean deReferencing(final Long primaryId,final Long referencedId,final String locale) {
+		return getReferencedEntityRepository().deReferencing(primaryId,referencedId,locale);
+	}
+	
+	public static List<QuestionSearchVO> fullTextSearchReferencing(
+			final String param,
+			final Question question,final int start,final int noOfRecords,final String locale) {
+		return getReferencedEntityRepository().fullTextSearchReferencing(param, question, start, noOfRecords, locale);
 	}
 }
