@@ -190,7 +190,9 @@
 				<spring:message code="mytask.workflow" text="Workflow"/>
 			</a>
 			<select id="selectedSubWorkflow" name="selectedSubWorkflow">
-			<option value="<spring:message code='workflowtype.supportingmember' text='Supporting Member Request'></spring:message>"><spring:message code='workflowtype.supportingmember' text='Supporting Member Request'></spring:message></option>
+			<c:forEach items="${workflowTypes}" var="i">
+			<option value="${i}">${i}</option>
+			</c:forEach>			
 			</select> |		
 			<hr>		
 		</div>
