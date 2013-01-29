@@ -28,7 +28,7 @@ public class WorkflowDetailsRepository extends BaseRepository<WorkflowDetails, S
 			if(customParameter!=null){
 				SimpleDateFormat format=FormaterUtil.getDateFormatter(customParameter.getValue(),"en_US");
 				if(task.getCreateTime()!=null){
-					if(task.getCreateTime().isEmpty()){
+					if(!task.getCreateTime().isEmpty()){
 						workflowDetails.setAssignmentTime(format.parse(task.getCreateTime()));
 					}
 				}
@@ -75,6 +75,7 @@ public class WorkflowDetailsRepository extends BaseRepository<WorkflowDetails, S
 				if(workflowType.equals(ApplicationConstants.APPROVAL_WORKFLOW)){
 					workflowDetails.setUrlPattern(ApplicationConstants.APPROVAL_WORKFLOW_URLPATTERN);
 					workflowDetails.setForm(workflowDetails.getUrlPattern()+"/"+assigneeUserGroup);
+					workflowDetails.setWorkflowSubType(workflowDetails.getInternalStatus());					
 					/**** Different types of workflow sub types ****/
 				}else if(workflowType.equals(ApplicationConstants.SUPPORTING_MEMBER_WORKFLOW)){
 					workflowDetails.setUrlPattern(ApplicationConstants.SUPPORTING_MEMBER_WORKFLOW_URLPATTERN);
@@ -84,6 +85,7 @@ public class WorkflowDetailsRepository extends BaseRepository<WorkflowDetails, S
 						workflowDetails.setWorkflowSubType(messageResource.getValue());
 					}
 				}
+				workflowDetails.persist();
 			}			
 		} catch (ParseException e) {
 			logger.error("Parse Exception",e);
