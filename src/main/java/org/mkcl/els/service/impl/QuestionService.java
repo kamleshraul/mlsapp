@@ -13,6 +13,7 @@ import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.mkcl.els.common.util.ApplicationConstants;
 import org.mkcl.els.domain.Credential;
 import org.mkcl.els.domain.MessageResource;
 import org.mkcl.els.domain.Question;
@@ -47,7 +48,7 @@ public class QuestionService implements IQuestionService{
         List<SupportingMember> subSupportingMembers=question.getSupportingMembers();
         //we will send approval to members whose status is still request not send.this is ok incase a new member has been added
         for(SupportingMember i:subSupportingMembers){
-        	if(i.getDecisionStatus().getType().trim().equals("supportingmember_assigned")){
+        	if(i.getDecisionStatus().getType().trim().equals(ApplicationConstants.QUESTION_SUPPORTING_MEMBER_NOTSEND)){
             supportingMembersNames.add(User.find(i.getMember()).getCredential().getUsername());
         	}
         }
@@ -78,7 +79,4 @@ public class QuestionService implements IQuestionService{
         }
         return message;
     }
-
-
-
 }
