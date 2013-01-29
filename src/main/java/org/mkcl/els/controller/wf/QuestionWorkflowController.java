@@ -283,10 +283,13 @@ public class QuestionWorkflowController  extends BaseController{
 								: null;
 			}
 		});
+		//----------21012013--------------------------
+		/**** Referenced Question for half hour discussion from question ****/
+		binder.registerCustomEditor(Question.class, new BaseEditor(new Question()));
 
 	}
 	
-	@RequestMapping(value="mytask",method=RequestMethod.GET)
+	@RequestMapping(method=RequestMethod.GET)
 	public String initMyTask(final ModelMap model,
 			final HttpServletRequest request,
 			final Locale locale) {
@@ -686,7 +689,7 @@ public class QuestionWorkflowController  extends BaseController{
 	 * @return the string
 	 */
 	@Transactional
-	@RequestMapping(value="mytask",method=RequestMethod.PUT)
+	@RequestMapping(method=RequestMethod.PUT)
 	public String updateMyTask(final ModelMap model,
 			final HttpServletRequest request,
 			final Locale locale,@Valid @ModelAttribute("domain") final Question domain,final BindingResult result) {
