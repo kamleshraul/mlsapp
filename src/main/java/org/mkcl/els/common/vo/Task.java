@@ -75,6 +75,10 @@ public class Task {
 		this.setProcessInstanceId(processInstanceId);
 	}
 
+	public Task() {
+		// TODO Auto-generated constructor stub
+	}
+
 	/**
 	 * Gets the id.
 	 *
