@@ -256,15 +256,22 @@
 		    return false;
 		});								
 		/**** Revise subject and text****/
-		$("#reviseSubjectText").click(function(){
-			$(".revise").toggle();
+		$("#reviseSubject").click(function(){
+			$(".revise1").toggle();
 			if($("#revisedSubjectDiv").css("display")=="none"){
 				$("#revisedSubject").val("");	
-				$("#revisedQuestionText").val("setContent","");
 			}else{
 				$("#revisedSubject").val($("#subject").val());
+			}						
+			return false;			
+		});	
+		$("#reviseQuestionText").click(function(){
+			$(".revise2").toggle();		
+			if($("#revisedQuestionTextDiv").css("display")=="none"){
+				$("#revisedQuestionText").wysiwyg("setContent","");
+			}else{
 				$("#revisedQuestionText").wysiwyg("setContent",$("#questionText").val());				
-			}			
+			}				
 			return false;			
 		});	
 		/**** Revisions ****/
@@ -665,17 +672,18 @@
 	</c:if>
 	
 	<p>
-	<a href="#" id="reviseSubjectText" style="margin-left: 162px;margin-right: 20px;"><spring:message code="question.reviseSubjectText" text="Revise Subject and Question"></spring:message></a>
+	<a href="#" id="reviseSubject" style="margin-left: 162px;margin-right: 20px;"><spring:message code="question.reviseSubject" text="Revise Subject"></spring:message></a>
+	<a href="#" id="reviseQuestionText" style="margin-right: 20px;"><spring:message code="question.reviseQuestionText" text="Revise Question"></spring:message></a>
 	<a href="#" id="viewRevision"><spring:message code="question.viewrevisions" text="View Revisions"></spring:message></a>
 	</p>
 	
-	<p style="display:none;" class="revise" id="revisedSubjectDiv">
+	<p style="display:none;" class="revise1" id="revisedSubjectDiv">
 	<label class="centerlabel"><spring:message code="question.revisedSubject" text="Revised Subject"/></label>
 	<form:textarea path="revisedSubject" rows="2" cols="50"></form:textarea>
 	<form:errors path="revisedSubject" cssClass="validationError" cssStyle="float:right;margin-top:-100px;margin-right:40px;"/>
 	</p>
 	
-	<p style="display:none;" class="revise" id="revisedQuestionTextDiv">
+	<p style="display:none;" class="revise2" id="revisedQuestionTextDiv">
 	<label class="wysiwyglabel"><spring:message code="question.revisedDetails" text="Revised Details"/></label>
 	<form:textarea path="revisedQuestionText" cssClass="wysiwyg"></form:textarea>
 	<form:errors path="revisedQuestionText" cssClass="validationError" cssStyle="float:right;margin-top:-100px;margin-right:40px;"/>
@@ -790,7 +798,6 @@
 <input id="oldInternalStatus" value="${ internalStatus}" type="hidden">
 <input id="oldRecommendationStatus" value="${ RecommendationStatus}" type="hidden">
 <input id="ministryEmptyMsg" value='<spring:message code="client.error.ministryempty" text="Ministry can not be empty."></spring:message>' type="hidden">
-
 
 <ul id="contextMenuItems" >
 <li><a href="#unclubbing" class="edit"><spring:message code="generic.unclubbing" text="Unclubbing"></spring:message></a></li>
