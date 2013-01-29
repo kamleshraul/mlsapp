@@ -69,7 +69,7 @@ public class ReferencedEntityController {
         if(questionId!=null&&start!=null&&noOfRecords!=null){
                 if((!questionId.isEmpty())&&(!start.isEmpty())&&(!noOfRecords.isEmpty())){
                     Question question=Question.findById(Question.class, Long.parseLong(questionId));
-                    questionSearchVOs=Question.fullTextSearchReferencing(param,question,Integer.parseInt(start),Integer.parseInt(noOfRecords),locale.toString());
+                    questionSearchVOs=ReferencedEntity.fullTextSearchReferencing(param,question,Integer.parseInt(start),Integer.parseInt(noOfRecords),locale.toString());
                 }
         }       
         return questionSearchVOs;
@@ -85,7 +85,7 @@ public class ReferencedEntityController {
 			if(!strpId.isEmpty()&&!strcId.isEmpty()){
 				Long primaryId=Long.parseLong(strpId);
 				Long clubbingId=Long.parseLong(strcId);
-				status=Question.referencing(primaryId, clubbingId, locale.toString());				
+				status=ReferencedEntity.referencing(primaryId, clubbingId, locale.toString());				
 			}
 		}
 		if(status){
@@ -105,7 +105,7 @@ public class ReferencedEntityController {
 			if(!strpId.isEmpty()&&!strcId.isEmpty()){
 				Long primaryId=Long.parseLong(strpId);
 				Long clubbingId=Long.parseLong(strcId);
-				status=Question.deReferencing(primaryId, clubbingId, locale.toString());				
+				status=ReferencedEntity.deReferencing(primaryId, clubbingId, locale.toString());				
 			}
 		}
 		if(status){
