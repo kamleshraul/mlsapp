@@ -24,6 +24,7 @@ import org.mkcl.els.domain.CustomParameter;
 import org.mkcl.els.domain.Group;
 import org.mkcl.els.domain.HouseType;
 import org.mkcl.els.domain.Ministry;
+import org.mkcl.els.domain.Session;
 import org.mkcl.els.domain.SessionType;
 import org.springframework.stereotype.Repository;
 
