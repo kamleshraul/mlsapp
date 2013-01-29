@@ -1046,7 +1046,7 @@ public class QuestionController extends GenericController<Question>{
 		}
 		/**** Drafts ****/
 		else{
-			Status status=Status.findByFieldName(Status.class, "type", "ApplicationConstants.QUESTION_INCOMPLETE", domain.getLocale());
+			Status status=Status.findByFieldName(Status.class, "type", ApplicationConstants.QUESTION_INCOMPLETE, domain.getLocale());
 			domain.setStatus(status);
 			domain.setInternalStatus(status);
 			domain.setRecommendationStatus(status);
