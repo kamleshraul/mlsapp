@@ -5,10 +5,18 @@
 	<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
 	<script type="text/javascript">
 		$(document).ready(function(){
+			/**** Initially we want to get only those tasks which belongs to current user and of selected status ****/
+			$("#gridURLParams").val("houseType="+$("#selectedHouseType").val()
+						+"&sessionYear="+$("#selectedSessionYear").val()
+						+"&sessionType="+$("#selectedSessionType").val()
+						+"&deviceType="+$("#selectedDeviceType").val()
+						+"&status="+$("#selectedStatus").val()
+						+"&workflowSubType="+$("#selectedSubWorkflow").val()
+						+"&assignee="+$("#assignee").val()
+						);
 			$('#process').click(function(){
 				process($('#key').val());
-			});
-			
+			});			
 			$("#search").click(function() {
 				searchRecord();
 			});
@@ -30,8 +38,7 @@
 	</div>
 	<%@ include file="/common/gridview.jsp" %>
 	<input type="hidden" id="grid_id" value="${gridId}">
-	<%--value="els/grid/myTasks/data" changed to value="grid/myTasks/data" context changed --%>
-	<input type="hidden" id="gridURL" value="grid/myTasks/data/">
+	<input type="hidden" id="gridURLParams" name="gridURLParams">		
 	</div>
 </body>
 </html>
