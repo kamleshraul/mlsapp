@@ -85,6 +85,7 @@ public class GridController extends GenericController<Grid> {
 	 * @author nileshp
 	 * @since v1.0.0
 	 */
+	@SuppressWarnings("unchecked")
 	@RequestMapping(value = "/data/{gridId}", method = RequestMethod.GET)
 	public @ResponseBody
 	GridData get(@PathVariable final Long gridId,
