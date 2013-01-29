@@ -252,7 +252,7 @@ public class Chart extends BaseDomain implements Serializable {
 			final String locale) {
 		Chart chart = Chart.find(session, group, answeringDate, locale);
 		if(chart != null) {
-			String excludeInternalStatus = "question_before_workflow_tobeputup";
+			String excludeInternalStatus = ApplicationConstants.QUESTION_SYSTEM_TO_BE_PUTUP;
 			return Chart.getChartRepository().isProcessed(session, group, answeringDate, 
 					excludeInternalStatus, locale);
 		}
@@ -415,7 +415,7 @@ public class Chart extends BaseDomain implements Serializable {
 			if(chart == null) {
 				Date currentDate = Chart.getCurrentDate();
 			
-				DeviceType deviceType = DeviceType.findByType("questions_starred", this.getLocale());
+				DeviceType deviceType = DeviceType.findByType(ApplicationConstants.STARRED_QUESTION, this.getLocale());
 				
 				CustomParameter datePattern = CustomParameter.findByName(CustomParameter.class, 
 						"DB_TIMESTAMP", "");
@@ -427,7 +427,7 @@ public class Chart extends BaseDomain implements Serializable {
 						datePattern.getValue(), this.getLocale());
 
 				Status ASSISTANT_PROCESSED = 
-					Status.findByType("question_assistantprocessed", this.getLocale());
+					Status.findByType(ApplicationConstants.QUESTION_SYSTEM_ASSISTANT_PROCESSED, this.getLocale());
 				Status[] internalStatuses = new Status[] { ASSISTANT_PROCESSED };
 				
 				List<Member> activeMembersWithQuestions = 
@@ -469,7 +469,7 @@ public class Chart extends BaseDomain implements Serializable {
 				chart = (Chart) this.persist();
 				
 				Status TO_BE_PUT_UP = 
-					Status.findByType("question_before_workflow_tobeputup", this.getLocale());
+					Status.findByType(ApplicationConstants.QUESTION_SYSTEM_TO_BE_PUTUP, this.getLocale());
 				// List<Question> questions = Chart.findQuestions(this.getSession(), this.getGroup(), 
 				//	this.getAnsweringDate(), this.getLocale());
 				// for(Question q : questions) {
@@ -534,7 +534,7 @@ public class Chart extends BaseDomain implements Serializable {
 						
 						// The Questions taken on the Chart should have status "TO_BE_PUT_UP"
 						Status TO_BE_PUT_UP = 
-							Status.findByType("question_before_workflow_tobeputup", locale);
+							Status.findByType(ApplicationConstants.QUESTION_SYSTEM_TO_BE_PUTUP, locale);
 						q.setInternalStatus(TO_BE_PUT_UP);
 						q.setRecommendationStatus(TO_BE_PUT_UP);
 						q.simpleMerge();
@@ -634,7 +634,7 @@ public class Chart extends BaseDomain implements Serializable {
 				if(q != null) {
 					// The Questions taken on the Chart should have status "TO_BE_PUT_UP"
 					Status TO_BE_PUT_UP = 
-						Status.findByType("question_before_workflow_tobeputup", locale);
+						Status.findByType(ApplicationConstants.QUESTION_SYSTEM_TO_BE_PUTUP, locale);
 					q.setInternalStatus(TO_BE_PUT_UP);
 					q.setRecommendationStatus(TO_BE_PUT_UP);
 					q.simpleMerge();
@@ -865,7 +865,7 @@ public class Chart extends BaseDomain implements Serializable {
 			if(chart == null) {
 				Date currentDate = Chart.getCurrentDate();
 				Integer maxQuestionsOnChart = Chart.maxQuestionsOnChartLH();
-				DeviceType deviceType = DeviceType.findByType("questions_starred", this.getLocale());
+				DeviceType deviceType = DeviceType.findByType(ApplicationConstants.STARRED_QUESTION, this.getLocale());
 				
 				CustomParameter datePattern = CustomParameter.findByName(CustomParameter.class, 
 						"DB_TIMESTAMP", "");
@@ -876,7 +876,7 @@ public class Chart extends BaseDomain implements Serializable {
 					getFinalSubmissionDate(this.getAnsweringDate());
 				
 				Status ASSISTANT_PROCESSED = 
-					Status.findByType("question_assistantprocessed", this.getLocale());
+					Status.findByType(ApplicationConstants.QUESTION_SYSTEM_ASSISTANT_PROCESSED, this.getLocale());
 				Status[] internalStatuses = new Status[] { ASSISTANT_PROCESSED };
 				
 				List<Member> activeMembersWithQuestions = 
@@ -905,7 +905,7 @@ public class Chart extends BaseDomain implements Serializable {
 				chart = (Chart) this.persist();
 				
 				Status TO_BE_PUT_UP = 
-					Status.findByType("question_before_workflow_tobeputup", this.getLocale());
+					Status.findByType(ApplicationConstants.QUESTION_SYSTEM_TO_BE_PUTUP, this.getLocale());
 				// List<Question> questions = Chart.findQuestions(this.getSession(), this.getGroup(), 
 				//		this.getAnsweringDate(), this.getLocale());
 				// for(Question q : questions) {
@@ -1000,7 +1000,7 @@ public class Chart extends BaseDomain implements Serializable {
 			if(q != null) {
 				// The Questions taken on the Chart should have status "TO_BE_PUT_UP"
 				Status TO_BE_PUT_UP = 
-					Status.findByType("question_before_workflow_tobeputup", locale);
+					Status.findByType(ApplicationConstants.QUESTION_SYSTEM_TO_BE_PUTUP, locale);
 				q.setInternalStatus(TO_BE_PUT_UP);
 				q.setRecommendationStatus(TO_BE_PUT_UP);
 				q.simpleMerge();
@@ -1198,8 +1198,8 @@ public class Chart extends BaseDomain implements Serializable {
 		Date chartAnsweringDate = chart.getAnsweringDate();
 		String locale = q.getLocale();
 		
-		Status TO_BE_PUT_UP = Status.findByType("question_before_workflow_tobeputup", locale);
-		Status ASSISTANT_PROCESSED = Status.findByType("question_assistantprocessed", locale);
+		Status TO_BE_PUT_UP = Status.findByType(ApplicationConstants.QUESTION_SYSTEM_TO_BE_PUTUP, locale);
+		Status ASSISTANT_PROCESSED = Status.findByType(ApplicationConstants.QUESTION_SYSTEM_ASSISTANT_PROCESSED, locale);
 		
 		List<Question> onChartQuestions = 
 			Chart.findQuestions(member, session, group, chartAnsweringDate, locale);
@@ -1286,9 +1286,9 @@ public class Chart extends BaseDomain implements Serializable {
 			final Date answeringDate,
 			final Question[] excludeQuestions,
 			final String locale) {
-		DeviceType deviceType = DeviceType.findByType("questions_starred", locale);
+		DeviceType deviceType = DeviceType.findByType(ApplicationConstants.STARRED_QUESTION, locale);
 		Date finalSubmissionDate = group.getFinalSubmissionDate(answeringDate);
-		Status ASSISTANT_PROCESSED = Status.findByType("question_assistantprocessed", locale);
+		Status ASSISTANT_PROCESSED = Status.findByType(ApplicationConstants.QUESTION_SYSTEM_ASSISTANT_PROCESSED, locale);
 		Status[] internalStatuses = new Status[] { ASSISTANT_PROCESSED };
 		
 		// Since 1 question has left the group so add 1 question to the chart. Hence 
@@ -1397,7 +1397,7 @@ public class Chart extends BaseDomain implements Serializable {
 	private static List<Question> questionsInWorkflow(final List<Question> questions,
 			final String locale) {
 		List<Question> qList = new ArrayList<Question>();
-		String TO_BE_PUT_UP = "question_before_workflow_tobeputup";
+		String TO_BE_PUT_UP = ApplicationConstants.QUESTION_SYSTEM_TO_BE_PUTUP;
 		for(Question q : questions) {
 			String type = q.getInternalStatus().getType();
 			if(! (type.equals(TO_BE_PUT_UP) || type.startsWith("question_before_workflow"))) {
@@ -1420,7 +1420,7 @@ public class Chart extends BaseDomain implements Serializable {
 	private static List<Question> questionsNotInWorkflow(final List<Question> questions,
 			final String locale) {
 		List<Question> qList = new ArrayList<Question>();
-		String TO_BE_PUT_UP = "question_before_workflow_tobeputup";
+		String TO_BE_PUT_UP = ApplicationConstants.QUESTION_SYSTEM_TO_BE_PUTUP;
 		for(Question q : questions) {
 			String type = q.getInternalStatus().getType();
 			if(type.equals(TO_BE_PUT_UP) || type.startsWith("question_before_workflow")) {
@@ -1494,7 +1494,7 @@ public class Chart extends BaseDomain implements Serializable {
 	 * @return true, if is assistant processed
 	 */
 	private static boolean isAssistantProcessed(Question q) {
-		String ASSISTANT_PROCESSED = "question_assistantprocessed";
+		String ASSISTANT_PROCESSED = ApplicationConstants.QUESTION_SYSTEM_ASSISTANT_PROCESSED;
 		Status internalStatus = q.getInternalStatus();
 		if(internalStatus.getType().equals(ASSISTANT_PROCESSED)) {
 			return true;
