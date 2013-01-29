@@ -11,6 +11,7 @@ import org.mkcl.els.domain.CustomParameter;
 import org.mkcl.els.domain.Group;
 import org.mkcl.els.domain.Member;
 import org.mkcl.els.domain.Question;
+import org.mkcl.els.domain.QuestionDates;
 import org.mkcl.els.domain.Session;
 import org.mkcl.els.domain.Status;
 import org.springframework.stereotype.Repository;
@@ -160,10 +161,14 @@ public class ChartRepository extends BaseRepository<Chart, Long> {
     }
 
 	/**
-     * Update the internalStatus of all the Questions on @param chart to
-     * @param internalStatus
+     * Update chartAnsweringdate, internalStatus, and recommendationStatus
+     * of all the Questions on @param chart to @param chartAnsweringDate,
+     * @param internalStatus and @param recommendationStatus respectively.
      */
-    public void updateChartQuestions(final Chart chart, final Status internalStatus) {
+    public void updateChartQuestions(final Chart chart,
+    		final QuestionDates chartAnsweringDate,
+    		final Status internalStatus,
+    		final Status recommendationStatus) {
         Session session = chart.getSession();
         Group group = chart.getGroup();
         String locale = chart.getLocale();
@@ -174,7 +179,9 @@ public class ChartRepository extends BaseRepository<Chart, Long> {
         String date = FormaterUtil.formatDateToString(answeringDate, parameter.getValue());
 
         String query = "UPDATE questions" +
-            " SET internalstatus_id = " + internalStatus.getId() +
+            " SET chart_answering_date = " + chartAnsweringDate.getId() + "," +
+            " internalstatus_id = " + internalStatus.getId() + "," +
+            " recommendationstatus_id = " + recommendationStatus.getId() +
             " WHERE id IN (" +
                 " SELECT qid FROM (" +
                     " SELECT q.id AS qid" +
@@ -191,5 +198,4 @@ public class ChartRepository extends BaseRepository<Chart, Long> {
                 " )";
         this.em().createNativeQuery(query).executeUpdate();
     }
-
 }
