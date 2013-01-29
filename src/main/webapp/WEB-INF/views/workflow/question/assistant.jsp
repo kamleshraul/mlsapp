@@ -399,7 +399,7 @@
 	<input id="number" name="number" value="${domain.number}" type="hidden">
 	<form:errors path="number" cssClass="validationError"/>
 	
-	<c:if test="${domain.type.type=='questions_halfhourdiscussion_from_question'}">
+	<c:if test="${selectedQuestionType=='questions_halfhourdiscussion_from_question'}">
 		
 		<label class="small"><spring:message code="question.halfhour.questionref" text="Reference Question Number: "/>*</label>
 		<input class="sText" readonly="readonly" type="text" name="halfHourDiscussionReference_questionNumber" value="${referredQuestionNumber}" id="halfHourDiscussionReference_questionNumber" />
@@ -408,7 +408,7 @@
 		
 	</c:if>
 	
-	<c:if test="${domain.type.type=='questions_starred'}">
+	<c:if test="${selectedQuestionType=='questions_starred'}">
 		<label class="small"><spring:message code="question.priority" text="Priority"/>*</label>
 		<input name="formattedPriority" id="formattedPriority" class="sText" type="text" value="${formattedPriority }" readonly="readonly">
 		<input name="priority" id="priority"  type="hidden" value="${priority }">	
@@ -421,12 +421,12 @@
 	<input id="formattedSubmissionDate" name="formattedSubmissionDate" value="${formattedSubmissionDate }" class="sText" readonly="readonly">
 	<input id="setSubmissionDate" name="setSubmissionDate" type="hidden"  value="${submissionDate}">
 	
-	<c:if test="${domain.type.type=='questions_starred'}">
+	<c:if test="${selectedQuestionType=='questions_starred'}">
 		<label class="small"><spring:message code="question.answeringDate" text="Answering Date"/></label>
 		<input id="formattedAnsweringDate" name="formattedAnsweringDate" value="${formattedAnsweringDate }" class="sText" readonly="readonly">
 		<input id="answeringDate" name="answeringDate" type="hidden"  value="${answeringDate}">
 	</c:if>
-	<c:if test="${domain.type.type=='questions_halfhourdiscussion_from_question'}">
+	<c:if test="${selectedQuestionType=='questions_halfhourdiscussion_from_question'}">
 		<label class="small"><spring:message code="question.discussionDate" text="Discussion Date"/></label>
 		<input id="discussionDate" name="discussionDate" value="${discussionDateSelected }" class="sText" readonly="readonly">
 		<form:errors path="discussionDate" cssClass="validationError"/>
@@ -564,7 +564,7 @@
 	<form:errors path="questionText" cssClass="validationError"/>	
 	</p>
 	
-	<c:if test="${domain.type.type=='questions_shortnotice' or domain.type.type=='questions_halfhourdiscussion_from_question'}">
+	<c:if test="${selectedQuestionType=='questions_shortnotice' or selectedQuestionType=='questions_halfhourdiscussion_from_question'}">
 	<p>
 		<label class="wysiwyglabel"><spring:message code="question.reason" text="Reason"/>*</label>
 		<form:textarea path="reason" cssClass="wysiwyg" readonly="true"></form:textarea>
@@ -572,7 +572,7 @@
 	</p>
 	</c:if>
 	
-	<c:if test="${domain.type.type=='questions_halfhourdiscussion_from_question' or domain.type.type=='questions_halfhourdiscussion_standalone'}">
+	<c:if test="${selectedQuestionType=='questions_halfhourdiscussion_from_question' or selectedQuestionType=='questions_halfhourdiscussion_standalone'}">
 		<p>
 			<label class="wysiwyglabel"><spring:message code="question.briefExplanation" text="Brief Explanation"/>*</label>
 			<form:textarea path="briefExplanation" cssClass="wysiwyg"></form:textarea>
@@ -640,10 +640,10 @@
 	<input id="taskid" name="taskid" value="${taskid}" type="hidden">
 	<input id="level" name="level" value="${level }" type="hidden">	
 	<input id="usergroup" name="usergroup" type="hidden" value="${usergroup}">
+	<input id="usergroupType" name="usergroupType" type="hidden" value="${usergroupType}">
+	
 	<input id="flag" name="flag" type="hidden" value="question_after_approval_proof_read">
-	<%--21012013 --%>
-	<input type="hidden" name="halfHourDiscusionFromQuestionReference" id="halfHourDiscusionFromQuestionReference" value="${refQuestionId}" />
-	<input type="hidden" name="discussionDate" id="discussionDate" value="${discussionDateSelected}" />		
+			
 		
 </form:form>
 <input id="oldgroup" name="oldgroup" value="${group}" type="hidden">

@@ -11,7 +11,15 @@
 <div class="fields clearfix watermark">
 <form:form action="workflow/question/supportingmember" method="PUT" modelAttribute="domain">
 	<%@ include file="/common/info.jsp" %>
-	<h2><spring:message code="supportingmember.heading" text="Approve request to add you as supporting member"/>		
+	<h2>
+	<c:choose>
+	<c:when test="${status=='COMPLETED'}">
+	<spring:message code="generic.taskcompleted" text="Task Already Completed Successfully"/>		
+	</c:when>
+	<c:otherwise>
+	<spring:message code="supportingmember.heading" text="Approve request to add you as supporting member"/>		
+	</c:otherwise>
+	</c:choose>
 	</h2>
 	<form:errors path="version" cssClass="validationError"/>	
 		
@@ -57,24 +65,39 @@
 		<input id="priority" class="sText" type="text"  value="${priority}" readonly="readonly" style="height: 28px;">
 	</p>	
 	
+	<c:choose>
+	<c:when test="${status=='COMPLETED'}">
+	<p>
+	<label class="small"><spring:message code="question.decisionstatus" text="Decision?"/>*</label>
+	<input id="formattedDecisionStatus" name="formattedDecisionStatus" class="sText" readonly="readonly" value="${formattedDecisionStatus}">
+	<input id="decisionStatus" name="decisionStatus" class="sText" readonly="readonly" value="${decisionStatus}" type="hidden">
+	</p>	
+	<div class="fields">
+		<h2></h2>
+		<p class="tright">
+			<input id="submit" type="submit" value="<spring:message code='generic.submit' text='Submit'/>" class="butDef" disabled="disabled">
+		</p>
+	</div>	
+	</c:when>
+	<c:otherwise>
 	<p>
 		<label class="small"><spring:message code="question.decisionstatus" text="Decision?"/>*</label>
 		<form:select path="decisionStatus" cssClass="sSelect" items="${decisionStatus}" itemLabel="name" itemValue="id"/>
 	</p>
-	
+	<div class="fields">
+		<h2></h2>
+		<p class="tright">
+			<input id="submit" type="submit" value="<spring:message code='generic.submit' text='Submit'/>" class="butDef" >
+		</p>
+	</div>	
+	</c:otherwise>
+	</c:choose>	
 	<p style="display:none;">
 		<label class="small"><spring:message code="supportingmember.remarks" text="Remarks"/>*</label>
 		<form:textarea path="remarks" cssClass="wysiwyg"></form:textarea>
 		<form:errors path="remarks" cssClass="validationError"></form:errors>
 	</p>	
-	<c:if test="${type!='success'}">
-	 <div class="fields">
-		<h2></h2>
-		<p class="tright">
-			<input id="submit" type="submit" value="<spring:message code='generic.submit' text='Submit'/>" class="butDef">
-		</p>
-	</div>
-	</c:if>	
+		
 	<form:hidden path="version" />
 	<form:hidden path="id"/>
 	<form:hidden path="locale"/>	
@@ -83,9 +106,9 @@
 	<input type="hidden" id="member" name="member" value="${member}">
 	<input type="hidden" id="question" name="question" value="${question}">
 	<input type="hidden" id="task" name="task" value="${task}">	
-	<%--21012013 --%>
-	<input type="hidden" name="halfHourDiscusionFromQuestionReference" id="halfHourDiscusionFromQuestionReference" value="${refQuestionId}" />
-	<input type="hidden" name="discussionDate" id="discussionDate" value="${discussionDateSelected}" />	
+	<input type="hidden" id="workflowdetails" name="workflowdetails" value="${workflowdetails}">	
+	
+		
 </form:form>
 </div>
 </body>

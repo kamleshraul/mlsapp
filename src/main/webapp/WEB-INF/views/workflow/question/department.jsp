@@ -350,10 +350,6 @@
 				$.prompt('Please provide valid question number.');
 			}
 		});
-	  	//-----------------------
-	  	var createDate = $('#creationTime').val();
-	  	var crtDate = createDate.substring(8,10) + '/' + createDate.substring(5,7)+'/'+ createDate.substring(0,4) + ' ' + createDate.substring(11,19); 
-		$('#createTime').val(crtDate);
 	});
 	</script>
 	 <style type="text/css">
@@ -406,12 +402,7 @@
 	<input id="number" name="number" value="${domain.number}" type="hidden">
 	<form:errors path="number" cssClass="validationError"/>
 	
-	<c:if test="${domain.type.type=='questions_starred'}">
-		<label class="small"><spring:message code="question.task.creationtime" text="Task Created On"/></label>
-		<input id="createTime" name="createdTime" value="" class="sText datetimemask" readonly="readonly">
-	</c:if>
-	
-	<c:if test="${domain.type.type=='questions_halfhourdiscussion_from_question'}">
+	<c:if test="${selectedQuestionType=='questions_halfhourdiscussion_from_question'}">
 		
 		<label class="small"><spring:message code="question.halfhour.questionref" text="Reference Question Number: "/>*</label>
 		<input class="sText" readonly="readonly" type="text" name="halfHourDiscussionReference_questionNumber" value="${referredQuestionNumber}" id="halfHourDiscussionReference_questionNumber" />
@@ -420,7 +411,7 @@
 		
 	</c:if>
 	
-	<c:if test="${domain.type.type=='questions_starred'}">
+	<c:if test="${selectedQuestionType=='questions_starred'}">
 	<p style="display:none;">
 		<label class="small"><spring:message code="question.priority" text="Priority"/>*</label>
 		<input  name="formattedPriority" id="formattedPriority" class="sText" type="text" value="${formattedPriority }" readonly="readonly">
@@ -436,15 +427,12 @@
 	<input id="setSubmissionDate" name="setSubmissionDate" type="hidden"  value="${submissionDate}">
 	</p>
 	<p>
-	<c:if test="${domain.type.type=='questions_starred'}">
+	<c:if test="${selectedQuestionType=='questions_starred'}">
 		<label class="small"><spring:message code="question.answeringDate" text="Answering Date"/></label>
 		<input id="formattedAnsweringDate" name="formattedAnsweringDate" value="${formattedAnsweringDate }" class="sText" readonly="readonly">
 		<input id="answeringDate" name="answeringDate" type="hidden"  value="${answeringDate}">
-		
-		<label class="small"><spring:message code="question.lastDAteFromDepartment" text="Last Date From Department"/></label>
-		<input id="lastDateFromDept" name="lastDateFromDept" value="${lastReceivingDateFromDepartment}" class="sText" readonly="readonly">
 	</c:if>
-	<c:if test="${domain.type.type=='questions_halfhourdiscussion_from_question'}">
+	<c:if test="${selectedQuestionType=='questions_halfhourdiscussion_from_question'}">
 		<label class="small"><spring:message code="question.discussionDate" text="Discussion Date"/></label>
 		<input id="discussionDate" name="discussionDate" value="${discussionDateSelected }" class="sText" readonly="readonly">
 		<form:errors path="discussionDate" cssClass="validationError"/>
@@ -572,8 +560,8 @@
 	
 	<c:if test="${!(empty domain.revisedSubject) }">
 	<p  class="revise" id="revisedSubjectDiv">
-	<label class="centerlabel"><spring:message code="question.revisedSubject" text="Subject"/></label>
-	<form:textarea path="revisedSubject" rows="2" cols="50" readonly="true"></form:textarea>
+	<label class="centerlabel"><spring:message code="question.revisedSubject" text="Revised Subject"/></label>
+	<form:textarea path="revisedSubject" rows="2" cols="50"></form:textarea>
 	<form:errors path="revisedSubject" cssClass="validationError" cssStyle="float:right;margin-top:-100px;margin-right:40px;"/>
 	</p>
 	<p style="display:none;">	
@@ -585,8 +573,8 @@
 	
 	<c:if test="${empty domain.revisedSubject }">
 	<p  class="revise" id="revisedSubjectDiv" style="display:none;">
-	<label class="centerlabel"><spring:message code="question.revisedSubject" text="Subject"/></label>
-	<form:textarea path="revisedSubject" rows="2" cols="50" readonly="true"></form:textarea>
+	<label class="centerlabel"><spring:message code="question.revisedSubject" text="Revised Subject"/></label>
+	<form:textarea path="revisedSubject" rows="2" cols="50"></form:textarea>
 	<form:errors path="revisedSubject" cssClass="validationError" cssStyle="float:right;margin-top:-100px;margin-right:40px;"/>
 	</p>
 	<p>	
@@ -603,8 +591,8 @@
 	<form:errors path="questionText" cssClass="validationError"/>	
 	</p>
 	<p  class="revise" id="revisedQuestionTextDiv">
-	<label class="wysiwyglabel"><spring:message code="question.revisedDetails" text="Details"/></label>
-	<form:textarea path="revisedQuestionText" cssClass="wysiwyg" readonly="true"></form:textarea>
+	<label class="wysiwyglabel"><spring:message code="question.revisedDetails" text="Revised Details"/></label>
+	<form:textarea path="revisedQuestionText" cssClass="wysiwyg"></form:textarea>
 	<form:errors path="revisedQuestionText" cssClass="validationError" cssStyle="float:right;margin-top:-100px;margin-right:40px;"/>
 	</p>
 	</c:if>
@@ -615,14 +603,14 @@
 	<form:errors path="questionText" cssClass="validationError"/>	
 	</p>
 	<p  class="revise" id="revisedQuestionTextDiv" style="display:none;">
-	<label class="wysiwyglabel"><spring:message code="question.revisedDetails" text="Details"/></label>
-	<form:textarea path="revisedQuestionText" cssClass="wysiwyg" readonly="true"></form:textarea>
+	<label class="wysiwyglabel"><spring:message code="question.revisedDetails" text="Revised Details"/></label>
+	<form:textarea path="revisedQuestionText" cssClass="wysiwyg"></form:textarea>
 	<form:errors path="revisedQuestionText" cssClass="validationError" cssStyle="float:right;margin-top:-100px;margin-right:40px;"/>
 	</p>
 	</c:if>
 	
 	
-	<c:if test="${domain.type.type=='questions_shortnotice' or domain.type.type=='questions_halfhourdiscussion_from_question'}">
+	<c:if test="${selectedQuestionType=='questions_shortnotice' or selectedQuestionType=='questions_halfhourdiscussion_from_question'}">
 	<p style="display:none;">
 		<label class="wysiwyglabel"><spring:message code="question.reason" text="Reason"/>*</label>
 		<form:textarea path="reason" cssClass="wysiwyg" readonly="true"></form:textarea>
@@ -630,7 +618,7 @@
 	</p>
 	</c:if>
 	
-	<c:if test="${domain.type.type=='questions_halfhourdiscussion_from_question' or domain.type.type=='questions_halfhourdiscussion_standalone'}">
+	<c:if test="${selectedQuestionType=='questions_halfhourdiscussion_from_question' or selectedQuestionType=='questions_halfhourdiscussion_standalone'}">
 		<p style="display:none;">
 			<label class="wysiwyglabel"><spring:message code="question.briefExplanation" text="Brief Explanation"/>*</label>
 			<form:textarea path="briefExplanation" cssClass="wysiwyg"></form:textarea>
@@ -654,7 +642,7 @@
 	</select>
 	</p>		
 	
-	<c:if test="${domain.type.type=='questions_shortnotice'}">
+	<c:if test="${selectedQuestionType=='questions_shortnotice'}">
 	<p>
 	<label class="small"><spring:message code="question.toBeAnsweredByMinister" text="To Be Answered By Minister?"/></label>
 	<form:checkbox path="toBeAnsweredByMinister" cssClass="sCheck"></form:checkbox>
@@ -694,9 +682,7 @@
 	<input id="level" name="level" value="${level }" type="hidden">	
 	<input id="usergroup" name="usergroup" type="hidden" value="${usergroup}">
 	<input id="flag" name="flag" type="hidden" value="question_after_approval_department_sent_answer">
-	<%--21012013 --%>
-	<input type="hidden" name="halfHourDiscusionFromQuestionReference" id="halfHourDiscusionFromQuestionReference" value="${refQuestionId}" />
-	<input type="hidden" name="discussionDate" id="discussionDate" value="${discussionDateSelected}" />		
+			
 		
 </form:form>
 <input id="oldgroup" name="oldgroup" value="${group}" type="hidden">
