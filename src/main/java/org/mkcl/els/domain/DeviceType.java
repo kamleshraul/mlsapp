@@ -146,4 +146,9 @@ public class DeviceType extends BaseDomain implements Serializable {
     }
 
 
+	public static List<DeviceType> getAllowedTypesInStarredClubbing(final String locale) {
+		return getDeviceTypeRepository().getAllowedTypesInStarredClubbing(locale);
+	}
+
+
 }
