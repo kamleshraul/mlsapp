@@ -289,5 +289,11 @@ public interface IProcessService {
 	 * @param user the user
 	 */
 	public void deleteUser(User user);
+	
+	/**** Added By Sandeep Singh ****/
+	public Task getCurrentTask(final ProcessInstance processInstance);
+
+	public List<Task> getCurrentTasks(final ProcessInstance processInstance);
+
 
 }
