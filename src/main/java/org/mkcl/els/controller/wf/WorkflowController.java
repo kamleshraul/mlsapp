@@ -12,18 +12,28 @@ package org.mkcl.els.controller.wf;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.GregorianCalendar;
+import java.util.List;
 import java.util.Locale;
-import java.util.Map;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.mkcl.els.common.util.ApplicationConstants;
+import org.mkcl.els.common.util.FormaterUtil;
 import org.mkcl.els.common.vo.ProcessDefinition;
-import org.mkcl.els.common.vo.Task;
 import org.mkcl.els.controller.BaseController;
+import org.mkcl.els.domain.CustomParameter;
+import org.mkcl.els.domain.DeviceType;
 import org.mkcl.els.domain.Document;
 import org.mkcl.els.domain.Grid;
+import org.mkcl.els.domain.HouseType;
+import org.mkcl.els.domain.Session;
+import org.mkcl.els.domain.SessionType;
+import org.mkcl.els.domain.WorkflowDetails;
 import org.mkcl.els.service.IProcessService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -167,7 +177,55 @@ public class WorkflowController extends BaseController {
 	@RequestMapping(value="myTasks/module", method=RequestMethod.GET)
 	public String myTasksModule(final ModelMap model,
 			final HttpServletRequest request,
-			final Locale locale) {
+			final Locale applocale) {
+		String locale=applocale.toString();
+		/**** This is for getting only the tasks of current user ****/
+		model.addAttribute("assignee",this.getCurrentUser().getActualUsername());
+		/**** Device Types ****/
+		List<DeviceType> deviceTypes = DeviceType.findAll(DeviceType.class,"name",ApplicationConstants.ASC, locale.toString());
+		model.addAttribute("deviceTypes", deviceTypes);
+		/**** House Types ****/
+		List<HouseType> houseTypes = new ArrayList<HouseType>();
+		String houseType=this.getCurrentUser().getHouseType();
+		if(houseType.equals("lowerhouse")){
+			houseTypes=HouseType.findAllByFieldName(HouseType.class, "type",houseType,"name",ApplicationConstants.ASC, locale);
+		}else if(houseType.equals("upperhouse")){
+			houseTypes=HouseType.findAllByFieldName(HouseType.class, "type",houseType,"name",ApplicationConstants.ASC, locale);
+		}else if(houseType.equals("bothhouse")){
+			houseTypes=HouseType.findAll(HouseType.class, "type", ApplicationConstants.ASC, locale);
+		}
+		model.addAttribute("houseTypes", houseTypes);
+		if(houseType.equals("bothhouse")){
+			houseType="lowerhouse";
+		}
+		model.addAttribute("houseType",houseType);
+		/**** Session Types ****/
+		List<SessionType> sessionTypes=SessionType.findAll(SessionType.class,"sessionType", ApplicationConstants.ASC, locale);
+		/**** Latest Session of a House Type ****/
+		HouseType authUserHouseType=HouseType.findByFieldName(HouseType.class, "type",houseType, locale);
+		Session lastSessionCreated=Session.findLatestSession(authUserHouseType);
+		/*** Session Year and Session Type ****/
+		Integer year=new GregorianCalendar().get(Calendar.YEAR);
+		if(lastSessionCreated.getId()!=null){
+			year=lastSessionCreated.getYear();
+			model.addAttribute("sessionType",lastSessionCreated.getType().getId());
+		}else{
+			model.addAttribute("errorcode","nosessionentriesfound");
+		}
+		model.addAttribute("sessionTypes",sessionTypes);
+		/**** Years ****/
+		CustomParameter houseFormationYear=CustomParameter.findByName(CustomParameter.class, "HOUSE_FORMATION_YEAR", "");
+		List<String> years=new ArrayList<String>();
+		if(houseFormationYear!=null){
+			Integer formationYear=Integer.parseInt(houseFormationYear.getValue());
+			for(int i=year;i>=formationYear;i--){
+				years.add(FormaterUtil.getNumberFormatterNoGrouping(locale).format(i));
+			}
+		}else{
+			model.addAttribute("errorcode", "houseformationyearnotset");
+		}
+		model.addAttribute("years",years);
+		model.addAttribute("sessionYear",year);
 		return this.getResourcePath(request);
 	}
 
@@ -200,23 +258,17 @@ public class WorkflowController extends BaseController {
 	 * @param taskId the task id
 	 * @param locale the locale
 	 */
-	@RequestMapping(value="myTasks/{taskId}/process", method=RequestMethod.GET)
+	@RequestMapping(value="myTasks/{worklowdetailsId}/process", method=RequestMethod.GET)
 	public void myTasksProcess(final ModelMap model,
 			final HttpServletRequest request,
 			final HttpServletResponse response,
-			final @PathVariable("taskId") String taskId,
+			final @PathVariable("worklowdetailsId") Long worklowdetailsId,
 			final Locale locale) {
-		//Task task = this.processService.findTaskById(taskId);
-		//String formKey = this.processService.getFormKey(task);
-		//add taskId to the request
-		String form=request.getParameter("form");
-		String urlpattern=request.getParameter("urlpattern");
-		request.setAttribute("taskId",taskId);
-		request.setAttribute("form",form);
-		request.setAttribute("urlpattern",urlpattern);
-		System.out.println(request.getParameter("dateOfAnswerReceiving"));
+		/**** Here workflowdetails contains all the information related to a task ****/
+		WorkflowDetails workflowDetails=WorkflowDetails.findById(WorkflowDetails.class,worklowdetailsId);
+		request.setAttribute("workflowdetails", workflowDetails.getId());
 		try {
-			request.getRequestDispatcher("/"+urlpattern).forward(request, response);
+			request.getRequestDispatcher("/"+workflowDetails.getUrlPattern()).forward(request, response);
 		}
 		catch (ServletException e) {
 			this.logger.error(e.getMessage());
@@ -291,6 +343,7 @@ public class WorkflowController extends BaseController {
 	private String module(final ModelMap model,
 			final HttpServletRequest request,
 			final Locale locale) {
+		
 		return this.getResourcePath(request);
 	}
 
