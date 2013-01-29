@@ -133,7 +133,7 @@ public class Ballot extends BaseDomain implements Serializable {
 			final String locale) {
 		List<StarredBallotVO> ballotVOs = new ArrayList<StarredBallotVO>();
 		
-		DeviceType deviceType = DeviceType.findByType("questions_starred", locale);
+		DeviceType deviceType = DeviceType.findByType(ApplicationConstants.STARRED_QUESTION, locale);
 		Ballot ballot = Ballot.find(session, deviceType, answeringDate, locale);
 		if(ballot != null) {
 			List<BallotEntry> ballotEntries = ballot.getBallotEntries();
@@ -303,21 +303,21 @@ public class Ballot extends BaseDomain implements Serializable {
 		Ballot ballot = null;
 		
 		HouseType houseType = this.getSession().getHouse().getType();
-		if(houseType.getType().equals("lowerhouse")) {
-			if(this.getDeviceType().getType().equals("questions_starred")) {
+		if(houseType.getType().equals(ApplicationConstants.LOWER_HOUSE)) {
+			if(this.getDeviceType().getType().equals(ApplicationConstants.STARRED_QUESTION)) {
 				ballot = this.createStarredAssemblyBallot();
 			}
 			else if(this.getDeviceType().getType().
-						equals("questions_halfhourdiscussion_from_question")) {
+						equals(ApplicationConstants.HALF_HOUR_DISCUSSION_QUESTION_FROM_QUESTION)) {
 				ballot = this.createHalfHourAssemblyBallot();
 			}
 		}
-		else if(houseType.getType().equals("upperhouse")) {
-			if(this.getDeviceType().getType().equals("questions_starred")) {
+		else if(houseType.getType().equals(ApplicationConstants.UPPER_HOUSE)) {
+			if(this.getDeviceType().getType().equals(ApplicationConstants.STARRED_QUESTION)) {
 				ballot = this.createStarredCouncilBallot();
 			}
 			else if(this.getDeviceType().getType().
-						equals("questions_halfhourdiscussion_from_question")) {
+						equals(ApplicationConstants.HALF_HOUR_DISCUSSION_QUESTION_FROM_QUESTION)) {
 				ballot = this.createHalfHourCouncilBallot();
 			}
 		}
@@ -331,8 +331,9 @@ public class Ballot extends BaseDomain implements Serializable {
 	public String update(final Member member,
 			final Question question) throws IllegalAccessException {
 		HouseType houseType = this.getSession().getHouse().getType();
-		if(houseType.getType().equals("lowerhouse") && 
-				this.getDeviceType().getType().equals("questions_halfhourdiscussion_from_question")) {
+		if(houseType.getType().equals(ApplicationConstants.LOWER_HOUSE) && 
+				this.getDeviceType().getType().equals(
+						ApplicationConstants.HALF_HOUR_DISCUSSION_QUESTION_FROM_QUESTION)) {
 			this.updateMemberBallot(member, question);
 		}
 		else {
@@ -419,7 +420,7 @@ public class Ballot extends BaseDomain implements Serializable {
 		List<Date> previousAnsweringDates =
 			Ballot.getPreviousDates(groupAnsweringDates, answeringDate);
 
-		DeviceType deviceType = DeviceType.findByType("questions_starred", locale);
+		DeviceType deviceType = DeviceType.findByType(ApplicationConstants.STARRED_QUESTION, locale);
 		List<Member> members = Chart.findMembers(session, group, answeringDate, locale);
 		for(Member m : members) {
 			BallotEntry ballotEntry = Ballot.compute(m, session, deviceType, group,
@@ -618,7 +619,7 @@ public class Ballot extends BaseDomain implements Serializable {
 	// balloted.
 	private static List<Question> eligibleForBallot(final List<Question> questions,
 			final String locale) {
-		String ADMITTED = "question_workflow_approving_admission";
+		String ADMITTED = ApplicationConstants.QUESTION_FINAL_ADMISSION;
 		List<Question> eligibleQList = new ArrayList<Question>();
 		for(Question q : questions) {
 			if(q.getInternalStatus().getType().equals(ADMITTED) && q.getParent() == null) {
@@ -701,8 +702,8 @@ public class Ballot extends BaseDomain implements Serializable {
 			final String locale) {
 		CustomParameter datePattern = CustomParameter.findByName(CustomParameter.class, 
 				"DB_TIMESTAMP", "");
-		DeviceType deviceType = DeviceType.findByType("questions_halfhourdiscussion_from_question", 
-				locale);
+		DeviceType deviceType = DeviceType.findByType(
+				ApplicationConstants.HALF_HOUR_DISCUSSION_QUESTION_FROM_QUESTION, locale);
 	
 		Date startTime = FormaterUtil.formatStringToDate(session.getParameter(
 				deviceType.getType() + "_submissionStartDate"), 
@@ -711,7 +712,7 @@ public class Ballot extends BaseDomain implements Serializable {
 				deviceType.getType() + "_submissionEndDate"), 
 				datePattern.getValue(), locale);
 		
-		Status ADMITTED = Status.findByType("question_workflow_approving_admission", locale);
+		Status ADMITTED = Status.findByType(ApplicationConstants.QUESTION_FINAL_ADMISSION, locale);
 		Status[] internalStatuses = new Status[] { ADMITTED };
 		
 		// TODO: [FATAL] internal Status will only refer to the lifecycle of a Question in the 
@@ -821,8 +822,8 @@ public class Ballot extends BaseDomain implements Serializable {
 			final String locale) {
 		CustomParameter datePattern = CustomParameter.findByName(CustomParameter.class, 
 				"DB_TIMESTAMP", "");
-		DeviceType deviceType = DeviceType.findByType("questions_halfhourdiscussion_from_question", 
-				locale);
+		DeviceType deviceType = DeviceType.findByType(
+				ApplicationConstants.HALF_HOUR_DISCUSSION_QUESTION_FROM_QUESTION, locale);
 	
 		Date startTime = FormaterUtil.formatStringToDate(session.
 				getParameter(deviceType.getType() + "_submissionStartDate"), 
@@ -831,7 +832,7 @@ public class Ballot extends BaseDomain implements Serializable {
 				getParameter(deviceType.getType() + "_submissionEndDate"), 
 				datePattern.getValue(), locale);
 		
-		Status ADMITTED = Status.findByType("question_workflow_approving_admission", locale);
+		Status ADMITTED = Status.findByType(ApplicationConstants.QUESTION_FINAL_ADMISSION, locale);
 		Status[] internalStatuses = new Status[] { ADMITTED };
 		
 		// TODO: internal Status will only refer to the lifecycle of a Question in the Workflow
