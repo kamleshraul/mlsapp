@@ -187,10 +187,10 @@ public class Chart extends BaseDomain implements Serializable {
 		Chart chart = null;
 		HouseType houseType = this.getSession().getHouse().getType();
 		
-		if(houseType.getType().equals("lowerhouse")) {
+		if(houseType.getType().equals(ApplicationConstants.LOWER_HOUSE)) {
 			chart = createLH();
 		}
-		else if(houseType.getType().equals("upperhouse")) {
+		else if(houseType.getType().equals(ApplicationConstants.UPPER_HOUSE)) {
 			chart = createUH();
 		}
 		return chart;
@@ -206,10 +206,10 @@ public class Chart extends BaseDomain implements Serializable {
 		Session session = q.getSession();
 		HouseType houseType = session.getHouse().getType();
 		
-		if(houseType.getType().equals("lowerhouse")) {
+		if(houseType.getType().equals(ApplicationConstants.LOWER_HOUSE)) {
 			return addToChartLH(q);
 		}
-		else if(houseType.getType().equals("upperhouse")) {
+		else if(houseType.getType().equals(ApplicationConstants.UPPER_HOUSE)) {
 			return addToChartUH(q);
 		}
 		return false;
@@ -225,10 +225,10 @@ public class Chart extends BaseDomain implements Serializable {
 		Session session = question.getSession();
 		HouseType houseType = session.getHouse().getType();
 		
-		if(houseType.getType().equals("lowerhouse")) {
+		if(houseType.getType().equals(ApplicationConstants.LOWER_HOUSE)) {
 			groupChangeLH(question, affectedGroup);
 		}
-		else if(houseType.getType().equals("upperhouse")) {
+		else if(houseType.getType().equals(ApplicationConstants.UPPER_HOUSE)) {
 			groupChangeUH(question, affectedGroup);
 		}
 	}
@@ -415,7 +415,8 @@ public class Chart extends BaseDomain implements Serializable {
 			if(chart == null) {
 				Date currentDate = Chart.getCurrentDate();
 			
-				DeviceType deviceType = DeviceType.findByType(ApplicationConstants.STARRED_QUESTION, this.getLocale());
+				DeviceType deviceType = 
+					DeviceType.findByType(ApplicationConstants.STARRED_QUESTION, this.getLocale());
 				
 				CustomParameter datePattern = CustomParameter.findByName(CustomParameter.class, 
 						"DB_TIMESTAMP", "");
@@ -426,8 +427,8 @@ public class Chart extends BaseDomain implements Serializable {
 						getParameter(deviceType.getType() + "_submissionFirstBatchEndDate"), 
 						datePattern.getValue(), this.getLocale());
 
-				Status ASSISTANT_PROCESSED = 
-					Status.findByType(ApplicationConstants.QUESTION_SYSTEM_ASSISTANT_PROCESSED, this.getLocale());
+				Status ASSISTANT_PROCESSED = Status.findByType(
+						ApplicationConstants.QUESTION_SYSTEM_ASSISTANT_PROCESSED, this.getLocale());
 				Status[] internalStatuses = new Status[] { ASSISTANT_PROCESSED };
 				
 				List<Member> activeMembersWithQuestions = 
@@ -468,8 +469,8 @@ public class Chart extends BaseDomain implements Serializable {
 				
 				chart = (Chart) this.persist();
 				
-				Status TO_BE_PUT_UP = 
-					Status.findByType(ApplicationConstants.QUESTION_SYSTEM_TO_BE_PUTUP, this.getLocale());
+				Status TO_BE_PUT_UP = Status.findByType(
+						ApplicationConstants.QUESTION_SYSTEM_TO_BE_PUTUP, this.getLocale());
 				// List<Question> questions = Chart.findQuestions(this.getSession(), this.getGroup(), 
 				//	this.getAnsweringDate(), this.getLocale());
 				// for(Question q : questions) {
@@ -477,7 +478,10 @@ public class Chart extends BaseDomain implements Serializable {
 				//	q.setRecommendationStatus(TO_BE_PUT_UP);
 				//	q.simpleMerge();
 				// }
-				Chart.getChartRepository().updateChartQuestions(chart, TO_BE_PUT_UP);
+				QuestionDates chartAnsweringDate = this.getGroup().
+					findQuestionDatesByGroupAndAnsweringDate(this.getAnsweringDate());
+				Chart.getChartRepository().updateChartQuestions(chart, 
+						chartAnsweringDate, TO_BE_PUT_UP, TO_BE_PUT_UP);
 			}
 			
 			return chart;
@@ -526,22 +530,25 @@ public class Chart extends BaseDomain implements Serializable {
 			if(Chart.isFirstBatchQuestionUH(q)) {
 				Chart chart = Chart.findLatestChart(session, group, locale);
 				if(chart != null) {
-					Date chartAnsweringDate = chart.getAnsweringDate();
+					Date answeringDate = chart.getAnsweringDate();
 					
-					if(Chart.isLastAnsweringDate(group, chartAnsweringDate)) {
+					if(Chart.isLastAnsweringDate(group, answeringDate)) {
 						List<Question> onChartQuestions = Chart.findQuestions(member, session, 
-								group, chartAnsweringDate, locale);
+								group, answeringDate, locale);
 						
 						// The Questions taken on the Chart should have status "TO_BE_PUT_UP"
-						Status TO_BE_PUT_UP = 
-							Status.findByType(ApplicationConstants.QUESTION_SYSTEM_TO_BE_PUTUP, locale);
+						Status TO_BE_PUT_UP = Status.findByType(
+								ApplicationConstants.QUESTION_SYSTEM_TO_BE_PUTUP, locale);
+						QuestionDates chartAnsweringDate = chart.getGroup().
+							findQuestionDatesByGroupAndAnsweringDate(chart.getAnsweringDate());
 						q.setInternalStatus(TO_BE_PUT_UP);
 						q.setRecommendationStatus(TO_BE_PUT_UP);
+						q.setChartAnsweringDate(chartAnsweringDate);
 						q.simpleMerge();
 						
 						onChartQuestions.add(q);
 						onChartQuestions = Chart.updateCandidateQuestions(onChartQuestions, 
-								chartAnsweringDate);
+								answeringDate);
 						
 						ChartEntry ce = Chart.find(chart.getChartEntries(), member);
 						ce.setQuestions(onChartQuestions);
@@ -565,8 +572,8 @@ public class Chart extends BaseDomain implements Serializable {
 					answeringDates = Chart.getAnsweringDatesGTEQ(group, 
 							q.getAnsweringDate().getAnsweringDate());
 				}
-				for(Date answeringDate : answeringDates) {
-					Chart chart = Chart.find(session, group, answeringDate, locale);
+				for(Date d : answeringDates) {
+					Chart chart = Chart.find(session, group, d, locale);
 					if(chart != null) {
 						if(Chart.addToChartIfApplicable(chart, q, maxNoOfQuestions)) {
 							isAddedToChart = true;
@@ -599,7 +606,7 @@ public class Chart extends BaseDomain implements Serializable {
 	 * 4. Select the Questions which don't have any answeringDate.
 	 * 
 	 * 5. If any Question is selected for the Chart then set its internalStatus
-	 * to "TO_BE_PUT_UP"
+	 * and recommendationStatus to "TO_BE_PUT_UP"
 	 *
 	 * @param question the question
 	 * @param affectedGroup the group from which this question was removed
@@ -633,10 +640,13 @@ public class Chart extends BaseDomain implements Serializable {
 				
 				if(q != null) {
 					// The Questions taken on the Chart should have status "TO_BE_PUT_UP"
-					Status TO_BE_PUT_UP = 
-						Status.findByType(ApplicationConstants.QUESTION_SYSTEM_TO_BE_PUTUP, locale);
+					Status TO_BE_PUT_UP = Status.findByType(
+							ApplicationConstants.QUESTION_SYSTEM_TO_BE_PUTUP, locale);
+					QuestionDates chartAnsweringDate = chart.getGroup().
+						findQuestionDatesByGroupAndAnsweringDate(chart.getAnsweringDate());
 					q.setInternalStatus(TO_BE_PUT_UP);
 					q.setRecommendationStatus(TO_BE_PUT_UP);
+					q.setChartAnsweringDate(chartAnsweringDate);
 					q.simpleMerge();
 					
 					questions.add(q);
@@ -730,14 +740,6 @@ public class Chart extends BaseDomain implements Serializable {
 	 * 
 	 * Search for at most @param maxNoOfQuestions according to the following
 	 * algorithm. Search only for those Questions which are submitted between
-	 *
-	 * @param session the session
-	 * @param member the member
-	 * @param deviceType the device type
-	 * @param group the group
-	 * @param answeringDate the answering date
-	 * @param startTime and @param endTime (both time inclusive) and are verified
-	 * by the assistant ("ASSISTANT_PROCESSED")
 	 * 
 	 * 1. Select the Questions which have the answeringDate attribute
 	 * explicitly set to the expected answeringDate.
@@ -748,6 +750,14 @@ public class Chart extends BaseDomain implements Serializable {
 	 * 3. Select the Questions which don't have any answeringDate.
 	 * 
 	 * Returns an empty list if there are no Questions.
+	 * 
+	 * @param session the session
+	 * @param member the member
+	 * @param deviceType the device type
+	 * @param group the group
+	 * @param answeringDate the answering date
+	 * @param startTime and @param endTime (both time inclusive) and are verified
+	 * by the assistant ("ASSISTANT_PROCESSED")
 	 * @param endTime the end time
 	 * @param maxQuestionsOnChart the max questions on chart
 	 * @param ASSISTANT_PROCESSED the aSSISTAN t_ processed
@@ -865,7 +875,8 @@ public class Chart extends BaseDomain implements Serializable {
 			if(chart == null) {
 				Date currentDate = Chart.getCurrentDate();
 				Integer maxQuestionsOnChart = Chart.maxQuestionsOnChartLH();
-				DeviceType deviceType = DeviceType.findByType(ApplicationConstants.STARRED_QUESTION, this.getLocale());
+				DeviceType deviceType = 
+					DeviceType.findByType(ApplicationConstants.STARRED_QUESTION, this.getLocale());
 				
 				CustomParameter datePattern = CustomParameter.findByName(CustomParameter.class, 
 						"DB_TIMESTAMP", "");
@@ -875,8 +886,8 @@ public class Chart extends BaseDomain implements Serializable {
 				Date finalSubmissionTime = this.getGroup().
 					getFinalSubmissionDate(this.getAnsweringDate());
 				
-				Status ASSISTANT_PROCESSED = 
-					Status.findByType(ApplicationConstants.QUESTION_SYSTEM_ASSISTANT_PROCESSED, this.getLocale());
+				Status ASSISTANT_PROCESSED = Status.findByType(
+						ApplicationConstants.QUESTION_SYSTEM_ASSISTANT_PROCESSED, this.getLocale());
 				Status[] internalStatuses = new Status[] { ASSISTANT_PROCESSED };
 				
 				List<Member> activeMembersWithQuestions = 
@@ -904,8 +915,8 @@ public class Chart extends BaseDomain implements Serializable {
 				
 				chart = (Chart) this.persist();
 				
-				Status TO_BE_PUT_UP = 
-					Status.findByType(ApplicationConstants.QUESTION_SYSTEM_TO_BE_PUTUP, this.getLocale());
+				Status TO_BE_PUT_UP = Status.findByType(
+						ApplicationConstants.QUESTION_SYSTEM_TO_BE_PUTUP, this.getLocale());
 				// List<Question> questions = Chart.findQuestions(this.getSession(), this.getGroup(), 
 				//		this.getAnsweringDate(), this.getLocale());
 				// for(Question q : questions) {
@@ -913,7 +924,10 @@ public class Chart extends BaseDomain implements Serializable {
 				//	q.setRecommendationStatus(TO_BE_PUT_UP);
 				//	q.simpleMerge();
 				// }
-				Chart.getChartRepository().updateChartQuestions(chart, TO_BE_PUT_UP);
+				QuestionDates chartAnsweringDate = chart.getGroup().
+					findQuestionDatesByGroupAndAnsweringDate(chart.getAnsweringDate());
+				Chart.getChartRepository().updateChartQuestions(chart, 
+						chartAnsweringDate, TO_BE_PUT_UP, TO_BE_PUT_UP);
 			}
 			
 			return chart;
@@ -967,7 +981,7 @@ public class Chart extends BaseDomain implements Serializable {
 	 * 4. Select the Questions which don't have any answeringDate.
 	 * 
 	 * 5. If any Question is selected for the Chart then set its internalStatus
-	 * to "TO_BE_PUT_UP"
+	 * and recommendationStatus to "TO_BE_PUT_UP"
 	 *
 	 * @param question the question
 	 * @param affectedGroup the group from which this question was removed
@@ -1001,8 +1015,11 @@ public class Chart extends BaseDomain implements Serializable {
 				// The Questions taken on the Chart should have status "TO_BE_PUT_UP"
 				Status TO_BE_PUT_UP = 
 					Status.findByType(ApplicationConstants.QUESTION_SYSTEM_TO_BE_PUTUP, locale);
+				QuestionDates chartAnsweringDate = chart.getGroup().
+					findQuestionDatesByGroupAndAnsweringDate(chart.getAnsweringDate());
 				q.setInternalStatus(TO_BE_PUT_UP);
 				q.setRecommendationStatus(TO_BE_PUT_UP);
+				q.setChartAnsweringDate(chartAnsweringDate);
 				q.simpleMerge();
 				
 				questions.add(q);
@@ -1169,12 +1186,12 @@ public class Chart extends BaseDomain implements Serializable {
 	 * have internalStatus = "ASSISTANT_PROCESSED".
 	 * 
 	 * Constraints:
-	 * 1> If this question is added to the chart, it's internalStatus should
-	 * change to "TO_BE_PUT_UP".
+	 * 1> If this question is added to the chart, it's internalStatus and 
+	 * recommendationStatus should change to "TO_BE_PUT_UP".
 	 * 
 	 * 2> In lieu of this question entering the Chart, if some Question leaves
-	 * the Chart then the internalStatus of that Question should be set to
-	 * "ASSISTANT_PROCESSED".
+	 * the Chart then the internalStatus & recommendationStatus of that Question 
+	 * should be set to "ASSISTANT_PROCESSED".
 	 * 
 	 * 3> The internalStatuses of the rest of the Questions on the Chart should
 	 * remain unaffected.
@@ -1195,14 +1212,18 @@ public class Chart extends BaseDomain implements Serializable {
 		Member member = q.getPrimaryMember();
 		Session session = q.getSession();
 		Group group = q.getGroup();
-		Date chartAnsweringDate = chart.getAnsweringDate();
+		Date answeringDate = chart.getAnsweringDate();
 		String locale = q.getLocale();
 		
-		Status TO_BE_PUT_UP = Status.findByType(ApplicationConstants.QUESTION_SYSTEM_TO_BE_PUTUP, locale);
-		Status ASSISTANT_PROCESSED = Status.findByType(ApplicationConstants.QUESTION_SYSTEM_ASSISTANT_PROCESSED, locale);
+		Status TO_BE_PUT_UP = 
+			Status.findByType(ApplicationConstants.QUESTION_SYSTEM_TO_BE_PUTUP, locale);
+		Status ASSISTANT_PROCESSED = 
+			Status.findByType(ApplicationConstants.QUESTION_SYSTEM_ASSISTANT_PROCESSED, locale);
+		QuestionDates chartAnsweringDate = chart.getGroup().
+			findQuestionDatesByGroupAndAnsweringDate(chart.getAnsweringDate());
 		
 		List<Question> onChartQuestions = 
-			Chart.findQuestions(member, session, group, chartAnsweringDate, locale);
+			Chart.findQuestions(member, session, group, answeringDate, locale);
 		
 		if(onChartQuestions.size() == maxNoOfQuestions) {
 			List<Question> updateChartQuestions = new ArrayList<Question>();
@@ -1217,7 +1238,7 @@ public class Chart extends BaseDomain implements Serializable {
 			// The size of candidateQuestions will always be size of questionsNotInWorkflow
 			// + 1 (Question q as provided in the parameter)
 			List<Question> candidateQuestions = 
-				Chart.updateCandidateQuestions(questionsNotInWorkflow, chartAnsweringDate);
+				Chart.updateCandidateQuestions(questionsNotInWorkflow, answeringDate);
 			
 			// The Questions taken on the Chart should have status "TO_BE_PUT_UP". The nature
 			// of candidateQuestions is such that the last question in that list will 
@@ -1227,15 +1248,18 @@ public class Chart extends BaseDomain implements Serializable {
 				Question qn = candidateQuestions.get(i);
 				qn.setInternalStatus(TO_BE_PUT_UP);
 				qn.setRecommendationStatus(TO_BE_PUT_UP);
+				qn.setChartAnsweringDate(chartAnsweringDate);
 				qn.simpleMerge();
 				
 				if(qn.getId().equals(q.getId())) {
 					isAddedToChart = true;
 				}
 			}
+			// Question qn is leaving the Chart
 			Question qn = candidateQuestions.get(size - 1);
 			qn.setInternalStatus(ASSISTANT_PROCESSED);
 			qn.setRecommendationStatus(ASSISTANT_PROCESSED);
+			qn.setChartAnsweringDate(null);
 			qn.simpleMerge();
 			
 			if(candidateQuestions.size() >= requiredQuestions) {
@@ -1253,12 +1277,13 @@ public class Chart extends BaseDomain implements Serializable {
 			// The Questions taken on the Chart should have status "TO_BE_PUT_UP"
 			q.setInternalStatus(TO_BE_PUT_UP);
 			q.setRecommendationStatus(TO_BE_PUT_UP);
+			q.setChartAnsweringDate(chartAnsweringDate);
 			q.simpleMerge();
 			
 			updateChartQuestions.add(q);
 			
 			updateChartQuestions = 
-				Chart.updateCandidateQuestions(updateChartQuestions, chartAnsweringDate);
+				Chart.updateCandidateQuestions(updateChartQuestions, answeringDate);
 			
 			ChartEntry ce = Chart.find(chart.getChartEntries(), member);
 			ce.setQuestions(updateChartQuestions);
@@ -1288,7 +1313,8 @@ public class Chart extends BaseDomain implements Serializable {
 			final String locale) {
 		DeviceType deviceType = DeviceType.findByType(ApplicationConstants.STARRED_QUESTION, locale);
 		Date finalSubmissionDate = group.getFinalSubmissionDate(answeringDate);
-		Status ASSISTANT_PROCESSED = Status.findByType(ApplicationConstants.QUESTION_SYSTEM_ASSISTANT_PROCESSED, locale);
+		Status ASSISTANT_PROCESSED = 
+			Status.findByType(ApplicationConstants.QUESTION_SYSTEM_ASSISTANT_PROCESSED, locale);
 		Status[] internalStatuses = new Status[] { ASSISTANT_PROCESSED };
 		
 		// Since 1 question has left the group so add 1 question to the chart. Hence 
@@ -1385,11 +1411,11 @@ public class Chart extends BaseDomain implements Serializable {
 	}
 	
 	/**
-	 * The Questions on Chart have status "TO_BE_PUT_UP". Hence, only those
-	 * Questions on Chart with internalStatus != "TO_BE_PUT_UP" and
-	 * internalStatus not beginning with "question_before_workflow" are in
-	 * the Workflow.
-	 *
+	 * All the Questions with status not equal to "SUBMIT" AND "COMPLETE" 
+	 * AND "INCOMPLETE" AND not starting with "question_putup" AND
+	 * not starting with "question_system" are 
+	 * not in the workflow.
+	 * 
 	 * @param questions the questions
 	 * @param locale the locale
 	 * @return the list
@@ -1397,10 +1423,14 @@ public class Chart extends BaseDomain implements Serializable {
 	private static List<Question> questionsInWorkflow(final List<Question> questions,
 			final String locale) {
 		List<Question> qList = new ArrayList<Question>();
-		String TO_BE_PUT_UP = ApplicationConstants.QUESTION_SYSTEM_TO_BE_PUTUP;
+		String INCOMPLETE = ApplicationConstants.QUESTION_INCOMPLETE;
+		String COMPLETE = ApplicationConstants.QUESTION_COMPLETE;
+		String SUBMITTED = ApplicationConstants.QUESTION_SUBMIT;
 		for(Question q : questions) {
 			String type = q.getInternalStatus().getType();
-			if(! (type.equals(TO_BE_PUT_UP) || type.startsWith("question_before_workflow"))) {
+			if(! (type.equals(INCOMPLETE) || type.equals(COMPLETE) || 
+					type.equals(SUBMITTED) || type.startsWith("question_putup") ||
+					type.startsWith("question_system"))) {
 				qList.add(q);
 			}
 		}
@@ -1408,11 +1438,10 @@ public class Chart extends BaseDomain implements Serializable {
 	}
 	
 	/**
-	 * The Questions on Chart have status "TO_BE_PUT_UP". Hence, only those
-	 * Questions on Chart with internalStatus != "TO_BE_PUT_UP" and
-	 * internalStatus not beginning with "question_before_workflow" are in
-	 * the Workflow.
-	 *
+	 * All the Questions with status "SUBMIT" OR "COMPLETE" OR "INCOMPLETE" OR 
+	 * starting with "question_putup" OR starting with "question_system" are 
+	 * not in the workflow.
+	 * 
 	 * @param questions the questions
 	 * @param locale the locale
 	 * @return the list
@@ -1420,10 +1449,14 @@ public class Chart extends BaseDomain implements Serializable {
 	private static List<Question> questionsNotInWorkflow(final List<Question> questions,
 			final String locale) {
 		List<Question> qList = new ArrayList<Question>();
-		String TO_BE_PUT_UP = ApplicationConstants.QUESTION_SYSTEM_TO_BE_PUTUP;
+		String INCOMPLETE = ApplicationConstants.QUESTION_INCOMPLETE;
+		String COMPLETE = ApplicationConstants.QUESTION_COMPLETE;
+		String SUBMITTED = ApplicationConstants.QUESTION_SUBMIT;
 		for(Question q : questions) {
 			String type = q.getInternalStatus().getType();
-			if(type.equals(TO_BE_PUT_UP) || type.startsWith("question_before_workflow")) {
+			if(type.equals(INCOMPLETE) || type.equals(COMPLETE) || 
+					type.equals(SUBMITTED) || type.startsWith("question_putup") ||
+					type.startsWith("question_system")) {
 				qList.add(q);
 			}
 		}
