@@ -9,8 +9,9 @@
 			$.blockUI({ message: '<img src="./resources/images/waitAnimated.gif" />' });		
 			var value=$(this).val();
 			if(value!='-'){
-			var parameters="member="+$(this).val()+"&session="+$("#session").val()+"&deviceType="+$("#deviceType").val();
-			var resource='question/listmemberballotchoice';
+			var parameters="member="+$(this).val()+"&session="
+			+$("#session").val()+"&questionType="+$("#questionType").val();
+			var resource='ballot/memberballot/listchoices';
 			$.get(resource+'?'+parameters,function(data){
 				$("#listchoices").empty();	
 				$("#listchoices").html(data);
@@ -34,27 +35,27 @@
 <p></p>
 </div>
 
-<div class="toolTip tpGreen clearfix" id="successDiv"
-	style="display: none;">
+<div class="toolTip tpGreen clearfix" id="successDiv" style="display: none;">
 <p style="font-size: 14px;"><img
 	src="./resources/images/template/icons/light-bulb-off.png"> <spring:message
 	code="update_success" text="Data saved successfully." /></p>
 <p></p>
 </div>
 
-<form action="question/memberballotchoice" method="post">
+<form action="ballot/memberballot/choices" method="post">
 <p><label style="margin: 10px;"><spring:message
-	code="memberballotchoice.member" text="Member" />*</label> <select id="member"
-	name="member">
+	code="memberballotchoice.member" text="Member" /></label>
+	 <select id="member" name="member">
 	<option value="-"><spring:message code='please.select' text='Please Select'/></option>	
 	<c:forEach items="${eligibleMembers}" var="i">
-		<option value="${i.id }"><c:out value="${i.getFullnameLastNameFirst()}"></c:out></option>
+		<option value="${i.id }"><c:out value="${i.getFullname()}"></c:out></option>
 	</c:forEach>
-</select></p>
+</select>
+</p>
 <div id="listchoices">
 </div>
 <input type="hidden" id="session" name="session" value="${session }">
-<input type="hidden" id="deviceType" name="deviceType" value="${questionType}">
+<input type="hidden" id="questionType" name="questionType" value="${questionType}">
 </form>
 
 <input type="hidden" name="pleaseSelect" id="pleaseSelect"
