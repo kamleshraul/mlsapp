@@ -300,7 +300,7 @@
 	    $("#changeInternalStatus").change(function(){
 		    var value=$(this).val();
 		    if(value!='-'){
-			    var statusType=$("#internalStatusMaster option[value='"+value+"']").text();
+			    //var statusType=$("#internalStatusMaster option[value='"+value+"']").text();
 			    loadActors(value);			    
 		    }else{
 			    $("#actor").empty();
@@ -725,7 +725,7 @@
 	
 	<select id="internalStatusMaster" style="display:none;">
 	<c:forEach items="${internalStatuses}" var="i">
-	<option value="${i.id}"><c:out value="${i.type}"></c:out></option>
+	<option value="${i.type}"><c:out value="${i.id}"></c:out></option>
 	</c:forEach>
 	</select>	
 	<form:errors path="internalStatus" cssClass="validationError"/>	
