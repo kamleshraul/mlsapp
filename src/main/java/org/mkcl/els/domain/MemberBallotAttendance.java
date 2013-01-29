@@ -48,10 +48,14 @@ public class MemberBallotAttendance extends BaseDomain implements Serializable{
     private Member member;
 
     /** The attendance. */
-    private Boolean attendance;
+    private Boolean attendance=false;
 
     /** The position. */
     private Integer position;
+    
+    private Integer round;
+    
+    private Boolean locked=false;
 
     /** The member ballot attendance repository. */
     @Autowired
@@ -74,12 +78,14 @@ public class MemberBallotAttendance extends BaseDomain implements Serializable{
      * @param locale the locale
      */
     public MemberBallotAttendance(final Session session, final DeviceType deviceType,
-            final Member member, final Boolean attendance,final String locale) {
+            final Member member, final Boolean attendance,final Integer round,final Boolean locked,final String locale) {
         super(locale);
         this.session = session;
         this.deviceType = deviceType;
         this.member = member;
         this.attendance = attendance;
+        this.round=round;
+        this.locked=locked;
     }
 
     /**
@@ -199,16 +205,17 @@ public class MemberBallotAttendance extends BaseDomain implements Serializable{
      * @param session the session
      * @param questionType the question type
      * @param attendance the attendance
+     * @param round 
      * @param sortBy the sort by
      * @param locale the locale
      * @return the list
      */
     public static List<MemberBallotAttendance> findAll(
             final Session session, final DeviceType questionType,
-            final String attendance,final String sortBy,
+            final String attendance,final Integer round, final String sortBy,
             final String locale) {
         return getMemberBallotAttendanceRepository().findAll(
-                session, questionType,attendance,sortBy, locale);
+                session, questionType,attendance,round,sortBy, locale);
     }
 
     /**
@@ -221,9 +228,10 @@ public class MemberBallotAttendance extends BaseDomain implements Serializable{
      * @return the list
      */
     public static List<Member> findMembersByAttendance(final Session session,
-            final DeviceType deviceType, final Boolean attendanceType, final String locale) {
+            final DeviceType deviceType, final Boolean attendance,
+            final Integer round,final String locale) {
         return getMemberBallotAttendanceRepository().findMembersByAttendance(session,
-                deviceType,attendanceType,locale);
+                deviceType,attendance,round,locale);
     }
 
     /**
@@ -239,6 +247,45 @@ public class MemberBallotAttendance extends BaseDomain implements Serializable{
         return getMemberBallotAttendanceRepository().findEligibleMembers(session,
                 deviceType,locale);
     }
+
+	public static String createMemberBallotAttendance(final Session session,
+			final DeviceType questionType,final Integer round, final String locale) {
+		return getMemberBallotAttendanceRepository().createMemberBallotAttendance(
+				session,questionType,round,locale);
+	}
+	
+	public static Boolean memberBallotCreated(final Session session, final DeviceType questionType,
+			final Integer round, final String locale){
+		return getMemberBallotAttendanceRepository().memberBallotCreated(session, questionType,round, locale);
+	}
+
+	public void setRound(Integer round) {
+		this.round = round;
+	}
+
+	public Integer getRound() {
+		return round;
+	}
+
+	public static MemberBallotAttendance find(final Session session,
+			final DeviceType questionType,final Member member,final int round,final String locale) {
+		return getMemberBallotAttendanceRepository().findEntry(session,
+				questionType,member,round,locale);
+	}
+
+	public void setLocked(Boolean locked) {
+		this.locked = locked;
+	}
+
+	public Boolean getLocked() {
+		return locked;
+	}	
+
+	public static Boolean areMembersLocked(final Session session,
+			final DeviceType questionType,final Integer round,final Boolean attendance,final Integer noOfRounds,final  String locale) {
+		return getMemberBallotAttendanceRepository().areMembersLocked(session,
+				questionType,round,attendance,noOfRounds,locale);
+	}
 
 
 
