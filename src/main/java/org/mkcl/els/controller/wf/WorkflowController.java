@@ -235,7 +235,7 @@ public class WorkflowController extends BaseController {
 		/**** added by sandeep singh(jan 29 2013) ****/
 		/**** Custom Parameter To Determine The Usergroup and usergrouptype of qis users ****/			
 		List<UserGroup> userGroups=this.getCurrentUser().getUserGroups();
-		List<String> workflowTypes=new ArrayList<String>();
+		List<Status> workflowTypes=new ArrayList<Status>();
 		if(userGroups!=null){
 			if(!userGroups.isEmpty()){
 				CustomParameter customParameter=CustomParameter.findByName(CustomParameter.class,"QIS_ALLOWED_USERGROUPTYPES", "");
@@ -246,23 +246,13 @@ public class WorkflowController extends BaseController {
 							/**** Authenticated User's usergroup and usergroupType ****/
 							String userGroupType=i.getUserGroupType().getType();
 							/**** Question Status Allowed ****/
-							CustomParameter allowedWorkflowTypes=CustomParameter.findByName(CustomParameter.class,"MYTASK_GRID_WORKFLOW_TYPES_ALLOWED_"+userGroupType.toUpperCase(), locale);
+							CustomParameter allowedWorkflowTypes=CustomParameter.findByName(CustomParameter.class,"MYTASK_GRID_WORKFLOW_TYPES_ALLOWED_"+userGroupType.toUpperCase(), "");
 							if(allowedWorkflowTypes!=null){
-								String[] allowed=allowedWorkflowTypes.getValue().split(",");
-								for(String j:allowed){
-									if(!j.isEmpty()){
-										workflowTypes.add(j.trim());										
-									}
-								}								
+								workflowTypes=Status.findStatusContainedIn(allowedWorkflowTypes.getValue(), locale);
 							}else{
-								CustomParameter defaultAllowedWorkflowTypes=CustomParameter.findByName(CustomParameter.class,"MYTASK_GRID_WORKFLOW_TYPES_ALLOWED_BY_DEFAULT", locale);
+								CustomParameter defaultAllowedWorkflowTypes=CustomParameter.findByName(CustomParameter.class,"MYTASK_GRID_WORKFLOW_TYPES_ALLOWED_BY_DEFAULT", "");
 								if(defaultAllowedWorkflowTypes!=null){
-									String[] allowed=defaultAllowedWorkflowTypes.getValue().split(",");
-									for(String j:allowed){
-										if(!j.isEmpty()){
-											workflowTypes.add(j.trim());										
-										}
-									}	
+									workflowTypes=Status.findStatusContainedIn(defaultAllowedWorkflowTypes.getValue(), locale);
 								}else{
 									model.addAttribute("errorcode","mytask_grid_workflow_types_allowed_by_default_notset");
 									return errorpage;

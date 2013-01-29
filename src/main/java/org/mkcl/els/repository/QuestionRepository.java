@@ -61,18 +61,18 @@ public class QuestionRepository extends BaseRepository<Question, Long>{
 	 * @param currentSession the current session
 	 * @return the integer
 	 */
-//	public Integer findLastStarredUnstarredShortNoticeQuestionNo(final House house,final Session currentSession){
-//		String query="SELECT q.number FROM questions AS q JOIN sessions AS s JOIN houses AS h "+
-//		"JOIN devicetypes AS dt WHERE q.session_id=s.id AND s.house_id=h.id "+
-//		"AND h.id="+house.getId()+" AND s.id="+currentSession.getId()+" AND dt.id=q.devicetype_id AND dt.type!='halfhourdiscussion' ORDER BY q.id DESC LIMIT 0,1";
-//		List result=this.em().createNativeQuery(query).getResultList();
-//		Integer lastNumber=0;
-//		if(!result.isEmpty()){
-//			Object i=result.get(0);
-//			lastNumber=Integer.parseInt(i.toString());
-//		}
-//		return lastNumber;
-//	}
+	//	public Integer findLastStarredUnstarredShortNoticeQuestionNo(final House house,final Session currentSession){
+	//		String query="SELECT q.number FROM questions AS q JOIN sessions AS s JOIN houses AS h "+
+	//		"JOIN devicetypes AS dt WHERE q.session_id=s.id AND s.house_id=h.id "+
+	//		"AND h.id="+house.getId()+" AND s.id="+currentSession.getId()+" AND dt.id=q.devicetype_id AND dt.type!='halfhourdiscussion' ORDER BY q.id DESC LIMIT 0,1";
+	//		List result=this.em().createNativeQuery(query).getResultList();
+	//		Integer lastNumber=0;
+	//		if(!result.isEmpty()){
+	//			Object i=result.get(0);
+	//			lastNumber=Integer.parseInt(i.toString());
+	//		}
+	//		return lastNumber;
+	//	}
 
 	/**
 	 * Find last half hour discussion question no.
@@ -81,18 +81,18 @@ public class QuestionRepository extends BaseRepository<Question, Long>{
 	 * @param currentSession the current session
 	 * @return the integer
 	 */
-//	public Integer findLastHalfHourDiscussionQuestionNo(final House house,final Session currentSession){
-//		String query="SELECT q.number FROM questions AS q JOIN sessions AS s JOIN houses AS h "+
-//		"JOIN devicetypes AS dt WHERE q.session_id=s.id AND s.house_id=h.id "+
-//		"AND h.id="+house.getId()+" AND s.id="+currentSession.getId()+" AND dt.id=q.devicetype_id AND dt.type=='halfhourdiscussion' ORDER BY q.id DESC LIMIT 0,1";
-//		List result=this.em().createNativeQuery(query).getResultList();
-//		Integer lastNumber=0;
-//		if(!result.isEmpty()){
-//			Object i=result.get(0);
-//			lastNumber=Integer.parseInt(i.toString());
-//		}
-//		return lastNumber;
-//	}
+	//	public Integer findLastHalfHourDiscussionQuestionNo(final House house,final Session currentSession){
+	//		String query="SELECT q.number FROM questions AS q JOIN sessions AS s JOIN houses AS h "+
+	//		"JOIN devicetypes AS dt WHERE q.session_id=s.id AND s.house_id=h.id "+
+	//		"AND h.id="+house.getId()+" AND s.id="+currentSession.getId()+" AND dt.id=q.devicetype_id AND dt.type=='halfhourdiscussion' ORDER BY q.id DESC LIMIT 0,1";
+	//		List result=this.em().createNativeQuery(query).getResultList();
+	//		Integer lastNumber=0;
+	//		if(!result.isEmpty()){
+	//			Object i=result.get(0);
+	//			lastNumber=Integer.parseInt(i.toString());
+	//		}
+	//		return lastNumber;
+	//	}
 
 	/**
 	 * Assign question no.
@@ -446,7 +446,7 @@ public class QuestionRepository extends BaseRepository<Question, Long>{
 	 */
 
 
-	
+
 	/**
 	 * Find all.
 	 *
@@ -563,7 +563,7 @@ public class QuestionRepository extends BaseRepository<Question, Long>{
 	 * @param locale the locale
 	 * @return the boolean
 	 */
-	
+
 	//=========== ADD FOLLOWING METHODS ==========================
 	/**
 	 * Returns null if there is no result, else returns a List
@@ -1147,17 +1147,23 @@ public class QuestionRepository extends BaseRepository<Question, Long>{
 	public List<Question> findAdmittedStarredQuestionsUH(final Session session,
 			final DeviceType questionType, final Member member, final String locale) {
 		CustomParameter customParameter=CustomParameter.findByName(CustomParameter.class,"DB_DATETIMEFORMAT", "");
+		String startTime=session.getParameter("questions_starred_submissionFirstBatchStartDate");
+		String endTime=session.getParameter("questions_starred_submissionFirstBatchEndDate");
 		List<Question> questions=new ArrayList<Question>();
-		if(customParameter!=null){
-			SimpleDateFormat format=FormaterUtil.getDateFormatter(customParameter.getValue(), "en_US");
-			String query="SELECT q FROM Question q JOIN q.primaryMember m JOIN q.session s JOIN q.type qt "+
-			" WHERE m.id="+member.getId()+" AND s.id="+session.getId()+" AND qt.id="+questionType.getId()+
-			" AND q.locale='"+locale+"' AND q.internalStatus.type='"+ApplicationConstants.QUESTION_FINAL_ADMISSION+"'  "+
-			" AND q.submissionDate>='"+format.format(session.getParameter("questions_starred_submissionFirstBatchStartDate"))+"' "+
-			" AND q.submissionDate<='"+format.format(session.getParameter("questions_starred_submissionFirstBatchEndDate"))+"' ORDER BY q.number "+ApplicationConstants.ASC;
-			questions=this.em().createQuery(query).getResultList();
-		}else{
-			logger.error("Custom Parameter 'DB_DATETIMEFORMAT' not set");
+		if(startTime!=null&&endTime!=null){
+			if((!startTime.isEmpty())&&(!endTime.isEmpty())){
+				if(customParameter!=null){
+					SimpleDateFormat format=FormaterUtil.getDateFormatter(customParameter.getValue(), "en_US");
+					String query="SELECT q FROM Question q JOIN q.primaryMember m JOIN q.session s JOIN q.type qt "+
+					" WHERE m.id="+member.getId()+" AND s.id="+session.getId()+" AND qt.id="+questionType.getId()+
+					" AND q.locale='"+locale+"' AND q.internalStatus.type='"+ApplicationConstants.QUESTION_FINAL_ADMISSION+"'  "+
+					" AND q.submissionDate>='"+startTime+"' "+
+					" AND q.submissionDate<='"+endTime+"' ORDER BY q.number "+ApplicationConstants.ASC;
+					questions=this.em().createQuery(query).getResultList();
+				}else{
+					logger.error("Custom Parameter 'DB_DATETIMEFORMAT' not set");
+				}
+			}
 		}
 		return questions;
 	}
@@ -1177,7 +1183,7 @@ public class QuestionRepository extends BaseRepository<Question, Long>{
 		return this.em().createQuery(query).getResultList();
 	}
 
-	
+
 	public List<Member> findActiveMembersWithQuestions(final Session session,
 			final MemberRole role,
 			final Date activeOn,

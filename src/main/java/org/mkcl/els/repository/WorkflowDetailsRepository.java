@@ -14,6 +14,7 @@ import org.mkcl.els.domain.Credential;
 import org.mkcl.els.domain.CustomParameter;
 import org.mkcl.els.domain.MessageResource;
 import org.mkcl.els.domain.Question;
+import org.mkcl.els.domain.Status;
 import org.mkcl.els.domain.UserGroup;
 import org.mkcl.els.domain.WorkflowDetails;
 import org.springframework.stereotype.Repository;
@@ -89,14 +90,14 @@ public class WorkflowDetailsRepository extends BaseRepository<WorkflowDetails, S
 					if(workflowType.equals(ApplicationConstants.APPROVAL_WORKFLOW)){
 						workflowDetails.setUrlPattern(ApplicationConstants.APPROVAL_WORKFLOW_URLPATTERN);
 						workflowDetails.setForm(workflowDetails.getUrlPattern()+"/"+userGroupType);
-						workflowDetails.setWorkflowSubType(workflowDetails.getInternalStatus());					
+						workflowDetails.setWorkflowSubType(question.getInternalStatus().getType());					
 						/**** Different types of workflow sub types ****/
 					}else if(workflowType.equals(ApplicationConstants.SUPPORTING_MEMBER_WORKFLOW)){
 						workflowDetails.setUrlPattern(ApplicationConstants.SUPPORTING_MEMBER_WORKFLOW_URLPATTERN);
 						workflowDetails.setForm(workflowDetails.getUrlPattern());
-						MessageResource messageResource=MessageResource.findByFieldName(MessageResource.class,"code","workflowtype.supportingmember",question.getLocale());
-						if(messageResource!=null){
-							workflowDetails.setWorkflowSubType(messageResource.getValue());
+						Status requestStatus=Status.findByType(ApplicationConstants.REQUEST_TO_SUPPORTING_MEMBER, question.getLocale());
+						if(requestStatus!=null){
+						workflowDetails.setWorkflowSubType(requestStatus.getType());
 						}
 					}
 					workflowDetails.persist();
@@ -113,7 +114,7 @@ public class WorkflowDetailsRepository extends BaseRepository<WorkflowDetails, S
 			final String workflowType,final String assigneeLevel) {
 		List<WorkflowDetails> workflowDetailsList=new ArrayList<WorkflowDetails>();
 		try {
-			MessageResource messageResource=MessageResource.findByFieldName(MessageResource.class,"code","workflowtype.supportingmember",question.getLocale());
+			Status requestStatus=Status.findByType(ApplicationConstants.REQUEST_TO_SUPPORTING_MEMBER, question.getLocale());
 			CustomParameter customParameter=CustomParameter.findByName(CustomParameter.class,"DB_TIMESTAMP","");
 			if(customParameter!=null){
 				SimpleDateFormat format=FormaterUtil.getDateFormatter(customParameter.getValue(),"en_US");
@@ -179,14 +180,13 @@ public class WorkflowDetailsRepository extends BaseRepository<WorkflowDetails, S
 							if(workflowType.equals(ApplicationConstants.APPROVAL_WORKFLOW)){
 								workflowDetails.setUrlPattern(ApplicationConstants.APPROVAL_WORKFLOW_URLPATTERN);
 								workflowDetails.setForm(workflowDetails.getUrlPattern()+"/"+userGroupType);
-								workflowDetails.setWorkflowSubType(workflowDetails.getInternalStatus());					
+								workflowDetails.setWorkflowSubType(question.getInternalStatus().getType());					
 								/**** Different types of workflow sub types ****/
 							}else if(workflowType.equals(ApplicationConstants.SUPPORTING_MEMBER_WORKFLOW)){
 								workflowDetails.setUrlPattern(ApplicationConstants.SUPPORTING_MEMBER_WORKFLOW_URLPATTERN);
 								workflowDetails.setForm(workflowDetails.getUrlPattern());
-								messageResource=MessageResource.findByFieldName(MessageResource.class,"code","workflowtype.supportingmember",question.getLocale());
-								if(messageResource!=null){
-									workflowDetails.setWorkflowSubType(messageResource.getValue());
+								if(requestStatus!=null){
+								workflowDetails.setWorkflowSubType(requestStatus.getType());
 								}
 							}
 							workflowDetailsList.add((WorkflowDetails) workflowDetails.persist());

@@ -10,6 +10,8 @@
 package org.mkcl.els.domain;
 
 import java.io.Serializable;
+import java.text.NumberFormat;
+import java.text.SimpleDateFormat;
 import java.util.Date;
 
 import javax.persistence.Entity;
@@ -17,6 +19,7 @@ import javax.persistence.Table;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
 
+import org.mkcl.els.common.util.FormaterUtil;
 import org.springframework.beans.factory.annotation.Configurable;
 
 // TODO: Auto-generated Javadoc
@@ -193,6 +196,12 @@ public class QuestionDates extends BaseDomain implements Serializable {
 
 	public void setSpeakerSendingDate(Date speakerSendingDate) {
 		this.speakerSendingDate = speakerSendingDate;
+	}
+	
+	/**** Added By Sandeep Singh (Jan 30 2013) ****/
+	public String findFormattedAnsweringDate(){
+		SimpleDateFormat format=FormaterUtil.getDateFormatter(this.getLocale());
+		return format.format(getAnsweringDate());
 	}
 
 

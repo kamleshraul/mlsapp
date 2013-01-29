@@ -863,36 +863,42 @@ public class QuestionController extends GenericController<Question>{
 
 	private void populateInternalStatus(ModelMap model, String type,String userGroupType,String locale) {
 		List<Status> internalStatuses=new ArrayList<Status>();
-		/**** Since in case of send back and discuss internal status doesnot change.so it will come in case 1****/
-		if(type.equals(ApplicationConstants.QUESTION_SYSTEM_ASSISTANT_PROCESSED)
-				||type.equals(ApplicationConstants.QUESTION_SYSTEM_TO_BE_PUTUP)
-				||type.equals(ApplicationConstants.QUESTION_RECOMMEND_ADMISSION)
-				||type.equals(ApplicationConstants.QUESTION_RECOMMEND_CLARIFICATION_FROM_DEPARTMENT)
-				||type.equals(ApplicationConstants.QUESTION_RECOMMEND_CLARIFICATION_FROM_GOVT)
-				||type.equals(ApplicationConstants.QUESTION_RECOMMEND_CLARIFICATION_FROM_MEMBER)
-				||type.equals(ApplicationConstants.QUESTION_RECOMMEND_CLARIFICATION_FROM_MEMBER_AND_DEPARTMENT)
-				||type.equals(ApplicationConstants.QUESTION_RECOMMEND_CONVERT_TO_UNSTARRED)
-				||type.equals(ApplicationConstants.QUESTION_RECOMMEND_CONVERT_TO_UNSTARRED_AND_ADMIT)
-				||type.equals(ApplicationConstants.QUESTION_RECOMMEND_REJECTION)
-		){
-			if(userGroupType.equals(ApplicationConstants.CHAIRMAN)
-					||userGroupType.equals(ApplicationConstants.SPEAKER)){
-				CustomParameter customParameter=CustomParameter.findByName(CustomParameter.class,"QUESTION_PUT_UP_OPTIONS_FINAL","");
-				if(customParameter!=null){
-					internalStatuses=Status.findStatusContainedIn(customParameter.getValue(), locale);
+		/**** First we will check if custom parameter for internal status and usergroupType has been set ****/
+		CustomParameter specificStatuses=CustomParameter.findByName(CustomParameter.class,"QUESTION_PUT_UP_OPTIONS_"+type.toUpperCase()+"_"+userGroupType.toUpperCase(),"");
+		if(specificStatuses!=null){
+			internalStatuses=Status.findStatusContainedIn(specificStatuses.getValue(), locale);
+		}else if(userGroupType.equals(ApplicationConstants.CHAIRMAN)
+				||userGroupType.equals(ApplicationConstants.SPEAKER)){
+			CustomParameter finalStatus=CustomParameter.findByName(CustomParameter.class,"QUESTION_PUT_UP_OPTIONS_FINAL","");
+			if(finalStatus!=null){
+				internalStatuses=Status.findStatusContainedIn(finalStatus.getValue(), locale);
+			}else{
+				CustomParameter recommendStatus=CustomParameter.findByName(CustomParameter.class,"QUESTION_PUT_UP_OPTIONS_RECOMMEND","");
+				if(recommendStatus!=null){
+					internalStatuses=Status.findStatusContainedIn(recommendStatus.getValue(), locale);
+				}else{
+					CustomParameter defaultCustomParameter=CustomParameter.findByName(CustomParameter.class,"QUESTION_PUT_UP_OPTIONS_BY_DEFAULT","");
+					if(defaultCustomParameter!=null){
+						internalStatuses=Status.findStatusContainedIn(defaultCustomParameter.getValue(), locale);
+					}else{
+						model.addAttribute("errorcode","question_putup_options_final_notset");
+					}		
+				}
+			}
+		}else if((!userGroupType.equals(ApplicationConstants.CHAIRMAN))
+				&&(!userGroupType.equals(ApplicationConstants.SPEAKER))){
+			CustomParameter recommendStatus=CustomParameter.findByName(CustomParameter.class,"QUESTION_PUT_UP_OPTIONS_RECOMMEND","");
+			if(recommendStatus!=null){
+				internalStatuses=Status.findStatusContainedIn(recommendStatus.getValue(), locale);
+			}else{
+				CustomParameter defaultCustomParameter=CustomParameter.findByName(CustomParameter.class,"QUESTION_PUT_UP_OPTIONS_BY_DEFAULT","");
+				if(defaultCustomParameter!=null){
+					internalStatuses=Status.findStatusContainedIn(defaultCustomParameter.getValue(), locale);
 				}else{
 					model.addAttribute("errorcode","question_putup_options_final_notset");
 				}		
-			}else{
-				CustomParameter customParameter=CustomParameter.findByName(CustomParameter.class,"QUESTION_PUT_UP_OPTIONS_RECOMMEND","");
-				if(customParameter!=null){
-					internalStatuses=Status.findStatusContainedIn(customParameter.getValue(), locale);
-				}else{
-					model.addAttribute("errorcode","question_putup_options_recommend_notset");
-				}		
 			}
-		}
-		/**** In case of put up status ****/
+		}	
 		/**** Internal Status****/
 		model.addAttribute("internalStatuses",internalStatuses);
 	}

@@ -553,44 +553,19 @@ public class QuestionWorkflowController  extends BaseController{
 		String type=internalStatus.getType();
 		String userGroupType=workflowDetails.getAssigneeUserGroupType();
 		String locale=question.getLocale();
-		String level=workflowDetails.getAssigneeLevel();
-		String strUsergroup=workflowDetails.getAssigneeUserGroupId();
-		UserGroup userGroup=UserGroup.findById(UserGroup.class,Long.parseLong(strUsergroup));
-		/**** Since in case of send back and discuss internal status doesnot change.so it will come in case 1****/
-		if(type.equals(ApplicationConstants.QUESTION_SYSTEM_ASSISTANT_PROCESSED)
-				||type.equals(ApplicationConstants.QUESTION_SYSTEM_TO_BE_PUTUP)
-				||type.equals(ApplicationConstants.QUESTION_RECOMMEND_ADMISSION)
-				||type.equals(ApplicationConstants.QUESTION_RECOMMEND_CLARIFICATION_FROM_DEPARTMENT)
-				||type.equals(ApplicationConstants.QUESTION_RECOMMEND_CLARIFICATION_FROM_GOVT)
-				||type.equals(ApplicationConstants.QUESTION_RECOMMEND_CLARIFICATION_FROM_MEMBER)
-				||type.equals(ApplicationConstants.QUESTION_RECOMMEND_CLARIFICATION_FROM_MEMBER_AND_DEPARTMENT)
-				||type.equals(ApplicationConstants.QUESTION_RECOMMEND_CONVERT_TO_UNSTARRED)
-				||type.equals(ApplicationConstants.QUESTION_RECOMMEND_CONVERT_TO_UNSTARRED_AND_ADMIT)
-				||type.equals(ApplicationConstants.QUESTION_RECOMMEND_REJECTION)){
-			if(userGroupType.equals(ApplicationConstants.CHAIRMAN)
-					||userGroupType.equals(ApplicationConstants.SPEAKER)){
-				CustomParameter customParameter=CustomParameter.findByName(CustomParameter.class,"QUESTION_PUT_UP_OPTIONS_FINAL","");
-				if(customParameter!=null){
-					internalStatuses=Status.findStatusContainedIn(customParameter.getValue(), locale);
-				}else{
-					model.addAttribute("errorcode","question_putup_options_final_notset");
-				}		
+		/**** First we will check if custom parameter for internal status and usergroupType has been set ****/
+		CustomParameter specificStatuses=CustomParameter.findByName(CustomParameter.class,"QUESTION_PUT_UP_OPTIONS_"+type.toUpperCase()+"_"+userGroupType.toUpperCase(),"");
+		if(specificStatuses!=null){
+			internalStatuses=Status.findStatusContainedIn(specificStatuses.getValue(), locale);
+		}else if(userGroupType.equals(ApplicationConstants.CHAIRMAN)
+				||userGroupType.equals(ApplicationConstants.SPEAKER)){
+			CustomParameter finalStatus=CustomParameter.findByName(CustomParameter.class,"QUESTION_PUT_UP_OPTIONS_FINAL","");
+			if(finalStatus!=null){
+				internalStatuses=Status.findStatusContainedIn(finalStatus.getValue(), locale);
 			}else{
-				CustomParameter customParameter=CustomParameter.findByName(CustomParameter.class,"QUESTION_PUT_UP_OPTIONS_RECOMMEND","");
-				if(customParameter!=null){
-					internalStatuses=Status.findStatusContainedIn(customParameter.getValue(), locale);
-				}else{
-					model.addAttribute("errorcode","question_putup_options_recommend_notset");
-				}		
-			}
-		}
-		/**** In case of final Status ****/
-		/**** Admitted ****/
-		else if(type.equals(ApplicationConstants.QUESTION_FINAL_ADMISSION)){
-			//if(userGroupType.equals(ApplicationConstants.ASSISTANT)){
-				CustomParameter customParameter=CustomParameter.findByName(CustomParameter.class,"QUESTION_PUT_UP_OPTIONS_"+type.toUpperCase()+"_"+userGroupType.toUpperCase(),"");
-				if(customParameter!=null){
-					internalStatuses=Status.findStatusContainedIn(customParameter.getValue(), locale);
+				CustomParameter recommendStatus=CustomParameter.findByName(CustomParameter.class,"QUESTION_PUT_UP_OPTIONS_RECOMMEND","");
+				if(recommendStatus!=null){
+					internalStatuses=Status.findStatusContainedIn(recommendStatus.getValue(), locale);
 				}else{
 					CustomParameter defaultCustomParameter=CustomParameter.findByName(CustomParameter.class,"QUESTION_PUT_UP_OPTIONS_BY_DEFAULT","");
 					if(defaultCustomParameter!=null){
@@ -599,10 +574,21 @@ public class QuestionWorkflowController  extends BaseController{
 						model.addAttribute("errorcode","question_putup_options_final_notset");
 					}		
 				}
-				//List<Reference> actors=WorkflowConfig.findQuestionActorsVO(question, internalStatus, userGroup,Integer.parseInt(level), locale);
-				//model.addAttribute("actors",actors);
-			//}
-		}
+			}
+		}else if((!userGroupType.equals(ApplicationConstants.CHAIRMAN))
+				&&(!userGroupType.equals(ApplicationConstants.SPEAKER))){
+			CustomParameter recommendStatus=CustomParameter.findByName(CustomParameter.class,"QUESTION_PUT_UP_OPTIONS_RECOMMEND","");
+			if(recommendStatus!=null){
+				internalStatuses=Status.findStatusContainedIn(recommendStatus.getValue(), locale);
+			}else{
+				CustomParameter defaultCustomParameter=CustomParameter.findByName(CustomParameter.class,"QUESTION_PUT_UP_OPTIONS_BY_DEFAULT","");
+				if(defaultCustomParameter!=null){
+					internalStatuses=Status.findStatusContainedIn(defaultCustomParameter.getValue(), locale);
+				}else{
+					model.addAttribute("errorcode","question_putup_options_final_notset");
+				}		
+			}
+		}	
 		/**** Internal Status****/
 		model.addAttribute("internalStatuses",internalStatuses);
 	}
@@ -781,12 +767,12 @@ public class QuestionWorkflowController  extends BaseController{
 		properties.put("pv_endflag",request.getParameter("endflag"));
 		String strTaskId=workflowDetails.getTaskId();
 		Task task=processService.findTaskById(strTaskId);
-		processService.completeTask(task,properties);
-		ProcessInstance processInstance = processService.findProcessInstanceById(task.getProcessInstanceId());
-		Task newtask=processService.getCurrentTask(processInstance);
+		processService.completeTask(task,properties);		
 		if(endflag!=null){
 			if(!endflag.isEmpty()){
 				if(endflag.equals("continue")){
+					ProcessInstance processInstance = processService.findProcessInstanceById(task.getProcessInstanceId());
+					Task newtask=processService.getCurrentTask(processInstance);
 					/**** Workflow Detail entry made only if its not the end of workflow ****/
 					WorkflowDetails.create(domain,newtask,ApplicationConstants.APPROVAL_WORKFLOW,level);
 				}

@@ -666,7 +666,7 @@ public class BallotController extends BaseController{
 
 	@RequestMapping(value="/memberballot/listchoices",method=RequestMethod.GET)
 	public String listMemberBallotChoice(final HttpServletRequest request,final ModelMap model,final Locale locale){
-		String strQuestionType=request.getParameter("deviceType");
+		String strQuestionType=request.getParameter("questionType");
 		String strSession=request.getParameter("session");
 		String strMember=request.getParameter("member");
 		if(strQuestionType!=null&&strSession!=null&&strMember!=null){
@@ -704,7 +704,7 @@ public class BallotController extends BaseController{
 
 	@RequestMapping(value="/memberballot/choices",method=RequestMethod.POST)
 	public @ResponseBody String updateMemberBallotChoice(final HttpServletRequest request,final ModelMap model,final Locale locale){
-		String strQuestionType=request.getParameter("deviceType");
+		String strQuestionType=request.getParameter("questionType");
 		String strSession=request.getParameter("session");
 		String strMember=request.getParameter("member");
 		String strTotalRounds=request.getParameter("totalRounds");
@@ -777,7 +777,7 @@ public class BallotController extends BaseController{
 	public Boolean updateClubbingMemberBallot(final HttpServletRequest request,final Locale locale){
 		Boolean status=false;
 		String strSession=request.getParameter("session");
-		String strDeviceType=request.getParameter("deviceType");
+		String strDeviceType=request.getParameter("questionType");
 		if(strSession!=null&&strDeviceType!=null){
 			Session session=Session.findById(Session.class,Long.parseLong(strSession));
 			DeviceType deviceType=DeviceType.findById(DeviceType.class,Long.parseLong(strDeviceType));

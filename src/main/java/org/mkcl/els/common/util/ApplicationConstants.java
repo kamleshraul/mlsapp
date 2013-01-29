@@ -249,7 +249,9 @@ public class ApplicationConstants {
     /**** URL Pattern of Various Workflows ****/
     public static final String APPROVAL_WORKFLOW_URLPATTERN="workflow/question";
 
-    public static final String SUPPORTING_MEMBER_WORKFLOW_URLPATTERN="workflow/question/supportingmember";    
+    public static final String SUPPORTING_MEMBER_WORKFLOW_URLPATTERN="workflow/question/supportingmember";
+    
+    public static final String REQUEST_TO_SUPPORTING_MEMBER="request_to_supporting_member";
     /**** Advanced Search Status Filter ****/
     public static final String UNPROCESSED_FILTER="UNPROCESSED";
     
