@@ -569,7 +569,7 @@ public class QuestionWorkflowController  extends BaseController{
 				||type.equals(ApplicationConstants.QUESTION_RECOMMEND_REJECTION)){
 			if(userGroupType.equals(ApplicationConstants.CHAIRMAN)
 					||userGroupType.equals(ApplicationConstants.SPEAKER)){
-				CustomParameter customParameter=CustomParameter.findByName(CustomParameter.class,"QUESTION_PUT_UP_OPTIONS_ADMISSION_","");
+				CustomParameter customParameter=CustomParameter.findByName(CustomParameter.class,"QUESTION_PUT_UP_OPTIONS_FINAL","");
 				if(customParameter!=null){
 					internalStatuses=Status.findStatusContainedIn(customParameter.getValue(), locale);
 				}else{
@@ -587,7 +587,7 @@ public class QuestionWorkflowController  extends BaseController{
 		/**** In case of final Status ****/
 		/**** Admitted ****/
 		else if(type.equals(ApplicationConstants.QUESTION_FINAL_ADMISSION)){
-			if(userGroupType.equals(ApplicationConstants.ASSISTANT)){
+			//if(userGroupType.equals(ApplicationConstants.ASSISTANT)){
 				CustomParameter customParameter=CustomParameter.findByName(CustomParameter.class,"QUESTION_PUT_UP_OPTIONS_"+type.toUpperCase()+"_"+userGroupType.toUpperCase(),"");
 				if(customParameter!=null){
 					internalStatuses=Status.findStatusContainedIn(customParameter.getValue(), locale);
@@ -599,9 +599,9 @@ public class QuestionWorkflowController  extends BaseController{
 						model.addAttribute("errorcode","question_putup_options_final_notset");
 					}		
 				}
-				List<Reference> actors=WorkflowConfig.findQuestionActorsVO(question, internalStatus, userGroup,Integer.parseInt(level), locale);
-				model.addAttribute("actors",actors);
-			}
+				//List<Reference> actors=WorkflowConfig.findQuestionActorsVO(question, internalStatus, userGroup,Integer.parseInt(level), locale);
+				//model.addAttribute("actors",actors);
+			//}
 		}
 		/**** Internal Status****/
 		model.addAttribute("internalStatuses",internalStatuses);
