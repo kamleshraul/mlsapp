@@ -170,6 +170,12 @@ public class Chart extends BaseDomain implements Serializable {
 			QuestionVO questionVO = new QuestionVO(q.getId(), 
 					q.getNumber(), 
 					q.getInternalStatus().getType());
+			if(q.getParent() == null) {
+				questionVO.setHasParent(false);
+			}
+			else {
+				questionVO.setHasParent(true);
+			}
 			
 			questionVOs.add(questionVO);
 		}
