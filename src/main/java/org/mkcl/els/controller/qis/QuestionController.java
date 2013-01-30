@@ -596,7 +596,8 @@ public class QuestionController extends GenericController<Question>{
 					bufferFirstNamesFirst.append(m.getFullname()+",");
 					supportingMembers.add(m);
 				}
-				bufferFirstNamesFirst.deleteCharAt(bufferFirstNamesFirst.length()-1);
+				/**** Dhananjay Borkar ****/
+				//bufferFirstNamesFirst.deleteCharAt(bufferFirstNamesFirst.length()-1);
 				model.addAttribute("supportingMembersName", bufferFirstNamesFirst.toString());
 				model.addAttribute("supportingMembers",supportingMembers);
 				memberNames=primaryMemberName+","+bufferFirstNamesFirst.toString();
@@ -790,6 +791,7 @@ public class QuestionController extends GenericController<Question>{
 		}
 		if(recommendationStatus!=null){
 			model.addAttribute("recommendationStatus",recommendationStatus.getId());
+			model.addAttribute("recommendationStatusType",recommendationStatus.getType());
 		}
 
 		/**** in case of assistant and other approving QIS actors ****/

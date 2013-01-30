@@ -494,4 +494,11 @@ public class HouseMemberRoleAssociation implements Serializable {
 		}
 		return associations;
 	}
+	
+	/**** Anand Kulkarni ****/
+	public static List<MasterVO> findAllActiveSupportingMemberVOSInSession(final House house,
+            final Session session, final String locale,final String param,final Long primaryMemberId) {
+        return getMemberHouseRoleRepository().findAllActiveSupportingMemberVOSInSession(house,
+                session,locale,param,primaryMemberId);
+    }
 }

@@ -210,7 +210,6 @@ public class WorkflowDetailsRepository extends BaseRepository<WorkflowDetails, S
 			WorkflowDetails workflowDetails=(WorkflowDetails) this.em().createQuery(query).getSingleResult();
 			return workflowDetails;
 		}catch(Exception e){
-			logger.error("Entity Not Found",e);
 			return new WorkflowDetails();
 		}		
 	}

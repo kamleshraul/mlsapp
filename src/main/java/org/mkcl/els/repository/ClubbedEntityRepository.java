@@ -25,24 +25,25 @@ public class ClubbedEntityRepository extends BaseRepository<ClubbedEntity, Seria
 		/**** Select Clause ****/
 		/**** Condition 1 :must not contain processed question ****/
 		/**** Condition 2 :parent must be null ****/
-		String selectQuery="SELECT q.id as id,q.number as number, "+
-		" q.subject as subject,q.revised_subject as revisedSubject, "+
-		" q.question_text as questionText,q.revised_question_text as revisedQuestionText, "+
-		" st.name as status,dt.name as deviceType,s.session_year as sessionYear,sety.session_type as sessionType ,g.number as group"+
-		" mi.name as ministry,d.name as department,sd.name as subdepartment,st.type as statustype"+
-		" FROM questions as q "+
-		" LEFT JOIN sessions as s ON(q.session_id=s.id) "+
-		" LEFT JOIN sessiontypes as sety ON(s.sessiontype_id=sety.id) "+
-		" LEFT JOIN status as st ON(q.recommendationstatus_id=st.id) "+
-		" LEFT JOIN devicetypes as dt ON(q.devicetype_id=dt.id) "+
-		" LEFT JOIN members as m ON(q.member_id=m.id) "+
-		" LEFT JOIN titles as t ON(m.title_id=t.id) "+
-		" LEFT JOIN groups as g ON(q.group_id=g.id) "+
-		" LEFT JOIN question_dates as qd ON(q.answering_date=qd.id) "+
-		" LEFT JOIN ministries as mi ON(q.ministry_id=mi.id) "+
-		" LEFT JOIN departments as d ON(q.department_id=d.id) "+
-		" LEFT JOIN subdepartments as sd ON(q.subdepartment_id=sd.id) "+
-		" WHERE q.id<>"+question.getId()+" AND q.parent is NULL ";
+		String selectQuery="SELECT q.id as id,q.number as number,"+
+		"  q.subject as subject,q.revised_subject as revisedSubject,"+
+		"  q.question_text as questionText,q.revised_question_text as revisedQuestionText,"+
+		"  st.name as status,dt.name as deviceType,s.session_year as sessionYear,"+
+		"  sety.session_type as sessionType ,g.number as groupnumber,"+
+		"  mi.name as ministry,d.name as department,sd.name as subdepartment,st.type as statustype"+
+		"  FROM questions as q "+
+		"  LEFT JOIN sessions as s ON(q.session_id=s.id) "+
+		"  LEFT JOIN sessiontypes as sety ON(s.sessiontype_id=sety.id) "+
+		"  LEFT JOIN status as st ON(q.recommendationstatus_id=st.id) "+
+		"  LEFT JOIN devicetypes as dt ON(q.devicetype_id=dt.id) "+
+		"  LEFT JOIN members as m ON(q.member_id=m.id) "+
+		"  LEFT JOIN titles as t ON(m.title_id=t.id) "+
+		"  LEFT JOIN groups as g ON(q.group_id=g.id) "+
+		"  LEFT JOIN question_dates as qd ON(q.answering_date=qd.id) "+
+		"  LEFT JOIN ministries as mi ON(q.ministry_id=mi.id) "+
+		"  LEFT JOIN departments as d ON(q.department_id=d.id) "+
+		"  LEFT JOIN subdepartments as sd ON(q.subdepartment_id=sd.id) "+
+		"  WHERE q.id<>"+question.getId()+" AND q.parent is NULL ";
 
 		DeviceType deviceType=question.getType();
 		StringBuffer deviceTypeQuery=new StringBuffer();
@@ -126,7 +127,7 @@ public class ClubbedEntityRepository extends BaseRepository<ClubbedEntity, Seria
 		/**** Final Query ****/
 		String query=selectQuery+deviceTypeQuery.toString()+filter+searchQuery+orderByQuery;
 		String finalQuery="SELECT rs.id,rs.number,rs.subject,rs.revisedSubject,rs.questionText, "+
-		" rs.revisedQuestionText,rs.status,rs.deviceType,rs.sessionYear,rs.sessionType,rs.group,rs.ministry,rs.department,rs.subdepartment,rs.statustype FROM ("+query+") as rs LIMIT "+start+","+noofRecords;
+		" rs.revisedQuestionText,rs.status,rs.deviceType,rs.sessionYear,rs.sessionType,rs.groupnumber,rs.ministry,rs.department,rs.subdepartment,rs.statustype FROM ("+query+") as rs LIMIT "+start+","+noofRecords;
 
 		List results=this.em().createNativeQuery(finalQuery).getResultList();
 		List<QuestionSearchVO> questionSearchVOs=new ArrayList<QuestionSearchVO>();

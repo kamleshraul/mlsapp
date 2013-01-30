@@ -158,6 +158,9 @@ implements Serializable
     @Column(length=30000)
     private String remarks;
     
+    @Column(length=30000)
+	private String rejectionReason;
+    
     //---------------------------Primary and supporting members-----------------
     /** The primary member. */
     @ManyToOne(fetch=FetchType.LAZY)
@@ -1951,5 +1954,10 @@ implements Serializable
 	public void setChartAnsweringDate(QuestionDates chartAnsweringDate) {
 		this.chartAnsweringDate = chartAnsweringDate;
 	}
-
+	public String getRejectionReason() {
+		return rejectionReason;
+	}
+	public void setRejectionReason(String rejectionReason) {
+		this.rejectionReason = rejectionReason;
+	}
 }

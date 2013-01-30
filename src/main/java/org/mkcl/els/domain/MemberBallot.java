@@ -274,7 +274,7 @@ public class MemberBallot extends BaseDomain implements Serializable {
      * @param locale the locale
      * @return the boolean
      */
-    public static Boolean createMemberBallot(final Session session,
+    public static String createMemberBallot(final Session session,
             final DeviceType deviceType, final boolean attendance, final int round,
             final String locale) {
         return getMemberBallotRepository().createMemberBallot(session,
@@ -413,10 +413,17 @@ public class MemberBallot extends BaseDomain implements Serializable {
      * @param questionDates the question dates
      * @param locale the locale
      */
-    public static void createFinalBallot(final Session session,
+    public static Boolean createFinalBallot(final Session session,
             final DeviceType deviceType, final Group group, final QuestionDates questionDates,
-            final String locale) {
-
+            final String locale,final String firstBatchSubmissionDate) {
+    	return getMemberBallotRepository().createFinalBallot(session,
+                deviceType,group,questionDates,
+               locale,firstBatchSubmissionDate);
     }
+
+
+	public static Boolean deleteTempEntries() {
+		return getMemberBallotRepository().deleteTempEntries();
+	}
 
 }

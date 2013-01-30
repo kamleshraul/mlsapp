@@ -483,6 +483,7 @@ public class QuestionWorkflowController  extends BaseController{
 		}
 		if(recommendationStatus!=null){
 			model.addAttribute("recommendationStatus",recommendationStatus.getId());
+			model.addAttribute("recommendationStatusType",recommendationStatus.getType());
 		}	
 		/**** Referenced Questions are collected in refentities****/
 		List<Reference> refentities=new ArrayList<Reference>();
@@ -809,6 +810,7 @@ public class QuestionWorkflowController  extends BaseController{
 
 	private void performActionOnClarificationReceived(Question domain) {
 		List<ClubbedEntity> clubbedEntities=domain.getClubbedEntities();
+		if(clubbedEntities!=null){
 		Status status=Status.findByType(ApplicationConstants.QUESTION_SYSTEM_CLUBBED, domain.getLocale());
 		for(ClubbedEntity i:clubbedEntities){
 			Question question=i.getQuestion();
@@ -818,11 +820,13 @@ public class QuestionWorkflowController  extends BaseController{
 				question.simpleMerge();
 			}	
 		}
+		}
 	}
 
 
 	private void performActionOnConvertToUnstarredAndAdmit(Question domain) {
 		List<ClubbedEntity> clubbedEntities=domain.getClubbedEntities();
+		if(clubbedEntities!=null){
 		String subject=null;
 		String questionText=null;
 		if(domain.getRevisedSubject()!=null){
@@ -863,9 +867,11 @@ public class QuestionWorkflowController  extends BaseController{
 			}			
 			question.simpleMerge();
 		}
+		}
 	}
 	private void performActionOnConvertToUnstarred(Question domain) {
 		List<ClubbedEntity> clubbedEntities=domain.getClubbedEntities();
+		if(clubbedEntities!=null){
 		String subject=null;
 		String questionText=null;
 		if(domain.getRevisedSubject()!=null){
@@ -903,10 +909,12 @@ public class QuestionWorkflowController  extends BaseController{
 			}			
 			question.simpleMerge();
 		}
+		}
 	}
 
 	private void performActionOnRejection(Question domain) {
 		List<ClubbedEntity> clubbedEntities=domain.getClubbedEntities();
+		if(clubbedEntities!=null){
 		String subject=null;
 		String questionText=null;
 		if(domain.getRevisedSubject()!=null){
@@ -942,6 +950,7 @@ public class QuestionWorkflowController  extends BaseController{
 				question.setRecommendationStatus(status);
 			}			
 			question.simpleMerge();
+		}
 		}
 	}	
 

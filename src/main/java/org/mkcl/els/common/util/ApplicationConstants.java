@@ -264,9 +264,61 @@ public class ApplicationConstants {
     public static final String DELETE_TEMP_PROCEDURE="memberballot_delete_tempentries_procedure";
     
     public static final String FINAL_BALLOT_PROCEDURE="memberballot_finalballot_procedure";
-    
+  
     public static final String FINAL_BALLOT_UPDATE_SEQUENCE_PROCEDURE="memberballot_finalballot_updatesequenceno_procedure";
+    /**** Session parameters ****/
+    public static final String QUESTION_STARRED_SUBMISSION_STARTTIME_LH="questions_starred_submissionStartDate";
     
+    public static final String QUESTION_STARRED_SUBMISSION_ENDTIME_LH="questions_starred_submissionEndDate";
+    
+    public static final String QUESTION_STARRED_FIRSTBATCH_SUBMISSION_STARTTIME_UH="questions_starred_submissionFirstBatchStartDate";
+    
+    public static final String QUESTION_STARRED_FIRSTBATCH_SUBMISSION_ENDTIME_UH="questions_starred_submissionFirstBatchEndDate";
+    
+    public static final String QUESTION_STARRED_SECONDBATCH_SUBMISSION_STARTTIME_UH="questions_starred_submissionSecondBatchStartDate";
+    
+    public static final String QUESTION_STARRED_SECONDBATCH_SUBMISSION_ENDTIME_UH="questions_starred_submissionSecondBatchEndDate";
+    
+    public static final String QUESTION_STARRED_FIRST_BALLOT_DATE_UH="questions_starred_firstBallotDate";
+    
+    public static final String QUESTION_STARRED_NO_OF_QUESTIONS_FIRST_BATCH_UH="questions_starred_NumberOfQuestionInFirstBatch";
+
+    public static final String QUESTION_STARRED_NO_OF_QUESTIONS_SECOND_BATCH_UH="questions_starred_NumberOfQuestionInSecondBatch";
+    
+    public static final String QUESTION_BALLOTING_REQUIRED="questions_starred_isBallotingRequired";
+    
+    public static final String QUESTION_STARRED_ROTATION_ORDER_PUBLISHING_DATE="questions_starred_rotationOrderPublishingDate";
+    
+    public static final String QUESTION_STARRED_NO_OF_ROUNDS_MEMBERBALLOT_ATTENDANCE_UH="questions_starred_noOfRoundsMemberBallotAttendance";
+    
+    public static final String QUESTION_STARRED_NO_OF_ROUNDS_MEMBERBALLOT_UH="questions_starred_noOfRoundsMemberBallot";  
+    
+    public static final String QUESTION_STARRED_NO_OF_ROUNDS_BALLOT_LH="questions_starred_noOfRoundsBallot";
+    
+    public static final String QUESTION_STARRED_NO_OF_ROUNDS_BALLOT_UH="questions_starred_noOfRoundsMemberBallotFinal";
+
+    /**** member ballot ****/
+    public static final String MEMBERBALLOT_DELETE_EXISTING="DELETE";
+    
+    public static final String MEMBERBALLOT_ABSENTBALLOT_AFTER_ALL_PRESENTBALLOT="YES";
+
+    
+    
+
+    
+
+    
+    
+
+    
+    
+    
+    
+    
+    
+    
+    
+
 
     
 }

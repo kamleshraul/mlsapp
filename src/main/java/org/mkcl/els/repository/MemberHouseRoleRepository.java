@@ -148,43 +148,43 @@ BaseRepository<HouseMemberRoleAssociation, Serializable> {
 			e.printStackTrace();
 			return memberVOS;
 		}
-		}
+	}
 
 	@SuppressWarnings("rawtypes")
-    public List<MasterVO> findAllActiveMemberVOSInSession(final House house,
-            final Session session, final String locale,final String param) {
-        List<MasterVO> memberVOS=new ArrayList<MasterVO>();
-        try {
-            Date sessionStartDate=session.getStartDate();
-            Date sessionEndDate=session.getEndDate();
-            String query=null;
-            if(sessionStartDate!=null && sessionEndDate!=null){
-                SimpleDateFormat format=new SimpleDateFormat(ApplicationConstants.DB_DATEFORMAT);
-                String strSessionStartDate=format.format(sessionStartDate);
-                String strSessionEndDate=format.format(sessionEndDate);
-                query="SELECT m.id,t.name,m.first_name,m.middle_name,m.last_name FROM members_houses_roles as mhr JOIN members as m JOIN memberroles as mr "+
-                " JOIN titles as t WHERE t.id=m.title_id and mr.id=mhr.role and mhr.member=m.id and m.locale='"+locale+"' "+
-                " and mhr.to_date>='"+strSessionStartDate+"' and mhr.to_date>='"+strSessionEndDate+"' and mr.priority=0 and mhr.house_id="+house.getId()+" and (m.first_name LIKE '%"+param+"%' OR m.middle_name LIKE '%"+param+"%' OR m.last_name LIKE '%"+param+"%' OR concat(m.last_name,' ',m.first_name) LIKE '%"+param+"%' OR concat(m.first_name,' ',m.last_name) LIKE '%"+param+"%' OR concat(m.last_name,' ',m.first_name,' ',m.middle_name) LIKE '%"+param+"%' OR concat(m.last_name,', ',t.name,' ',m.first_name,' ',m.middle_name) LIKE '%"+param+"%' OR concat(m.first_name,' ',m.middle_name,' ',m.last_name) LIKE '%"+param+"%')  ORDER BY m.first_name asc";
-                List members=this.em().createNativeQuery(query).getResultList();
-                for(Object i:members){
-                    Object[] o=(Object[]) i;
-                    MasterVO masterVO=new MasterVO();
-                    masterVO.setId(Long.parseLong(o[0].toString()));
-                    if(o[3]!=null){
-                        masterVO.setName(o[1].toString()+", "+o[2].toString()+" "+o[3].toString()+" "+o[4].toString());
-                    }else{
-                        masterVO.setName(o[1].toString()+", "+o[2].toString()+" "+o[3].toString());
-                    }
-                    memberVOS.add(masterVO);
-                }
-            }
-            return memberVOS;
-        } catch (Exception e) {
-            e.printStackTrace();
-            return memberVOS;
-        }
-        }
-	
+	public List<MasterVO> findAllActiveMemberVOSInSession(final House house,
+			final Session session, final String locale,final String param) {
+		List<MasterVO> memberVOS=new ArrayList<MasterVO>();
+		try {
+			Date sessionStartDate=session.getStartDate();
+			Date sessionEndDate=session.getEndDate();
+			String query=null;
+			if(sessionStartDate!=null && sessionEndDate!=null){
+				SimpleDateFormat format=new SimpleDateFormat(ApplicationConstants.DB_DATEFORMAT);
+				String strSessionStartDate=format.format(sessionStartDate);
+				String strSessionEndDate=format.format(sessionEndDate);
+				query="SELECT m.id,t.name,m.first_name,m.middle_name,m.last_name FROM members_houses_roles as mhr JOIN members as m JOIN memberroles as mr "+
+				" JOIN titles as t WHERE t.id=m.title_id and mr.id=mhr.role and mhr.member=m.id and m.locale='"+locale+"' "+
+				" and mhr.to_date>='"+strSessionStartDate+"' and mhr.to_date>='"+strSessionEndDate+"' and mr.priority=0 and mhr.house_id="+house.getId()+" and (m.first_name LIKE '%"+param+"%' OR m.middle_name LIKE '%"+param+"%' OR m.last_name LIKE '%"+param+"%' OR concat(m.last_name,' ',m.first_name) LIKE '%"+param+"%' OR concat(m.first_name,' ',m.last_name) LIKE '%"+param+"%' OR concat(m.last_name,' ',m.first_name,' ',m.middle_name) LIKE '%"+param+"%' OR concat(m.last_name,', ',t.name,' ',m.first_name,' ',m.middle_name) LIKE '%"+param+"%' OR concat(m.first_name,' ',m.middle_name,' ',m.last_name) LIKE '%"+param+"%')  ORDER BY m.first_name asc";
+				List members=this.em().createNativeQuery(query).getResultList();
+				for(Object i:members){
+					Object[] o=(Object[]) i;
+					MasterVO masterVO=new MasterVO();
+					masterVO.setId(Long.parseLong(o[0].toString()));
+					if(o[3]!=null){
+						masterVO.setName(o[1].toString()+", "+o[2].toString()+" "+o[3].toString()+" "+o[4].toString());
+					}else{
+						masterVO.setName(o[1].toString()+", "+o[2].toString()+" "+o[3].toString());
+					}
+					memberVOS.add(masterVO);
+				}
+			}
+			return memberVOS;
+		} catch (Exception e) {
+			e.printStackTrace();
+			return memberVOS;
+		}
+	}
+
 	/**
 	 * Returns null if there are no active house member roles.
 	 */
@@ -198,7 +198,7 @@ BaseRepository<HouseMemberRoleAssociation, Serializable> {
 		search.addFilterEqual("role", role);
 		search.addFilterEqual("house", house);
 		search.addFilterEqual("locale", locale);
-		
+
 		List<HouseMemberRoleAssociation> associations = this.search(search);
 		return associations;
 	}
@@ -213,9 +213,45 @@ BaseRepository<HouseMemberRoleAssociation, Serializable> {
 	public List<Member> findAllActiveMembersInSession(Session session,
 			String locale) {
 		String query="SELECT m FROM HouseMemberRoleAssociation hmra JOIN hmra.member m JOIN hmra.role r"+
-					 " WHERE m.locale='"+locale+"' AND hmra.fromDate>="+session.getStartDate()+" AND hmra.toDate>="+session.getEndDate()+" "+
-					 " AND hmra.house.id="+session.getHouse().getId()+" AND r.priority=0 ORDER BY m.lastName asc";
+		" WHERE m.locale='"+locale+"' AND hmra.fromDate>="+session.getStartDate()+" AND hmra.toDate>="+session.getEndDate()+" "+
+		" AND hmra.house.id="+session.getHouse().getId()+" AND r.priority=0 ORDER BY m.lastName asc";
 		List<Member> members=this.em().createQuery(query).getResultList();
 		return members;
+	}
+
+	/**** Anand Kulkarni ****/
+	@SuppressWarnings("rawtypes")
+	public List<MasterVO> findAllActiveSupportingMemberVOSInSession(final House house,
+			final Session session, final String locale,final String param, final Long primaryMemberId) {
+		List<MasterVO> memberVOS=new ArrayList<MasterVO>();
+		try {
+			Date sessionStartDate=session.getStartDate();
+			Date sessionEndDate=session.getEndDate();
+			String query=null;
+			if(sessionStartDate!=null && sessionEndDate!=null){
+				SimpleDateFormat format=new SimpleDateFormat(ApplicationConstants.DB_DATEFORMAT);
+				String strSessionStartDate=format.format(sessionStartDate);
+				String strSessionEndDate=format.format(sessionEndDate);
+				query="SELECT m.id,t.name,m.first_name,m.middle_name,m.last_name FROM members_houses_roles as mhr JOIN members as m JOIN memberroles as mr "+
+				" JOIN titles as t WHERE t.id=m.title_id and mr.id=mhr.role and mhr.member=m.id and m.id<>'"+ primaryMemberId+"' and m.locale='"+locale+"' "+
+				" and mhr.to_date>='"+strSessionStartDate+"' and mhr.to_date>='"+strSessionEndDate+"' and mr.priority=0 and mhr.house_id="+house.getId()+" and (m.first_name LIKE '%"+param+"%' OR m.middle_name LIKE '%"+param+"%' OR m.last_name LIKE '%"+param+"%' OR concat(m.last_name,' ',m.first_name) LIKE '%"+param+"%' OR concat(m.first_name,' ',m.last_name) LIKE '%"+param+"%' OR concat(m.last_name,' ',m.first_name,' ',m.middle_name) LIKE '%"+param+"%' OR concat(m.last_name,', ',t.name,' ',m.first_name,' ',m.middle_name) LIKE '%"+param+"%' OR concat(m.first_name,' ',m.middle_name,' ',m.last_name) LIKE '%"+param+"%')  ORDER BY m.first_name asc";
+				List members=this.em().createNativeQuery(query).getResultList();
+				for(Object i:members){
+					Object[] o=(Object[]) i;
+					MasterVO masterVO=new MasterVO();
+					masterVO.setId(Long.parseLong(o[0].toString()));
+					if(o[3]!=null){
+						masterVO.setName(o[1].toString()+o[2].toString()+" "+o[3].toString()+" "+o[4].toString());
+					}else{
+						masterVO.setName(o[1].toString()+o[2].toString()+" "+o[3].toString());
+					}
+					memberVOS.add(masterVO);
+				}
+			}
+			return memberVOS;
+		} catch (Exception e) {
+			e.printStackTrace();
+			return memberVOS;
+		}
 	}
 }

@@ -1503,4 +1503,49 @@ public class ReferenceController extends BaseController {
 		return masterVOs;
 	}
 	
+	/**** Anand Kulkarni ****/
+	@RequestMapping(value="/member/supportingmembers",method=RequestMethod.GET)
+	public @ResponseBody List<AutoCompleteVO> getSMembers(final HttpServletRequest request,final Locale locale,
+			@RequestParam("session")final Long session,final ModelMap model){
+		CustomParameter customParameter=CustomParameter.findByName(CustomParameter.class,"DEPLOYMENT_SERVER", "");
+		List<MasterVO> memberVOs=new ArrayList<MasterVO>();
+		List<AutoCompleteVO> autoCompleteVOs=new ArrayList<AutoCompleteVO>();
+		Session selectedSession=Session.findById(Session.class,session);
+		House house=selectedSession.getHouse();
+		Long primaryMemberId=null;
+		if(request.getParameter("primaryMemberId")!=null){
+			if(!request.getParameter("primaryMemberId").isEmpty()){
+				primaryMemberId = Long.parseLong(request.getParameter("primaryMemberId"));
+			}
+		}
+		if(primaryMemberId==null){
+			return autoCompleteVOs;
+		}
+		if(customParameter!=null){
+			String server=customParameter.getValue();
+			if(server.equals("TOMCAT")){
+				String strParam=request.getParameter("term");
+				try {
+					String param=new String(strParam.getBytes("ISO-8859-1"),"UTF-8");
+					memberVOs=HouseMemberRoleAssociation.findAllActiveSupportingMemberVOSInSession(house, selectedSession, locale.toString(), param,primaryMemberId);
+				}
+				catch (UnsupportedEncodingException e){
+					e.printStackTrace();
+				}
+			}else{
+				String param=request.getParameter("term");
+				memberVOs=HouseMemberRoleAssociation.findAllActiveSupportingMemberVOSInSession(house,selectedSession, locale.toString(), param, primaryMemberId);
+			}
+		}
+		for(MasterVO i:memberVOs){
+			AutoCompleteVO autoCompleteVO=new AutoCompleteVO();
+			autoCompleteVO.setId(i.getId());
+			autoCompleteVO.setValue(i.getName());
+			autoCompleteVOs.add(autoCompleteVO);
+		}
+
+		return autoCompleteVOs;
+	}
+
+	
 }

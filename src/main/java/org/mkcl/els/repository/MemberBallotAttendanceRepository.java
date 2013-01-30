@@ -200,7 +200,7 @@ public class MemberBallotAttendanceRepository extends BaseRepository<MemberBallo
 	
 	public Boolean areMembersLocked(final Session session,final DeviceType questionType,
 			final Integer round,final Boolean attendance,
-			final Integer noofRounds,final String locale) {
+			final String locale) {
 		Search search=new Search();
         search.addFilterEqual("session.id", session.getId());
         search.addFilterEqual("deviceType.id", questionType.getId());
@@ -217,14 +217,16 @@ public class MemberBallotAttendanceRepository extends BaseRepository<MemberBallo
         search1.addFilterEqual("locked",true);
         search1.addFilterEqual("attendance",attendance);
         int lockedCount=this.count(search1);
-        if(totalCount==0&&lockedCount==0&&attendance==false&&round==noofRounds){
+        if(totalCount==0&&lockedCount==0&&attendance==false){
         	return true;
-        }else if(totalCount==0&&lockedCount==0){
+        }else if(totalCount==0&&lockedCount==0&&attendance==true){
         	return false;
         }else if(totalCount==lockedCount){
         	return true;
         }else{
         	return false;
         }	
-	}	
+	}
+
+	
 }

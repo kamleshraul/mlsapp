@@ -282,10 +282,12 @@ public class MemberBallotAttendance extends BaseDomain implements Serializable{
 	}	
 
 	public static Boolean areMembersLocked(final Session session,
-			final DeviceType questionType,final Integer round,final Boolean attendance,final Integer noOfRounds,final  String locale) {
+			final DeviceType questionType,final Integer round,final Boolean attendance,final  String locale) {
 		return getMemberBallotAttendanceRepository().areMembersLocked(session,
-				questionType,round,attendance,noOfRounds,locale);
+				questionType,round,attendance,locale);
 	}
+
+	
 
 
 
