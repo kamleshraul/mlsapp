@@ -21,6 +21,8 @@
 				+"&ugparam="+$("#ugparam").val()
 				+"&status="+$("#selectedStatus").val()
 				+"&role="+$("#srole").val()
+				+"&usergroup="+$("#currentusergroup").val()
+				+"&usergroupType="+$("#currentusergroupType").val()	
 				+"&edit=true";
 				var resourceURL='question/'+$(this).attr("id")+'/edit?'+parameters;
 				showTabByIdAndUrl('details_tab', resourceURL);
@@ -51,6 +53,8 @@
 			+"&ugparam="+$("#ugparam").val()
 			+"&status="+$("#selectedStatus").val()
 			+"&role="+$("#srole").val()
+			+"&usergroup="+$("#currentusergroup").val()
+			+"&usergroupType="+$("#currentusergroupType").val()	
 			+"&edit=false";
 			var resourceURL='question/'+id+'/edit?'+parameters;
 			$.get(resourceURL,function(data){
