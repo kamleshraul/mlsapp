@@ -29,6 +29,7 @@ public class QuestionVO {
 	/** The status. */
 	private String status;
 
+	private Boolean hasParent;
 
 	//=============== CONSTRUCTORS ==================
 	/**
@@ -106,6 +107,14 @@ public class QuestionVO {
 	 */
 	public void setStatus(final String status) {
 		this.status = status;
+	}
+
+	public Boolean getHasParent() {
+		return hasParent;
+	}
+
+	public void setHasParent(Boolean hasParent) {
+		this.hasParent = hasParent;
 	}
 }
 
