@@ -17,7 +17,10 @@
 			});				
 			$('#memberballotchoice').click(function(){
 				memberballotchoice();
-			});				
+			});			
+			$("#updateclubbing").click(function(){
+				updateClubbing();
+			});	
 			/**** attendance changes then disable submit otherwise whole configuration gets submitted
 			as changed value which is wrong ****/
 			$("#selectedAttendance").change(function(){
@@ -110,6 +113,16 @@
 			$.get(resourceURL,function(data){
 			$("#resultDiv").html(data);
 			$.unblockUI();				
+			},'html');
+		}
+		function uodateClubbing(){
+			$.blockUI({ message: '<img src="./resources/images/waitAnimated.gif" />' });
+			var parameters = "session="+$("#session").val()
+			 +"&questionType="+$("#questionType").val();
+			var resourceURL = 'ballot/memberballot/updateclubbing?'+ parameters;
+			$.get(resourceURL,function(data){
+				$("#resultDiv").html(data);
+				$.unblockUI();				
 			},'html');
 		}
 	</script>
