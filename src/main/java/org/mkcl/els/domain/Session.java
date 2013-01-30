@@ -824,19 +824,24 @@ public class Session extends BaseDomain implements Serializable {
 	 * @param session
 	 * @return
 	 */
-	private static Session compareSession(List<Session> sessionList, final Session session){
-	
+private static Session compareSession(List<Session> sessionList, final Session session){
+		
 		Object[] sessions = sessionList.toArray();
-		long minDiff=((Session)sessions[0]).getEndDate().getTime()-session.getStartDate().getTime();
+		long minDiff;
 		int indexer=-1;
 		
-		for(int i = 1; i < sessions.length; i++){
+		if(sessionList.size() > 0){
 			
-			long tempTimeDifference = (((Session)sessions[i]).getEndDate().getTime()-session.getStartDate().getTime()); 
-			
-			if(tempTimeDifference <= minDiff){
-				minDiff = tempTimeDifference;
-				indexer = i;
+			minDiff=((Session)sessions[0]).getEndDate().getTime()-session.getStartDate().getTime();
+		
+			for(int i = 1; i < sessions.length; i++){
+				
+				long tempTimeDifference = (((Session)sessions[i]).getEndDate().getTime()-session.getStartDate().getTime()); 
+				
+				if(tempTimeDifference <= minDiff){
+					minDiff = tempTimeDifference;
+					indexer = i;
+				}
 			}
 		}
 		if(indexer >= 0)
@@ -844,4 +849,6 @@ public class Session extends BaseDomain implements Serializable {
 		else
 			return null;
 	}
+	
+	
  }

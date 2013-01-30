@@ -855,6 +855,24 @@ public class QuestionController extends GenericController<Question>{
 			}
 		}
 		//---------------------------Added by vikas & dhananjay-------------------------------------
+		QuestionDraft qDraft = domain.findPreviousDraft();
+		if(domain.getInternalStatus().getType().equals("question_workflow_approving_rejection")){
+			if(qDraft != null){
+				if(qDraft.getEditedBy().equals("sectionofficer_assembly") || qDraft.getEditedBy().equals("sectionofficer_council")){
+					if(qDraft.getInternalStatus().getType().equals("question_workflow_approving_rejection")){
+						model.addAttribute("sectionofficer_remark", qDraft.getRemarks());
+					}else{
+						model.addAttribute("sectionofficer_remark", "");
+					}
+				}else{
+					model.addAttribute("sectionofficer_remark", "");
+				}
+			}else{
+				model.addAttribute("sectionofficer_remark", "");
+			}			
+		}else{
+			model.addAttribute("sectionofficer_remark", "");
+		}
 		if(questionType.getType().equals("questions_halfhourdiscussion_from_question") || questionType.getType().equals("questions_halfhourdiscussion_standalone")){
 
 			populateForHalfHourDiscussionEdit(model, domain, request);
@@ -1813,6 +1831,34 @@ public class QuestionController extends GenericController<Question>{
 		}else{
 			return "question/viewquestion";
 		}
+	}
+	@RequestMapping(value="/getsubject",method=RequestMethod.GET)
+	public @ResponseBody MasterVO getSubjectAndQuestion(final HttpServletRequest request,final ModelMap model,final Locale locale){
+
+		String strQuestionId = request.getParameter("qid");
+		String text = request.getParameter("text");
+		MasterVO masterVO = new MasterVO();
+		
+		if(strQuestionId != null){
+			if(!strQuestionId.isEmpty()){
+
+				Long id = new Long(strQuestionId);
+				Question q = Question.findById(Question.class, id);
+				
+				if(text != null){
+					if(!text.isEmpty()){
+						if(text.equals("1")){
+							
+							masterVO.setId(q.getId());
+							masterVO.setName(q.getSubject());
+							masterVO.setValue(q.getQuestionText());
+							
+						}
+					}
+				}
+			}
+		}
+		return masterVO;
 	}
 
 

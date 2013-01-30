@@ -716,11 +716,34 @@ public class QuestionWorkflowController  extends BaseController{
 		domain.setEditedAs(workflowDetails.getAssigneeUserGroupName());
 		String strDateOfAnsweringByMinister=request.getParameter("dateOfAnsweringByMinister");
 		Date dateOfAnsweringByMinister=null;
+
+		String strDiscussionDate = request.getParameter("discussionDate");
+		String strHalfHourDiscussionFromQuestionReference = request.getParameter("halfHourDiscusionFromQuestionReference");
+		Date dateDiscussionDate=null;
+		Long refQuestionId=null;
 		try {
 			if(strDateOfAnsweringByMinister!=null){
 				if(!strDateOfAnsweringByMinister.isEmpty()){
 					dateOfAnsweringByMinister=FormaterUtil.getDateFormatter("en_US").parse(strDateOfAnsweringByMinister);
 				}
+			}
+
+			if(strDiscussionDate != null){
+				if(!strDiscussionDate.isEmpty()){
+					dateDiscussionDate = FormaterUtil.getDateFormatter("en_US").parse(strDiscussionDate);
+					String strTempDiscussionDate = FormaterUtil.getDateFormatter("yyyy-MM-dd","en_US").format(dateDiscussionDate);
+					dateDiscussionDate = FormaterUtil.getDateFormatter("yyyy-MM-dd","en_US").parse(strTempDiscussionDate);
+
+					//set the discussion date
+					domain.setDiscussionDate(dateDiscussionDate);
+				}			
+			}
+			if(strHalfHourDiscussionFromQuestionReference != null){
+				if(!strHalfHourDiscussionFromQuestionReference.isEmpty()){
+					refQuestionId = new Long(strHalfHourDiscussionFromQuestionReference);
+					Question refQ = Question.findById(Question.class, refQuestionId);
+					domain.setHalfHourDiscusionFromQuestionReference(refQ);
+				}				
 			}
 		} catch (ParseException e1) {
 			try {
@@ -811,15 +834,15 @@ public class QuestionWorkflowController  extends BaseController{
 	private void performActionOnClarificationReceived(Question domain) {
 		List<ClubbedEntity> clubbedEntities=domain.getClubbedEntities();
 		if(clubbedEntities!=null){
-		Status status=Status.findByType(ApplicationConstants.QUESTION_SYSTEM_CLUBBED, domain.getLocale());
-		for(ClubbedEntity i:clubbedEntities){
-			Question question=i.getQuestion();
-			if(question.getInternalStatus().getType().equals(ApplicationConstants.QUESTION_SYSTEM_CLUBBED_WITH_PENDING)){
-				question.setInternalStatus(status);
-				question.setRecommendationStatus(status);
-				question.simpleMerge();
-			}	
-		}
+			Status status=Status.findByType(ApplicationConstants.QUESTION_SYSTEM_CLUBBED, domain.getLocale());
+			for(ClubbedEntity i:clubbedEntities){
+				Question question=i.getQuestion();
+				if(question.getInternalStatus().getType().equals(ApplicationConstants.QUESTION_SYSTEM_CLUBBED_WITH_PENDING)){
+					question.setInternalStatus(status);
+					question.setRecommendationStatus(status);
+					question.simpleMerge();
+				}	
+			}
 		}
 	}
 
@@ -827,130 +850,130 @@ public class QuestionWorkflowController  extends BaseController{
 	private void performActionOnConvertToUnstarredAndAdmit(Question domain) {
 		List<ClubbedEntity> clubbedEntities=domain.getClubbedEntities();
 		if(clubbedEntities!=null){
-		String subject=null;
-		String questionText=null;
-		if(domain.getRevisedSubject()!=null){
-			if(!domain.getRevisedSubject().isEmpty()){
-				subject=domain.getRevisedSubject();
+			String subject=null;
+			String questionText=null;
+			if(domain.getRevisedSubject()!=null){
+				if(!domain.getRevisedSubject().isEmpty()){
+					subject=domain.getRevisedSubject();
+				}else{
+					subject=domain.getSubject();
+				}
 			}else{
 				subject=domain.getSubject();
 			}
-		}else{
-			subject=domain.getSubject();
-		}
-		if(domain.getRevisedQuestionText()!=null){
-			if(!domain.getRevisedQuestionText().isEmpty()){
-				questionText=domain.getRevisedQuestionText();
+			if(domain.getRevisedQuestionText()!=null){
+				if(!domain.getRevisedQuestionText().isEmpty()){
+					questionText=domain.getRevisedQuestionText();
+				}else{
+					questionText=domain.getQuestionText();
+				}
 			}else{
 				questionText=domain.getQuestionText();
 			}
-		}else{
-			questionText=domain.getQuestionText();
-		}
-		Status internalStatus=domain.getInternalStatus();
-		Status recommendationStatus=domain.getRecommendationStatus();
-		Status newInternalStatus=Status.findByType(ApplicationConstants.QUESTION_PUTUP_NAMECLUBBING, domain.getLocale());
-		Status newRecommendationStatus=Status.findByType(ApplicationConstants.QUESTION_PUTUP_CONVERT_TO_UNSTARRED_AND_ADMIT, domain.getLocale());
-		DeviceType deviceType=DeviceType.findByType(ApplicationConstants.UNSTARRED_QUESTION,domain.getLocale());
-		domain.setType(deviceType);
-		for(ClubbedEntity i:clubbedEntities){
-			Question question=i.getQuestion();
-			if(question.getInternalStatus().getType().equals(ApplicationConstants.QUESTION_SYSTEM_CLUBBED)){
-				question.setRevisedSubject(subject);
-				question.setRevisedQuestionText(questionText);
-				question.setInternalStatus(internalStatus);
-				question.setRecommendationStatus(recommendationStatus);
-				question.setType(deviceType);
-			}else{
-				question.setInternalStatus(newInternalStatus);
-				question.setRecommendationStatus(newRecommendationStatus);
-			}			
-			question.simpleMerge();
-		}
+			Status internalStatus=domain.getInternalStatus();
+			Status recommendationStatus=domain.getRecommendationStatus();
+			Status newInternalStatus=Status.findByType(ApplicationConstants.QUESTION_PUTUP_NAMECLUBBING, domain.getLocale());
+			Status newRecommendationStatus=Status.findByType(ApplicationConstants.QUESTION_PUTUP_CONVERT_TO_UNSTARRED_AND_ADMIT, domain.getLocale());
+			DeviceType deviceType=DeviceType.findByType(ApplicationConstants.UNSTARRED_QUESTION,domain.getLocale());
+			domain.setType(deviceType);
+			for(ClubbedEntity i:clubbedEntities){
+				Question question=i.getQuestion();
+				if(question.getInternalStatus().getType().equals(ApplicationConstants.QUESTION_SYSTEM_CLUBBED)){
+					question.setRevisedSubject(subject);
+					question.setRevisedQuestionText(questionText);
+					question.setInternalStatus(internalStatus);
+					question.setRecommendationStatus(recommendationStatus);
+					question.setType(deviceType);
+				}else{
+					question.setInternalStatus(newInternalStatus);
+					question.setRecommendationStatus(newRecommendationStatus);
+				}			
+				question.simpleMerge();
+			}
 		}
 	}
 	private void performActionOnConvertToUnstarred(Question domain) {
 		List<ClubbedEntity> clubbedEntities=domain.getClubbedEntities();
 		if(clubbedEntities!=null){
-		String subject=null;
-		String questionText=null;
-		if(domain.getRevisedSubject()!=null){
-			if(!domain.getRevisedSubject().isEmpty()){
-				subject=domain.getRevisedSubject();
+			String subject=null;
+			String questionText=null;
+			if(domain.getRevisedSubject()!=null){
+				if(!domain.getRevisedSubject().isEmpty()){
+					subject=domain.getRevisedSubject();
+				}else{
+					subject=domain.getSubject();
+				}
 			}else{
 				subject=domain.getSubject();
 			}
-		}else{
-			subject=domain.getSubject();
-		}
-		if(domain.getRevisedQuestionText()!=null){
-			if(!domain.getRevisedQuestionText().isEmpty()){
-				questionText=domain.getRevisedQuestionText();
+			if(domain.getRevisedQuestionText()!=null){
+				if(!domain.getRevisedQuestionText().isEmpty()){
+					questionText=domain.getRevisedQuestionText();
+				}else{
+					questionText=domain.getQuestionText();
+				}
 			}else{
 				questionText=domain.getQuestionText();
 			}
-		}else{
-			questionText=domain.getQuestionText();
-		}
-		Status status1=Status.findByType(ApplicationConstants.QUESTION_PUTUP_CONVERT_TO_UNSTARRED, domain.getLocale());
-		Status status2=Status.findByType(ApplicationConstants.QUESTION_RECOMMEND_CONVERT_TO_UNSTARRED, domain.getLocale());
-		DeviceType deviceType=DeviceType.findByType(ApplicationConstants.UNSTARRED_QUESTION,domain.getLocale());
-		domain.setType(deviceType);
-		for(ClubbedEntity i:clubbedEntities){
-			Question question=i.getQuestion();
-			if(question.getInternalStatus().getType().equals(ApplicationConstants.QUESTION_SYSTEM_CLUBBED)){
-				question.setRevisedSubject(subject);
-				question.setRevisedQuestionText(questionText);
-				question.setRecommendationStatus(status2);
-				question.setType(deviceType);
-			}else{
-				question.setInternalStatus(status1);
-				question.setRecommendationStatus(status1);				
-			}			
-			question.simpleMerge();
-		}
+			Status status1=Status.findByType(ApplicationConstants.QUESTION_PUTUP_CONVERT_TO_UNSTARRED, domain.getLocale());
+			Status status2=Status.findByType(ApplicationConstants.QUESTION_RECOMMEND_CONVERT_TO_UNSTARRED, domain.getLocale());
+			DeviceType deviceType=DeviceType.findByType(ApplicationConstants.UNSTARRED_QUESTION,domain.getLocale());
+			domain.setType(deviceType);
+			for(ClubbedEntity i:clubbedEntities){
+				Question question=i.getQuestion();
+				if(question.getInternalStatus().getType().equals(ApplicationConstants.QUESTION_SYSTEM_CLUBBED)){
+					question.setRevisedSubject(subject);
+					question.setRevisedQuestionText(questionText);
+					question.setRecommendationStatus(status2);
+					question.setType(deviceType);
+				}else{
+					question.setInternalStatus(status1);
+					question.setRecommendationStatus(status1);				
+				}			
+				question.simpleMerge();
+			}
 		}
 	}
 
 	private void performActionOnRejection(Question domain) {
 		List<ClubbedEntity> clubbedEntities=domain.getClubbedEntities();
 		if(clubbedEntities!=null){
-		String subject=null;
-		String questionText=null;
-		if(domain.getRevisedSubject()!=null){
-			if(!domain.getRevisedSubject().isEmpty()){
-				subject=domain.getRevisedSubject();
+			String subject=null;
+			String questionText=null;
+			if(domain.getRevisedSubject()!=null){
+				if(!domain.getRevisedSubject().isEmpty()){
+					subject=domain.getRevisedSubject();
+				}else{
+					subject=domain.getSubject();
+				}
 			}else{
 				subject=domain.getSubject();
 			}
-		}else{
-			subject=domain.getSubject();
-		}
-		if(domain.getRevisedQuestionText()!=null){
-			if(!domain.getRevisedQuestionText().isEmpty()){
-				questionText=domain.getRevisedQuestionText();
+			if(domain.getRevisedQuestionText()!=null){
+				if(!domain.getRevisedQuestionText().isEmpty()){
+					questionText=domain.getRevisedQuestionText();
+				}else{
+					questionText=domain.getQuestionText();
+				}
 			}else{
 				questionText=domain.getQuestionText();
 			}
-		}else{
-			questionText=domain.getQuestionText();
-		}
-		Status internalStatus=domain.getInternalStatus();
-		Status recommendationStatus=domain.getRecommendationStatus();
-		Status status=Status.findByType(ApplicationConstants.QUESTION_PUTUP_REJECTION, domain.getLocale());
-		for(ClubbedEntity i:clubbedEntities){
-			Question question=i.getQuestion();
-			if(question.getInternalStatus().getType().equals(ApplicationConstants.QUESTION_SYSTEM_CLUBBED)){
-				question.setRevisedSubject(subject);
-				question.setRevisedQuestionText(questionText);
-				question.setInternalStatus(internalStatus);
-				question.setRecommendationStatus(recommendationStatus);
-			}else{
-				question.setInternalStatus(status);
-				question.setRecommendationStatus(status);
-			}			
-			question.simpleMerge();
-		}
+			Status internalStatus=domain.getInternalStatus();
+			Status recommendationStatus=domain.getRecommendationStatus();
+			Status status=Status.findByType(ApplicationConstants.QUESTION_PUTUP_REJECTION, domain.getLocale());
+			for(ClubbedEntity i:clubbedEntities){
+				Question question=i.getQuestion();
+				if(question.getInternalStatus().getType().equals(ApplicationConstants.QUESTION_SYSTEM_CLUBBED)){
+					question.setRevisedSubject(subject);
+					question.setRevisedQuestionText(questionText);
+					question.setInternalStatus(internalStatus);
+					question.setRecommendationStatus(recommendationStatus);
+				}else{
+					question.setInternalStatus(status);
+					question.setRecommendationStatus(status);
+				}			
+				question.simpleMerge();
+			}
 		}
 	}	
 
