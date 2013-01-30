@@ -117,12 +117,20 @@
 		<td>${chartVO.memberName}</td>
 		<c:forEach items="${chartVO.questionVOs}" var="questionVO">
 			<td align="center">
-				<a href="#" class="questionNumber" id="${questionVO.id}" >${questionVO.number}</a>
 				<c:choose>
-				<c:when test="${questionVO.status == 'question_before_workflow_tobeputup'}">
+				<c:when test="${questionVO.hasParent == false}">
+					<a href="#" class="questionNumber" id="${questionVO.id}" ><b>${questionVO.number}</b></a>
+				</c:when>
+				<c:otherwise>
+					<a href="#" class="questionNumber" id="${questionVO.id}" >${questionVO.number}</a>
+				</c:otherwise>
+				</c:choose>
+				
+				<c:choose>
+				<c:when test="${questionVO.status == 'question_system_putup'}">
 					<img src="./resources/images/template/icons/red_check.jpg" class="toolTip clearfix" width="2" height="10">
 				</c:when>
-				<c:when test="${questionVO.status == 'question_before_workflow_clubbed'}">
+				<c:when test="${questionVO.status == 'question_system_clubbed'}">
 					<img src="./resources/images/template/icons/blue_check.jpg" class="toolTip clearfix" width="2" height="10">
 				</c:when>
 				<c:otherwise>
