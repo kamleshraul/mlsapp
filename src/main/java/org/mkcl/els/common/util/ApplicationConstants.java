@@ -258,6 +258,15 @@ public class ApplicationConstants {
     public static final String PENDING_FILTER="PENDING";
     
     public static final String APPROVED_FILTER="APPROVED";
+    /**** Member Ballot Stored procedure ****/
+    public static final String CLUBBING_UPDATE_PROCEDURE="memberballot_updateclubbing_procedure";
+    
+    public static final String DELETE_TEMP_PROCEDURE="memberballot_delete_tempentries_procedure";
+    
+    public static final String FINAL_BALLOT_PROCEDURE="memberballot_finalballot_procedure";
+    
+    public static final String FINAL_BALLOT_UPDATE_SEQUENCE_PROCEDURE="memberballot_finalballot_updatesequenceno_procedure";
+    
 
     
 }
