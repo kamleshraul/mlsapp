@@ -36,7 +36,7 @@
 			});			
 			/**** On clicking search button ****/
 			$("#search").click(function(){
-			search();
+			search("");
 			});
 			/**** On Page Load ****/
 			$("#clubbingDiv").hide();
