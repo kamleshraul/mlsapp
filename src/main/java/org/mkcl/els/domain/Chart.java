@@ -172,14 +172,35 @@ public class Chart extends BaseDomain implements Serializable {
 					q.getInternalStatus().getType());
 			if(q.getParent() == null) {
 				questionVO.setHasParent(false);
+				String kids = Chart.getClubbingsAsCommaSeparatedString(q.getClubbedEntities());
+				if(! kids.isEmpty()) {
+					questionVO.setKids(kids);
+				}
 			}
 			else {
 				questionVO.setHasParent(true);
+				questionVO.setParent(String.valueOf(q.getParent().getNumber()));
 			}
 			
 			questionVOs.add(questionVO);
 		}
 		return questionVOs;
+	}
+	
+	private static String getClubbingsAsCommaSeparatedString(List<ClubbedEntity> clubbedEntities) {
+		StringBuffer sb = new StringBuffer("");
+		
+		if(clubbedEntities != null) {
+			int n = clubbedEntities.size();
+			for(int i = 0; i < n; i++) {
+				sb.append(clubbedEntities.get(i).getQuestion().getNumber());
+				if(i < n - 1) {
+					sb.append(", ");
+				}
+			}
+		}
+		
+		return sb.toString();
 	}
 	
 	
