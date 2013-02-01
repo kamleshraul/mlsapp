@@ -1546,6 +1546,27 @@ public class ReferenceController extends BaseController {
 
 		return autoCompleteVOs;
 	}
-
+	
+	@RequestMapping(value="/getformatteddate",method=RequestMethod.GET)
+	public @ResponseBody String getLastRecivingDate(final HttpServletRequest request,
+			final Locale locale){
+		
+		String strReceivingDate = request.getParameter("crdt");
+		String formattedDate = null;
+		Date receivingDate = null;
+		
+		if(strReceivingDate != null){
+			if(!strReceivingDate.isEmpty()){
+				try {
+					receivingDate = FormaterUtil.getDateFormatter("yyyy-MM-dd hh:mm:ss", "en_US").parse(strReceivingDate);
+				} catch (ParseException e) {
+					e.printStackTrace();
+				}
+				formattedDate = FormaterUtil.getDateFormatter("dd/MM/yyyy hh:mm:ss", "mr_IN").format(receivingDate);
+			}
+		}
+		
+		return formattedDate;
+	}
 	
 }

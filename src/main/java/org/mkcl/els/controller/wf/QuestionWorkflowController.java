@@ -339,7 +339,12 @@ public class QuestionWorkflowController  extends BaseController{
 		model.addAttribute("formattedQuestionType",questionType.getName());
 		model.addAttribute("questionType",questionType.getId());
 		model.addAttribute("selectedQuestionType",questionType.getType());
-
+		
+		/**** Original Question Type ****/		
+		if(domain.getOriginalType()!=null) {
+			model.addAttribute("originalType",domain.getOriginalType().getId());
+		}
+		
 		/**** Primary Member ****/
 		String memberNames=null;
 		String primaryMemberName=null;
@@ -441,6 +446,11 @@ public class QuestionWorkflowController  extends BaseController{
 					model.addAttribute("answeringDate",domain.getAnsweringDate().getId());
 					model.addAttribute("formattedAnsweringDate",FormaterUtil.getDateFormatter(locale).format(domain.getAnsweringDate().getAnsweringDate()));
 					model.addAttribute("answeringDateSelected",domain.getAnsweringDate().getId());
+					model.addAttribute("lastReceivingDateFromDepartment", FormaterUtil.getDateFormatter(locale).format(domain.getAnsweringDate().getLastReceivingDateFromDepartment()));
+					CustomParameter serverTimeStamp=CustomParameter.findByName(CustomParameter.class,"SERVER_TIMESTAMP","");
+					if(serverTimeStamp!=null){						
+						model.addAttribute("taskCreationDate", FormaterUtil.getDateFormatter(serverTimeStamp.getValue(),locale).format(domain.findPreviousDraft().getEditedOn()));
+					}					
 				}
 			}
 		}	
@@ -555,6 +565,22 @@ public class QuestionWorkflowController  extends BaseController{
 		String userGroupType=workflowDetails.getAssigneeUserGroupType();
 		String locale=question.getLocale();
 		/**** First we will check if custom parameter for internal status and usergroupType has been set ****/
+		if(type.equals(ApplicationConstants.QUESTION_RECOMMEND_ADMISSION)&&
+				(question.getRecommendationStatus().getType().equals(ApplicationConstants.QUESTION_RECOMMEND_DISCUSS)
+						||question.getRecommendationStatus().getType().equals(ApplicationConstants.QUESTION_RECOMMEND_SENDBACK))){
+			CustomParameter assistantSendBackDiscuss=CustomParameter.findByName(CustomParameter.class,"QUESTION_PUT_UP_OPTIONS_RECOMMEND","");
+			if(assistantSendBackDiscuss!=null){
+				internalStatuses=Status.findStatusContainedIn(assistantSendBackDiscuss.getValue(), locale);
+			}else{
+				CustomParameter defaultCustomParameter=CustomParameter.findByName(CustomParameter.class,"QUESTION_PUT_UP_OPTIONS_BY_DEFAULT","");
+				if(defaultCustomParameter!=null){
+					internalStatuses=Status.findStatusContainedIn(defaultCustomParameter.getValue(), locale);
+				}else{
+					model.addAttribute("errorcode","question_putup_options_final_notset");
+				}	
+			}
+			
+		}
 		CustomParameter specificStatuses=CustomParameter.findByName(CustomParameter.class,"QUESTION_PUT_UP_OPTIONS_"+type.toUpperCase()+"_"+userGroupType.toUpperCase(),"");
 		if(specificStatuses!=null){
 			internalStatuses=Status.findStatusContainedIn(specificStatuses.getValue(), locale);

@@ -218,7 +218,7 @@ public class MemberBallotAttendanceRepository extends BaseRepository<MemberBallo
         search1.addFilterEqual("attendance",attendance);
         int lockedCount=this.count(search1);
         if(totalCount==0&&lockedCount==0&&attendance==false){
-        	return true;
+        	return false;
         }else if(totalCount==0&&lockedCount==0&&attendance==true){
         	return false;
         }else if(totalCount==lockedCount){

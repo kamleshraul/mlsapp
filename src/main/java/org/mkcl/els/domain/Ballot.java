@@ -181,12 +181,8 @@ public class Ballot extends BaseDomain implements Serializable {
 				BallotVO preBallotVO = new BallotVO();
 				preBallotVO.setMemberName(q.getPrimaryMember().getFullname());
 				preBallotVO.setQuestionNumber(q.getNumber());
-				if(q.getRevisedSubject() != null) {
-					preBallotVO.setQuestionSubject(q.getRevisedSubject());
-				}
-				else {
-					preBallotVO.setQuestionSubject(q.getSubject());
-				}
+				preBallotVO.setQuestionSubject(q.getSubject());
+
 				preBallotVOs.add(preBallotVO);
 			}
 		}
@@ -242,13 +238,7 @@ public class Ballot extends BaseDomain implements Serializable {
 				QuestionSequence qs = entry.getQuestionSequences().get(0);
 				Question q = qs.getQuestion();
 				ballotedVO.setQuestionNumber(q.getNumber());
-				
-				if(q.getRevisedSubject() != null) {
-					ballotedVO.setQuestionSubject(q.getRevisedSubject());
-				}
-				else {
-					ballotedVO.setQuestionSubject(q.getSubject());
-				}
+				ballotedVO.setQuestionSubject(q.getSubject());
 				
 				ballotedVOs.add(ballotedVO);
 			}

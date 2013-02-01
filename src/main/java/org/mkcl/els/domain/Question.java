@@ -34,6 +34,7 @@ import javax.persistence.TemporalType;
 import org.codehaus.jackson.annotate.JsonIgnoreProperties;
 import org.mkcl.els.common.util.ApplicationConstants;
 import org.mkcl.els.common.util.FormaterUtil;
+import org.mkcl.els.common.vo.MemberBallotMemberWiseReportVO;
 import org.mkcl.els.common.vo.QuestionRevisionVO;
 import org.mkcl.els.common.vo.QuestionSearchVO;
 import org.mkcl.els.repository.QuestionRepository;
@@ -54,7 +55,7 @@ import org.springframework.beans.factory.annotation.Configurable;
 @JsonIgnoreProperties({"halfHourDiscusionFromQuestionReference","answeringDate","chartAnsweringDate","recommendationStatus","houseType", "session",
     "language","type","supportingMembers", "subDepartment", "referencedQuestions",
     "drafts","clubbings","group","editedBy","editedAs","clubbedEntities","referencedEntities","parent","parentReferencing",
-    "clarificationNeededFrom"})
+    "clarificationNeededFrom","originalType"})
 public class Question extends BaseDomain
 implements Serializable
 {
@@ -77,6 +78,10 @@ implements Serializable
     @ManyToOne(fetch=FetchType.LAZY)
     @JoinColumn(name="devicetype_id")
     private DeviceType type;
+    
+    @ManyToOne(fetch=FetchType.LAZY)
+    @JoinColumn(name="originaldevicetype_id")
+    private DeviceType originalType;    
 
     /** The number. */
     private Integer number;
@@ -238,6 +243,7 @@ implements Serializable
     /**** Short Notice Fields ****/
     
     /** The reason. */
+    @Column(length=30000)
     private String reason;
 
     /** The to be answered by minister. */
@@ -1959,5 +1965,19 @@ implements Serializable
 	}
 	public void setRejectionReason(String rejectionReason) {
 		this.rejectionReason = rejectionReason;
+	}
+	
+	public static MemberBallotMemberWiseReportVO findMemberWiseReportVO(
+			final Session session,final DeviceType questionType,final Member member,
+			final String locale){
+		return getQuestionRepository().findMemberWiseReportVO(
+				session,questionType,member,
+				locale);		
+	}
+	public void setOriginalType(DeviceType originalType) {
+		this.originalType = originalType;
+	}
+	public DeviceType getOriginalType() {
+		return originalType;
 	}
 }

@@ -562,7 +562,12 @@ public class QuestionController extends GenericController<Question>{
 		model.addAttribute("formattedQuestionType",questionType.getName());
 		model.addAttribute("questionType",questionType.getId());
 		model.addAttribute("selectedQuestionType",questionType.getType());
-
+		
+		/**** Original Question Type ****/		
+		if(domain.getOriginalType()!=null) {
+			model.addAttribute("originalType",domain.getOriginalType().getId());
+		}
+		
 		/**** Primary Member ****/
 		String memberNames=null;
 		String primaryMemberName=null;
@@ -856,10 +861,10 @@ public class QuestionController extends GenericController<Question>{
 		}
 		//---------------------------Added by vikas & dhananjay-------------------------------------
 		QuestionDraft qDraft = domain.findPreviousDraft();
-		if(domain.getInternalStatus().getType().equals("question_workflow_approving_rejection")){
+		if(domain.getInternalStatus().getType().equals("question_final_rejection")){
 			if(qDraft != null){
 				if(qDraft.getEditedBy().equals("sectionofficer_assembly") || qDraft.getEditedBy().equals("sectionofficer_council")){
-					if(qDraft.getInternalStatus().getType().equals("question_workflow_approving_rejection")){
+					if(qDraft.getInternalStatus().getType().equals("question_final_rejection")){
 						model.addAttribute("sectionofficer_remark", qDraft.getRemarks());
 					}else{
 						model.addAttribute("sectionofficer_remark", "");
@@ -1817,12 +1822,23 @@ public class QuestionController extends GenericController<Question>{
 	public String viewQuestion(final HttpServletRequest request,final ModelMap model,final Locale locale){
 
 		String strQuestionId = request.getParameter("qid");
+		
 		if(strQuestionId != null && !strQuestionId.isEmpty()){
 
 			Long id = new Long(strQuestionId);
 			Question q = Question.findById(Question.class, id);
-			model.addAttribute("referredQuestion",q);
-
+			
+			
+			model.addAttribute("sessionName",q.getSession().getHouse().getType().getName());
+			model.addAttribute("sessionYear", FormaterUtil.formatNumberNoGrouping(q.getSession().getYear(), q.getLocale()));
+			model.addAttribute("sessionType", q.getSession().getType().getSessionType());
+			model.addAttribute("answerDate",FormaterUtil.getDateFormatter("dd/MM/yyyy", q.getLocale().toString()).format(q.getAnsweringDate().getAnsweringDate()));
+			model.addAttribute("subject", q.getSubject());
+			model.addAttribute("qText", q.getQuestionText());
+			model.addAttribute("qReason", q.getReason());
+			model.addAttribute("qAnswer", q.getAnswer());
+			
+			
 			Member member=  q.getPrimaryMember();
 			if(member.getId()!=null){          
 				model.addAttribute("primaryMemberName",member.getFullname());

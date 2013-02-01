@@ -1,13 +1,21 @@
 package org.mkcl.els.controller;
 
+import java.text.NumberFormat;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 
 import javax.servlet.http.HttpServletRequest;
 
+import org.mkcl.els.common.util.FormaterUtil;
 import org.mkcl.els.common.vo.QuestionDatesVO;
+import org.mkcl.els.common.vo.RotationOrderVO;
+import org.mkcl.els.domain.CustomParameter;
 import org.mkcl.els.domain.Group;
 import org.mkcl.els.domain.HouseType;
+import org.mkcl.els.domain.Ministry;
+import org.mkcl.els.domain.QuestionDates;
 import org.mkcl.els.domain.SessionType;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
@@ -38,4 +46,56 @@ public class RotationOrderController {
         }
         return "rotationorder/aadwachart";
     }
+	
+	@RequestMapping(value="/viewrotationorder" ,method=RequestMethod.GET)
+	public String printRotationOrder(final HttpServletRequest request, final Locale locale, final ModelMap model){
+		 String strHouseType=request.getParameter("houseType");
+	     String strSessionType=request.getParameter("sessionType");
+	     String strSessionYear=request.getParameter("sessionYear");
+	     SimpleDateFormat dbFormat = null;
+	     if(strHouseType!=null&&strSessionType!=null&&strSessionYear!=null){
+	            HouseType houseType=HouseType.findByFieldName(HouseType.class,"type",strHouseType, locale.toString());
+	            SessionType sessionType=SessionType.findById(SessionType.class,Long.parseLong(strSessionType));
+	            Integer sessionYear=Integer.parseInt(strSessionYear);
+	            //Session session= Session.findSessionByHouseTypeSessionTypeYear(houseType, sessionType, sessionYear);
+	           
+	            CustomParameter dbDateFormat=CustomParameter.findByName(CustomParameter.class,"ROTATION_ORDER_DATE_FORMAT", "");
+	            if(dbDateFormat!=null){
+	            	dbFormat=FormaterUtil.getDateFormatter(dbDateFormat.getValue(), locale.toString());
+	            }
+	            NumberFormat numberFormat=FormaterUtil.getNumberFormatterNoGrouping(locale.toString());
+	            List<Group> groups= Group.findByHouseTypeSessionTypeYear(houseType, sessionType, sessionYear);
+	            List<RotationOrderVO> rotationOrderVOs= new ArrayList<RotationOrderVO>();
+	            
+	            for(Group g:groups){
+	            	RotationOrderVO rotationOrderVO= new RotationOrderVO();
+	            	List<Ministry> ministries=g.getMinistries();
+	            	List<QuestionDates> dates= g.getQuestionDates();
+	            	List<String> ministriesStr= new ArrayList<String>();
+	            	List<String> numberOfMinisteries= new ArrayList<String>();
+	            	int i=1;
+	            	for(Ministry m:ministries){
+	            		ministriesStr.add(m.getName());
+	            		numberOfMinisteries.add(numberFormat.format(i++));
+	            	}
+	            	List<String> answeringDates= new ArrayList<String>();
+	            	List<String> finalSubmissionDates=new ArrayList<String>();
+	            	for(QuestionDates d:dates){
+	            		answeringDates.add(dbFormat.format(d.getAnsweringDate()));
+	            		finalSubmissionDates.add(dbFormat.format(d.getFinalSubmissionDate()));
+	            	}
+	            	rotationOrderVO.setGroup(numberFormat.format(g.getNumber()));
+	            	rotationOrderVO.setMinistries(ministriesStr);
+	            	rotationOrderVO.setNumberOfMinisteries(numberOfMinisteries);
+	            	rotationOrderVO.setAnsweringDates(answeringDates);
+	            	rotationOrderVO.setFinalSubmissionDates(finalSubmissionDates);
+	            	rotationOrderVOs.add(rotationOrderVO);
+	            }
+	            /*model.addAttribute("rotationOrderHeader", session.getParameter("questions_starred_rotationOrderHeader"));
+	            model.addAttribute("rotationOrderCover", session.getParameter("questions_starred_rotationOrderCover"));
+	            model.addAttribute("rotationOrderFooter", session.getParameter("questions_starred_rotationOrderFooter"));*/
+	            model.addAttribute("dates", rotationOrderVOs);
+	        }
+		return "rotationorder/viewrotationorder";
+	}	
 }

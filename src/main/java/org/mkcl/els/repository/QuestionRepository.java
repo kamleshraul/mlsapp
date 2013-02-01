@@ -9,6 +9,7 @@
  */
 package org.mkcl.els.repository;
 
+import java.text.NumberFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -19,6 +20,10 @@ import javax.persistence.TypedQuery;
 
 import org.mkcl.els.common.util.ApplicationConstants;
 import org.mkcl.els.common.util.FormaterUtil;
+import org.mkcl.els.common.vo.MemberBallotMemberWiseCountVO;
+import org.mkcl.els.common.vo.MemberBallotMemberWiseGroupVO;
+import org.mkcl.els.common.vo.MemberBallotMemberWiseQuestionVO;
+import org.mkcl.els.common.vo.MemberBallotMemberWiseReportVO;
 import org.mkcl.els.common.vo.QuestionRevisionVO;
 import org.mkcl.els.common.vo.QuestionSearchVO;
 import org.mkcl.els.domain.ClubbedEntity;
@@ -1329,7 +1334,85 @@ public class QuestionRepository extends BaseRepository<Question, Long>{
 		return this.searchUnique(search);
 	}
 
-
-
-
+	@SuppressWarnings({ "rawtypes"})
+	public MemberBallotMemberWiseReportVO findMemberWiseReportVO(
+			Session session, DeviceType questionType, Member member,
+			String locale) {
+		String startDate=session.getParameter(ApplicationConstants.QUESTION_STARRED_FIRSTBATCH_SUBMISSION_STARTTIME_UH);
+		String endDate=session.getParameter(ApplicationConstants.QUESTION_STARRED_FIRSTBATCH_SUBMISSION_ENDTIME_UH);
+		MemberBallotMemberWiseReportVO memberBallotMemberWiseReportVO=new MemberBallotMemberWiseReportVO();
+		if(startDate!=null&&endDate!=null){
+			if((!startDate.isEmpty())&&(!endDate.isEmpty())){
+				/**** Count of questions ****/
+				String countQuery="SELECT COUNT(q.id),s.name FROM questions as q"+
+				  " JOIN devicetypes as dt JOIN status as s WHERE q.session_id="+session.getId()+
+				  " AND q.member_id="+member.getId()+" AND q.locale='"+locale+"'"+
+				  " AND q.submission_date>='"+startDate+"' AND q.submission_date<='"+endDate+"'"+
+				  " AND q.originaldevicetype_id="+questionType.getId()+
+				  " AND q.devicetype_id=dt.id AND q.internalstatus_id=s.id"+
+				  " GROUP BY q.internalstatus_id ORDER BY s.type";
+				List countResults=this.em().createNativeQuery(countQuery).getResultList();
+				List<MemberBallotMemberWiseCountVO> countVOs=new ArrayList<MemberBallotMemberWiseCountVO>();
+				NumberFormat numberFormat=FormaterUtil.getNumberFormatterNoGrouping(locale);
+				for(Object i:countResults){
+					Object[] o=(Object[]) i;
+					MemberBallotMemberWiseCountVO memberBallotMemberWiseCountVO=new MemberBallotMemberWiseCountVO();
+					if(o[0]!=null&&o[1]!=null){
+						if((!o[0].toString().isEmpty())&&(!o[1].toString().isEmpty())){
+							memberBallotMemberWiseCountVO.setCount(numberFormat.format(Integer.parseInt(o[0].toString())));
+							memberBallotMemberWiseCountVO.setStatusType(o[1].toString());
+							countVOs.add(memberBallotMemberWiseCountVO);
+						}					
+					}
+				}
+				memberBallotMemberWiseReportVO.setMemberBallotMemberWiseCountVOs(countVOs);
+				/**** Member Full Name ****/
+				memberBallotMemberWiseReportVO.setMember(member.getFullname());				
+				/**** Questions ****/
+				List<MemberBallotMemberWiseQuestionVO> questionVOs=new ArrayList<MemberBallotMemberWiseQuestionVO>();
+				String questionQuery="SELECT q.number as questionnumber,q.subject as subject,q.rejection_reason as reason,s.name as status,g.number as groupnumber FROM questions as q"+
+				  " JOIN devicetypes as dt JOIN status as s "+
+				  " JOIN groups as g"+
+				  " WHERE q.session_id="+session.getId()+
+				  " AND q.member_id="+member.getId()+" AND q.locale='"+locale+"'"+
+				  " AND q.submission_date>='"+startDate+"' AND q.submission_date<='"+endDate+"'"+
+				  " AND q.originaldevicetype_id="+questionType.getId()+
+				  " AND q.devicetype_id=dt.id AND q.internalstatus_id=s.id"+
+				  " AND q.group_id=g.id"+
+				  " ORDER BY g.number,s.type,q.number";
+				String query="SELECT rs.questionnumber,rs.subject,rs.reason,rs.status,rs.groupnumber FROM ("+questionQuery+") as rs";
+				List questionResults=this.em().createNativeQuery(query).getResultList();
+				int position=1;
+				for(Object i:questionResults){
+					Object[] o=(Object[]) i;
+					MemberBallotMemberWiseQuestionVO questionVO=new MemberBallotMemberWiseQuestionVO();
+					questionVO.setSno(numberFormat.format(position));
+					if(o[0]!=null){
+						if(!o[0].toString().isEmpty()){
+							questionVO.setQuestionNumber(numberFormat.format(Integer.parseInt(o[0].toString())));							
+						}
+					}
+					if(o[1]!=null){
+						questionVO.setQuestionSubject(o[1].toString());
+					}
+					if(o[2]!=null){
+						questionVO.setQuestionReason(o[2].toString());
+					}
+					if(o[3]!=null){
+						questionVO.setStatusType(o[3].toString());
+					}
+					if(o[4]!=null){
+						questionVO.setGroupNumber(o[4].toString());
+						if(!o[4].toString().isEmpty()){
+							questionVO.setGroupFormattedNumber(numberFormat.format(Integer.parseInt(o[4].toString())));
+						}
+					}
+					questionVOs.add(questionVO);
+					position++;
+				}
+				memberBallotMemberWiseReportVO.setMemberBallotMemberWiseQuestionVOs(questionVOs);
+			}
+		}		
+		return memberBallotMemberWiseReportVO;
+	}
 }
