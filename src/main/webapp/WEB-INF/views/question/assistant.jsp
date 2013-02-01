@@ -250,7 +250,7 @@
 		});
 		/**** Citations ****/
 		$("#viewCitation").click(function(){
-			$.get('question/citations/'+$("#type").val(),function(data){
+			$.get('question/citations/'+$("#type").val()+ "?status=" + $("#internalStatus").val(),function(data){
 			    $.fancybox.open(data, {autoSize: false, width: 600, height:600});
 		    },'html');
 		    return false;
@@ -671,11 +671,13 @@
 		</p>
 	</c:if>
 	
-	<p>
-	<a href="#" id="reviseSubject" style="margin-left: 162px;margin-right: 20px;"><spring:message code="question.reviseSubject" text="Revise Subject"></spring:message></a>
-	<a href="#" id="reviseQuestionText" style="margin-right: 20px;"><spring:message code="question.reviseQuestionText" text="Revise Question"></spring:message></a>
-	<a href="#" id="viewRevision"><spring:message code="question.viewrevisions" text="View Revisions"></spring:message></a>
-	</p>
+	<c:if test="${selectedQuestionType!='questions_halfhourdiscussion_from_question'}">
+		<p>
+			<a href="#" id="reviseSubject" style="margin-left: 162px;margin-right: 20px;"><spring:message code="question.reviseSubject" text="Revise Subject"></spring:message></a>
+			<a href="#" id="reviseQuestionText" style="margin-right: 20px;"><spring:message code="question.reviseQuestionText" text="Revise Question"></spring:message></a>
+			<a href="#" id="viewRevision"><spring:message code="question.viewrevisions" text="View Revisions"></spring:message></a>
+		</p>
+	</c:if>
 	
 	<p style="display:none;" class="revise1" id="revisedSubjectDiv">
 	<label class="centerlabel"><spring:message code="question.revisedSubject" text="Revised Subject"/></label>
@@ -780,7 +782,8 @@
 	<input id="level" name="level" value="${level }" type="hidden">	
 	<input id="usergroup" name="usergroup" value="${usergroup}" type="hidden">
 	<input id="usergroupType" name="usergroupType" value="${usergroupType}" type="hidden">	
-		
+	<input type="hidden" name="halfHourDiscusionFromQuestionReference" id="halfHourDiscusionFromQuestionReference" value="${refQuestionId}" />
+	<input type="hidden" name="originalType" id="originalType" value="${originalType}">		
 </form:form>
 <input id="usergroup" name="usergroup" type="hidden" value="${usergroup}">
 <input id="usergroupType" name="usergroupType" type="hidden" value="${usergroupType}">

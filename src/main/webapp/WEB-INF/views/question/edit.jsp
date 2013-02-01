@@ -124,7 +124,7 @@
 		//autosuggest		
 		$( ".autosuggest" ).autocomplete({
 			minLength:1,			
-			source:'ref/members?session='+$("#session").val(),
+			source:'ref/member/supportingmembers?session='+$("#session").val()+'&primaryMemberId='+$('#primaryMember').val(),
 			select:function(event,ui){
 			var text="<input type='hidden' name='"+$(this).attr("id")+"' value='"+ui.item.id+"'>";
 			$(this).removeAttr("id");
@@ -152,7 +152,7 @@
 		$( ".autosuggestmultiple" ).autocomplete({
 			minLength:3,
 			source: function( request, response ) {
-				$.getJSON( 'ref/members?session='+$("#session").val(), {
+				$.getJSON( 'ref/member/supportingmembers?session='+$("#session").val()+'&primaryMemberId='+$('#primaryMember').val(), {
 					term: extractLast( request.term )
 				}, response );
 			},			
@@ -211,7 +211,7 @@
 				
 				var memberNumbers=0;
 				var memberComparator='${numberOfSupportingMembersComparator}';
-				var selectedMembers=Math.floor(parseInt($("#selectedSupportingMembers").val().split(",").length)/2);
+				var selectedMembers=Math.floor(parseInt($("#selectedSupportingMembers").val().split(",").length)-1);
 				
 				memberNumbers=parseInt('${numberOfSupportingMembers}');
 				
@@ -257,6 +257,7 @@
 		//send for approval
 		$("#sendforapproval").click(function(e){
 			//removing <p><br></p>  from wysiwyg editor
+			console.log('halfhordiscussion');
 			$(".wysiwyg").each(function(){
 				var wysiwygVal=$(this).val().trim();
 				if(wysiwygVal=="<p></p>"||wysiwygVal=="<p><br></p>"||wysiwygVal=="<br><p></p>"){
@@ -271,7 +272,7 @@
 				
 				var memberNumbers=0;
 				var memberComparator='${numberOfSupportingMembersComparator}';
-				var selectedMembers=Math.floor(parseInt($("#selectedSupportingMembers").val().split(",").length)/2);
+				var selectedMembers=Math.floor(parseInt($("#selectedSupportingMembers").val().split(",").length)-1);
 				
 				memberNumbers=parseInt('${numberOfSupportingMembers}');
 				
@@ -387,7 +388,7 @@
 				
 				var memberNumbers=0;
 				var memberComparator='${numberOfSupportingMembersComparator}';
-				var selectedMembers=Math.floor(parseInt($("#selectedSupportingMembers").val().split(",").length)/2);
+				var selectedMembers=Math.floor(parseInt($("#selectedSupportingMembers").val().split(",").length)-1);
 				
 				memberNumbers=parseInt('${numberOfSupportingMembers}');
 				
@@ -396,11 +397,11 @@
 					$.prompt($("#questionReferenceEmptyMsg").val());
 					return false;
 				}
-				$.prompt("selected members: " + selectedMembers + "member numbers: " + selectedMembers);
+				
 				if((memberNumbers > 0) && (memberComparator!=null) &&(memberComparator!="")){
 										
 					if(memberComparator=="eq"){
-						if(!(selectedMembers == c)){
+						if(!(selectedMembers == memberNumbers)){
 							$.prompt($("#supportingMembersCountErrorMsg").val());
 							return false;
 						}
@@ -502,6 +503,36 @@
 			$("#selectedSupportingMembers").attr("readonly","readonly");
 			
 		}
+		/**** Vikas Gupta ****/
+		$('#halfHourDiscussionReference_questionNumber').change(function(){
+			
+			var questionNumber = $('#halfHourDiscussionReference_questionNumber').val();
+			var deviceTypeTemp='${questionType}';
+			//alert('helo'+questionNumber+':'+deviceTypeTemp);
+			if(questionNumber!=""){
+				
+				var sessionId = '${session}';
+				var locale='${domain.locale}';
+				
+				
+				var url = 'ref/questionid?strQuestionNumber='+questionNumber+'&strSessionId='+sessionId+'&deviceTypeId='+deviceTypeTemp+'&locale='+locale+'&view=view';
+				
+				$.get(url, function(data) {
+					if(data.id==0){
+						$.prompt($('#questionReferenceEmptyMsg').val());
+					}else if(data.id==-1){
+						$.prompt($("#questionNumberIncorrectMsg").val());
+					}else{
+						$('#halfHourDiscussionReference_questionId_H').val(data.id);
+						$.get('question/getsubject?qid='+data.id+'&text=1',function(data){
+							$('#subject').val(data.name);
+							$('#questionText').val(data.value);
+						});
+					}
+				});
+				
+			}
+		});
 	});
 	</script>
 </head>
@@ -560,7 +591,7 @@
 	<p>
 		<label class="small"><spring:message code="question.primaryMember" text="Primary Member"/>*</label>
 		<input id="formattedPrimaryMember" name="formattedPrimaryMember"  value="${formattedPrimaryMember}" type="text" class="sText"  readonly="readonly" class="sText">
-		<input name="primaryMember" id="primaryMember" name="primaryMember" value="${primaryMember}" type="hidden">		
+		<input id="primaryMember" name="primaryMember" value="${primaryMember}" type="hidden">		
 		<form:errors path="primaryMember" cssClass="validationError"/>		
 	</p>
 	
@@ -595,17 +626,33 @@
 		<form:errors path="supportingMembers" cssClass="validationError"/>	
 	</p>
 	
+	<c:if test="${selectedQuestionType!='questions_halfhourdiscussion_from_question'}">
 	<p>
 		<label class="centerlabel"><spring:message code="question.subject" text="Subject"/>*</label>
 		<form:textarea path="subject" rows="2" cols="50"></form:textarea>
 		<form:errors path="subject" cssClass="validationError" />	
-	</p>
+	</p>	
 	
 	<p>
 		<label class="wysiwyglabel"><spring:message code="question.details" text="Details"/>*</label>
 		<form:textarea path="questionText" cssClass="wysiwyg"></form:textarea>
 		<form:errors path="questionText" cssClass="validationError" cssStyle="float:right;margin-top:-100px;margin-right:40px;"/>	
 	</p>
+	</c:if>
+	
+	<c:if test="${selectedQuestionType=='questions_halfhourdiscussion_from_question'}">
+	<p>
+		<label class="centerlabel"><spring:message code="question.subject" text="Subject"/>*</label>
+		<form:textarea path="subject" rows="2" cols="50" readonly="true"></form:textarea>
+		<form:errors path="subject" cssClass="validationError" />	
+	</p>	
+	
+	<p>
+		<label class="wysiwyglabel"><spring:message code="question.details" text="Details"/>*</label>
+		<form:textarea path="questionText" readonly="true" cols="90" rows="10"></form:textarea>
+		<form:errors path="questionText" cssClass="validationError" cssStyle="float:right;margin-top:-100px;margin-right:40px;"/>	
+	</p>
+	</c:if>
 	
 	<c:if test="${selectedQuestionType=='questions_shortnotice' or selectedQuestionType=='questions_halfhourdiscussion_from_question' }">
 	<p>
@@ -621,6 +668,21 @@
 			<form:textarea path="briefExplanation" cssClass="wysiwyg"></form:textarea>
 			<form:errors path="briefExplanation" cssClass="validationError" cssStyle="float:right;margin-top:-100px;margin-right:40px;"/>	
 		</p>
+	</c:if>
+	
+	<c:if test="${internalStatusType != null }">
+		<c:if test="${!empty internalStatusType}">
+			<c:if test="${sectionofficer_remark != null}">
+				<c:if test="${! empty sectionofficer_remark}">
+					<c:if test="${internalStatusType=='question_final_rejection'}">
+						<p>
+							<label class="wysiwyglabel"><spring:message code="question.remarks" text="Remarks"/></label>
+							<form:textarea path="remarks" cssClass="wysiwyg" readonly="true"></form:textarea>
+						</p>
+					</c:if>
+				</c:if>
+			</c:if>
+		</c:if>
 	</c:if>
 	
 	<p id="internalStatusDiv">
@@ -703,7 +765,7 @@
 		<c:if test="${selectedQuestionType=='questions_halfhourdiscussion_from_question'}">
 			<label class="small"><spring:message code="question.discussionDate" text="Discussion Date"/></label>
 			<form:select path="discussionDate" cssClass="datemask sSelect" >
-				<option value="<spring:message code='please.select' text='Please Select'/>">---<spring:message code='please.select' text='Please Select'/>---</option>
+				<option value="">---<spring:message code='please.select' text='Please Select'/>---</option>
 				<c:forEach items="${discussionDates}" var="i">
 					<c:choose>
 						<c:when  test="${i==discussionDateSelected}">
@@ -736,6 +798,13 @@
 	</div>			
 	</c:otherwise>
 	</c:choose>	
+	
+	<c:if test="${recommendationStatusType == 'question_processed_rejectionWithReason'}">
+	<p>
+	<label class="wysiwyglabel"><spring:message code="question.rejectionReason" text="Rejection reason"/></label>
+	<form:textarea path="rejectionReason" cssClass="wysiwyg" readonly="true"></form:textarea>
+	</p>
+	</c:if>
 	
 	 <div class="fields">
 		<h2></h2>
@@ -772,6 +841,7 @@
 	<input type="hidden" name="halfHourDiscusionFromQuestionReference" id="halfHourDiscusionFromQuestionReference" value="${refQuestionId}" />
 	<input id="usergroup" name="usergroup" value="${usergroup}" type="hidden">
 	<input id="usergroupType" name="usergroupType" value="${usergroupType}" type="hidden">
+	<input type="hidden" name="originalType" id="originalType" value="${originalType}">
 </form:form>
 <input id="currentStatus" value="${internalStatusType }" type="hidden">
 
