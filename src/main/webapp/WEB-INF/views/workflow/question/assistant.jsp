@@ -89,7 +89,10 @@
 		"&usergroup="+$("#usergroup").val()+"&level="+$("#level").val();
 		var resourceURL='ref/question/actors?'+params;
 	    var sendback=$("#internalStatusMaster option[value='question_recommend_sendback']").text();			
-	    var discuss=$("#internalStatusMaster option[value='question_recommend_discuss']").text();		
+	    var discuss=$("#internalStatusMaster option[value='question_recommend_discuss']").text();	    
+	    var currentRecommendationStatus=$("#recommendationStatus").val();
+	    console.log(currentRecommendationStatus);
+
 		$.post(resourceURL,function(data){
 			if(data!=undefined||data!=null||data!=''){
 				var length=data.length;
@@ -99,7 +102,11 @@
 				text+="<option value='"+data[i].id+"'>"+data[i].name+"</option>";
 				}
 				$("#actor").html(text);
-				$("#actorDiv").hide();				
+				if(currentRecommendationStatus==sendback||currentRecommendationStatus==discuss){
+				$("#actorDiv").show();	
+				}else{
+				$("#actorDiv").hide();
+				}
 				/**** in case of sendback and discuss only recommendation status is changed ****/
 				if(value!=sendback&&value!=discuss){
 				$("#internalStatus").val(value);
@@ -250,11 +257,11 @@
 		});
 		/**** Citations ****/
 		$("#viewCitation").click(function(){
-			$.get('question/citations/'+$("#type").val(),function(data){
+			$.get('question/citations/'+$("#type").val()+ "?status=" + $("#internalStatus").val(),function(data){
 			    $.fancybox.open(data, {autoSize: false, width: 600, height:600});
 		    },'html');
 		    return false;
-		});								
+		});						
 		/**** Revise subject and text****/
 		$("#reviseSubject").click(function(){
 			$(".revise1").toggle();
@@ -685,11 +692,13 @@
 		</p>
 	</c:if>
 	
+	<c:if test="${selectedQuestionType!='questions_halfhourdiscussion_from_question'}">
 	<p>
 	<a href="#" id="reviseSubject" style="margin-left: 162px;margin-right: 20px;"><spring:message code="question.reviseSubject" text="Revise Subject"></spring:message></a>
 	<a href="#" id="reviseQuestionText" style="margin-right: 20px;"><spring:message code="question.reviseQuestionText" text="Revise Question"></spring:message></a>
 	<a href="#" id="viewRevision"><spring:message code="question.viewrevisions" text="View Revisions"></spring:message></a>
 	</p>
+	</c:if>
 	
 	<p style="display:none;" class="revise1" id="revisedSubjectDiv">
 	<label class="centerlabel"><spring:message code="question.revisedSubject" text="Revised Subject"/></label>
@@ -769,6 +778,7 @@
 	</p>
 	</div>
 	</c:if>
+	<input type="hidden" name="originalType" id="originalType" value="${originalType}">
 	<form:hidden path="id"/>
 	<form:hidden path="locale"/>
 	<form:hidden path="version"/>
@@ -780,6 +790,7 @@
 	<input id="level" name="level" value="${level }" type="hidden">	
 	<input id="usergroup" name="usergroup" value="${usergroup}" type="hidden">
 	<input id="usergroupType" name="usergroupType" value="${usergroupType}" type="hidden">			
+	<input type="hidden" name="halfHourDiscusionFromQuestionReference" id="halfHourDiscusionFromQuestionReference" value="${refQuestionId}" />
 </form:form>
 <input id="oldgroup" name="oldgroup" value="${group}" type="hidden">
 <input id="formattedoldgroup" name="formattedoldgroup" value="${formattedGroup}" type="hidden">

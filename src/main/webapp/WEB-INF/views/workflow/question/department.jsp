@@ -257,7 +257,7 @@
 		});
 		/**** Citations ****/
 		$("#viewCitation").click(function(){
-			$.get('question/citations/'+$("#type").val(),function(data){
+			$.get('question/citations/'+$("#type").val()+ "?status=" + $("#internalStatus").val(),function(data){
 			    $.fancybox.open(data, {autoSize: false, width: 600, height:600});
 		    },'html');
 		    return false;
@@ -525,7 +525,17 @@
 		<form:errors path="priority" cssClass="validationError"/>
 	</c:if>
 	</p>
-		
+	
+	<c:if test="${selectedQuestionType=='questions_starred'}">
+		<p>	
+			<label class="small"><spring:message code="question.task.creationtime" text="Task Created On"/></label>
+			<input id="createTime" name="createdTime" value="${taskCreationDate}" class="sText datetimemask" readonly="readonly">
+			
+			<label class="small"><spring:message code="question.lastDateFromDepartment" text="Last Date From Department"/></label>
+			<input id="lastDateFromDept" name="lastDateFromDept" value="${lastReceivingDateFromDepartment}" class="sText" readonly="readonly">
+		</p>	
+	</c:if>
+	
 	<p>		
 	<label class="small"><spring:message code="question.submissionDate" text="Submitted On"/></label>
 	<input id="formattedSubmissionDate" name="formattedSubmissionDate" value="${formattedSubmissionDate }" class="sText" readonly="readonly">
@@ -668,13 +678,13 @@
 	</p>
 	
 	
-	<p>	
+	<p style="display:none;">
 	<label class="centerlabel"><spring:message code="question.subject" text="Subject"/></label>
 	<form:textarea path="subject" readonly="true" rows="2" cols="50"></form:textarea>
 	<form:errors path="subject" cssClass="validationError"/>	
 	</p>
 	
-	<p>
+	<p style="display:none;">
 	<label class="wysiwyglabel"><spring:message code="question.details" text="Details"/></label>
 	<form:textarea path="questionText" readonly="true" cssClass="wysiwyg"></form:textarea>
 	<form:errors path="questionText" cssClass="validationError"/>	
@@ -696,20 +706,20 @@
 		</p>
 	</c:if>
 	
-	<p>
+	<p style="display:none;">
 	<a href="#" id="reviseSubject" style="margin-left: 162px;margin-right: 20px;"><spring:message code="question.reviseSubject" text="Revise Subject"></spring:message></a>
 	<a href="#" id="reviseQuestionText" style="margin-right: 20px;"><spring:message code="question.reviseQuestionText" text="Revise Question"></spring:message></a>
 	<a href="#" id="viewRevision"><spring:message code="question.viewrevisions" text="View Revisions"></spring:message></a>
 	</p>
 	
 	<p style="display:none;" class="revise1" id="revisedSubjectDiv">
-	<label class="centerlabel"><spring:message code="question.revisedSubject" text="Revised Subject"/></label>
+	<label class="centerlabel"><spring:message code="question.subject" text="Subject"/></label>
 	<form:textarea path="revisedSubject" rows="2" cols="50"></form:textarea>
 	<form:errors path="revisedSubject" cssClass="validationError" cssStyle="float:right;margin-top:-100px;margin-right:40px;"/>
 	</p>
 	
 	<p style="display:none;" class="revise2" id="revisedQuestionTextDiv">
-	<label class="wysiwyglabel"><spring:message code="question.revisedDetails" text="Revised Details"/></label>
+	<label class="wysiwyglabel"><spring:message code="question.details" text="Details"/></label>
 	<form:textarea path="revisedQuestionText" cssClass="wysiwyg"></form:textarea>
 	<form:errors path="revisedQuestionText" cssClass="validationError" cssStyle="float:right;margin-top:-100px;margin-right:40px;"/>
 	</p>
@@ -785,6 +795,7 @@
 	</p>
 	</div>
 	</c:if>
+	<input type="hidden" name="originalType" id="originalType" value="${originalType}">
 	<form:hidden path="id"/>
 	<form:hidden path="locale"/>
 	<form:hidden path="version"/>
@@ -795,7 +806,8 @@
 	<input id="workflowdetails" name="workflowdetails" value="${workflowdetails}" type="hidden">	
 	<input id="level" name="level" value="${level }" type="hidden">	
 	<input id="usergroup" name="usergroup" value="${usergroup}" type="hidden">
-	<input id="usergroupType" name="usergroupType" value="${usergroupType}" type="hidden">			
+	<input id="usergroupType" name="usergroupType" value="${usergroupType}" type="hidden">
+	<input type="hidden" name="halfHourDiscusionFromQuestionReference" id="halfHourDiscusionFromQuestionReference" value="${refQuestionId}" />			
 </form:form>
 <input id="oldgroup" name="oldgroup" value="${group}" type="hidden">
 <input id="formattedoldgroup" name="formattedoldgroup" value="${formattedGroup}" type="hidden">

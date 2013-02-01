@@ -250,7 +250,7 @@
 		});
 		/**** Citations ****/
 		$("#viewCitation").click(function(){
-			$.get('question/citations/'+$("#type").val(),function(data){
+			$.get('question/citations/'+$("#type").val()+ "?status=" + $("#internalStatus").val(),function(data){
 			    $.fancybox.open(data, {autoSize: false, width: 600, height:600});
 		    },'html');
 		    return false;
@@ -770,6 +770,7 @@
 	</p>
 	</div>
 	</c:if>
+	<input type="hidden" name="originalType" id="originalType" value="${originalType}">
 	<form:hidden path="id"/>
 	<form:hidden path="locale"/>
 	<form:hidden path="version"/>
@@ -780,7 +781,8 @@
 	<input id="workflowdetails" name="workflowdetails" value="${workflowdetails}" type="hidden">	
 	<input id="level" name="level" value="${level }" type="hidden">	
 	<input id="usergroup" name="usergroup" value="${usergroup}" type="hidden">
-	<input id="usergroupType" name="usergroupType" value="${usergroupType}" type="hidden">			
+	<input id="usergroupType" name="usergroupType" value="${usergroupType}" type="hidden">
+	<input type="hidden" name="halfHourDiscusionFromQuestionReference" id="halfHourDiscusionFromQuestionReference" value="${refQuestionId}" />			
 </form:form>
 <input id="oldgroup" name="oldgroup" value="${group}" type="hidden">
 <input id="formattedoldgroup" name="formattedoldgroup" value="${formattedGroup}" type="hidden">
