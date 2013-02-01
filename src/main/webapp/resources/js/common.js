@@ -43,11 +43,7 @@ function initControls(){
 			$(".datemask").mask("99/99/9999");
 		}
 	});
-	$('.datetimemask').focus(function(){		
-		if($(this).val()==""){
-			$(".datetimemask").mask("99/99/9999 99:99:99");
-		}
-	});
+	$('.datetimemask').mask("99/99/9999 99:99:99");
 	$(':input:visible:not([readonly]):first').focus();
 	
 	$('.wysiwyg').wysiwyg({
@@ -140,6 +136,7 @@ function loadGrid(gridId, gridurl, baseFilter) {
 	if($('#gridURLParams').val()!=undefined){
 		url=url+'?'+$('#gridURLParams').val();
 	}
+	console.log(url);
 	$.ajax({async:false,url:'grid/' + gridId + '/meta.json', success:function(grid) {
 		c_grid = $('#grid').jqGrid({
 			scroll:1,
@@ -260,8 +257,7 @@ function searchRecord(){
 
 function scrollTop(){
 	$('html').animate({scrollTop:0}, 'slow');
-	$('body').animate({scrollTop:0}, 'slow');	
-			 	   	
+	$('body').animate({scrollTop:0}, 'slow');			 	   	
 }
 
 function showTabByIdAndUrl(id, url) {
