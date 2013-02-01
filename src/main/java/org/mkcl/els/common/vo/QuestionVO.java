@@ -30,6 +30,10 @@ public class QuestionVO {
 	private String status;
 
 	private Boolean hasParent;
+	
+	private String parent;
+	
+	private String kids;
 
 	//=============== CONSTRUCTORS ==================
 	/**
@@ -116,5 +120,22 @@ public class QuestionVO {
 	public void setHasParent(Boolean hasParent) {
 		this.hasParent = hasParent;
 	}
+	
+	public String getParent() {
+		return parent;
+	}
+
+	public void setParent(String parent) {
+		this.parent = parent;
+	}
+
+	public String getKids() {
+		return kids;
+	}
+
+	public void setKids(String kids) {
+		this.kids = kids;
+	}
+	
 }
 
