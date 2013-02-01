@@ -6,6 +6,9 @@
 	<script type="text/javascript">
 		$(document).ready(function() {
 			/**** attendance ****/		
+			$("#memberwise_report").click(function(){
+				memberwiseReport();
+			});
 			$('#attendance').click(function(){
 				attendance();
 			});		
@@ -34,7 +37,17 @@
 			});			
 			/**** on page load ****/
 			attendance();									
-		});		
+		});	
+		function memberwiseReport(){
+			$.blockUI({ message: '<img src="./resources/images/waitAnimated.gif" />' });
+			var parameters = "session="+$("#session").val()
+							 +"&questionType="+$("#questionType").val();
+			var resourceURL = 'ballot/memberballot/memberwise?'+ parameters;
+			$.get(resourceURL,function(data){
+			$("#resultDiv").html(data);
+			$.unblockUI();				
+			},'html');			 
+		}	
 		function attendance(){
 			$.blockUI({ message: '<img src="./resources/images/waitAnimated.gif" />' });
 			var attendance=$("#selectedAttendance").val();
@@ -166,8 +179,14 @@
 			</a>
 			<select name="mbAnsweringDate" id="mbAnsweringDate" style="width:100px;height: 25px;">				
 			<option value="-"><spring:message code='please.select' text='Please Select'/></option>			
-			</select> |
+			</select> |			
 			<hr>
+			<a href="#" id="memberwise_report" class="butSim">
+				<spring:message code="memberballot.memberwisereport" text="Member's Questions Report"/>
+			</a> |
+			<a href="#" id="question_distribution" class="butSim">
+				<spring:message code="memberballot.questiondistribution" text="Total Questions Report"/>
+			</a> |
 			<a href="#" id="attendance" class="butSim">
 				<spring:message code="memberballot.attendance" text="Attendance"/>
 			</a> |	
@@ -183,9 +202,11 @@
 			<a href="#" id="updateclubbing" class="butSim">
 				<spring:message code="memberballot.updateclubbing" text="Update Clubbing"/>
 			</a> |
+			<div style="margin-top: 10px;">			
 			<a href="#" id="finalballot" class="butSim">
 				<spring:message code="memberballot.finalballot" text="Final Ballot"/>
 			</a> |
+			</div>
 			<hr>				
 </div>
 

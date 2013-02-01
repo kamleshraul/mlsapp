@@ -103,12 +103,13 @@
 				items.push($(this).val());
 			});
 			var attendance=$("#selectedAttendance").val();
-			var locked=false;
-			if(attendance=='true'){
-				locked=$("#lock").is(":checked");
-			}else{
-				locked=$("#lockA").is(":checked");
-			}
+			var locked=$("#locked").val();
+			//var locked=false;
+			//if(attendance=='true'){
+				//locked=$("#lock").is(":checked");
+			//}else{
+				//locked=$("#lockA").is(":checked");
+			//}
 			//if(items.length!=0){
 			$.ajax({
 				url:'ballot/memberballot/attendance?items='+items
@@ -116,7 +117,6 @@
 				+"&round="+$("#selectedRound").val()
 				+'&session='+$("#session").val()
 				+"&questionType="+$("#questionType").val()
-				+"&noofrounds="+$("#noOfRounds").val()
 				+"&locked="+locked,
 				type:'PUT',
 				success:function(data){
@@ -169,7 +169,7 @@
 <div class="toolTip tpRed clearfix" id="lockedDiv" style="display:none;height:30px;">
 		<p style="font-size: 12px;">
 			<img src="./resources/images/template/icons/light-bulb-off.png">
-			<spring:message code="locked" text="Both absent and present member list has been locked for this round.No changes will be allowed."/>
+			<spring:message code="locked" text="Changes cannot be done after Member Ballot is created."/>
 		</p>
 		<p></p>
 </div>
@@ -195,7 +195,6 @@
 <span id="presenteesList" >
 <spring:message code="memberballot.presenteesList" text="List of Present Members"></spring:message>
 (<span id="presenteeCount">${selectedItemsCount}</span>)
-<input type="checkbox" id="lock" value="true" class="sCheck" style="margin-left: 10px;margin-right: 10px;"/><spring:message code="memberballot.lock" text="Lock"/>
 </span>
 </th>
 <th>
@@ -239,7 +238,6 @@
 <span id="absenteeList" >
 <spring:message code="memberballot.absenteeList" text="List of Absent Members"></spring:message>
 (<span id="absenteeCount">${selectedItemsCount}</span>)
-<input type="checkbox" id="lockA" value="true" class="sCheck" style="margin-left: 10px;margin-right: 10px;"/><spring:message code="memberballot.lock" text="Lock"/>
 </span>
 </th>
 <th>
@@ -273,6 +271,6 @@
 <input id="membersLocked" name="membersLocked" value="${membersLocked }" type="hidden">
 </div>
 
-
+<input type="hidden" id="locked" name="locked" value="${locked}">
 </body>
 </html>

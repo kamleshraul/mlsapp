@@ -153,6 +153,116 @@
 		<p></p>
 	</div>
 </c:when>
+
+<c:when test="${type eq 'MEMBERBALLOTCHOICE_REQUEST_PARAMETER_NULL'}">
+	<div class="toolTip tpRed clearfix">
+		<p style="font-size: 14px;">
+			<img src="./resources/images/template/icons/light-bulb-off.png">
+			<spring:message code="ballot.error.memberballotchoice_request_parameter_empty" text="Check request parameter 'session,questionType' for null values"/>
+		</p>
+		<p></p>
+	</div>
+</c:when>
+<c:when test="${type eq 'FIRSTBATCH_SUBMISSIONDATE_NOTSET'}">
+	<div class="toolTip tpRed clearfix">
+		<p style="font-size: 14px;">
+			<img src="./resources/images/template/icons/light-bulb-off.png">
+			<spring:message code="ballot.error.firstbatchsubmission_date_notset" text="First Batch Submission Date Not Set"/>
+		</p>
+		<p></p>
+	</div>
+</c:when>
+<c:when test="${type eq 'MEMBERBALLOTFINAL_REQUEST_PARAMETER_EMPTY'}">
+	<div class="toolTip tpRed clearfix">
+		<p style="font-size: 14px;">
+			<img src="./resources/images/template/icons/light-bulb-off.png">
+			<spring:message code="ballot.error.memberballotfinal_request_parameter_empty" text="Check Request Parameter 'session,deviceType,group,answering date' For No Values"/>
+		</p>
+		<p></p>
+	</div>
+</c:when>
+<c:when test="${type eq 'MEMBERBALLOTFINAL_REQUEST_PARAMETER_NULL'}">
+	<div class="toolTip tpRed clearfix">
+		<p style="font-size: 14px;">
+			<img src="./resources/images/template/icons/light-bulb-off.png">
+			<spring:message code="ballot.error.memberballotfinal_request_parameter_empty" text="Check Request Parameter 'session,deviceType,group,answering date' For No Values"/>
+		</p>
+		<p></p>
+	</div>
+</c:when>
+<c:when test="${type eq 'MEMBERBALLOTFINAL_FAILED'}">
+	<div class="toolTip tpRed clearfix">
+		<p style="font-size: 14px;">
+			<img src="./resources/images/template/icons/light-bulb-off.png">
+			<spring:message code="ballot.error.memberballotfinal_failed" text="Ballot Cannot Be Created At This Time.Please Try Later."/>
+		</p>
+		<p></p>
+	</div>
+</c:when>
+<c:when test="${type eq 'MEMBERBALLOTUPDATECLUBBING_REQUEST_PARAMETER_NULL'}">
+	<div class="toolTip tpRed clearfix">
+		<p style="font-size: 14px;">
+			<img src="./resources/images/template/icons/light-bulb-off.png">
+			<spring:message code="ballot.error.memberballotupdateclubbing_request_parameter_null" text="Check Request Parameters 'session and deviceType' For Null Values"/>
+		</p>
+		<p></p>
+	</div>
+</c:when>
+<c:when test="${type eq 'MEMBERBALLOTUPDATECLUBBING_FAILED'}">
+	<div class="toolTip tpRed clearfix">
+		<p style="font-size: 14px;">
+			<img src="./resources/images/template/icons/light-bulb-off.png">
+			<spring:message code="ballot.error.memberballotclubbingupdate_failed" text="Clubbing Cannot Be Updated At This Time.Please Try Later."/>
+		</p>
+		<p></p>
+	</div>
+</c:when>
+<c:when test="${type eq 'NOOFROUNDS_MEMBERBALLOT_NOTSET'}">
+	<div class="toolTip tpRed clearfix">
+		<p style="font-size: 14px;">
+			<img src="./resources/images/template/icons/light-bulb-off.png">
+			<spring:message code="ballot.error.totalrounds_memberballot" text="Total No. Of Rounds In Member Ballot Not Set In Session."/>
+		</p>
+		<p></p>
+	</div>
+</c:when>
+<c:when test="${type eq 'MEMBER_BALLOT_NOT_CREATED_FOR_PREVIOUS_ROUND'}">
+	<div class="toolTip tpRed clearfix">
+		<p style="font-size: 14px;">
+			<img src="./resources/images/template/icons/light-bulb-off.png">
+			<spring:message code="ballot.error.memberballot_not_created_for_previous_round" text="Please Create Member Ballot For Previous Round To Continue."/>
+		</p>
+		<p></p>
+	</div>
+</c:when>
+<c:when test="${type eq 'MEMBERBALLOT_DELETE_EXISTING_ROUND_NOTSET'}">
+	<div class="toolTip tpRed clearfix">
+		<p style="font-size: 14px;">
+			<img src="./resources/images/template/icons/light-bulb-off.png">
+			<spring:message code="ballot.error.memberballot_delete_existing_round-notset" text="Custom parameter 'MEMBERBALLOT_DELETE_EXISTING_ROUND not set"/>
+		</p>
+		<p></p>
+	</div>
+</c:when>
+<c:when test="${type eq 'ATTENDANCE_LOCKED'}">
+	<div class="toolTip tpRed clearfix">
+		<p style="font-size: 14px;">
+			<img src="./resources/images/template/icons/light-bulb-off.png">
+			<spring:message code="ballot.error.attendance_locked_round" text="Changes cannot be done after Member Ballot is created."/>
+		</p>
+		<p></p>
+	</div>
+</c:when>
+<c:when test="${type eq 'PRESENT_MEMBERS_FOR_ALL_ROUNDS_NOT_LOCKED'}">
+	<div class="toolTip tpRed clearfix">
+		<p style="font-size: 14px;">
+			<img src="./resources/images/template/icons/light-bulb-off.png">
+			<spring:message code="ballot.error.present_members_for_all_round_not_locked" text="Member Ballot For Absent Members Can Be Created Only After Present Members Ballot"/>
+		</p>
+		<p></p>
+	</div>
+</c:when>
+
 </c:choose>
 
 

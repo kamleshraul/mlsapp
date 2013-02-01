@@ -14,12 +14,12 @@
 	<c:forEach items="${memberBallots}" var="i">
 	<tr>
 		<td>${i.position}</td>
-		<td>${i.member.getFullname()}</td>	
+		<td>${i.member}</td>	
 		<td>
 		<c:choose>
-		<c:when test="${!(empty i.questionChoices) }">
-		<c:forEach items="${i.questionChoices}" var="j">
-		<span style="margin-right:5px;">${j.question.findFormattedNumber()}&nbsp;&nbsp;(${j.newAnsweringDate.findFormattedAnsweringDate()})</span>
+		<c:when test="${!(empty i.questions)}">
+		<c:forEach items="${i.questions}" var="j">
+		<span style="margin-right:5px;">${j.number}&nbsp;&nbsp;(${j.answeringDate})</span>
 		</c:forEach>
 		</c:when>
 		<c:otherwise>
