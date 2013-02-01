@@ -41,6 +41,11 @@
 					referencingInt(id);
 				}
 		    	});
+
+			$(".questionNumber a[title]").qtip({
+	    		show: 'mouseover',
+	    		hide: 'mouseout'
+	    	});
 			
 		});	
 		/**** Question Details ****/
@@ -123,10 +128,10 @@
 			<td align="center">
 				<c:choose>
 				<c:when test="${questionVO.hasParent == false}">
-					<a href="#" class="questionNumber" id="${questionVO.id}" ><b>${questionVO.number}</b></a>
+					<a href="#" class="questionNumber" id="${questionVO.id}" title="${questionVO.kids}"><b>${questionVO.number}</b></a>
 				</c:when>
 				<c:otherwise>
-					<a href="#" class="questionNumber" id="${questionVO.id}" >${questionVO.number}</a>
+					<a href="#" class="questionNumber" id="${questionVO.id}" title="${questionVO.parent}">${questionVO.number}</a>
 				</c:otherwise>
 				</c:choose>
 				
