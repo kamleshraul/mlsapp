@@ -468,6 +468,30 @@
 					<label class="small"><spring:message code="session.deviceType.questions_starred_suchhiDistributionDate_difference" text="Suchhi Distribution Date Difference" /></label>
 					<c:set var="key" value="questions_starred_suchhiDistributionDate_difference"></c:set>
 					<input type="text" class="sText" id="questions_starred_suchhiDistributionDate_difference" name="questions_starred_suchhiDistributionDate_difference" value="${questions_starred_suchhidistributiondate_difference}" />
+				</p>
+				
+				<p>
+					<label class="small"><spring:message code="session.deviceType.questions_starred_noOfRoundsMemberBallotAttendance" text="No. of Rounds In Member Ballot Attendance" /></label>
+					<c:set var="key" value="questions_starred_noOfRoundsMemberBallotAttendance"></c:set>
+					<input type="text" class="sText" id="questions_starred_noOfRoundsMemberBallotAttendance" name="questions_starred_noOfRoundsMemberBallotAttendance" value="${questions_starred_noOfroundsmemberballotattendance}" />
+				</p>
+				
+				<p>
+					<label class="small"><spring:message code="session.deviceType.questions_starred_noOfRoundsMemberBallot" text="No. of Rounds In Member Ballot" /></label>
+					<c:set var="key" value="questions_starred_noOfRoundsMemberBallot"></c:set>
+					<input type="text" class="sText" id="questions_starred_noOfRoundsMemberBallot" name="questions_starred_noOfRoundsMemberBallot" value="${questions_starred_noOfroundsmemberballot}" />
+				</p>			
+				
+				<p>
+					<label class="small"><spring:message code="session.deviceType.questions_starred_noOfRoundsMemberBallotFinal" text="No. of Rounds In Final Member Ballot" /></label>
+					<c:set var="key" value="questions_starred_noOfRoundsMemberBallotFinal"></c:set>
+					<input type="text" class="sText" id="questions_starred_noOfRoundsMemberBallotFinal" name="questions_starred_noOfRoundsMemberBallotFinal" value="${questions_starred_noofroundsmemberballotfinal}" />
+				</p>
+				
+				<p>
+					<label class="small"><spring:message code="session.deviceType.questions_starred_noOfRoundsBallot" text="No. of Rounds In Ballot" /></label>
+					<c:set var="key" value="questions_starred_noOfRoundsBallot"></c:set>
+					<input type="text" class="sText" id="questions_starred_noOfRoundsBallot" name="questions_starred_noOfRoundsBallot" value="${questions_starred_noofroundsballot}" />
 				</p>				
 			</div>
 		</c:if>
