@@ -1004,6 +1004,7 @@
 		border-left:1px solid #8d8e8d;
 		border-right:1px solid #e0e1e0;
 		border-bottom:1px solid #e0e1e0;
+		width: 600px !important; /******changed to have the text area proper width ****/
 		}
 		
 	div.wysiwyg * { margin: 0; padding: 0; }
