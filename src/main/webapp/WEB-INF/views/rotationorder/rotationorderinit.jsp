@@ -34,14 +34,14 @@
 								 +"&status="+$("#selectedStatus").val()
 								 +"&role="+$("#srole").val() 
 								 + "&answeringDate=" + $("#selectedAnsweringDate").val();
-				var resourceURL = 'rotationorder/view?' + parameters;
+				var resourceURL = 'rotationorder/viewrotationorder?' + parameters;
 				$.get(resourceURL,function(data){
 					$("#rotationOrderResultDiv").empty();
 					$("#rotationOrderResultDiv").html(data);
 					$.unblockUI();					
 				},'html');
 					
-			});	
+			});
 		});		
 	</script>
 </head>
