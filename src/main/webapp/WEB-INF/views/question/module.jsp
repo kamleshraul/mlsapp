@@ -244,7 +244,6 @@
 				   </spring:message>
 				</a>
 			</li>
-			
 			<c:if test="${questionTypeType == 'questions_starred'}">
 			<security:authorize access="hasAnyRole('QIS_ASSISTANT', 'QIS_UNDER_SECRETARY',
 				'QIS_DEPUTY_SECRETARY', 'QIS_PRINCIPAL_SECRETARY', 'QIS_SPEAKER', 'QIS_JOINT_SECRETARY',
