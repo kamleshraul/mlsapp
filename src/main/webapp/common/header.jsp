@@ -13,7 +13,7 @@
 			<div class="user">
 				<img width="27" height="27" src="./resources/images/template/user_icon.png" alt=" " />			
 				<span>${authtitle}&nbsp;${authfirstname}&nbsp;${authmiddlename}&nbsp;${authlastname}</span>
-				<span>${logintime}</span>
+				<span style="width: 200px">${logintime}</span>
 			</div>
 		</div>
 	</div>
