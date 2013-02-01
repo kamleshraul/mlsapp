@@ -5,7 +5,7 @@
     <startEvent id="startevent1" name="Start"></startEvent>
     <subProcess id="subprocess1" name="Sub Process">
       <startEvent id="subprocess1startevent2" name="Start"></startEvent>
-      <userTask id="subprocess1usertask1" name="Approve Request" activiti:assignee="${supportingMember}" activiti:formKey="workflow/question/supportingmember">
+      <userTask id="subprocess1usertask1" name="Approve Request" activiti:assignee="${supportingMember}">
         <documentation>supporting member task :${supportingMember}</documentation>
       </userTask>
       <sequenceFlow id="subprocess1flow2" name="" sourceRef="subprocess1startevent2" targetRef="subprocess1usertask1"></sequenceFlow>
