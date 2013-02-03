@@ -8,6 +8,10 @@ public class MemberBallotVO {
 	
 	private String position;
 	
+	private String attendance;
+	
+	private String round;
+	
 	private String member;
 	
 	private String memberId;
@@ -52,5 +56,21 @@ public class MemberBallotVO {
 
 	public String getMemberId() {
 		return memberId;
+	}
+
+	public void setAttendance(String attendance) {
+		this.attendance = attendance;
+	}
+
+	public String getAttendance() {
+		return attendance;
+	}
+
+	public void setRound(String round) {
+		this.round = round;
+	}
+
+	public String getRound() {
+		return round;
 	}	
 }
