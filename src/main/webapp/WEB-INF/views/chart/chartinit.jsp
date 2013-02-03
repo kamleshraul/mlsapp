@@ -5,8 +5,7 @@
 	<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
 	<script type="text/javascript">
 		$(document).ready(function() {
-			view_chart();
-			
+			view_chart();			
 			$("#create_chart").click(function() {
 				$.blockUI({ message: '<img src="./resources/images/waitAnimated.gif" />' });
 				var parameters = "houseType="+$("#selectedHouseType").val()
@@ -53,7 +52,24 @@
 					$.unblockUI();					
 				},'html');
 					
-			});	
+			});		
+			$("#refresh_chart").click(function(){
+					var parameters = $("#gridURLParams").val();
+					if(parameters==undefined){
+						parameters = "houseType="+$("#selectedHouseType").val()
+						 +"&sessionYear="+$("#selectedSessionYear").val()
+						 +"&sessionType="+$("#selectedSessionType").val()
+						 +"&questionType="+$("#selectedQuestionType").val()
+						 +"&ugparam="+$("#ugparam").val()
+						 +"&status="+$("#selectedStatus").val()
+						 +"&role="+$("#srole").val()
+						 +"&usergroup="+$("#currentusergroup").val()
+						 +"&usergroupType="+$("#currentusergroupType").val();
+					}
+					var parameters = parameters + "&group=" + $("#selectedGroup").val();
+					var resourceURL = 'chart/init?' + parameters;
+					showTabByIdAndUrl('chart_tab', resourceURL);
+			});		
 		});
 
 		function view_chart() {
@@ -72,6 +88,57 @@
 				$("#chartResultDiv").html(data);
 				$.unblockUI();				
 			}, 'html');
+		}	
+		/**** detail of clubbed and refernced questions ****/			
+		function viewQuestionDetail(id){
+			$.blockUI({ message: '<img src="./resources/images/waitAnimated.gif" />' });	
+			var parameters="houseType="+$("#selectedHouseType").val()
+			+"&sessionYear="+$("#selectedSessionYear").val()
+			+"&sessionType="+$("#selectedSessionType").val()
+			+"&questionType="+$("#selectedQuestionType").val()
+			+"&ugparam="+$("#ugparam").val()
+			+"&status="+$("#selectedStatus").val()
+			+"&role="+$("#srole").val()
+			+"&usergroup="+$("#currentusergroup").val()
+			+"&usergroupType="+$("#currentusergroupType").val()
+			+"&edit=false";
+			var resourceURL='question/'+id+'/edit?'+parameters;
+			$.get(resourceURL,function(data){
+				$.unblockUI();
+				$.fancybox.open(data,{autoSize:false,width:750,height:700});
+			},'html');	
+		}	
+		/**** Clubbing ****/
+		function clubbingInt(id){
+			$.blockUI({ message: '<img src="./resources/images/waitAnimated.gif" />' });
+			var params="id="+id
+						+"&usergroup="+$("#currentusergroup").val()
+				        +"&usergroupType="+$("#currentusergroupType").val();		
+			$.get('clubentity/init?'+params,function(data){
+				$.unblockUI();	
+				//$.fancybox.open(data,{autoSize:false,width:750,height:700});
+				$("#clubbingResultDiv").html(data);
+				$("#clubbingResultDiv").show();
+				$("#referencingResultDiv").hide();
+				$("#selectionDiv2").hide();				
+				$("#chartResultDiv").hide();
+			},'html');
+		}
+		/**** Referencing ****/
+		function referencingInt(id){
+			$.blockUI({ message: '<img src="./resources/images/waitAnimated.gif" />' });
+			var params="id="+id
+			+"&usergroup="+$("#currentusergroup").val()
+	        +"&usergroupType="+$("#currentusergroupType").val();
+			$.get('refentity/init?'+params,function(data){
+				$.unblockUI();			
+				//$.fancybox.open(data,{autoSize:false,width:750,height:700});
+				$("#referencingResultDiv").html(data);
+				$("#referencingResultDiv").show();
+				$("#clubbingResultDiv").hide();
+				$("#selectionDiv2").hide();
+				$("#chartResultDiv").hide();
+			},'html');
 		}	
 	</script>
 </head>
@@ -93,9 +160,25 @@
 			</security:authorize>
 			<a href="#" id="view_chart" class="butSim">
 				<spring:message code="chartinitial.viewchart" text="View Chart"/>
+			</a> |
+			<a href="#" id="refresh_chart" class="butSim">
+				<spring:message code="chartinitial.refreshchart" text="Refresh Chart"/>
 			</a>
 </div>
 <div id="chartResultDiv">
+</div>
+
+<input id="usergroup" name="usergroup" type="hidden" value="${usergroup}">
+<input id="usergroupType" name="usergroupType" type="hidden" value="${usergroupType}">
+<ul id="contextMenuItems" >
+<li><a href="#clubbing" class="edit"><spring:message code="generic.clubbing" text="Clubbing"></spring:message></a></li>
+<li><a href="#referencing" class="edit"><spring:message code="generic.referencing" text="Referencing"></spring:message></a></li>
+</ul>
+
+<div id="clubbingResultDiv" style="display:none;">
+</div>
+
+<div id="referencingresultDiv" style="display:none;">
 </div>
 </body>
 </html>

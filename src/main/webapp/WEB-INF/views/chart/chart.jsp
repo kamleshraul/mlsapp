@@ -4,14 +4,7 @@
 	<title></title>
 	<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
 	<script type="text/javascript">
-		$(document).ready(function() {	
-			/**** Back to chart ****/
-			$("#backToChart").click(function(){
-				$("#chartResultDiv").show();
-				$("#clubbingResultDiv").hide();
-				$("#referencingResultDiv").hide();
-				$("#backDiv").hide();		
-			});		
+		$(document).ready(function() {					    
 			/**** On clicking a question on the chart ****/
 			$(".questionNumber").click(function(){
 				var parameters="houseType="+$("#selectedHouseType").val()
@@ -26,80 +19,25 @@
 				+"&edit=true";
 				var resourceURL='question/'+$(this).attr("id")+'/edit?'+parameters;
 				showTabByIdAndUrl('details_tab', resourceURL);
-			});
-			/**** On right clicking a question on the chart ****/
+			});	
+			 /**** Right Click Menu ****/
 			$(".questionNumber").contextMenu({
 		        menu: 'contextMenuItems'
 		    },
 		        function(action, el, pos) {
 				var id=$(el).attr("id");
-				if(action=='view'){
-					viewQuestionDetail(id);
-				}else if(action=='clubbing'){
-					clubbingInt(id);
+				if(action=='clubbing'){
+					clubbingInt(id);		
 				}else if(action=='referencing'){
 					referencingInt(id);
 				}
-		    	});
-
-			$(".questionNumber a[title]").qtip({
-	    		show: 'mouseover',
-	    		hide: 'mouseout'
-	    	});
-			
-		});	
-		/**** Question Details ****/
-		function viewQuestionDetail(id){
-			$.blockUI({ message: '<img src="./resources/images/waitAnimated.gif" />' });	
-			var parameters="houseType="+$("#selectedHouseType").val()
-			+"&sessionYear="+$("#selectedSessionYear").val()
-			+"&sessionType="+$("#selectedSessionType").val()
-			+"&questionType="+$("#selectedQuestionType").val()
-			+"&ugparam="+$("#ugparam").val()
-			+"&status="+$("#selectedStatus").val()
-			+"&role="+$("#srole").val()
-			+"&usergroup="+$("#currentusergroup").val()
-			+"&usergroupType="+$("#currentusergroupType").val()	
-			+"&edit=false";
-			var resourceURL='question/'+id+'/edit?'+parameters;
-			$.get(resourceURL,function(data){
-				$.unblockUI();
-				$.fancybox.open(data,{autoSize:false,width:750,height:700});
-			},'html');	
-		}	
-		/**** Clubbing ****/			
-		function clubbingInt(id){
-			$.blockUI({ message: '<img src="./resources/images/waitAnimated.gif" />' });		
-			$.get('clubentity/init?id='+id,function(data){
-				$.unblockUI();
-				$("#clubbingResultDiv").empty();
-				$("#clubbingResultDiv").html(data);
-				$("#chartResultDiv").hide();
-				$("#clubbingResultDiv").show();
-				$("#referencingResultDiv").hide();
-				$("#backDiv").show();					
-				//$.fancybox.open(data,{autoSize:false,width:750,height:700});
-			},'html');
-		}
-		/**** Referencing ****/
-		function referencingInt(id){
-			$.blockUI({ message: '<img src="./resources/images/waitAnimated.gif" />' });
-			$.get('refentity/init?id='+id,function(data){
-				$.unblockUI();			
-				$("#referencingResultDiv").empty();
-				$("#referencingResultDiv").html(data);
-				$("#chartResultDiv").hide();
-				$("#clubbingResultDiv").hide();
-				$("#referencingResultDiv").show();
-				$("#backDiv").show();				
-				//$.fancybox.open(data,{autoSize:false,width:750,height:700});
-			},'html');
-		}
+		    });				
+		});			
 	</script>
 </head>
 
 <body>
-<div id="chartResultDiv">
+<div>
 <c:choose>
 <c:when test="${chartVOs == null}">
 	<spring:message code="question.chart.notCreated" text="Chart is not Created"/>
@@ -151,25 +89,8 @@
 	</tr>
 	</c:forEach>
 </table>
-<ul id="contextMenuItems" >
-<li><a href="#clubbing" class="edit"><spring:message code="generic.clubbing" text="Clubbing"></spring:message></a></li>
-<li><a href="#referencing" class="edit"><spring:message code="generic.referencing" text="Referencing"></spring:message></a></li>
-<li><a href="#view" class="edit"><spring:message code="generic.view" text="View Details"></spring:message></a></li>
-
-</ul>
 </c:otherwise>
 </c:choose>
 </div>
-
-<div id="backDiv">
-<a href="#" id="backToChart"><spring:message code="chart.backtochart" text="Back To Chart"></spring:message></a>
-</div>
-
-<div id="clubbingResultDiv">
-</div>
-
-<div id="referencingresultDiv">
-</div>
-
 </body>
 </html>
