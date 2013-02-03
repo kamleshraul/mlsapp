@@ -223,9 +223,16 @@
 				$("#clubbingResultDiv").hide();
 				$("#referencingResultDiv").hide();
 				//$("#backToQuestionDiv").hide();
+				if($("#assistantDiv").length>0){
 				$("#assistantDiv").show();
+				}else if($("#chartResultDiv").length>0){
+					$("#chartResultDiv").show();
+					$("#selectionDiv2").show();					
+				}
 				/**** Hide update success/failure message on coming back to question ****/
+				if($("#.toolTipe").length>0){
 				$(".toolTip").hide();
+				}
 			});
 	});
 		
@@ -383,21 +390,25 @@
 							var textTemp="";
 							var textTemp=textTemp+"<tr>"+
 									"<td class='expand'>"+
-									"<span id='number"+data[i].id+"'>"+data[i].number+"</span>";
+									"<span id='number"+data[i].id+"'>"+
+									"<a onclick='viewDetail("+data[i].id+");' style='margin:10px;'>"+									
+									data[i].number+"</a></span>"
+									+"<br>";
+							textTemp+="<span id='operation"+data[i].id+"'>";									
 							if(data[i].classification=='Clubbing'){
-							textTemp+="<span id='operation"+data[i].id+"'>"+
-								  "<a onclick='clubbing("+data[i].id+");' style='margin:10px;'>"+$("#clubMsg").val()+"</a>"+
-								  "</span>";					
+								textTemp+="<a onclick='clubbing("+data[i].id+");' style='margin:10px;'>"+$("#clubMsg").val()+"</a>";
 							}else if(data[i].classification=='Group Change'){
-							textTemp+="<span id='operation"+data[i].id+"'>"+
-							  "<a style='margin:10px;' href='#'>"+$("#groupChangeMsg").val()+"</a>"+
-							  "</span>";
-							}else{
-							textTemp+="<span id='operation"+data[i].id+"'>"+
-							  "<a style='margin:10px;' href='#'>"+$("#referencingMsg").val()+"</a>"+
-							  "</span>";
+								textTemp+="<a style='margin:10px;' href='#'>"+$("#groupChangeMsg").val()+"</a>";
+							}else if(data[i].classification=='Ministry Change'){
+								textTemp+="<a style='margin:10px;' href='#'>"+$("#ministryChangeMsg").val()+"</a>";
+							}else if(data[i].classification=='Department Change'){
+								textTemp+="<a style='margin:10px;' href='#'>"+$("#departmentChangeMsg").val()+"</a>";
+							}else if(data[i].classification=='Sub Department Change'){
+								textTemp+="<a style='margin:10px;' href='#'>"+$("#subDepartmentChangeMsg").val()+"</a>";
+							}else if(data[i].classification=='Referencing'){
+								textTemp+="<a style='margin:10px;' href='#'>"+$("#referencingMsg").val()+"</a>";
 							}
-							textTemp+="<a onclick='viewDetail("+data[i].id+");' style='margin:10px;'>"+$("#viewDetailMsg").val()+"</a>"
+							textTemp+="</span>";					
 							+"</td>";
 						
 							textTemp+="<td class='expand'>"+data[i].subject+"</td>";
@@ -461,6 +472,7 @@
 		}		
 		/**** On Clubbing ****/
 		function clubbing(clubId){
+			$.blockUI({ message: '<img src="./resources/images/waitAnimated.gif" />' });			
 			var questionId=$("#questionId").val();	
 			var questionNumber=$("#questionNumber").val();
 			var clubbedNumber=$("#number"+clubId).text();		
@@ -483,23 +495,21 @@
 						$("#clubbingResult").html(text);
 						$("#operation"+clubId).empty();
 						$("#operation"+clubId).html("<a onclick='unclubbing("+clubId+");' style='margin:10px;'>"+$("#unclubMsg").val()+"</a>");
-					}else if(data=='BEINGPROCESSED_QUESTION_ALREADY_CLUBBED'){
-						var text="<span style='color:green;font-weight:bold;font-size:16px;'>"+questionNumber+" is already a clubbed question. ";
-						$("#clubbingResult").empty();
-						$("#clubbingResult").html(text);
-						$("#operation"+clubId).empty();
-						$("#operation"+clubId).html("<a onclick='unclubbing("+clubId+");' style='margin:10px;'>"+$("#unclubMsg").val()+"</a>");
 					}else{
 						$("#clubbingResult").empty();
 						$("#clubbingResult").html(data);
 						$("#operation"+clubId).empty();
 						$("#operation"+clubId).html("<a onclick='clubbing("+clubId+");' style='margin:10px;'>"+$("#clubMsg").val()+"</a>");
-					}
+					}									
 			},'html');
+			$.unblockUI();	
+			$('html').animate({scrollTop:0}, 'slow');
+			$('body').animate({scrollTop:0}, 'slow');	
 			return false;
 		}
 		/**** On unclubbing ****/
 		function unclubbing(clubId){
+			$.blockUI({ message: '<img src="./resources/images/waitAnimated.gif" />' });	
 			var questionId=$("#questionId").val();
 			$.post('clubentity/unclubbing?pId='+questionId+"&cId="+clubId,function(data){
 				if(data=='SUCCESS'){
@@ -514,6 +524,9 @@
 						$("#operation"+clubId).html("<a onclick='unclubbing("+clubId+");' style='margin:10px;'>"+$("#unclubMsg").val()+"</a>");
 					}				
 			},'html');
+			$.unblockUI();	
+			$('html').animate({scrollTop:0}, 'slow');
+			$('body').animate({scrollTop:0}, 'slow');	
 			return false;
 		}		
 		/**** view question details in readonly mode ****/
@@ -535,7 +548,8 @@
 				$("#viewQuestion").html(data);
 				$("#viewQuestionDiv").show();
 				$.unblockUI();				
-			},'html');		
+			},'html');
+			$.unblockUI();						
 		}
 		/**** on clicking back ****/
 		function back(){
@@ -582,6 +596,7 @@ font-weight: bold;
 text-decoration: underline;
 }
 .expand{
+
 }
 #searchTable a{
 text-decoration: underline;
@@ -856,7 +871,10 @@ color:blue;
 <input id="viewDetailMsg" value="<spring:message code='clubbing.viewdetail' text='Detail'></spring:message>" type="hidden">
 <input id="clubMsg" value="<spring:message code='clubbing.club' text='Club'></spring:message>" type="hidden">
 <input id="unclubMsg" value="<spring:message code='clubbing.unclub' text='Unclub'></spring:message>" type="hidden">
-<input id="groupChangeMsg" value="<spring:message code='clubbing.groupchange' text='Group Change'></spring:message>" type="hidden">
+<input id="groupChangeMsg" value="<spring:message code='clubbing.groupchange' text='Change Group'></spring:message>" type="hidden">
+<input id="ministryChangeMsg" value="<spring:message code='clubbing.ministrychange' text='Change Ministry'></spring:message>" type="hidden">
+<input id="departmentChangeMsg" value="<spring:message code='clubbing.departmentchange' text='Change Department'></spring:message>" type="hidden">
+<input id="subDepartmentChangeMsg" value="<spring:message code='clubbing.subDepartmentchange' text='Change Sub Department'></spring:message>" type="hidden">
 <input id="referencingMsg" value="<spring:message code='clubbing.referencing' text='Referencing'></spring:message>" type="hidden">
 <input id="loadMoreMsg" value="<spring:message code='clubbing.loadmore' text='Show More'></spring:message>" type="hidden">
 <input id="finishedSearchingMsg" value="<spring:message code='clubbing.finishedsearching' text='Finished Searching'></spring:message>" type="hidden">
