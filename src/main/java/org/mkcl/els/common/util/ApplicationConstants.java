@@ -296,12 +296,17 @@ public class ApplicationConstants {
     public static final String QUESTION_STARRED_NO_OF_ROUNDS_BALLOT_LH="questions_starred_noOfRoundsBallot";
     
     public static final String QUESTION_STARRED_NO_OF_ROUNDS_BALLOT_UH="questions_starred_noOfRoundsMemberBallotFinal";
+    
+    public static final String QUESTION_HALFHOURDISCUSSION_FROM_QUESTION_NO_OF_SUPPORTING_MEMBERS="questions_halfhourdiscussion_from_question_numberOfSupportingMembers";
+    
+    public static final String QUESTION_HALFHOURDISCUSSION_FROM_QUESTION_NO_OF_SUPPORTING_MEMBERS_COMPARATOR = "questions_halfhourdiscussion_from_question_numberOfSupportingMembersComparator";
 
     /**** member ballot ****/
     public static final String MEMBERBALLOT_DELETE_EXISTING="DELETE";
     
     public static final String MEMBERBALLOT_ABSENTBALLOT_AFTER_ALL_PRESENTBALLOT="YES";
 
+    
     
     
 
