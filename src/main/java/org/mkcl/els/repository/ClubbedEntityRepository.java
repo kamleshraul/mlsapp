@@ -147,25 +147,25 @@ public class ClubbedEntityRepository extends BaseRepository<ClubbedEntity, Seria
 						questionSearchVO.setSubject(higlightText(o[3].toString(),param));
 					}else{
 						if(o[2]!=null){
-						questionSearchVO.setSubject(higlightText(o[2].toString(),param));
+							questionSearchVO.setSubject(higlightText(o[2].toString(),param));
 						}
 					}
 				}else{
 					if(o[2]!=null){
 						questionSearchVO.setSubject(higlightText(o[2].toString(),param));
-						}
+					}
 				}				
 				if(o[5]!=null){
 					if(!o[5].toString().isEmpty()){
 						questionSearchVO.setQuestionText(higlightText(o[5].toString(),param));
 					}else{
 						if(o[4]!=null){
-						questionSearchVO.setQuestionText(higlightText(o[4].toString(),param));
+							questionSearchVO.setQuestionText(higlightText(o[4].toString(),param));
 						}
 					}
 				}else{
 					if(o[4]!=null){
-					questionSearchVO.setQuestionText(higlightText(o[4].toString(),param));
+						questionSearchVO.setQuestionText(higlightText(o[4].toString(),param));
 					}
 				}
 				if(o[6]!=null){
@@ -205,23 +205,42 @@ public class ClubbedEntityRepository extends BaseRepository<ClubbedEntity, Seria
 
 
 	private void addClasification(QuestionSearchVO questionSearchVO,Question question) {
-		/**** Candidate For Clubbing ****/
-		if(questionSearchVO.getMinistry().equals(question.getMinistry().getName())){
-			if(questionSearchVO.getDepartment().equals(question.getDepartment().getName())){
-				if(question.getSubDepartment()!=null&&questionSearchVO.getSubDepartment()!=null){
-					if(question.getSubDepartment().getName().equals(questionSearchVO.getSubDepartment())){
-						questionSearchVO.setClassification("Clubbing");
+		if(questionSearchVO.getStatusType().equals(ApplicationConstants.QUESTION_FINAL_REJECTION)){
+			/**** Candidate For Referencing ****/
+			questionSearchVO.setClassification("Referencing");
+		}else if(!questionSearchVO.getGroup().equals(String.valueOf(question.getGroup().getNumber()))){
+			/**** Candidate For Group Change ****/
+			questionSearchVO.setClassification("Group Change");
+		}else if(questionSearchVO.getGroup().equals(String.valueOf(question.getGroup().getNumber()))){
+			if(question.getMinistry()!=null){
+				if(!question.getMinistry().getName().equals(questionSearchVO.getMinistry())){
+					/**** Candidate For Ministry Change ****/
+					questionSearchVO.setClassification("Ministry Change");
+				}else{
+					if(question.getDepartment()!=null){
+						if(!question.getDepartment().getName().equals(questionSearchVO.getDepartment())){
+							/**** Candidate For Department Change ****/
+							questionSearchVO.setClassification("Department Change");
+						}else{
+							if(question.getSubDepartment()!=null){
+								if(!question.getSubDepartment().getName().equals(questionSearchVO.getSubDepartment())){
+									/**** Candidate For Sub Department Change ****/
+									questionSearchVO.setClassification("Sub Department Change");	
+								}else if(question.getSubDepartment().getName().isEmpty()&&questionSearchVO.getSubDepartment().isEmpty()){
+									/**** Candidate For Clubbing ****/
+									questionSearchVO.setClassification("Clubbing");
+								}else if(question.getSubDepartment().getName().equals(questionSearchVO.getSubDepartment())){
+									/**** Candidate For Clubbing ****/
+									questionSearchVO.setClassification("Clubbing");
+								}
+							}else if(question.getSubDepartment()==null&&questionSearchVO.getSubDepartment()==null){
+								/**** Candidate For Clubbing ****/
+								questionSearchVO.setClassification("Clubbing");
+							}
+						}
 					}
-				}else if(question.getSubDepartment()==null&&questionSearchVO.getSubDepartment()==null){
-					questionSearchVO.setClassification("Clubbing");
 				}
 			}
-		}else /**** Candidate For Group Change ****/
-		if(!questionSearchVO.getGroup().equals(String.valueOf(question.getGroup().getNumber()))){
-			questionSearchVO.setClassification("Group Change");
-		}else /**** Candidate For Referencing ****/
-		if(!questionSearchVO.getStatusType().equals(ApplicationConstants.QUESTION_FINAL_REJECTION)){
-			questionSearchVO.setClassification("Referencing");
 		}
 	}
 
@@ -231,55 +250,55 @@ public class ClubbedEntityRepository extends BaseRepository<ClubbedEntity, Seria
 		if(requestMap.get("deviceType")!=null){
 			String deviceType=requestMap.get("deviceType")[0];
 			if((!deviceType.isEmpty())&&(!deviceType.equals("-"))){
-			buffer.append(" AND dt.id="+deviceType);
+				buffer.append(" AND dt.id="+deviceType);
 			}
 		}
 		if(requestMap.get("houseType")!=null){
 			String houseType=requestMap.get("houseType")[0];
 			if((!houseType.isEmpty())&&(!houseType.equals("-"))){
-			buffer.append(" AND ht.type='"+houseType+"'");
+				buffer.append(" AND ht.type='"+houseType+"'");
 			}
 		}
 		if(requestMap.get("sessionYear")!=null){
 			String sessionYear=requestMap.get("sessionYear")[0];
 			if((!sessionYear.isEmpty())&&(!sessionYear.equals("-"))){
-			buffer.append(" AND s.session_year="+sessionYear);
+				buffer.append(" AND s.session_year="+sessionYear);
 			}
 		}
 		if(requestMap.get("sessionType")!=null){
 			String sessionType=requestMap.get("sessionType")[0];
 			if((!sessionType.isEmpty())&&(!sessionType.equals("-"))){
-			buffer.append(" AND sety.id="+sessionType);
+				buffer.append(" AND sety.id="+sessionType);
 			}
 		}
 		if(requestMap.get("group")!=null){
 			String group=requestMap.get("group")[0];
 			if((!group.isEmpty())&&(!group.equals("-"))){
-			buffer.append(" AND g.id="+group);
+				buffer.append(" AND g.id="+group);
 			}
 		}
 		if(requestMap.get("answeringDate")!=null){
 			String answeringDate=requestMap.get("answeringDate")[0];
 			if((!answeringDate.isEmpty())&&(!answeringDate.equals("-"))){
-			buffer.append(" AND qd.id="+answeringDate);
+				buffer.append(" AND qd.id="+answeringDate);
 			}
 		}	
 		if(requestMap.get("ministry")!=null){
 			String ministry=requestMap.get("ministry")[0];
 			if((!ministry.isEmpty())&&(!ministry.equals("-"))){
-			buffer.append(" AND mi.id="+ministry);
+				buffer.append(" AND mi.id="+ministry);
 			}
 		}
 		if(requestMap.get("department")!=null){
 			String department=requestMap.get("department")[0];
 			if((!department.isEmpty())&&(!department.equals("-"))){
-			buffer.append(" AND d.id="+department);
+				buffer.append(" AND d.id="+department);
 			}
 		}
 		if(requestMap.get("subDepartment")!=null){
 			String subDepartment=requestMap.get("subDepartment")[0];
 			if((!subDepartment.isEmpty())&&(!subDepartment.equals("-"))){
-			buffer.append(" AND sd.id="+subDepartment);
+				buffer.append(" AND sd.id="+subDepartment);
 			}
 		}	
 		if(requestMap.get("status")!=null){
@@ -290,9 +309,9 @@ public class ClubbedEntityRepository extends BaseRepository<ClubbedEntity, Seria
 					buffer.append(" AND st.priority<=(SELECT priority FROM status as sst WHERE sst.type='"+ApplicationConstants.QUESTION_SYSTEM_TO_BE_PUTUP+"')");
 				}else if(status.equals(ApplicationConstants.PENDING_FILTER)){
 					buffer.append(" AND st.priority>(SELECT priority FROM status as sst WHERE sst.type='"+ApplicationConstants.QUESTION_SYSTEM_TO_BE_PUTUP+"')");
-					buffer.append(" AND st.priority<=(SELECT priority FROM status as sst WHERE sst.type='"+ApplicationConstants.QUESTION_FINAL_ADMISSION+"')");
+					buffer.append(" AND st.priority<(SELECT priority FROM status as sst WHERE sst.type='"+ApplicationConstants.QUESTION_FINAL_ADMISSION+"')");
 				}else if(status.equals(ApplicationConstants.APPROVED_FILTER)){
-					buffer.append(" AND st.priority>(SELECT priority FROM status as sst WHERE sst.type='"+ApplicationConstants.QUESTION_FINAL_ADMISSION+"')");
+					buffer.append(" AND st.priority>=(SELECT priority FROM status as sst WHERE sst.type='"+ApplicationConstants.QUESTION_FINAL_ADMISSION+"')");
 					buffer.append(" AND st.priority<=(SELECT priority FROM status as sst WHERE sst.type='"+ApplicationConstants.QUESTION_PROCESSED_YAADILAID+"')");
 				} 
 			}
@@ -309,9 +328,9 @@ public class ClubbedEntityRepository extends BaseRepository<ClubbedEntity, Seria
 			String[] temp=pattern.trim().split(" ");
 			for(String j:temp){
 				if(!j.isEmpty()){
-				if(!highlightedText.contains(replaceMentText+j.trim()+replaceMentTextEnd)){
-					highlightedText=highlightedText.replaceAll(j.trim(),replaceMentText+j.trim()+replaceMentTextEnd);
-				}
+					if(!highlightedText.contains(replaceMentText+j.trim()+replaceMentTextEnd)){
+						highlightedText=highlightedText.replaceAll(j.trim(),replaceMentText+j.trim()+replaceMentTextEnd);
+					}
 				}
 			}			
 		}else if((pattern.contains("+"))&&(!pattern.contains("-"))){
@@ -389,15 +408,7 @@ public class ClubbedEntityRepository extends BaseRepository<ClubbedEntity, Seria
 			/**** Clubbed question has an entry in clubbed entities ****/
 			return "BEINGSEARCHED_QUESTION_ALREADY_CLUBBED";
 		}else{
-			ClubbedEntity clubbedEntity2=ClubbedEntity.findByFieldName(ClubbedEntity.class,"question",
-					beingProcessedQuestion, locale);
-			if(clubbedEntity2!=null){
-				/**** processed question has an entry in clubbed entities ****/
-				return "BEINGPROCESSED_QUESTION_ALREADY_CLUBBED";
-			}else{
-				/**** None of the question has an entry in clubbed entities ****/		
-				return "NO";
-			}
+			return "NO";
 		}
 	}
 
@@ -430,7 +441,7 @@ public class ClubbedEntityRepository extends BaseRepository<ClubbedEntity, Seria
 				}else{
 					return "QUESTIONS_FROM_DIFFERENT_MINISTRY_DEPARTMENT_SUBDEPARTMENT";
 				}
-			}else if(beingProcessedQuestion.getSubDepartment()!=null&&beingClubbedQuestion.getSubDepartment()!=null){
+			}else if(beingProcessedQuestion.getSubDepartment()==null&&beingClubbedQuestion.getSubDepartment()==null){
 				/**** processed number < clubbed number ****/
 				if(beingProcessedQuestion.getNumber()<beingClubbedQuestion.getNumber()){
 					return beingProcessedIsPrimary(beingProcessedQuestion,beingClubbedQuestion
@@ -527,9 +538,9 @@ public class ClubbedEntityRepository extends BaseRepository<ClubbedEntity, Seria
 				||beingProcessedRecommendationStatus.equals(ApplicationConstants.QUESTION_RECOMMEND_SENDBACK)
 				||beingProcessedRecommendationStatus.equals(ApplicationConstants.QUESTION_RECOMMEND_DISCUSS))
 				&&(beingClubbedQuestionStatusType.equals(ApplicationConstants.QUESTION_RECOMMEND_CLARIFICATION_FROM_DEPARTMENT)
-				||beingClubbedQuestionStatusType.equals(ApplicationConstants.QUESTION_RECOMMEND_CLARIFICATION_FROM_MEMBER)
-				||beingClubbedQuestionStatusType.equals(ApplicationConstants.QUESTION_RECOMMEND_CLARIFICATION_FROM_MEMBER_AND_DEPARTMENT)
-				||beingClubbedQuestionStatusType.equals(ApplicationConstants.QUESTION_RECOMMEND_CLARIFICATION_FROM_GOVT))){
+						||beingClubbedQuestionStatusType.equals(ApplicationConstants.QUESTION_RECOMMEND_CLARIFICATION_FROM_MEMBER)
+						||beingClubbedQuestionStatusType.equals(ApplicationConstants.QUESTION_RECOMMEND_CLARIFICATION_FROM_MEMBER_AND_DEPARTMENT)
+						||beingClubbedQuestionStatusType.equals(ApplicationConstants.QUESTION_RECOMMEND_CLARIFICATION_FROM_GOVT))){
 			Status putOnHold=Status.findByType(ApplicationConstants.QUESTION_PUTUP_ONHOLD, locale);
 			actualClubbing(parent, child,putOnHold,putOnHold, locale);
 			return "PROCESSED_TO_BE_PUT_ON_HOLD";
@@ -558,10 +569,10 @@ public class ClubbedEntityRepository extends BaseRepository<ClubbedEntity, Seria
 			parent=beingProcessedQuestion;
 		}	
 		Question child=beingClubbedQuestion;
-		if(	(beingProcessedQuestionStatusType.equals("question_before_workflow_tobeputup") 
-				&& beingClubbedQuestionStatusType.equals("question_before_workflow_tobeputup"))||
-				(beingProcessedQuestionStatusType.equals("question_assistantprocessed")
-						&& beingClubbedQuestionStatusType.equals("question_assistantprocessed"))){
+		if(	(beingProcessedQuestionStatusType.equals(ApplicationConstants.QUESTION_SYSTEM_TO_BE_PUTUP) 
+				&& beingClubbedQuestionStatusType.equals(ApplicationConstants.QUESTION_SYSTEM_TO_BE_PUTUP))||
+				(beingProcessedQuestionStatusType.equals(ApplicationConstants.QUESTION_SYSTEM_ASSISTANT_PROCESSED)
+						&& beingClubbedQuestionStatusType.equals(ApplicationConstants.QUESTION_SYSTEM_ASSISTANT_PROCESSED))){
 			Status clubbed=Status.findByType(ApplicationConstants.QUESTION_SYSTEM_CLUBBED, locale);
 			actualClubbing(parent, child,clubbed,clubbed, locale);
 			return "SEARCHED_CLUBBED_TO_PROCESSED";
@@ -689,9 +700,9 @@ public class ClubbedEntityRepository extends BaseRepository<ClubbedEntity, Seria
 				if(clubbedDeviceType.equals("questions_unstarred")
 						||clubbedDeviceType.equals("questions_halfhourdiscussion_from_question")
 						||clubbedDeviceType.equals("questions_shortnotice")){
-					newstatus=Status.findByFieldName(Status.class,"type","question_assistantprocessed", locale);
+					newstatus=Status.findByFieldName(Status.class,"type",ApplicationConstants.QUESTION_SYSTEM_ASSISTANT_PROCESSED, locale);
 				}else{
-					newstatus=Status.findByFieldName(Status.class,"type","question_before_workflow_tobeputup", locale);
+					newstatus=Status.findByFieldName(Status.class,"type",ApplicationConstants.QUESTION_SYSTEM_TO_BE_PUTUP, locale);
 				}
 				beingClubbedQuestion.setInternalStatus(newstatus);
 				beingClubbedQuestion.setRecommendationStatus(newstatus);
@@ -726,17 +737,17 @@ public class ClubbedEntityRepository extends BaseRepository<ClubbedEntity, Seria
 				if(clubbedDeviceType.equals("questions_unstarred")
 						||clubbedDeviceType.equals("questions_halfhourdiscussion_from_question")
 						||clubbedDeviceType.equals("questions_shortnotice")){
-					newstatus=Status.findByFieldName(Status.class,"type","question_assistantprocessed", locale);
+					newstatus=Status.findByFieldName(Status.class,"type",ApplicationConstants.QUESTION_SYSTEM_ASSISTANT_PROCESSED, locale);
 				}else{
-					newstatus=Status.findByFieldName(Status.class,"type","question_before_workflow_tobeputup", locale);
+					newstatus=Status.findByFieldName(Status.class,"type",ApplicationConstants.QUESTION_SYSTEM_TO_BE_PUTUP, locale);
 				}
 				beingProcessedQuestion.setInternalStatus(newstatus);
 				beingProcessedQuestion.setRecommendationStatus(newstatus);
 				beingProcessedQuestion.simpleMerge();
 			}
 		} catch (Exception e) {
-			logger.error("UNCLUBBING_FAILED",e);
+			logger.error("FAILED",e);
 		}		
-		return "UNCLUBBING_SUCCESS";
+		return "SUCCESS";
 	}
 }
