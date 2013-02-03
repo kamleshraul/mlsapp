@@ -50,6 +50,8 @@ public class MemberBallotChoice extends BaseDomain implements Serializable{
 
     /** The clubbing updated. */
     private Boolean clubbingUpdated;
+    
+    private Boolean processed=false;
 
 
     /** The member ballot choice repository. */
@@ -164,6 +166,14 @@ public class MemberBallotChoice extends BaseDomain implements Serializable{
     public Boolean getClubbingUpdated() {
         return clubbingUpdated;
     }
+
+	public void setProcessed(Boolean processed) {
+		this.processed = processed;
+	}
+
+	public Boolean getProcessed() {
+		return processed;
+	}
 
 
 }
