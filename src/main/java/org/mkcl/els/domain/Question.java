@@ -55,7 +55,7 @@ import org.springframework.beans.factory.annotation.Configurable;
 @JsonIgnoreProperties({"halfHourDiscusionFromQuestionReference","answeringDate","chartAnsweringDate","recommendationStatus","houseType", "session",
     "language","type","supportingMembers", "subDepartment", "referencedQuestions",
     "drafts","clubbings","group","editedBy","editedAs","clubbedEntities","referencedEntities","parent","parentReferencing",
-    "clarificationNeededFrom","originalType"})
+    "clarificationNeededFrom","originalType","ballotStatus"})
 public class Question extends BaseDomain
 implements Serializable
 {
@@ -157,6 +157,11 @@ implements Serializable
     @ManyToOne(fetch=FetchType.LAZY)
     @JoinColumn(name="recommendationstatus_id")
     private Status recommendationStatus;
+    
+    /**** if a question is balloted then its balloted status is set to balloted ****/
+    @ManyToOne(fetch=FetchType.LAZY)
+    @JoinColumn(name="ballotstatus_id")
+    private Status ballotStatus;
    
 
     /** The remarks. */
@@ -1979,5 +1984,11 @@ implements Serializable
 	}
 	public DeviceType getOriginalType() {
 		return originalType;
+	}
+	public void setBallotStatus(Status ballotStatus) {
+		this.ballotStatus = ballotStatus;
+	}
+	public Status getBallotStatus() {
+		return ballotStatus;
 	}
 }
