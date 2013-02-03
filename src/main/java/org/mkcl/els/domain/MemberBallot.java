@@ -24,6 +24,7 @@ import javax.persistence.Table;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
 
+import org.mkcl.els.common.vo.MemberBallotFinalBallotVO;
 import org.mkcl.els.common.vo.MemberBallotVO;
 import org.mkcl.els.repository.MemberBallotRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -65,7 +66,7 @@ public class MemberBallot extends BaseDomain implements Serializable {
 	private Integer round;
 
 	/** The question choices. */
-	@ManyToMany(cascade = CascadeType.ALL,fetch=FetchType.LAZY)
+	@ManyToMany(cascade = CascadeType.REMOVE,fetch=FetchType.LAZY)
 	@JoinTable(name = "memberballot_choice_association",
 			joinColumns = { @JoinColumn(name = "memberballot_id",
 					referencedColumnName = "id") },
@@ -92,7 +93,7 @@ public class MemberBallot extends BaseDomain implements Serializable {
 		MemberBallotRepository memberBallotRepository = new MemberBallot().memberBallotRepository;
 		if (memberBallotRepository == null) {
 			throw new IllegalStateException(
-					"MemberBallotRepository has not been injected in MemberBallot Domain");
+			"MemberBallotRepository has not been injected in MemberBallot Domain");
 		}
 		return memberBallotRepository;
 	}
@@ -359,13 +360,18 @@ public class MemberBallot extends BaseDomain implements Serializable {
 	 * @param locale the locale
 	 */
 	public static Boolean createFinalBallot(final Session session,
-			final DeviceType deviceType, final Group group, final QuestionDates questionDates,
+			final DeviceType deviceType, final Group group, final String answeringDate,
 			final String locale,final String firstBatchSubmissionDate) {
 		return getMemberBallotRepository().createFinalBallot(session,
-				deviceType,group,questionDates,
+				deviceType,group,answeringDate,
 				locale,firstBatchSubmissionDate);
 	}
 
+	public static List<MemberBallotFinalBallotVO> viewFinalBallot(final Session session,
+			final DeviceType deviceType,final String answeringDate,
+			final String locale){
+		return getMemberBallotRepository().viewBallot(session, deviceType,answeringDate, locale);
+	}
 
 	public static Boolean deleteTempEntries() {
 		return getMemberBallotRepository().deleteTempEntries();
@@ -384,7 +390,7 @@ public class MemberBallot extends BaseDomain implements Serializable {
 		return getMemberBallotRepository().viewMemberBallotVO(session,
 				questionType,attendance,round,group,locale);
 	}
-	
+
 	public static List<MemberBallotVO> viewMemberBallotVO(final Session session,
 			final DeviceType questionType,final Boolean attendance,final Integer round,
 			final Group group,final QuestionDates answeringDate,final String locale) {
