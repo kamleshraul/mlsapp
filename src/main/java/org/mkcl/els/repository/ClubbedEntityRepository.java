@@ -32,6 +32,7 @@ public class ClubbedEntityRepository extends BaseRepository<ClubbedEntity, Seria
 		"  sety.session_type as sessionType ,g.number as groupnumber,"+
 		"  mi.name as ministry,d.name as department,sd.name as subdepartment,st.type as statustype"+
 		"  FROM questions as q "+
+		"  LEFT JOIN housetypes as ht ON(q.housetype_id=ht.id) "+
 		"  LEFT JOIN sessions as s ON(q.session_id=s.id) "+
 		"  LEFT JOIN sessiontypes as sety ON(s.sessiontype_id=sety.id) "+
 		"  LEFT JOIN status as st ON(q.recommendationstatus_id=st.id) "+
@@ -145,19 +146,27 @@ public class ClubbedEntityRepository extends BaseRepository<ClubbedEntity, Seria
 					if(!o[3].toString().isEmpty()){
 						questionSearchVO.setSubject(higlightText(o[3].toString(),param));
 					}else{
+						if(o[2]!=null){
 						questionSearchVO.setSubject(higlightText(o[2].toString(),param));
+						}
 					}
 				}else{
-					questionSearchVO.setSubject(higlightText(o[2].toString(),param));
+					if(o[2]!=null){
+						questionSearchVO.setSubject(higlightText(o[2].toString(),param));
+						}
 				}				
 				if(o[5]!=null){
 					if(!o[5].toString().isEmpty()){
 						questionSearchVO.setQuestionText(higlightText(o[5].toString(),param));
 					}else{
+						if(o[4]!=null){
 						questionSearchVO.setQuestionText(higlightText(o[4].toString(),param));
+						}
 					}
 				}else{
+					if(o[4]!=null){
 					questionSearchVO.setQuestionText(higlightText(o[4].toString(),param));
+					}
 				}
 				if(o[6]!=null){
 					questionSearchVO.setStatus(o[6].toString());
@@ -166,7 +175,7 @@ public class ClubbedEntityRepository extends BaseRepository<ClubbedEntity, Seria
 					questionSearchVO.setDeviceType(o[7].toString());
 				}
 				if(o[8]!=null){
-					questionSearchVO.setSessionYear(o[8].toString());
+					questionSearchVO.setSessionYear(FormaterUtil.getNumberFormatterNoGrouping(locale).format(Integer.parseInt(o[8].toString())));
 				}
 				if(o[9]!=null){
 					questionSearchVO.setSessionType(o[9].toString());
@@ -219,62 +228,62 @@ public class ClubbedEntityRepository extends BaseRepository<ClubbedEntity, Seria
 
 	private String addFilter(Map<String, String[]> requestMap) {
 		StringBuffer buffer=new StringBuffer();
-		String deviceType=requestMap.get("deviceType")[0];
-		if(deviceType!=null){
+		if(requestMap.get("deviceType")!=null){
+			String deviceType=requestMap.get("deviceType")[0];
 			if((!deviceType.isEmpty())&&(!deviceType.equals("-"))){
-				buffer.append(" AND dt.id="+deviceType);
+			buffer.append(" AND dt.id="+deviceType);
 			}
 		}
-		String houseType=requestMap.get("houseType")[0];
-		if(houseType!=null){
+		if(requestMap.get("houseType")!=null){
+			String houseType=requestMap.get("houseType")[0];
 			if((!houseType.isEmpty())&&(!houseType.equals("-"))){
-				buffer.append(" AND q.housetype_id="+houseType);
+			buffer.append(" AND ht.type='"+houseType+"'");
 			}
 		}
-		String sessionYear=requestMap.get("sessionYear")[0];
-		if(sessionYear!=null){
+		if(requestMap.get("sessionYear")!=null){
+			String sessionYear=requestMap.get("sessionYear")[0];
 			if((!sessionYear.isEmpty())&&(!sessionYear.equals("-"))){
-				buffer.append(" AND s.year="+sessionYear);
+			buffer.append(" AND s.session_year="+sessionYear);
 			}
 		}
-		String sessionType=requestMap.get("sessionType")[0];
-		if(sessionType!=null){
+		if(requestMap.get("sessionType")!=null){
+			String sessionType=requestMap.get("sessionType")[0];
 			if((!sessionType.isEmpty())&&(!sessionType.equals("-"))){
-				buffer.append(" AND sety.id="+sessionType);
+			buffer.append(" AND sety.id="+sessionType);
 			}
 		}
-		String group=requestMap.get("group")[0];
-		if(group!=null){
+		if(requestMap.get("group")!=null){
+			String group=requestMap.get("group")[0];
 			if((!group.isEmpty())&&(!group.equals("-"))){
-				buffer.append(" AND g.id="+group);
+			buffer.append(" AND g.id="+group);
 			}
 		}
-		String answeringDate=requestMap.get("answeringDate")[0];
-		if(answeringDate!=null){
+		if(requestMap.get("answeringDate")!=null){
+			String answeringDate=requestMap.get("answeringDate")[0];
 			if((!answeringDate.isEmpty())&&(!answeringDate.equals("-"))){
-				buffer.append(" AND qd.id="+answeringDate);
+			buffer.append(" AND qd.id="+answeringDate);
 			}
-		}
-		String ministry=requestMap.get("ministry")[0];
-		if(ministry!=null){
+		}	
+		if(requestMap.get("ministry")!=null){
+			String ministry=requestMap.get("ministry")[0];
 			if((!ministry.isEmpty())&&(!ministry.equals("-"))){
-				buffer.append(" AND mi.id="+ministry);
+			buffer.append(" AND mi.id="+ministry);
 			}
 		}
-		String department=requestMap.get("department")[0];
-		if(department!=null){
+		if(requestMap.get("department")!=null){
+			String department=requestMap.get("department")[0];
 			if((!department.isEmpty())&&(!department.equals("-"))){
-				buffer.append(" AND d.id="+department);
+			buffer.append(" AND d.id="+department);
 			}
 		}
-		String subDepartment=requestMap.get("subDepartment")[0];
-		if(subDepartment!=null){
+		if(requestMap.get("subDepartment")!=null){
+			String subDepartment=requestMap.get("subDepartment")[0];
 			if((!subDepartment.isEmpty())&&(!subDepartment.equals("-"))){
-				buffer.append(" AND sd.id="+subDepartment);
+			buffer.append(" AND sd.id="+subDepartment);
 			}
-		}
-		String status=requestMap.get("status")[0];
-		if(status!=null){
+		}	
+		if(requestMap.get("status")!=null){
+			String status=requestMap.get("status")[0];
 			if((!status.isEmpty())&&(!status.equals("-"))){
 				if(status.equals(ApplicationConstants.UNPROCESSED_FILTER)){
 					buffer.append(" AND st.priority>=(SELECT priority FROM status as sst WHERE sst.type='"+ApplicationConstants.QUESTION_SYSTEM_ASSISTANT_PROCESSED+"')");
@@ -287,20 +296,22 @@ public class ClubbedEntityRepository extends BaseRepository<ClubbedEntity, Seria
 					buffer.append(" AND st.priority<=(SELECT priority FROM status as sst WHERE sst.type='"+ApplicationConstants.QUESTION_PROCESSED_YAADILAID+"')");
 				} 
 			}
-		}
+		}			
 		return buffer.toString();
 	}
 
 	private String higlightText(final String textToHiglight,final String pattern) {
 
 		String highlightedText=textToHiglight;
-		String replaceMentText="<span class='bold'>";
+		String replaceMentText="<span class='highlightedSearchPattern'>";
 		String replaceMentTextEnd="</span>";
 		if((!pattern.contains("+"))&&(!pattern.contains("-"))){
 			String[] temp=pattern.trim().split(" ");
 			for(String j:temp){
+				if(!j.isEmpty()){
 				if(!highlightedText.contains(replaceMentText+j.trim()+replaceMentTextEnd)){
 					highlightedText=highlightedText.replaceAll(j.trim(),replaceMentText+j.trim()+replaceMentTextEnd);
+				}
 				}
 			}			
 		}else if((pattern.contains("+"))&&(!pattern.contains("-"))){
