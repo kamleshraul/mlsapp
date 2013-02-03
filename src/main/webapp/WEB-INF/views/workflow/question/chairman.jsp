@@ -85,6 +85,12 @@
 	/**** load actors ****/
 	function loadActors(value){
 		if(value!='-'){
+		var dateAdmitted=$("#internalStatusMaster option[value='question_processed_final_dateAdmitted']").text();	
+		if(value == dateAdmitted) {
+			$("#endflag").val("end");
+			$("#recommendationStatus").val(value);
+			return false;
+		}
 		var params="question="+$("#id").val()+"&status="+value+
 		"&usergroup="+$("#usergroup").val()+"&level="+$("#level").val();
 		var resourceURL='ref/question/actors?'+params;
@@ -712,6 +718,14 @@
 	<input id="formattedInternalStatus" name="formattedInternalStatus" value="${formattedInternalStatus }" type="text" readonly="readonly">
 	</p>
 	
+	<c:if test="${selectedQuestionType == 'questions_shortnotice' and domain.dateOfAnsweringByMinister != null}">
+		<p>
+		<label class="small"><spring:message code="question.dateOfAnsweringByMinister" text="Answering Date"/></label>
+		<form:input path="dateOfAnsweringByMinister" cssClass="datemask sText" readonly="true"/>
+		<form:errors path="dateOfAnsweringByMinister" cssClass="validationError"/>
+		</p>
+	</c:if>
+	
 	<c:if test="${workflowstatus!='COMPLETED' }">	
 	<p>
 	<label class="small"><spring:message code="question.putupfor" text="Put up for"/></label>
@@ -797,6 +811,7 @@
 <input id="answeringDateSelected" value="${ answeringDateSelected}" type="hidden">
 <input id="oldInternalStatus" value="${ internalStatus}" type="hidden">
 <input id="oldRecommendationStatus" value="${ RecommendationStatus}" type="hidden">
+<input id="selectedQuestionType" value="${selectedQuestionType}" type="hidden">
 <input id="ministryEmptyMsg" value='<spring:message code="client.error.ministryempty" text="Ministry can not be empty."></spring:message>' type="hidden">
 
 <ul id="contextMenuItems" >

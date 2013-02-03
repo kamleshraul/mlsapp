@@ -85,11 +85,24 @@
 	/**** load actors ****/
 	function loadActors(value){
 		if(value!='-'){
-		var params="question="+$("#id").val()+"&status="+value+
+		var valueToSend = "";
+		var sendback=$("#internalStatusMaster option[value='question_recommend_sendback']").text();			
+		var discuss=$("#internalStatusMaster option[value='question_recommend_discuss']").text();		
+		var admitDate = $("#internalStatusMaster option[value='question_processed_admitDate']").text();
+		var resubmitDate = $("#internalStatusMaster option[value='question_processed_resubmitDate']").text();
+
+		var changedInternalStatus = $("#changeInternalStatus").val();
+		if(changedInternalStatus == admitDate || 
+				changedInternalStatus == resubmitDate) {
+			valueToSend = $("#internalStatus").val();
+		}
+		else {
+			valueToSend = value;
+		} 
+		var params="question="+$("#id").val()+"&status="+valueToSend+
 		"&usergroup="+$("#usergroup").val()+"&level="+$("#level").val();
 		var resourceURL='ref/question/actors?'+params;
-	    var sendback=$("#internalStatusMaster option[value='question_recommend_sendback']").text();			
-	    var discuss=$("#internalStatusMaster option[value='question_recommend_discuss']").text();		
+	
 		$.post(resourceURL,function(data){
 			if(data!=undefined||data!=null||data!=''){
 				var length=data.length;
@@ -101,16 +114,18 @@
 				$("#actor").html(text);
 				$("#actorDiv").show();				
 				/**** in case of sendback and discuss only recommendation status is changed ****/
-				if(value!=sendback&&value!=discuss){
-				$("#internalStatus").val(value);
+				if(value != sendback && value != discuss
+						&& value != admitDate && value != resubmitDate){
+					$("#internalStatus").val(value);
 				}
 				$("#recommendationStatus").val(value);						
 			}else{
 			$("#actor").empty();
 			$("#actorDiv").hide();
 			/**** in case of sendback and discuss only recommendation status is changed ****/
-			if(value!=sendback&&value!=discuss){
-			$("#internalStatus").val(value);
+			if(value != sendback && value != discuss
+						&& value != admitDate && value != resubmitDate){
+				$("#internalStatus").val(value);
 			}
 		    $("#recommendationStatus").val(value);
 			}

@@ -89,6 +89,8 @@
 		var type=$("#internalStatusMaster option[value='question_processed_sendToDepartment']").text();			
 		var answerReceived=$("#internalStatusMaster option[value='question_processed_answerReceived']").text();
 		var rejectedWithReason = $("#internalStatusMaster option[value='question_processed_rejectionWithReason']").text();
+		var dateAndAnswerReceived = $("#internalStatusMaster option[value='question_processed_dateAndAnswerReceived']").text();
+		var questionType = $("#selectedQuestionType").val();
 		if(value==answerReceived || value==rejectedWithReason){
 			$("#endflag").val("end");
 			$("#recommendationStatus").val(value);
@@ -97,7 +99,12 @@
 			return false;
 		}else if(type==value){
 		    valueToSend=$("#internalStatus").val();
-	    }else{
+	    } 
+	    else if(questionType == 'questions_shortnotice' && value == dateAndAnswerReceived) {
+	    	$("#recommendationStatus").val(value);
+	    	valueToSend=$("#internalStatus").val();
+	    }
+	    else{
 		    valueToSend=value;
 	    }		
 		$("#endflag").val("continue");	    
@@ -113,7 +120,12 @@
 				text+="<option value='"+data[i].id+"'>"+data[i].name+"</option>";
 				}
 				$("#actor").html(text);
-				$("#actorDiv").hide();				
+				if(questionType == 'questions_shortnotice' && value == dateAndAnswerReceived) {
+					$("#actorDiv").show();
+				}
+				else {
+					$("#actorDiv").hide();
+				}				
 				/**** in case of sendback and discuss only recommendation status is changed ****/
 				//if(value!=sendback&&value!=discuss){
 				//$("#internalStatus").val(value);
@@ -788,6 +800,14 @@
 	<form:textarea path="remarks" cssClass="wysiwyg"></form:textarea>
 	</p>	
 	
+	<c:if test="${selectedQuestionType == 'questions_shortnotice' and domain.dateOfAnsweringByMinister != null}">
+		<p>
+		<label class="small"><spring:message code="question.dateOfAnsweringByMinister" text="Answering Date"/></label>
+		<form:input path="dateOfAnsweringByMinister" cssClass="datemask sText" readonly="true"/>
+		<form:errors path="dateOfAnsweringByMinister" cssClass="validationError"/>
+		</p>
+	</c:if>
+	
 	<c:if test="${!(empty domain.answer) }">
 	<p>
 	<label class="wysiwyglabel"><spring:message code="question.answer" text="Answer"/></label>
@@ -830,6 +850,7 @@
 <input id="answeringDateSelected" value="${ answeringDateSelected}" type="hidden">
 <input id="oldInternalStatus" value="${ internalStatus}" type="hidden">
 <input id="oldRecommendationStatus" value="${ RecommendationStatus}" type="hidden">
+<input id="selectedQuestionType" value="${selectedQuestionType}" type="hidden">
 <input id="ministryEmptyMsg" value='<spring:message code="client.error.ministryempty" text="Ministry can not be empty."></spring:message>' type="hidden">
 
 <ul id="contextMenuItems" >

@@ -714,13 +714,13 @@
 	
 	<p style="display:none;" class="revise1" id="revisedSubjectDiv">
 	<label class="centerlabel"><spring:message code="question.subject" text="Subject"/></label>
-	<form:textarea path="revisedSubject" rows="2" cols="50"></form:textarea>
+	<form:textarea path="revisedSubject" rows="2" cols="50" readonly="true"></form:textarea>
 	<form:errors path="revisedSubject" cssClass="validationError" cssStyle="float:right;margin-top:-100px;margin-right:40px;"/>
 	</p>
 	
 	<p style="display:none;" class="revise2" id="revisedQuestionTextDiv">
 	<label class="wysiwyglabel"><spring:message code="question.details" text="Details"/></label>
-	<form:textarea path="revisedQuestionText" cssClass="wysiwyg"></form:textarea>
+	<form:textarea path="revisedQuestionText" cssClass="wysiwyg" readonly="true"></form:textarea>
 	<form:errors path="revisedQuestionText" cssClass="validationError" cssStyle="float:right;margin-top:-100px;margin-right:40px;"/>
 	</p>
 	
@@ -775,16 +775,24 @@
 		
 	<p>
 	<a href="#" id="viewCitation" style="margin-left: 162px;margin-top: 30px;"><spring:message code="question.viewcitation" text="View Citations"></spring:message></a>	
+	</p>	
+	
+	<c:if test="${selectedQuestionType == 'questions_shortnotice'}">
+		<p>
+		<label class="small"><spring:message code="question.dateOfAnsweringByMinister" text="Answering Date"/></label>
+		<form:input path="dateOfAnsweringByMinister" cssClass="datemask sText"/>
+		<form:errors path="dateOfAnsweringByMinister" cssClass="validationError"/>
+		</p>
+	</c:if>
+	
+	<p>
+	<label class="wysiwyglabel"><spring:message code="question.answer" text="Answer"/></label>
+	<form:textarea path="answer" cssClass="wysiwyg"></form:textarea>
 	</p>
 	
 	<p>
 	<label class="wysiwyglabel"><spring:message code="question.remarks" text="Remarks"/></label>
 	<form:textarea path="remarks" cssClass="wysiwyg"></form:textarea>
-	</p>	
-	
-	<p>
-	<label class="wysiwyglabel"><spring:message code="question.answer" text="Answer"/></label>
-	<form:textarea path="answer" cssClass="wysiwyg"></form:textarea>
 	</p>
 	
 	<c:if test="${workflowstatus!='COMPLETED' }">

@@ -85,11 +85,24 @@
 	/**** load actors ****/
 	function loadActors(value){
 		if(value!='-'){
-		var params="question="+$("#id").val()+"&status="+value+
-		"&usergroup="+$("#usergroup").val()+"&level="+$("#level").val();
+		var valueToSend = "";
+		var sendback=$("#internalStatusMaster option[value='question_recommend_sendback']").text();			
+		var discuss=$("#internalStatusMaster option[value='question_recommend_discuss']").text();		
+		var admitDate = $("#internalStatusMaster option[value='question_processed_admitDate']").text();
+		var resubmitDate = $("#internalStatusMaster option[value='question_processed_resubmitDate']").text();
+		    
+		var changedInternalStatus = $("#changeInternalStatus").val();
+		if(changedInternalStatus == admitDate || 
+			changedInternalStatus == resubmitDate) {
+			valueToSend = $("#internalStatus").val();
+		}
+		else {
+			valueToSend = value;
+		}
+		var params="question="+$("#id").val()+"&status="+valueToSend+
+			"&usergroup="+$("#usergroup").val()+"&level="+$("#level").val();
 		var resourceURL='ref/question/actors?'+params;
-	    var sendback=$("#internalStatusMaster option[value='question_recommend_sendback']").text();			
-	    var discuss=$("#internalStatusMaster option[value='question_recommend_discuss']").text();		
+		
 		$.post(resourceURL,function(data){
 			if(data!=undefined||data!=null||data!=''){
 				var length=data.length;
@@ -101,16 +114,18 @@
 				$("#actor").html(text);
 				$("#actorDiv").show();				
 				/**** in case of sendback and discuss only recommendation status is changed ****/
-				if(value!=sendback&&value!=discuss){
-				$("#internalStatus").val(value);
+				if(value != sendback && value != discuss
+						&& value != admitDate && value != resubmitDate){
+					$("#internalStatus").val(value);
 				}
 				$("#recommendationStatus").val(value);						
 			}else{
 			$("#actor").empty();
 			$("#actorDiv").hide();
 			/**** in case of sendback and discuss only recommendation status is changed ****/
-			if(value!=sendback&&value!=discuss){
-			$("#internalStatus").val(value);
+			if(value != sendback && value != discuss
+						&& value != admitDate && value != resubmitDate){
+				$("#internalStatus").val(value);
 			}
 		    $("#recommendationStatus").val(value);
 			}
@@ -709,6 +724,14 @@
 	<form:errors path="revisedQuestionText" cssClass="validationError" cssStyle="float:right;margin-top:-100px;margin-right:40px;"/>
 	</p>
 	
+	<c:if test="${selectedQuestionType == 'questions_shortnotice' and domain.dateOfAnsweringByMinister != null}">
+		<p>
+		<label class="small"><spring:message code="question.dateOfAnsweringByMinister" text="Answering Date"/></label>
+		<form:input path="dateOfAnsweringByMinister" cssClass="datemask sText" readonly="true"/>
+		<form:errors path="dateOfAnsweringByMinister" cssClass="validationError"/>
+		</p>
+	</c:if>
+	
 	<p id="internalStatusDiv">
 	<label class="small"><spring:message code="question.currentStatus" text="Current Status"/></label>
 	<input id="formattedInternalStatus" name="formattedInternalStatus" value="${formattedInternalStatus }" type="text" readonly="readonly">
@@ -799,6 +822,7 @@
 <input id="answeringDateSelected" value="${ answeringDateSelected}" type="hidden">
 <input id="oldInternalStatus" value="${ internalStatus}" type="hidden">
 <input id="oldRecommendationStatus" value="${ RecommendationStatus}" type="hidden">
+<input id="selectedQuestionType" value="${selectedQuestionType}" type="hidden">
 <input id="ministryEmptyMsg" value='<spring:message code="client.error.ministryempty" text="Ministry can not be empty."></spring:message>' type="hidden">
 
 <ul id="contextMenuItems" >

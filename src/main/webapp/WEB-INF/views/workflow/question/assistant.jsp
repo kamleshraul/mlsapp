@@ -85,14 +85,25 @@
 	/**** load actors ****/
 	function loadActors(value){
 		if(value!='-'){
-		var params="question="+$("#id").val()+"&status="+value+
+		var sendback=$("#internalStatusMaster option[value='question_recommend_sendback']").text();			
+		var discuss=$("#internalStatusMaster option[value='question_recommend_discuss']").text();
+		var putUpForDateApproval=$("#internalStatusMaster option[value='question_processed_putUpForDateApproval']").text();
+		var sendToSectionOfficer = $("#internalStatusMaster option[value='question_processed_sendToSectionOfficer']").text();
+		var currentRecommendationStatus=$("#recommendationStatus").val();
+		var questionType = $("#selectedQuestionType").val();
+
+		var valueToSend = "";
+		var changedInternalStatus = $("#changeInternalStatus").val();
+		if(changedInternalStatus == putUpForDateApproval || 
+				changedInternalStatus == sendToSectionOfficer) {
+			valueToSend = $("#internalStatus").val();
+		}
+		else {
+			valueToSend = value;
+		}
+		var params="question="+$("#id").val()+"&status="+valueToSend+
 		"&usergroup="+$("#usergroup").val()+"&level="+$("#level").val();
 		var resourceURL='ref/question/actors?'+params;
-	    var sendback=$("#internalStatusMaster option[value='question_recommend_sendback']").text();			
-	    var discuss=$("#internalStatusMaster option[value='question_recommend_discuss']").text();	    
-	    var currentRecommendationStatus=$("#recommendationStatus").val();
-	    console.log(currentRecommendationStatus);
-
 		$.post(resourceURL,function(data){
 			if(data!=undefined||data!=null||data!=''){
 				var length=data.length;
@@ -102,21 +113,25 @@
 				text+="<option value='"+data[i].id+"'>"+data[i].name+"</option>";
 				}
 				$("#actor").html(text);
-				if(currentRecommendationStatus==sendback||currentRecommendationStatus==discuss){
-				$("#actorDiv").show();	
+				if(currentRecommendationStatus == sendback || currentRecommendationStatus == discuss 
+						|| $("#changeInternalStatus").val() == putUpForDateApproval){
+					$("#actorDiv").show();	
 				}else{
-				$("#actorDiv").hide();
+					$("#actorDiv").hide();
 				}
 				/**** in case of sendback and discuss only recommendation status is changed ****/
-				if(value!=sendback&&value!=discuss){
-				$("#internalStatus").val(value);
+				if(value != sendback && value != discuss && 
+						value != putUpForDateApproval && value != sendToSectionOfficer){
+					$("#internalStatus").val(value);
 				}
 				$("#recommendationStatus").val($("#changeInternalStatus").val());						
+				
 			}else{
 			$("#actor").empty();
 			$("#actorDiv").hide();
 			/**** in case of sendback and discuss only recommendation status is changed ****/
-			if(value!=sendback&&value!=discuss){
+			if(value != sendback && value != discuss && 
+						value != putUpForDateApproval && value != sendToSectionOfficer){
 			$("#internalStatus").val(value);
 			}
 		    $("#recommendationStatus").val($("#changeInternalStatus").val());
@@ -740,6 +755,14 @@
 	</c:forEach>
 	</select>
 	
+	<c:if test="${selectedQuestionType == 'questions_shortnotice' and domain.dateOfAnsweringByMinister != null}">
+		<p>
+		<label class="small"><spring:message code="question.dateOfAnsweringByMinister" text="Answering Date"/></label>
+		<form:input path="dateOfAnsweringByMinister" cssClass="datemask sText" readonly="true"/>
+		<form:errors path="dateOfAnsweringByMinister" cssClass="validationError"/>
+		</p>
+	</c:if>
+	
 	<select id="internalStatusMaster" style="display:none;">
 	<c:forEach items="${internalStatuses}" var="i">
 	<option value="${i.type}"><c:out value="${i.id}"></c:out></option>
@@ -805,6 +828,7 @@
 <input id="answeringDateSelected" value="${ answeringDateSelected}" type="hidden">
 <input id="oldInternalStatus" value="${ internalStatus}" type="hidden">
 <input id="oldRecommendationStatus" value="${ RecommendationStatus}" type="hidden">
+<input id="selectedQuestionType" value="${selectedQuestionType}" type="hidden">
 <input id="ministryEmptyMsg" value='<spring:message code="client.error.ministryempty" text="Ministry can not be empty."></spring:message>' type="hidden">
 
 <ul id="contextMenuItems" >
