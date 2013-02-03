@@ -426,6 +426,32 @@ public class QuestionController extends GenericController<Question>{
 				}else{
 					List<Ministry> ministries=Ministry.findMinistriesAssignedToGroups(houseType, sessionYear, sessionType, locale);
 					model.addAttribute("ministries",ministries);
+					Ministry ministry=domain.getMinistry();
+					if(ministry!=null){
+						model.addAttribute("ministrySelected",ministry.getId());
+						
+						/**** Group ****/
+						Group group=domain.getGroup();
+						if(group!=null) {
+							model.addAttribute("formattedGroup",FormaterUtil.getNumberFormatterNoGrouping(locale).format(domain.getGroup().getNumber()));
+							model.addAttribute("group",domain.getGroup().getId());
+						}
+
+						/**** Departments ****/
+						List<Department> departments=MemberMinister.findAssignedDepartments(ministry, locale);
+						model.addAttribute("departments",departments);
+						Department department=domain.getDepartment();
+						if(department!=null){                            	
+							model.addAttribute("departmentSelected",department.getId());
+							/**** Sub Departments ****/
+							List<SubDepartment> subDepartments=MemberMinister.findAssignedSubDepartments(ministry,department, locale);
+							model.addAttribute("subDepartments",subDepartments);
+							SubDepartment subDepartment=domain.getSubDepartment();
+							if(subDepartment!=null){
+								model.addAttribute("subDepartmentSelected",subDepartment.getId());
+							}
+						}
+					}
 				}
 			}else{
 				logger.error("**** Session doesnot exists ****");
@@ -960,14 +986,15 @@ public class QuestionController extends GenericController<Question>{
 					if(domain.getQuestionText().isEmpty()){
 						result.rejectValue("questionText","QuestionTextEmpty");
 					}
+
 					if(domain.getSupportingMembers()==null){
 						result.rejectValue("supportingMembers","SupportingMembersEmpty");
-					}else{
-						if(domain.getSupportingMembers().isEmpty()){
-							result.rejectValue("supportingMembers","SupportingMembersEmpty");
-						}
-					}
-					if(domain.getSupportingMembers()!=null){
+					} else if(domain.getSupportingMembers().isEmpty()){
+						result.rejectValue("supportingMembers","SupportingMembersEmpty");						
+					} else {
+						validateNumberOfSupportingMembersForHalfHourDiscussionFromQuestion(domain, result, request);
+						
+						//check if request is already sent for approval
 						int count=0;
 						for(SupportingMember i:domain.getSupportingMembers()){
 							if(i.getDecisionStatus().getType().equals(ApplicationConstants.QUESTION_SUPPORTING_MEMBER_NOTSEND)){
@@ -1002,6 +1029,7 @@ public class QuestionController extends GenericController<Question>{
 						if(domain.getMinistry()==null){
 							result.rejectValue("ministry","MinistryEmpty");
 						}
+						validateNumberOfSupportingMembersForHalfHourDiscussionFromQuestion(domain, result, request);
 					}
 			}
 		}/**** Drafts ****/
@@ -1024,6 +1052,7 @@ public class QuestionController extends GenericController<Question>{
 			if(domain.getQuestionText().isEmpty()){
 				result.rejectValue("questionText","QuestionTextEmpty");
 			}
+			validateNumberOfSupportingMembersForHalfHourDiscussionFromQuestion(domain, result, request);
 		}
 	}
 
@@ -1204,12 +1233,12 @@ public class QuestionController extends GenericController<Question>{
 					}
 					if(domain.getSupportingMembers()==null){
 						result.rejectValue("supportingMembers","SupportingMembersEmpty");
-					}else{
-						if(domain.getSupportingMembers().isEmpty()){
-							result.rejectValue("supportingMembers","SupportingMembersEmpty");
-						}
-					}
-					if(domain.getSupportingMembers()!=null){
+					} else if(domain.getSupportingMembers().isEmpty()){
+						result.rejectValue("supportingMembers","SupportingMembersEmpty");						
+					} else {
+						validateNumberOfSupportingMembersForHalfHourDiscussionFromQuestion(domain, result, request);
+						
+						//check if request is already sent for approval
 						int count=0;
 						for(SupportingMember i:domain.getSupportingMembers()){
 							if(i.getDecisionStatus().getType().equals(ApplicationConstants.QUESTION_SUPPORTING_MEMBER_NOTSEND)){
@@ -1244,6 +1273,7 @@ public class QuestionController extends GenericController<Question>{
 						if(domain.getMinistry()==null){
 							result.rejectValue("ministry","MinistryEmpty");
 						}
+						validateNumberOfSupportingMembersForHalfHourDiscussionFromQuestion(domain, result, request);
 
 					}
 			}
@@ -1267,6 +1297,7 @@ public class QuestionController extends GenericController<Question>{
 			if(domain.getQuestionText().isEmpty()){
 				result.rejectValue("questionText","QuestionTextEmpty");
 			}
+			validateNumberOfSupportingMembersForHalfHourDiscussionFromQuestion(domain, result, request);
 		}
 	}
 
@@ -1523,6 +1554,55 @@ public class QuestionController extends GenericController<Question>{
 			}
 		}
 	}	
+	
+	private void validateNumberOfSupportingMembersForHalfHourDiscussionFromQuestion(final Question domain, final BindingResult result, final HttpServletRequest request) {
+		if(domain.getType()!=null) {
+			if(domain.getType().getType()!=null) {
+				if(domain.getType().getType().equalsIgnoreCase(ApplicationConstants.HALF_HOUR_DISCUSSION_QUESTION_FROM_QUESTION)) {
+					Session session = domain.getSession();								
+					if(session != null) {
+						String noOFSupportingMembersToCheck = session.getParameter(ApplicationConstants.QUESTION_HALFHOURDISCUSSION_FROM_QUESTION_NO_OF_SUPPORTING_MEMBERS);
+						String noOFSupportingMembersComparator = session.getParameter(ApplicationConstants.QUESTION_HALFHOURDISCUSSION_FROM_QUESTION_NO_OF_SUPPORTING_MEMBERS_COMPARATOR);
+						if(	(noOFSupportingMembersToCheck!=null) && (noOFSupportingMembersComparator!=null) ){										
+							if(	(!noOFSupportingMembersToCheck.isEmpty()) && (!noOFSupportingMembersComparator.isEmpty()) ){
+								int numberOFSupportingMembersToCheck = Integer.parseInt(noOFSupportingMembersToCheck);
+								int numberOFSupportingMembersReceived = 0;
+								if(domain.getSupportingMembers()!=null) {
+									numberOFSupportingMembersReceived = domain.getSupportingMembers().size();
+								}
+								if(noOFSupportingMembersComparator.equalsIgnoreCase("eq")) {
+									if(!(numberOFSupportingMembersReceived == numberOFSupportingMembersToCheck)) {
+										result.rejectValue("supportingMembers","noOfSupportingMembersInvalid");
+									}
+								}else 
+								if(noOFSupportingMembersComparator.equalsIgnoreCase("le")) {
+									if(!(numberOFSupportingMembersReceived <= numberOFSupportingMembersToCheck)) {
+										result.rejectValue("supportingMembers","noOfSupportingMembersInvalid");
+									}
+								}else 
+								if(noOFSupportingMembersComparator.equalsIgnoreCase("lt")) {
+									if(!(numberOFSupportingMembersReceived < numberOFSupportingMembersToCheck)) {
+										result.rejectValue("supportingMembers","noOfSupportingMembersInvalid");
+									}
+								}else 
+								if(noOFSupportingMembersComparator.equalsIgnoreCase("ge")) {
+									if(!(numberOFSupportingMembersReceived >= numberOFSupportingMembersToCheck)) {
+										result.rejectValue("supportingMembers","noOfSupportingMembersInvalid");
+									}
+								}else 
+								if(noOFSupportingMembersComparator.equalsIgnoreCase("gt")) {
+									if(!(numberOFSupportingMembersReceived > numberOFSupportingMembersToCheck)) {
+										result.rejectValue("supportingMembers","noOfSupportingMembersInvalid");
+									}
+								}
+							}										
+						}
+					}
+				}							
+			}
+		}
+	}
+
 
 	@Transactional
 	@Override
@@ -1655,8 +1735,24 @@ public class QuestionController extends GenericController<Question>{
 								discussionDates.add(FormaterUtil.getDateFormatter("dd/MM/yyyy", session.getLocale()).format(sdf.parse(dates[i])));
 							}
 							model.addAttribute("discussionDates",discussionDates);
+							if (domain.getDiscussionDate() != null) {
+								model.addAttribute("discussionDateSelected",FormaterUtil.getDateFormatter("dd/MM/yyyy", selectedSession.getLocale()).format(domain.getDiscussionDate()));
+							}
 						} catch (ParseException e) {
 	
+							e.printStackTrace();
+						}
+					}
+				}
+				
+				String strRefQuestionNumber = request.getParameter("halfHourDiscussionReference_questionNumber");				
+				if(strRefQuestionNumber != null){
+					if(!strRefQuestionNumber.isEmpty()){
+						try {
+							Integer qNumber = new Integer(FormaterUtil.getNumberFormatterNoGrouping(domain.getLocale()).parse(strRefQuestionNumber).intValue());							
+							model.addAttribute("referredQuestionNumber", FormaterUtil.getNumberFormatterNoGrouping(domain.getLocale()).format(qNumber));
+							
+						} catch (ParseException e) {
 							e.printStackTrace();
 						}
 					}
