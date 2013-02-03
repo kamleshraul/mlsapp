@@ -204,13 +204,4 @@
 		<p></p>
 	</div>
 </c:when>
-<c:when test="${errorcode eq 'insufficientParametersForBallotCreation'}">
-	<div class="toolTip tpRed clearfix">
-	<p>
-		<img src="./resources/images/template/icons/light-bulb-off.png">
-		<spring:message code="question.errorcode.insufficientParametersForBallotCreation" text="Insufficient parameters for Ballot Creation"/>
-	</p>
-	<p></p>
-	</div>
-</c:when>
 </c:choose>

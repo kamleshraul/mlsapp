@@ -203,129 +203,44 @@
 			}
 		});	
 		
-		$("#submit").click(function(e){
-			var deviceTypeTemp='${selectedQuestionType}';			
-						
-			//-----------------------------------------------------------------------------------------------------------------------------
+		$("#submit").click(function(e){	
 			if((deviceTypeTemp=='questions_halfhourdiscussion_standalone') || (deviceTypeTemp=='questions_halfhourdiscussion_from_question')){
-				
-				var memberNumbers=0;
-				var memberComparator='${numberOfSupportingMembersComparator}';
-				var selectedMembers=Math.floor(parseInt($("#selectedSupportingMembers").val().split(",").length)-1);
-				
-				memberNumbers=parseInt('${numberOfSupportingMembers}');
-				
-				//added to validate session year and quetion number for half hour discussion--
+				//added to validate quetion number for half hour discussion--
 				if($('#halfHourDiscussionReference_questionNumber').val()==null || $('#halfHourDiscussionReference_questionNumber').val()==""){
 					$.prompt($("#referenceQuestionIncorrectMsg").val());
 					return false;
 				}
-				//-----------------------------------------------------------------------------
-				
-				if((memberNumbers > 0) && (memberComparator!=null) &&(memberComparator!="")){
-										
-					if(memberComparator=="eq"){
-						if(!(selectedMembers == memberNumbers)){
-							$.prompt($("#supportingMembersCountErrorMsg").val());
-							return false;
-						}	
-					}else if(memberComparator=="le"){
-						if(!(selectedMembers <= memberNumbers)){
-							$.prompt($("#supportingMembersCountErrorMsg").val());
-							return false;
-						}						
-					}else if(memberComparator=="ge"){
-						if(!(selectedMembers >= memberNumbers)){
-							$.prompt($("#supportingMembersCountErrorMsg").val());
-							return false;
-						}						
-					}else if(memberComparator=="gt"){
-						if(!(selectedMembers > memberNumbers)){
-							$.prompt($("#supportingMembersCountErrorMsg").val());
-							return false;
-						}						
-					}else if(memberComparator=="lt"){
-						if(!(selectedMembers < memberNumbers)){
-							$.prompt($("#supportingMembersCountErrorMsg").val());
-							return false;
-						}						
-					}					
-				}
-			}
+			}	
 		});
 		//-----------------------------------------------------
 		//send for approval
 		$("#sendforapproval").click(function(e){
+
+			//no need to send for approval in case of empty supporting members.
+			if($("#selectedSupportingMembers").val()==""){
+				$.prompt($("#supportingMembersEmptyMsg").val());
+				scrollTop();				
+				return false;
+			}
+
+			//----------------vikas dhananjay----------------------------------------------------------------------------------------------
+			var deviceTypeTemp='${selectedQuestionType}';
+			if((deviceTypeTemp=='questions_halfhourdiscussion_standalone') || (deviceTypeTemp=='questions_halfhourdiscussion_from_question')){
+				//added to validate quetion number for half hour discussion--
+				if($('#halfHourDiscussionReference_questionNumber').val()==null || $('#halfHourDiscussionReference_questionNumber').val()==""){
+					$.prompt($("#referenceQuestionIncorrectMsg").val());
+					return false;
+				}
+			}
+			//-----------------------------------------------------------------------------
+
 			//removing <p><br></p>  from wysiwyg editor
-			console.log('halfhordiscussion');
 			$(".wysiwyg").each(function(){
 				var wysiwygVal=$(this).val().trim();
 				if(wysiwygVal=="<p></p>"||wysiwygVal=="<p><br></p>"||wysiwygVal=="<br><p></p>"){
 					$(this).val("");
 				}
 			});	
-			
-			//-------vikas dhananjay----------------------------------
-			var deviceTypeTemp='${selectedQuestionType}';
-			
-			if((deviceTypeTemp=='questions_halfhourdiscussion_standalone') || (deviceTypeTemp=='questions_halfhourdiscussion_from_question')){
-				
-				var memberNumbers=0;
-				var memberComparator='${numberOfSupportingMembersComparator}';
-				var selectedMembers=Math.floor(parseInt($("#selectedSupportingMembers").val().split(",").length)-1);
-				
-				memberNumbers=parseInt('${numberOfSupportingMembers}');
-				
-				//added to validate session year and quetion number for half hour discussion--
-				if($('#halfHourDiscussionReference_questionNumber').val()==null || $('#halfHourDiscussionReference_questionNumber').val()==""){
-					$.prompt($("#referenceQuestionIncorrectMsg").val());
-					return false;
-				}
-				
-				if((memberNumbers > 0) && (memberComparator!=null) &&(memberComparator!="")){
-										
-					if(memberComparator=="eq"){
-						if(!(selectedMembers == memberNumbers)){
-							$.prompt($("#supportingMembersCountErrorMsg").val());
-							return false;
-						}
-					}else if(memberComparator=="le"){
-						if(!(selectedMembers <= memberNumbers)){
-							$.prompt($("#supportingMembersCountErrorMsg").val());
-							return false;
-						}					
-					}else if(memberComparator=="ge"){
-						if(!(selectedMembers >= memberNumbers)){
-							$.prompt($("#supportingMembersCountErrorMsg").val());
-							return false;
-						}					
-					}else if(memberComparator=="gt"){
-						if(!(selectedMembers > memberNumbers)){
-							$.prompt($("#supportingMembersCountErrorMsg").val());
-							return false;
-						}						
-					}else if(memberComparator=="lt"){
-						if(!(selectedMembers < memberNumbers)){
-														
-							var jump = "selectedSupportingMembers";
-							var new_position = $('#'+jump).offset();
-							window.scrollTo(new_position.left,new_position.top);
-							
-							$.prompt($("#supportingMembersCountErrorMsg").val());							
-							return false;							
-						}					
-					}					
-				}
-			}
-			//--------------------------------------------------------
-			//Modified By Sandeep Singh(Jan 22 2013)
-			//comparison is done to 1 as for empty value comparison to 0 fails.
-			var noOfSupprotingMembers=$("#selectedSupportingMembers").val().split(",").length;
-			if(noOfSupprotingMembers==1){
-				$.prompt($("#supportingMembersEmptyMsg").val());
-				scrollTop();				
-				return false;
-			}
 			$.prompt($('#sendForApprovalMsg').val()+$("#selectedSupportingMembers").val(),{
 				buttons: {Ok:true, Cancel:false}, callback: function(v){
 		        if(v){
@@ -386,51 +301,11 @@
 					return false;
 				}
 				
-				var memberNumbers=0;
-				var memberComparator='${numberOfSupportingMembersComparator}';
-				var selectedMembers=Math.floor(parseInt($("#selectedSupportingMembers").val().split(",").length)-1);
-				
-				memberNumbers=parseInt('${numberOfSupportingMembers}');
-				
-				//added to validate session year and quetion number for half hour discussion--
+
+				//added to validate quetion number for half hour discussion--
 				if($('#halfHourDiscussionReference_questionNumber').val()==null || $('#halfHourDiscussionReference_questionNumber').val()==""){
-					$.prompt($("#questionReferenceEmptyMsg").val());
+					$.prompt($("#referenceQuestionIncorrectMsg").val());
 					return false;
-				}
-				
-				if((memberNumbers > 0) && (memberComparator!=null) &&(memberComparator!="")){
-										
-					if(memberComparator=="eq"){
-						if(!(selectedMembers == memberNumbers)){
-							$.prompt($("#supportingMembersCountErrorMsg").val());
-							return false;
-						}
-					}else if(memberComparator=="le"){
-						if(!(selectedMembers <= memberNumbers)){
-							$.prompt($("#supportingMembersCountErrorMsg").val());
-							return false;
-						}					
-					}else if(memberComparator=="ge"){
-						if(!(selectedMembers >= memberNumbers)){
-							$.prompt($("#supportingMembersCountErrorMsg").val());
-							return false;
-						}					
-					}else if(memberComparator=="gt"){
-						if(!(selectedMembers > memberNumbers)){
-							$.prompt($("#supportingMembersCountErrorMsg").val());
-							return false;
-						}						
-					}else if(memberComparator=="lt"){
-						if(!(selectedMembers < memberNumbers)){
-														
-							var jump = "selectedSupportingMembers";
-							var new_position = $('#'+jump).offset();
-							window.scrollTo(new_position.left,new_position.top);
-							
-							$.prompt($("#supportingMembersCountErrorMsg").val());							
-							return false;							
-						}					
-					}					
 				}
 			}
 			//-------------------------------------------------------------------------
@@ -526,7 +401,10 @@
 						$('#halfHourDiscussionReference_questionId_H').val(data.id);
 						$.get('question/getsubject?qid='+data.id+'&text=1',function(data){
 							$('#subject').val(data.name);
-							$('#questionText').val(data.value);
+							if($('#questionText').is('[readonly]')){
+								$('#questionText-wysiwyg-iframe').contents().find('html').html(data.value);
+								$('#copyOfquestionText').val(data.value);
+							}
 						});
 					}
 				});
@@ -644,12 +522,12 @@
 	<p>
 		<label class="centerlabel"><spring:message code="question.subject" text="Subject"/>*</label>
 		<form:textarea path="subject" rows="2" cols="50" readonly="true"></form:textarea>
-		<form:errors path="subject" cssClass="validationError" />	
+		<form:errors path="subject" cssClass="validationError" />
 	</p>	
 	
 	<p>
 		<label class="wysiwyglabel"><spring:message code="question.details" text="Details"/>*</label>
-		<form:textarea path="questionText" readonly="true" cols="90" rows="10"></form:textarea>
+		<form:textarea path="questionText" cssClass="wysiwyg" readonly="true"></form:textarea>
 		<form:errors path="questionText" cssClass="validationError" cssStyle="float:right;margin-top:-100px;margin-right:40px;"/>	
 	</p>
 	</c:if>

@@ -223,7 +223,7 @@
 		$("#backToQuestion").click(function(){
 			$("#clubbingResultDiv").hide();
 			$("#referencingResultDiv").hide();
-			$("#backToQuestionDiv").hide();
+			//$("#backToQuestionDiv").hide();
 			$("#assistantDiv").show();
 			/**** Hide update success/failure message on coming back to question ****/
 			$(".toolTip").hide();
@@ -808,10 +808,6 @@
 </ul>
 </div>
 
-</div>
-
-<div id="backToQuestionDiv" style="display:none;">
-<a href="#" id="backToQuestion"><spring:message code="question.backtoquestion" text="Back To Question"></spring:message></a>
 </div>
 
 <div id="clubbingResultDiv" style="display:none;">
