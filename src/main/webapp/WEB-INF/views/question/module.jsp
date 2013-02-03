@@ -192,19 +192,55 @@
 		}
 		/**** Chart Tab ****/
 		function viewChart() {
-			var parameters = $("#gridURLParams").val() + "&group=" + $("#selectedGroup").val();
+			var parameters = $("#gridURLParams").val();
+			if(parameters==undefined){
+				parameters = "houseType="+$("#selectedHouseType").val()
+				 +"&sessionYear="+$("#selectedSessionYear").val()
+				 +"&sessionType="+$("#selectedSessionType").val()
+				 +"&questionType="+$("#selectedQuestionType").val()
+				 +"&ugparam="+$("#ugparam").val()
+				 +"&status="+$("#selectedStatus").val()
+				 +"&role="+$("#srole").val()
+				 +"&usergroup="+$("#currentusergroup").val()
+				 +"&usergroupType="+$("#currentusergroupType").val();
+			}
+			var parameters = parameters + "&group=" + $("#selectedGroup").val();
 			var resourceURL = 'chart/init?' + parameters;
 			showTabByIdAndUrl('chart_tab', resourceURL);
 		}
 		/**** Ballot Tab ****/
 		function viewBallot() {
-			var parameters = $("#gridURLParams").val() + "&group=" + $("#selectedGroup").val();
+			var parameters = $("#gridURLParams").val();
+			if(parameters==undefined){
+				parameters = "houseType="+$("#selectedHouseType").val()
+				 +"&sessionYear="+$("#selectedSessionYear").val()
+				 +"&sessionType="+$("#selectedSessionType").val()
+				 +"&questionType="+$("#selectedQuestionType").val()
+				 +"&ugparam="+$("#ugparam").val()
+				 +"&status="+$("#selectedStatus").val()
+				 +"&role="+$("#srole").val()
+				 +"&usergroup="+$("#currentusergroup").val()
+				 +"&usergroupType="+$("#currentusergroupType").val();
+			}
+			var parameters = parameters + "&group=" + $("#selectedGroup").val();
 			var resourceURL = 'ballot/init?' + parameters;
 			showTabByIdAndUrl('ballot_tab', resourceURL);
 		}	
 		/**** Rotation Order Tab ****/
 		function viewRotationOrder() {
-			var parameters = $("#gridURLParams").val() + "&group=" + $("#selectedGroup").val();
+			var parameters = $("#gridURLParams").val();
+			if(parameters==undefined){
+				parameters = "houseType="+$("#selectedHouseType").val()
+				 +"&sessionYear="+$("#selectedSessionYear").val()
+				 +"&sessionType="+$("#selectedSessionType").val()
+				 +"&questionType="+$("#selectedQuestionType").val()
+				 +"&ugparam="+$("#ugparam").val()
+				 +"&status="+$("#selectedStatus").val()
+				 +"&role="+$("#srole").val()
+				 +"&usergroup="+$("#currentusergroup").val()
+				 +"&usergroupType="+$("#currentusergroupType").val();
+			}
+			var parameters = parameters + "&group=" + $("#selectedGroup").val();
 			var resourceURL = 'rotationorder/init?' + parameters;
 			showTabByIdAndUrl('rotationorder_tab', resourceURL);
 		}	
