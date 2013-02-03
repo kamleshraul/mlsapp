@@ -9,19 +9,24 @@
  */
 package org.mkcl.els.controller;
 
+import java.io.IOException;
 import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 
+import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 
+import org.hibernate.mapping.Array;
 import org.mkcl.els.common.util.ApplicationConstants;
 import org.mkcl.els.common.util.FormaterUtil;
 import org.mkcl.els.common.vo.BallotMemberVO;
 import org.mkcl.els.common.vo.BallotVO;
 import org.mkcl.els.common.vo.MasterVO;
+import org.mkcl.els.common.vo.MemberBallotFinalBallotVO;
 import org.mkcl.els.common.vo.MemberBallotMemberWiseReportVO;
 import org.mkcl.els.common.vo.MemberBallotVO;
 import org.mkcl.els.common.vo.Reference;
@@ -323,7 +328,7 @@ public class BallotController extends BaseController{
 		}		
 		return "ballot/memberballotinit";
 	}
-	
+
 	@RequestMapping(value="/memberballot/memberwise",method=RequestMethod.GET)
 	public String viewMemberWiseReport(final HttpServletRequest request,final ModelMap model,final Locale locale){
 		String errorpage="ballot/error";
@@ -355,7 +360,7 @@ public class BallotController extends BaseController{
 		}
 		return "ballot/memberballotmemberwise";
 	}
-	
+
 	@RequestMapping(value="/memberballot/member/questions",method=RequestMethod.GET)
 	public String viewMemberQuestionsReport(final HttpServletRequest request,final ModelMap model,final Locale locale){
 		String errorpage="ballot/error";
@@ -725,7 +730,9 @@ public class BallotController extends BaseController{
 	}
 
 	@RequestMapping(value="/memberballot/choices",method=RequestMethod.POST)
-	public @ResponseBody String updateMemberBallotChoice(final HttpServletRequest request,final ModelMap model,final Locale locale){
+	public  String updateMemberBallotChoice(final HttpServletRequest request,
+			final HttpServletResponse response,
+			final ModelMap model,final Locale locale){
 		String strQuestionType=request.getParameter("questionType");
 		String strSession=request.getParameter("session");
 		String strMember=request.getParameter("member");
@@ -769,9 +776,16 @@ public class BallotController extends BaseController{
 									question.setAnsweringDate(questionDates);
 								}
 								memberBallotChoice.setQuestion(question);
-								question.merge();
+								question.simpleMerge();
 							}
 							memberBallotChoice.setLocale(locale.toString());
+							memberBallotChoice.setClubbingUpdated(false);
+							memberBallotChoice.setProcessed(false);
+							if(memberBallotChoice.getId()==null){
+								memberBallotChoice.persist();
+							}else{
+								memberBallotChoice.merge();
+							}
 							memberBallotChoices.add(memberBallotChoice);
 						}else{
 							status=false;
@@ -787,15 +801,38 @@ public class BallotController extends BaseController{
 					}
 				}
 			}
+			List<Question> questions=Question.findAdmittedStarredQuestionsUH(session,questionType,member,locale.toString());
+			model.addAttribute("admittedQuestions",questions);
+			model.addAttribute("noOfAdmittedQuestions",questions.size());
+			List<MemberBallot> memberBallots=MemberBallot.findByMember(session, questionType, member, locale.toString());
+			model.addAttribute("memberBallots",memberBallots);
+			int rounds=memberBallots.size();
+			model.addAttribute("totalRounds", rounds);
+			List<MemberBallotChoice> memberBallotChoices=MemberBallotChoice.findByMember(session,questionType, member, locale.toString());
+			if(memberBallotChoices.isEmpty()){
+				model.addAttribute("flag","new");
+				request.setAttribute("totalRounds", rounds);
+				for(int i=1;i<=rounds;i++){
+					CustomParameter questionsInEachRound=CustomParameter.findByName(CustomParameter.class,"STARRED_MEMBERBALLOTCOUNCIL_ROUND"+i, "");
+					if(questionsInEachRound!=null){
+						request.setAttribute("round"+i, Integer.parseInt(questionsInEachRound.getValue()));
+					}else{
+						logger.error("**** Custom Parameter 'STARRED_MEMBERBALLOTCOUNCIL_ROUND'"+i+" not set");
+					}
+				}
+			}else{
+				model.addAttribute("flag","edit");
+			}
 		}else{
 			logger.error("**** Check request parameter 'session,deviceType,member,totalRounds and noOfAdmittedQuestions' for null values ****");
-			return "failure";
+			//return "failure";
 		}
-		return "success";
+		return "ballot/listmemberballotchoice";
+
 	}
 
 	@Transactional
-	@RequestMapping(value="/memberballot/updateclubbing",method=RequestMethod.PUT)
+	@RequestMapping(value="/memberballot/updateclubbing",method=RequestMethod.GET)
 	public String updateClubbingMemberBallot(final ModelMap model,
 			final HttpServletRequest request,final Locale locale){
 		Boolean status=false;
@@ -822,29 +859,47 @@ public class BallotController extends BaseController{
 			model.addAttribute("type", "MEMBERBALLOTUPDATECLUBBING_REQUEST_PARAMETER_NULL");
 			return "ballot/error";
 		}
+		model.addAttribute("type", "success");
 		return "ballot/memberballotupdateclubbing";
 	}
 
 	@Transactional
-	@RequestMapping(value="/memberballot/final",method=RequestMethod.POST)
+	@RequestMapping(value="/memberballot/final",method=RequestMethod.GET)
 	public String createFinalMemberBallot(final HttpServletRequest request,
 			final ModelMap model,final Locale locale){
 		String errorpage="ballot/error";
 		String strSession=request.getParameter("session");
-		String strDeviceType=request.getParameter("deviceType");
+		String strDeviceType=request.getParameter("questionType");
 		String strGroup=request.getParameter("group");
 		String strAnsweringDate=request.getParameter("answeringDate");
 		Boolean status=false;
+		List<MemberBallotFinalBallotVO> ballots=new ArrayList<MemberBallotFinalBallotVO>();
 		if(strSession!=null&&strDeviceType!=null&&strGroup!=null&&strAnsweringDate!=null){
 			if((!strSession.isEmpty())&&(!strDeviceType.isEmpty())&&(!strGroup.isEmpty())&&(!strAnsweringDate.isEmpty())){
 				Session session=Session.findById(Session.class, Long.parseLong(strSession));
-				String firstBatchSubmissionDate=session.getParameter(ApplicationConstants.QUESTION_STARRED_FIRSTBATCH_SUBMISSION_STARTTIME_UH);
+				String firstBatchSubmissionDate=session.getParameter(ApplicationConstants.QUESTION_STARRED_FIRSTBATCH_SUBMISSION_ENDTIME_UH);
 				if(firstBatchSubmissionDate!=null){
 					if(!firstBatchSubmissionDate.isEmpty()){
+						QuestionDates questionDates=QuestionDates.findById(QuestionDates.class,Long.parseLong(strAnsweringDate));
+						String ansDate=null;
+						CustomParameter customParameter=CustomParameter.findByName(CustomParameter.class,"DB_DATEFORMAT", "");
+						if(customParameter!=null){
+							ansDate=FormaterUtil.getDateFormatter(customParameter.getValue(), "en_US").format(questionDates.getAnsweringDate());;
+						}else{
+							model.addAttribute("type","DB_DATEFORMAT_NOTSET");
+							return errorpage;	
+						}
 						DeviceType deviceType=DeviceType.findById(DeviceType.class,Long.parseLong(strDeviceType));
 						Group group=Group.findById(Group.class,Long.parseLong(strGroup));
-						QuestionDates questionDates=QuestionDates.findById(QuestionDates.class,Long.parseLong(strAnsweringDate));
-						status=MemberBallot.createFinalBallot(session, deviceType, group, questionDates, locale.toString(),firstBatchSubmissionDate);
+						status=MemberBallot.createFinalBallot(session, deviceType,group,ansDate, locale.toString(),firstBatchSubmissionDate);
+						if(status){
+							ballots=MemberBallot.viewFinalBallot(session, deviceType,ansDate, locale.toString());
+							model.addAttribute("ballots",ballots);
+							model.addAttribute("answeringDate",FormaterUtil.getDateFormatter(locale.toString()).format(questionDates.getAnsweringDate()));
+						}else{
+							model.addAttribute("type","FINALBALLOT_FAILED");
+							return errorpage;	
+						}
 					}else{
 						model.addAttribute("type","FIRSTBATCH_SUBMISSIONDATE_NOTSET");
 						return errorpage;
@@ -863,11 +918,6 @@ public class BallotController extends BaseController{
 			model.addAttribute("type", "MEMBERBALLOTFINAL_REQUEST_PARAMETER_NULL");
 			return errorpage;
 		}
-		if(status){
-			return "ballot/memberballotfinal";	
-		}else{
-			model.addAttribute("type", "MEMBERBALLOTFINAL_FAILED");
-			return errorpage;
-		}
+		return "ballot/memberballotfinal";		
 	}
 }
