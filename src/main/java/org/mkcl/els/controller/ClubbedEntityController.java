@@ -31,11 +31,12 @@ import org.springframework.web.bind.annotation.ResponseBody;
 public class ClubbedEntityController extends BaseController{
 
 	@RequestMapping(value="/init",method=RequestMethod.GET)
-	public String getClubbing(final HttpServletRequest request,final ModelMap model){
+	public String getClubbing(final HttpServletRequest request,final ModelMap model,final Locale locale){
 		String strquestionId=request.getParameter("id");
 		if(strquestionId!=null){
 			if(!strquestionId.isEmpty()){
 				Question question=Question.findById(Question.class,Long.parseLong(strquestionId));
+				/**** Advanced Search Options ****/
 				/**** First we will check if clubbing is allowed on the given question ****/
 				Boolean isClubbingAllowed=isClubbingAllowed(question,request);
 				if(isClubbingAllowed){
@@ -52,6 +53,36 @@ public class ClubbedEntityController extends BaseController{
 					/**** Question number will also be visible ****/
 					model.addAttribute("id",Long.parseLong(strquestionId));
 					model.addAttribute("number",FormaterUtil.getNumberFormatterNoGrouping(question.getLocale()).format(question.getNumber()));
+					/**** Advanced Search Filters****/
+					String deviceType=question.getType().getType();
+					model.addAttribute("deviceType",deviceType);
+					model.addAttribute("houseType",question.getHouseType().getType());
+					model.addAttribute("deviceTypes",DeviceType.getAllowedTypesInStarredClubbing(locale.toString()));
+					List<Group> allgroups=Group.findByHouseTypeSessionTypeYear(question.getHouseType(),question.getSession().getType(),question.getSession().getYear());
+					List<MasterVO> masterVOs=new ArrayList<MasterVO>();
+					for(Group i:allgroups){
+						MasterVO masterVO=new MasterVO(i.getId(),FormaterUtil.getNumberFormatterNoGrouping(locale.toString()).format(i.getNumber()));
+						masterVOs.add(masterVO);
+					}
+					model.addAttribute("groups",masterVOs);
+					int year=question.getSession().getYear();
+					CustomParameter houseFormationYear=CustomParameter.findByName(CustomParameter.class, "HOUSE_FORMATION_YEAR", "");
+					List<Reference> years=new ArrayList<Reference>();
+					if(houseFormationYear!=null){
+						Integer formationYear=Integer.parseInt(houseFormationYear.getValue());
+						for(int i=year;i>=formationYear;i--){
+							Reference reference=new Reference(String.valueOf(i),FormaterUtil.getNumberFormatterNoGrouping(locale.toString()).format(i));
+							years.add(reference);
+						}
+					}else{
+						model.addAttribute("flag", "houseformationyearnotset");
+						return "clubbing/error";
+					}
+					model.addAttribute("years",years);
+					model.addAttribute("sessionYear",year);
+					List<SessionType> sessionTypes=SessionType.findAll(SessionType.class,"sessionType",ApplicationConstants.ASC, locale.toString());
+					model.addAttribute("sessionTypes",sessionTypes);
+					model.addAttribute("sessionType",question.getSession().getType().getId());									
 				}else{
 					/**** if question is already clubbed ****/
 					if(question.getParent()!=null){
@@ -117,7 +148,7 @@ public class ClubbedEntityController extends BaseController{
 				}
 		return false;
 	}
-	
+
 	@RequestMapping(value="/advancedsearch",method=RequestMethod.GET)
 	public String advancedSearch(final HttpServletRequest request,
 			final ModelMap model,final Locale locale){
@@ -169,7 +200,7 @@ public class ClubbedEntityController extends BaseController{
 			model.addAttribute("flag","REQUEST_PARAMETER_NULL");
 			return "clubbing/error";
 		}
-		
+
 		return "clubbing/advancedsearch";
 	}
 
