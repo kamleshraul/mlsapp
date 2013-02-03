@@ -21,7 +21,6 @@ import javax.persistence.TypedQuery;
 import org.mkcl.els.common.util.ApplicationConstants;
 import org.mkcl.els.common.util.FormaterUtil;
 import org.mkcl.els.common.vo.MemberBallotMemberWiseCountVO;
-import org.mkcl.els.common.vo.MemberBallotMemberWiseGroupVO;
 import org.mkcl.els.common.vo.MemberBallotMemberWiseQuestionVO;
 import org.mkcl.els.common.vo.MemberBallotMemberWiseReportVO;
 import org.mkcl.els.common.vo.QuestionRevisionVO;
