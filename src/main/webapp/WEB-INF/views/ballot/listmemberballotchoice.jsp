@@ -5,26 +5,7 @@
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
 <script type="text/javascript">
 	$(document).ready(function() {
-		$("form").submit(function(e){
-			$.blockUI({ message: '<img src="./resources/images/waitAnimated.gif" />' }); 
-			$.post($('form').attr('action'),  
-	            $("form").serialize(),  
-	            function(data){
-   					if(data=='success'){
-   	   					$("#successDiv").show();
-   	   					$("#errorDiv").hide();   	   					
-   					}else{
-   	   					$("#errorDiv").show();
-   	   					$("#successDiv").hide();   	   					
-   					}
-   	   					
-   					$('html').animate({scrollTop:0}, 'slow');
-   				 	$('body').animate({scrollTop:0}, 'slow');	
-					$.unblockUI();	   				 	   				
-	            });
-	        return false;  
-	    }); 
-	    $("select[id^='question']").change(function(){
+		$("select[id^='question']").change(function(){
 		    var id=$(this).attr("id").split("question")[1];
 			var parameters="question="+$(this).val();
 			var resource='ref/answeringDates';
@@ -53,6 +34,23 @@
 	    });		
 	});
 </script>
+<style type="text/css">
+.round1{
+	color:green ;
+	}
+	.round2{
+	color:blue ;
+	}
+	.round3{
+	color: red;
+	}
+	.round4{
+	color: black;
+	}
+	.round5{
+	color: lime;
+	}
+</style>
 </head>
 <body>	
 <c:choose>
@@ -69,13 +67,13 @@
 					<c:forEach items="${memberBallots }" var="i">
 					<c:if test="${!(empty i.questionChoices)}">					
 					<tr>
-					<td colspan="3" style="text-align: center;font-weight: bold;"><spring:message code="listmemberchoice.round" text="Round"/>${i.round}</td>
+					<td colspan="3" style="text-align: center;font-weight: bold;"><span class="round${count }"><spring:message code="listmemberchoice.round" text="Round"/>${i.round}</span></td>
 					</tr>
 					<c:forEach items="${i.questionChoices}" var="j">
 					<tr>
-					<td>${j.choice}</td>
+					<td><span class="round${count }">${j.choice}</span></td>
 					<td>
-					<select id="question${count}" name="question${count}">
+					<select id="question${count}" name="question${count}" class="round${count }">
 					<option value='-'><spring:message code='please.select'	text='Please Select' /></option>
 					<c:forEach items="${admittedQuestions}" var="k">
 					<c:choose>
@@ -90,7 +88,7 @@
 					</select>
 					</td>
 					<td>
-					<select id="answeringDate${count}" name="answeringDate${count}">
+					<select id="answeringDate${count}" name="answeringDate${count}" class="round${count }">
 					<option value='-'><spring:message code='please.select'	text='Please Select' /></option>
 					<c:forEach items="${j.question.group.questionDates}" var="l">
 					<c:choose>
@@ -132,7 +130,7 @@
 					%>	
 					<c:if test="${count<=noOfAdmittedQuestions}">						
 					<tr>
-					<td colspan="3" style="text-align: center;font-weight: bold;"><spring:message code="listmemberchoice.round" text="Round"/><%=i%></td>
+					<td colspan="3" style="text-align: center;font-weight: bold;"><span class="round<%=i%>"><spring:message code="listmemberchoice.round" text="Round"/><%=i%></span></td>
 					</tr>
 					</c:if>
 					<% 
@@ -140,9 +138,9 @@
  					%>	
  					<c:if test="${count<=noOfAdmittedQuestions}">
  					<tr>
-					<td><%=j%></td>
+					<td><span class="round<%=i%>"><%=j%></span></td>
 					<td>
-					<select id="question${count}" name="question${count}">
+					<select id="question${count}" name="question${count}" class="round<%=i%>">
 					<option value='-'><spring:message code='please.select'	text='Please Select' /></option>
 					<c:forEach items="${admittedQuestions}" var="k">
 					<option value='${k.id}'><c:out value="${k.findFormattedNumber()}"></c:out></option>
@@ -150,7 +148,7 @@
 					</select>
 					</td>
 					<td>
-					<select id="answeringDate${count}" name="answeringDate${count}">
+					<select id="answeringDate${count}" name="answeringDate${count}" class="round<%=i%>">
 					<option value='-'><spring:message code='please.select'	text='Please Select' /></option>
 					</select>
 					<input id="round${count}" name="round${count }" value="<%=i%>" type="hidden">

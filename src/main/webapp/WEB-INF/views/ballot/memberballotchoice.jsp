@@ -24,6 +24,21 @@
 			$("#errorDiv").hide();
 			$("#successDiv").hide();
 		});		
+		$("form").submit(function(e){
+			$.blockUI({ message: '<img src="./resources/images/waitAnimated.gif" />' }); 
+			$.post($('form').attr('action'),  
+	            $("form").serialize(),  
+	            function(data){
+					$("#successDiv").show();
+  					$("#errorDiv").hide();  					
+   					$("#listchoices").empty();	
+   					$("#listchoices").html(data);   	   					
+   					$('html').animate({scrollTop:0}, 'slow');
+   				 	$('body').animate({scrollTop:0}, 'slow');	
+					$.unblockUI();	   				 	   				
+	            },'html');
+	        return false;  
+	    }); 	   
 	});
 </script>
 </head>

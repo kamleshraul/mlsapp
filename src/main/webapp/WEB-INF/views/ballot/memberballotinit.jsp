@@ -24,6 +24,9 @@
 			$("#updateclubbing").click(function(){
 				updateClubbing();
 			});	
+			$("#finalballot").click(function(){
+				finalballot();
+			});	
 			/**** attendance changes then disable submit otherwise whole configuration gets submitted
 			as changed value which is wrong ****/
 			$("#selectedAttendance").change(function(){
@@ -128,7 +131,7 @@
 			$.unblockUI();				
 			},'html');
 		}
-		function uodateClubbing(){
+		function updateClubbing(){
 			$.blockUI({ message: '<img src="./resources/images/waitAnimated.gif" />' });
 			var parameters = "session="+$("#session").val()
 			 +"&questionType="+$("#questionType").val();
@@ -137,6 +140,24 @@
 				$("#resultDiv").html(data);
 				$.unblockUI();				
 			},'html');
+		}
+		function finalballot(){
+			$.blockUI({ message: '<img src="./resources/images/waitAnimated.gif" />' });
+			var group=$("#mbGroup").val();
+			var answeringDate=$("#mbAnsweringDate").val();
+			if(group!="-"&&answeringDate!="-"){
+			var parameters = "session="+$("#session").val()
+			 +"&questionType="+$("#questionType").val()
+			 +"&group="+group+"&answeringDate="+answeringDate;
+			var resourceURL = 'ballot/memberballot/final?'+ parameters;
+			$.get(resourceURL,function(data){
+				$("#resultDiv").html(data);
+				$.unblockUI();				
+			},'html');
+			}else{
+				$.unblockUI();
+				$.prompt($("#selectGroupAnsweringDateMsg").val());		
+			}
 		}
 	</script>
 </head>
@@ -215,6 +236,7 @@
 <input type="hidden" id="session" name="session" value="${session }">
 <input type="hidden" id="questionType" name="questionType" value="${questionType}">
 <input type="hidden" id="noOfRounds" name="noOfRounds" value="${noOfRounds}">
+<input type="hidden" id="selectGroupAnsweringDateMsg" name="selectGroupAnsweringDateMsg" value="<spring:message code='memberballot.selectanseringdatemsg' text='Please Select Group And Ansering Date.'/>">
 
 </body>
 </html>
