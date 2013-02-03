@@ -33,15 +33,22 @@ public class ChartController extends BaseController{
 			final ModelMap model,
 			final Locale locale){
 		String strGroup=request.getParameter("group");
-		if(strGroup!=null){
-			Group group=Group.findById(Group.class,Long.parseLong(strGroup));
-			List<MasterVO> masterVOs=new ArrayList<MasterVO>();
-			List<QuestionDates> questionDates=group.getQuestionDates();
-			for(QuestionDates i:questionDates){
-				MasterVO masterVO=new MasterVO(i.getId(),FormaterUtil.getDateFormatter(locale.toString()).format(i.getAnsweringDate()));
-				masterVOs.add(masterVO);
+		/**** Added By Sandeep Singh ****/
+		String strUserGroup=request.getParameter("usergroup");
+		String strUserGroupType=request.getParameter("usergroupType");
+		if(strGroup!=null&&strUserGroup!=null&&strUserGroupType!=null){
+			if((!strGroup.isEmpty())&&(!strUserGroup.isEmpty())&&(!strUserGroupType.isEmpty())){
+				Group group=Group.findById(Group.class,Long.parseLong(strGroup));
+				List<MasterVO> masterVOs=new ArrayList<MasterVO>();
+				List<QuestionDates> questionDates=group.getQuestionDates();
+				for(QuestionDates i:questionDates){
+					MasterVO masterVO=new MasterVO(i.getId(),FormaterUtil.getDateFormatter(locale.toString()).format(i.getAnsweringDate()));
+					masterVOs.add(masterVO);
+				}
+				model.addAttribute("answeringDates",masterVOs);
+				model.addAttribute("usergroup",strUserGroup);
+				model.addAttribute("usergroupType",strUserGroupType);
 			}
-			model.addAttribute("answeringDates",masterVOs);
 		}
 		return "chart/chartinit";
 	}
@@ -76,7 +83,7 @@ public class ChartController extends BaseController{
 
 		String ugparam=request.getParameter("group");
 		Group group = Group.findById(Group.class, Long.parseLong(ugparam));
-		
+
 		Date answeringDate = questionDates.getAnsweringDate();
 		if(answeringDate != null) {
 			Chart foundChart = Chart.find(session, group, answeringDate, strLocale);
@@ -116,9 +123,9 @@ public class ChartController extends BaseController{
 
 		String ugparam=request.getParameter("group");
 		Group group = Group.findById(Group.class, Long.parseLong(ugparam));
-		
+
 		Date answeringDate = questionDates.getAnsweringDate();
-		
+
 		if(answeringDate != null) {
 			List<ChartVO> chartVOs = Chart.getChartVOs(session, group, answeringDate, strLocale);
 			model.addAttribute("chartVOs", chartVOs);
