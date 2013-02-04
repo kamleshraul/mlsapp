@@ -9,6 +9,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 
 import org.mkcl.els.common.util.ApplicationConstants;
 import org.mkcl.els.common.util.FormaterUtil;
@@ -22,6 +23,8 @@ import org.mkcl.els.domain.Group;
 import org.mkcl.els.domain.Member;
 import org.mkcl.els.domain.MemberBallot;
 import org.mkcl.els.domain.MemberBallotAttendance;
+import org.mkcl.els.domain.MemberBallotChoice;
+import org.mkcl.els.domain.Question;
 import org.mkcl.els.domain.QuestionDates;
 import org.mkcl.els.domain.Session;
 import org.springframework.stereotype.Repository;
@@ -163,6 +166,8 @@ public class MemberBallotRepository extends BaseRepository<MemberBallot, Seriali
 		search.addFilterEqual("deviceType.id",deviceType.getId());
 		search.addFilterEqual("member.id",member.getId());
 		search.addFilterEqual("locale",locale);
+		search.addSort("round",false);
+		search.addSort("position",false);
 		return this.search(search);
 	}
 
@@ -408,14 +413,14 @@ public class MemberBallotRepository extends BaseRepository<MemberBallot, Seriali
 		}
 	}
 
-	public Boolean createFinalBallot(Session session, DeviceType deviceType,final Group group,
-			final String answeringDate, String locale,
-			String firstBatchSubmissionDate) {
+	public Boolean createFinalBallot(final Session session,final DeviceType deviceType,final Group group,
+			final String answeringDate,final String locale,
+			final String firstBatchSubmissionEndDate,final int totalRounds) {
 		Boolean status=ballotAlreadyCreated(session,deviceType,group,answeringDate,locale);
 		if(!status){
 			try {
-				this.em().createNativeQuery("call "+ApplicationConstants.FINAL_BALLOT_PROCEDURE+"(?,?,?,?,?,?)").setParameter(1,session.getId()).setParameter(2,deviceType.getId()).setParameter(3,group.getId()).setParameter(4,answeringDate).setParameter(5,locale).setParameter(6,firstBatchSubmissionDate).executeUpdate();
-				this.em().createNativeQuery("call "+ApplicationConstants.FINAL_BALLOT_UPDATE_SEQUENCE_PROCEDURE+"(?,?,?,?,?,?)").setParameter(1,session.getId()).setParameter(2,deviceType.getId()).setParameter(3,group.getId()).setParameter(4,answeringDate).setParameter(5,locale).setParameter(6,firstBatchSubmissionDate).executeUpdate();
+				this.em().createNativeQuery("call "+ApplicationConstants.FINAL_BALLOT_PROCEDURE+"(?,?,?,?,?,?,?)").setParameter(1,session.getId()).setParameter(2,deviceType.getId()).setParameter(3,group.getId()).setParameter(4,answeringDate).setParameter(5,locale).setParameter(6,firstBatchSubmissionEndDate).setParameter(7,totalRounds).executeUpdate();
+				this.em().createNativeQuery("call "+ApplicationConstants.FINAL_BALLOT_UPDATE_SEQUENCE_PROCEDURE+"(?,?,?,?,?,?)").setParameter(1,session.getId()).setParameter(2,deviceType.getId()).setParameter(3,group.getId()).setParameter(4,answeringDate).setParameter(5,locale).setParameter(6,firstBatchSubmissionEndDate).executeUpdate();
 				return true;
 			}
 			catch (Exception e) {
@@ -531,6 +536,50 @@ public class MemberBallotRepository extends BaseRepository<MemberBallot, Seriali
 				}				
 			}		
 		return ballots;
+	}
+
+	public Boolean createMemberBallotChoices(
+			List<MemberBallot> memberBallots, final List<Question> questions,
+			int rounds, Map<String, Integer> noofQuestionsInEachRound,String locale) {
+		try {
+			int count=0;
+			int noOfAdmittedQuestions=questions.size();
+			for(int i=1;i<=rounds;i++){
+				/**** if choice has been created for all the admitted questions ****/
+				if(count>=noOfAdmittedQuestions){
+					break;
+				}
+				/**** Getting Member Ballot Entry for a particular round ****/
+				MemberBallot memberBallot=memberBallots.get(i-1);
+				List<MemberBallotChoice> memberBallotChoices=new ArrayList<MemberBallotChoice>();
+				Integer questionsInEachRound=noofQuestionsInEachRound.get("round"+i);
+				/**** Iterating for the no of questions allowed in each round times ****/
+				for(int j=1;j<=questionsInEachRound;j++){
+					/**** if choice has been created for all the admitted questions ****/
+					if(count>=noOfAdmittedQuestions){
+						break;
+					}
+					/**** Creating choice entry from the admitted question ****/
+					MemberBallotChoice memberBallotChoice=new MemberBallotChoice();
+					memberBallotChoice.setLocale(locale.toString());
+					memberBallotChoice.setClubbingUpdated(false);
+					memberBallotChoice.setProcessed(false);
+					Question question=questions.get(count);
+					memberBallotChoice.setChoice(j);
+					memberBallotChoice.setQuestion(question);
+					memberBallotChoice.setNewAnsweringDate(question.getAnsweringDate());
+					memberBallotChoice.persist();
+					memberBallotChoices.add(memberBallotChoice);
+					count++;
+				}
+				memberBallot.setQuestionChoices(memberBallotChoices);
+				memberBallot.merge();
+			}
+			return true;
+		} catch (Exception e) {
+			logger.error("Member Ballot Choice Creation Failed",e);
+			return false;
+		}
 	}
 
 

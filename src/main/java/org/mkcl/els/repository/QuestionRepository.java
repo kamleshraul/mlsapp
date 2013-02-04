@@ -1158,7 +1158,7 @@ public class QuestionRepository extends BaseRepository<Question, Long>{
 			if((!startTime.isEmpty())&&(!endTime.isEmpty())){
 				if(customParameter!=null){
 					SimpleDateFormat format=FormaterUtil.getDateFormatter(customParameter.getValue(), "en_US");
-					String query="SELECT q FROM Question q JOIN q.primaryMember m JOIN q.session s JOIN q.type qt "+
+					String query="SELECT q FROM Question q JOIN q.primaryMember m JOIN q.session s JOIN q.type qt  "+
 					" WHERE m.id="+member.getId()+" AND s.id="+session.getId()+" AND qt.id="+questionType.getId()+
 					" AND q.locale='"+locale+"' AND q.internalStatus.type='"+ApplicationConstants.QUESTION_FINAL_ADMISSION+"'  "+
 					" AND q.submissionDate>='"+startTime+"' "+

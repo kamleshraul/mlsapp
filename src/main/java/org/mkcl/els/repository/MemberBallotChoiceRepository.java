@@ -17,7 +17,7 @@ public class MemberBallotChoiceRepository extends BaseRepository<MemberBallotCho
             final DeviceType deviceType, final Member member, final String locale) {
         String query="SELECT mbc FROM MemberBallot mb JOIN mb.questionChoices mbc JOIN mb.session s JOIN mb.deviceType dt "+
                      " JOIN mb.member m WHERE s.id="+session.getId()+" AND dt.id="+deviceType.getId()+" AND m.id="+member.getId()+
-                     " AND mb.locale='"+locale+"'";
+                     " AND mb.locale='"+locale+"' ORDER BY mb.round,mb.position,mbc.choice";
         return this.em().createQuery(query).getResultList();
     }
 
