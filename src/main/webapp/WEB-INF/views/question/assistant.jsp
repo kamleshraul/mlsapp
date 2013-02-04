@@ -684,11 +684,18 @@
 	
 	<c:if test="${selectedQuestionType=='questions_shortnotice' or selectedQuestionType=='questions_halfhourdiscussion_from_question'}">
 	<p>
-		<label class="wysiwyglabel"><spring:message code="question.reason" text="Reason"/>*</label>
-		<form:textarea path="reason" cssClass="wysiwyg" readonly="true"></form:textarea>
-		<form:errors path="reason" cssClass="validationError" cssStyle="float:right;margin-top:-100px;margin-right:40px;"/>	
+		<c:choose>
+			<c:when test="${selectedQuestionType=='questions_shortnotice}">
+				<label class="wysiwyglabel"><spring:message code="question.shortnoticeReason" text="Reason"/>*</label>
+			</c:when>
+			<c:otherwise>
+				<label class="wysiwyglabel"><spring:message code="question.halfhourReason" text="Points to be discussed"/>*</label>
+			</c:otherwise>
+		</c:choose>
+		<form:textarea path="reason" cssClass="wysiwyg"></form:textarea>
+		<form:errors path="reason" cssClass="validationError" cssStyle="float:right;margin-top:-100px;margin-right:40px;"/>
 	</p>
-	</c:if>
+	</c:if>	
 	
 	<c:if test="${selectedQuestionType=='questions_halfhourdiscussion_from_question' or selectedQuestionType=='questions_halfhourdiscussion_standalone'}">
 		<p>
@@ -753,23 +760,32 @@
 	<select id="changeInternalStatus" class="sSelect">
 	<option value="-"><spring:message code='please.select' text='Please Select'/></option>
 	<c:forEach items="${internalStatuses}" var="i">
-	<c:if test="${(i.type!='question_recommend_sendback'&&i.type!='question_recommend_discuss') }">
-	<c:choose>
-	<c:when test="${i.type=='question_system_groupchanged' }">
-	<option value="${i.id}" style="display: none;"><c:out value="${i.name}"></c:out></option>	
-	</c:when>
-	<c:otherwise>
-	<c:choose>
-	<c:when test="${i.id==internalStatusSelected }">
-	<option value="${i.id}" selected="selected"><c:out value="${i.name}"></c:out></option>	
-	</c:when>
-	<c:otherwise>
-	<option value="${i.id}"><c:out value="${i.name}"></c:out></option>		
-	</c:otherwise>
-	</c:choose>
-	</c:otherwise>
-	</c:choose>
-	</c:if>
+		<c:choose>
+			<c:when test="${selectedQuestionType=='questions_halfhourdiscussion_from_question'}">
+				<c:if test="${i.type=='question_recommend_admission' or i.type=='question_recommend_rejection' or i.type=='question_recommend_sendback' or i.type=='question_recommend_discuss'}">
+					<option value="${i.id}"><c:out value="${i.name}"></c:out></option>	
+				</c:if>
+			</c:when>
+			<c:otherwise>
+				<c:if test="${(i.type!='question_recommend_sendback'&&i.type!='question_recommend_discuss') }">
+				<c:choose>
+				<c:when test="${i.type=='question_system_groupchanged' }">
+				<option value="${i.id}" style="display: none;"><c:out value="${i.name}"></c:out></option>	
+				</c:when>
+				<c:otherwise>
+				<c:choose>
+				<c:when test="${i.id==internalStatusSelected }">
+				<option value="${i.id}" selected="selected"><c:out value="${i.name}"></c:out></option>	
+				</c:when>
+				<c:otherwise>
+				<option value="${i.id}"><c:out value="${i.name}"></c:out></option>		
+				</c:otherwise>
+				</c:choose>
+				</c:otherwise>
+				</c:choose>
+				</c:if>
+			</c:otherwise>
+		</c:choose>
 	</c:forEach>
 	</select>
 	
