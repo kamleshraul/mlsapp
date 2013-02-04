@@ -123,10 +123,10 @@
 			}
 		});
 					
-
-		if($('#selectedMinistry').val()==""){		
+		if($('#ministrySelected').val()=="" || $('#ministrySelected').val()==undefined){		
 			$("#ministry").prepend("<option value='' selected='selected'>----"+$("#pleaseSelectMsg").val()+"----</option>");
 		}
+		
 		$("#department").prepend("<option value=''>----"+$("#pleaseSelectMsg").val()+"----</option>");				
 		$("#subDepartment").prepend("<option value=''>----"+$("#pleaseSelectMsg").val()+"----</option>");				
 		$("#answeringDate").prepend("<option value=''>----"+$("#pleaseSelectMsg").val()+"----</option>");
@@ -461,7 +461,8 @@
 	<c:if test="${selectedQuestionType=='questions_halfhourdiscussion_from_question'}">
 		<p>
 			<label class="small"><spring:message code="question.halfhour.questionref" text="Reference Question Number: "/>*</label>
-			<input class="sText" type="text" name="halfHourDiscussionReference_questionNumber" id="halfHourDiscussionReference_questionNumber" />
+			<input class="sText" type="text"  name="halfHourDiscussionReference_questionNumber" id="halfHourDiscussionReference_questionNumber" value="${referredQuestionNumber}" />
+			
 			<form:errors path="halfHourDiscusionFromQuestionReference" cssClass="validationError" cssStyle="float:right;margin-top:-100px;margin-right:40px;"/>
 			<label class="small"><a id="halfhourdiscussion_referred_question" href="#" ><spring:message code="question.halfhour.questionrefview" text="See Referred Question"/></a></label>	
 		</p>
