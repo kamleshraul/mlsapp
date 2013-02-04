@@ -1692,7 +1692,16 @@ public class QuestionController extends GenericController<Question>{
 	public String getDrafts(final Locale locale,@PathVariable("questionId")  final Long questionId,
 			final ModelMap model){
 		List<QuestionRevisionVO> drafts=Question.getRevisions(questionId,locale.toString());
+		Question q = Question.findById(Question.class, questionId);
+		if(q != null){
+			if(q.getType() != null){
+				if(q.getType().getType() != null){
+					model.addAttribute("selectedDeviceType", q.getType().getType());
+				}
+			}
+		}		
 		model.addAttribute("drafts",drafts);
+		model.addAttribute("questions_halfhourdiscussion_from_question", ApplicationConstants.HALF_HOUR_DISCUSSION_QUESTION_FROM_QUESTION);
 		return "question/revisions";
 	}
 
