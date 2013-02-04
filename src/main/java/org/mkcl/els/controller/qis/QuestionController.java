@@ -962,7 +962,7 @@ public class QuestionController extends GenericController<Question>{
 		/**** Version Mismatch ****/
 		if (domain.isVersionMismatch()) {
 			result.rejectValue("VersionMismatch", "version");
-		}		
+		}
 		String operation=request.getParameter("operation");
 		if(operation!=null){
 			if(!operation.isEmpty()){
@@ -1605,19 +1605,24 @@ public class QuestionController extends GenericController<Question>{
 								
 								String operation=request.getParameter("operation");
 								
-								if(operation != null){
-									if(!operation.isEmpty()){
-										if(operation.equals("submit")){
-											if(result.getFieldErrorCount("supportingMembers") == 0){
-												//check if request is already sent for approval
-												int count=0;
-												for(SupportingMember i:domain.getSupportingMembers()){
-													if(i.getDecisionStatus().getType().equals(ApplicationConstants.QUESTION_SUPPORTING_MEMBER_NOTSEND)){
-														count++;
+								if (operation != null) {
+									if (!operation.isEmpty()) {
+										if (operation.equals("submit")) {
+											if (result.getFieldErrorCount("supportingMembers") == 0) {
+												// check if request is already
+												// sent for approval
+												int count = 0;
+												if (domain.getSupportingMembers() != null) {
+													if (domain.getSupportingMembers().size() > 0) {
+														for (SupportingMember i : domain.getSupportingMembers()) {
+															if (i.getDecisionStatus().getType().equals(ApplicationConstants.QUESTION_SUPPORTING_MEMBER_NOTSEND)) {
+																count++;
+															}
+														}
+														if (count != 0) {
+															result.rejectValue("supportingMembers","supportingMembersRequestNotSent");
+														}
 													}
-												}
-												if(count!=0){
-													result.rejectValue("supportingMembers","supportingMembersRequestNotSent");
 												}
 											}
 										}
