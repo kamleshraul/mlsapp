@@ -166,9 +166,9 @@ public class QuestionRepository extends BaseRepository<Question, Long>{
 	 */
 	@SuppressWarnings("rawtypes")
 	public List<QuestionRevisionVO> getRevisions(final Long questionId,final String locale) {
-		String query="SELECT rs.usergroup,rs.fullname,rs.editedon,rs.status,rs.question,rs.subject,rs.remark FROM ("+
+		String query="SELECT rs.usergroup,rs.fullname,rs.editedon,rs.status,rs.question,rs.subject,rs.remark,rs.reason, rs.brief_explanation FROM ("+
 		"SELECT qd.edited_as as usergroup,concat(u.title,' ',u.first_name,' ',u.middle_name,' ',u.last_name) as fullname,qd.edited_on as editedon,"+
-		"s.name as status,qd.question_text as question,qd.subject as subject,qd.remarks as remark FROM questions as q JOIN questions_drafts_association as qda "+
+		"s.name as status,qd.question_text as question,qd.subject as subject,qd.remarks as remark, qd.reason as reason,qd. brief_explanation as brief_explanation FROM questions as q JOIN questions_drafts_association as qda "+
 		" JOIN question_drafts as qd JOIN users as u JOIN credentials as c JOIN "+
 		" status as s WHERE q.id=qda.question_id AND qda.question_draft_id=qd.id  "+
 		"  AND qd.recommendationstatus_id=s.id and "+
@@ -193,6 +193,13 @@ public class QuestionRepository extends BaseRepository<Question, Long>{
 			if(o[6]!=null){
 				questionRevisionVO.setRemarks(o[6].toString());
 			}
+			if(o[7] != null){
+				questionRevisionVO.setReason(o[7].toString());
+			}
+			if(o[8]!=null){
+				questionRevisionVO.setBriefExplanation(o[8].toString());
+			}
+			
 			questionRevisionVOs.add(questionRevisionVO);
 		}
 		return questionRevisionVOs;
