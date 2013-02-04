@@ -1297,7 +1297,14 @@ public class QuestionController extends GenericController<Question>{
 			if(domain.getQuestionText().isEmpty()){
 				result.rejectValue("questionText","QuestionTextEmpty");
 			}
-			validateNumberOfSupportingMembersForHalfHourDiscussionFromQuestion(domain, result, request);
+			String userGroupType=request.getParameter("usergroupType");
+			if(userGroupType != null){
+				if(!userGroupType.isEmpty()){
+					if(userGroupType.equals(ApplicationConstants.MEMBER)){
+						validateNumberOfSupportingMembersForHalfHourDiscussionFromQuestion(domain, result, request);
+					}
+				}
+			}
 		}
 	}
 
@@ -1593,6 +1600,27 @@ public class QuestionController extends GenericController<Question>{
 								if(noOFSupportingMembersComparator.equalsIgnoreCase("gt")) {
 									if(!(numberOFSupportingMembersReceived > numberOFSupportingMembersToCheck)) {
 										result.rejectValue("supportingMembers","noOfSupportingMembersInvalid");
+									}
+								}
+								
+								String operation=request.getParameter("operation");
+								
+								if(operation != null){
+									if(!operation.isEmpty()){
+										if(operation.equals("submit")){
+											if(result.getFieldErrorCount("supportingMembers") == 0){
+												//check if request is already sent for approval
+												int count=0;
+												for(SupportingMember i:domain.getSupportingMembers()){
+													if(i.getDecisionStatus().getType().equals(ApplicationConstants.QUESTION_SUPPORTING_MEMBER_NOTSEND)){
+														count++;
+													}
+												}
+												if(count!=0){
+													result.rejectValue("supportingMembers","supportingMembersRequestNotSent");
+												}
+											}
+										}
 									}
 								}
 							}										
@@ -1914,36 +1942,51 @@ public class QuestionController extends GenericController<Question>{
 	}	
 
 	//---------------------------Added by vikas & dhananjay----------------------------------------------
-	@RequestMapping(value="/viewquestion",method=RequestMethod.GET)
-	public String viewQuestion(final HttpServletRequest request,final ModelMap model,final Locale locale){
+		@RequestMapping(value="/viewquestion",method=RequestMethod.GET)
+		public String viewQuestion(final HttpServletRequest request,final ModelMap model,final Locale locale){
 
-		String strQuestionId = request.getParameter("qid");
-		
-		if(strQuestionId != null && !strQuestionId.isEmpty()){
+			String strQuestionId = request.getParameter("qid");
+			
+			if(strQuestionId != null && !strQuestionId.isEmpty()){
 
-			Long id = new Long(strQuestionId);
-			Question q = Question.findById(Question.class, id);
-			
-			
-			model.addAttribute("sessionName",q.getSession().getHouse().getType().getName());
-			model.addAttribute("sessionYear", FormaterUtil.formatNumberNoGrouping(q.getSession().getYear(), q.getLocale()));
-			model.addAttribute("sessionType", q.getSession().getType().getSessionType());
-			model.addAttribute("answerDate",FormaterUtil.getDateFormatter("dd/MM/yyyy", q.getLocale().toString()).format(q.getAnsweringDate().getAnsweringDate()));
-			model.addAttribute("subject", q.getSubject());
-			model.addAttribute("qText", q.getQuestionText());
-			model.addAttribute("qReason", q.getReason());
-			model.addAttribute("qAnswer", q.getAnswer());
-			
-			
-			Member member=  q.getPrimaryMember();
-			if(member.getId()!=null){          
-				model.addAttribute("primaryMemberName",member.getFullname());
+				Long id = new Long(strQuestionId);
+				Question q = Question.findById(Question.class, id);
+				
+				if(q != null){
+				
+					if(q.getSession() != null){
+						if(q.getSession() != null){
+							if(q.getSession().getHouse() != null){
+								model.addAttribute("sessionName",q.getSession().getHouse().getType().getName());
+							}
+							
+							model.addAttribute("sessionYear", FormaterUtil.formatNumberNoGrouping(q.getSession().getYear(), q.getLocale()));
+							model.addAttribute("sessionType", q.getSession().getType().getSessionType());
+						}
+					}
+					
+					if(q.getAnsweringDate() != null){
+						if(q.getAnsweringDate().getAnsweringDate() != null){
+							model.addAttribute("answerDate",FormaterUtil.getDateFormatter("dd/MM/yyyy", q.getLocale().toString()).format(q.getAnsweringDate().getAnsweringDate()));
+						}else{
+							model.addAttribute("answerDate","");
+						}
+					}
+					
+					model.addAttribute("subject", q.getSubject());
+					model.addAttribute("qText", q.getQuestionText());
+					model.addAttribute("qReason", q.getReason());
+					model.addAttribute("qAnswer", q.getAnswer());
+					
+				
+					Member member=  q.getPrimaryMember();
+					if(member.getId()!=null){          
+						model.addAttribute("primaryMemberName",member.getFullname());
+					}
+				}
 			}
 			return "question/viewquestion";
-		}else{
-			return "question/viewquestion";
 		}
-	}
 	@RequestMapping(value="/getsubject",method=RequestMethod.GET)
 	public @ResponseBody MasterVO getSubjectAndQuestion(final HttpServletRequest request,final ModelMap model,final Locale locale){
 
