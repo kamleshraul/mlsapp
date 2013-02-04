@@ -9,6 +9,8 @@
  */
 package org.mkcl.els.common.vo;
 
+import javax.persistence.Column;
+
 // TODO: Auto-generated Javadoc
 /**
  * The Class QuestionRevisionVO.
@@ -42,6 +44,13 @@ private String editedAs;
 
 	/** The remarks. */
 	private String remarks;
+	
+	//-------------------------For half hour discussion from question-
+    /** The reason. */
+    private String reason;
+    
+    private String briefExplanation;
+
 
 	/**
 	 * Gets the edited as.
@@ -169,5 +178,19 @@ private String editedAs;
 		this.remarks = remarks;
 	}
 
+	public String getReason() {
+		return reason;
+	}
 
+	public void setReason(String reason) {
+		this.reason = reason;
+	}
+
+	public String getBriefExplanation() {
+		return briefExplanation;
+	}
+
+	public void setBriefExplanation(String briefExplanation) {
+		this.briefExplanation = briefExplanation;
+	}
 }
