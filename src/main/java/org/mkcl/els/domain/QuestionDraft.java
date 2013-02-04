@@ -134,6 +134,14 @@ public class QuestionDraft extends BaseDomain implements Serializable{
     @ManyToMany(fetch=FetchType.LAZY)
     @JoinTable(name="questiondrafts_referencedentities", joinColumns={@JoinColumn(name="questiondraft_id", referencedColumnName="id")}, inverseJoinColumns={@JoinColumn(name="referenced_entity_id", referencedColumnName="id")})
     private List<ReferencedEntity> referencedEntities;
+        
+    //-------------------------For half hour discussion from question-
+    /** The reason. */
+    @Column(length=30000)
+    private String reason;
+    
+    @Column(length=30000)
+    private String briefExplanation;
 
 
 	/**
@@ -465,5 +473,19 @@ public class QuestionDraft extends BaseDomain implements Serializable{
 		return editedAs;
 	}
 
+	public String getReason() {
+		return reason;
+	}
 
-    }
+	public void setReason(String reason) {
+		this.reason = reason;
+	}
+
+	public String getBriefExplanation() {
+		return briefExplanation;
+	}
+
+	public void setBriefExplanation(String briefExplanation) {
+		this.briefExplanation = briefExplanation;
+	}
+}
