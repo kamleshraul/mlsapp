@@ -250,6 +250,10 @@ implements Serializable
     /** The reason. */
     @Column(length=30000)
     private String reason;
+    
+    /** The reason. */
+    @Column(length=30000)
+    private String revisedReason;
 
     /** The to be answered by minister. */
     private Boolean toBeAnsweredByMinister=false;
@@ -264,6 +268,9 @@ implements Serializable
 
     @Column(length=30000)
     private String briefExplanation;
+    
+    @Column(length=30000)
+    private String revisedBriefExplanation;  
 
     @ManyToOne(fetch=FetchType.LAZY)
     private Question halfHourDiscusionFromQuestionReference;
@@ -1990,5 +1997,17 @@ implements Serializable
 	}
 	public Status getBallotStatus() {
 		return ballotStatus;
+	}
+	public String getRevisedReason() {
+		return revisedReason;
+	}
+	public void setRevisedReason(String revisedReason) {
+		this.revisedReason = revisedReason;
+	}
+	public String getRevisedBriefExplanation() {
+		return revisedBriefExplanation;
+	}
+	public void setRevisedBriefExplanation(String revisedBriefExplanation) {
+		this.revisedBriefExplanation = revisedBriefExplanation;
 	}
 }
