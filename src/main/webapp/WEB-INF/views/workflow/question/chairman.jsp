@@ -90,7 +90,10 @@
 			$("#endflag").val("end");
 			$("#recommendationStatus").val(value);
 			return false;
+		}else {
+			$("#endflag").val("continue");
 		}
+
 		var params="question="+$("#id").val()+"&status="+value+
 		"&usergroup="+$("#usergroup").val()+"&level="+$("#level").val();
 		var resourceURL='ref/question/actors?'+params;
@@ -306,7 +309,7 @@
 	    $("#changeInternalStatus").change(function(){
 		    var value=$(this).val();
 		    if(value!='-'){
-			   // var statusType=$("#internalStatusMaster option[value='"+value+"']").text();
+		   	   // var statusType=$("#internalStatusMaster option[value='"+value+"']").text();
 			    loadActors(value);			    
 		    }else{
 			    $("#actor").empty();

@@ -85,12 +85,15 @@
 	/**** load actors ****/
 	function loadActors(value){
 		if(value!='-'){
-		var dateAdmitted=$("#internalStatusMaster option[value='question_processed_final_dateAdmitted']").text();	
-		if(value == dateAdmitted) {
-			$("#endflag").val("end");
-			$("#recommendationStatus").val(value);
-			return false;
+			var dateAdmitted=$("#internalStatusMaster option[value='question_processed_final_dateAdmitted']").text();	
+			if(value == dateAdmitted) {
+				$("#endflag").val("end");
+				$("#recommendationStatus").val(value);
+				return false;
+			}else {
+				$("#endflag").val("continue");
 		}
+
 		var params="question="+$("#id").val()+"&status="+value+
 		"&usergroup="+$("#usergroup").val()+"&level="+$("#level").val();
 		var resourceURL='ref/question/actors?'+params;
@@ -307,7 +310,7 @@
 		    var value=$(this).val();
 		    if(value!='-'){
 			    //var statusType=$("#internalStatusMaster option[value='"+value+"']").text();
-			    loadActors(value);			    
+			     loadActors(value);			    
 		    }else{
 			    $("#actor").empty();
 			    $("#actorDiv").hide();
