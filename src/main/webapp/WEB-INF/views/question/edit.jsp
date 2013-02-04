@@ -204,6 +204,7 @@
 		});	
 		
 		$("#submit").click(function(e){	
+			var deviceTypeTemp='${selectedQuestionType}';
 			if((deviceTypeTemp=='questions_halfhourdiscussion_standalone') || (deviceTypeTemp=='questions_halfhourdiscussion_from_question')){
 				//added to validate quetion number for half hour discussion--
 				if($('#halfHourDiscussionReference_questionNumber').val()==null || $('#halfHourDiscussionReference_questionNumber').val()==""){
@@ -211,6 +212,8 @@
 					return false;
 				}
 			}	
+			
+			$('#questionText').val($('#copyOfquestionText').val());
 		});
 		//-----------------------------------------------------
 		//send for approval
@@ -241,6 +244,7 @@
 					$(this).val("");
 				}
 			});	
+			$('#questionText').val($('#copyOfquestionText').val());
 			$.prompt($('#sendForApprovalMsg').val()+$("#selectedSupportingMembers").val(),{
 				buttons: {Ok:true, Cancel:false}, callback: function(v){
 		        if(v){
@@ -309,7 +313,7 @@
 				}
 			}
 			//-------------------------------------------------------------------------
-			
+			$('#questionText').val($('#copyOfquestionText').val());
 			$.prompt($('#submissionMsg').val(),{
 				buttons: {Ok:true, Cancel:false}, callback: function(v){
 		        if(v){
