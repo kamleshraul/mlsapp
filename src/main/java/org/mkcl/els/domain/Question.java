@@ -417,18 +417,36 @@ implements Serializable
             draft.setGroup(getGroup());
             draft.setInternalStatus(getInternalStatus());
             draft.setMinistry(getMinistry());
-            if(getRevisedQuestionText()!=null&&getRevisedSubject()!=null){
-                draft.setQuestionText(getRevisedQuestionText());
-                draft.setSubject(getRevisedSubject());
-            }else if(getRevisedQuestionText()!=null){
-            	draft.setQuestionText(getRevisedQuestionText());
-                draft.setSubject(getSubject());
-            }else if(getRevisedSubject()!=null){
-                draft.setQuestionText(getQuestionText());
-                draft.setSubject(getRevisedSubject());
-            }else{
+            if(getType().getType().equals(ApplicationConstants.HALF_HOUR_DISCUSSION_QUESTION_FROM_QUESTION)){
+            	if(getRevisedReason() != null && getRevisedBriefExplanation()!=null){
+        		    draft.setReason(getRevisedReason());
+	                draft.setBriefExplanation(getRevisedBriefExplanation());
+	            } else if(getRevisedBriefExplanation() != null){
+            		draft.setBriefExplanation(getRevisedBriefExplanation());
+            		draft.setReason(getReason());
+	            }else if(getRevisedReason() != null){
+            		draft.setBriefExplanation(getBriefExplanation());
+            		draft.setReason(getRevisedReason());
+	            }else {
+	            	draft.setReason(getReason());
+	                draft.setBriefExplanation(getBriefExplanation());
+	            }
+            	draft.setSubject(getSubject());
             	draft.setQuestionText(getQuestionText());
-                draft.setSubject(getSubject());
+            }else{
+            	if(getRevisedQuestionText()!=null&&getRevisedSubject()!=null){
+	                draft.setQuestionText(getRevisedQuestionText());
+	                draft.setSubject(getRevisedSubject());                
+	            }else if(getRevisedQuestionText()!=null){
+	            	draft.setQuestionText(getRevisedQuestionText());
+	                draft.setSubject(getSubject());
+	            }else if(getRevisedSubject()!=null){
+	                draft.setQuestionText(getQuestionText());
+	                draft.setSubject(getRevisedSubject());
+	            }else{
+	            	draft.setQuestionText(getQuestionText());
+	                draft.setSubject(getSubject());
+	            }
             }
             draft.setReferencedEntities(getReferencedEntities());
             draft.setRemarks(getRemarks());
