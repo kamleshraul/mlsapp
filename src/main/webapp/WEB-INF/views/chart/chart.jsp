@@ -31,7 +31,12 @@
 				}else if(action=='referencing'){
 					referencingInt(id);
 				}
-		    });				
+		    });	
+
+			$(".questionNumber a[title]").qtip({
+	    		show: 'mouseover',
+	    		hide: 'mouseout'
+	    	});			
 		});			
 	</script>
 </head>
