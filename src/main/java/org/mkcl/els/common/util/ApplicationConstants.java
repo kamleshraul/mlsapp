@@ -221,7 +221,10 @@ public class ApplicationConstants {
     public static final String QUESTION_PUTUP_CONVERT_TO_UNSTARRED_AND_ADMIT="question_putup_convertToUnstarredAndAdmit";
 
     /**** Processed Status ****/
+    public static final String QUESTION_PROCESSED_BALLOTED="question_processed_balloted";
+    
     public static final String QUESTION_PROCESSED_YAADILAID="question_processed_yaadilaid";
+    
     /**** Question Ministry,Department and Subdepartment parameters key in UserGroup ****/
     public static final String HOUSETYPE_KEY="HOUSETYPE";
     
