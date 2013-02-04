@@ -123,10 +123,10 @@
 			}
 		});
 					
+		
 		if($('#ministrySelected').val()=="" || $('#ministrySelected').val()==undefined){		
 			$("#ministry").prepend("<option value='' selected='selected'>----"+$("#pleaseSelectMsg").val()+"----</option>");
 		}
-		
 		$("#department").prepend("<option value=''>----"+$("#pleaseSelectMsg").val()+"----</option>");				
 		$("#subDepartment").prepend("<option value=''>----"+$("#pleaseSelectMsg").val()+"----</option>");				
 		$("#answeringDate").prepend("<option value=''>----"+$("#pleaseSelectMsg").val()+"----</option>");
@@ -216,14 +216,17 @@
 		//--------vikas dhananjay-----------------------------		
 		//submit(draft) 
 		$("#submit").click(function(e){	
-	if((deviceTypeTemp=='questions_halfhourdiscussion_standalone') || (deviceTypeTemp=='questions_halfhourdiscussion_from_question')){
-		//added to validate quetion number for half hour discussion--
-		if($('#halfHourDiscussionReference_questionNumber').val()==null || $('#halfHourDiscussionReference_questionNumber').val()==""){
-			$.prompt($("#referenceQuestionIncorrectMsg").val());
-			return false;
-		}
-	}	
-	});
+			
+			var deviceTypeTemp='${selectedQuestionType}';
+			if((deviceTypeTemp=='questions_halfhourdiscussion_standalone') || (deviceTypeTemp=='questions_halfhourdiscussion_from_question')){
+				$('#questionText').val($('#copyOfquestionText').val());
+				//added to validate quetion number for half hour discussion--
+				if($('#halfHourDiscussionReference_questionNumber').val()==null || $('#halfHourDiscussionReference_questionNumber').val()==""){
+					$.prompt($("#referenceQuestionIncorrectMsg").val());
+					return false;
+				}
+			}
+		});
 		
 		//send for approval
 		$("#sendforapproval").click(function(e){
@@ -237,6 +240,7 @@
 			//----------------vikas dhananjay----------------------------------------------------------------------------------------------
 			var deviceTypeTemp='${selectedQuestionType}';
 			if((deviceTypeTemp=='questions_halfhourdiscussion_standalone') || (deviceTypeTemp=='questions_halfhourdiscussion_from_question')){
+				$('#questionText').val($('#copyOfquestionText').val());
 				//added to validate quetion number for half hour discussion--
 				if($('#halfHourDiscussionReference_questionNumber').val()==null || $('#halfHourDiscussionReference_questionNumber').val()==""){
 					$.prompt($("#referenceQuestionIncorrectMsg").val());
@@ -258,7 +262,7 @@
 		        if(v){
 					$.blockUI({ message: '<img src="./resources/images/waitAnimated.gif" />' }); 			        
 		        	$.post($('form').attr('action')+'?operation=approval',  
-		    	            $("form").serialize(),  
+		    	            $("form").serialize(),
 		    	            function(data){
 		       					$('.tabContent').html(data);
 		       					$('html').animate({scrollTop:0}, 'slow');
@@ -287,6 +291,7 @@
 				var submissionStartDate= '${startDate}';
 				var submissionEndDate= '${endDate}';
 				
+				$('#questionText').val($('#copyOfquestionText').val());
 				if( (new Date().getTime() < new Date(submissionStartDate).getTime())){
 					$.prompt($('#earlySubmissionMsg').val());					
 				    return false;
@@ -322,7 +327,6 @@
 				}
 			}			
 			//------------------------------------------------------------
-			
 			$.prompt($('#submissionMsg').val(),{
 				buttons: {Ok:true, Cancel:false}, callback: function(v){
 		        if(v){
@@ -461,8 +465,7 @@
 	<c:if test="${selectedQuestionType=='questions_halfhourdiscussion_from_question'}">
 		<p>
 			<label class="small"><spring:message code="question.halfhour.questionref" text="Reference Question Number: "/>*</label>
-			<input class="sText" type="text"  name="halfHourDiscussionReference_questionNumber" id="halfHourDiscussionReference_questionNumber" value="${referredQuestionNumber}" />
-			
+			<input class="sText" type="text" name="halfHourDiscussionReference_questionNumber" id="halfHourDiscussionReference_questionNumber" value="${referredQuestionNumber}" />
 			<form:errors path="halfHourDiscusionFromQuestionReference" cssClass="validationError" cssStyle="float:right;margin-top:-100px;margin-right:40px;"/>
 			<label class="small"><a id="halfhourdiscussion_referred_question" href="#" ><spring:message code="question.halfhour.questionrefview" text="See Referred Question"/></a></label>	
 		</p>
@@ -474,7 +477,8 @@
 		<c:if test="${(selectedQuestionType=='questions_halfhourdiscussion_from_question' or selectedQuestionType=='questions_halfhourdiscussion_standalone') and (!(empty numberOfSupportingMembersComparator) and !(empty numberOfSupportingMembers))}">
 			<label style="display: inline; border: 1px double blue; padding: 5px; background-color: #DCE4EF; font-weight: bold;" class="centerlabel" id="supportingMemberMessage"><spring:message code="question.numberOfsupportingMembers" text="Number of Supporting Members"></spring:message>&nbsp;${numberOfSupportingMembersComparatorHTML}&nbsp;${numberOfSupportingMembers}</label>										
 		</c:if>
-		<c:if test="${!(empty supporingMembers)}">
+		
+		<c:if test="${!(empty supporingMembers)}">		
 		<select  name="selectedSupportingMembers" multiple="multiple">
 		<c:forEach items="${supportingMembers}" var="i">
 		<option value="${i.id}" class="${i.member.getFullname()}"></option>
