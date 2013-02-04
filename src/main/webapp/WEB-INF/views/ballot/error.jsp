@@ -262,6 +262,15 @@
 		<p></p>
 	</div>
 </c:when>
+<c:when test="${type eq 'MEMBER_BALLOT_CHOICE_POST_REQUEST_PARAMETER_NULL'}">
+	<div class="toolTip tpRed clearfix">
+		<p style="font-size: 14px;">
+			<img src="./resources/images/template/icons/light-bulb-off.png">
+			<spring:message code="ballot.error.memberballot_post_request_parameter_null" text="Check Request Parameter 'AUTO,noOfAdmittedQuestions,questionType,session,member,totalRounds' For NULL Values"/>
+		</p>
+		<p></p>
+	</div>
+</c:when>
 
 </c:choose>
 

@@ -5,13 +5,12 @@
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
 <script type="text/javascript">
 	$(document).ready(function() {
-		$("select[id^='question']").change(function(){
+		$(".question").change(function(){
 		    var id=$(this).attr("id").split("question")[1];
 			var parameters="question="+$(this).val();
 			var resource='ref/answeringDates';
 			var options="<option value='-'>"+$("#pleaseSelect").val()+"</option>";			
 			if($(this).val()!='-'){
-				if($("#flag").val()=='new'){
 			    	$.get(resource+'?'+parameters,function(data){
 						if(data.length>0){
 							for(var i=0;i<data.length;i++){
@@ -23,15 +22,50 @@
 							$("#answeringDate"+id).empty();	
 							$("#answeringDate"+id).html(options);								
 						}
-					});				
-			    }
+					});	
+					var value=$(this).val();					
+					//remove selected option from all other question div except this.
+					$(".question option[value='"+value+"']").hide();
+					$("#question"+id+" option[value='"+value+"']").show();
+					var previouslySelected=$("select[id!='question"+id+"'][value='"+value+"']").attr("id");					
+					if(previouslySelected!=undefined){
+						$("#"+previouslySelected+" option").show();		
+						$("#"+previouslySelected).val("-");								
+					}
 			}else{
 				$("#answeringDate"+id).empty();	
 				$("#answeringDate"+id).html(options);	
 			}
 			$("#errorDiv").hide();
-			$("#successDiv").hide();			    
-	    });		
+			$("#successDiv").hide();	
+	    });	    
+	    $("#autofill").change(function(){
+		    if($(this).is(":checked")){
+			    /**** auto fill is checked ****/
+			    $(".question").attr("disabled","disabled");
+			    $(".answeringDate").attr("disabled","disabled");			    
+		    }else{
+			    /**** autofill is unchecked ****/				    
+		    	$(".question").removeAttr("disabled");
+			    $(".answeringDate").removeAttr("disabled");	
+			    $(".question option").show();
+			    $(".answeringDate option").show();	
+			    $(".question").val("-");	
+			    $(".answeringDate").val("-");    
+		    }
+	    });
+	    $(".all").click(function(){
+		    var id=$(this).attr("id").split("all")[1];
+		    $("#question"+id+" option").show();
+		    $("#question"+id).val("-");
+	    });
+	    /**** If auto filled is true then hide questions,answering date will be disabled ****/
+	    var auto=$("#auto").val();
+	    if(auto=='true'){		   
+	    	 $(".question").attr("disabled","disabled");
+			 $(".answeringDate").attr("disabled","disabled");	
+			 $("#autofill").attr("checked","checked");    
+	    }
 	});
 </script>
 <style type="text/css">
@@ -48,13 +82,26 @@
 	color: black;
 	}
 	.round5{
-	color: lime;
+	color: #F26522;
+	}
+	th,td{
+	font-size: 14px;
 	}
 </style>
 </head>
 <body>	
+<c:if test="${type=='SUCCESS' }">
+<div class="toolTip tpGreen clearfix" id="successDiv">
+<p style="font-size: 14px;"><img
+	src="./resources/images/template/icons/light-bulb-off.png"> <spring:message
+	code="update_success" text="Data saved successfully." /></p>
+<p></p>
+</div>
+</c:if>
 <c:choose>
 	<c:when test="${!(empty memberBallots)&&flag=='edit' }">
+	<div style="font-weight: bolder;margin: 10px;"><input type="checkbox" id="autofill" name="autofill" value="true">
+				<spring:message code="memberballotchoice.autofill" text="Fill member Choices Automatically"></spring:message></div>	
 	<table class="uiTable">					
 					<tr>						
 						<th><spring:message code="memberballotchoice.sno" text="S.No"></spring:message></th>
@@ -63,17 +110,19 @@
 						<th><spring:message code="memberballotchoice.answeringdate"
 							text="Answering Date"></spring:message></th>
 					</tr>
-					<c:set value="1" var="count"></c:set>					
+					<c:set value="1" var="count"></c:set>	
+					<c:set value="1" var="roundcount"></c:set>					
+									
 					<c:forEach items="${memberBallots }" var="i">
 					<c:if test="${!(empty i.questionChoices)}">					
 					<tr>
-					<td colspan="3" style="text-align: center;font-weight: bold;"><span class="round${count }"><spring:message code="listmemberchoice.round" text="Round"/>${i.round}</span></td>
+					<td colspan="3" style="text-align: center;font-weight: bold;"><span class="round${roundcount }"><spring:message code="listmemberchoice.round" text="Round"/>${i.round}</span></td>
 					</tr>
 					<c:forEach items="${i.questionChoices}" var="j">
 					<tr>
-					<td><span class="round${count }">${j.choice}</span></td>
+					<td><span class="round${roundcount}">${j.choice}</span></td>
 					<td>
-					<select id="question${count}" name="question${count}" class="round${count }">
+					<select id="question${count}" name="question${count}" class="question round${roundcount } sSelect">
 					<option value='-'><spring:message code='please.select'	text='Please Select' /></option>
 					<c:forEach items="${admittedQuestions}" var="k">
 					<c:choose>
@@ -86,9 +135,10 @@
 					</c:choose>
 					</c:forEach>
 					</select>
+					<a id="all${count}" class="all" style="font-weight: bolder;cursor: pointer;">+</a>
 					</td>
 					<td>
-					<select id="answeringDate${count}" name="answeringDate${count}" class="round${count }">
+					<select id="answeringDate${count}" name="answeringDate${count}" class="answeringDate round${roundcount } sSelect">
 					<option value='-'><spring:message code='please.select'	text='Please Select' /></option>
 					<c:forEach items="${j.question.group.questionDates}" var="l">
 					<c:choose>
@@ -109,13 +159,16 @@
 					<c:set value="${count+1}" var="count"></c:set>		
 					</tr>
 					</c:forEach>
-					</c:if>					
+					</c:if>	
+					<c:set value="${roundcount+1}" var="roundcount"></c:set>							
 					</c:forEach>
 	</table>
 	<input id="submit" type="submit" value="<spring:message code='generic.submit' text='Submit'/>" class="butDef" style="text-align:center;">
 	
 	</c:when>
-	<c:when test="${!(empty admittedQuestions)&&flag=='new'}">		
+	<c:when test="${!(empty admittedQuestions)&&flag=='new'}">	
+				<div style="font-weight: bolder;margin: 10px;"><input type="checkbox" id="autofill" name="autofill" value="true">
+				<spring:message code="memberballotchoice.autofill" text="Auto Fill Member Choices"></spring:message></div>	
 				<table class="uiTable">					
 					<tr>						
 						<th><spring:message code="memberballotchoice.sno" text="S.No"></spring:message></th>
@@ -140,15 +193,16 @@
  					<tr>
 					<td><span class="round<%=i%>"><%=j%></span></td>
 					<td>
-					<select id="question${count}" name="question${count}" class="round<%=i%>">
+					<select id="question${count}" name="question${count}" class="question round<%=i%> sSelect">
 					<option value='-'><spring:message code='please.select'	text='Please Select' /></option>
 					<c:forEach items="${admittedQuestions}" var="k">
 					<option value='${k.id}'><c:out value="${k.findFormattedNumber()}"></c:out></option>
 					</c:forEach>
 					</select>
+					<a id="all${count}" class="all" style="font-weight: bolder;cursor: pointer;">+</a>					
 					</td>
 					<td>
-					<select id="answeringDate${count}" name="answeringDate${count}" class="round<%=i%>">
+					<select id="answeringDate${count}" name="answeringDate${count}" class="answeringDate round<%=i%> sSelect">
 					<option value='-'><spring:message code='please.select'	text='Please Select' /></option>
 					</select>
 					<input id="round${count}" name="round${count }" value="<%=i%>" type="hidden">
@@ -168,5 +222,6 @@
 <input id="noOfAdmittedQuestions" name="noOfAdmittedQuestions" value="${noOfAdmittedQuestions }" type="hidden">
 <input id="totalRounds" name="totalRounds" value="${totalRounds }" type="hidden">
 <input id="flag" name="flag" value="${flag }" type="hidden">
+<input id="auto" name="auto" value="${autofill}" type="hidden">
 </body>
 </html>
