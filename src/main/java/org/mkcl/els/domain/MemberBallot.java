@@ -12,6 +12,7 @@ package org.mkcl.els.domain;
 import java.io.Serializable;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Entity;
@@ -79,6 +80,8 @@ public class MemberBallot extends BaseDomain implements Serializable {
 
 	/** The attendance. */
 	private Boolean attendance;
+	
+	private Boolean choicesAutoFilled;
 
 	/** The member ballot repository. */
 	@Autowired
@@ -358,13 +361,14 @@ public class MemberBallot extends BaseDomain implements Serializable {
 	 * @param group the group
 	 * @param questionDates the question dates
 	 * @param locale the locale
+	 * @param totalRounds 
 	 */
 	public static Boolean createFinalBallot(final Session session,
 			final DeviceType deviceType, final Group group, final String answeringDate,
-			final String locale,final String firstBatchSubmissionDate) {
+			final String locale,final String firstBatchSubmissionDate,final int totalRounds) {
 		return getMemberBallotRepository().createFinalBallot(session,
 				deviceType,group,answeringDate,
-				locale,firstBatchSubmissionDate);
+				locale,firstBatchSubmissionDate,totalRounds);
 	}
 
 	public static List<MemberBallotFinalBallotVO> viewFinalBallot(final Session session,
@@ -396,5 +400,22 @@ public class MemberBallot extends BaseDomain implements Serializable {
 			final Group group,final QuestionDates answeringDate,final String locale) {
 		return getMemberBallotRepository().viewMemberBallotVO(session,
 				questionType,attendance,round,group,answeringDate,locale);
+	}
+
+
+	public static Boolean createMemberBallotChoices(
+			List<MemberBallot> memberBallots, final List<Question> questions, int rounds, Map<String, Integer> noofQuestionsInEachRound, String locale) {
+		return getMemberBallotRepository().createMemberBallotChoices(memberBallots,
+				questions,rounds,noofQuestionsInEachRound,locale);
+	}
+
+
+	public void setChoicesAutoFilled(Boolean choicesAutoFilled) {
+		this.choicesAutoFilled = choicesAutoFilled;
+	}
+
+
+	public Boolean getChoicesAutoFilled() {
+		return choicesAutoFilled;
 	}
 }
