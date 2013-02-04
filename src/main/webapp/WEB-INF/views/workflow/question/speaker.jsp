@@ -283,6 +283,35 @@
 			}				
 			return false;			
 		});	
+		
+		/**** Revise reason and brief explanation****/
+		$("#reviseReason").click(function(){
+			$(".revise3").toggle();
+			if($("#revisedReasonDiv").css("display")=="none"){	
+				$("#revisedReason").wysiwyg("setContent","");
+			}else{
+				$("#revisedReason").wysiwyg("setContent",$("#reason").val());
+			}						
+			return false;			
+		});	
+		$("#reviseBriefExplanation").click(function(){
+			$(".revise4").toggle();		
+			if($("#revisedBriefExplanationDiv").css("display")=="none"){
+				$("#revisedBriefExplanation").wysiwyg("setContent","");
+			}else{
+				$("#revisedBriefExplanation").wysiwyg("setContent",$("#briefExplanation").val());				
+			}				
+			return false;			
+		});
+
+
+
+		if($("#revisedReason").val()!=''){
+		    $("#revisedReasonDiv").show();
+	    }
+	    if($("#revisedBriefExplanation").val()!=''){
+	    	$("#revisedBriefExplanationDiv").show();
+	    }
 		/**** Revisions ****/
 	    $("#viewRevision").click(function(){
 		    $.get('question/revisions/'+$("#id").val(),function(data){
@@ -705,6 +734,26 @@
 	<a href="#" id="viewRevision"><spring:message code="question.viewrevisions" text="View Revisions"></spring:message></a>
 	</p>
 	</c:if>
+	
+	<c:if test="${selectedQuestionType=='questions_halfhourdiscussion_from_question'}">
+		<p>
+		<a href="#" id="reviseReason" style="margin-left: 162px;margin-right: 20px;"><spring:message code="question.reviseReason" text="Revise Reason"></spring:message></a>
+		<a href="#" id="reviseBriefExplanation" style="margin-right: 20px;"><spring:message code="question.reviseBriefExplanation" text="Revise Brief Explanation"></spring:message></a>
+		<a href="#" id="viewRevision"><spring:message code="question.viewrevisions" text="View Revisions"></spring:message></a>
+		</p>
+	</c:if>
+	
+	<p style="display:none;" class="revise3" id="revisedReasonDiv">
+	<label class="wysiwyglabel"><spring:message code="question.revisedReason" text="Revised Reason"/></label>
+	<form:textarea path="revisedReason" rows="2" cols="50" cssClass="wysiwyg"></form:textarea>
+	<form:errors path="revisedReason" cssClass="validationError" cssStyle="float:right;margin-top:-100px;margin-right:40px;"/>
+	</p>
+	
+	<p style="display:none;" class="revise4" id="revisedBriefExplanationDiv">
+	<label class="wysiwyglabel"><spring:message code="question.revisedBriefExplanation" text="Revised Brief Explanation"/></label>
+	<form:textarea path="revisedBriefExplanation" cssClass="wysiwyg"></form:textarea>
+	<form:errors path="revisedBriefExplanation" cssClass="validationError" cssStyle="float:right;margin-top:-100px;margin-right:40px;"/>
+	</p>
 	
 	<p style="display:none;" class="revise1" id="revisedSubjectDiv">
 	<label class="centerlabel"><spring:message code="question.revisedSubject" text="Revised Subject"/></label>
