@@ -9,8 +9,6 @@
  */
 package org.mkcl.els.controller;
 
-import java.io.IOException;
-import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
@@ -18,11 +16,9 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
-import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.hibernate.mapping.Array;
 import org.mkcl.els.common.util.ApplicationConstants;
 import org.mkcl.els.common.util.FormaterUtil;
 import org.mkcl.els.common.vo.BallotMemberVO;
@@ -537,22 +533,51 @@ public class BallotController extends BaseController{
 			final Locale locale){
 		String retVal = "question/error";
 		try {
-			String houseType = request.getParameter("houseType");
-
+			String strHouseType = request.getParameter("houseType");
+			HouseType houseType =
+				HouseType.findByFieldName(HouseType.class, "type", strHouseType, locale.toString());
+				
+			String strSessionTypeId = request.getParameter("sessionType");
+			SessionType sessionType =
+				SessionType.findById(SessionType.class, Long.valueOf(strSessionTypeId));
+			
+			String strYear = request.getParameter("sessionYear");
+			Integer year = Integer.valueOf(strYear);
+			
 			String strQuestionType = request.getParameter("questionType");
 			DeviceType deviceType = 
 				DeviceType.findById(DeviceType.class, Long.parseLong(strQuestionType));
 
-			if(houseType.equals(ApplicationConstants.UPPER_HOUSE)) {
+			Session session = Session.findSessionByHouseTypeSessionTypeYear(houseType, sessionType, year);
+			
+			String strAnsweringDate = request.getParameter("answeringDate");
+			Date answeringDate = null;
+			if(deviceType.getType().equals(ApplicationConstants.STARRED_QUESTION)) {
+				QuestionDates questionDates = 
+					QuestionDates.findById(QuestionDates.class, Long.parseLong(strAnsweringDate));
+				answeringDate = questionDates.getAnsweringDate();
+			}
+			else if(deviceType.getType().equals(
+					ApplicationConstants.HALF_HOUR_DISCUSSION_QUESTION_FROM_QUESTION)) {
+				CustomParameter dbDateFormat = 
+					CustomParameter.findByName(CustomParameter.class, "DB_DATEFORMAT", "");
+				answeringDate = FormaterUtil.formatStringToDate(strAnsweringDate, dbDateFormat.getValue());
+			}
+				
+			if(houseType.getType().equals(ApplicationConstants.UPPER_HOUSE)) {
 				if(deviceType.getType().equals(
 						ApplicationConstants.HALF_HOUR_DISCUSSION_QUESTION_FROM_QUESTION)) {
-					retVal = this.halfHourPreBallot(request, model, deviceType, locale);
+					retVal = this.halfHourPreBallot(model, session, deviceType, answeringDate, locale.toString());
 				}
 			}
-			else if(houseType.equals(ApplicationConstants.LOWER_HOUSE)) {
+			else if(houseType.getType().equals(ApplicationConstants.LOWER_HOUSE)) {
 				if(deviceType.getType().equals(
 						ApplicationConstants.HALF_HOUR_DISCUSSION_QUESTION_FROM_QUESTION)) {
-					retVal = this.halfHourPreBallot(request, model, deviceType, locale);
+					retVal = this.halfHourPreBallot(model, session, deviceType, answeringDate, locale.toString());
+				}
+				else if(deviceType.getType().equals(
+						ApplicationConstants.STARRED_QUESTION)) {
+					retVal = this.starredPreBallot(model, session, deviceType, answeringDate, locale.toString());
 				}
 			}
 		}
@@ -563,44 +588,26 @@ public class BallotController extends BaseController{
 		return retVal;
 	}
 
-	private String halfHourPreBallot(final HttpServletRequest request,
-			final ModelMap model,
+	private String halfHourPreBallot(final ModelMap model,
+			final Session session,
 			final DeviceType deviceType,
-			final Locale locale) {
-		String strLocale = locale.toString();
-
-		String strHouseType = request.getParameter("houseType");
-		HouseType houseType =
-			HouseType.findByFieldName(HouseType.class, "type", strHouseType, strLocale);
-
-		String strSessionTypeId = request.getParameter("sessionType");
-		SessionType sessionType =
-			SessionType.findById(SessionType.class, Long.valueOf(strSessionTypeId));
-
-		String strYear = request.getParameter("sessionYear");
-		Integer year = Integer.valueOf(strYear);
-
-		Session session = Session.findSessionByHouseTypeSessionTypeYear(houseType, sessionType, year);
-
-		String strAnsweringDate = request.getParameter("answeringDate");
-		Date answeringDate = null;
-		if(deviceType.getType().equals(ApplicationConstants.STARRED_QUESTION)) {
-			QuestionDates questionDates = 
-				QuestionDates.findById(QuestionDates.class, Long.parseLong(strAnsweringDate));
-			answeringDate = questionDates.getAnsweringDate();
-		}
-		else if(deviceType.getType().equals(
-				ApplicationConstants.HALF_HOUR_DISCUSSION_QUESTION_FROM_QUESTION)) {
-			CustomParameter dbDateFormat = 
-				CustomParameter.findByName(CustomParameter.class, "DB_DATEFORMAT", "");
-			answeringDate = FormaterUtil.formatStringToDate(strAnsweringDate, dbDateFormat.getValue());
-		}
-
+			final Date answeringDate,
+			final String locale) {
 		List<BallotVO> ballotVOs = 
-			Ballot.findPreBallotVO(session, deviceType, answeringDate, strLocale);
-
+			Ballot.findPreBallotVO(session, deviceType, answeringDate, locale);
 		model.addAttribute("ballotVOs", ballotVOs);
 		return "ballot/halfhour_ballot";
+	}
+
+	private String starredPreBallot(final ModelMap model,
+			final Session session,
+			final DeviceType deviceType,
+			final Date answeringDate,
+			final String locale) {
+		List<StarredBallotVO> ballotVOs = 
+			Ballot.findStarredPreBallotVOs(session, answeringDate, locale);
+		model.addAttribute("ballotVOs", ballotVOs);
+		return "ballot/starred_preballot";
 	}
 
 	@Transactional
