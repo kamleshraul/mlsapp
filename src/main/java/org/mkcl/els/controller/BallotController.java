@@ -13,8 +13,10 @@ import java.io.IOException;
 import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
@@ -705,6 +707,12 @@ public class BallotController extends BaseController{
 			model.addAttribute("noOfAdmittedQuestions",questions.size());
 			List<MemberBallot> memberBallots=MemberBallot.findByMember(session, questionType, member, locale.toString());
 			model.addAttribute("memberBallots",memberBallots);
+			if(memberBallots!=null){
+				if(!memberBallots.isEmpty()){
+					Boolean autoFilled=memberBallots.get(0).getChoicesAutoFilled();
+					model.addAttribute("autofill",autoFilled);
+				}
+			}
 			int rounds=memberBallots.size();
 			model.addAttribute("totalRounds", rounds);
 			List<MemberBallotChoice> memberBallotChoices=MemberBallotChoice.findByMember(session,questionType, member, locale.toString());
@@ -716,7 +724,8 @@ public class BallotController extends BaseController{
 					if(questionsInEachRound!=null){
 						request.setAttribute("round"+i, Integer.parseInt(questionsInEachRound.getValue()));
 					}else{
-						logger.error("**** Custom Parameter 'STARRED_MEMBERBALLOTCOUNCIL_ROUND'"+i+" not set");
+						model.addAttribute("type","NO_OF_QUESTIONS_IN_EACH_ROUND_NOT_SET");
+						return "ballot/error";
 					}
 				}
 			}else{
@@ -724,112 +733,221 @@ public class BallotController extends BaseController{
 			}
 
 		}else{
-			logger.error("**** Check request parameter 'session,deviceType and member' for null values ****");
+			model.addAttribute("type","MEMBER_BALLOT_CHOICE_GET_REQUEST_PARAMETER_NULL");
+			return "ballot/error";
 		}
 		return "ballot/listmemberballotchoice";
 	}
 
+	@Transactional
 	@RequestMapping(value="/memberballot/choices",method=RequestMethod.POST)
 	public  String updateMemberBallotChoice(final HttpServletRequest request,
 			final HttpServletResponse response,
 			final ModelMap model,final Locale locale){
+		String strAutoFill=request.getParameter("autofill");	
+		String strNoOfAdmittedQuestions=request.getParameter("noOfAdmittedQuestions");
 		String strQuestionType=request.getParameter("questionType");
 		String strSession=request.getParameter("session");
 		String strMember=request.getParameter("member");
 		String strTotalRounds=request.getParameter("totalRounds");
-		String strNoOfAdmittedQuestions=request.getParameter("noOfAdmittedQuestions");
-		int count=1;
-		int noOfAdmittedQuestions=Integer.parseInt(strNoOfAdmittedQuestions);
-		if(strQuestionType!=null&&strSession!=null&&strMember!=null&&strTotalRounds!=null&&strNoOfAdmittedQuestions!=null){
-			Session session=Session.findById(Session.class,Long.parseLong(strSession));
-			DeviceType questionType=DeviceType.findById(DeviceType.class,Long.parseLong(strQuestionType));
-			Member member=Member.findById(Member.class,Long.parseLong(strMember));
-			Boolean status=true;
-			for(int i=1;i<=Integer.parseInt(strTotalRounds);i++){
-				if(count>noOfAdmittedQuestions){
-					break;
-				}
-				if(status){
-					MemberBallot memberBallot=MemberBallot.findByMemberRound(session, questionType, member,i, locale.toString());
-					List<MemberBallotChoice> memberBallotChoices=new ArrayList<MemberBallotChoice>();
-					CustomParameter questionsInEachRound=CustomParameter.findByName(CustomParameter.class,"STARRED_MEMBERBALLOTCOUNCIL_ROUND"+i, "");
-					for(int j=1;j<=Integer.parseInt(questionsInEachRound.getValue());j++){
-						String strChoice=request.getParameter("choice"+count);
-						String strQuestion=request.getParameter("question"+count);
-						String strAnsweringDate=request.getParameter("answeringDate"+count);
-						if(strChoice!=null&&strQuestion!=null&&strAnsweringDate!=null){
-							MemberBallotChoice memberBallotChoice=null;
-							String strMemberChoice=request.getParameter("memberBallotchoiceId"+count);
-							if(strMemberChoice!=null){
-								memberBallotChoice=MemberBallotChoice.findById(MemberBallotChoice.class,Long.parseLong(strMemberChoice));
-							}else{
-								memberBallotChoice=new MemberBallotChoice();
-							}
-							if(!strChoice.isEmpty()){
-								memberBallotChoice.setChoice(Integer.parseInt(strChoice));
-							}
-							if(!strQuestion.equals("-")){
-								Question question=Question.findById(Question.class,Long.parseLong(strQuestion));
-								if(!strAnsweringDate.equals("-")){
-									QuestionDates questionDates=QuestionDates.findById(QuestionDates.class,Long.parseLong(strAnsweringDate));
-									memberBallotChoice.setNewAnsweringDate(questionDates);
-									question.setAnsweringDate(questionDates);
-								}
-								memberBallotChoice.setQuestion(question);
-								question.simpleMerge();
-							}
-							memberBallotChoice.setLocale(locale.toString());
-							memberBallotChoice.setClubbingUpdated(false);
-							memberBallotChoice.setProcessed(false);
-							if(memberBallotChoice.getId()==null){
-								memberBallotChoice.persist();
-							}else{
-								memberBallotChoice.merge();
-							}
-							memberBallotChoices.add(memberBallotChoice);
-						}else{
-							status=false;
-							break;
-						}
-						count++;
-					}
-					if(status){
-						memberBallot.setQuestionChoices(memberBallotChoices);
-						memberBallot.merge();
-					}else{
-						break;
+		Boolean autoFill=null;
+		if(strNoOfAdmittedQuestions!=null
+				&&strQuestionType!=null&&strSession!=null&&strMember!=null
+				&&strTotalRounds!=null){
+			if(strAutoFill!=null){
+				autoFill=Boolean.parseBoolean(strAutoFill);
+				if(!autoFill){
+					Boolean allChoicesFilled=checkAllChoicesFilled(request,strNoOfAdmittedQuestions);
+					if(allChoicesFilled==false){
+						model.addAttribute("type","NO_OF_CHOICES_IS_LESS_THAN_NO_OF_ADMITTED_QUESTIONS");
+						return "ballot/error";
 					}
 				}
-			}
-			List<Question> questions=Question.findAdmittedStarredQuestionsUH(session,questionType,member,locale.toString());
-			model.addAttribute("admittedQuestions",questions);
-			model.addAttribute("noOfAdmittedQuestions",questions.size());
-			List<MemberBallot> memberBallots=MemberBallot.findByMember(session, questionType, member, locale.toString());
-			model.addAttribute("memberBallots",memberBallots);
-			int rounds=memberBallots.size();
-			model.addAttribute("totalRounds", rounds);
-			List<MemberBallotChoice> memberBallotChoices=MemberBallotChoice.findByMember(session,questionType, member, locale.toString());
-			if(memberBallotChoices.isEmpty()){
-				model.addAttribute("flag","new");
-				request.setAttribute("totalRounds", rounds);
-				for(int i=1;i<=rounds;i++){
-					CustomParameter questionsInEachRound=CustomParameter.findByName(CustomParameter.class,"STARRED_MEMBERBALLOTCOUNCIL_ROUND"+i, "");
-					if(questionsInEachRound!=null){
-						request.setAttribute("round"+i, Integer.parseInt(questionsInEachRound.getValue()));
-					}else{
-						logger.error("**** Custom Parameter 'STARRED_MEMBERBALLOTCOUNCIL_ROUND'"+i+" not set");
-					}
-				}
-			}else{
-				model.addAttribute("flag","edit");
 			}
 		}else{
-			logger.error("**** Check request parameter 'session,deviceType,member,totalRounds and noOfAdmittedQuestions' for null values ****");
-			//return "failure";
+			model.addAttribute("type","MEMBER_BALLOT_CHOICE_POST_REQUEST_PARAMETER_NULL");
+			return "ballot/error";
+		}		
+		Session session=Session.findById(Session.class,Long.parseLong(strSession));
+		DeviceType questionType=DeviceType.findById(DeviceType.class,Long.parseLong(strQuestionType));
+		Member member=Member.findById(Member.class,Long.parseLong(strMember));
+		int totalRounds=Integer.parseInt(strTotalRounds);
+		int noOfAdmittedQuestions=Integer.parseInt(strNoOfAdmittedQuestions);
+		/**** No of question choices allowed in each round ****/
+		Map<String,Integer> noofQuestionsInEachRound=new HashMap<String, Integer>();
+		for(int i=1;i<=Integer.parseInt(strTotalRounds);i++){
+			CustomParameter questionsInEachRound=CustomParameter.findByName(CustomParameter.class,"STARRED_MEMBERBALLOTCOUNCIL_ROUND"+i, "");
+			noofQuestionsInEachRound.put("round"+i,Integer.parseInt(questionsInEachRound.getValue()));
+		}			
+		List<Question> questions=Question.findAdmittedStarredQuestionsUH(session,questionType,member,locale.toString());
+		if(autoFill!=null){
+			/**** Auto Fill Choices****/
+			if(autoFill){
+				String flag=request.getParameter("flag");
+				autoFillChoices(questions,noofQuestionsInEachRound,totalRounds,noOfAdmittedQuestions,session,questionType,member,locale.toString(),flag);
+				model.addAttribute("autofill",true);
+			}
+		}else{
+			/**** Member Has Specified Choices ****/
+			fillChoices(noofQuestionsInEachRound,totalRounds,noOfAdmittedQuestions,session,questionType,member,locale.toString(),request);
 		}
+		/**** Question Choices ****/
+		model.addAttribute("admittedQuestions",questions);
+		model.addAttribute("noOfAdmittedQuestions",questions.size());
+		List<MemberBallot> memberBallots=MemberBallot.findByMember(session, questionType, member, locale.toString());
+		model.addAttribute("memberBallots",memberBallots);
+		int rounds=memberBallots.size();
+		model.addAttribute("totalRounds", rounds);
+		List<MemberBallotChoice> memberBallotChoices=MemberBallotChoice.findByMember(session,questionType, member, locale.toString());
+		if(memberBallotChoices.isEmpty()){
+			model.addAttribute("flag","new");
+			request.setAttribute("totalRounds", rounds);
+			for(int i=1;i<=rounds;i++){
+				CustomParameter questionsInEachRound=CustomParameter.findByName(CustomParameter.class,"STARRED_MEMBERBALLOTCOUNCIL_ROUND"+i, "");
+				if(questionsInEachRound!=null){
+					request.setAttribute("round"+i, Integer.parseInt(questionsInEachRound.getValue()));
+				}else{
+					model.addAttribute("type","NO_OF_QUESTIONS_IN_EACH_ROUND_NOT_SET");
+					return "ballot/error";
+				}
+			}
+		}else{
+			model.addAttribute("flag","edit");
+		}
+		model.addAttribute("type","SUCCESS");
 		return "ballot/listmemberballotchoice";
+	}
+
+	private Boolean checkAllChoicesFilled(HttpServletRequest request, String strNoOfAdmittedQuestions) {
+		int noOfChoicesFilled=1;
+		int nofAdmittedQuestions=Integer.parseInt(strNoOfAdmittedQuestions);
+		for(int i=0;i<nofAdmittedQuestions;i++){
+			String question=request.getParameter("question"+i);
+			if(question!=null){
+				if((!question.isEmpty())&&(!question.equals("-"))){
+					noOfChoicesFilled++;
+				}
+			}
+		}
+		if(nofAdmittedQuestions==noOfChoicesFilled){
+			return true;
+		}else{
+			return false;
+		}
+	}
+
+	private void fillChoices(Map<String, Integer> noofQuestionsInEachRound,
+			int totalRounds, int noOfAdmittedQuestions, Session session,
+			DeviceType questionType, Member member, String locale,
+			HttpServletRequest request) {
+		int count=1;
+		for(int i=1;i<=totalRounds;i++){
+			if(count>noOfAdmittedQuestions){
+				break;
+			}
+			MemberBallot memberBallot=MemberBallot.findByMemberRound(session, questionType, member,i, locale.toString());
+			memberBallot.setChoicesAutoFilled(false);
+			List<MemberBallotChoice> memberBallotChoices=new ArrayList<MemberBallotChoice>();
+			Integer questionsInEachRound=noofQuestionsInEachRound.get("round"+i);
+			for(int j=1;j<=questionsInEachRound;j++){
+				if(count>noOfAdmittedQuestions){					
+					break;
+				}
+				String strChoice=request.getParameter("choice"+count);
+				String strQuestion=request.getParameter("question"+count);
+				String strAnsweringDate=request.getParameter("answeringDate"+count);
+				if(strChoice!=null&&strQuestion!=null&&strAnsweringDate!=null){
+					MemberBallotChoice memberBallotChoice=null;
+					String strMemberChoice=request.getParameter("memberBallotchoiceId"+count);
+					if(strMemberChoice!=null){
+						memberBallotChoice=MemberBallotChoice.findById(MemberBallotChoice.class,Long.parseLong(strMemberChoice));
+					}else{
+						memberBallotChoice=new MemberBallotChoice();
+					}
+					if(!strChoice.isEmpty()){
+						memberBallotChoice.setChoice(Integer.parseInt(strChoice));
+					}
+					if(!strQuestion.equals("-")){
+						Question question=Question.findById(Question.class,Long.parseLong(strQuestion));
+						if(!strAnsweringDate.equals("-")){
+							QuestionDates questionDates=QuestionDates.findById(QuestionDates.class,Long.parseLong(strAnsweringDate));
+							memberBallotChoice.setNewAnsweringDate(questionDates);
+							question.setAnsweringDate(questionDates);
+							question.simpleMerge();
+						}else{
+							memberBallotChoice.setNewAnsweringDate(question.getChartAnsweringDate());
+						}
+						memberBallotChoice.setQuestion(question);
+					}
+					memberBallotChoice.setLocale(locale);
+					memberBallotChoice.setClubbingUpdated(false);
+					memberBallotChoice.setProcessed(false);
+					if(memberBallotChoice.getId()==null){
+						memberBallotChoice.persist();
+					}else{
+						memberBallotChoice.merge();
+					}
+					memberBallotChoices.add(memberBallotChoice);
+				}
+				count++;
+			}
+			memberBallot.setQuestionChoices(memberBallotChoices);
+			memberBallot.merge();
+		}
 
 	}
+
+	private void autoFillChoices(List<Question> questions, Map<String, Integer> noofQuestionsInEachRound, int totalRounds, int noOfAdmittedQuestions, Session session, DeviceType questionType, Member member, String locale, String flag){
+			int count=0;			
+			for(int i=1;i<=totalRounds;i++){
+				/**** if choice has been created for all the admitted questions ****/
+				if(count>=noOfAdmittedQuestions){
+					break;
+				}
+				/**** Getting Member Ballot Entry for a particular round ****/
+				MemberBallot memberBallot=MemberBallot.findByMemberRound(session, questionType, member,i, locale.toString());
+				/**** In case of edit page if auto fill option is selected then first we will remove
+				 * all the existing entries and then again auto fill.
+				 */
+				if(flag.equals("edit")){
+					List<MemberBallotChoice> choices=new ArrayList<MemberBallotChoice>();					
+					for(MemberBallotChoice c:memberBallot.getQuestionChoices()){
+						choices.add(c);
+					}	
+					memberBallot.setQuestionChoices(null);
+					memberBallot.merge();
+					for(MemberBallotChoice c:choices){
+						c.remove();
+					}					
+				}
+				/**** In case of new and edit both auto fill will create entries automatically ****/
+				memberBallot.setChoicesAutoFilled(true);
+				List<MemberBallotChoice> memberBallotChoices=new ArrayList<MemberBallotChoice>();
+				Integer questionsInEachRound=noofQuestionsInEachRound.get("round"+i);
+				/**** Iterating for the no of questions allowed in each round times ****/
+				for(int j=1;j<=questionsInEachRound;j++){
+					/**** if choice has been created for all the admitted questions ****/
+					if(count>=noOfAdmittedQuestions){
+						break;
+					}
+					/**** Creating choice entry from the admitted question ****/
+					MemberBallotChoice memberBallotChoice=new MemberBallotChoice();
+					memberBallotChoice.setLocale(locale.toString());
+					memberBallotChoice.setClubbingUpdated(false);
+					memberBallotChoice.setProcessed(false);
+					Question question=questions.get(count);
+					memberBallotChoice.setChoice(j);
+					memberBallotChoice.setQuestion(question);
+					memberBallotChoice.setNewAnsweringDate(question.getChartAnsweringDate());
+					memberBallotChoice.persist();
+					memberBallotChoices.add(memberBallotChoice);
+					count++;
+				}
+				memberBallot.setQuestionChoices(memberBallotChoices);
+				memberBallot.merge();
+			}
+		}
+	
 
 	@Transactional
 	@RequestMapping(value="/memberballot/updateclubbing",method=RequestMethod.GET)
@@ -891,7 +1009,15 @@ public class BallotController extends BaseController{
 						}
 						DeviceType deviceType=DeviceType.findById(DeviceType.class,Long.parseLong(strDeviceType));
 						Group group=Group.findById(Group.class,Long.parseLong(strGroup));
-						status=MemberBallot.createFinalBallot(session, deviceType,group,ansDate, locale.toString(),firstBatchSubmissionDate);
+						String totalRounds=session.getParameter(ApplicationConstants.QUESTION_STARRED_NO_OF_ROUNDS_BALLOT_UH);
+						if(totalRounds==null){
+							model.addAttribute("type","TOTAL_ROUNDS_IN_BALLOT_UH_NOTSET");
+							return errorpage;	
+						}else if(totalRounds.isEmpty()){
+							model.addAttribute("type","TOTAL_ROUNDS_IN_BALLOT_UH_NOTSET");
+							return errorpage;	
+						}
+						status=MemberBallot.createFinalBallot(session, deviceType,group,ansDate, locale.toString(),firstBatchSubmissionDate,Integer.parseInt(totalRounds));
 						if(status){
 							ballots=MemberBallot.viewFinalBallot(session, deviceType,ansDate, locale.toString());
 							model.addAttribute("ballots",ballots);
