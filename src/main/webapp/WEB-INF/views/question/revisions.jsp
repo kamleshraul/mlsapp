@@ -18,8 +18,14 @@ th{min-width:200px; max-width:400px;min-height:30px;}
 <th><spring:message code="question.decision" text="Decision"></spring:message></th>
 <th><spring:message code="question.remark" text="Remarks"></spring:message></th>
 <th><spring:message code="question.revisedon" text="Revised On"></spring:message></th>
-<th><spring:message code="question.subject" text="Subject"></spring:message></th>
-<th><spring:message code="question.question" text="Question"></spring:message></th>
+<c:if test="${selectedDeviceType!=questions_halfhourdiscussion_from_question}">
+	<th><spring:message code="question.subject" text="Subject"></spring:message></th>
+	<th><spring:message code="question.question" text="Question"></spring:message></th>
+</c:if>
+<c:if test="${selectedDeviceType==questions_halfhourdiscussion_from_question}">
+	<th><spring:message code="question.reason" text="Reason"></spring:message></th>
+	<th><spring:message code="question.briefexplanation" text="Brief Explanantion"></spring:message></th>
+</c:if>
 <th><spring:message code="question.revisedby" text="Revised By"></spring:message></th>
 </tr>
 <c:forEach items="${drafts}" var="i">
@@ -28,8 +34,14 @@ th{min-width:200px; max-width:400px;min-height:30px;}
 <td>${i.status}</td>
 <td>${i.remarks}</td>
 <td>${i.editedOn}</td>
+<c:if test="${selectedDeviceType!=questions_halfhourdiscussion_from_question}">
 <td>${i.subject}</td>
 <td>${i.question}</td>
+</c:if>
+<c:if test="${selectedDeviceType==questions_halfhourdiscussion_from_question}">
+<td>${i.reason}</td>
+<td>${i.briefExplanation}</td>
+</c:if>
 <td>${i.editedBY}</td>
 </tr>
 </c:forEach>
