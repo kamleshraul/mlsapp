@@ -371,7 +371,7 @@ public class BallotController extends BaseController{
 					Session session=Session.findById(Session.class,Long.parseLong(strSession));
 					DeviceType questionType=DeviceType.findById(DeviceType.class,Long.parseLong(strQuestionType));
 					Member member=Member.findById(Member.class,Long.parseLong(strMember));
-					MemberBallotMemberWiseReportVO reports=Question.findMemberWiseReportVO(session, questionType, member, locale.toString());
+					MemberBallotMemberWiseReportVO reports=MemberBallot.findMemberWiseReportVO(session, questionType, member, locale.toString());
 					model.addAttribute("report",reports);
 					model.addAttribute("session",session.getId());
 					model.addAttribute("questionType",questionType.getId());
