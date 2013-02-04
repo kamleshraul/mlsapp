@@ -232,6 +232,10 @@ public class ApplicationConstants {
     public static final String DEPARTMENT_KEY="DEPARTMENT";
     
     public static final String SUBDEPARTMENT_KEY="SUBDEPARTMENT";    
+    
+    /**** User Group Types    ****/
+    public static final String MEMBER="member";
+    
     /**** Approving Authority ****/
     public static final String CHAIRMAN="chairman";
     
