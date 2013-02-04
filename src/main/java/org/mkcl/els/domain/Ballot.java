@@ -168,6 +168,35 @@ public class Ballot extends BaseDomain implements Serializable {
 		return questionSequenceVOs;
 	}
 
+	public static List<StarredBallotVO> findStarredPreBallotVOs(final Session session,
+			final Date answeringDate,
+			final String locale) {
+		List<StarredBallotVO> ballotVOs = new ArrayList<StarredBallotVO>();
+		
+		Integer noOfRounds = Ballot.getNoOfRounds();
+		List<BallotEntry> ballotEntries = 
+			Ballot.compute(session, answeringDate, noOfRounds, locale);
+		for(BallotEntry be : ballotEntries) {
+			StarredBallotVO ballotVO = new StarredBallotVO();
+			ballotVO.setMemberId(be.getMember().getId());
+			ballotVO.setMemberName(be.getMember().getFullnameLastNameFirst());
+			
+			List<QuestionSequenceVO> questionSequenceVOs = new ArrayList<QuestionSequenceVO>();
+			List<QuestionSequence> questionSequences = be.getQuestionSequences();
+			for(QuestionSequence qs : questionSequences) {
+				QuestionSequenceVO questionSequenceVO = new QuestionSequenceVO();
+				questionSequenceVO.setQuestionId(qs.getQuestion().getId());
+				questionSequenceVO.setNumber(qs.getQuestion().getNumber());
+				questionSequenceVOs.add(questionSequenceVO);
+			}
+			ballotVO.setQuestionSequenceVOs(questionSequenceVOs);
+			
+			ballotVOs.add(ballotVO);
+		}
+		
+		return ballotVOs;
+	}
+	
 	public static List<BallotVO> findPreBallotVO(final Session session,
 			final DeviceType deviceType,
 			final Date answeringDate,
@@ -360,6 +389,7 @@ public class Ballot extends BaseDomain implements Serializable {
 	
 	
 	//=============== ASSEMBLY: STARRED QUESTION BALLOT ==============
+	
 	/**
 	 * 3 stepped process:
 	 * 1> Compute Ballot entries.
@@ -370,7 +400,6 @@ public class Ballot extends BaseDomain implements Serializable {
 	 * existing Ballot.
 	 */
 	private Ballot createStarredAssemblyBallot() {
-		Group group = Group.find(this.getSession(), this.getAnsweringDate(), this.getLocale());
 		Ballot ballot = Ballot.find(this.getSession(), this.getDeviceType(), 
 				this.getAnsweringDate(), this.getLocale());
 		
@@ -378,12 +407,16 @@ public class Ballot extends BaseDomain implements Serializable {
 			Integer noOfRounds = Ballot.getNoOfRounds();
 			
 			List<BallotEntry> computedList = Ballot.compute(this.getSession(),
-					group, this.getAnsweringDate(), noOfRounds, this.getLocale());
+					this.getAnsweringDate(), noOfRounds, this.getLocale());
 			List<BallotEntry> randomizedList = Ballot.randomize(computedList);
 			List<BallotEntry> sequencedList = Ballot.addSequenceNumbers(randomizedList, noOfRounds);
 
 			this.setBallotEntries(sequencedList);
 			ballot = (Ballot) this.persist();
+			
+			Status BALLOTED = 
+				Status.findByType(ApplicationConstants.QUESTION_PROCESSED_BALLOTED, this.getLocale());
+			Ballot.getRepository().updateBallotQuestions(ballot, BALLOTED);
 		}
 		
 		return ballot;
@@ -400,21 +433,24 @@ public class Ballot extends BaseDomain implements Serializable {
 	 * appear in the Ballot.
 	 */
 	private static List<BallotEntry> compute(final Session session,
-			final Group group,
 			final Date answeringDate,
 			final Integer noOfRounds,
 			final String locale) {
 		List<BallotEntry> entries = new ArrayList<BallotEntry>();
 
-		List<Date> groupAnsweringDates = group.getAnsweringDates(ApplicationConstants.ASC);
-		List<Date> previousAnsweringDates =
-			Ballot.getPreviousDates(groupAnsweringDates, answeringDate);
-
 		DeviceType deviceType = DeviceType.findByType(ApplicationConstants.STARRED_QUESTION, locale);
-		List<Member> members = Chart.findMembers(session, group, answeringDate, locale);
-		for(Member m : members) {
+		Group group = Group.find(session, answeringDate, locale);
+		
+		Status internalStatus = 
+			Status.findByType(ApplicationConstants.QUESTION_FINAL_ADMISSION, locale);
+		Status ballotStatus =
+			Status.findByType(ApplicationConstants.QUESTION_PROCESSED_BALLOTED, locale);
+		
+		List<Member> eligibleMembers = Ballot.getRepository().findMembersEligibleForBallot(session, 
+				deviceType, group, answeringDate, internalStatus, ballotStatus, locale);
+		for(Member m : eligibleMembers) {
 			BallotEntry ballotEntry = Ballot.compute(m, session, deviceType, group,
-					answeringDate, previousAnsweringDates, noOfRounds, locale);
+					answeringDate, internalStatus, ballotStatus, noOfRounds, locale);
 
 			if(ballotEntry != null) {
 				entries.add(ballotEntry);
@@ -437,6 +473,16 @@ public class Ballot extends BaseDomain implements Serializable {
 	 * 4> Choose as many as @param noOfRounds Questions from Step 3 list. These are the
 	 * Questions to be taken on the current ballot.
 	 *
+	 *
+	 * Eligibility Algorithm:
+	 * A Question is eligible for ballot only if its internalStatus = "ADMITTED",
+	 * ballotStatus != "BALLOTED" and it has no parent Question. If a Question has a 
+	 * parent, then it's parent may be considered for the Ballot. The kid will never be 
+	 * considered for the Ballot.
+	 *
+	 *
+	 * Returns a subset of @param questions sorted by priority. If there are no
+	 * questions eligible for the ballot, returns an empty list.
 	 * Returns null if at the end of Step 4 the @param member do not have any Questions
 	 * in the list.
 	 */
@@ -444,27 +490,22 @@ public class Ballot extends BaseDomain implements Serializable {
 			final Session session,
 			final DeviceType deviceType,
 			final Group group,
-			final Date currentAnsweringDate,
-			final List<Date> previousAnsweringDates,
+			final Date answeringDate,
+			final Status internalStatus,
+			final Status ballotStatus,
 			final Integer noOfRounds,
 			final String locale) {
 		BallotEntry ballotEntry = null;
-
-		List<Question> questionsQueue = Ballot.createQuestionQueue(member, session, group,
-				currentAnsweringDate, previousAnsweringDates, noOfRounds, locale);
-
-		List<Question> ballotedQList = Ballot.ballotedQuestions(member, session, deviceType,
-				previousAnsweringDates, locale);
-
-		List<Question> eligibleQList = Ballot.listDifference(questionsQueue, ballotedQList);
-		if(! eligibleQList.isEmpty()) {
-			List<Question> selectedQList = Ballot.selectForBallot(eligibleQList, noOfRounds);
-
-			List<QuestionSequence> questionSequences =
-				Ballot.createQuestionSequences(selectedQList, locale);
-
+		
+		List<Question> eligibleQuestions = 
+			Ballot.getRepository().findQuestionsEligibleForBallot(member, session, deviceType, 
+					group, answeringDate, internalStatus, ballotStatus, noOfRounds, locale);
+		if(! eligibleQuestions.isEmpty()) {
+			List<QuestionSequence> questionSequences = 
+				Ballot.createQuestionSequences(eligibleQuestions, locale);
 			ballotEntry = new BallotEntry(member, questionSequences, locale);
 		}
+		
 		return ballotEntry;
 	}
 
@@ -500,85 +541,7 @@ public class Ballot extends BaseDomain implements Serializable {
 		}
 		return newBallotEntryList;
 	}
-	
-	/**
-	 * Returns a subset of @param dates where each date in @param dates is
-	 * less than @param date. Returns an empty list if no such dates
-	 * could be found
-	 */
-	private static List<Date> getPreviousDates(final List<Date> dates, final Date date) {
-		List<Date> dateList = new ArrayList<Date>();
-		for(Date d : dates) {
-			if(d.compareTo(date) < 0) {
-				dateList.add(d);
-			}
-		}
-		return dateList;
-	}
-	
-	/**
-	 * Creates the question queue.
-	 */
-	private static List<Question> createQuestionQueue(final Member member,
-			final Session session,
-			final Group group,
-			final Date currentAnsweringDate,
-			final List<Date> previousAnsweringDates,
-			final Integer noOfRounds,
-			final String locale) {
-		List<Question> questionQueue = new ArrayList<Question>();
 
-		List<Date> dates = new ArrayList<Date>();
-		dates.addAll(previousAnsweringDates);
-		dates.add(currentAnsweringDate);
-		for(Date d : dates) {
-			List<Question> qList = Chart.findQuestions(member, session, group, d, locale);
-			List<Question> eligibleQList = Ballot.eligibleForBallot(qList, locale);
-			questionQueue.addAll(eligibleQList);
-		}
-
-		return questionQueue;
-	}
-	
-	/**
-	 * Balloted questions.
-	 */
-	private static List<Question> ballotedQuestions(final Member member,
-			final Session session,
-			final DeviceType deviceType,
-			final List<Date> answeringDates,
-			final String locale) {
-		List<Question> ballotedQList = new ArrayList<Question>();
-		for(Date d : answeringDates) {
-			List<Question> qList = Ballot.findBallotedQuestions(member, session, deviceType,
-					d, locale);
-			ballotedQList.addAll(qList);
-		}
-		return ballotedQList;
-	}
-	
-	/**
-	 * List difference.
-	 */
-	private static List<Question> listDifference(final List<Question> list1,
-			final List<Question> list2) {
-		List<Question> questions = new ArrayList<Question>();
-		for(Question q1 : list1) {
-			int list2Size = list2.size();
-			int iterations = 0;
-			for(Question q2 : list2) {
-				if(q1.getId().equals(q2.getId())) {
-					break;
-				}
-				++iterations;
-			}
-			if(iterations == list2Size) {
-				questions.add(q1);
-			}
-		}
-		return questions;
-	}
-	
 	/**
 	 * Creates the question sequences.
 	 */
@@ -590,46 +553,6 @@ public class Ballot extends BaseDomain implements Serializable {
 			questionSequences.add(qs);
 		}
 		return questionSequences;
-	}
-	
-	/**
-	 * A Question is eligible for ballot only if its internal status = "ADMITTED" and
-	 * it has no parent Question. If a Question has a parent, then it's parent
-	 * may be considered for the Ballot. The kid will never be considered for the
-	 * Ballot.
-	 *
-	 * Returns a subset of @param questions sorted by priority. If there are no
-	 * questions eligible for the ballot, returns an empty list.
-	 */
-	// TODO: [FATAL] internalStatus will be set till ADMITTED only. Further processing
-	// if any will be stored in recommendation_status.
-	// As it is the following logic will fail because further processed 
-	// questions will also be seen.
-	// Modify the code to consider only admitted questions which are not
-	// balloted.
-	private static List<Question> eligibleForBallot(final List<Question> questions,
-			final String locale) {
-		String ADMITTED = ApplicationConstants.QUESTION_FINAL_ADMISSION;
-		List<Question> eligibleQList = new ArrayList<Question>();
-		for(Question q : questions) {
-			if(q.getInternalStatus().getType().equals(ADMITTED) && q.getParent() == null) {
-				eligibleQList.add(q);
-			}
-		}
-		return Question.sortByPriority(eligibleQList, ApplicationConstants.ASC);
-	}
-
-	/**
-	 * A subset of eligible Questions of size @param noOfRounds are taken in Ballot.
-	 */
-	private static List<Question> selectForBallot(final List<Question> questions,
-			final Integer noOfRounds) {
-		List<Question> selectedQList = new ArrayList<Question>();
-		selectedQList.addAll(questions);
-		if(selectedQList.size() >= noOfRounds) {
-			selectedQList = selectedQList.subList(0, noOfRounds);
-		}
-		return selectedQList;
 	}
 	
 	
