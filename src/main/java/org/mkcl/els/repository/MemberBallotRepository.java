@@ -15,6 +15,10 @@ import org.mkcl.els.common.util.ApplicationConstants;
 import org.mkcl.els.common.util.FormaterUtil;
 import org.mkcl.els.common.vo.MemberBallotFinalBallotQuestionVO;
 import org.mkcl.els.common.vo.MemberBallotFinalBallotVO;
+import org.mkcl.els.common.vo.MemberBallotMemberWiseCountVO;
+import org.mkcl.els.common.vo.MemberBallotMemberWiseQuestionVO;
+import org.mkcl.els.common.vo.MemberBallotMemberWiseReportVO;
+import org.mkcl.els.common.vo.MemberBallotQuestionDistributionVO;
 import org.mkcl.els.common.vo.MemberBallotQuestionVO;
 import org.mkcl.els.common.vo.MemberBallotVO;
 import org.mkcl.els.domain.CustomParameter;
@@ -492,17 +496,14 @@ public class MemberBallotRepository extends BaseRepository<MemberBallot, Seriali
 					String questionQuery="SELECT q.id as questionid,q.number as questionnumber"+
 					",qs.sequence_no as sequenceno"+
 					",mb.round as round,mb.attendance as attendance FROM"+
-					" ballot_entries as be"+
-					" JOIN ballot_entries_question_sequences as beqs"+
-					" JOIN question_sequences as qs"+
+					" question_sequences as qs"+
+					" LEFT JOIN ballot_entries_question_sequences as beqs ON(beqs.question_sequence_id=qs.id)"+
+					" LEFT JOIN ballot_entries as be ON(beqs.ballot_entry_id=be.id)"+
 					" LEFT JOIN memberballot_choice as mc ON(qs.question_id=mc.question)"+
 					" LEFT JOIN memberballot_choice_association as mca ON(mca.memberballot_choice_id=mc.id)"+
 					" LEFT JOIN memberballot as mb ON(mca.memberballot_id=mb.id)"+
-					" JOIN questions as q"+
-					" WHERE beqs.ballot_entry_id=be.id"+
-					" AND beqs.question_sequence_id=qs.id"+
-					" AND mc.question=q.id"+
-					" AND be.id="+i.getBallotEntryId()+
+					" LEFT JOIN questions as q ON(qs.question_id=q.id)"+
+					" WHERE be.id="+i.getBallotEntryId()+
 					" ORDER BY qs.sequence_no";
 					String finalQuestionQuery="SELECT rs.questionid,rs.questionnumber,"+
 											 "rs.sequenceno,rs.round,rs.attendance FROM("+questionQuery+") as rs";
@@ -519,6 +520,11 @@ public class MemberBallotRepository extends BaseRepository<MemberBallot, Seriali
 								question.setQuestionNumber(numberFormat.format(Integer.parseInt(o[1].toString())));
 							}
 						}
+//						if(o[1]!=null){
+//						if(!o[1].toString().isEmpty()){
+//							question.setQuestionNumber(numberFormat.format(Long.parseLong(o[1].toString())));
+//						}
+//						}
 						if(o[2]!=null){
 							if(!o[2].toString().isEmpty()){
 								question.setQuestionPosition(numberFormat.format(Integer.parseInt(o[2].toString())));
@@ -580,6 +586,148 @@ public class MemberBallotRepository extends BaseRepository<MemberBallot, Seriali
 			logger.error("Member Ballot Choice Creation Failed",e);
 			return false;
 		}
+	}
+	
+	@SuppressWarnings({ "rawtypes"})
+	public MemberBallotMemberWiseReportVO findMemberWiseReportVO(
+			Session session, DeviceType questionType, Member member,
+			String locale) {
+		String startDate=session.getParameter(ApplicationConstants.QUESTION_STARRED_FIRSTBATCH_SUBMISSION_STARTTIME_UH);
+		String endDate=session.getParameter(ApplicationConstants.QUESTION_STARRED_FIRSTBATCH_SUBMISSION_ENDTIME_UH);
+		MemberBallotMemberWiseReportVO memberBallotMemberWiseReportVO=new MemberBallotMemberWiseReportVO();
+		if(startDate!=null&&endDate!=null){
+			if((!startDate.isEmpty())&&(!endDate.isEmpty())){
+				/**** Count of questions ****/
+				String countQuery="SELECT COUNT(q.id),s.name FROM questions as q"+
+				  " JOIN devicetypes as dt JOIN status as s WHERE q.session_id="+session.getId()+
+				  " AND q.member_id="+member.getId()+" AND q.locale='"+locale+"'"+
+				  " AND q.submission_date>='"+startDate+"' AND q.submission_date<='"+endDate+"'"+
+				  " AND q.originaldevicetype_id="+questionType.getId()+
+				  " AND q.devicetype_id=dt.id AND q.internalstatus_id=s.id"+
+				  " GROUP BY q.internalstatus_id ORDER BY s.type";
+				List countResults=this.em().createNativeQuery(countQuery).getResultList();
+				List<MemberBallotMemberWiseCountVO> countVOs=new ArrayList<MemberBallotMemberWiseCountVO>();
+				NumberFormat numberFormat=FormaterUtil.getNumberFormatterNoGrouping(locale);
+				for(Object i:countResults){
+					Object[] o=(Object[]) i;
+					MemberBallotMemberWiseCountVO memberBallotMemberWiseCountVO=new MemberBallotMemberWiseCountVO();
+					if(o[0]!=null&&o[1]!=null){
+						if((!o[0].toString().isEmpty())&&(!o[1].toString().isEmpty())){
+							memberBallotMemberWiseCountVO.setCount(numberFormat.format(Integer.parseInt(o[0].toString())));
+							memberBallotMemberWiseCountVO.setStatusType(o[1].toString());
+							countVOs.add(memberBallotMemberWiseCountVO);
+						}					
+					}
+				}
+				memberBallotMemberWiseReportVO.setMemberBallotMemberWiseCountVOs(countVOs);
+				/**** Member Full Name ****/
+				memberBallotMemberWiseReportVO.setMember(member.getFullname());				
+				/**** Questions ****/
+				List<MemberBallotMemberWiseQuestionVO> questionVOs=new ArrayList<MemberBallotMemberWiseQuestionVO>();
+				String questionQuery="SELECT q.number as questionnumber,q.subject as subject,q.rejection_reason as reason,s.name as status,g.number as groupnumber FROM questions as q"+
+				  " JOIN devicetypes as dt JOIN status as s "+
+				  " JOIN groups as g"+
+				  " WHERE q.session_id="+session.getId()+
+				  " AND q.member_id="+member.getId()+" AND q.locale='"+locale+"'"+
+				  " AND q.submission_date>='"+startDate+"' AND q.submission_date<='"+endDate+"'"+
+				  " AND q.originaldevicetype_id="+questionType.getId()+
+				  " AND q.devicetype_id=dt.id AND q.internalstatus_id=s.id"+
+				  " AND q.group_id=g.id"+
+				  " ORDER BY g.number,s.type,q.number";
+				String query="SELECT rs.questionnumber,rs.subject,rs.reason,rs.status,rs.groupnumber FROM ("+questionQuery+") as rs";
+				List questionResults=this.em().createNativeQuery(query).getResultList();
+				int position=1;
+				for(Object i:questionResults){
+					Object[] o=(Object[]) i;
+					MemberBallotMemberWiseQuestionVO questionVO=new MemberBallotMemberWiseQuestionVO();
+					questionVO.setSno(numberFormat.format(position));
+					if(o[0]!=null){
+						if(!o[0].toString().isEmpty()){
+							questionVO.setQuestionNumber(numberFormat.format(Integer.parseInt(o[0].toString())));							
+						}
+					}
+					if(o[1]!=null){
+						questionVO.setQuestionSubject(o[1].toString());
+					}
+					if(o[2]!=null){
+						questionVO.setQuestionReason(o[2].toString());
+					}
+					if(o[3]!=null){
+						questionVO.setStatusType(o[3].toString());
+					}
+					if(o[4]!=null){
+						questionVO.setGroupNumber(o[4].toString());
+						if(!o[4].toString().isEmpty()){
+							questionVO.setGroupFormattedNumber(numberFormat.format(Integer.parseInt(o[4].toString())));
+						}
+					}
+					questionVOs.add(questionVO);
+					position++;
+				}
+				memberBallotMemberWiseReportVO.setMemberBallotMemberWiseQuestionVOs(questionVOs);
+			}
+		}		
+		return memberBallotMemberWiseReportVO;
+	}
+
+	@SuppressWarnings("rawtypes")
+	public List<MemberBallotQuestionDistributionVO> viewQuestionDistribution(
+			Session session, DeviceType questionType, String locale) {
+		List<MemberBallotQuestionDistributionVO> distributions=new ArrayList<MemberBallotQuestionDistributionVO>();
+		String startDate=session.getParameter(ApplicationConstants.QUESTION_STARRED_FIRSTBATCH_SUBMISSION_STARTTIME_UH);
+		String endDate=session.getParameter(ApplicationConstants.QUESTION_STARRED_FIRSTBATCH_SUBMISSION_ENDTIME_UH);
+		if(startDate!=null&&endDate!=null){
+			if((!startDate.isEmpty())&&(!endDate.isEmpty())){
+				String query=" SELECT distinct(m.id),concat(t.name,' ',m.first_name,' ',m.middle_name,' ',m.last_name) FROM questions as q"+
+				 " JOIN members as m"+
+				 " WHERE q.member_id=m.id AND q.session_id="+session.getId()+
+				 " AND q.devicetype_id="+questionType.getId()+" AND q.locale='"+locale+"'"+
+				 " AND q.submission_date>='"+startDate+"' AND q.submission_date<='"+endDate+"'"+
+				 " ORDER BY q.submission_date";
+				List members=this.em().createNativeQuery(query).getResultList();
+				int count=1;
+				NumberFormat numberFormat=FormaterUtil.getNumberFormatterNoGrouping(locale);
+				for(Object i:members){
+					Object[] o=(Object[]) i;
+					MemberBallotQuestionDistributionVO distribution=new MemberBallotQuestionDistributionVO();
+					if(o[0]!=null){
+						if(!o[0].toString().isEmpty()){
+							distribution.setMemberId(o[0].toString());
+						}
+					}
+					if(o[1]!=null){
+						distribution.setMember(o[1].toString());
+					}
+					distribution.setsNo(numberFormat.format(count));
+					count++;
+					distributions.add(distribution);
+				}
+				for(MemberBallotQuestionDistributionVO i:distributions){
+					String countQuery="SELECT COUNT(q.id),s.name FROM questions as q"+
+					  " JOIN devicetypes as dt JOIN status as s WHERE q.session_id="+session.getId()+
+					  " AND q.member_id="+i.getMemberId()+" AND q.locale='"+locale+"'"+
+					  " AND q.submission_date>='"+startDate+"' AND q.submission_date<='"+endDate+"'"+
+					  " AND q.originaldevicetype_id="+questionType.getId()+
+					  " AND q.devicetype_id=dt.id AND q.internalstatus_id=s.id"+
+					  " GROUP BY q.internalstatus_id ORDER BY s.type";
+					List countResults=this.em().createNativeQuery(countQuery).getResultList();
+					List<MemberBallotMemberWiseCountVO> countVOs=new ArrayList<MemberBallotMemberWiseCountVO>();
+					for(Object j:countResults){
+						Object[] o=(Object[]) j;
+						MemberBallotMemberWiseCountVO memberBallotMemberWiseCountVO=new MemberBallotMemberWiseCountVO();
+						if(o[0]!=null&&o[1]!=null){
+							if((!o[0].toString().isEmpty())&&(!o[1].toString().isEmpty())){
+								memberBallotMemberWiseCountVO.setCount(numberFormat.format(Integer.parseInt(o[0].toString())));
+								memberBallotMemberWiseCountVO.setStatusType(o[1].toString());
+								countVOs.add(memberBallotMemberWiseCountVO);
+							}					
+						}
+					}
+					i.setDistributions(countVOs);	
+				}
+			}
+		}		
+		return distributions;
 	}
 
 
