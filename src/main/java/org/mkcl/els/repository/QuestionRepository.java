@@ -14,7 +14,6 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-import java.util.Map;
 
 import javax.persistence.TypedQuery;
 
@@ -24,24 +23,17 @@ import org.mkcl.els.common.vo.MemberBallotMemberWiseCountVO;
 import org.mkcl.els.common.vo.MemberBallotMemberWiseQuestionVO;
 import org.mkcl.els.common.vo.MemberBallotMemberWiseReportVO;
 import org.mkcl.els.common.vo.QuestionRevisionVO;
-import org.mkcl.els.common.vo.QuestionSearchVO;
 import org.mkcl.els.domain.ClubbedEntity;
 import org.mkcl.els.domain.CustomParameter;
-import org.mkcl.els.domain.Department;
 import org.mkcl.els.domain.DeviceType;
 import org.mkcl.els.domain.Group;
 import org.mkcl.els.domain.House;
 import org.mkcl.els.domain.HouseType;
 import org.mkcl.els.domain.Member;
-import org.mkcl.els.domain.MemberBallotAttendance;
 import org.mkcl.els.domain.MemberRole;
-import org.mkcl.els.domain.MessageResource;
-import org.mkcl.els.domain.Ministry;
 import org.mkcl.els.domain.Question;
-import org.mkcl.els.domain.ReferencedEntity;
 import org.mkcl.els.domain.Session;
 import org.mkcl.els.domain.Status;
-import org.mkcl.els.domain.SubDepartment;
 import org.mkcl.els.domain.UserGroupType;
 import org.springframework.stereotype.Repository;
 
@@ -1253,7 +1245,7 @@ public class QuestionRepository extends BaseRepository<Question, Long>{
 		query.append(this.getStatusFilters(internalStatuses));
 		query.append(" )");
 
-		query.append(" ORDER BY m.lastName " + sortOrder);
+		query.append(" ORDER BY m.lastName " + sortOrder + ", m.firstName " + sortOrder);
 
 		TypedQuery<Member> tQuery = this.em().createQuery(query.toString(), Member.class);
 		List<Member> members = tQuery.getResultList();
@@ -1317,7 +1309,7 @@ public class QuestionRepository extends BaseRepository<Question, Long>{
 		query.append(this.getStatusFilters(internalStatuses));
 		query.append(" )");
 
-		query.append(" ORDER BY m.lastName " + sortOrder);
+		query.append(" ORDER BY m.lastName " + sortOrder + ", m.firstName " + sortOrder);
 
 		TypedQuery<Member> tQuery = this.em().createQuery(query.toString(), Member.class);
 		List<Member> members = tQuery.getResultList();
