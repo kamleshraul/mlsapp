@@ -232,8 +232,14 @@
 		$("#sendforapproval").click(function(e){
 			//no need to send for approval in case of empty supporting members.
 			if($("#selectedSupportingMembers").val()==""){
-				$.prompt($("#supportingMembersEmptyMsg").val());
-				scrollTop();				
+				$.prompt($('#supportingMembersEmptyMsg').val(),{
+					buttons: {Ok:true}, callback: function(v){
+				   		if(v){
+				   			scrollTop();
+				   			$('#selectedSupportingMembers').focus();
+				   		}     						
+					}
+				});	
 				return false;
 			}
 
