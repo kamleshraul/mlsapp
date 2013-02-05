@@ -242,6 +242,10 @@ public class ApplicationConstants {
     /**** Approving Authority ****/
     public static final String CHAIRMAN="chairman";
     
+    /**** User Group Types    ****/
+    /**** Member			  ****/
+    public static final String MEMBER="member";
+    
     public static final String SPEAKER="speaker";   
     
     public static final String ASSISTANT="assistant";
