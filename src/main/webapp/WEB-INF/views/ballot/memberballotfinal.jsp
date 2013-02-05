@@ -11,11 +11,11 @@
 	<style type="text/css">
 	.true{
 	border-bottom: 3px solid;
-	font-size: 14px;
+	font-size: 16px;
 	}
 	.false{
 	border-bottom: 8px double;
-	font-size: 14px;
+	font-size: 16px;
 	}
 	.round1{
 	border-bottom-color:green ;
@@ -30,7 +30,10 @@
 	border-bottom-color: black;
 	}
 	.round5{
-	border-bottom-color: #F26522;
+	border-bottom-color: #8B6914;
+	}
+	td,th{
+	font-size: 16px;
 	}
 	</style>
 </head>

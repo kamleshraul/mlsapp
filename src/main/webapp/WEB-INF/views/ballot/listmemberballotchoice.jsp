@@ -66,6 +66,8 @@
 			 $(".answeringDate").attr("disabled","disabled");	
 			 $("#autofill").attr("checked","checked");    
 	    }
+	    /**** making fonts bolder ****/
+	    $("select").css("font-weight","bolder");
 	});
 </script>
 <style type="text/css">
@@ -82,7 +84,7 @@
 	color: black;
 	}
 	.round5{
-	color: #F26522;
+	color:  #8B6914	;
 	}
 	th,td{
 	font-size: 14px;

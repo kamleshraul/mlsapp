@@ -8,6 +8,9 @@
 			/**** attendance ****/		
 			$("#memberwise_report").click(function(){
 				memberwiseReport();
+			});			
+			$("#question_distribution").click(function(){
+				questionDistribution();
 			});
 			$('#attendance').click(function(){
 				attendance();
@@ -46,6 +49,16 @@
 			var parameters = "session="+$("#session").val()
 							 +"&questionType="+$("#questionType").val();
 			var resourceURL = 'ballot/memberballot/memberwise?'+ parameters;
+			$.get(resourceURL,function(data){
+			$("#resultDiv").html(data);
+			$.unblockUI();				
+			},'html');			 
+		}	
+		function questionDistribution(){
+			$.blockUI({ message: '<img src="./resources/images/waitAnimated.gif" />' });
+			var parameters = "session="+$("#session").val()
+							 +"&questionType="+$("#questionType").val();
+			var resourceURL = 'ballot/memberballot/questiondistribution?'+ parameters;
 			$.get(resourceURL,function(data){
 			$("#resultDiv").html(data);
 			$.unblockUI();				
