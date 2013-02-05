@@ -205,6 +205,7 @@ public class QuestionRepository extends BaseRepository<Question, Long>{
 		return questionRevisionVOs;
 	}
 
+
 	/**
 	 * Returns null if there is no result, else returns a List
 	 * of Questions.
@@ -1339,7 +1340,7 @@ public class QuestionRepository extends BaseRepository<Question, Long>{
 		search.addFilterNotEqual("type", deviceType);
 		return this.searchUnique(search);
 	}
-
+	
 	@SuppressWarnings({ "rawtypes"})
 	public MemberBallotMemberWiseReportVO findMemberWiseReportVO(
 			Session session, DeviceType questionType, Member member,
