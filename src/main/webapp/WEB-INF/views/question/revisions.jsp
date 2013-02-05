@@ -5,8 +5,8 @@
 	text="Revisions" /></title>
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
 <style>
-td{min-width:200px; max-width:400px;min-height:30px;}
-th{min-width:200px; max-width:400px;min-height:30px;}
+td{min-width:150px; max-width:350px;min-height:30px;}
+th{min-width:150px; max-width:350px;min-height:30px;}
 </style>
 </head>
 <body>
