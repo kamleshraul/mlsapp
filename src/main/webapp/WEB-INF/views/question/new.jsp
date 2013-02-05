@@ -399,7 +399,7 @@
 				
 				$.get(url, function(data) {
 					if(data.id==0){
-						$.prompt($('#questionReferenceEmptyMsg').val());
+						$.prompt($('#noQuestionMsg').val());
 					}else if(data.id==-1){
 						$.prompt($("#questionNumberIncorrectMsg").val());
 					}else{
@@ -562,12 +562,12 @@
 		</c:choose>
 		</c:forEach>
 		</select>		
-		<form:errors path="ministry" cssClass="validationError"/>
+		<br /><form:errors path="ministry" cssClass="validationError"/>
 				
 		<label class="small"><spring:message code="question.group" text="Group"/>*</label>
 		<input type="text" class="sText" id="formattedGroup" name="formattedGroup"  readonly="readonly" value="${formattedGroup}">		
 		<input type="hidden" id="group" name="group" value="${group }">
-		<form:errors path="group" cssClass="validationError"/>		
+		<br /><form:errors path="group" cssClass="validationError"/>		
 	</p>	
 	<p>
 		<label class="small"><spring:message code="question.department" text="Department"/></label>
@@ -680,6 +680,7 @@
 <input id="subDepartmentSelected" value="${subDepartmentSelected }" type="hidden">
 <input id="answeringDateSelected" value="${ answeringDateSelected}" type="hidden">
 
+<input id="noQuestionMsg" value='<spring:message code="question.notfound" text="Question does not exist."></spring:message>' type="hidden" />
 <input id="supportingMembersCountErrorMsg" value='<spring:message code="client.error.question.limit.supportingmemebers" text="Please provide proper number of supporting members."></spring:message>' type="hidden">
 <input id="primaryMemberEmptyMsg" value='<spring:message code="client.error.question.primaryMemberEmpty" text="Primary Member can not be empty."></spring:message>' type="hidden">
 <input id="subjectEmptyMsg" value='<spring:message code="client.error.question.subjectEmpty" text="Subject can not be empty."></spring:message>' type="hidden">
