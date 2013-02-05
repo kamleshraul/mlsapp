@@ -194,10 +194,22 @@ public class QuestionWorkflowController  extends BaseController{
 	@InitBinder(value = "domain")
 	private void initBinder(final WebDataBinder binder) {
 		/**** Date ****/
-		SimpleDateFormat dateFormat = new SimpleDateFormat();
-		dateFormat.setLenient(true);
-		binder.registerCustomEditor(java.util.Date.class, new CustomDateEditor(
-				dateFormat, true));
+		 CustomParameter parameter = CustomParameter.findByName(
+	                CustomParameter.class, "SERVER_DATEFORMAT", "");
+	        if(this.getUserLocale().equals(new Locale("mr","IN")))
+	        {
+	            SimpleDateFormat dateFormat = new SimpleDateFormat(parameter.getValue(),new Locale("hi","IN"));
+	            dateFormat.setLenient(true);
+	            binder.registerCustomEditor(java.util.Date.class, new CustomDateEditor(
+	                    dateFormat, true));
+	        }
+	        else
+	        {
+	            SimpleDateFormat dateFormat = new SimpleDateFormat(parameter.getValue(),this.getUserLocale());
+	            dateFormat.setLenient(true);
+	            binder.registerCustomEditor(java.util.Date.class, new CustomDateEditor(
+	                    dateFormat, true));
+	        }
 		/**** Member ****/
 		binder.registerCustomEditor(Member.class, new BaseEditor(
 				new Member()));		
