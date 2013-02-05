@@ -7,6 +7,15 @@
 	<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
 	<script type="text/javascript">
 		$(document).ready(function(){	
+			/**** On Page Load ****/
+			var currentDeviceType=$("#currentDeviceType").val();
+			if(currentDeviceType=='questions_starred'){
+				$("#memberballot_tab").show();
+				$("#ballot_tab").hide();
+			}else{
+				$("#memberballot_tab").hide();
+				$("#ballot_tab").show();
+			}		
 			/*Tooltip*/
 			$(".toolTip").hide();					
 			/**** here we are trying to add date mask in grid search when field names ends with date ****/
@@ -45,9 +54,18 @@
 			/**** question type changes then reload grid****/			
 			$("#selectedQuestionType").change(function(){
 				var value=$(this).val();
+				var text=$("#deviceTypeMaster option[value='"+value+"']").text();
+				if(text=='questions_starred'){
+					$("#memberballot_tab").show();
+					$("#ballot_tab").hide();
+				}else{
+					$("#memberballot_tab").hide();
+					$("#ballot_tab").show();
+				}		
 				if(value!=""){				
 				reloadQuestionGrid();
 				}
+				
 			});	
 			/**** status changes then reload grid****/			
 			$("#selectedStatus").change(function(){
@@ -310,22 +328,19 @@
 				'QIS_SECRETARY', 'QIS_OFFICER_ON_SPECIAL_DUTY', 'QIS_DEPUTY_SPEAKER', 'QIS_CHAIRMAN',
 				'QIS_DEPUTY_CHAIRMAN', 'QIS_SECTION_OFFICER', 'QIS_UNDER_SECRETARY_COMMITTEE',
 				'SUPER_ADMIN')">
-			<c:choose>
-				<c:when test="${questionTypeType == 'questions_starred' && houseType=='upperhouse'}">
+					<c:if test="${houseType=='upperhouse'}">
 					<li>
 					<a id="memberballot_tab" href="#" class="tab">
 				   		<spring:message code="question.memberballot" text="Ballot"></spring:message>
 					</a>
-					</li>
-				</c:when>
-				<c:otherwise>
+					</li>			
+					</c:if>
+				
 					<li>
 					<a id="ballot_tab" href="#" class="tab">
 				   		<spring:message code="question.ballot" text="Ballot"></spring:message>
 					</a>
 					</li>
-				</c:otherwise>
-			</c:choose>
 			</security:authorize>
 		</ul>
 		
@@ -389,7 +404,13 @@
 			</c:otherwise>
 			</c:choose>
 			</c:forEach>
-			</select> |			
+			</select> 
+			<select id="deviceTypeMaster" style="display:none;">
+			<c:forEach items="${questionTypes }" var="i">
+			<option value="${i.id }">${i.type }</option>
+			</c:forEach>
+			
+			</select>|			
 			<security:authorize access="hasAnyRole('QIS_ASSISTANT','QIS_UNDER_SECRETARY',
 			'QIS_DEPUTY_SECRETARY','QIS_PRINCIPAL_SECRETARY','QIS_SPEAKER','QIS_JOINT_SECRETARY',
 			'QIS_SECRETARY','QIS_OFFICER_ON_SPECIAL_DUTY','QIS_DEPUTY_SPEAKER','QIS_CHAIRMAN','QIS_DEPUTY_CHAIRMAN',
@@ -437,7 +458,8 @@
 		<input type="hidden" name="ugparam" id="ugparam" value="${ugparam }">
 		<input type="hidden" name="srole" id="srole" value="${role }">		
 		<input type="hidden" name="currentusergroup" id="currentusergroup" value="${usergroup}">		
-		<input type="hidden" name="currentusergroupType" id="currentusergroupType" value="${usergroupType}">		
+		<input type="hidden" name="currentusergroupType" id="currentusergroupType" value="${usergroupType}">
+		<input type="hidden" name="currentDeviceType" id="currentDeviceType" value="${questionTypeType}">		
 		
 		<input type="hidden" name="pleaseSelect" id="pleaseSelect" value="<spring:message code='please.select' text='Please Select'/>">	
 		<input type="hidden" id="ballotSuccessMsg" value="<spring:message code='ballot.success' text='Member Ballot Created Succesfully'/>">			
