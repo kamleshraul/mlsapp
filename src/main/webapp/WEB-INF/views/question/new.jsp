@@ -519,7 +519,7 @@
 	<c:if test="${selectedQuestionType=='questions_shortnotice' or selectedQuestionType=='questions_halfhourdiscussion_from_question'}">
 	<p>
 		<c:choose>
-			<c:when test="${selectedQuestionType=='questions_shortnotice}">
+			<c:when test="${selectedQuestionType=='questions_shortnotice'}">
 				<label class="wysiwyglabel"><spring:message code="question.shortnoticeReason" text="Reason"/>*</label>
 			</c:when>
 			<c:otherwise>
