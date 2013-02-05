@@ -692,7 +692,7 @@
 				<label class="wysiwyglabel"><spring:message code="question.halfhourReason" text="Points to be discussed"/>*</label>
 			</c:otherwise>
 		</c:choose>
-		<form:textarea path="reason" cssClass="wysiwyg"></form:textarea>
+		<form:textarea path="reason" cssClass="wysiwyg" readonly="true"></form:textarea>
 		<form:errors path="reason" cssClass="validationError" cssStyle="float:right;margin-top:-100px;margin-right:40px;"/>
 	</p>
 	</c:if>	
