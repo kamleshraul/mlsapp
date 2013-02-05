@@ -26,6 +26,7 @@ import org.mkcl.els.common.vo.BallotVO;
 import org.mkcl.els.common.vo.MasterVO;
 import org.mkcl.els.common.vo.MemberBallotFinalBallotVO;
 import org.mkcl.els.common.vo.MemberBallotMemberWiseReportVO;
+import org.mkcl.els.common.vo.MemberBallotQuestionDistributionVO;
 import org.mkcl.els.common.vo.MemberBallotVO;
 import org.mkcl.els.common.vo.Reference;
 import org.mkcl.els.common.vo.StarredBallotVO;
@@ -357,6 +358,38 @@ public class BallotController extends BaseController{
 			return errorpage;
 		}
 		return "ballot/memberballotmemberwise";
+	}
+	
+	@RequestMapping(value="/memberballot/questiondistribution",method=RequestMethod.GET)
+	public String viewQuestionDistributionReport(final HttpServletRequest request,final ModelMap model,final Locale locale){
+		String errorpage="ballot/error";
+		try{
+			String strQuestionType=request.getParameter("questionType");
+			String strSession=request.getParameter("session");
+			if(strSession!=null&&strQuestionType!=null){
+				if((!strSession.isEmpty())&&(!strQuestionType.isEmpty())){
+					Session session=Session.findById(Session.class,Long.parseLong(strSession));
+					DeviceType questionType=DeviceType.findById(DeviceType.class,Long.parseLong(strQuestionType));
+					List<MemberBallotQuestionDistributionVO> questionDistributions=MemberBallot.viewQuestionDistribution(session,questionType,locale.toString());
+					model.addAttribute("questionDistributions",questionDistributions);
+					model.addAttribute("session",session.getId());
+					model.addAttribute("questionType",questionType.getId());
+				}else{
+					logger.error("**** Check request parameter 'session,questionType' for empty values ****");
+					model.addAttribute("type", "MEMBERBALLOTCHOICE_REQUEST_PARAMETER_EMPTY");
+					return errorpage;
+				}
+			}else{
+				logger.error("**** Check request parameter 'session,questionType' for null values ****");
+				model.addAttribute("type", "MEMBERBALLOTCHOICE_REQUEST_PARAMETER_NULL");
+				return errorpage;
+			}						
+		}catch(Exception ex){
+			logger.error("failed",ex);
+			model.addAttribute("type","DB_EXCEPTION");
+			return errorpage;
+		}
+		return "ballot/memberballotquestiondistribution";
 	}
 
 	@RequestMapping(value="/memberballot/member/questions",method=RequestMethod.GET)
