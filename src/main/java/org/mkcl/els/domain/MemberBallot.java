@@ -26,6 +26,8 @@ import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
 
 import org.mkcl.els.common.vo.MemberBallotFinalBallotVO;
+import org.mkcl.els.common.vo.MemberBallotMemberWiseReportVO;
+import org.mkcl.els.common.vo.MemberBallotQuestionDistributionVO;
 import org.mkcl.els.common.vo.MemberBallotVO;
 import org.mkcl.els.repository.MemberBallotRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -417,5 +419,20 @@ public class MemberBallot extends BaseDomain implements Serializable {
 
 	public Boolean getChoicesAutoFilled() {
 		return choicesAutoFilled;
+	}
+	
+	public static MemberBallotMemberWiseReportVO findMemberWiseReportVO(
+			final Session session,final DeviceType questionType,final Member member,
+			final String locale){
+		return getMemberBallotRepository().findMemberWiseReportVO(
+				session,questionType,member,
+				locale);		
+	}
+
+
+	public static List<MemberBallotQuestionDistributionVO> viewQuestionDistribution(
+			final Session session,final DeviceType questionType,final String locale) {
+		return getMemberBallotRepository().viewQuestionDistribution(
+				session,questionType,locale);
 	}
 }
