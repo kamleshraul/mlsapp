@@ -9,6 +9,8 @@
 	var previousSearchTerm="";
 	var previousSearchCount=record;
 		$(document).ready(function() {
+			/**** Remove hr from embeddd table ****/
+			$("#searchTable td > table hr:last").remove();
 			/**** Reset Filters ****/
 			$("#reset").click(function(){
 				var text="<option value='-'>"+$("#pleaseSelect").val()+"</option>";		
@@ -561,6 +563,10 @@
 	</script>
 
 <style type="text/css">
+#searchTable td > table{
+width:400px;
+height:400px;
+}
 #searchTable{
   border: 0px solid black;
   border-spacing: 0px;
@@ -817,7 +823,7 @@ color:blue;
 
 
 <div id="searchBoxDiv">
-<table cellpadding="0px" cellspacing="0px"> 
+<table style="padding: 0px; margin: 0px;"> 
 <tr> 
 <td style="border-style:solid none solid solid;border-color:#4B7B9F;border-width:2px;">
 <input type="text" name="zoom_query" id="searchvalue" style="width:660px; border:0px solid; height:17px; padding:0px 3px; position:relative;"> 
@@ -844,8 +850,8 @@ color:blue;
 <div id="clubbingResult" style="margin: 10px;">
 </div>
 
-<div id="searchresult" style="display:none;">
-<table  id="searchTable">
+<div id="searchresult" style="display:none; width: 910px; border: 2px solid; margin: 5px;">
+<table  id="searchTable" style="width: 100%;">
 <thead>
 <tr>
 <th class="expand"><spring:message code="clubbing.number" text="Question Number"></spring:message></th>
