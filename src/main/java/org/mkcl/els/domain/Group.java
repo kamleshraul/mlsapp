@@ -264,23 +264,52 @@ public class Group extends BaseDomain implements Serializable {
             final Integer sessionYear, final SessionType sessionType, final String locale) {
         return getGroupRepository().find(ministry,houseType,
                 sessionYear,sessionType,locale);
-    }
-
-    public String formatNumber(){
-        NumberFormat format=FormaterUtil.getNumberFormatterNoGrouping(this.getLocale());
-        return format.format(this.getNumber());
-    }
+    }   
 
     public static List<MasterVO> findQuestionDateByGroup(final HouseType houseType,final SessionType sessionType,
             final Integer sessionYear,final int groupNumber,final String locale) {
         return getGroupRepository().findQuestionDateByGroup(houseType,sessionType,
                sessionYear,groupNumber,locale);
-    }
+    }   
 
 	public static List<Ministry> findMinistriesByName(final Long groupid) {
 		return getGroupRepository().findMinistriesByName(groupid);
 	}
 	
+	public static List<Ministry> findMinistriesByPriority(final Long groupid) {
+		return getGroupRepository().findMinistriesByPriority(groupid);
+	}	
+	
+	public static List<Ministry> findMinistriesByPriority(final Group group) {
+		return getGroupRepository().findMinistriesByPriority(group);
+	}
+	
+	/**** Used In Jsp of Member Ballot Member Wise Report ****/
+	public  List<Ministry> findMinistriesByPriority() {
+		if(getId()!=null){
+		return getGroupRepository().findMinistriesByPriority(getId());
+		}else{
+			return new ArrayList<Ministry>();
+		}
+	}
+	/**** Used In Jsp of Member Ballot Member Wise Report ****/
+	 public  List<MasterVO> findQuestionDateByGroup() {
+	    	if(getHouseType()!=null&&getSessionType()!=null&&getYear()!=null&&getNumber()!=null&&getLocale()!=null){
+	        return getGroupRepository().findQuestionDateByGroup(getHouseType(),getSessionType(),
+	               getYear(),getNumber(),getLocale());
+	    	}else{
+	    		return new ArrayList<MasterVO>();
+	    	}
+	 }
+	 /**** Used in various jsps ****/
+	 public String formatNumber(){
+		 if(getNumber()!=null){
+	        NumberFormat format=FormaterUtil.getNumberFormatterNoGrouping(this.getLocale());
+	        return format.format(this.getNumber());
+		 }else{
+			 return "";
+		 }
+	 }
 	 /**
 	 * Find Group based on @param session & where group has a
 	 * QuestionDates object which has attribute 
