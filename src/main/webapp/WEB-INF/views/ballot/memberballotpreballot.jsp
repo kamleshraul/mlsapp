@@ -7,6 +7,23 @@
 		$(document).ready(function() {				
 		});
 	</script>
+	<style type="text/css">
+	.round1{
+	color:green ;
+	}
+	.round2{
+	color:blue ;
+	}
+	.round3{
+	color: red;
+	}
+	.round4{
+	color: black;
+	}
+	.round5{
+	color: #F26522;
+	}
+	</style>
 </head>
 
 <body>
@@ -28,8 +45,8 @@
 	</tr>
 	<c:forEach items="${selectedItems}" var="i">
 	<tr>
-		<td>${i.position}</td>
-		<td>${i.member.getFullname()}</td>		
+		<td class="round${round }">${i.position}</td>
+		<td class="round${round }">${i.member.getFullname()}</td>		
 	</tr>
 	</c:forEach>
 </table>
