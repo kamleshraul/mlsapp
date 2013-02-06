@@ -122,8 +122,8 @@ public class Chart extends BaseDomain implements Serializable {
 			final Date answeringDate,
 			final String locale) {
 		List<ChartVO> chartVOs = new ArrayList<ChartVO>();
-		Chart chart = Chart.find(session, group, answeringDate, locale);
 		
+		Chart chart = Chart.find(session, group, answeringDate, locale);
 		if(chart != null) {
 			List<ChartVO> chartVOsWithQuestions = new ArrayList<ChartVO>();
 			List<ChartVO> chartVOsWithoutQuestions = new ArrayList<ChartVO>();
@@ -158,6 +158,30 @@ public class Chart extends BaseDomain implements Serializable {
 		return chartVOs;
 	}
 	
+	public static Integer maxChartedQuestions(final Session session,
+			final Group group,
+			final Date answeringDate,
+			final String locale) {
+		Integer maxQuestions = 0;
+		HouseType houseType = session.getHouse().getType();
+		if(houseType.getType().equals(ApplicationConstants.LOWER_HOUSE)) {
+			maxQuestions = Chart.maxQuestionsOnChartLH();
+		}
+		else if(houseType.getType().equals(ApplicationConstants.UPPER_HOUSE)) {
+			maxQuestions = Chart.maxQuestionsOnChartUH();
+		}
+		
+		Integer maxChartedQuestions = Chart.findMaxChartedQuestions(session, 
+				group, answeringDate, locale);
+		
+		if(maxChartedQuestions > maxQuestions) {
+			return maxChartedQuestions;
+		}
+		else {
+			return maxQuestions;
+		}
+	}
+	
 	/**
 	 * Gets the question v os.
 	 *
@@ -166,6 +190,7 @@ public class Chart extends BaseDomain implements Serializable {
 	 */
 	private static List<QuestionVO> getQuestionVOs(List<Question> questions) {
 		List<QuestionVO> questionVOs = new ArrayList<QuestionVO>();
+		
 		for(Question q : questions) {
 			QuestionVO questionVO = new QuestionVO(q.getId(), 
 					q.getNumber(), 
@@ -184,6 +209,7 @@ public class Chart extends BaseDomain implements Serializable {
 			
 			questionVOs.add(questionVO);
 		}
+		
 		return questionVOs;
 	}
 	
@@ -1590,6 +1616,21 @@ public class Chart extends BaseDomain implements Serializable {
 		return FormaterUtil.getCurrentDate(dbDateFormat.getValue());
 	}	
 
+	/**
+	 * Finds the maximum Questions on Chart against any member.
+	 * Example: 
+	 * 	A has 3 Questions on Chart
+	 * 	B has 21 Questions on Chart
+	 * 	C has 1 Question on Chart
+	 * 	This method will return 21.
+	 */
+	private static Integer findMaxChartedQuestions(final Session session,
+			final Group group,
+			final Date answeringDate,
+			final String locale) {
+		return Chart.getChartRepository().findMaxChartedQuestions(session, 
+				group, answeringDate, locale);
+	}
 	
 	//=============== GETTERS/SETTERS ===============
 	/**
