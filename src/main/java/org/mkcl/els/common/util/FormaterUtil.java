@@ -94,6 +94,32 @@ public class FormaterUtil {
         }
         return formatWithGrouping;
     }
+    
+    public static NumberFormat getDeciamlFormatterWithNoGrouping(final int maxDecimalDigits,final String locale) {
+        NumberFormat formatWithGrouping = null;
+        if(locale.equals("mr_IN") || locale.equals("hi_IN")){
+            formatWithGrouping = NumberFormat.getInstance(new Locale("hi", "IN"));
+            formatWithGrouping.setGroupingUsed(false);
+        }else{
+            formatWithGrouping = NumberFormat.getInstance(new Locale("en", "US"));
+            formatWithGrouping.setGroupingUsed(false);
+        }
+        formatWithGrouping.setMaximumFractionDigits(maxDecimalDigits);
+        return formatWithGrouping;
+    }
+    
+    public static NumberFormat getDeciamlFormatterWithGrouping(final int maxDecimalDigits,final String locale) {
+        NumberFormat formatWithGrouping = null;
+        if(locale.equals("mr_IN") || locale.equals("hi_IN")){
+            formatWithGrouping = NumberFormat.getInstance(new Locale("hi", "IN"));
+            formatWithGrouping.setGroupingUsed(true);
+        }else{
+            formatWithGrouping = NumberFormat.getInstance(new Locale("en", "US"));
+            formatWithGrouping.setGroupingUsed(true);
+        }
+        formatWithGrouping.setMaximumFractionDigits(maxDecimalDigits);
+        return formatWithGrouping;
+    }
 
     /**
      * Gets the date formatter.
@@ -440,6 +466,6 @@ public class FormaterUtil {
 		}
 		
 		return strs;
-	}
+	}	
 
 }
