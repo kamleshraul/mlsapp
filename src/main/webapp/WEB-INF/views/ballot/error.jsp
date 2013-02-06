@@ -4,7 +4,7 @@
 <div class="toolTip tpRed clearfix">
 		<p style="font-size: 14px;">
 			<img src="./resources/images/template/icons/light-bulb-off.png">
-			<spring:message code="ballot.error.request_parameter_null" text="Check request parameter 'houseType,sessionType,sessionYear,questionType' for null values"/>
+			<spring:message code="ballot.error.request_parameter_null" text="Check Request Parameters For Null Values"/>
 		</p>
 		<p></p>
 </div>
@@ -13,38 +13,34 @@
 	<div class="toolTip tpRed clearfix">
 		<p style="font-size: 14px;">
 			<img src="./resources/images/template/icons/light-bulb-off.png">
-			<spring:message code="ballot.error.request_parameter_empty" text="Check request parameter 'houseType,sessionType,sessionYear,questionType' for no values"/>
+			<spring:message code="ballot.error.request_parameter_empty" text="Check Request Parameters For No Values"/>
 		</p>
 		<p></p>
 	</div>
 </c:when>
-<c:when test="${type eq 'PREVIOUS_ROUND_NOT_LOCKED'}">
+<c:when test="${type eq 'NOOFROUNDS_IN_MEMBERBALLOT_NOTSET'}">
 	<div class="toolTip tpRed clearfix">
 		<p style="font-size: 14px;">
 			<img src="./resources/images/template/icons/light-bulb-off.png">
-			<spring:message code="ballot.error.previous_round_not_locked" text="Please lock present and absent members list of previous round before continuing."/>
+			<spring:message code="ballot.error.noofrounds_in_memberballot_notset" text="No. of Rounds In Member Ballot Not Set In Session"/>
 		</p>
 		<p></p>
 	</div>
 </c:when>
-<c:when test="${type eq 'PREVIOUS_ROUND_PRESENTEES_NOT_LOCKED'}">
+<c:when test="${type eq 'DB_EXCEPTION'}">
 	<div class="toolTip tpRed clearfix">
 		<p style="font-size: 14px;">
 			<img src="./resources/images/template/icons/light-bulb-off.png">
-			<spring:message code="ballot.error.previous_round_not_locked" text="Please lock present members list of previous round before continuing."/>
+			<spring:message code="ballot.error.db_exception" text="An exception has occurred.Check log for details. "/>
 		</p>
 		<p></p>
 	</div>
 </c:when>
-<c:when test="${type eq 'PREVIOUS_ROUND_ABSENTEES_NOT_LOCKED'}">
-	<div class="toolTip tpRed clearfix">
-		<p style="font-size: 14px;">
-			<img src="./resources/images/template/icons/light-bulb-off.png">
-			<spring:message code="ballot.error.previous_round_not_locked" text="Please lock absent members list of previous round before continuing."/>
-		</p>
-		<p></p>
-	</div>
-</c:when>
+
+
+
+
+
 <c:when test="${type eq 'DB_TIMESTAMP_NOT_SET'}">
 	<div class="toolTip tpRed clearfix">
 		<p style="font-size: 14px;">
@@ -63,15 +59,7 @@
 		<p></p>
 	</div>
 </c:when>
-<c:when test="${type eq 'DB_EXCEPTION'}">
-	<div class="toolTip tpRed clearfix">
-		<p style="font-size: 14px;">
-			<img src="./resources/images/template/icons/light-bulb-off.png">
-			<spring:message code="ballot.error.db_exception" text="An exception has occurred.Check log for details. "/>
-		</p>
-		<p></p>
-	</div>
-</c:when>
+
 <c:when test="${type eq 'FIRST_BATCH_SUBMISSION_START_DATE_NOT_SET'}">
 	<div class="toolTip tpRed clearfix">
 		<p style="font-size: 14px;">
