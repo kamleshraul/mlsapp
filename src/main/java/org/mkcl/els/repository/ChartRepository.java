@@ -1,8 +1,10 @@
 package org.mkcl.els.repository;
 
+import java.math.BigInteger;
 import java.util.Date;
 import java.util.List;
 
+import javax.persistence.Query;
 import javax.persistence.TypedQuery;
 
 import org.mkcl.els.common.util.FormaterUtil;
@@ -197,5 +199,40 @@ public class ChartRepository extends BaseRepository<Chart, Long> {
                     " ) AS rs" +
                 " )";
         this.em().createNativeQuery(query).executeUpdate();
+    }
+    
+    public Integer findMaxChartedQuestions(final Session session,
+			final Group group,
+			final Date answeringDate,
+			final String locale) {
+    	CustomParameter parameter =
+            CustomParameter.findByName(CustomParameter.class, "DB_DATEFORMAT", "");
+        String date = FormaterUtil.formatDateToString(answeringDate, parameter.getValue());
+        
+        String strQuery = "SELECT MAX(no_of_Questions)" +
+        		" FROM (" +
+        			" SELECT COUNT(q.number) AS no_of_questions" +
+        			" FROM charts AS c JOIN charts_chart_entries AS cce" +
+        			" JOIN chart_entries AS ce JOIN chart_entries_questions AS ceq" +
+        			" JOIN questions AS q" +
+        			" WHERE c.id = cce.chart_id " +
+        			" AND cce.chart_entry_id = ce.id" +
+        			" AND ce.id = ceq.chart_entry_id" +
+        			" AND ceq.question_id = q.id" +
+        			" AND c.session_id = " + session.getId() +
+        			" AND c.group_id = " + group.getId() +
+        			" AND c.answering_date = '" + date + "'" +
+        			" AND c.locale = '" + locale + "'" +
+        			" GROUP BY q.member_id" +
+        		" ) AS rs";
+        Query query = this.em().createNativeQuery(strQuery);
+        BigInteger maxChartedQuestions = (BigInteger) query.getSingleResult();
+        if(maxChartedQuestions == null) {
+        	return 0;
+        }
+        else {
+        	return maxChartedQuestions.intValue();
+        }
+        
     }
 }
