@@ -473,11 +473,11 @@ public class Chart extends BaseDomain implements Serializable {
 				
 				CustomParameter datePattern = CustomParameter.findByName(CustomParameter.class, 
 						"DB_TIMESTAMP", "");
-				Date startTime = FormaterUtil.formatStringToDate(this.getSession().
-						getParameter(deviceType.getType() + "_submissionFirstBatchStartDate"), 
+				Date startTime = FormaterUtil.formatStringToDate(this.getSession().getParameter(
+						ApplicationConstants.QUESTION_STARRED_FIRSTBATCH_SUBMISSION_STARTTIME_UH), 
 						datePattern.getValue(), this.getLocale());
-				Date endTime = FormaterUtil.formatStringToDate(this.getSession().
-						getParameter(deviceType.getType() + "_submissionFirstBatchEndDate"), 
+				Date endTime = FormaterUtil.formatStringToDate(this.getSession().getParameter(
+						ApplicationConstants.QUESTION_STARRED_FIRSTBATCH_SUBMISSION_ENDTIME_UH), 
 						datePattern.getValue(), this.getLocale());
 
 				Status ASSISTANT_PROCESSED = Status.findByType(
@@ -869,11 +869,11 @@ public class Chart extends BaseDomain implements Serializable {
 				"DB_TIMESTAMP", "");
 		
 		Session session = question.getSession();
-		Date startTime = FormaterUtil.formatStringToDate(session.getParameter(question.getType().
-				getType() + "_submissionFirstBatchStartDate"), 
+		Date startTime = FormaterUtil.formatStringToDate(session.getParameter(
+				ApplicationConstants.QUESTION_STARRED_FIRSTBATCH_SUBMISSION_STARTTIME_UH), 
 				datePattern.getValue(), question.getLocale());
-		Date endTime = FormaterUtil.formatStringToDate(session.getParameter(question.getType().
-				getType() + "_submissionFirstBatchEndDate"), 
+		Date endTime = FormaterUtil.formatStringToDate(session.getParameter(
+				ApplicationConstants.QUESTION_STARRED_FIRSTBATCH_SUBMISSION_ENDTIME_UH), 
 				datePattern.getValue(), question.getLocale());
 		Date submissionTime = question.getSubmissionDate();
 		if((submissionTime.compareTo(startTime) >= 0) &&
@@ -894,11 +894,11 @@ public class Chart extends BaseDomain implements Serializable {
 				"DB_TIMESTAMP", "");
 		
 		Session session = question.getSession();
-		Date startTime = FormaterUtil.formatStringToDate(session.getParameter(question.getType().
-				getType() + "_submissionSecondBatchStartDate"), 
+		Date startTime = FormaterUtil.formatStringToDate(session.getParameter(
+				ApplicationConstants.QUESTION_STARRED_SECONDBATCH_SUBMISSION_STARTTIME_UH), 
 				datePattern.getValue(), question.getLocale());
-		Date endTime = FormaterUtil.formatStringToDate(session.getParameter(question.getType().
-				getType() + "_submissionSecondBatchEndDate"), 
+		Date endTime = FormaterUtil.formatStringToDate(session.getParameter(
+				ApplicationConstants.QUESTION_STARRED_SECONDBATCH_SUBMISSION_ENDTIME_UH), 
 				datePattern.getValue(), question.getLocale());
 		Date submissionTime = question.getSubmissionDate();
 		if((submissionTime.compareTo(startTime) >= 0) &&
@@ -933,8 +933,8 @@ public class Chart extends BaseDomain implements Serializable {
 				
 				CustomParameter datePattern = CustomParameter.findByName(CustomParameter.class, 
 						"DB_TIMESTAMP", "");
-				Date startTime = FormaterUtil.formatStringToDate(session.getParameter(
-						"questions_starred_submissionStartDate"), 
+				Date startTime = FormaterUtil.formatStringToDate(this.getSession().getParameter(
+						ApplicationConstants.QUESTION_STARRED_SUBMISSION_STARTTIME_LH), 
 						datePattern.getValue(), this.getLocale());
 				Date finalSubmissionTime = this.getGroup().
 					getFinalSubmissionDate(this.getAnsweringDate());
