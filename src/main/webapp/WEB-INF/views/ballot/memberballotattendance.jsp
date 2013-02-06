@@ -14,6 +14,7 @@
 			});
 			$("#presenteeCount").text(parseInt($("#presenteeCount").text())+count);
 			$("#availableCount").text(parseInt($("#availableCount").text())-count);	
+			$("#selectedItems").addClass("round"+$("#round").val());
 		});	
 		$("#to1").click(function(){
 			var count=0;			
@@ -29,13 +30,17 @@
 			});			
 			$("#presenteeCount").text(parseInt($("#presenteeCount").text())-count);
 			$("#availableCount").text(parseInt($("#availableCount").text())+count);
+			$("#selectedItems").removeClass("round"+$("#round").val());
+			
 		});	
 		$("#allTo2").click(function(){
 			$("#selectedItems").empty();
 			$("#selectedItems").html($("#allItems").html());
 			$("#allItems").empty();
 			$("#presenteeCount").text($("#selectedItems option").length);
-			$("#availableCount").text($("#allItems option").length);			
+			$("#availableCount").text($("#allItems option").length);	
+			$("#selectedItems").addClass("round"+$("#round").val());
+					
 		});
 		$("#allTo1").click(function(){
 			$("#allItems").empty();
@@ -43,6 +48,8 @@
 			$("#selectedItems").empty();
 			$("#presenteeCount").text($("#selectedItems option").length);
 			$("#availableCount").text($("#allItems option").length);
+			$("#selectedItems").removeClass("round"+$("#round").val());
+			
 		});
 		/**** for moving items up ****/
 		$(".up").click(function(){
@@ -153,6 +160,21 @@
 			padding: 5px;
 			/*display: inline;*/ 		
 		}
+	.round1{
+	color:green ;
+	}
+	.round2{
+	color:blue ;
+	}
+	.round3{
+	color: red;
+	}
+	.round4{
+	color: black;
+	}
+	.round5{
+	color: #F26522;
+	}
 	</style>
 </head>
 
@@ -216,7 +238,7 @@
 <input type="button" id="to1" value="&lt;"  />
 </td>
 <td>
-<select id="selectedItems" multiple="multiple" style="height:300px;width:350px;">
+<select id="selectedItems" multiple="multiple" style="height:300px;width:350px;" class="round${round }">
 <c:forEach items="${selectedItems}" var="i">
 <option value="${i.id}"><c:out value="${i.member.getFullname()}"></c:out></option>
 </c:forEach>
@@ -245,7 +267,7 @@
 </tr>
 <tr>
 <td>
-<select id="selectedItems" multiple="multiple" style="height:300px;width:350px;">
+<select id="selectedItems" multiple="multiple" style="height:300px;width:350px;" class="round${round }">
 <c:forEach items="${selectedItems}" var="i">
 <option value="${i.id}"><c:out value="${i.member.getFullname()}"></c:out></option>
 </c:forEach>
@@ -272,5 +294,6 @@
 </div>
 
 <input type="hidden" id="locked" name="locked" value="${locked}">
+<input type="hidden" id="round" name="round" value="${round}">
 </body>
 </html>
