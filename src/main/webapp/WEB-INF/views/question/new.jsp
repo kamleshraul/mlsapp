@@ -561,13 +561,13 @@
 		</c:otherwise>
 		</c:choose>
 		</c:forEach>
-		</select>		
-		<br /><form:errors path="ministry" cssClass="validationError"/>
+		</select>
+		<form:errors path="ministry" cssClass="validationError"/>
 				
-		<label class="small"><spring:message code="question.group" text="Group"/>*</label>
+		<label class="small"><spring:message code="question.group" text="Group" />*</label>
 		<input type="text" class="sText" id="formattedGroup" name="formattedGroup"  readonly="readonly" value="${formattedGroup}">		
 		<input type="hidden" id="group" name="group" value="${group }">
-		<br /><form:errors path="group" cssClass="validationError"/>		
+		<form:errors path="group" cssClass="validationError"/>		
 	</p>	
 	<p>
 		<label class="small"><spring:message code="question.department" text="Department"/></label>
