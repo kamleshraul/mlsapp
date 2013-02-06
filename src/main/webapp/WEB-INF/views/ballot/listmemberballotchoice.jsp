@@ -67,7 +67,9 @@
 			 $("#autofill").attr("checked","checked");    
 	    }
 	    /**** making fonts bolder ****/
-	    $("select").css("font-weight","bolder");
+	    $(".question").css("font-weight","bolder");
+	    $(".answeringDate").css("font-weight","bolder");
+	    
 	});
 </script>
 <style type="text/css">
