@@ -37,14 +37,19 @@
 				var resourceURL = 'ballot/create?' + parameters;
 				$.get(resourceURL, function(data) {
 					var displayMessage = data;
-					if(data == "CREATED") {
-						displayMessage = "Ballot is successfully created.";
+					if(data == "CREATED" || data == "ALREADY_EXISTS") {
+						var newResourceURL = 'ballot/view?' + parameters;
+						$.get(newResourceURL,function(data){
+							$("#ballotResultDiv").empty();
+							$("#ballotResultDiv").html(data);
+							$.unblockUI();					
+						},'html');
 					}
-					else if(data == "ALREADY_EXISTS") {
-						displayMessage = "Ballot already exists.";
+					else {
+						displayMessage = "Error Occurred while creating Ballot";
+						$.unblockUI();
+						$.fancybox.open(displayMessage);
 					}
-					$.unblockUI();
-					$.fancybox.open(displayMessage);
 				});
 				
 			});		
