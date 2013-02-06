@@ -529,7 +529,7 @@
 	<c:if test="${selectedQuestionType=='questions_starred'}">
 		<p>	
 			<label class="small"><spring:message code="question.task.creationtime" text="Task Created On"/></label>
-			<input id="createTime" name="createdTime" value="${taskCreationDate}" class="sText datetimemask" readonly="readonly">
+			<input id="createdTime" name="createdTime" value="${taskCreationDate}" class="sText datetimemask" readonly="readonly">
 			
 			<label class="small"><spring:message code="question.lastDateFromDepartment" text="Last Date From Department"/></label>
 			<input id="lastDateFromDept" name="lastDateFromDept" value="${lastReceivingDateFromDepartment}" class="sText" readonly="readonly">
@@ -635,12 +635,12 @@
 		<a href="#" id="refresh" onclick="refreshEdit(${domain.id});" style="margin: 20px;"><spring:message code="question.refresh" text="Refresh"></spring:message></a>	
 	</p>	
 		
-	<p>
+	<p style="display:none;">
 		<label class="small"><spring:message code="question.parentquestion" text="Clubbed To"></spring:message></label>
 		<a href="#" id="p${parent}" onclick="viewQuestionDetail(${parent});"><c:out value="${formattedParentNumber}"></c:out></a>
 		<input type="hidden" id="parent" name="parent" value="${parent}">
-		</p>	
-		<p>
+	</p>	
+	<p style="display:none;">
 		<label class="small"><spring:message code="question.clubbedquestions" text="Clubbed Questions"></spring:message></label>
 		<c:choose>
 		<c:when test="${!(empty clubbedQuestions) }">
@@ -657,8 +657,8 @@
 		<option value="${i.id}" selected="selected"></option>
 		</c:forEach>
 		</select>
-		</p>
-		<p>
+	</p>
+	<p style="display:none;">
 		<label class="small"><spring:message code="question.referencedquestions" text="Referenced Questions"></spring:message></label>
 		<c:choose>
 		<c:when test="${!(empty referencedQuestions) }">
@@ -720,13 +720,13 @@
 	<a href="#" id="viewRevision"><spring:message code="question.viewrevisions" text="View Revisions"></spring:message></a>
 	</p>
 	
-	<p style="display:none;" class="revise1" id="revisedSubjectDiv">
+	<p class="revise1" id="revisedSubjectDiv">
 	<label class="centerlabel"><spring:message code="question.subject" text="Subject"/></label>
 	<form:textarea path="revisedSubject" rows="2" cols="50" readonly="true"></form:textarea>
 	<form:errors path="revisedSubject" cssClass="validationError" cssStyle="float:right;margin-top:-100px;margin-right:40px;"/>
 	</p>
 	
-	<p style="display:none;" class="revise2" id="revisedQuestionTextDiv">
+	<p class="revise2" id="revisedQuestionTextDiv">
 	<label class="wysiwyglabel"><spring:message code="question.details" text="Details"/></label>
 	<form:textarea path="revisedQuestionText" cssClass="wysiwyg" readonly="true"></form:textarea>
 	<form:errors path="revisedQuestionText" cssClass="validationError" cssStyle="float:right;margin-top:-100px;margin-right:40px;"/>
@@ -781,7 +781,7 @@
 	<input type="hidden" id="internalStatus"  name="internalStatus" value="${internalStatus }">
 	<input type="hidden" id="recommendationStatus"  name="recommendationStatus" value="${recommendationStatus}">
 		
-	<p>
+	<p style="display:none;">
 	<a href="#" id="viewCitation" style="margin-left: 162px;margin-top: 30px;"><spring:message code="question.viewcitation" text="View Citations"></spring:message></a>	
 	</p>	
 	
