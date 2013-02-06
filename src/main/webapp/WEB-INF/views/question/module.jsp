@@ -8,13 +8,20 @@
 	<script type="text/javascript">
 		$(document).ready(function(){	
 			/**** On Page Load ****/
-			var currentDeviceType=$("#currentDeviceType").val();
-			if(currentDeviceType=='questions_starred'){
+			var currentDeviceType = $("#currentDeviceType").val();
+			var currentHouseType = $("#currentHouseType").val();
+			if(currentDeviceType == 'questions_starred' && currentHouseType == 'upperhouse'){
 				$("#memberballot_tab").show();
 				$("#ballot_tab").hide();
-			}else{
+			}
+			else if((currentDeviceType == 'questions_starred' && currentHouseType == 'lowerhouse')
+					|| currentDeviceType == 'questions_halfhourdiscussion_from_question') {
 				$("#memberballot_tab").hide();
 				$("#ballot_tab").show();
+			}
+			else {
+				$("#memberballot_tab").hide();
+				$("#ballot_tab").hide();
 			}		
 			/*Tooltip*/
 			$(".toolTip").hide();					
@@ -53,17 +60,23 @@
 			});
 			/**** question type changes then reload grid****/			
 			$("#selectedQuestionType").change(function(){
-				var value=$(this).val();
-				var text=$("#deviceTypeMaster option[value='"+value+"']").text();
-				if(text=='questions_starred'){
+				var value = $(this).val();
+				var text = $("#deviceTypeMaster option[value='"+value+"']").text();
+				if(text == 'questions_starred' && currentHouseType == 'upperhouse'){
 					$("#memberballot_tab").show();
 					$("#ballot_tab").hide();
-				}else{
+				}
+				else if((text == 'questions_starred' && currentHouseType == 'lowerhouse')
+						|| text == 'questions_halfhourdiscussion_from_question') {
 					$("#memberballot_tab").hide();
 					$("#ballot_tab").show();
+				}
+				else {
+					$("#memberballot_tab").hide();
+					$("#ballot_tab").hide();
 				}		
-				if(value!=""){				
-				reloadQuestionGrid();
+				if(value != ""){				
+					reloadQuestionGrid();
 				}
 				
 			});	
@@ -459,6 +472,7 @@
 		<input type="hidden" name="currentusergroup" id="currentusergroup" value="${usergroup}">		
 		<input type="hidden" name="currentusergroupType" id="currentusergroupType" value="${usergroupType}">
 		<input type="hidden" name="currentDeviceType" id="currentDeviceType" value="${questionTypeType}">		
+		<input type="hidden" name="currentHouseType" id="currentHouseType" value="${houseType}">
 		
 		<input type="hidden" name="pleaseSelect" id="pleaseSelect" value="<spring:message code='please.select' text='Please Select'/>">	
 		<input type="hidden" id="ballotSuccessMsg" value="<spring:message code='ballot.success' text='Member Ballot Created Succesfully'/>">			
