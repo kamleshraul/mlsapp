@@ -801,21 +801,22 @@
 		border-right: 2px solid #999999;
 		border-bottom: 2px solid #999999;
 	}
+	
 	.uiTable th
 	{
 		font-size: 13px;
 		font-weight: bold;
 		padding: 8px;
 		/* background: #FEFFD1; */	
-		border-top: 2px solid #999999;
-		border-bottom: 1px solid #999999;
-		/* color: #039; */
+		border-top: 2px solid #000000;
+		border-bottom: 1px solid #000000;
+		/* color: #039; */		
 	}
 	.uiTable td
 	{
 		padding: 8px;
 		/* background: #e8edff; */
-		border-bottom: 1px solid #999999;
+		border-bottom: 1px solid #000000;
 		/* color: #669; */
 		border-top: 1px solid transparent;
 	}
@@ -823,7 +824,44 @@
 	{
 		background: #d0dafd;
 		color: #339;
-	} */	
+	} */
+	
+	/***** For stripped table UI ****/
+	.strippedTable{
+		font-family: "Lucida Sans Unicode", "Lucida Grande", Sans-Serif;
+		font-size: 12px;	
+		width: 800px;
+		text-align: left;
+		border-collapse: collapse;
+		border-left: 2px solid #000000;
+		border-right: 2px solid #000000;
+		border-bottom: 2px solid #000000;
+	}
+	.strippedTable tbody{
+	}
+	.strippedTable tr:nth-child(even) {background: #C6D3DD/*#CCC*/}
+	.strippedTable tr:nth-child(odd) {background: #DAE4EC/*#FFF*/}
+	.strippedTable th
+	{
+		font-size: 13px;
+		font-weight: bold;
+		padding: 8px;
+		/* background: #FEFFD1; */	
+		border-top: 2px solid #000000;
+		border-bottom: 1px solid #000000;
+		/* color: #039; */
+		background-color: #A2C6E4;	
+	}
+	.strippedTable td
+	{
+		padding: 8px;
+		/* background: #e8edff; */
+		border-bottom: 1px solid #000000;
+		/* color: #669; */
+		border-top: 1px solid transparent;
+		max-width: 250px;
+	}
+		
 	
 	/**
 	****** Form components ****************************************************************
@@ -1959,9 +1997,9 @@ ul.holder li.bit-input input.smallinput { width: 20px !important; }
 		width: 480px;
 		text-align: left;
 		border-collapse: collapse;
-		border-left: 2px solid #999999;
-		border-right: 2px solid #999999;
-		border-bottom: 2px solid #999999;
+		border-left: 2px solid #000000;
+		border-right: 2px solid #000000;
+		border-bottom: 2px solid #000000;
 	}
 	.uiTable th
 	{
@@ -1969,15 +2007,15 @@ ul.holder li.bit-input input.smallinput { width: 20px !important; }
 		font-weight: bold;
 		padding: 8px;
 		/* background: #FEFFD1; */	
-		border-top: 2px solid #999999;
-		border-bottom: 1px solid #999999;
+		border-top: 2px solid #000000;
+		border-bottom: 1px solid #000000;
 		/* color: #039; */
 	}
 	.uiTable td
 	{
 		padding: 8px;
 		/* background: #e8edff; */
-		border-bottom: 1px solid #999999;
+		border-bottom: 1px solid #000000;
 		/* color: #669; */
 		border-top: 1px solid transparent;
 	}
