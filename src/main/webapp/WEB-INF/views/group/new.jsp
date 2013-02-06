@@ -2,15 +2,26 @@
 <html>
 <head>
 	<title>
-	<spring:message code="group.title" text="Groups"/>
+		<spring:message code="group.title" text="Groups"/>
 	</title>
 	<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>	
 	<script type="text/javascript">
-	$('document').ready(function(){	
-		initControls();
-		$('#key').val('');		
-});		
-</script>
+		$('document').ready(function(){	
+			initControls();
+			$('#key').val('');	
+			
+			$('#submit').click(function(){
+				if($('#number').val() == "") {
+					$.prompt($('#pleaseSelectGroupNumber').val());
+					return false;
+				}				
+				if($('#ministries').val() == null) {
+					$.prompt($('#pleaseSelectMinistries').val());
+					return false;
+				}
+			});
+		});		
+	</script>
 </head>
 <body>
 
@@ -20,71 +31,46 @@
 	<h2><spring:message code="generic.new.heading" text="Enter Details"/>
 		[<spring:message code="generic.id" text="Id"></spring:message>:&nbsp;<spring:message code="generic.new" text="New"></spring:message>]
 	</h2>	
-	<form:errors path="version" cssClass="validationError"/>		 
+	<form:errors path="version" cssClass="validationError"/>	
+	
 	<p>
-		<label class="small"><spring:message code="group.number" text="Group" /></label>			
+		<label class="small"><spring:message code="group.houseType" text="House Type"/>*</label>
+		<input id="formattedHouseType" name="formattedHouseType" value="${formattedHouseType}" class="sText" readonly="readonly">
+		<input id="houseType" name="houseType" value="${houseType}" type="hidden">
+		<form:errors path="houseType" cssClass="validationError"/>			
+	</p>	
+	
+	<p>
+		<label class="small"><spring:message code="group.year" text="Year"/>*</label>
+		<input id="formattedYear" name="formattedYear" value="${formattedYear}" class="sText" readonly="readonly">
+		<input id="year" name="year" value="${year}" type="hidden">
+	</p>
+	
+	<p>
+		<label class="small"><spring:message code="group.sessionType" text="Session Type"/>*</label>		
+		<input id="formattedSessionType" name="formattedSessionType" value="${formattedSessionType}" class="sText" readonly="readonly">
+		<input id="sessionType" name="sessionType" value="${sessionType}" type="hidden">			
+		<form:errors path="sessionType" cssClass="validationError"/>	
+	</p>
+		 
+	<p>
+		<label class="small"><spring:message code="group.number" text="Group" /></label>					
 		<form:select path="number" id="number" cssClass="sSelect">
-			<c:forEach begin= "1" end = '${groupNo}' var="i" >
-				<option value="${i}">${i}</option>
-				<%-- <c:choose>
-					<c:when test="${domain.group.id == i.id}">
-						<option value="${i.id}" selected="selected">${i.name}</option>
+			<c:if test="${empty selectedNumber}">
+				<option value=""><spring:message code='client.prompt.selectForDropdown' text='----Please Select----'/></option>
+			</c:if>
+			<c:forEach var="i" items="${groupNumbers}">					
+				<c:choose>
+					<c:when test="${i.value==selectedNumber }">
+						<option value="${i.value}" selected="selected"><c:out value="${i.name}"></c:out></option>				
 					</c:when>
 					<c:otherwise>
-						<option value="${i.id}">${i.name}</option>
+						<option value="${i.value}" ><c:out value="${i.name}"></c:out></option>			
 					</c:otherwise>
-				</c:choose> --%>
-			</c:forEach>
+				</c:choose>
+			</c:forEach>			
 		</form:select>
 		<form:errors path="number" cssClass="validationError" />
-	</p>			
-	<p>
-		<label class="small"><spring:message code="group.houseType" text="House Type" /></label>			
-		<form:select path="houseType" id="houseType" cssClass="sSelect">
-			<c:forEach items="${houseTypes}" var="i">
-				<c:choose>
-					<c:when test="${domain.houseType.id == i.id}">
-						<option value="${i.id}" selected="selected">${i.name}</option>
-					</c:when>
-					<c:otherwise>
-						<option value="${i.id}">${i.name}</option>
-					</c:otherwise>
-				</c:choose>
-			</c:forEach>
-		</form:select>
-		<form:errors path="houseType" cssClass="validationError" />
-	</p>	
-	<p>
-		<label class="small"><spring:message code="group.year" text="Year" /></label>			
-		<form:select path="year" id="year" cssClass="sSelect">
-			<c:forEach items="${years}" var="i">
-				<c:choose>
-					<c:when test="${domain.year == i}">
-						<option value="${i}" selected="selected">${i}</option>
-					</c:when>
-					<c:otherwise>
-						<option value="${i}">${i}</option>
-					</c:otherwise>
-				</c:choose>
-			</c:forEach>
-		</form:select>
-		<form:errors path="year" cssClass="validationError" />
-	</p>	
-	<p>
-		<label class="small"><spring:message code="group.sessionType" text="Session Type" /></label>			
-		<form:select path="sessionType" id="sessionType" cssClass="sSelect">
-			<c:forEach items="${sessionTypes}" var="i">
-				<c:choose>
-					<c:when test="${domain.sessionType.id == i.id}">
-						<option value="${i.id}" selected="selected">${i.sessionType}</option>
-					</c:when>
-					<c:otherwise>
-						<option value="${i.id}">${i.sessionType}</option>
-					</c:otherwise>
-				</c:choose>
-			</c:forEach>
-		</form:select>
-		<form:errors path="sessionType" cssClass="validationError" />
 	</p>
 	<p>
 		<label class="small"><spring:message code="group.ministries" text="Ministries" /></label>			
@@ -102,6 +88,9 @@
 	<form:hidden path="id"/>
 	<form:hidden path="locale"/>	
 </form:form>
+
+<input id="pleaseSelectGroupNumber" value="<spring:message code='NotNull.groupNumber' text='Please select group number'/>" type="hidden">
+<input id="pleaseSelectMinistries" value="<spring:message code='NotNull.ministries' text='Please select ministries in the group'/>" type="hidden">
 </div>	
 </body>
 </html>

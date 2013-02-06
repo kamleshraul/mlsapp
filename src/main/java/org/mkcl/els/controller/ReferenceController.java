@@ -1569,4 +1569,33 @@ public class ReferenceController extends BaseController {
 		return formattedDate;
 	}
 	
+	@RequestMapping(value="/sessionforgroups")
+	public @ResponseBody Boolean getSessionForGroups(final HttpServletRequest request, final Locale locale){	
+		Boolean result = false;
+		
+		String hType = request.getParameter("houseType");
+		String sType = request.getParameter("sessionType");	
+		String sYear = request.getParameter("year");			
+		
+		if(hType != null && sType !=null && sYear != null) {
+			
+			if(!hType.isEmpty() && !sType.isEmpty() && !sYear.isEmpty()) {
+				
+				HouseType houseType = HouseType.findByFieldName(HouseType.class, "type", hType, locale.toString());
+				SessionType sessionType = SessionType.findByFieldName(SessionType.class, "type", sType, locale.toString());		
+				Integer year = Integer.parseInt(sYear);
+				
+				Session session = Session.findSessionByHouseTypeSessionTypeYear(houseType, sessionType, year);
+				
+				if(session != null) {
+					if(session.getId() != null) {
+						result = true;
+					}			
+				} 
+			}
+		}
+			
+		return result;
+	}
+	
 }

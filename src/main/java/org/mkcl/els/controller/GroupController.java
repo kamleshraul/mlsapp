@@ -14,15 +14,16 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
-import java.util.HashSet;
+import java.util.GregorianCalendar;
 import java.util.List;
 import java.util.Locale;
-import java.util.Set;
-
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 
-import org.mkcl.els.common.vo.QuestionDatesVO;
+import org.mkcl.els.common.util.ApplicationConstants;
+import org.mkcl.els.common.util.FormaterUtil;
+import org.mkcl.els.common.vo.AuthUser;
+import org.mkcl.els.common.vo.MasterVO;
 import org.mkcl.els.domain.CustomParameter;
 import org.mkcl.els.domain.Group;
 import org.mkcl.els.domain.Holiday;
@@ -40,8 +41,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
-import com.sun.xml.bind.v2.runtime.unmarshaller.LocatorEx.Snapshot;
-
 // TODO: Auto-generated Javadoc
 /**
  * The Class GroupInformationController.
@@ -56,6 +55,85 @@ public class GroupController extends GenericController<Group> {
 
 	/** The Constant ASC. */
 	private static final String ASC = "asc";
+	
+	@Override
+	protected void populateModule(final ModelMap model, final HttpServletRequest request, final String locale, final AuthUser currentUser) {
+		
+		/**** House Types allowed for Current User ****/
+		List<HouseType> houseTypes = new ArrayList<HouseType>();
+		String houseType=this.getCurrentUser().getHouseType();
+		if(houseType != null) {
+			if(!houseType.isEmpty()) {
+				if(houseType.equals("bothhouse")){
+					houseTypes=HouseType.findAll(HouseType.class, "type", ApplicationConstants.ASC, locale);			
+				}else {
+					houseTypes=HouseType.findAllByFieldName(HouseType.class, "type",houseType,"type",ApplicationConstants.ASC, locale);
+				}
+				model.addAttribute("houseTypes", houseTypes);		
+				model.addAttribute("selectedHouseType",houseTypes.get(0).getType());
+			} else {
+				model.addAttribute("errorcode","userhousetypenotset");
+			}			
+		} else {
+			model.addAttribute("errorcode","userhousetypenotset");
+		}
+		
+		/**** To check whether sessions exist for selected house type  ****/					
+		Session lastSessionCreated=Session.findLatestSession(houseTypes.get(0));	
+
+		if(lastSessionCreated.getId()!=null){
+			
+			/**** Session Types ****/
+			List<SessionType> sessionTypes=SessionType.findAll(SessionType.class,"sessionType", ApplicationConstants.ASC, locale);
+			model.addAttribute("sessionTypes",sessionTypes);
+			if(lastSessionCreated.getType() != null) {
+				model.addAttribute("selectedSessionType",lastSessionCreated.getType().getType());
+			}
+			
+			/**** Years ****/
+			List<MasterVO> years = new ArrayList<MasterVO>();
+			
+			//set upper limit for years available
+			Integer latestYear=lastSessionCreated.getYear();
+			if(latestYear == null) {
+				latestYear = new GregorianCalendar().get(Calendar.YEAR); //set as current year in case latest session has no year set.
+			}				
+			
+			//starting year must be set as custom parameter 'HOUSE_FORMATION_YEAR'
+			CustomParameter houseFormationYearParameter = CustomParameter.findByFieldName(CustomParameter.class, "name", "HOUSE_FORMATION_YEAR", null);
+			
+			if(houseFormationYearParameter != null) {
+				if(!houseFormationYearParameter.getValue().isEmpty()) {
+					Integer houseFormationYear;
+					try {
+						houseFormationYear = Integer.parseInt(houseFormationYearParameter.getValue());
+						for(Integer i=latestYear; i>=houseFormationYear; i--) {
+							MasterVO year = new MasterVO();
+							year.setName(FormaterUtil.formatNumberNoGrouping(i, locale));
+							year.setValue(i.toString());							
+							years.add(year);
+						}
+						model.addAttribute("years", years);
+						if(lastSessionCreated.getYear() != null) {
+							model.addAttribute("selectedYear", latestYear.toString());
+						}
+					}
+					catch(NumberFormatException ne) {
+						model.addAttribute("errorcode","houseformationyearsetincorrect");
+					}				
+				}
+				else {
+					model.addAttribute("errorcode","houseformationyearnotset");
+				}
+			}	
+			else {
+				model.addAttribute("errorcode","houseformationyearnotset");
+			}		
+						
+		}else{
+			model.addAttribute("errorcode","nosessionentriesfound");
+		}						
+	}
 
 	/* (non-Javadoc)
 	 * @see org.mkcl.els.controller.GenericController#populateNew(org.springframework.ui.ModelMap, org.mkcl.els.domain.BaseDomain, java.lang.String, 
@@ -65,10 +143,72 @@ javax.servlet.http.HttpServletRequest)
 	@Override
 	protected void populateNew(final ModelMap model, final Group domain,
 			final String locale, final HttpServletRequest request) {
+		
+		/**** Locale ****/
 		domain.setLocale(locale);
-		List<Ministry> ministries = Ministry.findAll(Ministry.class, "name", ASC, domain.getLocale());
+		
+		/**** Selected House Type ****/
+		String hType = request.getParameter("houseType");		
+		if(hType != null) {
+			if(!hType.isEmpty()) {				
+				HouseType selectedHouseType = HouseType.findByFieldName(HouseType.class, "type", hType, locale);
+				if(selectedHouseType != null) {
+					model.addAttribute("houseType", selectedHouseType.getId());
+					model.addAttribute("formattedHouseType",selectedHouseType.getName());
+				} else {
+					model.addAttribute("errorcode", "houseType_isincorrect");
+				}
+			} else {
+				model.addAttribute("errorcode", "houseType_isempty");
+			}
+		} else {
+			model.addAttribute("errorcode", "houseType_isnull");
+		}
+		
+		/**** Selected Session Type ****/
+		String sType = request.getParameter("sessionType");			
+		if(sType != null) {
+			if(!sType.isEmpty()) {
+				SessionType selectedSessionType = SessionType.findByFieldName(SessionType.class, "type", sType, locale);
+				if(selectedSessionType != null) {
+					model.addAttribute("sessionType", selectedSessionType.getId());
+					model.addAttribute("formattedSessionType",selectedSessionType.getSessionType());
+				} else {
+					model.addAttribute("errorcode", "sessionType_isincorrect");
+				}
+			} else {
+				model.addAttribute("errorcode", "sessionType_isempty");
+			}
+		} else {
+			model.addAttribute("errorcode", "sessionType_isnull");
+		}
+				
+		
+		/**** Selected Year ****/
+		String sYear = request.getParameter("year");		
+		if(sYear != null) {
+			if(!sYear.isEmpty()) {
+				try{
+					Integer selectedYear = Integer.parseInt(sYear);
+					if(selectedYear != null) {
+						model.addAttribute("year", selectedYear);
+						String formattedYear = FormaterUtil.formatNumberNoGrouping(selectedYear, locale);
+						model.addAttribute("formattedYear", formattedYear);
+					}
+				} catch (NumberFormatException ne) {
+					model.addAttribute("errorcode", "year_isincorrect");
+				}
+			} else {
+				model.addAttribute("errorcode", "year_isempty");
+			}
+		} else {
+			model.addAttribute("errorcode", "year_isnull");
+		}			
+		
+		/**** Ministries ****/
+		List<Ministry> ministries = Ministry.findAll(Ministry.class, "name", ASC, locale);
 		model.addAttribute("ministries", ministries);
-		populate(model, domain,request);
+		populate(model, domain, request, locale);
 
 	}
 
@@ -80,13 +220,45 @@ javax.servlet.http.HttpServletRequest)
 	@Override
 	protected void populateEdit(final ModelMap model, final Group domain, final HttpServletRequest request) {	
 
+		/**** Selected House Type ****/					
+		HouseType selectedHouseType = domain.getHouseType();
+		if(selectedHouseType != null) {
+			model.addAttribute("houseType", selectedHouseType.getId());
+			model.addAttribute("formattedHouseType",selectedHouseType.getName());
+		} else {
+			model.addAttribute("errorcode", "houseType_isnull");
+		}
+			
+		
+		/**** Selected Session Type ****/
+		SessionType selectedSessionType = domain.getSessionType();
+		if(selectedSessionType != null) {
+			model.addAttribute("sessionType", selectedSessionType.getId());
+			model.addAttribute("formattedSessionType",selectedSessionType.getSessionType());
+		} else {
+			model.addAttribute("errorcode", "sessionType_isnull");
+		}
+		
+		/**** Selected Year ****/		
+		Integer selectedYear = domain.getYear();
+		if(selectedYear != null) {
+			model.addAttribute("year", selectedYear);
+			String formattedYear = FormaterUtil.formatNumberNoGrouping(selectedYear, domain.getLocale());
+			model.addAttribute("formattedYear", formattedYear);
+		}
+		
+		/**** Ministries ****/
 		List<Ministry> modelMinistries = new ArrayList<Ministry>();
 		List<Ministry> ministries = Ministry.findAll(Ministry.class, "name", ASC, domain.getLocale());
-		ministries.removeAll(domain.getMinistries());
-		modelMinistries.addAll(domain.getMinistries());
+		if(domain.getMinistries() != null) {
+			if(domain.getMinistries().size() != 0) {
+				ministries.removeAll(domain.getMinistries());
+				modelMinistries.addAll(domain.getMinistries());
+			}
+		}		
 		modelMinistries.addAll(ministries);
 		model.addAttribute("ministries", modelMinistries);
-		populate(model, domain, request);
+		populate(model, domain, request, domain.getLocale());
 
 	}
 
@@ -97,60 +269,56 @@ javax.servlet.http.HttpServletRequest)
 	 * @param domain the domain
 	 * @param request the request
 	 */
-	private void populate(final ModelMap model, final Group domain, final HttpServletRequest request) {
-
-		List<HouseType> houseTypes = HouseType.findAll(HouseType.class, "name", "desc", domain.getLocale());
-		model.addAttribute("houseTypes", houseTypes);
-
-		String defaultGroupNumber = ((CustomParameter) CustomParameter.findByName(
-				CustomParameter.class, "DEFAULT_GROUP_NUMBER", null)).getValue();
-		Integer groupNo=Integer.parseInt(defaultGroupNumber);
-		model.addAttribute("groupNo",groupNo);
-
-		//ending year will be current year
-		SimpleDateFormat df = new SimpleDateFormat("yyyy");
-		Integer currentYear = Integer.parseInt(df.format(new Date()));	
-		List<String> years = new ArrayList<String>();
-		//starting year will be 1937 as per analyst Kartik Sir
-		for(Integer i=currentYear; i>=1937; i--) {
-			years.add(i.toString());
-		}
-		model.addAttribute("years", years);
-		//To populate the sessiontype as per the housetype and year
-		List<Session> sessions=new ArrayList<Session>();
-		if(domain.getHouseType()!=null){
-			sessions=Session.findSessionsByHouseTypeAndYear(domain.getHouseType(), domain.getYear());
-		}
-		else{
-			sessions=Session.findSessionsByHouseTypeAndYear(houseTypes.get(0), currentYear);
-		}
-
-		List<SessionType> sessionTypes=new ArrayList<SessionType>();
-		if(!sessions.isEmpty()){
-			for(Session s:sessions){
-				sessionTypes.add(s.getType());
+	private void populate(final ModelMap model, final Group domain, final HttpServletRequest request, String locale) {	
+		//upper limit of group numbers allowed must be set as custom parameter 'DEFAULT_GROUP_NUMBER'
+		String groupNumberLimitParameter = ((CustomParameter) CustomParameter.findByName(CustomParameter.class, "DEFAULT_GROUP_NUMBER", null)).getValue();
+		
+		if(groupNumberLimitParameter != null) {
+			if(!groupNumberLimitParameter.isEmpty()) {
+				try{
+					Integer groupNumberLimit=Integer.parseInt(groupNumberLimitParameter);
+					model.addAttribute("groupNumberLimit",groupNumberLimit);
+					
+					/**** Group Numbers ****/
+					List<MasterVO> groupNumbers = new ArrayList<MasterVO>();
+					for(Integer i=1; i<=groupNumberLimit; i++) {
+						MasterVO groupNumber = new MasterVO();
+						groupNumber.setName(FormaterUtil.formatNumberNoGrouping(i, locale));
+						groupNumber.setValue(i.toString());							
+						groupNumbers.add(groupNumber);						
+					}
+					model.addAttribute("groupNumbers", groupNumbers);
+					if(domain.getNumber() != null) {
+						model.addAttribute("selectedNumber", domain.getNumber().toString());
+					}
+					
+				} catch(NumberFormatException ne) {
+					model.addAttribute("errorcode","defaultgroupnumbersetincorrect");
+				}
+			} else {
+				model.addAttribute("errorcode","nodefaultgroupnumberfound");
 			}
-		}
-		Set<SessionType> uniqueSessionTypes = new HashSet<SessionType>(sessionTypes);
-		sessionTypes = new ArrayList<SessionType>(uniqueSessionTypes);
-		model.addAttribute("sessionTypes", sessionTypes);
-
-	}
+		} else {
+			model.addAttribute("errorcode","nodefaultgroupnumberfound");
+		}		
+	}	
+	
 	/* (non-Javadoc)
 	 * @see org.mkcl.els.controller.GenericController#customValidateCreate(org.mkcl.els.domain.BaseDomain, 
 
 org.springframework.validation.BindingResult, javax.servlet.http.HttpServletRequest)
 	 */
 	@Override
-	protected void customValidateCreate(final Group domain,
-			final BindingResult result, final HttpServletRequest request) {
-		Group group=Group.findByNumberHouseTypeSessionTypeYear(domain.getNumber(), domain.getHouseType(), domain.getSessionType(), domain.getYear());
-		if(group!=null){
-			result.rejectValue("number", "NonUnique", "Group already Exist");           
-
+	protected void customValidateCreate(final Group domain, final BindingResult result, final HttpServletRequest request) {
+		if(domain.getNumber() != null) {
+			Group group=Group.findByNumberHouseTypeSessionTypeYear(domain.getNumber(), domain.getHouseType(), domain.getSessionType(), domain.getYear());
+			if(group!=null){
+				result.rejectValue("number", "NonUnique.groupNumber", "Group already Exist");
+			}			
+		} else {
+			result.rejectValue("number", "NotNull.groupNumber", "Please select group number");
 		}
-		customValidateGroupInformation(domain, result, request);
-
+		customValidateCommon(domain, result, request);
 	}
 
 	/* (non-Javadoc)
@@ -159,18 +327,21 @@ org.springframework.validation.BindingResult, javax.servlet.http.HttpServletRequ
 org.springframework.validation.BindingResult, javax.servlet.http.HttpServletRequest)
 	 */
 	@Override
-	protected void customValidateUpdate(final Group domain,
-			final BindingResult result, final HttpServletRequest request) {
-		//To check whether the group has Changed
-		Group group=Group.findById(Group.class,domain.getId());
-		if(!group.getNumber().equals(domain.getNumber()) ||!group.getHouseType().equals(domain.getHouseType())||
-				!group.getSessionType().equals(domain.getSessionType())||!group.getYear().equals(domain.getYear())){
-			Group duplicateGroup=Group.findByNumberHouseTypeSessionTypeYear(domain.getNumber(), domain.getHouseType(), domain.getSessionType(),domain.getYear());
-			if(duplicateGroup!=null){
-				result.rejectValue("number", "NonUnique", "Group already Exist");
+	protected void customValidateUpdate(final Group domain, final BindingResult result, final HttpServletRequest request) {
+		if(domain.getNumber() != null) {
+			//To check whether the group has Changed
+			Group group=Group.findById(Group.class,domain.getId());
+			if(!group.getNumber().equals(domain.getNumber()) ||!group.getHouseType().equals(domain.getHouseType())||
+					!group.getSessionType().equals(domain.getSessionType())||!group.getYear().equals(domain.getYear())){
+				Group duplicateGroup=Group.findByNumberHouseTypeSessionTypeYear(domain.getNumber(), domain.getHouseType(), domain.getSessionType(),domain.getYear());
+				if(duplicateGroup!=null){
+					result.rejectValue("number", "NonUnique.groupNumber", "Group already Exist");
+				}
 			}
+		} else {
+			result.rejectValue("number", "NotNull.groupNumber", "Please select group number");
 		}
-		customValidateGroupInformation(domain, result, request);
+		customValidateCommon(domain, result, request);
 	}
 
 	/**
@@ -180,8 +351,15 @@ org.springframework.validation.BindingResult, javax.servlet.http.HttpServletRequ
 	 * @param result the result
 	 * @param request the request
 	 */
-	private void customValidateGroupInformation(final Group domain, final BindingResult result,
-			final HttpServletRequest request) {
+	private void customValidateCommon(final Group domain, final BindingResult result,	final HttpServletRequest request) {
+		if(domain.getMinistries() != null) {
+			if(domain.getMinistries().size() == 0) {
+				result.rejectValue("ministries", "NotEmpty.ministries", "Please select ministries");
+			}
+		} else {
+			result.rejectValue("ministries", "NotNull.ministries", "Please select ministries");
+		}
+
 		// Check for version mismatch
 		if (domain.isVersionMismatch()) {
 			result.rejectValue("VersionMismatch", "version");
@@ -312,33 +490,88 @@ org.springframework.validation.BindingResult, javax.servlet.http.HttpServletRequ
     	model.addAttribute("selects", selects);
     	for(Date d:answeringDates){
     		Calendar dateField = Calendar.getInstance();
+    		int difference;
+    		Date submissionDate = null;
+    		Date lastReceivingDateFromDepartment = null;
+    		Date lastSendingDateToDepartment = null;
+    		Date yaadiPrintingDate = null;
+    		Date yaadiReceivingDate = null;
+    		Date suchhiPrintingDate = null;
+    		Date suchhiReceivingDate = null;
+    		Date suchhiDistributionDate = null;
+    		Date speakerSendingDate = null;
     		
-    		int difference = Integer.parseInt(session.getParameter("questions_starred_finalSubmissionDate_difference"));
-    		Date submissionDate = Holiday.getLastWorkingDateFrom(dateField, d, difference, domain.getLocale());
+    		if(session.getParameter("questions_starred_finalSubmissionDate_difference") != null) {
+	    		difference = Integer.parseInt(session.getParameter("questions_starred_finalSubmissionDate_difference"));
+	    		submissionDate = Holiday.getLastWorkingDateFrom(dateField, d, difference, domain.getLocale());
+    		} else {
+    			model.addAttribute("errorcode", "sessionparametersnotset");    			
+    			return urlPattern.replace("rotationorder","error");
+    		}
     		
-    		difference = Integer.parseInt(session.getParameter("questions_starred_lastReceivingDateFromDepartment_difference"));
-    		Date lastReceivingDateFromDepartment = Holiday.getLastWorkingDateFrom(dateField, d, difference, domain.getLocale());
+    		if(session.getParameter("questions_starred_lastReceivingDateFromDepartment_difference") != null) {
+    			difference = Integer.parseInt(session.getParameter("questions_starred_lastReceivingDateFromDepartment_difference"));
+        		lastReceivingDateFromDepartment = Holiday.getLastWorkingDateFrom(dateField, d, difference, domain.getLocale());
+    		} else {
+    			model.addAttribute("errorcode", "sessionparametersnotset");
+    			return urlPattern.replace("rotationorder","error");
+    		}
     		
-    		difference = Integer.parseInt(session.getParameter("questions_starred_lastSendingDateToDepartment_difference"));
-    		Date lastSendingDateToDepartment = Holiday.getLastWorkingDateFrom(dateField, d, difference, domain.getLocale());
+    		if(session.getParameter("questions_starred_lastSendingDateToDepartment_difference") != null) {
+    			difference = Integer.parseInt(session.getParameter("questions_starred_lastSendingDateToDepartment_difference"));
+    			lastSendingDateToDepartment = Holiday.getLastWorkingDateFrom(dateField, d, difference, domain.getLocale());
+    		} else {
+    			model.addAttribute("errorcode", "sessionparametersnotset");
+    			return urlPattern.replace("rotationorder","error");
+    		}
     		
-    		difference = Integer.parseInt(session.getParameter("questions_starred_yaadiPrintingDate_difference"));
-    		Date yaadiPrintingDate = Holiday.getLastWorkingDateFrom(dateField, d, difference, domain.getLocale());
+    		if(session.getParameter("questions_starred_yaadiPrintingDate_difference") != null) {
+    			difference = Integer.parseInt(session.getParameter("questions_starred_yaadiPrintingDate_difference"));
+    			yaadiPrintingDate = Holiday.getLastWorkingDateFrom(dateField, d, difference, domain.getLocale());
+    		} else {
+    			model.addAttribute("errorcode", "sessionparametersnotset");
+    			return urlPattern.replace("rotationorder","error");
+    		}
     		
-    		difference = Integer.parseInt(session.getParameter("questions_starred_yaadiReceivingDate_difference"));
-    		Date yaadiReceivingDate = Holiday.getLastWorkingDateFrom(dateField, d, difference, domain.getLocale());
+    		if(session.getParameter("questions_starred_yaadiReceivingDate_difference") != null) {
+    			difference = Integer.parseInt(session.getParameter("questions_starred_yaadiReceivingDate_difference"));
+    			yaadiReceivingDate = Holiday.getLastWorkingDateFrom(dateField, d, difference, domain.getLocale());
+    		} else {
+    			model.addAttribute("errorcode", "sessionparametersnotset");
+    			return urlPattern.replace("rotationorder","error");
+    		}
     		
-    		difference = Integer.parseInt(session.getParameter("questions_starred_suchhiPrintingDate_difference"));
-    		Date suchhiPrintingDate = Holiday.getLastWorkingDateFrom(dateField, d, difference, domain.getLocale());
+    		if(session.getParameter("questions_starred_suchhiPrintingDate_difference") != null) {
+    			difference = Integer.parseInt(session.getParameter("questions_starred_suchhiPrintingDate_difference"));
+    			suchhiPrintingDate = Holiday.getLastWorkingDateFrom(dateField, d, difference, domain.getLocale());
+    		} else {
+    			model.addAttribute("errorcode", "sessionparametersnotset");
+    			return urlPattern.replace("rotationorder","error");
+    		}
     		
-    		difference = Integer.parseInt(session.getParameter("questions_starred_suchhiReceivingDate_difference"));
-    		Date suchhiReceivingDate = Holiday.getLastWorkingDateFrom(dateField, d, difference, domain.getLocale());
+    		if(session.getParameter("questions_starred_suchhiReceivingDate_difference") != null) {
+    			difference = Integer.parseInt(session.getParameter("questions_starred_suchhiReceivingDate_difference"));
+    			suchhiReceivingDate = Holiday.getLastWorkingDateFrom(dateField, d, difference, domain.getLocale());
+    		} else {
+    			model.addAttribute("errorcode", "sessionparametersnotset");
+    			return urlPattern.replace("rotationorder","error");
+    		}
     		
-    		difference = Integer.parseInt(session.getParameter("questions_starred_suchhiDistributionDate_difference"));
-    		Date suchhiDistributionDate = Holiday.getLastWorkingDateFrom(dateField, d, difference, domain.getLocale());
-   		
-    		difference = Integer.parseInt(session.getParameter("questions_starred_speakerSendingDate_difference"));
-    		Date speakerSendingDate = Holiday.getLastWorkingDateFrom(dateField, d, difference, domain.getLocale());
+    		if(session.getParameter("questions_starred_suchhiDistributionDate_difference") != null) {
+    			difference = Integer.parseInt(session.getParameter("questions_starred_suchhiDistributionDate_difference"));
+    			suchhiDistributionDate = Holiday.getLastWorkingDateFrom(dateField, d, difference, domain.getLocale());
+    		} else {
+    			model.addAttribute("errorcode", "sessionparametersnotset");
+    			return urlPattern.replace("rotationorder","error");
+    		}
+    		
+    		if(session.getParameter("questions_starred_speakerSendingDate_difference") != null) {
+    			difference = Integer.parseInt(session.getParameter("questions_starred_speakerSendingDate_difference"));
+    			speakerSendingDate = Holiday.getLastWorkingDateFrom(dateField, d, difference, domain.getLocale());
+    		} else {
+    			model.addAttribute("errorcode", "sessionparametersnotset");
+    			return urlPattern.replace("rotationorder","error");
+    		}    		
     		
     		QuestionDates qd = domain.findQuestionDatesByGroupAndAnsweringDate(d);
     		if(qd!=null){
@@ -348,13 +581,7 @@ org.springframework.validation.BindingResult, javax.servlet.http.HttpServletRequ
     			else {
     				submissionDates.add("");
     			}
-//    			lastSendingDatesToDepartment.add(dateFormat.format(qd.getLastSendingDateToDepartment()));
-//    			lastReceivingDatesFromDepartment.add(dateFormat.format(qd.getLastReceivingDateFromDepartment()));
-//    			yaadiPrintingDates.add(dateFormat.format(qd.getYaadiPrintingDate()));
-//    			yaadiReceivingDates.add(dateFormat.format(qd.getYaadiReceivingDate()));
-//    			suchhiPrintingDates.add(dateFormat.format(qd.getSuchhiPrintingDate()));
-//    			suchhiReceivingDates.add(dateFormat.format(qd.getSuchhiReceivingDate()));
-//    			suchhiDistributionDates.add(dateFormat.format(qd.getSuchhiDistributionDate()));
+
     			if(qd.getLastSendingDateToDepartment()!=null) {
     				lastSendingDatesToDepartment.add(dateFormat.format(qd.getLastSendingDateToDepartment()));
     			}
@@ -405,22 +632,58 @@ org.springframework.validation.BindingResult, javax.servlet.http.HttpServletRequ
     			}    
     		}
     		else{
-    			submissionDates.add(dateFormat.format(submissionDate));
-    			lastReceivingDatesFromDepartment.add(dateFormat.format(lastReceivingDateFromDepartment));
-    			lastSendingDatesToDepartment.add(dateFormat.format(lastSendingDateToDepartment));
-    			yaadiPrintingDates.add(dateFormat.format(yaadiPrintingDate));
-    			yaadiReceivingDates.add(dateFormat.format(yaadiReceivingDate));
-    			suchhiPrintingDates.add(dateFormat.format(suchhiPrintingDate));
-    			suchhiReceivingDates.add(dateFormat.format(suchhiReceivingDate));
-    			suchhiDistributionDates.add(dateFormat.format(suchhiDistributionDate));
-    			speakerSendingDates.add(dateFormat.format(speakerSendingDate));
-//    			lastSendingDatesToDepartment.add("");
-//    			lastReceivingDatesFromDepartment.add("");
-//    			yaadiPrintingDates.add("");
-//    			yaadiReceivingDates.add("");
-//    			suchhiPrintingDates.add("");
-//    			suchhiReceivingDates.add("");
-//    			suchhiDistributionDates.add("");
+    			if(submissionDate != null) {
+    				submissionDates.add(dateFormat.format(submissionDate));
+    			} else {
+    				submissionDates.add("");
+    			}
+    			if(lastReceivingDateFromDepartment != null) {
+    				lastReceivingDatesFromDepartment.add(dateFormat.format(lastReceivingDateFromDepartment));
+    			} else {
+    				lastReceivingDatesFromDepartment.add("");
+    			}
+    			
+    			if(lastSendingDateToDepartment != null) {
+    				lastSendingDatesToDepartment.add(dateFormat.format(lastSendingDateToDepartment));
+    			} else {
+    				lastSendingDatesToDepartment.add("");
+    			}
+    			
+    			if(yaadiPrintingDate != null) {
+    				yaadiPrintingDates.add(dateFormat.format(yaadiPrintingDate));
+    			} else {
+    				yaadiPrintingDates.add("");
+    			}
+    			
+    			if(yaadiReceivingDate != null) {
+    				yaadiReceivingDates.add(dateFormat.format(yaadiReceivingDate));
+    			} else {
+    				yaadiReceivingDates.add("");
+    			}
+    			
+    			if(suchhiPrintingDate != null) {
+    				suchhiPrintingDates.add(dateFormat.format(suchhiPrintingDate));
+    			} else {
+    				suchhiPrintingDates.add("");
+    			}
+    			
+    			if(suchhiReceivingDate != null) {
+    				suchhiReceivingDates.add(dateFormat.format(suchhiReceivingDate));
+    			} else {
+    				suchhiReceivingDates.add("");
+    			}
+    			
+    			if(suchhiDistributionDate != null) {
+    				suchhiDistributionDates.add(dateFormat.format(suchhiDistributionDate));
+    			} else {
+    				suchhiDistributionDates.add("");
+    			}
+    			
+    			if(speakerSendingDate != null) {
+    				speakerSendingDates.add(dateFormat.format(speakerSendingDate));
+    			} else {
+    				speakerSendingDates.add("");
+    			}    			
     		}    		
     	}    	
     	model.addAttribute("submissionDates",submissionDates);

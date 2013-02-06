@@ -4,11 +4,16 @@
 	<title><spring:message code="group.list"/></title>
 	<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
 	<script type="text/javascript">
-		$(document).ready(function(){
-			$('#new_record').click(function(){
+		$(document).ready(function(){			
+			$("#selectionDiv1").show();	
+			
+			/**** grid params which is sent to load grid data being sent ****/					
+			$("#gridURLParams").val("houseType="+$("#selectedHouseType").val() + "&year="+$("#selectedYear").val() + "&sessionType="+$("#selectedSessionType").val());
+			
+			$('#new_record').click(function(){				
 				newRecord();
 			});
-			$('#edit_record').click(function(){
+			$('#edit_record').click(function(){				
 				editRecord($('#key').val());
 			});
 			$("#delete_record").click(function() {
@@ -47,6 +52,8 @@
 	</div>
 	<%@ include file="/common/gridview.jsp" %>
 	<input type="hidden" id="grid_id" value="${gridId}">	
+	<input type="hidden" id="gridURLParams" name="gridURLParams">
+	
 	</div>
 </body>
 </html>

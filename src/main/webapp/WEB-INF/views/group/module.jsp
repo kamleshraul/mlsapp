@@ -4,29 +4,71 @@
 	<title><spring:message code="group.list" /></title>
 	<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
 	<script type="text/javascript">
-	var urlPattern=$('#urlPattern').val();
-	$(document).ready(function(){		
-			$('#list_tab').click(function(){
-				showList();
+		var urlPattern=$('#urlPattern').val();
+		$(document).ready(function(){	
+			$('#errorDiv').hide();			
+			showTabByIdAndUrl('list_tab','group/list?houseType='+$('#selectedHouseType').val()+'&year='+$("#selectedYear").val()+'&sessionType='+$("#selectedSessionType").val());
+			
+			$('#list_tab').click(function(){	
+				$("#selectionDiv1").show();				
+				if($('#errorDiv').is(':visible')) {					
+					return false;
+				} else {
+					showGroupList();
+				}				
 			});
+			
+			/**** house type changes then reload grid****/			
+			$("#selectedHouseType").change(function(){
+				var value=$(this).val();
+				if(value!=""){					
+					reloadGroupGrid();									
+				}	
+			});
+			
+			/**** session year changes then reload grid****/			
+			$("#selectedYear").change(function(){
+				var value=$(this).val();
+				if(value!=""){		
+					reloadGroupGrid();								
+				}			
+			});
+			
+			/**** session type changes then reload grid****/
+			$("#selectedSessionType").change(function(){
+				var value=$(this).val();
+				if(value!=""){			
+					reloadGroupGrid();							
+				}			
+			});		
 			
 			$('#details_tab').click(function(){
-				var row = $("#grid").jqGrid('getGridParam','selrow');
-				if(row == null){
-					if($('#key').val()!=""){							
+				if($('#errorDiv').is(':visible')) {
+		    		return false;
+		    	} else {		    				    		
+					var row = $("#grid").jqGrid('getGridParam','selrow');
+					if(row == null){
+						if($('#key').val()!=""){							
+							editRecord();
+						}else{		
+							$.prompt($('#selectRowFirstMessage').val());
+							return false;
+						};					
+					}
+					else{						
 						editRecord();
-					}else{
-						newRecord();
-					};					
-				}
-				else{					
-					editRecord();
-				}
-			});
-			$('#rotationOrder_tab').click(function(){
-				assignRotationOrder($('#key').val());
-			});
+					}
+		    	}				
+			});			
 			
+			$('#rotationOrder_tab').click(function(){
+				if($('#errorDiv').is(':visible')) {
+		    		return false;
+		    	} else {		    		
+					assignRotationOrder($('#key').val());
+				}
+			});
+				
 			$(document).keydown(function (e){
 				if(e.which==78 && e.ctrlKey){
 					newRecord();
@@ -48,38 +90,38 @@
 				if(e.keyCode == 38 || e.keyCode == 40){
 					scrollRowsInGrid(e);
 		        }
-			});
-			showTabByIdAndUrl('list_tab','group/list');
-		});
-		
-		function showList() {
-			showTabByIdAndUrl('list_tab','group/list');
+			});			
+		});	
 			
-
+		/**** displaying grid ****/					
+		function showGroupList() {
+			showTabByIdAndUrl('list_tab','group/list?houseType='+$('#selectedHouseType').val()+'&year='+$("#selectedYear").val()+'&sessionType='+$("#selectedSessionType").val());
 		}
-
+	
 		function newRecord(copy) {
-			if(copy==null||copy==undefined){
-			showTabByIdAndUrl('details_tab','group/new')	;
+			$("#selectionDiv1").hide();	
+			if(copy==null||copy==undefined){				
+				showTabByIdAndUrl('details_tab','group/new?'+$("#gridURLParams").val());
 			}else{
-				showTabByIdAndUrl('details_tab','group/new?copy='+$("#key").val())	;
+				showTabByIdAndUrl('details_tab','group/new?copy='+$("#key").val() + $("#gridURLParams").val());
 			}
 		}
-
+	
 		function editRecord() {
 			var row = $("#grid").jqGrid('getGridParam','selrow');
 			if(this.id =='edit_record' && row==null){				
-				$.prompt("Please select the desired row to edit");
+				$.prompt($('#selectRowFirstMessage').val());
 				return false;							
 			} 
 			else{
+				$("#selectionDiv1").hide();	
 				if(row!=$('#key').val()) {
 					row = $('#key').val();
 				}								
-				showTabByIdAndUrl('details_tab','group/'+row+'/edit');
+				showTabByIdAndUrl('details_tab','group/'+row+'/edit?'+$("#gridURLParams").val());
 			}
 		}
-
+	
 		function deleteRecord() {
 			var row = $("#grid").jqGrid('getGridParam','selrow'); 
 			if(row==null){
@@ -96,8 +138,9 @@
 				}});				
 			}
 		}
-
+	
 		function rowDblClickHandler(rowid, iRow, iCol, e) {
+			$("#selectionDiv1").hide();	
 			showTabByIdAndUrl('details_tab', 'group/'+rowid+'/edit');
 		}
 		
@@ -107,10 +150,37 @@
 				return;
 			}
 			else{
+				$("#selectionDiv1").hide();	
 				showTabByIdAndUrl('rotationOrder_tab','group/rotationorder/'+row+'/edit');
-				}
+			}
 		}
 		
+		/**** reload grid ****/
+		function reloadGroupGrid(){
+			$("#gridURLParams").val("houseType="+$("#selectedHouseType").val() + "&year="+$("#selectedYear").val() + "&sessionType="+$("#selectedSessionType").val());
+			//check whether session exists			
+			$.get('ref/sessionforgroups?' + $("#gridURLParams").val(), function(data){				
+				if(data) {					
+					$('#errorDiv').hide();
+					$('#listDiv').show();
+					var oldURL=$("#grid").getGridParam("url");
+					var baseURL=oldURL.split("?")[0];
+					newURL=baseURL+"?"+$("#gridURLParams").val();
+					$("#grid").setGridParam({"url":newURL});
+					$("#grid").trigger("reloadGrid");
+				}	
+				else {					
+					$('#errorDiv').show();
+					$('#listDiv').hide();										
+				}
+			});
+			
+			var oldURL=$("#grid").getGridParam("url");
+			var baseURL=oldURL.split("?")[0];
+			newURL=baseURL+"?"+$("#gridURLParams").val();
+			$("#grid").setGridParam({"url":newURL});
+			$("#grid").trigger("reloadGrid");							
+		}
 	</script>
 </head>
 <body>
@@ -133,8 +203,75 @@
 				</a>
 			</li>
 		</ul>
-		<div class="tabContent clearfix">
-		</div>
+		
+		<div class="commandbarContent" style="margin-top: 10px;" id="selectionDiv1">		
+			<a href="#" id="select_houseType" class="butSim">
+				<spring:message code="question.houseType" text="House Type"/>
+			</a>
+			<select name="selectedHouseType" id="selectedHouseType" style="width:100px;height: 25px;">	
+				<c:if test="${empty selectedHouseType}">
+					<option value=""><spring:message code='client.prompt.selectForDropdown' text='----Please Select----'/></option>
+				</c:if>		
+				<c:forEach items="${houseTypes}" var="i">					
+					<c:choose>
+						<c:when test="${i.type==selectedHouseType}">
+							<option value="${i.type}" selected="selected"><c:out value="${i.name}"></c:out></option>			
+						</c:when>
+						<c:otherwise>
+							<option value="${i.type}"><c:out value="${i.name}"></c:out></option>			
+						</c:otherwise>
+					</c:choose>
+				</c:forEach>
+			</select> |					
+			<a href="#" id="select_session_year" class="butSim">
+				<spring:message code="question.sessionyear" text="Year"/>
+			</a>
+			<select name="selectedYear" id="selectedYear" style="width:100px;height: 25px;">	
+				<c:if test="${empty selectedYear}">
+					<option value=""><spring:message code='client.prompt.selectForDropdown' text='----Please Select----'/></option>
+				</c:if>			
+				<c:forEach var="i" items="${years}">					
+					<c:choose>
+						<c:when test="${i.value==selectedYear }">
+							<option value="${i.value}" selected="selected"><c:out value="${i.name}"></c:out></option>				
+						</c:when>
+						<c:otherwise>
+							<option value="${i.value}" ><c:out value="${i.name}"></c:out></option>			
+						</c:otherwise>
+					</c:choose>
+				</c:forEach> 
+			</select> |						
+			<a href="#" id="select_sessionType" class="butSim">
+				<spring:message code="question.sessionType" text="Session Type"/>
+			</a>
+			<select name="selectedSessionType" id="selectedSessionType" style="width:100px;height: 25px;">		
+				<c:if test="${empty selectedSessionType}">
+					<option value=""><spring:message code='client.prompt.selectForDropdown' text='----Please Select----'/></option>
+				</c:if>			
+				<c:forEach items="${sessionTypes}" var="i">
+					<c:choose>
+						<c:when test="${i.id==selectedSessionType}">
+							<option value="${i.type}" selected="selected"><c:out value="${i.sessionType}"></c:out></option>				
+						</c:when>
+						<c:otherwise>
+							<option value="${i.type}"><c:out value="${i.sessionType}"></c:out></option>			
+						</c:otherwise>
+					</c:choose>			
+				</c:forEach> 
+			</select>
+			<hr>
+		</div>		
+		
+		<div id="errorDiv" class="toolTip tpRed clearfix">
+			<p>
+				<img src="./resources/images/template/icons/light-bulb-off.png">
+				<spring:message code="question.errorcode.nosessionentryfound" text="No session found."/>
+			</p>
+			<p></p>
+		</div>		
+		
+		<div id="listDiv" class="tabContent clearfix"></div>
+		
 		<input type="hidden" id="key" name="key">
 		<input type="hidden" id="urlPattern" name="urlPattern" value="${urlPattern}">
 		<input type="hidden" id="selectRowFirstMessage" name="selectRowFirstMessage" value="<spring:message code='group.selectRowFirstMessage' text='Please select the desired row first'></spring:message>" disabled="disabled">
