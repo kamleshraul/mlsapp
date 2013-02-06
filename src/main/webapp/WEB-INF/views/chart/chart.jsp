@@ -4,7 +4,7 @@
 	<title></title>
 	<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
 	<script type="text/javascript">
-		$(document).ready(function() {					    
+		$(document).ready(function() {
 			/**** On clicking a question on the chart ****/
 			$(".questionNumber").click(function(){
 				var parameters="houseType="+$("#selectedHouseType").val()
@@ -19,11 +19,12 @@
 				+"&edit=true";
 				var resourceURL='question/'+$(this).attr("id")+'/edit?'+parameters;
 				showTabByIdAndUrl('details_tab', resourceURL);
-			});	
+			});
+			
 			 /**** Right Click Menu ****/
 			$(".questionNumber").contextMenu({
 		        menu: 'contextMenuItems'
-		    },
+		    	},
 		        function(action, el, pos) {
 				var id=$(el).attr("id");
 				if(action=='clubbing'){
@@ -36,13 +37,15 @@
 			$(".questionNumber a[title]").qtip({
 	    		show: 'mouseover',
 	    		hide: 'mouseout'
-	    	});			
+	    	});
+
+	    	$(".scrollable").scrollLeft();			
 		});			
 	</script>
 </head>
 
 <body>
-<div>
+<div class="scrollable">
 <c:choose>
 <c:when test="${chartVOs == null}">
 	<spring:message code="question.chart.notCreated" text="Chart is not Created"/>
@@ -55,14 +58,12 @@
 <c:otherwise>
 <label class="small"><spring:message code="question.chart.answeringDate" text="Answering Date"/>: ${answeringDate}</label>
 
-<table border="1">
+<table class="uiTable" border="1">
 	<tr>
 	<th><spring:message code="member.name" text="Member Name"/></th>
-	<th><spring:message code="question1" text="Question 1"/></th>
-	<th><spring:message code="question2" text="Question 2"/></th>
-	<th><spring:message code="question3" text="Question 3"/></th>
-	<th><spring:message code="question4" text="Question 4"/></th>
-	<th><spring:message code="question5" text="Question 5"/></th>
+	<c:forEach begin="1" end="${maxQns}" var="i">
+		<th><spring:message code="chart.question" text="Question ${i}"/></th>
+	</c:forEach>
 	</tr>
 	<c:forEach items="${chartVOs}" var="chartVO">
 	<tr>
