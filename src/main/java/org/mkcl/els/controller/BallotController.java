@@ -260,11 +260,12 @@ public class BallotController extends BaseController{
 	}
 
 	/****** Member Ballot For Council ******/
-
 	@RequestMapping(value="/memberballot/init",method=RequestMethod.GET)
 	public String viewMemberBallotInit(final HttpServletRequest request,
 			final ModelMap model,
 			final Locale locale){		
+		String errorpage="ballot/error";
+		try{
 		String strHouseType=request.getParameter("houseType");
 		String strSessionType=request.getParameter("sessionType");
 		String strSessionYear=request.getParameter("sessionYear");
@@ -307,27 +308,32 @@ public class BallotController extends BaseController{
 						model.addAttribute("noOfRounds",noOfRounds);
 					}else{
 						logger.error("**** Total No. Of Rounds In Member Ballot Not Set In Session ****");
-						model.addAttribute("type", "NOOFROUNDS_MEMBERBALLOT_NOTSET");
-						return "ballot/error";
+						model.addAttribute("type", "NOOFROUNDS_IN_MEMBERBALLOT_NOTSET");
+						return errorpage;
 					}
 				}else{
-					logger.error("**** Check request parameter 'houseType,sessionType,sessionYear,questionType' for empty values ****");
-					model.addAttribute("type", "REQUEST_PARAMETER_EMPTY");
-					return "ballot/error";
+					logger.error("**** Total No. Of Rounds In Member Ballot Not Set In Session ****");
+					model.addAttribute("type", "NOOFROUNDS_IN_MEMBERBALLOT_NOTSET");
+					return errorpage;
 				}				
 			}else{
-				logger.error("**** Check request parameter 'houseType,sessionType,sessionYear,questionType' for empty values ****");
+				logger.error("**** Check request parameter 'houseType,sessionType,sessionYear,questionType,round' for empty values ****");
 				model.addAttribute("type", "REQUEST_PARAMETER_EMPTY");
-				return "ballot/error";
+				return errorpage;
 			}
 		}else{
-			logger.error("**** Check request parameter 'houseType,sessionType,sessionYear,questionType' for null values ****");
+			logger.error("**** Check request parameter 'houseType,sessionType,sessionYear,questionType,round' for null values ****");
 			model.addAttribute("type", "REQUEST_PARAMETER_NULL");
-			return "ballot/error";
-		}		
+			return errorpage;
+		}	
+		}catch(Exception e){
+			logger.error("failed",e);
+			model.addAttribute("type","DB_EXCEPTION");
+			return errorpage;
+		}
 		return "ballot/memberballotinit";
 	}
-
+	
 	@RequestMapping(value="/memberballot/memberwise",method=RequestMethod.GET)
 	public String viewMemberWiseReport(final HttpServletRequest request,final ModelMap model,final Locale locale){
 		String errorpage="ballot/error";
@@ -338,18 +344,19 @@ public class BallotController extends BaseController{
 				if((!strSession.isEmpty())&&(!strQuestionType.isEmpty())){
 					Session session=Session.findById(Session.class,Long.parseLong(strSession));
 					DeviceType questionType=DeviceType.findById(DeviceType.class,Long.parseLong(strQuestionType));
+					/**** List of Distinct Members who had submitted questions in First batch ****/
 					List<Member> eligibleMembers=MemberBallotAttendance.findEligibleMembers(session, questionType, locale.toString());
 					model.addAttribute("eligibleMembers", eligibleMembers);
 					model.addAttribute("session",session.getId());
 					model.addAttribute("questionType",questionType.getId());
 				}else{
 					logger.error("**** Check request parameter 'session,questionType' for empty values ****");
-					model.addAttribute("type", "MEMBERBALLOTCHOICE_REQUEST_PARAMETER_EMPTY");
+					model.addAttribute("type", "REQUEST_PARAMETER_EMPTY");
 					return errorpage;
 				}
 			}else{
 				logger.error("**** Check request parameter 'session,questionType' for null values ****");
-				model.addAttribute("type", "MEMBERBALLOTCHOICE_REQUEST_PARAMETER_NULL");
+				model.addAttribute("type", "REQUEST_PARAMETER_NULL");
 				return errorpage;
 			}						
 		}catch(Exception ex){
@@ -359,6 +366,46 @@ public class BallotController extends BaseController{
 		}
 		return "ballot/memberballotmemberwise";
 	}
+	
+	@RequestMapping(value="/memberballot/member/questions",method=RequestMethod.GET)
+	public String viewMemberQuestionsReport(final HttpServletRequest request,final ModelMap model,final Locale locale){
+		String errorpage="ballot/error";
+		try{
+			String strQuestionType=request.getParameter("questionType");
+			String strSession=request.getParameter("session");
+			String strMember=request.getParameter("member");
+			if(strSession!=null&&strQuestionType!=null){
+				if((!strSession.isEmpty())&&(!strQuestionType.isEmpty())){
+					Session session=Session.findById(Session.class,Long.parseLong(strSession));
+					DeviceType questionType=DeviceType.findById(DeviceType.class,Long.parseLong(strQuestionType));
+					Member member=Member.findById(Member.class,Long.parseLong(strMember));
+					/**** First Batch Questions Final Status Distribution member wise ****/
+					MemberBallotMemberWiseReportVO reports=MemberBallot.findMemberWiseReportVO(session, questionType, member, locale.toString());
+					/**** Populating Group and corresponding Ministries in Model ****/
+					List<Group> groups=Group.findByHouseTypeSessionTypeYear(session.getHouse().getType(),session.getType(),session.getYear());
+					model.addAttribute("groups",groups);
+					model.addAttribute("report",reports);
+					model.addAttribute("session",session.getId());
+					model.addAttribute("questionType",questionType.getId());
+					model.addAttribute("locale",locale.toString());
+				}else{
+					logger.error("**** Check request parameter 'session,questionType,member' for empty values ****");
+					model.addAttribute("type", "REQUEST_PARAMETER_EMPTY");
+					return errorpage;
+				}
+			}else{
+				logger.error("**** Check request parameter 'session,questionType,member' for null values ****");
+				model.addAttribute("type", "REQUEST_PARAMETER_NULL");
+				return errorpage;
+			}						
+		}catch(Exception ex){
+			logger.error("failed",ex);
+			model.addAttribute("type","DB_EXCEPTION");
+			return errorpage;
+		}
+		return "ballot/memberballotmemberwisequestions";
+	}
+
 	
 	@RequestMapping(value="/memberballot/questiondistribution",method=RequestMethod.GET)
 	public String viewQuestionDistributionReport(final HttpServletRequest request,final ModelMap model,final Locale locale){
@@ -374,6 +421,7 @@ public class BallotController extends BaseController{
 					model.addAttribute("questionDistributions",questionDistributions);
 					model.addAttribute("session",session.getId());
 					model.addAttribute("questionType",questionType.getId());
+					model.addAttribute("locale",locale.toString());
 				}else{
 					logger.error("**** Check request parameter 'session,questionType' for empty values ****");
 					model.addAttribute("type", "MEMBERBALLOTCHOICE_REQUEST_PARAMETER_EMPTY");
@@ -392,40 +440,7 @@ public class BallotController extends BaseController{
 		return "ballot/memberballotquestiondistribution";
 	}
 
-	@RequestMapping(value="/memberballot/member/questions",method=RequestMethod.GET)
-	public String viewMemberQuestionsReport(final HttpServletRequest request,final ModelMap model,final Locale locale){
-		String errorpage="ballot/error";
-		try{
-			String strQuestionType=request.getParameter("questionType");
-			String strSession=request.getParameter("session");
-			String strMember=request.getParameter("member");
-			if(strSession!=null&&strQuestionType!=null){
-				if((!strSession.isEmpty())&&(!strQuestionType.isEmpty())){
-					Session session=Session.findById(Session.class,Long.parseLong(strSession));
-					DeviceType questionType=DeviceType.findById(DeviceType.class,Long.parseLong(strQuestionType));
-					Member member=Member.findById(Member.class,Long.parseLong(strMember));
-					MemberBallotMemberWiseReportVO reports=MemberBallot.findMemberWiseReportVO(session, questionType, member, locale.toString());
-					model.addAttribute("report",reports);
-					model.addAttribute("session",session.getId());
-					model.addAttribute("questionType",questionType.getId());
-				}else{
-					logger.error("**** Check request parameter 'session,questionType' for empty values ****");
-					model.addAttribute("type", "MEMBERBALLOTCHOICE_REQUEST_PARAMETER_EMPTY");
-					return errorpage;
-				}
-			}else{
-				logger.error("**** Check request parameter 'session,questionType' for null values ****");
-				model.addAttribute("type", "MEMBERBALLOTCHOICE_REQUEST_PARAMETER_NULL");
-				return errorpage;
-			}						
-		}catch(Exception ex){
-			logger.error("failed",ex);
-			model.addAttribute("type","DB_EXCEPTION");
-			return errorpage;
-		}
-		return "ballot/memberballotmemberwisequestions";
-	}
-
+	
 
 	@RequestMapping(value="/memberballot/attendance",method=RequestMethod.GET)
 	public String markAttendance(final HttpServletRequest request,final ModelMap model,final Locale locale){
@@ -478,6 +493,7 @@ public class BallotController extends BaseController{
 				model.addAttribute("eligibles",eligibles);
 				Boolean locked=MemberBallotAttendance.areMembersLocked(session, questionType, round, attendance, locale.toString());
 				model.addAttribute("locked",locked);
+				model.addAttribute("round",round);
 			}else{
 				logger.error("**** Check request parameter 'session,questionType,round and attendance' for empty values ****");
 				model.addAttribute("type", "ATTENDANCE_REQUEST_PARAMETER_EMPTY");
@@ -556,7 +572,8 @@ public class BallotController extends BaseController{
 			memberBallotAttendances=MemberBallotAttendance.findAll(session,questionType,"false",round,"position",locale.toString());
 		}
 		model.addAttribute("selectedItems",memberBallotAttendances);
-		model.addAttribute("attendance",attendance);			
+		model.addAttribute("attendance",attendance);	
+		model.addAttribute("round",round);
 		return "ballot/memberballotpreballot";
 	}
 
