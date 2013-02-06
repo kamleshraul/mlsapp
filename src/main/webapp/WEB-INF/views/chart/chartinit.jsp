@@ -32,6 +32,11 @@
 						$.unblockUI();
 						$.fancybox.open(displayMessage);
 					}
+					else {
+						displayMessage = "Error Occurred while creating Chart";
+						$.unblockUI();
+						$.fancybox.open(displayMessage);
+					}
 				});
 			});
 			
