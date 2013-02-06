@@ -32,22 +32,24 @@ public class ChartController extends BaseController{
 	public String getChartPage(final HttpServletRequest request,
 			final ModelMap model,
 			final Locale locale){
-		String strGroup=request.getParameter("group");
+		String strGroup = request.getParameter("group");
 		/**** Added By Sandeep Singh ****/
-		String strUserGroup=request.getParameter("usergroup");
-		String strUserGroupType=request.getParameter("usergroupType");
-		if(strGroup!=null&&strUserGroup!=null&&strUserGroupType!=null){
-			if((!strGroup.isEmpty())&&(!strUserGroup.isEmpty())&&(!strUserGroupType.isEmpty())){
-				Group group=Group.findById(Group.class,Long.parseLong(strGroup));
-				List<MasterVO> masterVOs=new ArrayList<MasterVO>();
-				List<QuestionDates> questionDates=group.getQuestionDates();
-				for(QuestionDates i:questionDates){
-					MasterVO masterVO=new MasterVO(i.getId(),FormaterUtil.getDateFormatter(locale.toString()).format(i.getAnsweringDate()));
+		String strUserGroup = request.getParameter("usergroup");
+		String strUserGroupType = request.getParameter("usergroupType");
+		if(strGroup != null && strUserGroup != null && strUserGroupType != null) {
+			if((!strGroup.isEmpty()) && (!strUserGroup.isEmpty()) && (!strUserGroupType.isEmpty())) {
+				Group group = Group.findById(Group.class, Long.parseLong(strGroup));
+				List<MasterVO> masterVOs = new ArrayList<MasterVO>();
+				List<QuestionDates> questionDates = group.getQuestionDates();
+				for(QuestionDates i:questionDates) {
+					MasterVO masterVO = new MasterVO(i.getId(), 
+							FormaterUtil.getDateFormatter(
+									locale.toString()).format(i.getAnsweringDate()));
 					masterVOs.add(masterVO);
 				}
-				model.addAttribute("answeringDates",masterVOs);
-				model.addAttribute("usergroup",strUserGroup);
-				model.addAttribute("usergroupType",strUserGroupType);
+				model.addAttribute("answeringDates", masterVOs);
+				model.addAttribute("usergroup", strUserGroup);
+				model.addAttribute("usergroupType", strUserGroupType);
 			}
 		}
 		return "chart/chartinit";
@@ -64,31 +66,40 @@ public class ChartController extends BaseController{
 	@RequestMapping(value="/create", method=RequestMethod.GET)
 	public @ResponseBody String createChart(final HttpServletRequest request,
 			final Locale locale) {
-		String retVal = "ALREADY_EXISTS";
-
-		String strLocale = locale.toString();
-		String strHouseType = request.getParameter("houseType");
-		String strYear = request.getParameter("sessionYear");
-		String strSessionTypeId = request.getParameter("sessionType");
-		String strTempDate=request.getParameter("answeringDate");
-		QuestionDates questionDates=QuestionDates.findById(QuestionDates.class,Long.parseLong(strTempDate));
-
-		HouseType houseType =
-			HouseType.findByFieldName(HouseType.class, "type", strHouseType, strLocale);
-		SessionType sessionType =
-			SessionType.findById(SessionType.class, Long.valueOf(strSessionTypeId));
-		Integer year = Integer.valueOf(strYear);
-
-		Session session = Session.findSessionByHouseTypeSessionTypeYear(houseType, sessionType, year);
-
-		String ugparam=request.getParameter("group");
-		Group group = Group.findById(Group.class, Long.parseLong(ugparam));
-
-		Date answeringDate = questionDates.getAnsweringDate();
-		if(answeringDate != null) {
-			Chart foundChart = Chart.find(session, group, answeringDate, strLocale);
+		String retVal = "ERROR";
+		try {
+			/** Create HouseType */
+			String strHouseType = request.getParameter("houseType");
+			HouseType houseType =
+				HouseType.findByFieldName(HouseType.class, "type", strHouseType, locale.toString());
+			
+			/** Create SessionType */
+			String strSessionTypeId = request.getParameter("sessionType");
+			SessionType sessionType =
+				SessionType.findById(SessionType.class, Long.valueOf(strSessionTypeId));
+			
+			/** Create year */
+			String strYear = request.getParameter("sessionYear");
+			Integer year = Integer.valueOf(strYear);
+			
+			/** Create Session */
+			Session session = 
+				Session.findSessionByHouseTypeSessionTypeYear(houseType, sessionType, year);
+			
+			/** Create Group*/
+			String strGroup = request.getParameter("group");
+			Group group = Group.findById(Group.class, Long.parseLong(strGroup));
+			
+			/** Create answeringDate */
+			String strAnsweringDate = request.getParameter("answeringDate");
+			QuestionDates questionDates = 
+				QuestionDates.findById(QuestionDates.class, Long.parseLong(strAnsweringDate));
+			Date answeringDate = questionDates.getAnsweringDate();
+			
+			/** Create Chart */
+			Chart foundChart = Chart.find(session, group, answeringDate, locale.toString());
 			if(foundChart == null) {
-				Chart chart = new Chart(session, group, answeringDate, strLocale);
+				Chart chart = new Chart(session, group, answeringDate, locale.toString());
 				Chart createdChart = chart.create();
 				if(createdChart == null) {
 					retVal = "PREVIOUS_CHART_IS_NOT_PROCESSED";
@@ -97,8 +108,15 @@ public class ChartController extends BaseController{
 					retVal = "CREATED";
 				}
 			}
+			else {
+				retVal = "ALREADY_EXISTS";
+			}
+			
 		}
-
+		catch(Exception e) {
+			logger.error("error", e);
+			retVal = "ERROR";
+		}
 		return retVal;
 	}
 
@@ -106,40 +124,61 @@ public class ChartController extends BaseController{
 	public String viewChart(final ModelMap model,
 			final HttpServletRequest request,
 			final Locale locale) {
-		String strLocale = locale.toString();
-		String strHouseType = request.getParameter("houseType");
-		String strYear = request.getParameter("sessionYear");
-		String strSessionTypeId = request.getParameter("sessionType");
-		String strTempDate=request.getParameter("answeringDate");
-		QuestionDates questionDates=QuestionDates.findById(QuestionDates.class,Long.parseLong(strTempDate));
+		String retVal = "chart/error";
+		try {
+			/** Create HouseType */
+			String strHouseType = request.getParameter("houseType");
+			HouseType houseType =
+				HouseType.findByFieldName(HouseType.class, "type", strHouseType, locale.toString());
+			
+			/** Create SessionType */
+			String strSessionTypeId = request.getParameter("sessionType");
+			SessionType sessionType =
+				SessionType.findById(SessionType.class, Long.valueOf(strSessionTypeId));
+			
+			/** Create year */
+			String strYear = request.getParameter("sessionYear");
+			Integer year = Integer.valueOf(strYear);
+			
+			/** Create Session */
+			Session session = 
+				Session.findSessionByHouseTypeSessionTypeYear(houseType, sessionType, year);
 
-		HouseType houseType =
-			HouseType.findByFieldName(HouseType.class, "type", strHouseType, strLocale);
-		SessionType sessionType =
-			SessionType.findById(SessionType.class, Long.valueOf(strSessionTypeId));
-		Integer year = Integer.valueOf(strYear);
-
-		Session session = Session.findSessionByHouseTypeSessionTypeYear(houseType, sessionType, year);
-
-		String ugparam=request.getParameter("group");
-		Group group = Group.findById(Group.class, Long.parseLong(ugparam));
-
-		Date answeringDate = questionDates.getAnsweringDate();
-
-		if(answeringDate != null) {
-			List<ChartVO> chartVOs = Chart.getChartVOs(session, group, answeringDate, strLocale);
-			model.addAttribute("chartVOs", chartVOs);
-
+			/** Create Group*/
+			String strGroup = request.getParameter("group");
+			Group group = Group.findById(Group.class, Long.parseLong(strGroup));
+			
+			/** Create answeringDate */
+			String strAnsweringDate = request.getParameter("answeringDate");
+			QuestionDates questionDates = 
+				QuestionDates.findById(QuestionDates.class, Long.parseLong(strAnsweringDate));
+			Date answeringDate = questionDates.getAnsweringDate();
+			
+			/** Add localized answeringDate to model */
 			CustomParameter parameter =
 				CustomParameter.findByName(CustomParameter.class, "DB_DATEFORMAT", "");
-			String localizedAnsweringDate =
-				FormaterUtil.formatDateToString(answeringDate, parameter.getValue(), strLocale);
+			String localizedAnsweringDate = FormaterUtil.formatDateToString(answeringDate, 
+					parameter.getValue(), locale.toString());
 			model.addAttribute("answeringDate", localizedAnsweringDate);
+			
+			/** View Chart */
+			List<ChartVO> chartVOs = 
+				Chart.getChartVOs(session, group, answeringDate, locale.toString());
+			model.addAttribute("chartVOs", chartVOs);
+			
+			/** Set max Questions on Chart against any member*/
+			Integer maxQuestionsOnChart = 
+				Chart.maxChartedQuestions(session, group, answeringDate, locale.toString());
+			model.addAttribute("maxQns", maxQuestionsOnChart);
+			
+			retVal = "chart/chart";
 		}
-		else {
-			model.addAttribute("errorcode", "answeringDateNotSelected");
+		catch(Exception e) {
+			logger.error("error", e);
+			model.addAttribute("type", "INSUFFICIENT_PARAMETERS_FOR_VIEWING_CHART");
+			retVal = "chart/error";
 		}
-
-		return "chart/chart";
+		return retVal;
 	}
+	
 }
