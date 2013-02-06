@@ -12,6 +12,8 @@ public class MemberBallotMemberWiseQuestionVO {
 	
 	private String statusType;
 	
+	private String statusTypeType;
+	
 	private String groupNumber;
 	
 	private String groupFormattedNumber;
@@ -70,6 +72,14 @@ public class MemberBallotMemberWiseQuestionVO {
 
 	public String getGroupFormattedNumber() {
 		return groupFormattedNumber;
+	}
+
+	public void setStatusTypeType(String statusTypeType) {
+		this.statusTypeType = statusTypeType;
+	}
+
+	public String getStatusTypeType() {
+		return statusTypeType;
 	}
 	
 }
