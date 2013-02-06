@@ -2,6 +2,8 @@ package org.mkcl.els.common.vo;
 
 import java.util.List;
 
+import org.mkcl.els.common.util.FormaterUtil;
+
 public class MemberBallotQuestionDistributionVO {
 
 	private String sNo;
@@ -9,6 +11,8 @@ public class MemberBallotQuestionDistributionVO {
 	private String member;
 	
 	private String memberId;
+	
+	private String totalCount;
 	
 	private List<MemberBallotMemberWiseCountVO> distributions;
 
@@ -42,6 +46,22 @@ public class MemberBallotQuestionDistributionVO {
 
 	public String getMemberId() {
 		return memberId;
+	}
+
+	public void setTotalCount(String totalCount) {
+		this.totalCount = totalCount;
+	}
+
+	public String getTotalCount() {
+		return totalCount;
 	}	
+	
+	public String formatNumber(Integer number,String locale){
+		return FormaterUtil.getNumberFormatterNoGrouping(locale).format(number);
+	}
+	
+	public String formatDecimalNumber(Double number,String locale){
+		return FormaterUtil.getDeciamlFormatterWithNoGrouping(2, locale).format(number);
+	}
 	
 }
