@@ -416,7 +416,6 @@ public class MemberBallot extends BaseDomain implements Serializable {
 		this.choicesAutoFilled = choicesAutoFilled;
 	}
 
-
 	public Boolean getChoicesAutoFilled() {
 		return choicesAutoFilled;
 	}
