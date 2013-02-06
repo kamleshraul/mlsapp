@@ -3520,4 +3520,5 @@ ul.holder li.bit-input input.smallinput { width: 20px !important; }
 #demo ul.holder li.bit-input input { padding: 2px 0 1px; border: 1px solid #999; }
 .ie6fix {height:1px;width:1px; position:absolute;top:0px;left:0px;z-index:1;}
 		
-		
+/* Added by Amit Desai */
+div.scrollable { overflow:scroll; }
