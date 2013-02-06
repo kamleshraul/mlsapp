@@ -33,7 +33,10 @@
 			$("#delete_record").click(function() {
 				deleteQuestion();
 			});					
-															
+			
+			//---ADDED BY VIKAS------------------
+			$('#gridURLParams_ForNew').val($('#gridURLParams').val());			
+			
 		});
 		/**** double clicking record in grid handler ****/
 		function rowDblClickHandler(rowid, iRow, iCol, e) {

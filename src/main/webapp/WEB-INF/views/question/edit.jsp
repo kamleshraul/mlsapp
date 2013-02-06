@@ -79,6 +79,8 @@
 		
 	$(document).ready(function(){	
 				
+		console.log($('#gridURLParams_ForNew').val());
+		
 		$("#ministry").change(function(){
 			if($(this).val()!=''){
 			loadGroup($(this).val());
@@ -419,14 +421,31 @@
 						});
 					}
 				});
-				
 			}
 		});
+		
+		$('#new_record_ForNew').click(function(){	
+			newQuestion_ForNew();
+		});
 	});
+	
+	/**** new question ****/
+	function newQuestion_ForNew() {
+		showTabByIdAndUrl('details_tab','question/new?'+$("#gridURLParams_ForNew").val());
+	}
 	</script>
 </head>
 
 <body>
+	<div class="commandbar">
+		<div class="commandbarContent">	
+			<security:authorize access="hasAnyRole('MEMBER_LOWERHOUSE','MEMBER_UPPERHOUSE','QIS_CLERK')">			
+			<a href="#" id="new_record_ForNew" class="butSim">
+				<spring:message code="question.new" text="New"/>
+			</a> |
+			</security:authorize>
+		</div>
+	</div>
 <div class="fields clearfix watermark">
 <form:form action="question" method="PUT" modelAttribute="domain">
 	<%@ include file="/common/info.jsp" %>

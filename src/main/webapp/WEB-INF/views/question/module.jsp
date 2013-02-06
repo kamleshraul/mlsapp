@@ -343,7 +343,6 @@
 					</li>
 			</security:authorize>
 		</ul>
-		
 		<div class="commandbarContent" style="margin-top: 10px;" id="selectionDiv1">		
 			<a href="#" id="select_houseType" class="butSim">
 				<spring:message code="question.houseType" text="House Type"/>
@@ -469,6 +468,7 @@
 		<input type="hidden" id="selectRowFirstMessage" name="selectRowFirstMessage" value="<spring:message code='generic.selectRowFirstMessage' text='Please select the desired row first'></spring:message>" disabled="disabled">
 		<input type="hidden" id="confirmDeleteMessage" name="confirmDeleteMessage" value="<spring:message code='generic.confirmDeleteMessage' text='Do you want to delete the row with Id: '></spring:message>" disabled="disabled">
 		<input type="hidden" id="allowedGroups" name="allowedGroups" value="${allowedGroups }">
+		<input type="hidden" id="gridURLParams_ForNew" name="gridURLParams_ForNew" /> 
 		
 		</div> 		
 </body>
