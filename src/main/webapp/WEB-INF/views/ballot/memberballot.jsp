@@ -36,8 +36,8 @@
 	</tr>
 	<c:forEach items="${memberBallots}" var="i">
 	<tr>
-		<td>${i.position}</td>
-		<td>${i.member}</td>	
+		<td class="round${i.round }">${i.position}</td>
+		<td class="round${i.round }">${i.member}</td>	
 		<td>
 		<c:choose>
 		<c:when test="${!(empty i.questions)}">
