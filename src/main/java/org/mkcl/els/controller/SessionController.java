@@ -19,6 +19,7 @@ import java.util.GregorianCalendar;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.regex.Pattern;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
@@ -422,10 +423,19 @@ javax.servlet.http.HttpServletRequest)
     public String updateSessionDeviceTypeConfig(@Valid @ModelAttribute("domain") Session session, BindingResult result,final ModelMap model,
             final HttpServletRequest request, RedirectAttributes redirectAttributes ){ 
 		
-    	Long id = Long.parseLong(request.getParameter("id"));
+		Long id = Long.parseLong(request.getParameter("id"));
     	final String servletPath = request.getServletPath().replaceFirst("\\/","");
         String messagePattern=servletPath.replaceAll("\\/",".");
         String returnUrl=servletPath.split("/")[0]+"/"+request.getParameter("id")+"/"+servletPath.split("/")[1];
+        
+        String deviceTypeSelected = request.getParameter("deviceTypeSelected");
+        if(deviceTypeSelected != null){
+        	if(deviceTypeSelected.isEmpty()){
+        		deviceTypeSelected = "questions_starred";
+        	}	        	
+        }else if(deviceTypeSelected == null){
+        	deviceTypeSelected = "questions_starred";
+        }
         
         model.addAttribute("messagePattern", messagePattern);
         model.addAttribute("urlPattern", servletPath);
@@ -433,9 +443,85 @@ javax.servlet.http.HttpServletRequest)
         Session domain = Session.findById(Session.class, id);
         Map<String, String> parameters;
         
-        parameters = domain.getParameters();
-        
-    	@SuppressWarnings("rawtypes")
+		if(validateSessionDeviceTypeConfig(session, result, model, request, redirectAttributes)){
+	        	
+	        parameters = domain.getParameters();
+	        
+	    	@SuppressWarnings("rawtypes")
+			Enumeration paramNames = request.getParameterNames();
+			if (paramNames != null) {
+				while (paramNames.hasMoreElements()) {
+					
+					String name = (String) paramNames.nextElement();
+					if(!(name.equalsIgnoreCase("id")) && !(name.equalsIgnoreCase("version")) && !(name.equalsIgnoreCase("locale")) && !(name.equalsIgnoreCase("deviceTypeSelected"))){
+						
+						String[] tempValue = request.getParameterValues(name);
+						String value= "";
+						
+						for(int i = 0; i < tempValue.length; i++){
+							
+							if((i == (tempValue.length - 1))){
+								
+								if(!tempValue[i].isEmpty()){
+									value += tempValue[i];
+								}
+							}else{
+								value += tempValue[i] + "#";
+							}
+						}
+						
+						//System.out.println(name+": "+value);
+						
+						if(value.isEmpty()){
+							if(parameters.containsKey(name)){
+								parameters.remove(name);
+							}
+						}
+							
+						if ((value != null)) {
+							if(!(value.isEmpty())){
+								parameters.put(name, value);
+							}
+						}
+					}
+				}
+			}
+	    	   	
+	    	domain.setParameters(parameters);
+	    	domain.merge();
+	    	
+	    	redirectAttributes.addFlashAttribute("type", "success");
+	        //this is done so as to remove the bug due to which update message appears even though there
+	        //is a fresh new/edit request i.e after creating/updating records if we click on
+	        //new /edit then success message appears
+	        request.getSession().setAttribute("type","success");
+	        redirectAttributes.addFlashAttribute("msg", "create_success");
+	        
+	    	returnUrl = "redirect:/" + returnUrl+ "?deviceTypeSelected="+ deviceTypeSelected;
+		}else{
+			/*
+			 * model.addAttribute("type", "error");
+			 * model.addAttribute("msg", "create_failed");
+			 */
+			redirectAttributes.addFlashAttribute("type", "error");
+	        //this is done so as to remove the bug due to which update message appears even though there
+	        //is a fresh new/edit request i.e after creating/updating records if we click on
+	        //new /edit then success message appears
+	        request.getSession().setAttribute("type","error");
+	        redirectAttributes.addFlashAttribute("msg", "create_failed");
+	    	
+	    	returnUrl = "redirect:/" + returnUrl+ "?deviceTypeSelected="+ deviceTypeSelected;
+		}
+    	    	    	    	
+    	return returnUrl;    	
+    }
+	
+	public boolean validateSessionDeviceTypeConfig(Session session, BindingResult result,final ModelMap model,
+        final HttpServletRequest request, RedirectAttributes redirectAttributes){
+		
+		boolean returnValue = false;
+		
+		@SuppressWarnings("rawtypes")
 		Enumeration paramNames = request.getParameterNames();
 		if (paramNames != null) {
 			while (paramNames.hasMoreElements()) {
@@ -444,52 +530,37 @@ javax.servlet.http.HttpServletRequest)
 				if(!(name.equalsIgnoreCase("id")) && !(name.equalsIgnoreCase("version")) && !(name.equalsIgnoreCase("locale")) && !(name.equalsIgnoreCase("deviceTypeSelected"))){
 					
 					String[] tempValue = request.getParameterValues(name);
-					String value= "";
-					
 					for(int i = 0; i < tempValue.length; i++){
-						
-						if((i == (tempValue.length - 1))){
-							
-							if(!tempValue[i].isEmpty()){
-								value += tempValue[i];
+						if(!tempValue[i].isEmpty()){
+							if(name.toLowerCase().contains("number")){
+								if(!name.toLowerCase().endsWith("comparator")){
+									try{
+										Number num;
+										if(tempValue[i].contains(",")){
+											num = FormaterUtil.getNumberFormatterNoGrouping(session.getLocale()).parse(tempValue[i].replace(",", ""));
+											logger.debug("Session Config Number: "+ num);
+											returnValue = true;
+										}else{
+											num = FormaterUtil.getNumberFormatterNoGrouping(session.getLocale()).parse(tempValue[i]);
+											logger.debug("Session Config Number: "+ num);
+											returnValue = true;
+										}
+									}catch(ParseException pe){
+										returnValue = false;
+										logger.error("Illegal number.");
+									}catch(NumberFormatException ne){
+										returnValue = false;
+										logger.error("Illegal number.");
+									}
+								}
 							}
-						}else{
-							value += tempValue[i] + "#";
-						}
-					}
-					
-					System.out.println(name+": "+value);
-					
-					if(value.isEmpty()){
-						if(parameters.containsKey(name)){
-							parameters.remove(name);
-						}
-					}
-						
-					if ((value != null)) {
-						if(!(value.isEmpty())){
-							parameters.put(name, value);
 						}
 					}
 				}
 			}
 		}
-    	   	
-    	domain.setParameters(parameters);
-    	domain.merge();
-    	
-    	redirectAttributes.addFlashAttribute("type", "success");
-        //this is done so as to remove the bug due to which update message appears even though there
-        //is a fresh new/edit request i.e after creating/updating records if we click on
-        //new /edit then success message appears
-        request.getSession().setAttribute("type","success");
-        redirectAttributes.addFlashAttribute("msg", "create_success");
-    	
-        String deviceTypeSelected = request.getParameter("deviceTypeSelected");
-    	returnUrl = "redirect:/" + returnUrl+ "?deviceTypeSelected="+ deviceTypeSelected;
-    	    	    	    	
-    	return returnUrl;    	
-    }
-
+		
+		return returnValue;
+	}
 }
 
