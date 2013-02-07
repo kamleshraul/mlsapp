@@ -526,14 +526,19 @@
 	</c:if>
 	</p>
 	
-	<c:if test="${selectedQuestionType=='questions_starred'}">
-		<p>	
-			<label class="small"><spring:message code="question.task.creationtime" text="Task Created On"/></label>
-			<input id="createdTime" name="createdTime" value="${taskCreationDate}" class="sText datetimemask" readonly="readonly">
-			
-			<label class="small"><spring:message code="question.lastDateFromDepartment" text="Last Date From Department"/></label>
-			<input id="lastDateFromDept" name="lastDateFromDept" value="${lastReceivingDateFromDepartment}" class="sText" readonly="readonly">
-		</p>	
+	<p>	
+	<label class="small"><spring:message code="question.task.creationtime" text="Task Created On"/></label>
+	<input id="createdTime" name="createdTime" value="${taskCreationDate}" class="sText datetimemask" readonly="readonly">
+	</p>	
+	
+	<c:if test="${selectedQuestionType == 'questions_starred' || 
+				selectedQuestionType == 'questions_unstarred' ||
+				selectedQuestionType == 'questions_shortnotice'}">
+		<p>
+		<label class="small"><spring:message code="question.lastDateFromDepartment" text="Last Date From Department"/></label>
+		<form:input path="lastDateOfAnswerReceiving" cssClass="datemask sText" readonly="true"/>
+		<form:errors path="lastDateOfAnswerReceiving" cssClass="validationError"/>
+		</p>
 	</c:if>
 	
 	<p>		

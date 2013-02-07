@@ -797,6 +797,16 @@
 	<input id="formattedInternalStatus" name="formattedInternalStatus" value="${formattedInternalStatus }" type="text" readonly="readonly">
 	</p>
 	
+	<c:if test="${(selectedQuestionType == 'questions_starred' || 
+				selectedQuestionType == 'questions_unstarred' ||
+				selectedQuestionType == 'questions_shortnotice')}">
+		<p>
+		<label class="small"><spring:message code="question.lastDateOfAnswerReceiving" text="Last date of receiving answer"/></label>
+		<form:input path="lastDateOfAnswerReceiving" cssClass="datemask sText"/>
+		<form:errors path="lastDateOfAnswerReceiving" cssClass="validationError"/>
+		</p>
+	</c:if>
+	
 	<c:if test="${workflowstatus!='COMPLETED' }">	
 	<p>
 	<label class="small"><spring:message code="question.putupfor" text="Put up for"/></label>
@@ -850,12 +860,7 @@
 	<label class="wysiwyglabel"><spring:message code="question.rejectionReason" text="Rejection reason"/></label>
 	<form:textarea path="rejectionReason" cssClass="wysiwyg"></form:textarea>
 	</p>
-	</c:if>
-	
-	<p>
-	<label class="wysiwyglabel"><spring:message code="question.remarks" text="Remarks"/></label>
-	<form:textarea path="remarks" cssClass="wysiwyg"></form:textarea>
-	</p>	
+	</c:if>	
 	
 	<c:if test="${selectedQuestionType == 'questions_shortnotice' and domain.dateOfAnsweringByMinister != null}">
 		<p>
@@ -871,6 +876,11 @@
 	<form:textarea path="answer" cssClass="wysiwyg" readonly="true"></form:textarea>
 	</p>
 	</c:if>
+	
+	<p>
+	<label class="wysiwyglabel"><spring:message code="question.remarks" text="Remarks"/></label>
+	<form:textarea path="remarks" cssClass="wysiwyg"></form:textarea>
+	</p>
 	
 	<c:if test="${workflowstatus!='COMPLETED' }">
 	<div class="fields">
