@@ -56,6 +56,7 @@ public class MemberBallotAttendance extends BaseDomain implements Serializable{
     private Integer round;
     
     private Boolean locked=false;
+    
 
     /** The member ballot attendance repository. */
     @Autowired
@@ -286,9 +287,5 @@ public class MemberBallotAttendance extends BaseDomain implements Serializable{
 		return getMemberBallotAttendanceRepository().areMembersLocked(session,
 				questionType,round,attendance,locale);
 	}
-
-	
-
-
 
 }
