@@ -23,16 +23,20 @@
 
 <table class="uiTable" border="1">
 	<tr>
+	<th><spring:message code="general.srnumber" text="Serial Number"/></th>
 	<th><spring:message code="member.name" text="Member Name"/></th>
 	<th><spring:message code="question.number" text="Question Number"/></th>
 	<th><spring:message code="question.subject" text="Subject"/></th>
 	</tr>
+	<c:set var="counter" value="1" />
 	<c:forEach items="${ballotVOs}" var="ballotVO">
 	<tr>
+		<td>${counter}</td>
 		<td>${ballotVO.memberName}</td>
 		<td>${ballotVO.questionNumber}</td>
 		<td>${ballotVO.questionSubject}</td>
 	</tr>
+	<c:set var="counter" value="${counter + 1}" />
 	</c:forEach>
 </table>
 </c:otherwise>

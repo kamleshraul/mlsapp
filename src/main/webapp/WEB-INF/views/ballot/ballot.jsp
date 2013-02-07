@@ -28,16 +28,20 @@
 
 <table class="uiTable" border="1">
 	<tr>
-	<th><spring:message code="member.name" text="Member Name"/></th>
-	<th><spring:message code="question1" text="Question 1"/></th>
-	<th><spring:message code="round1" text="Round 1"/></th>
-	<th><spring:message code="question2" text="Question 2"/></th>
-	<th><spring:message code="round2" text="Round 2"/></th>
-	<th><spring:message code="question3" text="Question 3"/></th>
-	<th><spring:message code="round3" text="Round 3"/></th>
+		<th><spring:message code="general.srnumber" text="Serial Number"/></th>
+		<th><spring:message code="member.name" text="Member Name"/></th>
+		<th><spring:message code="question1" text="Question 1"/></th>
+		<th><spring:message code="round1" text="Round 1"/></th>
+		<th><spring:message code="question2" text="Question 2"/></th>
+		<th><spring:message code="round2" text="Round 2"/></th>
+		<th><spring:message code="question3" text="Question 3"/></th>
+		<th><spring:message code="round3" text="Round 3"/></th>
 	</tr>
+	
+	<c:set var="counter" value="1" />
 	<c:forEach items="${ballotVOs}" var="ballotVO">
 	<tr>
+		<td>${counter}</td>
 		<td>${ballotVO.memberName}</td>
 		<c:forEach items="${ballotVO.questionSequenceVOs}" var="questionSequenceVO">
 			<td align="center">
@@ -48,6 +52,7 @@
 			</td>
 		</c:forEach>
 	</tr>
+	<c:set var="counter" value="${counter + 1}" />
 	</c:forEach>
 </table>
 </c:otherwise>
