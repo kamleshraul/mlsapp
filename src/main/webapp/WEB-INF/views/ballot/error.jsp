@@ -220,12 +220,22 @@
 		<p></p>
 	</div>
 </c:when>
-
+<c:when test="${type eq 'INSUFFICIENT_PARAMETERS_FOR_PRE_BALLOT_CREATION'}">
+	<div class="toolTip tpRed clearfix">
+		<p style="font-size: 14px;">
+			<img src="./resources/images/template/icons/light-bulb-off.png">
+			<spring:message code="ballot.error.insufficient_parameters_for_pre_ballot_creation" text="Insufficient Parameters for Pre Ballot Creation"/>
+		</p>
+		<p></p>
+	</div>
+</c:when>
+<c:when test="${type eq 'INSUFFICIENT_PARAMETERS_FOR_VIEWING_BALLOT'}">
+	<div class="toolTip tpRed clearfix">
+		<p style="font-size: 14px;">
+			<img src="./resources/images/template/icons/light-bulb-off.png">
+			<spring:message code="ballot.error.insufficient_parameters_for_viewing_ballot" text="Insufficient Parameters for Viewing Ballot"/>
+		</p>
+		<p></p>
+	</div>
+</c:when>
 </c:choose>
-
-
-
-
-
-
-
