@@ -1314,20 +1314,16 @@ public class ReferenceController extends BaseController {
 	    	
 	    	SimpleDateFormat sf=new SimpleDateFormat("EEEE");
 	    	CustomParameter parameter = CustomParameter.findByName(CustomParameter.class, "SERVER_DATEFORMAT", "");
-	    	SimpleDateFormat dateFormat=null;
-	    	SimpleDateFormat dateFormatEn_US= new SimpleDateFormat(parameter.getValue(), new Locale("en_US"));
+	    	SimpleDateFormat dateFormat = null;
 	    	
-			if (domain.getLocale().equals("mr_IN")) {
-				
-				dateFormat = new SimpleDateFormat(parameter.getValue(), new Locale("hi", "IN"));
-			} else {
-				
-				dateFormat = new SimpleDateFormat(parameter.getValue(), new Locale(domain.getLocale()));
-			}
-			dateFormat.setLenient(true);
+	    	SimpleDateFormat dateFormatEn_US = null;
+	    	if(parameter != null){
+	    		dateFormatEn_US = FormaterUtil.getDateFormatter(parameter.getValue(), domain.getLocale());
+	    	}
+	    	
+			dateFormat = FormaterUtil.getDateFormatter(domain.getLocale());
 			
-			for(String day: days){
-			
+			for(String day: days){			
 				
 				start.setTime(sessionStartDate);
 		    	end.setTime(sessionEndDate);
@@ -1390,7 +1386,7 @@ public class ReferenceController extends BaseController {
 				}
 			} catch (ParseException e) {
 
-				e.printStackTrace();
+				logger.error("session does not exist.");
 			}
 
 		}
