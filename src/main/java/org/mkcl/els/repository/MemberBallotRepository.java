@@ -77,8 +77,8 @@ public class MemberBallotRepository extends BaseRepository<MemberBallot, Seriali
 			}
 		} catch (Exception e) {
 			logger.error("FAILED",e);
+			return "FAILED";
 		}
-		return "FAILED";
 	}
 
 	public String memberBallot(Session session,DeviceType deviceType,Boolean attendance,int round,String locale){
@@ -150,10 +150,10 @@ public class MemberBallotRepository extends BaseRepository<MemberBallot, Seriali
 								return "ABSENT MEMBER FOR PREVIOUS ROUND NOT LOCKED";
 							}
 						}else{
-							return "QUESTION_STARRED_NO_OF_ROUNDS_MEMBERBALLOT_UH_NOTSET";
+							return "NOOFROUNDS_IN_MEMBERBALLOT_NOTSET";
 						}
 					}else{
-						return "QUESTION_STARRED_NO_OF_ROUNDS_MEMBERBALLOT_UH_NOTSET";
+						return "NOOFROUNDS_IN_MEMBERBALLOT_NOTSET";
 					}
 				}
 			}else{
