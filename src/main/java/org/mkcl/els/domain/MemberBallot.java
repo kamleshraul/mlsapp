@@ -81,9 +81,8 @@ public class MemberBallot extends BaseDomain implements Serializable {
 	private Integer position;
 
 	/** The attendance. */
-	private Boolean attendance;
+	private Boolean attendance;	
 	
-	private Boolean choicesAutoFilled;
 
 	/** The member ballot repository. */
 	@Autowired
@@ -409,15 +408,6 @@ public class MemberBallot extends BaseDomain implements Serializable {
 			List<MemberBallot> memberBallots, final List<Question> questions, int rounds, Map<String, Integer> noofQuestionsInEachRound, String locale) {
 		return getMemberBallotRepository().createMemberBallotChoices(memberBallots,
 				questions,rounds,noofQuestionsInEachRound,locale);
-	}
-
-
-	public void setChoicesAutoFilled(Boolean choicesAutoFilled) {
-		this.choicesAutoFilled = choicesAutoFilled;
-	}
-
-	public Boolean getChoicesAutoFilled() {
-		return choicesAutoFilled;
 	}
 	
 	public static MemberBallotMemberWiseReportVO findMemberWiseReportVO(
