@@ -5,6 +5,7 @@
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
 <script type="text/javascript">
 	$(document).ready(function() {
+		var lastAutoFilledValue=0;
 		$(".question").change(function(){
 		    var id=$(this).attr("id").split("question")[1];
 			var parameters="question="+$(this).val();
@@ -38,38 +39,41 @@
 			}
 			$("#errorDiv").hide();
 			$("#successDiv").hide();	
-	    });	    
-	    $("#autofill").change(function(){
-		    if($(this).is(":checked")){
-			    /**** auto fill is checked ****/
-			    $(".question").attr("disabled","disabled");
-			    $(".answeringDate").attr("disabled","disabled");			    
-		    }else{
-			    /**** autofill is unchecked ****/				    
-		    	$(".question").removeAttr("disabled");
-			    $(".answeringDate").removeAttr("disabled");	
-			    $(".question option").show();
-			    $(".answeringDate option").show();	
-			    $(".question").val("-");	
-			    $(".answeringDate").val("-");    
-		    }
-	    });
+	    });		    
 	    $(".all").click(function(){
 		    var id=$(this).attr("id").split("all")[1];
 		    $("#question"+id+" option").show();
 		    $("#question"+id).val("-");
-	    });
-	    /**** If auto filled is true then hide questions,answering date will be disabled ****/
-	    var auto=$("#auto").val();
-	    if(auto=='true'){		   
-	    	 $(".question").attr("disabled","disabled");
-			 $(".answeringDate").attr("disabled","disabled");	
-			 $("#autofill").attr("checked","checked");    
-	    }
+	    });	    
 	    /**** making fonts bolder ****/
 	    $(".question").css("font-weight","bolder");
 	    $(".answeringDate").css("font-weight","bolder");
-	    
+	    /**** Auto filling starts at ****/
+	    $(".autofillstartsat").click(function(){
+		    var initialAutoFillValue=$("#autofillingstartsat").val();
+		    var id=$(this).attr("id").split("autofillstartsat")[1];
+		   	var sibling=$(this).parent().parent().nextAll().children();		    
+		    if(initialAutoFillValue==0||lastAutoFilledValue!=id){
+			    $("#question"+id).attr("disabled","disabled");		    
+				sibling.children(".question").attr("disabled","disabled");
+				sibling.children(".answeringDate").attr("disabled","disabled");
+				$("#answeringDate"+id).attr("disabled","disabled");
+				sibling.children(".all").hide();
+				$("#all"+id).hide();
+				sibling.children(".autofillstartsat").hide();		   	
+				$("#autofillingstartsat").val(id);
+				lastAutoFilledValue=id;
+		    }else if(lastAutoFilledValue==id){
+			    $("#question"+id).removeAttr("disabled");			    
+		    	sibling.children(".question").removeAttr("disabled");
+				sibling.children(".answeringDate").removeAttr("disabled");
+				$("#answeringDate"+id).removeAttr("disabled");				
+				sibling.children(".all").show();
+				$("#all"+id).show();
+				sibling.children(".autofillstartsat").show();		   	
+				$("#autofillingstartsat").val(0);
+		    }
+	    });	    
 	});
 </script>
 <style type="text/css">
@@ -91,6 +95,25 @@
 	th,td{
 	font-size: 14px;
 	}
+	#memberChoicesDiv{
+	width:700px;
+	}
+	.autofillstartsat:HOVER{
+		color:blue;
+		font-size: 16px;
+	}
+	.autofillstartsat{
+		margin-left: 20px;
+	}
+	.all:HOVER{
+		color:blue;
+		font-size: 16px;
+	}
+	.all{
+		margin-left: 20px;
+	}
+	
+	
 </style>
 </head>
 <body>	
@@ -102,11 +125,10 @@
 <p></p>
 </div>
 </c:if>
+<div id="memberChoicesDiv">
 <c:choose>
 	<c:when test="${!(empty memberBallots)&&flag=='edit' }">
-	<div style="font-weight: bolder;margin: 10px;"><input type="checkbox" id="autofill" name="autofill" value="true">
-				<spring:message code="memberballotchoice.autofill" text="Fill member Choices Automatically"></spring:message></div>	
-	<table class="uiTable">					
+	<table class="uiTable" style="width:100%">					
 					<tr>						
 						<th><spring:message code="memberballotchoice.sno" text="S.No"></spring:message></th>
 						<th><spring:message code="memberballotchoice.Question"
@@ -141,7 +163,7 @@
 					</select>
 					<a id="all${count}" class="all" style="font-weight: bolder;cursor: pointer;">+</a>
 					</td>
-					<td>
+					<td class="ad">
 					<select id="answeringDate${count}" name="answeringDate${count}" class="answeringDate round${roundcount } sSelect">
 					<option value='-'><spring:message code='please.select'	text='Please Select' /></option>
 					<c:forEach items="${j.question.group.questionDates}" var="l">
@@ -158,6 +180,7 @@
 					<input id="round${count}" name="round${count }" value="${i.round }" type="hidden">
 					<input id="choice${count}" name="choice${count }" value="${j.choice}" type="hidden">
 					<input id="memberBallotchoiceId${count}" name="memberBallotchoiceId${count}" value="${j.id}" type="hidden">		
+					<a id="autofillstartsat${count}" class="autofillstartsat" style="font-weight: bolder;cursor: pointer;">@</a>					
 							
 					</td>
 					<c:set value="${count+1}" var="count"></c:set>		
@@ -171,9 +194,7 @@
 	
 	</c:when>
 	<c:when test="${!(empty admittedQuestions)&&flag=='new'}">	
-				<div style="font-weight: bolder;margin: 10px;"><input type="checkbox" id="autofill" name="autofill" value="true">
-				<spring:message code="memberballotchoice.autofill" text="Auto Fill Member Choices"></spring:message></div>	
-				<table class="uiTable">					
+				<table class="uiTable" style="width:100%">					
 					<tr>						
 						<th><spring:message code="memberballotchoice.sno" text="S.No"></spring:message></th>
 						<th><spring:message code="memberballotchoice.Question"
@@ -205,12 +226,13 @@
 					</select>
 					<a id="all${count}" class="all" style="font-weight: bolder;cursor: pointer;">+</a>					
 					</td>
-					<td>
+					<td class="ad">
 					<select id="answeringDate${count}" name="answeringDate${count}" class="answeringDate round<%=i%> sSelect">
 					<option value='-'><spring:message code='please.select'	text='Please Select' /></option>
 					</select>
 					<input id="round${count}" name="round${count }" value="<%=i%>" type="hidden">
-					<input id="choice${count}" name="choice${count }" value="<%=j%>" type="hidden">					
+					<input id="choice${count}" name="choice${count }" value="<%=j%>" type="hidden">	
+					<a id="autofillstartsat${count}" class="autofillstartsat" style="font-weight: bolder;cursor: pointer;">@</a>					
 					</td>						
 					</tr>
 					<c:set value="${count+1}" var="count"></c:set>					
@@ -223,9 +245,12 @@
 				
 	</c:when>					
 </c:choose>	
+</div>
+
 <input id="noOfAdmittedQuestions" name="noOfAdmittedQuestions" value="${noOfAdmittedQuestions }" type="hidden">
 <input id="totalRounds" name="totalRounds" value="${totalRounds }" type="hidden">
 <input id="flag" name="flag" value="${flag }" type="hidden">
-<input id="auto" name="auto" value="${autofill}" type="hidden">
+<input id="autofillingstartsat" name="autofillingstartsat" type="hidden" value="0">
+
 </body>
 </html>

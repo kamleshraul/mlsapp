@@ -131,25 +131,29 @@
 				 if(data=='success'){
 					 $("#successDiv").show();
 					 $("#lockedDiv").hide();					 
-					 $("#failedDiv").hide();					 
+					 $("#failedDiv").hide();	
+					 $("#noMemberDiv").hide();					 				 
 				 }else if(data=='locked'){
 					 $("#lockedDiv").show();
+					 $("#successDiv").hide();					 
+					 $("#failedDiv").hide();
+					 $("#noMemberDiv").hide();	 				 					 
+				 }else if(data=='nomembers'){
+					 $("#noMemberDiv").show();
+					 $("#lockedDiv").hide();
 					 $("#successDiv").hide();					 
 					 $("#failedDiv").hide();				 					 
 				 }else{
 					 $("#failedDiv").show();
 					 $("#successDiv").hide();					 
-					 $("#lockedDiv").hide();			 
+					 $("#lockedDiv").hide();
+					 $("#noMemberDiv").hide();					 			 
 				 }
 				 $.unblockUI();					 
 				}
 			});
-			//}else{
-				//$.unblockUI();				
-				//$.prompt($('#selectItemFirstMessage').val());				
-			//}
 		});	
-		});
+	});
 		</script>
 	
 	<style type="text/css">
@@ -184,21 +188,28 @@
 <div class="toolTip tpGreen clearfix" id="successDiv" style="display:none;height:30px;">
 		<p style="font-size: 12px;">
 			<img src="./resources/images/template/icons/light-bulb-off.png">
-			<spring:message code="update_success" text="Data saved successfully."/>
+			<spring:message code="memberballotattendance.update_success" text="Data saved successfully."/>
 		</p>
 		<p></p>
 </div>
 <div class="toolTip tpRed clearfix" id="lockedDiv" style="display:none;height:30px;">
 		<p style="font-size: 12px;">
 			<img src="./resources/images/template/icons/light-bulb-off.png">
-			<spring:message code="locked" text="Changes cannot be done after Member Ballot is created."/>
+			<spring:message code="memberballotattendance.locked" text="Changes cannot be done after Member Ballot is created."/>
 		</p>
 		<p></p>
 </div>
 <div class="toolTip tpRed clearfix" id="failedDiv" style="display:none;height:30px;">
 		<p style="font-size: 12px;">
 			<img src="./resources/images/template/icons/light-bulb-off.png">
-			<spring:message code="failed" text="Changes cannot be updated.Please refresh and try again."/>
+			<spring:message code="memberballotattendance.failed" text="Changes cannot be updated.Please refresh and try again."/>
+		</p>
+		<p></p>
+</div>
+<div class="toolTip tpRed clearfix" id="noMemberDiv" style="display:none;height:30px;">
+		<p style="font-size: 12px;">
+			<img src="./resources/images/template/icons/light-bulb-off.png">
+			<spring:message code="memberballotattendance.nomember" text="There are no members to create member ballot."/>
 		</p>
 		<p></p>
 </div>

@@ -26,14 +26,46 @@
 		});		
 		$("form").submit(function(e){
 			$.blockUI({ message: '<img src="./resources/images/waitAnimated.gif" />' }); 
-			var noOfAdmittedQuestion=$("#noOfAdmittedQuestions").val();
-			var auto=$("#autofill").is(":checked");
-			var totalQuestionFilled=$(".question option[value!='-']").length;
-			if((!auto)&&totalQuestionFilled<noOfAdmittedQuestion){
-				$.unblockUI();				
-			 	$.prompt($("#filledLessThanAdmitted").val());	
-				return false;
+			var autofillingstartsat=$("#autofillingstartsat").val();
+			console.log(autofillingstartsat);
+			/**** For Manually Entering Choices ****/
+			if(autofillingstartsat==0){
+				var noOfAdmittedQuestion=$("#noOfAdmittedQuestions").val();
+				var totalQuestionFilled=0;
+				$(".question").each(function(){
+					var value=$(this).val();
+					console.log(value);
+					if(value!='-'){
+						totalQuestionFilled++;	
+					}
+				});
+				console.log(totalQuestionFilled);
+				console.log(noOfAdmittedQuestion);
+				if(totalQuestionFilled<noOfAdmittedQuestion){
+					$.unblockUI();				
+				 	$.prompt($("#filledLessThanAdmitted").val());	
+					return false;
+				}
 			}
+			/**** For Partially Auto Filling Choices ****/
+			else if(autofillingstartsat>1){
+				var totalQuestionFilled=0;
+				$(".question").each(function(){
+					var value=$(this).val();
+					console.log(value);
+					var disabled=$(this).attr("disabled");
+					console.log(disabled);
+					if(value!='-'&&disabled==undefined){
+						totalQuestionFilled++;	
+					}
+				});
+				console.log(totalQuestionFilled);
+				if(totalQuestionFilled!=autofillingstartsat-1){
+					$.unblockUI();				
+				 	$.prompt($("#filledLessThanAdmitted").val());	
+					return false;
+				}	
+			}			
 			$.post($('form').attr('action'),  
 	            $("form").serialize(),  
 	            function(data){
