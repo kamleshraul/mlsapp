@@ -459,10 +459,13 @@ public class QuestionWorkflowController  extends BaseController{
 					model.addAttribute("formattedAnsweringDate",FormaterUtil.getDateFormatter(locale).format(domain.getAnsweringDate().getAnsweringDate()));
 					model.addAttribute("answeringDateSelected",domain.getAnsweringDate().getId());
 					model.addAttribute("lastReceivingDateFromDepartment", FormaterUtil.getDateFormatter(locale).format(domain.getAnsweringDate().getLastReceivingDateFromDepartment()));
-					CustomParameter serverTimeStamp=CustomParameter.findByName(CustomParameter.class,"SERVER_TIMESTAMP","");
-					if(serverTimeStamp!=null){						
+					/*CustomParameter serverTimeStamp=CustomParameter.findByName(CustomParameter.class,"SERVER_TIMESTAMP","");
+					CustomParameter dbTimeFormat=CustomParameter.findByName(CustomParameter.class,"DB_DATETIMEFORMAT","");
+					if(serverTimeStamp!=null&&dbTimeFormat!=null){	
+						
 						model.addAttribute("taskCreationDate", FormaterUtil.getDateFormatter(serverTimeStamp.getValue(),locale).format(domain.findPreviousDraft().getEditedOn()));
-					}					
+					}*/	
+					model.addAttribute("taskCreationDate", workflowDetails.getAssignmentTime());
 				}
 			}
 		}	
