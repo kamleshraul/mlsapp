@@ -1414,4 +1414,30 @@ public class QuestionRepository extends BaseRepository<Question, Long>{
 		}		
 		return memberBallotMemberWiseReportVO;
 	}
+
+	@SuppressWarnings("unchecked")
+	public List<Question> findAdmittedStarredQuestionsUHByChartDate(
+			Session session, DeviceType questionType, Member member,
+			String locale) {
+		CustomParameter customParameter=CustomParameter.findByName(CustomParameter.class,"DB_DATETIMEFORMAT", "");
+		String startTime=session.getParameter(ApplicationConstants.QUESTION_STARRED_FIRSTBATCH_SUBMISSION_STARTTIME_UH);
+		String endTime=session.getParameter("questions_starred_submissionFirstBatchEndDate");
+		List<Question> questions=new ArrayList<Question>();
+		if(startTime!=null&&endTime!=null){
+			if((!startTime.isEmpty())&&(!endTime.isEmpty())){
+				if(customParameter!=null){
+					SimpleDateFormat format=FormaterUtil.getDateFormatter(customParameter.getValue(), "en_US");
+					String query="SELECT q FROM Question q JOIN q.primaryMember m JOIN q.session s JOIN q.type qt  "+
+					" WHERE m.id="+member.getId()+" AND s.id="+session.getId()+" AND qt.id="+questionType.getId()+
+					" AND q.locale='"+locale+"' AND q.internalStatus.type='"+ApplicationConstants.QUESTION_FINAL_ADMISSION+"'  "+
+					" AND q.submissionDate>='"+startTime+"' "+
+					" AND q.submissionDate<='"+endTime+"' ORDER BY q.chartAnsweringDate.answeringDate "+ApplicationConstants.ASC;
+					questions=this.em().createQuery(query).getResultList();
+				}else{
+					logger.error("Custom Parameter 'DB_DATETIMEFORMAT' not set");
+				}
+			}
+		}
+		return questions;
+	}
 }
