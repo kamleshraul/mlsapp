@@ -454,6 +454,7 @@ public class QuestionWorkflowController  extends BaseController{
 					masterVOs.add(masterVO);
 				}
 				model.addAttribute("answeringDates",masterVOs);
+				model.addAttribute("taskCreationDate", workflowDetails.getAssignmentTime());
 				if(domain.getAnsweringDate()!=null){
 					model.addAttribute("answeringDate",domain.getAnsweringDate().getId());
 					model.addAttribute("formattedAnsweringDate",FormaterUtil.getDateFormatter(locale).format(domain.getAnsweringDate().getAnsweringDate()));
@@ -465,7 +466,6 @@ public class QuestionWorkflowController  extends BaseController{
 						
 						model.addAttribute("taskCreationDate", FormaterUtil.getDateFormatter(serverTimeStamp.getValue(),locale).format(domain.findPreviousDraft().getEditedOn()));
 					}*/	
-					model.addAttribute("taskCreationDate", workflowDetails.getAssignmentTime());
 				}
 			}
 		}	
