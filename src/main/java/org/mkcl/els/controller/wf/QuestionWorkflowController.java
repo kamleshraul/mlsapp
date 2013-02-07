@@ -454,18 +454,10 @@ public class QuestionWorkflowController  extends BaseController{
 					masterVOs.add(masterVO);
 				}
 				model.addAttribute("answeringDates",masterVOs);
-				model.addAttribute("taskCreationDate", workflowDetails.getAssignmentTime());
 				if(domain.getAnsweringDate()!=null){
 					model.addAttribute("answeringDate",domain.getAnsweringDate().getId());
 					model.addAttribute("formattedAnsweringDate",FormaterUtil.getDateFormatter(locale).format(domain.getAnsweringDate().getAnsweringDate()));
 					model.addAttribute("answeringDateSelected",domain.getAnsweringDate().getId());
-					model.addAttribute("lastReceivingDateFromDepartment", FormaterUtil.getDateFormatter(locale).format(domain.getAnsweringDate().getLastReceivingDateFromDepartment()));
-					/*CustomParameter serverTimeStamp=CustomParameter.findByName(CustomParameter.class,"SERVER_TIMESTAMP","");
-					CustomParameter dbTimeFormat=CustomParameter.findByName(CustomParameter.class,"DB_DATETIMEFORMAT","");
-					if(serverTimeStamp!=null&&dbTimeFormat!=null){	
-						
-						model.addAttribute("taskCreationDate", FormaterUtil.getDateFormatter(serverTimeStamp.getValue(),locale).format(domain.findPreviousDraft().getEditedOn()));
-					}*/	
 				}
 			}
 		}	
@@ -491,6 +483,33 @@ public class QuestionWorkflowController  extends BaseController{
 		model.addAttribute("usergroup",workflowDetails.getAssigneeUserGroupId());
 		model.addAttribute("usergroupType",workflowDetails.getAssigneeUserGroupType());
 
+		/**** To have the task creation date and lastReceivingDate if userGroup is department in case of starred questions ***/
+		if(domain.getType() != null){
+			if(!domain.getType().getType().isEmpty()){
+				if(domain.getType().getType().equals(ApplicationConstants.STARRED_QUESTION)){
+					if(workflowDetails.getAssigneeUserGroupType() != null){
+						if(!workflowDetails.getAssigneeUserGroupType().isEmpty()){
+							if(workflowDetails.getAssigneeUserGroupType().equals(ApplicationConstants.DEPARTMENT)){
+								
+								if(domain.getAnsweringDate()!=null){
+									if(domain.getAnsweringDate().getLastReceivingDateFromDepartment()!=null){
+										model.addAttribute("lastReceivingDateFromDepartment", FormaterUtil.getDateFormatter(locale).format(domain.getAnsweringDate().getLastReceivingDateFromDepartment()));
+									}
+								}
+								
+								CustomParameter serverTimeStamp=CustomParameter.findByName(CustomParameter.class,"SERVER_TIMESTAMP","");
+								if(serverTimeStamp!=null){
+									if(workflowDetails.getAssignmentTime() != null){							
+										model.addAttribute("taskCreationDate", FormaterUtil.getDateFormatter(serverTimeStamp.getValue(),locale).format(workflowDetails.getAssignmentTime()));
+									}
+								}
+							}
+						}
+					}
+				}
+			}
+		}
+		
 		/**** Status,Internal Status and recommendation Status ****/
 		Status status=domain.getStatus();
 		Status internalStatus=domain.getInternalStatus();
