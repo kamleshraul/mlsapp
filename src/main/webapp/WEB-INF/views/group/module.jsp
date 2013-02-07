@@ -160,7 +160,7 @@
 			$("#gridURLParams").val("houseType="+$("#selectedHouseType").val() + "&year="+$("#selectedYear").val() + "&sessionType="+$("#selectedSessionType").val());
 			//check whether session exists			
 			$.get('ref/sessionforgroups?' + $("#gridURLParams").val(), function(data){				
-				if(data) {					
+				if(data == "success") {					
 					$('#errorDiv').hide();
 					$('#listDiv').show();
 					var oldURL=$("#grid").getGridParam("url");
@@ -169,10 +169,21 @@
 					$("#grid").setGridParam({"url":newURL});
 					$("#grid").trigger("reloadGrid");
 				}	
-				else {					
+				else{
 					$('#errorDiv').show();
-					$('#listDiv').hide();										
-				}
+					$('#listDiv').hide();	
+				
+					if(data == "error_nosessionfound"){		
+						
+						$('#error_nosessionfound').show();
+						$('#error_duplicatesessionfound').hide();
+						
+					}else if(data == "error_duplicatesessionfound") {
+						
+						$('#error_duplicatesessionfound').show();
+						$('#error_nosessionfound').hide();						
+					}										
+				}				
 			});
 			
 			var oldURL=$("#grid").getGridParam("url");
@@ -262,12 +273,15 @@
 			<hr>
 		</div>		
 		
-		<div id="errorDiv" class="toolTip tpRed clearfix">
+		<div id="errorDiv" class="toolTip tpRed clearfix">			
 			<p>
-				<img src="./resources/images/template/icons/light-bulb-off.png">
-				<spring:message code="question.errorcode.nosessionentryfound" text="No session found."/>
+				<img src="./resources/images/template/icons/light-bulb-off.png">			
+				
+				<label id="error_nosessionfound"><spring:message code="question.errorcode.nosessionentryfound" text="No session found."/></label>
+				
+				<label id="error_duplicatesessionfound"><spring:message code="question.errorcode.nosessionentryfound" text="Duplicate sessions found."/></label>
 			</p>
-			<p></p>
+			<p></p>			
 		</div>		
 		
 		<div id="listDiv" class="tabContent clearfix"></div>
