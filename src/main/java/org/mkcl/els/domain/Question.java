@@ -1822,6 +1822,14 @@ implements Serializable
                 session,questionType,member,
                 locale);
     }
+    
+    public static List<Question> findAdmittedStarredQuestionsUHByChartDate(
+            final Session session, final DeviceType questionType, final Member member,
+            final String locale) {
+        return getQuestionRepository().findAdmittedStarredQuestionsUHByChartDate(
+                session,questionType,member,
+                locale);
+    }
 
     public String findFormattedNumber(){
         NumberFormat format=FormaterUtil.getNumberFormatterNoGrouping(this.getLocale());
