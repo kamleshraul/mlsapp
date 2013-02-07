@@ -90,8 +90,9 @@
 		var answerReceived=$("#internalStatusMaster option[value='question_processed_answerReceived']").text();
 		var rejectedWithReason = $("#internalStatusMaster option[value='question_processed_rejectionWithReason']").text();
 		var dateAndAnswerReceived = $("#internalStatusMaster option[value='question_processed_dateAndAnswerReceived']").text();
+		var departmentIntimated = $("#internalStatusMaster option[value='question_processed_departmentIntimated']").text();
 		var questionType = $("#selectedQuestionType").val();
-		if(value==answerReceived || value==rejectedWithReason){
+		if(value==answerReceived || value==rejectedWithReason || value==departmentIntimated){
 			$("#endflag").val("end");
 			$("#recommendationStatus").val(value);
 			$("#actor").empty();
