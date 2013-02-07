@@ -52,6 +52,8 @@ public class MemberBallotChoice extends BaseDomain implements Serializable{
     private Boolean clubbingUpdated;
     
     private Boolean processed=false;
+    
+    private Boolean autoFilled=false;
 
 
     /** The member ballot choice repository. */
@@ -173,6 +175,22 @@ public class MemberBallotChoice extends BaseDomain implements Serializable{
 
 	public Boolean getProcessed() {
 		return processed;
+	}
+
+	public static List<Question> findFirstBatchQuestions(final Session session,
+			final DeviceType questionType,final Member member,final String pattern,
+			final String orderby,final String sortorder,final String locale) {
+		return getMemberBallotChoiceRepository().findFirstBatchQuestions(session,
+				questionType,member,pattern,
+				orderby,sortorder,locale);
+	}
+
+	public Boolean getAutoFilled() {
+		return autoFilled;
+	}
+
+	public void setAutoFilled(Boolean autoFilled) {
+		this.autoFilled = autoFilled;
 	}
 
 
