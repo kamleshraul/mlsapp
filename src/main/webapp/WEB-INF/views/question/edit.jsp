@@ -208,15 +208,15 @@
 		$("#submit").click(function(e){	
 			var deviceTypeTemp='${selectedQuestionType}';
 			if((deviceTypeTemp=='questions_halfhourdiscussion_standalone') || (deviceTypeTemp=='questions_halfhourdiscussion_from_question')){
+				$('#questionText').val($('#copyOfquestionText').val());
 				//added to validate quetion number for half hour discussion--
 				if($('#halfHourDiscussionReference_questionNumber').val()==null || $('#halfHourDiscussionReference_questionNumber').val()==""){
 					$.prompt($("#referenceQuestionIncorrectMsg").val());
 					return false;
-				}
-			}	
-			
-			$('#questionText').val($('#copyOfquestionText').val());
+				}				
+			}			
 		});
+		
 		//-----------------------------------------------------
 		//send for approval
 		$("#sendforapproval").click(function(e){
@@ -238,6 +238,7 @@
 			//----------------vikas dhananjay----------------------------------------------------------------------------------------------
 			var deviceTypeTemp='${selectedQuestionType}';
 			if((deviceTypeTemp=='questions_halfhourdiscussion_standalone') || (deviceTypeTemp=='questions_halfhourdiscussion_from_question')){
+				$('#questionText').val($('#copyOfquestionText').val());
 				//added to validate quetion number for half hour discussion--
 				if($('#halfHourDiscussionReference_questionNumber').val()==null || $('#halfHourDiscussionReference_questionNumber').val()==""){
 					$.prompt($("#referenceQuestionIncorrectMsg").val());
@@ -252,8 +253,7 @@
 				if(wysiwygVal=="<p></p>"||wysiwygVal=="<p><br></p>"||wysiwygVal=="<br><p></p>"){
 					$(this).val("");
 				}
-			});	
-			$('#questionText').val($('#copyOfquestionText').val());
+			});				
 			$.prompt($('#sendForApprovalMsg').val()+$("#selectedSupportingMembers").val(),{
 				buttons: {Ok:true, Cancel:false}, callback: function(v){
 		        if(v){
