@@ -55,6 +55,10 @@ public class MemberBallotAttendanceRepository extends BaseRepository<MemberBallo
     @SuppressWarnings("unchecked")
     public List<Member> findEligibleMembers(final Session session,
             final DeviceType deviceType, final String locale) {
+    	/**** Only those members who have submitted first batch questions will be allowed 
+    	 * to submit their choices.These are those members whose names appear atleast once in member ballot attendance
+    	 * either in present or absent list across any rounds.
+    	 */
         String query="SELECT DISTINCT(m) FROM MemberBallotAttendance mba JOIN mba.member m WHERE "+
         " mba.session.id="+session.getId()+" AND mba.deviceType.id="+deviceType.getId()+" "+
         " AND mba.locale='"+locale+"' ORDER BY m.lastName";
@@ -161,8 +165,21 @@ public class MemberBallotAttendanceRepository extends BaseRepository<MemberBallo
 		if(startTime!=null && endTime!=null){
 			String startTimeStr=format.format(startTime);
 			String endTimeStr=format.format(endTime);
+			/**** Here all members who have submitted atleast one questions 
+			 * will appear even though there might be some members whose none of the questions have been admitted
+			 * in first batch.These cases of members will be allowed to participate
+			 * in the member ballot and their names will appear in attendance list,
+			 * pre ballot list and member ballot list.But since they have no admitted
+			 * question from first batch so there names will occur in last in final ballot list if
+			 * they have submitted question in second batch and some of the
+			 * questions have been admitted for the particular answering date.If not then
+			 * their names will not appear in final ballot for a particular 
+			 * answering date.These will involve members whose all questions
+			 * have been either rejected,converted to unstarred and admitted,
+			 * have been sent for clarification needed.
+			 */
 			String query="SELECT DISTINCT m FROM Question q JOIN q.primaryMember m JOIN m.title t WHERE q.session.id="+session.getId()+
-			" AND q.type.id="+questionType.getId()+" AND q.submissionDate>='"+startTimeStr+"' AND q.submissionDate<='"+endTimeStr+"'"+
+			" AND q.originalType.id="+questionType.getId()+" AND q.submissionDate>='"+startTimeStr+"' AND q.submissionDate<='"+endTimeStr+"'"+
 			" ORDER BY m.lastName "+ApplicationConstants.ASC;
 			members=this.em().createQuery(query).getResultList();
 			for(Member i:members){
