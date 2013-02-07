@@ -604,6 +604,13 @@ public class MemberBallotRepository extends BaseRepository<MemberBallot, Seriali
 				  " AND q.submission_date>='"+startDate+"' AND q.submission_date<='"+endDate+"'"+
 				  " AND q.originaldevicetype_id="+questionType.getId()+
 				  " AND q.devicetype_id=dt.id AND q.internalstatus_id=s.id"+
+				  " AND (s.type='"+ApplicationConstants.QUESTION_FINAL_ADMISSION+"'"+
+				  " OR s.type='"+ApplicationConstants.QUESTION_FINAL_REJECTION+"'"+
+				  " OR s.type='"+ApplicationConstants.QUESTION_FINAL_CONVERT_TO_UNSTARRED_AND_ADMIT+"'"+
+				  " OR s.type='"+ApplicationConstants.QUESTION_RECOMMEND_CLARIFICATION_FROM_DEPARTMENT+"'"+
+				  " OR s.type='"+ApplicationConstants.QUESTION_RECOMMEND_CLARIFICATION_FROM_MEMBER+"'"+
+				  " OR s.type='"+ApplicationConstants.QUESTION_RECOMMEND_CLARIFICATION_FROM_MEMBER_AND_DEPARTMENT+"'"+
+				  " OR s.type='"+ApplicationConstants.QUESTION_RECOMMEND_CLARIFICATION_FROM_GOVT+"') "+
 				  " GROUP BY q.internalstatus_id ORDER BY s.type";
 				List countResults=this.em().createNativeQuery(countQuery).getResultList();
 				List<MemberBallotMemberWiseCountVO> countVOs=new ArrayList<MemberBallotMemberWiseCountVO>();
@@ -722,6 +729,13 @@ public class MemberBallotRepository extends BaseRepository<MemberBallot, Seriali
 					  " AND q.submission_date>='"+startDate+"' AND q.submission_date<='"+endDate+"'"+
 					  " AND q.originaldevicetype_id="+questionType.getId()+
 					  " AND q.devicetype_id=dt.id AND q.internalstatus_id=s.id"+
+					  " AND (s.type='"+ApplicationConstants.QUESTION_FINAL_ADMISSION+"'"+
+					  " OR s.type='"+ApplicationConstants.QUESTION_FINAL_REJECTION+"'"+
+					  " OR s.type='"+ApplicationConstants.QUESTION_FINAL_CONVERT_TO_UNSTARRED_AND_ADMIT+"'"+
+					  " OR s.type='"+ApplicationConstants.QUESTION_RECOMMEND_CLARIFICATION_FROM_DEPARTMENT+"'"+
+					  " OR s.type='"+ApplicationConstants.QUESTION_RECOMMEND_CLARIFICATION_FROM_MEMBER+"'"+
+					  " OR s.type='"+ApplicationConstants.QUESTION_RECOMMEND_CLARIFICATION_FROM_MEMBER_AND_DEPARTMENT+"'"+
+					  " OR s.type='"+ApplicationConstants.QUESTION_RECOMMEND_CLARIFICATION_FROM_GOVT+"') "+
 					  " GROUP BY q.internalstatus_id ORDER BY s.priority "+ApplicationConstants.DESC+",s.name";
 					List countResults=this.em().createNativeQuery(countQuery).getResultList();
 					List<MemberBallotMemberWiseCountVO> countVOs=new ArrayList<MemberBallotMemberWiseCountVO>();
