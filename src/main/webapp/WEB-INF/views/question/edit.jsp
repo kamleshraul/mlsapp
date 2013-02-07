@@ -272,6 +272,7 @@
 	    }); 
 		//send for submission
 		$("#submitquestion").click(function(e){
+			
 			//removing <p><br></p>  from wysiwyg editor
 			$(".wysiwyg").each(function(){
 				var wysiwygVal=$(this).val().trim();
@@ -284,6 +285,8 @@
 			var deviceTypeTemp='${selectedQuestionType}';
 			
 			if((deviceTypeTemp=='questions_halfhourdiscussion_standalone') || (deviceTypeTemp=='questions_halfhourdiscussion_from_question')){
+				
+				$('#questionText').val($('#copyOfquestionText').val());
 				
 				var submissionStartDate= '${startDate}';
 				var submissionEndDate= '${endDate}';	
@@ -322,7 +325,7 @@
 				}
 			}
 			//-------------------------------------------------------------------------
-			$('#questionText').val($('#copyOfquestionText').val());
+			
 			$.prompt($('#submissionMsg').val(),{
 				buttons: {Ok:true, Cancel:false}, callback: function(v){
 		        if(v){
