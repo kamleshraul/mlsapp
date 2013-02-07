@@ -1439,13 +1439,18 @@ public class ReferenceController extends BaseController {
 					}	
 					
 					Session currentSession = Session.findById(Session.class, new Long(strSessionId));
-					Session prevSession = Session.findPreviousSession(currentSession);
-	    	    	
-			    	Question question = null;
-			    	
-			    	question = Question.find(currentSession, qNumber, deviceTypeId);
+					Session prevSession = null;
+					Question question = null;
+					
+					if(currentSession != null){
+						prevSession = Session.findPreviousSession(currentSession);
+			    		question = Question.find(currentSession, qNumber, deviceTypeId);
+			    	}
+					
 			    	if(question == null){
-			    		question = Question.find(prevSession, qNumber, deviceTypeId);
+			    		if(prevSession != null){
+			    			question = Question.find(prevSession, qNumber, deviceTypeId);
+			    		}
 			    	}
 			    	
 					if(question != null){
