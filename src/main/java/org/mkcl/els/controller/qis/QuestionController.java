@@ -889,22 +889,22 @@ public class QuestionController extends GenericController<Question>{
 		//---------------------------Added by vikas & dhananjay-------------------------------------
 		Status tempStatus = Status.findByFieldName(Status.class, "type", "question_final_rejection", domain.getLocale());
 		boolean canRemark = false;	
+		String errorMessagePossible="";
 		
 		try{
+			errorMessagePossible = "domain_not_found";
 			if (domain.getInternalStatus().getType().equals(tempStatus.getType())) {
 				
-				QuestionDraft qDraft = domain.findPreviousDraft();
+				errorMessagePossible = "questiondraft_not_found_for_remark";
+				QuestionDraft qDraft = domain.findPreviousDraft();					
+				model.addAttribute("sectionofficer_remark",qDraft.getRemarks());
 				
-				if (qDraft != null) {
-				
-					model.addAttribute("sectionofficer_remark",qDraft.getRemarks());
-					canRemark = true;
-				}
+				canRemark = true;
 			}
 		}catch(Exception e){
+			model.addAttribute("errorcode",errorMessagePossible);
 			logger.error("Remark not found."+e.getMessage());
 		}
-								
 		
 		if(!canRemark){
 			model.addAttribute("sectionofficer_remark","");
