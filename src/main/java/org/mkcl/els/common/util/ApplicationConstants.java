@@ -246,6 +246,8 @@ public class ApplicationConstants {
     public static final String SPEAKER="speaker";   
     
     public static final String ASSISTANT="assistant";
+    
+    public static final String DEPARTMENT="department";
     /**** My Task Status ****/
     public static final String MYTASK_PENDING="PENDING";
     
