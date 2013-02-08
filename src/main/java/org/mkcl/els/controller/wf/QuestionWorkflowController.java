@@ -487,30 +487,31 @@ public class QuestionWorkflowController  extends BaseController{
 		model.addAttribute("usergroupType",workflowDetails.getAssigneeUserGroupType());
 
 		/**** To have the task creation date and lastReceivingDate if userGroup is department in case of starred questions ***/
-		if(domain.getType() != null){
-			if(!domain.getType().getType().isEmpty()){
-				if(domain.getType().getType().equals(ApplicationConstants.STARRED_QUESTION)){
-					if(workflowDetails.getAssigneeUserGroupType() != null){
-						if(!workflowDetails.getAssigneeUserGroupType().isEmpty()){
-							if(workflowDetails.getAssigneeUserGroupType().equals(ApplicationConstants.DEPARTMENT)){
-								
-								if(domain.getAnsweringDate()!=null){
-									if(domain.getAnsweringDate().getLastReceivingDateFromDepartment()!=null){
-										model.addAttribute("lastReceivingDateFromDepartment", FormaterUtil.getDateFormatter(locale).format(domain.getAnsweringDate().getLastReceivingDateFromDepartment()));
-									}
-								}
-								
-								CustomParameter serverTimeStamp=CustomParameter.findByName(CustomParameter.class,"SERVER_TIMESTAMP","");
-								if(serverTimeStamp!=null){
-									if(workflowDetails.getAssignmentTime() != null){							
-										model.addAttribute("taskCreationDate", FormaterUtil.getDateFormatter(serverTimeStamp.getValue(),locale).format(workflowDetails.getAssignmentTime()));
-									}
-								}
-							}
-						}
+		boolean canAdd = false;
+		try{
+			if(workflowDetails.getAssigneeUserGroupType().equals(ApplicationConstants.DEPARTMENT)){
+				
+				if(domain.getAnsweringDate()!=null){
+					if(domain.getAnsweringDate().getLastReceivingDateFromDepartment()!=null){
+						model.addAttribute("lastReceivingDateFromDepartment", FormaterUtil.getDateFormatter(locale).format(domain.getAnsweringDate().getLastReceivingDateFromDepartment()));
 					}
 				}
+				
+				CustomParameter serverTimeStamp=CustomParameter.findByName(CustomParameter.class,"SERVER_TIMESTAMP","");
+				if(serverTimeStamp!=null){
+					if(workflowDetails.getAssignmentTime() != null){							
+						model.addAttribute("taskCreationDate", FormaterUtil.getDateFormatter(serverTimeStamp.getValue(),locale).format(workflowDetails.getAssignmentTime()));
+					}
+				}
+				
+				canAdd = true;
 			}
+		}catch(Exception e){
+			logger.error("Last Receiving date from department or task creation date is missing.: "+e.getMessage());
+		}
+		if(!canAdd){
+			model.addAttribute("lastReceivingDateFromDepartment", "");
+			model.addAttribute("taskCreationDate", "");
 		}
 		
 		/**** Status,Internal Status and recommendation Status ****/
