@@ -563,7 +563,7 @@
 	</script>
 
 <style type="text/css">
-#searchTable td > table{
+/*#searchTable td > table{
 width:400px;
 height:400px;
 }
@@ -597,10 +597,7 @@ height:400px;
   padding: 2px; 
   text-align: center;  
 }	
-.highlightedSearchPattern{
-font-weight: bold;
-text-decoration: underline;
-}
+
 .expand{
 
 }
@@ -610,8 +607,13 @@ color: green;
 cursor: hand;
 cursor:pointer;
 }
+*/
 .filterSelected{
 color:blue;
+}
+.highlightedSearchPattern{
+font-weight: bold;
+text-decoration: underline;
 }
 </style>
 </head>
@@ -851,7 +853,7 @@ color:blue;
 </div>
 
 <div id="searchresult" style="display:none; width: 910px; border: 2px solid; margin: 5px;">
-<table  id="searchTable" style="width: 100%;">
+<table  id="searchTable" style="width: 100%;" class="strippedTable">
 <thead>
 <tr>
 <th class="expand"><spring:message code="clubbing.number" text="Question Number"></spring:message></th>
