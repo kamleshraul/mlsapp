@@ -29,6 +29,7 @@ import org.mkcl.els.domain.BaseDomain;
 import org.mkcl.els.domain.Chart;
 import org.mkcl.els.domain.Citation;
 import org.mkcl.els.domain.ClubbedEntity;
+import org.mkcl.els.domain.Credential;
 import org.mkcl.els.domain.CustomParameter;
 import org.mkcl.els.domain.Department;
 import org.mkcl.els.domain.DeviceType;
@@ -49,6 +50,7 @@ import org.mkcl.els.domain.SubDepartment;
 import org.mkcl.els.domain.SupportingMember;
 import org.mkcl.els.domain.UserGroup;
 import org.mkcl.els.domain.UserGroupType;
+import org.mkcl.els.domain.WorkflowConfig;
 import org.mkcl.els.domain.WorkflowDetails;
 import org.mkcl.els.service.IProcessService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -706,11 +708,6 @@ public class QuestionController extends GenericController<Question>{
 
 								}
 							}
-							
-							/**** Set Chart answering date ****/
-							if(domain.getChartAnsweringDate() != null) {
-								model.addAttribute("chartAnsweringDate", domain.getChartAnsweringDate().getId());
-							}
 						}
 					}							
 				} catch (ParseException e) {
@@ -814,6 +811,7 @@ public class QuestionController extends GenericController<Question>{
 		Status recommendationStatus=domain.getRecommendationStatus();
 		if(status!=null){
 			model.addAttribute("status",status.getId());
+			model.addAttribute("memberStatusType",status.getType());
 		}
 		if(internalStatus!=null){
 			model.addAttribute("internalStatus",internalStatus.getId());
@@ -889,23 +887,27 @@ public class QuestionController extends GenericController<Question>{
 			}
 		}
 		//---------------------------Added by vikas & dhananjay-------------------------------------
-		QuestionDraft qDraft = domain.findPreviousDraft();
-		if(domain.getInternalStatus().getType().equals("question_final_rejection")){
-			if(qDraft != null){
-				if(qDraft.getEditedBy().equals("sectionofficer_assembly") || qDraft.getEditedBy().equals("sectionofficer_council")){
-					if(qDraft.getInternalStatus().getType().equals("question_final_rejection")){
-						model.addAttribute("sectionofficer_remark", qDraft.getRemarks());
-					}else{
-						model.addAttribute("sectionofficer_remark", "");
-					}
-				}else{
-					model.addAttribute("sectionofficer_remark", "");
+		Status tempStatus = Status.findByFieldName(Status.class, "type", "question_final_rejection", domain.getLocale());
+		boolean canRemark = false;	
+		
+		try{
+			if (domain.getInternalStatus().getType().equals(tempStatus.getType())) {
+				
+				QuestionDraft qDraft = domain.findPreviousDraft();
+				
+				if (qDraft != null) {
+				
+					model.addAttribute("sectionofficer_remark",qDraft.getRemarks());
+					canRemark = true;
 				}
-			}else{
-				model.addAttribute("sectionofficer_remark", "");
-			}			
-		}else{
-			model.addAttribute("sectionofficer_remark", "");
+			}
+		}catch(Exception e){
+			logger.error("Remark not found."+e.getMessage());
+		}
+								
+		
+		if(!canRemark){
+			model.addAttribute("sectionofficer_remark","");
 		}
 		if(questionType.getType().equals("questions_halfhourdiscussion_from_question") || questionType.getType().equals("questions_halfhourdiscussion_standalone")){
 
@@ -1365,15 +1367,6 @@ public class QuestionController extends GenericController<Question>{
 							domain.setStatus(status);
 							domain.setInternalStatus(status);
 							domain.setRecommendationStatus(status);
-						}
-						
-						/**
-						 * Added by Amit
-						 * Set answeringdate = chartAnsweringDate whenever a Question is put up. 
-						 */
-						if(operation.trim().equals("startworkflow") && 
-								domain.getType().getType().equals(ApplicationConstants.STARRED_QUESTION)) {
-							domain.setAnsweringDate(domain.getChartAnsweringDate());
 						}
 					}
 				}else{
