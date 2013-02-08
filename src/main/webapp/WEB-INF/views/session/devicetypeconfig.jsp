@@ -18,14 +18,37 @@
 			
 			var comparator=$("#comparator_hidden_standalone").attr('title');
 			$('#questions_halfhourdiscussion_standalone_numberOfSupportingMembersComparator').val(comparator);
-			
-			
+
 		}
 		
 		if(selVal=="questions_halfhourdiscussion_from_question"){
 			
 			var comparator=$("#comparator_hidden_from_question").attr('title');
 			$('#questions_halfhourdiscussion_from_question_numberOfSupportingMembersComparator').val(comparator);
+			
+			
+		}
+		
+		if(selVal=="questions_starred"){
+			
+			var comparator=$("#comparator_hidden_starred").attr('title');
+			$('#questions_starred_numberOfSupportingMembersComparator').val(comparator);
+			
+			
+		}
+		
+		if(selVal=="questions_unstarred"){
+			
+			var comparator=$("#comparator_hidden_unstarred").attr('title');
+			$('#questions_unstarred_numberOfSupportingMembersComparator').val(comparator);
+			
+			
+		}
+		
+		if(selVal=="questions_shortnotice"){
+			
+			var comparator=$("#comparator_hidden_shortnotice").attr('title');
+			$('#questions_shortnotice_numberOfSupportingMembersComparator').val(comparator);
 			
 			
 		}
@@ -291,9 +314,13 @@
 						
 			$("#deviceTypeSelected").val(deviceType);
 			
+			/* if($('#'+deviceType+'_numberOfSupportingMembers').val().match('^[0-9]+$')){ */
 			$('#mainForm').append($(selectedDiv));
-			
-			$('#mainForm').submit();
+				
+			$('#mainForm').submit();	
+			/* }else{
+				$.prompt($('#invalidNumber').val());
+			}			 */
 		}); 
 		
 		//alert("document()");
@@ -390,6 +417,23 @@
 					<input id="questions_starred_rotationOrderPublishingDate" name="questions_starred_rotationOrderPublishingDate" class="datemask sText" value="${questions_starred_rotationorderpublishingdate}" />
 				</p>
 				
+				<p style="display: inline;">
+					<%-- <label class="small"><spring:message code="session.deviceType.numberOfSupportingMembersComparator" text="Number of Supporting Members Comparator" /></label> --%>
+					<label class="small"><spring:message code="session.deviceType.numberOfSupportingMembers" text="Number of Supporting Members" /></label>
+					<select class="sSelect" name="questions_starred_numberOfSupportingMembersComparator" id="questions_starred_numberOfSupportingMembersComparator" style="width: 100px; height: 22px; border: solid 1px #8d8e8d;">
+						<option value="">---<spring:message code='client.prompt.select' text='Please Select'/>---</option>
+						<option value="eq">&#61;</option>
+						<option value="lt">&lt;</option>
+						<option value="gt">&gt;</option>
+						<option value="le">&le;</option>
+						<option value="ge">&ge;</option>
+					</select>
+					<label id="comparator_hidden_starred" title="${questions_starred_numberofsupportingmemberscomparator}"></label>
+				</p>
+				<p style="display: inline;">		
+					<input type="text" class="sInteger" name="questions_starred_numberOfSupportingMembers" id="questions_starred_numberOfSupportingMembers" value="${questions_starred_numberofsupportingmembers}" style="width: 62px"/>
+				</p>
+				
 				<p>
 					<label class="small"><spring:message code="session.deviceType.rotationOrderCover" text="Rotation Order Covering Letter" /></label>
 					<textarea class="wysiwyg" cols="50" rows="5" id="questions_starred_rotationOrderCover" name="questions_starred_rotationOrderCover">${questions_starred_rotationordercover}</textarea>
@@ -473,13 +517,13 @@
 				<p>
 					<label class="small"><spring:message code="session.deviceType.questions_starred_noOfRoundsMemberBallotAttendance" text="No. of Rounds In Member Ballot Attendance" /></label>
 					<c:set var="key" value="questions_starred_noOfRoundsMemberBallotAttendance"></c:set>
-					<input type="text" class="sText" id="questions_starred_noOfRoundsMemberBallotAttendance" name="questions_starred_noOfRoundsMemberBallotAttendance" value="${questions_starred_noofroundsmemberballotattendance}" />
+					<input type="text" class="sText" id="questions_starred_noOfRoundsMemberBallotAttendance" name="questions_starred_noOfRoundsMemberBallotAttendance" value="${questions_starred_noOfroundsmemberballotattendance}" />
 				</p>
 				
 				<p>
 					<label class="small"><spring:message code="session.deviceType.questions_starred_noOfRoundsMemberBallot" text="No. of Rounds In Member Ballot" /></label>
 					<c:set var="key" value="questions_starred_noOfRoundsMemberBallot"></c:set>
-					<input type="text" class="sText" id="questions_starred_noOfRoundsMemberBallot" name="questions_starred_noOfRoundsMemberBallot" value="${questions_starred_noofroundsmemberballot}" />
+					<input type="text" class="sText" id="questions_starred_noOfRoundsMemberBallot" name="questions_starred_noOfRoundsMemberBallot" value="${questions_starred_noOfroundsmemberballot}" />
 				</p>			
 				
 				<p>
@@ -508,6 +552,23 @@
 				<p>
 					<label class="small"><spring:message code="session.deviceType.submissionEndDate" text="Submission End Date" /></label>
 					<input type="text" class="datetimemask sText" name="questions_unstarred_submissionEndDate" id="questions_unstarred_submissionEndDate" value="${questions_unstarred_submissionenddate}" />
+				</p>
+				
+				<p style="display: inline;">
+					<%-- <label class="small"><spring:message code="session.deviceType.numberOfSupportingMembersComparator" text="Number of Supporting Members Comparator" /></label> --%>
+					<label class="small"><spring:message code="session.deviceType.numberOfSupportingMembers" text="Number of Supporting Members" /></label>
+					<select class="sSelect" name="questions_unstarred_numberOfSupportingMembersComparator" id="questions_unstarred_numberOfSupportingMembersComparator" style="width: 100px; height: 22px; border: solid 1px #8d8e8d;">
+						<option value="">---<spring:message code='client.prompt.select' text='Please Select'/>---</option>
+						<option value="eq">&#61;</option>
+						<option value="lt">&lt;</option>
+						<option value="gt">&gt;</option>
+						<option value="le">&le;</option>
+						<option value="ge">&ge;</option>
+					</select>
+					<label id="comparator_hidden_unstarred" title="${questions_unstarred_numberofsupportingmemberscomparator}"></label>
+				</p>
+				<p style="display: inline;">		
+					<input type="text" class="sInteger" name="questions_unstarred_numberOfSupportingMembers" id="questions_unstarred_numberOfSupportingMembers" value="${questions_unstarred_numberofsupportingmembers}" style="width: 62px" />
 				</p>
 			</div>
 		</c:if>
@@ -546,6 +607,7 @@
 					<%-- <label class="small"><spring:message code="session.deviceType.numberOfSupportingMembersComparator" text="Number of Supporting Members Comparator" /></label> --%>
 					<label class="small"><spring:message code="session.deviceType.numberOfSupportingMembers" text="Number of Supporting Members" /></label>
 					<select class="sSelect" name="questions_halfhourdiscussion_standalone_numberOfSupportingMembersComparator" id="questions_halfhourdiscussion_standalone_numberOfSupportingMembersComparator" style="width: 50px; height: 22px; border: solid 1px #8d8e8d;">
+						<option value="">---<spring:message code='client.prompt.select' text='Please Select'/>---</option>
 						<option value="eq">&#61;</option>
 						<option value="lt">&lt;</option>
 						<option value="gt">&gt;</option>
@@ -596,6 +658,23 @@
 				<p>
 					<label class="small"><spring:message code="session.deviceType.submissionEndDate" text="Submission End Date" /></label>
 					<input type="text" class="datetimemask sText" name="questions_shortnotice_submissionEndDate" id="questions_shortnotice_submissionEndDate" value="${questions_shortnotice_submissionenddate}" />
+				</p>
+				
+				<p style="display: inline;">
+					<%-- <label class="small"><spring:message code="session.deviceType.numberOfSupportingMembersComparator" text="Number of Supporting Members Comparator" /></label> --%>
+					<label class="small"><spring:message code="session.deviceType.numberOfSupportingMembers" text="Number of Supporting Members" /></label>
+					<select class="sSelect" name="questions_shortnotice_numberOfSupportingMembersComparator" id="questions_shortnotice_numberOfSupportingMembersComparator" style="width: 100px; height: 22px; border: solid 1px #8d8e8d;">
+						<option value="">---<spring:message code='client.prompt.select' text='Please Select'/>---</option>
+						<option value="eq">&#61;</option>
+						<option value="lt">&lt;</option>
+						<option value="gt">&gt;</option>
+						<option value="le">&le;</option>
+						<option value="ge">&ge;</option>
+					</select>
+					<label id="comparator_hidden_shortnotice" title="${questions_shortnotice_numberofsupportingmemberscomparator}"></label>
+				</p>
+				<p style="display: inline;">		
+					<input type="text" class="sInteger" name="questions_shortnotice_numberOfSupportingMembers" id="questions_shortnotice_numberOfSupportingMembers" value="${questions_shortnotice_numberofsupportingmembers}" style="width: 62px" />
 				</p>				
 			</div>
 		</c:if>
@@ -634,7 +713,8 @@
 				<p style="display: inline;">
 					<%-- <label class="small"><spring:message code="session.deviceType.numberOfSupportingMembersComparator" text="Number of Supporting Members Comparator" /></label> --%>
 					<label class="small"><spring:message code="session.deviceType.numberOfSupportingMembers" text="Number of Supporting Members" /></label>
-					<select class="sSelect" name="questions_halfhourdiscussion_from_question_numberOfSupportingMembersComparator" id="questions_halfhourdiscussion_from_question_numberOfSupportingMembersComparator" style="width: 50px; height: 22px; border: solid 1px #8d8e8d;">
+					<select class="sSelect" name="questions_halfhourdiscussion_from_question_numberOfSupportingMembersComparator" id="questions_halfhourdiscussion_from_question_numberOfSupportingMembersComparator" style="width: 100px; height: 22px; border: solid 1px #8d8e8d;">
+						<option value="">---<spring:message code='client.prompt.select' text='Please Select'/>---</option>
 						<option value="eq">&#61;</option>
 						<option value="lt">&lt;</option>
 						<option value="gt">&gt;</option>
@@ -645,7 +725,7 @@
 				</p>
 				
 				<p style="display: inline;">		
-					<input type="text" class="sInteger" name="questions_halfhourdiscussion_from_question_numberOfSupportingMembers" id="questions_halfhourdiscussion_from_question_numberOfSupportingMembers" value="${questions_halfhourdiscussion_from_question_numberofsupportingmembers}" style="width: 112px" />
+					<input type="text" class="sInteger" name="questions_halfhourdiscussion_from_question_numberOfSupportingMembers" id="questions_halfhourdiscussion_from_question_numberOfSupportingMembers" value="${questions_halfhourdiscussion_from_question_numberofsupportingmembers}" style="width: 62px" />
 				</p>
 				
 				<p>
@@ -676,9 +756,11 @@
 		<div class="fields">
 			<h2></h2>
 			<p class="tright">
-				<input id="submit" type="button" value="<spring:message code='generic.submit' text='Submit'/>" class="butDef">
+				<input id="submit" type="button" value="<spring:message code='generic.submit' text='Submit'/>" class="butDef" />
 			</p>
 		</div>
 	</div>
+	<input type="hidden" id="invalidNumber" value="<spring:message code='client.NAN' text='Not a proper number.' />" />
+	
 </body>
 </html>
