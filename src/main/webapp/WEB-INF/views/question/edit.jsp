@@ -680,6 +680,7 @@
 				</c:forEach>
 			</select>
 		<form:errors path="answeringDate" cssClass="validationError"/>
+		<input id="chartAnsweringDate" name="chartAnsweringDate" type="hidden"  value="${chartAnsweringDate}">
 		</c:if>	
 		<c:if test="${selectedQuestionType=='questions_halfhourdiscussion_from_question'}">
 			<label class="small"><spring:message code="question.discussionDate" text="Discussion Date"/></label>
