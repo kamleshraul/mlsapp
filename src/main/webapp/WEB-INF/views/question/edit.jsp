@@ -729,7 +729,7 @@
 	 <div class="fields">
 		<h2></h2>
 		<c:choose>
-		<c:when test="${internalStatusType=='question_submit'}">
+		<c:when test="${memberStatusType=='question_submit'}">
 		<p class="tright">
 			<input id="submit" type="submit" value="<spring:message code='generic.submit' text='Submit'/>" class="butDef" disabled="disabled">
 			<input id="sendforapproval" type="button" value="<spring:message code='generic.sendforapproval' text='Send For Approval'/>" class="butDef" disabled="disabled">
