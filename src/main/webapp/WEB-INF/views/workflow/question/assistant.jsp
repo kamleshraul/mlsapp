@@ -731,7 +731,7 @@
 				<label class="wysiwyglabel"><spring:message code="question.halfhourReason" text="Points to be discussed"/>*</label>
 			</c:otherwise>
 		</c:choose>
-		<form:textarea path="reason" cssClass="wysiwyg"></form:textarea>
+		<form:textarea path="reason" cssClass="wysiwyg" readonly="true"></form:textarea>
 		<form:errors path="reason" cssClass="validationError" cssStyle="float:right;margin-top:-100px;margin-right:40px;"/>
 			
 	</p>
@@ -755,7 +755,7 @@
 	
 	<c:if test="${selectedQuestionType=='questions_halfhourdiscussion_from_question'}">
 		<p>
-		<a href="#" id="reviseReason" style="margin-left: 162px;margin-right: 20px;"><spring:message code="question.reviseReason" text="Revise Reason"></spring:message></a>
+		<a href="#" id="reviseReason" style="margin-left: 162px;margin-right: 20px;"><spring:message code="question.reviseReason" text="Revise Points To be Discussed"></spring:message></a>
 		<a href="#" id="reviseBriefExplanation" style="margin-right: 20px;"><spring:message code="question.reviseBriefExplanation" text="Revise Brief Explanation"></spring:message></a>
 		<a href="#" id="viewRevision"><spring:message code="question.viewrevisions" text="View Revisions"></spring:message></a>
 		</p>
