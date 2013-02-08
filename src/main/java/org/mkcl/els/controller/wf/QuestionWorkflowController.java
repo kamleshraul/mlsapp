@@ -47,8 +47,6 @@ import org.mkcl.els.domain.SessionType;
 import org.mkcl.els.domain.Status;
 import org.mkcl.els.domain.SubDepartment;
 import org.mkcl.els.domain.SupportingMember;
-import org.mkcl.els.domain.UserGroup;
-import org.mkcl.els.domain.WorkflowConfig;
 import org.mkcl.els.domain.WorkflowDetails;
 import org.mkcl.els.service.IProcessService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -459,6 +457,11 @@ public class QuestionWorkflowController  extends BaseController{
 					model.addAttribute("formattedAnsweringDate",FormaterUtil.getDateFormatter(locale).format(domain.getAnsweringDate().getAnsweringDate()));
 					model.addAttribute("answeringDateSelected",domain.getAnsweringDate().getId());
 				}
+			}
+			
+			/**** Set Chart answering date ****/
+			if(domain.getChartAnsweringDate() != null) {
+				model.addAttribute("chartAnsweringDate", domain.getChartAnsweringDate().getId());
 			}
 		}	
 		/**** Submission Date and Creation date****/ 
