@@ -9,6 +9,24 @@
 		<p></p>
 	</div>
 </c:when>
+<c:when test="${errorcode eq 'domain_not_found'}">
+	<div class="toolTip tpRed clearfix">
+		<p>
+			<img src="./resources/images/template/icons/light-bulb-off.png">
+			<spring:message code="question.errorcode.domain_not_found" text="No Question Found."/>
+		</p>
+		<p></p>
+	</div>
+</c:when>
+<c:when test="${errorcode eq 'questiondraft_not_found_for_remark'}">
+	<div class="toolTip tpRed clearfix">
+		<p>
+			<img src="./resources/images/template/icons/light-bulb-off.png">
+			<spring:message code="question.errorcode.questiondraft_not_found_for_remark" text="No QuestionDraft found to retrieve remark."/>
+		</p>
+		<p></p>
+	</div>
+</c:when>
 <c:when test="${errorcode eq 'nosessionentriesfound'}">
 	<div class="toolTip tpRed clearfix">
 		<p>
