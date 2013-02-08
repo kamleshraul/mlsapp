@@ -85,7 +85,11 @@ public class MemberBallotRepository extends BaseRepository<MemberBallot, Seriali
 		String flag=isMemberBallotAllowed(session,deviceType,attendance,round,locale);
 		if(flag.equals("ALLOWED")){
 			List<Member> input=MemberBallotAttendance.findMembersByAttendance(session,deviceType,attendance,round,locale);
+			/**** For absent members ordering will start from the last count of present members ****/
 			int order=1;
+			if(!attendance){
+				order=noOfRecordsInMemberBallot(session,deviceType,true,round,locale)+1;
+			}			
 			Collections.shuffle(input);
 			Date date=new Date();
 			for(Member i:input){
@@ -109,6 +113,17 @@ public class MemberBallotRepository extends BaseRepository<MemberBallot, Seriali
 			return "SUCCESS";
 		}
 		return flag;
+	}
+
+	private int noOfRecordsInMemberBallot(Session session,
+			DeviceType deviceType, boolean attendance, int round, String locale) {
+		Search search=new Search();
+		search.addFilterEqual("session.id",session.getId());
+		search.addFilterEqual("deviceType.id",deviceType.getId());
+		search.addFilterEqual("locale",locale);
+		search.addFilterEqual("attendance",attendance);
+		search.addFilterEqual("round",round);
+		return this.count(search);
 	}
 
 	private String isMemberBallotAllowed(Session session, DeviceType deviceType,
