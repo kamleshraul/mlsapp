@@ -57,7 +57,7 @@ public class ClubbedEntityRepository extends BaseRepository<ClubbedEntity, Seria
 				 ****/
 				deviceTypeQuery.append(" AND (");
 				deviceTypeQuery.append(" (st.priority>=(SELECT priority FROM status as sst WHERE sst.type='"+ApplicationConstants.QUESTION_SYSTEM_TO_BE_PUTUP+"')");
-				deviceTypeQuery.append(" AND st.priority<=(SELECT priority FROM status as sst WHERE sst.type='"+ApplicationConstants.QUESTION_PROCESSED_YAADILAID+"')");
+				deviceTypeQuery.append(" AND st.priority<(SELECT priority FROM status as sst WHERE sst.type='"+ApplicationConstants.QUESTION_PROCESSED_YAADILAID+"')");
 				deviceTypeQuery.append(" AND s.id="+question.getSession().getId() +" AND dt.type='"+ApplicationConstants.STARRED_QUESTION +"')");
 				deviceTypeQuery.append(" OR ");
 				deviceTypeQuery.append(" (st.priority>=(SELECT priority FROM status as sst WHERE sst.type='"+ApplicationConstants.QUESTION_SYSTEM_ASSISTANT_PROCESSED+"')");
@@ -238,6 +238,8 @@ public class ClubbedEntityRepository extends BaseRepository<ClubbedEntity, Seria
 								questionSearchVO.setClassification("Clubbing");
 							}
 						}
+					}else if(question.getDepartment()==null&&questionSearchVO.getDepartment()!=null){
+						questionSearchVO.setClassification("Department Change");
 					}
 				}
 			}
