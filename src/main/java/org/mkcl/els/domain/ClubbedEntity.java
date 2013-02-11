@@ -142,4 +142,40 @@ public class ClubbedEntity extends BaseDomain implements Serializable{
 		return getClubbedEntityRepository().fullTextSearchClubbing(param, question, start, noOfRecords, locale,requestMap);
 	}
 
+    /**
+     * If @param question has clubbings then remove @param question 
+     * as the parent of it's clubbings. Elect a new parent from among
+     * the clubbings.
+     * 
+     * Return @param question if it has no clubbings, else
+     * Return the new elected parent. 
+     */
+    public static Question removeParent(final Question question) {
+    	Question newParent = question;
+    	
+    	List<ClubbedEntity> entities = Question.findClubbedEntitiesByPosition(question);
+    	if(entities != null) {
+    		if(entities.size() > 0) {
+    			// Remove the clubbings from the original parent
+        		question.setClubbedEntities(null);
+        		question.simpleMerge();
+        		
+        		ClubbedEntity entity = entities.get(0);
+        		newParent = entity.getQuestion();
+        		List<ClubbedEntity> newClubbings = entities.subList(1, entities.size());
+        		// Set the new parent as the parent of the new clubbings
+        		for(ClubbedEntity ce : newClubbings) {
+        			Question q = ce.getQuestion();
+        			q.setParent(newParent);
+        			q.simpleMerge();
+        		}
+        		// Set the clubbings of the new Parent
+        		newParent.setParent(null);
+        		newParent.setClubbedEntities(newClubbings);
+        		newParent = newParent.simpleMerge();
+    		}
+    	}
+    	
+    	return newParent;
+    }
 }
