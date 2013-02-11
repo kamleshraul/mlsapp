@@ -545,6 +545,7 @@ import org.springframework.beans.factory.annotation.Configurable;
     public String getFullname(){
     	StringBuffer sb = new StringBuffer();
     	sb.append(this.getTitle().getName().trim());
+    	sb.append(" ");
     	sb.append(this.getFirstName().trim());
     	sb.append(" ");
     	if(this.getMiddleName() != null){
