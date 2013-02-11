@@ -528,6 +528,18 @@ public class BallotController extends BaseController{
 					Boolean locked=MemberBallotAttendance.areMembersLocked(session, questionType, round, attendance, locale.toString());
 					model.addAttribute("locked",locked);
 					model.addAttribute("round",round);
+					model.addAttribute("attendance",attendance);
+					if(round!=1&&attendance==true){
+					List<Member> oldMembers=MemberBallotAttendance.findOldMembers(session, questionType, attendance, round, locale.toString());
+					StringBuffer buffer=new StringBuffer();
+					for(Member i:oldMembers){
+						buffer.append(i.getFullname()+",");
+					}
+					buffer.deleteCharAt(buffer.length()-1);
+					model.addAttribute("oldMembers",buffer.toString());
+					}else{
+					model.addAttribute("oldMembers","-");
+					}
 				}else{
 					logger.error("**** Check request parameter 'session,questionType,round and attendance' for empty values ****");
 					model.addAttribute("type", "REQUEST_PARAMETER_EMPTY");
@@ -546,6 +558,7 @@ public class BallotController extends BaseController{
 		return "ballot/memberballotattendance";	
 	}
 
+	@Transactional
 	@RequestMapping(value="/memberballot/attendance",method=RequestMethod.PUT)
 	public @ResponseBody String updateAttendance(final HttpServletRequest request,final ModelMap model,final Locale locale){
 		try {
