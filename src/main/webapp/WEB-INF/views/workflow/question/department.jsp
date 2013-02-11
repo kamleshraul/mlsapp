@@ -443,6 +443,19 @@
 		$("#subDepartment option[selected!='selected']").hide();
 		//**** Load Actors On page Load ****/
 		loadActors($("#changeInternalStatus").val());
+		
+		
+		$('#sendBack').click(function(){
+			$('form').submit();
+		});
+		
+		$('#submit').click(function(){
+			if($('#answer').val().replace("<p></p>","")==""){
+				$.prompt($('#noAnswerProvidedMsg').val());
+				return false;
+			}
+			return true;		
+		});
 	});
 	</script>
 	 <style type="text/css">
@@ -527,19 +540,16 @@
 	</p>
 	
 	<p>	
-	<label class="small"><spring:message code="question.task.creationtime" text="Task Created On"/></label>
-	<input id="createdTime" name="createdTime" value="${taskCreationDate}" class="sText datetimemask" readonly="readonly">
-	</p>	
-	
-	<c:if test="${selectedQuestionType == 'questions_starred' || 
-				selectedQuestionType == 'questions_unstarred' ||
-				selectedQuestionType == 'questions_shortnotice'}">
-		<p>
-		<label class="small"><spring:message code="question.lastDateFromDepartment" text="Last Date From Department"/></label>
-		<form:input path="lastDateOfAnswerReceiving" cssClass="datemask sText" readonly="true"/>
-		<form:errors path="lastDateOfAnswerReceiving" cssClass="validationError"/>
-		</p>
-	</c:if>
+		<label class="small"><spring:message code="question.task.creationtime" text="Task Created On"/></label>
+		<input id="createdTime" name="createdTime" value="${taskCreationDate}" class="sText datetimemask" readonly="readonly">
+		<c:if test="${selectedQuestionType == 'questions_starred' || 
+					selectedQuestionType == 'questions_unstarred' ||
+					selectedQuestionType == 'questions_shortnotice'}">
+			<label class="small"><spring:message code="question.lastDateFromDepartment" text="Last Date From Department"/></label>
+			<form:input path="lastDateOfAnswerReceiving" cssClass="datemask sText" readonly="true" value="${lastReceivingDateFromDepartment}"/>
+			<form:errors path="lastDateOfAnswerReceiving" cssClass="validationError"/>
+		</c:if>
+	</p>
 	
 	<p>		
 	<label class="small"><spring:message code="question.submissionDate" text="Submitted On"/></label>
@@ -744,7 +754,7 @@
 	</p>
 	
 	<c:if test="${workflowstatus!='COMPLETED' }">	
-	<p>
+	<p style="display: none;">
 	<label class="small"><spring:message code="question.putupfor" text="Put up for"/></label>
 	<select id="changeInternalStatus" class="sSelect">
 	<c:forEach items="${internalStatuses}" var="i">
@@ -813,8 +823,9 @@
 	<div class="fields">
 		<h2></h2>
 		<p class="tright">		
-		<input id="submit" type="submit" value="<spring:message code='generic.submit' text='Submit'/>" class="butDef">
-	</p>
+			<input id="sendBack" type="button" value="<spring:message code='generic.sendback' text='Send Back'/>" class="butDef">
+			<input id="submit" type="submit" value="<spring:message code='generic.submit' text='Submit'/>" class="butDef">
+		</p>
 	</div>
 	</c:if>
 	<input type="hidden" name="originalType" id="originalType" value="${originalType}">
@@ -845,6 +856,7 @@
 <input id="oldInternalStatus" value="${ internalStatus}" type="hidden">
 <input id="oldRecommendationStatus" value="${ RecommendationStatus}" type="hidden">
 <input id="ministryEmptyMsg" value='<spring:message code="client.error.ministryempty" text="Ministry can not be empty."></spring:message>' type="hidden">
+<input id="noAnswerProvidedMsg" value='<spring:message code="client.error.noanswer" text="Please provide answer."></spring:message>' type="hidden" />
 
 <ul id="contextMenuItems" >
 <li><a href="#unclubbing" class="edit"><spring:message code="generic.unclubbing" text="Unclubbing"></spring:message></a></li>
