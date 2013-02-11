@@ -26,20 +26,25 @@
 			});
 			/**** edit question ****/
 			$('#edit_record').click(function(){
+				currentSelectedRow=$('#key').val();
 				$("#selectionDiv1").hide();	
 				editQuestion();
 			});
 			/**** delete question ****/
 			$("#delete_record").click(function() {
 				deleteQuestion();
-			});					
-			
+			});		
+			/****Searching Question****/
+			$("#search").click(function() {
+				searchRecord();
+			});
 			//---ADDED BY VIKAS------------------
 			$('#gridURLParams_ForNew').val($('#gridURLParams').val());			
 			
 		});
 		/**** double clicking record in grid handler ****/
 		function rowDblClickHandler(rowid, iRow, iCol, e) {
+			currentSelectedRow=$('#key').val();
 			$("#selectionDiv1").hide();	
 			$('#key').val(rowid);
 			$("#cancelFn").val("rowDblClickHandler");
