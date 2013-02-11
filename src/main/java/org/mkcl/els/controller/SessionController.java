@@ -107,27 +107,7 @@ javax.servlet.http.HttpServletRequest)
         domain.setLocale(locale.toString());
         populateSession(model, domain, request, locale);
     }
-    @Override
-    protected void populateCreateIfNoErrors(final ModelMap model,
-            final Session domain, final HttpServletRequest request) {
-//    	 CustomParameter parameter = CustomParameter.findByName(
-//                 CustomParameter.class, "SERVER_DATETIMEFORMAT", "");
-//    	SimpleDateFormat df = new SimpleDateFormat(parameter.getValue());
-//    	
-//    	try {
-//    		domain.setQuestionSubmissionEndDateLH(df.parse((request.getParameter("questionSubmissionEndDateLH"))));
-//        	domain.setQuestionSubmissionFirstBatchEndDateUH(df.parse(request.getParameter("questionSubmissionFirstBatchEndDateUH")));
-//        	domain.setQuestionSubmissionFirstBatchStartDateUH(df.parse(request.getParameter("questionSubmissionFirstBatchStartDateUH")));
-//        	domain.setQuestionSubmissionSecondBatchEndDateUH(df.parse(request.getParameter("questionSubmissionSecondBatchEndDateUH")));
-//			domain.setQuestionSubmissionSecondBatchStartDateUH(df.parse(request.getParameter("questionSubmissionSecondBatchStartDateUH")));
-//			domain.setQuestionSubmissionStartDateLH(df.parse(request.getParameter("questionSubmissionStartDateLH")));
-//    	} catch (ParseException e) {
-//			e.printStackTrace();
-//		}
-    	
-    }
-
-
+    
     /* (non-Javadoc)
      * @see org.mkcl.els.controller.GenericController#populateEdit(org.springframework.ui.ModelMap, org.mkcl.els.domain.BaseDomain, 
 
@@ -137,34 +117,6 @@ javax.servlet.http.HttpServletRequest)
     protected void populateEdit(final ModelMap model,
             final Session domain,
             final HttpServletRequest request) {
-//    	SimpleDateFormat df;
-//    	CustomParameter parameter = CustomParameter.findByName(
-//                CustomParameter.class, "SERVER_DATETIMEFORMAT", "");
-//    	if(domain.getLocale().equals("mr_IN")){
-//    		 df = new SimpleDateFormat(parameter.getValue(),new Locale("hi","IN"));
-//    	}
-//    	else{
-//    		 df = new SimpleDateFormat(parameter.getValue(),this.getUserLocale());
-//    	}
-//   	
-//   	if(domain.getQuestionSubmissionEndDateLH()!=null){
-//   		model.addAttribute("questionSubmissionEndDateLH",df.format(domain.getQuestionSubmissionEndDateLH()));
-//   	}
-//   	if(domain.getQuestionSubmissionFirstBatchEndDateUH()!=null){
-//   		model.addAttribute("questionSubmissionFirstBatchEndDateUH",df.format(domain.getQuestionSubmissionFirstBatchEndDateUH()));
-//   	}
-//   	if(domain.getQuestionSubmissionFirstBatchStartDateUH()!=null){
-//   		model.addAttribute("questionSubmissionFirstBatchStartDateUH",df.format(domain.getQuestionSubmissionFirstBatchStartDateUH()));
-//   	}
-//   	if(domain.getQuestionSubmissionSecondBatchEndDateUH()!=null){
-//   		model.addAttribute("questionSubmissionSecondBatchEndDateUH",df.format(domain.getQuestionSubmissionSecondBatchEndDateUH()));
-//   	}
-//   	if(domain.getQuestionSubmissionSecondBatchStartDateUH()!=null){
-//   		model.addAttribute("questionSubmissionSecondBatchStartDateUH",df.format(domain.getQuestionSubmissionSecondBatchStartDateUH()));
-//   	}
-//   	if(domain.getQuestionSubmissionStartDateLH()!=null){
-//   		model.addAttribute("questionSubmissionStartDate",df.format(domain.getQuestionSubmissionStartDateLH()));
-//   	}
    	  populateSession(model, domain, request, domain.getLocale());
         /*
          * populating enabled device types
@@ -181,18 +133,6 @@ javax.servlet.http.HttpServletRequest)
         }
         model.addAttribute("deviceTypesEnabled", deviceTypesEnabled);
         
-        
-//        List<DeviceType> deviceTypesNeedBallot = new ArrayList<DeviceType>();
-//        String deviceTypesNeedBallotStr = domain.getDeviceTypesNeedBallot();
-//        if(deviceTypesNeedBallotStr!=null && !deviceTypesNeedBallotStr.isEmpty()) {
-//        	for (String deviceTypeNeedBallotStr : deviceTypesNeedBallotStr.split(",")) {
-//        		DeviceType deviceTypeNeedBallot = DeviceType.findByType(deviceTypeNeedBallotStr, domain.getLocale());
-//        		if(deviceTypeNeedBallot != null) {
-//        			deviceTypesNeedBallot.add(deviceTypeNeedBallot);
-//        		}
-//        	}    
-//        }
-//        model.addAttribute("deviceTypesNeedBallot", deviceTypesNeedBallot);
     }
 
     private void populateSession(final ModelMap model, final Session domain,
@@ -234,29 +174,16 @@ javax.servlet.http.HttpServletRequest)
             }
         }
 
-        /*
-         * populating years
-         */
         CustomParameter houseFormationYear=CustomParameter.findByName(CustomParameter.class, "HOUSE_FORMATION_YEAR", "");
-        List<Integer> years=new ArrayList<Integer>();
+        List<String> years=new ArrayList<String>();
         Integer year=new GregorianCalendar().get(Calendar.YEAR);
         if(houseFormationYear!=null){
             Integer formationYear=Integer.parseInt(houseFormationYear.getValue());
             for(int i=year;i>=formationYear;i--){
-                years.add(i);
+                years.add(FormaterUtil.getNumberFormatterNoGrouping(locale).format(i));
             }
             model.addAttribute("years",years);
         }
-        /*
-         * setting selected year
-         */
-        Integer selectedYear=domain.getYear();
-        if(selectedYear!=null){
-            model.addAttribute("sessionYearSelected",selectedYear);
-        }else{
-            model.addAttribute("sessionYearSelected",year);
-        }
-        
         /*
          * populating device types
          */
@@ -266,25 +193,7 @@ javax.servlet.http.HttpServletRequest)
              
     }
 
-    @Override
-    protected void populateUpdateIfNoErrors(final ModelMap model,
-            final Session domain, final HttpServletRequest request) {
-//    	 CustomParameter parameter = CustomParameter.findByName(
-//                 CustomParameter.class, "SERVER_DATETIMEFORMAT", "");
-//    	SimpleDateFormat df = new SimpleDateFormat(parameter.getValue());
-//    	
-//    	try {
-//    		domain.setQuestionSubmissionEndDateLH(df.parse((request.getParameter("questionSubmissionEndDateLH"))));
-//        	domain.setQuestionSubmissionFirstBatchEndDateUH(df.parse(request.getParameter("questionSubmissionFirstBatchEndDateUH")));
-//        	domain.setQuestionSubmissionFirstBatchStartDateUH(df.parse(request.getParameter("questionSubmissionFirstBatchStartDateUH")));
-//        	domain.setQuestionSubmissionSecondBatchEndDateUH(df.parse(request.getParameter("questionSubmissionSecondBatchEndDateUH")));
-//			domain.setQuestionSubmissionSecondBatchStartDateUH(df.parse(request.getParameter("questionSubmissionSecondBatchStartDateUH")));
-//			domain.setQuestionSubmissionStartDateLH(df.parse(request.getParameter("questionSubmissionStartDateLH")));
-//    	} catch (ParseException e) {
-//			e.printStackTrace();
-//		}
-//    	
-    }
+   
     @RequestMapping(value="/{id}/viewRotationOrder", method = RequestMethod.GET)
     public String viewRotationOrder(final @PathVariable("id") Long id, final ModelMap model,
             final HttpServletRequest request) {
