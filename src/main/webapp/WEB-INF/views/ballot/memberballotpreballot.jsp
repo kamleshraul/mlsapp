@@ -45,7 +45,7 @@
 	</tr>
 	<c:forEach items="${selectedItems}" var="i">
 	<tr>
-		<td class="round${round }">${i.position}</td>
+		<td class="round${round }">${i.formatPosition()}</td>
 		<td class="round${round }">${i.member.getFullname()}</td>		
 	</tr>
 	</c:forEach>
