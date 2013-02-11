@@ -4,11 +4,20 @@
 	<title></title>
 	<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
 	<script type="text/javascript">				
-		$(document).ready(function() {		
+		$(document).ready(function() {	
+		var previousItems=$("#itemsFrompreviousRounds").val();
+		if(previousItems!='-'){			
+				$("#selectedItems option").each(function(){
+					if(previousItems.indexOf($(this).text())==-1){
+						$(this).addClass("highlight");
+					}
+				});	
+		}		
+		/**** Move Selected Items To Select Box ****/
 		$("#to2").click(function(){
 			var count=0;			
 			$("#allItems option:selected").each(function(){
-				$("#selectedItems").append("<option value='"+$(this).val()+"'>"+$(this).text()+"</option>");
+				$("#selectedItems").append("<option value='"+$(this).val()+"' class='highlight'>"+$(this).text()+"</option>");
 				$("#allItems option[value='"+$(this).val()+"']").remove();
 				count++;
 			});
@@ -16,81 +25,117 @@
 			$("#availableCount").text(parseInt($("#availableCount").text())-count);	
 			$("#selectedItems").addClass("round"+$("#round").val());
 		});	
+		/**** Move Selected Items To All Items Box ****/		
 		$("#to1").click(function(){
+			var count=0;		
+			var itemsfromprevious=$("#itemsFrompreviousRounds").val();
+			var itemsToHide="";	
+			$("#selectedItems option").each(function(){
+				if(itemsfromprevious.indexOf($(this).text())==-1){
+					if($(this).attr("selected")=='selected'){
+						$("#selectedItems option[value='"+$(this).val()+"']").remove();	
+						count++;
+					}else{
+						itemsToHide=itemsToHide+$(this).val()+",";	
+					}
+				}else{
+					itemsToHide=itemsToHide+$(this).val()+",";	
+				}		
+			});	
+			$("#allItems").empty();
+			$("#allItems").html($("#itemMaster").html());	
+			var itemsToRemoveFromBox1=itemsToHide.split(",");
+			for(var i=0;i<itemsToRemoveFromBox1.length;i++){
+				$("#allItems option[value='"+itemsToRemoveFromBox1[i]+"']").remove();					
+			}		
+			$("#presenteeCount").text(parseInt($("#presenteeCount").text())-count);
+			$("#availableCount").text(parseInt($("#availableCount").text())+count);
+		});	
+		/***** Move All Items To Selected Box ****/
+		$("#allTo2").click(function(){
+			var itemsfromprevious=$("#itemsFrompreviousRounds").val();			
+			$("#selectedItems").append($("#allItems").html());
+			$("#allItems").empty();
+			$("#presenteeCount").text($("#selectedItems option").length);
+			$("#availableCount").text($("#allItems option").length);
+			$("#selectedItems option").each(function(){
+				if(itemsfromprevious.indexOf($(this).text())==-1){
+					$(this).addClass("highlight");				
+				}	
+			});		
+			$("#selectedItems").addClass("round"+$("#round").val());					
+		});
+		/**** Move All Selected Items To All Item Box ****/
+		$("#allTo1").click(function(){
 			var count=0;			
 			$("#allItems").empty();
 			$("#allItems").html($("#itemMaster").html());	
-			$("#selectedItems option").each(function(){
-				if($(this).attr("selected")!='selected'){
-					$("#allItems option[value='"+$(this).val()+"']").remove();
-				}else{
-					$("#selectedItems option[value='"+$(this).val()+"']").remove();	
-					count++;				
-				}			
-			});			
+			var itemsfromprevious=$("#itemsFrompreviousRounds").val();
+			if(itemsfromprevious=='-'){
+				$("#selectedItems").empty();
+				$("#presenteeCount").text($("#selectedItems option").length);
+				$("#availableCount").text($("#allItems option").length);
+				$("#selectedItems").removeClass("round"+$("#round").val());
+			}else{
+				$("#selectedItems option").each(function(){
+					if(itemsfromprevious.indexOf($(this).text())==-1){
+						$("#selectedItems option[value='"+$(this).val()+"']").remove();	
+						count++;					
+					}else{
+						$("#allItems option[value='"+$(this).val()+"']").remove();					
+					}		
+				});			
 			$("#presenteeCount").text(parseInt($("#presenteeCount").text())-count);
 			$("#availableCount").text(parseInt($("#availableCount").text())+count);
-			$("#selectedItems").removeClass("round"+$("#round").val());
-			
-		});	
-		$("#allTo2").click(function(){
-			$("#selectedItems").empty();
-			$("#selectedItems").html($("#allItems").html());
-			$("#allItems").empty();
-			$("#presenteeCount").text($("#selectedItems option").length);
-			$("#availableCount").text($("#allItems option").length);	
-			$("#selectedItems").addClass("round"+$("#round").val());
-					
-		});
-		$("#allTo1").click(function(){
-			$("#allItems").empty();
-			$("#allItems").html($("#itemMaster").html());
-			$("#selectedItems").empty();
-			$("#presenteeCount").text($("#selectedItems option").length);
-			$("#availableCount").text($("#allItems option").length);
-			$("#selectedItems").removeClass("round"+$("#round").val());
-			
+			}			
 		});
 		/**** for moving items up ****/
 		$(".up").click(function(){
-			console.log("hello");
+			var itemsfromprevious=$("#itemsFrompreviousRounds").val();			
 			//get the currently slected item and its index
 			var current=$("#selectedItems option:selected");
 			var index=parseInt(current.index());
-			//if index is not 0 then proceed
-			if(index!=0){
-				//swap current with previous
-				var prev=$("#selectedItems option:eq("+(index-1)+")");
-				var prevVal=prev.val();
-				var prevText=prev.text();
-				prev.val(current.val());
-				prev.text(current.text());
-				current.val(prevVal);
-				current.text(prevText);	
-				//set previous as selected and remove selection from current
-				prev.attr("selected","selected");
-				current.removeAttr("selected");			
+			if(itemsfromprevious.indexOf(current.text())==-1){
+				//if index is not 0 then proceed
+				if(index!=0){
+					//swap current with previous
+					var prev=$("#selectedItems option:eq("+(index-1)+")");
+					if(itemsfromprevious.indexOf(prev.text())==-1){
+						var prevVal=prev.val();
+						var prevText=prev.text();
+						prev.val(current.val());
+						prev.text(current.text());
+						current.val(prevVal);
+						current.text(prevText);	
+						//set previous as selected and remove selection from current
+						prev.attr("selected","selected");
+						current.removeAttr("selected");
+					}			
+				}
 			}
 		});
 		/**** for moving items down ****/		
 		$(".down").click(function(){
+			var itemsfromprevious=$("#itemsFrompreviousRounds").val();		
 			//get the currently slected item and its index			
 			var current=$("#selectedItems option:selected");
 			var index=parseInt(current.index());
-			var length=$("#selectedItems option").length;
-			//if end of items is not reached then proceed
-			if(index!=length-1){
-				//swap current with next				
-				var next=$("#selectedItems option:eq("+(index+1)+")");
-				var nextVal=next.val();
-				var nextText=next.text();
-				next.val(current.val());
-				next.text(current.text());
-				current.val(nextVal);
-				current.text(nextText);	
-				//set next as selected and remove selection from current
-				next.attr("selected","selected");
-				current.removeAttr("selected");					
+			if(itemsfromprevious.indexOf(current.text())==-1){
+				var length=$("#selectedItems option").length;
+				//if end of items is not reached then proceed
+				if(index!=length-1){
+					//swap current with next				
+					var next=$("#selectedItems option:eq("+(index+1)+")");
+					var nextVal=next.val();
+					var nextText=next.text();
+					next.val(current.val());
+					next.text(current.text());
+					current.val(nextVal);
+					current.text(nextText);	
+					//set next as selected and remove selection from current
+					next.attr("selected","selected");
+					current.removeAttr("selected");					
+				}
 			}
 		});
 		/**** if current list of members(present or absent) are locked then check locked ****/
@@ -127,7 +172,6 @@
 				+"&locked="+locked,
 				type:'PUT',
 				success:function(data){
-				console.log(data);
 				 if(data=='success'){
 					 $("#successDiv").show();
 					 $("#lockedDiv").hide();					 
@@ -178,6 +222,9 @@
 	}
 	.round5{
 	color: #F26522;
+	}
+	.highlight{
+	font-weight: bold;
 	}
 	</style>
 </head>
@@ -306,5 +353,7 @@
 
 <input type="hidden" id="locked" name="locked" value="${locked}">
 <input type="hidden" id="round" name="round" value="${round}">
+<input type="hidden" id="currentattendance" name="currentattendance" value="${attendance}">
+<input type="hidden" id="itemsFrompreviousRounds" name="itemsFrompreviousRounds" value="${oldMembers }">
 </body>
 </html>
