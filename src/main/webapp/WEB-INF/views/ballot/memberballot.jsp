@@ -1,4 +1,15 @@
 <%@ include file="/common/taglibs.jsp" %>
+<script type="text/javascript">
+$(document).ready(function(){
+	$("#with").click(function(){
+		$(".question").show();
+	});
+	$("#without").click(function(){
+		$(".question").hide();
+	});
+	$(".question").hide();
+});
+</script>
 	<style type="text/css">
 	.true{
 	font-size: 14px;
@@ -21,24 +32,39 @@
 	.round5{
 	color: #F26522;
 	}
+	.withQuestion,.withoutQuestion{
+	font-size: 14px;
+	font-weight: bolder;
+	margin-right: 20px;
+	cursor: pointer;
+	}
+	.withQuestion:HOVER{
+		color:blue;
+		font-size: 16px;
+	}
+	.withoutQuestion:HOVER{
+		color:blue;
+		font-size: 16px;
+	}
 	</style>
 <c:choose>
 <c:when test="${!(empty memberBallots)}">
+<h4><span class="withQuestion"><a id="with">+</a></span><span class="withoutQuestion"><a id="without">-</a></span></h4>
 <table class="uiTable">
 	<tr>
 	<th><spring:message code="memberballot.position" text="S.no"/></th>
 	<th>	
 	<spring:message code="memberballot.member" text="Members"/>
 	</th>
-	<th>	
+	<th class="question">	
 	<spring:message code="memberballot.question" text="Question No."/>
 	</th>		
 	</tr>
-	<c:forEach items="${memberBallots}" var="i">
+	<c:forEach items="${memberBallots}" var="i">	
 	<tr>
 		<td class="round${i.round }">${i.position}</td>
 		<td class="round${i.round }">${i.member}</td>	
-		<td>
+		<td class="question">
 		<c:choose>
 		<c:when test="${!(empty i.questions)}">
 		<c:forEach items="${i.questions}" var="j">
