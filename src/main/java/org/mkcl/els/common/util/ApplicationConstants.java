@@ -315,6 +315,13 @@ public class ApplicationConstants {
     public static final String MEMBERBALLOT_DELETE_EXISTING="DELETE";
     
     public static final String MEMBERBALLOT_ABSENTBALLOT_AFTER_ALL_PRESENTBALLOT="YES";
+    
+    
+    /**** Member Ballot Final Ballot Procedures Names ****/
+    public static final String MEMBERBALLOT_FINALBALLOT_HORIZONTAL_PROCEDURE="memberballot_finalballot_horizontalscanning_procedure";
+    
+    public static final String MEMBERBALLOT_FINALBALLOT_VERTICAL_PROCEDURE="memberballot_finalballot_verticalscanning_procedure";
+
 
     
     
