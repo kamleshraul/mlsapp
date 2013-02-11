@@ -81,19 +81,6 @@
 			showTabByIdAndUrl('details_tab','session/'+row+'/viewRotationOrder');
 		}
 
-		//workflowconfig tab
-		$('#workflowconfig_tab').click(function(){
-			var row = $("#key").val();
-			if(row == null || row == ''){
-				$.prompt($('#selectRowFirstMessage').val());		
-				return;
-			}
-			else{
-				var housetype=$('#houseType').val();				
-				showTabByIdAndUrl('workflowconfig_tab','session/workflowconfig/list?houseType='+$("#houseType").val()+'&session='+row);
-			}
-		});
-		
 		//session_devicetype_config_tab
 		$('#session_devicetype_config_tab').click(function(){
 			var row = $("#key").val();
@@ -128,11 +115,6 @@
 				   <spring:message code="session.module.sessiondevicetypeconfig" text="Session Config"></spring:message>
 				</a>
 			</li>
-			<li>
-				<a id="workflowconfig_tab" href="#" class="tab">
-				   <spring:message code="session.module.workflowconfig" text="Workflow Settings"></spring:message>
-				</a>
-			</li>				
 		</ul>
 		<div class="tabContent clearfix">
 		</div>

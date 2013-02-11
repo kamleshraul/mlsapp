@@ -92,20 +92,9 @@
 			</p>
 			
 			<p>
-			<label class="small"><spring:message code="session.year" text="Session Year"/>&nbsp;*</label>
-				<select id="year" name="year" class="sSelect">
-				<c:forEach items="${years}" var="i">
-				<c:choose>
-				<c:when test="${sessionYearSelected==i}">
-				<option selected="selected" value="${i}"><c:out value="${i}"></c:out></option>
-				</c:when>
-				<c:otherwise>
-				<option value="${i}"><c:out value="${i}"></c:out></option>
-				</c:otherwise>
-				</c:choose>
-				</c:forEach>		
-				</select>
-			<form:errors path="year" cssClass="validationError" />			
+				<label class="small"><spring:message code="session.year" text="Session Year"/>&nbsp;*</label>
+				<form:select path="year" items="${years}" cssClass="sSelect"></form:select>
+				<form:errors path="year" cssClass="validationError" />			
 			</p>
 			
 			<p>
