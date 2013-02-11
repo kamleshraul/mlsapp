@@ -66,6 +66,8 @@
 		<!-- Context Menu -->
 		<link rel="stylesheet" type="text/css" media="screen" href="./resources/css/jquery.contextMenu.css?v=3" />
 		
+		<!-- Printer Friendly CSS -->
+		<link rel="stylesheet" type="text/css" media="print" href="./resources/css/printerfriendly.css?v=3" /> 
 		
 		<!-- See Interface Configuration --> 
 		<script type="text/javascript" src="./resources/js/template/seeui.js"></script>
