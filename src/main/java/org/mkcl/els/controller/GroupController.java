@@ -100,7 +100,7 @@ public class GroupController extends GenericController<Group> {
 			}				
 			
 			//starting year must be set as custom parameter 'HOUSE_FORMATION_YEAR'
-			CustomParameter houseFormationYearParameter = CustomParameter.findByFieldName(CustomParameter.class, "name", "HOUSE_FORMATION_YEAR", null);
+			CustomParameter houseFormationYearParameter = CustomParameter.findByFieldName(CustomParameter.class, "name", "HOUSE_FORMATION_YEAR", "");
 			
 			if(houseFormationYearParameter != null) {
 				if(!houseFormationYearParameter.getValue().isEmpty()) {
@@ -271,7 +271,7 @@ javax.servlet.http.HttpServletRequest)
 	 */
 	private void populate(final ModelMap model, final Group domain, final HttpServletRequest request, String locale) {	
 		//upper limit of group numbers allowed must be set as custom parameter 'DEFAULT_GROUP_NUMBER'
-		String groupNumberLimitParameter = ((CustomParameter) CustomParameter.findByName(CustomParameter.class, "DEFAULT_GROUP_NUMBER", null)).getValue();
+		String groupNumberLimitParameter = ((CustomParameter) CustomParameter.findByName(CustomParameter.class, "DEFAULT_GROUP_NUMBER", "")).getValue();
 		
 		if(groupNumberLimitParameter != null) {
 			if(!groupNumberLimitParameter.isEmpty()) {
