@@ -83,6 +83,8 @@ public class MemberBallot extends BaseDomain implements Serializable {
 	/** The attendance. */
 	private Boolean attendance;	
 	
+	private Boolean presentInPrevious;
+	
 
 	/** The member ballot repository. */
 	@Autowired
@@ -269,6 +271,14 @@ public class MemberBallot extends BaseDomain implements Serializable {
 		this.position = position;
 	}
 
+	public Boolean getPresentInPrevious() {
+		return presentInPrevious;
+	}
+
+	public void setPresentInPrevious(Boolean presentInPrevious) {
+		this.presentInPrevious = presentInPrevious;
+	}
+
 
 	/**
 	 * Creates the member ballot.
@@ -401,14 +411,7 @@ public class MemberBallot extends BaseDomain implements Serializable {
 			final Group group,final QuestionDates answeringDate,final String locale) {
 		return getMemberBallotRepository().viewMemberBallotVO(session,
 				questionType,attendance,round,group,answeringDate,locale);
-	}
-
-
-	public static Boolean createMemberBallotChoices(
-			List<MemberBallot> memberBallots, final List<Question> questions, int rounds, Map<String, Integer> noofQuestionsInEachRound, String locale) {
-		return getMemberBallotRepository().createMemberBallotChoices(memberBallots,
-				questions,rounds,noofQuestionsInEachRound,locale);
-	}
+	}	
 	
 	public static MemberBallotMemberWiseReportVO findMemberWiseReportVO(
 			final Session session,final DeviceType questionType,final Member member,
@@ -423,5 +426,16 @@ public class MemberBallot extends BaseDomain implements Serializable {
 			final Session session,final DeviceType questionType,final String locale) {
 		return getMemberBallotRepository().viewQuestionDistribution(
 				session,questionType,locale);
+	}
+
+
+	public static List<Member> findMembersByPosition(final Session session,
+			final DeviceType deviceType,final Boolean attendance,final int round,
+			final String locale,
+			final int startingRecordToFetch,final int noOfRecordsToFetch) {
+		return getMemberBallotRepository().findMembersByPosition(session,
+				deviceType,attendance,round,
+				locale,
+				startingRecordToFetch,noOfRecordsToFetch);
 	}
 }
