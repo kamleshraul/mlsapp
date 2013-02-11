@@ -158,30 +158,6 @@ public class Chart extends BaseDomain implements Serializable {
 		return chartVOs;
 	}
 	
-	public static Integer maxChartedQuestions(final Session session,
-			final Group group,
-			final Date answeringDate,
-			final String locale) {
-		Integer maxQuestions = 0;
-		HouseType houseType = session.getHouse().getType();
-		if(houseType.getType().equals(ApplicationConstants.LOWER_HOUSE)) {
-			maxQuestions = Chart.maxQuestionsOnChartLH();
-		}
-		else if(houseType.getType().equals(ApplicationConstants.UPPER_HOUSE)) {
-			maxQuestions = Chart.maxQuestionsOnChartUH();
-		}
-		
-		Integer maxChartedQuestions = Chart.findMaxChartedQuestions(session, 
-				group, answeringDate, locale);
-		
-		if(maxChartedQuestions > maxQuestions) {
-			return maxChartedQuestions;
-		}
-		else {
-			return maxQuestions;
-		}
-	}
-	
 	/**
 	 * Gets the question v os.
 	 *
@@ -440,6 +416,50 @@ public class Chart extends BaseDomain implements Serializable {
 			final Date answeringDate,
 			final String locale) {
 		return Chart.getChartRepository().findMembers(session, group, answeringDate, locale);
+	}
+	
+	/**
+	 * Finds the maximum Questions on Chart against any member.
+	 * Useful for Council where all the un-charted Questions of
+	 * a Member are to be taken on last answeringDate's Chart.
+	 *  
+	 * Example: 
+	 * 	Scenario 1
+	 * 		SessionConfig.MAX_QUESTIONS_ON_CHART = 5
+	 * 		A has 3 Questions on Chart
+	 * 		B has 21 Questions on Chart
+	 * 		C has 1 Question on Chart
+	 * 		This method will return 21.
+	 * 
+	 * Scenario 2
+	 * 		SessionConfig.MAX_QUESTIONS_ON_CHART = 5
+	 * 		A has 3 Questions on Chart
+	 * 		B has 2 Questions on Chart
+	 * 		C has 1 Question on Chart
+	 * 		This method will return 5.
+	 */
+	public static Integer maxChartedQuestions(final Session session,
+			final Group group,
+			final Date answeringDate,
+			final String locale) {
+		Integer maxQuestions = 0;
+		HouseType houseType = session.getHouse().getType();
+		if(houseType.getType().equals(ApplicationConstants.LOWER_HOUSE)) {
+			maxQuestions = Chart.maxQuestionsOnChartLH();
+		}
+		else if(houseType.getType().equals(ApplicationConstants.UPPER_HOUSE)) {
+			maxQuestions = Chart.maxQuestionsOnChartUH();
+		}
+		
+		Integer maxChartedQuestions = Chart.findMaxChartedQuestions(session, 
+				group, answeringDate, locale);
+		
+		if(maxChartedQuestions > maxQuestions) {
+			return maxChartedQuestions;
+		}
+		else {
+			return maxQuestions;
+		}
 	}
 	
 	
@@ -1310,10 +1330,21 @@ public class Chart extends BaseDomain implements Serializable {
 			}
 			// Question qn is leaving the Chart
 			Question qn = candidateQuestions.get(size - 1);
+			// Update the status of qn 
 			qn.setInternalStatus(ASSISTANT_PROCESSED);
 			qn.setRecommendationStatus(ASSISTANT_PROCESSED);
 			qn.setChartAnsweringDate(null);
-			qn.simpleMerge();
+			qn = qn.simpleMerge();
+			// Update qn vis-a-vis clubbing
+			if(qn.getParent() == null) {
+				Question newParent = ClubbedEntity.removeParent(qn);
+				newParent.setInternalStatus(TO_BE_PUT_UP);
+				newParent.setRecommendationStatus(TO_BE_PUT_UP);
+				newParent.simpleMerge();
+			}
+			else {
+				ClubbedEntity.unclub(qn.getParent().getId(), qn.getId(), locale);
+			}
 			
 			if(candidateQuestions.size() >= requiredQuestions) {
 				updateChartQuestions.addAll(candidateQuestions.subList(0, requiredQuestions));
@@ -1616,14 +1647,6 @@ public class Chart extends BaseDomain implements Serializable {
 		return FormaterUtil.getCurrentDate(dbDateFormat.getValue());
 	}	
 
-	/**
-	 * Finds the maximum Questions on Chart against any member.
-	 * Example: 
-	 * 	A has 3 Questions on Chart
-	 * 	B has 21 Questions on Chart
-	 * 	C has 1 Question on Chart
-	 * 	This method will return 21.
-	 */
 	private static Integer findMaxChartedQuestions(final Session session,
 			final Group group,
 			final Date answeringDate,
