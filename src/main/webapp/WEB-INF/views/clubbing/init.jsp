@@ -398,17 +398,17 @@
 									+"<br>";
 							textTemp+="<span id='operation"+data[i].id+"'>";									
 							if(data[i].classification=='Clubbing'){
-								textTemp+="<a onclick='clubbing("+data[i].id+");' style='margin:10px;'>"+$("#clubMsg").val()+"</a>";
+								textTemp+="<a onclick='clubbing("+data[i].id+");' style='margin:10px;cursor:pointer;'>"+$("#clubMsg").val()+"</a>";
 							}else if(data[i].classification=='Group Change'){
-								textTemp+="<a style='margin:10px;' href='#'>"+$("#groupChangeMsg").val()+"</a>";
+								textTemp+="<a style='margin:10px;' href='javascript:void(0);'>"+$("#groupChangeMsg").val()+"</a>";
 							}else if(data[i].classification=='Ministry Change'){
-								textTemp+="<a style='margin:10px;' href='#'>"+$("#ministryChangeMsg").val()+"</a>";
+								textTemp+="<a style='margin:10px;' href='javascript:void(0);'>"+$("#ministryChangeMsg").val()+"</a>";
 							}else if(data[i].classification=='Department Change'){
-								textTemp+="<a style='margin:10px;' href='#'>"+$("#departmentChangeMsg").val()+"</a>";
+								textTemp+="<a style='margin:10px;' href='javascript:void(0);'>"+$("#departmentChangeMsg").val()+"</a>";
 							}else if(data[i].classification=='Sub Department Change'){
-								textTemp+="<a style='margin:10px;' href='#'>"+$("#subDepartmentChangeMsg").val()+"</a>";
+								textTemp+="<a style='margin:10px;' href='javascript:void(0);'>"+$("#subDepartmentChangeMsg").val()+"</a>";
 							}else if(data[i].classification=='Referencing'){
-								textTemp+="<a style='margin:10px;' href='#'>"+$("#referencingMsg").val()+"</a>";
+								textTemp+="<a style='margin:10px;' href='javascript:void(0);'>"+$("#referencingMsg").val()+"</a>";
 							}
 							textTemp+="</span>";					
 							+"</td>";
@@ -419,13 +419,16 @@
 								+"<br/>"
 								+data[i].sessionYear+","+data[i].sessionType+","+data[i].deviceType+"<br>"
 								+"<strong>"+data[i].formattedGroup+"</span>,"+data[i].ministry+"<br>"
-								+data[i].department+","+data[i].subDepartment+"<br>"
-								+data[i].status
-								+"</td>";
-											
-							textTemp+="</tr>";	
-							console.log(i);						
-							
+								+data[i].department;
+							if(data[i].subDepartment==null||data[i].subdepartment!=""){
+								textTemp+=","+data[i].status+"<br>"
+							    +"</td>";
+						    }else{						     
+						    textTemp+=","+data[i].subDepartment+"<br>"
+							 +data[i].status
+						     +"</td>";
+						    }								
+							textTemp+="</tr>";								
 							text+=textTemp;
 						}	
 						if(data.length==10){
