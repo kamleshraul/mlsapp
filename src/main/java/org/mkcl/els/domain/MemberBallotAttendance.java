@@ -10,12 +10,14 @@
 package org.mkcl.els.domain;
 
 import java.io.Serializable;
+import java.text.NumberFormat;
 import java.util.List;
 
 import javax.persistence.Entity;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 
+import org.mkcl.els.common.util.FormaterUtil;
 import org.mkcl.els.repository.MemberBallotAttendanceRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Configurable;
@@ -286,6 +288,48 @@ public class MemberBallotAttendance extends BaseDomain implements Serializable{
 			final DeviceType questionType,final Integer round,final Boolean attendance,final  String locale) {
 		return getMemberBallotAttendanceRepository().areMembersLocked(session,
 				questionType,round,attendance,locale);
+	}
+
+	public static Integer findMembersByAttendanceCount(final Session session,
+			final DeviceType deviceType,final Boolean attendance,final int round,
+			final String locale) {
+		return getMemberBallotAttendanceRepository().findMembersByAttendanceCount(session,
+				deviceType,attendance,round,
+				locale);
+	}
+
+	public static List<Member> findMembersByAttendance(final Session session,
+			final DeviceType deviceType,final Boolean attendance,final int round,
+			final String locale,final int startingRecordToFetch,final int noOfRecordsToFetch) {
+		return getMemberBallotAttendanceRepository().findMembersByAttendance(session,
+				deviceType,attendance,round,
+				locale,startingRecordToFetch,noOfRecordsToFetch);
+	}
+
+	public static List<Member> findNewMembers(final Session session,
+			final DeviceType deviceType,final Boolean attendance,final int round,
+			final String locale) {
+		return getMemberBallotAttendanceRepository().findNewMembers(session,
+				deviceType,attendance,round,
+				locale);
+	}
+	
+	public static List<Member> findOldMembers(final Session session,
+			final DeviceType deviceType,final Boolean attendance,final int round,
+			final String locale){
+		return getMemberBallotAttendanceRepository().findOldMembers(session,
+				deviceType,attendance,round,
+				locale);
+	}
+	
+	public String formatPosition(){
+		try {
+			NumberFormat format=FormaterUtil.getNumberFormatterNoGrouping(getLocale());
+			return format.format(getPosition());
+		} catch (Exception e) {			
+			e.printStackTrace();
+			return String.valueOf(0);
+		}
 	}
 
 }
