@@ -100,6 +100,7 @@
 	<p>
 	<label class="small"><spring:message code="question.department" text="Department"/></label>
 	<select name="departmentEdit" id="departmentEdit" class="sSelect" disabled="disabled">
+	<option value=""><spring:message code='please.select' text='Please Select'/></option>
 	<c:forEach items="${departments }" var="i">
 	<c:choose>
 	<c:when test="${i.id==departmentSelected }">
@@ -114,6 +115,7 @@
 	
 	<label class="small"><spring:message code="question.subdepartment" text="Sub Department"/></label>
 	<select name="subDepartmentEdit" id="subDepartmentEdit" class="sSelect" disabled="disabled">
+	<option value=""><spring:message code='please.select' text='Please Select'/></option>	
 	<c:forEach items="${subDepartments }" var="i">
 	<c:choose>
 	<c:when test="${i.id==subDepartmentSelected }">
@@ -214,37 +216,16 @@
 	<textarea id="revisedQuestionTextEdit" class="wysiwyg">${domain.revisedQuestionText}</textarea>
 	</p>
 	
-	<p>
-	<label class="small"><spring:message code="question.putupfor" text="Put up for"/></label>
-	<select id="changeInternalStatusEdit" disabled="disabled">
-	<option value="-"><spring:message code='please.select' text='Please Select'/></option>
-	<c:forEach items="${internalStatuses}" var="i">
-	<c:if test="${(i.type!='question_workflow_decisionstatus_discuss'&&i.type!='question_workflow_decisionstatus_sendback') }">
-	<c:choose>
-	<c:when test="${i.type=='question_workflow_decisionstatus_groupchanged' }">
-	<option value="${i.id}" style="display: none;"><c:out value="${i.name}"></c:out></option>	
-	</c:when>
-	<c:otherwise>
-	<c:choose>
-	<c:when test="${i.id==internalStatusSelected }">
-	<option value="${i.id}" selected="selected"><c:out value="${i.name}"></c:out></option>	
-	</c:when>
-	<c:otherwise>
-	<option value="${i.id}"><c:out value="${i.name}"></c:out></option>		
-	</c:otherwise>
-	</c:choose>
-	</c:otherwise>
-	</c:choose>
-	</c:if>
-	</c:forEach>
-	</select>	
+	<p id="internalStatusDiv">
+	<label class="small"><spring:message code="question.currentStatus" text="Current Status"/></label>
+	<input id="formattedInternalStatus" name="formattedInternalStatus" value="${formattedInternalStatus }" type="text" readonly="readonly">
 	</p>
 		
 	<p>
 	<label class="wysiwyglabel"><spring:message code="question.remarks" text="Remarks"/></label>
 	<textarea id="remarksEdit" class="wysiwyg">${domain.remarks}</textarea>
 	</p>
-
+<input id="pleaseSelectMessage" value="<spring:message code='please.select' text='Please Select'/>" type="hidden">
 <input id="edit_ministrySelected" value="${ministrySelected }" type="hidden">
 <input id="edit_departmentSelected" value="${ departmentSelected}" type="hidden">
 <input id="edit_subDepartmentSelected" value="${subDepartmentSelected }" type="hidden">
