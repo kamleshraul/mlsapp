@@ -1605,4 +1605,36 @@ public class ReferenceController extends BaseController {
 		return result;
 	}
 	
+	@RequestMapping(value="/group/ministries",method=RequestMethod.GET)
+	public @ResponseBody List<MasterVO> getMinistriesForGroup(final HttpServletRequest request,	final Locale locale){
+		List<MasterVO> masterVOs=new ArrayList<MasterVO>();	
+		
+		String hTypeId = request.getParameter("houseType");
+		String sTypeId = request.getParameter("sessionType");	
+		String sYear = request.getParameter("year");
+		String gNumber = request.getParameter("groupNumber");
+		
+		if(hTypeId != null && sTypeId !=null && sYear != null && gNumber != null) {
+			
+			if(!hTypeId.isEmpty() && !sTypeId.isEmpty() && !sYear.isEmpty() && !gNumber.isEmpty()) {
+				
+				HouseType houseType = HouseType.findById(HouseType.class, Long.parseLong(hTypeId));
+				SessionType sessionType = SessionType.findById(SessionType.class, Long.parseLong(sTypeId));		
+				Integer year = Integer.parseInt(sYear);
+				Integer groupNumber = Integer.parseInt(gNumber);
+				
+				List<Ministry> ministries = Ministry.findAll(Ministry.class, "name", ApplicationConstants.ASC, locale.toString());
+				List<Ministry> ministriesOfOtherGroupsInSameSession = Group.findMinistriesInGroupsForSessionExcludingGivenGroup(houseType, sessionType, year, groupNumber, locale.toString());
+				if(!ministriesOfOtherGroupsInSameSession.isEmpty()) {
+					ministries.removeAll(ministriesOfOtherGroupsInSameSession);
+				}
+				for(Ministry i : ministries){
+					MasterVO masterVO=new MasterVO(i.getId(),i.getName());
+					masterVOs.add(masterVO);
+				}
+			}
+		}
+		
+		return masterVOs;
+	}
 }
