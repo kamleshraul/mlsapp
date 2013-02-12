@@ -249,7 +249,7 @@ public class Question extends BaseDomain implements Serializable {
     private Boolean toBeAnsweredByMinister=false;
 
     /** The date of answering by minister. */
-    @Temporal(TemporalType.DATE)
+    @Temporal(TemporalType.TIMESTAMP)
     private Date dateOfAnsweringByMinister;
     
     
