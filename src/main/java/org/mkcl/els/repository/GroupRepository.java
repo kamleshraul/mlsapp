@@ -259,5 +259,68 @@ public class GroupRepository extends BaseRepository<Group, Long> {
 		" WHERE m.id IN (SELECT mi.id FROM Group g JOIN g.ministries mi WHERE g.id="+group.getId()+") AND m.isExpired=false ORDER BY mm.priority";
 		return this.em().createQuery(query).getResultList();
 	}
-
+	
+	public List<Ministry> findMinistriesInGroupsForSessionExcludingGivenGroup(HouseType houseType, SessionType sessionType, Integer sessionYear, Integer groupNumber, String locale) {
+		List<Ministry> ministries = new ArrayList<Ministry>();
+		
+		if(houseType != null && sessionType != null && sessionYear != null && groupNumber != null && locale != null) {
+			if(!locale.isEmpty()) {
+				String query="SELECT g.ministries FROM Group g "+
+						" WHERE g.houseType.id="+houseType.getId()+" AND g.sessionType.id="+sessionType.getId()+
+						" AND g.year="+sessionYear+" AND g.number!="+groupNumber+" AND g.locale='"+locale+"'";
+				
+				ministries = this.em().createQuery(query).getResultList();
+			}
+		}
+		
+		return ministries;
+	}
+	
+	public List<Ministry> findMinistriesInGroupsForSession(HouseType houseType, SessionType sessionType, Integer sessionYear, String locale) {
+		List<Ministry> ministries = new ArrayList<Ministry>();
+		
+		if(houseType != null && sessionType != null && sessionYear != null && locale != null) {
+			if(!locale.isEmpty()) {
+				String query="SELECT g.ministries FROM Group g "+
+						" WHERE g.houseType.id="+houseType.getId()+" AND g.sessionType.id="+sessionType.getId()+
+						" AND g.year="+sessionYear+" AND g.locale='"+locale+"'";
+				
+				ministries = this.em().createQuery(query).getResultList();
+			}
+		}
+		
+		return ministries;
+	}
+	
+	public List<Integer> findGroupNumbersForSessionExcludingGivenGroup(HouseType houseType, SessionType sessionType, Integer sessionYear, Integer groupNumber, String locale) {
+		List<Integer> groupNumbers = new ArrayList<Integer>();
+		
+		if(houseType != null && sessionType != null && sessionYear != null && groupNumber != null && locale != null) {
+			if(!locale.isEmpty()) {
+				String query="SELECT g.number FROM Group g "+
+						" WHERE g.houseType.id="+houseType.getId()+" AND g.sessionType.id="+sessionType.getId()+
+						" AND g.year="+sessionYear+" AND g.number!="+groupNumber+" AND g.locale='"+locale+"'";
+				
+				groupNumbers = this.em().createQuery(query).getResultList();
+			}
+		}
+		
+		return groupNumbers;
+	}
+	
+	public List<Integer> findGroupNumbersForSession(HouseType houseType, SessionType sessionType, Integer sessionYear, String locale) {
+		List<Integer> groupNumbers = new ArrayList<Integer>();
+		
+		if(houseType != null && sessionType != null && sessionYear != null && locale != null) {
+			if(!locale.isEmpty()) {
+				String query="SELECT g.number FROM Group g "+
+						" WHERE g.houseType.id="+houseType.getId()+" AND g.sessionType.id="+sessionType.getId()+
+						" AND g.year="+sessionYear+" AND g.locale='"+locale+"'";
+				
+				groupNumbers = this.em().createQuery(query).getResultList();
+			}
+		}
+		
+		return groupNumbers;
+	}
 }

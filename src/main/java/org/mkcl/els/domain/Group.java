@@ -322,4 +322,20 @@ public class Group extends BaseDomain implements Serializable {
 			final String locale) {
 		return Group.getGroupRepository().find(session, answeringDate, locale);
 	}
+	
+	public static List<Ministry> findMinistriesInGroupsForSessionExcludingGivenGroup(final HouseType houseType, final SessionType sessionType, final Integer sessionYear, final Integer groupNumber, final String locale) {
+		return getGroupRepository().findMinistriesInGroupsForSessionExcludingGivenGroup(houseType,sessionType,sessionYear,groupNumber,locale);
+    }	
+	
+	public static List<Ministry> findMinistriesInGroupsForSession(final HouseType houseType, final SessionType sessionType, final Integer sessionYear, final String locale) {
+		return getGroupRepository().findMinistriesInGroupsForSession(houseType,sessionType,sessionYear,locale);
+    }
+	
+	public static List<Integer> findGroupNumbersForSessionExcludingGivenGroup(final HouseType houseType, final SessionType sessionType, final Integer sessionYear, final Integer groupNumber, final String locale) {
+		return getGroupRepository().findGroupNumbersForSessionExcludingGivenGroup(houseType,sessionType,sessionYear,groupNumber,locale);
+    }
+	
+	public static List<Integer> findGroupNumbersForSession(final HouseType houseType, final SessionType sessionType, final Integer sessionYear, final String locale) {
+		return getGroupRepository().findGroupNumbersForSession(houseType,sessionType,sessionYear,locale);
+    }
 }
