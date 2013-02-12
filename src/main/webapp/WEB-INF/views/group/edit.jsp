@@ -11,6 +11,21 @@
 			var recordId = ${domain.id};
 			$('#key').val(recordId);	
 			
+			$('#number').change(function(){				
+				if($('#number').val() != "") {
+					$.get('ref/group/ministries?groupNumber='+$('#number').val()+'&houseType='+$('#houseType').val()+'&year='+$("#year").val()+'&sessionType='+$("#sessionType").val(), 
+						function(data) {
+							$('#ministries option').empty();
+							var options = "";
+							for ( var i = 0; i < data.length; i++) {
+								options += "<option value='"+data[i].id+"'>" + data[i].name + "</option>";
+							}
+							$('#ministries').html(options);
+						}
+					);
+				}								
+			});
+			
 			$('#submit').click(function(){
 				if($('#number').val() == "") {
 					$.prompt($('#pleaseSelectGroupNumber').val());
@@ -93,6 +108,7 @@
 
 <input id="pleaseSelectGroupNumber" value="<spring:message code='NotNull.groupNumber' text='Please select group number'/>" type="hidden">
 <input id="pleaseSelectMinistries" value="<spring:message code='NotNull.ministries' text='Please select ministries in the group'/>" type="hidden">
+<input id="domainGroupNumber" value="${selectedNumber}" type="hidden">
 </div>	
 </body>
 </html>
