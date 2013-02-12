@@ -72,10 +72,12 @@ public class GroupController extends GenericController<Group> {
 				model.addAttribute("houseTypes", houseTypes);		
 				model.addAttribute("selectedHouseType",houseTypes.get(0).getType());
 			} else {
-				model.addAttribute("errorcode","userhousetypenotset");
+				if(model.get("errorcode") == null)
+					model.addAttribute("errorcode","userhousetypenotset");				
 			}			
 		} else {
-			model.addAttribute("errorcode","userhousetypenotset");
+			if(model.get("errorcode") == null)
+				model.addAttribute("errorcode","userhousetypenotset");			
 		}
 		
 		/**** To check whether sessions exist for selected house type  ****/					
@@ -87,7 +89,7 @@ public class GroupController extends GenericController<Group> {
 			List<SessionType> sessionTypes=SessionType.findAll(SessionType.class,"sessionType", ApplicationConstants.ASC, locale);
 			model.addAttribute("sessionTypes",sessionTypes);
 			if(lastSessionCreated.getType() != null) {
-				model.addAttribute("selectedSessionType",lastSessionCreated.getType().getType());
+				model.addAttribute("selectedSessionType",lastSessionCreated.getType().getType());				
 			}
 			
 			/**** Years ****/
@@ -115,23 +117,28 @@ public class GroupController extends GenericController<Group> {
 						}
 						model.addAttribute("years", years);
 						if(lastSessionCreated.getYear() != null) {
-							model.addAttribute("selectedYear", latestYear.toString());
+							if(model.get("errorcode") == null)
+								model.addAttribute("selectedYear", latestYear.toString());
 						}
 					}
 					catch(NumberFormatException ne) {
-						model.addAttribute("errorcode","houseformationyearsetincorrect");
+						if(model.get("errorcode") == null)
+							model.addAttribute("errorcode","houseformationyearsetincorrect");						
 					}				
 				}
 				else {
-					model.addAttribute("errorcode","houseformationyearnotset");
+					if(model.get("errorcode") == null)
+						model.addAttribute("errorcode","houseformationyearnotset");					
 				}
 			}	
 			else {
-				model.addAttribute("errorcode","houseformationyearnotset");
+				if(model.get("errorcode") == null)
+					model.addAttribute("errorcode","houseformationyearnotset");				
 			}		
 						
 		}else{
-			model.addAttribute("errorcode","nosessionentriesfound");
+			if(model.get("errorcode") == null)
+				model.addAttribute("errorcode","nosessionentriesfound");			
 		}						
 	}
 
@@ -148,68 +155,76 @@ javax.servlet.http.HttpServletRequest)
 		domain.setLocale(locale);
 		
 		/**** Selected House Type ****/
+		HouseType selectedHouseType = null;
 		String hType = request.getParameter("houseType");		
 		if(hType != null) {
 			if(!hType.isEmpty()) {				
-				HouseType selectedHouseType = HouseType.findByFieldName(HouseType.class, "type", hType, locale);
+				selectedHouseType = HouseType.findByFieldName(HouseType.class, "type", hType, locale);
 				if(selectedHouseType != null) {
 					model.addAttribute("houseType", selectedHouseType.getId());
 					model.addAttribute("formattedHouseType",selectedHouseType.getName());
 				} else {
-					model.addAttribute("errorcode", "houseType_isincorrect");
+					if(model.get("errorcode") == null)
+						model.addAttribute("errorcode", "houseType_isincorrect");
 				}
 			} else {
-				model.addAttribute("errorcode", "houseType_isempty");
+				if(model.get("errorcode") == null)
+					model.addAttribute("errorcode", "houseType_isempty");
 			}
 		} else {
-			model.addAttribute("errorcode", "houseType_isnull");
+			if(model.get("errorcode") == null)
+				model.addAttribute("errorcode", "houseType_isnull");
 		}
 		
 		/**** Selected Session Type ****/
+		SessionType selectedSessionType = null;
 		String sType = request.getParameter("sessionType");			
 		if(sType != null) {
 			if(!sType.isEmpty()) {
-				SessionType selectedSessionType = SessionType.findByFieldName(SessionType.class, "type", sType, locale);
+				selectedSessionType = SessionType.findByFieldName(SessionType.class, "type", sType, locale);
 				if(selectedSessionType != null) {
 					model.addAttribute("sessionType", selectedSessionType.getId());
 					model.addAttribute("formattedSessionType",selectedSessionType.getSessionType());
 				} else {
-					model.addAttribute("errorcode", "sessionType_isincorrect");
+					if(model.get("errorcode") == null)
+						model.addAttribute("errorcode", "sessionType_isincorrect");
 				}
 			} else {
-				model.addAttribute("errorcode", "sessionType_isempty");
+				if(model.get("errorcode") == null)
+					model.addAttribute("errorcode", "sessionType_isempty");
 			}
 		} else {
-			model.addAttribute("errorcode", "sessionType_isnull");
+			if(model.get("errorcode") == null)
+				model.addAttribute("errorcode", "sessionType_isnull");
 		}
 				
 		
 		/**** Selected Year ****/
+		Integer selectedYear = null;
 		String sYear = request.getParameter("year");		
 		if(sYear != null) {
 			if(!sYear.isEmpty()) {
 				try{
-					Integer selectedYear = Integer.parseInt(sYear);
+					selectedYear = Integer.parseInt(sYear);
 					if(selectedYear != null) {
 						model.addAttribute("year", selectedYear);
 						String formattedYear = FormaterUtil.formatNumberNoGrouping(selectedYear, locale);
 						model.addAttribute("formattedYear", formattedYear);
 					}
 				} catch (NumberFormatException ne) {
-					model.addAttribute("errorcode", "year_isincorrect");
+					if(model.get("errorcode") == null)
+						model.addAttribute("errorcode", "year_isincorrect");
 				}
 			} else {
-				model.addAttribute("errorcode", "year_isempty");
+				if(model.get("errorcode") == null)
+					model.addAttribute("errorcode", "year_isempty");
 			}
 		} else {
-			model.addAttribute("errorcode", "year_isnull");
-		}			
+			if(model.get("errorcode") == null)
+				model.addAttribute("errorcode", "year_isnull");
+		}	
 		
-		/**** Ministries ****/
-		List<Ministry> ministries = Ministry.findAll(Ministry.class, "name", ASC, locale);
-		model.addAttribute("ministries", ministries);
-		populate(model, domain, request, locale);
-
+		populate(model, domain, request, locale, selectedHouseType, selectedSessionType, selectedYear);
 	}
 
 	/* (non-Javadoc)
@@ -226,7 +241,8 @@ javax.servlet.http.HttpServletRequest)
 			model.addAttribute("houseType", selectedHouseType.getId());
 			model.addAttribute("formattedHouseType",selectedHouseType.getName());
 		} else {
-			model.addAttribute("errorcode", "houseType_isnull");
+			if(model.get("errorcode") == null)
+				model.addAttribute("errorcode", "houseType_isnull");
 		}
 			
 		
@@ -236,7 +252,8 @@ javax.servlet.http.HttpServletRequest)
 			model.addAttribute("sessionType", selectedSessionType.getId());
 			model.addAttribute("formattedSessionType",selectedSessionType.getSessionType());
 		} else {
-			model.addAttribute("errorcode", "sessionType_isnull");
+			if(model.get("errorcode") == null)
+				model.addAttribute("errorcode", "sessionType_isnull");
 		}
 		
 		/**** Selected Year ****/		
@@ -245,21 +262,12 @@ javax.servlet.http.HttpServletRequest)
 			model.addAttribute("year", selectedYear);
 			String formattedYear = FormaterUtil.formatNumberNoGrouping(selectedYear, domain.getLocale());
 			model.addAttribute("formattedYear", formattedYear);
+		} else {
+			if(model.get("errorcode") == null)
+				model.addAttribute("errorcode", "year_isnull");
 		}
 		
-		/**** Ministries ****/
-		List<Ministry> modelMinistries = new ArrayList<Ministry>();
-		List<Ministry> ministries = Ministry.findAll(Ministry.class, "name", ASC, domain.getLocale());
-		if(domain.getMinistries() != null) {
-			if(domain.getMinistries().size() != 0) {
-				ministries.removeAll(domain.getMinistries());
-				modelMinistries.addAll(domain.getMinistries());
-			}
-		}		
-		modelMinistries.addAll(ministries);
-		model.addAttribute("ministries", modelMinistries);
-		populate(model, domain, request, domain.getLocale());
-
+		populate(model, domain, request, domain.getLocale(), domain.getHouseType(), domain.getSessionType(), domain.getYear());
 	}
 
 	/**
@@ -269,7 +277,7 @@ javax.servlet.http.HttpServletRequest)
 	 * @param domain the domain
 	 * @param request the request
 	 */
-	private void populate(final ModelMap model, final Group domain, final HttpServletRequest request, String locale) {	
+	private void populate(final ModelMap model, final Group domain, final HttpServletRequest request, String locale, HouseType houseType, SessionType sessionType, Integer year) {	
 		//upper limit of group numbers allowed must be set as custom parameter 'DEFAULT_GROUP_NUMBER'
 		String groupNumberLimitParameter = ((CustomParameter) CustomParameter.findByName(CustomParameter.class, "DEFAULT_GROUP_NUMBER", "")).getValue();
 		
@@ -281,11 +289,28 @@ javax.servlet.http.HttpServletRequest)
 					
 					/**** Group Numbers ****/
 					List<MasterVO> groupNumbers = new ArrayList<MasterVO>();
+					
+					//to exclude other group numbers whose groups already exist. 					
+					List<Integer> groupNumbersOfExistingGroups = new ArrayList<Integer>();					
+					if(domain.getNumber()!=null) {
+						groupNumbersOfExistingGroups = Group.findGroupNumbersForSessionExcludingGivenGroup(houseType, sessionType, year, domain.getNumber(), locale);
+					} else {
+						groupNumbersOfExistingGroups = Group.findGroupNumbersForSession(houseType, sessionType, year, locale);
+					}
+					
 					for(Integer i=1; i<=groupNumberLimit; i++) {
-						MasterVO groupNumber = new MasterVO();
-						groupNumber.setName(FormaterUtil.formatNumberNoGrouping(i, locale));
-						groupNumber.setValue(i.toString());							
-						groupNumbers.add(groupNumber);						
+						
+						if(!groupNumbersOfExistingGroups.contains(i)) {
+							MasterVO groupNumber = new MasterVO();
+							groupNumber.setName(FormaterUtil.formatNumberNoGrouping(i, locale));
+							groupNumber.setValue(i.toString());							
+							groupNumbers.add(groupNumber);
+						}					
+																		
+					}
+					if(groupNumbers.isEmpty()) {
+						if(model.get("errorcode") == null)
+							model.addAttribute("errorcode","allgroupssetforsession");						
 					}
 					model.addAttribute("groupNumbers", groupNumbers);
 					if(domain.getNumber() != null) {
@@ -293,14 +318,52 @@ javax.servlet.http.HttpServletRequest)
 					}
 					
 				} catch(NumberFormatException ne) {
-					model.addAttribute("errorcode","defaultgroupnumbersetincorrect");
+					if(model.get("errorcode") == null)
+						model.addAttribute("errorcode","defaultgroupnumbersetincorrect");					
 				}
 			} else {
-				model.addAttribute("errorcode","nodefaultgroupnumberfound");
+				if(model.get("errorcode") == null)
+					model.addAttribute("errorcode","nodefaultgroupnumberfound");				
 			}
 		} else {
-			model.addAttribute("errorcode","nodefaultgroupnumberfound");
+			if(model.get("errorcode") == null)
+				model.addAttribute("errorcode","nodefaultgroupnumberfound");			
 		}		
+		
+		/**** Ministries ****/		
+		List<Ministry> ministries = Ministry.findAll(Ministry.class, "name", ASC, domain.getLocale());
+		
+		//to exclude ministries of other existing groups. 	
+		List<Ministry> ministriesOfOtherGroupsInSameSession = new ArrayList<Ministry>();
+		if(domain.getMinistries() != null) {
+			if(domain.getNumber() != null) {
+				ministriesOfOtherGroupsInSameSession = Group.findMinistriesInGroupsForSessionExcludingGivenGroup(houseType, sessionType, year, domain.getNumber(), locale);
+			} else {
+				if(model.get("errorcode") == null)
+					model.addAttribute("errorcode","groupnumbernotset");				
+			}
+		} else {
+			ministriesOfOtherGroupsInSameSession = Group.findMinistriesInGroupsForSession(houseType, sessionType, year, locale);
+		}
+		if(!ministriesOfOtherGroupsInSameSession.isEmpty()) {
+			ministries.removeAll(ministriesOfOtherGroupsInSameSession);				
+		}
+		
+		List<Ministry> modelMinistries = new ArrayList<Ministry>();	
+		
+		if(domain.getMinistries() != null) {
+			if(!domain.getMinistries().isEmpty()) {
+				ministries.removeAll(domain.getMinistries());
+				modelMinistries.addAll(domain.getMinistries());
+			}
+		}
+		
+		modelMinistries.addAll(ministries);
+		if(modelMinistries.isEmpty()) {
+			if(model.get("errorcode") == null)
+				model.addAttribute("errorcode","incorrectdefaultgroupnumberset");			
+		}
+		model.addAttribute("ministries", modelMinistries);
 	}	
 	
 	/* (non-Javadoc)
@@ -384,8 +447,20 @@ org.springframework.validation.BindingResult, javax.servlet.http.HttpServletRequ
 		model.addAttribute("urlPattern", urlPattern);
 		Group domain = Group.findById(Group.class, id);
     	Session session =Session.findSessionByHouseTypeSessionTypeYear(domain.getHouseType(), domain.getSessionType(), domain.getYear());
+    	if(session == null) {
+			model.addAttribute("errorcode", "sessionnotfoundforgroup");    			
+			return urlPattern.replace("rotationorder","error");
+		}
     	Date sessionStartDate= session.getStartDate();
+    	if(sessionStartDate == null) {
+			model.addAttribute("errorcode", "sessionstartdatenotset");    			
+			return urlPattern.replace("rotationorder","error");
+		}
     	Date sessionEndDate=session.getEndDate();
+    	if(sessionEndDate == null) {
+			model.addAttribute("errorcode", "sessionenddatenotset");    			
+			return urlPattern.replace("rotationorder","error");
+		}
     	Calendar start = Calendar.getInstance();
     	start.setTime(sessionStartDate);    	
     	Calendar end = Calendar.getInstance();
@@ -403,11 +478,22 @@ org.springframework.validation.BindingResult, javax.servlet.http.HttpServletRequ
     	List<String> speakerSendingDates=new ArrayList<String>();
     	List<String> selects = new ArrayList<String>();
     	SimpleDateFormat sf=new SimpleDateFormat("EEEE");
-    	CustomParameter parameter = CustomParameter.findByName(
-				CustomParameter.class, "SERVER_DATEFORMAT", "");
+    	CustomParameter parameter = CustomParameter.findByName(CustomParameter.class, "SERVER_DATEFORMAT", "");
+    	if(parameter == null) {
+			model.addAttribute("errorcode", "server_dateformat_notset");    			
+			return urlPattern.replace("rotationorder","error");
+		} 
+    	if(parameter.getValue()==null) {
+    		model.addAttribute("errorcode", "server_dateformat_notset");    			
+			return urlPattern.replace("rotationorder","error");
+		}
+    	if(parameter.getValue().isEmpty()) {
+    		model.addAttribute("errorcode", "server_dateformat_notset");    			
+			return urlPattern.replace("rotationorder","error");
+		}
     	SimpleDateFormat dateFormat=null;
-	if(domain.getLocale().equals("mr_IN")){
-		dateFormat=new SimpleDateFormat(parameter.getValue(),new Locale("hi","IN"));
+    	if(domain.getLocale().equals("mr_IN")){
+    		dateFormat=new SimpleDateFormat(parameter.getValue(),new Locale("hi","IN"));
 		}
 		else{
 			dateFormat=new SimpleDateFormat(parameter.getValue(),new Locale(domain.getLocale()));
@@ -419,70 +505,70 @@ org.springframework.validation.BindingResult, javax.servlet.http.HttpServletRequ
     	    String select="false";	    
     	    switch(domain.getNumber())
     	    {
-    	    case 1:
-    	    	
-    	    	if(sf.format(current).equals("Monday")){
-    	    		answeringDates.add(current);
-    	    		aDates.add(dateFormat.format(current));
-    	    		QuestionDates qd = domain.findQuestionDatesByGroupAndAnsweringDate(current);//QuestionDates.findByFieldName (QuestionDates.class, "answeringDate", current, domain.getLocale());
-    	    		if(qd!=null) {
-    	    			select = "true";
-    	    		}  
-    	    		selects.add(select);
-    	    	}
-    	    	break;
-    	    	
-    	    case 2:
-    	    	
-    	    	if(sf.format(current).equals("Tuesday")){
-    	    		answeringDates.add(current);
-    	    		aDates.add(dateFormat.format(current));
-    	    		QuestionDates qd = domain.findQuestionDatesByGroupAndAnsweringDate(current);//QuestionDates.findByFieldName(QuestionDates.class, "answeringDate", current, domain.getLocale());
-    	    		if(qd!=null) {
-    	    			select = "true";
-    	    		}  
-    	    		selects.add(select);
-       	    	}
-    	    	break;
-    	    	
-    	    case 3:
-    	    	
-    	    	if(sf.format(current).equals("Wednesday")){
-    	    		answeringDates.add(current);
-    	    		aDates.add(dateFormat.format(current));
-    	    		QuestionDates qd = domain.findQuestionDatesByGroupAndAnsweringDate(current);//QuestionDates.findByFieldName(QuestionDates.class, "answeringDate", current, domain.getLocale());
-    	    		if(qd!=null) {
-    	    			select = "true";
-    	    		}  
-    	    		selects.add(select);
-       	    	}
-    	    	break;
-    	    	
-    	    case 4:
-    	    	
-    	    	if(sf.format(current).equals("Thursday")){
-    	    		answeringDates.add(current);
-    	    		aDates.add(dateFormat.format(current));
-    	    		QuestionDates qd = domain.findQuestionDatesByGroupAndAnsweringDate(current);//QuestionDates.findByFieldName(QuestionDates.class, "answeringDate", current, domain.getLocale());
-    	    		if(qd!=null) {
-    	    			select = "true";
-    	    		}  
-    	    		selects.add(select);
-    	    	}
-    	    	break;
-    	    	
-    	    case 5:
-    	    	
-    	    	if(sf.format(current).equals("Friday")){
-    	    		answeringDates.add(current);
-    	    		aDates.add(dateFormat.format(current));
-    	    		QuestionDates qd = domain.findQuestionDatesByGroupAndAnsweringDate(current);//QuestionDates.findByFieldName(QuestionDates.class, "answeringDate", current, domain.getLocale());
-    	    		if(qd!=null) {
-    	    			select = "true";
-    	    		}  
-    	    		selects.add(select);
-       	    	}
-    	    	break;
+	    	    case 1:
+	    	    	
+	    	    	if(sf.format(current).equals("Monday")){
+	    	    		answeringDates.add(current);
+	    	    		aDates.add(dateFormat.format(current));
+	    	    		QuestionDates qd = domain.findQuestionDatesByGroupAndAnsweringDate(current);//QuestionDates.findByFieldName (QuestionDates.class, "answeringDate", current, domain.getLocale());
+	    	    		if(qd!=null || (!Holiday.isHolidayOnDate(current, domain.getLocale()))) {
+	    	    			select = "true";
+	    	    		} 	
+	    	    		selects.add(select);
+	    	    	}
+	    	    	break;
+	    	    	
+	    	    case 2:
+	    	    	
+	    	    	if(sf.format(current).equals("Tuesday")){
+	    	    		answeringDates.add(current);
+	    	    		aDates.add(dateFormat.format(current));
+	    	    		QuestionDates qd = domain.findQuestionDatesByGroupAndAnsweringDate(current);//QuestionDates.findByFieldName(QuestionDates.class, "answeringDate", current, domain.getLocale());
+	    	    		if(qd!=null || (!Holiday.isHolidayOnDate(current, domain.getLocale()))) {
+	    	    			select = "true";
+	    	    		}   
+	    	    		selects.add(select);
+	       	    	}
+	    	    	break;
+	    	    	
+	    	    case 3:
+	    	    	
+	    	    	if(sf.format(current).equals("Wednesday")){
+	    	    		answeringDates.add(current);
+	    	    		aDates.add(dateFormat.format(current));
+	    	    		QuestionDates qd = domain.findQuestionDatesByGroupAndAnsweringDate(current);//QuestionDates.findByFieldName(QuestionDates.class, "answeringDate", current, domain.getLocale());
+	    	    		if(qd!=null || (!Holiday.isHolidayOnDate(current, domain.getLocale()))) {
+	    	    			select = "true";
+	    	    		} 
+	    	    		selects.add(select);
+	       	    	}
+	    	    	break;
+	    	    	
+	    	    case 4:
+	    	    	
+	    	    	if(sf.format(current).equals("Thursday")){
+	    	    		answeringDates.add(current);
+	    	    		aDates.add(dateFormat.format(current));
+	    	    		QuestionDates qd = domain.findQuestionDatesByGroupAndAnsweringDate(current);//QuestionDates.findByFieldName(QuestionDates.class, "answeringDate", current, domain.getLocale());
+	    	    		if(qd!=null || (!Holiday.isHolidayOnDate(current, domain.getLocale()))) {
+	    	    			select = "true";
+	    	    		}   
+	    	    		selects.add(select);
+	    	    	}
+	    	    	break;
+	    	    	
+	    	    case 5:
+	    	    	
+	    	    	if(sf.format(current).equals("Friday")){ 
+	    	    		answeringDates.add(current);
+	    	    		aDates.add(dateFormat.format(current));
+	    	    		QuestionDates qd = domain.findQuestionDatesByGroupAndAnsweringDate(current);//QuestionDates.findByFieldName(QuestionDates.class, "answeringDate", current, domain.getLocale());
+	    	    		if(qd!=null || (!Holiday.isHolidayOnDate(current, domain.getLocale()))) {
+	    	    			select = "true";
+	    	    		}  
+	    	    		selects.add(select);
+	       	    	}
+	    	    	break;  	
     	    
     	    }    	    
     	}    	
