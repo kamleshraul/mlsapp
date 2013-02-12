@@ -771,29 +771,31 @@ public class QuestionWorkflowController  extends BaseController{
 			final HttpServletRequest request,
 			final Locale locale,@Valid @ModelAttribute("domain") final Question domain,final BindingResult result) {
 		
-		String operation = request.getParameter("operation");
-		
-		if(operation != null){
-			if(!operation.isEmpty()){
-				if(operation.equals("workflowsubmit")){
-					if(domain.getAnswer() == null){
-						result.rejectValue("answer", "AnswerEmpty");						
-					}
-					if(domain.getAnswer().isEmpty()){
-						result.rejectValue("answer", "AnswerEmpty");
-					}
-				}
-			}
-		}
-		if(result.hasErrors()){
-			model.addAttribute("errorcode","no_answer_provided_department");
-			return "workflow/myTasks/error";
-			
-		}
-		
 		/**** Workflowdetails ****/
 		String strWorkflowdetails=(String) request.getParameter("workflowdetails");
 		WorkflowDetails workflowDetails=WorkflowDetails.findById(WorkflowDetails.class,Long.parseLong(strWorkflowdetails));
+		
+		if(workflowDetails.getAssigneeUserGroupType().equals(ApplicationConstants.DEPARTMENT)){
+			
+			String operation = request.getParameter("operation");
+			
+			if(operation != null){
+				if(!operation.isEmpty()){
+					if(operation.equals("workflowsubmit")){
+						if(domain.getAnswer() == null){
+							result.rejectValue("answer", "AnswerEmpty");						
+						}
+						if(domain.getAnswer().isEmpty()){
+							result.rejectValue("answer", "AnswerEmpty");
+						}
+					}
+				}
+			}
+			if(result.hasErrors()){
+				model.addAttribute("errorcode","no_answer_provided_department");
+				return "workflow/myTasks/error";		
+			}
+		}
 		
 		/**** Updating domain ****/
 		domain.setEditedOn(new Date());
