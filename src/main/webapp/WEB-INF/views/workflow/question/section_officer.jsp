@@ -803,7 +803,7 @@
 				selectedQuestionType == 'questions_shortnotice')}">
 		<p>
 		<label class="small"><spring:message code="question.lastDateOfAnswerReceiving" text="Last date of receiving answer"/></label>
-		<form:input path="lastDateOfAnswerReceiving" cssClass="datemask sText"/>
+		<form:input path="lastDateOfAnswerReceiving" cssClass="datetimemask sText"/>
 		<form:errors path="lastDateOfAnswerReceiving" cssClass="validationError"/>
 		</p>
 	</c:if>

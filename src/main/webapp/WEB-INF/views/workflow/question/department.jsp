@@ -446,15 +446,30 @@
 		
 		
 		$('#sendBack').click(function(){
-			$('form').submit();
+			$.post($('form').attr('action')+'?operation=workflowsendback',  
+    	            $("form").serialize(),
+    	            function(data){
+       					$('.tabContent').html(data);
+       					$('html').animate({scrollTop:0}, 'slow');
+       				 	$('body').animate({scrollTop:0}, 'slow');	   				 	   				
+    	            });
 		});
 		
 		$('#submit').click(function(){
-			if($('#answer').val().replace("<p></p>","")==""){
+			
+			$('#answer').val($('#answer').val().replace("<p></p>",""));
+			if($('#answer').val()==""){
 				$.prompt($('#noAnswerProvidedMsg').val());
-				return false;
+			}else{ 
+				$.post($('form').attr('action')+'?operation=workflowsubmit',  
+	    	            $("form").serialize(),
+	    	            function(data){
+	       					$('.tabContent').html(data);
+	       					$('html').animate({scrollTop:0}, 'slow');
+	       				 	$('body').animate({scrollTop:0}, 'slow');	   				 	   				
+	    	            });
 			}
-			return true;		
+			return false;		
 		});
 	});
 	</script>
@@ -804,7 +819,7 @@
 	<c:if test="${selectedQuestionType == 'questions_shortnotice'}">
 		<p>
 		<label class="small"><spring:message code="question.dateOfAnsweringByMinister" text="Answering Date"/></label>
-		<form:input path="dateOfAnsweringByMinister" cssClass="datemask sText"/>
+		<form:input path="dateOfAnsweringByMinister" cssClass="datetimemask sText"/>
 		<form:errors path="dateOfAnsweringByMinister" cssClass="validationError"/>
 		</p>
 	</c:if>
@@ -812,6 +827,7 @@
 	<p>
 	<label class="wysiwyglabel"><spring:message code="question.answer" text="Answer"/></label>
 	<form:textarea path="answer" cssClass="wysiwyg"></form:textarea>
+	<form:errors path="answer" cssClass="validationError"></form:errors>
 	</p>
 	
 	<p>
