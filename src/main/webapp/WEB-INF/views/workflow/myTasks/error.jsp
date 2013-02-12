@@ -45,4 +45,13 @@
 		<p></p>
 	</div>
 </c:when>
+<c:when test="${errorcode eq 'no_answer_provided_department'}">
+	<div class="toolTip tpRed clearfix">
+		<p>
+			<img src="./resources/images/template/icons/light-bulb-off.png">
+			<spring:message code="question.errorcode.no_answer_provided_department" text="Department must provide answer."/>
+		</p>
+		<p></p>
+	</div>
+</c:when>
 </c:choose>
