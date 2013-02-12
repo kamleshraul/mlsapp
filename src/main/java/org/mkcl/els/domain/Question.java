@@ -7,7 +7,6 @@
  * File: org.mkcl.els.domain.Question.java
  * Created On: Dec 27, 2012
  */
-
 package org.mkcl.els.domain;
 
 import java.io.Serializable;
@@ -17,7 +16,6 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
-import java.util.Map;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
@@ -36,11 +34,9 @@ import org.mkcl.els.common.util.ApplicationConstants;
 import org.mkcl.els.common.util.FormaterUtil;
 import org.mkcl.els.common.vo.MemberBallotMemberWiseReportVO;
 import org.mkcl.els.common.vo.QuestionRevisionVO;
-import org.mkcl.els.common.vo.QuestionSearchVO;
 import org.mkcl.els.repository.QuestionRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Configurable;
-
 
 /**
  * The Class Question.
@@ -52,18 +48,16 @@ import org.springframework.beans.factory.annotation.Configurable;
 @Configurable
 @Entity
 @Table(name="questions")
-@JsonIgnoreProperties({"halfHourDiscusionFromQuestionReference","answeringDate","chartAnsweringDate","recommendationStatus","houseType", "session",
-    "language","type","supportingMembers", "subDepartment", "referencedQuestions",
-    "drafts","clubbings","group","editedBy","editedAs","clubbedEntities","referencedEntities","parent","parentReferencing",
-    "clarificationNeededFrom","originalType","ballotStatus"})
-public class Question extends BaseDomain
-implements Serializable
-{
+@JsonIgnoreProperties({"houseType", "session", "originalType", "type", "answeringDate",
+	"chartAnsweringDate", "recommendationStatus", "ballotStatus", "supportingMembers",
+	"group", "subDepartment", "drafts", "parent", "clubbedEntities", "referencedEntities",
+	"halfHourDiscusionFromQuestionReference", "language"})
+public class Question extends BaseDomain implements Serializable {
 
     /** The Constant serialVersionUID. */
     private static final long serialVersionUID = 1L;
 
-    //---------------------------Basic Characteristics--------------------------
+    //=============== BASIC ATTRIBUTES ====================
     /** The house type. */
     @ManyToOne(fetch=FetchType.LAZY)
     @JoinColumn(name="housetype_id")
@@ -74,14 +68,14 @@ implements Serializable
     @JoinColumn(name="session_id")
     private Session session;
 
+    @ManyToOne(fetch=FetchType.LAZY)
+    @JoinColumn(name="originaldevicetype_id")
+    private DeviceType originalType;
+    
     /** The type. */
     @ManyToOne(fetch=FetchType.LAZY)
     @JoinColumn(name="devicetype_id")
-    private DeviceType type;
-    
-    @ManyToOne(fetch=FetchType.LAZY)
-    @JoinColumn(name="originaldevicetype_id")
-    private DeviceType originalType;    
+    private DeviceType type;    
 
     /** The number. */
     private Integer number;
@@ -141,14 +135,18 @@ implements Serializable
     /** The priority. */
     private Integer priority;
 
-    //this refers to various final status.submitted,admitted,rejected,convert to unstarred
-    /** The status. */
+    /** 
+     * The status. Refers to various final status viz, SUBMITTED,
+     * ADMITTED, REJECTED, CONVERTED_TO_UNSTARRED 
+     */
     @ManyToOne(fetch=FetchType.LAZY)
     @JoinColumn(name="status_id")
     private Status status;
 
-    //this refers to the various status assigned to a question by an assistant
-    /** The internal status. */
+    /** 
+     * The internal status. Refers to status assigned to a Question
+     * during the Workflow
+     */
     @ManyToOne(fetch=FetchType.LAZY)
     @JoinColumn(name="internalstatus_id")
     private Status internalStatus;
@@ -158,12 +156,13 @@ implements Serializable
     @JoinColumn(name="recommendationstatus_id")
     private Status recommendationStatus;
     
-    /**** if a question is balloted then its balloted status is set to balloted ****/
+    /** 
+     * If a question is balloted then its balloted status is set to balloted 
+     */
     @ManyToOne(fetch=FetchType.LAZY)
     @JoinColumn(name="ballotstatus_id")
     private Status ballotStatus;
    
-
     /** The remarks. */
     @Column(length=30000)
     private String remarks;
@@ -171,24 +170,22 @@ implements Serializable
     @Column(length=30000)
 	private String rejectionReason;
     
-    //---------------------------Primary and supporting members-----------------
+    
+    //=============== PRIMARY & SUPPORTING MEMBERS ====================
     /** The primary member. */
     @ManyToOne(fetch=FetchType.LAZY)
     @JoinColumn(name="member_id")
     private Member primaryMember;
 
-    /**** Added By Sandeep Singh ****/
-    /**** Changed cascade type to all ****/
     /** The supporting members. */
     @ManyToMany(fetch=FetchType.LAZY,cascade=CascadeType.ALL)
     @JoinTable(name="questions_supportingmembers",
-            joinColumns={@JoinColumn(name="question_id",
-                    referencedColumnName="id")},
-                    inverseJoinColumns={@JoinColumn(name="supportingmember_id",
-                            referencedColumnName="id")})
-                            private List<SupportingMember> supportingMembers;
+            joinColumns={@JoinColumn(name="question_id", referencedColumnName="id")},
+            inverseJoinColumns={@JoinColumn(name="supportingmember_id", referencedColumnName="id")})
+    private List<SupportingMember> supportingMembers;
 
-    //------------------------Group Information--------------------------------
+    
+    //=============== GROUP ATTRIBUTERS ====================
     /** The group. */
     @ManyToOne(fetch=FetchType.LAZY)
     @JoinColumn(name="group_id")
@@ -209,44 +206,37 @@ implements Serializable
     @JoinColumn(name="subdepartment_id")
     private SubDepartment subDepartment;
 
-    //--------------------------Drafts------------------------------------------
+    
+    //=============== DRAFTS ====================
     /** The drafts. */
     @ManyToMany(fetch=FetchType.LAZY,cascade=CascadeType.ALL)
-    @JoinTable(name="questions_drafts_association", joinColumns={@JoinColumn(name="question_id", referencedColumnName="id")}, inverseJoinColumns={@JoinColumn(name="question_draft_id", referencedColumnName="id")})
+    @JoinTable(name="questions_drafts_association", 
+    		joinColumns={@JoinColumn(name="question_id", referencedColumnName="id")}, 
+    		inverseJoinColumns={@JoinColumn(name="question_draft_id", referencedColumnName="id")})
     private List<QuestionDraft> drafts;    
 
-    //--------------------------Clubbing Entities------------------------------------------
+    
+    //=============== Clubbing ====================
     /** The parent. */
     @ManyToOne(fetch=FetchType.LAZY)
     private Question parent;
     
     @ManyToMany(fetch=FetchType.LAZY,cascade=CascadeType.REMOVE)
-    @JoinTable(name="questions_clubbingentities", joinColumns={@JoinColumn(name="question_id", referencedColumnName="id")}, inverseJoinColumns={@JoinColumn(name="clubbed_entity_id", referencedColumnName="id")})
+    @JoinTable(name="questions_clubbingentities", 
+    		joinColumns={@JoinColumn(name="question_id", referencedColumnName="id")}, 
+    		inverseJoinColumns={@JoinColumn(name="clubbed_entity_id", referencedColumnName="id")})
     private List<ClubbedEntity> clubbedEntities;
 
-    //--------------------------Referenced Entities------------------------------------------
-    
-    @ManyToMany(fetch=FetchType.LAZY,cascade=CascadeType.REMOVE)
-    @JoinTable(name="questions_referencedentities", joinColumns={@JoinColumn(name="question_id", referencedColumnName="id")}, inverseJoinColumns={@JoinColumn(name="referenced_entity_id", referencedColumnName="id")})
-    private List<ReferencedEntity> referencedEntities;
-    /***************************Common Fields End ****************************************/
-    
-    /**** Remove Fields ****/
-    
-    /** The language. */
-    @ManyToOne(fetch=FetchType.LAZY)
-    @JoinColumn(name="language_id")
-    private Language language;
-    
-    /** The prospective clubbings. */
-    @Column(length=5000)
-    private String prospectiveClubbings;
-    
-    /** The mark as answered. */
-    private Boolean markAsAnswered;
 
-    /**** Short Notice Fields ****/
+    //=============== Referencing ====================
+    @ManyToMany(fetch=FetchType.LAZY,cascade=CascadeType.REMOVE)
+    @JoinTable(name="questions_referencedentities", 
+    		joinColumns={@JoinColumn(name="question_id", referencedColumnName="id")}, 
+    		inverseJoinColumns={@JoinColumn(name="referenced_entity_id", referencedColumnName="id")})
+    private List<ReferencedEntity> referencedEntities;
+
     
+    //=============== SHORT NOTICE DEVICE ATTRIBUTES ====================
     /** The reason. */
     @Column(length=30000)
     private String reason;
@@ -262,7 +252,11 @@ implements Serializable
     @Temporal(TemporalType.DATE)
     private Date dateOfAnsweringByMinister;
     
-    /**** Half Hour Discussion Fields ****/
+    
+    //=============== HALF HOUR DEVICE ATTRIBUTES ====================
+    @ManyToOne(fetch=FetchType.LAZY)
+    private Question halfHourDiscusionFromQuestionReference;
+
     @Temporal(TemporalType.DATE)
     private Date discussionDate;
 
@@ -271,111 +265,66 @@ implements Serializable
     
     @Column(length=30000)
     private String revisedBriefExplanation;  
-
-    @ManyToOne(fetch=FetchType.LAZY)
-    private Question halfHourDiscusionFromQuestionReference;
-
-    /**** last date of receive of answer ****/
+    
     @Temporal(TemporalType.DATE)
     private Date lastDateOfAnswerReceiving;    
 
+    
+    //=============== REMOVE UNWANTED FIELDS. START ====================
+    /** The language. */
+    @ManyToOne(fetch=FetchType.LAZY)
+    @JoinColumn(name="language_id")
+    private Language language;
+    
+    /** The prospective clubbings. */
+    @Column(length=5000)
+    private String prospectiveClubbings;
+    
+    /** The mark as answered. */
+    private Boolean markAsAnswered;
+    //=============== REMOVE UNWANTED FIELDS. START ====================
+    
     /** The question repository. */
     @Autowired
     private transient QuestionRepository questionRepository;
 
-    // ---------------------------------Constructors----------------------------------------------
+    
+    //=============== CONSTRUCTORS ==================
     /**
      * Instantiates a new question.
      */
     public Question() {
         super();
     }
-    // ---------------------------------Domain Methods----------------------------------------------
+    
+    
+    //=============== VIEW METHODS ==================
     /**
-     * Gets the question repository.
+     * Gets the revisions.
      *
-     * @return the question repository
+     * @param questionId the question id
+     * @param locale the locale
+     * @return the revisions
      */
-    public static QuestionRepository getQuestionRepository()
-    {
-        QuestionRepository questionRepository = new Question().questionRepository;
-        if (questionRepository == null) {
-            throw new IllegalStateException(
-            "QuestionRepository has not been injected in Question Domain");
-        }
-        return questionRepository;
+    public static List<QuestionRevisionVO> getRevisions(final Long questionId, final String locale) {
+        return getQuestionRepository().getRevisions(questionId,locale);
     }
-
-    /**
-     * Find supporting members.
-     *
-     * @param strQuestionId the str question id
-     * @return the list
-     */
-    public static List<SupportingMember> findSupportingMembers(final String strQuestionId){
-        Long questionId=Long.parseLong(strQuestionId);
-        Question question=findById(Question.class, questionId);
-        return question.getSupportingMembers();
-    }
-
-    /* (non-Javadoc)
-     * @see org.mkcl.els.domain.BaseDomain#merge()
-     */
-    @Override
-    public Question merge() {
-        Question question=null;
-        if(internalStatus.getType().equals(ApplicationConstants.QUESTION_SUBMIT)) {
-            if(this.getNumber()==null){
-                synchronized (this) {
-                    Integer number = Question.assignQuestionNo(this.getHouseType(),
-                            this.getSession(), this.getType(),this.getLocale());
-                    this.setNumber(number+1);
-                    addQuestionDraft();
-                    question=(Question) super.merge();
-                }
-            }else{
-            Question oldQuestion=Question.findById(Question.class,getId());
-            if(getClubbedEntities()==null){
-                this.clubbedEntities=oldQuestion.getClubbedEntities();
-            }
-            if(getReferencedEntities()==null){
-                this.referencedEntities=oldQuestion.getReferencedEntities();
-            }
-            addQuestionDraft();
-            question=(Question) super.merge();
-            }
-        }
-        if(question!=null){
-            return question;
-        }else{
-            if(internalStatus.getType().equals(ApplicationConstants.QUESTION_INCOMPLETE)||
-            		internalStatus.getType().equals(ApplicationConstants.QUESTION_COMPLETE)){
-                return (Question) super.merge();
-            }else{
-            	Question oldQuestion=Question.findById(Question.class,getId());
-                if(getClubbedEntities()==null){
-                    this.clubbedEntities=oldQuestion.getClubbedEntities();
-                }
-                if(getReferencedEntities()==null){
-                    this.referencedEntities=oldQuestion.getReferencedEntities();
-                }
-                addQuestionDraft();
-                return (Question) super.merge();
-            }
-        }
-    }
-
-    /* (non-Javadoc)
-     * @see org.mkcl.els.domain.BaseDomain#persist()
-     */
+    
+    public static MemberBallotMemberWiseReportVO findMemberWiseReportVO(final Session session,
+    		final DeviceType questionType, final Member member, final String locale){
+    	return getQuestionRepository().findMemberWiseReportVO(session, questionType, member, locale);		
+   	}
+    
+    
+    //=============== DOMAIN METHODS ================
     @Override
     public Question persist() {
-        if(status.getType().equals(ApplicationConstants.QUESTION_SUBMIT)) {
-            if(this.getNumber()==null){
+        if(this.getStatus().getType().equals(ApplicationConstants.QUESTION_SUBMIT)) {
+            if(this.getNumber() == null) {
                 synchronized (this) {
                     Integer number = Question.assignQuestionNo(this.getHouseType(),
                             this.getSession(), this.getType(),this.getLocale());
-                    this.setNumber(number+1);
+                    this.setNumber(number + 1);
                     addQuestionDraft();
                     return (Question)super.persist();
                 }
@@ -383,7 +332,67 @@ implements Serializable
         }
         return (Question) super.persist();
     }
-
+    
+    @Override
+    public Question merge() {
+        Question question = null;
+        if(this.getInternalStatus().getType().equals(ApplicationConstants.QUESTION_SUBMIT)) {
+            if(this.getNumber() == null) {
+                synchronized (this) {
+                    Integer number = Question.assignQuestionNo(this.getHouseType(),
+                            this.getSession(), this.getType(),this.getLocale());
+                    this.setNumber(number + 1);
+                    addQuestionDraft();
+                    question = (Question) super.merge();
+                }
+            }
+            else {
+            	Question oldQuestion = Question.findById(Question.class, this.getId());
+            	if(this.getClubbedEntities() == null){
+            		this.setClubbedEntities(oldQuestion.getClubbedEntities());
+            	}
+            	if(this.getReferencedEntities() == null){
+            		this.setReferencedEntities(oldQuestion.getReferencedEntities());
+            	}
+            	this.addQuestionDraft();
+            	question = (Question) super.merge();
+            }
+        }
+        if(question != null) {
+            return question;
+        }
+        else {
+            if(this.getInternalStatus().getType().equals(ApplicationConstants.QUESTION_INCOMPLETE) 
+            	|| 
+            	this.getInternalStatus().getType().equals(ApplicationConstants.QUESTION_COMPLETE)) {
+                return (Question) super.merge();
+            }
+            else {
+            	Question oldQuestion = Question.findById(Question.class, this.getId());
+            	if(this.getClubbedEntities() == null){
+            		this.setClubbedEntities(oldQuestion.getClubbedEntities());
+            	}
+            	if(this.getReferencedEntities() == null){
+            		this.setReferencedEntities(oldQuestion.getReferencedEntities());
+            	}
+                this.addQuestionDraft();
+                return (Question) super.merge();
+            }
+        }
+    }
+    
+    /**
+     * The merge function, besides updating Question, performs various actions
+     * based on Question's status. What if we need just the simple functionality
+     * of updation? Use this method.
+     *
+     * @return the question
+     */
+    public Question simpleMerge() {
+        Question q = (Question) super.merge();
+        return q;
+    }
+    
     /**
      * Assign question no.
      *
@@ -395,109 +404,90 @@ implements Serializable
      * @author compaq
      * @since v1.0.0
      */
-    public static Integer assignQuestionNo(final HouseType houseType, final Session session, final DeviceType deviceType,final String locale){
-        return getQuestionRepository().assignQuestionNo(houseType,
-                session, deviceType,locale);
+    public static Integer assignQuestionNo(final HouseType houseType, 
+    		final Session session, final DeviceType deviceType, final String locale) {
+        return getQuestionRepository().assignQuestionNo(houseType, session, deviceType, locale);
     }
-
+    
     /**
-     * Adds the question draft.
-     */
-    private void addQuestionDraft() {
-        if(!status.getType().equals(ApplicationConstants.QUESTION_INCOMPLETE) &&
-        		!status.getType().equals(ApplicationConstants.QUESTION_COMPLETE)) {
-            QuestionDraft draft=new QuestionDraft();
-            draft.setAnswer(getAnswer());
-            draft.setAnsweringDate(getAnsweringDate());
-            draft.setClubbedEntities(getClubbedEntities());
-            draft.setDepartment(getDepartment());
-            draft.setEditedAs(getEditedAs());
-            draft.setEditedBy(getEditedBy());
-            draft.setEditedOn(getEditedOn());
-            draft.setGroup(getGroup());
-            draft.setInternalStatus(getInternalStatus());
-            draft.setMinistry(getMinistry());
-            if(getType().getType().equals(ApplicationConstants.HALF_HOUR_DISCUSSION_QUESTION_FROM_QUESTION)){
-            	if(getRevisedReason() != null && getRevisedBriefExplanation()!=null){
-        		    draft.setReason(getRevisedReason());
-	                draft.setBriefExplanation(getRevisedBriefExplanation());
-	            } else if(getRevisedBriefExplanation() != null){
-            		draft.setBriefExplanation(getRevisedBriefExplanation());
-            		draft.setReason(getReason());
-	            }else if(getRevisedReason() != null){
-            		draft.setBriefExplanation(getBriefExplanation());
-            		draft.setReason(getRevisedReason());
-	            }else {
-	            	draft.setReason(getReason());
-	                draft.setBriefExplanation(getBriefExplanation());
-	            }
-            	draft.setSubject(getSubject());
-            	draft.setQuestionText(getQuestionText());
-            }else{
-            	if(getRevisedQuestionText()!=null&&getRevisedSubject()!=null){
-	                draft.setQuestionText(getRevisedQuestionText());
-	                draft.setSubject(getRevisedSubject());                
-	            }else if(getRevisedQuestionText()!=null){
-	            	draft.setQuestionText(getRevisedQuestionText());
-	                draft.setSubject(getSubject());
-	            }else if(getRevisedSubject()!=null){
-	                draft.setQuestionText(getQuestionText());
-	                draft.setSubject(getRevisedSubject());
-	            }else{
-	            	draft.setQuestionText(getQuestionText());
-	                draft.setSubject(getSubject());
-	            }
-            }
-            draft.setReferencedEntities(getReferencedEntities());
-            draft.setRemarks(getRemarks());
-            draft.setRecommendationStatus(getRecommendationStatus());
-            draft.setStatus(getStatus());
-            draft.setSubDepartment(getSubDepartment());
-            draft.setType(getType());
-            if(getId()!=null){
-                Question question=Question.findById(Question.class,getId());
-                List<QuestionDraft> originalDrafts=question.getDrafts();
-                if(originalDrafts!=null){
-                    originalDrafts.add(draft);
-                }else{
-                    originalDrafts=new ArrayList<QuestionDraft>();
-                    originalDrafts.add(draft);
-                }
-                this.setDrafts(originalDrafts);
-            }else{
-                List<QuestionDraft> originalDrafts=new ArrayList<QuestionDraft>();
-                originalDrafts.add(draft);
-                this.setDrafts(originalDrafts);
-            }
-        }
-    }
-
-    /**
-     * Find last starred unstarred short notice question no.
+     * Find.
      *
-     * @param house the house
-     * @param currentSession the current session
-     * @return the integer
-     * @author compaq
-     * @since v1.0.0
+     * @param session the session
+     * @param number the number
+     * @return the question
      */
-//    public static Integer findLastStarredUnstarredShortNoticeQuestionNo(final House house, final Session currentSession) {
-//        return getQuestionRepository().findLastStarredUnstarredShortNoticeQuestionNo(house, currentSession);
-//    }
-//
-//    /**
-//     * Find last half hour discussion question no.
-//     *
-//     * @param house the house
-//     * @param currentSession the current session
-//     * @return the integer
-//     * @author compaq
-//     * @since v1.0.0
-//     */
-//    public static Integer findLastHalfHourDiscussionQuestionNo(final House house, final Session currentSession) {
-//        return getQuestionRepository().findLastHalfHourDiscussionQuestionNo(house, currentSession);
+    public static Question find(final Session session, final Integer number) {
+        return Question.getQuestionRepository().find(session, number);
+    }
+
+    /**
+    * Find.
+    *
+    * @param session the session
+    * @param number the number
+    * @return the question
+    */
+    public static Question find(final Session session, final Integer number, Long deviceTypeId) {
+    	return Question.getQuestionRepository().find(session, number, deviceTypeId);
+    }
+    
+    /**
+     * This method finds all the questions of a member of a particular device type,
+     * belonging to a particular session and having internal status as specified
+     * 
+     * @param currentMember the current member
+     * @param session the session
+     * @param deviceType the device type
+     * @param internalStatus the internal status
+     * @return the list
+     */
+    public static List<Question> findAll(final Member currentMember,
+            final Session session, final DeviceType deviceType, final Status internalStatus) {
+        return getQuestionRepository().findAll(currentMember, session, deviceType, internalStatus);
+    }
+    
+    /**
+     * Find all first batch.
+     *
+     * @param currentMember the current member
+     * @param session the session
+     * @param deviceType the device type
+     * @param internalStatus the internal status
+     * @return the list
+     */
+//    public static List<Question> findAllFirstBatch(final Member currentMember,
+//            final Session session, final DeviceType deviceType, final Status internalStatus) {
+//        return getQuestionRepository().findAllFirstBatch(currentMember, 
+//        		session, deviceType, internalStatus);
 //    }
 
+    /**
+     * Find all second batch.
+     *
+     * @param currentMember the current member
+     * @param session the session
+     * @param deviceType the device type
+     * @param internalStatus the internal status
+     * @return the list
+     */
+//    public static List<Question> findAllSecondBatch(final Member currentMember,
+//            final Session session, final DeviceType deviceType, final Status internalStatus) {
+//        return getQuestionRepository().findAllSecondBatch(currentMember,
+//                session, deviceType, internalStatus);
+//    }   
+    
+	public static List<Question> findAdmittedStarredQuestionsUH(final Session session, 
+			final DeviceType questionType, final Member member, final String locale) {
+		return getQuestionRepository().findAdmittedStarredQuestionsUH(session,
+				questionType, member, locale);
+	}
+	
+	public static List<Question> findAdmittedStarredQuestionsUHByChartDate(final Session session, 
+			final DeviceType questionType, final Member member, final String locale) {
+		return getQuestionRepository().findAdmittedStarredQuestionsUHByChartDate(session,
+				questionType, member, locale);
+	}
+    
     /**
      * Find @param maxNoOfQuestions Questions of a @param member for a
      * given @param session having @param group for a given @param answeringDate.
@@ -537,7 +527,34 @@ implements Serializable
 
         return questions;
     }
+    
+    /**
+    * Find a list of Questions for the given @param session
+    * of a given @param deviceType submitted between @param
+    * startTime & @param endTime (both date inclusive) having
+    * either of the @param internalStatuses. The Questions
+    * should have discussionDate = null OR 
+    * discussionDate <= @param answeringDate
+    * 
+    * Sort the resulting list of Questions by number according
+    * to the @param sortOrder.
+    * 
+    * Returns an empty list if there are no Questions.
+    */
+    public static List<Question> find(final Session session,
+    	final DeviceType deviceType,
+    	final Date answeringDate,
+    	final Status[] internalStatuses,
+    	final Boolean hasParent,
+    	final Date startTime,
+    	final Date endTime,
+    	final String sortOrder,
+    	final String locale) {
+    return Question.getQuestionRepository().find(session, deviceType, answeringDate, 
+    		internalStatuses, hasParent, startTime, endTime, sortOrder, locale);
+    }
 
+    
     /**
      * Find @param maxNoOfQuestions Questions of a @param member for a
      * given @param session having @param group. All this questions should
@@ -608,829 +625,6 @@ implements Serializable
         List<Question> questions = Question.getQuestionRepository().findNonAnsweringDate(session,
                 member, deviceType, group, finalSubmissionDate, internalStatuses,
                 excludeQuestions, maxNoOfQuestions, sortOrder, locale);
-
-        if(questions == null) {
-            questions = new ArrayList<Question>();
-        }
-
-        return questions;
-    }
-
-    /**
-     * Sort the Questions as per @param sortOrder by number. If multiple Questions
-     * have same number, then there order is preserved.
-     *
-     * @param questions SHOULD NOT BE NULL
-     *
-     * Does not sort in place, returns a new list.
-     * @param sortOrder the sort order
-     * @return the list
-     */
-    public static List<Question> sortByNumber(final List<Question> questions,
-            final String sortOrder) {
-        List<Question> newQList = new ArrayList<Question>();
-        newQList.addAll(questions);
-
-        if(sortOrder.equals(ApplicationConstants.ASC)) {
-            Comparator<Question> c = new Comparator<Question>() {
-
-                @Override
-                public int compare(final Question q1, final Question q2) {
-                    return q1.getNumber().compareTo(q2.getNumber());
-                }
-            };
-            Collections.sort(newQList, c);
-        }
-        else if(sortOrder.equals(ApplicationConstants.DESC)) {
-            Comparator<Question> c = new Comparator<Question>() {
-
-                @Override
-                public int compare(final Question q1, final Question q2) {
-                    return q2.getNumber().compareTo(q1.getNumber());
-                }
-            };
-            Collections.sort(newQList, c);
-        }
-
-        return newQList;
-    }
-
-    /**
-     * Sort the Questions as per @param sortOrder by priority. If multiple Questions
-     * have same priority, then break the tie by Question number.
-     *
-     * @param questions SHOULD NOT BE NULL
-     *
-     * Does not sort in place, returns a new list.
-     * @param sortOrder the sort order
-     * @return the list
-     */
-    public static List<Question> sortByPriority(final List<Question> questions,
-            final String sortOrder) {
-        List<Question> newQList = new ArrayList<Question>();
-        newQList.addAll(questions);
-
-        if(sortOrder.equals(ApplicationConstants.ASC)) {
-            Comparator<Question> c = new Comparator<Question>() {
-
-                @Override
-                public int compare(final Question q1, final Question q2) {
-                    int i = q1.getPriority().compareTo(q2.getPriority());
-                    if(i == 0) {
-                        int j = q1.getNumber().compareTo(q2.getNumber());
-                        return j;
-                    }
-                    return i;
-                }
-            };
-            Collections.sort(newQList, c);
-        }
-        else if(sortOrder.equals(ApplicationConstants.DESC)) {
-            Comparator<Question> c = new Comparator<Question>() {
-
-                @Override
-                public int compare(final Question q1, final Question q2) {
-                    int i = q2.getPriority().compareTo(q1.getPriority());
-                    if(i == 0) {
-                        int j = q2.getNumber().compareTo(q1.getNumber());
-                        return j;
-                    }
-                    return i;
-                }
-            };
-            Collections.sort(newQList, c);
-        }
-
-        return newQList;
-    }
-
-    /**
-     * Sort the Questions as per @param sortOrder by answeringDate. If multiple Questions
-     * have same answeringDate, then break the tie by Question number.
-     *
-     * @param questions SHOULD NOT BE NULL
-     *
-     * Does not sort in place, returns a new list.
-     * @param sortOrder the sort order
-     * @return the list
-     */
-    public static List<Question> sortByAnsweringDate(final List<Question> questions,
-            final String sortOrder) {
-        List<Question> newQList = new ArrayList<Question>();
-        newQList.addAll(questions);
-
-        if(sortOrder.equals(ApplicationConstants.ASC)) {
-            Comparator<Question> c = new Comparator<Question>() {
-
-                @Override
-                public int compare(final Question q1, final Question q2) {
-                    int i = q1.getAnsweringDate().getAnsweringDate().
-                    compareTo(q2.getAnsweringDate().getAnsweringDate());
-                    if(i == 0) {
-                        int j = q1.getNumber().compareTo(q2.getNumber());
-                        return j;
-                    }
-                    return i;
-                }
-            };
-            Collections.sort(newQList, c);
-        }
-        else if(sortOrder.equals(ApplicationConstants.DESC)) {
-            Comparator<Question> c = new Comparator<Question>() {
-
-                @Override
-                public int compare(final Question q1, final Question q2) {
-                    int i = q2.getAnsweringDate().getAnsweringDate().
-                    compareTo(q1.getAnsweringDate().getAnsweringDate());
-                    if(i == 0) {
-                        int j = q2.getNumber().compareTo(q1.getNumber());
-                        return j;
-                    }
-                    return i;
-                }
-            };
-            Collections.sort(newQList, c);
-        }
-
-        return newQList;
-    }
-
-    /**
-     * Find.
-     *
-     * @param session the session
-     * @param number the number
-     * @return the question
-     */
-    public static Question find(final Session session, final Integer number) {
-        return Question.getQuestionRepository().find(session, number);
-    }
-
-    //-----------------------Getters and Setters--------------------------------
-
-    /**
-     * Gets the house type.
-     *
-     * @return the house type
-     */
-    public HouseType getHouseType() {
-        return houseType;
-    }
-
-    /**
-     * Sets the house type.
-     *
-     * @param houseType the new house type
-     */
-    public void setHouseType(final HouseType houseType) {
-        this.houseType = houseType;
-    }
-
-    /**
-     * Gets the session.
-     *
-     * @return the session
-     */
-    public Session getSession() {
-        return session;
-    }
-
-    /**
-     * Sets the session.
-     *
-     * @param session the new session
-     */
-    public void setSession(final Session session) {
-        this.session = session;
-    }
-
-    /**
-     * Gets the type.
-     *
-     * @return the type
-     */
-    public DeviceType getType() {
-        return type;
-    }
-
-    /**
-     * Sets the type.
-     *
-     * @param type the new type
-     */
-    public void setType(final DeviceType type) {
-        this.type = type;
-    }
-
-    /**
-     * Gets the number.
-     *
-     * @return the number
-     */
-    public Integer getNumber() {
-        return number;
-    }
-
-    /**
-     * Sets the number.
-     *
-     * @param number the new number
-     */
-    public void setNumber(final Integer number) {
-        this.number = number;
-    }
-
-    /**
-     * Gets the submission date.
-     *
-     * @return the submission date
-     */
-    public Date getSubmissionDate() {
-        return submissionDate;
-    }
-
-    /**
-     * Sets the submission date.
-     *
-     * @param submissionDate the new submission date
-     */
-    public void setSubmissionDate(final Date submissionDate) {
-        this.submissionDate = submissionDate;
-    }
-
-    /**
-     * Gets the answering date.
-     *
-     * @return the answering date
-     */
-    public QuestionDates getAnsweringDate() {
-        return answeringDate;
-    }
-
-    /**
-     * Sets the answering date.
-     *
-     * @param answeringDate the new answering date
-     */
-    public void setAnsweringDate(final QuestionDates answeringDate) {
-        this.answeringDate = answeringDate;
-    }
-    /**
-     * Gets the language.
-     *
-     * @return the language
-     */
-    public Language getLanguage() {
-        return language;
-    }
-
-    /**
-     * Sets the language.
-     *
-     * @param language the new language
-     */
-    public void setLanguage(final Language language) {
-        this.language = language;
-    }
-
-    /**
-     * Gets the subject.
-     *
-     * @return the subject
-     */
-    public String getSubject() {
-        return subject;
-    }
-
-    /**
-     * Sets the subject.
-     *
-     * @param subject the new subject
-     */
-    public void setSubject(final String subject) {
-        this.subject = subject;
-    }
-
-    /**
-     * Gets the question text.
-     *
-     * @return the question text
-     */
-    public String getQuestionText() {
-        return questionText;
-    }
-
-    /**
-     * Sets the question text.
-     *
-     * @param questionText the new question text
-     */
-    public void setQuestionText(final String questionText) {
-        this.questionText = questionText;
-    }
-
-    /**
-     * Gets the answer.
-     *
-     * @return the answer
-     */
-    public String getAnswer() {
-        return answer;
-    }
-
-    /**
-     * Sets the answer.
-     *
-     * @param answer the new answer
-     */
-    public void setAnswer(final String answer) {
-        this.answer = answer;
-    }
-
-    /**
-     * Gets the priority.
-     *
-     * @return the priority
-     */
-    public Integer getPriority() {
-        return priority;
-    }
-
-    /**
-     * Sets the priority.
-     *
-     * @param priority the new priority
-     */
-    public void setPriority(final Integer priority) {
-        this.priority = priority;
-    }
-
-    /**
-     * Gets the status.
-     *
-     * @return the status
-     */
-    public Status getStatus() {
-        return status;
-    }
-
-    /**
-     * Sets the status.
-     *
-     * @param status the new status
-     */
-    public void setStatus(final Status status) {
-        this.status = status;
-    }
-
-    /**
-     * Gets the primary member.
-     *
-     * @return the primary member
-     */
-    public Member getPrimaryMember() {
-        return primaryMember;
-    }
-
-    /**
-     * Sets the primary member.
-     *
-     * @param primaryMember the new primary member
-     */
-    public void setPrimaryMember(final Member primaryMember) {
-        this.primaryMember = primaryMember;
-    }
-
-    /**
-     * Gets the supporting members.
-     *
-     * @return the supporting members
-     */
-    public List<SupportingMember> getSupportingMembers() {
-        return supportingMembers;
-    }
-
-    /**
-     * Sets the supporting members.
-     *
-     * @param supportingMembers the new supporting members
-     */
-    public void setSupportingMembers(final List<SupportingMember> supportingMembers) {
-        this.supportingMembers = supportingMembers;
-    }
-
-    /**
-     * Gets the group.
-     *
-     * @return the group
-     */
-    public Group getGroup() {
-        return group;
-    }
-
-    /**
-     * Sets the group.
-     *
-     * @param group the new group
-     */
-    public void setGroup(final Group group) {
-        this.group = group;
-    }
-
-    /**
-     * Gets the ministry.
-     *
-     * @return the ministry
-     */
-    public Ministry getMinistry() {
-        return ministry;
-    }
-
-    /**
-     * Sets the ministry.
-     *
-     * @param ministry the new ministry
-     */
-    public void setMinistry(final Ministry ministry) {
-        this.ministry = ministry;
-    }
-
-    /**
-     * Gets the department.
-     *
-     * @return the department
-     */
-    public Department getDepartment() {
-        return department;
-    }
-
-    /**
-     * Sets the department.
-     *
-     * @param department the new department
-     */
-    public void setDepartment(final Department department) {
-        this.department = department;
-    }
-
-    /**
-     * Gets the sub department.
-     *
-     * @return the sub department
-     */
-    public SubDepartment getSubDepartment() {
-        return subDepartment;
-    }
-
-    /**
-     * Sets the sub department.
-     *
-     * @param subDepartment the new sub department
-     */
-    public void setSubDepartment(final SubDepartment subDepartment) {
-        this.subDepartment = subDepartment;
-    }   
-    /**
-     * Gets the drafts.
-     *
-     * @return the drafts
-     */
-    public List<QuestionDraft> getDrafts() {
-        return drafts;
-    }
-
-    /**
-     * Sets the drafts.
-     *
-     * @param drafts the new drafts
-     */
-    public void setDrafts(final List<QuestionDraft> drafts) {
-        this.drafts = drafts;
-    }    
-    /**
-     * Gets the creation date.
-     *
-     * @return the creation date
-     */
-    public Date getCreationDate() {
-        return creationDate;
-    }
-
-    /**
-     * Sets the creation date.
-     *
-     * @param creationDate the new creation date
-     */
-    public void setCreationDate(final Date creationDate) {
-        this.creationDate = creationDate;
-    }
-
-    /**
-     * Gets the created by.
-     *
-     * @return the created by
-     */
-    public String getCreatedBy() {
-        return createdBy;
-    }
-
-    /**
-     * Sets the created by.
-     *
-     * @param createdBy the new created by
-     */
-    public void setCreatedBy(final String createdBy) {
-        this.createdBy = createdBy;
-    }
-
-    /**
-     * Gets the revised subject.
-     *
-     * @return the revised subject
-     */
-    public String getRevisedSubject() {
-        return revisedSubject;
-    }
-
-    /**
-     * Sets the revised subject.
-     *
-     * @param revisedSubject the new revised subject
-     */
-    public void setRevisedSubject(final String revisedSubject) {
-        this.revisedSubject = revisedSubject;
-    }
-
-    /**
-     * Gets the revised question text.
-     *
-     * @return the revised question text
-     */
-    public String getRevisedQuestionText() {
-        return revisedQuestionText;
-    }
-
-    /**
-     * Sets the revised question text.
-     *
-     * @param revisedQuestionText the new revised question text
-     */
-    public void setRevisedQuestionText(final String revisedQuestionText) {
-        this.revisedQuestionText = revisedQuestionText;
-    }
-
-    /**
-     * Gets the internal status.
-     *
-     * @return the internal status
-     */
-    public Status getInternalStatus() {
-        return internalStatus;
-    }
-
-    /**
-     * Sets the internal status.
-     *
-     * @param internalStatus the new internal status
-     */
-    public void setInternalStatus(final Status internalStatus) {
-        this.internalStatus = internalStatus;
-    }
-
-     /**
-     * Gets the remarks.
-     *
-     * @return the remarks
-     */
-    public String getRemarks() {
-        return remarks;
-    }
-
-    /**
-     * Sets the remarks.
-     *
-     * @param remarks the new remarks
-     */
-    public void setRemarks(final String remarks) {
-        this.remarks = remarks;
-    }
-
-    
-    /**
-     * Gets the edited on.
-     *
-     * @return the edited on
-     */
-    public Date getEditedOn() {
-        return editedOn;
-    }
-
-    /**
-     * Sets the edited on.
-     *
-     * @param editedOn the new edited on
-     */
-    public void setEditedOn(final Date editedOn) {
-        this.editedOn = editedOn;
-    }
-
-    
-    /**
-     * Gets the revisions.
-     *
-     * @param questionId the question id
-     * @param locale the locale
-     * @return the revisions
-     */
-    public static List<QuestionRevisionVO> getRevisions(final Long questionId,final String locale) {
-        return getQuestionRepository().getRevisions(questionId,locale);
-    }
-
-    /**
-     * Full text search clubbing.
-     *
-     * @param textToSearch the text to search
-     * @param sessionToSearchOn the session to search on
-     * @param groupToSearchOn the group to search on
-     * @param currentChartId the current chart id
-     * @param questionId the question id
-     * @param locale the locale
-     * @return the list
-     */
-    
-    /*
-     * This method is used to obtain all the questions of a member of a particular device type ,
-     * belonging to a particular session and having internal status as specified
-     */
-    /**
-     * Find all.
-     *
-     * @param currentMember the current member
-     * @param session the session
-     * @param deviceType the device type
-     * @param internalStatus the internal status
-     * @return the list
-     */
-    public static List<Question> findAll(final Member currentMember,
-            final Session session, final DeviceType deviceType, final Status internalStatus) {
-        return getQuestionRepository().findAll(currentMember,
-                session,deviceType,internalStatus);
-    }
-
-    /**
-     * Find all first batch.
-     *
-     * @param currentMember the current member
-     * @param session the session
-     * @param deviceType the device type
-     * @param internalStatus the internal status
-     * @return the list
-     */
-    public static List<Question> findAllFirstBatch(final Member currentMember,
-            final Session session, final DeviceType deviceType, final Status internalStatus) {
-        return getQuestionRepository().findAllFirstBatch(currentMember,
-                session,deviceType,internalStatus);
-    }
-
-    /**
-     * Find all second batch.
-     *
-     * @param currentMember the current member
-     * @param session the session
-     * @param deviceType the device type
-     * @param internalStatus the internal status
-     * @return the list
-     */
-    public static List<Question> findAllSecondBatch(final Member currentMember,
-            final Session session, final DeviceType deviceType, final Status internalStatus) {
-        return getQuestionRepository().findAllSecondBatch(currentMember,
-                session,deviceType,internalStatus);
-    }   
-
-    /**
-     * Gets the parent.
-     *
-     * @return the parent
-     */
-    public Question getParent() {
-        return parent;
-    }
-
-    /**
-     * Sets the parent.
-     *
-     * @param parent the new parent
-     */
-    public void setParent(final Question parent) {
-        this.parent = parent;
-    }
-
-    /**
-     * Club.
-     *
-     * @param questionBeingProcessed the question being processed
-     * @param questionBeingClubbed the question being clubbed
-     * @param locale the locale
-     * @return the boolean
-     */
-    
-
-    /**
-     * Unclub.
-     *
-     * @param questionBeingProcessed the question being processed
-     * @param questionBeingClubbed the question being clubbed
-     * @param locale the locale
-     * @return the boolean
-     */
-    
-
-    /**
-     * Gets the prospective clubbings.
-     *
-     * @return the prospective clubbings
-     */
-    public String getProspectiveClubbings() {
-        return prospectiveClubbings;
-    }
-
-    /**
-     * Sets the prospective clubbings.
-     *
-     * @param prospectiveClubbings the new prospective clubbings
-     */
-    public void setProspectiveClubbings(final String prospectiveClubbings) {
-        this.prospectiveClubbings = prospectiveClubbings;
-    }
-
-    /**
-     * Find @param maxNoOfQuestions Questions of a @param member for a
-     * given @param session having @param group for a given @param answeringDate.
-     * The Question should have been submitted on or before
-     *
-     * @param session the session
-     * @param member the member
-     * @param deviceType the device type
-     * @param group the group
-     * @param answeringDate the answering date
-     * @param finalSubmissionDate the final submission date
-     * @param internalStatuses the internal statuses
-     * @param maxNoOfQuestions the max no of questions
-     * @param sortOrder the sort order
-     * @param locale the locale
-     * @return the list
-     */
-    public static List<Question> find(final Session session,
-            final Member member,
-            final DeviceType deviceType,
-            final Group group,
-            final Date answeringDate,
-            final Date finalSubmissionDate,
-            final Status[] internalStatuses,
-            final Integer maxNoOfQuestions,
-            final String sortOrder,
-            final String locale) {
-        List<Question> questions = Question.getQuestionRepository().find(session, member, deviceType,
-                group, answeringDate, finalSubmissionDate, internalStatuses, maxNoOfQuestions,
-                sortOrder, locale);
-
-        if(questions == null) {
-            questions = new ArrayList<Question>();
-        }
-
-        return questions;
-    }
-
-    /**
-     * Find @param maxNoOfQuestions Questions of a @param member for a
-     * given @param session having @param group. All this questions should
-     * have an answering date mentioned. The answering date should be less than
-     *
-     * @param session the session
-     * @param member the member
-     * @param deviceType the device type
-     * @param group the group
-     * @param answeringDate the answering date
-     * @param finalSubmissionDate the final submission date
-     * @param internalStatuses the internal statuses
-     * @param maxNoOfQuestions the max no of questions
-     * @param sortOrder the sort order
-     * @param locale the locale
-     * @return the list
-     */
-    public static List<Question> findBeforeAnsweringDate(final Session session,
-            final Member member,
-            final DeviceType deviceType,
-            final Group group,
-            final Date answeringDate,
-            final Date finalSubmissionDate,
-            final Status[] internalStatuses,
-            final Integer maxNoOfQuestions,
-            final String sortOrder,
-            final String locale) {
-        List<Question> questions = Question.getQuestionRepository().findBeforeAnsweringDate(session,
-                member, deviceType, group, answeringDate, finalSubmissionDate, internalStatuses,
-                maxNoOfQuestions, sortOrder, locale);
 
         if(questions == null) {
             questions = new ArrayList<Question>();
@@ -1520,71 +714,7 @@ implements Serializable
 
         return questions;
     }
-
-    /**
-     * The merge function, besides updating Question, performs various actions
-     * based on Question's status. What if we need just the simple functionality
-     * of updation? Use this method.
-     *
-     * @return the question
-     */
-    public Question simpleMerge() {
-        Question q = (Question) super.merge();
-        return q;
-    }
-
-    /**
-     * Gets the recommendation status.
-     *
-     * @return the recommendation status
-     */
-    public Status getRecommendationStatus() {
-        return recommendationStatus;
-    }
-
-    /**
-     * Sets the recommendation status.
-     *
-     * @param recommendationStatus the new recommendation status
-     */
-    public void setRecommendationStatus(final Status recommendationStatus) {
-        this.recommendationStatus = recommendationStatus;
-    }
-
-    /**
-     * Gets the mark as answered.
-     *
-     * @return the mark as answered
-     */
-    public Boolean getMarkAsAnswered() {
-        return markAsAnswered;
-    }
-
-    /**
-     * Sets the mark as answered.
-     *
-     * @param markAsAnswered the new mark as answered
-     */
-    public void setMarkAsAnswered(final Boolean markAsAnswered) {
-        this.markAsAnswered = markAsAnswered;
-    }
-
-    /**
-     * Find previous draft.
-     *
-     * @return the question draft
-     */
-    public QuestionDraft findPreviousDraft() {
-        List<QuestionDraft> drafts = this.getDrafts();
-        if(drafts != null) {
-            int size = drafts.size();
-            if(size > 1) {
-                return drafts.get(size - 1);
-            }
-        }
-        return null;
-    }
-
+    
     /**
      * Find @param maxNoOfQuestions Questions of a @param member for a
      * given @param session having @param group. All this questions should
@@ -1751,289 +881,729 @@ implements Serializable
 
         return questions;
     }
-
+    
     /**
-     * Gets the reason.
+     * Find previous draft.
      *
-     * @return the reason
+     * @return the question draft
      */
-    public String getReason() {
-        return reason;
+    public QuestionDraft findPreviousDraft() {
+        List<QuestionDraft> drafts = this.getDrafts();
+        if(drafts != null) {
+            int size = drafts.size();
+            if(size > 1) {
+                return drafts.get(size - 1);
+            }
+        }
+        return null;
     }
-
+    
     /**
-     * Sets the reason.
+     * Sort the Questions as per @param sortOrder by number. If multiple Questions
+     * have same number, then there order is preserved.
      *
-     * @param reason the new reason
-     */
-    public void setReason(final String reason) {
-        this.reason = reason;
-    }
-
-    /**
-     * Gets the to be answered by minister.
+     * @param questions SHOULD NOT BE NULL
      *
-     * @return the to be answered by minister
-     */
-    public Boolean getToBeAnsweredByMinister() {
-        return toBeAnsweredByMinister;
-    }
-
-    /**
-     * Sets the to be answered by minister.
-     *
-     * @param toBeAnsweredByMinister the new to be answered by minister
-     */
-    public void setToBeAnsweredByMinister(final Boolean toBeAnsweredByMinister) {
-        this.toBeAnsweredByMinister = toBeAnsweredByMinister;
-    }
-
-    /**
-     * Gets the date of answering by minister.
-     *
-     * @return the date of answering by minister
-     */
-    public Date getDateOfAnsweringByMinister() {
-        return dateOfAnsweringByMinister;
-    }
-
-    /**
-     * Sets the date of answering by minister.
-     *
-     * @param dateOfAnsweringByMinister the new date of answering by minister
-     */
-    public void setDateOfAnsweringByMinister(final Date dateOfAnsweringByMinister) {
-        this.dateOfAnsweringByMinister = dateOfAnsweringByMinister;
-    }
-
-    /**
-     * Creates the member ballot attendance.
-     *
-     * @param session the session
-     * @param questionType the question type
-     * @param locale the locale
+     * Does not sort in place, returns a new list.
+     * @param sortOrder the sort order
      * @return the list
      */
-    
-    public static List<Question> findAdmittedStarredQuestionsUH(
-            final Session session, final DeviceType questionType, final Member member,
-            final String locale) {
-        return getQuestionRepository().findAdmittedStarredQuestionsUH(
-                session,questionType,member,
-                locale);
-    }
-    
-    public static List<Question> findAdmittedStarredQuestionsUHByChartDate(
-            final Session session, final DeviceType questionType, final Member member,
-            final String locale) {
-        return getQuestionRepository().findAdmittedStarredQuestionsUHByChartDate(
-                session,questionType,member,
-                locale);
-    }
+    public static List<Question> sortByNumber(final List<Question> questions,
+            final String sortOrder) {
+        List<Question> newQList = new ArrayList<Question>();
+        newQList.addAll(questions);
 
-    public String findFormattedNumber(){
-        NumberFormat format=FormaterUtil.getNumberFormatterNoGrouping(this.getLocale());
-        return format.format(this.getNumber());
-    }
+        if(sortOrder.equals(ApplicationConstants.ASC)) {
+            Comparator<Question> c = new Comparator<Question>() {
 
-    public List<ClubbedEntity> getClubbedEntities() {
-        return clubbedEntities;
-    }
+                @Override
+                public int compare(final Question q1, final Question q2) {
+                    return q1.getNumber().compareTo(q2.getNumber());
+                }
+            };
+            Collections.sort(newQList, c);
+        }
+        else if(sortOrder.equals(ApplicationConstants.DESC)) {
+            Comparator<Question> c = new Comparator<Question>() {
 
-    public void setClubbedEntities(final List<ClubbedEntity> clubbedEntities) {
-        this.clubbedEntities = clubbedEntities;
-    }
-    public void setReferencedEntities(final List<ReferencedEntity> referencedEntities) {
-        this.referencedEntities = referencedEntities;
-    }
-    public List<ReferencedEntity> getReferencedEntities() {
-        return referencedEntities;
-    }
-	public void setEditedBy(String editedBy) {
-		this.editedBy = editedBy;
-	}
-	public String getEditedBy() {
-		return editedBy;
-	}
-	public void setEditedAs(String editedAs) {
-		this.editedAs = editedAs;
-	}
-	public String getEditedAs() {
-		return editedAs;
-	}
-	public static List<ClubbedEntity> findClubbedEntitiesByPosition(final Question question) {
-		return getQuestionRepository().findClubbedEntitiesByPosition(question);
-	}
-		
-	public List<ClubbedEntity> findClubbedEntitiesByQuestionNumber(final String sortOrder,
-			final String locale) {
-		return getQuestionRepository().findClubbedEntitiesByQuestionNumber(this,sortOrder,
-				locale);
-	}	
-	/**
-     * Find a list of Questions for the given @param session
-     * of a given @param deviceType submitted between @param
-     * startTime & @param endTime (both date inclusive) having
-     * either of the @param internalStatuses. The Questions
-     * should have discussionDate = null OR 
-     * discussionDate <= @param answeringDate
-     * 
-     * Sort the resulting list of Questions by number according
-     * to the @param sortOrder.
-     * 
-     * Returns an empty list if there are no Questions.
-     */
-    public static List<Question> find(final Session session,
-    		final DeviceType deviceType,
-    		final Date answeringDate,
-    		final Status[] internalStatuses,
-    		final Boolean hasParent,
-    		final Date startTime,
-    		final Date endTime,
-    		final String sortOrder,
-    		final String locale) {
-    	return Question.getQuestionRepository().find(session, deviceType, answeringDate, 
-    			internalStatuses, hasParent, startTime, endTime, sortOrder, locale);
+                @Override
+                public int compare(final Question q1, final Question q2) {
+                    return q2.getNumber().compareTo(q1.getNumber());
+                }
+            };
+            Collections.sort(newQList, c);
+        }
+
+        return newQList;
     }
     
     /**
-     * Find a list (without repetitions) of Primary Members who
-     * have submitted Question(s) between @param startTime & 
-     * @param endTime (both date inclusive) for the given @param 
-     * session of a given @param deviceType submitted  having
-     * either of the @param internalStatuses. The Questions
-     * should have discussionDate = null OR 
-     * discussionDate <= @param answeringDate
-     * 
-     * Sort the resulting list of Members by Question number according
-     * to the @param sortOrder.
-     * 
-     * Returns an empty list if there are no Members.
+     * Sort the Questions as per @param sortOrder by priority. If multiple Questions
+     * have same priority, then break the tie by Question number.
+     *
+     * @param questions SHOULD NOT BE NULL
+     *
+     * Does not sort in place, returns a new list.
+     * @param sortOrder the sort order
+     * @return the list
      */
-    public static List<Member> findPrimaryMembers(final Session session,
-    		final DeviceType deviceType,
-    		final Date answeringDate,
-    		final Status[] internalStatuses,
-    		final Boolean hasParent,
-    		final Date startTime,
-    		final Date endTime,
-    		final String sortOrder,
+    public static List<Question> sortByPriority(final List<Question> questions,
+            final String sortOrder) {
+        List<Question> newQList = new ArrayList<Question>();
+        newQList.addAll(questions);
+
+        if(sortOrder.equals(ApplicationConstants.ASC)) {
+            Comparator<Question> c = new Comparator<Question>() {
+
+                @Override
+                public int compare(final Question q1, final Question q2) {
+                    int i = q1.getPriority().compareTo(q2.getPriority());
+                    if(i == 0) {
+                        int j = q1.getNumber().compareTo(q2.getNumber());
+                        return j;
+                    }
+                    return i;
+                }
+            };
+            Collections.sort(newQList, c);
+        }
+        else if(sortOrder.equals(ApplicationConstants.DESC)) {
+            Comparator<Question> c = new Comparator<Question>() {
+
+                @Override
+                public int compare(final Question q1, final Question q2) {
+                    int i = q2.getPriority().compareTo(q1.getPriority());
+                    if(i == 0) {
+                        int j = q2.getNumber().compareTo(q1.getNumber());
+                        return j;
+                    }
+                    return i;
+                }
+            };
+            Collections.sort(newQList, c);
+        }
+
+        return newQList;
+    }
+    
+    /**
+     * Sort the Questions as per @param sortOrder by answeringDate. If multiple Questions
+     * have same answeringDate, then break the tie by Question number.
+     *
+     * @param questions SHOULD NOT BE NULL
+     *
+     * Does not sort in place, returns a new list.
+     * @param sortOrder the sort order
+     * @return the list
+     */
+    public static List<Question> sortByAnsweringDate(final List<Question> questions,
+            final String sortOrder) {
+        List<Question> newQList = new ArrayList<Question>();
+        newQList.addAll(questions);
+
+        if(sortOrder.equals(ApplicationConstants.ASC)) {
+            Comparator<Question> c = new Comparator<Question>() {
+
+                @Override
+                public int compare(final Question q1, final Question q2) {
+                    int i = q1.getAnsweringDate().getAnsweringDate().
+                    compareTo(q2.getAnsweringDate().getAnsweringDate());
+                    if(i == 0) {
+                        int j = q1.getNumber().compareTo(q2.getNumber());
+                        return j;
+                    }
+                    return i;
+                }
+            };
+            Collections.sort(newQList, c);
+        }
+        else if(sortOrder.equals(ApplicationConstants.DESC)) {
+            Comparator<Question> c = new Comparator<Question>() {
+
+                @Override
+                public int compare(final Question q1, final Question q2) {
+                    int i = q2.getAnsweringDate().getAnsweringDate().
+                    compareTo(q1.getAnsweringDate().getAnsweringDate());
+                    if(i == 0) {
+                        int j = q2.getNumber().compareTo(q1.getNumber());
+                        return j;
+                    }
+                    return i;
+                }
+            };
+            Collections.sort(newQList, c);
+        }
+
+        return newQList;
+    }
+    
+    public static List<ClubbedEntity> findClubbedEntitiesByPosition(final Question question) {
+    	return getQuestionRepository().findClubbedEntitiesByPosition(question);
+    }
+    
+    public List<ClubbedEntity> findClubbedEntitiesByQuestionNumber(final String sortOrder,
     		final String locale) {
+    	return getQuestionRepository().findClubbedEntitiesByQuestionNumber(this,sortOrder,
+    			locale);
+    }
+    
+    /**
+    * Find a list (without repetitions) of Primary Members who
+    * have submitted Question(s) between @param startTime & 
+    * @param endTime (both date inclusive) for the given @param 
+    * session of a given @param deviceType submitted  having
+    * either of the @param internalStatuses. The Questions
+    * should have discussionDate = null OR 
+    * discussionDate <= @param answeringDate
+    * 
+    * Sort the resulting list of Members by Question number according
+    * to the @param sortOrder.
+    * 
+    * Returns an empty list if there are no Members.
+    */
+    public static List<Member> findPrimaryMembers(final Session session,
+    	final DeviceType deviceType,
+    	final Date answeringDate,
+    	final Status[] internalStatuses,
+    	final Boolean hasParent,
+    	final Date startTime,
+    	final Date endTime,
+    	final String sortOrder,
+    	final String locale) {
     	return Question.getQuestionRepository().findPrimaryMembers(session, deviceType, 
-    			answeringDate, internalStatuses, hasParent, startTime, 
-    			endTime, sortOrder, locale);
+    		answeringDate, internalStatuses, hasParent, startTime, 
+    		endTime, sortOrder, locale);
     }
 
     public static List<Member> findActiveMembersWithQuestions(final Session session,
-			final Date activeOn,
-			final DeviceType deviceType,
-			final Group group,
-			final Status[] internalStatuses,
-			final Date answeringDate,
-			final Date startTime,
-			final Date endTime,
-			final String sortOrder,
-			final String locale) {
+    	final Date activeOn,
+    	final DeviceType deviceType,
+    	final Group group,
+    	final Status[] internalStatuses,
+    	final Date answeringDate,
+    	final Date startTime,
+    	final Date endTime,
+    	final String sortOrder,
+    	final String locale) {
     	MemberRole role = MemberRole.find(session.getHouse().getType(), "MEMBER", locale);
     	return Question.getQuestionRepository().findActiveMembersWithQuestions(session, 
-    			role, activeOn, deviceType, group, internalStatuses, answeringDate, 
-    			startTime, endTime, sortOrder, locale);
+    		role, activeOn, deviceType, group, internalStatuses, answeringDate, 
+    		startTime, endTime, sortOrder, locale);
     }
-    
+
     public static List<Member> findActiveMembersWithoutQuestions(final Session session,
-			final Date activeOn,
-			final DeviceType deviceType,
-			final Group group,
-			final Status[] internalStatuses,
-			final Date answeringDate,
-			final Date startTime,
-			final Date endTime,
-			final String sortOrder,
-			final String locale) {
+    	final Date activeOn,
+    	final DeviceType deviceType,
+    	final Group group,
+    	final Status[] internalStatuses,
+    	final Date answeringDate,
+    	final Date startTime,
+    	final Date endTime,
+    	final String sortOrder,
+    	final String locale) {
     	MemberRole role = MemberRole.find(session.getHouse().getType(), "MEMBER", locale);
     	return Question.getQuestionRepository().findActiveMembersWithoutQuestions(session, 
-    			role, activeOn, deviceType, group, internalStatuses, answeringDate, 
-    			startTime, endTime, sortOrder, locale);
+    		role, activeOn, deviceType, group, internalStatuses, answeringDate, 
+    		startTime, endTime, sortOrder, locale);
     }
-	public void setDiscussionDate(Date discussionDate) {
-		this.discussionDate = discussionDate;
+
+    public String findFormattedNumber() {
+    	NumberFormat format=FormaterUtil.getNumberFormatterNoGrouping(this.getLocale());
+    	return format.format(this.getNumber());
+    }
+    
+    /**
+    * Find supporting members.
+    *
+    * @param strQuestionId the str question id
+    * @return the list
+    */
+    public static List<SupportingMember> findSupportingMembers(final String strQuestionId) {
+    	Long questionId = Long.parseLong(strQuestionId);
+    	Question question = findById(Question.class, questionId);
+    	return question.getSupportingMembers();
+    }
+
+    
+    //=============== INTERNAL METHODS ===============
+    /**
+     * Gets the question repository.
+     *
+     * @return the question repository
+     */
+    private static QuestionRepository getQuestionRepository() {
+        QuestionRepository questionRepository = new Question().questionRepository;
+        if (questionRepository == null) {
+            throw new IllegalStateException(
+            	"QuestionRepository has not been injected in Question Domain");
+        }
+        return questionRepository;
+    }
+    
+    /**
+     * Adds the question draft.
+     */
+    private void addQuestionDraft() {
+        if(! this.getStatus().getType().equals(ApplicationConstants.QUESTION_INCOMPLETE) &&
+        		! this.getStatus().getType().equals(ApplicationConstants.QUESTION_COMPLETE)) {
+            QuestionDraft draft = new QuestionDraft();
+            draft.setType(this.getType());
+            draft.setAnsweringDate(this.getAnsweringDate());
+            draft.setAnswer(this.getAnswer());
+            draft.setRemarks(this.getRemarks());
+            
+            draft.setClubbedEntities(this.getClubbedEntities());
+            draft.setReferencedEntities(this.getReferencedEntities());
+            
+            draft.setEditedAs(this.getEditedAs());
+            draft.setEditedBy(this.getEditedBy());
+            draft.setEditedOn(this.getEditedOn());
+            
+            draft.setGroup(this.getGroup());
+            draft.setMinistry(this.getMinistry());
+            draft.setDepartment(this.getDepartment());
+            draft.setSubDepartment(this.getSubDepartment());
+            
+            draft.setStatus(this.getStatus());
+            draft.setInternalStatus(this.getInternalStatus());
+            draft.setRecommendationStatus(this.getRecommendationStatus());
+            
+            if(this.getType().getType().equals(
+            		ApplicationConstants.HALF_HOUR_DISCUSSION_QUESTION_FROM_QUESTION)) {
+            	if(this.getRevisedReason() != null && this.getRevisedBriefExplanation() != null){
+        		    draft.setReason(this.getRevisedReason());
+	                draft.setBriefExplanation(this.getRevisedBriefExplanation());
+	            } 
+            	else if(this.getRevisedBriefExplanation() != null){
+            		draft.setBriefExplanation(this.getRevisedBriefExplanation());
+            		draft.setReason(this.getReason());
+	            }
+            	else if(this.getRevisedReason() != null){
+            		draft.setBriefExplanation(this.getBriefExplanation());
+            		draft.setReason(this.getRevisedReason());
+	            }
+            	else {
+	            	draft.setReason(this.getReason());
+	                draft.setBriefExplanation(this.getBriefExplanation());
+	            }
+            	draft.setSubject(this.getSubject());
+            	draft.setQuestionText(this.getQuestionText());
+            }
+            else {
+            	if(this.getRevisedQuestionText()!= null && this.getRevisedSubject() != null){
+	                draft.setQuestionText(this.getRevisedQuestionText());
+	                draft.setSubject(this.getRevisedSubject());                
+	            }
+            	else if(this.getRevisedQuestionText() != null){
+	            	draft.setQuestionText(this.getRevisedQuestionText());
+	                draft.setSubject(this.getSubject());
+	            }
+            	else if(this.getRevisedSubject()!=null){
+	                draft.setQuestionText(this.getQuestionText());
+	                draft.setSubject(this.getRevisedSubject());
+	            }
+            	else{
+	            	draft.setQuestionText(this.getQuestionText());
+	                draft.setSubject(this.getSubject());
+	            }
+            }
+            
+            if(this.getId() != null) {
+                Question question = Question.findById(Question.class, this.getId());
+                List<QuestionDraft> originalDrafts = question.getDrafts();
+                if(originalDrafts != null){
+                    originalDrafts.add(draft);
+                }
+                else{
+                    originalDrafts = new ArrayList<QuestionDraft>();
+                    originalDrafts.add(draft);
+                }
+                this.setDrafts(originalDrafts);
+            }
+            else {
+                List<QuestionDraft> originalDrafts = new ArrayList<QuestionDraft>();
+                originalDrafts.add(draft);
+                this.setDrafts(originalDrafts);
+            }
+        }
+    }
+
+    
+    //=============== GETTERS/SETTERS ===============
+	public HouseType getHouseType() {
+		return houseType;
 	}
-	public Date getDiscussionDate() {
-		return discussionDate;
+
+	public void setHouseType(HouseType houseType) {
+		this.houseType = houseType;
+	}	
+	
+	public Session getSession() {
+		return session;
 	}
-	public void setBriefExplanation(String briefExplanation) {
-		this.briefExplanation = briefExplanation;
+
+	public void setSession(Session session) {
+		this.session = session;
+	}	
+	
+	public DeviceType getOriginalType() {
+		return originalType;
 	}
-	public String getBriefExplanation() {
-		return briefExplanation;
+
+	public void setOriginalType(DeviceType originalType) {
+		this.originalType = originalType;
 	}
-	public void setHalfHourDiscusionFromQuestionReference(
-			Question halfHourDiscusionFromQuestionReference) {
-		this.halfHourDiscusionFromQuestionReference = halfHourDiscusionFromQuestionReference;
+	
+	public DeviceType getType() {
+		return type;
 	}
+	
+	public void setType(DeviceType type) {
+		this.type = type;
+	}
+
+	public Integer getNumber() {
+		return number;
+	}
+		
+	public void setNumber(Integer number) {
+		this.number = number;
+	}
+	
+	public Date getSubmissionDate() {
+		return submissionDate;
+	}
+		
+	public void setSubmissionDate(Date submissionDate) {
+		this.submissionDate = submissionDate;
+	}
+		
+	public Date getCreationDate() {
+		return creationDate;
+	}
+		
+	public void setCreationDate(Date creationDate) {
+		this.creationDate = creationDate;
+	}
+		
+	public String getCreatedBy() {
+		return createdBy;
+	}
+		
+	public void setCreatedBy(String createdBy) {
+		this.createdBy = createdBy;
+	}	
+	
+	public Date getEditedOn() {
+		return editedOn;
+	}
+	
+	public void setEditedOn(Date editedOn) {
+		this.editedOn = editedOn;
+	}	
+	
+	public String getEditedBy() {
+		return editedBy;
+	}
+		
+	public void setEditedBy(String editedBy) {
+		this.editedBy = editedBy;
+	}
+		
+	public String getEditedAs() {
+		return editedAs;
+	}	
+	
+	public void setEditedAs(String editedAs) {
+		this.editedAs = editedAs;
+	}
+		
+	public QuestionDates getAnsweringDate() {
+		return answeringDate;
+	}
+		
+	public void setAnsweringDate(QuestionDates answeringDate) {
+		this.answeringDate = answeringDate;
+	}
+		
+	public QuestionDates getChartAnsweringDate() {
+		return chartAnsweringDate;
+	}
+		
+	public void setChartAnsweringDate(QuestionDates chartAnsweringDate) {
+		this.chartAnsweringDate = chartAnsweringDate;
+	}
+		
+	public String getSubject() {
+		return subject;
+	}	
+	
+	public void setSubject(String subject) {
+		this.subject = subject;
+	}
+		
+	public String getRevisedSubject() {
+		return revisedSubject;
+	}	
+	
+	public void setRevisedSubject(String revisedSubject) {
+		this.revisedSubject = revisedSubject;
+	}
+
+	public String getQuestionText() {
+		return questionText;
+	}	
+	
+	public void setQuestionText(String questionText) {
+		this.questionText = questionText;
+	}
+		
+	public String getRevisedQuestionText() {
+		return revisedQuestionText;
+	}	
+	
+	public void setRevisedQuestionText(String revisedQuestionText) {
+		this.revisedQuestionText = revisedQuestionText;
+	}
+		
+	public String getAnswer() {
+		return answer;
+	}	
+	
+	public void setAnswer(String answer) {
+		this.answer = answer;
+	}	
+	
+	public Integer getPriority() {
+		return priority;
+	}
+		
+	public void setPriority(Integer priority) {
+		this.priority = priority;
+	}
+
+	public Status getStatus() {
+		return status;
+	}	
+	
+	public void setStatus(Status status) {
+		this.status = status;
+	}
+		
+	public Status getInternalStatus() {
+		return internalStatus;
+	}	
+	
+	public void setInternalStatus(Status internalStatus) {
+		this.internalStatus = internalStatus;
+	}	
+	
+	public Status getRecommendationStatus() {
+		return recommendationStatus;
+	}
+		
+	public void setRecommendationStatus(Status recommendationStatus) {
+		this.recommendationStatus = recommendationStatus;
+	}
+		
+	public Status getBallotStatus() {
+		return ballotStatus;
+	}
+
+	public void setBallotStatus(Status ballotStatus) {
+		this.ballotStatus = ballotStatus;
+	}	
+	
+	public String getRemarks() {
+		return remarks;
+	}	
+	
+	public void setRemarks(String remarks) {
+		this.remarks = remarks;
+	}
+
+	public String getRejectionReason() {
+		return rejectionReason;
+	}	
+	
+	public void setRejectionReason(String rejectionReason) {
+		this.rejectionReason = rejectionReason;
+	}
+		
+	public Member getPrimaryMember() {
+		return primaryMember;
+	}
+		
+	public void setPrimaryMember(Member primaryMember) {
+		this.primaryMember = primaryMember;
+	}
+		
+	public List<SupportingMember> getSupportingMembers() {
+		return supportingMembers;
+	}	
+	
+	public void setSupportingMembers(List<SupportingMember> supportingMembers) {
+		this.supportingMembers = supportingMembers;
+	}
+		
+	public Group getGroup() {
+		return group;
+	}	
+	
+	public void setGroup(Group group) {
+		this.group = group;
+	}
+		
+	public Ministry getMinistry() {
+		return ministry;
+	}	
+	
+	public void setMinistry(Ministry ministry) {
+		this.ministry = ministry;
+	}
+
+	public Department getDepartment() {
+		return department;
+	}
+		
+	public void setDepartment(Department department) {
+		this.department = department;
+	}
+		
+	public SubDepartment getSubDepartment() {
+		return subDepartment;
+	}	
+	
+	public void setSubDepartment(SubDepartment subDepartment) {
+		this.subDepartment = subDepartment;
+	}
+		
+	public List<QuestionDraft> getDrafts() {
+		return drafts;
+	}
+	
+	public void setDrafts(List<QuestionDraft> drafts) {
+		this.drafts = drafts;
+	}	
+	
+	public Question getParent() {
+		return parent;
+	}	
+	
+	public void setParent(Question parent) {
+		this.parent = parent;
+	}	
+	
+	public List<ClubbedEntity> getClubbedEntities() {
+		return clubbedEntities;
+	}
+	
+	public void setClubbedEntities(List<ClubbedEntity> clubbedEntities) {
+		this.clubbedEntities = clubbedEntities;
+	}
+	
+	public List<ReferencedEntity> getReferencedEntities() {
+		return referencedEntities;
+	}
+	
+	public void setReferencedEntities(List<ReferencedEntity> referencedEntities) {
+		this.referencedEntities = referencedEntities;
+	}
+	
+	public String getReason() {
+		return reason;
+	}
+	
+	public void setReason(String reason) {
+		this.reason = reason;
+	}
+	
+	public String getRevisedReason() {
+		return revisedReason;
+	}
+
+	public void setRevisedReason(String revisedReason) {
+		this.revisedReason = revisedReason;
+	}
+	
+	public Boolean getToBeAnsweredByMinister() {
+		return toBeAnsweredByMinister;
+	}
+	
+	public void setToBeAnsweredByMinister(Boolean toBeAnsweredByMinister) {
+		this.toBeAnsweredByMinister = toBeAnsweredByMinister;
+	}
+	
+	public Date getDateOfAnsweringByMinister() {
+		return dateOfAnsweringByMinister;
+	}
+	
+	public void setDateOfAnsweringByMinister(Date dateOfAnsweringByMinister) {
+		this.dateOfAnsweringByMinister = dateOfAnsweringByMinister;
+	}
+	
 	public Question getHalfHourDiscusionFromQuestionReference() {
 		return halfHourDiscusionFromQuestionReference;
 	}
 	
-	//------------------------------added by vikas & dhananjay 20012013------------------------------------
-    /**
-     * Find.
-     *
-     * @param session the session
-     * @param number the number
-     * @return the question
-     */
-    public static Question find(final Session session, final Integer number, Long deviceTypeId) {
-        return Question.getQuestionRepository().find(session, number, deviceTypeId);
-    }
-	public void setLastDateOfAnswerReceiving(Date lastDateOfAnswerReceiving) {
-		this.lastDateOfAnswerReceiving = lastDateOfAnswerReceiving;
-	}
-	public Date getLastDateOfAnswerReceiving() {
-		return lastDateOfAnswerReceiving;
-	}
-	public QuestionDates getChartAnsweringDate() {
-		return chartAnsweringDate;
-	}
-	public void setChartAnsweringDate(QuestionDates chartAnsweringDate) {
-		this.chartAnsweringDate = chartAnsweringDate;
-	}
-	public String getRejectionReason() {
-		return rejectionReason;
-	}
-	public void setRejectionReason(String rejectionReason) {
-		this.rejectionReason = rejectionReason;
+	public void setHalfHourDiscusionFromQuestionReference(
+			Question halfHourDiscusionFromQuestionReference) {
+		this.halfHourDiscusionFromQuestionReference = halfHourDiscusionFromQuestionReference;
 	}
 	
-	public static MemberBallotMemberWiseReportVO findMemberWiseReportVO(
-			final Session session,final DeviceType questionType,final Member member,
-			final String locale){
-		return getQuestionRepository().findMemberWiseReportVO(
-				session,questionType,member,
-				locale);		
+	public Date getDiscussionDate() {
+		return discussionDate;
 	}
-	public void setOriginalType(DeviceType originalType) {
-		this.originalType = originalType;
+	
+	public void setDiscussionDate(Date discussionDate) {
+		this.discussionDate = discussionDate;
 	}
-	public DeviceType getOriginalType() {
-		return originalType;
+	
+	public String getBriefExplanation() {
+		return briefExplanation;
 	}
-	public void setBallotStatus(Status ballotStatus) {
-		this.ballotStatus = ballotStatus;
+	
+	public void setBriefExplanation(String briefExplanation) {
+		this.briefExplanation = briefExplanation;
 	}
-	public Status getBallotStatus() {
-		return ballotStatus;
-	}
-	public String getRevisedReason() {
-		return revisedReason;
-	}
-	public void setRevisedReason(String revisedReason) {
-		this.revisedReason = revisedReason;
-	}
+	
 	public String getRevisedBriefExplanation() {
 		return revisedBriefExplanation;
 	}
+	
 	public void setRevisedBriefExplanation(String revisedBriefExplanation) {
 		this.revisedBriefExplanation = revisedBriefExplanation;
+	}
+
+	public Date getLastDateOfAnswerReceiving() {
+		return lastDateOfAnswerReceiving;
+	}
+	
+	public void setLastDateOfAnswerReceiving(Date lastDateOfAnswerReceiving) {
+		this.lastDateOfAnswerReceiving = lastDateOfAnswerReceiving;
+	}
+	
+	public Language getLanguage() {
+		return language;
+	}
+	
+	public void setLanguage(Language language) {
+		this.language = language;
+	}
+	
+	public String getProspectiveClubbings() {
+		return prospectiveClubbings;
+	}
+	
+	public void setProspectiveClubbings(String prospectiveClubbings) {
+		this.prospectiveClubbings = prospectiveClubbings;
+	}
+	
+	public Boolean getMarkAsAnswered() {
+		return markAsAnswered;
+	}
+
+	public void setMarkAsAnswered(Boolean markAsAnswered) {
+		this.markAsAnswered = markAsAnswered;
 	}
 }
