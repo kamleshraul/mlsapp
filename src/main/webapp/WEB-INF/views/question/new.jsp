@@ -5,6 +5,13 @@
 	<spring:message code="question" text="Question Information System"/>
 	</title>
 	<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+	
+	<style type="text/css" media="print">
+		textarea[class=wysiwyg]{
+			display:block;
+		}
+	</style>
+	
 	<script type="text/javascript"><!--
 	//this is for autosuggest
 	function split( val ) {
@@ -101,7 +108,7 @@
 	}
 	
 	$(document).ready(function(){
-
+		
 		$("#ministry").change(function(){
 			if($(this).val()!=''){
 			loadGroup($(this).val());
@@ -336,7 +343,7 @@
 			$.prompt($('#submissionMsg').val(),{
 				buttons: {Ok:true, Cancel:false}, callback: function(v){
 		        if(v){
-					$.blockUI({ message: '<img src="./resources/images/waitAnimated.gif" />' }); 			        
+					$.blockUI({ message: '<img src="./resources/images/waitAnimated.gif" />' });
 		        	$.post($('form').attr('action')+'?operation=submit',  
 		    	            $("form").serialize(),  
 		    	            function(data){
@@ -422,8 +429,10 @@
 
 <body>
 <div class="fields clearfix watermark">
+
 <form:form action="question" method="POST" modelAttribute="domain">
 	<%@ include file="/common/info.jsp" %>
+	<div id="reportDiv">
 	<h2><spring:message code="question.new.heading" text="Enter Question Details"/>		
 	</h2>
 	<form:errors path="version" cssClass="validationError"/>	
@@ -546,115 +555,119 @@
 	</p>
 	</c:if>	
 	
+	<table style="width: 100%;">
 	<c:choose>
-	<c:when test="${! empty ministries}">
-	<p>
-		<label class="small"><spring:message code="question.ministry" text="Ministry"/>*</label>
-		<select name="ministry" id="ministry" class="sSelect">
-		<c:forEach items="${ministries }" var="i">
-		<c:choose>
-		<c:when test="${i.id==ministrySelected }">
-		<option value="${i.id }" selected="selected">${i.name}</option>
-		</c:when>
-		<c:otherwise>
-		<option value="${i.id }" >${i.name}</option>
-		</c:otherwise>
-		</c:choose>
-		</c:forEach>
-		</select>
-		<form:errors path="ministry" cssClass="validationError"/>
+		<c:when test="${! empty ministries}">
+			<tr>
+				<td>
+				<p>
+					<label class="small"><spring:message code="question.ministry" text="Ministry"/>*</label>
+					<select name="ministry" id="ministry" class="sSelect">
+						<c:forEach items="${ministries }" var="i">
+							<c:choose>
+								<c:when test="${i.id==ministrySelected }">
+									<option value="${i.id }" selected="selected">${i.name}</option>
+								</c:when>
+								<c:otherwise>
+									<option value="${i.id }" >${i.name}</option>
+								</c:otherwise>
+							</c:choose>
+						</c:forEach>
+					</select>
+					<form:errors path="ministry" cssClass="validationError"/>
+					<br />
+					<label class="small"><spring:message code="question.department" text="Department"/>*</label>
+					<select name="department" id="department" class="sSelect">
+						<c:forEach items="${departments }" var="i">
+							<c:choose>
+								<c:when test="${i.id==departmentSelected }">
+									<option value="${i.id }" selected="selected">${i.name}</option>
+								</c:when>
+								<c:otherwise>
+									<option value="${i.id }" >${i.name}</option>
+								</c:otherwise>
+							</c:choose>
+						</c:forEach>
+					</select>
+					<form:errors path="department" cssClass="validationError"/>
+					<br />
+					<c:if test="${selectedQuestionType=='questions_starred'}">
+						<label class="small"><spring:message code="question.answeringDate" text="Answering Date"/></label>
+						<select name="answeringDate" id="answeringDate" class="sSelect">
+							<c:forEach items="${answeringDates }" var="i">
+								<c:choose>
+									<c:when test="${i.id==answeringDate }">
+										<option value="${i.id }" selected="selected">${i.name}</option>
+									</c:when>
+									<c:otherwise>
+										<option value="${i.id }" >${i.name}</option>
+									</c:otherwise>
+								</c:choose>
+							</c:forEach>
+						</select>
+						<form:errors path="answeringDate" cssClass="validationError"/>
+					</c:if>	
+					<c:if test="${selectedQuestionType=='questions_halfhourdiscussion_from_question'}">
+						<label class="small"><spring:message code="question.discussionDate" text="Discussion Date"/></label>
+						<form:select path="discussionDate" cssClass="datemask sSelect" >
+							<option value="">---<spring:message code='please.select' text='Please Select'/>---</option>
+							<c:forEach items="${discussionDates}" var="i">
+								<c:choose>
+									<c:when  test="${i==discussionDateSelected}">
+										<option value="${i}" selected="selected">${i}</option>
+									</c:when>
+									<c:otherwise>
+										<option value="${i}">${i}</option>
+									</c:otherwise>					
+								</c:choose>
+							</c:forEach>					
+						</form:select><td>
+						<form:errors path="discussionDate" cssClass="validationError"/>
+					</c:if>
+				</p>
+			</td>
 				
-		<label class="small"><spring:message code="question.group" text="Group" />*</label>
-		<input type="text" class="sText" id="formattedGroup" name="formattedGroup"  readonly="readonly" value="${formattedGroup}">		
-		<input type="hidden" id="group" name="group" value="${group }">
-		<form:errors path="group" cssClass="validationError"/>		
-	</p>	
-	<p>
-		<label class="small"><spring:message code="question.department" text="Department"/></label>
-		<select name="department" id="department" class="sSelect">
-		<c:forEach items="${departments }" var="i">
-		<c:choose>
-		<c:when test="${i.id==departmentSelected }">
-		<option value="${i.id }" selected="selected">${i.name}</option>
-		</c:when>
-		<c:otherwise>
-		<option value="${i.id }" >${i.name}</option>
+			<td>
+				<p>
+					<label class="small"><spring:message code="question.group" text="Group" />*</label>
+					<input type="text" class="sText" id="formattedGroup" name="formattedGroup"  readonly="readonly" value="${formattedGroup}">
+					<input type="hidden" id="group" name="group" value="${group }">
+					<form:errors path="group" cssClass="validationError"/>		
+					<br />
+					<label class="small"><spring:message code="question.subdepartment" text="Sub Department"/>*</label>
+					<select name="subDepartment" id="subDepartment" class="sSelect">
+						<c:forEach items="${subDepartments }" var="i">
+							<c:choose>
+								<c:when test="${i.id==subDepartmentSelected }">
+									<option value="${i.id }" selected="selected">${i.name}</option>
+								</c:when>
+								<c:otherwise>
+									<option value="${i.id }" >${i.name}</option>
+								</c:otherwise>
+							</c:choose>
+						</c:forEach>
+					</select>
+					<form:errors path="subDepartment" cssClass="validationError"/>
+					<br />
+					<c:if test="${selectedQuestionType=='questions_starred'}">
+						<label class="small"><spring:message code="question.priority" text="Priority"/>*</label>
+						<form:select path="priority" cssClass="sSelect" items="${priorities}" itemLabel="name" itemValue="number" />
+						<form:errors path="priority" cssClass="validationError"/>	
+					</c:if>
+				</p>	
+			</td>
+		</c:when>	
+		<c:otherwise>		
+		<div class="toolTip tpGreen clearfix">
+			<p>
+				<img src="./resources/images/template/icons/light-bulb-off.png">
+				<spring:message code="rotationordernotpublished" text="Follwoing fields will be activated on {0}(Rotation Order Publishing Date)" arguments="${rotationOrderPublishDate}"/>
+			</p>
+		</div>			
 		</c:otherwise>
-		</c:choose>
-		</c:forEach>
-		</select>
-		<form:errors path="department" cssClass="validationError"/>	
-		
-		<label class="small"><spring:message code="question.subdepartment" text="Sub Department"/></label>
-		<select name="subDepartment" id="subDepartment" class="sSelect">
-		<c:forEach items="${subDepartments }" var="i">
-		<c:choose>
-		<c:when test="${i.id==subDepartmentSelected }">
-		<option value="${i.id }" selected="selected">${i.name}</option>
-		</c:when>
-		<c:otherwise>
-		<option value="${i.id }" >${i.name}</option>
-		</c:otherwise>
-		</c:choose>
-		</c:forEach>
-		</select>		
-		<form:errors path="subDepartment" cssClass="validationError"/>	
-	</p>	
-		
-	<p>
-		<c:if test="${selectedQuestionType=='questions_starred'}">
-			<label class="small"><spring:message code="question.answeringDate" text="Answering Date"/></label>
-			<select name="answeringDate" id="answeringDate" class="sSelect">
-				<c:forEach items="${answeringDates }" var="i">
-					<c:choose>
-						<c:when test="${i.id==answeringDate }">
-							<option value="${i.id }" selected="selected">${i.name}</option>
-						</c:when>
-						<c:otherwise>
-							<option value="${i.id }" >${i.name}</option>
-						</c:otherwise>
-					</c:choose>
-				</c:forEach>
-			</select>
-		<form:errors path="answeringDate" cssClass="validationError"/>
-		</c:if>	
-		<c:if test="${selectedQuestionType=='questions_halfhourdiscussion_from_question'}">
-			<label class="small"><spring:message code="question.discussionDate" text="Discussion Date"/></label>
-			<form:select path="discussionDate" cssClass="datemask sSelect" >
-				<option value="">---<spring:message code='please.select' text='Please Select'/>---</option>
-				<c:forEach items="${discussionDates}" var="i">
-					<c:choose>
-						<c:when  test="${i==discussionDateSelected}">
-							<option value="${i}" selected="selected">${i}</option>
-						</c:when>
-						<c:otherwise>
-							<option value="${i}">${i}</option>
-						</c:otherwise>					
-					</c:choose>
-				</c:forEach>					
-			</form:select>
-			<form:errors path="discussionDate" cssClass="validationError"/>
-		</c:if>
-		
-		<c:if test="${selectedQuestionType=='questions_starred'}">
-			<label class="small"><spring:message code="question.priority" text="Priority"/>*</label>
-			<form:select path="priority" cssClass="sSelect" items="${priorities}" itemLabel="name" itemValue="number">
-			</form:select>
-			<form:errors path="priority" cssClass="validationError"/>	
-		</c:if>
-	</p>	
-	</c:when>	
-	<c:otherwise>		
-	<div class="toolTip tpGreen clearfix">
-		<p>
-			<img src="./resources/images/template/icons/light-bulb-off.png">
-			<spring:message code="rotationordernotpublished" text="Follwoing fields will be activated on {0}(Rotation Order Publishing Date)" arguments="${rotationOrderPublishDate}"/>
-		</p>
-		<p></p>
-	</div>			
-	</c:otherwise>
 	</c:choose>
-	
+	</table>
+</div>	
 	 <div class="fields">
 		<h2></h2>
 		<p class="tright">
