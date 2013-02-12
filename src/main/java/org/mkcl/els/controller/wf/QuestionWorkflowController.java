@@ -464,7 +464,7 @@ public class QuestionWorkflowController  extends BaseController{
 				model.addAttribute("chartAnsweringDate", domain.getChartAnsweringDate().getId());
 			}
 		}	
-		/**** Submission Date and Creation date****/ 
+		/**** Submission Date and Creation date****/
 		CustomParameter dateTimeFormat=CustomParameter.findByName(CustomParameter.class,"SERVER_DATETIMEFORMAT", "");
 		if(dateTimeFormat!=null){            
 			if(domain.getSubmissionDate()!=null){
@@ -487,31 +487,31 @@ public class QuestionWorkflowController  extends BaseController{
 		model.addAttribute("usergroupType",workflowDetails.getAssigneeUserGroupType());
 
 		/**** To have the task creation date and lastReceivingDate if userGroup is department in case of starred questions ***/
-		boolean canAdd = false;
-		try{
-			if(workflowDetails.getAssigneeUserGroupType().equals(ApplicationConstants.DEPARTMENT)){
-				
-				if(domain.getAnsweringDate()!=null){
-					if(domain.getAnsweringDate().getLastReceivingDateFromDepartment()!=null){
-						model.addAttribute("lastReceivingDateFromDepartment", FormaterUtil.getDateFormatter(locale).format(domain.getAnsweringDate().getLastReceivingDateFromDepartment()));
+		if(workflowDetails.getAssigneeUserGroupType().equals(ApplicationConstants.DEPARTMENT)){
+			boolean canAdd = false;
+			
+			try{	
+					if(domain.getAnsweringDate()!=null){
+						if(domain.getAnsweringDate().getLastReceivingDateFromDepartment()!=null){
+							model.addAttribute("lastReceivingDateFromDepartment", FormaterUtil.getDateFormatter(locale).format(domain.getAnsweringDate().getLastReceivingDateFromDepartment()));
+						}
 					}
-				}
-				
-				CustomParameter serverTimeStamp=CustomParameter.findByName(CustomParameter.class,"SERVER_TIMESTAMP","");
-				if(serverTimeStamp!=null){
-					if(workflowDetails.getAssignmentTime() != null){							
-						model.addAttribute("taskCreationDate", FormaterUtil.getDateFormatter(serverTimeStamp.getValue(),locale).format(workflowDetails.getAssignmentTime()));
+					
+					CustomParameter serverTimeStamp=CustomParameter.findByName(CustomParameter.class,"SERVER_TIMESTAMP","");
+					if(serverTimeStamp!=null){
+						if(workflowDetails.getAssignmentTime() != null){							
+							model.addAttribute("taskCreationDate", FormaterUtil.getDateFormatter(serverTimeStamp.getValue(),locale).format(workflowDetails.getAssignmentTime()));
+						}
 					}
-				}
-				
-				canAdd = true;
+					
+					canAdd = true;
+			}catch(Exception e){
+				logger.error("Last Receiving date from department or task creation date is missing.: "+e.getMessage());
 			}
-		}catch(Exception e){
-			logger.error("Last Receiving date from department or task creation date is missing.: "+e.getMessage());
-		}
-		if(!canAdd){
-			model.addAttribute("lastReceivingDateFromDepartment", "");
-			model.addAttribute("taskCreationDate", "");
+			if(!canAdd){
+				model.addAttribute("lastReceivingDateFromDepartment", "");
+				model.addAttribute("taskCreationDate", "");
+			}
 		}
 		
 		/**** Status,Internal Status and recommendation Status ****/
@@ -616,8 +616,7 @@ public class QuestionWorkflowController  extends BaseController{
 				}else{
 					model.addAttribute("errorcode","question_putup_options_final_notset");
 				}	
-			}
-			
+			}			
 		}
 		CustomParameter specificStatuses=CustomParameter.findByName(CustomParameter.class,"QUESTION_PUT_UP_OPTIONS_"+type.toUpperCase()+"_"+userGroupType.toUpperCase(),"");
 		if(specificStatuses!=null){
@@ -771,9 +770,31 @@ public class QuestionWorkflowController  extends BaseController{
 	public String updateMyTask(final ModelMap model,
 			final HttpServletRequest request,
 			final Locale locale,@Valid @ModelAttribute("domain") final Question domain,final BindingResult result) {
+		
+		String operation = request.getParameter("operation");
+		
+		if(operation != null){
+			if(!operation.isEmpty()){
+				if(operation.equals("workflowsubmit")){
+					if(domain.getAnswer() == null){
+						result.rejectValue("answer", "AnswerEmpty");						
+					}
+					if(domain.getAnswer().isEmpty()){
+						result.rejectValue("answer", "AnswerEmpty");
+					}
+				}
+			}
+		}
+		if(result.hasErrors()){
+			model.addAttribute("errorcode","no_answer_provided_department");
+			return "workflow/myTasks/error";
+			
+		}
+		
 		/**** Workflowdetails ****/
 		String strWorkflowdetails=(String) request.getParameter("workflowdetails");
 		WorkflowDetails workflowDetails=WorkflowDetails.findById(WorkflowDetails.class,Long.parseLong(strWorkflowdetails));
+		
 		/**** Updating domain ****/
 		domain.setEditedOn(new Date());
 		domain.setEditedBy(this.getCurrentUser().getActualUsername());
@@ -871,6 +892,7 @@ public class QuestionWorkflowController  extends BaseController{
 		workflowDetails.merge();		
 		/**** display message ****/
 		model.addAttribute("type","taskcompleted");
+				
 		return "workflow/info";
 	}
 
