@@ -261,7 +261,7 @@
 				</c:if>			
 				<c:forEach items="${sessionTypes}" var="i">
 					<c:choose>
-						<c:when test="${i.id==selectedSessionType}">
+						<c:when test="${i.type==selectedSessionType}">
 							<option value="${i.type}" selected="selected"><c:out value="${i.sessionType}"></c:out></option>				
 						</c:when>
 						<c:otherwise>
