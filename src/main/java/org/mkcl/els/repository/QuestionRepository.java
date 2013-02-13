@@ -1147,7 +1147,7 @@ public class QuestionRepository extends BaseRepository<Question, Long> {
 		Search search = new Search();
 		search.addFilterEqual("session", session);
 		search.addFilterEqual("number", number);
-		search.addFilterNotEqual("type", deviceType);
+		search.addFilterEqual("type", deviceType);
 		return this.searchUnique(search);
 	}
 	
