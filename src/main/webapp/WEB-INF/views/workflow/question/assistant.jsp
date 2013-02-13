@@ -124,7 +124,10 @@
 						value != putUpForDateApproval && value != sendToSectionOfficer){
 					$("#internalStatus").val(value);
 				}
-				$("#recommendationStatus").val($("#changeInternalStatus").val());						
+				$("#recommendationStatus").val($("#changeInternalStatus").val());
+				if($("#oldRecommendationStatus").val()== sendback || $("#oldRecommendationStatus").val()==discuss){
+					$("#actorDiv").show();
+				}
 				
 			}else{
 			$("#actor").empty();
@@ -135,6 +138,9 @@
 			$("#internalStatus").val(value);
 			}
 		    $("#recommendationStatus").val($("#changeInternalStatus").val());
+			}
+			if($("#oldRecommendationStatus").val()== sendback || $("#oldRecommendationStatus").val()==discuss){
+				$("#actorDiv").show();
 			}
 		});
 		}else{
@@ -892,7 +898,7 @@
 <input id="subDepartmentSelected" value="${subDepartmentSelected }" type="hidden">
 <input id="answeringDateSelected" value="${ answeringDateSelected}" type="hidden">
 <input id="oldInternalStatus" value="${ internalStatus}" type="hidden">
-<input id="oldRecommendationStatus" value="${ RecommendationStatus}" type="hidden">
+<input id="oldRecommendationStatus" value="${ oldRecommendationStatus}" type="hidden">
 <input id="selectedQuestionType" value="${selectedQuestionType}" type="hidden">
 <input id="ministryEmptyMsg" value='<spring:message code="client.error.ministryempty" text="Ministry can not be empty."></spring:message>' type="hidden">
 
