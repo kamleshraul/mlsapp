@@ -3,8 +3,12 @@ package org.mkcl.els.repository;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import java.util.TreeSet;
 
 import org.mkcl.els.common.util.ApplicationConstants;
 import org.mkcl.els.common.vo.Reference;
@@ -241,18 +245,49 @@ public class WorkflowConfigRepository extends BaseRepository<WorkflowConfig, Ser
 		return actualActors;
 	}
 
+//	private WorkflowActor getWorkflowActor(final WorkflowConfig workflowConfig,
+//			final UserGroupType userGroupType,final int level) {
+//		String query="SELECT wfa FROM WorkflowConfig wc JOIN wc.workflowactors wfa  "+
+//		" JOIN wfa.userGroupType ugt WHERE wc.id="+workflowConfig.getId()+
+//		" AND ugt.id="+userGroupType.getId()+" AND wfa.level="+level;
+//		try{
+//			return (WorkflowActor) this.em().createQuery(query).getSingleResult();
+//		}catch (Exception e) {
+//			logger.error(e.getMessage());
+//			return new WorkflowActor();
+//		}
+//
+//	}
+	
+	@SuppressWarnings("unchecked")
 	private WorkflowActor getWorkflowActor(final WorkflowConfig workflowConfig,
 			final UserGroupType userGroupType,final int level) {
-		String query="SELECT wfa FROM WorkflowConfig wc JOIN wc.workflowactors wfa  "+
+		/**** Get the closest level of particular user group ****/
+		String userGrouplevelQuery="SELECT wfa FROM WorkflowConfig wc JOIN wc.workflowactors wfa  "+
 		" JOIN wfa.userGroupType ugt WHERE wc.id="+workflowConfig.getId()+
-		" AND ugt.id="+userGroupType.getId()+" AND wfa.level="+level;
-		try{
-			return (WorkflowActor) this.em().createQuery(query).getSingleResult();
-		}catch (Exception e) {
-			logger.error(e.getMessage());
-			return new WorkflowActor();
+		" AND ugt.id="+userGroupType.getId();
+		List<WorkflowActor> workflowActors=this.em().createQuery(userGrouplevelQuery).getResultList();
+		/**** We need to find the closest level to level parameter ****/
+		Map<String,WorkflowActor> actorsMap=new HashMap<String, WorkflowActor>();
+		Set<Integer> sortedSet=new TreeSet<Integer>();
+		for(WorkflowActor i:workflowActors){
+			int currentLevel=i.getLevel();
+			if(currentLevel-level==0){
+				return i;
+			}else {
+				int absDifference=Math.abs(currentLevel-level);
+				actorsMap.put(String.valueOf(absDifference), i);
+				sortedSet.add(absDifference);				
+			}
 		}
-
+		actorsMap.get(sortedSet.iterator().next());
+		Iterator<Integer> iterator=sortedSet.iterator();
+		int lowestAbs=0;
+		while(iterator.hasNext()){
+			lowestAbs=iterator.next();
+			break;
+		}
+		return actorsMap.get(String.valueOf(lowestAbs));
 	}
 
 	@SuppressWarnings("unchecked")
