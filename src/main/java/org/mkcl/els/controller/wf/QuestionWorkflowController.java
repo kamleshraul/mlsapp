@@ -312,6 +312,7 @@ public class QuestionWorkflowController  extends BaseController{
 		model.addAttribute("workflowdetails",workflowDetails.getId());
 		model.addAttribute("workflowstatus",workflowDetails.getStatus());
 		Question domain=Question.findById(Question.class,Long.parseLong(workflowDetails.getDeviceId()));
+		
 		/**** Populate Model ****/		
 		populateModel(domain,model,request,workflowDetails);		
 		return workflowDetails.getForm();
@@ -534,6 +535,7 @@ public class QuestionWorkflowController  extends BaseController{
 		if(recommendationStatus!=null){
 			model.addAttribute("recommendationStatus",recommendationStatus.getId());
 			model.addAttribute("recommendationStatusType",recommendationStatus.getType());
+			model.addAttribute("oldRecommendationStatus",recommendationStatus.getId());
 		}	
 		/**** Referenced Questions are collected in refentities****/
 		List<Reference> refentities=new ArrayList<Reference>();
