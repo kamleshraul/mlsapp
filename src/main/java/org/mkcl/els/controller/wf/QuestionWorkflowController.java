@@ -192,6 +192,7 @@ public class QuestionWorkflowController  extends BaseController{
 	@InitBinder(value = "domain")
 	private void initBinder(final WebDataBinder binder) {
 		/**** Date ****/
+		
 		 CustomParameter parameter = CustomParameter.findByName(
 	                CustomParameter.class, "SERVER_DATEFORMAT", "");
 	        if(this.getUserLocale().equals(new Locale("mr","IN")))
@@ -825,12 +826,14 @@ public class QuestionWorkflowController  extends BaseController{
 						if(domain.getAnswer().isEmpty()){
 							result.rejectValue("answer", "AnswerEmpty");
 						}
+						if(result.getFieldErrorCount("answer")>0){
+							if(!model.containsAttribute("errorcode")){
+								model.addAttribute("errorcode","no_answer_provided_department");
+								return "workflow/myTasks/error";
+							}		
+						}
 					}
 				}
-			}
-			if(result.hasErrors()){
-				model.addAttribute("errorcode","no_answer_provided_department");
-				return "workflow/myTasks/error";		
 			}
 		}
 		
