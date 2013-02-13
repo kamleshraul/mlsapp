@@ -18,6 +18,7 @@
 	div#rotationOrderReport table{
 		font-size: 16px;
 		page: auto;		
+		width: 100%;
 	}
 	div#rotationOrderReport table thead {display: table-header-group;}
 	div#rotationOrderReport table tfoot { display: table-footer-group;}
