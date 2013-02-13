@@ -21,7 +21,7 @@
 <c:otherwise>
 <label class="small"><spring:message code="question.ballot.answeringDate" text="Answering Date"/>: ${answeringDate}</label>
 
-<table class="uiTable" border="1">
+<table class="strippedTable" border="1">
 	<tr>
 		<th><spring:message code="general.srnumber" text="Serial Number"/></th>
 		<th><spring:message code="member.name" text="Member Name"/></th>
