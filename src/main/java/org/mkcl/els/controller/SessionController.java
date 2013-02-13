@@ -238,7 +238,7 @@ javax.servlet.http.HttpServletRequest)
         			if(domain.getParameters()!=null){
         				List<String> parametersForDeviceType = Session.getParametersSetForDeviceType(domain.getId(), deviceTypeEnabled.getType());
         				if(parametersForDeviceType.isEmpty()){
-        					List<CustomParameter> customParameters = CustomParameter.findAllByStartingWith(CustomParameter.class, "name", deviceTypeEnabled.getType()+'%', "name", ApplicationConstants.ASC, null);
+        					List<CustomParameter> customParameters = CustomParameter.findAllByStartingWith(CustomParameter.class, "name", deviceTypeEnabled.getType()+'%', "name", ApplicationConstants.ASC, "");
     	        			for(CustomParameter i: customParameters) {     
     	        				String key = i.getName().toLowerCase();    	        				
 	        					if(i.getValue()!=null && !i.getValue().isEmpty()) {
