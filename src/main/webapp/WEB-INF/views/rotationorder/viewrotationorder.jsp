@@ -11,7 +11,7 @@
 				$('#key').val('');	
 			});
 			</script>
-		<link rel="stylesheet" type="text/css" media="print" href="./resources/css/rotationOrderReport.css?v=46" />
+		<link rel="stylesheet" type="text/css" media="print" href="./resources/css/rotationOrderReport.css?v=1" />
 	</head>
 
 	<body>
@@ -24,34 +24,44 @@
 		<br>
 	</div> --%>
 	<div id="rotationOrder">
-			<table class="uiTable" style="width: 100%">
-				<tr>
-				<th><spring:message code='group.rotationorder.group' text='Group'></spring:message></th>
-				<th><spring:message code='group.rotationorder.ministries' text='Ministries'></spring:message></th>
-				<th><spring:message code='group.rotationorder.answeringDate' text='Answering Date'></spring:message></th>
-				<th><spring:message code='group.rotationorder.submissionDate' text='Final Submission Date'></spring:message></th>
-				</tr>
+			<table class="strippedTable" style="width: 100%" border="1">
+				<thead>
+					<tr>
+						<th style="width: 50px; text-align: center;"><spring:message code='group.rotationorder.group' text='Group'></spring:message></th>
+						<th style="width: 250px; text-align: center;"><spring:message code='group.rotationorder.ministries' text='Ministries'></spring:message></th>
+						<th style="width: 250px; text-align: center;"><spring:message code='group.rotationorder.answeringDate' text='Answering Date'></spring:message></th>
+						<th style="width: 250px; text-align: center;"><spring:message code='group.rotationorder.submissionDate' text='Final Submission Date'></spring:message></th>
+					</tr>
+				</thead>
 				
 				<c:if test="${!(empty dates) }">
 					<c:set var="count" value="1"></c:set>
-					<c:forEach items="${dates}" var="i">
+					<c:forEach items="${dates}" var="i" varStatus="pageCount">
 						<c:if test="${count==i.rowId or count > i.rowId}">
 							<tr><td colspan="12">&nbsp;</td></tr>
 						</c:if>
-						<tr>
-							<td>${i.group}</td>
-							<td>
+						<c:choose>							
+							<c:when test="${pageCount.count mod 3 == 0 }">
+								<tr class="page-break">
+							</c:when>
+							<c:otherwise>
+								<tr>
+							</c:otherwise>
+						</c:choose>
+						
+							<td style="width: 40px; text-align: center;">${i.group}</td>
+							<td style="width: 430px;">
 							<c:forEach items= "${i.ministries}" var="j" varStatus="cnt">
 							(${i.numberOfMinisteries[cnt.count-1]}) ${j}
 								<br>
 							</c:forEach> </td>
-							<td style="width: 130px">
+							<td style="width: 150px; text-align: justify;">
 							<c:forEach items= "${i.answeringDates}" var="k">
 								${k}
 								<br>
 							</c:forEach>
 							</td>
-							<td style="width: 130px">
+							<td style="width: 180px; text-align: justify;">
 							<c:forEach items= "${i.finalSubmissionDates}" var="l">
 								${l}
 								<br>
