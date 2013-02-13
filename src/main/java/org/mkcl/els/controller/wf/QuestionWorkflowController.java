@@ -242,58 +242,58 @@ public class QuestionWorkflowController  extends BaseController{
 		binder.registerCustomEditor(SubDepartment.class, new BaseEditor(
 				new SubDepartment()));
 		/**** Supporting Member ****/
-		binder.registerCustomEditor(List.class, "SupportingMember",
-				new CustomCollectionEditor(List.class) {
-			@Override
-			protected Object convertElement(
-					final Object element) {
-				String id = null;
-
-				if (element instanceof String) {
-					id = (String) element;
-				}
-				return id != null ? SupportingMember
-						.findById(SupportingMember.class,
-								Long.valueOf(id))
-								: null;
-			}
-		});
+//		binder.registerCustomEditor(List.class, "SupportingMember",
+//				new CustomCollectionEditor(List.class) {
+//			@Override
+//			protected Object convertElement(
+//					final Object element) {
+//				String id = null;
+//
+//				if (element instanceof String) {
+//					id = (String) element;
+//				}
+//				return id != null ? SupportingMember
+//						.findById(SupportingMember.class,
+//								Long.valueOf(id))
+//								: null;
+//			}
+//		});
 
 		/**** Clubbed Entity ****/
-		binder.registerCustomEditor(List.class, "ClubbedEntity",
-				new CustomCollectionEditor(List.class) {
-			@Override
-			protected Object convertElement(
-					final Object element) {
-				String id = null;
-
-				if (element instanceof String) {
-					id = (String) element;
-				}
-				return id != null ? ClubbedEntity
-						.findById(ClubbedEntity.class,
-								Long.valueOf(id))
-								: null;
-			}
-		});
+//		binder.registerCustomEditor(List.class, "ClubbedEntity",
+//				new CustomCollectionEditor(List.class) {
+//			@Override
+//			protected Object convertElement(
+//					final Object element) {
+//				String id = null;
+//
+//				if (element instanceof String) {
+//					id = (String) element;
+//				}
+//				return id != null ? ClubbedEntity
+//						.findById(ClubbedEntity.class,
+//								Long.valueOf(id))
+//								: null;
+//			}
+//		});
 
 		/**** Referenced Entity ****/
-		binder.registerCustomEditor(List.class, "ReferencedEntity",
-				new CustomCollectionEditor(List.class) {
-			@Override
-			protected Object convertElement(
-					final Object element) {
-				String id = null;
-
-				if (element instanceof String) {
-					id = (String) element;
-				}
-				return id != null ? ReferencedEntity
-						.findById(ReferencedEntity.class,
-								Long.valueOf(id))
-								: null;
-			}
-		});
+//		binder.registerCustomEditor(List.class, "ReferencedEntity",
+//				new CustomCollectionEditor(List.class) {
+//			@Override
+//			protected Object convertElement(
+//					final Object element) {
+//				String id = null;
+//
+//				if (element instanceof String) {
+//					id = (String) element;
+//				}
+//				return id != null ? ReferencedEntity
+//						.findById(ReferencedEntity.class,
+//								Long.valueOf(id))
+//								: null;
+//			}
+//		});
 		//----------21012013--------------------------
 		/**** Referenced Question for half hour discussion from question ****/
 		binder.registerCustomEditor(Question.class, new BaseEditor(new Question()));
@@ -391,6 +391,7 @@ public class QuestionWorkflowController  extends BaseController{
 				bufferFirstNamesFirst.deleteCharAt(bufferFirstNamesFirst.length()-1);
 				model.addAttribute("supportingMembersName", bufferFirstNamesFirst.toString());
 				model.addAttribute("supportingMembers",supportingMembers);
+				model.addAttribute("selectedSupportingMembersIds",selectedSupportingMembers);
 				memberNames=primaryMemberName+","+bufferFirstNamesFirst.toString();
 				model.addAttribute("memberNames",memberNames);
 			}else{
@@ -770,6 +771,42 @@ public class QuestionWorkflowController  extends BaseController{
 	public String updateMyTask(final ModelMap model,
 			final HttpServletRequest request,
 			final Locale locale,@Valid @ModelAttribute("domain") final Question domain,final BindingResult result) {
+		/**** Binding Supporting Members ****/
+		String[] strSupportingMembers=request.getParameterValues("supportingMembers");
+		if(strSupportingMembers!=null){
+			if(strSupportingMembers.length>0){
+				List<SupportingMember> supportingMembers=new ArrayList<SupportingMember>();
+				for(String i:strSupportingMembers){
+					SupportingMember supportingMember=SupportingMember.findById(SupportingMember.class, Long.parseLong(i));
+					supportingMembers.add(supportingMember);
+				}
+				domain.setSupportingMembers(supportingMembers);
+			}
+		}
+		String[] strClubbedEntities= request.getParameterValues("clubbedEntities");
+		if(strClubbedEntities!=null){
+			if(strClubbedEntities.length>0){
+				List<ClubbedEntity> clubbedEntities=new ArrayList<ClubbedEntity>();
+				for(String i:strClubbedEntities){
+					ClubbedEntity clubbedEntity=ClubbedEntity.findById(ClubbedEntity.class, Long.parseLong(i));
+					clubbedEntities.add(clubbedEntity);
+				}
+				domain.setClubbedEntities(clubbedEntities);
+			}
+		}
+		String[] strReferencedEntities= request.getParameterValues("referencedEntities");
+		if(strReferencedEntities!=null){
+			if(strReferencedEntities.length>0){
+				List<ReferencedEntity> referencedEntities=new ArrayList<ReferencedEntity>();
+				for(String i:strReferencedEntities){
+					ReferencedEntity referencedEntity=ReferencedEntity.findById(ReferencedEntity.class, Long.parseLong(i));
+					referencedEntities.add(referencedEntity);
+				}
+				domain.setReferencedEntities(referencedEntities);
+			}
+		}
+		
+		
 		
 		/**** Workflowdetails ****/
 		String strWorkflowdetails=(String) request.getParameter("workflowdetails");
