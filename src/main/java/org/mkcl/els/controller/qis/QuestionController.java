@@ -1881,8 +1881,8 @@ public class QuestionController extends GenericController<Question>{
 
 					model.addAttribute("numberOfSupportingMembersComparatorHTML", numberOfSupportingMembersComparator);
 
-					CustomParameter dateFormatS = CustomParameter.findByFieldName(CustomParameter.class, "name", "SERVER_DATETIMEFORMAT", null);
-					CustomParameter dateFormatDB = CustomParameter.findByFieldName(CustomParameter.class, "name", "DB_DATETIMEFORMAT", null);
+					CustomParameter dateFormatS = CustomParameter.findByFieldName(CustomParameter.class, "name", "SERVER_DATETIMEFORMAT", "");
+					CustomParameter dateFormatDB = CustomParameter.findByFieldName(CustomParameter.class, "name", "DB_DATETIMEFORMAT", "");
 
 					if(dateFormatS != null && dateFormatDB != null ){
 						Date startDate = FormaterUtil.formatStringToDate(selectedSession.getParameter("questions_halfhourdiscussion_from_question_submissionStartDate"),dateFormatDB.getValue());
