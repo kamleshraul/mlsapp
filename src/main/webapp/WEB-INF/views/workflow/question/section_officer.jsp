@@ -807,7 +807,7 @@
 	
 	<c:if test="${(selectedQuestionType == 'questions_starred' || 
 				selectedQuestionType == 'questions_unstarred' ||
-				selectedQuestionType == 'questions_shortnotice')}">
+				selectedQuestionType == 'questions_shortnotice') && internalStatusType != 'question_final_rejection' }">
 		<p>
 		<label class="small"><spring:message code="question.lastDateOfAnswerReceiving" text="Last date of receiving answer"/></label>
 		<form:input path="lastDateOfAnswerReceiving" cssClass="datetimemask sText"/>
