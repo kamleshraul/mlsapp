@@ -25,7 +25,6 @@ import javax.servlet.http.HttpServletRequest;
 
 import org.mkcl.els.common.util.ApplicationConstants;
 import org.mkcl.els.common.util.FormaterUtil;
-import org.mkcl.els.common.util.Transliteration;
 import org.mkcl.els.common.vo.AutoCompleteVO;
 import org.mkcl.els.common.vo.ConstituencyCompleteVO;
 import org.mkcl.els.common.vo.DynamicSelectVO;
@@ -1637,18 +1636,6 @@ public class ReferenceController extends BaseController {
 		}
 		
 		return masterVOs;
-	}
+	}	
 	
-	/**** English To Marathi Transliteration ****/
-	@RequestMapping(value="/transliterate",method=RequestMethod.GET)
-	public @ResponseBody Reference engToMarathi(final HttpServletRequest request){
-		String input=request.getParameter("input");
-		String output="";
-		if(input!=null){
-			if(output.isEmpty()){
-				output=Transliteration.transliterateToMarathi(input);
-			}
-		}
-		return new Reference(output,output);
-	}
 }
