@@ -141,7 +141,7 @@ public class GroupRepository extends BaseRepository<Group, Long> {
 		List results=this.em().createNativeQuery(query).getResultList();
 		List<QuestionDatesVO> questionDatesVOs=new ArrayList<QuestionDatesVO>();
 		CustomParameter dbDateFormat=CustomParameter.findByName(CustomParameter.class,"DB_DATEFORMAT", "");
-		CustomParameter dayOfWeekDateFormat=CustomParameter.findByName(CustomParameter.class,"WEEKDAY_FORMAT", "");
+		CustomParameter dayOfWeekDateFormat=CustomParameter.findByName(CustomParameter.class,"DAY_OF_WEEK_FORMAT", "");
 		try {
 			if(dbDateFormat!=null&&dayOfWeekDateFormat!=null){
 				SimpleDateFormat dbFormat=FormaterUtil.getDateFormatter(dbDateFormat.getValue(), locale);
