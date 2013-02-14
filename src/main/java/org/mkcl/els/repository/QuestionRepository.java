@@ -1136,19 +1136,28 @@ public class QuestionRepository extends BaseRepository<Question, Long> {
 	}
 
 	/**
-	 * Find.
+	 * Finds a Question excluding the current deviceType.
 	 *
 	 * @param session the session
 	 * @param number the number
 	 * @return the question
 	 */
-	public Question find(final Session session, final Integer number, Long deviceTypeId) {
+	public Question findQuestionExcludingGivenDeviceType(final Session session, final Integer number, Long deviceTypeId) {
 		DeviceType deviceType = DeviceType.findById(DeviceType.class, deviceTypeId);
 		Search search = new Search();
+		Question question;
 		search.addFilterEqual("session", session);
 		search.addFilterEqual("number", number);
-		search.addFilterEqual("type", deviceType);
-		return this.searchUnique(search);
+		search.addFilterNotEqual("type", deviceType);
+		try{
+			question = this.searchUnique(search);
+			if(question.getStatus().getType().equals(ApplicationConstants.QUESTION_FINAL_ADMISSION)){
+				return question;
+			}
+		}catch(Exception e){
+			question = null;
+		}
+		return question;
 	}
 	
 	@SuppressWarnings({ "rawtypes"})
