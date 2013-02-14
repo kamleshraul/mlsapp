@@ -483,7 +483,7 @@
 		<input type="hidden" id="confirmDeleteMessage" name="confirmDeleteMessage" value="<spring:message code='generic.confirmDeleteMessage' text='Do you want to delete the row with Id: '></spring:message>" disabled="disabled">
 		<input type="hidden" id="allowedGroups" name="allowedGroups" value="${allowedGroups }">
 		<input type="hidden" id="gridURLParams_ForNew" name="gridURLParams_ForNew" /> 
-		
+		<input type="hidden" id="chartAnsweringDate" name="chartAnsweringDate" value="-">
 		</div> 		
 </body>
 </html>
