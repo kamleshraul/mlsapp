@@ -834,7 +834,7 @@ private static Session compareSession(List<Session> sessionList, final Session s
 			
 			minDiff=((Session)sessions[0]).getEndDate().getTime()-session.getStartDate().getTime();
 		
-			for(int i = 1; i < sessions.length; i++){
+			for(int i = 0; i < sessions.length; i++){
 				
 				long tempTimeDifference = (((Session)sessions[i]).getEndDate().getTime()-session.getStartDate().getTime()); 
 				
