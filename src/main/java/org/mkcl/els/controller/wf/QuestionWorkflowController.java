@@ -978,6 +978,8 @@ public class QuestionWorkflowController  extends BaseController{
 
 
 	private void performActionOnConvertToUnstarredAndAdmit(Question domain) {
+		Status finalStatus=Status.findByType(ApplicationConstants.QUESTION_FINAL_CONVERT_TO_UNSTARRED_AND_ADMIT, domain.getLocale());
+		domain.setStatus(finalStatus);
 		List<ClubbedEntity> clubbedEntities=domain.getClubbedEntities();
 		if(clubbedEntities!=null){
 			String subject=null;
@@ -1066,6 +1068,8 @@ public class QuestionWorkflowController  extends BaseController{
 	}
 
 	private void performActionOnRejection(Question domain) {
+		Status finalStatus=Status.findByType(ApplicationConstants.QUESTION_FINAL_REJECTION, domain.getLocale());
+		domain.setStatus(finalStatus);
 		List<ClubbedEntity> clubbedEntities=domain.getClubbedEntities();
 		if(clubbedEntities!=null){
 			String subject=null;
@@ -1108,8 +1112,8 @@ public class QuestionWorkflowController  extends BaseController{
 	}	
 
 	private void performActionOnAdmission(Question domain) {
-		//Question question=Question.findById(Question.class ,domain.getId());
-
+		Status finalStatus=Status.findByType(ApplicationConstants.QUESTION_FINAL_ADMISSION, domain.getLocale());
+		domain.setStatus(finalStatus);
 		List<ClubbedEntity> clubbedEntities=domain.getClubbedEntities();
 		if(clubbedEntities!=null){
 			String subject=null;
