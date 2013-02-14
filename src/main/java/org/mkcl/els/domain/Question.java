@@ -427,8 +427,8 @@ public class Question extends BaseDomain implements Serializable {
     * @param number the number
     * @return the question
     */
-    public static Question find(final Session session, final Integer number, Long deviceTypeId) {
-    	return Question.getQuestionRepository().find(session, number, deviceTypeId);
+    public static Question findQuestionExcludingGivenDeviceType(final Session session, final Integer number, Long deviceTypeId) {
+    	return Question.getQuestionRepository().findQuestionExcludingGivenDeviceType(session, number, deviceTypeId);
     }
     
     /**
