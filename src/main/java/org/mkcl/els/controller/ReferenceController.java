@@ -1440,12 +1440,12 @@ public class ReferenceController extends BaseController {
 					
 					if(currentSession != null){
 						prevSession = Session.findPreviousSession(currentSession);
-			    		question = Question.find(currentSession, qNumber, deviceTypeId);
+			    		question = Question.findQuestionExcludingGivenDeviceType(currentSession, qNumber, deviceTypeId);
 			    	}
 					
 			    	if(question == null){
 			    		if(prevSession != null){
-			    			question = Question.find(prevSession, qNumber, deviceTypeId);
+			    			question = Question.findQuestionExcludingGivenDeviceType(prevSession, qNumber, deviceTypeId);
 			    		}
 			    	}
 			    	
