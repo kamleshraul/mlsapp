@@ -517,13 +517,13 @@
 				<p>
 					<label class="small"><spring:message code="session.deviceType.questions_starred_noOfRoundsMemberBallotAttendance" text="No. of Rounds In Member Ballot Attendance" /></label>
 					<c:set var="key" value="questions_starred_noOfRoundsMemberBallotAttendance"></c:set>
-					<input type="text" class="sText" id="questions_starred_noOfRoundsMemberBallotAttendance" name="questions_starred_noOfRoundsMemberBallotAttendance" value="${questions_starred_noOfroundsmemberballotattendance}" />
+					<input type="text" class="sText" id="questions_starred_noOfRoundsMemberBallotAttendance" name="questions_starred_noOfRoundsMemberBallotAttendance" value="${questions_starred_noofroundsmemberballotattendance}" />
 				</p>
 				
 				<p>
 					<label class="small"><spring:message code="session.deviceType.questions_starred_noOfRoundsMemberBallot" text="No. of Rounds In Member Ballot" /></label>
 					<c:set var="key" value="questions_starred_noOfRoundsMemberBallot"></c:set>
-					<input type="text" class="sText" id="questions_starred_noOfRoundsMemberBallot" name="questions_starred_noOfRoundsMemberBallot" value="${questions_starred_noOfroundsmemberballot}" />
+					<input type="text" class="sText" id="questions_starred_noOfRoundsMemberBallot" name="questions_starred_noOfRoundsMemberBallot" value="${questions_starred_noofroundsmemberballot}" />
 				</p>			
 				
 				<p>
