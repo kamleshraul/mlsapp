@@ -352,75 +352,69 @@ javax.servlet.http.HttpServletRequest)
         Session domain = Session.findById(Session.class, id);
         Map<String, String> parameters;
         
-		if(validateSessionDeviceTypeConfig(session, result, model, request, redirectAttributes)){
+		//to validate validateSessionDeviceTypeConfig(session, result, model, request, redirectAttributes)){
 	        	
-	        parameters = domain.getParameters();
-	        
-	    	@SuppressWarnings("rawtypes")
-			Enumeration paramNames = request.getParameterNames();
-			if (paramNames != null) {
-				while (paramNames.hasMoreElements()) {
+        parameters = domain.getParameters();
+        
+    	@SuppressWarnings("rawtypes")
+		Enumeration paramNames = request.getParameterNames();
+		if (paramNames != null) {
+			while (paramNames.hasMoreElements()) {
+				
+				String name = (String) paramNames.nextElement();
+				if(!(name.equalsIgnoreCase("id")) && !(name.equalsIgnoreCase("version")) && !(name.equalsIgnoreCase("locale")) && !(name.equalsIgnoreCase("deviceTypeSelected"))){
 					
-					String name = (String) paramNames.nextElement();
-					if(!(name.equalsIgnoreCase("id")) && !(name.equalsIgnoreCase("version")) && !(name.equalsIgnoreCase("locale")) && !(name.equalsIgnoreCase("deviceTypeSelected"))){
+					String[] tempValue = request.getParameterValues(name);
+					String value= "";
+					
+					for(int i = 0; i < tempValue.length; i++){
 						
-						String[] tempValue = request.getParameterValues(name);
-						String value= "";
-						
-						for(int i = 0; i < tempValue.length; i++){
+						if((i == (tempValue.length - 1))){
 							
-							if((i == (tempValue.length - 1))){
-								
-								if(!tempValue[i].isEmpty()){
-									value += tempValue[i];
-								}
-							}else{
-								value += tempValue[i] + "#";
+							if(!tempValue[i].isEmpty()){
+								value += tempValue[i];
 							}
+						}else{
+							value += tempValue[i] + "#";
 						}
-						
-						//System.out.println(name+": "+value);
-						
-						if(value.isEmpty()){
-							if(parameters.containsKey(name)){
-								parameters.remove(name);
-							}
+					}
+					
+					//System.out.println(name+": "+value);
+					
+					if(value.isEmpty()){
+						if(parameters.containsKey(name)){
+							parameters.remove(name);
 						}
-							
-						if ((value != null)) {
-							if(!(value.isEmpty())){
-								parameters.put(name, value);
-							}
+					}
+						
+					if ((value != null)) {
+						if(!(value.isEmpty())){
+							parameters.put(name, value);
 						}
 					}
 				}
 			}
-	    	   	
-	    	domain.setParameters(parameters);
-	    	domain.merge();
-	    	
-	    	redirectAttributes.addFlashAttribute("type", "success");
-	        //this is done so as to remove the bug due to which update message appears even though there
-	        //is a fresh new/edit request i.e after creating/updating records if we click on
-	        //new /edit then success message appears
-	        request.getSession().setAttribute("type","success");
-	        redirectAttributes.addFlashAttribute("msg", "create_success");
-	        
-	    	returnUrl = "redirect:/" + returnUrl+ "?deviceTypeSelected="+ deviceTypeSelected;
-		}else{
-			/*
-			 * model.addAttribute("type", "error");
-			 * model.addAttribute("msg", "create_failed");
-			 */
-			redirectAttributes.addFlashAttribute("type", "error");
-	        //this is done so as to remove the bug due to which update message appears even though there
-	        //is a fresh new/edit request i.e after creating/updating records if we click on
-	        //new /edit then success message appears
+		}
+    	   	
+    	domain.setParameters(parameters);
+    	domain.merge();
+    	
+    	redirectAttributes.addFlashAttribute("type", "success");
+        //this is done so as to remove the bug due to which update message appears even though there
+        //is a fresh new/edit request i.e after creating/updating records if we click on
+        //new /edit then success message appears
+        request.getSession().setAttribute("type","success");
+        redirectAttributes.addFlashAttribute("msg", "create_success");
+        
+    	returnUrl = "redirect:/" + returnUrl+ "?deviceTypeSelected="+ deviceTypeSelected;
+		/*}else{
+			
+			
 	        request.getSession().setAttribute("type","error");
 	        redirectAttributes.addFlashAttribute("msg", "create_failed");
 	    	
 	    	returnUrl = "redirect:/" + returnUrl+ "?deviceTypeSelected="+ deviceTypeSelected;
-		}
+		}*/
     	    	    	    	
     	return returnUrl;    	
     }
