@@ -46,8 +46,7 @@
 							<c:otherwise>
 								<tr>
 							</c:otherwise>
-						</c:choose>
-					
+						</c:choose>					
 							<td>${i.group }</td>
 							<td>${i.dayOfWeek }</td>
 							<td>${i.answeringDate }</td>
