@@ -10,6 +10,7 @@ public class RotationOrderVO {
 	public List<String> ministries;
 	public List<String> numberOfMinisteries;
 	public String rotationOrderHeader;
+	public String rotationOrderCover;
 	public String rotationOrderFooter;
 	private int rowId;
 	public String getGroup() {
@@ -59,6 +60,12 @@ public class RotationOrderVO {
 	}
 	public void setRotationOrderFooter(String rotationOrderFooter) {
 		this.rotationOrderFooter = rotationOrderFooter;
+	}
+	public String getRotationOrderCover() {
+		return rotationOrderCover;
+	}
+	public void setRotationOrderCover(String rotationOrderCover) {
+		this.rotationOrderCover = rotationOrderCover;
 	}
 		
 	
