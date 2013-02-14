@@ -35,7 +35,7 @@
 			$("#subDepartment").html(subDepartmentText);			
 			}else{
 				$("#subDepartment").empty();
-				var subDepartmentText="<option value='' selected='selected'>----"+$("#pleaseSelectMsgMessage").val()+"----</option>";				
+				var subDepartmentText="<option value='' selected='selected'>----"+$("#pleaseSelectMsg").val()+"----</option>";				
 				$("#subDepartment").html(subDepartmentText);				
 			}
 		});
