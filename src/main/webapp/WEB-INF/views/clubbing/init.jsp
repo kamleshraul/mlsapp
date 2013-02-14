@@ -391,7 +391,7 @@
 						for(var i=0;i<data.length;i++){
 							var textTemp="";
 							var textTemp=textTemp+"<tr>"+
-									"<td class='expand'>"+
+									"<td class='expand' style='width: 80px; max-width: 80px;'>"+
 									"<span id='number"+data[i].id+"'>"+
 									"<a onclick='viewDetail("+data[i].id+");' style='margin:10px;'>"+									
 									data[i].number+"</a></span>"
@@ -413,9 +413,9 @@
 							textTemp+="</span>";					
 							+"</td>";
 						
-							textTemp+="<td class='expand'>"+data[i].subject+"</td>";
+							textTemp+="<td class='expand' style='width: 300px; max-width: 300px;'>"+data[i].subject+"</td>";
 									
-							textTemp+="<td class='expand'>"+data[i].questionText
+							textTemp+="<td class='expand' style='width: 420px; max-width: 420px;'>"+data[i].questionText
 								+"<br/>"
 								+data[i].sessionYear+","+data[i].sessionType+","+data[i].deviceType+"<br>"
 								+"<strong>"+data[i].formattedGroup+"</span>,"+data[i].ministry+"<br>"
@@ -621,7 +621,6 @@ text-decoration: underline;
 </style>
 </head>
 <body>
-
 <div class="commandbarContent" id="advancedSearch">
 
 			<c:choose>
