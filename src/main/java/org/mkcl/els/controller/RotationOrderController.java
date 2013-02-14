@@ -16,6 +16,7 @@ import org.mkcl.els.domain.Group;
 import org.mkcl.els.domain.HouseType;
 import org.mkcl.els.domain.Ministry;
 import org.mkcl.els.domain.QuestionDates;
+import org.mkcl.els.domain.Session;
 import org.mkcl.els.domain.SessionType;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
@@ -57,7 +58,7 @@ public class RotationOrderController {
 	            HouseType houseType=HouseType.findByFieldName(HouseType.class,"type",strHouseType, locale.toString());
 	            SessionType sessionType=SessionType.findById(SessionType.class,Long.parseLong(strSessionType));
 	            Integer sessionYear=Integer.parseInt(strSessionYear);
-	            //Session session= Session.findSessionByHouseTypeSessionTypeYear(houseType, sessionType, sessionYear);
+	            Session session= Session.findSessionByHouseTypeSessionTypeYear(houseType, sessionType, sessionYear);
 	           
 	            CustomParameter dbDateFormat=CustomParameter.findByName(CustomParameter.class,"ROTATION_ORDER_DATE_FORMAT", "");
 	            if(dbDateFormat!=null){
@@ -103,9 +104,9 @@ public class RotationOrderController {
 	            	rotationOrderVO.setFinalSubmissionDates(finalSubmissionDates);
 	            	rotationOrderVOs.add(rotationOrderVO);
 	            }
-	            /*model.addAttribute("rotationOrderHeader", session.getParameter("questions_starred_rotationOrderHeader"));
+	            model.addAttribute("rotationOrderHeader", session.getParameter("questions_starred_rotationOrderHeader"));
 	            model.addAttribute("rotationOrderCover", session.getParameter("questions_starred_rotationOrderCover"));
-	            model.addAttribute("rotationOrderFooter", session.getParameter("questions_starred_rotationOrderFooter"));*/
+	            model.addAttribute("rotationOrderFooter", session.getParameter("questions_starred_rotationOrderFooter"));
 	            model.addAttribute("dates", rotationOrderVOs);
 	        }
 		return "rotationorder/viewrotationorder";
