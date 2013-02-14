@@ -70,7 +70,7 @@ public class RotationOrderController {
 	            
 	            for(Group g:groups){
 	            	RotationOrderVO rotationOrderVO= new RotationOrderVO();
-	            	List<Ministry> ministries=g.getMinistries();
+	            	List<Ministry> ministries=Group.findMinistriesByPriority(g);
 	            	List<QuestionDates> dates= g.getQuestionDates();
 	            	List<String> ministriesStr= new ArrayList<String>();
 	            	List<String> numberOfMinisteries= new ArrayList<String>();
