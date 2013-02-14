@@ -74,11 +74,21 @@
 					var parameters = parameters + "&group=" + $("#selectedGroup").val();
 					var resourceURL = 'chart/init?' + parameters;
 					showTabByIdAndUrl('chart_tab', resourceURL);
-			});		
+			});	
+			$("#selectedAnsweringDate").change(function(){
+				$("#chartAnsweringDate").val($(this).val());
+			});	
 		});
 
 		function view_chart() {
 			$.blockUI({ message: '<img src="./resources/images/waitAnimated.gif" />' });
+			var chartansweringDate="";
+			if($("#chartAnsweringDate").val()=='-'){
+				chartansweringDate=$("#selectedAnsweringDate").val();
+			}else{
+				chartansweringDate=$("#chartAnsweringDate").val();
+				$("#selectedAnsweringDate").val(chartansweringDate);
+			}
 			var parameters = "houseType="+$("#selectedHouseType").val()
 			 	+"&sessionYear="+$("#selectedSessionYear").val()
 			 	+"&sessionType="+$("#selectedSessionType").val()
@@ -86,7 +96,7 @@
 			 	+"&group="+$("#selectedGroup").val()
 			 	+"&status="+$("#selectedStatus").val()
 			 	+"&role="+$("#srole").val() 
-			 	+ "&answeringDate=" + $("#selectedAnsweringDate").val();
+			 	+ "&answeringDate=" + chartansweringDate;
 			var resourceURL = 'chart/view?' + parameters;
 			$.get(resourceURL,function(data){
 				$("#chartResultDiv").empty();
