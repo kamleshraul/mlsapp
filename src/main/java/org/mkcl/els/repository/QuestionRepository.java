@@ -1153,6 +1153,8 @@ public class QuestionRepository extends BaseRepository<Question, Long> {
 			question = this.searchUnique(search);
 			if(question.getStatus().getType().equals(ApplicationConstants.QUESTION_FINAL_ADMISSION)){
 				return question;
+			}else{
+				return null;
 			}
 		}catch(Exception e){
 			question = null;
