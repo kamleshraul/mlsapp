@@ -81,8 +81,20 @@ public class RotationOrderController {
 	            	List<String> answeringDates= new ArrayList<String>();
 	            	List<String> finalSubmissionDates=new ArrayList<String>();
 	            	for(QuestionDates d:dates){
-	            		answeringDates.add(dbFormat.format(d.getAnsweringDate()));
-	            		finalSubmissionDates.add(dbFormat.format(d.getFinalSubmissionDate()));
+	            		//Added the following code to solve the marathi month and day issue
+	            		String[] strAnsweringDates=dbFormat.format(d.getAnsweringDate()).split(",");
+	            		String answeringDay=FormaterUtil.getDayInMarathi(strAnsweringDates[0],locale.toString());
+	            		String[] strAnsweringMonth=strAnsweringDates[1].split(" ");
+	            		String answeringMonth=FormaterUtil.getMonthInMarathi(strAnsweringMonth[1], locale.toString());
+	            		
+	            		answeringDates.add(answeringDay+","+strAnsweringMonth[0]+" "+ answeringMonth +","+strAnsweringDates[2]);
+	            		
+	            		String[] strSubmissionDates=dbFormat.format(d.getFinalSubmissionDate()).split(",");
+	            		String submissionDay=FormaterUtil.getDayInMarathi(strSubmissionDates[0],locale.toString());
+	            		String[] strSubmissionMonth=strSubmissionDates[1].split(" ");
+	            		String submissionMonth=FormaterUtil.getMonthInMarathi(strSubmissionMonth[1], locale.toString());
+	            		
+	            		finalSubmissionDates.add(submissionDay+","+strSubmissionMonth[0]+" "+ submissionMonth +","+strSubmissionDates[2]);
 	            	}
 	            	rotationOrderVO.setGroup(numberFormat.format(g.getNumber()));
 	            	rotationOrderVO.setMinistries(ministriesStr);
