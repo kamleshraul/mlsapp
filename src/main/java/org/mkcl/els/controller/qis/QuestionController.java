@@ -1173,9 +1173,9 @@ public class QuestionController extends GenericController<Question>{
 					Session prevSession = Session.findPreviousSession(currentSession);
 
 					//---------------------21012013
-					refQuestion = Question.find(currentSession, qNumber, domain.getType().getId());
+					refQuestion = Question.findQuestionExcludingGivenDeviceType(currentSession, qNumber, domain.getType().getId());
 					if(refQuestion == null){
-						refQuestion = Question.find(prevSession, qNumber, domain.getType().getId());
+						refQuestion = Question.findQuestionExcludingGivenDeviceType(prevSession, qNumber, domain.getType().getId());
 					}
 					//-------------------------------------------------
 				}
@@ -1474,9 +1474,9 @@ public class QuestionController extends GenericController<Question>{
 					Session prevSession = Session.findPreviousSession(currentSession);
 
 					//---------------------21012013
-					refQuestion = Question.find(currentSession, qNumber, domain.getType().getId());
+					refQuestion = Question.findQuestionExcludingGivenDeviceType(currentSession, qNumber, domain.getType().getId());
 					if(refQuestion == null){
-						refQuestion = Question.find(prevSession, qNumber, domain.getType().getId());
+						refQuestion = Question.findQuestionExcludingGivenDeviceType(prevSession, qNumber, domain.getType().getId());
 					}
 					//-------------------------------------------------
 				}				
