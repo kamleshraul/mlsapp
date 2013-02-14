@@ -1296,12 +1296,12 @@ public class QuestionController extends GenericController<Question>{
 						if(domain.getMinistry()==null){
 							result.rejectValue("ministry","MinistryEmpty");
 						}
-						if(domain.getDepartment()==null){
-							result.rejectValue("department","DepartmentEmpty");
-						}
-						if(domain.getSubDepartment()==null){
-							result.rejectValue("subDepartment","SubDepartmentEmpty");
-						}
+//						if(domain.getDepartment()==null){
+//							result.rejectValue("department","DepartmentEmpty");
+//						}
+//						if(domain.getSubDepartment()==null){
+//							result.rejectValue("subDepartment","SubDepartmentEmpty");
+//						}
 						validateNumberOfSupportingMembersForHalfHourDiscussionFromQuestion(domain, result, request);
 
 					}
