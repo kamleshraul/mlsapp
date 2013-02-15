@@ -73,7 +73,7 @@
 	</h2>
 	<form:errors path="version" cssClass="validationError" cssStyle="color:red;"/>
 	<div>
-	<input type="button" class="button" id="addPosition" value="<spring:message code='member.other.addPosition' text='Add Position'></spring:message>">
+	<input type="button" class="button" id="addPosition" value="<spring:message code='member.other.addPosition' text='Add Position'></spring:message>" style="display:none;">
 	<input type="hidden" id="positionCount" name="positionCount" value="${positionCount}"/>
 	
 	<input type="hidden" id="deletePositionMessage" name="deletePositionMessage" value="<spring:message code='member.other.deletePosition' text='Delete Position'></spring:message>" disabled="disabled"/>
