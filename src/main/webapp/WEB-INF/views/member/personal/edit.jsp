@@ -228,7 +228,6 @@
 				}								
 			}else{
 				if($("#family"+spouseIndex).length>0){
-				//console.log(spouseIndex);
 				deleteFamily(spouseIndex,"continous");
 				familyCount--;
 				}
