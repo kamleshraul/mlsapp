@@ -320,15 +320,22 @@
 	    $("#changeInternalStatus").change(function(){
 		    var value=$(this).val();
 		    if(value!='-'){
-			    //var statusType=$("#internalStatusMaster option[value='"+value+"']").text();
-			    loadActors(value);			    
+			    //var statusType=$("#internalStatusMaster option[value='"+value+"']").text();			    
+			    loadActors(value);	
+			    $("#submit").attr("disabled","disabled");
+			    $("#startworkflow").removeAttr("disabled");		    
 		    }else{
 			    $("#actor").empty();
 			    $("#actorDiv").hide();
 			    $("#internalStatus").val($("#oldInternalStatus").val());
 			    $("#recommendationStatus").val($("#oldRecommendationStatus").val());
+			    $("#startworkflow").attr("disabled","disabled");
+			    $("#submit").removeAttr("disabled");
 			}		    
 	    });
+	    /**** On page Load ****/
+	    $("#startworkflow").attr("disabled","disabled");
+		$("#submit").removeAttr("disabled");
 	    /**** Put Up ****/
 		$("#startworkflow").click(function(e){
 			//removing <p><br></p>  from wysiwyg editor
@@ -831,7 +838,7 @@
 					||(internalStatusType=='question_system_assistantprocessed'&&selectedQuestionType=='questions_shortnotice')
 					||(internalStatusType=='question_system_assistantprocessed'&&selectedQuestionType=='questions_halfhourdiscussion_from_question')
 					||(internalStatusType=='question_system_assistantprocessed'&&selectedQuestionType=='questions_unstarred')}">		
-		<input id="startworkflow" type="button" value="<spring:message code='generic.startworkflow' text='Put Up Question'/>" class="butDef">
+		<input id="startworkflow" type="button" value="<spring:message code='question.putupquestion' text='Put Up Question'/>" class="butDef">
 		</c:if>
 	</p>
 	</div>
