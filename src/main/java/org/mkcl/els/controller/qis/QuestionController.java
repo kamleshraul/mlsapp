@@ -1343,8 +1343,8 @@ public class QuestionController extends GenericController<Question>{
 		/**** Checking if its submission request or normal update ****/
 		String operation=request.getParameter("operation");
 		/**** Question status will be complete if all mandatory fields have been filled ****/
-		if(domain.getHouseType()!=null||domain.getType()!=null||domain.getSession()!=null
-				||  domain.getPrimaryMember()!=null && domain.getMinistry()!=null &&
+		if(domain.getHouseType()!=null&&domain.getType()!=null&&domain.getSession()!=null
+				&& domain.getPrimaryMember()!=null && domain.getMinistry()!=null &&
 				domain.getGroup()!=null && (!domain.getSubject().isEmpty())
 				&&(!domain.getQuestionText().isEmpty())){			
 			if(operation!=null){
