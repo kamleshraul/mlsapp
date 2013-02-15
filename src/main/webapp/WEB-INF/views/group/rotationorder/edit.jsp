@@ -6,12 +6,12 @@
 	</title>
 	<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
 	<script type="text/javascript">
-	var count=${dateCount};
+	var count=$('#dateCount').val();
 	var linkId;	
 	$(document).ready(function(){
 		initControls();
 		
-		var recordId = ${domain.id};
+		var recordId = $('#domainId').val();
 		$('#key').val(recordId);	
 		
 		$(".datemask").mask("99/99/9999");
@@ -48,7 +48,7 @@
 			};			
 		};
 		
-		var y = ${domain.year};
+		var y = '${domain.year}';
 		$('#year').val(y.toString());
 		
 		$(".sOption").click(function(){
@@ -307,8 +307,7 @@
 				</td>
 			</tr>
 		</table>
-		<!-- <a class= "link" id="ajaxLink" href='#'> fancybox ajax</a> -->
-	</p>	
+		<!-- <a class= "link" id="ajaxLink" href='#'> fancybox ajax</a> -->	
 	<div class="fields">
 		<h2></h2>
 		<p class="tright">
@@ -319,6 +318,8 @@
 	<input type="hidden" name="dateCount" value="${dateCount}">
 	<input type="hidden" id="errorMsg" value='<spring:message code="group.rotationorder.errormsg"/>'>
 	<input type="hidden" id="key" name="key">
+	<input type="hidden" id="dateCount" value="${dateCount}" />
+	<input type="hidden" id="domainId" value="${domain.id}" />
 	<form:hidden path="version"/>
 	<form:hidden path="id"/>
 	<form:hidden path="locale"/>	
