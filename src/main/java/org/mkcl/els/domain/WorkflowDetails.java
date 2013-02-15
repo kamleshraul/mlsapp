@@ -88,6 +88,8 @@ public class WorkflowDetails extends BaseDomain implements Serializable{
 	@Column(length=30000)
 	private String subject;
 	
+	private String groupNumber;
+	
 	@Autowired
     private transient WorkflowDetailsRepository workflowDetailsRepository;
 	
@@ -315,4 +317,13 @@ public class WorkflowDetails extends BaseDomain implements Serializable{
 	public String getAssigneeUserGroupType() {
 		return assigneeUserGroupType;
 	}	
+
+	public String getGroupNumber() {
+		return groupNumber;
+	}
+
+	public void setGroupNumber(String groupNumber) {
+		this.groupNumber = groupNumber;
+	}		
+	
 }
