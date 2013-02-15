@@ -1002,8 +1002,7 @@ public class QuestionWorkflowController  extends BaseController{
 			}else{
 				questionText=domain.getQuestionText();
 			}
-			Status internalStatus=domain.getInternalStatus();
-			Status recommendationStatus=domain.getRecommendationStatus();
+			
 			Status newInternalStatus=Status.findByType(ApplicationConstants.QUESTION_PUTUP_NAMECLUBBING, domain.getLocale());
 			Status newRecommendationStatus=Status.findByType(ApplicationConstants.QUESTION_PUTUP_CONVERT_TO_UNSTARRED_AND_ADMIT, domain.getLocale());
 			DeviceType deviceType=DeviceType.findByType(ApplicationConstants.UNSTARRED_QUESTION,domain.getLocale());
@@ -1013,8 +1012,9 @@ public class QuestionWorkflowController  extends BaseController{
 				if(question.getInternalStatus().getType().equals(ApplicationConstants.QUESTION_SYSTEM_CLUBBED)){
 					question.setRevisedSubject(subject);
 					question.setRevisedQuestionText(questionText);
-					question.setInternalStatus(internalStatus);
-					question.setRecommendationStatus(recommendationStatus);
+					question.setStatus(finalStatus);
+					question.setInternalStatus(finalStatus);
+					question.setRecommendationStatus(finalStatus);
 					question.setType(deviceType);
 				}else{
 					question.setInternalStatus(newInternalStatus);
@@ -1092,16 +1092,15 @@ public class QuestionWorkflowController  extends BaseController{
 			}else{
 				questionText=domain.getQuestionText();
 			}
-			Status internalStatus=domain.getInternalStatus();
-			Status recommendationStatus=domain.getRecommendationStatus();
 			Status status=Status.findByType(ApplicationConstants.QUESTION_PUTUP_REJECTION, domain.getLocale());
 			for(ClubbedEntity i:clubbedEntities){
 				Question question=i.getQuestion();
 				if(question.getInternalStatus().getType().equals(ApplicationConstants.QUESTION_SYSTEM_CLUBBED)){
 					question.setRevisedSubject(subject);
 					question.setRevisedQuestionText(questionText);
-					question.setInternalStatus(internalStatus);
-					question.setRecommendationStatus(recommendationStatus);
+					question.setStatus(finalStatus);
+					question.setInternalStatus(finalStatus);
+					question.setRecommendationStatus(finalStatus);
 				}else{
 					question.setInternalStatus(status);
 					question.setRecommendationStatus(status);
@@ -1136,17 +1135,16 @@ public class QuestionWorkflowController  extends BaseController{
 			}else{
 				questionText=domain.getQuestionText();
 			}
-			Status internalStatus=domain.getInternalStatus();
-			Status recommendationStatus=domain.getRecommendationStatus();
 			Status status=Status.findByType(ApplicationConstants.QUESTION_PUTUP_NAMECLUBBING, domain.getLocale());
 			for(ClubbedEntity i:clubbedEntities){
 				Question question=i.getQuestion();
 				if(question.getInternalStatus().getType().equals(ApplicationConstants.QUESTION_SYSTEM_CLUBBED)){
 					question.setRevisedSubject(subject);
 					question.setRevisedQuestionText(questionText);
-					question.setInternalStatus(internalStatus);
-					question.setRecommendationStatus(recommendationStatus);
-				}else{
+					question.setStatus(finalStatus);
+					question.setInternalStatus(finalStatus);
+					question.setRecommendationStatus(finalStatus);
+				}else{					
 					question.setInternalStatus(status);
 					question.setRecommendationStatus(status);
 				}			
