@@ -160,23 +160,27 @@
 			showTabByIdAndUrl('details_tab','question/new?'+$("#gridURLParams").val());
 		}
 		/**** edit question ****/		
-		function editQuestion() {
+		/* function editQuestion() {
 			$("#cancelFn").val("editQuestion");						
 			var row=$('#key').val();
+			
 			if(row==null||row==''){
 				$.prompt($('#selectRowFirstMessage').val());
 				return false;
 			}else{
-			showTabByIdAndUrl('details_tab','question/'+row+'/edit?'+$("#gridURLParams").val());
+				showTabByIdAndUrl('details_tab','question/'+row+'/edit?'+$("#gridURLParams").val());
 			}			
-		}	
+		} */	
 		function editQuestion(row) {
-			$("#cancelFn").val("editQuestion");						
+			$("#cancelFn").val("editQuestion");
+			
+			row=$('#key').val();
+			
 			if(row==null||row==''){
-				$.prompt($('#selectRowFirstMessage').val());
+				$.prompt($('#selectRowFirstMessage').val());				
 				return false;
 			}else{
-			showTabByIdAndUrl('details_tab','question/'+row+'/edit?'+$("#gridURLParams").val());
+				showTabByIdAndUrl('details_tab','question/'+row+'/edit?'+$("#gridURLParams").val());
 			}			
 		}	
 		/**** double clicking record in grid handler ****/		
