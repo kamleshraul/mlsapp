@@ -872,7 +872,7 @@
 	
 	<c:if test="${selectedQuestionType == 'questions_shortnotice' and domain.dateOfAnsweringByMinister != null}">
 		<p>
-		<label class="small"><spring:message code="question.dateOfAnsweringByMinister" text="Answering Date"/></label>
+		<label class="small"><spring:message code="question.dateOfAnsweringByMinister" text="Date of Answering By Minister"/></label>
 		<form:input path="dateOfAnsweringByMinister" cssClass="datemask sText" readonly="true"/>
 		<form:errors path="dateOfAnsweringByMinister" cssClass="validationError"/>
 		</p>
