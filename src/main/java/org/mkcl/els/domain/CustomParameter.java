@@ -34,7 +34,7 @@ public class CustomParameter extends BaseDomain implements Serializable {
     private static final transient long serialVersionUID = 1L;
 
     /** The name. */
-    @Column(length = 100)
+    @Column(length = 1000)
     private String name;
 
     /** The value. */
