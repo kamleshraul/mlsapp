@@ -192,23 +192,23 @@ public class QuestionWorkflowController  extends BaseController{
 	@InitBinder(value = "domain")
 	private void initBinder(final WebDataBinder binder) {
 		/**** Date ****/
-		
-		 CustomParameter parameter = CustomParameter.findByName(
-	                CustomParameter.class, "SERVER_DATEFORMAT", "");
-	        if(this.getUserLocale().equals(new Locale("mr","IN")))
-	        {
-	            SimpleDateFormat dateFormat = new SimpleDateFormat(parameter.getValue(),new Locale("hi","IN"));
-	            dateFormat.setLenient(true);
-	            binder.registerCustomEditor(java.util.Date.class, new CustomDateEditor(
-	                    dateFormat, true));
-	        }
-	        else
-	        {
-	            SimpleDateFormat dateFormat = new SimpleDateFormat(parameter.getValue(),this.getUserLocale());
-	            dateFormat.setLenient(true);
-	            binder.registerCustomEditor(java.util.Date.class, new CustomDateEditor(
-	                    dateFormat, true));
-	        }
+
+		CustomParameter parameter = CustomParameter.findByName(
+				CustomParameter.class, "SERVER_DATEFORMAT", "");
+		if(this.getUserLocale().equals(new Locale("mr","IN")))
+		{
+			SimpleDateFormat dateFormat = new SimpleDateFormat(parameter.getValue(),new Locale("hi","IN"));
+			dateFormat.setLenient(true);
+			binder.registerCustomEditor(java.util.Date.class, new CustomDateEditor(
+					dateFormat, true));
+		}
+		else
+		{
+			SimpleDateFormat dateFormat = new SimpleDateFormat(parameter.getValue(),this.getUserLocale());
+			dateFormat.setLenient(true);
+			binder.registerCustomEditor(java.util.Date.class, new CustomDateEditor(
+					dateFormat, true));
+		}
 		/**** Member ****/
 		binder.registerCustomEditor(Member.class, new BaseEditor(
 				new Member()));		
@@ -243,58 +243,58 @@ public class QuestionWorkflowController  extends BaseController{
 		binder.registerCustomEditor(SubDepartment.class, new BaseEditor(
 				new SubDepartment()));
 		/**** Supporting Member ****/
-//		binder.registerCustomEditor(List.class, "SupportingMember",
-//				new CustomCollectionEditor(List.class) {
-//			@Override
-//			protected Object convertElement(
-//					final Object element) {
-//				String id = null;
-//
-//				if (element instanceof String) {
-//					id = (String) element;
-//				}
-//				return id != null ? SupportingMember
-//						.findById(SupportingMember.class,
-//								Long.valueOf(id))
-//								: null;
-//			}
-//		});
+		//		binder.registerCustomEditor(List.class, "SupportingMember",
+		//				new CustomCollectionEditor(List.class) {
+		//			@Override
+		//			protected Object convertElement(
+		//					final Object element) {
+		//				String id = null;
+		//
+		//				if (element instanceof String) {
+		//					id = (String) element;
+		//				}
+		//				return id != null ? SupportingMember
+		//						.findById(SupportingMember.class,
+		//								Long.valueOf(id))
+		//								: null;
+		//			}
+		//		});
 
 		/**** Clubbed Entity ****/
-//		binder.registerCustomEditor(List.class, "ClubbedEntity",
-//				new CustomCollectionEditor(List.class) {
-//			@Override
-//			protected Object convertElement(
-//					final Object element) {
-//				String id = null;
-//
-//				if (element instanceof String) {
-//					id = (String) element;
-//				}
-//				return id != null ? ClubbedEntity
-//						.findById(ClubbedEntity.class,
-//								Long.valueOf(id))
-//								: null;
-//			}
-//		});
+		//		binder.registerCustomEditor(List.class, "ClubbedEntity",
+		//				new CustomCollectionEditor(List.class) {
+		//			@Override
+		//			protected Object convertElement(
+		//					final Object element) {
+		//				String id = null;
+		//
+		//				if (element instanceof String) {
+		//					id = (String) element;
+		//				}
+		//				return id != null ? ClubbedEntity
+		//						.findById(ClubbedEntity.class,
+		//								Long.valueOf(id))
+		//								: null;
+		//			}
+		//		});
 
 		/**** Referenced Entity ****/
-//		binder.registerCustomEditor(List.class, "ReferencedEntity",
-//				new CustomCollectionEditor(List.class) {
-//			@Override
-//			protected Object convertElement(
-//					final Object element) {
-//				String id = null;
-//
-//				if (element instanceof String) {
-//					id = (String) element;
-//				}
-//				return id != null ? ReferencedEntity
-//						.findById(ReferencedEntity.class,
-//								Long.valueOf(id))
-//								: null;
-//			}
-//		});
+		//		binder.registerCustomEditor(List.class, "ReferencedEntity",
+		//				new CustomCollectionEditor(List.class) {
+		//			@Override
+		//			protected Object convertElement(
+		//					final Object element) {
+		//				String id = null;
+		//
+		//				if (element instanceof String) {
+		//					id = (String) element;
+		//				}
+		//				return id != null ? ReferencedEntity
+		//						.findById(ReferencedEntity.class,
+		//								Long.valueOf(id))
+		//								: null;
+		//			}
+		//		});
 		//----------21012013--------------------------
 		/**** Referenced Question for half hour discussion from question ****/
 		binder.registerCustomEditor(Question.class, new BaseEditor(new Question()));
@@ -312,7 +312,7 @@ public class QuestionWorkflowController  extends BaseController{
 		model.addAttribute("workflowdetails",workflowDetails.getId());
 		model.addAttribute("workflowstatus",workflowDetails.getStatus());
 		Question domain=Question.findById(Question.class,Long.parseLong(workflowDetails.getDeviceId()));
-		
+
 		/**** Populate Model ****/		
 		populateModel(domain,model,request,workflowDetails);		
 		return workflowDetails.getForm();
@@ -351,12 +351,12 @@ public class QuestionWorkflowController  extends BaseController{
 		model.addAttribute("formattedQuestionType",questionType.getName());
 		model.addAttribute("questionType",questionType.getId());
 		model.addAttribute("selectedQuestionType",questionType.getType());
-		
+
 		/**** Original Question Type ****/		
 		if(domain.getOriginalType()!=null) {
 			model.addAttribute("originalType",domain.getOriginalType().getId());
 		}
-		
+
 		/**** Primary Member ****/
 		String memberNames=null;
 		String primaryMemberName=null;
@@ -461,7 +461,7 @@ public class QuestionWorkflowController  extends BaseController{
 					model.addAttribute("answeringDateSelected",domain.getAnsweringDate().getId());
 				}
 			}
-			
+
 			/**** Set Chart answering date ****/
 			if(domain.getChartAnsweringDate() != null) {
 				model.addAttribute("chartAnsweringDate", domain.getChartAnsweringDate().getId());
@@ -492,22 +492,22 @@ public class QuestionWorkflowController  extends BaseController{
 		/**** To have the task creation date and lastReceivingDate if userGroup is department in case of starred questions ***/
 		if(workflowDetails.getAssigneeUserGroupType().equals(ApplicationConstants.DEPARTMENT)){
 			boolean canAdd = false;
-			
+
 			try{	
-					if(domain.getAnsweringDate()!=null){
-						if(domain.getAnsweringDate().getLastReceivingDateFromDepartment()!=null){
-							model.addAttribute("lastReceivingDateFromDepartment", FormaterUtil.getDateFormatter(locale).format(domain.getAnsweringDate().getLastReceivingDateFromDepartment()));
-						}
+				if(domain.getAnsweringDate()!=null){
+					if(domain.getAnsweringDate().getLastReceivingDateFromDepartment()!=null){
+						model.addAttribute("lastReceivingDateFromDepartment", FormaterUtil.getDateFormatter(locale).format(domain.getAnsweringDate().getLastReceivingDateFromDepartment()));
 					}
-					
-					CustomParameter serverTimeStamp=CustomParameter.findByName(CustomParameter.class,"SERVER_TIMESTAMP","");
-					if(serverTimeStamp!=null){
-						if(workflowDetails.getAssignmentTime() != null){							
-							model.addAttribute("taskCreationDate", FormaterUtil.getDateFormatter(serverTimeStamp.getValue(),locale).format(workflowDetails.getAssignmentTime()));
-						}
+				}
+
+				CustomParameter serverTimeStamp=CustomParameter.findByName(CustomParameter.class,"SERVER_TIMESTAMP","");
+				if(serverTimeStamp!=null){
+					if(workflowDetails.getAssignmentTime() != null){							
+						model.addAttribute("taskCreationDate", FormaterUtil.getDateFormatter(serverTimeStamp.getValue(),locale).format(workflowDetails.getAssignmentTime()));
 					}
-					
-					canAdd = true;
+				}
+
+				canAdd = true;
 			}catch(Exception e){
 				logger.error("Last Receiving date from department or task creation date is missing.: "+e.getMessage());
 			}
@@ -516,7 +516,7 @@ public class QuestionWorkflowController  extends BaseController{
 				model.addAttribute("taskCreationDate", "");
 			}
 		}
-		
+
 		/**** Status,Internal Status and recommendation Status ****/
 		Status status=domain.getStatus();
 		Status internalStatus=domain.getInternalStatus();
@@ -606,6 +606,7 @@ public class QuestionWorkflowController  extends BaseController{
 		String type=internalStatus.getType();
 		String userGroupType=workflowDetails.getAssigneeUserGroupType();
 		String locale=question.getLocale();
+		String questionType=question.getType().getType();
 		/**** First we will check if custom parameter for internal status and usergroupType has been set ****/
 		if(type.equals(ApplicationConstants.QUESTION_RECOMMEND_ADMISSION)&&
 				(question.getRecommendationStatus().getType().equals(ApplicationConstants.QUESTION_RECOMMEND_DISCUSS)
@@ -622,8 +623,17 @@ public class QuestionWorkflowController  extends BaseController{
 				}	
 			}			
 		}
+		CustomParameter specificDeviceRecommendationStatusUG=CustomParameter.findByName(CustomParameter.class,"QUESTION_PUT_UP_OPTIONS_"+questionType.toUpperCase()+"_"+question.getRecommendationStatus().getType().toUpperCase()+"_"+userGroupType.toUpperCase(),"");
+		CustomParameter specificDeviceStatusUserGroupStatuses=CustomParameter.findByName(CustomParameter.class,"QUESTION_PUT_UP_OPTIONS_"+questionType.toUpperCase()+"_"+type.toUpperCase()+"_"+userGroupType.toUpperCase(),"");
+		CustomParameter specificDeviceUserGroupStatuses=CustomParameter.findByName(CustomParameter.class,"QUESTION_PUT_UP_OPTIONS_"+questionType.toUpperCase()+"_"+userGroupType.toUpperCase(),"");
 		CustomParameter specificStatuses=CustomParameter.findByName(CustomParameter.class,"QUESTION_PUT_UP_OPTIONS_"+type.toUpperCase()+"_"+userGroupType.toUpperCase(),"");
-		if(specificStatuses!=null){
+		if(specificDeviceRecommendationStatusUG!=null){
+			internalStatuses=Status.findStatusContainedIn(specificDeviceRecommendationStatusUG.getValue(), locale);
+		}else if(specificDeviceStatusUserGroupStatuses!=null){
+			internalStatuses=Status.findStatusContainedIn(specificDeviceStatusUserGroupStatuses.getValue(), locale);
+		}else if(specificDeviceUserGroupStatuses!=null){
+			internalStatuses=Status.findStatusContainedIn(specificDeviceUserGroupStatuses.getValue(), locale);
+		}else if(specificStatuses!=null){
 			internalStatuses=Status.findStatusContainedIn(specificStatuses.getValue(), locale);
 		}else if(userGroupType.equals(ApplicationConstants.CHAIRMAN)
 				||userGroupType.equals(ApplicationConstants.SPEAKER)){
@@ -808,17 +818,17 @@ public class QuestionWorkflowController  extends BaseController{
 				domain.setReferencedEntities(referencedEntities);
 			}
 		}
-		
-		
-		
+
+
+
 		/**** Workflowdetails ****/
 		String strWorkflowdetails=(String) request.getParameter("workflowdetails");
 		WorkflowDetails workflowDetails=WorkflowDetails.findById(WorkflowDetails.class,Long.parseLong(strWorkflowdetails));
-		
+
 		if(workflowDetails.getAssigneeUserGroupType().equals(ApplicationConstants.DEPARTMENT)){
-			
+
 			String operation = request.getParameter("operation");
-			
+
 			if(operation != null){
 				if(!operation.isEmpty()){
 					if(operation.equals("workflowsubmit")){
@@ -838,7 +848,7 @@ public class QuestionWorkflowController  extends BaseController{
 				}
 			}
 		}
-		
+
 		/**** Updating domain ****/
 		domain.setEditedOn(new Date());
 		domain.setEditedBy(this.getCurrentUser().getActualUsername());
@@ -900,7 +910,7 @@ public class QuestionWorkflowController  extends BaseController{
 				e.printStackTrace();
 			}
 		}
-		performAction(domain);
+		performAction(domain);		
 		domain.merge();
 		/**** Complete Task ****/		
 		//String sendbackactor=request.getParameter("sendbackactor");
@@ -936,7 +946,7 @@ public class QuestionWorkflowController  extends BaseController{
 		workflowDetails.merge();		
 		/**** display message ****/
 		model.addAttribute("type","taskcompleted");
-				
+
 		return "workflow/info";
 	}
 
@@ -980,6 +990,27 @@ public class QuestionWorkflowController  extends BaseController{
 	private void performActionOnConvertToUnstarredAndAdmit(Question domain) {
 		Status finalStatus=Status.findByType(ApplicationConstants.QUESTION_FINAL_CONVERT_TO_UNSTARRED_AND_ADMIT, domain.getLocale());
 		domain.setStatus(finalStatus);
+		/**** Setting revised subject,question text,revised reason,revised brief explaination if not already set ****/
+		if(domain.getRevisedSubject()==null){			
+			domain.setRevisedSubject(domain.getSubject());			
+		}else if(domain.getRevisedSubject().isEmpty()){
+			domain.setRevisedSubject(domain.getSubject());
+		}
+		if(domain.getRevisedQuestionText()==null){			
+			domain.setRevisedQuestionText(domain.getQuestionText());			
+		}else if(domain.getRevisedQuestionText().isEmpty()){
+			domain.setRevisedQuestionText(domain.getQuestionText());
+		}
+		if(domain.getRevisedReason()==null){
+			domain.setRevisedReason(domain.getReason());
+		}else if(domain.getRevisedReason().isEmpty()){
+			domain.setRevisedReason(domain.getReason());
+		}
+		if(domain.getRevisedBriefExplanation()==null){
+			domain.setRevisedBriefExplanation(domain.getBriefExplanation());
+		}else if(domain.getRevisedBriefExplanation().isEmpty()){
+			domain.setRevisedBriefExplanation(domain.getBriefExplanation());
+		}
 		List<ClubbedEntity> clubbedEntities=domain.getClubbedEntities();
 		if(clubbedEntities!=null){
 			String subject=null;
@@ -1002,7 +1033,7 @@ public class QuestionWorkflowController  extends BaseController{
 			}else{
 				questionText=domain.getQuestionText();
 			}
-			
+
 			Status newInternalStatus=Status.findByType(ApplicationConstants.QUESTION_PUTUP_NAMECLUBBING, domain.getLocale());
 			Status newRecommendationStatus=Status.findByType(ApplicationConstants.QUESTION_PUTUP_CONVERT_TO_UNSTARRED_AND_ADMIT, domain.getLocale());
 			DeviceType deviceType=DeviceType.findByType(ApplicationConstants.UNSTARRED_QUESTION,domain.getLocale());
@@ -1070,6 +1101,27 @@ public class QuestionWorkflowController  extends BaseController{
 	private void performActionOnRejection(Question domain) {
 		Status finalStatus=Status.findByType(ApplicationConstants.QUESTION_FINAL_REJECTION, domain.getLocale());
 		domain.setStatus(finalStatus);
+		/**** Setting revised subject,question text,revised reason,revised brief explaination if not already set ****/
+		if(domain.getRevisedSubject()==null){			
+			domain.setRevisedSubject(domain.getSubject());			
+		}else if(domain.getRevisedSubject().isEmpty()){
+			domain.setRevisedSubject(domain.getSubject());
+		}
+		if(domain.getRevisedQuestionText()==null){			
+			domain.setRevisedQuestionText(domain.getQuestionText());			
+		}else if(domain.getRevisedQuestionText().isEmpty()){
+			domain.setRevisedQuestionText(domain.getQuestionText());
+		}
+		if(domain.getRevisedReason()==null){
+			domain.setRevisedReason(domain.getReason());
+		}else if(domain.getRevisedReason().isEmpty()){
+			domain.setRevisedReason(domain.getReason());
+		}
+		if(domain.getRevisedBriefExplanation()==null){
+			domain.setRevisedBriefExplanation(domain.getBriefExplanation());
+		}else if(domain.getRevisedBriefExplanation().isEmpty()){
+			domain.setRevisedBriefExplanation(domain.getBriefExplanation());
+		}
 		List<ClubbedEntity> clubbedEntities=domain.getClubbedEntities();
 		if(clubbedEntities!=null){
 			String subject=null;
@@ -1113,6 +1165,27 @@ public class QuestionWorkflowController  extends BaseController{
 	private void performActionOnAdmission(Question domain) {
 		Status finalStatus=Status.findByType(ApplicationConstants.QUESTION_FINAL_ADMISSION, domain.getLocale());
 		domain.setStatus(finalStatus);
+		/**** Setting revised subject,question text,revised reason,revised brief explaination if not already set ****/
+		if(domain.getRevisedSubject()==null){			
+			domain.setRevisedSubject(domain.getSubject());			
+		}else if(domain.getRevisedSubject().isEmpty()){
+			domain.setRevisedSubject(domain.getSubject());
+		}
+		if(domain.getRevisedQuestionText()==null){			
+			domain.setRevisedQuestionText(domain.getQuestionText());			
+		}else if(domain.getRevisedQuestionText().isEmpty()){
+			domain.setRevisedQuestionText(domain.getQuestionText());
+		}
+		if(domain.getRevisedReason()==null){
+			domain.setRevisedReason(domain.getReason());
+		}else if(domain.getRevisedReason().isEmpty()){
+			domain.setRevisedReason(domain.getReason());
+		}
+		if(domain.getRevisedBriefExplanation()==null){
+			domain.setRevisedBriefExplanation(domain.getBriefExplanation());
+		}else if(domain.getRevisedBriefExplanation().isEmpty()){
+			domain.setRevisedBriefExplanation(domain.getBriefExplanation());
+		}
 		List<ClubbedEntity> clubbedEntities=domain.getClubbedEntities();
 		if(clubbedEntities!=null){
 			String subject=null;
