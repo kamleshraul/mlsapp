@@ -11,7 +11,7 @@
 			if($('#gridURL')!=undefined){
 			    grid = loadGrid(gridId,$('#gridURL').val());				
 			}else{
-				console.log(gridId);
+				//console.log(gridId);
 			    grid = loadGrid(gridId);				
 			}
 		});
