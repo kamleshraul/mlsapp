@@ -6,45 +6,45 @@
 		<title><spring:message code="home.title" text="ELS - Home"></spring:message></title>
 		<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
 		
-		<script type="text/javascript" src="./resources/js/jquery-1.6.2.min.js?v=4" ></script>
-		<script type="text/javascript" src="./resources/js/jquery-ui-1.8.15.custom.min.js?v=4"></script> 
-		<script type="text/javascript" src="./resources/js/i18n/grid.locale-${locale}.js?v=4"></script>
-		<script type="text/javascript" src="./resources/js/jquery.jqGrid.min.js?v=4"></script>
-		<script type="text/javascript" src="./resources/js/grid.subgrid.js?v=4"></script>		
-		<script type="text/javascript" src="./resources/js/jquery/jquery-impromptu.3.2.min.js?v=4"></script>
-		<script type="text/javascript" src="./resources/js/jquery/jquery.iframe-transport.js?v=4"></script>
-		<script type="text/javascript" src="./resources/js/jquery/jquery.fileupload.js?v=4"></script>
-		<script type="text/javascript" src="./resources/js/jquery/jquery.maskedinput.js?v=4"></script>	
-		<script type="text/javascript" src="./resources/js/jquery/blockUI.js?v=4"></script>				
-		<script type="text/javascript" src="./resources/js/autoNumeric-1.5.4.js?v=4"></script>
+		<script type="text/javascript" src="./resources/js/jquery-1.6.2.min.js?v=5" ></script>
+		<script type="text/javascript" src="./resources/js/jquery-ui-1.8.15.custom.min.js?v=5"></script> 
+		<script type="text/javascript" src="./resources/js/i18n/grid.locale-${locale}.js?v=5"></script>
+		<script type="text/javascript" src="./resources/js/jquery.jqGrid.min.js?v=5"></script>
+		<script type="text/javascript" src="./resources/js/grid.subgrid.js?v=5"></script>		
+		<script type="text/javascript" src="./resources/js/jquery/jquery-impromptu.3.2.min.js?v=5"></script>
+		<script type="text/javascript" src="./resources/js/jquery/jquery.iframe-transport.js?v=5"></script>
+		<script type="text/javascript" src="./resources/js/jquery/jquery.fileupload.js?v=5"></script>
+		<script type="text/javascript" src="./resources/js/jquery/jquery.maskedinput.js?v=5"></script>	
+		<script type="text/javascript" src="./resources/js/jquery/blockUI.js?v=5"></script>				
+		<script type="text/javascript" src="./resources/js/autoNumeric-1.5.4.js?v=5"></script>
 		
 		<!-- Multiselect -->				
-		<script type="text/javascript" src="./resources/js/ui.sexyselect.0.6.js?v=4"></script>
+		<script type="text/javascript" src="./resources/js/ui.sexyselect.0.6.js?v=5"></script>
 
-		<script type="text/javascript" src="./resources/js/common.js?v=3024"></script> 
+		<script type="text/javascript" src="./resources/js/common.js?v=3025"></script> 
 		
 		
 		
 		
 		<!-- WYSIWYG Editor --> 
-		<script type="text/javascript" src="./resources/js/jquery.wysiwyg.js?v=4"></script>		
+		<script type="text/javascript" src="./resources/js/jquery.wysiwyg.js?v=5"></script>		
 		<!-- Context Menu -->
-		<script type="text/javascript" src="./resources/js/jquery.contextMenu.js?v=4"></script>
+		<script type="text/javascript" src="./resources/js/jquery.contextMenu.js?v=5"></script>
 		<!-- Tooltip -->
-		<script type="text/javascript" src="./resources/js/jquery.qtip-1.0.0-rc3.min.js?v=4"></script>
+		<script type="text/javascript" src="./resources/js/jquery.qtip-1.0.0-rc3.min.js?v=5"></script>
 		 <!-- Style switcher --> 
-		<script type="text/javascript" src="./resources/js/template/stylesheetToggle.js?v=4"></script>
+		<script type="text/javascript" src="./resources/js/template/stylesheetToggle.js?v=5"></script>
 		
-		<script type="text/javascript" src="./resources/js/jquery.fancybox.pack.js?v=4"></script>
-		<script type="text/javascript" src="./resources/js/jquery.fancybox-thumbs.js?v=4"></script>
-		<script type="text/javascript" src="./resources/js/jquery.fancybox-buttons.js?v=4"></script>
-		<script type="text/javascript" src="./resources/js/template/stylesheetToggle.js?v=4"></script>
-	    <script type="text/javascript" src="./resources/js/jquery.fcbkcomplete.js?q=123?v=4"></script>
+		<script type="text/javascript" src="./resources/js/jquery.fancybox.pack.js?v=5"></script>
+		<script type="text/javascript" src="./resources/js/jquery.fancybox-thumbs.js?v=5"></script>
+		<script type="text/javascript" src="./resources/js/jquery.fancybox-buttons.js?v=5"></script>
+		<script type="text/javascript" src="./resources/js/template/stylesheetToggle.js?v=5"></script>
+	    <script type="text/javascript" src="./resources/js/jquery.fcbkcomplete.js?q=123?v=5"></script>
 	    
 	    <!-- 2 way multiselect -->
-	    <script type="text/javascript" src="./resources/js/ui.multiselect.js?q=123?v=4"></script>
-	    <script type="text/javascript" src="./resources/js/jquery.tmpl.1.1.1.js?q=123?v=4"></script>	    
-	    <script type="text/javascript" src="./resources/js/jquery.localisation.js?q=123?v=4"></script>     
+	    <script type="text/javascript" src="./resources/js/ui.multiselect.js?q=123?v=5"></script>
+	    <script type="text/javascript" src="./resources/js/jquery.tmpl.1.1.1.js?q=123?v=5"></script>	    
+	    <script type="text/javascript" src="./resources/js/jquery.localisation.js?q=123?v=5"></script>     
 		
 		<link rel="stylesheet" type="text/css" media="all" href="./resources/css/template/reset.css?v=3" />
 		<link rel="stylesheet" type="text/css" media="all" href="./resources/css/template/blue.css?v=3" />
