@@ -8,9 +8,7 @@
 			//here we are trying to add date mask in grid search when field names
 			//ends with Date
 			$(".sf .field").change(function(){
-				//console.log("hello");
 				var field=$(this).val();
-				//console.log(field);
 				if(field.indexOf("Date")!=-1){
 					$(".sf .data").mask("99/99/9999");
 				}
