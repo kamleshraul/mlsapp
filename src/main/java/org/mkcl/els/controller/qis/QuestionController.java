@@ -920,10 +920,13 @@ public class QuestionController extends GenericController<Question>{
 	private void populateInternalStatus(ModelMap model, String type,String userGroupType,String locale, String questionType) {
 		List<Status> internalStatuses=new ArrayList<Status>();
 		/**** First we will check if custom parameter for device type,internal status and usergroupType has been set ****/
-		CustomParameter specificDeviceStatuses=CustomParameter.findByName(CustomParameter.class,"QUESTION_PUT_UP_OPTIONS_"+questionType.toUpperCase()+"_"+type.toUpperCase()+"_"+userGroupType.toUpperCase(),"");
+		CustomParameter specificDeviceStatusUserGroupStatuses=CustomParameter.findByName(CustomParameter.class,"QUESTION_PUT_UP_OPTIONS_"+questionType.toUpperCase()+"_"+type.toUpperCase()+"_"+userGroupType.toUpperCase(),"");
+		CustomParameter specificDeviceUserGroupStatuses=CustomParameter.findByName(CustomParameter.class,"QUESTION_PUT_UP_OPTIONS_"+questionType.toUpperCase()+"_"+userGroupType.toUpperCase(),"");
 		CustomParameter specificStatuses=CustomParameter.findByName(CustomParameter.class,"QUESTION_PUT_UP_OPTIONS_"+type.toUpperCase()+"_"+userGroupType.toUpperCase(),"");
-		if(specificDeviceStatuses!=null){
-			internalStatuses=Status.findStatusContainedIn(specificDeviceStatuses.getValue(), locale);
+		if(specificDeviceStatusUserGroupStatuses!=null){
+			internalStatuses=Status.findStatusContainedIn(specificDeviceStatusUserGroupStatuses.getValue(), locale);
+		}else if(specificDeviceUserGroupStatuses!=null){
+			internalStatuses=Status.findStatusContainedIn(specificDeviceUserGroupStatuses.getValue(), locale);
 		}else if(specificStatuses!=null){
 			internalStatuses=Status.findStatusContainedIn(specificStatuses.getValue(), locale);
 		}else if(userGroupType.equals(ApplicationConstants.CHAIRMAN)
