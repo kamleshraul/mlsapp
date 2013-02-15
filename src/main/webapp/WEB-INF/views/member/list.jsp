@@ -124,10 +124,10 @@
 			</a> |
 			<a href="#" id="search" class="butSim">
 				<spring:message code="member.search" text="Search"/>
-			</a> |
+			</a> 
 			<a href="#" id="view" class="butSim" style="display:none;">
 				<spring:message code="member.view" text="View"/>
-			</a> |
+			</a>
 			<a href="#" id="print" class="butSim" style="display:none;">
 				<spring:message code="member.print" text="Print"/>
 			</a> 			
