@@ -58,7 +58,7 @@
 		<input class="sText" readonly="readonly" type="text" name="halfHourDiscussionReference_questionNumberEdit" value="${referredQuestionNumber}" id="halfHourDiscussionReference_questionNumberEdit" />
 	</c:if>
 	
-	<c:if test="${domain.type.type!='questions_halfhourdiscussion_from_question'}">
+	<c:if test="${domain.type.type!='questions_halfhourdiscussion_from_question' and domain.type.type!='questions_shortnotice'}">
 		<label class="small"><spring:message code="question.priority" text="Priority"/>*</label>
 		<input name="formattedPriorityEdit" id="formattedPriorityEdit" class="sText" type="text" value="${formattedPriority }" readonly="readonly">
 	</c:if>
