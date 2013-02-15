@@ -74,6 +74,9 @@ public class WorkflowDetailsRepository extends BaseRepository<WorkflowDetails, S
 						if(question.getRecommendationStatus()!=null){
 							workflowDetails.setRecommendationStatus(question.getRecommendationStatus().getName());
 						}
+						if(question.getGroup()!=null){
+							workflowDetails.setGroupNumber(FormaterUtil.getNumberFormatterNoGrouping(question.getLocale()).format(question.getGroup().getNumber()));
+						}
 						workflowDetails.setRemarks(question.getRemarks());
 						if(question.getSession()!=null){
 							if(question.getSession().getType()!=null){
@@ -163,6 +166,9 @@ public class WorkflowDetailsRepository extends BaseRepository<WorkflowDetails, S
 								workflowDetails.setLocale(question.getLocale());
 								if(question.getRecommendationStatus()!=null){
 									workflowDetails.setRecommendationStatus(question.getRecommendationStatus().getName());
+								}
+								if(question.getGroup()!=null){
+									workflowDetails.setGroupNumber(FormaterUtil.getNumberFormatterNoGrouping(question.getLocale()).format(question.getGroup().getNumber()));
 								}
 								workflowDetails.setRemarks(question.getRemarks());
 								if(question.getSession()!=null){
