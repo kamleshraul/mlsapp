@@ -19,10 +19,10 @@
 		<script type="text/javascript" src="./resources/js/autoNumeric-1.5.4.js?v=5"></script>
 		
 		<!-- Multiselect -->				
-		<script type="text/javascript" src="./resources/js/ui.sexyselect.0.6.js?v=5"></script>
 
-		<script type="text/javascript" src="./resources/js/common.js?v=3025"></script> 
+		<script type="text/javascript" src="./resources/js/common.js?v=3026"></script> 
 		
+		<script type="text/javascript" src="./resources/js/ui.sexyselect.0.6.js?v=6"></script>
 		
 		
 		
@@ -44,7 +44,6 @@
 	    <!-- 2 way multiselect -->
 	    <script type="text/javascript" src="./resources/js/ui.multiselect.js?q=123?v=5"></script>
 	    <script type="text/javascript" src="./resources/js/jquery.tmpl.1.1.1.js?q=123?v=5"></script>	    
-	    <script type="text/javascript" src="./resources/js/jquery.localisation.js?q=123?v=5"></script>     
 		
 		<link rel="stylesheet" type="text/css" media="all" href="./resources/css/template/reset.css?v=3" />
 		<link rel="stylesheet" type="text/css" media="all" href="./resources/css/template/blue.css?v=3" />
