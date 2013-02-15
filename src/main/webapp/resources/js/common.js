@@ -1,6 +1,7 @@
 /*Common javascript functions to be used across jsp files */
 currentGridPage=1;
 currentSelectedRow=1;
+
 function _ajax_request(url, data, callback, type, method) {
     if (jQuery.isFunction(data)) {
         callback = data;
@@ -91,6 +92,16 @@ function initControls(){
 		defaultCheckAllText: $('#defaultCheckAllText').val(),
 		defaultUnCheckAllText: $('#defaultUnCheckAllText').val()
 	});	
+	/**** Transliteration ****/
+	/*$("input,textarea").keydown(function(e){
+		var id=$(this).attr("id");
+		if(e.which==32){
+			$.get('ref/transliterate?input='+$(this).val(),function(data){
+			$("#"+id).val(data.name);
+			console.log(data.name);
+			});		
+		}
+	});*/
 };
 function resize_grid(){
 	$('#grid').fluidGrid({base:'#grid_container', offset:-0});
@@ -136,7 +147,7 @@ function loadGrid(gridId, gridurl, baseFilter) {
 	if($('#gridURLParams').val()!=undefined){
 		url=url+'?'+$('#gridURLParams').val();
 	}
-	console.log(url);
+	//console.log(url);
 	$.ajax({async:false,url:'grid/' + gridId + '/meta.json', success:function(grid) {
 		c_grid = $('#grid').jqGrid({
 			scroll:1,
