@@ -618,6 +618,9 @@ color:blue;
 font-weight: bold;
 text-decoration: underline;
 }
+td>table{
+	width: 350px;
+}
 </style>
 </head>
 <body>
