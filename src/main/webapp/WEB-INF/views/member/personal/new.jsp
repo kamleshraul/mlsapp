@@ -267,7 +267,7 @@
 		</c:choose>		
 		<form:errors path="photo" cssClass="validationError" />
 	</p>
-	<p>
+	<p style="display:none;">
 		<label class="small"><spring:message code="member.personal.specimenSignature" text="Specimen Signature"/></label>
 		<span id="image_gallery" style="display: inline;margin: 0px;padding: 0px;">
 		<img alt="" src="" id="image_specimenSignature" width="70" height="70">
