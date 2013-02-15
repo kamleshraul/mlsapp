@@ -457,7 +457,13 @@
 		
 		$('#submit').click(function(){
 			
-			$('#answer').val($('#answer').val().replace("<p></p>",""));
+			$(".wysiwyg").each(function(){
+				var wysiwygVal=$(this).val().trim();
+				if(wysiwygVal=="<p></p>"||wysiwygVal=="<p><br></p>"||wysiwygVal=="<br><p></p>"){
+					$(this).val("");
+				}
+			});
+			
 			if($('#answer').val()==""){
 				$.prompt($('#noAnswerProvidedMsg').val());
 			}else{ 
