@@ -8,7 +8,7 @@
 			$(".toolTip").hide();
 			$("#selectionDiv1").show();							
 			/**** grid params which is sent to load grid data being sent ****/
-			console.log($("#srole").val());			
+			//console.log($("#srole").val());			
 			$("#gridURLParams").val("houseType="+$("#selectedHouseType").val()
 					+"&sessionYear="+$("#selectedSessionYear").val()
 					+"&sessionType="+$("#selectedSessionType").val()

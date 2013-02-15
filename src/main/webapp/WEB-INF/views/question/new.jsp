@@ -158,7 +158,7 @@
 			var value=$(this).val();
 			$("select[name='"+controlName+"'] option:selected").each(function(){
 				var optionClass=$(this).attr("class");
-				console.log(optionClass);
+				//console.log(optionClass);
 				if(value.indexOf(optionClass)==-1){
 					$("select[name='"+controlName+"'] option[class='"+optionClass+"']").remove();
 				}		

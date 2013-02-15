@@ -78,7 +78,7 @@
 	
 	function getDiscussionDates(deviceTypeSelected, discussionDays) {
 		//alert("abc");
-		console.log("abc");
+		//console.log("abc");
 				
 		
 		$.get('ref/session/'+ $("#id").val()+'/devicetypeconfig/' + discussionDays + '/discussiondates', function(data) {
@@ -104,13 +104,13 @@
 	$('document').ready(function(){
 	
 		var deviceTypeSelected=$("#deviceTypeSelected").val();
-		console.log(deviceTypeSelected);
+		//console.log(deviceTypeSelected);
 		$('#deviceType').val(deviceTypeSelected);
 		
 		fillContent();		
 		
 		if(deviceTypeSelected == 'questions_halfhourdiscussion_standalone' || deviceTypeSelected == 'questions_halfhourdiscussion_from_question') {
-			console.log("bifercation if,start");
+			//console.log("bifercation if,start");
 			if($("#"+deviceTypeSelected+"_discussion_days_hidden").attr('title')==""){
 				$("#discussion_dates_para_"+deviceTypeSelected).hide();
 			}else{
@@ -153,7 +153,7 @@
 				});
 				
 			}
-			console.log("bifercation if,end");
+			//console.log("bifercation if,end");
 		}
 		
 		$('.datemask').focus(function(){		
@@ -170,7 +170,7 @@
 		$('#deviceType').change(function(){	
 
 			deviceTypeSelected=$('#deviceType').val();			
-			console.log(deviceTypeSelected);
+			//console.log(deviceTypeSelected);
 			var ribbon="${type}";
 			
 			if(ribbon=="success"){
@@ -181,7 +181,7 @@
 		//------------------------------------------------------------
 		
 		if(deviceTypeSelected == 'questions_halfhourdiscussion_standalone' || deviceTypeSelected == 'questions_halfhourdiscussion_from_question') {
-			console.log("bifercation if,start");
+			//console.log("bifercation if,start");
 			if($("#"+deviceTypeSelected+"_discussion_days_hidden").attr('title')==""){
 				$("#discussion_dates_para_"+deviceTypeSelected).hide();
 			}else{
@@ -224,7 +224,7 @@
 				});
 				
 			}
-			console.log("bifercation if,end");
+			//console.log("bifercation if,end");
 		}
 			
 			

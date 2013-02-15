@@ -74,7 +74,7 @@
 					newRecord();
 				}
 				if(e.which==83 && e.ctrlKey){
-					console.log('save');
+					//console.log('save');
 					$('#submit').trigger('click');
 				}
 				if(e.which==76 && e.ctrlKey){

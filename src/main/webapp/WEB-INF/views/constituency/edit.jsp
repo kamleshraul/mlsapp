@@ -10,7 +10,7 @@
 
 <script type="text/javascript">
 	function translateNumerals(input, locale) {
-	  console.log(input);
+	  //console.log(input);
 	  var offset=null;
 	  //zero digit value must be defined for each locale 
 	  if(locale=="mr_IN"){

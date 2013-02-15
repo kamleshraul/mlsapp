@@ -170,25 +170,25 @@
 
 	function setDisplayNameUH(){
 		if($("#houseTypeType").val()=="upperhouse"){
-		console.log($("#upperHouseConstituencyType option:selected").text().trim());
+		//console.log($("#upperHouseConstituencyType option:selected").text().trim());
 		$("#name").val($("#upperHouseConstituencyType option:selected").text().trim());			
 		var selectedName=$("#upperHouseConstituencyType option:selected").text().trim();
-		console.log(selectedName);
+		//console.log(selectedName);
 		if(selectedName==$("#nominated").val().trim()||selectedName==$("#nominatedByAssemblyMembers").val().trim()){
-			console.log("1");
+			//console.log("1");
 			$("#stateP").hide();
 			$("#divisionP").hide();
 			$("#districtP").hide();
 			$("#displayName").val(selectedName);
 		}else if(selectedName==$("#degreeHolder").val().trim()||selectedName==$("#teacher").val().trim()){
-			console.log("2");
+			//console.log("2");
 			$("#stateP").show();
 			$("#divisionP").show();
 			$("#districtP").hide();				
 			var divisionName=$("#division option:selected").text();	
 			$("#displayName").val(divisionName.trim()+" "+selectedName.trim());
 		}else{
-			console.log("3");			
+			//console.log("3");			
 			$("#stateP").show();
 			$("#divisionP").show();
 			$("#districtP").show();
