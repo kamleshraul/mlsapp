@@ -74,7 +74,6 @@ public class WorkflowConfigRepository extends BaseRepository<WorkflowConfig, Ser
 			SubDepartment subDepartment=question.getSubDepartment();		
 			for(WorkflowActor i:allEligibleActors){
 				UserGroupType userGroupTypeTemp=i.getUserGroupType();
-				System.out.println(userGroupTypeTemp.getType());
 				List<UserGroup> userGroups=UserGroup.findAllByFieldName(UserGroup.class,"userGroupType",
 						userGroupTypeTemp, "activeFrom",ApplicationConstants.DESC, locale);
 				for(UserGroup j:userGroups){
