@@ -98,7 +98,7 @@ function initControls(){
 		if(e.which==32){
 			$.get('ref/transliterate?input='+$(this).val(),function(data){
 			$("#"+id).val(data.name);
-			console.log(data.name);
+			
 			});		
 		}
 	});*/
@@ -147,7 +147,7 @@ function loadGrid(gridId, gridurl, baseFilter) {
 	if($('#gridURLParams').val()!=undefined){
 		url=url+'?'+$('#gridURLParams').val();
 	}
-	//console.log(url);
+	
 	$.ajax({async:false,url:'grid/' + gridId + '/meta.json', success:function(grid) {
 		c_grid = $('#grid').jqGrid({
 			scroll:1,

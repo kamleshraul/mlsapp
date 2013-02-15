@@ -61,7 +61,6 @@
 							self.controls.createLink.exec.apply(self);
 						});
 					} else {
-						console.error("$.wysiwyg.controls.link not defined. You need to include wysiwyg.link.js file");
 					}
 				},
 				tags: ["a"],
@@ -274,7 +273,6 @@
 							self.controls.insertImage.exec.apply(self);
 						});
 					} else {
-						console.error("$.wysiwyg.controls.image not defined. You need to include wysiwyg.image.js file");
 					}
 				},
 				tags: ["img"],
@@ -301,7 +299,6 @@
 							self.controls.insertTable.exec.apply(self);
 						});
 					} else {
-						console.error("$.wysiwyg.controls.table not defined. You need to include wysiwyg.table.js file");
 					}
 				},
 				tags: ["table"],
@@ -1026,7 +1023,6 @@ html: '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.o
 					try {
 						sel.addRange(self.savedRange);
 					} catch (e) {
-						console.error(e);
 					}
 				} else if (window.document.createRange) { // non IE and no selection
 					window.getSelection().addRange(self.savedRange);
@@ -1063,7 +1059,6 @@ html: '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.o
 					Selection.addRange(Range);
 				}
 			} else {
-				console.error("Internet Explorer?");
 			}
 		};
 
@@ -1092,7 +1087,6 @@ html: '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.o
 					Selection.addRange(Range);
 				}
 			} else {
-				console.error("Internet Explorer?");
 			}
 		};
 
@@ -1393,7 +1387,7 @@ html: '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.o
                         };
                     }
                 }
-                catch (e) { console.error(e); }
+                catch (e) {  }
 
                 if (offset && offset.width == 0 && !self.editorDoc.rememberCommand) {
                     self.ui.checkTargets(offset.parent);
@@ -1618,7 +1612,6 @@ html: '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.o
 					return null;
 				}
 
-				console.error("Unexpected error in innerDocument");
 
 				/*
 				 return ( $.browser.msie )
@@ -1791,7 +1784,6 @@ html: '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.o
 				try {
 					this.editorDoc.execCommand(cmd, false, args);
 				} catch (e) {
-					console.error(e);
 				}
 			}
 
@@ -2030,12 +2022,10 @@ html: '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.o
 
 			register: function (data) {
 				if (!data.name) {
-					console.error("Plugin name missing");
 				}
 
 				$.each($.wysiwyg, function (pluginName) {
 					if (pluginName === data.name) {
-						console.error("Plugin with name '" + data.name + "' was already registered");
 					}
 				});
 
@@ -2108,7 +2098,6 @@ html: '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.o
 				}
 
 				if (!oWysiwyg.controls[controlName]) {
-					console.error("Control '" + controlName + "' not exists");
 				}
 
 				oWysiwyg.triggerControl.apply(oWysiwyg, [controlName, oWysiwyg.controls[controlName]]);
@@ -2303,7 +2292,6 @@ html: '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.o
 					var dialogHeight = this.options.height == 'auto' ? 300 : this.options.height,
 						dialogWidth = this.options.width == 'auto' ? 450 : this.options.width;
 
-					// console.log(that._$dialog);
 					
 					that._$dialog.dialog({
 						modal: this.options.modal,
@@ -2467,7 +2455,6 @@ html: '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.o
 			args = Array.prototype.concat.call([args[0]], [this], Array.prototype.slice.call(args, 1));
 			return $.wysiwyg[plugin.name][plugin.method].apply($.wysiwyg[plugin.name], Array.prototype.slice.call(args, 1));
 		} else {
-			console.error("Method '" +  method + "' does not exist on jQuery.wysiwyg.\nTry to include some extra controls or plugins");
 		}
 	};
 	
