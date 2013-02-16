@@ -739,21 +739,21 @@
 		<c:choose>
 			<c:when test="${selectedQuestionType=='questions_shortnotice'}">
 				<label class="wysiwyglabel"><spring:message code="question.shortnoticeReason" text="Reason"/>*</label>
+				<form:textarea path="reason" cssClass="wysiwyg"></form:textarea>
 			</c:when>
 			<c:otherwise>
 				<label class="wysiwyglabel"><spring:message code="question.halfhourReason" text="Points to be discussed"/>*</label>
+				<form:textarea path="reason" cssClass="wysiwyg" readonly="true"></form:textarea>
 			</c:otherwise>
 		</c:choose>
-		<form:textarea path="reason" cssClass="wysiwyg" readonly="true"></form:textarea>
 		<form:errors path="reason" cssClass="validationError" cssStyle="float:right;margin-top:-100px;margin-right:40px;"/>
-			
 	</p>
 	</c:if>	
 	
 	<c:if test="${selectedQuestionType=='questions_halfhourdiscussion_from_question' or selectedQuestionType=='questions_halfhourdiscussion_standalone'}">
 		<p>
 			<label class="wysiwyglabel"><spring:message code="question.briefExplanation" text="Brief Explanation"/>*</label>
-			<form:textarea path="briefExplanation" cssClass="wysiwyg"></form:textarea>
+			<form:textarea path="briefExplanation" cssClass="wysiwyg" readonly="true"></form:textarea>
 			<form:errors path="briefExplanation" cssClass="validationError" cssStyle="float:right;margin-top:-100px;margin-right:40px;"/>	
 		</p>
 	</c:if>

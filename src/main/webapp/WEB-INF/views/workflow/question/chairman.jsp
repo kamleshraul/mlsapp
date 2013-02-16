@@ -731,7 +731,7 @@
 				<form:textarea path="reason" cssClass="wysiwyg" readonly="true"></form:textarea>
 			</c:otherwise>
 		</c:choose>
-		<form:errors path="reason" cssClass="validationError" cssStyle="float:right;margin-top:-100px;margin-right:40px;"/>	
+		<form:errors path="reason" cssClass="validationError" cssStyle="float:right;margin-top:-100px;margin-right:40px;"/>
 	</p>
 	</c:if>	
 	
@@ -742,6 +742,7 @@
 			<form:errors path="briefExplanation" cssClass="validationError" cssStyle="float:right;margin-top:-100px;margin-right:40px;"/>	
 		</p>
 	</c:if>
+	
 	<c:if test="${selectedQuestionType!='questions_halfhourdiscussion_from_question'}">
 	<p>
 	<a href="#" id="reviseSubject" style="margin-left: 162px;margin-right: 20px;"><spring:message code="question.reviseSubject" text="Revise Subject"></spring:message></a>
