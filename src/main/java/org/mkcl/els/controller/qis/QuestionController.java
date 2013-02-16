@@ -29,7 +29,6 @@ import org.mkcl.els.domain.BaseDomain;
 import org.mkcl.els.domain.Chart;
 import org.mkcl.els.domain.Citation;
 import org.mkcl.els.domain.ClubbedEntity;
-import org.mkcl.els.domain.Credential;
 import org.mkcl.els.domain.CustomParameter;
 import org.mkcl.els.domain.Department;
 import org.mkcl.els.domain.DeviceType;
@@ -50,7 +49,6 @@ import org.mkcl.els.domain.SubDepartment;
 import org.mkcl.els.domain.SupportingMember;
 import org.mkcl.els.domain.UserGroup;
 import org.mkcl.els.domain.UserGroupType;
-import org.mkcl.els.domain.WorkflowConfig;
 import org.mkcl.els.domain.WorkflowDetails;
 import org.mkcl.els.service.IProcessService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -1385,6 +1383,15 @@ public class QuestionController extends GenericController<Question>{
 							domain.setStatus(status);
 							domain.setInternalStatus(status);
 							domain.setRecommendationStatus(status);
+						}
+						
+						/**
+						 * Added by Amit
+						 * Set answeringdate = chartAnsweringDate whenever a Question is put up. 
+						 */
+						if(operation.trim().equals("startworkflow") && 
+								domain.getType().getType().equals(ApplicationConstants.STARRED_QUESTION)) {
+							domain.setAnsweringDate(domain.getChartAnsweringDate());
 						}
 					}
 				}else{
