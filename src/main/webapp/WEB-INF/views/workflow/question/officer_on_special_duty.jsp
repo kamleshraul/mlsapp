@@ -309,12 +309,16 @@
 			return false;			
 		});
 	
-	    if($("#revisedReason").val()!=''){
-		    $("#revisedReasonDiv").show();
-	    }
-	    if($("#revisedBriefExplanation").val()!=''){
-	    	$("#revisedBriefExplanationDiv").show();
-	    }
+		if($('#selectedQuestionType').val()=='questions_halfhourdiscussion_from_question' || $('#selectedQuestionType').val()=='questions_shortnotice'){
+			if($("#revisedReason").val()!=''){
+			    $("#revisedReasonDiv").show();
+		    }
+			if($('#selectedQuestionType').val()=='questions_halfhourdiscussion_from_question'){
+			    if($("#revisedBriefExplanation").val()!=''){
+			    	$("#revisedBriefExplanationDiv").show();
+			    }
+			}
+		}
 		/**** Revise reason and brief explanation****/
 		$("#reviseReason").click(function(){
 			$(".revise3").toggle();
@@ -458,12 +462,14 @@
 		}else{
 		$("#answeringDate").prepend("<option value=''>----"+$("#pleaseSelectMessage").val()+"----</option>");
 		}
-		if($("#revisedSubject").val()!=''){
-		    $("#revisedSubjectDiv").show();
-	    }
-	    if($("#revisedQuestionText").val()!=''){
-	    	$("#revisedQuestionTextDiv").show();
-	    }    
+		if($('#selectedQuestionType').val()!='questions_halfhourdiscussion_from_question'){
+			if($("#revisedSubject").val()!=''){
+			    $("#revisedSubjectDiv").show();
+		    }
+		    if($("#revisedQuestionText").val()!=''){
+		    	$("#revisedQuestionTextDiv").show();
+		    }	 
+		}    
 	    
 	  //--------------vikas dhananjay 20012013--------------------------
 		//for viewing the refernced question
