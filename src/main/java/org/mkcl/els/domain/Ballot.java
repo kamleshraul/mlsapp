@@ -174,8 +174,10 @@ public class Ballot extends BaseDomain implements Serializable {
 		List<StarredBallotVO> ballotVOs = new ArrayList<StarredBallotVO>();
 		
 		Integer noOfRounds = Ballot.getNoOfRounds();
+		Group group = Group.find(session, answeringDate, locale);
+		
 		List<BallotEntry> ballotEntries = 
-			Ballot.compute(session, answeringDate, noOfRounds, locale);
+			Ballot.compute(session, group, answeringDate, noOfRounds, locale);
 		for(BallotEntry be : ballotEntries) {
 			StarredBallotVO ballotVO = new StarredBallotVO();
 			ballotVO.setMemberId(be.getMember().getId());
@@ -405,13 +407,15 @@ public class Ballot extends BaseDomain implements Serializable {
 		
 		if(ballot == null) {
 			Integer noOfRounds = Ballot.getNoOfRounds();
+			Group group = Group.find(session, answeringDate, this.getLocale());
 			
 			List<BallotEntry> computedList = Ballot.compute(this.getSession(),
-					this.getAnsweringDate(), noOfRounds, this.getLocale());
+					group, this.getAnsweringDate(), noOfRounds, this.getLocale());
 			List<BallotEntry> randomizedList = Ballot.randomize(computedList);
 			List<BallotEntry> sequencedList = Ballot.addSequenceNumbers(randomizedList, noOfRounds);
 
 			this.setBallotEntries(sequencedList);
+			this.setGroup(group);
 			ballot = (Ballot) this.persist();
 			
 			Status BALLOTED = 
@@ -433,13 +437,13 @@ public class Ballot extends BaseDomain implements Serializable {
 	 * appear in the Ballot.
 	 */
 	private static List<BallotEntry> compute(final Session session,
+			final Group group,
 			final Date answeringDate,
 			final Integer noOfRounds,
 			final String locale) {
 		List<BallotEntry> entries = new ArrayList<BallotEntry>();
 
 		DeviceType deviceType = DeviceType.findByType(ApplicationConstants.STARRED_QUESTION, locale);
-		Group group = Group.find(session, answeringDate, locale);
 		
 		Status internalStatus = 
 			Status.findByType(ApplicationConstants.QUESTION_FINAL_ADMISSION, locale);
