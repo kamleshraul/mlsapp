@@ -895,7 +895,7 @@
 		background:green;
 	}
 	
-	.fields p span{
+	.fields p span {
 		display:none;
 		padding:0px 3px 5px 5px;
 		margin-left:10px;
@@ -2057,7 +2057,7 @@ ul.holder li.bit-input input.smallinput { width: 20px !important; }
 		background:green;
 	}
 	
-	.fields p span{
+	.fields p span {
 		display:none;
 		padding:0px 3px 5px 5px;
 		margin-left:10px;
@@ -3218,7 +3218,7 @@ ul.holder li.bit-input input.smallinput { width: 20px !important; }
 		background:green;
 	}
 	
-	.fields p span{
+	.fields p span {
 		display:none;
 		padding:0px 3px 5px 5px;
 		margin-left:10px;
@@ -3522,3 +3522,51 @@ ul.holder li.bit-input input.smallinput { width: 20px !important; }
 		
 /* Added by Amit Desai */
 div.scrollable { overflow:scroll; }
+
+
+/*------------custom multiselect having checkboxes, select all & unselect all-------------*/
+/*------------added by dhananjayb & vikasg--------------*/
+.multiSelectSpan {
+    width: auto !important;
+    min-width: 180px !important;
+    max-width: 50em !important;
+    height: auto !important;
+    max-height: 15em !important;
+    border: solid 1px #c0c0c0 !important;
+    overflow: auto !important;
+    display: inline-block !important;
+    position: relative !important; 
+    margin-left: 0px !important;     
+}
+
+.multiSelectSpan label{
+    display:block !important;
+   	vertical-align: middle;
+   	height: 20px; 	
+   	margin-top: 5px;    
+}
+
+.multiSelectSpan label.hiddenNow {
+	display:none !important;
+}
+
+.multiSelectSpan label input[type=checkbox]{
+	vertical-align: middle;
+}
+
+.multiSelectSpan input {
+	width: 20px !important;
+	margin-left: -10px;
+}
+
+.multiSelectSpan a {
+	height: 20px; 	
+   	margin-top: 5px;    
+	margin-left: 0px;
+	font-weight: bold;	
+}
+ 
+.multiSelectSpan-on {
+    color:#ffffff !important;
+    background-color:#4169E1 !important;
+}
