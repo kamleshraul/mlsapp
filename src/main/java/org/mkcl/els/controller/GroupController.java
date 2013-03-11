@@ -364,6 +364,7 @@ javax.servlet.http.HttpServletRequest)
 				model.addAttribute("errorcode","incorrectdefaultgroupnumberset");			
 		}
 		model.addAttribute("ministries", modelMinistries);
+		model.addAttribute("selectedMinistries", domain.getMinistries());
 	}	
 	
 	/* (non-Javadoc)
