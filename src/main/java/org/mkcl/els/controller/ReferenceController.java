@@ -1648,25 +1648,25 @@ public class ReferenceController extends BaseController {
 	}	
 	
 	
-	@RequestMapping(value="/resolution/actors",method=RequestMethod.POST)
-	public @ResponseBody List<Reference> findResolutionActors(final HttpServletRequest request,final ModelMap model,
-			final Locale locale){
-		List<Reference> actors=new ArrayList<Reference>();
-		String strResolution=request.getParameter("resolution");
-		String strInternalStatus=request.getParameter("status");
-		String strUserGroup=request.getParameter("usergroup");
-		String strLevel=request.getParameter("level");
-		if(strResolution!=null&&strInternalStatus!=null&&strUserGroup!=null&&strLevel!=null){
-			if((!strResolution.isEmpty())&&(!strInternalStatus.isEmpty())&&
-					(!strUserGroup.isEmpty())&&(!strLevel.isEmpty())){
-				Status internalStatus=Status.findById(Status.class,Long.parseLong(strInternalStatus));
-				Resolution resolution=Resolution.findById(Resolution.class,Long.parseLong(strResolution));
-				UserGroup userGroup=UserGroup.findById(UserGroup.class,Long.parseLong(strUserGroup));
-				actors=WorkflowConfig.findResolutionActorsVO(resolution,internalStatus,userGroup,Integer.parseInt(strLevel),locale.toString());
-			}
-		}
-		return actors;
-	}
+//	@RequestMapping(value="/resolution/actors",method=RequestMethod.POST)
+//	public @ResponseBody List<Reference> findResolutionActors(final HttpServletRequest request,final ModelMap model,
+//			final Locale locale){
+//		List<Reference> actors=new ArrayList<Reference>();
+//		String strResolution=request.getParameter("resolution");
+//		String strInternalStatus=request.getParameter("status");
+//		String strUserGroup=request.getParameter("usergroup");
+//		String strLevel=request.getParameter("level");
+//		if(strResolution!=null&&strInternalStatus!=null&&strUserGroup!=null&&strLevel!=null){
+//			if((!strResolution.isEmpty())&&(!strInternalStatus.isEmpty())&&
+//					(!strUserGroup.isEmpty())&&(!strLevel.isEmpty())){
+//				Status internalStatus=Status.findById(Status.class,Long.parseLong(strInternalStatus));
+//				Resolution resolution=Resolution.findById(Resolution.class,Long.parseLong(strResolution));
+//				UserGroup userGroup=UserGroup.findById(UserGroup.class,Long.parseLong(strUserGroup));
+//				actors=WorkflowConfig.findResolutionActorsVO(resolution,internalStatus,userGroup,Integer.parseInt(strLevel),locale.toString());
+//			}
+//		}
+//		return actors;
+//	}
 	
 	// Added 
 	@RequestMapping(value="/status",method=RequestMethod.GET)
