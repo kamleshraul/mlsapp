@@ -87,6 +87,15 @@ public class QuestionRepository extends BaseRepository<Question, Long> {
 						ApplicationConstants.HALF_HOUR_DISCUSSION_QUESTION_FROM_QUESTION + "') " +
 					" ORDER BY q.number " + ApplicationConstants.DESC;
 			}
+			else if(strQuestionType.equals(
+					ApplicationConstants.HALF_HOUR_DISCUSSION_QUESTION_STANDALONE)) {
+				query = "SELECT q" +
+					" FROM Question q JOIN q.session s JOIN s.house h JOIN q.type dt" +
+					" WHERE h.id = " + house + 
+					" AND (dt.type = '" + 
+						ApplicationConstants.HALF_HOUR_DISCUSSION_QUESTION_STANDALONE + "') " +
+					" ORDER BY q.number " + ApplicationConstants.DESC;
+			}
 		}
 		else if(strHouseType.equals(ApplicationConstants.UPPER_HOUSE)) {
 			Session lowerHouseSession = Session.find(session.getYear(),
@@ -119,6 +128,15 @@ public class QuestionRepository extends BaseRepository<Question, Long> {
 					" AND q.submissionDate >= '" + lowerHouseFormationDate + "'" +
 					" AND (dt.type = '" + 
 						ApplicationConstants.HALF_HOUR_DISCUSSION_QUESTION_FROM_QUESTION + "')" +
+					" ORDER BY q.number " + ApplicationConstants.DESC;
+			}
+			else if(strQuestionType.equals(
+					ApplicationConstants.HALF_HOUR_DISCUSSION_QUESTION_STANDALONE)) {
+				query = "SELECT q" +
+					" FROM Question q JOIN q.session s JOIN s.house h JOIN q.type dt" +
+					" WHERE h.id = " + house + 
+					" AND (dt.type = '" + 
+						ApplicationConstants.HALF_HOUR_DISCUSSION_QUESTION_STANDALONE + "') " +
 					" ORDER BY q.number " + ApplicationConstants.DESC;
 			}
 		}
@@ -1142,13 +1160,22 @@ public class QuestionRepository extends BaseRepository<Question, Long> {
 	 * @param number the number
 	 * @return the question
 	 */
-	public Question findQuestionExcludingGivenDeviceType(final Session session, final Integer number, Long deviceTypeId) {
-		DeviceType deviceType = DeviceType.findById(DeviceType.class, deviceTypeId);
+	public Question findQuestionExcludingGivenDeviceTypes(final Session session, final Integer number, Long...deviceTypeIds) {
+		
+		DeviceType exclusiveDevices[] = new DeviceType[deviceTypeIds.length];
+			
+		for(int i = 0; i < deviceTypeIds.length; i++){
+			exclusiveDevices[i] = DeviceType.findById(DeviceType.class, deviceTypeIds[i]);
+		}
+		
 		Search search = new Search();
 		Question question;
 		search.addFilterEqual("session", session);
 		search.addFilterEqual("number", number);
-		search.addFilterNotEqual("type", deviceType);
+		for(DeviceType dt : exclusiveDevices){
+			search.addFilterNotEqual("type", dt);
+		}
+		
 		try{
 			question = this.searchUnique(search);
 			if(question.getStatus().getType().equals(ApplicationConstants.QUESTION_FINAL_ADMISSION)){
@@ -1162,6 +1189,29 @@ public class QuestionRepository extends BaseRepository<Question, Long> {
 		return question;
 	}
 	
+	public Question findQuestionExcludingSameDeviceType(final Session session, final Integer number, Long deviceTypeId) {
+		
+		DeviceType exclusiveDevice = DeviceType.findById(DeviceType.class, deviceTypeId);
+					
+		Search search = new Search();
+		Question question;
+		search.addFilterEqual("session", session);
+		search.addFilterEqual("number", number);
+		search.addFilterNotEqual("type", exclusiveDevice);
+				
+		try{
+			question = this.searchUnique(search);
+			if(question.getStatus().getType().equals(ApplicationConstants.QUESTION_FINAL_ADMISSION)){
+				return question;
+			}else{
+				return null;
+			}
+		}catch(Exception e){
+			question = null;
+		}
+		return question;
+	}
+
 	@SuppressWarnings({ "rawtypes"})
 	public MemberBallotMemberWiseReportVO findMemberWiseReportVO(Session session, 
 			DeviceType questionType, Member member, String locale) {
