@@ -45,6 +45,14 @@ function initControls(){
 		}
 	});
 	$('.datetimemask').mask("99/99/9999 99:99:99");
+	
+	$('.timemask').mask("99:99:99");
+	$('.timemask').focus(function(){		
+		if($(this).val()==""){
+			$(".timemask").mask("99:99:99");
+		}
+	});
+	
 	$(':input:visible:not([readonly]):first').focus();
 	
 	$('.wysiwyg').wysiwyg({
@@ -101,6 +109,11 @@ function initControls(){
 			
 			});		
 		}
+	});*/	
+	
+	/*$('.sSelectMultiple').each(function() {		
+		console.log('changing css dynamically');
+		$(this).parent('p').closest('.small').css('top', '-80px !important');
 	});*/
 };
 function resize_grid(){
@@ -443,3 +456,169 @@ jQuery.fn.sortElements = (function(){
     };
  
 })();
+
+//custom multiselect having checkboxes, select all & unselect all
+//added by dhananjayb
+jQuery.fn.multiSelect = function() {
+	
+	//$(this).hide();		    	
+		
+	var selectBoxId = $(this).attr('id');
+	//var selectBoxName = $(this).attr('name');
+	console.log("selectBoxId: " + selectBoxId);
+	
+	var content = "";			    	
+	
+	content += "<a id='selectAll_" + selectBoxId + "' href='#'>" + $('#selectAll').val() + "</a> | <a id='unselectAll_" + selectBoxId + "' href='#'>" + $('#selectNone').val() + "</a>";
+	
+	$('#' + selectBoxId + ' option').each(function(){		
+		if($(this).attr('selected') == 'selected') {			
+			if($(this).attr('hidden') == 'hidden' || $(this).css('display') == 'none') {
+				content += "<label><input type='checkbox' hidden='true' class='checkbox_" + selectBoxId + "' value='" + $(this).val() + "' checked='checked'/>" + $(this).text() + "</label>";
+			}
+			else {
+				content += "<label><input type='checkbox' class='checkbox_" + selectBoxId + "' value='" + $(this).val() + "' checked='checked'/>" + $(this).text() + "</label>";
+			}			
+		} else {
+			if($(this).attr('hidden') == 'hidden' || $(this).css('display') == 'none') {
+				content += "<label><input type='checkbox' hidden='true' class='checkbox_" + selectBoxId + "' value='" + $(this).val() + "'/>" + $(this).text() + "</label>";
+			}
+			else {
+				content += "<label><input type='checkbox' class='checkbox_" + selectBoxId + "' value='" + $(this).val() + "'/>" + $(this).text() + "</label>";
+			}			
+		}			    		
+	}); 	
+	
+	if($('#span_'+selectBoxId).get(0)){
+		$('#span_'+selectBoxId).remove();
+	}
+	$("<span id='span_" + selectBoxId + "' class='multiSelectSpan'>&nbsp;</span>").appendTo($('#' + selectBoxId).parent());
+	$('#span_'+selectBoxId).html(content);		
+	
+	if($('#' + selectBoxId).attr('disabled') == 'disabled') {
+		$('#' + selectBoxId).show();
+		$('#span_'+selectBoxId).remove();//css('display','none !important');	
+	} else {
+		$('#' + selectBoxId).hide();
+		$('#span_'+selectBoxId).show();
+	}
+	
+	var labels = $('#span_'+selectBoxId).find("label");
+	labels.each(function(){
+		var label = $(this);	
+		label.click(function(e) {
+        	if(e.ctrlKey) {
+        		//Ctrl+Click should be handled as handled in select box       		       		
+        		var checkboxInLabel = $(this).find('input[type=checkbox]');
+        		
+        		//change state of checkbox
+        		if (checkboxInLabel.attr("checked")=="checked") {
+        			checkboxInLabel.removeAttr("checked");        			
+        		} else {        			
+        			checkboxInLabel.attr("checked", "checked");
+        		}
+        		
+        		//handle like checkbox click event
+        		if (checkboxInLabel.attr("checked")) {        			
+        			$(this).addClass("multiSelectSpan-on");			                	
+                	$('#'+selectBoxId +' option').each(function(){						    		
+                		if($(this).val() == checkboxInLabel.attr('value')) {			                			
+                			$(this).attr('selected', 'selected');						    			
+    		    		}			                		
+    		    	});				                    
+                }
+                else {
+                	$(this).removeClass("multiSelectSpan-on");
+                    $('#'+selectBoxId +' option').each(function(){						    		
+                		if($(this).val() == checkboxInLabel.attr('value')) {			                			
+                			$(this).removeAttr('selected');						    			
+    		    		}			                		
+    		    	});	
+                }
+                $('#'+selectBoxId).change();        		
+        	}
+		});
+	});
+	
+    var checkboxes = $('#span_'+selectBoxId).find("input:checkbox");
+    checkboxes.each(function() {
+        var checkbox = $(this);        
+        
+        // Highlight pre-selected checkboxes
+        if (checkbox.attr("checked"))
+            checkbox.parent().addClass("multiSelectSpan-on");
+        
+        if(checkbox.attr("hidden")) {        	
+        	checkbox.parent().addClass("hiddenNow");
+        }else {        	
+        	checkbox.parent().removeClass("hiddenNow");        	
+        }
+
+        // Highlight checkboxes that the user selects
+        checkbox.click(function(e) {
+        	if(e.ctrlKey) {
+        	    //no change in case of Ctrl+Click as this is checkbox        		
+        		return false;
+        	}
+        	
+            if (checkbox.attr("checked")) {
+            	checkbox.parent().addClass("multiSelectSpan-on");			                	
+            	$('#'+selectBoxId +' option').each(function(){						    		
+            		if($(this).val() == checkbox.attr('value')) {			                			
+            			$(this).attr('selected', 'selected');						    			
+		    		}			                		
+		    	});				                    
+            }
+            else {
+                checkbox.parent().removeClass("multiSelectSpan-on");
+                $('#'+selectBoxId +' option').each(function(){						    		
+            		if($(this).val() == checkbox.attr('value')) {			                			
+            			$(this).removeAttr('selected');						    			
+		    		}			                		
+		    	});	
+            }
+            $('#'+selectBoxId).change();
+        });
+    });
+    //to select all
+    $('a#selectAll_'+selectBoxId).click(function() {	
+    	scrollTop(false);
+		var checkboxes = $(this).parent().find("input:checkbox");
+    	checkboxes.each(function() {
+    		var checkbox = $(this);
+    		checkbox.attr("checked", "checked");		
+    		checkbox.parent().addClass("multiSelectSpan-on");
+    	});	
+    	var changed = false;
+    	$('#'+selectBoxId +' option').each(function(){
+    		if(!$(this).is(':selected')) {
+    			changed = true;
+    		}
+    		$(this).attr('selected', 'selected');
+    	});	
+    	if(changed == true) {
+    		$('#'+selectBoxId).change();
+    	}    	
+    });
+    //to unselect all
+    $('a#unselectAll_'+selectBoxId).click(function() {	
+    	scrollTop(false);
+		var checkboxes = $(this).parent().find("input:checkbox");
+    	checkboxes.each(function() {
+    		var checkbox = $(this);
+    		checkbox.removeAttr('checked');	
+    		checkbox.parent().removeClass("multiSelectSpan-on");
+    	});
+    	var changed = false;
+    	$('#'+selectBoxId +' option').each(function(){
+    		if($(this).is(':selected')) {
+    			changed = true;
+    			$(this).removeAttr('selected');
+    		}    		
+    	});				    		
+    	if(changed == true) {    		
+    		$('#'+selectBoxId).change();
+    	}   	
+    });	 		    
+};
+
