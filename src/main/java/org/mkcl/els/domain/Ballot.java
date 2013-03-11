@@ -205,9 +205,15 @@ public class Ballot extends BaseDomain implements Serializable {
 			final String locale) {
 		List<BallotVO> preBallotVOs = new ArrayList<BallotVO>();
 		
-		if(deviceType.getType().equals(
-				ApplicationConstants.HALF_HOUR_DISCUSSION_QUESTION_FROM_QUESTION)) {
-			List<Question> questions = Ballot.computeQuestions(session, answeringDate, locale);
+		if(deviceType.getType().equals(ApplicationConstants.HALF_HOUR_DISCUSSION_QUESTION_FROM_QUESTION) ||
+				deviceType.getType().equals(ApplicationConstants.HALF_HOUR_DISCUSSION_QUESTION_STANDALONE)) {
+			List<Question> questions = null;
+			
+			if(deviceType.getType().equals(ApplicationConstants.HALF_HOUR_DISCUSSION_QUESTION_FROM_QUESTION)){
+				questions = Ballot.computeQuestions(session, answeringDate, locale);
+			}else if(deviceType.getType().equals(ApplicationConstants.HALF_HOUR_DISCUSSION_QUESTION_STANDALONE)){
+				questions = Ballot.computeQuestionsStandAlone(session, answeringDate, locale);
+			}
 			for(Question q : questions) {
 				BallotVO preBallotVO = new BallotVO();
 				preBallotVO.setMemberName(q.getPrimaryMember().getFullname());
@@ -227,9 +233,15 @@ public class Ballot extends BaseDomain implements Serializable {
 			final String locale) {
 		List<BallotMemberVO> preBallotMemberVOs = new ArrayList<BallotMemberVO>();
 		
-		if(deviceType.getType().equals(
-				ApplicationConstants.HALF_HOUR_DISCUSSION_QUESTION_FROM_QUESTION)) {
-			List<Member> members = Ballot.computeMembers(session, answeringDate, locale);
+		if(deviceType.getType().equals(ApplicationConstants.HALF_HOUR_DISCUSSION_QUESTION_FROM_QUESTION) ||
+				deviceType.getType().equals(ApplicationConstants.HALF_HOUR_DISCUSSION_QUESTION_STANDALONE)) {
+			
+			List<Member> members = null;
+			if(deviceType.getType().equals(ApplicationConstants.HALF_HOUR_DISCUSSION_QUESTION_FROM_QUESTION)){
+				members = Ballot.computeMembers(session, answeringDate, locale);
+			}else if(deviceType.getType().equals(ApplicationConstants.HALF_HOUR_DISCUSSION_QUESTION_STANDALONE)){
+				members = Ballot.computeMembersStandAlone(session, answeringDate, locale);
+			}
 			for(Member m: members) {
 				BallotMemberVO preBallotMemberVO = new BallotMemberVO();
 				preBallotMemberVO.setMemberName(m.getFullname());
@@ -328,18 +340,26 @@ public class Ballot extends BaseDomain implements Serializable {
 			if(this.getDeviceType().getType().equals(ApplicationConstants.STARRED_QUESTION)) {
 				ballot = this.createStarredAssemblyBallot();
 			}
-			else if(this.getDeviceType().getType().
-						equals(ApplicationConstants.HALF_HOUR_DISCUSSION_QUESTION_FROM_QUESTION)) {
-				ballot = this.createHalfHourAssemblyBallot();
+			else if(this.getDeviceType().getType().equals(ApplicationConstants.HALF_HOUR_DISCUSSION_QUESTION_FROM_QUESTION) ||
+					this.getDeviceType().getType().equals(ApplicationConstants.HALF_HOUR_DISCUSSION_QUESTION_STANDALONE)) {
+				if(this.getDeviceType().getType().equals(ApplicationConstants.HALF_HOUR_DISCUSSION_QUESTION_FROM_QUESTION)){
+					ballot = this.createHalfHourAssemblyBallot();
+				}else if(this.getDeviceType().getType().equals(ApplicationConstants.HALF_HOUR_DISCUSSION_QUESTION_STANDALONE)){
+					ballot = this.createHalfHourAssemblyBallotStandAlone();
+				}
 			}
 		}
 		else if(houseType.getType().equals(ApplicationConstants.UPPER_HOUSE)) {
 			if(this.getDeviceType().getType().equals(ApplicationConstants.STARRED_QUESTION)) {
 				ballot = this.createStarredCouncilBallot();
 			}
-			else if(this.getDeviceType().getType().
-						equals(ApplicationConstants.HALF_HOUR_DISCUSSION_QUESTION_FROM_QUESTION)) {
-				ballot = this.createHalfHourCouncilBallot();
+			else if(this.getDeviceType().getType().equals(ApplicationConstants.HALF_HOUR_DISCUSSION_QUESTION_FROM_QUESTION) ||
+					this.getDeviceType().equals(ApplicationConstants.HALF_HOUR_DISCUSSION_QUESTION_STANDALONE)) {
+				if(this.getDeviceType().getType().equals(ApplicationConstants.HALF_HOUR_DISCUSSION_QUESTION_FROM_QUESTION)){
+					ballot = this.createHalfHourCouncilBallot();
+				}else if(this.getDeviceType().getType().equals(ApplicationConstants.HALF_HOUR_DISCUSSION_QUESTION_STANDALONE)){
+					ballot = this.createHalfHourCouncilBallotStandAlone();
+				}
 			}
 		}
 		
@@ -353,8 +373,8 @@ public class Ballot extends BaseDomain implements Serializable {
 			final Question question) throws IllegalAccessException {
 		HouseType houseType = this.getSession().getHouse().getType();
 		if(houseType.getType().equals(ApplicationConstants.LOWER_HOUSE) && 
-				this.getDeviceType().getType().equals(
-						ApplicationConstants.HALF_HOUR_DISCUSSION_QUESTION_FROM_QUESTION)) {
+				this.getDeviceType().getType().equals(ApplicationConstants.HALF_HOUR_DISCUSSION_QUESTION_FROM_QUESTION) ||
+				deviceType.getType().equals(ApplicationConstants.HALF_HOUR_DISCUSSION_QUESTION_STANDALONE)) {
 			this.updateMemberBallot(member, question);
 		}
 		else {
@@ -571,6 +591,11 @@ public class Ballot extends BaseDomain implements Serializable {
 		return this.createMemberBallot();
 	}
 	
+	//=============== ASSEMBLY: HALF HOUR DISCUSSION STAND ALONE BALLOT ==========
+	public Ballot createHalfHourAssemblyBallotStandAlone() {
+		return this.createMemberBallotStandAlone();
+	}
+		
 	/**
 	 * Algorithm:
 	 * 1> Compute Members: Find all the Members who have submitted 
@@ -604,6 +629,39 @@ public class Ballot extends BaseDomain implements Serializable {
 		return ballot;
 	}
 	
+	/**
+	 * Algorithm:
+	 * 1> Compute Members: Find all the Members who have submitted 
+	 * Questions between start time & end time, with device type = 
+	 * "half hour discussion from question" and internal status = 
+	 * "ADMITTED"  & question.parent = null (don't consider clubbed 
+	 * questions)
+	 * 
+	 * 2> Randomize the list of Members obtained in step 1.
+	 * 
+	 * 3> Pick 2 (configurable) Members from the randomized list in step 2.
+	 */
+	public Ballot createMemberBallotStandAlone() {
+		Ballot ballot = Ballot.find(this.getSession(), this.getDeviceType(), 
+				this.getAnsweringDate(), this.getLocale());
+		
+		if(ballot == null) {
+			List<Member> computedList = Ballot.computeMembersStandAlone(this.getSession(),
+					this.getAnsweringDate(),
+					this.getLocale());
+			List<Member> randomizedList = Ballot.randomizeMembers(computedList);
+			// Read the constant 2 as a configurable parameter
+			List<Member> selectedList = Ballot.selectMembersForBallot(randomizedList, 2);
+			
+			List<BallotEntry> ballotEntries = Ballot.createMemberBallotEntries(selectedList,
+					this.getLocale());
+			this.setBallotEntries(ballotEntries);
+			ballot = (Ballot) this.persist();	
+		}
+		
+		return ballot;
+	}
+	
 	private void updateMemberBallot(final Member member,
 			final Question question) {
 		BallotEntry ballotEntry = Ballot.findBallotEntry(member, this.getSession(),
@@ -621,6 +679,47 @@ public class Ballot extends BaseDomain implements Serializable {
 				"DB_TIMESTAMP", "");
 		DeviceType deviceType = DeviceType.findByType(
 				ApplicationConstants.HALF_HOUR_DISCUSSION_QUESTION_FROM_QUESTION, locale);
+	
+		Date startTime = FormaterUtil.formatStringToDate(session.getParameter(
+				deviceType.getType() + "_submissionStartDate"), 
+				datePattern.getValue(), locale);
+		Date endTime = FormaterUtil.formatStringToDate(session.getParameter(
+				deviceType.getType() + "_submissionEndDate"), 
+				datePattern.getValue(), locale);
+		
+		Status ADMITTED = Status.findByType(ApplicationConstants.QUESTION_FINAL_ADMISSION, locale);
+		Status[] internalStatuses = new Status[] { ADMITTED };
+		
+		// TODO: [FATAL] internal Status will only refer to the lifecycle of a Question in the 
+		// Workflow i.e till ADMITTED. The further statuses of the Question viz Sent to department,
+		// Balloted, Discussed will be captured in recommendationStatus. So, in compute Members
+		// the condition should be: For all the active members who have submitted "half hour 
+		// discussion from question" between the specified time window (start time & end time) &
+		// whose questions have been admitted (internal status = "ADMITTED") and not balloted
+		// (recommendation status = "BALLOTED" or "DISCUSSED" or any further status) are to be
+		// picked up for this Ballot.
+		
+		List<Member> members = Question.findPrimaryMembers(session, deviceType, 
+				 answeringDate, internalStatuses, false, startTime, endTime, 
+				 ApplicationConstants.ASC, locale);
+		
+		return members;
+	}
+	
+	/**
+	 * For halfhourdiscussion standalone
+	 * @param session
+	 * @param answeringDate
+	 * @param locale
+	 * @return
+	 */
+	private static List<Member> computeMembersStandAlone(final Session session,
+			final Date answeringDate,
+			final String locale) {
+		CustomParameter datePattern = CustomParameter.findByName(CustomParameter.class, 
+				"DB_TIMESTAMP", "");
+		DeviceType deviceType = DeviceType.findByType(
+				ApplicationConstants.HALF_HOUR_DISCUSSION_QUESTION_STANDALONE, locale);
 	
 		Date startTime = FormaterUtil.formatStringToDate(session.getParameter(
 				deviceType.getType() + "_submissionStartDate"), 
@@ -697,6 +796,11 @@ public class Ballot extends BaseDomain implements Serializable {
 		return this.createNoticeBallot();
 	}
 	
+	//=============== COUNCIL: HALF HOUR DISCUSSION STAND ALONE BALLOT ===========
+		public Ballot createHalfHourCouncilBallotStandAlone() {
+			return this.createNoticeBallotStandAlone();
+		}
+	
 	/**
 	 * Assumption: 
 	 * internalStatus of Question will increment in the following manner:
@@ -734,6 +838,43 @@ public class Ballot extends BaseDomain implements Serializable {
 		
 	}
 	
+	/**
+	 * Assumption: 
+	 * internalStatus of Question will increment in the following manner:
+	 * ADMITTED -> BALLOTED -> DISCUSSED
+	 * 
+	 * Algorithm:
+	 * 1> Compute Questions: Find all the Questions submitted between start 
+	 * time & end time, with device type = "half hour discussion from question", 
+	 * internal status = "ADMITTED" & parent = null (don't consider clubbed 
+	 * questions)
+	 * 
+	 * 2> Randomize the list of Questions obtained in step 1.
+	 * 
+	 * 3> Pick 2 (configurable) questions from the randomized list in step 2.
+	 */
+	public Ballot createNoticeBallotStandAlone() {
+		Ballot ballot = Ballot.find(this.getSession(), this.getDeviceType(), 
+				this.getAnsweringDate(), this.getLocale());
+		
+		if(ballot == null) {
+			List<Question> computedList = Ballot.computeQuestionsStandAlone(this.getSession(),
+					this.getAnsweringDate(),
+					this.getLocale());
+			List<Question> randomizedList = Ballot.randomizeQuestions(computedList);
+			// Read the constant 2 as a configurable parameter
+			List<Question> selectedList = Ballot.selectQuestionsForBallot(randomizedList, 2);
+			
+			List<BallotEntry> ballotEntries = Ballot.createNoticeBallotEntries(selectedList,
+					this.getLocale());
+			this.setBallotEntries(ballotEntries);
+			ballot = (Ballot) this.persist();	
+		}
+		
+		return ballot;
+		
+	}
+	
 	private static List<Question> computeQuestions(final Session session,
 			final Date answeringDate,
 			final String locale) {
@@ -741,6 +882,40 @@ public class Ballot extends BaseDomain implements Serializable {
 				"DB_TIMESTAMP", "");
 		DeviceType deviceType = DeviceType.findByType(
 				ApplicationConstants.HALF_HOUR_DISCUSSION_QUESTION_FROM_QUESTION, locale);
+	
+		Date startTime = FormaterUtil.formatStringToDate(session.
+				getParameter(deviceType.getType() + "_submissionStartDate"), 
+				datePattern.getValue(), locale);
+		Date endTime = FormaterUtil.formatStringToDate(session.
+				getParameter(deviceType.getType() + "_submissionEndDate"), 
+				datePattern.getValue(), locale);
+		
+		Status ADMITTED = Status.findByType(ApplicationConstants.QUESTION_FINAL_ADMISSION, locale);
+		Status[] internalStatuses = new Status[] { ADMITTED };
+		
+		// TODO: internal Status will only refer to the lifecycle of a Question in the Workflow
+		// i.e till ADMITTED. The further statuses of the Question viz Sent to department,
+		// Balloted, Discussed will be captured in recommendationStatus. So, in compute Questions
+		// the condition should be: For all the active members who have submitted "half hour 
+		// discussion from question" between the specified time window (start time & end time) &
+		// whose questions have been admitted (internal status = "ADMITTED") and not balloted
+		// (recommendation status = "BALLOTED" or "DISCUSSED" or any further status) are to be
+		// picked up for this Ballot.
+		
+		List<Question> questions = Question.find(session, deviceType, 
+				answeringDate, internalStatuses, false, startTime, endTime, 
+				ApplicationConstants.ASC, locale);
+		
+		return questions;
+	}
+	
+	private static List<Question> computeQuestionsStandAlone(final Session session,
+			final Date answeringDate,
+			final String locale) {
+		CustomParameter datePattern = CustomParameter.findByName(CustomParameter.class, 
+				"DB_TIMESTAMP", "");
+		DeviceType deviceType = DeviceType.findByType(
+				ApplicationConstants.HALF_HOUR_DISCUSSION_QUESTION_STANDALONE, locale);
 	
 		Date startTime = FormaterUtil.formatStringToDate(session.
 				getParameter(deviceType.getType() + "_submissionStartDate"), 
