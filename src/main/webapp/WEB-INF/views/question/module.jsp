@@ -15,7 +15,7 @@
 				$("#ballot_tab").hide();
 			}
 			else if((currentDeviceType == 'questions_starred' && currentHouseType == 'lowerhouse')
-					|| currentDeviceType == 'questions_halfhourdiscussion_from_question') {
+					|| currentDeviceType == 'questions_halfhourdiscussion_from_question' || currentDeviceType == 'questions_halfhourdiscussion_standalone') {
 				$("#memberballot_tab").hide();
 				$("#ballot_tab").show();
 			}

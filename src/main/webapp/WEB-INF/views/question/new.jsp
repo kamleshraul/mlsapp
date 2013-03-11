@@ -224,7 +224,7 @@
 		$("#submit").click(function(e){	
 			
 			var deviceTypeTemp='${selectedQuestionType}';
-			if((deviceTypeTemp=='questions_halfhourdiscussion_standalone') || (deviceTypeTemp=='questions_halfhourdiscussion_from_question')){
+			if(deviceTypeTemp=='questions_halfhourdiscussion_from_question'){
 				$('#questionText').val($('#copyOfquestionText').val());
 				//added to validate quetion number for half hour discussion--
 				if($('#halfHourDiscussionReference_questionNumber').val()==null || $('#halfHourDiscussionReference_questionNumber').val()==""){
@@ -251,7 +251,7 @@
 
 			//----------------vikas dhananjay----------------------------------------------------------------------------------------------
 			var deviceTypeTemp='${selectedQuestionType}';
-			if((deviceTypeTemp=='questions_halfhourdiscussion_standalone') || (deviceTypeTemp=='questions_halfhourdiscussion_from_question')){
+			if(deviceTypeTemp=='questions_halfhourdiscussion_from_question'){
 				$('#questionText').val($('#copyOfquestionText').val());
 				//added to validate quetion number for half hour discussion--
 				if($('#halfHourDiscussionReference_questionNumber').val()==null || $('#halfHourDiscussionReference_questionNumber').val()==""){
@@ -303,7 +303,9 @@
 				var submissionStartDate= '${startDate}';
 				var submissionEndDate= '${endDate}';
 				
-				$('#questionText').val($('#copyOfquestionText').val());
+				if((deviceTypeTemp=='questions_halfhourdiscussion_from_question')){
+					$('#questionText').val($('#copyOfquestionText').val());
+				}
 				if( (new Date().getTime() < new Date(submissionStartDate).getTime())){
 					$.prompt($('#earlySubmissionMsg').val());					
 				    return false;
@@ -331,11 +333,12 @@
 					return false;
 				}
 				
-
-				//added to validate quetion number for half hour discussion--
-				if($('#halfHourDiscussionReference_questionNumber').val()==null || $('#halfHourDiscussionReference_questionNumber').val()==""){
-					$.prompt($("#referenceQuestionIncorrectMsg").val());
-					return false;
+				if(deviceTypeTemp=='questions_halfhourdiscussion_from_question'){
+					//added to validate quetion number for half hour discussion--
+					if($('#halfHourDiscussionReference_questionNumber').val()==null || $('#halfHourDiscussionReference_questionNumber').val()==""){
+						$.prompt($("#referenceQuestionIncorrectMsg").val());
+						return false;
+					}
 				}
 			}			
 			//------------------------------------------------------------
@@ -509,28 +512,30 @@
 		<form:errors path="subject" cssClass="validationError" />	
 	</p>	
 	
-	<p>
-		<label class="wysiwyglabel"><spring:message code="question.details" text="Details"/>*</label>
-		<form:textarea path="questionText" cssClass="wysiwyg"></form:textarea>
-		<form:errors path="questionText" cssClass="validationError" cssStyle="float:right;margin-top:-100px;margin-right:40px;"/>	
-	</p>
+		<c:if test="${selectedQuestionType!='questions_halfhourdiscussion_standalone' }">
+			<p>
+				<label class="wysiwyglabel"><spring:message code="question.details" text="Details"/>*</label>
+				<form:textarea path="questionText" cssClass="wysiwyg"></form:textarea>
+				<form:errors path="questionText" cssClass="validationError" cssStyle="float:right;margin-top:-100px;margin-right:40px;"/>	
+			</p>
+		</c:if>
 	</c:if>
 	
 	<c:if test="${selectedQuestionType=='questions_halfhourdiscussion_from_question'}">
-	<p>
-		<label class="centerlabel"><spring:message code="question.subject" text="Subject"/>*</label>
-		<form:textarea path="subject" rows="2" cols="50" readonly="true"></form:textarea>
-		<form:errors path="subject" cssClass="validationError" />
-	</p>	
-	
-	<p>
-		<label class="wysiwyglabel"><spring:message code="question.details" text="Details"/>*</label>
-		<form:textarea path="questionText" cssClass="wysiwyg" readonly="true"></form:textarea>
-		<form:errors path="questionText" cssClass="validationError" cssStyle="float:right;margin-top:-100px;margin-right:40px;"/>	
-	</p>
+		<p>
+			<label class="centerlabel"><spring:message code="question.subject" text="Subject"/>*</label>
+			<form:textarea path="subject" rows="2" cols="50" readonly="true"></form:textarea>
+			<form:errors path="subject" cssClass="validationError" />
+		</p>	
+		
+		<p>
+			<label class="wysiwyglabel"><spring:message code="question.details" text="Details"/>*</label>
+			<form:textarea path="questionText" cssClass="wysiwyg" readonly="true"></form:textarea>
+			<form:errors path="questionText" cssClass="validationError" cssStyle="float:right;margin-top:-100px;margin-right:40px;"/>	
+		</p>
 	</c:if>
 	
-	<c:if test="${selectedQuestionType=='questions_shortnotice' or selectedQuestionType=='questions_halfhourdiscussion_from_question'}">
+	<c:if test="${selectedQuestionType=='questions_shortnotice' or selectedQuestionType=='questions_halfhourdiscussion_from_question' or selectedQuestionType=='questions_halfhourdiscussion_standalone'}">
 	<p>
 		<c:choose>
 			<c:when test="${selectedQuestionType=='questions_shortnotice'}">
@@ -552,7 +557,7 @@
 		<form:textarea path="briefExplanation" cssClass="wysiwyg"></form:textarea>
 		<form:errors path="briefExplanation" cssClass="validationError" cssStyle="float:right;margin-top:-100px;margin-right:40px;"/>	
 	</p>
-	</c:if>	
+	</c:if>
 	
 	<table style="width: 100%;">
 	<c:choose>
@@ -606,7 +611,7 @@
 						</select>
 						<form:errors path="answeringDate" cssClass="validationError"/>
 					</c:if>	
-					<c:if test="${selectedQuestionType=='questions_halfhourdiscussion_from_question'}">
+					<c:if test="${selectedQuestionType=='questions_halfhourdiscussion_from_question' or selectedQuestionType=='questions_halfhourdiscussion_standalone'}">
 						<label class="small"><spring:message code="question.discussionDate" text="Discussion Date"/></label>
 						<form:select path="discussionDate" cssClass="datemask sSelect" >
 							<option value="">---<spring:message code='please.select' text='Please Select'/>---</option>
@@ -626,7 +631,7 @@
 				</p>
 			</td>
 				
-			<td>
+			<td style="vertical-align: top;">
 				<p>
 					<label class="small"><spring:message code="question.group" text="Group" />*</label>
 					<input type="text" class="sText" id="formattedGroup" name="formattedGroup"  readonly="readonly" value="${formattedGroup}">
@@ -685,6 +690,7 @@
 	<input id="usergroupType" name="usergroupType" value="${usergroupType}" type="hidden">
 	<input type="hidden" name="originalType"  id="originalType" value="${questionType}"/>
 	<input type="hidden" name="halfHourDiscussionReference_questionId_H" id="halfHourDiscussionReference_questionId_H" />
+	<input type="hidden" name="selectedSupportingMembersIfErrors" value="${selectedSupportingMembersIfErrors}" />
 </form:form>
 
 <input id="ministrySelected" value="${ministrySelected }" type="hidden">

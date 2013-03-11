@@ -221,7 +221,7 @@
 		
 		$("#submit").click(function(e){	
 			var deviceTypeTemp='${selectedQuestionType}';
-			if((deviceTypeTemp=='questions_halfhourdiscussion_standalone') || (deviceTypeTemp=='questions_halfhourdiscussion_from_question')){
+			if(deviceTypeTemp=='questions_halfhourdiscussion_from_question'){
 				$('#questionText').val($('#copyOfquestionText').val());
 				//added to validate quetion number for half hour discussion--
 				if($('#halfHourDiscussionReference_questionNumber').val()==null || $('#halfHourDiscussionReference_questionNumber').val()==""){
@@ -251,7 +251,7 @@
 
 			//----------------vikas dhananjay----------------------------------------------------------------------------------------------
 			var deviceTypeTemp='${selectedQuestionType}';
-			if((deviceTypeTemp=='questions_halfhourdiscussion_standalone') || (deviceTypeTemp=='questions_halfhourdiscussion_from_question')){
+			if(deviceTypeTemp=='questions_halfhourdiscussion_from_question'){
 				$('#questionText').val($('#copyOfquestionText').val());
 				//added to validate quetion number for half hour discussion--
 				if($('#halfHourDiscussionReference_questionNumber').val()==null || $('#halfHourDiscussionReference_questionNumber').val()==""){
@@ -300,7 +300,9 @@
 			
 			if((deviceTypeTemp=='questions_halfhourdiscussion_standalone') || (deviceTypeTemp=='questions_halfhourdiscussion_from_question')){
 				
-				$('#questionText').val($('#copyOfquestionText').val());
+				if(deviceTypeTemp=='questions_halfhourdiscussion_from_question'){
+					$('#questionText').val($('#copyOfquestionText').val());
+				}
 				
 				var submissionStartDate= '${startDate}';
 				var submissionEndDate= '${endDate}';	
@@ -331,11 +333,12 @@
 					return false;
 				}
 				
-
-				//added to validate quetion number for half hour discussion--
-				if($('#halfHourDiscussionReference_questionNumber').val()==null || $('#halfHourDiscussionReference_questionNumber').val()==""){
-					$.prompt($("#referenceQuestionIncorrectMsg").val());
-					return false;
+				if(deviceTypeTemp=='questions_halfhourdiscussion_from_question'){
+					//added to validate quetion number for half hour discussion--
+					if($('#halfHourDiscussionReference_questionNumber').val()==null || $('#halfHourDiscussionReference_questionNumber').val()==""){
+						$.prompt($("#referenceQuestionIncorrectMsg").val());
+						return false;
+					}
 				}
 			}
 			//-------------------------------------------------------------------------
@@ -534,7 +537,7 @@
 			<label class="small"><a id="halfhourdiscussion_referred_question" href="#" ><spring:message code="question.halfhour.questionrefview" text="See Referred Question"/></a></label>	
 		</p>
 	</c:if>
-		
+	
 	<p>
 		<label class="centerlabel"><spring:message code="question.supportingMembers" text="Supporting Members"/></label>
 		<textarea id="selectedSupportingMembers"  class="autosuggestmultiple" rows="2" cols="50">${supportingMembersName}</textarea>
@@ -558,29 +561,30 @@
 		<form:textarea path="subject" rows="2" cols="50"></form:textarea>
 		<form:errors path="subject" cssClass="validationError" />	
 	</p>	
-	
-	<p id="questionTextP">
-		<label class="wysiwyglabel"><spring:message code="question.details" text="Details"/>*</label>
-		<form:textarea path="questionText" cssClass="wysiwyg"></form:textarea>		 
-		<form:errors path="questionText" cssClass="validationError" cssStyle="float:right;margin-top:-100px;margin-right:40px;"/>	
-	</p>
+		<c:if test="${selectedQuestionType!='questions_halfhourdiscussion_standalone'}">
+			<p id="questionTextP">
+				<label class="wysiwyglabel"><spring:message code="question.details" text="Details"/>*</label>
+				<form:textarea path="questionText" cssClass="wysiwyg"></form:textarea>		 
+				<form:errors path="questionText" cssClass="validationError" cssStyle="float:right;margin-top:-100px;margin-right:40px;"/>	
+			</p>
+		</c:if>
 	</c:if>
 	
 	<c:if test="${selectedQuestionType=='questions_halfhourdiscussion_from_question'}">
-	<p>
-		<label class="centerlabel"><spring:message code="question.subject" text="Subject"/>*</label>
-		<form:textarea path="subject" rows="2" cols="50" readonly="true"></form:textarea>
-		<form:errors path="subject" cssClass="validationError" />
-	</p>	
-	
-	<p>
-		<label class="wysiwyglabel"><spring:message code="question.details" text="Details"/>*</label>
-		<form:textarea path="questionText" cssClass="wysiwyg" readonly="true"></form:textarea>
-		<form:errors path="questionText" cssClass="validationError" cssStyle="float:right;margin-top:-100px;margin-right:40px;"/>	
-	</p>
+		<p>
+			<label class="centerlabel"><spring:message code="question.subject" text="Subject"/>*</label>
+			<form:textarea path="subject" rows="2" cols="50" readonly="true"></form:textarea>
+			<form:errors path="subject" cssClass="validationError" />
+		</p>	
+		
+		<p>
+			<label class="wysiwyglabel"><spring:message code="question.details" text="Details"/>*</label>
+			<form:textarea path="questionText" cssClass="wysiwyg" readonly="true"></form:textarea>
+			<form:errors path="questionText" cssClass="validationError" cssStyle="float:right;margin-top:-100px;margin-right:40px;"/>	
+		</p>
 	</c:if>
 	
-	<c:if test="${selectedQuestionType=='questions_shortnotice' or selectedQuestionType=='questions_halfhourdiscussion_from_question'}">
+	<c:if test="${selectedQuestionType=='questions_shortnotice' or selectedQuestionType=='questions_halfhourdiscussion_from_question' or selectedQuestionType=='questions_halfhourdiscussion_standalone'}">
 	<p>
 		<c:choose>
 			<c:when test="${selectedQuestionType=='questions_shortnotice'}">
@@ -628,7 +632,7 @@
 		<c:choose>
 			<c:when test="${! empty ministries}">
 				<tr>
-					<td>
+					<td style="vertical-align: top;">
 						<p>
 							<label class="small"><spring:message code="question.ministry" text="Ministry"/>*</label>
 							<select name="ministry" id="ministry" class="sSelect">
@@ -677,7 +681,7 @@
 								<form:errors path="answeringDate" cssClass="validationError"/>
 								<input id="chartAnsweringDate" name="chartAnsweringDate" type="hidden"  value="${chartAnsweringDate}">
 							</c:if>	
-							<c:if test="${selectedQuestionType=='questions_halfhourdiscussion_from_question'}">
+							<c:if test="${selectedQuestionType=='questions_halfhourdiscussion_from_question' or selectedQuestionType=='questions_halfhourdiscussion_standalone'}">
 								<label class="small"><spring:message code="question.discussionDate" text="Discussion Date"/></label>
 								<form:select path="discussionDate" cssClass="datemask sSelect" >
 									<option value="">---<spring:message code='please.select' text='Please Select'/>---</option>
@@ -696,7 +700,7 @@
 							</c:if>		
 						</p>	
 					</td>
-					<td>
+					<td style="vertical-align: top;">
 						<p>
 							<label class="small"><spring:message code="question.group" text="Group"/>*</label>
 							<input type="text" class="sText" id="formattedGroup" name="formattedGroup"  readonly="readonly" value="${formattedGroup}">		

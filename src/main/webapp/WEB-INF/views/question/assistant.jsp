@@ -219,6 +219,7 @@
 		});
 	}
 	$(document).ready(function(){
+		
 		/**** Back To Question ****/
 		$("#backToQuestion").click(function(){
 			$("#clubbingResultDiv").hide();
@@ -421,10 +422,11 @@
 		if($("#revisedSubject").val()!=''){
 		    $("#revisedSubjectDiv").show();
 	    }
-	    if($("#revisedQuestionText").val()!=''){
-	    	$("#revisedQuestionTextDiv").show();
-	    }
-	    
+		if(1==1){
+		    if($("#revisedQuestionText").val()!=''){
+		    	$("#revisedQuestionTextDiv").show();
+		    }
+		}
 	    if($("#revisedReason").val()!=''){
 		    $("#revisedReasonDiv").show();
 	    }
@@ -489,7 +491,7 @@
 		<input id="formattedHouseType" name="formattedHouseType" value="${formattedHouseType}" class="sText" readonly="readonly">
 		<input id="houseType" name="houseType" value="${houseType}" type="hidden">
 		<form:errors path="houseType" cssClass="validationError"/>			
-	</p>	
+	</p>
 	
 	<p style="display:none;">
 		<label class="small"><spring:message code="question.year" text="Year"/>*</label>
@@ -546,7 +548,7 @@
 		<input id="answeringDate" name="answeringDate" type="hidden"  value="${answeringDate}">
 		<input id="chartAnsweringDate" name="chartAnsweringDate" type="hidden"  value="${chartAnsweringDate}">
 	</c:if>
-	<c:if test="${selectedQuestionType=='questions_halfhourdiscussion_from_question'}">
+	<c:if test="${selectedQuestionType=='questions_halfhourdiscussion_from_question' or selectedQuestionType=='questions_halfhourdiscussion_standalone'}">
 		<label class="small"><spring:message code="question.discussionDate" text="Discussion Date"/></label>
 		<input id="discussionDate" name="discussionDate" value="${discussionDateSelected }" class="sText" readonly="readonly">
 		<form:errors path="discussionDate" cssClass="validationError"/>
@@ -683,14 +685,13 @@
 	<form:textarea path="subject" readonly="true" rows="2" cols="50"></form:textarea>
 	<form:errors path="subject" cssClass="validationError"/>	
 	</p>
-	
 	<p>
 	<label class="wysiwyglabel"><spring:message code="question.details" text="Details"/></label>
 	<form:textarea path="questionText" readonly="true" cssClass="wysiwyg"></form:textarea>
 	<form:errors path="questionText" cssClass="validationError"/>	
 	</p>
 	
-	<c:if test="${selectedQuestionType=='questions_shortnotice' or selectedQuestionType=='questions_halfhourdiscussion_from_question'}">
+	<c:if test="${selectedQuestionType=='questions_shortnotice' or selectedQuestionType=='questions_halfhourdiscussion_from_question' or selectedQuestionType=='questions_halfhourdiscussion_standalone'}">
 	<p>
 		<c:choose>
 			<c:when test="${selectedQuestionType=='questions_shortnotice'}">
@@ -716,7 +717,13 @@
 	<c:if test="${selectedQuestionType!='questions_halfhourdiscussion_from_question'}">
 		<p>
 			<a href="#" id="reviseSubject" style="margin-left: 162px;margin-right: 20px;"><spring:message code="question.reviseSubject" text="Revise Subject"></spring:message></a>
-			<a href="#" id="reviseQuestionText" style="margin-right: 20px;"><spring:message code="question.reviseQuestionText" text="Revise Question"></spring:message></a>
+			<c:if test="${selectedQuestionType!='questions_halfhourdiscussion_standalone'}">
+				<a href="#" id="reviseQuestionText" style="margin-right: 20px;"><spring:message code="question.reviseQuestionText" text="Revise Question"></spring:message></a>
+			</c:if>
+			<c:if test="${selectedQuestionType=='questions_halfhourdiscussion_standalone'}">
+				<a href="#" id="reviseReason" style="margin-left: 162px;margin-right: 20px;"><spring:message code="question.reviseReason" text="Revise Reason"></spring:message></a>
+				<a href="#" id="reviseBriefExplanation" style="margin-right: 20px;"><spring:message code="question.reviseBriefExplanation" text="Revise Brief Explanation"></spring:message></a>
+			</c:if>
 			<a href="#" id="viewRevision"><spring:message code="question.viewrevisions" text="View Revisions"></spring:message></a>
 		</p>
 	</c:if>
@@ -762,14 +769,15 @@
 	<c:if test="${(internalStatusType=='question_system_putup'&&selectedQuestionType=='questions_starred')
 	||(internalStatusType=='question_system_assistantprocessed'&&selectedQuestionType=='questions_shortnotice')
 	||(internalStatusType=='question_system_assistantprocessed'&&selectedQuestionType=='questions_halfhourdiscussion_from_question')
-	||(internalStatusType=='question_system_assistantprocessed'&&selectedQuestionType=='questions_unstarred')}">		
+	||(internalStatusType=='question_system_assistantprocessed'&&selectedQuestionType=='questions_unstarred')
+	||(internalStatusType=='question_system_assistantprocessed'&&selectedQuestionType=='questions_halfhourdiscussion_standalone')}">		
 	<p>
 	<label class="small"><spring:message code="question.putupfor" text="Put up for"/></label>
 	<select id="changeInternalStatus" class="sSelect">
 	<option value="-"><spring:message code='please.select' text='Please Select'/></option>
 	<c:forEach items="${internalStatuses}" var="i">
 		<c:choose>
-			<c:when test="${selectedQuestionType=='questions_halfhourdiscussion_from_question'}">
+			<c:when test="${selectedQuestionType=='questions_halfhourdiscussion_from_question' or selectedQuestionType=='questions_halfhourdiscussion_standalone'}">
 				<c:if test="${i.type=='question_recommend_admission' or i.type=='question_recommend_rejection' or i.type=='question_recommend_sendback' or i.type=='question_recommend_discuss'}">
 					<option value="${i.id}"><c:out value="${i.name}"></c:out></option>	
 				</c:if>
@@ -837,7 +845,8 @@
 		<c:if test="${(internalStatusType=='question_system_putup'&&selectedQuestionType=='questions_starred')
 					||(internalStatusType=='question_system_assistantprocessed'&&selectedQuestionType=='questions_shortnotice')
 					||(internalStatusType=='question_system_assistantprocessed'&&selectedQuestionType=='questions_halfhourdiscussion_from_question')
-					||(internalStatusType=='question_system_assistantprocessed'&&selectedQuestionType=='questions_unstarred')}">		
+					||(internalStatusType=='question_system_assistantprocessed'&&selectedQuestionType=='questions_unstarred')
+					||(internalStatusType=='question_system_assistantprocessed'&&selectedQuestionType=='questions_halfhourdiscussion_standalone')}">		
 		<input id="startworkflow" type="button" value="<spring:message code='question.putupquestion' text='Put Up Question'/>" class="butDef">
 		</c:if>
 	</p>
@@ -873,6 +882,7 @@
 <input id="oldInternalStatus" value="${ internalStatus}" type="hidden">
 <input id="oldRecommendationStatus" value="${ RecommendationStatus}" type="hidden">
 <input id="ministryEmptyMsg" value='<spring:message code="client.error.ministryempty" text="Ministry can not be empty."></spring:message>' type="hidden">
+<input id="questionType" type="hidden" value="${selectedQuestionType}" />
 
 <ul id="contextMenuItems" >
 <li><a href="#unclubbing" class="edit"><spring:message code="generic.unclubbing" text="Unclubbing"></spring:message></a></li>
