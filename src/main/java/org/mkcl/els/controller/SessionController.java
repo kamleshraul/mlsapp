@@ -26,6 +26,8 @@ import javax.validation.Valid;
 
 import org.mkcl.els.common.util.ApplicationConstants;
 import org.mkcl.els.common.util.FormaterUtil;
+import org.mkcl.els.domain.BallotEvent;
+import org.mkcl.els.domain.BallotType;
 import org.mkcl.els.domain.CustomParameter;
 import org.mkcl.els.domain.DeviceType;
 import org.mkcl.els.domain.Group;
@@ -226,10 +228,18 @@ javax.servlet.http.HttpServletRequest)
          model.addAttribute("urlPattern", urlPattern);
          model.addAttribute("deviceTypeSelected", request.getParameter("deviceTypeSelected"));
          
-         Session domain= Session.findById(Session.class, id);
+         
+         Session domain= Session.findById(Session.class, id);         
+         if(domain == null) {
+        	 model.addAttribute("errorcode", "nosessionfound");    			
+  			 return urlPattern.replace("devicetypeconfig","error");        	 
+         }
+         
+         model.addAttribute("houseType", domain.findHouseType());         
+         
          List<DeviceType> deviceTypesEnabled = new ArrayList<DeviceType>();
-         String deviceTypesEnabledStr = domain.getDeviceTypesEnabled();
-         if(deviceTypesEnabledStr!=null && !deviceTypesEnabledStr.isEmpty()) {
+         String deviceTypesEnabledStr = domain.getDeviceTypesEnabled();         
+         if(deviceTypesEnabledStr!=null) {        	
         	for (String deviceTypeEnabledStr : deviceTypesEnabledStr.split(",")) {
         		DeviceType deviceTypeEnabled = DeviceType.findByType(deviceTypeEnabledStr, domain.getLocale());
         		if(deviceTypeEnabled != null) {
@@ -240,76 +250,105 @@ javax.servlet.http.HttpServletRequest)
         				if(parametersForDeviceType.isEmpty()){
         					List<CustomParameter> customParameters = CustomParameter.findAllByStartingWith(CustomParameter.class, "name", deviceTypeEnabled.getType()+'%', "name", ApplicationConstants.ASC, "");
     	        			for(CustomParameter i: customParameters) {     
-    	        				String key = i.getName().toLowerCase();    	        				
-	        					if(i.getValue()!=null && !i.getValue().isEmpty()) {
-	        						if(key.endsWith("date")) {
-	        							CustomParameter parameter;
-										CustomParameter dbParameter;
-										if(i.getValue().length()>10){
-											 parameter = CustomParameter.findByName(CustomParameter.class, "SERVER_DATETIMEFORMAT", "");
-											 dbParameter = CustomParameter.findByName(CustomParameter.class, "DB_DATETIMEFORMAT", "");
-										}
-										else{
-											 parameter = CustomParameter.findByName(CustomParameter.class, "SERVER_DATEFORMAT", "");
-											 dbParameter = CustomParameter.findByName(CustomParameter.class, "DB_DATEFORMAT", "");
-										}		
-										SimpleDateFormat dateFormat;
-										SimpleDateFormat dbDateFormat;
-										Date date;
-										
-										try {
-		
-											if (domain.getLocale().equalsIgnoreCase("mr_IN")) {
-												
-												dateFormat = new SimpleDateFormat(parameter.getValue(), new Locale("hi", "IN"));
-												dbDateFormat = new SimpleDateFormat(dbParameter.getValue(), new Locale("hi", "IN"));
-												
-											} else {
-		
-												dateFormat = new SimpleDateFormat(parameter.getValue(), new Locale(domain.getLocale()));
-												dbDateFormat = new SimpleDateFormat(dbParameter.getValue(), new Locale(domain.getLocale()));
+    	        				String key = i.getName().toLowerCase();
+    	        				if(key.contains("_lowerhouse")) {
+    	        					if(domain.findHouseType() != null) {
+	    	        					if(!domain.findHouseType().equals("lowerhouse")) {
+	    	        						continue;
+	    	        					}
+    	        					}
+    	        					key = key.replaceAll("_lowerhouse", "");    	        					
+    	        				} else if(key.contains("_upperhouse")) {
+    	        					if(domain.findHouseType() != null) {
+	    	        					if(!domain.findHouseType().equals("upperhouse")) {
+	    	        						continue;
+	    	        					}
+    	        					}
+    	        					key = key.replaceAll("_upperhouse", "");    	        					
+    	        				}
+	        					if(i.getValue()!=null) {
+	        						if(!i.getValue().isEmpty()) {
+	        							if(key.endsWith("date")) {
+		        							CustomParameter parameter;
+											CustomParameter dbParameter;
+											if(i.getValue().length()>10){
+												 parameter = CustomParameter.findByName(CustomParameter.class, "SERVER_DATETIMEFORMAT", "");
+												 dbParameter = CustomParameter.findByName(CustomParameter.class, "DB_DATETIMEFORMAT", "");
 											}
-		
-											dateFormat.setLenient(true);
-		
-											date = dbDateFormat.parse(i.getValue());
+											else{
+												 parameter = CustomParameter.findByName(CustomParameter.class, "SERVER_DATEFORMAT", "");
+												 dbParameter = CustomParameter.findByName(CustomParameter.class, "DB_DATEFORMAT", "");
+											}		
+											SimpleDateFormat dateFormat;
+											SimpleDateFormat dbDateFormat;
+											Date date;
 											
-											model.addAttribute(key, dateFormat.format(date)); 										
-											
-										} catch (ParseException e) {
-		
-											e.printStackTrace();
-										}
-	        						} else if(key.endsWith("dates")) {
-	        							// add formatting as done for the same type in getParameters() of Session.java
-	        						} else {
-		        						try {
-		        							Integer num = Integer.parseInt(i.getValue());
-		        							String value = FormaterUtil.formatNumberNoGrouping(num, domain.getLocale());
-		        							model.addAttribute(key, value);
-		        						} 
-		        						//if parameter value is not a number
-		        						catch(NumberFormatException ne) {
-		        							model.addAttribute(key, i.getValue());   							
-		        						}  
+											try {
+			
+												if (domain.getLocale().equalsIgnoreCase("mr_IN")) {
+													
+													dateFormat = new SimpleDateFormat(parameter.getValue(), new Locale("hi", "IN"));
+													dbDateFormat = new SimpleDateFormat(dbParameter.getValue(), new Locale("hi", "IN"));
+													
+												} else {
+			
+													dateFormat = new SimpleDateFormat(parameter.getValue(), new Locale(domain.getLocale()));
+													dbDateFormat = new SimpleDateFormat(dbParameter.getValue(), new Locale(domain.getLocale()));
+												}
+			
+												dateFormat.setLenient(true);
+			
+												date = dbDateFormat.parse(i.getValue());
+												
+												model.addAttribute(key, dateFormat.format(date)); 										
+												
+											} catch (ParseException e) {
+			
+												e.printStackTrace();
+											}
+		        						} else if(key.endsWith("dates")) {
+		        							// add formatting as done for the same type in getParameters() of Session.java
+		        						} else {
+			        						try {
+			        							Integer num = Integer.parseInt(i.getValue());
+			        							String value = FormaterUtil.formatNumberNoGrouping(num, domain.getLocale());
+			        							model.addAttribute(key, value);
+			        						} 
+			        						//if parameter value is not a number
+			        						catch(NumberFormatException ne) {
+			        							model.addAttribute(key, i.getValue());   							
+			        						}  
+		        						}
 	        						}
-	        					}
-	        					else {
-	        						model.addAttribute(key, "");
-	        					}     	        				
+	        						else {
+		        						model.addAttribute(key, "");
+		        					}
+	        					}	        					     	        				
     	        			}
         				}
         				else{
         					for(String parameterKey : parametersForDeviceType) {
+        						System.out.println(parameterKey);
         						model.addAttribute(parameterKey.toLowerCase(), domain.getParameter(parameterKey));
         					}
         				}
         			}
         			//-----------------------------------------------------------------
-        		}
+        		}            	
         	}    
         }
+        else {
+        	model.addAttribute("errorcode", "nodevicetypesenabled");    			
+			return urlPattern.replace("devicetypeconfig","error");
+        }
         model.addAttribute("deviceTypesEnabled", deviceTypesEnabled);
+        
+        List<BallotType> ballotTypes = BallotType.findAll(BallotType.class, "name", ApplicationConstants.ASC, domain.getLocale());
+        model.addAttribute("ballotTypes", ballotTypes);        
+        
+        List<BallotType> ballotEvents = BallotEvent.findAll(BallotEvent.class, "name", ApplicationConstants.ASC, domain.getLocale());
+        model.addAttribute("ballotEvents", ballotEvents);
+        
         model.addAttribute("domain", domain);
         
         //----to show ribbon
@@ -379,16 +418,15 @@ javax.servlet.http.HttpServletRequest)
 						}
 					}
 					
-					//System.out.println(name+": "+value);
-					
-					if(value.isEmpty()){
-						if(parameters.containsKey(name)){
-							parameters.remove(name);
-						}
-					}
+					//System.out.println(name+": "+value);					
 						
 					if ((value != null)) {
-						if(!(value.isEmpty())){
+						if(value.isEmpty()){
+							if(parameters.containsKey(name)){
+								parameters.remove(name);
+							}
+						}
+						else {
 							parameters.put(name, value);
 						}
 					}
