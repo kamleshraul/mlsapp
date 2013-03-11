@@ -52,6 +52,7 @@ import org.mkcl.els.domain.Ministry;
 import org.mkcl.els.domain.Question;
 import org.mkcl.els.domain.QuestionDates;
 import org.mkcl.els.domain.RailwayStation;
+import org.mkcl.els.domain.Resolution;
 import org.mkcl.els.domain.Session;
 import org.mkcl.els.domain.SessionType;
 import org.mkcl.els.domain.State;
@@ -1646,4 +1647,78 @@ public class ReferenceController extends BaseController {
 		return masterVOs;
 	}	
 	
+	
+	@RequestMapping(value="/resolution/actors",method=RequestMethod.POST)
+	public @ResponseBody List<Reference> findResolutionActors(final HttpServletRequest request,final ModelMap model,
+			final Locale locale){
+		List<Reference> actors=new ArrayList<Reference>();
+		String strResolution=request.getParameter("resolution");
+		String strInternalStatus=request.getParameter("status");
+		String strUserGroup=request.getParameter("usergroup");
+		String strLevel=request.getParameter("level");
+		if(strResolution!=null&&strInternalStatus!=null&&strUserGroup!=null&&strLevel!=null){
+			if((!strResolution.isEmpty())&&(!strInternalStatus.isEmpty())&&
+					(!strUserGroup.isEmpty())&&(!strLevel.isEmpty())){
+				Status internalStatus=Status.findById(Status.class,Long.parseLong(strInternalStatus));
+				Resolution resolution=Resolution.findById(Resolution.class,Long.parseLong(strResolution));
+				UserGroup userGroup=UserGroup.findById(UserGroup.class,Long.parseLong(strUserGroup));
+				actors=WorkflowConfig.findResolutionActorsVO(resolution,internalStatus,userGroup,Integer.parseInt(strLevel),locale.toString());
+			}
+		}
+		return actors;
+	}
+	
+	// Added 
+	@RequestMapping(value="/status",method=RequestMethod.GET)
+	public @ResponseBody List<Status> loadSubWorkflowByDeviceType(final HttpServletRequest request,
+			final ModelMap model,final Locale locale){
+		List<Status> workflowTypes= new ArrayList<Status>();
+		DeviceType deviceType=null;
+		String server=null;
+		CustomParameter customParameter=CustomParameter.findByName(CustomParameter.class, "DEPLOYMENT_SERVER", "");
+		if(customParameter!=null){
+			server=customParameter.getValue();
+			String strDeviceType=request.getParameter("deviceType");
+			if(!strDeviceType.isEmpty()){
+			if(server.equals("TOMCAT")){
+				try {
+						String param = new String(strDeviceType.getBytes("ISO-8859-1"),"UTF-8");
+						deviceType=DeviceType.findByName(DeviceType.class, param, locale.toString());
+					}catch (UnsupportedEncodingException e) {
+						logger.error("Cannot Encode the Parameter.");
+					}
+			}else{
+				deviceType=DeviceType.findByName(DeviceType.class, strDeviceType, locale.toString());
+			}
+			}
+			if(deviceType!=null){
+				List<UserGroup> userGroups=this.getCurrentUser().getUserGroups();
+				if(userGroups!=null){
+					for(UserGroup i:userGroups){
+					/**** Authenticated User's usergroup and usergroupType ****/
+						String userGroupType=i.getUserGroupType().getType();
+						CustomParameter allowedWorkflowTypes=CustomParameter.findByName(CustomParameter.class,"MYTASK_GRID_WORKFLOW_TYPES_ALLOWED_"+deviceType.getType().toUpperCase()+"_"+userGroupType.toUpperCase(), "");
+						if(allowedWorkflowTypes!=null){
+							workflowTypes=Status.findStatusContainedIn(allowedWorkflowTypes.getValue(), locale.toString());
+						}else{
+							CustomParameter defaultAllowedWorkflowTypes=CustomParameter.findByName(CustomParameter.class,"MYTASK_GRID_WORKFLOW_TYPES_ALLOWED_BY_DEFAULT", "");
+							if(defaultAllowedWorkflowTypes!=null){
+								workflowTypes=Status.findStatusContainedIn(defaultAllowedWorkflowTypes.getValue(), locale.toString());
+							}else{
+								logger.error("Custom Parameter 'MYTASK_GRID_WORKFLOW_TYPES_ALLOWED_BY_DEFAULT' not set");
+							}
+						}
+					}
+					return workflowTypes;
+				}else{
+					logger.error("User Group type is not set");
+				}
+			}else{
+				logger.error("No device Type found");
+			}
+		}else{
+			logger.error("Custom Parameter 'DEPLOYMENT_SERVER' not set");
+		}
+		return null;
+	}
 }
