@@ -8,35 +8,40 @@
 	<script type="text/javascript">
 		$('document').ready(function(){	
 			initControls();
+			
 			var recordId = ${domain.id};
-			$('#key').val(recordId);	
+			$('#key').val(recordId);
+			
+			$("#ministries").multiSelect();
 			
 			$('#number').change(function(){				
 				if($('#number').val() != "") {
-					$.get('ref/group/ministries?groupNumber='+$('#number').val()+'&houseType='+$('#houseType').val()+'&year='+$("#year").val()+'&sessionType='+$("#sessionType").val(), 
+					/* $.get('ref/group/ministries?groupNumber='+$('#number').val()+'&houseType='+$('#houseType').val()+'&year='+$("#year").val()+'&sessionType='+$("#sessionType").val(), 
 						function(data) {
 							$('#ministries option').empty();
 							var options = "";
 							for ( var i = 0; i < data.length; i++) {
 								options += "<option value='"+data[i].id+"'>" + data[i].name + "</option>";
 							}
-							$('#ministries').html(options);
-						}
-					);
+							$('#ministries').html(options);							
+							$('#ministries').removeAttr('disabled');
+							$("#ministries").multiSelect();							
+						}); */					
 				}								
-			});
+			});			
 			
 			$('#submit').click(function(){
 				if($('#number').val() == "") {
 					$.prompt($('#pleaseSelectGroupNumber').val());
 					return false;
 				}				
+				
 				if($('#ministries').val() == null) {
 					$.prompt($('#pleaseSelectMinistries').val());
 					return false;
 				}
-			});
-		});	
+			});		
+		});			
 	</script>
 </head>
 <body>
@@ -88,10 +93,10 @@
 		<form:errors path="number" cssClass="validationError" />
 	</p>
 	<p>
-		<label class="small"><spring:message code="group.ministries" text="Ministries" /></label>			
-		<form:select path="ministries" id="ministries" items="${ministries}" itemValue="id" itemLabel="name" multiple="multiple" size="10"/>
-		<form:errors path="ministries" cssClass="validationError" />
-	</p>
+		<label style="vertical-align: top;"><spring:message code="group.ministries" text="Ministries" /></label>			
+		<form:select path="ministries" id="ministries" items="${ministries}" itemValue="id" itemLabel="name" multiple="multiple" size="10" disabled="false"/>
+		<form:errors path="ministries" cssClass="validationError" />	
+	</p>	
 					
 	<div class="fields">
 		<h2></h2>

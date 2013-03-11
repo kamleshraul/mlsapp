@@ -8,7 +8,9 @@
 	<script type="text/javascript">
 		$('document').ready(function(){	
 			initControls();
-			$('#key').val('');	
+			$('#key').val('');
+			
+			$("#ministries").multiSelect();		
 			
 			$('#submit').click(function(){
 				if($('#number').val() == "") {
@@ -19,9 +21,9 @@
 					$.prompt($('#pleaseSelectMinistries').val());
 					return false;
 				}
-			});
-		});		
-	</script>
+			});		
+		});	
+	</script>		
 </head>
 <body>
 
@@ -73,7 +75,7 @@
 		<form:errors path="number" cssClass="validationError" />
 	</p>
 	<p>
-		<label class="small"><spring:message code="group.ministries" text="Ministries" /></label>			
+		<label style="vertical-align: top; width: 142px"><spring:message code="group.ministries" text="Ministries" /></label>			
 		<form:select path="ministries" id="ministries" items="${ministries}" itemValue="id" itemLabel="name" multiple="multiple" size="10"/>
 		<form:errors path="ministries" cssClass="validationError" />
 	</p>
