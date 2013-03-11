@@ -614,7 +614,7 @@
 				</p>
 				
 				<p>
-					<label class="small"><spring:message code="session.deviceType.discussionDays" text="Discussion Days" /></label>
+					<label class="centerlabel"><spring:message code="session.deviceType.discussionDays" text="Discussion Days" /></label>
 					<select class="sSelectMultiple" name="questions_halfhourdiscussion_standalone_discussionDays" id="questions_halfhourdiscussion_standalone_discussionDays" multiple="multiple">
 						<option value="Monday"><spring:message code="week.days.monday" text="Monday" /></option>
 						<option value="Tuesday"><spring:message code="week.days.tuesday" text="Tuesday" /></option>
@@ -628,7 +628,7 @@
 				</p>
 				
 				<p id="discussion_dates_para_standalone">
-					<label class="small"><spring:message code="session.deviceType.discussionDates" text="Discussion Datess" /></label>
+					<label class="centerlabel"><spring:message code="session.deviceType.discussionDates" text="Discussion Datess" /></label>
 					<select class="sSelectMultiple" name="questions_halfhourdiscussion_standalone_discussionDates" id="questions_halfhourdiscussion_standalone_discussionDates" multiple="multiple">
 					</select>
 					<label id="questions_halfhourdiscussion_standalone_discussion_dates_hidden" title="${questions_halfhourdiscussion_standalone_discussiondates}"></label>
