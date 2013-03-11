@@ -324,11 +324,11 @@
 		});
 
 
-		if($('#selectedQuestionType').val()=='questions_halfhourdiscussion_from_question' || $('#selectedQuestionType').val()=='questions_shortnotice'){
+		if($('#selectedQuestionType').val()=='questions_halfhourdiscussion_from_question' || $('#selectedQuestionType').val()=='questions_halfhourdiscussion_standalone' || $('#selectedQuestionType').val()=='questions_shortnotice'){
 			if($("#revisedReason").val()!=''){
 			    $("#revisedReasonDiv").show();
 		    }
-			if($('#selectedQuestionType').val()=='questions_halfhourdiscussion_from_question'){
+			if($('#selectedQuestionType').val()=='questions_halfhourdiscussion_from_question' || $('#selectedQuestionType').val()=='questions_halfhourdiscussion_standalone'){
 			    if($("#revisedBriefExplanation").val()!=''){
 			    	$("#revisedBriefExplanationDiv").show();
 			    }
@@ -457,9 +457,11 @@
 			if($("#revisedSubject").val()!=''){
 			    $("#revisedSubjectDiv").show();
 		    }
-		    if($("#revisedQuestionText").val()!=''){
-		    	$("#revisedQuestionTextDiv").show();
-		    }	 
+			if($('#selectedQuestionType').val()!='questions_halfhourdiscussion_standalone'){
+			    if($("#revisedQuestionText").val()!=''){
+			    	$("#revisedQuestionTextDiv").show();
+			    }	 
+			}		  
 		}
 	  //--------------vikas dhananjay 20012013--------------------------
 		//for viewing the refernced question
@@ -589,7 +591,7 @@
 		<input id="answeringDate" name="answeringDate" type="hidden"  value="${answeringDate}">
 		<input id="chartAnsweringDate" name="chartAnsweringDate" type="hidden"  value="${chartAnsweringDate}">
 	</c:if>
-	<c:if test="${selectedQuestionType=='questions_halfhourdiscussion_from_question'}">
+	<c:if test="${selectedQuestionType=='questions_halfhourdiscussion_from_question' or selectedQuestionType=='questions_halfhourdiscussion_standalone'}">
 		<label class="small"><spring:message code="question.discussionDate" text="Discussion Date"/></label>
 		<input id="discussionDate" name="discussionDate" value="${discussionDateSelected }" class="sText" readonly="readonly">
 		<form:errors path="discussionDate" cssClass="validationError"/>
@@ -729,18 +731,20 @@
 	
 	
 	<p>	
-	<label class="centerlabel"><spring:message code="question.subject" text="Subject"/></label>
-	<form:textarea path="subject" readonly="true" rows="2" cols="50"></form:textarea>
-	<form:errors path="subject" cssClass="validationError"/>	
+		<label class="centerlabel"><spring:message code="question.subject" text="Subject"/></label>
+		<form:textarea path="subject" readonly="true" rows="2" cols="50"></form:textarea>
+		<form:errors path="subject" cssClass="validationError"/>	
 	</p>
 	
-	<p>
-	<label class="wysiwyglabel"><spring:message code="question.details" text="Details"/></label>
-	<form:textarea path="questionText" readonly="true" cssClass="wysiwyg"></form:textarea>
-	<form:errors path="questionText" cssClass="validationError"/>	
-	</p>
+	<c:if test="${selectedQuestionType!='questions_halfhourdiscussion_standalone'}">
+		<p>
+		<label class="wysiwyglabel"><spring:message code="question.details" text="Details"/></label>
+		<form:textarea path="questionText" readonly="true" cssClass="wysiwyg"></form:textarea>
+		<form:errors path="questionText" cssClass="validationError"/>	
+		</p>
+	</c:if>
 	
-	<c:if test="${selectedQuestionType=='questions_shortnotice' or selectedQuestionType=='questions_halfhourdiscussion_from_question'}">
+	<c:if test="${selectedQuestionType=='questions_shortnotice' or selectedQuestionType=='questions_halfhourdiscussion_from_question' or selectedQuestionType=='questions_halfhourdiscussion_standalone'}">
 	<p>
 		<c:choose>
 			<c:when test="${selectedQuestionType=='questions_shortnotice'}">
@@ -767,7 +771,13 @@
 	<c:if test="${selectedQuestionType!='questions_halfhourdiscussion_from_question'}">
 		<p>
 		<a href="#" id="reviseSubject" style="margin-left: 162px;margin-right: 20px;"><spring:message code="question.reviseSubject" text="Revise Subject"></spring:message></a>
-		<a href="#" id="reviseQuestionText" style="margin-right: 20px;"><spring:message code="question.reviseQuestionText" text="Revise Question"></spring:message></a>
+		<c:if test="${selectedQuestionType!='questions_halfhourdiscussion_standalone'}">
+			<a href="#" id="reviseQuestionText" style="margin-right: 20px;"><spring:message code="question.reviseQuestionText" text="Revise Question"></spring:message></a>
+		</c:if>
+		<c:if test="${selectedQuestionType=='questions_halfhourdiscussion_standalone'}" >
+			<a href="#" id="reviseReason" style="margin-left: 162px;margin-right: 20px;"><spring:message code="question.reviseReason" text="Revise Points To be Discussed"></spring:message></a>
+			<a href="#" id="reviseBriefExplanation" style="margin-right: 20px;"><spring:message code="question.reviseBriefExplanation" text="Revise Brief Explanation"></spring:message></a>
+		</c:if>
 		<a href="#" id="viewRevision"><spring:message code="question.viewrevisions" text="View Revisions"></spring:message></a>
 		</p>
 	</c:if>
