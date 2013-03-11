@@ -850,5 +850,15 @@ private static Session compareSession(List<Session> sessionList, final Session s
 			return null;
 	}
 	
-	
+	public String findHouseType() {
+		String sessionHouseType = null;
+		if(this.getHouse() != null) {
+			if(this.getHouse().getType() != null) {
+				if(this.getHouse().getType().getType() != null) {					
+					sessionHouseType = this.getHouse().getType().getType();					
+				}
+			}
+		}
+		return sessionHouseType;
+	}
  }
