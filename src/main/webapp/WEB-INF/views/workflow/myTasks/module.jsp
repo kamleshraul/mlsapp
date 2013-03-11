@@ -32,8 +32,8 @@
 			/**** device type changes then reload grid****/			
 			$("#selectedDeviceType").change(function(){
 				var value=$(this).val();
-				if(value!=""){				
-					reloadMyTaskGrid();
+				if(value!=""){		
+					loadSubWorkflow(value);
 				}
 			});	
 			/**** status changes then reload grid****/			
@@ -107,6 +107,22 @@
 				$("#grid").setGridParam({"url":newURL});
 				$("#grid").trigger("reloadGrid");							
 		}
+		
+		 function loadSubWorkflow(deviceType){
+			$.get('ref/status?deviceType='+ deviceType,function(data){
+				$("#selectedSubWorkflow").empty();
+				if(data.length>0){
+				for(var i=0;i<data.length;i++){
+					selectedSubWorkflowText+="<option value='"+data[i].type+"'>"+data[i].name;
+				}
+				$("#selectedSubWorkflow").html(selectedSubWorkflowText);			
+				}else{
+					$("#selectedSubWorkflow").empty();
+					var selectedSubWorkflowText="<option value='' selected='selected'>----"+$("#pleaseSelectMsg").val()+"----</option>";				
+					$("#selectedSubWorkflow").html(selectedSubWorkflowText);				
+				}
+			});
+		} 
 	</script>
 </head>
 <body>
@@ -201,6 +217,7 @@
 		<input type="hidden" id="assignee" value="${assignee}">		
 		<input type="hidden" id="selectRowFirstMessage" name="selectRowFirstMessage" value="<spring:message code='generic.selectRowFirstMessage' text='Please select the desired row first'></spring:message>" disabled="disabled">
 		<input type="hidden" id="confirmDeleteMessage" name="confirmDeleteMessage" value="<spring:message code='generic.confirmDeleteMessage' text='Do you want to delete the row with Id: '></spring:message>" disabled="disabled">
+		<input id="pleaseSelectMessage" value="<spring:message code='please.select' text='Please Select'/>" type="hidden">
 		<input type="hidden" id="creationTime" name="creationTime" value="" />
 	</div> 
 </body>
