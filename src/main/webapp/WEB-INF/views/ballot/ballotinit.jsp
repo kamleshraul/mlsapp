@@ -16,6 +16,7 @@
 								 +"&role="+$("#srole").val() 
 								 + "&answeringDate=" + $("#selectedAnsweringDate").val();
 				var resourceURL = 'ballot/preballot?' + parameters;
+				
 				$.get(resourceURL,function(data){
 					$("#ballotResultDiv").empty();
 					$("#ballotResultDiv").html(data);
@@ -89,7 +90,7 @@
 					</c:forEach> 
 					</select>
 				</c:when>
-				<c:when test="${deviceTypeType == 'questions_halfhourdiscussion_from_question'}">
+				<c:when test="${deviceTypeType == 'questions_halfhourdiscussion_from_question' or deviceTypeType == 'questions_halfhourdiscussion_standalone'}">
 					<select name="selectedAnsweringDate" id="selectedAnsweringDate" style="width:100px;height: 25px;">				
 					<c:forEach items="${answeringDates}" var="i">			
 						<option value="${i.value}"><c:out value="${i.name}"></c:out></option>	
