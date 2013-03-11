@@ -310,6 +310,10 @@ public class ApplicationConstants {
     public static final String QUESTION_HALFHOURDISCUSSION_FROM_QUESTION_NO_OF_SUPPORTING_MEMBERS="questions_halfhourdiscussion_from_question_numberOfSupportingMembers";
     
     public static final String QUESTION_HALFHOURDISCUSSION_FROM_QUESTION_NO_OF_SUPPORTING_MEMBERS_COMPARATOR = "questions_halfhourdiscussion_from_question_numberOfSupportingMembersComparator";
+    
+    public static final String QUESTION_HALFHOURDISCUSSION_STANDALONE_NO_OF_SUPPORTING_MEMBERS="questions_halfhourdiscussion_standalone_numberOfSupportingMembers";
+    
+    public static final String QUESTION_HALFHOURDISCUSSION_STANDALONE_NO_OF_SUPPORTING_MEMBERS_COMPARATOR = "questions_halfhourdiscussion_standalone_numberOfSupportingMembersComparator";
 
     /**** member ballot ****/
     public static final String MEMBERBALLOT_DELETE_EXISTING="DELETE";
