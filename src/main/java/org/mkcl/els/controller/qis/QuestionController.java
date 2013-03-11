@@ -240,6 +240,8 @@ public class QuestionController extends GenericController<Question>{
 			final HttpServletRequest request) {
 		/**** Locale ****/
 		domain.setLocale(locale);
+		
+		
 
 		/**** Subject and Question Text ****/
 		String subject=request.getParameter("subject");
@@ -249,6 +251,19 @@ public class QuestionController extends GenericController<Question>{
 		String questionText=request.getParameter("questionText");
 		if(questionText!=null){
 			domain.setQuestionText(questionText);
+		}
+		
+		String tempQuestionType=request.getParameter("questionType");
+		if(tempQuestionType==null){
+			tempQuestionType=request.getParameter("type");
+		}
+		if(tempQuestionType != null){
+			DeviceType tempDeviceType = DeviceType.findById(DeviceType.class, Long.parseLong(tempQuestionType));
+			if(tempDeviceType != null){
+				if(tempDeviceType.getType().equals(ApplicationConstants.HALF_HOUR_DISCUSSION_QUESTION_STANDALONE)){
+					domain.setQuestionText(ApplicationConstants.HALF_HOUR_DISCUSSION_QUESTION_STANDALONE);
+				}
+			}
 		}
 		/**** House Type ****/
 		String selectedHouseType=request.getParameter("houseType");
@@ -560,6 +575,20 @@ public class QuestionController extends GenericController<Question>{
 	protected void populateEdit(final ModelMap model, final Question domain,
 			final HttpServletRequest request) {
 		String locale=domain.getLocale();
+		
+		/**** In case device is Half_Hour_Discussion_Standalone assign questionText as Device name so as to avoid questionText validation****/
+		String tempQuestionType=request.getParameter("questionType");
+		if(tempQuestionType==null){
+			tempQuestionType=request.getParameter("type");
+		}
+		if(tempQuestionType != null){
+			DeviceType tempDeviceType = DeviceType.findById(DeviceType.class, Long.parseLong(tempQuestionType));
+			if(tempDeviceType != null){
+				if(tempDeviceType.getType().equals(ApplicationConstants.HALF_HOUR_DISCUSSION_QUESTION_STANDALONE)){
+					domain.setQuestionText(ApplicationConstants.HALF_HOUR_DISCUSSION_QUESTION_STANDALONE);
+				}
+			}
+		}
 
 		/**** House Type ****/
 		HouseType houseType=domain.getHouseType();
@@ -992,16 +1021,21 @@ public class QuestionController extends GenericController<Question>{
 					if(domain.getSubject().isEmpty()){
 						result.rejectValue("subject","SubjectEmpty");
 					}
-					if(domain.getQuestionText().isEmpty()){
-						result.rejectValue("questionText","QuestionTextEmpty");
+					if(!domain.getType().getType().equals(ApplicationConstants.HALF_HOUR_DISCUSSION_QUESTION_STANDALONE)){
+						if(domain.getQuestionText().isEmpty()){
+								result.rejectValue("questionText","QuestionTextEmpty");
+						}
 					}
-
 					if(domain.getSupportingMembers()==null){
 						result.rejectValue("supportingMembers","SupportingMembersEmpty");
 					} else if(domain.getSupportingMembers().isEmpty()){
 						result.rejectValue("supportingMembers","SupportingMembersEmpty");						
 					} else {
-						validateNumberOfSupportingMembersForHalfHourDiscussionFromQuestion(domain, result, request);
+						if(domain.getType().getType().equals(ApplicationConstants.HALF_HOUR_DISCUSSION_QUESTION_FROM_QUESTION)){
+							validateNumberOfSupportingMembersForHalfHourDiscussionFromQuestion(domain, result, request);
+						}else if(domain.getType().getType().equals(ApplicationConstants.HALF_HOUR_DISCUSSION_QUESTION_STANDALONE)){
+							validateNumberOfSupportingMembersForHalfHourDiscussionStandalone(domain, result, request);
+						}
 
 						//check if request is already sent for approval
 						int count=0;
@@ -1032,19 +1066,19 @@ public class QuestionController extends GenericController<Question>{
 						if(domain.getSubject().isEmpty()){
 							result.rejectValue("subject","SubjectEmpty");
 						}
-						if(domain.getQuestionText().isEmpty()){
-							result.rejectValue("questionText","QuestionTextEmpty");
+						if(!domain.getType().getType().equals(ApplicationConstants.HALF_HOUR_DISCUSSION_QUESTION_STANDALONE)){
+							if(domain.getQuestionText().isEmpty()){
+								result.rejectValue("questionText","QuestionTextEmpty");
+							}
 						}
 						if(domain.getMinistry()==null){
 							result.rejectValue("ministry","MinistryEmpty");
 						}
-//						if(domain.getDepartment()==null){
-//							result.rejectValue("department","DepartmentEmpty");
-//						}
-//						if(domain.getSubDepartment()==null){
-//							result.rejectValue("subDepartment","SubDepartmentEmpty");
-//						}
-						validateNumberOfSupportingMembersForHalfHourDiscussionFromQuestion(domain, result, request);
+						if(domain.getType().getType().equals(ApplicationConstants.HALF_HOUR_DISCUSSION_QUESTION_FROM_QUESTION)){
+							validateNumberOfSupportingMembersForHalfHourDiscussionFromQuestion(domain, result, request);
+						}else if(domain.getType().getType().equals(ApplicationConstants.HALF_HOUR_DISCUSSION_QUESTION_STANDALONE)){
+							validateNumberOfSupportingMembersForHalfHourDiscussionStandalone(domain, result, request);
+						}
 					}
 			}
 		}/**** Drafts ****/
@@ -1064,8 +1098,10 @@ public class QuestionController extends GenericController<Question>{
 			if(domain.getSubject().isEmpty()){
 				result.rejectValue("subject","SubjectEmpty");
 			}
-			if(domain.getQuestionText().isEmpty()){
-				result.rejectValue("questionText","QuestionTextEmpty");
+			if(!domain.getType().getType().equals(ApplicationConstants.HALF_HOUR_DISCUSSION_QUESTION_STANDALONE)){
+				if(domain.getQuestionText().isEmpty()){
+					result.rejectValue("questionText","QuestionTextEmpty");
+				}
 			}
 			validateNumberOfSupportingMembersForHalfHourDiscussionFromQuestion(domain, result, request);
 		}
@@ -1074,6 +1110,18 @@ public class QuestionController extends GenericController<Question>{
 	@Override
 	protected void populateCreateIfErrors(ModelMap model, Question domain,
 			HttpServletRequest request) {
+		
+		String selectedSupportingMembersIfErrors = "";
+		if(domain.getSupportingMembers() != null){
+			for(SupportingMember supportingMember : domain.getSupportingMembers() ){
+				if(selectedSupportingMembersIfErrors.trim().length() > 0){
+					selectedSupportingMembersIfErrors += "," + supportingMember.getMember().getId().toString();
+				}else{
+					selectedSupportingMembersIfErrors += supportingMember.getMember().getId().toString();
+				}
+			}
+		}
+		model.addAttribute("selectedSupportingMembersIfErrors", selectedSupportingMembersIfErrors);
 		populateNew(model, domain, domain.getLocale(), request);
 		model.addAttribute("type", "error");
 		model.addAttribute("msg", "create_failed");
@@ -1082,6 +1130,9 @@ public class QuestionController extends GenericController<Question>{
 	@Override
 	protected void populateCreateIfNoErrors(final ModelMap model, final Question domain,
 			final HttpServletRequest request) {
+		if(domain.getType().getType().equals(ApplicationConstants.HALF_HOUR_DISCUSSION_QUESTION_STANDALONE)){
+			domain.setQuestionText(ApplicationConstants.HALF_HOUR_DISCUSSION_QUESTION_STANDALONE);
+		}
 		/**** Status ,Internal Status,Recommendation Status,submission date,creation date,created by,created as *****/		
 		/**** In case of submission ****/
 		String operation=request.getParameter("operation");
@@ -1174,12 +1225,16 @@ public class QuestionController extends GenericController<Question>{
 					}
 
 					Session currentSession = Session.findById(Session.class, new Long(domain.getSession().getId()));
+					DeviceType halfHourDiscussionStandAlone = DeviceType.findByType(ApplicationConstants.HALF_HOUR_DISCUSSION_QUESTION_STANDALONE, domain.getLocale());
 					Session prevSession = Session.findPreviousSession(currentSession);
 
 					//---------------------21012013
-					refQuestion = Question.findQuestionExcludingGivenDeviceType(currentSession, qNumber, domain.getType().getId());
-					if(refQuestion == null){
-						refQuestion = Question.findQuestionExcludingGivenDeviceType(prevSession, qNumber, domain.getType().getId());
+					if(halfHourDiscussionStandAlone != null){
+					
+						refQuestion = Question.findQuestionExcludingGivenDeviceTypes(currentSession, qNumber, domain.getType().getId(), halfHourDiscussionStandAlone.getId());
+						if(refQuestion == null){
+							refQuestion = Question.findQuestionExcludingGivenDeviceTypes(prevSession, qNumber, domain.getType().getId(), halfHourDiscussionStandAlone.getId());
+						}
 					}
 					//-------------------------------------------------
 				}
@@ -1255,15 +1310,21 @@ public class QuestionController extends GenericController<Question>{
 					if(domain.getSubject().isEmpty()){
 						result.rejectValue("subject","SubjectEmpty");
 					}
-					if(domain.getQuestionText().isEmpty()){
-						result.rejectValue("questionText","QuestionTextEmpty");
+					if(!domain.getType().getType().equals(ApplicationConstants.HALF_HOUR_DISCUSSION_QUESTION_STANDALONE)){
+						if(domain.getQuestionText().isEmpty()){
+							result.rejectValue("questionText","QuestionTextEmpty");
+						}
 					}
 					if(domain.getSupportingMembers()==null){
 						result.rejectValue("supportingMembers","SupportingMembersEmpty");
 					} else if(domain.getSupportingMembers().isEmpty()){
 						result.rejectValue("supportingMembers","SupportingMembersEmpty");						
 					} else {
-						validateNumberOfSupportingMembersForHalfHourDiscussionFromQuestion(domain, result, request);
+						if(domain.getType().getType().equals(ApplicationConstants.HALF_HOUR_DISCUSSION_QUESTION_FROM_QUESTION)){
+							validateNumberOfSupportingMembersForHalfHourDiscussionFromQuestion(domain, result, request);
+						}else if(domain.getType().getType().equals(ApplicationConstants.HALF_HOUR_DISCUSSION_QUESTION_STANDALONE)){
+							validateNumberOfSupportingMembersForHalfHourDiscussionStandalone(domain, result, request);
+						}
 
 						//check if request is already sent for approval
 						int count=0;
@@ -1294,8 +1355,10 @@ public class QuestionController extends GenericController<Question>{
 						if(domain.getSubject().isEmpty()){
 							result.rejectValue("subject","SubjectEmpty");
 						}
-						if(domain.getQuestionText().isEmpty()){
-							result.rejectValue("questionText","QuestionTextEmpty");
+						if(!domain.getType().getType().equals(ApplicationConstants.HALF_HOUR_DISCUSSION_QUESTION_STANDALONE)){
+							if(domain.getQuestionText().isEmpty()){
+								result.rejectValue("questionText","QuestionTextEmpty");
+							}
 						}
 						if(domain.getMinistry()==null){
 							result.rejectValue("ministry","MinistryEmpty");
@@ -1327,8 +1390,10 @@ public class QuestionController extends GenericController<Question>{
 			if(domain.getSubject().isEmpty()){
 				result.rejectValue("subject","SubjectEmpty");
 			}
-			if(domain.getQuestionText().isEmpty()){
-				result.rejectValue("questionText","QuestionTextEmpty");
+			if(!domain.getType().getType().equals(ApplicationConstants.HALF_HOUR_DISCUSSION_QUESTION_STANDALONE)){
+				if(domain.getQuestionText().isEmpty()){
+					result.rejectValue("questionText","QuestionTextEmpty");
+				}
 			}
 			String userGroupType=request.getParameter("usergroupType");
 			if(userGroupType != null){
@@ -1346,6 +1411,9 @@ public class QuestionController extends GenericController<Question>{
 			final HttpServletRequest request) {
 		/**** Checking if its submission request or normal update ****/
 		String operation=request.getParameter("operation");
+		if(domain.getType().getType().equals(ApplicationConstants.HALF_HOUR_DISCUSSION_QUESTION_STANDALONE)){
+			domain.setQuestionText(ApplicationConstants.HALF_HOUR_DISCUSSION_QUESTION_STANDALONE);
+		}
 		/**** Question status will be complete if all mandatory fields have been filled ****/
 		if(domain.getHouseType()!=null&&domain.getType()!=null&&domain.getSession()!=null
 				&& domain.getPrimaryMember()!=null && domain.getMinistry()!=null &&
@@ -1484,12 +1552,15 @@ public class QuestionController extends GenericController<Question>{
 					}
 
 					Session currentSession = Session.findById(Session.class, new Long(domain.getSession().getId()));
+					DeviceType halfHourDiscussionStandAlone = DeviceType.findByType(ApplicationConstants.HALF_HOUR_DISCUSSION_QUESTION_STANDALONE, domain.getLocale());
 					Session prevSession = Session.findPreviousSession(currentSession);
 
 					//---------------------21012013
-					refQuestion = Question.findQuestionExcludingGivenDeviceType(currentSession, qNumber, domain.getType().getId());
-					if(refQuestion == null){
-						refQuestion = Question.findQuestionExcludingGivenDeviceType(prevSession, qNumber, domain.getType().getId());
+					if(halfHourDiscussionStandAlone != null){
+						refQuestion = Question.findQuestionExcludingGivenDeviceTypes(currentSession, qNumber, domain.getType().getId(), halfHourDiscussionStandAlone.getId());
+						if(refQuestion == null){
+							refQuestion = Question.findQuestionExcludingGivenDeviceTypes(prevSession, qNumber, domain.getType().getId(), halfHourDiscussionStandAlone.getId());
+						}
 					}
 					//-------------------------------------------------
 				}				
@@ -1584,6 +1655,19 @@ public class QuestionController extends GenericController<Question>{
 	private void populateSupportingMembers(final Question domain,final HttpServletRequest request){
 		/**** Supporting Members selected by Member in new/edit ****/
 		String[] selectedSupportingMembers=request.getParameterValues("selectedSupportingMembers");
+		try{
+			if(selectedSupportingMembers == null){
+				String supportingMembersIfErrors = request.getParameter("selectedSupportingMembersIfErrors");
+				
+				if(supportingMembersIfErrors != null){
+					if(supportingMembersIfErrors.trim().length() > 0){
+						selectedSupportingMembers = request.getParameter("selectedSupportingMembersIfErrors").split(",");
+					}
+				}
+			}
+		}catch(NullPointerException npe){
+			logger.error("Request Parameter missing: selectedSupportingMembersIfErrors");
+		}
 		/**** Supporting Members which are already present in domain ****/
 		List<SupportingMember> members=new ArrayList<SupportingMember>();
 		if(domain.getId()!=null){
@@ -1695,6 +1779,79 @@ public class QuestionController extends GenericController<Question>{
 		}
 	}
 
+	private void validateNumberOfSupportingMembersForHalfHourDiscussionStandalone(final Question domain, final BindingResult result, final HttpServletRequest request) {
+		if(domain.getType()!=null) {
+			if(domain.getType().getType()!=null) {
+				if(domain.getType().getType().equalsIgnoreCase(ApplicationConstants.HALF_HOUR_DISCUSSION_QUESTION_STANDALONE)) {
+					Session session = domain.getSession();								
+					if(session != null) {
+						String noOFSupportingMembersToCheck = session.getParameter(ApplicationConstants.QUESTION_HALFHOURDISCUSSION_STANDALONE_NO_OF_SUPPORTING_MEMBERS);
+						String noOFSupportingMembersComparator = session.getParameter(ApplicationConstants.QUESTION_HALFHOURDISCUSSION_STANDALONE_NO_OF_SUPPORTING_MEMBERS_COMPARATOR);
+						if(	(noOFSupportingMembersToCheck!=null) && (noOFSupportingMembersComparator!=null) ){										
+							if(	(!noOFSupportingMembersToCheck.isEmpty()) && (!noOFSupportingMembersComparator.isEmpty()) ){
+								int numberOFSupportingMembersToCheck = Integer.parseInt(noOFSupportingMembersToCheck);
+								int numberOFSupportingMembersReceived = 0;
+								if(domain.getSupportingMembers()!=null) {
+									numberOFSupportingMembersReceived = domain.getSupportingMembers().size();
+								}
+								if(noOFSupportingMembersComparator.equalsIgnoreCase("eq")) {
+									if(!(numberOFSupportingMembersReceived == numberOFSupportingMembersToCheck)) {
+										result.rejectValue("supportingMembers","noOfSupportingMembersInvalid");
+									}
+								}else 
+									if(noOFSupportingMembersComparator.equalsIgnoreCase("le")) {
+										if(!(numberOFSupportingMembersReceived <= numberOFSupportingMembersToCheck)) {
+											result.rejectValue("supportingMembers","noOfSupportingMembersInvalid");
+										}
+									}else 
+										if(noOFSupportingMembersComparator.equalsIgnoreCase("lt")) {
+											if(!(numberOFSupportingMembersReceived < numberOFSupportingMembersToCheck)) {
+												result.rejectValue("supportingMembers","noOfSupportingMembersInvalid");
+											}
+										}else 
+											if(noOFSupportingMembersComparator.equalsIgnoreCase("ge")) {
+												if(!(numberOFSupportingMembersReceived >= numberOFSupportingMembersToCheck)) {
+													result.rejectValue("supportingMembers","noOfSupportingMembersInvalid");
+												}
+											}else 
+												if(noOFSupportingMembersComparator.equalsIgnoreCase("gt")) {
+													if(!(numberOFSupportingMembersReceived > numberOFSupportingMembersToCheck)) {
+														result.rejectValue("supportingMembers","noOfSupportingMembersInvalid");
+													}
+												}
+
+								String operation=request.getParameter("operation");
+
+								if (operation != null) {
+									if (!operation.isEmpty()) {
+										if (operation.equals("submit")) {
+											if (result.getFieldErrorCount("supportingMembers") == 0) {
+												// check if request is already
+												// sent for approval
+												int count = 0;
+												if (domain.getSupportingMembers() != null) {
+													if (domain.getSupportingMembers().size() > 0) {
+														for (SupportingMember i : domain.getSupportingMembers()) {
+															if (i.getDecisionStatus().getType().equals(ApplicationConstants.QUESTION_SUPPORTING_MEMBER_NOTSEND)) {
+																count++;
+															}
+														}
+														if (count != 0) {
+															result.rejectValue("supportingMembers","supportingMembersRequestNotSent");
+														}
+													}
+												}
+											}
+										}
+									}
+								}
+							}										
+						}
+					}
+				}							
+			}
+		}
+	}
 
 	@Transactional
 	@Override
@@ -1906,7 +2063,87 @@ public class QuestionController extends GenericController<Question>{
 					}
 				}
 			}
+			
+			if(questionType.getType().equals("questions_halfhourdiscussion_standalone")){
+				populateForHalfHourDiscussionStandaloneNew(model, domain, selectedSession, questionType, request);
+			}
 		}         
+	}
+	
+	private void populateForHalfHourDiscussionStandaloneNew(final ModelMap model, final Question domain, final Session selectedSession, final DeviceType questionType, final HttpServletRequest request){
+		
+		Session session = Session.findById(Session.class, selectedSession.getId());
+
+		if (session != null) {
+			//----------changed 21012013
+			String strDates = session.getParameter("questions_halfhourdiscussion_standalone_discussionDates");
+
+			if(strDates!=null && !strDates.isEmpty()){
+				String[] dates = strDates.split("#");
+
+				List<String> discussionDates = new ArrayList<String>();
+
+				try {
+					SimpleDateFormat sdf = FormaterUtil.getDBDateParser(session.getLocale());
+					for (int i = 0; i < dates.length; i++) {
+						discussionDates.add(FormaterUtil.getDateFormatter("dd/MM/yyyy", session.getLocale()).format(sdf.parse(dates[i])));
+					}
+					model.addAttribute("discussionDates",discussionDates);
+					if (domain.getDiscussionDate() != null) {
+						model.addAttribute("discussionDateSelected",FormaterUtil.getDateFormatter("dd/MM/yyyy", selectedSession.getLocale()).format(domain.getDiscussionDate()));
+					}
+				} catch (ParseException e) {
+
+					e.printStackTrace();
+				}
+			}
+		}
+
+		/*
+		 * adding session.parameters.numberOfSupprtingMembers and
+		 * session.parametrs.numberOfSupprtingMembersComparator
+		 */
+		String numberOfSupportingMembers = selectedSession.getParameter(questionType.getType()+"_numberOfSupportingMembers");
+		String numberOfSupportingMembersComparator = selectedSession.getParameter(questionType.getType()+"_numberOfSupportingMembersComparator");
+
+		if((numberOfSupportingMembers != null) && (numberOfSupportingMembersComparator != null)){
+			model.addAttribute("numberOfSupportingMembers", numberOfSupportingMembers);            
+			model.addAttribute("numberOfSupportingMembersComparator", numberOfSupportingMembersComparator);
+
+			if(numberOfSupportingMembersComparator.equalsIgnoreCase("eq")){
+
+				numberOfSupportingMembersComparator = "&#61;";
+
+			}else if(numberOfSupportingMembersComparator.equalsIgnoreCase("lt")){
+
+				numberOfSupportingMembersComparator = "&lt;";
+
+			}else if(numberOfSupportingMembersComparator.equalsIgnoreCase("gt")){
+
+				numberOfSupportingMembersComparator = "&gt;";
+
+			}else if(numberOfSupportingMembersComparator.equalsIgnoreCase("le")){
+
+				numberOfSupportingMembersComparator = "&le;";
+
+			}else if(numberOfSupportingMembersComparator.equalsIgnoreCase("ge")){
+
+				numberOfSupportingMembersComparator = "&ge;";
+			}
+
+			model.addAttribute("numberOfSupportingMembersComparatorHTML", numberOfSupportingMembersComparator);
+
+			CustomParameter dateFormatS = CustomParameter.findByFieldName(CustomParameter.class, "name", "SERVER_DATETIMEFORMAT", "");
+			CustomParameter dateFormatDB = CustomParameter.findByFieldName(CustomParameter.class, "name", "DB_DATETIMEFORMAT", "");
+
+			if(dateFormatS != null && dateFormatDB != null ){
+				Date startDate = FormaterUtil.formatStringToDate(selectedSession.getParameter("questions_halfhourdiscussion_from_question_submissionStartDate"),dateFormatDB.getValue());
+				Date endDate = FormaterUtil.formatStringToDate(selectedSession.getParameter("questions_halfhourdiscussion_from_question_submissionEndDate"), dateFormatDB.getValue());
+
+				model.addAttribute("startDate",FormaterUtil.formatDateToString(startDate, "yyyy/MM/dd hh:mm:ss"));
+				model.addAttribute("endDate",FormaterUtil.formatDateToString(endDate, "yyyy/MM/dd hh:mm:ss"));
+			}
+		}
 	}
 
 	//---------------------------Added by vikas & dhananjay-------------------------------------------------
@@ -1921,98 +2158,175 @@ public class QuestionController extends GenericController<Question>{
 		DeviceType questionType = domain.getType();
 
 		if (selectedSession != null) {
-
-			Integer selYear = selectedSession.getYear();
-			List<Reference> halfhourdiscussion_sessionYears = new ArrayList<Reference> ();
-
-			Reference reference = new Reference();
-
-			reference.setId(selYear.toString());
-			reference.setName(FormaterUtil.formatNumberNoGrouping(new Integer(selYear), "mr_IN"));
-			halfhourdiscussion_sessionYears.add(reference);
-
-			reference = null;
-			reference = new Reference();
-
-			reference.setId((new Integer(selYear.intValue()-1)).toString());
-			reference.setName(FormaterUtil.formatNumberNoGrouping(new Integer(selYear-1), "mr_IN"));
-			halfhourdiscussion_sessionYears.add(reference);				
-
-			model.addAttribute("halfhourdiscussion_sessionYears", halfhourdiscussion_sessionYears);
-
-			/*
-			 * adding session.parameters.numberOfSupprtingMembers and
-			 * session.parametrs.numberOfSupprtingMembersComparator
-			 */
-			String numberOfSupportingMembers = selectedSession.getParameter(questionType.getType()+ "_numberOfSupportingMembers");
-			String numberOfSupportingMembersComparator = selectedSession.getParameter(questionType.getType()+ "_numberOfSupportingMembersComparator");
-
-			if ((numberOfSupportingMembers != null) && (numberOfSupportingMembersComparator != null)) {
-				model.addAttribute("numberOfSupportingMembers", numberOfSupportingMembers);
-				model.addAttribute("numberOfSupportingMembersComparator", numberOfSupportingMembersComparator);
-
-				if (numberOfSupportingMembersComparator.equalsIgnoreCase("eq")) {
-
-					numberOfSupportingMembersComparator = "&#61;";
-
-				} else if (numberOfSupportingMembersComparator.equalsIgnoreCase("lt")) {
-
-					numberOfSupportingMembersComparator = "&lt;";
-
-				} else if (numberOfSupportingMembersComparator.equalsIgnoreCase("gt")) {
-
-					numberOfSupportingMembersComparator = "&gt;";
-
-				} else if (numberOfSupportingMembersComparator.equalsIgnoreCase("le")) {
-
-					numberOfSupportingMembersComparator = "&le;";
-
-				} else if (numberOfSupportingMembersComparator.equalsIgnoreCase("ge")) {
-
-					numberOfSupportingMembersComparator = "&ge;";
+			if(questionType.getType().equals("questions_halfhourdiscussion_from_question")){
+				Integer selYear = selectedSession.getYear();
+				List<Reference> halfhourdiscussion_sessionYears = new ArrayList<Reference> ();
+	
+				Reference reference = new Reference();
+	
+				reference.setId(selYear.toString());
+				reference.setName(FormaterUtil.formatNumberNoGrouping(new Integer(selYear), "mr_IN"));
+				halfhourdiscussion_sessionYears.add(reference);
+	
+				reference = null;
+				reference = new Reference();
+	
+				reference.setId((new Integer(selYear.intValue()-1)).toString());
+				reference.setName(FormaterUtil.formatNumberNoGrouping(new Integer(selYear-1), "mr_IN"));
+				halfhourdiscussion_sessionYears.add(reference);				
+	
+				model.addAttribute("halfhourdiscussion_sessionYears", halfhourdiscussion_sessionYears);
+	
+				/*
+				 * adding session.parameters.numberOfSupprtingMembers and
+				 * session.parametrs.numberOfSupprtingMembersComparator
+				 */
+				String numberOfSupportingMembers = selectedSession.getParameter(questionType.getType()+ "_numberOfSupportingMembers");
+				String numberOfSupportingMembersComparator = selectedSession.getParameter(questionType.getType()+ "_numberOfSupportingMembersComparator");
+	
+				if ((numberOfSupportingMembers != null) && (numberOfSupportingMembersComparator != null)) {
+					model.addAttribute("numberOfSupportingMembers", numberOfSupportingMembers);
+					model.addAttribute("numberOfSupportingMembersComparator", numberOfSupportingMembersComparator);
+	
+					if (numberOfSupportingMembersComparator.equalsIgnoreCase("eq")) {
+	
+						numberOfSupportingMembersComparator = "&#61;";
+	
+					} else if (numberOfSupportingMembersComparator.equalsIgnoreCase("lt")) {
+	
+						numberOfSupportingMembersComparator = "&lt;";
+	
+					} else if (numberOfSupportingMembersComparator.equalsIgnoreCase("gt")) {
+	
+						numberOfSupportingMembersComparator = "&gt;";
+	
+					} else if (numberOfSupportingMembersComparator.equalsIgnoreCase("le")) {
+	
+						numberOfSupportingMembersComparator = "&le;";
+	
+					} else if (numberOfSupportingMembersComparator.equalsIgnoreCase("ge")) {
+	
+						numberOfSupportingMembersComparator = "&ge;";
+					}
+	
+					model.addAttribute("numberOfSupportingMembersComparatorHTML",numberOfSupportingMembersComparator);
 				}
-
-				model.addAttribute("numberOfSupportingMembersComparatorHTML",numberOfSupportingMembersComparator);
-			}
-
-			List<String> discussionDates = new ArrayList<String>();
-			SimpleDateFormat sdf = null;
-
-			if (selectedSession != null) {
-
-				//------changed 21012013-----------------
-				String strDates = selectedSession.getParameter("questions_halfhourdiscussion_from_question_discussionDates");
-				//-----------21012013
-				if(strDates != null && !strDates.isEmpty()){
-
-					String[] dates = strDates.split("#");
-
-					try {
-						sdf = FormaterUtil.getDBDateParser(selectedSession.getLocale());
-						for (int i = 0; i < dates.length; i++) {
-							discussionDates.add(FormaterUtil.getDateFormatter("dd/MM/yyyy", selectedSession.getLocale()).format(sdf.parse(dates[i])));
+	
+				List<String> discussionDates = new ArrayList<String>();
+				SimpleDateFormat sdf = null;
+	
+				if (selectedSession != null) {
+	
+					//------changed 21012013-----------------
+					String strDates = selectedSession.getParameter("questions_halfhourdiscussion_from_question_discussionDates");
+					//-----------21012013
+					if(strDates != null && !strDates.isEmpty()){
+	
+						String[] dates = strDates.split("#");
+	
+						try {
+							sdf = FormaterUtil.getDBDateParser(selectedSession.getLocale());
+							for (int i = 0; i < dates.length; i++) {
+								discussionDates.add(FormaterUtil.getDateFormatter("dd/MM/yyyy", selectedSession.getLocale()).format(sdf.parse(dates[i])));
+							}
+							model.addAttribute("discussionDates", discussionDates);
+						} catch (ParseException e) {
+	
+							e.printStackTrace();
 						}
-						model.addAttribute("discussionDates", discussionDates);
-					} catch (ParseException e) {
-
-						e.printStackTrace();
+					}
+				}
+	
+				if (domain.getDiscussionDate() != null) {
+					model.addAttribute("discussionDateSelected",FormaterUtil.getDateFormatter("dd/MM/yyyy", selectedSession.getLocale()).format(domain.getDiscussionDate()));
+				}else{
+					model.addAttribute("discussionDateSelected",null);
+				}
+				if (domain.getHalfHourDiscusionFromQuestionReference() != null) {
+					if (domain.getHalfHourDiscusionFromQuestionReference()!= null) {
+						model.addAttribute("referredQuestionNumber", FormaterUtil.getNumberFormatterNoGrouping(domain.getLocale()).format(domain.getHalfHourDiscusionFromQuestionReference().getNumber()));
+						model.addAttribute("refQuestionId", domain.getHalfHourDiscusionFromQuestionReference().getId());
 					}
 				}
 			}
-
-			if (domain.getDiscussionDate() != null) {
-				model.addAttribute("discussionDateSelected",FormaterUtil.getDateFormatter("dd/MM/yyyy", selectedSession.getLocale()).format(domain.getDiscussionDate()));
-			}else{
-				model.addAttribute("discussionDateSelected",null);
-			}
-			if (domain.getHalfHourDiscusionFromQuestionReference() != null) {
-				if (domain.getHalfHourDiscusionFromQuestionReference()!= null) {
-					model.addAttribute("referredQuestionNumber", FormaterUtil.getNumberFormatterNoGrouping(domain.getLocale()).format(domain.getHalfHourDiscusionFromQuestionReference().getNumber()));
-					model.addAttribute("refQuestionId", domain.getHalfHourDiscusionFromQuestionReference().getId());
-				}
+			
+			if(questionType.getType().equals("questions_halfhourdiscussion_standalone")){
+				populateForHalfHourDiscussionStandaloneEdit(model, domain, request);
 			}
 		}
 	}	
+	
+	private void populateForHalfHourDiscussionStandaloneEdit(final ModelMap model, final Question domain, final HttpServletRequest request){
+		
+		Session selectedSession = domain.getSession();
+		DeviceType questionType = domain.getType();
+				
+		/*
+		 * adding session.parameters.numberOfSupprtingMembers and
+		 * session.parametrs.numberOfSupprtingMembersComparator
+		 */
+		String numberOfSupportingMembers = selectedSession.getParameter(questionType.getType()+ "_numberOfSupportingMembers");
+		String numberOfSupportingMembersComparator = selectedSession.getParameter(questionType.getType()+ "_numberOfSupportingMembersComparator");
+
+		if ((numberOfSupportingMembers != null) && (numberOfSupportingMembersComparator != null)) {
+			model.addAttribute("numberOfSupportingMembers", numberOfSupportingMembers);
+			model.addAttribute("numberOfSupportingMembersComparator", numberOfSupportingMembersComparator);
+
+			if (numberOfSupportingMembersComparator.equalsIgnoreCase("eq")) {
+
+				numberOfSupportingMembersComparator = "&#61;";
+
+			} else if (numberOfSupportingMembersComparator.equalsIgnoreCase("lt")) {
+
+				numberOfSupportingMembersComparator = "&lt;";
+
+			} else if (numberOfSupportingMembersComparator.equalsIgnoreCase("gt")) {
+
+				numberOfSupportingMembersComparator = "&gt;";
+
+			} else if (numberOfSupportingMembersComparator.equalsIgnoreCase("le")) {
+
+				numberOfSupportingMembersComparator = "&le;";
+
+			} else if (numberOfSupportingMembersComparator.equalsIgnoreCase("ge")) {
+
+				numberOfSupportingMembersComparator = "&ge;";
+			}
+
+			model.addAttribute("numberOfSupportingMembersComparatorHTML",numberOfSupportingMembersComparator);
+		}
+
+		List<String> discussionDates = new ArrayList<String>();
+		SimpleDateFormat sdf = null;
+
+		if (selectedSession != null) {
+
+			//------changed 21012013-----------------
+			String strDates = selectedSession.getParameter("questions_halfhourdiscussion_standalone_discussionDates");
+			//-----------21012013
+			if(strDates != null && !strDates.isEmpty()){
+
+				String[] dates = strDates.split("#");
+
+				try {
+					sdf = FormaterUtil.getDBDateParser(selectedSession.getLocale());
+					for (int i = 0; i < dates.length; i++) {
+						discussionDates.add(FormaterUtil.getDateFormatter("dd/MM/yyyy", selectedSession.getLocale()).format(sdf.parse(dates[i])));
+					}
+					model.addAttribute("discussionDates", discussionDates);
+				} catch (ParseException e) {
+
+					e.printStackTrace();
+				}
+			}
+		}
+
+		if (domain.getDiscussionDate() != null) {
+			model.addAttribute("discussionDateSelected",FormaterUtil.getDateFormatter("dd/MM/yyyy", selectedSession.getLocale()).format(domain.getDiscussionDate()));
+		}else{
+			model.addAttribute("discussionDateSelected",null);
+		}
+	}
 
 	//---------------------------Added by vikas & dhananjay----------------------------------------------
 	@RequestMapping(value="/viewquestion",method=RequestMethod.GET)

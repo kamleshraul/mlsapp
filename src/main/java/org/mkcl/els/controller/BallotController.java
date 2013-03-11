@@ -129,7 +129,48 @@ public class BallotController extends BaseController{
 					masterVOs.add(masterVO);
 				}
 				model.addAttribute("answeringDates", masterVOs);
+			}else if(deviceType.getType().equals(
+					ApplicationConstants.HALF_HOUR_DISCUSSION_QUESTION_STANDALONE)) {
+				/** Create HouseType */
+				String strHouseType = request.getParameter("houseType");
+				HouseType houseType =
+					HouseType.findByFieldName(HouseType.class, "type", strHouseType, locale.toString());
+					
+				/** Create SessionType */
+				String strSessionTypeId = request.getParameter("sessionType");
+				SessionType sessionType =
+					SessionType.findById(SessionType.class, Long.valueOf(strSessionTypeId));
+				
+				/** Create year */
+				String strYear = request.getParameter("sessionYear");
+				Integer year = Integer.valueOf(strYear);
+
+				/** Create Session */
+				Session session = Session.findSessionByHouseTypeSessionTypeYear(houseType, sessionType, year);
+
+				/** Compute & Add discussionDates to model*/
+				CustomParameter dbDateFormat = 
+					CustomParameter.findByName(CustomParameter.class, "DB_DATEFORMAT", "");
+				CustomParameter serverDateFormat = 
+					CustomParameter.findByName(CustomParameter.class, "SERVER_DATEFORMAT", "");
+				String strDiscussionDates = 
+					session.getParameter("questions_halfhourdiscussion_standalone_discussionDates");
+				String[] strDiscussionDatesArr = strDiscussionDates.split("#");
+				List<MasterVO> masterVOs = new ArrayList<MasterVO>();
+				for(String strDiscussionDate : strDiscussionDatesArr) {
+					Date discussionDate = 
+						FormaterUtil.formatStringToDate(strDiscussionDate, dbDateFormat.getValue());
+					String localizedDate = FormaterUtil.formatDateToString(discussionDate, 
+							serverDateFormat.getValue(), locale.toString());
+					MasterVO masterVO = new MasterVO();
+					masterVO.setName(localizedDate);
+					masterVO.setValue(strDiscussionDate);
+
+					masterVOs.add(masterVO);
+				}
+				model.addAttribute("answeringDates", masterVOs);
 			}
+			
 			
 			retVal = "ballot/ballotinit";
 		}
@@ -182,8 +223,8 @@ public class BallotController extends BaseController{
 					QuestionDates.findById(QuestionDates.class, Long.parseLong(strAnsweringDate));
 				answeringDate = questionDates.getAnsweringDate();
 			}
-			else if(deviceType.getType().equals(
-					ApplicationConstants.HALF_HOUR_DISCUSSION_QUESTION_FROM_QUESTION)) {
+			else if(deviceType.getType().equals(ApplicationConstants.HALF_HOUR_DISCUSSION_QUESTION_FROM_QUESTION) ||
+					deviceType.getType().equals(ApplicationConstants.HALF_HOUR_DISCUSSION_QUESTION_STANDALONE)) {
 				CustomParameter dbDateFormat = 
 					CustomParameter.findByName(CustomParameter.class, "DB_DATEFORMAT", "");
 				answeringDate = FormaterUtil.formatStringToDate(strAnsweringDate, dbDateFormat.getValue());
@@ -244,8 +285,8 @@ public class BallotController extends BaseController{
 					QuestionDates.findById(QuestionDates.class, Long.parseLong(strAnsweringDate));
 				answeringDate = questionDates.getAnsweringDate();
 			}
-			else if(deviceType.getType().equals(
-					ApplicationConstants.HALF_HOUR_DISCUSSION_QUESTION_FROM_QUESTION)) {
+			else if(deviceType.getType().equals(ApplicationConstants.HALF_HOUR_DISCUSSION_QUESTION_FROM_QUESTION) ||
+					deviceType.getType().equals(ApplicationConstants.HALF_HOUR_DISCUSSION_QUESTION_STANDALONE)) {
 				CustomParameter dbDateFormat = 
 					CustomParameter.findByName(CustomParameter.class, "DB_DATEFORMAT", "");
 				answeringDate = FormaterUtil.formatStringToDate(strAnsweringDate, dbDateFormat.getValue());
@@ -266,8 +307,8 @@ public class BallotController extends BaseController{
 					model.addAttribute("ballotVOs", ballotVOs);
 					retVal = "ballot/ballot";
 				}
-				else if(deviceType.getType().equals(
-						ApplicationConstants.HALF_HOUR_DISCUSSION_QUESTION_FROM_QUESTION)) {
+				else if(deviceType.getType().equals(ApplicationConstants.HALF_HOUR_DISCUSSION_QUESTION_FROM_QUESTION) ||
+						deviceType.getType().equals(ApplicationConstants.HALF_HOUR_DISCUSSION_QUESTION_STANDALONE)) {
 					List<BallotMemberVO> ballotVOs = 
 						Ballot.findBallotedMemberVO(session, deviceType, answeringDate, locale.toString());
 					model.addAttribute("ballotVOs", ballotVOs);
@@ -275,8 +316,8 @@ public class BallotController extends BaseController{
 				}
 			}
 			else if(houseType.getType().equals(ApplicationConstants.UPPER_HOUSE)) {
-				if(deviceType.getType().equals(
-						ApplicationConstants.HALF_HOUR_DISCUSSION_QUESTION_FROM_QUESTION)) {
+				if(deviceType.getType().equals(ApplicationConstants.HALF_HOUR_DISCUSSION_QUESTION_FROM_QUESTION) ||
+						deviceType.getType().equals(ApplicationConstants.HALF_HOUR_DISCUSSION_QUESTION_STANDALONE)) {
 					List<BallotVO> ballotVOs = 
 						Ballot.findBallotedVO(session, deviceType, answeringDate, locale.toString());
 					model.addAttribute("ballotVOs", ballotVOs);
@@ -685,8 +726,8 @@ public class BallotController extends BaseController{
 					QuestionDates.findById(QuestionDates.class, Long.parseLong(strAnsweringDate));
 				answeringDate = questionDates.getAnsweringDate();
 			}
-			else if(deviceType.getType().equals(
-					ApplicationConstants.HALF_HOUR_DISCUSSION_QUESTION_FROM_QUESTION)) {
+			else if(deviceType.getType().equals(ApplicationConstants.HALF_HOUR_DISCUSSION_QUESTION_FROM_QUESTION) ||
+						deviceType.getType().equals(ApplicationConstants.HALF_HOUR_DISCUSSION_QUESTION_STANDALONE)) {
 				CustomParameter dbDateFormat = 
 					CustomParameter.findByName(CustomParameter.class, "DB_DATEFORMAT", "");
 				answeringDate = FormaterUtil.formatStringToDate(strAnsweringDate, dbDateFormat.getValue());
@@ -694,23 +735,26 @@ public class BallotController extends BaseController{
 				
 			/** Route PreBallot creation to appropriate handler method */
 			if(houseType.getType().equals(ApplicationConstants.UPPER_HOUSE)) {
-				if(deviceType.getType().equals(
-						ApplicationConstants.HALF_HOUR_DISCUSSION_QUESTION_FROM_QUESTION)) {
+				
+				if(deviceType.getType().equals(ApplicationConstants.HALF_HOUR_DISCUSSION_QUESTION_FROM_QUESTION)) {
 					retVal = this.halfHourPreBallot(model, session, deviceType, answeringDate, locale.toString());
+					
+				}else if(deviceType.getType().equals(ApplicationConstants.HALF_HOUR_DISCUSSION_QUESTION_STANDALONE)) {
+					retVal = this.halfHourPreBallotStandAlone(model, session, deviceType, answeringDate, locale.toString());
+					
 				}
 			}
 			else if(houseType.getType().equals(ApplicationConstants.LOWER_HOUSE)) {
-				if(deviceType.getType().equals(
-						ApplicationConstants.HALF_HOUR_DISCUSSION_QUESTION_FROM_QUESTION)) {
+				
+				if(deviceType.getType().equals(ApplicationConstants.HALF_HOUR_DISCUSSION_QUESTION_FROM_QUESTION) ||
+						deviceType.getType().equals(ApplicationConstants.HALF_HOUR_DISCUSSION_QUESTION_STANDALONE)) {
 					retVal = this.halfHourPreBallot(model, session, deviceType, answeringDate, locale.toString());
-				}
-				else if(deviceType.getType().equals(
-						ApplicationConstants.STARRED_QUESTION)) {
+					
+				}else if(deviceType.getType().equals(ApplicationConstants.STARRED_QUESTION)) {
 					retVal = this.starredPreBallot(model, session, deviceType, answeringDate, locale.toString());
 				}
 			}
-		}
-		catch(Exception e) {
+		}catch(Exception e) {
 			logger.error("error", e);
 			model.addAttribute("type", "INSUFFICIENT_PARAMETERS_FOR_PRE_BALLOT_CREATION");
 			retVal = "ballot/error";
@@ -725,6 +769,16 @@ public class BallotController extends BaseController{
 			final String locale) {
 		List<BallotVO> ballotVOs = 
 			Ballot.findPreBallotVO(session, deviceType, answeringDate, locale);
+		model.addAttribute("ballotVOs", ballotVOs);
+		return "ballot/halfhour_ballot";
+	}
+	
+	private String halfHourPreBallotStandAlone(final ModelMap model,
+			final Session session,
+			final DeviceType deviceType,
+			final Date answeringDate,
+			final String locale) {
+		List<BallotVO> ballotVOs = Ballot.findPreBallotVO(session, deviceType, answeringDate, locale);
 		model.addAttribute("ballotVOs", ballotVOs);
 		return "ballot/halfhour_ballot";
 	}

@@ -1435,17 +1435,25 @@ public class ReferenceController extends BaseController {
 					}	
 					
 					Session currentSession = Session.findById(Session.class, new Long(strSessionId));
+					DeviceType excludeDeviceType = DeviceType.findByType(ApplicationConstants.HALF_HOUR_DISCUSSION_QUESTION_STANDALONE, locale);
+					Long exclusiveDeviceTypeId = null;
 					Session prevSession = null;
 					Question question = null;
 					
-					if(currentSession != null){
+					if(excludeDeviceType != null){
+						if(excludeDeviceType.getId()!= null){
+							exclusiveDeviceTypeId = excludeDeviceType.getId();
+						}
+					}
+					
+					if(currentSession != null){						
 						prevSession = Session.findPreviousSession(currentSession);
-			    		question = Question.findQuestionExcludingGivenDeviceType(currentSession, qNumber, deviceTypeId);
+			    		question = Question.findQuestionExcludingGivenDeviceTypes(currentSession, qNumber, deviceTypeId, exclusiveDeviceTypeId);
 			    	}
 					
 			    	if(question == null){
 			    		if(prevSession != null){
-			    			question = Question.findQuestionExcludingGivenDeviceType(prevSession, qNumber, deviceTypeId);
+			    			question = Question.findQuestionExcludingGivenDeviceTypes(prevSession, qNumber, deviceTypeId, exclusiveDeviceTypeId);
 			    		}
 			    	}
 			    	
