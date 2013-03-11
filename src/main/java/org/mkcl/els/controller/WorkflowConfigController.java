@@ -114,10 +114,11 @@ public class WorkflowConfigController extends GenericController<WorkflowConfig>{
         Integer workflowactorCount = Integer.parseInt(request
                 .getParameter("workflowactorCount"));
         for (int i = 1; i <= workflowactorCount; i++) {
-            WorkflowActor workflowActor=new WorkflowActor();
+            WorkflowActor workflowActor=null;
 
             String strUserGroupType=request.getParameter("workflowactorName"+ i);
             if(strUserGroupType!=null){
+            	workflowActor=new WorkflowActor();
                 UserGroupType userGroupType=UserGroupType.findById(UserGroupType.class,Long.parseLong(strUserGroupType));
                 workflowActor.setUserGroupType(userGroupType);
             }
