@@ -52,7 +52,7 @@ import org.mkcl.els.domain.Ministry;
 import org.mkcl.els.domain.Question;
 import org.mkcl.els.domain.QuestionDates;
 import org.mkcl.els.domain.RailwayStation;
-import org.mkcl.els.domain.Resolution;
+//import org.mkcl.els.domain.Resolution;
 import org.mkcl.els.domain.Session;
 import org.mkcl.els.domain.SessionType;
 import org.mkcl.els.domain.State;
@@ -1721,4 +1721,62 @@ public class ReferenceController extends BaseController {
 		}
 		return null;
 	}
+	
+	//Added by Dhananjay
+	@RequestMapping(value="/getLastSubmissionDateFromLastDiscussionDate", method=RequestMethod.GET)
+    public @ResponseBody Reference getLastSubmissionDateFromLastDiscussionDate(@RequestParam String lastDiscussionDateStr, @RequestParam String daysBetweenSubmissionEndDateAndLastDiscussionDateOfSession, final Locale locale){
+		Reference reference = new Reference();
+		Date lastDiscussionDate = null;
+		Date submissionEndDate = null;
+		
+		SimpleDateFormat sf=null;
+		if(locale.toString().equals("mr_IN")){
+			sf=new SimpleDateFormat("dd/MM/yyyy",new Locale("hi","IN"));
+		}
+		else{
+			sf=new SimpleDateFormat("dd/MM/yyyy",new Locale(locale.toString()));
+		}
+		
+		if(lastDiscussionDateStr != null && daysBetweenSubmissionEndDateAndLastDiscussionDateOfSession != null) {
+			if(!lastDiscussionDateStr.isEmpty() && !daysBetweenSubmissionEndDateAndLastDiscussionDateOfSession.isEmpty()) {
+				CustomParameter customParameter=CustomParameter.findByName(CustomParameter.class,"DEPLOYMENT_SERVER", "");
+				if(customParameter!=null){
+					String server=customParameter.getValue();
+					if(server.equals("TOMCAT")){						
+						try {
+							lastDiscussionDateStr=new String(lastDiscussionDateStr.getBytes("ISO-8859-1"),"UTF-8");			
+							daysBetweenSubmissionEndDateAndLastDiscussionDateOfSession = new String(daysBetweenSubmissionEndDateAndLastDiscussionDateOfSession.getBytes("ISO-8859-1"),"UTF-8");			
+						}
+						catch (UnsupportedEncodingException e){
+							e.printStackTrace();
+						}
+					}
+				}
+				try {
+					lastDiscussionDate = sf.parse(lastDiscussionDateStr);
+				} catch (ParseException e) {					
+					e.printStackTrace();
+				}
+			} else {
+				reference.setId("");
+				reference.setName("");
+				return reference;
+			}
+		} else {
+			reference.setId("");
+			reference.setName("");
+			return reference;
+		}
+		
+		Calendar calendar = Calendar.getInstance();
+		calendar.setTime(lastDiscussionDate);		
+		calendar.add(Calendar.DATE, -(Integer.parseInt(daysBetweenSubmissionEndDateAndLastDiscussionDateOfSession)));
+		submissionEndDate = calendar.getTime();
+		
+		SimpleDateFormat dateFormat = FormaterUtil.getDateFormatter(locale.toString());        
+        reference.setId(dateFormat.format(submissionEndDate));
+        reference.setName(dateFormat.format(submissionEndDate));		
+    	
+        return reference;
+    }
 }
