@@ -12,11 +12,7 @@
 			//select div of selected device type
 		    var selectedDiv='#'+deviceTypeSelected;
 			
-		    //initialize submission end time for resolutions_nonofficial	
-			var submissionEndDate = $('#resolutions_nonofficial_submissionEndDate').val();
-			$('#resolutions_nonofficial_submissionEndTime').val(submissionEndDate.split(" ")[1]);		    
-			
-		  	//--------------------Ballot Config-----------------------//
+		    //--------------------Ballot Config-----------------------//
 		    
 		    //initialize isBallotingRequired
 		    var isBallotingRequired = "#"+$('#deviceType').val()+"_isBallotingRequired";		    
@@ -107,6 +103,12 @@
 					}				
 				}
 			}
+			
+		  	//initialize submission end time for resolutions_nonofficial	
+		  	if(deviceTypeSelected == 'resolutions_nonofficial') {
+		  		var submissionEndDate = $("#"+deviceTypeSelected+"_submissionEndDate").val();
+		  		$("#"+deviceTypeSelected+"_submissionEndTime").val(submissionEndDate.split(" ")[1]);
+		  	}
 		    
 		  	//hide all the divs
 		    hideDivs();
@@ -234,31 +236,54 @@
 				//get div of selected device type
 				var selectedDiv = "#" + deviceTypeSeleted;
 				
+				//flag to check whether there are any ajax errors
+				var readyToSubmit = true;
+				
+				//as value of every multiselect becomes null in case when all options are deselected
+				$(selectedDiv).find('.sSelectMultiple').each(function() {	
+					$(this).find('option[value=""]').removeAttr('selected');					
+					if($(this).val() == null) {						
+						$(this).val("");
+					}					
+				});
+				
+				//set submission start date for resolutions_nonofficial such that it is same as that for questions_starred
+				if(deviceTypeSeleted == 'resolutions_nonofficial') {
+					var questionSubmissionStartDate = $('#questions_starred_submissionStartDate').val();
+					if(questionSubmissionStartDate != "") {
+						$('#'+deviceTypeSeleted+'_submissionStartDate').val(questionSubmissionStartDate);
+					}
+				}
+				
 				//set submission end date for resolutions_nonofficial
 				if(deviceTypeSeleted == 'resolutions_nonofficial') {
 					var daysBetweenSubmissionEndDateAndLastDiscussionDateOfSession = $('#'+deviceTypeSeleted+'_daysBetweenSubmissionEndDateAndLastDiscussionDateOfSession').val();
-					if(daysBetweenSubmissionEndDateAndLastDiscussionDateOfSession == "") {
-						$.prompt("Please Enter Days Between SubmissionEndDate And LastDiscussionDateOfSession");
+					if(daysBetweenSubmissionEndDateAndLastDiscussionDateOfSession == "" || daysBetweenSubmissionEndDateAndLastDiscussionDateOfSession == null || daysBetweenSubmissionEndDateAndLastDiscussionDateOfSession == undefined) {
+						$.prompt($('#invalidDaysBetweenSubmissionEndDateAndLastDiscussionDateOfSession').val());
 						return false;
 					} else {
-						var discussionDates = $('#'+deviceTypeSeleted+'_discussionDates').val();					
-						var lastDiscussionDate = discussionDates[discussionDates.length-1];
-						$.ajax({
-					         url: 'ref/getLastSubmissionDateFromLastDiscussionDate?lastDiscussionDateStr='+lastDiscussionDate+'&daysBetweenSubmissionEndDateAndLastDiscussionDateOfSession='+daysBetweenSubmissionEndDateAndLastDiscussionDateOfSession,	             
-					         async:   false,
-					         success: function(data) {
-					         if(data.id == "") {
-					        	 $.prompt("Please check request parameters");
-					        	 return false;
-					         }
-					         var submissionEndTime = $('#'+deviceTypeSeleted+'_submissionEndTime').val();
-					        	if(submissionEndTime == "") {
-					        		$('#'+deviceTypeSeleted+'_submissionEndDate').val(data.id + " 00:00:00");			        		
-					        	} else {
-					        		$('#'+deviceTypeSeleted+'_submissionEndDate').val(data.id + " " + submissionEndTime);
-					        	}					        	
-				             }	         	 
-				    	});
+						var discussionDates = $('#'+deviceTypeSeleted+'_discussionDates').val();	
+						if(discussionDates == "" || discussionDates == null || discussionDates == undefined) {
+							$.prompt($('#noDiscussionDateSelected').val());
+							return false;
+						} else {
+							var lastDiscussionDate = discussionDates[discussionDates.length-1];						
+							$.ajax({
+						         url: 'ref/getLastSubmissionDateFromLastDiscussionDate?lastDiscussionDateStr='+lastDiscussionDate+'&daysBetweenSubmissionEndDateAndLastDiscussionDateOfSession='+daysBetweenSubmissionEndDateAndLastDiscussionDateOfSession,	             
+						         async:   false,
+						         success: function(data) {
+						            var submissionEndTime = $('#'+deviceTypeSeleted+'_submissionEndTime').val();
+						        	if(submissionEndTime == "") {
+						        		$('#'+deviceTypeSeleted+'_submissionEndDate').val(data.id + " 00:00:00");			        		
+						        	} else {
+						        		$('#'+deviceTypeSeleted+'_submissionEndDate').val(data.id + " " + submissionEndTime);
+						        	}					        	
+					             },
+					             error: function() {					            	 
+					            	 readyToSubmit = false;
+					             }
+					    	});
+						}						
 					}					
 				}
 				
@@ -292,21 +317,19 @@
 					
 				}
 				
-				//as value of every multiselect becomes null in case when all options are deselected
-				$(selectedDiv).find('.sSelectMultiple').each(function() {	
-					$(this).find('option[value=""]').removeAttr('selected');					
-					if($(this).val() == null) {						
-						$(this).val("");
-					}					
-				});
-				
 				//set selected device type as form field
 				$("#deviceTypeSelected").val(deviceTypeSeleted);				
 				
 				//add fields of selected device type only to form
 				$('#mainForm').append($(selectedDiv));
-					
-				$('#mainForm').submit();					
+				
+				//submit form in case of no ajax errors
+				if(readyToSubmit == true) {
+					$('#mainForm').submit();
+				} else {
+					$.prompt($('#ajaxErrorOccured').val());
+					return false;
+				}											
 			});			
 		});
 	</script>
@@ -763,6 +786,7 @@
 					<label class="small"><spring:message code="session.deviceType.submissionEndTime" text="Submission End Time" /></label>					
 					<input type="text" class="timemask sText" id="resolutions_nonofficial_submissionEndTime" />
 					<input type="hidden" class="datetimemask sText" name="resolutions_nonofficial_submissionEndDate" id="resolutions_nonofficial_submissionEndDate" value="${resolutions_nonofficial_submissionenddate}" />
+					<input type="hidden" class="datetimemask sText" name="resolutions_nonofficial_submissionStartDate" id="resolutions_nonofficial_submissionStartDate" value="${resolutions_nonofficial_submissionstartdate}" />
 				</p>
 				
 				<p>
@@ -828,5 +852,8 @@
 	</div>
 	<input type="hidden" id="invalidNumber" value="<spring:message code='client.NAN' text='Not a proper number.' />" />
 	<input id="pleaseSelectMsg" value="<spring:message code='client.prompt.select' text='Please Select'/>" type="hidden">
+	<input type="hidden" id="invalidDaysBetweenSubmissionEndDateAndLastDiscussionDateOfSession" value="<spring:message code='resolutions.invalidDaysBetweenSubmissionEndDateAndLastDiscussionDateOfSession' text='Please Enter Days Between SubmissionEndDate And LastDiscussionDateOfSession' />" />
+	<input type="hidden" id="noDiscussionDateSelected" value="<spring:message code='resolutions.noDiscussionDateSelected' text='Please set discussion date/s' />" />
+	<input type="hidden" id="ajaxErrorOccured" value="<spring:message code='ajaxErrorOccured' text='Some Error Occured' />" />
 </body>
 </html>
