@@ -1758,14 +1758,10 @@ public class ReferenceController extends BaseController {
 					e.printStackTrace();
 				}
 			} else {
-				reference.setId("");
-				reference.setName("");
-				return reference;
+				throw new RuntimeException("one or more request parameters are empty");				
 			}
-		} else {
-			reference.setId("");
-			reference.setName("");
-			return reference;
+		} else {			
+			throw new RuntimeException("one or more request parameters are null");
 		}
 		
 		Calendar calendar = Calendar.getInstance();
