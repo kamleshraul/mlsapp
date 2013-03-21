@@ -114,7 +114,9 @@
             values as the reuest for jsp is not passing through Resource Bundle Filter -->
             <input type="hidden" name="downloadUploadedFile" id="downloadUploadedFile" value="<spring:message code='file.download' text='Download'></spring:message>"/>	
             <input type="hidden" name="removeUploadedFile" id="removeUploadedFile" value="<spring:message code='file.remove' text='Remove'></spring:message>"/>	
-            <input type="hidden" name="cancelFn" id="cancelFn"/>	
+            <input type="hidden" name="cancelFn" id="cancelFn"/>
+            <input type="hidden" id="selectAll" value="<spring:message code='multiSelect.selectAll' text='Select All'/>"/>                 
+            <input type="hidden" id="selectNone" value="<spring:message code='multiSelect.selectNone' text='Un-Select All'/>"/>            	
             
                              
                         
