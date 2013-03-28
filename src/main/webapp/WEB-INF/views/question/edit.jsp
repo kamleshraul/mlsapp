@@ -427,8 +427,18 @@
 				
 				$.get(url, function(data) {
 					if(data.id==0){
+						$('#subject').val('');
+						if($('#questionText').is('[readonly]')){
+							$('#questionText-wysiwyg-iframe').contents().find('html').html('');
+							$('#copyOfquestionText').val('');
+						}
 						$.prompt($('#noQuestionMsg').val());
 					}else if(data.id==-1){
+						$('#subject').val('');
+						if($('#questionText').is('[readonly]')){
+							$('#questionText-wysiwyg-iframe').contents().find('html').html('');
+							$('#copyOfquestionText').val('');
+						}
 						$.prompt($("#questionNumberIncorrectMsg").val());
 					}else{
 						$('#halfHourDiscussionReference_questionId_H').val(data.id);
