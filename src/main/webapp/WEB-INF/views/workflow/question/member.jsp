@@ -675,13 +675,15 @@
 	<form:errors path="subject" cssClass="validationError"/>	
 	</p>
 	
-	<p>
-	<label class="wysiwyglabel"><spring:message code="question.details" text="Details"/></label>
-	<form:textarea path="questionText" readonly="true" cssClass="wysiwyg"></form:textarea>
-	<form:errors path="questionText" cssClass="validationError"/>	
-	</p>
+	<c:if test="${selectedQuestionType!=='questions_halfhourdiscussion_standalone'}">
+		<p>
+		<label class="wysiwyglabel"><spring:message code="question.details" text="Details"/></label>
+		<form:textarea path="questionText" readonly="true" cssClass="wysiwyg"></form:textarea>
+		<form:errors path="questionText" cssClass="validationError"/>	
+		</p>
+	</c:if>
 	
-	<c:if test="${selectedQuestionType=='questions_shortnotice' or selectedQuestionType=='questions_halfhourdiscussion_from_question'}">
+	<c:if test="${selectedQuestionType=='questions_shortnotice' or selectedQuestionType=='questions_halfhourdiscussion_from_question' or selectedQuestionType=='questions_halfhourdiscussion_standalone'}">
 	<p>
 		<c:choose>
 			<c:when test="${selectedQuestionType=='questions_shortnotice'}">
@@ -706,11 +708,13 @@
 	</c:if>
 	
 	<c:if test="${selectedQuestionType!='questions_halfhourdiscussion_from_question'}">
-	<p>
-	<a href="#" id="reviseSubject" style="margin-left: 162px;margin-right: 20px;"><spring:message code="question.reviseSubject" text="Revise Subject"></spring:message></a>
-	<a href="#" id="reviseQuestionText" style="margin-right: 20px;"><spring:message code="question.reviseQuestionText" text="Revise Question"></spring:message></a>
-	<a href="#" id="viewRevision"><spring:message code="question.viewrevisions" text="View Revisions"></spring:message></a>
-	</p>
+		<p>
+			<a href="#" id="reviseSubject" style="margin-left: 162px;margin-right: 20px;"><spring:message code="question.reviseSubject" text="Revise Subject"></spring:message></a>
+			<c:if test="${selectedQuestionType!='questions_halfhourdiscussion_standalone'}">
+				<a href="#" id="reviseQuestionText" style="margin-right: 20px;"><spring:message code="question.reviseQuestionText" text="Revise Question"></spring:message></a>
+			</c:if>
+			<a href="#" id="viewRevision"><spring:message code="question.viewrevisions" text="View Revisions"></spring:message></a>
+		</p>
 	</c:if>
 	
 	<p style="display:none;" class="revise1" id="revisedSubjectDiv">
