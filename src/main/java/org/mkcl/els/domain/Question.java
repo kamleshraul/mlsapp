@@ -432,6 +432,15 @@ public class Question extends BaseDomain implements Serializable {
     }
     
     /**
+     * @param deviceType
+     * @param status
+     * @return
+     */
+    public static List<Question> findByDeviceAndStatus(final DeviceType deviceType, final Status status){
+		return Question.getQuestionRepository().findByDeviceAndStatus(deviceType, status);
+	}
+    
+    /**
      * This method finds all the questions of a member of a particular device type,
      * belonging to a particular session and having internal status as specified
      * 
@@ -1169,7 +1178,8 @@ public class Question extends BaseDomain implements Serializable {
             draft.setRecommendationStatus(this.getRecommendationStatus());
             
             if(this.getType().getType().equals(
-            		ApplicationConstants.HALF_HOUR_DISCUSSION_QUESTION_FROM_QUESTION)) {
+            		ApplicationConstants.HALF_HOUR_DISCUSSION_QUESTION_FROM_QUESTION) || (this.getType().getType().equals(
+                    		ApplicationConstants.HALF_HOUR_DISCUSSION_QUESTION_STANDALONE))) {
             	if(this.getRevisedReason() != null && this.getRevisedBriefExplanation() != null){
         		    draft.setReason(this.getRevisedReason());
 	                draft.setBriefExplanation(this.getRevisedBriefExplanation());
@@ -1606,4 +1616,6 @@ public class Question extends BaseDomain implements Serializable {
 	public void setMarkAsAnswered(Boolean markAsAnswered) {
 		this.markAsAnswered = markAsAnswered;
 	}
+	
+	
 }
