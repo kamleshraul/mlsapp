@@ -1,0 +1,119 @@
+package org.mkcl.els.repository;
+
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+
+import org.mkcl.els.common.exception.ELSException;
+import org.mkcl.els.common.util.ApplicationConstants;
+import org.mkcl.els.domain.CustomParameter;
+import org.mkcl.els.domain.HouseType;
+import org.mkcl.els.domain.Ministry;
+import org.mkcl.els.domain.Query;
+import org.mkcl.els.domain.SessionType;
+import org.springframework.stereotype.Repository;
+
+@Repository
+public class MinistryRepository extends BaseRepository<Ministry, Long> {
+
+	@SuppressWarnings("unchecked")
+	public List<Ministry> findUnassignedMinistries(final String locale) {
+		
+		List<Ministry> ministries = new ArrayList<Ministry>();
+		try{
+			CustomParameter dbDateFormat =
+				CustomParameter.findByName(CustomParameter.class, "DB_DATEFORMAT", "");
+			Date currDate = new Date();
+			/**
+			 * I am trying to mimic mm.ministryToDate > CURDATE(), but since
+			 * CURDATE() is MySQL specific i am using DB_DATEFORMAT from
+			 * custom_parameters.
+			 */
+			String strQuery = "SELECT m " +
+			"FROM Ministry m WHERE m.locale =:locale AND m.id NOT IN " +
+			"(SELECT m.id FROM MemberMinister mm JOIN mm.ministry m " +
+			"WHERE mm.ministryToDate IS NULL OR mm.ministryToDate > :currentDate) " +
+			"ORDER BY m.name";
+			javax.persistence.Query query=this.em().createQuery(strQuery);
+			query.setParameter("locale",locale);
+			query.setParameter("currentDate", currDate);
+			ministries = query.getResultList();
+		}catch (Exception e) {
+			e.printStackTrace();
+			logger.error(e.getMessage());
+		}
+		return ministries;
+	}
+	
+	@SuppressWarnings("unchecked")
+	public List<Ministry> findAssignedMinistries(final String locale) {
+		
+		List<Ministry> ministries = new ArrayList<Ministry>();
+		
+		try{
+			CustomParameter dbDateFormat =
+				CustomParameter.findByName(CustomParameter.class, "DB_DATEFORMAT", "");
+			Date currDate = new Date();
+			/**
+			 * I am trying to mimic mm.ministryToDate > CURDATE(), but since
+			 * CURDATE() is MySQL specific i am using DB_DATEFORMAT from
+			 * custom_parameters.
+			 */
+			String strQuery = "SELECT m FROM Ministry m " +
+			"WHERE m.locale =:locale AND " +
+			"m.id IN " +
+				"(SELECT m.id FROM MemberMinister mm JOIN mm.ministry m " +
+				"WHERE mm.ministryToDate IS NULL OR mm.ministryToDate>=:currentDate) " +
+			"ORDER BY m.name";
+			javax.persistence.Query query=this.em().createQuery(strQuery);
+			query.setParameter("locale",locale);
+			query.setParameter("currentDate",currDate);
+			ministries = query.getResultList();
+		}catch (Exception e) {
+			e.printStackTrace();
+			logger.error(e.getMessage());
+		}
+		return ministries;
+	}
+
+    @SuppressWarnings("rawtypes")
+    public List<Ministry> findMinistriesAssignedToGroups(final HouseType houseType,
+            final Integer sessionYear, final SessionType sessionType,final String locale) throws ELSException {
+    	List<Ministry> ministries = new ArrayList<Ministry>();
+		try {
+			Query nativeQuery=Query.findByFieldName(Query.class, "keyField", ApplicationConstants.MINISTRY_FIND_MINISTRIES_ASSIGNED_TO_GROUPS_QUERY, "");
+			String strQuery=nativeQuery.getQuery();
+			javax.persistence.Query query=this.em().createNativeQuery(strQuery);
+			query.setParameter("locale",locale);
+			query.setParameter("houseTypeId", houseType.getId());
+			query.setParameter("sessionTypeId", sessionType.getId());
+			query.setParameter("sessionYear", sessionYear);
+			List results=query.getResultList();
+			ministries = new ArrayList<Ministry>();
+			for(Object i:results){
+			    Object[] o=(Object[]) i;
+			    Ministry ministry=new Ministry();
+			    ministry.setId(Long.parseLong(o[0].toString()));
+			    ministry.setLocale(o[1].toString());
+			    ministry.setVersion(Long.parseLong(o[2].toString()));
+			    ministry.setIsExpired(Boolean.parseBoolean(o[3].toString()));
+			    ministry.setName(o[4].toString());
+			    ministry.setRemarks(o[5].toString());
+			    ministries.add(ministry);
+			}
+		} catch (NumberFormatException e) {
+			
+			e.printStackTrace();
+		}catch (Exception e) {
+			e.printStackTrace();
+			logger.error(e.getMessage());
+			ELSException elsException = new ELSException();
+			elsException.setParameter("MinistryRepository_List<Ministry>_findMinistriesAssignedToGroups", "No ministry found.");
+			throw elsException;
+		}
+        return ministries;
+    }
+
+	
+}

@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<definitions xmlns="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:activiti="http://activiti.org/bpmn" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:omgdc="http://www.omg.org/spec/DD/20100524/DC" xmlns:omgdi="http://www.omg.org/spec/DD/20100524/DI" typeLanguage="http://www.w3.org/2001/XMLSchema" expressionLanguage="http://www.w3.org/1999/XPath" targetNamespace="http://www.activiti.org/test">
+  <process id="Supporting_Members_Approval_Process" name="Supporting_Members_Approval_Process">
+    <documentation>Workflow to send request for approval to supporting members</documentation>
+    <startEvent id="startevent1" name="Start"></startEvent>
+    <subProcess id="subprocess1" name="Sub Process">
+      <startEvent id="subprocess1startevent2" name="Start"></startEvent>
+      <userTask id="subprocess1usertask1" name="Approve Request" activiti:assignee="${supportingMember}">
+        <documentation>supporting member task :${supportingMember}</documentation>
+      </userTask>
+      <sequenceFlow id="subprocess1flow2" name="" sourceRef="subprocess1startevent2" targetRef="subprocess1usertask1"></sequenceFlow>
+      <endEvent id="subprocess1endevent3" name="End"></endEvent>
+      <sequenceFlow id="subprocess1flow9" name="" sourceRef="subprocess1usertask1" targetRef="subprocess1endevent3"></sequenceFlow>
+    </subProcess>
+    <sequenceFlow id="flow1" name="" sourceRef="startevent1" targetRef="subprocess1"></sequenceFlow>
+    <endEvent id="endevent1" name="End"></endEvent>
+    <sequenceFlow id="flow8" name="" sourceRef="subprocess1" targetRef="endevent1"></sequenceFlow>
+  </process>
+  <bpmndi:BPMNDiagram id="BPMNDiagram_Supporting_Members_Approval_Process">
+    <bpmndi:BPMNPlane bpmnElement="Supporting_Members_Approval_Process" id="BPMNPlane_Supporting_Members_Approval_Process">
+      <bpmndi:BPMNShape bpmnElement="startevent1" id="BPMNShape_startevent1">
+        <omgdc:Bounds height="35" width="35" x="30" y="155"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="subprocess1" id="BPMNShape_subprocess1">
+        <omgdc:Bounds height="205" width="401" x="120" y="70"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="subprocess1startevent2" id="BPMNShape_startevent2">
+        <omgdc:Bounds height="35" width="35" x="130" y="150"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="subprocess1usertask1" id="BPMNShape_usertask1">
+        <omgdc:Bounds height="55" width="105" x="200" y="140"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="subprocess1endevent3" id="BPMNShape_endevent3">
+        <omgdc:Bounds height="35" width="35" x="430" y="150"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge bpmnElement="subprocess1flow2" id="BPMNEdge_flow2">
+        <omgdi:waypoint x="165" y="167"></omgdi:waypoint>
+        <omgdi:waypoint x="200" y="167"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="subprocess1flow9" id="BPMNEdge_flow9">
+        <omgdi:waypoint x="305" y="167"></omgdi:waypoint>
+        <omgdi:waypoint x="430" y="167"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNShape bpmnElement="endevent1" id="BPMNShape_endevent1">
+        <omgdc:Bounds height="35" width="35" x="544" y="155"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge bpmnElement="flow1" id="BPMNEdge_flow1">
+        <omgdi:waypoint x="65" y="172"></omgdi:waypoint>
+        <omgdi:waypoint x="120" y="172"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow8" id="BPMNEdge_flow8">
+        <omgdi:waypoint x="521" y="172"></omgdi:waypoint>
+        <omgdi:waypoint x="544" y="172"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</definitions>

@@ -1,0 +1,31 @@
+@media only print
+{    
+    div#pannelDash {
+    	visibility: hidden;
+    }
+    
+    div#container {
+    	visibility: hidden;
+    }
+    
+    .exportLink{			
+		display: none !important;
+	}
+    
+    div#rotationOrderReport{
+		visibility: visible !important;
+		position: absolute !important;
+		left: 0px;
+		top: 5px;
+	}
+	
+	div#rotationOrderReport table{
+		font-size: 16px;
+		page: auto;		
+		width: 100%;
+	}
+	div#rotationOrderReport table thead {display: table-header-group;}
+	div#rotationOrderReport table tfoot { display: table-footer-group;}
+	div#rotationOrderReport table tbody { display: table-row-group;}
+	div#rotationOrderReport .page-break { page-break-after:always;}
+}
