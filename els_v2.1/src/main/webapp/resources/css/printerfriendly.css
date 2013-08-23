@@ -1,0 +1,28 @@
+   
+    div#pannelDash {
+    	visibility: hidden;
+    }
+    
+    div#container {
+    	visibility: hidden;
+    }
+    
+    div#reportDiv{
+		visibility: visible !important;
+		position: absolute !important;
+		width: 800px !important;
+		left: 0px;
+		top: 5px;
+	}
+	
+	div#reportDiv table{
+		font-size: 16px;
+		page: auto;		
+	}
+	div#reportDiv table thead {display: table-header-group;}
+	div#reportDiv table tfoot { display: table-footer-group;}
+	div#reportDiv table tbody { display: table-row-group;}
+	div#reportDiv .page-break { page-break-after:auto;}
+	div#reportDiv .centerdiv h2{font-size: 24px; font-weight: bold; }
+	div#reportDiv .centerdiv h4{font-size: 20px; font-weight: bold; }
+	h2{font-size: 24px; font-weight: bold; }

@@ -1,0 +1,27 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<Lang>
+<en_US>
+<text>Hello World! Cooperate</text>
+<fontname>Arial Unicode MS</fontname>
+</en_US>
+<mr_IN>
+	<pdf>
+		<text>मराठीची परीक्षा </text>
+		<fontname>Utsaah</fontname>
+	</pdf>
+	<rtf>
+		<text>मराठीची परीक्षा </text>
+		<fontname>Utsaah</fontname>
+	</rtf>
+	<word>
+		<text>मराठीची परीक्षा </text>
+		<fontname>Utsaah</fontname>
+	</word>
+	<html>
+		<text>मराठीची परीक्षा </text>
+		<fontname>Arial Unicode MS</fontname>
+	</html>
+</mr_IN>
+<jp/>
+<ch/>
+</Lang> 
