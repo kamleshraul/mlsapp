@@ -531,4 +531,13 @@ public class ApplicationConstants {
 	public static final String MEMBERHOUSEROLE_FIND_ALL_ACTIVE_MEMBERVOS_IN_SESSION = "MEMBERHOUSEROLE_FIND_ALL_ACTIVE_MEMBERVOS_IN_SESSION";
 
 	public static final String MEMBERHOUSEROLE_FIND_ALL_ACTIVE_MEMBERVOS_IN_SESSION_WITH_PARAM = "MEMBERHOUSEROLE_FIND_ALL_ACTIVE_MEMBERVOS_IN_SESSION_WITH_PARAM";
+	
+	/**** role types for comparison ****/
+	
+	public static final String MINISTER = "MINISTER";
+	
+	/**** member role types for comparison ****/
+	public static final String CHIEF_MINISTER = "CHIEF_MINISTER";
+	
+	public static final String DEPUTY_CHIEF_MINISTER = "DEPUTY_CHIEF_MINISTER";
 }
