@@ -9,6 +9,10 @@
  */
 package org.mkcl.els.common.vo;
 
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.List;
+
 // TODO: Auto-generated Javadoc
 /**
  * The Class QuestionSequenceVO.
@@ -27,7 +31,7 @@ public class QuestionSequenceVO {
 
 	/** The sequence no. */
 	private Integer sequenceNo;
-
+	
 	private Long memberId;
 
 
@@ -112,7 +116,17 @@ public class QuestionSequenceVO {
 		return memberId;
 	}
 
-	public void setMemberId(final Long memberId) {
+	public void setMemberId(Long memberId) {
 		this.memberId = memberId;
+	}
+
+	public static void sortBySequenceNumber(List<QuestionSequenceVO> questionSequenceVOs) {
+		class QuestionSequenceVOComparator implements Comparator<QuestionSequenceVO> {
+		    @Override
+		    public int compare(QuestionSequenceVO qs1, QuestionSequenceVO qs2) {
+		       return qs1.getSequenceNo().compareTo(qs2.getSequenceNo());         
+		    }
+		}
+		Collections.sort(questionSequenceVOs, new QuestionSequenceVOComparator());
 	}
 }

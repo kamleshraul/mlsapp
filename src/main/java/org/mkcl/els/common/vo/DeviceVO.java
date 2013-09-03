@@ -1,157 +1,277 @@
 package org.mkcl.els.common.vo;
 
 public class DeviceVO {
-	// =============== ATTRIBUTES ====================
-	/** The id. */
-	private Long id;
+	//=============== ATTRIBUTES ====================
+		/** The id. */
+		private Long id;
 
-	/** The number. */
-	private Integer number;
+		/** The number. */
+		private Integer number;
+		
+		/** The formatted number **/
+		private String formattedNumber;
+		
+		/** The serial number **/
+		private String serialNumber;
+		
+		/** The member names **/
+		private String memberNames;
+		
+		/** The subject **/
+		private String subject;	
+		
+		/** The content **/
+		private String content;
+		
+		/** The ministry name **/
+		private String ministryName;
+		
+		/** The submission date **/
+		private String submissionDate;
+		
+		/** The answer **/
+		private String answer;
+		
+		/** The answered by (e.g. minister name who gave answer) **/
+		private String answeredBy;
+		
+		/** The answering date **/
+		private String answeringDate;
+		
+		/** The date Of Answer By Department **/
+		private String dateOfAnswerByDepartment;
 
-	/** The formatted number **/
-	private String formattedNumber;
+		/** The status. */
+		private String status;
+		
+		private String localisedStatus;
 
-	/** The content **/
-	private String content;
+		private Boolean hasParent;
+		
+		private String parent;		
+		
+		private String parentAnsweringDate;		
+		
+		private String parentYaadiNumber;
+		
+		private String kids;
+		
+		private Boolean isFactualRecieved;
+		
+		public DeviceVO() {
+			super();
+		}
+		
+		public DeviceVO(Long id, Integer number, String status) {
+			super();
+			this.id = id;
+			this.number = number;
+			this.status = status;
+		}
 
-	/** The status. */
-	private String status;
+		public DeviceVO(Long id, Integer number, String status,String localisedStatus) {
+			super();
+			this.id = id;
+			this.number = number;
+			this.status = status;
+			this.localisedStatus=localisedStatus;
+		}
+		
+		public DeviceVO(Long id, Integer number, String status,String localisedStatus, Boolean isFactualRecieved) {
+			super();
+			this.id = id;
+			this.number = number;
+			this.status = status;
+			this.isFactualRecieved=isFactualRecieved;
+			this.localisedStatus=localisedStatus;
+		}
+		
+		
 
-	private String localisedStatus;
+		public DeviceVO(Long id, Integer number, String status,
+				Boolean hasParent, String parent, String kids) {
+			super();
+			this.id = id;
+			this.number = number;
+			this.status = status;
+			this.hasParent = hasParent;
+			this.parent = parent;
+			this.kids = kids;
+		}
+		
+		public DeviceVO(String formattedNumber, String content) {
+			super();
+			this.formattedNumber = formattedNumber;
+			this.content = content;
+		}
 
-	private Boolean hasParent;
+		public Long getId() {
+			return id;
+		}
 
-	private String parent;
+		public void setId(Long id) {
+			this.id = id;
+		}
 
-	private String kids;
+		public Integer getNumber() {
+			return number;
+		}
 
-	private Boolean isFactualRecieved;
+		public void setNumber(Integer number) {
+			this.number = number;
+		}
 
-	public DeviceVO() {
-		super();
-	}
+		public String getStatus() {
+			return status;
+		}
 
-	public DeviceVO(final Long id, final Integer number, final String status) {
-		super();
-		this.id = id;
-		this.number = number;
-		this.status = status;
-	}
+		public void setStatus(String status) {
+			this.status = status;
+		}
 
-	public DeviceVO(final Long id, final Integer number, final String status,
-			final String localisedStatus) {
-		super();
-		this.id = id;
-		this.number = number;
-		this.status = status;
-		this.localisedStatus = localisedStatus;
-	}
+		public Boolean getHasParent() {
+			return hasParent;
+		}
 
-	public DeviceVO(final Long id, final Integer number, final String status,
-			final String localisedStatus, final Boolean isFactualRecieved) {
-		super();
-		this.id = id;
-		this.number = number;
-		this.status = status;
-		this.isFactualRecieved = isFactualRecieved;
-		this.localisedStatus = localisedStatus;
-	}
+		public void setHasParent(Boolean hasParent) {
+			this.hasParent = hasParent;
+		}
 
-	public DeviceVO(final Long id, final Integer number, final String status,
-			final Boolean hasParent, final String parent, final String kids) {
-		super();
-		this.id = id;
-		this.number = number;
-		this.status = status;
-		this.hasParent = hasParent;
-		this.parent = parent;
-		this.kids = kids;
-	}
+		public String getParent() {
+			return parent;
+		}
 
-	public DeviceVO(final String formattedNumber, final String content) {
-		super();
-		this.formattedNumber = formattedNumber;
-		this.content = content;
-	}
+		public void setParent(String parent) {
+			this.parent = parent;
+		}
 
-	public Long getId() {
-		return id;
-	}
+		public String getParentAnsweringDate() {
+			return parentAnsweringDate;
+		}
 
-	public void setId(final Long id) {
-		this.id = id;
-	}
+		public void setParentAnsweringDate(String parentAnsweringDate) {
+			this.parentAnsweringDate = parentAnsweringDate;
+		}
 
-	public Integer getNumber() {
-		return number;
-	}
+		public String getParentYaadiNumber() {
+			return parentYaadiNumber;
+		}
 
-	public void setNumber(final Integer number) {
-		this.number = number;
-	}
+		public void setParentYaadiNumber(String parentYaadiNumber) {
+			this.parentYaadiNumber = parentYaadiNumber;
+		}
 
-	public String getStatus() {
-		return status;
-	}
+		public String getKids() {
+			return kids;
+		}
 
-	public void setStatus(final String status) {
-		this.status = status;
-	}
+		public void setKids(String kids) {
+			this.kids = kids;
+		}
 
-	public Boolean getHasParent() {
-		return hasParent;
-	}
+		public Boolean getIsFactualRecieved() {
+			return isFactualRecieved;
+		}
 
-	public void setHasParent(final Boolean hasParent) {
-		this.hasParent = hasParent;
-	}
+		public void setIsFactualRecieved(Boolean isFactualRecieved) {
+			this.isFactualRecieved = isFactualRecieved;
+		}
 
-	public String getParent() {
-		return parent;
-	}
+		public String getFormattedNumber() {
+			return formattedNumber;
+		}
 
-	public void setParent(final String parent) {
-		this.parent = parent;
-	}
+		public void setFormattedNumber(String formattedNumber) {
+			this.formattedNumber = formattedNumber;
+		}
+		
+		public String getSerialNumber() {
+			return serialNumber;
+		}
 
-	public String getKids() {
-		return kids;
-	}
+		public void setSerialNumber(String serialNumber) {
+			this.serialNumber = serialNumber;
+		}
 
-	public void setKids(final String kids) {
-		this.kids = kids;
-	}
+		public String getMemberNames() {
+			return memberNames;
+		}
 
-	public Boolean getIsFactualRecieved() {
-		return isFactualRecieved;
-	}
+		public void setMemberNames(String memberNames) {
+			this.memberNames = memberNames;
+		}
 
-	public void setIsFactualRecieved(final Boolean isFactualRecieved) {
-		this.isFactualRecieved = isFactualRecieved;
-	}
+		public String getSubject() {
+			return subject;
+		}
 
-	public String getFormattedNumber() {
-		return formattedNumber;
-	}
+		public void setSubject(String subject) {
+			this.subject = subject;
+		}
 
-	public void setFormattedNumber(final String formattedNumber) {
-		this.formattedNumber = formattedNumber;
-	}
+		public String getContent() {
+			return content;
+		}
 
-	public String getContent() {
-		return content;
-	}
+		public void setContent(String content) {
+			this.content = content;
+		}
 
-	public void setContent(final String content) {
-		this.content = content;
-	}
+		public String getMinistryName() {
+			return ministryName;
+		}
 
-	public String getLocalisedStatus() {
-		return localisedStatus;
-	}
+		public void setMinistryName(String ministryName) {
+			this.ministryName = ministryName;
+		}
 
-	public void setLocalisedStatus(final String localisedStatus) {
-		this.localisedStatus = localisedStatus;
-	}
+		public String getSubmissionDate() {
+			return submissionDate;
+		}
 
+		public void setSubmissionDate(String submissionDate) {
+			this.submissionDate = submissionDate;
+		}
+
+		public String getAnswer() {
+			return answer;
+		}
+
+		public void setAnswer(String answer) {
+			this.answer = answer;
+		}
+
+		public String getAnsweredBy() {
+			return answeredBy;
+		}
+
+		public void setAnsweredBy(String answeredBy) {
+			this.answeredBy = answeredBy;
+		}
+
+		public String getAnsweringDate() {
+			return answeringDate;
+		}
+
+		public void setAnsweringDate(String answeringDate) {
+			this.answeringDate = answeringDate;
+		}
+
+		public String getDateOfAnswerByDepartment() {
+			return dateOfAnswerByDepartment;
+		}
+
+		public void setDateOfAnswerByDepartment(String dateOfAnswerByDepartment) {
+			this.dateOfAnswerByDepartment = dateOfAnswerByDepartment;
+		}
+
+		public String getLocalisedStatus() {
+			return localisedStatus;
+		}
+
+		public void setLocalisedStatus(String localisedStatus) {
+			this.localisedStatus = localisedStatus;
+		}		
+		
+		
 }
