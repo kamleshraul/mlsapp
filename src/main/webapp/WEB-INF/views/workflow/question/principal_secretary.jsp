@@ -661,6 +661,11 @@
 		if($('#workflowstatus').val()!='COMPLETED'){
 			loadActors($("#changeInternalStatus").val());
 		}
+		
+		/**** To make the next task available ****/
+		$("#next_task").click(function() {
+			nextTask();
+		});
 	});
 	</script>
 	 <style type="text/css">
@@ -682,6 +687,9 @@
 <div id="assistantDiv">
 <form:form action="workflow/question" method="PUT" modelAttribute="domain">
 	<%@ include file="/common/info.jsp" %>
+	<a href="#" id="next_task" class="butSim">	
+		<spring:message code="generic.next_task" text="Next Task"/>
+	</a>
 	<h2>
 	<c:choose>
 	<c:when test="${workflowstatus=='COMPLETED'}">
