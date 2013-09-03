@@ -108,9 +108,9 @@
 			<a href="#" id="search" class="butSim">
 				<spring:message code="question.search" text="Search"/>
 			</a> |	
-			<a href="#" id="member_statistics" class="butSim">
+			<%-- <a href="#" id="member_statistics" class="butSim">
 				<spring:message code="generic.statistics" text="Statistics"/>
-			</a> |			
+			</a> | --%>			
 			<p>&nbsp;</p>
 		</div>
 	</div>
