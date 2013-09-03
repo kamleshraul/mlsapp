@@ -157,6 +157,74 @@
 					
 			});			
 			
+			$("#view_yaadi").click(function(){
+				var resourceURL="";
+				var parameters="";
+				if($("#category").val()=='question'){
+					parameters = "houseType="+$("#selectedHouseType").val()
+									 +"&sessionYear="+$("#selectedSessionYear").val()
+									 +"&sessionType="+$("#selectedSessionType").val()
+									 +"&questionType="+$("#selectedQuestionType").val()
+									 +"&group="+$("#selectedGroup").val()
+									 +"&status="+$("#selectedStatus").val()
+									 +"&role="+$("#srole").val() 
+									 + "&answeringDate=" + $("#selectedAnsweringDate").val()									 
+									 + "&outputFormat=" + $("#outputFormat").val();
+					resourceURL = 'question/viewYaadi?' + parameters;
+				}else if($("#category").val()=='resolution'){
+					parameters = "houseType="+$("#selectedHouseType").val()
+								 +"&sessionYear="+$("#selectedSessionYear").val()
+								 +"&sessionType="+$("#selectedSessionType").val()
+								 +"&deviceType="+$("#selectedDeviceType").val()
+								 +"&status="+$("#selectedStatus").val()
+								 +"&role="+$("#srole").val() 
+								 +"&answeringDate=" + $("#selectedAnsweringDate").val()								 
+								 + "&outputFormat=" + $("#outputFormat").val();					
+					resourceURL = 'resolution/viewYaadi?' + parameters;
+				}
+				$(this).attr('href', resourceURL);			
+				//check output format set or not
+				if($("#outputFormat").val() == "") {
+					$.prompt("Please Select Output Format first!!!!");
+					return false;
+				}
+			});			
+			$("#view_suchi").click(function(){
+				var resourceURL="";
+				var parameters="";
+				if($("#category").val()=='question'){
+					parameters = "houseType="+$("#selectedHouseType").val()
+									 +"&sessionYear="+$("#selectedSessionYear").val()
+									 +"&sessionType="+$("#selectedSessionType").val()
+									 +"&questionType="+$("#selectedQuestionType").val()
+									 +"&group="+$("#selectedGroup").val()
+									 +"&status="+$("#selectedStatus").val()
+									 +"&role="+$("#srole").val() 
+									 + "&answeringDate=" + $("#selectedAnsweringDate").val()
+									 +"&category=" + $("#category").val()
+									 + "&outputFormat=" + $("#outputFormat").val();	
+					resourceURL = 'question/viewSuchi?' + parameters;
+				}else if($("#category").val()=='resolution'){
+					parameters = "houseType="+$("#selectedHouseType").val()
+					 +"&sessionYear="+$("#selectedSessionYear").val()
+					 +"&sessionType="+$("#selectedSessionType").val()
+					 +"&deviceType="+$("#selectedDeviceType").val()
+					 +"&status="+$("#selectedStatus").val()
+					 +"&role="+$("#srole").val() 
+					 +"&answeringDate=" + $("#selectedAnsweringDate").val()
+					 +"&category=" + $("#category").val()
+					 + "&outputFormat=" + $("#outputFormat").val();	
+					
+					resourceURL = 'resolution/viewSuchi?' + parameters;
+				}
+				$(this).attr('href', resourceURL);
+				//check output format set or not
+				if($("#outputFormat").val() == "") {
+					$.prompt("Please Select Output Format first!!!!");
+					return false;
+				}
+			});
+			
 			$("#give_balloted_resolution_choice").click(function(){
 				if($("#category").val()=='resolution'){
 					parameters = "houseType="+$("#selectedHouseType").val()
@@ -304,7 +372,35 @@
 			</a> |
 			<a href="#" id="view_ballot" class="butSim">
 				<spring:message code="ballotinitial.viewballot" text="View Ballot"/>
+			</a> |
+			
+			<a href="#" id="view_yaadi" class="butSim">
+				<spring:message code="ballotinitial.viewyaadi" text="View Yaadi"/>
+			</a> | 
+			<a href="#" id="view_suchi" class="butSim">
+				<spring:message code="ballotinitial.viewsuchi" text="View Suchi"/>
 			</a>
+			<c:if test="${not empty outputFormats}">				
+				<select id="outputFormat" name="outputFormat">
+					<option value="" selected="selected">Please Select Output Format</option>
+					<c:forEach items="${outputFormats}" var="i">
+						<option value="${i.value}">${i.name}</option>
+					</c:forEach>
+				</select>				
+			</c:if>
+			
+			<c:if test="${deviceTypeType =='resolutions_nonofficial' or deviceTypeType == 'questions_halfhourdiscussion_standalone'}">|
+				<c:if test="${houseType=='upperhouse'}">
+				<a href="#" id="give_balloted_resolution_choice" class="butSim">
+					<spring:message code="ballotinitial.ballotchoice" text="Give Choice"/>
+				</a>
+				</c:if>
+				<c:if test="${houseType=='lowerhouse'}">
+					<a id="patrakbhag2_tab" href="#" class="tab">
+				   		<spring:message code="resolution.patrakbhag2" text="Post Ballot Report"></spring:message>
+					</a>		
+				</c:if>
+			</c:if>
 			
 			<c:if test="${deviceTypeType =='resolutions_nonofficial'}">|
 				<c:if test="${houseType=='upperhouse'}">
