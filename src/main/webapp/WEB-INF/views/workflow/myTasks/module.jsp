@@ -110,6 +110,10 @@
 		}			
 
 		function rowDblClickHandler(row, iRow, iCol, e) {
+			/**** To maintain the grid ids to allow nextTask to be show next ***/
+			$("#currentRowId").val(row);
+			$("#allRowIds").val($('#grid').jqGrid('getDataIDs'));
+			
 			var row = $('#key').val();
 			$("#cancelFn").val("rowDblClickHandler");
 			$("#selectionDiv").hide();
@@ -187,6 +191,47 @@
 				}
 				scrollTop();
 			});
+		}
+		
+		/**** To enable the next task link ****/
+		function nextTask(){
+			var currentrowid = $("#currentRowId").val(); 
+				//$("#grid").jqGrid('getGridParam','selrow');
+			var allrids = $("#allRowIds").val().split(",");
+				//$('#grid').jqGrid('getDataIDs');
+			var nextRowId = -1;
+			var i;
+			var prevRid = allrids[0];
+			
+			/* console.log("currentRowId: " + currentrowid);
+			console.log("allRi: " + allrids);
+			console.log("prevRid: " + prevRid); */
+			
+			for(i = 0; i < allrids.length; i++){
+				if(prevRid==currentrowid){
+					i++;
+					nextRowId = allrids[i];
+					break;
+				}
+			}
+			$("#currentRowId").val(nextRowId);
+			//$("#grid").jqGrid('getCell', rowid, 0));
+			if(isValidRow(allrids, nextRowId) > -1){
+				showTabByIdAndUrl('process_tab', 'workflow/myTasks/' + nextRowId + '/process');
+			}
+		}
+		
+		function isValidRow(allrows, row){
+			var i;
+			var retVal = -1;
+			for(i = 0; i < allrows.length; i++){
+				if(row==allrows[i]){
+					retVal = 1;
+					break;					
+				}
+			}
+			
+			return retVal;
 		}
 	</script>
 </head>
@@ -323,6 +368,9 @@
 		<input id="pleaseSelectMessage" value="<spring:message code='please.select' text='Please Select'/>" type="hidden">
 		<input type="hidden" id="creationTime" name="creationTime" value="" />		
 		<input type="hidden" id="ErrorMsg" value="<spring:message code='generic.error' text='Error Occured Contact For Support.'/>"/>
+		<input type="hidden" id="currentRowId" value="" />
+		<input type="hidden" id="allRowIds" value="" />
+		
 	</div> 
 </body>
 </html>
