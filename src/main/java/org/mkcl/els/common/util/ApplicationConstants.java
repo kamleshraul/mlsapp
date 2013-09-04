@@ -540,4 +540,11 @@ public class ApplicationConstants {
 	public static final String CHIEF_MINISTER = "CHIEF_MINISTER";
 	
 	public static final String DEPUTY_CHIEF_MINISTER = "DEPUTY_CHIEF_MINISTER";
+	
+	
+	/**** Chart related Constants ****/
+	/**** Resolution Chart Constants ****/
+	public static final String RESOLUTION_CHART_WITHDEVICES_VIEW = "RESOLUTION_CHART_WITHDEVICES_VIEW";
+	
+	public static final String RESOLUTION_CHART_WITHOUTDEVICES_VIEW = "RESOLUTION_CHART_WITHOUTDEVICES_VIEW";
 }
