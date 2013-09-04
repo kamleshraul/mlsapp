@@ -232,8 +232,21 @@ public class BallotController extends BaseController{
 						model.addAttribute("answeringDates", masterVOs);
 					}
 				}
+				
+				List<MasterVO> outputFormats = new ArrayList<MasterVO>();
+				MasterVO pdfFormat = new MasterVO();
+				pdfFormat.setName("PDF");
+				pdfFormat.setValue("PDF");
+				outputFormats.add(pdfFormat);
+				MasterVO wordFormat = new MasterVO();
+				wordFormat.setName("WORD");
+				wordFormat.setValue("WORD");
+				outputFormats.add(wordFormat);									
+				model.addAttribute("outputFormats", outputFormats);
+				
 				retVal = "ballot/ballotinit";
 			}
+			
 		}
 		catch(Exception e) {
 			logger.error("error", e);
