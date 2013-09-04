@@ -160,9 +160,11 @@ public class UserRepository extends BaseRepository<User,Long>{
 			throw elsException;
 		}
 	}
-
-	public List<User> findByRole(final boolean roleStartingWith,final String roles,
-			final String language,final String locale) throws ELSException{
+	
+	public List<User> findByRole(final boolean roleStartingWith,
+			final String roles,
+			final String language,
+			final String locale) throws ELSException{
 		StringBuffer buffer=new StringBuffer();
 		try{
 			buffer.append("SELECT u FROM User u" +
@@ -190,7 +192,77 @@ public class UserRepository extends BaseRepository<User,Long>{
 			ELSException elsException=new ELSException();
 			elsException.setParameter("UserRepository_List<User>_findByRole", "User Not found");
 			throw elsException;
+		}		
+	}
+	
+	@SuppressWarnings("unchecked")
+	public List<User> findByRole(final boolean roleStartingWith,
+			final String roles,
+			final String language,
+			final String orderBy,
+			final String sortOrder,
+			final String locale,
+			final String houseType) {
+		StringBuffer buffer=new StringBuffer();
+		buffer.append("SELECT u FROM User u JOIN u.credential c JOIN c.roles r WHERE u.locale='"+locale+"' AND c.enabled=true ");
+		if(houseType!=null&&!houseType.isEmpty()){
+			buffer.append(" AND u.houseType.type=:houseType ");
 		}
-		
+		if(language!=null&&!language.isEmpty()){
+			buffer.append(" AND u.language=:language ");
+		}
+		if(roleStartingWith){
+			buffer.append(" AND r.name LIKE '"+roles+"%'");
+		}else{
+			String[] roleArr=roles.split(",");
+			if(roleArr.length>0){
+				buffer.append(" AND (");
+				for(String i:roleArr){
+					buffer.append("r.name='"+i+"' OR ");
+				}
+				buffer.delete(buffer.length()-3,buffer.length()-1);
+				buffer.append(")");
+			}
+		}
+		if(orderBy!=null&&!orderBy.isEmpty()){
+			buffer.append(" ORDER BY ");
+			String[] orderByParts=orderBy.split(",");
+			String[] sortOrderParts=sortOrder.split(",");
+			for(int i=0;i<orderByParts.length;i++){
+				buffer.append("u."+orderByParts[i]+" "+sortOrderParts[i]+",");
+			}
+			buffer.deleteCharAt(buffer.length()-1);
+		}
+		Query query=this.em().createQuery(buffer.toString());
+		if(buffer.toString().contains(":houseType")){
+			query.setParameter("houseType",houseType);
+		}
+		if(buffer.toString().contains(":language")){
+			query.setParameter("language",language);
+		}
+		return query.getResultList();
+	}
+	
+	@SuppressWarnings("unchecked")
+	public List<User> findByRole(final boolean roleStartingWith,
+			final String roles,
+			final String locale) {
+		StringBuffer buffer=new StringBuffer();
+		buffer.append("SELECT u FROM User u JOIN u.credential c JOIN c.roles r WHERE u.locale='"+locale+"' AND c.enabled=true ");
+		if(roleStartingWith){
+			buffer.append(" AND r.name LIKE '"+roles+"%'");
+		}else{
+			String[] roleArr=roles.split(",");
+			if(roleArr.length>0){
+				buffer.append(" AND (");
+				for(String i:roleArr){
+					buffer.append("r.name='"+i+"' OR ");
+				}
+				buffer.delete(buffer.length()-3,buffer.length()-1);
+				buffer.append(")");
+			}
+		}
+		buffer.append(" ORDER BY u.lastName");
+		return this.em().createQuery(buffer.toString()).getResultList();
 	}
 }
