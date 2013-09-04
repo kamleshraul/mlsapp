@@ -18,18 +18,14 @@ import javax.persistence.EntityManager;
 import javax.persistence.FlushModeType;
 import javax.persistence.PersistenceContext;
 import javax.persistence.Query;
-import javax.persistence.TypedQuery;
 
 import org.mkcl.els.common.exception.ELSException;
-import org.mkcl.els.common.util.ApplicationConstants;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
-import com.ibm.icu.text.DisplayContext.Type;
 import com.trg.dao.jpa.GenericDAOImpl;
-import com.trg.search.Search;
 import com.trg.search.jpa.JPASearchProcessor;
 
 /**
