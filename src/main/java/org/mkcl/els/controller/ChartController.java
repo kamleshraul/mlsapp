@@ -254,9 +254,9 @@ public class ChartController extends BaseController{
 					parametersMap.put("rejectionStatusId", new String[]{rejectionStatus.getId().toString()});
 					parametersMap.put("repeatRejectionStatusId", new String[]{repeatRejectionStatus.getId().toString()});
 									
-					resolutionNonOfficialChartView = org.mkcl.els.domain.Query.findReport(ApplicationConstants.RESOLUTION_CHART_WITHDEVICES_VIEW, parametersMap);						
+					resolutionNonOfficialChartView = org.mkcl.els.domain.Query.findReport(ApplicationConstants.RESOLUTION_CHART_VIEW, parametersMap);						
 					
-					parametersMap.remove("sessionId");
+				/*	parametersMap.remove("sessionId");
 					parametersMap.remove("deviceTypeId");
 					parametersMap.remove("rejectionStatusId");
 					parametersMap.remove("repeatRejectionStatusId");
@@ -264,7 +264,7 @@ public class ChartController extends BaseController{
 					List resolutionChartNonDevice = Query.findReport(ApplicationConstants.RESOLUTION_CHART_WITHOUTDEVICES_VIEW, parametersMap);
 					
 					resolutionNonOfficialChartView.addAll(resolutionChartNonDevice);
-							
+							*/
 					for(int i = 0; i < resolutionNonOfficialChartView.size(); i++ ){
 						Object[] obj = ((Object[])resolutionNonOfficialChartView.get(i));
 						Member member = Member.findById(Member.class, Long.valueOf(obj[0].toString()));
