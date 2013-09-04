@@ -112,6 +112,7 @@
 		function rowDblClickHandler(row, iRow, iCol, e) {
 			/**** To maintain the grid ids to allow nextTask to be show next ***/
 			$("#currentRowId").val(row);
+			$("#persistentGridRowId").val(row);
 			$("#allRowIds").val($('#grid').jqGrid('getDataIDs'));
 			
 			var row = $('#key').val();
@@ -202,10 +203,6 @@
 			var nextRowId = -1;
 			var i;
 			var prevRid = allrids[0];
-			
-			/* console.log("currentRowId: " + currentrowid);
-			console.log("allRi: " + allrids);
-			console.log("prevRid: " + prevRid); */
 			
 			for(i = 0; i < allrids.length; i++){
 				if(prevRid==currentrowid){
@@ -370,6 +367,7 @@
 		<input type="hidden" id="ErrorMsg" value="<spring:message code='generic.error' text='Error Occured Contact For Support.'/>"/>
 		<input type="hidden" id="currentRowId" value="" />
 		<input type="hidden" id="allRowIds" value="" />
+		<input type="hidden" id="persistentGridRowId" value="" />
 		
 	</div> 
 </body>
