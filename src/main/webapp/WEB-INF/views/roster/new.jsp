@@ -5,13 +5,24 @@
 	<spring:message code="roster" text="Roster"/>
 	</title>
 	<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+	<style type="text/css">
+	.blue{
+	color:blue;
+	}
+	.green{
+	color:green;
+	}
+	.red{
+	color:red;
+	}
+	</style>
 	<script type="text/javascript">				
 		$(document).ready(function() {		
 		/**** Selected To 2 ****/
 		$("#to2").click(function(){
 			var count=0;			
 			$("#allItems option:selected").each(function(){
-				$("#selectedItems").append("<option value='"+$(this).val()+"'>"+$(this).text()+"</option>");
+				$("#selectedItems").append("<option value='"+$(this).val()+"' class='"+$(this).attr("class")+"'>"+$(this).text()+"</option>");
 				$("#allItems option[value='"+$(this).val()+"']").remove();
 				count++;
 			});
@@ -42,6 +53,7 @@
 		/**** All From 1 To 2 ****/
 		$("#allTo2").click(function(){
 			$("#selectedItems").append($("#allItems").html());
+			console.log($("#allItems").html());			
 			$("#allItems").empty();
 			$("#selectedCount").text($("#selectedItems option").length);
 			$("#availableCount").text($("#allItems option").length);			
@@ -57,53 +69,57 @@
 		});
 		/**** Up ****/
 		$(".up").click(function(){
-			//get the currently slected item and its index
-			var current=$("#selectedItems option:selected");
-			var index=parseInt(current.index());
-				//if index is not 0 then proceed
-				if(index!=0){
-					//swap current with previous
-					var prev=$("#selectedItems option:eq("+(index-1)+")");
-					var prevVal=prev.val();
-					var prevText=prev.text();
-					prev.val(current.val());
-					prev.text(current.text());
-					current.val(prevVal);
-					current.text(prevText);	
-					//set previous as selected and remove selection from current
-					prev.attr("selected","selected");
-					current.removeAttr("selected");								
-				}
-			
+			var stopSwapping="no";			
+			$("#selectedItems option:selected").each(function(){
+				if(stopSwapping=="no"){	
+					var current=$(this);
+					var index=parseInt(current.index());								
+					if(index!=0){
+						var prev=$("#selectedItems option:eq("+(index-1)+")");
+						var prevVal=prev.val();
+						var prevText=prev.text();
+						prev.val(current.val());
+						prev.text(current.text());
+						current.val(prevVal);
+						current.text(prevText);	
+						prev.attr("selected","selected");
+						current.removeAttr("selected");
+					}else{
+						stopSwapping="yes";
+					}	
+				}	
+			});		
 		});
 		/**** Down ****/		
 		$(".down").click(function(){
-			//get the currently slected item and its index			
-			var current=$("#selectedItems option:selected");
-			var index=parseInt(current.index());
+			var stopSwapping="no";			
 			var length=$("#selectedItems option").length;
-			//if end of items is not reached then proceed
-				if(index!=length-1){
-					//swap current with next				
-					var next=$("#selectedItems option:eq("+(index+1)+")");
-					var nextVal=next.val();
-					var nextText=next.text();
-					next.val(current.val());
-					next.text(current.text());
-					current.val(nextVal);
-					current.text(nextText);	
-					//set next as selected and remove selection from current
-					next.attr("selected","selected");
-					current.removeAttr("selected");					
-				}			
-		});
-		$("#generateslot").click(function(){
-			$("#operation").val("GENERATE_SLOT");
-			submitForm();
-			return false;
-		});
-
-			
+			var selectedItems=new Array();	
+			$("#selectedItems option:selected").each(function(){
+				selectedItems.push($(this));
+			});
+			for(var i=selectedItems.length-1;i>=0;i--){	
+				if(stopSwapping=="no"){	
+					var current=selectedItems[i];
+					var index=parseInt(current.index());						
+					if(index!=length-1){
+						var next=$("#selectedItems option:eq("+(index+1)+")");
+						var nextVal=next.val();
+						var nextText=next.text();
+						next.val(current.val());
+						next.text(current.text());
+						current.val(nextVal);
+						current.text(nextText);	
+						next.attr("selected","selected");
+						current.removeAttr("selected");					
+					}else{
+						stopSwapping="yes";
+					}	
+				}
+			}
+		});		
+		/**** Default Action ****/
+		$("#action").val($("#defaultAction").val());
 	});
 	function customLogicBeforeSubmission(){
 		$("#selectedItems option").each(function(){
@@ -126,23 +142,20 @@
 </head>
 
 <body>
-<p id="error_p" style="display: none;">&nbsp;</p>
-<c:if test="${(error!='') && (error!=null)}">
-	<h4 style="color: #FF0000;">${error}</h4>
-</c:if>
 <div class="fields clearfix watermark">
 <form:form action="roster" method="POST" modelAttribute="domain">
 	<%@ include file="/common/info.jsp" %>
 	<h2><spring:message code="roster.new.heading" text="Enter Roster Details"/>		
 	</h2>
 	<form:errors path="version" cssClass="validationError"/>
+	<form:errors path="language" cssClass="validationError"/>	
+	<form:errors path="session" cssClass="validationError"/>
 	
 	<p style="display:none;">
 		<label class="small"><spring:message code="roster.sessionType" text="Session Type"/>*</label>				
 		<input type="hidden" id="session" name="session" value="${session}"/>
-		<form:errors path="session" cssClass="validationError"/>	
-	</p>	
-	
+	</p>
+		
 	<p>
 		<label class="small"><spring:message code="roster.registryNo" text="Registry No."/>*</label>
 		<form:input  cssClass="integer sText" path="registerNo"/>
@@ -150,20 +163,27 @@
 	</p>
 	
 	<p>
+		<label class="small"><spring:message code="roster.day" text="Day"/>*</label>
+		<form:input  cssClass="integer sText" path="day" readonly="true"/>
+		<form:errors path="day" cssClass="validationError"/>	
+	</p>
+	
+	<p>
 		<label class="small"><spring:message code="roster.starttime" text="Start Time"/>*</label>
-		<input type="text" class="sText datetimemask" name="selectedStartTime" id="selectedStartTime" value="${startTime }">
+		<input type="text" class="sText datetimenosecondmask" name="selectedStartTime" id="selectedStartTime" value="${startTime }">
 		<form:errors path="startTime" cssClass="validationError"/>	
 	</p>
 	
 	<p>
 		<label class="small"><spring:message code="roster.endtime" text="End Time"/>*</label>
-		<input type="text" class="sText datetimemask" name="selectedEndTime" id="selectedEndTime" value="${endTime }">
+		<input type="text" class="sText datetimenosecondmask" name="selectedEndTime" id="selectedEndTime" value="${endTime }">
 		<form:errors path="endTime" cssClass="validationError"/>	
 	</p>	
 	
 	<p>
 		<label class="small"><spring:message code="roster.slotduration" text="Slot Duration"/>*</label>
 		<select id="slotDuration" name="slotDuration" class="sSelect">
+		<option value="0"><spring:message code="please.select" text="Please Select"></spring:message></option>
 		<c:forEach var="i" begin="${start }" end="${end }" step="${step }">
 		<c:choose>
 		<c:when test="${i==slotDuration }">
@@ -174,7 +194,6 @@
 		</c:otherwise>		
 		</c:choose>
 		</c:forEach>		
-		<option value="-"><spring:message code="please.select" text="Please Select"></spring:message></option>
 		</select>
 		<form:errors path="slotDuration" cssClass="validationError"/>	
 	</p>
@@ -182,24 +201,9 @@
 	<p>
 		<label class="small"><spring:message code="roster.adjournment.action" text="Action"/>*</label>
 		<select id="action" name="action" class="sSelect">
-		<option value="-"><spring:message code="please.select" text="Please Select"></spring:message></option>
-		<c:choose>
-		<c:when test="${domain.action=='turnoff'}">
-		<option value="turnoff" selected="selected"><spring:message code="roster.adjournment.turnofflots" text="Turn Off Slots"></spring:message></option>
-		</c:when>
-		<c:otherwise>
-		<option value="turnoff"><spring:message code="roster.adjournment.turnofflots" text="Turn Off Slots"></spring:message></option>
-		</c:otherwise>
-		</c:choose>
-		<c:choose>
-		<c:when test="${domain.action=='shift'}">
-		<option value="shift" selected="selected"><spring:message code="roster.adjournment.shiftslots" text="Shift Slots"></spring:message></option>
-		</c:when>
-		<c:otherwise>
-		<option value="shift"><spring:message code="roster.adjournment.shiftslots" text="Shift Slots"></spring:message></option>
-		</c:otherwise>
-		</c:choose>
-		</select>
+		<option value="save_without_creating_slots"><spring:message code="roster.save_without_creating_slots" text="Save Roster Without Creating Slots"></spring:message></option>
+		<option value="create_slots"><spring:message code="roster.createSlots" text="Create Slots"></spring:message></option>
+		</select>				
 		<form:errors path="action" cssClass="validationError"/>	
 	</p>
 	
@@ -227,7 +231,19 @@
 	<td>
 	<select id="allItems" multiple="multiple" style="height:300px;width:350px;">
 	<c:forEach items="${allItems }" var="i">
-	<option value="${i.id}"><c:out value="${i.findFullName()}"></c:out></option>
+	<c:if test="${!(empty i.houseType) }">
+	<c:choose>
+	<c:when test="${i.houseType.type=='lowerhouse'}">
+	<option value="${i.id}" class="green"><c:out value="${i.findFullName()}"></c:out></option>
+	</c:when>
+	<c:when test="${i.houseType.type=='upperhouse'}">
+	<option value="${i.id}" class="red"><c:out value="${i.findFullName()}"></c:out></option>
+	</c:when>
+	<c:otherwise>
+	<option value="${i.id}" class="blue"><c:out value="${i.findFullName()}"></c:out></option>
+	</c:otherwise>
+	</c:choose>
+	</c:if>
 	</c:forEach>
 	</select>
 	</td>
@@ -241,7 +257,19 @@
 	<td>
 	<select id="selectedItems" name="selectedItems" multiple="multiple" style="height:300px;width:350px;">
 	<c:forEach items="${selectedItems}" var="i">
-	<option value="${i.id}"><c:out value="${i.findFullName()}"></c:out></option>
+	<c:if test="${!(empty i.houseType) }">
+	<c:choose>
+	<c:when test="${i.houseType.type=='lowerhouse'}">
+	<option value="${i.id}" class="green"><c:out value="${i.findFullName()}"></c:out></option>
+	</c:when>
+	<c:when test="${i.houseType.type=='upperhouse'}">
+	<option value="${i.id}" class="red"><c:out value="${i.findFullName()}"></c:out></option>
+	</c:when>
+	<c:otherwise>
+	<option value="${i.id}" class="blue"><c:out value="${i.findFullName()}"></c:out></option>
+	</c:otherwise>
+	</c:choose>
+	</c:if>
 	</c:forEach>
 	</select>
 	<br>
@@ -257,7 +285,19 @@
 	
 	<select id="itemMaster" style="display:none;">
 	<c:forEach items="${eligibles}" var="i">
-	<option value="${i.id}"><c:out value="${i.findFullName()}"></c:out></option>
+	<c:if test="${!(empty i.houseType) }">
+	<c:choose>
+	<c:when test="${i.houseType.type=='lowerhouse'}">
+	<option value="${i.id}" class="green"><c:out value="${i.findFullName()}"></c:out></option>
+	</c:when>
+	<c:when test="${i.houseType.type=='upperhouse'}">
+	<option value="${i.id}" class="red"><c:out value="${i.findFullName()}"></c:out></option>
+	</c:when>
+	<c:otherwise>
+	<option value="${i.id}" class="blue"><c:out value="${i.findFullName()}"></c:out></option>
+	</c:otherwise>
+	</c:choose>
+	</c:if>
 	</c:forEach>
 	</select>
 		
@@ -265,15 +305,14 @@
 		<h2></h2>
 		<p class="tright">
 			<input id="submit" type="submit" value="<spring:message code='generic.submit' text='Submit'/>" class="butDef submit">
-			<input id="generateslot" type="button" value="<spring:message code='roster.generateslot' text='Generate Slot'/>" class="butDef" style="width: auto;">
 		</p>
 	</div>		
 	<form:hidden path="version" />
 	<form:hidden path="locale"/>
 	<input type="hidden" name="language" id="language" value="${language }">
-	<input type="hidden" name="operation" id="operation">	
 </form:form>
 <input id="selectItemFirstMessage" value="<spring:message code='ris.selectitem' text='Select an item first'/>" type="hidden">
+<input type="hidden" name="defaultAction" id="defaultAction" value="${domain.action }">	
 </div>
 </body>
 </html>
