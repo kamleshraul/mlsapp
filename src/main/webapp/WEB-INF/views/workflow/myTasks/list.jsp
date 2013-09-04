@@ -4,7 +4,7 @@
 	<title><spring:message code="workflow.myTasks.list" text="List of My Tasks"/></title>
 	<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
 	<script type="text/javascript">
-		$(document).ready(function(){
+		$(document).ready(function(){ 
 			/**** Initially we want to get only those tasks which belongs to current user and of selected status ****/
 			$("#gridURLParams").val("houseType="+$("#selectedHouseType").val()
 						+"&sessionYear="+$("#selectedSessionYear").val()
@@ -36,10 +36,13 @@
 			</a>  |
 			<a href="#" id="search" class="butSim">
 				<spring:message code="generic.search" text="Search"/>
-			</a> 
+			</a>  
 			<p>&nbsp;</p>
 		</div>
 	</div>
+	<script type="text/javascript">
+		$('#grid').jqGrid('setSelection',$("#persistentGridRowId").val());
+	</script>
 	<%@ include file="/common/gridview.jsp" %>
 	<input type="hidden" id="grid_id" value="${gridId}">
 	<input type="hidden" id="gridURLParams" name="gridURLParams">		
