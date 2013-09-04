@@ -200,6 +200,10 @@ public class MemberMinister extends BaseDomain implements Serializable {
             final SessionType sessionType, final Integer year, final String locale) {
         return getMemberMinisterRepository().findAssignedSubDepartmentsVO(groupNumbers, houseType, sessionType, year, locale);
     }
+    
+    public static Member findMemberHavingMinistryInSession(Session session, Ministry ministry) {
+		return getMemberMinisterRepository().findMemberByAssignedMinistryInSession(session, ministry);
+	}
 
     /**** Getters & Setters ****/
     
