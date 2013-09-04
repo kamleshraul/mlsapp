@@ -5,6 +5,9 @@
 	<spring:message code="question" text="Question Information System"/>
 	</title>
 	<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+	
+	<link type="text/css" rel="stylesheet" href="./resources/css/printerfriendly.css?v=5" media="print" />
+	
 	<script type="text/javascript">
 	/**** detail of clubbed and refernced questions ****/		
 	function viewQuestionDetail(id){
@@ -686,7 +689,7 @@
 	<p style="color: #FF0000;">${error}</p>
 </c:if>
 <div class="fields clearfix watermark">
-
+<div id="reportDiv">
 <div id="assistantDiv">
 <form:form action="workflow/question" method="PUT" modelAttribute="domain">
 	<%@ include file="/common/info.jsp" %>
@@ -1170,7 +1173,7 @@
 <li><a href="#dereferencing" class="edit"><spring:message code="generic.dereferencing" text="Dereferencing"></spring:message></a></li>
 </ul>
 </div>
-
+</div>
 </div>
 
 <div id="backToQuestionDiv" style="display:none;">
