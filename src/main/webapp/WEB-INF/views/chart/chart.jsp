@@ -147,7 +147,7 @@
 						<td>${r[1]}</td>
 						<td align="center">
 							<c:choose>		
-								<c:when test="${r[3] == null}">
+								<c:when test="${r[3] == null or r[3]==0}">
 									-
 								</c:when>
 								<c:otherwise>
@@ -179,7 +179,7 @@
 											<img src="./resources/images/template/icons/blue_check.jpg" class="toolTip clearfix" width="2" height="10">
 										</c:when>
 										<c:otherwise>
-											<c:if test="${r[5]!='resolution_final_rejection' }">
+											<c:if test="${r[5]!='resolution_final_rejection' and r[5]!='0'}">
 											<img src="./resources/images/template/icons/green_check.jpg" class="toolTip clearfix" width="2" height="10">
 											</c:if>
 										</c:otherwise>
@@ -230,7 +230,7 @@
 										<img src="./resources/images/template/icons/blue_check.jpg" class="toolTip clearfix" width="2" height="10">
 									</c:when>
 									<c:otherwise>
-										<c:if test="${r[5]!='resolution_final_rejection'}">
+										<c:if test="${r[5]!='resolution_final_rejection' and r[5]!='0'}">
 										<img src="./resources/images/template/icons/green_check.jpg" class="toolTip clearfix" width="2" height="10">
 										</c:if>
 									</c:otherwise>
