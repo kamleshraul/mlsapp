@@ -25,17 +25,14 @@ import javax.persistence.JoinColumn;
 import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
-import javax.persistence.OneToOne;
 import javax.persistence.Table;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
-import javax.persistence.TypedQuery;
 
 import org.codehaus.jackson.annotate.JsonIgnoreProperties;
 import org.mkcl.els.common.exception.ELSException;
 import org.mkcl.els.common.util.ApplicationConstants;
 import org.mkcl.els.common.util.FormaterUtil;
-import org.mkcl.els.common.vo.MasterVO;
 import org.mkcl.els.common.vo.MemberBallotMemberWiseReportVO;
 import org.mkcl.els.common.vo.Reference;
 import org.mkcl.els.common.vo.RevisionHistoryVO;

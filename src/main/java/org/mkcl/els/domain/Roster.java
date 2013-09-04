@@ -3,11 +3,9 @@ package org.mkcl.els.domain;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
-import javax.jws.soap.SOAPBinding.Use;
+import javax.persistence.CascadeType;
 import javax.persistence.Entity;
 import javax.persistence.JoinColumn;
 import javax.persistence.JoinTable;
@@ -16,9 +14,7 @@ import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
-
 import org.codehaus.jackson.annotate.JsonIgnoreProperties;
-import org.mkcl.els.common.exception.ELSException;
 import org.mkcl.els.repository.RosterRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Configurable;
@@ -26,7 +22,7 @@ import org.springframework.beans.factory.annotation.Configurable;
 @Configurable
 @Entity
 @Table(name = "rosters")
-@JsonIgnoreProperties({"session","language","users","slots"})
+@JsonIgnoreProperties({"session","language","reporters"})
 public class Roster extends BaseDomain implements Serializable{
 
 	/*********Fields **************/
@@ -43,20 +39,25 @@ public class Roster extends BaseDomain implements Serializable{
 
 	@Temporal(TemporalType.TIMESTAMP)
 	private Date endTime;
-	
+
 	private Integer slotDuration;
-	
+
 	private String action;
-	
+
 	@ManyToOne
 	private Language language;
+
+	private Integer day;
 	
-	@ManyToMany
-    @JoinTable(name = "rosters_users", joinColumns =
-    @JoinColumn(name = "roster_id", referencedColumnName = "id"),
-            inverseJoinColumns = @JoinColumn(name = "user_id",
-                    referencedColumnName = "id"))
-    private List<User> users = new ArrayList<User>();		 
+	@Temporal(TemporalType.TIMESTAMP)
+	private Date slotDurationChangedFrom;
+
+	@ManyToMany()
+	@JoinTable(name = "rosters_reporters", joinColumns =
+		@JoinColumn(name = "roster_id", referencedColumnName = "id"),
+		inverseJoinColumns = @JoinColumn(name = "reporter_id",
+				referencedColumnName = "id"))
+				private List<Reporter> reporters = new ArrayList<Reporter>();		 
 
 	@Autowired
 	private transient RosterRepository rosterRepository;
@@ -76,13 +77,61 @@ public class Roster extends BaseDomain implements Serializable{
 		}
 		return rosterRepository;
 	}
-	
-	public static Roster findLastCreated(final Session session,final String locale) throws ELSException {
+
+	public static Roster findLastCreated(final Session session,final String locale) {
 		return getRosterRepository().findLastCreated(session,locale);
 	}
 
-	/*********** Setters and Getters ************/
+	public Boolean generateSlot() {		
+		return getRosterRepository().generateSlot(this);
+	}
 	
+	public static Boolean generateSlot(final Adjournment adjournment) {		
+		return getRosterRepository().generateSlot(adjournment);
+	}
+	
+	public static Boolean toggleSlots(final Long rosterId,final Date startTime,final Date endTime,final Boolean toggle) {		
+		return getRosterRepository().toggleSlots(rosterId,startTime,endTime,toggle);
+	}
+	
+	public static Boolean generateNewSlots(final Roster roster,final Date startTime,final Date endTime,
+			final String reportersToBeTakenFrom){
+		return getRosterRepository().generateNewSlots(roster,startTime,endTime,
+				reportersToBeTakenFrom);
+	}
+	
+	public static Boolean deleteExistingSlots(final Long rosterId,final Date startTime,final Date endTime) {
+		return getRosterRepository().deleteExistingSlots(rosterId,startTime,endTime);
+	}
+	
+	@Override
+	public boolean remove() {
+		return getRosterRepository().removeRoster(this);
+	}
+	
+	public static Reporter findFirstReporterAtPosX(final Roster domain,final int position,final String activeStatus) {
+		return getRosterRepository().findFirstReporterAtPosX(domain,position,activeStatus);
+	}
+	
+	public static Reporter findByUser(final Roster roster,final User user) {
+		return getRosterRepository().findByUser(roster,user);
+	}
+	
+	public static List<Reporter> findReportersOtherThan(final Roster domain,
+			final List<Long> originalReporters) {
+		return getRosterRepository().findReportersOtherThan(domain,
+				originalReporters);
+	}	
+	public static List<Reporter> findReportersByActiveStatus(final Roster roster,final Boolean isActive) {
+		return getRosterRepository().findReportersByActiveStatus(roster,isActive);
+	}	
+	
+	public static Boolean slotsAlreadyCreated(final Roster roster){
+		return getRosterRepository().slotsAlreadyCreated(roster);
+	}
+	
+	/*********** Setters and Getters ************/
+
 	public Session getSession() {
 		return session;
 	}
@@ -121,16 +170,16 @@ public class Roster extends BaseDomain implements Serializable{
 
 	public void setLanguage(Language language) {
 		this.language = language;
+	}	
+
+	public List<Reporter> getReporters() {
+		return reporters;
 	}
 
-	public List<User> getUsers() {
-		return users;
+	public void setReporters(List<Reporter> reporters) {
+		this.reporters = reporters;
 	}
 
-	public void setUsers(List<User> users) {
-		this.users = users;
-	}
- 
 	public void setSlotDuration(Integer slotDuration) {
 		this.slotDuration = slotDuration;
 	}
@@ -145,5 +194,21 @@ public class Roster extends BaseDomain implements Serializable{
 
 	public String getAction() {
 		return action;
+	}
+
+	public void setDay(Integer day) {
+		this.day = day;
+	}
+
+	public Integer getDay() {
+		return day;
+	}	
+
+	public Date getSlotDurationChangedFrom() {
+		return slotDurationChangedFrom;
+	}
+
+	public void setSlotDurationChangedFrom(Date slotDurationChangedFrom) {
+		this.slotDurationChangedFrom = slotDurationChangedFrom;
 	}	
 }

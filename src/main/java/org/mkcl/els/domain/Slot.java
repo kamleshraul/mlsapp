@@ -3,6 +3,7 @@ package org.mkcl.els.domain;
 import java.io.Serializable;
 import java.util.Date;
 
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.ManyToOne;
@@ -11,6 +12,8 @@ import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
 
 import org.codehaus.jackson.annotate.JsonIgnoreProperties;
+import org.mkcl.els.repository.SlotRepository;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Configurable;
 
 @Configurable
@@ -23,8 +26,11 @@ public class Slot extends BaseDomain implements Serializable{
 
 	private static final long serialVersionUID = 1L;
 	
-	@ManyToOne
-	private User user;
+	
+	private String name;
+	
+	@ManyToOne(cascade=CascadeType.MERGE)
+	private Reporter reporter;
 	
 	@Temporal(TemporalType.TIMESTAMP)
 	private Date startTime;
@@ -39,6 +45,9 @@ public class Slot extends BaseDomain implements Serializable{
 	
 	@ManyToOne
 	private Roster roster;
+	
+	@Autowired
+	private transient SlotRepository slotRepository;
 
 	
 	/*********** Constructors ****************/	
@@ -46,20 +55,53 @@ public class Slot extends BaseDomain implements Serializable{
 		super();
 	}
 	/********** Domain Methods ****************/
+	public static SlotRepository getSlotRepository(){
+		SlotRepository slotRepository=new Slot().slotRepository;
+		if (slotRepository == null) {
+			throw new IllegalStateException(
+			"SlotRepository has not been injected in Slot Domain");
+		}
+		return slotRepository;
+	}
+	
+	public static Slot lastGeneratedSlot(final Roster roster){
+		return getSlotRepository().lastGeneratedSlot(roster);
+	}
+	
+	public HouseType findHouseType() {
+		return getSlotRepository().getHouseType(this);
+	}
+	
+	public Language findLanguage() {
+		return getSlotRepository().getLanguage(this);
+	}
+	
+	public User findUser() {
+		return getSlotRepository().getUser(this);
+	}	
+	
+	public static Slot findByEndTime(final Roster roster,final Date endTime) {
+		return getSlotRepository().findByEndTime(roster,endTime);
+	}	
+	
+	public static Slot findByStartTime(final Roster roster,final Date startTime) {
+		return getSlotRepository().findByStartTime(roster,startTime);
+	}	
 
-	/*********** Setters and Getters ************/
-	public User getUser() {
-		return user;
+	/*********** Setters and Getters ************/	
+	
+	public Reporter getReporter() {
+		return reporter;
 	}
 
-	public void setUser(User user) {
-		this.user = user;
+	public void setReporter(Reporter reporter) {
+		this.reporter = reporter;
 	}
-
+	
 	public Date getStartTime() {
 		return startTime;
 	}
-
+	
 	public void setStartTime(Date startTime) {
 		this.startTime = startTime;
 	}
@@ -95,4 +137,13 @@ public class Slot extends BaseDomain implements Serializable{
 	public Boolean getTurnedoff() {
 		return turnedoff;
 	}
+	
+	public void setName(String name) {
+		this.name = name;
+	}
+	
+	public String getName() {
+		return name;
+	}
+	
 }
