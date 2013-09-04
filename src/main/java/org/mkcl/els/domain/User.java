@@ -40,107 +40,109 @@ import org.springframework.beans.factory.annotation.Configurable;
 @Entity
 @Table(name="users")
 @JsonIgnoreProperties()
-
 public class User extends BaseDomain implements Serializable {
 
-    // ---------------------------------Attributes------------------------------------------
-    /** The Constant serialVersionUID. */
-    private transient static final long serialVersionUID = 1L;
+	// ---------------------------------Attributes------------------------------------------
+	/** The Constant serialVersionUID. */
+	private transient static final long serialVersionUID = 1L;
 
-    /** The title. */
-    @Column(length=300)
-    private String title;
+	/** The title. */
+	@Column(length=300)
+	private String title;
 
-    /** The first name. */
-    @Column(length=300)
-    private String firstName;
+	/** The first name. */
+	@Column(length=300)
+	private String firstName;
 
-    /** The middle name. */
-    @Column(length=300)
-    private String middleName;
+	/** The middle name. */
+	@Column(length=300)
+	private String middleName;
 
-    /** The last name. */
-    @Column(length=300)
-    private String lastName;
+	/** The last name. */
+	@Column(length=300)
+	private String lastName;
 
-    @Temporal(TemporalType.DATE)
-    private Date birthDate;
+	@Temporal(TemporalType.DATE)
+	private Date birthDate;
 
-    @Column(length=100)
-    private String birthPlace;
+	@Column(length=100)
+	private String birthPlace;
 
-    /** The credential. */
-    @ManyToOne(fetch=FetchType.EAGER,cascade=CascadeType.REMOVE)
-    @JoinColumn(name="credential_id")
-    private Credential credential;
+	/** The credential. */
+	@ManyToOne(fetch=FetchType.EAGER,cascade=CascadeType.REMOVE)
+	@JoinColumn(name="credential_id")
+	private Credential credential;
 
-    @ManyToOne(fetch=FetchType.LAZY)
-    private HouseType houseType;
-    
-    @Column(length=1000)
-    private String startURL;
-    
-    private String groupsAllowed;  
-    
-    /**** In case of Reporters ****/
-    private String language;
+	@ManyToOne(fetch=FetchType.LAZY)
+	private HouseType houseType;
 
-    /** The user repository. */
+	@Column(length=1000)
+	private String startURL;
 
-    @Autowired
-    private transient UserRepository userRepository;
+	private String groupsAllowed;  
 
-    // ---------------------------------Constructors----------------------------------------------
+	/**** In case of Reporters ****/
+	private String language;
 
-    /**
-     * Instantiates a new user.
-     */
-    public User() {
-        super();
-       credential=new Credential();
-    }
-    // ----------------Domain_Methods------------------------------------------
-    /**
-     * Gets the user repository.
-     *
-     * @return the user repository
-     */
-    public static UserRepository getUserRepository() {
-        UserRepository userRepository = new User().userRepository;
-        if (userRepository == null) {
-            throw new IllegalStateException(
-                    "UserRepository has not been injected in User Domain");
-        }
-        return userRepository;
-    }
+	@Temporal(TemporalType.DATE)
+	private Date joiningDate;
 
-    /**
-     * Find by user name.
-     *
-     * @param username the username
-     * @param locale the locale
-     * @return the user
-     * @throws ELSException 
-     */
-    public static User findByUserName(final String username,final String locale) throws ELSException{
-    	return getUserRepository().findByUserName(username, locale);
-    }
+	/** The user repository. */
 
-    public static User find(final Member member) throws ELSException{
-        return getUserRepository().find(member);
-    }
+	@Autowired
+	private transient UserRepository userRepository;
 
-//    public static void assignMemberId(final Long memberId,final Long userId){
-//    	getUserRepository().assignMemberId(memberId, userId);
-//    }
-    // ------------------------------------------Getters/Setters-----------------------------------
+	// ---------------------------------Constructors----------------------------------------------
 
-    /**
-     * Gets the title.
-     *
-     * @return the title
-     */
-    public String getTitle() {
+	/**
+	 * Instantiates a new user.
+	 */
+	public User() {
+		super();
+		credential=new Credential();
+	}
+	// ----------------Domain_Methods------------------------------------------
+	/**
+	 * Gets the user repository.
+	 *
+	 * @return the user repository
+	 */
+	public static UserRepository getUserRepository() {
+		UserRepository userRepository = new User().userRepository;
+		if (userRepository == null) {
+			throw new IllegalStateException(
+					"UserRepository has not been injected in User Domain");
+		}
+		return userRepository;
+	}
+
+	/**
+	 * Find by user name.
+	 *
+	 * @param username the username
+	 * @param locale the locale
+	 * @return the user
+	 * @throws ELSException 
+	 */
+	public static User findByUserName(final String username,final String locale) throws ELSException{
+		return getUserRepository().findByUserName(username, locale);
+	}
+
+	public static User find(final Member member) throws ELSException{
+		return getUserRepository().find(member);
+	}
+
+	//    public static void assignMemberId(final Long memberId,final Long userId){
+	//    	getUserRepository().assignMemberId(memberId, userId);
+	//    }
+	// ------------------------------------------Getters/Setters-----------------------------------
+
+	/**
+	 * Gets the title.
+	 *
+	 * @return the title
+	 */
+	public String getTitle() {
 		return title;
 	}
 
@@ -231,50 +233,80 @@ public class User extends BaseDomain implements Serializable {
 	public void setBirthDate(final Date birthDate) {
 		this.birthDate = birthDate;
 	}
+	
 	public String getBirthPlace() {
 		return birthPlace;
 	}
+	
 	public void setBirthPlace(final String birthPlace) {
 		this.birthPlace = birthPlace;
 	}
 
-    public HouseType getHouseType() {
-        return houseType;
-    }
+	public HouseType getHouseType() {
+		return houseType;
+	}
 
-    public void setHouseType(final HouseType houseType) {
-        this.houseType = houseType;
-    }
+	public void setHouseType(final HouseType houseType) {
+		this.houseType = houseType;
+	}
+	
 	public void setStartURL(String startURL) {
 		this.startURL = startURL;
 	}
+	
 	public String getStartURL() {
 		return startURL;
 	}
+	
 	public void setGroupsAllowed(String groupsAllowed) {
 		this.groupsAllowed = groupsAllowed;
 	}
+	
 	public String getGroupsAllowed() {
 		return groupsAllowed;
 	}
+	
 	public static User findbyNameBirthDate(final String firstName,final String middleName,
 			final String lastName,final Date birthDate) throws ELSException {
 		return getUserRepository().findbyNameBirthDate(firstName,middleName,lastName,birthDate);
 	}
-	public static List<User> findByRole(final boolean roleStartingWith,final String roles,final String language, final String locale) throws ELSException {
+	
+	public static List<User> findByRole(final boolean roleStartingWith,final String roles,final String language,
+			final String orderBy,final String sortOrder,final String locale,final String houseType) {
 		/**** if roleStartingWith=true then roles will be just the prefix to search roles with.
 		 * If roleStartingWith=false then roles will be a comma separated list of roles 
 		 * Users will be fetched accoring to the locale and language ****/
-		return getUserRepository().findByRole(roleStartingWith,roles,language,locale);
+		return getUserRepository().findByRole(roleStartingWith,roles,language,orderBy,sortOrder,locale,houseType);
 	}
-	
+
 	public String findFullName(){
 		return this.getTitle()+" "+this.getFirstName()+" "+this.getMiddleName()+" "+this.getLastName();
 	}
+	
 	public void setLanguage(String language) {
 		this.language = language;
 	}
+	
 	public String getLanguage() {
 		return language;
+	}
+	
+	public void setJoiningDate(Date joiningDate) {
+		this.joiningDate = joiningDate;
+	}
+	
+	public Date getJoiningDate() {
+		return joiningDate;
+	}
+	
+	public String findFirstLastName(){
+		return this.getTitle()+" "+this.getFirstName()+" "+this.getLastName();
+	}
+	
+	public static List<User> findByRole(final boolean roleStartingWith,final String roles,final String locale) {
+		/**** if roleStartingWith=true then roles will be just the prefix to search roles with.
+		 * If roleStartingWith=false then roles will be a comma separated list of roles 
+		 * Users will be fetched accoring to the locale ****/
+		return getUserRepository().findByRole(roleStartingWith,roles,locale);
 	}
 }
