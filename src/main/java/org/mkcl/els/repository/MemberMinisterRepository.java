@@ -557,6 +557,23 @@ public class MemberMinisterRepository extends BaseRepository<MemberMinister, Lon
 		return memMinisters;
 	}
 
-
+	public Member findMemberByAssignedMinistryInSession(Session session, Ministry ministry) {
+		String strCurrDate = FormaterUtil.formatDateToString(new Date(), ApplicationConstants.DB_DATEFORMAT);
+		String queryString = "SELECT mm.member FROM MemberMinister mm JOIN mm.ministry mi JOIN mm.house h JOIN mm.member m " +
+				"WHERE mi.id IN " +
+				"(SELECT gm.id FROM Group g join g.ministries gm " +
+				"WHERE " +
+				"g.houseType.id=" + session.getHouse().getType().getId() + " AND " +
+				"g.sessionType.id=" + session.getType().getId() + " AND " +
+				"g.year=" + session.getYear() + " AND " +
+				"g.locale='" + session.getLocale() + "') " +
+				"AND " +
+				"h.id=" + session.getHouse().getId() + " AND " +
+				"mi.id=" + ministry.getId() + " AND " +
+				"(mm.ministryToDate > '" + strCurrDate + "' OR mm.ministryToDate is NULL) AND " +
+				"mm.locale = '" + session.getLocale() + "'";
+		Member member = (Member) this.em().createQuery(queryString).getSingleResult();
+		return member;
+	}	
 	
 }
