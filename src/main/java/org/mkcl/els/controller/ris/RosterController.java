@@ -18,13 +18,16 @@ import org.mkcl.els.common.util.ApplicationConstants;
 import org.mkcl.els.common.util.FormaterUtil;
 import org.mkcl.els.common.vo.AuthUser;
 import org.mkcl.els.controller.GenericController;
+import org.mkcl.els.domain.BaseDomain;
 import org.mkcl.els.domain.CustomParameter;
 import org.mkcl.els.domain.Holiday;
 import org.mkcl.els.domain.HouseType;
 import org.mkcl.els.domain.Language;
+import org.mkcl.els.domain.Reporter;
 import org.mkcl.els.domain.Roster;
 import org.mkcl.els.domain.Session;
 import org.mkcl.els.domain.SessionType;
+import org.mkcl.els.domain.Slot;
 import org.mkcl.els.domain.User;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
@@ -64,8 +67,8 @@ public class RosterController extends GenericController<Roster>{
 		try {
 			lastSessionCreated = Session.findLatestSession(authUserHouseType);
 		} catch (ELSException e) {
-			model.addAttribute("error", e.getParameter());
 			e.printStackTrace();
+			model.addAttribute("error", e.getParameter());
 		}
 		Integer year=new GregorianCalendar().get(Calendar.YEAR);
 		if(lastSessionCreated.getId()!=null){
@@ -91,20 +94,19 @@ public class RosterController extends GenericController<Roster>{
 		model.addAttribute("sessionYear",year);	
 
 		/**** Language ****/
-		List<Language> languages;
+		List<Language> languages = new ArrayList<Language>();
 		try {
 			languages = Language.findAllLanguagesByModule("RIS",locale);
-			model.addAttribute("languages",languages);
 		} catch (ELSException e) {
-			model.addAttribute("error", e.getParameter());
+			
 			e.printStackTrace();
 		}
-		
+		model.addAttribute("languages",languages);
 	}
 
 	@Override
-	protected void populateNew(final ModelMap model, final Roster domain, final String locale,
-			final HttpServletRequest request) {
+	protected void populateNew(ModelMap model, Roster domain, String locale,
+			HttpServletRequest request) {
 		/**** Locale ****/
 		domain.setLocale(locale);
 
@@ -154,46 +156,6 @@ public class RosterController extends GenericController<Roster>{
 			model.addAttribute("errorcode","selectedSessionTypeIsNull");
 		}
 
-		/**** Users ****/
-		CustomParameter customParameter=CustomParameter.findByName(CustomParameter.class,"RIS_ROLES_ALLOTED_TO_SLOT","");
-		if(customParameter!=null){
-			List<User> allRISUsers;
-			try {
-				allRISUsers = User.findByRole(false,customParameter.getValue(),language.getName(),locale);
-				model.addAttribute("eligibles", allRISUsers);		
-				List<User> selectedUsers=domain.getUsers();
-				List<User> notSelectedUsers=new ArrayList<User>();
-				if(selectedUsers!=null&&!selectedUsers.isEmpty()){
-					model.addAttribute("selectedItemsCount",selectedUsers.size());	
-					for(User i:allRISUsers){
-						boolean contains=false;
-						for(User j:selectedUsers){
-							if(i.getId()==j.getId()){
-								contains=true;
-								break;
-							}
-							if(!contains){
-								notSelectedUsers.add(i);
-							}
-						}
-					}
-					model.addAttribute("selectedItemsCount",0);	
-					model.addAttribute("selectedItems",selectedUsers);
-					model.addAttribute("allItems", notSelectedUsers);
-					model.addAttribute("allItemsCount", notSelectedUsers.size());
-				}else{
-					model.addAttribute("selectedItemsCount",0);	
-					model.addAttribute("selectedItems",selectedUsers);
-					model.addAttribute("allItems", allRISUsers);
-					model.addAttribute("allItemsCount", allRISUsers.size());
-				}
-			} catch (ELSException e) {
-				model.addAttribute("error", e.getParameter());
-				e.printStackTrace();
-			}
-							
-		}	
-
 		/**** Slot Duration ****/
 		CustomParameter slotDurationParam=CustomParameter.findByName(CustomParameter.class,"SLOT_DURATION_"+houseType.getType().toUpperCase(),"");
 		if(slotDurationParam!=null){
@@ -212,7 +174,7 @@ public class RosterController extends GenericController<Roster>{
 			model.addAttribute("slotDuration",domain.getSlotDuration());
 		}
 
-		/**** Session,Registry No,Start Time,End Time****/
+		/**** Session,Registry No,Start Time,End Time,Day****/
 		Session selectedSession=null;
 		if(houseType!=null&&selectedYear!=null&&sessionType!=null){
 			try {
@@ -224,14 +186,9 @@ public class RosterController extends GenericController<Roster>{
 			if(selectedSession!=null){
 				model.addAttribute("session",selectedSession.getId());
 				/**** Next Roster Entry In Current Session (Registry Number) ****/
-				Roster lastCreatedRoster = null;
-				try {
-					lastCreatedRoster = Roster.findLastCreated(selectedSession,locale);
-				} catch (ELSException e1) {
-					// TODO Auto-generated catch block
-					e1.printStackTrace();
-				}
+				Roster lastCreatedRoster=Roster.findLastCreated(selectedSession,locale);
 				if(lastCreatedRoster!=null){
+					domain.setDay(lastCreatedRoster.getDay()+1);
 					domain.setRegisterNo(lastCreatedRoster.getRegisterNo());
 					/**** get the date part ****/
 					SimpleDateFormat format=FormaterUtil.getDateFormatter("en_US");
@@ -254,12 +211,12 @@ public class RosterController extends GenericController<Roster>{
 							if(localizedStartTime!=null){
 								model.addAttribute("startTime",formattedNextDate+" "+localizedStartTime.getValue());
 							}else{
-								model.addAttribute("startTime",formattedNextDate+" "+"11:00:00");
+								model.addAttribute("startTime",formattedNextDate+" "+"11:00");
 							}
 							if(localizedEndTime!=null){
 								model.addAttribute("endTime",formattedNextDate+" "+localizedEndTime.getValue());
 							}else{
-								model.addAttribute("endTime",formattedNextDate+" "+"18:00:00");
+								model.addAttribute("endTime",formattedNextDate+" "+"18:00");
 							}
 						}
 
@@ -275,53 +232,114 @@ public class RosterController extends GenericController<Roster>{
 					if(localizedStartTime!=null){
 						model.addAttribute("startTime",formattedNextDate+" "+localizedStartTime.getValue());
 					}else{
-						model.addAttribute("startTime",formattedNextDate+" "+"11:00:00");
+						model.addAttribute("startTime",formattedNextDate+" "+"11:00");
 					}
 					if(localizedEndTime!=null){
 						model.addAttribute("endTime",formattedNextDate+" "+localizedEndTime.getValue());
 					}else{
-						model.addAttribute("endTime",formattedNextDate+" "+"18:00:00");
+						model.addAttribute("endTime",formattedNextDate+" "+"18:00");
 					}
 					/**** First Roster Entry In Selected Session(Registry No.) ****/
-					Session previousSession;
+					Session previousSession = null;
 					try {
 						previousSession = Session.findPreviousSession(selectedSession);
-						
-						if(previousSession!=null){
-							Roster lastCreatedRosterPreviouseSession=Roster.findLastCreated(previousSession,locale);
-							if(lastCreatedRosterPreviouseSession!=null){
-								domain.setRegisterNo(lastCreatedRosterPreviouseSession.getRegisterNo()+1);
-							}
-						}	
-						
 					} catch (ELSException e) {
-						model.addAttribute("error", e.getParameter());
 						e.printStackTrace();
-					}							
+						model.addAttribute("error", e.getParameter());
+					}
+					if(previousSession!=null){
+						Roster lastCreatedRosterPreviouseSession=Roster.findLastCreated(previousSession,locale);
+						if(lastCreatedRosterPreviouseSession!=null){
+							domain.setRegisterNo(lastCreatedRosterPreviouseSession.getRegisterNo()+1);
+						}
+					}	
+					domain.setDay(1);
 				}					
 			}else{
 				logger.error("**** Session is null ****");
 				model.addAttribute("errorcode","selectedSessionIsNull");	
 			}
 		}
+
+		/**** Users ****/
+		CustomParameter customParameter=CustomParameter.findByName(CustomParameter.class,"RIS_ROLES_ALLOTED_TO_SLOT","");
+		if(customParameter!=null){
+			List<User> allRISUsers=new ArrayList<User>();
+			List<User> houseTypeUsers=new ArrayList<User>();
+			if(houseType!=null){
+				if(houseType.getType().equals(ApplicationConstants.LOWER_HOUSE)){
+					allRISUsers=User.findByRole(false,customParameter.getValue(),language.getName(),"houseType,joiningDate,lastName",ApplicationConstants.ASC+","+ApplicationConstants.ASC+","+ApplicationConstants.ASC,locale,"");
+					houseTypeUsers=User.findByRole(false,customParameter.getValue(),language.getName(),"houseType,joiningDate,lastName",ApplicationConstants.ASC+","+ApplicationConstants.ASC+","+ApplicationConstants.ASC,locale,houseType.getType());
+				}else if(houseType.getType().equals(ApplicationConstants.UPPER_HOUSE)){
+					allRISUsers=User.findByRole(false,customParameter.getValue(),language.getName(),"houseType,joiningDate,lastName",ApplicationConstants.DESC+","+ApplicationConstants.ASC+","+ApplicationConstants.ASC,locale,"");
+					houseTypeUsers=User.findByRole(false,customParameter.getValue(),language.getName(),"houseType,joiningDate,lastName",ApplicationConstants.ASC+","+ApplicationConstants.ASC+","+ApplicationConstants.ASC,locale,houseType.getType());
+				}
+			}
+			model.addAttribute("eligibles", allRISUsers);
+			/**** houseType users will be displayed in anticlockwise direction ****/
+			List<User> toBeSentToBottom=new ArrayList<User>();
+			List<User> toBeSentToTop=new ArrayList<User>();
+			int day=domain.getDay();
+			for(int i=0;i<houseTypeUsers.size();i++){
+				if(i<day-1){
+					toBeSentToBottom.add(houseTypeUsers.get(i));
+				}else{
+					toBeSentToTop.add(houseTypeUsers.get(i));
+				}				
+			}
+			List<User> selectedUsers=new ArrayList<User>();
+			selectedUsers.addAll(toBeSentToTop);
+			selectedUsers.addAll(toBeSentToBottom);
+			List<User> notSelectedUsers=new ArrayList<User>();
+			if(selectedUsers!=null&&!selectedUsers.isEmpty()){
+				model.addAttribute("selectedItemsCount",selectedUsers.size());	
+				for(User i:allRISUsers){
+					boolean contains=false;
+					for(User j:selectedUsers){
+						if(i.getId()==j.getId()){
+							contains=true;
+							break;
+						}						
+					}
+					if(!contains){
+						notSelectedUsers.add(i);
+					}
+				}
+				model.addAttribute("selectedItems",selectedUsers);
+				model.addAttribute("allItems", notSelectedUsers);
+				model.addAttribute("allItemsCount", notSelectedUsers.size());
+			}else{
+				model.addAttribute("selectedItemsCount",0);	
+				model.addAttribute("selectedItems",selectedUsers);
+				model.addAttribute("allItems", allRISUsers);
+				model.addAttribute("allItemsCount", allRISUsers.size());
+			}				
+		}	
 	}
 
 	@Override
-	protected void populateEdit(final ModelMap model, final Roster domain,
-			final HttpServletRequest request) {		
+	protected void populateEdit(ModelMap model, Roster domain,
+			HttpServletRequest request) {		
 		/**** Session ****/
 		Session selectedSession=domain.getSession();
 		model.addAttribute("session",selectedSession.getId());	
 
 		/**** Start Time and End Time ****/
-		CustomParameter customParameter=CustomParameter.findByName(CustomParameter.class,"SERVER_DATETIMEFORMAT","");
+		CustomParameter customParameter=CustomParameter.findByName(CustomParameter.class,"ROSTER_DATETIMEFORMAT","");
 		if(customParameter!=null){
-			SimpleDateFormat format=FormaterUtil.getDateFormatter(customParameter.getValue(), domain.getLocale());
+			SimpleDateFormat localizedFormat=FormaterUtil.getDateFormatter(customParameter.getValue(), domain.getLocale());
+			SimpleDateFormat format=FormaterUtil.getDateFormatter(customParameter.getValue(), "en_US");
+
 			if(domain.getStartTime()!=null){
-				model.addAttribute("startTime",format.format(domain.getStartTime()));
+				model.addAttribute("startTime",localizedFormat.format(domain.getStartTime()));
+				model.addAttribute("defaultStartTime",format.format(domain.getStartTime()));
 			}
 			if(domain.getEndTime()!=null){
-				model.addAttribute("endTime",format.format(domain.getEndTime()));
+				model.addAttribute("endTime",localizedFormat.format(domain.getEndTime()));
+				model.addAttribute("defaultEndTime",format.format(domain.getEndTime()));
+			}
+			if(domain.getSlotDurationChangedFrom()!=null){
+				model.addAttribute("slotDurationChangedFrom",localizedFormat.format(domain.getSlotDurationChangedFrom()));
 			}
 		}
 
@@ -333,40 +351,49 @@ public class RosterController extends GenericController<Roster>{
 		/**** Users ****/
 		CustomParameter customParameter1=CustomParameter.findByName(CustomParameter.class,"RIS_ROLES_ALLOTED_TO_SLOT","");
 		if(customParameter1!=null){
-			List<User> allRISUsers;
-			try {
-				allRISUsers = User.findByRole(false,customParameter1.getValue(),domain.getLanguage().getName(),domain.getLocale());
-				model.addAttribute("eligibles", allRISUsers);		
-				List<User> selectedUsers=domain.getUsers();
-				List<User> notSelectedUsers=new ArrayList<User>();
-				if(selectedUsers!=null&&!selectedUsers.isEmpty()){
-					model.addAttribute("selectedItemsCount",selectedUsers.size());	
-					for(User i:allRISUsers){
-						boolean contains=false;
-						for(User j:selectedUsers){
-							if(i.getId()==j.getId()){
-								contains=true;
-								break;
-							}						
-						}
-						if(!contains){
-							notSelectedUsers.add(i);
-						}
-					}
-					model.addAttribute("selectedItemsCount",selectedUsers.size());	
-					model.addAttribute("selectedItems",selectedUsers);
-					model.addAttribute("allItems", notSelectedUsers);
-					model.addAttribute("allItemsCount", notSelectedUsers.size());
-				}else{
-					model.addAttribute("selectedItemsCount",0);	
-					model.addAttribute("selectedItems",selectedUsers);
-					model.addAttribute("allItems", allRISUsers);
-					model.addAttribute("allItemsCount", allRISUsers.size());
+			HouseType houseType=selectedSession.getHouse().getType();
+			List<User> allRISUsers=new ArrayList<User>();
+			if(houseType!=null){
+				if(houseType.getType().equals(ApplicationConstants.LOWER_HOUSE)){
+					allRISUsers=User.findByRole(false,customParameter1.getValue(),domain.getLanguage().getName(),"houseType,joiningDate,lastName",ApplicationConstants.ASC+","+ApplicationConstants.ASC+","+ApplicationConstants.ASC,domain.getLocale(),"");
+				}else if(houseType.getType().equals(ApplicationConstants.UPPER_HOUSE)){
+					allRISUsers=User.findByRole(false,customParameter1.getValue(),domain.getLanguage().getName(),"houseType,joiningDate,lastName",ApplicationConstants.DESC+","+ApplicationConstants.ASC+","+ApplicationConstants.ASC,domain.getLocale(),"");
 				}
-				
-			} catch (ELSException e) {
-				model.addAttribute("error", e.getParameter());
-				e.printStackTrace();
+			}
+			model.addAttribute("eligibles", allRISUsers);		
+			List<Reporter> reporters=domain.getReporters();
+			List<User> selectedUsers=new ArrayList<User>();
+			List<User> notSelectedUsers=new ArrayList<User>();
+			if(reporters!=null&&!reporters.isEmpty()){
+				for(Reporter i:reporters){
+					if(i.getIsActive()){
+						selectedUsers.add(i.getUser());
+					}
+				}
+			}
+			if(selectedUsers!=null&&!selectedUsers.isEmpty()){
+				model.addAttribute("selectedItemsCount",selectedUsers.size());	
+				for(User i:allRISUsers){
+					boolean contains=false;
+					for(User j:selectedUsers){
+						if(i.getId()==j.getId()){
+							contains=true;
+							break;
+						}						
+					}
+					if(!contains){
+						notSelectedUsers.add(i);
+					}
+				}
+				model.addAttribute("selectedItemsCount",selectedUsers.size());	
+				model.addAttribute("selectedItems",selectedUsers);
+				model.addAttribute("allItems", notSelectedUsers);
+				model.addAttribute("allItemsCount", notSelectedUsers.size());
+			}else{
+				model.addAttribute("selectedItemsCount",0);	
+				model.addAttribute("selectedItems",selectedUsers);
+				model.addAttribute("allItems", allRISUsers);
+				model.addAttribute("allItemsCount", allRISUsers.size());
 			}				
 		}
 
@@ -387,11 +414,35 @@ public class RosterController extends GenericController<Roster>{
 		if(domain.getSlotDuration()!=null){
 			model.addAttribute("slotDuration",domain.getSlotDuration());
 		}
+		/**** Slot Has been created ****/
+		if(Roster.slotsAlreadyCreated(domain)){
+			model.addAttribute("slots_created","yes");
+		}else{
+			model.addAttribute("slots_created","no");
+		}
 	}
 
 	@Override
-	protected void customValidateCreate(final Roster domain, final BindingResult result,
-			final HttpServletRequest request) {
+	protected void customValidateCreate(Roster domain, BindingResult result,
+			HttpServletRequest request) {
+		/**** Populate Reporters ****/
+		String[] usersArr=request.getParameterValues("selectedItems");
+		List<Reporter> reporters=new ArrayList<Reporter>();
+		int position=1;
+		if(usersArr!=null&&usersArr.length>0){
+			for(String i:usersArr){
+				User user=User.findById(User.class,Long.parseLong(i));
+				Reporter reporter=new Reporter();
+				reporter.setUser(user);
+				reporter.setPosition(position);
+				reporter.setIsActive(true);
+				reporter.setLocale(domain.getLocale());
+				reporter.persist();
+				reporters.add(reporter);
+				position++;
+			}
+			domain.setReporters(reporters);
+		}	
 		/**** Version Mismatch ****/
 		if (domain.isVersionMismatch()) {
 			result.rejectValue("version", "VersionMismatch");
@@ -407,18 +458,30 @@ public class RosterController extends GenericController<Roster>{
 		/**** Start Time and End Time****/
 		String strStartTime=request.getParameter("selectedStartTime");
 		String strEndTime=request.getParameter("selectedEndTime");
-		if(strStartTime!=null&&!strStartTime.isEmpty()
-				&&strEndTime!=null&&!strEndTime.isEmpty()){
-			CustomParameter customParameter=CustomParameter.findByName(CustomParameter.class,"SERVER_DATETIMEFORMAT","");
+		CustomParameter customParameter=CustomParameter.findByName(CustomParameter.class,"ROSTER_DATETIMEFORMAT","");
+		if(strStartTime!=null&&!strStartTime.isEmpty()){			
 			if(customParameter!=null){
 				SimpleDateFormat format=FormaterUtil.getDateFormatter(customParameter.getValue(),domain.getLocale());
 				try {
 					domain.setStartTime(format.parse(strStartTime));
-					domain.setEndTime(format.parse(strEndTime));
 				} catch (ParseException e) {
 					SimpleDateFormat defaultFormat=FormaterUtil.getDateFormatter(customParameter.getValue(),"en_US");
 					try {
 						domain.setStartTime(defaultFormat.parse(strStartTime));
+					} catch (ParseException e1) {
+						logger.error("Unparseable Timestamp:"+strStartTime+","+strEndTime,e1);;
+					}
+				}
+			}
+		}
+		if(strEndTime!=null&&!strEndTime.isEmpty()){
+			if(customParameter!=null){
+				SimpleDateFormat format=FormaterUtil.getDateFormatter(customParameter.getValue(),domain.getLocale());
+				try {
+					domain.setEndTime(format.parse(strEndTime));
+				} catch (ParseException e) {
+					SimpleDateFormat defaultFormat=FormaterUtil.getDateFormatter(customParameter.getValue(),"en_US");
+					try {
 						domain.setEndTime(defaultFormat.parse(strEndTime));
 					} catch (ParseException e1) {
 						logger.error("Unparseable Timestamp:"+strStartTime+","+strEndTime,e1);;
@@ -429,103 +492,285 @@ public class RosterController extends GenericController<Roster>{
 		if(domain.getStartTime()==null){
 			result.rejectValue("startTime","StartTimeEmpty");
 		}
+		/**** Start Time can be changed only if it is a future date ****/
+		if(domain.getStartTime()!=null&&domain.getStartTime().before(new Date())){
+			result.rejectValue("startTime","StartTimeIsPastTime");
+		}
 		if(domain.getEndTime()==null){
 			result.rejectValue("endTime","EndTimeEmpty");
 		}		
+		/**** End Time can be changed only if it is a future date ****/
+		if(domain.getEndTime()!=null&&domain.getEndTime().before(new Date())){
+			result.rejectValue("endTime","EndTimeIsPastTime");
+		}
+		/**** Start Time cannot be > end time ****/
+		if(domain.getStartTime()!=null&&domain.getEndTime()!=null
+				&&domain.getStartTime().after(domain.getEndTime())){
+			result.rejectValue("startTime","StartTimeGTEndTime");
+		}
+		/**** End Time cannot be < start time ****/
+		if(domain.getStartTime()!=null&&domain.getEndTime()!=null
+				&&domain.getEndTime().before(domain.getStartTime())){
+			result.rejectValue("endTime","EndTimeLTStartTime");
+		}
 		/**** Slot Duration ****/
 		if(domain.getSlotDuration()==null){
 			result.rejectValue("slotDuration","SlotDurationEmpty");
 		}
-
-	}
-
-	@Override
-	protected void customValidateUpdate(final Roster domain, final BindingResult result,
-			final HttpServletRequest request) {
-		/**** Version Mismatch ****/
-		if (domain.isVersionMismatch()) {
-			result.rejectValue("version", "VersionMismatch");
-		}		
-		/**** Session ****/
-		if(domain.getSession()==null){
-			result.rejectValue("session","SessionEmpty");
-		}
-		/**** Registry No.****/
-		if(domain.getRegisterNo()==null){
-			result.rejectValue("registerNo","RegistryEmpty");
-		}		
-		/**** Start Time and End Time****/
-		String strStartTime=request.getParameter("selectedStartTime");
-		String strEndTime=request.getParameter("selectedEndTime");
-		if(strStartTime!=null&&!strStartTime.isEmpty()
-				&&strEndTime!=null&&!strEndTime.isEmpty()){
-			CustomParameter customParameter=CustomParameter.findByName(CustomParameter.class,"SERVER_DATETIMEFORMAT","");
-			if(customParameter!=null){
-				SimpleDateFormat format=FormaterUtil.getDateFormatter(customParameter.getValue(),domain.getLocale());
-				try {
-					domain.setStartTime(format.parse(strStartTime));
-					domain.setEndTime(format.parse(strEndTime));
-				} catch (ParseException e) {
-					SimpleDateFormat defaultFormat=FormaterUtil.getDateFormatter(customParameter.getValue(),"en_US");
-					try {
-						domain.setStartTime(defaultFormat.parse(strStartTime));
-						domain.setEndTime(defaultFormat.parse(strEndTime));
-					} catch (ParseException e1) {
-						logger.error("Unparseable Timestamp:"+strStartTime+","+strEndTime,e1);;
-					}
-				}
-			}
-		}
-		if(domain.getStartTime()==null){
-			result.rejectValue("startTime","StartTimeEmpty");
-		}
-		if(domain.getEndTime()==null){
-			result.rejectValue("endTime","EndTimeEmpty");
-		}		
-		/**** Slot Duration ****/
-		if(domain.getSlotDuration()==null){
+		if(domain.getSlotDuration()!=null&&domain.getSlotDuration()==0){
 			result.rejectValue("slotDuration","SlotDurationEmpty");
 		}
 		/**** Action ****/
-		String operation=request.getParameter("operation");
-		if(operation!=null&&!operation.isEmpty()&&operation.equals("GENERATE_SLOT")){
-			if(domain.getAction()==null){
-				result.rejectValue("action","ActionEmpty");
-			}else if(domain.getAction().isEmpty()){
-				result.rejectValue("action","ActionEmpty");
-			}else if(domain.getAction().equals("-")){
-				result.rejectValue("action","ActionEmpty");
-			}			
+		if(domain.getAction()==null){
+			result.rejectValue("action","ActionEmpty");
+		}else if(domain.getAction().isEmpty()){
+			result.rejectValue("action","ActionEmpty");
+		}else if(domain.getAction().equals("-")){
+			result.rejectValue("action","ActionEmpty");
+		}	
+		/**** Reporters ****/
+		if(domain.getReporters()==null){
+			result.rejectValue("action","ReporterEmpty");
+		}else if(domain.getReporters().isEmpty()){
+			result.rejectValue("action","ReporterEmpty");
+		}	
+		/**** Day ****/
+		if(domain.getDay()==null){
+			result.rejectValue("day","DayEmpty");
+		}else if(domain.getDay()!=null&&domain.getDay()==0){
+			result.rejectValue("day","DayEmpty");
+		}else if(domain.getDay()!=null&&domain.getDay()<0){
+			result.rejectValue("day","DayLessThanZero");
 		}
-	}	
-
-	@Override
-	protected void populateCreateIfNoErrors(final ModelMap model, final Roster domain,
-			final HttpServletRequest request) {
-		String[] usersArr=request.getParameterValues("selectedItems");
-		List<User> users=new ArrayList<User>();
-		if(usersArr!=null&&usersArr.length>0){
-			for(String i:usersArr){
-				User user=User.findById(User.class,Long.parseLong(i));
-				users.add(user);
-			}
-			domain.setUsers(users);
-		}		
+		/**** Language ****/
+		if(domain.getLanguage()==null){
+			result.rejectValue("language","LanguageEmpty");
+		}
 	}
 
 	@Override
-	protected void populateUpdateIfNoErrors(final ModelMap model, final Roster domain,
-			final HttpServletRequest request) {
-		String[] usersArr=request.getParameterValues("selectedItems");
-		List<User> users=new ArrayList<User>();
-		if(usersArr!=null&&usersArr.length>0){
-			for(String i:usersArr){
-				User user=User.findById(User.class,Long.parseLong(i));
-				users.add(user);
+	protected void customValidateUpdate(Roster domain, BindingResult result,
+			HttpServletRequest request) {
+		Roster roster=Roster.findById(Roster.class,domain.getId());			
+		/**** Version Mismatch ****/
+		if (domain.isVersionMismatch()) {
+			result.rejectValue("version", "VersionMismatch");
+		}		
+		/**** Session ****/
+		if(domain.getSession()==null){
+			result.rejectValue("session","SessionEmpty");
+		}
+		/**** Registry No.****/
+		if(domain.getRegisterNo()==null){
+			result.rejectValue("registerNo","RegistryEmpty");
+		}		
+		/**** Start Time and End Time****/
+		String strStartTime=request.getParameter("selectedStartTime");
+		String strEndTime=request.getParameter("selectedEndTime");
+		String strSlotTimeChangedFrom=request.getParameter("selectedSlotDurationChangedFrom");
+		CustomParameter customParameter=CustomParameter.findByName(CustomParameter.class,"ROSTER_DATETIMEFORMAT","");
+		if(strStartTime!=null&&!strStartTime.isEmpty()){			
+			if(customParameter!=null){
+				SimpleDateFormat format=FormaterUtil.getDateFormatter(customParameter.getValue(),domain.getLocale());
+				try {
+					domain.setStartTime(format.parse(strStartTime));
+				} catch (ParseException e) {
+					SimpleDateFormat defaultFormat=FormaterUtil.getDateFormatter(customParameter.getValue(),"en_US");
+					try {
+						domain.setStartTime(defaultFormat.parse(strStartTime));
+					} catch (ParseException e1) {
+						logger.error("Unparseable Timestamp:"+strStartTime,e1);;
+					}
+				}
 			}
-			domain.setUsers(users);
+		}
+		if(strEndTime!=null&&!strEndTime.isEmpty()){
+			if(customParameter!=null){
+				SimpleDateFormat format=FormaterUtil.getDateFormatter(customParameter.getValue(),domain.getLocale());
+				try {
+					domain.setEndTime(format.parse(strEndTime));
+				} catch (ParseException e) {
+					SimpleDateFormat defaultFormat=FormaterUtil.getDateFormatter(customParameter.getValue(),"en_US");
+					try {
+						domain.setEndTime(defaultFormat.parse(strEndTime));
+					} catch (ParseException e1) {
+						logger.error("Unparseable Timestamp:"+strEndTime,e1);;
+					}
+				}
+			}
+		}
+		if(strSlotTimeChangedFrom!=null&&!strSlotTimeChangedFrom.isEmpty()){
+			if(customParameter!=null){
+				SimpleDateFormat format=FormaterUtil.getDateFormatter(customParameter.getValue(),domain.getLocale());
+				try {
+					domain.setSlotDurationChangedFrom(format.parse(strSlotTimeChangedFrom));
+				} catch (ParseException e) {
+					SimpleDateFormat defaultFormat=FormaterUtil.getDateFormatter(customParameter.getValue(),"en_US");
+					try {
+						domain.setSlotDurationChangedFrom(defaultFormat.parse(strSlotTimeChangedFrom));
+					} catch (ParseException e1) {
+						logger.error("Unparseable Timestamp:"+strSlotTimeChangedFrom,e1);;
+					}
+				}
+			}
+		}
+		if(domain.getStartTime()==null){
+			result.rejectValue("startTime","StartTimeEmpty");
+		}
+		/**** Start Time can be changed only if it is a future date ****/
+		if(domain.getStartTime()!=null&&domain.getStartTime().before(new Date())){
+			result.rejectValue("startTime","StartTimeIsPastTime");
+		}
+		if(domain.getEndTime()==null){
+			result.rejectValue("endTime","EndTimeEmpty");
+		}		
+		/**** End Time can be changed only if it is a future date ****/
+		if(domain.getEndTime()!=null&&domain.getEndTime().before(new Date())){
+			result.rejectValue("endTime","EndTimeIsPastTime");
+		}
+		/**** Start Time cannot be > end time ****/
+		if(domain.getStartTime()!=null&&domain.getEndTime()!=null
+				&&domain.getStartTime().after(domain.getEndTime())){
+			result.rejectValue("startTime","StartTimeGTEndTime");
+		}
+		/**** End Time cannot be < start time ****/
+		if(domain.getStartTime()!=null&&domain.getEndTime()!=null
+				&&domain.getEndTime().before(domain.getStartTime())){
+			result.rejectValue("endTime","EndTimeLTStartTime");
+		}
+		/**** Slot Duration ****/
+		if(domain.getSlotDuration()==null){
+			result.rejectValue("slotDuration","SlotDurationEmpty");
+		}
+		if(domain.getSlotDuration()!=null&&domain.getSlotDuration()==0){
+			result.rejectValue("slotDuration","SlotDurationEmpty");
+		}
+		if(domain.getSlotDuration()!=null
+				&&!(roster.getSlotDuration().equals(domain.getSlotDuration()))
+				&&domain.getSlotDurationChangedFrom()==null){
+			result.rejectValue("slotDurationChangedFrom","SlotDurationChangedFromEmpty");
+		}
+		if(domain.getSlotDuration()!=null
+				&&!(roster.getSlotDuration().equals(domain.getSlotDuration()))
+				&&domain.getSlotDurationChangedFrom()!=null
+				&&domain.getSlotDurationChangedFrom().before(new Date())){
+			result.rejectValue("slotDurationChangedFrom","SlotDurationChangedFromIsPastTime");
+		}
+		if(domain.getSlotDuration()!=null
+				&&!(roster.getSlotDuration().equals(domain.getSlotDuration()))
+				&&domain.getSlotDurationChangedFrom()!=null
+				&&domain.getSlotDurationChangedFrom().before(domain.getStartTime())){
+			result.rejectValue("slotDurationChangedFrom","SlotDurationChangedFromIsLTStartTime");
+		}
+		if(domain.getSlotDuration()!=null
+				&&!(roster.getSlotDuration().equals(domain.getSlotDuration()))
+				&&domain.getSlotDurationChangedFrom()!=null
+				&&domain.getSlotDurationChangedFrom().after(domain.getEndTime())){
+			result.rejectValue("slotDurationChangedFrom","SlotDurationChangedFromIsGTEndTime");
+		}
+		/**** Action ****/
+		if(domain.getAction()==null){
+			result.rejectValue("action","ActionEmpty");
+		}else if(domain.getAction().isEmpty()){
+			result.rejectValue("action","ActionEmpty");
+		}else if(domain.getAction().equals("-")){
+			result.rejectValue("action","ActionEmpty");
+		}			
+		/**** Day ****/
+		if(domain.getDay()==null){
+			result.rejectValue("day","DayEmpty");
+		}else if(domain.getDay()!=null&&domain.getDay()==0){
+			result.rejectValue("day","DayEmpty");
+		}else if(domain.getDay()!=null&&domain.getDay()<0){
+			result.rejectValue("day","DayLessThanZero");
+		}
+		/**** Language ****/
+		if(domain.getLanguage()==null){
+			result.rejectValue("language","LanguageEmpty");
+		}
+		/**** Populate Reporters ****/
+		String slotsCreated=request.getParameter("slots_created");
+		if(slotsCreated!=null&&!slotsCreated.isEmpty()){
+			String[] usersArr=request.getParameterValues("selectedItems");
+			List<Reporter> reporters=new ArrayList<Reporter>();
+			List<Long> originalReporters=new ArrayList<Long>();
+			/**** We will first get the position of the last reporter of the stored roster whose
+			 * id is same as that of domain.This will then give the position from which position
+			 * of newly added reporters will be set****/
+			int lastReporterPosition=1;
+			if(slotsCreated.equals("yes")){
+				Reporter lastReporter=null;
+				if(roster!=null&&roster.getReporters()!=null&&!roster.getReporters().isEmpty()){
+					lastReporter=Roster.findFirstReporterAtPosX(roster,roster.getReporters().size(),"both");
+				}
+				if(lastReporter!=null){
+					lastReporterPosition=lastReporter.getPosition()+1;				
+				}
+			}
+			if(usersArr!=null&&usersArr.length>0){
+				for(String i:usersArr){
+					User user=User.findById(User.class,Long.parseLong(i));
+					Reporter reporter=Roster.findByUser(domain,user);
+					if(reporter==null){
+						reporter=new Reporter();
+						reporter.setUser(user);
+						reporter.setPosition(lastReporterPosition);
+						reporter.setIsActive(true);
+						reporter.setLocale(domain.getLocale());
+						reporter.persist();
+						lastReporterPosition++;
+					}else{
+						/**** This will be used to fetch those reporters who
+						 * were present in original list and now have been disabled
+						 */
+						reporter.setIsActive(true);
+						if(slotsCreated.equals("no")){
+							reporter.setPosition(lastReporterPosition);
+							lastReporterPosition++;
+						}
+						reporter.merge();
+						originalReporters.add(reporter.getId());
+					}
+					reporters.add(reporter);
+				}	
+				/**** Reporters that were present in original list and now have been made inactive ****/
+				List<Reporter> toBeDisabledReporters=Roster.findReportersOtherThan(domain,originalReporters);
+				for(Reporter i:toBeDisabledReporters){
+					if(slotsCreated.equals("yes")){
+						i.setIsActive(false);
+						i.merge();
+						reporters.add(i);				
+					}else{
+						i.remove();
+					}
+				}				
+				domain.setReporters(reporters);
+			}
+		}
+		/**** Reporters ****/
+		if(domain.getReporters()==null){
+			result.rejectValue("action","ReporterEmpty");
+		}else if(domain.getReporters().isEmpty()){
+			result.rejectValue("action","ReporterEmpty");
 		}	
 	}
+
+	@Override
+	protected void populateAfterCreate(ModelMap model, Roster domain,
+			HttpServletRequest request) {
+		if(!domain.getAction().equals("save_without_creating_slots")){
+			Boolean status=domain.generateSlot();		
+		}
+	}
+
+	@Override
+	protected void populateUpdateIfNoErrors(ModelMap model, Roster domain,
+			HttpServletRequest request) {
+		if(!domain.getAction().equals("save_without_creating_slots")){
+			Boolean status=domain.generateSlot();		
+		}
+	}	
+	
 	
 	@RequestMapping(value="/{id}/roster_rep", method=RequestMethod.GET)
 	public String viewRoster(final @PathVariable("id") Long id, final HttpServletRequest request, final ModelMap model, final Locale locale){
@@ -553,4 +798,5 @@ public class RosterController extends GenericController<Roster>{
 		}
 		return returnValue;
 	}
+
 }
