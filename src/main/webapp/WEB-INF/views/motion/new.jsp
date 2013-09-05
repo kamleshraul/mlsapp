@@ -229,7 +229,12 @@
 		        }
 			}});			
 	        return false;  
-	    }); 		
+	    }); 	
+		
+		/**** To prevent copy paste in supporting member field ****/
+		$("#selectedSupportingMembers").bind('copy paste', function (e) {
+		       e.preventDefault();
+		 });
 	});
 	</script>
 </head>

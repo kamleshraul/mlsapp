@@ -255,7 +255,12 @@
 			$("#subject").attr("readonly","readonly");
 			$("#details").attr("readonly","readonly");
 			$("#selectedSupportingMembers").attr("readonly","readonly");			
-		}		
+		}	
+				
+		/**** To prevent copy paste in supporting member field ****/
+		$("#selectedSupportingMembers").bind('copy paste', function (e) {
+		       e.preventDefault();
+		 });
 	});	
 	</script>
 </head>

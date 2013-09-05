@@ -498,6 +498,10 @@
 		$('#new_record_ForNew').click(function(){	
 			newQuestion_ForNew();
 		});
+		
+		$("#selectedSupportingMembers").bind('copy paste', function (e) {
+		       e.preventDefault();
+		 });
 	});
 	
 	/**** new question ****/

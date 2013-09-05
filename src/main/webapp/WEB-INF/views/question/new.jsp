@@ -471,6 +471,11 @@
 				});
 			}
 		});
+		
+		/**** To prevent the copy paste in supporting members field ****/
+		$("#selectedSupportingMembers").bind('copy paste', function (e) {
+		       e.preventDefault();
+		 });
 	});
 	</script>
 </head>

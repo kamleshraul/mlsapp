@@ -520,7 +520,7 @@
 					<label id="questions_starred_numberOfSupportingMembersComparator_hidden" title="${questions_starred_numberofsupportingmemberscomparator}"></label>
 				</p>
 				<p style="display: inline;">		
-					<input type="text" class="sInteger" name="questions_starred_numberOfSupportingMembers" id="questions_starred_numberOfSupportingMembers" value="${questions_starred_numberofsupportingmembers}" style="width: 62px"/>
+					<input class="sText"type="text" class="sText" name="questions_starred_numberOfSupportingMembers" id="questions_starred_numberOfSupportingMembers" value="${questions_starred_numberofsupportingmembers}" style="width: 62px"/>
 				</p>
 				
 				<p>
@@ -657,7 +657,7 @@
 					<label id="questions_unstarred_numberOfSupportingMembersComparator_hidden" title="${questions_unstarred_numberofsupportingmemberscomparator}"></label>
 				</p>
 				<p style="display: inline;">		
-					<input type="text" class="sInteger" name="questions_unstarred_numberOfSupportingMembers" id="questions_unstarred_numberOfSupportingMembers" value="${questions_unstarred_numberofsupportingmembers}" style="width: 62px" />
+					<input type="text" class="sText" name="questions_unstarred_numberOfSupportingMembers" id="questions_unstarred_numberOfSupportingMembers" value="${questions_unstarred_numberofsupportingmembers}" style="width: 62px" />
 				</p>
 			</div>
 		</c:if>
@@ -727,7 +727,7 @@
 				</p>
 				
 				<p style="display: inline;">		
-					<input type="text" class="sInteger" name="questions_halfhourdiscussion_standalone_numberOfSupportingMembers" id="questions_halfhourdiscussion_standalone_numberOfSupportingMembers" value="${questions_halfhourdiscussion_standalone_numberofsupportingmembers}" style="width: 112px" />
+					<input class="sText" type="text" name="questions_halfhourdiscussion_standalone_numberOfSupportingMembers" id="questions_halfhourdiscussion_standalone_numberOfSupportingMembers" value="${questions_halfhourdiscussion_standalone_numberofsupportingmembers}" style="width: 112px" />
 				</p>
 				
 				<p>
@@ -801,7 +801,7 @@
 					<label id="questions_shortnotice_numberOfSupportingMembersComparator_hidden" title="${questions_shortnotice_numberofsupportingmemberscomparator}"></label>
 				</p>
 				<p style="display: inline;">		
-					<input type="text" class="sInteger" name="questions_shortnotice_numberOfSupportingMembers" id="questions_shortnotice_numberOfSupportingMembers" value="${questions_shortnotice_numberofsupportingmembers}" style="width: 62px" />
+					<input type="text" class="sText" name="questions_shortnotice_numberOfSupportingMembers" id="questions_shortnotice_numberOfSupportingMembers" value="${questions_shortnotice_numberofsupportingmembers}" style="width: 62px" />
 				</p>				
 			</div>
 		</c:if>
@@ -852,7 +852,7 @@
 				</p>
 				
 				<p style="display: inline;">		
-					<input type="text" class="sInteger" name="questions_halfhourdiscussion_from_question_numberOfSupportingMembers" id="questions_halfhourdiscussion_from_question_numberOfSupportingMembers" value="${questions_halfhourdiscussion_from_question_numberofsupportingmembers}" style="width: 62px" />
+					<input type="text" class="sText" name="questions_halfhourdiscussion_from_question_numberOfSupportingMembers" id="questions_halfhourdiscussion_from_question_numberOfSupportingMembers" value="${questions_halfhourdiscussion_from_question_numberofsupportingmembers}" style="width: 62px" />
 				</p>
 				
 				<p>
@@ -1055,7 +1055,7 @@
 						</c:otherwise>
 						</c:choose>								
 					</select>
-					<input type="text" class="sInteger sText" name="questions_shortnotice_numberOfSupportingMembers" id="questions_shortnotice_numberOfSupportingMembers" value="${questions_shortnotice_numberofsupportingmembers}"/>
+					<input type="text" class="sText" name="questions_shortnotice_numberOfSupportingMembers" id="questions_shortnotice_numberOfSupportingMembers" value="${questions_shortnotice_numberofsupportingmembers}"/>
 				</p>
 				<!-- As checkbox is not getting submitted in selective fields submission of form, So hidden input field is taken to submit its value -->	
 				<p>
