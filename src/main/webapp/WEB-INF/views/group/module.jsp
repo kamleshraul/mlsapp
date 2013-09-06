@@ -102,7 +102,7 @@
 			if(copy==null||copy==undefined){				
 				showTabByIdAndUrl('details_tab','group/new?'+$("#gridURLParams").val());
 			}else{
-				showTabByIdAndUrl('details_tab','group/new?copy='+$("#key").val() + $("#gridURLParams").val());
+				showTabByIdAndUrl('details_tab','group/new?copy='+$("#key").val() +"&"+ $("#gridURLParams").val());
 			}
 		}
 	
