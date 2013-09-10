@@ -25,6 +25,7 @@ import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
 
 import org.codehaus.jackson.annotate.JsonIgnoreProperties;
+import org.mkcl.els.common.util.ApplicationConstants;
 import org.mkcl.els.domain.associations.MemberPartyAssociation;
 import org.springframework.beans.factory.annotation.Configurable;
 
@@ -39,14 +40,13 @@ import org.springframework.beans.factory.annotation.Configurable;
 @Table(name = "parties")
 @JsonIgnoreProperties({"registeredOfficeAddress","stateOfficeAddress","contact","partySymbols","memberPartyAssociations"})
 public class Party extends BaseDomain implements Serializable {
-	
+
+    // ---------------------------------Attributes-------------------------------------------------
     /**
      * The Constant serialVersionUID.
      */
     private static final transient long serialVersionUID = 1L;
 
-    /**** Attributes ****/
-    
     /** The name. */
     @Column(length = 600)
     private String name;
@@ -81,12 +81,15 @@ public class Party extends BaseDomain implements Serializable {
     @OneToMany(cascade=CascadeType.ALL, orphanRemoval=true, fetch=FetchType.LAZY)
     @JoinColumn(name = "party_id", referencedColumnName = "id")
     private List<PartySymbol> partySymbols;
+    
+    @Column(length = 150)
+    private String type;
 
     /** The member party associations. */
     @OneToMany(mappedBy = "party",fetch=FetchType.LAZY)
     private List<MemberPartyAssociation> memberPartyAssociations;
 
-    /**** Constructors ****/
+    // ---------------------------------Constructors----------------------------------------------
 
     /**
      * Instantiates a new party.
@@ -109,9 +112,29 @@ public class Party extends BaseDomain implements Serializable {
         this.establishmentDate = establishmentDate;
     }
 
-    /**** Domain methods ****/
-
-    /**** Getters and Setters ****/
+    // -------------------------------Domain_Methods----------------------------------------------
+    public static List<Party> findActiveParties(final String locale) {
+    	return Party.findAllByFieldName(Party.class, "isDissolved", false, 
+    			"name", ApplicationConstants.ASC, locale);
+    }
+    
+    public static Party findByType(final String type,
+    		final String locale) {
+    	return Party.findByFieldName(Party.class, "type", type, locale);
+    }
+    
+    public Boolean isIndependent() {
+    	String partyType = this.getType();
+    	String INDEPENDENT = ApplicationConstants.INDEPENDENT_PARTY;
+    	
+    	if(INDEPENDENT.equals(partyType)) {
+    		return true;
+    	}
+    	
+    	return false;
+    }
+    
+    // -------------------------------Getters/Setters---------------------------------------------
     /**
      * Gets the name.
      *
@@ -275,4 +298,11 @@ public class Party extends BaseDomain implements Serializable {
         this.memberPartyAssociations = memberPartyAssociations;
     }
 
+	public String getType() {
+		return type;
+	}
+
+	public void setType(final String type) {
+		this.type = type;
+	}
 }
