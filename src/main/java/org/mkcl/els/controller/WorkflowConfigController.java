@@ -110,6 +110,8 @@ public class WorkflowConfigController extends GenericController<WorkflowConfig> 
 			model.addAttribute("workflowactorCount", 0);
 			/**** Created On ****/
 			model.addAttribute("createdOn", FormaterUtil.getDateFormatter("en_US").format(new Date()));
+			
+			model.addAttribute("isDeviceTypeEmpty", true);
 		}catch (Exception e) {
 			String message = null;
 			if(e instanceof ELSException){
@@ -152,6 +154,14 @@ public class WorkflowConfigController extends GenericController<WorkflowConfig> 
 			/**** workflow actors ****/
 			model.addAttribute("workflowactors", domain.getWorkflowactors());
 			model.addAttribute("workflowactorCount", domain.getWorkflowactors().size());
+			
+			DeviceType deviceType = domain.getDeviceType();
+	        if(deviceType == null) {
+	        	model.addAttribute("isDeviceTypeEmpty", true);
+	        }
+	        else {
+	        	model.addAttribute("isDeviceTypeEmpty", false);
+	        }
 		}catch (Exception e) {
 			String message = null;
 			if(e instanceof ELSException){
