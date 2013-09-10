@@ -8,8 +8,8 @@ import java.util.List;
 
 import javax.persistence.NoResultException;
 import javax.persistence.Query;
+import javax.persistence.TypedQuery;
 
-import org.hibernate.jdbc.Work;
 import org.mkcl.els.common.exception.ELSException;
 import org.mkcl.els.common.util.ApplicationConstants;
 import org.mkcl.els.common.util.FormaterUtil;
@@ -21,12 +21,9 @@ import org.mkcl.els.domain.Motion;
 import org.mkcl.els.domain.Question;
 import org.mkcl.els.domain.Resolution;
 import org.mkcl.els.domain.Status;
-import org.mkcl.els.domain.User;
 import org.mkcl.els.domain.UserGroup;
 import org.mkcl.els.domain.WorkflowDetails;
 import org.springframework.stereotype.Repository;
-
-import com.trg.search.Search;
 
 @Repository
 public class WorkflowDetailsRepository extends BaseRepository<WorkflowDetails, Serializable>{
@@ -260,6 +257,7 @@ public class WorkflowDetailsRepository extends BaseRepository<WorkflowDetails, S
 	}	
 
 
+	@SuppressWarnings("unchecked")
 	public WorkflowDetails findCurrentWorkflowDetail(final Question question) throws ELSException{
 		WorkflowDetails workflowDetails = null;
 		try{
@@ -701,7 +699,25 @@ public class WorkflowDetailsRepository extends BaseRepository<WorkflowDetails, S
 			elsException.setParameter("WorkflowDetailsRepository_WorkflowDetail_findAll", "WorkflowDetails Not found");
 			throw elsException;
 		}
-		
-		
 	}
+	
+	public WorkflowDetails findCurrentWorkflowDetail(final UserGroup userGroup,
+			final String domainIds, 
+			final String status, 
+			final String locale) {
+		String strUserGroupId = String.valueOf(userGroup.getId());
+		
+		StringBuffer query = new StringBuffer();
+		query.append("SELECT wfd" +
+				" FROM WorkflowDetails wfd" +
+				" WHERE wfd.assigneeUserGroupId = '" + strUserGroupId + "'" +
+				" AND wfd.domainIds = '" + domainIds + "'" +
+				" AND wfd.status = '" + status + "'" +
+				" AND wfd.locale = '" + locale + "'");
+		
+		TypedQuery<WorkflowDetails> tQuery = 
+			this.em().createQuery(query.toString(), WorkflowDetails.class);
+		WorkflowDetails workflowDetails = tQuery.getSingleResult();
+		return workflowDetails;
+	}	
 }
