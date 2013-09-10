@@ -29,6 +29,7 @@ import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
 
 import org.codehaus.jackson.annotate.JsonIgnoreProperties;
+import org.mkcl.els.common.exception.ELSException;
 import org.mkcl.els.common.util.ApplicationConstants;
 import org.mkcl.els.repository.HouseRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -141,19 +142,19 @@ public class House extends BaseDomain implements Serializable {
         return houseRepository;
     }
 
-    public static House findCurrentHouse(final String locale) {
+    public static House findCurrentHouse(final String locale) throws ELSException {
         return getHouseRepository().findCurrentHouse(locale);
     }
 
     public static House findHouseByToFromDate(final Date fromDate, 
     		final Date toDate,
-            final String locale) {
+            final String locale) throws ELSException {
         return getHouseRepository().findHouseByToFromDate(fromDate, toDate,
                 locale);
     }
 
     public static List<House> findByHouseType(final String houseType, 
-    		final String locale) {
+    		final String locale) throws ELSException {
     	return getHouseRepository().findByHouseType(houseType, locale);
 	}
     
