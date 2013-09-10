@@ -10,6 +10,7 @@ import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
 
+import org.mkcl.els.common.exception.ELSException;
 import org.mkcl.els.common.util.ApplicationConstants;
 import org.mkcl.els.common.vo.CommitteeCompositeVO;
 import org.mkcl.els.common.vo.ProcessDefinition;
@@ -896,7 +897,13 @@ public class CommitteeWorkflowController extends BaseController {
 		}
 		
 		// Retrieve & Populate Statuses
-		List<Status> statuses = Status.findStatusContainedIn(options, locale);
+		List<Status> statuses = new ArrayList<Status>();
+		try {
+			statuses = Status.findStatusContainedIn(options, locale);
+		} 
+		catch (ELSException e) {
+			e.printStackTrace();
+		}
 		model.addAttribute("statuses", statuses);
 		
 		return statuses;
