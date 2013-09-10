@@ -34,13 +34,6 @@
 			if ($('#districtR').val() != undefined) {				
 				populateTehsilsR($('#districtR').val());
 			}
-		}).fail(function(){
-			if($("#ErrorMsg").val()!=''){
-				$("#error_p").html($("#ErrorMsg").val()).css({'color':'red', 'display':'block'});
-			}else{
-				$("#error_p").html("Error occured contact for support.").css({'color':'red', 'display':'block'});
-			}
-			scrollTop();
 		});	
 	}
 	
@@ -56,13 +49,6 @@
 			if ($('#districtS').val() != undefined) {				
 				populateTehsilsS($('#districtS').val());
 			}
-		}).fail(function(){
-			if($("#ErrorMsg").val()!=''){
-				$("#error_p").html($("#ErrorMsg").val()).css({'color':'red', 'display':'block'});
-			}else{
-				$("#error_p").html("Error occured contact for support.").css({'color':'red', 'display':'block'});
-			}
-			scrollTop();
 		});	
 	}
 	
@@ -75,13 +61,6 @@
 						+ data[i].name + "</option>";
 			}
 			$('#tehsilR').html(options);
-		}).fail(function(){
-			if($("#ErrorMsg").val()!=''){
-				$("#error_p").html($("#ErrorMsg").val()).css({'color':'red', 'display':'block'});
-			}else{
-				$("#error_p").html("Error occured contact for support.").css({'color':'red', 'display':'block'});
-			}
-			scrollTop();
 		});
 	}
 	
@@ -94,13 +73,6 @@
 						+ data[i].name + "</option>";
 			}
 			$('#tehsilS').html(options);
-		}).fail(function(){
-			if($("#ErrorMsg").val()!=''){
-				$("#error_p").html($("#ErrorMsg").val()).css({'color':'red', 'display':'block'});
-			}else{
-				$("#error_p").html("Error occured contact for support.").css({'color':'red', 'display':'block'});
-			}
-			scrollTop();
 		});
 	}	
 	
@@ -186,13 +158,6 @@
 					$('#symbol'+fileID).replaceWith(text);
 				});
 			};
-		}).fail(function(){
-			if($("#ErrorMsg").val()!=''){
-				$("#error_p").html($("#ErrorMsg").val()).css({'color':'red', 'display':'block'});
-			}else{
-				$("#error_p").html("Error occured contact for support.").css({'color':'red', 'display':'block'});
-			}
-			scrollTop();
 		});		
 	}
 	
@@ -249,10 +214,6 @@
 </script>
 </head>
 <body>
-<p id="error_p" style="display: none;">&nbsp;</p>
-<c:if test="${(error!='') && (error!=null)}">
-	<h4 style="color: #FF0000;">${error}</h4>
-</c:if>
 <div class="fields clearfix vidhanmandalImg">
 		<form:form action="${urlPattern}" method="PUT"
 			modelAttribute="party">
@@ -487,6 +448,12 @@
 						path="isDissolved" />
 					<form:errors path="isDissolved" cssClass="validationError" />
 				</p>
+				
+				<p>
+					<label class="small"><spring:message code="party.type" text="Type" /></label>
+					<form:input path="type" cssClass="sText"/>
+					<form:errors path="type" cssClass="validationError" />
+				</p>
 			</div>						
 			<!-- <input type="hidden" id="fileid" value="fileid">
 			<input type="hidden" id="symbol" value="symbol"> -->
@@ -518,7 +485,6 @@
 			</c:forEach> --%>
 		</form:form>	
 	</div>	
-	<input type="hidden" id="ErrorMsg" value="<spring:message code='generic.error' text='Error Occured Contact For Support.'/>"/>
 </body>
 
 </html>
