@@ -6,10 +6,11 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
+
+import javax.persistence.TypedQuery;
 
 import org.mkcl.els.common.util.ApplicationConstants;
 import org.mkcl.els.common.vo.Reference;
@@ -669,5 +670,106 @@ public class WorkflowConfigRepository extends BaseRepository<WorkflowConfig, Ser
 			ex.printStackTrace();
 			return new WorkflowConfig();
 		}	
+	}
+	
+	public List<WorkflowActor> findCommitteeActors(final HouseType houseType,
+			final UserGroup userGroup,
+			final Status status,
+			final String workflowName,
+			final int level,
+			final String locale) {
+		List<WorkflowActor> wfActors = new ArrayList<WorkflowActor>();
+		
+		WorkflowConfig wfConfig = 
+			this.getLatest(houseType, workflowName, locale);
+		UserGroupType userGroupType = userGroup.getUserGroupType();
+		WorkflowActor currentWfActor = 
+			this.getWorkflowActor(wfConfig, userGroupType, level);
+		
+		if(status.getType().equals(
+				ApplicationConstants.COMMITTEE_RECOMMEND_SENDBACK)) {
+			wfActors = getWorkflowActorsExcludingCurrent(wfConfig, 
+					currentWfActor, ApplicationConstants.DESC);
+		}
+		else {
+			wfActors = getWorkflowActorsExcludingCurrent(wfConfig, 
+					currentWfActor, ApplicationConstants.ASC);
+		}
+		
+		return wfActors;
+	}
+	
+	public WorkflowActor findNextCommitteeActor(final HouseType houseType,
+			final UserGroup userGroup, 
+			final Status status, 
+			final String workflowName, 
+			final int level,
+			final String locale) {
+		WorkflowActor wfActor = null;
+		
+		WorkflowConfig wfConfig = 
+			this.getLatest(houseType, workflowName, locale);
+		UserGroupType userGroupType = userGroup.getUserGroupType();
+		WorkflowActor currentWfActor = 
+			this.getWorkflowActor(wfConfig, userGroupType, level);
+		
+		if(status.getType().equals(
+				ApplicationConstants.COMMITTEE_RECOMMEND_SENDBACK)) {
+			wfActor = getNextWorkflowActor(wfConfig, 
+					currentWfActor, ApplicationConstants.DESC);
+		}
+		else {
+			wfActor = getNextWorkflowActor(wfConfig, 
+					currentWfActor, ApplicationConstants.ASC);
+		}
+		
+		return wfActor;
+	}	
+	
+	private WorkflowConfig getLatest(final HouseType houseType,
+			final String workflowName,
+			final String locale) {
+		StringBuffer query = new StringBuffer();
+		query.append("SELECT wc" +
+				" FROM WorkflowConfig wc" +
+				" JOIN wc.workflow wf" +
+				" JOIN wc.houseType ht" +
+				" WHERE ht.id = " + houseType.getId() +
+				" AND wf.type = '" + workflowName + "'" +
+				" AND wc.isLocked = true" +
+				" AND wc.locale = '" + locale + "'" +
+				" ORDER BY wc.id " + ApplicationConstants.DESC);
+		
+		TypedQuery<WorkflowConfig> tQuery = 
+			this.em().createQuery(query.toString(), 
+					WorkflowConfig.class).setMaxResults(1);
+		
+		List<WorkflowConfig> workflowConfigs = tQuery.getResultList();
+		return workflowConfigs.get(0);
+	}
+	
+	private WorkflowActor getNextWorkflowActor(
+			final WorkflowConfig workflowConfig,
+			final WorkflowActor currentWorkflowActor, 
+			final String sortOrder) {
+		StringBuffer query = new StringBuffer();
+		query.append("SELECT wfa" +
+				" FROM WorkflowConfig wc JOIN wc.workflowactors wfa" +
+				" WHERE wc.id = " + workflowConfig.getId() +
+				" AND wfa.id > " + currentWorkflowActor.getId() +
+				" ORDER BY wfa.id");
+		if(sortOrder.equals(ApplicationConstants.ASC)) {
+			query.append(" " + ApplicationConstants.ASC);
+		}
+		else {
+			query.append(" " + ApplicationConstants.DESC);
+		}
+		
+		TypedQuery<WorkflowActor> tQuery = 
+			this.em().createQuery(query.toString(), 
+					WorkflowActor.class).setMaxResults(1);
+		
+		List<WorkflowActor> wfActor = tQuery.getResultList();
+		return wfActor.get(0);	
 	}
 }
