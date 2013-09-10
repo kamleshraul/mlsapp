@@ -10,6 +10,7 @@ import javax.persistence.Table;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
 
+import org.mkcl.els.common.exception.ELSException;
 import org.mkcl.els.common.vo.Task;
 import org.mkcl.els.repository.WorkflowDetailsRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -258,13 +259,13 @@ public class WorkflowDetails extends BaseDomain implements Serializable{
 	}
 
 	public static WorkflowDetails create(final Question question,final Task task,final String workflowType,
-			final String assigneeLevel) {
+			final String assigneeLevel) throws ELSException {
 		return getWorkflowDetailsRepository().create(question,task,workflowType,
 				assigneeLevel);
 	}
 	
 	public static WorkflowDetails create(final Resolution resolution,final Task task,final String workflowType,
-			final String assigneeLevel, final HouseType houseTypeForWorkflow) {
+			final String assigneeLevel, final HouseType houseTypeForWorkflow) throws ELSException {
 		return getWorkflowDetailsRepository().create(resolution,task,workflowType,
 				assigneeLevel, houseTypeForWorkflow);
 	}
@@ -286,7 +287,7 @@ public class WorkflowDetails extends BaseDomain implements Serializable{
 	}
 
 	public static List<WorkflowDetails> create(final Question question,final List<Task> tasks,
-			final String workflowType,final String assigneeLevel) {
+			final String workflowType,final String assigneeLevel) throws ELSException {
 		return getWorkflowDetailsRepository().create(question,tasks,
 				workflowType,assigneeLevel);
 	}
@@ -307,15 +308,15 @@ public class WorkflowDetails extends BaseDomain implements Serializable{
 		return subject;
 	}
 
-	public static WorkflowDetails findCurrentWorkflowDetail(final Question question) {
+	public static WorkflowDetails findCurrentWorkflowDetail(final Question question) throws ELSException {
 		return getWorkflowDetailsRepository().findCurrentWorkflowDetail(question);
 	}
 	
-	public static WorkflowDetails findCurrentWorkflowDetail(final Resolution resolution) {
+	public static WorkflowDetails findCurrentWorkflowDetail(final Resolution resolution) throws ELSException {
 		return getWorkflowDetailsRepository().findCurrentWorkflowDetail(resolution);
 	}
 	
-	public static WorkflowDetails findCurrentWorkflowDetail(final Resolution resolution, final String workflowHouseType) {
+	public static WorkflowDetails findCurrentWorkflowDetail(final Resolution resolution, final String workflowHouseType) throws ELSException {
 		return getWorkflowDetailsRepository().findCurrentWorkflowDetail(resolution, workflowHouseType);
 	}
 
@@ -351,15 +352,16 @@ public class WorkflowDetails extends BaseDomain implements Serializable{
 		this.groupNumber = groupNumber;
 	}
 
-	/**** Motion Related ****/
+	/**** Motion Related 
+	 * @throws ELSException ****/
 	public static List<WorkflowDetails> create(final Motion domain,final List<Task> tasks,
-			final String supportingMemberWorkflow, final String assigneeLevel) {		
+			final String supportingMemberWorkflow, final String assigneeLevel) throws ELSException {		
 		return getWorkflowDetailsRepository().create(domain,tasks,
 				supportingMemberWorkflow,assigneeLevel);
 	}
 
 	public static WorkflowDetails create(final Motion domain,final Task task,
-			final String workflowType,final String level) {
+			final String workflowType,final String level) throws ELSException {
 		return getWorkflowDetailsRepository().create(domain,task,
 				workflowType,level);
 	}
@@ -367,7 +369,7 @@ public class WorkflowDetails extends BaseDomain implements Serializable{
 	public static List<WorkflowDetails> findAll(final String strHouseType,
 			final String strSessionType,final String strSessionYear,final String strMotionType,
 			final String strStatus,final String strWorkflowSubType,final String assignee,
-			final String strItemsCount,final String strLocale,final String file) {
+			final String strItemsCount,final String strLocale,final String file) throws ELSException {
 		return getWorkflowDetailsRepository().findAll(strHouseType,
 				strSessionType,strSessionYear,strMotionType,
 				strStatus,strWorkflowSubType,assignee,
