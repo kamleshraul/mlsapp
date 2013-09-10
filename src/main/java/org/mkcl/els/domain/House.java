@@ -11,8 +11,12 @@ package org.mkcl.els.domain;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -25,11 +29,10 @@ import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
 
 import org.codehaus.jackson.annotate.JsonIgnoreProperties;
-import org.mkcl.els.common.exception.ELSException;
+import org.mkcl.els.common.util.ApplicationConstants;
 import org.mkcl.els.repository.HouseRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Configurable;
-import org.springframework.util.AutoPopulatingList;
 
 /**
  * The Class House.
@@ -44,14 +47,16 @@ import org.springframework.util.AutoPopulatingList;
 @JsonIgnoreProperties({"sessions"})
 public class House extends BaseDomain implements Serializable {
 
-    // ---------------------------------Attributes------------------------------------------
-
     /** The Constant serialVersionUID. */
     private transient static final long serialVersionUID = 1L;
 
+    //=============== ATTRIBUTES ===============
     /** The name. */
     @Column(length = 300)
     private String name;
+    
+    @Column(length=1000)
+    private String displayName;
 
     /** The number. */
     private Integer number;
@@ -88,9 +93,6 @@ public class House extends BaseDomain implements Serializable {
     @Column(length = 1000)
     private String remarks;
 
-    @Column(length=1000)
-    private String displayName;
-
     /** The sessions. */
     @OneToMany(fetch=FetchType.LAZY)
     @JoinColumn(name = "house_id", referencedColumnName = "id")
@@ -99,15 +101,12 @@ public class House extends BaseDomain implements Serializable {
     @Autowired
     private transient HouseRepository houseRepository;
 
-    // ---------------------------------Constructors----------------------------------------------
-
+    //=============== CONSTRUCTORS =============
     /**
      * Instantiates a new house.
      */
     public House() {
         super();
-        AutoPopulatingList<Session> sessionsAuto = new AutoPopulatingList<Session>(
-                this.sessions, Session.class);
     }
 
     /**
@@ -118,7 +117,10 @@ public class House extends BaseDomain implements Serializable {
      * @param type the type
      * @param formationDate the formation date
      */
-    public House(final String name, final Integer number, final HouseType type, final Date formationDate) {
+    public House(final String name, 
+    		final Integer number, 
+    		final HouseType type, 
+    		final Date formationDate) {
         super();
         this.name = name;
         this.number = number;
@@ -126,8 +128,11 @@ public class House extends BaseDomain implements Serializable {
         this.formationDate = formationDate;
     }
 
-    // -------------------------------Domain_Methods----------------------------------------------
-    public static HouseRepository getHouseRepository() {
+    //=============== VIEW METHODS =============
+	
+	
+	//=============== DOMAIN METHODS ===========	
+    private static HouseRepository getHouseRepository() {
         HouseRepository houseRepository = new House().houseRepository;
         if (houseRepository == null) {
             throw new IllegalStateException(
@@ -136,22 +141,168 @@ public class House extends BaseDomain implements Serializable {
         return houseRepository;
     }
 
-    public static House findCurrentHouse(final String locale) throws ELSException {
+    public static House findCurrentHouse(final String locale) {
         return getHouseRepository().findCurrentHouse(locale);
     }
 
-    public static House findHouseByToFromDate(final Date fromDate, final Date toDate,
-            final String locale) throws ELSException {
+    public static House findHouseByToFromDate(final Date fromDate, 
+    		final Date toDate,
+            final String locale) {
         return getHouseRepository().findHouseByToFromDate(fromDate, toDate,
                 locale);
     }
 
-    public static List<House> findByHouseType(final String houseType, final String locale) throws ELSException {
+    public static List<House> findByHouseType(final String houseType, 
+    		final String locale) {
     	return getHouseRepository().findByHouseType(houseType, locale);
 	}
+    
+    /**
+     * If @param houseType.type == "upperhouse"
+     * then ignore @param date and return the house
+     * instance corresponding to @param houseType
+     * 
+     * Else return an active house instance when
+     * houseType = @param houseType
+     * firstDate <= @param date <= lastDate
+     * 
+     */
+    public static House find(final HouseType houseType,
+    		final Date date,
+    		final String locale) {
+    	House house = null;
+    	
+    	String houseTypeType = houseType.getType();
+    	if(houseTypeType.equals(ApplicationConstants.UPPER_HOUSE)) {
+    		house = House.findByFieldName(House.class, 
+    				"houseType", houseType, locale);
+    	}
+    	else {
+    		house = House.getHouseRepository().find(houseType, date, locale);
+    	}
+    	
+    	return house;
+    }
+    
+    public static Long findActiveMembersCount(final HouseType houseType,
+    		final Date date,
+    		final String locale) {
+    	House house = House.find(houseType, date, locale);
+    	MemberRole role = MemberRole.find(houseType, "MEMBER", locale);
+    	return House.getHouseRepository().findActiveMembersCount(house, 
+    			role, date, locale);
+    }
+    
+    public static Long findActiveMembersCount(final HouseType houseType,
+    		final PartyType partyType,
+    		final Date date,
+    		final String locale) {
+    	House house = House.find(houseType, date, locale);
+    	MemberRole role = MemberRole.find(houseType, "MEMBER", locale);
+    	return House.getHouseRepository().findActiveMembersCount(house, 
+    			partyType, role, date, locale);
+    }
 
-    // ------------------------------------------Getters/Setters-----------------------------------
-
+    public static Long findActiveMembersCount(final HouseType houseType,
+    		final Party party,
+    		final Date date,
+    		final String locale) {
+    	House house = House.find(houseType, date, locale);
+    	MemberRole role = MemberRole.find(houseType, "MEMBER", locale);
+    	return House.getHouseRepository().findActiveMembersCount(house, 
+    			party, role, date, locale);
+    }
+    
+    public static Long findIndependentMembersCount(final HouseType houseType,
+    		final PartyType partyType,
+    		final Date date,
+    		final String locale) {
+    	House house = House.find(houseType, date, locale);
+    	MemberRole role = MemberRole.find(houseType, "MEMBER", locale);
+    	Party independentParty = 
+    		Party.findByType(ApplicationConstants.INDEPENDENT_PARTY, locale);
+    	return House.getHouseRepository().findIndependentMembersCount(house, 
+    			partyType, independentParty, role, date, locale);
+    }
+    
+    /**
+     * Sorts the result in the @param sortOrder of the party's
+     * member strength in the house.
+     */
+    public static List<Party> find(final HouseType houseType,
+    		final PartyType partyType,
+    		final Date date,
+    		final String sortOrder,
+    		final String locale) {
+    	List<Party> parties = new ArrayList<Party>();
+    	
+    	Map<Long, Long> partyStrengthMap = new HashMap<Long, Long>();  
+    	
+    	House house = House.find(houseType, date, locale);
+    	HouseParty houseParty = 
+    		HouseParty.findInBetween(house, partyType, date, locale);
+    	if(houseParty != null) {
+    		// List of parties belonging to @param partyType
+    		List<Party> houseParties = houseParty.getParties();
+    		for(Party p : houseParties) {
+    			Long strength = 
+    				House.findActiveMembersCount(houseType, p, date, locale);
+    			partyStrengthMap.put(p.getId(), strength);
+    			parties.add(p);
+    		}
+    	}
+    	
+    	// Independent members belonging to @param partyType
+		Long independentStrength = House.findIndependentMembersCount(
+				houseType, partyType, date, locale);
+		if(independentStrength > 0) {
+			Party independent = Party.findByType(
+					ApplicationConstants.INDEPENDENT_PARTY, locale);
+			partyStrengthMap.put(independent.getId(), independentStrength);
+			parties.add(independent);
+		}
+    	
+    	parties = House.sortByStrength(parties, partyStrengthMap, sortOrder);
+    	return parties;
+    }
+    
+    private static List<Party> sortByStrength(final List<Party> parties,
+    		final Map<Long, Long> partyStrengthMap,
+    		final String sortOrder) {
+    	List<Party> newPList = new ArrayList<Party>();
+    	newPList.addAll(parties);
+    	
+    	Comparator<Party> ascComparator = new Comparator<Party>() {
+    		
+			@Override
+			public int compare(Party p1, Party p2) {
+				Long p1Strength = partyStrengthMap.get(p1.getId());
+				Long p2Strength = partyStrengthMap.get(p2.getId());
+				return p1Strength.compareTo(p2Strength);
+			}
+		};
+		
+		Comparator<Party> descComparator = new Comparator<Party>() {
+    		
+			@Override
+			public int compare(Party p1, Party p2) {
+				Long p1Strength = partyStrengthMap.get(p1.getId());
+				Long p2Strength = partyStrengthMap.get(p2.getId());
+				return p2Strength.compareTo(p1Strength);
+			}
+		};
+		
+		if(sortOrder.equals(ApplicationConstants.DESC)) {
+			Collections.sort(newPList, descComparator);
+		}
+		else {
+			Collections.sort(newPList, ascComparator);
+		}
+		
+		return newPList;
+    }
+    
+    //=============== GETTERS/SETTERS ==========
     /**
      * Gets the name.
      *
@@ -350,11 +501,9 @@ public class House extends BaseDomain implements Serializable {
         this.sessions = sessions;
     }
 
-
     public String getDisplayName() {
         return displayName;
     }
-
 
     public void setDisplayName(final String displayName) {
         this.displayName = displayName;
