@@ -2304,4 +2304,153 @@ public class ReferenceController extends BaseController {
 		}	
 		return isDiscussionDateChanged;
 	}
+	
+	//========== CIS related AJAX calls ==========
+	@RequestMapping(value="committeeTypes/houseType/{houseType}", method=RequestMethod.GET)
+	public @ResponseBody List<Reference> findCommitteeTypes(
+			@PathVariable("houseType") final Long houseTypeId,
+			final HttpServletRequest request,
+			final Locale locale) {
+		List<Reference> references = new ArrayList<Reference>();
+		
+		HouseType houseType = HouseType.findById(HouseType.class, houseTypeId);
+		List<CommitteeType> committeeTypes = CommitteeType.find(houseType, locale.toString());
+		for(CommitteeType ct : committeeTypes) {
+			String id = String.valueOf(ct.getId());
+			Reference reference = new Reference(id, ct.getName());
+			references.add(reference);
+		}
+		
+		return references;
+	}
+	
+	@RequestMapping(value="committeeNames/committeeType/{committeeType}", method=RequestMethod.GET)
+	public @ResponseBody List<Reference> findCommitteeNamesByCommitteeType(
+			@PathVariable("committeeType") final Long committeTypeId,
+			final HttpServletRequest request,
+			final Locale locale) {
+		List<Reference> references = new ArrayList<Reference>();
+		 
+		CommitteeType committeeType = CommitteeType.findById(CommitteeType.class, committeTypeId);
+		List<CommitteeName> committeeNames = CommitteeName.find(committeeType, locale.toString());
+		for(CommitteeName cn : committeeNames) {
+			String id = String.valueOf(cn.getId());
+			Reference reference = new Reference(id, cn.getDisplayName());
+			references.add(reference);
+		}
+		
+		return references;
+	}
+	
+	@RequestMapping(value="committeeName/{committeeName}/foundationDate", method=RequestMethod.GET)
+	public @ResponseBody Reference findFoundationDate(
+			@PathVariable("committeeName") final Long committeeNameId,
+			final Locale locale) {
+		CommitteeName committeeName = CommitteeName.findById(CommitteeName.class, committeeNameId);
+		Date foundationDate = committeeName.getFoundationDate();
+		
+		CustomParameter serverDateFormat = 
+			CustomParameter.findByName(CustomParameter.class, "SERVER_DATEFORMAT", "");
+		String dateFormat = serverDateFormat.getValue();
+		String strFoundationDate = 
+			FormaterUtil.formatDateToString(foundationDate, dateFormat, locale.toString());
+		
+		Reference reference = new Reference();
+		reference.setId(String.valueOf(committeeName.getId()));
+		reference.setName(strFoundationDate);
+		
+		return reference;
+	}
+	
+	@RequestMapping(value="committee/dissolutionDate", method=RequestMethod.GET)
+	public @ResponseBody Reference computeDissolutionDate(
+			@RequestParam("committeeName") final Long committeeNameId,
+			@RequestParam("formationDate") final String strDate,
+			final Locale locale) {
+		String strFormationDate = strDate;
+		
+		CustomParameter deploymentServer = 
+			CustomParameter.findByName(CustomParameter.class, "DEPLOYMENT_SERVER", "");
+		String server = deploymentServer.getValue();
+		if(server.equals("TOMCAT")) {
+			try {
+				strFormationDate = new String(strDate.getBytes("ISO-8859-1"),"UTF-8");
+			}
+			catch (UnsupportedEncodingException e) {
+				logger.error("Cannot Encode the Parameter.");
+			}
+		}
+		
+		CustomParameter serverDateFormat = 
+			CustomParameter.findByName(CustomParameter.class, "SERVER_DATEFORMAT", "");
+		String dateFormat = serverDateFormat.getValue();
+		Date formationDate = FormaterUtil.formatStringToDate(strFormationDate, 
+				dateFormat, locale.toString());
+		
+		CommitteeName committeeName = CommitteeName.findById(CommitteeName.class, committeeNameId);
+		Date dissolutionDate = 
+			Committee.dissolutionDate(committeeName, formationDate, locale.toString());
+		String strDissolutionDate = 
+			FormaterUtil.formatDateToString(dissolutionDate, dateFormat, locale.toString());
+		
+		Reference reference = new Reference();
+		reference.setId(String.valueOf(committeeName.getId()));
+		reference.setName(strDissolutionDate);
+		
+		return reference;
+	}
+	
+	@RequestMapping(value="committeeNames/houseType/{houseType}", method=RequestMethod.GET)
+	public @ResponseBody List<MasterVO> findCommitteeNamesByHouseType(
+			@PathVariable("houseType") final Long houseTypeId,
+			final HttpServletRequest request,
+			final Locale locale) {
+		List<MasterVO> masterVOs = new ArrayList<MasterVO>();
+		
+		List<CommitteeName> committeeNames = new ArrayList<CommitteeName>();
+		
+		HouseType houseType = HouseType.findById(HouseType.class, houseTypeId);
+		HouseType bothHouse = HouseType.findByType(
+				ApplicationConstants.BOTH_HOUSE, locale.toString());
+		String houseTypeType = houseType.getType();
+		if(houseTypeType.equals(ApplicationConstants.LOWER_HOUSE)) {
+			List<CommitteeName> lowerHouseCommittees = 
+				CommitteeName.find(houseType, locale.toString());
+			committeeNames.addAll(lowerHouseCommittees);
+			
+			List<CommitteeName> bothHouseCommittees = 
+				CommitteeName.find(bothHouse, locale.toString());
+			committeeNames.addAll(bothHouseCommittees);
+		}
+		else if(houseTypeType.equals(ApplicationConstants.UPPER_HOUSE)) {
+			List<CommitteeName> upperHouseCommittees = 
+				CommitteeName.find(houseType, locale.toString());
+			committeeNames.addAll(upperHouseCommittees);
+			
+			List<CommitteeName> bothHouseCommittees = 
+				CommitteeName.find(bothHouse, locale.toString());
+			committeeNames.addAll(bothHouseCommittees);
+		}
+		else if(houseTypeType.equals(ApplicationConstants.BOTH_HOUSE)) {
+			List<CommitteeName> allCommittees =
+				CommitteeName.findAll(locale.toString());
+			committeeNames.addAll(allCommittees);
+		}
+		
+		for(CommitteeName cn : committeeNames) {
+			Long id = cn.getId();
+			String name = cn.getName();
+			String displayName = cn.getDisplayName();
+			
+			MasterVO masterVO = new MasterVO();
+			masterVO.setId(id);
+			masterVO.setName(name);
+			masterVO.setValue(displayName);
+			
+			masterVOs.add(masterVO);
+		}
+		
+		return masterVOs;
+	}
+
 }
