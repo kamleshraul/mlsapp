@@ -23,13 +23,6 @@
 			}else{
 				$.unblockUI();				
 			}
-		}).fail(function(){
-			if($("#ErrorMsg").val()!=''){
-				$("#error_p").html($("#ErrorMsg").val()).css({'color':'red', 'display':'block'});
-			}else{
-				$("#error_p").html("Error occured contact for support.").css({'color':'red', 'display':'block'});
-			}
-			scrollTop();
 		});	
 		}else{
 			$("#param_SUBDEPARTMENT_"+locale).empty();
@@ -55,19 +48,45 @@
 				$("#param_SUBDEPARTMENT_"+locale).empty();
 				$.unblockUI();				
 			}
-		}).fail(function(){
-			if($("#ErrorMsg").val()!=''){
-				$("#error_p").html($("#ErrorMsg").val()).css({'color':'red', 'display':'block'});
-			}else{
-				$("#error_p").html("Error occured contact for support.").css({'color':'red', 'display':'block'});
-			}
-			scrollTop();
 		});	
 	}else{
 		$("#param_DEPARTMENT_"+locale).empty();
 		$("#param_SUBDEPARTMENT_"+locale).empty();
 		$.unblockUI();				
 	}
+	}
+
+	function loadCommitteeNames() {
+		var locale = $("#locale").val();
+		var houseTypeId = getHouseTypeId();
+
+		var resourceURL = "ref/committeeNames/houseType/" + houseTypeId;
+		$.get(resourceURL, function(data){
+			var dataLength = data.length;
+			if(dataLength > 0) {
+				var text = "";
+				for(var i = 0; i < dataLength; i++) {
+					text += "<option value='" + data[i].name + "'>" + data[i].value + "</option>";
+				}
+				$('#param_COMMITTEENAME_' + locale).empty();
+				$('#param_COMMITTEENAME_' + locale).html(text);
+				$.unblockUI();
+			}
+			else {
+				$('#param_COMMITTEENAME_' + locale).empty();
+				$.unblockUI();
+			}
+		});
+	}
+
+	function getHouseTypeId() {
+		var locale = $("#locale").val();
+		var houseTypeName = $("#param_HOUSETYPE_" + locale).val();
+		
+		$('#houseTypeTypes').val(houseTypeName);
+		var houseTypeId = $('#houseTypeTypes option:selected').text().trim();
+		
+		return houseTypeId;
 	}
 	
 	$('document').ready(function(){	
@@ -83,15 +102,15 @@
 		$("#param_DEPARTMENT_"+locale).change(function(){
 		$.blockUI({ message: '<img src="./resources/images/waitAnimated.gif" />' }); 		
 		loadSubDepartments();		
-		});		
+		});	
+		$('#param_HOUSETYPE_' + locale).change(function(){
+			$.blockUI({ message: '<img src="./resources/images/waitAnimated.gif" />' });
+			loadCommitteeNames();
+		});	
 	});		
 </script>
 </head>
 <body>
-<p id="error_p" style="display: none;">&nbsp;</p>
-<c:if test="${(error!='') && (error!=null)}">
-	<h4 style="color: #FF0000;">${error}</h4>
-</c:if>
 <div class="fields clearfix">
 <form:form action="user/usergroup" method="POST"  modelAttribute="domain">
 	<%@ include file="/common/info.jsp" %>
@@ -134,7 +153,22 @@
 			</c:forEach>
 		</select>
 		
-	</p>	
+	</p>
+	<p>
+		<label class="small"><spring:message code="usergroup.committeeName" text="Committee Name" /></label>
+		<select  id="param_COMMITTEENAME_${locale}" name="param_COMMITTEENAME_${locale}" multiple="multiple" size="5">
+			<c:forEach items="${committeeNames}" var="i">				
+				<c:choose>
+					<c:when test="${fn:contains(selectedCommitteeName,i.name)}">
+						<option value="${i.name}" selected="selected">${i.displayName}</option>			
+					</c:when>
+					<c:otherwise>
+						<option value="${i.name}">${i.displayName}</option>	
+					</c:otherwise>
+				</c:choose>
+			</c:forEach>
+		</select>
+	</p>
 	<p> 
 		<label class="small"><spring:message code="usergroup.activefrom" text="Active From"/></label>
 		<form:input cssClass="datemask sText" path="activeFrom"/>
@@ -203,8 +237,16 @@
 	<form:hidden path="version" />
 	<form:hidden path="id"/>
 	<form:hidden path="locale"/>
-	<input type="hidden" id="credential" name="credential" value="${domain.credential.id}">	
-	<input type="hidden" id="ErrorMsg" value="<spring:message code='generic.error' text='Error Occured Contact For Support.'/>"/>
+	<input type="hidden" id="credential" name="credential" value="${domain.credential.id}">
+	
+	<!-- Hidden fields that aid in Client side actions performed in Javascript -->
+	<p style="display:none;">
+		<select id="houseTypeTypes" class="sSelect">
+			<c:forEach items="${housetypes}" var="i">
+				<option value="${i.name}"><c:out value="${i.id}"></c:out></option>
+			</c:forEach>
+		</select>
+	</p>
 </form:form>
 </div>	
 </body>
