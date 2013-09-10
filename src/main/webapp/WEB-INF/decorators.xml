@@ -288,7 +288,44 @@
 		<pattern>/query</pattern>
 		<pattern>/query/new</pattern>
 		<pattern>/query/*/edit</pattern>
-		<pattern>/query/*/delete</pattern>	
+		<pattern>/query/*/delete</pattern>
+		
+		<pattern>/committeetype/new</pattern>
+		<pattern>/committeetype/*/edit</pattern>
+		<pattern>/committeetype/*/delete</pattern>
+		<pattern>/committeetype</pattern>
+		
+		<pattern>/committeedesignation/new</pattern>
+		<pattern>/committeedesignation/*/edit</pattern>
+		<pattern>/committeedesignation/*/delete</pattern>
+		<pattern>/committeedesignation</pattern>
+		
+		<pattern>/committeename/new</pattern>
+		<pattern>/committeename/*/edit</pattern>
+		<pattern>/committeename/*/delete</pattern>
+		<pattern>/committeename</pattern>
+		
+		<pattern>/committee/new</pattern>
+		<pattern>/committee/*/edit</pattern>
+		<pattern>/committee/*/delete</pattern>
+		<pattern>/committee</pattern>
+		
+		<pattern>/partytype/new</pattern>
+		<pattern>/partytype/*/edit</pattern>
+		<pattern>/partytype/*/delete</pattern>
+		<pattern>/partytype</pattern>
+		
+		<pattern>/houseparty/new</pattern>
+		<pattern>/houseparty/*/edit</pattern>
+		<pattern>/houseparty/*/delete</pattern>
+		<pattern>/houseparty</pattern>
+		
+		<pattern>workflow/committee</pattern>
+		<pattern>/workflow/committee/init/requestToParliamentaryMinister</pattern>
+		<pattern>/workflow/committee/init/requestToLeaderOfOpposition</pattern>
+		<pattern>/workflow/committee/memberAddition/*</pattern>
+		<pattern>/workflow/committee/memberAddition</pattern>
+		<pattern>/workflow/committee/memberAddition/processed/*</pattern>
 		
 	</decorator>
 	<decorator name="mnu_form" page="mnu_form.jsp">
