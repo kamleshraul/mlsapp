@@ -6,6 +6,7 @@ import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
 
+import org.mkcl.els.common.exception.ELSException;
 import org.mkcl.els.common.util.ApplicationConstants;
 import org.mkcl.els.common.util.FormaterUtil;
 import org.mkcl.els.domain.CustomParameter;
@@ -111,7 +112,13 @@ public class HousePartyController extends GenericController<HouseParty> {
 			final HouseType houseType,
 			final String locale) {
 		String houseTypeType = houseType.getType();
-		List<House> houses = House.findByHouseType(houseTypeType, locale);
+		List<House> houses = new ArrayList<House>();
+		try {
+			houses = House.findByHouseType(houseTypeType, locale);
+		} 
+		catch (ELSException e) {
+			logger.error(e.getMessage());
+		}
 		model.addAttribute("houses", houses);
 	}
 	
