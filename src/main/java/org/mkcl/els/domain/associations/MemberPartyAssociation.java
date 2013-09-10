@@ -88,6 +88,15 @@ public class MemberPartyAssociation implements Serializable {
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "house_id")
     private House house;
+    
+    /**
+     * If member's party.type = 'INDEPENDENT', and member belongs to
+     * ruling party then set this attribute to true.
+     * 
+     * If member's party.type = 'INDEPENDENT', and member belongs to
+     * opposition party then set this attribute to false.
+     */
+    private Boolean isMemberOfRulingParty;
 
     @Autowired
     private transient MemberPartyRepository memberPartyRepository;
@@ -275,6 +284,12 @@ public class MemberPartyAssociation implements Serializable {
         this.house = house;
     }
 
+	public Boolean getIsMemberOfRulingParty() {
+		return isMemberOfRulingParty;
+	}
 
+	public void setIsMemberOfRulingParty(final Boolean isMemberOfRulingParty) {
+		this.isMemberOfRulingParty = isMemberOfRulingParty;
+	}
 
 }
