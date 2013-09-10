@@ -177,4 +177,30 @@ public class WorkflowConfig extends BaseDomain implements Serializable {
 				internalStatus,userGroup,level,
 				locale);
 	}
+	
+	public static List<WorkflowActor> findCommitteeActors(
+			final HouseType houseType,
+			final UserGroup userGroup,
+			final Status status,
+			final String workflowName,
+			final int level,
+			final String locale) {
+		return WorkflowConfig.getWorkflowConfigRepository().findCommitteeActors(
+				houseType, userGroup, status, workflowName, level, locale);
+	}
+
+	/**
+	 * Returns null if there is no next actor
+	 */
+	public static WorkflowActor findNextCommitteeActor(
+			final HouseType houseType,
+			final UserGroup userGroup, 
+			final Status status, 
+			final String workflowName, 
+			final int level,
+			final String locale) {
+		return WorkflowConfig.getWorkflowConfigRepository().
+			findNextCommitteeActor(houseType, userGroup, status, 
+					workflowName, level, locale);
+	}
 }
