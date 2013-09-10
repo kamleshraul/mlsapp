@@ -39,19 +39,23 @@ function initControls(){
 	$('#dateformat').val();*/
 	/*$('select[multiple="multiple"]').sexyselect({width:250,showTitle: false, selectionMode: 'multiple', styleize: true,allowDelete:false,background:'#fff',allowInput:false});*/
 	$("input[class^='integer']").autoNumeric({mDec: 0});
+	
+	/* ENFORCE THE USER TO ENTER ONLY NUMBERS IN CASE OF NUMERIC FIELDS */
+	$('.integer').autoNumeric({mDec: 0});
+	
 	$('.datemask').focus(function(){		
 		if($(this).val()==""){
 			$(".datemask").mask("99/99/9999");
 		}
 	});
 	$('.datetimemask').mask("99/99/9999 99:99:99");
-	
 	$('.timemask').mask("99:99:99");
 	$('.timemask').focus(function(){		
 		if($(this).val()==""){
 			$(".timemask").mask("99:99:99");
 		}
 	});
+	$('.datetimenosecondmask').mask("99/99/9999 99:99");
 	
 	$(':input:visible:not([readonly]):first').focus();
 	
@@ -70,8 +74,7 @@ function initControls(){
 		plugins: {
 			autoload: true,
 			i18n: { lang: "mr" }
-		},
-
+		}
 	});	
 	$('.wysiwyg').change(function(e){
 		var idval = this.id;			
@@ -626,4 +629,3 @@ jQuery.fn.multiSelect = function() {
     	}   	
     });	 		    
 };
-
