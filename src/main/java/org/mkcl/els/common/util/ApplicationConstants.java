@@ -549,4 +549,23 @@ public class ApplicationConstants {
 	public static final String RESOLUTION_CHART_WITHOUTDEVICES_VIEW = "RESOLUTION_CHART_WITHOUTDEVICES_VIEW";
 	
 	public static final String RESOLUTION_CHART_VIEW = "RESOLUTION_CHART_VIEW";
+	
+	/**** COMMITTEE ****/
+	public static final String RULING_PARTY = "ruling_party";
+	
+	public static final String OPPOSITION_PARTY = "opposition_party";
+	
+	public static final String INDEPENDENT_PARTY = "independent";
+	
+	public static final String COMMITTEE_CREATED = "committee_created";
+
+	public static final String COMMITTEE_RECOMMEND_SENDBACK = "committee_recommend_sendback";
+	
+	public static final String COMMITTEE_REQUEST_TO_PARLIAMENTARY_MINISTER = "committeeMemberAdditionRequestToParliamentaryAffairsMinister";
+	
+	public static final String COMMITTEE_REQUEST_TO_LEADER_OF_OPPOSITION = "committeeMemberAdditionRequestToLeaderOfOpposition";
+	
+	public static final String COMMITTEE_USERS_EXCLUDED_FROM_CHOOSING_NEXT_ACTOR_IN_WORKFLOW = "COMMITTEE_USERS_EXCLUDED_FROM_CHOOSING_NEXT_ACTOR_IN_WORKFLOW";
+	
+	public static final int WORKFLOW_START_LEVEL = 1;
 }
