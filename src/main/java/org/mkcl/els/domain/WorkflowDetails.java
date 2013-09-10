@@ -10,7 +10,6 @@ import javax.persistence.Table;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
 
-import org.mkcl.els.common.exception.ELSException;
 import org.mkcl.els.common.vo.Task;
 import org.mkcl.els.repository.WorkflowDetailsRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,14 +18,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 @Table(name="workflow_details")
 public class WorkflowDetails extends BaseDomain implements Serializable{
 
-	/**
-	 * 
-	 */
 	private static final long serialVersionUID = 1L;
 	
 	private String processId;
 	
-	private String taskId;	
+	private String taskId;
 	
 	private String assignee;
 	
@@ -95,6 +91,15 @@ public class WorkflowDetails extends BaseDomain implements Serializable{
 	private String groupNumber;
 	
 	private String file;
+	
+	/**** Attributes for Non Device Types viz, Committee ****/
+	// Comma separated Ids
+	@Column(length=1000)
+	private String domainIds;
+	
+	private String nextAssignee;
+	
+	private String nextWorkflowActorId;
 	
 	@Autowired
     private transient WorkflowDetailsRepository workflowDetailsRepository;
@@ -253,12 +258,13 @@ public class WorkflowDetails extends BaseDomain implements Serializable{
 	}
 
 	public static WorkflowDetails create(final Question question,final Task task,final String workflowType,
-			final String assigneeLevel) throws ELSException {
-		return getWorkflowDetailsRepository().create(question,task,workflowType,assigneeLevel);
+			final String assigneeLevel) {
+		return getWorkflowDetailsRepository().create(question,task,workflowType,
+				assigneeLevel);
 	}
 	
 	public static WorkflowDetails create(final Resolution resolution,final Task task,final String workflowType,
-			final String assigneeLevel, final HouseType houseTypeForWorkflow) throws ELSException {
+			final String assigneeLevel, final HouseType houseTypeForWorkflow) {
 		return getWorkflowDetailsRepository().create(resolution,task,workflowType,
 				assigneeLevel, houseTypeForWorkflow);
 	}
@@ -280,7 +286,7 @@ public class WorkflowDetails extends BaseDomain implements Serializable{
 	}
 
 	public static List<WorkflowDetails> create(final Question question,final List<Task> tasks,
-			final String workflowType,final String assigneeLevel) throws ELSException {
+			final String workflowType,final String assigneeLevel) {
 		return getWorkflowDetailsRepository().create(question,tasks,
 				workflowType,assigneeLevel);
 	}
@@ -301,15 +307,15 @@ public class WorkflowDetails extends BaseDomain implements Serializable{
 		return subject;
 	}
 
-	public static WorkflowDetails findCurrentWorkflowDetail(final Question question) throws ELSException {
+	public static WorkflowDetails findCurrentWorkflowDetail(final Question question) {
 		return getWorkflowDetailsRepository().findCurrentWorkflowDetail(question);
 	}
 	
-	public static WorkflowDetails findCurrentWorkflowDetail(final Resolution resolution) throws ELSException {
+	public static WorkflowDetails findCurrentWorkflowDetail(final Resolution resolution) {
 		return getWorkflowDetailsRepository().findCurrentWorkflowDetail(resolution);
 	}
 	
-	public static WorkflowDetails findCurrentWorkflowDetail(final Resolution resolution, final String workflowHouseType) throws ELSException {
+	public static WorkflowDetails findCurrentWorkflowDetail(final Resolution resolution, final String workflowHouseType) {
 		return getWorkflowDetailsRepository().findCurrentWorkflowDetail(resolution, workflowHouseType);
 	}
 
@@ -345,16 +351,15 @@ public class WorkflowDetails extends BaseDomain implements Serializable{
 		this.groupNumber = groupNumber;
 	}
 
-	/**** Motion Related 
-	 * @throws ELSException ****/
+	/**** Motion Related ****/
 	public static List<WorkflowDetails> create(final Motion domain,final List<Task> tasks,
-			final String supportingMemberWorkflow, final String assigneeLevel) throws ELSException {		
+			final String supportingMemberWorkflow, final String assigneeLevel) {		
 		return getWorkflowDetailsRepository().create(domain,tasks,
 				supportingMemberWorkflow,assigneeLevel);
 	}
 
 	public static WorkflowDetails create(final Motion domain,final Task task,
-			final String workflowType,final String level) throws ELSException {
+			final String workflowType,final String level) {
 		return getWorkflowDetailsRepository().create(domain,task,
 				workflowType,level);
 	}
@@ -362,7 +367,7 @@ public class WorkflowDetails extends BaseDomain implements Serializable{
 	public static List<WorkflowDetails> findAll(final String strHouseType,
 			final String strSessionType,final String strSessionYear,final String strMotionType,
 			final String strStatus,final String strWorkflowSubType,final String assignee,
-			final String strItemsCount,final String strLocale,final String file) throws ELSException {
+			final String strItemsCount,final String strLocale,final String file) {
 		return getWorkflowDetailsRepository().findAll(strHouseType,
 				strSessionType,strSessionYear,strMotionType,
 				strStatus,strWorkflowSubType,assignee,
@@ -389,6 +394,38 @@ public class WorkflowDetails extends BaseDomain implements Serializable{
 
 	public String getFile() {
 		return file;
-	}	
+	}
+
+	public String getDomainIds() {
+		return domainIds;
+	}
+
+	public void setDomainIds(final String domainIds) {
+		this.domainIds = domainIds;
+	}
 	
+	public String getNextAssignee() {
+		return nextAssignee;
+	}
+
+	public void setNextAssignee(final String nextAssignee) {
+		this.nextAssignee = nextAssignee;
+	}
+
+	public String getNextWorkflowActorId() {
+		return nextWorkflowActorId;
+	}
+
+	public void setNextWorkflowActorId(String nextWorkflowActorId) {
+		this.nextWorkflowActorId = nextWorkflowActorId;
+	}
+	
+	public static WorkflowDetails findCurrentWorkflowDetail(
+			final UserGroup userGroup, 
+			final String domainIds,
+			final String status,
+			final String locale) {
+		return getWorkflowDetailsRepository().findCurrentWorkflowDetail(
+				userGroup, domainIds, status, locale);
+	}
 }
