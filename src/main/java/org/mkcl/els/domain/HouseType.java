@@ -70,12 +70,26 @@ public class HouseType extends BaseDomain implements Serializable {
         return getHouseTypeRepository().findAllNoExclude(sortBy, sortOrder, locale);
     }
 
-    @SuppressWarnings("unchecked")
+    @SuppressWarnings({ "unchecked", "rawtypes" })
     public static List<HouseType> findAll(final Class persistenceClass,
             final String sortBy, final String sortOrder, final String locale) {
     return getHouseTypeRepository().findAll(persistenceClass, sortBy, sortOrder, locale);
     }
 
+    public static HouseType findByType(final String houseTypeType,
+    		final String locale) {
+    	HouseType houseType = HouseType.findByFieldName(HouseType.class, 
+    			"type", houseTypeType, locale);
+    	return houseType;
+    }
+    
+    public static HouseType findByName(final String houseTypeName,
+    		final String locale) {
+    	HouseType houseType = 
+    		HouseType.findByName(HouseType.class, houseTypeName, locale);
+    	return houseType;
+    }
+    
 	// -------------------------------Domain_Methods----------------------------------------------
 
     // ------------------------------------------Getters/Setters-----------------------------------
