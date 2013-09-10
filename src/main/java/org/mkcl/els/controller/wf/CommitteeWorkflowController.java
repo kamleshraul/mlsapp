@@ -902,7 +902,7 @@ public class CommitteeWorkflowController extends BaseController {
 			statuses = Status.findStatusContainedIn(options, locale);
 		} 
 		catch (ELSException e) {
-			e.printStackTrace();
+			logger.error(e.getMessage());
 		}
 		model.addAttribute("statuses", statuses);
 		
