@@ -45,9 +45,23 @@
 				workflowactorCount=workflowactorCount-1;
 			}
 		}
-	}	
+	}
 
-	$(document).ready(function(){	
+	function prependOptionToDeviceType() {
+		var isDeviceTypeFieldEmpty = $('#isDeviceTypeEmpty').val();
+		var optionValue = $('#allOption').val();
+		if(isDeviceTypeFieldEmpty == 'true') {
+			var option = "<option value='0' selected>" + optionValue + "</option>";
+			$('#deviceType').prepend(option);
+		}
+		else {
+			var option = "<option value='0'>" + optionValue + "</option>";
+			$('#deviceType').prepend(option);	
+		}
+	}
+	
+	$(document).ready(function(){
+		prependOptionToDeviceType();
 		$('#usergroupTypeMaster').hide();
 		$('#addWorkflowActor').click(function(){
 			addWorkflowActor();
@@ -62,10 +76,6 @@
 </head>
 
 <body>
-<p id="error_p" style="display: none;">&nbsp;</p>
-<c:if test="${(error!='') && (error!=null)}">
-	<h4 style="color: #FF0000;">${error}</h4>
-</c:if>
 <div class="fields clearfix watermark" >
 <form:form action="workflowconfig" method="POST" modelAttribute="domain">
 	<%@ include file="/common/info.jsp" %>
@@ -143,6 +153,8 @@
 	<input type="hidden" id="workflowactorCount" name="workflowactorCount" value="${workflowactorCount}">
 	<input type="hidden" id="createdOn" name="createdOn" value="${createdOn}">
 	<input type="hidden" id="houseType" name="houseType" value="${houseType}">
+	<input type="hidden" id="allOption" name="allOption" value="<spring:message code='generic.allOption' text='---- All ----'></spring:message>">
+	<input type="hidden" id="isDeviceTypeEmpty" name="isDeviceTypeEmpty" value="${isDeviceTypeEmpty}">
 </form:form>
 </div>
 </body>

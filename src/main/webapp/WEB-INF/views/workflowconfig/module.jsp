@@ -6,7 +6,9 @@
 	<title><spring:message code="workflowconfig.list" text="List Of Questions"/></title>
 	<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
 	<script type="text/javascript">
-		$(document).ready(function(){	
+		$(document).ready(function(){
+			onPageLoad();
+				
 			/**** displaying grid ****/		
 			$('#list_tab').click(function(){
 				$("#selectionDiv1").show();								
@@ -96,14 +98,7 @@
 				        $.delete_('workflowconfig/'+row+'/delete', null, function(data, textStatus, XMLHttpRequest) {
 							$.prompt(data);
 						    showQuestionList();
-				        }).fail(function(){
-							if($("#ErrorMsg").val()!=''){
-								$("#error_p").html($("#ErrorMsg").val()).css({'color':'red', 'display':'block'});
-							}else{
-								$("#error_p").html("Error occured contact for support.").css({'color':'red', 'display':'block'});
-							}
-							scrollTop();
-						});
+				        });
 			        }
 				}});
 			}
@@ -117,7 +112,17 @@
 				newURL=baseURL+"?"+$("#gridURLParams").val();
 				$("#grid").setGridParam({"url":newURL});
 				$("#grid").trigger("reloadGrid");							
-		}		
+		}
+
+		function onPageLoad() {
+			prependOptionToSelectedDeviceType();
+		}
+
+		function prependOptionToSelectedDeviceType() {
+			var optionValue = $('#allOption').val();
+			var option = "<option value='0' selected>" + optionValue + "</option>";
+			$('#selectedDeviceType').prepend(option);
+		}	
 	</script>
 </head>
 <body>
@@ -171,15 +176,12 @@
 		</div>				
 		
 		<div class="tabContent">
-			<c:if test="${(error!='') && (error!=null)}">
-				<h4 style="color: #FF0000;">${error}</h4>
-			</c:if>
 		</div>
 			
 		<input type="hidden" name="pleaseSelect" id="pleaseSelect" value="<spring:message code='please.select' text='Please Select'/>">	
 		<input type="hidden" id="selectRowFirstMessage" name="selectRowFirstMessage" value="<spring:message code='generic.selectRowFirstMessage' text='Please select the desired row first'></spring:message>" disabled="disabled">
 		<input type="hidden" id="confirmDeleteMessage" name="confirmDeleteMessage" value="<spring:message code='generic.confirmDeleteMessage' text='Do you want to delete the row with Id: '></spring:message>" disabled="disabled">
-		<input type="hidden" id="ErrorMsg" value="<spring:message code='generic.error' text='Error Occured Contact For Support.'/>"/>
+		<input type="hidden" id="allOption" name="allOption" value="<spring:message code='generic.allOption' text='---- All ----'></spring:message>">
 		</div> 		
 </body>
 </html>
