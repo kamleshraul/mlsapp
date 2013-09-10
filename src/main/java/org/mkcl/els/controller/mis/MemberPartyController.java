@@ -320,6 +320,9 @@ public class MemberPartyController extends BaseController{
         Party selectedParty=domain.getParty();
         model.addAttribute("party",selectedParty.getId());
         model.addAttribute("partyName",selectedParty.getName());
+        //parties are populated sorted by name
+        model.addAttribute("parties", Party.findAll(Party.class, "name",
+                ApplicationConstants.ASC, locale.toString()));
     }
 
     /**
