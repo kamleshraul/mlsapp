@@ -1,6 +1,6 @@
 package org.mkcl.els.controller;
 
-import java.util.Date;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -8,10 +8,9 @@ import java.util.Map.Entry;
 
 import javax.servlet.http.HttpServletRequest;
 
-import org.mkcl.els.common.exception.ELSException;
 import org.mkcl.els.common.util.ApplicationConstants;
-import org.mkcl.els.common.util.FormaterUtil;
 import org.mkcl.els.common.vo.AuthUser;
+import org.mkcl.els.domain.CommitteeName;
 import org.mkcl.els.domain.Credential;
 import org.mkcl.els.domain.Department;
 import org.mkcl.els.domain.DeviceType;
@@ -71,6 +70,10 @@ public class UserGroupController extends GenericController<UserGroup>{
 			/**** Locale ****/
 			domain.setLocale(locale);
 			model.addAttribute("locale",locale);
+			
+			/**** Committee Names ****/
+			HouseType houseType = houseTypes.get(0);
+			this.populateCommitteeNames(model, houseType, locale);
 		}catch (Exception e) {
 			String message = e.getMessage();
 			if(message == null){
@@ -126,6 +129,15 @@ public class UserGroupController extends GenericController<UserGroup>{
 			/**** User Group Types ****/
 			List<UserGroupType> userGroupTypes=UserGroupType.findAll(UserGroupType.class,"name",ApplicationConstants.ASC, locale);
 			model.addAttribute("userGroupTypes",userGroupTypes);
+			
+			/**** Committee Names ****/
+			HouseType houseType = HouseType.findByName(strHouseType, locale);
+			if(houseType != null) {
+				this.populateCommitteeNames(model, houseType, locale);
+			}
+			String strCommitteeNames = 
+				domain.getParameterValue("COMMITTEENAME_"+locale).trim();
+			model.addAttribute("selectedCommitteeName", strCommitteeNames);
 		} catch (Exception e) {
 			String message = e.getMessage();
 			if(message == null){
@@ -227,4 +239,40 @@ public class UserGroupController extends GenericController<UserGroup>{
 			result.rejectValue("VersionMismatch", "version");
 		}
 	}
+	
+	private void populateCommitteeNames(final ModelMap model, 
+			final HouseType houseType,
+			final String locale) {
+		List<CommitteeName> committeeNames = new ArrayList<CommitteeName>();
+		
+		String houseTypeType = houseType.getType();
+		HouseType bothHouse = HouseType.findByType(
+				ApplicationConstants.BOTH_HOUSE, locale.toString());
+		if(houseTypeType.equals(ApplicationConstants.LOWER_HOUSE)) {
+			List<CommitteeName> lowerHouseCommittees = 
+				CommitteeName.find(houseType, locale.toString());
+			committeeNames.addAll(lowerHouseCommittees);
+			
+			List<CommitteeName> bothHouseCommittees = 
+				CommitteeName.find(bothHouse, locale.toString());
+			committeeNames.addAll(bothHouseCommittees);
+		}
+		else if(houseTypeType.equals(ApplicationConstants.UPPER_HOUSE)) {
+			List<CommitteeName> upperHouseCommittees = 
+				CommitteeName.find(houseType, locale.toString());
+			committeeNames.addAll(upperHouseCommittees);
+			
+			List<CommitteeName> bothHouseCommittees = 
+				CommitteeName.find(bothHouse, locale.toString());
+			committeeNames.addAll(bothHouseCommittees);
+		}
+		else if(houseTypeType.equals(ApplicationConstants.BOTH_HOUSE)) {
+			List<CommitteeName> allCommittees =
+				CommitteeName.findAll(locale.toString());
+			committeeNames.addAll(allCommittees);
+		}
+		
+		model.addAttribute("committeeNames", committeeNames);
+	}
+
 }
