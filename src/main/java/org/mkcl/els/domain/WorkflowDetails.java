@@ -102,6 +102,9 @@ public class WorkflowDetails extends BaseDomain implements Serializable{
 	
 	private String nextWorkflowActorId;
 	
+	@Column(length=1000)
+	private String module;
+	
 	@Autowired
     private transient WorkflowDetailsRepository workflowDetailsRepository;
 	
@@ -429,5 +432,13 @@ public class WorkflowDetails extends BaseDomain implements Serializable{
 			final String locale) {
 		return getWorkflowDetailsRepository().findCurrentWorkflowDetail(
 				userGroup, domainIds, status, locale);
+	}
+
+	public String getModule() {
+		return module;
+	}
+
+	public void setModule(final String module) {
+		this.module = module;
 	}
 }
