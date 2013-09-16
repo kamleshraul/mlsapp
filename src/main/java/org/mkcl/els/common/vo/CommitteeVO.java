@@ -15,6 +15,22 @@ public class CommitteeVO {
 	
 	private Integer maxCommitteeMembers;
 	
+	private CommitteeMemberVO committeeChairman;
+	
+	private List<CommitteeMemberVO> committeeMembers;
+	
+	/**
+	 * Comma separated names of committeeMembers
+	 */
+	private String committeeMembersName;
+	
+	private List<CommitteeMemberVO> invitedCommitteeMembers;
+	
+	/**
+	 * Comma separated names of invitedCommitteeMembers
+	 */
+	private String invitedCommitteeMembersName;
+	
 	private List<PartyVO> rulingParties;
 	
 	private Integer rulingPartyCommitteeMembersCount;
@@ -26,28 +42,6 @@ public class CommitteeVO {
 	//=============== CONSTRUCTORS ==================
 	public CommitteeVO() {
 		super();
-	}
-	
-	public CommitteeVO(final Long committeeId,
-			final String committeeName,
-			final String committeeDisplayName,
-			final String committeeType,
-			final Integer maxCommitteeMembers,
-			final List<PartyVO> rulingParties,
-			final Integer rulingPartyCommitteeMembersCount,
-			final List<PartyVO> oppositionParties,
-			final Integer oppositionPartyCommitteeMembersCount) {
-		this.setCommitteeId(committeeId);
-		this.setCommitteeName(committeeName);
-		this.setCommitteeDisplayName(committeeDisplayName);
-		this.setCommitteeType(committeeType);
-		this.setMaxCommitteeMembers(maxCommitteeMembers);
-		this.setRulingParties(rulingParties);
-		this.setRulingPartyCommitteeMembersCount(
-				rulingPartyCommitteeMembersCount);
-		this.setOppositionParties(oppositionParties);
-		this.setOppositionPartyCommitteeMembersCount(
-				oppositionPartyCommitteeMembersCount);
 	}
 	
 	//=============== GETTERS SETTERS ===============
@@ -89,6 +83,49 @@ public class CommitteeVO {
 
 	public void setMaxCommitteeMembers(final Integer maxCommitteeMembers) {
 		this.maxCommitteeMembers = maxCommitteeMembers;
+	}
+
+	public CommitteeMemberVO getCommitteeChairman() {
+		return committeeChairman;
+	}
+
+	public void setCommitteeChairman(final CommitteeMemberVO committeeChairman) {
+		this.committeeChairman = committeeChairman;
+	}
+
+	public List<CommitteeMemberVO> getCommitteeMembers() {
+		return committeeMembers;
+	}
+
+	public void setCommitteeMembers(
+			final List<CommitteeMemberVO> committeeMembers) {
+		this.committeeMembers = committeeMembers;
+	}
+
+	public String getCommitteeMembersName() {
+		return committeeMembersName;
+	}
+
+	public void setCommitteeMembersName(final String committeeMembersName) {
+		this.committeeMembersName = committeeMembersName;
+	}
+
+	public List<CommitteeMemberVO> getInvitedCommitteeMembers() {
+		return invitedCommitteeMembers;
+	}
+
+	public void setInvitedCommitteeMembers(
+			final List<CommitteeMemberVO> invitedCommitteeMembers) {
+		this.invitedCommitteeMembers = invitedCommitteeMembers;
+	}
+
+	public String getInvitedCommitteeMembersName() {
+		return invitedCommitteeMembersName;
+	}
+
+	public void setInvitedCommitteeMembersName(
+			final String invitedCommitteeMembersName) {
+		this.invitedCommitteeMembersName = invitedCommitteeMembersName;
 	}
 
 	public List<PartyVO> getRulingParties() {
