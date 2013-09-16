@@ -54,6 +54,7 @@ import org.mkcl.els.domain.MemberRole;
 import org.mkcl.els.domain.MenuItem;
 import org.mkcl.els.domain.Ministry;
 import org.mkcl.els.domain.Motion;
+import org.mkcl.els.domain.PartyType;
 import org.mkcl.els.domain.Question;
 import org.mkcl.els.domain.QuestionDates;
 import org.mkcl.els.domain.RailwayStation;
@@ -2452,5 +2453,141 @@ public class ReferenceController extends BaseController {
 		
 		return masterVOs;
 	}
+	
+	@RequestMapping(value="/workflowTypes",method=RequestMethod.GET)
+	public @ResponseBody List<Status> loadSubWorkflowByModule(
+			final HttpServletRequest request,
+			@RequestParam("module") final String module,
+			final Locale localeObj) {
+		List<Status> workflowTypes = new ArrayList<Status>();
+		
+		try {
+			String locale = localeObj.toString();
+			String encodedModule = this.encode(module);
+			String moduleUC = encodedModule.toUpperCase();
+			
+			// Allowed usergrouptypes for this module
+			String name1 = moduleUC + "_ALLOWED_USERGROUPTYPES";
+			CustomParameter configuredUGTs = 
+				CustomParameter.findByName(CustomParameter.class, name1, locale);
+			String[] allowedUserGroupTypes = 
+				configuredUGTs.getValue().split(",");
+			
+			// Retrieve the appropriate userGroup for this user
+			List<UserGroup> userGroups = this.getCurrentUser().getUserGroups();
+			UserGroup userGroup = 
+				this.getUserGroup(userGroups, allowedUserGroupTypes);
+			String ugtType = userGroup.getUserGroupType().getType();
+			String ugtTypeUC = ugtType.toUpperCase(); 
+			
+			// Get the statuses configured for this ugtType for the given 
+			// module
+			String name2 = "MYTASK_GRID_WORKFLOW_TYPES_ALLOWED_" + moduleUC +
+				"_" + ugtTypeUC;
+			CustomParameter configuredStatuses = 
+				CustomParameter.findByName(CustomParameter.class, name2, "");
+			if(configuredStatuses == null) {
+				name2 = "MYTASK_GRID_WORKFLOW_TYPES_ALLOWED_" + moduleUC +
+					"_BY_DEFAULT";
+				configuredStatuses = 
+					CustomParameter.findByName(CustomParameter.class, 
+							name2, "");
+			}
+			workflowTypes = Status.findStatusContainedIn(
+					configuredStatuses.getValue(), locale);
+		}
+		catch (Exception e) {
 
+		}
+		
+		return workflowTypes;
+	}
+	
+	@RequestMapping(value="partyType/{partyType}/members",
+			method=RequestMethod.GET)
+	public @ResponseBody List<AutoCompleteVO> getPartyTypewiseMembers(
+			final HttpServletRequest request,
+			@PathVariable("partyType") final Long partyTypeId,
+			@RequestParam("committee") final Long committeeId,
+			@RequestParam("term") final String term,
+			final Locale localeObj){
+		List<AutoCompleteVO> vos = new ArrayList<AutoCompleteVO>();
+		
+		try {
+			String locale = localeObj.toString();			
+			String nameBeginningWith = this.encode(term);			
+			PartyType partyType = 
+				PartyType.findById(PartyType.class, partyTypeId);
+			
+			Committee committee = 
+				Committee.findById(Committee.class, committeeId);
+			HouseType houseType = 
+				committee.getCommitteeName().getCommitteeType().getHouseType();
+			
+			Date currentDate = new Date();
+			
+			List<Member> members = 
+				House.findActiveMembers(houseType, partyType, currentDate, 
+						nameBeginningWith, ApplicationConstants.ASC, locale);
+			for(Member m : members) {
+				Long id = m.getId();
+				String name = m.getFullname();
+				
+				AutoCompleteVO vo = new AutoCompleteVO();
+				vo.setId(id);
+				vo.setValue(name);
+				vos.add(vo);
+			}
+		}
+		catch (Exception e) {
+
+		}
+		
+		return vos;
+	}
+
+	private String encode(final String str) {
+		String retVal = str;
+		
+		CustomParameter customParameter = 
+			CustomParameter.findByName(CustomParameter.class, 
+					"DEPLOYMENT_SERVER", "");
+		String server = customParameter.getValue();
+		if(server.equals("TOMCAT")) {
+			try {
+				retVal = new String(retVal.getBytes("ISO-8859-1"), "UTF-8");
+			}
+			catch (UnsupportedEncodingException e) {
+				logger.error("Cannot Encode the Parameter.");
+			}
+		}
+		
+		return retVal;
+	}
+	
+	private UserGroup getUserGroup(final List<UserGroup> userGroups,
+			final String[] userGroupTypeTypes) {
+		for(UserGroup ug : userGroups) {
+			String ugtType = ug.getUserGroupType().getType();
+			for(String ugtt : userGroupTypeTypes) {
+				if(ugtType.equals(ugtt)) {
+					// Returning ug is the right thing to do. 
+					// But it throws the following exception:
+					// org.hibernate.LazyInitializationException: 
+					// failed to lazily initialize a collection of role: 
+					// org.mkcl.els.domain.UserGroup.parameters, no session or 
+					// session was closed
+					
+					// return ug;
+					
+					// As a way around following piece of code is added
+					UserGroup userGroup = 
+						UserGroup.findById(UserGroup.class, ug.getId());
+					return userGroup;
+				}
+			}
+		}
+		
+		return null;
+	}
 }
