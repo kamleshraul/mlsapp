@@ -24,6 +24,7 @@ import javax.persistence.TemporalType;
 import org.codehaus.jackson.annotate.JsonIgnoreProperties;
 import org.mkcl.els.common.util.ApplicationConstants;
 import org.mkcl.els.common.vo.CommitteeCompositeVO;
+import org.mkcl.els.common.vo.CommitteeMemberVO;
 import org.mkcl.els.common.vo.CommitteeVO;
 import org.mkcl.els.common.vo.PartyVO;
 import org.mkcl.els.repository.CommitteeRepository;
@@ -53,6 +54,12 @@ public class Committee extends BaseDomain implements Serializable {
 	@Temporal(TemporalType.DATE)
 	private Date dissolutionDate;
 	
+	/**
+	 * The Chairman of the Committee (CommitteeMember with the 
+	 * designation of Committee Chairman) is stored as the first
+	 * entry in members list. This entry is followed by the members
+	 * in the committee with designation = Committee Member
+	 */
 	@ManyToMany(fetch=FetchType.LAZY, cascade=CascadeType.ALL)
 	@JoinTable(name="committees_committee_members",
 			joinColumns={@JoinColumn(name="committee_id", 
@@ -135,6 +142,9 @@ public class Committee extends BaseDomain implements Serializable {
 	 */
 	public Committee() {
 		super();
+		this.setMembers(new ArrayList<CommitteeMember>());
+		this.setInvitedMembers(new ArrayList<CommitteeMember>());
+		this.setDrafts(new ArrayList<CommitteeDraft>());
 	}
 	
 	public Committee(final CommitteeName committeeName,
@@ -145,6 +155,9 @@ public class Committee extends BaseDomain implements Serializable {
 		this.setCommitteeName(committeeName);
 		this.setFormationDate(formationDate);
 		this.setDissolutionDate(dissolutionDate);
+		this.setMembers(new ArrayList<CommitteeMember>());
+		this.setInvitedMembers(new ArrayList<CommitteeMember>());
+		this.setDrafts(new ArrayList<CommitteeDraft>());
 	}
 	
 	//=============== VIEW METHODS =============
@@ -312,6 +325,7 @@ public class Committee extends BaseDomain implements Serializable {
 	private static CommitteeVO createCommitteeVO(final Committee c,
 			final HouseType houseType,
 			final String locale) {
+		// Committee Details
 		Long committeeId = c.getId();
 		
 		CommitteeName cn = c.getCommitteeName();
@@ -323,6 +337,26 @@ public class Committee extends BaseDomain implements Serializable {
 		
 		Integer maxCommitteeMembers = c.maxCommitteeMembers(houseType);
 		
+		// Committee Members		
+		CommitteeMemberVO committeeChairman = Committee.createChairmanVO(c);
+		
+		List<CommitteeMemberVO> committeeMembers = 
+			Committee.createCommitteeMembersVO(c);
+		StringBuffer committeeMembersName = new StringBuffer();
+		for(CommitteeMemberVO cm : committeeMembers) {
+			committeeMembersName.append(cm.getMemberName());
+			committeeMembersName.append(", ");
+		}
+		
+		List<CommitteeMemberVO> invitedCommitteeMembers = 
+			Committee.createInvitedCommitteeMembersVO(c);
+		StringBuffer invitedCommitteeMembersName = new StringBuffer();
+		for(CommitteeMemberVO cm : invitedCommitteeMembers) {
+			invitedCommitteeMembersName.append(cm.getMemberName());
+			invitedCommitteeMembersName.append(", ");
+		}
+		
+		// Ruling PartyVO
 		PartyType rulingPartyType = 
 			PartyType.findByType(ApplicationConstants.RULING_PARTY, locale);
 		Integer rulingPartyCommitteeMembersCount = 
@@ -331,6 +365,7 @@ public class Committee extends BaseDomain implements Serializable {
 			Committee.createPartyVOs(houseType, rulingPartyType, 
 					rulingPartyCommitteeMembersCount, locale);
 		
+		// Opposition PartyVO
 		PartyType oppositionPartyType = 
 			PartyType.findByType(ApplicationConstants.OPPOSITION_PARTY, locale);
 		Integer oppositionPartyCommitteeMembersCount = 
@@ -339,11 +374,89 @@ public class Committee extends BaseDomain implements Serializable {
 			Committee.createPartyVOs(houseType, oppositionPartyType, 
 					oppositionPartyCommitteeMembersCount, locale);
 		
-		CommitteeVO committeeVO = new CommitteeVO(committeeId, committeeName, 
-				committeeDisplayName, committeeType, maxCommitteeMembers, 
-				rulingParties, rulingPartyCommitteeMembersCount, 
-				oppositionParties, oppositionPartyCommitteeMembersCount);
+		CommitteeVO committeeVO = new CommitteeVO();
+		committeeVO.setCommitteeId(committeeId);
+		committeeVO.setCommitteeName(committeeName);
+		committeeVO.setCommitteeDisplayName(committeeDisplayName);
+		committeeVO.setCommitteeType(committeeType);
+		committeeVO.setMaxCommitteeMembers(maxCommitteeMembers);
+		committeeVO.setCommitteeChairman(committeeChairman);
+		committeeVO.setCommitteeMembers(committeeMembers);
+		committeeVO.setCommitteeMembersName(committeeMembersName.toString());
+		committeeVO.setInvitedCommitteeMembers(invitedCommitteeMembers);
+		committeeVO.setInvitedCommitteeMembersName(
+				invitedCommitteeMembersName.toString());
+		committeeVO.setRulingParties(rulingParties);
+		committeeVO.setRulingPartyCommitteeMembersCount(
+				rulingPartyCommitteeMembersCount);
+		committeeVO.setOppositionParties(oppositionParties);
+		committeeVO.setOppositionPartyCommitteeMembersCount(
+				oppositionPartyCommitteeMembersCount);
+		
 		return committeeVO;
+	}
+	
+	private static CommitteeMemberVO createChairmanVO(final Committee c) {
+		List<CommitteeMember> members = c.getMembers();
+		CommitteeMember chairman = members.get(0);
+		if(chairman != null) {
+			Member member = chairman.getMember();
+			Long memberId = member.getId();
+			String memberName = member.getFullname();
+			
+			CommitteeMemberVO chairmanVO = new CommitteeMemberVO();
+			chairmanVO.setMemberId(memberId);
+			chairmanVO.setMemberName(memberName);
+			
+			return chairmanVO;
+		}
+		
+		return null;
+	}
+
+	private static List<CommitteeMemberVO> createCommitteeMembersVO(
+			final Committee c) {
+		List<CommitteeMemberVO> memberVOs = new ArrayList<CommitteeMemberVO>();
+		
+		List<CommitteeMember> members = new ArrayList<CommitteeMember>();
+		try {
+			int size = c.getMembers().size();
+			members = c.getMembers().subList(1, size - 1);
+		}
+		catch(Exception e) {}
+		
+		for(CommitteeMember cm : members) {
+			Member member = cm.getMember();
+			Long memberId = member.getId();
+			String memberName = member.getFullname();
+			
+			CommitteeMemberVO memberVO = new CommitteeMemberVO();
+			memberVO.setMemberId(memberId);
+			memberVO.setMemberName(memberName);
+			memberVOs.add(memberVO);
+		}
+		
+		return memberVOs;
+	}
+	
+	private static List<CommitteeMemberVO> createInvitedCommitteeMembersVO(
+			final Committee c) {
+		List<CommitteeMemberVO> invitedMemberVOs = 
+			new ArrayList<CommitteeMemberVO>();
+		
+		List<CommitteeMember> invitedMembers = c.getInvitedMembers();		
+		for(CommitteeMember cm : invitedMembers) {
+			Member member = cm.getMember();
+			Long memberId = member.getId();
+			String memberName = member.getFullname();
+			
+			CommitteeMemberVO invitedMemberVO = new CommitteeMemberVO();
+			invitedMemberVO.setMemberId(memberId);
+			invitedMemberVO.setMemberName(memberName);
+			invitedMemberVOs.add(invitedMemberVO);
+		}
+		
+		return invitedMemberVOs;
 	}
 	
 	private static List<PartyVO> createPartyVOs(final HouseType houseType,
