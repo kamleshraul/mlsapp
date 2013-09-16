@@ -22,6 +22,7 @@ import org.mkcl.els.common.util.FormaterUtil;
 import org.mkcl.els.domain.CustomParameter;
 import org.mkcl.els.domain.House;
 import org.mkcl.els.domain.HouseType;
+import org.mkcl.els.domain.Member;
 import org.mkcl.els.domain.MemberRole;
 import org.mkcl.els.domain.Party;
 import org.mkcl.els.domain.PartyType;
@@ -211,7 +212,7 @@ public class HouseRepository extends BaseRepository<House,Long>{
 		
 		query.append(" AND (");
 		query.append(" p.id IN (" +
-			"SELECT p1.id" +
+			" SELECT p1.id" +
 		    " FROM HouseParty hp JOIN hp.parties p1" +
 		    " WHERE hp.fromDate <= '" + strDate + "'" +
 			" AND hp.toDate >= '" + strDate + "'" +
@@ -307,4 +308,146 @@ public class HouseRepository extends BaseRepository<House,Long>{
     	Long count = tQuery.getSingleResult();
     	return count;
 	}
+
+	public List<Member> findActiveMembers(final House house, 
+			final PartyType partyType,
+			final MemberRole role, 
+			final Date date,
+			final String sortOrder,
+			final String locale) {
+		CustomParameter dbDateFormat = CustomParameter.findByName(
+				CustomParameter.class, "DB_DATEFORMAT", "");
+		String strDate = 
+			FormaterUtil.formatDateToString(date, dbDateFormat.getValue());
+		
+		Boolean ofRulingParty = false;
+		if(partyType.getType().equals(ApplicationConstants.RULING_PARTY)) {
+			ofRulingParty = true;
+		}
+		
+		StringBuffer query = new StringBuffer();
+		query.append("SELECT m" +
+			" FROM MemberPartyAssociation mpa JOIN mpa.party p" +
+			" JOIN mpa.member m" +
+			" WHERE mpa.fromDate <= '" + strDate + "'" +
+			" AND (mpa.toDate >= '" + strDate + "'" + " OR mpa.toDate IS NULL)" +
+			" AND mpa.house.id = " + house.getId() +
+			" AND m.locale = '" + locale + "'");
+		
+		query.append(" AND m.id IN (" +
+			" SELECT m1.id"	+
+			" FROM HouseMemberRoleAssociation hmra JOIN hmra.member m1" +
+			" WHERE hmra.fromDate <= '" + strDate + "'" +
+			" AND hmra.toDate >= '" + strDate + "'" +
+			" AND hmra.house.id = " + house.getId() +
+			" AND hmra.role.id = " + role.getId() +
+			" AND hmra.locale = '" + locale + "'" +
+			" )");
+		
+		query.append(" AND (");
+		query.append(" p.id IN (" +
+			" SELECT p1.id" +
+		    " FROM HouseParty hp JOIN hp.parties p1" +
+		    " WHERE hp.fromDate <= '" + strDate + "'" +
+			" AND hp.toDate >= '" + strDate + "'" +
+			" AND hp.house.id = " + house.getId() +
+			" AND hp.partyType.id = " + partyType.getId() +
+			" AND hp.locale = '" + locale + "'" +
+			" )");
+		query.append(" OR ");
+		query.append(" mpa.isMemberOfRulingParty = " + ofRulingParty);		
+		query.append(" )");
+		
+		query.append(" ORDER BY m.lastName ");
+		if(sortOrder.equals(ApplicationConstants.ASC)) {
+			query.append(ApplicationConstants.ASC);
+		}
+		else {
+			query.append(ApplicationConstants.DESC);
+		}
+		
+    	TypedQuery<Member> tQuery = 
+    		this.em().createQuery(query.toString(), Member.class);
+    	List<Member> members = tQuery.getResultList();
+    	return members;
+	}
+
+	public List<Member> findActiveMembers(final House house, 
+			final PartyType partyType,
+			final MemberRole role, 
+			final Date date, 
+			final String nameBeginningWith,
+			final String sortOrder, 
+			final String locale) {
+		String name = nameBeginningWith;
+		
+		CustomParameter dbDateFormat = CustomParameter.findByName(
+				CustomParameter.class, "DB_DATEFORMAT", "");
+		String strDate = 
+			FormaterUtil.formatDateToString(date, dbDateFormat.getValue());
+		
+		Boolean ofRulingParty = false;
+		if(partyType.getType().equals(ApplicationConstants.RULING_PARTY)) {
+			ofRulingParty = true;
+		}
+		
+		StringBuffer query = new StringBuffer();
+		query.append("SELECT m" +
+			" FROM MemberPartyAssociation mpa JOIN mpa.party p" +
+			" JOIN mpa.member m" +
+			" WHERE mpa.fromDate <= '" + strDate + "'" +
+			" AND (mpa.toDate >= '" + strDate + "'" + " OR mpa.toDate IS NULL)" +
+			" AND mpa.house.id = " + house.getId() +
+			" AND m.locale = '" + locale + "'");
+		
+		query.append(" AND m.id IN (" +
+			" SELECT m1.id"	+
+			" FROM HouseMemberRoleAssociation hmra JOIN hmra.member m1" +
+			" WHERE hmra.fromDate <= '" + strDate + "'" +
+			" AND hmra.toDate >= '" + strDate + "'" +
+			" AND hmra.house.id = " + house.getId() +
+			" AND hmra.role.id = " + role.getId() +
+			" AND hmra.locale = '" + locale + "'" +
+			" )");
+		
+		query.append(" AND (");
+		query.append(" p.id IN (" +
+			" SELECT p1.id" +
+		    " FROM HouseParty hp JOIN hp.parties p1" +
+		    " WHERE hp.fromDate <= '" + strDate + "'" +
+			" AND hp.toDate >= '" + strDate + "'" +
+			" AND hp.house.id = " + house.getId() +
+			" AND hp.partyType.id = " + partyType.getId() +
+			" AND hp.locale = '" + locale + "'" +
+			" )");
+		query.append(" OR ");
+		query.append(" mpa.isMemberOfRulingParty = " + ofRulingParty);		
+		query.append(" )");
+		
+		query.append(" AND (");
+		query.append(" m.firstName LIKE '%" + name + "%'" +
+			" OR m.middleName LIKE '%" + name + "%'" +
+			" OR m.lastName LIKE '%" + name + "%'" +
+			" OR CONCAT(m.lastName, ' ', m.firstName) LIKE '%" + name + "%'" +
+			" OR CONCAT(m.firstName, ' ', m.lastName) LIKE '%" + name + "%'" +
+			" OR CONCAT(m.lastName, ' ', m.firstName, ' ', m.middleName)" +
+				" LIKE '%" + name + "%'" +
+			" OR CONCAT(m.firstName, ' ', m.middleName, ' ', m.lastName)" +
+				" LIKE '%" + name + "%'");
+		query.append(" )");
+		
+		query.append(" ORDER BY m.lastName ");
+		if(sortOrder.equals(ApplicationConstants.ASC)) {
+			query.append(ApplicationConstants.ASC);
+		}
+		else {
+			query.append(ApplicationConstants.DESC);
+		}
+		
+    	TypedQuery<Member> tQuery = 
+    		this.em().createQuery(query.toString(), Member.class);
+    	List<Member> members = tQuery.getResultList();
+    	return members;
+	}
+	
 }
