@@ -568,4 +568,14 @@ public class ApplicationConstants {
 	public static final String COMMITTEE_USERS_EXCLUDED_FROM_CHOOSING_NEXT_ACTOR_IN_WORKFLOW = "COMMITTEE_USERS_EXCLUDED_FROM_CHOOSING_NEXT_ACTOR_IN_WORKFLOW";
 	
 	public static final int WORKFLOW_START_LEVEL = 1;
+	
+	public static final String COMMITTEE = "COMMITTEE";
+	
+	public static final String COMMITTEE_MEMBER_ADDITION_URL = "workflow/committee/memberAddition";
+	
+	public static final String COMMITTEE_CHAIRMAN = "comittee_chairman";
+	
+	public static final String COMMITTEE_MEMBER = "committee_member";
+	
+	public static final String COMMITTEE_INVITED_MEMBER = "committee_invited_member";
 }
