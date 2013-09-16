@@ -657,6 +657,54 @@ import org.springframework.beans.factory.annotation.Configurable;
     	return newMList;
     }
 
+    /**
+	 * Sort the Members as per @param sortOrder by firstName. If multiple Members
+	 * have same firstName, then break the tie by lastName.
+	 *
+	 * @param members SHOULD NOT BE NULL
+	 *
+	 * Does not sort in place, returns a new list.
+	 */
+    public static List<Member> sortByFirstname(final List<Member> members,
+    		final String sortOrder) {
+    	List<Member> newMList = new ArrayList<Member>();
+    	newMList.addAll(members);
+
+    	if(sortOrder.equals(ApplicationConstants.ASC)) {
+    		Comparator<Member> c = new Comparator<Member>() {
+
+				@Override
+				public int compare(final Member m1, final Member m2) {
+					int i = m1.getFirstName().compareTo(m2.getFirstName());
+					if(i == 0) {
+						int j = m1.getLastName().compareTo(m2.getLastName());
+						return j;
+					}
+					return i;
+				}
+			};
+			Collections.sort(newMList, c);
+    	}
+    	else if(sortOrder.equals(ApplicationConstants.DESC)) {
+    		Comparator<Member> c = new Comparator<Member>() {
+
+				@Override
+				public int compare(final Member m1, final Member m2) {
+					int i = m2.getFirstName().compareTo(m1.getFirstName());
+					if(i == 0) {
+						int j = m2.getLastName().compareTo(m1.getLastName());
+						return j;
+					}
+					return i;
+				}
+			};
+			Collections.sort(newMList, c);
+    	}
+
+    	return newMList;
+    }
+
+    
     // ------------------------------------------Getters/Setters-----------------------------------
     /**
      * Gets the title.
