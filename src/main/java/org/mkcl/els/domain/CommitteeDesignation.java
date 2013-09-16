@@ -50,6 +50,13 @@ public class CommitteeDesignation extends BaseDomain implements Serializable {
 	//=============== VIEW METHODS =============
 		
 	//=============== DOMAIN METHODS ===========
+	public static CommitteeDesignation findByType(final String type,
+			final String locale) {
+		CommitteeDesignation designation = 
+			CommitteeDesignation.findByFieldName(CommitteeDesignation.class, 
+    			"type", type, locale);
+    	return designation;
+	}
 		
 	//=============== INTERNAL METHODS =========
 		
