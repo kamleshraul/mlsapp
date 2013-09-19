@@ -5,6 +5,7 @@ import java.util.List;
 
 import javax.persistence.TypedQuery;
 
+import org.mkcl.els.common.util.FormaterUtil;
 import org.mkcl.els.domain.Committee;
 import org.mkcl.els.domain.CommitteeName;
 import org.mkcl.els.domain.HouseType;
@@ -27,14 +28,35 @@ public class CommitteeRepository extends BaseRepository<Committee, Long> {
 		return committee;
 	}
 	
-	public List<Committee> find(final Status status,
+	public List<Committee> find(final HouseType[] houseTypes,
+			final Status status,
 			final Date currentDate,
 			final String locale) {
-		Search search = new Search();
-		search.addFilterEqual("status", status);
-		search.addFilterGreaterOrEqual("dissolutionDate", currentDate);
-		search.addFilterEqual("locale", locale);
-		List<Committee> committees = this.search(search);
+		// Removed for performance reason. Uncomment when Caching mechanism 
+		// is added
+		// CustomParameter parameter = 
+		// 		CustomParameter.findByName(CustomParameter.class,
+		//      "DB_DATEFORMAT", "");
+		// String strDissolutionDate = new DateFormater().formatDateToString(
+		// 		date, parameter.getValue());
+		String dateFormat = "yyyy-MM-dd";
+		String strDissolutionDate = 
+			FormaterUtil.formatDateToString(currentDate, dateFormat);
+		
+		StringBuffer query = new StringBuffer();
+		query.append("SELECT c" +
+				" FROM Committee c JOIN c.committeeName cn" +
+				" JOIN cn.committeeType ct JOIN ct.houseType ht" +
+				" WHERE c.status.id =" + status.getId() +
+				" AND c.dissolutionDate >= '" + strDissolutionDate + "'" +
+				" AND c.locale = '" + locale + "'");
+		
+		String houseTypesFilter = this.getHouseTypesFilter(houseTypes);
+		query.append(houseTypesFilter);
+		
+		TypedQuery<Committee> tQuery = 
+			this.em().createQuery(query.toString(), Committee.class);
+		List<Committee> committees = tQuery.getResultList();
 		return committees;
 	}
 
@@ -51,8 +73,7 @@ public class CommitteeRepository extends BaseRepository<Committee, Long> {
 			this.getCommitteeNamesFilter(committeeNames);
 		query.append(committeeNamesFilter);
 		
-		String houseTypesFilter = 
-			this.getHouseTypesFilter(houseTypes);
+		String houseTypesFilter = this.getHouseTypesFilter(houseTypes);
 		query.append(houseTypesFilter);
 		
 		TypedQuery<Committee> tQuery = 
