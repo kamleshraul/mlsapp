@@ -12,7 +12,7 @@
 
 	function conditionalReadOnlyRendering() {
 		var isRenderAsReadOnly = $('#renderAsReadOnly').val();
-		if(isRenderAsReadOnly == true) {
+		if(isRenderAsReadOnly == 'true') {
 			// Render all the visible attributes on the page as readOnly
 			$('#remarks').attr('readOnly', true);
 		}

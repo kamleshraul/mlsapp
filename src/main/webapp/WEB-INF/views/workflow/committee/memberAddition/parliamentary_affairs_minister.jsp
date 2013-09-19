@@ -26,9 +26,10 @@
 
 	function conditionalReadOnlyRendering() {
 		var isRenderAsReadOnly = $('#renderAsReadOnly').val();
-		if(isRenderAsReadOnly == true) {
+		if(isRenderAsReadOnly == 'true') {
 			// Render all the visible attributes on the page as readOnly
 			$('#remarks').attr('readOnly', true);
+			$('.autosuggestmultiple').attr('readOnly', true);
 		}
 	}
 	
@@ -192,7 +193,7 @@
 				<td>
 					<textarea id="chairman_${committeeVO.committeeId}" class="autosuggestmultiple" rows="2" cols="30">${committeeVO.committeeChairman.memberName}</textarea>
 					<c:if test="${not empty committeeChairman}">
-						<select  name="chairman_${committeeVO.committeeId}">
+						<select name="chairman_${committeeVO.committeeId}">
 							<option value="${committeeVO.committeeChairman.memberId}" class="${committeeVO.committeeChairman.memberName}"></option>
 						</select>
 					</c:if>
@@ -201,7 +202,7 @@
 				<td>
 					<textarea id="members_${committeeVO.committeeId}" class="autosuggestmultiple" rows="2" cols="30">${committeeVO.committeeMembersName}</textarea>
 					<c:if test="${not empty committeeMembers}">		
-						<select  name="members_${committeeVO.committeeId}" multiple="multiple">
+						<select name="members_${committeeVO.committeeId}" multiple="multiple">
 							<c:forEach items="${committeeMembers}" var="i">
 								<option value="${i.memberId}" class="${i.memberName}"></option>
 							</c:forEach>		
