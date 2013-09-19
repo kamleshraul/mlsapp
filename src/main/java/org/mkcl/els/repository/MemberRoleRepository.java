@@ -20,8 +20,6 @@ import org.mkcl.els.domain.HouseType;
 import org.mkcl.els.domain.MemberRole;
 import org.springframework.stereotype.Repository;
 
-import com.trg.search.Search;
-
 /**
  * The Class MemberRoleRepository.
  *
