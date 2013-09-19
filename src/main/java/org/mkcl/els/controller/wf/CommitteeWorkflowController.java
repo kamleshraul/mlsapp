@@ -47,9 +47,9 @@ import org.springframework.web.bind.annotation.RequestMethod;
 @Controller
 @RequestMapping("/workflow/committee")
 public class CommitteeWorkflowController extends BaseController {
-
+	
 	@Autowired
-	IProcessService processService;
+	private IProcessService processService;
 	
 	/**
 	 * The initial GET request for "REQUEST TO PARLIAMENTARY AFFAIRS MINISTER 
@@ -101,9 +101,8 @@ public class CommitteeWorkflowController extends BaseController {
 		this.populateCommitteeCompositeVO(model, userGroup, committees, locale);
 		
 		// STEP 2: Populate Statuses & Status
-		String wfName = wfDetails.getWorkflowType();
 		Status status = this.getStatus(wfDetails);
-		this.populateStatuses(model, userGroup, wfName, locale);
+		this.populateStatuses(model, userGroup, status, locale);
 		this.populateStatus(model, status);
 		
 		// STEP 3: Populate Actors & Actor
@@ -125,6 +124,7 @@ public class CommitteeWorkflowController extends BaseController {
 		}
 			
 		// STEP 4: Populate Workflow attributes
+		String wfName = wfDetails.getWorkflowType();
 		this.populateWorkflowAttributes(model, wfName, false);
 		
 		// STEP 5: Populate PartyType
@@ -155,29 +155,22 @@ public class CommitteeWorkflowController extends BaseController {
 	public String processMemberAdditionRequest(
 			final HttpServletRequest request,
 			final Locale localeObj) {
-//		String locale = localeObj.toString();
-//		
-//		this.memberAdditionRequestSaveInformation(request, locale);
-//		
-//		WorkflowDetails wfDetails = null;
-//		String wfInit = this.getWorkflowInit(request);
-//		if(wfInit != null && wfInit.equals("true")) {
-//			wfDetails =	this.startMemberAdditionProcess(request, locale);
-//		}
-//		else {
-//			wfDetails = this.proceedMemberAdditionProcess(request, locale);
-//		}
-//		
-//		String returnURL = "redirect:memberAddition/processed/" 
-//			+ wfDetails.getId();
-//		return returnURL;
+		String locale = localeObj.toString();
 		
+		this.memberAdditionRequestSaveInformation(request, locale);
 		
-		System.out.println("Uncomment the above statements & " +
-				"Remove the following");
-		this.memberAdditionRequestSaveInformation(request, 
-				localeObj.toString());
-		return "redirect:memberAddition/processed/5603";
+		WorkflowDetails wfDetails = null;
+		String wfInit = this.getWorkflowInit(request);
+		if(wfInit != null && wfInit.equals("true")) {
+			wfDetails =	this.startMemberAdditionProcess(request, locale);
+		}
+		else {
+			wfDetails = this.proceedMemberAdditionProcess(request, locale);
+		}
+		
+		String returnURL = "redirect:memberAddition/processed/" 
+			+ wfDetails.getId();
+		return returnURL;
 	}
 	
 	/**
@@ -231,26 +224,28 @@ public class CommitteeWorkflowController extends BaseController {
 		// STEP 5: Render as Read Only. Since the task is completed,
 		// 		   the User must not be allowed to perform any modifications.
 		this.renderAsReadOnly(model);
-		
+
 		String urlPattern = wfDetails.getUrlPattern();
 		String ugtType = userGroup.getUserGroupType().getType();
 		return urlPattern + "/" + ugtType;
 	}
-
+	
 	//=============== INTERNAL METHODS ================
 	/**
 	 * Common functionality to initialize request to
 	 * Parliamentary Affairs Minister & Leader Of Opposition.
 	 */
-	private String commonInitRequestToPAMAndLOP(final ModelMap model,
+	public String commonInitRequestToPAMAndLOP(final ModelMap model,
 			final String workflowName,
 			final String locale) {
-		UserGroup userGroup = this.getWorkflowInitiator(workflowName, locale);
+		UserGroup userGroup = 
+			this.getWorkflowInitiator(workflowName, locale);
 
 		if(userGroup != null) {
 			// STEP 1: Populate CommitteeCompositeVO
+			HouseType houseType = this.getHouseType(userGroup, locale);
 			List<Committee> committees = 
-				Committee.findCommitteesToBeProcessed(locale);
+				Committee.findCommitteesToBeProcessed(houseType, true, locale);
 			this.populateCommitteeCompositeVO(model, userGroup, 
 					committees, locale);
 			
@@ -342,7 +337,8 @@ public class CommitteeWorkflowController extends BaseController {
 		Status status = this.getStatus(request);
 		String wfName = this.getWorkflowName(status);
 		
-		UserGroup userGroup = this.getWorkflowInitiator(wfName, locale);
+		UserGroup userGroup = 
+			this.getWorkflowInitiator(wfName, locale);
 		Integer assigneeLevel = ApplicationConstants.WORKFLOW_START_LEVEL;
 		String urlPattern = ApplicationConstants.COMMITTEE_MEMBER_ADDITION_URL;
 		
@@ -350,7 +346,8 @@ public class CommitteeWorkflowController extends BaseController {
 		// is added in the WorkflowDetails.NOT SURE WHETHER THIS ENTRY 
 		// SHOULD BE MADE BUT STILL MAKING IT		
 		WorkflowDetails wfDetails = this.createInitWorkflowDetails(
-				request, userGroup, status, assigneeLevel, urlPattern, locale);
+				request, userGroup, status, assigneeLevel, 
+				urlPattern, locale);
 		
 		Task task = this.startInitProcess(request, userGroup, wfName, 
 				assigneeLevel, locale);
@@ -595,10 +592,10 @@ public class CommitteeWorkflowController extends BaseController {
 		}
 		workflowDetails.merge();
 	}
-		
+	
 	//=============== "GET" METHODS ===================
 	@SuppressWarnings("unchecked")
-	private String get(final HttpServletRequest request,
+	private String getValue(final HttpServletRequest request,
 			final String key) {
 		Enumeration<String> keys = request.getParameterNames();
 		while(keys.hasMoreElements()) {
@@ -609,6 +606,15 @@ public class CommitteeWorkflowController extends BaseController {
 		}
 		
 		return null;
+	}
+	
+	private String[] getValues(final HttpServletRequest request,
+			final String key) {
+		String[] values = request.getParameterValues(key);
+		if(values == null) {
+			values = new String[]{};
+		}
+		return values;
 	}
 	
 	@SuppressWarnings("unchecked")
@@ -1043,6 +1049,87 @@ public class CommitteeWorkflowController extends BaseController {
 		return null;
 	}
 	
+	//=============== "SET" METHODS ===================
+	private Committee setCommitteeMembers(final Committee committee,
+			final HttpServletRequest request,
+			final String locale) {
+		Committee c1 = this.setCommitteeChairman(committee, request, locale);
+		Committee c2 = this.setCommitteeCoreMembers(c1, request, locale);
+		Committee c3 = this.setCommitteeInvitedMembers(c2, request, locale);
+		return c3;
+	}
+	
+	private Committee setCommitteeChairman(final Committee committee,
+			final HttpServletRequest request,
+			final String locale) {
+		Long committeeId = committee.getId();
+		String key = "chairman_" + committeeId;
+		String value = this.getValue(request, key);
+		
+		if(value != null) {
+			Long memberId = Long.valueOf(value);
+			Member member = Member.findById(Member.class, memberId);
+			
+			CommitteeDesignation designation = 
+				CommitteeDesignation.findByType(
+						ApplicationConstants.COMMITTEE_CHAIRMAN, locale);
+			
+			Date joiningDate = new Date();
+			
+			CommitteeMember committeeMember = 
+				new CommitteeMember(member, designation, joiningDate, locale);
+			committee.getMembers().add(committeeMember);
+		}
+
+		return committee;
+	}
+	
+	private Committee setCommitteeCoreMembers(final Committee committee,
+			final HttpServletRequest request,
+			final String locale) {
+		Long committeeId = committee.getId();
+		String key = "members_" + committeeId;
+		String[] values = this.getValues(request, key);
+		
+		CommitteeDesignation designation = CommitteeDesignation.findByType(
+				ApplicationConstants.COMMITTEE_MEMBER, locale);
+		Date joiningDate = new Date();
+		
+		for(String value : values) {
+			Long memberId = Long.valueOf(value);
+			Member member = Member.findById(Member.class, memberId);
+			
+			CommitteeMember committeeMember = 
+				new CommitteeMember(member, designation, joiningDate, locale);
+			committee.getMembers().add(committeeMember);
+		}
+			
+		return committee;
+	}
+	
+	private Committee setCommitteeInvitedMembers(final Committee committee,
+			final HttpServletRequest request,
+			final String locale) {
+		Long committeeId = committee.getId();
+		String key = "invitedMembers_" + committeeId;
+		String[] values = this.getValues(request, key);
+		
+		CommitteeDesignation designation = CommitteeDesignation.findByType(
+				ApplicationConstants.COMMITTEE_INVITED_MEMBER, locale);
+		Date joiningDate = new Date();
+		
+		for(String value : values) {
+			Long memberId = Long.valueOf(value);
+			Member member = Member.findById(Member.class, memberId);
+			
+			CommitteeMember committeeMember = 
+				new CommitteeMember(member, designation, joiningDate, locale);
+			committee.getInvitedMembers().add(committeeMember);
+		}
+			
+		return committee;
+	}
+	
 	//=============== "POPULATE MODEL" METHODS ========
 	private void populateCommitteeCompositeVO(final ModelMap model,
 			final UserGroup userGroup,
@@ -1058,6 +1145,17 @@ public class CommitteeWorkflowController extends BaseController {
 	/**
 	 * The put up options are configured as key-value pairs in CustomParameter.
 	 * The template for key formation is:
+	 * 		"COMMITTEE_PUT_UP_OPTIONS_" + toUpperCase(STATUSTYPE)
+	 * 		+ "_" + toUpperCase(HOUSETYPE) + "_" 
+	 * 		+ "_" + toUpperCase(USERGROUPTYPE)
+	 * 
+	 * If the aforementioned key-value pair is not configured for this user,
+	 * try the next generalized configuration. The template is:
+	 * 		"COMMITTEE_PUT_UP_OPTIONS_" + toUpperCase(WORKFLOWNAME)
+	 * 		+ "_DEFAULT"
+	 * 
+	 * If the aforementioned key-value pair is not configured for this user,
+	 * try the next generalized configuration. The template is:
 	 * 		"COMMITTEE_PUT_UP_OPTIONS_" + toUpperCase(WORKFLOWNAME)
 	 * 		+ "_" + toUpperCase(HOUSETYPE) + "_" 
 	 * 		+ "_" + toUpperCase(USERGROUPTYPE)
@@ -1067,6 +1165,44 @@ public class CommitteeWorkflowController extends BaseController {
 	 * 		"COMMITTEE_PUT_UP_OPTIONS_" + toUpperCase(WORKFLOWNAME)
 	 * 		+ "_" + toUpperCase(HOUSETYPE) + "_" + "DEFAULT"
 	 */
+	private List<Status> populateStatuses(final ModelMap model,
+			final UserGroup userGroup,
+			final Status status,
+			final String locale) {
+		// Prepare the parameters
+		String statusType = status.getType().toUpperCase();
+		String wfName = this.getWorkflowName(status).toUpperCase();
+		
+		HouseType houseType = this.getHouseType(userGroup, locale);
+		String houseTypeType = houseType.getType().toUpperCase();
+		
+		String ugtType = userGroup.getUserGroupType().getType().toUpperCase();
+		
+		// Retrieve statuses as comma separated string
+		String name = "COMMITTEE_PUT_UP_OPTIONS_" + statusType + "_"
+			+ houseTypeType + "_" + ugtType;
+		String options = this.getCustomParameterValue(name, locale);
+		if(options == null) {
+			name = "COMMITTEE_PUT_UP_OPTIONS_" + statusType + "_DEFAULT";
+			options = this.getCustomParameterValue(name, locale);
+			if(options == null) {
+				return this.populateStatuses(model, userGroup, wfName, locale);
+			}
+		}
+		
+		// Retrieve & Populate Statuses
+		List<Status> statuses = new ArrayList<Status>();
+		try {
+			statuses = Status.findStatusContainedIn(options, locale);
+		} 
+		catch (ELSException e) {
+			logger.error(e.getMessage());
+		}
+		model.addAttribute("statuses", statuses);
+		
+		return statuses;
+	}
+
 	private List<Status> populateStatuses(final ModelMap model,
 			final UserGroup userGroup,
 			final String workflowName,
@@ -1216,89 +1352,5 @@ public class CommitteeWorkflowController extends BaseController {
 
 		return tokens;
 	}
-	
-	//=============== EXPERIMENTAL ====================
-	private Committee setCommitteeMembers(final Committee committee,
-			final HttpServletRequest request,
-			final String locale) {
-		Committee c1 = this.setCommitteeChairman(committee, request, locale);
-		Committee c2 = this.setCommitteeCoreMembers(c1, request, locale);
-		Committee c3 = this.setCommitteeInvitedMembers(c2, request, locale);
-		return c3;
-	}
-	
-	private Committee setCommitteeChairman(final Committee committee,
-			final HttpServletRequest request,
-			final String locale) {
-		Long committeeId = committee.getId();
-		String key = "chairman_" + committeeId;
-		String value = this.get(request, key);
-		
-		if(value != null) {
-			Long memberId = Long.valueOf(value);
-			Member member = Member.findById(Member.class, memberId);
-			
-			CommitteeDesignation designation = 
-				CommitteeDesignation.findByType(
-						ApplicationConstants.COMMITTEE_CHAIRMAN, locale);
-			
-			Date joiningDate = new Date();
-			
-			CommitteeMember committeeMember = 
-				new CommitteeMember(member, designation, joiningDate, locale);
-			committee.getMembers().add(committeeMember);
-		}
 
-		return committee;
-	}
-	
-	private Committee setCommitteeCoreMembers(final Committee committee,
-			final HttpServletRequest request,
-			final String locale) {
-		Long committeeId = committee.getId();
-		String key = "members_" + committeeId;
-		String[] values = this.getBeginningWith(request, key);
-		
-		for(String value : values) {
-			Long memberId = Long.valueOf(value);
-			Member member = Member.findById(Member.class, memberId);
-			
-			CommitteeDesignation designation = 
-				CommitteeDesignation.findByType(
-						ApplicationConstants.COMMITTEE_MEMBER, locale);
-			
-			Date joiningDate = new Date();
-			
-			CommitteeMember committeeMember = 
-				new CommitteeMember(member, designation, joiningDate, locale);
-			committee.getMembers().add(committeeMember);
-		}
-			
-		return committee;
-	}
-	
-	private Committee setCommitteeInvitedMembers(final Committee committee,
-			final HttpServletRequest request,
-			final String locale) {
-		Long committeeId = committee.getId();
-		String key = "invitedMembers_" + committeeId;
-		String[] values = this.getBeginningWith(request, key);
-		
-		for(String value : values) {
-			Long memberId = Long.valueOf(value);
-			Member member = Member.findById(Member.class, memberId);
-			
-			CommitteeDesignation designation = 
-				CommitteeDesignation.findByType(
-						ApplicationConstants.COMMITTEE_INVITED_MEMBER, locale);
-			
-			Date joiningDate = new Date();
-			
-			CommitteeMember committeeMember = 
-				new CommitteeMember(member, designation, joiningDate, locale);
-			committee.getInvitedMembers().add(committeeMember);
-		}
-			
-		return committee;
-	}
 }
