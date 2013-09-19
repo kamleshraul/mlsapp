@@ -36,10 +36,10 @@ public class CommitteeDraft extends BaseDomain implements Serializable {
 	private List<CommitteeMember> members;
 	
 	@ManyToMany(fetch=FetchType.LAZY, cascade=CascadeType.ALL)
-	@JoinTable(name="committee_drafts_committee_members",
+	@JoinTable(name="committee_drafts_invited_members",
 			joinColumns={@JoinColumn(name="committee_draft_id", 
 					referencedColumnName="id")},
-			inverseJoinColumns={@JoinColumn(name="committee_member_id", 
+			inverseJoinColumns={@JoinColumn(name="committee_invited_member_id", 
 					referencedColumnName="id")})
 	private List<CommitteeMember> invitedMembers;
 
