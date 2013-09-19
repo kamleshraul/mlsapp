@@ -176,7 +176,7 @@ public class House extends BaseDomain implements Serializable {
     	String houseTypeType = houseType.getType();
     	if(houseTypeType.equals(ApplicationConstants.UPPER_HOUSE)) {
     		house = House.findByFieldName(House.class, 
-    				"houseType", houseType, locale);
+    				"type", houseType, locale);
     	}
     	else {
     		house = House.getHouseRepository().find(houseType, date, locale);
@@ -278,24 +278,27 @@ public class House extends BaseDomain implements Serializable {
     		final String locale) {
     	List<Member> members = new ArrayList<Member>();
     	
-    	MemberRole role = MemberRole.find(houseType, "MEMBER", locale);
     	if(houseType.getType().equals(ApplicationConstants.BOTH_HOUSE)) {
     		// Fetch Lower House Members
     		HouseType lowerHouseType = 
     			HouseType.findByType(ApplicationConstants.LOWER_HOUSE, locale);
     		House lowerHouse = House.find(lowerHouseType, date, locale);
+    		MemberRole lowerHouseRole = 
+    			MemberRole.find(lowerHouseType, "MEMBER", locale);
     		List<Member> lowerHouseMembers = 
     			House.getHouseRepository().findActiveMembers(lowerHouse, 
-    					partyType, role, date, sortOrder, locale);
+    					partyType, lowerHouseRole, date, sortOrder, locale);
     		members.addAll(lowerHouseMembers);
     		
     		// Fetch Upper House Members
     		HouseType upperHouseType = 
     			HouseType.findByType(ApplicationConstants.UPPER_HOUSE, locale);
     		House upperHouse = House.find(upperHouseType, date, locale);
+    		MemberRole upperHouseRole = 
+    			MemberRole.find(upperHouseType, "MEMBER", locale);
     		List<Member> upperHouseMembers = 
     			House.getHouseRepository().findActiveMembers(upperHouse, 
-    					partyType, role, date, sortOrder, locale);
+    					partyType, upperHouseRole, date, sortOrder, locale);
     		members.addAll(upperHouseMembers);
     		
     		// Sort as per the sortOrder
@@ -303,6 +306,7 @@ public class House extends BaseDomain implements Serializable {
     	}
     	else {
     		House house = House.find(houseType, date, locale);
+    		MemberRole role = MemberRole.find(houseType, "MEMBER", locale);
     		members = House.getHouseRepository().findActiveMembers(house, 
         			partyType, role, date, sortOrder, locale);
     	}
@@ -322,15 +326,16 @@ public class House extends BaseDomain implements Serializable {
     		final String locale) {
     	List<Member> members = new ArrayList<Member>();
     	
-    	MemberRole role = MemberRole.find(houseType, "MEMBER", locale);
     	if(houseType.getType().equals(ApplicationConstants.BOTH_HOUSE)) {
     		// Fetch Lower House Members
     		HouseType lowerHouseType = 
     			HouseType.findByType(ApplicationConstants.LOWER_HOUSE, locale);
     		House lowerHouse = House.find(lowerHouseType, date, locale);
+    		MemberRole lowerHouseRole = 
+    			MemberRole.find(lowerHouseType, "MEMBER", locale);
     		List<Member> lowerHouseMembers = 
     			House.getHouseRepository().findActiveMembers(lowerHouse, 
-    					partyType, role, date, nameBeginningWith, 
+    					partyType, lowerHouseRole, date, nameBeginningWith, 
     					sortOrder, locale);
     		members.addAll(lowerHouseMembers);
     		
@@ -338,9 +343,11 @@ public class House extends BaseDomain implements Serializable {
     		HouseType upperHouseType = 
     			HouseType.findByType(ApplicationConstants.UPPER_HOUSE, locale);
     		House upperHouse = House.find(upperHouseType, date, locale);
+    		MemberRole upperHouseRole = 
+    			MemberRole.find(upperHouseType, "MEMBER", locale);
     		List<Member> upperHouseMembers = 
     			House.getHouseRepository().findActiveMembers(upperHouse, 
-    					partyType, role, date, nameBeginningWith, 
+    					partyType, upperHouseRole, date, nameBeginningWith, 
     					sortOrder, locale);
     		members.addAll(upperHouseMembers);
     		
@@ -349,6 +356,7 @@ public class House extends BaseDomain implements Serializable {
     	}
     	else {
     		House house = House.find(houseType, date, locale);
+    		MemberRole role = MemberRole.find(houseType, "MEMBER", locale);
     		members = House.getHouseRepository().findActiveMembers(house, 
         			partyType, role, date, nameBeginningWith, sortOrder, locale);
     	}
