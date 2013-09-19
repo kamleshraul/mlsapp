@@ -65,14 +65,16 @@ public class Committee extends BaseDomain implements Serializable {
 			joinColumns={@JoinColumn(name="committee_id", 
 					referencedColumnName="id")},
 			inverseJoinColumns={@JoinColumn(name="committee_member_id", 
+					nullable=true,
 					referencedColumnName="id")})
 	private List<CommitteeMember> members;
 	
 	@ManyToMany(fetch=FetchType.LAZY, cascade=CascadeType.ALL)
-	@JoinTable(name="committees_committee_members",
+	@JoinTable(name="committees_invited_members",
 			joinColumns={@JoinColumn(name="committee_id", 
 					referencedColumnName="id")},
-			inverseJoinColumns={@JoinColumn(name="committee_member_id", 
+			inverseJoinColumns={@JoinColumn(name="committee_invited_member_id",
+					nullable=true,
 					referencedColumnName="id")})
 	private List<CommitteeMember> invitedMembers;
 	
@@ -189,12 +191,32 @@ public class Committee extends BaseDomain implements Serializable {
 				formationDate, locale);
 	}
 	
+	/**
+	 * If @param isIncludeBothHouseType is true then search for 
+	 * all Committees with status == "COMMITTEE_CREATED" and 
+	 * houseType is either @param houseType OR BOTHHOUSE.
+	 * 
+	 * If @param isIncludeBothHouseType is false then search for 
+	 * all Committees with status == "COMMITTEE_CREATED" and 
+	 * houseType is @param houseType.
+	 */
 	public static List<Committee> findCommitteesToBeProcessed(
+			final HouseType houseType,
+			final Boolean isIncludeBothHouseType,
 			final String locale) {
+		HouseType[] houseTypes = new HouseType[]{houseType};
+		if(isIncludeBothHouseType) {
+			HouseType bothHouseType = 
+				HouseType.findByType(ApplicationConstants.BOTH_HOUSE, locale);
+			houseTypes = new HouseType[]{houseType, bothHouseType};
+		}
+		
 		Status status = 
 			Status.findByType(ApplicationConstants.COMMITTEE_CREATED, locale);
+		
 		Date currentDate = new Date();
-		return Committee.getRepository().find(status,currentDate, locale);
+		return Committee.getRepository().find(houseTypes, 
+				status,currentDate, locale);
 	}
 	
 	public static List<Committee> findByCommitteeNames(
@@ -398,8 +420,9 @@ public class Committee extends BaseDomain implements Serializable {
 	
 	private static CommitteeMemberVO createChairmanVO(final Committee c) {
 		List<CommitteeMember> members = c.getMembers();
-		CommitteeMember chairman = members.get(0);
-		if(chairman != null) {
+		
+		if(members.size() > 0) {
+			CommitteeMember chairman = members.get(0);
 			Member member = chairman.getMember();
 			Long memberId = member.getId();
 			String memberName = member.getFullname();
@@ -418,12 +441,11 @@ public class Committee extends BaseDomain implements Serializable {
 			final Committee c) {
 		List<CommitteeMemberVO> memberVOs = new ArrayList<CommitteeMemberVO>();
 		
-		List<CommitteeMember> members = new ArrayList<CommitteeMember>();
-		try {
-			int size = c.getMembers().size();
-			members = c.getMembers().subList(1, size - 1);
+		List<CommitteeMember> members = c.getMembers();
+		int size = members.size();
+		if(size > 1) {
+			members = members.subList(1, size);
 		}
-		catch(Exception e) {}
 		
 		for(CommitteeMember cm : members) {
 			Member member = cm.getMember();
