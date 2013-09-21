@@ -143,11 +143,12 @@ public class CommitteeWorkflowController extends BaseController {
 		}
 		
 		// STEP 4: Populate Workflow attributes
+		String wfName = wfDetails.getWorkflowType();
 		Boolean isWorkflowInit = false;
-		CommitteeWFUtility.populateWorkflowAttributes(model, isWorkflowInit);
+		CommitteeWFUtility.populateWorkflowAttributes(
+				model, wfName, isWorkflowInit);
 		
 		// STEP 5: Populate PartyType
-		String wfName = wfDetails.getWorkflowType();
 		PartyType partyType = 
 			CommitteeWFUtility.getPartyType(wfName, locale);
 		CommitteeWFUtility.populatePartyType(model, partyType);
@@ -254,11 +255,17 @@ public class CommitteeWorkflowController extends BaseController {
 		String remarks = CommitteeWFUtility.getRemarks(wfDetails);
 		CommitteeWFUtility.populateRemarks(model, remarks);
 		
-		// STEP 5: Render as Read Only. Since the task is completed,
+		// STEP 5: Populate Workflow attributes
+		String wfName = wfDetails.getWorkflowType();
+		Boolean isWorkflowInit = false;
+		CommitteeWFUtility.populateWorkflowAttributes(
+				model, wfName, isWorkflowInit);
+		
+		// STEP 6: Render as Read Only. Since the task is completed,
 		// 		   the User must not be allowed to perform any modifications
 		CommitteeWFUtility.renderAsReadOnly(model);
 		
-		// STEP 6: Return View
+		// STEP 7: Return View
 		String urlPattern = wfDetails.getUrlPattern();
 		String ugtType = userGroup.getUserGroupType().getType();
 		return urlPattern + "/" + ugtType;
@@ -312,12 +319,12 @@ public class CommitteeWorkflowController extends BaseController {
 			}
 			
 			// STEP 4: Populate Workflow attributes
+			String wfName = CommitteeWFUtility.getWorkflowName(status);
 			Boolean isWorkflowInit = true;
 			CommitteeWFUtility.populateWorkflowAttributes(
-					model, isWorkflowInit);
+					model, wfName, isWorkflowInit);
 			
 			// STEP 5: Populate PartyType
-			String wfName = CommitteeWFUtility.getWorkflowName(status);
 			PartyType partyType = 
 				CommitteeWFUtility.getPartyType(wfName, locale);
 			CommitteeWFUtility.populatePartyType(model, partyType);
@@ -1117,7 +1124,9 @@ class CommitteeWFUtility {
 	}
 	
 	public static void populateWorkflowAttributes(final ModelMap model,
+			final String workflowName,
 			final Boolean isWorkflowInit) {
+		model.addAttribute("workflowName", workflowName);
 		model.addAttribute("workflowInit", isWorkflowInit);
 	}
 	
