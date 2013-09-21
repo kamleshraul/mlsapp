@@ -130,8 +130,16 @@ public class CommitteeWorkflowController extends BaseController {
 			List<WorkflowActor> wfActors = 
 				CommitteeWFUtility.populateNextActors(model, userGroup, 
 					houseType, status, fullWFName, assigneeLevel, locale);
-			WorkflowActor wfActor = wfActors.get(0);
-			CommitteeWFUtility.populateNextActor(model, wfActor);
+			
+			// wfActors can be empty if the current actor is the last
+			// actor in the workflow
+			if(! wfActors.isEmpty()) {
+				WorkflowActor wfActor = wfActors.get(0);
+				CommitteeWFUtility.populateNextActor(model, wfActor);
+			}
+			else {
+				CommitteeWFUtility.hideNextActors(model);
+			}
 		}
 		
 		// STEP 4: Populate Workflow attributes
@@ -486,8 +494,14 @@ public class CommitteeWorkflowController extends BaseController {
 		processService.completeTask(currentTask, properties);
 		ProcessInstance process = processService.findProcessInstanceById(
 				currentTask.getProcessInstanceId());
-		Task newTask = processService.getCurrentTask(process);
-		return newTask;
+		
+		// This condition will arise when the process has completed
+		if(process != null) {
+			Task newTask = processService.getCurrentTask(process);
+			return newTask;
+		}
+		
+		return null;
 	}
 	
 	private WorkflowDetails createInitWorkflowDetails(
@@ -521,7 +535,9 @@ public class CommitteeWorkflowController extends BaseController {
 		
 		WorkflowActor wfActor = CommitteeWFUtility.getNextActor(request, 
 				userGroup, houseType, assigneeLevel, locale);
-		wfDetails.setNextWorkflowActorId(String.valueOf(wfActor.getId()));
+		if(wfActor != null) {
+			wfDetails.setNextWorkflowActorId(String.valueOf(wfActor.getId()));
+		}
 		
 		// Domain parameters
 		// Not applicable parameters: deviceId, deviceType, deviceNumber
@@ -776,6 +792,8 @@ class CommitteeWFUtility {
 		Boolean isExcluded = 
 			isThisUserExcludedFromSelectingNextActorInWorkflow(
 					userGroup, locale);
+		String strWFActorId = request.getParameter("actor");
+		
 		if(isExcluded) {
 			Status status = getStatus(request);
 			String wfName = getFullWorkflowName(status);
@@ -783,7 +801,7 @@ class CommitteeWFUtility {
 			wfActor = WorkflowConfig.findNextCommitteeActor(houseType, 
 					userGroup, status, wfName, assigneeLevel, locale);
 		}
-		else {
+		else if(strWFActorId != null) {
 			Long wfActorId = Long.valueOf(request.getParameter("actor"));
 			wfActor = WorkflowActor.findById(WorkflowActor.class, wfActorId);
 		}
@@ -1122,6 +1140,10 @@ class CommitteeWFUtility {
 	 * Some privileged users such as Speaker, Chairman,
 	 * Department of Parliamentary Affairs Minister, 
 	 * Leader of Opposition are not shown the "Next Actors" drop down.
+	 * 
+	 * Note that "Next Actors" dropdown is also not shown in the
+	 * case when the current actor is the last actor in the
+	 * workflow.
 	 * 
 	 * This method sets the attribute which will be used by
 	 * the View to hide the "Next Actors" drop down.
