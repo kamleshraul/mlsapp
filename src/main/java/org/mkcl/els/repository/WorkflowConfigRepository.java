@@ -745,7 +745,11 @@ public class WorkflowConfigRepository extends BaseRepository<WorkflowConfig, Ser
 					WorkflowConfig.class).setMaxResults(1);
 		
 		List<WorkflowConfig> workflowConfigs = tQuery.getResultList();
-		return workflowConfigs.get(0);
+		if(! workflowConfigs.isEmpty()) {
+			return workflowConfigs.get(0);
+		}
+		
+		return null;
 	}
 	
 	private WorkflowActor getNextWorkflowActor(
@@ -769,7 +773,11 @@ public class WorkflowConfigRepository extends BaseRepository<WorkflowConfig, Ser
 			this.em().createQuery(query.toString(), 
 					WorkflowActor.class).setMaxResults(1);
 		
-		List<WorkflowActor> wfActor = tQuery.getResultList();
-		return wfActor.get(0);	
+		List<WorkflowActor> wfActors = tQuery.getResultList();
+		if(! wfActors.isEmpty()) {
+			return wfActors.get(0);
+		}
+			
+		return null;
 	}
 }
