@@ -59,12 +59,12 @@
 	$('document').ready(function(){	
 		$('#committeeType').change(function(){
 			var committeeTypeId = $('#committeeType').val();
-			onCommitteeTypeChange();
+			onCommitteeTypeChange(committeeTypeId);
 		});
 
 		$('#committeeName').change(function(){
 			var committeeNameId = $('#committeeName').val();
-			onCommitteeNameChange();
+			onCommitteeNameChange(committeeNameId);
 		});
 
 		$('#formationDate').change(function(){
