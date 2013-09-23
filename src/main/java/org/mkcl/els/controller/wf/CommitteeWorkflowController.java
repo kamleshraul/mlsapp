@@ -1117,10 +1117,12 @@ class CommitteeWFUtility {
 	
 	public static void populateNextActor(final ModelMap model,
 			final WorkflowActor workflowActor) {
-		String id = String.valueOf(workflowActor.getId());
-		String name = workflowActor.getUserGroupType().getName();
-		Reference actor = new Reference(id, name);
-		model.addAttribute("actor", actor);
+		if(workflowActor != null) {
+			String id = String.valueOf(workflowActor.getId());
+			String name = workflowActor.getUserGroupType().getName();
+			Reference actor = new Reference(id, name);
+			model.addAttribute("actor", actor);
+		}
 	}
 	
 	public static void populateWorkflowAttributes(final ModelMap model,
