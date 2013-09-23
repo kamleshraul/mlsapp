@@ -149,12 +149,25 @@
 </c:if>
 <div class="fields clearfix">
 <form:form action="workflow/committee/memberAddition" method="PUT" modelAttribute="committeeCompositeVO">
-	<%@ include file="/common/info.jsp" %>
-	
-	<h2>
-		<spring:message code="committee.requestToParliamentaryMinister" text="Request to Parliamentary Minister"/>
-	</h2>
-	
+<%@ include file="/common/info.jsp" %>
+
+<h2>
+	<c:choose>
+		<c:when test="${workflowName eq 'committeeMemberAdditionRequestToParliamentaryAffairsMinister'}">
+			<spring:message code="committee.requestToParliamentaryMinister" text="Request to Parliamentary Minister"/>
+		</c:when>
+		<c:when test="${workflowName eq 'committeeMemberAdditionRequestToLeaderOfOpposition'}">
+			<spring:message code="committee.requestToLeaderOfOpposition" text="Request to Leader of Opposition"/>
+		</c:when>
+	</c:choose>
+</h2>
+
+<c:choose>
+<c:when test="${empty committeeCompositeVO.committeeVOs}">
+	<spring:message code="committee.noCommitteesToBeProcessed" text="There are no Committees to be processed"/>
+</c:when>
+<c:otherwise>
+	<div class="scrollable">
 	<c:set var="noOfRulingParties" value="${fn:length(committeeCompositeVO.rulingParties)}"></c:set>
 	<c:set var="noOfOppositionParties" value="${fn:length(committeeCompositeVO.oppositionParties)}"></c:set>
 	
@@ -245,34 +258,35 @@
 			<c:set var="committeeCounter" value="${committeeCounter + 1}"></c:set>
 		</c:forEach>
 	</table>
-	
+	</div>
 	<p></p>
 	
 	<p>
-		<label class="small"><spring:message code="committee.putUpFor" text="Put Up For" /></label>
-		<select id="status" name="status" class="sSelect">
-		<c:choose>
-			<c:when test="${not empty statuses}">
-				<c:forEach items="${statuses}" var="i">
-					<c:choose>
-						<c:when test="${status.id == i.id}">
-							<option value="${i.id}" selected="selected"><c:out value="${i.name}"></c:out></option>
-						</c:when>
-						<c:otherwise>
-							<option value="${i.id}"><c:out value="${i.name}"></c:out></option>
-						</c:otherwise>
-					</c:choose>
-				</c:forEach>
-			</c:when>
-			<c:otherwise>
-				<option value="${status.id}" selected="selected"><c:out value="${status.name}"></c:out></option>
-			</c:otherwise>
-		</c:choose>		
-		</select>
+	<label class="small"><spring:message code="committee.putUpFor" text="Put Up For" /></label>
+	<select id="status" name="status" class="sSelect">
+	<c:choose>
+		<c:when test="${not empty statuses}">
+			<c:forEach items="${statuses}" var="i">
+				<c:choose>
+					<c:when test="${status.id == i.id}">
+						<option value="${i.id}" selected="selected"><c:out value="${i.name}"></c:out></option>
+					</c:when>
+					<c:otherwise>
+						<option value="${i.id}"><c:out value="${i.name}"></c:out></option>
+					</c:otherwise>
+				</c:choose>
+			</c:forEach>
+		</c:when>
+		<c:otherwise>
+			<option value="${status.id}" selected="selected"><c:out value="${status.name}"></c:out></option>
+		</c:otherwise>
+	</c:choose>		
+	</select>
 	</p>
 	
 	<c:if test="${hideNextActors ne true}">
-		<p>
+		<c:if test="${not empty actor}">
+			<p>
 			<label class="small"><spring:message code="committee.nextactor" text="Next Actor"/></label>
 			<select id="actor" name="actor" class="sSelect">
 			<c:choose>
@@ -293,28 +307,31 @@
 				</c:otherwise>
 			</c:choose>
 			</select>
-		</p>
+			</p>
+		</c:if>
 	</c:if>
 	
 	<p>
-		<label class="wysiwyglabel"><spring:message code="committee.remarks" text="Remarks"/></label>
-		<textarea id="remarks" name="remarks"  class="wysiwyg" rows="2" cols="50">${remarks}</textarea>	
+	<label class="wysiwyglabel"><spring:message code="committee.remarks" text="Remarks"/></label>
+	<textarea id="remarks" name="remarks"  class="wysiwyg" rows="2" cols="50">${remarks}</textarea>	
 	</p>
 	
 	<div class="fields expand">
 		<h2></h2>
 		<p class="tright">
-			<c:if test="${renderAsReadOnly ne true}">
-				<input id="submit" type="submit" value="<spring:message code='generic.submit' text='Submit'/>" class="butDef">
-			</c:if>
+		<c:if test="${renderAsReadOnly ne true}">
+			<input id="submit" type="submit" value="<spring:message code='generic.submit' text='Submit'/>" class="butDef">
+		</c:if>
 		</p>
 	</div>
-	
-	<!-- Hidden fields  -->
-	<input type="hidden" id="workflowInit" name="workflowInit" value="${workflowInit}"/>
-	<input type="hidden" id="partyTypeId" name="partyTypeId" value="${partyType.id}"/>
-	<input type="hidden" id="renderAsReadOnly" name="renderAsReadOnly" value="${renderAsReadOnly}"/>
-	<input type="hidden" id="ErrorMsg" value="<spring:message code='generic.error' text='Error Occured Contact For Support.'/>"/>
+</c:otherwise>
+</c:choose>
+
+<!-- Hidden fields  -->
+<input type="hidden" id="workflowInit" name="workflowInit" value="${workflowInit}"/>
+<input type="hidden" id="partyTypeId" name="partyTypeId" value="${partyType.id}"/>
+<input type="hidden" id="renderAsReadOnly" name="renderAsReadOnly" value="${renderAsReadOnly}"/>
+<input type="hidden" id="ErrorMsg" value="<spring:message code='generic.error' text='Error Occured Contact For Support.'/>"/>
 </form:form>
 </div>
 </body>

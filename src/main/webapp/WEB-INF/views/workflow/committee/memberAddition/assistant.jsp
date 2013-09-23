@@ -21,6 +21,7 @@
 	}
 	
 	function onPageLoad() {
+		$('.autosuggestmultiple').attr('readOnly', true);
 		conditionalReadOnlyRendering();
 	}
 
@@ -29,7 +30,6 @@
 		if(isRenderAsReadOnly == 'true') {
 			// Render all the visible attributes on the page as readOnly
 			$('#remarks').attr('readOnly', true);
-			$('.autosuggestmultiple').attr('readOnly', true);
 		}
 	}
 	
@@ -149,29 +149,41 @@
 </c:if>
 <div class="fields clearfix">
 <form:form action="workflow/committee/memberAddition" method="PUT" modelAttribute="committeeCompositeVO">
-	<%@ include file="/common/info.jsp" %>
-	
-	<h2>
-		<c:choose>
-			<c:when test="${workflowName eq 'committeeMemberAdditionRequestToParliamentaryAffairsMinister'}">
-				<spring:message code="committee.requestToParliamentaryMinister" text="Request to Parliamentary Minister"/>
-			</c:when>
-			<c:when test="${workflowName eq 'committeeMemberAdditionRequestToLeaderOfOpposition'}">
-				<spring:message code="committee.requestToLeaderOfOpposition" text="Request to Leader of Opposition"/>
-			</c:when>
-		</c:choose>
-	</h2>
-	
+<%@ include file="/common/info.jsp" %>
+
+<h2>
+	<c:choose>
+		<c:when test="${workflowName eq 'committeeMemberAdditionRequestToParliamentaryAffairsMinister'}">
+			<spring:message code="committee.requestToParliamentaryMinister" text="Request to Parliamentary Minister"/>
+		</c:when>
+		<c:when test="${workflowName eq 'committeeMemberAdditionRequestToLeaderOfOpposition'}">
+			<spring:message code="committee.requestToLeaderOfOpposition" text="Request to Leader of Opposition"/>
+		</c:when>
+	</c:choose>
+</h2>
+
+<c:choose>
+<c:when test="${empty committeeCompositeVO.committeeVOs}">
+	<spring:message code="committee.noCommitteesToBeProcessed" text="There are no Committees to be processed"/>
+</c:when>
+<c:otherwise>
+	<div class="scrollable">
 	<c:set var="noOfRulingParties" value="${fn:length(committeeCompositeVO.rulingParties)}"></c:set>
 	<c:set var="noOfOppositionParties" value="${fn:length(committeeCompositeVO.oppositionParties)}"></c:set>
-	
 	<table class="uiTable" border="1">
 		<tr>
 			<th rowspan="2"><spring:message code="committee.committees" text="Committees"/></th>
 			
-			<!-- The following 2 rows will be conditional -->
-			<th rowspan="2"><spring:message code="committee.chairman" text="Chairman"/></th>
-			<th rowspan="2"><spring:message code="committee.members" text="Members"/></th>
+			<c:if test="${status.type eq 'committee_recommend_membersAdded_committeeMemberAdditionRequestToParliamentaryAffairsMinister' 
+							or status.type eq 'committee_recommend_membersAdded_committeeMemberAdditionRequestToLeaderOfOpposition'
+							or status.type eq 'committee_processed_approve_committeeMemberAdditionRequestToParliamentaryAffairsMinister'
+							or status.type eq 'committee_processed_approve_committeeMemberAdditionRequestToLeaderOfOpposition'
+							or status.type eq 'committee_final_approved_committeeMemberAdditionRequestToParliamentaryAffairsMinister'
+							or status.type eq 'committee_final_approved_committeeMemberAdditionRequestToLeaderOfOpposition'
+							or status.type eq 'committee_processed_sendback'}">
+				<th rowspan="2"><spring:message code="committee.chairman" text="Chairman"/></th>
+				<th rowspan="2"><spring:message code="committee.members" text="Members"/></th>
+			</c:if>
 			
 			<th rowspan="2"><spring:message code="committee.maximumMembers" text="Maximum Members"/></th>
 			<!-- 1 is added to incorporate a "Total" column -->
@@ -197,25 +209,33 @@
 			<tr>
 				<td>${committeeVO.committeeDisplayName}</td>
 				
-				<td>
-					<textarea id="chairman_${committeeVO.committeeId}" class="autosuggestmultiple" rows="2" cols="30">${committeeVO.committeeChairman.memberName}</textarea>
-					<c:if test="${not empty committeeChairman}">
-						<select name="chairman_${committeeVO.committeeId}">
-							<option value="${committeeVO.committeeChairman.memberId}" class="${committeeVO.committeeChairman.memberName}"></option>
-						</select>
-					</c:if>
-				</td>
-				
-				<td>
-					<textarea id="members_${committeeVO.committeeId}" class="autosuggestmultiple" rows="2" cols="30">${committeeVO.committeeMembersName}</textarea>
-					<c:if test="${not empty committeeMembers}">		
-						<select name="members_${committeeVO.committeeId}" multiple="multiple">
-							<c:forEach items="${committeeMembers}" var="i">
-								<option value="${i.memberId}" class="${i.memberName}"></option>
-							</c:forEach>		
-						</select>
-					</c:if>
-				</td>
+				<c:if test="${status.type eq 'committee_recommend_membersAdded_committeeMemberAdditionRequestToParliamentaryAffairsMinister' 
+							or status.type eq 'committee_recommend_membersAdded_committeeMemberAdditionRequestToLeaderOfOpposition'
+							or status.type eq 'committee_processed_approve_committeeMemberAdditionRequestToParliamentaryAffairsMinister'
+							or status.type eq 'committee_processed_approve_committeeMemberAdditionRequestToLeaderOfOpposition'
+							or status.type eq 'committee_final_approved_committeeMemberAdditionRequestToParliamentaryAffairsMinister'
+							or status.type eq 'committee_final_approved_committeeMemberAdditionRequestToLeaderOfOpposition'
+							or status.type eq 'committee_processed_sendback'}">
+					<td>
+						<textarea id="chairman_${committeeVO.committeeId}" class="autosuggestmultiple" rows="2" cols="30">${committeeVO.committeeChairman.memberName}</textarea>
+						<c:if test="${not empty committeeChairman}">
+							<select name="chairman_${committeeVO.committeeId}">
+								<option value="${committeeVO.committeeChairman.memberId}" class="${committeeVO.committeeChairman.memberName}"></option>
+							</select>
+						</c:if>
+					</td>
+					
+					<td>
+						<textarea id="members_${committeeVO.committeeId}" class="autosuggestmultiple" rows="2" cols="30">${committeeVO.committeeMembersName}</textarea>
+						<c:if test="${not empty committeeMembers}">		
+							<select name="members_${committeeVO.committeeId}" multiple="multiple">
+								<c:forEach items="${committeeMembers}" var="i">
+									<option value="${i.memberId}" class="${i.memberName}"></option>
+								</c:forEach>		
+							</select>
+						</c:if>
+					</td>
+				</c:if>
 				
 				<td>${committeeVO.maxCommitteeMembers}</td>
 				
@@ -252,34 +272,35 @@
 			<c:set var="committeeCounter" value="${committeeCounter + 1}"></c:set>
 		</c:forEach>
 	</table>
-	
+	</div>
 	<p></p>
 	
 	<p>
-		<label class="small"><spring:message code="committee.putUpFor" text="Put Up For" /></label>
-		<select id="status" name="status" class="sSelect">
-		<c:choose>
-			<c:when test="${not empty statuses}">
-				<c:forEach items="${statuses}" var="i">
-					<c:choose>
-						<c:when test="${status.id == i.id}">
-							<option value="${i.id}" selected="selected"><c:out value="${i.name}"></c:out></option>
-						</c:when>
-						<c:otherwise>
-							<option value="${i.id}"><c:out value="${i.name}"></c:out></option>
-						</c:otherwise>
-					</c:choose>
-				</c:forEach>
-			</c:when>
-			<c:otherwise>
-				<option value="${status.id}" selected="selected"><c:out value="${status.name}"></c:out></option>
-			</c:otherwise>
-		</c:choose>		
-		</select>
+	<label class="small"><spring:message code="committee.putUpFor" text="Put Up For" /></label>
+	<select id="status" name="status" class="sSelect">
+	<c:choose>
+		<c:when test="${not empty statuses}">
+			<c:forEach items="${statuses}" var="i">
+				<c:choose>
+					<c:when test="${status.id == i.id}">
+						<option value="${i.id}" selected="selected"><c:out value="${i.name}"></c:out></option>
+					</c:when>
+					<c:otherwise>
+						<option value="${i.id}"><c:out value="${i.name}"></c:out></option>
+					</c:otherwise>
+				</c:choose>
+			</c:forEach>
+		</c:when>
+		<c:otherwise>
+			<option value="${status.id}" selected="selected"><c:out value="${status.name}"></c:out></option>
+		</c:otherwise>
+	</c:choose>		
+	</select>
 	</p>
 	
 	<c:if test="${hideNextActors ne true}">
-		<p>
+		<c:if test="${not empty actor}">
+			<p>
 			<label class="small"><spring:message code="committee.nextactor" text="Next Actor"/></label>
 			<select id="actor" name="actor" class="sSelect">
 			<c:choose>
@@ -300,28 +321,31 @@
 				</c:otherwise>
 			</c:choose>
 			</select>
-		</p>
+			</p>
+		</c:if>
 	</c:if>
 	
 	<p>
-		<label class="wysiwyglabel"><spring:message code="committee.remarks" text="Remarks"/></label>
-		<textarea id="remarks" name="remarks"  class="wysiwyg" rows="2" cols="50">${remarks}</textarea>	
+	<label class="wysiwyglabel"><spring:message code="committee.remarks" text="Remarks"/></label>
+	<textarea id="remarks" name="remarks"  class="wysiwyg" rows="2" cols="50">${remarks}</textarea>	
 	</p>
 	
 	<div class="fields expand">
 		<h2></h2>
 		<p class="tright">
-			<c:if test="${renderAsReadOnly ne true}">
-				<input id="submit" type="submit" value="<spring:message code='generic.submit' text='Submit'/>" class="butDef">
-			</c:if>
+		<c:if test="${renderAsReadOnly ne true}">
+			<input id="submit" type="submit" value="<spring:message code='generic.submit' text='Submit'/>" class="butDef">
+		</c:if>
 		</p>
 	</div>
-	
-	<!-- Hidden fields  -->
-	<input type="hidden" id="workflowInit" name="workflowInit" value="${workflowInit}"/>
-	<input type="hidden" id="partyTypeId" name="partyTypeId" value="${partyType.id}"/>
-	<input type="hidden" id="renderAsReadOnly" name="renderAsReadOnly" value="${renderAsReadOnly}"/>
-	<input type="hidden" id="ErrorMsg" value="<spring:message code='generic.error' text='Error Occured Contact For Support.'/>"/>
+</c:otherwise>
+</c:choose>
+
+<!-- Hidden fields  -->
+<input type="hidden" id="workflowInit" name="workflowInit" value="${workflowInit}"/>
+<input type="hidden" id="partyTypeId" name="partyTypeId" value="${partyType.id}"/>
+<input type="hidden" id="renderAsReadOnly" name="renderAsReadOnly" value="${renderAsReadOnly}"/>
+<input type="hidden" id="ErrorMsg" value="<spring:message code='generic.error' text='Error Occured Contact For Support.'/>"/>
 </form:form>
 </div>
 </body>
