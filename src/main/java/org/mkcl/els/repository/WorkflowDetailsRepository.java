@@ -702,7 +702,8 @@ public class WorkflowDetailsRepository extends BaseRepository<WorkflowDetails, S
 	}
 	
 	public WorkflowDetails findCurrentWorkflowDetail(final UserGroup userGroup,
-			final String domainIds, 
+			final String domainIds,
+			final String workflowType,
 			final String status, 
 			final String locale) {
 		String strUserGroupId = String.valueOf(userGroup.getId());
@@ -712,6 +713,7 @@ public class WorkflowDetailsRepository extends BaseRepository<WorkflowDetails, S
 				" FROM WorkflowDetails wfd" +
 				" WHERE wfd.assigneeUserGroupId = '" + strUserGroupId + "'" +
 				" AND wfd.domainIds = '" + domainIds + "'" +
+				" AND wfd.workflowType = '" + workflowType + "'" +
 				" AND wfd.status = '" + status + "'" +
 				" AND wfd.locale = '" + locale + "'");
 		

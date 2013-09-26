@@ -2451,4 +2451,51 @@ public class MemberRepository extends BaseRepository<Member, Long>{
         List<Member> members = query.getResultList();
         return members;
     }
+
+	public List<Member> findActiveMembers(final House house, 
+			final MemberRole role,
+			final Date date, 
+			final String nameBeginningWith, 
+			final String sortOrder, 
+			final String locale) {
+		String name = nameBeginningWith;
+		
+		CustomParameter parameter =
+            CustomParameter.findByName(CustomParameter.class, "DB_DATEFORMAT", "");
+        String strDate = FormaterUtil.formatDateToString(date, parameter.getValue());
+
+        StringBuffer query = new StringBuffer();
+        query.append("SELECT m" +
+        	" FROM HouseMemberRoleAssociation hmra JOIN hmra.member m" +
+            " WHERE hmra.fromDate <= '" + strDate + "'" +
+            " AND hmra.toDate >= '" + strDate + "'" +
+            " AND hmra.role.id = " + role.getId() +
+            " AND hmra.house.id = " + house.getId() +
+            " AND hmra.locale = '" + locale + "'");
+        
+        query.append(" AND (");
+		query.append(" m.firstName LIKE '%" + name + "%'" +
+			" OR m.middleName LIKE '%" + name + "%'" +
+			" OR m.lastName LIKE '%" + name + "%'" +
+			" OR CONCAT(m.lastName, ' ', m.firstName) LIKE '%" + name + "%'" +
+			" OR CONCAT(m.firstName, ' ', m.lastName) LIKE '%" + name + "%'" +
+			" OR CONCAT(m.lastName, ' ', m.firstName, ' ', m.middleName)" +
+				" LIKE '%" + name + "%'" +
+			" OR CONCAT(m.firstName, ' ', m.middleName, ' ', m.lastName)" +
+				" LIKE '%" + name + "%'");
+		query.append(" )");
+		
+		query.append(" ORDER BY m.lastName ");
+		if(sortOrder.equals(ApplicationConstants.ASC)) {
+			query.append(ApplicationConstants.ASC);
+		}
+		else {
+			query.append(ApplicationConstants.DESC);
+		}
+
+        TypedQuery<Member> tQuery = 
+        	this.em().createQuery(query.toString(), Member.class);
+        List<Member> members = tQuery.getResultList();
+        return members;
+	}
 }

@@ -308,7 +308,7 @@ public class HouseRepository extends BaseRepository<House,Long>{
     	Long count = tQuery.getSingleResult();
     	return count;
 	}
-
+	
 	public List<Member> findActiveMembers(final House house, 
 			final PartyType partyType,
 			final MemberRole role, 
@@ -448,6 +448,96 @@ public class HouseRepository extends BaseRepository<House,Long>{
     		this.em().createQuery(query.toString(), Member.class);
     	List<Member> members = tQuery.getResultList();
     	return members;
+	}
+
+	public Boolean isMemberBelongsTo(final Member member, 
+			final House house,
+			final PartyType partyType, 
+			final MemberRole role,
+			final Date date,
+			final String locale) {
+		CustomParameter dbDateFormat = CustomParameter.findByName(
+				CustomParameter.class, "DB_DATEFORMAT", "");
+		String strDate = 
+			FormaterUtil.formatDateToString(date, dbDateFormat.getValue());
+		
+		Boolean ofRulingParty = false;
+		if(partyType.getType().equals(ApplicationConstants.RULING_PARTY)) {
+			ofRulingParty = true;
+		}
+		
+		StringBuffer query = new StringBuffer();
+		query.append("SELECT COUNT(m)" +
+			" FROM MemberPartyAssociation mpa JOIN mpa.party p" +
+			" JOIN mpa.member m" +
+			" WHERE mpa.fromDate <= '" + strDate + "'" +
+			" AND (mpa.toDate >= '" + strDate + "'" + " OR mpa.toDate IS NULL)" +
+			" AND mpa.house.id = " + house.getId() +
+			" AND m.id = " + member.getId() +
+			" AND m.locale = '" + locale + "'");
+		
+		query.append(" AND m.id IN (" +
+			" SELECT m1.id"	+
+			" FROM HouseMemberRoleAssociation hmra JOIN hmra.member m1" +
+			" WHERE hmra.fromDate <= '" + strDate + "'" +
+			" AND hmra.toDate >= '" + strDate + "'" +
+			" AND hmra.house.id = " + house.getId() +
+			" AND hmra.role.id = " + role.getId() +
+			" AND hmra.locale = '" + locale + "'" +
+			" )");
+		
+		query.append(" AND (");
+		query.append(" p.id IN (" +
+			" SELECT p1.id" +
+		    " FROM HouseParty hp JOIN hp.parties p1" +
+		    " WHERE hp.fromDate <= '" + strDate + "'" +
+			" AND hp.toDate >= '" + strDate + "'" +
+			" AND hp.house.id = " + house.getId() +
+			" AND hp.partyType.id = " + partyType.getId() +
+			" AND hp.locale = '" + locale + "'" +
+			" )");
+		query.append(" OR ");
+		query.append(" mpa.isMemberOfRulingParty = " + ofRulingParty);		
+		query.append(" )");
+				
+    	TypedQuery<Long> tQuery = 
+    		this.em().createQuery(query.toString(), Long.class);
+    	Long count = tQuery.getSingleResult();
+    	if(count.equals(new Long(1))) {
+    		return true;
+    	}
+    	
+		return false;
+	}
+
+	public Boolean isMemberBelongsTo(final Member member, 
+			final House house,
+			final MemberRole role, 
+			final Date date, 
+			final String locale) {
+		CustomParameter dbDateFormat = CustomParameter.findByName(
+				CustomParameter.class, "DB_DATEFORMAT", "");
+		String strDate = 
+			FormaterUtil.formatDateToString(date, dbDateFormat.getValue());
+		
+		StringBuffer query = new StringBuffer();
+		query.append("SELECT COUNT(m)" +
+			" FROM HouseMemberRoleAssociation hmra JOIN hmra.member m" +
+			" WHERE hmra.fromDate <= '" + strDate + "'" +
+			" AND hmra.toDate >= '" + strDate + "'" +
+			" AND hmra.house.id = " + house.getId() +
+			" AND hmra.role.id = " + role.getId() +
+			" AND m.id = " + member.getId() +
+			" AND hmra.locale = '" + locale + "'");
+				
+    	TypedQuery<Long> tQuery = 
+    		this.em().createQuery(query.toString(), Long.class);
+    	Long count = tQuery.getSingleResult();
+    	if(count.equals(new Long(1))) {
+    		return true;
+    	}
+    	
+		return false;
 	}
 	
 }
