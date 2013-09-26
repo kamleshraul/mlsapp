@@ -6,20 +6,6 @@
 	</title>
 	<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>	
 	<script type="text/javascript">
-	/**
-	* Global attribute to be used between the functions corresponding
-	* to 'search' and 'source' attributes of autocomplete
-	*/
-	var currentCommitteeId = null;
-
-	function getCurrentCommitteeId() {
-		return currentCommitteeId;
-	}
-
-	function setCurrentCommitteeId(id) {
-		currentCommitteeId = id.split("_")[1];
-	}
-	
 	function onPageLoad() {
 		conditionalReadOnlyRendering();
 	}
@@ -35,6 +21,11 @@
 	
 	function getPartyTypeId() {
 		var id = $('#partyTypeId').val();
+		return id;
+	}
+
+	function getHouseTypeId() {
+		var id = $('#houseTypeId').val();
 		return id;
 	}
 	
@@ -77,7 +68,7 @@
 		$('.autosuggestmultiple').autocomplete({
 			minLength:3,
 			source: function(request, response){
-				var parameters = 'committee=' + getCurrentCommitteeId();
+				var parameters = 'houseType=' + getHouseTypeId();
 				var url = 'ref/partyType/' + getPartyTypeId() + '/members' + '?' + parameters;
 				var data = {term: extractLast(request.term)}; 
 				$.get(url, data, response).fail(function(){
@@ -87,9 +78,6 @@
 				});
 			},
 			search: function(){
-				var id = $(this).attr("id");
-				setCurrentCommitteeId(id);
-				
 				var term = extractLast(this.value);
 				if (term.length < 2) {
 					return false;
@@ -175,7 +163,6 @@
 		<tr>
 			<th rowspan="2"><spring:message code="committee.committees" text="Committees"/></th>
 			
-			<!-- The following 2 rows will be conditional -->
 			<th rowspan="2"><spring:message code="committee.chairman" text="Chairman"/></th>
 			<th rowspan="2"><spring:message code="committee.members" text="Members"/></th>
 			
@@ -204,7 +191,7 @@
 				<td>${committeeVO.committeeDisplayName}</td>
 				
 				<td>
-					<textarea id="chairman_${committeeVO.committeeId}" class="autosuggestmultiple" rows="2" cols="30">${committeeVO.committeeChairman.memberName}</textarea>
+					<textarea id="chairman_${committeeVO.committeeId}" class="autosuggestmultiple" rows="5" cols="30">${committeeVO.committeeChairman.memberName}</textarea>
 					<c:if test="${not empty committeeChairman}">
 						<select name="chairman_${committeeVO.committeeId}">
 							<option value="${committeeVO.committeeChairman.memberId}" class="${committeeVO.committeeChairman.memberName}"></option>
@@ -213,7 +200,7 @@
 				</td>
 				
 				<td>
-					<textarea id="members_${committeeVO.committeeId}" class="autosuggestmultiple" rows="2" cols="30">${committeeVO.committeeMembersName}</textarea>
+					<textarea id="members_${committeeVO.committeeId}" class="autosuggestmultiple" rows="5" cols="30">${committeeVO.committeeMembersName}</textarea>
 					<c:if test="${not empty committeeMembers}">		
 						<select name="members_${committeeVO.committeeId}" multiple="multiple">
 							<c:forEach items="${committeeMembers}" var="i">
@@ -329,7 +316,9 @@
 
 <!-- Hidden fields  -->
 <input type="hidden" id="workflowInit" name="workflowInit" value="${workflowInit}"/>
+<input type="hidden" id="workflowName" name="workflowName" value="${workflowName}"/>
 <input type="hidden" id="partyTypeId" name="partyTypeId" value="${partyType.id}"/>
+<input type="hidden" id="houseTypeId" name="houseTypeId" value="${houseType.id}"/>
 <input type="hidden" id="renderAsReadOnly" name="renderAsReadOnly" value="${renderAsReadOnly}"/>
 <input type="hidden" id="ErrorMsg" value="<spring:message code='generic.error' text='Error Occured Contact For Support.'/>"/>
 </form:form>
