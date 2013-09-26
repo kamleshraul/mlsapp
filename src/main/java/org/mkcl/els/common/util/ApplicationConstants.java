@@ -565,6 +565,8 @@ public class ApplicationConstants {
 	
 	public static final String COMMITTEE_REQUEST_TO_LEADER_OF_OPPOSITION = "committeeMemberAdditionRequestToLeaderOfOpposition";
 	
+	public static final String COMMITTEE_ADDITION_OF_INVITED_MEMBERS = "committeeInvitedMemberAddition";
+	
 	public static final String COMMITTEE_USERS_EXCLUDED_FROM_CHOOSING_NEXT_ACTOR_IN_WORKFLOW = "COMMITTEE_USERS_EXCLUDED_FROM_CHOOSING_NEXT_ACTOR_IN_WORKFLOW";
 	
 	public static final int WORKFLOW_START_LEVEL = 1;
@@ -573,9 +575,21 @@ public class ApplicationConstants {
 	
 	public static final String COMMITTEE_MEMBER_ADDITION_URL = "workflow/committee/memberAddition";
 	
+	public static final String COMMITTEE_INVITED_MEMBER_ADDITION_URL = "workflow/committee/invitedMemberAddition";
+	
 	public static final String COMMITTEE_CHAIRMAN = "comittee_chairman";
 	
 	public static final String COMMITTEE_MEMBER = "committee_member";
 	
 	public static final String COMMITTEE_INVITED_MEMBER = "committee_invited_member";
+	
+	public static final String COMMITTEE_REQUEST_TO_PARLIAMENTARY_MINISTER_PROCESSED = "committee_final_approved_committeeMemberAdditionRequestToParliamentaryAffairsMinister";
+	
+	public static final String COMMITTEE_REQUEST_TO_LEADER_OF_OPPOSITION_PROCESSED = "committee_final_approved_committeeMemberAdditionRequestToLeaderOfOpposition";
+	
+	public static final String COMMITTEE_MEMBERS_ADDED = "committee_membersAdded";
+	
+	public static final String COMMITTEE_INVITED_MEMBER_ADDITION_PROCESSED = "committee_final_approved_committeeInvitedMemberAddition";
+	
+	public static final String COMMITTEE_INVITED_MEMBERS_ADDED = "committee_invitedMembersAdded";
 }
