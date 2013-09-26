@@ -97,9 +97,7 @@ public class WorkflowDetails extends BaseDomain implements Serializable{
 	// Comma separated Ids
 	@Column(length=1000)
 	private String domainIds;
-	
-	private String nextAssignee;
-	
+		
 	private String nextWorkflowActorId;
 	
 	@Column(length=1000)
@@ -408,14 +406,6 @@ public class WorkflowDetails extends BaseDomain implements Serializable{
 	public void setDomainIds(final String domainIds) {
 		this.domainIds = domainIds;
 	}
-	
-	public String getNextAssignee() {
-		return nextAssignee;
-	}
-
-	public void setNextAssignee(final String nextAssignee) {
-		this.nextAssignee = nextAssignee;
-	}
 
 	public String getNextWorkflowActorId() {
 		return nextWorkflowActorId;
@@ -428,10 +418,11 @@ public class WorkflowDetails extends BaseDomain implements Serializable{
 	public static WorkflowDetails findCurrentWorkflowDetail(
 			final UserGroup userGroup, 
 			final String domainIds,
+			final String workflowType,
 			final String status,
 			final String locale) {
 		return getWorkflowDetailsRepository().findCurrentWorkflowDetail(
-				userGroup, domainIds, status, locale);
+				userGroup, domainIds, workflowType, status, locale);
 	}
 
 	public String getModule() {
