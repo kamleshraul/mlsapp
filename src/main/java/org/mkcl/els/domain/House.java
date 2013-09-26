@@ -272,6 +272,86 @@ public class House extends BaseDomain implements Serializable {
      * of LOWERHOUSE as well as UPPERHOUSE.
      */
     public static List<Member> findActiveMembers(final HouseType houseType,
+    		final Date date,
+    		final String sortOrder,
+    		final String locale) {
+    	List<Member> members = new ArrayList<Member>();
+    	
+    	if(houseType.getType().equals(ApplicationConstants.BOTH_HOUSE)) {
+    		// Fetch Lower House Members
+    		HouseType lowerHouseType = 
+    			HouseType.findByType(ApplicationConstants.LOWER_HOUSE, locale);
+    		House lowerHouse = House.find(lowerHouseType, date, locale);
+    		List<Member> lowerHouseMembers = 
+    			Member.findActiveMembers(lowerHouse, date, sortOrder, locale);
+    		members.addAll(lowerHouseMembers);
+    		
+    		// Fetch Upper House Members
+    		HouseType upperHouseType = 
+    			HouseType.findByType(ApplicationConstants.UPPER_HOUSE, locale);
+    		House upperHouse = House.find(upperHouseType, date, locale);
+    		List<Member> upperHouseMembers = 
+    			Member.findActiveMembers(upperHouse, date, sortOrder, locale);
+    		members.addAll(upperHouseMembers);
+    		
+    		// Sort as per the sortOrder
+    		members = Member.sortByLastname(members, sortOrder);
+    	}
+    	else {
+    		House house = House.find(houseType, date, locale);
+    		members = Member.findActiveMembers(house, date, sortOrder, locale);
+    	}
+    	
+    	return members;
+    }
+    
+    /**
+     * If @param houseType is BOTHHOUSE then return union of the members
+     * of LOWERHOUSE as well as UPPERHOUSE.
+     */
+    public static List<Member> findActiveMembers(final HouseType houseType,
+    		final Date date,
+    		final String nameBeginningWith,
+    		final String sortOrder,
+    		final String locale) {
+    	List<Member> members = new ArrayList<Member>();
+    	
+    	if(houseType.getType().equals(ApplicationConstants.BOTH_HOUSE)) {
+    		// Fetch Lower House Members
+    		HouseType lowerHouseType = 
+    			HouseType.findByType(ApplicationConstants.LOWER_HOUSE, locale);
+    		House lowerHouse = House.find(lowerHouseType, date, locale);
+    		List<Member> lowerHouseMembers = 
+    			Member.findActiveMembers(lowerHouse, date, 
+    					nameBeginningWith, sortOrder, locale);
+    		members.addAll(lowerHouseMembers);
+    		
+    		// Fetch Upper House Members
+    		HouseType upperHouseType = 
+    			HouseType.findByType(ApplicationConstants.UPPER_HOUSE, locale);
+    		House upperHouse = House.find(upperHouseType, date, locale);
+    		List<Member> upperHouseMembers = 
+    			Member.findActiveMembers(upperHouse, date, 
+    					nameBeginningWith, sortOrder, locale);
+    		members.addAll(upperHouseMembers);
+    		
+    		// Sort as per the sortOrder
+    		members = Member.sortByLastname(members, sortOrder);
+    	}
+    	else {
+    		House house = House.find(houseType, date, locale);
+    		members = Member.findActiveMembers(house, date, 
+    				nameBeginningWith, sortOrder, locale);
+    	}
+    	
+    	return members;
+    }
+    
+    /**
+     * If @param houseType is BOTHHOUSE then return union of the members
+     * of LOWERHOUSE as well as UPPERHOUSE.
+     */
+    public static List<Member> findActiveMembers(final HouseType houseType,
     		final PartyType partyType,
     		final Date date,
     		final String sortOrder,
@@ -302,7 +382,7 @@ public class House extends BaseDomain implements Serializable {
     		members.addAll(upperHouseMembers);
     		
     		// Sort as per the sortOrder
-    		members = Member.sortByFirstname(members, sortOrder);    		
+    		members = Member.sortByLastname(members, sortOrder);    		
     	}
     	else {
     		House house = House.find(houseType, date, locale);
@@ -352,7 +432,7 @@ public class House extends BaseDomain implements Serializable {
     		members.addAll(upperHouseMembers);
     		
     		// Sort as per the sortOrder
-   			members = Member.sortByFirstname(members, sortOrder);    		
+   			members = Member.sortByLastname(members, sortOrder);    		
     	}
     	else {
     		House house = House.find(houseType, date, locale);
@@ -363,6 +443,29 @@ public class House extends BaseDomain implements Serializable {
     	
     	return members;
     }
+    
+    public static Boolean isMemberBelongsTo(final Member member,
+    		final House house,
+    		final PartyType partyType,
+    		final String locale) {
+    	HouseType houseType = house.getType();
+		MemberRole role = MemberRole.find(houseType, "MEMBER", locale);
+		Date currentDate = new Date();
+		Boolean retVal = House.getHouseRepository().isMemberBelongsTo(member, 
+				house, partyType, role, currentDate, locale);
+		return retVal;
+    }
+    
+    public static Boolean isMemberBelongsTo(final Member member, 
+    		final House house,
+    		final String locale) {
+    	HouseType houseType = house.getType();
+		MemberRole role = MemberRole.find(houseType, "MEMBER", locale);
+		Date currentDate = new Date();
+		Boolean retVal = House.getHouseRepository().isMemberBelongsTo(member, 
+				house, role, currentDate, locale);
+		return retVal;
+	}
     
     private static List<Party> sortByStrength(final List<Party> parties,
     		final Map<Long, Long> partyStrengthMap,
