@@ -203,4 +203,5 @@ public class WorkflowConfig extends BaseDomain implements Serializable {
 			findNextCommitteeActor(houseType, userGroup, status, 
 					workflowName, level, locale);
 	}
+	
 }
