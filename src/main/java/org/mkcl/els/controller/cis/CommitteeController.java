@@ -15,6 +15,7 @@ import org.mkcl.els.domain.CommitteeMember;
 import org.mkcl.els.domain.CommitteeName;
 import org.mkcl.els.domain.CommitteeType;
 import org.mkcl.els.domain.CustomParameter;
+import org.mkcl.els.domain.Status;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
 import org.springframework.validation.BindingResult;
@@ -75,6 +76,7 @@ public class CommitteeController extends GenericController<Committee> {
 		this.populateFoundationDate(model, committeeName, locale);
 		this.populateCommitteeMembers(model, domain);
 		this.populateInvitedMembers(model, domain);
+		this.populateStatus(model, domain);
 	}
 
 	@Override
@@ -115,6 +117,7 @@ public class CommitteeController extends GenericController<Committee> {
 
 		this.populateCommitteeMembers(model, committee);
 		this.populateInvitedMembers(model, committee);
+		this.populateStatus(model, committee);
 
 		return "committee/view";
 	}
@@ -162,6 +165,12 @@ public class CommitteeController extends GenericController<Committee> {
 			final Committee domain) {
 		List<CommitteeMember> invitedMembers = domain.getInvitedMembers();
 		model.addAttribute("invitedMembers", invitedMembers);
+	}
+	
+	private void populateStatus(final ModelMap model, 
+			final Committee domain) {
+		Status status = domain.getStatus();
+		model.addAttribute("status", status);
 	}
 
 	private String getServerDateFormat() {
