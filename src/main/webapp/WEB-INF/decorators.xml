@@ -321,12 +321,17 @@
 		<pattern>/houseparty</pattern>
 		
 		<pattern>workflow/committee</pattern>
+		
 		<pattern>/workflow/committee/init/requestToParliamentaryMinister</pattern>
 		<pattern>/workflow/committee/init/requestToLeaderOfOpposition</pattern>
 		<pattern>/workflow/committee/memberAddition/*</pattern>
 		<pattern>/workflow/committee/memberAddition</pattern>
 		<pattern>/workflow/committee/memberAddition/processed/*</pattern>
 		
+		<pattern>/workflow/committee/init/invitedMemberAddition</pattern>
+		<pattern>/workflow/committee/invitedMemberAddition/*</pattern>
+		<pattern>/workflow/committee/invitedMemberAddition</pattern>
+		<pattern>/workflow/committee/invitedMemberAddition/processed/*</pattern>		
 	</decorator>
 	<decorator name="mnu_form" page="mnu_form.jsp">
 		<pattern>/menu</pattern>
