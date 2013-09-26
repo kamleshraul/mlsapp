@@ -5,6 +5,7 @@
 	<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
 	<script type="text/javascript">
 		$(document).ready(function(){
+			onPageLoad();
 						
 			$('#list_tab').click(function(){
 				showList();
@@ -37,8 +38,9 @@
 			/**** device type changes then reload grid****/			
 			$("#selectedDeviceType").change(function(){
 				var value=$(this).val();
-				if(value!=""){		
-					loadSubWorkflow(value);
+				if(value!=""){
+					prependOptionToSelectedModule();
+					loadSubWorkflowByDeviceType(value);
 					 $.get('ref/getTypeOfSelectedDeviceTypeFromName?deviceType='+ value,function(data){
 						$('#deviceTypeType').val(data);
 					}).fail(function(){
@@ -75,6 +77,16 @@
 					reloadMyTaskGrid();
 				}
 			});
+
+			/**** module changes then reload grid****/
+			$('#selectedModule').change(function(){
+				var value = $(this).val();
+				if(value!=""){
+					prependOptionToSelectedDeviceType();
+					loadSubWorkflowByModule(value);
+				}
+			});
+			
 			/**** Keyboard Events ****/	
 			$(document).keydown(function (e){
 				if(e.which==83 && e.ctrlKey){
@@ -126,6 +138,7 @@
 						+"&sessionYear="+$("#selectedSessionYear").val()
 						+"&sessionType="+$("#selectedSessionType").val()
 						+"&deviceType="+$("#selectedDeviceType").val()
+						+"&module="+$("#selectedModule").val()
 						+"&status="+$("#selectedStatus").val()
 						+"&workflowSubType="+$("#selectedSubWorkflow").val()
 						+"&assignee="+$("#assignee").val()
@@ -136,8 +149,32 @@
 				$("#grid").setGridParam({"url":newURL});
 				$("#grid").trigger("reloadGrid");							
 		}		
-		function loadSubWorkflow(deviceType){
+		function loadSubWorkflowByDeviceType(deviceType){
 			$.get('ref/status?deviceType='+ deviceType,function(data){
+				$("#selectedSubWorkflow").empty();
+				var selectedSubWorkflowText="";
+				if(data.length>0){
+					for(var i=0;i<data.length;i++){
+						selectedSubWorkflowText+="<option value='"+data[i].type+"'>"+data[i].name;
+					}
+				}else{
+					selectedSubWorkflowText="<option value='' selected='selected'>----"+$("#pleaseSelectMessage").val()+"----</option>";				
+				}
+				$("#selectedSubWorkflow").html(selectedSubWorkflowText);
+			}).done(function(){
+				$('#selectedSubWorkflow').trigger('change');
+			}).fail(function(){
+				if($("#ErrorMsg").val()!=''){
+					$("#error_p").html($("#ErrorMsg").val()).css({'color':'red', 'display':'block'});
+				}else{
+					$("#error_p").html("Error occured contact for support.").css({'color':'red', 'display':'block'});
+				}
+				scrollTop();
+			});			
+		} 
+
+		function loadSubWorkflowByModule(module){
+			$.get('ref/workflowTypes?module='+ module,function(data){
 				$("#selectedSubWorkflow").empty();
 				var selectedSubWorkflowText="";
 				if(data.length>0){
@@ -230,6 +267,22 @@
 			
 			return retVal;
 		}
+
+		function onPageLoad() {
+			prependOptionToSelectedModule();
+		}
+
+		function prependOptionToSelectedDeviceType() {
+			var optionValue = $('#pleaseSelectOption').val();
+			var option = "<option value='' selected>" + optionValue + "</option>";
+			$('#selectedDeviceType').prepend(option);
+		}
+
+		function prependOptionToSelectedModule() {
+			var optionValue = $('#pleaseSelectOption').val();
+			var option = "<option value='' selected>" + optionValue + "</option>";
+			$('#selectedModule').prepend(option);
+		}
 	</script>
 </head>
 <body>
@@ -306,6 +359,14 @@
 			<option value="${i.name}"><c:out value="${i.name}"></c:out></option>			
 			</c:forEach>
 			</select> |	
+			<a href="#" id="moduletypeLabel" class="butSim">
+				<spring:message code="mytask.module" text="Module"/>
+			</a>
+			<select name="selectedModule" id="selectedModule" style="width:100px;height: 25px;">			
+			<option value="COMMITTEE"><spring:message code="mytask.committee" text="Committee"></spring:message></option>			
+			<option value="REPORTING"><spring:message code="mytask.reporting" text="Reporting"></spring:message></option>
+			<option value="EDITING"><spring:message code="mytask.editing" text="Editing"></spring:message></option>
+			</select> |				
 			<a href="#" id="statusLabel" class="butSim">
 				<spring:message code="mytask.status" text="Status"/>
 			</a>
@@ -368,6 +429,7 @@
 		<input type="hidden" id="currentRowId" value="" />
 		<input type="hidden" id="allRowIds" value="" />
 		<input type="hidden" id="persistentGridRowId" value="" />
+		<input type="hidden" id="pleaseSelectOption" name="pleaseSelectOption" value="<spring:message code='client.prompt.selectForDropdown' text='----Please Select----'></spring:message>">
 		
 	</div> 
 </body>

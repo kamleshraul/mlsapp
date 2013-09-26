@@ -10,6 +10,7 @@
 						+"&sessionYear="+$("#selectedSessionYear").val()
 						+"&sessionType="+$("#selectedSessionType").val()
 						+"&deviceType="+$("#selectedDeviceType").val()
+						+"&module="+$("#selectedModule").val()
 						+"&status="+$("#selectedStatus").val()
 						+"&workflowSubType="+$("#selectedSubWorkflow").val()
 						+"&assignee="+$("#assignee").val()
