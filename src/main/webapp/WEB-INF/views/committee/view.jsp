@@ -48,12 +48,12 @@
 				<th><spring:message code="committee.member" text="Member"/></th>
 				<th><spring:message code="committee.memberDesignation" text="Designation"/></th>
 			</tr>
-			<tr>
-				<c:forEach items="${committeeMembers}" var="committeeMember">
+			<c:forEach items="${committeeMembers}" var="committeeMember">
+				<tr>
 					<td>${committeeMember.member.fullname}</td>
 					<td>${committeeMember.designation.name}</td>
-				</c:forEach>
-			</tr>
+				</tr>
+			</c:forEach>
 		</table>
 	</c:if>
 	
@@ -64,11 +64,11 @@
 			<tr>
 				<th><spring:message code="committee.invitedMember" text="Invited Member"/></th>
 			</tr>
-			<tr>
-				<c:forEach items="${invitedMembers}" var="invitedMember">
+			<c:forEach items="${invitedMembers}" var="invitedMember">
+				<tr>
 					<td>${invitedMember.member.fullname}</td>
-				</c:forEach>
-			</tr>
+				</tr>
+			</c:forEach>
 		</table>
 	</c:if>
 

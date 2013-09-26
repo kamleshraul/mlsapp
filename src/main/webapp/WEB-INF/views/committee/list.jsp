@@ -73,6 +73,12 @@
 			$('#selectionDiv1').hide();
 			requestToLeaderOfOpposition();
 		});
+
+		// Addition of Invited Members to Committee(s)
+		$('#invited_member_addition').click(function(){
+			$('#selectionDiv1').hide();
+			invitedMemberAddition();
+		});
 	});
 	</script>
 </head>
@@ -111,6 +117,13 @@
 				
 				<a href="#" id="request_to_leader_of_opposition" class="butSim">
 					<spring:message code="committee.requestToLeaderOfOpposition" text="Request to Leader of Opposition"/>
+				</a> |
+			</security:authorize>
+			
+			<security:authorize access="hasAnyRole('CIS_SPEAKER', 'CIS_CHAIRMAN')">
+				<hr>
+				<a href="#" id="invited_member_addition" class="butSim">
+					<spring:message code="committee.invitedMemberAddition" text="Addition of Invited Members"/>
 				</a> |
 			</security:authorize>
 			<p>&nbsp;</p>

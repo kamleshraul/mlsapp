@@ -82,6 +82,12 @@
 		showTabByIdAndUrl(id, url);
 	}
 
+	function invitedMemberAddition() {
+		var id = 'details_tab';
+		var url = 'workflow/committee/init/invitedMemberAddition';
+		showTabByIdAndUrl(id, url);
+	}
+
 	function reloadGrid() {
 		var oldURL = $("#grid").getGridParam("url");
 		var baseURL = oldURL.split("?")[0];

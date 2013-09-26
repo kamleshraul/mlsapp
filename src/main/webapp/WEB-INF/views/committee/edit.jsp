@@ -128,7 +128,7 @@
 	</p>
 
 	<!-- Table displaying members -->
-	<c:if test="${not empty committeeMembers}">
+	<c:if test="${status.type eq 'committee_membersAdded' and not empty committeeMembers}">
 		<label class="small"><spring:message code="committee.members" text="Committee Members"/></label>
 		<table class="uiTable" border="1">
 			<tbody>
@@ -136,29 +136,30 @@
 					<th><spring:message code="committee.member" text="Member"/></th>
 					<th><spring:message code="committee.memberDesignation" text="Designation"/></th>
 				</tr>
-				<tr>
-					<c:forEach items="${committeeMembers}" var="committeeMember">
+				<c:forEach items="${committeeMembers}" var="committeeMember">
+					<tr>
+					
 						<td>${committeeMember.member.fullname}</td>
 						<td>${committeeMember.designation.name}</td>
-					</c:forEach>
-				</tr>
+					</tr>
+				</c:forEach>
 			</tbody>
 		</table>
 	</c:if>
 	
 	<!-- Table displaying invited members -->
-	<c:if test="${not empty invitedMembers}">
+	<c:if test="${status.type eq 'committee_invitedMembersAdded' and not empty invitedMembers}">
 		<label class="small"><spring:message code="committee.invitedMembers" text="Invited Members"/></label>
 		<table class="uiTable" border="1">
 			<tbody>
 				<tr>
 					<th><spring:message code="committee.invitedMember" text="Invited Member"/></th>
 				</tr>
-				<tr>
-					<c:forEach items="${invitedMembers}" var="invitedMember">
+				<c:forEach items="${invitedMembers}" var="invitedMember">
+					<tr>
 						<td>${invitedMember.member.fullname}</td>
-					</c:forEach>
-				</tr>
+					</tr>
+				</c:forEach>
 			</tbody>
 		</table>
 	</c:if>
