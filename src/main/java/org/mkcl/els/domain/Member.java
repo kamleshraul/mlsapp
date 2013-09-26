@@ -609,7 +609,25 @@ import org.springframework.beans.factory.annotation.Configurable;
         MemberRole role = MemberRole.find(house.getType(), "MEMBER", locale);
         return getMemberRepository().findActiveMembers(house, role, date, sortOrder, locale);
     }
-
+    
+    /**
+     * Find all the active members in the house for the given date
+     * whose name begins with @param nameBeginningWith.
+     * An active member is defined as a user who has a role "MEMBER"
+     * on a given date.
+     *
+     * Returns an empty list if there are no active Members.
+     */
+    public static List<Member> findActiveMembers(final House house,
+            final Date date,
+    		final String nameBeginningWith,
+            final String sortOrder,
+            final String locale) {
+        MemberRole role = MemberRole.find(house.getType(), "MEMBER", locale);
+        return getMemberRepository().findActiveMembers(
+        		house, role, date, nameBeginningWith, sortOrder, locale);
+    }
+    
     /**
 	 * Sort the Members as per @param sortOrder by lastName. If multiple Members
 	 * have same lastName, then break the tie by firstName.
