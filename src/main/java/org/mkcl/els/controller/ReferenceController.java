@@ -2508,7 +2508,7 @@ public class ReferenceController extends BaseController {
 	public @ResponseBody List<AutoCompleteVO> getPartyTypewiseMembers(
 			final HttpServletRequest request,
 			@PathVariable("partyType") final Long partyTypeId,
-			@RequestParam("committee") final Long committeeId,
+			@RequestParam("houseType") final Long houseTypeId,
 			@RequestParam("term") final String term,
 			final Locale localeObj){
 		List<AutoCompleteVO> vos = new ArrayList<AutoCompleteVO>();
@@ -2519,15 +2519,51 @@ public class ReferenceController extends BaseController {
 			PartyType partyType = 
 				PartyType.findById(PartyType.class, partyTypeId);
 			
-			Committee committee = 
-				Committee.findById(Committee.class, committeeId);
 			HouseType houseType = 
-				committee.getCommitteeName().getCommitteeType().getHouseType();
+				HouseType.findById(HouseType.class, houseTypeId);
 			
 			Date currentDate = new Date();
 			
 			List<Member> members = 
 				House.findActiveMembers(houseType, partyType, currentDate, 
+						nameBeginningWith, ApplicationConstants.ASC, locale);
+			for(Member m : members) {
+				Long id = m.getId();
+				String name = m.getFullname();
+				
+				AutoCompleteVO vo = new AutoCompleteVO();
+				vo.setId(id);
+				vo.setValue(name);
+				vos.add(vo);
+			}
+		}
+		catch (Exception e) {
+
+		}
+		
+		return vos;
+	}
+
+	@RequestMapping(value="houseType/{houseType}/members",
+			method=RequestMethod.GET)
+	public @ResponseBody List<AutoCompleteVO> getHouseTypeWiseActiveMembers(
+			final HttpServletRequest request,
+			@PathVariable("houseType") final Long houseTypeId,
+			@RequestParam("term") final String term,
+			final Locale localeObj){
+		List<AutoCompleteVO> vos = new ArrayList<AutoCompleteVO>();
+		
+		try {
+			String locale = localeObj.toString();			
+			String nameBeginningWith = this.encode(term);			
+			
+			HouseType houseType = 
+				HouseType.findById(HouseType.class, houseTypeId);
+			
+			Date currentDate = new Date();
+			
+			List<Member> members = 
+				House.findActiveMembers(houseType, currentDate, 
 						nameBeginningWith, ApplicationConstants.ASC, locale);
 			for(Member m : members) {
 				Long id = m.getId();
