@@ -54,6 +54,11 @@ public class CommitteeWorkflowController extends BaseController {
 	@Autowired
 	private IProcessService processService;
 	
+	//===========================================================
+	//	Request to Department of Parliamentary Affairs Minister
+	//  and Leader of Opposition for adding members to the 
+	//  committees.
+	//===========================================================
 	/**
 	 * The initial GET request for "REQUEST TO PARLIAMENTARY AFFAIRS MINISTER
 	 * FOR ADDITION OF MEMBERS TO COMMITTEE" workflow will land here.
@@ -92,13 +97,278 @@ public class CommitteeWorkflowController extends BaseController {
 	@RequestMapping(value="memberAddition", method=RequestMethod.GET)
 	public String intermediateMemberAdditionRequest(final ModelMap model,
 			final HttpServletRequest request,
-			final Locale localeObj) {
-		String locale = localeObj.toString();
-		
+			final Locale localeObj) {		
 		Long wfDetailsId = (Long) request.getAttribute("workflowdetails");
 		WorkflowDetails wfDetails = 
 			WorkflowDetails.findById(WorkflowDetails.class, wfDetailsId);
 		
+		String locale = localeObj.toString();
+		String wfName = wfDetails.getWorkflowType();
+		HouseType houseType = CommitteeWFUtility.getHouseType(wfDetails);
+		PartyType partyType = CommitteeWFUtility.getPartyType(wfName, locale);
+		UserGroup userGroup = CommitteeWFUtility.getUserGroup(wfDetails);
+		
+		// STEP 1: Populate Committee Composite VO
+		List<Committee> committees = 
+			CommitteeWFUtility.getCommittees(wfDetails);
+		CommitteeWFUtility.populateCommitteeCompositeVO(model, committees, 
+				houseType, partyType, locale);
+		
+		// STEP 2: Populate Statuses & Status
+		Status status = CommitteeWFUtility.getStatus(wfDetails);
+		CommitteeWFUtility.populateStatuses(model, 
+				userGroup, houseType, status, locale);
+		CommitteeWFUtility.populateStatus(model, status);
+		
+		// STEP 3: Populate Actors & Actor
+		Boolean isHideNextActors = 
+			CommitteeWFUtility.
+				isThisUserExcludedFromSelectingNextActorInWorkflow(
+						userGroup, locale);
+		if(isHideNextActors) {
+			CommitteeWFUtility.hideNextActors(model);
+		}
+		else {
+			String fullWFName = 
+				CommitteeWFUtility.getFullWorkflowName(status);
+			Integer assigneeLevel = 
+				Integer.valueOf(wfDetails.getAssigneeLevel());
+			List<WorkflowActor> wfActors = 
+				CommitteeWFUtility.populateNextActors(model, userGroup, 
+					houseType, status, fullWFName, assigneeLevel, locale);
+			
+			// wfActors can be empty if the current actor is the last
+			// actor in the workflow
+			if(! wfActors.isEmpty()) {
+				WorkflowActor wfActor = wfActors.get(0);
+				CommitteeWFUtility.populateNextActor(model, wfActor);
+			}
+			else {
+				CommitteeWFUtility.hideNextActors(model);
+			}
+		}
+		
+		// STEP 4: Populate Workflow attributes
+		Boolean isWorkflowInit = false;
+		CommitteeWFUtility.populateWorkflowAttributes(
+				model, wfName, isWorkflowInit);
+		
+		// STEP 5: Populate PartyType, HouseType
+		CommitteeWFUtility.populatePartyType(model, partyType);
+		CommitteeWFUtility.populateHouseType(model, houseType);
+		
+		// STEP 6: Return View
+		String urlPattern = wfDetails.getUrlPattern();
+		String ugtType = userGroup.getUserGroupType().getType();
+		return urlPattern + "/" + ugtType;
+	}
+	
+	/**
+	 * All the PUT requests (initial or intermediate) for "REQUEST TO 
+	 * PARLIAMENTARY AFFAIRS MINISTER FOR ADDITION OF MEMBERS TO COMMITTEE"
+	 * AND "REQUEST TO LEADER OF OPPOSITION FOR ADDITION OF MEMBERS TO 
+	 * COMMITTEE" workflows will land here.
+	 * 
+	 * STEPS:
+	 * 1. Save the incoming information.
+	 * 
+	 * 2. If this is workflow initiation request (workflowInit == true),
+	 * 	  start member addition process
+	 *
+	 * 3. Else proceed member addition process
+	 * 	
+	 */
+	@RequestMapping(value="memberAddition", method=RequestMethod.PUT)
+	public String processMemberAdditionRequest(
+			final HttpServletRequest request,
+			final Locale localeObj) {
+		String locale = localeObj.toString();
+		
+		// Determine the houseType
+		List<Committee> committees = CommitteeWFUtility.getCommittees(request);
+		List<UserGroup> userGroups = this.getCurrentUser().getUserGroups();
+		UserGroup userGroup = 
+			CommitteeWFUtility.getUserGroup(request, userGroups, locale);
+		HouseType houseType = 
+			CommitteeWFUtility.getHouseType(committees, userGroup, locale);
+		
+		// Determine the workflowName
+		String wfName = CommitteeWFUtility.getWorkflowName(request);
+		
+		// STEP 1
+		this.memberAdditionRequestSaveInformation(request, houseType, locale);
+		
+		WorkflowDetails wfDetails = null;
+		String wfInit = CommitteeWFUtility.getWorkflowInit(request);
+		if(wfInit != null && wfInit.equals("true")) {
+			// STEP 2
+			AuthUser authUser = this.getCurrentUser();
+			wfDetails =	this.startMemberAdditionProcess(request, authUser, 
+					userGroup, houseType, locale);
+		}
+		else {
+			// STEP 3
+			wfDetails = this.proceedMemberAdditionProcess(request, 
+					userGroup, houseType, wfName, locale);
+		}
+		
+		String returnURL = "redirect:memberAddition/processed/" 
+			+ wfDetails.getId();
+		return returnURL;
+	}
+	
+	/**
+	 * Once the PUT request is processed for "REQUEST TO PARLIAMENTARY 
+	 * AFFAIRS MINISTER FOR ADDITION OF MEMBERS TO COMMITTEE" AND 
+	 * "REQUEST TO LEADER OF OPPOSITION FOR ADDITION OF MEMBERS TO 
+	 * COMMITTEE" workflows, this is the client redirect URL.
+	 */
+	@RequestMapping(value="memberAddition/processed/{workflowDetailsId}", 
+			method=RequestMethod.GET)
+	public String rendererForMemberAdditionRequest(final ModelMap model,
+			@PathVariable("workflowDetailsId") final Long workflowDetailsId,
+			final Locale localeObj) {
+		String locale = localeObj.toString();
+		WorkflowDetails wfDetails = 
+			WorkflowDetails.findById(WorkflowDetails.class, workflowDetailsId);
+		
+		String wfName = wfDetails.getWorkflowType();
+		HouseType houseType = CommitteeWFUtility.getHouseType(wfDetails);
+		PartyType partyType = CommitteeWFUtility.getPartyType(wfName, locale);
+		UserGroup userGroup = CommitteeWFUtility.getUserGroup(wfDetails);
+		
+		// STEP 1: Populate CommitteeCompositeVO
+		List<Committee> committees = 
+			CommitteeWFUtility.getCommittees(wfDetails);
+		CommitteeWFUtility.populateCommitteeCompositeVO(model, committees, 
+				houseType, partyType, locale);
+		
+		// STEP 2: Populate Status
+		Status status = CommitteeWFUtility.getStatus(wfDetails);
+		CommitteeWFUtility.populateStatus(model, status);
+		
+		// STEP 3: Populate Actor
+		Boolean isHideNextActors = 
+			CommitteeWFUtility.
+				isThisUserExcludedFromSelectingNextActorInWorkflow(
+						userGroup, locale);
+		if(isHideNextActors) {
+			CommitteeWFUtility.hideNextActors(model);
+		}
+		else {
+			WorkflowActor wfActor = CommitteeWFUtility.getNextActor(wfDetails);
+			CommitteeWFUtility.populateNextActor(model, wfActor);
+		}
+		
+		// STEP 4: Populate Remarks
+		String remarks = CommitteeWFUtility.getRemarks(wfDetails);
+		CommitteeWFUtility.populateRemarks(model, remarks);
+		
+		// STEP 5: Populate Workflow attributes
+		Boolean isWorkflowInit = false;
+		CommitteeWFUtility.populateWorkflowAttributes(
+				model, wfName, isWorkflowInit);
+		
+		// STEP 6: Render as Read Only. Since the task is completed,
+		// 		   the User must not be allowed to perform any modifications
+		CommitteeWFUtility.renderAsReadOnly(model);
+		
+		// STEP 7: Return View
+		String urlPattern = wfDetails.getUrlPattern();
+		String ugtType = userGroup.getUserGroupType().getType();
+		return urlPattern + "/" + ugtType;
+	}
+	
+	//===========================================================
+	//	Speaker, Chairman initiated workflows for adding invited
+	//  members to the committees.
+	//===========================================================
+	/**
+	 * The initial GET request for "ADDITION OF INVITED MEMBERS TO 
+	 * COMMITTEES" workflow will land here.
+	 */
+	@RequestMapping(value="init/invitedMemberAddition",
+			method=RequestMethod.GET)
+	public String initAdditionOfInvitedMembers(
+			final ModelMap model,
+			final Locale localeObj) {
+		AuthUser authUser = this.getCurrentUser();
+		String wfName = 
+			ApplicationConstants.COMMITTEE_ADDITION_OF_INVITED_MEMBERS;
+		String locale = localeObj.toString();
+		
+		UserGroup userGroup = CommitteeWFUtility.getWorkflowInitiator(
+				authUser, wfName, locale);
+		if(userGroup != null) {
+			HouseType houseType = 
+				CommitteeWFUtility.getHouseType(userGroup, locale);
+			
+			// STEP 1: Populate CommitteeCompositeVO
+			List<Committee> committees = 
+				Committee.findCommitteesForInvitedMembersToBeAdded(
+						houseType, true, locale);
+			CommitteeWFUtility.populateCommitteeCompositeVO(model, committees, 
+					houseType, locale);
+			
+			// STEP 2: Populate Statuses & Status
+			List<Status> statuses = CommitteeWFUtility.populateStatuses(
+					model, userGroup, houseType, wfName, locale);
+			Status status = statuses.get(0);
+			CommitteeWFUtility.populateStatus(model, status);
+			
+			// STEP 3: Populate Actors & Actor
+			Boolean isHideNextActors = 
+				CommitteeWFUtility.
+					isThisUserExcludedFromSelectingNextActorInWorkflow(
+						userGroup, locale);
+			if(isHideNextActors) {
+				CommitteeWFUtility.hideNextActors(model);
+			}
+			else {
+				String fullWFName = 
+					CommitteeWFUtility.getFullWorkflowName(status);
+				List<WorkflowActor> wfActors = 
+					CommitteeWFUtility.populateNextActors(model, userGroup, 
+							houseType, status, fullWFName, 
+							ApplicationConstants.WORKFLOW_START_LEVEL, locale);
+				WorkflowActor wfActor = wfActors.get(0);
+				CommitteeWFUtility.populateNextActor(model, wfActor);
+			}
+			
+			// STEP 4: Populate Workflow attributes
+			Boolean isWorkflowInit = true;
+			CommitteeWFUtility.populateWorkflowAttributes(
+					model, wfName, isWorkflowInit);
+			
+			// STEP 5: Populate HouseType
+			CommitteeWFUtility.populateHouseType(model, houseType);
+			
+			// STEP 5: Return View
+			String ugtType = userGroup.getUserGroupType().getType();
+			return "workflow/committee/invitedMemberAddition/" + ugtType;
+		}
+		else {
+			CommitteeWFUtility.error(model, 
+					"current_user_is_not_authorized_to_initiate_workflow");
+			return "workflow/committee/error";
+		}
+	}
+	
+	/**
+	 * The intermediate (workflow) GET request for "ADDITION OF INVITED 
+	 * MEMBERS TO COMMITTEES" workflow, will land here.
+	 */
+	@RequestMapping(value="invitedMemberAddition", method=RequestMethod.GET)
+	public String intermediateInvitedMemberAdditionRequest(
+			final ModelMap model,
+			final HttpServletRequest request,
+			final Locale localeObj) {		
+		Long wfDetailsId = (Long) request.getAttribute("workflowdetails");
+		WorkflowDetails wfDetails = 
+			WorkflowDetails.findById(WorkflowDetails.class, wfDetailsId);
+		
+		String locale = localeObj.toString();
+		String wfName = wfDetails.getWorkflowType();
 		HouseType houseType = CommitteeWFUtility.getHouseType(wfDetails);
 		UserGroup userGroup = CommitteeWFUtility.getUserGroup(wfDetails);
 		
@@ -143,15 +413,12 @@ public class CommitteeWorkflowController extends BaseController {
 		}
 		
 		// STEP 4: Populate Workflow attributes
-		String wfName = wfDetails.getWorkflowType();
 		Boolean isWorkflowInit = false;
 		CommitteeWFUtility.populateWorkflowAttributes(
 				model, wfName, isWorkflowInit);
 		
-		// STEP 5: Populate PartyType
-		PartyType partyType = 
-			CommitteeWFUtility.getPartyType(wfName, locale);
-		CommitteeWFUtility.populatePartyType(model, partyType);
+		// STEP 5: Populate HouseType
+		CommitteeWFUtility.populateHouseType(model, houseType);
 		
 		// STEP 6: Return View
 		String urlPattern = wfDetails.getUrlPattern();
@@ -160,71 +427,74 @@ public class CommitteeWorkflowController extends BaseController {
 	}
 	
 	/**
-	 * All the PUT requests (initial or intermediate) for "REQUEST TO 
-	 * PARLIAMENTARY AFFAIRS MINISTER FOR ADDITION OF MEMBERS TO COMMITTEE"
-	 * AND "REQUEST TO LEADER OF OPPOSITION FOR ADDITION OF MEMBERS TO 
-	 * COMMITTEE" workflows will land here.
+	 * All the PUT requests (initial or intermediate) for "ADDITION OF 
+	 * INVITED MEMBERS TO COMMITTEES" workflow will land here.
 	 * 
 	 * STEPS:
 	 * 1. Save the incoming information.
 	 * 
 	 * 2. If this is workflow initiation request (workflowInit == true),
-	 * 	  start member addition process
+	 * 	  start invited member addition process
 	 *
-	 * 3. Else proceed member addition process
+	 * 3. Else proceed invited member addition process
 	 * 	
 	 */
-	@RequestMapping(value="memberAddition", method=RequestMethod.PUT)
-	public String processMemberAdditionRequest(
+	@RequestMapping(value="invitedMemberAddition", method=RequestMethod.PUT)
+	public String processInvitedMemberAdditionRequest(
 			final HttpServletRequest request,
 			final Locale localeObj) {
 		String locale = localeObj.toString();
 		
-		// STEP 1
-		this.memberAdditionRequestSaveInformation(request, locale);
-		
 		// Determine the houseType
 		List<Committee> committees = CommitteeWFUtility.getCommittees(request);
 		List<UserGroup> userGroups = this.getCurrentUser().getUserGroups();
-		UserGroup userGroup = 
+		UserGroup userGroup =
 			CommitteeWFUtility.getUserGroup(request, userGroups, locale);
-		HouseType houseType = 
+		HouseType houseType =
 			CommitteeWFUtility.getHouseType(committees, userGroup, locale);
+		
+		// Determine the workflowName
+		String wfName = CommitteeWFUtility.getWorkflowName(request);
+		
+		// STEP 1
+		this.invitedMemberAdditionRequestSaveInformation(request, 
+				houseType, locale);
 		
 		WorkflowDetails wfDetails = null;
 		String wfInit = CommitteeWFUtility.getWorkflowInit(request);
 		if(wfInit != null && wfInit.equals("true")) {
 			// STEP 2
 			AuthUser authUser = this.getCurrentUser();
-			wfDetails =	this.startMemberAdditionProcess(request, authUser, 
-					userGroup, houseType, locale);
+			wfDetails = this.startInvitedMemberAdditionProcess(request, 
+					authUser, userGroup, houseType, locale);
 		}
 		else {
 			// STEP 3
-			wfDetails = this.proceedMemberAdditionProcess(request, 
-					userGroup, houseType, locale);
+			wfDetails = this.proceedInvitedMemberAdditionProcess(request, 
+					userGroup, houseType, wfName, locale);
 		}
 		
-		String returnURL = "redirect:memberAddition/processed/" 
+		String returnURL = "redirect:invitedMemberAddition/processed/" 
 			+ wfDetails.getId();
 		return returnURL;
 	}
 	
 	/**
-	 * Once the PUT request is processed for "REQUEST TO PARLIAMENTARY 
-	 * AFFAIRS MINISTER FOR ADDITION OF MEMBERS TO COMMITTEE" AND 
-	 * "REQUEST TO LEADER OF OPPOSITION FOR ADDITION OF MEMBERS TO 
-	 * COMMITTEE" workflows, this is the client redirect URL.
+	 * Once the PUT request is processed for "ADDITION OF 
+	 * INVITED MEMBERS TO COMMITTEES" workflow, this is the 
+	 * client redirect URL.
 	 */
-	@RequestMapping(value="memberAddition/processed/{workflowDetailsId}", 
+	@RequestMapping(
+			value="invitedMemberAddition/processed/{workflowDetailsId}", 
 			method=RequestMethod.GET)
-	public String rendererForMemberAdditionRequest(final ModelMap model,
+	public String rendererForInvitedMemberAdditionRequest(final ModelMap model,
 			@PathVariable("workflowDetailsId") final Long workflowDetailsId,
 			final Locale localeObj) {
 		String locale = localeObj.toString();
 		WorkflowDetails wfDetails = 
 			WorkflowDetails.findById(WorkflowDetails.class, workflowDetailsId);
 		
+		String wfName = wfDetails.getWorkflowType();
 		HouseType houseType = CommitteeWFUtility.getHouseType(wfDetails);
 		UserGroup userGroup = CommitteeWFUtility.getUserGroup(wfDetails);
 		
@@ -256,7 +526,6 @@ public class CommitteeWorkflowController extends BaseController {
 		CommitteeWFUtility.populateRemarks(model, remarks);
 		
 		// STEP 5: Populate Workflow attributes
-		String wfName = wfDetails.getWorkflowType();
 		Boolean isWorkflowInit = false;
 		CommitteeWFUtility.populateWorkflowAttributes(
 				model, wfName, isWorkflowInit);
@@ -270,7 +539,7 @@ public class CommitteeWorkflowController extends BaseController {
 		String ugtType = userGroup.getUserGroupType().getType();
 		return urlPattern + "/" + ugtType;
 	}
-	
+
 	//=============== INTERNAL METHODS ================
 	/**
 	 * Common functionality to initialize request to
@@ -287,17 +556,21 @@ public class CommitteeWorkflowController extends BaseController {
 			HouseType houseType = 
 				CommitteeWFUtility.getHouseType(userGroup, locale);
 			
-			// STEP 1: Populate CommitteeCompositeVO
-			List<Committee> committees = 
-				Committee.findCommitteesToBeProcessed(houseType, true, locale);
-			CommitteeWFUtility.populateCommitteeCompositeVO(model, committees, 
-					houseType, locale);
-			
-			// STEP 2: Populate Statuses & Status
+			// STEP 1: Populate Statuses & Status
 			List<Status> statuses = CommitteeWFUtility.populateStatuses(
 					model, userGroup, houseType, workflowName, locale);
 			Status status = statuses.get(0);
 			CommitteeWFUtility.populateStatus(model, status);
+			
+			// STEP 2: Populate CommitteeCompositeVO
+			String wfName = CommitteeWFUtility.getWorkflowName(status);
+			PartyType partyType = 
+				CommitteeWFUtility.getPartyType(wfName, locale);
+			List<Committee> committees = 
+				Committee.findCommitteesToBeProcessed(houseType, 
+						partyType, true, locale);
+			CommitteeWFUtility.populateCommitteeCompositeVO(model, committees, 
+					houseType, partyType, locale);
 			
 			// STEP 3: Populate Actors & Actor
 			Boolean isHideNextActors = 
@@ -319,15 +592,13 @@ public class CommitteeWorkflowController extends BaseController {
 			}
 			
 			// STEP 4: Populate Workflow attributes
-			String wfName = CommitteeWFUtility.getWorkflowName(status);
 			Boolean isWorkflowInit = true;
 			CommitteeWFUtility.populateWorkflowAttributes(
 					model, wfName, isWorkflowInit);
 			
-			// STEP 5: Populate PartyType
-			PartyType partyType = 
-				CommitteeWFUtility.getPartyType(wfName, locale);
+			// STEP 5: Populate PartyType, HouseType
 			CommitteeWFUtility.populatePartyType(model, partyType);
+			CommitteeWFUtility.populateHouseType(model, houseType);
 			
 			// STEP 6: Return View
 			String ugtType = userGroup.getUserGroupType().getType();
@@ -336,39 +607,91 @@ public class CommitteeWorkflowController extends BaseController {
 		else {
 			CommitteeWFUtility.error(model, 
 					"current_user_is_not_authorized_to_initiate_workflow");
-			return "workflow/committee/memberAddition/error";
+			return "workflow/committee/error";
 		}
 	}
 	
 	private void memberAdditionRequestSaveInformation(
 			final HttpServletRequest request,
+			final HouseType houseType,
 			final String locale) {
 		List<Committee> committees = CommitteeWFUtility.getCommittees(request);
 		Status status = CommitteeWFUtility.getStatus(request);
 		String remarks = CommitteeWFUtility.getRemarks(request);
 		
-		// Set the statuses & remarks as per the workflowName
+		// Set the statuses & remarks as per the houseType & workflowName
 		String wfName = CommitteeWFUtility.getWorkflowName(status);
+		String houseTypeType = houseType.getType();
 		if(wfName.equals(ApplicationConstants.
-				COMMITTEE_REQUEST_TO_PARLIAMENTARY_MINISTER)) {
-			for(Committee c : committees) {
-				c.setInternalStatusPAMWf(status);
-				c.setRemarksPAMWf(remarks);
-				CommitteeWFUtility.setCommitteeMembers(request, c, locale);
-				c.merge();
+				COMMITTEE_REQUEST_TO_PARLIAMENTARY_MINISTER)) {			
+			if(houseTypeType.equals(ApplicationConstants.LOWER_HOUSE)) {
+				for(Committee c : committees) {
+					c.setInternalStatusPAMLH(status);
+					c.setRemarksPAMLH(remarks);
+					CommitteeWFUtility.setCommitteeMembers(request, c, locale);
+					c.merge();
+				}
+			}
+			else if(houseTypeType.equals(ApplicationConstants.UPPER_HOUSE)) {
+				for(Committee c : committees) {
+					c.setInternalStatusPAMUH(status);
+					c.setRemarksPAMUH(remarks);
+					CommitteeWFUtility.setCommitteeMembers(request, c, locale);
+					c.merge();
+				}
 			}
 		}
 		else if(wfName.equals(ApplicationConstants.
 				COMMITTEE_REQUEST_TO_LEADER_OF_OPPOSITION)) {
-			for(Committee c : committees) {
-				c.setInternalStatusLOPWf(status);
-				c.setRemarksLOPWf(remarks);
-				CommitteeWFUtility.setCommitteeMembers(request, c, locale);
-				c.merge();
+			if(houseTypeType.equals(ApplicationConstants.LOWER_HOUSE)) {
+				for(Committee c : committees) {
+					c.setInternalStatusLOPLH(status);
+					c.setRemarksLOPLH(remarks);
+					CommitteeWFUtility.setCommitteeMembers(request, c, locale);
+					c.merge();
+				}
+			}
+			else if(houseTypeType.equals(ApplicationConstants.UPPER_HOUSE)) {
+				for(Committee c : committees) {
+					c.setInternalStatusLOPUH(status);
+					c.setRemarksLOPUH(remarks);
+					CommitteeWFUtility.setCommitteeMembers(request, c, locale);
+					c.merge();
+				}
 			}
 		}
 	}
 	
+	private void invitedMemberAdditionRequestSaveInformation(
+			final HttpServletRequest request,
+			final HouseType houseType,
+			final String locale) {
+		List<Committee> committees = CommitteeWFUtility.getCommittees(request);
+		Status status = CommitteeWFUtility.getStatus(request);
+		String remarks = CommitteeWFUtility.getRemarks(request);
+		
+		// Set the statuses & remarks as per the houseType
+		String houseTypeType = houseType.getType();
+		if(houseTypeType.equals(ApplicationConstants.LOWER_HOUSE)) {
+			for(Committee c : committees) {
+				c.setInternalStatusIMLH(status);
+				c.setRemarksIMLH(remarks);
+				CommitteeWFUtility.setCommitteeInvitedMembers(
+						request, c, locale);
+				c.merge();
+			}
+		}
+		else if(houseTypeType.equals(ApplicationConstants.UPPER_HOUSE)) {
+			for(Committee c : committees) {
+				c.setInternalStatusIMUH(status);
+				c.setRemarksIMUH(remarks);
+				CommitteeWFUtility.setCommitteeInvitedMembers(
+						request, c, locale);
+				c.merge();
+			}
+		}
+	}
+
 	/**
 	 * STEPS:
 	 * 1. Create WorkflowDetails for current actor
@@ -401,6 +724,37 @@ public class CommitteeWorkflowController extends BaseController {
 	
 	/**
 	 * STEPS:
+	 * 1. Create WorkflowDetails for current actor
+	 * 2. Start Workflow
+	 * 3. Create WorkflowDetails for next actor
+	 */
+	private WorkflowDetails startInvitedMemberAdditionProcess(
+			final HttpServletRequest request,
+			final AuthUser authUser,
+			final UserGroup userGroup,
+			final HouseType houseType,
+			final String locale) {
+		Status status = CommitteeWFUtility.getStatus(request);
+		Integer assigneeLevel = ApplicationConstants.WORKFLOW_START_LEVEL;
+		String urlPattern = 
+			ApplicationConstants.COMMITTEE_INVITED_MEMBER_ADDITION_URL;
+		
+		WorkflowDetails wfDetails = this.createInitWorkflowDetails(request, 
+				authUser, userGroup, houseType, status, assigneeLevel, 
+				urlPattern, locale);
+		
+		Task task = this.startProcess(request, userGroup, houseType, 
+				assigneeLevel, locale);
+		
+		this.createNextActorWorkflowDetails(request, task, 
+				userGroup, houseType, status, assigneeLevel, 
+				urlPattern, locale);
+		
+		return wfDetails;
+	}
+	
+	/**
+	 * STEPS:
 	 * 1. Update current actor's WorkflowDetails
 	 * 2. Proceed the Workflow for the next actor by completing 
 	 * 	  current actor's task & setting the next actors parameters.
@@ -410,6 +764,7 @@ public class CommitteeWorkflowController extends BaseController {
 			final HttpServletRequest request,
 			final UserGroup userGroup,
 			final HouseType houseType,
+			final String workflowName,
 			final String locale) {
 		// STEP 1: Get current actors' WorkflowDetails
 		Long[] committeeIds = CommitteeWFUtility.getCommitteeIds(request);
@@ -417,7 +772,7 @@ public class CommitteeWorkflowController extends BaseController {
 			CommitteeWFUtility.convertToString(committeeIds, ",");
 		
 		WorkflowDetails wfDetails = WorkflowDetails.findCurrentWorkflowDetail(
-				userGroup, strCommitteeIds, 
+				userGroup, strCommitteeIds, workflowName,
 				ApplicationConstants.MYTASK_PENDING, locale);
 		
 		// STEP 2: Update current actors' WorkflowDetails
@@ -437,6 +792,53 @@ public class CommitteeWorkflowController extends BaseController {
 			Status status = CommitteeWFUtility.getStatus(request);
 			String urlPattern = 
 				ApplicationConstants.COMMITTEE_MEMBER_ADDITION_URL;
+			this.createNextActorWorkflowDetails(request, newTask, 
+					userGroup, houseType, status, assigneeLevel, 
+					urlPattern, locale);
+		}
+		
+		return wfDetails;
+	}
+	
+	/**
+	 * STEPS:
+	 * 1. Update current actor's WorkflowDetails
+	 * 2. Proceed the Workflow for the next actor by completing 
+	 * 	  current actor's task & setting the next actors parameters.
+	 * 3. Create WorkflowDetails for next actor 
+	 */
+	private WorkflowDetails proceedInvitedMemberAdditionProcess(
+			final HttpServletRequest request,
+			final UserGroup userGroup,
+			final HouseType houseType,
+			final String workflowName,
+			final String locale) {
+		// STEP 1: Get current actors' WorkflowDetails
+		Long[] committeeIds = CommitteeWFUtility.getCommitteeIds(request);
+		String strCommitteeIds = 
+			CommitteeWFUtility.convertToString(committeeIds, ",");
+		
+		WorkflowDetails wfDetails = WorkflowDetails.findCurrentWorkflowDetail(
+				userGroup, strCommitteeIds, workflowName,
+				ApplicationConstants.MYTASK_PENDING, locale);
+		
+		// STEP 2: Update current actors' WorkflowDetails
+		Integer assigneeLevel = Integer.valueOf(wfDetails.getAssigneeLevel());
+		WorkflowActor nextWFActor = CommitteeWFUtility.getNextActor(request, 
+				userGroup, houseType, assigneeLevel, locale);
+		this.updateWorkflowDetails(wfDetails, nextWFActor);
+		
+		// STEP 3: Proceed the Workflow
+		String taskId = wfDetails.getTaskId();
+		Task newTask = 
+			this.proceedProcess(nextWFActor, houseType, taskId, locale);
+		
+		// STEP 4: If there happens to be a nextActor, create WorkflowDetails
+		// for him by passing the above acquired task
+		if(newTask != null) {
+			Status status = CommitteeWFUtility.getStatus(request);
+			String urlPattern = 
+				ApplicationConstants.COMMITTEE_INVITED_MEMBER_ADDITION_URL;
 			this.createNextActorWorkflowDetails(request, newTask, 
 					userGroup, houseType, status, assigneeLevel, 
 					urlPattern, locale);
@@ -762,16 +1164,38 @@ class CommitteeWFUtility {
 	
 	public static Status getStatus(final WorkflowDetails workflowDetails) {
 		Committee committee = getFirstCommittee(workflowDetails);		
+		HouseType houseType = getHouseType(workflowDetails);
+		
 		String wfName = workflowDetails.getWorkflowType();
+		String houseTypeType = houseType.getType();
 		
 		Status status = null;
 		if(wfName.equals(ApplicationConstants.
 				COMMITTEE_REQUEST_TO_PARLIAMENTARY_MINISTER)) {
-			status = committee.getInternalStatusPAMWf();
+			if(houseTypeType.equals(ApplicationConstants.LOWER_HOUSE)) {
+				status = committee.getInternalStatusPAMLH();
+			}
+			else if(houseTypeType.equals(ApplicationConstants.UPPER_HOUSE)) {
+				status = committee.getInternalStatusPAMUH();
+			}
 		}
 		else if(wfName.equals(ApplicationConstants.
 				COMMITTEE_REQUEST_TO_LEADER_OF_OPPOSITION)) {
-			status = committee.getInternalStatusLOPWf();
+			if(houseTypeType.equals(ApplicationConstants.LOWER_HOUSE)) {
+				status = committee.getInternalStatusLOPLH();
+			}
+			else if(houseTypeType.equals(ApplicationConstants.UPPER_HOUSE)) {
+				status = committee.getInternalStatusLOPUH();
+			}
+		}
+		else if(wfName.equals(
+				ApplicationConstants.COMMITTEE_ADDITION_OF_INVITED_MEMBERS)) {
+			if(houseTypeType.equals(ApplicationConstants.LOWER_HOUSE)) {
+				status = committee.getInternalStatusIMLH();
+			}
+			else if(houseTypeType.equals(ApplicationConstants.UPPER_HOUSE)) {
+				status = committee.getInternalStatusIMUH();
+			}
 		}
 		
 		return status;
@@ -842,16 +1266,38 @@ class CommitteeWFUtility {
 	
 	public static String getRemarks(final WorkflowDetails workflowDetails) {
 		Committee committee = getFirstCommittee(workflowDetails);		
+		HouseType houseType = getHouseType(workflowDetails);
+		
 		String wfName = workflowDetails.getWorkflowType();
+		String houseTypeType = houseType.getType();
 		
 		String remarks = null;
 		if(wfName.equals(ApplicationConstants.
 				COMMITTEE_REQUEST_TO_PARLIAMENTARY_MINISTER)) {
-			remarks = committee.getRemarksPAMWf();
+			if(houseTypeType.equals(ApplicationConstants.LOWER_HOUSE)) {
+				remarks = committee.getRemarksPAMLH();
+			}
+			else if(houseTypeType.equals(ApplicationConstants.UPPER_HOUSE)) {
+				remarks = committee.getRemarksPAMUH();
+			}
 		}
 		else if(wfName.equals(ApplicationConstants.
 				COMMITTEE_REQUEST_TO_LEADER_OF_OPPOSITION)) {
-			remarks = committee.getRemarksLOPWf();
+			if(houseTypeType.equals(ApplicationConstants.LOWER_HOUSE)) {
+				remarks = committee.getRemarksLOPLH();
+			}
+			else if(houseTypeType.equals(ApplicationConstants.UPPER_HOUSE)) {
+				remarks = committee.getRemarksLOPUH();
+			}
+		}
+		else if(wfName.equals(
+				ApplicationConstants.COMMITTEE_ADDITION_OF_INVITED_MEMBERS)) {
+			if(houseTypeType.equals(ApplicationConstants.LOWER_HOUSE)) {
+				remarks = committee.getRemarksIMLH();
+			}
+			else if(houseTypeType.equals(ApplicationConstants.UPPER_HOUSE)) {
+				remarks = committee.getRemarksIMUH();
+			}
 		}
 		
 		return remarks;
@@ -870,8 +1316,8 @@ class CommitteeWFUtility {
 	}
 	 
 	/**
-	 * If @param authUser is configured as the initiator of the
-	 * workflow named @param workflowName then return the 
+	 * If @param authUser is configured as (one of) the initiator 
+	 * of the workflow named @param workflowName then return the 
 	 * @param authUser's UserGroup.
 	 * 
 	 * Else return null.
@@ -881,10 +1327,14 @@ class CommitteeWFUtility {
 			final String locale) {
 		String wfName = workflowName.toUpperCase(); 
 		String name = "COMMITTEE_" + wfName + "_INITIATOR";
+		
+		// ugtType could be comma separated userGroupTypes
+		// in cases where there could be more than one initiator
 		String ugtType = getCustomParameterValue(name, locale);
+		String[] ugtTypes = tokenize(ugtType, ",");
 		
 		List<UserGroup> userGroups = authUser.getUserGroups();
-		UserGroup userGroup = getUserGroup(userGroups, ugtType);
+		UserGroup userGroup = getUserGroup(userGroups, ugtTypes);
 		return userGroup;
 	}
 
@@ -928,6 +1378,11 @@ class CommitteeWFUtility {
 		return fullWfName;
 	}
 	
+	public static String getWorkflowName(final HttpServletRequest request) {
+		String wfName = request.getParameter("workflowName");
+		return wfName;
+	}
+	
 	public static String getWorkflowName(final Status status) {
 		String statusType = status.getType();
 		String[] tokens = tokenize(statusType, "_");
@@ -966,23 +1421,56 @@ class CommitteeWFUtility {
 	}
 	
 	//=============== "SET" API =======================
-	public static Committee setCommitteeMembers(final HttpServletRequest request,
+	public static Committee setCommitteeMembers(
+			final HttpServletRequest request,
 			final Committee committee,
 			final String locale) {
 		Committee c1 = setCommitteeChairman(request, committee, locale);
 		Committee c2 = setCommitteeCoreMembers(request, c1, locale);
-		Committee c3 = setCommitteeInvitedMembers(request, c2, locale);
-		return c3;
+		return c2;
+	}
+	
+	public static Committee setCommitteeInvitedMembers(
+			final HttpServletRequest request,
+			final Committee committee,
+			final String locale) {
+		Long committeeId = committee.getId();
+		String key = "invitedMembers_" + committeeId;
+		String[] values = getValues(request, key);
+		
+		CommitteeDesignation designation = CommitteeDesignation.findByType(
+				ApplicationConstants.COMMITTEE_INVITED_MEMBER, locale);
+		Date joiningDate = new Date();
+		
+		for(String value : values) {
+			Long memberId = Long.valueOf(value);
+			Member member = Member.findById(Member.class, memberId);
+			
+			CommitteeMember committeeMember = 
+				new CommitteeMember(member, designation, joiningDate, locale);
+			committee.getInvitedMembers().add(committeeMember);
+		}
+			
+		return committee;
 	}
 	
 	//=============== "POPULATE MODEL" API ============
 	public static void populateCommitteeCompositeVO(final ModelMap model,
 			final List<Committee> committees,
 			final HouseType houseType,
-			final String locale) {
-		CommitteeCompositeVO committeeCompositeVO = 
-			Committee.findCommitteeVOs(committees, houseType, locale);
-		
+			final PartyType partyType,
+			final String locale) {	
+		CommitteeCompositeVO committeeCompositeVO = Committee.findCommitteeVOs(
+						committees, houseType, partyType, locale);		
+		model.addAttribute("committeeCompositeVO", committeeCompositeVO);
+	}
+	
+	public static void populateCommitteeCompositeVO(final ModelMap model,
+			final List<Committee> committees,
+			final HouseType houseType,
+			final String locale) {	
+		CommitteeCompositeVO committeeCompositeVO = Committee.findCommitteeVOs(
+						committees, houseType, locale);		
 		model.addAttribute("committeeCompositeVO", committeeCompositeVO);
 	}
 	
@@ -1137,6 +1625,11 @@ class CommitteeWFUtility {
 		model.addAttribute("partyType", partyType);
 	}
 	
+	public static void populateHouseType(final ModelMap model,
+			final HouseType houseType) {
+		model.addAttribute("houseType", houseType);
+	}
+	
 	public static void populateRemarks(final ModelMap model,
 			final String remarks) {
 		model.addAttribute("remarks", remarks);
@@ -1223,7 +1716,8 @@ class CommitteeWFUtility {
 			
 			CommitteeMember committeeMember = 
 				new CommitteeMember(member, designation, joiningDate, locale);
-			committee.getMembers().add(committeeMember);
+			// Chairman should be the first member in the list
+			committee.getMembers().add(0, committeeMember);
 		}
 
 		return committee;
@@ -1248,30 +1742,6 @@ class CommitteeWFUtility {
 			CommitteeMember committeeMember = 
 				new CommitteeMember(member, designation, joiningDate, locale);
 			committee.getMembers().add(committeeMember);
-		}
-			
-		return committee;
-	}
-	
-	private static Committee setCommitteeInvitedMembers(
-			final HttpServletRequest request,
-			final Committee committee,
-			final String locale) {
-		Long committeeId = committee.getId();
-		String key = "invitedMembers_" + committeeId;
-		String[] values = getValues(request, key);
-		
-		CommitteeDesignation designation = CommitteeDesignation.findByType(
-				ApplicationConstants.COMMITTEE_INVITED_MEMBER, locale);
-		Date joiningDate = new Date();
-		
-		for(String value : values) {
-			Long memberId = Long.valueOf(value);
-			Member member = Member.findById(Member.class, memberId);
-			
-			CommitteeMember committeeMember = 
-				new CommitteeMember(member, designation, joiningDate, locale);
-			committee.getInvitedMembers().add(committeeMember);
 		}
 			
 		return committee;
