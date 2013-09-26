@@ -35,8 +35,12 @@ import org.springframework.beans.factory.annotation.Configurable;
 @Entity
 @Table(name="committees")
 @JsonIgnoreProperties({"members", "invitedMembers", "status", 
-	"internalStatusPAMWf", "recommendationStatusPAMWf", "remarksPAMWf",
-	"internalStatusLOPWf", "recommendationStatusLOPWf", "remarksLOPWf",
+	"internalStatusPAMLH", "recommendationStatusPAMLH", "remarksPAMLH",
+	"internalStatusPAMUH", "recommendationStatusPAMUH", "remarksPAMUH",
+	"internalStatusLOPLH", "recommendationStatusLOPLH", "remarksLOPLH",
+	"internalStatusLOPUH", "recommendationStatusLOPUH", "remarksLOPUH",
+	"internalStatusIMLH", "recommendationStatusIMLH", "remarksIMLH",
+	"internalStatusIMUH", "recommendationStatusIMUH", "remarksIMUH",
 	"creationDate", "createdBy", "editedOn", "editedAs", "editedBy", "drafts"})
 public class Committee extends BaseDomain implements Serializable {
 	
@@ -86,28 +90,74 @@ public class Committee extends BaseDomain implements Serializable {
 	// "REQUEST TO PARLIAMENTARY AFFAIRS MINISTER FOR ADDITION
 	// OF MEMBERS TO COMITTEE" work flow attributes 
 	@ManyToOne(fetch=FetchType.LAZY)
-	@JoinColumn(name="internal_status_pamwf_id")
-	private Status internalStatusPAMWf;
+	@JoinColumn(name="internal_status_pam_lh_id")
+	private Status internalStatusPAMLH;
 	
 	@ManyToOne(fetch=FetchType.LAZY)
-	@JoinColumn(name="recommendation_status_pamwf_id")
-	private Status recommendationStatusPAMWf;
+	@JoinColumn(name="recommendation_status_pam_lh_id")
+	private Status recommendationStatusPAMLH;
 	
-	@Column(length=30000)
-	private String remarksPAMWf;
+	@Column(name="remarks_pam_lh", length=30000)
+	private String remarksPAMLH;
+	
+	@ManyToOne(fetch=FetchType.LAZY)
+	@JoinColumn(name="internal_status_pam_uh_id")
+	private Status internalStatusPAMUH;
+	
+	@ManyToOne(fetch=FetchType.LAZY)
+	@JoinColumn(name="recommendation_status_pam_uh_id")
+	private Status recommendationStatusPAMUH;
+	
+	@Column(name="remarks_pam_uh", length=30000)
+	private String remarksPAMUH;
 	
 	// "REQUEST TO LEADER OF OPPOSITION FOR ADDITION
-	// OF MEMBERS TO COMITTEE" work flow attributes 
+	// OF MEMBERS TO COMITTEE" work flow attributes
 	@ManyToOne(fetch=FetchType.LAZY)
-	@JoinColumn(name="internal_status_lop_id")
-	private Status internalStatusLOPWf;
+	@JoinColumn(name="internal_status_lop_lh_id")
+	private Status internalStatusLOPLH;
 	
 	@ManyToOne(fetch=FetchType.LAZY)
-	@JoinColumn(name="recommendation_status_lop_id")
-	private Status recommendationStatusLOPWf;
+	@JoinColumn(name="recommendation_status_lop_lh_id")
+	private Status recommendationStatusLOPLH;
 	
-	@Column(length=30000)
-	private String remarksLOPWf;
+	@Column(name="remarks_lop_lh", length=30000)
+	private String remarksLOPLH;
+	
+	@ManyToOne(fetch=FetchType.LAZY)
+	@JoinColumn(name="internal_status_lop_uh_id")
+	private Status internalStatusLOPUH;
+	
+	@ManyToOne(fetch=FetchType.LAZY)
+	@JoinColumn(name="recommendation_status_lop_uh_id")
+	private Status recommendationStatusLOPUH;
+	
+	@Column(name="remarks_lop_uh", length=30000)
+	private String remarksLOPUH;
+	
+	// "ADDITION OF INVITED MEMBERS TO COMMITTEES"
+	// work flow attributes
+	@ManyToOne(fetch=FetchType.LAZY)
+	@JoinColumn(name="internal_status_im_lh_id")
+	private Status internalStatusIMLH;
+	
+	@ManyToOne(fetch=FetchType.LAZY)
+	@JoinColumn(name="recommendation_status_im_lh_id")
+	private Status recommendationStatusIMLH;
+	
+	@Column(name="remarks_im_lh", length=30000)
+	private String remarksIMLH;
+	
+	@ManyToOne(fetch=FetchType.LAZY)
+	@JoinColumn(name="internal_status_im_uh_id")
+	private Status internalStatusIMUH;
+	
+	@ManyToOne(fetch=FetchType.LAZY)
+	@JoinColumn(name="recommendation_status_im_uh_id")
+	private Status recommendationStatusIMUH;
+	
+	@Column(name="remarks_im_uh", length=30000)
+	private String remarksIMUH;
 	
 	/* Audit Log */
 	@Temporal(TemporalType.TIMESTAMP)
@@ -167,6 +217,28 @@ public class Committee extends BaseDomain implements Serializable {
 	public static CommitteeCompositeVO findCommitteeVOs(
 			final List<Committee> committees,
 			final HouseType houseType,
+			final PartyType partyType,
+			final String locale) {
+		CommitteeCompositeVO compositeVO = new CommitteeCompositeVO();
+		
+		List<CommitteeVO> committeeVOs = new ArrayList<CommitteeVO>();
+		for(Committee c : committees) {
+			CommitteeVO committeeVO = 
+				Committee.createCommitteeVO(c, houseType, partyType, locale);
+			committeeVOs.add(committeeVO);
+		}
+		compositeVO.setCommitteeVOs(committeeVOs);
+		
+		Committee.addPartiesToCommitteeCompositeVO(compositeVO, 
+				houseType, locale);
+		
+		return compositeVO;
+	}
+	
+	// TODO: Optimize this method vis-a-vis DB traffic generated
+	public static CommitteeCompositeVO findCommitteeVOs(
+			final List<Committee> committees, 
+			final HouseType houseType, 
 			final String locale) {
 		CommitteeCompositeVO compositeVO = new CommitteeCompositeVO();
 		
@@ -177,8 +249,6 @@ public class Committee extends BaseDomain implements Serializable {
 			committeeVOs.add(committeeVO);
 		}
 		compositeVO.setCommitteeVOs(committeeVOs);
-		
-		Committee.addToCommitteeCompositeVO(compositeVO, houseType, locale);
 		
 		return compositeVO;
 	}
@@ -202,21 +272,20 @@ public class Committee extends BaseDomain implements Serializable {
 	 */
 	public static List<Committee> findCommitteesToBeProcessed(
 			final HouseType houseType,
+			final PartyType partyType,
 			final Boolean isIncludeBothHouseType,
 			final String locale) {
-		HouseType[] houseTypes = new HouseType[]{houseType};
-		if(isIncludeBothHouseType) {
-			HouseType bothHouseType = 
-				HouseType.findByType(ApplicationConstants.BOTH_HOUSE, locale);
-			houseTypes = new HouseType[]{houseType, bothHouseType};
-		}
-		
-		Status status = 
-			Status.findByType(ApplicationConstants.COMMITTEE_CREATED, locale);
-		
-		Date currentDate = new Date();
-		return Committee.getRepository().find(houseTypes, 
-				status,currentDate, locale);
+		return Committee.getRepository().findCommitteesToBeProcessed(
+				houseType, partyType, isIncludeBothHouseType, locale);
+	}
+	
+	public static List<Committee> findCommitteesForInvitedMembersToBeAdded(
+			final HouseType houseType,
+			final Boolean isIncludeBothHouseType,
+			final String locale) {
+		return Committee.getRepository().
+			findCommitteesForInvitedMembersToBeAdded(houseType, 
+					isIncludeBothHouseType, locale);
 	}
 	
 	public static List<Committee> findByCommitteeNames(
@@ -270,6 +339,124 @@ public class Committee extends BaseDomain implements Serializable {
 				ApplicationConstants.COMMITTEE_CREATED, this.getLocale());
 		this.setStatus(CREATED);
 		return super.persist();
+	}
+	
+	@Override
+	public BaseDomain merge() {
+		// Set the status attribute based on internal & recommendation
+		// status as per the different workflows
+		CommitteeType committeeType = 
+			this.getCommitteeName().getCommitteeType(); 
+		HouseType houseType = committeeType.getHouseType();
+		String houseTypeType = houseType.getType();
+		String locale = this.getLocale();
+		
+		// If the workflow is "Member addition"
+		Status intStatusPAMLH = this.getInternalStatusPAMLH();
+		Status intStatusLOPLH = this.getInternalStatusLOPLH();
+		Status intStatusPAMUH = this.getInternalStatusPAMUH();
+		Status intStatusLOPUH = this.getInternalStatusLOPUH();
+		
+		String pamProcessed = ApplicationConstants.
+			COMMITTEE_REQUEST_TO_PARLIAMENTARY_MINISTER_PROCESSED;
+		String lopProcessed = ApplicationConstants.
+			COMMITTEE_REQUEST_TO_LEADER_OF_OPPOSITION_PROCESSED;
+		
+		if(houseTypeType.equals(ApplicationConstants.LOWER_HOUSE)) {
+			if(intStatusPAMLH != null && intStatusLOPLH != null) {
+				String intStatusPAMLHType = intStatusPAMLH.getType();
+				String intStatusLOPLHType = intStatusLOPLH.getType();
+				
+				if(intStatusPAMLHType.equals(pamProcessed)
+						&& intStatusLOPLHType.equals(lopProcessed)) {
+					Status status = Status.findByType(
+							ApplicationConstants.COMMITTEE_MEMBERS_ADDED, 
+							locale);
+					this.setStatus(status);
+				}
+			}
+		}
+		else if(houseTypeType.equals(ApplicationConstants.UPPER_HOUSE)) {
+			if(intStatusPAMUH != null && intStatusLOPUH != null) {
+				String intStatusPAMUHType = intStatusPAMUH.getType();
+				String intStatusLOPUHType = intStatusLOPUH.getType();
+				
+				if(intStatusPAMUHType.equals(pamProcessed)
+						&& intStatusLOPUHType.equals(lopProcessed)) {
+					Status status = Status.findByType(
+							ApplicationConstants.COMMITTEE_MEMBERS_ADDED, 
+							locale);
+					this.setStatus(status);
+				}
+			}
+		}
+		else {
+			if(intStatusPAMLH != null && intStatusLOPLH != null
+					&& intStatusPAMUH != null && intStatusLOPUH != null) {
+				String intStatusPAMLHType = intStatusPAMLH.getType();
+				String intStatusPAMUHType = intStatusPAMUH.getType();
+				String intStatusLOPLHType = intStatusLOPLH.getType();
+				String intStatusLOPUHType = intStatusLOPUH.getType();
+				
+				if(intStatusPAMLHType.equals(pamProcessed)
+						&& intStatusPAMUHType.equals(pamProcessed)
+						&& intStatusLOPLHType.equals(lopProcessed)
+						&& intStatusLOPUHType.equals(lopProcessed)) {
+					Status status = Status.findByType(
+							ApplicationConstants.COMMITTEE_MEMBERS_ADDED, 
+							locale);
+					this.setStatus(status);
+				}
+			}
+		}
+		
+		// If the workflow is "Invited Member addition"
+		Status intStatusIMLH = this.getInternalStatusIMLH();
+		Status intStatusIMUH = this.getInternalStatusIMUH();
+		
+		String imProcessed = ApplicationConstants.
+			COMMITTEE_INVITED_MEMBER_ADDITION_PROCESSED;
+		
+		if(houseTypeType.equals(ApplicationConstants.LOWER_HOUSE)) {
+			if(intStatusIMLH != null) {
+				String intStatusIMLHType = intStatusIMLH.getType();
+				if(intStatusIMLHType.equals(imProcessed)) {
+					Status status = Status.findByType(
+							ApplicationConstants.
+								COMMITTEE_INVITED_MEMBERS_ADDED, 
+							locale);
+					this.setStatus(status);
+				}
+			}
+		}
+		else if(houseTypeType.equals(ApplicationConstants.UPPER_HOUSE)) {
+			if(intStatusIMUH != null) {
+				String intStatusIMUHType = intStatusIMUH.getType();
+				if(intStatusIMUHType.equals(imProcessed)) {
+					Status status = Status.findByType(
+							ApplicationConstants.
+								COMMITTEE_INVITED_MEMBERS_ADDED, 
+							locale);
+					this.setStatus(status);
+				}
+			}
+		}
+		else {
+			if(intStatusIMLH != null && intStatusIMUH != null) {
+				String intStatusIMLHType = intStatusIMLH.getType();
+				String intStatusIMUHType = intStatusIMUH.getType();
+				if(intStatusIMLHType.equals(imProcessed)
+						&& intStatusIMUHType.equals(imProcessed)) {
+					Status status = Status.findByType(
+							ApplicationConstants.
+								COMMITTEE_INVITED_MEMBERS_ADDED, 
+							locale);
+					this.setStatus(status);
+				}
+			}
+		}
+		
+		return super.merge();
 	}
 	
 	/**
@@ -346,6 +533,7 @@ public class Committee extends BaseDomain implements Serializable {
 	
 	private static CommitteeVO createCommitteeVO(final Committee c,
 			final HouseType houseType,
+			final PartyType partyType,
 			final String locale) {
 		// Committee Details
 		Long committeeId = c.getId();
@@ -363,7 +551,7 @@ public class Committee extends BaseDomain implements Serializable {
 		CommitteeMemberVO committeeChairman = Committee.createChairmanVO(c);
 		
 		List<CommitteeMemberVO> committeeMembers = 
-			Committee.createCommitteeMembersVO(c);
+			Committee.createCommitteeMembersVO(c, houseType, partyType, locale);
 		StringBuffer committeeMembersName = new StringBuffer();
 		for(CommitteeMemberVO cm : committeeMembers) {
 			committeeMembersName.append(cm.getMemberName());
@@ -371,7 +559,8 @@ public class Committee extends BaseDomain implements Serializable {
 		}
 		
 		List<CommitteeMemberVO> invitedCommitteeMembers = 
-			Committee.createInvitedCommitteeMembersVO(c);
+			Committee.createInvitedCommitteeMembersVO(c, houseType, 
+					partyType, locale);
 		StringBuffer invitedCommitteeMembersName = new StringBuffer();
 		for(CommitteeMemberVO cm : invitedCommitteeMembers) {
 			invitedCommitteeMembersName.append(cm.getMemberName());
@@ -418,64 +607,207 @@ public class Committee extends BaseDomain implements Serializable {
 		return committeeVO;
 	}
 	
+	private static CommitteeVO createCommitteeVO(final Committee c,
+			final HouseType houseType,
+			final String locale) {
+		// Committee Details
+		Long committeeId = c.getId();
+		
+		CommitteeName cn = c.getCommitteeName();
+		String committeeName = cn.getName();		
+		String committeeDisplayName = cn.getDisplayName();
+		
+		CommitteeType ct = cn.getCommitteeType();	
+		String committeeType = ct.getName();
+		
+		Integer maxCommitteeMembers = c.maxCommitteeMembers(houseType);
+		
+		// Committee Members		
+		CommitteeMemberVO committeeChairman = Committee.createChairmanVO(c);
+		
+		List<CommitteeMemberVO> committeeMembers = 
+			Committee.createCommitteeMembersVO(c, houseType, locale);
+		StringBuffer committeeMembersName = new StringBuffer();
+		for(CommitteeMemberVO cm : committeeMembers) {
+			committeeMembersName.append(cm.getMemberName());
+			committeeMembersName.append(", ");
+		}
+		
+		List<CommitteeMemberVO> invitedCommitteeMembers = 
+			Committee.createInvitedCommitteeMembersVO(c, houseType, locale);
+		StringBuffer invitedCommitteeMembersName = new StringBuffer();
+		for(CommitteeMemberVO cm : invitedCommitteeMembers) {
+			invitedCommitteeMembersName.append(cm.getMemberName());
+			invitedCommitteeMembersName.append(", ");
+		}
+		
+		CommitteeVO committeeVO = new CommitteeVO();
+		committeeVO.setCommitteeId(committeeId);
+		committeeVO.setCommitteeName(committeeName);
+		committeeVO.setCommitteeDisplayName(committeeDisplayName);
+		committeeVO.setCommitteeType(committeeType);
+		committeeVO.setMaxCommitteeMembers(maxCommitteeMembers);
+		committeeVO.setCommitteeChairman(committeeChairman);
+		committeeVO.setCommitteeMembers(committeeMembers);
+		committeeVO.setCommitteeMembersName(committeeMembersName.toString());
+		committeeVO.setInvitedCommitteeMembers(invitedCommitteeMembers);
+		committeeVO.setInvitedCommitteeMembersName(
+				invitedCommitteeMembersName.toString());
+		
+		return committeeVO;
+	}
+	
 	private static CommitteeMemberVO createChairmanVO(final Committee c) {
 		List<CommitteeMember> members = c.getMembers();
 		
 		if(members.size() > 0) {
-			CommitteeMember chairman = members.get(0);
-			Member member = chairman.getMember();
-			Long memberId = member.getId();
-			String memberName = member.getFullname();
-			
-			CommitteeMemberVO chairmanVO = new CommitteeMemberVO();
-			chairmanVO.setMemberId(memberId);
-			chairmanVO.setMemberName(memberName);
-			
-			return chairmanVO;
+			CommitteeMember cMember = members.get(0);
+			CommitteeDesignation designation = cMember.getDesignation();
+			String designationType = designation.getType();
+			if(designationType.equals(
+					ApplicationConstants.COMMITTEE_CHAIRMAN)) {
+				Member member = cMember.getMember();
+				Long memberId = member.getId();
+				String memberName = member.getFullname();
+				
+				CommitteeMemberVO chairmanVO = new CommitteeMemberVO();
+				chairmanVO.setMemberId(memberId);
+				chairmanVO.setMemberName(memberName);
+				
+				return chairmanVO;
+			}
 		}
 		
 		return null;
 	}
 
 	private static List<CommitteeMemberVO> createCommitteeMembersVO(
-			final Committee c) {
+			final Committee c,
+			final HouseType houseType,
+			final PartyType partyType,
+			final String locale) {
 		List<CommitteeMemberVO> memberVOs = new ArrayList<CommitteeMemberVO>();
 		
 		List<CommitteeMember> members = c.getMembers();
-		int size = members.size();
-		if(size > 1) {
-			members = members.subList(1, size);
+		for(CommitteeMember cm : members) {
+			CommitteeDesignation designation = cm.getDesignation();
+			String designationType = designation.getType();
+			Boolean flag1 = 
+				designationType.equals(ApplicationConstants.COMMITTEE_CHAIRMAN);
+			
+			Member member = cm.getMember();
+			// Add member to membersVOs only if the houseType of the
+			// house to which the member belongs is same as @param
+			// houseType & members partyType is equal to @param partyType
+			Date currentDate = new Date();
+			House house = House.find(houseType, currentDate, locale);
+			Boolean flag2 = 
+				House.isMemberBelongsTo(member, house, partyType, locale);
+			
+			if(! flag1 && flag2) {
+				Long memberId = member.getId();
+				String memberName = member.getFullname();
+				
+				CommitteeMemberVO memberVO = new CommitteeMemberVO();
+				memberVO.setMemberId(memberId);
+				memberVO.setMemberName(memberName);
+				memberVOs.add(memberVO);
+			}
 		}
 		
+		return memberVOs;
+	}
+	
+	private static List<CommitteeMemberVO> createCommitteeMembersVO(
+			final Committee c,
+			final HouseType houseType,
+			final String locale) {
+		List<CommitteeMemberVO> memberVOs = new ArrayList<CommitteeMemberVO>();
+		
+		List<CommitteeMember> members = c.getMembers();		
 		for(CommitteeMember cm : members) {
-			Member member = cm.getMember();
-			Long memberId = member.getId();
-			String memberName = member.getFullname();
+			CommitteeDesignation designation = cm.getDesignation();
+			String designationType = designation.getType();
+			Boolean flag = 
+				designationType.equals(ApplicationConstants.COMMITTEE_CHAIRMAN);
 			
-			CommitteeMemberVO memberVO = new CommitteeMemberVO();
-			memberVO.setMemberId(memberId);
-			memberVO.setMemberName(memberName);
-			memberVOs.add(memberVO);
+			if(! flag) {
+				Member member = cm.getMember();
+				Long memberId = member.getId();
+				String memberName = member.getFullname();
+				
+				CommitteeMemberVO memberVO = new CommitteeMemberVO();
+				memberVO.setMemberId(memberId);
+				memberVO.setMemberName(memberName);
+				memberVOs.add(memberVO);
+			}
 		}
 		
 		return memberVOs;
 	}
 	
 	private static List<CommitteeMemberVO> createInvitedCommitteeMembersVO(
-			final Committee c) {
+			final Committee c,
+			final HouseType houseType,
+			final PartyType partyType,
+			final String locale) {
 		List<CommitteeMemberVO> invitedMemberVOs = 
 			new ArrayList<CommitteeMemberVO>();
 		
 		List<CommitteeMember> invitedMembers = c.getInvitedMembers();		
 		for(CommitteeMember cm : invitedMembers) {
 			Member member = cm.getMember();
-			Long memberId = member.getId();
-			String memberName = member.getFullname();
 			
-			CommitteeMemberVO invitedMemberVO = new CommitteeMemberVO();
-			invitedMemberVO.setMemberId(memberId);
-			invitedMemberVO.setMemberName(memberName);
-			invitedMemberVOs.add(invitedMemberVO);
+			// Add member to membersVOs only if the houseType of the
+			// house to which the member belongs is same as @param
+			// houseType & members partyType is equal to @param partyType
+			Date currentDate = new Date();
+			House house = House.find(houseType, currentDate, locale);
+			Boolean flag = 
+				House.isMemberBelongsTo(member, house, partyType, locale);
+			
+			if(flag) {
+				Long memberId = member.getId();
+				String memberName = member.getFullname();
+				
+				CommitteeMemberVO invitedMemberVO = new CommitteeMemberVO();
+				invitedMemberVO.setMemberId(memberId);
+				invitedMemberVO.setMemberName(memberName);
+				invitedMemberVOs.add(invitedMemberVO);
+			}
+		}
+		
+		return invitedMemberVOs;
+	}
+	
+	private static List<CommitteeMemberVO> createInvitedCommitteeMembersVO(
+			final Committee c,
+			final HouseType houseType,
+			final String locale) {
+		List<CommitteeMemberVO> invitedMemberVOs = 
+			new ArrayList<CommitteeMemberVO>();
+		
+		List<CommitteeMember> invitedMembers = c.getInvitedMembers();		
+		for(CommitteeMember cm : invitedMembers) {
+			Member member = cm.getMember();
+			
+			// Add member to membersVOs only if the houseType of the
+			// house to which the member belongs is same as @param
+			// houseType & members partyType is equal to @param partyType
+			Date currentDate = new Date();
+			House house = House.find(houseType, currentDate, locale);
+			Boolean flag = 
+				House.isMemberBelongsTo(member, house, locale);
+			
+			if(flag) {
+				Long memberId = member.getId();
+				String memberName = member.getFullname();
+				
+				CommitteeMemberVO invitedMemberVO = new CommitteeMemberVO();
+				invitedMemberVO.setMemberId(memberId);
+				invitedMemberVO.setMemberName(memberName);
+				invitedMemberVOs.add(invitedMemberVO);
+			}
 		}
 		
 		return invitedMemberVOs;
@@ -567,7 +899,7 @@ public class Committee extends BaseDomain implements Serializable {
 		return partyStrengthMap;
 	}
 
-	private static void addToCommitteeCompositeVO(
+	private static void addPartiesToCommitteeCompositeVO(
 			final CommitteeCompositeVO compositeVO,
 			final HouseType houseType,
 			final String locale) {
@@ -702,55 +1034,155 @@ public class Committee extends BaseDomain implements Serializable {
 	public void setStatus(final Status status) {
 		this.status = status;
 	}
-
-	public Status getInternalStatusPAMWf() {
-		return internalStatusPAMWf;
+	
+	public Status getInternalStatusPAMLH() {
+		return internalStatusPAMLH;
 	}
 
-	public void setInternalStatusPAMWf(final Status internalStatusPAMWf) {
-		this.internalStatusPAMWf = internalStatusPAMWf;
+	public void setInternalStatusPAMLH(final Status internalStatusPAMLH) {
+		this.internalStatusPAMLH = internalStatusPAMLH;
 	}
 
-	public Status getRecommendationStatusPAMWf() {
-		return recommendationStatusPAMWf;
+	public Status getRecommendationStatusPAMLH() {
+		return recommendationStatusPAMLH;
 	}
 
-	public void setRecommendationStatusPAMWf(
-			final Status recommendationStatusPAMWf) {
-		this.recommendationStatusPAMWf = recommendationStatusPAMWf;
+	public void setRecommendationStatusPAMLH(
+			final Status recommendationStatusPAMLH) {
+		this.recommendationStatusPAMLH = recommendationStatusPAMLH;
 	}
 
-	public String getRemarksPAMWf() {
-		return remarksPAMWf;
+	public String getRemarksPAMLH() {
+		return remarksPAMLH;
 	}
 
-	public void setRemarksPAMWf(final String remarksPAMWf) {
-		this.remarksPAMWf = remarksPAMWf;
+	public void setRemarksPAMLH(final String remarksPAMLH) {
+		this.remarksPAMLH = remarksPAMLH;
 	}
 
-	public Status getInternalStatusLOPWf() {
-		return internalStatusLOPWf;
+	public Status getInternalStatusPAMUH() {
+		return internalStatusPAMUH;
 	}
 
-	public void setInternalStatusLOPWf(final Status internalStatusLOPWf) {
-		this.internalStatusLOPWf = internalStatusLOPWf;
+	public void setInternalStatusPAMUH(final Status internalStatusPAMUH) {
+		this.internalStatusPAMUH = internalStatusPAMUH;
 	}
 
-	public Status getRecommendationStatusLOPWf() {
-		return recommendationStatusLOPWf;
+	public Status getRecommendationStatusPAMUH() {
+		return recommendationStatusPAMUH;
 	}
 
-	public void setRecommendationStatusLOPWf(
-			final Status recommendationStatusLOPWf) {
-		this.recommendationStatusLOPWf = recommendationStatusLOPWf;
+	public void setRecommendationStatusPAMUH(
+			final Status recommendationStatusPAMUH) {
+		this.recommendationStatusPAMUH = recommendationStatusPAMUH;
 	}
 
-	public String getRemarksLOPWf() {
-		return remarksLOPWf;
+	public String getRemarksPAMUH() {
+		return remarksPAMUH;
 	}
 
-	public void setRemarksLOPWf(final String remarksLOPWf) {
-		this.remarksLOPWf = remarksLOPWf;
+	public void setRemarksPAMUH(final String remarksPAMUH) {
+		this.remarksPAMUH = remarksPAMUH;
+	}
+
+	public Status getInternalStatusLOPLH() {
+		return internalStatusLOPLH;
+	}
+
+	public void setInternalStatusLOPLH(final Status internalStatusLOPLH) {
+		this.internalStatusLOPLH = internalStatusLOPLH;
+	}
+
+	public Status getRecommendationStatusLOPLH() {
+		return recommendationStatusLOPLH;
+	}
+
+	public void setRecommendationStatusLOPLH(
+			final Status recommendationStatusLOPLH) {
+		this.recommendationStatusLOPLH = recommendationStatusLOPLH;
+	}
+
+	public String getRemarksLOPLH() {
+		return remarksLOPLH;
+	}
+
+	public void setRemarksLOPLH(final String remarksLOPLH) {
+		this.remarksLOPLH = remarksLOPLH;
+	}
+
+	public Status getInternalStatusLOPUH() {
+		return internalStatusLOPUH;
+	}
+
+	public void setInternalStatusLOPUH(final Status internalStatusLOPUH) {
+		this.internalStatusLOPUH = internalStatusLOPUH;
+	}
+
+	public Status getRecommendationStatusLOPUH() {
+		return recommendationStatusLOPUH;
+	}
+
+	public void setRecommendationStatusLOPUH(
+			final Status recommendationStatusLOPUH) {
+		this.recommendationStatusLOPUH = recommendationStatusLOPUH;
+	}
+
+	public String getRemarksLOPUH() {
+		return remarksLOPUH;
+	}
+
+	public void setRemarksLOPUH(final String remarksLOPUH) {
+		this.remarksLOPUH = remarksLOPUH;
+	}
+	
+	public Status getInternalStatusIMLH() {
+		return internalStatusIMLH;
+	}
+
+	public void setInternalStatusIMLH(final Status internalStatusIMLH) {
+		this.internalStatusIMLH = internalStatusIMLH;
+	}
+
+	public Status getRecommendationStatusIMLH() {
+		return recommendationStatusIMLH;
+	}
+
+	public void setRecommendationStatusIMLH(
+			final Status recommendationStatusIMLH) {
+		this.recommendationStatusIMLH = recommendationStatusIMLH;
+	}
+
+	public String getRemarksIMLH() {
+		return remarksIMLH;
+	}
+
+	public void setRemarksIMLH(final String remarksIMLH) {
+		this.remarksIMLH = remarksIMLH;
+	}
+
+	public Status getInternalStatusIMUH() {
+		return internalStatusIMUH;
+	}
+
+	public void setInternalStatusIMUH(final Status internalStatusIMUH) {
+		this.internalStatusIMUH = internalStatusIMUH;
+	}
+
+	public Status getRecommendationStatusIMUH() {
+		return recommendationStatusIMUH;
+	}
+
+	public void setRecommendationStatusIMUH(
+			final Status recommendationStatusIMUH) {
+		this.recommendationStatusIMUH = recommendationStatusIMUH;
+	}
+
+	public String getRemarksIMUH() {
+		return remarksIMUH;
+	}
+
+	public void setRemarksIMUH(final String remarksIMUH) {
+		this.remarksIMUH = remarksIMUH;
 	}
 
 	public Date getCreationDate() {
@@ -800,4 +1232,5 @@ public class Committee extends BaseDomain implements Serializable {
 	public void setDrafts(final List<CommitteeDraft> drafts) {
 		this.drafts = drafts;
 	}
+
 }
