@@ -687,7 +687,9 @@ public class WorkflowConfigRepository extends BaseRepository<WorkflowConfig, Ser
 			this.getWorkflowActor(wfConfig, userGroupType, level);
 		
 		if(status.getType().equals(
-				ApplicationConstants.COMMITTEE_RECOMMEND_SENDBACK)) {
+				ApplicationConstants.COMMITTEE_RECOMMEND_SENDBACK)
+				|| status.getType().equals(
+						ApplicationConstants.COMMITTEE_PROCESSED_SENDBACK)) {
 			wfActors = getWorkflowActorsExcludingCurrent(wfConfig, 
 					currentWfActor, ApplicationConstants.DESC);
 		}
