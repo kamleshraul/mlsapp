@@ -561,6 +561,8 @@ public class ApplicationConstants {
 
 	public static final String COMMITTEE_RECOMMEND_SENDBACK = "committee_recommend_sendback";
 	
+	public static final String COMMITTEE_PROCESSED_SENDBACK = "committee_processed_sendback";
+	
 	public static final String COMMITTEE_REQUEST_TO_PARLIAMENTARY_MINISTER = "committeeMemberAdditionRequestToParliamentaryAffairsMinister";
 	
 	public static final String COMMITTEE_REQUEST_TO_LEADER_OF_OPPOSITION = "committeeMemberAdditionRequestToLeaderOfOpposition";
