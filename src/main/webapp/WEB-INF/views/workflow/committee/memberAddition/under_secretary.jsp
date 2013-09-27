@@ -18,6 +18,29 @@
 			$('#remarks').attr('readOnly', true);
 		}
 	}
+
+	function onStatusChange(statusId) {
+		var status = "status=" + statusId;
+		var houseType = "houseType=" + getHouseTypeId();
+		var userGroup = "userGroup=" + getUserGroupId();
+		var level = "assigneeLevel=" + $('#assigneeLevel').val();
+		var parameters = status + "&" + houseType + "&" + userGroup + "&" + level;
+		var resourceURL = "ref/committee/actors/workflow/" + getWorkflowName() + "?" + parameters;
+		$.get(resourceURL, function(data){
+			var dataLength = data.length;
+			if(dataLength > 0) {
+				var text = "";
+				for(var i = 0; i < dataLength; i++) {
+					text += "<option value='" + data[i].id + "'>" + data[i].name + "</option>";
+				}
+				$('#actor').empty();
+				$('#actor').html(text);
+			}
+			else {
+				$('#actor').empty();
+			}
+		}); 
+	}
 	
 	function getPartyTypeId() {
 		var id = $('#partyTypeId').val();
@@ -27,6 +50,15 @@
 	function getHouseTypeId() {
 		var id = $('#houseTypeId').val();
 		return id;
+	}
+
+	function getUserGroupId() {
+		var id = $('#userGroupId').val();
+		return id;
+	}
+
+	function getWorkflowName() {
+		return $('#workflowName').val();
 	}
 	
 	function extractLast(term) {
@@ -47,6 +79,11 @@
 	
 	$('document').ready(function(){	
 		onPageLoad();
+
+		$('#status').change(function(){
+			var statusId = $('#status').val();
+			onStatusChange(statusId);
+		});
 
 		$('.autosuggestmultiple').change(function(){
 			// If a value is removed from the AutoComplete box, then that value needs to be removed 
@@ -332,8 +369,10 @@
 <!-- Hidden fields  -->
 <input type="hidden" id="workflowInit" name="workflowInit" value="${workflowInit}"/>
 <input type="hidden" id="workflowName" name="workflowName" value="${workflowName}"/>
+<input type="hidden" id="assigneeLevel" name="assigneeLevel" value="${assigneeLevel}"/>
 <input type="hidden" id="partyTypeId" name="partyTypeId" value="${partyType.id}"/>
 <input type="hidden" id="houseTypeId" name="houseTypeId" value="${houseType.id}"/>
+<input type="hidden" id="userGroupId" name="userGroupId" value="${userGroup.id}"/>
 <input type="hidden" id="renderAsReadOnly" name="renderAsReadOnly" value="${renderAsReadOnly}"/>
 <input type="hidden" id="ErrorMsg" value="<spring:message code='generic.error' text='Error Occured Contact For Support.'/>"/>
 </form:form>
