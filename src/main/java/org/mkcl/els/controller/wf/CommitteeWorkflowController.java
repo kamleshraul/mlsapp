@@ -125,14 +125,14 @@ public class CommitteeWorkflowController extends BaseController {
 			CommitteeWFUtility.
 				isThisUserExcludedFromSelectingNextActorInWorkflow(
 						userGroup, locale);
+		Integer assigneeLevel = 
+			Integer.valueOf(wfDetails.getAssigneeLevel());
 		if(isHideNextActors) {
 			CommitteeWFUtility.hideNextActors(model);
 		}
 		else {
 			String fullWFName = 
 				CommitteeWFUtility.getFullWorkflowName(status);
-			Integer assigneeLevel = 
-				Integer.valueOf(wfDetails.getAssigneeLevel());
 			List<WorkflowActor> wfActors = 
 				CommitteeWFUtility.populateNextActors(model, userGroup, 
 					houseType, status, fullWFName, assigneeLevel, locale);
@@ -151,11 +151,12 @@ public class CommitteeWorkflowController extends BaseController {
 		// STEP 4: Populate Workflow attributes
 		Boolean isWorkflowInit = false;
 		CommitteeWFUtility.populateWorkflowAttributes(
-				model, wfName, isWorkflowInit);
+				model, wfName, isWorkflowInit, assigneeLevel);
 		
-		// STEP 5: Populate PartyType, HouseType
+		// STEP 5: Populate PartyType, HouseType, UserGroup
 		CommitteeWFUtility.populatePartyType(model, partyType);
 		CommitteeWFUtility.populateHouseType(model, houseType);
+		CommitteeWFUtility.populateUserGroup(model, userGroup);
 		
 		// STEP 6: Return View
 		String urlPattern = wfDetails.getUrlPattern();
@@ -265,9 +266,10 @@ public class CommitteeWorkflowController extends BaseController {
 		CommitteeWFUtility.populateRemarks(model, remarks);
 		
 		// STEP 5: Populate Workflow attributes
+		Integer assigneeLevel = Integer.valueOf(wfDetails.getAssigneeLevel());
 		Boolean isWorkflowInit = false;
 		CommitteeWFUtility.populateWorkflowAttributes(
-				model, wfName, isWorkflowInit);
+				model, wfName, isWorkflowInit, assigneeLevel);
 		
 		// STEP 6: Render as Read Only. Since the task is completed,
 		// 		   the User must not be allowed to perform any modifications
@@ -321,6 +323,7 @@ public class CommitteeWorkflowController extends BaseController {
 				CommitteeWFUtility.
 					isThisUserExcludedFromSelectingNextActorInWorkflow(
 						userGroup, locale);
+			Integer assigneeLevel = ApplicationConstants.WORKFLOW_START_LEVEL;
 			if(isHideNextActors) {
 				CommitteeWFUtility.hideNextActors(model);
 			}
@@ -330,7 +333,7 @@ public class CommitteeWorkflowController extends BaseController {
 				List<WorkflowActor> wfActors = 
 					CommitteeWFUtility.populateNextActors(model, userGroup, 
 							houseType, status, fullWFName, 
-							ApplicationConstants.WORKFLOW_START_LEVEL, locale);
+							assigneeLevel, locale);
 				WorkflowActor wfActor = wfActors.get(0);
 				CommitteeWFUtility.populateNextActor(model, wfActor);
 			}
@@ -338,7 +341,7 @@ public class CommitteeWorkflowController extends BaseController {
 			// STEP 4: Populate Workflow attributes
 			Boolean isWorkflowInit = true;
 			CommitteeWFUtility.populateWorkflowAttributes(
-					model, wfName, isWorkflowInit);
+					model, wfName, isWorkflowInit, assigneeLevel);
 			
 			// STEP 5: Populate HouseType
 			CommitteeWFUtility.populateHouseType(model, houseType);
@@ -413,9 +416,10 @@ public class CommitteeWorkflowController extends BaseController {
 		}
 		
 		// STEP 4: Populate Workflow attributes
+		Integer assigneeLevel = Integer.valueOf(wfDetails.getAssigneeLevel());
 		Boolean isWorkflowInit = false;
 		CommitteeWFUtility.populateWorkflowAttributes(
-				model, wfName, isWorkflowInit);
+				model, wfName, isWorkflowInit, assigneeLevel);
 		
 		// STEP 5: Populate HouseType
 		CommitteeWFUtility.populateHouseType(model, houseType);
@@ -526,9 +530,10 @@ public class CommitteeWorkflowController extends BaseController {
 		CommitteeWFUtility.populateRemarks(model, remarks);
 		
 		// STEP 5: Populate Workflow attributes
+		Integer assigneeLevel = Integer.valueOf(wfDetails.getAssigneeLevel());
 		Boolean isWorkflowInit = false;
 		CommitteeWFUtility.populateWorkflowAttributes(
-				model, wfName, isWorkflowInit);
+				model, wfName, isWorkflowInit, assigneeLevel);
 		
 		// STEP 6: Render as Read Only. Since the task is completed,
 		// 		   the User must not be allowed to perform any modifications
@@ -577,6 +582,7 @@ public class CommitteeWorkflowController extends BaseController {
 				CommitteeWFUtility.
 					isThisUserExcludedFromSelectingNextActorInWorkflow(
 						userGroup, locale);
+			Integer assigneeLevel = ApplicationConstants.WORKFLOW_START_LEVEL;
 			if(isHideNextActors) {
 				CommitteeWFUtility.hideNextActors(model);
 			}
@@ -586,7 +592,7 @@ public class CommitteeWorkflowController extends BaseController {
 				List<WorkflowActor> wfActors = 
 					CommitteeWFUtility.populateNextActors(model, userGroup, 
 							houseType, status, fullWFName, 
-							ApplicationConstants.WORKFLOW_START_LEVEL, locale);
+							assigneeLevel, locale);
 				WorkflowActor wfActor = wfActors.get(0);
 				CommitteeWFUtility.populateNextActor(model, wfActor);
 			}
@@ -594,11 +600,12 @@ public class CommitteeWorkflowController extends BaseController {
 			// STEP 4: Populate Workflow attributes
 			Boolean isWorkflowInit = true;
 			CommitteeWFUtility.populateWorkflowAttributes(
-					model, wfName, isWorkflowInit);
+					model, wfName, isWorkflowInit, assigneeLevel);
 			
-			// STEP 5: Populate PartyType, HouseType
+			// STEP 5: Populate PartyType, HouseType, UserGroup
 			CommitteeWFUtility.populatePartyType(model, partyType);
 			CommitteeWFUtility.populateHouseType(model, houseType);
+			CommitteeWFUtility.populateUserGroup(model, userGroup);
 			
 			// STEP 6: Return View
 			String ugtType = userGroup.getUserGroupType().getType();
@@ -1163,41 +1170,46 @@ class CommitteeWFUtility {
 	}
 	
 	public static Status getStatus(final WorkflowDetails workflowDetails) {
-		Committee committee = getFirstCommittee(workflowDetails);		
-		HouseType houseType = getHouseType(workflowDetails);
+//		Committee committee = getFirstCommittee(workflowDetails);		
+//		HouseType houseType = getHouseType(workflowDetails);
+//		
+//		String wfName = workflowDetails.getWorkflowType();
+//		String houseTypeType = houseType.getType();
+//		
+//		Status status = null;
+//		if(wfName.equals(ApplicationConstants.
+//				COMMITTEE_REQUEST_TO_PARLIAMENTARY_MINISTER)) {
+//			if(houseTypeType.equals(ApplicationConstants.LOWER_HOUSE)) {
+//				status = committee.getInternalStatusPAMLH();
+//			}
+//			else if(houseTypeType.equals(ApplicationConstants.UPPER_HOUSE)) {
+//				status = committee.getInternalStatusPAMUH();
+//			}
+//		}
+//		else if(wfName.equals(ApplicationConstants.
+//				COMMITTEE_REQUEST_TO_LEADER_OF_OPPOSITION)) {
+//			if(houseTypeType.equals(ApplicationConstants.LOWER_HOUSE)) {
+//				status = committee.getInternalStatusLOPLH();
+//			}
+//			else if(houseTypeType.equals(ApplicationConstants.UPPER_HOUSE)) {
+//				status = committee.getInternalStatusLOPUH();
+//			}
+//		}
+//		else if(wfName.equals(
+//				ApplicationConstants.COMMITTEE_ADDITION_OF_INVITED_MEMBERS)) {
+//			if(houseTypeType.equals(ApplicationConstants.LOWER_HOUSE)) {
+//				status = committee.getInternalStatusIMLH();
+//			}
+//			else if(houseTypeType.equals(ApplicationConstants.UPPER_HOUSE)) {
+//				status = committee.getInternalStatusIMUH();
+//			}
+//		}
+//		
+//		return status;
 		
-		String wfName = workflowDetails.getWorkflowType();
-		String houseTypeType = houseType.getType();
-		
-		Status status = null;
-		if(wfName.equals(ApplicationConstants.
-				COMMITTEE_REQUEST_TO_PARLIAMENTARY_MINISTER)) {
-			if(houseTypeType.equals(ApplicationConstants.LOWER_HOUSE)) {
-				status = committee.getInternalStatusPAMLH();
-			}
-			else if(houseTypeType.equals(ApplicationConstants.UPPER_HOUSE)) {
-				status = committee.getInternalStatusPAMUH();
-			}
-		}
-		else if(wfName.equals(ApplicationConstants.
-				COMMITTEE_REQUEST_TO_LEADER_OF_OPPOSITION)) {
-			if(houseTypeType.equals(ApplicationConstants.LOWER_HOUSE)) {
-				status = committee.getInternalStatusLOPLH();
-			}
-			else if(houseTypeType.equals(ApplicationConstants.UPPER_HOUSE)) {
-				status = committee.getInternalStatusLOPUH();
-			}
-		}
-		else if(wfName.equals(
-				ApplicationConstants.COMMITTEE_ADDITION_OF_INVITED_MEMBERS)) {
-			if(houseTypeType.equals(ApplicationConstants.LOWER_HOUSE)) {
-				status = committee.getInternalStatusIMLH();
-			}
-			else if(houseTypeType.equals(ApplicationConstants.UPPER_HOUSE)) {
-				status = committee.getInternalStatusIMUH();
-			}
-		}
-		
+		String statusType = workflowDetails.getWorkflowSubType();
+		String locale = workflowDetails.getLocale();
+		Status status = Status.findByType(statusType, locale);
 		return status;
 	}
 	
@@ -1379,7 +1391,9 @@ class CommitteeWFUtility {
 	}
 	
 	public static String getWorkflowName(final HttpServletRequest request) {
-		String wfName = request.getParameter("workflowName");
+		String fullWFName = request.getParameter("workflowName");
+		String[] tokens = tokenize(fullWFName, "_");
+		String wfName = tokens[0];
 		return wfName;
 	}
 	
@@ -1613,11 +1627,19 @@ class CommitteeWFUtility {
 		}
 	}
 	
+	public static void populateUserGroup(final ModelMap model,
+			final UserGroup userGroup) {
+		model.addAttribute("userGroup", userGroup);
+	}
+	
 	public static void populateWorkflowAttributes(final ModelMap model,
 			final String workflowName,
-			final Boolean isWorkflowInit) {
-		model.addAttribute("workflowName", workflowName);
+			final Boolean isWorkflowInit,
+			final Integer assigneeLevel) {
+		String fullWFName = workflowName + "_workflow";
+		model.addAttribute("workflowName", fullWFName);
 		model.addAttribute("workflowInit", isWorkflowInit);
+		model.addAttribute("assigneeLevel", assigneeLevel);
 	}
 	
 	public static void populatePartyType(final ModelMap model,
