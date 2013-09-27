@@ -66,6 +66,7 @@ import org.mkcl.els.domain.Status;
 import org.mkcl.els.domain.SubDepartment;
 import org.mkcl.els.domain.Tehsil;
 import org.mkcl.els.domain.UserGroup;
+import org.mkcl.els.domain.WorkflowActor;
 import org.mkcl.els.domain.WorkflowConfig;
 import org.mkcl.els.domain.associations.HouseMemberRoleAssociation;
 import org.springframework.stereotype.Controller;
@@ -2580,6 +2581,42 @@ public class ReferenceController extends BaseController {
 		}
 		
 		return vos;
+	}
+	
+	@RequestMapping(value="committee/actors/workflow/{workflowName}",
+			method=RequestMethod.GET)
+	public @ResponseBody List<Reference> getCommitteeActors(
+			@PathVariable("workflowName") final String workflowName,
+			@RequestParam("status") final Long statusId,
+			@RequestParam("houseType") final Long houseTypeId,
+			@RequestParam("userGroup") final Long userGroupId,
+			@RequestParam("assigneeLevel") final int assigneeLevel,
+			final Locale localeObj) {
+		List<Reference> actors = new ArrayList<Reference>();
+		
+		try {
+			HouseType houseType = 
+				HouseType.findById(HouseType.class, houseTypeId);
+			UserGroup userGroup = 
+				UserGroup.findById(UserGroup.class, userGroupId);
+			Status status = Status.findById(Status.class, statusId);
+			String locale = localeObj.toString();
+			
+			List<WorkflowActor> wfActors = WorkflowConfig.findCommitteeActors(
+					houseType, userGroup, status, workflowName, 
+					assigneeLevel, locale);
+			for(WorkflowActor wfa : wfActors) {
+				String id = String.valueOf(wfa.getId());
+				String name = wfa.getUserGroupType().getName();
+				Reference actor = new Reference(id, name);
+				actors.add(actor);
+			}
+		}
+		catch (Exception e) {
+
+		}
+		
+		return actors;
 	}
 
 	private String encode(final String str) {
