@@ -1,4 +1,5 @@
 <%@ include file="/common/taglibs.jsp" %>
+<%@ page import="java.util.Date;" %>
 <html>
 <head>
 	<title>
@@ -632,28 +633,9 @@
 		}
 		
 		
-		$('#sendBack').click(function(){
-			$.blockUI({ message: '<img src="./resources/images/waitAnimated.gif" />' });
-			$.post($('form').attr('action')+'?operation=workflowsendback',  
-    	            $("form").serialize(),
-    	            function(data){
-       					$('.tabContent').html(data);
-       					$('html').animate({scrollTop:0}, 'slow');
-       				 	$('body').animate({scrollTop:0}, 'slow');
-       				 	$.unblockUI();	
-    	            }
-			).fail(function(){
-    			$.unblockUI();
-    			if($("#ErrorMsg").val()!=''){
-    				$("#error_p").html($("#ErrorMsg").val()).css({'color':'red', 'display':'block'});
-    			}else{
-    				$("#error_p").html("Error occured contact for support.").css({'color':'red', 'display':'block'});
-    			}
-    			scrollTop();
-    		});
-		});
-		
-		$('#submit').click(function(){
+		$('#sendBack').click(function(){			
+			var currTimeMillis = (new Date()).getTime();
+			var goAhead = 'false';
 			
 			$(".wysiwyg").each(function(){
 				var wysiwygVal=$(this).val().trim();
@@ -661,15 +643,58 @@
 					$(this).val("");
 				}
 			});
-						
-			if($('#answer').val()=="" && $('#selectedQuestionType').val()!='questions_halfhourdiscussion_standalone'){
+			
+			if((currTimeMillis <=  parseInt($("#sendBackTimeLimit").val())) && ($("#remarks").val()!='')){
+				goAhead='true';
+			}
+			if((goAhead=='true') || (goAhead=='false' && ($('#answer').val().replace(/<[^>]+>/g,"")!=''))){
+				$.blockUI({ message: '<img src="./resources/images/waitAnimated.gif" />' });
+				$.post($('form').attr('action')+'?operation=workflowsendback',  
+	    	            $("form").serialize(),
+	    	            function(data){
+	       					$('.tabContent').html(data);
+	       					$('html').animate({scrollTop:0}, 'slow');
+	       				 	$('body').animate({scrollTop:0}, 'slow');
+	       				 	$.unblockUI();	
+	    	            }
+				).fail(function(){
+	    			$.unblockUI();
+	    			if($("#ErrorMsg").val()!=''){
+	    				$("#error_p").html($("#ErrorMsg").val()).css({'color':'red', 'display':'block'});
+	    			}else{
+	    				$("#error_p").html("Error occured contact for support.").css({'color':'red', 'display':'block'});
+	    			}
+	    			scrollTop();
+	    		});
+			}else{
+				$.prompt("Please provide remarks.");
+			}
+			
+		});
+		
+		$('#submit').click(function(){
+			$(".wysiwyg").each(function(){
+				var wysiwygVal=$(this).val().trim();
+				if(wysiwygVal=="<p></p>"||wysiwygVal=="<p><br></p>"||wysiwygVal=="<br><p></p>"){
+					$(this).val("");
+				}
+			});
+			
+			//console.log("Answer: " + $('#answer').val() + ", ReanswerStatus: "+$("#reanswerstatus").val() + ", Reanswer: " + $('#reanswer').val());
+			//console.log(($('#answer').val()=="" || ($("#reanswerstatus").val()=='reanswer' && $('#reanswer').val()=="")) && $('#selectedQuestionType').val()!='questions_halfhourdiscussion_standalone');
+			
+			if(($('#answer').val()=="" || ($("#workflowstatus").val()=='COMPLETED' && $('#reanswer').val()=="")) && $('#selectedQuestionType').val()!='questions_halfhourdiscussion_standalone'){
 				$.prompt($('#noAnswerProvidedMsg').val());
-			}else{ 
+			}else{
 				$.prompt($('#submissionMsg').val(),{
 					buttons: {Ok:true, Cancel:false}, callback: function(v){
-				        if(v){
+				        if(v){				        	
 							$.blockUI({ message: '<img src="./resources/images/waitAnimated.gif" />' });
-							$.post($('form').attr('action')+'?operation=workflowsubmit',  
+							var url = $('form').attr('action')+'?operation=workflowsubmit';
+							if($("#workflowstatus").val()=='COMPLETED'){
+								url += '&reanswerstatus=reanswer';
+							}
+							$.post(url,  
 				    	            $("form").serialize(),
 				    	            function(data){
 				       					$('.tabContent').html(data);
@@ -697,12 +722,23 @@
 		$("#next_task").click(function() {
 			nextTask();
 		});
+		
+		/**** To make the next task available ****/
+		$("#reanswer_workflow").click(function() {
+			resendAnswer();
+		});
 	});
+	
+	function resendAnswer(){
+
+		var url = 'workflow/question?workflowdetails='+ $("#workflowdetails").val()+ '&reanswerstatus=reanswer';
+		showTabByIdAndUrl('details_tab', url);
+	}
 	</script>
 	 <style type="text/css">
         @media print {
             .tabs,#selectionDiv1,#selectionDiv2,title,#pannelDash,.menu{
-            display:none;
+            	display:none;
             }
         }
     </style>
@@ -716,8 +752,14 @@
 <div class="fields clearfix watermark">
 
 <div id="assistantDiv">
+<c:set var="currTimeMillis" value="<%=(new Date()).getTime()%>" />
 <form:form action="workflow/question" method="PUT" modelAttribute="domain">
 	<%@ include file="/common/info.jsp" %>
+	<%-- <c:if test="${(answeringAttempts < maxAnsweringAttempts) and (workflowstatus=='COMPLETED')}">
+		<a href="#" id="reanswer_workflow" class="butSim">	
+			<spring:message code="generic.reactivate_task" text="Re-Send Answer"/>
+		</a> | 
+	</c:if> --%>
 	<a href="#" id="next_task" class="butSim">	
 		<spring:message code="generic.next_task" text="Next Task"/>
 	</a>
@@ -1078,41 +1120,41 @@
 	<input id="formattedInternalStatus" name="formattedInternalStatus" value="${formattedInternalStatus }" type="text" readonly="readonly">
 	</p>
 	
-	<c:if test="${workflowstatus!='COMPLETED' }">	
-	<p style="display: none;">
-	<label class="small"><spring:message code="question.putupfor" text="Put up for"/></label>
-	<select id="changeInternalStatus" class="sSelect">
-	<c:forEach items="${internalStatuses}" var="i">
-	<c:choose>
-	<c:when test="${i.type=='question_system_groupchanged' }">
-	<option value="${i.id}" style="display: none;"><c:out value="${i.name}"></c:out></option>	
-	</c:when>
-	<c:otherwise>
-	<c:choose>
-	<c:when test="${i.id==internalStatus }">
-	<option value="${i.id}" selected="selected"><c:out value="${i.name}"></c:out></option>	
-	</c:when>
-	<c:otherwise>
-	<option value="${i.id}"><c:out value="${i.name}"></c:out></option>		
-	</c:otherwise>
-	</c:choose>
-	</c:otherwise>
-	</c:choose>
-	</c:forEach>
-	</select>
-	
-	<select id="internalStatusMaster" style="display:none;">
-	<c:forEach items="${internalStatuses}" var="i">
-	<option value="${i.type}"><c:out value="${i.id}"></c:out></option>
-	</c:forEach>
-	</select>	
-	<form:errors path="internalStatus" cssClass="validationError"/>	
-	</p>
-	
-	<p id="actorDiv" style="display:none;">
-	<label class="small"><spring:message code="motion.nextactor" text="Next Users"/></label>
-	<form:select path="actor" cssClass="sSelect" itemLabel="name" itemValue="id" items="${actors }"/>
-	</p>	
+	<c:if test="${workflowstatus!='COMPLETED' or ((answeringAttempts <= maxAnsweringAttempts) and workflowstatus=='COMPLETED')}">	
+		<p style="display: none;">
+		<label class="small"><spring:message code="question.putupfor" text="Put up for"/></label>
+		<select id="changeInternalStatus" class="sSelect">
+		<c:forEach items="${internalStatuses}" var="i">
+		<c:choose>
+		<c:when test="${i.type=='question_system_groupchanged' }">
+		<option value="${i.id}" style="display: none;"><c:out value="${i.name}"></c:out></option>	
+		</c:when>
+		<c:otherwise>
+		<c:choose>
+		<c:when test="${i.id==internalStatus }">
+		<option value="${i.id}" selected="selected"><c:out value="${i.name}"></c:out></option>	
+		</c:when>
+		<c:otherwise>
+		<option value="${i.id}"><c:out value="${i.name}"></c:out></option>		
+		</c:otherwise>
+		</c:choose>
+		</c:otherwise>
+		</c:choose>
+		</c:forEach>
+		</select>
+		
+		<select id="internalStatusMaster" style="display:none;">
+		<c:forEach items="${internalStatuses}" var="i">
+		<option value="${i.type}"><c:out value="${i.id}"></c:out></option>
+		</c:forEach>
+		</select>	
+		<form:errors path="internalStatus" cssClass="validationError"/>	
+		</p>
+		
+		<p id="actorDiv" style="display:none;">
+		<label class="small"><spring:message code="motion.nextactor" text="Next Users"/></label>
+		<form:select path="actor" cssClass="sSelect" itemLabel="name" itemValue="id" items="${actors }"/>
+		</p>	
 	</c:if>
 		
 	<input type="hidden" id="internalStatus"  name="internalStatus" value="${internalStatus }">
@@ -1130,11 +1172,27 @@
 		</p>
 	</c:if>
 	
-	<c:if test="${selectedQuestionType != 'questions_halfhourdiscussion_standalone'}">
+	<c:choose>
+		<c:when test="${selectedQuestionType != 'questions_halfhourdiscussion_standalone' and workflowstatus!='COMPLETED'}">
+			<p>
+				<label class="wysiwyglabel"><spring:message code="question.answer" text="Answer"/></label>
+				<form:textarea path="answer" cssClass="wysiwyg"></form:textarea>
+				<form:errors path="answer" cssClass="validationError"></form:errors>
+			</p>
+		</c:when>
+		<c:when test="${selectedQuestionType != 'questions_halfhourdiscussion_standalone' and workflowstatus=='COMPLETED'}">
+			<p>
+				<label class="wysiwyglabel"><spring:message code="question.answer" text="Answer"/></label>
+				<form:textarea path="answer" cssClass="wysiwyg" readonly="true"></form:textarea>
+				<form:errors path="answer" cssClass="validationError"></form:errors>
+			</p>
+		</c:when>
+	</c:choose>
+	
+	<c:if test="${selectedQuestionType != 'questions_halfhourdiscussion_standalone' and workflowstatus=='COMPLETED'}">
 		<p>
-		<label class="wysiwyglabel"><spring:message code="question.answer" text="Answer"/></label>
-		<form:textarea path="answer" cssClass="wysiwyg"></form:textarea>
-		<form:errors path="answer" cssClass="validationError"></form:errors>
+			<label class="wysiwyglabel"><spring:message code="question.reanswer" text="Re-Answer"/></label>
+			<textarea id="reanswer" name="reanswer" class="wysiwyg">${reanswerText}</textarea>
 		</p>
 	</c:if>
 	
@@ -1156,21 +1214,37 @@
 		</p>
 	</c:if>
 	
-	<p>
-	<label class="wysiwyglabel"><spring:message code="question.remarks" text="Remarks"/></label>
-	<form:textarea path="remarks" cssClass="wysiwyg"></form:textarea>
-	</p>
+	<c:if test="${currTimeMillis <= sendbacktimelimit and workflowstatus!='COMPLETED'}">
+		<p>
+		<label class="wysiwyglabel"><spring:message code="question.remarks" text="Remarks"/></label>
+		<form:textarea path="remarks" cssClass="wysiwyg"></form:textarea>
+		</p>
+	</c:if>
 	
 	<c:if test="${workflowstatus!='COMPLETED' }">
 	<div class="fields">
 		<h2></h2>
-		<p class="tright">		
-			<input id="sendBack" type="button" value="<spring:message code='generic.sendback' text='Send Back'/>" class="butDef">
+		<p class="tright">
+			<c:if test="${currTimeMillis <= sendbacktimelimit}">
+				<input id="sendBack" type="button" value="<spring:message code='generic.sendback' text='Send Back'/>" class="butDef">
+			</c:if>
 			<input id="submit" type="submit" value="<spring:message code='generic.submit' text='Submit'/>" class="butDef">
 		</p>
 	</div>
 	</c:if>
+	<c:if test="${workflowstatus=='COMPLETED'}">
+	<div class="fields">
+		<h2></h2>
+		<p class="tright">		
+			<%-- <input id="sendBack" type="button" value="<spring:message code='generic.sendback' text='Send Back'/>" class="butDef"> --%>
+			<c:if test="${answeringAttempts < maxAnsweringAttempts}">
+				<input id="submit" type="submit" value="<spring:message code='generic.submit' text='Submit'/>" class="butDef">
+			</c:if>
+		</p>
+	</div>
+	</c:if>
 	<input type="hidden" name="originalType" id="originalType" value="${originalType}">
+	<form:hidden path="answeringAttemptsByDepartment" />
 	<form:hidden path="id"/>
 	<form:hidden path="locale"/>
 	<form:hidden path="version"/>
@@ -1216,6 +1290,9 @@
 	<input id="reminderfrom" name="reminderfrom" value="${pv_reminderfrom}" type="hidden">
 	<input id="remindersubject" name="remindersubject" value="${pv_remindersubject}" type="hidden">
 	<input id="remindercontent" name="remindercontent" value="${pv_remindercontent}" type="hidden">			
+	<input type="hidden" name="answeringAttempts" value="${answeringAttempts}" />
+	<input type="hidden" id="reanswerstatus" name="reanswerstatus" value="${reanswerstatus}" />
+	<input type="hidden" id="workflowstatus" value="${workflowstatus}" />
 </form:form>
 <input id="oldgroup" name="oldgroup" value="${group}" type="hidden">
 <input id="formattedoldgroup" name="formattedoldgroup" value="${formattedGroup}" type="hidden">
@@ -1232,7 +1309,9 @@
 <input id="oldRecommendationStatus" value="${oldRecommendationStatus}" type="hidden">
 <input id="ministryEmptyMsg" value='<spring:message code="client.error.ministryempty" text="Ministry can not be empty."></spring:message>' type="hidden">
 <input id="noAnswerProvidedMsg" value='<spring:message code="client.error.noanswer" text="Please provide answer."></spring:message>' type="hidden" />
+<input id="submissionMsg" value="<spring:message code='generic.submitquestion' text='Do you want to submit the question.'></spring:message>" type="hidden">
 <input id="workflowstatus" type="hidden" value="${workflowstatus}"/>
+<input type="hidden" id="selectedQuestionType" value="${selectedQuestionType}" />
 <ul id="contextMenuItems" >
 <li><a href="#unclubbing" class="edit"><spring:message code="generic.unclubbing" text="Unclubbing"></spring:message></a></li>
 <li><a href="#dereferencing" class="edit"><spring:message code="generic.dereferencing" text="Dereferencing"></spring:message></a></li>
@@ -1252,5 +1331,7 @@
 </div>
 
 <input type="hidden" id="ErrorMsg" value="<spring:message code='generic.error' text='Error Occured Contact For Support.'/>"/>
+<input type="hidden" id="maxReansweringAttempts" value="${maxAnsweringAttempts}" />
+<input type="hidden" id="sendBackTimeLimit" value="${sendbacktimelimit}" />
 </body>
 </html>

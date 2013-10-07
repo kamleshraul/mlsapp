@@ -1222,11 +1222,17 @@
 		</p>
 	</c:if>
 	
-	<c:if test="${!(empty domain.answer) }">
+	<c:if test="${!(empty domain.answer)}">
 	<p>
 	<label class="wysiwyglabel"><spring:message code="question.answer" text="Answer"/></label>
 	<form:textarea path="answer" cssClass="wysiwyg" readonly="true"></form:textarea>
 	</p>
+	</c:if>
+	<c:if test="${!(empty isReanswered)}">
+		<p>
+			<label class="wysiwyglabel"><spring:message code="question.reanswer" text="Re-Answer"/></label>
+			<textarea id="reanswer" name="reanswer" class="wysiwyg" readonly="true">${isReanswered}</textarea>
+		</p>
 	</c:if>
 	
 	<p>
@@ -1248,6 +1254,7 @@
 	</div>
 	</c:if>
 	<input type="hidden" name="originalType" id="originalType" value="${originalType}">
+	<form:hidden path="answeringAttemptsByDepartment" />
 	<form:hidden path="id"/>
 	<form:hidden path="locale"/>
 	<form:hidden path="version"/>
@@ -1294,7 +1301,7 @@
 	<input id="reminderto" name="reminderto" value="${pv_reminderto}" type="hidden">
 	<input id="reminderfrom" name="reminderfrom" value="${pv_reminderfrom}" type="hidden">
 	<input id="remindersubject" name="remindersubject" value="${pv_remindersubject}" type="hidden">
-	<input id="remindercontent" name="remindercontent" value="${pv_remindercontent}" type="hidden">			
+	<input id="remindercontent" name="remindercontent" value="${pv_remindercontent}" type="hidden">				
 </form:form>
 <input id="oldgroup" name="oldgroup" value="${group}" type="hidden">
 <input id="formattedoldgroup" name="formattedoldgroup" value="${formattedGroup}" type="hidden">
