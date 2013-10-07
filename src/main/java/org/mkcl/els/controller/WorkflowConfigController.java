@@ -12,6 +12,7 @@ import org.mkcl.els.common.util.FormaterUtil;
 import org.mkcl.els.common.vo.AuthUser;
 import org.mkcl.els.domain.DeviceType;
 import org.mkcl.els.domain.HouseType;
+import org.mkcl.els.domain.Role;
 import org.mkcl.els.domain.UserGroupType;
 import org.mkcl.els.domain.Workflow;
 import org.mkcl.els.domain.WorkflowActor;
@@ -268,6 +269,33 @@ public class WorkflowConfigController extends GenericController<WorkflowConfig> 
 		Boolean status = false;
 		if (workflowConfig.getIsLocked() == false) {
 			status = WorkflowConfig.removeActor(workflowconfigId,workflowactorId);
+		}
+		if (status) {
+			return "SUCCESS";
+		} else {
+			return "FAILED";
+		}
+	}
+	
+	@Transactional
+	@RequestMapping(value = "/wfc/{workflowconfigId}/delete", method = RequestMethod.DELETE)
+	public @ResponseBody
+	String deleteWorkflowConfig(
+			@PathVariable(value="workflowconfigId") Long workflowconfigId,
+			final ModelMap model, final HttpServletRequest request) {
+		Role role = null;
+		Boolean status = false;
+		for(Role r : this.getCurrentUser().getRoles()){
+			if(r.getType().equals("SUPER_ADMIN")){
+				role = r;
+				break;
+			}
+		}
+		if(role.getType().equals("SUPER_ADMIN")){
+			WorkflowConfig workflowConfig = WorkflowConfig.findById(WorkflowConfig.class, workflowconfigId);
+			if (workflowConfig.getIsLocked() == false) {
+				status = workflowConfig.remove();
+			}
 		}
 		if (status) {
 			return "SUCCESS";
