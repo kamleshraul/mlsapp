@@ -295,6 +295,8 @@ public class Question extends Device implements Serializable {
     /**** REMOVE UNWANTED FIELDS. START ****/
     
     /**** To be used in case of bulk submission and workflows****/
+    private Integer answeringAttemptsByDepartment;
+    
 	private String workflowStarted;
 
 	private String actor;
@@ -2108,5 +2110,22 @@ public class Question extends Device implements Serializable {
 
 	public void setFileSent(Boolean fileSent) {
 		this.fileSent = fileSent;
+	}
+
+
+	/**
+	 * @return the answeringAttemptsByDepartment
+	 */
+	public Integer getAnsweringAttemptsByDepartment() {
+		return answeringAttemptsByDepartment;
+	}
+
+
+	/**
+	 * @param answeringAttemptsByDepartment the answeringAttemptsByDepartment to set
+	 */
+	public void setAnsweringAttemptsByDepartment(
+			Integer answeringAttemptsByDepartment) {
+		this.answeringAttemptsByDepartment = answeringAttemptsByDepartment;
 	}
 }

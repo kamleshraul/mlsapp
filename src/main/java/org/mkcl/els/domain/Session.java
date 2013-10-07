@@ -20,6 +20,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.logging.Logger;
 
 import javax.persistence.CollectionTable;
 import javax.persistence.Column;
@@ -540,7 +541,7 @@ public class Session extends BaseDomain implements Serializable {
 					if((localParameters != null) & (!(localParameters.isEmpty()))){
 						
 						for (Map.Entry<String, String> entry : localParameters.entrySet()){
-							
+							System.out.println("key: " + entry.getKey()+"; value: " + entry.getValue());
 							if((entry.getKey().endsWith(("Date")))){
 								if(!entry.getValue().contains("/")){
 									CustomParameter parameter;
@@ -688,6 +689,7 @@ public class Session extends BaseDomain implements Serializable {
 			Map<String, String> localParameters = parameters;
 			if((localParameters != null) & (!(localParameters.isEmpty()))) {
 				for (Map.Entry<String, String> entry : localParameters.entrySet()) {
+					System.out.println("key: " + entry.getKey()+"; value: " + entry.getValue());
 					CustomParameter serverFormat = null;
 					if((entry.getKey().endsWith(("Date")))) {
 						if(entry.getValue().length()>10) {
