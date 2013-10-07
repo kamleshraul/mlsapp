@@ -1,6 +1,12 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
 <decorators defaultdir="/WEB-INF/decorators">
 	<decorator name="form" page="form.jsp">
+				
+		<pattern>/act/new</pattern>
+		<pattern>/act/*/edit</pattern>
+		<pattern>/act/*/delete</pattern>
+		<pattern>/act</pattern>
+		
 		<pattern>/message</pattern>
 		<pattern>/message/new</pattern>
 		<pattern>/message/*/edit</pattern>
@@ -283,12 +289,17 @@
 		<pattern>/adjournmentreason</pattern>
 		<pattern>/adjournmentreason/new</pattern>
 		<pattern>/adjournmentreason/*/edit</pattern>
-		<pattern>/adjournmentreason/*/delete</pattern>		
+		<pattern>/adjournmentreason/*/delete</pattern>	
+		
+		<pattern>/rotationorder</pattern>
+		<pattern>/rotationorder/viewrotationorder</pattern>
+		<pattern>/rotationorder/aadwachart</pattern>	
+		<pattern>/rotationorder/viewministrydepartmentreport</pattern>
 		
 		<pattern>/query</pattern>
 		<pattern>/query/new</pattern>
 		<pattern>/query/*/edit</pattern>
-		<pattern>/query/*/delete</pattern>
+		<pattern>/query/*/delete</pattern>	
 		
 		<pattern>/committeetype/new</pattern>
 		<pattern>/committeetype/*/edit</pattern>
