@@ -156,7 +156,7 @@ public abstract class BaseController {
 			e1.printStackTrace();
 		}
 		
-		response.setContentLength((int)file.getTotalSpace());
+		response.setContentLength((int)file.length());
 		
 		//open as dialog box having options 'open with' & 'save file'
 		response.setHeader("Content-Disposition", "attachment; filename=" + file.getName());
@@ -177,8 +177,7 @@ public abstract class BaseController {
 		//response.setHeader("Content-Disposition", "inline; filename=" + file.getName());
 		
 		try {
-			FileCopyUtils.copy(
-			        fis, response.getOutputStream());
+			FileCopyUtils.copy(fis, response.getOutputStream());
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
