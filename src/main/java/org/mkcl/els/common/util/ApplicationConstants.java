@@ -170,6 +170,8 @@ public class ApplicationConstants {
 	public static final String QUESTION_RECOMMEND_REPEATREJECTION="question_recommend_repeatrejection";
 	
 	/**** Final ****/ 
+	public static final String QUESTION_FINAL_REANSWER = "question_final_reanswer";
+	
 	public static final String QUESTION_FINAL_ADMISSION="question_final_admission";
 
 	public static final String QUESTION_FINAL_REJECTION="question_final_rejection";
@@ -279,6 +281,7 @@ public class ApplicationConstants {
 
 	public static final String FINAL_BALLOT_UPDATE_SEQUENCE_PROCEDURE="memberballot_finalballot_updatesequenceno_procedure";
 	/**** Session parameters ****/
+	
 	public static final String QUESTION_STARRED_SUBMISSION_STARTTIME_LH="questions_starred_submissionStartDate";
 
 	public static final String QUESTION_STARRED_SUBMISSION_ENDTIME_LH="questions_starred_submissionEndDate";
@@ -542,13 +545,19 @@ public class ApplicationConstants {
 	public static final String DEPUTY_CHIEF_MINISTER = "DEPUTY_CHIEF_MINISTER";
 	
 	
-	/**** Chart related Constants ****/
-	/**** Resolution Chart Constants ****/
+	/****Custom Parameters name ****/
 	public static final String RESOLUTION_CHART_WITHDEVICES_VIEW = "RESOLUTION_CHART_WITHDEVICES_VIEW";
 	
 	public static final String RESOLUTION_CHART_WITHOUTDEVICES_VIEW = "RESOLUTION_CHART_WITHOUTDEVICES_VIEW";
 	
 	public static final String RESOLUTION_CHART_VIEW = "RESOLUTION_CHART_VIEW";
+	
+	public static final String MAX_ASWERING_ATTEMPTS_STARRED = "MAX_ASWERING_ATTEMPTS_STARRED";
+	
+	public static final String DEPARTMENT_SENDBACK_TIME_LIMIT = "DEPARTMENT_SENDBACK_TIME_LIMIT"; 
+	
+	/**** Rotation order ministry report query key_field ****/
+	public static final String ROTATIONORDER_MINISTRY_DEPARTMENTS_REPORT="ROTATIONORDER_MINISTRY_DEPARTMENTS_REPORT";
 	
 	/**** COMMITTEE ****/
 	public static final String RULING_PARTY = "ruling_party";
