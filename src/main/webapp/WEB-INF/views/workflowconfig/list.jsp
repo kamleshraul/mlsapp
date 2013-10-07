@@ -52,9 +52,11 @@
 			<a href="#" id="edit_record" class="butSim">
 			<spring:message code="workflowconfig.edit" text="Edit"/>
 			</a> |
+			<security:authorize access="hasAnyRole('SUPER_ADMIN')">
 			<a href="#" id="delete_record" class="butSim">
 				<spring:message code="workflowconfig.delete" text="Delete"/>
 			</a> |
+			</security:authorize>
 			<a href="#" id="search" class="butSim">
 				<spring:message code="workflowconfig.search" text="Search"/>
 			</a> 
