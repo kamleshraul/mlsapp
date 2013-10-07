@@ -440,14 +440,14 @@ org.springframework.validation.BindingResult, javax.servlet.http.HttpServletRequ
 			customValidateCommon(domain, result, request);
 		}catch (ELSException e) {
 			logger.error(e.getMessage());
-			result.reject("error", e.getParameter());
+			//result.reject("error", e.getParameter());
 		}catch (Exception e) {
 			String message = e.getMessage();
 			
 			if(message == null){
 				message = "There is some problem, request may not complete successfully.";
 			}
-			result.reject("error", message);
+			//result.reject("error", message);
 			e.printStackTrace();
 		}
 	}
@@ -477,15 +477,17 @@ org.springframework.validation.BindingResult, javax.servlet.http.HttpServletRequ
 		}
 		customValidateCommon(domain, result, request);
 		}catch (ELSException e) {
-			result.reject("error", e.getParameter());
+			//result.reject("error", e.getParameter());
+			logger.error(e.getParameter());
+			e.printStackTrace();
 		}catch (Exception e) {
 			String message = e.getMessage();
 			
 			if(message == null){
 				message = "There is some problem, request may not complete successfully.";
 			}
-			
-			result.reject("error", message);
+			logger.error(message);
+			//result.reject("error", message);
 			
 			e.printStackTrace();
 		}
@@ -873,6 +875,7 @@ org.springframework.validation.BindingResult, javax.servlet.http.HttpServletRequ
 	    	model.addAttribute("speakerSendingDates",speakerSendingDates);
 		    model.addAttribute("dateCount",answeringDates.size());
 		    model.addAttribute("domain", domain);
+		    model.addAttribute("houseType", domain.getHouseType().getType());
 			
 		} catch (ELSException e) {
 			model.addAttribute("error", e.getParameter());
