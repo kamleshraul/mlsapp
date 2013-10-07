@@ -208,7 +208,7 @@ public class GroupRepository extends BaseRepository<Group, Long> {
 	public List<QuestionDatesVO> findAllGroupDatesFormatted(final HouseType houseType,
 			final SessionType sessionType, final Integer sessionYear, final String locale) {
 		
-		org.mkcl.els.domain.Query query = org.mkcl.els.domain.Query.findByFieldName(org.mkcl.els.domain.Query.class, "keyField", "GROUP_ALL_GROUP_DATES_FORMATTED", null);
+		org.mkcl.els.domain.Query query = org.mkcl.els.domain.Query.findByFieldName(org.mkcl.els.domain.Query.class, "keyField", "GROUP_ALL_GROUP_DATES_FORMATTED", "");
 		List<QuestionDatesVO> questionDatesVOs=new ArrayList<QuestionDatesVO>();
 		
 		try{
@@ -237,7 +237,7 @@ public class GroupRepository extends BaseRepository<Group, Long> {
 							}
 							if(entry[1]!=null){
 								int number=Integer.parseInt(entry[1].toString());
-								questionDatesVO.setGroup(numberFormat.format(number));
+								//questionDatesVO.setGroup(numberFormat.format(number));
 								questionDatesVO.setRowId(number);
 							}if(entry[2]!=null){
 								Date date=dbFormat.parse(entry[2].toString());
@@ -270,7 +270,12 @@ public class GroupRepository extends BaseRepository<Group, Long> {
 							}if(entry[11]!=null){
 								Date date=dbFormat.parse(entry[11].toString());
 								questionDatesVO.setSpeakerSendingDate(format.format(date));
+							}if(entry[12] != null){
+								questionDatesVO.setHouseType(entry[12].toString());
+							}if(entry[13] != null){
+								questionDatesVO.setGroup(entry[13].toString());
 							}
+							
 							questionDatesVOs.add(questionDatesVO);
 						}
 					}else{
