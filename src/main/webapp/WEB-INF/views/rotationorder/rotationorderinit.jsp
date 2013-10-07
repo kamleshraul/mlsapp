@@ -55,9 +55,34 @@
 						$("#error_p").html("Error occured contact for support.").css({'color':'red', 'display':'block'});
 					}
 					scrollTop();
-				});
-					
+				});				
 			});		
+			
+			$("#ministryreport").click(function(){
+				$.blockUI({ message: '<img src="./resources/images/waitAnimated.gif" />' });
+				var parameters = "houseType="+$("#selectedHouseType").val()
+								 +"&sessionYear="+$("#selectedSessionYear").val()
+								 +"&sessionType="+$("#selectedSessionType").val()
+								 +"&questionType="+$("#selectedQuestionType").val()
+								 +"&group="+$("#selectedGroup").val()
+								 +"&status="+$("#selectedStatus").val()
+								 +"&role="+$("#srole").val() 
+								 + "&answeringDate=" + $("#selectedAnsweringDate").val();
+				var resourceURL = 'rotationorder/viewministryreport?' + parameters;
+				$.get(resourceURL,function(data){
+					$("#rotationOrderResultDiv").empty();
+					$("#rotationOrderResultDiv").html(data);
+					$.unblockUI();					
+				},'html').fail(function(){
+					$.unblockUI();
+					if($("#ErrorMsg").val()!=''){
+						$("#error_p").html($("#ErrorMsg").val()).css({'color':'red', 'display':'block'});
+					}else{
+						$("#error_p").html("Error occured contact for support.").css({'color':'red', 'display':'block'});
+					}
+					scrollTop();
+				});
+			});
 		});		
 	</script>
 </head>
@@ -73,7 +98,10 @@
 			</a> |
 			<a href="#" id="aadwachart" class="butSim">
 				<spring:message code="rotationorderinitial.aadwachart" text="Aadwa Chart"/>
-			</a>					
+			</a> |
+			<a href="#" id="ministryreport" class="butSim">
+				<spring:message code="rotationorderinitial.ministryreport" text="Ministry Department Report"/>
+			</a> 
 </div>
 <div id="rotationOrderResultDiv">
 </div>
