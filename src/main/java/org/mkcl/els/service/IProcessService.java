@@ -295,5 +295,6 @@ public interface IProcessService {
 
 	public List<Task> getCurrentTasks(final ProcessInstance processInstance);
 
+	public boolean isTaskActive(final ProcessInstance processInstance);
 
 }
