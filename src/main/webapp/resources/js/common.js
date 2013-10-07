@@ -473,7 +473,7 @@ jQuery.fn.multiSelect = function() {
 		
 	var selectBoxId = $(this).attr('id');
 	//var selectBoxName = $(this).attr('name');
-	console.log("selectBoxId: " + selectBoxId);
+	//console.log("selectBoxId: " + selectBoxId);
 	
 	var content = "";			    	
 	
@@ -629,3 +629,4 @@ jQuery.fn.multiSelect = function() {
     	}   	
     });	 		    
 };
+
