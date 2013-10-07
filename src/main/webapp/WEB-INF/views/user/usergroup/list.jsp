@@ -64,8 +64,10 @@
 		});		
 		}
 		function rowDblClickHandler(rowid, iRow, iCol, e) {
+			
 			$('#editDeleteLinks').hide();
-			$("#internalKey").val(rowid);			
+			$("#internalKey").val(rowid);
+			
 			var row=$('#internalKey').val();
 			$("#cancelFn").val("rowDblClickHandler");						
 			$.get('user/usergroup/'+row+'/edit?'+$('#gridURLParams').val(), function(data){
