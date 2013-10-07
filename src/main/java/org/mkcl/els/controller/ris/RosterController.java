@@ -7,6 +7,7 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -790,6 +791,12 @@ public class RosterController extends GenericController<Roster>{
 			List report = org.mkcl.els.domain.Query.findReport("RIS_ROSTER_REPORT_ROSTER", parametersMap);
 			model.addAttribute("report", report);
 			
+			model.addAttribute("rosterDate", FormaterUtil.formatDateToString(roster.getStartTime(), ApplicationConstants.SERVER_DATEFORMAT, locale.toString()));
+			
+			Map reportFields = simplifyRosterSlotReport(report);
+			
+			//generate report
+			generateReportUsingFOP(new Object[]{reportFields}, "template_roster", "PDF", "roster slots report", locale.toString());
 			returnValue = "roster/rosterreport";
 					
 		}catch (Exception e) {
@@ -797,6 +804,38 @@ public class RosterController extends GenericController<Roster>{
 			e.printStackTrace();
 		}
 		return returnValue;
+	}
+	
+	private Map simplifyRosterSlotReport(final List report){
+		Map<String, List> rosterData = new LinkedHashMap<String, List>();
+		String repName = "";
+		List<List<Object>> rosterSlotsForReporter = new ArrayList<List<Object>>();
+		int index = 0;
+		for(Object o: report){
+			Object[] objArr = (Object[])o;
+			List<Object> slotFields = new ArrayList<Object>();
+			if(!repName.equals(objArr[0].toString())){
+				if(!repName.isEmpty()){
+					rosterData.put(repName, rosterSlotsForReporter);
+					rosterSlotsForReporter = null;
+					rosterSlotsForReporter = new ArrayList<List<Object>>();
+				}
+				repName = objArr[0].toString(); 						
+				slotFields.add(objArr[1]);
+				slotFields.add(objArr[2]);
+				rosterSlotsForReporter.add(slotFields);
+				
+			}else{
+				slotFields.add(objArr[1]);
+				slotFields.add(objArr[2]);
+				rosterSlotsForReporter.add(slotFields);
+			}
+			slotFields = null;
+		}
+		
+		rosterData.put(repName, rosterSlotsForReporter);
+		
+		return rosterData;
 	}
 
 }
