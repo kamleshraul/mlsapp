@@ -45,34 +45,35 @@
 	<div>
 	<div class="commandbar">
 		<div class="commandbarContent">
-			<a href="#" id="new_record" class="butSim">
-				<spring:message code="generic.new" text="New"/>
-			</a> |
-			<a href="#" id="edit_record" class="butSim">
-			<spring:message code="generic.edit" text="Edit"/>
-			</a> |
-			<a href="#" id="delete_record" class="butSim">
-				<spring:message code="generic.delete" text="Delete"/>
-			</a> |
-			<a href="#" id="search" class="butSim">
-				<spring:message code="generic.search" text="Search"/>
-			</a> <%-- |
-			<a href="#" id="rotation_order_report" class="butSim">
-				<spring:message code="session.rotationOrderReport" text="Rotation order report"/>
-			</a> |
-			<a href="#" id="rotation_order_publish" class="butSim">
-				<spring:message code="generic.rotationOrderpublish" text="Publish Rotation Order Report"/>
-			</a> --%>
-			
-			<p>&nbsp;</p>
-			
-		
+			<c:if test="${userRole!='QIS_ADMIN'}">
+				<a href="#" id="new_record" class="butSim">
+					<spring:message code="generic.new" text="New"/>
+				</a> |
+				<a href="#" id="edit_record" class="butSim">
+				<spring:message code="generic.edit" text="Edit"/>
+				</a> |
+				<a href="#" id="delete_record" class="butSim">
+					<spring:message code="generic.delete" text="Delete"/>
+				</a> |
+				<a href="#" id="search" class="butSim">
+					<spring:message code="generic.search" text="Search"/>
+				</a> <%-- |
+				<a href="#" id="rotation_order_report" class="butSim">
+					<spring:message code="session.rotationOrderReport" text="Rotation order report"/>
+				</a> |
+				<a href="#" id="rotation_order_publish" class="butSim">
+					<spring:message code="generic.rotationOrderpublish" text="Publish Rotation Order Report"/>
+				</a> --%>
+				
+				<p>&nbsp;</p>
+			</c:if>
 		</div>
 	</div>
 	<%@ include file="/common/gridview.jsp" %>
 	<input type="hidden" id="grid_id" value="${gridId}">
 	<input type="hidden" id="urlPattern" name="urlPattern" value="session">
-	<input type="hidden" name="gridURLParams" id="gridURLParams" value="houseId=${houseId}" >
+	<input type="hidden" name="gridURLParams" id="gridURLParams" value="houseId=${houseId}&houseType=${houseType}" >
+	<input type="hidden" name="houseType" id="houseType" value="houseId=${houseType}" >
 	<input type="hidden" name="houseId" id="houseId" value="${houseId}">
 </div>
 </body>

@@ -6,6 +6,12 @@
 	<script type="text/javascript">
 		var urlPattern=$('#urlPattern').val();
 		$(document).ready(function(){
+			
+			$("#details_tab").click(function(){
+				var rowid = $('#key').val();
+				showTabByIdAndUrl('details_tab', 'session/'+rowid+'/edit');
+			});
+			
 			$('#list_tab').click(function(){
 				showList();
 			});	

@@ -38,7 +38,7 @@
 
 	});
 	function populateHouse(houseType) {
-			$.get('ref/' + houseType + '/house', function(data) {
+			$.get('ref/' + houseType + '/houses', function(data) {
 				$('#house option').empty();
 				var options = "";
 				for ( var i = 0; i < data.length; i++) {
@@ -210,7 +210,7 @@
 				<form:errors path="remarks" cssClass="validationError" />
 
 		</p>			
-		
+		<c:if test="${userRole!='QIS_ADMIN'}">
 			<div class="fields">
 				<h2></h2>
 				<p class="tright">
@@ -220,6 +220,7 @@
 					<input id="cancel" type="button" value="<spring:message code='generic.cancel' text='Cancel'/>" class="butDef">
 				</p>
 			</div>
+		</c:if>
 			<form:hidden path="id" />
 			<form:hidden path="version" />
 			<form:hidden path="locale" />

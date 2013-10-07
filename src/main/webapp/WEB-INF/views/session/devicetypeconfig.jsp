@@ -208,8 +208,9 @@
 			});			
   		}
 		
-		$('document').ready(function(){	
+		$('document').ready(function(){
 			initControls();
+						
 			//add please select option if not exists already for all select & multiselect fields.
 			//this is necessary to pass empty value in case no option is/should be selected.
 			$('.sSelectMultiple, .sSelect').each(function() {
@@ -503,7 +504,7 @@
 				
 				<p>
 					<label class="small"><spring:message code="session.rotationOrderPublishingDate" text="Rotation Order Publishing Date " /></label>
-					<input id="questions_starred_rotationOrderPublishingDate" name="questions_starred_rotationOrderPublishingDate" class="datemask sText" value="${questions_starred_rotationorderpublishingdate}" />
+					<input id="questions_starred_rotationOrderPublishingDate" name="questions_starred_rotationOrderPublishingDate" class="datetimemask sText" value="${questions_starred_rotationorderpublishingdate}" />
 				</p>
 				
 				<p style="display: inline;">
