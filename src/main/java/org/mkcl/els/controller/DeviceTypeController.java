@@ -18,6 +18,7 @@ import javax.servlet.http.HttpServletRequest;
 
 import org.mkcl.els.domain.DeviceType;
 import org.mkcl.els.domain.QuestionLimitingAction;
+import org.mkcl.els.domain.UserGroup;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -57,7 +58,31 @@ public class DeviceTypeController extends GenericController<DeviceType> {
         model.addAttribute("locale",locale);
     }
 
+    
+    
     @Override
+	protected String modifyURLPattern(String urlPattern,
+			HttpServletRequest request, ModelMap model, String string) {
+    	
+    	List<UserGroup> userGroups = this.getCurrentUser().getUserGroups();
+    	String questionAdmin = null;
+    	for(UserGroup ug : userGroups){
+    		if(ug.getUserGroupType().getType().equals("question_admin")){
+    			questionAdmin =ug.getUserGroupType().getType(); 
+    		}
+    	}
+    	String newUrlPattern = null;
+    	if(questionAdmin != null){
+    		newUrlPattern = urlPattern + "?usergrouptype="+ questionAdmin;
+    	}else{
+    		newUrlPattern = urlPattern;
+    	}
+		return newUrlPattern;
+	}
+
+
+
+	@Override
     protected void populateEdit(final ModelMap model, final DeviceType domain,
 		final HttpServletRequest request) {
         /*
