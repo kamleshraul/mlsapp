@@ -12,16 +12,21 @@ package org.mkcl.els.controller;
 
 import java.io.File;
 import java.io.IOException;
+import java.math.BigInteger;
 import java.text.NumberFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.mkcl.els.common.exception.ELSException;
+import org.mkcl.els.common.util.ApplicationConstants;
 import org.mkcl.els.common.util.FormaterUtil;
 import org.mkcl.els.common.vo.MasterVO;
 import org.mkcl.els.common.vo.QuestionDatesVO;
@@ -31,14 +36,19 @@ import org.mkcl.els.common.xmlvo.AadwaChartXmlVO;
 import org.mkcl.els.common.xmlvo.RotationOrderXmlVO;
 import org.mkcl.els.domain.CustomParameter;
 import org.mkcl.els.domain.Group;
+import org.mkcl.els.domain.House;
 import org.mkcl.els.domain.HouseType;
+import org.mkcl.els.domain.MessageResource;
 import org.mkcl.els.domain.Ministry;
 import org.mkcl.els.domain.NumberInfo;
+import org.mkcl.els.domain.Query;
 import org.mkcl.els.domain.QuestionDates;
 import org.mkcl.els.domain.Session;
 import org.mkcl.els.domain.SessionType;
 import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
 import org.springframework.ui.ModelMap;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
@@ -88,6 +98,7 @@ public class RotationOrderController extends BaseController {
     		final Locale locale,
     		final ModelMap model){      	
         String strHouseType=request.getParameter("houseType");
+        model.addAttribute("aadwaHouseType", strHouseType);
         String strSessionType=request.getParameter("sessionType");
         String strSessionYear=request.getParameter("sessionYear");
         if(strHouseType!=null&&strSessionType!=null&&strSessionYear!=null){
@@ -128,13 +139,35 @@ public class RotationOrderController extends BaseController {
                 Integer sessionYear=Integer.parseInt(strSessionYear);
                 List<QuestionDatesVO> questionDates=Group.findAllGroupDatesFormatted(houseType, sessionType, sessionYear,locale.toString());
 
-                AadwaChartXmlVO data = new AadwaChartXmlVO();            
+                AadwaChartXmlVO data = new AadwaChartXmlVO();                
+                /**** In order to find the session number ****/
+                /**** Find all the sessions for the year and sort ****/
+                /**** them on start date and find the counter position ****/
+                /****on which this session occurs ****/
+                try {
+					Session currentSession = Session.findSessionByHouseTypeSessionTypeYear(houseType, sessionType, sessionYear);
+					
+					Map<String, String[]> parameters = new HashMap<String, String[]>();
+					parameters.put("locale", new String[]{locale.toString()});
+					parameters.put("sessionId", new String[]{currentSession.getId().toString()});
+					List count = Query.findReport("FIND_PREVIOUS_SESSIONS_COUNT", parameters);
+					Integer counter =  (((BigInteger)count.get(0)).intValue() + 1);
+					data.setSessionNumber((count != null && !count.isEmpty())? counter.toString(): "0");
+				} catch (ELSException e1) {
+					e1.printStackTrace();
+					model.addAttribute("error", e1.getParameter());
+				}
+                
+                data.setHouseType(houseType.getType());
+                data.setHouseTypeName(houseType.getName());
+                data.setSessionTypeName(sessionType.getSessionType());
+                data.setSessionYearName(FormaterUtil.formatNumberNoGrouping(sessionYear, locale.toString()));
                 data.setRotationOrderDatesList(questionDates);
                 
                 //generate report
         		try {
-					reportFile = generateReportUsingFOP(data, "template_aadwachart_report", reportFormat, "rotationOrder_aadwaChart", locale.toString());
-				} catch (Exception e) {
+        			reportFile = generateReportUsingFOP(data, "template_aadwachart_report", reportFormat, "rotationOrder_aadwaChart", locale.toString());
+        		} catch (Exception e) {
 					e.printStackTrace();
 				}
         		System.out.println("Rotation Order Aadwa Chart Report generated successfully in " + reportFormat + " format!");
@@ -210,14 +243,18 @@ public class RotationOrderController extends BaseController {
 		            		String[] strAnsweringMonth=strAnsweringDates[1].split(" ");
 		            		String answeringMonth=FormaterUtil.getMonthInMarathi(strAnsweringMonth[1], locale.toString());
 		            		
-		            		answeringDates.add(answeringDay+","+strAnsweringMonth[0]+" "+ answeringMonth +","+strAnsweringDates[2]);
+		            		MessageResource mrDate = MessageResource.findByFieldName(MessageResource.class, "code", "generic.date", locale.toString());
+		            		String genericDateLabel  = (mrDate!=null)? mrDate.getValue():"";
+		            		
+		            		answeringDates.add(answeringDay+", "+ genericDateLabel + " " +strAnsweringMonth[0]+" "+ answeringMonth +","+strAnsweringDates[2]);
+		            		
 		            		
 		            		String[] strSubmissionDates=dbFormat.format(d.getFinalSubmissionDate()).split(",");
 		            		String submissionDay=FormaterUtil.getDayInMarathi(strSubmissionDates[0],locale.toString());
 		            		String[] strSubmissionMonth=strSubmissionDates[1].split(" ");
 		            		String submissionMonth=FormaterUtil.getMonthInMarathi(strSubmissionMonth[1], locale.toString());
 		            		
-		            		finalSubmissionDates.add(submissionDay+","+strSubmissionMonth[0]+" "+ submissionMonth +","+strSubmissionDates[2]);
+		            		finalSubmissionDates.add(submissionDay+", " + genericDateLabel + " " +strSubmissionMonth[0]+" "+ submissionMonth +","+strSubmissionDates[2]);
 		            	}
 		            	rotationOrderVO.setGroup(numberFormat.format(g.getNumber()));
 		            	rotationOrderVO.setMinistries(ministriesStr);
@@ -230,6 +267,10 @@ public class RotationOrderController extends BaseController {
 		            model.addAttribute("rotationOrderCover", session.getParameter("questions_starred_rotationOrderCover"));
 		            model.addAttribute("rotationOrderFooter", session.getParameter("questions_starred_rotationOrderFooter"));
 		            model.addAttribute("dates", rotationOrderVOs);
+		            
+		            
+		            List ministryreport = getMinistryReport(locale, model);
+		            model.addAttribute("ministryreport", ministryreport);
 				}catch (ELSException e) {
 					model.addAttribute("error", e.getParameter());
 				}catch (Exception e) {
@@ -367,5 +408,108 @@ public class RotationOrderController extends BaseController {
 			model.addAttribute("error", message);
 			e.printStackTrace();
 		}
+	}
+	
+	@RequestMapping(value="/viewministryreport", method=RequestMethod.GET)
+	public String viewMinistryReport(ModelMap model, HttpServletRequest request, HttpServletResponse response, Locale locale){
+		
+		try{
+			
+			Map<String, String[]> parameters = new HashMap<String, String[]>();
+            parameters.put("locale", new String[]{locale.toString()});
+            List ministryreport = getMinistryReport(locale, model);
+            model.addAttribute("ministryreport", ministryreport);
+            
+		}catch (Exception e) {
+			String msg = e.getMessage();
+			
+			if(e instanceof ELSException){
+				model.addAttribute("error", ((ELSException) e).getParameter());
+			}else{
+				if(msg == null){
+					model.addAttribute("error", "Request may not complete successfully.");
+				}else{
+					model.addAttribute("error", msg);
+				}
+			}
+			logger.error(msg);
+			e.printStackTrace();			
+		}
+		
+		return "rotationorder/viewministryreport";
+	}
+	
+	@RequestMapping(value="/viewministrydepartmentreport", method=RequestMethod.GET)
+	public void viewMinistryDepartmentReport(ModelMap model, HttpServletRequest request, HttpServletResponse response, Locale locale){
+		List ministryreport = getMinistryReport(locale, model);
+		model.addAttribute("ministryreport", ministryreport);
+		
+		Map reportFields = simplifyMinistryDepartmentReport(ministryreport);
+		
+		try {
+			String strOutputFormat = request.getParameter("outputFormat");
+			File reportFile = generateReportUsingFOP(new Object[]{reportFields}, "template_ministrydepartment", strOutputFormat, "ministry department report", locale.toString());
+			openOrSaveReportFileFromBrowser(response, reportFile, strOutputFormat);
+		} catch (Exception e) {
+			
+			e.printStackTrace();
+		}
+	}
+	
+	private List getMinistryReport(Locale locale, ModelMap model){
+		Map<String, String[]> parameters = new HashMap<String, String[]>();
+        parameters.put("locale", new String[]{locale.toString()});
+        List ministryreport = Query.findReport(ApplicationConstants.ROTATIONORDER_MINISTRY_DEPARTMENTS_REPORT, parameters);
+        
+        String ministryName = "";
+        for(int index = 0, ministryCounter = 0, deptCounter = 1; index < ministryreport.size(); index++){
+        	
+        	Object[] row = (Object[])ministryreport.get(index);
+        	String minName = (row[2] != null)? row[2].toString(): null; 
+        	
+        	if(!ministryName.equals(minName)){
+        		deptCounter = 1;
+        		ministryCounter++;		            		
+        	}
+        	((Object[])ministryreport.get(index))[0] = FormaterUtil.formatNumberNoGrouping(Integer.valueOf(ministryCounter), locale.toString());
+        	((Object[])ministryreport.get(index))[4] = FormaterUtil.formatNumberNoGrouping(Integer.valueOf(deptCounter), locale.toString());
+        	deptCounter++;
+        	ministryName = row[2].toString();
+        }
+        return ministryreport;
+	}
+	
+	@SuppressWarnings("rawtypes")
+	private Map simplifyMinistryDepartmentReport(final List report){
+		Map<String, List> ministryDepartmentData = new LinkedHashMap<String, List>();
+		String ministryName = "";
+		String ministryNameToPut = "";
+		String currMinistry = "";
+		List<List<Object>> departmentsForMinistry = new ArrayList<List<Object>>();
+		
+		for(Object o: report){
+			Object[] objArr = (Object[])o;
+			List<Object> reportFields = new ArrayList<Object>();
+			if(!ministryName.equals(objArr[2].toString())){
+				if(!ministryName.isEmpty()){
+					ministryDepartmentData.put(ministryNameToPut, departmentsForMinistry);
+					departmentsForMinistry = null;
+					departmentsForMinistry = new ArrayList<List<Object>>();
+				}
+				ministryName = objArr[2].toString();
+				ministryNameToPut = "(" + objArr[0].toString()+")   " + objArr[1].toString() + " --- " + objArr[2].toString();
+				reportFields.add("    (" + objArr[4].toString() +") " + objArr[3].toString());
+				departmentsForMinistry.add(reportFields);
+				
+			}else{
+				reportFields.add("    (" + objArr[4].toString() +") " + objArr[3].toString());
+				departmentsForMinistry.add(reportFields);
+			}
+			reportFields = null;
+		}
+		
+		ministryDepartmentData.put(ministryNameToPut, departmentsForMinistry);
+		
+		return ministryDepartmentData;
 	}
 }
