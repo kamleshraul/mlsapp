@@ -218,15 +218,17 @@
 							</tr>						
 							<tr></tr>
 							
-							<tr>
-								<th><label style="width: 250px;"><spring:message code="group.rotationorder.speakerSendingDate" text="Last Sending Date to Speaker"/></label></th>
-								<c:forEach begin="1" end="${dateCount}" varStatus="i">
-								<td>							
-									<input style="width: 70px;" class="datemask sText" type="text" id="speakerSendingDate${i.count-1}" name="speakerSendingDate${i.count-1}" value="${speakerSendingDates[i.count-1]}">	
-									<input type="hidden" id="speakerSendingDateHidden${i.count-1}" value="${speakerSendingDates[i.count-1]}">	
-								</td>
-								</c:forEach>
-							</tr>						
+							<c:if test="${houseType=='lowerhouse'}">
+								<tr>
+									<th><label style="width: 250px;"><spring:message code="group.rotationorder.speakerSendingDate" text="Last Sending Date to Speaker"/></label></th>
+									<c:forEach begin="1" end="${dateCount}" varStatus="i">
+									<td>							
+										<input style="width: 70px;" class="datemask sText" type="text" id="speakerSendingDate${i.count-1}" name="speakerSendingDate${i.count-1}" value="${speakerSendingDates[i.count-1]}">	
+										<input type="hidden" id="speakerSendingDateHidden${i.count-1}" value="${speakerSendingDates[i.count-1]}">	
+									</td>
+									</c:forEach>
+								</tr>			
+							</c:if>			
 							<tr></tr>
 							
 							<tr>
