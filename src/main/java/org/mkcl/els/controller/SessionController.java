@@ -19,14 +19,16 @@ import java.util.GregorianCalendar;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
-import java.util.regex.Pattern;
+import java.util.Set;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 
+import org.hibernate.mapping.Array;
 import org.mkcl.els.common.exception.ELSException;
 import org.mkcl.els.common.util.ApplicationConstants;
 import org.mkcl.els.common.util.FormaterUtil;
+import org.mkcl.els.common.vo.AuthUser;
 import org.mkcl.els.domain.BallotEvent;
 import org.mkcl.els.domain.BallotType;
 import org.mkcl.els.domain.CustomParameter;
@@ -34,6 +36,7 @@ import org.mkcl.els.domain.DeviceType;
 import org.mkcl.els.domain.Group;
 import org.mkcl.els.domain.House;
 import org.mkcl.els.domain.HouseType;
+import org.mkcl.els.domain.Role;
 import org.mkcl.els.domain.Session;
 import org.mkcl.els.domain.SessionPlace;
 import org.mkcl.els.domain.SessionType;
@@ -94,8 +97,58 @@ public class SessionController extends GenericController<Session> {
             System.out.println("error");
         }
     }
+    
+    
 
-    /**
+	@Override
+	protected void populateModule(ModelMap model, HttpServletRequest request,
+			String locale, AuthUser currentUser) {
+		
+		Set<Role> roles = this.getCurrentUser().getRoles();
+        for(Role i : roles){
+			if (i.getType().startsWith("MEMBER_")) {
+				model.addAttribute("userRole", i.getType());
+				break;
+			} else if (i.getType().contains("CLERK")) {
+				model.addAttribute("userRole", i.getType());
+				break;
+			} else if (i.getType().startsWith("QIS_")) {
+				model.addAttribute("userRole", i.getType());
+				break;
+			} 
+		}
+	}
+	
+	
+
+	@Override
+	protected void populateList(ModelMap model, HttpServletRequest request,
+			String locale, AuthUser currentUser) {
+		Set<Role> roles = this.getCurrentUser().getRoles();
+        for(Role i : roles){
+			if (i.getType().startsWith("MEMBER_")) {
+				model.addAttribute("userRole", i.getType());
+				break;
+			} else if (i.getType().contains("CLERK")) {
+				model.addAttribute("userRole", i.getType());
+				break;
+			} else if (i.getType().startsWith("QIS_")) {
+				model.addAttribute("userRole", i.getType());
+				break;
+			} 
+		}
+	}
+
+	@Override
+	protected String modifyURLPattern(String urlPattern,
+			HttpServletRequest request, ModelMap model, String string) {
+		
+		String newUrlPattern = urlPattern + "?housetype="+this.getCurrentUser().getHouseType();
+		model.addAttribute("houseType", this.getCurrentUser().getHouseType());
+		return newUrlPattern;
+	}
+
+	/**
      *  (non-Javadoc)
      * @see org.mkcl.els.controller.GenericController#populateNew(org.springframework.ui.ModelMap, org.mkcl.els.domain.BaseDomain, java.lang.String, 
 	 * javax.servlet.http.HttpServletRequest)
@@ -142,6 +195,24 @@ public class SessionController extends GenericController<Session> {
     private void populateSession(final ModelMap model, final Session domain,
             final HttpServletRequest request, final String locale) {
     	try{
+    		/*
+    		 * populate roles
+    		 * 
+    		 */
+    		Set<Role> roles = this.getCurrentUser().getRoles();
+            for(Role i : roles){
+    			if (i.getType().startsWith("MEMBER_")) {
+    				model.addAttribute("userRole", i.getType());
+    				break;
+    			} else if (i.getType().contains("CLERK")) {
+    				model.addAttribute("userRole", i.getType());
+    				break;
+    			} else if (i.getType().startsWith("QIS_")) {
+    				model.addAttribute("userRole", i.getType());
+    				break;
+    			} 
+    		}
+    		
 	        /*
 	         *populating session types
 	         */
@@ -253,6 +324,10 @@ public class SessionController extends GenericController<Session> {
     }
     
     //---------------------------Added by anand, vikas & dhananjay-------------------------------------
+    private boolean isDeviceEnabled(String enabledDevices, String device){
+    	return enabledDevices.contains(device);
+    }
+    
     @RequestMapping(value="{id}/devicetypeconfig", method=RequestMethod.GET)
     public String editSessionDeviceTypeConfig(@PathVariable("id") final Long id,final ModelMap model,
             final HttpServletRequest request ){
@@ -264,6 +339,23 @@ public class SessionController extends GenericController<Session> {
          model.addAttribute("urlPattern", urlPattern);
          model.addAttribute("deviceTypeSelected", request.getParameter("deviceTypeSelected"));
          
+         Set<Role> roles = this.getCurrentUser().getRoles();
+         String role = null;
+         for(Role i : roles){
+			if (i.getType().startsWith("MEMBER_")) {
+				model.addAttribute("userRole", i.getType());
+				role = i.getType();
+				break;
+			} else if (i.getType().contains("CLERK")) {
+				model.addAttribute("userRole", i.getType());
+				role = i.getType();
+				break;
+			} else if (i.getType().startsWith("QIS_")) {
+				model.addAttribute("userRole", i.getType());
+				role = i.getType();
+				break;
+			} 
+		}
          
          Session domain= Session.findById(Session.class, id);         
          if(domain == null) {
@@ -274,7 +366,40 @@ public class SessionController extends GenericController<Session> {
          model.addAttribute("houseType", domain.findHouseType());         
          
          List<DeviceType> deviceTypesEnabled = new ArrayList<DeviceType>();
-         String deviceTypesEnabledStr = domain.getDeviceTypesEnabled();         
+         StringBuffer deviceTypesEnabledStrBuf = new StringBuffer();
+         String strDeviceTypesEnabled = domain.getDeviceTypesEnabled();
+         String deviceTypesEnabledStr = null;
+         List<DeviceType> deviceTypes = new ArrayList<DeviceType>();
+         
+		try {
+			if (role.startsWith("QIS_")) {
+				deviceTypes = DeviceType.findDeviceTypesStartingWith("questions",domain.getLocale());
+				
+			}else if(role.startsWith("RIS_")){
+				deviceTypes = DeviceType.findDeviceTypesStartingWith("roster",domain.getLocale());
+				
+			}else if(role.startsWith("MOIS_")){
+				deviceTypes = DeviceType.findDeviceTypesStartingWith("motions",domain.getLocale());
+			}else if(role.startsWith("ROIS_")){
+				deviceTypes = DeviceType.findDeviceTypesStartingWith("resolutions",domain.getLocale());
+			}
+			
+			for (int i = 0; i < deviceTypes.size(); i++) {
+				String tempDeviceType = deviceTypes.get(i).getType();
+				if(isDeviceEnabled(strDeviceTypesEnabled, tempDeviceType)){
+					deviceTypesEnabledStrBuf.append(tempDeviceType);
+					if (i < (deviceTypes.size() - 1)) {
+						deviceTypesEnabledStrBuf.append(",");
+					}
+				}
+			}
+			
+			deviceTypesEnabledStr = deviceTypesEnabledStrBuf.toString();
+			
+		} catch (ELSException e) {
+			e.printStackTrace();
+			model.addAttribute("error", e.getParameter());
+		}
          if(deviceTypesEnabledStr!=null) {        	
         	for (String deviceTypeEnabledStr : deviceTypesEnabledStr.split(",")) {
         		DeviceType deviceTypeEnabled = DeviceType.findByType(deviceTypeEnabledStr, domain.getLocale());
