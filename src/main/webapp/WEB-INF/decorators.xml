@@ -321,6 +321,16 @@
 		<pattern>/committee/*/delete</pattern>
 		<pattern>/committee</pattern>
 		
+		<pattern>/committeemeetingtype/new</pattern>
+		<pattern>/committeemeetingtype/*/edit</pattern>
+		<pattern>/committeemeetingtype/*/delete</pattern>
+		<pattern>/committeemeetingtype</pattern>
+		
+		<pattern>/committeesubject/new</pattern>
+		<pattern>/committeesubject/*/edit</pattern>
+		<pattern>/committeesubject/*/delete</pattern>
+		<pattern>/committeesubject</pattern>
+		
 		<pattern>/partytype/new</pattern>
 		<pattern>/partytype/*/edit</pattern>
 		<pattern>/partytype/*/delete</pattern>
