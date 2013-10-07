@@ -98,6 +98,7 @@ public class GridController extends GenericController<Grid> {
 			@RequestParam(value = "searchString", required = false) final String searchString,
 			@RequestParam(value = "searchOper", required = false) final String searchOper,
 			@RequestParam(value = "baseFilters", required = false) final String baseFilters,
+			@RequestParam(value = "houseType", required = false) final String houseType,
 			final ModelMap model,
 			final HttpServletRequest request,
 			final Locale locale) throws ClassNotFoundException {
