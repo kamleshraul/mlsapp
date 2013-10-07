@@ -455,7 +455,6 @@ public class WorkflowDetails extends BaseDomain implements Serializable{
 	public void setPreviousWorkflowDetail(Long previousWorkflowDetail) {
 		this.previousWorkflowDetail = previousWorkflowDetail;
 	}
-	}
 
 	public String getDomainIds() {
 		return domainIds;
