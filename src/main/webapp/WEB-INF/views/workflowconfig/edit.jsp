@@ -53,7 +53,14 @@
 		    }else{
 			    $.prompt($("#deleteFailedMessage").val());
 		    }
-	    });	
+	    }).fail(function(){
+			if($("#ErrorMsg").val()!=''){
+				$("#error_p").html($("#ErrorMsg").val()).css({'color':'red', 'display':'block'});
+			}else{
+				$("#error_p").html("Error occured contact for support.").css({'color':'red', 'display':'block'});
+			}
+			scrollTop();
+		});	
 		}else{
 			$('#workflowactor'+id).remove();
 			totalWorkflowActorCount=totalWorkflowActorCount-1;
@@ -64,7 +71,7 @@
 			}
 		}			
 	}
-
+	
 	function prependOptionToDeviceType() {
 		var isDeviceTypeFieldEmpty = $('#isDeviceTypeEmpty').val();
 		var optionValue = $('#allOption').val();
@@ -79,7 +86,6 @@
 	}
 	
 	$(document).ready(function(){
-		prependOptionToDeviceType();
 		$('#usergroupTypeMaster').hide();
 		$('#addWorkflowActor').click(function(){
 			addWorkflowActor();
@@ -89,6 +95,10 @@
 </head>
 
 <body>
+<p id="error_p" style="display: none;">&nbsp;</p>
+<c:if test="${(error!='') && (error!=null)}">
+	<h4 style="color: #FF0000;">${error}</h4>
+</c:if>
 <div class="fields clearfix watermark" >
 <form:form action="workflowconfig" method="PUT" modelAttribute="domain">
 	<%@ include file="/common/info.jsp" %>
@@ -167,12 +177,14 @@
 	</div>
 	<form:hidden path="version" />
 	<form:hidden path="id"/>
-	<form:hidden path="locale"/>		
+	<form:hidden path="locale"/>	
+	<input type="hidden" id="isWorkflowLocked" value="${domain.isLocked}" />	
 	<input type="hidden" id="workflowactorCount" name="workflowactorCount" value="${workflowactorCount}">
 	<input type="hidden" id="createdOn" name="createdOn" value="${createdOn}">
 	<input type="hidden" id="houseType" name="houseType" value="${houseType}">
 	<input type="hidden" id="deleteFailedMessage" name="deleteFailedMessage" value="<spring:message code='workflowconfig.deletefailedmsg' text='Cannot Be Deleted'/>">	
 	<input type="hidden" id="isDeviceTypeEmpty" name="isDeviceTypeEmpty" value="${isDeviceTypeEmpty}">	
+	<input type="hidden" id="ErrorMsg" value="<spring:message code='generic.error' text='Error Occured Contact For Support.'/>"/>
 </form:form>
 </div>
 </body>
