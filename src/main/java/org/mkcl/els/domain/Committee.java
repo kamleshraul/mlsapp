@@ -68,8 +68,7 @@ public class Committee extends BaseDomain implements Serializable {
 	@JoinTable(name="committees_committee_members",
 			joinColumns={@JoinColumn(name="committee_id", 
 					referencedColumnName="id")},
-			inverseJoinColumns={@JoinColumn(name="committee_member_id", 
-					nullable=true,
+			inverseJoinColumns={@JoinColumn(name="committee_member_id",
 					referencedColumnName="id")})
 	private List<CommitteeMember> members;
 	
@@ -78,7 +77,6 @@ public class Committee extends BaseDomain implements Serializable {
 			joinColumns={@JoinColumn(name="committee_id", 
 					referencedColumnName="id")},
 			inverseJoinColumns={@JoinColumn(name="committee_invited_member_id",
-					nullable=true,
 					referencedColumnName="id")})
 	private List<CommitteeMember> invitedMembers;
 	
