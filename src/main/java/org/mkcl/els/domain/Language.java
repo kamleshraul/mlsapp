@@ -40,6 +40,10 @@ public class Language extends BaseDomain implements Serializable {
     @Column(length = 300)
     private String name;
     
+    /** The type. */
+    @Column(length = 300)
+    private String type;
+    
     private Integer priority;
     
     @Autowired
@@ -76,6 +80,10 @@ public class Language extends BaseDomain implements Serializable {
 	public static List<Language> findAllSortedByPriorityAndName(String locale) throws ELSException{
 		return getLanguageRepository().findAllSortedByPriorityAndName(locale);
 	}
+	
+	public static List<Language> findAllLanguagesByModule(final String module,final String locale) throws ELSException {
+		return getLanguageRepository().findAllLanguagesByModule(module,locale);
+	} 
     // ------------------------------------------Getters/Setters-----------------------------------
     /**
      * Gets the language.
@@ -102,8 +110,12 @@ public class Language extends BaseDomain implements Serializable {
 	public void setPriority(Integer priority) {
 		this.priority = priority;
 	}
+	
+	public String getType() {
+		return type;
+	}
 
-	public static List<Language> findAllLanguagesByModule(final String module,final String locale) throws ELSException {
-		return getLanguageRepository().findAllLanguagesByModule(module,locale);
-	}    
+	public void setType(String type) {
+		this.type = type;
+	}   
 }
