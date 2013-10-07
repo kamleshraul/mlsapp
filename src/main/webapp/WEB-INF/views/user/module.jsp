@@ -20,9 +20,9 @@
 			});
 			$('#groups_tab').click(function(){
 				var row = $("#key").val();
-				if(typeof row=="undefined"||row==""){
+				if(row=="undefined"||row==""){
 					var row = $("#user").val();
-					if(typeof row==undefined||row==""){
+					if(row==undefined||row==""){
 					$.prompt($('#selectRowFirstMessage').val());		
 					return false;
 					}else{

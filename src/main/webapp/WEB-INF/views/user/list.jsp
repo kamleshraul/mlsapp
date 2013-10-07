@@ -29,7 +29,7 @@
 		}
 		function rowDblClickHandler(rowid, iRow, iCol, e) {
 			//here when we are clicking a particular row then we will first set the key and then load the edit
-			//page. 
+			//page.
 			$("#key").val(rowid);
 			$("#editDeleteLinks").show();
 			showTabByIdAndUrl('details_tab', 'user/'+rowid+'/edit');
