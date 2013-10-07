@@ -279,6 +279,8 @@ public class QuestionController extends GenericController<Question>{
 		String newUrlPattern=urlPattern;
 		if(role.contains("QIS_")&& (!role.contains("CLERK"))){
 			newUrlPattern=urlPattern+"?usergroup=assistant";
+		}else if(role.contains("QIS_")&& (role.contains("CLERK"))){
+			newUrlPattern=urlPattern+"?usergroup=clerk";
 		}else if(role.contains("HDS_")&& (!role.contains("CLERK"))){
 			newUrlPattern=ApplicationConstants.HALF_HOUR_DISCUSSION_QUESTION_STANDALONE.toUpperCase();
 		}
