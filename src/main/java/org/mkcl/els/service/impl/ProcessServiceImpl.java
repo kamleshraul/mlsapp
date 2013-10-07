@@ -451,7 +451,7 @@ public class ProcessServiceImpl implements IProcessService {
 	 * @param task the task
 	 */
 	@Override
-	public void deleteTask(final org.mkcl.els.common.vo.Task task) {
+	public void deleteTask(final org.mkcl.els.common.vo.Task task) {		
 		this.taskService.deleteTask(task.getId());
 	}
 
@@ -811,5 +811,10 @@ public class ProcessServiceImpl implements IProcessService {
 			tasks.add(task);
 		}
 		return tasks;
+	}
+	
+	@Override
+	public boolean isTaskActive(final org.mkcl.els.common.vo.ProcessInstance  processInstance){
+		return this.runtimeService.createExecutionQuery().executionId(processInstance.getId()).singleResult().isEnded();
 	}
 }
