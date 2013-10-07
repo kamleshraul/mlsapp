@@ -5,11 +5,13 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map.Entry;
 
 import javax.persistence.NoResultException;
 import javax.persistence.Query;
 import javax.persistence.TypedQuery;
 
+import org.hibernate.jdbc.Work;
 import org.mkcl.els.common.exception.ELSException;
 import org.mkcl.els.common.util.ApplicationConstants;
 import org.mkcl.els.common.util.FormaterUtil;
@@ -21,9 +23,12 @@ import org.mkcl.els.domain.Motion;
 import org.mkcl.els.domain.Question;
 import org.mkcl.els.domain.Resolution;
 import org.mkcl.els.domain.Status;
+import org.mkcl.els.domain.User;
 import org.mkcl.els.domain.UserGroup;
 import org.mkcl.els.domain.WorkflowDetails;
 import org.springframework.stereotype.Repository;
+
+import com.trg.search.Search;
 
 @Repository
 public class WorkflowDetailsRepository extends BaseRepository<WorkflowDetails, Serializable>{
@@ -257,7 +262,6 @@ public class WorkflowDetailsRepository extends BaseRepository<WorkflowDetails, S
 	}	
 
 
-	@SuppressWarnings("unchecked")
 	public WorkflowDetails findCurrentWorkflowDetail(final Question question) throws ELSException{
 		WorkflowDetails workflowDetails = null;
 		try{
@@ -721,5 +725,32 @@ public class WorkflowDetailsRepository extends BaseRepository<WorkflowDetails, S
 			this.em().createQuery(query.toString(), WorkflowDetails.class);
 		WorkflowDetails workflowDetails = tQuery.getSingleResult();
 		return workflowDetails;
-	}	
+	}
+	
+	public List<WorkflowDetails> findPendingWorkflowOfCurrentUser(final java.util.Map<String, String> parameters, 
+			final String orderBy, 
+			final String sortOrder){
+		
+		StringBuffer strQuery = new StringBuffer("SELECT t FROM WorkflowDetails t WHERE");
+		int index = 0; 
+    	for (Entry<String, String> i : parameters.entrySet()) {
+            strQuery.append(" t." + i.getKey() + "=:" + i.getKey());
+            if(index < (parameters.entrySet().size() - 1)){
+            	strQuery.append(" AND");	            	
+            }
+            index++;
+        }
+    	
+    	strQuery.append(" ORDER BY t."+orderBy +" " + sortOrder + " LIMIT 1");
+    	
+    	Query jpQuery = this.em().createQuery(strQuery.toString());
+    	
+    	for (Entry<String, String> i : parameters.entrySet()) {
+            jpQuery.setParameter(i.getKey(), i.getValue());
+        }
+    	
+    	@SuppressWarnings("unchecked")
+		List<WorkflowDetails> list = jpQuery.getResultList();
+    	return list;
+	}
 }
