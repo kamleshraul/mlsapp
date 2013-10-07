@@ -2,7 +2,7 @@
 <html>
 <head>
 	<title>
-	<spring:message code="usergroup.title" text="User Group"/>
+		<spring:message code="usergroup.title" text="User Group"/>
 	</title>
 	<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>	
 	<script type="text/javascript">	
@@ -11,51 +11,102 @@
 		var departments=$("#param_DEPARTMENT_"+locale).val();
 		var ministries=$("#param_MINISTRY_"+locale).val();
 		if(departments!=''&&ministries!=''){
-		$.post('ref/subdepartments/byministriesdepartmentsname',{'departments':departments,'ministries':ministries},function(data){
-			$("#param_SUBDEPARTMENT_"+locale).empty();
-			var text="";
-			if(data.length>0){
-				for(var i=0;i<data.length;i++){
-					text+="<option value='"+data[i].name+"' selected='selected'>"+data[i].name+"</option>";
+			$.post('ref/subdepartments/byministriesdepartmentsname',{'departments':departments,'ministries':ministries},function(data){
+				$("#param_SUBDEPARTMENT_"+locale).empty();
+				var text="";
+				if(data.length>0){
+					for(var i=0;i<data.length;i++){
+						text+="<option value='"+data[i].name+"' selected='selected'>"+data[i].name+"</option>";
+					}
+					$("#param_SUBDEPARTMENT_"+locale).html(text);
+					$("#param_SUBDEPARTMENT_"+locale).multiSelect();
+					$.unblockUI();				
+				}else{
+					$("#param_SUBDEPARTMENT_"+locale).empty();
+					$("#span_param_SUBDEPARTMENT_"+locale).empty();
+					$.unblockUI();				
 				}
-				$("#param_SUBDEPARTMENT_"+locale).html(text);
-				$.unblockUI();				
-			}else{
-				$.unblockUI();				
-			}
-		});	
+			}).fail(function(){
+				if($("#ErrorMsg").val()!=''){
+					$("#error_p").html($("#ErrorMsg").val()).css({'color':'red', 'display':'block'});
+				}else{
+					$("#error_p").html("Error occured contact for support.").css({'color':'red', 'display':'block'});
+				}
+				scrollTop();
+			});	
 		}else{
 			$("#param_SUBDEPARTMENT_"+locale).empty();
+			$("#span_param_SUBDEPARTMENT_"+locale).empty();
 			$.unblockUI();			
 		}
 	}
+	
+	function arrangeElementsInSelect(targetElement, selectedValues){
+		var selElems = $("#"+selectedValues).val().split("##");
+		var i;
+		for(i = 0; i < selElems.length; i++){
+			$("#" + targetElement).each(function(){
+				if($(this).val()==selElems[i]){
+					$(this).attr('selected','selected');
+				}
+			});
+		}
+	}
 
+	function arrangeDevices(){
+		arrangeElementsInSelect("param_DEVICETYPE_" + $("#locale").val() + " option", "selectedDevices");		
+	}
+	function arrangeMinistries(){
+		
+		arrangeElementsInSelect("param_MINISTRY_" + $("#locale").val() + " option", "selectedMinistries");
+	}
+	
+	function arrangeDepartments(){
+		arrangeElementsInSelect("param_DEPARTMENT_" + $("#locale").val() + " option", "selectedDepartments");
+	}
+	
+	function arrangeSubdepartments(){
+		arrangeElementsInSelect("param_SUBDEPARTMENT_" + $("#locale").val() + " option", "selectedSubdepartments");
+	}
+	
 	function loadDepartments(){
 		var locale=$("#locale").val();		
 		var ministries=$("#param_MINISTRY_"+locale).val();
 		if(ministries!=''){
-		$.post('ref/departments/byministriesname',{'ministries':ministries},function(data){
-			$("#param_DEPARTMENT_"+locale).empty();
-			var text="";
-			if(data.length>0){
-				for(var i=0;i<data.length;i++){
-					text+="<option value='"+data[i].name+"' selected='selected'>"+data[i].name+"</option>";
-				}
-				$("#param_DEPARTMENT_"+locale).html(text);
-				loadSubDepartments();
-			}else{
+			$.post('ref/departments/byministriesname',{'ministries':ministries},function(data){
 				$("#param_DEPARTMENT_"+locale).empty();
-				$("#param_SUBDEPARTMENT_"+locale).empty();
-				$.unblockUI();				
-			}
-		});	
-	}else{
-		$("#param_DEPARTMENT_"+locale).empty();
-		$("#param_SUBDEPARTMENT_"+locale).empty();
-		$.unblockUI();				
+				var text="";
+				if(data.length>0){
+					for(var i=0;i<data.length;i++){
+						text+="<option value='"+data[i].name+"' selected='selected'>"+data[i].name+"</option>";
+					}
+					$("#param_DEPARTMENT_"+locale).html(text);
+					$("#param_DEPARTMENT_"+locale).multiSelect();
+					loadSubDepartments();
+				}else{
+					$("#param_DEPARTMENT_"+locale).empty();
+					$("#param_SUBDEPARTMENT_"+locale).empty();
+					$("#span_param_DEPARTMENT_"+locale).empty();
+					$("#span_param_SUBDEPARTMENT_"+locale).empty();
+					$.unblockUI();				
+				}
+			}).fail(function(){
+				if($("#ErrorMsg").val()!=''){
+					$("#error_p").html($("#ErrorMsg").val()).css({'color':'red', 'display':'block'});
+				}else{
+					$("#error_p").html("Error occured contact for support.").css({'color':'red', 'display':'block'});
+				}
+				scrollTop();
+			});	
+		}else{
+			$("#param_DEPARTMENT_"+locale).empty();
+			$("#param_SUBDEPARTMENT_"+locale).empty();
+			$("#span_param_DEPARTMENT_"+locale).empty();
+			$("#span_param_SUBDEPARTMENT_"+locale).empty();
+			$.unblockUI();				
+		}
 	}
-	}
-
+	
 	function loadCommitteeNames() {
 		var locale = $("#locale").val();
 		var houseTypeId = getHouseTypeId();
@@ -91,9 +142,23 @@
 	
 	$('document').ready(function(){	
 		initControls();
-		$('#key').val('');
+		
+		arrangeDevices();
+		arrangeMinistries();
+		arrangeDepartments();
+		arrangeSubdepartments();
+		
+		var locale=$("#locale").val();
+		var idMinistry="param_MINISTRY_" + locale;
+		var idDepartment="param_DEPARTMENT_"+ locale;
+		var idSubdepartment="param_SUBDEPARTMENT_"+ locale;
+		
+		$("#" + idMinistry).multiSelect();
+		$("#" + idDepartment).multiSelect();
+		$("#" + idSubdepartment).multiSelect();
+				
 		$("select[multiple='multiple']").css("width","188px");		
-		var locale=$("#locale").val();		
+				
 		$("#param_MINISTRY_"+locale).change(function(event){
 		$.blockUI({ message: '<img src="./resources/images/waitAnimated.gif" />' }); 		
 		loadDepartments();
@@ -102,7 +167,8 @@
 		$("#param_DEPARTMENT_"+locale).change(function(){
 		$.blockUI({ message: '<img src="./resources/images/waitAnimated.gif" />' }); 		
 		loadSubDepartments();		
-		});
+		});	
+		
 		$('#param_HOUSETYPE_' + locale).change(function(){
 			$.blockUI({ message: '<img src="./resources/images/waitAnimated.gif" />' });
 			loadCommitteeNames();
@@ -111,6 +177,10 @@
 </script>
 </head>
 <body>
+<p id="error_p" style="display: none;">&nbsp;</p>
+<c:if test="${(error!='') && (error!=null)}">
+	<h4 style="color: #FF0000;">${error}</h4>
+</c:if>
 <div class="fields clearfix">
 <form:form action="user/usergroup" method="PUT"  modelAttribute="domain">
 	<%@ include file="/common/info.jsp" %>
@@ -137,21 +207,16 @@
 		<form:select cssClass="sSelect" path="userGroupType" items="${userGroupTypes}" itemLabel="name" itemValue="id"/>
 		<form:errors path="userGroupType" cssClass="validationError"/>	
 	</p>
+	<input type="hidden" id="selectedDevices" value="${selectedDeviceType}" />
 	<p>
 		<label class="small"><spring:message code="usergroup.devicetype" text="Device Type" /></label>			
 		<select  id="param_DEVICETYPE_${locale}" name="param_DEVICETYPE_${locale}" multiple="multiple" size="5">
-			<c:forEach items="${deviceTypes}" var="i">				
-			<c:choose>
-			<c:when test="${fn:contains(selectedDeviceType,i.name)}">
-			<option value="${i.name}" selected="selected">${i.name}</option>			
-			</c:when>
-			<c:otherwise>
-			<option value="${i.name}">${i.name}</option>	
-			</c:otherwise>
-			</c:choose>
+			<c:forEach items="${deviceTypes}" var="i">
+				<option value="${i.name}">${i.name}</option>
 			</c:forEach>
 		</select>
-	</p>
+	</p>	
+	
 	<p>
 		<label class="small"><spring:message code="usergroup.committeeName" text="Committee Name" /></label>
 		<select  id="param_COMMITTEENAME_${locale}" name="param_COMMITTEENAME_${locale}" multiple="multiple" size="5">
@@ -166,7 +231,8 @@
 				</c:choose>
 			</c:forEach>
 		</select>
-	</p>	
+	</p>
+	
 	<p> 
 		<label class="small"><spring:message code="usergroup.activefrom" text="Active From"/></label>
 		<form:input cssClass="datemask sText" path="activeFrom"/>
@@ -177,48 +243,30 @@
 		<form:input cssClass="datemask sText" path="activeTo"/>
 		<form:errors path="activeTo" cssClass="validationError"/>	
 	</p>
+	<input type="hidden" id="selectedMinistries" value="${selectedMinistry}" />
 	<p>
 		<label class="small"><spring:message code="usergroup.ministry" text="Ministry" /></label>			
 		<select  id="param_MINISTRY_${locale}" name="param_MINISTRY_${locale}" multiple="multiple" size="5">
-			<c:forEach items="${ministries}" var="i">	
-			<c:choose>
-			<c:when test="${fn:contains(selectedMinistry,i.name) }">
-			<option value="${i.name}" selected="selected">${i.name}</option>			
-			</c:when>
-			<c:otherwise>
-			<option value="${i.name}">${i.name}</option>	
-			</c:otherwise>
-			</c:choose>			
+			<c:forEach items="${ministries}" var="i">
+				<option value="${i.name}">${i.name}</option>
 			</c:forEach>
 		</select>
 	</p>
+	<input type="hidden" id="selectedDepartments" value="${selectedDepartment}" />
 	<p>
 		<label class="small"><spring:message code="usergroup.department" text="Departments" /></label>			
 		<select  id="param_DEPARTMENT_${locale}" name="param_DEPARTMENT_${locale}" multiple="multiple" size="5">
-			<c:forEach items="${departments}" var="i">				
-			<c:choose>
-			<c:when test="${fn:contains(selectedDepartment,i.name) }">
-			<option value="${i.name}" selected="selected">${i.name}</option>			
-			</c:when>
-			<c:otherwise>
-			<option value="${i.name}">${i.name}</option>			
-			</c:otherwise>
-			</c:choose>				
+			<c:forEach items="${departments}" var="i">
+				<option value="${i.name}">${i.name}</option>
 			</c:forEach>
 		</select>
 	</p>	
+	<input type="hidden" id="selectedSubdepartments" value="${selectedSubDepartment}" />
 	<p>
 		<label class="small"><spring:message code="usergroup.subdepartment" text="Sub-Departments" /></label>			
 		<select  id="param_SUBDEPARTMENT_${locale}" name="param_SUBDEPARTMENT_${locale}" multiple="multiple" size="5">
 			<c:forEach items="${subdepartments}" var="i">				
-			<c:choose>
-			<c:when test="${fn:contains(selectedSubDepartment,i.name) }">
-			<option value="${i.name}" selected="selected">${i.name}</option>
-			</c:when>
-			<c:otherwise>
-			<option value="${i.name}">${i.name}</option>			
-			</c:otherwise>
-			</c:choose>							
+				<option value="${i.name}">${i.name}</option>			
 			</c:forEach>
 		</select>
 	</p>	
@@ -233,6 +281,7 @@
 	<form:hidden path="locale"/>
 	<input type="hidden" id="credential" name="credential" value="${domain.credential.id}">	
 	<input type="hidden" id="currentDate" value="${currentdate}">
+	<input type="hidden" id="ErrorMsg" value="<spring:message code='generic.error' text='Error Occured Contact For Support.'/>"/>
 	
 	<!-- Hidden fields that aid in Client side actions performed in Javascript -->
 	<p style="display:none;">
