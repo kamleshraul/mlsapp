@@ -3,6 +3,7 @@ package org.mkcl.els.domain;
 import java.io.Serializable;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -14,16 +15,20 @@ import org.mkcl.els.common.exception.ELSException;
 import org.mkcl.els.common.vo.Task;
 import org.mkcl.els.repository.WorkflowDetailsRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.format.annotation.DateTimeFormat;
 
 @Entity
 @Table(name="workflow_details")
 public class WorkflowDetails extends BaseDomain implements Serializable{
 
+	/**
+	 * 
+	 */
 	private static final long serialVersionUID = 1L;
 	
 	private String processId;
 	
-	private String taskId;
+	private String taskId;	
 	
 	private String assignee;
 	
@@ -92,6 +97,13 @@ public class WorkflowDetails extends BaseDomain implements Serializable{
 	private String groupNumber;
 	
 	private String file;
+		
+	private String departmentAnswer;
+	
+	private Long previousWorkflowDetail;
+	
+	@Temporal(TemporalType.TIMESTAMP)
+	private Date sendBackBefore;
 	
 	/**** Attributes for Non Device Types viz, Committee ****/
 	// Comma separated Ids
@@ -261,8 +273,7 @@ public class WorkflowDetails extends BaseDomain implements Serializable{
 
 	public static WorkflowDetails create(final Question question,final Task task,final String workflowType,
 			final String assigneeLevel) throws ELSException {
-		return getWorkflowDetailsRepository().create(question,task,workflowType,
-				assigneeLevel);
+		return getWorkflowDetailsRepository().create(question,task,workflowType,assigneeLevel);
 	}
 	
 	public static WorkflowDetails create(final Resolution resolution,final Task task,final String workflowType,
@@ -377,7 +388,11 @@ public class WorkflowDetails extends BaseDomain implements Serializable{
 				strItemsCount,strLocale,file);
 	}
 	
-	
+	public static List<WorkflowDetails> findPendingWorkflowOfCurrentUser(final Map<String, String> parameters, 
+			final String orderBy, 
+			final String sortOrder){
+		return getWorkflowDetailsRepository().findPendingWorkflowOfCurrentUser(parameters, orderBy, sortOrder);
+	}
 	//kept to hide errors only method needs to be replaced with actual code
 	public static WorkflowDetails findCurrentWorkflowDetail(Device device, String houseTypeName){
 		return null;
@@ -397,6 +412,49 @@ public class WorkflowDetails extends BaseDomain implements Serializable{
 
 	public String getFile() {
 		return file;
+	}
+
+	/**
+	 * @return the departmentAnswer
+	 */
+	public String getDepartmentAnswer() {
+		return departmentAnswer;
+	}
+
+	/**
+	 * @param departmentAnswer the departmentAnswer to set
+	 */
+	public void setDepartmentAnswer(String departmentAnswer) {
+		this.departmentAnswer = departmentAnswer;
+	}
+
+	/**
+	 * @return the sendBackBefore
+	 */
+	public Date getSendBackBefore() {
+		return sendBackBefore;
+	}
+
+	/**
+	 * @param sendBackBefore the sendBackBefore to set
+	 */
+	public void setSendBackBefore(Date sendBackBefore) {
+		this.sendBackBefore = sendBackBefore;
+	}
+
+	/**
+	 * @return the previousWorkflowDetail
+	 */
+	public Long getPreviousWorkflowDetail() {
+		return previousWorkflowDetail;
+	}
+
+	/**
+	 * @param previousWorkflowDetail the previousWorkflowDetail to set
+	 */
+	public void setPreviousWorkflowDetail(Long previousWorkflowDetail) {
+		this.previousWorkflowDetail = previousWorkflowDetail;
+	}
 	}
 
 	public String getDomainIds() {
