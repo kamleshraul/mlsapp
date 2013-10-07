@@ -33,9 +33,6 @@ import org.mkcl.els.common.vo.GroupVO;
 import org.mkcl.els.common.vo.MasterVO;
 import org.mkcl.els.common.vo.Reference;
 import org.mkcl.els.domain.Airport;
-import org.mkcl.els.domain.Committee;
-import org.mkcl.els.domain.CommitteeName;
-import org.mkcl.els.domain.CommitteeType;
 import org.mkcl.els.domain.Constituency;
 import org.mkcl.els.domain.CustomParameter;
 import org.mkcl.els.domain.Department;
@@ -54,11 +51,11 @@ import org.mkcl.els.domain.MemberRole;
 import org.mkcl.els.domain.MenuItem;
 import org.mkcl.els.domain.Ministry;
 import org.mkcl.els.domain.Motion;
-import org.mkcl.els.domain.PartyType;
 import org.mkcl.els.domain.Question;
 import org.mkcl.els.domain.QuestionDates;
 import org.mkcl.els.domain.RailwayStation;
 import org.mkcl.els.domain.Resolution;
+//import org.mkcl.els.domain.Resolution;
 import org.mkcl.els.domain.Session;
 import org.mkcl.els.domain.SessionType;
 import org.mkcl.els.domain.State;
@@ -66,11 +63,12 @@ import org.mkcl.els.domain.Status;
 import org.mkcl.els.domain.SubDepartment;
 import org.mkcl.els.domain.Tehsil;
 import org.mkcl.els.domain.UserGroup;
-import org.mkcl.els.domain.WorkflowActor;
 import org.mkcl.els.domain.WorkflowConfig;
 import org.mkcl.els.domain.associations.HouseMemberRoleAssociation;
+import org.mkcl.els.repository.DistrictRepository;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -105,9 +103,7 @@ public class ReferenceController extends BaseController {
 					final Locale locale) {
 		List<Reference> districts = new ArrayList<Reference>();
 		try {
-			districts = District.findDistrictsRefByStateId(
-					stateId , "name" , ApplicationConstants.ASC ,
-					locale.toString());
+			districts = District.findDistrictsRefByStateId(stateId , "name" , ApplicationConstants.ASC ,locale.toString());
 		} catch (ELSException e) {
 			e.printStackTrace();
 		}
@@ -714,12 +710,16 @@ public class ReferenceController extends BaseController {
 			final Locale locale){
 		String[] strMinistries=request.getParameterValues("ministries[]");
 		List<MasterVO> departmentVOs=new ArrayList<MasterVO>();
-		List<Department> departments=MemberMinister.findAssignedDepartments(strMinistries,locale.toString());
-		for(Department i:departments){
-			MasterVO masterVO=new MasterVO();
-			masterVO.setId(i.getId());
-			masterVO.setName(i.getName());
-			departmentVOs.add(masterVO);
+		if(strMinistries != null){
+			if(strMinistries.length > 0){
+				List<Department> departments=MemberMinister.findAssignedDepartments(strMinistries,locale.toString());
+				for(Department i:departments){
+					MasterVO masterVO=new MasterVO();
+					masterVO.setId(i.getId());
+					masterVO.setName(i.getName());
+					departmentVOs.add(masterVO);
+				}
+			}
 		}
 		return departmentVOs;
 	}
@@ -738,13 +738,17 @@ public class ReferenceController extends BaseController {
 		String[] ministries=request.getParameterValues("ministries[]");
 		String[] departments=request.getParameterValues("departments[]");
 		//populating sub departments
-		List<SubDepartment> subDepartments=MemberMinister.findAssignedSubDepartments(ministries,departments, locale.toString());
 		List<MasterVO> subDepartmentVOs=new ArrayList<MasterVO>();
-		for(SubDepartment i:subDepartments){
-			MasterVO masterVO=new MasterVO();
-			masterVO.setId(i.getId());
-			masterVO.setName(i.getName());
-			subDepartmentVOs.add(masterVO);
+		if(ministries != null && departments != null){
+			
+			List<SubDepartment> subDepartments=MemberMinister.findAssignedSubDepartments(ministries,departments, locale.toString());
+			
+			for(SubDepartment i:subDepartments){
+				MasterVO masterVO=new MasterVO();
+				masterVO.setId(i.getId());
+				masterVO.setName(i.getName());
+				subDepartmentVOs.add(masterVO);
+			}
 		}
 		return subDepartmentVOs;
 	}
