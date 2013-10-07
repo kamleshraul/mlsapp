@@ -61,6 +61,9 @@ public class QuestionDatesVO {
 
     /** The row id. */
     private int rowId;
+    
+    /** The house type. */
+    private String houseType;
 
 
     /**
@@ -342,5 +345,21 @@ public class QuestionDatesVO {
     public String getSpeakerSendingDate() {
         return speakerSendingDate;
     }
+
+
+	/**
+	 * @return the houseType
+	 */
+	public String getHouseType() {
+		return houseType;
+	}
+
+
+	/**
+	 * @param houseType the houseType to set
+	 */
+	public void setHouseType(String houseType) {
+		this.houseType = houseType;
+	}
 
 }
