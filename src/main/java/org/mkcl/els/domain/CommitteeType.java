@@ -32,6 +32,8 @@ public class CommitteeType extends BaseDomain implements Serializable {
 	
 	@Column(length=200)
 	private String type;
+	
+	private Boolean isExpired;
 
 	//=============== CONSTRUCTORS =============
 	public CommitteeType() {
@@ -86,6 +88,14 @@ public class CommitteeType extends BaseDomain implements Serializable {
 
 	public void setType(final String type) {
 		this.type = type;
+	}
+
+	public Boolean getIsExpired() {
+		return isExpired;
+	}
+
+	public void setIsExpired(final Boolean isExpired) {
+		this.isExpired = isExpired;
 	}
 	
 }
