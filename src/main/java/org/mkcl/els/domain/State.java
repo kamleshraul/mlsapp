@@ -17,6 +17,8 @@ import javax.persistence.Entity;
 import javax.persistence.Table;
 
 import org.mkcl.els.common.util.ApplicationConstants;
+import org.mkcl.els.repository.StateRepository;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Configurable;
 
 /**
@@ -38,6 +40,9 @@ public class State extends BaseDomain implements Serializable {
     /** The name. */
     @Column(length = 100)
     private String name;
+    
+    @Autowired
+	private transient StateRepository repository;
 
     // ---------------------------------Constructors----------------------------------------------
     /**
@@ -58,10 +63,24 @@ public class State extends BaseDomain implements Serializable {
     }
 
     // -------------------------------Domain_Methods----------------------------------------------
+    private static StateRepository getRepository() {
+    	StateRepository stateRepository = new State().repository;
+		if (stateRepository == null) {
+			throw new IllegalStateException(
+					"StateRepository has not been injected in State Domain");
+		}
+		return stateRepository;
+	}
+    
     public static final List<State> find(final String locale) {
     	List<State> states = 
     		State.findAll(State.class, "name", ApplicationConstants.ASC, locale);
     	return states;
+    }
+    
+    public static final State find(final District district,
+    		final String locale) {
+    	return State.getRepository().find(district, locale);
     }
     
     // ------------------------------------------Getters/Setters-----------------------------------
