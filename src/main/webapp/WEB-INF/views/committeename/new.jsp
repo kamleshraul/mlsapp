@@ -155,7 +155,7 @@
 	<form:errors path="version" cssClass="validationError"/>
 	
 	<!-- houseType is a simple input field and not a form input field because
-		 it is not an attribute of the committee instance. -->
+		 it is not an attribute of the committeename instance. -->
 	<p>
 		<label class="small"><spring:message code="committeename.houseType" text="House Type" /></label>
 		<select class="sSelect" id="houseType">
