@@ -10,11 +10,13 @@
 package org.mkcl.els.domain;
 
 import java.io.Serializable;
+import java.util.List;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Table;
 
+import org.mkcl.els.common.util.ApplicationConstants;
 import org.springframework.beans.factory.annotation.Configurable;
 
 /**
@@ -56,7 +58,12 @@ public class State extends BaseDomain implements Serializable {
     }
 
     // -------------------------------Domain_Methods----------------------------------------------
-
+    public static final List<State> find(final String locale) {
+    	List<State> states = 
+    		State.findAll(State.class, "name", ApplicationConstants.ASC, locale);
+    	return states;
+    }
+    
     // ------------------------------------------Getters/Setters-----------------------------------
     /**
      * Gets the name.
