@@ -341,6 +341,11 @@
 		<pattern>/houseparty/*/delete</pattern>
 		<pattern>/houseparty</pattern>
 		
+		<pattern>/town/new</pattern>
+		<pattern>/town/*/edit</pattern>
+		<pattern>/town/*/delete</pattern>
+		<pattern>/town</pattern>
+		
 		<pattern>workflow/committee</pattern>
 		
 		<pattern>/workflow/committee/init/requestToParliamentaryMinister</pattern>
