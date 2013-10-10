@@ -451,4 +451,33 @@ public class BaseRepository<T, ID extends Serializable> extends
 		return result;
     }
 
+    @SuppressWarnings({ "unchecked", "rawtypes" })
+	public <U extends T> List<U> findAllByLikeParameter(
+            final Class persistenceClass, final String[] fields,
+            final String term,final String locale) {
+			
+		StringBuffer strQuery = new StringBuffer("SELECT t FROM " + persistenceClass.getSimpleName() + 
+				" t WHERE ");
+		for(int i=0;i<fields.length;i++){
+			strQuery.append(fields[i]+" LIKE :pattern");
+			if(i+1<fields.length){
+				strQuery.append(" OR ");
+			}
+		}
+		if (locale == null) {
+			strQuery.append(" AND locale=:locale");
+		}else if (locale.isEmpty()) {
+			
+		}else {
+			strQuery.append(" AND locale=:locale");
+		}
+		
+		Query jpQuery = this.em().createQuery(strQuery.toString());
+		jpQuery.setParameter("pattern", term + "%");
+		jpQuery.setParameter("locale",locale);
+		List<U> result = jpQuery.getResultList();
+		
+		return result;
+			
+	}
 }
