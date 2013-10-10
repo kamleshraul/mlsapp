@@ -1554,6 +1554,22 @@ public class Question extends Device implements Serializable {
 		return getQuestionRepository().getMemberQuestionStatistics(member, session, locale);
 	}*/
 	
+	 //todos 1
+    public static List<Question> findAdmittedQuestionsOfGivenTypeWithoutListNumberInSession(final Long sessionId, final Long deviceTypeId) {
+    	return getQuestionRepository().findAdmittedQuestionsOfGivenTypeWithoutListNumberInSession(sessionId, deviceTypeId);
+    }
+    
+    public static Integer findHighestListNumberForAdmittedQuestionsOfGivenTypeInSession(final Long sessionId, final Long deviceTypeId) {
+    	return getQuestionRepository().findHighestListNumberForAdmittedQuestionsOfGivenTypeInSession(sessionId, deviceTypeId);
+    }
+    
+    public static Boolean isAdmittedQuestionOfGivenTypeWithListNumberInNextSessions(final Long sessionId, final String houseType, final Long deviceTypeId) {
+    	return getQuestionRepository().isAdmittedQuestionOfGivenTypeWithListNumberInNextSessions(sessionId, houseType, deviceTypeId);
+    }
+	
+	 public static Question getQuestion(final Long sessionId,final Long deviceTypeId, final Integer number,final String locale){
+	    	return getQuestionRepository().getQuestion(sessionId, deviceTypeId,number, locale);
+	 }
 	
 	/**** Getters and Setters ****/
 	public HouseType getHouseType() {
