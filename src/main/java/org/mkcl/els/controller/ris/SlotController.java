@@ -136,15 +136,21 @@ public class SlotController extends GenericController<Slot>{
 		Roster roster=domain.getRoster();
 		List<Reporter> reporters=roster.getReporters();
 		if(reporters!=null&&!reporters.isEmpty()){
-			reporters.add(domain.getReporter());
+			domain.getReporter().setIsActive(true);
+			domain.getReporter().persist();
+			reporters.add(domain.getReporter());			
 			roster.setReporters(reporters);
 			roster.merge();			
 		}else if(reporters==null){
 			reporters=new ArrayList<Reporter>();
+			domain.getReporter().setIsActive(true);
+			domain.getReporter().persist();
 			reporters.add(domain.getReporter());
 			roster.setReporters(reporters);
 			roster.merge();			
 		}else if(reporters.isEmpty()){
+			domain.getReporter().setIsActive(true);
+			domain.getReporter().persist();
 			reporters.add(domain.getReporter());
 			roster.setReporters(reporters);
 			roster.merge();			
