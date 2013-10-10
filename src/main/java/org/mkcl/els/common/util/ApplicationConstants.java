@@ -539,11 +539,30 @@ public class ApplicationConstants {
 	
 	public static final String MINISTER = "MINISTER";
 	
+	
 	/**** member role types for comparison ****/
 	public static final String CHIEF_MINISTER = "CHIEF_MINISTER";
 	
 	public static final String DEPUTY_CHIEF_MINISTER = "DEPUTY_CHIEF_MINISTER";
 	
+	public static String DEPUTY_SPEAKER="DEPUTY_SPEAKER";
+
+	public static String DEPUTY_CHAIRMAN="DEPUTY_CHAIRMAN";
+	
+	/****Reporting*******/
+	public static String PROCEEDING_SEARCHOPTION="PROCEEDING_SEARCHOPTIONS";
+
+	public static String PROCEEDING_BOOKMARKKEY="PROCEEDING_BOOKMARK_KEY";
+
+	public static String PROCEEDING_CONTENT_MERGE_REPORT="RIS_PROCEEDING_CONTENT_MERGE_REPORT2";
+
+	public static String RIS_SLOT_WISE_REPORT="RIS_SLOT_WISE_REPORT";
+
+	public static String RIS_SESSION_WISE_REPORT="RIS_SESSION_WISE_REPORT";
+
+	public static String RIS_REPORTER_WISE_REPORT="RIS_REPORTER_WISE_REPORT";
+
+	public static String RIS_MEMBER_WISE_REPORT="RIS_MEMBER_WISE_REPORT";
 	
 	/****Custom Parameters name ****/
 	public static final String RESOLUTION_CHART_WITHDEVICES_VIEW = "RESOLUTION_CHART_WITHDEVICES_VIEW";
