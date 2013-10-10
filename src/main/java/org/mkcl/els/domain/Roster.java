@@ -130,6 +130,15 @@ public class Roster extends BaseDomain implements Serializable{
 		return getRosterRepository().slotsAlreadyCreated(roster);
 	}
 	
+	public static List<Roster> findAllRosterBySessionAndLanguage(
+			final Session session,final Language language,final String locale) {
+		return getRosterRepository().findAllRosterBySessionAndLanguage(session,language,locale);
+	}	
+	
+	public static Roster findRosterBySessionLanguageAndDay(final Session session,
+			final int day,final Language language,final String locale) {
+		return getRosterRepository().findRosterBySessionLanguageAndDay(session,day,language,locale);
+	}
 	/*********** Setters and Getters ************/
 
 	public Session getSession() {

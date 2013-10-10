@@ -2,6 +2,7 @@ package org.mkcl.els.domain;
 
 import java.io.Serializable;
 import java.util.Date;
+import java.util.List;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
@@ -88,6 +89,9 @@ public class Slot extends BaseDomain implements Serializable{
 		return getSlotRepository().findByStartTime(roster,startTime);
 	}	
 
+	public static List<Slot> findSlotsByLanguageContainingSlotTime(Language language, Slot slot) {
+		return getSlotRepository().findSlotsByLanguageContainingSlotTime(language,slot);
+	}
 	/*********** Setters and Getters ************/	
 	
 	public Reporter getReporter() {

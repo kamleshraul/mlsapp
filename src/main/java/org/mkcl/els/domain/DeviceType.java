@@ -61,6 +61,8 @@ public class DeviceType extends BaseDomain implements Serializable {
     @NotEmpty
     private String type;   
     
+    @Column(length=100)
+    private String device;
 
     @Autowired
     private transient DeviceTypeRepository deviceTypeRepository;
@@ -72,11 +74,12 @@ public class DeviceType extends BaseDomain implements Serializable {
     }
 
 
-    public DeviceType(final String name, final Map<String, String> parameters, final String type) {
+    public DeviceType(final String name, final Map<String, String> parameters, final String type, final String device) {
         super();
         this.name = name;
         this.parameters = parameters;
         this.type = type;
+        this.device=device;
     }
 
     // ----------------------------Domain Methods-------------------------//
@@ -111,6 +114,11 @@ public class DeviceType extends BaseDomain implements Serializable {
     	DeviceType deviceType = DeviceType.findByFieldName(DeviceType.class, "type", type, locale);
     	return deviceType;
     }
+    
+    public static List<DeviceType> findAllowedTypesInStarredClubbing(final String locale) throws ELSException {
+		return getDeviceTypeRepository().getAllowedTypesInStarredClubbing(locale);
+	}
+
     // ----------------------------Getters/Setters------------------------//
 
 
@@ -148,9 +156,11 @@ public class DeviceType extends BaseDomain implements Serializable {
         this.type = type;
     }
 
-
-	public static List<DeviceType> findAllowedTypesInStarredClubbing(final String locale) throws ELSException {
-		return getDeviceTypeRepository().getAllowedTypesInStarredClubbing(locale);
+    public String getDevice() {
+		return device;
 	}
 
+	 public void setDevice(String device) {
+		this.device = device;
+	 }
 }
