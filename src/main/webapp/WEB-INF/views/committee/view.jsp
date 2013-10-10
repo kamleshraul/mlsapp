@@ -41,7 +41,7 @@
 	</p>
 	
 	<!-- Table displaying members -->
-	<c:if test="${not empty committeeMembers}">
+	<c:if test="${status.type eq 'committee_membersAdded' and not empty committeeMembers}">
 		<label class="small"><spring:message code="committee.members" text="Committee Members"/></label>
 		<table class="uiTable" border="1">
 			<tr>
@@ -58,7 +58,7 @@
 	</c:if>
 	
 	<!-- Table displaying invited members -->
-	<c:if test="${not empty invitedMembers}">
+	<c:if test="${status.type eq 'committee_invitedMembersAdded' and not empty invitedMembers}">
 		<label class="small"><spring:message code="committee.invitedMembers" text="Invited Members"/></label>
 		<table class="uiTable" border="1">
 			<tr>
