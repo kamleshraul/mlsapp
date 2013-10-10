@@ -350,7 +350,15 @@ public class BaseDomain {
         }
         return retVal;
     }
-
+    
+    /****Added By Anand****/
+    @SuppressWarnings("unchecked")
+	public static <U extends BaseDomain> List<U> findAllByLikeParameter(
+            final Class<?> persistenceClass, final String[] fields,
+            final String term,final String locale) {
+		return  getBaseRepository().findAllByLikeParameter(persistenceClass,fields,term,locale);
+		
+	}
     // ==================== Getters & Setters ====================
     /**
      * Gets the id.
