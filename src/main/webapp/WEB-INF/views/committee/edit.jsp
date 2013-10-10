@@ -42,12 +42,12 @@
 	}
 
 	function onFormationDateChange() {
-		var formationDate = $('#formationDate').val();
-		if(formationDate != null || formationDate != '') {
+		var varFormationDate = $('#formationDate').val();
+		if(varFormationDate != null || varFormationDate != '') {
 			// Make an ajax call to get the dissolutionDate based on committeeName
 			// and formationDate
 			var committeeNameParam = "committeeName=" + $('#committeeName').val();
-			var formationDateParam = "formationDate=" + formationDate;
+			var formationDateParam = "formationDate=" + varFormationDate;
 			var parameters = committeeNameParam + "&" + formationDateParam;
 			var resourceURL = "ref/committee/dissolutionDate" + "?" + parameters;
 			$.get(resourceURL, function(data){
