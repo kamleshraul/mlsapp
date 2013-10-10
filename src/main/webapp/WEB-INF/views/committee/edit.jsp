@@ -138,7 +138,6 @@
 				</tr>
 				<c:forEach items="${committeeMembers}" var="committeeMember">
 					<tr>
-					
 						<td>${committeeMember.member.fullname}</td>
 						<td>${committeeMember.designation.name}</td>
 					</tr>
