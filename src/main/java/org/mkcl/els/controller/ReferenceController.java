@@ -32,33 +32,53 @@ import org.mkcl.els.common.vo.DynamicSelectVO;
 import org.mkcl.els.common.vo.GroupVO;
 import org.mkcl.els.common.vo.MasterVO;
 import org.mkcl.els.common.vo.Reference;
+import org.mkcl.els.domain.Abbreviation;
 import org.mkcl.els.domain.Airport;
 import org.mkcl.els.domain.Committee;
 import org.mkcl.els.domain.CommitteeName;
 import org.mkcl.els.domain.CommitteeType;
 import org.mkcl.els.domain.Constituency;
+import org.mkcl.els.domain.Creek;
 import org.mkcl.els.domain.CustomParameter;
+import org.mkcl.els.domain.Dam;
 import org.mkcl.els.domain.Department;
 import org.mkcl.els.domain.DeviceType;
 import org.mkcl.els.domain.District;
 import org.mkcl.els.domain.Division;
 import org.mkcl.els.domain.Election;
 import org.mkcl.els.domain.ElectionType;
+import org.mkcl.els.domain.Fort;
+import org.mkcl.els.domain.Ghat;
+import org.mkcl.els.domain.GovernmentCorporation;
+import org.mkcl.els.domain.GovernmentProgram;
+import org.mkcl.els.domain.GovernmentProject;
+import org.mkcl.els.domain.GovernmentScheme;
 import org.mkcl.els.domain.Grid;
 import org.mkcl.els.domain.Group;
+import org.mkcl.els.domain.Highway;
 import org.mkcl.els.domain.House;
 import org.mkcl.els.domain.HouseType;
+import org.mkcl.els.domain.IdentificationKey;
+import org.mkcl.els.domain.Language;
 import org.mkcl.els.domain.Member;
 import org.mkcl.els.domain.MemberMinister;
 import org.mkcl.els.domain.MemberRole;
 import org.mkcl.els.domain.MenuItem;
 import org.mkcl.els.domain.Ministry;
 import org.mkcl.els.domain.Motion;
+import org.mkcl.els.domain.Part;
 import org.mkcl.els.domain.PartyType;
+import org.mkcl.els.domain.Proceeding;
 import org.mkcl.els.domain.Question;
 import org.mkcl.els.domain.QuestionDates;
 import org.mkcl.els.domain.RailwayStation;
 import org.mkcl.els.domain.Resolution;
+import org.mkcl.els.domain.River;
+import org.mkcl.els.domain.Roster;
+import org.mkcl.els.domain.Sanctuary;
+import org.mkcl.els.domain.Slot;
+import org.mkcl.els.domain.SupportingMember;
+import org.mkcl.els.domain.University;
 import org.mkcl.els.domain.WorkflowActor;
 //import org.mkcl.els.domain.Resolution;
 import org.mkcl.els.domain.Session;
@@ -2671,6 +2691,618 @@ public class ReferenceController extends BaseController {
 		}
 		
 		return null;
+	}
+	
+	/****RIS Related Ajax Calls****/
+	@RequestMapping(value="/roster/actions",method=RequestMethod.POST)
+	public @ResponseBody List<Reference> findRosterActions(final HttpServletRequest request,
+			final Locale locale){
+		String strStartTime=request.getParameter("startTime");
+		String strEndTime=request.getParameter("endTime");
+		String strSlotDuration=request.getParameter("slotDuration");
+		String strRoster=request.getParameter("roster");
+		List<Reference> references=new ArrayList<Reference>();
+		if(strStartTime!=null&&!strStartTime.isEmpty()
+				&&strEndTime!=null&&!strEndTime.isEmpty()
+				&&strSlotDuration!=null&&!strSlotDuration.isEmpty()
+				&&strRoster!=null&&!strRoster.isEmpty()){
+			CustomParameter customParameter=CustomParameter.findByName(CustomParameter.class,"ROSTER_DATETIMEFORMAT","");
+			Date startTime=null;
+			Date endTime=null;
+			Integer slotDuration=Integer.parseInt(strSlotDuration);
+			if(customParameter!=null){
+				SimpleDateFormat format=FormaterUtil.getDateFormatter(customParameter.getValue(),locale.toString());
+				try {
+					startTime=format.parse(strStartTime);
+					endTime=format.parse(strEndTime);
+				} catch (ParseException e) {
+					SimpleDateFormat defaultFormat=FormaterUtil.getDateFormatter(customParameter.getValue(),"en_US");
+					try {
+						startTime=defaultFormat.parse(strStartTime);
+						endTime=defaultFormat.parse(strEndTime);
+					} catch (ParseException e1) {
+						logger.error("Unparseable Timestamp:"+strStartTime+","+strEndTime,e1);;
+					}
+				}
+			}
+			/**** Conditions ****/
+			Roster roster=Roster.findById(Roster.class,Long.parseLong(strRoster));
+			Date storedStartTime=roster.getStartTime();
+			Date storedEndTime=roster.getEndTime();
+			Integer storedSlotDuration=roster.getSlotDuration();
+			CustomParameter actionParameter=null;
+			String event="";
+			/**** StartTime/EndTime/Slot Duration are changed ****/
+			if(storedStartTime!=null&&!(startTime.equals(storedStartTime))
+					&&storedEndTime!=null&&!(endTime.equals(storedEndTime))
+					&&storedSlotDuration!=null&&slotDuration!=storedSlotDuration){
+				actionParameter=CustomParameter.findByName(CustomParameter.class,"ROSTER_STARTTIME_ENDTIME_SLOTDURATION_CHANGED","");
+				event="STARTTIME_ENDTIME_SLOTDURATION_CHANGED";
+			}
+			/**** StartTime/Slot Duration are changed ****/
+			else if(storedStartTime!=null&&!(startTime.equals(storedStartTime))
+					&&storedEndTime!=null&&(endTime.equals(storedEndTime))
+					&&storedSlotDuration!=null&&slotDuration!=storedSlotDuration){
+				actionParameter=CustomParameter.findByName(CustomParameter.class,"ROSTER_STARTTIME_SLOTDURATION_CHANGED","");
+				event="STARTTIME_SLOTDURATION_CHANGED";
+			}
+			/**** EndTime Preponded/Slot Duration are changed ****/
+			else if(storedStartTime!=null&&(startTime.equals(storedStartTime))
+					&&storedEndTime!=null&&(endTime.before(storedEndTime))
+					&&storedSlotDuration!=null&&slotDuration!=storedSlotDuration){
+				actionParameter=CustomParameter.findByName(CustomParameter.class,"ROSTER_ENDTIME_PREPONDED_SLOTDURATION_CHANGED","");
+				event="ENDTIME_PREPONDED_SLOTDURATION_CHANGED";
+			}
+			/**** EndTime Postponded/Slot Duration are changed ****/
+			else if(storedStartTime!=null&&(startTime.equals(storedStartTime))
+					&&storedEndTime!=null&&(endTime.after(storedEndTime))
+					&&storedSlotDuration!=null&&slotDuration!=storedSlotDuration){
+				actionParameter=CustomParameter.findByName(CustomParameter.class,"ROSTER_ENDTIME_POSTPONDED_SLOTDURATION_CHANGED","");
+				event="ENDTIME_POSTPONDED_SLOTDURATION_CHANGED";
+			}
+			/**** StartTime/EndTime are changed ****/
+			else if(storedStartTime!=null&&!(startTime.equals(storedStartTime))
+					&&storedEndTime!=null&&!(endTime.equals(storedEndTime))
+					&&storedSlotDuration!=null&&slotDuration==storedSlotDuration){
+				actionParameter=CustomParameter.findByName(CustomParameter.class,"ROSTER_STARTTIME_ENDTIME_CHANGED","");
+				event="STARTTIME_ENDTIME_CHANGED";
+			}
+			/**** StartTime is preponded/postponded ****/
+			else if(storedStartTime!=null&&(startTime.before(storedStartTime)||startTime.after(storedStartTime))
+					&&storedEndTime!=null&&endTime.equals(storedEndTime)
+					&&storedSlotDuration!=null&&slotDuration==storedSlotDuration){
+				actionParameter=CustomParameter.findByName(CustomParameter.class,"ROSTER_STARTTIME_CHANGED","");
+				event="STARTTIME_CHANGED";
+			}/**** EndTime is preponded ****/
+			else if(storedStartTime!=null&&startTime.equals(storedStartTime)
+					&&storedEndTime!=null&&endTime.before(storedEndTime)
+					&&storedSlotDuration!=null&&slotDuration==storedSlotDuration){
+				actionParameter=CustomParameter.findByName(CustomParameter.class,"ROSTER_ENDTIME_PREPONDED","");
+				event="ENDTIME_PREPONDED";
+			}/**** EndTime is postponded ****/
+			else if(storedStartTime!=null&&startTime.equals(storedStartTime)
+					&&storedEndTime!=null&&endTime.after(storedEndTime)
+					&&storedSlotDuration!=null&&slotDuration==storedSlotDuration){
+				actionParameter=CustomParameter.findByName(CustomParameter.class,"ROSTER_ENDTIME_POSTPONDED","");
+				event="ENDTIME_POSTPONDED";
+			}/**** Slot Duration is changed ****/
+			else if(storedStartTime!=null&&startTime.equals(storedStartTime)
+					&&storedEndTime!=null&&endTime.equals(storedEndTime)
+					&&storedSlotDuration!=null&&slotDuration!=storedSlotDuration&&slotDuration>=0){
+				actionParameter=CustomParameter.findByName(CustomParameter.class,"ROSTER_SLOTDURATION_CHANGED","");
+				event="SLOTDURATION_CHANGED";
+			}
+			if(actionParameter!=null){
+				String[] actions=actionParameter.getValue().split(",");
+				for(String i:actions){
+					Reference reference=new Reference(i,event);
+					references.add(reference);
+				}				
+			}
+		}	
+		return references;
+	}
+	
+	@RequestMapping(value="/findLatestListNumberForGivenDeviceType",method=RequestMethod.GET)
+	public @ResponseBody int findLatestListNumberForGivenDeviceType(final HttpServletRequest request, final Locale locale) {
+		int latestListNumber=-1;
+		String strHouseType=request.getParameter("houseType");
+	    String strSessionType=request.getParameter("sessionType");
+	    String strSessionYear=request.getParameter("sessionYear");	    
+	    String strDeviceType=request.getParameter("questionType");
+	    if(strDeviceType == null){
+			strDeviceType = request.getParameter("deviceType");
+		}
+	    if(strHouseType!=null && strSessionType!=null && strSessionYear!=null && strDeviceType!=null) {
+	    	if(!strHouseType.isEmpty() && !strSessionType.isEmpty() && !strSessionYear.isEmpty() && !strDeviceType.isEmpty()) {
+	    		HouseType houseType=HouseType.findByFieldName(HouseType.class,"type",strHouseType, locale.toString());
+	            SessionType sessionType=SessionType.findById(SessionType.class,Long.parseLong(strSessionType));
+	            Integer sessionYear=Integer.parseInt(strSessionYear);
+	            Session session = null;
+				try {
+					session = Session.findSessionByHouseTypeSessionTypeYear(houseType, sessionType, sessionYear);
+				} catch (ELSException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+	            DeviceType deviceType=DeviceType.findById(DeviceType.class, Long.parseLong(strDeviceType));
+	            if(deviceType.getType().equals(ApplicationConstants.UNSTARRED_QUESTION)) {
+	            	List<Question> questionsForCurrentList = Question.findAdmittedQuestionsOfGivenTypeWithoutListNumberInSession(session.getId(), deviceType.getId());
+	            	if(questionsForCurrentList!=null && !questionsForCurrentList.isEmpty()) {
+	            		Integer highestListNumberForCurrentSession = Question.findHighestListNumberForAdmittedQuestionsOfGivenTypeInSession(session.getId(), deviceType.getId());
+	            		if(highestListNumberForCurrentSession == null) {
+	            			boolean isListDoneForAnyNextSession = Question.isAdmittedQuestionOfGivenTypeWithListNumberInNextSessions(session.getId(), houseType.getType(), deviceType.getId());
+	            			if(isListDoneForAnyNextSession==false) {
+	            				Session previousSession = null;
+								try {
+									previousSession = Session.findPreviousSession(session);
+								} catch (ELSException e) {
+									// TODO Auto-generated catch block
+									e.printStackTrace();
+								}
+	            				if(previousSession != null) {
+	            					List<Question> questionsForListInPreviousSession = Question.findAdmittedQuestionsOfGivenTypeWithoutListNumberInSession(previousSession.getId(), deviceType.getId());
+	            					if(questionsForListInPreviousSession!=null && questionsForListInPreviousSession.isEmpty()) {
+	            						Integer highestListNumberForPreviousSession = Question.findHighestListNumberForAdmittedQuestionsOfGivenTypeInSession(previousSession.getId(), deviceType.getId());
+	            						latestListNumber = highestListNumberForPreviousSession;
+	            						return latestListNumber;
+	            					} else {
+	            						latestListNumber = 0;
+			            				return latestListNumber;
+	            					}
+	            				} else {
+	            					latestListNumber = 0;
+		            				return latestListNumber;
+	            				}
+	            			} else {
+	            				latestListNumber = 0;
+	            				return latestListNumber;
+	            			}
+	            		} else {
+	            			latestListNumber = highestListNumberForCurrentSession;
+	            			return latestListNumber;
+	            		}
+	            	} else {
+	            		return latestListNumber;
+	            	}
+	            }
+	    	}
+	    }
+		return 0;
+	}
+	
+	@RequestMapping(value="/rosterdays",method=RequestMethod.GET)
+	public @ResponseBody List<Integer> getRosterDaysFromSession(final HttpServletRequest request, final Locale locale){
+		String strhouseType=request.getParameter("houseType");
+		String stryear=request.getParameter("sessionYear");
+		String strsessionType=request.getParameter("sessionType");
+		String strlanguage=request.getParameter("language");
+		List<Integer> rosterDays=new ArrayList<Integer>();
+		if(strhouseType!=null&&stryear!=null&&strsessionType!=null){
+			HouseType selectedHouseType=HouseType.findByFieldName(HouseType.class,"type",strhouseType,locale.toString());
+			SessionType selectedSessionType=SessionType.findById(SessionType.class, Long.parseLong(strsessionType));
+			Integer year=Integer.parseInt(stryear);
+			Language language=Language.findById(Language.class, Long.parseLong(strlanguage));
+			Session session = null;
+			try {
+				session = Session.findSessionByHouseTypeSessionTypeYear(selectedHouseType, selectedSessionType, year);
+			} catch (ELSException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			List<Roster> rosters=Roster.findAllRosterBySessionAndLanguage(session,language, locale.toString());
+			for(Roster r:rosters){
+				rosterDays.add(r.getDay());
+			}
+		}
+		return rosterDays;
+	}
+	
+	
+	@RequestMapping(value="/search",method=RequestMethod.GET)
+	public @ResponseBody List<MasterVO> getData(final HttpServletRequest request,
+			final Locale locale){
+		String key=request.getParameter("key");
+		String keys[]=key.split(",");
+		String param=null;
+		String searchKey="";
+		String server=null;
+		for(int i=0;i<keys.length;i++){
+			if(Integer.parseInt(keys[i])==17){
+				searchKey=searchKey+"ctrl"+"+";
+			}else if(Integer.parseInt(keys[i])==16){
+				searchKey=searchKey+"shift"+"+";
+			}else if(Integer.parseInt(keys[i])>=65 && Integer.parseInt(keys[i])<=90){
+				searchKey=searchKey+((char)Integer.parseInt(keys[i]));
+			}
+		}
+		IdentificationKey identificationKey=IdentificationKey.findByFieldName(IdentificationKey.class, "identificationkey", searchKey, locale.toString());
+		String masterName=identificationKey.getMaster();
+		String searchfield=identificationKey.getSearchField();
+		String term=request.getParameter("term");
+		String[] searchFields=searchfield.split(",");
+		List<MasterVO> results=new ArrayList<MasterVO>();
+		CustomParameter customParameter=CustomParameter.findByName(CustomParameter.class, "DEPLOYMENT_SERVER", "");
+		if(customParameter!=null){
+			server=customParameter.getValue();
+			if(!term.isEmpty()){
+				if(server.equals("TOMCAT")){
+					try {
+						 param = new String(term.getBytes("ISO-8859-1"),"UTF-8");
+						
+					}catch (UnsupportedEncodingException e) {
+						logger.error("Cannot Encode the Parameter.");
+					}
+				}
+			}
+		}
+		if(masterName!=null && !masterName.equals("")){
+			if(masterName.equals("Department")){
+				List<Department> departments=Department.findAllByLikeParameter(Department.class, searchFields, param, locale.toString());
+				for(Department d:departments){
+					MasterVO masterVO=new MasterVO();
+					masterVO.setName(d.getName());
+					masterVO.setValue(d.getName());
+					results.add(masterVO);
+				}
+			}else if(masterName.equals("Constituency")){
+				List<Constituency> constituencies=Constituency.findAllByLikeParameter(Constituency.class, searchFields, param, locale.toString());
+				for(Constituency c:constituencies){
+					MasterVO masterVO=new MasterVO();
+					masterVO.setName(c.getDisplayName());
+					masterVO.setValue(c.getDisplayName());
+					results.add(masterVO);
+				}
+			}else if(masterName.equals("Member")){
+				List<Member> members=Member.findAllByLikeParameter(Member.class, searchFields, param, locale.toString());
+				for(Member m:members){
+					MasterVO masterVO=new MasterVO();
+					masterVO.setName(m.getFullname());
+					masterVO.setValue(m.getFullname());
+					results.add(masterVO);
+				}
+			}else if(masterName.equals("Resolution")){
+				List<Resolution> resolutions=Resolution.findAllByFieldName(Resolution.class, "number", param,"number" ,"asc",locale.toString());
+				for(Resolution r:resolutions){
+					MasterVO masterVO=new MasterVO();
+					masterVO.setName(r.getNumber()+" "+r.getHouseType().getName()+" "+r.getSession().getType().getSessionType()+"  "+r.getSession().getYear());
+					masterVO.setValue(r.getSubject()+"\n"+r.getNoticeContent());
+					results.add(masterVO);
+				}
+			}else if(masterName.equals("Question")){
+				List<Question> questions=Question.findAllByFieldName(Question.class, "number", param,"number" ,"asc",locale.toString());
+				for(Question q:questions){
+					MasterVO masterVO=new MasterVO();
+					masterVO.setName(q.getNumber()+" "+q.getHouseType().getType()+" "+q.getSession().getType().getSessionType()+" "+q.getSession().getYear());
+					masterVO.setValue(q.getSubject()+"\n"+q.getQuestionText());
+					results.add(masterVO);
+				}
+			}else if(masterName.equals("GovernmentScheme")){
+				List<GovernmentScheme> schemes=GovernmentScheme.findAllByLikeParameter(GovernmentScheme.class, searchFields, param, locale.toString());
+				for(GovernmentScheme gs:schemes){
+					MasterVO masterVO=new MasterVO();
+					masterVO.setName(gs.getName());
+					masterVO.setValue(gs.getName());
+					results.add(masterVO);
+				}
+			}else if(masterName.equals("GovernmentProject")){
+				List<GovernmentProject> projects=GovernmentProject.findAllByLikeParameter(GovernmentProject.class, searchFields, param, locale.toString());
+				for(GovernmentProject gp:projects){
+					MasterVO masterVO=new MasterVO();
+					masterVO.setName(gp.getName());
+					masterVO.setValue(gp.getName());
+					results.add(masterVO);
+				}
+			}else if(masterName.equals("GovernmentProgram")){
+				List<GovernmentProgram> programs=GovernmentProgram.findAllByLikeParameter(GovernmentProgram.class, searchFields, param, locale.toString());
+				for(GovernmentProgram gp:programs){
+					MasterVO masterVO=new MasterVO();
+					masterVO.setName(gp.getName());
+					masterVO.setValue(gp.getName());
+					results.add(masterVO);
+				}
+			}else if(masterName.equals("GovernmentCorporation")){
+				List<GovernmentCorporation> corporations=GovernmentCorporation.findAllByLikeParameter(GovernmentCorporation.class, searchFields, param, locale.toString());
+				for(GovernmentCorporation gc:corporations){
+					MasterVO masterVO=new MasterVO();
+					masterVO.setName(gc.getName());
+					masterVO.setValue(gc.getName());
+					results.add(masterVO);
+				}
+			}else if(masterName.equals("Dam")){
+				List<Dam> dams=Dam.findAllByLikeParameter(Dam.class, searchFields, param, locale.toString());
+				for(Dam d:dams){
+					MasterVO masterVO=new MasterVO();
+					masterVO.setName(d.getName());
+					masterVO.setValue(d.getName());
+					results.add(masterVO);
+				}
+			}else if(masterName.equals("River")){
+				List<River> rivers=River.findAllByLikeParameter(River.class, searchFields, param, locale.toString());
+				for(River r:rivers){
+					MasterVO masterVO=new MasterVO();
+					masterVO.setName(r.getName());
+					masterVO.setValue(r.getName());
+					results.add(masterVO);
+				}
+			}else if(masterName.equals("University")){
+				List<University> universities=University.findAllByLikeParameter(University.class, searchFields, param, locale.toString());
+				for(University u:universities){
+					MasterVO masterVO=new MasterVO();
+					masterVO.setName(u.getName());
+					masterVO.setValue(u.getName());
+					results.add(masterVO);
+				}
+			}else if(masterName.equals("Sanctuary")){
+				List<Sanctuary> sanctuaries=Sanctuary.findAllByLikeParameter(Sanctuary.class, searchFields, param, locale.toString());
+				for(Sanctuary s:sanctuaries){
+					MasterVO masterVO=new MasterVO();
+					masterVO.setName(s.getName());
+					masterVO.setValue(s.getName());
+					results.add(masterVO);
+				}
+			}else if(masterName.equals("Fort")){
+				List<Fort> forts=Fort.findAllByLikeParameter(Fort.class, searchFields, param, locale.toString());
+				for(Fort f:forts){
+					MasterVO masterVO=new MasterVO();
+					masterVO.setName(f.getName());
+					masterVO.setValue(f.getName());
+					results.add(masterVO);
+				}
+			}else if(masterName.equals("Creek")){
+				List<Creek> creeks=Creek.findAllByLikeParameter(Creek.class, searchFields, param, locale.toString());
+				for(Creek c:creeks){
+					MasterVO masterVO=new MasterVO();
+					masterVO.setName(c.getName());
+					masterVO.setValue(c.getName());
+					results.add(masterVO);
+				}
+			}else if(masterName.equals("Abbreviation")){
+				List<Abbreviation> abbreviations=Abbreviation.findAllByLikeParameter(Abbreviation.class, searchFields, param, locale.toString());
+				for(Abbreviation a:abbreviations){
+					MasterVO masterVO=new MasterVO();
+					masterVO.setName(a.getName());
+					masterVO.setValue(a.getName());
+					results.add(masterVO);
+				}
+			}else if(masterName.equals("Ghat")){
+				List<Ghat> ghats=Ghat.findAllByLikeParameter(Ghat.class, searchFields, param, locale.toString());
+				for(Ghat g:ghats){
+					MasterVO masterVO=new MasterVO();
+					masterVO.setName(g.getName());
+					masterVO.setValue(g.getName());
+					results.add(masterVO);
+				}
+			}else if(masterName.equals("Highway")){
+				List<Highway> highways=Highway.findAllByLikeParameter(Highway.class, searchFields, param, locale.toString());
+				for(Highway h:highways){
+					MasterVO masterVO=new MasterVO();
+					masterVO.setName(h.getName());
+					masterVO.setValue(h.getName());
+					results.add(masterVO);
+				}
+			}
+		}
+		return results;
+	}
+	
+	@RequestMapping(value="/slot",method=RequestMethod.GET)
+	public @ResponseBody List<MasterVO> getSlot(final HttpServletRequest request, final Locale locale,final ModelMap model){
+		Language language=null;
+		List<Slot> slots=new ArrayList<Slot>();
+		List<MasterVO> masterVos=new ArrayList<MasterVO>();
+		String strLanguage=request.getParameter("language");
+		String strSlot=request.getParameter("currentSlot");
+		if(strLanguage!=null && !strLanguage.equals("")){
+			 language=Language.findByFieldName(Language.class, "type", strLanguage, locale.toString());
+		}
+		Slot slot=null;
+		if(strSlot!=null && !strSlot.equals("")){
+			slot=Slot.findById(Slot.class, Long.parseLong(strSlot));
+		}
+		if(strLanguage!=null && !strLanguage.equals("")){
+			slots=Slot.findSlotsByLanguageContainingSlotTime(language,slot); 
+		}
+		for(Slot s:slots){
+			MasterVO masterVo=new MasterVO();
+			masterVo.setId(s.getId());
+			masterVo.setName(s.getName());
+			masterVos.add(masterVo);
+		}
+		return masterVos;
+		
+	}
+	
+	@RequestMapping(value="/bookmarktext",method=RequestMethod.GET)
+	public @ResponseBody List<MasterVO> getBookmarkTextToBeReplaced(final HttpServletRequest request, final Locale locale,final ModelMap model){
+		String strSlot=request.getParameter("slot");
+		List<MasterVO> masterVOs=new ArrayList<MasterVO>();
+		if(strSlot!=null && !strSlot.isEmpty()){
+			String slots[]=strSlot.split(",");
+			for(int i=0;i<slots.length;i++){
+				Slot slot=Slot.findById(Slot.class, Long.parseLong(slots[i]));
+				MasterVO masterVo=new MasterVO();
+				if(slot!=null){
+					Proceeding proceeding=Proceeding.findByFieldName(Proceeding.class, "slot", slot, locale.toString());
+					List<Part> parts=proceeding.getParts();
+					String strContent="";
+					if(!parts.isEmpty()){
+						for(Part p:parts){
+							if(p.getProceedingContent()!=null && !p.getProceedingContent().isEmpty()){
+								strContent=strContent+p.getProceedingContent();
+							}
+							
+						}
+						masterVo.setValue(proceeding.getSlot().getName());
+						masterVo.setName(strContent);
+						masterVOs.add(masterVo);
+					}
+				}
+			}
+			return masterVOs;
+		}
+
+		return null;
+	}
+		
+	
+	@RequestMapping(value="/session", method=RequestMethod.GET)
+	public @ResponseBody MasterVO getSession(final HttpServletRequest request,ModelMap model,
+			final Locale locale) {
+		String strHouseType=request.getParameter("houseType");
+		String strSessionType=request.getParameter("sessionType");
+		String strSessionYear=request.getParameter("sessionYear");
+		Session selectedSession=null;
+		//populating departments
+		if(strHouseType!=null && !strHouseType.equals("") &&
+			strSessionType!=null && !strSessionType.equals("")&&
+			strSessionYear!=null && !strSessionYear.equals("")){
+			HouseType houseType=HouseType.findByFieldName(HouseType.class, "type", strHouseType, locale.toString());
+			SessionType selectedSessionType=SessionType.findById(SessionType.class, Long.parseLong(strSessionType));
+			try {
+				selectedSession=Session.findSessionByHouseTypeSessionTypeYear(houseType, selectedSessionType,Integer.parseInt(strSessionYear) );
+			} catch (NumberFormatException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch (ELSException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
+		if(selectedSession!=null){
+			MasterVO masterVO=new MasterVO(selectedSession.getId(),"");
+			return masterVO;
+		}else{
+			return new MasterVO();
+		}
+	}
+	
+	
+	@RequestMapping(value="/device",method=RequestMethod.GET)
+	public @ResponseBody MasterVO getDeviceContent(ModelMap model, HttpServletRequest request,Locale locale){
+
+		MasterVO masterVO = new MasterVO();
+
+		String strNumber=request.getParameter("number");
+		String strSessionId = request.getParameter("session");
+		String strDeviceTypeId= request.getParameter("deviceType");
+		CustomParameter customParameter=CustomParameter.findByName(CustomParameter.class, "DEPLOYMENT_SERVER", "");
+
+		Integer dNumber=null;
+		Long deviceTypeId=null;
+
+		if(strNumber!=null && strSessionId!=null && locale!=null && strDeviceTypeId!=null){
+			if(strNumber.trim().length() > 0 && locale.toString().trim().length() > 0 && strSessionId.trim().length() > 0 && strDeviceTypeId.length()>0){
+				if(customParameter!=null){
+					String server=customParameter.getValue();
+					if(server.equals("TOMCAT")){
+						try {
+							strNumber=new String(strNumber.getBytes("ISO-8859-1"),"UTF-8");						
+						}
+						catch (UnsupportedEncodingException e) {
+							e.printStackTrace();
+						}
+					}
+					try {
+						dNumber=new Integer(FormaterUtil.getNumberFormatterNoGrouping(locale.toString()).parse(strNumber).intValue());
+						deviceTypeId = new Long(strDeviceTypeId);
+					} catch (ParseException e) {
+						logger.error("Number parse exception.");
+						masterVO.setId(new Long(-1));
+						masterVO.setName("undefined");
+
+						return masterVO;
+					}
+				}	
+				DeviceType deviceType=DeviceType.findById(DeviceType.class, deviceTypeId);
+				String device=deviceType.getDevice();
+				Session currentSession = Session.findById(Session.class, new Long(strSessionId));
+				if(deviceType.getDevice().equals("Question")){
+					String content="";
+					Question question=Question.getQuestion(currentSession.getId(), deviceTypeId, dNumber, locale.toString());
+					if(question!=null){
+						masterVO.setId(question.getId());
+						content="<p>"+question.getRevisedSubject()+"</p>"
+								+"<p> * "+question.getNumber()+"   "+question.getPrimaryMember().getFullname();
+						if(!question.getSupportingMembers().isEmpty()){
+							for(SupportingMember m:question.getSupportingMembers()){
+								content=content+","+m.getMember().getFullname();
+							}
+						}
+						content=content+" : "+ question.getRevisedQuestionText()+"</p>";
+						if(question.getMinistry()!=null){
+							Ministry ministry=question.getMinistry();
+							Member member=MemberMinister.findMemberHavingMinistryInSession(question.getSession(), ministry);
+							if(question.getAnswer()!=null && !question.getAnswer().isEmpty())
+							content=content+"<p>"+member.getFullname()+":" +question.getAnswer();
+						}
+					}
+					masterVO.setName(content);
+				}else if(deviceType.getDevice().equals("Resolution")){
+					
+				}else if(deviceType.getDevice().equals("Motion")){
+					
+				}
+//				try {
+//					
+//					Class domain=Class.forName("org.mkcl.els.domain."+device,true,this.getClass().getClassLoader());
+//					Method m=domain.getMethod("getQuestion", Long.class,Long.class,Integer.class,String.class);
+//					Object returval=m.invoke(null, currentSession.getId(),deviceType.getId(),Integer.parseInt(strNumber),locale.toString());
+//					
+//					System.out.println(returval);
+//				} catch (ClassNotFoundException e) {
+//					// TODO Auto-generated catch block
+//					e.printStackTrace();
+//				} catch (SecurityException e) {
+//					// TODO Auto-generated catch block
+//					e.printStackTrace();
+//				} catch (NoSuchMethodException e) {
+//					// TODO Auto-generated catch block
+//					e.printStackTrace();
+//				} catch (NumberFormatException e) {
+//					// TODO Auto-generated catch block
+//					e.printStackTrace();
+//				} catch (IllegalArgumentException e) {
+//					// TODO Auto-generated catch block
+//					e.printStackTrace();
+//				} catch (IllegalAccessException e) {
+//					// TODO Auto-generated catch block
+//					e.printStackTrace();
+//				} catch (InvocationTargetException e) {
+//					// TODO Auto-generated catch block
+//					e.printStackTrace();
+//				}
+				
+				
+			}
+		}
+
+		return masterVO;
+	}
+	
+	@RequestMapping(value="/gethalfhourdiscussionfromquestion",method=RequestMethod.GET)
+	public @ResponseBody List<MasterVO> getHalfHourDiscussionFromQuestion(final HttpServletRequest request, final Locale locale,final ModelMap model){
+		String strStarredQuestionNo=request.getParameter("starredQuestionNo");
+		String strSession=request.getParameter("session");
+		List<MasterVO> masterVOs=new ArrayList<MasterVO>();
+		if(strSession!=null && !strSession.equals("") &&
+			strStarredQuestionNo!=null && !strStarredQuestionNo.equals("")){
+			Session session=Session.findById(Session.class, Long.parseLong(strSession));
+			Integer number=Integer.parseInt(strStarredQuestionNo);
+			DeviceType deviceType=DeviceType.findByType("questions_starred", locale.toString());
+			Question question=Question.getQuestion(session.getId(), deviceType.getId(), number, locale.toString());
+			if(question!=null){
+				List<Question> halfHourDiscussionsFromQuestions=Question.findAllByFieldName(Question.class, "halfHourDiscusionFromQuestionReference", question, "number", "desc", locale.toString());
+				for(Question q:halfHourDiscussionsFromQuestions){
+					MasterVO masterVo=new MasterVO();
+					masterVo.setId(q.getId());
+					masterVo.setName(q.getNumber().toString());
+					masterVOs.add(masterVo);
+				}
+			}
+		}
+		return masterVOs;
+		
 	}
 	
 }
