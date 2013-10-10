@@ -2189,6 +2189,73 @@ public class QuestionRepository extends BaseRepository<Question, Long> {
 		}
 	}
 	
+	//todos 1
+		@SuppressWarnings("unchecked")
+		public List<Question> findAdmittedQuestionsOfGivenTypeWithoutListNumberInSession(final Long sessionId, final Long deviceTypeId) {		
+			List<Question> result = new ArrayList<Question>();
+			String queryString = "SELECT q FROM Question q WHERE q.session.id=:sessionId AND q.type.id=:deviceTypeId AND q.status.type=:statusType ORDER BY q.number ASC";
+			Query query = this.em().createQuery(queryString);
+			query.setParameter("sessionId", sessionId);
+			query.setParameter("deviceTypeId", deviceTypeId);		
+			query.setParameter("statusType", ApplicationConstants.QUESTION_FINAL_ADMISSION);
+			CustomParameter numberOfUnstarredQuestionsInListParameter = CustomParameter.findByName(CustomParameter.class, "NUMBER_OF_UNSTARRED_QUESTIONS_IN_LIST", "");
+			int numberOfUnstarredQuestionsInList = Integer.parseInt(numberOfUnstarredQuestionsInListParameter.getValue());
+			List<Question> questionsToCheckForListNumber = query.getResultList();	
+			int countForNumberOfUnstarredQuestionsInList = 0;
+			if(questionsToCheckForListNumber!=null && !questionsToCheckForListNumber.isEmpty()) {
+				for(Question q : questionsToCheckForListNumber) {
+					if(countForNumberOfUnstarredQuestionsInList>=numberOfUnstarredQuestionsInList) {
+						break;
+					}
+					if(q.getNumber()==null) {
+						System.out.println("question number = " + q.getNumber());
+						result.add(q);
+						countForNumberOfUnstarredQuestionsInList++;
+					}
+				}
+			} else {
+				return null;
+			}
+			return result;
+		}
+		
+		public Integer findHighestListNumberForAdmittedQuestionsOfGivenTypeInSession(final Long sessionId, final Long deviceTypeId) {		
+			String queryString = "SELECT MAX(q.listNumber) FROM Question q WHERE q.session.id=:sessionId AND q.type.id=:deviceTypeId AND q.listNumber IS NOT NULL AND q.status.type=:statusType";
+			Query query = this.em().createQuery(queryString);
+			query.setParameter("sessionId", sessionId);
+			query.setParameter("deviceTypeId", deviceTypeId);		
+			query.setParameter("statusType", ApplicationConstants.QUESTION_FINAL_ADMISSION);
+			return (Integer) query.getSingleResult();
+		}
+		
+		public Boolean isAdmittedQuestionOfGivenTypeWithListNumberInNextSessions(final Long sessionId, final String houseType, final Long deviceTypeId) {
+			boolean result=false;
+			String queryString = "SELECT q.id FROM Question q WHERE q.session.id>:sessionId AND q.houseType.type=:houseType AND q.type.id=:deviceTypeId AND q.listNumber IS NOT NULL AND q.status.type=:statusType";
+			Query query = this.em().createQuery(queryString);
+			query.setParameter("sessionId", sessionId);
+			query.setParameter("houseType", houseType);
+			query.setParameter("deviceTypeId", deviceTypeId);		
+			query.setParameter("statusType", ApplicationConstants.QUESTION_FINAL_ADMISSION);
+			@SuppressWarnings("rawtypes")
+			List questionEntries = query.getResultList();
+			if(questionEntries!=null && !questionEntries.isEmpty()) {
+				result=true;
+			} 
+			return result;
+		}
+		
+	public Question getQuestion(final Long sessionId,final Long deviceTypeId, final Integer number,final String locale){
+		String strQuery="SELECT q FROM Question q WHERE q.session.id=:sessionId AND q.type.id=:deviceTypeId AND q.number=:number AND q.locale=:locale";
+		Query query=this.em().createQuery(strQuery);
+		query.setParameter("sessionId", sessionId);
+		query.setParameter("deviceTypeId", deviceTypeId);
+		query.setParameter("number", number);
+		query.setParameter("locale", locale);
+		Question question=(Question) query.getSingleResult();
+		
+		return question;
+		
+	}
 	//==================portlet proceedings webservice method===============
 	@SuppressWarnings("unchecked")
 	public List<Question> findByDeviceAndStatus(final DeviceType deviceType, final Status status){
