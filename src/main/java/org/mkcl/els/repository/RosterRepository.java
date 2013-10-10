@@ -12,6 +12,7 @@ import org.mkcl.els.common.util.ApplicationConstants;
 import org.mkcl.els.common.util.FormaterUtil;
 import org.mkcl.els.domain.Adjournment;
 import org.mkcl.els.domain.CustomParameter;
+import org.mkcl.els.domain.Language;
 import org.mkcl.els.domain.Reporter;
 import org.mkcl.els.domain.Roster;
 import org.mkcl.els.domain.Session;
@@ -479,5 +480,31 @@ public class RosterRepository extends BaseRepository<Roster, Serializable>{
 		query.setParameter("roster",roster.getId());
 		query.setParameter("isActive",isActive);
 		return query.getResultList();
+	}
+	
+	@SuppressWarnings("unchecked")
+	public List<Roster> findAllRosterBySessionAndLanguage(Session session,Language language,
+			String locale) {
+		String strQuery="SELECT rs FROM Roster rs WHERE rs.session=:session and rs.language=:language AND rs.locale=:locale"; 
+		Query query=this.em().createQuery(strQuery);
+		query.setParameter("session", session);
+		query.setParameter("language", language);
+		query.setParameter("locale", locale);
+		return query.getResultList();
+	}
+
+	public Roster findRosterBySessionLanguageAndDay(Session session, int day,
+			Language language, String locale) {
+		String strQuery="SELECT rs FROM Roster rs" +
+				" WHERE rs.session=:session " +
+				" AND rs.language=:language " +
+				" AND rs.locale=:locale" +
+				" AND rs.day=:day"; 
+		Query query=this.em().createQuery(strQuery);
+		query.setParameter("session", session);
+		query.setParameter("language", language);
+		query.setParameter("locale", locale);
+		query.setParameter("day", day);
+		return (Roster) query.getSingleResult();
 	}
 }

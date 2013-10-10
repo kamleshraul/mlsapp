@@ -94,5 +94,17 @@ public class SlotRepository extends BaseRepository<Slot, Serializable>{
 			return null;
 		}
 	}
+	
+	public List<Slot> findSlotsByLanguageContainingSlotTime(final Language language,final Slot slot) {
+		String strQuery="SELECT s FROM Slot s JOIN s.reporter r JOIN r.user u" +
+				" WHERE s.startTime<:endTime AND s.endTime>:startTime" +
+				" AND u.language=:language" ;
+		Query query=this.em().createQuery(strQuery);
+		query.setParameter("endTime", slot.getEndTime());
+		query.setParameter("startTime", slot.getStartTime());
+		query.setParameter("language", language.getName());
+		List<Slot> result=query.getResultList();
+		return result;
+	}
 
 }
