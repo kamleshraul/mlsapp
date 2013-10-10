@@ -331,6 +331,11 @@
 		<pattern>/committeesubject/*/delete</pattern>
 		<pattern>/committeesubject</pattern>
 		
+		<pattern>/committeetour/new</pattern>
+		<pattern>/committeetour/*/edit</pattern>
+		<pattern>/committeetour/*/delete</pattern>
+		<pattern>/committeetour</pattern>
+		
 		<pattern>/partytype/new</pattern>
 		<pattern>/partytype/*/edit</pattern>
 		<pattern>/partytype/*/delete</pattern>
