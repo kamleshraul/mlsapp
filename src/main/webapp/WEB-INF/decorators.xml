@@ -291,6 +291,14 @@
 		<pattern>/adjournmentreason/*/edit</pattern>
 		<pattern>/adjournmentreason/*/delete</pattern>	
 		
+		<pattern>/proceeding</pattern>
+		<pattern>/proceeding/bookmark</pattern>
+		<pattern>/proceeding/*/edit</pattern>
+		<pattern>/proceeding/*/delete</pattern>	
+		<pattern>/proceeding/part/new</pattern>
+		<pattern>/proceeding/part/*/edit</pattern>
+		<pattern>/proceeding/part/*/delete</pattern>
+		
 		<pattern>/rotationorder</pattern>
 		<pattern>/rotationorder/viewrotationorder</pattern>
 		<pattern>/rotationorder/aadwachart</pattern>	
@@ -351,6 +359,80 @@
 		<pattern>/town/*/delete</pattern>
 		<pattern>/town</pattern>
 		
+				<pattern>/proceedingcitation</pattern>
+		<pattern>/proceedingcitation/new</pattern>
+		<pattern>/proceedingcitation/*/edit</pattern>
+		<pattern>/proceedingcitation/*/delete</pattern>	
+		
+		<pattern>/abbreviation/new</pattern>
+		<pattern>/abbreviation/*/edit</pattern>
+		<pattern>/abbreviation/*/delete</pattern>
+		<pattern>/abbreviation</pattern>
+		
+		<pattern>/creek/new</pattern>
+		<pattern>/creek/*/edit</pattern>
+		<pattern>/creek/*/delete</pattern>
+		<pattern>/creek</pattern>
+		
+		<pattern>/dam/new</pattern>
+		<pattern>/dam/*/edit</pattern>
+		<pattern>/dam/*/delete</pattern>
+		<pattern>/dam</pattern>
+		
+		<pattern>/fort/new</pattern>
+		<pattern>/fort/*/edit</pattern>
+		<pattern>/fort/*/delete</pattern>
+		<pattern>/fort</pattern>
+		
+		<pattern>/ghat/new</pattern>
+		<pattern>/ghat/*/edit</pattern>
+		<pattern>/ghat/*/delete</pattern>
+		<pattern>/ghat</pattern>
+		
+		<pattern>/governmentcorporation/new</pattern>
+		<pattern>/governmentcorporation/*/edit</pattern>
+		<pattern>/governmentcorporation/*/delete</pattern>
+		<pattern>/governmentcorporation</pattern>
+		
+		<pattern>/governmentprogram/new</pattern>
+		<pattern>/governmentprogram/*/edit</pattern>
+		<pattern>/governmentprogram/*/delete</pattern>
+		<pattern>/governmentprogram</pattern>
+		
+		<pattern>/governmentproject/new</pattern>
+		<pattern>/governmentproject/*/edit</pattern>
+		<pattern>/governmentproject/*/delete</pattern>
+		<pattern>/governmentproject</pattern>
+		
+		<pattern>/governmentscheme/new</pattern>
+		<pattern>/governmentscheme/*/edit</pattern>
+		<pattern>/governmentscheme/*/delete</pattern>
+		<pattern>/governmentscheme</pattern>
+		
+		<pattern>/highway/new</pattern>
+		<pattern>/highway/*/edit</pattern>
+		<pattern>/highway/*/delete</pattern>
+		<pattern>/highway</pattern>
+		
+		<pattern>/river/new</pattern>
+		<pattern>/river/*/edit</pattern>
+		<pattern>/river/*/delete</pattern>
+		<pattern>/river</pattern>
+		
+		<pattern>/sanctuary/new</pattern>
+		<pattern>/sanctuary/*/edit</pattern>
+		<pattern>/sanctuary/*/delete</pattern>
+		<pattern>/sanctuary</pattern>
+		
+		<pattern>/university/new</pattern>
+		<pattern>/university/*/edit</pattern>
+		<pattern>/university/*/delete</pattern>
+		<pattern>/university</pattern>
+		
+		<pattern>/identificationkey/new</pattern>
+		<pattern>/identificationkey/*/edit</pattern>
+		<pattern>/identificationkey/*/delete</pattern>
+		<pattern>/identificationkey</pattern>
 		<pattern>workflow/committee</pattern>
 		
 		<pattern>/workflow/committee/init/requestToParliamentaryMinister</pattern>
