@@ -10,6 +10,7 @@ import org.mkcl.els.common.exception.ELSException;
 import org.mkcl.els.common.vo.Reference;
 import org.mkcl.els.domain.Constituency;
 import org.mkcl.els.domain.District;
+import org.mkcl.els.domain.Town;
 import org.springframework.stereotype.Repository;
 
 import com.trg.search.Search;
@@ -252,5 +253,17 @@ public class DistrictRepository extends BaseRepository<District, Long> {
 		return districtsRef;
 	}
 
+	public District find(final Town town, 
+			final String locale) {
+		StringBuffer query = new StringBuffer();
+		query.append("SELECT d" +
+			" FROM Town t JOIN District d" +
+			" WHERE t.id = " + town.getId());
+		
+		TypedQuery<District> tQuery = 
+			this.em().createQuery(query.toString(), District.class);
+		District district = tQuery.getSingleResult();
+		return district;
+	}
 
 }

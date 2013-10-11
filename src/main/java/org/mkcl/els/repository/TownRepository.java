@@ -1,5 +1,7 @@
 package org.mkcl.els.repository;
 
+import java.util.List;
+
 import org.mkcl.els.domain.District;
 import org.mkcl.els.domain.Town;
 import org.springframework.stereotype.Repository;
@@ -18,6 +20,15 @@ public class TownRepository extends BaseRepository<Town, Long> {
 		search.addFilterEqual("locale", locale);
 		Town town = this.searchUnique(search);
 		return town;
+	}
+	
+	public List<Town> find(final District district, 
+			final String locale) {
+		Search search = new Search();
+		search.addFilterEqual("district", district);
+		search.addFilterEqual("locale", locale);
+		List<Town> towns = this.search(search);
+		return towns;
 	}
 	
 }
