@@ -60,7 +60,7 @@ public class GroupRepository extends BaseRepository<Group, Long> {
 							" WHERE g.houseType.id=:houseTypeId" +
 							" AND g.sessionType.id=:sessionTypeId" +
 							" AND g.year=:year" +
-							" ORDER BY g.number DESC";
+							" ORDER BY g.number ASC";
 		List<Group> groups = new ArrayList<Group>();
 		
 		try{
