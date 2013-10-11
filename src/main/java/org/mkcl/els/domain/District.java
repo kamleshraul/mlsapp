@@ -103,6 +103,11 @@ public class District extends BaseDomain implements Serializable {
 			
 		return getDistrictRepository().findDistrictsByConstituencyId(constituencyId, orderBy, sortOrder); 
 	}
+	
+	public static District find(final Town town, 
+			final String locale) {
+		return District.getDistrictRepository().find(town, locale);		
+	}
 
 	// ------------------------------------------Getters/Setters-----------------------------------
 
@@ -168,4 +173,5 @@ public class District extends BaseDomain implements Serializable {
 		return getDistrictRepository().findDistrictsRefByStateId(stateId,
 				sortBy, sortOrder, locale);
 	}
+
 }

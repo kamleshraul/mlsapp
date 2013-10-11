@@ -1,6 +1,7 @@
 package org.mkcl.els.domain;
 
 import java.io.Serializable;
+import java.util.List;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -49,6 +50,11 @@ public class Town extends BaseDomain implements Serializable {
 			final District district, 
 			final String locale) {
 		return Town.getRepository().find(name, district, locale);
+	}
+	
+	public static List<Town> find(final District district, 
+			final String locale) {
+		return Town.getRepository().find(district, locale);
 	}
 	
 	//=============== INTERNAL METHODS =========

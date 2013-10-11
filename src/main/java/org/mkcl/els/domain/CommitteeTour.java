@@ -18,12 +18,14 @@ import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
 
 import org.codehaus.jackson.annotate.JsonIgnoreProperties;
+import org.mkcl.els.repository.CommitteeTourRepository;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Configurable;
 
 @Configurable
 @Entity
 @Table(name="committee_tours")
-@JsonIgnoreProperties({"venueTown", "reporters", "itineraries"})
+@JsonIgnoreProperties({"town", "reporters", "itineraries"})
 public class CommitteeTour extends BaseDomain implements Serializable {
 
 	private static final long serialVersionUID = 3676106504296627183L;
@@ -33,8 +35,8 @@ public class CommitteeTour extends BaseDomain implements Serializable {
 	private String venueName;
 	
 	@ManyToOne(fetch=FetchType.LAZY)
-	@JoinColumn(name="venue_town_id")
-	private Town venueTown;
+	@JoinColumn(name="town_id")
+	private Town town;
 	
 	@Temporal(TemporalType.TIMESTAMP)
 	private Date fromDate;
@@ -61,6 +63,9 @@ public class CommitteeTour extends BaseDomain implements Serializable {
 					referencedColumnName="id")})
 	private List<TourItinerary> itineraries;
 	
+	@Autowired
+	private transient CommitteeTourRepository repository;
+	
 	//=============== CONSTRUCTORS =============
 	public CommitteeTour() {
 		super();
@@ -71,8 +76,28 @@ public class CommitteeTour extends BaseDomain implements Serializable {
 	//=============== VIEW METHODS =============
 	
 	//=============== DOMAIN METHODS ===========
+	public static CommitteeTour find(final Town town, 
+			final String venueName,
+			final Date fromDate, 
+			final Date toDate, 
+			final String subject, 
+			final String locale) {
+		return CommitteeTour.getRepository().find(town, venueName, 
+				fromDate, toDate, subject, locale);
+	}
 	
 	//=============== INTERNAL METHODS =========
+	private static CommitteeTourRepository getRepository() {
+		CommitteeTourRepository repository = new CommitteeTour().repository;
+		
+		if(repository == null) {
+			throw new IllegalStateException(
+				"CommitteeTourRepository has not been injected in" +
+				" CommitteeTour Domain");
+		}
+		
+		return repository;
+	}
 	
 	//=============== GETTERS/SETTERS ==========
 	public String getVenueName() {
@@ -83,12 +108,12 @@ public class CommitteeTour extends BaseDomain implements Serializable {
 		this.venueName = venueName;
 	}
 
-	public Town getVenueTown() {
-		return venueTown;
+	public Town getTown() {
+		return town;
 	}
 
-	public void setVenueTown(final Town venueTown) {
-		this.venueTown = venueTown;
+	public void setTown(final Town town) {
+		this.town = town;
 	}
 
 	public Date getFromDate() {

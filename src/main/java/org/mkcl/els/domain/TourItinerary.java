@@ -1,6 +1,7 @@
 package org.mkcl.els.domain;
 
 import java.io.Serializable;
+import java.text.SimpleDateFormat;
 import java.util.Date;
 
 import javax.persistence.Column;
@@ -9,6 +10,7 @@ import javax.persistence.Table;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
 
+import org.mkcl.els.common.util.FormaterUtil;
 import org.springframework.beans.factory.annotation.Configurable;
 
 @Configurable
@@ -50,6 +52,15 @@ public class TourItinerary extends BaseDomain implements Serializable {
 	//=============== VIEW METHODS =============
 	
 	//=============== DOMAIN METHODS ===========
+	public String formatDate(){
+		String retVal = "";
+		if(this.getDate() != null) {
+			String locale = this.getLocale();
+			SimpleDateFormat sdf = FormaterUtil.getDateFormatter(locale); 
+			retVal = sdf.format(this.getDate());
+		}
+		return retVal;
+	}
 	
 	//=============== INTERNAL METHODS =========
 	
