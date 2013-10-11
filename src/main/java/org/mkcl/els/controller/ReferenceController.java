@@ -78,6 +78,7 @@ import org.mkcl.els.domain.Roster;
 import org.mkcl.els.domain.Sanctuary;
 import org.mkcl.els.domain.Slot;
 import org.mkcl.els.domain.SupportingMember;
+import org.mkcl.els.domain.Town;
 import org.mkcl.els.domain.University;
 import org.mkcl.els.domain.WorkflowActor;
 //import org.mkcl.els.domain.Resolution;
@@ -2646,6 +2647,27 @@ public class ReferenceController extends BaseController {
 		}
 		
 		return actors;
+	}
+	
+	@RequestMapping(value="district/{districtId}/towns", 
+			method=RequestMethod.GET)
+	public @ResponseBody List<Reference> getTownsByDistrict(
+			@PathVariable("districtId") final Long districtId,
+			final Locale localeObj) {
+		List<Reference> refs = new ArrayList<Reference>();
+		
+		District district = District.findById(District.class, districtId);
+		String locale = localeObj.toString();
+		
+		List<Town> towns = Town.find(district, locale);
+		for(Town town : towns) {
+			Reference ref = new Reference();
+			ref.setId(String.valueOf(town.getId()));
+			ref.setName(town.getName());
+			refs.add(ref);
+		}
+		
+		return refs;
 	}
 
 	private String encode(final String str) {
