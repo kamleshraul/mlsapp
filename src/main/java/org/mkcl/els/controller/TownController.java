@@ -62,7 +62,8 @@ public class TownController extends GenericController<Town> {
 	}
 
 	//=============== INTERNAL METHODS =========
-	private void populateState(ModelMap model, State state) {
+	private void populateState(final ModelMap model, 
+			final State state) {
 		model.addAttribute("state", state);		
 	}
 
