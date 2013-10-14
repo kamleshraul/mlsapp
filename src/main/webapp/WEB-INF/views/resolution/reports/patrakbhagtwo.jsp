@@ -90,10 +90,10 @@
 									<th class="patrakheader">
 										<c:choose>
 											<c:when test="${houseType=='lowerhouse'}">
-												<spring:message code="generic.maharashtra.lowerhouse" text="Lower House" />
+												<spring:message code="generic.lowerhouse" text="Lower House" />
 											</c:when>
 											<c:when test="${housetype=='upperhouse'}">
-												<spring:message code="generic.maharashtra.upperhouse" text="Upper House" />
+												<spring:message code="generic.upperhouse" text="Upper House" />
 											</c:when>
 										</c:choose>
 									</th>
@@ -127,7 +127,7 @@
 													<spring:message code="resolution.patrakbhag2.upperhousemember" text="Number" />
 												</c:when>
 											</c:choose> ${r[2]} </span><br />
-											<span style="font-size: 14px; margin-top: 10px;">" ${r[4]} "</span>
+											<span style="font-size: 14px; margin-top: 10px;">"${r[4]}"</span>
 										</td>
 									</tr>
 								</c:forEach>
@@ -149,10 +149,10 @@
 								<td class="patrakfootercontentright">
 									<c:choose>
 										<c:when test="${houseType=='lowerhouse'}">
-											<spring:message code="generic.maharashtra.lowerhouse" text="Lower House" />
+											<spring:message code="generic.lowerhouse" text="Lower House" />
 										</c:when>
 										<c:when test="${housetype=='upperhouse'}">
-											<spring:message code="generic.maharashtra.upperhouse" text="Upper House" />
+											<spring:message code="generic.upperhouse" text="Upper House" />
 										</c:when>
 									</c:choose>
 								</td>
