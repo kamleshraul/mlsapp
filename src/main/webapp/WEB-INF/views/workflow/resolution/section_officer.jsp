@@ -265,15 +265,18 @@
 				return false;
 			}
 			
-			var questionsAskedInThisFactualPosition = $("#questionsAskedInThisFactualPosition").val();
-			if(questionsAskedInThisFactualPosition == undefined) {
-				$.prompt($('#pleaseSelectQuestionsForFactualPosition').val());
-				return false;
-			} else {
-				questionsAskedInThisFactualPosition = questionsAskedInThisFactualPosition.join("##");					
-				$('#questionsAskedInFactualPosition').val(questionsAskedInThisFactualPosition);
-			}
 			
+			var questionsAskedInThisFactualPosition = $("#questionsAskedInThisFactualPosition").val();
+			if($('#internalStatusType').val()=="resolution_final_clarificationNeededFromDepartment" ||
+					$('#internalStatusType').val()=="resolution_final_clarificationNeededFromMember"){
+					if(questionsAskedInThisFactualPosition == undefined) {
+							$.prompt($('#pleaseSelectQuestionsForFactualPosition').val());
+							return false;
+					} else {
+						questionsAskedInThisFactualPosition = questionsAskedInThisFactualPosition.join("##");					
+					$('#questionsAskedInFactualPosition').val(questionsAskedInThisFactualPosition);
+				}
+			}
 			if($('#timerflag').val()=="set") {
 				if(
 						$('#internalStatusType').val()=="resolution_final_clarificationNeededFromDepartment"
