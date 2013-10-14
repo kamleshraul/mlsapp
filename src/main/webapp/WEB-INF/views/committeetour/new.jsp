@@ -5,7 +5,7 @@
 		<spring:message code="committeetour" text="Committee Tour"/>
 	</title>	
 	<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>	
-	<script type="text/javascript">
+	<script type="text/javascript">	
 	function onStateChange(stateId) {
 		var resourceURL = "ref/state/" + stateId + "/districts";
 		$.get(resourceURL, function(data){
@@ -45,7 +45,7 @@
 			}
 		});
 	}
-
+	
 	var tourItineraryCount = parseInt($('#tourItineraryCount').val());
 	var totalTourItineraryCount = 0;
 	totalTourItineraryCount = totalTourItineraryCount + tourItineraryCount;
@@ -98,28 +98,95 @@
 	function deleteItinerary(id) {
 		var tourItineraryId = $('#tourItineraryId' + id).val();
 		if(tourItineraryId != ''){			
-	    	$.delete_('member/minister/department/'+memberDepartmentId+'/delete', 
+	    	$.delete_('committeetour/touritinerary/' + tourItineraryId + '/delete', 
 	    	    null, 
 	    	    function(data, textStatus, XMLHttpRequest) {
-	    			$('#memberDepartment'+id).remove();
-	    			totalMemberDepartmentCount=totalMemberDepartmentCount-1;
-					if(id==memberDepartmentCount){
-						memberDepartmentCount=memberDepartmentCount-1;
+	    			$('#itinerary' + id).remove();
+	    			tourItineraryCount = tourItineraryCount - 1;
+					if(id == tourItineraryCount) {
+						tourItineraryCount = tourItineraryCount - 1;
 					}
 	    		}
-    		).fail(function(){
-				if($("#ErrorMsg").val()!=''){
+    		).fail(function() {
+				if($("#ErrorMsg").val() != '') {
 					$("#error_p").html($("#ErrorMsg").val()).css({'color':'red', 'display':'block'});
-				}else{
+				}
+				else {
 					$("#error_p").html("Error occured contact for support.").css({'color':'red', 'display':'block'});
 				}
 				scrollTop();
 			});	
-		} else {
-			$('#memberDepartment'+id).remove();
-			totalMemberDepartmentCount = totalMemberDepartmentCount - 1;
-			if(id == memberDepartmentCount){
-				memberDepartmentCount = memberDepartmentCount - 1;
+		} 
+		else {
+			$('#itinerary'+id).remove();
+			totalTourItineraryCount = totalTourItineraryCount - 1;
+			if(id == tourItineraryCount) {
+				tourItineraryCount = tourItineraryCount - 1;
+			}
+		}	
+	}
+
+	var committeeReporterCount = parseInt($('#committeeReporterCount').val());
+	var totalCommitteeReporterCount = 0;
+	totalCommitteeReporterCount = totalCommitteeReporterCount + committeeReporterCount;
+
+	function addReporter() {
+		committeeReporterCount = committeeReporterCount + 1;
+		totalCommitteeReporterCount = totalCommitteeReporterCount + 1;
+
+		var text = "<div id='reporter" + committeeReporterCount + "'>" +
+			"<p>" +
+			"<label class='small'>" + $('#committeeReporterLanguageMessage').val() + "</label>" +
+			"<select name='committeeReporterLanguage" + committeeReporterCount + "' id='committeeReporterLanguage" + committeeReporterCount + "' class='sSelect'>" +
+			$('#languageMaster').html() +
+			"</select>" +
+		    "</p>" +
+			"<p>" +
+			"<label class='small'>" + $('#committeeReporterNoOfReportersMessage').val() + "</label>" +
+			"<input name='committeeReporterNoOfReporters" + committeeReporterCount + "' id='committeeReporterNoOfReporters" + committeeReporterCount + "' class='sText Integer'>" +
+			"</p>" +
+			"<input type='button' class='button' id='" + committeeReporterCount + "' value='" + $('#deleteCommitteeReporterMessage').val() + "' onclick='deleteReporter(" + committeeReporterCount + ");'>" +
+			"<input type='hidden' id='committeeReporterId" + committeeReporterCount + "' name='committeeReporterId" + committeeReporterCount +"'>" +
+			"<input type='hidden' id='committeeReporterLocale" + committeeReporterCount + "' name='committeeReporterLocale" + committeeReporterCount + "' value='" + $('#locale').val() +"'>" +
+			"<input type='hidden' id='committeeReporterVersion" + committeeReporterCount + "' name='committeeReporterVersion" + committeeReporterCount + "'>" +
+			"</div>"; 
+
+		var prevCount = committeeReporterCount - 1;
+		if(totalCommitteeReporterCount == 1){
+			$('#addReporter').after(text);
+		} else{
+			$('#reporter'+ prevCount).after(text);
+		}
+		$('#committeeReporterCount').val(committeeReporterCount);
+	}
+
+	function deleteReporter(id) {
+		var committeeReporterId = $('#committeeReporterId' + id).val();
+		if(committeeReporterId != ''){			
+			$.delete_('committeetour/committeereporter/' + committeeReporterId + '/delete', 
+				null, 
+				function(data, textStatus, XMLHttpRequest) {
+					$('#reporter' + id).remove();
+					committeeReporterCount = committeeReporterCount - 1;
+					if(id == committeeReporterCount) {
+						committeeReporterCount = committeeReporterCount - 1;
+					}
+				}
+			).fail(function() {
+				if($("#ErrorMsg").val() != '') {
+					$("#error_p").html($("#ErrorMsg").val()).css({'color':'red', 'display':'block'});
+				}
+				else {
+					$("#error_p").html("Error occured contact for support.").css({'color':'red', 'display':'block'});
+				}
+				scrollTop();
+			});	
+		} 
+		else {
+			$('#reporter' + id).remove();
+			totalCommitteeReporterCount = totalCommitteeReporterCount - 1;
+			if(id == committeeReporterCount) {
+				committeeReporterCount = committeeReporterCount - 1;
 			}
 		}	
 	}
@@ -140,6 +207,10 @@
 
 		$('#addItinerary').click(function(){
 			addItinerary();
+		});
+
+		$('#addReporter').click(function(){
+			addReporter();
 		});
 	});		
 	</script>
@@ -220,42 +291,42 @@
 		<input type="button" id="addItinerary" class="button" value="<spring:message code='committeetour.addItinerary' text='Add Itinerary'></spring:message>">
 		<form:errors path="itineraries" cssClass="validationError"></form:errors>
 		<c:if test="${not empty itineraries}">
-			<c:set var="count" value="1"></c:set>
+			<c:set var="itineraryCount" value="1"></c:set>
 			<c:forEach items="${itineraries}" var="outer">
-				<div id="itinerary${count}">
+				<div id="itinerary${itineraryCount}">
 					<p>
 						<label class="small"><spring:message code="committeetour.touritinerary.date" text="Date"/>*</label>
-						<input id="tourItineraryDate${count}" name="tourItineraryDate${count}" class="datemask sText" value="${outer.formatDate()}">
+						<input id="tourItineraryDate${itineraryCount}" name="tourItineraryDate${itineraryCount}" class="datemask sText" value="${outer.formatDate()}">
 					</p>
 					
 					<p>
 						<label class="small"><spring:message code="committeetour.touritinerary.fromTime" text="From time"/>*</label>
-						<input id="tourItineraryFromTime${count}" name="tourItineraryFromTime${count}" class="sText" value="${outer.getFromTime()}">
+						<input id="tourItineraryFromTime${itineraryCount}" name="tourItineraryFromTime${itineraryCount}" class="sText" value="${outer.getFromTime()}">
 					</p>
 					
 					<p>
 						<label class="small"><spring:message code="committeetour.touritinerary.toTime" text="To time"/>*</label>
-						<input id="tourItineraryToTime${count}" name="tourItineraryToTime${count}" class="sText" value="${outer.getToTime()}">
+						<input id="tourItineraryToTime${itineraryCount}" name="tourItineraryToTime${itineraryCount}" class="sText" value="${outer.getToTime()}">
 					</p>
 					
 					<p>
 						<label class="wysiwyglabel"><spring:message code="committeetour.touritinerary.details" text="Details"/></label>
-						<textarea id="tourItineraryDetails${count}" name="tourItineraryDetails${count}"  class="wysiwyg" rows="2" cols="50">${outer.getDetails()}</textarea>
+						<textarea id="tourItineraryDetails${itineraryCount}" name="tourItineraryDetails${itineraryCount}"  class="wysiwyg" rows="2" cols="50">${outer.getDetails()}</textarea>
 					</p>
 					
 					<p>
 						<label class="wysiwyglabel"><spring:message code="committeetour.touritinerary.stayover" text="Stayover"/></label>
-						<textarea id="tourItineraryStayover${count}" name="tourItineraryStayover${count}"  class="wysiwyg" rows="2" cols="50">${outer.getStayOver()}</textarea>
+						<textarea id="tourItineraryStayover${itineraryCount}" name="tourItineraryStayover${itineraryCount}"  class="wysiwyg" rows="2" cols="50">${outer.getStayOver()}</textarea>
 					</p>
 					
-					<input type='button' id='${count}' class='button' value='<spring:message code="committeetour.touritinerary.deleteItinerary" text="Delete Itinerary"></spring:message>' onclick='deleteItinerary(${count});'/>
+					<input type='button' id='${itineraryCount}' class='button' value='<spring:message code="committeetour.touritinerary.deleteItinerary" text="Delete Itinerary"></spring:message>' onclick='deleteItinerary(${itineraryCount});'/>
 					
 					<!-- Hidden variables required for each instance of TourItinerary -->
-					<input type='hidden' id='tourItineraryId${count}' name='tourItineraryId${count}' value="${outer.id}">
-					<input type='hidden' id='tourItineraryVersion${count}' name='tourItineraryVersion${count}' value="${outer.version}">
-					<input type='hidden' id='tourItineraryLocale${count}' name='tourItineraryLocale${count}' value="${domain.locale}">
+					<input type='hidden' id='tourItineraryId${itineraryCount}' name='tourItineraryId${itineraryCount}' value="${outer.id}">
+					<input type='hidden' id='tourItineraryVersion${itineraryCount}' name='tourItineraryVersion${itineraryCount}' value="${outer.version}">
+					<input type='hidden' id='tourItineraryLocale${itineraryCount}' name='tourItineraryLocale${itineraryCount}' value="${domain.locale}">
 				</div>
-				<c:set var="count" value="${count + 1}"></c:set>
+				<c:set var="itineraryCount" value="${itineraryCount + 1}"></c:set>
 			</c:forEach>		
 		</c:if>
 		
@@ -269,6 +340,62 @@
 		<input type="hidden" id="tourItineraryToTimeMessage" name="tourItineraryToTimeMessage" value="<spring:message code='committeetour.touritinerary.toTime' text='To time'></spring:message>" disabled="disabled"/>
 		<input type="hidden" id="tourItineraryDetailsMessage" name="tourItineraryDetailsMessage" value="<spring:message code='committeetour.touritinerary.details' text='Details'></spring:message>" disabled="disabled"/>
 		<input type="hidden" id="tourItineraryStayoverMessage" name="tourItineraryStayoverMessage" value="<spring:message code='committeetour.touritinerary.stayover' text='Stayover'></spring:message>" disabled="disabled"/>
+	</div>
+	
+	<!-- Dynamic Addition of number of Reporters as per Language -->
+	<div>
+		<input type="button" id="addReporter" class="button" value="<spring:message code='committeetour.addReporter' text='Add Reporter'></spring:message>">
+		<form:errors path="reporters" cssClass="validationError"></form:errors>
+		<c:if test="${not empty reporters}">
+			<c:set var="reportersCount" value="1"></c:set>
+			<c:forEach items="${reporters}" var="outer">
+				<div id="reporter${reportersCount}">
+					<p>
+						<label class="small"><spring:message code="committeetour.committeereporter.language" text="Language"/></label>
+						<select name="committeeReporterLanguage${reportersCount}" id="committeeReporterLanguage${reportersCount}" class="sSelect">
+							<c:forEach items="${languages}" var="i">
+								<c:choose>
+									<c:when test="${outer.language.id == i.id}">
+										<option value="${i.id}" selected="selected"><c:out value="${i.name}"></c:out></option>	
+									</c:when>
+									<c:otherwise>
+										<option value="${i.id}"><c:out value="${i.name}"></c:out></option>		
+									</c:otherwise>
+								</c:choose>
+							</c:forEach>
+						</select>
+					</p>
+				
+					<p>
+						<label class="small"><spring:message code="committeetour.committeereporter.noOfReporters" text="No. of Reporters"/></label>
+						<input id="committeeReporterNoOfReporters${reportersCount}" name="committeeReporterNoOfReporters${reportersCount}" class="sText Integer" value="${outer.getNoOfReporters}">
+					</p>
+					
+					<input type='button' id='${reportersCount}' class='button' value='<spring:message code="committeetour.committeereporter.deleteReporter" text="Delete Reporter"></spring:message>' onclick='deleteReporter(${reportersCount});'/>
+					
+					<!-- Hidden variables required for each instance of CommitteeReporter -->
+					<input type='hidden' id='committeeReporterId${reportersCount}' name='committeeReporterId${reportersCount}' value="${outer.id}">
+					<input type='hidden' id='committeeReporterVersion${reportersCount}' name='committeeReporterVersion${reportersCount}' value="${outer.version}">
+					<input type='hidden' id='committeeReporterLocale${reportersCount}' name='committeeReporterLocale${reportersCount}' value="${domain.locale}">
+				</div>
+				<c:set var="reportersCount" value="${reportersCount + 1}"></c:set>
+			</c:forEach>		
+		</c:if>
+		
+		<!-- To be used from Javascript functions when a Reporter is to be
+			 added dynamically  -->
+		<select name="languageMaster" id="languageMaster" class="sSelect" disabled="disabled">
+			<c:forEach items="${languages}" var="i">
+				<option value="${i.id}"><c:out value="${i.name}"></c:out></option>
+			</c:forEach>
+		</select>
+		
+		<!-- Hidden Messages to preserve the localization of the field names -->
+		<input type="hidden" id="committeeReporterCount" name="committeeReporterCount" value="${committeeReporterCount}"/>
+		
+		<input type="hidden" id="deleteCommitteeReporterMessage" name="deleteCommitteeReporterMessage" value="<spring:message code='committeetour.committeereporter.deleteReporter' text='Delete Reporter'></spring:message>" disabled="disabled"/>
+		<input type="hidden" id="committeeReporterLanguageMessage" name="committeeReporterLanguageMessage" value="<spring:message code='committeetour.committeereporter.language' text='Language'></spring:message>" disabled="disabled"/>
+		<input type="hidden" id="committeeReporterNoOfReportersMessage" name="committeeReporterNoOfReportersMessage" value="<spring:message code='committeetour.committeereporter.noOfReporters' text='No. of Reporters'></spring:message>" disabled="disabled"/>
 	</div>
 	
 	<p>
