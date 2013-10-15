@@ -217,7 +217,7 @@
 </head>
 <body>
 <div class="fields clearfix">
-<form:form action="committeetour" method="POST" modelAttribute="domain">
+<form:form action="committeetour" method="PUT" modelAttribute="domain">
 	<%@ include file="/common/info.jsp" %>
 	
 	<h2><spring:message code="generic.edit.heading" text="Details"/>
@@ -272,6 +272,12 @@
 		<label class="small"><spring:message code="committeetour.venueName" text="Venue Name"/>*</label>
 		<form:input path="venueName" cssClass="sText"/>
 		<form:errors path="venueName" cssClass="validationError"/>	
+	</p>
+	
+	<p> 
+		<label class="small"><spring:message code="committeetour.subject" text="Subject"/>*</label>
+		<form:input path="subject" cssClass="sText"/>
+		<form:errors path="subject" cssClass="validationError"/>	
 	</p>
 	
 	<p>
@@ -368,7 +374,7 @@
 				
 					<p>
 						<label class="small"><spring:message code="committeetour.committeereporter.noOfReporters" text="No. of Reporters"/>*</label>
-						<input id="committeeReporterNoOfReporters${reportersCount}" name="committeeReporterNoOfReporters${reportersCount}" class="sText Integer" value="${outer.getNoOfReporters}">
+						<input id="committeeReporterNoOfReporters${reportersCount}" name="committeeReporterNoOfReporters${reportersCount}" class="sText Integer" value="${outer.noOfReporters}">
 					</p>
 					
 					<input type='button' id='${reportersCount}' class='button' value='<spring:message code="committeetour.committeereporter.deleteReporter" text="Delete Reporter"></spring:message>' onclick='deleteReporter(${reportersCount});'/>

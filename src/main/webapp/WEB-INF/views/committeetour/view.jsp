@@ -66,7 +66,7 @@
 						<textarea id="tourItineraryDetails${itineraryCount}" name="tourItineraryDetails${itineraryCount}"  class="wysiwyg" readonly="readonly" rows="2" cols="50">${itinerary.details}</textarea>
 					</td>
 					<td>
-						<textarea id="tourItineraryStayover${itineraryCount}" name="tourItineraryStayover${itineraryCount}"  class="wysiwyg" readonly="readonly" rows="2" cols="50">${itinerary.stayover}</textarea>
+						<textarea id="tourItineraryStayover${itineraryCount}" name="tourItineraryStayover${itineraryCount}"  class="wysiwyg" readonly="readonly" rows="2" cols="50">${itinerary.stayOver}</textarea>
 					</td>
 				</tr>
 				<c:set var="itineraryCount" value="${itineraryCount + 1}"></c:set>

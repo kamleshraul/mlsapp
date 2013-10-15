@@ -274,6 +274,12 @@
 		<form:errors path="venueName" cssClass="validationError"/>	
 	</p>
 	
+	<p> 
+		<label class="small"><spring:message code="committeetour.subject" text="Subject"/>*</label>
+		<form:input path="subject" cssClass="sText"/>
+		<form:errors path="subject" cssClass="validationError"/>	
+	</p>
+	
 	<p>
 		<label class="small"><spring:message code="committeetour.fromDate" text="From Date"/>*</label>
 		<form:input path="fromDate" cssClass="datemask sText" />
@@ -368,7 +374,7 @@
 				
 					<p>
 						<label class="small"><spring:message code="committeetour.committeereporter.noOfReporters" text="No. of Reporters"/>*</label>
-						<input id="committeeReporterNoOfReporters${reportersCount}" name="committeeReporterNoOfReporters${reportersCount}" class="sText Integer" value="${outer.getNoOfReporters}">
+						<input id="committeeReporterNoOfReporters${reportersCount}" name="committeeReporterNoOfReporters${reportersCount}" class="sText Integer" value="${outer.noOfReporters}">
 					</p>
 					
 					<input type='button' id='${reportersCount}' class='button' value='<spring:message code="committeetour.committeereporter.deleteReporter" text="Delete Reporter"></spring:message>' onclick='deleteReporter(${reportersCount});'/>
