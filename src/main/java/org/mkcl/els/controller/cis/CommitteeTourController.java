@@ -149,7 +149,7 @@ public class CommitteeTourController extends GenericController<CommitteeTour> {
 		
 		String toDate = FormaterUtil.formatDateToString(
 				tour.getToDate(), 
-				this.getServerDateFormat(), 
+				this.getServerDateFormat(),
 				locale.toString());
 		model.addAttribute("toDate", toDate);
 
