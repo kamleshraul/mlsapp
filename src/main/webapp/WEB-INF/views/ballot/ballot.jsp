@@ -56,20 +56,34 @@
 </c:when>
 
 <c:otherwise>
-<label class="small"><spring:message code="question.ballot.answeringDate" text="Answering Date"/>: ${answeringDate}</label>
 <div id="reportDiv" >
-<table class="strippedTable" border="1">
+<div style="text-align: center; max-width: 800px; width: 800px; margin-left: 25px;">
+	<h2 style="text-decoration: underline; font-family: 'Times New Roman';"><spring:message code="generic.ballot.list" text="BALLOT LIST" /></h2>
+</div>
+<table style="margin: 0px 0px 10px 25px; width: 800px; max-width: 800px; font-size: 15px;">
 	<tr>
-		<th><spring:message code="general.srnumber" text="Serial Number"/></th>
-		<th><spring:message code="member.name" text="Member Name"/></th>
-		<th><spring:message code="question1" text="Question 1"/></th>
-		<th><spring:message code="round1" text="Round 1"/></th>
-		<th><spring:message code="question2" text="Question 2"/></th>
-		<th><spring:message code="round2" text="Round 2"/></th>
-		<th><spring:message code="question3" text="Question 3"/></th>
-		<th><spring:message code="round3" text="Round 3"/></th>
+		<td colspan="2" style="text-align: right;">
+			<span><spring:message code="generic.date" text="Answering Date"/>&nbsp;&nbsp;&nbsp;<span style="text-decoration: underline; font-weight: bold;"> ${answeringDate}</span></span>
+		</td>
+		<td colspan="5" style="text-align: center; font-family: 'Arial'">
+			<spring:message code="question.ballot.starred.lowerhouse.headercontent" text="Ballot Of the Day"></spring:message>
+		</td>
 	</tr>
-	
+</table>
+<table class="strippedTable" border="1" style="margin-left: 25px; font-size: 15px;">
+	<tr style="margin-top: 5px;">
+		<%-- <th><spring:message code="general.srnumber" text="Serial Number"/></th> --%>
+		<th><spring:message code="question.ballot.starred.lowerhouse.member.name" text="Member Name"/></th>
+		<th><spring:message code="question.ballot.starred.lowerhouse.round1" text="Round 1"/></th>
+		<th><spring:message code="question.ballot.starred.lowerhouse.ballotnumber" text="Ballot Number"/></th>		
+		<th><spring:message code="question.ballot.starred.lowerhouse.round2" text="Round 2"/></th>
+		<th><spring:message code="question.ballot.starred.lowerhouse.ballotnumber" text="Ballot Number"/></th>
+		<th><spring:message code="question.ballot.starred.lowerhouse.round3" text="Round 3"/></th>
+		<th><spring:message code="question.ballot.starred.lowerhouse.ballotnumber" text="Ballot Number"/></th>
+	</tr>
+	<tr>
+		<td style="font-size: 8px;" colspan="7">&nbsp;</td>
+	</tr>
 	<c:set var="counter" value="1" />
 	<c:set var="memberName" value="" />
 	<c:set var="mCounter" value="1" />
@@ -90,7 +104,7 @@
 				</c:if>
 				
 				<tr>
-					<td class="td">${counter}</td>
+					<%-- <td class="td">${counter}</td> --%>
 					<td class="memberName">${ballotVO[0]}</td>
 					<td class="td">${ballotVO[1]}</td>
 					<td class="td">${ballotVO[2]}</td>
@@ -111,6 +125,19 @@
 			<td class="td">-</td>						
 		</c:forEach>
 	</c:if>
+</table>
+<table style="max-width: 800px; width: 800px; margin-left: 25px; margin-top: 20px;">
+	<tr>
+		<td colspan="7">
+			<p style="font-size: 15px;">
+				<span style="font-weight: bold;">
+					<spring:message code="generic.total" text="Total" />:&nbsp;&nbsp;&nbsp;&nbsp;${totalMembers}
+				</span><br /><br />
+				<spring:message code="generic.date" text="Answering Date"/> ${answeringDate}<spring:message code="question.ballot.starred.lowerhouse.footer1" text="Footer"/>
+				${formattedCurrentDate}<spring:message code="question.ballot.starred.lowerhouse.footer2" text="Footer"/>
+			</p>
+		</td>		
+	</tr>
 </table>
 </div>
 </c:otherwise>
