@@ -1726,8 +1726,10 @@ public class Ballot extends BaseDomain implements Serializable {
 					Role ministerRole = Role.findByFieldName(Role.class, "type", ApplicationConstants.MINISTER, locale);
 					String localizedMinisterRoleName = ministerRole.getLocalizedName();				
 					deviceVO.setMinistryName(q.getSubDepartment().getName() + " " + localizedMinisterRoleName);
-				}				
-				deviceVO.setAnsweredBy(answeringMember.findFirstLastName());
+				}			
+				if(answeringMember != null){
+					deviceVO.setAnsweredBy(answeringMember.findFirstLastName());
+				}
 				if(q.getParent()!=null) {
 					deviceVO.setParent(FormaterUtil.formatNumberNoGrouping(q.getParent().getNumber(), locale));
 					SimpleDateFormat dbFormat = null;
@@ -1883,7 +1885,9 @@ public class Ballot extends BaseDomain implements Serializable {
 					String localizedMinisterRoleName = ministerRole.getLocalizedName();				
 					deviceVO.setMinistryName(q.getSubDepartment().getName() + " " + localizedMinisterRoleName);
 				}				
-				deviceVO.setAnsweredBy(answeringMember.findFirstLastName());
+				if(answeringMember != null){
+					deviceVO.setAnsweredBy(answeringMember.findFirstLastName());
+				}
 				if(q.getParent()!=null) {
 					deviceVO.setParent(FormaterUtil.formatNumberNoGrouping(q.getParent().getNumber(), locale));
 					SimpleDateFormat dbFormat = null;
