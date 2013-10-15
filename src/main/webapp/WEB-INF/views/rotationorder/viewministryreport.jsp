@@ -134,15 +134,27 @@
 									<c:choose>
 										<c:when test="${ministry != mi[1]}">
 											<c:if test="${count > 1}">
+															</td>
+														</tr>
+													</table>
 													</td>
 												</tr>
 												<c:set var="count" value="1" />
 											</c:if>
 											<c:set var="count" value="2" />
-											<tr class="page-break">
+											<tr class="page-break" style="margin-top: 5px;">
 												<td>
-													<span class="ministryReportMinistryName">(${mi[0]})&nbsp;&nbsp;&nbsp;&nbsp;${mi[1]} --- ${mi[2]}</span><br />
-													<span class="ministryReportDepartment">(${mi[4]})&nbsp;${mi[3]}</span><br />
+													<table callpadding="0">
+														<tr>
+															<td style="width: 50px; max-width: 50px;"><span class="ministryReportMinistryName">(${mi[0]})</span></td>
+															<td style="width: 700px; max-width: 700px;">
+																<span class="ministryReportMinistryName" style="text-align: left; word-wrap: break-word;">${mi[1]} --- ${mi[2]}</span>
+															</td>
+														</tr>
+														<tr>
+															<td colspan="2">
+																<span class="ministryReportDepartment">(${mi[4]})&nbsp;${mi[3]}</span><br />
+														
 										</c:when>
 										<c:otherwise>
 											<c:set var="count" value="2" />
