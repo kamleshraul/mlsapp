@@ -330,7 +330,7 @@ public class SessionController extends GenericController<Session> {
     
     @RequestMapping(value="{id}/devicetypeconfig", method=RequestMethod.GET)
     public String editSessionDeviceTypeConfig(@PathVariable("id") final Long id,final ModelMap model,
-            final HttpServletRequest request ){
+            final HttpServletRequest request, final Locale locale){
     	
     	 final String servletPath = request.getServletPath().replaceFirst("\\/","");
          String urlPattern=servletPath.split("\\/viewRotationOrder")[0].replace("/"+id,"");
@@ -354,9 +354,13 @@ public class SessionController extends GenericController<Session> {
 				model.addAttribute("userRole", i.getType());
 				role = i.getType();
 				break;
-			} 
+			} else if(i.getType().equals("SUPER_ADMIN")){
+				model.addAttribute("userRole", i.getType());
+				role = i.getType();
+				break;
+			}
 		}
-         
+        
          Session domain= Session.findById(Session.class, id);         
          if(domain == null) {
         	 model.addAttribute("errorcode", "nosessionfound");    			
@@ -374,7 +378,6 @@ public class SessionController extends GenericController<Session> {
 		try {
 			if (role.startsWith("QIS_")) {
 				deviceTypes = DeviceType.findDeviceTypesStartingWith("questions",domain.getLocale());
-				
 			}else if(role.startsWith("RIS_")){
 				deviceTypes = DeviceType.findDeviceTypesStartingWith("roster",domain.getLocale());
 				
@@ -382,6 +385,8 @@ public class SessionController extends GenericController<Session> {
 				deviceTypes = DeviceType.findDeviceTypesStartingWith("motions",domain.getLocale());
 			}else if(role.startsWith("ROIS_")){
 				deviceTypes = DeviceType.findDeviceTypesStartingWith("resolutions",domain.getLocale());
+			}else if(role.equals("SUPER_ADMIN")){
+				deviceTypes = DeviceType.findAll(DeviceType.class, "id", ApplicationConstants.ASC, locale.toString());
 			}
 			
 			for (int i = 0; i < deviceTypes.size(); i++) {
