@@ -45,7 +45,7 @@
 			}
 		});
 	}
-	
+
 	var tourItineraryCount = parseInt($('#tourItineraryCount').val());
 	var totalTourItineraryCount = 0;
 	totalTourItineraryCount = totalTourItineraryCount + tourItineraryCount;
@@ -55,24 +55,24 @@
 
 		var text = "<div id='itinerary" + tourItineraryCount + "'>" +
 		    "<p>" +
-  		  	"<label class='small'>" + $('#tourItineraryDateMessage').val() + "</label>" +
+  		  	"<label class='small'>" + $('#tourItineraryDateMessage').val() + "*</label>" +
   		  	"<input name='tourItineraryDate" + tourItineraryCount + "' id='tourItineraryDate" + tourItineraryCount + "' class='datemask sText'>" +
   		    "</p>" +
   		 	"<p>" +
-		  	"<label class='small'>" + $('#tourItineraryFromTimeMessage').val() + "</label>" +
+		  	"<label class='small'>" + $('#tourItineraryFromTimeMessage').val() + "*</label>" +
 		  	"<input name='tourItineraryFromTime" + tourItineraryCount + "' id='tourItineraryFromTime" + tourItineraryCount + "' class='sText'>" +
 		  	"</p>" +
 		  	"<p>" +
-  		  	"<label class='small'>" + $('#tourItineraryToTimeMessage').val() + "</label>" +
+  		  	"<label class='small'>" + $('#tourItineraryToTimeMessage').val() + "*</label>" +
   		    "<input name='tourItineraryToTime" + tourItineraryCount + "' id='tourItineraryToTime" + tourItineraryCount + "' class='sText'>" +
   		  	"</p>" +
   		 	"<p>" +
-		  	"<label class='wysiwyglabel'>" + $('#tourItineraryDetailsMessage').val() + "</label>" +
-		  	"<input name='tourItineraryDetails" + tourItineraryCount + "' id='tourItineraryDetails" + tourItineraryCount + "' class='wysiwyg'>" +
+		  	"<label class='small'>" + $('#tourItineraryDetailsMessage').val() + "</label>" +
+		  	"<textarea name='tourItineraryDetails" + tourItineraryCount + "' id='tourItineraryDetails" + tourItineraryCount + "' rows='2' cols='50'></textarea>" +
 		    "</p>" +
 		 	"<p>" +
-		  	"<label class='wysiwyglabel'>" + $('#tourItineraryStayoverMessage').val() + "</label>" +
-		  	"<input name='tourItineraryStayover" + tourItineraryCount + "' id='tourItineraryStayover" + tourItineraryCount + "' class='wysiwyg'>" +
+		  	"<label class='small'>" + $('#tourItineraryStayoverMessage').val() + "</label>" +
+		  	"<textarea name='tourItineraryStayover" + tourItineraryCount + "' id='tourItineraryStayover" + tourItineraryCount + "' rows='2' cols='50'></textarea>" +
 		  	"</p>" +
   		  	"<input type='button' class='button' id='" + tourItineraryCount + "' value='" + $('#deleteItineraryMessage').val() + "' onclick='deleteItinerary(" + tourItineraryCount + ");'>" +
 		  	"<input type='hidden' id='tourItineraryId" + tourItineraryCount + "' name='tourItineraryId" + tourItineraryCount +"'>" +
@@ -136,13 +136,13 @@
 
 		var text = "<div id='reporter" + committeeReporterCount + "'>" +
 			"<p>" +
-			"<label class='small'>" + $('#committeeReporterLanguageMessage').val() + "</label>" +
+			"<label class='small'>" + $('#committeeReporterLanguageMessage').val() + "*</label>" +
 			"<select name='committeeReporterLanguage" + committeeReporterCount + "' id='committeeReporterLanguage" + committeeReporterCount + "' class='sSelect'>" +
 			$('#languageMaster').html() +
 			"</select>" +
 		    "</p>" +
 			"<p>" +
-			"<label class='small'>" + $('#committeeReporterNoOfReportersMessage').val() + "</label>" +
+			"<label class='small'>" + $('#committeeReporterNoOfReportersMessage').val() + "*</label>" +
 			"<input name='committeeReporterNoOfReporters" + committeeReporterCount + "' id='committeeReporterNoOfReporters" + committeeReporterCount + "' class='sText Integer'>" +
 			"</p>" +
 			"<input type='button' class='button' id='" + committeeReporterCount + "' value='" + $('#deleteCommitteeReporterMessage').val() + "' onclick='deleteReporter(" + committeeReporterCount + ");'>" +
@@ -217,7 +217,7 @@
 </head>
 <body>
 <div class="fields clearfix">
-<form:form action="committeetour" method="PUT" modelAttribute="domain">
+<form:form action="committeetour" method="POST" modelAttribute="domain">
 	<%@ include file="/common/info.jsp" %>
 	
 	<h2><spring:message code="generic.edit.heading" text="Details"/>
@@ -310,13 +310,13 @@
 					</p>
 					
 					<p>
-						<label class="wysiwyglabel"><spring:message code="committeetour.touritinerary.details" text="Details"/></label>
-						<textarea id="tourItineraryDetails${itineraryCount}" name="tourItineraryDetails${itineraryCount}"  class="wysiwyg" rows="2" cols="50">${outer.getDetails()}</textarea>
+						<label class="small"><spring:message code="committeetour.touritinerary.details" text="Details"/></label>
+						<textarea id="tourItineraryDetails${itineraryCount}" name="tourItineraryDetails${itineraryCount}" rows="2" cols="50">${outer.getDetails()}</textarea>
 					</p>
 					
 					<p>
-						<label class="wysiwyglabel"><spring:message code="committeetour.touritinerary.stayover" text="Stayover"/></label>
-						<textarea id="tourItineraryStayover${itineraryCount}" name="tourItineraryStayover${itineraryCount}"  class="wysiwyg" rows="2" cols="50">${outer.getStayOver()}</textarea>
+						<label class="small"><spring:message code="committeetour.touritinerary.stayover" text="Stayover"/></label>
+						<textarea id="tourItineraryStayover${itineraryCount}" name="tourItineraryStayover${itineraryCount}" rows="2" cols="50">${outer.getStayOver()}</textarea>
 					</p>
 					
 					<input type='button' id='${itineraryCount}' class='button' value='<spring:message code="committeetour.touritinerary.deleteItinerary" text="Delete Itinerary"></spring:message>' onclick='deleteItinerary(${itineraryCount});'/>
@@ -351,7 +351,7 @@
 			<c:forEach items="${reporters}" var="outer">
 				<div id="reporter${reportersCount}">
 					<p>
-						<label class="small"><spring:message code="committeetour.committeereporter.language" text="Language"/></label>
+						<label class="small"><spring:message code="committeetour.committeereporter.language" text="Language"/>*</label>
 						<select name="committeeReporterLanguage${reportersCount}" id="committeeReporterLanguage${reportersCount}" class="sSelect">
 							<c:forEach items="${languages}" var="i">
 								<c:choose>
@@ -367,7 +367,7 @@
 					</p>
 				
 					<p>
-						<label class="small"><spring:message code="committeetour.committeereporter.noOfReporters" text="No. of Reporters"/></label>
+						<label class="small"><spring:message code="committeetour.committeereporter.noOfReporters" text="No. of Reporters"/>*</label>
 						<input id="committeeReporterNoOfReporters${reportersCount}" name="committeeReporterNoOfReporters${reportersCount}" class="sText Integer" value="${outer.getNoOfReporters}">
 					</p>
 					
@@ -384,11 +384,13 @@
 		
 		<!-- To be used from Javascript functions when a Reporter is to be
 			 added dynamically  -->
-		<select name="languageMaster" id="languageMaster" class="sSelect" disabled="disabled">
-			<c:forEach items="${languages}" var="i">
-				<option value="${i.id}"><c:out value="${i.name}"></c:out></option>
-			</c:forEach>
-		</select>
+		<p style="display:none;">
+			<select name="languageMaster" id="languageMaster" class="sSelect" disabled="disabled">
+				<c:forEach items="${languages}" var="i">
+					<option value="${i.id}"><c:out value="${i.name}"></c:out></option>
+				</c:forEach>
+			</select>
+		</p>
 		
 		<!-- Hidden Messages to preserve the localization of the field names -->
 		<input type="hidden" id="committeeReporterCount" name="committeeReporterCount" value="${committeeReporterCount}"/>
@@ -397,11 +399,6 @@
 		<input type="hidden" id="committeeReporterLanguageMessage" name="committeeReporterLanguageMessage" value="<spring:message code='committeetour.committeereporter.language' text='Language'></spring:message>" disabled="disabled"/>
 		<input type="hidden" id="committeeReporterNoOfReportersMessage" name="committeeReporterNoOfReportersMessage" value="<spring:message code='committeetour.committeereporter.noOfReporters' text='No. of Reporters'></spring:message>" disabled="disabled"/>
 	</div>
-	
-	<p>
-		<label class="wysiwyglabel"><spring:message code="committeetour.remarks" text="Remarks"/></label>
-		<form:textarea path="remarks" cssClass="wysiwyg"></form:textarea>
-	</p>	
 	
 	<div class="fields expand">
 		<h2></h2>
