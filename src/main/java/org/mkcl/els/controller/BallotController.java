@@ -402,7 +402,7 @@ public class BallotController extends BaseController{
 			}
 
 			/** Add localized answeringDate to model */
-			CustomParameter parameter = CustomParameter.findByName(CustomParameter.class, "DB_DATEFORMAT", "");
+			CustomParameter parameter = CustomParameter.findByName(CustomParameter.class, "SERVER_DATEFORMAT_HYPHEN", "");
 			String localizedAnsweringDate = FormaterUtil.formatDateToString(answeringDate, parameter.getValue(), locale.toString());
 			model.addAttribute("answeringDate", localizedAnsweringDate);
 
@@ -421,7 +421,13 @@ public class BallotController extends BaseController{
 					List ballotVOs = org.mkcl.els.domain.Query.findReport("STARRED_BALLOT_VIEW", parametersMap);
 					parametersMap = null;
 					model.addAttribute("ballotVOs", ballotVOs);
-					
+					CustomParameter serverDateTimeFormat = CustomParameter.findByName(CustomParameter.class, "SERVER_DATETIMEFORMAT", "");
+					if(serverDateTimeFormat != null){
+						model.addAttribute("formattedCurrentDate", FormaterUtil.formatDateToString((new Date()), serverDateTimeFormat.getValue(), locale.toString()));
+					}
+					if(ballotVOs != null && !ballotVOs.isEmpty()){
+						model.addAttribute("totalMembers", FormaterUtil.formatNumberNoGrouping(Integer.valueOf((((Object[])ballotVOs.get(0))[3]).toString()), locale.toString()));
+					}
 					retVal = "ballot/ballot";
 				}else if(deviceType.getType().equals(ApplicationConstants.HALF_HOUR_DISCUSSION_QUESTION_FROM_QUESTION)) {
 					/*List<BallotMemberVO> ballotVOs = Ballot.findBallotedMemberVO(session, deviceType, answeringDate, locale.toString());
