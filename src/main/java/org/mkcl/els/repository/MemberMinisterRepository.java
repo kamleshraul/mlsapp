@@ -572,8 +572,11 @@ public class MemberMinisterRepository extends BaseRepository<MemberMinister, Lon
 				"mi.id=" + ministry.getId() + " AND " +
 				"(mm.ministryToDate > '" + strCurrDate + "' OR mm.ministryToDate is NULL) AND " +
 				"mm.locale = '" + session.getLocale() + "'";
-		Member member = (Member) this.em().createQuery(queryString).getSingleResult();
-		return member;
+		List<Member> members = this.em().createQuery(queryString).getResultList();
+		if(members!=null&& !members.isEmpty()){
+			return members.get(0);
+		}
+		return null;
 	}	
 	
 }
