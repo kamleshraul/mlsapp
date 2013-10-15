@@ -257,7 +257,7 @@ public class DistrictRepository extends BaseRepository<District, Long> {
 			final String locale) {
 		StringBuffer query = new StringBuffer();
 		query.append("SELECT d" +
-			" FROM Town t JOIN District d" +
+			" FROM Town t JOIN t.district d" +
 			" WHERE t.id = " + town.getId());
 		
 		TypedQuery<District> tQuery = 
