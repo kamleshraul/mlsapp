@@ -731,8 +731,8 @@ public class ProceedingController extends GenericController<Proceeding>{
 			}
 
 			List<Bookmark> bk=new ArrayList<Bookmark>();
-			List<Bookmark> bookmarks=Bookmark.findAllByFieldName(Bookmark.class, "slot", slot, "bookmarkKey", "asc", domain.getLocale());
-			if(bookmarks.isEmpty()){
+/*			List<Bookmark> bookmarks=Bookmark.findAllByFieldName(Bookmark.class, "slot", slot, "bookmarkKey", "asc", domain.getLocale());
+			if(bookmarks.isEmpty()){*/
 				List<Bookmark> bookmarks1=Bookmark.findAllByFieldName(Bookmark.class, "language", domain.getProceeding().getSlot().findLanguage(), "id", "asc", domain.getLocale());
 				for(Bookmark b:bookmarks1){
 					if(b.getSlot()==null){
@@ -751,9 +751,9 @@ public class ProceedingController extends GenericController<Proceeding>{
 				}
 				model.addAttribute("bookmarks", bk);
 
-			}else{
+/*			}else{
 				model.addAttribute("bookmarks", bookmarks);
-			}
+			}*/
 		}
 		String strHouseType=this.getCurrentUser().getHouseType();
 		HouseType houseType=HouseType.findByFieldName(HouseType.class, "type", strHouseType, domain.getLocale());
