@@ -13,6 +13,7 @@ import org.mkcl.els.common.util.FormaterUtil;
 import org.mkcl.els.domain.Adjournment;
 import org.mkcl.els.domain.CustomParameter;
 import org.mkcl.els.domain.Language;
+import org.mkcl.els.domain.Proceeding;
 import org.mkcl.els.domain.Reporter;
 import org.mkcl.els.domain.Roster;
 import org.mkcl.els.domain.Session;
@@ -291,6 +292,10 @@ public class RosterRepository extends BaseRepository<Roster, Serializable>{
 					}
 					slot.setName(buffer.toString());									
 					slot.persist();
+					Proceeding proceeding=new Proceeding();
+					proceeding.setLocale(slot.getLocale());
+					proceeding.setSlot(slot);
+					proceeding.persist();
 					if(ch<'Z'){
 						ch++;
 					}else{
@@ -321,7 +326,11 @@ public class RosterRepository extends BaseRepository<Roster, Serializable>{
 						buffer.append(ch);
 					}
 					slot.setName(buffer.toString());									
-					slot.persist();					
+					slot.persist();		
+					Proceeding proceeding=new Proceeding();
+					proceeding.setLocale(slot.getLocale());
+					proceeding.setSlot(slot);
+					proceeding.persist();
 				}
 				return true;
 			}else{
