@@ -1856,12 +1856,27 @@ public class QuestionController extends GenericController<Question>{
 							}
 						}
 					}else{
-						if(internalStatus.equals(ApplicationConstants.QUESTION_SUBMIT) && domain.getMinistry()!=null && domain.getGroup()!=null && domain.getSubDepartment()!=null) {
+						/*
+						 * Modified by Amit
+						 * In case of Group Change, set the internal & recommendation
+						 * status to GROUP_CHANGED
+						 */
+						Group group = domain.getGroup();
+						if(internalStatus.equals(ApplicationConstants.QUESTION_SUBMIT) && domain.getMinistry()!=null && group!=null && domain.getSubDepartment()!=null) {
 							Status ASSISTANT_PROCESSED = Status.findByType(ApplicationConstants.QUESTION_SYSTEM_ASSISTANT_PROCESSED, domain.getLocale());
 							domain.setInternalStatus(ASSISTANT_PROCESSED);
 							domain.setRecommendationStatus(ASSISTANT_PROCESSED);
 						}
 						
+						QuestionDraft draft = domain.findPreviousDraft();				        
+						if(group != null && draft != null) {
+							Group prevGroup = draft.getGroup();
+							if(prevGroup != null && ! prevGroup.getNumber().equals(group.getNumber())) {
+								Status GROUP_CHANGED = Status.findByType(ApplicationConstants.QUESTION_SYSTEM_GROUPCHANGED, domain.getLocale());
+								domain.setInternalStatus(GROUP_CHANGED);
+								domain.setRecommendationStatus(GROUP_CHANGED);
+							}
+						}
 					}
 				}
 				/**** File parameters are set when internal status is something other than 
