@@ -179,6 +179,11 @@ public class CommitteeTourController extends GenericController<CommitteeTour> {
 		committeeReporter.remove();
 	    return "info";
 	}
+	
+	//==========================================
+	//	WORKFLOW METHODS
+	//==========================================
+	
 
 	//=============== INTERNAL METHODS =========
 	private void populateState(final ModelMap model, 
