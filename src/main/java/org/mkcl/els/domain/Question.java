@@ -1136,14 +1136,16 @@ public class Question extends Device implements Serializable {
      * @return the question draft
      */
     public QuestionDraft findPreviousDraft() {
-        List<QuestionDraft> drafts = this.getDrafts();
-        if(drafts != null) {
-            int size = drafts.size();
-            if(size > 1) {
-                return drafts.get(size - 1);
-            }
-        }
-        return null;
+//        List<QuestionDraft> drafts = this.getDrafts();
+//        if(drafts != null) {
+//            int size = drafts.size();
+//            if(size > 1) {
+//                return drafts.get(size - 1);
+//            }
+//        }
+//        return null;
+    	Long id = this.getId();
+    	return Question.getQuestionRepository().findPreviousDraft(id);
     }
     
     /**
