@@ -18,28 +18,17 @@ import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
 
 import org.codehaus.jackson.annotate.JsonIgnoreProperties;
-import org.mkcl.els.repository.CommitteeTourRepository;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Configurable;
 
 @Configurable
 @Entity
-@Table(name="committee_tours")
-@JsonIgnoreProperties({"town", "reporters", "itineraries",
-	"status", "internalStatus", "recommendationStatus",
-	"drafts"})
-public class CommitteeTour extends BaseDomain implements Serializable {
+@Table(name="committee_tour_drafts")
+@JsonIgnoreProperties({"reporters", "itineraries"})
+public class CommitteeTourDraft extends BaseDomain implements Serializable {
 
-	private static final long serialVersionUID = 3676106504296627183L;
+	private static final long serialVersionUID = 8622945016413351860L;
 
 	//=============== ATTRIBUTES ===============
-	@Column(length=900)
-	private String venueName;
-	
-	@ManyToOne(fetch=FetchType.LAZY)
-	@JoinColumn(name="town_id")
-	private Town town;
-	
 	@Temporal(TemporalType.TIMESTAMP)
 	private Date fromDate;
 	
@@ -50,7 +39,7 @@ public class CommitteeTour extends BaseDomain implements Serializable {
 	private String subject;
 	
 	@ManyToMany(fetch=FetchType.LAZY, cascade=CascadeType.ALL)
-	@JoinTable(name="committee_tours_committee_reporters",
+	@JoinTable(name="committee_tour_drafts_committee_reporters",
 			joinColumns={@JoinColumn(name="committee_tour_id", 
 					referencedColumnName="id")},
 			inverseJoinColumns={@JoinColumn(name="committee_reporter_id",
@@ -58,14 +47,13 @@ public class CommitteeTour extends BaseDomain implements Serializable {
 	private List<CommitteeReporter> reporters;
 	
 	@ManyToMany(fetch=FetchType.LAZY, cascade=CascadeType.ALL)
-	@JoinTable(name="committee_tours_tour_itineraries",
+	@JoinTable(name="committee_tour_drafts_tour_itineraries",
 			joinColumns={@JoinColumn(name="committee_tour_id", 
 					referencedColumnName="id")},
 			inverseJoinColumns={@JoinColumn(name="tour_itinerary_id",
 					referencedColumnName="id")})
 	private List<TourItinerary> itineraries;
 	
-	/* Work flow Attributes */
 	@ManyToOne(fetch=FetchType.LAZY)
 	@JoinColumn(name="status_id")
 	private Status status;
@@ -81,13 +69,6 @@ public class CommitteeTour extends BaseDomain implements Serializable {
 	@Column(length=30000)
 	private String remarks;
 	
-	/* Audit Log */
-	@Temporal(TemporalType.TIMESTAMP)
-	private Date creationDate;
-	
-	@Column(length=1000)
-	private String createdBy;
-	
 	@Temporal(TemporalType.TIMESTAMP)
 	private Date editedOn;
 	
@@ -96,70 +77,24 @@ public class CommitteeTour extends BaseDomain implements Serializable {
 	
 	@Column(length=1000)
 	private String editedBy;
-	
-	/* Drafts */
-	@ManyToMany(fetch=FetchType.LAZY, cascade=CascadeType.ALL)
-    @JoinTable(name="committee_tours_drafts_association", 
-    		joinColumns={@JoinColumn(name="committee_tour_id", 
-    				referencedColumnName="id")}, 
-    		inverseJoinColumns={@JoinColumn(name="committee_tour_draft_id", 
-    				referencedColumnName="id")})
-	private List<CommitteeTourDraft> drafts;
-	
-	@Autowired
-	private transient CommitteeTourRepository repository;
-	
+
 	//=============== CONSTRUCTORS =============
-	public CommitteeTour() {
+	public CommitteeTourDraft() {
 		super();
-		this.setReporters(new ArrayList<CommitteeReporter>());
 		this.setItineraries(new ArrayList<TourItinerary>());
-		this.setDrafts(new ArrayList<CommitteeTourDraft>());
+		this.setReporters(new ArrayList<CommitteeReporter>());
 	}
-	
+
 	//=============== VIEW METHODS =============
 	
+	
 	//=============== DOMAIN METHODS ===========
-	public static CommitteeTour find(final Town town, 
-			final String venueName,
-			final Date fromDate, 
-			final Date toDate, 
-			final String subject, 
-			final String locale) {
-		return CommitteeTour.getRepository().find(town, venueName, 
-				fromDate, toDate, subject, locale);
-	}
+	
 	
 	//=============== INTERNAL METHODS =========
-	private static CommitteeTourRepository getRepository() {
-		CommitteeTourRepository repository = new CommitteeTour().repository;
-		
-		if(repository == null) {
-			throw new IllegalStateException(
-				"CommitteeTourRepository has not been injected in" +
-				" CommitteeTour Domain");
-		}
-		
-		return repository;
-	}
-
+	
+	
 	//=============== GETTERS/SETTERS ==========
-	public String getVenueName() {
-		return venueName;
-	}
-
-	public void setVenueName(final String venueName) {
-		this.venueName = venueName;
-	}
-
-	public Town getTown() {
-		return town;
-	}
-
-	public void setTown(final Town town) {
-		this.town = town;
-	}
-
 	public Date getFromDate() {
 		return fromDate;
 	}
@@ -232,22 +167,6 @@ public class CommitteeTour extends BaseDomain implements Serializable {
 		this.remarks = remarks;
 	}
 
-	public Date getCreationDate() {
-		return creationDate;
-	}
-
-	public void setCreationDate(final Date creationDate) {
-		this.creationDate = creationDate;
-	}
-
-	public String getCreatedBy() {
-		return createdBy;
-	}
-
-	public void setCreatedBy(final String createdBy) {
-		this.createdBy = createdBy;
-	}
-
 	public Date getEditedOn() {
 		return editedOn;
 	}
@@ -270,14 +189,6 @@ public class CommitteeTour extends BaseDomain implements Serializable {
 
 	public void setEditedBy(final String editedBy) {
 		this.editedBy = editedBy;
-	}
-
-	public List<CommitteeTourDraft> getDrafts() {
-		return drafts;
-	}
-
-	public void setDrafts(final List<CommitteeTourDraft> drafts) {
-		this.drafts = drafts;
 	}
 	
 }
