@@ -1,6 +1,7 @@
 package org.mkcl.els.domain;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -72,6 +73,9 @@ public class CommitteeDraft extends BaseDomain implements Serializable {
 	//=============== CONSTRUCTORS =============
 	public CommitteeDraft() {
 		super();
+		this.setMembers(new ArrayList<CommitteeMember>());
+		this.setInvitedMembers(new ArrayList<CommitteeMember>());
+		
 	}
 
 	//=============== VIEW METHODS =============
