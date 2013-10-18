@@ -2271,4 +2271,17 @@ public class QuestionRepository extends BaseRepository<Question, Long> {
 		return ((qL == null)? new ArrayList<Question>(): qL);
 	}
 	//======================================================================
+
+	public QuestionDraft findPreviousDraft(final Long id) {
+		String query = "SELECT qd" +
+				" FROM Question q join q.drafts qd" +
+				" WHERE q.id=:qid" +
+				" ORDER BY qd.id DESC";
+		TypedQuery<QuestionDraft> tQuery = 
+			this.em().createQuery(query, QuestionDraft.class);
+		tQuery.setParameter("qid", id);
+		tQuery.setMaxResults(1);
+		QuestionDraft draft = tQuery.getSingleResult();
+		return draft;
+	}
 }
