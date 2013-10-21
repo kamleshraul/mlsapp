@@ -13,6 +13,7 @@ import org.mkcl.els.common.vo.MasterVO;
 import org.mkcl.els.domain.CustomParameter;
 import org.mkcl.els.domain.Department;
 import org.mkcl.els.domain.Group;
+import org.mkcl.els.domain.House;
 import org.mkcl.els.domain.HouseType;
 import org.mkcl.els.domain.Member;
 import org.mkcl.els.domain.MemberDepartment;
@@ -577,6 +578,29 @@ public class MemberMinisterRepository extends BaseRepository<MemberMinister, Lon
 			return members.get(0);
 		}
 		return null;
+	}
+
+
+	public List<MasterVO> findMinistersInSecondHouse(House house, String param,
+			String locale) {
+		String strquery="SELECT DISTINCT m FROM Member m JOIN m.memberMinisters mm JOIN m.title t WHERE mm.house.id=:houseId and " +
+				"m.locale=:locale and  (m.firstName LIKE :param  OR m.middleName LIKE :param " +
+						"OR m.lastName LIKE :param  OR concat(m.lastName,' ',m.firstName) LIKE :param  " +
+						"OR concat(m.firstName,' ',m.lastName) LIKE :param OR concat(m.lastName,' ',m.firstName,' ',m.middleName) LIKE :param " +
+						"OR concat(m.lastName,', ',t.name,' ',m.firstName,' ',m.middleName) LIKE :param OR concat(m.firstName,' ',m.middleName,' ',m.lastName) LIKE :param) ORDER BY m.firstName asc";
+		Query query=this.em().createQuery(strquery);
+		query.setParameter("houseId", house.getId());
+		query.setParameter("locale", locale);
+		query.setParameter("param", "%"+param+"%");
+		List<Member> members=query.getResultList();
+		List<MasterVO> masterVos=new ArrayList<MasterVO>();
+		for(Member m:members){
+			MasterVO masterVO=new MasterVO();
+			masterVO.setId(m.getId());
+			masterVO.setName(m.getFullname());
+			masterVos.add(masterVO);
+		}
+		return masterVos;
 	}	
 	
 }
