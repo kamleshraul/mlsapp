@@ -96,8 +96,8 @@ public class WorkflowConfigRepository extends BaseRepository<WorkflowConfig, Ser
 					Map<String,String> params=j.getParameters();
 					if(houseType!=null){
 						HouseType bothHouse=HouseType.findByFieldName(HouseType.class, "type","bothhouse", locale);
-						if(!params.get(ApplicationConstants.HOUSETYPE_KEY+"_"+locale).contains(bothHouse.getName())){
-							if(params.get(ApplicationConstants.HOUSETYPE_KEY+"_"+locale).contains(houseType.getName())){
+						if(params.get(ApplicationConstants.HOUSETYPE_KEY+"_"+locale)!=null && !params.get(ApplicationConstants.HOUSETYPE_KEY+"_"+locale).contains(bothHouse.getName())){
+							if(params.get(ApplicationConstants.HOUSETYPE_KEY+"_"+locale)!=null && params.get(ApplicationConstants.HOUSETYPE_KEY+"_"+locale).contains(houseType.getName())){
 								noOfComparisons++;
 								noOfSuccess++;
 							}else{
@@ -106,7 +106,7 @@ public class WorkflowConfigRepository extends BaseRepository<WorkflowConfig, Ser
 						}
 					}
 					if(deviceType!=null){
-						if(params.get(ApplicationConstants.DEVICETYPE_KEY+"_"+locale).contains(deviceType.getName())){
+						if(params.get(ApplicationConstants.DEVICETYPE_KEY+"_"+locale)!=null && params.get(ApplicationConstants.DEVICETYPE_KEY+"_"+locale).contains(deviceType.getName())){
 							noOfComparisons++;
 							noOfSuccess++;
 						}else{
@@ -114,7 +114,7 @@ public class WorkflowConfigRepository extends BaseRepository<WorkflowConfig, Ser
 						}
 					}
 					if(ministry!=null){
-						if(params.get(ApplicationConstants.MINISTRY_KEY+"_"+locale).contains(ministry.getName())){
+						if(params.get(ApplicationConstants.MINISTRY_KEY+"_"+locale)!=null && params.get(ApplicationConstants.MINISTRY_KEY+"_"+locale).contains(ministry.getName())){
 							noOfComparisons++;
 							noOfSuccess++;
 						}else{
@@ -122,7 +122,7 @@ public class WorkflowConfigRepository extends BaseRepository<WorkflowConfig, Ser
 						}
 					}
 					if(department!=null){
-						if(params.get(ApplicationConstants.DEPARTMENT_KEY+"_"+locale).contains(department.getName())){
+						if(params.get(ApplicationConstants.DEPARTMENT_KEY+"_"+locale)!=null && params.get(ApplicationConstants.DEPARTMENT_KEY+"_"+locale).contains(department.getName())){
 							noOfComparisons++;
 							noOfSuccess++;
 						}else{
@@ -130,7 +130,7 @@ public class WorkflowConfigRepository extends BaseRepository<WorkflowConfig, Ser
 						}
 					}
 					if(subDepartment!=null){
-						if(params.get(ApplicationConstants.SUBDEPARTMENT_KEY+"_"+locale).contains(subDepartment.getName())){
+						if(params.get(ApplicationConstants.SUBDEPARTMENT_KEY+"_"+locale)!=null && params.get(ApplicationConstants.SUBDEPARTMENT_KEY+"_"+locale).contains(subDepartment.getName())){
 							noOfComparisons++;
 							noOfSuccess++;
 						}else{
@@ -201,8 +201,8 @@ public class WorkflowConfigRepository extends BaseRepository<WorkflowConfig, Ser
 					Map<String,String> params=j.getParameters();
 					if(houseType!=null){
 						HouseType bothHouse=HouseType.findByFieldName(HouseType.class, "type","bothhouse", locale);
-						if(!params.get(ApplicationConstants.HOUSETYPE_KEY+"_"+locale).contains(bothHouse.getName())){
-							if(params.get(ApplicationConstants.HOUSETYPE_KEY+"_"+locale).contains(houseType.getName())){
+						if(params.get(ApplicationConstants.HOUSETYPE_KEY+"_"+locale)!=null && !params.get(ApplicationConstants.HOUSETYPE_KEY+"_"+locale).contains(bothHouse.getName())){
+							if(params.get(ApplicationConstants.HOUSETYPE_KEY+"_"+locale)!=null && params.get(ApplicationConstants.HOUSETYPE_KEY+"_"+locale).contains(houseType.getName())){
 								noOfComparisons++;
 								noOfSuccess++;
 							}else{
@@ -211,7 +211,7 @@ public class WorkflowConfigRepository extends BaseRepository<WorkflowConfig, Ser
 						}
 					}
 					if(deviceType!=null){
-						if(params.get(ApplicationConstants.DEVICETYPE_KEY+"_"+locale).contains(deviceType.getName())){
+						if(params.get(ApplicationConstants.DEVICETYPE_KEY+"_"+locale)!=null && params.get(ApplicationConstants.DEVICETYPE_KEY+"_"+locale).contains(deviceType.getName())){
 							noOfComparisons++;
 							noOfSuccess++;
 						}else{
@@ -219,7 +219,7 @@ public class WorkflowConfigRepository extends BaseRepository<WorkflowConfig, Ser
 						}
 					}
 					if(ministry!=null){
-						if(params.get(ApplicationConstants.MINISTRY_KEY+"_"+locale).contains(ministry.getName())){
+						if(params.get(ApplicationConstants.MINISTRY_KEY+"_"+locale)!=null && params.get(ApplicationConstants.MINISTRY_KEY+"_"+locale).contains(ministry.getName())){
 							noOfComparisons++;
 							noOfSuccess++;
 						}else{
@@ -227,7 +227,7 @@ public class WorkflowConfigRepository extends BaseRepository<WorkflowConfig, Ser
 						}
 					}
 					if(department!=null){
-						if(params.get(ApplicationConstants.DEPARTMENT_KEY+"_"+locale).contains(department.getName())){
+						if(params.get(ApplicationConstants.DEPARTMENT_KEY+"_"+locale)!=null && params.get(ApplicationConstants.DEPARTMENT_KEY+"_"+locale).contains(department.getName())){
 							noOfComparisons++;
 							noOfSuccess++;
 						}else{
@@ -235,7 +235,7 @@ public class WorkflowConfigRepository extends BaseRepository<WorkflowConfig, Ser
 						}
 					}
 					if(subDepartment!=null){
-						if(params.get(ApplicationConstants.SUBDEPARTMENT_KEY+"_"+locale).contains(subDepartment.getName())){
+						if(params.get(ApplicationConstants.SUBDEPARTMENT_KEY+"_"+locale)!=null && params.get(ApplicationConstants.SUBDEPARTMENT_KEY+"_"+locale).contains(subDepartment.getName())){
 							noOfComparisons++;
 							noOfSuccess++;
 						}else{
@@ -464,8 +464,8 @@ public class WorkflowConfigRepository extends BaseRepository<WorkflowConfig, Ser
 					Map<String,String> params=j.getParameters();
 					if(houseType!=null){
 						HouseType bothHouse=HouseType.findByFieldName(HouseType.class, "type","bothhouse", locale);
-						if(!params.get(ApplicationConstants.HOUSETYPE_KEY+"_"+locale).contains(bothHouse.getName())){
-							if(params.get(ApplicationConstants.HOUSETYPE_KEY+"_"+locale).contains(houseType.getName())){
+						if(params.get(ApplicationConstants.HOUSETYPE_KEY+"_"+locale)!=null && !params.get(ApplicationConstants.HOUSETYPE_KEY+"_"+locale).contains(bothHouse.getName())){
+							if(params.get(ApplicationConstants.HOUSETYPE_KEY+"_"+locale)!=null && params.get(ApplicationConstants.HOUSETYPE_KEY+"_"+locale).contains(houseType.getName())){
 								noOfComparisons++;
 								noOfSuccess++;
 							}else{
@@ -474,7 +474,7 @@ public class WorkflowConfigRepository extends BaseRepository<WorkflowConfig, Ser
 						}
 					}
 					if(deviceType!=null){
-						if(params.get(ApplicationConstants.DEVICETYPE_KEY+"_"+locale).contains(deviceType.getName())){
+						if(params.get(ApplicationConstants.DEVICETYPE_KEY+"_"+locale)!=null && params.get(ApplicationConstants.DEVICETYPE_KEY+"_"+locale).contains(deviceType.getName())){
 							noOfComparisons++;
 							noOfSuccess++;
 						}else{
@@ -482,7 +482,7 @@ public class WorkflowConfigRepository extends BaseRepository<WorkflowConfig, Ser
 						}
 					}
 					if(ministry!=null){
-						if(params.get(ApplicationConstants.MINISTRY_KEY+"_"+locale).contains(ministry.getName())){
+						if(params.get(ApplicationConstants.MINISTRY_KEY+"_"+locale)!=null && params.get(ApplicationConstants.MINISTRY_KEY+"_"+locale).contains(ministry.getName())){
 							noOfComparisons++;
 							noOfSuccess++;
 						}else{
@@ -490,7 +490,7 @@ public class WorkflowConfigRepository extends BaseRepository<WorkflowConfig, Ser
 						}
 					}
 					if(department!=null){
-						if(params.get(ApplicationConstants.DEPARTMENT_KEY+"_"+locale).contains(department.getName())){
+						if(params.get(ApplicationConstants.DEPARTMENT_KEY+"_"+locale)!=null && params.get(ApplicationConstants.DEPARTMENT_KEY+"_"+locale).contains(department.getName())){
 							noOfComparisons++;
 							noOfSuccess++;
 						}else{
@@ -498,7 +498,7 @@ public class WorkflowConfigRepository extends BaseRepository<WorkflowConfig, Ser
 						}
 					}
 					if(subDepartment!=null){
-						if(params.get(ApplicationConstants.SUBDEPARTMENT_KEY+"_"+locale)!=null){
+						if( params.get(ApplicationConstants.SUBDEPARTMENT_KEY+"_"+locale)!=null && params.get(ApplicationConstants.SUBDEPARTMENT_KEY+"_"+locale)!=null){
 							if(params.get(ApplicationConstants.SUBDEPARTMENT_KEY+"_"+locale).contains(subDepartment.getName())){
 								noOfComparisons++;
 								noOfSuccess++;
@@ -586,7 +586,7 @@ public class WorkflowConfigRepository extends BaseRepository<WorkflowConfig, Ser
 				Map<String,String> params=j.getParameters();
 				if(houseType!=null){
 					HouseType bothHouse=HouseType.findByFieldName(HouseType.class, "type","bothhouse", locale);
-					if(!params.get(ApplicationConstants.HOUSETYPE_KEY+"_"+locale).contains(bothHouse.getName())){
+					if(params.get(ApplicationConstants.HOUSETYPE_KEY+"_"+locale)!=null && !params.get(ApplicationConstants.HOUSETYPE_KEY+"_"+locale).contains(bothHouse.getName())){
 						if(params.get(ApplicationConstants.HOUSETYPE_KEY+"_"+locale).contains(houseType.getName())){
 							noOfComparisons++;
 							noOfSuccess++;
@@ -596,7 +596,7 @@ public class WorkflowConfigRepository extends BaseRepository<WorkflowConfig, Ser
 					}
 				}
 				if(deviceType!=null){
-					if(params.get(ApplicationConstants.DEVICETYPE_KEY+"_"+locale).contains(deviceType.getName())){
+					if(params.get(ApplicationConstants.DEVICETYPE_KEY+"_"+locale)!=null && params.get(ApplicationConstants.DEVICETYPE_KEY+"_"+locale).contains(deviceType.getName())){
 						noOfComparisons++;
 						noOfSuccess++;
 					}else{
@@ -604,7 +604,7 @@ public class WorkflowConfigRepository extends BaseRepository<WorkflowConfig, Ser
 					}
 				}
 				if(ministry!=null){
-					if(params.get(ApplicationConstants.MINISTRY_KEY+"_"+locale).contains(ministry.getName())){
+					if(params.get(ApplicationConstants.MINISTRY_KEY+"_"+locale)!=null && params.get(ApplicationConstants.MINISTRY_KEY+"_"+locale).contains(ministry.getName())){
 						noOfComparisons++;
 						noOfSuccess++;
 					}else{
@@ -612,8 +612,8 @@ public class WorkflowConfigRepository extends BaseRepository<WorkflowConfig, Ser
 					}
 				}				
 				if(subDepartment!=null){
-					System.out.println(j.getUserGroupType().getType()+":"+params.get(ApplicationConstants.SUBDEPARTMENT_KEY+"_"+locale));
-					if(params.get(ApplicationConstants.SUBDEPARTMENT_KEY+"_"+locale).contains(subDepartment.getName())){
+					//System.out.println(j.getUserGroupType().getType()+":"+params.get(ApplicationConstants.SUBDEPARTMENT_KEY+"_"+locale));
+					if(params.get(ApplicationConstants.SUBDEPARTMENT_KEY+"_"+locale)!=null && params.get(ApplicationConstants.SUBDEPARTMENT_KEY+"_"+locale).contains(subDepartment.getName())){
 						noOfComparisons++;
 						noOfSuccess++;
 					}else{
