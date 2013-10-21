@@ -406,7 +406,7 @@
 					      
 					      $( "#formattedSubstituteMember"+partCount).autocomplete({
 								minLength:3,			
-								source:'ref/member/supportingmembers?session='+$("#session").val(),
+								source:'ref/member/getmembers?session='+$("#session").val(),
 								select:function(event,ui){			
 								$("#substituteMember"+partCount).val(ui.item.id);
 							}	
