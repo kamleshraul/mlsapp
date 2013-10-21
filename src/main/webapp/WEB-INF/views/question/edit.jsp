@@ -627,7 +627,7 @@
 			<form:textarea path="subject" rows="2" cols="50"></form:textarea>
 			<form:errors path="subject" cssClass="validationError" />	
 		</p>	
-		<c:if test="${not (selectedQuestionType=='questions_halfhourdiscussion_standalone' and houseTypeType=='lowerhouse')}">
+		<c:if test="${not (selectedQuestionType=='questions_halfhourdiscussion_standalone' and houseTypeType=='upperhouse')}">
 			<p id="questionTextP">
 				<label class="wysiwyglabel"><spring:message code="question.details" text="Details"/>*</label>
 				<form:textarea path="questionText" cssClass="wysiwyg"></form:textarea>		 
