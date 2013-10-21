@@ -20,6 +20,7 @@
 		}
 	</style>
 	<script type="text/javascript">	
+	var flagVal=0;
 		$(document).ready(function(){
 			$(".toolTip").hide();
 			loadRosterDayFromSessions();
@@ -60,6 +61,7 @@
 			
 					
 			$("#memberwise").click(function(){
+				flag=1;
 				if($("#memberText").css('display')=='none'){
 					$("#memberText").css('display', 'inline-block');
 				}else{
@@ -74,6 +76,40 @@
 						}	
 				});
 							
+			});
+			
+			$('#members').click(function(){
+				flag=2;
+				if($("#memberText").css('display')=='none'){
+					$("#memberText").css('display', 'inline-block');
+				}else{
+					$("#memberText").css('display', 'none');
+				}
+				
+				 $( ".autosuggest").autocomplete({
+						minLength:3,			
+						source:'ref/member/supportingmembers?session='+$('#sessionId').val(),
+						select:function(event,ui){			
+							$("#memberId").val(ui.item.id);
+						}	
+				});
+			});
+			
+			$('#membersVal').click(function(){
+				flag=3;
+				if($("#memberText").css('display')=='none'){
+					$("#memberText").css('display', 'inline-block');
+				}else{
+					$("#memberText").css('display', 'none');
+				}
+				
+				 $( ".autosuggest").autocomplete({
+						minLength:3,			
+						source:'ref/member/supportingmembers?session='+$('#sessionId').val(),
+						select:function(event,ui){			
+							$("#memberId").val(ui.item.id);
+						}	
+				});
 			});
 			
 			 $( ".autosuggest").autocomplete({
@@ -91,9 +127,17 @@
 				 +"&sessionType="+$("#selectedSessionType").val()
 				 +'&language='+$("#selectedLanguage").val()	
 				 +'&day='+$("#selectedDay").val();
-				 showTabByIdAndUrl('details_tab', 'proceeding/memberwisereport?'+params);
+				 if(flag==1){
+					showTabByIdAndUrl('details_tab', 'proceeding/memberwisereport?'+params);
+				 }else if(flag==2){
+					 showTabByIdAndUrl('details_tab', 'proceeding/memberwisereport1?'+params);
+				 }else if(flag==3){
+					 showTabByIdAndUrl('details_tab', 'proceeding/memberwisereport2?'+params);
+				 }				
 				
 			 });
+			 
+			
 		});	
 		function rowSelectHandler(rowid,status){			
 			if($('#key')){
@@ -130,11 +174,17 @@
 			</a>|	
 			<a href="#" id="memberwise" class="butSim">
 				<spring:message code="proceeding.memberwise" text="Memberwise Report"/>
+			</a>|	
+			<a href="#" id="members" class="butSim">
+				<spring:message code="proceeding.members" text="Member Report"/>
+			</a>|	
+			<a href="#" id="membersVal" class="butSim">
+				<spring:message code="proceeding.members" text="Member Report"/>
 			</a>
 			<div style="display: none;" id="memberText">
 				<input type="text" class="autosuggest sText" id="memberOption" style="width: 100px;" />
 				 	<a href="#" id="createMemberwiseReport" style="text-decoration: none;"><span id="goBtn"><spring:message code="part.memberwiseReport" text="Go" ></spring:message></span></a>
-				 </div> |					
+			</div> |
 			<p>&nbsp;</p>
 		</div>
 		

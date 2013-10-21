@@ -36,7 +36,6 @@
 		var keyCombination=$('#keyClassCombination').val().split("##");
 		console.log(keyCombination);
 		var keycode=new Array();
-		console.log($('#keyClassCombination').val());
 		var mainContent="";
 		var finalContent="";
 		var j=0;
@@ -77,15 +76,6 @@
 					      "<label class='small'>"+$('#orderMessage').val()+"</label>"+
 					      "<input type='text' class='sInteger' name='order"+partCount+"' id='order"+partCount+"'/>"+
 					      "</p>"+
-					      "<p class='mainHeadingP"+partCount+"'>"+
-					      "<label class='small'>"+$('#mainHeadingMessage').val()+"</label>"+
-					      "<textarea class='sTextArea' name='mainHeading"+partCount+"' id='mainHeading"+partCount+"'/>"+
-					      "</p>"+
-					      "<p class='pageHeadingP"+partCount+"'>"+
-					      "<label class='small'>"+$('#pageHeadingMessage').val()+"</label>"+
-					      "<textarea class='sTextArea' name='pageHeading"+partCount+"' id='pageHeading"+partCount+"'/>"+
-					      "</p>"+
-					     
 					      "<p class='minister"+partCount+"'>"+
 			              "<label class='small'>"+$('#primaryMemberDesignationMessage').val()+"</label>"+
 			              "<select name='primaryMemberDesignation"+partCount+"' id='primaryMemberDesignation"+partCount+"' style='width:100px;'>"+
@@ -142,7 +132,17 @@
 						  "<select id='halfHourDiscussionFromQuestionNo"+partCount+"' name='halfHourDiscussionFromQuestionNo"+partCount+"' class='sSelect'></select>"+
 						  "</p>"+
 						  /* "<a href='#' id='viewProceedingCitation"+partCount+"'class='viewProceedingCitation' style='margin-left: 162px;margin-top: 30px;'>viewCitation</a>"+*/
-					      "<p>"+ 
+					      "<p class='mainHeadingP"+partCount+"'>"+
+					      "<label class='small'>"+$('#mainHeadingMessage').val()+"</label>"+
+					      "<textarea class='sTextArea' name='mainHeading"+partCount+"' id='mainHeading"+partCount+"'/>"+
+					      "<a href='javascript:void(0)' id='clearMainHeadingLink"+partCount+"' class='clearMainHeading'>clear</a>"+
+					      "</p>"+
+					      "<p class='pageHeadingP"+partCount+"'>"+
+					      "<label class='small'>"+$('#pageHeadingMessage').val()+"</label>"+
+					      "<textarea class='sTextArea' name='pageHeading"+partCount+"' id='pageHeading"+partCount+"'/>"+
+					      "<a href='javascript:void(0)' id='clearPageHeadingLink"+partCount+"' class='clearPageHeading'>clear</a>"+
+					      "</p>"+
+						  "<p>"+ 
 					      "<label class='wysiwyglabel'>"+$('#contentMessage').val()+"</label>"+
 					      "<textarea class='wysiwyg' name='content"+partCount+"' id='content"+partCount+"'/>"+
 					      "</p>"+
@@ -164,6 +164,12 @@
 					      }else{
 						  	$('#part'+currentCount).after(text);
 					     	$('#order'+partCount).val(currentCount+1);
+					     	if($('#mainHeading'+currentCount).val()!=''){
+					     		$('#mainHeading'+partCount).val($('#mainHeading'+currentCount).val());
+					     	}
+					     	if($('#pageHeading'+currentCount).val()!=''){
+					     		$('#pageHeading'+partCount).val($('#pageHeading'+currentCount).val());
+					     	}
 					      	for(var i=currentCount+1;i<partCount;i++){
 					      		console.log(i);
 					      		$('#order'+i).val(i+1);
@@ -441,14 +447,35 @@
 							    },'html');
 							    return false;
 							});	
-					      	$('.pageHeadingP'+partCount).hide();
-							$('.mainHeadingP'+partCount).hide();
+					      	if($('#mainHeading'+partCount).val()!=''){
+					      		$('.mainHeadingP'+partCount).show();
+					      	}else{
+					      		$('.mainHeadingP'+partCount).hide();	
+					      	}
+					      	if($('#pageHeading'+partCount).val()!=''){
+					      		$('.pageHeadingP'+partCount).show();
+					      	}else{
+					      		$('.pageHeadingP'+partCount).hide();
+					      	}
+					      
+							
 							$('.minister'+partCount).hide();
 							$('.public'+partCount).hide();
 							$('.substitute'+partCount).hide();
 							$('#privateLink'+partCount).hide();
 							$('.deviceType'+partCount).hide();
 							$('.order'+partCount).hide();
+							
+							$('.clearMainHeading').click(function(){
+								var mId=this.id;
+								var mhId=mId.split('clearMainHeadingLink')[1];
+								$('#mainHeading'+mhId).val('');
+							});
+							$('.clearPageHeading').click(function(){
+								var pId=this.id;
+								var phId=pId.split('clearPageHeadingLink')[1];
+								$('#pageHeading'+phId).val('');
+							});
 					      return partCount;		
 		}
 
@@ -476,7 +503,10 @@
 						partCount=partCount-1;
 					}
 				}
-			}			
+			}
+			for(var i=id+1;i<totalPartCount;i++){
+	      		$('#order'+i).val(i-1);
+	      	}
 		}
 		$(document).ready(function(){
 			
@@ -879,6 +909,16 @@
 				});
 			});
 			
+			$('.clearMainHeading').click(function(){
+				var mId=this.id;
+				var mhId=mId.split('clearMainHeadingLink')[1];
+				$('#mainHeading'+mhId).val('');
+			});
+			$('.clearPageHeading').click(function(){
+				var pId=this.id;
+				var phId=pId.split('clearPageHeadingLink')[1];
+				$('#pageHeading'+phId).val('');
+			});
 			
 		});
 		
@@ -1129,10 +1169,12 @@
 	<p class="mainHeadingP${count} mainHeadingP">
 		<label class="small"><spring:message code="part.mainHeading" text="Main Heading"/></label>
 		<textarea class="sTextarea" name="mainHeading${count}" id="mainHeading${count}" >${outer.mainHeading}</textarea>
+		<a href="javascript:void(0)" id="clearMainHeadingLink${count}" class="clearMainHeading">clear</a>
 	</p>
 	<p class="pageHeadingP${count} pageHeadingP">
 		<label class="small"><spring:message code="part.pageHeading" text="Page Heading"/></label>
 		<textarea class="sTextarea" name="pageHeading${count}" id="pageHeading${count}">${outer.pageHeading}</textarea>
+		<a href="javascript:void(0)" id="clearpageHeadingLink${count}" class="clearPageHeading">clear</a>
 	</p>
 	<%-- <p>
 		<a href="#" id="addBookmark${count}" class="addBookmark" style="margin-left: 162px;margin-top: 30px;"><spring:message code="part.addBoomark" text="add Bookmark"></spring:message></a>

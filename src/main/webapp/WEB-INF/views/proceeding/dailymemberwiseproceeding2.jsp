@@ -18,7 +18,7 @@
 					+ '&day=' +$('#selectedDay').val()
 					+ '&member='+$('#member').val()
 					+ '&outputFormat=' +outputFormat;
-					$(this).attr('href','proceeding/memberwiseproceeding?'+params);
+					$(this).attr('href','proceeding/memberwiseproceeding2?'+params);
 					
 				});
 				
