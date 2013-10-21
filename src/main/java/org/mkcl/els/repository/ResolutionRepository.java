@@ -48,6 +48,7 @@ public class ResolutionRepository extends BaseRepository<Resolution, Long>{
 		String strResolutionType = resolutionType.getType();
 		String strQuery = null;
 		String lowerHouseFormationDate=null;
+		House lowerHouse=null;
 		if(strHouseType.equals(ApplicationConstants.LOWER_HOUSE)) {
 			strQuery = "SELECT r" +
 					" FROM Resolution r JOIN r.session s JOIN r.type rt WHERE s.id =:sessionId " +
@@ -55,7 +56,7 @@ public class ResolutionRepository extends BaseRepository<Resolution, Long>{
 		}else if(strHouseType.equals(ApplicationConstants.UPPER_HOUSE)) {
 			Session lowerHouseSession = Session.find(session.getYear(),
 					session.getType().getType(), ApplicationConstants.LOWER_HOUSE);
-			House lowerHouse = lowerHouseSession.getHouse();
+			lowerHouse = lowerHouseSession.getHouse();
 
 			CustomParameter dbDateFormat =
 					CustomParameter.findByName(CustomParameter.class,"DB_DATETIMEFORMAT", "");
@@ -64,7 +65,7 @@ public class ResolutionRepository extends BaseRepository<Resolution, Long>{
 			lowerHouseFormationDate = simpleDateFormat.format(lowerHouse.getFormationDate());
 			strQuery = "SELECT r FROM Resolution r JOIN r.session s JOIN r.type dt JOIN r.houseType ht" +
 					" WHERE ht.type =:houseType AND s.id=:sessionId"+
-					" AND r.submissionDate >= : lowerHouseFormationDate" +
+					" AND r.submissionDate >= :lowerHouseFormationDate" +
 					" AND dt.type=:resolutionType ORDER BY r.number " + ApplicationConstants.DESC;
 		}
 		try {
@@ -75,7 +76,8 @@ public class ResolutionRepository extends BaseRepository<Resolution, Long>{
 			}else if(strHouseType.equals(ApplicationConstants.UPPER_HOUSE)){
 				query.setParameter("sessionId", session.getId());
 				query.setParameter("resolutionType",strResolutionType);
-				query.setParameter("lowerHouseFormationDate", lowerHouseFormationDate);
+				query.setParameter("lowerHouseFormationDate", lowerHouse.getFormationDate());
+				query.setParameter("houseType", strHouseType);
 			}
 			@SuppressWarnings("unchecked")
 			List<Resolution> resolutions = query.setFirstResult(0).setMaxResults(1).getResultList();
@@ -1054,7 +1056,7 @@ public class ResolutionRepository extends BaseRepository<Resolution, Long>{
 				buffer.append(" AND r.internalStatusLowerHouse.id=:internalStatusId"+
 						" AND r.workflowStartedLowerHouse=:workflowStarted");
 			}else if(session.getHouse().getType().getType().equals(ApplicationConstants.UPPER_HOUSE)){
-				buffer.append(" AND r.internalStatusUpperHouse=:internalStatus"+
+				buffer.append(" AND r.internalStatusUpperHouse.id=:internalStatusId"+
 						" AND r.workflowStartedUpperHouse=:workflowStarted");
 			}
 			buffer.append(" ORDER BY r.number");
