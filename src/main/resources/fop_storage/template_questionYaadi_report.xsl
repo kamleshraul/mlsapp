@@ -10,8 +10,8 @@
     
     <xsl:param name="page-size" select="'ltr'"/>    
 
-    <xsl:variable name="language" select="AadwaChartData/locale"/>
-    <xsl:variable name="formatOut" select="AadwaChartData/outputFormat"/>
+    <xsl:variable name="language" select="DeviceData/locale"/>
+    <xsl:variable name="formatOut" select="DeviceData/outputFormat"/>
 
     <xsl:variable name="font">
 	   <xsl:choose>
@@ -407,7 +407,7 @@
 	    <xsl:attribute name="color">blue</xsl:attribute>
 	  </xsl:attribute-set>
 
-    <xsl:template match="AadwaChartData">
+    <xsl:template match="DeviceData">
 
 	    <!-- <xsl:text disable-output-escaping="yes">
 		    &lt;!DOCTYPE fo:root [&lt;!ENTITY nbsp "&amp;#160;"&gt;]&gt;
@@ -498,38 +498,61 @@
 		            </fo:simple-page-master>
 		          </xsl:otherwise>
         		</xsl:choose> -->
+        		
+        		<fo:simple-page-master master-name="firstPage"
+                  page-height="29.7cm"
+                  page-width="21cm"
+                  margin-top="2cm"
+                  margin-bottom="2cm"
+                  margin-left="2.5cm"
+                  margin-right="2.5cm">
+			      <fo:region-body margin-top="0cm"/>        
+			      <fo:region-before extent="2cm"/>
+			      <fo:region-after extent="1.5cm"/>
+			    </fo:simple-page-master>
 		    
           
-	            <fo:simple-page-master master-name="simple"
-	                            page-height="29cm" page-width="33cm" margin-left="1cm"
-	                            margin-right="1cm">
-	                            <fo:region-body margin-top="2cm" />
-	            </fo:simple-page-master>
-	            
-	            <!-- ============================================
+	            <fo:simple-page-master master-name="otherPages"
+                  page-height="29.7cm"
+                  page-width="21cm"
+                  margin-top="2cm"
+                  margin-bottom="2cm"
+                  margin-left="2.5cm"
+                  margin-right="2.5cm">
+			      <fo:region-body margin-top="1cm"/>        
+			      <fo:region-before region-name="page-number" extent="2cm"/>
+			      <fo:region-after extent="1.5cm"/>
+			    </fo:simple-page-master>
+			    
+			    <!-- ============================================
 			    Now we define how we use the page layouts.  One
 			    is for the first page, one is for the even-
 			    numbered pages, and one is for odd-numbered pages.
 			    =============================================== -->
 
-		        <!-- <fo:page-sequence-master master-name="standard">
+		        <fo:page-sequence-master master-name="standard">
 		          <fo:repeatable-page-master-alternatives>
 		            <fo:conditional-page-master-reference 
-		              master-reference="first" 
+		              master-reference="firstPage" 
 		              page-position="first"/>
 		            <fo:conditional-page-master-reference 
-		              master-reference="left" 
+		              master-reference="otherPages" 
 		              odd-or-even="even"/>
 		            <fo:conditional-page-master-reference 
-		              master-reference="right" 
+		              master-reference="otherPages" 
 		              odd-or-even="odd"/>
 		          </fo:repeatable-page-master-alternatives>
-		        </fo:page-sequence-master> -->
+		        </fo:page-sequence-master>
 		    
 		        
 	        </fo:layout-master-set>
 	        
-	        <fo:page-sequence master-reference="simple" id="DocumentBody">
+	        <fo:page-sequence master-reference="standard" id="DocumentBody">
+		        <fo:static-content flow-name="page-number">	        	
+		        	<fo:block font-family="{$font}" font-size="11pt" text-align="center">
+		        		<fo:page-number/>		        				        		
+		        	</fo:block>
+		        </fo:static-content>       	        
 		
 		    <!-- <fo:static-content flow-name="ra-right">
 			  <fo:block font-size="10pt">
@@ -593,260 +616,249 @@
 			</fo:block>
 		    </fo:static-content> -->
 	
-	            <fo:flow flow-name="xsl-region-body">					
-					<fo:block>&#160;</fo:block>					
-	                <fo:block font-family="{$font}" font-size="12px" font-weight="normal" font-style="normal" space-after.optimum="3pt" text-align="justify">
-	                    <fo:table border-collapse="collapse" table-layout="fixed" width="100%">
-	                        <fo:table-column column-number="1" column-width="1cm" />
-	                        <fo:table-column column-number="2" column-width="2cm" />
-	                        <fo:table-column column-number="3" column-width="2.8cm" />
-	                        <xsl:if test="./houseType='lowerhouse'">
-	                        	<fo:table-column column-number="4" column-width="2.8cm" />
-	                        </xsl:if>
-	                        <fo:table-column column-number="5" column-width="2.8cm" />
-	                        <fo:table-column column-number="6" column-width="2.8cm" />
-	                        <fo:table-column column-number="7" column-width="2.8cm" />
-	                        <fo:table-column column-number="8" column-width="2.8cm" />
-	                        <fo:table-column column-number="9" column-width="2.8cm" />
-	                        <fo:table-column column-number="10" column-width="2.8cm" />
-	                        <fo:table-column column-number="11" column-width="2.8cm" />
-	                        <fo:table-column column-number="12" column-width="2.8cm" />
-							<fo:table-header>
-							<fo:table-row>
-								<xsl:choose>									
-                        			<xsl:when test="./houseType='lowerhouse'">
-                        				<fo:table-cell number-columns-spanned="12">
-	                        				<fo:block font-size="20px" font-weight="bold" text-align="center">महाराष्ट्र विधानसभा</fo:block>
-											<fo:block font-size="16px" font-weight="normal" text-align="center">
-												<xsl:choose>
-													<xsl:when test="./sessionNumber='1'">
-														पहिले (<xsl:value-of select="./sessionTypeName"></xsl:value-of>) अधिवेशन <xsl:value-of select="./sessionYearName"></xsl:value-of>	
-													</xsl:when>
-													<xsl:when test="./sessionNumber='2'">
-														दिसरे (<xsl:value-of select="./sessionTypeName"></xsl:value-of>) अधिवेशन <xsl:value-of select="./sessionYearName"></xsl:value-of>
-													</xsl:when>
-													<xsl:when test="./sessionNumber='3'">
-														तिसरे (<xsl:value-of select="./sessionTypeName"></xsl:value-of>) अधिवेशन <xsl:value-of select="./sessionYearName"></xsl:value-of>
-													</xsl:when>
-												</xsl:choose>
-											</fo:block>
-											<fo:block font-size="14px" font-weight="normal" text-align="center">
-												तारांकित प्रश्न विभागाकडे तसेच प्रश्नोत्रांची यादी व सूची मुद्रणालयास पाठविण्याबाबतचे विविध टप्पे दर्शविणारे विवरणपत्र.
-											</fo:block>
-										</fo:table-cell>
-									</xsl:when>
-									<xsl:when test="./houseType='upperhouse'">
-										<fo:table-cell number-columns-spanned="11">
-											<fo:block font-size="20px" font-weight="bold" text-align="center">महाराष्ट्र विधानपरिषद</fo:block>
-											<fo:block font-size="16px" font-weight="normal" text-align="center">
-												<xsl:choose>
-													<xsl:when test="./sessionNumber='1'">
-														पहिले (<xsl:value-of select="./sessionTypeName"></xsl:value-of>) अधिवेशन <xsl:value-of select="./sessionYearName"></xsl:value-of>	
-													</xsl:when>
-													<xsl:when test="./sessionNumber='2'">
-														दिसरे (<xsl:value-of select="./sessionTypeName"></xsl:value-of>) अधिवेशन <xsl:value-of select="./sessionYearName"></xsl:value-of>
-													</xsl:when>
-													<xsl:when test="./sessionNumber='3'">
-														तिसरे (<xsl:value-of select="./sessionTypeName"></xsl:value-of>) अधिवेशन <xsl:value-of select="./sessionYearName"></xsl:value-of>
-													</xsl:when>
-												</xsl:choose>
-											</fo:block>
-											<fo:block font-size="14px" font-weight="normal" text-align="center">
-												तारांकित प्रश्न विभागाकडे तसेच प्रश्नोत्रांची यादी व सूची मुद्रणालयास पाठविण्याबाबतचे विविध टप्पे दर्शविणारे विवरणपत्र.
-											</fo:block>
-										</fo:table-cell>
-									</xsl:when>
-								</xsl:choose>	
-								</fo:table-row>
-							   <fo:table-row border="solid 0.1mm black">
-				                        	<fo:table-cell display-align="center" border-width="0.5pt" border-style="solid">
-				                        	    <fo:block text-align="center" font-weight="bold">
-		                                                                    गट
-			                                    </fo:block>
-				                        	</fo:table-cell>
-				                        	<fo:table-cell display-align="center" border-width="0.5pt" border-style="solid">
-				                        	    <fo:block text-align="center" font-weight="bold">
-		                                                                    वार
-			                                    </fo:block>
-				                        	</fo:table-cell>
-				                        	<fo:table-cell display-align="center" border-width="0.5pt" border-style="solid">
-				                        	    <fo:block text-align="center" font-weight="bold">
-		                                                                    प्रश्नाच्या उत्तराचा दिनांक
-			                                    </fo:block>
-				                        	</fo:table-cell>
-				                        	<fo:table-cell display-align="center" border-width="0.5pt" border-style="solid">
-				                        	    <fo:block text-align="center" font-weight="bold">
-		                                                                    प्रश्न सूचना मिळण्याचा अखेरचा दिनांक
-			                                    </fo:block>
-				                        	</fo:table-cell>
-				                        	<xsl:if test="./houseType='lowerhouse'">
-					                        	<fo:table-cell display-align="center" border-width="0.5pt" border-style="solid">
-					                        	    <fo:block text-align="center" font-weight="bold">
-			                                                                    प्रश्न मा. अध्यक्षांकडे पाठविण्याचा दिनांक 
-				                                    </fo:block>
-					                        	</fo:table-cell>
-				                        	</xsl:if>
-				                        	<fo:table-cell display-align="center" border-width="0.5pt" border-style="solid">
-				                        	    <fo:block text-align="center" font-weight="bold">
-		                                                                    प्रश्न विभागाकडे पाठविण्याचा दिनांक
-			                                    </fo:block>
-				                        	</fo:table-cell>
-				                        	<fo:table-cell display-align="center" border-width="0.5pt" border-style="solid">
-				                        	    <fo:block text-align="center" font-weight="bold">
-		                                                                    विभागाकडून उत्तर येण्याचा दिनांक
-			                                    </fo:block>
-				                        	</fo:table-cell>
-				                        	<fo:table-cell display-align="center" border-width="0.5pt" border-style="solid">
-				                        	    <fo:block text-align="center" font-weight="bold">
-		                                                                    यादी मुद्रणालायास पाठविण्याचा दिनांक
-			                                    </fo:block>
-				                        	</fo:table-cell>
-				                        	<fo:table-cell display-align="center" border-width="0.5pt" border-style="solid">
-				                        	    <fo:block text-align="center" font-weight="bold">
-		                                                                    यादी मुद्रणालायाकडून येण्याचा दिनांक
-			                                    </fo:block>
-				                        	</fo:table-cell>
-				                        	<fo:table-cell display-align="center" border-width="0.5pt" border-style="solid">
-				                        	    <fo:block text-align="center" font-weight="bold">
-		                                                                    प्रश्न सूची मुद्रणालायास पाठविण्याचा दिनांक
-			                                    </fo:block>
-				                        	</fo:table-cell>
-				                        	<fo:table-cell display-align="center" border-width="0.5pt" border-style="solid">
-				                        	    <fo:block text-align="center" font-weight="bold">
-		                                                                    प्रश्न सूची मुद्रणालायाकडून येण्याचा दिनांक
-			                                    </fo:block>
-				                        	</fo:table-cell>
-				                        	<fo:table-cell display-align="center" border-width="0.5pt" border-style="solid">
-				                        	    <fo:block text-align="center" font-weight="bold">
-		                                                                    प्रश्न सूची वितरित करण्याचा दिनांक
-			                                    </fo:block>
-				                        	</fo:table-cell>
-				            	</fo:table-row>				
-							</fo:table-header>
-	                        <fo:table-body>
-	                        	<xsl:choose>
-		                        	<xsl:when test="not(./rotationOrderDatesList) or not(./rotationOrderDatesList/rotationOrderDate)">
-		                        		<fo:table-row>	
-		                        			<xsl:choose>
-			                        			<xsl:when test="./houseType='lowerhouse'">
-													<fo:table-cell border-width="0.5pt" border-style="solid" number-columns-spanned="12"><fo:block>&#160;</fo:block></fo:table-cell>
-												</xsl:when>
-												<xsl:when test="./houseType='upperhouse'">
-													<fo:table-cell border-width="0.5pt" border-style="solid" number-columns-spanned="11"><fo:block>&#160;</fo:block></fo:table-cell>
-												</xsl:when>
-											</xsl:choose>
-										</fo:table-row>			                        	
-									</xsl:when>
-									<xsl:otherwise>
-										<xsl:variable name="count" select="1"></xsl:variable>                    	
-			                            <xsl:for-each select="./rotationOrderDatesList/rotationOrderDate" >
-			                            	<xsl:if test="$count=rowId or $count > rowId">
-												<fo:table-row>	
-													<fo:table-cell border-width="0.5pt" border-style="solid" number-columns-spanned="12"><fo:block>&#160;</fo:block></fo:table-cell>
-												</fo:table-row>	
-											</xsl:if>
-			                                <fo:table-row border="solid 0.1mm black">	                                	
-			                                    <fo:table-cell display-align="center" text-align="center" border-width="0.5pt" border-style="solid">
-			                                        <fo:block  text-align="center">
-			                                        	<xsl:value-of select="group" />
-			                                        </fo:block>
-			                                    </fo:table-cell>
-			                                    
-			                                    <fo:table-cell display-align="center" text-align="center" border-width="0.5pt" border-style="solid">
-		                                            <fo:block  text-align="center">
-			                                        	<xsl:value-of select="dayOfWeek" />
-			                                        </fo:block>
-			                                    </fo:table-cell>
-			                                    
-			                                    <fo:table-cell display-align="center" text-align="center" border-width="0.5pt" border-style="solid">
-			                                        <fo:block  text-align="center">
-			                                        	<xsl:value-of select="answeringDate" />
-			                                        </fo:block> 
-			                                    </fo:table-cell>
-			                                    
-			                                    <fo:table-cell display-align="center" text-align="center" border-width="0.5pt" border-style="solid">
-			                                        <fo:block  text-align="center">
-			                                        	<xsl:value-of select="finalSubmissionDate" />
-			                                        </fo:block>
-			                                    </fo:table-cell>
-			                                    <xsl:if test="houseType='lowerhouse'">
-				                                    <fo:table-cell display-align="center" text-align="center" border-width="0.5pt" border-style="solid">
-				                                        <fo:block  text-align="center">
-				                                        	<xsl:value-of select="speakerSendingDate" />
-				                                        </fo:block>
-				                                    </fo:table-cell>
-			                                    </xsl:if>
-			                                    <fo:table-cell display-align="center" text-align="center" border-width="0.5pt" border-style="solid">
-			                                        <fo:block  text-align="center">
-			                                        	<xsl:value-of select="lastSendingDateToDepartment" />
-			                                        </fo:block>
-			                                    </fo:table-cell>
-			                                    
-			                                    <fo:table-cell display-align="center" text-align="center" border-width="0.5pt" border-style="solid">
-			                                        <fo:block  text-align="center">
-			                                        	<xsl:value-of select="lastReceivingDateFromDepartment" />
-			                                        </fo:block>
-			                                    </fo:table-cell>
-			                                    
-			                                    <fo:table-cell display-align="center" text-align="center" border-width="0.5pt" border-style="solid">
-			                                        <fo:block  text-align="center">
-			                                        	<xsl:value-of select="yaadiPrintingDate" />
-			                                        </fo:block>
-			                                    </fo:table-cell>
-			                                    
-			                                    <fo:table-cell display-align="center" text-align="center" border-width="0.5pt" border-style="solid">
-			                                        <fo:block  text-align="center">
-			                                        	<xsl:value-of select="yaadiReceivingDate" />
-			                                        </fo:block>
-			                                    </fo:table-cell>
-			                                    
-			                                    <fo:table-cell display-align="center" text-align="center" border-width="0.5pt" border-style="solid">
-			                                        <fo:block  text-align="center">
-			                                        	<xsl:value-of select="suchhiPrintingDate" />
-			                                        </fo:block>
-			                                    </fo:table-cell>
-			                                    
-			                                    <fo:table-cell display-align="center" text-align="center" border-width="0.5pt" border-style="solid">
-			                                        <fo:block  text-align="center">
-			                                        	<xsl:value-of select="suchhiReceivingDate" />
-			                                        </fo:block>
-			                                    </fo:table-cell>
-			                                    
-			                                    <fo:table-cell display-align="center" text-align="center" border-width="0.5pt" border-style="solid">
-			                                        <fo:block  text-align="center">
-			                                        	<xsl:value-of select="suchhiDistributionDate" />
-			                                        </fo:block>
-			                                    </fo:table-cell>	
-			                                </fo:table-row>
-			                                <xsl:variable name="count" select="rowId"></xsl:variable> 
-			                            </xsl:for-each>
-									</xsl:otherwise>
-								</xsl:choose>
-	                        </fo:table-body>
-	                    </fo:table>
-	                </fo:block>
-	                
-	                <fo:block>&#160;</fo:block>	                
-	                
-	                <fo:block font-family="{$font}">						
-						<xsl:apply-templates select="rotationOrderMainFooter"></xsl:apply-templates>
-						<!-- <xsl:value-of select="rotationOrderCover" disable-output-escaping="yes"/> -->															
-					</fo:block>
-
-			<fo:block font-family="{$font}"><xsl:value-of select="$message"/></fo:block>
-	
+	            <fo:flow flow-name="xsl-region-body">		    
+					<fo:block font-family="{$font}" font-size="12pt" font-weight="normal" font-style="normal" space-after.optimum="3pt" text-align="justify">
+					    <fo:block font-size="27pt" font-weight="bold" text-align="center">
+							महाराष्ट्र <xsl:value-of select="houseType"/>												
+						</fo:block>
+						<fo:block font-size="18pt" font-weight="bold" text-align="center">
+							<xsl:choose>
+								<xsl:when test="sessionNumber = 1">
+									पहिले
+								</xsl:when>
+								<xsl:when test="sessionNumber = 2">
+									दुसरे
+								</xsl:when>
+								<xsl:when test="sessionNumber = 3">
+									तिसरे
+								</xsl:when>
+								<xsl:when test="sessionNumber = 4">
+									चौथे
+								</xsl:when>
+							</xsl:choose>
+							&#160;अधिवेशन, <xsl:value-of select="sessionYear"/>																								
+						</fo:block>		
+						<fo:block text-align="center" font-weight="bold" font-size="16pt">
+							- - - - - - - - - - - - - - - - -
+						</fo:block>		                	
+	                	<fo:block text-align="center" font-size="19pt" font-weight="bold">
+	                		तारांकित प्रश्नोत्तरांची यादी
+	                	</fo:block>
+	                	<fo:block font-size="5pt">&#160;</fo:block>	                	           	
+	                	<fo:block text-align="center" font-weight="bold">
+	                		<xsl:value-of select="answeringDay"/>, दिनांक <xsl:value-of select="answeringDate"/> / <xsl:value-of select="answeringDateInIndianCalendar"/> ( शके )
+	                	</fo:block>
+	                	<fo:block font-size="10pt">&#160;</fo:block>
+	                	<fo:block text-align="center" font-weight="bold">
+	                		<fo:table border-collapse="collapse" table-layout="fixed" width="100%">
+	                			<fo:table-column column-number="1" column-width="2cm" />
+		                        <fo:table-column column-number="2" column-width="9cm" />
+		                        <fo:table-column column-number="3" column-width="2cm" />
+		                        <fo:table-column column-number="4" column-width="3cm" />
+			     				<fo:table-body>
+			     					<xsl:for-each select="./ministryVOs/ministryVO" >
+			     						<xsl:variable name="lastRowNumber">
+		     								<xsl:value-of select="last()" />
+		     							</xsl:variable>		     							
+			     						<xsl:choose>
+				     						<xsl:when test="position()=1">
+				     							<fo:table-row border-collapse="collapse">
+				     								<fo:table-cell>
+					     								<fo:block>
+					     									(<xsl:value-of select="number" />)
+					     								</fo:block>
+					     							</fo:table-cell>
+					     							<fo:table-cell padding-left="5">
+					     								<fo:block text-align="left">
+					     									<xsl:value-of select="name" />.
+					     								</fo:block>
+					     							</fo:table-cell>				     								     								
+				     								<fo:table-cell display-align="center">
+				     									<xsl:attribute name="number-rows-spanned">
+												             <xsl:value-of select="$lastRowNumber" />
+												       </xsl:attribute>
+				     									<!-- <fo:block>
+				     										<xsl:attribute name="font-size">
+												             <xsl:value-of select="$lastRowNumber*14" />pt
+												       		</xsl:attribute>											       													             
+				     										}
+				     									</fo:block> -->
+				     									<fo:block>
+														    <fo:external-graphic src="brace.JPG"  content-height="200"  content-width="70" />
+														</fo:block>
+				     								</fo:table-cell>
+				     								<fo:table-cell display-align="center">
+				     									<xsl:attribute name="number-rows-spanned">
+												             <xsl:value-of select="$lastRowNumber" />
+												       </xsl:attribute>
+				     									<fo:block text-align="left">
+				     										यांचे प्रभारी विभाग.
+				     									</fo:block>
+				     								</fo:table-cell>
+				     							</fo:table-row>
+				     						</xsl:when>
+				     						<xsl:otherwise>
+					     						<fo:table-row border-collapse="collapse">			     						
+					     							<fo:table-cell>
+					     								<fo:block>
+					     									(<xsl:value-of select="number" />)
+					     								</fo:block>
+					     							</fo:table-cell>
+					     							<fo:table-cell padding-left="5">
+					     								<fo:block text-align="left">
+					     									<xsl:value-of select="name" />.
+					     								</fo:block>
+					     							</fo:table-cell>		     										     							
+					     						</fo:table-row>
+				     						</xsl:otherwise>	
+			     						</xsl:choose>		     							
+			     					</xsl:for-each>			     					
+			     				</fo:table-body>
+	                		</fo:table>
+	                	</fo:block>
+	                	<fo:block font-size="10pt">&#160;</fo:block>
+	                	<fo:block text-align="center" font-size="13pt" font-weight="bold">
+	                		- - - - - - - - - - - - - - -
+	                		<fo:block font-size="0pt">&#160;</fo:block>
+	                		प्रश्नांची एकूण संख्या - <xsl:value-of select="totalNumberOfDevices"/>
+	                		<fo:block font-size="0pt">&#160;</fo:block>
+	                		- - - - - - - - - - - - - - -
+	                	</fo:block>
+	                	<fo:block font-size="10pt">&#160;</fo:block>
+	                	<xsl:for-each select="./deviceVOs/deviceVO" >
+	                		<fo:block text-align="center" font-size="14pt" font-weight="bold">
+	                			<xsl:value-of select="subject"/>
+	                		</fo:block>
+	                		<fo:block font-size="5pt">&#160;</fo:block>
+	                		<fo:block font-size="13pt" font-weight="bold">	                			
+                				(<xsl:value-of select="serialNumber"/>)
+                				<fo:inline vertical-align="super" font-size="11pt">*</fo:inline>
+                				&#160;&#160;<xsl:value-of select="formattedNumber"/>
+                				&#160;&#160;<xsl:value-of select="memberNames"/>&#160;:&#160;
+                				<xsl:if test="parent!=''">
+                				तारांकित प्रश्न क्रमांक <xsl:value-of select="parent"/> ला दिनांक <xsl:value-of select="parentAnsweringDate"/> रोजी दिलेल्या उत्तराच्या संदर्भात :&#160;
+                				</xsl:if>
+                				<fo:inline font-weight="normal">
+                					सन्माननीय
+                				</fo:inline>
+                				&#160;<xsl:value-of select="ministryName"/>&#160;
+                				<fo:inline font-weight="normal">
+                					पुढील गोष्टींचा खुलासा करतील काय :-
+                				</fo:inline>	                			               			
+	                		</fo:block>
+	                		<fo:block font-size="0pt">&#160;</fo:block>
+	                		<fo:block font-size="13pt" font-weight="normal">
+	                			<xsl:apply-templates select="content"></xsl:apply-templates>
+	                		</fo:block>
+	                		<fo:block font-size="5pt">&#160;</fo:block>
+	                		<fo:block font-size="13pt">
+	                			<xsl:choose>
+	                				<xsl:when test="not(answer)">
+	                					<fo:block font-weight="bold" text-align="center">
+	                						(उत्तर आले नाही.)
+	                					</fo:block>
+	                				</xsl:when>
+	                				<xsl:otherwise>
+	                					<fo:inline font-weight="bold">
+			                				<xsl:value-of select="answeredBy"/> : 
+			                			</fo:inline>
+			                			<fo:inline font-weight="normal">
+			                				<xsl:apply-templates select="answer"></xsl:apply-templates>
+			                			</fo:inline>
+	                				</xsl:otherwise>
+	                			</xsl:choose>	                			
+	                		</fo:block>
+	                		<fo:block font-size="10pt">&#160;</fo:block>
+	                		<fo:block text-align="center">
+	                			- - - - - - - - - - -
+	                		</fo:block>
+	                		<fo:block font-size="10pt">&#160;</fo:block>
+	                	</xsl:for-each>
+	                	<fo:block font-size="10pt">&#160;</fo:block>
+	                	<xsl:choose>
+	                		<xsl:when test="$formatOut='application/pdf'">
+	                			<fo:block font-size="13pt">
+			                		विधान भवन : 
+			                		&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;
+			                		&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;
+			                		&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;	
+			                		&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;
+			                		&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;
+			                		&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;
+			                		&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;
+			                		&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;
+			                		&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;
+			                		&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;	                			                		                		
+			                		<fo:inline font-weight="bold">
+			                			<xsl:value-of select="userName"/>
+			                		</fo:inline>
+			                		<fo:block font-size="0pt">&#160;</fo:block>
+			                		<xsl:value-of select="sessionPlace"/>
+			                		&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;
+			                		&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;
+			                		&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;	
+			                		&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;
+			                		&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;
+			                		&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;
+			                		&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;
+			                		&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;
+			                		&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;
+			                		&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;
+			                		&#160;&#160;
+			                		प्रधान सचिव,
+			                		<fo:block font-size="0pt">&#160;</fo:block>
+			                		<fo:block text-align="right">
+			                			महाराष्ट्र&#160;<xsl:value-of select="houseType"/>
+			                		</fo:block>
+			                	</fo:block>
+	                		</xsl:when>
+	                		<xsl:when test="$formatOut='WORD'">
+	                			<fo:block font-size="13pt" text-align="left">
+			                		विधान भवन : 
+			                		&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;
+			                		&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;
+			                		&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;
+			                		&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;
+			                		&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;
+			                		&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;
+			                		&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;
+			                		&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;
+			                		&#160;&#160;                			                		                		
+			                		<fo:inline font-weight="bold">
+			                			<xsl:value-of select="userName"/>
+			                		</fo:inline>
+			                		<fo:block font-size="0pt">&#160;</fo:block>
+			                		<xsl:value-of select="sessionPlace"/>.
+			                		&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;
+			                		&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;
+			                		&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;
+			                		&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;
+			                		&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;
+			                		&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;
+			                		&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;
+			                		&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;
+			                		&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;
+			                		&#160;&#160;
+			                		प्रधान सचिव,
+			                		<fo:block font-size="0pt">&#160;</fo:block>
+			                		<fo:block text-align="right">
+			                			महाराष्ट्र&#160;<xsl:value-of select="houseType"/>
+			                		</fo:block>
+			                	</fo:block>
+	                		</xsl:when>
+	                	</xsl:choose>	                	                		                	
+	                </fo:block>       
 	            </fo:flow>
-
-
+	            
 	        </fo:page-sequence>
 	    </fo:root>
     </xsl:template>   
 
     <!-- Apply templates to selected elements for rich text html formatting preserved  -->
-	<xsl:template match="rotationOrderMainCover/rotationOrderMainHeader">	
-		<!-- <xsl:call-template name="br_template"></xsl:call-template> -->
+	<!-- <xsl:template match="rotationOrderMainCover/rotationOrderMainHeader">	
+		<xsl:call-template name="br_template"></xsl:call-template>
     	<xsl:apply-templates/>
-  	</xsl:template>
+  	</xsl:template> -->
   	
   	<!-- ============================================
     We handle a break element by inserting an 
