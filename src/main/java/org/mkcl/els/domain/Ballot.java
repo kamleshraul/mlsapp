@@ -33,6 +33,7 @@ import org.mkcl.els.common.util.ApplicationConstants;
 import org.mkcl.els.common.util.FormaterUtil;
 import org.mkcl.els.common.vo.BallotMemberVO;
 import org.mkcl.els.common.vo.BallotVO;
+import org.mkcl.els.common.vo.BillBallotVO;
 import org.mkcl.els.common.vo.DeviceBallotVO;
 import org.mkcl.els.common.vo.DeviceVO;
 import org.mkcl.els.common.vo.QuestionSequenceVO;
@@ -574,6 +575,58 @@ public class Ballot extends BaseDomain implements Serializable {
 	 * Returns an empty list if there are no entries for the Ballot
 	 * OR
 	 * Returns a list of NonOfficialMemberSubjectCombo BallotVO.
+	 *
+	 */
+	public static List<BillBallotVO> findBillMemberSubjectBallotVO(final Session session,
+			final DeviceType deviceType,
+			final Date answeringDate,
+			final String locale) {
+		List<BillBallotVO> ballotedVOs = new ArrayList<BillBallotVO>();
+		
+		Ballot ballot = null;
+		try {
+			ballot = Ballot.find(session, deviceType, answeringDate, locale);
+		} catch (ELSException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		if(ballot != null) {
+			List<BallotEntry> entries = ballot.getBallotEntries();
+			for(BallotEntry entry : entries) {
+				BillBallotVO ballotedVO = new BillBallotVO();
+				ballotedVO.setMemberName(entry.getMember().getFullname());
+				for(DeviceSequence ds : entry.getDeviceSequences()){
+					Device device = ds.getDevice();
+					Long id = device.getId();
+					Bill bill = Bill.findById(Bill.class, id);
+					ballotedVO.setId(bill.getId());
+					if(bill.getDiscussionStatus() != null){
+						ballotedVO.setChecked("checked");
+					}else{
+						ballotedVO.setChecked("unchecked");
+					}
+					ballotedVO.setBillNumber(FormaterUtil.formatNumberNoGrouping(bill.getNumber(), locale));
+					ballotedVO.setBillTitle(bill.getDefaultTitle());
+					ballotedVO.setContentDraft(bill.getDefaultContentDraft());
+				}
+				ballotedVOs.add(ballotedVO);
+			}
+		}
+		else {
+			ballotedVOs = null;
+		}
+		
+		return ballotedVOs;
+	}
+	
+	/**
+	 * Use it post Ballot.
+	 * 
+	 * Returns null if Ballot does not exist for the specified parameters
+	 * OR
+	 * Returns an empty list if there are no entries for the Ballot
+	 * OR
+	 * Returns a list of NonOfficialMemberSubjectCombo BallotVO.
 	 * @throws ELSException 
 	 *
 	 */
@@ -606,6 +659,8 @@ public class Ballot extends BaseDomain implements Serializable {
 					ballot = this.createHalfHourAssemblyBallotStandAlone();
 			}else if(this.getDeviceType().getType().equals(ApplicationConstants.NONOFFICIAL_RESOLUTION)){
 				ballot = this.createResolutionNonOfficialAssemblyBallot();
+			}else if(this.getDeviceType().getType().equals(ApplicationConstants.NONOFFICIAL_BILL)){
+				ballot = this.createBillNonOfficialBallot();
 			}
 		}else if(houseType.getType().equals(ApplicationConstants.UPPER_HOUSE)) {
 			if(this.getDeviceType().getType().equals(ApplicationConstants.STARRED_QUESTION)) {
@@ -616,6 +671,8 @@ public class Ballot extends BaseDomain implements Serializable {
 				ballot = this.createHDSCouncilBallot();
 			}else if(this.getDeviceType().getType().equals(ApplicationConstants.NONOFFICIAL_RESOLUTION)){
 				ballot = this.createCouncilBallotResolutionNonOfficial();
+			}else if(this.getDeviceType().getType().equals(ApplicationConstants.NONOFFICIAL_BILL)){
+				ballot = this.createBillNonOfficialBallot();
 			}
 		}
 		
@@ -857,9 +914,14 @@ public class Ballot extends BaseDomain implements Serializable {
 	}
 	
 	//=============== ASSEMBLY: NONOFFICIAL RESOLUTION BALLOT ==========
-		public Ballot createResolutionNonOfficialAssemblyBallot() throws ELSException {
-			return this.createBallotResolutionNonOfficial();
-		}
+	public Ballot createResolutionNonOfficialAssemblyBallot() throws ELSException {
+		return this.createBallotResolutionNonOfficial();
+	}
+		
+	//=============== ASSEMBLY: NONOFFICIAL BILL BALLOT ==========
+	public Ballot createBillNonOfficialBallot() throws ELSException {
+		return this.createBallotBillNonOfficial();
+	}
 		
 	/**
 	 * Algorithm:
@@ -959,6 +1021,36 @@ public class Ballot extends BaseDomain implements Serializable {
 			List<Member> selectedList = Ballot.selectMembersForBallot(randomizedList, ballotOutputCount);
 			
 			List<BallotEntry> ballotEntries = Ballot.createResolutionNonOfficialBallotEntries(this.getSession(), this.getDeviceType(), this.getAnsweringDate(), selectedList,
+					this.getLocale());
+			this.setBallotEntries(ballotEntries);
+			ballot = (Ballot) this.persist();	
+		}
+		
+		return ballot;
+	}
+	
+	public Ballot createBallotBillNonOfficial() throws ELSException{
+		Ballot ballot = Ballot.find(this.getSession(), this.getDeviceType(), 
+				this.getAnsweringDate(), this.getLocale());
+		
+		if(ballot == null) {
+			List<Member> computedList = Ballot.computeMembersBillNonOfficial(this.getSession(),
+					false,
+					this.getAnsweringDate(),
+					this.getLocale());
+			List<Member> randomizedList = Ballot.randomizeMembers(computedList);
+			// Read the constant 5 as a configurable parameter
+			CustomParameter ballotOutputCountCustomParameter =  CustomParameter.findByFieldName(CustomParameter.class, "name", ApplicationConstants.BILL_NONOFFICIAL_BALLOT_OUTPUT_COUNT, "");
+			Integer ballotOutputCount = null;
+			if(ballotOutputCountCustomParameter != null){
+				ballotOutputCount = new Integer(ballotOutputCountCustomParameter.getValue());
+			}else{
+				ballotOutputCount = 6;
+			}
+			
+			List<Member> selectedList = Ballot.selectMembersForBallot(randomizedList, ballotOutputCount);
+			
+			List<BallotEntry> ballotEntries = Ballot.createBillNonOfficialBallotEntries(this.getSession(), this.getDeviceType(), this.getAnsweringDate(), selectedList,
 					this.getLocale());
 			this.setBallotEntries(ballotEntries);
 			ballot = (Ballot) this.persist();	
@@ -1267,6 +1359,33 @@ public class Ballot extends BaseDomain implements Serializable {
 	}
 	
 	/**
+	 * For resolution nonofficial
+	 * @param session
+	 * @param answeringDate
+	 * @param locale
+	 * @return
+	 * @throws ELSException 
+	 */
+	private static List<Member> computeMembersBillNonOfficial(final Session session,
+			final Boolean isPreBallot,
+			final Date answeringDate,
+			final String locale) throws ELSException {
+		DeviceType deviceType = DeviceType.findByType(
+				ApplicationConstants.NONOFFICIAL_BILL, locale);
+	
+		Status UNDER_CONSIDERATION = Status.findByType(ApplicationConstants.BILL_PROCESSED_UNDERCONSIDERATION, locale);
+		Status[] internalStatuses = new Status[] { UNDER_CONSIDERATION };
+	
+		Status INTRODUCED = Status.findByType(ApplicationConstants.BILL_PROCESSED_INTRODUCED, locale);		
+		Status[] recommendationStatuses = new Status[] { INTRODUCED };
+		
+		List<Member> members = Bill.findMembersAllForBallot(session, deviceType, 
+				 answeringDate, internalStatuses, recommendationStatuses, isPreBallot, ApplicationConstants.ASC, locale);
+		
+		return members;
+	}
+	
+	/**
 	 * Does not shuffle in place, returns a new list.
 	 */
 	private static List<Member> randomizeMembers(final List<Member> members) {
@@ -1323,6 +1442,35 @@ public class Ballot extends BaseDomain implements Serializable {
 				BallotEntry ballotEntry = new BallotEntry();
 				ballotEntry.setMember(m);
 				List<DeviceSequence> deviceSequences = Ballot.createDeviceSequences(resolution, locale);
+				ballotEntry.setDeviceSequences(deviceSequences);
+				ballotEntries.add(ballotEntry);
+			}
+		}
+		return ballotEntries;
+	}
+	
+	//bill ballot
+	private static List<BallotEntry> createBillNonOfficialBallotEntries(final Session session, final DeviceType deviceType, final Date answeringDate, final List<Member> members,
+			final String locale) throws ELSException {
+		List<BallotEntry> ballotEntries = new ArrayList<BallotEntry>();
+		List<String> subjectList = new ArrayList<String>();
+		
+		for(Member m : members) {
+			
+			Bill bill = Bill.getBillForMemberOfUniqueSubject(session, deviceType, answeringDate, m.getId(), subjectList, locale);
+			/**** Update the bill's discussionDate ****/
+			if(bill != null){
+				bill.setExpectedDiscussionDate(answeringDate);
+				Status ballotedStatus = Status.findByType(ApplicationConstants.BILL_PROCESSED_BALLOTED, locale);
+				bill.setBallotStatus(ballotedStatus);
+				/**** Here the intimation to the member should be sent ****/
+				bill.merge();
+							
+				subjectList.add(bill.getDefaultTitle());
+				
+				BallotEntry ballotEntry = new BallotEntry();
+				ballotEntry.setMember(m);
+				List<DeviceSequence> deviceSequences = Ballot.createDeviceSequences(bill, locale);
 				ballotEntry.setDeviceSequences(deviceSequences);
 				ballotEntries.add(ballotEntry);
 			}

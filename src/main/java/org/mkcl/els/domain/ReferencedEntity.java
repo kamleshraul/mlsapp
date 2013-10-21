@@ -18,6 +18,7 @@ import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 
 import org.mkcl.els.common.exception.ELSException;
+import org.mkcl.els.common.vo.BillSearchVO;
 import org.mkcl.els.common.vo.QuestionSearchVO;
 import org.mkcl.els.common.vo.ResolutionSearchVO;
 import org.mkcl.els.repository.ReferencedEntityRepository;
@@ -129,6 +130,16 @@ public class ReferencedEntity extends BaseDomain implements Serializable{
 			final String param,
 			final Question question, final boolean isAutomatic, final int start,final int noOfRecords,final String locale) throws ELSException {
 		return getReferencedEntityRepository().fullTextSearchReferencingQuestionHDS(param, question, isAutomatic, start, noOfRecords, locale);
+	}
+	
+	public static List<BillSearchVO> fullTextSearchReferencingBill(final String param, final Bill bill, 
+			final String language, final int start,final int noOfRecords,final String locale) {
+		return getReferencedEntityRepository().fullTextSearchReferencingBill(param, bill, language, start, noOfRecords, locale);		
+	}	
+	
+	public static List<BillSearchVO> exactSearchReferencingBill(final Bill bill, 
+			final String language, final int start,final int noOfRecords,final String locale) {
+		return getReferencedEntityRepository().exactSearchReferencingBill(bill, language, start, noOfRecords, locale);		
 	}
 
     /**** Getters and Setters ****/

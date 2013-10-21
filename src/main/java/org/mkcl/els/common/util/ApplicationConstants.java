@@ -246,6 +246,16 @@ public class ApplicationConstants {
 	public static final String SECTION_OFFICER="section_officer";
 
 	public static final String UNDER_SECRETARY="under_secretary";
+	
+	public static final String TRANSLATOR = "translator";
+	
+	public static final String OPINION_ABOUT_BILL_DEPARTMENT = "opinionAboutBill_department";
+	
+	public static final String RECOMMENDATION_FROM_GOVERNOR_DEPARTMENT = "recommendationFromGovernor_department";
+	
+	public static final String RECOMMENDATION_FROM_PRESIDENT_DEPARTMENT = "recommendationFromPresident_department";
+
+	public static final String PRESS = "press";
 
 	/**** My Task Status ****/
 	public static final String MYTASK_PENDING="PENDING";
@@ -257,14 +267,54 @@ public class ApplicationConstants {
 	public static final String RESOLUTION_APPROVAL_WORKFLOW = "RESOLUTION_APPROVAL_WORKFLOW";
 
 	public static final String SUPPORTING_MEMBER_WORKFLOW="Supporting_Members_Approval_Process";    
+	
+	public static final String TRANSLATION_WORKFLOW="TRANSLATION_WORKFLOW";
+	
+	public static final String OPINION_FROM_LAWANDJD_WORKFLOW="OPINION_FROM_LAWANDJD_WORKFLOW";
+	
+	public static final String RECOMMENDATION_FROM_GOVERNOR_WORKFLOW="RECOMMENDATION_FROM_GOVERNOR_WORKFLOW";
+	
+	public static final String RECOMMENDATION_FROM_PRESIDENT_WORKFLOW="RECOMMENDATION_FROM_PRESIDENT_WORKFLOW";
+	
+	public static final String REQUISITION_TO_PRESS_POST_ADMISSION_WORKFLOW = "REQUISITION_TO_PRESS_POST_ADMISSION_WORKFLOW";
+	
+	public static final String REQUISITION_TO_PRESS_POST_PASSEDBYFIRSTHOUSE_WORKFLOW = "REQUISITION_TO_PRESS_POST_PASSEDBYFIRSTHOUSE_WORKFLOW";
+	
+	public static final String REQUISITION_TO_PRESS_FOR_GAZETTE_WORKFLOW = "REQUISITION_TO_PRESS_FOR_GAZETTE_WORKFLOW";
+	
+	public static final String REQUISITION_TO_PRESS_WORKFLOW = "REQUISITION_TO_PRESS_WORKFLOW";
+	
+	public static final String NAMECLUBBING_WORKFLOW="NAMECLUBBING_WORKFLOW";
+	
+	public static final String TRANSMIT_LETTER_OF_PASSED_BY_FIRST_HOUSE_WORKFLOW = "TRANSMIT_LETTER_OF_PASSED_BY_FIRST_HOUSE_WORKFLOW";
+	
+	public static final String SEND_FOR_ENDORSEMENT_WORKFLOW = "SEND_FOR_ENDORSEMENT_WORKFLOW";
+	
+	public static final String TRANSMIT_ENDORSEMENT_COPIES_WORKFLOW = "TRANSMIT_ENDORSEMENT_COPIES_WORKFLOW";
+	
+	public static final String TRANSMIT_PRESS_COPIES_WORKFLOW = "TRANSMIT_PRESS_COPIES_WORKFLOW";
+	
+	public static final String LAY_LETTER_WORKFLOW = "LAY_LETTER_WORKFLOW";
 	/**** URL Pattern of Various Workflows ****/
 	public static final String APPROVAL_WORKFLOW_URLPATTERN="workflow/question";
 	
 	public static final String APPROVAL_WORKFLOW_URLPATTERN_MOTION="workflow/motion";
+	
+	public static final String APPROVAL_WORKFLOW_URLPATTERN_BILL="workflow/bill";
 
 	public static final String SUPPORTING_MEMBER_WORKFLOW_URLPATTERN="workflow/question/supportingmember";
 
 	public static final String REQUEST_TO_SUPPORTING_MEMBER="request_to_supporting_member";
+	
+	public static final String SUPPORTING_MEMBER_WORKFLOW_URLPATTERN_BILL="workflow/bill/supportingmember";
+	
+	public static final String SEND_FOR_ENDORSEMENT_WORKFLOW_URLPATTERN_BILL="workflow/bill/transmitpresscopies";
+	
+	public static final String TRANSMIT_ENDORSEMENT_COPIES_WORKFLOW_URLPATTERN_BILL="workflow/bill/transmitpresscopies";
+	
+	public static final String TRANSMIT_PRESS_COPIES_WORKFLOW_URLPATTERN_BILL="workflow/bill/transmitpresscopies";
+
+	public static final String LAY_LETTER_WORKFLOW_URLPATTERN_BILL="workflow/bill/layletter";
 
 	/**** Advanced Search Status Filter ****/
 	public static final String UNPROCESSED_FILTER="UNPROCESSED";
@@ -391,6 +441,9 @@ public class ApplicationConstants {
 
 	/** Prefix of resolutions **/
 	public static final String DEVICE_RESOLUTIONS="resolutions_";
+	
+	/** Prefix of bills **/
+	public static final String DEVICE_BILLS="bills_";
 
 	public static final String RESOLUTION_LOWERHOUSEGRID="resolution_lowerhouse";
 
@@ -624,4 +677,244 @@ public class ApplicationConstants {
 	public static final String COMMITTEE_INVITED_MEMBER_ADDITION_PROCESSED = "committee_final_approved_committeeInvitedMemberAddition";
 	
 	public static final String COMMITTEE_INVITED_MEMBERS_ADDED = "committee_invitedMembersAdded";
+	
+	/****************Bill Information System********************/
+	/**** device types ****/
+	public static final String NONOFFICIAL_BILL = "bills_nonofficial";
+
+	public static final String GOVERNMENT_BILL = "bills_government";
+	
+	/**** bill types ****/
+	public static final String AMENDMENT_BILL = "amending";
+	
+	public static final String ORDINANCE_REPLACEMENT_BILL = "replace_ordinance";
+	
+	/**** bill kinds ****/
+	public static final String MONEY_BILL = "money";	
+
+	/**** member status  ****/	
+	public static final String BILL_INCOMPLETE="bill_incomplete";
+
+	public static final String BILL_COMPLETE="bill_complete";
+
+	public static final String BILL_SUBMIT="bill_submit";
+
+	/**** System status****/    
+	public static final String BILL_SYSTEM_ASSISTANT_PROCESSED="bill_system_assistantprocessed";
+
+	public static final String BILL_SYSTEM_TO_BE_PUTUP="bill_system_putup";
+	
+	public static final String BILL_SYSTEM_CLUBBED="bill_system_clubbed";
+	
+	public static final String BILL_SYSTEM_CLUBBED_WITH_PENDING="bill_system_clubbedwithpending";
+	
+	/**** Translation & Its Workflow Status ****/
+	public static final String BILL_TRANSLATION_NOTSEND = "translation_notsend";
+
+	public static final String BILL_TRANSLATION_COMPLETED = "translation_completed";
+	
+	public static final String BILL_TRANSLATION_TIMEOUT = "translation_timeout";
+	
+	public static final String BILL_TRANSLATION_CANCELLED = "translation_cancelled";
+	
+	public static final String BILL_RECOMMEND_TRANSLATION="bill_recommend_translation";
+	
+	public static final String BILL_RECOMMEND_REJECT_TRANSLATION="bill_recommend_reject_translation";
+	
+	public static final String BILL_FINAL_TRANSLATION="bill_final_translation";
+	
+	public static final String BILL_FINAL_REJECT_TRANSLATION="bill_final_reject_translation";
+	
+	/**** Opinion Seeking From Law and JD & Its Workflow Status ****/
+	public static final String BILL_OPINION_FROM_LAWANDJD_NOTSEND = "opinionFromLawAndJD_notsend";
+	
+	public static final String BILL_OPINION_FROM_LAWANDJD_RECEIVED = "opinionFromLawAndJD_received";
+	
+	public static final String BILL_RECOMMEND_OPINION_FROM_LAWANDJD="bill_recommend_opinionFromLawAndJD";
+	
+	public static final String BILL_FINAL_OPINION_FROM_LAWANDJD="bill_final_opinionFromLawAndJD";
+	
+	/**** Recommendation From Governor & Its Workflow Status ****/
+	public static final String BILL_RECOMMENDATION_FROM_GOVERNOR_NOTSEND = "recommendationFromGovernor_notsend";
+	
+	public static final String BILL_RECOMMENDATION_FROM_GOVERNOR_RECEIVED = "recommendationFromGovernor_received";
+	
+	public static final String BILL_RECOMMEND_RECOMMENDATION_FROM_GOVERNOR="bill_recommend_recommendationFromGovernor";
+	
+	public static final String BILL_FINAL_RECOMMENDATION_FROM_GOVERNOR="bill_final_recommendationFromGovernor";
+	
+	/**** Recommendation From President & Its Workflow Status ****/
+	public static final String BILL_RECOMMENDATION_FROM_PRESIDENT_NOTSEND = "recommendationFromPresident_notsend";
+	
+	public static final String BILL_RECOMMENDATION_FROM_PRESIDENT_RECEIVED = "recommendationFromPresident_received";
+	
+	public static final String BILL_RECOMMEND_RECOMMENDATION_FROM_PRESIDENT="bill_recommend_recommendationFromPresident";
+	
+	public static final String BILL_FINAL_RECOMMENDATION_FROM_PRESIDENT="bill_final_recommendationFromPresident";
+	
+	/**** Print Requisition Workflow Status ****/
+	public static final String BILL_FINAL_PRINT_REQUISITION_TO_PRESS="bill_final_printRequisitionToPress";
+	
+	public static final String BILL_FINAL_PRINT_REQUISITION_TO_PRESS_FOR_GAZETTE="bill_final_printRequisitionToPressForGazette";
+	
+	public static final String BILL_FINAL_PRINT_REQUISITION_TO_PRESS_POST_PASSEDBYFIRSTHOUSE="bill_final_printRequisitionToPressPostPassedByFirstHouse";
+	
+	/**** Send for Endorsement Workflow Status ****/
+	public static final String BILL_FINAL_SENDFORENDORSEMENT="bill_final_sendForEndorsement";
+	
+	/**** Transmit Endorsement Copies Workflow Status ****/
+	public static final String BILL_FINAL_TRANSMITENDORSEMENTCOPIES="bill_final_transmitEndorsementCopies";
+	
+	/**** Transmit Press Copies Workflow Status ****/
+	public static final String BILL_FINAL_TRANSMITPRESSCOPIES="bill_final_transmitPressCopies";
+	
+	/**** Lay Letter Workflow Status ****/
+	public static final String BILL_FINAL_LAYLETTER="bill_final_layLetter";
+	
+	/**** Transmit Letter Of Passed By First House Workflow Status ****/
+	public static final String BILL_RECOMMEND_TRANSMIT_LETTER_OF_PASSED_BY_FIRST_HOUSE = "bill_recommend_transmitLetterOfPassedByFirstHouse";
+	
+	public static final String BILL_FINAL_TRANSMIT_LETTER_OF_PASSED_BY_FIRST_HOUSE = "bill_final_transmitLetterOfPassedByFirstHouse";
+	
+	public static final String BILL_TRANSMIT_LETTER_OF_PASSED_BY_FIRST_HOUSE_NOTSTARTED = "bill_transmitLetterOfPassedByFirstHouse_notStarted";
+	
+	public static final String BILL_TRANSMIT_LETTER_OF_PASSED_BY_FIRST_HOUSE_PENDING = "bill_transmitLetterOfPassedByFirstHouse_pending";
+	
+	public static final String BILL_TRANSMIT_LETTER_OF_PASSED_BY_FIRST_HOUSE_COMPLETED = "bill_transmitLetterOfPassedByFirstHouse_completed";
+	
+	
+
+	/**** Recommendation status ****/	
+	public static final String BILL_RECOMMEND_ADMISSION="bill_recommend_admission";
+
+	public static final String BILL_RECOMMEND_REJECTION="bill_recommend_rejection";
+	
+	public static final String BILL_RECOMMEND_NAMECLUBBING="bill_recommend_nameclubbing";
+	
+//	public static final String BILL_RECOMMEND_REJECT_NAMECLUBBING="bill_recommend_reject_nameclubbing";
+	
+	public static final String BILL_RECOMMEND_SENDBACK="bill_recommend_sendback";	
+
+	public static final String BILL_RECOMMEND_DISCUSS="bill_recommend_discuss";
+
+	/**** Final status ****/ 
+	public static final String BILL_FINAL_ADMISSION="bill_final_admission";    
+
+	public static final String BILL_FINAL_REJECTION="bill_final_rejection";
+	
+	public static final String BILL_FINAL_REJECTION_DUETOINCOMPLETENESS="bill_final_rejection_dueToIncompleteness";
+	
+	public static final String BILL_FINAL_REJECTION_DUETOREFERENCING="bill_final_rejection_dueToReferencing";
+	
+	public static final String BILL_FINAL_REJECTION_DUETOFINALAUTHORITYDECISION="bill_final_rejection_dueToFinalAuthorityDecision";
+	
+	public static final String BILL_FINAL_NAMECLUBBING = "bill_final_nameclubbing";
+	
+	public static final String BILL_FINAL_NAMECLUBBING_REJECTED = "bill_final_nameclubbing_rejected";
+	
+	public static final String BILL_FINAL_WITHDRAWN="bill_final_withdrawn";
+	
+	public static final String BILL_FINAL_NEGATIVED="bill_final_negatived";
+	
+	public static final String BILL_FINAL_LAPSED="bill_final_lapsed";
+	
+	public static final String BILL_FINAL_PASSED="bill_final_passed";
+	
+	/**** Processed Status ****/
+	public static final String BILL_PROCESSED_REJECTIONWITHREASON = "bill_processed_rejectionWithReason";
+	
+	public static final String BILL_PROCESSED_SENDTOSECTIONOFFICER = "bill_processed_sendToSectionOfficer";
+	
+	public static final String BILL_PROCESSED_DEPARTMENTINTIMATED = "bill_processed_departmentIntimated";
+	
+	public static final String BILL_PROCESSED_TOBEINTRODUCED = "bill_processed_toBeIntroduced";
+	
+	public static final String BILL_PROCESSED_INTRODUCED = "bill_processed_introduced";
+	
+	public static final String BILL_PROCESSED_UNDERCONSIDERATION = "bill_processed_underConsideration";
+	
+	public static final String BILL_PROCESSED_BALLOTED = "bill_processed_balloted";
+
+	public static final String BILL_PROCESSED_TOBEDISCUSSED = "bill_processed_toBeDiscussed";	
+	
+	public static final String BILL_PROCESSED_PARTIALLYDISCUSSED = "bill_processed_partiallydiscussed";
+	
+	public static final String BILL_PROCESSED_REFERTOJOINTCOMMITTEE = "bill_processed_referToJointCommittee";
+	
+	public static final String BILL_PROCESSED_REREFERTOJOINTCOMMITTEE = "bill_processed_reReferToJointCommittee";
+	
+	public static final String BILL_PROCESSED_PASSEDBYFIRSTHOUSE = "bill_processed_passedByFirstHouse";
+	
+	public static final String BILL_PROCESSED_PASSED = "bill_processed_passed";
+	
+	public static final String BILL_PROCESSED_NEGATIVED = "bill_processed_negatived";
+	
+	public static final String BILL_PROCESSED_WITHDRAWN = "bill_processed_withdrawn";
+	
+	public static final String BILL_PROCESSED_LAPSED = "bill_processed_lapsed";	
+	
+	public static final String BILL_PROCESSED_PASSEDBYBOTHHOUSES = "bill_processed_passedByBothHouses";
+	
+	/**** Changed Processed Status After Refactoring ****/
+	public static final String BILL_PROCESSED_CONSIDERED = "bill_processed_considered";
+	
+//	public static final String BILL_PROCESSED_CONSIDERED_UPPERHOUSE_FIRSTHOUSE_1 = "bill_processed_considered_upperhouse_firsthouse_1";
+//	
+//	public static final String BILL_PROCESSED_CONSIDERED_LOWERHOUSE_FIRSTHOUSE_2 = "bill_processed_considered_lowerhouse_firsthouse_2";
+//	
+//	public static final String BILL_PROCESSED_CONSIDERED_UPPERHOUSE_FIRSTHOUSE_2 = "bill_processed_considered_upperhouse_firsthouse_2";
+//	
+//	public static final String BILL_PROCESSED_CONSIDERED_LOWERHOUSE_SECONDHOUSE_1 = "bill_processed_considered_lowerhouse_secondhouse_1";
+//	
+//	public static final String BILL_PROCESSED_CONSIDERED_UPPERHOUSE_SECONDHOUSE_1 = "bill_processed_considered_upperhouse_secondhouse_1";
+//	
+//	public static final String BILL_PROCESSED_CONSIDERED_LOWERHOUSE_SECONDHOUSE_2 = "bill_processed_considered_lowerhouse_secondhouse_2";
+//	
+//	public static final String BILL_PROCESSED_CONSIDERED_UPPERHOUSE_SECONDHOUSE_2 = "bill_processed_considered_upperhouse_secondhouse_2";
+	
+	/**** Put Up ****/
+	public static final String BILL_PUTUP_NAMECLUBBING="bill_putup_nameclubbing";
+	
+	public static final String BILL_PUTUP_REJECTION="bill_putup_rejection";
+	
+	/**** Custom Parameters ****/
+	public static final String BILL_NONOFFICIAL_BALLOT_OUTPUT_COUNT = "BILL_NONOFFICIAL_BALLOT_OUTPUT_COUNT";
+	
+	/**** Native Query Keys ****/
+	public static final String BILL_GET_DRAFT_BY_STATUS = "BILL_GET_DRAFT_BY_STATUS";
+	
+	/**** Others ****/
+	public static final String BILL_RECOMMENDATION_FROM_GOVERNOR_CHECKLIST_PARAMETER = "isRecommendedAsPerConstitutionArticle_207_3";
+	
+	public static final String BILL_RECOMMENDATION_FROM_PRESIDENT_CHECKLIST_PARAMETER = "isRecommendedAsPerConstitutionArticle_304_b";
+
+	public static final String BILL_PRESS_COPY = "BILL_PRESS_COPY";
+	
+	public static final String BILL_GAZETTE_COPY = "BILL_GAZETTE_COPY";
+	
+	public static final String BILL_GAZETTE_RECEIVING_DEPARTMENTS = "BILL_GAZETTE_RECEIVING_DEPARTMENTS";
+	
+	public static final String BILL_FIRST_HOUSE = "firsthouse";
+	
+	public static final String BILL_SECOND_HOUSE = "secondhouse";	
+	
+	/**** Voting For ****/
+	public static final String VOTING_FOR_PASSING_OF_BILL = "PASSING_OF_BILL";
+	
+	/**** Laying For ****/
+	public static final String LAYING_IN_SECONDHOUSE_POST_PASSED_BY_FIRST_HOUSE = "LAYING_IN_SECONDHOUSE_POST_PASSED_BY_FIRST_HOUSE";
+	
+	/**** Transmission/Endorsement of Print Requisition Decisions ****/
+	public static final String TRANSMISSION_APPROVED="transmission_approved";
+
+	public static final String TRANSMISSION_REJECTED="transmission_rejected";
+	
+	/**** Laying Letter Statuses & Decisions ****/
+	public static final String LAYINGLETTER_NOTSEND="layingLetter_notsend";
+	
+	public static final String LAYINGLETTER_PENDING="layingLetter_pending";
+	
+	public static final String LAYINGLETTER_APPROVED="layingLetter_approved";
+
+	public static final String LAYINGLETTER_REJECTED="layingLetter_rejected";
 }

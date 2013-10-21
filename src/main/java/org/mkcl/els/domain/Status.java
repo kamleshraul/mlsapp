@@ -163,6 +163,8 @@ public class Status extends BaseDomain implements Serializable{
 		return getStatusRepository().findStatusContainedIn(commadelimitedStatusTypes, locale);
 	}
 	
-	
+	public static List<Status> findStatusContainedIn(final String commadelimitedStatusTypes,final String locale, final String sortOrder) {
+		return getStatusRepository().findStatusContainedIn(commadelimitedStatusTypes, locale, sortOrder);
+	}
 
 }

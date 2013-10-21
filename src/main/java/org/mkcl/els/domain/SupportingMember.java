@@ -11,11 +11,16 @@ package org.mkcl.els.domain;
 
 import java.io.Serializable;
 import java.util.Date;
+import java.util.List;
 
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
+import javax.persistence.JoinColumn;
+import javax.persistence.JoinTable;
 import javax.persistence.ManyToOne;
+import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
@@ -62,6 +67,60 @@ public class SupportingMember extends BaseDomain implements Serializable{
     /** The approved question text. */
     @Column(length=30000)
     private String approvedText;
+    
+  //--------------------bill specific fields---------------------//
+    /** The position. */
+    private Integer position;
+    
+    /** The bill type. */
+    @ManyToOne(fetch=FetchType.LAZY)
+    @JoinColumn(name="billtype_id")
+    private BillType approvedBillType;
+    
+    /** The bill kind. */
+    @ManyToOne(fetch=FetchType.LAZY)
+    @JoinColumn(name="billkind_id")
+    private BillKind approvedBillKind;
+    
+    /** The title. */
+    @OneToMany(fetch=FetchType.LAZY, cascade=CascadeType.ALL, orphanRemoval=true)
+    @JoinTable(name="supportingmembers_titles",
+    joinColumns={@JoinColumn(name="supportingmember_id", referencedColumnName="id")},
+    inverseJoinColumns={@JoinColumn(name="approved_title_id", referencedColumnName="id")})
+    private List<TextDraft> approvedTitles;
+    
+    /** The content. */
+    @OneToMany(fetch=FetchType.LAZY, cascade=CascadeType.ALL)
+    @JoinTable(name="supportingmembers_contentdrafts",
+    joinColumns={@JoinColumn(name="supportingmember_id", referencedColumnName="id")},
+    inverseJoinColumns={@JoinColumn(name="content_draft_id", referencedColumnName="id")})
+    private List<TextDraft> approvedContentDrafts;
+    
+    /** The statement of object and reason. */
+    @OneToMany(fetch=FetchType.LAZY, cascade=CascadeType.ALL)
+    @JoinTable(name="supportingmembers_statementofobjectandreasondrafts",
+    joinColumns={@JoinColumn(name="supportingmember_id", referencedColumnName="id")},
+    inverseJoinColumns={@JoinColumn(name="statement_of_object_and_reason_draft_id", referencedColumnName="id")})
+    private List<TextDraft> approvedStatementOfObjectAndReasonDrafts;
+    
+    /** The financial memorandum. */
+    @OneToMany(fetch=FetchType.LAZY, cascade=CascadeType.ALL)
+    @JoinTable(name="supportingmembers_financialmemorandumdrafts",
+    joinColumns={@JoinColumn(name="supportingmember_id", referencedColumnName="id")},
+    inverseJoinColumns={@JoinColumn(name="financial_memorandum_draft_id", referencedColumnName="id")})
+    private List<TextDraft> approvedFinancialMemorandumDrafts;
+    
+    /** The statutory memorandum. */
+    @OneToMany(fetch=FetchType.LAZY, cascade=CascadeType.ALL)
+    @JoinTable(name="supportingmembers_statutorymemorandumdrafts",
+    joinColumns={@JoinColumn(name="supportingmember_id", referencedColumnName="id")},
+    inverseJoinColumns={@JoinColumn(name="statutory_memorandum_draft_id", referencedColumnName="id")})
+    private List<TextDraft> approvedStatutoryMemorandumDrafts;
+    
+    /** The housetype where bill will be introduced first. */
+    @ManyToOne(fetch=FetchType.LAZY)
+    @JoinColumn(name="introducing_housetype_id")
+    private HouseType approvedIntroducingHouseType;
 
     /** The remarks. */
     @Column(length=30000)
@@ -196,7 +255,101 @@ public class SupportingMember extends BaseDomain implements Serializable{
         this.requestReceivedOn = requestReceivedOn;
     }
 
-    /**
+    public Integer getPosition() {
+		return position;
+	}
+
+
+	public void setPosition(Integer position) {
+		this.position = position;
+	}
+
+
+	public BillType getApprovedBillType() {
+		return approvedBillType;
+	}
+
+
+	public void setApprovedBillType(BillType approvedBillType) {
+		this.approvedBillType = approvedBillType;
+	}
+
+
+	public BillKind getApprovedBillKind() {
+		return approvedBillKind;
+	}
+
+
+	public void setApprovedBillKind(BillKind approvedBillKind) {
+		this.approvedBillKind = approvedBillKind;
+	}
+
+
+	public List<TextDraft> getApprovedTitles() {
+		return approvedTitles;
+	}
+
+
+	public void setApprovedTitles(List<TextDraft> approvedTitles) {
+		this.approvedTitles = approvedTitles;
+	}
+
+
+	public List<TextDraft> getApprovedContentDrafts() {
+		return approvedContentDrafts;
+	}
+
+
+	public void setApprovedContentDrafts(List<TextDraft> approvedContentDrafts) {
+		this.approvedContentDrafts = approvedContentDrafts;
+	}
+
+
+	public List<TextDraft> getApprovedStatementOfObjectAndReasonDrafts() {
+		return approvedStatementOfObjectAndReasonDrafts;
+	}
+
+
+	public void setApprovedStatementOfObjectAndReasonDrafts(
+			List<TextDraft> approvedStatementOfObjectAndReasonDrafts) {
+		this.approvedStatementOfObjectAndReasonDrafts = approvedStatementOfObjectAndReasonDrafts;
+	}
+
+
+	public List<TextDraft> getApprovedFinancialMemorandumDrafts() {
+		return approvedFinancialMemorandumDrafts;
+	}
+
+
+	public void setApprovedFinancialMemorandumDrafts(
+			List<TextDraft> approvedFinancialMemorandumDrafts) {
+		this.approvedFinancialMemorandumDrafts = approvedFinancialMemorandumDrafts;
+	}
+
+
+	public List<TextDraft> getApprovedStatutoryMemorandumDrafts() {
+		return approvedStatutoryMemorandumDrafts;
+	}
+
+
+	public void setApprovedStatutoryMemorandumDrafts(
+			List<TextDraft> approvedStatutoryMemorandumDrafts) {
+		this.approvedStatutoryMemorandumDrafts = approvedStatutoryMemorandumDrafts;
+	}
+
+
+	public HouseType getApprovedIntroducingHouseType() {
+		return approvedIntroducingHouseType;
+	}
+
+
+	public void setApprovedIntroducingHouseType(
+			HouseType approvedIntroducingHouseType) {
+		this.approvedIntroducingHouseType = approvedIntroducingHouseType;
+	}
+
+
+	/**
      * Gets the remarks.
      *
      * @return the remarks

@@ -21,6 +21,7 @@ import javax.persistence.TypedQuery;
 
 import org.mkcl.els.common.exception.ELSException;
 import org.mkcl.els.common.util.ApplicationConstants;
+import org.mkcl.els.common.util.FormaterUtil;
 import org.mkcl.els.common.vo.MasterVO;
 import org.mkcl.els.domain.House;
 import org.mkcl.els.domain.Member;
@@ -349,5 +350,15 @@ BaseRepository<HouseMemberRoleAssociation, Serializable> {
 			logger.error(e.getMessage());
 			return memberRoles;
 		}
+	}
+	
+	@SuppressWarnings("unchecked")
+	public List<Member> findAllActiveMembersInHouse(final House house, final String locale) {
+		String query="SELECT m FROM HouseMemberRoleAssociation hmra JOIN hmra.member m JOIN hmra.role r"+
+		" WHERE m.locale='"+locale+"' " +
+		" AND (hmra.toDate>='"+FormaterUtil.formatDateToString(new Date(), "yyyy-MM-dd")+"' OR hmra.toDate IS NULL)" +
+		" AND hmra.house.id="+house.getId()+" AND r.priority=0 ORDER BY m.lastName asc";
+		List<Member> members=this.em().createQuery(query).getResultList();
+		return members;
 	}
 }

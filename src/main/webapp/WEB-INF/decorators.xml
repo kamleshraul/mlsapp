@@ -249,9 +249,11 @@
 				
 		<pattern>/workflow/question/supportingmember</pattern>	
 		<pattern>/workflow/motion/supportingmember</pattern>
+		<pattern>/workflow/bill/supportingmember</pattern>
 		<pattern>workflow/question</pattern>
 		<pattern>workflow/resolution</pattern>
 		<pattern>workflow/motion</pattern>	
+		<pattern>workflow/bill</pattern>
 		<pattern>/workflow/myTasks/*/process</pattern>	
 		
 		<pattern>/holiday</pattern>
@@ -275,7 +277,37 @@
 		<pattern>/motion/bulksubmission/assistant/int</pattern>	
 		<pattern>/motion/bulksubmission/assistant/view</pattern>		
 		<pattern>/motion/bulksubmission/assistant/update</pattern>
-		<pattern>/workflow/motion</pattern>	
+		<pattern>/workflow/motion</pattern>
+		
+		<pattern>/bill/new</pattern>
+		<pattern>/bill/*/edit</pattern>
+		<pattern>/bill/*/delete</pattern>
+		<pattern>/bill</pattern>	
+		<pattern>/bill/providedate</pattern>
+		<pattern>/bill/bulksubmission/assistant/int</pattern>	
+		<pattern>/bill/bulksubmission/assistant/view</pattern>		
+		<pattern>/bill/bulksubmission/assistant/update</pattern>	
+		<pattern>/workflow/bill</pattern>	
+		
+		<pattern>/act/new</pattern>
+		<pattern>/act/*/edit</pattern>
+		<pattern>/act/*/delete</pattern>
+		<pattern>/act</pattern>
+		
+		<pattern>/ordinance/new</pattern>
+		<pattern>/ordinance/*/edit</pattern>
+		<pattern>/ordinance/*/delete</pattern>
+		<pattern>/ordinance</pattern>
+		
+		<pattern>/file/new</pattern>
+		<pattern>/file/*/edit</pattern>
+		<pattern>/file/*/delete</pattern>
+		<pattern>/file</pattern>	
+		
+		<pattern>/votingdetail/new</pattern>
+		<pattern>/votingdetail/*/edit</pattern>
+		<pattern>/votingdetail/*/delete</pattern>
+		<pattern>/votingdetail</pattern>	
 		
 		<pattern>/roster</pattern>
 		<pattern>/roster/new</pattern>

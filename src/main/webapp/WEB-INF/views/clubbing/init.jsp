@@ -36,8 +36,11 @@
 				$("#subDepartmentStarred").html(text);
 				$("#subDepartmentStarred").css("color","");				
 				$("#statusStarred").val("-");	
-				$("#statusStarred").css("color","");				
-							
+				$("#statusStarred").css("color","");
+				if($('#whichDevice').val()=='bills_') {
+					$("#languageAllowed").val("-");	
+					$("#languageAllowed").css("color","");
+				}						
 			});
 			/**** Filters ****/
 			$(".unstarred").hide();
@@ -197,9 +200,18 @@
 					$(this).css("color","");					
 				}
 			});
+			/**** Language ****/
+			$("#languageAllowed").change(function(){
+				var value=$(this).val();
+				if(value!='-'){
+					$(this).css("color","blue");				
+				}else{
+					$(this).css("color","");					
+				}
+			});
 			/**** primary Question's Details ****/
 			$("#primary").click(function(){
-				viewDetail($("#questionId").val());
+				viewDetail($("#deviceId").val());
 			});
 			/**** Back To Search Page****/
 			$("#backToSearch").click(function(){
@@ -222,6 +234,8 @@
 			/**** Back To Question ****/
 			/**** Back To Question ****/
 			$("#backToQuestion").click(function(){
+				/* $("#reset").click();
+				$('#searchvalue').val(""); */
 				$("#clubbingResultDiv").hide();
 				$("#referencingResultDiv").hide();
 				//$("#backToQuestionDiv").hide();
@@ -380,44 +394,55 @@
 				start=0;
 				$("#searchTable tbody").empty();				
 			}
-			var postData={param:$("#searchvalue").val(),question:$("#questionId").val(),record:record,start:start};
-			if($("#deviceTypeStarred").length>0){
-				postData['deviceType']=$("#deviceTypeStarred").val();
+			var resourceURL = "";
+			var postData = "";
+			if($('#whichDevice').val()=='questions_') {
+				postData={param:$("#searchvalue").val(),question:$("#deviceId").val(),record:record,start:start};
+				if($("#houseTypeCommon").length>0){
+					postData['houseType']=$("#houseTypeCommon").val();
+				}
+				if($("#sessionYearStarred").length>0){
+					postData['sessionYear']=$("#sessionYearStarred").val();
+				}
+				if($("#sessionTypeStarred").length>0){
+					postData['sessionType']=$("#sessionTypeStarred").val();
+				}
+				if($("#groupStarred").length>0){
+					postData['group']=$("#groupStarred").val();
+				}
+				if($("#answeringDateStarred").length>0){
+					postData['answeringDate']=$("#answeringDateStarred").val();
+				}
+				if($("#ministryStarred").length>0){
+					postData['ministry']=$("#ministryStarred").val();
+				}
+				if($("#departmentStarred").length>0){
+					postData['department']=$("#departmentStarred").val();
+				}
+				if($("#subDepartmentStarred").length>0){    
+					postData['subDepartment']=$("#subDepartmentStarred").val();
+				}
+				if($("#statusStarred").length>0){
+					postData['status']=$("#statusStarred").val();
+				}
+				resourceURL = "clubentity/search";
+			} else if($('#whichDevice').val()=='bills_') {
+				postData={param:$("#searchvalue").val(),billId:$("#deviceId").val(),record:record,start:start};
+				if($("#languageAllowed").length>0){
+					postData['language']=$("#languageAllowed").val();
+				}
+				if($("#statusStarred").length>0){
+					postData['status']=$("#statusStarred").val();
+				}
+				resourceURL = "clubentity/searchbill";
 			}
-			if($("#houseTypeCommon").length>0){
-				postData['houseType']=$("#houseTypeCommon").val();
-			}
-			if($("#sessionYearStarred").length>0){
-				postData['sessionYear']=$("#sessionYearStarred").val();
-			}
-			if($("#sessionTypeStarred").length>0){
-				postData['sessionType']=$("#sessionTypeStarred").val();
-			}
-			if($("#groupStarred").length>0){
-				postData['group']=$("#groupStarred").val();
-			}
-			if($("#answeringDateStarred").length>0){
-				postData['answeringDate']=$("#answeringDateStarred").val();
-			}
-			if($("#ministryStarred").length>0){
-				postData['ministry']=$("#ministryStarred").val();
-			}
-			if($("#departmentStarred").length>0){
-				postData['department']=$("#departmentStarred").val();
-			}
-			if($("#subDepartmentStarred").length>0){
-				postData['subDepartment']=$("#subDepartmentStarred").val();
-			}
-			if($("#statusStarred").length>0){
-				postData['status']=$("#statusStarred").val();
-			}			
 			var toBeSearched=$("#searchvalue").val();			
 			//previousSearchTerm=toBeSearched;
 			/**** Search Input Box is not empty ****/
 			if(toBeSearched!=''){
 				/**** Search takes place if its a new search or while loading more data in current search ****/
 				//if((previousSearchCount==record)){
-				$.post('clubentity/search',postData,function(data){
+				$.post(resourceURL,postData,function(data){
 					/**** previousSearchCount controls if clicking search button next time with same content
 					 will call search function.It will only if this time no. of entries returned is
 					 equal to max no of records in each search call=record****/
@@ -426,11 +451,15 @@
 					var text="";	
 						for(var i=0;i<data.length;i++){
 							var textTemp="";
+							var deviceNumber = data[i].number;
+							if(deviceNumber==undefined || deviceNumber=='') {
+								deviceNumber = $('#billWithoutNumber').val();
+							}
 							var textTemp=textTemp+"<tr>"+
-									"<td class='expand' style='width: 80px; max-width: 80px;'>"+
+									"<td class='expand' style='width: 150px; max-width: 150px;'>"+
 									"<span id='number"+data[i].id+"'>"+
-									"<a onclick='viewDetail("+data[i].id+");' style='margin:10px;'>"+									
-									data[i].number+"</a></span>"
+									"<a onclick='viewDetail("+data[i].id+");' style='margin:10px; text-decoration: underline;'>"+									
+									deviceNumber+"</a></span>"
 									+"<br>";
 							textTemp+="<span id='operation"+data[i].id+"'>";									
 							if(data[i].classification=='Clubbing'){
@@ -449,21 +478,53 @@
 							textTemp+="</span>";					
 							+"</td>";
 						
-							textTemp+="<td class='expand' style='width: 300px; max-width: 300px;'>"+data[i].subject+"</td>";
-									
-							textTemp+="<td class='expand' style='width: 420px; max-width: 420px;'>"+data[i].questionText
+							if($('#whichDevice').val()=='questions_') {
+								textTemp+="<td class='expand' style='width: 300px; max-width: 300px;'>"+data[i].subject+"</td>";
+							} else if($('#whichDevice').val()=='bills_') {
+								var title = "";
+								if(data[i].revisedTitle!='null' && data[i].revisedTitle!='' && data[i].revisedTitle!=undefined) {
+									title = data[i].revisedTitle;									
+								} else if(data[i].title!='null' && data[i].title!='' && data[i].title!=undefined) {
+									title = data[i].title;
+								} 								
+								textTemp+="<td class='expand' style='width: 300px; max-width: 300px;'>"+title+"</td>";
+							}
+							
+							if($('#whichDevice').val()=='questions_') {
+								textTemp+="<td class='expand' style='width: 420px; max-width: 420px;'>"+data[i].questionText
 								+"<br/>"
 								+data[i].sessionYear+","+data[i].sessionType+","+data[i].deviceType+"<br>"
 								+"<strong>"+data[i].formattedGroup+"</span>,"+data[i].ministry+"<br>"
 								+data[i].department;
-							if(data[i].subDepartment==null||data[i].subdepartment!=""){
-								textTemp+=","+data[i].status+"<br>"
-							    +"</td>";
-						    }else{						     
-						    textTemp+=","+data[i].subDepartment+"<br>"
-							 +data[i].status
-						     +"</td>";
-						    }								
+								if(data[i].subDepartment==null||data[i].subdepartment!=""){
+									textTemp+=","+data[i].status+"<br>"
+								    +"</td>";
+							    }else{						     
+							    textTemp+=","+data[i].subDepartment+"<br>"
+								 +data[i].status
+							     +"</td>";
+							    }									
+							} else if($('#whichDevice').val()=='bills_') {
+								var content = "";
+								if(data[i].revisedContent!='null' && data[i].revisedContent!='' && data[i].revisedContent!=undefined) {
+									content = data[i].revisedContent;									
+								} else if(data[i].content!='null' && data[i].content!='' && data[i].content!=undefined) {
+									content = data[i].content;
+								} 								
+								textTemp+="<td class='expand' style='width: 420px; max-width: 420px;'>"+content+"</td>";
+							}							
+							if($('#whichDevice').val()=='bills_') {
+								textTemp+="<td class='expand' style='width: 300px; max-width: 300px;'>"+data[i].sessionYear+","+
+								data[i].sessionType+","+data[i].deviceType+",<br></span>"+data[i].ministry;
+								if(data[i].subDepartment==null||data[i].subdepartment!=""){
+									textTemp+=","+data[i].status
+								    +"</td>";
+							    }else{						     
+							    textTemp+=","+data[i].subDepartment+"<br>"
+								 +data[i].status
+							     +"</td>";
+							    }							
+							}	
 							textTemp+="</tr>";								
 							text+=textTemp;
 						}	
@@ -522,29 +583,31 @@
 		/**** On Clubbing ****/
 		function clubbing(clubId){
 			$.blockUI({ message: '<img src="./resources/images/waitAnimated.gif" />' });			
-			var questionId=$("#questionId").val();	
-			var questionNumber=$("#questionNumber").val();
-			var clubbedNumber=$("#number"+clubId).text();		
-			$.post('clubentity/clubbing?pId='+questionId+"&cId="+clubId,function(data){
-					if(data){
-						$.unblockUI();	
-						$('html').animate({scrollTop:0}, 'slow');
-						$('body').animate({scrollTop:0}, 'slow');	
-					}
+			var deviceId=$("#deviceId").val();	
+			var deviceNumber=$("#deviceNumber").val();
+			if($('#whichDevice').val()=="bills_" && (deviceNumber==undefined || deviceNumber=='' || deviceNumber==$('#billWithoutNumber').val())) {
+				deviceNumber = "This Bill";
+			}
+			var clubbedNumber=$("#number"+clubId).text();	
+			if($('#whichDevice').val()=="bills_" && (clubbedNumber==undefined || clubbedNumber=='' || clubbedNumber==$('#billWithoutNumber').val())) {
+				clubbedNumber = "Searched Bill";
+			}
+			var whichDevice = $('#whichDevice').val();
+			$.post('clubentity/clubbing?pId='+deviceId+"&cId="+clubId+'&whichDevice='+whichDevice,function(data){					
 					if(data=='SEARCHED_CLUBBED_TO_PROCESSED'){
-					var text="<span style='color:green;font-weight:bold;font-size:16px;'>"+clubbedNumber+" Clubbed To "+questionNumber;
+					var text="<span style='color:green;font-weight:bold;font-size:16px;'>"+clubbedNumber+" Clubbed To "+deviceNumber;
 					$("#clubbingResult").empty();
 					$("#clubbingResult").html(text);
 					$("#operation"+clubId).empty();
 					$("#operation"+clubId).html("<a onclick='unclubbing("+clubId+");' style='margin:10px;'>"+$("#unclubMsg").val()+"</a>");
 					}else if(data=='PROCESSED_CLUBBED_TO_SEARCHED'){
-						var text="<span style='color:green;font-weight:bold;font-size:16px;'>"+questionNumber+" Clubbed To "+clubbedNumber;
+						var text="<span style='color:green;font-weight:bold;font-size:16px;'>"+deviceNumber+" Clubbed To "+clubbedNumber;
 						$("#clubbingResult").empty();
 						$("#clubbingResult").html(text);
 						$("#operation"+clubId).empty();
 						$("#operation"+clubId).html("<a onclick='unclubbing("+clubId+");' style='margin:10px;'>"+$("#unclubMsg").val()+"</a>");
-					}else if(data=='BEINGSEARCHED_QUESTION_ALREADY_CLUBBED'){
-						var text="<span style='color:green;font-weight:bold;font-size:16px;'>"+clubbedNumber+" is already a clubbed question.";
+					}else if(data=='BEINGSEARCHED_QUESTION_ALREADY_CLUBBED' || data=='BEINGSEARCHED_BILL_ALREADY_CLUBBED'){
+						var text="<span style='color:green;font-weight:bold;font-size:16px;'>"+clubbedNumber+" is already  clubbed.";
 						$("#clubbingResult").empty();
 						$("#clubbingResult").html(text);
 						$("#operation"+clubId).empty();
@@ -569,8 +632,9 @@
 		/**** On unclubbing ****/
 		function unclubbing(clubId){
 			$.blockUI({ message: '<img src="./resources/images/waitAnimated.gif" />' });	
-			var questionId=$("#questionId").val();
-			$.post('clubentity/unclubbing?pId='+questionId+"&cId="+clubId,function(data){
+			var deviceId=$("#deviceId").val();
+			var whichDevice = $('#whichDevice').val();
+			$.post('clubentity/unclubbing?pId='+deviceId+"&cId="+clubId+'&whichDevice='+whichDevice,function(data){
 				if(data=='SUCCESS'){
 					$("#clubbingResult").empty();
 					$("#clubbingResult").html(data);
@@ -596,20 +660,31 @@
 			$('body').animate({scrollTop:0}, 'slow');	
 			return false;
 		}		
-		/**** view question details in readonly mode ****/
+		/**** view device details in readonly mode ****/
 		function viewDetail(clubId){
-			$.blockUI({ message: '<img src="./resources/images/waitAnimated.gif" />' });			
+			var resourceURL="";
+			var deviceTypeParameterName = "";
+			if($('#whichDevice'=='questions_')) {
+				deviceTypeParameterName = "questionType";
+			} else if($('#whichDevice'=='bills_')) {
+				deviceTypeParameterName = "deviceType";
+			}			
+			$.blockUI({ message: '<img src="./resources/images/waitAnimated.gif" />' });
 			var parameters="houseType="+$("#selectedHouseType").val()
 			+"&sessionYear="+$("#selectedSessionYear").val()
 			+"&sessionType="+$("#selectedSessionType").val()
-			+"&questionType="+$("#selectedQuestionType").val()
+			+"&"+deviceTypeParameterName+"="+$("#refDeviceType").val()
 			+"&ugparam="+$("#ugparam").val()
 			+"&status="+$("#selectedStatus").val()
 			+"&role="+$("#srole").val()
 			+"&usergroup="+$("#currentusergroup").val()
 			+"&usergroupType="+$("#currentusergroupType").val()
 			+"&edit=false";
-			var resourceURL='question/'+clubId+'/edit?'+parameters;
+			if($('#whichDevice').val()=='questions_') {
+				resourceURL='question/'+clubId+'/edit?'+parameters;
+			}else if($('#whichDevice').val()=='bills_') {
+				resourceURL='bill/'+clubId+'/edit?'+parameters;
+			}	
 			$.get(resourceURL,function(data){
 				$("#clubbingDiv").hide();
 				$("#viewQuestion").html(data);
@@ -855,7 +930,28 @@ td>table{
 			<option value="PENDING"><spring:message code='question.pending' text='Pending'/></option>
 			<option value="APPROVED"><spring:message code='question.approved' text='Approved'/></option>
 			</select> |
-			</c:when>			
+			</c:when>	
+			
+			<c:when test="${deviceType=='bills_nonofficial'}">
+			<a href="#" class="butSim">
+				<spring:message code="bill.language" text="Language"/>
+			</a>		
+			<select name="languageAllowed" id="languageAllowed" class="sSelect">			
+			<option value="-" selected="selected"><spring:message code="please.select" text="Please Select"></spring:message></option>			
+			<c:forEach var="i" items="${languagesAllowedForBill}">
+				<option value="${i.type}">${i.name}</option>			
+			</c:forEach>
+			</select>&nbsp;&nbsp;&nbsp;| 
+			<a href="#" class="butSim">
+				<spring:message code="bill.status" text="Status"/>
+			</a>			
+			<select name="statusStarred" id="statusStarred" class="sSelect">			
+			<option value="-"><spring:message code="please.select" text="Please Select"></spring:message></option>			
+			<option value="UNPROCESSED"><spring:message code='bill.unprocessed' text='Un Processed'/></option>
+			<option value="PENDING"><spring:message code='bill.pending' text='Pending'/></option>
+			<option value="APPROVED"><spring:message code='bill.approved' text='Approved'/></option>
+			</select>			
+			</c:when>		
 			
 			<c:otherwise>					
 			<a href="#" class="butSim">
@@ -921,9 +1017,12 @@ td>table{
 </div>
 
 <p id="clubbingP">
-<a style="color:blue;font-size:14px;" id="primary" href="#">${number}</a>:${subject}
-<input type="hidden" id="questionId" value="${id }">
-<input type="hidden" id="questionNumber" value="${number}">
+<c:choose>
+	<c:when test="${whichDevice=='questions_'}"><a style="color:blue;font-size:14px;" id="primary" href="#">${number}</a>:${subject}</c:when>
+	<c:when test="${whichDevice=='bills_'}"><a style="color:blue;font-size:14px;" id="primary" href="#">${number}</a>:${title}</c:when>
+</c:choose>
+<input type="hidden" id="deviceId" value="${id }">
+<input type="hidden" id="deviceNumber" value="${number}">
 </p>
 
 <div id="clubbingDiv">
@@ -935,9 +1034,26 @@ td>table{
 <table  id="searchTable" style="width: 100%;" class="strippedTable">
 <thead>
 <tr>
-<th class="expand"><spring:message code="clubbing.number" text="Question Number"></spring:message></th>
+<th class="expand"><spring:message code="clubbing.number" text="Number"></spring:message></th>
+<c:choose>
+<c:when test="${whichDevice=='questions_'}">
 <th class="expand"><spring:message code="clubbing.subject" text="Subject"></spring:message></th>
+</c:when>
+<c:when test="${whichDevice=='bills_'}">
+<th class="expand"><spring:message code="clubbing.title" text="Title"></spring:message></th>
+</c:when>
+</c:choose>
+<c:choose>
+<c:when test="${whichDevice=='questions_'}">
 <th class="expand"><spring:message code="clubbing.question" text="Question"></spring:message></th>
+</c:when>
+<c:when test="${whichDevice=='bills_'}">
+<th class="expand"><spring:message code="clubbing.bill" text="Content Draft"></spring:message></th>
+</c:when>
+</c:choose>
+<c:if test="${whichDevice=='bills_'}">
+<th class="expand"><spring:message code="clubbing.billDetails" text="Bill Details"></spring:message></th>
+</c:if>
 </tr>
 </thead>
 <tbody id="searchresultbody">
@@ -968,6 +1084,9 @@ td>table{
 <input id="houseTypeCommon" value="${houseType}" type="hidden">
 <input id="houseTypeYearSessionTypeEmptyMsg" value="<spring:message code='client.error.advancedsearch.yeartypeempty' text='Session Year and Session Type must be selected to continue'/>" type="hidden">
 <input id="pleaseSelect" value="<spring:message code='please.select' text='Please Select'/>" type="hidden">
-<input type="hidden" id="ErrorMsg" value="<spring:message code='generic.error' text='Error Occured Contact For Support.'/>"/>
+<input type="hidden" id="whichDevice" value="${whichDevice}" />
+<input id="refDeviceType" type="hidden" value="${deviceType}" />
+<input type="hidden" id="defaultTitleLanguage" value="${defaultTitleLanguage}" />
+<input type="hidden" id="billWithoutNumber" value="<spring:message code='bill.referredBillWithoutNumber' text='Click To See'/>">
 </body>
 </html>

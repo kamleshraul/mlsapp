@@ -30,9 +30,15 @@ public class WorkflowDetails extends BaseDomain implements Serializable{
 	
 	private String taskId;	
 	
+	private String assigner;
+	
 	private String assignee;
 	
+	private String assignerUserGroupType;
+	
 	private String assigneeUserGroupType;
+	
+	private String assignerUserGroupId;
 	
 	private String assigneeUserGroupId;
 		
@@ -60,6 +66,12 @@ public class WorkflowDetails extends BaseDomain implements Serializable{
 	@Column(length=100)
 	private String deviceId;
 	
+	@Column(length=100)
+	private String assignerDraftId;
+	
+	@Column(length=100)
+	private String assigneeDraftId;
+	
 	@Column(length=200)
 	private String deviceType;
 	
@@ -74,6 +86,9 @@ public class WorkflowDetails extends BaseDomain implements Serializable{
 	
 	@Column(length=1000)
 	private String recommendationStatus;
+	
+	@Column(length=1000)
+	private String customStatus;
 	
 	private String houseType;
 	
@@ -92,11 +107,27 @@ public class WorkflowDetails extends BaseDomain implements Serializable{
 	private String subject;
 	
 	@Column(length=30000)
+	private String title;
+	
+	@Column(length=30000)
 	private String text;
 	
 	private String groupNumber;
 	
 	private String file;
+	
+	/**** For print requisition & send for endorsement & transmit press copies workflow ****/
+	@Column(length=100)
+	private String printRequisitionId;	
+	
+	private String houseRound;
+	
+	private String isHardCopyReceived;
+	
+	private String dateOfHardCopyReceived;
+	
+	/**** acknowledgement decision ****/
+	private String acknowledgementDecision;
 		
 	private String departmentAnswer;
 	
@@ -481,6 +512,29 @@ public class WorkflowDetails extends BaseDomain implements Serializable{
 		return getWorkflowDetailsRepository().findCurrentWorkflowDetail(
 				userGroup, domainIds, workflowType, status, locale);
 	}
+	
+	/**** Bill Related ****/
+	public static WorkflowDetails create(final Bill bill,final Task task,final String workflowType,
+			final String userGroupType, final String assigneeLevel) {
+		return getWorkflowDetailsRepository().create(bill,task,workflowType,
+				userGroupType,assigneeLevel);
+	}
+	
+	public static WorkflowDetails create(final Bill bill,final HouseType houseType,final Boolean isActorAcrossHouse,final PrintRequisition printRequisition,final Task task,final String workflowType,
+			final String userGroupType, final String assigneeLevel) {
+		return getWorkflowDetailsRepository().create(bill,houseType,isActorAcrossHouse,printRequisition,task,workflowType,
+				userGroupType,assigneeLevel);
+	}
+	
+	public static List<WorkflowDetails> create(final Bill bill,final List<Task> tasks,
+			final String workflowType,final String assigneeLevel) {
+		return getWorkflowDetailsRepository().create(bill,tasks,
+				workflowType,assigneeLevel);
+	}
+	
+	public static WorkflowDetails findCurrentWorkflowDetail(final Bill bill, String workflowType) {
+		return getWorkflowDetailsRepository().findCurrentWorkflowDetail(bill, workflowType);
+	}
 
 	public String getModule() {
 		return module;
@@ -488,5 +542,101 @@ public class WorkflowDetails extends BaseDomain implements Serializable{
 
 	public void setModule(final String module) {
 		this.module = module;
+	}
+
+	public String getAssigner() {
+		return assigner;
+	}
+
+	public void setAssigner(String assigner) {
+		this.assigner = assigner;
+	}
+
+	public String getAssignerUserGroupType() {
+		return assignerUserGroupType;
+	}
+
+	public void setAssignerUserGroupType(String assignerUserGroupType) {
+		this.assignerUserGroupType = assignerUserGroupType;
+	}
+
+	public String getAssignerUserGroupId() {
+		return assignerUserGroupId;
+	}
+
+	public void setAssignerUserGroupId(String assignerUserGroupId) {
+		this.assignerUserGroupId = assignerUserGroupId;
+	}
+
+	public String getAssignerDraftId() {
+		return assignerDraftId;
+	}
+
+	public void setAssignerDraftId(String assignerDraftId) {
+		this.assignerDraftId = assignerDraftId;
+	}
+
+	public String getAssigneeDraftId() {
+		return assigneeDraftId;
+	}
+
+	public void setAssigneeDraftId(String assigneeDraftId) {
+		this.assigneeDraftId = assigneeDraftId;
+	}
+
+	public String getCustomStatus() {
+		return customStatus;
+	}
+
+	public void setCustomStatus(String customStatus) {
+		this.customStatus = customStatus;
+	}
+
+	public String getTitle() {
+		return title;
+	}
+
+	public void setTitle(String title) {
+		this.title = title;
+	}
+
+	public String getPrintRequisitionId() {
+		return printRequisitionId;
+	}
+
+	public void setPrintRequisitionId(String printRequisitionId) {
+		this.printRequisitionId = printRequisitionId;
+	}
+
+	public String getHouseRound() {
+		return houseRound;
+	}
+
+	public void setHouseRound(String houseRound) {
+		this.houseRound = houseRound;
+	}
+
+	public String getIsHardCopyReceived() {
+		return isHardCopyReceived;
+	}
+
+	public void setIsHardCopyReceived(String isHardCopyReceived) {
+		this.isHardCopyReceived = isHardCopyReceived;
+	}
+
+	public String getDateOfHardCopyReceived() {
+		return dateOfHardCopyReceived;
+	}
+
+	public void setDateOfHardCopyReceived(String dateOfHardCopyReceived) {
+		this.dateOfHardCopyReceived = dateOfHardCopyReceived;
+	}
+
+	public String getAcknowledgementDecision() {
+		return acknowledgementDecision;
+	}
+
+	public void setAcknowledgementDecision(String acknowledgementDecision) {
+		this.acknowledgementDecision = acknowledgementDecision;
 	}
 }

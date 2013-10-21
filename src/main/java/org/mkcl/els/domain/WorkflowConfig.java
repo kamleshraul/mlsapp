@@ -204,4 +204,18 @@ public class WorkflowConfig extends BaseDomain implements Serializable {
 					workflowName, level, locale);
 	}
 	
+	public static List<Reference> findBillActorsVO(final Bill bill,
+			final Status internalStatus,final UserGroup userGroup,final int level, final String locale) {
+		return getWorkflowConfigRepository().findBillActorsVO(bill,
+				internalStatus, 
+				userGroup,level,locale);
+	}
+	
+	public static List<Reference> findBillActorsVO(final Bill bill, HouseType houseType, final Boolean isActorAcrossHouse,
+			final Status internalStatus,final UserGroup userGroup,final int level, final String locale) {
+		return getWorkflowConfigRepository().findBillActorsVO(bill, houseType, isActorAcrossHouse,
+				internalStatus, 
+				userGroup,level,locale);
+	}
+	
 }

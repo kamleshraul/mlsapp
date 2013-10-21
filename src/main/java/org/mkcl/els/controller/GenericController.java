@@ -26,8 +26,6 @@ import javax.persistence.PersistenceException;
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 
-import org.apache.fop.fo.expr.ProportionalColumnWidthFunction;
-import org.hibernate.exception.ConstraintViolationException;
 import org.mkcl.els.common.editors.BaseEditor;
 import org.mkcl.els.common.exception.ELSException;
 import org.mkcl.els.common.vo.AuthUser;
@@ -40,7 +38,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.propertyeditors.CustomCollectionEditor;
 import org.springframework.beans.propertyeditors.CustomDateEditor;
 import org.springframework.beans.propertyeditors.CustomNumberEditor;
-import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.ui.ModelMap;
 import org.springframework.validation.BindingResult;

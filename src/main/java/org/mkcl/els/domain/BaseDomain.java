@@ -227,6 +227,15 @@ public class BaseDomain {
         return (T) getBaseRepository().findByFieldNames(persistenceClass,
                 names, locale);
     }
+    
+    @SuppressWarnings({ "rawtypes" })
+    @Transactional(readOnly = true)
+    public static <T extends BaseDomain> List<T> findAllByFieldNames(
+            final Class persistenceClass, final Map<String, String> names, final String sortBy,
+            final String sortOrder, final String locale) {
+        return getBaseRepository().findAllByFieldNames(persistenceClass, names, sortBy, sortOrder,
+                locale);
+    }
 
     /**
      * Find all.

@@ -1,10 +1,12 @@
 package org.mkcl.els.repository;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 import javax.persistence.EntityNotFoundException;
 import javax.persistence.Query;
+import javax.persistence.TemporalType;
 import javax.persistence.TypedQuery;
 
 import org.mkcl.els.common.exception.ELSException;
@@ -68,6 +70,22 @@ public class SessionRepository extends BaseRepository<Session, Long>{
 		}
     	
 
+    }
+    
+    public List<Session> findSessionsByHouseAndDateLimits(final House house,final Date lowerLimit, final Date upperLimit){
+    	List<Session> sessionsByGivenHouseAndDateLimits = new ArrayList<Session>();    			
+    	String queryString = "SELECT s FROM Session s WHERE s.house.id="+house.getId()+
+    							" AND s.startDate >= :lowerLimit" +
+    							" AND s.startDate <= :upperLimit" +
+    							" ORDER BY s.startDate " + ApplicationConstants.ASC;
+    	Query query = this.em().createQuery(queryString);
+    	query.setParameter("lowerLimit", lowerLimit, TemporalType.DATE);
+    	query.setParameter("upperLimit", upperLimit, TemporalType.DATE);
+    	List resultList = query.getResultList();
+    	if(resultList!=null) {
+    		sessionsByGivenHouseAndDateLimits = resultList;
+    	}        
+        return sessionsByGivenHouseAndDateLimits;
     }
 
 	public Session findSessionByHouseSessionTypeYear(final House house,final SessionType sessionType,

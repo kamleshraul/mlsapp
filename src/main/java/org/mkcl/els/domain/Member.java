@@ -722,6 +722,9 @@ import org.springframework.beans.factory.annotation.Configurable;
     	return newMList;
     }
 
+    public static List<MasterVO> findAllMembersVOsWithGivenIdsAndWithNameContainingParam(final String memberIds, final String param) {
+		return getMemberRepository().findAllMembersVOsWithGivenIdsAndWithNameContainingParam(memberIds, param);
+	}
     
     // ------------------------------------------Getters/Setters-----------------------------------
     /**

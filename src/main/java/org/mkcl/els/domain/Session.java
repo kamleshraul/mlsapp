@@ -203,6 +203,10 @@ public class Session extends BaseDomain implements Serializable {
     public static List<Session> findSessionsByHouseAndYear(final House house,final Integer year) throws ELSException{
         return getSessionRepository().findSessionsByHouseAndYear(house, year);
     }
+    
+    public static List<Session> findSessionsByHouseAndDateLimits(final House house,final Date lowerLimit,final Date upperLimit){
+        return getSessionRepository().findSessionsByHouseAndDateLimits(house, lowerLimit, upperLimit);
+    }
 
     /**
      * Find session by house session type year.

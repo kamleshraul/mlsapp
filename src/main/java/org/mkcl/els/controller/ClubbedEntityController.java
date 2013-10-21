@@ -10,13 +10,16 @@ import javax.servlet.http.HttpServletRequest;
 import org.mkcl.els.common.exception.ELSException;
 import org.mkcl.els.common.util.ApplicationConstants;
 import org.mkcl.els.common.util.FormaterUtil;
+import org.mkcl.els.common.vo.BillSearchVO;
 import org.mkcl.els.common.vo.MasterVO;
 import org.mkcl.els.common.vo.QuestionSearchVO;
 import org.mkcl.els.common.vo.Reference;
+import org.mkcl.els.domain.Bill;
 import org.mkcl.els.domain.ClubbedEntity;
 import org.mkcl.els.domain.CustomParameter;
 import org.mkcl.els.domain.DeviceType;
 import org.mkcl.els.domain.Group;
+import org.mkcl.els.domain.Language;
 import org.mkcl.els.domain.Question;
 import org.mkcl.els.domain.SessionType;
 import org.mkcl.els.domain.WorkflowDetails;
@@ -94,7 +97,8 @@ public class ClubbedEntityController extends BaseController{
 					model.addAttribute("sessionYear",year);
 					List<SessionType> sessionTypes=SessionType.findAll(SessionType.class,"sessionType",ApplicationConstants.ASC, locale.toString());
 					model.addAttribute("sessionTypes",sessionTypes);
-					model.addAttribute("sessionType",question.getSession().getType().getId());									
+					model.addAttribute("sessionType",question.getSession().getType().getId());
+					model.addAttribute("whichDevice", "questions_");
 				}else{
 					/**** if question is already clubbed ****/
 					if(question.getParent()!=null){
@@ -111,9 +115,74 @@ public class ClubbedEntityController extends BaseController{
 				return "clubbing/error";
 			}
 		}else{
-			logger.error("**** Check request parameter 'id' for null value");
-			model.addAttribute("flag","REQUEST_PARAMETER_NULL");
-			return "clubbing/error";
+			String strbillId=request.getParameter("billId");
+			if(strbillId!=null) {
+				if(!strbillId.isEmpty()) {
+					Bill bill=Bill.findById(Bill.class,Long.parseLong(strbillId));
+					/**** Advanced Search Options ****/
+					/**** First we will check if clubbing is allowed on the given bill ****/
+					Boolean isClubbingAllowed=isClubbingAllowed(bill,request);
+					if(isClubbingAllowed){
+						/**** Bill title will be visible on the clubbing page ****/
+						model.addAttribute("title",bill.getDefaultTitle());						
+						/**** If exists, Bill number will also be visible ****/
+						model.addAttribute("id",Long.parseLong(strbillId));
+						if(bill.getNumber()!=null) {
+							model.addAttribute("number",FormaterUtil.getNumberFormatterNoGrouping(bill.getLocale()).format(bill.getNumber()));
+						}						
+						/**** Advanced Search Filters****/
+						String deviceType=bill.getType().getType();
+						model.addAttribute("deviceType",deviceType);
+						model.addAttribute("houseType",bill.getHouseType().getType());
+						String languagesAllowedInSession = bill.getSession().getParameter(deviceType + "_languagesAllowed");
+						if(languagesAllowedInSession != null && !languagesAllowedInSession.isEmpty()) {
+							List<Language> languagesAllowedForBill = new ArrayList<Language>();
+							for(String languageAllowedInSession: languagesAllowedInSession.split("#")) {
+								Language languageAllowed = Language.findByFieldName(Language.class, "type", languageAllowedInSession, bill.getLocale());
+								languagesAllowedForBill.add(languageAllowed);
+							}
+							model.addAttribute("languagesAllowedForBill", languagesAllowedForBill);
+						}
+						String defaultTitleLanguage = bill.getSession().getParameter(deviceType+"_defaultTitleLanguage");
+				    	if(defaultTitleLanguage!=null&&!defaultTitleLanguage.isEmpty()) {
+				    		model.addAttribute("defaultTitleLanguage", defaultTitleLanguage);
+				    	}
+//						model.addAttribute("deviceTypes",DeviceType.getAllowedTypesInBillClubbing(locale.toString()));
+//						int year=bill.getSession().getYear();
+//						CustomParameter houseFormationYear=CustomParameter.findByName(CustomParameter.class, "HOUSE_FORMATION_YEAR", "");
+//						List<Reference> years=new ArrayList<Reference>();
+//						if(houseFormationYear!=null){
+//							Integer formationYear=Integer.parseInt(houseFormationYear.getValue());
+//							for(int i=year;i>=formationYear;i--){
+//								Reference reference=new Reference(String.valueOf(i),FormaterUtil.getNumberFormatterNoGrouping(locale.toString()).format(i));
+//								years.add(reference);
+//							}
+//						}else{
+//							model.addAttribute("flag", "houseformationyearnotset");
+//							return "clubbing/error";
+//						}
+//						model.addAttribute("years",years);
+//						model.addAttribute("sessionYear",year);
+//						List<SessionType> sessionTypes=SessionType.findAll(SessionType.class,"sessionType",ApplicationConstants.ASC, locale.toString());
+//						model.addAttribute("sessionTypes",sessionTypes);
+//						model.addAttribute("sessionType",bill.getSession().getType().getId());	
+						model.addAttribute("whichDevice", "bills_");
+					}else{
+						/**** if bill is already clubbed ****/
+						if(bill.getParent()!=null){
+							model.addAttribute("flag","ALREADY_CLUBBED");
+							return "clubbing/error";
+						}else{
+							model.addAttribute("flag","CLUBBING_NOT_ALLOWED");
+							return "clubbing/error";
+						}
+					}
+				}				
+			} else {
+				logger.error("**** Check request parameter for 'id of given device' for null value");
+				model.addAttribute("flag","REQUEST_PARAMETER_NULL");
+				return "clubbing/error";
+			}			
 		}
 		return "clubbing/init";
 	}
@@ -168,6 +237,42 @@ public class ClubbedEntityController extends BaseController{
 		}
 		return false;
 	}
+	
+	private Boolean isClubbingAllowed(final Bill bill,final HttpServletRequest request) {
+		/**** Clubbing is allowed only if one of the below requirement is met ****/
+		String internalStatusType=bill.getInternalStatus().getType();
+		String recommendationStatusType=bill.getRecommendationStatus().getType();
+		String deviceType=bill.getType().getType();		
+		WorkflowDetails workflowDetails=WorkflowDetails.findCurrentWorkflowDetail(bill,ApplicationConstants.APPROVAL_WORKFLOW);
+		String usergroupType=request.getParameter("usergroupType");		
+		/**** if deviceType=nonofficial_bill ****/
+		if(deviceType.equals(ApplicationConstants.NONOFFICIAL_BILL)) {
+			/**** if internal status=assistant_processed,  
+			 * workflow has not started and this is assistant's login ****/
+			if(((internalStatusType.equals(ApplicationConstants.BILL_SYSTEM_ASSISTANT_PROCESSED))
+					&& workflowDetails.getId()==null&&usergroupType!=null)){
+				if(usergroupType.equals("assistant")){
+					return true;
+				}
+			} 		
+			else {
+				/**** if recommendation status=discuss||send back,workflow has started,bill is currently at assistant's login
+				 *    if internal status=admitted,workflow has started and bill is currently at assistant's login (facility to be confirmed) ****/
+				if((recommendationStatusType.equals(ApplicationConstants.BILL_RECOMMEND_DISCUSS)
+						||recommendationStatusType.equals(ApplicationConstants.BILL_RECOMMEND_SENDBACK)
+						||internalStatusType.equals(ApplicationConstants.BILL_FINAL_ADMISSION))
+						&&workflowDetails.getId()!=null){
+					if(workflowDetails.getAssigneeUserGroupType().equals("assistant")
+							&&usergroupType!=null){
+						if(usergroupType.equals("assistant")){
+							return true;
+						}
+					}
+				}
+			}
+		}		
+		return false;
+	}
 
 	@RequestMapping(value="/advancedsearch",method=RequestMethod.GET)
 	public String advancedSearch(final HttpServletRequest request,
@@ -183,16 +288,18 @@ public class ClubbedEntityController extends BaseController{
 				model.addAttribute("houseType",question.getHouseType().getType());
 				/**** Starred Filters ****/
 				if(deviceType.equals(ApplicationConstants.STARRED_QUESTION)){
-					try{
+					try {
 						model.addAttribute("deviceTypes",DeviceType.findAllowedTypesInStarredClubbing(locale.toString()));
-					}catch (ELSException e) {
-						model.addAttribute("ClubbedEntityController", "Request can not be completed at the moment.");
+					} catch (ELSException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
 					}
-					List<Group> allgroups = null;
-					try{
+					List<Group> allgroups = new ArrayList<Group>();
+					try {
 						allgroups = Group.findByHouseTypeSessionTypeYear(question.getHouseType(),question.getSession().getType(),question.getSession().getYear());
-					}catch (ELSException e) {
-						model.addAttribute("ClubbedEntityController","Request can not be completed at the moment.");						
+					} catch (ELSException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
 					}
 					List<MasterVO> masterVOs=new ArrayList<MasterVO>();
 					for(Group i:allgroups){
@@ -252,20 +359,43 @@ public class ClubbedEntityController extends BaseController{
 		}       
 		return questionSearchVOs;
 	}
+	
+	@SuppressWarnings("unchecked")
+	@RequestMapping(value="/searchbill",method=RequestMethod.POST)
+	public @ResponseBody List<BillSearchVO> searchBillForClubbing(final HttpServletRequest request,
+			final Locale locale){
+		List<BillSearchVO> billSearchVOs=new ArrayList<BillSearchVO>();		
+		String param=request.getParameter("param").trim();
+		String billId=request.getParameter("billId");
+		String start=request.getParameter("start");
+		String noOfRecords=request.getParameter("record");
+		Map<String,String[]> requestMap=request.getParameterMap();
+		if(param!=null&&billId!=null&&start!=null&&noOfRecords!=null){
+			if((!param.isEmpty()&&!billId.isEmpty())&&(!start.isEmpty())&&(!noOfRecords.isEmpty())){
+				Bill bill=Bill.findById(Bill.class, Long.parseLong(billId));
+				billSearchVOs=ClubbedEntity.fullTextSearchClubbing(param,bill,Integer.parseInt(start),
+						Integer.parseInt(noOfRecords),locale.toString(),requestMap);
+			}
+		}       
+		return billSearchVOs;
+	}
 
 	@Transactional
 	@RequestMapping(value="/clubbing",method=RequestMethod.POST)
-	public @ResponseBody String clubbing(final HttpServletRequest request,
-			final ModelMap model,
-			final Locale locale){
+	public @ResponseBody String clubbing(final HttpServletRequest request,final ModelMap model,final Locale locale){
 		String strpId=request.getParameter("pId");
 		String strcId=request.getParameter("cId");
+		String whichDevice=request.getParameter("whichDevice");
 		String status=null;
-		if(strpId!=null&&strcId!=null){
-			if(!strpId.isEmpty()&&!strcId.isEmpty()){
+		if(strpId!=null&&strcId!=null&&whichDevice!=null){
+			if(!strpId.isEmpty()&&!strcId.isEmpty()&&!whichDevice.isEmpty()){
 				Long primaryId=Long.parseLong(strpId);
 				Long clubbingId=Long.parseLong(strcId);
-				status=ClubbedEntity.club(primaryId, clubbingId, locale.toString());
+				if(whichDevice.equals("questions_")) {
+					status=ClubbedEntity.club(primaryId, clubbingId, locale.toString());
+				} else if(whichDevice.equals("bills_")) {
+					status=ClubbedEntity.clubBill(primaryId, clubbingId, locale.toString());
+				}				
 			}
 		}
 		return status;
@@ -273,17 +403,20 @@ public class ClubbedEntityController extends BaseController{
 
 	@Transactional
 	@RequestMapping(value="/unclubbing",method=RequestMethod.POST)
-	public  @ResponseBody String unclubbing(final HttpServletRequest request,
-			final ModelMap model,
-			final Locale locale){
+	public  @ResponseBody String unclubbing(final HttpServletRequest request,final ModelMap model,final Locale locale){
 		String strpId=request.getParameter("pId");
 		String strcId=request.getParameter("cId");
+		String whichDevice=request.getParameter("whichDevice");
 		String status=null;
-		if(strpId!=null&&strcId!=null){
-			if(!strpId.isEmpty()&&!strcId.isEmpty()){
+		if(strpId!=null&&strcId!=null&&whichDevice!=null){
+			if(!strpId.isEmpty()&&!strcId.isEmpty()&&!whichDevice.isEmpty()){
 				Long primaryId=Long.parseLong(strpId);
 				Long clubbingId=Long.parseLong(strcId);
-				status=ClubbedEntity.unclub(primaryId, clubbingId, locale.toString());
+				if(whichDevice.equals("questions_")) {
+					status=ClubbedEntity.unclub(primaryId, clubbingId, locale.toString());
+				} else if(whichDevice.equals("bills_")) {
+					status=ClubbedEntity.unclubBill(primaryId, clubbingId, locale.toString());
+				}				
 			}
 		}
 		return status;

@@ -26,6 +26,8 @@ public class MasterVO {
     
     private Integer number;
     
+    private Integer order;
+    
     private Boolean isSelected;
 
 	public MasterVO(Integer number,String name) {
@@ -84,6 +86,14 @@ public class MasterVO {
 
 	public void setValue(final String value) {
 		this.value = value;
+	}
+
+	public Integer getOrder() {
+		return order;
+	}
+
+	public void setOrder(Integer order) {
+		this.order = order;
 	}
 
 	public Boolean getIsSelected() {

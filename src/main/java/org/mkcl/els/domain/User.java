@@ -303,6 +303,10 @@ public class User extends BaseDomain implements Serializable {
 		return this.getTitle()+" "+this.getFirstName()+" "+this.getLastName();
 	}
 	
+	public String findFirstMiddleBeginLetterLastName(){
+		return this.getFirstName()+" "+this.getMiddleName().substring(0, 1)+". "+this.getLastName();
+	}
+	
 	public static List<User> findByRole(final boolean roleStartingWith,final String roles,final String locale) {
 		/**** if roleStartingWith=true then roles will be just the prefix to search roles with.
 		 * If roleStartingWith=false then roles will be a comma separated list of roles 

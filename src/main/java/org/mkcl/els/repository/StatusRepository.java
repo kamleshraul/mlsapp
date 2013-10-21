@@ -83,5 +83,23 @@ public class StatusRepository extends BaseRepository<Status, Serializable>{
 			throw elsException;
 		}
 	}
+	
+	@SuppressWarnings("unchecked")
+	public List<Status> findStatusContainedIn(final String commadelimitedStatusTypes, final String locale, final String sortOrder) {
+ 		String initialQuery="SELECT s FROM Status s WHERE s.locale='"+locale+"' ";
+		StringBuffer buffer=new StringBuffer();
+		String[] statusAllowed=commadelimitedStatusTypes.split(",");
+		for(String i:statusAllowed){
+			if(!i.isEmpty()){
+				/**** trim i since there can be extra white spaces present ****/
+				buffer.append(" (s.type='"+i.trim()+"') OR");
+			}
+		}
+		buffer.deleteCharAt(buffer.length()-1);
+		buffer.deleteCharAt(buffer.length()-1);
+		String query=initialQuery+" AND ("+buffer.toString()+") ORDER BY s.priority "+sortOrder
+		+",s.name "+ApplicationConstants.ASC;
+		return this.em().createQuery(query).getResultList();
+	}
 
 }

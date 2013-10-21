@@ -33,6 +33,17 @@
 					 +"&category=question";
 					
 					resourceURL = 'ballot/preballot?' + parameters;
+				}else if($("#category").val()=='bill'){
+					var parameters = "houseType="+$("#selectedHouseType").val()
+					 +"&sessionYear="+$("#selectedSessionYear").val()
+					 +"&sessionType="+$("#selectedSessionType").val()
+					 +"&deviceType="+$("#selectedDeviceType").val()
+					 +"&status="+$("#selectedStatus").val()
+					 +"&role="+$("#srole").val() 
+					 +"&answeringDate=" + $("#selectedAnsweringDate").val()
+					 +"&category=bill";
+					
+					resourceURL = 'ballot/preballot?' + parameters;
 				}
 				$.get(resourceURL,function(data){
 					$("#ballotResultDiv").empty();
@@ -74,6 +85,17 @@
 					 +"&role="+$("#srole").val() 
 					 +"&answeringDate=" + $("#selectedAnsweringDate").val()
 					 +"&category=resolution";
+					
+					resourceURL = 'ballot/create?' + parameters;
+				}else if($("#category").val()=='bill'){
+					var parameters = "houseType="+$("#selectedHouseType").val()
+					 +"&sessionYear="+$("#selectedSessionYear").val()
+					 +"&sessionType="+$("#selectedSessionType").val()
+					 +"&deviceType="+$("#selectedDeviceType").val()
+					 +"&status="+$("#selectedStatus").val()
+					 +"&role="+$("#srole").val() 
+					 +"&answeringDate=" + $("#selectedAnsweringDate").val()
+					 +"&category=bill";
 					
 					resourceURL = 'ballot/create?' + parameters;
 				}
@@ -138,6 +160,17 @@
 					 +"&category=question";
 					
 					resourceURL = 'ballot/view?' + parameters;
+				}else if($("#category").val()=='bill'){
+					parameters = "houseType="+$("#selectedHouseType").val()
+					 +"&sessionYear="+$("#selectedSessionYear").val()
+					 +"&sessionType="+$("#selectedSessionType").val()
+					 +"&deviceType="+$("#selectedDeviceType").val()
+					 +"&status="+$("#selectedStatus").val()
+					 +"&role="+$("#srole").val() 
+					 +"&answeringDate=" + $("#selectedAnsweringDate").val()
+					 +"&category=bill";
+					
+					resourceURL = 'ballot/view?' + parameters;
 				}
 				$.get(resourceURL,function(data){
 					$("#ballotResultDiv").empty();
@@ -181,6 +214,16 @@
 								 +"&answeringDate=" + $("#selectedAnsweringDate").val()								 
 								 + "&outputFormat=" + $("#outputFormat").val();					
 					resourceURL = 'resolution/viewYaadi?' + parameters;
+				}else if($("#category").val()=='bill'){
+					parameters = "houseType="+$("#selectedHouseType").val()
+					 +"&sessionYear="+$("#selectedSessionYear").val()
+					 +"&sessionType="+$("#selectedSessionType").val()
+					 +"&deviceType="+$("#selectedDeviceType").val()
+					 +"&status="+$("#selectedStatus").val()
+					 +"&role="+$("#srole").val() 
+					 +"&answeringDate=" + $("#selectedAnsweringDate").val()								 
+					 + "&outputFormat=" + $("#outputFormat").val();					
+					resourceURL = 'bill/viewYaadi?' + parameters;
 				}
 				$(this).attr('href', resourceURL);			
 				//check output format set or not
@@ -216,6 +259,18 @@
 					 + "&outputFormat=" + $("#outputFormat").val();	
 					
 					resourceURL = 'resolution/viewSuchi?' + parameters;
+				}else if($("#category").val()=='bill'){
+					parameters = "houseType="+$("#selectedHouseType").val()
+					 +"&sessionYear="+$("#selectedSessionYear").val()
+					 +"&sessionType="+$("#selectedSessionType").val()
+					 +"&deviceType="+$("#selectedDeviceType").val()
+					 +"&status="+$("#selectedStatus").val()
+					 +"&role="+$("#srole").val() 
+					 +"&answeringDate=" + $("#selectedAnsweringDate").val()
+					 +"&category=" + $("#category").val()
+					 + "&outputFormat=" + $("#outputFormat").val();	
+					
+					resourceURL = 'bill/viewSuchi?' + parameters;
 				}
 				$(this).attr('href', resourceURL);
 				//check output format set or not
@@ -264,6 +319,14 @@
 						 +"&role="+$("#srole").val() 
 						 +"&answeringDate=" + $("#selectedAnsweringDate").val();
 				}else if($("#category").val()=='resolution'){
+					parameters = "houseType="+$("#selectedHouseType").val()
+					 +"&sessionYear="+$("#selectedSessionYear").val()
+					 +"&sessionType="+$("#selectedSessionType").val()
+					 +"&deviceType="+$("#selectedDeviceType").val()
+					 +"&status="+$("#selectedStatus").val()
+					 +"&role="+$("#srole").val() 
+					 +"&answeringDate=" + $("#selectedAnsweringDate").val();
+				}else if($("#category").val()=='bill'){
 					parameters = "houseType="+$("#selectedHouseType").val()
 					 +"&sessionYear="+$("#selectedSessionYear").val()
 					 +"&sessionType="+$("#selectedSessionType").val()
@@ -354,7 +417,10 @@
 					</c:forEach> 
 					</select>
 				</c:when>
-				<c:when test="${deviceTypeType == 'questions_halfhourdiscussion_from_question' or deviceTypeType == 'questions_halfhourdiscussion_standalone' or deviceTypeType=='resolutions_nonofficial'}">
+				<c:when test="${deviceTypeType == 'questions_halfhourdiscussion_from_question' 
+								or deviceTypeType == 'questions_halfhourdiscussion_standalone' 
+								or deviceTypeType=='resolutions_nonofficial'
+								or deviceTypeType=='bills_nonofficial'}">
 					<select name="selectedAnsweringDate" id="selectedAnsweringDate" style="width:100px;height: 25px;">				
 					<c:forEach items="${answeringDates}" var="i">			
 						<option value="${i.value}"><c:out value="${i.name}"></c:out></option>	
@@ -372,8 +438,8 @@
 			</a> |
 			<a href="#" id="view_ballot" class="butSim">
 				<spring:message code="ballotinitial.viewballot" text="View Ballot"/>
-			</a> |
-			
+			</a>
+			<c:if test="${deviceTypeType != 'bills_nonofficial'}"> | 
 			<a href="#" id="view_yaadi" class="butSim">
 				<spring:message code="ballotinitial.viewyaadi" text="View Yaadi"/>
 			</a> | 
@@ -388,21 +454,8 @@
 					</c:forEach>
 				</select>				
 			</c:if>
-			
-			<c:if test="${deviceTypeType =='resolutions_nonofficial' or deviceTypeType == 'questions_halfhourdiscussion_standalone'}">|
-				<c:if test="${houseType=='upperhouse'}">
-				<a href="#" id="give_balloted_resolution_choice" class="butSim">
-					<spring:message code="ballotinitial.ballotchoice" text="Give Choice"/>
-				</a>
-				</c:if>
-				<c:if test="${houseType=='lowerhouse'}">
-					<a id="patrakbhag2_tab" href="#" class="tab">
-				   		<spring:message code="resolution.patrakbhag2" text="Post Ballot Report"></spring:message>
-					</a>		
-				</c:if>
 			</c:if>
-			
-			<c:if test="${deviceTypeType =='resolutions_nonofficial'}">|
+			<c:if test="${deviceTypeType =='resolutions_nonofficial' or deviceTypeType == 'questions_halfhourdiscussion_standalone'}">|
 				<c:if test="${houseType=='upperhouse'}">
 				<a href="#" id="give_balloted_resolution_choice" class="butSim">
 					<spring:message code="ballotinitial.ballotchoice" text="Give Choice"/>

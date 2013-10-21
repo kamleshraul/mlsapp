@@ -8,11 +8,13 @@ import javax.servlet.http.HttpServletRequest;
 
 import org.mkcl.els.common.util.ApplicationConstants;
 import org.mkcl.els.common.util.FormaterUtil;
+import org.mkcl.els.common.vo.BillSearchVO;
 import org.mkcl.els.common.vo.QuestionSearchVO;
 import org.mkcl.els.common.vo.Reference;
 import org.mkcl.els.common.vo.ResolutionSearchVO;
+import org.mkcl.els.domain.Bill;
 import org.mkcl.els.domain.CustomParameter;
-import org.mkcl.els.domain.HouseType;
+import org.mkcl.els.domain.Language;
 import org.mkcl.els.domain.Question;
 import org.mkcl.els.domain.ReferencedEntity;
 import org.mkcl.els.domain.Resolution;
@@ -46,6 +48,8 @@ public class ReferencedEntityController {
 						model.addAttribute("whichDevice", ApplicationConstants.DEVICE_QUESTIONS);
 					}else if(strDeviceType.startsWith(ApplicationConstants.DEVICE_RESOLUTIONS)){
 						model.addAttribute("whichDevice", ApplicationConstants.DEVICE_RESOLUTIONS);
+					}else if(strDeviceType.startsWith(ApplicationConstants.DEVICE_BILLS)){
+						model.addAttribute("whichDevice", ApplicationConstants.DEVICE_BILLS);
 					}
 					
 					if(strUsergroupType != null){
@@ -164,6 +168,57 @@ public class ReferencedEntityController {
 									}
 									model.addAttribute("id",Long.parseLong(strDeviceId));
 									model.addAttribute("number",FormaterUtil.getNumberFormatterNoGrouping(resolution.getLocale()).format(resolution.getNumber()));
+								}
+							}else if(strDeviceType.startsWith(ApplicationConstants.DEVICE_BILLS)){
+								
+								if(strDeviceType.equals(ApplicationConstants.NONOFFICIAL_BILL)){
+									Bill bill=Bill.findById(Bill.class,Long.parseLong(strDeviceId));
+									if(bill.getDefaultTitle()!=null){
+										if(!bill.getDefaultTitle().isEmpty()){
+											model.addAttribute("title",bill.getDefaultTitle());
+										}else{
+											model.addAttribute("title",bill.getDefaultTitle());
+										}
+									}else{
+										model.addAttribute("title",bill.getDefaultTitle());
+									}
+									String languagesAllowedInSession = bill.getSession().getParameter(strDeviceType + "_languagesAllowed");
+									if(languagesAllowedInSession != null && !languagesAllowedInSession.isEmpty()) {
+										List<Language> languagesAllowedForBill = new ArrayList<Language>();
+										for(String languageAllowedInSession: languagesAllowedInSession.split("#")) {
+											Language languageAllowed = Language.findByFieldName(Language.class, "type", languageAllowedInSession, bill.getLocale());
+											languagesAllowedForBill.add(languageAllowed);
+										}
+										model.addAttribute("languagesAllowedForBill", languagesAllowedForBill);
+									}
+									List<ReferencedEntity> referencedEntities= new ArrayList<ReferencedEntity>();
+									if(bill.getReferencedBill() != null){
+										referencedEntities.add(bill.getReferencedBill());
+									}
+									List<Reference> references=new ArrayList<Reference>();
+									StringBuffer buffer=new StringBuffer();
+									if(!referencedEntities.isEmpty()){
+										for(ReferencedEntity i:referencedEntities){
+											
+											Reference reference=new Reference();
+											reference.setId(String.valueOf(i.getId()));
+											reference.setName(String.valueOf(FormaterUtil.getNumberFormatterNoGrouping(bill.getLocale()).format(((Bill)i.getDevice()).getNumber())));
+											buffer.append(i.getId()+",");
+											references.add(reference);
+											
+											model.addAttribute("referencedEntities",references);
+											model.addAttribute("referencedEntitiesIds",buffer.toString());
+										}
+									}
+									model.addAttribute("id",Long.parseLong(strDeviceId));
+									if(bill.getNumber()!=null) {
+										model.addAttribute("number",FormaterUtil.getNumberFormatterNoGrouping(bill.getLocale()).format(bill.getNumber()));
+									}	
+									/** Exact Match For Referencing without search **/
+									List<BillSearchVO> billSearchVOs=new ArrayList<BillSearchVO>();
+									String language = bill.getSession().getParameter(bill.getType().getType()+"_defaultTitleLanguage");
+							        billSearchVOs=ReferencedEntity.exactSearchReferencingBill(bill, language, 0, 10, bill.getLocale());
+							        model.addAttribute("exactReferences", billSearchVOs);
 								}
 							}
 						}
@@ -286,6 +341,105 @@ public class ReferencedEntityController {
                 }
         }       
         return resolutionSearchVOs;
+    }
+	
+	@RequestMapping(value="/searchbill",method=RequestMethod.POST)
+    public @ResponseBody List<BillSearchVO> searchBillForReferencing(final HttpServletRequest request,final ModelMap model,final Locale locale){
+		List<BillSearchVO> billSearchVOs=new ArrayList<BillSearchVO>();
+        String param=request.getParameter("param").trim();
+        String billId=request.getParameter("bill");
+        String start=request.getParameter("start");
+        String noOfRecords=request.getParameter("record");
+        if(param!=null&&billId!=null&&start!=null&&noOfRecords!=null){
+                if((!param.isEmpty()&&!billId.isEmpty())&&(!start.isEmpty())&&(!noOfRecords.isEmpty())){
+                	try{
+                		Bill bill = Bill.findById(Bill.class, Long.parseLong(billId));
+                		String defaultTitleLanguage = bill.getSession().getParameter(bill.getType().getType()+"_defaultTitleLanguage");
+                		model.addAttribute("defaultTitleLanguage", defaultTitleLanguage);
+                		String language = "";
+                		if(request.getParameter("language")!=null){			
+                			if((!request.getParameter("language").isEmpty())&&(!request.getParameter("language").equals("-"))){
+                				language=request.getParameter("language");				
+                			} else {
+                				int firstChar=request.getParameter("param").charAt(0); //param already checked for null & empty
+                				if(firstChar>=2308 && firstChar <= 2418){
+                					language="marathi";
+                				}else if((firstChar>=65 && firstChar <= 90) || (firstChar>=97 && firstChar <= 122)
+                						||(firstChar>=48 && firstChar <= 57)){
+                					language="english";
+                				} else {
+                					//default language for bill
+                					language=bill.getSession().getParameter(bill.getType().getType()+"_defaultTitleLanguage");
+                				}
+                			}
+                		} else {
+                			int firstChar=request.getParameter("param").charAt(0); //param already checked for null & empty
+                			if(firstChar>=2308 && firstChar <= 2418){
+                				language="marathi";
+                			}else if((firstChar>=65 && firstChar <= 90) || (firstChar>=97 && firstChar <= 122)
+                					||(firstChar>=48 && firstChar <= 57)){
+                				language="english";
+                			} else {
+                				//default language for bill
+                				language=bill.getSession().getParameter(bill.getType().getType()+"_defaultTitleLanguage");
+                			}
+                		}
+                		billSearchVOs=ReferencedEntity.fullTextSearchReferencingBill(param, bill, language, Integer.parseInt(start),Integer.parseInt(noOfRecords),locale.toString());
+                	}catch(Exception e){
+                		e.printStackTrace();
+                	}                	
+                }
+        }       
+        return billSearchVOs;
+    }
+	
+	@RequestMapping(value="/searchexactbill",method=RequestMethod.POST)
+    public @ResponseBody List<BillSearchVO> searchExactBillForReferencing(final HttpServletRequest request,final ModelMap model,final Locale locale){
+		List<BillSearchVO> billSearchVOs=new ArrayList<BillSearchVO>();
+        String billId=request.getParameter("bill");
+        String start=request.getParameter("start");
+        String noOfRecords=request.getParameter("record");
+        if(billId!=null&&start!=null&&noOfRecords!=null){
+                if((!billId.isEmpty())&&(!start.isEmpty())&&(!noOfRecords.isEmpty())){
+                	try{
+                		Bill bill = Bill.findById(Bill.class, Long.parseLong(billId));
+                		String defaultTitleLanguage = bill.getSession().getParameter(bill.getType().getType()+"_defaultTitleLanguage");
+                		model.addAttribute("defaultTitleLanguage", defaultTitleLanguage);
+                		String language = "";
+                		if(request.getParameter("language")!=null){			
+                			if((!request.getParameter("language").isEmpty())&&(!request.getParameter("language").equals("-"))){
+                				language=request.getParameter("language");				
+                			} else {
+                				int firstChar=request.getParameter("param").charAt(0); //param already checked for null & empty
+                				if(firstChar>=2308 && firstChar <= 2418){
+                					language="marathi";
+                				}else if((firstChar>=65 && firstChar <= 90) || (firstChar>=97 && firstChar <= 122)
+                						||(firstChar>=48 && firstChar <= 57)){
+                					language="english";
+                				} else {
+                					//default language for bill
+                					language=bill.getSession().getParameter(bill.getType().getType()+"_defaultTitleLanguage");
+                				}
+                			}
+                		} else {
+                			int firstChar=request.getParameter("param").charAt(0); //param already checked for null & empty
+                			if(firstChar>=2308 && firstChar <= 2418){
+                				language="marathi";
+                			}else if((firstChar>=65 && firstChar <= 90) || (firstChar>=97 && firstChar <= 122)
+                					||(firstChar>=48 && firstChar <= 57)){
+                				language="english";
+                			} else {
+                				//default language for bill
+                				language=bill.getSession().getParameter(bill.getType().getType()+"_defaultTitleLanguage");
+                			}
+                		}
+                		billSearchVOs=ReferencedEntity.exactSearchReferencingBill(bill, language, Integer.parseInt(start),Integer.parseInt(noOfRecords),locale.toString());
+                	}catch(Exception e){
+                		e.printStackTrace();
+                	}                	
+                }
+        }       
+        return billSearchVOs;
     }
 	
 	@Transactional

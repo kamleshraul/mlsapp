@@ -2498,4 +2498,32 @@ public class MemberRepository extends BaseRepository<Member, Long>{
         List<Member> members = tQuery.getResultList();
         return members;
 	}
+	
+	public List<MasterVO> findAllMembersVOsWithGivenIdsAndWithNameContainingParam(final String memberIds, final String param) {
+		List<MasterVO> memberVOs = new ArrayList<MasterVO>();
+		String query = "SELECT m.id,t.name,m.firstName,m.middleName,m.lastName FROM Member m JOIN m.title t" +
+				" WHERE m.id IN ("+memberIds+")"+
+				" AND (m.firstName LIKE '%"+param+"%' OR m.middleName LIKE '%"+param+"%' OR m.lastName LIKE '%"+param+"%' OR CONCAT(m.lastName,' ',m.firstName) LIKE '%"+param+"%' OR CONCAT(m.firstName,' ',m.lastName) LIKE '%"+param+"%' OR CONCAT(m.lastName,' ',m.firstName,' ',m.middleName) LIKE '%"+param+"%' OR CONCAT(m.lastName,', ',t.name,' ',m.firstName,' ',m.middleName) LIKE '%"+param+"%' OR CONCAT(m.firstName,' ',m.middleName,' ',m.lastName) LIKE '%"+param+"%')  ORDER BY m.firstName asc";
+		List members=this.em().createQuery(query).getResultList();
+		for(Object i:members){
+			Object[] o=(Object[]) i;
+			MasterVO masterVO=new MasterVO();
+			masterVO.setId(Long.parseLong(o[0].toString()));
+			if(o[3]!=null){
+				if(o[1]!=null) {
+					masterVO.setName(o[1].toString()+", "+o[2].toString()+" "+o[3].toString()+" "+o[4].toString());
+				} else {
+					masterVO.setName(o[2].toString()+" "+o[3].toString()+" "+o[4].toString());
+				}
+			}else{
+				if(o[1]!=null) {
+					masterVO.setName(o[1].toString()+", "+o[2].toString()+" "+o[4].toString());
+				} else {
+					masterVO.setName(o[2].toString()+" "+o[4].toString());
+				}
+			}
+			memberVOs.add(masterVO);
+		}
+		return memberVOs;
+	}
 }

@@ -26,6 +26,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
 import com.trg.dao.jpa.GenericDAOImpl;
+import com.trg.search.Search;
 import com.trg.search.jpa.JPASearchProcessor;
 
 /**
@@ -263,6 +264,26 @@ public class BaseRepository<T, ID extends Serializable> extends
     	U result = (U) list.get(0);
     	
     	return result;
+    }
+    
+    @SuppressWarnings({ "unchecked", "rawtypes" })
+    public <U extends T> List<U> findAllByFieldNames(final Class persistenceClass,
+            final Map<String, String> names, final String sortBy, final String sortOrder, final String locale) {
+        final Search search = new Search();
+        for (Entry<String, String> i : names.entrySet()) {
+            search.addFilterEqual(i.getKey(), i.getValue());
+        }
+        if (locale == null) {
+            search.addFilterNull("locale");
+        }
+        else if (locale.isEmpty()) {
+
+        }
+        else {
+            search.addFilterEqual("locale", locale);
+        }
+        final List<U> records = this._search(persistenceClass, search);
+        return records;
     }
 
     /**

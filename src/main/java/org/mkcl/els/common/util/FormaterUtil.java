@@ -256,6 +256,50 @@ public class FormaterUtil {
         return formattedDay;
     }
     
+    public static String formatMonthInMarathiDate(final String date, final String locale) {
+        if(locale.equals("mr_IN")) {
+        	if(date!=null) {
+        		if(!date.isEmpty()) {
+        			String newDate="";
+                    if(date.contains("जनवरी")) {
+                        newDate=date.replace("जनवरी",JAN);
+                    } else if(date.contains("फ़रवरी")) {
+                        newDate=date.replace("फ़रवरी",FEB);
+                    } else if(date.contains("मार्च")) {
+                        newDate=date.replace("मार्च",MAR);
+                    } else if(date.contains("अप्रैल")) {
+                        newDate=date.replace("अप्रैल",APR);
+                    } else if(date.contains("मई")) {
+                        newDate=date.replace("मई",MAY);
+                    } else if(date.contains("जून")) {
+                        newDate=date.replace("जून",JUNE);
+                    } else if(date.contains("जुलाई")) {
+                        newDate=date.replace("जुलाई",JULY);
+                    } else if(date.contains("अगस्त")) {
+                        newDate=date.replace("अगस्त",AUG);
+                    } else if(date.contains("सितंबर")) {
+                        newDate=date.replace("सितंबर",SEP);
+                    } else if(date.contains("अक्‍तूबर")) {
+                        newDate=date.replace("अक्‍तूबर",OCT);
+                    } else if(date.contains("नवंबर")) {
+                        newDate=date.replace("नवंबर",NOV);
+                    } else if(date.contains("दिसंबर")) {
+                        newDate=date.replace("दिसंबर",DEC);
+                    }else {
+                        newDate=date;
+                    }
+                    return newDate;
+        		} else{
+                    return date;
+                }
+        	} else{
+                return date;
+            }            
+        } else{
+            return date;
+        }
+    }
+    
     public static String getMonthInMarathi(final Integer month, final String locale) {
         String formattedMonth="";
         if(locale.equals("mr_IN")) {
@@ -537,7 +581,31 @@ public class FormaterUtil {
 		return "";
 	}
 	
-	
+	/*** To get the Indian month name ***/
+	public static String getIndianDate(final Date date, final String locale){
+		IndianCalendar indianCalendar = new IndianCalendar(new Locale(locale));
+		indianCalendar.setTime(date);
+		
+		if(locale.equals("mr_IN")){
+			
+			return indianMonths_mr_IN.get(indianCalendar.get(IndianCalendar.MONTH)) + " " + 
+					FormaterUtil.formatNumberNoGrouping(
+							indianCalendar.get(IndianCalendar.DAY_OF_MONTH), locale)
+							+ ", " + FormaterUtil.formatNumberNoGrouping(
+									indianCalendar.get(IndianCalendar.YEAR), locale);
+			
+		}else if(locale.equals("en_US")){
+			
+			return indianMonths_en_US.get(indianCalendar.get(IndianCalendar.MONTH)) + " " + 
+					FormaterUtil.formatNumberNoGrouping(
+							indianCalendar.get(IndianCalendar.DAY_OF_MONTH), locale)
+							+ ", " + FormaterUtil.formatNumberNoGrouping(
+									indianCalendar.get(IndianCalendar.YEAR), locale);
+			
+		}
+		
+		return "";
+	}
 	
 	static{
     	indianMonths_mr_IN.put(0, "चैत्र");

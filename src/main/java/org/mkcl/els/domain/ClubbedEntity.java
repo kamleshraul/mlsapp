@@ -18,6 +18,7 @@ import javax.persistence.FetchType;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 
+import org.mkcl.els.common.vo.BillSearchVO;
 import org.mkcl.els.common.vo.QuestionSearchVO;
 import org.mkcl.els.repository.ClubbedEntityRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -52,7 +53,11 @@ public class ClubbedEntity extends BaseDomain implements Serializable{
     
     /** The motion. */
     @ManyToOne(fetch=FetchType.LAZY)
-    private Motion motion;    
+    private Motion motion;   
+    
+    /** The bill. */
+    @ManyToOne(fetch=FetchType.LAZY)
+    private Bill bill;
 
 	@Autowired
     private transient ClubbedEntityRepository clubbedEntityRepository;
@@ -132,7 +137,15 @@ public class ClubbedEntity extends BaseDomain implements Serializable{
 	}
 
 
-    /**
+    public Bill getBill() {
+		return bill;
+	}
+
+	public void setBill(Bill bill) {
+		this.bill = bill;
+	}
+
+	/**
      * Gets the device type.
      *
      * @return the device type
@@ -145,13 +158,26 @@ public class ClubbedEntity extends BaseDomain implements Serializable{
         return getClubbedEntityRepository().club(questionBeingProcessed,questionBeingClubbed,locale);
     }
     
+    public static String clubBill(final Long billBeingProcessed,final Long billBeingClubbed,final String locale){
+        return getClubbedEntityRepository().clubBill(billBeingProcessed,billBeingClubbed,locale);
+    }
+    
     public static String unclub(final Long questionBeingProcessed,final Long questionBeingClubbed,final String locale){
         return getClubbedEntityRepository().unclub(questionBeingProcessed,questionBeingClubbed,locale);
+    }
+    
+    public static String unclubBill(final Long billBeingProcessed,final Long billBeingClubbed,final String locale){
+        return getClubbedEntityRepository().unclubBill(billBeingProcessed,billBeingClubbed,locale);
     }
     
     public static List<QuestionSearchVO> fullTextSearchClubbing(final String param,
 			final Question question,final int start,final int noOfRecords,final String locale,final Map<String, String[]> requestMap) {
 		return getClubbedEntityRepository().fullTextSearchClubbing(param, question, start, noOfRecords, locale,requestMap);
+	}
+    
+    public static List<BillSearchVO> fullTextSearchClubbing(final String param,
+			final Bill bill,final int start,final int noOfRecords,final String locale,final Map<String, String[]> requestMap) {
+		return getClubbedEntityRepository().fullTextSearchClubbing(param, bill, start, noOfRecords, locale,requestMap);
 	}
 
     /**

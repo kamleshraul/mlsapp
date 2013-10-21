@@ -16,10 +16,12 @@ import org.mkcl.els.common.exception.ELSException;
 import org.mkcl.els.common.util.ApplicationConstants;
 import org.mkcl.els.common.util.FormaterUtil;
 import org.mkcl.els.common.vo.Task;
+import org.mkcl.els.domain.Bill;
 import org.mkcl.els.domain.Credential;
 import org.mkcl.els.domain.CustomParameter;
 import org.mkcl.els.domain.HouseType;
 import org.mkcl.els.domain.Motion;
+import org.mkcl.els.domain.PrintRequisition;
 import org.mkcl.els.domain.Question;
 import org.mkcl.els.domain.Resolution;
 import org.mkcl.els.domain.Status;
@@ -752,5 +754,378 @@ public class WorkflowDetailsRepository extends BaseRepository<WorkflowDetails, S
     	@SuppressWarnings("unchecked")
 		List<WorkflowDetails> list = jpQuery.getResultList();
     	return list;
+	}
+	
+	/************** Bill Related Domain Methods *********************/
+	public WorkflowDetails create(final Bill bill,final Task task,
+			final String workflowType,final String userGroupType,final String assigneeLevel) {
+		WorkflowDetails workflowDetails=new WorkflowDetails();
+		String userGroupId=null;		
+		String userGroupName=null;				
+		try {
+			String username=task.getAssignee();
+			if(username!=null){
+				if(!username.isEmpty()){
+					Credential credential=Credential.findByFieldName(Credential.class,"username",username,"");
+					List<UserGroup> userGroups = UserGroup.findAllByFieldName(UserGroup.class,"credential",credential, "credential", ApplicationConstants.ASC, bill.getLocale());
+					UserGroup userGroup=null;
+					for(UserGroup i: userGroups) {
+						if(i.getUserGroupType().getType().equals(userGroupType)) {
+							userGroup = i;
+							break;
+						}
+					}					
+					userGroupId=String.valueOf(userGroup.getId());					
+					userGroupName=userGroup.getUserGroupType().getName();
+					workflowDetails.setAssignee(task.getAssignee());
+					workflowDetails.setAssigneeUserGroupId(userGroupId);
+					workflowDetails.setAssigneeUserGroupType(userGroupType);
+					workflowDetails.setAssigneeUserGroupName(userGroupName);
+					workflowDetails.setAssigneeLevel(assigneeLevel);
+					CustomParameter customParameter=CustomParameter.findByName(CustomParameter.class,"DB_TIMESTAMP","");
+					if(customParameter!=null){
+						SimpleDateFormat format=FormaterUtil.getDateFormatter(customParameter.getValue(),"en_US");
+						if(task.getCreateTime()!=null){
+							if(!task.getCreateTime().isEmpty()){
+								workflowDetails.setAssignmentTime(format.parse(task.getCreateTime()));
+							}
+						}
+					}	
+					if(bill!=null){
+						if(bill.getId()!=null){
+							workflowDetails.setDeviceId(String.valueOf(bill.getId()));
+						}
+						if(bill.getNumber()!=null){
+							workflowDetails.setDeviceNumber(FormaterUtil.getNumberFormatterNoGrouping(bill.getLocale()).format(bill.getNumber()));
+						}
+						if(bill.getPrimaryMember()!=null){
+							workflowDetails.setDeviceOwner(bill.getPrimaryMember().getFullname());
+						}
+						if(bill.getType()!=null){
+							workflowDetails.setDeviceType(bill.getType().getName());
+						}
+						if(Bill.findHouseTypeForWorkflow(bill)!=null){
+							workflowDetails.setHouseType(Bill.findHouseTypeForWorkflow(bill).getName());
+						}
+						if(bill.getInternalStatus()!=null){
+							workflowDetails.setInternalStatus(bill.getInternalStatus().getName());							
+						}
+						workflowDetails.setLocale(bill.getLocale());						
+						if(bill.getRecommendationStatus()!=null){
+							workflowDetails.setRecommendationStatus(bill.getRecommendationStatus().getName());
+						}
+						if(bill.getFile()!=null){
+							workflowDetails.setFile(String.valueOf(bill.getFile()));
+						}
+						workflowDetails.setRemarks(bill.getRemarks());
+						if(bill.getSession()!=null){
+							if(bill.getSession().getType()!=null){
+								workflowDetails.setSessionType(bill.getSession().getType().getSessionType());
+							}
+							workflowDetails.setSessionYear(FormaterUtil.getNumberFormatterNoGrouping(bill.getLocale()).format(bill.getSession().getYear()));
+						}
+						workflowDetails.setSubject(bill.getDefaultTitle());
+					}
+					workflowDetails.setProcessId(task.getProcessInstanceId());
+					workflowDetails.setStatus(ApplicationConstants.MYTASK_PENDING);
+					workflowDetails.setTaskId(task.getId());
+					workflowDetails.setWorkflowType(workflowType);
+					
+					if(workflowType.equals(ApplicationConstants.SUPPORTING_MEMBER_WORKFLOW)){
+						workflowDetails.setUrlPattern(ApplicationConstants.SUPPORTING_MEMBER_WORKFLOW_URLPATTERN_BILL);
+						workflowDetails.setForm(workflowDetails.getUrlPattern());
+						Status requestStatus=Status.findByType(ApplicationConstants.REQUEST_TO_SUPPORTING_MEMBER, bill.getLocale());
+						if(requestStatus!=null){
+						workflowDetails.setWorkflowSubType(requestStatus.getType());
+						}
+					} else {
+						workflowDetails.setUrlPattern(ApplicationConstants.APPROVAL_WORKFLOW_URLPATTERN_BILL);
+						workflowDetails.setForm(workflowDetails.getUrlPattern()+"/"+userGroupType);
+						if(workflowType.equals(ApplicationConstants.TRANSLATION_WORKFLOW)) {
+							workflowDetails.setWorkflowSubType(bill.getTranslationStatus().getType());
+						} else if(workflowType.equals(ApplicationConstants.OPINION_FROM_LAWANDJD_WORKFLOW)) {
+							workflowDetails.setWorkflowSubType(bill.getOpinionFromLawAndJDStatus().getType());
+						} else if(workflowType.equals(ApplicationConstants.RECOMMENDATION_FROM_GOVERNOR_WORKFLOW)) {
+							workflowDetails.setWorkflowSubType(bill.getRecommendationFromGovernorStatus().getType());
+						} else if(workflowType.equals(ApplicationConstants.RECOMMENDATION_FROM_PRESIDENT_WORKFLOW)) {
+							workflowDetails.setWorkflowSubType(bill.getRecommendationFromPresidentStatus().getType());
+						} else if(workflowType.equals(ApplicationConstants.REQUISITION_TO_PRESS_WORKFLOW)) {
+							Status requestStatus=Status.findByType(ApplicationConstants.BILL_FINAL_PRINT_REQUISITION_TO_PRESS, bill.getLocale());
+							if(requestStatus!=null){
+								workflowDetails.setWorkflowSubType(requestStatus.getType());
+							}
+						} else {
+							workflowDetails.setWorkflowSubType(bill.getInternalStatus().getType());
+						}
+					}
+					workflowDetails.persist();
+				}				
+			}
+		} catch (ParseException e) {
+			logger.error("Parse Exception",e);
+			return new WorkflowDetails();
+		}	
+		return workflowDetails;		
+	}
+	
+	public WorkflowDetails create(final Bill bill,HouseType houseType,final Boolean isActorAcrossHouse,final PrintRequisition printRequisition,final Task task,
+			final String workflowType,final String userGroupType,final String assigneeLevel) {
+		WorkflowDetails workflowDetails=new WorkflowDetails();
+		String userGroupId=null;		
+		String userGroupName=null;				
+		try {
+			String username=task.getAssignee();
+			if(username!=null){
+				if(!username.isEmpty()){
+					Credential credential=Credential.findByFieldName(Credential.class,"username",username,"");
+					List<UserGroup> userGroups = UserGroup.findAllByFieldName(UserGroup.class,"credential",credential, "credential", ApplicationConstants.ASC, bill.getLocale());
+					UserGroup userGroup=null;
+					for(UserGroup i: userGroups) {
+						if(i.getUserGroupType().getType().equals(userGroupType)) {
+							userGroup = i;
+							break;
+						}
+					}					
+					userGroupId=String.valueOf(userGroup.getId());					
+					userGroupName=userGroup.getUserGroupType().getName();
+					workflowDetails.setAssignee(task.getAssignee());
+					workflowDetails.setAssigneeUserGroupId(userGroupId);
+					workflowDetails.setAssigneeUserGroupType(userGroupType);
+					workflowDetails.setAssigneeUserGroupName(userGroupName);
+					workflowDetails.setAssigneeLevel(assigneeLevel);
+					CustomParameter customParameter=CustomParameter.findByName(CustomParameter.class,"DB_TIMESTAMP","");
+					if(customParameter!=null){
+						SimpleDateFormat format=FormaterUtil.getDateFormatter(customParameter.getValue(),"en_US");
+						if(task.getCreateTime()!=null){
+							if(!task.getCreateTime().isEmpty()){
+								workflowDetails.setAssignmentTime(format.parse(task.getCreateTime()));
+							}
+						}
+					}	
+					if(bill!=null){
+						if(bill.getId()!=null){
+							workflowDetails.setDeviceId(String.valueOf(bill.getId()));
+						}
+						if(bill.getNumber()!=null){
+							workflowDetails.setDeviceNumber(FormaterUtil.getNumberFormatterNoGrouping(bill.getLocale()).format(bill.getNumber()));
+						}
+						if(bill.getPrimaryMember()!=null){
+							workflowDetails.setDeviceOwner(bill.getPrimaryMember().getFullname());
+						}
+						if(bill.getType()!=null){
+							workflowDetails.setDeviceType(bill.getType().getName());
+						}
+						if(houseType!=null){
+							if(isActorAcrossHouse!=null) {
+								if(isActorAcrossHouse.equals(true)) {
+									if(houseType.getType().equals(ApplicationConstants.LOWER_HOUSE)) {
+										houseType = HouseType.findByFieldName(HouseType.class, "type", ApplicationConstants.UPPER_HOUSE,bill.getLocale());
+									} else if(houseType.getType().equals(ApplicationConstants.UPPER_HOUSE)) {
+										houseType = HouseType.findByFieldName(HouseType.class, "type", ApplicationConstants.LOWER_HOUSE,bill.getLocale());
+									}
+								}
+							}
+							workflowDetails.setHouseType(houseType.getName());
+						}
+						if(bill.getInternalStatus()!=null){
+							workflowDetails.setInternalStatus(bill.getInternalStatus().getName());							
+						}
+						workflowDetails.setLocale(bill.getLocale());						
+						if(bill.getRecommendationStatus()!=null){
+							workflowDetails.setRecommendationStatus(bill.getRecommendationStatus().getName());
+						}
+						if(bill.getFile()!=null){
+							workflowDetails.setFile(String.valueOf(bill.getFile()));
+						}
+						workflowDetails.setRemarks(bill.getRemarks());
+						if(bill.getSession()!=null){
+							if(bill.getSession().getType()!=null){
+								workflowDetails.setSessionType(bill.getSession().getType().getSessionType());
+							}
+							workflowDetails.setSessionYear(FormaterUtil.getNumberFormatterNoGrouping(bill.getLocale()).format(bill.getSession().getYear()));
+						}
+						workflowDetails.setSubject(bill.getDefaultTitle());
+					}					
+					workflowDetails.setProcessId(task.getProcessInstanceId());
+					workflowDetails.setStatus(ApplicationConstants.MYTASK_PENDING);
+					workflowDetails.setTaskId(task.getId());
+					workflowDetails.setWorkflowType(workflowType);
+					
+					if(workflowType.equals(ApplicationConstants.SEND_FOR_ENDORSEMENT_WORKFLOW)){
+						workflowDetails.setUrlPattern(ApplicationConstants.SEND_FOR_ENDORSEMENT_WORKFLOW_URLPATTERN_BILL);
+						workflowDetails.setForm(workflowDetails.getUrlPattern());
+						if(printRequisition!=null) {
+							workflowDetails.setPrintRequisitionId(String.valueOf(printRequisition.getId()));
+						}
+						Status requestStatus=Status.findByType(ApplicationConstants.BILL_FINAL_SENDFORENDORSEMENT, bill.getLocale());
+						if(requestStatus!=null){
+						workflowDetails.setWorkflowSubType(requestStatus.getType());
+						}
+					} else if(workflowType.equals(ApplicationConstants.TRANSMIT_ENDORSEMENT_COPIES_WORKFLOW)){
+						workflowDetails.setUrlPattern(ApplicationConstants.TRANSMIT_ENDORSEMENT_COPIES_WORKFLOW_URLPATTERN_BILL);
+						workflowDetails.setForm(workflowDetails.getUrlPattern());
+						if(printRequisition!=null) {
+							workflowDetails.setPrintRequisitionId(String.valueOf(printRequisition.getId()));
+						}
+						Status requestStatus=Status.findByType(ApplicationConstants.BILL_FINAL_TRANSMITENDORSEMENTCOPIES, bill.getLocale());
+						if(requestStatus!=null){
+						workflowDetails.setWorkflowSubType(requestStatus.getType());
+						}
+					} else if(workflowType.equals(ApplicationConstants.TRANSMIT_PRESS_COPIES_WORKFLOW)){
+						workflowDetails.setUrlPattern(ApplicationConstants.TRANSMIT_PRESS_COPIES_WORKFLOW_URLPATTERN_BILL);
+						workflowDetails.setForm(workflowDetails.getUrlPattern());
+						if(printRequisition!=null) {
+							workflowDetails.setPrintRequisitionId(String.valueOf(printRequisition.getId()));
+						}
+						Status requestStatus=Status.findByType(ApplicationConstants.BILL_FINAL_TRANSMITPRESSCOPIES, bill.getLocale());
+						if(requestStatus!=null){
+						workflowDetails.setWorkflowSubType(requestStatus.getType());
+						}
+					} else if(workflowType.equals(ApplicationConstants.LAY_LETTER_WORKFLOW)) {
+						workflowDetails.setUrlPattern(ApplicationConstants.LAY_LETTER_WORKFLOW_URLPATTERN_BILL);
+						workflowDetails.setForm(workflowDetails.getUrlPattern());
+						Status requestStatus=Status.findByType(ApplicationConstants.BILL_FINAL_LAYLETTER, bill.getLocale());
+						if(requestStatus!=null){
+							workflowDetails.setWorkflowSubType(requestStatus.getType());
+						}
+					} else {
+						workflowDetails.setUrlPattern(ApplicationConstants.APPROVAL_WORKFLOW_URLPATTERN_BILL);
+						workflowDetails.setForm(workflowDetails.getUrlPattern()+"/"+userGroupType);
+						if(workflowType.equals(ApplicationConstants.REQUISITION_TO_PRESS_WORKFLOW)) {
+							if(printRequisition!=null) {
+								workflowDetails.setPrintRequisitionId(String.valueOf(printRequisition.getId()));
+							}
+							Status requestStatus=Status.findByType(ApplicationConstants.BILL_FINAL_PRINT_REQUISITION_TO_PRESS, bill.getLocale());
+							if(requestStatus!=null){
+								workflowDetails.setWorkflowSubType(requestStatus.getType());
+							}
+						} else {
+							workflowDetails.setWorkflowSubType(bill.getInternalStatus().getType());
+						}
+					}
+					workflowDetails.persist();
+				}				
+			}
+		} catch (ParseException e) {
+			logger.error("Parse Exception",e);
+			return new WorkflowDetails();
+		}	
+		return workflowDetails;
+	}
+	
+	public List<WorkflowDetails> create(final Bill bill,final List<Task> tasks,
+			final String workflowType,final String assigneeLevel) {
+		List<WorkflowDetails> workflowDetailsList=new ArrayList<WorkflowDetails>();
+		try {
+			Status requestStatus=Status.findByType(ApplicationConstants.REQUEST_TO_SUPPORTING_MEMBER, bill.getLocale());
+			CustomParameter customParameter=CustomParameter.findByName(CustomParameter.class,"DB_TIMESTAMP","");
+			if(customParameter!=null){
+				SimpleDateFormat format=FormaterUtil.getDateFormatter(customParameter.getValue(),"en_US");
+				for(Task i:tasks){
+					WorkflowDetails workflowDetails=new WorkflowDetails();
+					String userGroupId=null;
+					String userGroupType=null;
+					String userGroupName=null;				
+					String username=i.getAssignee();
+					if(username!=null){
+						if(!username.isEmpty()){
+							Credential credential=Credential.findByFieldName(Credential.class,"username",username,"");
+							UserGroup userGroup=UserGroup.findByFieldName(UserGroup.class,"credential",credential, bill.getLocale());
+							userGroupId=String.valueOf(userGroup.getId());
+							userGroupType=userGroup.getUserGroupType().getType();
+							userGroupName=userGroup.getUserGroupType().getName();
+							workflowDetails.setAssignee(i.getAssignee());
+							workflowDetails.setAssigneeUserGroupId(userGroupId);
+							workflowDetails.setAssigneeUserGroupType(userGroupType);
+							workflowDetails.setAssigneeUserGroupName(userGroupName);
+							workflowDetails.setAssigneeLevel(assigneeLevel);
+							if(i.getCreateTime()!=null){
+								if(!i.getCreateTime().isEmpty()){
+									workflowDetails.setAssignmentTime(format.parse(i.getCreateTime()));
+								}
+							}
+							if(bill!=null){
+								if(bill.getId()!=null){
+									workflowDetails.setDeviceId(String.valueOf(bill.getId()));
+								}
+								if(bill.getNumber()!=null){
+									workflowDetails.setDeviceNumber(FormaterUtil.getNumberFormatterNoGrouping(bill.getLocale()).format(bill.getNumber()));
+								}
+								if(bill.getPrimaryMember()!=null){
+									workflowDetails.setDeviceOwner(bill.getPrimaryMember().getFullname());
+								}
+								if(bill.getType()!=null){
+									workflowDetails.setDeviceType(bill.getType().getName());
+								}
+								if(bill.getHouseType()!=null){
+									workflowDetails.setHouseType(bill.getHouseType().getName());
+								}
+								if(bill.getInternalStatus()!=null){
+									workflowDetails.setInternalStatus(bill.getInternalStatus().getName());
+								}
+								workflowDetails.setLocale(bill.getLocale());
+								if(bill.getRecommendationStatus()!=null){
+									workflowDetails.setRecommendationStatus(bill.getRecommendationStatus().getName());
+								}
+								if(bill.getFile()!=null){
+									workflowDetails.setFile(String.valueOf(bill.getFile()));
+								}								
+								workflowDetails.setRemarks(bill.getRemarks());
+								if(bill.getSession()!=null){
+									if(bill.getSession().getType()!=null){
+										workflowDetails.setSessionType(bill.getSession().getType().getSessionType());
+									}
+									workflowDetails.setSessionYear(FormaterUtil.getNumberFormatterNoGrouping(bill.getLocale()).format(bill.getSession().getYear()));
+								}
+								workflowDetails.setSubject(bill.getDefaultTitle());								
+							}
+							workflowDetails.setProcessId(i.getProcessInstanceId());
+							workflowDetails.setStatus(ApplicationConstants.MYTASK_PENDING);
+							workflowDetails.setTaskId(i.getId());
+							workflowDetails.setWorkflowType(workflowType);
+							if(workflowType.equals(ApplicationConstants.SUPPORTING_MEMBER_WORKFLOW)){
+								workflowDetails.setUrlPattern(ApplicationConstants.SUPPORTING_MEMBER_WORKFLOW_URLPATTERN_BILL);
+								workflowDetails.setForm(workflowDetails.getUrlPattern());
+								if(requestStatus!=null){
+								workflowDetails.setWorkflowSubType(requestStatus.getType());
+								}
+							} else {
+								workflowDetails.setUrlPattern(ApplicationConstants.APPROVAL_WORKFLOW_URLPATTERN_BILL);
+								workflowDetails.setForm(workflowDetails.getUrlPattern()+"/"+userGroupType);
+								if(workflowType.equals(ApplicationConstants.TRANSLATION_WORKFLOW)) {
+									workflowDetails.setWorkflowSubType(bill.getTranslationStatus().getType());
+								} else if(workflowType.equals(ApplicationConstants.OPINION_FROM_LAWANDJD_WORKFLOW)) {
+									workflowDetails.setWorkflowSubType(bill.getOpinionFromLawAndJDStatus().getType());
+								} else if(workflowType.equals(ApplicationConstants.RECOMMENDATION_FROM_GOVERNOR_WORKFLOW)) {
+									workflowDetails.setWorkflowSubType(bill.getRecommendationFromGovernorStatus().getType());
+								} else if(workflowType.equals(ApplicationConstants.RECOMMENDATION_FROM_PRESIDENT_WORKFLOW)) {
+									workflowDetails.setWorkflowSubType(bill.getRecommendationFromPresidentStatus().getType());
+								} else {
+									workflowDetails.setWorkflowSubType(bill.getInternalStatus().getType());
+								}
+							}
+							workflowDetailsList.add((WorkflowDetails) workflowDetails.persist());
+						}				
+					}
+				}				
+			}
+		} catch (ParseException e) {
+			logger.error("Parse Exception",e);
+			return workflowDetailsList;
+		}
+		return workflowDetailsList;
+	}
+	
+	public WorkflowDetails findCurrentWorkflowDetail(final Bill bill, String workflowType) {
+		try{
+			String query="SELECT m FROM WorkflowDetails m WHERE m.deviceId="+bill.getId()
+			+" AND m.workflowType='"+workflowType+"' "
+			+" ORDER BY m.assignmentTime "+ApplicationConstants.DESC;
+			WorkflowDetails workflowDetails=(WorkflowDetails) this.em().createQuery(query).setMaxResults(1).getSingleResult();
+			return workflowDetails;
+		}catch(Exception e){
+			e.printStackTrace();
+			return new WorkflowDetails();
+		}		
 	}
 }

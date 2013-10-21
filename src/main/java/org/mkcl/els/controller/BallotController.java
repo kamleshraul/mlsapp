@@ -29,6 +29,7 @@ import org.mkcl.els.common.util.FormaterUtil;
 import org.mkcl.els.common.vo.AuthUser;
 import org.mkcl.els.common.vo.BallotMemberVO;
 import org.mkcl.els.common.vo.BallotVO;
+import org.mkcl.els.common.vo.BillBallotVO;
 import org.mkcl.els.common.vo.MasterVO;
 import org.mkcl.els.common.vo.MemberBallotFinalBallotVO;
 import org.mkcl.els.common.vo.MemberBallotMemberWiseReportVO;
@@ -38,6 +39,7 @@ import org.mkcl.els.common.vo.Reference;
 import org.mkcl.els.common.vo.StarredBallotVO;
 import org.mkcl.els.domain.Ballot;
 import org.mkcl.els.domain.BallotEntry;
+import org.mkcl.els.domain.Bill;
 import org.mkcl.els.domain.CustomParameter;
 import org.mkcl.els.domain.DeviceType;
 import org.mkcl.els.domain.Group;
@@ -231,6 +233,47 @@ public class BallotController extends BaseController{
 						}
 						model.addAttribute("answeringDates", masterVOs);
 					}
+				}else if(category.equals("bill")){
+	
+					model.addAttribute("category", "bill");
+					String strDeviceType = request.getParameter("deviceType");			
+					DeviceType deviceType = 
+						DeviceType.findById(DeviceType.class, Long.parseLong(strDeviceType));
+					model.addAttribute("deviceTypeType", deviceType.getType());
+
+					if(deviceType.getType().equals(ApplicationConstants.NONOFFICIAL_BILL)) {
+
+						String strHouseType = request.getParameter("houseType");						
+						String strSessionYear = request.getParameter("sessionYear");
+						String strSessionType = request.getParameter("sessionType");
+						List<MasterVO> masterVOs = new ArrayList<MasterVO>();
+
+						if(strHouseType != null && strSessionYear != null && strSessionType != null){
+							if((!strHouseType.isEmpty()) && (!strSessionYear.isEmpty()) && (!strSessionType.isEmpty())){
+								HouseType houseType = HouseType.findByFieldName(HouseType.class, "type", strHouseType, locale.toString());
+								model.addAttribute("houseType", strHouseType);
+								Integer sessionYear  = Integer.parseInt(strSessionYear);
+								SessionType sessionType = SessionType.findById(SessionType.class, new Long(strSessionType));
+								Session session = Session.findSessionByHouseTypeSessionTypeYear(houseType, sessionType, sessionYear);
+								//findSessionByHouseSessionTypeYear(house, sessionType, sessionYear);
+
+								String strDiscussionDates = session.getParameter(deviceType.getType()+"_discussionDates");
+
+								String[] strDates = strDiscussionDates.split("#");
+
+								//tester(new Long(4), new Long(10));
+
+								for(String i: strDates){
+
+									Date date = FormaterUtil.formatStringToDate(i, ApplicationConstants.DB_DATEFORMAT);
+									MasterVO masterVO = new MasterVO(i.hashCode(), FormaterUtil.getDateFormatter(locale.toString()).format(date));
+									masterVO.setValue(i);
+									masterVOs.add(masterVO);
+								}
+							}						
+						}
+						model.addAttribute("answeringDates", masterVOs);
+					}
 				}
 				
 				List<MasterVO> outputFormats = new ArrayList<MasterVO>();
@@ -313,9 +356,18 @@ public class BallotController extends BaseController{
 				CustomParameter dbDateFormat = 
 					CustomParameter.findByName(CustomParameter.class, "DB_DATEFORMAT", "");
 				answeringDate = FormaterUtil.formatStringToDate(strAnsweringDate, dbDateFormat.getValue());
-			}else if(deviceType.getType().equals(ApplicationConstants.NONOFFICIAL_RESOLUTION)){
+			}else if(deviceType.getType().equals(ApplicationConstants.NONOFFICIAL_RESOLUTION) || deviceType.getType().equals(ApplicationConstants.NONOFFICIAL_BILL)){
 				CustomParameter dbDateFormat = CustomParameter.findByName(CustomParameter.class, "DB_DATEFORMAT", "");
 				answeringDate = FormaterUtil.formatStringToDate(strAnsweringDate, dbDateFormat.getValue());
+			}
+			
+			/**** Validate whether ballot can be created for bill ****/
+			if(deviceType.getType().equals(ApplicationConstants.NONOFFICIAL_BILL)) {
+				boolean isBallotAllowedToCreate = validateBallotCreationForBill(session, deviceType, answeringDate, locale.toString());
+				if(isBallotAllowedToCreate==false) {
+					retVal = "NOT_ALLOWED";
+					return retVal;
+				}
 			}
 
 			/** Create Ballot */
@@ -396,7 +448,7 @@ public class BallotController extends BaseController{
 				
 				CustomParameter dbDateFormat = CustomParameter.findByName(CustomParameter.class, "DB_DATEFORMAT", "");
 				answeringDate = FormaterUtil.formatStringToDate(strAnsweringDate, dbDateFormat.getValue());
-			}else if(deviceType.getType().equals(ApplicationConstants.NONOFFICIAL_RESOLUTION)){
+			}else if(deviceType.getType().equals(ApplicationConstants.NONOFFICIAL_RESOLUTION) || deviceType.getType().equals(ApplicationConstants.NONOFFICIAL_BILL)){
 				CustomParameter dbDateFormat = CustomParameter.findByName(CustomParameter.class, "DB_DATEFORMAT", "");
 				answeringDate = FormaterUtil.formatStringToDate(strAnsweringDate, dbDateFormat.getValue());
 			}
@@ -512,6 +564,19 @@ public class BallotController extends BaseController{
 						model.addAttribute("ballotVOs", report);
 						retVal = "ballot/nonofficial_membersubjectcombo_ballot";
 					}
+				}else if(deviceType.getType().equals(ApplicationConstants.NONOFFICIAL_BILL)) {
+					List<BillBallotVO> ballotVOs = Ballot.findBillMemberSubjectBallotVO(session, deviceType, answeringDate, locale.toString());
+					StringBuilder voIds = new StringBuilder();
+					for(int i = 0; i < ballotVOs.size(); i++){
+						voIds.append(ballotVOs.get(i).getId().toString()+";"+ballotVOs.get(i).getChecked());
+						if(i < (ballotVOs.size() - 1)){
+							voIds.append("#");
+						}
+					}
+					model.addAttribute("ids",voIds.toString());
+					model.addAttribute("ballotVOs", ballotVOs);
+
+					retVal = "ballot/nonofficial_bill_membersubjectcombo_ballot";
 				}
 			}else if(houseType.getType().equals(ApplicationConstants.UPPER_HOUSE)) {
 				if(deviceType.getType().equals(ApplicationConstants.HALF_HOUR_DISCUSSION_QUESTION_FROM_QUESTION)) {
@@ -555,6 +620,19 @@ public class BallotController extends BaseController{
 					List<BallotMemberVO> ballotVOs = Ballot.findBallotedMemberVO(session, deviceType, answeringDate, locale.toString());
 					model.addAttribute("ballotVOs", ballotVOs);
 					retVal = "ballot/nonofficial_member_ballot";
+				}else if(deviceType.getType().equals(ApplicationConstants.NONOFFICIAL_BILL)) {
+					List<BillBallotVO> ballotVOs = Ballot.findBillMemberSubjectBallotVO(session, deviceType, answeringDate, locale.toString());
+					StringBuilder voIds = new StringBuilder();
+					for(int i = 0; i < ballotVOs.size(); i++){
+						voIds.append(ballotVOs.get(i).getId().toString()+";"+ballotVOs.get(i).getChecked());
+						if(i < (ballotVOs.size() - 1)){
+							voIds.append("#");
+						}
+					}
+					model.addAttribute("ids",voIds.toString());
+					model.addAttribute("ballotVOs", ballotVOs);
+
+					retVal = "ballot/nonofficial_bill_membersubjectcombo_ballot";
 				}
 			}
 		}
@@ -2313,10 +2391,19 @@ public class BallotController extends BaseController{
 				CustomParameter dbDateFormat = 
 					CustomParameter.findByName(CustomParameter.class, "DB_DATEFORMAT", "");
 				answeringDate = FormaterUtil.formatStringToDate(strAnsweringDate, dbDateFormat.getValue());
-			}else if(deviceType.getType().equals(ApplicationConstants.NONOFFICIAL_RESOLUTION)){
+			}else if(deviceType.getType().equals(ApplicationConstants.NONOFFICIAL_RESOLUTION) || deviceType.getType().equals(ApplicationConstants.NONOFFICIAL_BILL)){
 				CustomParameter dbDateFormat = 
 					CustomParameter.findByName(CustomParameter.class, "DB_DATEFORMAT", "");
 				answeringDate = FormaterUtil.formatStringToDate(strAnsweringDate, dbDateFormat.getValue());
+			}
+			
+			/**** Validate whether pre-ballot can be created for bill ****/
+			if(deviceType.getType().equals(ApplicationConstants.NONOFFICIAL_BILL)) {
+				boolean isBallotAllowedToCreate = validateBallotCreationForBill(session, deviceType, answeringDate, locale.toString());
+				if(isBallotAllowedToCreate==false) {
+					model.addAttribute("isBallotAllowedToCreate", isBallotAllowedToCreate);
+					return "ballot/nonofficial_bill_preballot";
+				}
 			}
 
 			/** Route PreBallot creation to appropriate handler method */
@@ -2331,6 +2418,9 @@ public class BallotController extends BaseController{
 				}else if(deviceType.getType().equals(ApplicationConstants.NONOFFICIAL_RESOLUTION)) {
 					retVal = this.resolutionNonOfficialMemberPreBallot(model, session, deviceType, answeringDate, locale.toString());
 
+				}else if(deviceType.getType().equals(ApplicationConstants.NONOFFICIAL_BILL)) {
+					retVal = this.billNonOfficialPreBallot(model, session, deviceType, answeringDate, locale.toString());
+				
 				}				
 			}else if(houseType.getType().equals(ApplicationConstants.LOWER_HOUSE)) {
 
@@ -2344,7 +2434,11 @@ public class BallotController extends BaseController{
 					CustomParameter dbDateFormat = CustomParameter.findByName(CustomParameter.class, "DB_DATEFORMAT", "");
 					answeringDate = FormaterUtil.formatStringToDate(strAnsweringDate, dbDateFormat.getValue());
 					retVal = this.resolutionNonOfficialPreBallot(model, session, deviceType, answeringDate, locale.toString());
-				}		
+				}else if(deviceType.getType().equals(ApplicationConstants.NONOFFICIAL_BILL)) {
+					CustomParameter dbDateFormat = CustomParameter.findByName(CustomParameter.class, "DB_DATEFORMAT", "");
+					answeringDate = FormaterUtil.formatStringToDate(strAnsweringDate, dbDateFormat.getValue());
+					retVal = this.billNonOfficialPreBallot(model, session, deviceType, answeringDate, locale.toString());
+				}
 			}
 
 		}catch(Exception e) {
@@ -2353,6 +2447,22 @@ public class BallotController extends BaseController{
 			retVal = "ballot/error";
 		}
 		return retVal;
+	}
+	
+	private boolean validateBallotCreationForBill(Session session,
+			DeviceType deviceType, Date answeringDate, String locale) {
+		boolean isAllowedToCreateBallot = true;
+		List<Bill> bills;
+		try {
+			bills = Bill.findPendingBillsBeforeBalloting(session, deviceType, answeringDate, locale);
+			if(!bills.isEmpty()) {
+				isAllowedToCreateBallot = false;
+			}
+		} catch (ELSException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return isAllowedToCreateBallot;
 	}
 
 	private String halfHourPreBallot(final ModelMap model,
@@ -2955,4 +3065,21 @@ public class BallotController extends BaseController{
 	/**** Motion Ballot Ends ****/
 	/****************************/
 	
+	/**** Bill Ballot Handler Methods ****/
+	private String billNonOfficialPreBallot(final ModelMap model,
+			final Session session,
+			final DeviceType deviceType,
+			final Date answeringDate,
+			final String locale) {
+		List<BallotVO> ballotVOs;
+		try {
+			ballotVOs = Ballot.findPreBallotVO(session, deviceType, answeringDate, locale);
+			model.addAttribute("ballotVOs", ballotVOs);
+			return "ballot/nonofficial_bill_preballot";
+		} catch (ELSException e) {
+			e.printStackTrace();
+			model.addAttribute("error", e.getParameter());
+			return "ballot/error";
+		}
+	}
 }
