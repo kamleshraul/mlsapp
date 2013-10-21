@@ -11,7 +11,7 @@
 			$.ajax({url: 'ref/getTypeOfSelectedDeviceType?deviceTypeId='+ $("#selectedDeviceType").val(), async: false, success : function(data){	
 				deviceType = data;
 			}}).done(function(){
-				if(deviceType == 'resolutions_government') {					
+				if(deviceType == 'resolutions_government' && $("#currentusergroupType").val()!='member') {					
 					$("#gridURLParams").val("deviceType="+$("#selectedDeviceType").val()
 							    +"&sessionYear="+$("#selectedSessionYear").val()
 								+"&sessionType="+$('#selectedSessionType').val()								
