@@ -564,6 +564,8 @@ public class ApplicationConstants {
 
 	public static String RIS_MEMBER_WISE_REPORT="RIS_MEMBER_WISE_REPORT";
 	
+	public static String RIS_MEMBER_WISE_REPORT2="RIS_MEMBER_WISE_REPORT2";
+	
 	/****Custom Parameters name ****/
 	public static final String RESOLUTION_CHART_WITHDEVICES_VIEW = "RESOLUTION_CHART_WITHDEVICES_VIEW";
 	
