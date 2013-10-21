@@ -11,6 +11,12 @@
 		<pattern>/message/new</pattern>
 		<pattern>/message/*/edit</pattern>
 		<pattern>/message/*/delete</pattern>
+		
+		<pattern>/editing</pattern>
+		<pattern>/editing/compileedit</pattern>
+		<pattern>/editing/new</pattern>
+		<pattern>/editing/*/edit</pattern>
+		<pattern>/editing/*/delete</pattern>
 
 
 		<pattern>/grid</pattern>
