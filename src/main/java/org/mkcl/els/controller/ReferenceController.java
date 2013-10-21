@@ -3361,9 +3361,83 @@ public class ReferenceController extends BaseController {
 			} catch (IOException e) {
 				e.printStackTrace();
 			}
-
-			
 		}
+	}
+	
+	@RequestMapping(value="/member/getmembers",method=RequestMethod.GET)
+	public @ResponseBody List<AutoCompleteVO> getActiveMembersAndMinisters(final HttpServletRequest request,
+			final Locale locale,
+			@RequestParam("session")final Long session,
+			final ModelMap model){
+		CustomParameter customParameter=CustomParameter.findByName(CustomParameter.class,"DEPLOYMENT_SERVER", "");
+		List<MasterVO> memberVOs=new ArrayList<MasterVO>();
+		List<MasterVO> ministerVOs=new ArrayList<MasterVO>();
+		List<MasterVO> mainVO=new ArrayList<MasterVO>();
+		List<AutoCompleteVO> autoCompleteVOs=new ArrayList<AutoCompleteVO>();
+		Session selectedSession=Session.findById(Session.class,session);
+		House house=selectedSession.getHouse();
+		Long primaryMemberId=null;
+		if(request.getParameter("primaryMemberId")!=null){
+			if(!request.getParameter("primaryMemberId").isEmpty()){
+				primaryMemberId = Long.parseLong(request.getParameter("primaryMemberId"));
+			}
+		}
+		/**** Removed this portion so as to use same code for getting primary members in case of
+		 * clerk login
+		 */
+		//		if(primaryMemberId==null){
+		//			return autoCompleteVOs;
+		//		}
+		if(customParameter!=null){
+			String server=customParameter.getValue();
+			if(server.equals("TOMCAT")){
+				String strParam=request.getParameter("term");
+				try {
+					String param=new String(strParam.getBytes("ISO-8859-1"),"UTF-8");
+					House secondHouse=null;
+					if(house.getType().getType().equals(ApplicationConstants.LOWER_HOUSE)){
+						HouseType houseType=HouseType.findByType(ApplicationConstants.UPPER_HOUSE, locale.toString());
+						secondHouse=House.find(houseType, new Date(), locale.toString());
+					}else if(house.getType().getType().equals(ApplicationConstants.UPPER_HOUSE)){
+						HouseType houseType=HouseType.findByType(ApplicationConstants.LOWER_HOUSE, locale.toString());
+						secondHouse=House.find(houseType, new Date(), locale.toString());
+					}
+					ministerVOs=MemberMinister.findMinistersInSecondHouse(secondHouse,param,locale.toString());
+					if(!ministerVOs.isEmpty()){
+						mainVO.addAll(ministerVOs);
+					}
+					memberVOs=HouseMemberRoleAssociation.findAllActiveSupportingMemberVOSInSession(house, selectedSession, locale.toString(), param,primaryMemberId);
+					mainVO.addAll(memberVOs);
+				}
+				catch (UnsupportedEncodingException e){
+					e.printStackTrace();
+				}
+			}else{
+				String param=request.getParameter("term");
 				
+				House secondHouse=null;
+				if(house.getType().getType().equals(ApplicationConstants.LOWER_HOUSE)){
+					HouseType houseType=HouseType.findByType(ApplicationConstants.UPPER_HOUSE, locale.toString());
+					secondHouse=House.find(houseType, new Date(), locale.toString());
+				}else if(house.getType().getType().equals(ApplicationConstants.UPPER_HOUSE)){
+					HouseType houseType=HouseType.findByType(ApplicationConstants.LOWER_HOUSE, locale.toString());
+					secondHouse=House.find(houseType, new Date(), locale.toString());
+				}
+				ministerVOs=MemberMinister.findMinistersInSecondHouse(secondHouse,param,locale.toString());
+				if(!ministerVOs.isEmpty()){
+					mainVO.addAll(ministerVOs);
+				}
+				memberVOs=HouseMemberRoleAssociation.findAllActiveSupportingMemberVOSInSession(house,selectedSession, locale.toString(), param, primaryMemberId);
+				mainVO.addAll(memberVOs);
+			}
+		}
+		for(MasterVO i:mainVO){
+			AutoCompleteVO autoCompleteVO=new AutoCompleteVO();
+			autoCompleteVO.setId(i.getId());
+			autoCompleteVO.setValue(i.getName());
+			autoCompleteVOs.add(autoCompleteVO);
+		}
+
+		return autoCompleteVOs;
 	}
 }
