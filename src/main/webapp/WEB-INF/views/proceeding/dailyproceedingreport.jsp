@@ -76,7 +76,12 @@
 		}
 		.reportLink:hover{
 			text-shadow: 1px 1px gray;
-		}		
+		}	
+		#reportDiv table ul{
+			background: none !important;
+			background: white !important;
+		}
+			
 	</style>
 </head>
 
