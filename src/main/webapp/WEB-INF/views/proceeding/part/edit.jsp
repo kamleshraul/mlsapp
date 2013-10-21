@@ -324,6 +324,12 @@
 				$("#substituteMemberDesignation").prepend("<option value='' selected='selected'>----"+$("#pleaseSelectMessage").val()+"----</option>");
 			}
 			
+			$('#resetMainHeading').click(function(){
+				$('#mainHeading').wysiwyg('setContent',"");
+			});
+			$('#resetPageHeading').click(function(){
+				$('#pageHeading').wysiwyg('setContent',"");
+			});
 			
 		});
 		function getIframeSelectionText(iframe) {
@@ -391,7 +397,7 @@
 	</p>
 	<p>
 		<label class="small"><spring:message code="part.order" text="Order"/></label>
-		<form:input path="orderNo" id="orderNo" cssClass="sInteger"/>
+		<input name="orderNo" id="orderNo" class="sInteger" value="${domain.orderNo}"/>
 	</p>
 	<p class="minister">
 		<label class="small"><spring:message code="part.primaryMemberDesignation" text="Primary Member Designation"/></label>
@@ -501,13 +507,19 @@
 		<label class="small"><spring:message code="part.deviceNo" text="Device No"/></label>
 		<input type="text" name="deviceNo" id="deviceNo" class="sInteger"/>
 	</p> --%>
+	<p>
+		<label class="small"><spring:message code="part.isInterrupted" text="Is Interrupted"/></label>
+		<form:checkbox path="isInterrupted" cssClass="sCheck"/>
+	</p>
 	<p id="mainHeadingP">
 		<label class="wysiwyglabel"><spring:message code="part.mainHeading" text="Main Heading"/></label>
 		<form:textarea path="mainHeading" cssClass="wysiwyg"/>
+		<a href="javascript:void(0)" id="resetMainHeading" style="margin-right: 100px; float: right; margin-top: -150px;">reset</a>
 	</p>
 	<p id="pageHeadingP">
 		<label class="wysiwyglabel"><spring:message code="part.pageHeading" text="Page Heading"/></label>
 		<form:textarea path="pageHeading" cssClass="wysiwyg"/>
+		<a href="javascript:void(0)" id="resetPageHeading" style="margin-right: 100px; float: right; margin-top: -150px;">reset</a>
 	</p>
 	
 	<p>

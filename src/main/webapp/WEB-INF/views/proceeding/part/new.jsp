@@ -77,6 +77,17 @@
 				nextPart();
 			});
 					
+			//alert($('#mainHeadingContent').val());
+			
+			if($('#mainHeadingContent').val()!=''){
+				$('#mainHeading').val($('#mainHeadingContent').val());
+				$('#mainHeadingP').show();
+			}
+			if($('#pageHeadingContent').val()!=''){
+				$('#pageHeading').val($('#pageHeadingContent').val());
+				$('#pageHeadingP').show();
+			}
+			
 			$('#addBookmark').click(function(){
 				//var id=this.id;
 				$.get('proceeding/part/bookmark?language='+$("#selectedLanguage").val()+'&currentSlot='+$('#cSlot').val()+'&currentPart='+$('#id').val(),function(data){
@@ -315,6 +326,19 @@
 					}
 				});
 			});
+			
+			$('#formattedMember').change(function(){
+				$('#memberImage').attr("src","ref/getphoto?memberId="+$('#primaryMember').val());
+				$('#memberPhoto').css("display","inline");
+				
+			});
+			
+			$('#resetMainHeading').click(function(){
+				$('#mainHeading').wysiwyg('setContent',"");
+			});
+			$('#resetPageHeading').click(function(){
+				$('#pageHeading').wysiwyg('setContent',"");
+			});
 			$("#deviceType").prepend("<option value='' selected='selected'>----"+$("#pleaseSelectMessage").val()+"----</option>");
 			$("#substituteMemberMinistry").prepend("<option value='' selected='selected'>----"+$("#pleaseSelectMessage").val()+"----</option>");				
 			$("#primaryMemberMinistry").prepend("<option value='' selected='selected'>----"+$("#pleaseSelectMessage").val()+"----</option>");				
@@ -377,6 +401,9 @@
 		<label  class="small"><spring:message code="part.memberName" text=" Member"/></label>
 		<input type="text" name="formattedMember" id="formattedMember" class="autosuggest sText"/>
 		<form:hidden path="primaryMember"/>
+		<div id="memberPhoto" style=" display: none;">
+			<img src="" id="memberImage" style="width:60px; margin-right: 445px; float:right; margin-top: -72px; border-radius: 5px; box-shadow: 1px 1px 5px black;"/> 
+		</div>
 	</p>
 	
 	<p class="minister">
@@ -454,13 +481,19 @@
 		<label class="small"><spring:message code="part.DeviceNo" text="Device No"/></label>
 		<select id="halfHourDiscussionFromQuestionNo" name="halfHourDiscussionFromQuestionNo" class="sSelect"></select>
 	</p>
+	<p>
+		<label class="small"><spring:message code="part.isInterrupted" text="Is Interrupted"/></label>
+		<form:checkbox path="isInterrupted" cssClass="sCheck"/>
+	</p>
 	<p id="mainHeadingP">
 		<label class="wysiwyglabel"><spring:message code="part.mainHeading" text="Main Heading"/></label>
 		<form:textarea path="mainHeading" cssClass="wysiwyg"/>
+		<a href="javascript:void(0)" id="resetMainHeading" style="margin-right: 100px; float: right; margin-top: -150px;">reset</a>
 	</p>
 	<p id="pageHeadingP">
 		<label class="wysiwyglabel"><spring:message code="part.pageHeading" text="Page Heading"/></label>
 		<form:textarea path="pageHeading" cssClass="wysiwyg"/>
+		<a href="javascript:void(0)" id="resetPageHeading" style="margin-right: 100px; float: right; margin-top: -150px;">reset</a>
 	</p>
 	<p>
 		<label class="wysiwyglabel"><spring:message code="part.proceedingContent" text="Content"/></label>
@@ -497,6 +530,9 @@
 <input id="selectItemFirstMessage" value="<spring:message code='ris.selectitem' text='Select an item first'/>" type="hidden">
 <input type="hidden" id="lastPart" name="lastPart" value="${lastPartId}"/>
 <input id="pleaseSelectMessage" value="<spring:message code='please.select' text='Please Select'/>" type="hidden">
+<input type="hidden" id="mainHeadingContent" name="mainHeadingContent" value="${mainHeading}">
+<input type="hidden" id="pageHeadingContent" name="pageHeadingContent" value="${pageHeading}">
 </div>
+
 </body>
 </html>
