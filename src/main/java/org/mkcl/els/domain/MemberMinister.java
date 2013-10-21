@@ -204,6 +204,11 @@ public class MemberMinister extends BaseDomain implements Serializable {
     public static Member findMemberHavingMinistryInSession(Session session, Ministry ministry) {
 		return getMemberMinisterRepository().findMemberByAssignedMinistryInSession(session, ministry);
 	}
+    
+    public static List<MasterVO> findMinistersInSecondHouse(House house,
+			String param, String locale) {
+    	return getMemberMinisterRepository().findMinistersInSecondHouse(house,param,locale);
+	}   
 
     /**** Getters & Setters ****/
     
@@ -379,5 +384,7 @@ public class MemberMinister extends BaseDomain implements Serializable {
 
 	public void setPriority(Integer priority) {
 		this.priority = priority;
-	}    
+	}
+
+	 
 }
