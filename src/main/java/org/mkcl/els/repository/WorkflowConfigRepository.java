@@ -14,6 +14,7 @@ import javax.persistence.TypedQuery;
 
 import org.mkcl.els.common.util.ApplicationConstants;
 import org.mkcl.els.common.vo.Reference;
+import org.mkcl.els.domain.Bill;
 import org.mkcl.els.domain.Credential;
 import org.mkcl.els.domain.Department;
 import org.mkcl.els.domain.DeviceType;
@@ -781,5 +782,254 @@ public class WorkflowConfigRepository extends BaseRepository<WorkflowConfig, Ser
 		}
 			
 		return null;
+	}
+	
+	/**
+	 * 
+	 * @param bill
+	 * @param internalStatus (though this is normally internal status, but for some cases this can be recommendation status, 
+	 * translation status or even opinionFromLawAndJD status)
+	 * @param userGroup
+	 * @param level
+	 * @param locale
+	 * @return
+	 */
+	public List<Reference> findBillActorsVO(final Bill bill,
+			final Status internalStatus,final UserGroup userGroup,final int level,final String locale) {
+		String status=internalStatus.getType();
+		WorkflowConfig workflowConfig=null;
+		UserGroupType userGroupType=null;
+		WorkflowActor currentWorkflowActor=null;
+		List<Reference> references=new ArrayList<Reference>();
+		List<WorkflowActor> allEligibleActors=new ArrayList<WorkflowActor>();
+		/**** Note :Here this can be configured so that list of workflows which
+			 * goes back is read  dynamically ****/
+		if(status.equals(ApplicationConstants.BILL_RECOMMEND_SENDBACK)				
+				||status.equals(ApplicationConstants.BILL_RECOMMEND_DISCUSS)								
+		){
+			workflowConfig=getLatest(bill,bill.getInternalStatus().getType(),locale.toString());
+			userGroupType=userGroup.getUserGroupType();
+			currentWorkflowActor=getWorkflowActor(workflowConfig,userGroupType,level);
+			allEligibleActors=getWorkflowActorsExcludingCurrent(workflowConfig,currentWorkflowActor,ApplicationConstants.DESC);
+		} else{
+			workflowConfig=getLatest(bill,status,locale.toString());
+			userGroupType=userGroup.getUserGroupType();
+			currentWorkflowActor=getWorkflowActor(workflowConfig,userGroupType,level);
+			allEligibleActors=getWorkflowActorsExcludingCurrent(workflowConfig,currentWorkflowActor,ApplicationConstants.ASC);
+		}
+		HouseType houseType=Bill.findHouseTypeForWorkflow(bill);
+		DeviceType deviceType=bill.getType();
+		Ministry ministry=bill.getMinistry();
+		SubDepartment subDepartment=bill.getSubDepartment();		
+		for(WorkflowActor i:allEligibleActors){
+			UserGroupType userGroupTypeTemp=i.getUserGroupType();
+			List<UserGroup> userGroups=UserGroup.findAllByFieldName(UserGroup.class,"userGroupType",
+					userGroupTypeTemp, "activeFrom",ApplicationConstants.DESC, locale);
+			for(UserGroup j:userGroups){
+				int noOfComparisons=0;
+				int noOfSuccess=0;
+				Map<String,String> params=j.getParameters();
+				if(houseType!=null){
+					HouseType bothHouse=HouseType.findByFieldName(HouseType.class, "type","bothhouse", locale);
+					if(!params.get(ApplicationConstants.HOUSETYPE_KEY+"_"+locale).contains(bothHouse.getName())){
+						if(params.get(ApplicationConstants.HOUSETYPE_KEY+"_"+locale).contains(houseType.getName())){
+							noOfComparisons++;
+							noOfSuccess++;
+						}else{
+							noOfComparisons++;
+						}
+					}
+				}
+				if(deviceType!=null){
+					if(params.get(ApplicationConstants.DEVICETYPE_KEY+"_"+locale).contains(deviceType.getName())){
+						noOfComparisons++;
+						noOfSuccess++;
+					}else{
+						noOfComparisons++;
+					}
+				}
+				if(ministry!=null){
+					if(params.get(ApplicationConstants.MINISTRY_KEY+"_"+locale).contains(ministry.getName())){
+						noOfComparisons++;
+						noOfSuccess++;
+					}else{
+						noOfComparisons++;
+					}
+				}
+				if(subDepartment!=null){
+					if(params.get(ApplicationConstants.SUBDEPARTMENT_KEY+"_"+locale).contains(subDepartment.getName())){
+						noOfComparisons++;
+						noOfSuccess++;
+					}else{
+						noOfComparisons++;
+					}
+				}	
+				Date fromDate=j.getActiveFrom();
+				Date toDate=j.getActiveTo();
+				Date currentDate=new Date();
+				noOfComparisons++;
+				if(((fromDate==null||currentDate.after(fromDate)||currentDate.equals(fromDate))
+						&&(toDate==null||currentDate.before(toDate)||currentDate.equals(toDate)))
+				){
+					noOfSuccess++;
+				}
+				/**** Include Leave Module ****/
+				if(noOfComparisons==noOfSuccess){
+					Reference reference=new Reference();
+					User user=User.findByFieldName(User.class,"credential",j.getCredential(), locale);
+					reference.setId(j.getCredential().getUsername()
+							+"#"+j.getUserGroupType().getType()
+							+"#"+i.getLevel()
+							+"#"+userGroupTypeTemp.getName()
+							+"#"+user.getTitle()+" "+user.getFirstName()+" "+user.getMiddleName()+" "+user.getLastName());
+					reference.setName(userGroupTypeTemp.getName());
+					references.add(reference);
+					break;
+				}				
+			}
+		}				
+		return references;
+	}
+	
+	public List<Reference> findBillActorsVO(final Bill bill, HouseType houseType, final Boolean isActorAcrossHouse,
+			final Status internalStatus,final UserGroup userGroup,final int level,final String locale) {
+		String status=internalStatus.getType();
+		WorkflowConfig workflowConfig=null;
+		UserGroupType userGroupType=null;
+		WorkflowActor currentWorkflowActor=null;
+		List<Reference> references=new ArrayList<Reference>();
+		List<WorkflowActor> allEligibleActors=new ArrayList<WorkflowActor>();
+		/**** Note :Here this can be configured so that list of workflows which
+			 * goes back is read  dynamically ****/
+		if(status.equals(ApplicationConstants.BILL_RECOMMEND_SENDBACK)				
+				||status.equals(ApplicationConstants.BILL_RECOMMEND_DISCUSS)								
+		){
+			workflowConfig=getLatest(bill,houseType,bill.getInternalStatus().getType(),locale.toString());
+			userGroupType=userGroup.getUserGroupType();
+			currentWorkflowActor=getWorkflowActor(workflowConfig,userGroupType,level);
+			allEligibleActors=getWorkflowActorsExcludingCurrent(workflowConfig,currentWorkflowActor,ApplicationConstants.DESC);
+		} else{
+			workflowConfig=getLatest(bill,houseType,status,locale.toString());
+			userGroupType=userGroup.getUserGroupType();
+			currentWorkflowActor=getWorkflowActor(workflowConfig,userGroupType,level);
+			allEligibleActors=getWorkflowActorsExcludingCurrent(workflowConfig,currentWorkflowActor,ApplicationConstants.ASC);
+		}
+		DeviceType deviceType=bill.getType();
+		Ministry ministry=bill.getMinistry();
+		SubDepartment subDepartment=bill.getSubDepartment();	
+		if(isActorAcrossHouse!=null) {
+			if(isActorAcrossHouse.equals(true)) {
+				if(houseType.getType().equals(ApplicationConstants.LOWER_HOUSE)) {
+					houseType = HouseType.findByFieldName(HouseType.class, "type", ApplicationConstants.UPPER_HOUSE,bill.getLocale());
+				} else if(houseType.getType().equals(ApplicationConstants.UPPER_HOUSE)) {
+					houseType = HouseType.findByFieldName(HouseType.class, "type", ApplicationConstants.LOWER_HOUSE,bill.getLocale());
+				}
+			}
+		}
+		for(WorkflowActor i:allEligibleActors){
+			UserGroupType userGroupTypeTemp=i.getUserGroupType();
+			List<UserGroup> userGroups=UserGroup.findAllByFieldName(UserGroup.class,"userGroupType",
+					userGroupTypeTemp, "activeFrom",ApplicationConstants.DESC, locale);
+			for(UserGroup j:userGroups){
+				int noOfComparisons=0;
+				int noOfSuccess=0;
+				Map<String,String> params=j.getParameters();				
+				if(houseType!=null){
+					HouseType bothHouse=HouseType.findByFieldName(HouseType.class, "type","bothhouse", locale);
+					if(!params.get(ApplicationConstants.HOUSETYPE_KEY+"_"+locale).contains(bothHouse.getName())){
+						if(params.get(ApplicationConstants.HOUSETYPE_KEY+"_"+locale).contains(houseType.getName())){
+							noOfComparisons++;
+							noOfSuccess++;
+						}else{
+							noOfComparisons++;
+						}
+					}
+				}
+				if(deviceType!=null){
+					if(params.get(ApplicationConstants.DEVICETYPE_KEY+"_"+locale).contains(deviceType.getName())){
+						noOfComparisons++;
+						noOfSuccess++;
+					}else{
+						noOfComparisons++;
+					}
+				}
+				if(ministry!=null){
+					if(params.get(ApplicationConstants.MINISTRY_KEY+"_"+locale).contains(ministry.getName())){
+						noOfComparisons++;
+						noOfSuccess++;
+					}else{
+						noOfComparisons++;
+					}
+				}
+				if(subDepartment!=null){
+					if(params.get(ApplicationConstants.SUBDEPARTMENT_KEY+"_"+locale).contains(subDepartment.getName())){
+						noOfComparisons++;
+						noOfSuccess++;
+					}else{
+						noOfComparisons++;
+					}
+				}	
+				Date fromDate=j.getActiveFrom();
+				Date toDate=j.getActiveTo();
+				Date currentDate=new Date();
+				noOfComparisons++;
+				if(((fromDate==null||currentDate.after(fromDate)||currentDate.equals(fromDate))
+						&&(toDate==null||currentDate.before(toDate)||currentDate.equals(toDate)))
+				){
+					noOfSuccess++;
+				}
+				/**** Include Leave Module ****/
+				if(noOfComparisons==noOfSuccess){
+					Reference reference=new Reference();
+					User user=User.findByFieldName(User.class,"credential",j.getCredential(), locale);
+					reference.setId(j.getCredential().getUsername()
+							+"#"+j.getUserGroupType().getType()
+							+"#"+i.getLevel()
+							+"#"+userGroupTypeTemp.getName()
+							+"#"+user.getTitle()+" "+user.getFirstName()+" "+user.getMiddleName()+" "+user.getLastName());
+					reference.setName(userGroupTypeTemp.getName());
+					references.add(reference);
+					break;
+				}				
+			}
+		}				
+		return references;
+	}
+	
+	private WorkflowConfig getLatest(final Bill bill,final String internalStatus,final String locale) {
+		HouseType houseTypeForWorkflow = Bill.findHouseTypeForWorkflow(bill);
+		/**** Latest Workflow Configurations ****/
+		String[] temp=internalStatus.split("_");
+		String workflowName=temp[temp.length-1]+"_workflow";				
+		String query="SELECT wc FROM WorkflowConfig wc JOIN wc.workflow wf JOIN wc.deviceType d " +
+		" JOIN wc.houseType ht "+
+		" WHERE d.id="+bill.getType().getId()+
+		" AND wf.type='"+workflowName+"' "+
+		" AND ht.id="+houseTypeForWorkflow.getId()+
+		" AND wc.isLocked=true ORDER BY wc.id "+ApplicationConstants.DESC ;				
+		try{
+			return (WorkflowConfig) this.em().createQuery(query).getResultList().get(0);
+		}catch(Exception ex){
+			ex.printStackTrace();
+			return new WorkflowConfig();
+		}	
+	}
+	
+	private WorkflowConfig getLatest(final Bill bill,final HouseType houseType,final String internalStatus,final String locale) {
+		/**** Latest Workflow Configurations ****/
+		String[] temp=internalStatus.split("_");
+		String workflowName=temp[temp.length-1]+"_workflow";				
+		String query="SELECT wc FROM WorkflowConfig wc JOIN wc.workflow wf JOIN wc.deviceType d " +
+		" JOIN wc.houseType ht "+
+		" WHERE d.id="+bill.getType().getId()+
+		" AND wf.type='"+workflowName+"' "+
+		" AND ht.id="+houseType.getId()+
+		" AND wc.isLocked=true ORDER BY wc.id "+ApplicationConstants.DESC ;				
+		try{
+			return (WorkflowConfig) this.em().createQuery(query).getResultList().get(0);
+		}catch(Exception ex){
+			ex.printStackTrace();
+			return new WorkflowConfig();
+		}	
 	}
 }

@@ -505,4 +505,8 @@ public class HouseMemberRoleAssociation implements Serializable {
 	public static List<MemberRole> findAllActiveRolesOfMemberInSession(Member member, Session session, String locale) {
 		return getMemberHouseRoleRepository().findAllActiveRolesOfMemberInSession(member, session, locale);
 	}
+	
+	public static List<Member> findAllActiveMembersInHouse(final House house, final String locale) {
+		return getMemberHouseRoleRepository().findAllActiveMembersInHouse(house,locale);
+	}
 }

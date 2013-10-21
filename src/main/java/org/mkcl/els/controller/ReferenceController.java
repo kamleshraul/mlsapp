@@ -36,6 +36,10 @@ import org.mkcl.els.common.vo.MasterVO;
 import org.mkcl.els.common.vo.Reference;
 import org.mkcl.els.domain.Abbreviation;
 import org.mkcl.els.domain.Airport;
+import org.mkcl.els.domain.Bill;
+import org.mkcl.els.domain.BillKind;
+import org.mkcl.els.domain.BillType;
+import org.mkcl.els.domain.ClubbedEntity;
 import org.mkcl.els.domain.Committee;
 import org.mkcl.els.domain.CommitteeName;
 import org.mkcl.els.domain.CommitteeType;
@@ -69,6 +73,7 @@ import org.mkcl.els.domain.MemberRole;
 import org.mkcl.els.domain.MenuItem;
 import org.mkcl.els.domain.Ministry;
 import org.mkcl.els.domain.Motion;
+import org.mkcl.els.domain.Ordinance;
 import org.mkcl.els.domain.Part;
 import org.mkcl.els.domain.PartyType;
 import org.mkcl.els.domain.Proceeding;
@@ -3439,5 +3444,615 @@ public class ReferenceController extends BaseController {
 		}
 
 		return autoCompleteVOs;
+	}
+	
+	@RequestMapping(value="/bill/actors",method=RequestMethod.POST)
+	public @ResponseBody List<Reference> findActorsForBill(final HttpServletRequest request,final ModelMap model,
+			final Locale locale){
+		List<Reference> actors=new ArrayList<Reference>();
+		String strBill=request.getParameter("bill");
+		String strInternalStatus=request.getParameter("status");		
+		String strUserGroup=request.getParameter("usergroup");
+		String strLevel=request.getParameter("levelForWorkflow");
+		if(strBill!=null&&strInternalStatus!=null&&strUserGroup!=null&&strLevel!=null){
+			if((!strBill.isEmpty())&&(!strInternalStatus.isEmpty())&&
+					(!strUserGroup.isEmpty())&&(!strLevel.isEmpty())){
+				Status internalStatus=Status.findById(Status.class,Long.parseLong(strInternalStatus));
+				if(internalStatus.getType().equals(ApplicationConstants.BILL_FINAL_REJECT_TRANSLATION)) {
+					return actors;
+				}
+				Bill bill=Bill.findById(Bill.class,Long.parseLong(strBill));
+				UserGroup userGroup=UserGroup.findById(UserGroup.class,Long.parseLong(strUserGroup));
+				actors=WorkflowConfig.findBillActorsVO(bill,internalStatus,userGroup,Integer.parseInt(strLevel),locale.toString());
+			}
+		}
+		return actors;
+	}
+	
+	@RequestMapping(value="/getTypeOfSelectedBillType",method=RequestMethod.GET) 
+	public @ResponseBody String findTypeOfSelectedBillType(final HttpServletRequest request) {
+		String typeOfSelectedBillType = "";
+		String selectedBillTypeId = request.getParameter("selectedBillTypeId");
+		if(selectedBillTypeId!=null) {
+			if(!selectedBillTypeId.isEmpty()) {
+				BillType selectedBillType = BillType.findById(BillType.class, Long.parseLong(selectedBillTypeId));
+				if(selectedBillType!=null) {
+					typeOfSelectedBillType = selectedBillType.getType();
+				}								
+			}
+		}
+		return typeOfSelectedBillType;
+	}
+	
+	@RequestMapping(value="/getTypeOfSelectedBillKind",method=RequestMethod.GET) 
+	public @ResponseBody String findTypeOfSelectedBillKind(final HttpServletRequest request) {
+		String kindOfSelectedBillKind = "";
+		String selectedBillKindId = request.getParameter("selectedBillKindId");
+		if(selectedBillKindId!=null) {
+			if(!selectedBillKindId.isEmpty()) {
+				BillKind selectedBillKind = BillKind.findById(BillKind.class, Long.parseLong(selectedBillKindId));
+				if(selectedBillKind!=null) {
+					kindOfSelectedBillKind = selectedBillKind.getType();
+				}								
+			}
+		}
+		return kindOfSelectedBillKind;
+	}
+	
+	
+	@RequestMapping(value="/ordinance/{year}/getOrdinancesForYear", method=RequestMethod.GET)
+	public @ResponseBody List<MasterVO> getOrdinancesForYear(@PathVariable(value="year") Integer year, final HttpServletRequest request, final Locale locale){
+		
+		List<MasterVO> ordinancesVO = new ArrayList<MasterVO>();
+		
+		if(year != null) {
+			List<Ordinance> ordinances = Ordinance.findAllByFieldName(Ordinance.class, "year", year.toString(),"number", ApplicationConstants.ASC, locale.toString());
+			
+			for(Ordinance o : ordinances){
+				MasterVO mv = new MasterVO();
+				mv.setId(o.getId());
+				mv.setNumber(o.getNumber());
+				mv.setValue(FormaterUtil.formatNumberNoGrouping(o.getNumber(), locale.toString()));
+				
+				ordinancesVO.add(mv);
+			}
+		}
+		
+		return ordinancesVO;
+	}
+	
+	@RequestMapping(value="/bill/membersforintroduction",method=RequestMethod.GET)
+	public @ResponseBody List<AutoCompleteVO> getMembersForIntroductionOfBill(final HttpServletRequest request,final Locale locale,final ModelMap model){
+		List<AutoCompleteVO> autoCompleteVOs=new ArrayList<AutoCompleteVO>();
+		String strParam=request.getParameter("term");
+		String strBillId=request.getParameter("billId");
+		if(strParam!=null && strBillId!=null) {
+			if(!strParam.isEmpty() && !strBillId.isEmpty()) {
+				Bill bill = Bill.findById(Bill.class, Long.parseLong(strBillId));
+				if(bill!=null) {
+					StringBuffer memberIds = new StringBuffer();
+					memberIds.append(bill.getPrimaryMember().getId());
+					if(bill.getSupportingMembers()!=null) {
+						if(!bill.getSupportingMembers().isEmpty()) {
+							memberIds.append(",");
+							for(SupportingMember i: bill.getSupportingMembers()) {
+								memberIds.append(i.getMember().getId());
+								memberIds.append(",");
+							}
+							memberIds.deleteCharAt(memberIds.length()-1);
+						}
+					}
+					if(bill.getClubbedEntities()!=null) {
+						if(!bill.getClubbedEntities().isEmpty()) {
+							memberIds.append(",");
+							for(ClubbedEntity i: bill.getClubbedEntities()) {
+								if(i.getBill().getInternalStatus().getType().equals(ApplicationConstants.BILL_FINAL_ADMISSION)) {
+									String clubbedBillMemberId = i.getBill().getPrimaryMember().getId().toString();
+									if(!memberIds.toString().contains(clubbedBillMemberId)){
+										memberIds.append(clubbedBillMemberId);
+										memberIds.append(",");
+									}
+									if(i.getBill().getSupportingMembers()!=null) {
+										if(!i.getBill().getSupportingMembers().isEmpty()) {
+											for(SupportingMember j: i.getBill().getSupportingMembers()) {
+												String clubbedBillSupportingMemberId = j.getMember().getId().toString();
+												if(!memberIds.toString().contains(clubbedBillSupportingMemberId)){
+													memberIds.append(clubbedBillSupportingMemberId);
+													memberIds.append(",");
+												}
+											}
+											if(memberIds.charAt(memberIds.length()-1)==',') {
+												memberIds.deleteCharAt(memberIds.length()-1);
+											}
+										}
+									}
+								}							
+							}
+							if(memberIds.charAt(memberIds.length()-1)==',') {
+								memberIds.deleteCharAt(memberIds.length()-1);
+							}						
+						}
+					}				
+					CustomParameter customParameter=CustomParameter.findByName(CustomParameter.class, "DEPLOYMENT_SERVER", "");
+					List<MasterVO> memberVOs=new ArrayList<MasterVO>();		
+					if(customParameter!=null){
+						String server=customParameter.getValue();
+						if(server.equals("TOMCAT")){
+							try {
+								strParam=new String(strParam.getBytes("ISO-8859-1"),"UTF-8");
+								memberVOs = Member.findAllMembersVOsWithGivenIdsAndWithNameContainingParam(memberIds.toString(), strParam);
+							}
+							catch (UnsupportedEncodingException e) {
+								e.printStackTrace();
+							}
+						} else {
+							memberVOs = Member.findAllMembersVOsWithGivenIdsAndWithNameContainingParam(memberIds.toString(), strParam);
+						}						
+					}
+					for(MasterVO i:memberVOs){
+						AutoCompleteVO autoCompleteVO=new  AutoCompleteVO();
+						autoCompleteVO.setId(i.getId());
+						autoCompleteVO.setValue(i.getName());
+						autoCompleteVOs.add(autoCompleteVO);
+					}
+				}				
+			}
+		}
+		return autoCompleteVOs;
+	}
+	
+	@RequestMapping(value="/bill/printrequisition_statuses", method=RequestMethod.GET)
+	public @ResponseBody List<MasterVO> getPrintRequisitionStatusesForBillInGivenHouse(final HttpServletRequest request, final Locale locale){
+		List<MasterVO> printRequisitionStatusVOs = new ArrayList<MasterVO>();
+		String billNumberStr = request.getParameter("billNumber");
+		String billYearStr = request.getParameter("billYear");
+		String currentHouseTypeType = request.getParameter("currentHouseTypeType");
+		if(billNumberStr!=null&&billYearStr!=null&&currentHouseTypeType!=null) {
+			if(!billNumberStr.isEmpty()&&!billYearStr.isEmpty()&&!currentHouseTypeType.isEmpty()) {
+				CustomParameter server=CustomParameter.findByName(CustomParameter.class, "DEPLOYMENT_SERVER", "");
+				if(server != null) {
+					if(server.getValue().equals("TOMCAT")) {
+						try {
+							billNumberStr = new String(billNumberStr.getBytes("ISO-8859-1"),"UTF-8");														
+						}catch (UnsupportedEncodingException e) {
+							logger.error("Cannot Encode the Parameter 'billNumber'.");
+							printRequisitionStatusVOs = null;
+							return printRequisitionStatusVOs;
+						}
+					}
+				}
+				try {
+					Bill bill = Bill.findByNumberAndYear(Integer.parseInt(billNumberStr), Integer.parseInt(billYearStr), locale.toString());
+					if(bill==null) {
+						logger.error("Check Request Parameter 'billNumber' and 'billYear' for invalid values");
+						printRequisitionStatusVOs = null;
+						return printRequisitionStatusVOs;
+					}
+					String currentHouseOrder = Bill.findHouseOrderOfGivenHouseForBill(bill, currentHouseTypeType);
+					if(currentHouseOrder!=null) {
+						CustomParameter printRequisitionStatusParameter = CustomParameter.findByName(CustomParameter.class, "BILL_PRINTREQUISITION_STATUSOPTIONS_"+currentHouseOrder.toUpperCase(), "");
+						if(printRequisitionStatusParameter!=null) {
+							if(printRequisitionStatusParameter.getValue()!=null) {									
+								StringBuffer filteredStatusTypes = new StringBuffer("");
+								String[] statusTypesArr = printRequisitionStatusParameter.getValue().split(",");
+								for(String i: statusTypesArr) {
+									System.out.println(filteredStatusTypes.toString());
+									if(!i.trim().isEmpty()) {
+										if(i.trim().endsWith(currentHouseOrder)) {
+											if(i.trim().contains(currentHouseTypeType)) {
+												filteredStatusTypes.append(i.trim()+",");
+											}																						
+										} else {
+											filteredStatusTypes.append(i.trim()+",");						
+										}					
+									}				
+								}
+								filteredStatusTypes.deleteCharAt(filteredStatusTypes.length()-1);	
+								List<Status> printRequisitionStatuses = Status.findStatusContainedIn(filteredStatusTypes.toString(), locale.toString(), ApplicationConstants.ASC);
+								if(printRequisitionStatuses!=null) {
+									for(Status i: printRequisitionStatuses) {
+										MasterVO printRequisitionStatusVO = new MasterVO();
+										printRequisitionStatusVO.setName(i.getName());
+										printRequisitionStatusVO.setValue(i.getType());
+										printRequisitionStatusVO.setId(bill.getId());
+										printRequisitionStatusVOs.add(printRequisitionStatusVO);
+									}
+								}
+							} else {
+								logger.error("Custom Parameter 'BILL_PRINTREQUISITION_STATUSOPTIONS_"+currentHouseOrder.toUpperCase() +"' is not set properly");				
+								printRequisitionStatusVOs = null;
+								return printRequisitionStatusVOs;
+							}
+						} else {
+							logger.error("Custom Parameter 'BILL_PRINTREQUISITION_STATUSOPTIONS_"+currentHouseOrder.toUpperCase() +"' is not set");			
+							printRequisitionStatusVOs = null;
+							return printRequisitionStatusVOs;
+						} 
+					} else {
+						logger.error("Check Request Parameter 'billNumber', 'billYear' and 'currentHouseTypeType' for invalid values");
+						printRequisitionStatusVOs = null;
+						return printRequisitionStatusVOs;
+					}
+				}catch(NumberFormatException ne) {
+					logger.error("Check Request Parameter 'billNumber', 'billYear' for Non-Numeric Values");
+					printRequisitionStatusVOs = null;
+					return printRequisitionStatusVOs;
+				}				
+			} else {
+				logger.error("Check Request Parameter 'billNumber', 'billYear' for empty Values");
+				printRequisitionStatusVOs = null;
+				return printRequisitionStatusVOs;
+			}			
+		} else {
+			logger.error("Check Request Parameter 'billNumber', 'billYear' for null Values");
+			printRequisitionStatusVOs = null;
+			return printRequisitionStatusVOs;
+		}
+		return printRequisitionStatusVOs;
+	}
+	
+	@RequestMapping(value="/bill/sendGreenCopyForEndorsement_statuses", method=RequestMethod.GET)
+	public @ResponseBody List<MasterVO> getSendGreenCopyForEndorsementStatusesForBillInGivenHouse(final HttpServletRequest request, final Locale locale){
+		List<MasterVO> sendGreenCopyForEndorsementStatusVOs = new ArrayList<MasterVO>();
+		String billNumberStr = request.getParameter("billNumber");
+		String billYearStr = request.getParameter("billYear");
+		String currentHouseTypeType = request.getParameter("currentHouseTypeType");
+		if(billNumberStr!=null&&billYearStr!=null&&currentHouseTypeType!=null) {
+			if(!billNumberStr.isEmpty()&&!billYearStr.isEmpty()&&!currentHouseTypeType.isEmpty()) {
+				CustomParameter server=CustomParameter.findByName(CustomParameter.class, "DEPLOYMENT_SERVER", "");
+				if(server != null) {
+					if(server.getValue().equals("TOMCAT")) {
+						try {
+							billNumberStr = new String(billNumberStr.getBytes("ISO-8859-1"),"UTF-8");														
+						}catch (UnsupportedEncodingException e) {
+							logger.error("Cannot Encode the Parameter 'billNumber'.");
+							sendGreenCopyForEndorsementStatusVOs = null;
+							return sendGreenCopyForEndorsementStatusVOs;
+						}
+					}
+				}
+				try {
+					Bill bill = Bill.findByNumberAndYear(Integer.parseInt(billNumberStr), Integer.parseInt(billYearStr), locale.toString());
+					if(bill==null) {
+						logger.error("Check Request Parameter 'billNumber' and 'billYear' for invalid values");
+						sendGreenCopyForEndorsementStatusVOs = null;
+						return sendGreenCopyForEndorsementStatusVOs;
+					}
+					String currentHouseOrder = Bill.findHouseOrderOfGivenHouseForBill(bill, currentHouseTypeType);
+					if(currentHouseOrder!=null) {
+						CustomParameter sendGreenCopyForEndorsementStatusParameter = CustomParameter.findByName(CustomParameter.class, "BILL_SENDGREENCOPYFORENDORSEMENT_STATUSOPTIONS", "");
+						if(sendGreenCopyForEndorsementStatusParameter!=null) {
+							if(sendGreenCopyForEndorsementStatusParameter.getValue()!=null) {									
+								StringBuffer filteredStatusTypes = new StringBuffer("");
+								String[] statusTypesArr = sendGreenCopyForEndorsementStatusParameter.getValue().split(",");
+								for(String i: statusTypesArr) {
+									System.out.println(filteredStatusTypes.toString());
+									if(!i.trim().isEmpty()) {
+										if(i.trim().endsWith(ApplicationConstants.BILL_FIRST_HOUSE) || i.trim().endsWith(ApplicationConstants.BILL_SECOND_HOUSE)) {
+											if(i.trim().endsWith(currentHouseTypeType + "_" + currentHouseOrder)) {
+												filteredStatusTypes.append(i.trim()+",");							
+											}
+										} else {
+											filteredStatusTypes.append(i.trim()+",");
+										}					
+									}				
+								}
+								filteredStatusTypes.deleteCharAt(filteredStatusTypes.length()-1);	
+								List<Status> sendGreenCopyForEndorsementStatuses = Status.findStatusContainedIn(filteredStatusTypes.toString(), locale.toString(), ApplicationConstants.ASC);
+								if(sendGreenCopyForEndorsementStatuses!=null) {
+									for(Status i: sendGreenCopyForEndorsementStatuses) {
+										MasterVO sendGreenCopyForEndorsementStatusVO = new MasterVO();
+										sendGreenCopyForEndorsementStatusVO.setName(i.getName());
+										sendGreenCopyForEndorsementStatusVO.setValue(i.getType());
+										sendGreenCopyForEndorsementStatusVO.setId(bill.getId());
+										sendGreenCopyForEndorsementStatusVOs.add(sendGreenCopyForEndorsementStatusVO);
+									}
+								}
+							} else {
+								logger.error("Custom Parameter 'BILL_SENDGREENCOPYFORENDORSEMENT_STATUSOPTIONS' is not set properly");
+								sendGreenCopyForEndorsementStatusVOs = null;
+								return sendGreenCopyForEndorsementStatusVOs;
+							}
+						} else {
+							logger.error("Custom Parameter 'BILL_SENDGREENCOPYFORENDORSEMENT_STATUSOPTIONS' is not set");
+							sendGreenCopyForEndorsementStatusVOs = null;
+							return sendGreenCopyForEndorsementStatusVOs;
+						} 
+					} else {
+						logger.error("Check Request Parameter 'billNumber', 'billYear' and 'currentHouseTypeType' for invalid values");
+						sendGreenCopyForEndorsementStatusVOs = null;
+						return sendGreenCopyForEndorsementStatusVOs;
+					}
+				}catch(NumberFormatException ne) {
+					logger.error("Check Request Parameter 'billNumber', 'billYear' for Non-Numeric Values");
+					sendGreenCopyForEndorsementStatusVOs = null;
+					return sendGreenCopyForEndorsementStatusVOs;
+				}				
+			} else {
+				logger.error("Check Request Parameter 'billNumber', 'billYear' for empty Values");
+				sendGreenCopyForEndorsementStatusVOs = null;
+				return sendGreenCopyForEndorsementStatusVOs;
+			}			
+		} else {
+			logger.error("Check Request Parameter 'billNumber', 'billYear' for null Values");
+			sendGreenCopyForEndorsementStatusVOs = null;
+			return sendGreenCopyForEndorsementStatusVOs;
+		}
+		return sendGreenCopyForEndorsementStatusVOs;
+	}
+	
+	@RequestMapping(value="/bill/transmitEndorsementCopies_statuses", method=RequestMethod.GET)
+	public @ResponseBody List<MasterVO> getTransmitEndorsementCopiesStatusesForBillInGivenHouse(final HttpServletRequest request, final Locale locale){
+		List<MasterVO> transmitEndorsementCopiesStatusVOs = new ArrayList<MasterVO>();
+		String billNumberStr = request.getParameter("billNumber");
+		String billYearStr = request.getParameter("billYear");
+		String currentHouseTypeType = request.getParameter("currentHouseTypeType");
+		if(billNumberStr!=null&&billYearStr!=null&&currentHouseTypeType!=null) {
+			if(!billNumberStr.isEmpty()&&!billYearStr.isEmpty()&&!currentHouseTypeType.isEmpty()) {
+				CustomParameter server=CustomParameter.findByName(CustomParameter.class, "DEPLOYMENT_SERVER", "");
+				if(server != null) {
+					if(server.getValue().equals("TOMCAT")) {
+						try {
+							billNumberStr = new String(billNumberStr.getBytes("ISO-8859-1"),"UTF-8");														
+						}catch (UnsupportedEncodingException e) {
+							logger.error("Cannot Encode the Parameter 'billNumber'.");
+							transmitEndorsementCopiesStatusVOs = null;
+							return transmitEndorsementCopiesStatusVOs;
+						}
+					}
+				}
+				try {
+					Bill bill = Bill.findByNumberAndYear(Integer.parseInt(billNumberStr), Integer.parseInt(billYearStr), locale.toString());
+					if(bill==null) {
+						logger.error("Check Request Parameter 'billNumber' and 'billYear' for invalid values");
+						transmitEndorsementCopiesStatusVOs = null;
+						return transmitEndorsementCopiesStatusVOs;
+					}
+					String currentHouseOrder = Bill.findHouseOrderOfGivenHouseForBill(bill, currentHouseTypeType);
+					if(currentHouseOrder!=null) {
+						CustomParameter transmitEndorsementCopiesStatusParameter = CustomParameter.findByName(CustomParameter.class, "BILL_TRANSMITENDORSEMENTCOPIES_STATUSOPTIONS", "");
+						if(transmitEndorsementCopiesStatusParameter!=null) {
+							if(transmitEndorsementCopiesStatusParameter.getValue()!=null) {									
+								StringBuffer filteredStatusTypes = new StringBuffer("");
+								String[] statusTypesArr = transmitEndorsementCopiesStatusParameter.getValue().split(",");
+								for(String i: statusTypesArr) {
+									System.out.println(filteredStatusTypes.toString());
+									if(!i.trim().isEmpty()) {
+										if(i.trim().endsWith(ApplicationConstants.BILL_FIRST_HOUSE) || i.trim().endsWith(ApplicationConstants.BILL_SECOND_HOUSE)) {
+											if(i.trim().endsWith(currentHouseTypeType + "_" + currentHouseOrder)) {
+												filteredStatusTypes.append(i.trim()+",");							
+											}
+										} else {
+											filteredStatusTypes.append(i.trim()+",");
+										}					
+									}				
+								}
+								filteredStatusTypes.deleteCharAt(filteredStatusTypes.length()-1);	
+								List<Status> transmitEndorsementCopiesStatuses = Status.findStatusContainedIn(filteredStatusTypes.toString(), locale.toString(), ApplicationConstants.ASC);
+								if(transmitEndorsementCopiesStatuses!=null) {
+									for(Status i: transmitEndorsementCopiesStatuses) {
+										MasterVO transmitEndorsementCopiesStatusVO = new MasterVO();
+										transmitEndorsementCopiesStatusVO.setName(i.getName());
+										transmitEndorsementCopiesStatusVO.setValue(i.getType());
+										transmitEndorsementCopiesStatusVO.setId(bill.getId());
+										transmitEndorsementCopiesStatusVOs.add(transmitEndorsementCopiesStatusVO);
+									}
+								}
+							} else {
+								logger.error("Custom Parameter 'BILL_TRANSMITENDORSEMENTCOPIES_STATUSOPTIONS' is not set properly");
+								transmitEndorsementCopiesStatusVOs = null;
+								return transmitEndorsementCopiesStatusVOs;
+							}
+						} else {
+							logger.error("Custom Parameter 'BILL_TRANSMITENDORSEMENTCOPIES_STATUSOPTIONS' is not set");
+							transmitEndorsementCopiesStatusVOs = null;
+							return transmitEndorsementCopiesStatusVOs;
+						} 
+					} else {
+						logger.error("Check Request Parameter 'billNumber', 'billYear' and 'currentHouseTypeType' for invalid values");
+						transmitEndorsementCopiesStatusVOs = null;
+						return transmitEndorsementCopiesStatusVOs;
+					}
+				}catch(NumberFormatException ne) {
+					logger.error("Check Request Parameter 'billNumber', 'billYear' for Non-Numeric Values");
+					transmitEndorsementCopiesStatusVOs = null;
+					return transmitEndorsementCopiesStatusVOs;
+				}				
+			} else {
+				logger.error("Check Request Parameter 'billNumber', 'billYear' for empty Values");
+				transmitEndorsementCopiesStatusVOs = null;
+				return transmitEndorsementCopiesStatusVOs;
+			}			
+		} else {
+			logger.error("Check Request Parameter 'billNumber', 'billYear' for null Values");
+			transmitEndorsementCopiesStatusVOs = null;
+			return transmitEndorsementCopiesStatusVOs;
+		}
+		return transmitEndorsementCopiesStatusVOs;
+	}
+	
+	@RequestMapping(value="/bill/checkeligibilityforlayingletter", method=RequestMethod.GET)
+	public @ResponseBody Long checkEligibilityOfSelectedBillForLayingLetter(final HttpServletRequest request, final Locale locale){
+		Long validBillId = null;
+		String billNumberStr = request.getParameter("billNumber");
+		String billYearStr = request.getParameter("billYear");
+		String currentHouseTypeType = request.getParameter("currentHouseTypeType");
+		if(billNumberStr!=null&&billYearStr!=null&&currentHouseTypeType!=null) {
+			if(!billNumberStr.isEmpty()&&!billYearStr.isEmpty()&&!currentHouseTypeType.isEmpty()) {
+				CustomParameter server=CustomParameter.findByName(CustomParameter.class, "DEPLOYMENT_SERVER", "");
+				if(server != null) {
+					if(server.getValue().equals("TOMCAT")) {
+						try {
+							billNumberStr = new String(billNumberStr.getBytes("ISO-8859-1"),"UTF-8");														
+						}catch (UnsupportedEncodingException e) {
+							logger.error("Cannot Encode the Parameter 'billNumber'.");
+							validBillId = null;
+							return validBillId;
+						}
+					}
+				}
+				try {
+					Bill bill = Bill.findByNumberAndYear(Integer.parseInt(billNumberStr), Integer.parseInt(billYearStr), locale.toString());
+					if(bill==null) {
+						logger.error("Check Request Parameter 'billNumber' and 'billYear' for invalid values");
+						validBillId = null;
+						return validBillId;
+					}	
+					if(bill.getRecommendationStatus().getType().startsWith(ApplicationConstants.BILL_PROCESSED_PASSED)
+							&& bill.getRecommendationStatus().getType().endsWith(ApplicationConstants.BILL_FIRST_HOUSE)) {
+						String currentHouseOrder = Bill.findHouseOrderOfGivenHouseForBill(bill, currentHouseTypeType);
+						if(currentHouseOrder!=null) {
+							if(currentHouseOrder.equals(ApplicationConstants.BILL_SECOND_HOUSE)) {
+								validBillId = bill.getId();
+							} else {
+								logger.error("**** selected housetype is not second house of selected bill. so it is not eligible for laying letter. ****");
+								validBillId = new Long(-2);
+								return validBillId;
+							}
+						} else {
+							logger.error("Check Request Parameter 'billNumber', 'billYear' and 'currentHouseTypeType' for invalid values");
+							validBillId = null;
+							return validBillId;
+						}
+					} else {					
+						logger.error("**** selected bill is not currently passed from first house. so it is not eligible for laying letter. ****");
+						validBillId = new Long(-1);
+						return validBillId;
+					}
+				}catch(NumberFormatException ne) {
+					logger.error("Check Request Parameter 'billNumber', 'billYear' for Non-Numeric Values");
+					validBillId = null;
+					return validBillId;
+				}
+			}
+		}
+		return validBillId;
+	}
+	
+	@RequestMapping(value="/bill/transmitPressCopies_statuses", method=RequestMethod.GET)
+	public @ResponseBody List<MasterVO> getTransmitPressCopiesStatusesForBillInGivenHouse(final HttpServletRequest request, final Locale locale){
+		List<MasterVO> transmitPressCopiesStatusVOs = new ArrayList<MasterVO>();
+		String billNumberStr = request.getParameter("billNumber");
+		String billYearStr = request.getParameter("billYear");
+		String currentHouseTypeType = request.getParameter("currentHouseTypeType");
+		if(billNumberStr!=null&&billYearStr!=null&&currentHouseTypeType!=null) {
+			if(!billNumberStr.isEmpty()&&!billYearStr.isEmpty()&&!currentHouseTypeType.isEmpty()) {
+				CustomParameter server=CustomParameter.findByName(CustomParameter.class, "DEPLOYMENT_SERVER", "");
+				if(server != null) {
+					if(server.getValue().equals("TOMCAT")) {
+						try {
+							billNumberStr = new String(billNumberStr.getBytes("ISO-8859-1"),"UTF-8");														
+						}catch (UnsupportedEncodingException e) {
+							logger.error("Cannot Encode the Parameter 'billNumber'.");
+							transmitPressCopiesStatusVOs = null;
+							return transmitPressCopiesStatusVOs;
+						}
+					}
+				}
+				try {
+					Bill bill = Bill.findByNumberAndYear(Integer.parseInt(billNumberStr), Integer.parseInt(billYearStr), locale.toString());
+					if(bill==null) {
+						logger.error("Check Request Parameter 'billNumber' and 'billYear' for invalid values");
+						transmitPressCopiesStatusVOs = null;
+						return transmitPressCopiesStatusVOs;
+					}
+					String currentHouseOrder = Bill.findHouseOrderOfGivenHouseForBill(bill, currentHouseTypeType);
+					if(currentHouseOrder!=null) {
+						CustomParameter transmitPressCopiesStatusParameter = CustomParameter.findByName(CustomParameter.class, "BILL_TRANSMITPRESSCOPIES_STATUSOPTIONS", "");
+						if(transmitPressCopiesStatusParameter!=null) {
+							if(transmitPressCopiesStatusParameter.getValue()!=null) {									
+								StringBuffer filteredStatusTypes = new StringBuffer("");
+								String[] statusTypesArr = transmitPressCopiesStatusParameter.getValue().split(",");
+								for(String i: statusTypesArr) {
+									System.out.println(filteredStatusTypes.toString());
+									if(!i.trim().isEmpty()) {
+										if(i.trim().endsWith(ApplicationConstants.BILL_FIRST_HOUSE) || i.trim().endsWith(ApplicationConstants.BILL_SECOND_HOUSE)) {
+											if(i.trim().endsWith(currentHouseTypeType + "_" + currentHouseOrder)) {
+												filteredStatusTypes.append(i.trim()+",");							
+											}
+										} else {
+											filteredStatusTypes.append(i.trim()+",");
+										}					
+									}				
+								}
+								filteredStatusTypes.deleteCharAt(filteredStatusTypes.length()-1);	
+								List<Status> transmitPressCopiesStatuses = Status.findStatusContainedIn(filteredStatusTypes.toString(), locale.toString(), ApplicationConstants.ASC);
+								if(transmitPressCopiesStatuses!=null) {
+									for(Status i: transmitPressCopiesStatuses) {
+										MasterVO transmitPressCopiesStatusVO = new MasterVO();
+										transmitPressCopiesStatusVO.setName(i.getName());
+										transmitPressCopiesStatusVO.setValue(i.getType());
+										transmitPressCopiesStatusVO.setId(bill.getId());
+										transmitPressCopiesStatusVOs.add(transmitPressCopiesStatusVO);
+									}
+								}
+							} else {
+								logger.error("Custom Parameter 'BILL_TRANSMITPRESSCOPIES_STATUSOPTIONS' is not set properly");
+								transmitPressCopiesStatusVOs = null;
+								return transmitPressCopiesStatusVOs;
+							}
+						} else {
+							logger.error("Custom Parameter 'BILL_TRANSMITPRESSCOPIES_STATUSOPTIONS' is not set");
+							transmitPressCopiesStatusVOs = null;
+							return transmitPressCopiesStatusVOs;
+						} 
+					} else {
+						logger.error("Check Request Parameter 'billNumber', 'billYear' and 'currentHouseTypeType' for invalid values");
+						transmitPressCopiesStatusVOs = null;
+						return transmitPressCopiesStatusVOs;
+					}
+				}catch(NumberFormatException ne) {
+					logger.error("Check Request Parameter 'billNumber', 'billYear' for Non-Numeric Values");
+					transmitPressCopiesStatusVOs = null;
+					return transmitPressCopiesStatusVOs;
+				}				
+			} else {
+				logger.error("Check Request Parameter 'billNumber', 'billYear' for empty Values");
+				transmitPressCopiesStatusVOs = null;
+				return transmitPressCopiesStatusVOs;
+			}			
+		} else {
+			logger.error("Check Request Parameter 'billNumber', 'billYear' for null Values");
+			transmitPressCopiesStatusVOs = null;
+			return transmitPressCopiesStatusVOs;
+		}
+		return transmitPressCopiesStatusVOs;
+	}
+	
+	@RequestMapping(value="/findIdOfBillWithGivenNumberAndYear", method=RequestMethod.GET)
+	public @ResponseBody String findIdOfBillWithGivenNumberAndYear(final HttpServletRequest request, final Locale locale){
+		String billId = null;
+		String billNumberStr = request.getParameter("billNumber");
+		String billYearStr = request.getParameter("billYear");
+		if(billNumberStr!=null&&billYearStr!=null) {
+			if(!billNumberStr.isEmpty()&&!billYearStr.isEmpty()) {
+				CustomParameter server=CustomParameter.findByName(CustomParameter.class, "DEPLOYMENT_SERVER", "");
+				if(server != null) {
+					if(server.getValue().equals("TOMCAT")) {
+						try {
+							billNumberStr = new String(billNumberStr.getBytes("ISO-8859-1"),"UTF-8");														
+						}catch (UnsupportedEncodingException e) {
+							logger.error("Cannot Encode the Parameter 'billNumber'.");							
+							return billId;
+						}
+					}
+				}
+				try {
+					Bill bill = Bill.findByNumberAndYear(Integer.parseInt(billNumberStr), Integer.parseInt(billYearStr), locale.toString());
+					if(bill!=null) {
+						billId = bill.getId().toString();
+					} else {
+						logger.error("Check Request Parameter 'billNumber', 'billYear' and 'currentHouseTypeType' for invalid values");
+					}
+				}catch(NumberFormatException ne) {
+					logger.error("Check Request Parameter 'billNumber', 'billYear' for Non-Numeric Values");
+				}				
+			} else {
+				logger.error("Check Request Parameter 'billNumber', 'billYear' for empty Values");
+			}			
+		} else {
+			logger.error("Check Request Parameter 'billNumber', 'billYear' for null Values");
+		}
+		return billId;
 	}
 }
