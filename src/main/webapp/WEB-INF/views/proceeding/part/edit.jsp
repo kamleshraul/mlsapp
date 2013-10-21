@@ -42,7 +42,7 @@
 		currentRowId=$('#id').val();		
 		$('#formattedSubstituteMember').autocomplete({
 				minLength:3,			
-				source:'ref/member/supportingmembers?session='+$("#session").val(),
+				source:'ref/member/getmembers?session='+$("#session").val(),
 				select:function(event,ui){		
 					$("#substituteMember").val(ui.item.id);
 				}	
