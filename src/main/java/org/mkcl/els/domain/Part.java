@@ -89,6 +89,8 @@ public class Part  extends BaseDomain implements Serializable{
 	
 	private Long deviceId;
 	
+	private Boolean isInterrupted;
+	
 	@ManyToMany(fetch=FetchType.LAZY,cascade=CascadeType.ALL)
     @JoinTable(name="parts_drafts_association", 
     		joinColumns={@JoinColumn(name="part_id", referencedColumnName="id")}, 
@@ -106,6 +108,9 @@ public class Part  extends BaseDomain implements Serializable{
 	@Autowired
 	private transient PartRepository partRepository;
 
+	
+	
+
 	public Part(Integer orderNo, Member primaryMember,
 			Designation primaryMemberDesignation,
 			Ministry primaryMemberMinistry, Member substituteMember,
@@ -115,7 +120,8 @@ public class Part  extends BaseDomain implements Serializable{
 			String mainHeading, String pageHeading, Date entryDate,
 			String chairPerson, MemberRole chairPersonRole,
 			String proceedingContent, String revisedContent,
-			Proceeding proceeding, DeviceType deviceType,Long deviceId) {
+			String editedContent, Proceeding proceeding, DeviceType deviceType,
+			Long deviceId, Boolean isInterrupted, List<PartDraft> partDrafts) {
 		super();
 		this.orderNo = orderNo;
 		this.primaryMember = primaryMember;
@@ -134,11 +140,13 @@ public class Part  extends BaseDomain implements Serializable{
 		this.chairPersonRole = chairPersonRole;
 		this.proceedingContent = proceedingContent;
 		this.revisedContent = revisedContent;
+		this.editedContent = editedContent;
 		this.proceeding = proceeding;
-		this.deviceType=deviceType;
-		this.deviceId=deviceId;
+		this.deviceType = deviceType;
+		this.deviceId = deviceId;
+		this.isInterrupted = isInterrupted;
+		this.partDrafts = partDrafts;
 	}
-	
 
 	/****Domain Methods****/
 	public static PartRepository getPartRepository(){
@@ -353,4 +361,14 @@ public class Part  extends BaseDomain implements Serializable{
 	public void setEditedContent(String editedContent) {
 		this.editedContent = editedContent;
 	}
+
+	public Boolean getIsInterrupted() {
+		return isInterrupted;
+	}
+
+	public void setIsInterrupted(Boolean isInterrupted) {
+		this.isInterrupted = isInterrupted;
+	}
+	
+	
 }
