@@ -17,6 +17,7 @@ import javax.persistence.NoResultException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.mkcl.els.common.exception.ELSException;
 import org.mkcl.els.common.util.ApplicationConstants;
 import org.mkcl.els.common.util.FormaterUtil;
 import org.mkcl.els.common.vo.AuthUser;
@@ -69,7 +70,13 @@ public class EditingController extends GenericController<Roster>{
 		/**** Session Types ****/
 		List<SessionType> sessionTypes=SessionType.findAll(SessionType.class,"sessionType", ApplicationConstants.ASC, locale);
 		HouseType authUserHouseType=HouseType.findByFieldName(HouseType.class, "type",houseType, locale);
-		Session lastSessionCreated=Session.findLatestSession(authUserHouseType);
+		Session lastSessionCreated = null;
+		try {
+			lastSessionCreated = Session.findLatestSession(authUserHouseType);
+		} catch (ELSException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}
 		Integer year=new GregorianCalendar().get(Calendar.YEAR);
 		if(lastSessionCreated.getId()!=null){
 			year=lastSessionCreated.getYear();
@@ -115,7 +122,13 @@ public class EditingController extends GenericController<Roster>{
 		model.addAttribute("days",days);
 		
 		/**** Language ****/
-		List<Language> languages=Language.findAllLanguagesByModule("RIS",locale);
+		List<Language> languages = null;
+		try {
+			languages = Language.findAllLanguagesByModule("RIS",locale);
+		} catch (ELSException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 		model.addAttribute("languages",languages);
 	}
 	
