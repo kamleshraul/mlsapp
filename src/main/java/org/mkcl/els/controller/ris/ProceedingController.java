@@ -2407,10 +2407,28 @@ public class ProceedingController extends GenericController<Proceeding>{
 			List<Object> tempList2=new ArrayList<Object>();
 			for(int i=0; i<result.size(); i++){
 				Object[] row = (Object[]) result.get(i);
-				if(row[10]!=null){
-					row[0]="<b>"+row[10]+"</b>"+row[0];
-				}
 				
+				if(row[10]!=null){
+					Member member1=Member.findById(Member.class, Long.parseLong(row[14].toString()));
+					List<HouseMemberRoleAssociation> hrma=member1.getHouseMemberRoleAssociations();
+					for(HouseMemberRoleAssociation h:hrma){
+						if(h.getHouse().equals(session.getHouse())){
+							MemberRole memberRole=h.getRole();
+							if(memberRole.getType().equals(ApplicationConstants.SPEAKER)
+									||memberRole.getType().equals(ApplicationConstants.DEPUTY_SPEAKER)
+									||memberRole.getType().equals(ApplicationConstants.CHAIRMAN)
+									||memberRole.getType().equals(ApplicationConstants.CHIEF_MINISTER)
+									||memberRole.getType().equals(ApplicationConstants.DEPUTY_CHAIRMAN)
+									||memberRole.getType().equals(ApplicationConstants.DEPUTY_CHIEF_MINISTER)){
+								row[10]="<b>"+memberRole.getName()+"</b>";
+							}
+
+						}
+					}
+				}
+				if(row[10]!=null){
+					row[0]="<b>"+row[10]+" :</b>"+row[0];
+				}
 				int j=i+1;
 				for(;j<result.size();j++){
 					Object[] row1 = (Object[]) result.get(j);
@@ -2545,6 +2563,24 @@ public class ProceedingController extends GenericController<Proceeding>{
 			List<Object> tempList2=new ArrayList<Object>();
 			for(int i=0;i<result.size();i++){
 				Object[] row=(Object[]) result.get(i);
+				if(row[10]!=null){
+					Member member1=Member.findById(Member.class, Long.parseLong(row[14].toString()));
+					List<HouseMemberRoleAssociation> hrma=member1.getHouseMemberRoleAssociations();
+					for(HouseMemberRoleAssociation h:hrma){
+						if(h.getHouse().equals(session.getHouse())){
+							MemberRole memberRole=h.getRole();
+							if(memberRole.getType().equals(ApplicationConstants.SPEAKER)
+									||memberRole.getType().equals(ApplicationConstants.DEPUTY_SPEAKER)
+									||memberRole.getType().equals(ApplicationConstants.CHAIRMAN)
+									||memberRole.getType().equals(ApplicationConstants.CHIEF_MINISTER)
+									||memberRole.getType().equals(ApplicationConstants.DEPUTY_CHAIRMAN)
+									||memberRole.getType().equals(ApplicationConstants.DEPUTY_CHIEF_MINISTER)){
+								row[10]="<b>"+memberRole.getName()+"</b>";
+							}
+
+						}
+					}
+				}
 				if(row[10]!=null){
 					row[0]="<b>"+row[10]+"</b>"+row[0];
 				}
@@ -2761,6 +2797,24 @@ public class ProceedingController extends GenericController<Proceeding>{
 			List<Object> tempList2=new ArrayList<Object>();
 			for(int i=0; i<result.size(); i++){
 				Object[] row = (Object[]) result.get(i);
+				if(row[10]!=null){
+					Member member1=Member.findById(Member.class, Long.parseLong(row[14].toString()));
+					List<HouseMemberRoleAssociation> hrma=member1.getHouseMemberRoleAssociations();
+					for(HouseMemberRoleAssociation h:hrma){
+						if(h.getHouse().equals(session.getHouse())){
+							MemberRole memberRole=h.getRole();
+							if(memberRole.getType().equals(ApplicationConstants.SPEAKER)
+									||memberRole.getType().equals(ApplicationConstants.DEPUTY_SPEAKER)
+									||memberRole.getType().equals(ApplicationConstants.CHAIRMAN)
+									||memberRole.getType().equals(ApplicationConstants.CHIEF_MINISTER)
+									||memberRole.getType().equals(ApplicationConstants.DEPUTY_CHAIRMAN)
+									||memberRole.getType().equals(ApplicationConstants.DEPUTY_CHIEF_MINISTER)){
+								row[10]="<b>"+memberRole.getName()+"</b>";
+							}
+
+						}
+					}
+				}
 				if(row[10]!=null){
 					row[0]="<b>"+row[10]+"</b>"+row[0];
 				}
