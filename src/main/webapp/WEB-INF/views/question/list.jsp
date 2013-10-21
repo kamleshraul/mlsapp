@@ -41,6 +41,10 @@
 			$("#search").click(function() {
 				searchRecord();
 			});
+			
+			$("#showdemo").click(function(){
+				showDemo();
+			});
 			//---ADDED BY VIKAS------------------
 			$('#gridURLParams_ForNew').val($('#gridURLParams').val());		
 			
@@ -107,7 +111,10 @@
 			</security:authorize>			
 			<a href="#" id="search" class="butSim">
 				<spring:message code="question.search" text="Search"/>
-			</a> |	
+			</a> |
+			<%-- <a href="#" id="showdemo" class="butSim">
+				<spring:message code="question.demo" text="Show Demo"/>
+			</a> |	 --%>
 			<%-- <a href="#" id="member_statistics" class="butSim">
 				<spring:message code="generic.statistics" text="Statistics"/>
 			</a> | --%>			
