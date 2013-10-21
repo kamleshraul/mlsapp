@@ -10,6 +10,7 @@
 
 package org.mkcl.els.controller;
 
+import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -22,6 +23,7 @@ import java.util.List;
 import java.util.Locale;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 
 import org.mkcl.els.common.exception.ELSException;
 import org.mkcl.els.common.util.ApplicationConstants;
@@ -45,6 +47,7 @@ import org.mkcl.els.domain.Department;
 import org.mkcl.els.domain.DeviceType;
 import org.mkcl.els.domain.District;
 import org.mkcl.els.domain.Division;
+import org.mkcl.els.domain.Document;
 import org.mkcl.els.domain.Election;
 import org.mkcl.els.domain.ElectionType;
 import org.mkcl.els.domain.Fort;
@@ -94,6 +97,7 @@ import org.mkcl.els.domain.associations.HouseMemberRoleAssociation;
 import org.mkcl.els.repository.DistrictRepository;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
+import org.springframework.util.FileCopyUtils;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -3327,4 +3331,39 @@ public class ReferenceController extends BaseController {
 		
 	}
 	
+	@RequestMapping(value="/getphoto",method=RequestMethod.GET)
+	public @ResponseBody void getPhotoOfMember(final HttpServletRequest request,final HttpServletResponse response, final Locale locale,final ModelMap model){
+		String strMemberId=request.getParameter("memberId");
+		if(strMemberId!=null && !strMemberId.isEmpty()){
+			Member member=Member.findById(Member.class, Long.parseLong(strMemberId));
+			Document doc = null;
+			try {
+				doc = Document.findByTag(member.getPhoto());
+			} catch (ELSException e1) {
+				// TODO Auto-generated catch block
+				e1.printStackTrace();
+			}
+				
+			//open as dialog box having options 'open with' & 'save file'
+			//response.setHeader("Content-Disposition", "inline; filename=" + doc.getOriginalFileName());
+			
+			//response.setHeader("Cache-Control", "cache, must-revalidate");
+			response.addHeader("Cache-Control", "cache, must-revalidate"); 
+			response.setHeader("Pragma", "public");
+			
+			response.setContentType("image/jpeg");
+			//or
+			//open directly in browser
+			//response.setHeader("Content-Disposition", "inline; filename=" + file.getName());
+			
+			try {
+				FileCopyUtils.copy(doc.getFileData(), response.getOutputStream());
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+
+			
+		}
+				
+	}
 }

@@ -19,6 +19,7 @@ import org.mkcl.els.domain.DeviceType;
 import org.mkcl.els.domain.Group;
 import org.mkcl.els.domain.HouseType;
 import org.mkcl.els.domain.Member;
+import org.mkcl.els.domain.MemberRole;
 import org.mkcl.els.domain.Query;
 import org.mkcl.els.domain.Question;
 import org.mkcl.els.domain.QuestionDates;
@@ -246,13 +247,16 @@ public class ChartController extends BaseController{
 				if(chart != null){
 					Status rejectionStatus = Status.findByType(ApplicationConstants.RESOLUTION_FINAL_REJECTION, locale.toString());
 					Status repeatRejectionStatus = Status.findByType(ApplicationConstants.RESOLUTION_FINAL_REPEATREJECTION, locale.toString());
-					
+					MemberRole memberRole=MemberRole.find(session.getHouse().getType(), ApplicationConstants.MEMBER, locale.toString());
 					Map<String, String[]> parametersMap = new HashMap<String, String[]>();
 					parametersMap.put("locale", new String[]{locale.toString()});
 					parametersMap.put("sessionId", new String[]{session.getId().toString()});
+					parametersMap.put("houseId", new String[]{session.getHouse().getId().toString()});
+					parametersMap.put("roleId", new String[]{memberRole.getId().toString()});
 					parametersMap.put("deviceTypeId", new String[]{deviceType.getId().toString()});
 					parametersMap.put("rejectionStatusId", new String[]{rejectionStatus.getId().toString()});
 					parametersMap.put("repeatRejectionStatusId", new String[]{repeatRejectionStatus.getId().toString()});
+					parametersMap.put("currentDate", new String[]{FormaterUtil.formatDateToString(new Date(), ApplicationConstants.DB_DATEFORMAT)});
 									
 					resolutionNonOfficialChartView = org.mkcl.els.domain.Query.findReport(ApplicationConstants.RESOLUTION_CHART_VIEW, parametersMap);						
 					
