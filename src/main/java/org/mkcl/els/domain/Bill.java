@@ -2156,14 +2156,14 @@ public class Bill extends Device implements Serializable {
      * @throws ELSException 
 	 * @since v1.0.0
 	 */
-	public static List<Bill> find(final Session session,
+	public static List<Bill> findBillsForItroduction(final Session session,
 			final DeviceType deviceType,
 			final Status[] internalStatuses,
 			final Status admitted,
 			final Boolean useIntroductionDate,
 			final String sortOrder,
 			final String locale) throws ELSException {
-		return getBillRepository().find(session, deviceType, internalStatuses, admitted, useIntroductionDate, sortOrder, locale);
+		return getBillRepository().findBillsForItroduction(session, deviceType, internalStatuses, admitted, useIntroductionDate, sortOrder, locale);
 	}
 		
     /**

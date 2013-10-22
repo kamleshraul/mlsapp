@@ -469,7 +469,7 @@ public class BillRepository extends BaseRepository<Bill, Serializable>{
 	 * @return the list
 	 * @throws ELSException 
 	 */
-	public List<Bill> find(final Session session,
+	public List<Bill> findBillsForItroduction(final Session session,
 			final DeviceType deviceType,
 			final Status[] internalStatuses,
 			final Status admitted,
@@ -481,8 +481,7 @@ public class BillRepository extends BaseRepository<Bill, Serializable>{
 				" WHERE b.devicetype_id=:deviceTypeId " +
 				" AND b.session_id=:sessionId " +
 				" AND (ista.type <> 'bill_final_lapsed')" +
-				" AND b.expected_discussion_date IS NULL" + 
-				((useIntroductionDate==true)? " ":" AND b.expected_introduction_date IS NOT NULL"));
+				((useIntroductionDate==true)? "":" AND b.expected_introduction_date IS NOT NULL"));
 
 		try{
 				
@@ -1611,9 +1610,9 @@ public class BillRepository extends BaseRepository<Bill, Serializable>{
 					" WHERE b.type.id=:deviceTypeId" +
 					" AND b.session.id=:sessionId" +
 					" AND b.internalStatus.type <> 'bill_final_lapsed' " +
-					" OR b.recommendationStatus.type=:recStatus " +
+					" AND (b.recommendationStatus.type=:recStatus " +
 					" OR b.recommendationStatus.type LIKE 'bill_processed_passed%firsthouse%'" +
-					" OR b.recommendationStatus.type LIKE 'bill_processed_toBeDiscussed%'" +
+					" OR b.recommendationStatus.type LIKE 'bill_processed_toBeDiscussed%')" +
 					" AND b.locale=:locale" + 				
 					((useDiscussionDate==true)? "":" AND b.expectedDiscussionDate IS NOT NULL") +
 					" ORDER BY b.expectedIntroductionDate " + sortOrder);

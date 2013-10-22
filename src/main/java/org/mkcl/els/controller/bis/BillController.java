@@ -4317,8 +4317,8 @@ public class BillController extends GenericController<Bill> {
 	
 	@RequestMapping(value="/providedate", method=RequestMethod.GET)
 	public String provideIntroductionDate(final ModelMap model, final HttpServletRequest request, final Locale locale){
+		String strHouseType = request.getParameter("houseType");
 		
-		String strHouseType = "upperhouse";
 		String strSessionType = request.getParameter("sessionType");
 		String strSessionYear = request.getParameter("sessionYear");
 		String strUserGroupType = request.getParameter("usergrouptype");
@@ -4358,7 +4358,27 @@ public class BillController extends GenericController<Bill> {
 		if(strHouseType!=null && strSessionType!=null && strSessionYear!=null){
 			if(!strHouseType.isEmpty() && !strSessionType.isEmpty() && !strSessionYear.isEmpty()){
 				
-				HouseType houseType = HouseType.findByFieldName(HouseType.class, "type", strHouseType, locale.toString());
+				HouseType houseType = null;
+				String decodedHouseType = null;
+				CustomParameter cstpDeploymentServer = CustomParameter.findByName(CustomParameter.class, "DEPLOYMENT_SERVER", "");
+				if(cstpDeploymentServer != null){
+					if(cstpDeploymentServer.getValue() != null && !cstpDeploymentServer.getValue().isEmpty()){
+						try {
+							if(cstpDeploymentServer.getValue().equals("TOMCAT")){
+								decodedHouseType = new String(strHouseType.getBytes("ISO-8859-1"), "UTF-8");
+							}							
+						} catch (UnsupportedEncodingException e) {
+							
+							e.printStackTrace();
+						}
+					}
+				}
+				
+				houseType = HouseType.findByFieldName(HouseType.class, "type", strHouseType, locale.toString());
+				if(houseType == null){
+					houseType = HouseType.findByName(HouseType.class, decodedHouseType, locale.toString());
+				}
+				
 				model.addAttribute("houseType", houseType.getType());
 				
 				SessionType sessionType = SessionType.findById(SessionType.class, Long.valueOf(strSessionType));
@@ -4403,9 +4423,9 @@ public class BillController extends GenericController<Bill> {
 					if(strUserGroupType != null && !strUserGroupType.isEmpty()){
 						List<Bill> introBills = null;
 						if(strUserGroupType.equals(ApplicationConstants.RECOMMENDATION_FROM_GOVERNOR_DEPARTMENT)){
-							introBills = Bill.find(session, deviceType, statuses, admitted, true, ApplicationConstants.ASC, locale.toString());
+							introBills = Bill.findBillsForItroduction(session, deviceType, statuses, admitted, true, ApplicationConstants.ASC, locale.toString());
 						}else{
-							introBills = Bill.find(session, deviceType, statuses, admitted, false, ApplicationConstants.ASC, locale.toString());
+							introBills = Bill.findBillsForItroduction(session, deviceType, statuses, admitted, false, ApplicationConstants.ASC, locale.toString());
 						}
 						
 						
