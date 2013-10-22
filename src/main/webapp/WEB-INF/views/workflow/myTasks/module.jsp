@@ -283,6 +283,11 @@
 			var option = "<option value='' selected>" + optionValue + "</option>";
 			$('#selectedModule').prepend(option);
 		}
+		
+		/****Provide introduction date ****/
+		function provideDate(){
+			showTabByIdAndUrl('details_tab','bill/providedate?houseType=' + $("#selectedHouseType").val()+"&sessionType="+$("#sessiontype").val()+"&sessionYear="+$("#sessionyear").val());
+		}
 	</script>
 </head>
 <body>

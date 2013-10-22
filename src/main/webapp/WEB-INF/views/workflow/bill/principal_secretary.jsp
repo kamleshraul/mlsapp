@@ -114,7 +114,7 @@
 					}
 					$("#actorForWorkflow").html(text);
 					$("#actorDiv").show();				
-					if(value!=sendback&&value!=discuss&&value!=translate&&value!=opinion_from_lawandjd){
+					if(value!=sendback&&value!=discuss&&value!=translate&&value!=opinion_from_lawandjd&&value!=recommend_reject_nameclubbing){
 						$("#internalStatus").val(value);
 					} 
 					if(value==translate) {
@@ -135,7 +135,7 @@
 				}else{					
 					$("#actorForWorkflow").empty();
 					$("#actorDiv").hide();
-					if(value!=sendback&&value!=discuss&&value!=translate&&value!=reject_translate&&value!=opinion_from_lawandjd){
+					if(value!=sendback&&value!=discuss&&value!=translate&&value!=reject_translate&&value!=opinion_from_lawandjd&&value!=recommend_reject_nameclubbing){
 						$("#internalStatus").val(value);
 					} 
 					if(value==translate) {
