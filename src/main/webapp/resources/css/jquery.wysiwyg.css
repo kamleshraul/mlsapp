@@ -1,5 +1,5 @@
 
-div.wysiwyg { border: 1px solid #999; padding: 0; background: #fff url('jquery.wysiwyg.bg.png') repeat-x top !important];position:relative;left:165px;top:-10px;min-width:520px !important }
+div.wysiwyg { border: 1px solid #999; padding: 0; background: #fff url('jquery.wysiwyg.bg.png') repeat-x top !important];position:relative;left:165px;top:-10px;min-width:520px}
 div.wysiwyg * { margin: 0 !important; padding: 0 !important; }
 
 div.wysiwyg ul.toolbar li.jwysiwyg-custom-command { overflow: hidden; }
