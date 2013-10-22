@@ -119,7 +119,7 @@
 			     		<fo:block text-align="justify">
 			     			<xsl:apply-templates select="element_1_1"></xsl:apply-templates>
 			     		</fo:block>
-				       
+				       <fo:block></fo:block>
 			      </fo:block>
 			   </fo:flow>
 			 

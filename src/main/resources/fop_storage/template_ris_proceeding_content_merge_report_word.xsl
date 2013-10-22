@@ -113,7 +113,6 @@
 									<fo:table-cell text-align="end" >
 										<fo:block>
 											<xsl:value-of select="element_1_7"></xsl:value-of>-<fo:page-number/>
-											
 										</fo:block>										
 									</fo:table-cell>
 								</fo:table-row>
@@ -149,7 +148,7 @@
 												<xsl:choose>
 													<xsl:when test="element_1_10!=''">
 													<fo:block text-align="center" font-weight="bold">
-														(अध्यक्षस्थानी माननीय       <xsl:apply-templates select="element_1_10"></xsl:apply-templates> &#160; <xsl:apply-templates select="element_1_4"></xsl:apply-templates>)
+														(अध्यक्षस्थानी  माननीय       <xsl:apply-templates select="element_1_10"></xsl:apply-templates> &#160; <xsl:apply-templates select="element_1_4"></xsl:apply-templates>)
 													</fo:block>
 													<fo:block></fo:block>
 													</xsl:when>
@@ -176,7 +175,8 @@
 												</xsl:choose>
 												<xsl:apply-templates select="element_1_1"></xsl:apply-templates>
 												<!-- <xsl:value-of select="element_1_1"></xsl:value-of> -->
-											</fo:block>										
+											</fo:block>	
+											<fo:block></fo:block>									
 									</fo:table-cell>
 								</fo:table-row>	
 								<fo:table-row >
