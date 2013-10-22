@@ -60,7 +60,7 @@ function initControls(){
 	$(':input:visible:not([readonly]):first').focus();
 	
 	$('.wysiwyg').wysiwyg({
-		resizeOptions: true,
+		resizeOptions: {maxWidth: 600},
 			controls:{
 			strikeThrough: { visible: true },
 			underline: { visible: true },
