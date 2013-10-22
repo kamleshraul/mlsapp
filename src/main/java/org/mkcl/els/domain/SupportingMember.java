@@ -83,7 +83,7 @@ public class SupportingMember extends BaseDomain implements Serializable{
     private BillKind approvedBillKind;
     
     /** The title. */
-    @OneToMany(fetch=FetchType.LAZY, cascade=CascadeType.ALL, orphanRemoval=true)
+    @OneToMany(fetch=FetchType.LAZY, cascade=CascadeType.ALL)
     @JoinTable(name="supportingmembers_titles",
     joinColumns={@JoinColumn(name="supportingmember_id", referencedColumnName="id")},
     inverseJoinColumns={@JoinColumn(name="approved_title_id", referencedColumnName="id")})
