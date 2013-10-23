@@ -31,6 +31,7 @@
 		<script type="text/javascript" src="./resources/js/jquery.wysiwyg.js?v=5"></script>	
 		<script type="text/javascript" src="./resources/js/wysiwyg.table.js?v=5"></script>
 		<script type="text/javascript" src="./resources/js/wysiwyg.i18n.js?v=5"></script>
+		<script type="text/javascript" src="./resources/js/wysiwyg.fullscreen.js?v=5"></script>
 		<script type="text/javascript" src="./resources/js/i18n/lang.mr.js?v=5"></script>	
 		<!-- Context Menu -->
 		<script type="text/javascript" src="./resources/js/jquery.contextMenu.js?v=5"></script>
