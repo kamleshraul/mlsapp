@@ -119,14 +119,14 @@
 		var departmentIntimated = $("#internalStatusMaster option[value='question_processed_departmentIntimated']").text();
 		var questionType = $("#selectedQuestionType").val();
 		var recommendRepeatAdmission = $("#internalStatusMaster option[value='question_recommend_repeatadmission']").text();
-			
+		var nameclubbing=$("#internalStatusMaster option[value='question_final_nameclubbing']").text();
 		if(value==answerReceived || value==rejectedWithReason || value==departmentIntimated||value==clarificationReceived){
 			$("#endFlag").val("end");
 			$("#recommendationStatus").val(value);
 			$("#actor").empty();
 			$("#actorDiv").hide();
 			return false;
-		}else if((value==clarificationReceived) && questionType == 'questions_halfhourdiscussion_standalone'){
+		}else if(((value==clarificationReceived) && questionType == 'questions_halfhourdiscussion_standalone')|| value==nameclubbing){
 			$("#endFlag").val("end");
 			$("#recommendationStatus").val(value);
 			$("#actor").empty();

@@ -118,7 +118,7 @@
 		var sendToSectionOfficer = $("#internalStatusMaster option[value='question_processed_sendToSectionOfficer']").text();
 		var currentRecommendationStatus=$("#recommendationStatus").val();
 		var questionType = $("#selectedQuestionType").val();
-
+		
 		var valueToSend = "";
 		var changedInternalStatus = $("#changeInternalStatus").val();
 		if(changedInternalStatus == putUpForDateApproval || 

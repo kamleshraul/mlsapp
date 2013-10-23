@@ -115,7 +115,7 @@
 		var resourceURL='ref/question/actors?'+params;
 	    var sendback=$("#internalStatusMaster option[value='question_recommend_sendback']").text();			
 	    var discuss=$("#internalStatusMaster option[value='question_recommend_discuss']").text();		
-	    	    
+	    var nameclubbing=$("#internalStatusMaster option[value='question_final_nameclubbing']").text();	    
 		$.post(resourceURL,function(data){
 			if(data!=undefined||data!=null||data!=''){
 				var length=data.length;
@@ -130,6 +130,12 @@
 				/**** in case of sendback and discuss only recommendation status is changed ****/
 				if(value!=sendback&&value!=discuss){
 				$("#internalStatus").val(value);
+				}else if(value==nameclubbing){
+					$("#endFlag").val("end");
+					$("#recommendationStatus").val(value);
+					$("#actor").empty();
+					$("#actorDiv").hide();
+					return false;
 				}
 				$("#recommendationStatus").val(value);	
 				/**** setting level,localizedActorName ****/

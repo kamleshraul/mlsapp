@@ -110,9 +110,16 @@
 	function loadActors(value){
 		if(value!='-'){
 		var dateAdmitted=$("#internalStatusMaster option[value='question_processed_final_dateAdmitted']").text();	
+		var nameclubbing=$("#internalStatusMaster option[value='question_final_nameclubbing']").text();
 		if(value == dateAdmitted) {
 			$("#endflag").val("end");
 			$("#recommendationStatus").val(value);
+			return false;
+		}else if(value==nameclubbing){
+			$("#endFlag").val("end");
+			$("#recommendationStatus").val(value);
+			$("#actor").empty();
+			$("#actorDiv").hide();
 			return false;
 		}else {
 			$("#endflag").val("continue");
