@@ -26,7 +26,6 @@
 	}
 	
 	function generateDocketReport(docketReportId) {
-		alert("generating docket report");
 		var languageForDocketReport = docketReportId.split("_")[1];
     	$('#'+docketReportId).attr('href', 'bill/generateDocketReport?billId='+$('#deviceId').val()+'&requisitionFor='+$("#requisitionFor").val()
     			+'&languageForDocketReport='+languageForDocketReport+'&optionalFieldsForDocket='+$('#optionalFieldsForDocket').val());

@@ -1459,7 +1459,12 @@ public class BillController extends GenericController<Bill> {
 			model.addAttribute("currentExpectedStatusDate", FormaterUtil.formatDateToString(domain.getEditedOn(), ApplicationConstants.SERVER_DATEFORMAT, domain.getLocale()));
 			model.addAttribute("currentStatusDate", FormaterUtil.formatDateToString(domain.getEditedOn(), ApplicationConstants.SERVER_DATEFORMAT, domain.getLocale()));
 		} else {
-			BillDraft currentDraft = Bill.findDraftByRecommendationStatus(domain, domain.getRecommendationStatus());
+			BillDraft currentDraft = null;
+			if(domain.getHouseRound()!=null) {
+				currentDraft = Bill.findDraftByRecommendationStatusAndHouseRound(domain, domain.getRecommendationStatus(), domain.getHouseRound());
+			} else {
+				currentDraft = Bill.findDraftByRecommendationStatus(domain, domain.getRecommendationStatus());
+			}
 			int currentHouseRound = currentDraft.getHouseRound();
 			model.addAttribute("currentHouseRound", FormaterUtil.formatNumberNoGrouping(currentHouseRound, domain.getLocale()));
 			Date currentExpectedStatusDate = currentDraft.getExpectedStatusDate();
@@ -2378,8 +2383,8 @@ public class BillController extends GenericController<Bill> {
 			String currentHouseType = domain.getCurrentHouseType().getType();		
 			BillDraft latestDraftOfStatus = null;
 			if(Bill.findHouseOrderOfGivenHouseForBill(domain, currentHouseType).equals(ApplicationConstants.BILL_FIRST_HOUSE)) {
-				if(domain.getRecommendationStatus().getType().startsWith(ApplicationConstants.BILL_PROCESSED_PASSED)) {
-					latestDraftOfStatus = Bill.findDraftByRecommendationStatus(domain, domain.getRecommendationStatus());
+				if(domain.getRecommendationStatus().getType().startsWith(ApplicationConstants.BILL_PROCESSED_PASSED+"_")) {
+					latestDraftOfStatus = Bill.findDraftByRecommendationStatusAndHouseRound(domain, domain.getRecommendationStatus(), domain.getHouseRound());
 					if(domain.getHouseRound()==1) {
 						if(latestDraftOfStatus!=null) {
 							if(latestDraftOfStatus.getHouseRound()>1) {
@@ -2402,70 +2407,78 @@ public class BillController extends GenericController<Bill> {
 						&&!domain.getRecommendationStatus().getType().startsWith(ApplicationConstants.BILL_PROCESSED_WITHDRAWN)
 						&&!domain.getRecommendationStatus().getType().startsWith(ApplicationConstants.BILL_PROCESSED_LAPSED)
 						&&!domain.getRecommendationStatus().getType().startsWith(ApplicationConstants.BILL_PROCESSED_PASSEDBYBOTHHOUSES)) {
-					latestDraftOfStatus = Bill.findDraftByRecommendationStatus(domain, domain.getRecommendationStatus());
-					if(domain.getHouseRound()==1) {
-						if(latestDraftOfStatus!=null) {
-							if(latestDraftOfStatus.getHouseRound()!=1) {
-								result.rejectValue("version", "billStatusAlreadySetInSecondHouse", "This status is already set in second house.");
-								domain.setRecommendationStatus(oldRecommendationStatus);
-							}						
+					if(domain.getHouseRound()!=null) {
+						latestDraftOfStatus = Bill.findDraftByRecommendationStatusAndHouseRound(domain, domain.getRecommendationStatus(), domain.getHouseRound());
+						if(domain.getHouseRound()==1) {
+							if(latestDraftOfStatus!=null) {
+								if(latestDraftOfStatus.getHouseRound()!=1) {
+									result.rejectValue("version", "billStatusAlreadySetInSecondHouse", "This status is already set in second house.");
+									domain.setRecommendationStatus(oldRecommendationStatus);
+								}						
+							}
+						} else if(domain.getHouseRound()==2) {
+							if(latestDraftOfStatus!=null) {
+								if(latestDraftOfStatus.getHouseRound()!=2) {
+									result.rejectValue("version", "billStatusAlreadySetInSecondHouse", "This status is already set in second house.");
+									domain.setRecommendationStatus(oldRecommendationStatus);
+								}						
+							}
 						}
-					} else if(domain.getHouseRound()==2) {
-						if(latestDraftOfStatus!=null) {
-							if(latestDraftOfStatus.getHouseRound()!=2) {
-								result.rejectValue("version", "billStatusAlreadySetInSecondHouse", "This status is already set in second house.");
-								domain.setRecommendationStatus(oldRecommendationStatus);
-							}						
-						}
-					}
+					}					
 				}
 			} else if(Bill.findHouseOrderOfGivenHouseForBill(domain, currentHouseType).equals(ApplicationConstants.BILL_SECOND_HOUSE)) {
-				if(domain.getRecommendationStatus().getType().startsWith(ApplicationConstants.BILL_PROCESSED_PASSED)) {
-					latestDraftOfStatus = Bill.findDraftByRecommendationStatus(domain, domain.getRecommendationStatus());
-					if(domain.getHouseRound()==1) {
-						if(latestDraftOfStatus!=null) {
-							if(latestDraftOfStatus.getHouseRound()>1) {
-								result.rejectValue("version", "billAlreadyPassedInSecondHouse", "Bill is already passed in second house.");
-								domain.setRecommendationStatus(oldRecommendationStatus);
+				if(domain.getRecommendationStatus().getType().startsWith(ApplicationConstants.BILL_PROCESSED_PASSED+"_")) {
+					if(domain.getHouseRound()!=null) {
+						latestDraftOfStatus = Bill.findDraftByRecommendationStatusAndHouseRound(domain, domain.getRecommendationStatus(), domain.getHouseRound());
+						if(domain.getHouseRound()==1) {
+							if(latestDraftOfStatus!=null) {
+								if(latestDraftOfStatus.getHouseRound()>1) {
+									result.rejectValue("version", "billAlreadyPassedInSecondHouse", "Bill is already passed in second house.");
+									domain.setRecommendationStatus(oldRecommendationStatus);
+								}
+							}
+						} else if(domain.getHouseRound()==2) {
+							if(latestDraftOfStatus!=null) {
+								if(latestDraftOfStatus.getHouseRound()!=2) {
+									result.rejectValue("version", "billAlreadyPassedInSecondHouse", "Bill is already passed in second house.");
+									domain.setRecommendationStatus(oldRecommendationStatus);
+								}						
 							}
 						}
-					} else if(domain.getHouseRound()==2) {
-						if(latestDraftOfStatus!=null) {
-							if(latestDraftOfStatus.getHouseRound()!=2) {
-								result.rejectValue("version", "billAlreadyPassedInSecondHouse", "Bill is already passed in second house.");
-								domain.setRecommendationStatus(oldRecommendationStatus);
-							}						
-						}
-					}
+					}					
 				} else if(domain.getRecommendationStatus().getType().startsWith(ApplicationConstants.BILL_PROCESSED_NEGATIVED)) {
-					latestDraftOfStatus = Bill.findDraftByRecommendationStatus(domain, domain.getRecommendationStatus());
-					if(domain.getHouseRound()==1) {
-						if(latestDraftOfStatus!=null) {
-							if(latestDraftOfStatus.getHouseRound()>1) {
-								result.rejectValue("version", "billAlreadyNegativedInSecondHouse", "Bill is already negatived in second house.");
-								domain.setRecommendationStatus(oldRecommendationStatus);
+					if(domain.getHouseRound()!=null) {
+						latestDraftOfStatus = Bill.findDraftByRecommendationStatusAndHouseRound(domain, domain.getRecommendationStatus(), domain.getHouseRound());
+						if(domain.getHouseRound()==1) {
+							if(latestDraftOfStatus!=null) {
+								if(latestDraftOfStatus.getHouseRound()>1) {
+									result.rejectValue("version", "billAlreadyNegativedInSecondHouse", "Bill is already negatived in second house.");
+									domain.setRecommendationStatus(oldRecommendationStatus);
+								}
 							}
 						}
-					}
+					}					
 				} else if(!domain.getRecommendationStatus().getType().startsWith(ApplicationConstants.BILL_PROCESSED_WITHDRAWN)
 						&&!domain.getRecommendationStatus().getType().startsWith(ApplicationConstants.BILL_PROCESSED_LAPSED)
 						&&!domain.getRecommendationStatus().getType().startsWith(ApplicationConstants.BILL_PROCESSED_PASSEDBYBOTHHOUSES)) {
-					latestDraftOfStatus = Bill.findDraftByRecommendationStatus(domain, domain.getRecommendationStatus());
-					if(domain.getHouseRound()==1) {
-						if(latestDraftOfStatus!=null) {
-							if(latestDraftOfStatus.getHouseRound()!=1) {
-								result.rejectValue("version", "billStatusAlreadySetInSecondHouse", "This status is already set in second house.");
-								domain.setRecommendationStatus(oldRecommendationStatus);
-							}						
+					if(domain.getHouseRound()!=null) {
+						latestDraftOfStatus = Bill.findDraftByRecommendationStatusAndHouseRound(domain, domain.getRecommendationStatus(), domain.getHouseRound());
+						if(domain.getHouseRound()==1) {
+							if(latestDraftOfStatus!=null) {
+								if(latestDraftOfStatus.getHouseRound()!=1) {
+									result.rejectValue("version", "billStatusAlreadySetInSecondHouse", "This status is already set in second house.");
+									domain.setRecommendationStatus(oldRecommendationStatus);
+								}						
+							}
+						} else if(domain.getHouseRound()==2) {
+							if(latestDraftOfStatus!=null) {
+								if(latestDraftOfStatus.getHouseRound()!=2) {
+									result.rejectValue("version", "billStatusAlreadySetInSecondHouse", "This status is already set in second house.");
+									domain.setRecommendationStatus(oldRecommendationStatus);
+								}						
+							}
 						}
-					} else if(domain.getHouseRound()==2) {
-						if(latestDraftOfStatus!=null) {
-							if(latestDraftOfStatus.getHouseRound()!=2) {
-								result.rejectValue("version", "billStatusAlreadySetInSecondHouse", "This status is already set in second house.");
-								domain.setRecommendationStatus(oldRecommendationStatus);
-							}						
-						}
-					}
+					}					
 				}
 			}
 		}		
@@ -2526,6 +2539,8 @@ public class BillController extends GenericController<Bill> {
 	
 	@Override
 	protected void populateUpdateIfErrors(ModelMap model, Bill domain, HttpServletRequest request) {
+		Bill bill = null;
+		
 		/**** updating various dates including submission date and creation date ****/
 		String strCreationDate=request.getParameter("setCreationDate");
 		String strSubmissionDate=request.getParameter("setSubmissionDate");
@@ -2619,8 +2634,7 @@ public class BillController extends GenericController<Bill> {
 		/**** resetting statuses in case this was workflow request ****/
 		String operation = request.getParameter("operation");
 		if(operation!=null) {
-			if(!operation.isEmpty()) {
-				Bill bill = null;
+			if(!operation.isEmpty()) {				
 				if(operation.equals("startworkflow")) {
 					Status oldInternalStatus = null;
 					String oldInternalStatusId = request.getParameter("oldInternalStatus");
@@ -2695,12 +2709,17 @@ public class BillController extends GenericController<Bill> {
 				}
 			}
 		}				
+		if(bill==null) {
+			bill = Bill.findById(Bill.class, domain.getId());
+		}
+		domain.setVotingDetails(bill.getVotingDetails());
 		super.populateUpdateIfErrors(model, domain, request);
 	}
 	
 	@Override
 	protected void populateUpdateIfNoErrors(final ModelMap model, final Bill domain,
-			final HttpServletRequest request) {
+			final HttpServletRequest request) {		
+		Bill bill = null;
 		
 		/**** add/update titles in domain ****/
 		List<TextDraft> titles = this.updateDraftsOfGivenType(domain, "title", request);
@@ -2789,7 +2808,7 @@ public class BillController extends GenericController<Bill> {
 		if(strUserGroupType!=null){
 			if(strUserGroupType.equals("assistant")){
 				Long id = domain.getId();
-				Bill bill = Bill.findById(Bill.class, id);
+				bill = Bill.findById(Bill.class, id);
 				String internalStatus = bill.getInternalStatus().getType();
 				if(internalStatus.equals(ApplicationConstants.BILL_SUBMIT) && domain.getMinistry()!=null && domain.getSubDepartment() != null) {
 					Status ASSISTANT_PROCESSED = Status.findByType(ApplicationConstants.BILL_SYSTEM_ASSISTANT_PROCESSED, domain.getLocale());
@@ -2974,6 +2993,11 @@ public class BillController extends GenericController<Bill> {
                 }
             }
         }
+		
+        if(bill==null) {
+			bill = Bill.findById(Bill.class, domain.getId());
+		}
+		domain.setVotingDetails(bill.getVotingDetails());
 		
 		/**** status updation activities if any ****/
         Status statusForBeginningStatusUpdation = Status.findByType(ApplicationConstants.BILL_PROCESSED_TOBEINTRODUCED, domain.getLocale());
@@ -4558,7 +4582,7 @@ public class BillController extends GenericController<Bill> {
 	@RequestMapping(value="/generateLayingLetterWhenPassedByFirstHouse",method=RequestMethod.GET)
 	public @ResponseBody void generateLayingLetterWhenPassedByFirstHouse(final HttpServletRequest request,
 			final HttpServletResponse response,final ModelMap model,final Locale locale) {
-		File reportFile = null;
+		java.io.File reportFile = null;
 		
 		String strBillId = request.getParameter("deviceId");
 		String strHouseRound = request.getParameter("houseRound");
@@ -4728,7 +4752,8 @@ public class BillController extends GenericController<Bill> {
 			reportFieldsArr[i] = reportFields.get(i);
 		}
 		try {
-			generateReportUsingFOP(reportFieldsArr, "bill_layingletter_template", "WORD", "layingletter_report", locale.toString());
+			reportFile = generateReportUsingFOP(reportFieldsArr, "bill_layingletter_template", "PDF", "layingletter_report", locale.toString());
+			openOrSaveReportFileFromBrowser(response, reportFile, "PDF");
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();

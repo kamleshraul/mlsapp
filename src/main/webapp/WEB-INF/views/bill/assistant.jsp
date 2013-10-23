@@ -839,7 +839,7 @@
 				//validations for under consideration part
 				if($('#internalStatusType').val()=='bill_processed_underConsideration') {
 					if($('#recommendationStatusType').val().match("^bill_processed_toBeDiscussed")) {
-						var consideredStatus = $("#recommendationStatusMaster option[value^='bill_processed_considered']").text();
+						var consideredStatus = $("#recommendationStatusMaster option[value^='bill_processed_considered_']").text();
 						if($('#changeRecommendationStatus').val()!=consideredStatus) {
 							$.prompt($('#billNotSetUnderConsiderationMsg').val());
 							return false;
@@ -1801,8 +1801,8 @@
 								<form:select id="houseRound" class="sSelect" path="houseRound" items="${houseRoundVOs}" itemLabel="name" itemValue="value"/>							
 							</p>
 							<p>
-								<label class="small"><spring:message code="bill.expectedStatusDate" text="Expected Status Date"/></label>
-								<form:input id="expectedStatusDate" path="expectedStatusDate" value="${expectedStatusDate}" class="datemask sText"/>							
+								<label class="small"><spring:message code="bill.expectedStatusDate" text="Expected Status Date"/></label>								
+								<input id="expectedStatusDate" name="expectedStatusDate" class="datemask sText"/>							
 							</p>
 							<p>
 								<label class="small"><spring:message code="bill.statusDate" text="Status Date"/></label>

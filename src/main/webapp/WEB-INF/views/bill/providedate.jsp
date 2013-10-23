@@ -168,9 +168,8 @@
 								}
 							}
 						});
-						
-			        	$.post('bill/providedate/update?items='+items+ '&round='+ $('#discussdateround').val() +'&action=discussion'
-			        			+'&usergroupType='+'&houseType='+ $("#selectedHouseType").val() +$("#usergroupType").val(),  		    	             
+						$.post('bill/providedate/update?items='+items+ '&round='+ $('#discussdateround').val() +'&action=discussion'
+			        			+'&usergroupType='+'&houseType='+ $("#selectedHouseType").val(),  		    	             
 			    	            function(data){
 			       					$('html').animate({scrollTop:0}, 'slow');
 			       				 	$('body').animate({scrollTop:0}, 'slow');	
