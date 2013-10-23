@@ -35,8 +35,8 @@ public class UserGroupRepository extends BaseRepository<UserGroup, Serializable>
 				Map<String,String> params=j.getParameters();
 				if(motion.getHouseType()!=null){
 					HouseType bothHouse=HouseType.findByFieldName(HouseType.class, "type","bothhouse", locale);
-					if(!params.get(ApplicationConstants.HOUSETYPE_KEY+"_"+locale).contains(bothHouse.getName())){
-						if(params.get(ApplicationConstants.HOUSETYPE_KEY+"_"+locale).contains(motion.getHouseType().getName())){
+					if(params.get(ApplicationConstants.HOUSETYPE_KEY+"_"+locale)!=null && !params.get(ApplicationConstants.HOUSETYPE_KEY+"_"+locale).contains(bothHouse.getName())){
+						if(params.get(ApplicationConstants.HOUSETYPE_KEY+"_"+locale)!=null && params.get(ApplicationConstants.HOUSETYPE_KEY+"_"+locale).contains(motion.getHouseType().getName())){
 							noOfComparisons++;
 							noOfSuccess++;
 						}else{
@@ -45,7 +45,7 @@ public class UserGroupRepository extends BaseRepository<UserGroup, Serializable>
 					}
 				}
 				if(motion.getType()!=null){
-					if(params.get(ApplicationConstants.DEVICETYPE_KEY+"_"+locale).contains(motion.getType().getName())){
+					if(params.get(ApplicationConstants.DEVICETYPE_KEY+"_"+locale)!=null && params.get(ApplicationConstants.DEVICETYPE_KEY+"_"+locale).contains(motion.getType().getName())){
 						noOfComparisons++;
 						noOfSuccess++;
 					}else{
@@ -53,7 +53,7 @@ public class UserGroupRepository extends BaseRepository<UserGroup, Serializable>
 					}
 				}
 				if(motion.getMinistry()!=null){
-					if(params.get(ApplicationConstants.MINISTRY_KEY+"_"+locale).contains(motion.getMinistry().getName())){
+					if(params.get(ApplicationConstants.MINISTRY_KEY+"_"+locale)!=null && params.get(ApplicationConstants.MINISTRY_KEY+"_"+locale).contains(motion.getMinistry().getName())){
 						noOfComparisons++;
 						noOfSuccess++;
 					}else{
@@ -61,7 +61,7 @@ public class UserGroupRepository extends BaseRepository<UserGroup, Serializable>
 					}
 				}			
 				if(motion.getSubDepartment()!=null){
-					if(params.get(ApplicationConstants.SUBDEPARTMENT_KEY+"_"+locale).contains(motion.getSubDepartment().getName())){
+					if(params.get(ApplicationConstants.SUBDEPARTMENT_KEY+"_"+locale)!=null && params.get(ApplicationConstants.SUBDEPARTMENT_KEY+"_"+locale).contains(motion.getSubDepartment().getName())){
 						noOfComparisons++;
 						noOfSuccess++;
 					}else{
@@ -148,8 +148,8 @@ public class UserGroupRepository extends BaseRepository<UserGroup, Serializable>
 				Map<String,String> params=j.getParameters();
 				if(resolution.getHouseType()!=null){
 					HouseType bothHouse=HouseType.findByFieldName(HouseType.class, "type","bothhouse", locale);
-					if(!params.get(ApplicationConstants.HOUSETYPE_KEY+"_"+locale).contains(bothHouse.getName())){
-						if(params.get(ApplicationConstants.HOUSETYPE_KEY+"_"+locale).contains(houseType.getName())){
+					if(params.get(ApplicationConstants.HOUSETYPE_KEY+"_"+locale)!=null && !params.get(ApplicationConstants.HOUSETYPE_KEY+"_"+locale).contains(bothHouse.getName())){
+						if(params.get(ApplicationConstants.HOUSETYPE_KEY+"_"+locale)!=null && params.get(ApplicationConstants.HOUSETYPE_KEY+"_"+locale).contains(houseType.getName())){
 							noOfComparisons++;
 							noOfSuccess++;
 						}else{
@@ -158,7 +158,7 @@ public class UserGroupRepository extends BaseRepository<UserGroup, Serializable>
 					}
 				}
 				if(resolution.getType()!=null){
-					if(params.get(ApplicationConstants.DEVICETYPE_KEY+"_"+locale).contains(resolution.getType().getName())){
+					if(params.get(ApplicationConstants.DEVICETYPE_KEY+"_"+locale)!=null && params.get(ApplicationConstants.DEVICETYPE_KEY+"_"+locale).contains(resolution.getType().getName())){
 						noOfComparisons++;
 						noOfSuccess++;
 					}else{
@@ -166,7 +166,7 @@ public class UserGroupRepository extends BaseRepository<UserGroup, Serializable>
 					}
 				}
 				if(resolution.getMinistry()!=null){
-					if(params.get(ApplicationConstants.MINISTRY_KEY+"_"+locale).contains(resolution.getMinistry().getName())){
+					if(params.get(ApplicationConstants.MINISTRY_KEY+"_"+locale)!=null && params.get(ApplicationConstants.MINISTRY_KEY+"_"+locale).contains(resolution.getMinistry().getName())){
 						noOfComparisons++;
 						noOfSuccess++;
 					}else{
@@ -174,7 +174,7 @@ public class UserGroupRepository extends BaseRepository<UserGroup, Serializable>
 					}
 				}			
 				if(resolution.getSubDepartment()!=null){
-					if(params.get(ApplicationConstants.SUBDEPARTMENT_KEY+"_"+locale).contains(resolution.getSubDepartment().getName())){
+					if(params.get(ApplicationConstants.SUBDEPARTMENT_KEY+"_"+locale)!=null && params.get(ApplicationConstants.SUBDEPARTMENT_KEY+"_"+locale).contains(resolution.getSubDepartment().getName())){
 						noOfComparisons++;
 						noOfSuccess++;
 					}else{
@@ -230,9 +230,9 @@ public class UserGroupRepository extends BaseRepository<UserGroup, Serializable>
 				if(question.getHouseType() != null) {
 					HouseType bothHouse = HouseType.findByFieldName(HouseType.class, "type", 
 							"bothhouse", locale);
-					if(! params.get(ApplicationConstants.HOUSETYPE_KEY + "_" + locale).contains(
+					if(params.get(ApplicationConstants.HOUSETYPE_KEY+"_"+locale)!=null &&! params.get(ApplicationConstants.HOUSETYPE_KEY + "_" + locale).contains(
 							bothHouse.getName())) {
-						if(params.get(ApplicationConstants.HOUSETYPE_KEY+"_"+locale).contains(
+						if(params.get(ApplicationConstants.HOUSETYPE_KEY+"_"+locale)!=null && params.get(ApplicationConstants.HOUSETYPE_KEY+"_"+locale).contains(
 								question.getHouseType().getName())) {
 							noOfComparisons++;
 							noOfSuccess++;
@@ -244,7 +244,7 @@ public class UserGroupRepository extends BaseRepository<UserGroup, Serializable>
 				}
 
 				if(question.getType() != null) {
-					if(params.get(ApplicationConstants.DEVICETYPE_KEY + "_" + locale).contains(
+					if(params.get(ApplicationConstants.DEVICETYPE_KEY+"_"+locale)!=null && params.get(ApplicationConstants.DEVICETYPE_KEY + "_" + locale).contains(
 							question.getType().getName())) {
 						noOfComparisons++;
 						noOfSuccess++;
@@ -255,7 +255,7 @@ public class UserGroupRepository extends BaseRepository<UserGroup, Serializable>
 				}
 
 				if(question.getMinistry() != null) {
-					if(params.get(ApplicationConstants.MINISTRY_KEY + "_" + locale).contains(
+					if(params.get(ApplicationConstants.MINISTRY_KEY+"_"+locale)!=null && params.get(ApplicationConstants.MINISTRY_KEY + "_" + locale).contains(
 							question.getMinistry().getName())) {
 						noOfComparisons++;
 						noOfSuccess++;
@@ -266,7 +266,7 @@ public class UserGroupRepository extends BaseRepository<UserGroup, Serializable>
 				}
 
 				if(question.getSubDepartment() != null) {
-					if(params.get(ApplicationConstants.SUBDEPARTMENT_KEY + "_" + locale).contains(
+					if(params.get(ApplicationConstants.SUBDEPARTMENT_KEY+"_"+locale)!=null && params.get(ApplicationConstants.SUBDEPARTMENT_KEY + "_" + locale).contains(
 							question.getSubDepartment().getName())) {
 						noOfComparisons++;
 						noOfSuccess++;
