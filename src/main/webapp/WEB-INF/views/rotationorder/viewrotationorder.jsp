@@ -9,22 +9,7 @@
 			$('document').ready(function(){	
 				initControls();
 				$('#key').val('');
-				
-				$("#ministryreport_pdf").click(function() {				
-					var parameters_report = "houseType="+$("#selectedHouseType").val()
-					 +"&sessionYear="+$("#selectedSessionYear").val()
-					 +"&sessionType="+$("#selectedSessionType").val()
-					 +"&questionType="+$("#selectedQuestionType").val()
-					 +"&group="+$("#selectedGroup").val()
-					 +"&status="+$("#selectedStatus").val()
-					 +"&role="+$("#srole").val() 
-					 + "&answeringDate=" + $("#selectedAnsweringDate").val()
-					 + "&outputFormat=PDF";
-					
-					var reportURL = 'rotationorder/viewrotationorderreport?' + parameters_report;
-					$("#rotationorder_pdf").attr('href', reportURL);
-				});
-				
+								
 				$("#rotationorder_word").click(function() {				
 					var parameters_report = "houseType="+$("#selectedHouseType").val()
 					 +"&sessionYear="+$("#selectedSessionYear").val()
@@ -38,6 +23,23 @@
 					
 					var reportURL = 'rotationorder/viewrotationorderreport?' + parameters_report;
 					$("#rotationorder_word").attr('href', reportURL);
+					/* window.open(reportURL, '_blank'); */
+				});
+				
+				$("#rotationorder_pdf").click(function() {
+					var parameters_report = "houseType="+$("#selectedHouseType").val()
+					 +"&sessionYear="+$("#selectedSessionYear").val()
+					 +"&sessionType="+$("#selectedSessionType").val()
+					 +"&questionType="+$("#selectedQuestionType").val()
+					 +"&group="+$("#selectedGroup").val()
+					 +"&status="+$("#selectedStatus").val()
+					 +"&role="+$("#srole").val() 
+					 + "&answeringDate=" + $("#selectedAnsweringDate").val()
+					 + "&outputFormat=PDF";
+					
+					var reportURL = 'rotationorder/viewrotationorderreport?' + parameters_report;
+					
+					$("#rotationorder_pdf").attr('href', reportURL);
 					/* window.open(reportURL, '_blank'); */
 				});
 			});
