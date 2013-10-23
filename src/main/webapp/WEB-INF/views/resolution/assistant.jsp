@@ -286,7 +286,7 @@
 	    		urlForRevisions = 'resolution/revisions/'+$("#id").val();
 	    	}	    	
 		    $.get(urlForRevisions,function(data){
-			    $.fancybox.open(data);
+			    $.fancybox.open(data,{autoSize: false, width: 700, height:700});
 		    }).fail(function(){
 				if($("#ErrorMsg").val()!=''){
 					$("#error_p").html($("#ErrorMsg").val()).css({'color':'red', 'display':'block'});
