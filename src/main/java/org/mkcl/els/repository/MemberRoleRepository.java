@@ -44,10 +44,11 @@ public class MemberRoleRepository extends BaseRepository<MemberRole, Long> {
     	try{
 	        String strQuery = "SELECT m FROM MemberRole m WHERE m.type=:roleName" +
 	                 " AND m.houseType.id=:houseTypeId AND m.locale=:locale";
-	        Query query=this.em().createQuery(strQuery);
+	        TypedQuery<MemberRole> query=this.em().createQuery(strQuery, MemberRole.class);
 	        query.setParameter("roleName", roleName);
 	        query.setParameter("houseTypeId", houseTypeId);
 	        query.setParameter("locale", locale);
+	        mRole = query.getSingleResult();
     	}catch (Exception e) {
 			e.printStackTrace();
 			logger.error(e.getMessage());
