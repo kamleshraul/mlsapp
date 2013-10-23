@@ -72,7 +72,10 @@
 			}			
 			
 			//------------------------initialize discussion days & dates---------------------//
-		    if(deviceTypeSelected == 'questions_halfhourdiscussion_standalone' || deviceTypeSelected == 'questions_halfhourdiscussion_from_question' || deviceTypeSelected == 'resolutions_nonofficial') {
+		    if(deviceTypeSelected == 'questions_halfhourdiscussion_standalone' 
+		    	|| deviceTypeSelected == 'questions_halfhourdiscussion_from_question' 
+		    	|| deviceTypeSelected == 'resolutions_nonofficial'
+		    	|| deviceTypeSelected == 'bills_nonofficial') {
 				//if no discussion days are selected, hide discussion dates paragraph
 		    	if($("#"+deviceTypeSelected+"_discussionDays_hidden").attr('title')==""){
 					$("#"+deviceTypeSelected+"_discussionDates_para").hide();
@@ -106,8 +109,72 @@
 				}
 			}
 			
-		  	//initialize submission end time for resolutions_nonofficial	
-		  	if(deviceTypeSelected == 'resolutions_nonofficial') {
+			//initialize bill types
+			if(deviceTypeSelected == 'bills_nonofficial' || deviceTypeSelected == 'bills_government') {
+				if($("#"+deviceTypeSelected+"_billTypesAllowed_hidden").attr('title')!=""){								
+					var billTypesAllowed=$("#"+deviceTypeSelected+"_billTypesAllowed_hidden").attr('title').split("#");
+					var i;					
+					for(i = 0; i < billTypesAllowed.length; i++){
+						$("#"+deviceTypeSelected+"_billTypesAllowed option").each(function(){
+							if(billTypesAllowed[i]==$(this).val()){
+								//$(this).prop('selected',true);
+								$(this).attr('selected','selected');
+							}	
+						});
+					}					
+				}
+			}			
+			
+			//initialize bill kinds
+			if(deviceTypeSelected == 'bills_nonofficial' || deviceTypeSelected == 'bills_government') {
+				if($("#"+deviceTypeSelected+"_billKindsAllowed_hidden").attr('title')!=""){							
+					var billKindsAllowed=$("#"+deviceTypeSelected+"_billKindsAllowed_hidden").attr('title').split("#");
+					var i;					
+					for(i = 0; i < billKindsAllowed.length; i++){
+						$("#"+deviceTypeSelected+"_billKindsAllowed option").each(function(){
+							if(billKindsAllowed[i]==$(this).val()){
+								//$(this).prop('selected',true);
+								$(this).attr('selected','selected');
+							}	
+						});
+					}					
+				}
+			}
+			
+			//initialize languages allowed
+			if(deviceTypeSelected == 'bills_nonofficial' || deviceTypeSelected == 'bills_government') {
+				if($("#"+deviceTypeSelected+"_languagesAllowed_hidden").attr('title')!=""){					
+					var languagesAllowed=$("#"+deviceTypeSelected+"_languagesAllowed_hidden").attr('title').split("#");
+					var i;					
+					for(i = 0; i < languagesAllowed.length; i++){
+						$("#"+deviceTypeSelected+"_languagesAllowed option").each(function(){
+							if(languagesAllowed[i]==$(this).val()){
+								//$(this).prop('selected',true);
+								$(this).attr('selected','selected');
+							}	
+						});
+					}					
+				}
+			}
+			
+			//initialize languages compulsory
+			if(deviceTypeSelected == 'bills_nonofficial' || deviceTypeSelected == 'bills_government') {
+				if($("#"+deviceTypeSelected+"_languagesCompulsory_hidden").attr('title')!=""){					
+					var languagesCompulsory=$("#"+deviceTypeSelected+"_languagesCompulsory_hidden").attr('title').split("#");
+					var i;					
+					for(i = 0; i < languagesCompulsory.length; i++){
+						$("#"+deviceTypeSelected+"_languagesCompulsory option").each(function(){
+							if(languagesCompulsory[i]==$(this).val()){
+								//$(this).prop('selected',true);
+								$(this).attr('selected','selected');
+							}	
+						});
+					}				
+				}
+			}
+			
+		  	//initialize submission end time for resolutions_nonofficial & bills_nonofficial	
+		  	if(deviceTypeSelected == 'resolutions_nonofficial' || deviceTypeSelected == 'bills_nonofficial') {
 		  		var submissionEndDate = $("#"+deviceTypeSelected+"_submissionEndDate").val();
 		  		$("#"+deviceTypeSelected+"_submissionEndTime").val(submissionEndDate.split(" ")[1]);
 		  	}
@@ -306,7 +373,7 @@
 				});
 				
 				//set submission start date for resolutions_nonofficial such that it is same as that for questions_starred
-				if(deviceTypeSeleted == 'resolutions_nonofficial') {
+				if(deviceTypeSeleted == 'resolutions_nonofficial' || deviceTypeSeleted == 'bills_nonofficial') {
 					var questionSubmissionStartDate = $('#questions_starred_submissionStartDate').val();
 					if(questionSubmissionStartDate != "") {
 						$('#'+deviceTypeSeleted+'_submissionStartDate').val(questionSubmissionStartDate);
@@ -314,7 +381,7 @@
 				}
 				
 				//set submission end date for resolutions_nonofficial
-				if(deviceTypeSeleted == 'resolutions_nonofficial') {
+				if(deviceTypeSeleted == 'resolutions_nonofficial' || deviceTypeSeleted == 'bills_nonofficial') {
 					var daysBetweenSubmissionEndDateAndLastDiscussionDateOfSession = $('#'+deviceTypeSeleted+'_daysBetweenSubmissionEndDateAndLastDiscussionDateOfSession').val();
 					if(daysBetweenSubmissionEndDateAndLastDiscussionDateOfSession == "" || daysBetweenSubmissionEndDateAndLastDiscussionDateOfSession == null || daysBetweenSubmissionEndDateAndLastDiscussionDateOfSession == undefined) {
 						$.prompt($('#invalidDaysBetweenSubmissionEndDateAndLastDiscussionDateOfSession').val());
@@ -1127,6 +1194,197 @@
 			</div>
 		</c:if>
 		
+		<c:if test="${i.type eq 'bills_nonofficial'}">					
+			<div id="bills_nonofficial" class="formDiv">						
+				<p>
+					<label class="small"><spring:message code="session.deviceType.daysBetweenSubmissionEndDateAndLastDiscussionDateOfSession" text="Days between submission end date & last discussion date" /></label>
+					<input type="text" class="sInteger" name="bills_nonofficial_daysBetweenSubmissionEndDateAndLastDiscussionDateOfSession" id="bills_nonofficial_daysBetweenSubmissionEndDateAndLastDiscussionDateOfSession" value="${bills_nonofficial_daysbetweensubmissionenddateandlastdiscussiondateofsession}" />
+				</p>
+					
+				<p>
+					<label class="small"><spring:message code="session.deviceType.submissionEndTime" text="Submission End Time" /></label>					
+					<input type="text" class="timemask sText" id="bills_nonofficial_submissionEndTime" />
+					<input type="hidden" class="datetimemask sText" name="bills_nonofficial_submissionEndDate" id="bills_nonofficial_submissionEndDate" value="${bills_nonofficial_submissionenddate}" />
+					<input type="hidden" class="datetimemask sText" name="bills_nonofficial_submissionStartDate" id="bills_nonofficial_submissionStartDate" value="${bills_nonofficial_submissionstartdate}" />
+				</p>
+				
+				<%-- <p>
+					<label class="small"><spring:message code="session.deviceType.numberOfBills" text="Number of Bills" /></label>
+					<input type="text" class="sInteger" name="bills_nonofficial_numberOfBills" id="bills_nonofficial_numberOfBills" value="${bills_nonofficial_numberofbills}" />
+				</p>
+				
+				<p>
+					<label class="small"><spring:message code="session.deviceType.isBallotingRequired" text="is Ballotng Required" /></label>
+					<input type="checkbox" class="sCheck isBallotingRequired" id="bills_nonofficial_isBallotingRequired" value="${bills_nonofficial_isballotingrequired}" >
+					<input type="hidden" id="bills_nonofficial_isBallotingRequired_Hidden" name="bills_nonofficial_isBallotingRequired" value="" />
+				</p>	
+				
+				<p class="bills_nonofficial_ballotfields">
+					<label class="small"><spring:message code="session.deviceType.ballotType" text="Ballot Type" /></label>
+					<select class="sSelect" name="bills_nonofficial_ballotType" id="bills_nonofficial_ballotType">
+						<c:forEach items="${ballotTypes}" var="i">
+							<option value="${i.type}">${i.name}</option>
+						</c:forEach>
+					</select>
+					<label id="bills_nonofficial_ballotType_hidden" title="${bills_nonofficial_ballottype}"></label>
+				</p>	
+				
+				<p class="bills_nonofficial_ballotfields">
+					<label class="small"><spring:message code="session.deviceType.ballotEvents" text="Ballot Events" /></label>
+					<select class="sSelectMultiple" name="bills_nonofficial_ballotEvents" id="bills_nonofficial_ballotEvents" multiple="multiple">
+						<c:forEach items="${ballotEvents}" var="i">
+							<option value="${i.type}">${i.name}</option>
+						</c:forEach>
+					</select>							
+					<label style="display: none;" id="bills_nonofficial_ballotEvents_hidden" title="${bills_nonofficial_ballotevents}"></label>
+				</p> --%>
+				
+				<p>
+					<label class="small"><spring:message code="session.deviceType.billTypesAllowed" text="Bill Types Allowed" /></label>
+					<select class="sSelectMultiple" name="bills_nonofficial_billTypesAllowed" id="bills_nonofficial_billTypesAllowed" multiple="multiple">
+						<c:forEach items="${billTypes}" var="i">
+							<option value="${i.type}">${i.name}</option>
+						</c:forEach>
+					</select>
+					<label style="display: none;" id="bills_nonofficial_billTypesAllowed_hidden" title="${bills_nonofficial_billtypesallowed}"></label>
+				</p>
+				
+				<p>
+					<label class="small"><spring:message code="session.deviceType.billKindsAllowed" text="Bill Kinds Allowed" /></label>
+					<select class="sSelectMultiple" name="bills_nonofficial_billKindsAllowed" id="bills_nonofficial_billKindsAllowed" multiple="multiple">
+						<c:forEach items="${billKinds}" var="i">
+							<option value="${i.type}">${i.name}</option>
+						</c:forEach>
+					</select>
+					<label style="display: none;" id="bills_nonofficial_billKindsAllowed_hidden" title="${bills_nonofficial_billkindsallowed}"></label>
+				</p>
+				
+				<p>
+					<label class="small"><spring:message code="session.deviceType.languagesAllowed" text="Languages Allowed" /></label>
+					<select class="sSelectMultiple" name="bills_nonofficial_languagesAllowed" id="bills_nonofficial_languagesAllowed" multiple="multiple">
+						<c:forEach items="${languages}" var="i">
+							<option value="${i.type}">${i.name}</option>
+						</c:forEach>
+					</select>
+					<label style="display: none;" id="bills_nonofficial_languagesAllowed_hidden" title="${bills_nonofficial_languagesallowed}"></label>
+				</p>
+				
+				<p>
+					<label class="small"><spring:message code="session.deviceType.languagesCompulsory" text="Languages Compulsory" /></label>
+					<select class="sSelectMultiple" name="bills_nonofficial_languagesCompulsory" id="bills_nonofficial_languagesCompulsory" multiple="multiple">
+						<c:forEach items="${languages}" var="i">
+							<option value="${i.type}">${i.name}</option>
+						</c:forEach>
+					</select>
+					<label style="display: none;" id="bills_nonofficial_languagesCompulsory_hidden" title="${bills_nonofficial_languagescompulsory}"></label>
+				</p>
+				
+				<p>
+					<label class="small"><spring:message code="session.deviceType.translationTimeoutDays" text="Number of Translation Timeout Days" /></label>
+					<input type="text" class="sInteger" name="bills_nonofficial_translationTimeoutDays" id="bills_nonofficial_translationTimeoutDays" value="${bills_nonofficial_translationtimeoutdays}" />
+				</p>
+				
+				<p>
+					<label class="small"><spring:message code="session.deviceType.discussionDays" text="Discussion Days" /></label>
+					<select class="sSelectMultiple discussionDays" name="bills_nonofficial_discussionDays" id="bills_nonofficial_discussionDays" multiple="multiple">
+						<option value="Monday"><spring:message code="week.days.monday" text="Monday" /></option>
+						<option value="Tuesday"><spring:message code="week.days.tuesday" text="Tuesday" /></option>
+						<option value="Wednesday"><spring:message code="week.days.wednesday" text="Wednesday" /></option>
+						<option value="Thursday"><spring:message code="week.days.thursday" text="Thursday" /></option>
+						<option value="Friday"><spring:message code="week.days.friday" text="Friday" /></option>
+						<option value="Saturday"><spring:message code="week.days.saturday" text="Saturday" /></option>
+					</select>
+					<label style="display: none;" id="bills_nonofficial_discussionDays_hidden" title="${bills_nonofficial_discussiondays}"></label>
+				</p>
+				
+				<p id="bills_nonofficial_discussionDates_para">
+					<label class="small"><spring:message code="session.deviceType.discussionDates" text="Discussion Dates" /></label>
+					<select class="sSelectMultiple" name="bills_nonofficial_discussionDates" id="bills_nonofficial_discussionDates" multiple="multiple">
+					</select>
+					<label style="display: none;" id="bills_nonofficial_discussionDates_hidden" title="${bills_nonofficial_discussiondates}"></label>
+				</p>						
+			</div>
+		</c:if>
+		
+		<c:if test="${i.type eq 'bills_government'}">					
+			<div id="bills_government" class="formDiv">						
+				<%-- <p>
+					<label class="small"><spring:message code="session.deviceType.numberOfBills" text="Number of Bills" /></label>
+					<input type="text" class="sInteger" name="bills_government_numberOfBills" id="bills_government_numberOfBills" value="${bills_government_numberofbills}" />
+				</p>
+				
+				<p>
+					<label class="small"><spring:message code="session.deviceType.isBallotingRequired" text="is Ballotng Required" /></label>
+					<input type="checkbox" class="sCheck isBallotingRequired" id="bills_government_isBallotingRequired" value="${bills_government_isballotingrequired}" >
+					<input type="hidden" id="bills_government_isBallotingRequired_Hidden" name="bills_government_isBallotingRequired" value="" />
+				</p>	
+				
+				<p class="bills_government_ballotfields">
+					<label class="small"><spring:message code="session.deviceType.ballotType" text="Ballot Type" /></label>
+					<select class="sSelect" name="bills_government_ballotType" id="bills_government_ballotType">
+						<c:forEach items="${ballotTypes}" var="i">
+							<option value="${i.type}">${i.name}</option>
+						</c:forEach>
+					</select>
+					<label id="bills_government_ballotType_hidden" title="${bills_government_ballottype}"></label>
+				</p>	
+				
+				<p class="bills_government_ballotfields">
+					<label class="small"><spring:message code="session.deviceType.ballotEvents" text="Ballot Events" /></label>
+					<select class="sSelectMultiple" name="bills_government_ballotEvents" id="bills_government_ballotEvents" multiple="multiple">
+						<c:forEach items="${ballotEvents}" var="i">
+							<option value="${i.type}">${i.name}</option>
+						</c:forEach>
+					</select>							
+					<label style="display: none;" id="bills_government_ballotEvents_hidden" title="${bills_government_ballotevents}"></label>
+				</p> --%>
+				
+				<p>
+					<label class="small"><spring:message code="session.deviceType.billTypesAllowed" text="Bill Types Allowed" /></label>
+					<select class="sSelectMultiple" name="bills_government_billTypesAllowed" id="bills_government_billTypesAllowed" multiple="multiple">
+						<c:forEach items="${billTypes}" var="i">
+							<option value="${i.type}">${i.name}</option>
+						</c:forEach>
+					</select>
+					<label style="display: none;" id="bills_government_billTypesAllowed_hidden" title="${bills_government_billtypesallowed}"></label>
+				</p>
+				
+				<p>
+					<label class="small"><spring:message code="session.deviceType.billKindsAllowed" text="Bill Kinds Allowed" /></label>
+					<select class="sSelectMultiple" name="bills_government_billKindsAllowed" id="bills_government_billKindsAllowed" multiple="multiple">
+						<c:forEach items="${billKinds}" var="i">
+							<option value="${i.type}">${i.name}</option>
+						</c:forEach>
+					</select>
+					<label style="display: none;" id="bills_government_billKindsAllowed_hidden" title="${bills_government_billkindsallowed}"></label>
+				</p>
+				
+				<p>
+					<label class="small"><spring:message code="session.deviceType.languagesAllowed" text="Languages Allowed" /></label>
+					<select class="sSelectMultiple" name="bills_government_languagesAllowed" id="bills_government_languagesAllowed" multiple="multiple">
+						<c:forEach items="${languages}" var="i">
+							<option value="${i.type}">${i.name}</option>
+						</c:forEach>
+					</select>
+					<label style="display: none;" id="bills_government_languagesAllowed_hidden" title="${bills_government_languagesallowed}"></label>
+				</p>
+				
+				<p>
+					<label class="small"><spring:message code="session.deviceType.languagesCompulsory" text="Languages Compulsory" /></label>
+					<select class="sSelectMultiple" name="bills_government_languagesCompulsory" id="bills_government_languagesCompulsory" multiple="multiple">
+						<c:forEach items="${languages}" var="i">
+							<option value="${i.type}">${i.name}</option>
+						</c:forEach>
+					</select>
+					<label style="display: none;" id="bills_government_languagesCompulsory_hidden" title="${bills_government_languagescompulsory}"></label>
+				</p>
+				
+				<p>
+					<label class="small"><spring:message code="session.deviceType.translationTimeoutDays" text="Number of Translation Timeout Days" /></label>
+					<input type="text" class="sInteger" name="bills_government_translationTimeoutDays" id="bills_government_translationTimeoutDays" value="${bills_government_translationtimeoutdays}" />
+				</p>				
+			</div>
+		</c:if>
 		
 		</c:forEach>
 		<div class="fields">
