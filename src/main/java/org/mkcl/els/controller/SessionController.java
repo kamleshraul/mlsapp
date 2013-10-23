@@ -31,11 +31,14 @@ import org.mkcl.els.common.util.FormaterUtil;
 import org.mkcl.els.common.vo.AuthUser;
 import org.mkcl.els.domain.BallotEvent;
 import org.mkcl.els.domain.BallotType;
+import org.mkcl.els.domain.BillKind;
+import org.mkcl.els.domain.BillType;
 import org.mkcl.els.domain.CustomParameter;
 import org.mkcl.els.domain.DeviceType;
 import org.mkcl.els.domain.Group;
 import org.mkcl.els.domain.House;
 import org.mkcl.els.domain.HouseType;
+import org.mkcl.els.domain.Language;
 import org.mkcl.els.domain.Role;
 import org.mkcl.els.domain.Session;
 import org.mkcl.els.domain.SessionPlace;
@@ -385,6 +388,8 @@ public class SessionController extends GenericController<Session> {
 				deviceTypes = DeviceType.findDeviceTypesStartingWith("motions",domain.getLocale());
 			}else if(role.startsWith("ROIS_")){
 				deviceTypes = DeviceType.findDeviceTypesStartingWith("resolutions",domain.getLocale());
+			}else if(role.startsWith("BIS_")){
+				deviceTypes = DeviceType.findDeviceTypesStartingWith("bills",domain.getLocale());
 			}else if(role.equals("SUPER_ADMIN")){
 				deviceTypes = DeviceType.findAll(DeviceType.class, "id", ApplicationConstants.ASC, locale.toString());
 			}
@@ -562,6 +567,15 @@ public class SessionController extends GenericController<Session> {
         
         List<BallotType> ballotEvents = BallotEvent.findAll(BallotEvent.class, "name", ApplicationConstants.ASC, domain.getLocale());
         model.addAttribute("ballotEvents", ballotEvents);
+        
+        List<BillType> billTypes = BillType.findAll(BillType.class, "name", ApplicationConstants.ASC, domain.getLocale());
+        model.addAttribute("billTypes", billTypes);
+        
+        List<BillKind> billKinds = BillKind.findAll(BillKind.class, "name", ApplicationConstants.ASC, domain.getLocale());
+        model.addAttribute("billKinds", billKinds);
+        
+        List<Language> languages = Language.findAll(Language.class, "name", ApplicationConstants.ASC, domain.getLocale());
+        model.addAttribute("languages", languages);
         
         model.addAttribute("domain", domain);
         
