@@ -3809,12 +3809,18 @@ public class QuestionController extends GenericController<Question>{
 				}
 	            List<MinistryVO> ministryVOs = new ArrayList<MinistryVO>();
 	            int count = 0;
-	            for(Ministry mi: group.getMinistries()) {
-	            	count++;
-	            	String ministryNumber = FormaterUtil.formatNumberNoGrouping(count, locale.toString());
-	            	MinistryVO ministryVO = new MinistryVO(mi.getId(), ministryNumber, mi.getName());
-	            	ministryVOs.add(ministryVO);	            	
-	            }
+	            
+	            try {
+					for(Ministry mi: Group.findMinistriesByPriority(group)) { //group.getMinistries()) {
+						count++;
+						String ministryNumber = FormaterUtil.formatNumberNoGrouping(count, locale.toString());
+						MinistryVO ministryVO = new MinistryVO(mi.getId(), ministryNumber, mi.getName());
+						ministryVOs.add(ministryVO);	            	
+					}
+				} catch (ELSException e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+				}
 	            data.setMinistryVOs(ministryVOs);
 	            SimpleDateFormat dbFormat = null;
 	            CustomParameter dbDateFormat=CustomParameter.findByName(CustomParameter.class,"ROTATION_ORDER_DATE_FORMAT", "");
@@ -3965,12 +3971,17 @@ public class QuestionController extends GenericController<Question>{
 				}
 	            List<MinistryVO> ministryVOs = new ArrayList<MinistryVO>();
 	            int count = 0;
-	            for(Ministry mi: group.getMinistries()) {
-	            	count++;
-	            	String ministryNumber = FormaterUtil.formatNumberNoGrouping(count, locale.toString());
-	            	MinistryVO ministryVO = new MinistryVO(mi.getId(), ministryNumber, mi.getName());
-	            	ministryVOs.add(ministryVO);	            	
-	            }
+	            try {
+					for(Ministry mi: Group.findMinistriesByPriority(group)) { //group.getMinistries()) {
+						count++;
+						String ministryNumber = FormaterUtil.formatNumberNoGrouping(count, locale.toString());
+						MinistryVO ministryVO = new MinistryVO(mi.getId(), ministryNumber, mi.getName());
+						ministryVOs.add(ministryVO);	            	
+					}
+				} catch (ELSException e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+				}
 	            data.setMinistryVOs(ministryVOs);
 	            SimpleDateFormat dbFormat = null;
 	            CustomParameter dbDateFormat=CustomParameter.findByName(CustomParameter.class,"ROTATION_ORDER_DATE_FORMAT", "");

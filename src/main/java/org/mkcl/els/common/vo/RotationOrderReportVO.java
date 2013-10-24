@@ -8,7 +8,7 @@ public class RotationOrderReportVO {
 	private String group;
 	private List<String> answeringDates;
 	private List<String> finalSubmissionDates;
-	private List<String> ministries;
+	private List<Reference> ministries;
 	private List<String> numberOfMinisteries;
 	private int rowId;
 	
@@ -36,7 +36,7 @@ public class RotationOrderReportVO {
 	public void setFinalSubmissionDates(final List<String> finalSubmissionDates) {
 		this.finalSubmissionDates = finalSubmissionDates;
 	}
-	public List<String> getMinistries() {
+	public List<Reference> getMinistries() {
 		return ministries;
 	}
 	public List<String> getNumberOfMinisteries() {
@@ -45,7 +45,7 @@ public class RotationOrderReportVO {
 	public void setNumberOfMinisteries(final List<String> numberOfMinisteries) {
 		this.numberOfMinisteries = numberOfMinisteries;
 	}
-	public void setMinistries(final List<String> ministries) {
+	public void setMinistries(final List<Reference> ministries) {
 		this.ministries = ministries;
 	}
 	public int getRowId() {

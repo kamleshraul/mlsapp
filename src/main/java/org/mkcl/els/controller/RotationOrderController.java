@@ -30,6 +30,7 @@ import org.mkcl.els.common.util.ApplicationConstants;
 import org.mkcl.els.common.util.FormaterUtil;
 import org.mkcl.els.common.vo.MasterVO;
 import org.mkcl.els.common.vo.QuestionDatesVO;
+import org.mkcl.els.common.vo.Reference;
 import org.mkcl.els.common.vo.RotationOrderReportVO;
 import org.mkcl.els.common.vo.RotationOrderVO;
 import org.mkcl.els.common.xmlvo.AadwaChartXmlVO;
@@ -324,11 +325,13 @@ public class RotationOrderController extends BaseController {
 			        	RotationOrderReportVO rotationOrderVO= new RotationOrderReportVO();
 			        	List<Ministry> ministries=Group.findMinistriesByPriority(g);
 			        	List<QuestionDates> dates= g.getQuestionDates();
-			        	List<String> ministriesStr= new ArrayList<String>();
-			        	List<String> numberOfMinisteries= new ArrayList<String>();
+			        	List<Reference> ministryVOs= new ArrayList<Reference>();			        	
 			        	int i=1;
 			        	for(Ministry m:ministries){
-			        		ministriesStr.add("(" + numberFormat.format(i++) + ") " + m.getName());
+			        		Reference ministryVO = new Reference();
+			        		ministryVO.setNumber(numberFormat.format(i++));
+			        		ministryVO.setName(m.getName());
+			        		ministryVOs.add(ministryVO);
 			        		//numberOfMinisteries.add(numberFormat.format(i++));
 			        	}
 			        	List<String> answeringDates= new ArrayList<String>();
@@ -340,19 +343,22 @@ public class RotationOrderController extends BaseController {
 			        		String[] strAnsweringMonth=strAnsweringDates[1].split(" ");
 			        		String answeringMonth=FormaterUtil.getMonthInMarathi(strAnsweringMonth[1], locale.toString());
 			        		
-			        		answeringDates.add(answeringDay+","+strAnsweringMonth[0]+" "+ answeringMonth +","+strAnsweringDates[2]);
+			        		MessageResource mrDate = MessageResource.findByFieldName(MessageResource.class, "code", "generic.date", locale.toString());
+		            		String genericDateLabel  = (mrDate!=null)? mrDate.getValue():"";
+			        		
+		            		answeringDates.add(answeringDay+", "+ genericDateLabel + " " +strAnsweringMonth[0]+" "+ answeringMonth +","+strAnsweringDates[2]);
 			        		
 			        		String[] strSubmissionDates=dbFormat.format(d.getFinalSubmissionDate()).split(",");
 			        		String submissionDay=FormaterUtil.getDayInMarathi(strSubmissionDates[0],locale.toString());
 			        		String[] strSubmissionMonth=strSubmissionDates[1].split(" ");
 			        		String submissionMonth=FormaterUtil.getMonthInMarathi(strSubmissionMonth[1], locale.toString());
 			        		
-			        		finalSubmissionDates.add(submissionDay+","+strSubmissionMonth[0]+" "+ submissionMonth +","+strSubmissionDates[2]);
+			        		finalSubmissionDates.add(submissionDay+", " + genericDateLabel + " " +strSubmissionMonth[0]+" "+ submissionMonth +","+strSubmissionDates[2]);
 			        	}            	
 			        	String groupNumberText = NumberInfo.findNumberText(new Long(g.getNumber()), locale.toString());
 			        	rotationOrderVO.setGroup(groupNumberText);
 			        	//rotationOrderVO.setGroup(numberFormat.format(g.getNumber()));
-			        	rotationOrderVO.setMinistries(ministriesStr);
+			        	rotationOrderVO.setMinistries(ministryVOs);
 			        	//rotationOrderVO.setNumberOfMinisteries(numberOfMinisteries);
 			        	rotationOrderVO.setAnsweringDates(answeringDates);
 			        	rotationOrderVO.setFinalSubmissionDates(finalSubmissionDates);

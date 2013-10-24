@@ -620,9 +620,9 @@
 	                <fo:block font-family="{$font}" font-size="13px" font-weight="normal" font-style="normal" space-after.optimum="3pt" text-align="justify">
 	                    <fo:table border-collapse="collapse" table-layout="fixed" width="100%">
 	                        <fo:table-column column-number="1" column-width="2cm" />
-	                        <fo:table-column column-number="2" column-width="6cm" />
-	                        <fo:table-column column-number="3" column-width="5.5cm" />
-	                        <fo:table-column column-number="4" column-width="5.5cm" />
+	                        <fo:table-column column-number="2" column-width="7cm" />
+	                        <fo:table-column column-number="3" column-width="5cm" />
+	                        <fo:table-column column-number="4" column-width="5cm" />
 							<fo:table-header>
 							   <fo:table-row border="solid 0.1mm black">
 				                        	<fo:table-cell border-width="0.5pt" border-style="solid">
@@ -665,10 +665,18 @@
 							  						<fo:block/>	
 							  					</xsl:for-each>  -->
 							  					<fo:block/>	
-	                                            <xsl:for-each select="./ministries" >
-	                                            	<xsl:apply-templates></xsl:apply-templates>
-							  						<xsl:if test="position() != last()"><fo:block/></xsl:if>
-							  					</xsl:for-each> 
+							  					<fo:table>
+							  					<fo:table-column column-number="1" column-width="0.6cm" />
+	                        					<fo:table-column column-number="2" column-width="5.4cm" />
+							  					<fo:table-body>
+	                                            <xsl:for-each select="./ministries" >                       	
+	                                            	<fo:table-row>
+	                                            		<fo:table-cell display-align="before"><fo:block>(<xsl:value-of select="number"/>)</fo:block></fo:table-cell>
+	                                            		<fo:table-cell><fo:block wrap-option="wrap"><xsl:value-of select="name"/></fo:block></fo:table-cell>
+	                                            	</fo:table-row>	                                            	
+							  					</xsl:for-each>
+							  					</fo:table-body>
+							  					</fo:table> 
 						  					</fo:block>
 	                                    </fo:table-cell>
 	                                    
