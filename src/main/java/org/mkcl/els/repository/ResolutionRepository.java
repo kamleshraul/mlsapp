@@ -1081,13 +1081,19 @@ public class ResolutionRepository extends BaseRepository<Resolution, Long>{
 			final String locale) throws ELSException {
 		String strQquery="SELECT COUNT(r) FROM Resolution r Where r.session.id=:sessionId"+
 				" AND r.type.id=:deviceTypeId AND r.member.id=:memberId AND r.locale=:locale"+
-				" AND (r.internalStatusLowerHouse.type='resolution_incomplete' OR r.internalStatusUpperHouse='resolution_incomplete')AND r.number IS  NULL";
+				" AND (r.internalStatusLowerHouse.id<>:incompleteStatusId OR r.internalStatusUpperHouse.id<>:incompleteStatusId)" +
+				" AND (r.internalStatusLowerHouse.id<>:completeStatusId OR r.internalStatusUpperHouse.id<>:completeStatusId)"+
+				" AND r.number IS  NULL";
+		Status incompleteStatus=Status.findByType(ApplicationConstants.RESOLUTION_INCOMPLETE, locale);
+		Status completeStatus=Status.findByType(ApplicationConstants.RESOLUTION_COMPLETE, locale);
 		try{
 			Query query=this.em().createQuery(strQquery);
 			query.setParameter("sessionId", session.getId());
 			query.setParameter("deviceTypeId", deviceType.getId());
 			query.setParameter("locale", locale);
 			query.setParameter("memberId", member.getId());
+			query.setParameter("incompleteStatusId", incompleteStatus.getId());
+			query.setParameter("completeStatusId", completeStatus.getId());
 			Integer nonNumberResolutions = Integer.valueOf(query.getSingleResult().toString());
 			
 			return nonNumberResolutions;
