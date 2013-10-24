@@ -50,9 +50,15 @@
 			var formationDateParam = "formationDate=" + varFormationDate;
 			var parameters = committeeNameParam + "&" + formationDateParam;
 			var resourceURL = "ref/committee/dissolutionDate" + "?" + parameters;
-			$.get(resourceURL, function(data){
-				$('#dissolutionDate').val(data.name);
-			}); 
+
+			// TO DO Instead of programming for success attribute, program for complete attribute.
+			$.ajax({
+				url: resourceURL,
+				success: function(data){
+						$('#dissolutionDate').val(data.name);
+					},
+				async: false
+			});
 		}
 	}
 	
@@ -69,7 +75,11 @@
 
 		$('#formationDate').change(function(){
 			onFormationDateChange();
-		});	 
+		});	
+
+		$("form").submit(function(event){
+			onFormationDateChange();
+		});
 	});		
 	</script>
 </head>

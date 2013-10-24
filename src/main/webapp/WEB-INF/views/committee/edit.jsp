@@ -50,9 +50,15 @@
 			var formationDateParam = "formationDate=" + varFormationDate;
 			var parameters = committeeNameParam + "&" + formationDateParam;
 			var resourceURL = "ref/committee/dissolutionDate" + "?" + parameters;
-			$.get(resourceURL, function(data){
-				$('#dissolutionDate').val(data.name);
-			}); 
+
+			// TO DO Instead of programming for success attribute, program for complete attribute.
+			$.ajax({
+				url: resourceURL,
+				success: function(data){
+						$('#dissolutionDate').val(data.name);
+					},
+				async: false
+			});
 		}
 	}
 	
@@ -69,7 +75,11 @@
 
 		$('#formationDate').change(function(){
 			onFormationDateChange();
-		});	 
+		});	
+
+		$("form").submit(function(event){
+			onFormationDateChange();
+		}); 
 	});		
 	</script>
 </head>
@@ -128,7 +138,7 @@
 	</p>
 
 	<!-- Table displaying members -->
-	<c:if test="${status.type eq 'committee_membersAdded' and not empty committeeMembers}">
+	<c:if test="${not empty committeeMembers}">
 		<label class="small"><spring:message code="committee.members" text="Committee Members"/></label>
 		<table class="uiTable" border="1">
 			<tbody>
@@ -147,7 +157,7 @@
 	</c:if>
 	
 	<!-- Table displaying invited members -->
-	<c:if test="${status.type eq 'committee_invitedMembersAdded' and not empty invitedMembers}">
+	<c:if test="${not empty invitedMembers}">
 		<label class="small"><spring:message code="committee.invitedMembers" text="Invited Members"/></label>
 		<table class="uiTable" border="1">
 			<tbody>
