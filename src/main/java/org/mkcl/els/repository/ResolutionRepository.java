@@ -1081,7 +1081,7 @@ public class ResolutionRepository extends BaseRepository<Resolution, Long>{
 			final String locale) throws ELSException {
 		String strQquery="SELECT COUNT(r) FROM Resolution r Where r.session.id=:sessionId"+
 				" AND r.type.id=:deviceTypeId AND r.member.id=:memberId AND r.locale=:locale"+
-				" AND r.number IS  NULL";
+				" AND (r.internalStatusLowerHouse.type='resolution_incomplete' OR r.internalStatusUpperHouse='resolution_incomplete')AND r.number IS  NULL";
 		try{
 			Query query=this.em().createQuery(strQquery);
 			query.setParameter("sessionId", session.getId());
