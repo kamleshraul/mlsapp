@@ -39,6 +39,7 @@
 	<style type="text/css" media="all">
 		table{
 		width:800px;
+		font-size: 14px;
 		}
 		.content{
 			text-align:justify;
@@ -86,33 +87,6 @@
 		<c:set var="cnt" value="0"/>
 		<c:forEach items="${report}" var="r" step="${count}">
 			<c:if test="${r[9]==member}">
-				<%-- </table>
-				<table class="doBreak">
-					<thead>
-						<tr>
-							<th class="left" width="200px">${r[14]}</th>
-							<th class="center" width="400px">${generalNotice}</th>
-							<th class="right" width="200px">${r[13]} - ${count}</th>
-						</tr>
-						<tr>
-							<th class="left">${r[16]}</th>
-							<th class="center">${r[17]}</th>
-							<th class="right">${r[15]}</th>
-						</tr>
-					</thead>
-					<tr><td colspan="3" height="30px"></td></tr>
-					<c:choose>
-						<c:when test="${r[1]!=null and r[2]!=null and r[1]!='' and r[2]!=''}">
-							<tr>
-								<td colspan="3" class="content" style="text-align: center;">
-									<b>${mainHeading} :</b> ${r[2]}
-									<br>
-									<b>${pageHeading}: </b>${r[1]}
-								</td>
-							</tr>
-							<tr><td colspan="3" height="30px"></td></tr>
-						</c:when>
-					</c:choose> --%>
 				<c:forEach items="${report}" var ="r1" begin="${cnt}">
 						<c:choose>
 						<c:when test="${(mHeading==r1[2] && pHeading==r1[1] && slot==r1[13])}">
@@ -212,6 +186,7 @@
 							</c:choose>
 						</td>
 					</tr>
+					<tr><td colspan="3" height="30px"></td></tr>
 					<c:set var="mHeading" value="${r1[2]}"/>
 					<c:set var="pHeading" value="${r1[1] }"/>
 					<c:set var="slot" value="${r1[13]}"/>
@@ -342,6 +317,7 @@
 							</c:choose>
 						</td>
 					</tr>
+					<tr><td colspan="3" height="30px"></td></tr>
 					<c:set var="mHeading" value="${r1[2]}"/>
 					<c:set var="pHeading" value="${r1[1] }"/>
 					<c:set var="slot" value="${r1[13]}"/>
