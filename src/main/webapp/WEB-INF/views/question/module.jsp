@@ -11,9 +11,8 @@
 						/**** On Page Load ****/
 						var currentDeviceType = $("#currentDeviceType").val();
 						var currentHouseType = $("#currentHouseType").val();
-
 						/**** Fro chart_tab to show or hide ****/
-						if (currentDeviceType == 'questions_starred') {
+						if (currentDeviceType == 'questions_starred' || (currentDeviceType=='questions_halfhourdiscussion_standalone' && currentHouseType=='lowerhouse')) {
 							$("#chart_tab").show();
 						} else {
 							$("#chart_tab").hide();
