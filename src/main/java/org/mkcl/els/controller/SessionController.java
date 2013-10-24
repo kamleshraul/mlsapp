@@ -357,6 +357,30 @@ public class SessionController extends GenericController<Session> {
 				model.addAttribute("userRole", i.getType());
 				role = i.getType();
 				break;
+			} else if (i.getType().startsWith("BIS_")) {
+				model.addAttribute("userRole", i.getType());
+				role = i.getType();
+				break;
+			} else if (i.getType().startsWith("RIS_")) {
+				model.addAttribute("userRole", i.getType());
+				role = i.getType();
+				break;
+			} else if (i.getType().startsWith("EDIS_")) {
+				model.addAttribute("userRole", i.getType());
+				role = i.getType();
+				break;
+			} else if (i.getType().startsWith("CIS_")) {
+				model.addAttribute("userRole", i.getType());
+				role = i.getType();
+				break;
+			} else if (i.getType().startsWith("ROIS_")) {
+				model.addAttribute("userRole", i.getType());
+				role = i.getType();
+				break;
+			} else if (i.getType().startsWith("MOIS_")) {
+				model.addAttribute("userRole", i.getType());
+				role = i.getType();
+				break;
 			} else if(i.getType().equals("SUPER_ADMIN")){
 				model.addAttribute("userRole", i.getType());
 				role = i.getType();
@@ -379,21 +403,22 @@ public class SessionController extends GenericController<Session> {
          List<DeviceType> deviceTypes = new ArrayList<DeviceType>();
          
 		try {
-			if (role.startsWith("QIS_")) {
-				deviceTypes = DeviceType.findDeviceTypesStartingWith("questions",domain.getLocale());
-			}else if(role.startsWith("RIS_")){
-				deviceTypes = DeviceType.findDeviceTypesStartingWith("roster",domain.getLocale());
-				
-			}else if(role.startsWith("MOIS_")){
-				deviceTypes = DeviceType.findDeviceTypesStartingWith("motions",domain.getLocale());
-			}else if(role.startsWith("ROIS_")){
-				deviceTypes = DeviceType.findDeviceTypesStartingWith("resolutions",domain.getLocale());
-			}else if(role.startsWith("BIS_")){
-				deviceTypes = DeviceType.findDeviceTypesStartingWith("bills",domain.getLocale());
-			}else if(role.equals("SUPER_ADMIN")){
-				deviceTypes = DeviceType.findAll(DeviceType.class, "id", ApplicationConstants.ASC, locale.toString());
+			if(role!=null) {
+				if (role.startsWith("QIS_")) {
+					deviceTypes = DeviceType.findDeviceTypesStartingWith("questions",domain.getLocale());
+				}else if(role.startsWith("RIS_")){
+					deviceTypes = DeviceType.findDeviceTypesStartingWith("roster",domain.getLocale());
+					
+				}else if(role.startsWith("MOIS_")){
+					deviceTypes = DeviceType.findDeviceTypesStartingWith("motions",domain.getLocale());
+				}else if(role.startsWith("ROIS_")){
+					deviceTypes = DeviceType.findDeviceTypesStartingWith("resolutions",domain.getLocale());
+				}else if(role.startsWith("BIS_")){
+					deviceTypes = DeviceType.findDeviceTypesStartingWith("bills",domain.getLocale());
+				}else if(role.equals("SUPER_ADMIN")){
+					deviceTypes = DeviceType.findAll(DeviceType.class, "id", ApplicationConstants.ASC, locale.toString());
+				}
 			}
-			
 			for (int i = 0; i < deviceTypes.size(); i++) {
 				String tempDeviceType = deviceTypes.get(i).getType();
 				if(isDeviceEnabled(strDeviceTypesEnabled, tempDeviceType)){
