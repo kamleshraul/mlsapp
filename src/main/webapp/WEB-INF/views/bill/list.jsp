@@ -144,10 +144,9 @@
 	</style>
 </head>
 <body>
-	<div>
-	<h1>${deviceTypeType}</h1>
+	<div>	
 	<div class="commandbar">
-		<div class="commandbarContent" style="height: 36px;">	
+		<div class="commandbarContent">	
 			<security:authorize access="hasAnyRole('MEMBER_LOWERHOUSE','MEMBER_UPPERHOUSE','BIS_CLERK')">			
 			<a href="#" id="new_record" class="butSim">
 				<spring:message code="generic.new" text="New"/>
@@ -160,9 +159,6 @@
 			<a href="#" id="delete_record" class="butSim">
 				<spring:message code="generic.delete" text="Delete"/>
 			</a> |			
-			<a href="#" id="submitBill" class="butSim">
-				<spring:message code="generic.submitbill" text="submit"/>
-			</a> |
 			</security:authorize>			
 			<a href="#" id="search" class="butSim">
 				<spring:message code="generic.search" text="Search"/>
@@ -175,37 +171,36 @@
 				 	<input type="text" class="datemask" id="patrakbahgdonDate" style="width: 100px;" />
 				 	<a href="#" id="createpatrakbhagdon" style="text-decoration: none;"><span id="goBtn"><spring:message code="bill.create.patrakbhagdon" text="Go" ></spring:message></span></a>
 				 </div> |
-			</security:authorize>
-			<%-- <security:authorize access="hasAnyRole('BILL_DEPARTMENT_USER')"> --%>			
-				<a href="#" id="provide_date" class="butSim">
-					<spring:message code="generic.giveintroductiondate" text="Provide Introduction Date"/>
-				</a> 
-			<%-- </security:authorize> --%>
+			</security:authorize>		
+			<security:authorize access="hasAnyRole('BIS_ASSISTANT','BIS_UNDER_SECRETARY',
+			'BIS_DEPUTY_SECRETARY','BIS_PRINCIPAL_SECRETARY','BIS_SPEAKER','BIS_JOINT_SECRETARY',
+			'BIS_SECRETARY','BIS_OFFICER_ON_SPECIAL_DUTY','BIS_DEPUTY_SPEAKER','BIS_CHAIRMAN','BIS_DEPUTY_CHAIRMAN',
+			'BIS_SECTION_OFFICER','BIS_UNDER_SECRETARY_COMMITTEE')">		
+			<a href="#" id="provide_date" class="butSim">
+				<spring:message code="bill.viewprioritiesforintroductionanddiscussion" text="View Priorities For Introduction and Discussion"/>
+			</a>
+			</security:authorize>		
 			<security:authorize access="hasAnyRole('BIS_ASSISTANT','BIS_SECTION_OFFICER')">
 				<a href="#" id="managePrintRequisition" class="butSim">
 					<spring:message code="bill.managePrintRequisition" text="Manage Print Requisition"/>
 				</a> |
-			</security:authorize>
+			</security:authorize>			
 			<security:authorize access="hasAnyRole('BIS_ASSISTANT')">
+			<p style="margin-top: 15px; margin-bottom: 5px;">
 			<a href="#" id="sendGreenCopyForEndorsement" class="butSim">
 				<spring:message code="bill.sendGreenCopyForEndorsement" text="Send Green Copy For Endorsement"/>
-			</a>
-			</security:authorize>
-			<security:authorize access="hasAnyRole('BIS_ASSISTANT')">
+			</a> |			
 			<a href="#" id="transmitEndorsementCopies" class="butSim">
 				<spring:message code="bill.transmitEndorsementCopies" text="Transmit Endorsement Copies"/>
-			</a> | 
-			</security:authorize>
-			<security:authorize access="hasAnyRole('BIS_ASSISTANT')">
+			</a> | 				
 			<a href="#" id="transmitPressCopies" class="butSim">
 				<spring:message code="bill.transmitPressCopies" text="Transmit Press Copies"/>
-			</a> | 
-			</security:authorize>
-			<security:authorize access="hasAnyRole('BIS_ASSISTANT')">
+			</a> | 					
 			<a href="#" id="layLetter" class="butSim">
 				<spring:message code="bill.layLetter" text="Lay letter for bill passed by first house"/>
 			</a>
-			</security:authorize>
+			</p>
+			</security:authorize>			
 			<p>&nbsp;</p>
 		</div>
 	</div>

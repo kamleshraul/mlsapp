@@ -1280,6 +1280,22 @@
 				</p>
 				
 				<p>
+					<label class="small"><spring:message code="session.deviceType.defaultTitleLanguage" text="Default Language" /></label>
+					<select class="sSelect" name="bills_nonofficial_defaultTitleLanguage" id="bills_nonofficial_defaultTitleLanguage">
+						<c:forEach items="${languages}" var="i">
+							<c:choose>
+								<c:when test="${i.type==bills_nonofficial_defaulttitlelanguage}">
+									<option value="${i.type}" selected="selected">${i.name}</option>
+								</c:when>
+								<c:otherwise>
+									<option value="${i.type}">${i.name}</option>
+								</c:otherwise>
+							</c:choose>							
+						</c:forEach>
+					</select>					
+				</p>
+				
+				<p>
 					<label class="small"><spring:message code="session.deviceType.translationTimeoutDays" text="Number of Translation Timeout Days" /></label>
 					<input type="text" class="sInteger" name="bills_nonofficial_translationTimeoutDays" id="bills_nonofficial_translationTimeoutDays" value="${bills_nonofficial_translationtimeoutdays}" />
 				</p>
@@ -1377,6 +1393,22 @@
 						</c:forEach>
 					</select>
 					<label style="display: none;" id="bills_government_languagesCompulsory_hidden" title="${bills_government_languagescompulsory}"></label>
+				</p>
+				
+				<p>
+					<label class="small"><spring:message code="session.deviceType.defaultTitleLanguage" text="Default Language" /></label>
+					<select class="sSelect" name="bills_government_defaultTitleLanguage" id="bills_government_defaultTitleLanguage">
+						<c:forEach items="${languages}" var="i">
+							<c:choose>
+								<c:when test="${i.type==bills_government_defaulttitlelanguage}">
+									<option value="${i.type}" selected="selected">${i.name}</option>
+								</c:when>
+								<c:otherwise>
+									<option value="${i.type}">${i.name}</option>
+								</c:otherwise>
+							</c:choose>							
+						</c:forEach>
+					</select>					
 				</p>
 				
 				<p>

@@ -426,7 +426,7 @@
 			<a href="#" id="select_houseType" class="butSim">
 				<spring:message code="bill.houseType" text="House Type"/>
 			</a>
-			<select name="selectedHouseType" id="selectedHouseType" style="width:100px;height: 25px;">			
+			<select name="selectedHouseType" id="selectedHouseType" style="width:97px;height: 25px;">			
 			<c:forEach items="${houseTypes}" var="i">
 			<c:choose>
 			<c:when test="${houseType==i.type}">
@@ -441,7 +441,7 @@
 			<a href="#" id="select_session_year" class="butSim">
 				<spring:message code="bill.sessionyear" text="Year"/>
 			</a>
-			<select name="selectedSessionYear" id="selectedSessionYear" style="width:100px;height: 25px;">				
+			<select name="selectedSessionYear" id="selectedSessionYear" style="width:97px;height: 25px;">				
 			<c:forEach var="i" items="${years}">
 			<c:choose>
 			<c:when test="${i==sessionYear }">
@@ -456,7 +456,7 @@
 			<a href="#" id="select_sessionType" class="butSim">
 				<spring:message code="bill.sessionType" text="Session Type"/>
 			</a>
-			<select name="selectedSessionType" id="selectedSessionType" style="width:100px;height: 25px;">				
+			<select name="selectedSessionType" id="selectedSessionType" style="width:97px;height: 25px;">				
 			<c:forEach items="${sessionTypes}" var="i">
 			<c:choose>
 			<c:when test="${sessionType==i.id}">
@@ -471,7 +471,7 @@
 			<a href="#" id="select_deviceType" class="butSim">
 				<spring:message code="bill.deviceType" text="Bill Type"/>
 			</a>
-			<select name="selectedDeviceType" id="selectedDeviceType" style="width:auto;height: 25px;">			
+			<select name="selectedDeviceType" id="selectedDeviceType" style="width:97px;height: 25px;">			
 			<c:forEach items="${deviceTypes}" var="i">
 			<c:choose>
 			<c:when test="${deviceType==i.id}">
@@ -487,21 +487,16 @@
 			<c:forEach items="${deviceTypes}" var="i">
 			<option value="${i.id }">${i.type }</option>
 			</c:forEach>
-			</select>|			
-			<security:authorize access="hasAnyRole('MEMBER_LOWERHOUSE','MEMBER_UPPERHOUSE','BIS_CLERK','BIS_ASSISTANT','BIS_UNDER_SECRETARY',
-			'BIS_DEPUTY_SECRETARY','BIS_PRINCIPAL_SECRETARY','BIS_SPEAKER','BIS_JOINT_SECRETARY',
-			'BIS_SECRETARY','BIS_OFFICER_ON_SPECIAL_DUTY','BIS_DEPUTY_SPEAKER','BIS_CHAIRMAN','BIS_DEPUTY_CHAIRMAN',
-			'BIS_SECTION_OFFICER','BIS_UNDER_SECRETARY_COMMITTEE')">
-			<hr>
+			</select> |			
 			<a href="#" id="select_status" class="butSim">
 				<spring:message code="bill.status" text="Status"/>
 			</a>
-			<select name="selectedStatus" id="selectedStatus" style="width:250px;height: 25px;">			
+			<select name="selectedStatus" id="selectedStatus" style="width:97px;height: 25px;">			
 			<c:forEach items="${status}" var="i">
 			<option value="${i.id}"><c:out value="${i.name}"></c:out></option>	
 			</c:forEach>
-			</select> |			 
-			</security:authorize>
+			</select>
+			<hr>			
 			
 			<%-- <c:if test="${usergroupType=='assistant'}">
 			<security:authorize access="hasRole('BIS_ASSISTANT')">
@@ -516,48 +511,9 @@
 				</select> |	
 			</security:authorize>
 			</c:if> --%>
-			
-			<%-- <security:authorize access="hasAnyRole('MEMBER_LOWERHOUSE','MEMBER_UPPERHOUSE','BIS_CLERK')">
-			<a href="#" id="select_status" class="butSim">
-				<spring:message code="bill.status" text="Status"/>
-			</a>
-			<select name="selectedStatus" id="selectedStatus" style="width:100px;height: 25px;">			
-			<c:forEach items="${status}" var="i">
-			<option value="${i.id}"><c:out value="${i.name}"></c:out></option>	
-			</c:forEach>
-			</select> 		 
-			</security:authorize> --%>	
-			<security:authorize access="hasAnyRole('MEMBER_LOWERHOUSE','MEMBER_UPPERHOUSE','BIS_ASSISTANT')">			
-			<a href="#" id="select_itemcount" class="butSim">
-				<spring:message code="bill.itemcount" text="No. of Bill(Bulk Putup)"/>
-			</a>
-			<select name="selectedItemsCount" id="selectedItemsCount" style="width:100px;height: 25px;">			
-			<option value="30">30</option>
-			<option value="25">25</option>
-			<option value="20">20</option>
-			<option value="15">15</option>
-			<option value="10">10</option>
-			<option value="5">05</option>		
-			</select>|	
-			</security:authorize>
-			<security:authorize access="hasAnyRole('BIS_ASSISTANT')">
-			<a href="#" id="select_filecount" class="butSim">
-				<spring:message code="bill.filecount" text="Select File(Bulk Putup)"/>
-			</a>
-			<select name="selectedFileCount" id="selectedFileCount" style="width:100px;height: 25px;">			
-			<option value="-"><spring:message code='please.select' text='Please Select'/></option>	
-			<c:if test="${highestFileNo>0 }">
-			<c:forEach var="i" begin="1" step="1" end="${highestFileNo}">
-			<option value="${i}">${i}</option>
-			</c:forEach>
-			</c:if>						
-			</select>
-			</security:authorize>
-								
 		</div>		
 				
-		<div class="tabContent">
-		</div>
+		<div class="tabContent"></div>
 		<div style="display: none;">
 			<select id="masterStatuses">
 				<c:forEach items="${status}" var="s">

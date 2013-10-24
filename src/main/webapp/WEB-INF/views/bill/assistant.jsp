@@ -1208,95 +1208,85 @@
 					</p>
 					</c:if>
 					
-					<table style="width: 100%;">
-						<tr>
-							<td>				
-								<p>
-									<label class="small"><spring:message code="bill.ministry" text="Ministry"/>*</label>
-									<select name="ministry" id="ministry" class="sSelect">
-										<c:forEach items="${ministries }" var="i">
-											<c:choose>
-												<c:when test="${i.id==ministrySelected }">									<option value="${i.id }" selected="selected">${i.name}</option>
-												</c:when>
-												<c:otherwise>
-													<option value="${i.id }" >${i.name}</option>
-												</c:otherwise>
-											</c:choose>
-										</c:forEach>
-									</select>		
-									<form:errors path="ministry" cssClass="validationError"/>
-								</p>
-								<p>
-									<label class="small"><spring:message code="bill.subdepartment" text="Sub Department"/></label>
-									<select name="subDepartment" id="subDepartment" class="sSelect">
-									<c:forEach items="${subDepartments }" var="i">
-										<c:choose>
-											<c:when test="${i.id==subDepartmentSelected }">
-												<option value="${i.id }" selected="selected">${i.name}</option>
-											</c:when>
-											<c:otherwise>
-												<option value="${i.id }" >${i.name}</option>
-											</c:otherwise>
-										</c:choose>
-									</c:forEach>
-									</select>		
-									<form:errors path="subDepartment" cssClass="validationError"/>
-								</p>
-							</td>				
-							<td style="vertical-align: top;">
-								<p>
-									<label class="small"><spring:message code="bill.billType" text="Bill Type"/></label>
-									<select id="billType" class="sSelect" name="billType">
-									<c:forEach var="i" items="${billTypes}">
-										<c:choose>
-											<c:when test="${i.id == selectedBillType}">
-												<option value="${i.id}" selected="selected">${i.name}</option>
-											</c:when>
-											<c:otherwise>
-												<option value="${i.id}">${i.name}</option>
-											</c:otherwise>
-										</c:choose>							
-									</c:forEach>
-									</select>			
-									<form:errors path="billType" cssClass="validationError"></form:errors>			
-								</p>
-								<p>
-									<label class="small"><spring:message code="bill.billKind" text="Bill Kind"/></label>
-									<select id="billKind" class="sSelect" name="billKind">
-									<c:forEach var="i" items="${billKinds}">
-										<c:choose>
-											<c:when test="${i.id == selectedBillKind}">
-												<option value="${i.id}" selected="selected">${i.name}</option>
-											</c:when>
-											<c:otherwise>
-												<option value="${i.id}">${i.name}</option>
-											</c:otherwise>
-										</c:choose>							
-									</c:forEach>
-									</select>
-									<form:errors path="billKind" cssClass="validationError"></form:errors>						
-								</p>
-								<c:if test="${selectedDeviceTypeForBill == 'bills_government'}">
-								<p>
-									<label class="small"><spring:message code="bill.introducingHouseType" text="Introducing House Type"/></label>
-									<form:select id="introducingHouseType" class="sSelect" path="introducingHouseType">
-									<c:forEach var="i" items="${introducingHouseTypes}">							
-										<c:choose>
-											<c:when test="${i.id == selectedIntroducingHouseType}">
-												<option value="${i.id}" selected="selected">${i.name}</option>
-											</c:when>
-											<c:otherwise>
-												<option value="${i.id}">${i.name}</option>
-											</c:otherwise>
-										</c:choose>
-									</c:forEach>
-									</form:select>		
-									<form:errors path="introducingHouseType"></form:errors>				
-								</p>
-								</c:if>								
-							</td>				
-						</tr>
-					</table>		
+					<c:if test="${selectedDeviceTypeForBill == 'bills_government'}">
+					<p>
+						<label class="small"><spring:message code="bill.introducingHouseType" text="Introducing House Type"/></label>
+						<form:select id="introducingHouseType" class="sSelect" path="introducingHouseType">
+						<c:forEach var="i" items="${introducingHouseTypes}">							
+							<c:choose>
+								<c:when test="${i.id == selectedIntroducingHouseType}">
+									<option value="${i.id}" selected="selected">${i.name}</option>
+								</c:when>
+								<c:otherwise>
+									<option value="${i.id}">${i.name}</option>
+								</c:otherwise>
+							</c:choose>
+						</c:forEach>
+						</form:select>		
+						<form:errors path="introducingHouseType"></form:errors>				
+					</p>
+					</c:if>
+					
+					<p>
+						<label class="small"><spring:message code="bill.billType" text="Bill Type"/></label>
+						<select id="billType" class="sSelect" name="billType">
+						<c:forEach var="i" items="${billTypes}">
+							<c:choose>
+								<c:when test="${i.id == selectedBillType}">
+									<option value="${i.id}" selected="selected">${i.name}</option>
+								</c:when>
+								<c:otherwise>
+									<option value="${i.id}">${i.name}</option>
+								</c:otherwise>
+							</c:choose>							
+						</c:forEach>
+						</select>			
+						<form:errors path="billType" cssClass="validationError"></form:errors>		
+						<label class="small"><spring:message code="bill.billKind" text="Bill Kind"/></label>
+						<select id="billKind" class="sSelect" name="billKind">
+						<c:forEach var="i" items="${billKinds}">
+							<c:choose>
+								<c:when test="${i.id == selectedBillKind}">
+									<option value="${i.id}" selected="selected">${i.name}</option>
+								</c:when>
+								<c:otherwise>
+									<option value="${i.id}">${i.name}</option>
+								</c:otherwise>
+							</c:choose>							
+						</c:forEach>
+						</select>
+						<form:errors path="billKind" cssClass="validationError"></form:errors>	
+					</p>
+					
+					<p>
+						<label class="small"><spring:message code="bill.ministry" text="Ministry"/>*</label>
+						<select name="ministry" id="ministry" class="sSelect">
+							<c:forEach items="${ministries }" var="i">
+								<c:choose>
+									<c:when test="${i.id==ministrySelected }">									<option value="${i.id }" selected="selected">${i.name}</option>
+									</c:when>
+									<c:otherwise>
+										<option value="${i.id }" >${i.name}</option>
+									</c:otherwise>
+								</c:choose>
+							</c:forEach>
+						</select>		
+						<form:errors path="ministry" cssClass="validationError"/>
+						<label class="small"><spring:message code="bill.subdepartment" text="Sub Department"/></label>
+						<select name="subDepartment" id="subDepartment" class="sSelect">
+						<c:forEach items="${subDepartments }" var="i">
+							<c:choose>
+								<c:when test="${i.id==subDepartmentSelected }">
+									<option value="${i.id }" selected="selected">${i.name}</option>
+								</c:when>
+								<c:otherwise>
+									<option value="${i.id }" >${i.name}</option>
+								</c:otherwise>
+							</c:choose>
+						</c:forEach>
+						</select>		
+						<form:errors path="subDepartment" cssClass="validationError"/>
+					</p>
 					
 					<p>
 						<label class="centerlabel"><spring:message code="bill.members" text="Members"/></label>
@@ -1311,7 +1301,7 @@
 							</c:forEach>		
 							</select>
 						</c:if>	
-					</p>
+					</p>					
 					
 					<p>
 						<label class="small"><spring:message code="bill.primaryMemberConstituency" text="Constituency"/>*</label>
