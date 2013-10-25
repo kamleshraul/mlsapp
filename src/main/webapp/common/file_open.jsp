@@ -30,11 +30,11 @@
 </head>
 </html>
 <span id="file_${param.fileid}_downloadUploadedFile" style="display: inline; margin: 25px; padding: 0px;">
-	<a id="file_${param.fileid}_link" href="file/${param.filetag}"></a>
+	<a id="file_${param.fileid}_link" href="file/${param.filetag}/open" target="_blank"></a>
 	<input type=hidden id="${param.fileid}" name="${param.fileid}" value="${param.filetag}"/>
 	<c:if test="${param.isRemovable != false}">
 		<a id="file_${param.fileid}_removeUploadedFile" href="#"></a>
-	</c:if>	
+	</c:if>
 	<input type="hidden" id="filetag" value="${param.filetag}">
 	<input type="hidden" id="fileid" value="${param.fileid}">	
 </span>

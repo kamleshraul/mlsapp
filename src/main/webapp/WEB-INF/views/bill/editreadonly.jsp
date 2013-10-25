@@ -216,91 +216,81 @@
 					</p>
 					</c:if>
 					
-					<table style="width: 100%;">
-						<tr>
-							<td>				
-								<p>
-									<label class="small"><spring:message code="bill.ministry" text="Ministry"/>*</label>
-									<select name="ministry" id="readonly_ministry" class="sSelect">
-										<c:forEach items="${ministries }" var="i">
-											<c:choose>
-												<c:when test="${i.id==ministrySelected }">									
-													<option value="${i.id }" selected="selected">${i.name}</option>
-												</c:when>
-												<c:otherwise>
-													<option value="${i.id }" >${i.name}</option>
-												</c:otherwise>
-											</c:choose>
-										</c:forEach>
-									</select>									
-								</p>
-								<p>
-									<label class="small"><spring:message code="bill.subdepartment" text="Sub Department"/></label>
-									<select name="subDepartment" id="readonly_subDepartment" class="sSelect">
-									<c:forEach items="${subDepartments }" var="i">
-										<c:choose>
-											<c:when test="${i.id==subDepartmentSelected }">
-												<option value="${i.id }" selected="selected">${i.name}</option>
-											</c:when>
-											<c:otherwise>
-												<option value="${i.id }" >${i.name}</option>
-											</c:otherwise>
-										</c:choose>
-									</c:forEach>
-									</select>									
-								</p>
-							</td>				
-							<td style="vertical-align: top;">
-								<p>
-									<label class="small"><spring:message code="bill.billType" text="Bill Type"/></label>
-									<select id="readonly_billType" class="sSelect" name="billType">
-									<c:forEach var="i" items="${billTypes}">
-										<c:choose>
-											<c:when test="${i.id == selectedBillType}">
-												<option value="${i.id}" selected="selected">${i.name}</option>
-											</c:when>
-											<c:otherwise>
-												<option value="${i.id}">${i.name}</option>
-											</c:otherwise>
-										</c:choose>							
-									</c:forEach>
-									</select>			
-								</p>
-								<p>
-									<label class="small"><spring:message code="bill.billKind" text="Bill Kind"/></label>
-									<select id="readonly_billKind" class="sSelect" name="billKind">
-									<c:forEach var="i" items="${billKinds}">
-										<c:choose>
-											<c:when test="${i.id == selectedBillKind}">
-												<option value="${i.id}" selected="selected">${i.name}</option>
-											</c:when>
-											<c:otherwise>
-												<option value="${i.id}">${i.name}</option>
-											</c:otherwise>
-										</c:choose>							
-									</c:forEach>
-									</select>														
-								</p>
-								<c:if test="${selectedDeviceTypeForBill == 'bills_government'}">
-								<p>
-									<label class="small"><spring:message code="bill.introducingHouseType" text="Introducing House Type"/></label>
-									<form:select id="readonly_introducingHouseType" class="sSelect" path="introducingHouseType">
-									<c:forEach var="i" items="${introducingHouseTypes}">							
-										<c:choose>
-											<c:when test="${i.id == selectedIntroducingHouseType}">
-												<option value="${i.id}" selected="selected">${i.name}</option>
-											</c:when>
-											<c:otherwise>
-												<option value="${i.id}">${i.name}</option>
-											</c:otherwise>
-										</c:choose>
-									</c:forEach>
-									</form:select>														
-								</p>
-								</c:if>								
-							</td>				
-						</tr>
-					</table>		
+					<c:if test="${selectedDeviceTypeForBill == 'bills_government'}">
+					<p>
+						<label class="small"><spring:message code="bill.introducingHouseType" text="Introducing House Type"/></label>
+						<form:select id="readonly_introducingHouseType" class="sSelect" path="introducingHouseType">
+						<c:forEach var="i" items="${introducingHouseTypes}">							
+							<c:choose>
+								<c:when test="${i.id == selectedIntroducingHouseType}">
+									<option value="${i.id}" selected="selected">${i.name}</option>
+								</c:when>
+								<c:otherwise>
+									<option value="${i.id}">${i.name}</option>
+								</c:otherwise>
+							</c:choose>
+						</c:forEach>
+						</form:select>														
+					</p>
+					</c:if>
+					
+					<p>
+						<label class="small"><spring:message code="bill.billType" text="Bill Type"/></label>
+						<select id="readonly_billType" class="sSelect" name="billType">
+						<c:forEach var="i" items="${billTypes}">
+							<c:choose>
+								<c:when test="${i.id == selectedBillType}">
+									<option value="${i.id}" selected="selected">${i.name}</option>
+								</c:when>
+								<c:otherwise>
+									<option value="${i.id}">${i.name}</option>
+								</c:otherwise>
+							</c:choose>							
+						</c:forEach>
+						</select>
+						<label class="small"><spring:message code="bill.billKind" text="Bill Kind"/></label>
+						<select id="readonly_billKind" class="sSelect" name="billKind">
+						<c:forEach var="i" items="${billKinds}">
+							<c:choose>
+								<c:when test="${i.id == selectedBillKind}">
+									<option value="${i.id}" selected="selected">${i.name}</option>
+								</c:when>
+								<c:otherwise>
+									<option value="${i.id}">${i.name}</option>
+								</c:otherwise>
+							</c:choose>							
+						</c:forEach>
+						</select>			
+					</p>
+					
+					<p>
+						<label class="small"><spring:message code="bill.ministry" text="Ministry"/>*</label>
+						<select name="ministry" id="readonly_ministry" class="sSelect">
+							<c:forEach items="${ministries }" var="i">
+								<c:choose>
+									<c:when test="${i.id==ministrySelected }">									
+										<option value="${i.id }" selected="selected">${i.name}</option>
+									</c:when>
+									<c:otherwise>
+										<option value="${i.id }" >${i.name}</option>
+									</c:otherwise>
+								</c:choose>
+							</c:forEach>
+						</select>
+						<label class="small"><spring:message code="bill.subdepartment" text="Sub Department"/></label>
+						<select name="subDepartment" id="readonly_subDepartment" class="sSelect">
+						<c:forEach items="${subDepartments }" var="i">
+							<c:choose>
+								<c:when test="${i.id==subDepartmentSelected }">
+									<option value="${i.id }" selected="selected">${i.name}</option>
+								</c:when>
+								<c:otherwise>
+									<option value="${i.id }" >${i.name}</option>
+								</c:otherwise>
+							</c:choose>
+						</c:forEach>
+						</select>									
+					</p>
 					
 					<p>
 						<label class="centerlabel"><spring:message code="bill.members" text="Members"/></label>
@@ -352,7 +342,7 @@
 							<c:choose>
 								<c:when test="${!(empty clubbedBillsToShow) }">
 									<c:forEach items="${clubbedBillsToShow }" var="i">
-										<a href="#" id="cq${i.number}" class="clubbedRefBills" onclick="viewBillDetail(${i.number});" style="font-size: 18px;"><c:out value="${i.name}"></c:out></a>
+										<a href="#" id="cq${i.number}" onclick="viewBillDetail(${i.number});" style="font-size: 18px;"><c:out value="${i.name}"></c:out></a>
 									</c:forEach>
 								</c:when>
 								<c:otherwise>
@@ -373,11 +363,11 @@
 								<c:forEach items="${referencedBills }" var="i" varStatus="index">
 									<c:choose>
 										<c:when test="${not empty i.name}">
-											<a href="#" id="rq${i.number}" class="clubbedRefBills" onclick="viewBillDetail(${i.number});" style="font-size: 18px;"><c:out value="${i.name}"></c:out></a>
+											<a href="#" id="rq${i.number}" onclick="viewBillDetail(${i.number});" style="font-size: 18px;"><c:out value="${i.name}"></c:out></a>
 											&nbsp;(${referencedBillsSessionAndDevice[index.count-1]})	
 										</c:when>
 										<c:otherwise>											
-											<a href="#" id="rq${i.number}" class="clubbedRefBills" onclick="viewBillDetail(${i.number});" style="font-size: 18px;"><spring:message code="bill.referredBillWithoutNumber" text="Click To See"/></a>
+											<a href="#" id="rq${i.number}" onclick="viewBillDetail(${i.number});" style="font-size: 18px;"><spring:message code="bill.referredBillWithoutNumber" text="Click To See"/></a>
 											&nbsp;(${referencedBillsSessionAndDevice[index.count-1]})
 										</c:otherwise>
 									</c:choose>									
@@ -398,11 +388,11 @@
 								<c:forEach items="${lapsedBills }" var="i" varStatus="index">
 									<c:choose>
 										<c:when test="${not empty i.name}">
-											<a href="#" id="lq${i.number}" class="clubbedRefBills" onclick="viewBillDetail(${i.number});" style="font-size: 18px;"><c:out value="${i.name}"></c:out></a>
+											<a href="#" id="lq${i.number}" onclick="viewBillDetail(${i.number});" style="font-size: 18px;"><c:out value="${i.name}"></c:out></a>
 											&nbsp;(${lapsedBillsSessionAndDevice[index.count-1]})	
 										</c:when>
 										<c:otherwise>											
-											<a href="#" id="lq${i.number}" class="clubbedRefBills" onclick="viewBillDetail(${i.number});" style="font-size: 18px;"><spring:message code="bill.referredBillWithoutNumber" text="Click To See"/></a>
+											<a href="#" id="lq${i.number}" onclick="viewBillDetail(${i.number});" style="font-size: 18px;"><spring:message code="bill.referredBillWithoutNumber" text="Click To See"/></a>
 											&nbsp;(${lapsedBillsSessionAndDevice[index.count-1]})
 										</c:otherwise>
 									</c:choose>									

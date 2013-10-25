@@ -1662,8 +1662,9 @@ public class Bill extends Device implements Serializable {
      * Adds the bill draft.
      */
     private void addBillDraft() {
-        if(! this.getStatus().getType().equals(ApplicationConstants.BILL_INCOMPLETE) &&
-        		! this.getStatus().getType().equals(ApplicationConstants.BILL_COMPLETE)) {
+        if(! this.getStatus().getType().equals(ApplicationConstants.BILL_INCOMPLETE) 
+        		&& ! this.getStatus().getType().equals(ApplicationConstants.BILL_COMPLETE)
+        		&& ! this.getStatus().getType().equals(ApplicationConstants.BILL_SUBMIT)) {
             BillDraft draft = new BillDraft();
             draft.setType(this.getType());            
             draft.setRemarks(this.getRemarks());           

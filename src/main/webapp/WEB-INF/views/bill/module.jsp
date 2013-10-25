@@ -6,9 +6,7 @@
 	<title><spring:message code="bill.list" text="List Of Bills"/></title>
 	<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
 	<script type="text/javascript">
-		$(document).ready(function(){	
-				
-			
+		$(document).ready(function(){			
 			if($('#currentDeviceType').val()=='bills_nonofficial') {
 				$('#ballotTab').show();
 			}
@@ -55,7 +53,7 @@
 				}
 				
 			});
-			
+			/**** status changes then reload grid****/
 			$("#selectedStatus").change(function(){
 				var width = $("#grid").jqGrid('getGridParam', 'width');
 				var value=$(this).val();
@@ -72,51 +70,13 @@
 				}
 				$("#grid").jqGrid('setGridWidth', width, true);
 			});
-			$("#selectedTranslationStatus").change(function(){
-				var value=$(this).val();				
-				if(value!=""){				
-				reloadBillGrid();
-				}
-			});			
-			/**** Bulk Putup ****/
-			$("#bulkputup_tab").click(function(){
-				$("#selectionDiv1").hide();
-				bulkPutup();
-			});
-			
-			/**** Bulk Putup Assistant****/
-			/* $("#bulkputupassistant_tab").click(function(){
-				$("#selectionDiv1").hide();
-				bulkPutupAssistant();
-			}); */
 			/**** Ballot Tab ****/
 			$('#ballot_tab').click(function(){
 				$("#selectionDiv1").hide();
 				viewBallot();
-			});
-			/**** Patrak Bhag Two ****/
-			/* $("#patrakbhag2_tab").click(function(){
-				$("#selectionDiv1").hide();
-				viewPatrakBhag2();
-			}); */
+			});			
 		});
 		
-		/* function loadStatus(deviceType){
-			$.get('ref/status/'+ deviceType,function(data){
-				$("#selectedStatus").empty();
-				if(data.length>0){
-				for(var i=0;i<data.length;i++){
-					selectedStatusText+="<option value='"+data[i].id+"'>"+data[i].name;
-				}
-				$("#selectedStatus").html(selectedStatusText);			
-				}else{
-					$("#selectedStatus").empty();
-					var selectedStatusText="<option value='' selected='selected'>----"+$("#pleaseSelectMsg").val()+"----</option>";				
-					$("#selectedStatus").html(selectedStatusText);				
-				}
-			});
-		} */
-
 		/**** displaying grid ****/					
 		function showBillList() {	
 			showTabByIdAndUrl('list_tab','bill/list?houseType='+$("#selectedHouseType").val()
@@ -205,23 +165,6 @@
 			$("#grid").setGridParam({"url":newURL});
 			$("#grid").trigger("reloadGrid");											
 		}
-		/**** Chart Tab ****/
- 		/* function viewChart() {
-			var parameters = $("#gridURLParams").val();
-			if(parameters==undefined){
-				parameters = "houseType="+$("#selectedHouseType").val()
-				 +"&sessionYear="+$("#selectedSessionYear").val()
-				 +"&sessionType="+$("#selectedSessionType").val()
-				 +"&deviceType="+$("#selectedDeviceType").val()
-				 +"&ugparam="+$("#ugparam").val()
-				 +"&status="+$("#selectedStatus").val()
-				 +"&role="+$("#srole").val()
-				 +"&usergroup="+$("#currentusergroup").val()
-				 +"&usergroupType="+$("#currentusergroupType").val();
-			}
-			var resourceURL = 'chart/init?' + parameters;
-			showTabByIdAndUrl('chart_tab', resourceURL);
-		} */
 		/**** Ballot Tab ****/
 		function viewBallot() {
 			var parameters = $("#gridURLParams").val();
@@ -236,80 +179,17 @@
 			var parameters = parameters + "&category=bill";
 			var resourceURL = 'ballot/init?' + parameters;
 			showTabByIdAndUrl('ballot_tab', resourceURL);
-		}
-		
-		
-		/**** Bulk putup(Member)****/
-		function bulkPutup(){
-			var parameters = $("#gridURLParams").val();
-			if(parameters==undefined){
-				parameters = "houseType="+$("#selectedHouseType").val()
-				 +"&sessionYear="+$("#selectedSessionYear").val()
-				 +"&sessionType="+$("#selectedSessionType").val()
-				 +"&deviceType="+$("#selectedDeviceType").val()
-				 +"&ugparam="+$("#ugparam").val()
-				 +"&status="+$("#selectedStatus").val()
-				 +'&translationStatus='+$("#selectedTranslationStatus").val()
-				 +"&role="+$("#srole").val()
-				 +"&usergroup="+$("#currentusergroup").val()
-				 +"&usergroupType="+$("#currentusergroupType").val();
-			}			
-			var resourceURL = 'bill/bulksubmission?' + parameters +"&itemscount="+$("#selectedItemsCount").val();
-			showTabByIdAndUrl('bulkputup_tab', resourceURL);
-		}
-		
-		/**** Bulk putup(Assistant)****/
-		/* function bulkPutupAssistant(){
-				var parameters = "houseType="+$("#selectedHouseType").val()
-				 +"&sessionYear="+$("#selectedSessionYear").val()
-				 +"&sessionType="+$("#selectedSessionType").val()
-				 +"&deviceType="+$("#selectedDeviceType").val()
-				 +"&ugparam="+$("#ugparam").val()
-				 +"&status="+$("#selectedStatus").val()
-				 +"&role="+$("#srole").val()
-				 +"&usergroup="+$("#currentusergroup").val()
-				 +"&usergroupType="+$("#currentusergroupType").val()
-				 +"&file="+$("#selectedFileCount").val()
-				 +"&itemscount="+$("#selectedItemsCount").val();	
-				 var resource='bill/bulksubmission/assistant/int';
-				 var resourceURL=resource+"?"+parameters;	
-				showTabByIdAndUrl('bulkputupassistant_tab', resourceURL);				
-		} */		
-		/**** Member Ballot Tab ****/
-		/* function viewMemberBallot() {
-			var parameters = $("#gridURLParams").val();
-			if(parameters==undefined){
-				var device=$("#currentDeviceType").val();
-				if(device=='bills_nonofficial'){
-					parameters = "houseType="+$("#selectedHouseType").val()
-					 +"&sessionYear="+$("#selectedSessionYear").val()
-					 +"&sessionType="+$("#selectedSessionType").val()
-					 +"&deviceType="+$("#selectedDeviceType").val()
-					 +"&ugparam="+$("#ugparam").val()
-					 +"&status="+$("#selectedStatus").val()
-					 +"&role="+$("#srole").val()
-					 +"&usergroup="+$("#currentusergroup").val()
-					 +"&usergroupType="+$("#currentusergroupType").val();				
-				}
-			}
-			parameters+= "&round=1";
-			var resourceURL = 'ballot/memberballot/init?' + parameters;
-			showTabByIdAndUrl('memberballot_tab', resourceURL);
-		} */
-		
+		}		
 		/****Provide introduction date ****/
 		function provideDate(){
 			var rURL = 'bill/providedate?houseType=' + $("#selectedHouseType option:selected").val()+"&sessionType="+$("#selectedSessionType option:selected").val()+"&sessionYear="+$("#selectedSessionYear option:selected").val()+"&usergrouptype="+$("#currentusergroupType").val();
 			//alert(rURL);
 			showTabByIdAndUrl('details_tab',rURL);
-		}
-		
-		
+		}		
 		/****To generate Patrak Bhag Don****/
 		function generatePatrakBhagDon(pURL){
 			showTabByIdAndUrl('details_tab', pURL);
-		}
-		
+		}		
 		/**** To Manage Print Requisition ****/
 		function managePrintRequisition() {			
 			var selectedBillId = $("#grid").jqGrid ('getGridParam', 'selarrrow').toString();
@@ -382,34 +262,6 @@
 				   </spring:message>
 				</a>
 			</li>
-			<%-- <c:if test="${deviceTypeType == 'bills_nonofficial'}">
-			<security:authorize access="hasAnyRole('BIS_ASSISTANT', 'BIS_UNDERSECRETARY',
-				'BIS_DEPUTY_SECRETARY', 'BIS_PRINCIPAL_SECRETARY', 'BIS_JOINT_SECRETARY',
-				'BIS_SECRETARY', 'BIS_OFFICER_ON_SPECIAL_DUTY', 'BIS_SECTION_OFFICER', 
-				'BIS_UNDER_SECRETARY_COMMITTEE','SUPER_ADMIN')">
-			<li>
-				<a id="chart_tab" href="#" class="tab">
-				   <spring:message code="bill.chart" text="Chart"></spring:message>
-				</a>
-			</li>
-			</security:authorize>
-			</c:if> --%>
-			<security:authorize access="hasAnyRole('MEMBER_LOWERHOUSE','MEMBER_UPPERHOUSE')">			
-			<li>
-				<a id="bulkputup_tab" href="#" class="tab">
-				   <spring:message code="generic.bulkputup" text="Bulk Putup">
-				   </spring:message>
-				</a>
-			</li>
-			</security:authorize>
-			<%-- <security:authorize access="hasAnyRole('BIS_ASSISTANT')">			
-			<li>
-				<a id="bulkputupassistant_tab" href="#" class="tab">
-				   <spring:message code="generic.bulkputup" text="Bulk Putup">
-				   </spring:message>
-				</a>
-			</li>
-			</security:authorize> --%>			
 			<security:authorize access="hasAnyRole('BIS_ASSISTANT', 'BIS_UNDERSECRETARY',
 				'BIS_DEPUTY_SECRETARY', 'BIS_PRINCIPAL_SECRETARY', 'BIS_SPEAKER', 'BIS_JOINT_SECRETARY',
 				'BIS_SECRETARY', 'BIS_OFFICER_ON_SPECIAL_DUTY', 'BIS_DEPUTY_SPEAKER', 'BIS_CHAIRMAN',
@@ -496,21 +348,7 @@
 			<option value="${i.id}"><c:out value="${i.name}"></c:out></option>	
 			</c:forEach>
 			</select>
-			<hr>			
-			
-			<%-- <c:if test="${usergroupType=='assistant'}">
-			<security:authorize access="hasRole('BIS_ASSISTANT')">
-				<a href="#" id="select_translationStatus" class="butSim">
-					<spring:message code="bill.translationStatus" text="Translation Status"/>
-				</a>
-				<select name="selectedTranslationStatus" id="selectedTranslationStatus" style="width:250px;height: 25px;">			
-					<option value="" selected="selected"><spring:message code='please.select' text='Please Select'/></option>
-					<c:forEach items="${translationStatuses}" var="i">
-						<option value="${i.id}"><c:out value="${i.name}"></c:out></option>	
-					</c:forEach>
-				</select> |	
-			</security:authorize>
-			</c:if> --%>
+			<hr>		
 		</div>		
 				
 		<div class="tabContent"></div>
@@ -533,14 +371,10 @@
 		<input type="hidden" name="pleaseSelect" id="pleaseSelect" value="<spring:message code='please.select' text='Please Select'/>">
 		<input type="hidden" id="selectRowFirstMessage" name="selectRowFirstMessage" value="<spring:message code='generic.selectRowFirstMessage' text='Please select the desired row first'></spring:message>" disabled="disabled">
 		<input type="hidden" id="confirmDeleteMessage" name="confirmDeleteMessage" value="<spring:message code='generic.confirmDeleteMessage' text='Do you want to delete the row with Id: '></spring:message>" disabled="disabled">	
-		<%--<input type="hidden" id="ballotSuccessMsg" value="<spring:message code='ballot.success' text='Member Ballot Created Succesfully'/>">			
+		<input type="hidden" id="ballotSuccessMsg" value="<spring:message code='ballot.success' text='Member Ballot Created Succesfully'/>">			
 		<input type="hidden" id="ballotAlreadyCreatedMsg" value="<spring:message code='ballot.success' text='Member Ballot Already Created'/>">			
 		<input type="hidden" id="ballotFailedMsg" value="<spring:message code='ballot.failed' text='Member Ballot Couldnot be Created.Try Again'/>">			
-		<input type="hidden" id="selectAttendanceRoundMsg" value="<spring:message code='ballot.selectattendanceround' text='Please Select Attendance Type And Round First'/>">			
-		
-		<input type="hidden" id="allowedGroups" name="allowedGroups" value="${allowedGroups }">
-		<input type="hidden" id="gridURLParams_ForNew" name="gridURLParams_ForNew" /> 
-		<input type="hidden" id="chartAnsweringDate" name="chartAnsweringDate" value="-"> --%>
+		<input type="hidden" id="gridURLParams_ForNew" name="gridURLParams_ForNew" /> 		
 		</div> 		
 </body>
 </html>

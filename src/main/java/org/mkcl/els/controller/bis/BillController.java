@@ -1721,6 +1721,19 @@ public class BillController extends GenericController<Bill> {
 						if(domain.getIntroducingHouseType()==null) {
 							result.rejectValue("introducingHouseType", "IntroducingHouseTypeEmpty", "Please select the preferred housetype for passing the bill.");
 						}
+					}	
+					if(domain.getBillType()!=null) {
+						if(domain.getBillType().getType()!=null) {
+							if(domain.getBillType().getType().equals(ApplicationConstants.AMENDMENT_BILL)) {
+								if(domain.getReferredAct()==null) {
+									result.rejectValue("version", "referredActNotSet", "Please refer act for the amending bill");
+								}
+							} else if(domain.getBillType().getType().equals(ApplicationConstants.ORDINANCE_REPLACEMENT_BILL)) {
+								if(domain.getReferredOrdinance()==null) {
+									result.rejectValue("version", "referredOrdinanceNotSet", "Please refer ordinance for the ordinance replacement bill");
+								}
+							}
+						}
 					}					
 				}
 			}
@@ -2056,7 +2069,20 @@ public class BillController extends GenericController<Bill> {
 						if(domain.getIntroducingHouseType()==null) {
 							result.rejectValue("introducingHouseType", "IntroducingHouseTypeEmpty", "Please select the preferred housetype for passing the bill.");
 						}
-					}					
+					}
+					if(domain.getBillType()!=null) {
+						if(domain.getBillType().getType()!=null) {
+							if(domain.getBillType().getType().equals(ApplicationConstants.AMENDMENT_BILL)) {
+								if(domain.getReferredAct()==null) {
+									result.rejectValue("version", "referredActNotSet", "Please refer act for the amending bill");
+								}
+							} else if(domain.getBillType().getType().equals(ApplicationConstants.ORDINANCE_REPLACEMENT_BILL)) {
+								if(domain.getReferredOrdinance()==null) {
+									result.rejectValue("version", "referredOrdinanceNotSet", "Please refer ordinance for the ordinance replacement bill");
+								}
+							}
+						}
+					}
 				} else if(operation.equals("startworkflow")){
 					if(domain.getOpinionSoughtFromLawAndJD()==null) {
 						result.rejectValue("opinionSoughtFromLawAndJD", "opinionFromLawAndJDNotReceived", "Opinion from Law and JD is not received");
@@ -3590,131 +3616,6 @@ public class BillController extends GenericController<Bill> {
 		}		
 		model.addAttribute("statusDates",statusDates);
 		return "bill/status_dates";
-	}
-	
-	/**** Bulk Submission ****/
-	@RequestMapping(value="/bulksubmission",method=RequestMethod.GET)
-	public String getBulkSubmissionView(final HttpServletRequest request,final Locale locale,
-			final ModelMap model){	
-		Member primaryMember=Member.findMember(this.getCurrentUser().getFirstName(),this.getCurrentUser().getMiddleName(),this.getCurrentUser().getLastName(),this.getCurrentUser().getBirthDate(),locale.toString());
-		String strHouseType=request.getParameter("houseType");
-		String strSessionType=request.getParameter("sessionType");
-		String strSessionYear=request.getParameter("sessionYear");
-		String strDeviceType=request.getParameter("deviceType");
-		String strLocale=locale.toString();
-		String strItemsCount=request.getParameter("itemscount");
-		if(strHouseType!=null&&!(strHouseType.isEmpty())
-				&&strSessionType!=null&&!(strSessionType.isEmpty())
-				&&strSessionYear!=null&&!(strSessionYear.isEmpty())
-				&&strDeviceType!=null&&!(strDeviceType.isEmpty())
-				&&strItemsCount!=null&&!(strItemsCount.isEmpty())){
-			HouseType houseType=HouseType.findByFieldName(HouseType.class,"type",strHouseType, strLocale);
-			SessionType sessionType=SessionType.findById(SessionType.class,Long.parseLong(strSessionType));
-			Integer sessionYear=Integer.parseInt(strSessionYear);
-			Session session = null;
-			try {
-				session = Session.findSessionByHouseTypeSessionTypeYear(houseType, sessionType, sessionYear);
-			} catch (ELSException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-			DeviceType deviceType=DeviceType.findById(DeviceType.class,Long.parseLong(strDeviceType));
-			Integer itemsCount=Integer.parseInt(strItemsCount);
-			List<Bill> bills= new ArrayList<Bill>();
-			if(primaryMember != null){
-				bills = Bill.findAllByMember(session,primaryMember,deviceType,itemsCount,strLocale);
-			}
-			model.addAttribute("bills",bills);
-			model.addAttribute("size",bills.size());
-			String userGroupType = request.getParameter("usergroupType");
-			model.addAttribute("usergroupType", userGroupType);
-		}
-		return "bill/bulksubmission";		
-	}
-	
-	/**
-	 * We want to provide a guarantee that all the bills submitted by a 
-	 * particular member will get numbers assigned sequentially. Hence, the
-	 * use of synchronized method.
-	 * 
-	 * @param request
-	 * @param locale
-	 * @param model
-	 * @return
-	 */
-	@Transactional
-	@RequestMapping(value="bulksubmission", method=RequestMethod.POST)
-	public synchronized String bulkSubmission(final HttpServletRequest request, final Locale locale,
-			final ModelMap model) {
-		String selectedItems = request.getParameter("items");
-		if(selectedItems != null && ! selectedItems.isEmpty()) {
-			String[] items = selectedItems.split(",");
-
-			List<Bill> bills = new ArrayList<Bill>();
-			for(String i : items) {
-				Long id = Long.parseLong(i);
-				Bill bill = Bill.findById(Bill.class, id);
-
-				/**** Update Supporting Member ****/
-				List<SupportingMember> supportingMembers = new ArrayList<SupportingMember>();
-				Status timeoutStatus=Status.findByType(ApplicationConstants.SUPPORTING_MEMBER_TIMEOUT, locale.toString());
-				if(bill.getSupportingMembers() != null) {
-					if(! bill.getSupportingMembers().isEmpty()) {
-						for(SupportingMember sm : bill.getSupportingMembers()) {
-							if(sm.getDecisionStatus().getType().equals(ApplicationConstants.SUPPORTING_MEMBER_NOTSEND)||
-									sm.getDecisionStatus().getType().equals(ApplicationConstants.SUPPORTING_MEMBER_PENDING)){
-								/**** Update Supporting Member ****/
-								sm.setDecisionStatus(timeoutStatus);
-								sm.setApprovalDate(new Date());	
-								sm.setApprovedTitles(bill.getTitles());
-								sm.setApprovedContentDrafts(bill.getContentDrafts());								
-								sm.setApprovalType("ONLINE");
-								/**** Update Workflow Details ****/
-								String strWorkflowdetails=sm.getWorkflowDetailsId();
-								if(strWorkflowdetails!=null&&!strWorkflowdetails.isEmpty()){
-									WorkflowDetails workflowDetails=WorkflowDetails.findById(WorkflowDetails.class,Long.parseLong(strWorkflowdetails));
-									workflowDetails.setStatus("TIMEOUT");
-									workflowDetails.setCompletionTime(new Date());
-									workflowDetails.merge();
-									/**** Complete Task ****/
-									String strTaskId=workflowDetails.getTaskId();
-									Task task=processService.findTaskById(strTaskId);
-									processService.completeTask(task);
-								}		
-							}
-							if(!sm.getDecisionStatus().getType().equals(ApplicationConstants.SUPPORTING_MEMBER_NOTSEND)){
-								supportingMembers.add(sm);
-							}
-						}
-						bill.setSupportingMembers(supportingMembers);
-					}
-				}
-
-				/**** Update Status(es) ****/
-				Status newstatus=Status.findByFieldName(Status.class, "type", ApplicationConstants.BILL_SUBMIT, bill.getLocale());
-				bill.setStatus(newstatus);
-				bill.setInternalStatus(newstatus);
-				bill.setRecommendationStatus(newstatus);
-
-				/**** Edited On,Edited By and Edited As is set ****/
-				bill.setSubmissionDate(new Date());
-				bill.setEditedOn(new Date());
-				bill.setEditedBy(this.getCurrentUser().getActualUsername());
-				String strUserGroupType=request.getParameter("usergroupType");
-				if(strUserGroupType!=null){
-					UserGroupType userGroupType=UserGroupType.findByFieldName(UserGroupType.class,"type",strUserGroupType, bill.getLocale());
-					bill.setEditedAs(userGroupType.getName());
-				}				
-				/**** Bulk Submitted ****/
-				bill.setBulkSubmitted(true);
-				/**** Update the Bill object ****/
-				bill = (Bill) bill.merge();
-				bills.add(bill);
-			}
-
-			model.addAttribute("bills", bills);
-		}
-		return "bill/bulksubmissionack";
 	}
 	
 	private boolean populateAllTypesOfDrafts(ModelMap model, Bill domain, Session selectedSession, DeviceType deviceType) {

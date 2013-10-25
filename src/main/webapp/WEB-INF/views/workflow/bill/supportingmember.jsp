@@ -6,42 +6,6 @@
 	</title>
 	<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
 	<script type="text/javascript">
-	/**** Removing Referred Ordinance from replace_ordinance Bill ****/
-	function removeReferredOrdinance(){
-		if($('#viewReferredOrdinance').text()!="-") {
-			$('#viewReferredOrdinance').css('text-decoration','none');
-			$.prompt($('#dereferOrdinanceWarningMessage').val(),{
-				buttons: {Ok:true}, callback: function(v){
-			   		if(v){
-			   			$('#referredOrdinance').val("");		
-			   			$('#viewReferredOrdinance').text("-");
-			   			$('#viewReferredOrdinance').css('text-decoration','none');
-						$('#referredOrdinanceYear').text("");
-			   		}     						
-				}
-			});
-		}				
-	}
-	
-	function referenceForBill(refType){
-		$.blockUI({ message: '<img src="./resources/images/waitAnimated.gif" />' });
-		
-		$.blockUI({ message: '<img src="./resources/images/waitAnimated.gif" />' });				
-		$.get('bill/referAct/init?action='+refType,function(data){		
-			if(refType=='act'){
-				$("#referringActResultDiv").html(data);					
-				$("#referringActResultDiv").show();
-			}else if(refType=='ordinance'){
-				$("#referringOrdinanceResultDiv").html(data);					
-				$("#referringOrdinanceResultDiv").show();
-			}
-
-			$.unblockUI();	
-			$("#assistantDiv").hide();
-			$("#backToBillDiv").show();
-		},'html');
-	}
-	
 	$(document).ready(function(){
 		if($('#typeOfSelectedBillType').val() != 'amending') {
 			$('#referredActDiv').hide();			
@@ -71,16 +35,7 @@
 				}
 			});
 		});
-		/**** Referring Act for Amendment Bill ****/
-		$('#referAct').click(function() {
-			referenceForBill('act');
-		});			
-		
-		$('#referOrdinance').click(function() {
-			referenceForBill('ordinance');
-		});	
-		
-		  //view supporting members status
+		//view supporting members status
 	    $("#viewStatus").click(function(){
 		    $.get('bill/status/'+$("#bill").val(),function(data){
 			    $.fancybox.open(data);
@@ -190,24 +145,21 @@
 	</div>
 	
 	<div id="referredOrdinanceDiv">
-						<p>
-							<a href="#" id="referOrdinance" style="margin: 0px 0px 0px 162px; display: none;"><spring:message code="bill.referOrdinance" text="Refer Ordinance"></spring:message></a>
-						</p>		
-						<p>
-							<label class="small"><spring:message code="bill.referredOrdinance" text="Referred Ordinance"></spring:message></label>
-							<c:choose>
-								<c:when test="${!(empty referredOrdinance)}">
-									<a href="#" id="viewReferredOrdinance" style="font-size: 18px;" class="clubbedRefBills"><c:out value="${referredOrdinanceNumber}"></c:out></a>
-									<label id="referredOrdinanceYear">(<spring:message code="bill.referredOrdinanceYear" text="Year"/>: ${referredOrdinanceYear})</label>
-								</c:when>
-								<c:otherwise>
-									<a href="#" id="viewReferredOrdinance" style="font-size: 18px; text-decoration: none;" class="clubbedRefBills"><c:out value="-"></c:out></a>
-									<label id="referredOrdinanceYear"></label>
-								</c:otherwise>
-							</c:choose>
-							<input type="hidden" id="referredOrdinance" name="referredOrdinance" value="${referredOrdinance}">
-						</p>
-					</div>	
+		<p>
+			<label class="small"><spring:message code="bill.referredOrdinance" text="Referred Ordinance"></spring:message></label>
+			<c:choose>
+				<c:when test="${!(empty referredOrdinance)}">
+					<a href="#" id="viewReferredOrdinance" style="font-size: 18px;" class="clubbedRefBills"><c:out value="${referredOrdinanceNumber}"></c:out></a>
+					<label id="referredOrdinanceYear">(<spring:message code="bill.referredOrdinanceYear" text="Year"/>: ${referredOrdinanceYear})</label>
+				</c:when>
+				<c:otherwise>
+					<a href="#" id="viewReferredOrdinance" style="font-size: 18px; text-decoration: none;" class="clubbedRefBills"><c:out value="-"></c:out></a>
+					<label id="referredOrdinanceYear"></label>
+				</c:otherwise>
+			</c:choose>
+			<input type="hidden" id="referredOrdinance" name="referredOrdinance" value="${referredOrdinance}">
+		</p>
+	</div>	
 					
 	<div>
 		<fieldset>

@@ -224,25 +224,6 @@
 				},'html');
 			});			
 			
-			/**** Removing Referred Act from Amendment Bill ****/
-			$('#dereferAct').click(function() {
-				if($('#viewReferredAct').text()!="-") {
-					$('#viewReferredAct').css('text-decoration','none');
-					$.prompt($('#dereferActWarningMessage').val(),{
-						buttons: {Ok:true}, callback: function(v){
-					   		if(v){
-					   			$('#referredAct').val("");		
-					   			$('#viewReferredAct').text("-");
-					   			$('#viewReferredAct').css('text-decoration','none');
-								$('#referredActYear').text("");
-					   			//code left to do..
-					   		}     						
-						}
-					});
-				}				
-				return false;
-			});
-			
 			/**** view detail of referred act (currently showing pdf of act) ****/		
 			$('#viewReferredAct').click(function() {
 				if(this.text!='-') {					
@@ -358,9 +339,11 @@
 			/**** Right Click Menu ****/
 			$(".refer").contextMenu({menu: 'contextMenuItems'},
 		        function(action, el, pos) {
-					if(action=='dereferOrdinance'){
-						removeReferredOrdinance();	
-					}
+				if(action=='dereferAct'){
+					removeReferredAct();	
+				} else if(action=='dereferOrdinance'){
+					removeReferredOrdinance();	
+				}
 	    	});
 			
 			$('#referOrdinance').click(function() {
@@ -380,7 +363,41 @@
 					},'html');
 				}				
 			});
-		});	
+		});
+		
+		/**** Removing Referred Act from amending Bill ****/
+		function removeReferredAct(){
+			if($('#viewReferredAct').text()!="-") {
+				$('#viewReferredAct').css('text-decoration','none');
+				$.prompt($('#dereferActWarningMessage').val(),{
+					buttons: {Ok:true}, callback: function(v){
+				   		if(v){
+				   			$('#referredAct').val("");		
+				   			$('#viewReferredAct').text("-");
+				   			$('#viewReferredAct').css('text-decoration','none');				   			
+							$('#referredActYear').text("");				   			
+				   		}     						
+					}
+				});
+			}							
+		}
+		
+		/**** Removing Referred Ordinance from replace_ordinance Bill ****/
+		function removeReferredOrdinance(){
+			if($('#viewReferredOrdinance').text()!="-") {
+				$('#viewReferredOrdinance').css('text-decoration','none');
+				$.prompt($('#dereferOrdinanceWarningMessage').val(),{
+					buttons: {Ok:true}, callback: function(v){
+				   		if(v){
+				   			$('#referredOrdinance').val("");		
+				   			$('#viewReferredOrdinance').text("-");
+				   			$('#viewReferredOrdinance').css('text-decoration','none');
+							$('#referredOrdinanceYear').text("");
+				   		}     						
+					}
+				});
+			}				
+		}
 		
 		function referenceForBill(refType){
 			
@@ -470,45 +487,85 @@
 		<input type="text" readonly="readonly" value="${constituency}" class="sText" id="constituency" name="constituency">
 	</p>
 	
-	<table style="width: 100%;">
-		<tr>
-			<td>
-				<p>
-					<label class="small"><spring:message code="bill.billType" text="Bill Type"/></label>
-					<select id="billType" class="sSelect" name="billType">
-					<c:forEach var="i" items="${billTypes}">
-						<c:choose>
-							<c:when test="${i.id == selectedBillType}">
-								<option value="${i.id}" selected="selected">${i.name}</option>
-							</c:when>
-							<c:otherwise>
-								<option value="${i.id}">${i.name}</option>
-							</c:otherwise>
-						</c:choose>							
-					</c:forEach>
-					</select>						
-				</p>										
-			</td>					
-			<td style="vertical-align: top;">		
-				<p>
-					<label class="small"><spring:message code="bill.billKind" text="Bill Kind"/></label>
-					<select id="billKind" class="sSelect" name="billKind">
-					<c:forEach var="i" items="${billKinds}">
-						<c:choose>
-							<c:when test="${i.id == selectedBillKind}">
-								<option value="${i.id}" selected="selected">${i.name}</option>
-							</c:when>
-							<c:otherwise>
-								<option value="${i.id}">${i.name}</option>
-							</c:otherwise>
-						</c:choose>							
-					</c:forEach>
-					</select>						
-				</p>									
-			</td>				
-		</tr>
-	</table>
+	<c:if test="${selectedDeviceTypeForBill == 'bills_government'}">
+	<p>
+		<label class="small"><spring:message code="bill.introducingHouseType" text="Introducing House Type"/></label>
+		<form:select id="introducingHouseType" class="sSelect" path="introducingHouseType">
+		<c:forEach var="i" items="${introducingHouseTypes}">	
+			<c:choose>
+				<c:when test="${i.id == selectedIntroducingHouseType}">
+					<option value="${i.id}" selected="selected">${i.name}</option>
+				</c:when>
+				<c:otherwise>
+					<option value="${i.id}">${i.name}</option>
+				</c:otherwise>
+			</c:choose>						
+		</c:forEach>
+		</form:select>		
+		<form:errors path="introducingHouseType"></form:errors>				
+	</p>
+	</c:if>
 	
+	<p>
+		<label class="small"><spring:message code="bill.billType" text="Bill Type"/></label>
+		<select id="billType" class="sSelect" name="billType">
+		<c:forEach var="i" items="${billTypes}">
+			<c:choose>
+				<c:when test="${i.id == selectedBillType}">
+					<option value="${i.id}" selected="selected">${i.name}</option>
+				</c:when>
+				<c:otherwise>
+					<option value="${i.id}">${i.name}</option>
+				</c:otherwise>
+			</c:choose>							
+		</c:forEach>
+		</select>
+		<label class="small"><spring:message code="bill.billKind" text="Bill Kind"/></label>
+		<select id="billKind" class="sSelect" name="billKind">
+		<c:forEach var="i" items="${billKinds}">
+			<c:choose>
+				<c:when test="${i.id == selectedBillKind}">
+					<option value="${i.id}" selected="selected">${i.name}</option>
+				</c:when>
+				<c:otherwise>
+					<option value="${i.id}">${i.name}</option>
+				</c:otherwise>
+			</c:choose>							
+		</c:forEach>
+		</select>						
+	</p>
+	
+	<p>
+		<label class="small"><spring:message code="bill.ministry" text="Ministry"/></label>
+		<select name="ministry" id="ministry" class="sSelect">
+		<c:forEach items="${ministries}" var="i">
+			<c:choose>
+				<c:when test="${i.id==ministrySelected }">
+					<option value="${i.id}" selected="selected">${i.name}</option>
+				</c:when>
+				<c:otherwise>
+					<option value="${i.id}" >${i.name}</option>
+				</c:otherwise>
+			</c:choose>
+		</c:forEach>
+		</select>
+		<form:errors path="ministry" cssClass="validationError"/>
+		<label class="small"><spring:message code="bill.subdepartment" text="Sub Department"/></label>
+		<select name="subDepartment" id="subDepartment" class="sSelect">
+		<c:forEach items="${subDepartments}" var="i">
+			<c:choose>
+				<c:when test="${i.id==subDepartmentSelected}">
+					<option value="${i.id}" selected="selected">${i.name}</option>
+				</c:when>
+				<c:otherwise>
+					<option value="${i.id}">${i.name}</option>
+				</c:otherwise>
+			</c:choose>
+		</c:forEach>
+		</select>
+	</p>
+	
+	<c:if test="${selectedDeviceTypeForBill != 'bills_government'}">
 	<p>
 		<label class="centerlabel"><spring:message code="bill.supportingMembers" text="Supporting Members"/></label>
 		<textarea id="selectedSupportingMembers"  class="autosuggestmultiple" rows="2" cols="50">${supportingMembersName}</textarea>
@@ -525,21 +582,21 @@
 		<a href="#" id="viewStatus"><spring:message code="bill.viewstatus" text="View Status"></spring:message></a>
 		<form:errors path="supportingMembers" cssClass="validationError"/>	
 	</p>
+	</c:if>
 	
 	<div id="referredActDiv">
 		<p>
-			<a href="#" id="referAct" style="margin: 20px;"><spring:message code="bill.referAct" text="Refer Act"></spring:message></a>
-			<a href="#" id="dereferAct" style="margin: 20px;"><spring:message code="bill.dereferAct" text="Derefer Act"></spring:message></a>
+			<a href="#" id="referAct" style="margin: 0px 0px 0px 162px;"><spring:message code="bill.referAct" text="Refer Act"></spring:message></a>
 		</p>		
 		<p>
 			<label class="small"><spring:message code="bill.referredAct" text="Referred Act"></spring:message></label>
 			<c:choose>
 				<c:when test="${!(empty referredAct)}">
-					<a href="#" id="viewReferredAct" style="font-size: 18px;"><c:out value="${referredActNumber}"></c:out></a>
+					<a href="#" id="viewReferredAct" style="font-size: 18px;" class="refer"><c:out value="${referredActNumber}"></c:out></a>
 					<label id="referredActYear">(<spring:message code="bill.referredActYear" text="Year"/>: ${referredActYear})</label>
 				</c:when>
 				<c:otherwise>
-					<a href="#" id="viewReferredAct" style="font-size: 18px; text-decoration: none;"><c:out value="-"></c:out></a>
+					<a href="#" id="viewReferredAct" style="font-size: 18px; text-decoration: none;" class="refer"><c:out value="-"></c:out></a>
 					<label id="referredActYear"></label>
 				</c:otherwise>
 			</c:choose>
@@ -662,85 +719,20 @@
 	</c:if>
 	</c:if>		
 	
-	<c:if test="${internalStatusType != null }">
-		<c:if test="${!empty internalStatusType}">
-			<c:if test="${sectionofficer_remark != null}">
-				<c:if test="${! empty sectionofficer_remark}">
-					<c:if test="${internalStatusType=='bill_final_rejection'}">
-						<p>
-							<label class="wysiwyglabel"><spring:message code="bill.remarks" text="Remarks"/></label>
-							<form:textarea path="remarks" cssClass="wysiwyg" readonly="true"></form:textarea>
-						</p>
-					</c:if>
-				</c:if>
-			</c:if>
-		</c:if>
+	<c:if test="${not empty sectionofficer_remark and internalStatusType=='bill_final_rejection'}">
+		<p>
+			<label class="wysiwyglabel"><spring:message code="bill.remarks" text="Remarks"/></label>
+			<form:textarea path="remarks" cssClass="wysiwyg" readonly="true"></form:textarea>
+		</p>
 	</c:if>
-		
-	<table style="width: 100%;">
-		<tr>
-			<td>
-				<p>
-					<label class="small"><spring:message code="bill.ministry" text="Ministry"/></label>
-					<select name="ministry" id="ministry" class="sSelect">
-					<c:forEach items="${ministries}" var="i">
-						<c:choose>
-							<c:when test="${i.id==ministrySelected }">
-								<option value="${i.id}" selected="selected">${i.name}</option>
-							</c:when>
-							<c:otherwise>
-								<option value="${i.id}" >${i.name}</option>
-							</c:otherwise>
-						</c:choose>
-					</c:forEach>
-					</select>
-					<form:errors path="ministry" cssClass="validationError"/>
-				</p>										
-			</td>					
-			<td style="vertical-align: top;">		
-				<p> 
-					<label class="small"><spring:message code="bill.subdepartment" text="Sub Department"/></label>
-					<select name="subDepartment" id="subDepartment" class="sSelect">
-					<c:forEach items="${subDepartments}" var="i">
-						<c:choose>
-							<c:when test="${i.id==subDepartmentSelected}">
-								<option value="${i.id}" selected="selected">${i.name}</option>
-							</c:when>
-							<c:otherwise>
-								<option value="${i.id}">${i.name}</option>
-							</c:otherwise>
-						</c:choose>
-					</c:forEach>
-					</select>
-				</p>									
-				<c:if test="${selectedDeviceTypeForBill == 'bills_government'}">
-				<p>
-					<label class="small"><spring:message code="bill.introducingHouseType" text="Introducing House Type"/></label>
-					<form:select id="introducingHouseType" class="sSelect" path="introducingHouseType">
-					<c:forEach var="i" items="${introducingHouseTypes}">	
-						<c:choose>
-							<c:when test="${i.id == selectedIntroducingHouseType}">
-								<option value="${i.id}" selected="selected">${i.name}</option>
-							</c:when>
-							<c:otherwise>
-								<option value="${i.id}">${i.name}</option>
-							</c:otherwise>
-						</c:choose>						
-					</c:forEach>
-					</form:select>		
-					<form:errors path="introducingHouseType"></form:errors>				
-				</p>
-				</c:if>										
-			</td>				
-		</tr>
-	</table>			
-	</div>
-	<c:if test="${recommendationStatusType == 'bill_processed_rejectionWithReason'}">
+	
+	<c:if test="${internalStatusType == 'bill_final_rejection'}">
 	<p>
 	<label class="wysiwyglabel"><spring:message code="bill.rejectionReason" text="Rejection reason"/></label>
 	<form:textarea path="rejectionReason" cssClass="wysiwyg"></form:textarea>
 	</p>
 	</c:if>
+	</div>
 	 <div class="fields">
 		<h2></h2>
 		<c:choose>
@@ -751,7 +743,9 @@
 			</security:authorize>
 			<security:authorize access="hasAnyRole('MEMBER_LOWERHOUSE','MEMBER_UPPERHOUSE')">		
 				<input id="submit" type="submit" value="<spring:message code='generic.submit' text='Submit'/>" class="butDef">
+				<c:if test="${selectedDeviceTypeForBill != 'bills_government'}">
 				<input id="sendforapproval" type="button" value="<spring:message code='bill.sendforapproval' text='Send For Approval'/>" class="butDef">
+				</c:if>
 				<input id="submitbill" type="button" value="<spring:message code='bill.submitbill' text='Submit bill'/>" class="butDef">
 				<input id="cancel" type="button" value="<spring:message code='generic.cancel' text='Cancel'/>" class="butDef">
 			</security:authorize>			
@@ -764,7 +758,9 @@
 				</security:authorize>			
 				<security:authorize access="hasAnyRole('MEMBER_LOWERHOUSE','MEMBER_UPPERHOUSE')">		
 					<input id="submit" type="submit" value="<spring:message code='generic.submit' text='Submit'/>" class="butDef" disabled="disabled">
+					<c:if test="${selectedDeviceTypeForBill != 'bills_government'}">
 					<input id="sendforapproval" type="button" value="<spring:message code='bill.sendforapproval' text='Send For Approval'/>" class="butDef" disabled="disabled">
+					</c:if>
 					<input id="submitbill" type="button" value="<spring:message code='bill.submitbill' text='Submit bill'/>" class="butDef" disabled="disabled">
 					<input id="cancel" type="button" value="<spring:message code='generic.cancel' text='Cancel'/>" class="butDef" disabled="disabled">
 				</security:authorize>				
@@ -808,8 +804,9 @@
 <input id="extrasubmissionMsg" value="<spring:message code='bill.client.prompt.submit' text='The limit of 5 bill is Exceeded ,Do you still want to submit the bill'></spring:message>" type="hidden">
 </div>
 </div>
-<ul id="contextMenuItems" style="width: 150px; list-style-type: none; list-style-position: inside;">
-		<li><a href="#dereferOrdinance" class="edit"><spring:message code="generic.dereferencing" text="Dereferencing"></spring:message></a></li>
+<ul id="contextMenuItems" style="width: 200px; list-style-type: none; list-style-position: inside;">
+	<li><a href="#dereferAct" class="edit"><spring:message code="bill.dereferact" text="De-Refer Act"></spring:message></a></li>
+	<li><a href="#dereferOrdinance" class="edit"><spring:message code="bill.dereferordinance" text="De-Refer Ordinance"></spring:message></a></li>
 </ul>
 <div id="referringActResultDiv" style="display:none;">
 </div>

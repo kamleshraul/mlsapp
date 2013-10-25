@@ -219,25 +219,6 @@
 				referenceForBill('ordinance');
 			});	
 			
-			/**** Removing Referred Act from Amendment Bill ****/
-			$('#dereferAct').click(function() {
-				if($('#viewReferredAct').text()!="-") {
-					$('#viewReferredAct').css('text-decoration','none');
-					$.prompt($('#dereferActWarningMessage').val(),{
-						buttons: {Ok:true}, callback: function(v){
-					   		if(v){
-					   			$('#referredAct').val("");		
-					   			$('#viewReferredAct').text("-");
-					   			$('#viewReferredAct').css('text-decoration','none');
-								$('#referredActYear').text("");
-					   			//code left to do..
-					   		}     						
-						}
-					});
-				}				
-				return false;
-			});
-			
 			/**** view detail of referred act (currently showing pdf of act) ****/		
 			$('#viewReferredAct').click(function() {
 				if(this.text!='-') {					
@@ -263,6 +244,16 @@
 					},'html');
 				}				
 			});
+			
+			/**** Right Click Menu ****/
+			$(".refer").contextMenu({menu: 'contextMenuItems'},
+		        function(action, el, pos) {
+				if(action=='dereferAct'){
+					removeReferredAct();	
+				} else if(action=='dereferOrdinance'){
+					removeReferredOrdinance();	
+				}
+	    	});
 			
 			//send for supporting member approval
 			$("#sendforapproval").click(function(e){
@@ -343,17 +334,26 @@
 			    	            });
 			        }
 				}});		
-				return false;  
+				return false;
 		    });
-			
-				/**** Right Click Menu ****/
-				$(".refer").contextMenu({menu: 'contextMenuItems'},
-			        function(action, el, pos) {
-						if(action=='dereferOrdinance'){
-							removeReferredOrdinance();	
-						}
-		    	});
-			});
+		});
+		
+		/**** Removing Referred Act from amending Bill ****/
+		function removeReferredAct(){
+			if($('#viewReferredAct').text()!="-") {
+				$('#viewReferredAct').css('text-decoration','none');
+				$.prompt($('#dereferActWarningMessage').val(),{
+					buttons: {Ok:true}, callback: function(v){
+				   		if(v){
+				   			$('#referredAct').val("");		
+				   			$('#viewReferredAct').text("-");
+				   			$('#viewReferredAct').css('text-decoration','none');				   			
+							$('#referredActYear').text("");				   			
+				   		}     						
+					}
+				});
+			}							
+		}
 		
 		/**** Removing Referred Ordinance from replace_ordinance Bill ****/
 		function removeReferredOrdinance(){
@@ -558,21 +558,21 @@
 		<div id="referredActDiv">
 			<p>
 				<a href="#" id="referAct" style="margin: 0px 0px 0px 162px;"><spring:message code="bill.referAct" text="Refer Act"></spring:message></a>
-				<a href="#" id="dereferAct" style="margin: 20px;"><spring:message code="bill.dereferAct" text="Derefer Act"></spring:message></a>
 			</p>		
 			<p>
 				<label class="small"><spring:message code="bill.referredAct" text="Referred Act"></spring:message></label>
 				<c:choose>
 					<c:when test="${!(empty referredAct)}">
-						<a href="#" id="viewReferredAct" style="font-size: 18px;"><c:out value="${referredActNumber}"></c:out></a>
+						<a href="#" id="viewReferredAct" style="font-size: 18px;" class="refer"><c:out value="${referredActNumber}"></c:out></a>
 						<label id="referredActYear">(<spring:message code="bill.referredActYear" text="Year"/>: ${referredActYear})</label>
 					</c:when>
 					<c:otherwise>
-						<a href="#" id="viewReferredAct" style="font-size: 18px; text-decoration: none;"><c:out value="-"></c:out></a>
+						<a href="#" id="viewReferredAct" style="font-size: 18px; text-decoration: none;" class="refer"><c:out value="-"></c:out></a>
 						<label id="referredActYear"></label>
 					</c:otherwise>
 				</c:choose>
 				<input type="hidden" id="referredAct" name="referredAct" value="${referredAct}">
+				<form:errors path="referredAct" cssClass="validationError" />
 			</p>
 		</div>	
 		
@@ -721,8 +721,9 @@
 	<input type="hidden" id="dereferOrdinanceWarningMessage" value="<spring:message code="dereferOrdinanceWarningMessage" text="Do you really want to de-refer this ordinance?"/>">
 	</div>
 	</div>
-	<ul id="contextMenuItems" style="width: 150px; list-style-type: none; list-style-position: inside;">
-		<li><a href="#dereferOrdinance" class="edit"><spring:message code="generic.dereferencing" text="Dereferencing"></spring:message></a></li>
+	<ul id="contextMenuItems" style="width: 200px; list-style-type: none; list-style-position: inside;">
+		<li><a href="#dereferAct" class="edit"><spring:message code="bill.dereferact" text="De-Refer Act"></spring:message></a></li>
+		<li><a href="#dereferOrdinance" class="edit"><spring:message code="bill.dereferordinance" text="De-Refer Ordinance"></spring:message></a></li>
 	</ul>
 	<div id="referringActResultDiv" style="display:none;">
 	</div>

@@ -6,42 +6,6 @@
 		</title>
 		<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
 		<script type="text/javascript">
-		/**** Removing Referred Ordinance from replace_ordinance Bill ****/
-		function removeReferredOrdinance(){
-			if($('#viewReferredOrdinance').text()!="-") {
-				$('#viewReferredOrdinance').css('text-decoration','none');
-				$.prompt($('#dereferOrdinanceWarningMessage').val(),{
-					buttons: {Ok:true}, callback: function(v){
-				   		if(v){
-				   			$('#referredOrdinance').val("");		
-				   			$('#viewReferredOrdinance').text("-");
-				   			$('#viewReferredOrdinance').css('text-decoration','none');
-							$('#referredOrdinanceYear').text("");
-				   		}     						
-					}
-				});
-			}				
-		}
-		
-		function referenceForBill(refType){
-			$.blockUI({ message: '<img src="./resources/images/waitAnimated.gif" />' });
-			
-			$.blockUI({ message: '<img src="./resources/images/waitAnimated.gif" />' });				
-			$.get('bill/referAct/init?action='+refType,function(data){		
-				if(refType=='act'){
-					$("#referringActResultDiv").html(data);					
-					$("#referringActResultDiv").show();
-				}else if(refType=='ordinance'){
-					$("#referringOrdinanceResultDiv").html(data);					
-					$("#referringOrdinanceResultDiv").show();
-				}
-
-				$.unblockUI();	
-				$("#assistantDiv").hide();
-				$("#backToBillDiv").show();
-			},'html');
-		}
-		
 		/**** detail of referenced bill ****/		
 		function viewBillDetail(id){
 			$.blockUI({ message: '<img src="./resources/images/waitAnimated.gif" />' });	
@@ -249,34 +213,8 @@
 						alert("Some Error Occured!");
 					}
 				});
-			});
-			/**** Referring Act for Amendment Bill ****/
-			$('#referAct').click(function() {
-				referenceForBill('act');
-			});			
+			});						
 			
-			$('#referOrdinance').click(function() {
-				referenceForBill('ordinance');
-			});		
-			
-			/**** Removing Referred Act from Amendment Bill ****/
-			$('#dereferAct').click(function() {
-				if($('#viewReferredAct').text()!="-") {
-					$('#viewReferredAct').css('text-decoration','none');
-					$.prompt($('#dereferActWarningMessage').val(),{
-						buttons: {Ok:true}, callback: function(v){
-					   		if(v){
-					   			$('#referredAct').val("");		
-					   			$('#viewReferredAct').text("-");
-					   			$('#viewReferredAct').css('text-decoration','none');
-								$('#referredActYear').text("");
-					   			//code left to do..
-					   		}     						
-						}
-					});
-				}				
-				return false;
-			});
 			/**** view detail of referred act (currently showing pdf of act) ****/		
 			$('#viewReferredAct').click(function() {
 				if(this.text!='-') {					
@@ -491,44 +429,7 @@
 					$.unblockUI();
 				});
 			});
-		    /**** Right Click Menu ****/
-			/* $(".clubbedRefQuestions").contextMenu({
-		        menu: 'contextMenuItems'
-		    },
-		        function(action, el, pos) {
-				var id=$(el).attr("id");
-				if(action=='unclubbing'){
-					if(id.indexOf("cq")!=-1){
-					var questionId=$("#id").val();
-					var clubId=id.split("cq")[1];				
-					$.post('clubentity/unclubbing?pId='+questionId+"&cId="+clubId,function(data){
-						if(data=='SUCCESS'){
-						$.prompt("Unclubbing Successful");				
-						}else{
-							$.prompt("Unclubbing Failed");
-						}		
-					},'html');	
-					}else{
-						$.prompt("Unclubbing not allowed");
-					}			
-				}else if(action=='dereferencing'){
-					if(id.indexOf("rq")!=-1){					
-					var questionId=$("#id").val();
-					var refId=id.split("rq")[1];				
-					$.post('refentity/dereferencing?pId='+questionId+"&rId="+refId,function(data){
-						if(data=='SUCCESS'){
-							$.prompt("Dereferencing Successful");				
-							}else{
-								$.prompt("Dereferencing Failed");
-							}							
-					},'html');	
-					}else{
-						$.prompt("Referencing not allowed");					
-					}			
-				}else if(action=='dereferOrdinance'){
-					removeReferredOrdinance();	
-				}
-		    }); */			    
+		    			    
 		    /**** On Page Load ****/
 		    if($("#ministrySelected").val()==''){
 				$("#ministry").prepend("<option value='' selected='selected'>----"+$("#pleaseSelectMessage").val()+"----</option>");			
@@ -769,93 +670,84 @@
 					</p>
 					</c:if>
 					
-					<table style="width: 100%;">
-						<tr>
-							<td>				
-								<p>
-									<label class="small"><spring:message code="bill.ministry" text="Ministry"/>*</label>
-									<select name="ministry" id="ministry" class="sSelect">
-										<c:forEach items="${ministries }" var="i">
-											<c:choose>
-												<c:when test="${i.id==ministrySelected }">									<option value="${i.id }" selected="selected">${i.name}</option>
-												</c:when>
-												<c:otherwise>
-													<option value="${i.id }" >${i.name}</option>
-												</c:otherwise>
-											</c:choose>
-										</c:forEach>
-									</select>		
-									<form:errors path="ministry" cssClass="validationError"/>
-								</p>
-								<p>
-									<label class="small"><spring:message code="bill.subdepartment" text="Sub Department"/></label>
-									<select name="subDepartment" id="subDepartment" class="sSelect">
-									<c:forEach items="${subDepartments }" var="i">
-										<c:choose>
-											<c:when test="${i.id==subDepartmentSelected }">
-												<option value="${i.id }" selected="selected">${i.name}</option>
-											</c:when>
-											<c:otherwise>
-												<option value="${i.id }" >${i.name}</option>
-											</c:otherwise>
-										</c:choose>
-									</c:forEach>
-									</select>		
-									<form:errors path="subDepartment" cssClass="validationError"/>
-								</p>
-							</td>				
-							<td style="vertical-align: top;">
-								<p>
-									<label class="small"><spring:message code="bill.billType" text="Bill Type"/></label>
-									<select id="billType" class="sSelect" name="billType">
-									<c:forEach var="i" items="${billTypes}">
-										<c:choose>
-											<c:when test="${i.id == selectedBillType}">
-												<option value="${i.id}" selected="selected">${i.name}</option>
-											</c:when>
-											<c:otherwise>
-												<option value="${i.id}">${i.name}</option>
-											</c:otherwise>
-										</c:choose>							
-									</c:forEach>
-									</select>						
-								</p>
-								<p>
-									<label class="small"><spring:message code="bill.billKind" text="Bill Kind"/></label>
-									<select id="billKind" class="sSelect" name="billKind">
-									<c:forEach var="i" items="${billKinds}">
-										<c:choose>
-											<c:when test="${i.id == selectedBillKind}">
-												<option value="${i.id}" selected="selected">${i.name}</option>
-											</c:when>
-											<c:otherwise>
-												<option value="${i.id}">${i.name}</option>
-											</c:otherwise>
-										</c:choose>							
-									</c:forEach>
-									</select>						
-								</p>
-								<c:if test="${selectedDeviceTypeForBill == 'bills_government'}">
-								<p>
-									<label class="small"><spring:message code="bill.introducingHouseType" text="Introducing House Type"/></label>
-									<form:select id="introducingHouseType" class="sSelect" path="introducingHouseType">
-									<c:forEach var="i" items="${introducingHouseTypes}">							
-										<c:choose>
-											<c:when test="${i.id == selectedIntroducingHouseType}">
-												<option value="${i.id}" selected="selected">${i.name}</option>
-											</c:when>
-											<c:otherwise>
-												<option value="${i.id}">${i.name}</option>
-											</c:otherwise>
-										</c:choose>
-									</c:forEach>
-									</form:select>		
-									<form:errors path="introducingHouseType"></form:errors>				
-								</p>
-								</c:if>								
-							</td>				
-						</tr>
-					</table>		
+					<c:if test="${selectedDeviceTypeForBill == 'bills_government'}">
+					<p>
+						<label class="small"><spring:message code="bill.introducingHouseType" text="Introducing House Type"/></label>
+						<form:select id="introducingHouseType" class="sSelect" path="introducingHouseType">
+						<c:forEach var="i" items="${introducingHouseTypes}">							
+							<c:choose>
+								<c:when test="${i.id == selectedIntroducingHouseType}">
+									<option value="${i.id}" selected="selected">${i.name}</option>
+								</c:when>
+								<c:otherwise>
+									<option value="${i.id}">${i.name}</option>
+								</c:otherwise>
+							</c:choose>
+						</c:forEach>
+						</form:select>		
+						<form:errors path="introducingHouseType"></form:errors>				
+					</p>
+					</c:if>
+					
+					<p>
+						<label class="small"><spring:message code="bill.billType" text="Bill Type"/></label>
+						<select id="billType" class="sSelect" name="billType">
+						<c:forEach var="i" items="${billTypes}">
+							<c:choose>
+								<c:when test="${i.id == selectedBillType}">
+									<option value="${i.id}" selected="selected">${i.name}</option>
+								</c:when>
+								<c:otherwise>
+									<option value="${i.id}">${i.name}</option>
+								</c:otherwise>
+							</c:choose>							
+						</c:forEach>
+						</select>	
+						<label class="small"><spring:message code="bill.billKind" text="Bill Kind"/></label>
+						<select id="billKind" class="sSelect" name="billKind">
+						<c:forEach var="i" items="${billKinds}">
+							<c:choose>
+								<c:when test="${i.id == selectedBillKind}">
+									<option value="${i.id}" selected="selected">${i.name}</option>
+								</c:when>
+								<c:otherwise>
+									<option value="${i.id}">${i.name}</option>
+								</c:otherwise>
+							</c:choose>							
+						</c:forEach>
+						</select>					
+					</p>
+					
+					<p>
+						<label class="small"><spring:message code="bill.ministry" text="Ministry"/>*</label>
+						<select name="ministry" id="ministry" class="sSelect">
+							<c:forEach items="${ministries }" var="i">
+								<c:choose>
+									<c:when test="${i.id==ministrySelected }">									
+										<option value="${i.id }" selected="selected">${i.name}</option>
+									</c:when>
+									<c:otherwise>
+										<option value="${i.id }" >${i.name}</option>
+									</c:otherwise>
+								</c:choose>
+							</c:forEach>
+						</select>		
+						<form:errors path="ministry" cssClass="validationError"/>
+						<label class="small"><spring:message code="bill.subdepartment" text="Sub Department"/></label>
+						<select name="subDepartment" id="subDepartment" class="sSelect">
+						<c:forEach items="${subDepartments }" var="i">
+							<c:choose>
+								<c:when test="${i.id==subDepartmentSelected }">
+									<option value="${i.id }" selected="selected">${i.name}</option>
+								</c:when>
+								<c:otherwise>
+									<option value="${i.id }" >${i.name}</option>
+								</c:otherwise>
+							</c:choose>
+						</c:forEach>
+						</select>		
+						<form:errors path="subDepartment" cssClass="validationError"/>
+					</p>		
 					
 					<p>
 						<label class="centerlabel"><spring:message code="bill.members" text="Members"/></label>
@@ -880,10 +772,6 @@
 					
 					<div id="referredActDiv">
 						<p>
-							<a href="#" id="referAct" style="margin: 20px;"><spring:message code="bill.referAct" text="Refer Act"></spring:message></a>
-							<a href="#" id="dereferAct" style="margin: 20px;"><spring:message code="bill.dereferAct" text="Derefer Act"></spring:message></a>
-						</p>
-						<p>
 							<label class="small"><spring:message code="bill.referredAct" text="Referred Act"></spring:message></label>
 							<c:choose>
 								<c:when test="${!(empty referredAct)}">
@@ -900,9 +788,6 @@
 					</div>	
 					
 					<div id="referredOrdinanceDiv">
-						<p style="display: none;">
-							<a href="#" id="referOrdinance" style="margin: 0px 0px 0px 162px; display: none;"><spring:message code="bill.referOrdinance" text="Refer Ordinance"></spring:message></a>
-						</p>		
 						<p>
 							<label class="small"><spring:message code="bill.referredOrdinance" text="Referred Ordinance"></spring:message></label>
 							<c:choose>
@@ -1642,25 +1527,7 @@
 				<input id="questionType" type="hidden" value="${selectedQuestionType}" />
 				<input id="typeOfSelectedDeviceType" type="hidden" value="${selectedDeviceTypeForBill}" />
 				<input id="typeOfSelectedBillType" type="hidden" value="${typeOfSelectedBillType}" />
-				<input type="hidden" id="referredActYearLabel" value="<spring:message code="bill.referredActYear" text="Year"/>">
-				<input type="hidden" id="dereferActWarningMessage" value="<spring:message code="dereferActWarningMessage" text="Do you really want to de-refer this act?"/>">
-				<%-- <input type="hidden" id="hdsRefEntity" value="${hdsRefEntity}" /> --%>
-				
-				<%-- <ul id="contextMenuItems" >
-				<li><a href="#unclubbing" class="edit"><spring:message code="generic.unclubbing" text="Unclubbing"></spring:message></a></li>
-				<li><a href="#dereferencing" class="edit"><spring:message code="generic.dereferencing" text="Dereferencing"></spring:message></a></li>
-				</ul> --%>
-			</div>
-		
-		</div>
-		
-		<div id="referringActResultDiv" style="display:none;">
-		</div>
-		
-		<!-- <div id="clubbingResultDiv" style="display:none;">
-		</div> -->
-		
-		<!-- <div id="referencingResultDiv" style="display:none;">
-		</div> -->
+			</div>		
+		</div>		
 	</body>
 </html>

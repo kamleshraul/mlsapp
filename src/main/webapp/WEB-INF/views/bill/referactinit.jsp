@@ -257,7 +257,7 @@
 			}	
 			$("#referredAct").val(actId);
 			$('#viewReferredAct').text(actNumber);
-			$('#viewReferredAct').css('text-decoration','underline');
+			$('#viewReferredAct').css('text-decoration','underline');			
 			var yearText = "("+$('#referredActYearLabel').val()+": "+actYear+")";
 			$('#referredActYear').text(yearText);			
 			$("#referringActResult").empty();
