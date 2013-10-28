@@ -2,7 +2,7 @@
 <html>
 	<head>
 		<title>
-			<spring:message code="act" text="Acts"/>
+			<spring:message code="rule" text="Rules"/>
 		</title>
 		<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>	
 		<script type="text/javascript">
@@ -10,26 +10,49 @@
 				initControls();
 				$('#key').val('');	
 				if($('#selectedYear').val()=="" || $('#selectedYear').val()==undefined){		
-					$("#year").prepend("<option value='' selected='selected'>----"+$("#pleaseSelectMsg").val()+"----</option>");
+					$("#editionYear").prepend("<option value='' selected='selected'>----"+$("#pleaseSelectMsg").val()+"----</option>");
 				}
 			});		
 		</script>
 	</head>
 	<body>	
 		<div class="fields clearfix vidhanmandalImg">
-			<form:form action="act" method="POST"  modelAttribute="domain">
+			<form:form action="rule" method="POST"  modelAttribute="domain">
 				<%@ include file="/common/info.jsp" %>
-				<h2><spring:message code="generic.edit.heading" text="Details"/>
-					[<spring:message code="generic.id" text="Id"></spring:message>:${domain.id}]
+				<h2><spring:message code="generic.new.heading" text="Enter Details"/>
+					[<spring:message code="generic.id" text="Id"></spring:message>:&nbsp;<spring:message code="generic.new" text="New"></spring:message>]
 				</h2>	
 				<form:errors path="version" cssClass="validationError"/>
+				
+				<p>
+					<label class="small"><spring:message code="rule.houseType" text="House Type"/></label>
+					<form:select id="houseType" class="sSelect" path="houseType">
+					<c:forEach var="i" items="${houseTypes}">	
+						<c:choose>
+							<c:when test="${i.id == selectedHouseType}">
+								<option value="${i.id}" selected="selected">${i.name}</option>
+							</c:when>
+							<c:otherwise>
+								<option value="${i.id}">${i.name}</option>
+							</c:otherwise>
+						</c:choose>						
+					</c:forEach>
+					</form:select>		
+					<form:errors path="houseType" cssClass="validationError"/>				
+				</p>
+				
+				<p> 
+					<label class="small"><spring:message code="rule.editionNumber" text="Edition Number"/></label>
+					<form:input cssClass="sInteger" path="editionNumber"/>
+					<form:errors path="editionNumber" cssClass="validationError"/>	
+				</p>
 					
 				<p> 
-					<label class="small"><spring:message code="act.year" text="Year"/></label>
-					<form:select path="year">
+					<label class="small"><spring:message code="rule.year" text="Edition Year"/></label>
+					<form:select class="sSelect" path="editionYear">
 						<c:forEach var="i" items="${years}">							
 							<c:choose>
-								<c:when test="${i.number==selectedYear }">
+								<c:when test="${i==selectedYear }">
 									<option value="${i.number}" selected="selected"><c:out value="${i.name}"></c:out></option>				
 								</c:when>
 								<c:otherwise>
@@ -38,22 +61,22 @@
 							</c:choose>
 						</c:forEach> 
 					</form:select>
-					<form:errors path="year" cssClass="validationError"/>	
+					<form:errors path="editionYear" cssClass="validationError"/>	
 				</p>	
 				 
 				<p> 
-					<label class="small"><spring:message code="act.number" text="Number"/></label>
+					<label class="small"><spring:message code="rule.number" text="Number"/></label>
 					<form:input cssClass="sInteger" path="number"/>
 					<form:errors path="number" cssClass="validationError"/>	
 				</p>
 				
 				<div>
 					<fieldset>
-						<legend style="text-align: left; width: 150px;"><label><spring:message code="act.titles" text="Titles of act" /></label></legend>
+						<legend style="text-align: left; width: 150px;"><label><spring:message code="rule.titles" text="Titles of Rule" /></label></legend>
 						<div id="titles_div">
 							<c:forEach var="i" items="${titles}">
 								<p>
-									<label class="centerlabel">${i.language.name} <spring:message code="act.title" text="Title"/></label>
+									<label class="centerlabel">${i.language.name} <spring:message code="rule.title" text="Title"/></label>
 									<textarea rows="2" cols="50" id="title_text_${i.language.type}" name="title_text_${i.language.type}">${i.text}</textarea>
 									<input type="hidden" name="title_id_${i.language.type}" value="${i.id}">
 									<input type="hidden" name="title_language_id_${i.language.type}" value="${i.language.id}">						
@@ -64,7 +87,7 @@
 				</div>
 				
 				<p>
-					<label class="small"><spring:message code="act.fileMarathi" text="Act File In Marathi"/></label>
+					<label class="small"><spring:message code="rule.fileMarathi" text="Rule File In Marathi"/></label>
 					<c:choose>		
 						<c:when test="${empty domain.fileMarathi}">
 							<jsp:include page="/common/file_upload.jsp">
@@ -82,7 +105,7 @@
 				</p>
 				
 				<p>
-					<label class="small"><spring:message code="act.fileEnglish" text="Act File In English"/></label>
+					<label class="small"><spring:message code="rule.fileEnglish" text="Rule File In English"/></label>
 					<c:choose>		
 						<c:when test="${empty domain.fileEnglish}">
 							<jsp:include page="/common/file_upload.jsp">
@@ -99,24 +122,6 @@
 					<form:errors path="fileEnglish" cssClass="validationError" />
 				</p>
 				
-				<p>
-					<label class="small"><spring:message code="act.fileHindi" text="Act File In Hindi"/></label>
-					<c:choose>		
-						<c:when test="${empty domain.fileHindi}">
-							<jsp:include page="/common/file_upload.jsp">
-								<jsp:param name="fileid" value="fileHindi" />
-							</jsp:include>
-						</c:when>
-						<c:otherwise>		
-							<jsp:include page="/common/file_download.jsp">
-								<jsp:param name="fileid" value="fileHindi" />
-								<jsp:param name="filetag" value="${domain.fileHindi}" />
-							</jsp:include>
-						</c:otherwise>
-					</c:choose>		
-					<form:errors path="fileHindi" cssClass="validationError" />
-				</p>	
-							
 				<div class="fields expand">
 					<h2></h2>
 					<p class="tright">
