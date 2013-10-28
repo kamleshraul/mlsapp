@@ -863,7 +863,7 @@
 		<a href="#" id="viewContacts" style="margin-left:20px;margin-right: 20px;"><img src="/els/resources/images/contactus.jpg" width="40" height="25"></a>		
 	</p>			
 	
-	<c:if test="${not (selectedQuestiontype=='questions_halfhourdiscussion_standalone' and houseTypeType=='lowerhouse')}">
+	<c:if test="${not (selectedQuestionType=='questions_halfhourdiscussion_standalone' and houseTypeType=='lowerhouse')}">
 		<p style="display:none;">
 			<a href="#" id="clubbing" onclick="clubbingInt(${domain.id});" style="margin-left: 162px;margin-right: 20px;margin-bottom: 20px;margin-top: 20px;"><spring:message code="question.clubbing" text="Clubbing"></spring:message></a>
 			<a href="#" id="referencing" onclick="referencingInt(${domain.id});" style="margin: 20px;"><spring:message code="question.referencing" text="Referencing"></spring:message></a>
