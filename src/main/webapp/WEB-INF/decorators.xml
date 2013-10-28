@@ -294,6 +294,11 @@
 		<pattern>/act/*/delete</pattern>
 		<pattern>/act</pattern>
 		
+		<pattern>/rule/new</pattern>
+		<pattern>/rule/*/edit</pattern>
+		<pattern>/rule/*/delete</pattern>
+		<pattern>/rule</pattern>
+		
 		<pattern>/ordinance/new</pattern>
 		<pattern>/ordinance/*/edit</pattern>
 		<pattern>/ordinance/*/delete</pattern>
