@@ -21,7 +21,7 @@
 		});			
 		function newAdjournment(){				
 				$("#cancelFn").val("newAdjurnment");
-				$.get('roster/adjurnment/new?'+$("#gridURLParams").val(), function(data){					
+				$.get('roster/adjournment/new?'+$("#gridURLParams").val(), function(data){					
 					$('#grid_container').html(data);
 					scrollTop();										
 			}).fail(function(){
@@ -40,7 +40,7 @@
 				return false;
 			}				
 			$("#cancelFn").val("editAdjurnment");		
-			$.get('roster/adjurnment/'+row+'/edit?'+$("#gridURLParams").val(),
+			$.get('roster/adjournment/'+row+'/edit?'+$("#gridURLParams").val(),
 					 function(data){
 					$('#grid_container').html(data);
 					scrollTop();															
@@ -55,7 +55,7 @@
 		function rowDblClickHandler(rowid, iRow, iCol, e) {
 			var rowid=$('#internalKey').val();			
 			$("#cancelFn").val("rowDblClickHandler");
-			$.get('roster/adjurnment/'+rowid+'/edit?'+$("#gridURLParams").val(), function(data){
+			$.get('roster/adjournment/'+rowid+'/edit?'+$("#gridURLParams").val(), function(data){
 				$('#grid_container').html(data);
 				scrollTop();						
 		}).fail(function(){
@@ -81,7 +81,7 @@
 				$.prompt($('#confirmDeleteMessage').val()+ row,{
 					buttons: {Ok:true, Cancel:false}, callback: function(v){
 			        if(v){
-				        $.delete_('roster/adjurnment/'+row+'/delete?'+$("#gridURLParams").val(), null, function(data, textStatus, XMLHttpRequest) {
+				        $.delete_('roster/adjournment/'+row+'/delete?'+$("#gridURLParams").val(), null, function(data, textStatus, XMLHttpRequest) {
 				        	listAdjournment();
 				        }).fail(function(){
 							if($("#ErrorMsg").val()!=''){

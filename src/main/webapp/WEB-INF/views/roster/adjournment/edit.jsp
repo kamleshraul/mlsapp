@@ -4,37 +4,55 @@
 	<title>
 	<spring:message code="roster.adjournment" text="Adjournment"/>
 	</title>
-	<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>	
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+	<script type="text/javascript">
+	$(document).ready(function(){
+		//$("#adjournmentReason option").hide();
+		//$("#adjournmentReason option[selected='selected']").show();
+		$("#action option").hide();
+		$("#action option[selected='selected']").show();
+	});
+	</script>	
 </head>
 
 <body>
-<p id="error_p" style="display: none;">&nbsp;</p>
-<c:if test="${(error!='') && (error!=null)}">
-	<h4 style="color: #FF0000;">${error}</h4>
-</c:if>
 <div class="fields clearfix watermark">
 <form:form action="roster/adjournment" method="PUT" modelAttribute="domain">
 	<%@ include file="/common/info.jsp" %>
 	<h2><spring:message code="roster.adjournment.edit.heading" text="Adjournment:ID"/>(${domain.id})		
 	</h2>
 	<form:errors path="version" cssClass="validationError"/>	
+	<form:errors path="roster" cssClass="validationError"/>	
+	
 	
 	<p>
 		<label class="small"><spring:message code="roster.adjournment.starttime" text="Start Time"/>*</label>
-		<input type="text" class="sText datetimemask" name="selectedStartTime" id="selectedStartTime" value="${startTime }">
+		<input type="text" class="sText datetimenosecondmask" name="selectedStartTime" id="selectedStartTime" value="${startTime }" readonly="readonly">
 		<form:errors path="startTime" cssClass="validationError"/>	
 	</p>
 	
 	<p>
 		<label class="small"><spring:message code="roster.adjournment.endtime" text="End Time"/>*</label>
-		<input type="text" class="sText datetimemask" name="selectedEndTime" id="selectedEndTime" value="${endTime }">
+		<input type="text" class="sText datetimenosecondmask" name="selectedEndTime" id="selectedEndTime" value="${endTime }" readonly="readonly">
 		<form:errors path="endTime" cssClass="validationError"/>	
 	</p>
 	
 	<p>
 		<label class="small"><spring:message code="roster.adjournment.adjournmentreason" text="Reason"/>*</label>
-		<form:select path="reason" cssClass="sSelect" items="${reasons }" itemLabel="reason" itemValue="id"/>		
-		<form:errors path="reason" cssClass="validationError"/>	
+		<select id="adjournmentReason" name="adjournmentReason" class="sSelect">
+		<option value=""><spring:message code="please.select" text="Please Select"></spring:message></option>
+		<c:forEach items="${reasons }" var="i">
+		<c:choose>
+		<c:when test="${i.id==adjournmentReason}">
+		<option value="${i.id }" selected="selected">${i.reason }</option>
+		</c:when>
+		<c:otherwise>
+		<option value="${i.id }">${i.reason }</option>
+		</c:otherwise>
+		</c:choose>
+		</c:forEach>
+		</select>		
+		<form:errors path="adjournmentReason" cssClass="validationError"/>	
 	</p>
 	
 	<p>
@@ -48,15 +66,15 @@
 		<c:otherwise>
 		<option value="turnoff"><spring:message code="roster.adjournment.turnofflots" text="Turn Off Slots"></spring:message></option>
 		</c:otherwise>
-		</c:choose>
+		</c:choose>	
 		<c:choose>
-		<c:when test="${domain.action=='shift'}">
-		<option value="shift" selected="selected"><spring:message code="roster.adjournment.shiftslots" text="Shift Slots"></spring:message></option>
+		<c:when test="${domain.action=='turnoffandshift'}">
+		<option value="turnoffandshift" selected="selected"><spring:message code="roster.adjournment.turnoffandshift" text="Turn Off Slots And Shift Reporters"></spring:message></option>
 		</c:when>
 		<c:otherwise>
-		<option value="shift"><spring:message code="roster.adjournment.shiftslots" text="Shift Slots"></spring:message></option>
+		<option value="turnoffandshift"><spring:message code="roster.adjournment.turnoffandshift" text="Turn Off Slots And Shift Reporters"></spring:message></option>
 		</c:otherwise>
-		</c:choose>
+		</c:choose>	
 		</select>
 		<form:errors path="action" cssClass="validationError"/>	
 	</p>	
