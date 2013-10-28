@@ -85,10 +85,11 @@
 		<c:set var="pHeading" value=""/>
 		<c:set var="slot" value=""/>
 		<c:set var="cnt" value="0"/>
+		<c:set var="chairPerson" value=""/>
 		<c:forEach items="${report}" var="r" step="${count}">
 			<c:if test="${r[9]==member}">
 				<c:forEach items="${report}" var ="r1" begin="${cnt}">
-						<c:choose>
+					<c:choose>
 						<c:when test="${(mHeading==r1[2] && pHeading==r1[1] && slot==r1[13])}">
 							<tr>
 								<td colspan="3" style="text-align: justify;" >
@@ -191,6 +192,7 @@
 					<c:set var="pHeading" value="${r1[1] }"/>
 					<c:set var="slot" value="${r1[13]}"/>
 					<c:set var="count" value="${count+1}"/>
+					<c:set var="chairPerson" value="${r1[18]}"/>
 				</c:when>
 				<c:otherwise>
 					<c:if test="${r1[9]==member}">
@@ -209,6 +211,14 @@
 								</tr>
 							</thead>
 						<tr><td colspan="3" height="30px"></td></tr>
+						<c:if test="${r1[18]!=null and r1[18]!= chairPerson}">
+								<tr>
+									<td colspan="3" class="content" style="text-align: center;">
+										<b>(<spring:message code="part.chairPersonMessage"/>  ${r1[18]}  ${r1[19]}) </b>
+									</td>
+								</tr>
+								<tr><td colspan="3" height="30px"> </td></tr>
+						</c:if>
 						<c:choose>
 							<c:when test="${r1[1]!=null and r1[2]!=null and r1[1]!='' and r1[2]!=''}">
 								<tr>
@@ -322,6 +332,7 @@
 					<c:set var="pHeading" value="${r1[1] }"/>
 					<c:set var="slot" value="${r1[13]}"/>
 					<c:set var="count" value="${count+1}"/>
+					<c:set var="chairPerson" value="${r1[18]}"/>
 				</c:if>
 				
 				</c:otherwise>

@@ -86,6 +86,7 @@
 		<c:set var="pheading" value="" />
 		<c:set var="member" value=""/>
 		<c:set var="count" value="1" />
+		<c:set var="chairPerson" value=""/>
 		<%--${report[0][3]} --%>		
 		<c:forEach items="${report}" var="r" varStatus="i">
 			<c:choose>
@@ -107,6 +108,15 @@
 								</tr>
 							</thead>
 							<tr><td colspan="3" height="30px"></td></tr>
+						<c:if test="${r[9]!=null and r[9]!= chairPerson}">
+								<tr>
+									<td colspan="3" class="content" style="text-align: center;">
+										<b>(<spring:message code="part.chairPersonMessage"/>  ${r[9]}  ${r[3]}) </b>
+									</td>
+								</tr>
+								<tr><td colspan="3" height="30px"> </td></tr>
+						</c:if>
+						
 						<c:choose>
 							<c:when test="${r[1]!=null and r[2]!=null and r[1]!='' and r[2]!=''}">
 								<tr>
@@ -219,6 +229,14 @@
 					<tr><td colspan="3" height="30px"></td></tr>
 					</c:when>
 					<c:otherwise>
+						<c:if test="${r[9]!=null and r[9]!= chairPerson}">
+								<tr>
+									<td colspan="3" class="content" style="text-align: center;">
+										<b>(<spring:message code="part.chairPersonMessage"/>  ${r[9]}  ${r[3]}) </b>
+									</td>
+								</tr>
+								<tr><td colspan="3" height="30px"> </td></tr>
+						</c:if>
 						<tr>
 						<td colspan="3" class="content" >
 						<c:choose>
@@ -338,6 +356,14 @@
 							</tr>
 						</thead>
 						<tr><td colspan="3" height="20px"></td></tr>
+						<c:if test="${r[9]!=null and r[9]!= chairPerson}">
+								<tr>
+									<td colspan="3" class="content" style="text-align: center;">
+										<b>(<spring:message code="part.chairPersonMessage"/>  ${r[9]}  ${r[3]}) </b>
+									</td>
+								</tr>
+								<tr><td colspan="3" height="30px"> </td></tr>
+						</c:if>
 						<c:choose>
 							<c:when test="${r[1]!=null and r[2]!=null and r[1]!='' and r[2]!=''}">
 								<tr>
@@ -458,6 +484,7 @@
 			<c:set var="mheading" value="${r[2]}" />
 			<c:set var="pheading" value="${r[1]}" />
 			<c:set var="member" value="${r[14]}"/>
+			<c:set var="chairPerson" value="${r[9]}"/>
 		</c:forEach>
 	</div>	
 </div>

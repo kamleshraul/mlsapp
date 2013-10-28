@@ -69,12 +69,12 @@
 <body>
 <a id="viewReport" target="_blank" class="reportLink">report</a>
 <c:if test="${not empty outputFormats}">				
-				<select id="outputFormat" name="outputFormat">
-					<option value="" selected="selected">Please Select Output Format</option>
-					<c:forEach items="${outputFormats}" var="i">
-						<option value="${i.value}">${i.name}</option>
-					</c:forEach>
-				</select>				
+	<select id="outputFormat" name="outputFormat">
+		<option value="" selected="selected">Please Select Output Format</option>
+		<c:forEach items="${outputFormats}" var="i">
+			<option value="${i.value}">${i.name}</option>
+		</c:forEach>
+	</select>				
 </c:if>
 <div class="fields clearfix watermark" style="margin-top: 30px">
 	<%@ include file="/common/info.jsp" %>
@@ -84,6 +84,7 @@
 		<c:set var="pheading" value="" />
 		<c:set var="member1" value=""/>
 		<c:set var="count" value="1" />
+		<c:set var="chairPerson" value=""/>
 		<%--${report[0][3]} --%>		
 		<c:forEach items="${report}" var="r" varStatus="i">
 					<c:choose>
@@ -103,6 +104,14 @@
 								</tr>
 							</thead>
 							<tr><td colspan="3" height="30px"></td></tr>
+							<c:if test="${r[19]!=null and r[19]!= chairPerson}">
+								<tr>
+									<td colspan="3" class="content" style="text-align: center;">
+										<b>(<spring:message code="part.chairPersonMessage"/>  ${r[19]}  ${r[20]}) </b>
+									</td>
+								</tr>
+								<tr><td colspan="3" height="30px"> </td></tr>
+							</c:if>
 							<c:choose>
 								<c:when test="${r[1]!=null and r[2]!=null and r[1]!='' and r[2]!=''}">
 									<tr>
@@ -214,6 +223,14 @@
 					<tr><td colspan="3" height="30px"></td></tr>
 					</c:when>
 					<c:otherwise>
+						<c:if test="${r[19]!=null and r[19]!= chairPerson}">
+								<tr>
+									<td colspan="3" class="content" style="text-align: center;">
+										<b>(<spring:message code="part.chairPersonMessage"/>  ${r[19]}  ${r[20]}) </b>
+									</td>
+								</tr>
+								<tr><td colspan="3" height="30px"> </td></tr>
+						</c:if>
 						<tr>
 							<td colspan="3" class="content" >
 								<c:choose>
@@ -319,6 +336,7 @@
 			<c:set var="mheading" value="${r[2]}" />
 			<c:set var="pheading" value="${r[1]}" />
 			<c:set var="member1" value="${r[9]}"/>
+			<c:set var="chairPerson" value="${r[19]}"/>
 		</c:forEach>
 	</div>	
 </div>

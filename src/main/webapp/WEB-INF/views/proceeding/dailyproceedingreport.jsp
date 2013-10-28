@@ -106,6 +106,7 @@
 		<c:set var="pheading" value="" />
 		<c:set var="member" value=""/>
 		<c:set var="count" value="1" />
+		<c:set var="chairPerson" value=""/>
 		<%--${report[0][3]} --%>		
 		<c:forEach items="${report}" var="r" varStatus="i">
 			<c:choose>
@@ -122,24 +123,39 @@
 								</tr>
 								<tr>
 									<th class="left">${r[19]}</th>
-									<th class="center">${r[20]}</th>
+									<c:choose>
+										<c:when test="${r[23]!= null and r[23]!=''}">
+											<th class="center"><spring:message code="part.previousReporterMessage" text="Previous Reporter"/> ${r[23]}</th>
+										</c:when>
+										<c:otherwise>
+											<th></th>
+										</c:otherwise>
+									</c:choose>
 									<th class="right">${r[8]}</th>
 								</tr>
 							</thead>
 							<tr><td colspan="3" height="30px"> </td></tr>
+							<c:if test="${r[9]!=null and r[9]!= chairPerson}">
+								<tr>
+									<td colspan="3" class="content" style="text-align: center;">
+										<b>(<spring:message code="part.chairPersonMessage"/>  ${r[9]}  ${r[3]}) </b>
+									</td>
+								</tr>
+								<tr><td colspan="3" height="30px"> </td></tr>
+							</c:if>
 							<c:choose>
 								<c:when test="${r[1]!=null and r[2]!=null and r[1]!='' and r[2]!=''}">
 									<tr>
 										<td colspan="3" class="content" style="text-align: center;" >
-											<b><spring:message code="part.mainHeading" text="Main Heading"/></b> : ${r[2]}
-											<br>
-											<b><spring:message code="part.pageHeading" text="Page Heading"/></b>: ${r[1]}
+											<b><spring:message code="part.pageHeading" text="Page Heading"/>:</b> ${r[1]}
+											<b><spring:message code="part.mainHeading" text="Main Heading"/> :</b> ${r[2]}
 										</td>
 									</tr>
 									<tr><td colspan="3" height="30px"> </td></tr>
 								</c:when>
 							</c:choose>
 							<tr>
+							
 							<td colspan="3" style="text-align: justify;" >
 								<c:choose>
 									<c:when test="${r[15]!=null}">
@@ -235,9 +251,17 @@
 								</c:choose>
 							</td>
 							</tr>
-							<tr><td colspan="3" height="30px"> </td></tr>
+							<!-- <tr><td colspan="3" height="30px"> </td></tr> -->
 					</c:when>
 					<c:otherwise>
+						<c:if test="${r[9]!=null and r[9]!= chairPerson}">
+								<tr>
+									<td colspan="3" class="content" style="text-align: center;">
+										<b>(<spring:message code="part.chairPersonMessage"/>  ${r[9]}  ${r[3]}) </b>
+									</td>
+								</tr>
+								<tr><td colspan="3" height="30px"> </td></tr>
+						</c:if>
 						<tr>
 						<td colspan="3" class="content" >
 						<c:choose>
@@ -340,6 +364,15 @@
 					
 				</c:when>
 				<c:otherwise>
+					<c:if test="${count!=1}">
+						<tr>
+						<td colspan="3" align="right">
+							<spring:message code="part.nextReporterMessage" text="next"/>  ${r[18]}
+						</td>
+					</tr>
+					<tr><td colspan="3" height="30px"></td></tr>
+					</c:if>
+					
 					</table>
 					<table class="doBreak">
 						<thead>
@@ -350,18 +383,32 @@
 							</tr>
 							<tr>
 								<th class="left">${r[19]}</th>
-								<th class="center">${r[20]}</th>
+								<c:choose>
+									<c:when test="${r[23]!= null and r[23]!=''}">
+										<th class="center"><spring:message code="part.previousReporterMessage" text="Previous Reporter"/> ${r[23]}</th>
+									</c:when>
+									<c:otherwise>
+										<th></th>
+									</c:otherwise>
+								</c:choose>
 								<th class="right">${r[8]}</th>
 							</tr>
 						</thead>
 						<tr><td colspan="3" height="30px"></td></tr>
+						<c:if test="${r[9]!=null and r[9]!= chairPerson}">
+								<tr>
+									<td colspan="3" class="content" style="text-align: center;">
+										<b>(<spring:message code="part.chairPersonMessage"/>  ${r[9]}  ${r[3]}) </b>
+									</td>
+								</tr>
+								<tr><td colspan="3" height="30px"> </td></tr>
+						</c:if>
 						<c:choose>
 							<c:when test="${r[1]!=null and r[2]!=null and r[1]!='' and r[2]!=''}">
 								<tr>
 									<td colspan="3" class="content" >
-										<b><spring:message code="part.mainHeading" text="Main Heading"/> :</b> ${r[2]}
-										<br>
 										<b><spring:message code="part.pageHeading" text="Page Heading"/>:</b> ${r[1]}
+										<b><spring:message code="part.mainHeading" text="Main Heading"/> :</b> ${r[2]}
 									</td>
 								</tr>
 								<tr><td colspan="3" height="30px"> </td></tr>
@@ -474,6 +521,7 @@
 			<c:set var="mheading" value="${r[2]}" />
 			<c:set var="pheading" value="${r[1]}" />
 			<c:set var="member" value="${r[14]}"/>
+			<c:set var="chairPerson" value="${r[9]}"/>
 		</c:forEach>
 	</div>	
 </div>

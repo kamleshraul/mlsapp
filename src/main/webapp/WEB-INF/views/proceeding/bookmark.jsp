@@ -42,8 +42,7 @@
 				$('#proceedingContent').wysiwyg("setContent",text+"<p>"+key+"</p>");
 			}
 			
-			var param="previousText="+text+
-					  "&language="+$('#language').val()+
+			var param="&language="+$('#language').val()+
 					  "&currentSlot="+$('#currentSlot').val()+
 					  "&bookmarkKey="+key+
 					  "&masterPart="+$('#currentPart').val();
