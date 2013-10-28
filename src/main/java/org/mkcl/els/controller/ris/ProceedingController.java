@@ -1379,6 +1379,12 @@ public class ProceedingController extends GenericController<Proceeding>{
 				if(row[14]!=null){
 					row[0]=""+row[15]+" :"+row[0];
 				}
+				if(row[1]==null){
+					row[1]="";
+				}
+				if(row[2]==null){
+					row[2]="";
+				}
 				int j=i+1;
 				for(;j<tempList1.size();j++){
 					Object[] row1 = (Object[]) tempList1.get(j);
@@ -1717,6 +1723,12 @@ public class ProceedingController extends GenericController<Proceeding>{
 			/****If the parts are of same slot then concat the paragraphs of same member under the member name instead of having membername in each part****/
 			for(int i=0; i<tempList1.size(); i++){
 				Object[] row = (Object[]) tempList1.get(i);
+				if(row[1]==null){
+					row[1]="";
+				}
+				if(row[2]==null){
+					row[2]="";
+				}
 				if(row[14]!=null){
 					row[0]=""+row[15]+" :"+row[0];
 				}
@@ -1836,14 +1848,14 @@ public class ProceedingController extends GenericController<Proceeding>{
 			if(!result.isEmpty()){
 				if(reportFormat.equals("WORD")) {
 					try {
-						reportFile = generateReportUsingFOP(xmlData, "template_ris_proceeding_content_merge_report_word", reportFormat, "karyavrutt" , locale.toString());
+						reportFile = generateReportUsingFOP(xmlData, "template_ris_proceeding_content_merge_report_word", reportFormat, "karyavrutt_rosterwise" , locale.toString());
 					} catch (Exception e) {
 						// TODO Auto-generated catch block
 						e.printStackTrace();
 					}
 				} else {
 					try {
-						reportFile = generateReportUsingFOP(xmlData, "template_ris_proceeding_content_merge_report_word", reportFormat, "karyavrutt", locale.toString());
+						reportFile = generateReportUsingFOP(xmlData, "template_ris_proceeding_content_merge_report_word", reportFormat, "karyavrutt_rosterwise", locale.toString());
 					} catch (Exception e) {
 						// TODO Auto-generated catch block
 						e.printStackTrace();
@@ -1936,6 +1948,12 @@ public class ProceedingController extends GenericController<Proceeding>{
 			/****If the parts are of same slot then concat the paragraphs of same member under the member name instead of having membername in each part****/
 			for(int i=0; i<tempList1.size(); i++){
 				Object[] row = (Object[]) tempList1.get(i);
+				if(row[1]==null){
+					row[1]="";
+				}
+				if(row[2]==null){
+					row[2]="";
+				}
 				if(row[14]!=null){
 					row[0]=row[15]+" : "+row[0];
 				}
@@ -2055,14 +2073,14 @@ public class ProceedingController extends GenericController<Proceeding>{
 			if(!result.isEmpty()){
 				if(reportFormat.equals("WORD")) {
 					try {
-						reportFile = generateReportUsingFOP(xmlData, "template_ris_sessionwise_report", reportFormat, "karyavrutt" , locale.toString());
+						reportFile = generateReportUsingFOP(xmlData, "template_ris_sessionwise_report", reportFormat, "karyavrutt_sessionwise" , locale.toString());
 					} catch (Exception e) {
 						// TODO Auto-generated catch block
 						e.printStackTrace();
 					}
 				} else {
 					try {
-						reportFile = generateReportUsingFOP(xmlData, "template_ris_sessionwise_report", reportFormat, "karyavrutt", locale.toString());
+						reportFile = generateReportUsingFOP(xmlData, "template_ris_sessionwise_report", reportFormat, "karyavrutt_sessionwise", locale.toString());
 					} catch (Exception e) {
 						// TODO Auto-generated catch block
 						e.printStackTrace();
@@ -2249,6 +2267,12 @@ public class ProceedingController extends GenericController<Proceeding>{
 				if(row[14]!=null){
 					row[0]="<p>"+row[15]+":"+row[0]+"</p>";
 				}
+				if(row[1]==null){
+					row[1]="";
+				}
+				if(row[2]==null){
+					row[2]="";
+				}
 				int j=i+1;
 				for(;j<tempList1.size();j++){
 					Object[] row1 = (Object[]) tempList1.get(j);
@@ -2365,14 +2389,14 @@ public class ProceedingController extends GenericController<Proceeding>{
 			if(!result.isEmpty()){
 				if(reportFormat.equals("WORD")) {
 					try {
-						reportFile = generateReportUsingFOP(xmlData, "template_ris_proceeding_content_merge_report_word", reportFormat, "karyavrutt" , locale.toString());
+						reportFile = generateReportUsingFOP(xmlData, "template_ris_proceeding_content_merge_report_word", reportFormat, "karyavrutt_reporterwise" , locale.toString());
 					} catch (Exception e) {
 						// TODO Auto-generated catch block
 						e.printStackTrace();
 					}
 				} else {
 					try {
-						reportFile = generateReportUsingFOP(xmlData, "template_ris_proceeding_content_merge_report_word", reportFormat, "karyavrutt", locale.toString());
+						reportFile = generateReportUsingFOP(xmlData, "template_ris_proceeding_content_merge_report_word", reportFormat, "karyavrutt_reporterwise", locale.toString());
 					} catch (Exception e) {
 						// TODO Auto-generated catch block
 						e.printStackTrace();
@@ -2643,7 +2667,12 @@ public class ProceedingController extends GenericController<Proceeding>{
 			
 			for(int i=0; i<tempList.size(); i++){
 				Object[] row = (Object[]) tempList.get(i);
-				
+				if(row[1]==null){
+					row[1]="";
+				}
+				if(row[2]==null){
+					row[2]="";
+				}
 				
 				if(row[10]!=null){
 					row[0]=row[10]+" :  "+row[0];
@@ -2728,14 +2757,14 @@ public class ProceedingController extends GenericController<Proceeding>{
 			if(!result.isEmpty()){
 				if(reportFormat.equals("WORD")) {
 					try {
-						reportFile = generateReportUsingFOP(xmlData, "ris_proceeding_content_memberwise_report", reportFormat, "karyavrutt" , locale.toString());
+						reportFile = generateReportUsingFOP(xmlData, "ris_proceeding_content_memberwise_report", reportFormat, "karyavrutt_memberwise" , locale.toString());
 					} catch (Exception e) {
 						// TODO Auto-generated catch block
 						e.printStackTrace();
 					}
 				} else {
 					try {
-						reportFile = generateReportUsingFOP(xmlData, "ris_proceeding_content_memberwise_report", reportFormat, "karyavrutt", locale.toString());
+						reportFile = generateReportUsingFOP(xmlData, "ris_proceeding_content_memberwise_report", reportFormat, "karyavrutt_memberwise", locale.toString());
 					} catch (Exception e) {
 						// TODO Auto-generated catch block
 						e.printStackTrace();
@@ -2923,14 +2952,14 @@ public class ProceedingController extends GenericController<Proceeding>{
 			if(!result.isEmpty()){
 				if(reportFormat.equals("WORD")) {
 					try {
-						reportFile = generateReportUsingFOP(xmlData, "ris_proceeding_content_memberwise_report", reportFormat, "karyavrutt" , locale.toString());
+						reportFile = generateReportUsingFOP(xmlData, "ris_proceeding_content_memberwise_report", reportFormat, "karyavrutt_memberwise1" , locale.toString());
 					} catch (Exception e) {
 						// TODO Auto-generated catch block
 						e.printStackTrace();
 					}
 				} else {
 					try {
-						reportFile = generateReportUsingFOP(xmlData, "ris_proceeding_content_memberwise_report", reportFormat, "karyavrutt", locale.toString());
+						reportFile = generateReportUsingFOP(xmlData, "ris_proceeding_content_memberwise_report", reportFormat, "karyavrutt_memberwise1", locale.toString());
 					} catch (Exception e) {
 						// TODO Auto-generated catch block
 						e.printStackTrace();
@@ -3092,7 +3121,12 @@ public class ProceedingController extends GenericController<Proceeding>{
 				if(row[10]!=null){
 					row[0]=row[10]+" : "+row[0];
 				}
-				
+				if(row[1]==null){
+					row[1]="";
+				}
+				if(row[2]==null){
+					row[2]="";
+				}
 				int j=i+1;
 				for(;j<result.size();j++){
 					Object[] row1 = (Object[]) result.get(j);
@@ -3164,13 +3198,13 @@ public class ProceedingController extends GenericController<Proceeding>{
 			if(!result.isEmpty()){
 				if(reportFormat.equals("WORD")) {
 					try {
-						reportFile = generateReportUsingFOP(xmlData, "ris_proceeding_content_memberwise_report", reportFormat, "karyavrutt" , locale.toString());
+						reportFile = generateReportUsingFOP(xmlData, "ris_proceeding_content_memberwise_report", reportFormat, "karyavrutt_memberwise2" , locale.toString());
 					} catch (Exception e) {
 						e.printStackTrace();
 					}
 				} else {
 					try {
-						reportFile = generateReportUsingFOP(xmlData, "ris_proceeding_content_memberwise_report", reportFormat, "karyavrutt", locale.toString());
+						reportFile = generateReportUsingFOP(xmlData, "ris_proceeding_content_memberwise_report", reportFormat, "karyavrutt_memberwise2", locale.toString());
 					} catch (Exception e) {
 						e.printStackTrace();
 					}
