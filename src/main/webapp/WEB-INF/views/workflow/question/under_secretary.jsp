@@ -863,54 +863,54 @@
 		<a href="#" id="viewContacts" style="margin-left:20px;margin-right: 20px;"><img src="/els/resources/images/contactus.jpg" width="40" height="25"></a>		
 	</p>			
 	
-	<c:if test="${not (selectedQuestiontype=='questions-halfhourdiscussion_standalone' and houseType=='lowerhouse')}">
-	<p style="display:none;">
-		<a href="#" id="clubbing" onclick="clubbingInt(${domain.id});" style="margin-left: 162px;margin-right: 20px;margin-bottom: 20px;margin-top: 20px;"><spring:message code="question.clubbing" text="Clubbing"></spring:message></a>
-		<a href="#" id="referencing" onclick="referencingInt(${domain.id});" style="margin: 20px;"><spring:message code="question.referencing" text="Referencing"></spring:message></a>
-		<a href="#" id="refresh" onclick="refreshEdit(${domain.id});" style="margin: 20px;"><spring:message code="question.refresh" text="Refresh"></spring:message></a>	
-	</p>	
-		
-	<p>
-		<label class="small"><spring:message code="question.parentquestion" text="Clubbed To"></spring:message></label>
-		<a href="#" id="p${parent}" onclick="viewQuestionDetail(${parent});"><c:out value="${formattedParentNumber}"></c:out></a>
-		<input type="hidden" id="parent" name="parent" value="${parent}">
-	</p>	
-	<p>
-		<label class="small"><spring:message code="question.clubbedquestions" text="Clubbed Questions"></spring:message></label>
-		<c:choose>
-			<c:when test="${!(empty clubbedQuestions) }">
+	<c:if test="${not (selectedQuestiontype=='questions_halfhourdiscussion_standalone' and houseType=='lowerhouse')}">
+		<p style="display:none;">
+			<a href="#" id="clubbing" onclick="clubbingInt(${domain.id});" style="margin-left: 162px;margin-right: 20px;margin-bottom: 20px;margin-top: 20px;"><spring:message code="question.clubbing" text="Clubbing"></spring:message></a>
+			<a href="#" id="referencing" onclick="referencingInt(${domain.id});" style="margin: 20px;"><spring:message code="question.referencing" text="Referencing"></spring:message></a>
+			<a href="#" id="refresh" onclick="refreshEdit(${domain.id});" style="margin: 20px;"><spring:message code="question.refresh" text="Refresh"></spring:message></a>	
+		</p>	
+			
+		<p>
+			<label class="small"><spring:message code="question.parentquestion" text="Clubbed To"></spring:message></label>
+			<a href="#" id="p${parent}" onclick="viewQuestionDetail(${parent});"><c:out value="${formattedParentNumber}"></c:out></a>
+			<input type="hidden" id="parent" name="parent" value="${parent}">
+		</p>	
+		<p>
+			<label class="small"><spring:message code="question.clubbedquestions" text="Clubbed Questions"></spring:message></label>
+			<c:choose>
+				<c:when test="${!(empty clubbedQuestions) }">
+					<c:forEach items="${clubbedQuestions }" var="i">
+						<a href="#" id="cq${i.number}" class="clubbedRefQuestions" onclick="viewQuestionDetail(${i.number});" style="font-size: 18px;"><c:out value="${i.name}"></c:out></a>
+					</c:forEach>
+				</c:when>
+				<c:otherwise>
+					<c:out value="-"></c:out>
+				</c:otherwise>
+			</c:choose>
+			<select id="clubbedEntities" name="clubbedEntities" multiple="multiple" style="display:none;">
 				<c:forEach items="${clubbedQuestions }" var="i">
-					<a href="#" id="cq${i.number}" class="clubbedRefQuestions" onclick="viewQuestionDetail(${i.number});" style="font-size: 18px;"><c:out value="${i.name}"></c:out></a>
+					<option value="${i.id}" selected="selected"></option>
 				</c:forEach>
-			</c:when>
-			<c:otherwise>
-				<c:out value="-"></c:out>
-			</c:otherwise>
-		</c:choose>
-		<select id="clubbedEntities" name="clubbedEntities" multiple="multiple" style="display:none;">
-			<c:forEach items="${clubbedQuestions }" var="i">
-				<option value="${i.id}" selected="selected"></option>
-			</c:forEach>
-		</select>
-	</p>
-	<p>
-		<label class="small"><spring:message code="question.referencedquestions" text="Referenced Questions"></spring:message></label>
-		<c:choose>
-			<c:when test="${!(empty referencedQuestions) }">
+			</select>
+		</p>
+		<p>
+			<label class="small"><spring:message code="question.referencedquestions" text="Referenced Questions"></spring:message></label>
+			<c:choose>
+				<c:when test="${!(empty referencedQuestions) }">
+					<c:forEach items="${referencedQuestions }" var="i">
+						<a href="#" id="rq${i.number}" class="clubbedRefQuestions" onclick="viewQuestionDetail(${i.number});" style="font-size: 18px;"><c:out value="${i.name}"></c:out></a>
+					</c:forEach>
+				</c:when>
+				<c:otherwise>
+					<c:out value="-"></c:out>
+				</c:otherwise>
+			</c:choose>
+			<select id="referencedEntities" name="referencedEntities" multiple="multiple" style="display:none;">
 				<c:forEach items="${referencedQuestions }" var="i">
-					<a href="#" id="rq${i.number}" class="clubbedRefQuestions" onclick="viewQuestionDetail(${i.number});" style="font-size: 18px;"><c:out value="${i.name}"></c:out></a>
+					<option value="${i.id}" selected="selected"></option>
 				</c:forEach>
-			</c:when>
-			<c:otherwise>
-				<c:out value="-"></c:out>
-			</c:otherwise>
-		</c:choose>
-		<select id="referencedEntities" name="referencedEntities" multiple="multiple" style="display:none;">
-			<c:forEach items="${referencedQuestions }" var="i">
-				<option value="${i.id}" selected="selected"></option>
-			</c:forEach>
-		</select>
-	</p>
+			</select>
+		</p>
 	</c:if>
 	
 	<c:if test="${selectedQuestionType=='questions_halfhourdiscussion_standalone' and houseTypeType=='lowerhouse'}">
