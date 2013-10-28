@@ -4291,6 +4291,7 @@ public class BillController extends GenericController<Bill> {
 						try {
 							if(cstpDeploymentServer.getValue().equals("TOMCAT")){
 								decodedHouseType = new String(strHouseType.getBytes("ISO-8859-1"), "UTF-8");
+								strSessionYear = new String(strSessionYear.getBytes("ISO-8859-1"), "UTF-8");
 							}							
 						} catch (UnsupportedEncodingException e) {
 							

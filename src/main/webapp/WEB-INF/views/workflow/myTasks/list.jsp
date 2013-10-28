@@ -21,6 +21,10 @@
 			$("#search").click(function() {
 				searchRecord();
 			});
+			$("#provide_date").click(function(){	
+				$("#selectionDiv").hide();
+				provideDate();
+			});
 		});
 	</script>
 </head>
@@ -38,6 +42,11 @@
 			<a href="#" id="search" class="butSim">
 				<spring:message code="generic.search" text="Search"/>
 			</a>  
+			<security:authorize access="hasAnyRole('BILL_DEPARTMENT_USER')">			
+			| <a href="#" id="provide_date" class="butSim">
+				<spring:message code="generic.giveintroductiondate" text="Provide Introduction Date"/>
+			</a>
+			</security:authorize>
 			<p>&nbsp;</p>
 		</div>
 	</div>

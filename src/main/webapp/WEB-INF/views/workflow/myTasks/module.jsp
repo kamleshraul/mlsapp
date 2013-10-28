@@ -286,7 +286,7 @@
 		
 		/****Provide introduction date ****/
 		function provideDate(){
-			showTabByIdAndUrl('details_tab','bill/providedate?houseType=' + $("#selectedHouseType").val()+"&sessionType="+$("#sessiontype").val()+"&sessionYear="+$("#sessionyear").val());
+			showTabByIdAndUrl('details_tab','bill/providedate?houseType=' + $("#selectedHouseType").val()+"&sessionType="+$("#selectedSessionType").val()+"&sessionYear="+$("#selectedSessionYear").val());
 		}
 	</script>
 </head>

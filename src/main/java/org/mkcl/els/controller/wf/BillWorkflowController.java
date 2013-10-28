@@ -2367,109 +2367,109 @@ public class BillWorkflowController extends BaseController {
 		List<TextDraft> revisedAnnexuresForAmendingBill = this.updateDraftsOfGivenType(domain, "revised_annexureForAmendingBill", request);
 		domain.setRevisedAnnexuresForAmendingBill(revisedAnnexuresForAmendingBill);
 		
-		/**** Update Print Requisition ****/
-		if(domain.getStatus().getType().equals(ApplicationConstants.BILL_FINAL_ADMISSION) 
-				&& domain.getInternalStatus().getType().equals(ApplicationConstants.BILL_FINAL_ADMISSION) 
-				//&& domain.getRecommendationStatus().getType().equals(ApplicationConstants.BILL_PROCESSED_SENDTOSECTIONOFFICER)
-				&& (workflowDetails.getAssigneeUserGroupType().equals(ApplicationConstants.ASSISTANT)
-						|| workflowDetails.getAssigneeUserGroupType().equals(ApplicationConstants.SECTION_OFFICER))) {
-			Map<String, String> printRequisitionIdentifiers = new HashMap<String, String>();
-			printRequisitionIdentifiers.put("requisitionFor", ApplicationConstants.BILL_PRESS_COPY);
-			printRequisitionIdentifiers.put("deviceId", String.valueOf(domain.getId()));
-			printRequisitionIdentifiers.put("status", ApplicationConstants.BILL_FINAL_ADMISSION);
-			PrintRequisition printRequisition = PrintRequisition.findByFieldNames(PrintRequisition.class, printRequisitionIdentifiers, domain.getLocale());			
-			Map<String, String> fields = new HashMap<String, String>();
-			if(printRequisition!=null) {
-				fields = printRequisition.getFields();
-				if(fields==null) {
-					fields = new HashMap<String, String>();
-				}
-			}
-			@SuppressWarnings("rawtypes")
-			Enumeration paramNames = request.getParameterNames();
-			if (paramNames != null) {
-				while (paramNames.hasMoreElements()) {
-					String paramName = (String) paramNames.nextElement();
-					if(paramName.startsWith(ApplicationConstants.BILL_PRESS_COPY)) {						
-						String paramValue = request.getParameter(paramName);
-						if ((paramValue != null)) {
-							if(paramValue.isEmpty()){
-								if(fields.containsKey(paramName)){
-									fields.remove(paramName);
-								}
-							}
-							else {
-								fields.put(paramName.split("#")[1], paramValue);
-							}
-						}
-					}
-				}
-			}
-			if(printRequisition!=null) {
-				printRequisition.setFields(fields);
-				if(request.getParameter("docketReportEnglish")!=null) {
-					printRequisition.setDocketReportEnglish(request.getParameter("docketReportEnglish"));
-				}
-				if(request.getParameter("docketReportMarathi")!=null) {
-					printRequisition.setDocketReportMarathi(request.getParameter("docketReportMarathi"));
-				}
-				if(request.getParameter("docketReportHindi")!=null) {
-					printRequisition.setDocketReportHindi(request.getParameter("docketReportHindi"));
-				}				 
-				if(request.getParameterValues("optionalFieldsForDocket")!=null) {
-					String optionalFieldsForDocket = "";
-					for(int i=0; i<request.getParameterValues("optionalFieldsForDocket").length;i++) {
-						if(i==request.getParameterValues("optionalFieldsForDocket").length-1) {
-							optionalFieldsForDocket += request.getParameterValues("optionalFieldsForDocket")[i];
-						} else {
-							optionalFieldsForDocket += request.getParameterValues("optionalFieldsForDocket")[i] + "#";
-						}
-					}
-					if(!optionalFieldsForDocket.isEmpty()) {
-						printRequisition.setOptionalFieldsForDocket(optionalFieldsForDocket);
-					} else {
-						printRequisition.setOptionalFieldsForDocket(null);
-					}
-				}
-				printRequisition.merge();
-			} else {
-				printRequisition = new PrintRequisition();
-				printRequisition.setRequisitionFor(ApplicationConstants.BILL_PRESS_COPY);
-				printRequisition.setDeviceId(String.valueOf(domain.getId()));
-				printRequisition.setStatus(ApplicationConstants.BILL_FINAL_ADMISSION);
-				for(Entry i:fields.entrySet()) {
-					System.out.println(i.getKey()+": "+i.getValue());
-				}
-				printRequisition.setFields(fields);
-				if(request.getParameter("docketReportEnglish")!=null) {
-					printRequisition.setDocketReportEnglish(request.getParameter("docketReportEnglish"));
-				}
-				if(request.getParameter("docketReportMarathi")!=null) {
-					printRequisition.setDocketReportMarathi(request.getParameter("docketReportMarathi"));
-				}
-				if(request.getParameter("docketReportHindi")!=null) {
-					printRequisition.setDocketReportHindi(request.getParameter("docketReportHindi"));
-				}
-				if(request.getParameterValues("optionalFieldsForDocket")!=null) {
-					String optionalFieldsForDocket = "";
-					for(int i=0; i<request.getParameterValues("optionalFieldsForDocket").length;i++) {
-						if(i==request.getParameterValues("optionalFieldsForDocket").length-1) {
-							optionalFieldsForDocket = request.getParameterValues("optionalFieldsForDocket")[i];
-						} else {
-							optionalFieldsForDocket = request.getParameterValues("optionalFieldsForDocket")[i] + "#";
-						}
-					}
-					if(!optionalFieldsForDocket.isEmpty()) {
-						printRequisition.setOptionalFieldsForDocket(optionalFieldsForDocket);
-					} else {
-						printRequisition.setOptionalFieldsForDocket(null);
-					}
-				}
-				printRequisition.setLocale(domain.getLocale());
-				printRequisition.setVersion(new Long(0));
-				printRequisition.persist();
-			}
-		}
+//		/**** Update Print Requisition ****/
+//		if(domain.getStatus().getType().equals(ApplicationConstants.BILL_FINAL_ADMISSION) 
+//				&& domain.getInternalStatus().getType().equals(ApplicationConstants.BILL_FINAL_ADMISSION) 
+//				//&& domain.getRecommendationStatus().getType().equals(ApplicationConstants.BILL_PROCESSED_SENDTOSECTIONOFFICER)
+//				&& (workflowDetails.getAssigneeUserGroupType().equals(ApplicationConstants.ASSISTANT)
+//						|| workflowDetails.getAssigneeUserGroupType().equals(ApplicationConstants.SECTION_OFFICER))) {
+//			Map<String, String> printRequisitionIdentifiers = new HashMap<String, String>();
+//			printRequisitionIdentifiers.put("requisitionFor", ApplicationConstants.BILL_PRESS_COPY);
+//			printRequisitionIdentifiers.put("deviceId", String.valueOf(domain.getId()));
+//			printRequisitionIdentifiers.put("status", ApplicationConstants.BILL_FINAL_ADMISSION);
+//			PrintRequisition printRequisition = PrintRequisition.findByFieldNames(PrintRequisition.class, printRequisitionIdentifiers, domain.getLocale());			
+//			Map<String, String> fields = new HashMap<String, String>();
+//			if(printRequisition!=null) {
+//				fields = printRequisition.getFields();
+//				if(fields==null) {
+//					fields = new HashMap<String, String>();
+//				}
+//			}
+//			@SuppressWarnings("rawtypes")
+//			Enumeration paramNames = request.getParameterNames();
+//			if (paramNames != null) {
+//				while (paramNames.hasMoreElements()) {
+//					String paramName = (String) paramNames.nextElement();
+//					if(paramName.startsWith(ApplicationConstants.BILL_PRESS_COPY)) {						
+//						String paramValue = request.getParameter(paramName);
+//						if ((paramValue != null)) {
+//							if(paramValue.isEmpty()){
+//								if(fields.containsKey(paramName)){
+//									fields.remove(paramName);
+//								}
+//							}
+//							else {
+//								fields.put(paramName.split("#")[1], paramValue);
+//							}
+//						}
+//					}
+//				}
+//			}
+//			if(printRequisition!=null) {
+//				printRequisition.setFields(fields);
+//				if(request.getParameter("docketReportEnglish")!=null) {
+//					printRequisition.setDocketReportEnglish(request.getParameter("docketReportEnglish"));
+//				}
+//				if(request.getParameter("docketReportMarathi")!=null) {
+//					printRequisition.setDocketReportMarathi(request.getParameter("docketReportMarathi"));
+//				}
+//				if(request.getParameter("docketReportHindi")!=null) {
+//					printRequisition.setDocketReportHindi(request.getParameter("docketReportHindi"));
+//				}				 
+//				if(request.getParameterValues("optionalFieldsForDocket")!=null) {
+//					String optionalFieldsForDocket = "";
+//					for(int i=0; i<request.getParameterValues("optionalFieldsForDocket").length;i++) {
+//						if(i==request.getParameterValues("optionalFieldsForDocket").length-1) {
+//							optionalFieldsForDocket += request.getParameterValues("optionalFieldsForDocket")[i];
+//						} else {
+//							optionalFieldsForDocket += request.getParameterValues("optionalFieldsForDocket")[i] + "#";
+//						}
+//					}
+//					if(!optionalFieldsForDocket.isEmpty()) {
+//						printRequisition.setOptionalFieldsForDocket(optionalFieldsForDocket);
+//					} else {
+//						printRequisition.setOptionalFieldsForDocket(null);
+//					}
+//				}
+//				printRequisition.merge();
+//			} else {
+//				printRequisition = new PrintRequisition();
+//				printRequisition.setRequisitionFor(ApplicationConstants.BILL_PRESS_COPY);
+//				printRequisition.setDeviceId(String.valueOf(domain.getId()));
+//				printRequisition.setStatus(ApplicationConstants.BILL_FINAL_ADMISSION);
+//				for(Entry i:fields.entrySet()) {
+//					System.out.println(i.getKey()+": "+i.getValue());
+//				}
+//				printRequisition.setFields(fields);
+//				if(request.getParameter("docketReportEnglish")!=null) {
+//					printRequisition.setDocketReportEnglish(request.getParameter("docketReportEnglish"));
+//				}
+//				if(request.getParameter("docketReportMarathi")!=null) {
+//					printRequisition.setDocketReportMarathi(request.getParameter("docketReportMarathi"));
+//				}
+//				if(request.getParameter("docketReportHindi")!=null) {
+//					printRequisition.setDocketReportHindi(request.getParameter("docketReportHindi"));
+//				}
+//				if(request.getParameterValues("optionalFieldsForDocket")!=null) {
+//					String optionalFieldsForDocket = "";
+//					for(int i=0; i<request.getParameterValues("optionalFieldsForDocket").length;i++) {
+//						if(i==request.getParameterValues("optionalFieldsForDocket").length-1) {
+//							optionalFieldsForDocket = request.getParameterValues("optionalFieldsForDocket")[i];
+//						} else {
+//							optionalFieldsForDocket = request.getParameterValues("optionalFieldsForDocket")[i] + "#";
+//						}
+//					}
+//					if(!optionalFieldsForDocket.isEmpty()) {
+//						printRequisition.setOptionalFieldsForDocket(optionalFieldsForDocket);
+//					} else {
+//						printRequisition.setOptionalFieldsForDocket(null);
+//					}
+//				}
+//				printRequisition.setLocale(domain.getLocale());
+//				printRequisition.setVersion(new Long(0));
+//				printRequisition.persist();
+//			}
+//		}
 		
 		/**** preserve fields not in form for specific actors in specific workflows  ****/
 		if(workflowDetails.getWorkflowType().equals(ApplicationConstants.TRANSLATION_WORKFLOW)
