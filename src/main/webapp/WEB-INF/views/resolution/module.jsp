@@ -333,7 +333,7 @@
 			<c:if test="${deviceTypeType == 'resolutions_nonofficial'}">
 			<security:authorize access="hasAnyRole('ROIS_ASSISTANT', 'ROIS_UNDERSECRETARY',
 				'ROIS_DEPUTY_SECRETARY', 'ROIS_PRINCIPALSECRETARY', 'ROIS_JOINT_SECRETARY',
-				'ROIS_SECRETARY', 'ROIS_OFFICER_ON_SPECIAL_DUTY', 'ROIS_SECTION_OFFICER', 
+				'ROIS_SECRETARY', 'ROIS_OFFICER_ON_SPECIAL_DUTY','ROIS_SPEAKER','ROIS_CHAIRMAN', 'ROIS_SECTION_OFFICER', 
 				'ROIS_UNDER_SECRETARY_COMMITTEE','SUPER_ADMIN')">
 			<li>
 				<a id="chart_tab" href="#" class="tab">

@@ -731,7 +731,7 @@
 		</c:otherwise>
 	</c:choose>	
 	<p>
-	<a href="#" id="viewCitation" style="margin-left: 162px;margin-top: 30px;"><spring:message code="question.viewcitation" text="View Citations"></spring:message></a>	
+	<a href="#" id="viewCitation" style="margin-left: 162px;margin-top: 30px;"><spring:message code="resolution.viewcitation" text="View Citations"></spring:message></a>	
 	</p>
 	
 	<p>
