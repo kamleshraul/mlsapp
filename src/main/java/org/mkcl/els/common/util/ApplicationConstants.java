@@ -619,9 +619,9 @@ public class ApplicationConstants {
 	
 	public static String RIS_MEMBER_WISE_REPORT2="RIS_MEMBER_WISE_REPORT2";
 
-	public static String MAIN_HEADING="mainHeading";
-	
 	public static String PAGE_HEADING="pageHeading";
+	
+	public static String MAIN_HEADING="mainHeading";
 	
 	/****Custom Parameters name ****/
 	public static final String RESOLUTION_CHART_WITHDEVICES_VIEW = "RESOLUTION_CHART_WITHDEVICES_VIEW";
