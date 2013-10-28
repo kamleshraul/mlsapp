@@ -141,10 +141,10 @@
 
 <h2>
 	<c:choose>
-		<c:when test="${workflowName eq 'committeeMemberAdditionRequestToParliamentaryAffairsMinister'}">
+		<c:when test="${workflowName eq 'committeeMemberAdditionRequestToParliamentaryAffairsMinister_workflow'}">
 			<spring:message code="committee.requestToParliamentaryMinister" text="Request to Parliamentary Minister"/>
 		</c:when>
-		<c:when test="${workflowName eq 'committeeMemberAdditionRequestToLeaderOfOpposition'}">
+		<c:when test="${workflowName eq 'committeeMemberAdditionRequestToLeaderOfOpposition_workflow'}">
 			<spring:message code="committee.requestToLeaderOfOpposition" text="Request to Leader of Opposition"/>
 		</c:when>
 	</c:choose>
