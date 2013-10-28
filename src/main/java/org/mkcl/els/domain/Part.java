@@ -3,6 +3,7 @@ package org.mkcl.els.domain;
 import java.io.Serializable;
 import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
@@ -160,6 +161,11 @@ public class Part  extends BaseDomain implements Serializable{
 		
 	public static List<PartDraft> findRevision(final Long partId, final String locale){
 		return getPartRepository().findRevision(partId, locale);
+	}
+	
+	public static List<Part> findInterruptedProceedingInRoster(Roster roster,
+			Locale locale) {
+		return getPartRepository().findInterruptedProceedingInRoster(roster,locale);
 	}
 
 	/****Getters and Setters****/
@@ -369,6 +375,8 @@ public class Part  extends BaseDomain implements Serializable{
 	public void setIsInterrupted(Boolean isInterrupted) {
 		this.isInterrupted = isInterrupted;
 	}
+
+	
 	
 	
 }

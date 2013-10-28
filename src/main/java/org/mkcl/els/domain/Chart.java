@@ -2739,11 +2739,11 @@ class ResolutionChart {
 		
 		Integer memberResolutions = Chart.getChartRepository().findResolutionsCount(member, 
 				chart.getSession(), chart.getDeviceType(), new Status[]{}, chart.getLocale());
-		
+		Status REPEATREJECTED=Status.findByType(ApplicationConstants.RESOLUTION_FINAL_REPEATREJECTION,chart.getLocale());
 		Status REJECTED = Status.findByType(
 				ApplicationConstants.RESOLUTION_FINAL_REJECTION, chart.getLocale());
 		Integer rejected = Chart.getChartRepository().findResolutionsCount(member, 
-				chart.getSession(), chart.getDeviceType(), new Status[]{ REJECTED }, 
+				chart.getSession(), chart.getDeviceType(), new Status[]{ REJECTED,REPEATREJECTED }, 
 				chart.getLocale());
 		
 		if(memberResolutions - rejected <= maxNoOfResolutions) {
