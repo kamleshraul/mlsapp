@@ -321,9 +321,7 @@
 			+ '&memberReportType=' + $("#selectedMemberReport").val()
 			+ '&pageheader=' + $("#selectedPageheader").val();
 			
-			if(i==0){
-				$("#undoCount").val((parseInt($("#undoCount").val()) + 1));	
-			}
+			$("#undoCount").val((parseInt($("#undoCount").val()) + 1));				
 			
 			$.blockUI({ message: '<img src="./resources/images/waitAnimated.gif" />' });
 			
@@ -348,6 +346,7 @@
 					$.unblockUI();
 				}else{
 					$.unblockUI();
+					$("#undoCount").val((parseInt($("#undoCount").val()) - 1));	
 				}
 			}).fail(function(){
 				$.unblockUI();
@@ -577,18 +576,20 @@
 			<div id="reeditDiv" style="display: inline-block; float: right; margin-right: 5px;"><a href="javascript:void(0);" id="re_edit"><img src="./resources/images/refresh.png" class="imgI" alt="Re-Edit" width="24px" title="<spring:message code='editing.reedit' text='Re-edit' />" /></a></div>
 		</c:if>
 	</div>
-	<div id="replaceToolDiv">
-		<form action="editing/replace" method="post">
-			<label style="margin: 0px 10px 0px 10px;"><spring:message code="editing.replace.searchTerm" text="Find" /></label><input type="text" id="searchTerm" name="searchTerm" value="${searchTerm}" style="border-radius: 3px; border: 1px solid #000080;" />
-			<label style="margin: 0px 10px 0px 10px;"><spring:message code="editing.replace.replaceTerm" text="Replace With" /></label><input type="text" id="replaceTerm" name="replaceTerm" value="${replaceTerm}"  style="border-radius: 3px; border: 1px solid #000080;"/>
-			<a href="javascript:void(0);" id="replaceAll" style="width: 70px; border: 1px solid #000080; text-decoration: none; text-align: center; color: #000080; padding: 1px; border-radius: 5px;"><spring:message code='editing.replace.replaceAll' text='Replace'></spring:message></a>
-			<a href="javascript:void(0);" id="undo"><img src="./resources/images/undo.png" width="16px" /></a>&nbsp;&nbsp;<a href="javscript:void(0);" id="redo" style="display: none;"><img src=""/></a>
-			<input type="hidden" name="undoCount" id="undoCount" value="${undoCount}" />
-			<input type="hidden" name="uniqueIdentifierForUndo" id="uniqueIdentifierForUndo" value="" />
-			<input type="hidden" name="redoCount" id="redoCount" value="${redoCount}" />
-			<input type="hidden" name="uniqueIdentifierForRedo" id="uniqueIdentifierForRedo" value="" />
-		</form> 
-	</div> 
+	<c:if test="${action=='edit'}">
+		<div id="replaceToolDiv">
+			<form action="editing/replace" method="post">
+				<label style="margin: 0px 10px 0px 10px;"><spring:message code="editing.replace.searchTerm" text="Find" /></label><input type="text" id="searchTerm" name="searchTerm" value="${searchTerm}" style="border-radius: 3px; border: 1px solid #000080;" />
+				<label style="margin: 0px 10px 0px 10px;"><spring:message code="editing.replace.replaceTerm" text="Replace With" /></label><input type="text" id="replaceTerm" name="replaceTerm" value="${replaceTerm}"  style="border-radius: 3px; border: 1px solid #000080;"/>
+				<a href="javascript:void(0);" id="replaceAll" style="width: 70px; border: 1px solid #000080; text-decoration: none; text-align: center; color: #000080; padding: 1px; border-radius: 5px;"><spring:message code='editing.replace.replaceAll' text='Replace'></spring:message></a>
+				<a href="javascript:void(0);" id="undo"><img src="./resources/images/undo.png" width="16px" /></a>&nbsp;&nbsp;<a href="javscript:void(0);" id="redo" style="display: none;"><img src=""/></a>
+				<input type="hidden" name="undoCount" id="undoCount" value="${undoCount}" />
+				<input type="hidden" name="uniqueIdentifierForUndo" id="uniqueIdentifierForUndo" value="" />
+				<input type="hidden" name="redoCount" id="redoCount" value="${redoCount}" />
+				<input type="hidden" name="uniqueIdentifierForRedo" id="uniqueIdentifierForRedo" value="" />
+			</form> 
+		</div> 
+	</c:if>
 </div>	
 <div id="zoomImgDiv" style="display: none; position: fixed; right: 0; top: 160px; background: scroll repeat-x; height: 64px; z-index: 10000; box-shadow: 0px 2px 5px #888;">
 	<img id="zoomImg" src="" height="64px" />
