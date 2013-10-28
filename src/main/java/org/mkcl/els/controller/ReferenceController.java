@@ -3445,6 +3445,39 @@ public class ReferenceController extends BaseController {
 
 		return autoCompleteVOs;
 	}
+
+	
+	
+	@RequestMapping(value="/getInterruptedProceedings",method=RequestMethod.GET)
+	public @ResponseBody List<MasterVO> getInterruptedProceeding(final HttpServletRequest request, final Locale locale,final ModelMap model){
+		String strSlot=request.getParameter("currentSlot");
+		String strSearchBy=request.getParameter("searchBy");
+		List<MasterVO> masterVOs=new ArrayList<MasterVO>();
+		if(strSlot!=null &&	!strSlot.isEmpty() && strSearchBy!=null &&!strSearchBy.isEmpty()){
+			Slot slot=Slot.findById(Slot.class, Long.parseLong(strSlot));
+			if(slot!=null){
+				Roster roster=slot.getRoster();
+				List<Part> parts=Part.findInterruptedProceedingInRoster(roster,locale);
+				if(!parts.isEmpty()){
+					for(Part p:parts){
+						if(p.getMainHeading()!=null && !p.getMainHeading().isEmpty() &&
+						   p.getPageHeading()!=null && !p.getPageHeading().isEmpty()){
+							MasterVO masterVo=new MasterVO();
+							if(strSearchBy.equals(ApplicationConstants.PAGE_HEADING)){
+								masterVo.setName(p.getPageHeading());
+							}else if(strSearchBy.equals(ApplicationConstants.MAIN_HEADING)){
+								masterVo.setName( p.getMainHeading());
+							}
+							masterVo.setValue(p.getMainHeading()+"#"+p.getPageHeading());
+							masterVOs.add(masterVo);
+						}
+					}
+				}
+			}
+		}
+		return masterVOs;
+	}
+
 	
 	@RequestMapping(value="/bill/actors",method=RequestMethod.POST)
 	public @ResponseBody List<Reference> findActorsForBill(final HttpServletRequest request,final ModelMap model,
@@ -4055,4 +4088,5 @@ public class ReferenceController extends BaseController {
 		}
 		return billId;
 	}
+>>>>>>> .r13652
 }
