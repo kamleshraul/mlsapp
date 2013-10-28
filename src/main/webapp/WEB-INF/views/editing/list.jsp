@@ -6,6 +6,7 @@
 	<script type="text/javascript">	
 		$(document).ready(function(){
 			$(".toolTip").hide();
+			$("#selectedMember").val(0);
 			/**** grid params which is sent to load grid data being sent ****/		
 			$("#gridURLParams").val('houseType='+$("#selectedHouseType").val()
 					+'&sessionYear='+$("#selectedSessionYear").val()
@@ -15,7 +16,7 @@
 					);
 			
 			
-			$("#unedited_copy").click(function(){
+			/* $("#unedited_copy").click(function(){
 				showUneditedProceeding();
 			});
 			$("#compiled_copy").click(function(){
@@ -27,7 +28,7 @@
 			
 			$("#edit_copy").click(function(){
 				showEditProceeding();
-			});
+			}); */
 			
 		});	
 		function rowSelectHandler(rowid,status){			
@@ -49,13 +50,13 @@
 	<div>
 	<div class="commandbar">
 		<div class="commandbarContent">
-			<security:authorize access="hasAnyRole('EDIS_EDITOR','EDIS_CHIEF_EDITOR')">
+			<security:authorize access="hasAnyRole('xyz')">
 				<a href="#" id="unedited_copy" class="butSim">
 					<spring:message code="editor.unedited" text="Unedited Copy"/>
-				</a> |
+				</a><div style="display: inline;" id="compileDiv">|
 				<a href="#" id="compiled_copy" class="butSim">
-				<spring:message code="editor.compiled" text="Compiled Copy"/>
-				</a> |
+					<spring:message code="editor.compiled" text="Compiled Copy"/>
+				</a></div>|
 				<a href="#" id="edited_copy" class="butSim">
 					<spring:message code="editor.edited" text="Edited Copy"/>
 				</a> |			

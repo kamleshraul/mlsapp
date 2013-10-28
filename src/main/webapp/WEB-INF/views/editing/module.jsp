@@ -6,7 +6,16 @@
 	<title><spring:message code="roster.list" text="List Of Rosters"/></title>
 	<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
 	<script type="text/javascript">
-		$(document).ready(function(){	
+		function hideEditingFilters(){
+			$("#memberDiv").hide();
+			$("#memberReportTypeDiv").hide();
+			$("#pageHeadingDiv").hide();
+			$("#selectedReportType").val(0);
+			$("#compileDiv").show();
+		}
+		$(document).ready(function(){
+			/****Hide editing filters****/
+			hideEditingFilters();
 			/*Tooltip*/
 			$(".toolTip").hide();					
 			/**** here we are trying to add date mask in grid search when field names ends with date ****/
@@ -53,9 +62,36 @@
 				}			
 			});	
 			
+			$("#selectedMember").change(function(e){
+				$("#selectedMemberReport").val(0);
+				$("#pageHeadingDiv").hide();
+				if($(this).val()!='-'){
+					$("#memberReportTypeDiv").show();
+				}else{
+					$("#memberReportTypeDiv").hide();
+				}
+			});
+			
+			/****Editor functions****/
+			$("#unedited_copy").click(function(){
+				showUneditedProceeding();
+			});
+			$("#compiled_copy").click(function(){
+				showProceedingInGeneral("compile", "false");
+			});
+			$("#edited_copy").click(function(){
+				showProceedingInGeneral("edited", "false");
+			});
+			
+			$("#edit_copy").click(function(){
+				showProceedingInGeneral("edit", "false");
+			});
+			/****Editor Functions****/
+			
 			/**** List Tab ****/
 			$('#list_tab').click(function(){
 				showRosterList(); 	
+				hideEditingFilters();
 			}); 
 			/***** Details Tab ****/
 			$('#details_tab').click(function(){
@@ -63,11 +99,49 @@
 			}); 	
 				
 			/**** show roster list method is called by default.****/
-			showRosterList();				
+			showRosterList();	
+			
+			/********/
+			$("#selectedReportType").change(function(e){
+				var value=$(this).val();
+				if(value!='-'){
+					if(value=='member'){
+						loadMember();
+						$("#pageHeadingDiv").hide();
+						$("#memberDiv").show();
+						$("#compileDiv").hide();
+					}else if(value=='pageheading'){
+						$("#memberDiv").hide();
+						$("#memberReportTypeDiv").hide();
+						$("#pageHeadingDiv").show();	
+						$("#compileDiv").show();
+						loadPageHeading();
+					}
+				}else{
+					$("#pageHeadingDiv").hide();
+					$("#memberDiv").hide();
+					$("#memberReportTypeDiv").hide();
+					$("#compileDiv").show();
+				}
+			});
+			
+			$("#selectedMemberReport").change(function(){
+				var value=$(this).val();
+				if(value!='-'){
+					if(value=='member' || value=='asmember'){
+						$("#pageHeadingDiv").hide();
+					}else if(value=='pageheading'){
+						loadMemberPageHeading();
+						$("#pageHeadingDiv").show();
+					}
+				}else{
+					$("#pageHeadingDiv").hide();
+				}
+			});
 		});
 		/**** displaying grid ****/					
 		function showRosterList() {
-				$("#selectionDiv1").show();				
+				//$("#selectionDiv1").show();				
 				showTabByIdAndUrl('list_tab','editing/list?houseType='+$('#selectedHouseType').val()
 						+$("#selectedSessionYear").val()
 						+'&sessionType='+$("#selectedSessionType").val()
@@ -77,72 +151,133 @@
 		}
 		
 		function showUneditedProceeding(){
-			$("#selectionDiv1").hide();
+			//$("#selectionDiv1").hide();
 			var params="houseType=" + $('#selectedHouseType').val()
 			+ '&sessionYear=' + $("#selectedSessionYear").val()
 			+ '&sessionType=' + $("#selectedSessionType").val()
 			+ '&language=' + $("#selectedLanguage").val()
-			+ '&day=' +$('#selectedDay').val();
+			+ '&day=' +$('#selectedDay').val()
+			+'&reportType=other';
 			
+			//$("#selectionDiv1").hide();
 			showTabByIdAndUrl('details_tab', 'proceeding/rosterwisereport?'+params);
 		}
 		
 		function showCompiledProceeding(){
-			$("#selectionDiv1").hide();
+			//$("#selectionDiv1").hide();
 			var params="houseType=" + $('#selectedHouseType').val()
 			+ '&sessionYear=' + $("#selectedSessionYear").val()
 			+ '&sessionType=' + $("#selectedSessionType").val()
 			+ '&language=' + $("#selectedLanguage").val()
 			+ '&day=' +$('#selectedDay').val()
 			+ '&action=compile'
-			+ '&reedit=false';
+			+ '&reedit=false'
+			+ '&reportType=other';
 			
+			//$("#selectionDiv1").hide();
 			showTabByIdAndUrl('details_tab', 'editing/compiledreport?'+params);
 		}
 		
 		function showEditedProceeding(){
-			$("#selectionDiv1").hide();
-			var params="houseType=" + $('#selectedHouseType').val()
-			+ '&sessionYear=' + $("#selectedSessionYear").val()
-			+ '&sessionType=' + $("#selectedSessionType").val()
-			+ '&language=' + $("#selectedLanguage").val()
-			+ '&day=' +$('#selectedDay').val()
-			+ '&action=edited'
-			+ '&reedit=false';
+
+			var params="";
+			if($("#selectedMember").val()=='-'){
+				params="houseType=" + $('#selectedHouseType').val()
+				+ '&sessionYear=' + $("#selectedSessionYear").val()
+				+ '&sessionType=' + $("#selectedSessionType").val()
+				+ '&language=' + $("#selectedLanguage").val()
+				+ '&day=' +$('#selectedDay').val()
+				+ '&action=edited'
+				+ '&reedit=false'
+				+ '&reportType=other';
+			}else if($("#selectedMember").val()!='-'){
+				params="houseType=" + $('#selectedHouseType').val()
+				+ '&sessionYear=' + $("#selectedSessionYear").val()
+				+ '&sessionType=' + $("#selectedSessionType").val()
+				+ '&language=' + $("#selectedLanguage").val()
+				+ '&day=' +$('#selectedDay').val()
+				+ '&action=edited'
+				+ '&reedit=false'
+				+ '&reportType=member'
+				+ '&member='+ $("#selectedMember").val();
+			}
 			
+			//$("#selectionDiv1").hide();
 			showTabByIdAndUrl('details_tab', 'editing/compiledreport?'+params);
 		}
 		
 		function showEditProceeding(){
-			$("#selectionDiv1").hide();
-			var params="houseType=" + $('#selectedHouseType').val()
-			+ '&sessionYear=' + $("#selectedSessionYear").val()
-			+ '&sessionType=' + $("#selectedSessionType").val()
-			+ '&language=' + $("#selectedLanguage").val()
-			+ '&day=' +$('#selectedDay').val()
-			+ '&action=edit'
-			+ '&reedit=false';
 			
+			var params="";
+			if($("#selectedMember").val()=='-'){
+				params="houseType=" + $('#selectedHouseType').val()
+				+ '&sessionYear=' + $("#selectedSessionYear").val()
+				+ '&sessionType=' + $("#selectedSessionType").val()
+				+ '&language=' + $("#selectedLanguage").val()
+				+ '&day=' +$('#selectedDay').val()
+				+ '&action=edit'
+				+ '&reportType=other'
+				+ '&reedit=false';
+			}else if($("#selectedMember").val()!='-'){
+				params="houseType=" + $('#selectedHouseType').val()
+				+ '&sessionYear=' + $("#selectedSessionYear").val()
+				+ '&sessionType=' + $("#selectedSessionType").val()
+				+ '&language=' + $("#selectedLanguage").val()
+				+ '&day=' +$('#selectedDay').val()
+				+ '&action=edit'
+				+ '&reedit=false'
+				+ '&reportType=member'
+				+ '&member='+ $("#selectedMember").val();
+			}
+			console.log(params);
+			//$("#selectionDiv1").hide();
 			showTabByIdAndUrl('details_tab', 'editing/compiledreport?'+params);
 		}		
 		
 		function showReEditProceeding(){
-			
-			$("#selectionDiv1").hide();
-			var params="houseType=" + $('#selectedHouseType').val()
-			+ '&sessionYear=' + $("#selectedSessionYear").val()
-			+ '&sessionType=' + $("#selectedSessionType").val()
-			+ '&language=' + $("#selectedLanguage").val()
-			+ '&day=' +$('#selectedDay').val()
-			+ '&action=edit'
-			+ '&reedit=true';
-			
+			var params="";
+			if($("#selectedMember").val()=='-'){
+				params="houseType=" + $('#selectedHouseType').val()
+				+ '&sessionYear=' + $("#selectedSessionYear").val()
+				+ '&sessionType=' + $("#selectedSessionType").val()
+				+ '&language=' + $("#selectedLanguage").val()
+				+ '&day=' +$('#selectedDay').val()
+				+ '&action=edit'
+				+ '&reportType=other'
+				+ '&reedit=true';
+			}else if($("#selectedMember").val()!='-'){
+				params="houseType=" + $('#selectedHouseType').val()
+				+ '&sessionYear=' + $("#selectedSessionYear").val()
+				+ '&sessionType=' + $("#selectedSessionType").val()
+				+ '&language=' + $("#selectedLanguage").val()
+				+ '&day=' +$('#selectedDay').val()
+				+ '&action=edit'
+				+ '&reportType=member'
+				+ '&reedit=true'
+				+ '&member='+ $("#selectedMember").val();
+			}
+			//$("#selectionDiv1").hide();
 			showTabByIdAndUrl('details_tab', 'editing/compiledreport?'+params);
 		}
 		
+		function showProceedingInGeneral(command,reedit){
+			params="houseType=" + $('#selectedHouseType').val()
+			+ '&sessionYear=' + $("#selectedSessionYear").val()
+			+ '&sessionType=' + $("#selectedSessionType").val()
+			+ '&language=' + $("#selectedLanguage").val()
+			+ '&day=' + $('#selectedDay').val()
+			+ '&action=' + command
+			+ '&reportType=' + $("#selectedReportType").val()
+			+ '&reedit=' + reedit
+			+ '&member='+ $("#selectedMember").val()
+			+ '&memberReportType=' + $("#selectedMemberReport").val()
+			+ '&pageheader=' + $("#selectedPageheader").val();
+			
+			showTabByIdAndUrl('details_tab', 'editing/compiledreport?'+params);
+		}
 		/**** double clicking record in grid handler ****/		
 		function rowDblClickHandler(rowid, iRow, iCol, e) {
-			$("#selectionDiv1").hide();				
+			//$("#selectionDiv1").hide();				
 			$("#cancelFn").val("rowDblClickHandler");			
 			$('#key').val(rowid);
 			//showTabByIdAndUrl('details_tab', 'roster/'+rowid+'/edit?'+$("#gridURLParams").val());
@@ -161,6 +296,103 @@
 				newURL=baseURL+"?"+$("#gridURLParams").val();
 				$("#grid").setGridParam({"url":newURL});
 				$("#grid").trigger("reloadGrid");							
+		}
+		
+		function loadMember(){
+			var params="houseType=" + $('#selectedHouseType').val()
+						+ '&sessionYear=' + $("#selectedSessionYear").val()
+						+ '&sessionType=' + $("#selectedSessionType").val()
+						+ '&language=' + $("#selectedLanguage").val()
+						+ '&day=' +$('#selectedDay').val();
+			
+			$.get('ref/partmembers?'+params,function(data){
+				if(data.length>0){
+					var text="<option value='-' selected='selected'>"+$("#pleaseSelect").val()+"</option>";
+					var i;
+					for(i=0; i < data.length; i++){
+						text +="<option value='"+data[i].id+"'>"+data[i].name+"</option>";
+					}
+					$("#selectedMember").empty();
+					$("#selectedMember").html(text);
+					
+					loadMembersReportTypes();
+				}
+			}).fail(function(){
+				
+			});			
+		}
+		
+		function loadMembersReportTypes(){
+			var params="houseType=" + $('#selectedHouseType').val()
+			+ '&sessionYear=' + $("#selectedSessionYear").val()
+			+ '&sessionType=' + $("#selectedSessionType").val()
+			+ '&language=' + $("#selectedLanguage").val()
+			+ '&day=' +$('#selectedDay').val();
+
+			$.get('ref/memberreporttype?'+params,function(data){
+				if(data.length>0){
+					var text="<option value='-' selected='selected'>"+$("#pleaseSelect").val()+"</option>";
+					var i;
+					for(i=0; i < data.length; i++){
+						text +="<option value='"+data[i].value+"'>"+data[i].name+"</option>";
+					}
+					$("#selectedMemberReport").empty();
+					$("#selectedMemberReport").html(text);
+				}
+			}).fail(function(){
+				
+			});		
+		}
+		
+		function loadPageHeading(){
+			var params="houseType=" + $('#selectedHouseType').val()
+			+ '&sessionYear=' + $("#selectedSessionYear").val()
+			+ '&sessionType=' + $("#selectedSessionType").val()
+			+ '&language=' + $("#selectedLanguage").val()
+			+ '&day=' +$('#selectedDay').val();
+
+			$.get('ref/reportpageheading?'+params,function(data){
+				if(data.length>0){
+					var text="<option value='-' selected='selected'>"+$("#pleaseSelect").val()+"</option>";
+					var i;
+					for(i=0; i < data.length; i++){
+						if(data[i].name!=''){
+							text +="<option value='"+data[i].id+"'>"+data[i].name+"</option>";
+						}
+					}
+					$("#selectedPageheader").empty();
+					$("#selectedPageheader").html(text);
+				}
+			}).fail(function(){
+				
+			});	
+		}
+		
+		function loadMemberPageHeading(){
+			var params="houseType=" + $('#selectedHouseType').val()
+			+ '&sessionYear=' + $("#selectedSessionYear").val()
+			+ '&sessionType=' + $("#selectedSessionType").val()
+			+ '&language=' + $("#selectedLanguage").val()
+			+ '&day=' +$('#selectedDay').val()
+			+ '&member='+ $("#selectedMember").val();
+
+			$.get('ref/memberreportpageheading?'+params,function(data){
+				var text="<option value='-' selected='selected'>"+$("#pleaseSelect").val()+"</option>";
+				if(data.length>0){					
+					var i;
+					for(i=0; i < data.length; i++){
+						if(data[i].name!=''){
+							text +="<option value='"+data[i].id+"'>"+data[i].name+"</option>";
+						}
+					}
+					$("#selectedPageheader").empty();
+					$("#selectedPageheader").html(text);
+				}else{
+					$("#selectedPageheader").html(text);
+				}
+			}).fail(function(){
+				
+			});	
 		}
 	</script>
 </head>
@@ -253,7 +485,60 @@
 				<c:forEach items="${days}" var="i">
 					<option value="${i.number}"><c:out value="${i.value}"></c:out></option>
 				</c:forEach> 
-			</select> |								
+			</select> 
+			<div>
+				<security:authorize access="hasAnyRole('EDIS_EDITOR','EDIS_CHIEF_EDITOR')">
+					<div>
+						<br />
+						<a href="#" id="select_reporttype" class="butSim">
+							<spring:message code="editing.reporttype" text="Copy Type"/>
+						</a>
+						<select name="selectedReportType" id="selectedReportType" style="width:100px;height: 25px;">
+							<option value="-" selected="selected"><spring:message code="please.select" text="Please Select" /></option>
+							<c:forEach items="${reportTypes}" var="i">
+								<option value="${i.value}">${i.name}</option>
+							</c:forEach>
+						</select> |
+						<div style="display: inline;" id="memberDiv">
+							<a href="#" id="select_member" class="butSim">
+								<spring:message code="editing.member" text="Member"/>
+							</a>
+							<select name="selectedMember" id="selectedMember" style="width:100px;height: 25px;">
+								<option value="-" selected="selected"><spring:message code="please.select" text="Please Select" /></option>
+							</select> |
+						</div>
+						<div style="display: inline;" id="memberReportTypeDiv">
+							<a href="#" id="select_memberreport" class="butSim">
+								<spring:message code="editing.member.report" text="Member's Report"/>
+							</a>
+							<select name="selectedMemberReport" id="selectedMemberReport" style="width:100px;height: 25px;">
+								<option value="-" selected="selected"><spring:message code="please.select" text="Please Select" /></option>
+							</select> |
+						</div>
+						<div id="pageHeadingDiv" style="display: inline;">
+							<a href="#" id="select_pageheader" class="butSim">
+								<spring:message code="editing.pageheader" text="Page Header"/>
+							</a>
+							<select name="selectedPageheader" id="selectedPageheader" style="width:100px;height: 25px;">
+								<option value="-" selected="selected"><spring:message code="please.select" text="Please Select" /></option>
+							</select> |
+						</div>
+					</div>		
+					<br />
+					<a href="#" id="unedited_copy" class="butSim">
+						<spring:message code="editor.unedited" text="Unedited Copy"/>
+					</a><div style="display: inline;" id="compileDiv">|
+					<a href="#" id="compiled_copy" class="butSim">
+						<spring:message code="editor.compiled" text="Compiled Copy"/>
+					</a></div>|
+					<a href="#" id="edited_copy" class="butSim">
+						<spring:message code="editor.edited" text="Edited Copy"/>
+					</a> |			
+					<a href="#" id="edit_copy" class="butSim">
+						<spring:message code="editor.edit" text="Editing"/>
+					</a> |
+				</security:authorize>		
+			</div>
 			<hr>							
 		</div>				
 		
