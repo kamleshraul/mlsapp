@@ -4292,6 +4292,7 @@ public class BillController extends GenericController<Bill> {
 							if(cstpDeploymentServer.getValue().equals("TOMCAT")){
 								decodedHouseType = new String(strHouseType.getBytes("ISO-8859-1"), "UTF-8");
 								strSessionYear = new String(strSessionYear.getBytes("ISO-8859-1"), "UTF-8");
+								strSessionType = new String(strSessionType.getBytes("ISO-8859-1"), "UTF-8");
 							}							
 						} catch (UnsupportedEncodingException e) {
 							
@@ -4306,9 +4307,17 @@ public class BillController extends GenericController<Bill> {
 				}
 				
 				model.addAttribute("houseType", houseType.getType());
-				
-				SessionType sessionType = SessionType.findById(SessionType.class, Long.valueOf(strSessionType));
-				model.addAttribute("sessionType", sessionType.getSessionType());
+				SessionType sessionType = null;
+				try {
+					sessionType = SessionType.findById(SessionType.class, Long.valueOf(strSessionType));
+				} catch(Exception e) {
+					if(sessionType==null) {
+						sessionType = SessionType.findByFieldName(SessionType.class, "sessionType", strSessionType, locale.toString());
+					}
+				}
+				if(sessionType!=null) {
+					model.addAttribute("sessionType", sessionType.getSessionType());
+				}				
 				
 				Integer sessionYear = Integer.valueOf(strSessionYear);
 				model.addAttribute("sessionYear", sessionYear);
