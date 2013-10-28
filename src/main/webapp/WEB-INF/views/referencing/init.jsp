@@ -197,7 +197,7 @@
 			if(toBeSearched!=''){
 				if((toBeSearched==previousSearchTerm)&&(previousSearchCount==record)){	
 					if(/*/^questions_/.test(currentDeviceType)*/currentDeviceType.contains('questions')){
-						$.post('refentity/search',{param:$("#searchvalue").val(),question:$("#questionId").val(), houseType:$("#houseTypeType").val(), questionSessionYear:$("#refSessionYear").val(),questionSessionType:$("#refSessionType").val(),record:record,start:start},function(data){
+						$.post('refentity/search',{param:$("#searchrefvalue").val(),question:$("#questionId").val(), houseType:$("#houseTypeType").val(), questionSessionYear:$("#refSessionYear").val(),questionSessionType:$("#refSessionType").val(),record:record,start:start},function(data){
 							if(data.length>0){
 								var text="";	
 								for(var i=0;i<data.length;i++){
