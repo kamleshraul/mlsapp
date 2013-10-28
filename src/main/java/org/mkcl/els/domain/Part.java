@@ -17,6 +17,7 @@ import javax.persistence.OneToOne;
 import javax.persistence.Table;
 
 import org.codehaus.jackson.annotate.JsonIgnoreProperties;
+import org.mkcl.els.common.exception.ELSException;
 import org.mkcl.els.repository.PartRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Configurable;
@@ -166,6 +167,18 @@ public class Part  extends BaseDomain implements Serializable{
 	public static List<Part> findInterruptedProceedingInRoster(Roster roster,
 			Locale locale) {
 		return getPartRepository().findInterruptedProceedingInRoster(roster,locale);
+	}
+	
+	public static List<Part> findAllPartOfProceedingOfRoster(final Roster roster, final String locale) throws ELSException{
+		return getPartRepository().findAllPartOfProceedingOfRoster(roster, locale);
+	}
+	
+	public static List<Part> findAllPartRosterSearchTerm(final Roster roster, String searchTerm, final String locale) throws ELSException{
+		return getPartRepository().findAllPartRosterSearchTerm(roster, searchTerm, locale);
+	}
+	
+	public static List findAllEligibleForReplacement(final Roster roster, String searchTerm, String replaceTerm, String locale){
+		return getPartRepository().findAllEligibleForReplacement(roster, searchTerm, replaceTerm, locale);
 	}
 
 	/****Getters and Setters****/
@@ -375,8 +388,6 @@ public class Part  extends BaseDomain implements Serializable{
 	public void setIsInterrupted(Boolean isInterrupted) {
 		this.isInterrupted = isInterrupted;
 	}
-
-	
 	
 	
 }
