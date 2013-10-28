@@ -22,6 +22,20 @@
 			border: 1px solid #888888; 
 		}
 		
+		.bookmarkKey{
+			margin-left: 162px;
+			margin-top: 30px;
+		}
+		
+		.fields ul{
+			background: none !important;
+			background: white !important;
+		}
+		
+		.searchBy{
+			width:60px;
+			font-size: 12px;
+		}
 	</style>
 	<script type="text/javascript">
 	
@@ -34,6 +48,9 @@
 	var lineCount=1;
 	var maxHeight = '';
 		$(document).ready(function(){
+			$(document).click(function(){
+				 $('#interruptProceedingDiv').css('display','none');
+			});
 			$('.halfHourDiscussionFromQuestion').hide();
 			$('.starredQuestion').hide();
 			currentRowId=$('#lastPart').val();
@@ -70,7 +87,9 @@
 			});
 			
 			$('#previousLink').click(function(){
-				previousPart();
+				var prevId=$('#lastPart').val();
+				showTabByIdAndUrl('part_tab','proceeding/part/'+prevId+'/edit');
+				//previousPart();
 			});
 			
 			$('#nextLink').click(function(){
@@ -146,20 +165,16 @@
 							
 							var key="";
 							if(keycode.length>2){
-								console.log("keycode[2]"+keycode[2]);
 								e.preventDefault();
 								key=keycode;
 							}
 													
 							if(key!=""){
-							console.log("current Content Length:"+currentContent.length);
-							console.log("Main Content Length:"+mainContent.length);
-							
+													
 							if(currentContent.length>mainContent.length){
 								
 								currentContent=currentContent.replace(/<br>/g,"");
 								var lookupContent=currentContent.substring(mainContent.length);
-								console.log("lookupContent:"+lookupContent);
 								if(lookupContent!=""){
 									$.get("ref/search?key="+key+"&term="+lookupContent,function(data){
 										 $("#autosuggest_menu").empty();
@@ -194,10 +209,9 @@
 					
 				    controls:{
 						fullscreen: {
-							/*groupIndex: 12,*/
 							visible: true,
 							hotkey:{
-								"ctrl":1|0,
+								"ctrl":1,
 								"key":122
 							},
 							exec: function () {
@@ -339,12 +353,76 @@
 			$('#resetPageHeading').click(function(){
 				$('#pageHeading').wysiwyg('setContent',"");
 			});
+			
+			
+		
+
+			 /**** Right Click Menu ****/
+			$(".bookmarkKey").contextMenu({
+		        menu: 'contextMenuItems'
+		    	},
+		        function(action, el, pos) {
+				var id=$(el).attr("id");
+				if(action=='viewBookmarkDetails'){
+					viewBookmarkDetail(id);	
+				}
+			});	
+				
+			$('#interruptedProceeding').click(function(){
+				$('#searchBy').toggle();
+			});
+			
+			$('#searchBy').change(function(){
+				$.get('ref/getInterruptedProceedings?currentSlot='+$('#currentSlot').val()+"&searchBy="+$(this).val(),function(data){
+					var text="";
+					if(data.length>0){
+					 for(var i=0;i<data.length;i++){
+						 text=text+"<option value='"+data[i].value +"'>"+data[i].name+"</option>"; 
+						//text=text+"<li><a href='#"+data[i].value+"'>"+data[i].name+"</a></li>";
+					 }
+					 $('#iProceeding').html(text);
+					 $('#iProceeding').attr("size",data.length);
+					 $('#interruptProceedingDiv').css('left','469px');
+					 $('#interruptProceedingDiv').css('top','245px');
+					 $('#interruptProceedingDiv').css('display','block');
+					}
+					
+				});
+			});
+			
+			$('#iProceeding').change(function(){
+				var strAction=$(this).val().split("#");
+				$('#mainHeading').wysiwyg('setContent',strAction[1]);
+				$('#pageHeading').wysiwyg('setContent',strAction[0]);
+				$('.mainHeadingP').show();
+				$('.pageHeadingP').show();
+			});
+			/* $('#interruptedProceeding').contextMenu({
+			        menu: 'iProceeding'
+		    		},
+		       	 function(action, el, pos) {
+					//var id=$(el).attr("id");
+					var strAction=action.split('#');
+				$('#mainHeading').wysiwyg('setContent',strAction[1]);
+				$('#pageHeading').wysiwyg('setContent',strAction[0]);
+				$('.mainHeadingP').show();
+				$('.pageHeadingP').show();
+			});	 */
+			 
 			$("#deviceType").prepend("<option value='' selected='selected'>----"+$("#pleaseSelectMessage").val()+"----</option>");
 			$("#substituteMemberMinistry").prepend("<option value='' selected='selected'>----"+$("#pleaseSelectMessage").val()+"----</option>");				
 			$("#primaryMemberMinistry").prepend("<option value='' selected='selected'>----"+$("#pleaseSelectMessage").val()+"----</option>");				
 			$("#primaryMemberDesignation").prepend("<option value='' selected='selected'>----"+$("#pleaseSelectMessage").val()+"----</option>");
 			$("#substituteMemberDesignation").prepend("<option value='' selected='selected'>----"+$("#pleaseSelectMessage").val()+"----</option>");
 		});
+		
+		function viewBookmarkDetail(id){
+			var params="id="+id;
+			$.get('proceeding/part/viewbookmark?'+params,function(data){
+			    $.fancybox.open(data, {autoSize: false, width: 800, height:600});
+		    },'html');					
+			
+		}
 		
 	</script>
 </head>
@@ -366,6 +444,12 @@
 			
 			
 			<span style="margin-left: 20px;">
+			<a href='#' id="interruptedProceeding"><img src="./resources/images/IcoInterruptProceeding.png" title="Interrupted Proceeding" class="imageLink" /></a>
+			<select id="searchBy" class="sSelect searchBy" style="display: none;">
+				<option class="searchBy" selected="selected" value='pageHeading'><spring:message code="part.pageHeading"/></option>
+				<option class="searchBy" value='mainHeading'><spring:message code="part.mainHeading"/></option>
+			</select>
+			
 			<a href="#" id="mainHeadingLink"><img src="./resources/images/IcoMainHeading.jpg" title="Main Heading" class="imageLink" /></a>
 			<a href="#"  id="pageHeadingLink"><img src="./resources/images/IcoPageHeading.jpg" title="Page Heading" class="imageLink" /></a>
 			<a href="#" id="addBookmark" class="addBookmark" ><img src="./resources/images/IcoBookMark.jpg" class="imageLink" title="Bookmark" /></a>
@@ -375,7 +459,7 @@
 			<a href='#' id="ministerLink"><img src="./resources/images/IcoMinister.jpg" title="Minister"  class="imageLink"/></a>
 			<a href='#' id="publicLink"><img src="./resources/images/IcoPublicRepresentative.jpg" title="Public" class="imageLink" /></a>
 			<a href='#' id="substituteLink"><img src="./resources/images/IcoSubstitute.jpg" title="In place of" class="imageLink"/></a>
-			<span style="min-width:100px; margin-right: 170px;">&nbsp;</span>
+			<span style="min-width:80px; margin-right: 100px;">&nbsp;</span>
 			<span style="text-align: right;">
 			<a href="#" id="previousLink"><img src="./resources/images/IcoBack.jpg" title="Previous Part" class="imageLink"  /></a>
 			<input type="text" id="orderNoInput" name="orderNoInput" style="width: 60px"/>
@@ -386,9 +470,16 @@
 	</h2>
 	
 	
-	<p>
+	<p style="height: 20px">
 		<c:forEach items="${bookmarks}" var="i">
-			<a href="#" id="${i.id}##${i.bookmarkKey}" class="bookmarkKey" style="margin-left: 162px;margin-top: 30px;">${i.bookmarkKey}</a> 
+			<c:choose>
+				<c:when test="${i.textToBeReplaced!=null and i.textToBeReplaced!=''}">
+					<a href="#" id="${i.id}##${i.bookmarkKey}" class="bookmarkKey" style="color:green;">${i.bookmarkKey}</a>
+				</c:when>
+				<c:otherwise>
+					<a href="#" id="${i.id}##${i.bookmarkKey}" class="bookmarkKey" style="color: red;">${i.bookmarkKey}</a>
+				</c:otherwise>
+			</c:choose>
 		</c:forEach>
 	</p>
 	<p>
@@ -510,7 +601,7 @@
 	<form:hidden path="proceeding" value="${proceeding}"/>
 	<%-- <input type="hidden" id="proceeding" name="proceeding" value="${proceeding}"/> --%>
 	<input type="hidden" id="deviceId" name="deviceId"/>
-	<input type="hidden" name="currentSlot" value="${currentSlot}"/>
+	<input type="hidden" id="currentSlot" name="currentSlot" value="${currentSlot}"/>
 	<input type="hidden" id="currentSlotName" name="currentSlotName" value="${slotName}"/>
 	
 	<div class="fields">
@@ -521,12 +612,22 @@
 	</div>	
 	<div style="border: 2px solid black; position:absolute; z-index: 2000; display:none;" id="shiftDiv">
 		<select size="5" id="autosuggest_menu">
-		
 		</select> 
+	</div>
+	<div id="interruptProceedingDiv" style="height:auto;width:400px; display:none; border:1px solid black; padding:5px; border-radius:5px; box-shadow:2px 2px 5px; position:absolute;"> 
+		<select id="iProceeding" style="width:400px;">
+		</select>
 	</div>	
+		
+	
 </form:form>
 <input type="hidden" id="session" value="${session}"/>
-
+<ul id="contextMenuItems" >
+	<li><a href="#viewBookmarkDetails" class="edit"><spring:message code="proceeding.viewBookmarkDetails" text="viewDetails"></spring:message></a></li>
+</ul>
+<!-- <ul id="iProceeding">
+	<li></li>
+</ul> -->
 <input id="selectItemFirstMessage" value="<spring:message code='ris.selectitem' text='Select an item first'/>" type="hidden">
 <input type="hidden" id="lastPart" name="lastPart" value="${lastPartId}"/>
 <input id="pleaseSelectMessage" value="<spring:message code='please.select' text='Please Select'/>" type="hidden">

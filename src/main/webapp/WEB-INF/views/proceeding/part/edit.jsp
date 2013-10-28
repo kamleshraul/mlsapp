@@ -22,6 +22,16 @@
 			border: 1px solid #888888; 
 		}
 		
+		.bookmarkKey{
+			margin-left: 162px;
+			margin-top: 30px;
+		}
+		
+		.searchBy{
+			width:60px;
+			font-size: 12px;
+		}
+		
 	</style>
 	<script type="text/javascript">
 
@@ -331,6 +341,58 @@
 				$('#pageHeading').wysiwyg('setContent',"");
 			});
 			
+			 /**** Right Click Menu ****/
+			$(".bookmarkKey").contextMenu({
+		        menu: 'contextMenuItems'
+		    	},
+		        function(action, el, pos) {
+				var id=$(el).attr("id");
+				if(action=='viewBookmarkDetails'){
+					viewBookmarkDetail(id);	
+				}
+			});	
+			 
+			$('#formattedMember').change(function(){
+				$('#memberImage').attr("src","ref/getphoto?memberId="+$('#primaryMember').val());
+				$('#memberPhoto').css("display","inline");
+				
+			});
+			
+			
+			$('#interruptedProceeding').click(function(){
+				$('#searchBy').toggle();
+			});
+			
+			$(document).click(function(){
+				 $('#interruptProceedingDiv').css('display','none');
+			});
+			
+			$('#searchBy').change(function(){
+				$.get('ref/getInterruptedProceedings?currentSlot='+$('#cSlot').val()+"&searchBy="+$(this).val(),function(data){
+					var text="";
+					if(data.length>0){
+					 for(var i=0;i<data.length;i++){
+						 text=text+"<option value='"+data[i].value +"'>"+data[i].name+"</option>"; 
+						//text=text+"<li><a href='#"+data[i].value+"'>"+data[i].name+"</a></li>";
+					 }
+					 $('#iProceeding').html(text);
+					 $('#iProceeding').attr("size",data.length);
+					 $('#interruptProceedingDiv').css('left','469px');
+					 $('#interruptProceedingDiv').css('top','245px');
+					 $('#interruptProceedingDiv').css('display','block');
+					}
+					
+				});
+			});
+			
+			
+			$('#iProceeding').change(function(){
+				var strAction=$(this).val().split("#");
+				$('#mainHeading').wysiwyg('setContent',strAction[1]);
+				$('#pageHeading').wysiwyg('setContent',strAction[0]);
+				$('#mainHeadingP').css('display','block');
+				$('#pageHeadingP').css('display','block');
+			});
 		});
 		function getIframeSelectionText(iframe) {
 			  var win = iframe.contentWindow;
@@ -341,7 +403,15 @@
 			  } else if (doc.selection && doc.selection.createRange) {
 			    return doc.selection.createRange().text;
 			  }
-			}
+		}
+		
+		function viewBookmarkDetail(id){
+			var params="id="+id;
+			$.get('proceeding/part/viewbookmark?'+params,function(data){
+			    $.fancybox.open(data, {autoSize: false, width: 800, height:600});
+		    },'html');					
+			
+		}
 	</script>
 </head>
 
@@ -350,7 +420,12 @@
 <form:form action="proceeding/part" method="PUT" modelAttribute="domain">
 	<%@ include file="/common/info.jsp" %>
 	<h2><spring:message code="part.edit.heading" text="Part:ID"/>(${domain.id })		
-		<span style="margin-left: 300px;">
+		<span style="margin-left: 200px;">
+				<a href='#' id="interruptedProceeding"><img src="./resources/images/IcoInterruptProceeding.png" title="Interrupted Proceeding" class="imageLink" /></a>
+				<select id="searchBy" class="sSelect searchBy" style="display: none;">
+					<option class="searchBy" selected="selected" value='pageHeading'><spring:message code="part.pageHeading"/></option>
+					<option class="searchBy" value='mainHeading'><spring:message code="part.mainHeading"/></option>
+				</select>
 				<a href="#" id="mainHeadingLink"><img src="./resources/images/IcoMainHeading.jpg" title="Main Heading" class="imageLink" /></a>
 				<a href="#"  id="pageHeadingLink"><img src="./resources/images/IcoPageHeading.jpg" title="Page Heading"class="imageLink" /></a>
 				<a href="#" id="addBookmark" class="addBookmark" ><img src="./resources/images/IcoBookMark.jpg" title="Bookmark" class="imageLink" /></a>
@@ -373,7 +448,14 @@
 	</h2>
 	<p>
 		<c:forEach items="${bookmarks}" var="i">
-			<a href="#" id="${i.id}##${i.bookmarkKey}" class="bookmarkKey" style="margin-left: 162px;margin-top: 30px;">${i.bookmarkKey}</a> 
+			<c:choose>
+				<c:when test="${i.textToBeReplaced!=null and i.textToBeReplaced!=''}">
+					<a href="#" id="${i.id}##${i.bookmarkKey}" class="bookmarkKey" style="color:green;">${i.bookmarkKey}</a>
+				</c:when>
+				<c:otherwise>
+					<a href="#" id="${i.id}##${i.bookmarkKey}" class="bookmarkKey" style="color: red;">${i.bookmarkKey}</a>
+				</c:otherwise>
+			</c:choose>
 		</c:forEach>
 	</p>
 	<p>
@@ -394,6 +476,9 @@
 		<input type="text" name="formattedMember" id="formattedMember" class="autosuggest sText" value="${formattedPrimaryMember}"/>
 		<%-- <form:hidden path="primaryMember" value="${primaryMember}"/> --%>
 		<input type="hidden" id="primaryMember" name="primaryMember" value="${primaryMember}">
+		<div id="memberPhoto" style=" display: none;">
+			<img src="" id="memberImage" style="width:60px; margin-right: 445px; float:right; margin-top: -72px; border-radius: 5px; box-shadow: 1px 1px 5px black;"/> 
+		</div>
 	</p>
 	<p>
 		<label class="small"><spring:message code="part.order" text="Order"/></label>
@@ -548,7 +633,15 @@
 		
 		</select> 
 	</div>	
+	
+	<div id="interruptProceedingDiv" style="height:auto;width:400px; display:none; border:1px solid black; padding:5px; border-radius:5px; box-shadow:2px 2px 5px; position:absolute;"> 
+		<select id="iProceeding" style="width:400px;">
+		</select>
+	</div>	
 </form:form>
+<ul id="contextMenuItems" >
+	<li><a href="#viewBookmarkDetails" class="edit"><spring:message code="proceeding.viewBookmarkDetails" text="viewDetails"></spring:message></a></li>
+</ul>
 <input type="hidden" id="session" value="${session}"/>
 <input id="selectItemFirstMessage" value="<spring:message code='ris.selectitem' text='Select an item first'/>" type="hidden">
 <input id="addBookmarkMessage" value="<spring:message code='client.prompt.updateText' text='Do you want to add the Text for the Bookmark.'></spring:message>" type="hidden">
