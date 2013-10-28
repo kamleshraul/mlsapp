@@ -344,6 +344,15 @@ public class RosterRepository extends BaseRepository<Roster, Serializable>{
 
 	public Boolean deleteExistingSlots(final Long rosterId,final Date startTime,final Date endTime) {
 		try {
+			String strquery1="DELETE FROM proceedings  WHERE slot IN(SELECT id " +
+					"FROM slots  WHERE roster=:roster AND start_time>=:startTime" +
+					" AND  end_time<=:endTime)";
+			Query query1=this.em().createNativeQuery(strquery1);
+			query1.setParameter("roster",rosterId);
+			query1.setParameter("startTime",startTime);
+			query1.setParameter("endTime",endTime);
+			query1.executeUpdate();
+			
 			String strQuery="DELETE FROM Slot s WHERE s.roster.id=:roster AND s.startTime>=:startTime" +
 			" and s.endTime<=:endTime";
 			Query query=this.em().createQuery(strQuery);
