@@ -476,7 +476,7 @@
 			</security:authorize>
 			<security:authorize access="hasAnyRole('MEMBER_LOWERHOUSE','MEMBER_UPPERHOUSE')">		
 				<input id="submit" type="submit" value="<spring:message code='generic.submit' text='Submit'/>" class="butDef">
-				<input id="submitresolution" type="button" value="<spring:message code='resolution.resolution.submitResolution' text='Submit resolution'/>" class="butDef">
+				<input id="submitresolution" type="button" value="<spring:message code='resolution.submitResolution' text='Submit resolution'/>" class="butDef">
 				<input id="cancel" type="button" value="<spring:message code='generic.cancel' text='Cancel'/>" class="butDef">
 			</security:authorize>
 			
