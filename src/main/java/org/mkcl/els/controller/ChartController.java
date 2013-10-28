@@ -285,13 +285,12 @@ public class ChartController extends BaseController{
 						obj = null;
 						rejectedResolutions = null;
 					}
+					
+					List newList = getSimplifiedChart(resolutionNonOfficialChartView);
+					List extraMembers = org.mkcl.els.domain.Query.findReport("RESOLUTION_CHART_VIEW_2", parametersMap);
+					newList.addAll(extraMembers);
+					model.addAttribute("report", newList);
 				}
-				
-				List newList = getSimplifiedChart(resolutionNonOfficialChartView);
-				List extraMembers = org.mkcl.els.domain.Query.findReport("RESOLUTION_CHART_VIEW_2", parametersMap);
-				newList.addAll(extraMembers);
-				
-				model.addAttribute("report", newList);
 				
 			}else if(deviceType.getType().equals(ApplicationConstants.STARRED_QUESTION)){
 				//chartVOs = Chart.getChartVOs(session, group, answeringDate, deviceType, locale.toString());				
@@ -403,6 +402,7 @@ public class ChartController extends BaseController{
 		
 		Map<String, List<Object[]>> chartMap = new HashMap<String, List<Object[]>>();
 		Object[] objArr = null;
+		if(chartList!=null){
 		for(Object o : chartList){
 			objArr = (Object[]) o;
 			List<Object[]> lo;
@@ -417,6 +417,7 @@ public class ChartController extends BaseController{
 			chartMap.put(objArr[0].toString(), lo);
 		}
 		
+		}
 		List<Object[]> newList = new ArrayList<Object[]>();
 		List<Integer> tempList = new ArrayList<Integer>();
 		
