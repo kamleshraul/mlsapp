@@ -394,8 +394,8 @@
 				var strAction=$(this).val().split("#");
 				$('#mainHeading').wysiwyg('setContent',strAction[1]);
 				$('#pageHeading').wysiwyg('setContent',strAction[0]);
-				$('.mainHeadingP').show();
-				$('.pageHeadingP').show();
+				$('#mainHeadingP').css('display','block');
+				$('#pageHeadingP').css('display','block');
 			});
 			/* $('#interruptedProceeding').contextMenu({
 			        menu: 'iProceeding'
