@@ -1,6 +1,7 @@
 package org.mkcl.els.controller;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -9,6 +10,8 @@ import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
 
+import org.apache.commons.collections.iterators.EntrySetMapIterator;
+import org.hibernate.mapping.Array;
 import org.mkcl.els.common.util.ApplicationConstants;
 import org.mkcl.els.common.util.FormaterUtil;
 import org.mkcl.els.common.vo.ChartVO;
@@ -243,12 +246,13 @@ public class ChartController extends BaseController{
 				
 				Chart chart = Chart.find(new Chart(session, deviceType, locale.toString()));
 				List resolutionNonOfficialChartView = null;
+				Map<String, String[]> parametersMap = new HashMap<String, String[]>();
 				
 				if(chart != null){
 					Status rejectionStatus = Status.findByType(ApplicationConstants.RESOLUTION_FINAL_REJECTION, locale.toString());
 					Status repeatRejectionStatus = Status.findByType(ApplicationConstants.RESOLUTION_FINAL_REPEATREJECTION, locale.toString());
 					MemberRole memberRole=MemberRole.find(session.getHouse().getType(), ApplicationConstants.MEMBER, locale.toString());
-					Map<String, String[]> parametersMap = new HashMap<String, String[]>();
+					
 					parametersMap.put("locale", new String[]{locale.toString()});
 					parametersMap.put("sessionId", new String[]{session.getId().toString()});
 					parametersMap.put("houseId", new String[]{session.getHouse().getId().toString()});
@@ -283,7 +287,11 @@ public class ChartController extends BaseController{
 					}
 				}
 				
-				model.addAttribute("report", resolutionNonOfficialChartView);
+				List newList = getSimplifiedChart(resolutionNonOfficialChartView);
+				List extraMembers = org.mkcl.els.domain.Query.findReport("RESOLUTION_CHART_VIEW_2", parametersMap);
+				newList.addAll(extraMembers);
+				
+				model.addAttribute("report", newList);
 				
 			}else if(deviceType.getType().equals(ApplicationConstants.STARRED_QUESTION)){
 				//chartVOs = Chart.getChartVOs(session, group, answeringDate, deviceType, locale.toString());				
@@ -391,4 +399,50 @@ public class ChartController extends BaseController{
 		return retVal;
 	}
 	
+	private List getSimplifiedChart(List chartList){
+		
+		Map<String, List<Object[]>> chartMap = new HashMap<String, List<Object[]>>();
+		Object[] objArr = null;
+		for(Object o : chartList){
+			objArr = (Object[]) o;
+			List<Object[]> lo;
+			
+			lo = chartMap.get(objArr[0].toString());
+			if(lo == null){
+				lo = new ArrayList<Object[]>();
+			}
+			
+			lo.add(objArr);			
+			
+			chartMap.put(objArr[0].toString(), lo);
+		}
+		
+		List<Object[]> newList = new ArrayList<Object[]>();
+		List<Integer> tempList = new ArrayList<Integer>();
+		
+		
+		for(Map.Entry<String,List<Object[]>> o: chartMap.entrySet()){
+			int currSmall = Integer.valueOf(o.getValue().get(0)[4].toString()).intValue();
+			tempList.add(currSmall);
+		}
+		Collections.sort(tempList);
+		
+		List<List<Object[]>> finalList = new ArrayList<List<Object[]>>();
+		for(Integer i : tempList){
+			for(Map.Entry<String,List<Object[]>> o: chartMap.entrySet()){
+				Integer matched = Integer.valueOf(o.getValue().get(0)[4].toString());
+				if(i.equals(matched)){
+					finalList.add(o.getValue());
+				}
+			}
+		}
+		
+		for(List<Object[]> obj : finalList){
+			for(Object[] ob : obj){
+				newList.add(ob);
+			}
+		}			
+		
+		return newList;
+	}
 }
