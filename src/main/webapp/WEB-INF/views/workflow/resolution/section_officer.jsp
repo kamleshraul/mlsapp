@@ -878,7 +878,7 @@
 	<p>
 	<a href="#" id="viewCitation" style="margin-left: 162px;margin-top: 30px;"><spring:message code="resolution.viewcitation" text="View Citations"></spring:message></a>	
 	</p>
-	<c:if test="${internalStatusType == 'resolution_final_rejection'}">
+	<c:if test="${internalStatusType == 'resolution_final_rejection' || internalStatusType == 'resolution_final_repeatrejection'}">
 	<p>
 	<label class="wysiwyglabel"><spring:message code="resolution.rejectionReason" text="Rejection reason"/></label>
 	<form:textarea path="rejectionReason" cssClass="wysiwyg"></form:textarea>
