@@ -167,7 +167,7 @@
 		var resourceURL='ref/motion/actors?'+params;
 	    var sendback=$("#internalStatusMaster option[value='motion_recommend_sendback']").text();			
 	    var discuss=$("#internalStatusMaster option[value='motion_recommend_discuss']").text();		
-		$.post(resourceURL,function(data){
+	    $.post(resourceURL,function(data){
 			if(data!=undefined||data!=null||data!=''){
 				var length=data.length;
 				$("#actor").empty();
@@ -369,7 +369,7 @@
 				    $("#endFlag").val("end");
 				    $("#actor").empty();
 					$("#actorDiv").hide();
-			    }else if(statusType=="motion_processed_rejectionReasonUpdated"){
+			    }else if(statusType=="motion_processed_rejectionWithReason"){
 			    	   	 $("#recommendationStatus").val(value);
 					    $("#endFlag").val("end");
 					    $("#actor").empty();
