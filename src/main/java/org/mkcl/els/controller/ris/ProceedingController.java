@@ -189,7 +189,7 @@ public class ProceedingController extends GenericController<Proceeding>{
 		Slot slot=domain.getSlot();
 		List<Bookmark> bk=new ArrayList<Bookmark>();
 		List<Bookmark> bookmarks=Bookmark.findAllByFieldName(Bookmark.class, "slot", slot, "bookmarkKey", "asc", domain.getLocale());
-		if(bookmarks.isEmpty()){
+		//if(bookmarks.isEmpty()){
 			List<Bookmark> bookmarks1=Bookmark.findAllByFieldName(Bookmark.class, "language", domain.getSlot().findLanguage(), "id", "asc", domain.getLocale());
 			for(Bookmark b:bookmarks1){
 				if(b.getSlot()==null){
@@ -206,11 +206,14 @@ public class ProceedingController extends GenericController<Proceeding>{
 				}
 
 			}
+			if(!bookmarks.isEmpty()){
+				bk.addAll(bookmarks);
+			}
 			model.addAttribute("bookmarks", bk);
 
-		}else{
+		/*}else{
 			model.addAttribute("bookmarks", bookmarks);
-		}
+		}*/
 
 		/*CustomParameter customParameter=CustomParameter.findByName(CustomParameter.class, ApplicationConstants.PROCEEDING_SEARCHOPTION, "");
 		if(customParameter!=null){
@@ -538,6 +541,7 @@ public class ProceedingController extends GenericController<Proceeding>{
 			if(slot!=null){
 				/****slot****/
 				model.addAttribute("slotName", slot.getName());
+				model.addAttribute("currentSlot", slot.getId());
 				
 				/****Reporter****/
 				model.addAttribute("reporter", slot.getReporter().getId());
@@ -559,9 +563,10 @@ public class ProceedingController extends GenericController<Proceeding>{
 				
 				/****Bookmarks****/
 				List<Bookmark> bk=new ArrayList<Bookmark>();
-				/*List<Bookmark> bookmarks=Bookmark.findAllByFieldName(Bookmark.class, "slot", slot, "bookmarkKey", "asc", locale.toString());*/
+				
 				/*if(bookmarks.isEmpty()){*/
 					if(proceeding!=null){
+						List<Bookmark> bookmarks=Bookmark.findAllByFieldName(Bookmark.class, "slot", slot, "bookmarkKey", "asc", locale.toString());
 						List<Bookmark> bookmarks1=Bookmark.findAllByFieldName(Bookmark.class, "language", proceeding.getSlot().findLanguage(), "id", "asc", locale.toString());
 						for(Bookmark b:bookmarks1){
 							if(b.getSlot()==null){
@@ -576,7 +581,9 @@ public class ProceedingController extends GenericController<Proceeding>{
 									}
 								}
 							}
-
+						}
+						if(!bookmarks.isEmpty()){
+							bk.addAll(bookmarks);
 						}
 						model.addAttribute("bookmarks", bk);
 					}
@@ -808,7 +815,7 @@ public class ProceedingController extends GenericController<Proceeding>{
 			/****Bookmarks****/
 			List<Bookmark> bk=new ArrayList<Bookmark>();
 			List<Bookmark> bookmarks=Bookmark.findAllByFieldName(Bookmark.class, "slot", slot, "bookmarkKey", "asc", domain.getLocale());
-			if(bookmarks.isEmpty()){
+			//if(bookmarks.isEmpty()){
 				List<Bookmark> bookmarks1=Bookmark.findAllByFieldName(Bookmark.class, "language", domain.getProceeding().getSlot().findLanguage(), "id", "asc", domain.getLocale());
 				for(Bookmark b:bookmarks1){
 					if(b.getSlot()==null){
@@ -823,13 +830,15 @@ public class ProceedingController extends GenericController<Proceeding>{
 							}
 						}
 					}
-
+				}
+				if(!bookmarks.isEmpty()){
+					bk.addAll(bookmarks);
 				}
 				model.addAttribute("bookmarks", bk);
 
-			}else{
+			/*}else{
 				model.addAttribute("bookmarks", bookmarks);
-			}
+			}*/
 		}
 		
 		/****MemberRoles****/
@@ -1093,7 +1102,7 @@ public class ProceedingController extends GenericController<Proceeding>{
 	
 	@RequestMapping(value="/part/bookmark",method=RequestMethod.POST)
 	public  @ResponseBody void addBookmark(final HttpServletRequest request, final Locale locale,final ModelMap model){
-		String strPreviousText=request.getParameter("previousText");
+		//String strPreviousText=request.getParameter("previousText");
 		String strBookmarkKey=request.getParameter("bookmarkKey");
 		String strLanguage=request.getParameter("language");
 		String strPart=request.getParameter("masterPart");
@@ -1103,10 +1112,11 @@ public class ProceedingController extends GenericController<Proceeding>{
 		if(strPart!=null && !strPart.isEmpty()){
 			Part part=Part.findById(Part.class, Long.parseLong(strPart));
 			bookmark.setMasterPart(part);
+			bookmark.setPreviousText(part.getProceedingContent());
 		}
 		
 		/****Previous Text****/
-		if(strPreviousText!=null && !strPreviousText.equals("")){
+	/*	if(strPreviousText!=null && !strPreviousText.equals("")){
 			CustomParameter customParameter=CustomParameter.findByName(CustomParameter.class, "DEPLOYMENT_SERVER", "");
 			String server=null;
 			String param=null;
@@ -1124,7 +1134,7 @@ public class ProceedingController extends GenericController<Proceeding>{
 				}
 			}
 			bookmark.setPreviousText(param);
-		}
+		}*/
 		
 		/****Language****/
 		if(strLanguage!=null && !strLanguage.equals("")){
@@ -1139,7 +1149,7 @@ public class ProceedingController extends GenericController<Proceeding>{
 			String param=null;
 			if(customParameter!=null){
 				server=customParameter.getValue();
-				if(!strPreviousText.isEmpty()){
+				if(!strBookmarkKey.isEmpty()){
 					if(server.equals("TOMCAT")){
 						try {
 							param = new String(strBookmarkKey.getBytes("ISO-8859-1"),"UTF-8");
@@ -1241,6 +1251,9 @@ public class ProceedingController extends GenericController<Proceeding>{
 		String strLanguage=request.getParameter("language");
 		if(strProceeding!=null && !strProceeding.isEmpty()){
 			Proceeding proceeding=Proceeding.findById(Proceeding.class, Long.parseLong(strProceeding));
+			Slot slot=proceeding.getSlot();
+			Roster roster=slot.getRoster();
+			Session session=roster.getSession();
 			if(strLanguage!=null&& !strLanguage.isEmpty()){
 				language=Language.findById(Language.class, Long.parseLong(strLanguage));
 			}
@@ -1250,6 +1263,29 @@ public class ProceedingController extends GenericController<Proceeding>{
 			parametersMap.put("proceedingId", new String[]{proceeding.getId().toString()});
 			List result=Query.findReport(ApplicationConstants.RIS_SLOT_WISE_REPORT, parametersMap);		
 			model.addAttribute("report", result);
+			for(int a=0;a<result.size();a++){
+				Object[] row = (Object[]) result.get(a);
+				/****If the Member who is speaking is Speaker/Chairman/Depy Speaker/Chief Minister The Membername is replaced by 
+				 their memberrole*****/
+				if(row[14]!=null){
+					Member member=Member.findById(Member.class, Long.parseLong(row[14].toString()));
+					List<HouseMemberRoleAssociation> hrma=member.getHouseMemberRoleAssociations();
+					for(HouseMemberRoleAssociation h:hrma){
+						if(h.getHouse().equals(session.getHouse())){
+							MemberRole memberRole=h.getRole();
+							if(memberRole.getType().equals(ApplicationConstants.SPEAKER.toUpperCase())
+									||memberRole.getType().equals(ApplicationConstants.DEPUTY_SPEAKER.toUpperCase())
+									||memberRole.getType().equals(ApplicationConstants.CHAIRMAN.toUpperCase())
+									||memberRole.getType().equals(ApplicationConstants.CHIEF_MINISTER.toUpperCase())
+									||memberRole.getType().equals(ApplicationConstants.DEPUTY_CHAIRMAN.toUpperCase())
+									||memberRole.getType().equals(ApplicationConstants.DEPUTY_CHIEF_MINISTER.toUpperCase())){
+								row[15]="<b>"+memberRole.getName()+"</b>";
+							}
+
+						}
+					}
+				}
+			}
 			List<MasterVO> outputFormats = new ArrayList<MasterVO>();
 			MasterVO pdfFormat = new MasterVO();
 			pdfFormat.setName("PDF");
@@ -1308,12 +1344,12 @@ public class ProceedingController extends GenericController<Proceeding>{
 					for(HouseMemberRoleAssociation h:hrma){
 						if(h.getHouse().equals(session.getHouse())){
 							MemberRole memberRole=h.getRole();
-							if(memberRole.getType().equals(ApplicationConstants.SPEAKER)
-									||memberRole.getType().equals(ApplicationConstants.DEPUTY_SPEAKER)
-									||memberRole.getType().equals(ApplicationConstants.CHAIRMAN)
-									||memberRole.getType().equals(ApplicationConstants.CHIEF_MINISTER)
-									||memberRole.getType().equals(ApplicationConstants.DEPUTY_CHAIRMAN)
-									||memberRole.getType().equals(ApplicationConstants.DEPUTY_CHIEF_MINISTER)){
+							if(memberRole.getType().equals(ApplicationConstants.SPEAKER.toUpperCase())
+									||memberRole.getType().equals(ApplicationConstants.DEPUTY_SPEAKER.toUpperCase())
+									||memberRole.getType().equals(ApplicationConstants.CHAIRMAN.toUpperCase())
+									||memberRole.getType().equals(ApplicationConstants.CHIEF_MINISTER.toUpperCase())
+									||memberRole.getType().equals(ApplicationConstants.DEPUTY_CHAIRMAN.toUpperCase())
+									||memberRole.getType().equals(ApplicationConstants.DEPUTY_CHIEF_MINISTER.toUpperCase())){
 								row[15]="<b>"+memberRole.getName()+"</b>";
 							}
 
@@ -1328,6 +1364,8 @@ public class ProceedingController extends GenericController<Proceeding>{
 						if(row[3].equals(row1[3])){
 							row1[3]=null;
 							row1[9]=null;
+						}else{
+							break;
 						}
 					}
 
@@ -1338,46 +1376,59 @@ public class ProceedingController extends GenericController<Proceeding>{
 			/****If the parts are of same slot then concat the paragraphs of same member under the member name instead of having membername in each part****/
 			for(int i=0; i<tempList1.size(); i++){
 				Object[] row = (Object[]) tempList1.get(i);
+				if(row[14]!=null){
+					row[0]=""+row[15]+" :"+row[0];
+				}
 				int j=i+1;
 				for(;j<tempList1.size();j++){
 					Object[] row1 = (Object[]) tempList1.get(j);
 					if(row[6].equals(row1[6])){
-						if(row[1]!=row1[1] && row[2]!=row1[2]){
-							break;
+						if(row1[1]==null){
+							row1[1]="";
+						}
+						if(row1[2]==null){
+							row1[2]="";
+						}
+						if((!row[1].toString().equals(row1[1].toString()) &&
+								   !row[2].toString().equals(row1[2].toString()))){
+									break;
 						}else{
+							if(row1[9]!=null){
+								row[0]=row[0]+"<p align='center'><b> (अध्यक्षस्थानी माननीय "+ row1[9]+" "+ row1[3]+")</b></p>"; 
+							}
 							if(row1[14]!=null){
 								if(row1[10]!=null){
 									if(row1[11]!=null){
 										if(row1[16]!=null){
 											if(row1[12]!=null){
 												if(row1[13]!=null){
-													row[0]=row[0].toString()+"<p>"+row1[15].toString()+" ( "+row1[11]+""+row1[10]+")"
-															+" ,"+row1[17]+" ( "+row1[13]+" "+row1[12]+" ) "+"यांच्या करिता"+": "+row1[0].toString()+"</p>";
+													row[0]=row[0].toString()+"<p><b>"+row1[15].toString()+" ( "+row1[11]+""+row1[10]+")"
+															+" ,"+row1[17]+" ( "+row1[13]+" "+row1[12]+" )</b> "+"यांच्या करिता"+": "+row1[0].toString()+"</p>";
 												}else{
-													row[0]=row[0].toString()+"<p>"+row1[15].toString()+" ( "+row1[11]+""+row1[10]+")"
-															+" ,"+row1[17]+" ( "+row1[12]+" ) "+"यांच्या करिता"+": "+row1[0].toString()+"</p>";
+													row[0]=row[0].toString()+"<p><b>"+row1[15].toString()+" ( "+row1[11]+""+row1[10]+")"
+															+" ,"+row1[17]+" ( "+row1[12]+" )</b> "+"यांच्या करिता"+": "+row1[0].toString()+"</p>";
 												}
 											}else{
-												row[0]=row[0].toString()+"<p>"+row1[15].toString()+" ( "+row1[11]+""+row1[10]+")"
+												row[0]=row[0].toString()+"<p><b>"+row1[15].toString()+" ( "+row1[11]+""+row1[10]+")</b>"
 														+" ,"+row1[17]+" यांच्या करिता"+": "+row1[0].toString()+"</p>";
 											}
 										}else{
-											row[0]=row[0].toString()+"<p>"+row1[15].toString()+" ( "+row1[11]+""+row1[10]+")"+
+											row[0]=row[0].toString()+"<p><b>"+row1[15].toString()+" ( "+row1[11]+""+row1[10]+")</b>"+
 													": "+row1[0].toString()+"</p>";
 										}
 									}else{
 
-										row[0]=row[0].toString()+"<p>"+row1[15].toString()+" ( "+row1[10]+")"+
+										row[0]=row[0].toString()+"<p><b>"+row1[15].toString()+" ( "+row1[10]+")</b>"+
 												": "+row1[0].toString()+"</p>";
 									}
 								}else{
 									if(row1[16]!=null){
 										if(row1[12]!=null){
 											if(row1[13]!=null){
-												row[0]=row[0].toString()+"<p>"+row1[15].toString()+" ,"+row1[17]+" ( "+row1[13]+" "+row1[12]+" ) "+"यांच्या करिता"+": "+row1[0].toString()+"</p>";
+												row[0]=row[0].toString()+"<p>"+row1[15].toString()+" ,<b>"+row1[17]+" ( "+row1[13]+" "+row1[12]+" )</b> "+"यांच्या करिता"+": "+row1[0].toString()+"</p>";
 											}else{
 												row[0]=row[0].toString()+"<p>"+row1[15].toString()
-														+" ,"+row1[17]+" ( "+row1[12]+" ) "+"यांच्या करिता"+": "+row1[0].toString()+"</p>";
+														+" ,<b>"+row1[17]+" ( "+row1[12]+" )</b> "+"यांच्या करिता"+": "+row1[0].toString()+"</p>";
 											}
 										}else{
 											row[0]=row[0].toString()+"<p>"+row1[15].toString()
@@ -1416,7 +1467,7 @@ public class ProceedingController extends GenericController<Proceeding>{
 				tempList3.add(row);
 			}
 
-			/****Adding the next reporter name to the array****/
+			/****Adding the next reporter name to the array****//*
 			for(int i=0;i<tempList3.size();i++){
 				Object[] row=(Object[]) tempList3.get(i);
 				for(int j=i+1;j<tempList3.size();j++){
@@ -1427,7 +1478,7 @@ public class ProceedingController extends GenericController<Proceeding>{
 					}
 				}
 
-				/****Adding the previous reporter name ****/
+				*//****Adding the previous reporter name ****//*
 				for(int k=i-1;k>=0;k--){
 					Object[] row2=(Object[]) tempList3.get(k);
 					if(row2[6]!=row[6]){
@@ -1438,8 +1489,8 @@ public class ProceedingController extends GenericController<Proceeding>{
 					}
 				}
 				objects.add(row);
-			}
-			Object[] xmlData=new Object[]{objects};
+			}*/
+			Object[] xmlData=new Object[]{tempList3};
 
 			if(!result.isEmpty()){
 				if(reportFormat.equals("WORD")) {
@@ -1503,6 +1554,8 @@ public class ProceedingController extends GenericController<Proceeding>{
 			parametersMap.put("languageId", new String[]{language.getId().toString()});
 			parametersMap.put("rosterId", new String[]{roster.getId().toString()});
 			List result=Query.findReport(ApplicationConstants.PROCEEDING_CONTENT_MERGE_REPORT, parametersMap);		
+			List<Object> tempList2=new ArrayList<Object>();
+			List<Object> objects=new ArrayList<Object>();
 			for(int i=0;i<result.size();i++){
 				Object[] row = (Object[]) result.get(i);
 				if(row[14]!=null){
@@ -1524,11 +1577,47 @@ public class ProceedingController extends GenericController<Proceeding>{
 					}
 				}
 			}
+			
+			for(int i=0;i<result.size();i++){
+				Object[] row1=(Object[]) result.get(i);
+				Object[] row=new Object[row1.length+2];
+				for(int j=0;j<row1.length;j++){
+					row[j]=row1[j];
+				}
+				tempList2.add(row);
+			}
+			/****Adding the next reporter name to the array****/
+			for(int i=0;i<tempList2.size();i++){
+				Object[] row=(Object[]) tempList2.get(i);
+				for(int j=i+1;j<tempList2.size();j++){
+					Object[] row1=(Object[]) tempList2.get(j);
+					if(!row1[6].toString().equals(row[6].toString())){
+						row[22]=row1[18];
+						i=j+1;
+						break;
+					}
+				}
+			}
+
+				/****Adding the previous reporter name ****/
+			for(int i=0;i<tempList2.size();i++){
+				Object[] row=(Object[]) tempList2.get(i);
+				for(int k=i-1;k>=0;k--){
+					Object[] row2=(Object[]) tempList2.get(k);
+					if(!row2[6].toString().equals(row[6].toString())){
+					//	if(row2[10]!=null){
+							row[23]=row2[18];
+							break;
+					//	}
+					}
+				}
+				//objects.add(row);
+			}
 			model.addAttribute("generalNotice", generalNotice);
 			model.addAttribute("mainHeading", mainHeading);
 			model.addAttribute("pageHeading",pageHeading);
 			model.addAttribute("inplaceOf", inplaceOf);
-			model.addAttribute("report", result);
+			model.addAttribute("report", tempList2);
 			List<MasterVO> outputFormats = new ArrayList<MasterVO>();
 			MasterVO pdfFormat = new MasterVO();
 			pdfFormat.setName("PDF");
@@ -1611,13 +1700,16 @@ public class ProceedingController extends GenericController<Proceeding>{
 				for(int b=a+1;b<result.size();b++){
 
 					Object[] row1 = (Object[]) result.get(b);
-					if(row1[3]!=null &&row[3]!=null){
-						if(row[3].equals(row1[3])){
-							row1[3]=null;
-							row1[9]=null;
+					if(row[6].toString().equals(row1[6].toString())){
+						if(row1[3]!=null &&row[3]!=null){
+							if(row[3].equals(row1[3])){
+								row1[3]=null;
+								row1[9]=null;
+							}else{
+								break;
+							}
 						}
 					}
-
 				}
 				tempList1.add(row);
 			}
@@ -1626,15 +1718,25 @@ public class ProceedingController extends GenericController<Proceeding>{
 			for(int i=0; i<tempList1.size(); i++){
 				Object[] row = (Object[]) tempList1.get(i);
 				if(row[14]!=null){
-					row[0]="<b>"+row[15]+" : </b>"+row[0];
+					row[0]=""+row[15]+" :"+row[0];
 				}
 				int j=i+1;
 				for(;j<tempList1.size();j++){
 					Object[] row1 = (Object[]) tempList1.get(j);
 					if(row[6].equals(row1[6])){
-						if(row[1]!=row1[1] && row[2]!=row1[2]){
-							break;
+						if(row1[1]==null){
+							row1[1]="";
+						}
+						if(row1[2]==null){
+							row1[2]="";
+						}
+						if((!row[1].toString().equals(row1[1].toString()) &&
+								   !row[2].toString().equals(row1[2].toString()))){
+									break;
 						}else{
+							if(row1[9]!=null){
+								row[0]=row[0]+"<p align='center'><b> (अध्यक्षस्थानी माननीय "+ row1[9]+" "+ row1[3]+")</b></p>"; 
+							}
 							if(row1[14]!=null){
 								if(row1[10]!=null){
 									if(row1[11]!=null){
@@ -1800,12 +1902,13 @@ public class ProceedingController extends GenericController<Proceeding>{
 					for(HouseMemberRoleAssociation h:hrma){
 						if(h.getHouse().equals(session.getHouse())){
 							MemberRole memberRole=h.getRole();
-							if(memberRole.getType().equals(ApplicationConstants.SPEAKER)
-									||memberRole.getType().equals(ApplicationConstants.DEPUTY_SPEAKER)
-									||memberRole.getType().equals(ApplicationConstants.CHAIRMAN)
-									||memberRole.getType().equals(ApplicationConstants.CHIEF_MINISTER)
-									||memberRole.getType().equals(ApplicationConstants.DEPUTY_CHAIRMAN)
-									||memberRole.getType().equals(ApplicationConstants.DEPUTY_CHIEF_MINISTER)){
+							String memberRoleType=memberRole.getType().toLowerCase();
+							if(memberRoleType.equals(ApplicationConstants.SPEAKER)
+									||memberRoleType.equals(ApplicationConstants.DEPUTY_SPEAKER)
+									||memberRoleType.equals(ApplicationConstants.CHAIRMAN)
+									||memberRoleType.equals(ApplicationConstants.CHIEF_MINISTER)
+									||memberRoleType.equals(ApplicationConstants.DEPUTY_CHAIRMAN)
+									||memberRoleType.equals(ApplicationConstants.DEPUTY_CHIEF_MINISTER)){
 								row[15]="<b>"+memberRole.getName()+"</b>";
 							}
 
@@ -1816,13 +1919,16 @@ public class ProceedingController extends GenericController<Proceeding>{
 				for(int b=a+1;b<result.size();b++){
 
 					Object[] row1 = (Object[]) result.get(b);
-					if(row1[3]!=null &&row[3]!=null){
-						if(row[3].equals(row1[3])){
-							row1[3]=null;
-							row1[9]=null;
+					if(row[6].toString().equals(row1[6].toString())){
+						if(row1[3]!=null &&row[3]!=null){
+							if(row[3].equals(row1[3])){
+								row1[3]=null;
+								row1[9]=null;
+							}else{
+								break;
+							}
 						}
 					}
-
 				}
 				tempList1.add(row);
 			}
@@ -1830,46 +1936,59 @@ public class ProceedingController extends GenericController<Proceeding>{
 			/****If the parts are of same slot then concat the paragraphs of same member under the member name instead of having membername in each part****/
 			for(int i=0; i<tempList1.size(); i++){
 				Object[] row = (Object[]) tempList1.get(i);
+				if(row[14]!=null){
+					row[0]=row[15]+" : "+row[0];
+				}
 				int j=i+1;
 				for(;j<tempList1.size();j++){
 					Object[] row1 = (Object[]) tempList1.get(j);
 					if(row[6].equals(row1[6])){
-						if(row[1]!=row1[1] && row[2]!=row1[2]){
-							break;
+						if(row1[1]==null){
+							row1[1]="";
+						}
+						if(row1[2]==null){
+							row1[2]="";
+						}
+						if((!row[1].toString().equals(row1[1].toString()) &&
+								   !row[2].toString().equals(row1[2].toString()))){
+									break;
 						}else{
+							if(row1[9]!=null){
+								row[0]=row[0]+"<p align='center'><b> (अध्यक्षस्थानी माननीय "+ row1[9]+" "+ row1[3]+")</b></p>"; 
+							}
 							if(row1[14]!=null){
 								if(row1[10]!=null){
 									if(row1[11]!=null){
 										if(row1[16]!=null){
 											if(row1[12]!=null){
 												if(row1[13]!=null){
-													row[0]=row[0].toString()+"<p>"+row1[15].toString()+" ( "+row1[11]+""+row1[10]+")"
-															+" ,"+row1[17]+" ( "+row1[13]+" "+row1[12]+" ) "+"यांच्या करिता"+": "+row1[0].toString()+"</p>";
+													row[0]=row[0].toString()+"<p><b>"+row1[15].toString()+" ( "+row1[11]+""+row1[10]+")"
+															+" ,"+row1[17]+" ( "+row1[13]+" "+row1[12]+" )</b> "+"यांच्या करिता"+": "+row1[0].toString()+"</p>";
 												}else{
-													row[0]=row[0].toString()+"<p>"+row1[15].toString()+" ( "+row1[11]+""+row1[10]+")"
-															+" ,"+row1[17]+" ( "+row1[12]+" ) "+"यांच्या करिता"+": "+row1[0].toString()+"</p>";
+													row[0]=row[0].toString()+"<p><b>"+row1[15].toString()+" ( "+row1[11]+""+row1[10]+")"
+															+" ,"+row1[17]+" ( "+row1[12]+" )</b> "+"यांच्या करिता"+": "+row1[0].toString()+"</p>";
 												}
 											}else{
-												row[0]=row[0].toString()+"<p>"+row1[15].toString()+" ( "+row1[11]+""+row1[10]+")"
+												row[0]=row[0].toString()+"<p><b>"+row1[15].toString()+" ( "+row1[11]+""+row1[10]+")</b>"
 														+" ,"+row1[17]+" यांच्या करिता"+": "+row1[0].toString()+"</p>";
 											}
 										}else{
-											row[0]=row[0].toString()+"<p>"+row1[15].toString()+" ( "+row1[11]+""+row1[10]+")"+
+											row[0]=row[0].toString()+"<p><b>"+row1[15].toString()+" ( "+row1[11]+""+row1[10]+")</b>"+
 													": "+row1[0].toString()+"</p>";
 										}
 									}else{
 
-										row[0]=row[0].toString()+"<p>"+row1[15].toString()+" ( "+row1[10]+")"+
+										row[0]=row[0].toString()+"<p><b>"+row1[15].toString()+" ( "+row1[10]+")</b>"+
 												": "+row1[0].toString()+"</p>";
 									}
 								}else{
 									if(row1[16]!=null){
 										if(row1[12]!=null){
 											if(row1[13]!=null){
-												row[0]=row[0].toString()+"<p>"+row1[15].toString()+" ,"+row1[17]+" ( "+row1[13]+" "+row1[12]+" ) "+"यांच्या करिता"+": "+row1[0].toString()+"</p>";
+												row[0]=row[0].toString()+"<p>"+row1[15].toString()+" ,<b>"+row1[17]+" ( "+row1[13]+" "+row1[12]+" )</b> "+"यांच्या करिता"+": "+row1[0].toString()+"</p>";
 											}else{
 												row[0]=row[0].toString()+"<p>"+row1[15].toString()
-														+" ,"+row1[17]+" ( "+row1[12]+" ) "+"यांच्या करिता"+": "+row1[0].toString()+"</p>";
+														+" ,<b>"+row1[17]+" ( "+row1[12]+" )</b> "+"यांच्या करिता"+": "+row1[0].toString()+"</p>";
 											}
 										}else{
 											row[0]=row[0].toString()+"<p>"+row1[15].toString()
@@ -1999,7 +2118,28 @@ public class ProceedingController extends GenericController<Proceeding>{
 			parametersMap.put("languageId", new String[]{language.getId().toString()});
 			parametersMap.put("rosterId", new String[]{roster.getId().toString()});
 			parametersMap.put("reporterId",new String[]{reporter.getId().toString()});
-			List result=Query.findReport(ApplicationConstants.RIS_REPORTER_WISE_REPORT, parametersMap);		
+			List result=Query.findReport(ApplicationConstants.RIS_REPORTER_WISE_REPORT, parametersMap);	
+			for(int i=0;i<result.size();i++){
+				Object[] row = (Object[]) result.get(i);
+				if(row[14]!=null){
+					Member member=Member.findById(Member.class, Long.parseLong(row[14].toString()));
+					List<HouseMemberRoleAssociation> hrma=member.getHouseMemberRoleAssociations();
+					for(HouseMemberRoleAssociation h:hrma){
+						if(h.getHouse().equals(session.getHouse())){
+							MemberRole memberRole=h.getRole();
+							if(memberRole.getType().toLowerCase().equals(ApplicationConstants.SPEAKER)
+									||memberRole.getType().toLowerCase().equals(ApplicationConstants.DEPUTY_SPEAKER)
+									||memberRole.getType().toLowerCase().equals(ApplicationConstants.CHAIRMAN)
+									||memberRole.getType().toLowerCase().equals(ApplicationConstants.CHIEF_MINISTER)
+									||memberRole.getType().toLowerCase().equals(ApplicationConstants.DEPUTY_CHAIRMAN)
+									||memberRole.getType().toLowerCase().equals(ApplicationConstants.DEPUTY_CHIEF_MINISTER)){
+								row[15]="<b>"+memberRole.getName()+"</b>";
+							}
+
+						}
+					}
+				}
+			}
 			model.addAttribute("generalNotice", generalNotice);
 			model.addAttribute("mainHeading", mainHeading);
 			model.addAttribute("pageHeading",pageHeading);
@@ -2074,12 +2214,13 @@ public class ProceedingController extends GenericController<Proceeding>{
 					for(HouseMemberRoleAssociation h:hrma){
 						if(h.getHouse().equals(session.getHouse())){
 							MemberRole memberRole=h.getRole();
-							if(memberRole.getType().equals(ApplicationConstants.SPEAKER)
-									||memberRole.getType().equals(ApplicationConstants.DEPUTY_SPEAKER)
-									||memberRole.getType().equals(ApplicationConstants.CHAIRMAN)
-									||memberRole.getType().equals(ApplicationConstants.CHIEF_MINISTER)
-									||memberRole.getType().equals(ApplicationConstants.DEPUTY_CHAIRMAN)
-									||memberRole.getType().equals(ApplicationConstants.DEPUTY_CHIEF_MINISTER)){
+							String memberRoleType=memberRole.getType().toLowerCase();
+							if(memberRoleType.equals(ApplicationConstants.SPEAKER)
+									||memberRoleType.equals(ApplicationConstants.DEPUTY_SPEAKER)
+									||memberRoleType.equals(ApplicationConstants.CHAIRMAN)
+									||memberRoleType.equals(ApplicationConstants.CHIEF_MINISTER)
+									||memberRoleType.equals(ApplicationConstants.DEPUTY_CHAIRMAN)
+									||memberRoleType.equals(ApplicationConstants.DEPUTY_CHIEF_MINISTER)){
 								row[15]="<b>"+memberRole.getName()+"</b>";
 							}
 
@@ -2090,13 +2231,14 @@ public class ProceedingController extends GenericController<Proceeding>{
 				for(int b=a+1;b<result.size();b++){
 
 					Object[] row1 = (Object[]) result.get(b);
-					if(row1[3]!=null &&row[3]!=null){
-						if(row[3].equals(row1[3])){
-							row1[3]=null;
-							row1[9]=null;
+					if(row[6].toString().equals(row1[6].toString())){
+						if(row1[3]!=null &&row[3]!=null){
+							if(row[3].equals(row1[3])){
+								row1[3]=null;
+								row1[9]=null;
+							}
 						}
 					}
-
 				}
 				tempList1.add(row);
 			}
@@ -2104,46 +2246,59 @@ public class ProceedingController extends GenericController<Proceeding>{
 			/****If the parts are of same slot then concat the paragraphs of same member under the member name instead of having membername in each part****/
 			for(int i=0; i<tempList1.size(); i++){
 				Object[] row = (Object[]) tempList1.get(i);
+				if(row[14]!=null){
+					row[0]="<p>"+row[15]+":"+row[0]+"</p>";
+				}
 				int j=i+1;
 				for(;j<tempList1.size();j++){
 					Object[] row1 = (Object[]) tempList1.get(j);
 					if(row[6].equals(row1[6])){
-						if(row[1]!=row1[1] && row[2]!=row1[2]){
-							break;
+						if(row1[1]==null){
+							row1[1]="";
+						}
+						if(row1[2]==null){
+							row1[2]="";
+						}
+						if((!row[1].toString().equals(row1[1].toString()) &&
+								   !row[2].toString().equals(row1[2].toString()))){
+									break;
 						}else{
+							if(row1[9]!=null){
+								row[0]=row[0]+"<p align='center'><b> (अध्यक्षस्थानी माननीय "+ row1[9]+" "+ row1[3]+")</b></p>"; 
+							}
 							if(row1[14]!=null){
 								if(row1[10]!=null){
 									if(row1[11]!=null){
 										if(row1[16]!=null){
 											if(row1[12]!=null){
 												if(row1[13]!=null){
-													row[0]=row[0].toString()+"<p>"+row1[15].toString()+" ( "+row1[11]+""+row1[10]+")"
-															+" ,"+row1[17]+" ( "+row1[13]+" "+row1[12]+" ) "+"यांच्या करिता"+": "+row1[0].toString()+"</p>";
+													row[0]=row[0].toString()+"<p><b>"+row1[15].toString()+" ( "+row1[11]+""+row1[10]+")"
+															+" ,"+row1[17]+" ( "+row1[13]+" "+row1[12]+" )</b> "+"यांच्या करिता"+": "+row1[0].toString()+"</p>";
 												}else{
-													row[0]=row[0].toString()+"<p>"+row1[15].toString()+" ( "+row1[11]+""+row1[10]+")"
-															+" ,"+row1[17]+" ( "+row1[12]+" ) "+"यांच्या करिता"+": "+row1[0].toString()+"</p>";
+													row[0]=row[0].toString()+"<p><b>"+row1[15].toString()+" ( "+row1[11]+""+row1[10]+")"
+															+" ,"+row1[17]+" ( "+row1[12]+" )</b> "+"यांच्या करिता"+": "+row1[0].toString()+"</p>";
 												}
 											}else{
-												row[0]=row[0].toString()+"<p>"+row1[15].toString()+" ( "+row1[11]+""+row1[10]+")"
+												row[0]=row[0].toString()+"<p><b>"+row1[15].toString()+" ( "+row1[11]+""+row1[10]+")</b>"
 														+" ,"+row1[17]+" यांच्या करिता"+": "+row1[0].toString()+"</p>";
 											}
 										}else{
-											row[0]=row[0].toString()+"<p>"+row1[15].toString()+" ( "+row1[11]+""+row1[10]+")"+
+											row[0]=row[0].toString()+"<p><b>"+row1[15].toString()+" ( "+row1[11]+""+row1[10]+")</b>"+
 													": "+row1[0].toString()+"</p>";
 										}
 									}else{
 
-										row[0]=row[0].toString()+"<p>"+row1[15].toString()+" ( "+row1[10]+")"+
+										row[0]=row[0].toString()+"<p><b>"+row1[15].toString()+" ( "+row1[10]+")</b>"+
 												": "+row1[0].toString()+"</p>";
 									}
 								}else{
 									if(row1[16]!=null){
 										if(row1[12]!=null){
 											if(row1[13]!=null){
-												row[0]=row[0].toString()+"<p>"+row1[15].toString()+" ,"+row1[17]+" ( "+row1[13]+" "+row1[12]+" ) "+"यांच्या करिता"+": "+row1[0].toString()+"</p>";
+												row[0]=row[0].toString()+"<p>"+row1[15].toString()+" ,<b>"+row1[17]+" ( "+row1[13]+" "+row1[12]+" )</b> "+"यांच्या करिता"+": "+row1[0].toString()+"</p>";
 											}else{
 												row[0]=row[0].toString()+"<p>"+row1[15].toString()
-														+" ,"+row1[17]+" ( "+row1[12]+" ) "+"यांच्या करिता"+": "+row1[0].toString()+"</p>";
+														+" ,<b>"+row1[17]+" ( "+row1[12]+" )</b> "+"यांच्या करिता"+": "+row1[0].toString()+"</p>";
 											}
 										}else{
 											row[0]=row[0].toString()+"<p>"+row1[15].toString()
@@ -2275,7 +2430,28 @@ public class ProceedingController extends GenericController<Proceeding>{
 			parametersMap.put("languageId", new String[]{language.getId().toString()});
 			parametersMap.put("rosterId", new String[]{roster.getId().toString()});
 			parametersMap.put("memberId", new String[]{member.getId().toString()});
-			List result=Query.findReport(ApplicationConstants.RIS_MEMBER_WISE_REPORT, parametersMap);		
+			List result=Query.findReport(ApplicationConstants.RIS_MEMBER_WISE_REPORT, parametersMap);	
+			for(int i=0;i<result.size();i++){
+				Object[] row = (Object[]) result.get(i);
+				if(row[10]!=null){
+					Member member1=Member.findById(Member.class, Long.parseLong(row[9].toString()));
+					List<HouseMemberRoleAssociation> hrma=member1.getHouseMemberRoleAssociations();
+					for(HouseMemberRoleAssociation h:hrma){
+						if(h.getHouse().equals(session.getHouse())){
+							MemberRole memberRole=h.getRole();
+							if(memberRole.getType().toLowerCase().equals(ApplicationConstants.SPEAKER)
+									||memberRole.getType().toLowerCase().equals(ApplicationConstants.DEPUTY_SPEAKER)
+									||memberRole.getType().toLowerCase().equals(ApplicationConstants.CHAIRMAN)
+									||memberRole.getType().toLowerCase().equals(ApplicationConstants.CHIEF_MINISTER)
+									||memberRole.getType().toLowerCase().equals(ApplicationConstants.DEPUTY_CHAIRMAN)
+									||memberRole.getType().toLowerCase().equals(ApplicationConstants.DEPUTY_CHIEF_MINISTER)){
+								row[10]="<b>"+memberRole.getName()+"</b>";
+							}
+
+						}
+					}
+				}
+			}
 			model.addAttribute("generalNotice", generalNotice);
 			model.addAttribute("mainHeading", mainHeading);
 			model.addAttribute("pageHeading",pageHeading);
@@ -2341,6 +2517,27 @@ public class ProceedingController extends GenericController<Proceeding>{
 			parametersMap.put("rosterId", new String[]{roster.getId().toString()});
 			parametersMap.put("memberId", new String[]{member.getId().toString()});
 			List result=Query.findReport(ApplicationConstants.RIS_MEMBER_WISE_REPORT, parametersMap);		
+			for(int i=0;i<result.size();i++){
+				Object[] row = (Object[]) result.get(i);
+				if(row[10]!=null){
+					Member member1=Member.findById(Member.class, Long.parseLong(row[9].toString()));
+					List<HouseMemberRoleAssociation> hrma=member1.getHouseMemberRoleAssociations();
+					for(HouseMemberRoleAssociation h:hrma){
+						if(h.getHouse().equals(session.getHouse())){
+							MemberRole memberRole=h.getRole();
+							if(memberRole.getType().toLowerCase().equals(ApplicationConstants.SPEAKER)
+									||memberRole.getType().toLowerCase().equals(ApplicationConstants.DEPUTY_SPEAKER)
+									||memberRole.getType().toLowerCase().equals(ApplicationConstants.CHAIRMAN)
+									||memberRole.getType().toLowerCase().equals(ApplicationConstants.CHIEF_MINISTER)
+									||memberRole.getType().toLowerCase().equals(ApplicationConstants.DEPUTY_CHAIRMAN)
+									||memberRole.getType().toLowerCase().equals(ApplicationConstants.DEPUTY_CHIEF_MINISTER)){
+								row[10]="<b>"+memberRole.getName()+"</b>";
+							}
+
+						}
+					}
+				}
+			}
 			model.addAttribute("generalNotice", generalNotice);
 			model.addAttribute("mainHeading", mainHeading);
 			model.addAttribute("pageHeading",pageHeading);
@@ -2369,7 +2566,6 @@ public class ProceedingController extends GenericController<Proceeding>{
 	public @ResponseBody void viewMemberWiseReport(final HttpServletRequest request,final HttpServletResponse response,final ModelMap model,final Locale locale){
 		String reportFormat=request.getParameter("outputFormat");
 		File reportFile = null;
-
 		String strHouseType=request.getParameter("houseType");
 		String strSessionType=request.getParameter("sessionType");
 		String strSessionYear=request.getParameter("sessionYear");
@@ -2405,72 +2601,103 @@ public class ProceedingController extends GenericController<Proceeding>{
 			parametersMap.put("memberId", new String[]{member.getId().toString()});
 			List result=Query.findReport(ApplicationConstants.RIS_MEMBER_WISE_REPORT, parametersMap);	
 			List<Object> tempList2=new ArrayList<Object>();
-			for(int i=0; i<result.size(); i++){
+			List<Object> tempList=new ArrayList<Object>();
+			for(int i=0;i<result.size();i++){
 				Object[] row = (Object[]) result.get(i);
-				
-				if(row[10]!=null){
-					Member member1=Member.findById(Member.class, Long.parseLong(row[14].toString()));
+				if(row[9]!=null){
+					Member member1=Member.findById(Member.class, Long.parseLong(row[9].toString()));
 					List<HouseMemberRoleAssociation> hrma=member1.getHouseMemberRoleAssociations();
 					for(HouseMemberRoleAssociation h:hrma){
 						if(h.getHouse().equals(session.getHouse())){
 							MemberRole memberRole=h.getRole();
-							if(memberRole.getType().equals(ApplicationConstants.SPEAKER)
-									||memberRole.getType().equals(ApplicationConstants.DEPUTY_SPEAKER)
-									||memberRole.getType().equals(ApplicationConstants.CHAIRMAN)
-									||memberRole.getType().equals(ApplicationConstants.CHIEF_MINISTER)
-									||memberRole.getType().equals(ApplicationConstants.DEPUTY_CHAIRMAN)
-									||memberRole.getType().equals(ApplicationConstants.DEPUTY_CHIEF_MINISTER)){
+							String memberRoleType=memberRole.getType().toLowerCase();
+							if(memberRoleType.equals(ApplicationConstants.SPEAKER)
+									||memberRoleType.equals(ApplicationConstants.DEPUTY_SPEAKER)
+									||memberRoleType.equals(ApplicationConstants.CHAIRMAN)
+									||memberRoleType.equals(ApplicationConstants.CHIEF_MINISTER)
+									||memberRoleType.equals(ApplicationConstants.DEPUTY_CHAIRMAN)
+									||memberRoleType.equals(ApplicationConstants.DEPUTY_CHIEF_MINISTER)){
 								row[10]="<b>"+memberRole.getName()+"</b>";
 							}
 
 						}
 					}
 				}
+				/***If same person is chairperson for each part then no need to display the chairperson on each part...only display on first part*****/
+				for(int b=i+1;b<result.size();b++){
+
+					Object[] row1 = (Object[]) result.get(b);
+					if(row[13].toString().equals(row1[13].toString())){
+						if(row1[18]!=null &&row[18]!=null){
+							if(row[18].equals(row1[18])){
+								row1[18]=null;
+								row1[19]=null;
+							}else{
+								break;
+							}
+						}
+					}
+				}
+				tempList.add(row);
+			}
+			
+			for(int i=0; i<tempList.size(); i++){
+				Object[] row = (Object[]) tempList.get(i);
+				
+				
 				if(row[10]!=null){
-					row[0]="<b>"+row[10]+" :</b>"+row[0];
+					row[0]=row[10]+" :  "+row[0];
 				}
 				int j=i+1;
-				for(;j<result.size();j++){
-					Object[] row1 = (Object[]) result.get(j);
-					if(row[1]!=null && row1[1]!=null &&
-					   row[2]!=null && row1[2]!=null &&
-					   !row[1].toString().equals(row1[1].toString()) &&
-					   !row[2].toString().equals(row1[2].toString())){
-						break;
+				for(;j<tempList.size();j++){
+					Object[] row1 = (Object[]) tempList.get(j);
+					if(row1[1]==null){
+						row1[1]="";
+					}
+					if(row1[2]==null){
+						row1[2]="";
+					}
+					if((!row[1].toString().equals(row1[1].toString()) &&
+							   !row[2].toString().equals(row1[2].toString()))
+					    || !row[13].toString().equals(row1[13])){
+								break;
 					}else{
+					if(row1[18]!=null){
+						row[0]=row[0]+"<p align='center'><b> (अध्यक्षस्थानी माननीय "+ row1[18]+" "+ row1[19]+")</b></p>"; 
+					}
 					if(row1[9]!=null){
 						if(row1[5]!=null){
 							if(row1[6]!=null){
 								if(row1[11]!=null){
 									if(row1[7]!=null){
 										if(row1[8]!=null){
-											row[0]=row[0].toString()+"<p>"+row1[10].toString()+" ( "+row1[6]+""+row1[5]+")"
-													+" ,"+row1[12]+" ( "+row1[8]+" "+row1[7]+" ) "+"यांच्या करिता"+": "+row1[0].toString()+"</p>";
+											row[0]=row[0].toString()+"<p><b>"+row1[10].toString()+" ( "+row1[6]+""+row1[5]+")"
+													+" ,"+row1[12]+" ( "+row1[8]+" "+row1[7]+" )</b> "+"यांच्या करिता"+": "+row1[0].toString()+"</p>";
 										}else{
-											row[0]=row[0].toString()+"<p>"+row1[10].toString()+" ( "+row1[6]+""+row1[5]+")"
-													+" ,"+row1[12]+" ( "+row1[7]+" ) "+"यांच्या करिता"+": "+row1[0].toString()+"</p>";
+											row[0]=row[0].toString()+"<p><b>"+row1[10].toString()+" ( "+row1[6]+""+row1[5]+")"
+													+" ,"+row1[12]+" ( "+row1[7]+" )</b> "+"यांच्या करिता"+": "+row1[0].toString()+"</p>";
 										}
 									}else{
-										row[0]=row[0].toString()+"<p>"+row1[10].toString()+" ( "+row1[6]+""+row1[5]+")"
+										row[0]=row[0].toString()+"<p><b>"+row1[10].toString()+" ( "+row1[6]+""+row1[5]+")</b>"
 												+" ,"+row1[12]+" यांच्या करिता"+": "+row1[0].toString()+"</p>";
 									}
 								}else{
-									row[0]=row[0].toString()+"<p>"+row1[10].toString()+" ( "+row1[6]+""+row1[5]+")"+
+									row[0]=row[0].toString()+"<p><b>"+row1[10].toString()+" ( "+row1[6]+""+row1[5]+")</b>"+
 											": "+row1[0].toString()+"</p>";
 								}
 							}else{
 
-								row[0]=row[0].toString()+"<p>"+row1[10].toString()+" ( "+row1[5]+")"+
+								row[0]=row[0].toString()+"<p><b>"+row1[10].toString()+" ( "+row1[5]+")</b>"+
 										": "+row1[0].toString()+"</p>";
 							}
 						}else{
 							if(row1[11]!=null){
 								if(row1[7]!=null){
 									if(row1[8]!=null){
-										row[0]=row[0].toString()+"<p>"+row1[10].toString()+" ,"+row1[12]+" ( "+row1[8]+" "+row1[7]+" ) "+"यांच्या करिता"+": "+row1[0].toString()+"</p>";
+										row[0]=row[0].toString()+"<p>"+row1[10].toString()+" ,<b>"+row1[12]+" ( "+row1[8]+" "+row1[7]+" )</b> "+"यांच्या करिता"+": "+row1[0].toString()+"</p>";
 									}else{
 										row[0]=row[0].toString()+"<p>"+row1[10].toString()
-												+" ,"+row1[12]+" ( "+row1[7]+" ) "+"यांच्या करिता"+": "+row1[0].toString()+"</p>";
+												+" ,<b>"+row1[12]+" ( "+row1[7]+" )</b> "+"यांच्या करिता"+": "+row1[0].toString()+"</p>";
 									}
 								}else{
 									row[0]=row[0].toString()+"<p>"+row1[10].toString()
@@ -2561,28 +2788,51 @@ public class ProceedingController extends GenericController<Proceeding>{
 			parametersMap.put("memberId", new String[]{member.getId().toString()});
 			List result=Query.findReport(ApplicationConstants.RIS_MEMBER_WISE_REPORT, parametersMap);	
 			List<Object> tempList2=new ArrayList<Object>();
+			List<Object> tempList=new ArrayList<Object>();
 			for(int i=0;i<result.size();i++){
-				Object[] row=(Object[]) result.get(i);
-				if(row[10]!=null){
-					Member member1=Member.findById(Member.class, Long.parseLong(row[14].toString()));
+				Object[] row = (Object[]) result.get(i);
+				if(row[9]!=null){
+					Member member1=Member.findById(Member.class, Long.parseLong(row[9].toString()));
 					List<HouseMemberRoleAssociation> hrma=member1.getHouseMemberRoleAssociations();
 					for(HouseMemberRoleAssociation h:hrma){
 						if(h.getHouse().equals(session.getHouse())){
 							MemberRole memberRole=h.getRole();
-							if(memberRole.getType().equals(ApplicationConstants.SPEAKER)
-									||memberRole.getType().equals(ApplicationConstants.DEPUTY_SPEAKER)
-									||memberRole.getType().equals(ApplicationConstants.CHAIRMAN)
-									||memberRole.getType().equals(ApplicationConstants.CHIEF_MINISTER)
-									||memberRole.getType().equals(ApplicationConstants.DEPUTY_CHAIRMAN)
-									||memberRole.getType().equals(ApplicationConstants.DEPUTY_CHIEF_MINISTER)){
+							String memberRoleType=memberRole.getType().toLowerCase();
+							if(memberRoleType.equals(ApplicationConstants.SPEAKER)
+									||memberRoleType.equals(ApplicationConstants.DEPUTY_SPEAKER)
+									||memberRoleType.equals(ApplicationConstants.CHAIRMAN)
+									||memberRoleType.equals(ApplicationConstants.CHIEF_MINISTER)
+									||memberRoleType.equals(ApplicationConstants.DEPUTY_CHAIRMAN)
+									||memberRoleType.equals(ApplicationConstants.DEPUTY_CHIEF_MINISTER)){
 								row[10]="<b>"+memberRole.getName()+"</b>";
 							}
 
 						}
 					}
 				}
+				/***If same person is chairperson for each part then no need to display the chairperson on each part...only display on first part*****/
+				for(int b=i+1;b<result.size();b++){
+
+					Object[] row1 = (Object[]) result.get(b);
+					if(row[13].toString().equals(row1[13].toString())){
+						if(row1[18]!=null &&row[18]!=null){
+							
+							if(row[18].equals(row1[18])){
+								row1[18]=null;
+								row1[19]=null;
+							}else{
+								break;
+							}
+						}
+					}
+				}
+				tempList.add(row);
+			}
+			for(int i=0;i<tempList.size();i++){
+				Object[] row=(Object[]) tempList.get(i);
+				
 				if(row[10]!=null){
-					row[0]="<b>"+row[10]+"</b>"+row[0];
+					row[0]=row[10]+" : "+row[0];
 				}
 				if((row[9]!=null && Long.parseLong(row[9].toString())==member.getId())||(row[11]!=null && row[11]==member.getId())){
 					if(row[1]==null){
@@ -2591,8 +2841,8 @@ public class ProceedingController extends GenericController<Proceeding>{
 					if(row[2]==null){
 						row[2]="";
 					}
-					for(int j=i+1;j<result.size();j++){
-						Object[] row1=(Object[]) result.get(j);
+					for(int j=i+1;j<tempList.size();j++){
+						Object[] row1=(Object[]) tempList.get(j);
 						if(row1[1]==null){
 							row1[1]="";
 						}
@@ -2604,6 +2854,9 @@ public class ProceedingController extends GenericController<Proceeding>{
 						    || !row[13].toString().equals(row1[13])){
 									break;
 						}else{
+						if(row1[18]!=null){
+							row[0]=row[0]+"<p align='center'><b> (अध्यक्षस्थानी माननीय "+ row1[18]+" "+ row1[19]+")</b></p>"; 
+						}
 						if(row1[9]!=null){
 							if(row1[5]!=null){
 								if(row1[6]!=null){
@@ -2732,6 +2985,27 @@ public class ProceedingController extends GenericController<Proceeding>{
 			parametersMap.put("rosterId", new String[]{roster.getId().toString()});
 			parametersMap.put("memberId", new String[]{member.getId().toString()});
 			List result=Query.findReport(ApplicationConstants.RIS_MEMBER_WISE_REPORT2, parametersMap);		
+			for(int i=0;i<result.size();i++){
+				Object[] row = (Object[]) result.get(i);
+				if(row[10]!=null){
+					Member member1=Member.findById(Member.class, Long.parseLong(row[9].toString()));
+					List<HouseMemberRoleAssociation> hrma=member1.getHouseMemberRoleAssociations();
+					for(HouseMemberRoleAssociation h:hrma){
+						if(h.getHouse().equals(session.getHouse())){
+							MemberRole memberRole=h.getRole();
+							if(memberRole.getType().toLowerCase().equals(ApplicationConstants.SPEAKER)
+									||memberRole.getType().toLowerCase().equals(ApplicationConstants.DEPUTY_SPEAKER)
+									||memberRole.getType().toLowerCase().equals(ApplicationConstants.CHAIRMAN)
+									||memberRole.getType().toLowerCase().equals(ApplicationConstants.CHIEF_MINISTER)
+									||memberRole.getType().toLowerCase().equals(ApplicationConstants.DEPUTY_CHAIRMAN)
+									||memberRole.getType().toLowerCase().equals(ApplicationConstants.DEPUTY_CHIEF_MINISTER)){
+								row[10]="<b>"+memberRole.getName()+"</b>";
+							}
+
+						}
+					}
+				}
+			}
 			model.addAttribute("generalNotice", generalNotice);
 			model.addAttribute("mainHeading", mainHeading);
 			model.addAttribute("pageHeading",pageHeading);
@@ -2759,7 +3033,6 @@ public class ProceedingController extends GenericController<Proceeding>{
 	public @ResponseBody void viewMemberWiseReport2(final HttpServletRequest request,final HttpServletResponse response,final ModelMap model,final Locale locale){
 		String reportFormat=request.getParameter("outputFormat");
 		File reportFile = null;
-
 		String strHouseType=request.getParameter("houseType");
 		String strSessionType=request.getParameter("sessionType");
 		String strSessionYear=request.getParameter("sessionYear");
@@ -2798,17 +3071,18 @@ public class ProceedingController extends GenericController<Proceeding>{
 			for(int i=0; i<result.size(); i++){
 				Object[] row = (Object[]) result.get(i);
 				if(row[10]!=null){
-					Member member1=Member.findById(Member.class, Long.parseLong(row[14].toString()));
+					Member member1=Member.findById(Member.class, Long.parseLong(row[9].toString()));
 					List<HouseMemberRoleAssociation> hrma=member1.getHouseMemberRoleAssociations();
 					for(HouseMemberRoleAssociation h:hrma){
 						if(h.getHouse().equals(session.getHouse())){
 							MemberRole memberRole=h.getRole();
-							if(memberRole.getType().equals(ApplicationConstants.SPEAKER)
-									||memberRole.getType().equals(ApplicationConstants.DEPUTY_SPEAKER)
-									||memberRole.getType().equals(ApplicationConstants.CHAIRMAN)
-									||memberRole.getType().equals(ApplicationConstants.CHIEF_MINISTER)
-									||memberRole.getType().equals(ApplicationConstants.DEPUTY_CHAIRMAN)
-									||memberRole.getType().equals(ApplicationConstants.DEPUTY_CHIEF_MINISTER)){
+							String memberRoleType=memberRole.getType();
+							if(memberRoleType.equals(ApplicationConstants.SPEAKER)
+									||memberRoleType.equals(ApplicationConstants.DEPUTY_SPEAKER)
+									||memberRoleType.equals(ApplicationConstants.CHAIRMAN)
+									||memberRoleType.equals(ApplicationConstants.CHIEF_MINISTER)
+									||memberRoleType.equals(ApplicationConstants.DEPUTY_CHAIRMAN)
+									||memberRoleType.equals(ApplicationConstants.DEPUTY_CHIEF_MINISTER)){
 								row[10]="<b>"+memberRole.getName()+"</b>";
 							}
 
@@ -2816,15 +3090,26 @@ public class ProceedingController extends GenericController<Proceeding>{
 					}
 				}
 				if(row[10]!=null){
-					row[0]="<b>"+row[10]+"</b>"+row[0];
+					row[0]=row[10]+" : "+row[0];
 				}
 				
 				int j=i+1;
 				for(;j<result.size();j++){
 					Object[] row1 = (Object[]) result.get(j);
-					if(row[1]!=row1[1] && row[2]!=row1[2]){
-						break;
+					if(row1[1]==null){
+						row1[1]="";
+					}
+					if(row1[2]==null){
+						row1[2]="";
+					}
+					if((!row[1].toString().equals(row1[1].toString()) &&
+							   !row[2].toString().equals(row1[2].toString()))
+					    || !row[13].toString().equals(row1[13])){
+								break;
 					}else{
+						if(row1[18]!=null){
+							row[0]=row[0]+"<p align='center'><b> (अध्यक्षस्थानी माननीय "+ row1[18]+" "+ row1[19]+")</b></p>"; 
+						}
 						if(row1[9]!=null){
 						if(row1[5]!=null){
 							if(row1[6]!=null){
