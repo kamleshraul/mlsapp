@@ -124,9 +124,9 @@
 									</fo:table-cell>
 									<fo:table-cell text-align="center">
 									<xsl:choose>
-										<xsl:when test="element_1_14!=''">
+										<xsl:when test="element_1_24!=''">
 											<fo:block>
-												प्रथम <xsl:value-of select="element_1_22"></xsl:value-of>
+												प्रथम <xsl:value-of select="element_1_24"></xsl:value-of>
 											</fo:block>	
 										</xsl:when>
 										<xsl:otherwise>
@@ -148,47 +148,52 @@
 												<xsl:choose>
 													<xsl:when test="element_1_10!=''">
 													<fo:block text-align="center" font-weight="bold">
-														(अध्यक्षस्थानी  माननीय       <xsl:apply-templates select="element_1_10"></xsl:apply-templates> &#160; <xsl:apply-templates select="element_1_4"></xsl:apply-templates>)
+														(अध्यक्षस्थानी  माननीय <xsl:apply-templates select="element_1_10"></xsl:apply-templates> &#160; <xsl:apply-templates select="element_1_4"></xsl:apply-templates>)
 													</fo:block>
-													<fo:block></fo:block>
+													<fo:block>&#160;</fo:block>
 													</xsl:when>
+													<xsl:otherwise>
+														<fo:block>&#160;</fo:block>
+													</xsl:otherwise>
 												</xsl:choose>
 												<xsl:choose>
 													<xsl:when test="element_1_2!='' and  element_1_3!=''">
 													<fo:block text-align="center">
-														पृ. शी :<xsl:apply-templates select="element_1_2"></xsl:apply-templates>
+														<fo:inline font-weight="bold">पृ. शी :</fo:inline><xsl:apply-templates select="element_1_2"></xsl:apply-templates>
+														<fo:inline font-weight="bold">मु. शी :</fo:inline><xsl:apply-templates select="element_1_3"></xsl:apply-templates>
 													</fo:block>
-													<fo:block text-align="center">
-														मु. शी :<xsl:apply-templates select="element_1_3"></xsl:apply-templates>
-													</fo:block>
+													<fo:block>&#160;</fo:block>	
 													</xsl:when>
 													<xsl:when test="element_1_2!='' and element_1_3=''">
 													<fo:block text-align="center">
-														पृ .शी/मु. शी  :<xsl:apply-templates select="element_1_2"></xsl:apply-templates>
+														<fo:inline font-weight="bold">पृ .शी/मु. शी </fo:inline> :<xsl:apply-templates select="element_1_2"></xsl:apply-templates>
 													</fo:block>
+													<fo:block>&#160;</fo:block>	
 													</xsl:when>
 													<xsl:when test="element_1_3!='' and  element_1_2=''">
 													<fo:block text-align="center">
-														पृ .शी/मु. शी  :<xsl:apply-templates select="element_1_3"></xsl:apply-templates>
+														<fo:inline font-weight="bold">पृ .शी/मु. शी </fo:inline>  :<xsl:apply-templates select="element_1_3"></xsl:apply-templates>
 													</fo:block>
+													<fo:block>&#160;</fo:block>	
 													</xsl:when>
+													
 												</xsl:choose>
 												<xsl:apply-templates select="element_1_1"></xsl:apply-templates>
 												<!-- <xsl:value-of select="element_1_1"></xsl:value-of> -->
 											</fo:block>	
-											<fo:block></fo:block>									
+											<fo:block>&#160;</fo:block>									
 									</fo:table-cell>
 								</fo:table-row>	
 								<fo:table-row >
 									<fo:table-cell display-align="center" text-align="right" number-columns-spanned="3" >
 										<xsl:choose>
-											<xsl:when test="element_1_21!=''">
+											<xsl:when test="element_1_23!=''">
 												<fo:block>
-												या नंतर <xsl:apply-templates select="element_1_21"></xsl:apply-templates>
+												या नंतर <xsl:apply-templates select="element_1_23"></xsl:apply-templates>
 												</fo:block>	
 											</xsl:when>
 											<xsl:otherwise>
-												<fo:block></fo:block>
+												<fo:block>&#160;</fo:block>
 											</xsl:otherwise>
 										</xsl:choose>	
 									</fo:table-cell>

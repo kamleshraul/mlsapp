@@ -145,38 +145,41 @@
 							<fo:table-body>	
 								<fo:table-row>
 									<fo:table-cell display-align="center" text-align="justify" number-columns-spanned="3" >
+											<fo:block>&#160;</fo:block>
 											<fo:block>
 												<xsl:choose>
 													<xsl:when test="element_1_10!=''">
-													<fo:block text-align="center">
+													<fo:block text-align="center" font-weight="bold">
 														(अध्यक्षस्थानी माननीय <xsl:apply-templates select="element_1_10"></xsl:apply-templates>&#160; <xsl:apply-templates select="element_1_4"></xsl:apply-templates>)
 													</fo:block>
-													<fo:block></fo:block>
+													<fo:block>&#160;</fo:block>
 													</xsl:when>
 												</xsl:choose>
 												<xsl:choose>
 													<xsl:when test="element_1_2!='' and  element_1_3!=''">
-													<fo:block text-align="center">
-														पृ. शी :<xsl:apply-templates select="element_1_2"></xsl:apply-templates>
-													</fo:block>
-													<fo:block text-align="center">
-														मु. शी :<xsl:apply-templates select="element_1_3"></xsl:apply-templates>
-													</fo:block>
+														<fo:block text-align="center">
+															<fo:inline font-weight="bold"> पृ. शी </fo:inline>:<xsl:apply-templates select="element_1_2"></xsl:apply-templates>
+															<fo:inline font-weight="bold"> मु. शी </fo:inline>:<xsl:apply-templates select="element_1_3"></xsl:apply-templates>
+														</fo:block>
+														<fo:block>&#160;</fo:block>
 													</xsl:when>
 													<xsl:when test="element_1_2!='' and element_1_3=''">
-													<fo:block text-align="center">
-														पृ .शी/मु. शी  :<xsl:apply-templates select="element_1_2"></xsl:apply-templates>
-													</fo:block>
+														<fo:block text-align="center">
+															<fo:inline font-weight="bold">पृ .शी/मु. शी </fo:inline> :<xsl:apply-templates select="element_1_2"></xsl:apply-templates>
+														</fo:block>
+														<fo:block>&#160;</fo:block>
 													</xsl:when>
 													<xsl:when test="element_1_3!='' and  element_1_2=''">
-													<fo:block text-align="center">
-														पृ .शी/मु. शी  :<xsl:apply-templates select="element_1_3"></xsl:apply-templates>
-													</fo:block>
+														<fo:block text-align="center">
+															<fo:inline font-weight="bold">पृ .शी/मु. शी </fo:inline> :<xsl:apply-templates select="element_1_3"></xsl:apply-templates>
+														</fo:block>
+														<fo:block>&#160;</fo:block>
 													</xsl:when>
 												</xsl:choose>
 												<xsl:apply-templates select="element_1_1"></xsl:apply-templates>
 												<!-- <xsl:value-of select="element_1_1"></xsl:value-of> -->
-											</fo:block>										
+											</fo:block>	
+																			
 									</fo:table-cell>
 								</fo:table-row>	
 								<fo:table-row>

@@ -95,7 +95,7 @@
 				
 	            <fo:flow flow-name="xsl-region-body">		    
 			       <!-- content as per report -->
-			      <fo:block font-family="{$font}" font-size="16px">
+			    <!--   <fo:block font-family="{$font}" font-size="16px">
 			      		<xsl:choose>
 						<xsl:when test="element_1_2!='' and  element_1_3!=''">
 							<fo:block text-align="center">
@@ -119,9 +119,91 @@
 			     		<fo:block text-align="justify">
 			     			<xsl:apply-templates select="element_1_1"></xsl:apply-templates>
 			     		</fo:block>
-				       <fo:block></fo:block>
-			      </fo:block>
-			   </fo:flow>
+				       <fo:block></fo:block> -->
+				       
+				       <fo:block font-family="{$font}" font-size="16px">
+			      		 <fo:table table-layout="fixed" width="100%" padding="0" >
+			      		 	  <fo:table-header>
+								<fo:table-row>
+									<fo:table-cell text-align="start">
+										<fo:block>
+											<xsl:value-of select="element_1_15"></xsl:value-of>
+										</fo:block>										
+									</fo:table-cell>
+									<fo:table-cell text-align="center">
+										 <fo:block>
+											(असुधारित प्रत/ प्रसिद्धीसाठी नाही)
+										</fo:block>										
+									</fo:table-cell>
+									<fo:table-cell text-align="end" >
+										<fo:block>
+											<xsl:value-of select="element_1_14"></xsl:value-of>-<fo:page-number/>
+										</fo:block>										
+									</fo:table-cell>
+								</fo:table-row>
+								<fo:table-row>
+									<fo:table-cell text-align="start">
+										<fo:block>
+											<xsl:value-of select="element_1_17"></xsl:value-of>
+										</fo:block>										
+									</fo:table-cell>
+									<fo:table-cell text-align="center">
+										<fo:block></fo:block>	
+									</fo:table-cell>
+									<fo:table-cell text-align="end" >
+										<fo:block>
+											<xsl:value-of select="element_1_16"></xsl:value-of>
+										</fo:block>										
+									</fo:table-cell>
+								</fo:table-row>
+							</fo:table-header>
+							<fo:table-body>	
+								<fo:table-row>
+									<fo:table-cell display-align="center" text-align="justify" number-columns-spanned="3">
+											<fo:block>
+												<xsl:choose>
+													<xsl:when test="element_1_19!=''">
+													<fo:block text-align="center" font-weight="bold">
+														(अध्यक्षस्थानी  माननीय <xsl:apply-templates select="element_1_19"></xsl:apply-templates> &#160; <xsl:apply-templates select="element_1_20"></xsl:apply-templates>)
+													</fo:block>
+													<fo:block>&#160;</fo:block>
+													</xsl:when>
+													<xsl:otherwise>
+														<fo:block>&#160;</fo:block>
+													</xsl:otherwise>
+												</xsl:choose>
+												<xsl:choose>
+													<xsl:when test="element_1_2!='' and  element_1_3!=''">
+													<fo:block text-align="center">
+													<fo:inline font-weight="bold">पृ. शी :</fo:inline><xsl:apply-templates select="element_1_2"></xsl:apply-templates>
+													<fo:inline font-weight="bold">मु. शी :</fo:inline><xsl:apply-templates select="element_1_3"></xsl:apply-templates>
+													</fo:block>
+													<fo:block>&#160;</fo:block>	
+													</xsl:when>
+													<xsl:when test="element_1_2!='' and element_1_3=''">
+													<fo:block text-align="center">
+														<fo:inline font-weight="bold">पृ .शी/मु. शी </fo:inline> :<xsl:apply-templates select="element_1_2"></xsl:apply-templates>
+													</fo:block>
+													<fo:block>&#160;</fo:block>	
+													</xsl:when>
+													<xsl:when test="element_1_3!='' and  element_1_2=''">
+													<fo:block text-align="center">
+														<fo:inline font-weight="bold">पृ .शी/मु. शी </fo:inline> :<xsl:apply-templates select="element_1_3"></xsl:apply-templates>
+													</fo:block>
+													<fo:block>&#160;</fo:block>	
+													</xsl:when>
+													
+												</xsl:choose>
+												<xsl:apply-templates select="element_1_1"></xsl:apply-templates>
+												<!-- <xsl:value-of select="element_1_1"></xsl:value-of> -->
+											</fo:block>	
+											<fo:block>&#160;</fo:block>									
+									</fo:table-cell>
+								</fo:table-row>	
+							</fo:table-body>
+						 </fo:table>
+					 </fo:block>
+			       </fo:flow>
 			 
 	           <xsl:template match="element_1/element_1_1">	
 		<!-- <xsl:call-template name="br_template"></xsl:call-template> -->
