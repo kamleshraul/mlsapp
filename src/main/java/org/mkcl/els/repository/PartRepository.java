@@ -8,6 +8,7 @@ import java.util.Locale;
 import javax.persistence.Query;
 import javax.persistence.TypedQuery;
 
+import org.mkcl.els.common.exception.ELSException;
 import org.mkcl.els.domain.Part;
 import org.mkcl.els.domain.PartDraft;
 import org.mkcl.els.domain.Roster;
@@ -46,4 +47,70 @@ public class PartRepository extends BaseRepository<Part, Serializable> {
 		List<Part> parts=query.getResultList();
 		return parts;
 	}	
+	
+	public List<Part> findAllPartOfProceedingOfRoster(final Roster roster, final String locale) throws ELSException{
+		List<Part> parts = new ArrayList<Part>();
+		String query = "SELECT pp FROM Proceeding p"
+						+ " LEFT JOIN p.parts pp"
+						+ " WHERE p.slot.roater.id=:rosterId"
+						+ " AND p.locale=:locale";
+		try{
+			TypedQuery<Part> tQuery = this.em().createQuery(query, Part.class);
+			tQuery.setParameter("rosterId", roster.getId());
+			tQuery.setParameter("locale", locale);
+			parts = tQuery.getResultList();
+		}catch (Exception e) {
+			ELSException elsException = new ELSException();
+			elsException.setParameter("PartRepository:findAllPartsOfProceedingOfRoster", e.getCause().getMessage());
+			throw elsException;
+		}
+		return parts;
+	}
+	
+	public List<Part> findAllPartRosterSearchTerm(final Roster roster, String searchTerm, final String locale) throws ELSException{
+		List<Part> parts = new ArrayList<Part>();
+		String query = "SELECT pp FROM Proceeding p"
+						+ " LEFT JOIN p.parts pp"
+						+ " WHERE p.slot.roater.id=:rosterId"
+						+ " AND p.locale=:locale"
+						+ " AND (p.editedContent LIKE :searchTerm OR p.reviseddContent LIKE :searchTerm)";
+		try{
+			TypedQuery<Part> tQuery = this.em().createQuery(query, Part.class);
+			tQuery.setParameter("rosterId", roster.getId());
+			tQuery.setParameter("locale", locale);
+			tQuery.setParameter("searchTerm", "%" + searchTerm + "%");
+			parts = tQuery.getResultList();
+		}catch (Exception e) {
+			ELSException elsException = new ELSException();
+			elsException.setParameter("PartRepository:findAllPartRosterSearchTerm", e.getCause().getMessage());
+			throw elsException;
+		}
+		return parts;
+	}
+	
+	public List findAllEligibleForReplacement(final Roster roster, String searchTerm, String replaceTerm, String locale){
+		List data = null;
+		String query = "SELECT pp.id," 
+							+" pp.revised_content," 
+							+" pp.edited_content,"
+							+" CASE WHEN pp.edited_content<>'' THEN pp.edited_content"
+							+" ELSE pp.revised_content "
+							+" END AS originalText,"
+							+" CASE WHEN pp.edited_content<>'' THEN"
+							+" REPLACE(pp.edited_content, '"+searchTerm+"','" + replaceTerm +"')"
+							+" ELSE REPLACE(pp.revised_content, '"+searchTerm+"','" + replaceTerm +"')"
+							+" END AS replacedText,"
+							+" '0' AS undoData,"
+							+" '0' AS redoData,"
+							+" '0' AS useit"
+							+" FROM rosters ro"
+							+" INNER JOIN slots sl ON(sl.roster=ro.id)"
+							+" INNER JOIN proceedings p ON(p.slot=sl.id)"
+							+" INNER JOIN parts pp ON(pp.proceeding=p.id)"
+							+" WHERE ro.id=" + roster.getId()
+							+" AND MATCH(pp.revised_content,pp.edited_content) AGAINST('"+ searchTerm +"' IN NATURAL LANGUAGE MODE)";
+		Query tQuery = this.em().createNativeQuery(query);
+		data = tQuery.getResultList();
+		return data;
+	}
 }
