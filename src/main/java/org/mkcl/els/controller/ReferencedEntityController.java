@@ -37,10 +37,10 @@ public class ReferencedEntityController {
 		String strDeviceId=request.getParameter("id");
 		String strDeviceType = request.getParameter("deviceType");
 		String strUsergroupType = request.getParameter("usergroupType");
-		String strHouseType = request.getParameter("houseType");
+//		String strHouseType = request.getParameter("houseType");
 		
 		try{
-			if(strDeviceId!=null && strUsergroupType!=null && strDeviceType!=null && strHouseType != null){
+			if(strDeviceId!=null && strUsergroupType!=null && strDeviceType!=null /*&& strHouseType != null*/){
 				if(!strDeviceId.isEmpty()){
 					model.addAttribute("deviceType", strDeviceType);
 

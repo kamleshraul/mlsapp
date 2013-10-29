@@ -1976,13 +1976,13 @@
 										<input id="sendForTranslation" type="button" value="<spring:message code='bill.sendForTranslation' text='Send For Translation'/>" class="butDef">
 									</c:if>
 									<c:if test="${opinionFromLawAndJDStatusType=='opinionFromLawAndJD_notsend' and selectedDeviceTypeForBill=='bills_nonofficial'}">
-										<input id="sendForOpinionFromLawAndJD" type="button" value="<spring:message code='sendForOpinionFromLawAndJD' text='Send For Opinion From Law And JD'/>" class="butDef">
+										<input id="sendForOpinionFromLawAndJD" type="button" value="<spring:message code='bill.sendForOpinionFromLawAndJD' text='Send For Opinion From Law And JD'/>" class="butDef">
 									</c:if>
 									<%-- <c:if test="${recommendationFromGovernorStatusType=='recommendationFromGovernor_notsend'}">
-										<input id="sendForRecommendationFromGovernor" type="button" value="<spring:message code='sendForRecommendationFromGovernor' text='Send For Recommendation From Governor'/>" class="butDef">
+										<input id="sendForRecommendationFromGovernor" type="button" value="<spring:message code='bill.sendForRecommendationFromGovernor' text='Send For Recommendation From Governor'/>" class="butDef">
 									</c:if>
 									<c:if test="${recommendationFromPresidentStatusType=='recommendationFromPresident_notsend'}">
-										<input id="sendForRecommendationFromPresident" type="button" value="<spring:message code='sendForRecommendationFromPresident' text='Send For Recommendation From President'/>" class="butDef">
+										<input id="sendForRecommendationFromPresident" type="button" value="<spring:message code='bill.sendForRecommendationFromPresident' text='Send For Recommendation From President'/>" class="butDef">
 									</c:if> --%>							
 								</c:when>
 								<c:when test="${internalStatusType=='bill_system_assistantprocessed'}">
@@ -1994,10 +1994,10 @@
 										<input id="sendForOpinionFromLawAndJD" type="button" value="<spring:message code='sendForOpinionFromLawAndJD' text='Send For Opinion From Law And JD'/>" class="butDef">
 									</c:if>
 									<c:if test="${recommendationFromGovernorStatusType=='recommendationFromGovernor_notsend'}">
-										<input id="sendForRecommendationFromGovernor" type="button" value="<spring:message code='sendForRecommendationFromGovernor' text='Send For Recommendation From Governor'/>" class="butDef">
+										<input id="sendForRecommendationFromGovernor" type="button" value="<spring:message code='bill.sendForRecommendationFromGovernor' text='Send For Recommendation From Governor'/>" class="butDef">
 									</c:if>
 									<c:if test="${recommendationFromPresidentStatusType=='recommendationFromPresident_notsend'}">
-										<input id="sendForRecommendationFromPresident" type="button" value="<spring:message code='sendForRecommendationFromPresident' text='Send For Recommendation From President'/>" class="butDef">
+										<input id="sendForRecommendationFromPresident" type="button" value="<spring:message code='bill.sendForRecommendationFromPresident' text='Send For Recommendation From President'/>" class="butDef">
 									</c:if>
 									<input id="startworkflow" type="button" value="<spring:message code='bill.putupbill' text='Put Up Bill'/>" class="butDef">
 								</c:when>

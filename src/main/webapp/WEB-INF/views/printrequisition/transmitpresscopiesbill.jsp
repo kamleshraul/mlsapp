@@ -140,8 +140,7 @@
 	            $("#transmitPressCopiesForm").serialize(),  
 	            function(data){	
 					$('#pressCopiesDiv').empty();
-					$('#pressCopiesDiv').html(data);
-					alert($('#isAlreadyTransmitted').val());
+					$('#pressCopiesDiv').html(data);					
 					if($('#isAlreadyTransmitted').val()=='true') {
 						$('#submitRequisitionButtonsDiv').hide();
 					} else {
