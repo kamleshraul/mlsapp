@@ -3,8 +3,8 @@
 <head>
 	<script type="text/javascript">
 		$('document').ready(function(){
-			var fileid=$("#fileid").val();
-			var filetag=$("#filetag").val();
+			var fileid='${param.fileid}';
+			var filetag='${param.filetag}';
 			if(filetag != ''){
 				$("#file_"+fileid+"_link").text($("#downloadUploadedFile").val());
 				$("#file_"+fileid+"_removeUploadedFile").text($("#removeUploadedFile").val());			
@@ -35,6 +35,6 @@
 	<c:if test="${param.isRemovable != false}">
 		<a id="file_${param.fileid}_removeUploadedFile" href="#"></a>
 	</c:if>
-	<input type="hidden" id="filetag" value="${param.filetag}">
-	<input type="hidden" id="fileid" value="${param.fileid}">	
+	<input type="hidden" id="filetag_${param.filetag}" value="${param.filetag}">
+	<input type="hidden" id="fileid_${param.fileid}" value="${param.fileid}">
 </span>
