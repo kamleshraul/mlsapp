@@ -413,7 +413,15 @@
 						<fo:block text-align="right" margin-top="4cm" font-family="($font)" font-size="16px">
 							[<xsl:value-of select="element_4"/>,
 							<fo:block/>
-							<xsl:value-of select="element_5"/>.]
+							<xsl:choose>
+							<xsl:when test="element_26='bills_nonofficial'">
+								सदस्य.]
+							</xsl:when>
+							<xsl:when test="element_26='bills_government'">
+								<xsl:value-of select="element_5"/>.]
+							</xsl:when>
+							<xsl:otherwise><xsl:value-of select="element_26"/>.]</xsl:otherwise>
+							</xsl:choose>							
 						</fo:block>
 						<xsl:choose>
 							<xsl:when test="element_18='marathi'">

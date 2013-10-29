@@ -4134,6 +4134,13 @@ public class BillController extends GenericController<Bill> {
 					}
 				}
 			}
+			//temporary way of getting bill device type by finding bill again
+			Bill bill = Bill.findById(Bill.class, Long.parseLong(billId));
+			if(bill!=null) {
+				if(bill.getType()!=null) {
+					reportDataAsList.add(bill.getType().getType());
+				}
+			}
 			//generate report
 			java.io.File reportFile = null;
 			if(requisitionFor.equals(ApplicationConstants.BILL_PRESS_COPY)) {
