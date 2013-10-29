@@ -153,7 +153,22 @@
 				$("#selectionDiv1").hide();					
 				showTabByIdAndUrl('adjournment_tab','roster/adjournment/list');
 			}
-		}				
+		}	
+		
+		function viewRoster() {
+			
+			$("#selectionDiv1").hide();					
+			row=$('#key').val();			
+			if(row==null||row==''){				
+				$.prompt($('#selectRowFirstMessage').val());				
+				return false;
+			}else{
+				$("#selectionDiv1").hide();	
+				showTabByIdAndUrl('slot_tab','roster/'+row+'/roster_rep?'+$("#gridURLParams").val());
+			}/* 
+			
+			showTabByIdAndUrl('slot_tab','roster/roster_rep'); */
+		}
 	</script>
 </head>
 <body>

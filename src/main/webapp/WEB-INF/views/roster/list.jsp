@@ -28,7 +28,12 @@
 			/****Searching roster****/
 			$("#search").click(function() {
 				searchRecord();
-			});				
+			});		
+			
+			/****To see the roster of the day****/
+			$("#view_roster").click(function() {
+				viewRoster();
+			});
 		});	
 		function rowSelectHandler(rowid,status){			
 			if($('#key')){
@@ -63,7 +68,10 @@
 			</a> |			
 			<a href="#" id="search" class="butSim">
 				<spring:message code="roster.search" text="Search"/>
-			</a> |				
+			</a> |
+			<a href="#" id="view_roster" class="butSim">
+				<spring:message code="roster.roster" text="Roster"/>
+			</a> |					
 			<p>&nbsp;</p>
 		</div>
 	</div>
