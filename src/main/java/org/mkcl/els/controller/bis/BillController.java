@@ -473,7 +473,9 @@ public class BillController extends GenericController<Bill> {
 			logger.error("**** Bill kinds are not defined. ****");
 			model.addAttribute("errorcode","billKind_notfound");
 		}
-		/**** titles, content drafts, 'statement of object and reason' drafts & memorandum drafts ****/			
+		/**** titles, content drafts, 'statement of object and reason' drafts & memorandum drafts ****/	
+		String defaultBillLanguage = selectedSession.getParameter(deviceType.getType()+"_defaultTitleLanguage");
+		model.addAttribute("defaultBillLanguage", defaultBillLanguage);
 		boolean isSuccessful = populateAllTypesOfDrafts(model, domain, selectedSession, deviceType);
 		if(!isSuccessful) {
 			return;

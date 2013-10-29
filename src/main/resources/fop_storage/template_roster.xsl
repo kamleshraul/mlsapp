@@ -15,9 +15,6 @@
 	<!-- declares common variables such as language & font that will be used in all report stylesheets -->
     <xsl:include href="common_variables.xsl"/>
     
-    <!-- declares common templates as they will be applied in all report stylesheets & can be overridden -->
-    <xsl:import href="common_templates.xsl"/>
-
     <xsl:template match="root">
 
 	    <!-- <xsl:text disable-output-escaping="yes">
@@ -183,5 +180,7 @@
 	            </fo:flow>
 	        </fo:page-sequence>
 	    </fo:root>
-    </xsl:template>      
+    </xsl:template>  
+    <!-- declares common templates as they will be applied in all report stylesheets -->
+    <xsl:include href="common_templates.xsl"/>    
 </xsl:stylesheet>
