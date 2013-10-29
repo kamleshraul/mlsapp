@@ -1181,7 +1181,7 @@
 		<a href="#" id="viewProceedingCitation${count}" class="viewProceedingCitation" style="margin-left: 50px;margin-top: 30px;"><spring:message code="proceeding.viewcitation" text="View Citations"></spring:message></a>	
 	</p> --%>
 	<p>
-		<label class="wysiwyglabel"><spring:message code="part.content" text="Content"/></label>
+		<label class="wysiwyglabel"><spring:message code="part.proceedingContent" text="Content"/></label>
 		<textarea class="wysiwyg" name="content${count}" id="content${count}">${outer.proceedingContent}</textarea>
 	</p>
 	<input type='button' class='button addPartButton' id='addPart${count}' value='<spring:message code="proceeding.addPart" text="Add Part"></spring:message>' />
