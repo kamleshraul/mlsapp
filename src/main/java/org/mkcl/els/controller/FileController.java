@@ -20,12 +20,14 @@ import javax.servlet.http.HttpServletResponse;
 import org.mkcl.els.common.exception.ELSException;
 import org.mkcl.els.domain.CustomParameter;
 import org.mkcl.els.domain.Document;
+import org.mkcl.els.domain.File;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Controller;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.ui.ModelMap;
 import org.springframework.util.FileCopyUtils;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -41,7 +43,7 @@ import org.springframework.web.multipart.MultipartFile;
  */
 @Controller
 @RequestMapping("/file")
-public class FileController {
+public class FileController extends GenericController<File> {
 
     /** The Constant logger. */
     private static final Logger logger = LoggerFactory
@@ -116,6 +118,26 @@ public class FileController {
                     document.getFileData(), response.getOutputStream());
         } catch (IOException e) {
             logger.error("Error occured while downloading file:" + e.toString());
+        }catch (ELSException e) {
+			logger.error(e.getMessage());			
+		}
+    }
+    
+    @RequestMapping(value = "{tag}/open", method = RequestMethod.GET)
+    public void openFile(@PathVariable final String tag,
+                    final HttpServletRequest request,
+                    final HttpServletResponse response) {
+        Document document = null;
+        try {
+        	document = Document.findByTag(tag);
+            response.setContentType(document.getType());
+            response.setContentLength((int) document.getFileSize());
+            response.setHeader("Content-Disposition", "inline; filename=\""
+                    + document.getOriginalFileName() + "\"");
+            FileCopyUtils.copy(
+                    document.getFileData(), response.getOutputStream());
+        } catch (IOException e) {
+            logger.error("Error occured while opening file:" + e.toString());
         }catch (ELSException e) {
 			logger.error(e.getMessage());			
 		}
@@ -199,4 +221,26 @@ public class FileController {
         
     }
 
+    /**** Methods for File Master ****/    
+    @Override
+    protected void customValidateCreate(File domain, BindingResult result, HttpServletRequest request) {
+		/**** Version Mismatch ****/
+		if (domain.isVersionMismatch()) {
+			result.rejectValue("version", "VersionMismatch", "concurrent updation is not allowed.");
+		}
+		if(domain.getName()==null){
+			result.rejectValue("name","NameEmpty","Name is not set.");
+		}		
+	}
+    
+    @Override
+    protected void customValidateUpdate(File domain, BindingResult result, HttpServletRequest request) {
+		/**** Version Mismatch ****/
+		if (domain.isVersionMismatch()) {
+			result.rejectValue("version", "VersionMismatch", "concurrent updation is not allowed.");
+		}
+		if(domain.getName()==null){
+			result.rejectValue("name","NameEmpty","Name is not set.");
+		}		
+	}
 }
