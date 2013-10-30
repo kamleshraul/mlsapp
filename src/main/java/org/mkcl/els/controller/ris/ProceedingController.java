@@ -23,6 +23,7 @@ import org.mkcl.els.common.vo.MasterVO;
 import org.mkcl.els.controller.GenericController;
 import org.mkcl.els.domain.BaseDomain;
 import org.mkcl.els.domain.Bookmark;
+import org.mkcl.els.domain.Citation;
 import org.mkcl.els.domain.CustomParameter;
 import org.mkcl.els.domain.Designation;
 import org.mkcl.els.domain.DeviceType;
@@ -35,7 +36,6 @@ import org.mkcl.els.domain.MemberRole;
 import org.mkcl.els.domain.Ministry;
 import org.mkcl.els.domain.Part;
 import org.mkcl.els.domain.Proceeding;
-import org.mkcl.els.domain.ProceedingCitation;
 import org.mkcl.els.domain.Query;
 import org.mkcl.els.domain.Reporter;
 import org.mkcl.els.domain.Roster;
@@ -1228,12 +1228,13 @@ public class ProceedingController extends GenericController<Proceeding>{
 	public String getCitations(final HttpServletRequest request, final Locale locale,
 			final ModelMap model){
 		String strCounter=request.getParameter("counter");
-		List<ProceedingCitation> citations=ProceedingCitation.findAll(ProceedingCitation.class, "id", "asc", locale.toString());
+		List<Citation> citations=Citation.findAllByFieldName(Citation.class, "type", ApplicationConstants.REPORTING, "text", "asc", locale.toString());//ProceedingCitation.findAll(ProceedingCitation.class, "id", "asc", locale.toString());
 		if(strCounter!=null && !strCounter.isEmpty()){
 			model.addAttribute("counter", Integer.parseInt(strCounter));
 		}
 		model.addAttribute("citations",citations);
 		return "proceeding/proceedingcitation";
+		
 	}
 
 	
