@@ -23,7 +23,7 @@
 	var flagVal=0;
 		$(document).ready(function(){
 			$(".toolTip").hide();
-			loadRosterDayFromSessions();
+			//loadRosterDayFromSessions();
 			/**** grid params which is sent to load grid data being sent ****/		
 			$("#gridURLParams").val("houseType="+$("#selectedHouseType").val()
 					+"&sessionYear="+$("#selectedSessionYear").val()
@@ -42,6 +42,7 @@
 					+"&sessionType="+$("#selectedSessionType").val(),function(data){
 				$('#sessionId').val(data.id);
 			});
+			
 			/**** delete Proceeding ****/
 			$("#delete_record").click(function() {
 				deleteProceeding();
@@ -67,6 +68,8 @@
 				}else{
 					$("#memberText").css('display', 'none');
 				}
+				
+				
 				
 				 $( ".autosuggest").autocomplete({
 						minLength:3,			
