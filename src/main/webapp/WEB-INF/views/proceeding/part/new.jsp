@@ -117,7 +117,7 @@
 			
 			$(".viewProceedingCitation").click(function(){
 				$.get('proceeding/part/citations',function(data){
-				    $.fancybox.open(data, {autoSize: false, width: 600, height:600});
+				    $.fancybox.open(data, {autoSize: false, width: 600, height:400});
 			    },'html');
 			    return false;
 			});
