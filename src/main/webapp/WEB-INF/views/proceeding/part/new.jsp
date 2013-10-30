@@ -54,7 +54,6 @@
 			$('.halfHourDiscussionFromQuestion').hide();
 			$('.starredQuestion').hide();
 			currentRowId=$('#lastPart').val();
-			console.log(currentRowId);
 			$('#pageHeadingP').hide();
 			$('#mainHeadingP').hide();
 			$('.minister').hide();
