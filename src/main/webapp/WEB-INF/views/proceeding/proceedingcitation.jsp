@@ -30,8 +30,8 @@ $(document).ready(function(){
 <c:choose>
 	<c:when test="${!(empty citations) }">
 		<p> 
-			<label class="small"><spring:message code="proceedingcitation.text" text="Proceeding Citation"></spring:message></label>
-			<select id="citations" name="citations" multiple="multiple">
+			<label class="labelcentered"><spring:message code="proceedingcitation.text" text="Proceeding Citation"></spring:message></label>
+			<select id="citations" name="citations" multiple="multiple" class="sSelectMultiple">
 				<c:forEach items="${citations}" var="i" varStatus="cnt">
 					<option id="citation" value="${i.text}">${i.text}</option>
 				</c:forEach>
