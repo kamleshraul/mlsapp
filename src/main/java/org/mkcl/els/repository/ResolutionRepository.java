@@ -134,7 +134,7 @@ public class ResolutionRepository extends BaseRepository<Resolution, Long>{
 			resolutionRevisionVO.setEditedOn(o[2].toString());
 			resolutionRevisionVO.setStatus(o[3].toString());
 			if(o1!=null){
-				if(!o[4].toString().isEmpty()){
+				if(!o[4].toString().isEmpty() && !o1[4].toString().isEmpty()){
 					LinkedList<Diff> diff=d.diff_main(o1[4].toString(), o[4].toString());
 					String resolution=d.diff_prettyHtml(diff);
 					if(resolution.contains("&lt;")){
@@ -148,14 +148,14 @@ public class ResolutionRepository extends BaseRepository<Resolution, Long>{
 					}
 					resolutionRevisionVO.setDetails(resolution);
 				}else{
-					resolutionRevisionVO.setDetails(o1[4].toString());
+					resolutionRevisionVO.setDetails(o[4].toString());
 				}
 
 			}else{
 				resolutionRevisionVO.setDetails(o[4].toString());
 			}
 			if(o1!=null){
-				if(!o[5].toString().isEmpty()){
+				if(!o[5].toString().isEmpty() && o1[5].toString().isEmpty()){
 					LinkedList<Diff> diff=d.diff_main(o1[5].toString(), o[5].toString());
 					String resolution=d.diff_prettyHtml(diff);
 					if(resolution.contains("&lt;")){
@@ -169,7 +169,7 @@ public class ResolutionRepository extends BaseRepository<Resolution, Long>{
 					}
 					resolutionRevisionVO.setSubject(resolution);
 				}else{
-					resolutionRevisionVO.setSubject(o1[5].toString());
+					resolutionRevisionVO.setSubject(o[5].toString());
 				}
 
 			}else{
@@ -928,8 +928,8 @@ public class ResolutionRepository extends BaseRepository<Resolution, Long>{
 		StringBuffer query = new StringBuffer(
 				" SELECT DISTINCT r FROM Resolution r" +
 						" WHERE r.session.id=:sessionId AND r.type.id=:deviceTypeId" +
-						" AND r.discussionDate=:strDiscussionDate AND r.discussionStatus!=:discussionStatus"+
-						" AND r.ballotStatus.id!=:ballotStatus"+
+						" AND r.discussionDate=:strDiscussionDate AND r.discussionStatus IS NOT NULL"+
+						" AND r.ballotStatus.id IS NOT NULL"+
 						" AND r.submissionDate>=:strStartTime AND r.submissionDate<=:strEndTime" +
 				" AND r.member.id=:memberId AND r.locale=:locale");
 		try{
@@ -944,8 +944,8 @@ public class ResolutionRepository extends BaseRepository<Resolution, Long>{
 			tQuery.setParameter("sessionId", session.getId());
 			tQuery.setParameter("deviceTypeId", deviceType.getId());
 			tQuery.setParameter("strDiscussionDate", answeringDate);
-			tQuery.setParameter("discussionStatus", null);
-			tQuery.setParameter("ballotStatus", null);
+			/*tQuery.setParameter("discussionStatus", null);
+			tQuery.setParameter("ballotStatus", null);*/
 			tQuery.setParameter("strStartTime", startTime);
 			tQuery.setParameter("strEndTime", endTime);
 			tQuery.setParameter("memberId", memberId);
