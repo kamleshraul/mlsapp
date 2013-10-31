@@ -1534,7 +1534,7 @@
 					</p>
 					</c:if>
 					
-					<c:set var="isRecommendationFromGovernorReadonly" value="true"/>
+					<%-- <c:set var="isRecommendationFromGovernorReadonly" value="true"/>
 					<c:if test="${workflowtype=='RECOMMENDATION_FROM_GOVERNOR_WORKFLOW' and workflowstatus!='COMPLETED'}">
 						<c:set var="isRecommendationFromGovernorReadonly" value="false"/>
 					</c:if>
@@ -1547,9 +1547,9 @@
 					<p>
 					<label class="small"><spring:message code="bill.dateOfRecommendationFromGovernor" text="Date Of Recommendation From Governor"/></label>
 					<input id="formattedDateOfRecommendationFromGovernor" name="formattedDateOfRecommendationFromGovernor" value="${formattedDateOfRecommendationFromGovernor}" class="sText" readonly="readonly">
-					<input id="setDateOfDateOfRecommendationFromGovernor" name="setDateOfDateOfRecommendationFromGovernor" type="hidden"  value="${dateOfRecommendationFromGovernor}">	
+					<input id="setDateOfRecommendationFromGovernor" name="setDateOfRecommendationFromGovernor" type="hidden"  value="${dateOfRecommendationFromGovernor}">	
 					</p>
-					</c:if>
+					</c:if> --%>
 					
 					<c:set var="isRecommendationFromPresidentReadonly" value="true"/>
 					<c:if test="${workflowtype=='RECOMMENDATION_FROM_PRESIDENT_WORKFLOW' and workflowstatus!='COMPLETED'}">
@@ -1564,7 +1564,7 @@
 					<p>
 					<label class="small"><spring:message code="bill.dateOfRecommendationFromPresident" text="Date Of Recommendation From President"/></label>
 					<input id="formattedDateOfRecommendationFromPresident" name="formattedDateOfRecommendationFromPresident" value="${formattedDateOfRecommendationFromPresident}" class="sText" readonly="readonly">
-					<input id="setDateOfDateOfRecommendationFromPresident" name="setDateOfDateOfRecommendationFromPresident" type="hidden"  value="${dateOfRecommendationFromPresident}">	
+					<input id="setDateOfRecommendationFromPresident" name="setDateOfRecommendationFromPresident" type="hidden"  value="${dateOfRecommendationFromPresident}">	
 					</p>
 					</c:if>
 					
