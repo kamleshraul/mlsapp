@@ -269,12 +269,14 @@ public class WorkflowController extends BaseController {
 						CustomParameter allowedWorkflowTypes=CustomParameter.findByName(CustomParameter.class,"MYTASK_GRID_WORKFLOW_TYPES_ALLOWED_"+selectedDeviceType.getType().toUpperCase()+"_"+userGroupType.toUpperCase(), "");
 						if(allowedWorkflowTypes!=null){
 							try {
-								workflowTypes=Status.findStatusContainedIn(allowedWorkflowTypes.getValue(), locale);
+								List<Status> workflowTypesForUsergroup=Status.findStatusContainedIn(allowedWorkflowTypes.getValue(), locale);
+								workflowTypes.addAll(workflowTypesForUsergroup);
 							} catch (ELSException e) {
 								e.printStackTrace();
 								model.addAttribute("error", e.getParameter());
 							}
-						}else{
+						}
+						if(workflowTypes.isEmpty()) {
 							CustomParameter defaultAllowedWorkflowTypes=CustomParameter.findByName(CustomParameter.class,"MYTASK_GRID_WORKFLOW_TYPES_ALLOWED_BY_DEFAULT", "");
 							if(defaultAllowedWorkflowTypes!=null){
 								try {
@@ -288,8 +290,7 @@ public class WorkflowController extends BaseController {
 								return errorpage;
 							}
 						}
-						model.addAttribute("workflowTypes",workflowTypes);
-						break;
+						model.addAttribute("workflowTypes",workflowTypes);						
 					}					
 				}					
 			}else{

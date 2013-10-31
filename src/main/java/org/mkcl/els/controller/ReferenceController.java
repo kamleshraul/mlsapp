@@ -2008,17 +2008,18 @@ public class ReferenceController extends BaseController {
 								CustomParameter allowedWorkflowTypes=CustomParameter.findByName(CustomParameter.class,"MYTASK_GRID_WORKFLOW_TYPES_ALLOWED_"+deviceType
 										.getType().toUpperCase()+"_"+userGroupType.toUpperCase(), "");
 								if(allowedWorkflowTypes!=null){
-									workflowTypes=Status.findStatusContainedIn(allowedWorkflowTypes.getValue(), locale.toString());
-								}else{
-									CustomParameter defaultAllowedWorkflowTypes=CustomParameter.findByName(CustomParameter.class,"MYTASK_GRID_WORKFLOW_TYPES_ALLOWED_BY_DEFAULT", "");
-									if(defaultAllowedWorkflowTypes!=null){
-										workflowTypes=Status.findStatusContainedIn(defaultAllowedWorkflowTypes.getValue(), locale.toString());
-									}else{
-										logger.error("Custom Parameter 'MYTASK_GRID_WORKFLOW_TYPES_ALLOWED_BY_DEFAULT' not set");
-									}
-								}
-								break;
+									List<Status> workflowTypesForUsergroup=Status.findStatusContainedIn(allowedWorkflowTypes.getValue(), locale.toString());
+									workflowTypes.addAll(workflowTypesForUsergroup);
+								}							
 							}						
+						}
+						if(workflowTypes.isEmpty()) {
+							CustomParameter defaultAllowedWorkflowTypes=CustomParameter.findByName(CustomParameter.class,"MYTASK_GRID_WORKFLOW_TYPES_ALLOWED_BY_DEFAULT", "");
+							if(defaultAllowedWorkflowTypes!=null){
+								workflowTypes=Status.findStatusContainedIn(defaultAllowedWorkflowTypes.getValue(), locale.toString());
+							}else{
+								logger.error("Custom Parameter 'MYTASK_GRID_WORKFLOW_TYPES_ALLOWED_BY_DEFAULT' not set");
+							}
 						}
 						return workflowTypes;
 					}else{
