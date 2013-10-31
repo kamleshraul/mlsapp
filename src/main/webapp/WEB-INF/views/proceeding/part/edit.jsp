@@ -34,7 +34,7 @@
 		
 	</style>
 	<script type="text/javascript">
-
+	/***Global Variable***/
 	var keycode=new Array();
 	var mainContent="";
 	var finalContent="";
@@ -48,129 +48,112 @@
 		$('.public').hide();
 		$('.substitute').hide();
 		$('.member').hide();
-		
 		currentRowId=$('#id').val();		
+		
+		/****AutoSuggest for Substitute Member including Ministers from Both houses****/
 		$('#formattedSubstituteMember').autocomplete({
 				minLength:3,			
 				source:'ref/member/getmembers?session='+$("#session").val(),
 				select:function(event,ui){		
 					$("#substituteMember").val(ui.item.id);
 				}	
-			});
-			$( "#formattedMember").autocomplete({
-				minLength:3,			
-				source:'ref/member/supportingmembers?session='+$("#session").val(),
-				select:function(event,ui){		
-					$("#primaryMember").val(ui.item.id);
-				}	
-			});
+		});
+		
+		/****AutoSuggest for House Specific Member****/
+		$( "#formattedMember").autocomplete({
+			minLength:3,			
+			source:'ref/member/supportingmembers?session='+$("#session").val(),
+			select:function(event,ui){		
+				$("#primaryMember").val(ui.item.id);
+			}	
+		});
 			
-			$('#addBookmark').click(function(){
-				//var id=this.id;
-				$.get('proceeding/part/bookmark?language='+$("#selectedLanguage").val()+'&currentSlot='+$('#cSlot').val()+'&currentPart='+$('#id').val(),function(data){
-					    $.fancybox.open(data, {autoSize: false, width:800, height:500});
-				 },'html');
-				    return false;
-			});
-			
-			$(".viewProceedingCitation").click(function(){
-				$.get('proceeding/part/citations',function(data){
-				    $.fancybox.open(data, {autoSize: false, width: 600, height:600});
-			    },'html');
-			    return false;
-			});
-			
-			if($('#mainHeading').val()==''){
-				$('#mainHeadingP').hide();
-			}
-			
-			if($('#pageHeading').val()==''){
-				$('#pageHeadingP').hide();
-			}
-			
-			$('#mainHeadingLink').click(function(){
-				$('#mainHeadingP').toggle();
-			});
-			
-			$('#pageHeadingLink').click(function(){
-				$('#pageHeadingP').toggle();
-			});
-			
-			$('.bookmarkKey').click(function(){
-				var id=this.id;
-				var bookmarkId=id.split("##");
-				var iframe= document.getElementById('proceedingContent-wysiwyg-iframe');
-				contentToBeReplaced=getIframeSelectionText(iframe);
-				$.prompt($('#addBookmarkMessage').val(),{
-					buttons: {Ok:true, Cancel:false}, callback: function(v){
-			        if(v){
-			        	$.post('proceeding/part/updatetext?bookmark='+bookmarkId[0]+'&textToBeAdded='+contentToBeReplaced+"&part="+$('#id').val()+"&currentSlot="+$('#cSlot').val(),function(data){
-							if(data!=null){
-								alert("The Text has Been added for the bookmark successfully");
-							}
-						});
-			        }
-					}});			
-		        return false;  
-		   	 }); 
-			
-			
-			$('.wysiwyg').wysiwyg({
-				events:{
-					keydown:function(e){
-						if(j==0 && e.which==17){
-							keycode[j]=e.which;
-							j++;
-						}else if(j==1 && e.which==16){
-							keycode[j]=e.which;
-							j++;
-						}else if(j==2 && e.which!=0){
-							
-							mainContent=$('#proceedingContent').val();
-							finalContent=mainContent;					
-							mainContent=mainContent.replace(/<br><p><\/p>/g,"");
-							mainContent=mainContent.replace(/<br>/g,"");
-							mainContent=mainContent.replace(/<p>/g,"");
-							mainContent=mainContent.replace(/<\/p>/g,"");
-							prevMainContentLength=mainContent.length;
-							console.log("MainContent="+mainContent);
-							keycode[j]=e.which;
-							j++;
-						
-						}else{
-							if(e.which==13){
-								
-								lineCount=lineCount+1;
-								console.log(lineCount);
-							}
-							currentContent=$('#proceedingContent').wysiwyg('getContent');
-							currentContent=currentContent.replace(/<br><p><\/p>/g,"");
-							currentContent=currentContent.replace(/<br>/g,"");
-							currentContent=currentContent.replace(/<p>/g,"");
-							currentContent=currentContent.replace(/<\/p>/g,"");
-							console.log("current Content:"+currentContent);
-							
-							
+		/****Bookmark****/
+		$('#addBookmark').click(function(){
+			$.get('proceeding/part/bookmark?language='+$("#selectedLanguage").val()+'&currentSlot='+$('#cSlot').val()+'&currentPart='+$('#id').val(),function(data){
+					$.fancybox.open(data, {autoSize: false, width:800, height:500});
+			},'html');
+			return false;
+		});
+		
+		$('.bookmarkKey').click(function(){
+			var id=this.id;
+			var bookmarkId=id.split("##");
+			var iframe= document.getElementById('proceedingContent-wysiwyg-iframe');
+			contentToBeReplaced=getIframeSelectionText(iframe);
+			$.prompt($('#addBookmarkMessage').val(),{
+				buttons: {Ok:true, Cancel:false}, callback: function(v){
+		        if(v){
+		        	$.post('proceeding/part/updatetext?bookmark='+bookmarkId[0]+'&textToBeAdded='+contentToBeReplaced+"&part="+$('#id').val()+"&currentSlot="+$('#cSlot').val(),function(data){
+						if(data!=null){
+							alert("The Text has Been added for the bookmark successfully");
 						}
-						
-						if(keycode[0]==17 && keycode[1]==16){
-							
-							var key="";
-							if(keycode.length>2){
-								console.log("keycode[2]"+keycode[2]);
-								e.preventDefault();
-								key=keycode;
-							}
-													
-							if(key!=""){
-							console.log("current Content Length:"+currentContent.length);
-							console.log("Main Content Length:"+mainContent.length);
-							
+					});
+		        }
+				}});			
+		       return false;  
+		 }); 
+		/****Citation****/
+		$(".viewProceedingCitation").click(function(){
+			$.get('proceeding/part/citations',function(data){
+			    $.fancybox.open(data, {autoSize: false, width: 600, height:600});
+			},'html');
+			return false;
+		});
+			
+		/****Hiding the Mainheading and PageHeading if they are empty****/
+		if($('#mainHeading').val()==''){
+			$('#mainHeadingP').hide();
+		}
+			
+		if($('#pageHeading').val()==''){
+			$('#pageHeadingP').hide();
+		}
+		
+		/****Toggling of MainHeading and PageHeadingDivs on Link Click****/
+		$('#mainHeadingLink').click(function(){
+			$('#mainHeadingP').toggle();
+		});
+			
+		$('#pageHeadingLink').click(function(){
+			$('#pageHeadingP').toggle();
+		});
+			
+		/****wysiwyg Control****/
+		$('.wysiwyg').wysiwyg({
+			events:{
+				keydown:function(e){
+					if(j==0 && e.which==17){
+						keycode[j]=e.which;
+						j++;
+					}else if(j==1 && e.which==16){
+						keycode[j]=e.which;
+						j++;
+					}else if(j==2 && e.which!=0){
+						mainContent=$('#proceedingContent').val();
+						finalContent=mainContent;					
+						mainContent=replaceString(mainContent);
+						prevMainContentLength=mainContent.length;
+						keycode[j]=e.which;
+						j++;
+					
+					}else{
+						if(e.which==13){
+							lineCount=lineCount+1;
+						}
+						currentContent=$('#proceedingContent').wysiwyg('getContent');
+						currentContent=replaceString(currentContent);
+					}
+					if(keycode[0]==17 && keycode[1]==16){
+						var key="";
+						if(keycode.length>2){
+							e.preventDefault();
+							key=keycode;
+						}
+						if(key!=""){
 							if(currentContent.length>mainContent.length){
-								
 								currentContent=currentContent.replace(/<br>/g,"");
 								var lookupContent=currentContent.substring(mainContent.length);
-								console.log("lookupContent:"+lookupContent);
 								if(lookupContent!=""){
 									$.get("ref/search?key="+key+"&term="+lookupContent,function(data){
 										 $("#autosuggest_menu").empty();
@@ -188,8 +171,7 @@
 											$("#autosuggest_menu").focus();
 											$("#autosuggest_menu").get(0).selectedIndex = 0;;
 											$("#shiftDiv").css("left",/* $('#'+contentNo).val().length  + */ offset.left);
-											 $("#shiftDiv").css("top",offset.top/* +(lineCount*30) */);
-											
+									 		$("#shiftDiv").css("top",offset.top/* +(lineCount*30) */);
 										}else{
 											$("#shiftDiv").css("display","none");
 											j=0;
@@ -202,8 +184,7 @@
 						}
 					}
 				},
-					
-				    controls:{
+				controls:{
 						fullscreen: {
 							/*groupIndex: 12,*/
 							visible: true,
@@ -228,190 +209,208 @@
 				 			   		 },'html');
 				 			    	return false;
 				             	}
-				            }
-						}	  
+				       }
+				}	  
 	      });
 			
-			$("#autosuggest_menu").click(function(e){
-	
-					var content=$(this).val();
-					content==content.replace(/<br><p><\/p>/g,"");
-					content==content.replace(/<br>/g,"");
-					$("#proceedingContent").wysiwyg("setContent",finalContent+content);
-					mainContent=$("#proceedingContent").val();
-					mainContent=mainContent.replace(/<br><p><\/p>/g,"");
-					mainContent=mainContent.replace(/<br>/g,"");
-					mainContent=mainContent.replace(/<p>/g,"");
-					mainContent=mainContent.replace(/<\/p>/g,"");
-					$(this).css("display","none");
-					$("proceedingContent-wysiwyg-iframe").focus();
-				});
+		/****Menu to display the masters(ghat,fort,etc.) by shortcut****/
+		$("#autosuggest_menu").click(function(e){
+			var content=$(this).val();
+			content=replaceString(content);
+			$("#proceedingContent").wysiwyg("setContent",finalContent+content);
+			mainContent=$("#proceedingContent").val();
+			mainContent=replaceString(mainContent);
+			$(this).css("display","none");
+			$("proceedingContent-wysiwyg-iframe").focus();
+		});
 			
-			$('#previousLink').click(function(){
+		/****Navigation Functionality(Next,Previous,GoTo)****/
+		$('#previousLink').click(function(){
 				previousPart();
-			});
+		});
 			
-			$('#nextLink').click(function(){
-				nextPart();
-			});
+		$('#nextLink').click(function(){
+			nextPart();
+		});
 			
-			$('#orderNoInput').change(function(){
-				var orderNoText=$(this).val();
-				goToPart(orderNoText);
-			});
-						
-			$('#ministerLink').click(function(){
-				$('.minister').show();
+		$('#orderNoInput').change(function(){
+			var orderNoText=$(this).val();
+			goToPart(orderNoText);
+		});
+		
+		/***Hiding Divs on Link click(minister,public,substitute,private)*****/
+		$('#ministerLink').click(function(){
+			hideDiv();	
+			$('.minister').show();
+			$('.member').show();
+			$('#privateLink').show();
+			$('#publicLink').show();
+			$('#substituteLink').show();
+		});
+			
+		$('#substituteLink').click(function(){
+			$('.substitute').toggle();
+		});
+			
+		$('#privateLink').click(function(){
+			hideDiv();
+			$('.member').show();
+			$('#ministerLink').show();
+			$('#publicLink').show();
+			$('#substituteLink').show();
+		});
+			
+		$('#publicLink').click(function(){
+			hideDiv();
+			$('#ministerLink').show();
+			$('#publicLink').show();
+			$('#substituteLink').show();
+			$('#privateLink').show();
+			$('.public').show();
+			
+		});
+			
+		if($('#primaryMemberSelected').val()!=''){
 				$('.member').show();
-				$('.substitute').hide();
-				$('.private').hide();
-				$('.public').hide();
-				$('#privateLink').show();
-				$('#ministerLink').hide();
-			});
+		}
+		if($('#primaryMemberMinistrySelected').val()!=''){
+			$("#primaryMemberMinistry").prepend("<option value='' >----"+$("#pleaseSelectMessage").val()+"----</option>");
+			$('.minister').show();
+			$('#privateLink').show();
+			$('#ministerLink').hide();
+		}else{
+			$("#primaryMemberMinistry").prepend("<option value='' selected='selected' >----"+$("#pleaseSelectMessage").val()+"----</option>");
+		}
 			
-			$('#substituteLink').click(function(){
-				$('.substitute').toggle();
-			});
+		if($('#primaryMemberDesignationSelected').val()!=''){
+			$("#primaryMemberDesignation").prepend("<option value='' >----"+$("#pleaseSelectMessage").val()+"----</option>");
+		}else{
+			$("#primaryMemberDesignation").prepend("<option value='' selected='selected'>----"+$("#pleaseSelectMessage").val()+"----</option>");
+		}
 			
-			$('#privateLink').click(function(){
-				$('.member').show();
-				$('.minister').hide();
-				$('.public').hide();
-				$('.substitute').hide();
-				$('#privateLink').hide();
-				$('#ministerLink').show();
-			});
-			
-			$('#publicLink').click(function(){
-				$('.public').show();
-				$('.member').hide();
-				$('.substitute').hide();
-				$('.minister').hide();
-				
-			});
-			
-					
-			if($('#primaryMemberSelected').val()!=''){
-				$('.member').show();
+		if($('#substituteMemberSelected').val()!=''){
+			$('.substitute').show();
+		}
+		if($('#publicRepresentative').val()!=''){
+			$('.public').show();
+		}
+		$('.deviceType').each(function(){
+			if($(this).children().eq(1).attr('value')==''){
+					$(this).hide();
 			}
-			if($('#primaryMemberMinistrySelected').val()!=''){
-				$("#primaryMemberMinistry").prepend("<option value='' >----"+$("#pleaseSelectMessage").val()+"----</option>");
-				$('.minister').show();
-				$('#privateLink').show();
-				$('#ministerLink').hide();
-			}else{
-				$("#primaryMemberMinistry").prepend("<option value='' selected='selected' >----"+$("#pleaseSelectMessage").val()+"----</option>");
-			}
+		}) ;
+		
+		if($('#substituteMemberMinistrySelected').val()!=''){
+			$("#substituteMemberMinistry").prepend("<option value='' >----"+$("#pleaseSelectMessage").val()+"----</option>");
+		}else{
+			$("#substituteMemberMinistry").prepend("<option value='' selected='selected' >----"+$("#pleaseSelectMessage").val()+"----</option>");
+		}
 			
-			if($('#primaryMemberDesignationSelected').val()!=''){
-				$("#primaryMemberDesignation").prepend("<option value='' >----"+$("#pleaseSelectMessage").val()+"----</option>");
-			}else{
-				$("#primaryMemberDesignation").prepend("<option value='' selected='selected'>----"+$("#pleaseSelectMessage").val()+"----</option>");
-			}
+		if($('#substituteMemberDesignationSelected').val()!=''){
+			$("#substituteMemberDesignation").prepend("<option value='' >----"+$("#pleaseSelectMessage").val()+"----</option>");
+		}else{
+			$("#substituteMemberDesignation").prepend("<option value='' selected='selected'>----"+$("#pleaseSelectMessage").val()+"----</option>");
+		}
 			
-			if($('#substituteMemberSelected').val()!=''){
-				$('.substitute').show();
-			}
-			if($('#publicRepresentative').val()!=''){
-				$('.public').show();
-			}
-			$('.deviceType').each(function(){
-				if($(this).children().eq(1).attr('value')==''){
-						$(this).hide();
-				}
-			}) ;
-			
-			if($('#substituteMemberMinistrySelected').val()!=''){
-				$("#substituteMemberMinistry").prepend("<option value='' >----"+$("#pleaseSelectMessage").val()+"----</option>");
-			}else{
-				$("#substituteMemberMinistry").prepend("<option value='' selected='selected' >----"+$("#pleaseSelectMessage").val()+"----</option>");
-			}
-			
-			if($('#substituteMemberDesignationSelected').val()!=''){
-				$("#substituteMemberDesignation").prepend("<option value='' >----"+$("#pleaseSelectMessage").val()+"----</option>");
-			}else{
-				$("#substituteMemberDesignation").prepend("<option value='' selected='selected'>----"+$("#pleaseSelectMessage").val()+"----</option>");
-			}
-			
-			$('#resetMainHeading').click(function(){
+		/****Reseting the Content of Main Heading and Page Heading****/
+		$('#resetMainHeading').click(function(){
 				$('#mainHeading').wysiwyg('setContent',"");
-			});
-			$('#resetPageHeading').click(function(){
-				$('#pageHeading').wysiwyg('setContent',"");
-			});
+		});
+		$('#resetPageHeading').click(function(){
+			$('#pageHeading').wysiwyg('setContent',"");
+		});
 			
-			 /**** Right Click Menu ****/
-			$(".bookmarkKey").contextMenu({
-		        menu: 'contextMenuItems'
-		    	},
-		        function(action, el, pos) {
+		/**** Right Click Menu ****/
+		$(".bookmarkKey").contextMenu({
+		       menu: 'contextMenuItems'
+		   	},
+		    function(action, el, pos) {
 				var id=$(el).attr("id");
 				if(action=='viewBookmarkDetails'){
 					viewBookmarkDetail(id);	
 				}
-			});	
+		});	
 			 
-			$('#formattedMember').change(function(){
-				$('#memberImage').attr("src","ref/getphoto?memberId="+$('#primaryMember').val());
-				$('#memberPhoto').css("display","inline");
-				
-			});
+		/****To Display the photo of Member whose part is been prepared****/
+		$('#formattedMember').change(function(){
+			$('#memberImage').attr("src","ref/getphoto?memberId="+$('#primaryMember').val());
+			$('#memberPhoto').css("display","inline");
+		});
 			
-			
-			$('#interruptedProceeding').click(function(){
+		/****To import the mainHeading and PageHeading of Interrupted Proceeding****/	
+		$('#interruptedProceeding').click(function(){
 				$('#searchBy').toggle();
-			});
+		});
 			
-			$(document).click(function(){
-				 $('#interruptProceedingDiv').css('display','none');
-			});
+		$(document).click(function(){
+			 $('#interruptProceedingDiv').css('display','none');
+		});
 			
-			$('#searchBy').change(function(){
-				$.get('ref/getInterruptedProceedings?currentSlot='+$('#cSlot').val()+"&searchBy="+$(this).val(),function(data){
-					var text="";
-					if(data.length>0){
-					 for(var i=0;i<data.length;i++){
-						 text=text+"<option value='"+data[i].value +"'>"+data[i].name+"</option>"; 
-						//text=text+"<li><a href='#"+data[i].value+"'>"+data[i].name+"</a></li>";
-					 }
-					 $('#iProceeding').html(text);
-					 $('#iProceeding').attr("size",data.length);
-					 $('#interruptProceedingDiv').css('left','469px');
-					 $('#interruptProceedingDiv').css('top','245px');
-					 $('#interruptProceedingDiv').css('display','block');
-					}
-					
-				});
-			});
-			
-			
-			$('#iProceeding').change(function(){
-				var strAction=$(this).val().split("#");
-				$('#mainHeading').wysiwyg('setContent',strAction[1]);
-				$('#pageHeading').wysiwyg('setContent',strAction[0]);
-				$('#mainHeadingP').css('display','block');
-				$('#pageHeadingP').css('display','block');
+		$('#searchBy').change(function(){
+			$.get('ref/getInterruptedProceedings?currentSlot='+$('#cSlot').val()+"&searchBy="+$(this).val(),function(data){
+				var text="";
+				if(data.length>0){
+				 for(var i=0;i<data.length;i++){
+					 text=text+"<option value='"+data[i].value +"'>"+data[i].name+"</option>"; 
+				 }
+				 $('#iProceeding').html(text);
+				 $('#iProceeding').attr("size",data.length);
+				 $('#interruptProceedingDiv').css('left','469px');
+				 $('#interruptProceedingDiv').css('top','245px');
+				 $('#interruptProceedingDiv').css('display','block');
+				}
 			});
 		});
-		function getIframeSelectionText(iframe) {
-			  var win = iframe.contentWindow;
-			  var doc = iframe.contentDocument || win.document;
-
-			  if (win.getSelection) {
-			    return win.getSelection().toString();
-			  } else if (doc.selection && doc.selection.createRange) {
-			    return doc.selection.createRange().text;
-			  }
-		}
-		
-		function viewBookmarkDetail(id){
-			var params="id="+id;
-			$.get('proceeding/part/viewbookmark?'+params,function(data){
-			    $.fancybox.open(data, {autoSize: false, width: 800, height:600});
-		    },'html');					
 			
-		}
+			
+		$('#iProceeding').change(function(){
+			var strAction=$(this).val().split("#");
+			$('#mainHeading').wysiwyg('setContent',strAction[1]);
+			$('#pageHeading').wysiwyg('setContent',strAction[0]);
+			$('#mainHeadingP').css('display','block');
+			$('#pageHeadingP').css('display','block');
+		});
+	});
+	
+	/****Function to get the selected text from iframe****/
+	function getIframeSelectionText(iframe) {
+		 var win = iframe.contentWindow;
+		 var doc = iframe.contentDocument || win.document;
+	     if (win.getSelection) {
+		    return win.getSelection().toString();
+		  } else if (doc.selection && doc.selection.createRange) {
+		    return doc.selection.createRange().text;
+		  }
+	}
+	
+	/**** view Bookmark Details****/
+	function viewBookmarkDetail(id){
+		var params="id="+id;
+		$.get('proceeding/part/viewbookmark?'+params,function(data){
+		    $.fancybox.open(data, {autoSize: false, width: 800, height:600});
+		},'html');					
+	}
+		
+	
+	/****Function to replace a part of a string****/
+	function replaceString(toBeReplacedContent){
+		toBeReplacedContent=toBeReplacedContent.replace(/<br><p><\/p>/g,"");
+		toBeReplacedContent=toBeReplacedContent.replace(/<br>/g,"");
+		toBeReplacedContent=toBeReplacedContent.replace(/<p>/g,"");
+		toBeReplacedContent=toBeReplacedContent.replace(/<\/p>/g,"");
+		return toBeReplacedContent;
+	}
+		
+	/****Function to Hide Divs****/
+	function hideDiv(){
+		$('.member').hide();
+		$('.minister').hide();
+		$('.public').hide();
+		$('.substitute').hide();
+		$('#privateLink').hide();
+		$('#ministerLink').hide();
+		$('#substituteLink').hide();
+	}
 	</script>
 </head>
 

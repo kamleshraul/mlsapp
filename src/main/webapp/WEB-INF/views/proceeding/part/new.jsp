@@ -39,6 +39,7 @@
 	</style>
 	<script type="text/javascript">
 	
+	/***Global Variable***/
 	var keycode=new Array();
 	var mainContent="";
 	var finalContent="";
@@ -48,20 +49,13 @@
 	var lineCount=1;
 	var maxHeight = '';
 		$(document).ready(function(){
+			
+			/****Hiding the interrupted Proceeding Div****/
 			$(document).click(function(){
 				 $('#interruptProceedingDiv').css('display','none');
 			});
-			$('.halfHourDiscussionFromQuestion').hide();
-			$('.starredQuestion').hide();
-			currentRowId=$('#lastPart').val();
-			$('#pageHeadingP').hide();
-			$('#mainHeadingP').hide();
-			$('.minister').hide();
-			$('.public').hide();
-			$('.substitute').hide();
-			$('#privateLink').hide();
-			$('.deviceType').hide();
-			
+		
+			/****AutoSuggest for Substitute Member including Ministers from Both houses****/
 			$('#formattedSubstituteMember').autocomplete({
 				minLength:3,			
 				source:'ref/member/getmembers?session='+$("#session").val(),
@@ -69,6 +63,8 @@
 					$("#substituteMember").val(ui.item.id);
 				}	
 			});
+			
+			/****AutoSuggest for House Specific Member****/
 			$( "#formattedMember").autocomplete({
 				minLength:3,			
 				source:'ref/member/supportingmembers?session='+$("#session").val(),
@@ -77,6 +73,7 @@
 				}	
 			});
 			
+			/***Toggling the MainHeading and PageHeading*****/
 			$('#mainHeadingLink').click(function(){
 				$('#mainHeadingP').toggle();
 			});
@@ -85,18 +82,22 @@
 				$('#pageHeadingP').toggle();
 			});
 			
+			/****Navigation Functionality(Next,Previous,GoTo)****/
 			$('#previousLink').click(function(){
 				var prevId=$('#lastPart').val();
 				showTabByIdAndUrl('part_tab','proceeding/part/'+prevId+'/edit');
-				//previousPart();
 			});
 			
 			$('#nextLink').click(function(){
 				nextPart();
 			});
 					
-			//alert($('#mainHeadingContent').val());
-			
+			 $('#orderNoInput').change(function(){
+					var orderNoText=$(this).val();
+					goToPart(orderNoText);
+			});
+			 
+			/****Setting The Previous mainHeading And PageHeading****/ 
 			if($('#mainHeadingContent').val()!=''){
 				$('#mainHeading').val($('#mainHeadingContent').val());
 				$('#mainHeadingP').show();
@@ -106,14 +107,15 @@
 				$('#pageHeadingP').show();
 			}
 			
+			/****Bookmark****/
 			$('#addBookmark').click(function(){
-				//var id=this.id;
 				$.get('proceeding/part/bookmark?language='+$("#selectedLanguage").val()+'&currentSlot='+$('#cSlot').val()+'&currentPart='+$('#id').val(),function(data){
 					    $.fancybox.open(data, {autoSize: false, width:800, height:500});
 				 },'html');
 				    return false;
 			});
 			
+			/****Citation****/
 			$(".viewProceedingCitation").click(function(){
 				$.get('proceeding/part/citations',function(data){
 				    $.fancybox.open(data, {autoSize: false, width: 600, height:400});
@@ -121,7 +123,7 @@
 			    return false;
 			});
 			
-			
+			/****wysiwyg Control****/
 			$('.wysiwyg').wysiwyg({
 				events:{
 					keydown:function(e){
@@ -132,36 +134,21 @@
 							keycode[j]=e.which;
 							j++;
 						}else if(j==2 && e.which!=0){
-							
 							mainContent=$('#proceedingContent').val();
 							finalContent=mainContent;					
-							mainContent=mainContent.replace(/<br><p><\/p>/g,"");
-							mainContent=mainContent.replace(/<br>/g,"");
-							mainContent=mainContent.replace(/<p>/g,"");
-							mainContent=mainContent.replace(/<\/p>/g,"");
+							mainContent= replaceString(mainContent);
 							prevMainContentLength=mainContent.length;
-							console.log("MainContent="+mainContent);
 							keycode[j]=e.which;
 							j++;
-						
 						}else{
 							if(e.which==13){
-								
 								lineCount=lineCount+1;
-								console.log(lineCount);
 							}
 							currentContent=$('#proceedingContent').wysiwyg('getContent');
-							currentContent=currentContent.replace(/<br><p><\/p>/g,"");
-							currentContent=currentContent.replace(/<br>/g,"");
-							currentContent=currentContent.replace(/<p>/g,"");
-							currentContent=currentContent.replace(/<\/p>/g,"");
-							console.log("current Content:"+currentContent);
-							
-							
+							currentContent=replaceString(currentContent);
 						}
 						
 						if(keycode[0]==17 && keycode[1]==16){
-							
 							var key="";
 							if(keycode.length>2){
 								e.preventDefault();
@@ -189,11 +176,10 @@
 											$("#shiftDiv").css("display","block");
 											$("#autosuggest_menu").css("display","block");
 											$("#autosuggest_menu").focus();
-											$("#autosuggest_menu").get(0).selectedIndex = 0;;
+											$("#autosuggest_menu").get(0).selectedIndex = 0;
 											$("#shiftDiv").css("left",/* $('#'+contentNo).val().length  + */ offset.left);
 											 $("#shiftDiv").css("top",offset.top/* +(lineCount*30) */);
-											
-										}else{
+									}else{
 											$("#shiftDiv").css("display","none");
 											j=0;
 											keycode.length=0;
@@ -205,8 +191,7 @@
 						}
 					}
 				},
-					
-				    controls:{
+				controls:{
 						fullscreen: {
 							visible: true,
 							hotkey:{
@@ -230,42 +215,30 @@
 				 			   		 },'html');
 				 			    	return false;
 				             	}
-				            }
-						}	  
+			           }
+				}	  
 	      });
 			
+			/****Menu to display the masters(ghat,fort,etc.) by shortcut****/
 			$("#autosuggest_menu").click(function(e){
 					var content=$(this).val();
 					content==content.replace(/<br><p><\/p>/g,"");
 					content==content.replace(/<br>/g,"");
 					$("#proceedingContent").wysiwyg("setContent",finalContent+content);
 					mainContent=$("#proceedingContent").val();
-					mainContent=mainContent.replace(/<br><p><\/p>/g,"");
-					mainContent=mainContent.replace(/<br>/g,"");
-					mainContent=mainContent.replace(/<p>/g,"");
-					mainContent=mainContent.replace(/<\/p>/g,"");
+					mainContent=replaceString(mainContent);
 					$(this).css("display","none");
 					$("proceedingContent-wysiwyg-iframe").focus();
-				});
+			});
 			
-			 $('#orderNoInput').change(function(){
-				var orderNoText=$(this).val();
-				goToPart(orderNoText);
-			});  
-			
-			/* $('#go').click(function(){
-				var orderNoText=$('#orderNoInput').val();
-				goToPart(orderNoText);
-			}); */
-			
+					
+			/***Hiding Divs on Link click(minister,public,substitute,private)*****/		
 			$('#ministerLink').click(function(){
+				hideDiv();
 				$('.minister').show();
-				$('.member').show();
-				$('.substitute').hide();
-				$('.private').hide();
-				$('.public').hide();
 				$('#privateLink').show();
-				$('#ministerLink').hide();
+				$('#substituteLink').show();
+				$('.member').show();
 			});
 			
 			$('#substituteLink').click(function(){
@@ -273,26 +246,25 @@
 			});
 			
 			$('#privateLink').click(function(){
+				hideDiv();
 				$('.member').show();
-				$('.minister').hide();
-				$('.public').hide();
-				$('.substitute').hide();
-				$('#privateLink').hide();
+				$('#substituteLink').show();
 				$('#ministerLink').show();
 			});
 			
 			$('#publicLink').click(function(){
+				hideDiv();
 				$('.public').show();
-				$('.member').hide();
-				$('.substitute').hide();
-				$('.minister').hide();
-				
+				$('#privateLink').show();
+				$('#substituteLink').show();
+				$('#ministerLink').show();
 			});
 			
 			$('#addDevice').click(function(){
 				$('.deviceType').toggle();
 			});
 			
+			/****Import of Devices by Device Number****/
 			$('#deviceNo').change(function(){
 				$.get('ref/device?number='+$(this).val()+'&session='+$('#session').val()+'&deviceType='+$('#deviceType').val(),function(data){
 					if(data!=null){
@@ -340,12 +312,14 @@
 				});
 			});
 			
+			/****To Display the photo of Member whose part is been prepared****/
 			$('#formattedMember').change(function(){
 				$('#memberImage').attr("src","ref/getphoto?memberId="+$('#primaryMember').val());
 				$('#memberPhoto').css("display","inline");
 				
 			});
 			
+			/****Reseting the Content of Main Heading and Page Heading****/
 			$('#resetMainHeading').click(function(){
 				$('#mainHeading').wysiwyg('setContent',"");
 			});
@@ -353,10 +327,7 @@
 				$('#pageHeading').wysiwyg('setContent',"");
 			});
 			
-			
-		
-
-			 /**** Right Click Menu ****/
+			/**** Right Click Menu ****/
 			$(".bookmarkKey").contextMenu({
 		        menu: 'contextMenuItems'
 		    	},
@@ -367,6 +338,7 @@
 				}
 			});	
 				
+			/****To import the mainHeading and PageHeading of Interrupted Proceeding****/
 			$('#interruptedProceeding').click(function(){
 				$('#searchBy').toggle();
 			});
@@ -377,7 +349,6 @@
 					if(data.length>0){
 					 for(var i=0;i<data.length;i++){
 						 text=text+"<option value='"+data[i].value +"'>"+data[i].name+"</option>"; 
-						//text=text+"<li><a href='#"+data[i].value+"'>"+data[i].name+"</a></li>";
 					 }
 					 $('#iProceeding').html(text);
 					 $('#iProceeding').attr("size",data.length);
@@ -385,9 +356,8 @@
 					 $('#interruptProceedingDiv').css('top','245px');
 					 $('#interruptProceedingDiv').css('display','block');
 					}
-					
-				});
 			});
+		 });
 			
 			$('#iProceeding').change(function(){
 				var strAction=$(this).val().split("#");
@@ -396,18 +366,8 @@
 				$('#mainHeadingP').css('display','block');
 				$('#pageHeadingP').css('display','block');
 			});
-			/* $('#interruptedProceeding').contextMenu({
-			        menu: 'iProceeding'
-		    		},
-		       	 function(action, el, pos) {
-					//var id=$(el).attr("id");
-					var strAction=action.split('#');
-				$('#mainHeading').wysiwyg('setContent',strAction[1]);
-				$('#pageHeading').wysiwyg('setContent',strAction[0]);
-				$('.mainHeadingP').show();
-				$('.pageHeadingP').show();
-			});	 */
-			 
+		
+			
 			$("#deviceType").prepend("<option value='' selected='selected'>----"+$("#pleaseSelectMessage").val()+"----</option>");
 			$("#substituteMemberMinistry").prepend("<option value='' selected='selected'>----"+$("#pleaseSelectMessage").val()+"----</option>");				
 			$("#primaryMemberMinistry").prepend("<option value='' selected='selected'>----"+$("#pleaseSelectMessage").val()+"----</option>");				
@@ -415,14 +375,33 @@
 			$("#substituteMemberDesignation").prepend("<option value='' selected='selected'>----"+$("#pleaseSelectMessage").val()+"----</option>");
 		});
 		
+		/**** view Bookmark Details****/
 		function viewBookmarkDetail(id){
 			var params="id="+id;
 			$.get('proceeding/part/viewbookmark?'+params,function(data){
 			    $.fancybox.open(data, {autoSize: false, width: 800, height:600});
 		    },'html');					
-			
 		}
 		
+		/****Function to replace a part of a string****/
+		function replaceString(toBeReplacedContent){
+			toBeReplacedContent=toBeReplacedContent.replace(/<br><p><\/p>/g,"");
+			toBeReplacedContent=toBeReplacedContent.replace(/<br>/g,"");
+			toBeReplacedContent=toBeReplacedContent.replace(/<p>/g,"");
+			toBeReplacedContent=toBeReplacedContent.replace(/<\/p>/g,"");
+			return toBeReplacedContent;
+		}
+		
+		/****Function to Hide Divs****/
+		function hideDiv(){
+			$('.member').hide();
+			$('.minister').hide();
+			$('.public').hide();
+			$('.substitute').hide();
+			$('#privateLink').hide();
+			$('#ministerLink').hide();
+			$('#substituteLink').hide();
+		}
 	</script>
 </head>
 
@@ -448,13 +427,12 @@
 				<option class="searchBy" selected="selected" value='pageHeading'><spring:message code="part.pageHeading"/></option>
 				<option class="searchBy" value='mainHeading'><spring:message code="part.mainHeading"/></option>
 			</select>
-			
 			<a href="#" id="mainHeadingLink"><img src="./resources/images/IcoMainHeading.jpg" title="Main Heading" class="imageLink" /></a>
 			<a href="#"  id="pageHeadingLink"><img src="./resources/images/IcoPageHeading.jpg" title="Page Heading" class="imageLink" /></a>
 			<a href="#" id="addBookmark" class="addBookmark" ><img src="./resources/images/IcoBookMark.jpg" class="imageLink" title="Bookmark" /></a>
 			<a href="#" id="viewProceedingCitation" class="viewProceedingCitation"><img src="./resources/images/IcoCitation.jpg" class="imageLink" title="Citation" /></a>
 			<a href="#" id="addDevice" class="addDevice"><img src="./resources/images/IcoDeviceType.jpg" title="Device" class="imageLink"/></a>
-			<a href='#' id="privateLink"><img src="./resources/images/IcoPrivateMember.jpg" title="Private" class="imageLink" /></a>
+			<a href='#' id="privateLink" style="display:none;"><img src="./resources/images/IcoPrivateMember.jpg" title="Private" class="imageLink" /></a>
 			<a href='#' id="ministerLink"><img src="./resources/images/IcoMinister.jpg" title="Minister"  class="imageLink"/></a>
 			<a href='#' id="publicLink"><img src="./resources/images/IcoPublicRepresentative.jpg" title="Public" class="imageLink" /></a>
 			<a href='#' id="substituteLink"><img src="./resources/images/IcoSubstitute.jpg" title="In place of" class="imageLink"/></a>
@@ -496,7 +474,7 @@
 		</div>
 	</p>
 	
-	<p class="minister">
+	<p class="minister" style="display:none;">
 		<label class="small"><spring:message code="part.primaryMemberDesignation" text="Primary Member Designation"/></label>
 		<select id="primaryMemberDesignation" name="primaryMemberDesignation" class="sSelect">
 			<c:forEach items="${designations}" var="i" >
@@ -505,7 +483,7 @@
 		</select>
 		<form:errors path="primaryMemberDesignation"/>
 	</p>
-	<p class="minister">
+	<p class="minister" style="display:none;">
 		<label class="small"><spring:message code="part.primaryMemberMinistry" text="Primary Member Ministry"/></label>
 		<select id="primaryMemberMinistry" name="primaryMemberMinistry" class="sSelect">
 			<c:forEach items="${ministries}" var="i">
@@ -515,23 +493,23 @@
 		<form:errors path="primaryMemberMinistry"/>
 	</p>
 	
-	<p class="substitute">
+	<p class="substitute" style="display:none;">
 		<label class="small"><spring:message code="part.substituteMemberName" text="In Place of"/></label>
 		<input type="text" name="formattedSubstituteMember" id="formattedSubstituteMember" class="autosuggest sText"/>
 		<form:hidden path="substituteMember"/>
 	</p>
 	
-	<p class="substitute">
+	<p class="substitute" style="display:none;">
 		<label class="small"><spring:message code="part.substituteMemberDesignation" text="Designation"/></label>
 		<select id="substituteMemberDesignation" name="substituteMemberDesignation" class="sSelect">
 			<c:forEach items="${designations}" var="i">
 				<option value="${i.id}">${i.name}</option>
 			</c:forEach>
 		</select>
-		
 		<form:errors path="substituteMemberDesignation"/>
 	</p>
-	<p class="substitute">
+	
+	<p class="substitute" style="display:none;">
 		<label class="small"><spring:message code="part.substituteMemberMinistry" text="Ministry"/></label>
 		<select id="substituteMemberMinistry" name="substituteMemberMinistry" class="sSelect">
 			<c:forEach items="${ministries}" var="i">
@@ -540,17 +518,19 @@
 		</select>
 		<form:errors path="substituteMemberMinistry"/>
 	</p>
-	<p class="public">
+	
+	<p class="public" style="display:none;">
 		<label class="small"><spring:message code="part.publicRepresentative" text="public Representative"/></label>
 		<form:input path="publicRepresentative" cssClass="sText"/>
 		<form:errors path="publicRepresentative"></form:errors>
 	</p>
-	<p class="public">
+	<p class="public" style="display:none;">
 		<label class="wysiwyglabel"><spring:message code="part.publicRepresentativeDetail" text="Details"/></label>
 		<form:textarea cssClass="wysiwyg" path="publicRepresentativeDetail"/>
 		<form:errors path="publicRepresentativeDetail"></form:errors>
 	</p>
-	<p class="deviceType">
+	
+	<p class="deviceType" style="display:none;">
 		<label class="small"><spring:message code="part.deviceType" text="Device Type"/></label>
 		<select id="deviceType" name="deviceType" class="sSelect">
 			<c:forEach items="${deviceTypes}" var="i">
@@ -559,15 +539,15 @@
 		</select>
 		<form:errors path="deviceType"></form:errors>
 	</p>
-	<p class="deviceNo deviceType">
+	<p class="deviceNo deviceType" style="display:none;">
 		<label class="small"><spring:message code="part.deviceNo" text="Device No"/></label>
 		<input type="text" name="deviceNo" id="deviceNo" class="sInteger"/>
 	</p>
-	<p class="starredQuestion">
+	<p class="starredQuestion" style="display:none;">
 		<label class="small"><spring:message code="part.starredQuestionNo" text=" OR Starred Question No"/></label>
 		<input type="text" name="starredQuestionNo" id="starredQuestionNo" class="sInteger"/>
-	</p>
-	<p class="halfHourDiscussionFromQuestion">
+	</p> 
+	<p class="halfHourDiscussionFromQuestion" style="display:none;">
 		<label class="small"><spring:message code="part.DeviceNo" text="Device No"/></label>
 		<select id="halfHourDiscussionFromQuestionNo" name="halfHourDiscussionFromQuestionNo" class="sSelect"></select>
 	</p>
@@ -575,12 +555,12 @@
 		<label class="small"><spring:message code="part.isInterrupted" text="Is Interrupted"/></label>
 		<form:checkbox path="isInterrupted" cssClass="sCheck"/>
 	</p>
-	<p id="mainHeadingP">
+	<p id="mainHeadingP" style="display:none;">
 		<label class="wysiwyglabel"><spring:message code="part.mainHeading" text="Main Heading"/></label>
 		<form:textarea path="mainHeading" cssClass="wysiwyg"/>
 		<a href="javascript:void(0)" id="resetMainHeading" style="margin-right: 100px; float: right; margin-top: -150px;">reset</a>
 	</p>
-	<p id="pageHeadingP">
+	<p id="pageHeadingP" style="display:none;">
 		<label class="wysiwyglabel"><spring:message code="part.pageHeading" text="Page Heading"/></label>
 		<form:textarea path="pageHeading" cssClass="wysiwyg"/>
 		<a href="javascript:void(0)" id="resetPageHeading" style="margin-right: 100px; float: right; margin-top: -150px;">reset</a>
@@ -598,7 +578,6 @@
 	<form:hidden path="RevisedContent"/>
 	<form:hidden path="orderNo" value="${orderNo}"/>
 	<form:hidden path="proceeding" value="${proceeding}"/>
-	<%-- <input type="hidden" id="proceeding" name="proceeding" value="${proceeding}"/> --%>
 	<input type="hidden" id="deviceId" name="deviceId"/>
 	<input type="hidden" id="currentSlot" name="currentSlot" value="${currentSlot}"/>
 	<input type="hidden" id="currentSlotName" name="currentSlotName" value="${slotName}"/>
@@ -624,9 +603,6 @@
 <ul id="contextMenuItems" >
 	<li><a href="#viewBookmarkDetails" class="edit"><spring:message code="proceeding.viewBookmarkDetails" text="viewDetails"></spring:message></a></li>
 </ul>
-<!-- <ul id="iProceeding">
-	<li></li>
-</ul> -->
 <input id="selectItemFirstMessage" value="<spring:message code='ris.selectitem' text='Select an item first'/>" type="hidden">
 <input type="hidden" id="lastPart" name="lastPart" value="${lastPartId}"/>
 <input id="pleaseSelectMessage" value="<spring:message code='please.select' text='Please Select'/>" type="hidden">
