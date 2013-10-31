@@ -26,6 +26,7 @@ import org.mkcl.els.domain.CustomParameter;
 import org.mkcl.els.domain.DeviceType;
 import org.mkcl.els.domain.HouseType;
 import org.mkcl.els.domain.Member;
+import org.mkcl.els.domain.MessageResource;
 import org.mkcl.els.domain.Question;
 import org.mkcl.els.domain.Session;
 import org.mkcl.els.domain.Status;
@@ -378,7 +379,7 @@ public class BillRepository extends BaseRepository<Bill, Serializable>{
 				}
 				System.out.println("\n");
 			}			
-		} else if(thingToBeRevised.equals("checklist")) {
+		} else if(thingToBeRevised.equals("checklist")) {			
 			query = "SELECT '" + thingToBeRevised + "', rs.usergroup, rs.fullname, rs.editedon, rs.status," +
 					" rs.checkKey, rs.checkValue, rs.remark" +
 					" FROM ("+
@@ -394,7 +395,7 @@ public class BillRepository extends BaseRepository<Bill, Serializable>{
 						" JOIN credentials AS c ON (u.credential_id = c.id) "+
 						" JOIN STATUS AS s ON (bd.recommendationstatus_id = s.id) " +
 						" WHERE c.username = bd.edited_by" +
-						" AND b.id = " + billId + 
+						" AND b.id = " + billId + 						
 						" AND bdch.checklist_key IS NOT NULL" + 
 						" ORDER BY" +
 						" CASE bdch.checklist_key" +
@@ -425,6 +426,19 @@ public class BillRepository extends BaseRepository<Bill, Serializable>{
 			
 			revisions = this.em().createNativeQuery(query).getResultList();	
 			for(Object[] i: revisions) {
+				if(i[6]!=null) {
+					if(i[6].equals("yes")) {
+						MessageResource displayValueMessage = MessageResource.findByFieldName(MessageResource.class, "code", "generic.yes", locale);
+						if(displayValueMessage!=null) {
+							i[6]=displayValueMessage.getValue();
+						}
+					} else if(i[6].equals("no")) {
+						MessageResource displayValueMessage = MessageResource.findByFieldName(MessageResource.class, "code", "generic.no", locale);
+						if(displayValueMessage!=null) {
+							i[6]=displayValueMessage.getValue();
+						}
+					}
+				}
 				System.out.println(i[5] + ": " + i[6]);
 			}
 		}	
