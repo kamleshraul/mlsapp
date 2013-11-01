@@ -1117,7 +1117,8 @@ public class BillRepository extends BaseRepository<Bill, Serializable>{
 		try{
 			query.append(" AND b.locale=:locale");	
 			//discussion statuses for which bill may be pending
-			Status toBeDiscussed = Status.findByType(ApplicationConstants.BILL_PROCESSED_TOBEDISCUSSED, locale);
+			List<Status> statusesForToBeDiscussedPriority = Status.findStartingWith(ApplicationConstants.BILL_PROCESSED_TOBEDISCUSSED, "priority", ApplicationConstants.ASC, locale);
+			Status toBeDiscussed = statusesForToBeDiscussedPriority.get(0);
 			StringBuffer ds = new StringBuffer();
 			ds.append(" AND(");
 			ds.append(" rsta.priority >= " + toBeDiscussed.getPriority());

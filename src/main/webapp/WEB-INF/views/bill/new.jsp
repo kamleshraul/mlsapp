@@ -728,38 +728,14 @@
 				<c:forEach var="i" items="${titles}" varStatus="position">
 				<c:choose>
 					<c:when test="${position.count==1}">
-						<c:if test="${i.language.type=='marathi'}" >
-							<a href="#" class="toggleTitle" id="toggleTitle_${i.language.type}"  style="display:inline;margin-left: 162px;">
-								<img src="./resources/images/IcoMarathi.jpg" title="${i.language.name}" class="imageLink" />
-							</a>
-						</c:if>
-						<c:if test="${i.language.type=='hindi'}">
-							<a href="#" class="toggleTitle" id="toggleTitle_${i.language.type}"  style="display:inline;margin-left: 162px;">
-								<img src="./resources/images/IcoHindi.jpg" title="${i.language.name}" class="imageLink" />
-							</a>
-						</c:if>
-						<c:if test="${i.language.type=='english'}">
-							<a href="#" class="toggleTitle" id="toggleTitle_${i.language.type}" style="display:inline;margin-left: 162px;">
-								<img src="./resources/images/IcoEnglish.jpg" title="${i.language.name}" class="imageLink" />
-							</a>
-						</c:if>
+						<a href="#" class="toggleTitle" id="toggleTitle_${i.language.type}"  style="display:inline;margin-left: 162px;">
+							<img src="./resources/images/ico_${i.language.type}.jpg" title="${i.language.name}" class="imageLink" />
+						</a>
 					</c:when>
 					<c:otherwise>
-						<c:if test="${i.language.type=='marathi'}">
-							<a href="#" class="toggleTitle" id="toggleTitle_${i.language.type}">
-								<img src="./resources/images/IcoMarathi.jpg" title="${i.language.name}" class="imageLink" style="margin-left: 20px;" />
-							</a>
-						</c:if>
-						<c:if test="${i.language.type=='hindi'}">
-							<a href="#" class="toggleTitle" id="toggleTitle_${i.language.type}">
-								<img src="./resources/images/IcoHindi.jpg" title="${i.language.name}" class="imageLink" style="margin-left: 20px;"/>
-							</a>
-						</c:if>
-						<c:if test="${i.language.type=='english'}">
-							<a href="#" class="toggleTitle" id="toggleTitle_${i.language.type}" >
-								<img src="./resources/images/IcoEnglish.jpg" title="${i.language.name}" class="imageLink" style="margin-left: 20px;" />
-							</a>
-						</c:if>
+						<a href="#" class="toggleTitle" id="toggleTitle_${i.language.type}">
+							<img src="./resources/images/ico_${i.language.type}.jpg" title="${i.language.name}" class="imageLink" style="margin-left: 20px;" />
+						</a>
 					</c:otherwise>
 				</c:choose>					
 				</c:forEach>
@@ -782,38 +758,14 @@
 				<c:forEach var="i" items="${contentDrafts}" varStatus="position">
 				<c:choose>
 					<c:when test="${position.count==1}">
-						<c:if test="${i.language.type=='marathi'}" >
-							<a href="#" class="toggleContentDraft" id="toggleContentDraft_${i.language.type}"  style="display:inline;margin-left: 162px;">
-								<img src="./resources/images/IcoMarathi.jpg" title="${i.language.name}" class="imageLink" />
-							</a>
-						</c:if>
-						<c:if test="${i.language.type=='hindi'}">
-							<a href="#" class="toggleContentDraft" id="toggleContentDraft_${i.language.type}"  style="display:inline;margin-left: 162px;">
-								<img src="./resources/images/IcoHindi.jpg" title="${i.language.name}" class="imageLink" />
-							</a>
-						</c:if>
-						<c:if test="${i.language.type=='english'}">
-							<a href="#" class="toggleContentDraft" id="toggleContentDraft_${i.language.type}" style="display:inline;margin-left: 162px;">
-								<img src="./resources/images/IcoEnglish.jpg" title="${i.language.name}" class="imageLink" />
-							</a>
-						</c:if>
+						<a href="#" class="toggleContentDraft" id="toggleContentDraft_${i.language.type}"  style="display:inline;margin-left: 162px;">
+							<img src="./resources/images/ico_${i.language.type}.jpg" title="${i.language.name}" class="imageLink" />
+						</a>
 					</c:when>
 					<c:otherwise>
-						<c:if test="${i.language.type=='marathi'}">
-							<a href="#" class="toggleContentDraft" id="toggleContentDraft_${i.language.type}">
-								<img src="./resources/images/IcoMarathi.jpg" title="${i.language.name}" class="imageLink" style="margin-left: 20px;" />
-							</a>
-						</c:if>
-						<c:if test="${i.language.type=='hindi'}">
-							<a href="#" class="toggleContentDraft" id="toggleContentDraft_${i.language.type}">
-								<img src="./resources/images/IcoHindi.jpg" title="${i.language.name}" class="imageLink" style="margin-left: 20px;"/>
-							</a>
-						</c:if>
-						<c:if test="${i.language.type=='english'}">
-							<a href="#" class="toggleContentDraft" id="toggleContentDraft_${i.language.type}" >
-								<img src="./resources/images/IcoEnglish.jpg" title="${i.language.name}" class="imageLink" style="margin-left: 20px;" />
-							</a>
-						</c:if>
+						<a href="#" class="toggleContentDraft" id="toggleContentDraft_${i.language.type}">
+							<img src="./resources/images/ico_${i.language.type}.jpg" title="${i.language.name}" class="imageLink" style="margin-left: 20px;" />
+						</a>
 					</c:otherwise>
 				</c:choose>					
 				</c:forEach>
@@ -836,38 +788,14 @@
 				<c:forEach var="i" items="${statementOfObjectAndReasonDrafts}" varStatus="position">
 				<c:choose>
 					<c:when test="${position.count==1}">
-						<c:if test="${i.language.type=='marathi'}" >
-							<a href="#" class="toggleStatementOfObjectAndReasonDraft" id="toggleStatementOfObjectAndReasonDraft_${i.language.type}"  style="display:inline;margin-left: 162px;">
-								<img src="./resources/images/IcoMarathi.jpg" title="${i.language.name}" class="imageLink" />
-							</a>
-						</c:if>
-						<c:if test="${i.language.type=='hindi'}">
-							<a href="#" class="toggleStatementOfObjectAndReasonDraft" id="toggleStatementOfObjectAndReasonDraft_${i.language.type}"  style="display:inline;margin-left: 162px;">
-								<img src="./resources/images/IcoHindi.jpg" title="${i.language.name}" class="imageLink" />
-							</a>
-						</c:if>
-						<c:if test="${i.language.type=='english'}">
-							<a href="#" class="toggleStatementOfObjectAndReasonDraft" id="toggleStatementOfObjectAndReasonDraft_${i.language.type}" style="display:inline;margin-left: 162px;">
-								<img src="./resources/images/IcoEnglish.jpg" title="${i.language.name}" class="imageLink" />
-							</a>
-						</c:if>
+						<a href="#" class="toggleStatementOfObjectAndReasonDraft" id="toggleStatementOfObjectAndReasonDraft_${i.language.type}"  style="display:inline;margin-left: 162px;">
+							<img src="./resources/images/ico_${i.language.type}.jpg" title="${i.language.name}" class="imageLink" />
+						</a>
 					</c:when>
 					<c:otherwise>
-						<c:if test="${i.language.type=='marathi'}">
-							<a href="#" class="toggleStatementOfObjectAndReasonDraft" id="toggleStatementOfObjectAndReasonDraft_${i.language.type}">
-								<img src="./resources/images/IcoMarathi.jpg" title="${i.language.name}" class="imageLink" style="margin-left: 20px;" />
-							</a>
-						</c:if>
-						<c:if test="${i.language.type=='hindi'}">
-							<a href="#" class="toggleStatementOfObjectAndReasonDraft" id="toggleStatementOfObjectAndReasonDraft_${i.language.type}">
-								<img src="./resources/images/IcoHindi.jpg" title="${i.language.name}" class="imageLink" style="margin-left: 20px;"/>
-							</a>
-						</c:if>
-						<c:if test="${i.language.type=='english'}">
-							<a href="#" class="toggleStatementOfObjectAndReasonDraft" id="toggleStatementOfObjectAndReasonDraft_${i.language.type}" >
-								<img src="./resources/images/IcoEnglish.jpg" title="${i.language.name}" class="imageLink" style="margin-left: 20px;" />
-							</a>
-						</c:if>
+						<a href="#" class="toggleStatementOfObjectAndReasonDraft" id="toggleStatementOfObjectAndReasonDraft_${i.language.type}">
+							<img src="./resources/images/ico_${i.language.type}.jpg" title="${i.language.name}" class="imageLink" style="margin-left: 20px;" />
+						</a>
 					</c:otherwise>
 				</c:choose>					
 				</c:forEach>
@@ -885,42 +813,19 @@
 		</div>
 		
 		<div id="financialMemorandumDrafts_div">
+			<fieldset>
 				<legend style="text-align: left; width: 150px;"><label><spring:message code="bill.financialMemorandumDrafts" text="Financial Memorandum" /></label></legend>
 				<c:forEach var="i" items="${financialMemorandumDrafts}" varStatus="position">
 				<c:choose>
 					<c:when test="${position.count==1}">
-						<c:if test="${i.language.type=='marathi'}" >
-							<a href="#" class="toggleFinancialMemorandumDraft" id="toggleFinancialMemorandumDraft_${i.language.type}"  style="display:inline;margin-left: 162px;">
-								<img src="./resources/images/IcoMarathi.jpg" title="${i.language.name}" class="imageLink" />
-							</a>
-						</c:if>
-						<c:if test="${i.language.type=='hindi'}">
-							<a href="#" class="toggleFinancialMemorandumDraft" id="toggleFinancialMemorandumDraft_${i.language.type}"  style="display:inline;margin-left: 162px;">
-								<img src="./resources/images/IcoHindi.jpg" title="${i.language.name}" class="imageLink" />
-							</a>
-						</c:if>
-						<c:if test="${i.language.type=='english'}">
-							<a href="#" class="toggleFinancialMemorandumDraft" id="toggleFinancialMemorandumDraft_${i.language.type}" style="display:inline;margin-left: 162px;">
-								<img src="./resources/images/IcoEnglish.jpg" title="${i.language.name}" class="imageLink" />
-							</a>
-						</c:if>
+						<a href="#" class="toggleFinancialMemorandumDraft" id="toggleFinancialMemorandumDraft_${i.language.type}"  style="display:inline;margin-left: 162px;">
+							<img src="./resources/images/ico_${i.language.type}.jpg" title="${i.language.name}" class="imageLink" />
+						</a>
 					</c:when>
 					<c:otherwise>
-						<c:if test="${i.language.type=='marathi'}">
-							<a href="#" class="toggleFinancialMemorandumDraft" id="toggleFinancialMemorandumDraft_${i.language.type}">
-								<img src="./resources/images/IcoMarathi.jpg" title="${i.language.name}" class="imageLink" style="margin-left: 20px;" />
-							</a>
-						</c:if>
-						<c:if test="${i.language.type=='hindi'}">
-							<a href="#" class="toggleFinancialMemorandumDraft" id="toggleFinancialMemorandumDraft_${i.language.type}">
-								<img src="./resources/images/IcoHindi.jpg" title="${i.language.name}" class="imageLink" style="margin-left: 20px;"/>
-							</a>
-						</c:if>
-						<c:if test="${i.language.type=='english'}">
-							<a href="#" class="toggleFinancialMemorandumDraft" id="toggleFinancialMemorandumDraft_${i.language.type}" >
-								<img src="./resources/images/IcoEnglish.jpg" title="${i.language.name}" class="imageLink" style="margin-left: 20px;" />
-							</a>
-						</c:if>
+						<a href="#" class="toggleFinancialMemorandumDraft" id="toggleFinancialMemorandumDraft_${i.language.type}">
+							<img src="./resources/images/ico_${i.language.type}.jpg" title="${i.language.name}" class="imageLink" style="margin-left: 20px;" />
+						</a>
 					</c:otherwise>
 				</c:choose>					
 				</c:forEach>
@@ -943,38 +848,14 @@
 				<c:forEach var="i" items="${statutoryMemorandumDrafts}" varStatus="position">
 				<c:choose>
 					<c:when test="${position.count==1}">
-						<c:if test="${i.language.type=='marathi'}" >
-							<a href="#" class="toggleStatutoryMemorandumDraft" id="toggleStatutoryMemorandumDraft_${i.language.type}"  style="display:inline;margin-left: 162px;">
-								<img src="./resources/images/IcoMarathi.jpg" title="${i.language.name}" class="imageLink" />
-							</a>
-						</c:if>
-						<c:if test="${i.language.type=='hindi'}">
-							<a href="#" class="toggleStatutoryMemorandumDraft" id="toggleStatutoryMemorandumDraft_${i.language.type}"  style="display:inline;margin-left: 162px;">
-								<img src="./resources/images/IcoHindi.jpg" title="${i.language.name}" class="imageLink" />
-							</a>
-						</c:if>
-						<c:if test="${i.language.type=='english'}">
-							<a href="#" class="toggleStatutoryMemorandumDraft" id="toggleStatutoryMemorandumDraft_${i.language.type}" style="display:inline;margin-left: 162px;">
-								<img src="./resources/images/IcoEnglish.jpg" title="${i.language.name}" class="imageLink" />
-							</a>
-						</c:if>
+						<a href="#" class="toggleStatutoryMemorandumDraft" id="toggleStatutoryMemorandumDraft_${i.language.type}"  style="display:inline;margin-left: 162px;">
+							<img src="./resources/images/ico_${i.language.type}.jpg" title="${i.language.name}" class="imageLink" />
+						</a>
 					</c:when>
 					<c:otherwise>
-						<c:if test="${i.language.type=='marathi'}">
-							<a href="#" class="toggleStatutoryMemorandumDraft" id="toggleStatutoryMemorandumDraft_${i.language.type}">
-								<img src="./resources/images/IcoMarathi.jpg" title="${i.language.name}" class="imageLink" style="margin-left: 20px;" />
-							</a>
-						</c:if>
-						<c:if test="${i.language.type=='hindi'}">
-							<a href="#" class="toggleStatutoryMemorandumDraft" id="toggleStatutoryMemorandumDraft_${i.language.type}">
-								<img src="./resources/images/IcoHindi.jpg" title="${i.language.name}" class="imageLink" style="margin-left: 20px;"/>
-							</a>
-						</c:if>
-						<c:if test="${i.language.type=='english'}">
-							<a href="#" class="toggleStatutoryMemorandumDraft" id="toggleStatutoryMemorandumDraft_${i.language.type}" >
-								<img src="./resources/images/IcoEnglish.jpg" title="${i.language.name}" class="imageLink" style="margin-left: 20px;" />
-							</a>
-						</c:if>
+						<a href="#" class="toggleStatutoryMemorandumDraft" id="toggleStatutoryMemorandumDraft_${i.language.type}">
+							<img src="./resources/images/ico_${i.language.type}.jpg" title="${i.language.name}" class="imageLink" style="margin-left: 20px;" />
+						</a>
 					</c:otherwise>
 				</c:choose>					
 				</c:forEach>

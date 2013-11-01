@@ -4480,7 +4480,8 @@ public class BillController extends GenericController<Bill> {
 												bill.setHouseRound(Integer.valueOf(strRound));
 																								
 											}
-											bill.setStatusDate(date);
+											bill.setStatusDate(new Date());
+											bill.setExpectedStatusDate(date);
 											bill.merge();
 										}
 										
