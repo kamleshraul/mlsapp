@@ -291,7 +291,12 @@ public class WorkflowController extends BaseController {
 							}
 						}
 						model.addAttribute("workflowTypes",workflowTypes);						
-					}					
+					}else if(userGroup.getUserGroupType().getType().equals(ApplicationConstants.EDITOR)
+							|| userGroup.getUserGroupType().getType().equals(ApplicationConstants.CHIEF_EDITOR)){
+						
+						model.addAttribute("usergroup", userGroup.getId());
+						model.addAttribute("usergroupType", userGroup.getUserGroupType().getType());
+					}
 				}					
 			}else{
 				model.addAttribute("errorcode","current_user_has_no_usergroups");
