@@ -23,6 +23,8 @@
 		}
 	</style>
 	<script type="text/javascript">
+		
+	/****Global Variable****/
 		var test="";	
 		var contentNo="";
 		var partIndex=$("select option:selected").val();
@@ -33,8 +35,6 @@
 		var chairPerson="";
 		var role="";
 		var elementCount=0;
-		var keyCombination=$('#keyClassCombination').val().split("##");
-		console.log(keyCombination);
 		var keycode=new Array();
 		var mainContent="";
 		var finalContent="";
@@ -44,6 +44,7 @@
 		var lineCount=1;
 		var maxHeight = '';
 		
+		/****Dynamic Part Addition****/
 		function addPart(currentCount){
 			orderCount=parseInt(orderCount)+1;
 			partCount=partCount+1;
@@ -56,7 +57,7 @@
 						  "<a href='javascript:void(0)' id='addBookmark"+partCount+"' class='addBookmark' ><img src='./resources/images/IcoBookMark.jpg' title='Bookmark' class='imageLink' /></a>"+
 						  "<a href='javascript:void(0)' id='viewProceedingCitation"+partCount+"' class='viewProceedingCitation'><img src='./resources/images/IcoCitation.jpg' title='Citation' class='imageLink' /></a>"+
 						  "<a href='javascript:void(0)' id='addDevice"+partCount+"' class='addDevice'><img src='./resources/images/IcoDeviceType.jpg' title='Device' class='imageLink' /></a>"+
-						  "<a href='javascript:void(0)' id='privateLink"+partCount+"' class='privateLink'><img src='./resources/images/IcoPrivateMember.jpg' title='Private Member' class='imageLink' /> </a>"+
+						  "<a href='javascript:void(0)' id='privateLink"+partCount+"' class='privateLink' style='display:none;'><img src='./resources/images/IcoPrivateMember.jpg' title='Private Member' class='imageLink' /> </a>"+
 			      		  "<a href='javascript:void(0)' id='ministerLink"+partCount+"' class='ministerLink'><img src='./resources/images/IcoMinister.jpg' title='Minister' class='imageLink' /></a>"+
 			      		  "<a href='javascript:void(0)' id='publicLink"+partCount+"' class='publicLink'><img src='./resources/images/IcoPublicRepresentative.jpg' title='Public' class='imageLink' /> </a>"+
 			      		  "<a href='javascript:void(0)' id='substituteLink"+partCount+"'><img src='./resources/images/IcoSubstitute.jpg' title='In place of ' class='imageLink' /> </a>"+
@@ -69,75 +70,74 @@
 					      "</p>"+
 			              "<p class='member"+partCount+"'>"+
 					 	  "<label class='small'>"+$('#primaryMemberNameMessage').val()+"</label>"+
-			              "<input type='text' class='autosuggest sText' name='formattedprimaryMember"+partCount+"' id='formattedprimaryMember"+partCount+"'/>"+
+			              "<input type='text' class='autosuggest sText formattedMember' name='formattedprimaryMember"+partCount+"' id='formattedprimaryMember"+partCount+"'/>"+
 					      "<input name='primaryMember"+partCount+"' id='primaryMember"+partCount+ "' type='hidden'/>"+
 			              "</p>"+
-					      "<p class='order"+partCount+"'>"+
+					      "<p class='order"+partCount+"'style='display:none;'>"+
 					      "<label class='small'>"+$('#orderMessage').val()+"</label>"+
 					      "<input type='text' class='sInteger' name='order"+partCount+"' id='order"+partCount+"'/>"+
 					      "</p>"+
-					      "<p class='minister"+partCount+"'>"+
+					      "<p class='minister"+partCount+"' style='display:none;'>"+
 			              "<label class='small'>"+$('#primaryMemberDesignationMessage').val()+"</label>"+
 			              "<select name='primaryMemberDesignation"+partCount+"' id='primaryMemberDesignation"+partCount+"' style='width:100px;'>"+
 					      $('#designationMaster').html()+
 					      "</select>"+
 					      "</p>"+
-					      "<p class='minister"+partCount+"'>"+
+					      "<p class='minister"+partCount+"' style='display:none;'>"+
 			              "<label class='small'>"+$('#primaryMemberMinistryMessage').val()+"</label>"+
 			              "<select name='primaryMemberMinistry"+partCount+"' id='primaryMemberMinistry"+partCount+"' style='width:100px;'>"+
 					      $('#ministryMaster').html()+
 					      "</select>"+
 					      "</p>"+
-					      "<p class='substitute"+partCount+"'>"+
+					      "<p class='substitute"+partCount+"' style='display:none;'>"+
 			              "<label class='small'>"+$('#substituteMemberNameMessage').val()+"</label>"+
-			              "<input type='text' class='autosuggest sText' name='formattedSubstituteMember"+partCount+"' id='formattedSubstituteMember"+partCount+"'/>"+
+			              "<input type='text' class='autosuggest sText formattedSubstituteMember' name='formattedSubstituteMember"+partCount+"' id='formattedSubstituteMember"+partCount+"'/>"+
 					      "<input name='substituteMember"+partCount+"' id='substituteMember"+partCount+ "' type='hidden'/>"+
 			              "</p>"+
-			              "<p class='substitute"+partCount+"'>"+
+			              "<p class='substitute"+partCount+"' style='display:none;'>"+
 			              "<label class='small'>"+$('#substituteMemberDesignationMessage').val()+"</label>"+
 			              "<select name='substituteMemberDesignation"+partCount+"' id='substituteMemberDesignation"+partCount+"' style='width:100px;'>"+
 					      $('#designationMaster').html()+
 					      "</select>"+
 					      "</p>"+
-					      "<p class='substitute"+partCount+"'>"+
+					      "<p class='substitute"+partCount+"' style='display:none;'>"+
 			              "<label class='small'>"+$('#substituteMemberMinistryMessage').val()+"</label>"+
 			              "<select name='substituteMemberMinistry"+partCount+"' id='substituteMemberMinistry"+partCount+"' style='width:100px;'>"+
 					      $('#ministryMaster').html()+
 					      "</select>"+
 					      "</p>"+
-					      "<p class='public"+partCount+"'>"+
+					      "<p class='public"+partCount+"' style='display:none;'>"+
 			              "<label class='small'>"+$('#publicRepresentativeMessage').val()+"</label>"+
 			              "<input type='text' class='sText' name='publicRepresentative"+partCount+"' id='publicRepresentative"+partCount+"'/>"+
 					      "</p>"+
-					      "<p class='public"+partCount+"'>"+
+					      "<p class='public"+partCount+"' style='display:none;'>"+
 					      "<label class='wysiwyglabel'>"+$('#publicRepresentativeDetailMessage').val()+"</label>"+
 					      "<textarea class='wysiwyg' name='publicRepresentativeDetail"+partCount+"' id='publicRepresentativeDetail"+partCount+"'/>"+
 					      "</p>"+
-					      "<p class='deviceType"+partCount+"'>"+
+					      "<p class='deviceType"+partCount+"' style='display:none;'>"+
 			              "<label class='small'>"+$('#deviceTypeMessage').val()+"</label>"+
-			              "<select name='deviceType"+partCount+"' id='deviceType"+partCount+"' style='width:100px;'>"+
+			              "<select name='deviceType"+partCount+"' id='deviceType"+partCount+"'class='deviceTypes sSelect' style='width:100px;'>"+
 					      $('#deviceTypeMaster').html()+
 					      "</select>"+
 					      "</p>"+
-					      "<p class='deviceNo deviceType"+partCount+"'>"+
+					      "<p class='deviceType"+partCount+"' style='display:none;'>"+
 						  "<label class='small'>"+$('#deviceNoMessage').val()+"</label>"+
-						  "<input type='text' name='deviceNo"+partCount+"' id='deviceNo"+partCount+"' class='sInteger'/>"+
+						  "<input type='text' name='deviceNo"+partCount+"' id='deviceNo"+partCount+"' class='deviceNo sInteger'/>"+
 						  "</p>"+
 						  "<p class='starredQuestion"+partCount+"' style='display:none;'>"+
 						  "<label class='small'>"+$('#starredQuestionNoMessage').val()+"</label>"+
-						  "<input type='text' name='starredQuestionNo"+partCount+"' id='starredQuestionNo"+partCount+"' class='sInteger'/>"+
+						  "<input type='text' name='starredQuestionNo"+partCount+"' id='starredQuestionNo"+partCount+"' class='sInteger starredQuestionNo'/>"+
 						  "</p>"+
 						  "<p class='halfHourDiscussionFromQuestion"+partCount+"' style='display:none;'>"+
 						  "<label class='small'>"+$('#halfHourDiscussionFromQuestionMessage').val()+"</label>"+
-						  "<select id='halfHourDiscussionFromQuestionNo"+partCount+"' name='halfHourDiscussionFromQuestionNo"+partCount+"' class='sSelect'></select>"+
+						  "<select id='halfHourDiscussionFromQuestionNo"+partCount+"' name='halfHourDiscussionFromQuestionNo"+partCount+"' class='sSelect halfHourDiscussionFromQuestionNo'></select>"+
 						  "</p>"+
-						  /* "<a href='#' id='viewProceedingCitation"+partCount+"'class='viewProceedingCitation' style='margin-left: 162px;margin-top: 30px;'>viewCitation</a>"+*/
-					      "<p class='mainHeadingP"+partCount+"'>"+
+						  "<p class='mainHeadingP"+partCount+"' style='display:none;'>"+
 					      "<label class='small'>"+$('#mainHeadingMessage').val()+"</label>"+
 					      "<textarea class='sTextArea' name='mainHeading"+partCount+"' id='mainHeading"+partCount+"'/>"+
 					      "<a href='javascript:void(0)' id='clearMainHeadingLink"+partCount+"' class='clearMainHeading'>clear</a>"+
 					      "</p>"+
-					      "<p class='pageHeadingP"+partCount+"'>"+
+					      "<p class='pageHeadingP"+partCount+"' style='display:none;'>"+
 					      "<label class='small'>"+$('#pageHeadingMessage').val()+"</label>"+
 					      "<textarea class='sTextArea' name='pageHeading"+partCount+"' id='pageHeading"+partCount+"'/>"+
 					      "<a href='javascript:void(0)' id='clearPageHeadingLink"+partCount+"' class='clearPageHeading'>clear</a>"+
@@ -157,7 +157,7 @@
 						  "<input type='hidden' id='partRevisedContent"+partCount+"' name='partRevisedContent"+partCount+"'>"+
 						  "<input type='hidden' id='partProceeding"+partCount+"' name='partProceeding"+partCount+"' value='"+$('#id').val() +"''>"+
 						  "</div>"; 
-					      var prevCount=partCount-1;
+					     
 					      if(totalPartCount==1){
 						  	 $('#addPart'+currentCount).after(text);
 						  	$('#order'+partCount).val(currentCount+1);
@@ -171,283 +171,26 @@
 					     		$('#pageHeading'+partCount).val($('#pageHeading'+currentCount).val());
 					     	}
 					      	for(var i=currentCount+1;i<partCount;i++){
-					      		console.log(i);
 					      		$('#order'+i).val(i+1);
 					      	}
 					      }
-					      
 					      $('#partCount').val(partCount); 
 					      $('#order'+partCount).focus();
-					      
-					      
-					      $('.wysiwyg').wysiwyg({
-					    	  events:{
-									keydown:function(e){
-										if(j==0 && e.which==17){
-											keycode[j]=e.which;
-											j++;
-										}else if(j==1 && e.which==16){
-											keycode[j]=e.which;
-											j++;
-										}else if(j==2 && e.which!=0){
-											
-											mainContent=$('#'+contentNo).val();
-											finalContent=mainContent;//.wysiwyg("removeFormat");							
-											mainContent=mainContent.replace(/<br><p><\/p>/g,"");
-											mainContent=mainContent.replace(/<br>/g,"");
-											mainContent=mainContent.replace(/<p>/g,"");
-											mainContent=mainContent.replace(/<\/p>/g,"");
-											prevMainContentLength=mainContent.length;
-											console.log("MainContent="+mainContent);
-											keycode[j]=e.which;
-											j++;
-										
-										}else{
-											if(e.which==13){
-												
-												lineCount=lineCount+1;
-												console.log(lineCount);
-											}
-											currentContent=$('#'+contentNo).wysiwyg('getContent');
-											currentContent=currentContent.replace(/<br><p><\/p>/g,"");
-											currentContent=currentContent.replace(/<br>/g,"");
-											currentContent=currentContent.replace(/<p>/g,"");
-											currentContent=currentContent.replace(/<\/p>/g,"");
-											console.log("current Content:"+currentContent);
-										}
-										
-										if(keycode[0]==17 && keycode[1]==16){
-											var key="";
-											console.log("keyCombination"+keyCombination);
-											for(var i=0;i<keyCombination.length;i++){
-												
-												if(keycode.length>2){
-													console.log("keycode[2]"+keycode[2]);
-													e.preventDefault();
-													var s=keyCombination[i];
-													key="ctrl+shift"+keycode[2];
-												}
-											}
-											console.log("key="+key);
-											
-											if(key!=""){
-											console.log("current Content Length:"+currentContent.length);
-											console.log("Main Content Length:"+mainContent.length);
-											
-											if(currentContent.length>mainContent.length){
-												
-												currentContent=currentContent.replace(/<br>/g,"");
-												var lookupContent=currentContent.substring(mainContent.length);
-												console.log("lookupContent:"+lookupContent);
-												if(lookupContent!=""){
-													$.get("ref/search?key="+key+"&term="+lookupContent,function(data){
-														 $("#autosuggest_menu").empty();
-														var menuText = "";
-														if(data.length>0){
-															for(var i=0;i<data.length;i++){
-																menuText+="<option value='"+data[i].value+"'>"+data[i].name;
-															}
-															$("#autosuggest_menu").html(menuText);
-															keycode.length=0;
-															j=0;
-															var offset = $("#"+contentNo+"-wysiwyg-iframe").offset();
-															
-															$("#shiftDiv").css("display","block");
-															$("#autosuggest_menu").css("display","block");
-															$("#autosuggest_menu").focus();
-															$("#autosuggest_menu").get(0).selectedIndex = 0;;
-															$("#shiftDiv").css("left",/* $('#'+contentNo).val().length  + */ offset.left);
-															$("#shiftDiv").css("top",offset.top/* +(lineCount*30) */);
-															
-														}else{
-															$("#shiftDiv").css("display","none");
-															j=0;
-															keycode.length=0;
-														}
-													}); 
-												}
-											}
-											}
-										}
-									}
-								},
-					    	  	  controls:{
-										fullscreen: {
-											/*groupIndex: 12,*/
-											visible: true,
-											hotkey:{
-												"ctrl":1|0,
-												"key":122
-											},
-											exec: function () {
-												if ($.wysiwyg.fullscreen) {
-													$.wysiwyg.fullscreen.init(this);
-												}
-											},
-											tooltip: "Fullscreen"
-										},
-										bookmark:{
-											visible: true, 
-											 icon: './resources/images/bookmark.png',
-								             tags: ['bookmark'], 
-								             exec: function(){
-								            		 $.get('proceeding/bookmark?language='+$("#selectedLanguage").val()+'&currentSlot='+$('#slot').val(),function(data){
-								 				   		 $.fancybox.open(data, {autoSize: false, width:800, height:500});
-								 			   		 },'html');
-								 			    	return false;
-								             	}
-								            }
-										}	  
-					      });
-					      $("#deviceType"+partCount).prepend("<option value='' selected='selected'>----"+$("#pleaseSelectMessage").val()+"----</option>");
-					      $('.deviceType'+partCount).hide();
-					      $('#addDevice'+partCount).click(function(){
-					    	  	var id=this.id;
-					    	  	var mainCount=id.split("addDevice")[1];
-								$('.deviceType'+mainCount).toggle();
-							});
-							
-							$('#deviceNo'+partCount).change(function(){
-								$.get('ref/device?number='+$(this).val()+'&session='+$('#session').val()+'&deviceType='+$('#deviceType'+partCount).val(),function(data){
-									if(data!=null){
-										$('#deviceId'+partCount).val(data.id);
-										$('#content'+partCount).wysiwyg('setContent',data.name);
-									}
-								});
-							});
-							
-							$('#deviceType'+partCount).change(function(){
-								var deviceType="";
-								$.ajax({url: 'ref/getTypeOfSelectedDeviceType?deviceTypeId='+ $(this).val(), async: false, success : function(data){	
-									deviceType = data;
-								}}).done(function(){
-									if(deviceType=="questions_halfhourdiscussion_from_question"){
-										$('.starredQuestion'+partCount).show();
-									}else{
-										$('.halfHourDiscussionFromQuestion'+partCount).hide();
-										$('.starredQuestion'+partCount).hide();
-									}
-								});
-								
-							});
-							
-							$('#starredQuestionNo'+partCount).change(function(){
-								$.get('ref/gethalfhourdiscussionfromquestion?starredQuestionNo='+$(this).val()+'&session='+$('#session').val(),function(data){
-									var text="<option value='' selected='selected'>----"+$("#pleaseSelectMessage").val()+"----</option>";
-									$('#halfHourDiscussionFromQuestionNo'+partCount).empty();
-									if(data.length>0){
-										for(var i=0;i<data.length;i++){
-											text=text+"<option value='"+data[i].name+"'>"+data[i].name+"</option>";
-										}
-										$('#halfHourDiscussionFromQuestionNo'+partCount).html(text);
-										$('.halfHourDiscussionFromQuestion'+partCount).show();
-									}
-								});
-							});
-							
-							$('#halfHourDiscussionFromQuestionNo'+partCount).change(function(){
-								$.get('ref/device?number='+$(this).val()+'&session='+$('#session').val()+'&deviceType='+$('#deviceType'+partCount).val(),function(data){
-									if(data!=null){
-										$('#deviceId'+partCount).val(data.id);
-										$('#content'+partCount).wysiwyg('setContent',data.name);
-									}
-								});
-							});
-					      $('.mainHeadingLink').click(function(){
-								var currId=this.id;
-								var mainHeadingCount=currId.split("mainHeadingLink")[1];
-								console.log(mainHeadingCount);
-								$('.mainHeadingP'+mainHeadingCount).toggle();
-							});
-					      
-					      $('.pageHeadingLink').click(function(){
-								var currId=this.id;
-								var pageHeadingCount=currId.split("pageHeadingLink")[1];
-								$('.pageHeadingP'+pageHeadingCount).toggle();
-							});
-					      
-					      $('#ministerLink'+partCount).click(function(){
-								$('.minister'+partCount).show();
-								$('.member'+partCount).show();
-								$('.substitute'+partCount).hide();
-								$('.private'+partCount).hide();
-								$('.public'+partCount).hide();
-								$('#privateLink'+partCount).show();
-								$('#ministerLink'+partCount).hide();
-							});
-							
-							$('#substituteLink'+partCount).click(function(){
-								$('.substitute'+partCount).toggle();
-							});
-							
-							$('#privateLink'+partCount).click(function(){
-								$('.member'+partCount).show();
-								$('.minister'+partCount).hide();
-								$('.public'+partCount).hide();
-								$('.substitute'+partCount).hide();
-								$('#privateLink'+partCount).hide();
-								$('#ministerLink'+partCount).show();
-							});
-							
-							$('#publicLink'+partCount).click(function(){
-								$('.public'+partCount).show();
-								$('.member'+partCount).hide();
-								$('.substitute'+partCount).hide();
-								$('.minister'+partCount).hide();
-								
-							});
-					      $( "#formattedprimaryMember"+partCount).autocomplete({
-								minLength:3,			
-								source:'ref/member/supportingmembers?session='+$("#session").val(),
-								select:function(event,ui){			
-								$("#primaryMember"+partCount).val(ui.item.id);
-							}	
-						 });
-					      
-					      $( "#formattedSubstituteMember"+partCount).autocomplete({
-								minLength:3,			
-								source:'ref/member/getmembers?session='+$("#session").val(),
-								select:function(event,ui){			
-								$("#substituteMember"+partCount).val(ui.item.id);
-							}	
-						 });
-					      
-					      $('.wysiwyg').change(function(e){
-								contentNo=this.id;
-								var idval = this.id;			
-								if($('#'+idval).is('[readonly]')){
-									if($('#'+idval).val()!=$('#copyOf'+idval).val()) {
-										$('#'+idval+'-wysiwyg-iframe').contents().find('html').html($('#copyOf'+idval).val());
-									}
-								} else {
-									if($('#'+idval).val()=="<p></p>"){						
-										$('#'+idval+'-wysiwyg-iframe').focus();				
-										$('#'+idval+'-wysiwyg-iframe').contents().find('html').html("<br><p></p>");				
-									}
-								}
-								maxHeight=$("#"+contentNo+"-wysiwyg-iframe").css("height");
-							});
-					     	 $('.wysiwyg').each(function(){
-					  		var idval = this.id;
-					  		if($('#'+idval).is('[readonly]')){
-					  			$('<input>').attr({
-					  			    type: 'hidden',
-					  			    id: 'copyOf'+idval,
-					  			    value: $('#'+idval).val()
-					  			}).appendTo($('#'+idval));
-					  		}
-					  		});
-					      $(".viewProceedingCitation").click(function(){
-								var id=this.id;
-								var idArray=id.split("");
-								var counter=idArray[idArray.length-1];
-								
-								$.get('proceeding/part/citations?counter='+counter,function(data){
-								    $.fancybox.open(data, {autoSize: false, width: 600, height:600});
-							    },'html');
-							    return false;
-							});	
-					      	if($('#mainHeading'+partCount).val()!=''){
+					       	     
+					     
+					      	loadWysiwyg(contentNo);
+					       	hideAndShowDivOnLinkClick();
+					     	loadDeviceNoChangeEvent();
+							loadDeviceTypeChangeEvent();
+							loadStarredQuestionNoChangeEvent();
+							loadHalfHourDiscussionFromQuestionNoChangeEvent();
+							loadMainHeadingToggleEvent();
+							loadPageHeadingToggleEvent();
+							loadClearLinkClickEvent();
+							loadAutoSuggest();
+							loadViewCitationClick();
+											      	
+					      if($('#mainHeading'+partCount).val()!=''){
 					      		$('.mainHeadingP'+partCount).show();
 					      	}else{
 					      		$('.mainHeadingP'+partCount).hide();	
@@ -457,28 +200,11 @@
 					      	}else{
 					      		$('.pageHeadingP'+partCount).hide();
 					      	}
-					      
-							
-							$('.minister'+partCount).hide();
-							$('.public'+partCount).hide();
-							$('.substitute'+partCount).hide();
-							$('#privateLink'+partCount).hide();
-							$('.deviceType'+partCount).hide();
-							$('.order'+partCount).hide();
-							
-							$('.clearMainHeading').click(function(){
-								var mId=this.id;
-								var mhId=mId.split('clearMainHeadingLink')[1];
-								$('#mainHeading'+mhId).val('');
-							});
-							$('.clearPageHeading').click(function(){
-								var pId=this.id;
-								var phId=pId.split('clearPageHeadingLink')[1];
-								$('#pageHeading'+phId).val('');
-							});
+					      	 $("#deviceType"+partCount).prepend("<option value='' selected='selected'>----"+$("#pleaseSelectMessage").val()+"----</option>");										
 					      return partCount;		
 		}
 
+		/****FUnction Delete Part****/
 		function deletePart(id,continous){	
 			var partId=$('#partId'+id).val();			
 			if(partId != ''){
@@ -508,172 +234,33 @@
 	      		$('#order'+i).val(i-1);
 	      	}
 		}
+		
+		
 		$(document).ready(function(){
 			
+			/****AddPart****/
 			$('.addPartButton').click(function(){
 				var buttonId=this.id;
-				console.log(buttonId);
 				var buttonCount=buttonId.split("addPart")[1];
 				addPart(parseInt(buttonCount));
 			});
 			
 			$('#memberMaster').hide();
 			$('#roleMaster').hide();
-			
-			
-			$('#addPart').click(function(){
-				  if(partCount>0){
-						orderCount=$('#order'+partCount).val();
-						chairPerson=$('#chairPerson'+partCount).val();
-						role=$('#chairPersonRole'+partCount).val();
-				} 
-				addPart();
-			});
-			
-			
-			$('.wysiwyg').wysiwyg({
-				events:{
-					keydown:function(e){
-						if(j==0 && e.which==17){
-							keycode[j]=e.which;
-							j++;
-						}else if(j==1 && e.which==16){
-							keycode[j]=e.which;
-							j++;
-						}else if(j==2 && e.which!=0){
-							
-							mainContent=$('#'+contentNo).val();
-							finalContent=mainContent;					
-							mainContent=mainContent.replace(/<br><p><\/p>/g,"");
-							mainContent=mainContent.replace(/<br>/g,"");
-							mainContent=mainContent.replace(/<p>/g,"");
-							mainContent=mainContent.replace(/<\/p>/g,"");
-							prevMainContentLength=mainContent.length;
-							console.log("MainContent="+mainContent);
-							keycode[j]=e.which;
-							j++;
-						
-						}else{
-							if(e.which==13){
-								
-								lineCount=lineCount+1;
-								console.log(lineCount);
-							}
-							currentContent=$('#'+contentNo).wysiwyg('getContent');
-							currentContent=currentContent.replace(/<br><p><\/p>/g,"");
-							currentContent=currentContent.replace(/<br>/g,"");
-							currentContent=currentContent.replace(/<p>/g,"");
-							currentContent=currentContent.replace(/<\/p>/g,"");
-							console.log("current Content:"+currentContent);
-							
-							
-						}
-						
-						if(keycode[0]==17 && keycode[1]==16){
-							
-							var key="";
-							console.log("keyCombination"+keyCombination);
-							
-							/*  for(var i=0;i<keyCombination.length;i++){
-								
-								if(keycode.length>2){
-									console.log("keycode[2]"+keycode[2]);
-									e.preventDefault();
-									key=keycode;
-									 var s=keyCombination[i];
-									console.log("s="+s);
-									var s1=s.split(":");
-									console.log("s1"+s1);
-									if(s1[1]==keycode[2]){
-										key=s1[0];
-										console.log("from condition key="+key);
-										break;
-									} 
-								}
-							}  */
-							if(keycode.length>2){
-								console.log("keycode[2]"+keycode[2]);
-								e.preventDefault();
-								key=keycode;
-							}
-													
-							if(key!=""){
-							console.log("current Content Length:"+currentContent.length);
-							console.log("Main Content Length:"+mainContent.length);
-							
-							if(currentContent.length>mainContent.length){
-								
-								currentContent=currentContent.replace(/<br>/g,"");
-								var lookupContent=currentContent.substring(mainContent.length);
-								console.log("lookupContent:"+lookupContent);
-								if(lookupContent!=""){
-									$.get("ref/search?key="+key+"&term="+lookupContent,function(data){
-										 $("#autosuggest_menu").empty();
-										var menuText = "";
-										if(data.length>0){
-											for(var i=0;i<data.length;i++){
-												menuText+="<option value='"+data[i].value+"'>"+data[i].name;
-											}
-											$("#autosuggest_menu").html(menuText);
-											keycode.length=0;
-											j=0;
-											var offset = $("#"+contentNo+"-wysiwyg-iframe").offset();
-											$("#shiftDiv").css("display","block");
-											$("#autosuggest_menu").css("display","block");
-											$("#autosuggest_menu").focus();
-											$("#autosuggest_menu").get(0).selectedIndex = 0;;
-											$("#shiftDiv").css("left",/* $('#'+contentNo).val().length  + */ offset.left);
-											 $("#shiftDiv").css("top",offset.top/* +(lineCount*30) */);
-											
-										}else{
-											$("#shiftDiv").css("display","none");
-											j=0;
-											keycode.length=0;
-										}
-									}); 
-								}
-							}
-							}
-						}
-					}
-				},
+
+			loadWysiwyg(contentNo);
+			loadAutoSuggest();
+			loadDeviceNoChangeEvent();
+			loadDeviceTypeChangeEvent();
+			loadStarredQuestionNoChangeEvent();
+			loadHalfHourDiscussionFromQuestionNoChangeEvent();
+			loadMainHeadingToggleEvent();
+			loadPageHeadingToggleEvent();
+			hideAndShowDivOnLinkClick();
+			loadClearLinkClickEvent();
+			loadViewCitationClick();
 					
-				    controls:{
-						fullscreen: {
-							visible: true,
-							hotkey:{
-								"ctrl":1|0,
-								"key":122
-							},
-							exec: function () {
-								if ($.wysiwyg.fullscreen) {
-									$.wysiwyg.fullscreen.init(this);
-								}
-							},
-							tooltip: "Fullscreen"
-						},
-						bookmark:{
-							visible: true, 
-							 icon: './resources/images/bookmark.png',
-				             tags: ['bookmark'], 
-				             exec: function(){
-				            	 	 $.get('proceeding/bookmark?language='+$("#selectedLanguage").val()+'&currentSlot='+$('#slot').val(),function(data){
-				 				   		 $.fancybox.open(data, {autoSize: false, width:800, height:500});
-				 			   		 },'html');
-				 			    	return false;
-				             	}
-				            }
-						}	  
-	      });
-			$( ".autosuggest").autocomplete({
-				minLength:3,			
-				source:'ref/member/supportingmembers?session='+$("#session").val(),
-				select:function(event,ui){		
-					id=this.id,
-					$("#"+id).val(ui.item.id);
-				}	
-			});
-			
+			/****Add Bookmark****/
 			$('.addBookmark').click(function(){
 				var id=this.id;
 				var count=id.split("addBookmark");
@@ -684,6 +271,7 @@
 				    return false;
 			});
 			
+			/****BookmarkKey ****/
 			$('.bookmarkKey').click(function(){
 				var s=contentNo.split("");
 				var id=this.id;
@@ -703,47 +291,13 @@
 		        return false;  
 		   	 }); 
 	
-			
-			$(".viewProceedingCitation").click(function(){
-				var id=this.id;
-				var idArray=id.split("");
-				var counter=idArray[idArray.length-1];
-				
-				$.get('proceeding/part/citations?counter='+counter,function(data){
-				    $.fancybox.open(data, {autoSize: false, width: 600, height:600});
-			    },'html');
-			    return false;
-			});	
-			
-						
-			$('.wysiwyg').change(function(e){
-				contentNo=this.id;
-				maxHeight=$("#"+contentNo+"-wysiwyg-iframe").css("height");
-			});
-			
-			$('.mainHeadingLink').click(function(){
-				var currId=this.id;
-				var mainHeadingCount=currId.split("mainHeadingLink")[1];
-				$('.mainHeadingP'+mainHeadingCount).toggle();
-				$('.mainHeadingP'+mainHeadingCount).focus();
-			});
-			
-			$('.pageHeadingLink').click(function(){
-				var currId=this.id;
-				var pageHeadingCount=currId.split("pageHeadingLink")[1];
-				$('.pageHeadingP'+pageHeadingCount).toggle();
-			});
-			
+			/****Autosuggest menu for Masters(Fort,Ghat etc)****/
 			$("#autosuggest_menu").click(function(e){
 				var content=$(this).val();
-				content==content.replace(/<br><p><\/p>/g,"");
-				content==content.replace(/<br>/g,"");
+				content=replaceString(content);
 				$("#"+contentNo).wysiwyg("setContent",finalContent+content);
 				mainContent=$("#"+contentNo).val();
-				mainContent=mainContent.replace(/<br><p><\/p>/g,"");
-				mainContent=mainContent.replace(/<br>/g,"");
-				mainContent=mainContent.replace(/<p>/g,"");
-				mainContent=mainContent.replace(/<\/p>/g,"");
+				mainContent=replaceString(mainContent);
 				$(this).css("display","none");
 				$("#"+contentNo+"-wysiwyg-iframe").focus();
 			});
@@ -760,6 +314,7 @@
 				}
 			});	
 			
+			/****Hiding the Divs which has empty value****/
 			$('.minister').each(function(){
 				if($(this).children().eq(1).attr('value')==''){
 						$(this).hide();
@@ -806,8 +361,239 @@
 						$(this).hide();
 				}
 			}) ;
+		});
+		
+		/****function to get the selectedText from iframe****/
+		function getIframeSelectionText(iframe) {
+			  var win = iframe.contentWindow;
+			  var doc = iframe.contentDocument || win.document;
+
+			  if (win.getSelection) {
+			    return win.getSelection().toString();
+			  } else if (doc.selection && doc.selection.createRange) {
+			    return doc.selection.createRange().text;
+			  }
+		}
+		
+		/****function to view Bookmark detail****/
+		function viewBookmarkDetail(id){
+			var params="id="+id;
+			$.get('proceeding/part/viewbookmark?'+params,function(data){
+			    $.fancybox.open(data, {autoSize: false, width: 800, height:600});
+		    },'html');					
+		}
+		
+		/****Funtion to register the events and control of wysiwyg****/
+		function loadWysiwyg(){
 			
-			
+			 $('.wysiwyg').wysiwyg({
+		    	  events:{
+						keydown:function(e){
+							
+							if(j==0 && e.which==17){
+								keycode[j]=e.which;
+								j++;
+							}else if(j==1 && e.which==16){
+								keycode[j]=e.which;
+								j++;
+							}else if(j==2 && e.which!=0){
+								mainContent=$('#'+contentNo).val();
+								finalContent=mainContent;							
+								mainContent=replaceString(mainContent);
+								prevMainContentLength=mainContent.length;
+								keycode[j]=e.which;
+								j++;
+							}else{
+								if(e.which==13){
+									lineCount=lineCount+1;
+								}
+								currentContent=$('#'+contentNo).wysiwyg('getContent');
+								currentContent=replaceString(currentContent);
+							}
+							if(keycode[0]==17 && keycode[1]==16){
+								var key="";
+								if(keycode.length>2){
+									e.preventDefault();
+									key=keycode;
+								}
+								if(key!=""){
+								if(currentContent.length>mainContent.length){
+									currentContent=replaceString(currentContent);
+									var lookupContent=currentContent.substring(mainContent.length);
+									if(lookupContent!=""){
+										$.get("ref/search?key="+key+"&term="+lookupContent,function(data){
+											 $("#autosuggest_menu").empty();
+											var menuText = "";
+											if(data.length>0){
+												for(var i=0;i<data.length;i++){
+													menuText+="<option value='"+data[i].value+"'>"+data[i].name;
+												}
+												$("#autosuggest_menu").html(menuText);
+												keycode.length=0;
+												j=0;
+												var offset = $("#"+contentNo+"-wysiwyg-iframe").offset();
+												$("#shiftDiv").css("display","block");
+												$("#autosuggest_menu").css("display","block");
+												$("#autosuggest_menu").focus();
+												$("#autosuggest_menu").get(0).selectedIndex = 0;;
+												$("#shiftDiv").css("left",/* $('#'+contentNo).val().length  + */ offset.left);
+												$("#shiftDiv").css("top",offset.top/* +(lineCount*30) */);
+												
+											}else{
+												$("#shiftDiv").css("display","none");
+												j=0;
+												keycode.length=0;
+											}
+										}); 
+									}
+								}
+								}
+							}
+						}
+					},
+		    	  	  controls:{
+							fullscreen: {
+								visible: true,
+								hotkey:{
+									"ctrl":1|0,
+									"key":122
+								},
+								exec: function () {
+									if ($.wysiwyg.fullscreen) {
+										$.wysiwyg.fullscreen.init(this);
+									}
+								},
+								tooltip: "Fullscreen"
+							},
+							bookmark:{
+								visible: true, 
+								 icon: './resources/images/bookmark.png',
+					             tags: ['bookmark'], 
+					             exec: function(){
+					            		 $.get('proceeding/bookmark?language='+$("#selectedLanguage").val()+'&currentSlot='+$('#slot').val(),function(data){
+					 				   		 $.fancybox.open(data, {autoSize: false, width:800, height:500});
+					 			   		 },'html');
+					 			    	return false;
+					             	}
+					            }
+							}	  
+		      });
+			 
+			 $('.wysiwyg').change(function(e){
+					contentNo=this.id;
+					var idval = this.id;			
+					if($('#'+idval).is('[readonly]')){
+						if($('#'+idval).val()!=$('#copyOf'+idval).val()) {
+							$('#'+idval+'-wysiwyg-iframe').contents().find('html').html($('#copyOf'+idval).val());
+						}
+					} else {
+						if($('#'+idval).val()=="<p></p>"){						
+							$('#'+idval+'-wysiwyg-iframe').focus();				
+							$('#'+idval+'-wysiwyg-iframe').contents().find('html').html("<br><p></p>");				
+						}
+					}
+					maxHeight=$("#"+contentNo+"-wysiwyg-iframe").css("height");
+				});
+		     	 $('.wysiwyg').each(function(){
+		  		var idval = this.id;
+		  		if($('#'+idval).is('[readonly]')){
+		  			$('<input>').attr({
+		  			    type: 'hidden',
+		  			    id: 'copyOf'+idval,
+		  			    value: $('#'+idval).val()
+		  			}).appendTo($('#'+idval));
+		  		}
+		  		});
+		}
+		
+		/****function to import the content of devices by device No****/
+		function loadDeviceNoChangeEvent(){
+			$('.deviceNo').change(function(){
+				var id=this.id;
+				var mainId=id.split("deviceNo")[1];
+				$.get('ref/device?number='+$(this).val()+'&session='+$('#session').val()+'&deviceType='+$('#deviceType'+mainId).val(),function(data){
+					if(data!=null){
+						$('#deviceId'+mainId).val(data.id);
+						$('#content'+mainId).wysiwyg('setContent',data.name);
+					}
+				});
+			});
+		}
+		
+		/****function to get the selectedText from iframe****/
+		function loadDeviceTypeChangeEvent(){
+			$('.deviceTypes').change(function(){
+				var deviceType="";
+				var id=this.id;
+				var mainId=id.split("deviceType")[1];
+				$.ajax({url: 'ref/getTypeOfSelectedDeviceType?deviceTypeId='+ $('#deviceType'+mainId).val(), async: false, success : function(data){	
+					deviceType = data;
+				}}).done(function(){
+					if(deviceType=="questions_halfhourdiscussion_from_question"){
+						$('.starredQuestion'+mainId).show();
+					}else{
+						$('.halfHourDiscussionFromQuestion'+mainId).hide();
+						$('.starredQuestion'+mainId).hide();
+					}
+				});
+				
+			});
+		}
+		
+		/****function to get the halfhourdiscussionfromquestion by starred question****/
+		function loadStarredQuestionNoChangeEvent(){
+			$('.starredQuestionNo').change(function(){
+				var id=this.id;
+				var mainId=id.split("starredQuestionNo")[1];
+				$.get('ref/gethalfhourdiscussionfromquestion?starredQuestionNo='+$('#starredQuestionNo'+mainId).val()+'&session='+$('#session').val(),function(data){
+					var text="<option value='' selected='selected'>----"+$("#pleaseSelectMessage").val()+"----</option>";
+					$('#halfHourDiscussionFromQuestionNo'+mainId).empty();
+					if(data.length>0){
+						for(var i=0;i<data.length;i++){
+							text=text+"<option value='"+data[i].name+"'>"+data[i].name+"</option>";
+						}
+						$('#halfHourDiscussionFromQuestionNo'+mainId).html(text);
+						$('.halfHourDiscussionFromQuestion'+mainId).show();
+					}
+				});
+			});
+		}
+		
+		/****function to import halfhourdiscussionfromquestion from the number selected ****/
+		function loadHalfHourDiscussionFromQuestionNoChangeEvent(){
+			$('.halfHourDiscussionFromQuestionNo').change(function(){
+				var id=this.id;
+				var mainId=id.split("halfHourDiscussionFromQuestionNo")[1];
+				$.get('ref/device?number='+$('#halfHourDiscussionFromQuestionNo'+mainId).val()+'&session='+$('#session').val()+'&deviceType='+$('#deviceType'+mainId).val(),function(data){
+					if(data!=null){
+						$('#deviceId'+mainId).val(data.id);
+						$('#content'+mainId).wysiwyg('setContent',data.name);
+					}
+				});
+			});
+		}
+		
+		/****Toggling the mainHeading on clicking mainHeadingLink****/
+		function loadMainHeadingToggleEvent(){
+			$('.mainHeadingLink').click(function(){
+				var currId=this.id;
+				var mainHeadingCount=currId.split("mainHeadingLink")[1];
+				$('.mainHeadingP'+mainHeadingCount).toggle();
+				$('.mainHeadingP'+mainHeadingCount).focus();
+			});
+		}
+		
+		/****Toggling the pageHeading on clicking pageHeadingLink****/
+		function loadPageHeadingToggleEvent(){
+			$('.pageHeadingLink').click(function(){
+				var currId=this.id;
+				var pageHeadingCount=currId.split("pageHeadingLink")[1];
+				$('.pageHeadingP'+pageHeadingCount).toggle();
+			});
+		}
+		
+		/****Function to hide and show Divs on Linkclick****/
+		function hideAndShowDivOnLinkClick(){
 			$('.ministerLink').click(function(){
 				var id=this.id;
 				var currCount=id.split("ministerLink")[1];
@@ -853,61 +639,10 @@
 				var mainId=id.split("addDevice")[1];
 				$('.deviceType'+mainId).toggle();
 			});
-			
-			$('.deviceNo').change(function(){
-				var id=this.id;
-				var mainId=id.split("deviceNo")[1];
-				$.get('ref/device?number='+$(this).val()+'&session='+$('#session').val()+'&deviceType='+$('#deviceType'+mainId).val(),function(data){
-					if(data!=null){
-						$('#deviceId'+mainId).val(data.id);
-						$('#content'+mainId).wysiwyg('setContent',data.name);
-					}
-				});
-			});
-			
-			$('.deviceTypes').change(function(){
-				var deviceType="";
-				var id=this.id;
-				var mainId=id.split("deviceType")[1];
-				$.ajax({url: 'ref/getTypeOfSelectedDeviceType?deviceTypeId='+ $('#deviceType'+mainId).val(), async: false, success : function(data){	
-					deviceType = data;
-				}}).done(function(){
-					if(deviceType=="questions_halfhourdiscussion_from_question"){
-						$('.starredQuestion'+mainId).show();
-					}else{
-						$('.halfHourDiscussionFromQuestion'+mainId).hide();
-						$('.starredQuestion'+mainId).hide();
-					}
-				});
-				
-			});
-			
-			$('.starredQuestionNo').change(function(){
-				var id=this.id;
-				var mainId=id.split("starredQuestionNo")[1];
-				$.get('ref/gethalfhourdiscussionfromquestion?starredQuestionNo='+$('#starredQuestionNo'+mainId).val()+'&session='+$('#session').val(),function(data){
-					var text="<option value='' selected='selected'>----"+$("#pleaseSelectMessage").val()+"----</option>";
-					$('#halfHourDiscussionFromQuestionNo'+mainId).empty();
-					if(data.length>0){
-						for(var i=0;i<data.length;i++){
-							text=text+"<option value='"+data[i].name+"'>"+data[i].name+"</option>";
-						}
-						$('#halfHourDiscussionFromQuestionNo'+mainId).html(text);
-						$('.halfHourDiscussionFromQuestion'+mainId).show();
-					}
-				});
-			});
-			
-			$('.halfHourDiscussionFromQuestionNo').change(function(){
-				var id=this.id;
-				var mainId=id.split("halfHourDiscussionFromQuestionNo")[1];
-				$.get('ref/device?number='+$('#halfHourDiscussionFromQuestionNo'+mainId).val()+'&session='+$('#session').val()+'&deviceType='+$('#deviceType'+mainId).val(),function(data){
-					if(data!=null){
-						$('#deviceId'+mainId).val(data.id);
-						$('#content'+mainId).wysiwyg('setContent',data.name);
-					}
-				});
-			});
+		}
+		
+		/****Reseting the MainHeading and PageHeading on Clicking Clear Link****/
+		function loadClearLinkClickEvent(){
 			
 			$('.clearMainHeading').click(function(){
 				var mId=this.id;
@@ -919,27 +654,50 @@
 				var phId=pId.split('clearPageHeadingLink')[1];
 				$('#pageHeading'+phId).val('');
 			});
-			
-		});
+		}
 		
-		function getIframeSelectionText(iframe) {
-			  var win = iframe.contentWindow;
-			  var doc = iframe.contentDocument || win.document;
-
-			  if (win.getSelection) {
-			    return win.getSelection().toString();
-			  } else if (doc.selection && doc.selection.createRange) {
-			    return doc.selection.createRange().text;
-			  }
-			}
+		/****Function to register autosuggest for primaryMember and SubstituteMember****/
+		function loadAutoSuggest(){
+			 $( ".formattedMember").autocomplete({
+					minLength:3,			
+					source:'ref/member/supportingmembers?session='+$("#session").val(),
+					select:function(event,ui){	
+						id=this.id;
+						var elementCount=id.split("formattedMember")[1];
+						$("#primaryMember"+elementCount).val(ui.item.id);
+				}	
+			 });
+		      
+		      $( ".formattedSubstituteMember").autocomplete({
+					minLength:3,			
+					source:'ref/member/getmembers?session='+$("#session").val(),
+					select:function(event,ui){	
+						id=this.id;
+						var elementCount=id.split("formattedSubstituteMember")[1];
+						$("#substituteMember"+elementCount).val(ui.item.id);
+				}	
+			 });
+		}
 		
-		
-		function viewBookmarkDetail(id){
-			var params="id="+id;
-			$.get('proceeding/part/viewbookmark?'+params,function(data){
-			    $.fancybox.open(data, {autoSize: false, width: 800, height:600});
-		    },'html');					
-			
+		/****Function to View Proceeding Citation****/
+		function loadViewCitationClick(){
+			$(".viewProceedingCitation").click(function(){
+				var id=this.id;
+				var idArray=id.split("");
+				var counter=idArray[idArray.length-1];
+				$.get('proceeding/part/citations?counter='+counter,function(data){
+				    $.fancybox.open(data, {autoSize: false, width: 600, height:600});
+			    },'html');
+			    return false;
+			});	
+		}
+		/****Function to replace a part of a string****/
+		function replaceString(toBeReplacedContent){
+			toBeReplacedContent=toBeReplacedContent.replace(/<br><p><\/p>/g,"");
+			toBeReplacedContent=toBeReplacedContent.replace(/<br>/g,"");
+			toBeReplacedContent=toBeReplacedContent.replace(/<p>/g,"");
+			toBeReplacedContent=toBeReplacedContent.replace(/<\/p>/g,"");
+			return toBeReplacedContent;
 		}
 	</script>
 </head>
@@ -1052,7 +810,7 @@
 	</p>
 	<p class="member${count} member">
 		<label class="small"><spring:message code="part.memberName" text="Member"/></label>
-		<input type="text" name="formattedMember${count}" id="formattedMember${count}" class="autosuggest sText" value="${outer.primaryMember.getFullname()}"/>
+		<input type="text" name="formattedMember${count}" id="formattedMember${count}" class="autosuggest sText formattedMember" value="${outer.primaryMember.getFullname()}"/>
 		<input name="primaryMember${count}" id="primaryMember${count}" type="hidden" value="${outer.primaryMember.id}">
 	</p>
 		
@@ -1094,7 +852,7 @@
 	</p> 
 	<p class="substitute${count} substitute">
 		<label class="small"><spring:message code="part.substitutememberName" text=" Substitute Member"/></label>
-		<input type="text" name="formattedSubstituteMember${count}" id="formattedSubstituteMember${count}" class="autosuggest sText" value="${outer.substituteMember.getFullname()}"/>
+		<input type="text" name="formattedSubstituteMember${count}" id="formattedSubstituteMember${count}" class="autosuggest sText formattedSubstituteMember" value="${outer.substituteMember.getFullname()}"/>
 		<input name="substituteMember${count}" id="substituteMember${count}" type="hidden" value="${outer.substituteMember.id}">
 	</p>
 	
@@ -1174,12 +932,8 @@
 	<p class="pageHeadingP${count} pageHeadingP">
 		<label class="small"><spring:message code="part.pageHeading" text="Page Heading"/></label>
 		<textarea class="sTextarea" name="pageHeading${count}" id="pageHeading${count}">${outer.pageHeading}</textarea>
-		<a href="javascript:void(0)" id="clearpageHeadingLink${count}" class="clearPageHeading">clear</a>
+		<a href="javascript:void(0)" id="clearPageHeadingLink${count}" class="clearPageHeading">clear</a>
 	</p>
-	<%-- <p>
-		<a href="#" id="addBookmark${count}" class="addBookmark" style="margin-left: 162px;margin-top: 30px;"><spring:message code="part.addBoomark" text="add Bookmark"></spring:message></a>
-		<a href="#" id="viewProceedingCitation${count}" class="viewProceedingCitation" style="margin-left: 50px;margin-top: 30px;"><spring:message code="proceeding.viewcitation" text="View Citations"></spring:message></a>	
-	</p> --%>
 	<p>
 		<label class="wysiwyglabel"><spring:message code="part.proceedingContent" text="Content"/></label>
 		<textarea class="wysiwyg" name="content${count}" id="content${count}">${outer.proceedingContent}</textarea>
@@ -1245,7 +999,6 @@
 <input type="hidden" id="deviceNoMessage" name="deviceNoMessage" value="<spring:message code='part.deviceNo' text='Device No'></spring:message>" disabled="disabled"/>
 <input type="hidden" id="starredQuestionNoMessage" name="starredQuestionNoMessage" value="<spring:message code='part.starredQuestionNo' text='Starred Question No'></spring:message>" disabled="disabled"/>
 <input type="hidden" id="HalfHourDiscussionFromQuestionMessage" name="HalfHourDiscussionFromQuestionMessage" value="<spring:message code='part.HalfHourDiscussionFromQuestionMessage' text='Half Hour Question No'></spring:message>" disabled="disabled"/>
-<input type="hidden" id="keyClassCombination" value="${searchOptions}"/>
 <input type="hidden" id="session" value="${session}"/>
 <input id="selectItemFirstMessage" value="<spring:message code='ris.selectitem' text='Select an item first'/>" type="hidden">
 <input id="addBookmarkMessage" value="<spring:message code='client.prompt.updateText' text='Do you want to add the Text for the Bookmark.'></spring:message>" type="hidden">
