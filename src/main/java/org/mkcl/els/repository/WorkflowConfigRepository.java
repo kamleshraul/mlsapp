@@ -1032,4 +1032,44 @@ public class WorkflowConfigRepository extends BaseRepository<WorkflowConfig, Ser
 			return new WorkflowConfig();
 		}	
 	}
+	
+	
+	public WorkflowActor findNextEditingActor(final HouseType houseType,
+			final UserGroup userGroup, 
+			final Status status, 
+			final String workflowName, 
+			final int level,
+			final String locale) {
+		WorkflowActor wfActor = null;
+		
+		WorkflowConfig wfConfig = this.getLatest(houseType, workflowName, locale);
+		UserGroupType userGroupType = userGroup.getUserGroupType();
+		WorkflowActor currentWfActor = this.getWorkflowActor(wfConfig, userGroupType, level);
+		
+		wfActor = getNextWorkflowActor(wfConfig, currentWfActor, ApplicationConstants.ASC);
+		
+		return wfActor;
+	}	
+	
+	public List<WorkflowActor> findEditingActors(final HouseType houseType,
+			final UserGroup userGroup,
+			final Status status,
+			final String workflowName,
+			final int level,
+			final String locale) {
+		List<WorkflowActor> wfActors = new ArrayList<WorkflowActor>();
+		
+		WorkflowConfig wfConfig = this.getLatest(houseType, workflowName, locale);
+		UserGroupType userGroupType = userGroup.getUserGroupType();
+		WorkflowActor currentWfActor = this.getWorkflowActor(wfConfig, userGroupType, level);
+		
+		if(status.getType().equals(ApplicationConstants.EDITING_RECOMMEND_SENDBACK)) {
+			wfActors = getWorkflowActorsExcludingCurrent(wfConfig, currentWfActor, ApplicationConstants.DESC);
+		}
+		else {
+			wfActors = getWorkflowActorsExcludingCurrent(wfConfig, currentWfActor, ApplicationConstants.ASC);
+		}
+		
+		return wfActors;
+	}
 }
