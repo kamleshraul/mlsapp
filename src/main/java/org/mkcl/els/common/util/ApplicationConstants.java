@@ -923,4 +923,21 @@ public class ApplicationConstants {
 	public static final String LAYINGLETTER_APPROVED="layingLetter_approved";
 
 	public static final String LAYINGLETTER_REJECTED="layingLetter_rejected";
+	
+	/***Editing ****/
+	public static final String EDITING = "EDITING";
+	
+	public static final String EDITING_RECOMMEND_SENDBACK = "editing_recommend_sendback";
+	
+	public static final String EDITING_RECOMMEND_MEMBERAPPROVAL = "editing_recommend_memberapproval";
+	
+	public static final String EDITING_RECOMMEND_SPEAKERAPPROVAL = "editing_recommend_speakerapproval";
+	
+	public static final String EDITING_FINAL_MEMBERAPPROVAL = "editing_final_memberapproval";
+	
+	public static final String EDITING_FINAL_SPEAKERAPPROVAL = "editing_final_speakerapproval";
+	
+	public static final String EDITOR = "editor";
+	
+	public static final String CHIEF_EDITOR = "chief_editor";
 }
