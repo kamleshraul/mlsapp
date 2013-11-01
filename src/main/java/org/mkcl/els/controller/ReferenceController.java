@@ -36,6 +36,7 @@ import org.mkcl.els.common.vo.DynamicSelectVO;
 import org.mkcl.els.common.vo.GroupVO;
 import org.mkcl.els.common.vo.MasterVO;
 import org.mkcl.els.common.vo.Reference;
+import org.mkcl.els.controller.wf.EditingWorkflowController;
 import org.mkcl.els.domain.Abbreviation;
 import org.mkcl.els.domain.Airport;
 import org.mkcl.els.domain.Bill;
@@ -2541,7 +2542,7 @@ public class ReferenceController extends BaseController {
 					configuredStatuses.getValue(), locale);
 		}
 		catch (Exception e) {
-
+			e.printStackTrace();
 		}
 		
 		return workflowTypes;
@@ -4278,5 +4279,10 @@ public class ReferenceController extends BaseController {
 				logger.error("Check Request Parameter 'billNumber', 'billYear' for null Values");
 			}
 			return billId;
+		}
+		
+		@RequestMapping(value="/geteditingactors",method=RequestMethod.GET)
+		public @ResponseBody List<MasterVO> getEditingActors(HttpServletRequest request, Locale locale){
+			return EditingWorkflowController.getEditingActors(request, locale);
 		}
 }
