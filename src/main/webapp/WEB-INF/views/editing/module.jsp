@@ -138,6 +138,32 @@
 					$("#pageHeadingDiv").hide();
 				}
 			});
+			
+			$("#send_member").click(function(){
+				var params="?userGroup="+$("#userGroup").val()
+							+"&userGroupType="+$("#userGroupType").val()
+							+"&level=1"
+							+"&wffor=member"
+							+"&houseType=" + $('#selectedHouseType').val()
+							+ '&sessionYear=' + $("#selectedSessionYear").val()
+							+ '&sessionType=' + $("#selectedSessionType").val()
+							+ '&language=' + $("#selectedLanguage").val()
+							+ '&day=' +$('#selectedDay').val();
+				$.post("editing/startworkflow"+params);
+			});
+			
+			$("#send_speaker").click(function(){
+				var params="?userGroup="+$("#userGroup").val()
+					+"&userGroupType="+$("#userGroupType").val()
+					+"&level=1"
+					+"&wffor=speaker"
+					+"&houseType=" + $('#selectedHouseType').val()
+					+ '&sessionYear=' + $("#selectedSessionYear").val()
+					+ '&sessionType=' + $("#selectedSessionType").val()
+					+ '&language=' + $("#selectedLanguage").val()
+					+ '&day=' +$('#selectedDay').val();
+				$.post("editing/startworkflow"+params);
+			});
 		});
 		/**** displaying grid ****/					
 		function showRosterList() {
@@ -147,6 +173,8 @@
 						+'&sessionType='+$("#selectedSessionType").val()
 						+'&language='+$("#selectedLanguage").val()
 						+'&day='+$("#selectedDay").val()
+						+ '&userGroup=' + $("#userGroup").val()
+						+ '&userGroupType=' + $("#userGroupType").val()
 						);
 		}
 		
@@ -157,7 +185,9 @@
 			+ '&sessionType=' + $("#selectedSessionType").val()
 			+ '&language=' + $("#selectedLanguage").val()
 			+ '&day=' +$('#selectedDay').val()
-			+'&reportType=other';
+			+'&reportType=other'
+			+ '&userGroup=' + $("#userGroup").val()
+			+ '&userGroupType=' + $("#userGroupType").val();
 			
 			//$("#selectionDiv1").hide();
 			showTabByIdAndUrl('details_tab', 'proceeding/rosterwisereport?'+params);
@@ -172,7 +202,9 @@
 			+ '&day=' +$('#selectedDay').val()
 			+ '&action=compile'
 			+ '&reedit=false'
-			+ '&reportType=other';
+			+ '&reportType=other'
+			+ '&userGroup=' + $("#userGroup").val()
+			+ '&userGroupType=' + $("#userGroupType").val();
 			
 			//$("#selectionDiv1").hide();
 			showTabByIdAndUrl('details_tab', 'editing/compiledreport?'+params);
@@ -189,7 +221,9 @@
 				+ '&day=' +$('#selectedDay').val()
 				+ '&action=edited'
 				+ '&reedit=false'
-				+ '&reportType=other';
+				+ '&reportType=other'
+				+ '&userGroup=' + $("userGroup").val()
+				+ '&userGroupType=' + $("userGroupType").val();
 			}else if($("#selectedMember").val()!='-'){
 				params="houseType=" + $('#selectedHouseType').val()
 				+ '&sessionYear=' + $("#selectedSessionYear").val()
@@ -199,7 +233,9 @@
 				+ '&action=edited'
 				+ '&reedit=false'
 				+ '&reportType=member'
-				+ '&member='+ $("#selectedMember").val();
+				+ '&member='+ $("#selectedMember").val()
+				+ '&userGroup=' + $("#userGroup").val()
+				+ '&userGroupType=' + $("#userGroupType").val();
 			}
 			
 			//$("#selectionDiv1").hide();
@@ -217,7 +253,9 @@
 				+ '&day=' +$('#selectedDay').val()
 				+ '&action=edit'
 				+ '&reportType=other'
-				+ '&reedit=false';
+				+ '&reedit=false'
+				+ '&userGroup=' + $("#userGroup").val()
+				+ '&userGroupType=' + $("#userGroupType").val();
 			}else if($("#selectedMember").val()!='-'){
 				params="houseType=" + $('#selectedHouseType').val()
 				+ '&sessionYear=' + $("#selectedSessionYear").val()
@@ -227,7 +265,9 @@
 				+ '&action=edit'
 				+ '&reedit=false'
 				+ '&reportType=member'
-				+ '&member='+ $("#selectedMember").val();
+				+ '&member='+ $("#selectedMember").val()
+				+ '&userGroup=' + $("#userGroup").val()
+				+ '&userGroupType=' + $("#userGroupType").val();
 			}
 			console.log(params);
 			//$("#selectionDiv1").hide();
@@ -244,7 +284,9 @@
 				+ '&day=' +$('#selectedDay').val()
 				+ '&action=edit'
 				+ '&reportType=other'
-				+ '&reedit=true';
+				+ '&reedit=true'
+				+ '&userGroup=' + $("#userGroup").val()
+				+ '&userGroupType=' + $("#userGroupType").val();
 			}else if($("#selectedMember").val()!='-'){
 				params="houseType=" + $('#selectedHouseType').val()
 				+ '&sessionYear=' + $("#selectedSessionYear").val()
@@ -254,7 +296,9 @@
 				+ '&action=edit'
 				+ '&reportType=member'
 				+ '&reedit=true'
-				+ '&member='+ $("#selectedMember").val();
+				+ '&member='+ $("#selectedMember").val()
+				+ '&userGroup=' + $("#userGroup").val()
+				+ '&userGroupType=' + $("#userGroupType").val();
 			}
 			//$("#selectionDiv1").hide();
 			showTabByIdAndUrl('details_tab', 'editing/compiledreport?'+params);
@@ -271,7 +315,9 @@
 			+ '&reedit=' + reedit
 			+ '&member='+ $("#selectedMember").val()
 			+ '&memberReportType=' + $("#selectedMemberReport").val()
-			+ '&pageheader=' + $("#selectedPageheader").val();
+			+ '&pageheader=' + $("#selectedPageheader").val()
+			+ '&userGroup=' + $("#userGroup").val()
+			+ '&userGroupType=' + $("#userGroupType").val();
 			
 			showTabByIdAndUrl('details_tab', 'editing/compiledreport?'+params);
 		}
@@ -290,6 +336,8 @@
 						+"&sessionType="+$("#selectedSessionType").val()
 						+'&language='+$("#selectedLanguage").val()
 						+'&day='+$("#selectedDay").val()
+						+ '&userGroup=' + $("#userGroup").val()
+						+ '&userGroupType=' + $("#userGroupType").val()
 						);
 				var oldURL=$("#grid").getGridParam("url");
 				var baseURL=oldURL.split("?")[0];
@@ -303,7 +351,9 @@
 						+ '&sessionYear=' + $("#selectedSessionYear").val()
 						+ '&sessionType=' + $("#selectedSessionType").val()
 						+ '&language=' + $("#selectedLanguage").val()
-						+ '&day=' +$('#selectedDay').val();
+						+ '&day=' +$('#selectedDay').val()
+						+ '&userGroup=' + $("#userGroup").val()
+						+ '&userGroupType=' + $("#userGroupType").val();
 			
 			$.get('ref/partmembers?'+params,function(data){
 				if(data.length>0){
@@ -327,7 +377,9 @@
 			+ '&sessionYear=' + $("#selectedSessionYear").val()
 			+ '&sessionType=' + $("#selectedSessionType").val()
 			+ '&language=' + $("#selectedLanguage").val()
-			+ '&day=' +$('#selectedDay').val();
+			+ '&day=' +$('#selectedDay').val()
+			+ '&userGroup=' + $("#userGroup").val()
+			+ '&userGroupType=' + $("#userGroupType").val();
 
 			$.get('ref/memberreporttype?'+params,function(data){
 				if(data.length>0){
@@ -349,7 +401,9 @@
 			+ '&sessionYear=' + $("#selectedSessionYear").val()
 			+ '&sessionType=' + $("#selectedSessionType").val()
 			+ '&language=' + $("#selectedLanguage").val()
-			+ '&day=' +$('#selectedDay').val();
+			+ '&day=' +$('#selectedDay').val()
+			+ '&userGroup=' + $("#userGroup").val()
+			+ '&userGroupType=' + $("#userGroupType").val();
 
 			$.get('ref/reportpageheading?'+params,function(data){
 				if(data.length>0){
@@ -374,7 +428,9 @@
 			+ '&sessionType=' + $("#selectedSessionType").val()
 			+ '&language=' + $("#selectedLanguage").val()
 			+ '&day=' +$('#selectedDay').val()
-			+ '&member='+ $("#selectedMember").val();
+			+ '&member='+ $("#selectedMember").val()
+			+ '&userGroup=' + $("#userGroup").val()
+			+ '&userGroupType=' + $("#userGroupType").val();
 
 			$.get('ref/memberreportpageheading?'+params,function(data){
 				var text="<option value='-' selected='selected'>"+$("#pleaseSelect").val()+"</option>";
@@ -537,6 +593,12 @@
 					<a href="#" id="edit_copy" class="butSim">
 						<spring:message code="editor.edit" text="Editing"/>
 					</a> |
+					<a href="#" id="send_member" class="butSim">
+						<spring:message code="editor.send.member" text="Send To Member"/>
+					</a> |
+					<a href="#" id="send_speaker" class="butSim">
+						<spring:message code="editor.send.speaker" text="Send To Speaker"/>
+					</a>
 				</security:authorize>		
 			</div>
 			<hr>							
@@ -547,6 +609,8 @@
 		
 		<input type="hidden" id="key" name="key">
 		<input type="hidden" name="srole" id="srole" value="${role}">				
+		<input type="hidden" id="userGroupType" value="${userGroupType}" />
+		<input type="hidden" id="userGroup" value="${userGroup}" />
 		<input type="hidden" name="pleaseSelect" id="pleaseSelect" value="<spring:message code='please.select' text='Please Select'/>">	
 		<input type="hidden" id="selectRowFirstMessage" name="selectRowFirstMessage" value="<spring:message code='generic.selectRowFirstMessage' text='Please select the desired row first'></spring:message>" disabled="disabled">
 		<input type="hidden" id="confirmDeleteMessage" name="confirmDeleteMessage" value="<spring:message code='generic.confirmDeleteMessage' text='Do you want to delete the row with Id: '></spring:message>" disabled="disabled">

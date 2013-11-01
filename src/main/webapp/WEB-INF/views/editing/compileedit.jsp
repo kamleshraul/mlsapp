@@ -246,7 +246,9 @@
 			+ '&sessionYear=' + $("#selectedSessionYear").val()
 			+ '&sessionType=' + $("#selectedSessionType").val()
 			+ '&language=' + $("#selectedLanguage").val()
-			+ '&day=' + $('#selectedDay').val();
+			+ '&day=' + $('#selectedDay').val()
+			+ '&userGroup=' + $("#userGroup").val()
+			+ '&userGroupType=' + $("#userGroupType").val();
 			
 			$.blockUI({ message: '<img src="./resources/images/waitAnimated.gif" />' });
 			$.post($("form[action='editing/replace']").attr('action') + params,
@@ -273,10 +275,11 @@
 			//alert(newContent);
 			newContent=newContent.replace("</span>","");
 			//alert(newContent);
+			var params = "?userGroup="+$("#userGroup").val()+"&userGroupType="+$("#userGroupType").val();
 			
             $("#data").val(newContent);
             if($("#prevcontent").val()!=newContent){
-				$.post($("form[action='editing/savepart']").attr('action')+'/'+whichId.substring(2),
+				$.post($("form[action='editing/savepart']").attr('action')+'/'+whichId.substring(2)+params,
 						$("form[action='editing/savepart']").serialize(),function(data){
 					if(data=='SUCCESS'){
 						$("#"+whichId).empty();
@@ -319,7 +322,9 @@
 			+ '&reedit=' + reedit
 			+ '&member='+ $("#selectedMember").val()
 			+ '&memberReportType=' + $("#selectedMemberReport").val()
-			+ '&pageheader=' + $("#selectedPageheader").val();
+			+ '&pageheader=' + $("#selectedPageheader").val()
+			+ '&userGroup=' + $("#userGroup").val()
+			+ '&userGroupType=' + $("#userGroupType").val();
 			
 			$("#undoCount").val((parseInt($("#undoCount").val()) + 1));				
 			

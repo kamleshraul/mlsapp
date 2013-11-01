@@ -1,10 +1,19 @@
 <%@ include file="/common/taglibs.jsp"%>
 <c:choose>
+<c:when test="${errorcode eq 'MEMBER_OR_SPEAKER_WORKFLOW_IN_PROGRESS_FOR_THE_ROSTER' }">
+	<div class="toolTip tpRed clearfix">
+		<p>
+			<img src="./resources/images/template/icons/light-bulb-off.png">
+			<spring:message code="editing.errorcode.rosterworkflowon" text="Workflow for the roster is in progress"/>
+		</p>
+		<p></p>
+	</div>
+</c:when>
 <c:when test="${errorcode eq 'PARAMETER_MISMATCH' }">
 	<div class="toolTip tpRed clearfix">
 		<p>
 			<img src="./resources/images/template/icons/light-bulb-off.png">
-			<spring:message code="editiong.errorcode.parametermismatch" text="One or more parameters supplied are invalid."/>
+			<spring:message code="editiing.errorcode.parametermismatch" text="One or more parameters supplied are invalid."/>
 		</p>
 		<p></p>
 	</div>
@@ -14,6 +23,15 @@
 		<p>
 			<img src="./resources/images/template/icons/light-bulb-off.png">
 			<spring:message code="question.errorcode.workunderprogress" text="Work under progress"/>
+		</p>
+		<p></p>
+	</div>
+</c:when>
+<c:when test="${errorcode eq 'none'}">
+	<div class="toolTip tpGreen clearfix">
+		<p>
+			<img src="./resources/images/template/icons/light-bulb-on.png">
+			<spring:message code="generic.done" text="Done"/>
 		</p>
 		<p></p>
 	</div>
