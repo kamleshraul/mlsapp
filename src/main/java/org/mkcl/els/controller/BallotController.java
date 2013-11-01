@@ -430,7 +430,8 @@ public class BallotController extends BaseController{
 			Group group = null;
 			if(!(deviceType.getType().equals(ApplicationConstants.HALF_HOUR_DISCUSSION_QUESTION_STANDALONE)
 					&& houseType.getType().equals(ApplicationConstants.LOWER_HOUSE)) 
-					&& !deviceType.getType().startsWith(ApplicationConstants.DEVICE_RESOLUTIONS)){
+					&& !deviceType.getType().startsWith(ApplicationConstants.DEVICE_RESOLUTIONS)
+					&& !deviceType.getType().startsWith(ApplicationConstants.DEVICE_BILLS)){
 				String strGroup = request.getParameter("group");
 				group = Group.findById(Group.class, Long.valueOf(strGroup));
 			}

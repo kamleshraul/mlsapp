@@ -324,8 +324,39 @@ public class Ballot extends BaseDomain implements Serializable {
 			//persist the preballot list
 			preBallotResolution.setBallotEntries(preBallotEntries);
 			preBallotResolution.persist();
-		}
-		
+		} else if(deviceType.getType().startsWith(ApplicationConstants.NONOFFICIAL_BILL)){
+			List<Bill> bills = Ballot.computeBillNonOfficial(session, answeringDate, locale);
+			PreBallot preBallotBill = new PreBallot(session, deviceType, answeringDate, new Date(), locale);
+			List<BallotEntry> preBallotEntries = new ArrayList<BallotEntry>();
+			
+			for(Bill b : bills) {
+				
+				{
+					BallotEntry ballotEntry = new BallotEntry();
+					ballotEntry.setMember(b.getPrimaryMember());
+					ballotEntry.setLocale(b.getLocale());
+					
+					List<DeviceSequence> deviceSequence = new ArrayList<DeviceSequence>(1);
+					deviceSequence.add(new DeviceSequence(b, b.getLocale()));
+					ballotEntry.setDeviceSequences(deviceSequence);
+					preBallotEntries.add(ballotEntry);
+					
+					deviceSequence = null;
+					ballotEntry = null;
+				}
+				
+				BallotVO preBallotVO = new BallotVO();
+				preBallotVO.setMemberName(b.getPrimaryMember().getFullname());
+				preBallotVO.setQuestionNumber(b.getNumber());
+				preBallotVO.setQuestionSubject(b.getDefaultTitle());
+
+				preBallotVOs.add(preBallotVO);
+			}
+			
+			//persist the preballot list
+			preBallotBill.setBallotEntries(preBallotEntries);
+			preBallotBill.persist();			
+		}		
 		return preBallotVOs;
 	}
 	
@@ -1663,6 +1694,24 @@ public class Ballot extends BaseDomain implements Serializable {
 				ApplicationConstants.ASC, locale);
 		
 		return resolutions;
+	}
+	
+	private static List<Bill> computeBillNonOfficial(final Session session,
+			final Date answeringDate,
+			final String locale) throws ELSException {
+		DeviceType deviceType = DeviceType.findByType(
+				ApplicationConstants.NONOFFICIAL_BILL, locale);
+		
+		Status UNDER_CONSIDERATION = Status.findByType(ApplicationConstants.BILL_PROCESSED_UNDERCONSIDERATION, locale);
+		Status[] internalStatuses = new Status[] { UNDER_CONSIDERATION };
+	
+		Status INTRODUCED = Status.findByType(ApplicationConstants.BILL_PROCESSED_INTRODUCED, locale);		
+		Status[] recommendationStatuses = new Status[] { INTRODUCED };
+		
+		List<Bill> bills = Bill.findForBallot(session, deviceType, 
+				answeringDate, internalStatuses, recommendationStatuses, false, ApplicationConstants.ASC, locale);
+		
+		return bills;
 	}
 	
 	/**
