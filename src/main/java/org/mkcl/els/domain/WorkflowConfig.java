@@ -218,4 +218,22 @@ public class WorkflowConfig extends BaseDomain implements Serializable {
 				userGroup,level,locale);
 	}
 	
+	public static WorkflowActor findNextEditingActor(final HouseType houseType,
+			final UserGroup userGroup, 
+			final Status status, 
+			final String workflowName, 
+			final int level,
+			final String locale) {
+		return getWorkflowConfigRepository().findNextEditingActor(houseType, userGroup, status, workflowName, level, locale);
+	}
+	
+	public static List<WorkflowActor> findEditingActors(final HouseType houseType,
+			final UserGroup userGroup,
+			final Status status,
+			final String workflowName,
+			final int level,
+			final String locale) {
+		return getWorkflowConfigRepository().findEditingActors(houseType, userGroup, status, workflowName, level, locale);
+	}
+	
 }

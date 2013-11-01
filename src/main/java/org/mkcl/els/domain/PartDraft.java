@@ -7,6 +7,8 @@ import java.util.UUID;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Table;
+import javax.persistence.Temporal;
+import javax.persistence.TemporalType;
 
 @Entity
 @Table(name = "part_drafts")
@@ -32,6 +34,7 @@ public class PartDraft extends BaseDomain implements Serializable {
 	@Column(length = 1000)
 	private String editedAs;
 
+	@Temporal(value=TemporalType.TIMESTAMP)
 	private Date editedOn;
 
 	@Column(length=30000)
@@ -49,7 +52,11 @@ public class PartDraft extends BaseDomain implements Serializable {
 	private String uniqueIdentifierForRedo;
 
 	private Integer redoCount;
-
+	
+	private boolean isMemberSentCopy;
+	
+	private boolean isSpeakerSentCopy;
+	
 	public PartDraft() {
 		super();
 	}
@@ -148,5 +155,33 @@ public class PartDraft extends BaseDomain implements Serializable {
 
 	public void setRedoCount(Integer redoCount) {
 		this.redoCount = redoCount;
+	}
+
+	/**
+	 * @return the isMemberSentCopy
+	 */
+	public boolean isMemberSentCopy() {
+		return isMemberSentCopy;
+	}
+
+	/**
+	 * @param isSentCopy the isMemberSentCopy to set
+	 */
+	public void setMemberSentCopy(boolean isMemberSentCopy) {
+		this.isMemberSentCopy = isMemberSentCopy;
+	}	
+	
+	/**
+	 * @return the isMemberSentCopy
+	 */
+	public boolean isSpeakerSentCopy() {
+		return isSpeakerSentCopy;
+	}
+
+	/**
+	 * @param isSentCopy the isMemberSentCopy to set
+	 */
+	public void setSpeakerSentCopy(boolean isSpeakerSentCopy) {
+		this.isSpeakerSentCopy = isSpeakerSentCopy;
 	}	
 }

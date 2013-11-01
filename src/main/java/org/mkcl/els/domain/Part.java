@@ -169,8 +169,8 @@ public class Part  extends BaseDomain implements Serializable{
 		return getPartRepository().findInterruptedProceedingInRoster(roster,locale);
 	}
 	
-	public static List<Part> findAllPartOfProceedingOfRoster(final Roster roster, final String locale) throws ELSException{
-		return getPartRepository().findAllPartOfProceedingOfRoster(roster, locale);
+	public static List<Part> findAllPartOfProceedingOfRoster(final Roster roster, final Boolean usePrimaryMember, final String locale) throws ELSException{
+		return getPartRepository().findAllPartOfProceedingOfRoster(roster, usePrimaryMember, locale);
 	}
 	
 	public static List<Part> findAllPartRosterSearchTerm(final Roster roster, String searchTerm, final String locale) throws ELSException{
@@ -181,6 +181,14 @@ public class Part  extends BaseDomain implements Serializable{
 		return getPartRepository().findAllEligibleForReplacement(roster, searchTerm, replaceTerm, locale);
 	}
 
+	public static List<Member> findAllProceedingMembersOfRoster(final Roster roster, final String locale){
+		return getPartRepository().findAllProceedingMembersOfRoster(roster, locale);
+	}
+	
+	public static List<Part> findAllPartsOfMemberOfRoster(final Roster roster, final String locale){
+		return getPartRepository().findAllPartsOfMemberOfRoster(roster, locale);
+	}
+	
 	/****Getters and Setters****/
 	public Integer getOrderNo() {
 		return orderNo;
