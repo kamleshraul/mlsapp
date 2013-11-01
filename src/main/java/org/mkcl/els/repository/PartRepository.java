@@ -9,6 +9,7 @@ import javax.persistence.Query;
 import javax.persistence.TypedQuery;
 
 import org.mkcl.els.common.exception.ELSException;
+import org.mkcl.els.domain.Member;
 import org.mkcl.els.domain.Part;
 import org.mkcl.els.domain.PartDraft;
 import org.mkcl.els.domain.Roster;
@@ -48,11 +49,12 @@ public class PartRepository extends BaseRepository<Part, Serializable> {
 		return parts;
 	}	
 	
-	public List<Part> findAllPartOfProceedingOfRoster(final Roster roster, final String locale) throws ELSException{
+	public List<Part> findAllPartOfProceedingOfRoster(final Roster roster, final Boolean usePrimaryMember, final String locale) throws ELSException{
 		List<Part> parts = new ArrayList<Part>();
-		String query = "SELECT pp FROM Proceeding p"
-						+ " LEFT JOIN p.parts pp"
-						+ " WHERE p.slot.roater.id=:rosterId"
+		String query = "SELECT pp FROM Part pp"
+						+ " LEFT JOIN pp.proceeding p"
+						+ " WHERE p.slot.roster.id=:rosterId"
+						+ ((usePrimaryMember==true)? " AND pp.primaryMember!=" + null:"")
 						+ " AND p.locale=:locale";
 		try{
 			TypedQuery<Part> tQuery = this.em().createQuery(query, Part.class);
@@ -112,5 +114,44 @@ public class PartRepository extends BaseRepository<Part, Serializable> {
 		Query tQuery = this.em().createNativeQuery(query);
 		data = tQuery.getResultList();
 		return data;
+	}
+	
+	public List<Member> findAllProceedingMembersOfRoster(final Roster roster, final String locale){
+		
+		List<Member> members = new ArrayList<Member>();
+		
+		try{
+			String query = "SELECT pp.primaryMember FROM Part pp"
+							+ " LEFT JOIN pp.proceeding p"
+							+ " WHERE p.slot.roster.id=:rosterId"
+							+ " AND pp.locale=:locale";
+			TypedQuery<Member> tQuery = this.em().createQuery(query, Member.class);
+			tQuery.setParameter("rosterId", roster.getId());
+			tQuery.setParameter("locale", locale);
+			members = tQuery.getResultList();
+			
+		}catch(Exception e){
+			e.printStackTrace();
+		}
+		
+		return members;
+	}
+	
+	public List<Part> findAllPartsOfMemberOfRoster(final Roster roster, final String locale){
+		List<Part> parts = new ArrayList<Part>();
+		try{
+			String query = "SELECT pr FROM Part pr"
+						+ " LEFT JOIN pr.proceeding p"
+						+ " WHERE p.slot.roster.id=:rosterId"
+						+ " AND pr.locale=:locale";
+			
+			TypedQuery<Part> tQuery = this.em().createQuery(query, Part.class);
+			tQuery.setParameter("rosterId", roster.getId());
+			tQuery.setParameter("locale", locale);
+			parts = tQuery.getResultList();
+		}catch (Exception e) {
+			e.printStackTrace();
+		}
+		return parts;			
 	}
 }
