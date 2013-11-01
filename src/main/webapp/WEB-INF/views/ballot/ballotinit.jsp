@@ -439,7 +439,7 @@
 			<a href="#" id="view_ballot" class="butSim">
 				<spring:message code="ballotinitial.viewballot" text="View Ballot"/>
 			</a>
-			<c:if test="${deviceTypeType != 'bills_nonofficial'}"> | 
+			<c:if test="${deviceTypeType != 'bills_nonofficial' and not(fn:contains(deviceTypeType, 'resolutions_')) and not(fn:contains(deviceTypeType, 'standalone'))}"> | 
 			<a href="#" id="view_yaadi" class="butSim">
 				<spring:message code="ballotinitial.viewyaadi" text="View Yaadi"/>
 			</a> | 
@@ -455,17 +455,17 @@
 				</select>				
 			</c:if>
 			</c:if>
-			<c:if test="${deviceTypeType =='resolutions_nonofficial' or deviceTypeType == 'questions_halfhourdiscussion_standalone'}">|
-				<c:if test="${houseType=='upperhouse'}">
+			<c:if test="${deviceTypeType =='resolutions_nonofficial'}">|
+				<%-- <c:if test="${houseType=='upperhouse'}"> --%>
 				<a href="#" id="give_balloted_resolution_choice" class="butSim">
 					<spring:message code="ballotinitial.ballotchoice" text="Give Choice"/>
 				</a>
-				</c:if>
-				<c:if test="${houseType=='lowerhouse'}">
+				<%-- </c:if> --%>
+				<%-- <c:if test="${houseType=='lowerhouse'}">
 					<a id="patrakbhag2_tab" href="#" class="tab">
 				   		<spring:message code="resolution.patrakbhag2" text="Post Ballot Report"></spring:message>
 					</a>		
-				</c:if>
+				</c:if> --%>
 			</c:if>
 			
 			<br />
