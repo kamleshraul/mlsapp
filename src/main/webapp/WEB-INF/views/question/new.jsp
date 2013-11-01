@@ -382,6 +382,21 @@
 	        return false;  
 	    }); 
 		
+		//view supporting members status
+	    $("#viewStatus").click(function(){
+		    $.get('question/status/'+$("#id").val(),function(data){
+			    $.fancybox.open(data);
+		    }).fail(function(){
+				if($("#ErrorMsg").val()!=''){
+					$("#error_p").html($("#ErrorMsg").val()).css({'color':'red', 'display':'block'});
+				}else{
+					$("#error_p").html("Error occured contact for support.").css({'color':'red', 'display':'block'});
+				}
+				scrollTop();
+			});
+		    return false;
+	    });
+		
 		
 		//--------------vikas dhananjay 20012013--------------------------
 		//for viewing the refernced question
