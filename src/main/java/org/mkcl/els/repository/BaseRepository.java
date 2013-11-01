@@ -261,12 +261,12 @@ public class BaseRepository<T, ID extends Serializable> extends
         	jpQuery.setParameter("locale", locale);
         }
     	List<U> list = jpQuery.getResultList();
-    	if(list!=null && !list.isEmpty()) {
-    		U result = (U) list.get(0);        	
-        	return result;
-    	} else {
-    		return null;
-    	}    	
+    	U result = null;
+    	if(!list.isEmpty()){
+    		result = (U) list.get(0);
+    	}
+    	
+    	return result;
     }
     
     @SuppressWarnings({ "unchecked", "rawtypes" })
