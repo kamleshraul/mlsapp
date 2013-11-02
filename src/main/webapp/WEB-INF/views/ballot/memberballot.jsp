@@ -82,8 +82,13 @@
 		.uiTable{
 			color: black !important;
 			font-family: serif;
-			width: 650px !important;
+			font-size: 16px !important;
+			width: 700px !important;
 			border: 1px;
+		}
+		.uiTable td{
+			padding-top: 14px;
+			padding-bottom: 14px;
 		}
 		#controls, .exportLink{			
 			display: none !important;
@@ -93,6 +98,9 @@
 		}
 		.leftalign{
 		text-align: left;
+		}
+		.clsDate{
+			margin-top: -23px !important;
 		}
 	</style>
 	</head>
@@ -116,28 +124,36 @@
 	<thead>
 		<tr>
 			<th colspan="3">
-			<h4 style="text-align: center;font-weight: bold;font-size: 18px;color: black;"><spring:message code="memberballot.topheader.council" text="Maharashtra Legislature"></spring:message></h4>			
-			<h5 style="text-align: center;font-weight: bold;font-size: 16px;"><spring:message code="memberballot.topheader" text="Vidhan Parishad Question Ballot"></spring:message></h5><br>
-			<h6 style="text-align: center;font-weight: normal;font-size: 14px;"><spring:message code="memberballot.topheader.${round }" text="Round ${round } Member Ballot List"></spring:message></h6><br>
-			<p style="text-align: right;font-weight: normal;font-size: 14px;">
-			<spring:message code="preballot.topheader.date" text="Date"></spring:message>-${currentdate}
+			<h1 style="text-align: center;font-weight: bold;font-size: 22px;color: black; margin: 0px;color: black;"><spring:message code="memberballot.topheader.council" text="Maharashtra Legislature"></spring:message></h1>			
+			<h2 style="text-align: center;font-weight: bold;font-size: 18px; margin: 0px;"><spring:message code="memberballot.topheader" text="Vidhan Parishad Question Ballot"></spring:message></h2>
+			<h5 style="text-align: center;font-weight: normal;font-size: 16px;"><spring:message code="memberballot.topheader.${round }" text="Round ${round } Member Ballot List"></spring:message></h5><br/>
+			<c:choose>
+				<c:when test="${attendance=='true' }">
+					<h3 style="text-align: center; font-weight: normal; font-size: 18px; margin: 0px; padding: 0px;"><spring:message code="memberballot.presentmember" text="Present Members"/></h3>
+				</c:when>
+				<c:otherwise>
+					<h3 style="text-align: center; font-weight: normal; font-size: 18px; margin: 0px; padding: 0px;"><spring:message code="memberballot.absentmember" text="Absent Members"/></h3>	
+				</c:otherwise>
+			</c:choose>
+			<p style="text-align: right;font-weight: normal;font-size: 14px; margin-top: -28px;margin-bottom:0px; float: right; margin-right: 15px;">
+				<spring:message code="preballot.topheader.date" text="Date"></spring:message>-${currentdate}
 			</p>
 			</th>	
 		</tr>		
 		<tr>
-			<th class="centeralign"><spring:message code="memberballot.position" text="S.no"/>
+			<th class="centeralign" style="font-size: 16px; width: 100px; text-align:"><spring:message code="memberballot.position" text="S.no"/>
 			</th>
-			<th class="leftalign">
+			<th class="leftalign" style="font-size: 16px;">
 			<c:choose>
 			<c:when test="${attendance=='true' }">
-			<spring:message code="memberballot.presentmember" text="Present Members"/>
+			<spring:message code="memberballot.presentmember.name" text="Present Members"/>
 			</c:when>
 			<c:otherwise>
-			<spring:message code="memberballot.absentmember" text="Absent Members"/>	
+			<spring:message code="memberballot.absentmember.name" text="Absent Members"/>	
 			</c:otherwise>
 			</c:choose>
 			</th>	
-			<th class="question centeralign">	
+			<th class="question centeralign" style="font-size: 16px;">	
 			<spring:message code="memberballot.question" text="Question No."/>
 			</th>		
 		</tr>
@@ -145,7 +161,7 @@
 	<tbody>
 		<c:forEach items="${memberBallots}" var="i">	
 			<tr>
-				<td class="round${i.round } centeralign">${i.position}</td>
+				<td class="round${i.round } centeralign" style="text-align: center; width: 100px;">${i.position}</td>
 				<td class="round${i.round }">${i.member}</td>	
 				<td class="question">
 				<c:choose>
@@ -172,7 +188,7 @@
 	<tfoot>
 		<tr>
 			<td colspan="3">
-			<p style="text-align: right;font-weight: normal;font-size: 14px;">${role }<br>
+			<p class="footerRole" style="text-align: center;font-weight: normal;font-size: 16px; float: right; padding-right: 15px;"><br />${role }<br>
 			<spring:message code="memberballot.footer.council" text="Maharashtra Legislature"></spring:message></p>
 			</td>
 		</tr>
