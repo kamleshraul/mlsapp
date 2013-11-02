@@ -50,19 +50,25 @@
 		.uiTable{
 			color: black !important;
 			font-family: serif;
-			font-size: 14pt !important;
-			width: 650px !important;		
+			font-size: 16px !important;
+			width: 700px !important;		
 			border: 1px;
+		}
+		.uiTable td{
+			padding: 14px;
 		}
 		.exportLink{			
 			display: none !important;
 		}		
 		.centeralign{
-		text-align: center;
+			text-align: center;
 		}
 		.leftalign{
-		text-align: left;
+			text-align: left;
 		}	
+		.clsDate{
+			margin-top: -23px;
+		}
 	</style>
 </head>
 <body>
@@ -83,43 +89,55 @@
 <table class="uiTable" style="width:650px;">
 	<thead>
 	<tr>
-	<th colspan="2">
-	<h4 style="text-align: center;font-weight: bold;font-size: 18px;color: black;"><spring:message code="preballot.topheader.council" text="Maharashtra Legislature"></spring:message></h4>
-	<h5 style="text-align: center;font-weight: bold;font-size: 16px;"><spring:message code="preballot.topheader" text="Vidhan Parishad Question Ballot"></spring:message></h5><br>
-	<h6 style="text-align: center;font-weight: normal;font-size: 14px;"><spring:message code="preballot.topheader.${round }" text="Round ${round } Preballot List"></spring:message></h6><br>
-	<p style="text-align: right;font-weight: normal;font-size: 14px;">
-	<spring:message code="preballot.topheader.date" text="Date"></spring:message>-${currentdate}</p>
+	<th colspan="3">
+	<h1 style="text-align: center;font-weight: bold;font-size: 22px;color: black; margin: 0px;"><spring:message code="preballot.topheader.council" text="Maharashtra Legislature"></spring:message></h1>
+	<h2 style="text-align: center;font-weight: bold;font-size: 18px; margin: 0px;"><spring:message code="preballot.topheader" text="Vidhan Parishad Question Ballot"></spring:message></h2>
+	<h5 style="text-align: center;font-weight: normal;font-size: 16px;"><spring:message code="preballot.topheader.${round }" text="Round ${round } Preballot List"></spring:message></h5><br />
+	<c:choose>
+		<c:when test="${attendance=='true' }">
+			<h3 style="text-align: center; font-weight: normal; font-size: 18px; margin: 0px; padding: 0px;"><spring:message code="preballot.presentmember" text="Present Members"/></h3>
+		</c:when>
+		<c:otherwise>
+			<h3 style="text-align: center; font-weight: normal; font-size: 18px; margin: 0px; padding: 0px;"><spring:message code="preballot.absentmember" text="Absent Members"/></h3>	
+		</c:otherwise>
+	</c:choose>
+	<p style="text-align: right;font-weight: normal;font-size: 14px; margin-top: -28px;margin-bottom:0px; float: right; margin-right: 15px;">
+		<spring:message code="preballot.topheader.date" text="Date"></spring:message>-${currentdate}
+	</p>
 	</th>	
 	</tr>
 	<tr>
-	<th class="centeralign"><spring:message code="preballot.position" text="S.no"/></th>
-	<th class="leftalign">
+	<th class="centeralign" style="font-size: 16px; width: 100px; text-align: center;"><spring:message code="preballot.position" text="S.no"/></th>
+	<th class="leftalign" style="font-size: 16px;">
 	<c:choose>
-	<c:when test="${attendance=='true' }">
-	<spring:message code="preballot.presentmember" text="Present Members"/>
-	</c:when>
-	<c:otherwise>
-	<spring:message code="preballot.absentmember" text="Absent Members"/>	
-	</c:otherwise>
+		<c:when test="${attendance=='true' }">
+			<spring:message code="preballot.presentmember.name" text="Present Members"/>
+		</c:when>
+		<c:otherwise>
+			<spring:message code="preballot.absentmember.name" text="Absent Members"/>	
+		</c:otherwise>
 	</c:choose>
 	</th>	
+	<th>&nbsp;</th>
 	</tr>
 	</thead>
 	<tbody>	
 	<c:forEach items="${selectedItems}" var="i">
 	<tr>
-		<td class="round${round } centeralign">${i.formatPosition()}</td>
-		<td class="round${round }">${i.member.findFirstLastName()}</td>		
+		<td class="round${round } centeralign" style="width: 100px; text-align: center;">${i.formatPosition()}</td>
+		<td class="round${round }">${i.member.findFirstLastName()}</td>
+		<td>&nbsp;</td>		
 	</tr>
 	</c:forEach>
 	</tbody>
 	<tfoot>
-	<tr>
-	<td colspan="2">
-	<p style="text-align: right;font-weight: normal;font-size: 14px;">${role }<br>
-	<spring:message code="preballot.footer.council" text="Maharashtra Legislature"></spring:message></p>
-	</td>
-	</tr>
+		<tr>
+			<td colspan="3">
+			<br />
+			<p class="footerRole" style="text-align: center;font-weight: normal;font-size: 16px; float: right; padding-right: 15px;"><br />${role }<br>
+			<spring:message code="preballot.footer.council" text="Maharashtra Legislature"></spring:message></p>
+			</td>
+		</tr>
 	</tfoot>
 </table>
 </c:when>
