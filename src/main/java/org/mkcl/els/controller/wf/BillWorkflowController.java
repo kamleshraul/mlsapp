@@ -1239,7 +1239,9 @@ public class BillWorkflowController extends BaseController {
 		model.addAttribute("usergroup",usergroup);
 		String usergroupType = workflowDetails.getAssigneeUserGroupType();
 		model.addAttribute("usergroupType",usergroupType);		
-		/**** titles, content drafts, 'statement of object and reason' drafts, memorandum drafts, annexures ****/			
+		/**** titles, content drafts, 'statement of object and reason' drafts, memorandum drafts, annexures ****/
+		String defaultBillLanguage = selectedSession.getParameter(deviceType.getType()+"_defaultTitleLanguage");
+		model.addAttribute("defaultBillLanguage", defaultBillLanguage);
 		boolean isSuccessful = populateAllTypesOfDrafts(model, domain, selectedSession, deviceType);
 		if(!isSuccessful) {
 			return;

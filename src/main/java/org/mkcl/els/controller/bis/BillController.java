@@ -795,6 +795,8 @@ public class BillController extends GenericController<Bill> {
 			}
 		}		
 		/**** titles, content drafts, 'statement of object and reason' drafts, memorandum drafts, annexures ****/			
+		String defaultBillLanguage = selectedSession.getParameter(deviceType.getType()+"_defaultTitleLanguage");
+		model.addAttribute("defaultBillLanguage", defaultBillLanguage);
 		boolean isSuccessful = populateAllTypesOfDrafts(model, domain, selectedSession, deviceType);
 		if(!isSuccessful) {
 			return;
