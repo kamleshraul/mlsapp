@@ -199,11 +199,10 @@
 				$('#referredOrdinanceDiv').hide();
 			}
 			
-			/**** show title for only default bill language or whose content is filled ****/
+			/**** show title for only default bill language ****/
 			$('.title').each(function() {
 				var currentLanguage = this.id.split("_")[2];				
-				if(($(this).val()!=null && $(this).val()!=undefined && $(this).val()!='')
-						|| currentLanguage==$('#defaultBillLanguage').val()) {		
+				if(currentLanguage==$('#defaultBillLanguage').val()) {		
 					$('#title_para_'+currentLanguage).show();					
 				} else {
 					$('#title_para_'+currentLanguage).hide();										
@@ -220,11 +219,10 @@
 				return false;
 			});
 			
-			/**** show contentDraft for only default bill language or whose content is filled ****/
+			/**** show content draft for only default bill language ****/
 			$('.contentDraft').each(function() {
 				var currentLanguage = this.id.split("_")[2];				
-				if(($(this).val()!=null && $(this).val()!=undefined && $(this).val()!='')
-						|| currentLanguage==$('#defaultBillLanguage').val()) {		
+				if(currentLanguage==$('#defaultBillLanguage').val()) {		
 					$('#contentDraft_para_'+currentLanguage).show();					
 				} else {
 					$('#contentDraft_para_'+currentLanguage).hide();										
@@ -241,11 +239,10 @@
 				return false;
 			});
 			
-			/**** show statement of object and reason draft for only default bill language or whose content is filled ****/
+			/**** show statement of object and reason draft for only default bill language ****/
 			$('.statementOfObjectAndReasonDraft').each(function() {
 				var currentLanguage = this.id.split("_")[2];				
-				if(($(this).val()!=null && $(this).val()!=undefined && $(this).val()!='')
-						|| currentLanguage==$('#defaultBillLanguage').val()) {		
+				if(currentLanguage==$('#defaultBillLanguage').val()) {		
 					$('#statementOfObjectAndReasonDraft_para_'+currentLanguage).show();					
 				} else {
 					$('#statementOfObjectAndReasonDraft_para_'+currentLanguage).hide();										
@@ -262,14 +259,21 @@
 				return false;
 			});
 			
-			/**** show financial memorandum draft for only default bill language or whose content is filled ****/
+			/**** show financial memorandum draft for only default bill language ****/
 			$('.financialMemorandumDraft').each(function() {
 				var currentLanguage = this.id.split("_")[2];				
-				if(($(this).val()!=null && $(this).val()!=undefined && $(this).val()!='')
-						|| currentLanguage==$('#defaultBillLanguage').val()) {		
+				if(currentLanguage==$('#defaultBillLanguage').val()) {		
 					$('#financialMemorandumDraft_para_'+currentLanguage).show();					
 				} else {
 					$('#financialMemorandumDraft_para_'+currentLanguage).hide();										
+				}
+			});
+			/**** toggle financial memorandum draft on user demand ****/
+			$('#financialMemorandumDrafts_button').click(function() {
+				if($('#financialMemorandumDrafts_div').css('display')=='none') {
+					$('#financialMemorandumDrafts_div').show();
+				} else {
+					$('#financialMemorandumDrafts_div').hide();
 				}
 			});
 			/**** toggle financial memorandum draft for given language icon ****/
@@ -283,14 +287,22 @@
 				return false;
 			});
 			
-			/**** show statutory memorandum draft for only default bill language or whose content is filled ****/
+			
+			/**** show statutory memorandum draft for only default bill language ****/
 			$('.statutoryMemorandumDraft').each(function() {
 				var currentLanguage = this.id.split("_")[2];				
-				if(($(this).val()!=null && $(this).val()!=undefined && $(this).val()!='')
-						|| currentLanguage==$('#defaultBillLanguage').val()) {		
+				if(currentLanguage==$('#defaultBillLanguage').val()) {		
 					$('#statutoryMemorandumDraft_para_'+currentLanguage).show();					
 				} else {
 					$('#statutoryMemorandumDraft_para_'+currentLanguage).hide();										
+				}
+			});
+			/**** toggle statutory memorandum draft on user demand ****/
+			$('#statutoryMemorandumDrafts_button').click(function() {
+				if($('#statutoryMemorandumDrafts_div').css('display')=='none') {
+					$('#statutoryMemorandumDrafts_div').show();
+				} else {
+					$('#statutoryMemorandumDrafts_div').hide();
 				}
 			});
 			/**** toggle statutory memorandum draft for given language icon ****/
@@ -525,8 +537,8 @@
 		<%@ include file="/common/info.jsp" %>
 		<div id="reportDiv">
 		<h2><spring:message code="bill.new.heading" text="Enter Bill Details"/>	
-		<a href="#" id="financialMemorandumDraftIcon" style="margin-left: 350px;margin-right: 20px;font-size: 14px;"><spring:message code="bill.financialMemorandumDraft.icon" text="Financial Memorandum"/></a>	
-		<a href="#" id="statutoryMemorandumDraftIcon" style="margin-right: 20px;font-size: 14px;"><spring:message code="bill.statutoryMemorandumDraft.icon" text="Statutory Memorandum"/></a>
+		<%-- <a href="#" id="financialMemorandumDraftIcon" style="margin-left: 350px;margin-right: 20px;font-size: 14px;"><spring:message code="bill.financialMemorandumDraft.icon" text="Financial Memorandum"/></a>	
+		<a href="#" id="statutoryMemorandumDraftIcon" style="margin-right: 20px;font-size: 14px;"><spring:message code="bill.statutoryMemorandumDraft.icon" text="Statutory Memorandum"/></a> --%>
 		</h2>
 		<form:errors path="version" cssClass="validationError"/>	
 		<%-- <security:authorize access="hasAnyRole('ROIS_CLERK')">	
@@ -727,16 +739,16 @@
 				<legend style="text-align: left; width: 150px;"><label><spring:message code="bill.titles" text="Titles of Bill" /></label></legend>
 				<c:forEach var="i" items="${titles}" varStatus="position">
 				<c:choose>
-					<c:when test="${position.count==1}">
+					<c:when test="${position.count==1 and i.language.type!=defaultBillLanguage}">
 						<a href="#" class="toggleTitle" id="toggleTitle_${i.language.type}"  style="display:inline;margin-left: 162px;">
 							<img src="./resources/images/ico_${i.language.type}.jpg" title="${i.language.name}" class="imageLink" />
 						</a>
 					</c:when>
-					<c:otherwise>
+					<c:when test="${position.count!=1 and i.language.type!=defaultBillLanguage}">
 						<a href="#" class="toggleTitle" id="toggleTitle_${i.language.type}">
 							<img src="./resources/images/ico_${i.language.type}.jpg" title="${i.language.name}" class="imageLink" style="margin-left: 20px;" />
 						</a>
-					</c:otherwise>
+					</c:when>
 				</c:choose>					
 				</c:forEach>
 				<div id="titles_div">
@@ -757,16 +769,16 @@
 				<legend style="text-align: left; width: 150px;"><label><spring:message code="bill.contentDrafts" text="Drafts of Bill" /></label></legend>
 				<c:forEach var="i" items="${contentDrafts}" varStatus="position">
 				<c:choose>
-					<c:when test="${position.count==1}">
+					<c:when test="${position.count==1 and i.language.type!=defaultBillLanguage}">
 						<a href="#" class="toggleContentDraft" id="toggleContentDraft_${i.language.type}"  style="display:inline;margin-left: 162px;">
 							<img src="./resources/images/ico_${i.language.type}.jpg" title="${i.language.name}" class="imageLink" />
 						</a>
 					</c:when>
-					<c:otherwise>
+					<c:when test="${position.count!=1 and i.language.type!=defaultBillLanguage}">
 						<a href="#" class="toggleContentDraft" id="toggleContentDraft_${i.language.type}">
 							<img src="./resources/images/ico_${i.language.type}.jpg" title="${i.language.name}" class="imageLink" style="margin-left: 20px;" />
 						</a>
-					</c:otherwise>
+					</c:when>
 				</c:choose>					
 				</c:forEach>
 				<div id="contentDrafts_div">
@@ -787,16 +799,16 @@
 				<legend style="text-align: left; width: 150px;"><label><spring:message code="bill.statementOfObjectAndReasonDrafts" text="Statement of Object & Reason" /></label></legend>
 				<c:forEach var="i" items="${statementOfObjectAndReasonDrafts}" varStatus="position">
 				<c:choose>
-					<c:when test="${position.count==1}">
+					<c:when test="${position.count==1 and i.language.type!=defaultBillLanguage}">
 						<a href="#" class="toggleStatementOfObjectAndReasonDraft" id="toggleStatementOfObjectAndReasonDraft_${i.language.type}"  style="display:inline;margin-left: 162px;">
 							<img src="./resources/images/ico_${i.language.type}.jpg" title="${i.language.name}" class="imageLink" />
 						</a>
 					</c:when>
-					<c:otherwise>
+					<c:when test="${position.count!=1 and i.language.type!=defaultBillLanguage}">
 						<a href="#" class="toggleStatementOfObjectAndReasonDraft" id="toggleStatementOfObjectAndReasonDraft_${i.language.type}">
 							<img src="./resources/images/ico_${i.language.type}.jpg" title="${i.language.name}" class="imageLink" style="margin-left: 20px;" />
 						</a>
-					</c:otherwise>
+					</c:when>
 				</c:choose>					
 				</c:forEach>
 				<div id="statementOfObjectAndReasonDrafts_div">
@@ -812,21 +824,23 @@
 			</fieldset>
 		</div>
 		
-		<div id="financialMemorandumDrafts_div">
+		<p>
+		<input type="button" id="financialMemorandumDrafts_button" class="button" value="<spring:message code='bill.financialMemorandumDrafts' text='Financial Memorandums'/>"/>
+		<div id="financialMemorandumDrafts_div"  style="display:none;">
 			<fieldset>
-				<legend style="text-align: left; width: 150px;"><label><spring:message code="bill.financialMemorandumDrafts" text="Financial Memorandum" /></label></legend>
+				<legend style="text-align: left; width: 150px;"><label><spring:message code="bill.financialMemorandumDrafts" text="Financial Memorandums" /></label></legend>
 				<c:forEach var="i" items="${financialMemorandumDrafts}" varStatus="position">
 				<c:choose>
-					<c:when test="${position.count==1}">
+					<c:when test="${position.count==1 and i.language.type!=defaultBillLanguage}">
 						<a href="#" class="toggleFinancialMemorandumDraft" id="toggleFinancialMemorandumDraft_${i.language.type}"  style="display:inline;margin-left: 162px;">
 							<img src="./resources/images/ico_${i.language.type}.jpg" title="${i.language.name}" class="imageLink" />
 						</a>
 					</c:when>
-					<c:otherwise>
+					<c:when test="${position.count!=1 and i.language.type!=defaultBillLanguage}">
 						<a href="#" class="toggleFinancialMemorandumDraft" id="toggleFinancialMemorandumDraft_${i.language.type}">
 							<img src="./resources/images/ico_${i.language.type}.jpg" title="${i.language.name}" class="imageLink" style="margin-left: 20px;" />
 						</a>
-					</c:otherwise>
+					</c:when>
 				</c:choose>					
 				</c:forEach>
 				<div>
@@ -841,22 +855,25 @@
 				</div>
 			</fieldset>
 		</div>
+		</p>	
 		
+		<p>
+		<input type="button" id="statutoryMemorandumDrafts_button" class="button" value="<spring:message code='bill.statutoryMemorandumDrafts' text='Statutory Memorandums'/>"/>
 		<div id="statutoryMemorandumDrafts_div" style="display:none;">
 			<fieldset>
-				<legend style="text-align: left; width: 150px;"><label><spring:message code="bill.statutoryMemorandumDrafts" text="Statutory Memorandum" /></label></legend>
+				<legend style="text-align: left; width: 150px;"><label><spring:message code="bill.statutoryMemorandumDrafts" text="Statutory Memorandums" /></label></legend>
 				<c:forEach var="i" items="${statutoryMemorandumDrafts}" varStatus="position">
 				<c:choose>
-					<c:when test="${position.count==1}">
+					<c:when test="${position.count==1 and i.language.type!=defaultBillLanguage}">
 						<a href="#" class="toggleStatutoryMemorandumDraft" id="toggleStatutoryMemorandumDraft_${i.language.type}"  style="display:inline;margin-left: 162px;">
 							<img src="./resources/images/ico_${i.language.type}.jpg" title="${i.language.name}" class="imageLink" />
 						</a>
 					</c:when>
-					<c:otherwise>
+					<c:when test="${position.count!=1 and i.language.type!=defaultBillLanguage}">
 						<a href="#" class="toggleStatutoryMemorandumDraft" id="toggleStatutoryMemorandumDraft_${i.language.type}">
 							<img src="./resources/images/ico_${i.language.type}.jpg" title="${i.language.name}" class="imageLink" style="margin-left: 20px;" />
 						</a>
-					</c:otherwise>
+					</c:when>
 				</c:choose>					
 				</c:forEach>
 				<div>
@@ -871,6 +888,7 @@
 				</div>
 			</fieldset>
 		</div>
+		</p>
 		
 		<c:if test="${selectedDeviceTypeForBill=='bills_government'}">
 		<p>
