@@ -514,7 +514,12 @@
 					if(id.indexOf("rq")!=-1){					
 					var billId=$("#id").val();
 					var refId=id.split("rq")[1];	
-					var device=$("#typeOfSelectedDeviceType").val();
+					var device = "";
+					if($('#isActReferenced').val()=='true') {
+						device = "act";
+					} else {
+						device=$("#typeOfSelectedDeviceType").val();
+					}
 					$.post('refentity/dereferencing?pId='+billId+'&rId='+refId+'&device='+device,function(data){
 						if(data=='SUCCESS'){
 							$.prompt("Dereferencing Successful");				
@@ -922,8 +927,16 @@
 								<c:forEach items="${referencedBills }" var="i" varStatus="index">
 									<c:choose>
 										<c:when test="${not empty i.name}">
-											<a href="#" id="rq${i.number}" class="clubbedRefBills" onclick="viewBillDetail(${i.number});" style="font-size: 18px;"><c:out value="${i.name}"></c:out></a>
-											&nbsp;(${referencedBillsSessionAndDevice[index.count-1]})	
+											<c:choose>
+												<c:when test="${isActReferenced=='true'}">
+													<a href="#" id="rq${i.number}" class="clubbedRefBills" onclick="viewActDetail(${i.number});" style="font-size: 18px;"><c:out value="${i.name}"></c:out></a>
+													&nbsp;(${referencedBillsSessionAndDevice[index.count-1]})
+												</c:when>
+												<c:otherwise>
+													<a href="#" id="rq${i.number}" class="clubbedRefBills" onclick="viewBillDetail(${i.number});" style="font-size: 18px;"><c:out value="${i.name}"></c:out></a>
+													&nbsp;(${referencedBillsSessionAndDevice[index.count-1]})
+												</c:otherwise>
+											</c:choose>												
 										</c:when>
 										<c:otherwise>											
 											<a href="#" id="rq${i.number}" class="clubbedRefBills" onclick="viewBillDetail(${i.number});" style="font-size: 18px;"><spring:message code="bill.referredBillWithoutNumber" text="Click To See"/></a>
@@ -1646,6 +1659,7 @@
 				<input id="questionType" type="hidden" value="${selectedQuestionType}" />
 				<input id="typeOfSelectedDeviceType" type="hidden" value="${selectedDeviceTypeForBill}" />
 				<input id="typeOfSelectedBillType" type="hidden" value="${typeOfSelectedBillType}" />
+				<input type="hidden" id="isActReferenced" value="${isActReferenced}">
 				
 				<ul id="contextMenuItems">
 					<li><a href="#unclubbing" class="edit"><spring:message code="generic.unclubbing" text="Unclubbing"></spring:message></a></li>

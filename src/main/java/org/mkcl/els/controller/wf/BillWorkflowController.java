@@ -42,6 +42,7 @@ import org.mkcl.els.domain.Member;
 import org.mkcl.els.domain.Bill;
 import org.mkcl.els.domain.MemberMinister;
 import org.mkcl.els.domain.MemberRole;
+import org.mkcl.els.domain.MessageResource;
 import org.mkcl.els.domain.Ministry;
 import org.mkcl.els.domain.Ordinance;
 import org.mkcl.els.domain.PrintRequisition;
@@ -1532,18 +1533,33 @@ public class BillWorkflowController extends BaseController {
 				ReferencedEntity refEntity = domain.getReferencedBill();				
 				Reference reference=new Reference();
 				reference.setId(String.valueOf(refEntity.getId()));
-				Bill refBill = (Bill)refEntity.getDevice();
-				if(refBill.getNumber()!=null) {
-					reference.setName(FormaterUtil.getNumberFormatterNoGrouping(locale).format(refBill.getNumber()));
-				}					
-				reference.setNumber(String.valueOf(refBill.getId()));
-				refentities.add(reference);
-				
-				Session referencedBillSession = refBill.getSession();
-				refentitiesSessionDevice.add("[" + referencedBillSession.getType().getSessionType()+", "+
-						FormaterUtil.formatNumberNoGrouping(referencedBillSession.getYear(), locale) + "], " + 
-						refBill.getType().getName());
-						
+				if(refEntity.getDeviceType()!=null) {
+					Bill refBill = (Bill)refEntity.getDevice();
+					if(refBill.getNumber()!=null) {
+						reference.setName(FormaterUtil.getNumberFormatterNoGrouping(locale).format(refBill.getNumber()));
+					}					
+					reference.setNumber(String.valueOf(refBill.getId()));
+					refentities.add(reference);
+					
+					Session referencedBillSession = refBill.getSession();
+					refentitiesSessionDevice.add("[" + referencedBillSession.getType().getSessionType()+", "+
+							FormaterUtil.formatNumberNoGrouping(referencedBillSession.getYear(), locale) + "], " + 
+							refBill.getType().getName());						
+				} else {
+					Act refAct = (Act)refEntity.getDevice();
+					if(refAct.getNumber()!=null) {
+						reference.setName(FormaterUtil.getNumberFormatterNoGrouping(locale).format(refAct.getNumber()));
+					}
+					reference.setNumber(String.valueOf(refAct.getId()));
+					refentities.add(reference);
+					
+					MessageResource msg = MessageResource.findByFieldName(MessageResource.class, "code", "bill.referredAct", locale);
+					if(msg!=null) {
+						refentitiesSessionDevice.add(FormaterUtil.formatNumberNoGrouping(refAct.getYear(), locale) + ", " + 
+								msg.getValue());
+					}	
+					model.addAttribute("isActReferenced", true);
+				}							
 				model.addAttribute("referencedBills",refentities);
 				model.addAttribute("referencedBill", refEntity.getId());
 				model.addAttribute("referencedBillsSessionAndDevice", refentitiesSessionDevice);

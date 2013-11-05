@@ -844,8 +844,16 @@
 						<c:choose>
 							<c:when test="${!(empty referencedBills) }">
 								<c:forEach items="${referencedBills }" var="i" varStatus="index">
-									<a href="#" id="rq${i.number}" class="clubbedRefBills" onclick="viewBillDetail(${i.number});" style="font-size: 18px;"><c:out value="${i.name}"></c:out></a>
-									&nbsp;(${referencedBillsSessionAndDevice[index.count-1]})	
+									<c:choose>
+										<c:when test="${isActReferenced=='true'}">
+											<a href="#" id="rq${i.number}" onclick="viewActDetail(${i.number});" style="font-size: 18px;"><c:out value="${i.name}"></c:out></a>
+											&nbsp;(${referencedBillsSessionAndDevice[index.count-1]})
+										</c:when>
+										<c:otherwise>
+											<a href="#" id="rq${i.number}" onclick="viewBillDetail(${i.number});" style="font-size: 18px;"><c:out value="${i.name}"></c:out></a>
+											&nbsp;(${referencedBillsSessionAndDevice[index.count-1]})
+										</c:otherwise>
+									</c:choose>	
 								</c:forEach>
 							</c:when>
 							<c:otherwise>

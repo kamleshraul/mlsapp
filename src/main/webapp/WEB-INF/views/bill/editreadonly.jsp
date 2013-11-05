@@ -363,11 +363,19 @@
 								<c:forEach items="${referencedBills }" var="i" varStatus="index">
 									<c:choose>
 										<c:when test="${not empty i.name}">
-											<a href="#" id="rq${i.number}" onclick="viewBillDetail(${i.number});" style="font-size: 18px;"><c:out value="${i.name}"></c:out></a>
-											&nbsp;(${referencedBillsSessionAndDevice[index.count-1]})	
+											<c:choose>
+												<c:when test="${isActReferenced=='true'}">
+													<a href="#" id="rq${i.number}" class="clubbedRefBills" onclick="viewActDetail(${i.number});" style="font-size: 18px;"><c:out value="${i.name}"></c:out></a>
+													&nbsp;(${referencedBillsSessionAndDevice[index.count-1]})
+												</c:when>
+												<c:otherwise>
+													<a href="#" id="rq${i.number}" class="clubbedRefBills" onclick="viewBillDetail(${i.number});" style="font-size: 18px;"><c:out value="${i.name}"></c:out></a>
+													&nbsp;(${referencedBillsSessionAndDevice[index.count-1]})
+												</c:otherwise>
+											</c:choose>												
 										</c:when>
 										<c:otherwise>											
-											<a href="#" id="rq${i.number}" onclick="viewBillDetail(${i.number});" style="font-size: 18px;"><spring:message code="bill.referredBillWithoutNumber" text="Click To See"/></a>
+											<a href="#" id="rq${i.number}" class="clubbedRefBills" onclick="viewBillDetail(${i.number});" style="font-size: 18px;"><spring:message code="bill.referredBillWithoutNumber" text="Click To See"/></a>
 											&nbsp;(${referencedBillsSessionAndDevice[index.count-1]})
 										</c:otherwise>
 									</c:choose>									

@@ -25,6 +25,16 @@
 				$.fancybox.open(data,{autoSize:false,width:800,height:700});
 			},'html');	
 		}	
+		function viewActDetail(id) {
+			if(this.text!='-') {					
+				$.blockUI({ message: '<img src="./resources/images/waitAnimated.gif" />' });	
+				var resourceURL='act/'+id+'/edit?edit=false';
+				$.get(resourceURL,function(data){
+					$.unblockUI();
+					$.fancybox.open(data,{autoSize:false,width:800,height:700});
+				},'html');
+			}				
+		};
 		/**** Clubbing ****/
 		function clubbingInt(id){
 			$.blockUI({ message: '<img src="./resources/images/waitAnimated.gif" />' });
@@ -866,7 +876,12 @@
 					if(id.indexOf("rq")!=-1){					
 					var billId=$("#id").val();
 					var refId=id.split("rq")[1];	
-					var device=$("#typeOfSelectedDeviceType").val();
+					var device = "";
+					if($('#isActReferenced').val()=='true') {
+						device = "act";
+					} else {
+						device=$("#typeOfSelectedDeviceType").val();
+					}			
 					$.post('refentity/dereferencing?pId='+billId+'&rId='+refId+'&device='+device,function(data){
 						if(data=='SUCCESS'){
 							$.prompt("Dereferencing Successful");				
@@ -1318,8 +1333,16 @@
 								<c:forEach items="${referencedBills }" var="i" varStatus="index">
 									<c:choose>
 										<c:when test="${not empty i.name}">
-											<a href="#" id="rq${i.number}" class="clubbedRefBills" onclick="viewBillDetail(${i.number});" style="font-size: 18px;"><c:out value="${i.name}"></c:out></a>
-											&nbsp;(${referencedBillsSessionAndDevice[index.count-1]})	
+											<c:choose>
+												<c:when test="${isActReferenced=='true'}">
+													<a href="#" id="rq${i.number}" class="clubbedRefBills" onclick="viewActDetail(${i.number});" style="font-size: 18px;"><c:out value="${i.name}"></c:out></a>
+													&nbsp;(${referencedBillsSessionAndDevice[index.count-1]})
+												</c:when>
+												<c:otherwise>
+													<a href="#" id="rq${i.number}" class="clubbedRefBills" onclick="viewBillDetail(${i.number});" style="font-size: 18px;"><c:out value="${i.name}"></c:out></a>
+													&nbsp;(${referencedBillsSessionAndDevice[index.count-1]})
+												</c:otherwise>
+											</c:choose>												
 										</c:when>
 										<c:otherwise>											
 											<a href="#" id="rq${i.number}" class="clubbedRefBills" onclick="viewBillDetail(${i.number});" style="font-size: 18px;"><spring:message code="bill.referredBillWithoutNumber" text="Click To See"/></a>
@@ -2146,7 +2169,7 @@
 				<input type="hidden" id="billNotSetUnderConsiderationMsg" value="<spring:message code="bill.billNotSetUnderConsiderationMsg" text="Bill has not been set for consideration."/>">
 				<input type="hidden" id="moneyBillCantBeReferredToJointCommitteeMsg" value="<spring:message code="bill.moneyBillCantBeReferredToJointCommitteeMsg" text="Money Bill Cannot Be Referred To Joint Committee."/>">
 				<input type="hidden" id="votingForPassingOfBill" value="${votingForPassingOfBill}">
-				
+				<input type="hidden" id="isActReferenced" value="${isActReferenced}">
 				<%-- <input type="hidden" id="hdsRefEntity" value="${hdsRefEntity}" /> --%>
 				
 				<ul id="contextMenuItems">

@@ -13,6 +13,7 @@ import org.mkcl.els.common.vo.QuestionSearchVO;
 import org.mkcl.els.common.vo.Reference;
 import org.mkcl.els.common.vo.ResolutionSearchVO;
 import org.mkcl.els.domain.Bill;
+import org.mkcl.els.domain.Act;
 import org.mkcl.els.domain.CustomParameter;
 import org.mkcl.els.domain.Language;
 import org.mkcl.els.domain.Question;
@@ -202,7 +203,12 @@ public class ReferencedEntityController {
 											
 											Reference reference=new Reference();
 											reference.setId(String.valueOf(i.getId()));
-											reference.setName(String.valueOf(FormaterUtil.getNumberFormatterNoGrouping(bill.getLocale()).format(((Bill)i.getDevice()).getNumber())));
+											/** for act reference, device type is not set **/
+											if(i.getDeviceType()!=null) {
+												reference.setName(String.valueOf(FormaterUtil.getNumberFormatterNoGrouping(bill.getLocale()).format(((Bill)i.getDevice()).getNumber())));
+											} else {
+												reference.setName(String.valueOf(FormaterUtil.getNumberFormatterNoGrouping(bill.getLocale()).format(((Act)i.getDevice()).getNumber())));
+											}											
 											buffer.append(i.getId()+",");
 											references.add(reference);
 											

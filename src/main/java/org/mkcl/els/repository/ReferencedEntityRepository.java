@@ -12,6 +12,7 @@ import org.mkcl.els.common.util.FormaterUtil;
 import org.mkcl.els.common.vo.BillSearchVO;
 import org.mkcl.els.common.vo.QuestionSearchVO;
 import org.mkcl.els.common.vo.ResolutionSearchVO;
+import org.mkcl.els.domain.Act;
 import org.mkcl.els.domain.Bill;
 import org.mkcl.els.domain.CustomParameter;
 import org.mkcl.els.domain.Member;
@@ -875,6 +876,68 @@ public class ReferencedEntityRepository extends BaseRepository<ReferencedEntity,
 		
 		List<BillSearchVO> billSearchVOs = new ArrayList<BillSearchVO>();
 		
+		String actSelectQuery = "SELECT a.id as actId, a.number as actNumber," +						
+				" (CASE WHEN (lang.id=titleDraft.language_id) THEN titleDraft.text ELSE NULL END) AS actTitle," +
+				" lang.type AS languageType,a.year" +			
+				" FROM acts as a " +	
+				" LEFT JOIN `acts_titles` AS at ON (at.act_id = a.id)" +
+				" LEFT JOIN `text_drafts` AS titleDraft ON (titleDraft.id = at.title_id)" +
+				" LEFT JOIN languages AS lang ON (lang.id = titleDraft.language_id)";
+		
+		/**** fulltext query ****/
+		String searchQuery = null;	
+		if(!param.contains("+")&&!param.contains("-")){
+			searchQuery=" WHERE ((match(titleDraft.text) against('"+param+"' in natural language mode))" +
+					" || titleDraft.text LIKE '"+param+"%')";					
+		}else if(param.contains("+")&&!param.contains("-")){
+			String[] parameters=param.split("\\+");
+			StringBuffer buffer=new StringBuffer();
+			for(String i:parameters){
+				buffer.append("+"+i+" ");
+			}
+			searchQuery=" WHERE ((match(titleDraft.text) against('"+buffer.toString()+"' in boolean mode)))";				
+		}else if(!param.contains("+")&&param.contains("-")){
+			String[] parameters=param.split("-");
+			StringBuffer buffer=new StringBuffer();
+			for(String i:parameters){
+				buffer.append(i+" "+"-");
+			}
+			buffer.deleteCharAt(buffer.length()-1);
+			searchQuery=" WHERE ((match(titleDraft.text) against('"+buffer.toString()+"' in boolean mode)))";
+		}else if(param.contains("+")||param.contains("-")){
+			searchQuery=" WHERE ((match(titleDraft.text) against('"+param+"' in boolean mode)))";
+		}
+		
+		/**** Order By Query ****/
+		String orderByQuery=" ORDER BY a.year "+ApplicationConstants.ASC + ", a.number "+ApplicationConstants.ASC + ", lang.id "+ApplicationConstants.ASC;
+		
+		/**** Final Query ****/
+		String finalQuery="SELECT rs.actId,rs.actNumber,rs.actTitle,rs.year" +
+				" FROM ("+actSelectQuery+searchQuery+orderByQuery+") as rs LIMIT "+start+","+noOfRecords;
+		
+		List resultList=this.em().createNativeQuery(finalQuery).getResultList();
+		
+		if(resultList!=null && !resultList.isEmpty()) {
+			for(Object i : resultList){
+				Object[] o = (Object[]) i;
+				BillSearchVO billSearchVO = new BillSearchVO();
+				if(o[0] != null){
+					billSearchVO.setId(Long.parseLong(o[0].toString()));
+				}
+				if(o[1] != null){
+					billSearchVO.setNumber(o[1].toString());
+				}
+				if(o[2] != null){
+					billSearchVO.setTitle(o[2].toString());
+				}
+				if(o[3] != null){					
+					billSearchVO.setSessionYear(o[3].toString());
+				}
+				billSearchVO.setDeviceType("act");
+				billSearchVOs.add(billSearchVO);
+			}
+		}
+		
 		String houseType = bill.getHouseType().getType();	
 		
 		Status statusRejected = Status.findByType(ApplicationConstants.BILL_FINAL_REJECTION,bill.getLocale());	
@@ -921,49 +984,49 @@ public class ReferencedEntityRepository extends BaseRepository<ReferencedEntity,
 				" lang.type AS languageType," +			
 				" st.name as billStatus, dt.name as billDeviceType," +	
 				" mi.name as billMinistry, sd.name as billSubDepartment, st.type as billStatusType, s.sessiontype_id as billSessionType,s.session_year as billSessionYear," +
-					" CASE " +
-					"		WHEN b.status_id="+statusRejected.getId().toString() + " THEN b.rejection_date " +
-					"		ELSE b.admission_date " +
-					" END as billDate " +
-					" FROM bills as b " +	
-					" LEFT JOIN housetypes as ht ON(b.housetype_id=ht.id)" +
-					" LEFT JOIN sessions as s ON(b.session_id=s.id)" +
-					" LEFT JOIN members as m ON(b.member_id=m.id)" +
-					" LEFT JOIN status as st ON(b.recommendationstatus_id=st.id)" +
-					" LEFT JOIN status as ist ON(b.internalstatus_id=ist.id)" +
-					" LEFT JOIN devicetypes as dt ON(b.devicetype_id=dt.id)" +
-					" LEFT JOIN ministries as mi ON(b.ministry_id=mi.id)" +				
-					" LEFT JOIN subdepartments as sd ON(b.subdepartment_id=sd.id)" +
-					" LEFT JOIN `bills_titles` AS bt ON (bt.bill_id = b.id)" +
-					" LEFT JOIN `bills_revisedtitles` AS brt ON (brt.bill_id = b.id)" +
-					" LEFT JOIN `bills_contentdrafts` AS bc ON (bc.bill_id = b.id)" +
-					" LEFT JOIN `bills_revisedcontentdrafts` AS brc ON (brc.bill_id = b.id)" +
-					" LEFT JOIN `text_drafts` AS titleDraft ON (titleDraft.id = bt.title_id)" +
-					" LEFT JOIN `text_drafts` AS revisedTitleDraft ON (revisedTitleDraft.id = brt.revised_title_id)" +
-					" LEFT JOIN `text_drafts` AS contentDraft ON (contentDraft.id = bc.content_draft_id)" +
-					" LEFT JOIN `text_drafts` AS revisedContentDraft ON (revisedContentDraft.id = brc.revised_content_draft_id)" +
-					" LEFT JOIN languages AS lang ON (lang.id = titleDraft.language_id OR lang.id = revisedTitleDraft.language_id" +
-					" OR lang.id = contentDraft.language_id OR lang.id = revisedContentDraft.language_id)" + 
-					" WHERE" +						
-					" b.id <> " + bill.getId() + " AND b.parent is NULL" + 
-					" AND b.housetype_id="+bill.getHouseType().getId().toString() + 
-					" AND (st.priority>=(SELECT priority FROM status as sst WHERE sst.type='"+ApplicationConstants.BILL_PROCESSED_INTRODUCED+"')" + 
-					")" +
-					" AND st.type<>'"+ApplicationConstants.BILL_FINAL_NEGATIVED + "'" +
-					" AND CASE " +
-					" WHEN (dt.type='"+ApplicationConstants.NONOFFICIAL_BILL + 
-					"' 	AND ht.type='"+ApplicationConstants.LOWER_HOUSE +
-					"' ) THEN s.id IN (" + sb + ") " +					
-					" WHEN (dt.type='"+ApplicationConstants.NONOFFICIAL_BILL + 
-					"' 	AND ht.type='"+ApplicationConstants.UPPER_HOUSE +
-					"' ) THEN m.id IN (" + sb + ") " +
-					" WHEN dt.type='"+ApplicationConstants.GOVERNMENT_BILL + 					
-					"' 	THEN year(b.submission_date)="+calendar.get(Calendar.YEAR) + 
-					" END " +
-					" AND lang.type = '" + language + "'";
+				" CASE " +
+				"		WHEN b.status_id="+statusRejected.getId().toString() + " THEN b.rejection_date " +
+				"		ELSE b.admission_date " +
+				" END as billDate " +
+				" FROM bills as b " +	
+				" LEFT JOIN housetypes as ht ON(b.housetype_id=ht.id)" +
+				" LEFT JOIN sessions as s ON(b.session_id=s.id)" +
+				" LEFT JOIN members as m ON(b.member_id=m.id)" +
+				" LEFT JOIN status as st ON(b.recommendationstatus_id=st.id)" +
+				" LEFT JOIN status as ist ON(b.internalstatus_id=ist.id)" +
+				" LEFT JOIN devicetypes as dt ON(b.devicetype_id=dt.id)" +
+				" LEFT JOIN ministries as mi ON(b.ministry_id=mi.id)" +				
+				" LEFT JOIN subdepartments as sd ON(b.subdepartment_id=sd.id)" +
+				" LEFT JOIN `bills_titles` AS bt ON (bt.bill_id = b.id)" +
+				" LEFT JOIN `bills_revisedtitles` AS brt ON (brt.bill_id = b.id)" +
+				" LEFT JOIN `bills_contentdrafts` AS bc ON (bc.bill_id = b.id)" +
+				" LEFT JOIN `bills_revisedcontentdrafts` AS brc ON (brc.bill_id = b.id)" +
+				" LEFT JOIN `text_drafts` AS titleDraft ON (titleDraft.id = bt.title_id)" +
+				" LEFT JOIN `text_drafts` AS revisedTitleDraft ON (revisedTitleDraft.id = brt.revised_title_id)" +
+				" LEFT JOIN `text_drafts` AS contentDraft ON (contentDraft.id = bc.content_draft_id)" +
+				" LEFT JOIN `text_drafts` AS revisedContentDraft ON (revisedContentDraft.id = brc.revised_content_draft_id)" +
+				" LEFT JOIN languages AS lang ON (lang.id = titleDraft.language_id OR lang.id = revisedTitleDraft.language_id" +
+				" OR lang.id = contentDraft.language_id OR lang.id = revisedContentDraft.language_id)" + 
+				" WHERE" +						
+				" b.id <> " + bill.getId() + " AND b.parent is NULL" + 
+				" AND b.housetype_id="+bill.getHouseType().getId().toString() + 
+				" AND (st.priority>=(SELECT priority FROM status as sst WHERE sst.type='"+ApplicationConstants.BILL_PROCESSED_INTRODUCED+"')" + 
+				")" +
+				" AND st.type<>'"+ApplicationConstants.BILL_FINAL_NEGATIVED + "'" +
+				" AND CASE " +
+				" WHEN (dt.type='"+ApplicationConstants.NONOFFICIAL_BILL + 
+				"' 	AND ht.type='"+ApplicationConstants.LOWER_HOUSE +
+				"' ) THEN s.id IN (" + sb + ") " +					
+				" WHEN (dt.type='"+ApplicationConstants.NONOFFICIAL_BILL + 
+				"' 	AND ht.type='"+ApplicationConstants.UPPER_HOUSE +
+				"' ) THEN m.id IN (" + sb + ") " +
+				" WHEN dt.type='"+ApplicationConstants.GOVERNMENT_BILL + 					
+				"' 	THEN year(b.submission_date)="+calendar.get(Calendar.YEAR) + 
+				" END " +
+				" AND lang.type = '" + language + "'";
 		
 		/**** fulltext query ****/
-		String searchQuery = null;	
+		searchQuery = "";	
 		if(!param.contains("+")&&!param.contains("-")){
 			searchQuery=" AND ((match(titleDraft.text) against('"+param+"' in natural language mode))" +
 					" || (match(revisedTitleDraft.text) against('"+param+"' in natural language mode))" + 
@@ -1000,15 +1063,15 @@ public class ReferencedEntityRepository extends BaseRepository<ReferencedEntity,
 		}
 		
 		/**** Order By Query ****/
-		String orderByQuery=" ORDER BY b.submission_date "+ApplicationConstants.ASC + ", lang.id "+ApplicationConstants.ASC;
+		orderByQuery=" ORDER BY b.submission_date "+ApplicationConstants.ASC + ", lang.id "+ApplicationConstants.ASC;
 		
 		/**** Final Query ****/
-		String finalQuery="SELECT rs.billId,rs.billNumber,rs.billTitle,rs.billRevisedTitle,rs.billContent, "+
+		finalQuery="SELECT rs.billId,rs.billNumber,rs.billTitle,rs.billRevisedTitle,rs.billContent, "+
 				" rs.billRevisedContent,rs.languageType,rs.billStatus,rs.billDeviceType," + 
 				" rs.billMinistry,rs.billSubDepartment,rs.billStatusType, rs.billSessionType, rs.billSessionYear," + 
 				" rs.billDate FROM ("+selectQuery+searchQuery+orderByQuery+") as rs LIMIT "+start+","+noOfRecords;
 				
-		List resultList=this.em().createNativeQuery(finalQuery).getResultList();
+		resultList=this.em().createNativeQuery(finalQuery).getResultList();
 		String billId = "";
 		BillSearchVO billSearchVO = new BillSearchVO();
 		if(resultList != null){
@@ -1098,6 +1161,61 @@ public class ReferencedEntityRepository extends BaseRepository<ReferencedEntity,
 		
 		List<BillSearchVO> billSearchVOs = new ArrayList<BillSearchVO>();
 		
+		String actSelectQuery = "SELECT a.id as actId, a.number as actNumber," +						
+				" (CASE WHEN (lang.id=titleDraft.language_id) THEN titleDraft.text ELSE NULL END) AS actTitle," +
+				" lang.type AS languageType,a.year" +			
+				" FROM acts as a " +	
+				" LEFT JOIN `acts_titles` AS at ON (at.act_id = a.id)" +
+				" LEFT JOIN `text_drafts` AS titleDraft ON (titleDraft.id = at.title_id)" +
+				" LEFT JOIN languages AS lang ON (lang.id = titleDraft.language_id)" + 
+				" WHERE lang.type = '" + language + "'";	
+		
+		/**** exact search query ****/		
+		String exactSearchQuery="";
+		
+		String languagesAllowedInSession = bill.getSession().getParameter(bill.getType().getType() + "_languagesAllowed");
+		exactSearchQuery += " AND (";
+		int cnt = 1;
+		for(String languageAllowedInSession: languagesAllowedInSession.split("#")) {
+			exactSearchQuery += "(titleDraft.text IS NOT NULL AND titleDraft.text<>'' AND titleDraft.text='"+bill.findTextOfGivenDraftTypeInGivenLanguage("title", languageAllowedInSession)+"')";
+			
+			if(cnt!=languagesAllowedInSession.split("#").length) {
+				exactSearchQuery += " || ";
+				cnt++;
+			}				
+		}
+		exactSearchQuery += ")";
+		
+		/**** Order By Query ****/
+		String orderByQuery=" ORDER BY a.year "+ApplicationConstants.ASC + ", a.number "+ApplicationConstants.ASC + ", lang.id "+ApplicationConstants.ASC;
+		
+		/**** Final Query ****/
+		String finalQuery="SELECT rs.actId,rs.actNumber,rs.actTitle,rs.year" +
+				" FROM ("+actSelectQuery+exactSearchQuery+orderByQuery+") as rs LIMIT "+start+","+noOfRecords;
+				
+		List resultList=this.em().createNativeQuery(finalQuery).getResultList();
+		
+		if(resultList!=null && !resultList.isEmpty()) {
+			for(Object i : resultList){
+				Object[] o = (Object[]) i;
+				BillSearchVO billSearchVO = new BillSearchVO();
+				if(o[0] != null){
+					billSearchVO.setId(Long.parseLong(o[0].toString()));
+				}
+				if(o[1] != null){
+					billSearchVO.setNumber(o[1].toString());
+				}
+				if(o[2] != null){
+					billSearchVO.setTitle(o[2].toString());
+				}
+				if(o[3] != null){					
+					billSearchVO.setSessionYear(o[3].toString());
+				}
+				billSearchVO.setDeviceType("act");
+				billSearchVOs.add(billSearchVO);
+			}
+		}
+		
 		String houseType = bill.getHouseType().getType();	
 		
 		Status statusRejected = Status.findByType(ApplicationConstants.BILL_FINAL_REJECTION,bill.getLocale());	
@@ -1144,78 +1262,75 @@ public class ReferencedEntityRepository extends BaseRepository<ReferencedEntity,
 				" lang.type AS languageType," +			
 				" st.name as billStatus, dt.name as billDeviceType," +	
 				" mi.name as billMinistry, sd.name as billSubDepartment, st.type as billStatusType, s.sessiontype_id as billSessionType,s.session_year as billSessionYear," +
-					" CASE " +
-					"		WHEN b.status_id="+statusRejected.getId().toString() + " THEN b.rejection_date " +
-					"		ELSE b.admission_date " +
-					" END as billDate " +
-					" FROM bills as b " +	
-					" LEFT JOIN housetypes as ht ON(b.housetype_id=ht.id)" +
-					" LEFT JOIN sessions as s ON(b.session_id=s.id)" +
-					" LEFT JOIN members as m ON(b.member_id=m.id)" +
-					" LEFT JOIN status as st ON(b.recommendationstatus_id=st.id)" +
-					" LEFT JOIN status as ist ON(b.internalstatus_id=ist.id)" +
-					" LEFT JOIN devicetypes as dt ON(b.devicetype_id=dt.id)" +
-					" LEFT JOIN ministries as mi ON(b.ministry_id=mi.id)" +				
-					" LEFT JOIN subdepartments as sd ON(b.subdepartment_id=sd.id)" +
-					" LEFT JOIN `bills_titles` AS bt ON (bt.bill_id = b.id)" +
-					" LEFT JOIN `bills_revisedtitles` AS brt ON (brt.bill_id = b.id)" +
-					" LEFT JOIN `bills_contentdrafts` AS bc ON (bc.bill_id = b.id)" +
-					" LEFT JOIN `bills_revisedcontentdrafts` AS brc ON (brc.bill_id = b.id)" +
-					" LEFT JOIN `text_drafts` AS titleDraft ON (titleDraft.id = bt.title_id)" +
-					" LEFT JOIN `text_drafts` AS revisedTitleDraft ON (revisedTitleDraft.id = brt.revised_title_id)" +
-					" LEFT JOIN `text_drafts` AS contentDraft ON (contentDraft.id = bc.content_draft_id)" +
-					" LEFT JOIN `text_drafts` AS revisedContentDraft ON (revisedContentDraft.id = brc.revised_content_draft_id)" +
-					" LEFT JOIN languages AS lang ON (lang.id = titleDraft.language_id OR lang.id = revisedTitleDraft.language_id" +
-					" OR lang.id = contentDraft.language_id OR lang.id = revisedContentDraft.language_id)" + 
-					" WHERE" +						
-					" b.id <> " + bill.getId() + " AND b.parent is NULL" + 
-					" AND b.housetype_id="+bill.getHouseType().getId().toString() + 
-					" AND (st.priority>=(SELECT priority FROM status as sst WHERE sst.type='"+ApplicationConstants.BILL_PROCESSED_INTRODUCED+"')" + 
-					")" +
-					" AND st.type<>'"+ApplicationConstants.BILL_FINAL_NEGATIVED + "'" +
-					" AND CASE " +
-					" WHEN (dt.type='"+ApplicationConstants.NONOFFICIAL_BILL + 
-					"' 	AND ht.type='"+ApplicationConstants.LOWER_HOUSE +
-					"' ) THEN s.id IN (" + sb + ") " +					
-					" WHEN (dt.type='"+ApplicationConstants.NONOFFICIAL_BILL + 
-					"' 	AND ht.type='"+ApplicationConstants.UPPER_HOUSE +
-					"' ) THEN m.id IN (" + sb + ") " +
-					" WHEN dt.type='"+ApplicationConstants.GOVERNMENT_BILL + 					
-					"' 	THEN year(b.submission_date)="+calendar.get(Calendar.YEAR) + 
-					" END " +
-					" AND lang.type = '" + language + "'";
+				" CASE " +
+				"		WHEN b.status_id="+statusRejected.getId().toString() + " THEN b.rejection_date " +
+				"		ELSE b.admission_date " +
+				" END as billDate " +
+				" FROM bills as b " +	
+				" LEFT JOIN housetypes as ht ON(b.housetype_id=ht.id)" +
+				" LEFT JOIN sessions as s ON(b.session_id=s.id)" +
+				" LEFT JOIN members as m ON(b.member_id=m.id)" +
+				" LEFT JOIN status as st ON(b.recommendationstatus_id=st.id)" +
+				" LEFT JOIN status as ist ON(b.internalstatus_id=ist.id)" +
+				" LEFT JOIN devicetypes as dt ON(b.devicetype_id=dt.id)" +
+				" LEFT JOIN ministries as mi ON(b.ministry_id=mi.id)" +				
+				" LEFT JOIN subdepartments as sd ON(b.subdepartment_id=sd.id)" +
+				" LEFT JOIN `bills_titles` AS bt ON (bt.bill_id = b.id)" +
+				" LEFT JOIN `bills_revisedtitles` AS brt ON (brt.bill_id = b.id)" +
+				" LEFT JOIN `bills_contentdrafts` AS bc ON (bc.bill_id = b.id)" +
+				" LEFT JOIN `bills_revisedcontentdrafts` AS brc ON (brc.bill_id = b.id)" +
+				" LEFT JOIN `text_drafts` AS titleDraft ON (titleDraft.id = bt.title_id)" +
+				" LEFT JOIN `text_drafts` AS revisedTitleDraft ON (revisedTitleDraft.id = brt.revised_title_id)" +
+				" LEFT JOIN `text_drafts` AS contentDraft ON (contentDraft.id = bc.content_draft_id)" +
+				" LEFT JOIN `text_drafts` AS revisedContentDraft ON (revisedContentDraft.id = brc.revised_content_draft_id)" +
+				" LEFT JOIN languages AS lang ON (lang.id = titleDraft.language_id OR lang.id = revisedTitleDraft.language_id" +
+				" OR lang.id = contentDraft.language_id OR lang.id = revisedContentDraft.language_id)" + 
+				" WHERE" +						
+				" b.id <> " + bill.getId() + " AND b.parent is NULL" + 
+				" AND b.housetype_id="+bill.getHouseType().getId().toString() + 
+				" AND (st.priority>=(SELECT priority FROM status as sst WHERE sst.type='"+ApplicationConstants.BILL_PROCESSED_INTRODUCED+"')" + 
+				")" +
+				" AND st.type<>'"+ApplicationConstants.BILL_FINAL_NEGATIVED + "'" +
+				" AND CASE " +
+				" WHEN (dt.type='"+ApplicationConstants.NONOFFICIAL_BILL + 
+				"' 	AND ht.type='"+ApplicationConstants.LOWER_HOUSE +
+				"' ) THEN s.id IN (" + sb + ") " +					
+				" WHEN (dt.type='"+ApplicationConstants.NONOFFICIAL_BILL + 
+				"' 	AND ht.type='"+ApplicationConstants.UPPER_HOUSE +
+				"' ) THEN m.id IN (" + sb + ") " +
+				" WHEN dt.type='"+ApplicationConstants.GOVERNMENT_BILL + 					
+				"' 	THEN year(b.submission_date)="+calendar.get(Calendar.YEAR) + 
+				" END " +
+				" AND lang.type = '" + language + "'";
 		
 		/**** exact search query ****/		
-		String exactSearchQuery="";
+		exactSearchQuery="";
 		
-		String languagesAllowedInSession = bill.getSession().getParameter(bill.getType().getType() + "_languagesAllowed");
-		if(languagesAllowedInSession != null && !languagesAllowedInSession.isEmpty()) {
-			exactSearchQuery += " AND (";
-			int cnt = 1;
-			for(String languageAllowedInSession: languagesAllowedInSession.split("#")) {
-				exactSearchQuery += "(titleDraft.text IS NOT NULL AND titleDraft.text<>'' AND titleDraft.text='"+bill.findTextOfGivenDraftTypeInGivenLanguage("title", languageAllowedInSession)+"')" +
-						" || (revisedTitleDraft.text IS NOT NULL AND revisedTitleDraft.text<>'' AND revisedTitleDraft.text='"+bill.findTextOfGivenDraftTypeInGivenLanguage("revised_title", languageAllowedInSession)+"')" +
-						" || (contentDraft.text IS NOT NULL AND contentDraft.text<>'' AND contentDraft.text='"+bill.findTextOfGivenDraftTypeInGivenLanguage("contentDraft", languageAllowedInSession)+"')" +
-						" || (revisedContentDraft.text IS NOT NULL AND revisedContentDraft.text<>'' AND revisedContentDraft.text='"+bill.findTextOfGivenDraftTypeInGivenLanguage("revised_contentDraft", languageAllowedInSession)+"')";
-				
-				if(cnt!=languagesAllowedInSession.split("#").length) {
-					exactSearchQuery += " || ";
-					cnt++;
-				}				
-			}
-			exactSearchQuery += ")";		
-		}	
+		exactSearchQuery += " AND (";
+		cnt = 1;
+		for(String languageAllowedInSession: languagesAllowedInSession.split("#")) {
+			exactSearchQuery += "(titleDraft.text IS NOT NULL AND titleDraft.text<>'' AND titleDraft.text='"+bill.findTextOfGivenDraftTypeInGivenLanguage("title", languageAllowedInSession)+"')" +
+					" || (revisedTitleDraft.text IS NOT NULL AND revisedTitleDraft.text<>'' AND revisedTitleDraft.text='"+bill.findTextOfGivenDraftTypeInGivenLanguage("revised_title", languageAllowedInSession)+"')" +
+					" || (contentDraft.text IS NOT NULL AND contentDraft.text<>'' AND contentDraft.text='"+bill.findTextOfGivenDraftTypeInGivenLanguage("contentDraft", languageAllowedInSession)+"')" +
+					" || (revisedContentDraft.text IS NOT NULL AND revisedContentDraft.text<>'' AND revisedContentDraft.text='"+bill.findTextOfGivenDraftTypeInGivenLanguage("revised_contentDraft", languageAllowedInSession)+"')";
+			
+			if(cnt!=languagesAllowedInSession.split("#").length) {
+				exactSearchQuery += " || ";
+				cnt++;
+			}				
+		}
+		exactSearchQuery += ")";	
 		
 		/**** Order By Query ****/
-		String orderByQuery=" ORDER BY b.submission_date "+ApplicationConstants.ASC + ", lang.id "+ApplicationConstants.ASC;
+		orderByQuery=" ORDER BY b.submission_date "+ApplicationConstants.ASC + ", lang.id "+ApplicationConstants.ASC;
 		
 		/**** Final Query ****/
-		String finalQuery="SELECT rs.billId,rs.billNumber,rs.billTitle,rs.billRevisedTitle,rs.billContent, "+
+		finalQuery="SELECT rs.billId,rs.billNumber,rs.billTitle,rs.billRevisedTitle,rs.billContent, "+
 				" rs.billRevisedContent,rs.languageType,rs.billStatus,rs.billDeviceType," + 
 				" rs.billMinistry,rs.billSubDepartment,rs.billStatusType, rs.billSessionType, rs.billSessionYear," + 
 				" rs.billDate FROM ("+selectQuery+exactSearchQuery+orderByQuery+") as rs LIMIT "+start+","+noOfRecords;
 				
-		List resultList=this.em().createNativeQuery(finalQuery).getResultList();
+		resultList=this.em().createNativeQuery(finalQuery).getResultList();
 		String billId = "";
 		BillSearchVO billSearchVO = new BillSearchVO();
 		if(resultList != null){
@@ -1395,9 +1510,20 @@ public class ReferencedEntityRepository extends BaseRepository<ReferencedEntity,
 				
 				ReferencedEntity refEntity = new ReferencedEntity();
 				refEntity.setDevice(referencedBill);
-				refEntity.setLocale(referencedBill.getLocale());
-				refEntity.setDevice(referencedBill);
+				refEntity.setLocale(referencedBill.getLocale());				
 				refEntity.setDeviceType(referencedBill.getType());
+				refEntity.persist();
+				
+				primaryBill.setReferencedBill(refEntity);				
+				primaryBill.simpleMerge();	
+				
+			}else if(device.startsWith(ApplicationConstants.DEVICE_ACTS)){
+				Bill primaryBill=Bill.findById(Bill.class,primaryId);
+				Act referencedAct=Act.findById(Act.class,referencingId);
+				
+				ReferencedEntity refEntity = new ReferencedEntity();
+				refEntity.setDevice(referencedAct);
+				refEntity.setLocale(referencedAct.getLocale());							
 				refEntity.persist();
 				
 				primaryBill.setReferencedBill(refEntity);				
@@ -1473,6 +1599,14 @@ public class ReferencedEntityRepository extends BaseRepository<ReferencedEntity,
 						primaryBill.simpleMerge();
 						//refEntityToBeRemoved.remove();
 					}
+				}
+			}else if(device.startsWith(ApplicationConstants.DEVICE_ACTS)){
+				Bill primaryBill=Bill.findById(Bill.class,primaryId);					
+				if(primaryBill.getReferencedBill() != null){
+					ReferencedEntity refEntityToBeRemoved = primaryBill.getReferencedBill();
+					primaryBill.setReferencedBill(null);						
+					primaryBill.simpleMerge();
+					//refEntityToBeRemoved.remove();
 				}
 			}
 		} catch (Exception e) {

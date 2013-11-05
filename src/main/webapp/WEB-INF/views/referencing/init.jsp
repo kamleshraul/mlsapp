@@ -142,9 +142,15 @@
 							if(billNumber==undefined || billNumber=='') {
 								billNumber = "";
 							}
-							text+="<td>"+billNumber+"<span id='operation"+data[i].id+"'><a onclick='referencing("+data[i].id+");' style='margin:10px;'>"+$("#referMsg").val()+"</a></span>"
-							+"<a onclick='viewDetail("+data[i].id+");' style='margin:10px;'>"+$("#viewDetailMsg").val()+"</a>"
-							+"</td>";
+							if(data[i].deviceType=='act') {
+								text+="<td>"+billNumber+"<span id='operation"+data[i].id+"'><a onclick='referencing("+data[i].id+");' style='margin:10px;'>"+$("#referMsg").val()+"</a></span>"
+								+"<a onclick='viewActDetail("+data[i].id+");' style='margin:10px;'>"+$("#viewDetailMsg").val()+"</a>"
+								+"</td>";
+							} else {
+								text+="<td>"+billNumber+"<span id='operation"+data[i].id+"'><a onclick='referencing("+data[i].id+");' style='margin:10px;'>"+$("#referMsg").val()+"</a></span>"
+								+"<a onclick='viewDetail("+data[i].id+");' style='margin:10px;'>"+$("#viewDetailMsg").val()+"</a>"
+								+"</td>";
+							}							
 							if(data[i].revisedTitle!='null' && data[i].revisedTitle!='' && data[i].revisedTitle!=undefined) {
 								text+="<td style='width: 300px; max-width: 300px;>"+data[i].revisedTitle+"</td>";	
 							} else if(data[i].title!='null' && data[i].title!='' && data[i].title!=undefined) {
@@ -159,7 +165,11 @@
 								content = data[i].content;
 							} 				
 							text+="<td style='width: 420px; max-width: 420px;'>"+content+"</td>";
-							text+="<td>"+data[i].deviceType+"</td>";	
+							if(data[i].deviceType=='act') {
+								text+="<td><spring:message code='bill.referredAct' text='Act'/></td>";
+							} else {
+								text+="<td>"+data[i].deviceType+"</td>";
+							}								
 							text+="<td>"+data[i].sessionYear+"</td>";			
 							text+="<td>"+data[i].sessionType+"</td>";
 							text+="<td>"+data[i].status+"</td>";
@@ -277,6 +287,85 @@
 	    					scrollTop();
 	    				});
 						
+					}else if(/^bills_/.test(currentDeviceType)){
+						$.post('refentity/searchbill',{param:$("#searchrefvalue").val(),bill:$("#billId").val(),language:$("#languageAllowed").val(),billSessionYear:$("#refSessionYear").val(),billSessionType:$("#refSessionType").val(),record:record,start:start},function(data){
+							
+							if(data.length>0){								
+								var text="";
+								for(var i=0;i<data.length;i++){									
+									text+="<tr>";
+									var billNumber = data[i].number;
+									if(billNumber==undefined || billNumber=='') {
+										billNumber = "";
+									}
+									if(data[i].deviceType=='act') {
+										text+="<td>"+billNumber+"<span id='operation"+data[i].id+"'><a onclick='referencing("+data[i].id+");' style='margin:10px;'>"+$("#referMsg").val()+"</a></span>"
+										+"<a onclick='viewActDetail("+data[i].id+");' style='margin:10px;'>"+$("#viewDetailMsg").val()+"</a>"
+										+"</td>";
+									} else {
+										text+="<td>"+billNumber+"<span id='operation"+data[i].id+"'><a onclick='referencing("+data[i].id+");' style='margin:10px;'>"+$("#referMsg").val()+"</a></span>"
+										+"<a onclick='viewDetail("+data[i].id+");' style='margin:10px;'>"+$("#viewDetailMsg").val()+"</a>"
+										+"</td>";
+									}							
+									if(data[i].revisedTitle!='null' && data[i].revisedTitle!='' && data[i].revisedTitle!=undefined) {
+										text+="<td style='width: 300px; max-width: 300px;>"+data[i].revisedTitle+"</td>";	
+									} else if(data[i].title!='null' && data[i].title!='' && data[i].title!=undefined) {
+										text+="<td style='width: 300px; max-width: 300px;>"+data[i].title+"</td>";	
+									} else {
+										text+="<td>&nbsp;</td>";
+									}
+									var content = "";
+									if(data[i].revisedContent!='null' && data[i].revisedContent!='' && data[i].revisedContent!=undefined) {
+										content = data[i].revisedContent;									
+									} else if(data[i].content!='null' && data[i].content!='' && data[i].content!=undefined) {
+										content = data[i].content;
+									} else {
+										content = "&nbsp;";
+									}				
+									text+="<td style='width: 420px; max-width: 420px;'>"+content+"</td>";
+									if(data[i].deviceType=='act') {
+										text+="<td><spring:message code='bill.referredAct' text='Act'/></td>";
+									} else {
+										text+="<td>"+data[i].deviceType+"</td>";
+									}		
+									if(data[i].sessionYear!=null) {
+										text+="<td>"+data[i].sessionYear+"</td>";
+									}else {
+										text+="<td>&nbsp;</td>";
+									}
+									if(data[i].sessionType!=null) {
+										text+="<td>"+data[i].sessionType+"</td>";
+									}else {
+										text+="<td>&nbsp;</td>";
+									}
+									if(data[i].status!=null) {
+										text+="<td>"+data[i].status+"</td>";
+									}else {
+										text+="<td>&nbsp;</td>";
+									}
+									if(data[i].dateOfBill!=null) {
+										text+="<td>"+data[i].dateOfBill+"</td>";
+									}else {
+										text+="<td>&nbsp;</td>";
+									}								
+									text+="</tr>";						
+								}	
+								if(data.length==10){
+									text+="<tr>"
+										+"<td style='text-align:center;'><a onclick='search();' style='margin:10px;'>"+$("#loadMoreMsg").val()+"</a></td>"
+										+"</tr>";
+									start=start+10;							
+								}
+								$("#searchTable tbody").empty();
+								$("#searchTable tbody").append(text);	
+								$("#referencingDiv").show();										
+							}else{
+								$("#referencingResult").empty();
+								$("#referencingResult").html($("#noResultsMsg").val());
+								$("#referencingDiv").show();
+								//$("#searchresult").hide();
+							}				
+						});
 					}
 				}else{
 					$("#referencingResult").empty();
@@ -288,9 +377,14 @@
 				$("#referencingDiv").hide();
 			}
 		}
-		function referencing(referId){
+		function referencing(referId,isAct){
 			var whichDevice= $('#whichDevice').val();
-			var device=$("#refDeviceType").val();
+			var device;
+			if(isAct=='true') {
+				device = "act";
+			} else {
+				device=$("#refDeviceType").val();
+			}
 			var deviceId = "";
 			if(whichDevice=='questions_'){
 				deviceId=$("#questionId").val();
@@ -321,9 +415,8 @@
 			});
 			return false;
 		}
-		function dereferencing(referId){
+		function dereferencing(referId,isAct){
 			var whichDevice= $('#whichDevice').val();
-			var device=$("#refDeviceType").val();
 			var deviceId = "";
 			if(whichDevice=='questions_'){
 				deviceId=$("#questionId").val();
@@ -332,7 +425,12 @@
 			}else if(whichDevice=='bills_'){
 				deviceId=$("#billId").val();
 			}
-			var device=$("#refDeviceType").val();
+			var device;
+			if(isAct=='true') {
+				device = "act";
+			} else {
+				device=$("#refDeviceType").val();
+			}
 			$.post('refentity/dereferencing?pId='+deviceId+"&rId="+referId+"&device="+device,function(data){
 				if(data=='SUCCESS'){
 					$("#referencingResult").empty();
@@ -395,6 +493,23 @@
 				}
 				scrollTop();
 			});		
+		}
+		
+		/****To view Act details****/
+		function viewActDetail(referId){
+			var resourceURL='act/'+referId+'/edit?edit=false;';			
+			$.get(resourceURL,function(data){
+				$("#referencingDiv").hide();		
+				$("#viewBill").html(data);
+				$("#viewBillDiv").show();
+			},'html').fail(function(){
+				if($("#ErrorMsg").val()!=''){
+					$("#error_p").html($("#ErrorMsg").val()).css({'color':'red', 'display':'block'});
+				}else{
+					$("#error_p").html("Error occured contact for support.").css({'color':'red', 'display':'block'});
+				}
+				scrollTop();
+			});			
 		}
 
 		function back(){
@@ -581,7 +696,7 @@ cursor:pointer;
 					<th><spring:message code="referencing.number" text="Resolution Number"></spring:message></th>
 				</c:if>
 				<c:if test="${whichDevice=='bills_'}">
-					<th><spring:message code="referencing.number" text="Bill Number"></spring:message></th>
+					<th><spring:message code="referencing.number" text="Device Number"></spring:message></th>
 				</c:if>
 				<c:choose>
 				<c:when test="${whichDevice!='bills_'}">
@@ -601,7 +716,15 @@ cursor:pointer;
 					<th><spring:message code="referencing.bill" text="Content Draft"></spring:message></th>
 				</c:if>
 				<th><spring:message code="referencing.devicetype" text="Device Type"></spring:message></th>
-				<th><spring:message code="referencing.sessionyear" text="Session Year"></spring:message></th>
+				<c:choose>
+				<c:when test="${whichDevice=='bills_'}">
+					<th><spring:message code="referencing.year" text="Year"></spring:message></th>					
+				</c:when>
+				 <c:otherwise>
+				 	<th><spring:message code="referencing.sessionyear" text="Session Year"></spring:message></th>
+				 </c:otherwise>
+				</c:choose>
+				
 				<th><spring:message code="referencing.sessiontype" text="Session Type"></spring:message></th>
 				<th><spring:message code="referencing.status" text="Status"></spring:message></th>
 				<c:if test="${whichDevice=='bills_'}">
@@ -618,9 +741,17 @@ cursor:pointer;
 							<c:if test="${empty i.number}">
 								<c:set var="billNumber" value=""/>
 							</c:if>
-							<td>
-								${billNumber}<span id='operation${i.id}'><a onclick='referencing(${i.id});' style='margin:10px;'><spring:message code='referencing.referencing' text='Referencing'/></a></span>
-								<a onclick='viewDetail(${i.id});' style='margin:10px;'><spring:message code='referencing.viewdetail' text='View Detail'/></a> 
+							<td>								
+								<c:choose>
+									<c:when test="${i.deviceType=='act'}">
+										${billNumber}<span id='operation${i.id}'><a onclick='referencing(${i.id},"true");' style='margin:10px;'><spring:message code='referencing.referencing' text='Referencing'/></a></span>
+										<a onclick='viewActDetail(${i.id});' style='margin:10px;'><spring:message code='referencing.viewdetail' text='View Detail'/></a>
+									</c:when>
+									<c:otherwise>
+										${billNumber}<span id='operation${i.id}'><a onclick='referencing(${i.id});' style='margin:10px;'><spring:message code='referencing.referencing' text='Referencing'/></a></span>
+										<a onclick='viewDetail(${i.id});' style='margin:10px;'><spring:message code='referencing.viewdetail' text='View Detail'/></a>
+									</c:otherwise>
+								</c:choose>								 
 							</td>
 							<td style='width: 300px; max-width: 300px;'>
 								<c:choose>
@@ -636,7 +767,16 @@ cursor:pointer;
 									<c:otherwise>&nbsp;</c:otherwise>
 								</c:choose>
 							</td>
-							<td>${i.deviceType}</td>
+							<td>
+								<c:choose>
+									<c:when test="${i.deviceType=='act'}">
+										<spring:message code="bill.referredAct" text="Act"/>
+									</c:when>
+									<c:otherwise>
+										${i.deviceType}
+									</c:otherwise>
+								</c:choose>
+							</td>
 							<td>${i.sessionYear}</td>
 							<td>${i.sessionType}</td>
 							<td>${i.status}</td>

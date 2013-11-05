@@ -444,6 +444,9 @@ public class ApplicationConstants {
 	
 	/** Prefix of bills **/
 	public static final String DEVICE_BILLS="bills_";
+	
+	/** Prefix of acts **/
+	public static final String DEVICE_ACTS="act";
 
 	public static final String RESOLUTION_LOWERHOUSEGRID="resolution_lowerhouse";
 
