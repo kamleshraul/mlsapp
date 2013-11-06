@@ -97,6 +97,24 @@
 			opacity:0.8;
 		}
 		
+		.partDraftContainer{
+			margin-top: 20px; 
+			display: none;
+			position: fixed; 
+			top: 120px; 
+			background: scroll repeat-x #fff; 
+			width: 400px;
+			height: 262px;
+			z-index: 10000; 
+			box-shadow: 0px 2px 5px #888; 
+			opacity:0.8;
+			overflow: scroll;
+		}
+		
+		.partDraftContainer div table ul{
+			background: none;
+		}
+		
 		#reportIconsDiv{
 			
 			border-radius: 5px; 
@@ -312,7 +330,7 @@
 			var params='houseType=' + $('#selectedHouseType').val()
 			+ '&sessionYear=' + $("#selectedSessionYear").val()
 			+ '&sessionType=' + $("#selectedSessionType").val()
-			+ '&workflowDetailsId=' $("#workflowdetails").val();
+			+ '&workflowDetailsId=' + $("#workflowdetails").val();
 			+ '&userGroup=' + $("#currentusergroup").val()
 			+ '&userGroupType=' + $("#currentusergroupType").val();
 			
@@ -445,6 +463,24 @@
 				}
 			});
 			
+			$(".partMerger").click(function(){
+				var idx=$(this).attr('id').substring("partMerger".length);
+				$.get('ref/getpartDraftsInWorkflow/'+idx+'?wfdetailsId='+$("#workflowdetails").val()+'&userGroup='+$("#currentusergroup").val()+'&userGroupType='+$("#currentusergroupType").val(),function(data){
+					if(data.length>0){
+						var text="";
+						var i;
+						
+						for(i = 0; i < data.length; i++){
+							text+="<div style='border: 1px solid #000; word-wrap: break-word; display: inline-block;' class='replaceByMe msp"+data[i][14]+" pdp"+data[i][0]+"'>"
+									+ data[i][15]+"</div>";
+						}
+						$("#partDraftContainer").empty();
+						$("#partDraftContainer").html(text);
+						$("#partDraftContainer").show();
+					}
+				});
+			});
+			
 			$(".revision").click(function(e){
 				$.get("editing/revisions/" + $(this).attr('id').substring(2),function(data){
 				    $.fancybox.open(data);
@@ -543,7 +579,7 @@
 				$("#zoomImgDiv").css("display", "none");
 			});
 			
-			$(".replaceByMe").mouseover(function(){
+			/* $(".replaceByMe").mouseover(function(){
 				$("#zoomImgDiv").css("display", "block");
 				var idx=$(this).attr('class').split(' ')[2].substring(3);
 				var srcURL = $(".img"+idx).children("img").attr("src");
@@ -554,7 +590,7 @@
 			
 			$(".replaceByMe").mouseout(function(){
 				$("#zoomImgDiv").css("display", "none");
-			});
+			}); */
 			
 			$("#replaceAll").click(function(){
 				replaceAll('edit','false');
@@ -597,16 +633,14 @@
 			});
 			
 			$(".replaceByMe").click(function(){
+				alert($(this).attr('id'));
 				if($("#action").val()=='edit'){
 					var clasess=$(this).attr('class').split(' ');
 					var sourcePartDraftId=clasess[1].substring(3);
 					var targetPartId=clasess[2].substring(3);
-					
-					console.log('SourcePD: '+sourcePartDraftId+"\nTarget Part: "+targetPartId);
-					
+										
 					var targetContent=$("#pp"+targetPartId).html();
 					var sourceContent=$(this).html();
-					console.log("Source: \n"+sourceContent +"\nTarget: \n"+targetContent);
 					$("#pp"+targetPartId).empty();
 					$("#pp"+targetPartId).html(sourceContent);
 					
@@ -618,11 +652,21 @@
 					
 					$.post('workflow/editing/mergedraftcontent?partId='+targetPartId+'&draftId='+sourcePartDraftId+'&action='+$('#action').val(), 
 							$("form[action='workflow/editing/savepart']").serialize(),function(data){
-						
+						if(data=='SUCCESS'){
+							$("#partDraftContainer").hide();
+						}
 					}).fail(function(){
 						
 					});
 				}
+			});
+			
+			$("#partDraftContainer").click(function(e) {
+			     var element = e.target;/* .children().each(function(){
+			    	 console.log('\nid: '+$(this));
+			     }); */
+			     
+			     console.log($(element).attr('class'));
 			});
 			
 			$(".partUndo").click(function(){
@@ -638,6 +682,7 @@
 				$(".pdp"+idx).html(sourceContent);	
 				
 			});
+			
 		});
 	</script>
 </head>
@@ -717,78 +762,92 @@
 		<table id="containerTable">
 			<c:set var="ph" value="-" />
 			<c:set var="mh" value="-" />
+			<c:set var="cnt" value="0" />
+			<c:set var="idx" value="0" />
 			<c:forEach items="${parts}" var="r">
-				<tr>
-					<td>
-						<div style="text-align: center; font-size: 16px;">
-							<c:if test="${ph!=r[2] && mh!=r[3]}">
+				<c:choose>						
+					<c:when test="${action=='edited' or action=='edit'}">
+						<c:choose>
+							<c:when test="${not (empty r[15])}">										
 								<c:choose>
-									<c:when test="${(fn:length(r[2])>0) && (fn:length(r[3])>0)}">
-										<b><spring:message code="editing.pageheading" text="Page Heading" /></b>${r[1]}<br />
-										<b><spring:message code="editing.mainheading" text="Main Heading" /></b>${r[2]}
-									</c:when>
-									<c:when test="${(fn:length(r[2])>0) || (fn:length(r[3])>0)}">
-										<b><spring:message code="editing.pageheading" text="Page Heading" /></b> ${r[2]} / <b><spring:message code="editing.mainheading" text="Main Heading" /></b> ${r[3]}
-									</c:when>
-								</c:choose>
-							</c:if>
-						</div>
-						<c:choose>						
-							<c:when test="${action=='edited' or action=='edit'}">
-								<c:choose>
-									<c:when test="${not (empty r[15])}">										
-										<c:choose>
-											<c:when test="${username==r[19]}">
-												<c:if test="${not(empty r[5]) and (not (r[5]==null))}">
-													<b class="member" style="display: inline-block;">${r[6]}</b>
-													<div id="memberImageDiv" style="display: inline;">
-														<img src="editing/gememberimage/${r[5]}" height="16px;" class="memberImg" />	
+									<c:when test="${username==r[19]}">
+										<c:if test="${idx!=r[0]}">
+											<c:set var="cnt" value="0" />
+										</c:if>
+										<c:if test="${cnt==0}">
+											<tr>
+												<td>
+													<div style="text-align: center; font-size: 16px;">
+														<c:if test="${ph!=r[2] && mh!=r[3]}">
+															<c:choose>
+																<c:when test="${(fn:length(r[2])>0) && (fn:length(r[3])>0)}">
+																	<b><spring:message code="editing.pageheading" text="Page Heading" /></b>${r[1]}<br />
+																	<b><spring:message code="editing.mainheading" text="Main Heading" /></b>${r[2]}
+																</c:when>
+																<c:when test="${(fn:length(r[2])>0) || (fn:length(r[3])>0)}">
+																	<b><spring:message code="editing.pageheading" text="Page Heading" /></b> ${r[2]} / <b><spring:message code="editing.mainheading" text="Main Heading" /></b> ${r[3]}
+																</c:when>
+															</c:choose>
+														</c:if>
 													</div>
-												</c:if>										
-												<c:if test="${not(empty r[9]) and (not (r[9]==null))}">
-													<b>/${r[10]}</b>
-													<div id="memberImageDiv" style="display: inline;">
-														<img src="editing/gememberimage/${r[9]}" height="16px;" class="memberImg"/>	
+													<c:if test="${not(empty r[5]) and (not (r[5]==null))}">
+														<b class="member" style="display: inline-block;">${r[6]}</b>
+														<div id="memberImageDiv" style="display: inline;">
+															<img src="editing/gememberimage/${r[5]}" height="16px;" class="memberImg" />	
+														</div>
+													</c:if>										
+													<c:if test="${not(empty r[9]) and (not (r[9]==null))}">
+														<b>/${r[10]}</b>
+														<div id="memberImageDiv" style="display: inline;">
+															<img src="editing/gememberimage/${r[9]}" height="16px;" class="memberImg"/>	
+														</div>
+													</c:if>:
+													<div id="pp${r[0]}" style="width: 750px; max-width: 750px; word-wrap:break-word; display: inline;" class="replaceMe">
+														${r[15]}
 													</div>
-												</c:if>:
-												<div id="pp${r[0]}" style="width: 750px; max-width: 750px; word-wrap:break-word; display: inline;" class="replaceMe">
+													<c:if test="${action=='edit'}">
+														<c:if test="${r[20]!=null and not(empty r[20]) and r[20]>1}">
+															<div id="partMerger${r[0]}" class="partMerger" style="position: relative; border-radius: 10px; margin-left: 700px; top: 12px; text-align: center; display: inline-block; min-height: 16px; min-width:16x; border: 1px solid blue; background: #DE00B1; cursor: pointer;">O</div>
+														</c:if>
+													</c:if>
+													<div id="partUndo${r[0]}" class="partUndo" style="position: relative; border-radius: 10px; margin-left: 730px; top: -3px; text-align: center; display: inline-block; min-height: 16px; min-width:16x; border: 1px solid blue; background: #eeccdd; cursor: pointer;">O</div>
+													<div id="ppsp${r[0]}" class="ppsp" style="display: none;">classes</div>
+													<div class="revision" id="pd${r[0]}" style="position: relative; border-radius: 10px; margin-left: 750px; top: -20px; text-align: center; display: inline-block; min-width: 16px; min-height: 16px; border: 1px solid blue; background: #00ff00; cursor: pointer;">
+														<spring:message code="editing.more" text="S" />
+													</div>
+												</td>
+											</tr>
+											<c:set var="cnt" value="1" />
+											<c:set var="idx" value="${r[0]}" />
+										</c:if>
+										<!-- <tr>
+											<td>
+												&nbsp;
+											</td>
+										</tr> -->
+									</c:when>
+									<c:otherwise>
+										<%-- <c:choose>
+											<c:when test="${r[13]==r[15]}">
+												<div style="border: 2px solid green; width: 750px; max-width: 750px; word-wrap:break-word; display: inline-block;" class="replaceByMe msp${r[14]} pdp${r[0]}">
 													${r[15]}
-												</div>
-												<div id="partUndo${r[0]}" class="partUndo" style="position: relative; border-radius: 10px; margin-left: 730px; top: -3px; text-align: center; display: inline-block; min-width:16x; border: 1px solid blue; background: #eeccdd; cursor: pointer;">O</div>
-												<div id="ppsp${r[0]}" class="ppsp" style="display: none;">classes</div>
-												<div class="revision" id="pd${r[0]}" style="position: relative; border-radius: 10px; margin-left: 750px; top: -20px; text-align: center; display: inline-block; min-width: 16px; min-height: 16px; border: 1px solid blue; background: #00ff00; cursor: pointer;">
-													<spring:message code="editing.more" text="S" />
 												</div>
 											</c:when>
 											<c:otherwise>
-												<c:choose>
-													<c:when test="${r[13]==r[15]}">
-														<div style="border: 2px solid green; width: 750px; max-width: 750px; word-wrap:break-word; display: inline-block;" class="replaceByMe msp${r[14]} pdp${r[0]}">
-															${r[15]}
-														</div>
-													</c:when>
-													<c:otherwise>
-														<div style="border: 2px solid red; width: 750px; max-width: 750px; word-wrap:break-word; display: inline-block;" class="replaceByMe msp${r[14]} pdp${r[0]}">
-															${r[15]}
-														</div>
-													</c:otherwise>
-												</c:choose>
+												<div style="border: 2px solid red; width: 750px; max-width: 750px; word-wrap:break-word; display: inline-block;" class="replaceByMe msp${r[14]} pdp${r[0]}">
+													${r[15]}
+												</div>
 											</c:otherwise>
-										</c:choose>
-										<div class="imgId img${r[0]}" id="imgId${r[5]}" style="display: none;">
-											<img src="editing/gememberimage/${r[5]}" height="8px" class="imgIdDivImage"/>
-										</div>
-									</c:when>
+										</c:choose> --%>
+									</c:otherwise>
 								</c:choose>
+								<div class="imgId img${r[0]}" id="imgId${r[5]}" style="display: none;">
+									<img src="editing/gememberimage/${r[5]}" height="8px" class="imgIdDivImage"/>
+								</div>
 							</c:when>
 						</c:choose>
-					</td>
-				</tr>
-				<tr>
-					<td>
-						&nbsp;
-					</td>
-				</tr>
+					</c:when>
+				</c:choose>
 				<c:set var="ph" value="${r[1]}"/>
 				<c:set var="mh" value="${r[2]}"/>
 			</c:forEach>
@@ -803,6 +862,12 @@
 	</div>
 	<input type="hidden" name="editedContent" id="data" value="demo" />
 </form>
+	<div id="partDraftContainer" class="partDraftContainer" style="display: none;">
+		<div class="replaceByMe">
+			demo
+		</div>
+	</div>
+	<input type="hidden" id="userName" value="${username}" />
 	<input type="hidden" id="workflowdetails" value="${workflowdetails}" />
 	<input type="hidden" id="workflowstatus" value="${workflowstatus}" />
 	<input id="reportType" type="hidden" value="${reportType}" />
