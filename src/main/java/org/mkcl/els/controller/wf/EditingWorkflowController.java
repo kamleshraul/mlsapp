@@ -318,6 +318,10 @@ public class EditingWorkflowController extends BaseController{
 		return null;
 	}
 	
+	public static User getUser(UserGroup ug, String locale){
+		return EditingWorkflowUtility.getUser(ug, locale);
+	}
+	
 	private void populateModel(final Roster roster, 
 							final ModelMap model,
 							final HttpServletRequest request,
