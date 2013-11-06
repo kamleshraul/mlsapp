@@ -17,6 +17,7 @@ import java.util.Calendar;
 import java.util.GregorianCalendar;
 import java.util.List;
 import java.util.Locale;
+import java.util.Set;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
@@ -32,6 +33,7 @@ import org.mkcl.els.domain.DeviceType;
 import org.mkcl.els.domain.Document;
 import org.mkcl.els.domain.Grid;
 import org.mkcl.els.domain.HouseType;
+import org.mkcl.els.domain.Role;
 import org.mkcl.els.domain.Session;
 import org.mkcl.els.domain.SessionType;
 import org.mkcl.els.domain.Status;
@@ -291,11 +293,16 @@ public class WorkflowController extends BaseController {
 							}
 						}
 						model.addAttribute("workflowTypes",workflowTypes);						
-					}else if(userGroup.getUserGroupType().getType().equals(ApplicationConstants.EDITOR)
-							|| userGroup.getUserGroupType().getType().equals(ApplicationConstants.CHIEF_EDITOR)){
-						
-						model.addAttribute("usergroup", userGroup.getId());
-						model.addAttribute("usergroupType", userGroup.getUserGroupType().getType());
+					}else{
+						Set<Role> roles = userGroup.getCredential().getRoles();
+						for(Role r : roles){
+							if(r != null){
+								if(r.getType().startsWith("EDIS")){
+									model.addAttribute("usergroup", userGroup.getId());
+									model.addAttribute("usergroupType", userGroup.getUserGroupType().getType());
+								}
+							}
+						}
 					}
 				}					
 			}else{
