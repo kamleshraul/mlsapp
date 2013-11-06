@@ -747,11 +747,14 @@ public class EditingController extends GenericController<Roster>{
 				
 				if(strWfFor.equals(ApplicationConstants.MEMBER)){
 					fields.put("assigneeUserGroupType", ApplicationConstants.MEMBER);
+					fields.put("status", "PENDING");
 					wfForMemberIfAny = WorkflowDetails.findByFieldNames(WorkflowDetails.class, fields, locale.toString()); 
 				}else if(strWfFor.equals(ApplicationConstants.SPEAKER)){
 					fields.put("assigneeUserGroupType", ApplicationConstants.SPEAKER);
+					fields.put("status", "PENDING");
 					wfForSpeakerIfAny = WorkflowDetails.findByFieldNames(WorkflowDetails.class, fields, locale.toString());;
 				}
+				
 				
 				if ((strWfFor.equals(ApplicationConstants.MEMBER) && (wfForMemberIfAny == null)) 
 						|| (strWfFor.equals(ApplicationConstants.SPEAKER) && (wfForSpeakerIfAny == null))) {
@@ -827,7 +830,7 @@ public class EditingController extends GenericController<Roster>{
 								ProcessInstance processInstance = processService.createProcessInstance(processDefinition,properties);
 								Task task = processService.getCurrentTask(processInstance);
 	
-								WorkflowDetails wfDetails = EditingWorkflowUtility.create(roster.getId(),session, status, task, ApplicationConstants.APPROVAL_WORKFLOW, wfActor.getLevel().toString(),locale.toString());
+								WorkflowDetails wfDetails = EditingWorkflowUtility.create(this.getCurrentUser(), roster.getId(),session, status, task, ApplicationConstants.APPROVAL_WORKFLOW, wfActor.getLevel().toString(),locale.toString());
 							}
 
 						}
@@ -843,7 +846,7 @@ public class EditingController extends GenericController<Roster>{
 
 						ProcessInstance processInstance = processService.createProcessInstance(processDefinition,properties);
 						Task task = processService.getCurrentTask(processInstance);
-						WorkflowDetails wfDetails = EditingWorkflowUtility.create(roster.getId(), session, status, task, ApplicationConstants.APPROVAL_WORKFLOW, wfActor.getLevel().toString(), locale.toString());
+						WorkflowDetails wfDetails = EditingWorkflowUtility.create(this.getCurrentUser(), roster.getId(), session, status, task, ApplicationConstants.APPROVAL_WORKFLOW, wfActor.getLevel().toString(), locale.toString());
 					}
 					model.addAttribute("errorcode", "none");
 				}else{
@@ -860,7 +863,8 @@ public class EditingController extends GenericController<Roster>{
 class EditingWorkflowUtility{
 	private static Logger logger = LoggerFactory.getLogger(EditingWorkflowUtility.class);
 	
-	public static WorkflowDetails create(final Long rosterId, 
+	public static WorkflowDetails create(final AuthUser auser, 
+			final Long rosterId, 
 			final Session session,
 			final Status status,
 			final Task task,
@@ -888,6 +892,18 @@ class EditingWorkflowUtility{
 					workflowDetails.setAssigneeUserGroupType(userGroupType);
 					workflowDetails.setAssigneeUserGroupName(userGroupName);
 					workflowDetails.setAssigneeLevel(assigneeLevel);
+					
+					workflowDetails.setAssigner(auser.getActualUsername());
+					UserGroup auserGroup = null;
+					for(UserGroup ug : auser.getUserGroups()){
+						if(ug != null){
+							auserGroup = ug;
+							break;
+						}
+					}
+					workflowDetails.setAssignerUserGroupId(auserGroup.getId().toString());
+					workflowDetails.setAssignerUserGroupType(auserGroup.getUserGroupType().getType());
+					
 					CustomParameter customParameter=CustomParameter.findByName(CustomParameter.class,"DB_TIMESTAMP","");
 					if(customParameter!=null){
 						SimpleDateFormat format=FormaterUtil.getDateFormatter(customParameter.getValue(),"en_US");
