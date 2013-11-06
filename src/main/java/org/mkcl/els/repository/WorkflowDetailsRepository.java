@@ -330,7 +330,7 @@ public class WorkflowDetailsRepository extends BaseRepository<WorkflowDetails, S
 					" AND m.houseType=:houseType" +
 					" ORDER BY m.assignmentTime "+ApplicationConstants.DESC;
 			Query query=this.em().createQuery(strQuery);
-			query.setParameter("deviceId", resolution.getId());
+			query.setParameter("deviceId", resolution.getId().toString());
 			query.setParameter("workflowType",ApplicationConstants.RESOLUTION_APPROVAL_WORKFLOW);
 			query.setParameter("houseType", workflowHouseType);
 			WorkflowDetails workflowDetails=(WorkflowDetails) query.setMaxResults(1).getSingleResult();
