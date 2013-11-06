@@ -92,8 +92,9 @@ import org.mkcl.els.domain.Slot;
 import org.mkcl.els.domain.SupportingMember;
 import org.mkcl.els.domain.Town;
 import org.mkcl.els.domain.University;
+import org.mkcl.els.domain.User;
 import org.mkcl.els.domain.WorkflowActor;
-//import org.mkcl.els.domain.Resolution;
+import org.mkcl.els.domain.WorkflowDetails;
 import org.mkcl.els.domain.Session;
 import org.mkcl.els.domain.SessionType;
 import org.mkcl.els.domain.State;
@@ -103,11 +104,9 @@ import org.mkcl.els.domain.Tehsil;
 import org.mkcl.els.domain.UserGroup;
 import org.mkcl.els.domain.WorkflowConfig;
 import org.mkcl.els.domain.associations.HouseMemberRoleAssociation;
-import org.mkcl.els.repository.DistrictRepository;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
 import org.springframework.util.FileCopyUtils;
-import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -4284,5 +4283,52 @@ public class ReferenceController extends BaseController {
 		@RequestMapping(value="/geteditingactors",method=RequestMethod.GET)
 		public @ResponseBody List<MasterVO> getEditingActors(HttpServletRequest request, Locale locale){
 			return EditingWorkflowController.getEditingActors(request, locale);
+		}
+		
+		@RequestMapping(value="/getpartDraftsInWorkflow/{id}",method=RequestMethod.GET)
+		public @ResponseBody List getDraftsOfPartInWorkflow(@PathVariable(value="id") Long id, HttpServletRequest request, Locale locale){
+			try{
+				String strWfId = request.getParameter("wfdetailsId");
+				if(strWfId != null && !strWfId.isEmpty()){
+					WorkflowDetails wfDetails = WorkflowDetails.findById(WorkflowDetails.class, Long.valueOf(strWfId));
+					
+					String strUserGroup = request.getParameter("userGroup");
+					String strUserGroupType = request.getParameter("userGroupType");
+					
+					if(strUserGroup != null && !strUserGroup.isEmpty()
+							&& strUserGroupType != null && !strUserGroupType.isEmpty()){
+						
+						UserGroup userGroup = UserGroup.findById(UserGroup.class, Long.valueOf(strUserGroup));
+						
+						Status status = Status.findByType(wfDetails.getWorkflowSubType(), locale.toString());
+						
+						Map<String, String[]> parameters = new HashMap<String, String[]>();
+						
+						if(strUserGroupType.equals(ApplicationConstants.EDITOR)){
+							if(status.getType().equals(ApplicationConstants.EDITING_FINAL_MEMBERAPPROVAL)){
+								parameters.put("locale", new String[]{locale.toString()});
+								parameters.put("rosterId", new String[]{wfDetails.getDeviceId()});
+								UserGroup assignerUserGroup = UserGroup.findById(UserGroup.class, Long.valueOf(wfDetails.getAssignerUserGroupId()));
+								
+								User user = EditingWorkflowController.getUser(assignerUserGroup, locale.toString());
+								Member member = Member.findMember(user.getFirstName(),user.getMiddleName(), user.getLastName(), user.getBirthDate(), locale.toString());
+								parameters.put("primaryMemberId", new String[]{member.getId().toString()});
+								parameters.put("editedby", new String[]{wfDetails.getAssigner()});
+								parameters.put("partId", new String[]{id.toString()});
+								return Query.findReport("EDIS_WORKFLOW_MEMBER_SENT_DRAFTS_DESC_OF_PART", parameters);
+							}else if(status.getType().equals(ApplicationConstants.EDITING_FINAL_SPEAKERAPPROVAL)){
+								parameters.put("locale", new String[]{locale.toString()});
+								parameters.put("rosterId", new String[]{wfDetails.getDeviceId()});
+								parameters.put("editedby", new String[]{wfDetails.getAssigner()});
+								parameters.put("partId", new String[]{id.toString()});
+								return Query.findReport("EDIS_WORKFLOW_SPEAKER_SENT_DRAFTS_DESC_OF_PART", parameters);
+							}
+						}
+					}
+				}
+			}catch (Exception e) {
+				e.printStackTrace();
+			}
+			return null;
 		}
 }
