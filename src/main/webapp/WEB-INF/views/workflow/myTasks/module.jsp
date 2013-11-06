@@ -85,6 +85,11 @@
 					prependOptionToSelectedDeviceType();
 					loadSubWorkflowByModule(value);
 				}
+				/* if(value=='EDITING'){
+					$("#editingLinkDiv").show();
+				}else{
+					$("#editingLinkDiv").hide();
+				} */
 			});
 			
 			/**** Keyboard Events ****/	
@@ -118,8 +123,33 @@
 			}
 			$("#cancelFn").val("process");
 			$("#selectionDiv").hide();
-			showTabByIdAndUrl('process_tab', 'workflow/myTasks/' + row + '/process');			
-		}			
+			if($("#selectedModule").val()=='EDITING'){
+				showTabByIdAndUrl('process_tab', 'workflow/myTasks/' + row + '/process'+'?action=edited');
+			}else{
+				showTabByIdAndUrl('process_tab', 'workflow/myTasks/' + row + '/process');
+			}
+		}		
+		
+		function showEditCopyOfMember(){
+			var params='?houseType='+$("#selectedHouseType").val()
+					+ '&sessionType='+$("#selectedSessionType").val()
+					+ '&sessionYear='+$("#selectedSessionYear").val()
+					+ '&userGroup='+$("#currentusergroup").val()
+					+ '&userGroupType='+$("#currentusergroupType").val()
+					+ '&selectedSubWorkflow='+$("#selectedSubWorkflow").val()
+					+ '&action=edit';
+			showTabByIdAndUrl('process_tab', 'workflow/myTasks/' + $("#key").val() + '/process'+params);
+		}
+		function showEditCopyOfEditor(){
+			var params='?houseType='+$("#selectedHouseType").val()
+			+ '&sessionType='+$("#selectedSessionType").val()
+			+ '&sessionYear='+$("#selectedSessionYear").val()
+			+ '&userGroup='+$("#currentusergroup").val()
+			+ '&userGroupType='+$("#currentusergroupType").val()
+			+ '&selectedSubWorkflow='+$("#selectedSubWorkflow").val()
+			+ '&action=edit';
+			showTabByIdAndUrl('process_tab', 'workflow/myTasks/' + $("#key").val() + '/process'+params);
+		}
 
 		function rowDblClickHandler(row, iRow, iCol, e) {
 			/**** To maintain the grid ids to allow nextTask to be show next ***/
@@ -127,11 +157,29 @@
 			$("#persistentGridRowId").val(row);
 			$("#allRowIds").val($('#grid').jqGrid('getDataIDs'));
 			
+			
 			var row = $('#key').val();
 			$("#cancelFn").val("rowDblClickHandler");
 			$("#selectionDiv").hide();
-			showTabByIdAndUrl('process_tab', 'workflow/myTasks/' + row + '/process');
+			if($("#selectedModule").val()=='EDITING'){
+				var params = "?action=edited"
+						+"&houseType="+$("#selectedHouseType").val()
+						+"&sessionYear="+$("#selectedSessionYear").val()
+						+"&sessionType="+$("#selectedSessionType").val()
+						+"&deviceType="+$("#selectedDeviceType").val()
+						+"&userGroup="+$("#currentusergroup").val()
+						+"&userGroupType="+$("#currentusergroupType").val()
+						+"&selectedSubWorkflow="+ $("#selectedSubWorkflow").val();
+				
+				showTabByIdAndUrl('process_tab', 'workflow/myTasks/' + row + '/process'+params);
+			}else{
+				showTabByIdAndUrl('process_tab', 'workflow/myTasks/' + row + '/process');
+			}
 		}		
+		
+		function showUneditedCopy(){
+			
+		}
 		/**** reload grid ****/
 		function reloadMyTaskGrid(){
 				$("#gridURLParams").val("houseType="+$("#selectedHouseType").val()
