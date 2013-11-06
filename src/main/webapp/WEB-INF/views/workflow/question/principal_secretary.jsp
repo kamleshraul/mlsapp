@@ -926,7 +926,7 @@
 	</p>
 	</c:if>
 	
-	<c:if test="${selectedQuestionType!='questions_halfhourdiscussion_standalone' && houseTypeType=='lowerhouse'}">
+	<c:if test="${selectedQuestionType=='questions_halfhourdiscussion_standalone' && houseTypeType=='lowerhouse'}">
 		<%-- <p>
 			<a href="#" id="referencing" onclick="referencingInt(${domain.id});" style="margin-left: 162px;"><spring:message code="question.referencing" text="Referencing"></spring:message></a>
 			<a href="#" id="dereferencing" onclick="dereferencingInt(${domain.id});" style="margin: 20px;"><spring:message code="question.dereferencing" text="Dereferencing"></spring:message></a>
