@@ -9,8 +9,10 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Set;
 import java.util.UUID;
 
+import javax.management.relation.Role;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
@@ -104,8 +106,7 @@ public class EditingWorkflowController extends BaseController{
 					parameters.put("locale", new String[]{locale.toString()});
 					parameters.put("rosterId", new String[]{workflowDetails.getDeviceId()});
 					parameters.put("primaryMemberId", new String[]{member.getId().toString()});
-					parameters.put("editedby", new String[]{workflowDetails.getAssignee()});
-					parts = Query.findReport("EDIS_WORKFLOW_MEMBER_SENT_DRAFTS", parameters);
+					parts = Query.findReport("EDIS_WORKFLOW_MEMBER_SENT_DRAFTS_DESC", parameters);
 					
 				}else if(strUserGroupType.equals(ApplicationConstants.EDITOR)){
 					if(status.getType().equals(ApplicationConstants.EDITING_FINAL_MEMBERAPPROVAL)){
@@ -116,19 +117,19 @@ public class EditingWorkflowController extends BaseController{
 						member = Member.findMember(user.getFirstName(),user.getMiddleName(), user.getLastName(), user.getBirthDate(), locale.toString());
 						parameters.put("primaryMemberId", new String[]{member.getId().toString()});
 						parameters.put("editedby", new String[]{workflowDetails.getAssigner()});
-						parts = Query.findReport("EDIS_WORKFLOW_MEMBER_SENT_DRAFTS", parameters);
+						parts = Query.findReport("EDIS_WORKFLOW_MEMBER_SENT_DRAFTS_DESC", parameters);
 					}else if(status.getType().equals(ApplicationConstants.EDITING_FINAL_SPEAKERAPPROVAL)){
 						parameters.put("locale", new String[]{locale.toString()});
 						parameters.put("rosterId", new String[]{workflowDetails.getDeviceId()});
 						parameters.put("editedby", new String[]{workflowDetails.getAssigner()});
-						parts = Query.findReport("EDIS_WORKFLOW_SPEAKER_SENT_DRAFTS", parameters);
+						parts = Query.findReport("EDIS_WORKFLOW_SPEAKER_SENT_DRAFTS_DESC", parameters);
 					}
 					
 				}else{					
 					parameters.put("locale", new String[]{locale.toString()});
 					parameters.put("rosterId", new String[]{workflowDetails.getDeviceId()});
-					parameters.put("editedby", new String[]{workflowDetails.getAssignee()});
-					parts = Query.findReport("EDIS_WORKFLOW_SPEAKER_SENT_DRAFTS", parameters);
+					parameters.put("editedby", new String[]{workflowDetails.getAssigner()});
+					parts = Query.findReport("EDIS_WORKFLOW_SPEAKER_SENT_DRAFTS_DESC", parameters);
 					
 				}
 			}
@@ -234,8 +235,7 @@ public class EditingWorkflowController extends BaseController{
 			String strHouseType = request.getParameter("houseType");
 			String strSessionType = request.getParameter("sessionType");
 			String strSessionYear = request.getParameter("sessionYear");
-			String strLanguage = request.getParameter("language");
-			String strDay = request.getParameter("day");
+			String strWorkflowDetailsId = request.getParameter("workflowDetailsId");
 			
 			String strUserGroup = request.getParameter("userGroup");
 			String strUserGroupType = request.getParameter("userGroupType");
@@ -251,16 +251,16 @@ public class EditingWorkflowController extends BaseController{
 			if (strHouseType != null && !strHouseType.equals("")
 					&& strSessionType != null && !strSessionType.equals("")
 					&& strSessionYear != null && !strSessionYear.equals("")
-					&& strLanguage != null && !strLanguage.equals("")
-					&& strDay != null && !strDay.equals("")) {
+					&& strWorkflowDetailsId != null && !strWorkflowDetailsId.isEmpty()) {
 	
 				HouseType houseType = HouseType.findByFieldName(HouseType.class, "type", strHouseType,locale.toString());
 				SessionType sessionType = SessionType.findById(SessionType.class, Long.parseLong(strSessionType));
-				Language language = Language.findById(Language.class,Long.parseLong(strLanguage));
 				Session session = Session.findSessionByHouseTypeSessionTypeYear(houseType,sessionType, Integer.parseInt(strSessionYear));
-				Roster roster = Roster.findRosterBySessionLanguageAndDay(session, Integer.parseInt(strDay), language,locale.toString());
 				UserGroup userGroup = UserGroup.findById(UserGroup.class, Long.valueOf(strUserGroup));
 				UserGroupType userGroupType = userGroup.getUserGroupType();
+				WorkflowDetails wfDetails = WorkflowDetails.findById(WorkflowDetails.class, Long.valueOf(strWorkflowDetailsId));
+				Roster roster = Roster.findById(Roster.class, Long.valueOf(wfDetails.getDeviceId()));
+				
 				matchedParts = Part.findAllEligibleForReplacement(roster, strSearchTerm, strReplaceTerm, locale.toString()); 
 						//Part.findAllPartRosterSearchTerm(roster, domain.getSearchTerm(), locale.toString());//Query.findReport("EDIS_MATCHING_PARTS_FOR_REPLACEMENT", parametersMap);
 				
@@ -452,10 +452,21 @@ class EditingWorkflowUtility{
 			String strUserGroup = request.getParameter("userGroup");
 			String strUserGroupType = request.getParameter("userGroupType");
 			
-			CustomParameter actorsAllowedStatuses = CustomParameter.findByName(CustomParameter.class, "EDITING_PUTUP_OPTIONS_"+currentWorkflow.getWorkflowSubType().toUpperCase()+"_"+strUserGroupType.toUpperCase(), "");
-			if(actorsAllowedStatuses != null){
-				if(actorsAllowedStatuses.getValue() != null && !actorsAllowedStatuses.getValue().isEmpty()){
-					for(Status s : getStatuses(actorsAllowedStatuses.getValue(), locale.toString())){
+			CustomParameter actorsAllowedStatusesUserGroup = CustomParameter.findByName(CustomParameter.class, "EDITING_PUTUP_OPTIONS_"+currentWorkflow.getWorkflowSubType().toUpperCase()+"_"+strUserGroupType.toUpperCase(), "");
+			CustomParameter actorsAllowedStatusesDefualt = null;
+			CustomParameter actorsStatuses = null;
+			
+			if(actorsAllowedStatusesUserGroup != null){
+				actorsStatuses = actorsAllowedStatusesUserGroup;
+			}else{
+				actorsAllowedStatusesDefualt = CustomParameter.findByName(CustomParameter.class, "EDITING_PUTUP_OPTIONS_"+currentWorkflow.getWorkflowSubType().toUpperCase()+"_BY_DEFAULT", "");
+			}
+			
+			actorsStatuses = actorsAllowedStatusesDefualt;
+			
+			if(actorsStatuses != null){
+				if(actorsStatuses.getValue() != null && !actorsStatuses.getValue().isEmpty()){
+					for(Status s : getStatuses(actorsStatuses.getValue(), locale.toString())){
 						MasterVO vo = new MasterVO();
 						vo.setId(s.getId());
 						vo.setValue(s.getType());
@@ -748,16 +759,31 @@ class EditingWorkflowUtility{
 				flag2 = true;
 			}
 			
-			boolean flag3 = false;
+			boolean flag3 = isEditingRoleAssigned(ug);
 			
 			
 			// if all cases are met then return user
-			if(flag1 && flag2) {
+			if(flag1 && flag2 && flag3) {
 				return ug;
 			}
 		}
 		
 		return null;
+	}
+	
+	private static boolean isEditingRoleAssigned(UserGroup userGroup){
+		Credential credential = userGroup.getCredential();
+		Set<org.mkcl.els.domain.Role> roles = credential.getRoles();
+		
+		for(org.mkcl.els.domain.Role r : roles){
+			if(r != null){
+				if(r.getType().startsWith("EDIS")){
+					return true;
+				}
+			}
+		}
+		
+		return false;
 	}
 
 	public static UserGroup getUserGroup(final WorkflowDetails workflowDetails) {
