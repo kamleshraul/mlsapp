@@ -176,6 +176,7 @@ public class EditingWorkflowController extends BaseController{
 				draft.setMainHeading(part.getMainHeading());
 				draft.setPageHeading(part.getPageHeading());
 				draft.setRevisedContent(editedContent);
+				draft.setWorkflowCopy(true);
 				
 				part.getPartDrafts().add(draft);				
 				part.merge();
@@ -285,6 +286,7 @@ public class EditingWorkflowController extends BaseController{
 							pd.setRedoCount(redoCount);
 							pd.setUniqueIdentifierForUndo(UUID.randomUUID().toString());
 							pd.setUniqueIdentifierForRedo(UUID.randomUUID().toString());
+							pd.setWorkflowCopy(true);
 							
 							/****Attach undoCount and undoUID in the result list****/
 							((Object[])matchedParts.get(i))[5] = partToBeReplaced.getId().toString()+":"+pd.getUndoCount()+":"+pd.getUniqueIdentifierForUndo();
