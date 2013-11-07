@@ -327,7 +327,7 @@
 			+ '&userGroupType=' + $("#userGroupType").val();
 			
 			$("#undoCount").val((parseInt($("#undoCount").val()) + 1));				
-			
+			console.log($("#undoCount").val());
 			$.blockUI({ message: '<img src="./resources/images/waitAnimated.gif" />' });
 			
 			$.post($("form[action='editing/replace']").attr('action')+"?"+params,
