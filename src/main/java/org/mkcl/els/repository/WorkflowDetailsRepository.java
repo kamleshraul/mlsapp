@@ -5,6 +5,7 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Map.Entry;
 
 import javax.persistence.NoResultException;
@@ -1127,5 +1128,44 @@ public class WorkflowDetailsRepository extends BaseRepository<WorkflowDetails, S
 			e.printStackTrace();
 			return new WorkflowDetails();
 		}		
+	}
+	
+	public WorkflowDetails find(final Map<String, Object[]> fieldValuePair, final String locale){
+		StringBuffer query = new StringBuffer();
+		query.append("SELECT wf FROM WorkflowDetails wf");
+		query.append(" WHERE wf.locale=:locale");
+		for(Entry<String, Object[]> entry: fieldValuePair.entrySet()){
+			String key = entry.getKey();
+			String[] value = (String[])entry.getValue();
+			if(value.length > 1){
+				query.append(" AND (");
+				for(int i = 0; i < value.length; i++){
+					query.append(" wf."+key+"=:"+value[i]);
+					if(i < (value.length - 1)){
+						query.append(" OR");
+					}
+				}
+				query.append(")");
+			}else{
+				for(int i = 0; i < value.length; i++){
+					query.append(" AND wf." + key+"=:"+value[i]);	
+				}				
+			}
+		}
+		TypedQuery<WorkflowDetails> tQuery = this.em().createQuery(query.toString(), WorkflowDetails.class);
+		
+		for(Entry<String, Object[]> entry: fieldValuePair.entrySet()){
+			String[] value = (String[])entry.getValue();
+			for(int i = 0; i < value.length; i++){
+				tQuery.setParameter(value[i], value[i]);
+			}
+		}
+		
+		List<WorkflowDetails> wfs = tQuery.getResultList();
+		if(wfs != null && !wfs.isEmpty()){
+			return wfs.get(0); 
+		}
+			
+		return null;
 	}
 }
