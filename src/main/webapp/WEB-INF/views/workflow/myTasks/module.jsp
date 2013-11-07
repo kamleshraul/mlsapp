@@ -140,7 +140,7 @@
 					+ '&action=edit';
 			showTabByIdAndUrl('process_tab', 'workflow/myTasks/' + $("#key").val() + '/process'+params);
 		}
-		function showEditCopyOfEditor(){
+		function showEditCopy(){
 			var params='?houseType='+$("#selectedHouseType").val()
 			+ '&sessionType='+$("#selectedSessionType").val()
 			+ '&sessionYear='+$("#selectedSessionYear").val()
@@ -148,6 +148,16 @@
 			+ '&userGroupType='+$("#currentusergroupType").val()
 			+ '&selectedSubWorkflow='+$("#selectedSubWorkflow").val()
 			+ '&action=edit';
+			showTabByIdAndUrl('process_tab', 'workflow/myTasks/' + $("#key").val() + '/process'+params);
+		}
+		function showEditedCopy(){
+			var params='?houseType='+$("#selectedHouseType").val()
+			+ '&sessionType='+$("#selectedSessionType").val()
+			+ '&sessionYear='+$("#selectedSessionYear").val()
+			+ '&userGroup='+$("#currentusergroup").val()
+			+ '&userGroupType='+$("#currentusergroupType").val()
+			+ '&selectedSubWorkflow='+$("#selectedSubWorkflow").val()
+			+ '&action=edited';
 			showTabByIdAndUrl('process_tab', 'workflow/myTasks/' + $("#key").val() + '/process'+params);
 		}
 
