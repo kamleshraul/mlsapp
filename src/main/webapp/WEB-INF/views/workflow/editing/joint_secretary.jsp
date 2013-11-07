@@ -638,11 +638,11 @@
 			<img class="imgN" src="./resources/images/word_icon.png" alt="Export to WORD" width="33px" height="32px" title="<spring:message code='editing.editorreport.doc' text='Editor Report In Word' />">
 		</a>
 		<c:if test="${action=='edit'}">
-			<div id="reeditDiv" style="display: inline-block; float: right; margin-right: 5px;"><a href="javascript:void(0);" id="re_edit"><img src="./resources/images/refresh.png" class="imgI" alt="Re-Edit" width="24px" title="<spring:message code='editing.reedit' text='Re-edit' />" /></a></div>
+			<div id="reeditDiv" style="display: none;/*inline-block*/ float: right; margin-right: 5px;"><a href="javascript:void(0);" id="re_edit"><img src="./resources/images/refresh.png" class="imgI" alt="Re-Edit" width="24px" title="<spring:message code='editing.reedit' text='Re-edit' />" /></a></div>
 		</c:if>
 	</div>
 	<c:if test="${action=='edit'}">
-		<div id="replaceToolDiv">
+		<div id="replaceToolDiv" style="display: none;">
 			<form action="workflow/editing/replace" method="post">
 				<label style="margin: 0px 10px 0px 10px;"><spring:message code="editing.replace.searchTerm" text="Find" /></label><input type="text" id="searchTerm" name="searchTerm" value="${searchTerm}" style="border-radius: 3px; border: 1px solid #000080;" />
 				<label style="margin: 0px 10px 0px 10px;"><spring:message code="editing.replace.replaceTerm" text="Replace With" /></label><input type="text" id="replaceTerm" name="replaceTerm" value="${replaceTerm}"  style="border-radius: 3px; border: 1px solid #000080;"/>

@@ -106,9 +106,10 @@
 			width: 400px;
 			height: 262px;
 			z-index: 10000; 
-			box-shadow: 0px 2px 5px #888; 
+			box-shadow: 2px 2px 5px #888; 
 			opacity:0.8;
 			overflow: scroll;
+			padding: 5px;
 		}
 		
 		.partDraftContainer div table ul{
@@ -477,6 +478,7 @@
 						$("#partDraftContainer").empty();
 						$("#partDraftContainer").html(text);
 						$("#partDraftContainer").show();
+						$("#partDraftContainerClose").show();
 					}
 				});
 			});
@@ -628,12 +630,18 @@
 			$("#wf_edit_copy").click(function(){
 				if($("#key").val()==undefined || $("#key").val()==''){
 				}else{
-					showEditCopyOfEditor();
+					showEditCopy();
+				}
+			});
+			$("#wf_edited_copy").click(function(){
+				if($("#key").val()==undefined || $("#key").val()==''){
+				}else{
+					showEditedCopy();
 				}
 			});
 			
-			$(".replaceByMe").click(function(){
-				alert($(this).attr('id'));
+			/* $(".replaceByMe").click(function(){
+				
 				if($("#action").val()=='edit'){
 					var clasess=$(this).attr('class').split(' ');
 					var sourcePartDraftId=clasess[1].substring(3);
@@ -659,15 +667,48 @@
 						
 					});
 				}
-			});
+			}); */
 			
 			$("#partDraftContainer").click(function(e) {
 			     var element = e.target;/* .children().each(function(){
 			    	 console.log('\nid: '+$(this));
 			     }); */
 			     
-			     console.log($(element).attr('class'));
+			     //console.log($(element).attr('class').contains('replaceByMe'));
+			  
+			     if($("#action").val()=='edit'){
+						var clasess=$(element).attr('class').split(' ');
+						var sourcePartDraftId=clasess[1].substring(3);
+						var targetPartId=clasess[2].substring(3);
+											
+						var targetContent=$("#pp"+targetPartId).html();
+						var sourceContent=$(element).html();
+						$("#pp"+targetPartId).empty();
+						$("#pp"+targetPartId).html(sourceContent);
+						
+						$(element).empty();
+						$(element).html(targetContent);	
+						$("#partUndo"+targetPartId).addClass(targetPartId);
+						
+						$("#data").val(sourceContent);
+						
+						$.post('workflow/editing/mergedraftcontent?partId='+targetPartId+'&draftId='+sourcePartDraftId+'&action='+$('#action').val(), 
+								$("form[action='workflow/editing/savepart']").serialize(),function(data){
+							if(data=='SUCCESS'){
+								//$("#partDraftContainer").hide();
+							}
+						}).fail(function(){
+							
+						});
+					}
+			     
 			});
+			
+			$("#partDraftContainerClose").click(function(){
+				$(this).hide();
+				$("#partDraftContainer").hide();
+			});
+			
 			
 			$(".partUndo").click(function(){
 				var idx=$(this).attr('id').substring(8);
@@ -712,11 +753,11 @@
 			<img class="imgN" src="./resources/images/word_icon.png" alt="Export to WORD" width="33px" height="32px" title="<spring:message code='editing.editorreport.doc' text='Editor Report In Word' />">
 		</a>
 		<c:if test="${action=='edit'}">
-			<div id="reeditDiv" style="display: inline-block; float: right; margin-right: 5px;"><a href="javascript:void(0);" id="re_edit"><img src="./resources/images/refresh.png" class="imgI" alt="Re-Edit" width="24px" title="<spring:message code='editing.reedit' text='Re-edit' />" /></a></div>
+			<div id="reeditDiv" style="display: none;/*inline-block*/ float: right; margin-right: 5px;"><a href="javascript:void(0);" id="re_edit"><img src="./resources/images/refresh.png" class="imgI" alt="Re-Edit" width="24px" title="<spring:message code='editing.reedit' text='Re-edit' />" /></a></div>
 		</c:if>
 	</div>
 	<c:if test="${action=='edit'}">
-		<div id="replaceToolDiv">
+		<div id="replaceToolDiv" style="display: none;">
 			<form action="workflow/editing/replace" method="post">
 				<label style="margin: 0px 10px 0px 10px;"><spring:message code="editing.replace.searchTerm" text="Find" /></label><input type="text" id="searchTerm" name="searchTerm" value="${searchTerm}" style="border-radius: 3px; border: 1px solid #000080;" />
 				<label style="margin: 0px 10px 0px 10px;"><spring:message code="editing.replace.replaceTerm" text="Replace With" /></label><input type="text" id="replaceTerm" name="replaceTerm" value="${replaceTerm}"  style="border-radius: 3px; border: 1px solid #000080;"/>
@@ -736,27 +777,33 @@
 
 <div class="fields clearfix watermark">
 <form action="workflow/editing/savepart" method="post">
-	<div id="submitDiv">
-		<a href="javascript:void(0);" id="selectStatus"><spring:message code="editing.selectdecissivestatus" text="Status" /></a> |
-		<select id="selectedDecissiveStatus" name="decissiveStatus">
-			<option value="-"><spring:message code='please.select' text='Please Select'></spring:message></option>
-			<c:forEach items="${statuses}" var="s">
-				<option value="${s.value}">${s.name}</option>
-			</c:forEach>
-		</select>|
-		<a href="javascript:void(0);" id="selectActor"><spring:message code="editing.selectdecissiveactor" text="Actor" /></a> |
-		<select id="selectedDecissiveActor" name="decissiveActor">
-		<option value="-"><spring:message code='please.select' text='Please Select'></spring:message></option>
-		<c:forEach items="${actors}" var="a">
-			<option value="${a.value}">${a.name}</option>
-		</c:forEach>
-		</select>|
-		<c:if test="${workflowstatus!='COMPLETED'}">
+	<c:if test="${workflowstatus=='PENDING'}">
+		<div id="submitDiv" style="width: 750px; margin-left: 50px;">
+			<c:if test="${not(statuses == null) and not(empty statuses) }">
+				<a href="javascript:void(0);" id="selectStatus"><spring:message code="editing.selectdecissivestatus" text="Status" /></a> |
+				<div class="styleSelect" style="display: inline-block; margin: 5px 5px 0px 5px;">
+					<select id="selectedDecissiveStatus" name="decissiveStatus">
+						<option value="-"><spring:message code='please.select' text='Please Select'></spring:message></option>
+						<c:forEach items="${statuses}" var="s">
+							<option value="${s.value}">${s.name}</option>
+						</c:forEach>
+					</select>|
+				</div>
+				<a href="javascript:void(0);" id="selectActor"><spring:message code="editing.selectdecissiveactor" text="Actor" /></a> |
+				<div class="styleSelect" style="display: inline-block; margin: 5px 5px 0px 5px;">
+					<select id="selectedDecissiveActor" name="decissiveActor">
+					<option value="-"><spring:message code='please.select' text='Please Select'></spring:message></option>
+					<c:forEach items="${actors}" var="a">
+						<option value="${a.value}">${a.name}</option>
+					</c:forEach>
+					</select>|
+				</div>
+			</c:if>
 			<a href="javascript:void(0);" id="submit">
 				<img src="" alt="Submit Image" />
 			</a> 			
-		</c:if>
-	</div>
+		</div>
+	</c:if>
 
 	<div id="container" class="container">
 		<table id="containerTable">
@@ -802,15 +849,24 @@
 															<img src="editing/gememberimage/${r[9]}" height="16px;" class="memberImg"/>	
 														</div>
 													</c:if>:
-													<div id="pp${r[0]}" style="width: 750px; max-width: 750px; word-wrap:break-word; display: inline;" class="replaceMe">
-														${r[15]}
-													</div>
+													<c:choose>
+														<c:when test="${not(r[13]==null) and not(empty r[13])}">
+															<div id="pp${r[0]}" style="width: 750px; max-width: 750px; word-wrap:break-word; display: inline;" class="replaceMe">
+																${r[13]}
+															</div>
+														</c:when>
+														<c:otherwise>
+															<div id="pp${r[0]}" style="width: 750px; max-width: 750px; word-wrap:break-word; display: inline;" class="replaceMe">
+																${r[15]}
+															</div>
+														</c:otherwise>
+													</c:choose>
 													<c:if test="${action=='edit'}">
 														<c:if test="${r[20]!=null and not(empty r[20]) and r[20]>1}">
-															<div id="partMerger${r[0]}" class="partMerger" style="position: relative; border-radius: 10px; margin-left: 700px; top: 12px; text-align: center; display: inline-block; min-height: 16px; min-width:16x; border: 1px solid blue; background: #DE00B1; cursor: pointer;">O</div>
+															<div id="partMerger${r[0]}" class="partMerger" style="position: relative; width: 16px; height: 16px; border-radius: 16px; margin-left: 700px; top: 15px; text-align: center; display: inline-block; min-height: 16px; min-width:16x; border: 1px solid blue; background: #DE00B1; cursor: pointer;">O</div>
 														</c:if>
 													</c:if>
-													<div id="partUndo${r[0]}" class="partUndo" style="position: relative; border-radius: 10px; margin-left: 730px; top: -3px; text-align: center; display: inline-block; min-height: 16px; min-width:16x; border: 1px solid blue; background: #eeccdd; cursor: pointer;">O</div>
+													<div id="partUndo${r[0]}" class="partUndo" style="position: relative; width: 16px; height: 16px; border-radius: 16px; margin-left: 725px; top: -3px; text-align: center; display: inline-block; min-height: 16px; min-width:16x; border: 1px solid blue; background: #eeccdd; cursor: pointer;">O</div>
 													<div id="ppsp${r[0]}" class="ppsp" style="display: none;">classes</div>
 													<div class="revision" id="pd${r[0]}" style="position: relative; border-radius: 10px; margin-left: 750px; top: -20px; text-align: center; display: inline-block; min-width: 16px; min-height: 16px; border: 1px solid blue; background: #00ff00; cursor: pointer;">
 														<spring:message code="editing.more" text="S" />
@@ -867,6 +923,7 @@
 			demo
 		</div>
 	</div>
+	<div id="partDraftContainerClose" style="display: none; background: red scroll; width:16px; height: 16px; float: right; text-align: center; border-radius:16px; box-shadow: 1px 1px 2px #000; position: fixed;left: 436px; top: 135px; z-index:19991; cursor: pointer;"><b>X</b></div>
 	<input type="hidden" id="userName" value="${username}" />
 	<input type="hidden" id="workflowdetails" value="${workflowdetails}" />
 	<input type="hidden" id="workflowstatus" value="${workflowstatus}" />
