@@ -312,6 +312,10 @@ public class WorkflowDetails extends BaseDomain implements Serializable{
 		return getWorkflowDetailsRepository().create(resolution,task,workflowType,
 				assigneeLevel, houseTypeForWorkflow);
 	}
+	
+	public static WorkflowDetails find(final Map<String, Object[]> fieldValuePair, final String locale){
+		return getWorkflowDetailsRepository().find(fieldValuePair, locale);
+	}
 
 	public void setAssigneeUserGroupName(String assigneeUserGroupName) {
 		this.assigneeUserGroupName = assigneeUserGroupName;

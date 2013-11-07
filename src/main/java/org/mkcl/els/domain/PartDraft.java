@@ -57,6 +57,8 @@ public class PartDraft extends BaseDomain implements Serializable {
 	
 	private boolean isSpeakerSentCopy;
 	
+	private boolean isWorkflowCopy;
+	
 	public PartDraft() {
 		super();
 	}
@@ -183,5 +185,15 @@ public class PartDraft extends BaseDomain implements Serializable {
 	 */
 	public void setSpeakerSentCopy(boolean isSpeakerSentCopy) {
 		this.isSpeakerSentCopy = isSpeakerSentCopy;
-	}	
+	}
+
+	public boolean isWorkflowCopy() {
+		return isWorkflowCopy;
+	}
+
+	public void setWorkflowCopy(boolean isWorkflowCopy) {
+		this.isWorkflowCopy = isWorkflowCopy;
+	}
+	
+	
 }
