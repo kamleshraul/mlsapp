@@ -319,10 +319,17 @@ public class EditingController extends GenericController<Roster>{
 									String strId = (((Object[])result.get(i))[20]).toString();
 									Part partToDel = Part.findById(Part.class, Long.valueOf(strId));
 									partToDel.setEditedContent("");
+									List<PartDraft> pds = partToDel.getPartDrafts();
+									
 									for(PartDraft pd : partToDel.getPartDrafts()){
-										boolean success = pd.remove();
+										if(!pd.isWorkflowCopy()){
+											pds.remove(pd);											
+											boolean success = pd.remove();										
+										}
 									}
+									
 									partToDel.setPartDrafts(null);
+									partToDel.setPartDrafts(pds);
 									partToDel.merge();
 									
 								}
@@ -397,6 +404,7 @@ public class EditingController extends GenericController<Roster>{
 				draft.setMainHeading(part.getMainHeading());
 				draft.setPageHeading(part.getPageHeading());
 				draft.setRevisedContent(editedContent);
+				draft.setWorkflowCopy(false);
 				
 				part.getPartDrafts().add(draft);
 				part.setEditedContent(editedContent);
@@ -542,6 +550,7 @@ public class EditingController extends GenericController<Roster>{
 							pd.setRedoCount(redoCount);
 							pd.setUniqueIdentifierForUndo(UUID.randomUUID().toString());
 							pd.setUniqueIdentifierForRedo(UUID.randomUUID().toString());
+							pd.setWorkflowCopy(false);
 							
 							/****Attach undoCount and undoUID in the result list****/
 							((Object[])matchedParts.get(i))[5] = partToBeReplaced.getId().toString()+":"+pd.getUndoCount()+":"+pd.getUniqueIdentifierForUndo();
@@ -566,21 +575,37 @@ public class EditingController extends GenericController<Roster>{
 	
 	@Transactional
 	@RequestMapping(value="/undolastchange",method=RequestMethod.POST)
-	public @ResponseBody MasterVO doUndo(HttpServletRequest request, PartDraft domain, HttpServletResponse response, Locale locale){
+	public @ResponseBody MasterVO doUndo(HttpServletRequest request, HttpServletResponse response, Locale locale){
 		MasterVO masterVO = null;
-		Map<String, String> parameters = new HashMap<String, String>();
-		parameters.put("locale", locale.toString());
-		parameters.put("uniqueIdentifierForUndo", domain.getUniqueIdentifierForUndo());
-		parameters.put("undoCount", domain.getUndoCount().toString());
-		parameters.put("editedOn", (new Date()).toString());
-		parameters.put("editedBy", this.getCurrentUser().getActualUsername());
-		PartDraft pd = PartDraft.findByFieldNames(PartDraft.class, parameters, locale.toString());
-		if(pd != null){
-			masterVO = new MasterVO();
-			masterVO.setId(pd.getId());
-			masterVO.setValue(pd.getOriginalText());
+		try{
+			Map<String, String[]> parameters = new HashMap<String, String[]>();
+			String strUniqueUndoId = request.getParameter("uniqueIdentifierForUndo");
+			String strUndoCount = request.getParameter("undoCount");
+			
+			if(strUniqueUndoId != null && !strUniqueUndoId.isEmpty()
+					&& strUndoCount != null && !strUndoCount.isEmpty()){
+				parameters.put("locale", new String[]{locale.toString()});
+				parameters.put("uniqueIdentifierForUndo", new String[]{strUniqueUndoId});
+				parameters.put("undoCount", new String[]{strUndoCount});
+				parameters.put("editedOn", new String[]{(new Date()).toString()});
+				parameters.put("editedBy", new String[]{this.getCurrentUser().getActualUsername()});
+				List pds = Query.findReport("EDIS_FIND_PART_DRAFTS", parameters);
+				if(pds != null){
+					for(Object o : pds){
+						Object[] pd = (Object[])o;
+						
+						masterVO = new MasterVO();
+						masterVO.setId(Long.valueOf(pd[0].toString()));
+						masterVO.setValue(pd[1].toString());
+					}
+				}
+				
+				return masterVO;
+			}
+		}catch(Exception e){
+			e.printStackTrace();
 		}
-		return masterVO;
+		return null;
 	}
 	
 	
@@ -739,25 +764,23 @@ public class EditingController extends GenericController<Roster>{
 				Roster roster = Roster.findRosterBySessionLanguageAndDay(session, Integer.parseInt(strDay), language,locale.toString());
 				UserGroup userGroup = UserGroup.findById(UserGroup.class, Long.valueOf(strUserGroup));
 				
-				Map<String, String> fields = new HashMap<String, String>();
-				fields.put("deviceId", roster.getId().toString());
+				Map<String, Object[]> fields = new HashMap<String, Object[]>();
+				fields.put("deviceId", new Object[]{roster.getId()});
 				
-				WorkflowDetails wfForMemberIfAny = null;
-				WorkflowDetails wfForSpeakerIfAny = null;
+				WorkflowDetails wfIfAny = null;
 				
 				if(strWfFor.equals(ApplicationConstants.MEMBER)){
-					fields.put("assigneeUserGroupType", ApplicationConstants.MEMBER);
-					fields.put("status", "PENDING");
-					wfForMemberIfAny = WorkflowDetails.findByFieldNames(WorkflowDetails.class, fields, locale.toString()); 
+					fields.put("workflowSubType", new Object[]{ApplicationConstants.EDITING_RECOMMEND_MEMBERAPPROVAL, ApplicationConstants.EDITING_FINAL_MEMBERAPPROVAL});
+					 
 				}else if(strWfFor.equals(ApplicationConstants.SPEAKER)){
-					fields.put("assigneeUserGroupType", ApplicationConstants.SPEAKER);
-					fields.put("status", "PENDING");
-					wfForSpeakerIfAny = WorkflowDetails.findByFieldNames(WorkflowDetails.class, fields, locale.toString());;
+					fields.put("workflowSubType", new Object[]{ApplicationConstants.EDITING_RECOMMEND_SPEAKERAPPROVAL, ApplicationConstants.EDITING_FINAL_SPEAKERAPPROVAL});
 				}
 				
+				fields.put("status", new Object[]{ApplicationConstants.MYTASK_PENDING, ApplicationConstants.MYTASK_COMPLETED});				
+				wfIfAny = WorkflowDetails.find(fields, locale.toString());
 				
-				if ((strWfFor.equals(ApplicationConstants.MEMBER) && (wfForMemberIfAny == null)) 
-						|| (strWfFor.equals(ApplicationConstants.SPEAKER) && (wfForSpeakerIfAny == null))) {
+				
+				if (wfIfAny == null) {
 					
 					List<Part> parts = Part.findAllPartOfProceedingOfRoster(roster, true, locale.toString());
 					for (Part p : parts) {
@@ -778,6 +801,7 @@ public class EditingController extends GenericController<Roster>{
 							pd.setLocale(locale.toString());
 							pd.setMainHeading(p.getMainHeading());
 							pd.setPageHeading(p.getPageHeading());
+							pd.setWorkflowCopy(true);
 							
 							if(p.getEditedContent() != null && !p.getEditedContent().isEmpty()){
 								pd.setRevisedContent(p.getEditedContent());
