@@ -461,7 +461,7 @@
 						'QIS_DEPUTY_SECRETARY', 'QIS_PRINCIPAL_SECRETARY', 'QIS_SPEAKER', 'QIS_JOINT_SECRETARY',
 						'QIS_SECRETARY', 'QIS_OFFICER_ON_SPECIAL_DUTY', 'QIS_DEPUTY_SPEAKER', 'QIS_CHAIRMAN',
 						'QIS_DEPUTY_CHAIRMAN', 'QIS_SECTION_OFFICER', 'QIS_UNDER_SECRETARY_COMMITTEE',
-						'SUPER_ADMIN','HDS_ASSISTANT','QIS_ADMIN')">
+						'SUPER_ADMIN','HDS_ASSISTANT','QIS_ADMIN','QIS_ADDITIONAL_SECRETARY')">
 					<li><a id="rotationorder_tab" href="#" class="tab"> <spring:message
 								code="question.rotationorder" text="Rotation Order"></spring:message>
 					</a></li>
@@ -472,7 +472,7 @@
 				access="hasAnyRole('QIS_ASSISTANT', 'QIS_UNDER_SECRETARY',
 				'QIS_DEPUTY_SECRETARY', 'QIS_PRINCIPAL_SECRETARY', 'QIS_JOINT_SECRETARY',
 				'QIS_SECRETARY', 'QIS_OFFICER_ON_SPECIAL_DUTY', 'QIS_SECTION_OFFICER', 
-				'QIS_UNDER_SECRETARY_COMMITTEE','SUPER_ADMIN','HDS_ASSISTANT')">
+				'QIS_UNDER_SECRETARY_COMMITTEE','SUPER_ADMIN','HDS_ASSISTANT','QIS_ADDITIONAL_SECRETARY')">
 				<li><a id="chart_tab" href="#" class="tab"> <spring:message
 							code="question.chart" text="Chart"></spring:message>
 				</a></li>
@@ -483,7 +483,7 @@
 				'QIS_DEPUTY_SECRETARY','QIS_SPEAKER', 'QIS_JOINT_SECRETARY','QIS_PRINCIPAL_SECRETARY',
 				'QIS_SECRETARY', 'QIS_OFFICER_ON_SPECIAL_DUTY', 'QIS_DEPUTY_SPEAKER', 'QIS_CHAIRMAN',
 				'QIS_DEPUTY_CHAIRMAN', 'QIS_SECTION_OFFICER', 'QIS_UNDER_SECRETARY_COMMITTEE',
-				'SUPER_ADMIN')">
+				'SUPER_ADMIN','QIS_ADDITIONAL_SECRETARY')">
 				<c:if test="${houseType=='upperhouse'}">
 					<li><a id="memberballot_tab" href="#" class="tab"> <spring:message
 								code="question.memberballot" text="Member Ballot"></spring:message>
@@ -501,7 +501,7 @@
 				'QIS_DEPUTY_SECRETARY','QIS_PRINCIPAL_SECRETARY','QIS_SPEAKER', 'QIS_JOINT_SECRETARY',
 				'QIS_SECRETARY', 'QIS_OFFICER_ON_SPECIAL_DUTY', 'QIS_DEPUTY_SPEAKER', 'QIS_CHAIRMAN',
 				'QIS_DEPUTY_CHAIRMAN', 'QIS_SECTION_OFFICER', 'QIS_UNDER_SECRETARY_COMMITTEE',
-				'SUPER_ADMIN','HDS_ASSISTANT')">
+				'SUPER_ADMIN','HDS_ASSISTANT','QIS_ADDITIONAL_SECRETARY')">
 
 				<li><a id="ballot_tab" href="#" class="tab"> <spring:message
 							code="question.ballot" text="Ballot"></spring:message>
@@ -610,7 +610,7 @@
 			'QIS_SECTION_OFFICER','QIS_UNDER_SECRETARY_COMMITTEE','RIS_ASSISTANT','HDS_ASSISTANT','HDS_UNDER_SECRETARY',
 			'HDS_DEPUTY_SECRETARY','HDS_PRINCIPAL_SECRETARY','HDS_SPEAKER','HDS_JOINT_SECRETARY',
 			'HDS_SECRETARY','HDS_OFFICER_ON_SPECIAL_DUTY','HDS_DEPUTY_SPEAKER','HDS_CHAIRMAN','HDS_DEPUTY_CHAIRMAN',
-			'HDS_SECTION_OFFICER','HDS_UNDER_SECRETARY_COMMITTEE')">
+			'HDS_SECTION_OFFICER','HDS_UNDER_SECRETARY_COMMITTEE','QIS_ADDITIONAL_SECRETARY')">
 				<hr>
 				<c:if
 					test="${questionTypeType!='questions_halfhourdiscussion_standalone'}">
