@@ -80,6 +80,9 @@ public class MemberBallot extends BaseDomain implements Serializable {
 
 	/** The position. */
 	private Integer position;
+	
+	/** The position. */
+	private Integer pseudoPosition;
 
 	/** The attendance. */
 	private Boolean attendance;	
@@ -477,4 +480,17 @@ public class MemberBallot extends BaseDomain implements Serializable {
 	public String getCreatedAs() {
 		return createdAs;
 	}
+
+
+	public void setPseudoPosition(Integer pseudoPosition) {
+		this.pseudoPosition = pseudoPosition;
+	}
+
+
+	public Integer getPseudoPosition() {
+		return pseudoPosition;
+	}
+
+
+	
 }
