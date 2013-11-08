@@ -169,7 +169,7 @@
 																	<c:when test="${r[12] !=null}">
 																		<c:choose>
 																			<c:when test="${r[13]!=null }">
-																				&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<b>${${r[15]} (${r[11]}) (${r[10]}),r[17]} (${r[12]}) (${r[13]}) ${inplaceOf}: </b> ${r[0]}
+																				&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<b>${r[15]} (${r[11]}) (${r[10]}),r[17]} (${r[12]}) (${r[13]}) ${inplaceOf}: </b> ${r[0]}
 																			</c:when>
 																			<c:otherwise>
 																				&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<b> ${r[15]} (${r[11]}) (${r[10]}),${r[17]} (${r[12]}) ${inplaceOf}:</b> ${r[0]}
