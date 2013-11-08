@@ -173,8 +173,15 @@
 						scrollTop();
 					});	
 				}else{
-					/* $.blockUI({ message: '<img src="./resources/images/Ballot06.gif" />' }); */						
-					$.blockUI({ message: '<img src="./resources/images/Ballot06.gif" />' ,centerY: false, 
+					/* $.blockUI({ message: '<img src="./resources/images/Ballot06.gif" />' }); */
+					var pa=$("#selectedAttendance").val();
+					var img="Ballot";
+					if(pa=='true'){
+						img+="Present_"+$("#selectedRound").val();
+					}else if(pa=='false'){
+						img+="Absent_"+$("#selectedRound").val();
+					}
+					$.blockUI({ message: '<img src="./resources/images/'+ img +'.gif" />' ,centerY: false, 
 			            css: { top: '90px'} });	
 					var resourceURL2 = 'ballot/memberballot/view?'+ parameters;
 					$.get(resourceURL2,function(data){
