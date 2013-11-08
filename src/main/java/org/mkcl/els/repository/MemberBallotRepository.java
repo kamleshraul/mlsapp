@@ -135,7 +135,7 @@ public class MemberBallotRepository extends BaseRepository<MemberBallot, Seriali
 				}
 			}	
 			/*****  Controlling how to randomize the input *******/
-			if(round==1||attendance==false){
+			if(round==1){
 				input=MemberBallotAttendance.findMembersByAttendance(session,deviceType,attendance,round,locale);
 				Collections.shuffle(input);
 			}else{
@@ -155,6 +155,7 @@ public class MemberBallotRepository extends BaseRepository<MemberBallot, Seriali
 				}
 			}
 			Date date=new Date();
+			int count=1;
 			for(Member i:input){
 				MemberBallot memberBallot=new MemberBallot();
 				memberBallot.setSession(session);
@@ -167,8 +168,10 @@ public class MemberBallotRepository extends BaseRepository<MemberBallot, Seriali
 				memberBallot.setLocale(locale);
 				memberBallot.setCreatedAs(createdAs);
 				memberBallot.setCreatedBy(createdBy);
+				memberBallot.setPseudoPosition(count);
 				memberBallot.persist();
 				order++;
+				count++;
 			}
 			
 			String query="UPDATE MemberBallotAttendance m" +
@@ -210,8 +213,10 @@ public class MemberBallotRepository extends BaseRepository<MemberBallot, Seriali
 			Collections.shuffle(inputMembers);
 			/**** Check How Many Positions Cannot Be Same ****/
 			int noOfUniquePositions=0;
-			if(inputMembers.size()>=round){
-				noOfUniquePositions=inputMembers.size()/round;
+			if(inputMembers.size()>=round && attendance==true){
+				noOfUniquePositions=(int) Math.floor(inputMembers.size()/round);
+			}else{
+				noOfUniquePositions=(int) Math.floor(inputMembers.size()/round);
 			}
 			for(Member i:inputMembers){
 				Boolean unique=membersNotPrsentAtPositionX(session,deviceType,attendance,round,i,noOfUniquePositions,locale);
@@ -298,9 +303,9 @@ public class MemberBallotRepository extends BaseRepository<MemberBallot, Seriali
 				roundQuery.append("mb.round="+i+" OR ");
 			}
 			roundQuery.delete(roundQuery.length()-3,roundQuery.length()-1);
-			StringBuffer positionQuery=new StringBuffer();
+			StringBuffer positionQuery=new StringBuffer();			
 			for(int i=1;i<=noOfUniquePositions;i++){
-				positionQuery.append("mb.position="+i+" OR ");
+				positionQuery.append("mb.pseudoPosition="+i+" OR ");
 			}
 			String finalQuery=null;
 			if(positionQuery!=null&&!positionQuery.toString().isEmpty()){
