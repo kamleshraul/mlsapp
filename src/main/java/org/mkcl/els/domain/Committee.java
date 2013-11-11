@@ -258,6 +258,59 @@ public class Committee extends BaseDomain implements Serializable {
 		return Committee.getRepository().find(committeeName, 
 				formationDate, locale);
 	}
+
+	/**
+	 * On any given date, only one Committee instance is active
+	 * for the given @param committeeName. Besides a Committee
+	 * is said to be active on a given date only if 
+	 * 1) the given date lies between committee's formationDate 
+	 * & dissolutionDate.
+	 * 2) committee's status >= "COMMITTEE_MEMBERS_ADDED"
+	 */
+	public static Committee findActiveCommittee(
+			final CommitteeName committeeName,
+			final Date onDate, 
+			final String locale) {
+		Status status = Status.findByType(
+				ApplicationConstants.COMMITTEE_MEMBERS_ADDED, locale);
+		return Committee.getRepository().findActiveCommittee(committeeName, 
+				status, onDate, locale);
+	}
+	
+	/**
+	 * A Committee is said to be active on a given date only if 
+	 * 1) the given date lies between committee's formationDate 
+	 * & dissolutionDate.
+	 * 2) committee's status >= "COMMITTEE_MEMBERS_ADDED"
+	 */
+	final public static List<Committee> findActiveCommittees(
+			final Date onDate, 
+			final String locale) {
+		Status status = Status.findByType(
+				ApplicationConstants.COMMITTEE_MEMBERS_ADDED, locale);
+		return Committee.getRepository().findActiveCommittees(status, 
+				onDate, locale);
+	}
+	
+	/**
+	 * If @param isIncludeBothHouseType is true then search for 
+	 * all active Committees (status >= "COMMITTEE_MEMBERS_ADDED") 
+	 * and houseType is either @param houseType OR BOTHHOUSE.
+	 * 
+	 * If @param isIncludeBothHouseType is false then search for 
+	 * all active Committees (status >= "COMMITTEE_MEMBERS_ADDED") 
+	 * and houseType is @param houseType.
+	 */
+	public static List<Committee> findActiveCommittees(
+			final HouseType houseType,
+			final Boolean isIncludeBothHouseType,
+			final Date onDate, 
+			final String locale) {
+		Status status = Status.findByType(
+				ApplicationConstants.COMMITTEE_MEMBERS_ADDED, locale);
+		return Committee.getRepository().findActiveCommittees(houseType, 
+				status, isIncludeBothHouseType,	onDate, locale);
+	}
 	
 	/**
 	 * If @param isIncludeBothHouseType is true then search for 
