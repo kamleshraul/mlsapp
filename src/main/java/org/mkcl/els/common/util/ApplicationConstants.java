@@ -61,6 +61,8 @@ public class ApplicationConstants {
 
 	/** The Constant DB_DATEFORMAT. */
 	public static final String DB_DATEFORMAT="yyyy-MM-dd";
+	
+	public static final String DB_DATETIME_FORMAT="yyyy-MM-dd hh:mm:ss";
 
 	/** The Constant en_US_DAUGHTER. */
 	public static final String DAUGHTER="Daughter";
