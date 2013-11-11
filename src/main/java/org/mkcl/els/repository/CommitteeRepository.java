@@ -31,6 +31,68 @@ public class CommitteeRepository extends BaseRepository<Committee, Long> {
 		return committee;
 	}
 	
+	public Committee findActiveCommittee(final CommitteeName committeeName,
+			final Status status,
+			final Date onDate, 
+			final String locale) {
+		Search search = new Search();
+		search.addFilterEqual("committeeName", committeeName);
+		search.addFilterGreaterOrEqual("status.priority", status.getPriority());
+		search.addFilterLessOrEqual("formationDate", onDate);
+		search.addFilterGreaterOrEqual("dissolutionDate", onDate);
+		search.addFilterEqual("locale", locale);
+		Committee committee = this.searchUnique(search);
+		return committee;
+	}
+	
+	public List<Committee> findActiveCommittees(final Status status,
+			final Date onDate, 
+			final String locale) {
+		Search search = new Search();
+		search.addFilterGreaterOrEqual("status.priority", status.getPriority());
+		search.addFilterLessOrEqual("formationDate", onDate);
+		search.addFilterGreaterOrEqual("dissolutionDate", onDate);
+		search.addFilterEqual("locale", locale);
+		List<Committee> committees = this.search(search);
+		return committees;
+	}
+	
+	public List<Committee> findActiveCommittees(final HouseType houseType,
+			final Status status, 
+			final Boolean isIncludeBothHouseType, 
+			final Date onDate,
+			final String locale) {
+		CustomParameter parameter = 
+			CustomParameter.findByName(CustomParameter.class, 
+					"DB_DATEFORMAT", "");
+		String strOnDate = FormaterUtil.formatDateToString(
+				onDate, parameter.getValue());
+		
+		HouseType[] houseTypes = new HouseType[]{houseType};
+		if(isIncludeBothHouseType) {
+			HouseType bothHouseType = 
+				HouseType.findByType(ApplicationConstants.BOTH_HOUSE, locale);
+			houseTypes = new HouseType[]{houseType, bothHouseType};
+		}
+		
+		StringBuffer query = new StringBuffer();
+		query.append("SELECT c" +
+				" FROM Committee c JOIN c.committeeName cn" +
+				" JOIN cn.committeeType ct JOIN ct.houseType ht" +
+				" WHERE c.status.priority >=" + status.getPriority() +
+				" AND c.formationDate <= '" + strOnDate + "'" +
+				" AND c.dissolutionDate >= '" + strOnDate + "'" +
+				" AND c.locale = '" + locale + "'");
+		
+		String houseTypesFilter = this.getHouseTypesFilter(houseTypes);
+		query.append(houseTypesFilter);
+		
+		TypedQuery<Committee> tQuery = 
+			this.em().createQuery(query.toString(), Committee.class);
+		List<Committee> committees = tQuery.getResultList();
+		return committees;
+	}
+	
 	public List<Committee> findCommitteesToBeProcessed(
 			final HouseType houseType,
 			final PartyType partyType,
@@ -40,7 +102,7 @@ public class CommitteeRepository extends BaseRepository<Committee, Long> {
 		CustomParameter parameter = 
 			CustomParameter.findByName(CustomParameter.class, 
 					"DB_DATEFORMAT", "");
-		String strDissolutionDate = FormaterUtil.formatDateToString(
+		String strCurrentDate = FormaterUtil.formatDateToString(
 				currentDate, parameter.getValue());
 		
 		Status status = 
@@ -58,7 +120,8 @@ public class CommitteeRepository extends BaseRepository<Committee, Long> {
 				" FROM Committee c JOIN c.committeeName cn" +
 				" JOIN cn.committeeType ct JOIN ct.houseType ht" +
 				" WHERE c.status.id =" + status.getId() +
-				" AND c.dissolutionDate >= '" + strDissolutionDate + "'" +
+				" AND c.formationDate <= '" + strCurrentDate + "'" +
+				" AND c.dissolutionDate >= '" + strCurrentDate + "'" +
 				" AND c.locale = '" + locale + "'");
 		
 		String houseTypeType = houseType.getType();
@@ -97,7 +160,7 @@ public class CommitteeRepository extends BaseRepository<Committee, Long> {
 		CustomParameter parameter = 
 			CustomParameter.findByName(CustomParameter.class, 
 					"DB_DATEFORMAT", "");
-		String strDissolutionDate = FormaterUtil.formatDateToString(
+		String strCurrentDate = FormaterUtil.formatDateToString(
 				currentDate, parameter.getValue());
 				
 		Status status = Status.findByType(
@@ -115,7 +178,8 @@ public class CommitteeRepository extends BaseRepository<Committee, Long> {
 				" FROM Committee c JOIN c.committeeName cn" +
 				" JOIN cn.committeeType ct JOIN ct.houseType ht" +
 				" WHERE c.status.id =" + status.getId() +
-				" AND c.dissolutionDate >= '" + strDissolutionDate + "'" +
+				" AND c.formationDate <= '" + strCurrentDate + "'" +
+				" AND c.dissolutionDate >= '" + strCurrentDate + "'" +
 				" AND c.locale = '" + locale + "'");
 		if(houseType.getType().equals(ApplicationConstants.LOWER_HOUSE)) {
 			query.append(" AND c.internalStatusIMLH.id = " + null);
