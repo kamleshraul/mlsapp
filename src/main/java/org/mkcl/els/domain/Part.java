@@ -188,6 +188,10 @@ public class Part  extends BaseDomain implements Serializable{
 	public static List<Part> findAllPartsOfMemberOfRoster(final Roster roster, final String locale){
 		return getPartRepository().findAllPartsOfMemberOfRoster(roster, locale);
 	}
+		
+	public static List<PartDraft> findAllNonWorkflowDraftsOfPart(final Part part, final String locale){
+		return getPartRepository().findAllNonWorkflowDraftsOfPart(part, locale);
+	}
 	
 	/****Getters and Setters****/
 	public Integer getOrderNo() {
