@@ -1,7 +1,10 @@
 package org.mkcl.els.controller.edis;
 
+import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.OutputStream;
 import java.io.UnsupportedEncodingException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -32,11 +35,13 @@ import org.mkcl.els.controller.GenericController;
 import org.mkcl.els.domain.Credential;
 import org.mkcl.els.domain.CustomParameter;
 import org.mkcl.els.domain.Document;
+import org.mkcl.els.domain.Doom;
 import org.mkcl.els.domain.HouseType;
 import org.mkcl.els.domain.Language;
 import org.mkcl.els.domain.Member;
 import org.mkcl.els.domain.Part;
 import org.mkcl.els.domain.PartDraft;
+import org.mkcl.els.domain.Party;
 import org.mkcl.els.domain.Query;
 import org.mkcl.els.domain.Role;
 import org.mkcl.els.domain.Roster;
@@ -49,7 +54,9 @@ import org.mkcl.els.domain.UserGroupType;
 import org.mkcl.els.domain.WorkflowActor;
 import org.mkcl.els.domain.WorkflowConfig;
 import org.mkcl.els.domain.WorkflowDetails;
+import org.mkcl.els.domain.associations.MemberPartyAssociation;
 import org.mkcl.els.service.IProcessService;
+import org.mkcl.els.service.impl.ReportServiceImpl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -320,16 +327,8 @@ public class EditingController extends GenericController<Roster>{
 									Part partToDel = Part.findById(Part.class, Long.valueOf(strId));
 									partToDel.setEditedContent("");
 									List<PartDraft> pds = partToDel.getPartDrafts();
-									
-									for(PartDraft pd : partToDel.getPartDrafts()){
-										if(!pd.isWorkflowCopy()){
-											pds.remove(pd);											
-											boolean success = pd.remove();										
-										}
-									}
-									
-									partToDel.setPartDrafts(null);
-									partToDel.setPartDrafts(pds);
+									partToDel.setPartDrafts(null);															
+									partToDel.setPartDrafts(Part.findAllNonWorkflowDraftsOfPart(partToDel, locale.toString()));
 									partToDel.merge();
 									
 								}
@@ -574,8 +573,8 @@ public class EditingController extends GenericController<Roster>{
 	}
 	
 	@Transactional
-	@RequestMapping(value="/undolastchange",method=RequestMethod.POST)
-	public @ResponseBody MasterVO doUndo(HttpServletRequest request, HttpServletResponse response, Locale locale){
+	@RequestMapping(value="/undolastchange/{partid}",method=RequestMethod.POST)
+	public @ResponseBody MasterVO doUndo(@PathVariable(value="partid") Long id, HttpServletRequest request, HttpServletResponse response, Locale locale){
 		MasterVO masterVO = null;
 		try{
 			Map<String, String[]> parameters = new HashMap<String, String[]>();
@@ -587,7 +586,7 @@ public class EditingController extends GenericController<Roster>{
 				parameters.put("locale", new String[]{locale.toString()});
 				parameters.put("uniqueIdentifierForUndo", new String[]{strUniqueUndoId});
 				parameters.put("undoCount", new String[]{strUndoCount});
-				parameters.put("editedOn", new String[]{(new Date()).toString()});
+				parameters.put("editedOn", new String[]{FormaterUtil.formatDateToString(new Date(), ApplicationConstants.DB_DATEFORMAT)});
 				parameters.put("editedBy", new String[]{this.getCurrentUser().getActualUsername()});
 				List pds = Query.findReport("EDIS_FIND_PART_DRAFTS", parameters);
 				if(pds != null){
@@ -598,6 +597,9 @@ public class EditingController extends GenericController<Roster>{
 						masterVO.setId(Long.valueOf(pd[0].toString()));
 						masterVO.setValue(pd[1].toString());
 					}
+					Part pp = Part.findById(Part.class, id);
+					pp.setEditedContent(masterVO.getValue());
+					pp.merge();
 				}
 				
 				return masterVO;
@@ -776,6 +778,9 @@ public class EditingController extends GenericController<Roster>{
 					fields.put("workflowSubType", new Object[]{ApplicationConstants.EDITING_RECOMMEND_SPEAKERAPPROVAL, ApplicationConstants.EDITING_FINAL_SPEAKERAPPROVAL});
 				}
 				
+				fields.put("sessionType", new Object[]{session.getType().getSessionType()});
+				fields.put("sessionYear", new Object[]{FormaterUtil.formatNumberNoGrouping(Integer.valueOf(strSessionYear), locale.toString())});
+				fields.put("houseType", new Object[]{session.getHouse().getType().getName()});
 				fields.put("status", new Object[]{ApplicationConstants.MYTASK_PENDING, ApplicationConstants.MYTASK_COMPLETED});				
 				wfIfAny = WorkflowDetails.find(fields, locale.toString());
 				
@@ -881,7 +886,56 @@ public class EditingController extends GenericController<Roster>{
 			e.printStackTrace();
 		}
 		return form;
-	}	
+	}
+	
+	@Transactional
+	@RequestMapping(value="/generatephotos/{id}",method=RequestMethod.GET)
+	public void generatePhotos(@PathVariable(value="id") Long id, HttpServletRequest request, Locale locale){
+		try{
+			Party party = Party.findById(Party.class, id);
+			
+			List<Member> members = new ArrayList<Member>();
+			
+			for(MemberPartyAssociation mpa : party.getMemberPartyAssociations()){
+				members.add(mpa.getMember());
+			}
+
+			String base = EditingController.class.getClassLoader().getResource("fop_storage").getPath().replaceAll("%20", " ").replaceFirst("/", "") + "memImg";
+			File imgDirectory = new File(base);
+			boolean flag = false;
+			if(imgDirectory.exists()){
+				flag = true;
+			}else{
+				flag = imgDirectory.mkdir();
+			}
+			
+			if(flag){
+				for(Member m : members){
+					if(m != null){
+						Doom doom = new Doom();
+						doom.setValue(m.getId().toString());
+						doom.persist();
+						if(m.getPhoto() != null && !m.getPhoto().isEmpty()){
+							Document doc = Document.findByTag(m.getPhoto());
+							if(doc != null){
+								File file = new File(base+"/"+doc.getOriginalFileName());
+								
+								FileOutputStream fos = new FileOutputStream(file);
+								byte[] data = doc.getFileData();
+								
+								for(int i = 0; i < data.length; i++){
+									fos.write(data[i]);
+								}
+								fos.close();
+							}
+						}
+					}
+				}
+			}
+		}catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
 }
 
 class EditingWorkflowUtility{
