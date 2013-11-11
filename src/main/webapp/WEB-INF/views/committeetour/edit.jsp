@@ -5,7 +5,25 @@
 		<spring:message code="committeetour" text="Committee Tour"/>
 	</title>	
 	<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>	
-	<script type="text/javascript">	
+	<script type="text/javascript">
+	function onPageLoad() {
+		prependOptionToStatus();
+		$('#actor').empty();
+		prependOptionToActor();
+	}
+
+	function prependOptionToStatus() {
+		var optionValue = $('#pleaseSelect').val();
+		var option = "<option value='0' selected>" + optionValue + "</option>";
+		$('#status').prepend(option);
+	}
+
+	function prependOptionToActor() {
+		var optionValue = $('#pleaseSelect').val();
+		var option = "<option value='0' selected>" + optionValue + "</option>";
+		$('#actor').prepend(option);
+	}
+	
 	function onStateChange(stateId) {
 		var resourceURL = "ref/state/" + stateId + "/districts";
 		$.get(resourceURL, function(data){
@@ -60,11 +78,11 @@
   		    "</p>" +
   		 	"<p>" +
 		  	"<label class='small'>" + $('#tourItineraryFromTimeMessage').val() + "*</label>" +
-		  	"<input name='tourItineraryFromTime" + tourItineraryCount + "' id='tourItineraryFromTime" + tourItineraryCount + "' class='sText'>" +
+		  	"<input name='tourItineraryFromTime" + tourItineraryCount + "' id='tourItineraryFromTime" + tourItineraryCount + "' class='timemask sText'>" +
 		  	"</p>" +
 		  	"<p>" +
   		  	"<label class='small'>" + $('#tourItineraryToTimeMessage').val() + "*</label>" +
-  		    "<input name='tourItineraryToTime" + tourItineraryCount + "' id='tourItineraryToTime" + tourItineraryCount + "' class='sText'>" +
+  		    "<input name='tourItineraryToTime" + tourItineraryCount + "' id='tourItineraryToTime" + tourItineraryCount + "' class='timemask sText'>" +
   		  	"</p>" +
   		 	"<p>" +
 		  	"<label class='small'>" + $('#tourItineraryDetailsMessage').val() + "</label>" +
@@ -87,10 +105,18 @@
 			$('#itinerary'+ prevCount).after(text);
 		}
 		$('#tourItineraryCount').val(tourItineraryCount); 
+
 		// To apply datemask to the date fields
 		$('.datemask').focus(function(){
-			if($(this).val()==""){
+			if($(this).val() == ""){
 				$(".datemask").mask("99/99/9999");
+			}
+		});
+
+		// To apply timemask to the time fields
+		$('.timemask').focus(function(){
+			if($(this).val() == ""){
+				$(".timemask").mask("99:99:99");
 			}
 		});
 	}
@@ -190,10 +216,56 @@
 			}
 		}	
 	}
+
+	function onStatusChange(statusId) {
+		if(statusId != 0) {
+			var status = "status=" + statusId;
+			var houseType = "houseType=" + getHouseTypeId();
+			var userGroup = "userGroup=" + getUserGroupId();
+			var level = "assigneeLevel=" + $('#assigneeLevel').val();
+			var parameters = status + "&" + houseType + "&" + userGroup + "&" + level;
+			var resourceURL = "ref/committeetour/actors/workflow/" + getWorkflowName() + "?" + parameters;
+			$.get(resourceURL, function(data){
+				var dataLength = data.length;
+				if(dataLength > 0) {
+					var text = "";
+					for(var i = 0; i < dataLength; i++) {
+						text += "<option value='" + data[i].id + "'>" + data[i].name + "</option>";
+					}
+					$('#actor').empty();
+					$('#actor').html(text);
+				}
+				else {
+					$('#actor').empty();
+					prependOptionToActor();
+				}
+			});
+		}
+		else {
+			$('#actor').empty();
+			prependOptionToActor();
+		}
+	}
+
+	function getHouseTypeId() {
+		var id = $('#houseTypeId').val();
+		return id;
+	}
+
+	function getUserGroupId() {
+		var id = $('#userGroupId').val();
+		return id;
+	}
+
+	function getWorkflowName() {
+		return $('#workflowName').val();
+	}
 	
 	$('document').ready(function(){	
 		initControls();
 		$('#key').val('');
+
+		onPageLoad();
 
 		$('#state').change(function(){
 			var stateId = $('#state').val();
@@ -212,10 +284,47 @@
 		$('#addReporter').click(function(){
 			addReporter();
 		});
+
+		$('#status').change(function(){
+			var statusId = $('#status').val();
+			onStatusChange(statusId);
+		});
+
+		$('#requestForTour').click(function(e){
+			$.prompt($('#requestForTourMsg').val(), {
+				buttons: {Ok:true, Cancel:false},
+				callback: function(v){
+					if(v){
+						$.blockUI({ message: '<img src="./resources/images/waitAnimated.gif" />' }); 
+						$.post($('form').attr('action') + '/init/requestForTour',
+							$("form").serialize(),
+							function(data){
+								$('.tabContent').html(data);
+								$('html').animate({scrollTop:0}, 'slow');
+								$('body').animate({scrollTop:0}, 'slow');	
+								$.unblockUI();	   				 	   				
+							}).fail(function(){
+								$.unblockUI();
+								if($("#ErrorMsg").val() != ''){
+									$("#error_p").html($("#ErrorMsg").val()).css({'color':'red', 'display':'block'});
+								}else{
+									$("#error_p").html("Error occured contact for support.").css({'color':'red', 'display':'block'});
+								}
+								scrollTop();
+							});
+					}
+				}
+			});
+			return false;
+		});
 	});		
 	</script>
 </head>
 <body>
+<p id="error_p" style="display: none;">&nbsp;</p>
+<c:if test="${(error != '') && (error != null)}">
+	<h4 style="color: #FF0000;">${error}</h4>
+</c:if>
 <div class="fields clearfix">
 <form:form action="committeetour" method="PUT" modelAttribute="domain">
 	<%@ include file="/common/info.jsp" %>
@@ -226,70 +335,89 @@
 	
 	<form:errors path="version" cssClass="validationError"/>
 	
+	<!-- committeename is a simple input field and not a form input field because
+		 it is not an attribute of the CommitteeTour instance. -->
+	<p>
+	<label class="small"><spring:message code="committeetour.committeename" text="Committee Name" />*</label>
+	<select id="committeeName" name="committeeName" class="sSelect">
+		<c:forEach items="${committeeNames}" var="i">
+			<c:choose>
+				<c:when test="${committeeName.id == i.id}">
+					<option value="${i.id}" selected="selected"><c:out value="${i.displayName}"></c:out></option>
+				</c:when>
+				<c:otherwise>
+					<option value="${i.id}"><c:out value="${i.displayName}"></c:out></option>
+				</c:otherwise>
+			</c:choose>
+		</c:forEach>
+	</select>
+	<form:errors path="committee" cssClass="validationError"/>
+	</p>
+	
 	<!-- state is a simple input field and not a form input field because
 		 it is not an attribute of the CommitteeTour instance. -->
 	<p>
-		<label class="small"><spring:message code="committeetour.state" text="State" />*</label>
-		<select class="sSelect" id="state">
-			<c:forEach items="${states}" var="i">
-				<c:choose>
-					<c:when test="${state.id == i.id}">
-						<option value="${i.id}" selected="selected"><c:out value="${i.name}"></c:out></option>
-					</c:when>
-					<c:otherwise>
-						<option value="${i.id}"><c:out value="${i.name}"></c:out></option>
-					</c:otherwise>
-				</c:choose>
-			</c:forEach>
-		</select>
+	<label class="small"><spring:message code="committeetour.state" text="State" />*</label>
+	<select class="sSelect" id="state">
+		<c:forEach items="${states}" var="i">
+			<c:choose>
+				<c:when test="${state.id == i.id}">
+					<option value="${i.id}" selected="selected"><c:out value="${i.name}"></c:out></option>
+				</c:when>
+				<c:otherwise>
+					<option value="${i.id}"><c:out value="${i.name}"></c:out></option>
+				</c:otherwise>
+			</c:choose>
+		</c:forEach>
+	</select>
 	</p>
 	
 	<!-- district is a simple input field and not a form input field because
 		 it is not an attribute of the CommitteeTour instance. -->
 	<p>
-		<label class="small"><spring:message code="committeetour.district" text="District" />*</label>
-		<select class="sSelect" id="district">
-			<c:forEach items="${districts}" var="i">
-				<c:choose>
-					<c:when test="${district.id == i.id}">
-						<option value="${i.id}" selected="selected"><c:out value="${i.name}"></c:out></option>
-					</c:when>
-					<c:otherwise>
-						<option value="${i.id}"><c:out value="${i.name}"></c:out></option>
-					</c:otherwise>
-				</c:choose>
-			</c:forEach>
-		</select>
+	<label class="small"><spring:message code="committeetour.district" text="District" />*</label>
+	<select class="sSelect" id="district">
+		<c:forEach items="${districts}" var="i">
+			<c:choose>
+				<c:when test="${district.id == i.id}">
+					<option value="${i.id}" selected="selected"><c:out value="${i.name}"></c:out></option>
+				</c:when>
+				<c:otherwise>
+					<option value="${i.id}"><c:out value="${i.name}"></c:out></option>
+				</c:otherwise>
+			</c:choose>
+		</c:forEach>
+	</select>
 	</p>
 	
 	<p>
-		<label class="small"><spring:message code="committeetour.town" text="Town" />*</label>
-		<form:select path="town" items="${towns}" itemLabel="name" itemValue="id" cssClass="sSelect"></form:select>										
-		<form:errors path="town" cssClass="validationError"/>
+	<label class="small"><spring:message code="committeetour.town" text="Town" />*</label>
+	<form:select path="town" items="${towns}" itemLabel="name" itemValue="id" cssClass="sSelect"></form:select>										
+	<form:errors path="town" cssClass="validationError"/>
 	</p>
 	
 	<p> 
-		<label class="small"><spring:message code="committeetour.venueName" text="Venue Name"/>*</label>
-		<form:input path="venueName" cssClass="sText"/>
-		<form:errors path="venueName" cssClass="validationError"/>	
+	<label class="small"><spring:message code="committeetour.venueName" text="Venue Name"/>*</label>
+	<form:input path="venueName" cssClass="sText"/>
+	<form:errors path="venueName" cssClass="validationError"/>	
 	</p>
 	
 	<p> 
-		<label class="small"><spring:message code="committeetour.subject" text="Subject"/>*</label>
-		<form:input path="subject" cssClass="sText"/>
-		<form:errors path="subject" cssClass="validationError"/>	
+	<label class="small"><spring:message code="committeetour.subject" text="Subject"/>*</label>
+	<form:input path="subject" cssClass="sText"/>
+	<form:errors path="subject" cssClass="validationError"/>	
 	</p>
 	
 	<p>
-		<label class="small"><spring:message code="committeetour.fromDate" text="From Date"/>*</label>
-		<form:input path="fromDate" cssClass="datemask sText" />
-		<form:errors path="fromDate" cssClass="validationError"/>	
+	<label class="small"><spring:message code="committeetour.fromDate" text="From Date"/>*</label>
+	<form:input path="fromDate" cssClass="datetimemask sText" />
+	<form:errors path="fromDate" cssClass="validationError"/>	
 	</p>
 	
 	<p>
-		<label class="small"><spring:message code="committeetour.toDate" text="To Date"/>*</label>
-		<form:input path="toDate" cssClass="datemask sText" />
-		<form:errors path="toDate" cssClass="validationError"/>	
+	<label class="small"><spring:message code="committeetour.toDate" text="To Date"/>*</label>
+	<form:input path="toDate" cssClass="datetimemask sText" />
+	<form:errors path="toDate" cssClass="validationError"/>	
 	</p>
 	
 	<!-- Dynamic Addition of Itinerary -->
@@ -301,28 +429,28 @@
 			<c:forEach items="${itineraries}" var="outer">
 				<div id="itinerary${itineraryCount}">
 					<p>
-						<label class="small"><spring:message code="committeetour.touritinerary.date" text="Date"/>*</label>
-						<input id="tourItineraryDate${itineraryCount}" name="tourItineraryDate${itineraryCount}" class="datemask sText" value="${outer.formatDate()}">
+					<label class="small"><spring:message code="committeetour.touritinerary.date" text="Date"/>*</label>
+					<input id="tourItineraryDate${itineraryCount}" name="tourItineraryDate${itineraryCount}" class="datemask sText" value="${outer.formatDate()}">
 					</p>
 					
 					<p>
-						<label class="small"><spring:message code="committeetour.touritinerary.fromTime" text="From time"/>*</label>
-						<input id="tourItineraryFromTime${itineraryCount}" name="tourItineraryFromTime${itineraryCount}" class="sText" value="${outer.getFromTime()}">
+					<label class="small"><spring:message code="committeetour.touritinerary.fromTime" text="From time"/>*</label>
+					<input id="tourItineraryFromTime${itineraryCount}" name="tourItineraryFromTime${itineraryCount}" class="timemask sText" value="${outer.getFromTime()}">
 					</p>
 					
 					<p>
-						<label class="small"><spring:message code="committeetour.touritinerary.toTime" text="To time"/>*</label>
-						<input id="tourItineraryToTime${itineraryCount}" name="tourItineraryToTime${itineraryCount}" class="sText" value="${outer.getToTime()}">
+					<label class="small"><spring:message code="committeetour.touritinerary.toTime" text="To time"/>*</label>
+					<input id="tourItineraryToTime${itineraryCount}" name="tourItineraryToTime${itineraryCount}" class="timemask sText" value="${outer.getToTime()}">
 					</p>
 					
 					<p>
-						<label class="small"><spring:message code="committeetour.touritinerary.details" text="Details"/></label>
-						<textarea id="tourItineraryDetails${itineraryCount}" name="tourItineraryDetails${itineraryCount}" rows="2" cols="50">${outer.getDetails()}</textarea>
+					<label class="small"><spring:message code="committeetour.touritinerary.details" text="Details"/></label>
+					<textarea id="tourItineraryDetails${itineraryCount}" name="tourItineraryDetails${itineraryCount}" rows="2" cols="50">${outer.getDetails()}</textarea>
 					</p>
 					
 					<p>
-						<label class="small"><spring:message code="committeetour.touritinerary.stayover" text="Stayover"/></label>
-						<textarea id="tourItineraryStayover${itineraryCount}" name="tourItineraryStayover${itineraryCount}" rows="2" cols="50">${outer.getStayOver()}</textarea>
+					<label class="small"><spring:message code="committeetour.touritinerary.stayover" text="Stayover"/></label>
+					<textarea id="tourItineraryStayover${itineraryCount}" name="tourItineraryStayover${itineraryCount}" rows="2" cols="50">${outer.getStayOver()}</textarea>
 					</p>
 					
 					<input type='button' id='${itineraryCount}' class='button' value='<spring:message code="committeetour.touritinerary.deleteItinerary" text="Delete Itinerary"></spring:message>' onclick='deleteItinerary(${itineraryCount});'/>
@@ -357,24 +485,24 @@
 			<c:forEach items="${reporters}" var="outer">
 				<div id="reporter${reportersCount}">
 					<p>
-						<label class="small"><spring:message code="committeetour.committeereporter.language" text="Language"/>*</label>
-						<select name="committeeReporterLanguage${reportersCount}" id="committeeReporterLanguage${reportersCount}" class="sSelect">
-							<c:forEach items="${languages}" var="i">
-								<c:choose>
-									<c:when test="${outer.language.id == i.id}">
-										<option value="${i.id}" selected="selected"><c:out value="${i.name}"></c:out></option>	
-									</c:when>
-									<c:otherwise>
-										<option value="${i.id}"><c:out value="${i.name}"></c:out></option>		
-									</c:otherwise>
-								</c:choose>
-							</c:forEach>
-						</select>
+					<label class="small"><spring:message code="committeetour.committeereporter.language" text="Language"/>*</label>
+					<select name="committeeReporterLanguage${reportersCount}" id="committeeReporterLanguage${reportersCount}" class="sSelect">
+						<c:forEach items="${languages}" var="i">
+							<c:choose>
+								<c:when test="${outer.language.id == i.id}">
+									<option value="${i.id}" selected="selected"><c:out value="${i.name}"></c:out></option>	
+								</c:when>
+								<c:otherwise>
+									<option value="${i.id}"><c:out value="${i.name}"></c:out></option>		
+								</c:otherwise>
+							</c:choose>
+						</c:forEach>
+					</select>
 					</p>
 				
 					<p>
-						<label class="small"><spring:message code="committeetour.committeereporter.noOfReporters" text="No. of Reporters"/>*</label>
-						<input id="committeeReporterNoOfReporters${reportersCount}" name="committeeReporterNoOfReporters${reportersCount}" class="sText Integer" value="${outer.noOfReporters}">
+					<label class="small"><spring:message code="committeetour.committeereporter.noOfReporters" text="No. of Reporters"/>*</label>
+					<input id="committeeReporterNoOfReporters${reportersCount}" name="committeeReporterNoOfReporters${reportersCount}" class="sText Integer" value="${outer.noOfReporters}">
 					</p>
 					
 					<input type='button' id='${reportersCount}' class='button' value='<spring:message code="committeetour.committeereporter.deleteReporter" text="Delete Reporter"></spring:message>' onclick='deleteReporter(${reportersCount});'/>
@@ -391,11 +519,11 @@
 		<!-- To be used from Javascript functions when a Reporter is to be
 			 added dynamically  -->
 		<p style="display:none;">
-			<select name="languageMaster" id="languageMaster" class="sSelect" disabled="disabled">
-				<c:forEach items="${languages}" var="i">
-					<option value="${i.id}"><c:out value="${i.name}"></c:out></option>
-				</c:forEach>
-			</select>
+		<select name="languageMaster" id="languageMaster" class="sSelect" disabled="disabled">
+			<c:forEach items="${languages}" var="i">
+				<option value="${i.id}"><c:out value="${i.name}"></c:out></option>
+			</c:forEach>
+		</select>
 		</p>
 		
 		<!-- Hidden Messages to preserve the localization of the field names -->
@@ -406,17 +534,86 @@
 		<input type="hidden" id="committeeReporterNoOfReportersMessage" name="committeeReporterNoOfReportersMessage" value="<spring:message code='committeetour.committeereporter.noOfReporters' text='No. of Reporters'></spring:message>" disabled="disabled"/>
 	</div>
 	
+	<c:if test="${internalStatus.type eq 'committeetour_created'}">
+		<p>
+		<label class="small"><spring:message code="committeetour.putUpFor" text="Put Up For" /></label>
+		<select id="status" name="status" class="sSelect">
+		<c:choose>
+			<c:when test="${not empty statuses}">
+				<c:forEach items="${statuses}" var="i">
+					<c:choose>
+						<c:when test="${status.id == i.id}">
+							<option value="${i.id}" selected="selected"><c:out value="${i.name}"></c:out></option>
+						</c:when>
+						<c:otherwise>
+							<option value="${i.id}"><c:out value="${i.name}"></c:out></option>
+						</c:otherwise>
+					</c:choose>
+				</c:forEach>
+			</c:when>
+			<c:otherwise>
+				<option value="${status.id}" selected="selected"><c:out value="${status.name}"></c:out></option>
+			</c:otherwise>
+		</c:choose>		
+		</select>
+		</p>
+		
+		<p>
+		<label class="small"><spring:message code="committeetour.nextactor" text="Next Actor"/></label>
+		<select id="actor" name="actor" class="sSelect">
+		<c:choose>
+			<c:when test="${not empty actors}">
+				<c:forEach items="${actors}" var="i">
+					<c:choose>
+						<c:when test="${actor.id == i.id}">
+							<option value="${i.id}" selected="selected"><c:out value="${i.name}"></c:out></option>
+						</c:when>
+						<c:otherwise>
+							<option value="${i.id}"><c:out value="${i.name}"></c:out></option>
+						</c:otherwise>
+					</c:choose>
+				</c:forEach>
+			</c:when>
+			<c:otherwise>
+				<option value="${actor.id}" selected="selected"><c:out value="${actor.name}"></c:out></option>
+			</c:otherwise>
+		</c:choose>
+		</select>
+		</p>
+		
+		<p>
+		<label class="wysiwyglabel"><spring:message code="committee.remarks" text="Remarks"/></label>
+		<textarea id="remarks" name="remarks"  class="wysiwyg" rows="2" cols="50">${remarks}</textarea>	
+		</p>	
+	</c:if>
+	
 	<div class="fields expand">
 		<h2></h2>
 		<p class="tright">
+		<c:if test="${internalStatus.type eq 'committeetour_incomplete'
+				or internalStatus.type eq 'committeetour_created'}">
 			<input id="submit" type="submit" value="<spring:message code='generic.submit' text='Submit'/>" class="butDef">
+		</c:if>
+		<c:if test="${internalStatus.type eq 'committeetour_incomplete'}">
 			<input id="cancel" type="button" value="<spring:message code='generic.cancel' text='Cancel'/>" class="butDef">
+		</c:if>
+		<c:if test="${internalStatus.type eq 'committeetour_created'}">
+			<input id="requestForTour" type="button" value="<spring:message code='committeetour.requestForTour' text='Request For Tour'/>" class="butDef">
+		</c:if>
 		</p>
 	</div>	
 
 	<form:hidden path="id"/>
 	<form:hidden path="locale"/>
 	<form:hidden path="version"/>
+	
+	<input type="hidden" id="workflowName" name="workflowName" value="${workflowName}"/>
+	<input type="hidden" id="assigneeLevel" name="assigneeLevel" value="${assigneeLevel}"/>
+ 	<input type="hidden" id="houseTypeId" name="houseTypeId" value="${houseType.id}"/>
+	<input type="hidden" id="userGroupId" name="userGroupId" value="${userGroup.id}"/>
+	<input id="requestForTourMsg" value="<spring:message code='committeetour.requestForTourMsg' text='Do you want to put up request for tour?'></spring:message>" type="hidden">
+	<input type="hidden" id="ErrorMsg" value="<spring:message code='generic.error' text='Error Occured Contact For Support.'/>"/>
+	<input type="hidden" id="pleaseSelect" name="pleaseSelect" value="<spring:message code='client.prompt.selectForDropdown' text='----Please Select----'></spring:message>">
 </form:form>
 </div>
 </body>

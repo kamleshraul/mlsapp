@@ -16,33 +16,38 @@
 	</h2>
 	
 	<p>
-		<label class="small"><spring:message code="committeetour.state" text="State" /></label>
-		<input type="text" id="state" name="state" value="${state}" class="sText" readonly="readonly"/>
+	<label class="small"><spring:message code="committeetour.committeename" text="Committee Name" /></label>
+	<input type="text" id="committeeName" name="committeeName" value="${committeeName}" class="sText" readonly="readonly"/>
 	</p>
 	
 	<p>
-		<label class="small"><spring:message code="committeetour.district" text="District" /></label>
-		<input type="text" id="district" name="district" value="${district}" class="sText" readonly="readonly"/>
+	<label class="small"><spring:message code="committeetour.state" text="State" /></label>
+	<input type="text" id="state" name="state" value="${state}" class="sText" readonly="readonly"/>
 	</p>
 	
 	<p>
-		<label class="small"><spring:message code="committeetour.town" text="Town" /></label>
-		<input type="text" id="town" name="town" value="${town}" class="sText" readonly="readonly"/>										
+	<label class="small"><spring:message code="committeetour.district" text="District" /></label>
+	<input type="text" id="district" name="district" value="${district}" class="sText" readonly="readonly"/>
+	</p>
+	
+	<p>
+	<label class="small"><spring:message code="committeetour.town" text="Town" /></label>
+	<input type="text" id="town" name="town" value="${town}" class="sText" readonly="readonly"/>										
 	</p>
 	
 	<p> 
-		<label class="small"><spring:message code="committeetour.venueName" text="Venue Name"/></label>
-		<input type="text" id="venueName" name="venueName" value="${venueName}" class="sText" readonly="readonly"/>
+	<label class="small"><spring:message code="committeetour.venueName" text="Venue Name"/></label>
+	<input type="text" id="venueName" name="venueName" value="${venueName}" class="sText" readonly="readonly"/>
 	</p>
 	
 	<p>
-		<label class="small"><spring:message code="committeetour.fromDate" text="From Date"/></label>
-		<input type="text" id="fromDate" name="fromDate" value="${fromDate}" class="sText" readonly="readonly"/>
+	<label class="small"><spring:message code="committeetour.fromDate" text="From Date"/></label>
+	<input type="text" id="fromDate" name="fromDate" value="${fromDate}" class="sText" readonly="readonly"/>
 	</p>
 	
 	<p>
-		<label class="small"><spring:message code="committeetour.toDate" text="To Date"/></label>
-		<input type="text" id="toDate" name="toDate" value="${toDate}" class="sText" readonly="readonly"/>
+	<label class="small"><spring:message code="committeetour.toDate" text="To Date"/></label>
+	<input type="text" id="toDate" name="toDate" value="${toDate}" class="sText" readonly="readonly"/>
 	</p>
 	
 	<!-- Table displaying Itinerary -->
