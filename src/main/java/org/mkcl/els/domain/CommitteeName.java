@@ -1,6 +1,9 @@
 package org.mkcl.els.domain;
 
 import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
 
@@ -14,6 +17,7 @@ import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
 
 import org.codehaus.jackson.annotate.JsonIgnoreProperties;
+import org.mkcl.els.common.util.ApplicationConstants;
 import org.mkcl.els.repository.CommitteeNameRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Configurable;
@@ -101,7 +105,49 @@ public class CommitteeName extends BaseDomain implements Serializable {
 	public static List<CommitteeName> findAll(final String locale) {
 		return CommitteeName.getRepository().findAll(locale);
 	}
-		
+	
+	/**
+     * Sort the Questions as per @param sortOrder by number. If multiple Questions
+     * have same number, then there order is preserved.
+     *
+     * @param questions SHOULD NOT BE NULL
+     *
+     * Does not sort in place, returns a new list.
+     * @param sortOrder the sort order
+     * @return the list
+     */
+    public static List<CommitteeName> sortByName(
+    		final List<CommitteeName> committeeNames,
+            final String sortOrder) {
+        List<CommitteeName> newCNList = new ArrayList<CommitteeName>();
+        newCNList.addAll(committeeNames);
+
+        if(sortOrder.equals(ApplicationConstants.ASC)) {
+            Comparator<CommitteeName> c = new Comparator<CommitteeName>() {
+
+                @Override
+                public int compare(final CommitteeName cn1, 
+                		final CommitteeName cn2) {
+                    return cn1.getName().compareTo(cn2.getName());
+                }
+            };
+            Collections.sort(newCNList, c);
+        }
+        else if(sortOrder.equals(ApplicationConstants.DESC)) {
+            Comparator<CommitteeName> c = new Comparator<CommitteeName>() {
+
+                @Override
+                public int compare(final CommitteeName cn1, 
+                		final CommitteeName cn2) {
+                    return cn2.getName().compareTo(cn1.getName());
+                }
+            };
+            Collections.sort(newCNList, c);
+        }
+
+        return newCNList;
+    }
+
 	//=============== INTERNAL METHODS =========
 	private static CommitteeNameRepository getRepository() {
 		CommitteeNameRepository repository = new CommitteeName().repository;

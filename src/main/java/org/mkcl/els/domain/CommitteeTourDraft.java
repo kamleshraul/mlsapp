@@ -23,7 +23,9 @@ import org.springframework.beans.factory.annotation.Configurable;
 @Configurable
 @Entity
 @Table(name="committee_tour_drafts")
-@JsonIgnoreProperties({"reporters", "itineraries"})
+@JsonIgnoreProperties({"reporters", "itineraries", "status",
+	"internalStatusLH", "recommendationStatusLH",
+	"internalStatusUH", "recommendationStatusUH"})
 public class CommitteeTourDraft extends BaseDomain implements Serializable {
 
 	private static final long serialVersionUID = 8622945016413351860L;
@@ -58,16 +60,29 @@ public class CommitteeTourDraft extends BaseDomain implements Serializable {
 	@JoinColumn(name="status_id")
 	private Status status;
 	
+	// "Request for Tour" as raised in LowerHouse 
 	@ManyToOne(fetch=FetchType.LAZY)
-	@JoinColumn(name="internal_status__id")
-	private Status internalStatus;
+	@JoinColumn(name="internal_status_lh_id")
+	private Status internalStatusLH;
 	
 	@ManyToOne(fetch=FetchType.LAZY)
-	@JoinColumn(name="recommendation_status_id")
-	private Status recommendationStatus;
+	@JoinColumn(name="recommendation_status_lh_id")
+	private Status recommendationStatusLH;
 	
 	@Column(length=30000)
-	private String remarks;
+	private String remarksLH;
+	
+	// "Request for Tour" as raised in UpperHouse
+	@ManyToOne(fetch=FetchType.LAZY)
+	@JoinColumn(name="internal_status_uh_id")
+	private Status internalStatusUH;
+	
+	@ManyToOne(fetch=FetchType.LAZY)
+	@JoinColumn(name="recommendation_status_uh_id")
+	private Status recommendationStatusUH;
+	
+	@Column(length=30000)
+	private String remarksUH;
 	
 	@Temporal(TemporalType.TIMESTAMP)
 	private Date editedOn;
@@ -143,28 +158,52 @@ public class CommitteeTourDraft extends BaseDomain implements Serializable {
 		this.status = status;
 	}
 
-	public Status getInternalStatus() {
-		return internalStatus;
+	public Status getInternalStatusLH() {
+		return internalStatusLH;
 	}
 
-	public void setInternalStatus(final Status internalStatus) {
-		this.internalStatus = internalStatus;
+	public void setInternalStatusLH(final Status internalStatusLH) {
+		this.internalStatusLH = internalStatusLH;
 	}
 
-	public Status getRecommendationStatus() {
-		return recommendationStatus;
+	public Status getRecommendationStatusLH() {
+		return recommendationStatusLH;
 	}
 
-	public void setRecommendationStatus(final Status recommendationStatus) {
-		this.recommendationStatus = recommendationStatus;
+	public void setRecommendationStatusLH(final Status recommendationStatusLH) {
+		this.recommendationStatusLH = recommendationStatusLH;
 	}
 
-	public String getRemarks() {
-		return remarks;
+	public String getRemarksLH() {
+		return remarksLH;
 	}
 
-	public void setRemarks(final String remarks) {
-		this.remarks = remarks;
+	public void setRemarksLH(final String remarksLH) {
+		this.remarksLH = remarksLH;
+	}
+
+	public Status getInternalStatusUH() {
+		return internalStatusUH;
+	}
+
+	public void setInternalStatusUH(final Status internalStatusUH) {
+		this.internalStatusUH = internalStatusUH;
+	}
+
+	public Status getRecommendationStatusUH() {
+		return recommendationStatusUH;
+	}
+
+	public void setRecommendationStatusUH(final Status recommendationStatusUH) {
+		this.recommendationStatusUH = recommendationStatusUH;
+	}
+
+	public String getRemarksUH() {
+		return remarksUH;
+	}
+
+	public void setRemarksUH(final String remarksUH) {
+		this.remarksUH = remarksUH;
 	}
 
 	public Date getEditedOn() {

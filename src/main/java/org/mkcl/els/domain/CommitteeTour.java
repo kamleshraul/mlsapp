@@ -18,6 +18,7 @@ import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
 
 import org.codehaus.jackson.annotate.JsonIgnoreProperties;
+import org.mkcl.els.common.util.ApplicationConstants;
 import org.mkcl.els.repository.CommitteeTourRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Configurable;
@@ -25,14 +26,18 @@ import org.springframework.beans.factory.annotation.Configurable;
 @Configurable
 @Entity
 @Table(name="committee_tours")
-@JsonIgnoreProperties({"town", "reporters", "itineraries",
-	"status", "internalStatus", "recommendationStatus",
-	"drafts"})
+@JsonIgnoreProperties({"committee", "town", "reporters", "itineraries",
+	"status", "internalStatusLH", "recommendationStatusLH",
+	"internalStatusUH", "recommendationStatusUH", "drafts"})
 public class CommitteeTour extends BaseDomain implements Serializable {
 
 	private static final long serialVersionUID = 3676106504296627183L;
 
 	//=============== ATTRIBUTES ===============
+	@ManyToOne(fetch=FetchType.LAZY)
+	@JoinColumn(name="committee_id")
+	private Committee committee;
+	
 	@Column(length=900)
 	private String venueName;
 	
@@ -70,16 +75,29 @@ public class CommitteeTour extends BaseDomain implements Serializable {
 	@JoinColumn(name="status_id")
 	private Status status;
 	
+	// "Request for Tour" as raised in LowerHouse 
 	@ManyToOne(fetch=FetchType.LAZY)
-	@JoinColumn(name="internal_status__id")
-	private Status internalStatus;
+	@JoinColumn(name="internal_status_lh_id")
+	private Status internalStatusLH;
 	
 	@ManyToOne(fetch=FetchType.LAZY)
-	@JoinColumn(name="recommendation_status_id")
-	private Status recommendationStatus;
+	@JoinColumn(name="recommendation_status_lh_id")
+	private Status recommendationStatusLH;
 	
 	@Column(length=30000)
-	private String remarks;
+	private String remarksLH;
+	
+	// "Request for Tour" as raised in UpperHouse
+	@ManyToOne(fetch=FetchType.LAZY)
+	@JoinColumn(name="internal_status_uh_id")
+	private Status internalStatusUH;
+	
+	@ManyToOne(fetch=FetchType.LAZY)
+	@JoinColumn(name="recommendation_status_uh_id")
+	private Status recommendationStatusUH;
+	
+	@Column(length=30000)
+	private String remarksUH;
 	
 	/* Audit Log */
 	@Temporal(TemporalType.TIMESTAMP)
@@ -118,16 +136,185 @@ public class CommitteeTour extends BaseDomain implements Serializable {
 	}
 	
 	//=============== VIEW METHODS =============
+//	public String formatFromDate() {
+//		String retVal = "";
+//
+//		Date fromDate = this.getFromDate();
+//		if(fromDate != null){
+//			CustomParameter dateTimeFormat =
+//				CustomParameter.findByName(CustomParameter.class, 
+//						ApplicationConstants.SERVER_DATETIMEFORMAT, 
+//						"");
+//
+//			if(dateTimeFormat != null) {
+//				String format = dateTimeFormat.getValue();
+//				retVal = FormaterUtil.formatDateToString(fromDate, format);
+//			}
+//		}
+//
+//		return retVal;
+//	}
+//
+//	public String formatToDate(){
+//		String retVal = "";
+//
+//		Date toDate = this.getToDate();
+//		if(toDate != null){
+//			CustomParameter dateTimeFormat =
+//				CustomParameter.findByName(CustomParameter.class, 
+//						ApplicationConstants.SERVER_DATETIMEFORMAT, 
+//						"");
+//
+//			if(dateTimeFormat != null) {
+//				String format = dateTimeFormat.getValue();
+//				retVal = FormaterUtil.formatDateToString(toDate, format);
+//			}
+//		}
+//
+//		return retVal;
+//	}
 	
 	//=============== DOMAIN METHODS ===========
-	public static CommitteeTour find(final Town town, 
-			final String venueName,
-			final Date fromDate, 
-			final Date toDate, 
-			final String subject, 
+//	public static CommitteeTour find(final Town town, 
+//			final String venueName,
+//			final Date fromDate, 
+//			final Date toDate, 
+//			final String subject, 
+//			final String locale) {
+//		return CommitteeTour.getRepository().find(town, venueName, 
+//				fromDate, toDate, subject, locale);
+//	}
+	
+	public static CommitteeTour find(final Committee committee, 
+			final Date fromDate,
 			final String locale) {
-		return CommitteeTour.getRepository().find(town, venueName, 
-				fromDate, toDate, subject, locale);
+		return CommitteeTour.getRepository().find(committee, fromDate, locale);
+	}
+	
+	@Override
+	public BaseDomain persist() {
+		Committee committee = this.getCommittee();
+		CommitteeName committeeName = committee.getCommitteeName();
+		CommitteeType committeeType = committeeName.getCommitteeType();
+		HouseType houseType = committeeType.getHouseType();
+		
+		if(this.getVenueName() != null
+				&& this.getTown() != null
+				&& this.getFromDate() != null
+				&& this.getToDate() != null
+				&& this.getSubject() != null
+				&& ! this.getReporters().isEmpty()
+				&& ! this.getItineraries().isEmpty()) {
+			Status CREATED = Status.findByType(
+					ApplicationConstants.COMMITTEETOUR_CREATED, 
+					this.getLocale());
+			
+			if(houseType.getType().equals(ApplicationConstants.LOWER_HOUSE)) {
+				this.setInternalStatusLH(CREATED);
+				this.setStatus(CREATED);
+			}
+			else if(houseType.getType().equals(
+					ApplicationConstants.UPPER_HOUSE)) {
+				this.setInternalStatusUH(CREATED);
+				this.setStatus(CREATED);
+			}
+			else if(houseType.getType().equals(
+					ApplicationConstants.BOTH_HOUSE)) {
+				this.setInternalStatusLH(CREATED);
+				this.setInternalStatusUH(CREATED);
+				this.setStatus(CREATED);
+			}
+		}
+		else {
+			Status INCOMPLETE = Status.findByType(
+					ApplicationConstants.COMMITTEETOUR_INCOMPLETE, 
+					this.getLocale());
+			
+			if(houseType.getType().equals(ApplicationConstants.LOWER_HOUSE)) {
+				this.setInternalStatusLH(INCOMPLETE);
+				this.setStatus(INCOMPLETE);
+			}
+			else if(houseType.getType().equals(
+					ApplicationConstants.UPPER_HOUSE)) {
+				this.setInternalStatusUH(INCOMPLETE);
+				this.setStatus(INCOMPLETE);
+			}
+			else if(houseType.getType().equals(
+					ApplicationConstants.BOTH_HOUSE)) {
+				this.setInternalStatusLH(INCOMPLETE);
+				this.setInternalStatusUH(INCOMPLETE);
+				this.setStatus(INCOMPLETE);
+			}
+		}
+		
+		return super.persist();
+	}
+	
+	@Override
+	public BaseDomain merge() {
+		Status status = this.getStatus();		
+		
+		if(status == null || 
+				(status != null 
+					&& status.getType().equals(
+							ApplicationConstants.COMMITTEETOUR_INCOMPLETE))) {
+			Committee committee = this.getCommittee();
+			CommitteeName committeeName = committee.getCommitteeName();
+			CommitteeType committeeType = committeeName.getCommitteeType();
+			HouseType houseType = committeeType.getHouseType();
+			if(this.getVenueName() != null
+					&& this.getTown() != null
+					&& this.getFromDate() != null
+					&& this.getToDate() != null
+					&& this.getSubject() != null
+					&& ! this.getReporters().isEmpty()
+					&& ! this.getItineraries().isEmpty()) {
+				Status CREATED = Status.findByType(
+						ApplicationConstants.COMMITTEETOUR_CREATED, 
+						this.getLocale());
+				
+				if(houseType.getType().equals(
+						ApplicationConstants.LOWER_HOUSE)) {
+					this.setInternalStatusLH(CREATED);
+					this.setStatus(CREATED);
+				}
+				else if(houseType.getType().equals(
+						ApplicationConstants.UPPER_HOUSE)) {
+					this.setInternalStatusUH(CREATED);
+					this.setStatus(CREATED);
+				}
+				else if(houseType.getType().equals(
+						ApplicationConstants.BOTH_HOUSE)) {
+					this.setInternalStatusLH(CREATED);
+					this.setInternalStatusUH(CREATED);
+					this.setStatus(CREATED);
+				}
+			}
+			else {
+				Status INCOMPLETE = Status.findByType(
+						ApplicationConstants.COMMITTEETOUR_INCOMPLETE, 
+						this.getLocale());
+				
+				if(houseType.getType().equals(
+						ApplicationConstants.LOWER_HOUSE)) {
+					this.setInternalStatusLH(INCOMPLETE);
+					this.setStatus(INCOMPLETE);
+				}
+				else if(houseType.getType().equals(
+						ApplicationConstants.UPPER_HOUSE)) {
+					this.setInternalStatusUH(INCOMPLETE);
+					this.setStatus(INCOMPLETE);
+				}
+				else if(houseType.getType().equals(
+						ApplicationConstants.BOTH_HOUSE)) {
+					this.setInternalStatusLH(INCOMPLETE);
+					this.setInternalStatusUH(INCOMPLETE);
+					this.setStatus(INCOMPLETE);
+				}
+			}
+		}
+		
+		return super.merge();
 	}
 	
 	//=============== INTERNAL METHODS =========
@@ -144,6 +331,14 @@ public class CommitteeTour extends BaseDomain implements Serializable {
 	}
 
 	//=============== GETTERS/SETTERS ==========
+	public Committee getCommittee() {
+		return committee;
+	}
+
+	public void setCommittee(final Committee committee) {
+		this.committee = committee;
+	}
+	
 	public String getVenueName() {
 		return venueName;
 	}
@@ -208,28 +403,52 @@ public class CommitteeTour extends BaseDomain implements Serializable {
 		this.status = status;
 	}
 
-	public Status getInternalStatus() {
-		return internalStatus;
+	public Status getInternalStatusLH() {
+		return internalStatusLH;
 	}
 
-	public void setInternalStatus(final Status internalStatus) {
-		this.internalStatus = internalStatus;
+	public void setInternalStatusLH(final Status internalStatusLH) {
+		this.internalStatusLH = internalStatusLH;
 	}
 
-	public Status getRecommendationStatus() {
-		return recommendationStatus;
+	public Status getRecommendationStatusLH() {
+		return recommendationStatusLH;
 	}
 
-	public void setRecommendationStatus(final Status recommendationStatus) {
-		this.recommendationStatus = recommendationStatus;
+	public void setRecommendationStatusLH(final Status recommendationStatusLH) {
+		this.recommendationStatusLH = recommendationStatusLH;
 	}
 
-	public String getRemarks() {
-		return remarks;
+	public String getRemarksLH() {
+		return remarksLH;
 	}
 
-	public void setRemarks(final String remarks) {
-		this.remarks = remarks;
+	public void setRemarksLH(final String remarksLH) {
+		this.remarksLH = remarksLH;
+	}
+
+	public Status getInternalStatusUH() {
+		return internalStatusUH;
+	}
+
+	public void setInternalStatusUH(final Status internalStatusUH) {
+		this.internalStatusUH = internalStatusUH;
+	}
+
+	public Status getRecommendationStatusUH() {
+		return recommendationStatusUH;
+	}
+
+	public void setRecommendationStatusUH(final Status recommendationStatusUH) {
+		this.recommendationStatusUH = recommendationStatusUH;
+	}
+
+	public String getRemarksUH() {
+		return remarksUH;
+	}
+
+	public void setRemarksUH(final String remarksUH) {
+		this.remarksUH = remarksUH;
 	}
 
 	public Date getCreationDate() {
