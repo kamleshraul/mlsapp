@@ -35,7 +35,7 @@ import org.mkcl.els.controller.GenericController;
 import org.mkcl.els.domain.Credential;
 import org.mkcl.els.domain.CustomParameter;
 import org.mkcl.els.domain.Document;
-import org.mkcl.els.domain.Doom;
+//import org.mkcl.els.domain.Doom;
 import org.mkcl.els.domain.HouseType;
 import org.mkcl.els.domain.Language;
 import org.mkcl.els.domain.Member;
@@ -901,54 +901,54 @@ public class EditingController extends GenericController<Roster>{
 		return form;
 	}
 	
-	@Transactional
-	@RequestMapping(value="/generatephotos/{id}",method=RequestMethod.GET)
-	public void generatePhotos(@PathVariable(value="id") Long id, HttpServletRequest request, Locale locale){
-		try{
-			Party party = Party.findById(Party.class, id);
-			
-			List<Member> members = new ArrayList<Member>();
-			
-			for(MemberPartyAssociation mpa : party.getMemberPartyAssociations()){
-				members.add(mpa.getMember());
-			}
-
-			String base = EditingController.class.getClassLoader().getResource("fop_storage").getPath().replaceAll("%20", " ").replaceFirst("/", "") + "memImg";
-			File imgDirectory = new File(base);
-			boolean flag = false;
-			if(imgDirectory.exists()){
-				flag = true;
-			}else{
-				flag = imgDirectory.mkdir();
-			}
-			
-			if(flag){
-				for(Member m : members){
-					if(m != null){
-						Doom doom = new Doom();
-						doom.setValue(m.getId().toString());
-						doom.persist();
-						if(m.getPhoto() != null && !m.getPhoto().isEmpty()){
-							Document doc = Document.findByTag(m.getPhoto());
-							if(doc != null){
-								File file = new File(base+"/"+doc.getOriginalFileName());
-								
-								FileOutputStream fos = new FileOutputStream(file);
-								byte[] data = doc.getFileData();
-								
-								for(int i = 0; i < data.length; i++){
-									fos.write(data[i]);
-								}
-								fos.close();
-							}
-						}
-					}
-				}
-			}
-		}catch (Exception e) {
-			e.printStackTrace();
-		}
-	}
+//	@Transactional
+//	@RequestMapping(value="/generatephotos/{id}",method=RequestMethod.GET)
+//	public void generatePhotos(@PathVariable(value="id") Long id, HttpServletRequest request, Locale locale){
+//		try{
+//			Party party = Party.findById(Party.class, id);
+//			
+//			List<Member> members = new ArrayList<Member>();
+//			
+//			for(MemberPartyAssociation mpa : party.getMemberPartyAssociations()){
+//				members.add(mpa.getMember());
+//			}
+//
+//			String base = EditingController.class.getClassLoader().getResource("fop_storage").getPath().replaceAll("%20", " ").replaceFirst("/", "") + "memImg";
+//			File imgDirectory = new File(base);
+//			boolean flag = false;
+//			if(imgDirectory.exists()){
+//				flag = true;
+//			}else{
+//				flag = imgDirectory.mkdir();
+//			}
+//			
+//			if(flag){
+//				for(Member m : members){
+//					if(m != null){
+//						Doom doom = new Doom();
+//						doom.setValue(m.getId().toString());
+//						doom.persist();
+//						if(m.getPhoto() != null && !m.getPhoto().isEmpty()){
+//							Document doc = Document.findByTag(m.getPhoto());
+//							if(doc != null){
+//								File file = new File(base+"/"+doc.getOriginalFileName());
+//								
+//								FileOutputStream fos = new FileOutputStream(file);
+//								byte[] data = doc.getFileData();
+//								
+//								for(int i = 0; i < data.length; i++){
+//									fos.write(data[i]);
+//								}
+//								fos.close();
+//							}
+//						}
+//					}
+//				}
+//			}
+//		}catch (Exception e) {
+//			e.printStackTrace();
+//		}
+//	}
 }
 
 class EditingWorkflowUtility{
