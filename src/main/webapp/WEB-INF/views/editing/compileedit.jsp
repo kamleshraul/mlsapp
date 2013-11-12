@@ -28,10 +28,10 @@
 		}
 		
 		/******CSS FOR PAGE *******/
-		textarea {
-		height: 28px;
-		width: 400px;
-	}
+			textarea {
+			height: 28px;
+			width: 400px;
+		}
 
 	/* #textarea {
 		-moz-appearance: textfield-multiline;
@@ -325,9 +325,9 @@
 			+ '&pageheader=' + $("#selectedPageheader").val()
 			+ '&userGroup=' + $("#userGroup").val()
 			+ '&userGroupType=' + $("#userGroupType").val();
-			
-			$("#undoCount").val((parseInt($("#undoCount").val()) + 1));				
-			console.log($("#undoCount").val());
+			console.log("Replaceing: "+$("#undoCount").val());
+			$("#undoCount").val(parseInt($("#undoCount").val()) + 1);				
+			console.log("Replaceing: "+$("#undoCount").val());
 			$.blockUI({ message: '<img src="./resources/images/waitAnimated.gif" />' });
 			
 			$.post($("form[action='editing/replace']").attr('action')+"?"+params,
@@ -339,7 +339,7 @@
 							$("#pp"+data[i][0]).empty();
 							$("#pp"+data[i][0]).html(data[i][4]);
 							var undoData = $("#ppsp"+data[i][0]).html();
-							if(undoData=='classes'){
+							if(undoData=='classes' || undoData==''){
 								$("#ppsp"+data[i][0]).empty();
 								$("#ppsp"+data[i][0]).html(data[i][5]);
 							}else{
@@ -365,17 +365,27 @@
 				if(undoData!='classes'){
 					var undoDataArray = undoData.split(";");
 					var undoDataToWorkWith=undoDataArray[undoDataArray.length-1].split(":");
-					$("#undoCount").val(parseInt($("#undoCount").val())-1);
 					$("#uniqueIdentifierForUndo").val(undoDataToWorkWith[2]);
-					var html=$(this).html().replace(";"+undoDataArray[undoDataArray.length-1],"");
+					var html="";
+					if(undoDataArray.length>1){
+						html=$(this).html().replace(";"+undoDataArray[undoDataArray.length-1],"");
+					}else{
+						html=$(this).html().replace(undoDataArray[undoDataArray.length-1],"");
+						
+					}
+					var redoData=$("#pprd"+$(this).attr('id').substring(4)).html();
+					console.log("redoData:"+redoData);
 					
+					var ppId=$(this).attr('id').substring(4);
 					$(this).html(html);								
-					
-					$.post("editing/undolastchange",
+					console.log('ppId: ' + ppId);
+					$.post("editing/undolastchange/"+ppId,
 							$("form[action='editing/replace']").serialize(),function(data){
 						if(data){
-							$("#"+$(this).attr('id').substring(4)).empty();
-							$("#"+$(this).attr('id').substring(4)).html(data.value);
+							$("#pp"+ppId).empty();
+							$("#pp"+ppId).html(data.value);
+							console.log(data.value);
+							$("#undoCount").val(parseInt($("#undoCount").val())-1);
 							$.unblockUI();
 						}
 					}).fail(function(){
@@ -455,7 +465,7 @@
 			});
 			
 			$(".revision").click(function(e){
-				$.get("editing/revisions/" + $(this).attr('id').substring(2),function(data){
+				$.get("editing/revisions/" + $(this).attr('id').substring(2)+"?includeWfCopy=false",function(data){
 				    $.fancybox.open(data);
 			    });
 			    return false;
@@ -644,6 +654,7 @@
 											<img src="editing/gememberimage/${r[14]}" height="8px" class="imgIdDivImage"/>
 										</div>
 										<div id="ppsp${r[20]}" class="ppsp" style="display: none;">classes</div>
+										<div id="pprp${r[20]}" class="pprp" style="display: none;">classes</div>
 										<div class="revision" id="pd${r[20]}" style="position: relative; border-radius: 10px; margin-left: 750px; top: -20px; text-align: center; display: inline-block; min-width: 16px; min-height: 16px; border: 1px solid blue; background: #00ff00; cursor: pointer;">
 											<spring:message code="editing.more" text="S" />
 										</div>
@@ -669,6 +680,7 @@
 												<img src="editing/gememberimage/${r[14]}" height="8px" class="imgIdDivImage"/>
 											</div>
 											<div id="ppsp${r[20]}" class="ppsp" style="display: none;">classes</div>
+											<div id="pprp${r[20]}" class="pprp" style="display: none;">classes</div>
 											<div class="revision" id="pd${r[20]}" style="position: relative; border-radius: 10px; margin-left: 750px; top: -20px; text-align: center; display: inline-block; min-width: 16px; min-height: 16px; border: 1px solid blue; background: #013094; cursor: pointer;">
 												<spring:message code="editing.more" text="S" />
 											</div>
