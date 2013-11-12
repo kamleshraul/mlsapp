@@ -274,58 +274,25 @@
 			}
 		}		
 		
-		$(document).ready(function(){	
-			/**** Single Updation for All Workflows ****/
-			$('#submitNew').click(function() {
-				//removing <p><br></p>  from wysiwyg editor
-				$(".wysiwyg").each(function(){
-					var wysiwygVal=$(this).val().trim();
-					if(wysiwygVal=="<p></p>"||wysiwygVal=="<p><br></p>"||wysiwygVal=="<br><p></p>"){
-						$(this).val("");
-					}
-				});
-				if($('#referredActDiv').is(':hidden')) {
-					$('#referredAct').val("");
+		$(document).ready(function(){			
+			$('#opinionSoughtFromLawAndJD').wysiwyg({
+				resizeOptions: {maxWidth: 600},
+				controls:{						
+					strikeThrough: { visible: true },
+					underline: { visible: true },
+					subscript: { visible: true },
+					superscript: { visible: true },
+					insertOrderedList  : { visible : true},
+					increaseFontSize:{visible:true},
+					decreaseFontSize:{visible:true},
+					highlight: {visible:true}			
+				},
+				plugins: {
+					autoload: true,
+					i18n: { lang: "mr" }
 				}
-				if($('#referredOrdinanceDiv').is(':hidden')) {
-					$('#referredOrdinance').val("");
-				}
-				clearUnrevisedDrafts();
-				$('.checklist_checkboxes').each(function() {
-					var fieldNumber = this.id.split("_")[2];
-					if($(this).attr('checked')=='checked') {						
-						$('#checklist_checkbox_field_'+fieldNumber).val('yes');
-					} else {
-						$('#checklist_checkbox_field_'+fieldNumber).val('no');
-						if($('#'+this.id+'_div').find('textarea').length>0) {
-							$('#'+this.id+'_div').find('textarea').val("");							
-						}
-						else if($('#'+this.id+'_div').find('input[type=checkbox]').length>0) {
-							$('#'+this.id+'_div').find('input[type=checkbox]').removeAttr('checked');																				
-						}
-					}					
-				});
-				var admit=$("#internalStatusMaster option[value='bill_recommend_admission']").text();			
-				var reject=$("#internalStatusMaster option[value='bill_recommend_rejection']").text();
-				var translate=$("#internalStatusMaster option[value='bill_recommend_translation']").text();
-				var opinion_from_lawandjd=$("#internalStatusMaster option[value='bill_recommend_opinionFromLawAndJD']").text();
-				var recommendation_from_governor=$("#internalStatusMaster option[value='bill_recommend_recommendationFromGovernor']").text();
-				var recommendation_from_president=$("#internalStatusMaster option[value='bill_recommend_recommendationFromPresident']").text();
-				var actionForUpdation = $('#changeInternalStatus').val();
-				if(actionForUpdation=='-') {
-
-				} else if(actionForUpdation==translate) {
-
-				} else if(actionForUpdation==opinion_from_lawandjd) {
-
-				} else if(actionForUpdation==recommendation_from_governor) {
-
-				} else if(actionForUpdation==recommendation_from_president) {
-
-				} else if(actionForUpdation==admit || actionForUpdation==reject) {
-
-				} 
 			});
+			$('#opinionSoughtFromLawAndJD_para').children().filter('div.wysiwyg').addClass('fixed-width-wysiwyg');
 			
 			if($('#typeOfSelectedBillType').val() != 'amending') {
 				$('#referredActDiv').hide();
@@ -471,12 +438,12 @@
 			    if(value!='-'){
 				    //var statusType=$("#internalStatusMaster option[value='"+value+"']").text();			    
 				    loadActors(value);
-				    if($('#internalStatusType').val()=='bill_submit' 
+				    /* if($('#internalStatusType').val()=='bill_submit' 
 				    		|| $('#internalStatusType').val()=='bill_system_assistantprocessed'
 				    		|| $('#internalStatusType').val()=='bill_putup_nameclubbing') {
 				    	$("#submit").attr("disabled","disabled");
 					    $("#startworkflow").removeAttr("disabled");
-				    }				    		    
+				    } */				    		    
 			    }else{
 				    $("#actorForWorkflow").empty();
 				    $("#actorDiv").hide();
@@ -487,8 +454,8 @@
 				    $("#opinionFromLawAndJDStatus").val($("#oldOpinionFromLawAndJDStatus").val());
 				    $("#recommendationFromGovernorStatus").val($("#oldRecommendationFromGovernorStatus").val());	
 		    		$("#recommendationFromPresidentStatus").val($("#oldRecommendationFromPresidentStatus").val());
-				    $("#startworkflow").attr("disabled","disabled");
-				    $("#submit").removeAttr("disabled");
+				    /* $("#startworkflow").attr("disabled","disabled");
+				    $("#submit").removeAttr("disabled"); */
 				}		    
 		    });
 		    /**** Recommendation Status Changes (Status Updation Post Admission)****/   
@@ -533,358 +500,6 @@
 			    },'html');		    	
 			    return false;
 		    });
-		    /**** On page Load ****/
-		    $("#startworkflow").attr("disabled","disabled");
-			$("#submit").removeAttr("disabled");
-		    /**** Put Up ****/
-			$("#startworkflow").click(function(e){
-				if($('#changeInternalStatus').val()=='-') {
-					$.prompt("Please select the action first.");					
-					return false;
-				}
-				//removing <p><br></p>  from wysiwyg editor
-				$(".wysiwyg").each(function(){
-					var wysiwygVal=$(this).val().trim();
-					if(wysiwygVal=="<p></p>"||wysiwygVal=="<p><br></p>"||wysiwygVal=="<br><p></p>"){
-						$(this).val("");
-					}
-				});	
-				if($('#referredActDiv').is(':hidden')) {
-					$('#referredAct').val("");
-				}
-				if($('#referredOrdinanceDiv').is(':hidden')) {
-					$('#referredOrdinance').val("");
-				}
-				clearUnrevisedDrafts();
-				$('.checklist_checkboxes').each(function() {
-					var fieldNumber = this.id.split("_")[2];
-					if($(this).attr('checked')=='checked') {						
-						$('#checklist_checkbox_field_'+fieldNumber).val('yes');
-					} else {
-						$('#checklist_checkbox_field_'+fieldNumber).val('no');
-						if($('#'+this.id+'_div').find('textarea').length>0) {
-							$('#'+this.id+'_div').find('textarea').val("");							
-						}
-						else if($('#'+this.id+'_div').find('input[type=checkbox]').length>0) {
-							$('#'+this.id+'_div').find('input[type=checkbox]').removeAttr('checked');																				
-						}
-					}					
-				});
-				if($('#opinionSoughtFromLawAndJD').val()=='') {
-					$.prompt("Opinion is not received yet from Law & Judiciary Department. So Bill cannot be put up.");
-					return false;
-				}				
-				/** remarks compulsory when putup for rejection **/
-				var putupForRejection=$("#internalStatusMaster option[value='bill_recommend_rejection']").text();
-				if($('#changeInternalStatus').val()==putupForRejection) {
-					if($('#remarks').val()=="") {
-						$.prompt($('#remarksCompulsoryWhenPutupForRejectionMessage').val());
-						return false;
-					}
-				}
-				var promptMessage;
-				/** putup not allowed when translation is pending **/
-				if($('#translationStatusType').val()=='bill_recommend_translation' 
-						|| $('#translationStatusType').val()=='bill_final_translation') {
-					$.prompt($('#translationPendingMessage').val());
-					return false;
-					//promptMessage = $('#startWorkflowDespiteTranslationPendingMessage').val();
-				} else {
-					if($('#isAnyBillSubmittedEarierThanCurrentBillToBePutup').val()=='true') {
-						promptMessage = $('#billsSubmittedEarierPendingForPutupWarning').val();
-					}else {
-						promptMessage = $('#startWorkflowMessage').val();
-					}					
-				}
-				$.prompt(promptMessage,{
-					buttons: {Ok:true, Cancel:false}, callback: function(v){
-			        if(v){
-						$.blockUI({ message: '<img src="./resources/images/waitAnimated.gif" />' }); 			        
-			        	$.post($('form').attr('action')+'?operation=startworkflow',  
-			    	            $("form").serialize(),  
-			    	            function(data){
-			       					$('.tabContent').html(data);
-			       					$('html').animate({scrollTop:0}, 'slow');
-			       				 	$('body').animate({scrollTop:0}, 'slow');	
-			    					$.unblockUI();	   				 	   				
-			    	            });
-	    	            }
-				}});			
-		        return false;  
-		    });
-			/**** Send for Translation ****/
-			$("#sendForTranslation").click(function(e){
-				if($('#changeInternalStatus').val()=='-') {
-					$.prompt("Please select the action first.");
-					/* $('html, body').animate({
-				        scrollTop: $("#changeInternalStatus").offset().top
-				    }, 2000); */
-					return false;
-				}				
-				//removing <p><br></p>  from wysiwyg editor
-				$(".wysiwyg").each(function(){
-					var wysiwygVal=$(this).val().trim();
-					if(wysiwygVal=="<p></p>"||wysiwygVal=="<p><br></p>"||wysiwygVal=="<br><p></p>"){
-						$(this).val("");
-					}
-				});	
-				if($('#referredActDiv').is(':hidden')) {
-					$('#referredAct').val("");
-				}
-				clearUnrevisedDrafts();
-				$('.checklist_checkboxes').each(function() {
-					var fieldNumber = this.id.split("_")[2];
-					if($(this).attr('checked')=='checked') {						
-						$('#checklist_checkbox_field_'+fieldNumber).val('yes');
-					} else {
-						$('#checklist_checkbox_field_'+fieldNumber).val('no');
-						if($('#'+this.id+'_div').find('textarea').length>0) {
-							$('#'+this.id+'_div').find('textarea').val("");							
-						}
-						else if($('#'+this.id+'_div').find('input[type=checkbox]').length>0) {
-							$('#'+this.id+'_div').find('input[type=checkbox]').removeAttr('checked');																				
-						}
-					}					
-				});
-				$.prompt($('#sendForTranslationMessage').val(),{
-					buttons: {Ok:true, Cancel:false}, callback: function(v){
-			        if(v){
-						$.blockUI({ message: '<img src="./resources/images/waitAnimated.gif" />' }); 			        
-			        	$.post($('form').attr('action')+'?operation=sendForTranslation',  
-			    	            $("form").serialize(),  
-			    	            function(data){
-			       					$('.tabContent').html(data);
-			       					$('html').animate({scrollTop:0}, 'slow');
-			       				 	$('body').animate({scrollTop:0}, 'slow');	
-			    					$.unblockUI();	   				 	   				
-			    	            });
-	    	            }
-				}});			
-		        return false;  
-		    });
-			/**** Send for Opinion From Law And JD ****/
-			$("#sendForOpinionFromLawAndJD").click(function(e){
-				if($('#changeInternalStatus').val()=='-') {
-					$.prompt("Please select the action first.");					
-					return false;
-				}
-				//removing <p><br></p>  from wysiwyg editor
-				$(".wysiwyg").each(function(){
-					var wysiwygVal=$(this).val().trim();
-					if(wysiwygVal=="<p></p>"||wysiwygVal=="<p><br></p>"||wysiwygVal=="<br><p></p>"){
-						$(this).val("");
-					}
-				});
-				if($('#referredActDiv').is(':hidden')) {
-					$('#referredAct').val("");
-				}
-				clearUnrevisedDrafts();
-				$('.checklist_checkboxes').each(function() {
-					var fieldNumber = this.id.split("_")[2];
-					if($(this).attr('checked')=='checked') {						
-						$('#checklist_checkbox_field_'+fieldNumber).val('yes');
-					} else {
-						$('#checklist_checkbox_field_'+fieldNumber).val('no');
-						if($('#'+this.id+'_div').find('textarea').length>0) {
-							$('#'+this.id+'_div').find('textarea').val("");							
-						}
-						else if($('#'+this.id+'_div').find('input[type=checkbox]').length>0) {
-							$('#'+this.id+'_div').find('input[type=checkbox]').removeAttr('checked');																				
-						}
-					}					
-				});
-				$.prompt($('#sendForOpinionFromLawAndJDMessage').val(),{
-					buttons: {Ok:true, Cancel:false}, callback: function(v){
-			        if(v){
-						$.blockUI({ message: '<img src="./resources/images/waitAnimated.gif" />' }); 			        
-			        	$.post($('form').attr('action')+'?operation=sendForOpinionFromLawAndJD',  
-			    	            $("form").serialize(),  
-			    	            function(data){
-			       					$('.tabContent').html(data);
-			       					$('html').animate({scrollTop:0}, 'slow');
-			       				 	$('body').animate({scrollTop:0}, 'slow');	
-			    					$.unblockUI();	   				 	   				
-			    	            });
-	    	            }
-				}});			
-		        return false;  
-		    });
-			/**** Send for Recommendation from Governor ****/
-			$("#sendForRecommendationFromGovernor").click(function(e){	
-				var recommendation_from_governor=$("#internalStatusMaster option[value='bill_recommend_recommendationFromGovernor']").text();
-				if($('#changeInternalStatus').val()!=recommendation_from_governor) {
-					$.prompt("Please select the valid action first.");
-					return false;
-				} 
-				$('.checklist_checkboxes').each(function() {
-					var fieldNumber = this.id.split("_")[2];
-					if($(this).attr('checked')=='checked') {						
-						$('#checklist_checkbox_field_'+fieldNumber).val('yes');
-					} else {
-						$('#checklist_checkbox_field_'+fieldNumber).val('no');
-						if($('#'+this.id+'_div').find('textarea').length>0) {
-							$('#'+this.id+'_div').find('textarea').val("");							
-						}
-						else if($('#'+this.id+'_div').find('input[type=checkbox]').length>0) {
-							$('#'+this.id+'_div').find('input[type=checkbox]').removeAttr('checked');																				
-						}
-					}					
-				});
-				var fieldNameForGovernorRecommendation = "checklist['isRecommendedAsPerConstitutionArticle_207_3']";
-				if($("input[name='"+fieldNameForGovernorRecommendation+"']").val()=='no') {
-					alert("recommendation from governor is not required.");
-					return false;
-				}
-				//removing <p><br></p>  from wysiwyg editor
-				$(".wysiwyg").each(function(){
-					var wysiwygVal=$(this).val().trim();
-					if(wysiwygVal=="<p></p>"||wysiwygVal=="<p><br></p>"||wysiwygVal=="<br><p></p>"){
-						$(this).val("");
-					}
-				});	
-				if($('#referredActDiv').is(':hidden')) {
-					$('#referredAct').val("");
-				}
-				clearUnrevisedDrafts();				
-				$.prompt($('#sendForRecommendationFromGovernorPrompt').val(),{
-					buttons: {Ok:true, Cancel:false}, callback: function(v){
-			        if(v){
-						$.blockUI({ message: '<img src="./resources/images/waitAnimated.gif" />' }); 			        
-			        	$.post($('form').attr('action')+'?operation=sendForRecommendationFromGovernor',  
-			    	            $("form").serialize(),  
-			    	            function(data){
-			       					$('.tabContent').html(data);
-			       					$('html').animate({scrollTop:0}, 'slow');
-			       				 	$('body').animate({scrollTop:0}, 'slow');	
-			    					$.unblockUI();	   				 	   				
-			    	            });
-	    	            }
-				}});														
-		        return false;  
-		    });
-			/**** Send for Recommendation from President ****/
-			$("#sendForRecommendationFromPresident").click(function(e){	
-				var recommendation_from_president=$("#internalStatusMaster option[value='bill_recommend_recommendationFromPresident']").text();
-				if($('#changeInternalStatus').val()!=recommendation_from_president) {
-					$.prompt("Please select the valid action first.");
-					return false;
-				} 
-				$('.checklist_checkboxes').each(function() {
-					var fieldNumber = this.id.split("_")[2];
-					if($(this).attr('checked')=='checked') {						
-						$('#checklist_checkbox_field_'+fieldNumber).val('yes');
-					} else {
-						$('#checklist_checkbox_field_'+fieldNumber).val('no');
-						if($('#'+this.id+'_div').find('textarea').length>0) {
-							$('#'+this.id+'_div').find('textarea').val("");							
-						}
-						else if($('#'+this.id+'_div').find('input[type=checkbox]').length>0) {
-							$('#'+this.id+'_div').find('input[type=checkbox]').removeAttr('checked');																				
-						}
-					}					
-				});
-				var fieldNameForPresidentRecommendation = "checklist['isRecommendedAsPerConstitutionArticle_304_b']";
-				if($("input[name='"+fieldNameForPresidentRecommendation+"']").val()=='no') {
-					alert("recommendation from president is not required.");
-					return false;
-				}
-				//removing <p><br></p>  from wysiwyg editor
-				$(".wysiwyg").each(function(){
-					var wysiwygVal=$(this).val().trim();
-					if(wysiwygVal=="<p></p>"||wysiwygVal=="<p><br></p>"||wysiwygVal=="<br><p></p>"){
-						$(this).val("");
-					}
-				});	
-				if($('#referredActDiv').is(':hidden')) {
-					$('#referredAct').val("");
-				}
-				clearUnrevisedDrafts();				
-				$.prompt($('#sendForRecommendationFromPresidentPrompt').val(),{
-					buttons: {Ok:true, Cancel:false}, callback: function(v){
-			        if(v){
-						$.blockUI({ message: '<img src="./resources/images/waitAnimated.gif" />' }); 			        
-			        	$.post($('form').attr('action')+'?operation=sendForRecommendationFromPresident',  
-			    	            $("form").serialize(),  
-			    	            function(data){
-			       					$('.tabContent').html(data);
-			       					$('html').animate({scrollTop:0}, 'slow');
-			       				 	$('body').animate({scrollTop:0}, 'slow');	
-			    					$.unblockUI();	   				 	   				
-			    	            });
-	    	            }
-				}});														
-		        return false;  
-		    });
-			$('#submit').click(function() {				
-				//removing <p><br></p>  from wysiwyg editor
-				$(".wysiwyg").each(function(){
-					var wysiwygVal=$(this).val().trim();
-					if(wysiwygVal=="<p></p>"||wysiwygVal=="<p><br></p>"||wysiwygVal=="<br><p></p>"){
-						$(this).val("");
-					}
-				});
-				if($('#referredActDiv').is(':hidden')) {
-					$('#referredAct').val("");
-				}
-				if($('#referredOrdinanceDiv').is(':hidden')) {
-					$('#referredOrdinance').val("");
-				}
-				clearUnrevisedDrafts();
-				$('.checklist_checkboxes').each(function() {
-					var fieldNumber = this.id.split("_")[2];
-					if($(this).attr('checked')=='checked') {						
-						$('#checklist_checkbox_field_'+fieldNumber).val('yes');
-					} else {
-						$('#checklist_checkbox_field_'+fieldNumber).val('no');
-						if($('#'+this.id+'_div').find('textarea').length>0) {
-							$('#'+this.id+'_div').find('textarea').val("");							
-						}
-						else if($('#'+this.id+'_div').find('input[type=checkbox]').length>0) {
-							$('#'+this.id+'_div').find('input[type=checkbox]').removeAttr('checked');																				
-						}
-					}					
-				});		
-				//validations for introduction part
-				var updateToIntroduced = $("#recommendationStatusMaster option[value='bill_processed_introduced']").text();
-				if($('#changeRecommendationStatus').val()==updateToIntroduced) {
-					if($('#checklist_checkbox_field_2').val()=="yes" && $('#recommendationFromGovernor').val()=="") {
-						$.prompt($('#recommendationFromGovernorEmptyMsg').val());
-						return false;
-					}
-					if($('#checklist_checkbox_field_3').val()=="yes" && $('#recommendationFromPresident').val()=="") {
-						$.prompt($('#recommendationFromPresidentEmptyMsg').val());
-						return false;
-					}					
-				}	
-				//validations for under consideration part
-				if($('#internalStatusType').val()=='bill_processed_underConsideration') {
-					if($('#recommendationStatusType').val().match("^bill_processed_toBeDiscussed")) {
-						var consideredStatus = $("#recommendationStatusMaster option[value^='bill_processed_considered_']").text();
-						if($('#changeRecommendationStatus').val()!=consideredStatus) {
-							$.prompt($('#billNotSetUnderConsiderationMsg').val());
-							return false;
-						}						
-					}	
-					var referToJoinCommitteeStatus = $("#recommendationStatusMaster option[value^='bill_processed_referToJointCommittee']").text();
-					var reReferToJoinCommitteeStatus = $("#recommendationStatusMaster option[value^='bill_processed_reReferToJointCommittee']").text();
-					$.get('ref/getTypeOfSelectedBillKind?selectedBillKindId='+$('#billKind').val(), function(selectedBillKind) {
-						if(selectedBillKind=='money') {
-							if($('#changeRecommendationStatus').val()==referToJoinCommitteeStatus
-									|| $('#changeRecommendationStatus').val()==reReferToJoinCommitteeStatus) {
-								$.prompt($('#moneyBillCantBeReferredToJointCommitteeMsg').val());
-								return false;
-							}
-						}
-					});									
-				}	
-				$.blockUI({ message: '<img src="./resources/images/waitAnimated.gif" />' }); 
-				$.post($('form').attr('action'), $("form").serialize(), function(data){
-					$('.tabContent').html(data);
-						$('html').animate({scrollTop:0}, 'slow');
-						$('body').animate({scrollTop:0}, 'slow');	
-					$.unblockUI();
-				});								
-			});
 		    /**** Right Click Menu ****/
 			$(".clubbedRefBills").contextMenu({
 		        menu: 'contextMenuItems'
@@ -1062,6 +677,7 @@
 				} else {
 					$('#financialMemorandumDrafts_div').hide();
 				}
+				return false;
 			});
 			/**** toggle financial memorandum draft for given language icon ****/
 			$('.toggleFinancialMemorandumDraft').click(function() {
@@ -1091,6 +707,7 @@
 				} else {
 					$('#statutoryMemorandumDrafts_div').hide();
 				}
+				return false;
 			});
 			/**** toggle statutory memorandum draft for given language icon ****/
 			$('.toggleStatutoryMemorandumDraft').click(function() {
@@ -1109,6 +726,7 @@
 				} else {
 					$('#opinionSoughtFromLawAndJD_div').hide();
 				}
+				return false;
 			});
 			/**** toggle recommendation from governor on user demand ****/
 			$('#recommendationFromGovernor_button').click(function() {
@@ -1117,6 +735,7 @@
 				} else {
 					$('#recommendationFromGovernor_div').hide();
 				}
+				return false;
 			});
 			/**** toggle recommendation from president on user demand ****/
 			$('#recommendationFromPresident_button').click(function() {
@@ -1125,14 +744,21 @@
 				} else {
 					$('#recommendationFromPresident_div').hide();
 				}
+				return false;
 			});
 			/**** toggle checklist on user demand ****/
 			$('#checklist_button').click(function() {
 				if($('#checklist_div').css('display')=='none') {
 					$('#checklist_div').show();
+					if($('#opinionSoughtFromLawAndJD_div').css('display')=='none'
+							&& $('#opinionSoughtFromLawAndJD').val()!="") {
+						$('#opinionSoughtFromLawAndJD_div').show();
+					}
 				} else {
 					$('#checklist_div').hide();
+					$('#opinionSoughtFromLawAndJD_div').hide();
 				}
+				return false;
 			});
 			//----------------------revise drafts script----------------------//		
 			$('.revisedTitle').each(function() {
@@ -1265,43 +891,203 @@
 					},'html');
 				}				
 			});
-		});
-		
-		/* function dereferencingInt(referId){
-			var device=$("#typeOfSelectedDeviceType").val();
-			var deviceId=$("#id").val();
 			
-			$.post('refentity/dereferencing?pId='+deviceId+"&rId="+referId+"&device="+device,function(data){
-				if(data=='SUCCESS'){
-					$("#referencingResult").empty();
-					$("#referencingResult").html(data);
-					$("#operation"+referId).empty();
-					$("#operation"+referId).html("<a onclick='referencing("+referId+");' style='margin:10px;'>"+$("#referMsg").val()+"</a>");
-					}else{
-						$("#referencingResult").empty();
-						$("#referencingResult").html(data);
-						$("#operation"+referId).empty();
-						$("#operation"+referId).html("<a onclick='dereferencing("+referId+");' style='margin:10px;'>"+$("#dereferMsg").val()+"</a>");
-					}				
-			},'html');
-			return false;
-		} */		
+			/** Confirm whether this is money bill or not  **/
+			$("#checklist_checkbox_5").click(function(e) {
+				var alertMessage = "";
+				var checkedBox = "";
+				if($(this).is(':checked')) {
+					alertMessage = $('#isMoneyBillPrompt').val();
+					checkedBox = "checked";
+				} else {
+					alertMessage = $('#isNotMoneyBillPrompt').val();
+					checkedBox = "";
+				}	
+				$.prompt(alertMessage,{
+					buttons: {Ok:true, Cancel:false}, callback: function(v){
+			        if(v){
+			        	
+	    	        } else {
+	    	        	if(checkedBox=="checked") {
+			        		$("#checklist_checkbox_5").removeAttr('checked');
+			        		hideRelatedDiv('checklist_checkbox_5');
+							return false;
+						} else {
+							$("#checklist_checkbox_5").attr('checked','checked');		
+							$('#checklist_checkbox_5_div').show();
+							return false;
+						} 	        	
+	    	        }
+			        return false;
+				}});				
+			});
+			
+			/**** Single Updation for All Workflows ****/
+			$('#submit').click(function() {
+				alert("here...");
+				//removing <p><br></p>  from wysiwyg editor
+				$(".wysiwyg").each(function(){
+					var wysiwygVal=$(this).val().trim();
+					if(wysiwygVal=="<p></p>"||wysiwygVal=="<p><br></p>"||wysiwygVal=="<br><p></p>"){
+						$(this).val("");
+					}
+				});
+				if($('#referredActDiv').is(':hidden')) {
+					$('#referredAct').val("");
+				}
+				if($('#referredOrdinanceDiv').is(':hidden')) {
+					$('#referredOrdinance').val("");
+				}
+				clearUnrevisedDrafts();
+				$('.checklist_checkboxes').each(function() {
+					var fieldNumber = this.id.split("_")[2];
+					if($(this).attr('checked')=='checked') {						
+						$('#checklist_checkbox_field_'+fieldNumber).val('yes');
+					} else {
+						$('#checklist_checkbox_field_'+fieldNumber).val('no');
+						if($('#'+this.id+'_div').find('textarea').length>0) {
+							$('#'+this.id+'_div').find('textarea').val("");							
+						}
+						else if($('#'+this.id+'_div').find('input[type=checkbox]').length>0) {
+							$('#'+this.id+'_div').find('input[type=checkbox]').removeAttr('checked');																				
+						}
+					}					
+				});
+				var admit=$("#internalStatusMaster option[value='bill_recommend_admission']").text();			
+				var reject=$("#internalStatusMaster option[value='bill_recommend_rejection']").text();
+				var translate=$("#internalStatusMaster option[value='bill_recommend_translation']").text();
+				var opinion_from_lawandjd=$("#internalStatusMaster option[value='bill_recommend_opinionFromLawAndJD']").text();
+				var recommendation_from_governor=$("#internalStatusMaster option[value='bill_recommend_recommendationFromGovernor']").text();
+				var recommendation_from_president=$("#internalStatusMaster option[value='bill_recommend_recommendationFromPresident']").text();
+				var actionForUpdation = $('#changeInternalStatus').val();
+				if(actionForUpdation=='-') {
+					//validations for introduction part
+					var updateToIntroduced = $("#recommendationStatusMaster option[value='bill_processed_introduced']").text();
+					if($('#changeRecommendationStatus').val()==updateToIntroduced) {
+						if($('#checklist_checkbox_field_2').val()=="yes" && $('#recommendationFromGovernor').val()=="") {
+							$.prompt($('#recommendationFromGovernorEmptyMsg').val());
+							return false;
+						}
+						if($('#checklist_checkbox_field_3').val()=="yes" && $('#recommendationFromPresident').val()=="") {
+							$.prompt($('#recommendationFromPresidentEmptyMsg').val());
+							return false;
+						}					
+					}	
+					//validations for under consideration part
+					if($('#internalStatusType').val()=='bill_processed_underConsideration') {
+						if($('#recommendationStatusType').val().match("^bill_processed_toBeDiscussed")) {
+							var consideredStatus = $("#recommendationStatusMaster option[value^='bill_processed_considered_']").text();
+							if($('#changeRecommendationStatus').val()!=consideredStatus) {
+								$.prompt($('#billNotSetUnderConsiderationMsg').val());
+								return false;
+							}						
+						}	
+						var referToJoinCommitteeStatus = $("#recommendationStatusMaster option[value^='bill_processed_referToJointCommittee']").text();
+						var reReferToJoinCommitteeStatus = $("#recommendationStatusMaster option[value^='bill_processed_reReferToJointCommittee']").text();
+						$.get('ref/getTypeOfSelectedBillKind?selectedBillKindId='+$('#billKind').val(), function(selectedBillKind) {
+							if(selectedBillKind=='money') {
+								if($('#changeRecommendationStatus').val()==referToJoinCommitteeStatus
+										|| $('#changeRecommendationStatus').val()==reReferToJoinCommitteeStatus) {
+									$.prompt($('#moneyBillCantBeReferredToJointCommitteeMsg').val());
+									return false;
+								}
+							}
+						});									
+					}
+					$.blockUI({ message: '<img src="./resources/images/waitAnimated.gif" />' }); 
+					$.post($('form').attr('action'), $("form").serialize(), function(data){
+						$('.tabContent').html(data);
+							$('html').animate({scrollTop:0}, 'slow');
+							$('body').animate({scrollTop:0}, 'slow');	
+						$.unblockUI();
+					});
+				} else {					
+					var promptMessage="";
+					var operation="";
+					if(actionForUpdation==translate) {
+						promptMessage = $('#sendForTranslationMessage').val();
+						operation = "sendForTranslation";
+					} else if(actionForUpdation==opinion_from_lawandjd) {
+						promptMessage = $('#sendForTranslationMessage').val();
+						operation = "sendForTranslation";
+					} else if(actionForUpdation==recommendation_from_governor) {
+						var fieldNameForGovernorRecommendation = "checklist['isRecommendedAsPerConstitutionArticle_207_3']";
+						if($("input[name='"+fieldNameForGovernorRecommendation+"']").val()=='no') {
+							alert("recommendation from governor is not required.");
+							return false;
+						}
+						promptMessage = $('#sendForTranslationMessage').val();
+						operation = "sendForTranslation";
+					} else if(actionForUpdation==recommendation_from_president) {
+						var fieldNameForPresidentRecommendation = "checklist['isRecommendedAsPerConstitutionArticle_304_b']";
+						if($("input[name='"+fieldNameForPresidentRecommendation+"']").val()=='no') {
+							alert("recommendation from president is not required.");
+							return false;
+						}
+						promptMessage = $('#sendForTranslationMessage').val();
+						operation = "sendForTranslation";
+					} else if(actionForUpdation==admit || actionForUpdation==reject) {
+						if($('#opinionSoughtFromLawAndJD').val()=='') {
+							$.prompt("Opinion is not received yet from Law & Judiciary Department. So Bill cannot be put up.");
+							return false;
+						}				
+						/** remarks compulsory when putup for rejection **/
+						var putupForRejection=$("#internalStatusMaster option[value='bill_recommend_rejection']").text();
+						if($('#changeInternalStatus').val()==putupForRejection) {
+							if($('#remarks').val()=="") {
+								$.prompt($('#remarksCompulsoryWhenPutupForRejectionMessage').val());
+								return false;
+							}
+						}						
+						/** putup not allowed when translation is pending **/
+						if($('#translationStatusType').val()=='bill_recommend_translation' 
+								|| $('#translationStatusType').val()=='bill_final_translation') {
+							$.prompt($('#translationPendingMessage').val());
+							return false;
+							//promptMessage = $('#startWorkflowDespiteTranslationPendingMessage').val();
+						} else {
+							if($('#isAnyBillSubmittedEarierThanCurrentBillToBePutup').val()=='true') {
+								promptMessage = $('#billsSubmittedEarierPendingForPutupWarning').val();
+							}else {
+								promptMessage = $('#startWorkflowMessage').val();
+							}	
+							operation = "startworkflow";
+						}						
+					}
+					$.prompt(promptMessage,{
+						buttons: {Ok:true, Cancel:false}, callback: function(v){
+				        if(v){
+							$.blockUI({ message: '<img src="./resources/images/waitAnimated.gif" />' }); 			        
+				        	$.post($('form').attr('action')+'?operation='+operation,  
+				    	            $("form").serialize(),  
+				    	            function(data){
+				       					$('.tabContent').html(data);
+				       					$('html').animate({scrollTop:0}, 'slow');
+				       				 	$('body').animate({scrollTop:0}, 'slow');
+				    					$.unblockUI();	   				 	   				
+				    	            });
+		    	            }
+					}});														
+			        return false;
+				}				 
+			});
+		});			
 		</script>
 		 <style type="text/css">
 	        @media print {
 	            .tabs,#selectionDiv1,#selectionDiv2,title,#pannelDash,.menu{
 	            display:none;
 	            }
-	        }
+	        }        
 	    </style>
 	    <style type="text/css">
 			.imageLink{
-				width: 14px;
-				height: 14px;
-				box-shadow: 2px 2px 5px #000000;
+				width: 20px;
+				height: 20px;				
+				/* box-shadow: 2px 2px 5px #000000;
 				border-radius: 5px;
 				padding: 2px;
-				border: 1px solid #000000; 
+				border: 1px solid #000000; */ 
 			}
 			
 			.imageLink:hover{
@@ -1309,7 +1095,13 @@
 				border-radius: 5px;
 				padding: 2px;
 				border: 1px solid #888888; 
-			}
+			}	
+			
+			div.fixed-width-wysiwyg {
+				min-width: 400px !important;
+				left: 10px !important;
+				margin-top: 10px;
+			}				
 		</style>
 	</head> 
 
@@ -1318,15 +1110,15 @@
 			<div id="assistantDiv">
 				<form:form action="bill" method="PUT" modelAttribute="domain">
 					<%@ include file="/common/info.jsp" %>
-					<h2>${formattedDeviceTypeForBill} ${formattedNumber}
-					<span style="text-align: right;">
-					<a href="#" id="financialMemorandumDrafts_button" style="margin-left: 100px;margin-right: 20px;font-size: 14px;">
+					<h2>${formattedDeviceTypeForBill} ${formattedNumber}	
+					<%-- <span style="margin-left: 700px;">	
+					<a href="#" id="financialMemorandumDrafts_button" style="margin-right: 20px;font-size: 14px;">
 						<img src="./resources/images/Memo-icon.png" title="<spring:message code='bill.financialMemorandumDrafts' text='Financial Memorandums'></spring:message>" class="imageLink" />
 					</a>	
 					<a href="#" id="checklist_button" style="margin-right: 20px;font-size: 14px;">
 						<img src="./resources/images/checklist.jpg" title="<spring:message code='bill.checklist' text='Checklist'></spring:message>" class="imageLink" />
-					</a>
-					</span>
+					</a>	
+					</span> --%>				
 					</h2>
 					<form:errors path="version" cssClass="validationError"/>
 					
@@ -1417,7 +1209,7 @@
 						<form:errors path="subDepartment" cssClass="validationError"/>
 					</p>
 					<!-- <h2></h2> -->
-					<hr/>
+					
 					<p>
 						<label class="small"><spring:message code="bill.billType" text="Bill Type"/></label>
 						<select id="billType" class="sSelect" name="billType">
@@ -1456,6 +1248,8 @@
 					<input id="setSubmissionDate" name="setSubmissionDate" type="hidden"  value="${submissionDate}">	
 					</p>
 					</c:if>
+					
+					<h2></h2>
 					
 					<c:if test="${selectedDeviceTypeForBill == 'bills_government'}">
 					<p>
@@ -1525,14 +1319,22 @@
 					</p>
 					</c:if>
 					
-					<c:if test="${selectedDeviceTypeForBill=='bills_nonofficial'}">
-					<p>
+					<c:if test="${selectedDeviceTypeForBill=='bills_nonofficial'}">		
+					<c:choose>	
+					<c:when test="${empty parent}"><c:set var="displayParentBill" value="none"/></c:when>
+					<c:otherwise><c:set var="displayParentBill" value="inline"/></c:otherwise>		
+					</c:choose>
+					<p style="display: ${displayParentBill};">
 						<label class="small"><spring:message code="bill.parentbill" text="Clubbed To"></spring:message></label>
 						<a href="#" id="p${parent}" onclick="viewBillDetail(${parent});"><c:out value="${formattedParentNumber}"></c:out></a>						
 						<input type="hidden" id="parent" name="parent" value="${parent}">
 					</p>
 					
-					<p>
+					<c:choose>	
+					<c:when test="${empty clubbedBillsToShow}"><c:set var="displayClubbedBillsToShow" value="none"/></c:when>
+					<c:otherwise><c:set var="displayClubbedBillsToShow" value="inline"/></c:otherwise>		
+					</c:choose>
+					<p style="display: ${displayClubbedBillsToShow};">
 						<label class="small"><spring:message code="bill.clubbedbills" text="Clubbed Bills"></spring:message></label>
 						<c:choose>
 							<c:when test="${!(empty clubbedBillsToShow) }">
@@ -1551,7 +1353,11 @@
 						</select>
 					</p>					
 					
-					<p>
+					<c:choose>	
+					<c:when test="${empty referencedBills}"><c:set var="displayReferencedBills" value="none"/></c:when>
+					<c:otherwise><c:set var="displayReferencedBills" value="inline"/></c:otherwise>		
+					</c:choose>
+					<p style="display: ${displayReferencedBills};">
 						<label class="small"><spring:message code="bill.referencedbill" text="Referenced Bill"></spring:message></label>
 						<c:choose>
 							<c:when test="${!(empty referencedBills) }">
@@ -1584,7 +1390,11 @@
 					</p>
 					</c:if>	
 					
-					<p>
+					<c:choose>	
+					<c:when test="${empty lapsedBills}"><c:set var="displayLapsedBills" value="none"/></c:when>
+					<c:otherwise><c:set var="displayLapsedBills" value="inline"/></c:otherwise>		
+					</c:choose>
+					<p style="display: ${displayLapsedBills};">
 						<label class="small"><spring:message code="bill.lapsedbill" text="Lapsed Bill"></spring:message></label>
 						<c:choose>
 							<c:when test="${!(empty lapsedBills) }">
@@ -1608,12 +1418,14 @@
 						<input type="hidden" id="lapsedBill" name="lapsedBill" value="${lapsedBill}" />						
 					</p>
 					
-					<div>
+					<!-- <h2></h2> -->
+					
+					<div style="margin-top: 20px;">
 						<fieldset>
-							<legend style="text-align: left; width: 150px;"><label><spring:message code="bill.titles" text="Titles of Bill" /></label></legend>
+							<%-- <legend style="text-align: left; width: 150px;"><label><spring:message code="bill.titles" text="Titles of Bill" /></label></legend> --%>
 							<%-- <a href="#" class="viewRevisions" id="viewRevisions_titles" style="margin-left: 162px;"><spring:message code="bill.viewRevisionsForTitles" text="View Revisions for Titles"></spring:message></a> --%>
 							<a href="#" class="viewRevisions" id="viewRevisions_titles"  style="margin-left: 162px;">
-								<img src="./resources/images/revision.jpg" title="<spring:message code='bill.viewRevisionsForTitles' text='View Revisions for Titles'></spring:message>" class="imageLink" />
+								<img src="./resources/images/ViewRevise.png" title="<spring:message code='bill.viewRevisionsForTitles' text='View Revisions for Titles'></spring:message>" class="imageLink" />
 							</a>
 							<c:forEach var="i" items="${titles}" varStatus="position">
 							<c:choose>
@@ -1661,11 +1473,11 @@
 								</c:forEach>
 							</div>
 						</fieldset>
-					</div>
+					</div>					
 					
-					<div>
+					<div style="margin-top: 20px;">
 						<fieldset>
-							<legend style="text-align: left; width: 150px;"><label><spring:message code="bill.contentDrafts" text="Drafts of Bill" /></label></legend>
+							<%-- <legend style="text-align: left; width: 150px;"><label><spring:message code="bill.contentDrafts" text="Drafts of Bill" /></label></legend> --%>
 							<%-- <a href="#" class="viewRevisions" id="viewRevisions_contentDrafts" style="margin-left: 162px;"><spring:message code="bill.viewRevisionsForContentDrafts" text="View Revisions for Content Drafts"></spring:message></a> --%>
 							<a href="#" class="viewRevisions" id="viewRevisions_contentDrafts"  style="margin-left: 162px;">
 								<img src="./resources/images/revision.jpg" title="<spring:message code='bill.viewRevisionsForContentDrafts' text='View Revisions for Content Drafts'></spring:message>" class="imageLink" />
@@ -1719,9 +1531,9 @@
 						</fieldset>
 					</div>
 					
-					<div id="annexuresForAmendingBill_div">
+					<div id="annexuresForAmendingBill_div" style="margin-top: 20px;">
 						<fieldset>
-							<legend style="text-align: left; width: 150px;"><label><spring:message code="bill.annexuresForAmendingBill" text="Annexures For Amending Bill" /></label></legend>
+							<%-- <legend style="text-align: left; width: 150px;"><label><spring:message code="bill.annexuresForAmendingBill" text="Annexures For Amending Bill" /></label></legend> --%>
 							<%-- <a href="#" class="viewRevisions" id="viewRevisions_annexuresForAmendingBill" style="margin-left: 162px;"><spring:message code="bill.viewRevisionsForAnnexuresForAmendingBill" text="View Revisions for Annexures For Amending Bill"></spring:message></a> --%>
 							<a href="#" class="viewRevisions" id="viewRevisions_annexuresForAmendingBill"  style="margin-left: 162px;">
 								<img src="./resources/images/revision.jpg" title="<spring:message code='bill.viewRevisionsForAnnexuresForAmendingBill' text='View Revisions for Annexures For Amending Bill'></spring:message>" class="imageLink" />
@@ -1748,9 +1560,9 @@
 						</fieldset>
 					</div>					
 	
-					<div>
+					<div style="margin-top: 20px;">
 						<fieldset>
-							<legend style="text-align: left; width: 150px;"><label><spring:message code="bill.statementOfObjectAndReasonDrafts" text="Statement of Object & Reason" /></label></legend>
+							<%-- <legend style="text-align: left; width: 150px;"><label><spring:message code="bill.statementOfObjectAndReasonDrafts" text="Statement of Object & Reason" /></label></legend> --%>
 							<%-- <a href="#" class="viewRevisions" id="viewRevisions_statementOfObjectAndReasonDrafts" style="margin-left: 162px;"><spring:message code="bill.viewRevisionsForStatementOfObjectAndReasonDrafts" text="View Revisions for Statement Of Object And Reason"></spring:message></a> --%>
 							<a href="#" class="viewRevisions" id="viewRevisions_statementOfObjectAndReasonDrafts"  style="margin-left: 162px;">
 								<img src="./resources/images/revision.jpg" title="<spring:message code='bill.viewRevisionsForStatementOfObjectAndReasonDrafts' text='View Revisions for Statement Of Object And Reason'></spring:message>" class="imageLink" />
@@ -1801,14 +1613,24 @@
 								</c:forEach>
 							</div>
 						</fieldset>
-					</div>
+					</div>					
 					
-					<p>
-					<%-- <input type="button" id="financialMemorandumDrafts_button" class="button" value="<spring:message code='bill.financialMemorandumDrafts' text='Financial Memorandums'/>"/> --%>
-					<div id="financialMemorandumDrafts_div"  style="display:none;">
+					<p style="margin-top: 20px;">
+					<a href="#" id="financialMemorandumDrafts_button" style="margin-left: 162px;margin-right: 20px;font-size: 14px;">
+						<img src="./resources/images/Memo-icon.png" title="<spring:message code='bill.financialMemorandumDrafts' text='Financial Memorandums'></spring:message>" class="imageLink" />
+					</a>	
+					<a href="#" id="statutoryMemorandumDrafts_button" style="margin-right: 20px;font-size: 14px;">
+						<img src="./resources/images/Memo-icon.png" title="<spring:message code='bill.statutoryMemorandumDrafts' text='Statutory Memorandums'></spring:message>" class="imageLink" />
+					</a>
+					<a href="#" id="checklist_button" style="margin-right: 20px;font-size: 14px;">
+						<img src="./resources/images/checklist.jpg" title="<spring:message code='bill.checklist' text='Checklist'></spring:message>" class="imageLink" />
+					</a>
+					</p>
+					
+					<div id="financialMemorandumDrafts_div"  style="display:none; margin-top: 20px;">
 						<fieldset>
-							<legend style="text-align: left; width: 150px;"><label><spring:message code="bill.financialMemorandumDrafts" text="Financial Memorandum" /></label></legend>
-							<a href="#" class="viewRevisions" id="viewRevisions_financialMemorandumDrafts" style="margin-left: 162px;"><spring:message code="bill.viewRevisionsForFinancialMemorandumDrafts" text="View Revisions for Financial Memorandum"></spring:message></a>
+							<%-- <legend style="text-align: left; width: 150px;"><label><spring:message code="bill.financialMemorandumDrafts" text="Financial Memorandum" /></label></legend> --%>
+							<%-- <a href="#" class="viewRevisions" id="viewRevisions_financialMemorandumDrafts" style="margin-left: 162px;"><spring:message code="bill.viewRevisionsForFinancialMemorandumDrafts" text="View Revisions for Financial Memorandum"></spring:message></a> --%>
 							<a href="#" class="viewRevisions" id="viewRevisions_financialMemorandumDrafts"  style="margin-left: 162px;">
 								<img src="./resources/images/revision.jpg" title="<spring:message code='bill.viewRevisionsForFinancialMemorandumDrafts' text='View Revisions for Financial Memorandum'></spring:message>" class="imageLink" />
 							</a>
@@ -1858,14 +1680,11 @@
 								</c:forEach>
 							</div>
 						</fieldset>
-					</div>
-					</p>
+					</div>					
 					
-					<p>
-					<input type="button" id="statutoryMemorandumDrafts_button" class="button" value="<spring:message code='bill.statutoryMemorandumDrafts' text='Statutory Memorandums'/>"/>
-					<div id="statutoryMemorandumDrafts_div"  style="display:none;">
+					<div id="statutoryMemorandumDrafts_div"  style="display:none; margin-top: 20px;">
 						<fieldset>
-							<legend style="text-align: left; width: 150px;"><label><spring:message code="bill.statutoryMemorandumDrafts" text="Statutory Memorandum" /></label></legend>
+							<%-- <legend style="text-align: left; width: 150px;"><label><spring:message code="bill.statutoryMemorandumDrafts" text="Statutory Memorandum" /></label></legend> --%>
 							<%-- <a href="#" class="viewRevisions" id="viewRevisions_statutoryMemorandumDrafts_${i.language.type}" style="margin-left: 162px;"><spring:message code="bill.viewRevisionsForStatutoryMemorandumDrafts" text="View Revisions for Statutory Memorandum"></spring:message></a> --%>
 							<a href="#" class="viewRevisions" id="viewRevisions_statutoryMemorandumDrafts"  style="margin-left: 162px;">
 								<img src="./resources/images/revision.jpg" title="<spring:message code='bill.viewRevisionsForStatutoryMemorandumDrafts' text='View Revisions for Statutory Memorandum'></spring:message>" class="imageLink" />
@@ -1916,8 +1735,7 @@
 								</c:forEach>
 							</div>
 						</fieldset>
-					</div>
-					</p>
+					</div>					
 					
 					<c:if test="${not empty formattedTranslationStatus and memberStatusType=='bill_submit'}">
 					<p id="translationStatusDiv">
@@ -2066,28 +1884,6 @@
 					<input type="hidden" id="recommendationFromGovernorStatus"  name="recommendationFromGovernorStatus" value="${recommendationFromGovernorStatus}">
 					<input type="hidden" id="recommendationFromPresidentStatus"  name="recommendationFromPresidentStatus" value="${recommendationFromPresidentStatus}">
 					
-					<c:set var="isOpinionFromLawAndJDReadonly" value="true"/>
-					<c:if test="${selectedDeviceTypeForBill=='bills_government' and empty domain.opinionSoughtFromLawAndJD}">
-						<c:set var="isOpinionFromLawAndJDReadonly" value="false"/>
-					</c:if>	
-					<p>
-					<input type="button" id="opinionSoughtFromLawAndJD_button" class="button" value="<spring:message code='bill.opinionSoughtFromLawAndJD' text='Opinion from Law & Judiciary Department'/>"/>
-					<div id="opinionSoughtFromLawAndJD_div"  style="display:none;">
-					<p>
-						<label class="wysiwyglabel"><spring:message code="bill.opinionSoughtFromLawAndJD" text="Opinion from Law & Judiciary Department"/></label>
-						<form:textarea id="opinionSoughtFromLawAndJD" path="opinionSoughtFromLawAndJD" cssClass="wysiwyg" readonly="${isOpinionFromLawAndJDReadonly}"></form:textarea>
-						<form:errors path="opinionSoughtFromLawAndJD" />
-					</p>					
-					<c:if test="${not empty dateOfOpinionSoughtFromLawAndJD}">
-					<p>
-					<label class="small"><spring:message code="bill.dateOfOpinionSoughtFromLawAndJD" text="Date Of Opinion Sought From Law And JD"/></label>
-					<input id="formattedDateOfOpinionSoughtFromLawAndJD" name="formattedDateOfOpinionSoughtFromLawAndJD" value="${formattedDateOfOpinionSoughtFromLawAndJD}" class="sText" readonly="readonly">
-					<input id="setDateOfOpinionSoughtFromLawAndJD" name="setDateOfOpinionSoughtFromLawAndJD" type="hidden"  value="${dateOfOpinionSoughtFromLawAndJD}">	
-					</p>
-					</c:if>
-					</div>
-					</p>
-					
 					<p>
 					<input type="button" id="recommendationFromGovernor_button" class="button" value="<spring:message code='bill.recommendationFromGovernor' text='Recommendation From Governor'/>"/>
 					<div id="recommendationFromGovernor_div"  style="display:none;">
@@ -2124,194 +1920,209 @@
 					</div>
 					</p>
 					
-					<p>
-					<%-- <input type="button" id="checklist_button" class="button" value="<spring:message code='bill.checklist' text='Checklist'/>"/> --%>
-					<div id="checklist_div"  style="display:none;">					
-						<fieldset>
-						<legend style="text-align: left; width: 150px;"><label><spring:message code="bill.checklist" text="Checklist" /></label></legend>
-						<a href="#" class="viewRevisions" id="viewRevisions_checklist" style="margin-left: 162px;margin-right: 20px;"><spring:message code="bill.viewRevisionsForChecklist" text="View Revisions for Checklist"></spring:message></a>
-						<a href="bill/viewSchedule7OfConstitution" target="_blank" id="viewSchedule7OfConstitution" style="margin-right: 20px;"><spring:message code="bill.viewSchedule7OfConstitution" text="View Schedule 7 Of Constitution"></spring:message></a>
-						<table border="1" style="margin-left: 165px; width: 600px; border: 2px solid black;">
-							<!-- <thead>
-								<tr>
-									<th width="50%">Question Details</th>
-									<th>Answer</th>
-								</tr>								
-							</thead> -->
-							<tbody>
-								<tr id="checklistQuestion1">
-									<td>
-										<div style="border: 0px 0px 1px 0px dotted #000000;">
+					<div>
+						<div id="opinionSoughtFromLawAndJD_div" style="display: none;float: left;">
+							<p id="opinionSoughtFromLawAndJD_para">
+								<label><spring:message code="bill.opinionSoughtFromLawAndJD" text="Opinion from Law & Judiciary Department"/></label>
+								<br/>
+								<form:textarea id="opinionSoughtFromLawAndJD" path="opinionSoughtFromLawAndJD" cssClass="wysiwyg" readonly="true"></form:textarea>
+								<form:errors path="opinionSoughtFromLawAndJD" />
+							</p>					
+							<c:if test="${not empty dateOfOpinionSoughtFromLawAndJD}">
+							<p>
+							<label class="small"><spring:message code="bill.dateOfOpinionSoughtFromLawAndJD" text="Date Of Opinion Sought From Law And JD"/></label>
+							<input id="formattedDateOfOpinionSoughtFromLawAndJD" name="formattedDateOfOpinionSoughtFromLawAndJD" value="${formattedDateOfOpinionSoughtFromLawAndJD}" class="sText" readonly="readonly">
+							<input id="setDateOfOpinionSoughtFromLawAndJD" name="setDateOfOpinionSoughtFromLawAndJD" type="hidden"  value="${dateOfOpinionSoughtFromLawAndJD}">	
+							</p>
+							</c:if>
+						</div>
+						
+						<div id="checklist_div"  style="display: none;margin-left: 420px;margin-top: 20px;">					
+							<fieldset>
+							<label><spring:message code="bill.checklist" text="Checklist" /></label>
+							<br/>
+							<a href="#" class="viewRevisions" id="viewRevisions_checklist" style="margin-top: 20px;margin-bottom: 5px;"><spring:message code="bill.viewRevisionsForChecklist" text="View Revisions for Checklist"></spring:message></a>
+							<a href="bill/viewSchedule7OfConstitution" target="_blank" id="viewSchedule7OfConstitution" style="margin-right: 20px;"><spring:message code="bill.viewSchedule7OfConstitution" text="View Schedule 7 Of Constitution"></spring:message></a>
+							<table border="1" style="width: 470px; margin-top: 10px;border: 2px solid black;">
+								<!-- <thead>
+									<tr>
+										<th width="50%">Question Details</th>
+										<th>Answer</th>
+									</tr>								
+								</thead> -->
+								<tbody>
+									<tr id="checklistQuestion1">
+										<td>
+											<div style="border: 0px 0px 1px 0px dotted #000000;">
+												<br/>
+												<label><spring:message code="bill.checklistQuestion1" text="Are following things essential for this bill?"/></label>
+											</div>
+											<div>
+												<label style="width:400px;"><spring:message code="bill.checklistQuestion1.1" text="is bill recommended in accordance with constitution article 207 (1)?"/></label>
+												<input type="checkbox" class="sCheck checklist_checkboxes" id="checklist_checkbox_1" style="margin: 10px; margin-left: 10px;">
+												<form:input class="checklist_checkbox_fields" id="checklist_checkbox_field_1" type="hidden" path="checklist['isRecommendedAsPerConstitutionArticle_207_1']" />
+											</div>
+											<br/>																					
+											<div style="display: none;" id="checklist_checkbox_1_div">
+												<label><spring:message code="bill.checklistQuestion1.2" text="if yes, please mention sections"/></label>
+												<br/>
+												<form:textarea class="sTextarea" path="checklist['sectionsForRecommendationAsPerConstitutionArticle_207_1']" rows="2" cols="50" style="margin: 10px;"/>
+											</div>
+											
+											<div>
+												<label style="width:400px;"><spring:message code="bill.checklistQuestion1.3" text="is bill recommended in accordance with constitution article 207 (3)?"/></label>
+												<input type="checkbox" class="sCheck checklist_checkboxes" id="checklist_checkbox_2" style="margin: 10px; margin-left: 10px;">
+												<form:input class="checklist_checkbox_fields" id="checklist_checkbox_field_2" type="hidden" path="checklist['isRecommendedAsPerConstitutionArticle_207_3']" />
+											</div>		
+											<br />								
+											<div style="display: none;" id="checklist_checkbox_2_div">
+												<label><spring:message code="bill.checklistQuestion1.4" text="if yes, please mention sections"/></label>
+												<br/>
+												<form:textarea class="sTextarea" path="checklist['sectionsForRecommendationAsPerConstitutionArticle_207_3']" rows="2" cols="50" style="margin: 10px;" />
+											</div>
+											
+											<div>
+												<label style="width:400px;"><spring:message code="bill.checklistQuestion1.5" text="is bill recommended in accordance with constitution article 304 (b)?"/></label>
+												<input type="checkbox" class="sCheck checklist_checkboxes" id="checklist_checkbox_3" style="margin: 10px; margin-left: 10px;">
+												<form:input class="checklist_checkbox_fields" id="checklist_checkbox_field_3" type="hidden" path="checklist['isRecommendedAsPerConstitutionArticle_304_b']" />
+											</div>	
+											<br />									
+											<div style="display: none;" id="checklist_checkbox_3_div">
+												<label><spring:message code="bill.checklistQuestion1.6" text="if yes, please mention sections"/></label>
+												<br/>
+												<form:textarea class="sTextarea" path="checklist['sectionsForRecommendationAsPerConstitutionArticle_304_b']" rows="2" cols="50" style="margin: 10px;" />
+											</div>
+										</td>
+									</tr>
+									<tr id="checklistQuestion2">
+										<td>
+											<div style="border: 0px 0px 1px 0px dotted #000000;">
+												<label style="width:400px;"><spring:message code="bill.checklistQuestion2.1" text="is bill in scope of state legislature?"/></label>
+												<input type="checkbox" class="sCheck checklist_checkboxes" id="checklist_checkbox_4" style="margin: 10px; margin-left: 10px;">
+												<form:input class="checklist_checkbox_fields" id="checklist_checkbox_field_4" type="hidden" path="checklist['isInScopeOfStateLegislature']" />
+											</div>
+											<br />
+											<div style="display: none;" id="checklist_checkbox_4_div">
+												<label><spring:message code="bill.checklistQuestion2.2" text="if yes, please also mention related schedule issues"/></label>
+												<br/>
+												<form:textarea class="sTextarea" path="checklist['issuesInRelatedScheduleForScopeOfStateLegislature']" rows="2" cols="50" style="margin: 10px;" />
+											</div>
+										</td>
+									</tr>
+									<tr id="checklistQuestion3">
+										<td>
+											<div style="border: 0px 0px 1px 0px dotted #000000;">
+												<label style="width:400px;"><spring:message code="bill.checklistQuestion3.1" text="is this bill a money bill?"/></label>
+												<input type="checkbox" class="sCheck checklist_checkboxes" id="checklist_checkbox_5" style="margin: 10px; margin-left: 10px;">
+												<form:input class="checklist_checkbox_fields" id="checklist_checkbox_field_5" type="hidden" path="checklist['isMoneyBill']" />
+											</div>
+											<br />
+											<div style="display: none;" id="checklist_checkbox_5_div">
+												<label><spring:message code="bill.checklistQuestion3.2" text="if yes, please mention sections"/></label>
+												<br/>
+												<form:textarea class="sTextarea" path="checklist['sectionsForBeingMoneyBill']" rows="2" cols="50" style="margin: 10px;" />
+											</div>
+										</td>
+									</tr>
+									<tr id="checklistQuestion4">
+										<td>
+											<div style="border: 0px 0px 1px 0px dotted #000000;">
+												<label style="width:400px;"><spring:message code="bill.checklistQuestion4.1" text="is this bill a financial bill as per constitution article 207 (1)?"/></label>
+												<input type="checkbox" class="sCheck checklist_checkboxes" id="checklist_checkbox_6" style="margin: 10px; margin-left: 10px;">
+												<form:input class="checklist_checkbox_fields" id="checklist_checkbox_field_6" type="hidden" path="checklist['isFinancialBillAsPerConstitutionArticle_207_1']" />
+											</div>
+											<br />
+											<div style="display: none;" id="checklist_checkbox_6_div">
+												<label><spring:message code="bill.checklistQuestion4.2" text="if yes, please mention sections"/></label>
+												<br/>
+												<form:textarea class="sTextarea" path="checklist['sectionsForFinancialBillAsPerConstitutionArticle_207_1']" rows="2" cols="50" style="margin: 10px;" />
+											</div>
+										</td>
+									</tr>								
+									<tr id="checklistQuestion5">
+										<td>
+											<div style="border: 0px 0px 1px 0px dotted #000000;">
+												<label style="width:400px;"><spring:message code="bill.checklistQuestion5.1" text="are amendments for amending bill as per scope of original act?"/></label>
+												<input type="checkbox" class="sCheck checklist_checkboxes" id="checklist_checkbox_7" style="margin: 10px; margin-left: 10px;">
+												<form:input class="checklist_checkbox_fields" id="checklist_checkbox_field_7" type="hidden" path="checklist['areAmendmentsForAmendingBillAsPerScopeOfOriginalAct']" />
+											</div>
+											<br/>										
+										</td>
+									</tr>
+									<tr id="checklistQuestion6">
+										<td>
+											<div style="border: 0px 0px 1px 0px dotted #000000;">
+												<label style="width:400px;"><spring:message code="bill.checklistQuestion6.1" text="is statutory memorandum mandatory?"/></label>
+												<input type="checkbox" class="sCheck checklist_checkboxes" id="checklist_checkbox_8" style="margin: 10px; margin-left: 10px;">
+												<form:input class="checklist_checkbox_fields" id="checklist_checkbox_field_8" type="hidden" path="checklist['isStatutoryMemorandumMandatory']" />
+											</div>		
+											<br/>								
+											<div style="display: none;" id="checklist_checkbox_8_div">
+												<label style="width:400px;"><spring:message code="bill.checklistQuestion6.2" text="is statutory memorandum as per rules?"/></label>
+												<input type="checkbox" class="sCheck checklist_checkboxes" id="checklist_checkbox_9" style="margin: 10px; margin-left: 10px;">
+												<form:input class="checklist_checkbox_fields" id="checklist_checkbox_field_9" type="hidden" path="checklist['isStatutoryMemorandumAsPerRules']" />
+											</div>
+											<br />
+											<div style="display: none;" id="checklist_checkbox_9_div">
+												<label><spring:message code="bill.checklistQuestion6.3" text="if yes, please mention sections"/></label>
+												<br/>
+												<form:textarea class="sTextarea" path="checklist['sectionsForStatutoryMemorandum']" rows="2" cols="50" style="margin: 10px;" />
+											</div>
+										</td>
+									</tr>
+									<tr id="checklistQuestion7">
+										<td>
+											<div style="border: 0px 0px 1px 0px dotted #000000;">
+												<label style="width:400px;"><spring:message code="bill.checklistQuestion7.1" text="is financial memorandum mandatory?"/></label>
+												<input type="checkbox" class="sCheck checklist_checkboxes" id="checklist_checkbox_10" style="margin: 10px; margin-left: 10px;">
+												<form:input class="checklist_checkbox_fields" id="checklist_checkbox_field_10" type="hidden" path="checklist['isFinancialMemorandumMandatory']" />
+											</div>	
+											<br/>									
+											<div style="display: none;" id="checklist_checkbox_10_div">
+												<label style="width:400px;"><spring:message code="bill.checklistQuestion7.2" text="is financial memorandum as per rules?"/></label>
+												<input type="checkbox" class="sCheck checklist_checkboxes" id="checklist_checkbox_11" style="margin: 10px; margin-left: 10px;">
+												<form:input class="checklist_checkbox_fields" id="checklist_checkbox_field_11" type="hidden" path="checklist['isFinancialMemorandumAsPerRules']" />
+											</div>
 											<br/>
-											<label><spring:message code="bill.checklistQuestion1" text="Are following things essential for this bill?"/></label>
-										</div>
-										<div>
-											<label style="width:500px;"><spring:message code="bill.checklistQuestion1.1" text="is bill recommended in accordance with constitution article 207 (1)?"/></label>
-											<input type="checkbox" class="sCheck checklist_checkboxes" id="checklist_checkbox_1" style="margin: 10px; margin-left: 50px;">
-											<form:input class="checklist_checkbox_fields" id="checklist_checkbox_field_1" type="hidden" path="checklist['isRecommendedAsPerConstitutionArticle_207_1']" />
-										</div>
-										<br/>																					
-										<div style="display: none;" id="checklist_checkbox_1_div">
-											<label><spring:message code="bill.checklistQuestion1.2" text="if yes, please mention sections"/></label>
-											<br/>
-											<form:textarea class="sTextarea" path="checklist['sectionsForRecommendationAsPerConstitutionArticle_207_1']" rows="2" cols="50" style="margin: 10px;"/>
-										</div>
-										
-										<div>
-											<label style="width:500px;"><spring:message code="bill.checklistQuestion1.3" text="is bill recommended in accordance with constitution article 207 (3)?"/></label>
-											<input type="checkbox" class="sCheck checklist_checkboxes" id="checklist_checkbox_2" style="margin: 10px; margin-left: 50px;">
-											<form:input class="checklist_checkbox_fields" id="checklist_checkbox_field_2" type="hidden" path="checklist['isRecommendedAsPerConstitutionArticle_207_3']" />
-										</div>		
-										<br />								
-										<div style="display: none;" id="checklist_checkbox_2_div">
-											<label><spring:message code="bill.checklistQuestion1.4" text="if yes, please mention sections"/></label>
-											<br/>
-											<form:textarea class="sTextarea" path="checklist['sectionsForRecommendationAsPerConstitutionArticle_207_3']" rows="2" cols="50" style="margin: 10px;" />
-										</div>
-										
-										<div>
-											<label style="width:500px;"><spring:message code="bill.checklistQuestion1.5" text="is bill recommended in accordance with constitution article 304 (b)?"/></label>
-											<input type="checkbox" class="sCheck checklist_checkboxes" id="checklist_checkbox_3" style="margin: 10px; margin-left: 50px;">
-											<form:input class="checklist_checkbox_fields" id="checklist_checkbox_field_3" type="hidden" path="checklist['isRecommendedAsPerConstitutionArticle_304_b']" />
-										</div>	
-										<br />									
-										<div style="display: none;" id="checklist_checkbox_3_div">
-											<label><spring:message code="bill.checklistQuestion1.6" text="if yes, please mention sections"/></label>
-											<br/>
-											<form:textarea class="sTextarea" path="checklist['sectionsForRecommendationAsPerConstitutionArticle_304_b']" rows="2" cols="50" style="margin: 10px;" />
-										</div>
-									</td>
-								</tr>
-								<tr id="checklistQuestion2">
-									<td>
-										<div style="border: 0px 0px 1px 0px dotted #000000;">
-											<label style="width:500px;"><spring:message code="bill.checklistQuestion2.1" text="is bill in scope of state legislature?"/></label>
-											<input type="checkbox" class="sCheck checklist_checkboxes" id="checklist_checkbox_4" style="margin: 10px; margin-left: 50px;">
-											<form:input class="checklist_checkbox_fields" id="checklist_checkbox_field_4" type="hidden" path="checklist['isInScopeOfStateLegislature']" />
-										</div>
-										<br />
-										<div style="display: none;" id="checklist_checkbox_4_div">
-											<label><spring:message code="bill.checklistQuestion2.2" text="if yes, please also mention related schedule issues"/></label>
-											<br/>
-											<form:textarea class="sTextarea" path="checklist['issuesInRelatedScheduleForScopeOfStateLegislature']" rows="2" cols="50" style="margin: 10px;" />
-										</div>
-									</td>
-								</tr>
-								<tr id="checklistQuestion3">
-									<td>
-										<div style="border: 0px 0px 1px 0px dotted #000000;">
-											<label style="width:500px;"><spring:message code="bill.checklistQuestion3.1" text="is this bill a money bill?"/></label>
-											<input type="checkbox" class="sCheck checklist_checkboxes" id="checklist_checkbox_5" style="margin: 10px; margin-left: 50px;">
-											<form:input class="checklist_checkbox_fields" id="checklist_checkbox_field_5" type="hidden" path="checklist['isMoneyBill']" />
-										</div>
-										<br />
-										<div style="display: none;" id="checklist_checkbox_5_div">
-											<label><spring:message code="bill.checklistQuestion3.2" text="if yes, please mention sections"/></label>
-											<br/>
-											<form:textarea class="sTextarea" path="checklist['sectionsForBeingMoneyBill']" rows="2" cols="50" style="margin: 10px;" />
-										</div>
-									</td>
-								</tr>
-								<tr id="checklistQuestion4">
-									<td>
-										<div style="border: 0px 0px 1px 0px dotted #000000;">
-											<label style="width:500px;"><spring:message code="bill.checklistQuestion4.1" text="is this bill a financial bill as per constitution article 207 (1)?"/></label>
-											<input type="checkbox" class="sCheck checklist_checkboxes" id="checklist_checkbox_6" style="margin: 10px; margin-left: 50px;">
-											<form:input class="checklist_checkbox_fields" id="checklist_checkbox_field_6" type="hidden" path="checklist['isFinancialBillAsPerConstitutionArticle_207_1']" />
-										</div>
-										<br />
-										<div style="display: none;" id="checklist_checkbox_6_div">
-											<label><spring:message code="bill.checklistQuestion4.2" text="if yes, please mention sections"/></label>
-											<br/>
-											<form:textarea class="sTextarea" path="checklist['sectionsForFinancialBillAsPerConstitutionArticle_207_1']" rows="2" cols="50" style="margin: 10px;" />
-										</div>
-									</td>
-								</tr>								
-								<tr id="checklistQuestion5">
-									<td>
-										<div style="border: 0px 0px 1px 0px dotted #000000;">
-											<label style="width:500px;"><spring:message code="bill.checklistQuestion5.1" text="are amendments for amending bill as per scope of original act?"/></label>
-											<input type="checkbox" class="sCheck checklist_checkboxes" id="checklist_checkbox_7" style="margin: 10px; margin-left: 50px;">
-											<form:input class="checklist_checkbox_fields" id="checklist_checkbox_field_7" type="hidden" path="checklist['areAmendmentsForAmendingBillAsPerScopeOfOriginalAct']" />
-										</div>
-										<br/>										
-									</td>
-								</tr>
-								<tr id="checklistQuestion6">
-									<td>
-										<div style="border: 0px 0px 1px 0px dotted #000000;">
-											<label style="width:500px;"><spring:message code="bill.checklistQuestion6.1" text="is statutory memorandum mandatory?"/></label>
-											<input type="checkbox" class="sCheck checklist_checkboxes" id="checklist_checkbox_8" style="margin: 10px; margin-left: 50px;">
-											<form:input class="checklist_checkbox_fields" id="checklist_checkbox_field_8" type="hidden" path="checklist['isStatutoryMemorandumMandatory']" />
-										</div>		
-										<br/>								
-										<div style="display: none;" id="checklist_checkbox_8_div">
-											<label style="width:500px;"><spring:message code="bill.checklistQuestion6.2" text="is statutory memorandum as per rules?"/></label>
-											<input type="checkbox" class="sCheck checklist_checkboxes" id="checklist_checkbox_9" style="margin: 10px; margin-left: 50px;">
-											<form:input class="checklist_checkbox_fields" id="checklist_checkbox_field_9" type="hidden" path="checklist['isStatutoryMemorandumAsPerRules']" />
-										</div>
-										<br />
-										<div style="display: none;" id="checklist_checkbox_9_div">
-											<label><spring:message code="bill.checklistQuestion6.3" text="if yes, please mention sections"/></label>
-											<br/>
-											<form:textarea class="sTextarea" path="checklist['sectionsForStatutoryMemorandum']" rows="2" cols="50" style="margin: 10px;" />
-										</div>
-									</td>
-								</tr>
-								<tr id="checklistQuestion7">
-									<td>
-										<div style="border: 0px 0px 1px 0px dotted #000000;">
-											<label style="width:500px;"><spring:message code="bill.checklistQuestion7.1" text="is financial memorandum mandatory?"/></label>
-											<input type="checkbox" class="sCheck checklist_checkboxes" id="checklist_checkbox_10" style="margin: 10px; margin-left: 50px;">
-											<form:input class="checklist_checkbox_fields" id="checklist_checkbox_field_10" type="hidden" path="checklist['isFinancialMemorandumMandatory']" />
-										</div>	
-										<br/>									
-										<div style="display: none;" id="checklist_checkbox_10_div">
-											<label style="width:500px;"><spring:message code="bill.checklistQuestion7.2" text="is financial memorandum as per rules?"/></label>
-											<input type="checkbox" class="sCheck checklist_checkboxes" id="checklist_checkbox_11" style="margin: 10px; margin-left: 50px;">
-											<form:input class="checklist_checkbox_fields" id="checklist_checkbox_field_11" type="hidden" path="checklist['isFinancialMemorandumAsPerRules']" />
-										</div>
-										<br/>
-										<div style="display: none;" id="checklist_checkbox_11_div">
-											<label><spring:message code="bill.checklistQuestion7.3" text="if yes, please mention sections"/></label>
-											<br/>
-											<form:textarea class="sTextarea" path="checklist['sectionsForFinancialMemorandum']" rows="2" cols="50" style="margin: 10px;" />
-										</div>
-									</td>
-								</tr>
-								<tr id="checklistQuestion8">
-									<td>
-										<div style="border: 0px 0px 1px 0px dotted #000000;">
-											<label style="width:500px;"><spring:message code="bill.checklistQuestion8.1" text="is statement of object and reason complete?"/></label>
-											<input type="checkbox" class="sCheck checklist_checkboxes" id="checklist_checkbox_12" style="margin: 10px; margin-left: 50px;">
-											<form:input class="checklist_checkbox_fields" id="checklist_checkbox_field_12" type="hidden" path="checklist['isStatementOfObjectAndReasonComplete']" />
-										</div>										
-									</td>
-								</tr>
-								<tr id="checklistQuestion9">
-									<td>
-										<div style="border: 0px 0px 1px 0px dotted #000000;">											
-											<label style="width:500px;"><spring:message code="bill.checklistQuestion9.1" text="is law & judiciary department in agreement with above opinions on issues 1, 2, 6 & 7?"/></label>
-											<input type="checkbox" class="sCheck checklist_checkboxes" id="checklist_checkbox_13" style="margin: 10px; margin-left: 50px;">
-											<form:input class="checklist_checkbox_fields" id="checklist_checkbox_field_13" type="hidden" path="checklist['isLawAndJudiciaryDepartmentInAgreementWithOpinions']" />
-										</div>										
-									</td>
-								</tr>
-								<tr id="checklistQuestion10">
-									<td>
-										<div style="border: 0px 0px 1px 0px dotted #000000;">										
-											<label style="width:500px;"><spring:message code="bill.checklistQuestion10.1" text="are there any recommendations on subject-matter of this bill by sub-legislation committee?"/></label>
-											<input type="checkbox" class="sCheck checklist_checkboxes" id="checklist_checkbox_14" style="margin: 10px; margin-left: 50px;">
-											<form:input class="checklist_checkbox_fields" id="checklist_checkbox_field_14" type="hidden" path="checklist['isRecommendedOnSubjectMatterBySubLegislationCommittee']" />
-										</div>										
-									</td>
-								</tr>
-							</tbody>
-						</table>
-						</fieldset>
+											<div style="display: none;" id="checklist_checkbox_11_div">
+												<label><spring:message code="bill.checklistQuestion7.3" text="if yes, please mention sections"/></label>
+												<br/>
+												<form:textarea class="sTextarea" path="checklist['sectionsForFinancialMemorandum']" rows="2" cols="50" style="margin: 10px;" />
+											</div>
+										</td>
+									</tr>
+									<tr id="checklistQuestion8">
+										<td>
+											<div style="border: 0px 0px 1px 0px dotted #000000;">
+												<label style="width:400px;"><spring:message code="bill.checklistQuestion8.1" text="is statement of object and reason complete?"/></label>
+												<input type="checkbox" class="sCheck checklist_checkboxes" id="checklist_checkbox_12" style="margin: 10px; margin-left: 10px;">
+												<form:input class="checklist_checkbox_fields" id="checklist_checkbox_field_12" type="hidden" path="checklist['isStatementOfObjectAndReasonComplete']" />
+											</div>										
+										</td>
+									</tr>
+									<tr id="checklistQuestion9">
+										<td>
+											<div style="border: 0px 0px 1px 0px dotted #000000;">											
+												<label style="width:400px;"><spring:message code="bill.checklistQuestion9.1" text="is law & judiciary department in agreement with above opinions on issues 1, 2, 6 & 7?"/></label>
+												<input type="checkbox" class="sCheck checklist_checkboxes" id="checklist_checkbox_13" style="margin: 10px; margin-left: 10px;">
+												<form:input class="checklist_checkbox_fields" id="checklist_checkbox_field_13" type="hidden" path="checklist['isLawAndJudiciaryDepartmentInAgreementWithOpinions']" />
+											</div>										
+										</td>
+									</tr>
+									<tr id="checklistQuestion10">
+										<td>
+											<div style="border: 0px 0px 1px 0px dotted #000000;">										
+												<label style="width:400px;"><spring:message code="bill.checklistQuestion10.1" text="are there any recommendations on subject-matter of this bill by sub-legislation committee?"/></label>
+												<input type="checkbox" class="sCheck checklist_checkboxes" id="checklist_checkbox_14" style="margin: 10px; margin-left: 10px;">
+												<form:input class="checklist_checkbox_fields" id="checklist_checkbox_field_14" type="hidden" path="checklist['isRecommendedOnSubjectMatterBySubLegislationCommittee']" />
+											</div>										
+										</td>
+									</tr>
+								</tbody>
+							</table>
+							</fieldset>
+						</div>					
 					</div>
-					</p>
-					
 					<p>
 						<a href="#" id="viewCitation" style="margin-left: 162px;margin-top: 30px;"><spring:message code="question.viewcitation" text="View Citations"></spring:message></a>	
 					</p>					
@@ -2325,48 +2136,9 @@
 						<h2></h2>
 						<p class="tright">
 							<c:choose>
-								<c:when test="${internalStatusType=='bill_submit'}">	
-									<input id="submit" type="button" value="<spring:message code='generic.submit' text='Submit'/>" class="butDef">								
-									<c:if test="${translationStatusType=='translation_notsend'}">
-										<input id="sendForTranslation" type="button" value="<spring:message code='bill.sendForTranslation' text='Send For Translation'/>" class="butDef">
-									</c:if>
-									<c:if test="${opinionFromLawAndJDStatusType=='opinionFromLawAndJD_notsend' and selectedDeviceTypeForBill=='bills_nonofficial'}">
-										<input id="sendForOpinionFromLawAndJD" type="button" value="<spring:message code='bill.sendForOpinionFromLawAndJD' text='Send For Opinion From Law And JD'/>" class="butDef">
-									</c:if>
-									<%-- <c:if test="${recommendationFromGovernorStatusType=='recommendationFromGovernor_notsend'}">
-										<input id="sendForRecommendationFromGovernor" type="button" value="<spring:message code='bill.sendForRecommendationFromGovernor' text='Send For Recommendation From Governor'/>" class="butDef">
-									</c:if>
-									<c:if test="${recommendationFromPresidentStatusType=='recommendationFromPresident_notsend'}">
-										<input id="sendForRecommendationFromPresident" type="button" value="<spring:message code='bill.sendForRecommendationFromPresident' text='Send For Recommendation From President'/>" class="butDef">
-									</c:if> --%>							
-								</c:when>
-								<c:when test="${internalStatusType=='bill_system_assistantprocessed'}">
-									<input id="submit" type="button" value="<spring:message code='generic.submit' text='Submit'/>" class="butDef">
-									<c:if test="${translationStatusType=='translation_notsend'}">
-										<input id="sendForTranslation" type="button" value="<spring:message code='bill.sendForTranslation' text='Send For Translation'/>" class="butDef">
-									</c:if>
-									<c:if test="${opinionFromLawAndJDStatusType=='opinionFromLawAndJD_notsend' and selectedDeviceTypeForBill=='bills_nonofficial'}">
-										<input id="sendForOpinionFromLawAndJD" type="button" value="<spring:message code='sendForOpinionFromLawAndJD' text='Send For Opinion From Law And JD'/>" class="butDef">
-									</c:if>
-									<c:if test="${recommendationFromGovernorStatusType=='recommendationFromGovernor_notsend'}">
-										<input id="sendForRecommendationFromGovernor" type="button" value="<spring:message code='bill.sendForRecommendationFromGovernor' text='Send For Recommendation From Governor'/>" class="butDef">
-									</c:if>
-									<c:if test="${recommendationFromPresidentStatusType=='recommendationFromPresident_notsend'}">
-										<input id="sendForRecommendationFromPresident" type="button" value="<spring:message code='bill.sendForRecommendationFromPresident' text='Send For Recommendation From President'/>" class="butDef">
-									</c:if>
-									<input id="startworkflow" type="button" value="<spring:message code='bill.putupbill' text='Put Up Bill'/>" class="butDef">
-								</c:when>
-								<c:otherwise>		
-									<c:if test="${bulkedit!='yes'}">
-										<input id="submit" type="button" value="<spring:message code='generic.submit' text='Submit'/>" class="butDef">
-										<c:if test="${memberStatusType=='bill_submit'}">
-										<input id="startworkflow" type="button" value="<spring:message code='bill.putupbill' text='Put Up Bill'/>" class="butDef">
-										</c:if>
-									</c:if>
-									<c:if test="${bulkedit=='yes' and memberStatusType=='bill_submit'}">
-										<input id="submitBulkEdit" type="submit" value="<spring:message code='generic.submit' text='Submit'/>" class="butDef">	
-									</c:if>									
-								</c:otherwise>
+								<c:when test="${internalStatusType=='bill_submit' or internalStatusType=='bill_system_assistantprocessed'}">
+									<input id="submit" type="button" value="<spring:message code='generic.submit' text='Submit'/>" class="butDef">	
+								</c:when>								
 							</c:choose>
 						</p>
 					</div>
@@ -2503,6 +2275,9 @@
 				<input type="hidden" id="votingForPassingOfBill" value="${votingForPassingOfBill}">
 				<input type="hidden" id="isActReferenced" value="${isActReferenced}">
 				<input type="hidden" id="defaultBillLanguage" value="${defaultBillLanguage}">
+				<input type="hidden" id="isMoneyBillPrompt" value="<spring:message code="bill.isMoneyBillPrompt" text="Are you sure this is a money bill?"></spring:message>">
+				<input type="hidden" id="isNotMoneyBillPrompt" value="<spring:message code="bill.isNotMoneyBillPrompt" text="Are you sure this is not a money bill?"></spring:message>">
+				
 				<%-- <input type="hidden" id="hdsRefEntity" value="${hdsRefEntity}" /> --%>
 				
 				<ul id="contextMenuItems">
