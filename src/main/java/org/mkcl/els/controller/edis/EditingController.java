@@ -325,10 +325,21 @@ public class EditingController extends GenericController<Roster>{
 								for(int i = 0; i < result.size(); i++){
 									String strId = (((Object[])result.get(i))[20]).toString();
 									Part partToDel = Part.findById(Part.class, Long.valueOf(strId));
-									partToDel.setEditedContent("");
 									List<PartDraft> pds = partToDel.getPartDrafts();
-									partToDel.setPartDrafts(null);															
-									partToDel.setPartDrafts(Part.findAllNonWorkflowDraftsOfPart(partToDel, locale.toString()));
+									
+									partToDel.setEditedContent("");
+									partToDel.setPartDrafts(null);
+									
+									int length = pds.size();
+									for(int k = 0; i < length; i++){
+										
+										if(!pds.get(0).isWorkflowCopy()){
+											PartDraft pd = pds.get(k);
+											pds.remove(k);
+											pd.remove();
+										}
+									}															
+									partToDel.setPartDrafts(pds);
 									partToDel.merge();
 									
 								}
@@ -421,8 +432,10 @@ public class EditingController extends GenericController<Roster>{
 	public String getRevisions(@PathVariable(value="id") Long id, HttpServletRequest request, ModelMap model, Locale locale){
 		String retVal = "editing/error";
 		try{
+			String strWfCopy = request.getParameter("includeWfCopy");
+			Boolean includeWfCopy = Boolean.valueOf(strWfCopy);
 					
-			model.addAttribute("drafts", Part.findRevision(id, locale.toString()));
+			model.addAttribute("drafts", Part.findRevision(id, includeWfCopy, locale.toString()));
 			retVal = "editing/revisions";
 		}catch(Exception e){
 			e.printStackTrace();
