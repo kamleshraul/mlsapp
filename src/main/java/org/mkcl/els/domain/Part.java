@@ -160,8 +160,8 @@ public class Part  extends BaseDomain implements Serializable{
         return partRepo;
 	}
 		
-	public static List<PartDraft> findRevision(final Long partId, final String locale){
-		return getPartRepository().findRevision(partId, locale);
+	public static List<PartDraft> findRevision(final Long partId, final Boolean includeWfCopy, final String locale){
+		return getPartRepository().findRevision(partId, includeWfCopy, locale);
 	}
 	
 	public static List<Part> findInterruptedProceedingInRoster(Roster roster,
