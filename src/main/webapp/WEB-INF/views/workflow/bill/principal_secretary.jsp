@@ -196,10 +196,12 @@
 			if($('#typeOfSelectedBillType').val() != 'amending') {
 				$('#referredActDiv').hide();
 				$('#annexuresForAmendingBill_div').hide();
-			}
-			
+			}			
 			if($('#typeOfSelectedBillType').val() != 'replace_ordinance') {
 				$('#referredOrdinanceDiv').hide();
+			}
+			if($('#hideActorsFlag').val()=='true') {
+				$("#actorDiv").hide();
 			}
 			$('#billType').change(function() {
 				$.get('ref/getTypeOfSelectedBillType?selectedBillTypeId='+$('#billType').val(),function(data) {
@@ -1566,6 +1568,7 @@
 				<input id="questionType" type="hidden" value="${selectedQuestionType}" />
 				<input id="typeOfSelectedDeviceType" type="hidden" value="${selectedDeviceTypeForBill}" />
 				<input id="typeOfSelectedBillType" type="hidden" value="${typeOfSelectedBillType}" />
+				<input id="hideActorsFlag" type="hidden" value="${hideActorsFlag}" />
 			</div>		
 		</div>
 	</body>

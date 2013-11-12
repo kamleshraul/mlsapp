@@ -174,7 +174,9 @@
 			if($('#typeOfSelectedBillType').val() != 'replace_ordinance') {
 				$('#referredOrdinanceDiv').hide();
 			}
-			
+			if($('#hideActorsFlag').val()=='true') {
+				$("#actorDiv").hide();
+			}
 			$('#billType').change(function() {
 				$.get('ref/getTypeOfSelectedBillType?selectedBillTypeId='+$('#billType').val(),function(data) {
 					
@@ -1503,6 +1505,7 @@
 				<input id="typeOfSelectedBillType" type="hidden" value="${typeOfSelectedBillType}" />
 				<input type="hidden" id="referredActYearLabel" value="<spring:message code="bill.referredActYear" text="Year"/>">
 				<input type="hidden" id="dereferActWarningMessage" value="<spring:message code="dereferActWarningMessage" text="Do you really want to de-refer this act?"/>">
+				<input id="hideActorsFlag" type="hidden" value="${hideActorsFlag}" />
 				<%-- <input type="hidden" id="hdsRefEntity" value="${hdsRefEntity}" /> --%>
 			</div>	
 		</div>		

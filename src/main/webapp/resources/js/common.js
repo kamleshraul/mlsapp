@@ -61,7 +61,20 @@ function initControls(){
 	
 	$('.wysiwyg').wysiwyg({
 		resizeOptions: {maxWidth: 600},
-			controls:{
+		controls:{
+			fullscreen: {
+				visible: true,
+				hotkey:{
+					"ctrl":1|0,
+					"key":122
+				},
+				exec: function () {
+					if ($.wysiwyg.fullscreen) {
+						$.wysiwyg.fullscreen.init(this);
+					}
+				},
+				tooltip: "Fullscreen"
+			},
 			strikeThrough: { visible: true },
 			underline: { visible: true },
 			subscript: { visible: true },

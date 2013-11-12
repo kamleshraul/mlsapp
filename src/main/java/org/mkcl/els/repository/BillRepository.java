@@ -1623,7 +1623,7 @@ public class BillRepository extends BaseRepository<Bill, Serializable>{
 		
 		StringBuffer strQuery = new StringBuffer("SELECT b from Bill b" +
 					" WHERE b.type.id=:deviceTypeId" +
-					" AND b.session.id=:sessionId" +
+					//" AND b.session.id=:sessionId" +
 					" AND b.internalStatus.type <> 'bill_final_lapsed' " +
 					" AND (b.recommendationStatus.type=:recStatus " +
 					" OR b.recommendationStatus.type LIKE 'bill_processed_passed%firsthouse%'" +
@@ -1635,7 +1635,7 @@ public class BillRepository extends BaseRepository<Bill, Serializable>{
 
 		Query query = this.em().createQuery(strQuery.toString(), Bill.class);
 		query.setParameter("deviceTypeId", deviceType.getId());
-		query.setParameter("sessionId", session.getId());
+		//query.setParameter("sessionId", session.getId());
 		query.setParameter("recStatus", ApplicationConstants.BILL_PROCESSED_INTRODUCED);
 		query.setParameter("locale", locale);
 		List<Bill> bills = query.getResultList();

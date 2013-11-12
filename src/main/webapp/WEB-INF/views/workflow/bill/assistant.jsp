@@ -252,7 +252,9 @@
 			if($('#typeOfSelectedBillType').val() != 'replace_ordinance') {
 				$('#referredOrdinanceDiv').hide();
 			}
-			
+			if($('#hideActorsFlag').val()=='true') {
+				$("#actorDiv").hide();
+			}
 			$('#billType').change(function() {
 				$.get('ref/getTypeOfSelectedBillType?selectedBillTypeId='+$('#billType').val(),function(data) {
 					
@@ -1660,6 +1662,7 @@
 				<input id="typeOfSelectedDeviceType" type="hidden" value="${selectedDeviceTypeForBill}" />
 				<input id="typeOfSelectedBillType" type="hidden" value="${typeOfSelectedBillType}" />
 				<input type="hidden" id="isActReferenced" value="${isActReferenced}">
+				<input id="hideActorsFlag" type="hidden" value="${hideActorsFlag}" />
 				
 				<ul id="contextMenuItems">
 					<li><a href="#unclubbing" class="edit"><spring:message code="generic.unclubbing" text="Unclubbing"></spring:message></a></li>
