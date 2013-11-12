@@ -18,11 +18,12 @@ import org.springframework.stereotype.Repository;
 @Repository
 public class PartRepository extends BaseRepository<Part, Serializable> {
 		
-	public List<PartDraft> findRevision(final Long partId, final String locale){
+	public List<PartDraft> findRevision(final Long partId, final Boolean includeWfCopy, final String locale){
 		String strQuery = "SELECT pd"
 							+ " FROM Part p" 
 							+ " JOIN p.partDrafts pd"
 							+ " WHERE p.id=:partId"
+							+ " AND pd.isWorkflowCopy="+includeWfCopy
 							+ " AND p.locale=:locale" 
 							+ " ORDER BY pd.editedOn DESC";
 		
@@ -153,5 +154,19 @@ public class PartRepository extends BaseRepository<Part, Serializable> {
 			e.printStackTrace();
 		}
 		return parts;			
+	}
+	
+	public List<PartDraft> findAllNonWorkflowDraftsOfPart(final Part part, final String locale){
+		String query = "SELECT pd FROM Part pr"
+					   + " JOIN pr.partDrafts pd"
+					   + " WHERE pd.isWorkflowCopy="+false
+					   + " AND pr.id=:id"
+					   + " AND pd.locale=:locale";
+		
+		TypedQuery<PartDraft> tQuery = this.em().createQuery(query, PartDraft.class);
+		tQuery.setParameter("id", part.getId());
+		tQuery.setParameter("locale", locale);
+		List<PartDraft> pds = tQuery.getResultList();
+		return pds;
 	}
 }
