@@ -484,7 +484,7 @@
 			});
 			
 			$(".revision").click(function(e){
-				$.get("editing/revisions/" + $(this).attr('id').substring(2),function(data){
+				$.get("editing/revisions/" + $(this).attr('id').substring(2)+"?includeWfCopy=true",function(data){
 				    $.fancybox.open(data);
 			    });
 			    return false;
