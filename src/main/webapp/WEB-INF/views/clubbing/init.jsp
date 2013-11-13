@@ -582,7 +582,7 @@
 		}		
 		/**** On Clubbing ****/
 		function clubbing(clubId){
-			/* $.blockUI({ message: '<img src="./resources/images/waitAnimated.gif" />' });	 */		
+			$.blockUI({ message: '<img src="./resources/images/waitAnimated.gif" />' });			
 			var deviceId=$("#deviceId").val();	
 			var deviceNumber=$("#deviceNumber").val();
 			if($('#whichDevice').val()=="bills_" && (deviceNumber==undefined || deviceNumber=='' || deviceNumber==$('#billWithoutNumber').val())) {
@@ -617,7 +617,9 @@
 						$("#clubbingResult").html(data);
 						$("#operation"+clubId).empty();
 						$("#operation"+clubId).html("<a onclick='clubbing("+clubId+");' style='margin:10px;'>"+$("#clubMsg").val()+"</a>");
-					}									
+					}
+					$.unblockUI();
+					scrollTop();					
 			},'html').fail(function(){
 				$.unblockUI();
 				if($("#ErrorMsg").val()!=''){
