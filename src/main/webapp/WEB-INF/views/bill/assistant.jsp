@@ -277,7 +277,20 @@
 		$(document).ready(function(){			
 			$('#opinionSoughtFromLawAndJD').wysiwyg({
 				resizeOptions: {maxWidth: 600},
-				controls:{						
+				controls:{	
+					fullscreen: {
+						visible: true,
+						hotkey:{
+							"ctrl":1|0,
+							"key":122
+						},
+						exec: function () {
+							if ($.wysiwyg.fullscreen) {
+								$.wysiwyg.fullscreen.init(this);
+							}
+						},
+						tooltip: "Fullscreen"
+					},
 					strikeThrough: { visible: true },
 					underline: { visible: true },
 					subscript: { visible: true },
@@ -293,6 +306,73 @@
 				}
 			});
 			$('#opinionSoughtFromLawAndJD_para').children().filter('div.wysiwyg').addClass('fixed-width-wysiwyg');
+						
+			if($('#opinionSoughtFromLawAndJD').val()!=undefined
+					&& $('#opinionSoughtFromLawAndJD').val()!="" 
+					&& $('#opinionSoughtFromLawAndJD').val()!="<p></p>") {				
+				if($('#isChecklistFilled').val()=="true") {					
+					$('#checklist_button').hide();
+					$('#checklist_div').show();
+					$('#opinionSoughtFromLawAndJD_div').show();
+					$('.checklist_button_hr').show();
+				} else {
+					$('#checklist_button').show();
+				}
+			} else {
+				$('#checklist_button').hide();
+			}			
+			
+			if(($('#financialMemorandumDraft_text_'+$('#defaultBillLanguage').val()).val()!=undefined
+					&& $('#financialMemorandumDraft_text_'+$('#defaultBillLanguage').val()).val()!="" 
+					&& $('#financialMemorandumDraft_text_'+$('#defaultBillLanguage').val()).val()!="<p></p>")
+				||
+				($('#revised_financialMemorandumDraft_text_'+$('#defaultBillLanguage').val()).val()!=undefined
+				&& $('#revised_financialMemorandumDraft_text_'+$('#defaultBillLanguage').val()).val()!="" 
+				&& $('#revised_financialMemorandumDraft_text_'+$('#defaultBillLanguage').val()).val()!="<p></p>")
+			) {
+				$('#financialMemorandumDrafts_button').hide();
+				$('#financialMemorandumDrafts_div').show();
+			} else {
+				$('#financialMemorandumDrafts_button').show();
+			}
+			
+			if(($('#statutoryMemorandumDraft_text_'+$('#defaultBillLanguage').val()).val()!=undefined
+					&& $('#statutoryMemorandumDraft_text_'+$('#defaultBillLanguage').val()).val()!="" 
+					&& $('#statutoryMemorandumDraft_text_'+$('#defaultBillLanguage').val()).val()!="<p></p>")
+				||
+				($('#revised_statutoryMemorandumDraft_text_'+$('#defaultBillLanguage').val()).val()!=undefined
+				&& $('#revised_statutoryMemorandumDraft_text_'+$('#defaultBillLanguage').val()).val()!="" 
+				&& $('#revised_statutoryMemorandumDraft_text_'+$('#defaultBillLanguage').val()).val()!="<p></p>")
+			) {
+				$('#statutoryMemorandumDrafts_button').hide();
+				$('#statutoryMemorandumDrafts_div').show();
+			} else {
+				$('#statutoryMemorandumDrafts_button').show();
+			}
+			
+			if($('#recommendationFromGovernor').val()!=undefined
+					&& $('#recommendationFromGovernor').val()!="" 
+					&& $('#recommendationFromGovernor').val()!="<p></p>") {
+				$('#recommendationFromGovernor_button').show();
+			} else {
+				$('#recommendationFromGovernor_button').hide();
+			}
+			
+			if($('#recommendationFromPresident').val()!=undefined
+					&& $('#recommendationFromPresident').val()!="" 
+					&& $('#recommendationFromPresident').val()!="<p></p>") {
+				$('#recommendationFromPresident_button').show();
+			} else {
+				$('#recommendationFromPresident_button').hide();
+			}
+			
+			if($('#remarks').val()!=undefined
+					&& $('#remarks').val()!="" 
+					&& $('#remarks').val()!="<p></p>") {
+				$('#remarks_div').show();
+			} else {
+				$('#remarks_div').hide();
+			}			
 			
 			if($('#typeOfSelectedBillType').val() != 'amending') {
 				$('#referredActDiv').hide();
@@ -436,6 +516,7 @@
 		    $("#changeInternalStatus").change(function(){
 		    	var value=$(this).val();
 			    if(value!='-'){
+			    	$('#remarks_div').show();
 				    //var statusType=$("#internalStatusMaster option[value='"+value+"']").text();			    
 				    loadActors(value);
 				    /* if($('#internalStatusType').val()=='bill_submit' 
@@ -448,6 +529,7 @@
 				    $("#actorForWorkflow").empty();
 				    $("#actorDiv").hide();
 				    $("#contentForIntroduction").hide();
+				    $('#remarks_div').hide();
 				    $("#internalStatus").val($("#oldInternalStatus").val());
 				    $("#recommendationStatus").val($("#oldRecommendationStatus").val());
 				    $("#translationStatus").val($("#oldTranslationStatus").val());	
@@ -719,15 +801,6 @@
 				}
 				return false;
 			});
-			/**** toggle opinion sought from law and jd on user demand ****/
-			$('#opinionSoughtFromLawAndJD_button').click(function() {
-				if($('#opinionSoughtFromLawAndJD_div').css('display')=='none') {
-					$('#opinionSoughtFromLawAndJD_div').show();
-				} else {
-					$('#opinionSoughtFromLawAndJD_div').hide();
-				}
-				return false;
-			});
 			/**** toggle recommendation from governor on user demand ****/
 			$('#recommendationFromGovernor_button').click(function() {
 				if($('#recommendationFromGovernor_div').css('display')=='none') {
@@ -748,15 +821,21 @@
 			});
 			/**** toggle checklist on user demand ****/
 			$('#checklist_button').click(function() {
-				if($('#checklist_div').css('display')=='none') {
-					$('#checklist_div').show();
-					if($('#opinionSoughtFromLawAndJD_div').css('display')=='none'
-							&& $('#opinionSoughtFromLawAndJD').val()!="") {
+				if($('#checklist_div').css('display')=='none') {										
+					if($('#opinionSoughtFromLawAndJD_div').css('display')=='none'							
+							&& $('#opinionSoughtFromLawAndJD').val()!=""
+							&& $('#opinionSoughtFromLawAndJD').val()!="<p></p>") {						
 						$('#opinionSoughtFromLawAndJD_div').show();
-					}
+						$('#checklist_div').show();
+						$('.checklist_button_hr').show();
+					} 
+					/* else {
+						$.prompt($('#opinionFromLawAndJdNotReceivedMsg').val());
+					} */					
 				} else {
 					$('#checklist_div').hide();
 					$('#opinionSoughtFromLawAndJD_div').hide();
+					$('.checklist_button_hr').hide();
 				}
 				return false;
 			});
@@ -1082,26 +1161,36 @@
 	    </style>
 	    <style type="text/css">
 			.imageLink{
-				width: 20px;
-				height: 20px;				
+				width: 18px;
+				height: 18px;				
 				/* box-shadow: 2px 2px 5px #000000;
 				border-radius: 5px;
 				padding: 2px;
 				border: 1px solid #000000; */ 
 			}
 			
-			.imageLink:hover{
+			/* .imageLink:hover{
 				box-shadow: 2px 2px 5px #888888;
 				border-radius: 5px;
 				padding: 2px;
 				border: 1px solid #888888; 
+			} */
+			
+			.impIcons{
+				box-shadow: 2px 2px 2px black;
 			}	
+			
+			#s7C{
+				width: 24px;
+			}
 			
 			div.fixed-width-wysiwyg {
 				min-width: 400px !important;
 				left: 10px !important;
 				margin-top: 10px;
-			}				
+			}
+			
+			#opinionSoughtFromLawAndJD-wysiwyg-iframe {height: 500px;}				
 		</style>
 	</head> 
 
@@ -1422,20 +1511,18 @@
 					
 					<div style="margin-top: 20px;">
 						<fieldset>
-							<%-- <legend style="text-align: left; width: 150px;"><label><spring:message code="bill.titles" text="Titles of Bill" /></label></legend> --%>
-							<%-- <a href="#" class="viewRevisions" id="viewRevisions_titles" style="margin-left: 162px;"><spring:message code="bill.viewRevisionsForTitles" text="View Revisions for Titles"></spring:message></a> --%>
-							<a href="#" class="viewRevisions" id="viewRevisions_titles"  style="margin-left: 162px;">
-								<img src="./resources/images/ViewRevise.png" title="<spring:message code='bill.viewRevisionsForTitles' text='View Revisions for Titles'></spring:message>" class="imageLink" />
+							<a href="#" class="viewRevisions" id="viewRevisions_titles"  style="margin-left: 162px;text-decoration: none;">
+								<img src="./resources/images/ViewRevision.jpg" title="<spring:message code='bill.viewRevisionsForTitles' text='View Revisions for Titles'></spring:message>" class="imageLink" />
 							</a>
 							<c:forEach var="i" items="${titles}" varStatus="position">
 							<c:choose>
 								<c:when test="${i.language.type!=defaultBillLanguage}">
-									<a href="#" class="toggleTitle" id="toggleTitle_${i.language.type}">
-										<img src="./resources/images/ico_${i.language.type}.jpg" title="${i.language.name}" class="imageLink" style="margin-left: 20px;" />
+									<a href="#" class="toggleTitle" id="toggleTitle_${i.language.type}" style="margin-left: 20px;text-decoration: none;">
+										<img src="./resources/images/ico_${i.language.type}.jpg" title="${i.language.name}" class="imageLink" />
 									</a>
 								</c:when>
 							</c:choose>					
-							</c:forEach>							
+							</c:forEach>																			
 							<div id="titles_div">
 								<c:forEach var="i" items="${titles}">
 									<div id="title_para_${i.language.type}" style="display:none;">
@@ -1446,7 +1533,9 @@
 										<input type="hidden" name="title_language_id_${i.language.type}" value="${i.language.id}">						
 									</p>
 									<p>
-										<a href="#" class="reviseTitle" id="reviseTitle_${i.language.type}" style="margin-left: 162px;margin-right: 20px;"><spring:message code="bill.reviseTitle" text="Revise This Title"></spring:message></a>
+										<a href="#" class="reviseTitle" id="reviseTitle_${i.language.type}" style="margin-left: 162px;margin-right: 20px;">
+											<img src="./resources/images/Revise.jpg" title="<spring:message code='bill.reviseTitle' text='Revise This Title'></spring:message>" class="imageLink" />
+										</a>
 									</p>															
 									<p id="revisedTitlePara_${i.language.type}" style="display:none;">
 										<label class="centerlabel">${i.language.name} <spring:message code="bill.revisedTitle" text=" Revised Title"/></label>						
@@ -1477,21 +1566,20 @@
 					
 					<div style="margin-top: 20px;">
 						<fieldset>
-							<%-- <legend style="text-align: left; width: 150px;"><label><spring:message code="bill.contentDrafts" text="Drafts of Bill" /></label></legend> --%>
-							<%-- <a href="#" class="viewRevisions" id="viewRevisions_contentDrafts" style="margin-left: 162px;"><spring:message code="bill.viewRevisionsForContentDrafts" text="View Revisions for Content Drafts"></spring:message></a> --%>
-							<a href="#" class="viewRevisions" id="viewRevisions_contentDrafts"  style="margin-left: 162px;">
-								<img src="./resources/images/revision.jpg" title="<spring:message code='bill.viewRevisionsForContentDrafts' text='View Revisions for Content Drafts'></spring:message>" class="imageLink" />
+							<p style="margin-bottom: -10px;">
+							<a href="#" class="viewRevisions" id="viewRevisions_contentDrafts"  style="margin-left: 162px;text-decoration: none;">
+								<img src="./resources/images/ViewRevision.jpg" title="<spring:message code='bill.viewRevisionsForContentDrafts' text='View Revisions for Content Drafts'></spring:message>" class="imageLink" />
 							</a>
 							<c:forEach var="i" items="${contentDrafts}" varStatus="position">
 							<c:choose>
 								<c:when test="${i.language.type!=defaultBillLanguage}">
-									<a href="#" class="toggleContentDraft" id="toggleContentDraft_${i.language.type}">
-										<img src="./resources/images/ico_${i.language.type}.jpg" title="${i.language.name}" class="imageLink" style="margin-left: 20px;" />
+									<a href="#" class="toggleContentDraft" id="toggleContentDraft_${i.language.type}" style="margin-left: 20px;text-decoration: none;">
+										<img src="./resources/images/ico_${i.language.type}.jpg" title="${i.language.name}" class="imageLink" />
 									</a>
 								</c:when>
 							</c:choose>					
-							</c:forEach>
-							
+							</c:forEach>	
+							</p>						
 							<div id="contentDrafts_div">
 								<c:forEach var="i" items="${contentDrafts}" varStatus="draftNumber">
 									<div id="contentDraft_para_${i.language.type}" style="display:none;">
@@ -1502,7 +1590,9 @@
 										<input type="hidden" name="contentDraft_language_id_${i.language.type}" value="${i.language.id}">						
 									</p>
 									<p>
-										<a href="#" class="reviseContentDraft" id="reviseContentDraft_${i.language.type}" style="margin-left: 162px;margin-right: 20px;"><spring:message code="bill.reviseDraft" text="Revise This Draft"></spring:message></a>
+										<a href="#" class="reviseContentDraft" id="reviseContentDraft_${i.language.type}" style="margin-left: 162px;margin-right: 20px;">
+											<img src="./resources/images/Revise.jpg" title="<spring:message code='bill.reviseContentDraft' text='Revise This Content Draft'></spring:message>" class="imageLink" />
+										</a>
 									</p>
 									<p id="revisedContentDraftPara_${i.language.type}" style="display:none;">
 										<label class="wysiwyglabel">${i.language.name} <spring:message code="bill.revisedContentDraft" text=" Revised Draft"/></label>						
@@ -1533,20 +1623,20 @@
 					
 					<div id="annexuresForAmendingBill_div" style="margin-top: 20px;">
 						<fieldset>
-							<%-- <legend style="text-align: left; width: 150px;"><label><spring:message code="bill.annexuresForAmendingBill" text="Annexures For Amending Bill" /></label></legend> --%>
-							<%-- <a href="#" class="viewRevisions" id="viewRevisions_annexuresForAmendingBill" style="margin-left: 162px;"><spring:message code="bill.viewRevisionsForAnnexuresForAmendingBill" text="View Revisions for Annexures For Amending Bill"></spring:message></a> --%>
-							<a href="#" class="viewRevisions" id="viewRevisions_annexuresForAmendingBill"  style="margin-left: 162px;">
-								<img src="./resources/images/revision.jpg" title="<spring:message code='bill.viewRevisionsForAnnexuresForAmendingBill' text='View Revisions for Annexures For Amending Bill'></spring:message>" class="imageLink" />
+							<p style="margin-bottom: -10px;">
+							<a href="#" class="viewRevisions" id="viewRevisions_annexuresForAmendingBill"  style="margin-left: 162px;text-decoration: none;">
+								<img src="./resources/images/ViewRevision.jpg" title="<spring:message code='bill.viewRevisionsForAnnexuresForAmendingBill' text='View Revisions for Annexures For Amending Bill'></spring:message>" class="imageLink" />
 							</a>
 							<c:forEach var="i" items="${annexuresForAmendingBill}" varStatus="position">
 							<c:choose>
 								<c:when test="${i.language.type!=defaultBillLanguage}">
-									<a href="#" class="toggleAnnexureForAmendingBill" id="toggleAnnexureForAmendingBill_${i.language.type}">
-										<img src="./resources/images/ico_${i.language.type}.jpg" title="${i.language.name}" class="imageLink" style="margin-left: 20px;" />
+									<a href="#" class="toggleAnnexureForAmendingBill" id="toggleAnnexureForAmendingBill_${i.language.type}" style="margin-left: 20px;text-decoration: none;">
+										<img src="./resources/images/ico_${i.language.type}.jpg" title="${i.language.name}" class="imageLink" />
 									</a>
 								</c:when>
 							</c:choose>					
-							</c:forEach>							
+							</c:forEach>
+							</p>							
 							<div>
 								<c:forEach var="i" items="${annexuresForAmendingBill}" varStatus="draftNumber">
 									<p id="annexureForAmendingBill_para_${i.language.type}" style="display:none;">
@@ -1562,20 +1652,20 @@
 	
 					<div style="margin-top: 20px;">
 						<fieldset>
-							<%-- <legend style="text-align: left; width: 150px;"><label><spring:message code="bill.statementOfObjectAndReasonDrafts" text="Statement of Object & Reason" /></label></legend> --%>
-							<%-- <a href="#" class="viewRevisions" id="viewRevisions_statementOfObjectAndReasonDrafts" style="margin-left: 162px;"><spring:message code="bill.viewRevisionsForStatementOfObjectAndReasonDrafts" text="View Revisions for Statement Of Object And Reason"></spring:message></a> --%>
-							<a href="#" class="viewRevisions" id="viewRevisions_statementOfObjectAndReasonDrafts"  style="margin-left: 162px;">
-								<img src="./resources/images/revision.jpg" title="<spring:message code='bill.viewRevisionsForStatementOfObjectAndReasonDrafts' text='View Revisions for Statement Of Object And Reason'></spring:message>" class="imageLink" />
+							<p style="margin-bottom: -20px;">
+							<a href="#" class="viewRevisions" id="viewRevisions_statementOfObjectAndReasonDrafts"  style="margin-left: 162px;text-decoration: none;">
+								<img src="./resources/images/ViewRevision.jpg" title="<spring:message code='bill.viewRevisionsForStatementOfObjectAndReasonDrafts' text='View Revisions for Statement Of Object And Reason'></spring:message>" class="imageLink" />
 							</a>
 							<c:forEach var="i" items="${statementOfObjectAndReasonDrafts}" varStatus="position">
 							<c:choose>
 								<c:when test="${i.language.type!=defaultBillLanguage}">
-									<a href="#" class="toggleStatementOfObjectAndReasonDraft" id="toggleStatementOfObjectAndReasonDraft_${i.language.type}">
-										<img src="./resources/images/ico_${i.language.type}.jpg" title="${i.language.name}" class="imageLink" style="margin-left: 20px;" />
+									<a href="#" class="toggleStatementOfObjectAndReasonDraft" id="toggleStatementOfObjectAndReasonDraft_${i.language.type}" style="margin-left: 20px;text-decoration: none;">
+										<img src="./resources/images/ico_${i.language.type}.jpg" title="${i.language.name}" class="imageLink" />
 									</a>
 								</c:when>
 							</c:choose>					
 							</c:forEach>
+							</p>
 							<div id="statementOfObjectAndReasonDrafts_div">
 								<c:forEach var="i" items="${statementOfObjectAndReasonDrafts}">
 									<div id="statementOfObjectAndReasonDraft_para_${i.language.type}" style="display:none;">
@@ -1586,7 +1676,9 @@
 										<input type="hidden" name="statementOfObjectAndReasonDraft_language_id_${i.language.type}" value="${i.language.id}">						
 									</p>
 									<p>
-										<a href="#" class="reviseStatementOfObjectAndReasonDraft" id="reviseStatementOfObjectAndReasonDraft_${i.language.type}" style="margin-left: 162px;margin-right: 20px;"><spring:message code="bill.reviseDraft" text="Revise This Draft"></spring:message></a>
+										<a href="#" class="reviseStatementOfObjectAndReasonDraft" id="reviseStatementOfObjectAndReasonDraft_${i.language.type}" style="margin-left: 162px;margin-right: 20px;">
+											<img src="./resources/images/Revise.jpg" title="<spring:message code='bill.reviseSOR' text='Revise This Statement of Object and Reason'></spring:message>" class="imageLink" />
+										</a>
 									</p>
 									<p id="revisedStatementOfObjectAndReasonDraftPara_${i.language.type}" style="display:none;">
 										<label class="wysiwyglabel">${i.language.name} <spring:message code="bill.revisedStatementOfObjectAndReasonDraft" text=" Revised Statement of Object & Reason"/></label>						
@@ -1615,34 +1707,40 @@
 						</fieldset>
 					</div>					
 					
-					<p style="margin-top: 20px;">
-					<a href="#" id="financialMemorandumDrafts_button" style="margin-left: 162px;margin-right: 20px;font-size: 14px;">
-						<img src="./resources/images/Memo-icon.png" title="<spring:message code='bill.financialMemorandumDrafts' text='Financial Memorandums'></spring:message>" class="imageLink" />
+					<p style="margin-left: 162px;margin-top: 20px;">
+					<a href="#" id="financialMemorandumDrafts_button" style="margin-right: 20px;text-decoration: none;">
+						<img src="./resources/images/Fmemo.jpg" title="<spring:message code='bill.financialMemorandumDrafts' text='Financial Memorandums'></spring:message>" class="imageLink impIcons" />
 					</a>	
-					<a href="#" id="statutoryMemorandumDrafts_button" style="margin-right: 20px;font-size: 14px;">
-						<img src="./resources/images/Memo-icon.png" title="<spring:message code='bill.statutoryMemorandumDrafts' text='Statutory Memorandums'></spring:message>" class="imageLink" />
+					<a href="#" id="statutoryMemorandumDrafts_button" style="margin-right: 20px;text-decoration: none;">
+						<img src="./resources/images/Smemo.jpg" title="<spring:message code='bill.statutoryMemorandumDrafts' text='Statutory Memorandums'></spring:message>" class="imageLink impIcons" />
 					</a>
-					<a href="#" id="checklist_button" style="margin-right: 20px;font-size: 14px;">
-						<img src="./resources/images/checklist.jpg" title="<spring:message code='bill.checklist' text='Checklist'></spring:message>" class="imageLink" />
+					<a href="#" id="checklist_button" style="margin-right: 20px;text-decoration: none;">
+						<img src="./resources/images/checklist.jpg" title="<spring:message code='bill.checklist' text='Checklist'></spring:message>" class="imageLink impIcons" />
+					</a>
+					<a href="#" id="recommendationFromGovernor_button" style="margin-right: 20px;text-decoration: none;">
+						<img src="./resources/images/Grec.jpg" title="<spring:message code='bill.recommendationFromGovernor' text='Recommendation From Governor'></spring:message>" class="imageLink impIcons" />
+					</a>
+					<a href="#" id="recommendationFromPresident_button" style="margin-right: 20px;text-decoration: none;">
+						<img src="./resources/images/Prec.jpg" title="<spring:message code='bill.recommendationFromPresident' text='Recommendation From President'></spring:message>" class="imageLink impIcons" />
 					</a>
 					</p>
 					
 					<div id="financialMemorandumDrafts_div"  style="display:none; margin-top: 20px;">
 						<fieldset>
-							<%-- <legend style="text-align: left; width: 150px;"><label><spring:message code="bill.financialMemorandumDrafts" text="Financial Memorandum" /></label></legend> --%>
-							<%-- <a href="#" class="viewRevisions" id="viewRevisions_financialMemorandumDrafts" style="margin-left: 162px;"><spring:message code="bill.viewRevisionsForFinancialMemorandumDrafts" text="View Revisions for Financial Memorandum"></spring:message></a> --%>
-							<a href="#" class="viewRevisions" id="viewRevisions_financialMemorandumDrafts"  style="margin-left: 162px;">
-								<img src="./resources/images/revision.jpg" title="<spring:message code='bill.viewRevisionsForFinancialMemorandumDrafts' text='View Revisions for Financial Memorandum'></spring:message>" class="imageLink" />
+							<p style="margin-bottom: -10px;">
+							<a href="#" class="viewRevisions" id="viewRevisions_financialMemorandumDrafts"  style="margin-left: 162px;text-decoration: none;">
+								<img src="./resources/images/ViewRevision.jpg" title="<spring:message code='bill.viewRevisionsForFinancialMemorandumDrafts' text='View Revisions for Financial Memorandum'></spring:message>" class="imageLink" />
 							</a>
 							<c:forEach var="i" items="${financialMemorandumDrafts}" varStatus="position">
 							<c:choose>
 								<c:when test="${i.language.type!=defaultBillLanguage}">
-									<a href="#" class="toggleFinancialMemorandumDraft" id="toggleFinancialMemorandumDraft_${i.language.type}">
-										<img src="./resources/images/ico_${i.language.type}.jpg" title="${i.language.name}" class="imageLink" style="margin-left: 20px;" />
+									<a href="#" class="toggleFinancialMemorandumDraft" id="toggleFinancialMemorandumDraft_${i.language.type}" style="margin-left: 20px;text-decoration: none;">
+										<img src="./resources/images/ico_${i.language.type}.jpg" title="${i.language.name}" class="imageLink" />
 									</a>
 								</c:when>
 							</c:choose>					
 							</c:forEach>
+							</p>
 							<div>
 								<c:forEach var="i" items="${financialMemorandumDrafts}">
 									<div id="financialMemorandumDraft_para_${i.language.type}" style="display:none;">
@@ -1653,7 +1751,9 @@
 										<input type="hidden" name="financialMemorandumDraft_language_id_${i.language.type}" value="${i.language.id}">						
 									</p>
 									<p>
-										<a href="#" class="reviseFinancialMemorandumDraft" id="reviseFinancialMemorandumDraft_${i.language.type}" style="margin-left: 162px;margin-right: 20px;"><spring:message code="bill.reviseDraft" text="Revise This Draft"></spring:message></a>
+										<a href="#" class="reviseFinancialMemorandumDraft" id="reviseFinancialMemorandumDraft_${i.language.type}" style="margin-left: 162px;margin-right: 20px;">
+											<img src="./resources/images/Revise.jpg" title="<spring:message code='bill.reviseFM' text='Revise This Financial Memorandum'></spring:message>" class="imageLink" />
+										</a>
 									</p>
 									<p id="revisedFinancialMemorandumDraftPara_${i.language.type}" style="display:none;">
 										<label class="wysiwyglabel">${i.language.name} <spring:message code="bill.revisedFinancialMemorandumDraft" text=" Revised Financial Memorandum"/></label>						
@@ -1684,20 +1784,20 @@
 					
 					<div id="statutoryMemorandumDrafts_div"  style="display:none; margin-top: 20px;">
 						<fieldset>
-							<%-- <legend style="text-align: left; width: 150px;"><label><spring:message code="bill.statutoryMemorandumDrafts" text="Statutory Memorandum" /></label></legend> --%>
-							<%-- <a href="#" class="viewRevisions" id="viewRevisions_statutoryMemorandumDrafts_${i.language.type}" style="margin-left: 162px;"><spring:message code="bill.viewRevisionsForStatutoryMemorandumDrafts" text="View Revisions for Statutory Memorandum"></spring:message></a> --%>
-							<a href="#" class="viewRevisions" id="viewRevisions_statutoryMemorandumDrafts"  style="margin-left: 162px;">
-								<img src="./resources/images/revision.jpg" title="<spring:message code='bill.viewRevisionsForStatutoryMemorandumDrafts' text='View Revisions for Statutory Memorandum'></spring:message>" class="imageLink" />
+							<p style="margin-bottom: -20px;">
+							<a href="#" class="viewRevisions" id="viewRevisions_statutoryMemorandumDrafts"  style="margin-left: 162px;text-decoration: none;">
+								<img src="./resources/images/ViewRevision.jpg" title="<spring:message code='bill.viewRevisionsForStatutoryMemorandumDrafts' text='View Revisions for Statutory Memorandum'></spring:message>" class="imageLink" />
 							</a>
 							<c:forEach var="i" items="${statutoryMemorandumDrafts}" varStatus="position">
 							<c:choose>
 								<c:when test="${i.language.type!=defaultBillLanguage}">
-									<a href="#" class="toggleStatutoryMemorandumDraft" id="toggleStatutoryMemorandumDraft_${i.language.type}">
-										<img src="./resources/images/ico_${i.language.type}.jpg" title="${i.language.name}" class="imageLink" style="margin-left: 20px;" />
+									<a href="#" class="toggleStatutoryMemorandumDraft" id="toggleStatutoryMemorandumDraft_${i.language.type}" style="margin-left: 20px;text-decoration: none;">
+										<img src="./resources/images/ico_${i.language.type}.jpg" title="${i.language.name}" class="imageLink" />
 									</a>
 								</c:when>
 							</c:choose>					
 							</c:forEach>
+							</p>
 							<div>
 								<c:forEach var="i" items="${statutoryMemorandumDrafts}">
 									<div id="statutoryMemorandumDraft_para_${i.language.type}" style="display:none;">
@@ -1708,7 +1808,9 @@
 										<input type="hidden" name="statutoryMemorandumDraft_language_id_${i.language.type}" value="${i.language.id}">						
 									</p>
 									<p>
-										<a href="#" class="reviseStatutoryMemorandumDraft" id="reviseStatutoryMemorandumDraft_${i.language.type}" style="margin-left: 162px;margin-right: 20px;"><spring:message code="bill.reviseDraft" text="Revise This Draft"></spring:message></a>
+										<a href="#" class="reviseStatutoryMemorandumDraft" id="reviseStatutoryMemorandumDraft_${i.language.type}" style="margin-left: 162px;margin-right: 20px;">
+											<img src="./resources/images/Revise.jpg" title="<spring:message code='bill.reviseSM' text='Revise This Statutory Memorandum'></spring:message>" class="imageLink" />
+										</a>
 									</p>
 									<p id="revisedStatutoryMemorandumDraftPara_${i.language.type}" style="display:none;">
 										<label class="wysiwyglabel">${i.language.name} <spring:message code="bill.revisedStatutoryMemorandumDraft" text=" Revised Statutory Memorandum"/></label>						
@@ -1737,155 +1839,6 @@
 						</fieldset>
 					</div>					
 					
-					<c:if test="${not empty formattedTranslationStatus and memberStatusType=='bill_submit'}">
-					<p id="translationStatusDiv">
-						<label class="small"><spring:message code="bill.currentTranslationStatus" text="Current Translation Status"/></label>
-						<input id="formattedTranslationStatus" value="${formattedTranslationStatus}" type="text" readonly="readonly">
-					</p>
-					</c:if>
-					<c:if test="${not empty formattedOpinionFromLawAndJDStatus and selectedDeviceTypeForBill=='bills_nonofficial'}">
-					<p id="opinionFromLawAndJDStatusStatusDiv">
-						<label class="small"><spring:message code="bill.currentOpinionFromLawAndJDStatus" text="Current Opinion From Law And JD Status"/></label>
-						<input id="formattedOpinionFromLawAndJDStatus" value="${formattedOpinionFromLawAndJDStatus}" type="text" readonly="readonly">
-					</p>
-					</c:if>
-					<c:if test="${not empty formattedRecommendationFromGovernorStatus}">
-					<p id="recommendationFromGovernorStatusDiv">
-						<label class="small"><spring:message code="bill.currentRecommendationFromGovernorStatus" text="Current Recommendation From Governor Status"/></label>
-						<input id="formattedRecommendationFromGovernorStatus" value="${formattedRecommendationFromGovernorStatus}" type="text" readonly="readonly">
-					</p>
-					</c:if>
-					<c:if test="${not empty formattedRecommendationFromPresidentStatus}">
-					<p id="recommendationFromPresidentStatusDiv">
-						<label class="small"><spring:message code="bill.currentRecommendationFromPresidentStatus" text="Current Recommendation From President Status"/></label>
-						<input id="formattedRecommendationFromPresidentStatus" value="${formattedRecommendationFromPresidentStatus}" type="text" readonly="readonly">
-					</p>
-					</c:if>	
-				
-					<c:if test="${internalStatusPriority < statusUpdationPriority}">
-						<p id="internalStatusDiv">
-							<label class="small"><spring:message code="bill.currentStatus" text="Current Status"/></label>
-							<input id="formattedInternalStatus" value="${formattedInternalStatus }" type="text" readonly="readonly">
-						</p>	
-						<%-- <c:if test="${(internalStatusType=='bill_submit') || (internalStatusType=='bill_system_assistantprocessed')
-							|| ((internalStatusType=='bill_recommend_admission' or internalStatusType=='bill_recommend_rejection') && bulkedit=='yes')}"> --%>
-						<p id="changeInternalStatusPara">
-							<label class="small"><spring:message code="resolution.putupfor" text="Put up for"/></label>
-							<select id="changeInternalStatus" class="sSelect">
-								<option value="-"><spring:message code='please.select' text='Please Select'/></option>
-								<c:forEach items="${internalStatuses}" var="i">
-									<c:if test="${(i.type!='bill_recommend_sendback'&&i.type!='bill_recommend_discuss') }">
-										<c:choose>
-											<c:when test="${i.id==internalStatusSelected}">
-												<option value="${i.id}" selected="selected"><c:out value="${i.name}"></c:out></option>	
-											</c:when>
-											<c:otherwise>
-												<option value="${i.id}"><c:out value="${i.name}"></c:out></option>		
-											</c:otherwise>
-										</c:choose>
-									</c:if>
-								</c:forEach>
-							</select>		
-							<select id="internalStatusMaster" style="display:none;">
-							<c:forEach items="${internalStatuses}" var="i">
-							<option value="${i.type}"><c:out value="${i.id}"></c:out></option>
-							</c:forEach>
-							</select>	
-							<form:errors path="internalStatus" cssClass="validationError"/>	
-						</p>
-						<p id="actorDiv">
-						<label class="small"><spring:message code="bill.nextactor" text="Next Users"/></label>
-						<select id="actorForWorkflow" name="actorForWorkflow" class="sSelect">
-							<c:forEach var="i" items="${actors}">
-								<option value="${i.id}"><c:out value="${i.name}"></c:out></option>
-							</c:forEach>					
-						</select>	
-						<input type="hidden" id="localizedActorNameForWorkflow"  name="localizedActorNameForWorkflow">
-						</p>
-					</c:if>
-					
-					<c:if test="${internalStatusPriority >= statusUpdationPriority}">
-						<p id="recommendationStatusDiv">
-							<label class="small"><spring:message code="bill.currentStatus" text="Current Status"/></label>
-							<input id="formattedRecommendationStatus" value="${formattedRecommendationStatus}" type="text" readonly="readonly">
-						</p>	
-						<p>
-							<label class="small"><spring:message code="bill.currentHouseRound" text="Current House Round"/></label>
-							<input id="currentHouseRound" class="sInteger" value="${currentHouseRound}" type="text" readonly="readonly">
-						</p>					
-						<p>
-							<label class="small"><spring:message code="bill.currentExpectedStatusDate" text="Current Expected Status Date"/></label>
-							<input id="currentExpectedStatusDate" name="currentExpectedStatusDate" value="${currentExpectedStatusDate}" class="datemask sText" readonly="readonly"/>							
-						</p>
-						<p>
-							<label class="small"><spring:message code="bill.currentStatusDate" text="Current Status Date"/></label>
-							<input id="currentStatusDate" name="currentStatusDate" value="${currentStatusDate}" class="datemask sText" readonly="readonly"/>							
-						</p>
-						<c:if test="${internalStatusType!='bill_processed_toBeIntroduced'}">
-							<p>
-								<label class="small"><spring:message code="bill.introducedBy" text="Introduced By"/></label>
-								<input type="text" id="introducedByMemberName" class="sText" name="introducedByMemberName" value="${introducedByMember.getFullname()}" readonly="readonly">
-								<input id="introducedBy" name="introducedBy" value="${introducedByMember.getId()}" type="hidden" />
-							</p>
-						</c:if>
-						<p id="changeRecommendationStatusPara">
-							<label class="small"><spring:message code="resolution.putupfor" text="Put up for"/></label>
-							<select id="changeRecommendationStatus" class="sSelect">
-								<option value="-"><spring:message code='please.select' text='Please Select'/></option>
-								<c:forEach items="${recommendationStatuses}" var="i">
-									<c:choose>
-										<c:when test="${i.id==recommendationStatusSelected}">
-											<option value="${i.id}" selected="selected"><c:out value="${i.name}"></c:out></option>	
-										</c:when>
-										<c:otherwise>
-											<option value="${i.id}"><c:out value="${i.name}"></c:out></option>		
-										</c:otherwise>
-									</c:choose>
-								</c:forEach>
-							</select>	
-							<a id="addVotingDetail" href="javascript:void(0);"><spring:message code="bill.addVotingDetail" text="Add Voting Details"/></a>	
-							<a id="editVotingDetails" href="javascript:void(0);" style="display: inline; margin-left: 20px;"><spring:message code="bill.editVotingDetails" text="Edit Voting Details"/></a>
-							<a id="editStatusUpdation" href="javascript:void(0);" style="display: inline; margin-left: 20px;"><spring:message code="bill.editStatusUpdation" text="Edit Status Updation"/></a>
-							<select id="recommendationStatusMaster" style="display:none;">
-							<c:forEach items="${recommendationStatuses}" var="i">
-							<option value="${i.type}"><c:out value="${i.id}"></c:out></option>
-							</c:forEach>
-							</select>	
-							<form:errors path="recommendationStatus" cssClass="validationError"/>	
-						</p>
-						<div id="contentForStatusUpdation" style="display:none;">
-							<c:if test="${internalStatusType=='bill_processed_toBeIntroduced'}">
-								<p>
-									<label class="small"><spring:message code="bill.introducedBy" text="Introduced By"/></label>
-									<input type="text" id="introducedByMemberName" class="autosuggest sText" name="introducedByMemberName" value="${introducedByMember.getFullname()}">
-									<input id="introducedBy" name="introducedBy" value="${introducedByMember.getId()}" type="hidden" />
-								</p>
-							</c:if>
-							<p>
-								<label class="small"><spring:message code="bill.houseRound" text="House Round"/></label>
-								<form:select id="houseRound" class="sSelect" path="houseRound" items="${houseRoundVOs}" itemLabel="name" itemValue="value"/>							
-							</p>
-							<p>
-								<label class="small"><spring:message code="bill.expectedStatusDate" text="Expected Status Date"/></label>								
-								<input id="expectedStatusDate" name="expectedStatusDate" class="datemask sText"/>							
-							</p>
-							<p>
-								<label class="small"><spring:message code="bill.statusDate" text="Status Date"/></label>
-								<form:input id="statusDate" path="statusDate" value="${statusDate}" class="datemask sText"/>							
-							</p>	
-							<a id="populateAvailableStatusDates" href="#"><spring:message code="bill.populateAvailableStatusDates" text="Refer Available Status Dates"/></a>					
-						</div>
-					</c:if>				
-									
-					<input type="hidden" id="internalStatus"  name="internalStatus" value="${internalStatus }">
-					<input type="hidden" id="recommendationStatus"  name="recommendationStatus" value="${recommendationStatus}">
-					<input type="hidden" id="translationStatus"  name="translationStatus" value="${translationStatus}">
-					<input type="hidden" id="opinionFromLawAndJDStatus"  name="opinionFromLawAndJDStatus" value="${opinionFromLawAndJDStatus}">
-					<input type="hidden" id="recommendationFromGovernorStatus"  name="recommendationFromGovernorStatus" value="${recommendationFromGovernorStatus}">
-					<input type="hidden" id="recommendationFromPresidentStatus"  name="recommendationFromPresidentStatus" value="${recommendationFromPresidentStatus}">
-					
-					<p>
-					<input type="button" id="recommendationFromGovernor_button" class="button" value="<spring:message code='bill.recommendationFromGovernor' text='Recommendation From Governor'/>"/>
 					<div id="recommendationFromGovernor_div"  style="display:none;">
 					<p>
 						<label class="wysiwyglabel"><spring:message code="bill.recommendationFromGovernor" text="Recommendation From Governor"/></label>
@@ -1899,11 +1852,8 @@
 					<input id="setDateOfRecommendationFromGovernor" name="setDateOfRecommendationFromGovernor" type="hidden"  value="${dateOfRecommendationFromGovernor}">	
 					</p>
 					</c:if>		
-					</div>
-					</p>
+					</div>					
 					
-					<p>
-					<input type="button" id="recommendationFromPresident_button" class="button" value="<spring:message code='bill.recommendationFromPresident' text='Recommendation From President'/>"/>
 					<div id="recommendationFromPresident_div"  style="display:none;">
 					<p>
 						<label class="wysiwyglabel"><spring:message code="bill.recommendationFromPresident" text="Recommendation From President"/></label>
@@ -1917,11 +1867,10 @@
 					<input id="setDateOfRecommendationFromPresident" name="setDateOfRecommendationFromPresident" type="hidden"  value="${dateOfRecommendationFromPresident}">	
 					</p>
 					</c:if>	
-					</div>
-					</p>
-					
+					</div>						
 					<div>
-						<div id="opinionSoughtFromLawAndJD_div" style="display: none;float: left;">
+						<h2 class="checklist_button_hr" style="display: none;"></h2>
+						<div id="opinionSoughtFromLawAndJD_div" style="display: none;float: left;margin-top: 10px;">
 							<p id="opinionSoughtFromLawAndJD_para">
 								<label><spring:message code="bill.opinionSoughtFromLawAndJD" text="Opinion from Law & Judiciary Department"/></label>
 								<br/>
@@ -1930,20 +1879,25 @@
 							</p>					
 							<c:if test="${not empty dateOfOpinionSoughtFromLawAndJD}">
 							<p>
-							<label class="small"><spring:message code="bill.dateOfOpinionSoughtFromLawAndJD" text="Date Of Opinion Sought From Law And JD"/></label>
-							<input id="formattedDateOfOpinionSoughtFromLawAndJD" name="formattedDateOfOpinionSoughtFromLawAndJD" value="${formattedDateOfOpinionSoughtFromLawAndJD}" class="sText" readonly="readonly">
+							<label><spring:message code="bill.dateOfOpinionSoughtFromLawAndJD" text="Date Of Opinion Sought From Law And JD"/></label>
+							<br/>
+							<input id="formattedDateOfOpinionSoughtFromLawAndJD" name="formattedDateOfOpinionSoughtFromLawAndJD" value="${formattedDateOfOpinionSoughtFromLawAndJD}" class="sText" style="margin-left: 10px !important;" readonly="readonly">
 							<input id="setDateOfOpinionSoughtFromLawAndJD" name="setDateOfOpinionSoughtFromLawAndJD" type="hidden"  value="${dateOfOpinionSoughtFromLawAndJD}">	
 							</p>
 							</c:if>
 						</div>
 						
-						<div id="checklist_div"  style="display: none;margin-left: 420px;margin-top: 20px;">					
+						<div id="checklist_div"  style="display: none;margin-left: 420px;margin-top: 10px;">					
 							<fieldset>
-							<label><spring:message code="bill.checklist" text="Checklist" /></label>
-							<br/>
-							<a href="#" class="viewRevisions" id="viewRevisions_checklist" style="margin-top: 20px;margin-bottom: 5px;"><spring:message code="bill.viewRevisionsForChecklist" text="View Revisions for Checklist"></spring:message></a>
-							<a href="bill/viewSchedule7OfConstitution" target="_blank" id="viewSchedule7OfConstitution" style="margin-right: 20px;"><spring:message code="bill.viewSchedule7OfConstitution" text="View Schedule 7 Of Constitution"></spring:message></a>
-							<table border="1" style="width: 470px; margin-top: 10px;border: 2px solid black;">
+							<label><spring:message code="bill.checklist" text="Checklist" /></label>							
+							<a href="#" class="viewRevisions" id="viewRevisions_checklist" style="margin-left: 20px;margin-bottom: 5px;margin-right: 20px;text-decoration: none;">
+								<img src="./resources/images/ViewRevision.jpg" title="<spring:message code='bill.viewRevisionsForChecklist' text='View Revisions for Checklist'></spring:message>" class="imageLink" />
+							</a>
+							<a href="bill/viewSchedule7OfConstitution" target="_blank" id="viewSchedule7OfConstitution" style="margin-right: 20px;text-decoration: none;">
+								<img id="s7C" src="./resources/images/s7C.jpg" title="<spring:message code='bill.viewSchedule7OfConstitution' text='View Schedule 7 Of Constitution'></spring:message>" class="imageLink" />
+							</a>
+							<br/>							
+							<table border="1" style="width: 470px; border: 2px solid black;">
 								<!-- <thead>
 									<tr>
 										<th width="50%">Question Details</th>
@@ -2121,8 +2075,160 @@
 								</tbody>
 							</table>
 							</fieldset>
-						</div>					
+						</div>	
+						<h2 class="checklist_button_hr" style="display: none;"></h2>									
 					</div>
+					
+					<div style="margin-top: 20px;">
+					<c:if test="${domain.translationWorkflowStarted=='YES' and not empty formattedTranslationStatus and memberStatusType=='bill_submit'}">
+					<p id="translationStatusDiv">
+						<label class="small"><spring:message code="bill.currentTranslationStatus" text="Current Translation Status"/></label>
+						<input id="formattedTranslationStatus" value="${formattedTranslationStatus}" type="text" readonly="readonly">
+					</p>
+					</c:if>
+					<c:if test="${domain.opinionFromLawAndJDWorkflowStarted=='YES' and not empty formattedOpinionFromLawAndJDStatus and selectedDeviceTypeForBill=='bills_nonofficial'}">
+					<p id="opinionFromLawAndJDStatusStatusDiv">
+						<label class="small"><spring:message code="bill.currentOpinionFromLawAndJDStatus" text="Current Opinion From Law And JD Status"/></label>
+						<input id="formattedOpinionFromLawAndJDStatus" value="${formattedOpinionFromLawAndJDStatus}" type="text" readonly="readonly">
+					</p>
+					</c:if>
+					<c:if test="${domain.recommendationFromGovernorWorkflowStarted=='YES' and not empty formattedRecommendationFromGovernorStatus}">
+					<p id="recommendationFromGovernorStatusDiv">
+						<label class="small"><spring:message code="bill.currentRecommendationFromGovernorStatus" text="Current Recommendation From Governor Status"/></label>
+						<input id="formattedRecommendationFromGovernorStatus" value="${formattedRecommendationFromGovernorStatus}" type="text" readonly="readonly">
+					</p>
+					</c:if>
+					<c:if test="${domain.recommendationFromPresidentWorkflowStarted=='YES' and not empty formattedRecommendationFromPresidentStatus}">
+					<p id="recommendationFromPresidentStatusDiv">
+						<label class="small"><spring:message code="bill.currentRecommendationFromPresidentStatus" text="Current Recommendation From President Status"/></label>
+						<input id="formattedRecommendationFromPresidentStatus" value="${formattedRecommendationFromPresidentStatus}" type="text" readonly="readonly">
+					</p>
+					</c:if>	
+				
+					<c:if test="${internalStatusPriority < statusUpdationPriority}">
+						<p id="internalStatusDiv">
+							<label class="small"><spring:message code="bill.currentStatus" text="Current Status"/></label>
+							<input id="formattedInternalStatus" value="${formattedInternalStatus }" type="text" readonly="readonly">
+						</p>	
+						<%-- <c:if test="${(internalStatusType=='bill_submit') || (internalStatusType=='bill_system_assistantprocessed')
+							|| ((internalStatusType=='bill_recommend_admission' or internalStatusType=='bill_recommend_rejection') && bulkedit=='yes')}"> --%>
+						<p id="changeInternalStatusPara">
+							<label class="small"><spring:message code="resolution.putupfor" text="Put up for"/></label>
+							<select id="changeInternalStatus" class="sSelect">
+								<option value="-"><spring:message code='please.select' text='Please Select'/></option>
+								<c:forEach items="${internalStatuses}" var="i">
+									<c:if test="${(i.type!='bill_recommend_sendback'&&i.type!='bill_recommend_discuss') }">
+										<c:choose>
+											<c:when test="${i.id==internalStatusSelected}">
+												<option value="${i.id}" selected="selected"><c:out value="${i.name}"></c:out></option>	
+											</c:when>
+											<c:otherwise>
+												<option value="${i.id}"><c:out value="${i.name}"></c:out></option>		
+											</c:otherwise>
+										</c:choose>
+									</c:if>
+								</c:forEach>
+							</select>		
+							<select id="internalStatusMaster" style="display:none;">
+							<c:forEach items="${internalStatuses}" var="i">
+							<option value="${i.type}"><c:out value="${i.id}"></c:out></option>
+							</c:forEach>
+							</select>	
+							<form:errors path="internalStatus" cssClass="validationError"/>	
+						</p>
+						<p id="actorDiv">
+						<label class="small"><spring:message code="bill.nextactor" text="Next Users"/></label>
+						<select id="actorForWorkflow" name="actorForWorkflow" class="sSelect">
+							<c:forEach var="i" items="${actors}">
+								<option value="${i.id}"><c:out value="${i.name}"></c:out></option>
+							</c:forEach>					
+						</select>	
+						<input type="hidden" id="localizedActorNameForWorkflow"  name="localizedActorNameForWorkflow">
+						</p>
+					</c:if>
+					
+					<c:if test="${internalStatusPriority >= statusUpdationPriority}">
+						<p id="recommendationStatusDiv">
+							<label class="small"><spring:message code="bill.currentStatus" text="Current Status"/></label>
+							<input id="formattedRecommendationStatus" value="${formattedRecommendationStatus}" type="text" readonly="readonly">
+						</p>	
+						<p>
+							<label class="small"><spring:message code="bill.currentHouseRound" text="Current House Round"/></label>
+							<input id="currentHouseRound" class="sInteger" value="${currentHouseRound}" type="text" readonly="readonly">
+						</p>					
+						<p>
+							<label class="small"><spring:message code="bill.currentExpectedStatusDate" text="Current Expected Status Date"/></label>
+							<input id="currentExpectedStatusDate" name="currentExpectedStatusDate" value="${currentExpectedStatusDate}" class="datemask sText" readonly="readonly"/>							
+						</p>
+						<p>
+							<label class="small"><spring:message code="bill.currentStatusDate" text="Current Status Date"/></label>
+							<input id="currentStatusDate" name="currentStatusDate" value="${currentStatusDate}" class="datemask sText" readonly="readonly"/>							
+						</p>
+						<c:if test="${internalStatusType!='bill_processed_toBeIntroduced'}">
+							<p>
+								<label class="small"><spring:message code="bill.introducedBy" text="Introduced By"/></label>
+								<input type="text" id="introducedByMemberName" class="sText" name="introducedByMemberName" value="${introducedByMember.getFullname()}" readonly="readonly">
+								<input id="introducedBy" name="introducedBy" value="${introducedByMember.getId()}" type="hidden" />
+							</p>
+						</c:if>
+						<p id="changeRecommendationStatusPara">
+							<label class="small"><spring:message code="resolution.putupfor" text="Put up for"/></label>
+							<select id="changeRecommendationStatus" class="sSelect">
+								<option value="-"><spring:message code='please.select' text='Please Select'/></option>
+								<c:forEach items="${recommendationStatuses}" var="i">
+									<c:choose>
+										<c:when test="${i.id==recommendationStatusSelected}">
+											<option value="${i.id}" selected="selected"><c:out value="${i.name}"></c:out></option>	
+										</c:when>
+										<c:otherwise>
+											<option value="${i.id}"><c:out value="${i.name}"></c:out></option>		
+										</c:otherwise>
+									</c:choose>
+								</c:forEach>
+							</select>	
+							<a id="addVotingDetail" href="javascript:void(0);"><spring:message code="bill.addVotingDetail" text="Add Voting Details"/></a>	
+							<a id="editVotingDetails" href="javascript:void(0);" style="display: inline; margin-left: 20px;"><spring:message code="bill.editVotingDetails" text="Edit Voting Details"/></a>
+							<a id="editStatusUpdation" href="javascript:void(0);" style="display: inline; margin-left: 20px;"><spring:message code="bill.editStatusUpdation" text="Edit Status Updation"/></a>
+							<select id="recommendationStatusMaster" style="display:none;">
+							<c:forEach items="${recommendationStatuses}" var="i">
+							<option value="${i.type}"><c:out value="${i.id}"></c:out></option>
+							</c:forEach>
+							</select>	
+							<form:errors path="recommendationStatus" cssClass="validationError"/>	
+						</p>
+						<div id="contentForStatusUpdation" style="display:none;">
+							<c:if test="${internalStatusType=='bill_processed_toBeIntroduced'}">
+								<p>
+									<label class="small"><spring:message code="bill.introducedBy" text="Introduced By"/></label>
+									<input type="text" id="introducedByMemberName" class="autosuggest sText" name="introducedByMemberName" value="${introducedByMember.getFullname()}">
+									<input id="introducedBy" name="introducedBy" value="${introducedByMember.getId()}" type="hidden" />
+								</p>
+							</c:if>
+							<p>
+								<label class="small"><spring:message code="bill.houseRound" text="House Round"/></label>
+								<form:select id="houseRound" class="sSelect" path="houseRound" items="${houseRoundVOs}" itemLabel="name" itemValue="value"/>							
+							</p>
+							<p>
+								<label class="small"><spring:message code="bill.expectedStatusDate" text="Expected Status Date"/></label>								
+								<input id="expectedStatusDate" name="expectedStatusDate" class="datemask sText"/>							
+							</p>
+							<p>
+								<label class="small"><spring:message code="bill.statusDate" text="Status Date"/></label>
+								<form:input id="statusDate" path="statusDate" value="${statusDate}" class="datemask sText"/>							
+							</p>	
+							<a id="populateAvailableStatusDates" href="#"><spring:message code="bill.populateAvailableStatusDates" text="Refer Available Status Dates"/></a>					
+						</div>
+					</c:if>				
+									
+					<input type="hidden" id="internalStatus"  name="internalStatus" value="${internalStatus }">
+					<input type="hidden" id="recommendationStatus"  name="recommendationStatus" value="${recommendationStatus}">
+					<input type="hidden" id="translationStatus"  name="translationStatus" value="${translationStatus}">
+					<input type="hidden" id="opinionFromLawAndJDStatus"  name="opinionFromLawAndJDStatus" value="${opinionFromLawAndJDStatus}">
+					<input type="hidden" id="recommendationFromGovernorStatus"  name="recommendationFromGovernorStatus" value="${recommendationFromGovernorStatus}">
+					<input type="hidden" id="recommendationFromPresidentStatus"  name="recommendationFromPresidentStatus" value="${recommendationFromPresidentStatus}">
+					</div>
+					
+					<div id="remarks_div">
 					<p>
 						<a href="#" id="viewCitation" style="margin-left: 162px;margin-top: 30px;"><spring:message code="question.viewcitation" text="View Citations"></spring:message></a>	
 					</p>					
@@ -2130,7 +2236,8 @@
 					<p>
 						<label class="wysiwyglabel"><spring:message code="bill.remarks" text="Remarks"/></label>
 						<textarea id="remarks" name="remarks" class="wysiwyg">${currentRemarks}</textarea>						
-					</p>	
+					</p>
+					</div>	
 					
 					<div class="fields">
 						<h2></h2>
@@ -2277,6 +2384,8 @@
 				<input type="hidden" id="defaultBillLanguage" value="${defaultBillLanguage}">
 				<input type="hidden" id="isMoneyBillPrompt" value="<spring:message code="bill.isMoneyBillPrompt" text="Are you sure this is a money bill?"></spring:message>">
 				<input type="hidden" id="isNotMoneyBillPrompt" value="<spring:message code="bill.isNotMoneyBillPrompt" text="Are you sure this is not a money bill?"></spring:message>">
+				<input type="hidden" id="isChecklistFilled" value="${isChecklistFilled}">
+				<%-- <input type="hidden" id="opinionFromLawAndJdNotReceivedMsg" value="<spring:message code="bill.opinionFromLawAndJdNotReceivedMsg" text="Opinion From Law And Judiciary Department Is Not Received Yet."></spring:message>"> --%>
 				
 				<%-- <input type="hidden" id="hdsRefEntity" value="${hdsRefEntity}" /> --%>
 				

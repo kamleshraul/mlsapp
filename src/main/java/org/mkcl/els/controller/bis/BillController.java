@@ -1432,6 +1432,10 @@ public class BillController extends GenericController<Bill> {
 				}
 			}			
 		}
+		/**** checklist filled or not ****/
+		if(domain.getChecklist()!=null && !domain.getChecklist().isEmpty()) {
+			model.addAttribute("isChecklistFilled", true);
+		}
 		/**** remarks ****/	
 		UserGroupType userGroupType = UserGroupType.findByFieldName(UserGroupType.class, "type", usergroupType, locale);
 		if(userGroupType!=null) {
