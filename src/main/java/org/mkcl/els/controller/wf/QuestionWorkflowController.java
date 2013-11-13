@@ -894,7 +894,11 @@ public class QuestionWorkflowController  extends BaseController{
 				CustomParameter deviceTypeHouseTypeUsergroup=CustomParameter.findByName(CustomParameter.class, "QUESTION_PUT_UP_OPTIONS_"+deviceType.getType().toUpperCase()+"_"+houseType.getType().toUpperCase()+"_"+internaStatus.getType().toUpperCase()+"_"+usergroupType.toUpperCase(), "");
 				CustomParameter deviceTypeUsergroup=CustomParameter.findByName(CustomParameter.class, "QUESTION_PUT_UP_OPTIONS_"+deviceType.getType().toUpperCase()+"_"+internaStatus.getType().toUpperCase()+"_"+usergroupType.toUpperCase(), "");
 				if(finalApprovingAuthority!=null&&finalApprovingAuthority.getValue().contains(usergroupType)){
-					CustomParameter finalApprovingAuthorityStatus=CustomParameter.findByName(CustomParameter.class,"QUESTION_PUT_UP_OPTIONS_"+usergroupType.toUpperCase(),"");
+					CustomParameter finalApprovingAuthorityStatus = CustomParameter.findByName(CustomParameter.class,"QUESTION_PUT_UP_OPTIONS_" + deviceType.getType().toUpperCase() + "_" + usergroupType.toUpperCase(), "");
+					if(finalApprovingAuthorityStatus == null) {
+						finalApprovingAuthorityStatus=CustomParameter.findByName(CustomParameter.class,"QUESTION_PUT_UP_OPTIONS_"+usergroupType.toUpperCase(),"");
+					}					
+					
 					if(finalApprovingAuthorityStatus!=null){
 						internalStatuses=Status.findStatusContainedIn(finalApprovingAuthorityStatus.getValue(), locale);
 					}
