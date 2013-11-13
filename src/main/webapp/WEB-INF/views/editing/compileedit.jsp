@@ -126,6 +126,7 @@
 			margin: 10px 0px 0px 50px; 
 			border: 1px solid black; 
 			min-height: 25px;
+			position: relative;
 			/*background: #0E4269;*/
 			
 			/*background: -prefix-linear-gradient(top, #0E4269, #59A8E3);*/
@@ -275,19 +276,38 @@
 			//alert(newContent);
 			newContent=newContent.replace("</span>","");
 			//alert(newContent);
-			var params = "?userGroup="+$("#userGroup").val()+"&userGroupType="+$("#userGroupType").val();
+			$("#undoCount").val(parseInt($("#undoCount").val()) + 1);
+			if($("#undoCount").val()=='1'){
+				$("#redoCount").val('0');
+				$("#pprp"+whichId.substring(2)).empty();
+				$("#pprp"+whichId.substring(2)).html('classes');
+			}
+			
+			var params = "?userGroup="+$("#userGroup").val()
+					+"&userGroupType="+$("#userGroupType").val()
+					+"&undoCount="+$("#undoCount").val();
 			
             $("#data").val(newContent);
             if($("#prevcontent").val()!=newContent){
 				$.post($("form[action='editing/savepart']").attr('action')+'/'+whichId.substring(2)+params,
 						$("form[action='editing/savepart']").serialize(),function(data){
-					if(data=='SUCCESS'){
+					if(data){						
 						$("#"+whichId).empty();
 						$("#"+whichId).html(newContent);
-						showEditProceeding();
+						//showEditProceeding();
+						
+						var undoData=$("#ppsp"+whichId.substring(2)).html();
+						var draftData=data.value;
+						if(undoData=='classes' || undoData==''){
+							$("#ppsp"+data.id).empty();
+							$("#ppsp"+data.id).html(draftData);
+						}else{
+							$("#ppsp"+data.id).html(undoData+";"+data.value);
+						}
+					}else{
+						$("#undoCount").val((parseInt($("#undoCount").val()) - 1));
 					}
 				}).fail(function(){
-					
 				});
             }
 		}
@@ -325,9 +345,9 @@
 			+ '&pageheader=' + $("#selectedPageheader").val()
 			+ '&userGroup=' + $("#userGroup").val()
 			+ '&userGroupType=' + $("#userGroupType").val();
-			console.log("Replaceing: "+$("#undoCount").val());
-			$("#undoCount").val(parseInt($("#undoCount").val()) + 1);				
-			console.log("Replaceing: "+$("#undoCount").val());
+
+			$("#undoCount").val(parseInt($("#undoCount").val()) + 1);	
+
 			$.blockUI({ message: '<img src="./resources/images/waitAnimated.gif" />' });
 			
 			$.post($("form[action='editing/replace']").attr('action')+"?"+params,
@@ -366,26 +386,41 @@
 					var undoDataArray = undoData.split(";");
 					var undoDataToWorkWith=undoDataArray[undoDataArray.length-1].split(":");
 					$("#uniqueIdentifierForUndo").val(undoDataToWorkWith[2]);
-					var html="";
-					if(undoDataArray.length>1){
-						html=$(this).html().replace(";"+undoDataArray[undoDataArray.length-1],"");
-					}else{
-						html=$(this).html().replace(undoDataArray[undoDataArray.length-1],"");
-						
-					}
-					var redoData=$("#pprd"+$(this).attr('id').substring(4)).html();
-					console.log("redoData:"+redoData);
+					
+					var redoData=$("#pprp"+$(this).attr('id').substring(4)).html();
 					
 					var ppId=$(this).attr('id').substring(4);
-					$(this).html(html);								
-					console.log('ppId: ' + ppId);
+					
 					$.post("editing/undolastchange/"+ppId,
 							$("form[action='editing/replace']").serialize(),function(data){
 						if(data){
 							$("#pp"+ppId).empty();
 							$("#pp"+ppId).html(data.value);
-							console.log(data.value);
+							var pprpData=$("#pprp"+ppId).html();
+							
+							var redoCountX=undoDataArray[undoDataArray.length-1].split(":")[1];
+							if(redoCountX==''){
+								redoCountX='0';
+							}
+							
+							if(pprpData=='classes' || pprpData==''){
+								$("#pprp"+ppId).empty();
+								$("#pprp"+ppId).html(undoDataArray[undoDataArray.length-1]);
+								$("#redoCount").val(parseInt($("#redoCount").val())+1);
+							}else{
+								$("#pprp"+ppId).html(pprpData+";"+undoDataArray[undoDataArray.length-1]);
+								$("#redoCount").val(parseInt($("#redoCount").val())+1);
+							}
+							
 							$("#undoCount").val(parseInt($("#undoCount").val())-1);
+							var html="";
+							if(undoDataArray.length>1){
+								html=$("#ppsp"+ppId).html().replace(";"+undoDataArray[undoDataArray.length-1],"");
+							}else{
+								html=$("#ppsp"+ppId).html().replace(undoDataArray[undoDataArray.length-1],"");
+							}
+							$("#ppsp"+ppId).html(html);
+							
 							$.unblockUI();
 						}
 					}).fail(function(){
@@ -395,7 +430,64 @@
 				$.unblockUI();
 			});
 		}
+		
+		function redoLastChange(){
+			$(".pprp").each(function(){
+				$.blockUI({ message: '<img src="./resources/images/waitAnimated.gif" />' });
+				var redoData=$(this).html();
+				if(redoData!='classes'){
+					var redoDataArray = redoData.split(";");
+					var redoDataToWorkWith=redoDataArray[redoDataArray.length-1].split(":");
+					$("#uniqueIdentifierForRedo").val(redoDataToWorkWith[2]);
+					var html="";
+					if(redoDataArray.length>1){
+						html=$(this).html().replace(";"+redoDataArray[redoDataArray.length-1],"");
+					}else{
+						html=$(this).html().replace(redoDataArray[redoDataArray.length-1],"");
+						
+					}
+					var redoData=$("#pprp"+$(this).attr('id').substring(4)).html();
+					
+					var ppspData=$("#pprp"+ppId).html();
+					if(ppspData=='classes' || ppspData==''){
+						$("#ppsp"+ppId).empty();
+						$("#ppsp"+ppId).html(redoDataArray[redoDataArray.length-1]);
+						//$("#undoCount").val(parseInt($("#undoCount").val())+1);
+					}else{
+						$("#ppsp"+ppId).html(ppspData+";"+redoDataArray[redoDataArray.length-1]);
+						//$("#undoCount").val(parseInt($("#undoCount").val())+1);
+					}
+					$("#urData").val(redoDataArray[redoDataArray.length-1]);
+					
+					var ppId=$(this).attr('id').substring(4);
+					$(this).html(html);			
+					$.post("editing/redolastchange/"+ppId,
+							$("form[action='editing/replace']").serialize(),function(data){
+						if(data){
+							$("#pp"+ppId).empty();
+							$("#pp"+ppId).html(data.value);
+							$("#redoCount").val(parseInt($("#redoCount").val())-1);
+							$.unblockUI();
+						}
+					}).fail(function(){
+						$.unblockUI();
+					});
+				}
+				$.unblockUI();
+			});
+		}
+				
 		$(document).ready(function(){
+			
+			/* $(window).scroll(function(e){ 
+				  $el = $('#replaceToolDiv'); 
+				  if ($(this).scrollTop()==200 && $el.css('position') != 'fixed'){ 
+				    $('#replaceToolDiv').css({'position': 'fixed', 'top': '0px','opacity':'1.0'}); 
+				  }else if($(this).scrollTop()==0){
+					  $('#replaceToolDiv').css({'position': 'relative', 'top': '5px','opacity':'0.8'});
+				  } 
+				  
+			}); */
 			
 			$('.wysiwyg').wysiwyg({controls: {
 			       save: { 
@@ -572,6 +664,13 @@
 					undoLastChange();
 				}
 			});
+			
+			$("#redo").click(function(){
+				var redoCount = parseInt($("#redoCount").val());
+				if(redoCount>0){
+					redoLastChange();
+				}
+			});
 		});
 	</script>
 </head>
@@ -597,11 +696,12 @@
 				<label style="margin: 0px 10px 0px 10px;"><spring:message code="editing.replace.searchTerm" text="Find" /></label><input type="text" id="searchTerm" name="searchTerm" value="${searchTerm}" style="border-radius: 3px; border: 1px solid #000080;" />
 				<label style="margin: 0px 10px 0px 10px;"><spring:message code="editing.replace.replaceTerm" text="Replace With" /></label><input type="text" id="replaceTerm" name="replaceTerm" value="${replaceTerm}"  style="border-radius: 3px; border: 1px solid #000080;"/>
 				<a href="javascript:void(0);" id="replaceAll" style="width: 70px; border: 1px solid #000080; text-decoration: none; text-align: center; color: #000080; padding: 1px; border-radius: 5px;"><spring:message code='editing.replace.replaceAll' text='Replace'></spring:message></a>
-				<a href="javascript:void(0);" id="undo"><img src="./resources/images/undo.png" width="16px" /></a>&nbsp;&nbsp;<a href="javscript:void(0);" id="redo" style="display: none;"><img src=""/></a>
+				<a href="javascript:void(0);" id="undo"><img src="./resources/images/undo.png" width="16px" /></a>&nbsp;&nbsp;<a href="javascript:void(0);" id="redo"><img src="./resources/images/redo.png" alt="Redo" width="16px"/></a>
 				<input type="hidden" name="undoCount" id="undoCount" value="${undoCount}" />
 				<input type="hidden" name="uniqueIdentifierForUndo" id="uniqueIdentifierForUndo" value="" />
 				<input type="hidden" name="redoCount" id="redoCount" value="${redoCount}" />
 				<input type="hidden" name="uniqueIdentifierForRedo" id="uniqueIdentifierForRedo" value="" />
+				<input type="hidden" name="urData" id="urData" value="" />
 			</form> 
 		</div> 
 	</c:if>
@@ -615,6 +715,8 @@
 		<table id="containerTable">
 			<c:set var="ph" value="-" />
 			<c:set var="mh" value="-" />
+			<c:set var="memberID" value="0" />
+			<c:set var="causePHMH" value="0" />
 			<c:forEach items="${report}" var="r">
 				<tr>
 					<td>
@@ -622,6 +724,7 @@
 							<c:if test="${ph!=r[1] && mh!=r[2]}">
 								<c:choose>
 									<c:when test="${(fn:length(r[1])>0) && (fn:length(r[2])>0)}">
+										<c:set var="causePHMH" value="0" />
 										<b><spring:message code="editing.pageheading" text="Page Heading" /></b>${r[1]}<br />
 										<b><spring:message code="editing.mainheading" text="Main Heading" /></b>${r[2]}
 									</c:when>
@@ -635,18 +738,36 @@
 							<c:when test="${action=='edited' or action=='edit'}">
 								<c:choose>
 									<c:when test="${not (empty r[21])}">
-										<c:if test="${not(empty r[15]) and (not (r[15]==null))}">
-											<b class="member" style="display: inline-block;">${r[15]}</b>
-											<div id="memberImageDiv" style="display: inline;">
-												<img src="editing/gememberimage/${r[14]}" height="16px;" class="memberImg" />	
-											</div>
-										</c:if>										
-										<c:if test="${not(empty r[17]) and (not (r[17]==null))}">
-											<b>/${r[17]}</b>
-											<div id="memberImageDiv" style="display: inline;">
-												<img src="editing/gememberimage/${r[16]}" height="16px;" class="memberImg"/>	
-											</div>
-										</c:if>:
+										<%--Too show the member name and image only when its of different member--%>
+										<c:choose>
+											<c:when test="${memberID!=r[14] or causePHMH==0}">
+												<c:set var="causePHMH" value="1" />
+												<c:if test="${not(empty r[15]) and (not (r[15]==null))}">
+													<b class="member" style="display: inline-block;">${r[15]}</b>
+													<div id="memberImageDiv" style="display: inline;">
+														<img src="editing/gememberimage/${r[14]}" height="16px;" class="memberImg" />	
+													</div>
+												</c:if>										
+												<c:if test="${not(empty r[17]) and (not (r[17]==null))}">
+													<b>/${r[17]}</b>
+													<div id="memberImageDiv" style="display: inline;">
+														<img src="editing/gememberimage/${r[16]}" height="16px;" class="memberImg"/>	
+													</div>
+												</c:if>:
+											</c:when>
+											<c:otherwise>
+												<c:if test="${not(empty r[15]) and (not (r[15]==null))}">
+													<div id="memberImageDiv" style="display: none;">
+														<img src="editing/gememberimage/${r[14]}" height="16px;" class="memberImg" />	
+													</div>
+												</c:if>										
+												<c:if test="${not(empty r[17]) and (not (r[17]==null))}">
+													<div id="memberImageDiv" style="display: none;">
+														<img src="editing/gememberimage/${r[16]}" height="16px;" class="memberImg"/>	
+													</div>
+												</c:if>&nbsp;&nbsp;
+											</c:otherwise>
+										</c:choose>
 										<div id="pp${r[20]}" style="width: 750px; max-width: 750px; word-wrap:break-word; display: inline;" class="replaceMe">
 											${r[21]}
 										</div>
@@ -661,18 +782,37 @@
 									</c:when>
 									<c:otherwise>
 										<c:if test="${not (empty r[0])}">
-											<c:if test="${not(empty r[15]) and (not (r[15]==null))}">
-												<b class="member" style="display: inline-block;">${r[15]}</b>
-												<div id="memberImageDiv" style="display: inline;">
-													<img src="editing/gememberimage/${r[14]}" height="16px;" class="memberImg" />	
-												</div>
-											</c:if>										
-											<c:if test="${not(empty r[17]) and (not (r[17]==null))}">
-												<b>/${r[17]}</b>
-												<div id="memberImageDiv" style="display: inline;">
-													<img src="editing/gememberimage/${r[16]}" height="16px;" class="memberImg" />	
-												</div>
-											</c:if>:
+											<c:choose>
+												<c:when test="${memberID!=r[14] or causePHMH==0}">
+													<c:set var="causePHMH" value="1" />
+													<c:if test="${not(empty r[15]) and (not (r[15]==null))}">
+														<b class="member" style="display: inline-block;">${r[15]}</b>
+														<div id="memberImageDiv" style="display: inline;">
+															<img src="editing/gememberimage/${r[14]}" height="16px;" class="memberImg" />	
+														</div>
+													</c:if>										
+													<c:if test="${not(empty r[17]) and (not (r[17]==null))}">
+														<b>/${r[17]}</b>
+														<div id="memberImageDiv" style="display: inline;">
+															<img src="editing/gememberimage/${r[16]}" height="16px;" class="memberImg" />	
+														</div>
+													</c:if>:
+												</c:when>
+												<c:otherwise>
+													<c:if test="${not(empty r[15]) and (not (r[15]==null))}">
+														<b class="member" style="display: inline-block;">${r[15]}</b>
+														<div id="memberImageDiv" style="display: none;">
+															<img src="editing/gememberimage/${r[14]}" height="16px;" class="memberImg" />	
+														</div>
+													</c:if>										
+													<c:if test="${not(empty r[17]) and (not (r[17]==null))}">
+														<b>/${r[17]}</b>
+														<div id="memberImageDiv" style="display: none;">
+															<img src="editing/gememberimage/${r[16]}" height="16px;" class="memberImg" />	
+														</div>
+													</c:if>&nbsp;&nbsp;
+												</c:otherwise>
+											</c:choose>
 											<div id="pp${r[20]}" style="width: 750px; max-width: 750px; word-wrap:break-word; display: inline;" class="replaceMe">
 												${r[0]}
 											</div>
@@ -690,18 +830,38 @@
 							</c:when>
 							<c:otherwise>
 								<c:if test="${not (empty r[0])}">
-									<c:if test="${not(empty r[15]) and (not (r[15]==null))}">
-										<b class="member" style="display: inline-block;">${r[15]}</b>
-										<div id="memberImageDiv" style="display: inline;">
-											<img src="editing/gememberimage/${r[14]}" height="16px;" class="memberImg" />	
-										</div>
-									</c:if>										
-									<c:if test="${not(empty r[17]) and (not (r[17]==null))}">
-										<b>/${r[17]}</b>
-										<div id="memberImageDiv" style="display: inline;">
-											<img src="editing/gememberimage/${r[16]}" height="16px;" class="memberImg" />	
-										</div>
-									</c:if>:
+									<c:choose>
+										<c:when test="${memberID!=r[14] or causePHMH==0}">
+											<c:set var="causePHMH" value="1" />
+											<c:if test="${not(empty r[15]) and (not (r[15]==null))}">
+												<b class="member" style="display: inline-block;">${r[15]}</b>
+												<div id="memberImageDiv" style="display: inline;">
+													<img src="editing/gememberimage/${r[14]}" height="16px;" class="memberImg" />	
+												</div>
+											</c:if>										
+											<c:if test="${not(empty r[17]) and (not (r[17]==null))}">
+												<b>/${r[17]}</b>
+												<div id="memberImageDiv" style="display: inline;">
+													<img src="editing/gememberimage/${r[16]}" height="16px;" class="memberImg" />	
+												</div>
+											</c:if>:
+										</c:when>
+										<c:otherwise>
+											<c:if test="${not(empty r[15]) and (not (r[15]==null))}">
+												<b class="member" style="display: inline-block;">${r[15]}</b>
+												<div id="memberImageDiv" style="display: none;">
+													<img src="editing/gememberimage/${r[14]}" height="16px;" class="memberImg" />	
+												</div>
+											</c:if>										
+											<c:if test="${not(empty r[17]) and (not (r[17]==null))}">
+												<b>/${r[17]}</b>
+												<div id="memberImageDiv" style="display: none;">
+													<img src="editing/gememberimage/${r[16]}" height="16px;" class="memberImg" />	
+												</div>
+											</c:if>&nbsp;&nbsp;
+										</c:otherwise>
+									</c:choose>
+										
 									<div id="pp${r[20]}" style="width: 750px; max-width: 750px; word-wrap:break-word; display: inline;" class="replaceMe">
 										${r[0]}
 									</div>
@@ -709,6 +869,7 @@
 										<img src="editing/gememberimage/${r[14]}" height="8px" class="imgIdDivImage"/>
 									</div>
 									<div id="ppsp${r[20]}" class="ppsp" style="display: none;">classes</div>
+									<div id="pprp${r[20]}" class="pprp" style="display: none;">classes</div>
 									<%-- <div style="position: relative; border-radius: 10px; margin-left: 750px; top: -20px; text-align: center; display: inline-block; min-width: 16px; min-height: 16px; border: 1px solid blue; background: #013094; cursor: pointer;">
 										<spring:message code="editing.more" text="S" />
 									</div> --%>
@@ -722,6 +883,7 @@
 						&nbsp;
 					</td>
 				<tr>
+				<c:set var="memberID" value="${r[14]}" />
 				<c:set var="ph" value="${r[1]}"/>
 				<c:set var="mh" value="${r[2]}"/>
 			</c:forEach>
@@ -738,13 +900,7 @@
 </form>
 	<input id="reportType" type="hidden" value="${reportType}" />
 	<input id="prevcontent" type="hidden" value="" />
-	<input id="action" type="hidden" value="${action}" /> 
-	<input id="selectItemFirstMessage" value="<spring:message code='ris.selectitem' text='Select an item first'/>" type="hidden">
-	<input id="recreate_slots" value="<spring:message code='ris.recreate_slots' text='Recreate Slots'/>" type="hidden">
-	<input id="turnoff_slots" value="<spring:message code='ris.turnoff_slots' text='Turn Off Slots'/>" type="hidden">
-	<input id="delete_slots" value="<spring:message code='ris.delete_slots' text='Delete Slots'/>" type="hidden">
-	<input id="create_new_slots" value="<spring:message code='ris.create_new_slots' text='Create New Slots'/>" type="hidden">
-	<input id="recreate_slots_from_slot_duration_changed_time" value="<spring:message code='ris.recreate_slots_from_slot_duration_changed_time' text='Recreate Slots From Slot Duration Changed Time'/>" type="hidden">
+	<input id="action" type="hidden" value="${action}" />
 	<input type="hidden" name="pleaseSelectMsg" id="pleaseSelectMsg" value="<spring:message code='please.select' text='Please Select'></spring:message>">	
 </div>
 </body>
