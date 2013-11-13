@@ -645,7 +645,7 @@ public class ApplicationConstants {
 	public static final String ROTATIONORDER_MINISTRY_DEPARTMENTS_REPORT="ROTATIONORDER_MINISTRY_DEPARTMENTS_REPORT";
 	
 	/**** COMMITTEE ****/
-	public static final String RULING_PARTY = "ruling_party";
+public static final String RULING_PARTY = "ruling_party";
 	
 	public static final String OPPOSITION_PARTY = "opposition_party";
 	
@@ -688,6 +688,18 @@ public class ApplicationConstants {
 	public static final String COMMITTEE_INVITED_MEMBER_ADDITION_PROCESSED = "committee_final_approved_committeeInvitedMemberAddition";
 	
 	public static final String COMMITTEE_INVITED_MEMBERS_ADDED = "committee_invitedMembersAdded";
+	
+	public static final String COMMITTEETOUR_INCOMPLETE = "committeetour_incomplete";
+	
+	public static final String COMMITTEETOUR_CREATED = "committeetour_created";
+	
+	public static final String COMMITTEETOUR_RECOMMEND_ADMISSION = "committeetour_recommend_tourAdmission";
+	
+	public static final String COMMITTEETOUR_REQUEST_FOR_TOUR_URL = "workflow/committeetour";
+	
+	public static final String COMMITTEETOUR_USERS_EXCLUDED_FROM_CHOOSING_NEXT_ACTOR_IN_WORKFLOW = "COMMITTEETOUR_USERS_EXCLUDED_FROM_CHOOSING_NEXT_ACTOR_IN_WORKFLOW";
+	
+	public static final String SERVER_DATETIMEFORMAT = "SERVER_DATETIMEFORMAT";
 	
 	/****************Bill Information System********************/
 	/**** device types ****/
