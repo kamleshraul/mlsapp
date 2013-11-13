@@ -56,7 +56,8 @@ public class NotifyingExceptionResolver extends  SimpleMappingExceptionResolver{
      * javax.servlet.http.HttpServletResponse,
      * java.lang.Object, java.lang.Exception)
      */
-    @Override
+    @SuppressWarnings("unchecked")
+	@Override
     protected ModelAndView doResolveException(final HttpServletRequest request,
             final HttpServletResponse response, 
             final Object handler, 
