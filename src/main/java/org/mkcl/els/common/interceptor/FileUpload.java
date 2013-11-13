@@ -49,7 +49,8 @@ public class FileUpload extends HttpServlet {
      * javax.servlet.http.HttpServlet#doPost(javax.servlet.http.HttpServletRequest
      * , javax.servlet.http.HttpServletResponse)
      */
-    @Override
+    @SuppressWarnings("unchecked")
+	@Override
     public void doPost(final HttpServletRequest req,
             final HttpServletResponse res) throws ServletException, IOException {
         try {
