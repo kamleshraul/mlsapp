@@ -582,25 +582,30 @@
 			});
 			
 			$("#submit").click(function(){
-				var params="?userGroup="+$("#currentusergroup").val()
-				+ '&userGroupType='+$("#currentusergroupType").val()
-				+ '&houseType=' + $("#selectedHouseType").val()
-				+ '&sessionYear=' + $("#selectedSessionYear").val()
-				+ '&sessionType=' + $("#selectedSessionType").val()
-				+ '&workflowDetailsId=' + $("#workflowdetails").val()
-				+ '&selectedSubWorkflow='+$("#selectedSubWorkflow").val();
-
-				$(this).hide();
-				
-				$.blockUI({ message: '<img src="./resources/images/waitAnimated.gif" />' });
-				$.post('workflow/editing'+params, 
-						$("form[action='workflow/editing/savepart']").serialize(),function(data){
-					if(data=='SUCCESS'){
-					}
-					$.unblockUI();
-				}).fail(function(){
-					$.unblockUI();
-				});
+				var status=$("#selectedDecissiveStatus").val();
+				if(status==undefined || status=='-'){
+					
+				}else{
+					var params="?userGroup="+$("#currentusergroup").val()
+					+ '&userGroupType='+$("#currentusergroupType").val()
+					+ '&houseType=' + $("#selectedHouseType").val()
+					+ '&sessionYear=' + $("#selectedSessionYear").val()
+					+ '&sessionType=' + $("#selectedSessionType").val()
+					+ '&workflowDetailsId=' + $("#workflowdetails").val()
+					+ '&selectedSubWorkflow='+$("#selectedSubWorkflow").val();
+	
+					$("#submitDiv").hide();
+					
+					$.blockUI({ message: '<img src="./resources/images/waitAnimated.gif" />' });
+					$.post('workflow/editing'+params, 
+							$("form[action='workflow/editing/savepart']").serialize(),function(data){
+						if(data=='SUCCESS'){
+						}
+						$.unblockUI();
+					}).fail(function(){
+						$.unblockUI();
+					});
+				}
 			});
 			
 			$("#wf_edit_copy").click(function(){
@@ -630,7 +635,7 @@
 		<hr />	
 	</div>
 <div>
-	<div id="reportIconsDiv">
+	<div id="reportIconsDiv" style="display: none;">
 		<a id="editorreport_pdf" class="exportLink" href="javascript:void(0);" style="text-decoration: none; margin-left: 40px;" target="_blank">
 			<img class="imgN" src="./resources/images/pdf_icon.png" alt="Export to PDF" width="24px" height="32px" title="<spring:message code='editing.editorreport.pdf' text='Editor Report In PDF' />">
 		</a>

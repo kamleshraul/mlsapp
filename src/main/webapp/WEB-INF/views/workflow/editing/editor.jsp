@@ -178,6 +178,32 @@
 			background: none;
 		}
 		
+		#partDraftContainer div ul{
+			background: none;
+		}
+		
+		.styleSelect select {
+		   background: transparent;
+		   width: 200px;
+		   padding: 2px;
+		   font-size: 12px;
+		   line-height: 1;
+		   border: 0;
+		   border-radius: 10px;
+		   height: 22px;
+		   -webkit-appearance: none;
+		  }
+	
+		.styleSelect{
+		   width: 172px;
+		   height: 20px;
+		   overflow: hidden;
+		   background: url(./resources/images/down_arrow_select_2.jpg) no-repeat right #ddd;
+		   border: 1px solid #ccc;
+		   box-shadow: 2px 2px 2px #000;
+		   border_radius: 10px;
+	   }
+		
 	</style>
 	<script type="text/javascript">			
 	
@@ -274,7 +300,7 @@
 					$("#"+whichId).empty();
 					$("#"+whichId).html(newContent);
 					$.unblockUI();
-					showEditProceeding();
+					//showEditProceeding();
 				}
 			}).fail(function(){
 				$.unblockUI();
@@ -673,7 +699,6 @@
 			     var element = e.target;/* .children().each(function(){
 			    	 console.log('\nid: '+$(this));
 			     }); */
-			     
 			     //console.log($(element).attr('class').contains('replaceByMe'));
 			  
 			     if($("#action").val()=='edit'){
@@ -681,25 +706,30 @@
 						var sourcePartDraftId=clasess[1].substring(3);
 						var targetPartId=clasess[2].substring(3);
 											
-						var targetContent=$("#pp"+targetPartId).html();
-						var sourceContent=$(element).html();
-						$("#pp"+targetPartId).empty();
-						$("#pp"+targetPartId).html(sourceContent);
-						
-						$(element).empty();
-						$(element).html(targetContent);	
-						$("#partUndo"+targetPartId).addClass(targetPartId);
-						
-						$("#data").val(sourceContent);
-						
-						$.post('workflow/editing/mergedraftcontent?partId='+targetPartId+'&draftId='+sourcePartDraftId+'&action='+$('#action').val(), 
-								$("form[action='workflow/editing/savepart']").serialize(),function(data){
-							if(data=='SUCCESS'){
-								//$("#partDraftContainer").hide();
-							}
-						}).fail(function(){
+						var targetContent=$("#pp"+targetPartId).html().trim();
+						var sourceContent=$(element).html().trim();
+						console.log("\nSource: "+sourceContent);
+						console.log("\nTarget: "+targetContent);
+						if(sourceContent!=targetContent){
+							$("#pp"+targetPartId).empty();
+							$("#pp"+targetPartId).html(sourceContent);
 							
-						});
+							$(element).empty();
+							$(element).html(targetContent);	
+							$("#partUndo"+targetPartId).addClass(targetPartId);
+							
+							$("#data").val(sourceContent);
+							
+							$.post('workflow/editing/mergedraftcontent?partId='+targetPartId+'&draftId='+sourcePartDraftId+'&action='+$('#action').val(), 
+									$("form[action='workflow/editing/savepart']").serialize(),function(data){
+								if(data=='SUCCESS'){
+									//$("#partDraftContainer").hide();
+									$("#wf_edit_copy").hide();
+								}
+							}).fail(function(){
+								
+							});
+						}
 					}
 			     
 			});
@@ -744,7 +774,7 @@
 	<hr />	
 </div>
 <div>
-	<div id="reportIconsDiv">
+	<div id="reportIconsDiv" style="display: none;">
 		<a id="editorreport_pdf" class="exportLink" href="javascript:void(0);" style="text-decoration: none; margin-left: 40px;" target="_blank">
 			<img class="imgN" src="./resources/images/pdf_icon.png" alt="Export to PDF" width="24px" height="32px" title="<spring:message code='editing.editorreport.pdf' text='Editor Report In PDF' />">
 		</a>
@@ -863,10 +893,10 @@
 													</c:choose>
 													<c:if test="${action=='edit'}">
 														<c:if test="${r[20]!=null and not(empty r[20]) and r[20]>1}">
-															<div id="partMerger${r[0]}" class="partMerger" style="position: relative; width: 16px; height: 16px; border-radius: 16px; margin-left: 700px; top: 15px; text-align: center; display: inline-block; min-height: 16px; min-width:16x; border: 1px solid blue; background: #DE00B1; cursor: pointer;">O</div>
+															<div id="partMerger${r[0]}" class="partMerger" style="position: relative; width: 16px; height: 16px; border-radius: 16px; margin-left: 725px; top: -2px; text-align: center; display: inline-block; min-height: 16px; min-width:16x; border: 1px solid blue; background: #DE00B1; cursor: pointer;">O</div>
 														</c:if>
 													</c:if>
-													<div id="partUndo${r[0]}" class="partUndo" style="position: relative; width: 16px; height: 16px; border-radius: 16px; margin-left: 725px; top: -3px; text-align: center; display: inline-block; min-height: 16px; min-width:16x; border: 1px solid blue; background: #eeccdd; cursor: pointer;">O</div>
+													<%-- <div id="partUndo${r[0]}" class="partUndo" style="position: relative; width: 16px; height: 16px; border-radius: 16px; margin-left: 725px; top: -3px; text-align: center; display: inline-block; min-height: 16px; min-width:16x; border: 1px solid blue; background: #eeccdd; cursor: pointer;">O</div> --%>
 													<div id="ppsp${r[0]}" class="ppsp" style="display: none;">classes</div>
 													<div class="revision" id="pd${r[0]}" style="position: relative; border-radius: 10px; margin-left: 750px; top: -20px; text-align: center; display: inline-block; min-width: 16px; min-height: 16px; border: 1px solid blue; background: #00ff00; cursor: pointer;">
 														<spring:message code="editing.more" text="S" />
@@ -929,14 +959,7 @@
 	<input type="hidden" id="workflowstatus" value="${workflowstatus}" />
 	<input id="reportType" type="hidden" value="${reportType}" />
 	<input id="prevcontent" type="hidden" value="" />
-	<input id="action" type="hidden" value="${action}" /> 
-	<input id="selectItemFirstMessage" value="<spring:message code='ris.selectitem' text='Select an item first'/>" type="hidden">
-	<input id="submissionMsg" value="<spring:message code='editing.client.prompt.submit' text='Do you want to merge the content?'></spring:message>" type="hidden">
-	<input id="recreate_slots" value="<spring:message code='ris.recreate_slots' text='Recreate Slots'/>" type="hidden">
-	<input id="turnoff_slots" value="<spring:message code='ris.turnoff_slots' text='Turn Off Slots'/>" type="hidden">
-	<input id="delete_slots" value="<spring:message code='ris.delete_slots' text='Delete Slots'/>" type="hidden">
-	<input id="create_new_slots" value="<spring:message code='ris.create_new_slots' text='Create New Slots'/>" type="hidden">
-	<input id="recreate_slots_from_slot_duration_changed_time" value="<spring:message code='ris.recreate_slots_from_slot_duration_changed_time' text='Recreate Slots From Slot Duration Changed Time'/>" type="hidden">
+	<input id="action" type="hidden" value="${action}" />
 	<input type="hidden" name="pleaseSelectMsg" id="pleaseSelectMsg" value="<spring:message code='please.select' text='Please Select'></spring:message>">	
 </div>
 </body>

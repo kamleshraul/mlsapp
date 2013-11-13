@@ -159,6 +159,29 @@
 			background: none;
 		}
 		
+		
+		.styleSelect select {
+		   background: transparent;
+		   width: 200px;
+		   padding: 2px;
+		   font-size: 12px;
+		   line-height: 1;
+		   border: 0;
+		   border-radius: 10px;
+		   height: 22px;
+		   -webkit-appearance: none;
+		  }
+	
+		.styleSelect{
+		   width: 172px;
+		   height: 20px;
+		   overflow: hidden;
+		   background: url(./resources/images/down_arrow_select_2.jpg) no-repeat right #ddd;
+		   border: 1px solid #ccc;
+		   box-shadow: 2px 2px 2px #000;
+		   border_radius: 10px;
+	   }
+		
 	</style>
 	<script type="text/javascript">			
 	
@@ -255,7 +278,7 @@
 					$("#"+whichId).empty();
 					$("#"+whichId).html(newContent);
 					$.unblockUI();
-					showEditProceeding();
+					//showEditProceeding();
 				}
 			}).fail(function(){
 				$.unblockUI();
@@ -281,7 +304,7 @@
 					if(data=='SUCCESS'){
 						$("#"+whichId).empty();
 						$("#"+whichId).html(newContent);
-						showEditProceeding();
+						//showEditProceeding();
 					}
 				}).fail(function(){
 					
@@ -558,25 +581,34 @@
 					undoLastChange();
 				}
 			});
-			
+						
 			$("#submit").click(function(){
-				var params="?userGroup="+$("#currentusergroup").val()
-				+ '&userGroupType='+$("#currentusergroupType").val()
-				+ '&houseType=' + $("#selectedHouseType").val()
-				+ '&sessionYear=' + $("#selectedSessionYear").val()
-				+ '&sessionType=' + $("#selectedSessionType").val()
-				+ '&workflowDetailsId=' + $("#workflowdetails").val()
-				+ '&selectedSubWorkflow='+$("#selectedSubWorkflow").val();
-
-				$.blockUI({ message: '<img src="./resources/images/waitAnimated.gif" />' });
-				$.post('workflow/editing'+params, 
-						$("form[action='workflow/editing/savepart']").serialize(),function(data){
-					if(data=='SUCCESS'){
-					}
-					$.unblockUI();
-				}).fail(function(){
-					$.unblockUI();
-				});
+				var status=$("#selectedDecissiveStatus").val();
+				if(status==undefined || status=='-'){
+					
+				}else{
+					var params="?userGroup="+$("#currentusergroup").val()
+					+ '&userGroupType='+$("#currentusergroupType").val()
+					+ '&houseType=' + $("#selectedHouseType").val()
+					+ '&sessionYear=' + $("#selectedSessionYear").val()
+					+ '&sessionType=' + $("#selectedSessionType").val()
+					+ '&workflowDetailsId=' + $("#workflowdetails").val()
+					+ '&selectedSubWorkflow='+$("#selectedSubWorkflow").val();
+	
+					$("#submitDiv").hide();
+					
+					$.blockUI({ message: '<img src="./resources/images/waitAnimated.gif" />' });
+					$.post('workflow/editing'+params, 
+							$("form[action='workflow/editing/savepart']").serialize(),function(data){
+						if(data=='SUCCESS'){
+						}
+						$.unblockUI();
+					}).fail(function(){
+						$.unblockUI();
+					});
+					
+					$("#wf_edit_copy").hide();
+				}
 			});
 			
 			$("#wf_edit_copy").click(function(){
@@ -606,7 +638,7 @@
 		<hr />	
 	</div>
 <div>
-	<div id="reportIconsDiv">
+	<div id="reportIconsDiv" style="display: none;">
 		<a id="editorreport_pdf" class="exportLink" href="javascript:void(0);" style="text-decoration: none; margin-left: 40px;" target="_blank">
 			<img class="imgN" src="./resources/images/pdf_icon.png" alt="Export to PDF" width="24px" height="32px" title="<spring:message code='editing.editorreport.pdf' text='Editor Report In PDF' />">
 		</a>
@@ -639,25 +671,33 @@
 
 <div class="fields clearfix watermark">
 <form action="workflow/editing/savepart" method="post">
-	<div id="submitDiv">
-		<a href="javascript:void(0);" id="selectStatus"><spring:message code="editing.selectdecissivestatus" text="Status" /></a> |
-		<select id="selectedDecissiveStatus" name="decissiveStatus">
-			<option value="-"><spring:message code='please.select' text='Please Select'></spring:message></option>
-			<c:forEach items="${statuses}" var="s">
-				<option value="${s.value}">${s.name}</option>
-			</c:forEach>
-		</select>|
-		<a href="javascript:void(0);" id="selectActor"><spring:message code="editing.selectdecissiveactor" text="Actor" /></a> |
-		<select id="selectedDecissiveActor" name="decissiveActor">
-		<option value="-"><spring:message code='please.select' text='Please Select'></spring:message></option>
-		<c:forEach items="${actors}" var="a">
-			<option value="${a.value}">${a.name}</option>
-		</c:forEach>
-		</select>|
-		<a href="javascript:void(0);" id="submit">
-			<img src="" alt="Submit Image" />
-		</a> 			
-	</div>
+	<c:if test="${workflowstatus=='PENDING'}">
+		<div id="submitDiv" style="width: 750px; margin-left: 50px;">
+			<c:if test="${not(statuses == null) and not(empty statuses) }">
+				<a href="javascript:void(0);" id="selectStatus"><spring:message code="editing.selectdecissivestatus" text="Status" /></a> |
+				<div class="styleSelect" style="display: inline-block; margin: 5px 5px 0px 5px;">
+					<select id="selectedDecissiveStatus" name="decissiveStatus">
+						<option value="-"><spring:message code='please.select' text='Please Select'></spring:message></option>
+						<c:forEach items="${statuses}" var="s">
+							<option value="${s.value}">${s.name}</option>
+						</c:forEach>
+					</select>|
+				</div>
+				<a href="javascript:void(0);" id="selectActor"><spring:message code="editing.selectdecissiveactor" text="Actor" /></a> |
+				<div class="styleSelect" style="display: inline-block; margin: 5px 5px 0px 5px;">
+					<select id="selectedDecissiveActor" name="decissiveActor">
+					<option value="-"><spring:message code='please.select' text='Please Select'></spring:message></option>
+					<c:forEach items="${actors}" var="a">
+						<option value="${a.value}">${a.name}</option>
+					</c:forEach>
+					</select>|
+				</div>
+			</c:if>
+			<a href="javascript:void(0);" id="submit">
+				<img src="" alt="Submit Image" />
+			</a> 			
+		</div>
+	</c:if>
 
 	<div id="container" class="container">
 		<table id="containerTable">
