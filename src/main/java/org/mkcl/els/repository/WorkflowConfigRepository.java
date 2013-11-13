@@ -717,7 +717,9 @@ public class WorkflowConfigRepository extends BaseRepository<WorkflowConfig, Ser
 			this.getWorkflowActor(wfConfig, userGroupType, level);
 		
 		if(status.getType().equals(
-				ApplicationConstants.COMMITTEE_RECOMMEND_SENDBACK)) {
+				ApplicationConstants.COMMITTEE_RECOMMEND_SENDBACK)
+				|| status.getType().equals(
+						ApplicationConstants.COMMITTEE_PROCESSED_SENDBACK)) {
 			wfActor = getNextWorkflowActor(wfConfig, 
 					currentWfActor, ApplicationConstants.DESC);
 		}
@@ -1072,4 +1074,27 @@ public class WorkflowConfigRepository extends BaseRepository<WorkflowConfig, Ser
 		
 		return wfActors;
 	}
+	
+	public List<WorkflowActor> findCommitteeTourActors(
+			final HouseType houseType,
+			final UserGroup userGroup,
+			final Status status, 
+			final String workflowName, 
+			final Integer assigneeLevel,
+			final String locale) {
+		return this.findCommitteeActors(houseType, userGroup, status, 
+				workflowName, assigneeLevel, locale);
+	}
+
+	public WorkflowActor findNextCommitteeTourActor(
+			final HouseType houseType,
+			final UserGroup userGroup, 
+			final Status status, 
+			final String workflowName,
+			final Integer assigneeLevel, 
+			final String locale) {
+		return this.findNextCommitteeActor(houseType, userGroup, status, 
+				workflowName, assigneeLevel, locale);
+	}
+	
 }
