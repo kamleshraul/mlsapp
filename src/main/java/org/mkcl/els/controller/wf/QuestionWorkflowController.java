@@ -51,7 +51,6 @@ import org.mkcl.els.domain.Question;
 import org.mkcl.els.domain.QuestionDates;
 import org.mkcl.els.domain.QuestionDraft;
 import org.mkcl.els.domain.ReferencedEntity;
-import org.mkcl.els.domain.Resolution;
 import org.mkcl.els.domain.Role;
 import org.mkcl.els.domain.Session;
 import org.mkcl.els.domain.SessionType;
@@ -523,7 +522,7 @@ public class QuestionWorkflowController  extends BaseController{
 			/**** Departments ****/
 			List<Department> departments=MemberMinister.findAssignedDepartments(ministry, locale);
 			model.addAttribute("departments",departments);
-			Department department=domain.getDepartment();
+			//Department department=domain.getDepartment();
 			//if(department!=null){  
 			//model.addAttribute("departmentSelected",department.getId());
 			/**** Sub Departments ****/
