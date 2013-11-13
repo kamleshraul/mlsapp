@@ -517,6 +517,17 @@ public class WorkflowDetails extends BaseDomain implements Serializable{
 				userGroup, domainIds, workflowType, status, locale);
 	}
 	
+	public static WorkflowDetails findCurrentWorkflowDetail(
+			final UserGroup userGroup, 
+			final String deviceId,
+			final String domainIds,
+			final String workflowType,
+			final String status,
+			final String locale) {
+		return getWorkflowDetailsRepository().findCurrentWorkflowDetail(
+				userGroup, deviceId, domainIds, workflowType, status, locale);
+	}
+	
 	/**** Bill Related ****/
 	public static WorkflowDetails create(final Bill bill,final Task task,final String workflowType,
 			final String userGroupType, final String assigneeLevel) {
