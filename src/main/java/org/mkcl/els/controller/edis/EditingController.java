@@ -35,7 +35,7 @@ import org.mkcl.els.controller.GenericController;
 import org.mkcl.els.domain.Credential;
 import org.mkcl.els.domain.CustomParameter;
 import org.mkcl.els.domain.Document;
-//import org.mkcl.els.domain.Doom;
+import org.mkcl.els.domain.Doom;
 import org.mkcl.els.domain.HouseType;
 import org.mkcl.els.domain.Language;
 import org.mkcl.els.domain.Member;
@@ -285,6 +285,15 @@ public class EditingController extends GenericController<Roster>{
 					Session session=Session.findSessionByHouseTypeSessionTypeYear(houseType, sessionType, Integer.parseInt(strSessionYear));
 					Roster roster=Roster.findRosterBySessionLanguageAndDay(session,Integer.parseInt(strDay),language,locale.toString());
 					
+					CustomParameter csptDoCleanUnusedDrafts = CustomParameter.findByName(CustomParameter.class, "EDIS_CLEAN_UNUSED_DRAFTS", "");
+					if(csptDoCleanUnusedDrafts != null){
+						if(csptDoCleanUnusedDrafts.getValue() != null && !csptDoCleanUnusedDrafts.getValue().isEmpty()){
+							boolean doCleanUnusedDrafts = Boolean.parseBoolean(csptDoCleanUnusedDrafts.getValue());
+							if(doCleanUnusedDrafts){
+								cleanFacilityDrafts(request, roster, locale);
+							}
+						}
+					}
 					Map<String, String[]> parametersMap = new HashMap<String, String[]>();
 					parametersMap.put("locale", new String[]{locale.toString()});
 					parametersMap.put("languageId", new String[]{language.getId().toString()});
@@ -395,10 +404,11 @@ public class EditingController extends GenericController<Roster>{
 	
 	@Transactional
 	@RequestMapping(value="/savepart/{id}", method=RequestMethod.POST)
-	public @ResponseBody String saveDraft(@PathVariable(value="id") Long id, HttpServletRequest request, Locale locale){
-		String retVal = "FAILURE";
+	public @ResponseBody MasterVO saveDraft(@PathVariable(value="id") Long id, HttpServletRequest request, Locale locale){
+		MasterVO masterVO = null;
 		try{
 			String editedContent = request.getParameter("editedContent");
+			String strUndoCount = request.getParameter("undoCount");
 			Part part = Part.findById(Part.class, id);
 			String strUserGroupType = request.getParameter("userGroupType");
 			UserGroupType userGroupType = UserGroupType.findByFieldName(UserGroupType.class, "type", strUserGroupType, locale.toString());
@@ -413,19 +423,25 @@ public class EditingController extends GenericController<Roster>{
 				draft.setLocale(part.getLocale());
 				draft.setMainHeading(part.getMainHeading());
 				draft.setPageHeading(part.getPageHeading());
+				draft.setUndoCount(Integer.valueOf(strUndoCount));
+				draft.setUniqueIdentifierForUndo(UUID.randomUUID().toString());
 				draft.setRevisedContent(editedContent);
+				draft.setOriginalText(part.getEditedContent());
+				draft.setReplacedText(editedContent);
 				draft.setWorkflowCopy(false);
 				
 				part.getPartDrafts().add(draft);
 				part.setEditedContent(editedContent);
 				part.merge();
 				
-				retVal = "SUCCESS"; 
+				masterVO = new MasterVO();
+				masterVO.setId(part.getId());
+				masterVO.setValue(part.getId()+":"+draft.getUndoCount()+":"+draft.getUniqueIdentifierForUndo());
 			}
 		}catch (Exception e) {
 			e.printStackTrace();
 		}
-		return retVal;
+		return masterVO;
 	}
 
 	@RequestMapping(value="/revisions/{id}", method=RequestMethod.GET)	
@@ -609,6 +625,44 @@ public class EditingController extends GenericController<Roster>{
 						masterVO = new MasterVO();
 						masterVO.setId(Long.valueOf(pd[0].toString()));
 						masterVO.setValue(pd[1].toString());
+					}
+					Part pp = Part.findById(Part.class, id);
+					pp.setEditedContent(masterVO.getValue());
+					pp.merge();
+				}
+				
+				return masterVO;
+			}
+		}catch(Exception e){
+			e.printStackTrace();
+		}
+		return null;
+	}
+	
+	@Transactional
+	@RequestMapping(value="/redolastchange/{partid}",method=RequestMethod.POST)
+	public @ResponseBody MasterVO doRedo(@PathVariable(value="partid") Long id, HttpServletRequest request, HttpServletResponse response, Locale locale){
+		MasterVO masterVO = null;
+		try{
+			Map<String, String[]> parameters = new HashMap<String, String[]>();
+			String strUrData = request.getParameter("urData");
+			
+			if(strUrData != null && !strUrData.isEmpty()){
+				String[] data = strUrData.split(":"); 
+				
+				parameters.put("locale", new String[]{locale.toString()});
+				parameters.put("uniqueIdentifierForUndo", new String[]{data[2]});
+				parameters.put("undoCount", new String[]{data[1]});
+				parameters.put("editedOn", new String[]{FormaterUtil.formatDateToString(new Date(), ApplicationConstants.DB_DATEFORMAT)});
+				parameters.put("editedBy", new String[]{this.getCurrentUser().getActualUsername()});
+				List pds = Query.findReport("EDIS_FIND_PART_DRAFTS", parameters);
+				if(pds != null){
+					for(Object o : pds){
+						Object[] pd = (Object[])o;
+						
+						masterVO = new MasterVO();
+						masterVO.setId(Long.valueOf(pd[0].toString()));
+						masterVO.setValue(pd[2].toString());
 					}
 					Part pp = Part.findById(Part.class, id);
 					pp.setEditedContent(masterVO.getValue());
@@ -896,6 +950,7 @@ public class EditingController extends GenericController<Roster>{
 				}
 			}			
 		}catch(Exception e){
+			logger.error(e.toString());
 			e.printStackTrace();
 		}
 		return form;
@@ -949,6 +1004,38 @@ public class EditingController extends GenericController<Roster>{
 //			e.printStackTrace();
 //		}
 //	}
+	
+	@Transactional
+	private void cleanFacilityDrafts(HttpServletRequest request, Roster roster, Locale locale){
+		try {
+			List<Part> parts = Part.findAllPartOfProceedingOfRoster(roster, false, locale.toString());
+			if(parts != null){
+				int length = parts.size();
+				for(int i = 0; i < length; i++){
+					Part part = parts.get(i);
+					List<PartDraft> drafts = part.getPartDrafts();
+					part.setPartDrafts(null);
+					if(drafts != null){
+						int draftLength = drafts.size();
+						for(int j = 0; j < draftLength; j++){
+							PartDraft pd = drafts.get(j); 
+							if(pd.getUniqueIdentifierForRedo() != null || pd.getUniqueIdentifierForUndo() != null){
+								drafts.remove(j);
+								pd.remove();
+							}
+						}
+						
+						part.setPartDrafts(drafts);
+						part.merge();
+					}
+					
+				}
+			}
+			
+		} catch (ELSException e) {
+			e.printStackTrace();
+		}
+	}
 }
 
 class EditingWorkflowUtility{
