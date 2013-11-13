@@ -1162,4 +1162,28 @@ public class WorkflowDetailsRepository extends BaseRepository<WorkflowDetails, S
 			
 		return null;
 	}
+	
+	public WorkflowDetails findCurrentWorkflowDetail(final UserGroup userGroup,
+			final String deviceId,
+			final String domainIds,
+			final String workflowType,
+			final String status, 
+			final String locale) {
+		String strUserGroupId = String.valueOf(userGroup.getId());
+		
+		StringBuffer query = new StringBuffer();
+		query.append("SELECT wfd" +
+				" FROM WorkflowDetails wfd" +
+				" WHERE wfd.assigneeUserGroupId = '" + strUserGroupId + "'" +
+				" AND wfd.deviceId = '" + deviceId + "'" +
+				" AND wfd.domainIds = '" + domainIds + "'" +
+				" AND wfd.workflowType = '" + workflowType + "'" +
+				" AND wfd.status = '" + status + "'" +
+				" AND wfd.locale = '" + locale + "'");
+		
+		TypedQuery<WorkflowDetails> tQuery = 
+			this.em().createQuery(query.toString(), WorkflowDetails.class);
+		WorkflowDetails workflowDetails = tQuery.getSingleResult();
+		return workflowDetails;
+	}
 }
