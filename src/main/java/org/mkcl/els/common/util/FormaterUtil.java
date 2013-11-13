@@ -22,7 +22,6 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
-import org.apache.commons.collections.map.HashedMap;
 import org.mkcl.els.common.vo.MasterVO;
 import org.mkcl.els.domain.CustomParameter;
 
