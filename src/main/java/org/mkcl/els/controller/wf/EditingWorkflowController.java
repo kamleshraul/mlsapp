@@ -106,6 +106,7 @@ public class EditingWorkflowController extends BaseController{
 					parameters.put("locale", new String[]{locale.toString()});
 					parameters.put("rosterId", new String[]{workflowDetails.getDeviceId()});
 					parameters.put("primaryMemberId", new String[]{member.getId().toString()});
+					parameters.put("editedby", new String[]{this.getCurrentUser().getActualUsername()});
 					parts = Query.findReport("EDIS_WORKFLOW_MEMBER_SENT_DRAFTS_DESC", parameters);
 					
 				}else if(strUserGroupType.equals(ApplicationConstants.EDITOR)){
@@ -466,9 +467,8 @@ class EditingWorkflowUtility{
 				actorsStatuses = actorsAllowedStatusesUserGroup;
 			}else{
 				actorsAllowedStatusesDefualt = CustomParameter.findByName(CustomParameter.class, "EDITING_PUTUP_OPTIONS_"+currentWorkflow.getWorkflowSubType().toUpperCase()+"_BY_DEFAULT", "");
+				actorsStatuses = actorsAllowedStatusesDefualt;
 			}
-			
-			actorsStatuses = actorsAllowedStatusesDefualt;
 			
 			if(actorsStatuses != null){
 				if(actorsStatuses.getValue() != null && !actorsStatuses.getValue().isEmpty()){
