@@ -903,6 +903,8 @@ public static final String RULING_PARTY = "ruling_party";
 	/**** Custom Parameters ****/
 	public static final String BILL_NONOFFICIAL_BALLOT_OUTPUT_COUNT = "BILL_NONOFFICIAL_BALLOT_OUTPUT_COUNT";
 	
+	public static final String BILL_CHECKLIST_COUNT = "BILL_CHECKLIST_COUNT";
+	
 	/**** Native Query Keys ****/
 	public static final String BILL_GET_DRAFT_BY_STATUS = "BILL_GET_DRAFT_BY_STATUS";
 	
