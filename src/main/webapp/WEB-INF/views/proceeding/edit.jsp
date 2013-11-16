@@ -89,6 +89,12 @@
 					      $('#ministryMaster').html()+
 					      "</select>"+
 					      "</p>"+
+					      "<p class='minister"+partCount+"' style='display:none;'>"+
+			              "<label class='small'>"+$('#primaryMemberSubDepartmentMessage').val()+"</label>"+
+			              "<select name='primaryMemberSubDepartment"+partCount+"' id='primaryMemberSubDepartment"+partCount+"' style='width:100px;'>"+
+					      $('#subDepartmentMaster').html()+
+					      "</select>"+
+					      "</p>"+
 					      "<p class='substitute"+partCount+"' style='display:none;'>"+
 			              "<label class='small'>"+$('#substituteMemberNameMessage').val()+"</label>"+
 			              "<input type='text' class='autosuggest sText formattedSubstituteMember' name='formattedSubstituteMember"+partCount+"' id='formattedSubstituteMember"+partCount+"'/>"+
@@ -104,6 +110,12 @@
 			              "<label class='small'>"+$('#substituteMemberMinistryMessage').val()+"</label>"+
 			              "<select name='substituteMemberMinistry"+partCount+"' id='substituteMemberMinistry"+partCount+"' style='width:100px;'>"+
 					      $('#ministryMaster').html()+
+					      "</select>"+
+					      "</p>"+
+					      "<p class='substitute"+partCount+"' style='display:none;'>"+
+			              "<label class='small'>"+$('#substituteMemberSubDepartmentMessage').val()+"</label>"+
+			              "<select name='substituteMemberSubDepartment"+partCount+"' id='substituteMemberSubDepartment"+partCount+"' style='width:100px;'>"+
+					      $('#subDepartmentMaster').html()+
 					      "</select>"+
 					      "</p>"+
 					      "<p class='public"+partCount+"' style='display:none;'>"+
@@ -131,6 +143,14 @@
 						  "<p class='halfHourDiscussionFromQuestion"+partCount+"' style='display:none;'>"+
 						  "<label class='small'>"+$('#halfHourDiscussionFromQuestionMessage').val()+"</label>"+
 						  "<select id='halfHourDiscussionFromQuestionNo"+partCount+"' name='halfHourDiscussionFromQuestionNo"+partCount+"' class='sSelect halfHourDiscussionFromQuestionNo'></select>"+
+						  "</p>"+
+						  "<p>"+
+						  "<label class='small'>"+$('#isConstituencyRequiredMessage').val()+"</label>"+
+						  "<input type='checkbox' id='isConstituencyRequired"+partCount+"' name='isConstituencyRequired"+partCount+"' class='sCheck'>"+
+						  "</p>"+
+						  "<p>"+
+						  "<label class='small'>"+$('#isInterruptedMessage').val()+"</label>"+
+						  "<input type='checkbox' id='isInterrupted"+partCount+"' name='isInterrupted"+partCount+"' class='sCheck'>"+
 						  "</p>"+
 						  "<p class='mainHeadingP"+partCount+"' style='display:none;'>"+
 					      "<label class='small'>"+$('#mainHeadingMessage').val()+"</label>"+
@@ -189,6 +209,14 @@
 							loadClearLinkClickEvent();
 							loadAutoSuggest();
 							loadViewCitationClick();
+							
+							$('#substituteMemberMinistry'+partCount).change(function(){
+								loadSubDepartments($(this).val(),"substituteMemberSubDepartment"+partCount);
+							});
+							
+							$('#primaryMemberMinistry'+partCount).change(function(){
+								loadSubDepartments($(this).val(),"primaryMemberSubDepartment"+partCount);
+							});
 											      	
 					      if($('#mainHeading'+partCount).val()!=''){
 					      		$('.mainHeadingP'+partCount).show();
@@ -247,6 +275,18 @@
 			
 			$('#memberMaster').hide();
 			$('#roleMaster').hide();
+			
+			$('.substituteMemberMinistry').change(function(){
+				var controlId=this.id;
+				var controlCount=controlId.split("substituteMemberMinistry")[1];
+				loadSubDepartments($(this).val(),"substituteMemberSubDepartment"+controlCount);
+			});
+			
+			$('.primaryMemberMinistry').change(function(){
+				var controlId=this.id;
+				var controlCount=controlId.split("primaryMemberMinistry")[1];
+				loadSubDepartments($(this).val(),"primaryMemberSubDepartment"+controlCount);
+			});
 
 			loadWysiwyg(contentNo);
 			loadAutoSuggest();
@@ -382,6 +422,8 @@
 			    $.fancybox.open(data, {autoSize: false, width: 800, height:600});
 		    },'html');					
 		}
+		
+		
 		
 		/****Funtion to register the events and control of wysiwyg****/
 		function loadWysiwyg(){
@@ -691,6 +733,33 @@
 			    return false;
 			});	
 		}
+		
+		function loadSubDepartments(ministry,id){
+			$.get('ref/ministry/subdepartments?ministry='+ministry,function(data){
+				$("#"+id).empty();
+				var subDepartmentText="<option value='' selected='selected'>----"+$("#pleaseSelectMessage").val()+"----</option>";
+				if(data.length>0){
+				for(var i=0;i<data.length;i++){
+					subDepartmentText+="<option value='"+data[i].id+"'>"+data[i].name;
+				}
+				$("#"+id).html(subDepartmentText);
+				$("#"+id).css('display','inline');
+				}else{
+					$("#"+id).empty();
+					var subDepartmentText="<option value='' selected='selected'>----"+$("#pleaseSelectMessage").val()+"----</option>";				
+					$("#"+id).html(subDepartmentText);	
+					$("#"+id).css('display','inline');
+				}
+			}).fail(function(){
+				if($("#ErrorMsg").val()!=''){
+					$("#error_p").html($("#ErrorMsg").val()).css({'color':'red', 'display':'block'});
+				}else{
+					$("#error_p").html("Error occured contact for support.").css({'color':'red', 'display':'block'});
+				}
+				scrollTop();
+			});
+		}
+		
 		/****Function to replace a part of a string****/
 		function replaceString(toBeReplacedContent){
 			toBeReplacedContent=toBeReplacedContent.replace(/<br><p><\/p>/g,"");
@@ -787,7 +856,7 @@
 		<a href='javascript:void(0)' id="publicLink${count}" class="publicLink"><img src="./resources/images/IcoPublicRepresentative.jpg" title="Public" class="imageLink" /></a>
 		<a href='javascript:void(0)' id="substituteLink${count}" class="substituteLink"><img src="./resources/images/IcoSubstitute.jpg" title="In place of" class="imageLink" /></a>
 	</p>
-	<p>
+	<p style="display: none;">
 		<label class="small"><spring:message code="part.chairPerson" text="Chair Person Name"/></label>
 		<input type="text" class="sText" name="chairPerson${count}" id="chairPerson${count}" value="${outer.chairPerson}"/>
 		
@@ -807,6 +876,9 @@
 				</c:choose>
 			</c:forEach>
 		</select>
+		
+	<%-- <label class="small"><spring:message code="part.chairPerson" text="Chair Person Name"/></label> 
+		<input type="text" class="sText" name="chairPerson${count}" id="chairPerson${count}" value="${outer.chairPerson}"/> --%>
 	</p>
 	<p class="member${count} member">
 		<label class="small"><spring:message code="part.memberName" text="Member"/></label>
@@ -814,13 +886,13 @@
 		<input name="primaryMember${count}" id="primaryMember${count}" type="hidden" value="${outer.primaryMember.id}">
 	</p>
 		
-	<p>
+	<p style="display: none;">
 		<label class="small"><spring:message code="part.order" text="Order"/></label>
 		<input type="text" class="sInteger" name="order${count}" id="order${count}" value="${outer.orderNo}"/>
 	</p>
 	<p class="minister${count} minister">
 		<label class="small"><spring:message code="part.primaryMemberDesignation" text="Designation"/></label>
-		<select name="primaryMemberDesignation${count}" id="primaryMemberDesignation${count}">
+		<select name="primaryMemberDesignation${count}" id="primaryMemberDesignation${count}" class="sSelect">
 			<option value="" selected="selected"><spring:message code='please.select' text='Please Select'/></option>
 			<c:forEach items="${designations}" var="i">
 				<c:choose>
@@ -836,7 +908,7 @@
 	</p>
 	<p class="minister${count} minister">
 		<label class="small"><spring:message code="part.primaryMemberMinistry" text="Ministry"/></label>
-		<select name="primaryMemberMinistry${count}" id="primaryMemberMinistry${count}">
+		<select name="primaryMemberMinistry${count}" id="primaryMemberMinistry${count}" class="sSelect primaryMemberMinistry">
 			<option value="" selected="selected"><spring:message code='please.select' text='Please Select'/></option>
 			<c:forEach items="${ministries}" var="i">
 				<c:choose>
@@ -849,7 +921,23 @@
 				</c:choose>
 			</c:forEach>
 		</select>
-	</p> 
+	</p>
+	<p class="minister${count} minister">
+		<label class="small"><spring:message code="part.primaryMemberSubDepartment" text="Department"/></label>
+		<select name="primaryMemberSubDepartment${count}" id="primaryMemberSubDepartment${count}" class="sSelect">
+			<option value="" selected="selected"><spring:message code='please.select' text='Please Select'/></option>
+			<c:forEach items="${subDepartments}" var="i">
+				<c:choose>
+					<c:when test="${outer.primaryMemberSubDepartment.id==i.id}">
+						<option value="${i.id}" selected="selected"><c:out value="${i.name}"></c:out></option>
+					</c:when>
+					<c:otherwise>
+						<option value="${i.id}"><c:out value="${i.name}"></c:out></option>
+					</c:otherwise>
+				</c:choose>
+			</c:forEach>
+		</select>
+	</p>  
 	<p class="substitute${count} substitute">
 		<label class="small"><spring:message code="part.substitutememberName" text=" Substitute Member"/></label>
 		<input type="text" name="formattedSubstituteMember${count}" id="formattedSubstituteMember${count}" class="autosuggest sText formattedSubstituteMember" value="${outer.substituteMember.getFullname()}"/>
@@ -858,7 +946,7 @@
 	
 	<p class="substitute${count} substitute">
 		<label class="small"><spring:message code="part.substituteMemberDesignation" text="Designation"/></label>
-		<select name="substituteMemberDesignation${count}" id="substituteMemberDesignation${count}">
+		<select name="substituteMemberDesignation${count}" id="substituteMemberDesignation${count}" class="sSelect">
 			<option value="" selected="selected"><spring:message code='please.select' text='Please Select'/></option>
 			<c:forEach items="${designations}" var="i">
 				<c:choose>
@@ -874,11 +962,28 @@
 	</p>
 	<p class="substitute${count} substitute">
 		<label class="small"><spring:message code="part.substituteMemberMinistry" text="Ministry"/></label>
-		<select name="substituteMemberMinistry${count}" id="substituteMemberMinistry${count}">
+		<select name="substituteMemberMinistry${count}" id="substituteMemberMinistry${count}" class="sSelect substituteMemberMinistry">
 			<option value="" selected="selected"><spring:message code='please.select' text='Please Select'/></option>
 			<c:forEach items="${ministries}" var="i">
 				<c:choose>
 					<c:when test="${outer.substituteMemberMinistry.id==i.id}">
+						<option value="${i.id}" selected="selected"><c:out value="${i.name}"></c:out></option>
+					</c:when>
+					<c:otherwise>
+						<option value="${i.id}"><c:out value="${i.name}"></c:out></option>
+					</c:otherwise>
+				</c:choose>
+			</c:forEach>
+		</select>
+	</p>
+	
+	<p class="substitute${count} substitute">
+		<label class="small"><spring:message code="part.substituteMemberSubDepartment" text="Department"/></label>
+		<select name="substituteMemberSubDepartment${count}" id="substituteMemberSubDepartment${count}" class="sSelect">
+			<option value="" selected="selected"><spring:message code='please.select' text='Please Select'/></option>
+			<c:forEach items="${subDepartments}" var="i">
+				<c:choose>
+					<c:when test="${outer.substituteMemberSubDepartment.id==i.id}">
 						<option value="${i.id}" selected="selected"><c:out value="${i.name}"></c:out></option>
 					</c:when>
 					<c:otherwise>
@@ -898,7 +1003,7 @@
 	</p>
 	<p class="deviceType${count} deviceType">
 		<label class="small"><spring:message code="part.deviceType" text="DeviceType"/></label>
-		<select name="deviceType${count}" id="deviceType${count}" class="deviceTypes">
+		<select name="deviceType${count}" id="deviceType${count}" class="deviceTypes" class="sSelect">
 			<option value="" selected="selected"><spring:message code='please.select' text='Please Select'/></option>
 			<c:forEach items="${deviceTypes}" var="i">
 				<c:choose>
@@ -924,6 +1029,31 @@
 		<label class="small"><spring:message code="part.DeviceNo" text="Device No"/></label>
 		<select id="halfHourDiscussionFromQuestionNo${count}" name="halfHourDiscussionFromQuestionNo${count}" class="sSelect halfHourDiscussionFromQuestionNo"></select>
 	</p>
+	<p>
+		<label class="small"><spring:message code="part.isInterrupted" text="Is Interrupted"/></label>
+		<c:choose>
+			<c:when test="${outer.isInterrupted==true }">
+				<input type="checkbox" id="isInterrupted${count}" name="isInterrupted${count}" checked="checked" value="true">
+			</c:when>
+			<c:otherwise>
+				<input type="checkbox" id="isInterrupted${count}" name="isInterrupted${count}" value="off">
+			</c:otherwise>
+		</c:choose>
+		
+	</p>
+	<p>
+		<label class="small"><spring:message code="part.isConstituencyRequired" text="Is Constituency Required?"/></label>
+		<c:choose>
+			<c:when test="${outer.isConstituencyRequired==true }">
+				<input type="checkbox" id="isConstituencyRequired${count}" name="isConstituencyRequired${count}" checked="checked" value="true">
+			</c:when>
+			<c:otherwise>
+				<input type="checkbox" id="isConstituencyRequired${count}" name="isConstituencyRequired${count}" >
+			</c:otherwise>
+		</c:choose>
+		<%-- <input type="checkbox" id="isConstituencyRequired${count}" name="isConstituencyRequired${count}" value="${outer.isConstituencyRequired}"> --%>
+	</p>
+	
 	<p class="mainHeadingP${count} mainHeadingP">
 		<label class="small"><spring:message code="part.mainHeading" text="Main Heading"/></label>
 		<textarea class="sTextarea" name="mainHeading${count}" id="mainHeading${count}" >${outer.mainHeading}</textarea>
@@ -999,6 +1129,8 @@
 <input type="hidden" id="deviceNoMessage" name="deviceNoMessage" value="<spring:message code='part.deviceNo' text='Device No'></spring:message>" disabled="disabled"/>
 <input type="hidden" id="starredQuestionNoMessage" name="starredQuestionNoMessage" value="<spring:message code='part.starredQuestionNo' text='Starred Question No'></spring:message>" disabled="disabled"/>
 <input type="hidden" id="HalfHourDiscussionFromQuestionMessage" name="HalfHourDiscussionFromQuestionMessage" value="<spring:message code='part.HalfHourDiscussionFromQuestionMessage' text='Half Hour Question No'></spring:message>" disabled="disabled"/>
+<input type="hidden" id="isInterruptedMessage" name="isInterruptedMessage" value="<spring:message code='part.isInterrupted' text='Is Interrupted'></spring:message>" disabled="disabled"/>
+<input type="hidden" id="isConstituencyRequiredMessage" name="isConstituencyRequiredMessage" value="<spring:message code='part.isConstituencyRequired' text='Is Constituency Required'></spring:message>" disabled="disabled"/>
 <input type="hidden" id="session" value="${session}"/>
 <input id="selectItemFirstMessage" value="<spring:message code='ris.selectitem' text='Select an item first'/>" type="hidden">
 <input id="addBookmarkMessage" value="<spring:message code='client.prompt.updateText' text='Do you want to add the Text for the Bookmark.'></spring:message>" type="hidden">

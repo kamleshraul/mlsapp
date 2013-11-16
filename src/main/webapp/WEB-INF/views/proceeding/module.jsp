@@ -227,15 +227,6 @@
 			showTabByIdAndUrl('details_tab', 'proceeding/reporterwisereport?'+params);
 		}
 		
-		/* function memberWiseReport(){
-			var params="houseType=" + $('#selectedHouseType').val()
-				+ '&sessionYear=' + $("#selectedSessionYear").val()
-				+ '&sessionType=' + $("#selectedSessionType").val()
-				+ '&language=' + $("#selectedLanguage").val()
-				+ '&day=' +$('#selectedDay').val();
-			showTabByIdAndUrl('details_tab', 'proceeding/reporterWiseReport?'+params);
-		} */
-		
 		function showPartList(key){
 			showTabByIdAndUrl('part_tab', 'proceeding/part/list?proceeding='+key);
 		}
@@ -255,7 +246,6 @@
 		function previousPart(){
 			var prevId=-1;
 			var i;
-			console.log(currentRowId);
 			for(i=dataIds.length-1;i>=0;i--){
 				if(currentRowId==dataIds[i]){
 					i--;
