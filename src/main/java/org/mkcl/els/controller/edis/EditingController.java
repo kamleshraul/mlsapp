@@ -396,6 +396,7 @@ public class EditingController extends GenericController<Roster>{
 				model.addAttribute("error", "No roster found for the day");
 				model.addAttribute("errorcode", "PARAMETER_MISMATCH");
 			}
+			logger.debug("EditingController_viewEditingReport", e);
 			e.printStackTrace();
 		}
 		
@@ -859,12 +860,38 @@ public class EditingController extends GenericController<Roster>{
 						List<PartDraft> pds = p.getPartDrafts();
 						if (pds != null && !pds.isEmpty()) {
 							PartDraft pd = pds.get(pds.size() - 1);
-							if (strWfFor.equals(ApplicationConstants.MEMBER)) {
-								pd.setMemberSentCopy(true);
-							} else if (strWfFor.equals(ApplicationConstants.SPEAKER)) {
-								pd.setSpeakerSentCopy(true);
+							if(pd.getEditedBy().equals(this.getCurrentUser().getActualUsername())){
+								if (strWfFor.equals(ApplicationConstants.MEMBER)) {
+									pd.setMemberSentCopy(true);
+								} else if (strWfFor.equals(ApplicationConstants.SPEAKER)) {
+									pd.setSpeakerSentCopy(true);
+								}
+								pd.merge();
+							}else{
+								pd = new PartDraft();
+								
+								pd.setEditedBy(this.getCurrentUser().getActualUsername());
+								pd.setEditedOn(new Date());
+								pd.setEditedAs(userGroup.getUserGroupType().getName());
+								pd.setLocale(locale.toString());
+								pd.setMainHeading(p.getMainHeading());
+								pd.setPageHeading(p.getPageHeading());
+								pd.setWorkflowCopy(true);
+								
+								if(p.getEditedContent() != null && !p.getEditedContent().isEmpty()){
+									pd.setRevisedContent(p.getEditedContent());
+								}else if(p.getRevisedContent() != null && !p.getRevisedContent().isEmpty()){
+									pd.setRevisedContent(p.getRevisedContent());
+								}
+								
+								if (strWfFor.equals(ApplicationConstants.MEMBER)) {
+									pd.setMemberSentCopy(true);
+								} else if (strWfFor.equals(ApplicationConstants.SPEAKER)) {
+									pd.setSpeakerSentCopy(true);
+								}
+								p.getPartDrafts().add(pd);
+								p.merge();
 							}
-							pd.merge();
 						}else{
 							PartDraft pd = new PartDraft();
 							pd.setEditedBy(this.getCurrentUser().getActualUsername());
