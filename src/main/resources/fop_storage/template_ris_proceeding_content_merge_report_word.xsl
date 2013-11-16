@@ -124,9 +124,9 @@
 									</fo:table-cell>
 									<fo:table-cell text-align="center">
 									<xsl:choose>
-										<xsl:when test="element_1_24!=''">
+										<xsl:when test="element_1_27!=''">
 											<fo:block>
-												प्रथम <xsl:value-of select="element_1_24"></xsl:value-of>
+												प्रथम <xsl:value-of select="element_1_27"></xsl:value-of>
 											</fo:block>	
 										</xsl:when>
 										<xsl:otherwise>
@@ -187,9 +187,9 @@
 								<fo:table-row >
 									<fo:table-cell display-align="center" text-align="right" number-columns-spanned="3" >
 										<xsl:choose>
-											<xsl:when test="element_1_23!=''">
+											<xsl:when test="element_1_26!=''">
 												<fo:block>
-												या नंतर <xsl:apply-templates select="element_1_23"></xsl:apply-templates>
+												या नंतर <xsl:apply-templates select="element_1_26"></xsl:apply-templates>
 												</fo:block>	
 											</xsl:when>
 											<xsl:otherwise>
