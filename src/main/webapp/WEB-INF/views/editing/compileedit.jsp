@@ -6,16 +6,6 @@
 	</title>
 	<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
 	<style type="text/css">
-		.blue{
-			color:blue;
-		}
-		.green{
-			color:green;
-		}
-		.red{
-			color:red;
-		}
-		
 		input[type=button]{
 			width:30px;
 			margin: 5px;
@@ -167,33 +157,41 @@
 		var showIt=0;
 	
 		function showEditor(e){
-			//console.log("Text: " +window.getSelection().toString().trim());
+			
 			var pageWidth=$(window).width();
 			var pageHeight=$(window).height();
-			//console.log("******************************************");
-			//console.log("Page: "+ pageWidth+":"+pageHeight);
+			
 			var clickX=e.clientX;
 			var clickY=e.clientY;
-			//console.log("Coordinates and height: "+clickX+":"+clickY+":"+$('#textDemo').height()+":"+(clickY+$('#textDemo').height()));
-			//console.log((clickY+$('#textDemo').height())>pageHeight);
+			
+			/****To Adjust the location of the editor when shown to the user by height****/ 
 			if((clickY+$('#textDemo').height()) > pageHeight){
-				var diff=$('#textDemo').height() - clickY;
-				//console.log("Diff: "+diff);
-				if(diff < 0){
-					//console.log("clickY-half of height: "+(clickY - ($('#textDemo').height() / 2)));
+				var diffH=$('#textDemo').height() - clickY;
+				if(diffH < 0){
 					$('#textDemo').css('top', (pageHeight - clickY) + 'px');
 				}else{
-					$('#textDemo').css('top', diff + 'px');
+					$('#textDemo').css('top', diffH + 'px');
 				}
-				
-				$('#textDemo').css('left', clickX + 'px');
 			}else{
 			
-				var diff=$('#textDemo').height() - clickY;
-				//console.log("Diff: "+diff);
-				//console.log("PageHeight-textDemo Height: " + (pageHeight - $('#textDemo').height()));
+				var diffH=$('#textDemo').height() - clickY;
 				$('#textDemo').css('top', clickY + 'px');
-				$('#textDemo').css('left', 'auto');
+			}
+			
+			/****To Adjust the location of the editor when shown to the user by width****/
+			if((clickX+$('#textDemo').width()) > pageWidth){
+				var diffW=$('#textDemo').width() - clickX;
+				
+				if(diffW < 0){
+					$('#textDemo').css('left', (pageWidth - clickX) + 'px');
+				}else{
+					$('#textDemo').css('left', diffW + 'px');
+				}
+				
+			}else{
+			
+				var diffW=$('#textDemo').width() - clickX;
+				$('#textDemo').css('left', clickX + 'px');
 			}
 			$("#textDemo").fadeIn();
 		} 
@@ -268,15 +266,10 @@
 			hideEditor();
 			var content = $("#ttA").val().trim();
 			var newContent=content.replace(/<span.*?>/g,"");
-			/* $("#"+whichId).empty();
-			//console.log($("#"+whichId)+"showIt:"+showIt);
-			$("#"+whichId).html(newContent); */
 			
-			//console.log("Id: "+whichId+"Content: " + content + "\nNew Content: " + newContent);
-			//alert(newContent);
 			newContent=newContent.replace("</span>","");
-			//alert(newContent);
-			$("#undoCount").val(parseInt($("#undoCount").val()) + 1);
+			
+			$("#undoCount").val(parseInt($("#undoCount").val()) + 1);			
 			if($("#undoCount").val()=='1'){
 				$("#redoCount").val('0');
 				$("#pprp"+whichId.substring(2)).empty();
@@ -479,7 +472,8 @@
 				
 		$(document).ready(function(){
 			
-			/* $(window).scroll(function(e){ 
+			/* 
+			$(window).scroll(function(e){ 
 				  $el = $('#replaceToolDiv'); 
 				  if ($(this).scrollTop()==200 && $el.css('position') != 'fixed'){ 
 				    $('#replaceToolDiv').css({'position': 'fixed', 'top': '0px','opacity':'1.0'}); 
@@ -487,7 +481,13 @@
 					  $('#replaceToolDiv').css({'position': 'relative', 'top': '5px','opacity':'0.8'});
 				  } 
 				  
-			}); */
+			}); 
+			
+			$(document).mousemove(function(e){
+				document.title="x: " + e.clientX + "; y: " + e.clientY;
+			});
+			
+			*/
 			
 			$('.wysiwyg').wysiwyg({controls: {
 			       save: { 
@@ -524,8 +524,13 @@
 			$(".replaceMe").mouseup(function(e){
 				if($("#action").val()=='edit'){
 					var text=window.getSelection().toString().trim();
+					var currentId=$(this).attr('id');
 					
-					whichId = $(this).attr('id');
+					if(showIt==0){
+						whichId = $(this).attr('id');
+					}else if(showIt==1 && currentId==whichId){
+						whichId = $(this).attr('id');
+					}	
 					
 					if(text.length>0){
 						if(showIt==0){
@@ -613,10 +618,6 @@
 			$("#re_edit").click(function(){
 				showProceedingInGeneral('edit', 'true');
 			});
-			
-			/* $(document).mousemove(function(e){
-				document.title="x: " + e.clientX + "; y: " + e.clientY;
-			}); */
 			
 			$("#editorreport_pdf").click(function(e){
 				showReport("PDF", "false", "edit", $(this).attr('id'));
@@ -717,7 +718,8 @@
 			<c:set var="mh" value="-" />
 			<c:set var="memberID" value="0" />
 			<c:set var="causePHMH" value="0" />
-			<c:forEach items="${report}" var="r">
+			<c:set var="putTr" value="0" />
+			<c:forEach items="${report}" var="r" varStatus="counter">
 				<tr>
 					<td>
 						<div style="text-align: center; font-size: 16px;">
@@ -741,6 +743,7 @@
 										<%--Too show the member name and image only when its of different member--%>
 										<c:choose>
 											<c:when test="${memberID!=r[14] or causePHMH==0}">
+												<c:set var="putTr" value="1" />
 												<c:set var="causePHMH" value="1" />
 												<c:if test="${not(empty r[15]) and (not (r[15]==null))}">
 													<b class="member" style="display: inline-block;">${r[15]}</b>
@@ -756,6 +759,7 @@
 												</c:if>:
 											</c:when>
 											<c:otherwise>
+												<c:set var="putTr" value="0" />
 												<c:if test="${not(empty r[15]) and (not (r[15]==null))}">
 													<div id="memberImageDiv" style="display: none;">
 														<img src="editing/gememberimage/${r[14]}" height="16px;" class="memberImg" />	
@@ -765,7 +769,7 @@
 													<div id="memberImageDiv" style="display: none;">
 														<img src="editing/gememberimage/${r[16]}" height="16px;" class="memberImg"/>	
 													</div>
-												</c:if>&nbsp;&nbsp;
+												</c:if>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 											</c:otherwise>
 										</c:choose>
 										<div id="pp${r[20]}" style="width: 750px; max-width: 750px; word-wrap:break-word; display: inline;" class="replaceMe">
@@ -784,6 +788,7 @@
 										<c:if test="${not (empty r[0])}">
 											<c:choose>
 												<c:when test="${memberID!=r[14] or causePHMH==0}">
+													<c:set var="putTr" value="1" />
 													<c:set var="causePHMH" value="1" />
 													<c:if test="${not(empty r[15]) and (not (r[15]==null))}">
 														<b class="member" style="display: inline-block;">${r[15]}</b>
@@ -799,18 +804,19 @@
 													</c:if>:
 												</c:when>
 												<c:otherwise>
+													<c:set var="putTr" value="0" />
 													<c:if test="${not(empty r[15]) and (not (r[15]==null))}">
-														<b class="member" style="display: inline-block;">${r[15]}</b>
+														<%-- <b class="member" style="display: inline-block;">${r[15]}</b> --%>
 														<div id="memberImageDiv" style="display: none;">
 															<img src="editing/gememberimage/${r[14]}" height="16px;" class="memberImg" />	
 														</div>
 													</c:if>										
 													<c:if test="${not(empty r[17]) and (not (r[17]==null))}">
-														<b>/${r[17]}</b>
+														<%-- <b>/${r[17]}</b> --%>
 														<div id="memberImageDiv" style="display: none;">
 															<img src="editing/gememberimage/${r[16]}" height="16px;" class="memberImg" />	
 														</div>
-													</c:if>&nbsp;&nbsp;
+													</c:if>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 												</c:otherwise>
 											</c:choose>
 											<div id="pp${r[20]}" style="width: 750px; max-width: 750px; word-wrap:break-word; display: inline;" class="replaceMe">
@@ -858,7 +864,7 @@
 												<div id="memberImageDiv" style="display: none;">
 													<img src="editing/gememberimage/${r[16]}" height="16px;" class="memberImg" />	
 												</div>
-											</c:if>&nbsp;&nbsp;
+											</c:if>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 										</c:otherwise>
 									</c:choose>
 										
@@ -878,11 +884,13 @@
 						</c:choose>
 					</td>
 				<tr>
-				<tr>
-					<td>
-						&nbsp;
-					</td>
-				<tr>
+				<c:if test="${r[14]!=report[counter.count][14]}">
+					<tr>
+						<td>
+							&nbsp;
+						</td>
+					<tr>
+				</c:if>
 				<c:set var="memberID" value="${r[14]}" />
 				<c:set var="ph" value="${r[1]}"/>
 				<c:set var="mh" value="${r[2]}"/>
