@@ -189,34 +189,41 @@
 		var showIt=0;
 	
 		function showEditor(e){
-			//console.log("Text: " +window.getSelection().toString().trim());
 			var pageWidth=$(window).width();
 			var pageHeight=$(window).height();
-			//console.log("******************************************");
-			//console.log("Page: "+ pageWidth+":"+pageHeight);
+			
 			var clickX=e.clientX;
 			var clickY=e.clientY;
-			//console.log("Coordinates and height: "+clickX+":"+clickY+":"+$('#textDemo').height()+":"+(clickY+$('#textDemo').height()));
-			//console.log((clickY+$('#textDemo').height())>pageHeight);
+
+			
 			if((clickY+$('#textDemo').height()) > pageHeight){
-				var diff=$('#textDemo').height() - clickY;
-				//console.log("Diff: "+diff);
-				if(diff < 0){
-					//console.log("clickY-half of height: "+(clickY - ($('#textDemo').height() / 2)));
+				var diffH=$('#textDemo').height() - clickY;
+				if(diffH < 0){
 					$('#textDemo').css('top', (pageHeight - clickY) + 'px');
 				}else{
-					$('#textDemo').css('top', diff + 'px');
+					$('#textDemo').css('top', diffH + 'px');
 				}
-				
-				$('#textDemo').css('left', clickX + 'px');
 			}else{
 			
-				var diff=$('#textDemo').height() - clickY;
-				//console.log("Diff: "+diff);
-				//console.log("PageHeight-textDemo Height: " + (pageHeight - $('#textDemo').height()));
+				var diffH=$('#textDemo').height() - clickY;
 				$('#textDemo').css('top', clickY + 'px');
-				$('#textDemo').css('left', 'auto');
 			}
+			/****To Adjust the location of the editor when shown to the user by width****/
+			if((clickX+$('#textDemo').width()) > pageWidth){
+				var diffW=$('#textDemo').width() - clickX;
+				
+				if(diffW < 0){
+					$('#textDemo').css('left', (pageWidth - clickX) + 'px');
+				}else{
+					$('#textDemo').css('left', diffW + 'px');
+				}
+				
+			}else{
+			
+				var diffW=$('#textDemo').width() - clickX;
+				$('#textDemo').css('left', clickX + 'px');
+			}
+			
 			$("#textDemo").fadeIn();
 		} 
 		
@@ -288,14 +295,8 @@
 			hideEditor();
 			var content = $("#ttA").val().trim();
 			var newContent=content.replace(/<span.*?>/g,"");
-			/* $("#"+whichId).empty();
-			//console.log($("#"+whichId)+"showIt:"+showIt);
-			$("#"+whichId).html(newContent); */
 			
-			//console.log("Id: "+whichId+"Content: " + content + "\nNew Content: " + newContent);
-			//alert(newContent);
 			newContent=newContent.replace("</span>","");
-			//alert(newContent);
 			var params = "?userGroup="+$("#currentusergroup").val()+"&userGroupType="+$("#currentusergroupType").val();
             $("#data").val(newContent);
             if($("#prevcontent").val()!=newContent){
@@ -441,8 +442,13 @@
 				
 				if($("#action").val()=='edit'){
 					var text=window.getSelection().toString().trim();
+					var currentId=$(this).attr('id');
 					
-					whichId = $(this).attr('id');
+					if(showIt==0){
+						whichId = $(this).attr('id');
+					}else if(showIt==1 && currentId==whichId){
+						whichId = $(this).attr('id');
+					}					
 					
 					if(text.length>0){
 						if(showIt==0){
@@ -593,7 +599,8 @@
 					+ '&sessionYear=' + $("#selectedSessionYear").val()
 					+ '&sessionType=' + $("#selectedSessionType").val()
 					+ '&workflowDetailsId=' + $("#workflowdetails").val()
-					+ '&selectedSubWorkflow='+$("#selectedSubWorkflow").val();
+					+ '&selectedSubWorkflow='+$("#selectedSubWorkflow").val()
+					+ '&nextActor=' + $("#selectedDecissiveActor").val();
 	
 					$("#submitDiv").hide();
 					
@@ -691,7 +698,7 @@
 				</div>
 			</c:if>
 			<a href="javascript:void(0);" id="submit">
-				<img src="" alt="Submit Image" />
+				<img src="./resources/images/edisSubmit.png" alt="Submit Image" style="position;relative; top: 6px;" />
 			</a> 			
 		</div>
 	</c:if>
@@ -701,11 +708,15 @@
 			<c:set var="ph" value="-" />
 			<c:set var="mh" value="-" />
 			<c:set var="idx" value="0" />
-			<c:set var="flagx" value="0" />
+			<c:set var="flagx" value="1" />
+			<c:set var="memberID" value="0" />
+			<c:set var="causePHMH" value="0" />
 			<c:forEach items="${parts}" var="r">
+				<%-- <h1>1.${idx}:${r[0]}:${idx==r[0]}, ${flagx}</h1> --%>
 				<c:if test="${idx!=r[0]}">
 					<c:set var="flagx" value="0" />
 				</c:if>
+				<%-- <h1>2.${idx}:${r[0]}:${idx==r[0]}, ${flagx}</h1> --%>
 				<c:if test="${flagx==0}">
 					<tr>
 						<td>
@@ -713,6 +724,7 @@
 								<c:if test="${ph!=r[2] && mh!=r[3]}">
 									<c:choose>
 										<c:when test="${(fn:length(r[2])>0) && (fn:length(r[3])>0)}">
+											<c:set var="causePHMH" value="0" />
 											<b><spring:message code="editing.pageheading" text="Page Heading" /></b>${r[1]}<br />
 											<b><spring:message code="editing.mainheading" text="Main Heading" /></b>${r[2]}
 										</c:when>

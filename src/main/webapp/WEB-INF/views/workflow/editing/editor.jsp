@@ -211,34 +211,42 @@
 		var showIt=0;
 	
 		function showEditor(e){
-			//console.log("Text: " +window.getSelection().toString().trim());
 			var pageWidth=$(window).width();
 			var pageHeight=$(window).height();
-			//console.log("******************************************");
-			//console.log("Page: "+ pageWidth+":"+pageHeight);
+			
 			var clickX=e.clientX;
 			var clickY=e.clientY;
-			//console.log("Coordinates and height: "+clickX+":"+clickY+":"+$('#textDemo').height()+":"+(clickY+$('#textDemo').height()));
-			//console.log((clickY+$('#textDemo').height())>pageHeight);
+
+			
 			if((clickY+$('#textDemo').height()) > pageHeight){
-				var diff=$('#textDemo').height() - clickY;
-				//console.log("Diff: "+diff);
-				if(diff < 0){
-					//console.log("clickY-half of height: "+(clickY - ($('#textDemo').height() / 2)));
+				var diffH=$('#textDemo').height() - clickY;
+				if(diffH < 0){
 					$('#textDemo').css('top', (pageHeight - clickY) + 'px');
 				}else{
-					$('#textDemo').css('top', diff + 'px');
+					$('#textDemo').css('top', diffH + 'px');
 				}
-				
-				$('#textDemo').css('left', clickX + 'px');
 			}else{
 			
-				var diff=$('#textDemo').height() - clickY;
-				//console.log("Diff: "+diff);
-				//console.log("PageHeight-textDemo Height: " + (pageHeight - $('#textDemo').height()));
+				var diffH=$('#textDemo').height() - clickY;
 				$('#textDemo').css('top', clickY + 'px');
-				$('#textDemo').css('left', 'auto');
 			}
+			
+			/****To Adjust the location of the editor when shown to the user by width****/
+			if((clickX+$('#textDemo').width()) > pageWidth){
+				var diffW=$('#textDemo').width() - clickX;
+				
+				if(diffW < 0){
+					$('#textDemo').css('left', (pageWidth - clickX) + 'px');
+				}else{
+					$('#textDemo').css('left', diffW + 'px');
+				}
+				
+			}else{
+			
+				var diffW=$('#textDemo').width() - clickX;
+				$('#textDemo').css('left', clickX + 'px');
+			}
+			
 			$("#textDemo").fadeIn();
 		} 
 		
@@ -458,8 +466,13 @@
 				
 				if($("#action").val()=='edit'){
 					var text=window.getSelection().toString().trim();
+					var currentId=$(this).attr('id');
 					
-					whichId = $(this).attr('id');
+					if(showIt==0){
+						whichId = $(this).attr('id');
+					}else if(showIt==1 && currentId==whichId){
+						whichId = $(this).attr('id');
+					}
 					
 					if(text.length>0){
 						if(showIt==0){
@@ -632,21 +645,25 @@
 			});
 			
 			$("#submit").click(function(){
+				var actor=$("#selectedDecissiveActor").val();
 				var params="?userGroup="+$("#currentusergroup").val()
 				+ '&userGroupType='+$("#currentusergroupType").val()
 				+ '&houseType=' + $("#selectedHouseType").val()
 				+ '&sessionYear=' + $("#selectedSessionYear").val()
 				+ '&sessionType=' + $("#selectedSessionType").val()
 				+ '&workflowDetailsId=' + $("#workflowdetails").val()
-				+ '&selectedSubWorkflow='+$("#selectedSubWorkflow").val();
-				
-				$("#submitDiv").hide();
+				+ '&selectedSubWorkflow='+$("#selectedSubWorkflow").val()
+				+ '&nextActor=' + ((actor!=undefined)? actor:"");
 				
 				$.blockUI({ message: '<img src="./resources/images/waitAnimated.gif" />' });
 				$.post('workflow/editing'+params, 
 						$("form[action='workflow/editing/savepart']").serialize(),function(data){
 					if(data=='SUCCESS'){
 					}
+					
+					$("#submitDiv").hide();
+					$("#wf_edit_copy").hide();
+					
 					$.unblockUI();
 				}).fail(function(){
 					$.unblockUI();
@@ -830,7 +847,7 @@
 				</div>
 			</c:if>
 			<a href="javascript:void(0);" id="submit">
-				<img src="" alt="Submit Image" />
+				<img src="./resources/images/edisSubmit.png" alt="Submit Image" style="position;relative; top: 6px;" />
 			</a> 			
 		</div>
 	</c:if>
