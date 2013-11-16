@@ -12,7 +12,6 @@ import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 
-import javax.management.relation.Role;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
@@ -25,16 +24,13 @@ import org.mkcl.els.common.vo.ProcessDefinition;
 import org.mkcl.els.common.vo.ProcessInstance;
 import org.mkcl.els.common.vo.Task;
 import org.mkcl.els.controller.BaseController;
-import org.mkcl.els.controller.edis.EditingController;
 import org.mkcl.els.domain.Credential;
 import org.mkcl.els.domain.CustomParameter;
 import org.mkcl.els.domain.HouseType;
-import org.mkcl.els.domain.Language;
 import org.mkcl.els.domain.Member;
 import org.mkcl.els.domain.Part;
 import org.mkcl.els.domain.PartDraft;
 import org.mkcl.els.domain.Query;
-import org.mkcl.els.domain.Question;
 import org.mkcl.els.domain.Roster;
 import org.mkcl.els.domain.Session;
 import org.mkcl.els.domain.SessionType;
@@ -96,10 +92,12 @@ public class EditingWorkflowController extends BaseController{
 			
 			model.addAttribute("workflowdetails",workflowDetails.getId());
 			model.addAttribute("workflowstatus",workflowDetails.getStatus());
+			
 			Roster roster = Roster.findById(Roster.class,Long.parseLong(workflowDetails.getDeviceId()));
-			Member member = null;
+			Member member = null;			
 			List parts = null;
 			Map<String, String[]> parameters = new HashMap<String, String[]>();
+			/**** Find the appropriate view data to be shown to the user ****/
 			if(workflowDetails != null ){
 				if(strUserGroupType.equals(ApplicationConstants.MEMBER)){
 					member = Member.findMember(this.getCurrentUser().getFirstName(), this.getCurrentUser().getMiddleName(), this.getCurrentUser().getLastName(), this.getCurrentUser().getBirthDate(), locale.toString());
@@ -129,7 +127,7 @@ public class EditingWorkflowController extends BaseController{
 				}else{					
 					parameters.put("locale", new String[]{locale.toString()});
 					parameters.put("rosterId", new String[]{workflowDetails.getDeviceId()});
-					parameters.put("editedby", new String[]{workflowDetails.getAssigner()});
+					parameters.put("editedby", new String[]{this.getCurrentUser().getActualUsername()});
 					parts = Query.findReport("EDIS_WORKFLOW_SPEAKER_SENT_DRAFTS_DESC", parameters);
 					
 				}
@@ -343,12 +341,14 @@ public class EditingWorkflowController extends BaseController{
 			String strSessionYear = request.getParameter("sessionYear");
 			String strUserGroup = request.getParameter("userGroup");
 			String strUserGroupType = request.getParameter("userGroupType");
-			String strStatus = request.getParameter("selectedSubWorkflow"); 
+			String strStatus = request.getParameter("selectedSubWorkflow");
+			String strNextActor = request.getParameter("nextActor");
 			
-			String[] decodedStrings = EditingWorkflowUtility.getDecodedString(new String[]{strHouseType, strSessionType, strSessionYear});
+			String[] decodedStrings = EditingWorkflowUtility.getDecodedString(new String[]{strHouseType, strSessionType, strSessionYear, strNextActor});
 			strHouseType = decodedStrings[0];
 			strSessionType = decodedStrings[1];
-			strSessionYear = decodedStrings[2]; 
+			strSessionYear = decodedStrings[2];
+			strNextActor = decodedStrings[3];
 			
 			/****Current WorkflowDetails ****/
 			WorkflowDetails currentWorkflow = WorkflowDetails.findById(WorkflowDetails.class, Long.valueOf(request.getParameter("workflowDetailsId")));
@@ -359,20 +359,35 @@ public class EditingWorkflowController extends BaseController{
 			Integer sessionYear = Integer.valueOf(strSessionYear);
 			Session session = Session.findSessionByHouseTypeSessionTypeYear(houseType, sessionType, sessionYear);
 			
+			/**** UserGroup ****/
 			UserGroup userGroup = UserGroup.findById(UserGroup.class, Long.valueOf(strUserGroup));
 			Status status = null;
 			
+			/**** User has sent the status for the next workflow ****/
 			String desStrStatus = request.getParameter("decissiveStatus");
 			if(desStrStatus != null){
 				status = Status.findByType(desStrStatus, locale.toString());
 			}
 			
+			/**** User has sent no status ****/
+			/**** Then find from workflow's sub-type ****/
 			if(status == null){
 				status = Status.findByType(strStatus, locale.toString());
+			}
+			
+			/****User has sent the next actor of the  workflow****/
+			WorkflowActor wfActor = null;
+			if(strNextActor != null && !strNextActor.isEmpty()){
+			
+				String[] actorsData = strNextActor.split(";");
+				wfActor = WorkflowActor.findById(WorkflowActor.class, Long.valueOf(actorsData[0]));
+			}
+			
+			if(wfActor == null){
+				wfActor = WorkflowConfig.findNextEditingActor(houseType, userGroup, status, EditingWorkflowUtility.getFullWorkflowName(status), Integer.parseInt(currentWorkflow.getAssigneeLevel()), locale.toString());
 			}			
 			
 			Map<String, String> properties = new HashMap<String, String>();
-			WorkflowActor wfActor = WorkflowConfig.findNextEditingActor(houseType, userGroup, status, EditingWorkflowUtility.getFullWorkflowName(status), Integer.parseInt(currentWorkflow.getAssigneeLevel()), locale.toString());
 			if (wfActor != null) {
 				User user = EditingWorkflowUtility.getUser(wfActor, houseType, locale.toString());
 				Credential credential = user.getCredential();
@@ -427,7 +442,7 @@ class EditingWorkflowUtility{
 		for(WorkflowActor wfa : actors){
 			MasterVO mvo = new MasterVO();
 			User user = getUser(wfa, houseType, locale);
-			String value = wfa.getId()+";"+concat(new String[]{user.getTitle(),user.getFirstName(),user.getMiddleName(), user.getLastName()}, " ");
+			String value = wfa.getId()+";" + wfa.getLevel() + ";"+concat(new String[]{user.getTitle(),user.getFirstName(),user.getMiddleName(), user.getLastName()}, " ");
 			mvo.setValue(value);
 			mvo.setName(getUserGroup(wfa, houseType, locale).getUserGroupType().getName());
 			actorsVO.add(mvo);
@@ -507,7 +522,9 @@ class EditingWorkflowUtility{
 
 				for(int i = 0; i < values.length; i++){
 					try {
-						values[i] = new String(values[i].getBytes("ISO-8859-1"), "UTF-8");
+						if(values[i] != null){
+							values[i] = new String(values[i].getBytes("ISO-8859-1"), "UTF-8");
+						}
 					} catch (UnsupportedEncodingException e) {
 						e.printStackTrace();
 					}
