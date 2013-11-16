@@ -544,8 +544,10 @@ import org.springframework.beans.factory.annotation.Configurable;
      */
     public String getFullname(){
     	StringBuffer sb = new StringBuffer();
-    	sb.append(this.getTitle().getName().trim());
-    	sb.append(" ");
+    	if(this.getTitle()!=null){
+    		sb.append(this.getTitle().getName().trim());
+    		sb.append(" ");
+    	}
     	sb.append(this.getFirstName().trim());
     	sb.append(" ");
     	if(this.getMiddleName() != null){
@@ -1811,6 +1813,10 @@ public String findFirstLastName(){
 	sb.append(" ");
 	sb.append(this.getLastName().trim());
 	return sb.toString().trim();
+}
+
+public static List<Member> findActiveMembersByParty(Party party,House house, String locale) {
+	return getMemberRepository().findActiveMembersByParty(party,house,locale);
 }
 
 }
