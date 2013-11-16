@@ -1432,9 +1432,34 @@ public class BillController extends GenericController<Bill> {
 				}
 			}			
 		}
-		/**** checklist filled or not ****/
+		/**** checklist ****/
 		if(domain.getChecklist()!=null && !domain.getChecklist().isEmpty()) {
 			model.addAttribute("isChecklistFilled", true);
+		}
+		CustomParameter checklistCountParameter = CustomParameter.findByName(CustomParameter.class, ApplicationConstants.BILL_CHECKLIST_COUNT, "");
+		if(checklistCountParameter!=null) {
+			if(checklistCountParameter.getValue()!=null) {
+				try {
+					int checklistCount = Integer.parseInt(checklistCountParameter.getValue());
+					List<String> checklistSerialNumbers = new ArrayList<String>();
+					for(int i=0; i<=checklistCount; i++) {
+						checklistSerialNumbers.add(FormaterUtil.formatNumberNoGrouping(i, locale));
+					}
+					model.addAttribute("checklistSerialNumbers", checklistSerialNumbers);
+				} catch (NumberFormatException e) {
+					logger.error("custom parameter '"+ApplicationConstants.BILL_CHECKLIST_COUNT+"' is not set.");
+					model.addAttribute("errorcode", "BILL_CHECKLIST_COUNT_NOTSET");
+					return;
+				}
+			} else {
+				logger.error("custom parameter '"+ApplicationConstants.BILL_CHECKLIST_COUNT+"' is not set.");
+				model.addAttribute("errorcode", "BILL_CHECKLIST_COUNT_NOTSET");
+				return;
+			}
+		} else {
+			logger.error("custom parameter '"+ApplicationConstants.BILL_CHECKLIST_COUNT+"' is not set.");
+			model.addAttribute("errorcode", "BILL_CHECKLIST_COUNT_NOTSET");
+			return;
 		}
 		/**** remarks ****/	
 		UserGroupType userGroupType = UserGroupType.findByFieldName(UserGroupType.class, "type", usergroupType, locale);
@@ -3921,8 +3946,12 @@ public class BillController extends GenericController<Bill> {
 		return isSelected;
 	}
 	
+	@RequestMapping(value="/getSchedule7OfConstitution",method=RequestMethod.GET)
+	public String getFile(){				
+		return "bill/schedule7OfConstitution";
+	}
 	@RequestMapping(value="/viewSchedule7OfConstitution", method=RequestMethod.GET)
-	public @ResponseBody void viewSchedule7OfConstitution(final ModelMap model, final HttpServletRequest request, final HttpServletResponse response, final Locale locale) {
+	public void viewSchedule7OfConstitution(final ModelMap model, final HttpServletRequest request, final HttpServletResponse response, final Locale locale) {
 		CustomParameter billCheckListReferenceFileParameter = CustomParameter.findByName(CustomParameter.class, "BILL_CHECKLIST_REFERENCE_FILE", "");
 		boolean isBillCheckListReferenceFileParameterSet;
 		if(billCheckListReferenceFileParameter==null) {			
@@ -3947,7 +3976,7 @@ public class BillController extends GenericController<Bill> {
 	    		} else {
 	    			response.getWriter().println("<h3>Sorry..Schedule 7 Of Constitution File is not found. Please contact administrator.</h3>");
 	    		}
-				return;
+				
     		} catch(IOException ex) {
     			logger.error("Error in writing to response");
     		}
@@ -3987,6 +4016,7 @@ public class BillController extends GenericController<Bill> {
     			logger.error("Error in writing to response");
     		}
 		}
+		
 	}
 	
 	@RequestMapping(value="/referAct/init",method=RequestMethod.GET)

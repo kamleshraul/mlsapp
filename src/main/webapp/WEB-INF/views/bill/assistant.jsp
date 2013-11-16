@@ -272,9 +272,9 @@
 				$('#'+internalCheckboxId).removeAttr('checked');
 				hideRelatedDiv(internalCheckboxId);																				
 			}
-		}		
+		}	
 		
-		$(document).ready(function(){			
+		$(document).ready(function(){	
 			$('#opinionSoughtFromLawAndJD').wysiwyg({
 				resizeOptions: {maxWidth: 600},
 				controls:{	
@@ -382,6 +382,13 @@
 			if($('#typeOfSelectedBillType').val() != 'replace_ordinance') {
 				$('#referredOrdinanceDiv').hide();
 			}
+			
+			/**** Schedule 7 Of Constitution ****/
+			$(".viewSchedule7OfConstitution").click(function(){				
+				$.get('bill/getSchedule7OfConstitution',function(data){
+					$.fancybox.open(data, {autoSize: false, width: 800, height: 600});
+				},'html');				
+			});
 						
 			$('#billType').change(function() {
 				$.get('ref/getTypeOfSelectedBillType?selectedBillTypeId='+$('#billType').val(),function(data) {
@@ -842,9 +849,9 @@
 			//----------------------revise drafts script----------------------//		
 			$('.revisedTitle').each(function() {
 				var currentLanguage = this.id.split("_")[3];	
-				if($(this).val()!=null && $(this).val()!=undefined && $(this).val()!='') {		
+				if($(this).val()!=null && $(this).val()!=undefined && $(this).val()!='') {					
 					$('#revisedTitlePara_'+currentLanguage).show();
-					$('#reviseTitle_'+currentLanguage).text('Un-Revise This Draft');
+					$('#reviseTitle_icon_'+currentLanguage).attr('title',$('#unReviseTitle_text').val());
 				} else {
 					$('#revisedTitlePara_'+currentLanguage).hide();
 					if($("#title_text_"+currentLanguage).val()!=undefined && $("#title_text_"+currentLanguage).val()!='') {
@@ -856,10 +863,10 @@
 				var currentLanguage = this.id.split("_")[1];				
 				if($('#revisedTitlePara_'+currentLanguage).css('display')=='none') {
 					$('#revisedTitlePara_'+currentLanguage).show();
-					$(this).text('Un-Revise This Draft');
+					$('#reviseTitle_icon_'+currentLanguage).attr('title',$('#unReviseTitle_text').val());
 				} else {
 					$('#revisedTitlePara_'+currentLanguage).hide();
-					$(this).text('Revise This Draft');
+					$('#reviseTitle_icon_'+currentLanguage).attr('title',$('#reviseTitle_text').val());
 				}
 				return false;
 			});
@@ -867,7 +874,7 @@
 				var currentLanguage = this.id.split("_")[3];	
 				if($(this).val()!=null && $(this).val()!=undefined && $(this).val()!='') {		
 					$('#revisedContentDraftPara_'+currentLanguage).show();
-					$('#reviseContentDraft_'+currentLanguage).text('Un-Revise This Draft');
+					$('#reviseContentDraft_icon_'+currentLanguage).attr('title',$('#unReviseContentDraft_text').val());
 				} else {
 					$('#revisedContentDraftPara_'+currentLanguage).hide();
 					if($("#contentDraft_text_"+currentLanguage).val()!=undefined && $("#contentDraft_text_"+currentLanguage).val()!='') {
@@ -880,19 +887,19 @@
 				var currentLanguage = this.id.split("_")[1];				
 				if($('#revisedContentDraftPara_'+currentLanguage).css('display')=='none') {
 					$('#revisedContentDraftPara_'+currentLanguage).show();
-					$(this).text('Un-Revise This Draft');
+					$('#reviseContentDraft_icon_'+currentLanguage).attr('title',$('#unReviseContentDraft_text').val());
 				} else {
 					$('#revisedContentDraftPara_'+currentLanguage).hide();
-					$(this).text('Revise This Draft');
+					$('#reviseContentDraft_icon_'+currentLanguage).attr('title',$('#reviseContentDraft_text').val());
 				}
 				return false;
 			});
 			
 			$('.revisedStatementOfObjectAndReasonDraft').each(function() {
-				var currentLanguage = this.id.split("_")[3];	
+				var currentLanguage = this.id.split("_")[3];					
 				if($(this).val()!=null && $(this).val()!=undefined && $(this).val()!='') {		
 					$('#revisedStatementOfObjectAndReasonDraftPara_'+currentLanguage).show();
-					$('#reviseStatementOfObjectAndReasonDraft_'+currentLanguage).text('Un-Revise This Draft');
+					$('#reviseStatementOfObjectAndReasonDraft_icon_'+currentLanguage).attr('title',$('#unReviseStatementOfObjectAndReasonDraft_text').val());
 				} else {
 					$('#revisedStatementOfObjectAndReasonDraftPara_'+currentLanguage).hide();
 					$(this).val($("#statementOfObjectAndReasonDraft_text_"+currentLanguage).val());
@@ -903,10 +910,10 @@
 				var currentLanguage = this.id.split("_")[1];				
 				if($('#revisedStatementOfObjectAndReasonDraftPara_'+currentLanguage).css('display')=='none') {
 					$('#revisedStatementOfObjectAndReasonDraftPara_'+currentLanguage).show();
-					$(this).text('Un-Revise This Draft');
+					$('#reviseStatementOfObjectAndReasonDraft_icon_'+currentLanguage).attr('title',$('#unReviseStatementOfObjectAndReasonDraft_text').val());
 				} else {
 					$('#revisedStatementOfObjectAndReasonDraftPara_'+currentLanguage).hide();
-					$(this).text('Revise This Draft');
+					$('#reviseStatementOfObjectAndReasonDraft_icon_'+currentLanguage).attr('title',$('#reviseStatementOfObjectAndReasonDraft_text').val());
 				}
 				return false;
 			});
@@ -915,7 +922,7 @@
 				var currentLanguage = this.id.split("_")[3];	
 				if($(this).val()!=null && $(this).val()!=undefined && $(this).val()!='') {		
 					$('#revisedFinancialMemorandumDraftPara_'+currentLanguage).show();
-					$('#reviseFinancialMemorandumDraft_'+currentLanguage).text('Un-Revise This Draft');
+					$('#reviseFinancialMemorandumDraft_icon_'+currentLanguage).attr('title',$('#unReviseFinancialMemorandumDraft_text').val());
 				} else {
 					$('#revisedFinancialMemorandumDraftPara_'+currentLanguage).hide();
 					$(this).val($("#financialMemorandumDraft_text_"+currentLanguage).val());
@@ -926,10 +933,10 @@
 				var currentLanguage = this.id.split("_")[1];				
 				if($('#revisedFinancialMemorandumDraftPara_'+currentLanguage).css('display')=='none') {
 					$('#revisedFinancialMemorandumDraftPara_'+currentLanguage).show();
-					$(this).text('Un-Revise This Draft');
+					$('#reviseFinancialMemorandumDraft_icon_'+currentLanguage).attr('title',$('#unReviseFinancialMemorandumDraft_text').val());
 				} else {
 					$('#revisedFinancialMemorandumDraftPara_'+currentLanguage).hide();
-					$(this).text('Revise This Draft');
+					$('#reviseFinancialMemorandumDraft_icon_'+currentLanguage).attr('title',$('#reviseFinancialMemorandumDraft_text').val());
 				}
 				return false;
 			});
@@ -938,7 +945,7 @@
 				var currentLanguage = this.id.split("_")[3];	
 				if($(this).val()!=null && $(this).val()!=undefined && $(this).val()!='') {		
 					$('#revisedStatutoryMemorandumDraftPara_'+currentLanguage).show();
-					$('#reviseStatutoryMemorandumDraft_'+currentLanguage).text('Un-Revise This Draft');
+					$('#reviseStatutoryMemorandumDraft_icon_'+currentLanguage).attr('title',$('#unReviseStatutoryMemorandumDraft_text').val());
 				} else {
 					$('#revisedStatutoryMemorandumDraftPara_'+currentLanguage).hide();
 					$(this).val($("#statutoryMemorandumDraft_text_"+currentLanguage).val());
@@ -949,10 +956,10 @@
 				var currentLanguage = this.id.split("_")[1];				
 				if($('#revisedStatutoryMemorandumDraftPara_'+currentLanguage).css('display')=='none') {
 					$('#revisedStatutoryMemorandumDraftPara_'+currentLanguage).show();
-					$(this).text('Un-Revise This Draft');
+					$('#reviseStatutoryMemorandumDraft_icon_'+currentLanguage).attr('title',$('#unReviseStatutoryMemorandumDraft_text').val());
 				} else {
 					$('#revisedStatutoryMemorandumDraftPara_'+currentLanguage).hide();
-					$(this).text('Revise This Draft');
+					$('#reviseStatutoryMemorandumDraft_icon_'+currentLanguage).attr('title',$('#reviseStatutoryMemorandumDraft_text').val());
 				}
 				return false;
 			});
@@ -1190,7 +1197,7 @@
 				margin-top: 10px;
 			}
 			
-			#opinionSoughtFromLawAndJD-wysiwyg-iframe {height: 500px;}				
+			#opinionSoughtFromLawAndJD-wysiwyg-iframe {height: 400px;}				
 		</style>
 	</head> 
 
@@ -1200,14 +1207,6 @@
 				<form:form action="bill" method="PUT" modelAttribute="domain">
 					<%@ include file="/common/info.jsp" %>
 					<h2>${formattedDeviceTypeForBill} ${formattedNumber}	
-					<%-- <span style="margin-left: 700px;">	
-					<a href="#" id="financialMemorandumDrafts_button" style="margin-right: 20px;font-size: 14px;">
-						<img src="./resources/images/Memo-icon.png" title="<spring:message code='bill.financialMemorandumDrafts' text='Financial Memorandums'></spring:message>" class="imageLink" />
-					</a>	
-					<a href="#" id="checklist_button" style="margin-right: 20px;font-size: 14px;">
-						<img src="./resources/images/checklist.jpg" title="<spring:message code='bill.checklist' text='Checklist'></spring:message>" class="imageLink" />
-					</a>	
-					</span> --%>				
 					</h2>
 					<form:errors path="version" cssClass="validationError"/>
 					
@@ -1240,12 +1239,19 @@
 							<form:errors path="type" cssClass="validationError"/>		
 					</p>	
 					
-					<c:if test="${!(empty domain.number)}">
+					<c:if test="${not empty domain.number or not empty domain.submissionDate}">
 					<p>
+						<c:if test="${not empty domain.number}">
 						<label class="small"><spring:message code="bill.number" text="bill Number"/>*</label>
 						<input id="formattedNumber" name="formattedNumber" value="${formattedNumber}" class="sText" readonly="readonly">		
 						<input id="number" name="number" value="${domain.number}" type="hidden">
 						<form:errors path="number" cssClass="validationError"/>
+						</c:if>
+						<c:if test="${not empty domain.submissionDate}">				
+						<label class="small"><spring:message code="bill.submissionDate" text="Submitted On"/></label>
+						<input id="formattedSubmissionDate" name="formattedSubmissionDate" value="${formattedSubmissionDate }" class="sText" readonly="readonly">
+						<input id="setSubmissionDate" name="setSubmissionDate" type="hidden"  value="${submissionDate}">	
+						</c:if>
 					</p>
 					</c:if>
 					
@@ -1330,16 +1336,6 @@
 						<form:errors path="billKind" cssClass="validationError"></form:errors>	
 					</p>
 					
-					<c:if test="${!(empty submissionDate)}">
-					<p>
-					<label class="small"><spring:message code="bill.submissionDate" text="Submitted On"/></label>
-					<input id="formattedSubmissionDate" name="formattedSubmissionDate" value="${formattedSubmissionDate }" class="sText" readonly="readonly">
-					<input id="setSubmissionDate" name="setSubmissionDate" type="hidden"  value="${submissionDate}">	
-					</p>
-					</c:if>
-					
-					<h2></h2>
-					
 					<c:if test="${selectedDeviceTypeForBill == 'bills_government'}">
 					<p>
 						<label class="small"><spring:message code="bill.introducingHouseType" text="Introducing House Type"/></label>
@@ -1358,6 +1354,8 @@
 						<form:errors path="introducingHouseType"></form:errors>				
 					</p>
 					</c:if>
+					
+					<h2></h2>
 					
 					<div id="referredActDiv">
 						<p>
@@ -1392,19 +1390,14 @@
 						</p>
 					</div>
 					
-					<c:if test="${selectedDeviceTypeForBill=='bills_nonofficial'}">		
 					<c:if test="${usergroupType=='assistant'}">		
-					<p>
-						<a href="#" id="clubbing" onclick="clubbingInt(${domain.id});" style="margin-left: 162px;margin-right: 20px;margin-bottom: 20px;margin-top: 20px;"><spring:message code="bill.clubbing" text="Clubbing"></spring:message></a>
-						<a href="#" id="referencing" onclick="referencingInt(${domain.id});" style="margin: 20px;"><spring:message code="bill.referencing" text="Referencing"></spring:message></a>
-						<%-- <a href="#" id="dereferencing" onclick="dereferencingInt(${referencedBill});" style="margin: 20px;"><spring:message code="bill.dereferencing" text="Dereferencing"></spring:message></a> --%>
-						<a href="#" id="referLapsedBill" onclick="referLapsedBill(${domain.id});" style="margin: 20px;"><spring:message code="bill.referLapsed" text="Refer Lapsed Bill"></spring:message></a>
-						<a href="#" id="refresh" onclick="refreshEdit(${domain.id});" style="margin: 20px;"><spring:message code="bill.refresh" text="Refresh"></spring:message></a>	
-					</c:if>						
-						<c:if test="${selectedDeviceTypeForBill=='bills_government'}">
-						<a href="#" id="referLapsedBill" onclick="referLapsedBill(${domain.id});" style="margin: 20px;"><spring:message code="bill.referLapsed" text="Refer Lapsed Bill"></spring:message></a>
-						<a href="#" id="refresh" onclick="refreshEdit(${domain.id});" style="margin: 20px;"><spring:message code="bill.refresh" text="Refresh"></spring:message></a>
-						</c:if>
+					<p style="margin-left: 162px;">
+						<c:if test="${selectedDeviceTypeForBill=='bills_nonofficial'}">
+						<a href="#" id="clubbing" onclick="clubbingInt(${domain.id});" style="margin-right: 20px;margin-bottom: 20px;margin-top: 20px;"><spring:message code="bill.clubbing" text="Clubbing"></spring:message></a>
+						<a href="#" id="referencing" onclick="referencingInt(${domain.id});" style="margin-right: 20px;"><spring:message code="bill.referencing" text="Referencing"></spring:message></a>
+						</c:if>						
+						<a href="#" id="referLapsedBill" onclick="referLapsedBill(${domain.id});" style="margin-right: 20px;"><spring:message code="bill.referLapsed" text="Refer Lapsed Bill"></spring:message></a>
+						<a href="#" id="refresh" onclick="refreshEdit(${domain.id});" style="margin-right: 20px;"><spring:message code="bill.refresh" text="Refresh"></spring:message></a>
 					</p>
 					</c:if>
 					
@@ -1534,7 +1527,7 @@
 									</p>
 									<p>
 										<a href="#" class="reviseTitle" id="reviseTitle_${i.language.type}" style="margin-left: 162px;margin-right: 20px;">
-											<img src="./resources/images/Revise.jpg" title="<spring:message code='bill.reviseTitle' text='Revise This Title'></spring:message>" class="imageLink" />
+											<img id="reviseTitle_icon_${i.language.type}" src="./resources/images/Revise.jpg" title="<spring:message code='bill.reviseTitle' text='Revise This Title'></spring:message>" class="imageLink" />
 										</a>
 									</p>															
 									<p id="revisedTitlePara_${i.language.type}" style="display:none;">
@@ -1578,7 +1571,7 @@
 									</a>
 								</c:when>
 							</c:choose>					
-							</c:forEach>	
+							</c:forEach>							
 							</p>						
 							<div id="contentDrafts_div">
 								<c:forEach var="i" items="${contentDrafts}" varStatus="draftNumber">
@@ -1590,9 +1583,14 @@
 										<input type="hidden" name="contentDraft_language_id_${i.language.type}" value="${i.language.id}">						
 									</p>
 									<p>
-										<a href="#" class="reviseContentDraft" id="reviseContentDraft_${i.language.type}" style="margin-left: 162px;margin-right: 20px;">
-											<img src="./resources/images/Revise.jpg" title="<spring:message code='bill.reviseContentDraft' text='Revise This Content Draft'></spring:message>" class="imageLink" />
+										<a href="#" class="reviseContentDraft" id="reviseContentDraft_${i.language.type}" style="margin-left: 162px;margin-right: 20px;text-decoration: none;">
+											<img id="reviseContentDraft_icon_${i.language.type}" src="./resources/images/Revise.jpg" title="<spring:message code='bill.reviseContentDraft' text='Revise This Content Draft'></spring:message>" class="imageLink" />
 										</a>
+										<c:if test="${i.language.type==defaultBillLanguage}">											
+											<a href="#" class="viewSchedule7OfConstitution" style="margin-right: 20px;text-decoration: none;">
+												<img id="s7C" src="./resources/images/s7C.jpg" title="<spring:message code='bill.viewSchedule7OfConstitution' text='View Schedule 7 Of Constitution'></spring:message>" class="imageLink" />
+											</a>											
+										</c:if>
 									</p>
 									<p id="revisedContentDraftPara_${i.language.type}" style="display:none;">
 										<label class="wysiwyglabel">${i.language.name} <spring:message code="bill.revisedContentDraft" text=" Revised Draft"/></label>						
@@ -1677,7 +1675,7 @@
 									</p>
 									<p>
 										<a href="#" class="reviseStatementOfObjectAndReasonDraft" id="reviseStatementOfObjectAndReasonDraft_${i.language.type}" style="margin-left: 162px;margin-right: 20px;">
-											<img src="./resources/images/Revise.jpg" title="<spring:message code='bill.reviseSOR' text='Revise This Statement of Object and Reason'></spring:message>" class="imageLink" />
+											<img id="reviseStatementOfObjectAndReasonDraft_icon_${i.language.type}" src="./resources/images/Revise.jpg" title="<spring:message code='bill.reviseSOR' text='Revise This Statement of Object and Reason'></spring:message>" class="imageLink" />
 										</a>
 									</p>
 									<p id="revisedStatementOfObjectAndReasonDraftPara_${i.language.type}" style="display:none;">
@@ -1752,7 +1750,7 @@
 									</p>
 									<p>
 										<a href="#" class="reviseFinancialMemorandumDraft" id="reviseFinancialMemorandumDraft_${i.language.type}" style="margin-left: 162px;margin-right: 20px;">
-											<img src="./resources/images/Revise.jpg" title="<spring:message code='bill.reviseFM' text='Revise This Financial Memorandum'></spring:message>" class="imageLink" />
+											<img id="reviseFinancialMemorandumDraft_icon_${i.language.type}" src="./resources/images/Revise.jpg" title="<spring:message code='bill.reviseFM' text='Revise This Financial Memorandum'></spring:message>" class="imageLink" />
 										</a>
 									</p>
 									<p id="revisedFinancialMemorandumDraftPara_${i.language.type}" style="display:none;">
@@ -1809,7 +1807,7 @@
 									</p>
 									<p>
 										<a href="#" class="reviseStatutoryMemorandumDraft" id="reviseStatutoryMemorandumDraft_${i.language.type}" style="margin-left: 162px;margin-right: 20px;">
-											<img src="./resources/images/Revise.jpg" title="<spring:message code='bill.reviseSM' text='Revise This Statutory Memorandum'></spring:message>" class="imageLink" />
+											<img id="reviseStatutoryMemorandumDraft_icon_${i.language.type}" src="./resources/images/Revise.jpg" title="<spring:message code='bill.reviseSM' text='Revise This Statutory Memorandum'></spring:message>" class="imageLink" />
 										</a>
 									</p>
 									<p id="revisedStatutoryMemorandumDraftPara_${i.language.type}" style="display:none;">
@@ -1893,69 +1891,83 @@
 							<a href="#" class="viewRevisions" id="viewRevisions_checklist" style="margin-left: 20px;margin-bottom: 5px;margin-right: 20px;text-decoration: none;">
 								<img src="./resources/images/ViewRevision.jpg" title="<spring:message code='bill.viewRevisionsForChecklist' text='View Revisions for Checklist'></spring:message>" class="imageLink" />
 							</a>
-							<a href="bill/viewSchedule7OfConstitution" target="_blank" id="viewSchedule7OfConstitution" style="margin-right: 20px;text-decoration: none;">
+							<a href="#" class="viewSchedule7OfConstitution" style="margin-right: 20px;text-decoration: none;">
 								<img id="s7C" src="./resources/images/s7C.jpg" title="<spring:message code='bill.viewSchedule7OfConstitution' text='View Schedule 7 Of Constitution'></spring:message>" class="imageLink" />
 							</a>
 							<br/>							
-							<table border="1" style="width: 470px; border: 2px solid black;">
-								<!-- <thead>
-									<tr>
-										<th width="50%">Question Details</th>
-										<th>Answer</th>
-									</tr>								
-								</thead> -->
+							<table style="width: 500px; border: 2px solid black;">
 								<tbody>
-									<tr id="checklistQuestion1">
+									<tr id="checklistQuestion1" style="border-bottom: 2px solid black;">
+										<td style="vertical-align: top;padding-top: 15px;padding-left: 3px;">(${checklistSerialNumbers[1]})</td>
 										<td>
 											<div style="border: 0px 0px 1px 0px dotted #000000;">
-												<br/>
+												<br/>												
 												<label><spring:message code="bill.checklistQuestion1" text="Are following things essential for this bill?"/></label>
 											</div>
-											<div>
-												<label style="width:400px;"><spring:message code="bill.checklistQuestion1.1" text="is bill recommended in accordance with constitution article 207 (1)?"/></label>
-												<input type="checkbox" class="sCheck checklist_checkboxes" id="checklist_checkbox_1" style="margin: 10px; margin-left: 10px;">
-												<form:input class="checklist_checkbox_fields" id="checklist_checkbox_field_1" type="hidden" path="checklist['isRecommendedAsPerConstitutionArticle_207_1']" />
-											</div>
-											<br/>																					
-											<div style="display: none;" id="checklist_checkbox_1_div">
-												<label><spring:message code="bill.checklistQuestion1.2" text="if yes, please mention sections"/></label>
-												<br/>
-												<form:textarea class="sTextarea" path="checklist['sectionsForRecommendationAsPerConstitutionArticle_207_1']" rows="2" cols="50" style="margin: 10px;"/>
-											</div>
-											
-											<div>
-												<label style="width:400px;"><spring:message code="bill.checklistQuestion1.3" text="is bill recommended in accordance with constitution article 207 (3)?"/></label>
-												<input type="checkbox" class="sCheck checklist_checkboxes" id="checklist_checkbox_2" style="margin: 10px; margin-left: 10px;">
-												<form:input class="checklist_checkbox_fields" id="checklist_checkbox_field_2" type="hidden" path="checklist['isRecommendedAsPerConstitutionArticle_207_3']" />
-											</div>		
-											<br />								
-											<div style="display: none;" id="checklist_checkbox_2_div">
-												<label><spring:message code="bill.checklistQuestion1.4" text="if yes, please mention sections"/></label>
-												<br/>
-												<form:textarea class="sTextarea" path="checklist['sectionsForRecommendationAsPerConstitutionArticle_207_3']" rows="2" cols="50" style="margin: 10px;" />
-											</div>
-											
-											<div>
-												<label style="width:400px;"><spring:message code="bill.checklistQuestion1.5" text="is bill recommended in accordance with constitution article 304 (b)?"/></label>
-												<input type="checkbox" class="sCheck checklist_checkboxes" id="checklist_checkbox_3" style="margin: 10px; margin-left: 10px;">
-												<form:input class="checklist_checkbox_fields" id="checklist_checkbox_field_3" type="hidden" path="checklist['isRecommendedAsPerConstitutionArticle_304_b']" />
-											</div>	
-											<br />									
-											<div style="display: none;" id="checklist_checkbox_3_div">
-												<label><spring:message code="bill.checklistQuestion1.6" text="if yes, please mention sections"/></label>
-												<br/>
-												<form:textarea class="sTextarea" path="checklist['sectionsForRecommendationAsPerConstitutionArticle_304_b']" rows="2" cols="50" style="margin: 10px;" />
-											</div>
+											<table style="width: 490px;">
+												<tr>
+													<td style="vertical-align: top;padding-top: 11px;padding-left: 8px;">
+														(<spring:message code="bill.checklistQuestion1.A" text="A"/>)
+													</td>
+													<td>														
+														<div>
+															<label style="width:400px;"><spring:message code="bill.checklistQuestion1.1" text="is bill recommended in accordance with constitution article 207 (1)?"/></label>
+															<input type="checkbox" class="sCheck checklist_checkboxes viewSchedule7OfConstitution" id="checklist_checkbox_1" style="margin: 10px; margin-left: 10px;">
+															<form:input class="checklist_checkbox_fields" id="checklist_checkbox_field_1" type="hidden" path="checklist['isRecommendedAsPerConstitutionArticle_207_1']" />
+														</div>																																			
+														<div style="display: none;" id="checklist_checkbox_1_div">
+															<label><spring:message code="bill.checklistQuestion1.2" text="if yes, please mention sections"/></label>
+															<br/>
+															<form:textarea class="sTextarea" path="checklist['sectionsForRecommendationAsPerConstitutionArticle_207_1']" rows="2" cols="50" style="margin: 10px;"/>
+														</div>
+													</td>
+												</tr>
+												<tr>
+													<td style="vertical-align: top;padding-top: 11px;padding-left: 8px;">
+														(<spring:message code="bill.checklistQuestion1.B" text="B"/>)
+													</td>
+													<td>
+														<div>
+															<label style="width:400px;"><spring:message code="bill.checklistQuestion1.3" text="is bill recommended in accordance with constitution article 207 (3)?"/></label>
+															<input type="checkbox" class="sCheck checklist_checkboxes viewSchedule7OfConstitution" id="checklist_checkbox_2" style="margin: 10px; margin-left: 10px;">
+															<form:input class="checklist_checkbox_fields" id="checklist_checkbox_field_2" type="hidden" path="checklist['isRecommendedAsPerConstitutionArticle_207_3']" />
+														</div>																							
+														<div style="display: none;" id="checklist_checkbox_2_div">
+															<label><spring:message code="bill.checklistQuestion1.4" text="if yes, please mention sections"/></label>
+															<br/>
+															<form:textarea class="sTextarea" path="checklist['sectionsForRecommendationAsPerConstitutionArticle_207_3']" rows="2" cols="50" style="margin: 10px;" />
+														</div>													
+													</td>
+												</tr>
+												<tr>
+													<td style="vertical-align: top;padding-top: 11px;padding-left: 8px;">
+														(<spring:message code="bill.checklistQuestion1.C" text="C"/>)
+													</td>
+													<td>
+														<div>
+															<label style="width:400px;"><spring:message code="bill.checklistQuestion1.5" text="is bill recommended in accordance with constitution article 304 (b)?"/></label>
+															<input type="checkbox" class="sCheck checklist_checkboxes" id="checklist_checkbox_3" style="margin: 10px; margin-left: 10px;">
+															<form:input class="checklist_checkbox_fields" id="checklist_checkbox_field_3" type="hidden" path="checklist['isRecommendedAsPerConstitutionArticle_304_b']" />
+														</div>
+														<div style="display: none;" id="checklist_checkbox_3_div">
+															<label><spring:message code="bill.checklistQuestion1.6" text="if yes, please mention sections"/></label>
+															<br/>
+															<form:textarea class="sTextarea" path="checklist['sectionsForRecommendationAsPerConstitutionArticle_304_b']" rows="2" cols="50" style="margin: 10px;" />
+														</div>
+													</td>
+												</tr>
+											</table>											
 										</td>
 									</tr>
-									<tr id="checklistQuestion2">
+									<tr id="checklistQuestion2" style="border-bottom: 2px solid black;">
+										<td style="vertical-align: top;padding-top: 13px;padding-left: 3px;">(${checklistSerialNumbers[2]})</td>
 										<td>
-											<div style="border: 0px 0px 1px 0px dotted #000000;">
+											<div style="border: 0px 0px 1px 0px dotted #000000;">												
 												<label style="width:400px;"><spring:message code="bill.checklistQuestion2.1" text="is bill in scope of state legislature?"/></label>
-												<input type="checkbox" class="sCheck checklist_checkboxes" id="checklist_checkbox_4" style="margin: 10px; margin-left: 10px;">
+												<input type="checkbox" class="sCheck checklist_checkboxes viewSchedule7OfConstitution" id="checklist_checkbox_4" style="margin: 10px; margin-left: 38px;">
 												<form:input class="checklist_checkbox_fields" id="checklist_checkbox_field_4" type="hidden" path="checklist['isInScopeOfStateLegislature']" />
 											</div>
-											<br />
+											
 											<div style="display: none;" id="checklist_checkbox_4_div">
 												<label><spring:message code="bill.checklistQuestion2.2" text="if yes, please also mention related schedule issues"/></label>
 												<br/>
@@ -1963,14 +1975,15 @@
 											</div>
 										</td>
 									</tr>
-									<tr id="checklistQuestion3">
+									<tr id="checklistQuestion3" style="border-bottom: 2px solid black;">
+										<td style="vertical-align: top;padding-top: 13px;padding-left: 3px;">(${checklistSerialNumbers[3]})</td>
 										<td>
 											<div style="border: 0px 0px 1px 0px dotted #000000;">
 												<label style="width:400px;"><spring:message code="bill.checklistQuestion3.1" text="is this bill a money bill?"/></label>
-												<input type="checkbox" class="sCheck checklist_checkboxes" id="checklist_checkbox_5" style="margin: 10px; margin-left: 10px;">
+												<input type="checkbox" class="sCheck checklist_checkboxes" id="checklist_checkbox_5" style="margin: 10px; margin-left: 38px;">
 												<form:input class="checklist_checkbox_fields" id="checklist_checkbox_field_5" type="hidden" path="checklist['isMoneyBill']" />
 											</div>
-											<br />
+											
 											<div style="display: none;" id="checklist_checkbox_5_div">
 												<label><spring:message code="bill.checklistQuestion3.2" text="if yes, please mention sections"/></label>
 												<br/>
@@ -1978,14 +1991,15 @@
 											</div>
 										</td>
 									</tr>
-									<tr id="checklistQuestion4">
+									<tr id="checklistQuestion4" style="border-bottom: 2px solid black;">
+										<td style="vertical-align: top;padding-top: 13px;padding-left: 3px;">(${checklistSerialNumbers[4]})</td>
 										<td>
 											<div style="border: 0px 0px 1px 0px dotted #000000;">
 												<label style="width:400px;"><spring:message code="bill.checklistQuestion4.1" text="is this bill a financial bill as per constitution article 207 (1)?"/></label>
-												<input type="checkbox" class="sCheck checklist_checkboxes" id="checklist_checkbox_6" style="margin: 10px; margin-left: 10px;">
+												<input type="checkbox" class="sCheck checklist_checkboxes" id="checklist_checkbox_6" style="margin: 10px; margin-left: 38px;">
 												<form:input class="checklist_checkbox_fields" id="checklist_checkbox_field_6" type="hidden" path="checklist['isFinancialBillAsPerConstitutionArticle_207_1']" />
 											</div>
-											<br />
+											
 											<div style="display: none;" id="checklist_checkbox_6_div">
 												<label><spring:message code="bill.checklistQuestion4.2" text="if yes, please mention sections"/></label>
 												<br/>
@@ -1993,30 +2007,31 @@
 											</div>
 										</td>
 									</tr>								
-									<tr id="checklistQuestion5">
-										<td>
+									<tr id="checklistQuestion5" style="border-bottom: 2px solid black;">
+										<td style="vertical-align: top;padding-top: 13px;padding-left: 3px;">(${checklistSerialNumbers[5]})</td>
+										<td style="vertical-align: top;padding-top: 13px;">
 											<div style="border: 0px 0px 1px 0px dotted #000000;">
 												<label style="width:400px;"><spring:message code="bill.checklistQuestion5.1" text="are amendments for amending bill as per scope of original act?"/></label>
-												<input type="checkbox" class="sCheck checklist_checkboxes" id="checklist_checkbox_7" style="margin: 10px; margin-left: 10px;">
+												<input type="checkbox" class="sCheck checklist_checkboxes" id="checklist_checkbox_7" style="margin: 10px; margin-left: 38px;">
 												<form:input class="checklist_checkbox_fields" id="checklist_checkbox_field_7" type="hidden" path="checklist['areAmendmentsForAmendingBillAsPerScopeOfOriginalAct']" />
-											</div>
-											<br/>										
+											</div>																					
 										</td>
 									</tr>
-									<tr id="checklistQuestion6">
+									<tr id="checklistQuestion6" style="border-bottom: 2px solid black;">
+										<td style="vertical-align: top;padding-top: 13px;padding-left: 3px;">(${checklistSerialNumbers[6]})</td>
 										<td>
 											<div style="border: 0px 0px 1px 0px dotted #000000;">
 												<label style="width:400px;"><spring:message code="bill.checklistQuestion6.1" text="is statutory memorandum mandatory?"/></label>
-												<input type="checkbox" class="sCheck checklist_checkboxes" id="checklist_checkbox_8" style="margin: 10px; margin-left: 10px;">
+												<input type="checkbox" class="sCheck checklist_checkboxes" id="checklist_checkbox_8" style="margin: 10px; margin-left: 38px;">
 												<form:input class="checklist_checkbox_fields" id="checklist_checkbox_field_8" type="hidden" path="checklist['isStatutoryMemorandumMandatory']" />
 											</div>		
-											<br/>								
+																			
 											<div style="display: none;" id="checklist_checkbox_8_div">
 												<label style="width:400px;"><spring:message code="bill.checklistQuestion6.2" text="is statutory memorandum as per rules?"/></label>
-												<input type="checkbox" class="sCheck checklist_checkboxes" id="checklist_checkbox_9" style="margin: 10px; margin-left: 10px;">
+												<input type="checkbox" class="sCheck checklist_checkboxes" id="checklist_checkbox_9" style="margin: 10px; margin-left: 38px;">
 												<form:input class="checklist_checkbox_fields" id="checklist_checkbox_field_9" type="hidden" path="checklist['isStatutoryMemorandumAsPerRules']" />
 											</div>
-											<br />
+											
 											<div style="display: none;" id="checklist_checkbox_9_div">
 												<label><spring:message code="bill.checklistQuestion6.3" text="if yes, please mention sections"/></label>
 												<br/>
@@ -2024,20 +2039,21 @@
 											</div>
 										</td>
 									</tr>
-									<tr id="checklistQuestion7">
+									<tr id="checklistQuestion7" style="border-bottom: 2px solid black;">
+										<td style="vertical-align: top;padding-top: 13px;padding-left: 3px;">(${checklistSerialNumbers[7]})</td>
 										<td>
 											<div style="border: 0px 0px 1px 0px dotted #000000;">
 												<label style="width:400px;"><spring:message code="bill.checklistQuestion7.1" text="is financial memorandum mandatory?"/></label>
-												<input type="checkbox" class="sCheck checklist_checkboxes" id="checklist_checkbox_10" style="margin: 10px; margin-left: 10px;">
+												<input type="checkbox" class="sCheck checklist_checkboxes" id="checklist_checkbox_10" style="margin: 10px; margin-left: 38px;">
 												<form:input class="checklist_checkbox_fields" id="checklist_checkbox_field_10" type="hidden" path="checklist['isFinancialMemorandumMandatory']" />
 											</div>	
-											<br/>									
+																				
 											<div style="display: none;" id="checklist_checkbox_10_div">
 												<label style="width:400px;"><spring:message code="bill.checklistQuestion7.2" text="is financial memorandum as per rules?"/></label>
-												<input type="checkbox" class="sCheck checklist_checkboxes" id="checklist_checkbox_11" style="margin: 10px; margin-left: 10px;">
+												<input type="checkbox" class="sCheck checklist_checkboxes" id="checklist_checkbox_11" style="margin: 10px; margin-left: 38px;">
 												<form:input class="checklist_checkbox_fields" id="checklist_checkbox_field_11" type="hidden" path="checklist['isFinancialMemorandumAsPerRules']" />
 											</div>
-											<br/>
+											
 											<div style="display: none;" id="checklist_checkbox_11_div">
 												<label><spring:message code="bill.checklistQuestion7.3" text="if yes, please mention sections"/></label>
 												<br/>
@@ -2045,31 +2061,34 @@
 											</div>
 										</td>
 									</tr>
-									<tr id="checklistQuestion8">
+									<tr id="checklistQuestion8" style="border-bottom: 2px solid black;">
+										<td style="vertical-align: top;padding-top: 13px;padding-left: 3px;">(${checklistSerialNumbers[8]})</td>
 										<td>
 											<div style="border: 0px 0px 1px 0px dotted #000000;">
 												<label style="width:400px;"><spring:message code="bill.checklistQuestion8.1" text="is statement of object and reason complete?"/></label>
-												<input type="checkbox" class="sCheck checklist_checkboxes" id="checklist_checkbox_12" style="margin: 10px; margin-left: 10px;">
+												<input type="checkbox" class="sCheck checklist_checkboxes" id="checklist_checkbox_12" style="margin: 10px; margin-left: 38px;">
 												<form:input class="checklist_checkbox_fields" id="checklist_checkbox_field_12" type="hidden" path="checklist['isStatementOfObjectAndReasonComplete']" />
-											</div>										
+											</div>																		
 										</td>
 									</tr>
-									<tr id="checklistQuestion9">
-										<td>
+									<tr id="checklistQuestion9" style="border-bottom: 2px solid black;">
+										<td style="vertical-align: top;padding-top: 13px;padding-left: 3px;">(${checklistSerialNumbers[9]})</td>
+										<td style="vertical-align: top;padding-top: 13px;">
 											<div style="border: 0px 0px 1px 0px dotted #000000;">											
 												<label style="width:400px;"><spring:message code="bill.checklistQuestion9.1" text="is law & judiciary department in agreement with above opinions on issues 1, 2, 6 & 7?"/></label>
-												<input type="checkbox" class="sCheck checklist_checkboxes" id="checklist_checkbox_13" style="margin: 10px; margin-left: 10px;">
+												<input type="checkbox" class="sCheck checklist_checkboxes" id="checklist_checkbox_13" style="margin: 10px; margin-left: 38px;">
 												<form:input class="checklist_checkbox_fields" id="checklist_checkbox_field_13" type="hidden" path="checklist['isLawAndJudiciaryDepartmentInAgreementWithOpinions']" />
-											</div>										
+											</div>																			
 										</td>
 									</tr>
-									<tr id="checklistQuestion10">
-										<td>
+									<tr id="checklistQuestion10" style="border-bottom: 2px solid black;">
+										<td style="vertical-align: top;padding-top: 13px;padding-left: 3px;">(${checklistSerialNumbers[10]})</td>
+										<td style="vertical-align: top;padding-top: 13px;">
 											<div style="border: 0px 0px 1px 0px dotted #000000;">										
 												<label style="width:400px;"><spring:message code="bill.checklistQuestion10.1" text="are there any recommendations on subject-matter of this bill by sub-legislation committee?"/></label>
-												<input type="checkbox" class="sCheck checklist_checkboxes" id="checklist_checkbox_14" style="margin: 10px; margin-left: 10px;">
+												<input type="checkbox" class="sCheck checklist_checkboxes" id="checklist_checkbox_14" style="margin: 10px; margin-left: 38px;">
 												<form:input class="checklist_checkbox_fields" id="checklist_checkbox_field_14" type="hidden" path="checklist['isRecommendedOnSubjectMatterBySubLegislationCommittee']" />
-											</div>										
+											</div>																				
 										</td>
 									</tr>
 								</tbody>
@@ -2385,6 +2404,17 @@
 				<input type="hidden" id="isMoneyBillPrompt" value="<spring:message code="bill.isMoneyBillPrompt" text="Are you sure this is a money bill?"></spring:message>">
 				<input type="hidden" id="isNotMoneyBillPrompt" value="<spring:message code="bill.isNotMoneyBillPrompt" text="Are you sure this is not a money bill?"></spring:message>">
 				<input type="hidden" id="isChecklistFilled" value="${isChecklistFilled}">
+				<input type="hidden" id="reviseTitle_text" value="<spring:message code="bill.reviseTitle_text" text="Revise This Title"></spring:message>">
+				<input type="hidden" id="unReviseTitle_text" value="<spring:message code="bill.unReviseTitle_text" text="Un-Revise This Title"></spring:message>">
+				<input type="hidden" id="reviseContentDraft_text" value="<spring:message code="bill.reviseContentDraft_text" text="Revise This Content Draft"></spring:message>">
+				<input type="hidden" id="unReviseContentDraft_text" value="<spring:message code="bill.unReviseContentDraft_text" text="Un-Revise This Content Draft"></spring:message>">
+				<input type="hidden" id="reviseStatementOfObjectAndReasonDraft_text" value="<spring:message code="bill.reviseStatementOfObjectAndReasonDraft_text" text="Revise This Statement of Object and Reason"></spring:message>">
+				<input type="hidden" id="unReviseStatementOfObjectAndReasonDraft_text" value="<spring:message code="bill.unReviseStatementOfObjectAndReasonDraft_text" text="Un-Revise This Statement of Object and Reason"></spring:message>">
+				<input type="hidden" id="reviseFinancialMemorandumDraft_text" value="<spring:message code="bill.reviseFinancialMemorandumDraft_text" text="Revise This Financial Memorandum"></spring:message>">
+				<input type="hidden" id="unReviseFinancialMemorandumDraft_text" value="<spring:message code="bill.unReviseFinancialMemorandumDraft_text" text="Un-Revise This Financial Memorandum"></spring:message>">
+				<input type="hidden" id="reviseStatutoryMemorandumDraft_text" value="<spring:message code="bill.reviseStatutoryMemorandumDraft_text" text="Revise This Statutory Memorandum"></spring:message>">
+				<input type="hidden" id="unReviseStatutoryMemorandumDraft_text" value="<spring:message code="bill.unReviseStatutoryMemorandumDraft_text" text="Un-Revise This Statutory Memorandum"></spring:message>">
+				
 				<%-- <input type="hidden" id="opinionFromLawAndJdNotReceivedMsg" value="<spring:message code="bill.opinionFromLawAndJdNotReceivedMsg" text="Opinion From Law And Judiciary Department Is Not Received Yet."></spring:message>"> --%>
 				
 				<%-- <input type="hidden" id="hdsRefEntity" value="${hdsRefEntity}" /> --%>

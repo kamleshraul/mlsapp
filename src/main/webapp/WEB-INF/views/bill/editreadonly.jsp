@@ -208,59 +208,22 @@
 					</p>
 					</c:if>
 					
-					<c:if test="${!(empty submissionDate)}">
 					<p>
-					<label class="small"><spring:message code="bill.submissionDate" text="Submitted On"/></label>
-					<input id="readonly_formattedSubmissionDate" name="formattedSubmissionDate" value="${formattedSubmissionDate }" class="sText" readonly="readonly">
-					<input id="readonly_setSubmissionDate" name="setSubmissionDate" type="hidden"  value="${submissionDate}">	
-					</p>
-					</c:if>
-					
-					<c:if test="${selectedDeviceTypeForBill == 'bills_government'}">
-					<p>
-						<label class="small"><spring:message code="bill.introducingHouseType" text="Introducing House Type"/></label>
-						<form:select id="readonly_introducingHouseType" class="sSelect" path="introducingHouseType">
-						<c:forEach var="i" items="${introducingHouseTypes}">							
-							<c:choose>
-								<c:when test="${i.id == selectedIntroducingHouseType}">
-									<option value="${i.id}" selected="selected">${i.name}</option>
-								</c:when>
-								<c:otherwise>
-									<option value="${i.id}">${i.name}</option>
-								</c:otherwise>
-							</c:choose>
-						</c:forEach>
-						</form:select>														
-					</p>
-					</c:if>
-					
-					<p>
-						<label class="small"><spring:message code="bill.billType" text="Bill Type"/></label>
-						<select id="readonly_billType" class="sSelect" name="billType">
-						<c:forEach var="i" items="${billTypes}">
-							<c:choose>
-								<c:when test="${i.id == selectedBillType}">
-									<option value="${i.id}" selected="selected">${i.name}</option>
-								</c:when>
-								<c:otherwise>
-									<option value="${i.id}">${i.name}</option>
-								</c:otherwise>
-							</c:choose>							
-						</c:forEach>
-						</select>
-						<label class="small"><spring:message code="bill.billKind" text="Bill Kind"/></label>
-						<select id="readonly_billKind" class="sSelect" name="billKind">
-						<c:forEach var="i" items="${billKinds}">
-							<c:choose>
-								<c:when test="${i.id == selectedBillKind}">
-									<option value="${i.id}" selected="selected">${i.name}</option>
-								</c:when>
-								<c:otherwise>
-									<option value="${i.id}">${i.name}</option>
-								</c:otherwise>
-							</c:choose>							
-						</c:forEach>
-						</select>			
+						<label class="centerlabel"><spring:message code="bill.members" text="Members"/></label>
+						<textarea id="readonly_members" class="sTextarea" readonly="readonly" rows="2" cols="50">${memberNames}</textarea>
+						<c:if test="${!(empty primaryMember)}">
+							<input id="readonly_primaryMember" name="primaryMember" value="${primaryMember}" type="hidden">
+						</c:if>
+						<c:if test="${!(empty supportingMembers)}">
+							<select  name="selectedSupportingMembers" id="readonly_selectedSupportingMembers" multiple="multiple" style="display:none;">
+							<c:forEach items="${supportingMembers}" var="i">
+							<option value="${i.id}" selected="selected"></option>
+							</c:forEach>		
+							</select>
+						</c:if>
+						<label class="small"><spring:message code="bill.primaryMemberConstituency" text="Constituency"/>*</label>
+						<input type="text" readonly="readonly" value="${constituency}" class="sText">
+						<a href="#" id="readonly_viewContacts" style="margin-left:20px;margin-right: 20px;"><img src="/els/resources/images/contactus.jpg" width="40" height="25"></a>	
 					</p>
 					
 					<p>
@@ -293,25 +256,59 @@
 					</p>
 					
 					<p>
-						<label class="centerlabel"><spring:message code="bill.members" text="Members"/></label>
-						<textarea id="readonly_members" class="sTextarea" readonly="readonly" rows="2" cols="50">${memberNames}</textarea>
-						<c:if test="${!(empty primaryMember)}">
-							<input id="readonly_primaryMember" name="primaryMember" value="${primaryMember}" type="hidden">
-						</c:if>
-						<c:if test="${!(empty supportingMembers)}">
-							<select  name="selectedSupportingMembers" id="readonly_selectedSupportingMembers" multiple="multiple" style="display:none;">
-							<c:forEach items="${supportingMembers}" var="i">
-							<option value="${i.id}" selected="selected"></option>
-							</c:forEach>		
-							</select>
-						</c:if>	
+						<label class="small"><spring:message code="bill.billType" text="Bill Type"/></label>
+						<select id="readonly_billType" class="sSelect" name="billType">
+						<c:forEach var="i" items="${billTypes}">
+							<c:choose>
+								<c:when test="${i.id == selectedBillType}">
+									<option value="${i.id}" selected="selected">${i.name}</option>
+								</c:when>
+								<c:otherwise>
+									<option value="${i.id}">${i.name}</option>
+								</c:otherwise>
+							</c:choose>							
+						</c:forEach>
+						</select>
+						<label class="small"><spring:message code="bill.billKind" text="Bill Kind"/></label>
+						<select id="readonly_billKind" class="sSelect" name="billKind">
+						<c:forEach var="i" items="${billKinds}">
+							<c:choose>
+								<c:when test="${i.id == selectedBillKind}">
+									<option value="${i.id}" selected="selected">${i.name}</option>
+								</c:when>
+								<c:otherwise>
+									<option value="${i.id}">${i.name}</option>
+								</c:otherwise>
+							</c:choose>							
+						</c:forEach>
+						</select>			
 					</p>
 					
+					<c:if test="${!(empty submissionDate)}">
 					<p>
-						<label class="small"><spring:message code="bill.primaryMemberConstituency" text="Constituency"/>*</label>
-						<input type="text" readonly="readonly" value="${constituency}" class="sText">
-						<a href="#" id="readonly_viewContacts" style="margin-left:20px;margin-right: 20px;"><img src="/els/resources/images/contactus.jpg" width="40" height="25"></a>		
+					<label class="small"><spring:message code="bill.submissionDate" text="Submitted On"/></label>
+					<input id="readonly_formattedSubmissionDate" name="formattedSubmissionDate" value="${formattedSubmissionDate }" class="sText" readonly="readonly">
+					<input id="readonly_setSubmissionDate" name="setSubmissionDate" type="hidden"  value="${submissionDate}">	
 					</p>
+					</c:if>
+					
+					<c:if test="${selectedDeviceTypeForBill == 'bills_government'}">
+					<p>
+						<label class="small"><spring:message code="bill.introducingHouseType" text="Introducing House Type"/></label>
+						<form:select id="readonly_introducingHouseType" class="sSelect" path="introducingHouseType">
+						<c:forEach var="i" items="${introducingHouseTypes}">							
+							<c:choose>
+								<c:when test="${i.id == selectedIntroducingHouseType}">
+									<option value="${i.id}" selected="selected">${i.name}</option>
+								</c:when>
+								<c:otherwise>
+									<option value="${i.id}">${i.name}</option>
+								</c:otherwise>
+							</c:choose>
+						</c:forEach>
+						</form:select>														
+					</p>
+					</c:if>
 					
 					<div id="readonly_referredActDiv">
 						<p>

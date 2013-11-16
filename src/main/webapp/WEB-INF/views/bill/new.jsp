@@ -537,18 +537,9 @@
 		<%@ include file="/common/info.jsp" %>
 		<div id="reportDiv">
 		<h2><spring:message code="bill.new.heading" text="Enter Bill Details"/>	
-		<%-- <a href="#" id="financialMemorandumDraftIcon" style="margin-left: 350px;margin-right: 20px;font-size: 14px;"><spring:message code="bill.financialMemorandumDraft.icon" text="Financial Memorandum"/></a>	
-		<a href="#" id="statutoryMemorandumDraftIcon" style="margin-right: 20px;font-size: 14px;"><spring:message code="bill.statutoryMemorandumDraft.icon" text="Statutory Memorandum"/></a> --%>
 		</h2>
 		<form:errors path="version" cssClass="validationError"/>	
-		<%-- <security:authorize access="hasAnyRole('ROIS_CLERK')">	
-		<p>
-			<label class="small"><spring:message code="bill.number" text="Bill Number"/>*</label>
-			<form:input path="number" cssClass="sText"/>
-			<form:errors path="number" cssClass="validationError"/>
-		</p>
-		</security:authorize> --%>
-	
+		
 		<p style="display:none;">
 			<label class="small"><spring:message code="bill.houseType" text="House Type"/>*</label>
 			<input id="formattedHouseType" name="formattedHouseType" value="${formattedHouseType}" class="sText" readonly="readonly">
@@ -583,11 +574,11 @@
 			<label class="small"><spring:message code="bill.primaryMember" text="Primary Member"/>*</label>
 			<input id="formattedPrimaryMember" name="formattedPrimaryMember"  value="${formattedPrimaryMember}" type="text" class="sText"  readonly="readonly" class="sText">
 			<input name="primaryMember" id="primaryMember" value="${primaryMember}" type="hidden">		
-			<form:errors path="primaryMember" cssClass="validationError"/>		
-		</p>
-		<p>
+			<form:errors path="primaryMember" cssClass="validationError"/>	
+			<c:if test="${selectedDeviceTypeForBill != 'bills_government'}">
 			<label class="small"><spring:message code="bill.primaryMemberConstituency" text="Constituency"/>*</label>
-			<input type="text" readonly="readonly" value="${constituency}" class="sText" id="constituency" name="constituency">
+			<input type="text" readonly="readonly" value="${constituency}" class="sText" id="constituency" name="constituency">	
+			</c:if>
 		</p>
 		</security:authorize>
 		<security:authorize access="hasAnyRole('BIS_CLERK')">		
@@ -599,24 +590,35 @@
 		</p>	
 		</security:authorize>
 		
-		<c:if test="${selectedDeviceTypeForBill == 'bills_government'}">
 		<p>
-			<label class="small"><spring:message code="bill.introducingHouseType" text="Introducing House Type"/></label>
-			<form:select id="introducingHouseType" class="sSelect" path="introducingHouseType">
-			<c:forEach var="i" items="${introducingHouseTypes}">	
+			<label class="small"><spring:message code="bill.ministry" text="Ministry"/></label>
+			<form:select path="ministry" id="ministry" class="sSelect">
+			<c:forEach items="${ministries}" var="i">
 				<c:choose>
-					<c:when test="${i.id == selectedIntroducingHouseType}">
+					<c:when test="${i.id==ministrySelected }">
+						<option value="${i.id}" selected="selected">${i.name}</option>
+					</c:when>
+					<c:otherwise>
+						<option value="${i.id}" >${i.name}</option>
+					</c:otherwise>
+				</c:choose>
+			</c:forEach>
+			</form:select>
+			<form:errors path="ministry" cssClass="validationError"/>			
+			<label class="small"><spring:message code="bill.subdepartment" text="Sub Department"/></label>
+			<select name="subDepartment" id="subDepartment" class="sSelect">
+			<c:forEach items="${subDepartments}" var="i">
+				<c:choose>
+					<c:when test="${i.id==subDepartmentSelected}">
 						<option value="${i.id}" selected="selected">${i.name}</option>
 					</c:when>
 					<c:otherwise>
 						<option value="${i.id}">${i.name}</option>
 					</c:otherwise>
-				</c:choose>						
+				</c:choose>
 			</c:forEach>
-			</form:select>		
-			<form:errors path="introducingHouseType" cssClass="validationError"/>				
+			</select>						
 		</p>
-		</c:if>
 		
 		<p>
 			<label class="small"><spring:message code="bill.billType" text="Bill Type"/></label>
@@ -647,35 +649,24 @@
 			</form:select>					
 		</p>
 		
+		<c:if test="${selectedDeviceTypeForBill == 'bills_government'}">
 		<p>
-			<label class="small"><spring:message code="bill.ministry" text="Ministry"/></label>
-			<form:select path="ministry" id="ministry" class="sSelect">
-			<c:forEach items="${ministries}" var="i">
+			<label class="small"><spring:message code="bill.introducingHouseType" text="Introducing House Type"/></label>
+			<form:select id="introducingHouseType" class="sSelect" path="introducingHouseType">
+			<c:forEach var="i" items="${introducingHouseTypes}">	
 				<c:choose>
-					<c:when test="${i.id==ministrySelected }">
-						<option value="${i.id}" selected="selected">${i.name}</option>
-					</c:when>
-					<c:otherwise>
-						<option value="${i.id}" >${i.name}</option>
-					</c:otherwise>
-				</c:choose>
-			</c:forEach>
-			</form:select>
-			<form:errors path="ministry" cssClass="validationError"/>			
-			<label class="small"><spring:message code="bill.subdepartment" text="Sub Department"/></label>
-			<select name="subDepartment" id="subDepartment" class="sSelect">
-			<c:forEach items="${subDepartments}" var="i">
-				<c:choose>
-					<c:when test="${i.id==subDepartmentSelected}">
+					<c:when test="${i.id == selectedIntroducingHouseType}">
 						<option value="${i.id}" selected="selected">${i.name}</option>
 					</c:when>
 					<c:otherwise>
 						<option value="${i.id}">${i.name}</option>
 					</c:otherwise>
-				</c:choose>
+				</c:choose>						
 			</c:forEach>
-			</select>						
-		</p>		
+			</form:select>		
+			<form:errors path="introducingHouseType" cssClass="validationError"/>				
+		</p>
+		</c:if>
 		
 		<c:if test="${selectedDeviceTypeForBill != 'bills_government'}">
 		<p>
@@ -693,11 +684,17 @@
 		</p>
 		</c:if>
 		
+		<h2></h2>
+		
 		<div id="referredActDiv">
 			<p>
 				<a href="#" id="referAct" style="margin: 0px 0px 0px 162px;"><spring:message code="bill.referAct" text="Refer Act"></spring:message></a>
-			</p>		
-			<p>
+			</p>	
+			<c:choose>	
+			<c:when test="${empty referredAct}"><c:set var="displayReferredAct" value="none"/></c:when>
+			<c:otherwise><c:set var="displayReferredAct" value="inline"/></c:otherwise>		
+			</c:choose>	
+			<p style="display: ${displayReferredAct};">
 				<label class="small"><spring:message code="bill.referredAct" text="Referred Act"></spring:message></label>
 				<c:choose>
 					<c:when test="${!(empty referredAct)}">
@@ -717,8 +714,12 @@
 		<div id="referredOrdinanceDiv" style="display: none;">
 			<p>
 				<a href="#" id="referOrdinance" style="margin: 0px 0px 0px 162px;"><spring:message code="bill.referOrdinance" text="Refer Ordinance"></spring:message></a>
-			</p>		
-			<p>
+			</p>	
+			<c:choose>	
+			<c:when test="${empty referredOrdinance}"><c:set var="displayReferredOrdinance" value="none"/></c:when>
+			<c:otherwise><c:set var="displayReferredOrdinance" value="inline"/></c:otherwise>		
+			</c:choose>	
+			<p style="display: ${displayReferredOrdinance};">			
 				<label class="small"><spring:message code="bill.referredOrdinance" text="Referred Ordinance"></spring:message></label>
 				<c:choose>
 					<c:when test="${!(empty referredOrdinance)}">
@@ -736,7 +737,7 @@
 		
 		<div>
 			<fieldset>
-				<legend style="text-align: left; width: 150px;"><label><spring:message code="bill.titles" text="Titles of Bill" /></label></legend>
+				<%-- <legend style="text-align: left; width: 150px;"><label><spring:message code="bill.titles" text="Titles of Bill" /></label></legend> --%>
 				<c:forEach var="i" items="${titles}" varStatus="position">
 				<c:choose>
 					<c:when test="${position.count==1 and i.language.type!=defaultBillLanguage}">
