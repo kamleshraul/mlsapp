@@ -32,9 +32,11 @@ import org.mkcl.els.domain.House;
 import org.mkcl.els.domain.HouseType;
 import org.mkcl.els.domain.Language;
 import org.mkcl.els.domain.Member;
+import org.mkcl.els.domain.MemberMinister;
 import org.mkcl.els.domain.MemberRole;
 import org.mkcl.els.domain.Ministry;
 import org.mkcl.els.domain.Part;
+import org.mkcl.els.domain.Party;
 import org.mkcl.els.domain.Proceeding;
 import org.mkcl.els.domain.Query;
 import org.mkcl.els.domain.Reporter;
@@ -42,6 +44,7 @@ import org.mkcl.els.domain.Roster;
 import org.mkcl.els.domain.Session;
 import org.mkcl.els.domain.SessionType;
 import org.mkcl.els.domain.Slot;
+import org.mkcl.els.domain.SubDepartment;
 import org.mkcl.els.domain.User;
 import org.mkcl.els.domain.associations.HouseMemberRoleAssociation;
 import org.springframework.stereotype.Controller;
@@ -172,6 +175,10 @@ public class ProceedingController extends GenericController<Proceeding>{
 		List<Designation> designations=Designation.findAll(Designation.class, "name", "asc", domain.getLocale());
 		model.addAttribute("designations",designations);
 		
+		
+		/****SubDepartments****/
+		List<SubDepartment> subDepartments=SubDepartment.findAll(SubDepartment.class, "name", "asc", domain.getLocale());
+		model.addAttribute("subDepartments",subDepartments);
 		/****DeviceType****/
 		List<DeviceType> deviceTypes=DeviceType.findAll(DeviceType.class, "name", "desc", domain.getLocale());
 		model.addAttribute("deviceTypes", deviceTypes);
@@ -346,6 +353,12 @@ public class ProceedingController extends GenericController<Proceeding>{
 				part.setPrimaryMemberDesignation(designation);
 			}
 			
+			String strPrimaryMemberSubDepartment=request.getParameter("primaryMemberSubDepartment"+i);
+			if(strPrimaryMemberSubDepartment!=null && !strPrimaryMemberSubDepartment.isEmpty()){
+				SubDepartment subDepartment=SubDepartment.findById(SubDepartment.class, Long.parseLong(strPrimaryMemberSubDepartment));
+				part.setPrimaryMemberSubDepartment(subDepartment);
+			}
+			
 			/****Substitute Member****/
 			String strSubstituteMember=request.getParameter("substituteMember"+i);
 			if(strSubstituteMember!=null && !strSubstituteMember.isEmpty()){
@@ -365,6 +378,12 @@ public class ProceedingController extends GenericController<Proceeding>{
 			if(strSubstituteMemberDesignation!=null && !strSubstituteMemberDesignation.isEmpty()){
 				Designation designation=Designation.findById(Designation.class, Long.parseLong(strSubstituteMemberDesignation));
 				part.setSubstituteMemberDesignation(designation);
+			}
+			
+			String strSubstituteMemberSubDepartment=request.getParameter("substituteMemberSubDepartment"+i);
+			if(strSubstituteMemberSubDepartment!=null && !strSubstituteMemberSubDepartment.isEmpty()){
+				SubDepartment subDepartment=SubDepartment.findById(SubDepartment.class, Long.parseLong(strSubstituteMemberSubDepartment));
+				part.setSubstituteMemberSubDepartment(subDepartment);
 			}
 			
 			/****Public Representative****/
@@ -394,6 +413,21 @@ public class ProceedingController extends GenericController<Proceeding>{
 			
 			/****The Part Entry Date****/
 			part.setEntryDate(new Date());
+			
+			String strIsConstituencyRequired=request.getParameter("isConstituencyRequired"+i);
+			if(strIsConstituencyRequired!=null && !strIsConstituencyRequired.isEmpty()){
+				part.setIsConstituencyRequired(true);
+			}else{
+				part.setIsConstituencyRequired(false);
+			}
+			
+			String strIsInterrupted=request.getParameter("isInterrupted"+i);
+			if(strIsInterrupted!=null && !strIsInterrupted.isEmpty()){
+				part.setIsInterrupted(true);
+			}else{
+				part.setIsInterrupted(false);
+			}
+			System.out.println(strIsConstituencyRequired);
 			
 			/****Reporter****/
 			part.setReporter(domain.getSlot().getReporter());
@@ -620,7 +654,10 @@ public class ProceedingController extends GenericController<Proceeding>{
 		List<Designation> designations=Designation.findAll(Designation.class,"name", "asc", locale.toString());
 		model.addAttribute("designations",designations);
 
-
+		/****Party****/
+		List<Party> parties=Party.findActiveParties(locale.toString());
+		model.addAttribute("parties", parties);
+ 
 		//here making provisions for displaying error pages
 		if(model.containsAttribute("errorcode")){
 			return servletPath.replace("new","error");
@@ -646,7 +683,11 @@ public class ProceedingController extends GenericController<Proceeding>{
 		/*****Hook*************/
 		populateCreatePartIfNoErrors(model, domain, request);
 		/**********************/
-		((BaseDomain) domain).persist();
+		if(domain.getId()!=null){
+			((BaseDomain) domain).merge();
+		}else{
+			((BaseDomain) domain).persist();
+		}
 		redirectAttributes.addFlashAttribute("type", "success");
 		//this is done so as to remove the bug due to which update message appears even though there
 		//is a fresh new/edit request i.e after creating/updating records if we click on
@@ -668,9 +709,11 @@ public class ProceedingController extends GenericController<Proceeding>{
 		String strRole=request.getParameter("chairPersonRole");
 		String strPrimaryMemberMinistry=request.getParameter("primaryMemberMinistry");
 		String strPrimaryMemberDesignation=request.getParameter("primaryMemberDesignation");
+		String strPrimaryMemberSubDepartment=request.getParameter("primaryMemberSubDepartment");
 		String strSubstituteMember=request.getParameter("substituteMember");
 		String strSubstituteMinistry=request.getParameter("substituteMemberMinistry");
 		String strSubstituteDesignation=request.getParameter("substituteMemberDesignation");
+		String strSubstituteSubDepartment=request.getParameter("substituteMemberSubDepartment");
 		String strDeviceId=request.getParameter("deviceId");
 		String strDeviceType=request.getParameter("deviceType");
 		Proceeding proceeding=null;
@@ -731,6 +774,11 @@ public class ProceedingController extends GenericController<Proceeding>{
 			Ministry ministry=Ministry.findById(Ministry.class, Long.parseLong(strPrimaryMemberMinistry));
 			domain.setPrimaryMemberMinistry(ministry);
 		}
+		
+		if(strPrimaryMemberSubDepartment!=null && !strPrimaryMemberSubDepartment.isEmpty()){
+			SubDepartment subDepartment=SubDepartment.findById(SubDepartment.class, Long.parseLong(strPrimaryMemberSubDepartment));
+			domain.setPrimaryMemberSubDepartment(subDepartment);
+		}
 
 		/****Substitute member ****/
 		if(strSubstituteMember!=null && !strSubstituteMember.isEmpty()){
@@ -750,6 +798,11 @@ public class ProceedingController extends GenericController<Proceeding>{
 		if(strSubstituteMinistry!=null && !strSubstituteMinistry.isEmpty()){
 			Ministry ministry=Ministry.findById(Ministry.class, Long.parseLong(strSubstituteMinistry));
 			domain.setSubstituteMemberMinistry(ministry);
+		}
+		
+		if(strSubstituteSubDepartment!=null && !strSubstituteSubDepartment.isEmpty()){
+			SubDepartment subDepartment=SubDepartment.findById(SubDepartment.class, Long.parseLong(strSubstituteSubDepartment));
+			domain.setSubstituteMemberSubDepartment(subDepartment);
 		}
 		
 		/****DeviceType****/
@@ -802,14 +855,20 @@ public class ProceedingController extends GenericController<Proceeding>{
 				e.printStackTrace();
 			}
 			
+			
+			
 			/****Primary member ministry****/
 			if(domain.getPrimaryMemberMinistry()!=null){
 				model.addAttribute("primaryMemberMinistrySelected", domain.getPrimaryMemberMinistry().getId());
+				List<SubDepartment> subDepartments=MemberMinister.findAssignedSubDepartments(domain.getPrimaryMemberMinistry(), domain.getLocale());
+				model.addAttribute("subDepartments",subDepartments);
 			}
 			
 			/****substitute member Ministry****/
 			if(domain.getSubstituteMemberMinistry()!=null){
 				model.addAttribute("substituteMemberMinistrySelected", domain.getSubstituteMemberMinistry().getId());
+				List<SubDepartment> subDepartments=MemberMinister.findAssignedSubDepartments(domain.getSubstituteMemberMinistry(), domain.getLocale());
+				model.addAttribute("subDepartments",subDepartments);
 			}
 
 			/****Bookmarks****/
@@ -876,6 +935,13 @@ public class ProceedingController extends GenericController<Proceeding>{
 			model.addAttribute("substituteMemberDesignationSelected", domain.getSubstituteMemberDesignation().getId());
 		}
 		
+		if(domain.getSubstituteMemberSubDepartment()!=null){
+			model.addAttribute("substituteMemberSubDepartmentSelected",domain.getSubstituteMemberSubDepartment().getId());
+		}
+		
+		if(domain.getPrimaryMemberSubDepartment()!=null){
+			model.addAttribute("primaryMemberSubDepartmentSelected",domain.getPrimaryMemberSubDepartment().getId());
+		}
 		/**** Part DeviceType****/
 		if(domain.getDeviceType()!=null){
 			DeviceType deviceType=domain.getDeviceType();
@@ -950,8 +1016,10 @@ public class ProceedingController extends GenericController<Proceeding>{
 		String strRole=request.getParameter("chairPersonRole");
 		String strPrimaryMemberMinistry=request.getParameter("primaryMemberMinistry");
 		String strPrimaryMemberDesignation=request.getParameter("primaryMemberDesignation");
+		String strPrimaryMemberSubDepartment=request.getParameter("primaryMemberSubDepartment");
 		String strSubstituteMember=request.getParameter("substituteMember");
 		String strSubstituteMinistry=request.getParameter("substituteMemberMinistry");
+		String strSubstituteSubDepartment=request.getParameter("substituteMemberSubDepartment");
 		String strSubstituteDesignation=request.getParameter("substituteMemberDesignation");
 		String strDeviceType=request.getParameter("deviceType");
 		Proceeding proceeding=null;
@@ -1017,6 +1085,11 @@ public class ProceedingController extends GenericController<Proceeding>{
 			domain.setPrimaryMemberMinistry(ministry);
 		}
 
+	
+		if(strPrimaryMemberSubDepartment!=null && !strPrimaryMemberSubDepartment.isEmpty()){
+			SubDepartment subDepartment=SubDepartment.findById(SubDepartment.class, Long.parseLong(strPrimaryMemberSubDepartment));
+			domain.setPrimaryMemberSubDepartment(subDepartment);
+		}
 		/****Substitute Member ****/
 		if(strSubstituteMember!=null && !strSubstituteMember.isEmpty()){
 			Member member=Member.findById(Member.class, Long.parseLong(strSubstituteMember));
@@ -1037,6 +1110,10 @@ public class ProceedingController extends GenericController<Proceeding>{
 			domain.setSubstituteMemberMinistry(ministry);
 		}
 
+		if(strSubstituteSubDepartment!=null && !strSubstituteSubDepartment.isEmpty()){
+			SubDepartment subDepartment=SubDepartment.findById(SubDepartment.class, Long.parseLong(strSubstituteSubDepartment));
+			domain.setSubstituteMemberSubDepartment(subDepartment);
+		}
 		/****DeviceType****/
 		if(strDeviceType!=null && !strDeviceType.isEmpty()){
 			DeviceType deviceType=DeviceType.findById(DeviceType.class, Long.parseLong(strDeviceType));
@@ -1066,6 +1143,71 @@ public class ProceedingController extends GenericController<Proceeding>{
 	private void validateUpdatePart(final Part domain, final BindingResult result,
 			final HttpServletRequest request) {
 
+	}
+	
+	@RequestMapping(value="/part/save",method=RequestMethod.POST)
+	public @ResponseBody Long savePart(final HttpServletRequest request, final Locale locale,final ModelMap model){
+		String strProceedingText=request.getParameter("content");
+		String strMember=request.getParameter("primaryMember");
+		String strProceeding=request.getParameter("proceeding");
+		String strMinister=request.getParameter("primaryMemberMinistry");
+		String strDesignation=request.getParameter("primaryMemberDesignation");
+		String strPublicRepresentative=request.getParameter("publicRepresentative");
+		String strPartId=request.getParameter("partId");
+		String strOrderNo=request.getParameter("orderNo");
+		if( strProceedingText!=null && !strProceedingText.isEmpty()
+			&& strProceeding!=null && !strProceeding.isEmpty()){
+			Part part=null;
+			if(strPartId!=null && !strPartId.isEmpty()){
+				part=Part.findById(Part.class, Long.parseLong(strPartId));
+			}else{
+				part=new Part();
+			}
+			CustomParameter customParameter=CustomParameter.findByName(CustomParameter.class, "DEPLOYMENT_SERVER", "");
+			String server=null;
+			String strParam=null;
+			if(customParameter!=null){
+				server=customParameter.getValue();
+				if(!strProceedingText.isEmpty()){
+					if(server.equals("TOMCAT")){
+						try {
+							strParam = new String(strProceedingText.getBytes("ISO-8859-1"),"UTF-8");
+
+						}catch (UnsupportedEncodingException e) {
+							logger.error("Cannot Encode the Parameter.");
+						}
+					}
+				}
+			}
+			part.setProceedingContent(strParam);
+			if(strMember!=null && !strMember.isEmpty()){
+				Member member=Member.findById(Member.class, Long.parseLong(strMember));
+				part.setPrimaryMember(member);
+			}
+			if(strMinister!=null && !strMinister.isEmpty()){
+				Ministry ministry=Ministry.findById(Ministry.class, Long.parseLong(strMinister));
+				part.setPrimaryMemberMinistry(ministry);
+			}
+			if(strDesignation!=null && !strDesignation.isEmpty()){
+				Designation designation=Designation.findById(Designation.class, Long.parseLong(strDesignation));
+				part.setPrimaryMemberDesignation(designation);
+			}
+			if(strPublicRepresentative!=null && !strPublicRepresentative.isEmpty()){
+				part.setPublicRepresentative(strPublicRepresentative);
+			}
+			Proceeding proceeding=Proceeding.findById(Proceeding.class, Long.parseLong(strProceeding));
+			part.setProceeding(proceeding);
+			part.setOrderNo(Integer.parseInt(strOrderNo));
+			part.setLocale(locale.toString());
+			if(part.getId()!=null){
+				((BaseDomain)part).merge();
+			}else{
+				((BaseDomain)part).persist();
+			}
+			return ((BaseDomain)part).getId();
+		}
+		return null;
+		
 	}
 	
 	/****Bookmark Related****/
@@ -1237,6 +1379,45 @@ public class ProceedingController extends GenericController<Proceeding>{
 		
 	}
 
+	@RequestMapping(value="/part/getMemberByParty",method=RequestMethod.GET)
+	public @ResponseBody List<Member> getMemberByParty(final HttpServletRequest request, final Locale locale,
+			final ModelMap model){
+		String strPartyId=request.getParameter("partyId");
+		String type=this.getCurrentUser().getHouseType();
+		HouseType houseType=null;
+		if(type!=null && !type.isEmpty()){
+			 houseType=HouseType.findByType(type, locale.toString());
+		}
+		House house=House.find(houseType, new Date(), locale.toString());
+		if(strPartyId!=null && !strPartyId.isEmpty()){
+			Party party=Party.findById(Party.class, Long.parseLong(strPartyId));
+			List<Member> members=Member.findActiveMembersByParty(party,house,locale.toString());
+			model.addAttribute("members", members);		
+		
+		return members;
+		}
+		return null;
+	}
+	
+	@RequestMapping(value="/part/getMemberByPartyPage",method=RequestMethod.GET)
+	public String getMemberByPartyPage(final HttpServletRequest request, final Locale locale,
+			final ModelMap model){
+		String strPartyId=request.getParameter("partyId");
+		String type=this.getCurrentUser().getHouseType();
+		HouseType houseType=null;
+		if(type!=null && !type.isEmpty()){
+			 houseType=HouseType.findByType(type, locale.toString());
+		}
+		House house=House.find(houseType, new Date(), locale.toString());
+		if(strPartyId!=null && !strPartyId.isEmpty()){
+			Party party=Party.findById(Party.class, Long.parseLong(strPartyId));
+			List<Member> members=Member.findActiveMembersByParty(party,house,locale.toString());
+			model.addAttribute("members", members);		
+		
+		return "proceeding/memberphoto";
+		}
+		return "";
+	}
 	
 	/****Reports Related****/
 	@RequestMapping(value="/part/proceedingwiseReport",method=RequestMethod.GET)
@@ -1596,10 +1777,10 @@ public class ProceedingController extends GenericController<Proceeding>{
 			/****Adding the next reporter name to the array****/
 			for(int i=0;i<tempList2.size();i++){
 				Object[] row=(Object[]) tempList2.get(i);
-				for(int j=i+1;j<tempList2.size();j++){
+				for(int j=i+1;j<tempList2.size() && j<i+2;j++){
 					Object[] row1=(Object[]) tempList2.get(j);
 					if(!row1[6].toString().equals(row[6].toString())){
-						row[22]=row1[18];
+						row[25]=row1[18];
 						i=j+1;
 						break;
 					}
@@ -1613,7 +1794,7 @@ public class ProceedingController extends GenericController<Proceeding>{
 					Object[] row2=(Object[]) tempList2.get(k);
 					if(!row2[6].toString().equals(row[6].toString())){
 					//	if(row2[10]!=null){
-							row[23]=row2[18];
+							row[26]=row2[18];
 							break;
 					//	}
 					}
@@ -1752,47 +1933,241 @@ public class ProceedingController extends GenericController<Proceeding>{
 							}
 							if(row1[14]!=null){
 								if(row1[10]!=null){
-									if(row1[11]!=null){
-										if(row1[16]!=null){
-											if(row1[12]!=null){
-												if(row1[13]!=null){
-													row[0]=row[0].toString()+"<p><b>"+row1[15].toString()+" ( "+row1[11]+""+row1[10]+")"
-															+" ,"+row1[17]+" ( "+row1[13]+" "+row1[12]+" ) "+"यांच्या करिता"+": </b>"+row1[0].toString()+"</p>";
+									if(row1[23]!=null){
+										if(row1[11]!=null){
+											if(row1[16]!=null){
+												if(row1[12]!=null){
+													if(row1[13]!=null){
+														if(row1[24]!=null){
+															if(row1[22]!=null){
+																row[0]=row[0].toString()+"<p><b>"+row1[15].toString()+" ("+row1[22]+") ( "+row1[11]+""+row1[10]+"("+row1[23] +"))"
+																		+" ,"+row1[17]+" ( "+row1[13]+" "+row1[12]+"("+row1[24] +")) "+"यांच्या करिता"+": </b>"+row1[0].toString()+"</p>";
+															}else{
+																row[0]=row[0].toString()+"<p><b>"+row1[15].toString()+" ( "+row1[11]+""+row1[10]+"("+row1[23] +"))"
+																		+" ,"+row1[17]+" ( "+row1[13]+" "+row1[12]+"("+row1[24] +")) "+"यांच्या करिता"+": </b>"+row1[0].toString()+"</p>";
+															}
+														}else{
+															if(row1[22]!=null){
+																row[0]=row[0].toString()+"<p><b>"+row1[15].toString()+" ("+row1[22]+") ( "+row1[11]+""+row1[10]+"("+row1[23] +"))"
+																		+" ,"+row1[17]+" ( "+row1[13]+" "+row1[12]+") "+"यांच्या करिता"+": </b>"+row1[0].toString()+"</p>";
+															}else{
+																row[0]=row[0].toString()+"<p><b>"+row1[15].toString()+" ( "+row1[11]+""+row1[10]+"("+row1[23] +"))"
+																		+" ,"+row1[17]+" ( "+row1[13]+" "+row1[12]+") "+"यांच्या करिता"+": </b>"+row1[0].toString()+"</p>";
+															}
+														}
+													}else{
+														if(row1[24]!=null){
+															if(row1[22]!=null){
+																row[0]=row[0].toString()+"<p><b>"+row1[15].toString()+" ("+row1[22]+") ( "+row1[11]+""+row1[10]+"("+row1[23] +"))"
+																		+" ,"+row1[17]+" ("+row1[12]+"("+row1[24] +")) "+"यांच्या करिता"+": </b>"+row1[0].toString()+"</p>";
+															}else{
+																row[0]=row[0].toString()+"<p><b>"+row1[15].toString()+" ( "+row1[11]+""+row1[10]+"("+row1[23] +"))"
+																		+" ,"+row1[17]+" ("+row1[12]+"("+row1[24] +")) "+"यांच्या करिता"+": </b>"+row1[0].toString()+"</p>";
+															}
+														}else{
+															if(row1[22]!=null){
+																row[0]=row[0].toString()+"<p><b>"+row1[15].toString()+" ("+row1[22]+") ( "+row1[11]+""+row1[10]+"("+row1[23] +"))"
+																		+" ,"+row1[17]+" ("+row1[12]+") "+"यांच्या करिता"+": </b>"+row1[0].toString()+"</p>";
+															}else{
+																row[0]=row[0].toString()+"<p><b>"+row1[15].toString()+" ( "+row1[11]+""+row1[10]+"("+row1[23] +"))"
+																		+" ,"+row1[17]+" ("+row1[12]+") "+"यांच्या करिता"+": </b>"+row1[0].toString()+"</p>";
+															}
+														}
+													}
 												}else{
-													row[0]=row[0].toString()+"<p><b>"+row1[15].toString()+" ( "+row1[11]+""+row1[10]+")"
-															+" ,"+row1[17]+" ( "+row1[12]+" ) "+"यांच्या करिता"+":</b> "+row1[0].toString()+"</p>";
+													if(row1[22]!=null){
+														row[0]=row[0].toString()+"<p><b>"+row1[15].toString()+" ("+row1[22]+") ( "+row1[11]+""+row1[10]+"("+row1[23] +"))"
+																+" ,"+row1[17]+"यांच्या करिता"+": </b>"+row1[0].toString()+"</p>";
+													}else{
+														row[0]=row[0].toString()+"<p><b>"+row1[15].toString()+" ( "+row1[11]+""+row1[10]+"("+row1[23] +"))"
+																+" ,"+row1[17]+"यांच्या करिता"+": </b>"+row1[0].toString()+"</p>";
+													}
 												}
 											}else{
-												row[0]=row[0].toString()+"<p><b>"+row1[15].toString()+" ( "+row1[11]+""+row1[10]+")"
-														+" ,"+row1[17]+" यांच्या करिता"+":</b> "+row1[0].toString()+"</p>";
+												if(row1[22]!=null){
+													row[0]=row[0].toString()+"<p><b>"+row1[15].toString()+" ("+row1[22]+") ( "+row1[11]+""+row1[10]+"("+row1[23] +"))"
+															+": </b>"+row1[0].toString()+"</p>";
+												}else{
+													row[0]=row[0].toString()+"<p><b>"+row1[15].toString()+" ( "+row1[11]+""+row1[10]+"("+row1[23] +"))"
+															+": </b>"+row1[0].toString()+"</p>";
+												}
 											}
 										}else{
-											row[0]=row[0].toString()+"<p><b>"+row1[15].toString()+" ( "+row1[11]+""+row1[10]+")"+
-													":</b> "+row1[0].toString()+"</p>";
+											if(row1[16]!=null){
+												if(row1[12]!=null){
+													if(row1[13]!=null){
+														if(row1[24]!=null){
+															if(row1[22]!=null){
+																row[0]=row[0].toString()+"<p><b>"+row1[15].toString()+" ("+row1[22]+") ("+row1[10]+"("+row1[23] +"))"
+																		+" ,"+row1[17]+" ( "+row1[13]+" "+row1[12]+"("+row1[24] +")) "+"यांच्या करिता"+": </b>"+row1[0].toString()+"</p>";
+															}else{
+																row[0]=row[0].toString()+"<p><b>"+row1[15].toString()+" ("+row1[10]+"("+row1[23] +"))"
+																		+" ,"+row1[17]+" ( "+row1[13]+" "+row1[12]+"("+row1[24] +")) "+"यांच्या करिता"+": </b>"+row1[0].toString()+"</p>";
+															}
+														}else{
+															if(row1[22]!=null){
+																row[0]=row[0].toString()+"<p><b>"+row1[15].toString()+" ("+row1[22]+") ("+row1[10]+"("+row1[23] +"))"
+																		+" ,"+row1[17]+" ( "+row1[13]+" "+row1[12]+") "+"यांच्या करिता"+": </b>"+row1[0].toString()+"</p>";
+															}else{
+																row[0]=row[0].toString()+"<p><b>"+row1[15].toString()+" ("+row1[10]+"("+row1[23] +"))"
+																		+" ,"+row1[17]+" ( "+row1[13]+" "+row1[12]+") "+"यांच्या करिता"+": </b>"+row1[0].toString()+"</p>";
+															}
+														}
+													}else{
+														if(row1[24]!=null){
+															if(row1[22]!=null){
+																row[0]=row[0].toString()+"<p><b>"+row1[15].toString()+" ("+row1[22]+") ("+row1[10]+"("+row1[23] +"))"
+																		+" ,"+row1[17]+" ("+row1[12]+"("+row1[24] +")) "+"यांच्या करिता"+": </b>"+row1[0].toString()+"</p>";
+															}else{
+																row[0]=row[0].toString()+"<p><b>"+row1[15].toString()+" ("+row1[10]+"("+row1[23] +"))"
+																		+" ,"+row1[17]+" ("+row1[12]+"("+row1[24] +")) "+"यांच्या करिता"+": </b>"+row1[0].toString()+"</p>";
+															}
+														}else{
+															if(row1[22]!=null){
+																row[0]=row[0].toString()+"<p><b>"+row1[15].toString()+" ("+row1[22]+") ("+row1[10]+"("+row1[23] +"))"
+																		+" ,"+row1[17]+" ("+row1[12]+") "+"यांच्या करिता"+": </b>"+row1[0].toString()+"</p>";
+															}else{
+																row[0]=row[0].toString()+"<p><b>"+row1[15].toString()+" ("+row1[10]+"("+row1[23] +"))"
+																		+" ,"+row1[17]+" ("+row1[12]+") "+"यांच्या करिता"+": </b>"+row1[0].toString()+"</p>";
+															}
+														}
+													}
+												}else{
+													if(row1[22]!=null){
+														row[0]=row[0].toString()+"<p><b>"+row1[15].toString()+" ("+row1[22]+") ("+row1[10]+"("+row1[23] +"))"
+																+" ,"+row1[17]+"यांच्या करिता"+": </b>"+row1[0].toString()+"</p>";
+													}else{
+														row[0]=row[0].toString()+"<p><b>"+row1[15].toString()+" ("+row1[10]+"("+row1[23] +"))"
+																+" ,"+row1[17]+"यांच्या करिता"+": </b>"+row1[0].toString()+"</p>";
+													}
+												}
+											}else{
+												if(row1[22]!=null){
+													row[0]=row[0].toString()+"<p><b>"+row1[15].toString()+" ("+row1[22]+") ("+row1[10]+"("+row1[23] +"))"
+															+": </b>"+row1[0].toString()+"</p>";
+												}else{
+													row[0]=row[0].toString()+"<p><b>"+row1[15].toString()+" ("+row1[10]+"("+row1[23] +"))"
+															+": </b>"+row1[0].toString()+"</p>";
+												}
+											}
 										}
-									}else{
-
-										row[0]=row[0].toString()+"<p><b>"+row1[15].toString()+" ( "+row1[10]+")"+
-												":</b> "+row1[0].toString()+"</p>";
-									}
 								}else{
 									if(row1[16]!=null){
 										if(row1[12]!=null){
 											if(row1[13]!=null){
-												row[0]=row[0].toString()+"<p><b>"+row1[15].toString()+" ,"+row1[17]+" ( "+row1[13]+" "+row1[12]+" ) "+"यांच्या करिता"+":</b> "+row1[0].toString()+"</p>";
+												if(row1[24]!=null){
+													if(row1[22]!=null){
+														row[0]=row[0].toString()+"<p><b>"+row1[15].toString()+" ("+row1[22]+") ("+row1[10]+")"
+																+" ,"+row1[17]+" ( "+row1[13]+" "+row1[12]+"("+row1[24] +")) "+"यांच्या करिता"+": </b>"+row1[0].toString()+"</p>";
+													}else{
+														row[0]=row[0].toString()+"<p><b>"+row1[15].toString()+" ("+row1[10]+")"
+																+" ,"+row1[17]+" ( "+row1[13]+" "+row1[12]+"("+row1[24] +")) "+"यांच्या करिता"+": </b>"+row1[0].toString()+"</p>";
+													}
+												}else{
+													if(row1[22]!=null){
+														row[0]=row[0].toString()+"<p><b>"+row1[15].toString()+" ("+row1[22]+") ("+row1[10]+")"
+																+" ,"+row1[17]+" ( "+row1[13]+" "+row1[12]+") "+"यांच्या करिता"+": </b>"+row1[0].toString()+"</p>";
+													}else{
+														row[0]=row[0].toString()+"<p><b>"+row1[15].toString()+" ("+row1[10]+")"
+																+" ,"+row1[17]+" ( "+row1[13]+" "+row1[12]+") "+"यांच्या करिता"+": </b>"+row1[0].toString()+"</p>";
+													}
+												}
 											}else{
-												row[0]=row[0].toString()+"<p><b>"+row1[15].toString()
-														+" ,"+row1[17]+" ( "+row1[12]+" ) "+"यांच्या करिता"+":</b> "+row1[0].toString()+"</p>";
+												if(row1[24]!=null){
+													if(row1[22]!=null){
+														row[0]=row[0].toString()+"<p><b>"+row1[15].toString()+" ("+row1[22]+") ("+row1[10]+")"
+																+" ,"+row1[17]+" ("+row1[12]+"("+row1[24] +")) "+"यांच्या करिता"+": </b>"+row1[0].toString()+"</p>";
+													}else{
+														row[0]=row[0].toString()+"<p><b>"+row1[15].toString()+" ("+row1[10]+")"
+																+" ,"+row1[17]+" ("+row1[12]+"("+row1[24] +")) "+"यांच्या करिता"+": </b>"+row1[0].toString()+"</p>";
+													}
+												}else{
+													if(row1[22]!=null){
+														row[0]=row[0].toString()+"<p><b>"+row1[15].toString()+" ("+row1[22]+") ("+row1[10]+"()"
+																+" ,"+row1[17]+" ("+row1[12]+") "+"यांच्या करिता"+": </b>"+row1[0].toString()+"</p>";
+													}else{
+														row[0]=row[0].toString()+"<p><b>"+row1[15].toString()+" ("+row1[10]+")"
+																+" ,"+row1[17]+" ("+row1[12]+") "+"यांच्या करिता"+": </b>"+row1[0].toString()+"</p>";
+													}
+												}
 											}
 										}else{
-											row[0]=row[0].toString()+"<p><b>"+row1[15].toString()
-													+" ,"+row1[17]+" यांच्या करिता"+": </b>"+row1[0].toString()+"</p>";
+											if(row1[22]!=null){
+												row[0]=row[0].toString()+"<p><b>"+row1[15].toString()+" ("+row1[22]+") ("+row1[10]+")"
+														+" ,"+row1[17]+"यांच्या करिता"+": </b>"+row1[0].toString()+"</p>";
+											}else{
+												row[0]=row[0].toString()+"<p><b>"+row1[15].toString()+" ("+row1[10]+")"
+														+" ,"+row1[17]+"यांच्या करिता"+": </b>"+row1[0].toString()+"</p>";
+											}
 										}
 									}else{
-										row[0]=row[0].toString()+"<p><b>"+row1[15].toString()+	" :</b> "+row1[0].toString()+"</p>";
+										if(row1[22]!=null){
+											row[0]=row[0].toString()+"<p><b>"+row1[15].toString()+" ("+row1[22]+") ("+row1[10]+")"
+													+": </b>"+row1[0].toString()+"</p>";
+										}else{
+											row[0]=row[0].toString()+"<p><b>"+row1[15].toString()+" ("+row1[10]+")"
+													+": </b>"+row1[0].toString()+"</p>";
+										}
 									}
-
 								}
+							}else{
+								if(row1[16]!=null){
+									if(row1[12]!=null){
+										if(row1[13]!=null){
+											if(row1[24]!=null){
+												if(row1[22]!=null){
+													row[0]=row[0].toString()+"<p><b>"+row1[15].toString()+" ("+row1[22]+")"
+															+" ,"+row1[17]+" ( "+row1[13]+" "+row1[12]+"("+row1[24] +")) "+"यांच्या करिता"+": </b>"+row1[0].toString()+"</p>";
+												}else{
+													row[0]=row[0].toString()+"<p><b>"+row1[15].toString()
+															+" ,"+row1[17]+" ( "+row1[13]+" "+row1[12]+"("+row1[24] +")) "+"यांच्या करिता"+": </b>"+row1[0].toString()+"</p>";
+												}
+											}else{
+												if(row1[22]!=null){
+													row[0]=row[0].toString()+"<p><b>"+row1[15].toString()+" ("+row1[22]+")"
+															+" ,"+row1[17]+" ( "+row1[13]+" "+row1[12]+") "+"यांच्या करिता"+": </b>"+row1[0].toString()+"</p>";
+												}else{
+													row[0]=row[0].toString()+"<p><b>"+row1[15].toString()
+															+" ,"+row1[17]+" ( "+row1[13]+" "+row1[12]+") "+"यांच्या करिता"+": </b>"+row1[0].toString()+"</p>";
+												}
+											}
+										}else{
+											if(row1[24]!=null){
+												if(row1[22]!=null){
+													row[0]=row[0].toString()+"<p><b>"+row1[15].toString()+" ("+row1[22]+")"
+															+" ,"+row1[17]+" ("+row1[12]+"("+row1[24] +")) "+"यांच्या करिता"+": </b>"+row1[0].toString()+"</p>";
+												}else{
+													row[0]=row[0].toString()+"<p><b>"+row1[15].toString()
+															+" ,"+row1[17]+" ("+row1[12]+"("+row1[24] +")) "+"यांच्या करिता"+": </b>"+row1[0].toString()+"</p>";
+												}
+											}else{
+												if(row1[22]!=null){
+													row[0]=row[0].toString()+"<p><b>"+row1[15].toString()+" ("+row1[22]+")"
+															+" ,"+row1[17]+" ("+row1[12]+") "+"यांच्या करिता"+": </b>"+row1[0].toString()+"</p>";
+												}else{
+													row[0]=row[0].toString()+"<p><b>"+row1[15].toString()
+															+" ,"+row1[17]+" ("+row1[12]+") "+"यांच्या करिता"+": </b>"+row1[0].toString()+"</p>";
+												}
+											}
+										}
+									}else{
+										if(row1[22]!=null){
+											row[0]=row[0].toString()+"<p><b>"+row1[15].toString()+" ("+row1[22]+")"
+													+" ,"+row1[17]+"यांच्या करिता"+": </b>"+row1[0].toString()+"</p>";
+										}else{
+											row[0]=row[0].toString()+"<p><b>"+row1[15].toString()
+													+" ,"+row1[17]+"यांच्या करिता"+": </b>"+row1[0].toString()+"</p>";
+										}
+									}
+								}else{
+									if(row1[22]!=null){
+										row[0]=row[0].toString()+"<p><b>"+row1[15].toString()+" ("+row1[22]+")"
+												+": </b>"+row1[0].toString()+"</p>";
+									}else{
+										row[0]=row[0].toString()+"<p><b>"+row1[15].toString()+": </b>"+row1[0].toString()+"</p>";
+									}
+								}
+							}
 							}else{
 								if(row1[4]!=null){
 									row[0]=row[0].toString()+"<p><b>"+row1[4]+" ( "+row1[5]+" ) :</b>"+row1[0]+"</p>";
@@ -1827,7 +2202,7 @@ public class ProceedingController extends GenericController<Proceeding>{
 				for(int j=i+1;j<tempList3.size();j++){
 					Object[] row1=(Object[]) tempList3.get(j);
 					if(row1[6]!=row[6]){
-						row[20]=row1[18];
+						row[25]=row1[18];
 						break;
 					}
 				}
@@ -1836,10 +2211,9 @@ public class ProceedingController extends GenericController<Proceeding>{
 				for(int k=i-1;k>=0;k--){
 					Object[] row2=(Object[]) tempList3.get(k);
 					if(row2[6]!=row[6]){
-						if(row2[10]!=null){
-							row[21]=row2[18];
-							break;
-						}
+						row[26]=row2[18];
+						break;
+						
 					}
 				}
 				objects.add(row);
@@ -1956,7 +2330,7 @@ public class ProceedingController extends GenericController<Proceeding>{
 					row[2]="";
 				}
 				if(row[14]!=null){
-					row[0]=row[15]+" : "+row[0];
+					row[0]=""+row[15]+" :"+row[0];
 				}
 				int j=i+1;
 				for(;j<tempList1.size();j++){
@@ -1977,50 +2351,244 @@ public class ProceedingController extends GenericController<Proceeding>{
 							}
 							if(row1[14]!=null){
 								if(row1[10]!=null){
-									if(row1[11]!=null){
-										if(row1[16]!=null){
-											if(row1[12]!=null){
-												if(row1[13]!=null){
-													row[0]=row[0].toString()+"<p><b>"+row1[15].toString()+" ( "+row1[11]+""+row1[10]+")"
-															+" ,"+row1[17]+" ( "+row1[13]+" "+row1[12]+" )</b> "+"यांच्या करिता"+": "+row1[0].toString()+"</p>";
+									if(row1[22]!=null){
+										if(row1[11]!=null){
+											if(row1[16]!=null){
+												if(row1[12]!=null){
+													if(row1[13]!=null){
+														if(row1[23]!=null){
+															if(row1[21]!=null){
+																row[0]=row[0].toString()+"<p><b>"+row1[15].toString()+" ("+row1[21]+") ( "+row1[11]+""+row1[10]+"("+row1[22] +"))"
+																		+" ,"+row1[17]+" ( "+row1[13]+" "+row1[12]+"("+row1[23] +")) "+"यांच्या करिता"+": </b>"+row1[0].toString()+"</p>";
+															}else{
+																row[0]=row[0].toString()+"<p><b>"+row1[15].toString()+" ( "+row1[11]+""+row1[10]+"("+row1[22] +"))"
+																		+" ,"+row1[17]+" ( "+row1[13]+" "+row1[12]+"("+row1[23] +")) "+"यांच्या करिता"+": </b>"+row1[0].toString()+"</p>";
+															}
+														}else{
+															if(row1[21]!=null){
+																row[0]=row[0].toString()+"<p><b>"+row1[15].toString()+" ("+row1[21]+") ( "+row1[11]+""+row1[10]+"("+row1[22] +"))"
+																		+" ,"+row1[17]+" ( "+row1[13]+" "+row1[12]+") "+"यांच्या करिता"+": </b>"+row1[0].toString()+"</p>";
+															}else{
+																row[0]=row[0].toString()+"<p><b>"+row1[15].toString()+" ( "+row1[11]+""+row1[10]+"("+row1[22] +"))"
+																		+" ,"+row1[17]+" ( "+row1[13]+" "+row1[12]+") "+"यांच्या करिता"+": </b>"+row1[0].toString()+"</p>";
+															}
+														}
+													}else{
+														if(row1[23]!=null){
+															if(row1[21]!=null){
+																row[0]=row[0].toString()+"<p><b>"+row1[15].toString()+" ("+row1[21]+") ( "+row1[11]+""+row1[10]+"("+row1[22] +"))"
+																		+" ,"+row1[17]+" ("+row1[12]+"("+row1[23] +")) "+"यांच्या करिता"+": </b>"+row1[0].toString()+"</p>";
+															}else{
+																row[0]=row[0].toString()+"<p><b>"+row1[15].toString()+" ( "+row1[11]+""+row1[10]+"("+row1[22] +"))"
+																		+" ,"+row1[17]+" ("+row1[12]+"("+row1[23] +")) "+"यांच्या करिता"+": </b>"+row1[0].toString()+"</p>";
+															}
+														}else{
+															if(row1[21]!=null){
+																row[0]=row[0].toString()+"<p><b>"+row1[15].toString()+" ("+row1[21]+") ( "+row1[11]+""+row1[10]+"("+row1[22] +"))"
+																		+" ,"+row1[17]+" ("+row1[12]+") "+"यांच्या करिता"+": </b>"+row1[0].toString()+"</p>";
+															}else{
+																row[0]=row[0].toString()+"<p><b>"+row1[15].toString()+" ( "+row1[11]+""+row1[10]+"("+row1[22] +"))"
+																		+" ,"+row1[17]+" ("+row1[12]+") "+"यांच्या करिता"+": </b>"+row1[0].toString()+"</p>";
+															}
+														}
+													}
 												}else{
-													row[0]=row[0].toString()+"<p><b>"+row1[15].toString()+" ( "+row1[11]+""+row1[10]+")"
-															+" ,"+row1[17]+" ( "+row1[12]+" )</b> "+"यांच्या करिता"+": "+row1[0].toString()+"</p>";
+													if(row1[21]!=null){
+														row[0]=row[0].toString()+"<p><b>"+row1[15].toString()+" ("+row1[21]+") ( "+row1[11]+""+row1[10]+"("+row1[22] +"))"
+																+" ,"+row1[17]+"यांच्या करिता"+": </b>"+row1[0].toString()+"</p>";
+													}else{
+														row[0]=row[0].toString()+"<p><b>"+row1[15].toString()+" ( "+row1[11]+""+row1[10]+"("+row1[22] +"))"
+																+" ,"+row1[17]+"यांच्या करिता"+": </b>"+row1[0].toString()+"</p>";
+													}
 												}
 											}else{
-												row[0]=row[0].toString()+"<p><b>"+row1[15].toString()+" ( "+row1[11]+""+row1[10]+")</b>"
-														+" ,"+row1[17]+" यांच्या करिता"+": "+row1[0].toString()+"</p>";
+												if(row1[21]!=null){
+													row[0]=row[0].toString()+"<p><b>"+row1[15].toString()+" ("+row1[21]+") ( "+row1[11]+""+row1[10]+"("+row1[22] +"))"
+															+": </b>"+row1[0].toString()+"</p>";
+												}else{
+													row[0]=row[0].toString()+"<p><b>"+row1[15].toString()+" ( "+row1[11]+""+row1[10]+"("+row1[22] +"))"
+															+": </b>"+row1[0].toString()+"</p>";
+												}
 											}
 										}else{
-											row[0]=row[0].toString()+"<p><b>"+row1[15].toString()+" ( "+row1[11]+""+row1[10]+")</b>"+
-													": "+row1[0].toString()+"</p>";
+											if(row1[16]!=null){
+												if(row1[12]!=null){
+													if(row1[13]!=null){
+														if(row1[23]!=null){
+															if(row1[21]!=null){
+																row[0]=row[0].toString()+"<p><b>"+row1[15].toString()+" ("+row1[21]+") ("+row1[10]+"("+row1[22] +"))"
+																		+" ,"+row1[17]+" ( "+row1[13]+" "+row1[12]+"("+row1[23] +")) "+"यांच्या करिता"+": </b>"+row1[0].toString()+"</p>";
+															}else{
+																row[0]=row[0].toString()+"<p><b>"+row1[15].toString()+" ("+row1[10]+"("+row1[22] +"))"
+																		+" ,"+row1[17]+" ( "+row1[13]+" "+row1[12]+"("+row1[23] +")) "+"यांच्या करिता"+": </b>"+row1[0].toString()+"</p>";
+															}
+														}else{
+															if(row1[21]!=null){
+																row[0]=row[0].toString()+"<p><b>"+row1[15].toString()+" ("+row1[21]+") ("+row1[10]+"("+row1[22] +"))"
+																		+" ,"+row1[17]+" ( "+row1[13]+" "+row1[12]+") "+"यांच्या करिता"+": </b>"+row1[0].toString()+"</p>";
+															}else{
+																row[0]=row[0].toString()+"<p><b>"+row1[15].toString()+" ("+row1[10]+"("+row1[22] +"))"
+																		+" ,"+row1[17]+" ( "+row1[13]+" "+row1[12]+") "+"यांच्या करिता"+": </b>"+row1[0].toString()+"</p>";
+															}
+														}
+													}else{
+														if(row1[23]!=null){
+															if(row1[21]!=null){
+																row[0]=row[0].toString()+"<p><b>"+row1[15].toString()+" ("+row1[21]+") ("+row1[10]+"("+row1[22] +"))"
+																		+" ,"+row1[17]+" ("+row1[12]+"("+row1[23] +")) "+"यांच्या करिता"+": </b>"+row1[0].toString()+"</p>";
+															}else{
+																row[0]=row[0].toString()+"<p><b>"+row1[15].toString()+" ("+row1[10]+"("+row1[22] +"))"
+																		+" ,"+row1[17]+" ("+row1[12]+"("+row1[23] +")) "+"यांच्या करिता"+": </b>"+row1[0].toString()+"</p>";
+															}
+														}else{
+															if(row1[21]!=null){
+																row[0]=row[0].toString()+"<p><b>"+row1[15].toString()+" ("+row1[21]+") ("+row1[10]+"("+row1[22] +"))"
+																		+" ,"+row1[17]+" ("+row1[12]+") "+"यांच्या करिता"+": </b>"+row1[0].toString()+"</p>";
+															}else{
+																row[0]=row[0].toString()+"<p><b>"+row1[15].toString()+" ("+row1[10]+"("+row1[22] +"))"
+																		+" ,"+row1[17]+" ("+row1[12]+") "+"यांच्या करिता"+": </b>"+row1[0].toString()+"</p>";
+															}
+														}
+													}
+												}else{
+													if(row1[21]!=null){
+														row[0]=row[0].toString()+"<p><b>"+row1[15].toString()+" ("+row1[21]+") ("+row1[10]+"("+row1[22] +"))"
+																+" ,"+row1[17]+"यांच्या करिता"+": </b>"+row1[0].toString()+"</p>";
+													}else{
+														row[0]=row[0].toString()+"<p><b>"+row1[15].toString()+" ("+row1[10]+"("+row1[22] +"))"
+																+" ,"+row1[17]+"यांच्या करिता"+": </b>"+row1[0].toString()+"</p>";
+													}
+												}
+											}else{
+												if(row1[21]!=null){
+													row[0]=row[0].toString()+"<p><b>"+row1[15].toString()+" ("+row1[21]+") ("+row1[10]+"("+row1[22] +"))"
+															+": </b>"+row1[0].toString()+"</p>";
+												}else{
+													row[0]=row[0].toString()+"<p><b>"+row1[15].toString()+" ("+row1[10]+"("+row1[22] +"))"
+															+": </b>"+row1[0].toString()+"</p>";
+												}
+											}
 										}
-									}else{
-
-										row[0]=row[0].toString()+"<p><b>"+row1[15].toString()+" ( "+row1[10]+")</b>"+
-												": "+row1[0].toString()+"</p>";
-									}
 								}else{
 									if(row1[16]!=null){
 										if(row1[12]!=null){
 											if(row1[13]!=null){
-												row[0]=row[0].toString()+"<p>"+row1[15].toString()+" ,<b>"+row1[17]+" ( "+row1[13]+" "+row1[12]+" )</b> "+"यांच्या करिता"+": "+row1[0].toString()+"</p>";
+												if(row1[23]!=null){
+													if(row1[21]!=null){
+														row[0]=row[0].toString()+"<p><b>"+row1[15].toString()+" ("+row1[21]+") ("+row1[10]+")"
+																+" ,"+row1[17]+" ( "+row1[13]+" "+row1[12]+"("+row1[23] +")) "+"यांच्या करिता"+": </b>"+row1[0].toString()+"</p>";
+													}else{
+														row[0]=row[0].toString()+"<p><b>"+row1[15].toString()+" ("+row1[10]+")"
+																+" ,"+row1[17]+" ( "+row1[13]+" "+row1[12]+"("+row1[23] +")) "+"यांच्या करिता"+": </b>"+row1[0].toString()+"</p>";
+													}
+												}else{
+													if(row1[21]!=null){
+														row[0]=row[0].toString()+"<p><b>"+row1[15].toString()+" ("+row1[21]+") ("+row1[10]+")"
+																+" ,"+row1[17]+" ( "+row1[13]+" "+row1[12]+") "+"यांच्या करिता"+": </b>"+row1[0].toString()+"</p>";
+													}else{
+														row[0]=row[0].toString()+"<p><b>"+row1[15].toString()+" ("+row1[10]+")"
+																+" ,"+row1[17]+" ( "+row1[13]+" "+row1[12]+") "+"यांच्या करिता"+": </b>"+row1[0].toString()+"</p>";
+													}
+												}
 											}else{
-												row[0]=row[0].toString()+"<p>"+row1[15].toString()
-														+" ,<b>"+row1[17]+" ( "+row1[12]+" )</b> "+"यांच्या करिता"+": "+row1[0].toString()+"</p>";
+												if(row1[23]!=null){
+													if(row1[21]!=null){
+														row[0]=row[0].toString()+"<p><b>"+row1[15].toString()+" ("+row1[21]+") ("+row1[10]+")"
+																+" ,"+row1[17]+" ("+row1[12]+"("+row1[23] +")) "+"यांच्या करिता"+": </b>"+row1[0].toString()+"</p>";
+													}else{
+														row[0]=row[0].toString()+"<p><b>"+row1[15].toString()+" ("+row1[10]+")"
+																+" ,"+row1[17]+" ("+row1[12]+"("+row1[23] +")) "+"यांच्या करिता"+": </b>"+row1[0].toString()+"</p>";
+													}
+												}else{
+													if(row1[21]!=null){
+														row[0]=row[0].toString()+"<p><b>"+row1[15].toString()+" ("+row1[21]+") ("+row1[10]+"()"
+																+" ,"+row1[17]+" ("+row1[12]+") "+"यांच्या करिता"+": </b>"+row1[0].toString()+"</p>";
+													}else{
+														row[0]=row[0].toString()+"<p><b>"+row1[15].toString()+" ("+row1[10]+")"
+																+" ,"+row1[17]+" ("+row1[12]+") "+"यांच्या करिता"+": </b>"+row1[0].toString()+"</p>";
+													}
+												}
 											}
 										}else{
-											row[0]=row[0].toString()+"<p>"+row1[15].toString()
-													+" ,"+row1[17]+" यांच्या करिता"+": "+row1[0].toString()+"</p>";
+											if(row1[21]!=null){
+												row[0]=row[0].toString()+"<p><b>"+row1[15].toString()+" ("+row1[21]+") ("+row1[10]+")"
+														+" ,"+row1[17]+"यांच्या करिता"+": </b>"+row1[0].toString()+"</p>";
+											}else{
+												row[0]=row[0].toString()+"<p><b>"+row1[15].toString()+" ("+row1[10]+")"
+														+" ,"+row1[17]+"यांच्या करिता"+": </b>"+row1[0].toString()+"</p>";
+											}
 										}
 									}else{
-										row[0]=row[0].toString()+"<p>"+row1[15].toString()+	" : "+row1[0].toString()+"</p>";
+										if(row1[21]!=null){
+											row[0]=row[0].toString()+"<p><b>"+row1[15].toString()+" ("+row1[21]+") ("+row1[10]+")"
+													+": </b>"+row1[0].toString()+"</p>";
+										}else{
+											row[0]=row[0].toString()+"<p><b>"+row1[15].toString()+" ("+row1[10]+")"
+													+": </b>"+row1[0].toString()+"</p>";
+										}
 									}
-
 								}
 							}else{
+								if(row1[16]!=null){
+									if(row1[12]!=null){
+										if(row1[13]!=null){
+											if(row1[23]!=null){
+												if(row1[21]!=null){
+													row[0]=row[0].toString()+"<p><b>"+row1[15].toString()+" ("+row1[21]+")"
+															+" ,"+row1[17]+" ( "+row1[13]+" "+row1[12]+"("+row1[23] +")) "+"यांच्या करिता"+": </b>"+row1[0].toString()+"</p>";
+												}else{
+													row[0]=row[0].toString()+"<p><b>"+row1[15].toString()
+															+" ,"+row1[17]+" ( "+row1[13]+" "+row1[12]+"("+row1[23] +")) "+"यांच्या करिता"+": </b>"+row1[0].toString()+"</p>";
+												}
+											}else{
+												if(row1[21]!=null){
+													row[0]=row[0].toString()+"<p><b>"+row1[15].toString()+" ("+row1[21]+")"
+															+" ,"+row1[17]+" ( "+row1[13]+" "+row1[12]+") "+"यांच्या करिता"+": </b>"+row1[0].toString()+"</p>";
+												}else{
+													row[0]=row[0].toString()+"<p><b>"+row1[15].toString()
+															+" ,"+row1[17]+" ( "+row1[13]+" "+row1[12]+") "+"यांच्या करिता"+": </b>"+row1[0].toString()+"</p>";
+												}
+											}
+										}else{
+											if(row1[23]!=null){
+												if(row1[21]!=null){
+													row[0]=row[0].toString()+"<p><b>"+row1[15].toString()+" ("+row1[21]+")"
+															+" ,"+row1[17]+" ("+row1[12]+"("+row1[23] +")) "+"यांच्या करिता"+": </b>"+row1[0].toString()+"</p>";
+												}else{
+													row[0]=row[0].toString()+"<p><b>"+row1[15].toString()
+															+" ,"+row1[17]+" ("+row1[12]+"("+row1[23] +")) "+"यांच्या करिता"+": </b>"+row1[0].toString()+"</p>";
+												}
+											}else{
+												if(row1[21]!=null){
+													row[0]=row[0].toString()+"<p><b>"+row1[15].toString()+" ("+row1[21]+")"
+															+" ,"+row1[17]+" ("+row1[12]+") "+"यांच्या करिता"+": </b>"+row1[0].toString()+"</p>";
+												}else{
+													row[0]=row[0].toString()+"<p><b>"+row1[15].toString()
+															+" ,"+row1[17]+" ("+row1[12]+") "+"यांच्या करिता"+": </b>"+row1[0].toString()+"</p>";
+												}
+											}
+										}
+									}else{
+										if(row1[21]!=null){
+											row[0]=row[0].toString()+"<p><b>"+row1[15].toString()+" ("+row1[21]+")"
+													+" ,"+row1[17]+"यांच्या करिता"+": </b>"+row1[0].toString()+"</p>";
+										}else{
+											row[0]=row[0].toString()+"<p><b>"+row1[15].toString()
+													+" ,"+row1[17]+"यांच्या करिता"+": </b>"+row1[0].toString()+"</p>";
+										}
+									}
+								}else{
+									if(row1[21]!=null){
+										row[0]=row[0].toString()+"<p><b>"+row1[15].toString()+" ("+row1[21]+")"
+												+": </b>"+row1[0].toString()+"</p>";
+									}else{
+										row[0]=row[0].toString()+"<p><b>"+row1[15].toString()+": </b>"+row1[0].toString()+"</p>";
+									}
+								}
+							}
+							}else{
 								if(row1[4]!=null){
-									row[0]=row[0].toString()+"<p>"+row1[4]+" ( "+row1[5]+" )"+row1[0]+"</p>";
+									row[0]=row[0].toString()+"<p><b>"+row1[4]+" ( "+row1[5]+" ) :</b>"+row1[0]+"</p>";
 								}else{
 									row[0]=row[0].toString()+"<p>"+row1[0]+"</p>";
 								}
@@ -2052,7 +2620,7 @@ public class ProceedingController extends GenericController<Proceeding>{
 				for(int j=i+1;j<tempList3.size();j++){
 					Object[] row1=(Object[]) tempList3.get(j);
 					if(row1[6]!=row[6]){
-						row[21]=row1[18];
+						row[24]=row1[18];
 						break;
 					}
 				}
@@ -2061,10 +2629,8 @@ public class ProceedingController extends GenericController<Proceeding>{
 				for(int k=i-1;k>=0;k--){
 					Object[] row2=(Object[]) tempList3.get(k);
 					if(row2[6]!=row[6]){
-						if(row2[10]!=null){
-							row[22]=row2[18];
+							row[25]=row2[18];
 							break;
-						}
 					}
 				}
 				objects.add(row);
@@ -2293,50 +2859,244 @@ public class ProceedingController extends GenericController<Proceeding>{
 							}
 							if(row1[14]!=null){
 								if(row1[10]!=null){
-									if(row1[11]!=null){
-										if(row1[16]!=null){
-											if(row1[12]!=null){
-												if(row1[13]!=null){
-													row[0]=row[0].toString()+"<p><b>"+row1[15].toString()+" ( "+row1[11]+""+row1[10]+")"
-															+" ,"+row1[17]+" ( "+row1[13]+" "+row1[12]+" )</b> "+"यांच्या करिता"+": "+row1[0].toString()+"</p>";
+									if(row1[21]!=null){
+										if(row1[11]!=null){
+											if(row1[16]!=null){
+												if(row1[12]!=null){
+													if(row1[13]!=null){
+														if(row1[22]!=null){
+															if(row1[20]!=null){
+																row[0]=row[0].toString()+"<p><b>"+row1[15].toString()+" ("+row1[20]+") ( "+row1[11]+""+row1[10]+"("+row1[21] +"))"
+																		+" ,"+row1[17]+" ( "+row1[13]+" "+row1[12]+"("+row1[22] +")) "+"यांच्या करिता"+": </b>"+row1[0].toString()+"</p>";
+															}else{
+																row[0]=row[0].toString()+"<p><b>"+row1[15].toString()+" ( "+row1[11]+""+row1[10]+"("+row1[21] +"))"
+																		+" ,"+row1[17]+" ( "+row1[13]+" "+row1[12]+"("+row1[22] +")) "+"यांच्या करिता"+": </b>"+row1[0].toString()+"</p>";
+															}
+														}else{
+															if(row1[21]!=null){
+																row[0]=row[0].toString()+"<p><b>"+row1[15].toString()+" ("+row1[21]+") ( "+row1[11]+""+row1[10]+"("+row1[21] +"))"
+																		+" ,"+row1[17]+" ( "+row1[13]+" "+row1[12]+") "+"यांच्या करिता"+": </b>"+row1[0].toString()+"</p>";
+															}else{
+																row[0]=row[0].toString()+"<p><b>"+row1[15].toString()+" ( "+row1[11]+""+row1[10]+"("+row1[21] +"))"
+																		+" ,"+row1[17]+" ( "+row1[13]+" "+row1[12]+") "+"यांच्या करिता"+": </b>"+row1[0].toString()+"</p>";
+															}
+														}
+													}else{
+														if(row1[22]!=null){
+															if(row1[21]!=null){
+																row[0]=row[0].toString()+"<p><b>"+row1[15].toString()+" ("+row1[21]+") ( "+row1[11]+""+row1[10]+"("+row1[21] +"))"
+																		+" ,"+row1[17]+" ("+row1[12]+"("+row1[22] +")) "+"यांच्या करिता"+": </b>"+row1[0].toString()+"</p>";
+															}else{
+																row[0]=row[0].toString()+"<p><b>"+row1[15].toString()+" ( "+row1[11]+""+row1[10]+"("+row1[21] +"))"
+																		+" ,"+row1[17]+" ("+row1[12]+"("+row1[22] +")) "+"यांच्या करिता"+": </b>"+row1[0].toString()+"</p>";
+															}
+														}else{
+															if(row1[21]!=null){
+																row[0]=row[0].toString()+"<p><b>"+row1[15].toString()+" ("+row1[21]+") ( "+row1[11]+""+row1[10]+"("+row1[21] +"))"
+																		+" ,"+row1[17]+" ("+row1[12]+") "+"यांच्या करिता"+": </b>"+row1[0].toString()+"</p>";
+															}else{
+																row[0]=row[0].toString()+"<p><b>"+row1[15].toString()+" ( "+row1[11]+""+row1[10]+"("+row1[21] +"))"
+																		+" ,"+row1[17]+" ("+row1[12]+") "+"यांच्या करिता"+": </b>"+row1[0].toString()+"</p>";
+															}
+														}
+													}
 												}else{
-													row[0]=row[0].toString()+"<p><b>"+row1[15].toString()+" ( "+row1[11]+""+row1[10]+")"
-															+" ,"+row1[17]+" ( "+row1[12]+" )</b> "+"यांच्या करिता"+": "+row1[0].toString()+"</p>";
+													if(row1[21]!=null){
+														row[0]=row[0].toString()+"<p><b>"+row1[15].toString()+" ("+row1[21]+") ( "+row1[11]+""+row1[10]+"("+row1[21] +"))"
+																+" ,"+row1[17]+"यांच्या करिता"+": </b>"+row1[0].toString()+"</p>";
+													}else{
+														row[0]=row[0].toString()+"<p><b>"+row1[15].toString()+" ( "+row1[11]+""+row1[10]+"("+row1[21] +"))"
+																+" ,"+row1[17]+"यांच्या करिता"+": </b>"+row1[0].toString()+"</p>";
+													}
 												}
 											}else{
-												row[0]=row[0].toString()+"<p><b>"+row1[15].toString()+" ( "+row1[11]+""+row1[10]+")</b>"
-														+" ,"+row1[17]+" यांच्या करिता"+": "+row1[0].toString()+"</p>";
+												if(row1[21]!=null){
+													row[0]=row[0].toString()+"<p><b>"+row1[15].toString()+" ("+row1[21]+") ( "+row1[11]+""+row1[10]+"("+row1[21] +"))"
+															+": </b>"+row1[0].toString()+"</p>";
+												}else{
+													row[0]=row[0].toString()+"<p><b>"+row1[15].toString()+" ( "+row1[11]+""+row1[10]+"("+row1[21] +"))"
+															+": </b>"+row1[0].toString()+"</p>";
+												}
 											}
 										}else{
-											row[0]=row[0].toString()+"<p><b>"+row1[15].toString()+" ( "+row1[11]+""+row1[10]+")</b>"+
-													": "+row1[0].toString()+"</p>";
+											if(row1[16]!=null){
+												if(row1[12]!=null){
+													if(row1[13]!=null){
+														if(row1[22]!=null){
+															if(row1[21]!=null){
+																row[0]=row[0].toString()+"<p><b>"+row1[15].toString()+" ("+row1[21]+") ("+row1[10]+"("+row1[21] +"))"
+																		+" ,"+row1[17]+" ( "+row1[13]+" "+row1[12]+"("+row1[22] +")) "+"यांच्या करिता"+": </b>"+row1[0].toString()+"</p>";
+															}else{
+																row[0]=row[0].toString()+"<p><b>"+row1[15].toString()+" ("+row1[10]+"("+row1[21] +"))"
+																		+" ,"+row1[17]+" ( "+row1[13]+" "+row1[12]+"("+row1[22] +")) "+"यांच्या करिता"+": </b>"+row1[0].toString()+"</p>";
+															}
+														}else{
+															if(row1[21]!=null){
+																row[0]=row[0].toString()+"<p><b>"+row1[15].toString()+" ("+row1[21]+") ("+row1[10]+"("+row1[21] +"))"
+																		+" ,"+row1[17]+" ( "+row1[13]+" "+row1[12]+") "+"यांच्या करिता"+": </b>"+row1[0].toString()+"</p>";
+															}else{
+																row[0]=row[0].toString()+"<p><b>"+row1[15].toString()+" ("+row1[10]+"("+row1[21] +"))"
+																		+" ,"+row1[17]+" ( "+row1[13]+" "+row1[12]+") "+"यांच्या करिता"+": </b>"+row1[0].toString()+"</p>";
+															}
+														}
+													}else{
+														if(row1[22]!=null){
+															if(row1[21]!=null){
+																row[0]=row[0].toString()+"<p><b>"+row1[15].toString()+" ("+row1[21]+") ("+row1[10]+"("+row1[21] +"))"
+																		+" ,"+row1[17]+" ("+row1[12]+"("+row1[22] +")) "+"यांच्या करिता"+": </b>"+row1[0].toString()+"</p>";
+															}else{
+																row[0]=row[0].toString()+"<p><b>"+row1[15].toString()+" ("+row1[10]+"("+row1[21] +"))"
+																		+" ,"+row1[17]+" ("+row1[12]+"("+row1[22] +")) "+"यांच्या करिता"+": </b>"+row1[0].toString()+"</p>";
+															}
+														}else{
+															if(row1[21]!=null){
+																row[0]=row[0].toString()+"<p><b>"+row1[15].toString()+" ("+row1[21]+") ("+row1[10]+"("+row1[21] +"))"
+																		+" ,"+row1[17]+" ("+row1[12]+") "+"यांच्या करिता"+": </b>"+row1[0].toString()+"</p>";
+															}else{
+																row[0]=row[0].toString()+"<p><b>"+row1[15].toString()+" ("+row1[10]+"("+row1[21] +"))"
+																		+" ,"+row1[17]+" ("+row1[12]+") "+"यांच्या करिता"+": </b>"+row1[0].toString()+"</p>";
+															}
+														}
+													}
+												}else{
+													if(row1[21]!=null){
+														row[0]=row[0].toString()+"<p><b>"+row1[15].toString()+" ("+row1[21]+") ("+row1[10]+"("+row1[21] +"))"
+																+" ,"+row1[17]+"यांच्या करिता"+": </b>"+row1[0].toString()+"</p>";
+													}else{
+														row[0]=row[0].toString()+"<p><b>"+row1[15].toString()+" ("+row1[10]+"("+row1[21] +"))"
+																+" ,"+row1[17]+"यांच्या करिता"+": </b>"+row1[0].toString()+"</p>";
+													}
+												}
+											}else{
+												if(row1[21]!=null){
+													row[0]=row[0].toString()+"<p><b>"+row1[15].toString()+" ("+row1[21]+") ("+row1[10]+"("+row1[21] +"))"
+															+": </b>"+row1[0].toString()+"</p>";
+												}else{
+													row[0]=row[0].toString()+"<p><b>"+row1[15].toString()+" ("+row1[10]+"("+row1[21] +"))"
+															+": </b>"+row1[0].toString()+"</p>";
+												}
+											}
 										}
-									}else{
-
-										row[0]=row[0].toString()+"<p><b>"+row1[15].toString()+" ( "+row1[10]+")</b>"+
-												": "+row1[0].toString()+"</p>";
-									}
 								}else{
 									if(row1[16]!=null){
 										if(row1[12]!=null){
 											if(row1[13]!=null){
-												row[0]=row[0].toString()+"<p>"+row1[15].toString()+" ,<b>"+row1[17]+" ( "+row1[13]+" "+row1[12]+" )</b> "+"यांच्या करिता"+": "+row1[0].toString()+"</p>";
+												if(row1[22]!=null){
+													if(row1[21]!=null){
+														row[0]=row[0].toString()+"<p><b>"+row1[15].toString()+" ("+row1[21]+") ("+row1[10]+")"
+																+" ,"+row1[17]+" ( "+row1[13]+" "+row1[12]+"("+row1[22] +")) "+"यांच्या करिता"+": </b>"+row1[0].toString()+"</p>";
+													}else{
+														row[0]=row[0].toString()+"<p><b>"+row1[15].toString()+" ("+row1[10]+")"
+																+" ,"+row1[17]+" ( "+row1[13]+" "+row1[12]+"("+row1[22] +")) "+"यांच्या करिता"+": </b>"+row1[0].toString()+"</p>";
+													}
+												}else{
+													if(row1[21]!=null){
+														row[0]=row[0].toString()+"<p><b>"+row1[15].toString()+" ("+row1[21]+") ("+row1[10]+")"
+																+" ,"+row1[17]+" ( "+row1[13]+" "+row1[12]+") "+"यांच्या करिता"+": </b>"+row1[0].toString()+"</p>";
+													}else{
+														row[0]=row[0].toString()+"<p><b>"+row1[15].toString()+" ("+row1[10]+")"
+																+" ,"+row1[17]+" ( "+row1[13]+" "+row1[12]+") "+"यांच्या करिता"+": </b>"+row1[0].toString()+"</p>";
+													}
+												}
 											}else{
-												row[0]=row[0].toString()+"<p>"+row1[15].toString()
-														+" ,<b>"+row1[17]+" ( "+row1[12]+" )</b> "+"यांच्या करिता"+": "+row1[0].toString()+"</p>";
+												if(row1[22]!=null){
+													if(row1[21]!=null){
+														row[0]=row[0].toString()+"<p><b>"+row1[15].toString()+" ("+row1[21]+") ("+row1[10]+")"
+																+" ,"+row1[17]+" ("+row1[12]+"("+row1[22] +")) "+"यांच्या करिता"+": </b>"+row1[0].toString()+"</p>";
+													}else{
+														row[0]=row[0].toString()+"<p><b>"+row1[15].toString()+" ("+row1[10]+")"
+																+" ,"+row1[17]+" ("+row1[12]+"("+row1[22] +")) "+"यांच्या करिता"+": </b>"+row1[0].toString()+"</p>";
+													}
+												}else{
+													if(row1[21]!=null){
+														row[0]=row[0].toString()+"<p><b>"+row1[15].toString()+" ("+row1[21]+") ("+row1[10]+"()"
+																+" ,"+row1[17]+" ("+row1[12]+") "+"यांच्या करिता"+": </b>"+row1[0].toString()+"</p>";
+													}else{
+														row[0]=row[0].toString()+"<p><b>"+row1[15].toString()+" ("+row1[10]+")"
+																+" ,"+row1[17]+" ("+row1[12]+") "+"यांच्या करिता"+": </b>"+row1[0].toString()+"</p>";
+													}
+												}
 											}
 										}else{
-											row[0]=row[0].toString()+"<p>"+row1[15].toString()
-													+" ,"+row1[17]+" यांच्या करिता"+": "+row1[0].toString()+"</p>";
+											if(row1[21]!=null){
+												row[0]=row[0].toString()+"<p><b>"+row1[15].toString()+" ("+row1[21]+") ("+row1[10]+")"
+														+" ,"+row1[17]+"यांच्या करिता"+": </b>"+row1[0].toString()+"</p>";
+											}else{
+												row[0]=row[0].toString()+"<p><b>"+row1[15].toString()+" ("+row1[10]+")"
+														+" ,"+row1[17]+"यांच्या करिता"+": </b>"+row1[0].toString()+"</p>";
+											}
 										}
 									}else{
-										row[0]=row[0].toString()+"<p>"+row1[15].toString()+	" : "+row1[0].toString()+"</p>";
+										if(row1[21]!=null){
+											row[0]=row[0].toString()+"<p><b>"+row1[15].toString()+" ("+row1[21]+") ("+row1[10]+")"
+													+": </b>"+row1[0].toString()+"</p>";
+										}else{
+											row[0]=row[0].toString()+"<p><b>"+row1[15].toString()+" ("+row1[10]+")"
+													+": </b>"+row1[0].toString()+"</p>";
+										}
 									}
-
 								}
 							}else{
+								if(row1[16]!=null){
+									if(row1[12]!=null){
+										if(row1[13]!=null){
+											if(row1[22]!=null){
+												if(row1[21]!=null){
+													row[0]=row[0].toString()+"<p><b>"+row1[15].toString()+" ("+row1[21]+")"
+															+" ,"+row1[17]+" ( "+row1[13]+" "+row1[12]+"("+row1[22] +")) "+"यांच्या करिता"+": </b>"+row1[0].toString()+"</p>";
+												}else{
+													row[0]=row[0].toString()+"<p><b>"+row1[15].toString()
+															+" ,"+row1[17]+" ( "+row1[13]+" "+row1[12]+"("+row1[22] +")) "+"यांच्या करिता"+": </b>"+row1[0].toString()+"</p>";
+												}
+											}else{
+												if(row1[21]!=null){
+													row[0]=row[0].toString()+"<p><b>"+row1[15].toString()+" ("+row1[21]+")"
+															+" ,"+row1[17]+" ( "+row1[13]+" "+row1[12]+") "+"यांच्या करिता"+": </b>"+row1[0].toString()+"</p>";
+												}else{
+													row[0]=row[0].toString()+"<p><b>"+row1[15].toString()
+															+" ,"+row1[17]+" ( "+row1[13]+" "+row1[12]+") "+"यांच्या करिता"+": </b>"+row1[0].toString()+"</p>";
+												}
+											}
+										}else{
+											if(row1[22]!=null){
+												if(row1[21]!=null){
+													row[0]=row[0].toString()+"<p><b>"+row1[15].toString()+" ("+row1[21]+")"
+															+" ,"+row1[17]+" ("+row1[12]+"("+row1[22] +")) "+"यांच्या करिता"+": </b>"+row1[0].toString()+"</p>";
+												}else{
+													row[0]=row[0].toString()+"<p><b>"+row1[15].toString()
+															+" ,"+row1[17]+" ("+row1[12]+"("+row1[22] +")) "+"यांच्या करिता"+": </b>"+row1[0].toString()+"</p>";
+												}
+											}else{
+												if(row1[21]!=null){
+													row[0]=row[0].toString()+"<p><b>"+row1[15].toString()+" ("+row1[21]+")"
+															+" ,"+row1[17]+" ("+row1[12]+") "+"यांच्या करिता"+": </b>"+row1[0].toString()+"</p>";
+												}else{
+													row[0]=row[0].toString()+"<p><b>"+row1[15].toString()
+															+" ,"+row1[17]+" ("+row1[12]+") "+"यांच्या करिता"+": </b>"+row1[0].toString()+"</p>";
+												}
+											}
+										}
+									}else{
+										if(row1[21]!=null){
+											row[0]=row[0].toString()+"<p><b>"+row1[15].toString()+" ("+row1[21]+")"
+													+" ,"+row1[17]+"यांच्या करिता"+": </b>"+row1[0].toString()+"</p>";
+										}else{
+											row[0]=row[0].toString()+"<p><b>"+row1[15].toString()
+													+" ,"+row1[17]+"यांच्या करिता"+": </b>"+row1[0].toString()+"</p>";
+										}
+									}
+								}else{
+									if(row1[21]!=null){
+										row[0]=row[0].toString()+"<p><b>"+row1[15].toString()+" ("+row1[21]+")"
+												+": </b>"+row1[0].toString()+"</p>";
+									}else{
+										row[0]=row[0].toString()+"<p><b>"+row1[15].toString()+": </b>"+row1[0].toString()+"</p>";
+									}
+								}
+							}
+							}else{
 								if(row1[4]!=null){
-									row[0]=row[0].toString()+"<p>"+row1[4]+" ( "+row1[5]+" )"+row1[0]+"</p>";
+									row[0]=row[0].toString()+"<p><b>"+row1[4]+" ( "+row1[5]+" ) :</b>"+row1[0]+"</p>";
 								}else{
 									row[0]=row[0].toString()+"<p>"+row1[0]+"</p>";
 								}
@@ -2368,7 +3128,7 @@ public class ProceedingController extends GenericController<Proceeding>{
 				for(int j=i+1;j<tempList3.size();j++){
 					Object[] row1=(Object[]) tempList3.get(j);
 					if(row1[6]!=row[6]){
-						row[20]=row1[18];
+						row[23]=row1[18];
 						break;
 					}
 				}
@@ -2378,7 +3138,7 @@ public class ProceedingController extends GenericController<Proceeding>{
 					Object[] row2=(Object[]) tempList3.get(k);
 					if(row2[6]!=row[6]){
 						if(row2[10]!=null){
-							row[21]=row2[18];
+							row[24]=row2[18];
 							break;
 						}
 					}
@@ -2697,54 +3457,251 @@ public class ProceedingController extends GenericController<Proceeding>{
 					}
 					if(row1[9]!=null){
 						if(row1[5]!=null){
-							if(row1[6]!=null){
+							if(row1[21]!=null){
+							 if(row1[6]!=null){
 								if(row1[11]!=null){
 									if(row1[7]!=null){
 										if(row1[8]!=null){
-											row[0]=row[0].toString()+"<p><b>"+row1[10].toString()+" ( "+row1[6]+""+row1[5]+")"
-													+" ,"+row1[12]+" ( "+row1[8]+" "+row1[7]+" )</b> "+"यांच्या करिता"+": "+row1[0].toString()+"</p>";
+											if(row1[22]!=null){
+												if(row1[20]!=null){
+													row[0]=row[0].toString()+"<p><b>"+row1[10].toString()+"("+ row1[20]+") ( "+row1[6]+""+row1[5]+""+row1[21]+")"
+															+" ,"+row1[12]+" ( "+row1[8]+" "+row1[7]+""+row1[22]+" )</b> "+"यांच्या करिता"+": "+row1[0].toString()+"</p>";
+												}else{
+													row[0]=row[0].toString()+"<p><b>"+row1[10].toString()+" ( "+row1[6]+""+row1[5]+""+row1[21]+")"
+															+" ,"+row1[12]+" ( "+row1[8]+" "+row1[7]+""+row1[22]+" )</b> "+"यांच्या करिता"+": "+row1[0].toString()+"</p>";
+												}
+											}else{
+												if(row1[20]!=null){
+													row[0]=row[0].toString()+"<p><b>"+row1[10].toString()+"("+ row1[20]+") ( "+row1[6]+""+row1[5]+""+row1[21]+")"
+															+" ,"+row1[12]+" ( "+row1[8]+" "+row1[7]+")</b> "+"यांच्या करिता"+": "+row1[0].toString()+"</p>";
+												}else{
+													row[0]=row[0].toString()+"<p><b>"+row1[10].toString()+" ( "+row1[6]+""+row1[5]+""+row1[21]+")"
+															+" ,"+row1[12]+" ( "+row1[8]+" "+row1[7]+")</b> "+"यांच्या करिता"+": "+row1[0].toString()+"</p>";
+												}
+											}
 										}else{
-											row[0]=row[0].toString()+"<p><b>"+row1[10].toString()+" ( "+row1[6]+""+row1[5]+")"
-													+" ,"+row1[12]+" ( "+row1[7]+" )</b> "+"यांच्या करिता"+": "+row1[0].toString()+"</p>";
+											if(row1[22]!=null){
+												if(row1[20]!=null){
+													row[0]=row[0].toString()+"<p><b>"+row1[10].toString()+"("+ row1[20]+") ( "+row1[6]+""+row1[5]+""+row1[21]+")"
+															+" ,"+row1[12]+" ("+row1[7]+""+row1[22]+" )</b> "+"यांच्या करिता"+": "+row1[0].toString()+"</p>";
+												}else{
+													row[0]=row[0].toString()+"<p><b>"+row1[10].toString()+" ( "+row1[6]+""+row1[5]+""+row1[21]+")"
+															+" ,"+row1[12]+" ("+row1[7]+""+row1[22]+" )</b> "+"यांच्या करिता"+": "+row1[0].toString()+"</p>";
+												}
+											}else{
+												if(row1[20]!=null){
+													row[0]=row[0].toString()+"<p><b>"+row1[10].toString()+"("+ row1[20]+") ( "+row1[6]+""+row1[5]+""+row1[21]+")"
+															+" ,"+row1[12]+" ("+row1[7]+")</b> "+"यांच्या करिता"+": "+row1[0].toString()+"</p>";
+												}else{
+													row[0]=row[0].toString()+"<p><b>"+row1[10].toString()+" ( "+row1[6]+""+row1[5]+""+row1[21]+")"
+															+" ,"+row1[12]+" ("+row1[7]+")</b> "+"यांच्या करिता"+": "+row1[0].toString()+"</p>";
+												}
+											}
 										}
 									}else{
-										row[0]=row[0].toString()+"<p><b>"+row1[10].toString()+" ( "+row1[6]+""+row1[5]+")</b>"
-												+" ,"+row1[12]+" यांच्या करिता"+": "+row1[0].toString()+"</p>";
+										if(row1[20]!=null){
+											row[0]=row[0].toString()+"<p><b>"+row1[10].toString()+"("+ row1[20]+") ( "+row1[6]+""+row1[5]+""+row1[21]+")"
+													+" </b>,"+row1[12]+"यांच्या करिता"+": "+row1[0].toString()+"</p>";
+										}else{
+											row[0]=row[0].toString()+"<p><b>"+row1[10].toString()+" ( "+row1[6]+""+row1[5]+""+row1[21]+")"
+													+"</b> ,"+row1[12]+"यांच्या करिता"+": "+row1[0].toString()+"</p>";
+										}
 									}
 								}else{
-									row[0]=row[0].toString()+"<p><b>"+row1[10].toString()+" ( "+row1[6]+""+row1[5]+")</b>"+
-											": "+row1[0].toString()+"</p>";
+									if(row1[20]!=null){
+										row[0]=row[0].toString()+"<p><b>"+row1[10].toString()+"("+ row1[20]+") ( "+row1[6]+""+row1[5]+""+row1[21]+")"
+												+" </b>,: "+row1[0].toString()+"</p>";
+									}else{
+										row[0]=row[0].toString()+"<p><b>"+row1[10].toString()+" ( "+row1[6]+""+row1[5]+""+row1[21]+")"
+												+"</b>: "+row1[0].toString()+"</p>";
+									}
 								}
 							}else{
-
-								row[0]=row[0].toString()+"<p><b>"+row1[10].toString()+" ( "+row1[5]+")</b>"+
-										": "+row1[0].toString()+"</p>";
+								if(row1[11]!=null){
+									if(row1[7]!=null){
+										if(row1[8]!=null){
+											if(row1[22]!=null){
+												if(row1[20]!=null){
+													row[0]=row[0].toString()+"<p><b>"+row1[10].toString()+"("+ row1[20]+") ("+row1[5]+""+row1[21]+")"
+															+" ,"+row1[12]+" ( "+row1[8]+" "+row1[7]+""+row1[22]+" )</b> "+"यांच्या करिता"+": "+row1[0].toString()+"</p>";
+												}else{
+													row[0]=row[0].toString()+"<p><b>"+row1[10].toString()+" ("+row1[5]+""+row1[21]+")"
+															+" ,"+row1[12]+" ( "+row1[8]+" "+row1[7]+""+row1[22]+" )</b> "+"यांच्या करिता"+": "+row1[0].toString()+"</p>";
+												}
+											}else{
+												if(row1[20]!=null){
+													row[0]=row[0].toString()+"<p><b>"+row1[10].toString()+"("+ row1[20]+") ("+row1[5]+""+row1[21]+")"
+															+" ,"+row1[12]+" ( "+row1[8]+" "+row1[7]+")</b> "+"यांच्या करिता"+": "+row1[0].toString()+"</p>";
+												}else{
+													row[0]=row[0].toString()+"<p><b>"+row1[10].toString()+" ("+row1[5]+""+row1[21]+")"
+															+" ,"+row1[12]+" ( "+row1[8]+" "+row1[7]+")</b> "+"यांच्या करिता"+": "+row1[0].toString()+"</p>";
+												}
+											}
+										}else{
+											if(row1[22]!=null){
+												if(row1[20]!=null){
+													row[0]=row[0].toString()+"<p><b>"+row1[10].toString()+"("+ row1[20]+") ("+row1[5]+""+row1[21]+")"
+															+" ,"+row1[12]+" ("+row1[7]+""+row1[22]+" )</b> "+"यांच्या करिता"+": "+row1[0].toString()+"</p>";
+												}else{
+													row[0]=row[0].toString()+"<p><b>"+row1[10].toString()+" ("+row1[5]+""+row1[21]+")"
+															+" ,"+row1[12]+" ("+row1[7]+""+row1[22]+" )</b> "+"यांच्या करिता"+": "+row1[0].toString()+"</p>";
+												}
+											}else{
+												if(row1[20]!=null){
+													row[0]=row[0].toString()+"<p><b>"+row1[10].toString()+"("+ row1[20]+") ("+row1[5]+""+row1[21]+")"
+															+" ,"+row1[12]+" ("+row1[7]+")</b> "+"यांच्या करिता"+": "+row1[0].toString()+"</p>";
+												}else{
+													row[0]=row[0].toString()+"<p><b>"+row1[10].toString()+" ("+row1[5]+""+row1[21]+")"
+															+" ,"+row1[12]+" ("+row1[7]+")</b> "+"यांच्या करिता"+": "+row1[0].toString()+"</p>";
+												}
+											}
+										}
+									}else{
+										if(row1[20]!=null){
+											row[0]=row[0].toString()+"<p><b>"+row1[10].toString()+"("+ row1[20]+") ("+row1[5]+""+row1[21]+")"
+													+" </b>,"+row1[12]+"यांच्या करिता"+": "+row1[0].toString()+"</p>";
+										}else{
+											row[0]=row[0].toString()+"<p><b>"+row1[10].toString()+" ("+row1[5]+""+row1[21]+")"
+													+"</b> ,"+row1[12]+"यांच्या करिता"+": "+row1[0].toString()+"</p>";
+										}
+									}
+								}else{
+									if(row1[20]!=null){
+										row[0]=row[0].toString()+"<p><b>"+row1[10].toString()+"("+ row1[20]+") ("+row1[5]+""+row1[21]+")"
+												+" </b>,: "+row1[0].toString()+"</p>";
+									}else{
+										row[0]=row[0].toString()+"<p><b>"+row1[10].toString()+" ("+row1[5]+""+row1[21]+")"
+												+"</b>: "+row1[0].toString()+"</p>";
+									}
+								}	
 							}
 						}else{
 							if(row1[11]!=null){
 								if(row1[7]!=null){
 									if(row1[8]!=null){
-										row[0]=row[0].toString()+"<p>"+row1[10].toString()+" ,<b>"+row1[12]+" ( "+row1[8]+" "+row1[7]+" )</b> "+"यांच्या करिता"+": "+row1[0].toString()+"</p>";
+										if(row1[22]!=null){
+											if(row1[20]!=null){
+												row[0]=row[0].toString()+"<p><b>"+row1[10].toString()+"("+ row1[20]+") ("+row1[5]+")"
+														+" ,"+row1[12]+" ( "+row1[8]+" "+row1[7]+""+row1[22]+" )</b> "+"यांच्या करिता"+": "+row1[0].toString()+"</p>";
+											}else{
+												row[0]=row[0].toString()+"<p><b>"+row1[10].toString()+" ("+row1[5]+")"
+														+" ,"+row1[12]+" ( "+row1[8]+" "+row1[7]+""+row1[22]+" )</b> "+"यांच्या करिता"+": "+row1[0].toString()+"</p>";
+											}
+										}else{
+											if(row1[20]!=null){
+												row[0]=row[0].toString()+"<p><b>"+row1[10].toString()+"("+ row1[20]+") ("+row1[5]+")"
+														+" ,"+row1[12]+" ( "+row1[8]+" "+row1[7]+")</b> "+"यांच्या करिता"+": "+row1[0].toString()+"</p>";
+											}else{
+												row[0]=row[0].toString()+"<p><b>"+row1[10].toString()+" ("+row1[5]+")"
+														+" ,"+row1[12]+" ( "+row1[8]+" "+row1[7]+")</b> "+"यांच्या करिता"+": "+row1[0].toString()+"</p>";
+											}
+										}
 									}else{
-										row[0]=row[0].toString()+"<p>"+row1[10].toString()
-												+" ,<b>"+row1[12]+" ( "+row1[7]+" )</b> "+"यांच्या करिता"+": "+row1[0].toString()+"</p>";
+										if(row1[22]!=null){
+											if(row1[20]!=null){
+												row[0]=row[0].toString()+"<p><b>"+row1[10].toString()+"("+ row1[20]+") ("+row1[5]+")"
+														+" ,"+row1[12]+" ("+row1[7]+""+row1[22]+" )</b> "+"यांच्या करिता"+": "+row1[0].toString()+"</p>";
+											}else{
+												row[0]=row[0].toString()+"<p><b>"+row1[10].toString()+" ("+row1[5]+")"
+														+" ,"+row1[12]+" ("+row1[7]+""+row1[22]+" )</b> "+"यांच्या करिता"+": "+row1[0].toString()+"</p>";
+											}
+										}else{
+											if(row1[20]!=null){
+												row[0]=row[0].toString()+"<p><b>"+row1[10].toString()+"("+ row1[20]+") ("+row1[5]+")"
+														+" ,"+row1[12]+" ("+row1[7]+")</b> "+"यांच्या करिता"+": "+row1[0].toString()+"</p>";
+											}else{
+												row[0]=row[0].toString()+"<p><b>"+row1[10].toString()+" ("+row1[5]+")"
+														+" ,"+row1[12]+" ("+row1[7]+")</b> "+"यांच्या करिता"+": "+row1[0].toString()+"</p>";
+											}
+										}
 									}
 								}else{
-									row[0]=row[0].toString()+"<p>"+row1[10].toString()
-											+" ,"+row1[12]+" यांच्या करिता"+": "+row1[0].toString()+"</p>";
+									if(row1[20]!=null){
+										row[0]=row[0].toString()+"<p><b>"+row1[10].toString()+"("+ row1[20]+") ("+row1[5]+")"
+												+" </b>,"+row1[12]+"यांच्या करिता"+": "+row1[0].toString()+"</p>";
+									}else{
+										row[0]=row[0].toString()+"<p><b>"+row1[10].toString()+" ("+row1[5]+")"
+												+"</b> ,"+row1[12]+"यांच्या करिता"+": "+row1[0].toString()+"</p>";
+									}
 								}
 							}else{
-								row[0]=row[0].toString()+"<p>"+row1[10].toString()+	" : "+row1[0].toString()+"</p>";
+								if(row1[20]!=null){
+									row[0]=row[0].toString()+"<p><b>"+row1[10].toString()+"("+ row1[20]+") ("+row1[5]+")"
+											+" </b>,: "+row1[0].toString()+"</p>";
+								}else{
+									row[0]=row[0].toString()+"<p><b>"+row1[10].toString()+" ("+row1[5]+")"
+											+"</b>: "+row1[0].toString()+"</p>";
+								}
 							}
 						}
 					}else{
-						if(row1[3]!=null){
-							row[0]=row[0]+"<p>"+row1[3]+" ("+row1[4]+") :  "+row1[0]+"</p>";
+						if(row1[11]!=null){
+							if(row1[7]!=null){
+								if(row1[8]!=null){
+									if(row1[22]!=null){
+										if(row1[20]!=null){
+											row[0]=row[0].toString()+"<p>"+row1[10].toString()+"("+ row1[20]+")"
+													+" ,<b>"+row1[12]+" ( "+row1[8]+" "+row1[7]+""+row1[22]+" )</b> "+"यांच्या करिता"+": "+row1[0].toString()+"</p>";
+										}else{
+											row[0]=row[0].toString()+"<p>"+row1[10].toString()
+													+",<b>"+row1[12]+" ( "+row1[8]+" "+row1[7]+""+row1[22]+" )</b> "+"यांच्या करिता"+": "+row1[0].toString()+"</p>";
+										}
+									}else{
+										if(row1[20]!=null){
+											row[0]=row[0].toString()+"<p><b>"+row1[10].toString()+"("+ row1[20]+")"
+													+" ,"+row1[12]+" ( "+row1[8]+" "+row1[7]+")</b> "+"यांच्या करिता"+": "+row1[0].toString()+"</p>";
+										}else{
+											row[0]=row[0].toString()+"<p><b>"+row1[10].toString()
+													+" ,"+row1[12]+" ( "+row1[8]+" "+row1[7]+")</b> "+"यांच्या करिता"+": "+row1[0].toString()+"</p>";
+										}
+									}
+								
+								}else{
+									if(row1[22]!=null){
+										if(row1[20]!=null){
+											row[0]=row[0].toString()+"<p><b>"+row1[10].toString()+"("+ row1[20]+")"
+													+" ,"+row1[12]+" ("+row1[7]+""+row1[22]+" )</b> "+"यांच्या करिता"+": "+row1[0].toString()+"</p>";
+										}else{
+											row[0]=row[0].toString()+"<p><b>"+row1[10].toString()
+													+" ,"+row1[12]+" ("+row1[7]+""+row1[22]+" )</b> "+"यांच्या करिता"+": "+row1[0].toString()+"</p>";
+										}
+									}else{
+										if(row1[20]!=null){
+											row[0]=row[0].toString()+"<p><b>"+row1[10].toString()+"("+ row1[20]+")"
+													+" ,"+row1[12]+" ("+row1[7]+")</b> "+"यांच्या करिता"+": "+row1[0].toString()+"</p>";
+										}else{
+											row[0]=row[0].toString()+"<p><b>"+row1[10].toString()
+													+" ,"+row1[12]+" ("+row1[7]+")</b> "+"यांच्या करिता"+": "+row1[0].toString()+"</p>";
+										}
+									}
+								}
+							}else{
+								if(row1[20]!=null){
+									row[0]=row[0].toString()+"<p><b>"+row1[10].toString()+"("+ row1[20]+")"
+											+" </b>,"+row1[12]+"यांच्या करिता"+": "+row1[0].toString()+"</p>";
+								}else{
+									row[0]=row[0].toString()+"<p><b>"+row1[10].toString()
+											+"</b> ,"+row1[12]+"यांच्या करिता"+": "+row1[0].toString()+"</p>";
+								}
+							}
 						}else{
-							row[0]=row[0]+"<p>"+row1[0]+"</p>";
+							if(row1[20]!=null){
+								row[0]=row[0].toString()+"<p><b>"+row1[10].toString()+"("+ row1[20]+")"
+										+" </b>,: "+row1[0].toString()+"</p>";
+							}else{
+								row[0]=row[0].toString()+"<p><b>"+row1[10].toString()
+										+"</b>: "+row1[0].toString()+"</p>";
+							}
 						}
-						
 					}
+				}else{
+					if(row1[3]!=null){
+						row[0]=row[0]+"<p>"+row1[3]+" ("+row1[4]+") :  "+row1[0]+"</p>";
+					}else{
+						row[0]=row[0]+"<p>"+row1[0]+"</p>";
+					}
+					
+				}
 					row1[1]="";
 					row1[2]="";
 					i=i+1;
@@ -2889,53 +3846,251 @@ public class ProceedingController extends GenericController<Proceeding>{
 						}
 						if(row1[9]!=null){
 							if(row1[5]!=null){
-								if(row1[6]!=null){
+								if(row1[21]!=null){
+								 if(row1[6]!=null){
 									if(row1[11]!=null){
 										if(row1[7]!=null){
 											if(row1[8]!=null){
-												row[0]=row[0].toString()+"<p>"+row1[10].toString()+" ( "+row1[6]+""+row1[5]+")"
-														+" ,"+row1[12]+" ( "+row1[8]+" "+row1[7]+" ) "+"यांच्या करिता"+": "+row1[0].toString()+"</p>";
+												if(row1[22]!=null){
+													if(row1[20]!=null){
+														row[0]=row[0].toString()+"<p><b>"+row1[10].toString()+"("+ row1[20]+") ( "+row1[6]+""+row1[5]+""+row1[21]+")"
+																+" ,"+row1[12]+" ( "+row1[8]+" "+row1[7]+""+row1[22]+" )</b> "+"यांच्या करिता"+": "+row1[0].toString()+"</p>";
+													}else{
+														row[0]=row[0].toString()+"<p><b>"+row1[10].toString()+" ( "+row1[6]+""+row1[5]+""+row1[21]+")"
+																+" ,"+row1[12]+" ( "+row1[8]+" "+row1[7]+""+row1[22]+" )</b> "+"यांच्या करिता"+": "+row1[0].toString()+"</p>";
+													}
+												}else{
+													if(row1[20]!=null){
+														row[0]=row[0].toString()+"<p><b>"+row1[10].toString()+"("+ row1[20]+") ( "+row1[6]+""+row1[5]+""+row1[21]+")"
+																+" ,"+row1[12]+" ( "+row1[8]+" "+row1[7]+")</b> "+"यांच्या करिता"+": "+row1[0].toString()+"</p>";
+													}else{
+														row[0]=row[0].toString()+"<p><b>"+row1[10].toString()+" ( "+row1[6]+""+row1[5]+""+row1[21]+")"
+																+" ,"+row1[12]+" ( "+row1[8]+" "+row1[7]+")</b> "+"यांच्या करिता"+": "+row1[0].toString()+"</p>";
+													}
+												}
 											}else{
-												row[0]=row[0].toString()+"<p>"+row1[10].toString()+" ( "+row1[6]+""+row1[5]+")"
-														+" ,"+row1[12]+" ( "+row1[7]+" ) "+"यांच्या करिता"+": "+row1[0].toString()+"</p>";
+												if(row1[22]!=null){
+													if(row1[20]!=null){
+														row[0]=row[0].toString()+"<p><b>"+row1[10].toString()+"("+ row1[20]+") ( "+row1[6]+""+row1[5]+""+row1[21]+")"
+																+" ,"+row1[12]+" ("+row1[7]+""+row1[22]+" )</b> "+"यांच्या करिता"+": "+row1[0].toString()+"</p>";
+													}else{
+														row[0]=row[0].toString()+"<p><b>"+row1[10].toString()+" ( "+row1[6]+""+row1[5]+""+row1[21]+")"
+																+" ,"+row1[12]+" ("+row1[7]+""+row1[22]+" )</b> "+"यांच्या करिता"+": "+row1[0].toString()+"</p>";
+													}
+												}else{
+													if(row1[20]!=null){
+														row[0]=row[0].toString()+"<p><b>"+row1[10].toString()+"("+ row1[20]+") ( "+row1[6]+""+row1[5]+""+row1[21]+")"
+																+" ,"+row1[12]+" ("+row1[7]+")</b> "+"यांच्या करिता"+": "+row1[0].toString()+"</p>";
+													}else{
+														row[0]=row[0].toString()+"<p><b>"+row1[10].toString()+" ( "+row1[6]+""+row1[5]+""+row1[21]+")"
+																+" ,"+row1[12]+" ("+row1[7]+")</b> "+"यांच्या करिता"+": "+row1[0].toString()+"</p>";
+													}
+												}
 											}
 										}else{
-											row[0]=row[0].toString()+"<p>"+row1[10].toString()+" ( "+row1[6]+""+row1[5]+")"
-													+" ,"+row1[12]+" यांच्या करिता"+": "+row1[0].toString()+"</p>";
+											if(row1[20]!=null){
+												row[0]=row[0].toString()+"<p><b>"+row1[10].toString()+"("+ row1[20]+") ( "+row1[6]+""+row1[5]+""+row1[21]+")"
+														+" </b>,"+row1[12]+"यांच्या करिता"+": "+row1[0].toString()+"</p>";
+											}else{
+												row[0]=row[0].toString()+"<p><b>"+row1[10].toString()+" ( "+row1[6]+""+row1[5]+""+row1[21]+")"
+														+"</b> ,"+row1[12]+"यांच्या करिता"+": "+row1[0].toString()+"</p>";
+											}
 										}
 									}else{
-										row[0]=row[0].toString()+"<p>"+row1[10].toString()+" ( "+row1[6]+""+row1[5]+")"+
-												": "+row1[0].toString()+"</p>";
+										if(row1[20]!=null){
+											row[0]=row[0].toString()+"<p><b>"+row1[10].toString()+"("+ row1[20]+") ( "+row1[6]+""+row1[5]+""+row1[21]+")"
+													+" </b>,: "+row1[0].toString()+"</p>";
+										}else{
+											row[0]=row[0].toString()+"<p><b>"+row1[10].toString()+" ( "+row1[6]+""+row1[5]+""+row1[21]+")"
+													+"</b>: "+row1[0].toString()+"</p>";
+										}
 									}
 								}else{
-
-									row[0]=row[0].toString()+"<p>"+row1[10].toString()+" ( "+row1[5]+")"+
-											": "+row1[0].toString()+"</p>";
+									if(row1[11]!=null){
+										if(row1[7]!=null){
+											if(row1[8]!=null){
+												if(row1[22]!=null){
+													if(row1[20]!=null){
+														row[0]=row[0].toString()+"<p><b>"+row1[10].toString()+"("+ row1[20]+") ("+row1[5]+""+row1[21]+")"
+																+" ,"+row1[12]+" ( "+row1[8]+" "+row1[7]+""+row1[22]+" )</b> "+"यांच्या करिता"+": "+row1[0].toString()+"</p>";
+													}else{
+														row[0]=row[0].toString()+"<p><b>"+row1[10].toString()+" ("+row1[5]+""+row1[21]+")"
+																+" ,"+row1[12]+" ( "+row1[8]+" "+row1[7]+""+row1[22]+" )</b> "+"यांच्या करिता"+": "+row1[0].toString()+"</p>";
+													}
+												}else{
+													if(row1[20]!=null){
+														row[0]=row[0].toString()+"<p><b>"+row1[10].toString()+"("+ row1[20]+") ("+row1[5]+""+row1[21]+")"
+																+" ,"+row1[12]+" ( "+row1[8]+" "+row1[7]+")</b> "+"यांच्या करिता"+": "+row1[0].toString()+"</p>";
+													}else{
+														row[0]=row[0].toString()+"<p><b>"+row1[10].toString()+" ("+row1[5]+""+row1[21]+")"
+																+" ,"+row1[12]+" ( "+row1[8]+" "+row1[7]+")</b> "+"यांच्या करिता"+": "+row1[0].toString()+"</p>";
+													}
+												}
+											}else{
+												if(row1[22]!=null){
+													if(row1[20]!=null){
+														row[0]=row[0].toString()+"<p><b>"+row1[10].toString()+"("+ row1[20]+") ("+row1[5]+""+row1[21]+")"
+																+" ,"+row1[12]+" ("+row1[7]+""+row1[22]+" )</b> "+"यांच्या करिता"+": "+row1[0].toString()+"</p>";
+													}else{
+														row[0]=row[0].toString()+"<p><b>"+row1[10].toString()+" ("+row1[5]+""+row1[21]+")"
+																+" ,"+row1[12]+" ("+row1[7]+""+row1[22]+" )</b> "+"यांच्या करिता"+": "+row1[0].toString()+"</p>";
+													}
+												}else{
+													if(row1[20]!=null){
+														row[0]=row[0].toString()+"<p><b>"+row1[10].toString()+"("+ row1[20]+") ("+row1[5]+""+row1[21]+")"
+																+" ,"+row1[12]+" ("+row1[7]+")</b> "+"यांच्या करिता"+": "+row1[0].toString()+"</p>";
+													}else{
+														row[0]=row[0].toString()+"<p><b>"+row1[10].toString()+" ("+row1[5]+""+row1[21]+")"
+																+" ,"+row1[12]+" ("+row1[7]+")</b> "+"यांच्या करिता"+": "+row1[0].toString()+"</p>";
+													}
+												}
+											}
+										}else{
+											if(row1[20]!=null){
+												row[0]=row[0].toString()+"<p><b>"+row1[10].toString()+"("+ row1[20]+") ("+row1[5]+""+row1[21]+")"
+														+" </b>,"+row1[12]+"यांच्या करिता"+": "+row1[0].toString()+"</p>";
+											}else{
+												row[0]=row[0].toString()+"<p><b>"+row1[10].toString()+" ("+row1[5]+""+row1[21]+")"
+														+"</b> ,"+row1[12]+"यांच्या करिता"+": "+row1[0].toString()+"</p>";
+											}
+										}
+									}else{
+										if(row1[20]!=null){
+											row[0]=row[0].toString()+"<p><b>"+row1[10].toString()+"("+ row1[20]+") ("+row1[5]+""+row1[21]+")"
+													+" </b>,: "+row1[0].toString()+"</p>";
+										}else{
+											row[0]=row[0].toString()+"<p><b>"+row1[10].toString()+" ("+row1[5]+""+row1[21]+")"
+													+"</b>: "+row1[0].toString()+"</p>";
+										}
+									}	
 								}
 							}else{
 								if(row1[11]!=null){
 									if(row1[7]!=null){
 										if(row1[8]!=null){
-											row[0]=row[0].toString()+"<p>"+row1[10].toString()+" ,"+row1[12]+" ( "+row1[8]+" "+row1[7]+" ) "+"यांच्या करिता"+": "+row1[0].toString()+"</p>";
+											if(row1[22]!=null){
+												if(row1[20]!=null){
+													row[0]=row[0].toString()+"<p><b>"+row1[10].toString()+"("+ row1[20]+") ("+row1[5]+")"
+															+" ,"+row1[12]+" ( "+row1[8]+" "+row1[7]+""+row1[22]+" )</b> "+"यांच्या करिता"+": "+row1[0].toString()+"</p>";
+												}else{
+													row[0]=row[0].toString()+"<p><b>"+row1[10].toString()+" ("+row1[5]+")"
+															+" ,"+row1[12]+" ( "+row1[8]+" "+row1[7]+""+row1[22]+" )</b> "+"यांच्या करिता"+": "+row1[0].toString()+"</p>";
+												}
+											}else{
+												if(row1[20]!=null){
+													row[0]=row[0].toString()+"<p><b>"+row1[10].toString()+"("+ row1[20]+") ("+row1[5]+")"
+															+" ,"+row1[12]+" ( "+row1[8]+" "+row1[7]+")</b> "+"यांच्या करिता"+": "+row1[0].toString()+"</p>";
+												}else{
+													row[0]=row[0].toString()+"<p><b>"+row1[10].toString()+" ("+row1[5]+")"
+															+" ,"+row1[12]+" ( "+row1[8]+" "+row1[7]+")</b> "+"यांच्या करिता"+": "+row1[0].toString()+"</p>";
+												}
+											}
 										}else{
-											row[0]=row[0].toString()+"<p>"+row1[10].toString()
-													+" ,"+row1[12]+" ( "+row1[7]+" ) "+"यांच्या करिता"+": "+row1[0].toString()+"</p>";
+											if(row1[22]!=null){
+												if(row1[20]!=null){
+													row[0]=row[0].toString()+"<p><b>"+row1[10].toString()+"("+ row1[20]+") ("+row1[5]+")"
+															+" ,"+row1[12]+" ("+row1[7]+""+row1[22]+" )</b> "+"यांच्या करिता"+": "+row1[0].toString()+"</p>";
+												}else{
+													row[0]=row[0].toString()+"<p><b>"+row1[10].toString()+" ("+row1[5]+")"
+															+" ,"+row1[12]+" ("+row1[7]+""+row1[22]+" )</b> "+"यांच्या करिता"+": "+row1[0].toString()+"</p>";
+												}
+											}else{
+												if(row1[20]!=null){
+													row[0]=row[0].toString()+"<p><b>"+row1[10].toString()+"("+ row1[20]+") ("+row1[5]+")"
+															+" ,"+row1[12]+" ("+row1[7]+")</b> "+"यांच्या करिता"+": "+row1[0].toString()+"</p>";
+												}else{
+													row[0]=row[0].toString()+"<p><b>"+row1[10].toString()+" ("+row1[5]+")"
+															+" ,"+row1[12]+" ("+row1[7]+")</b> "+"यांच्या करिता"+": "+row1[0].toString()+"</p>";
+												}
+											}
 										}
 									}else{
-										row[0]=row[0].toString()+"<p>"+row1[10].toString()
-												+" ,"+row1[12]+" यांच्या करिता"+": "+row1[0].toString()+"</p>";
+										if(row1[20]!=null){
+											row[0]=row[0].toString()+"<p><b>"+row1[10].toString()+"("+ row1[20]+") ("+row1[5]+")"
+													+" </b>,"+row1[12]+"यांच्या करिता"+": "+row1[0].toString()+"</p>";
+										}else{
+											row[0]=row[0].toString()+"<p><b>"+row1[10].toString()+" ("+row1[5]+")"
+													+"</b> ,"+row1[12]+"यांच्या करिता"+": "+row1[0].toString()+"</p>";
+										}
 									}
 								}else{
-									row[0]=row[0].toString()+"<p>"+row1[10].toString()+	" : "+row1[0].toString()+"</p>";
+									if(row1[20]!=null){
+										row[0]=row[0].toString()+"<p><b>"+row1[10].toString()+"("+ row1[20]+") ("+row1[5]+")"
+												+" </b>,: "+row1[0].toString()+"</p>";
+									}else{
+										row[0]=row[0].toString()+"<p><b>"+row1[10].toString()+" ("+row1[5]+")"
+												+"</b>: "+row1[0].toString()+"</p>";
+									}
 								}
 							}
 						}else{
-							if(row1[3]!=null){
-								row[0]=row[0]+"<p>"+row1[3]+" ("+row1[4]+") :  "+row1[0]+"</p>";
+							if(row1[11]!=null){
+								if(row1[7]!=null){
+									if(row1[8]!=null){
+										if(row1[22]!=null){
+											if(row1[20]!=null){
+												row[0]=row[0].toString()+"<p>"+row1[10].toString()+"("+ row1[20]+")"
+														+" ,<b>"+row1[12]+" ( "+row1[8]+" "+row1[7]+""+row1[22]+" )</b> "+"यांच्या करिता"+": "+row1[0].toString()+"</p>";
+											}else{
+												row[0]=row[0].toString()+"<p>"+row1[10].toString()
+														+",<b>"+row1[12]+" ( "+row1[8]+" "+row1[7]+""+row1[22]+" )</b> "+"यांच्या करिता"+": "+row1[0].toString()+"</p>";
+											}
+										}else{
+											if(row1[20]!=null){
+												row[0]=row[0].toString()+"<p><b>"+row1[10].toString()+"("+ row1[20]+")"
+														+" ,"+row1[12]+" ( "+row1[8]+" "+row1[7]+")</b> "+"यांच्या करिता"+": "+row1[0].toString()+"</p>";
+											}else{
+												row[0]=row[0].toString()+"<p><b>"+row1[10].toString()
+														+" ,"+row1[12]+" ( "+row1[8]+" "+row1[7]+")</b> "+"यांच्या करिता"+": "+row1[0].toString()+"</p>";
+											}
+										}
+									
+									}else{
+										if(row1[22]!=null){
+											if(row1[20]!=null){
+												row[0]=row[0].toString()+"<p><b>"+row1[10].toString()+"("+ row1[20]+")"
+														+" ,"+row1[12]+" ("+row1[7]+""+row1[22]+" )</b> "+"यांच्या करिता"+": "+row1[0].toString()+"</p>";
+											}else{
+												row[0]=row[0].toString()+"<p><b>"+row1[10].toString()
+														+" ,"+row1[12]+" ("+row1[7]+""+row1[22]+" )</b> "+"यांच्या करिता"+": "+row1[0].toString()+"</p>";
+											}
+										}else{
+											if(row1[20]!=null){
+												row[0]=row[0].toString()+"<p><b>"+row1[10].toString()+"("+ row1[20]+")"
+														+" ,"+row1[12]+" ("+row1[7]+")</b> "+"यांच्या करिता"+": "+row1[0].toString()+"</p>";
+											}else{
+												row[0]=row[0].toString()+"<p><b>"+row1[10].toString()
+														+" ,"+row1[12]+" ("+row1[7]+")</b> "+"यांच्या करिता"+": "+row1[0].toString()+"</p>";
+											}
+										}
+									}
+								}else{
+									if(row1[20]!=null){
+										row[0]=row[0].toString()+"<p><b>"+row1[10].toString()+"("+ row1[20]+")"
+												+" </b>,"+row1[12]+"यांच्या करिता"+": "+row1[0].toString()+"</p>";
+									}else{
+										row[0]=row[0].toString()+"<p><b>"+row1[10].toString()
+												+"</b> ,"+row1[12]+"यांच्या करिता"+": "+row1[0].toString()+"</p>";
+									}
+								}
 							}else{
-								row[0]=row[0]+"<p>"+row1[0]+"</p>";
+								if(row1[20]!=null){
+									row[0]=row[0].toString()+"<p><b>"+row1[10].toString()+"("+ row1[20]+")"
+											+" </b>,: "+row1[0].toString()+"</p>";
+								}else{
+									row[0]=row[0].toString()+"<p><b>"+row1[10].toString()
+											+"</b>: "+row1[0].toString()+"</p>";
+								}
 							}
 						}
+					}else{
+						if(row1[3]!=null){
+							row[0]=row[0]+"<p>"+row1[3]+" ("+row1[4]+") :  "+row1[0]+"</p>";
+						}else{
+							row[0]=row[0]+"<p>"+row1[0]+"</p>";
+						}
+						
+					}
 						row1[1]="";
 						row1[2]="";
 						i=i+1;
@@ -3120,7 +4275,11 @@ public class ProceedingController extends GenericController<Proceeding>{
 					}
 				}
 				if(row[10]!=null){
-					row[0]=row[10]+" : "+row[0];
+					if(row[20]!=null){
+						row[0]=row[10]+" ("+row[20]+") :"+ row[0];
+					}else{
+						row[0]=row[10]+" : "+row[0];
+					}
 				}
 				if(row[1]==null){
 					row[1]="";
@@ -3146,48 +4305,245 @@ public class ProceedingController extends GenericController<Proceeding>{
 							row[0]=row[0]+"<p align='center'><b> (अध्यक्षस्थानी माननीय "+ row1[18]+" "+ row1[19]+")</b></p>"; 
 						}
 						if(row1[9]!=null){
-						if(row1[5]!=null){
-							if(row1[6]!=null){
+							if(row1[5]!=null){
+								if(row1[21]!=null){
+									if(row1[6]!=null){
+										if(row1[11]!=null){
+											if(row1[7]!=null){
+												if(row1[8]!=null){
+													if(row1[22]!=null){
+														if(row1[20]!=null){
+															row[0]=row[0].toString()+"<p><b>"+row1[10].toString()+"("+ row1[20]+") ( "+row1[6]+""+row1[5]+""+row1[21]+")"
+																+" ,"+row1[12]+" ( "+row1[8]+" "+row1[7]+""+row1[22]+" )</b> "+"यांच्या करिता"+": "+row1[0].toString()+"</p>";
+														}else{
+															row[0]=row[0].toString()+"<p><b>"+row1[10].toString()+" ( "+row1[6]+""+row1[5]+""+row1[21]+")"
+																	+" ,"+row1[12]+" ( "+row1[8]+" "+row1[7]+""+row1[22]+" )</b> "+"यांच्या करिता"+": "+row1[0].toString()+"</p>";
+														}
+													}else{
+														if(row1[20]!=null){
+															row[0]=row[0].toString()+"<p><b>"+row1[10].toString()+"("+ row1[20]+") ( "+row1[6]+""+row1[5]+""+row1[21]+")"
+																	+" ,"+row1[12]+" ( "+row1[8]+" "+row1[7]+")</b> "+"यांच्या करिता"+": "+row1[0].toString()+"</p>";
+														}else{
+															row[0]=row[0].toString()+"<p><b>"+row1[10].toString()+" ( "+row1[6]+""+row1[5]+""+row1[21]+")"
+																	+" ,"+row1[12]+" ( "+row1[8]+" "+row1[7]+")</b> "+"यांच्या करिता"+": "+row1[0].toString()+"</p>";
+														}
+													}
+												}else{
+													if(row1[22]!=null){
+														if(row1[20]!=null){
+															row[0]=row[0].toString()+"<p><b>"+row1[10].toString()+"("+ row1[20]+") ( "+row1[6]+""+row1[5]+""+row1[21]+")"
+																	+" ,"+row1[12]+" ("+row1[7]+""+row1[22]+" )</b> "+"यांच्या करिता"+": "+row1[0].toString()+"</p>";
+														}else{
+															row[0]=row[0].toString()+"<p><b>"+row1[10].toString()+" ( "+row1[6]+""+row1[5]+""+row1[21]+")"
+																	+" ,"+row1[12]+" ("+row1[7]+""+row1[22]+" )</b> "+"यांच्या करिता"+": "+row1[0].toString()+"</p>";
+														}
+													}else{
+														if(row1[20]!=null){
+															row[0]=row[0].toString()+"<p><b>"+row1[10].toString()+"("+ row1[20]+") ( "+row1[6]+""+row1[5]+""+row1[21]+")"
+																	+" ,"+row1[12]+" ("+row1[7]+")</b> "+"यांच्या करिता"+": "+row1[0].toString()+"</p>";
+														}else{
+															row[0]=row[0].toString()+"<p><b>"+row1[10].toString()+" ( "+row1[6]+""+row1[5]+""+row1[21]+")"
+																	+" ,"+row1[12]+" ("+row1[7]+")</b> "+"यांच्या करिता"+": "+row1[0].toString()+"</p>";
+														}
+													}
+												}
+											}else{
+												if(row1[20]!=null){
+													row[0]=row[0].toString()+"<p><b>"+row1[10].toString()+"("+ row1[20]+") ( "+row1[6]+""+row1[5]+""+row1[21]+")"
+															+" </b>,"+row1[12]+"यांच्या करिता"+": "+row1[0].toString()+"</p>";
+												}else{
+													row[0]=row[0].toString()+"<p><b>"+row1[10].toString()+" ( "+row1[6]+""+row1[5]+""+row1[21]+")"
+															+"</b> ,"+row1[12]+"यांच्या करिता"+": "+row1[0].toString()+"</p>";
+												}
+											}
+										}else{
+											if(row1[20]!=null){
+												row[0]=row[0].toString()+"<p><b>"+row1[10].toString()+"("+ row1[20]+") ( "+row1[6]+""+row1[5]+""+row1[21]+")"
+														+" </b>,: "+row1[0].toString()+"</p>";
+											}else{
+												row[0]=row[0].toString()+"<p><b>"+row1[10].toString()+" ( "+row1[6]+""+row1[5]+""+row1[21]+")"
+														+"</b>: "+row1[0].toString()+"</p>";
+											}
+										}
+									}else{
+										if(row1[11]!=null){
+											if(row1[7]!=null){
+												if(row1[8]!=null){
+													if(row1[22]!=null){
+														if(row1[20]!=null){
+															row[0]=row[0].toString()+"<p><b>"+row1[10].toString()+"("+ row1[20]+") ("+row1[5]+""+row1[21]+")"
+																	+" ,"+row1[12]+" ( "+row1[8]+" "+row1[7]+""+row1[22]+" )</b> "+"यांच्या करिता"+": "+row1[0].toString()+"</p>";
+														}else{
+															row[0]=row[0].toString()+"<p><b>"+row1[10].toString()+" ("+row1[5]+""+row1[21]+")"
+																	+" ,"+row1[12]+" ( "+row1[8]+" "+row1[7]+""+row1[22]+" )</b> "+"यांच्या करिता"+": "+row1[0].toString()+"</p>";
+														}
+													}else{
+														if(row1[20]!=null){
+															row[0]=row[0].toString()+"<p><b>"+row1[10].toString()+"("+ row1[20]+") ("+row1[5]+""+row1[21]+")"
+																	+" ,"+row1[12]+" ( "+row1[8]+" "+row1[7]+")</b> "+"यांच्या करिता"+": "+row1[0].toString()+"</p>";
+														}else{
+															row[0]=row[0].toString()+"<p><b>"+row1[10].toString()+" ("+row1[5]+""+row1[21]+")"
+																	+" ,"+row1[12]+" ( "+row1[8]+" "+row1[7]+")</b> "+"यांच्या करिता"+": "+row1[0].toString()+"</p>";
+														}
+													}
+												}else{
+													if(row1[22]!=null){
+														if(row1[20]!=null){
+															row[0]=row[0].toString()+"<p><b>"+row1[10].toString()+"("+ row1[20]+") ("+row1[5]+""+row1[21]+")"
+																	+" ,"+row1[12]+" ("+row1[7]+""+row1[22]+" )</b> "+"यांच्या करिता"+": "+row1[0].toString()+"</p>";
+														}else{
+															row[0]=row[0].toString()+"<p><b>"+row1[10].toString()+" ("+row1[5]+""+row1[21]+")"
+																	+" ,"+row1[12]+" ("+row1[7]+""+row1[22]+" )</b> "+"यांच्या करिता"+": "+row1[0].toString()+"</p>";
+														}
+													}else{
+														if(row1[20]!=null){
+															row[0]=row[0].toString()+"<p><b>"+row1[10].toString()+"("+ row1[20]+") ("+row1[5]+""+row1[21]+")"
+																	+" ,"+row1[12]+" ("+row1[7]+")</b> "+"यांच्या करिता"+": "+row1[0].toString()+"</p>";
+														}else{
+															row[0]=row[0].toString()+"<p><b>"+row1[10].toString()+" ("+row1[5]+""+row1[21]+")"
+																	+" ,"+row1[12]+" ("+row1[7]+")</b> "+"यांच्या करिता"+": "+row1[0].toString()+"</p>";
+														}
+													}
+												}
+											}else{
+												if(row1[20]!=null){
+													row[0]=row[0].toString()+"<p><b>"+row1[10].toString()+"("+ row1[20]+") ("+row1[5]+""+row1[21]+")"
+															+" </b>,"+row1[12]+"यांच्या करिता"+": "+row1[0].toString()+"</p>";
+												}else{
+													row[0]=row[0].toString()+"<p><b>"+row1[10].toString()+" ("+row1[5]+""+row1[21]+")"
+															+"</b> ,"+row1[12]+"यांच्या करिता"+": "+row1[0].toString()+"</p>";
+												}
+											}
+										}else{
+											if(row1[20]!=null){
+												row[0]=row[0].toString()+"<p><b>"+row1[10].toString()+"("+ row1[20]+") ("+row1[5]+""+row1[21]+")"
+														+" </b>,: "+row1[0].toString()+"</p>";
+											}else{
+												row[0]=row[0].toString()+"<p><b>"+row1[10].toString()+" ("+row1[5]+""+row1[21]+")"
+														+"</b>: "+row1[0].toString()+"</p>";
+											}
+										}	
+									}
+								}else{
+									if(row1[11]!=null){
+										if(row1[7]!=null){
+											if(row1[8]!=null){
+												if(row1[22]!=null){
+													if(row1[20]!=null){
+														row[0]=row[0].toString()+"<p><b>"+row1[10].toString()+"("+ row1[20]+") ("+row1[5]+")"
+																+" ,"+row1[12]+" ( "+row1[8]+" "+row1[7]+""+row1[22]+" )</b> "+"यांच्या करिता"+": "+row1[0].toString()+"</p>";
+													}else{
+														row[0]=row[0].toString()+"<p><b>"+row1[10].toString()+" ("+row1[5]+")"
+																+" ,"+row1[12]+" ( "+row1[8]+" "+row1[7]+""+row1[22]+" )</b> "+"यांच्या करिता"+": "+row1[0].toString()+"</p>";
+													}
+												}else{
+													if(row1[20]!=null){
+														row[0]=row[0].toString()+"<p><b>"+row1[10].toString()+"("+ row1[20]+") ("+row1[5]+")"
+																+" ,"+row1[12]+" ( "+row1[8]+" "+row1[7]+")</b> "+"यांच्या करिता"+": "+row1[0].toString()+"</p>";
+													}else{
+														row[0]=row[0].toString()+"<p><b>"+row1[10].toString()+" ("+row1[5]+")"
+																+" ,"+row1[12]+" ( "+row1[8]+" "+row1[7]+")</b> "+"यांच्या करिता"+": "+row1[0].toString()+"</p>";
+													}
+												}
+											}else{
+												if(row1[22]!=null){
+													if(row1[20]!=null){
+														row[0]=row[0].toString()+"<p><b>"+row1[10].toString()+"("+ row1[20]+") ("+row1[5]+")"
+																+" ,"+row1[12]+" ("+row1[7]+""+row1[22]+" )</b> "+"यांच्या करिता"+": "+row1[0].toString()+"</p>";
+													}else{
+														row[0]=row[0].toString()+"<p><b>"+row1[10].toString()+" ("+row1[5]+")"
+																+" ,"+row1[12]+" ("+row1[7]+""+row1[22]+" )</b> "+"यांच्या करिता"+": "+row1[0].toString()+"</p>";
+													}
+												}else{
+													if(row1[20]!=null){
+														row[0]=row[0].toString()+"<p><b>"+row1[10].toString()+"("+ row1[20]+") ("+row1[5]+")"
+																+" ,"+row1[12]+" ("+row1[7]+")</b> "+"यांच्या करिता"+": "+row1[0].toString()+"</p>";
+													}else{
+														row[0]=row[0].toString()+"<p><b>"+row1[10].toString()+" ("+row1[5]+")"
+																+" ,"+row1[12]+" ("+row1[7]+")</b> "+"यांच्या करिता"+": "+row1[0].toString()+"</p>";
+													}
+												}
+											}
+										}else{
+											if(row1[20]!=null){
+												row[0]=row[0].toString()+"<p><b>"+row1[10].toString()+"("+ row1[20]+") ("+row1[5]+")"
+														+" </b>,"+row1[12]+"यांच्या करिता"+": "+row1[0].toString()+"</p>";
+											}else{
+												row[0]=row[0].toString()+"<p><b>"+row1[10].toString()+" ("+row1[5]+")"
+														+"</b> ,"+row1[12]+"यांच्या करिता"+": "+row1[0].toString()+"</p>";
+											}
+										}
+									}else{
+										if(row1[20]!=null){
+											row[0]=row[0].toString()+"<p><b>"+row1[10].toString()+"("+ row1[20]+") ("+row1[5]+")"
+													+" </b>,: "+row1[0].toString()+"</p>";
+										}else{
+											row[0]=row[0].toString()+"<p><b>"+row1[10].toString()+" ("+row1[5]+")"
+													+"</b>: "+row1[0].toString()+"</p>";
+										}
+									}
+								}
+							}else{
 								if(row1[11]!=null){
 									if(row1[7]!=null){
 										if(row1[8]!=null){
-											row[0]=row[0].toString()+"<p>"+row1[10].toString()+" ( "+row1[6]+""+row1[5]+")"
-													+" ,"+row1[12]+" ( "+row1[8]+" "+row1[7]+" ) "+"यांच्या करिता"+": "+row1[0].toString()+"</p>";
+											if(row1[22]!=null){
+												if(row1[20]!=null){
+													row[0]=row[0].toString()+"<p>"+row1[10].toString()+"("+ row1[20]+")"
+															+" ,<b>"+row1[12]+" ( "+row1[8]+" "+row1[7]+""+row1[22]+" )</b> "+"यांच्या करिता"+": "+row1[0].toString()+"</p>";
+												}else{
+													row[0]=row[0].toString()+"<p>"+row1[10].toString()
+															+",<b>"+row1[12]+" ( "+row1[8]+" "+row1[7]+""+row1[22]+" )</b> "+"यांच्या करिता"+": "+row1[0].toString()+"</p>";
+												}
+											}else{
+												if(row1[20]!=null){
+													row[0]=row[0].toString()+"<p><b>"+row1[10].toString()+"("+ row1[20]+")"
+															+" ,"+row1[12]+" ( "+row1[8]+" "+row1[7]+")</b> "+"यांच्या करिता"+": "+row1[0].toString()+"</p>";
+												}else{
+													row[0]=row[0].toString()+"<p><b>"+row1[10].toString()
+															+" ,"+row1[12]+" ( "+row1[8]+" "+row1[7]+")</b> "+"यांच्या करिता"+": "+row1[0].toString()+"</p>";
+												}
+											}
+										
 										}else{
-											row[0]=row[0].toString()+"<p>"+row1[10].toString()+" ( "+row1[6]+""+row1[5]+")"
-													+" ,"+row1[12]+" ( "+row1[7]+" ) "+"यांच्या करिता"+": "+row1[0].toString()+"</p>";
+											if(row1[22]!=null){
+												if(row1[20]!=null){
+													row[0]=row[0].toString()+"<p><b>"+row1[10].toString()+"("+ row1[20]+")"
+															+" ,"+row1[12]+" ("+row1[7]+""+row1[22]+" )</b> "+"यांच्या करिता"+": "+row1[0].toString()+"</p>";
+												}else{
+													row[0]=row[0].toString()+"<p><b>"+row1[10].toString()
+															+" ,"+row1[12]+" ("+row1[7]+""+row1[22]+" )</b> "+"यांच्या करिता"+": "+row1[0].toString()+"</p>";
+												}
+											}else{
+												if(row1[20]!=null){
+													row[0]=row[0].toString()+"<p><b>"+row1[10].toString()+"("+ row1[20]+")"
+															+" ,"+row1[12]+" ("+row1[7]+")</b> "+"यांच्या करिता"+": "+row1[0].toString()+"</p>";
+												}else{
+													row[0]=row[0].toString()+"<p><b>"+row1[10].toString()
+															+" ,"+row1[12]+" ("+row1[7]+")</b> "+"यांच्या करिता"+": "+row1[0].toString()+"</p>";
+												}
+											}
 										}
 									}else{
-										row[0]=row[0].toString()+"<p>"+row1[10].toString()+" ( "+row1[6]+""+row1[5]+")"
-												+" ,"+row1[12]+" यांच्या करिता"+": "+row1[0].toString()+"</p>";
+										if(row1[20]!=null){
+											row[0]=row[0].toString()+"<p><b>"+row1[10].toString()+"("+ row1[20]+")"
+													+" </b>,"+row1[12]+"यांच्या करिता"+": "+row1[0].toString()+"</p>";
+										}else{
+											row[0]=row[0].toString()+"<p><b>"+row1[10].toString()
+													+"</b> ,"+row1[12]+"यांच्या करिता"+": "+row1[0].toString()+"</p>";
+										}
 									}
 								}else{
-									row[0]=row[0].toString()+"<p>"+row1[10].toString()+" ( "+row1[6]+""+row1[5]+")"+
-											": "+row1[0].toString()+"</p>";
-								}
-							}else{
-
-								row[0]=row[0].toString()+"<p>"+row1[10].toString()+" ( "+row1[5]+")"+
-										": "+row1[0].toString()+"</p>";
-							}
-						}else{
-							if(row1[11]!=null){
-								if(row1[7]!=null){
-									if(row1[8]!=null){
-										row[0]=row[0].toString()+"<p>"+row1[10].toString()+" ,"+row1[12]+" ( "+row1[8]+" "+row1[7]+" ) "+"यांच्या करिता"+": "+row1[0].toString()+"</p>";
+									if(row1[20]!=null){
+										row[0]=row[0].toString()+"<p><b>"+row1[10].toString()+"("+ row1[20]+")"
+												+" </b>,: "+row1[0].toString()+"</p>";
 									}else{
-										row[0]=row[0].toString()+"<p>"+row1[10].toString()
-												+" ,"+row1[12]+" ( "+row1[7]+" ) "+"यांच्या करिता"+": "+row1[0].toString()+"</p>";
+										row[0]=row[0].toString()+"<p><b>"+row1[10].toString()
+												+"</b>: "+row1[0].toString()+"</p>";
 									}
-								}else{
-									row[0]=row[0].toString()+"<p>"+row1[10].toString()
-											+" ,"+row1[12]+" यांच्या करिता"+": "+row1[0].toString()+"</p>";
 								}
-							}else{
-								row[0]=row[0].toString()+"<p>"+row1[10].toString()+	" : "+row1[0].toString()+"</p>";
 							}
 						}
-					}
 					i=i+1;
 				}
 				}
