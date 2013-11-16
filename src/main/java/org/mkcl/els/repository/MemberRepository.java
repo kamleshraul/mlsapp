@@ -59,6 +59,7 @@ import org.mkcl.els.domain.House;
 import org.mkcl.els.domain.Language;
 import org.mkcl.els.domain.Member;
 import org.mkcl.els.domain.MemberRole;
+import org.mkcl.els.domain.Party;
 import org.mkcl.els.domain.PositionHeld;
 import org.mkcl.els.domain.Profession;
 import org.mkcl.els.domain.Qualification;
@@ -2525,5 +2526,18 @@ public class MemberRepository extends BaseRepository<Member, Long>{
 			memberVOs.add(masterVO);
 		}
 		return memberVOs;
+	}
+
+	public List<Member> findActiveMembersByParty(Party party,House house,String locale) {
+		String strQuery="SELECT m FROM Member m JOIN m.memberPartyAssociations mpa" +
+				" JOIN mpa.party p WHERE mpa.fromDate<=:currentDate AND mpa.house.id=:houseId" +
+				" AND p.id=:partyId AND mpa.toDate IS NULL AND p.locale=:locale";
+		javax.persistence.Query query=this.em().createQuery(strQuery);
+		query.setParameter("currentDate", new Date());
+		query.setParameter("houseId", house.getId());
+		query.setParameter("partyId", party.getId());
+		query.setParameter("locale",locale);
+		List<Member> members=query.getResultList();
+		return members;
 	}
 }
