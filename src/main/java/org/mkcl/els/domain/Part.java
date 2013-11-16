@@ -36,23 +36,29 @@ public class Part  extends BaseDomain implements Serializable{
 
 	private Integer orderNo;
 	
-	@OneToOne
+	@ManyToOne
 	private Member	primaryMember;
 	
-	@OneToOne
+	@ManyToOne
 	private Designation primaryMemberDesignation;
 	
-	@OneToOne
+	@ManyToOne
 	private Ministry primaryMemberMinistry;
+	
+	@ManyToOne
+	private SubDepartment primaryMemberSubDepartment;
 		
-	@OneToOne
+	@ManyToOne
 	private Member substituteMember;
 	
-	@OneToOne
+	@ManyToOne
 	private Designation substituteMemberDesignation;
 	
-	@OneToOne
+	@ManyToOne
 	private Ministry substituteMemberMinistry;
+	
+	@ManyToOne
+	private SubDepartment substituteMemberSubDepartment;
 	
 	@Column(length=30000)
 	private String publicRepresentative	;
@@ -60,7 +66,7 @@ public class Part  extends BaseDomain implements Serializable{
 	@Column(length=30000)
 	private String publicRepresentativeDetail;
 	
-	@OneToOne
+	@ManyToOne
 	private Reporter reporter;
 	
 	private String mainHeading;
@@ -93,6 +99,10 @@ public class Part  extends BaseDomain implements Serializable{
 	
 	private Boolean isInterrupted;
 	
+	private Boolean isConstituencyRequired;
+	
+	
+	
 	@ManyToMany(fetch=FetchType.LAZY,cascade=CascadeType.ALL)
     @JoinTable(name="parts_drafts_association", 
     		joinColumns={@JoinColumn(name="part_id", referencedColumnName="id")}, 
@@ -115,23 +125,28 @@ public class Part  extends BaseDomain implements Serializable{
 
 	public Part(Integer orderNo, Member primaryMember,
 			Designation primaryMemberDesignation,
-			Ministry primaryMemberMinistry, Member substituteMember,
+			Ministry primaryMemberMinistry,
+			SubDepartment primaryMemberSubDepartment, Member substituteMember,
 			Designation substituteMemberDesignation,
-			Ministry substituteMemberMinistry, String publicRepresentative,
-			String publicRepresentativeDetail, Reporter reporter,
-			String mainHeading, String pageHeading, Date entryDate,
-			String chairPerson, MemberRole chairPersonRole,
+			Ministry substituteMemberMinistry,
+			SubDepartment substituteMemberSubDepartment,
+			String publicRepresentative, String publicRepresentativeDetail,
+			Reporter reporter, String mainHeading, String pageHeading,
+			Date entryDate, String chairPerson, MemberRole chairPersonRole,
 			String proceedingContent, String revisedContent,
 			String editedContent, Proceeding proceeding, DeviceType deviceType,
-			Long deviceId, Boolean isInterrupted, List<PartDraft> partDrafts) {
+			Long deviceId, Boolean isInterrupted,
+			Boolean isConstituencyRequired, List<PartDraft> partDrafts) {
 		super();
 		this.orderNo = orderNo;
 		this.primaryMember = primaryMember;
 		this.primaryMemberDesignation = primaryMemberDesignation;
 		this.primaryMemberMinistry = primaryMemberMinistry;
+		this.primaryMemberSubDepartment = primaryMemberSubDepartment;
 		this.substituteMember = substituteMember;
 		this.substituteMemberDesignation = substituteMemberDesignation;
 		this.substituteMemberMinistry = substituteMemberMinistry;
+		this.substituteMemberSubDepartment = substituteMemberSubDepartment;
 		this.publicRepresentative = publicRepresentative;
 		this.publicRepresentativeDetail = publicRepresentativeDetail;
 		this.reporter = reporter;
@@ -147,6 +162,7 @@ public class Part  extends BaseDomain implements Serializable{
 		this.deviceType = deviceType;
 		this.deviceId = deviceId;
 		this.isInterrupted = isInterrupted;
+		this.isConstituencyRequired = isConstituencyRequired;
 		this.partDrafts = partDrafts;
 	}
 
@@ -399,6 +415,32 @@ public class Part  extends BaseDomain implements Serializable{
 
 	public void setIsInterrupted(Boolean isInterrupted) {
 		this.isInterrupted = isInterrupted;
+	}
+
+	public Boolean getIsConstituencyRequired() {
+		return isConstituencyRequired;
+	}
+
+	public void setIsConstituencyRequired(Boolean isConstituencyRequired) {
+		this.isConstituencyRequired = isConstituencyRequired;
+	}
+
+	public SubDepartment getPrimaryMemberSubDepartment() {
+		return primaryMemberSubDepartment;
+	}
+
+	public void setPrimaryMemberSubDepartment(
+			SubDepartment primaryMemberSubDepartment) {
+		this.primaryMemberSubDepartment = primaryMemberSubDepartment;
+	}
+
+	public SubDepartment getSubstituteMemberSubDepartment() {
+		return substituteMemberSubDepartment;
+	}
+
+	public void setSubstituteMemberSubDepartment(
+			SubDepartment substituteMemberSubDepartment) {
+		this.substituteMemberSubDepartment = substituteMemberSubDepartment;
 	}
 	
 	
