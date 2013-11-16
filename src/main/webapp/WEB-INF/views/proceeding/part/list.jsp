@@ -20,7 +20,7 @@
 			});
 			
 			
-			/**** delete Proceeding ****/
+			/**** delete Part ****/
 			$("#delete_record").click(function() {
 				deletePart();
 			});		
@@ -38,9 +38,8 @@
 		function rowSelectHandler(rowid,status){			
 			$('#internalKey').val(rowid);
 			currentRowId=rowid;
-			console.log(currentRowId);
 			dataIds=$('#grid').jqGrid('getDataIDs');
-			console.log(dataIds);
+			
 		}		
 		/**** double clicking record in grid handler ****/		
 		function rowDblClickHandler(rowid, iRow, iCol, e) {
@@ -50,7 +49,29 @@
 			showTabByIdAndUrl('part_tab', 'proceeding/part/'+rowid+'/edit?'+$("#gridURLParams").val());
 		}
 		
-		
+		function deletePart() {
+			var row = $("#internalKey").val();
+			var proceedingId=$('#key').val();
+			if (row == null || row == '') {
+				$.prompt($('#selectRowFirstMessage').val());
+				return;
+			} else {
+				$.prompt($('#confirmDeleteMessage').val() + row, {
+					buttons : {
+						Ok : true,
+						Cancel : false
+					},
+					callback : function(v) {
+						if (v) {
+							$.delete_('proceeding/'+proceedingId+'/' + row + '/delete', null,
+									function(data, textStatus, XMLHttpRequest) {
+										showPartList($('#key').val());
+									});
+						}
+					}
+				});
+			}
+		}
 	</script>
 </head>
 <body>

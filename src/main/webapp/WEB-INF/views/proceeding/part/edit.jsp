@@ -287,6 +287,12 @@
 		}else{
 			$("#primaryMemberDesignation").prepend("<option value='' selected='selected'>----"+$("#pleaseSelectMessage").val()+"----</option>");
 		}
+		
+		if($('#primaryMemberSubDepartmentSelected').val()!=''){
+			$("#primaryMemberSubDepartment").prepend("<option value='' >----"+$("#pleaseSelectMessage").val()+"----</option>");
+		}else{
+			$("#primaryMemberSubDepartment").prepend("<option value='' selected='selected'>----"+$("#pleaseSelectMessage").val()+"----</option>");
+		}
 			
 		if($('#substituteMemberSelected').val()!=''){
 			$('.substitute').show();
@@ -306,6 +312,11 @@
 			$("#substituteMemberMinistry").prepend("<option value='' selected='selected' >----"+$("#pleaseSelectMessage").val()+"----</option>");
 		}
 			
+		if($('#substituteMemberSubDepartmentSelected').val()!=''){
+			$("#substituteMemberSubDepartment").prepend("<option value='' >----"+$("#pleaseSelectMessage").val()+"----</option>");
+		}else{
+			$("#substituteMemberSubDepartment").prepend("<option value='' selected='selected' >----"+$("#pleaseSelectMessage").val()+"----</option>");
+		}
 		if($('#substituteMemberDesignationSelected').val()!=''){
 			$("#substituteMemberDesignation").prepend("<option value='' >----"+$("#pleaseSelectMessage").val()+"----</option>");
 		}else{
@@ -370,6 +381,17 @@
 			$('#mainHeadingP').css('display','block');
 			$('#pageHeadingP').css('display','block');
 		});
+		
+		$("#primaryMemberMinistry").change(function(){
+			loadSubDepartments($(this).val(),"primaryMemberSubDepartment");
+		});
+	
+		$("#substituteMemberMinistry").change(function(){
+			loadSubDepartments($(this).val(),"substituteMemberSubDepartment");
+		});
+		
+		$('#mainHeading-wysiwyg-iframe').css('height','124px');
+		$('#pageHeading-wysiwyg-iframe').css('height','124px');
 	});
 	
 	/****Function to get the selected text from iframe****/
@@ -410,6 +432,33 @@
 		$('#privateLink').hide();
 		$('#ministerLink').hide();
 		$('#substituteLink').hide();
+	}
+	
+	
+	function loadSubDepartments(ministry,id){
+		$.get('ref/ministry/subdepartments?ministry='+ministry,function(data){
+			$("#"+id).empty();
+			var subDepartmentText="<option value='' selected='selected'>----"+$("#pleaseSelectMessage").val()+"----</option>";
+			if(data.length>0){
+			for(var i=0;i<data.length;i++){
+				subDepartmentText+="<option value='"+data[i].id+"'>"+data[i].name;
+			}
+			$("#"+id).html(subDepartmentText);
+			$("#"+id).css('display','inline');
+			}else{
+				$("#"+id).empty();
+				var subDepartmentText="<option value='' selected='selected'>----"+$("#pleaseSelectMessage").val()+"----</option>";				
+				$("#"+id).html(subDepartmentText);	
+				$("#"+id).css('display','inline');
+			}
+		}).fail(function(){
+			if($("#ErrorMsg").val()!=''){
+				$("#error_p").html($("#ErrorMsg").val()).css({'color':'red', 'display':'block'});
+			}else{
+				$("#error_p").html("Error occured contact for support.").css({'color':'red', 'display':'block'});
+			}
+			scrollTop();
+		});
 	}
 	</script>
 </head>
@@ -517,6 +566,24 @@
 		<form:errors path="primaryMemberMinistry"/>
 	</p>
 	
+	<p class="minister" style="display:none;">
+		<label class="small"><spring:message code="part.primaryMemberSubDepartment" text="Primary Member SubDepartment"/></label>
+		<select id="primaryMemberSubDepartment" name="primaryMemberSubDepartment" class="sSelect">
+			<option value="" selected='selected'><spring:message code="please.select" text="Please Select"/></option>
+			<c:forEach items="${subDepartments}" var="i">
+				<c:choose>
+					<c:when test="${i.id==primaryMemberSubDepartmentSelected}">
+						<option value="${i.id}" selected='selected'>${i.name}</option>
+					</c:when>
+					<c:otherwise>
+						<option value="${i.id}">${i.name}</option>
+					</c:otherwise>
+				</c:choose>
+			</c:forEach>
+		</select>
+		<form:errors path="primaryMemberSubDepartment"/>
+	</p>
+	
 	<p class="substitute">
 		<label class="small"><spring:message code="part.substituteMemberName" text="In Place of"/></label>
 		<input type="text" name="formattedSubstituteMember" id="formattedSubstituteMember" class="autosuggest sText" value="${formattedSubstituteMember}"/>
@@ -558,6 +625,24 @@
 		</select>
 		<form:errors path="substituteMemberMinistry"/>
 	</p>
+	
+	<p class="substitute" style="display:none;">
+		<label class="small"><spring:message code="part.substituteMemberSubDepartment" text="Substitute Member SubDepartment"/></label>
+		<select id="substituteMemberSubDepartment" name="substituteMemberSubDepartment" class="sSelect">
+			<option value="" selected='selected'><spring:message code="please.select" text="Please Select"/></option>
+			<c:forEach items="${subDepartments}" var="i">
+				<c:choose>
+					<c:when test="${i.id==substituteMemberSubDepartmentSelected}">
+						<option value="${i.id}" selected='selected'>${i.name}</option>
+					</c:when>
+					<c:otherwise>
+						<option value="${i.id}">${i.name}</option>
+					</c:otherwise>
+				</c:choose>
+			</c:forEach>
+		</select>
+		<form:errors path="substituteMemberSubDepartment"/>
+	</p>
 	<p class="public">
 		<label class="small"><spring:message code="part.publicRepresentative" text="public Representative"/></label>
 		<form:input path="publicRepresentative" cssClass="sText"/>
@@ -594,6 +679,10 @@
 	<p>
 		<label class="small"><spring:message code="part.isInterrupted" text="Is Interrupted"/></label>
 		<form:checkbox path="isInterrupted" cssClass="sCheck"/>
+	</p>
+	<p>
+		<label class="small"><spring:message code="part.isConstituencyRequired" text="Is Constituency Required?"/></label>
+		<form:checkbox path="isConstituencyRequired" cssClass="sCheck"/>
 	</p>
 	<p id="mainHeadingP">
 		<label class="wysiwyglabel"><spring:message code="part.mainHeading" text="Main Heading"/></label>
@@ -650,6 +739,8 @@
 <input type="hidden" id="primaryMemberMinistrySelected" name="primaryMemberMinistrySelected" value="${primaryMemberMinistrySelected}"/>
 <input type="hidden" id="substituteMemberMinistrySelected" name="substituteMemberMinistrySelected" value="${substituteMemberMinistrySelected }">
 <input type="hidden" id="primaryMemberDesignationSelected" name="primaryMemberDesignationSelected" value="${primaryMemberDesignationSelected }">
+<input type="hidden" id="primaryMemberSubDeparmentSelected" name="primaryMemberSubDeparmentSelected" value="${primaryMemberSubDeparmentSelected }">
+<input type="hidden" id="substituteMemberSubDeparmentSelected" name="substituteMemberSubDeparmentSelected" value="${substituteMemberSubDeparmentSelected }">
 <input type="hidden" id="substituteMemberDesignationSelected" name="substituteMemberDesignationSelected" value="${substituteMemberDesignationSelected }">
 </div> 
 </body>

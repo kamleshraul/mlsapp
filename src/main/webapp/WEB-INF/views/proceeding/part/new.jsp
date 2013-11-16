@@ -36,6 +36,9 @@
 			width:60px;
 			font-size: 12px;
 		}
+		
+		 
+			
 	</style>
 	<script type="text/javascript">
 	
@@ -127,6 +130,20 @@
 			$('.wysiwyg').wysiwyg({
 				events:{
 					keydown:function(e){
+						if(e.which==32){
+							var pContent=$('#proceedingContent').wysiwyg('getContent').replace(/&nbsp;/g,"");
+							$.post('proceeding/part/save?content='+pContent+
+									'&primaryMember='+$('#primaryMember').val()+
+									'&primaryMemberMinistry='+$('#primaryMemberMinistry').val()+
+									'&primaryMemberDesignation='+$('#primaryMemberDesignation').val()+
+									'&publicRepresentative='+$('#publicRepresentative').val()+
+									'&proceeding='+$('#proceeding').val()+
+									'&partId='+$('#id').val()+
+									'&orderNo='+$('#orderNo').val(),function(data){
+								$('#id').val(data);
+								
+							});
+						}
 						if(j==0 && e.which==17){
 							keycode[j]=e.which;
 							j++;
@@ -240,6 +257,8 @@
 				$('#substituteLink').show();
 				$('.member').show();
 			});
+			
+			
 			
 			$('#substituteLink').click(function(){
 				$('.substitute').toggle();
@@ -366,8 +385,63 @@
 				$('#mainHeadingP').css('display','block');
 				$('#pageHeadingP').css('display','block');
 			});
+			
+			$('#party').change(function(){
+				
+				/*  $.get('proceeding/part/getMemberByParty?partyId='+$(this).val(),function(data){
+					var text="";
+					for(var i=0;i<data.length;i++){
+						 text=text+"<a href='javascript:void(0)' rel='member' class='memberImgA' title='"+data[i].firstName+"'>"+
+									"<img src='ref/getphoto?memberId="+data[i].id+"'  id='memImageA' style='width: 60px;'/>"+
+									"</a>";
+					}
+					$('#memberPic').html(text);
+					$("#memberPic").fancybox();
+					/*  $('.memberImgA').attr('rel', 'member')
+									.fancybox({
+										type:'image'
+									});  
+				}); */  
+				 /* $.get('proceeding/part/getMemberByParty?partyId='+$(this).val(),function(data){
+				  	 strPath = Array();
+					for(var i=0;i<data.length;i++){
+				  		strPath[i]={'href':'ref/getphoto?memberId='+data[i].id};
+				  	}
+					$.fancybox.open(
+							strPath,
+							{
+							type:'html',
+							helpers : {	
+								thumbs : {
+								width: 100,
+								height: 132
+								}
+							},
+							autoSize: false, 
+							width:800,
+							height:500
+						});
+			 	});  */
+			 	$.get('proceeding/part/getMemberByPartyPage?partyId='+$(this).val(),function(data){
+			 			$.fancybox.open(data,{autoSize: false,width:800,height:500});
+					},'html'); 
+			 
+			    return false;
+			});
+			
+			$("#primaryMemberMinistry").change(function(){
+				loadSubDepartments($(this).val(),"primaryMemberSubDepartment");
+			});
+		
+			$("#substituteMemberMinistry").change(function(){
+				loadSubDepartments($(this).val(),"substituteMemberSubDepartment");
+			});
 		
 			
+			$('#mainHeading-wysiwyg-iframe').css('height','124px');
+			$('#pageHeading-wysiwyg-iframe').css('height','124px');
+			
+			$('#party').prepend("<option value='' selected='selected'>----"+$("#pleaseSelectMessage").val()+"----</option>");
 			$("#deviceType").prepend("<option value='' selected='selected'>----"+$("#pleaseSelectMessage").val()+"----</option>");
 			$("#substituteMemberMinistry").prepend("<option value='' selected='selected'>----"+$("#pleaseSelectMessage").val()+"----</option>");				
 			$("#primaryMemberMinistry").prepend("<option value='' selected='selected'>----"+$("#pleaseSelectMessage").val()+"----</option>");				
@@ -401,6 +475,32 @@
 			$('#privateLink').hide();
 			$('#ministerLink').hide();
 			$('#substituteLink').hide();
+		}
+		
+		function loadSubDepartments(ministry,id){
+			$.get('ref/ministry/subdepartments?ministry='+ministry,function(data){
+				$("#"+id).empty();
+				var subDepartmentText="<option value='' selected='selected'>----"+$("#pleaseSelectMessage").val()+"----</option>";
+				if(data.length>0){
+				for(var i=0;i<data.length;i++){
+					subDepartmentText+="<option value='"+data[i].id+"'>"+data[i].name;
+				}
+				$("#"+id).html(subDepartmentText);
+				$("#"+id).css('display','inline');
+				}else{
+					$("#"+id).empty();
+					var subDepartmentText="<option value='' selected='selected'>----"+$("#pleaseSelectMessage").val()+"----</option>";				
+					$("#"+id).html(subDepartmentText);	
+					$("#"+id).css('display','inline');
+				}
+			}).fail(function(){
+				if($("#ErrorMsg").val()!=''){
+					$("#error_p").html($("#ErrorMsg").val()).css({'color':'red', 'display':'block'});
+				}else{
+					$("#error_p").html("Error occured contact for support.").css({'color':'red', 'display':'block'});
+				}
+				scrollTop();
+			});
 		}
 	</script>
 </head>
@@ -469,6 +569,12 @@
 		<label  class="small"><spring:message code="part.memberName" text=" Member"/></label>
 		<input type="text" name="formattedMember" id="formattedMember" class="autosuggest sText"/>
 		<form:hidden path="primaryMember"/>
+		<label class="small"><spring:message code="part.party" text=" OR party"/></label>
+		<select id="party" class="sSelect">
+			<c:forEach items="${parties}" var="i">
+				<option value="${i.id}">${i.name}</option>
+			</c:forEach>
+		</select>
 		<div id="memberPhoto" style=" display: none;">
 			<img src="" id="memberImage" style="width:60px; margin-right: 445px; float:right; margin-top: -72px; border-radius: 5px; box-shadow: 1px 1px 5px black;"/> 
 		</div>
@@ -491,6 +597,14 @@
 			</c:forEach>
 		</select>
 		<form:errors path="primaryMemberMinistry"/>
+	</p>
+	
+	<p class="minister" style="display:none;">
+		<label class="small"><spring:message code="part.primaryMemberSubDepartment" text="Primary Member SubDepartment"/></label>
+		<select id="primaryMemberSubDepartment" name="primaryMemberSubDepartment" class="sSelect">
+			
+		</select>
+		<form:errors path="primaryMemberSubDepartment"/>
 	</p>
 	
 	<p class="substitute" style="display:none;">
@@ -517,6 +631,14 @@
 			</c:forEach>
 		</select>
 		<form:errors path="substituteMemberMinistry"/>
+	</p>
+	
+	<p class="substitute" style="display:none;">
+		<label class="small"><spring:message code="part.substituteMemberSubDepartment" text="Substitute Member SubDepartment"/></label>
+		<select id="substituteMemberSubDepartment" name="substituteMemberSubDepartment" class="sSelect">
+			
+		</select>
+		<form:errors path="substituteMemberSubDepartment"/>
 	</p>
 	
 	<p class="public" style="display:none;">
@@ -555,9 +677,14 @@
 		<label class="small"><spring:message code="part.isInterrupted" text="Is Interrupted"/></label>
 		<form:checkbox path="isInterrupted" cssClass="sCheck"/>
 	</p>
+	<p>
+		<label class="small"><spring:message code="part.isConstituencyRequired" text="Is Constituency Required?"/></label>
+		<form:checkbox path="isConstituencyRequired" cssClass="sCheck"/>
+	</p>
+	
 	<p id="mainHeadingP" style="display:none;">
 		<label class="wysiwyglabel"><spring:message code="part.mainHeading" text="Main Heading"/></label>
-		<form:textarea path="mainHeading" cssClass="wysiwyg"/>
+		<form:textarea path="mainHeading" cssClass="wysiwyg mainHeading"/>
 		<a href="javascript:void(0)" id="resetMainHeading" style="margin-right: 100px; float: right; margin-top: -150px;">reset</a>
 	</p>
 	<p id="pageHeadingP" style="display:none;">
@@ -596,7 +723,9 @@
 		<select id="iProceeding" style="width:400px;">
 		</select>
 	</div>	
+	<div id="memberPic">
 		
+	</div>	
 	
 </form:form>
 <input type="hidden" id="session" value="${session}"/>
