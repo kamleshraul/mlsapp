@@ -619,11 +619,18 @@
 												<fo:table-cell>
 													<fo:block font-weight="bold" font-size="16px" text-align="left">
 														<fo:inline font-weight="bold">
-															<xsl:value-of select="./element_1_16"></xsl:value-of>
-															<xsl:if test="./element_1_18!=''">
-																/<xsl:value-of select="./element_1_18"></xsl:value-of>
-															</xsl:if>
-															: 
+															<xsl:choose>
+																<xsl:when test="position() = 1 or preceding-sibling::element_1[1]/element_1_15!=./element_1_15">
+																	<xsl:value-of select="./element_1_16"></xsl:value-of>															
+																	<xsl:if test="./element_1_18!=''">
+																		/<xsl:value-of select="./element_1_18"></xsl:value-of>
+																	</xsl:if>
+																	:																														
+																</xsl:when>
+																<xsl:otherwise>
+																	&#160;&#160;&#160;&#160;&#160;
+																</xsl:otherwise>
+															</xsl:choose>
 														</fo:inline>
 														<fo:inline font-weight="normal">
 															<xsl:choose>

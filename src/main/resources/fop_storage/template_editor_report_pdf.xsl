@@ -406,7 +406,10 @@
 	    <xsl:attribute name="text-decoration">underline</xsl:attribute>
 	    <xsl:attribute name="color">blue</xsl:attribute>
 	  </xsl:attribute-set>
-
+	<!-- <xsl:template name="member">
+		<xsl:param name="memberId" select="0"></xsl:param>
+		<xsl:value-of select="$memberId"></xsl:value-of>
+	</xsl:template> -->
     <xsl:template match="root">
 
 	    <!-- <xsl:text disable-output-escaping="yes">
@@ -613,17 +616,24 @@
 									     	</fo:table-cell>								     	
 								     	</fo:table-row>     	
 							     	</xsl:when>
-								     <xsl:otherwise>					     
+								     <xsl:otherwise>					     	
 									     <xsl:for-each select="./element_1" >				
 											<fo:table-row>
 												<fo:table-cell>
 													<fo:block font-weight="bold" font-size="16px" text-align="left">
 														<fo:inline font-weight="bold">
-															<xsl:value-of select="./element_1_16"></xsl:value-of>
-															<xsl:if test="./element_1_18!=''">
-																/<xsl:value-of select="./element_1_18"></xsl:value-of>
-															</xsl:if>
-															: 
+															<xsl:choose>
+																<xsl:when test="position() = 1 or preceding-sibling::element_1[1]/element_1_15!=./element_1_15">
+																	<xsl:value-of select="./element_1_16"></xsl:value-of>															
+																	<xsl:if test="./element_1_18!=''">
+																		/<xsl:value-of select="./element_1_18"></xsl:value-of>
+																	</xsl:if>
+																	:																														
+																</xsl:when>
+																<xsl:otherwise>
+																	&#160;&#160;&#160;&#160;&#160;
+																</xsl:otherwise>
+															</xsl:choose>
 														</fo:inline>
 														<fo:inline font-weight="normal">
 															<xsl:choose>
@@ -652,7 +662,7 @@
 														&#160;
 													</fo:block>
 												</fo:table-cell>
-											</fo:table-row>
+											</fo:table-row>											
 								      	</xsl:for-each>						   
 								     </xsl:otherwise>
 						     	</xsl:choose>	
