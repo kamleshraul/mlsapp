@@ -4243,6 +4243,97 @@ public class ReferenceController extends BaseController {
 			return transmitPressCopiesStatusVOs;
 		}
 		
+		@RequestMapping(value="/bill/citation_statuses", method=RequestMethod.GET)
+		public @ResponseBody List<MasterVO> getCitationStatusesForBillInGivenHouse(final HttpServletRequest request, final Locale locale){
+			List<MasterVO> citationStatusVOs = new ArrayList<MasterVO>();
+			String billNumberStr = request.getParameter("billNumber");
+			String billYearStr = request.getParameter("billYear");
+			String currentHouseTypeType = request.getParameter("currentHouseTypeType");
+			if(billNumberStr!=null&&billYearStr!=null&&currentHouseTypeType!=null) {
+				if(!billNumberStr.isEmpty()&&!billYearStr.isEmpty()&&!currentHouseTypeType.isEmpty()) {
+					CustomParameter server=CustomParameter.findByName(CustomParameter.class, "DEPLOYMENT_SERVER", "");
+					if(server != null) {
+						if(server.getValue().equals("TOMCAT")) {
+							try {
+								billNumberStr = new String(billNumberStr.getBytes("ISO-8859-1"),"UTF-8");														
+							}catch (UnsupportedEncodingException e) {
+								logger.error("Cannot Encode the Parameter 'billNumber'.");
+								citationStatusVOs = null;
+								return citationStatusVOs;
+							}
+						}
+					}
+					try {
+						Bill bill = Bill.findByNumberAndYear(Integer.parseInt(billNumberStr), Integer.parseInt(billYearStr), locale.toString());
+						if(bill==null) {
+							logger.error("Check Request Parameter 'billNumber' and 'billYear' for invalid values");
+							citationStatusVOs = null;
+							return citationStatusVOs;
+						}
+						String currentHouseOrder = Bill.findHouseOrderOfGivenHouseForBill(bill, currentHouseTypeType);
+						if(currentHouseOrder!=null) {
+							/**** Citation Statuses Allowed For Selected Bill In Selected House ****/							
+							CustomParameter citationStatusParameter = CustomParameter.findByName(CustomParameter.class, "BILL_CITATION_STATUSOPTIONS_"+currentHouseOrder.toUpperCase(), "");
+							if(citationStatusParameter!=null) {
+								if(citationStatusParameter.getValue()!=null) {									
+									StringBuffer filteredStatusTypes = new StringBuffer("");
+									String[] statusTypesArr = citationStatusParameter.getValue().split(",");
+									for(String i: statusTypesArr) {
+										System.out.println(filteredStatusTypes.toString());
+										if(!i.trim().isEmpty()) {
+											if(i.trim().endsWith(ApplicationConstants.BILL_FIRST_HOUSE) || i.trim().endsWith(ApplicationConstants.BILL_SECOND_HOUSE)) {
+												if(i.trim().endsWith(currentHouseTypeType + "_" + currentHouseOrder)) {
+													filteredStatusTypes.append(i.trim()+",");							
+												}
+											} else {
+												filteredStatusTypes.append(i.trim()+",");
+											}					
+										}				
+									}
+									filteredStatusTypes.deleteCharAt(filteredStatusTypes.length()-1);	
+									List<Status> citationStatuses = Status.findStatusContainedIn(filteredStatusTypes.toString(), locale.toString(), ApplicationConstants.ASC);
+									if(citationStatuses!=null) {
+										for(Status i: citationStatuses) {
+											MasterVO citationStatusVO = new MasterVO();
+											citationStatusVO.setName(i.getName());
+											citationStatusVO.setValue(i.getType());
+											citationStatusVO.setId(bill.getId());
+											citationStatusVOs.add(citationStatusVO);
+										}
+									}
+								} else {
+									logger.error("Custom Parameter 'BILL_CITATION_STATUSOPTIONS_"+currentHouseOrder.toUpperCase()+"' is not set properly");
+									citationStatusVOs = null;
+									return citationStatusVOs;
+								}
+							} else {
+								logger.error("Custom Parameter 'BILL_CITATION_STATUSOPTIONS_"+currentHouseOrder.toUpperCase()+"' is not set");
+								citationStatusVOs = null;
+								return citationStatusVOs;
+							}							 
+						} else {
+							logger.error("Check Request Parameter 'billNumber', 'billYear' and 'currentHouseTypeType' for invalid values");
+							citationStatusVOs = null;
+							return citationStatusVOs;
+						}
+					}catch(NumberFormatException ne) {
+						logger.error("Check Request Parameter 'billNumber', 'billYear' for Non-Numeric Values");
+						citationStatusVOs = null;
+						return citationStatusVOs;
+					}				
+				} else {
+					logger.error("Check Request Parameter 'billNumber', 'billYear' for empty Values");
+					citationStatusVOs = null;
+					return citationStatusVOs;
+				}			
+			} else {
+				logger.error("Check Request Parameter 'billNumber', 'billYear' for null Values");
+				citationStatusVOs = null;
+				return citationStatusVOs;
+			}
+			return citationStatusVOs;
+		}
+		
 		@RequestMapping(value="/findIdOfBillWithGivenNumberAndYear", method=RequestMethod.GET)
 		public @ResponseBody String findIdOfBillWithGivenNumberAndYear(final HttpServletRequest request, final Locale locale){
 			String billId = null;
