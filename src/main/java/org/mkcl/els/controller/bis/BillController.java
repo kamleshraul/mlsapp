@@ -4998,4 +4998,162 @@ public class BillController extends GenericController<Bill> {
 		}		
 		return result;		
 	}	
+	
+	@RequestMapping(value = "/citationReport", method = RequestMethod.GET)
+	public String getCitationReportInit(final ModelMap model, final HttpServletRequest request, final Locale locale) {
+		String selectedHouseTypeType = request.getParameter("houseType");
+		String selectedYearStr = request.getParameter("sessionYear");
+		String selectedBillIdStr = request.getParameter("billId");
+		/**** House Type ****/
+		HouseType selectedHouseType = null;
+		if(selectedHouseTypeType!=null) {
+			if(!selectedHouseTypeType.isEmpty()) {
+				if(!selectedHouseTypeType.equals(ApplicationConstants.BOTH_HOUSE)) {
+					selectedHouseType = HouseType.findByFieldName(HouseType.class, "type", selectedHouseTypeType, locale.toString());
+					if(selectedHouseType!=null) {
+						model.addAttribute("selectedHouseType", selectedHouseType);					
+					} else {
+						logger.error("**** Check request parameter 'houseType' for incorrect value. ****");
+						model.addAttribute("errorcode", "REQUEST_PARAMETER_INVALID");		
+						return "bill/error";
+					}
+				}								
+			} else {
+				logger.error("**** Check request parameter 'houseType' for empty value. ****");
+				model.addAttribute("errorcode", "REQUEST_PARAMETER_EMPTY");		
+				return "bill/error";
+			}
+		} else {
+			logger.error("**** Check request parameter 'houseType' for null value. ****");
+			model.addAttribute("errorcode", "REQUEST_PARAMETER_NULL");		
+			return "bill/error";
+		}
+		/**** Bill Year ****/
+		int selectedYear;
+		if(selectedYearStr!=null) {
+			if(!selectedYearStr.isEmpty()) {
+				try {
+					selectedYear = Integer.parseInt(selectedYearStr);
+					model.addAttribute("formattedSelectedYear", FormaterUtil.formatNumberNoGrouping(selectedYear, locale.toString()));
+					model.addAttribute("selectedYear", selectedYear);
+				} catch(NumberFormatException ne) {
+					logger.error("**** Check request parameter 'year' for non-numeric value. ****");
+					model.addAttribute("errorcode", "REQUEST_PARAMETER_INVALID");		
+					return "bill/error";
+				}
+			} else {
+				logger.error("**** Check request parameter 'year' for empty value. ****");
+				model.addAttribute("errorcode", "REQUEST_PARAMETER_EMPTY");		
+				return "bill/error";
+			}
+		} else {
+			logger.error("**** Check request parameter 'year' for null value. ****");
+			model.addAttribute("errorcode", "REQUEST_PARAMETER_NULL");		
+			return "bill/error";
+		}
+		/**** Selected Bill ****/
+		if(selectedBillIdStr!=null) {
+			if(!selectedBillIdStr.isEmpty()) {
+				try {
+					long selectedBillId = Long.parseLong(selectedBillIdStr);
+					Bill selectedBill = Bill.findById(Bill.class, selectedBillId);
+					if(selectedBill!=null) {
+						Integer selectedBillYear = Bill.findYear(selectedBill);
+						if(selectedBillYear!=null) {
+							if(selectedBillYear==selectedYear) {
+								if(selectedBill.getNumber()!=null) {
+									model.addAttribute("selectedBillNumber", FormaterUtil.formatNumberNoGrouping(selectedBill.getNumber(), locale.toString()));
+									model.addAttribute("selectedBillId", selectedBill.getId());
+									/**** Citation Statuses Allowed For Selected Bill In Selected House ****/
+									String currentHouseOrder = Bill.findHouseOrderOfGivenHouseForBill(selectedBill, selectedHouseType.getType());
+									CustomParameter citationStatusParameter = CustomParameter.findByName(CustomParameter.class, "BILL_CITATION_STATUSOPTIONS_"+currentHouseOrder.toUpperCase(), "");
+									if(citationStatusParameter!=null) {
+										if(citationStatusParameter.getValue()!=null) {									
+											StringBuffer filteredStatusTypes = new StringBuffer("");
+											String[] statusTypesArr = citationStatusParameter.getValue().split(",");
+											for(String i: statusTypesArr) {
+												System.out.println(filteredStatusTypes.toString());
+												if(!i.trim().isEmpty()) {
+													if(i.trim().endsWith(ApplicationConstants.BILL_FIRST_HOUSE) || i.trim().endsWith(ApplicationConstants.BILL_SECOND_HOUSE)) {
+														if(i.trim().endsWith(selectedHouseType.getType() + "_" + currentHouseOrder)) {
+															filteredStatusTypes.append(i.trim()+",");							
+														}
+													} else {
+														filteredStatusTypes.append(i.trim()+",");
+													}					
+												}				
+											}
+											filteredStatusTypes.deleteCharAt(filteredStatusTypes.length()-1);	
+											List<Status> citationStatuses = Status.findStatusContainedIn(filteredStatusTypes.toString(), locale.toString(), ApplicationConstants.ASC);
+											model.addAttribute("citationStatuses", citationStatuses);
+										} else {
+											logger.error("Custom Parameter 'BILL_CITATION_STATUSOPTIONS_"+currentHouseOrder.toUpperCase()+"' is not set properly");
+											model.addAttribute("errorcode", "bill_citation_statusoptions_setincorrect");
+											return "bill/error";
+										}
+									} else {
+										logger.error("Custom Parameter 'BILL_CITATION_STATUSOPTIONS_"+currentHouseOrder.toUpperCase()+"' is not set");
+										model.addAttribute("errorcode", "bill_citation_statusoptions_notset");
+										return "bill/error";
+									}
+								}								
+							}
+						}						
+					}
+				} catch(NumberFormatException ne) {
+					logger.error("**** Check request parameter 'billId' for non-numeric value. ****");
+					model.addAttribute("errorcode", "REQUEST_PARAMETER_INVALID");
+					return "bill/error";
+				}								
+			}
+		}
+		return "bill/citationreport/init";
+	}
+	
+	@RequestMapping(value = "/generateCitationReport", method = RequestMethod.GET)
+	public String generateCitationReport(final ModelMap model, final HttpServletRequest request, final HttpServletResponse response, final Locale locale) {
+		String selectedBillId = request.getParameter("deviceId");
+		String status = request.getParameter("status");
+		String statusDate = request.getParameter("statusDate");
+		if(selectedBillId!=null&&status!=null&&statusDate!=null) {
+			if(!selectedBillId.isEmpty()&&!statusDate.isEmpty()&&!status.isEmpty()) {
+				try {
+					Bill bill = Bill.findById(Bill.class, Long.parseLong(selectedBillId));
+					if(bill!=null) {
+						if(bill.getNumber()!=null) {
+							model.addAttribute("billNumber", FormaterUtil.formatNumberNoGrouping(bill.getNumber(), locale.toString()));
+						} else {
+							model.addAttribute("billNumber", "");
+						}
+						String billTitle = bill.getDefaultTitle();
+						model.addAttribute("billTitle", billTitle);
+						Integer billYear = Bill.findYear(bill);
+						if(billYear!=null) {
+							model.addAttribute("billYear", FormaterUtil.formatNumberNoGrouping(billYear, locale.toString()));
+						} else {
+							model.addAttribute("billYear", "");
+						}
+					} else {
+						logger.error("**** Check request parameter 'deviceId' for invalid value. ****");
+						model.addAttribute("errorcode", "REQUEST_PARAMETER_INVALID");
+						return "bill/error";
+					}
+				} catch(NumberFormatException ne) {
+					logger.error("**** Check request parameter 'deviceId' for non-numeric value. ****");
+					model.addAttribute("errorcode", "REQUEST_PARAMETER_INVALID");
+					return "printrequisition/error";
+				}
+			} else {
+				logger.error("**** Check request parameter 'deviceId', 'status', and 'statusDate' for empty value. ****");
+				model.addAttribute("errorcode", "REQUEST_PARAMETER_EMPTY");
+				return "bill/error";
+			}
+		} else {
+			logger.error("**** Check request parameter 'deviceId', 'status', and 'statusDate' for null value. ****");
+			model.addAttribute("errorcode", "REQUEST_PARAMETER_NULL");
+			return "bill/error";
+		}
+		response.setContentType("text/html; charset=utf-8");
+		return "bill/citationreport/bill_processed_introduced_citation";
+	}
 }
