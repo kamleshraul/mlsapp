@@ -833,7 +833,7 @@ public static final String RULING_PARTY = "ruling_party";
 	
 	public static final String BILL_FINAL_NAMECLUBBING = "bill_final_nameclubbing";
 	
-	public static final String BILL_FINAL_NAMECLUBBING_REJECTED = "bill_final_nameclubbing_rejected";
+	public static final String BILL_FINAL_REJECT_NAMECLUBBING = "bill_final_reject_nameclubbing";
 	
 	public static final String BILL_FINAL_WITHDRAWN="bill_final_withdrawn";
 	

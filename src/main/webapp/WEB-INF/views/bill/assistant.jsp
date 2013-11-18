@@ -1009,8 +1009,7 @@
 			});
 			
 			/**** Single Updation for All Workflows ****/
-			$('#submit').click(function() {
-				alert("here...");
+			$('#submit').click(function() {				
 				//removing <p><br></p>  from wysiwyg editor
 				$(".wysiwyg").each(function(){
 					var wysiwygVal=$(this).val().trim();

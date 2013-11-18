@@ -29,7 +29,7 @@
 		function loadActors(value){
 			if(value!='-'){
 			var nameclubbing_approved=$("#internalStatusMaster option[value='bill_final_nameclubbing']").text();
-			var nameclubbing_rejected=$("#internalStatusMaster option[value='bill_final_nameclubbing_rejected']").text();
+			var nameclubbing_rejected=$("#internalStatusMaster option[value='bill_final_reject_nameclubbing']").text();
 		    var sendback=$("#internalStatusMaster option[value='bill_recommend_sendback']").text();			
 		    var discuss=$("#internalStatusMaster option[value='bill_recommend_discuss']").text();
 		    var translate=$("#internalStatusMaster option[value='bill_final_translation']").text();

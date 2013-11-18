@@ -2063,52 +2063,143 @@ public class BillWorkflowController extends BaseController {
 			model.addAttribute("recommendationFromPresidentStatusType", recommendationFromPresidentStatus.getType());
 			model.addAttribute("formattedRecommendationFromPresidentStatus", recommendationFromPresidentStatus.getName());			
 		}
-		/**** Populating Put up options and Actors ****/
-		if(domain.getInternalStatus()!=null){
-			String internalStatusType=domain.getInternalStatus().getType();					
-			if(usergroupType!=null&&!usergroupType.isEmpty()){				
-				UserGroup userGroup=UserGroup.findById(UserGroup.class,Long.parseLong(usergroup));
-				List<Reference> actors=WorkflowConfig.findBillActorsVO(domain, internalStatus, userGroup, 1, locale);
-				CustomParameter finalApprovingAuthority=null;
-				String recommendedAction = null;
-				if(workflowDetails.getWorkflowType().equals(ApplicationConstants.APPROVAL_WORKFLOW)) {
-					finalApprovingAuthority=CustomParameter.findByName(CustomParameter.class,deviceType.getType().toUpperCase()+"_FINAL_AUTHORITY", "");
-					recommendedAction = internalStatusType.split("_")[internalStatusType.split("_").length-1];
-				} else if(workflowDetails.getWorkflowType().equals(ApplicationConstants.NAMECLUBBING_WORKFLOW)) {
-					finalApprovingAuthority=CustomParameter.findByName(CustomParameter.class,deviceType.getType().toUpperCase()+"_NAMECLUBBING_FINAL_AUTHORITY", "");
-					recommendedAction = internalStatusType.split("_")[internalStatusType.split("_").length-1];
-				} else if(workflowDetails.getWorkflowType().equals(ApplicationConstants.TRANSLATION_WORKFLOW)) {
-					finalApprovingAuthority=CustomParameter.findByName(CustomParameter.class,deviceType.getType().toUpperCase()+"_TRANSLATION_FINAL_AUTHORITY", "");
-					recommendedAction = domain.getTranslationStatus().getType().split("_")[domain.getTranslationStatus().getType().split("_").length-1];
-				} else if(workflowDetails.getWorkflowType().equals(ApplicationConstants.OPINION_FROM_LAWANDJD_WORKFLOW)) {
-					finalApprovingAuthority=CustomParameter.findByName(CustomParameter.class,deviceType.getType().toUpperCase()+"_OPINION_FROM_LAWANDJD_FINAL_AUTHORITY", "");
-					recommendedAction = domain.getOpinionFromLawAndJDStatus().getType().split("_")[domain.getOpinionFromLawAndJDStatus().getType().split("_").length-1];
-				} else if(workflowDetails.getWorkflowType().equals(ApplicationConstants.RECOMMENDATION_FROM_GOVERNOR_WORKFLOW)) {
-					finalApprovingAuthority=CustomParameter.findByName(CustomParameter.class,deviceType.getType().toUpperCase()+"_RECOMMENDATION_FROM_GOVERNOR_FINAL_AUTHORITY", "");
-					recommendedAction = domain.getRecommendationFromGovernorStatus().getType().split("_")[domain.getRecommendationFromGovernorStatus().getType().split("_").length-1];
-				} else if(workflowDetails.getWorkflowType().equals(ApplicationConstants.RECOMMENDATION_FROM_PRESIDENT_WORKFLOW)) {
-					finalApprovingAuthority=CustomParameter.findByName(CustomParameter.class,deviceType.getType().toUpperCase()+"_RECOMMENDATION_FROM_PRESIDENT_FINAL_AUTHORITY", "");
-					recommendedAction = domain.getRecommendationFromPresidentStatus().getType().split("_")[domain.getRecommendationFromPresidentStatus().getType().split("_").length-1];
-				} 
-				Status internalStatusRecommended = internalStatus;
-				if(finalApprovingAuthority!=null&&recommendedAction!=null) {
-					if(finalApprovingAuthority.getValue().contains(usergroupType)) {							
-						internalStatusRecommended = Status.findByType("BILL_FINAL_"+recommendedAction.toUpperCase(), locale);
-						model.addAttribute("hideActorsFlag",true);
+		/**** Populating Put up options and Actors ****/							
+		if(usergroupType!=null&&!usergroupType.isEmpty()){				
+			UserGroup userGroup=UserGroup.findById(UserGroup.class,Long.parseLong(usergroup));
+			String currentStatusType=null;	
+			List<Reference> actors=WorkflowConfig.findBillActorsVO(domain, internalStatus, userGroup, 1, locale);
+			CustomParameter finalApprovingAuthority=null;
+			String recommendedAction = null;
+			Status statusRecommended = null;
+			if(workflowDetails.getWorkflowType().equals(ApplicationConstants.APPROVAL_WORKFLOW)) {
+				if(domain.getInternalStatus()!=null) {
+					currentStatusType = domain.getInternalStatus().getType();
+					if(currentStatusType!=null) {
+						finalApprovingAuthority=CustomParameter.findByName(CustomParameter.class,deviceType.getType().toUpperCase()+"_FINAL_AUTHORITY", "");
+						recommendedAction = currentStatusType.split("_")[currentStatusType.split("_").length-1];
+						if(finalApprovingAuthority!=null&&recommendedAction!=null) {
+							if(finalApprovingAuthority.getValue().contains(usergroupType)) {							
+								statusRecommended = Status.findByType("bill_final_"+recommendedAction, locale);
+								model.addAttribute("hideActorsFlag",true);
+								domain.setInternalStatus(statusRecommended);
+								domain.setRecommendationStatus(statusRecommended);
+							}
+						}						
+					}
+				}								
+			} else if(workflowDetails.getWorkflowType().equals(ApplicationConstants.NAMECLUBBING_WORKFLOW)) {
+				if(domain.getInternalStatus()!=null) {
+					currentStatusType = domain.getInternalStatus().getType();
+					if(currentStatusType!=null) {
+						finalApprovingAuthority=CustomParameter.findByName(CustomParameter.class,deviceType.getType().toUpperCase()+"_FINAL_AUTHORITY", "");
+						if(currentStatusType.contains("reject")) {
+							recommendedAction = currentStatusType.split("_")[currentStatusType.split("_").length-2]
+									+ "_" + currentStatusType.split("_")[currentStatusType.split("_").length-1] ;
+						} else {
+							recommendedAction = currentStatusType.split("_")[currentStatusType.split("_").length-1];
+						}
+						if(finalApprovingAuthority!=null&&recommendedAction!=null) {
+							if(finalApprovingAuthority.getValue().contains(usergroupType)) {							
+								statusRecommended = Status.findByType("bill_final_"+recommendedAction, locale);
+								model.addAttribute("hideActorsFlag",true);
+								domain.setInternalStatus(statusRecommended);
+								domain.setRecommendationStatus(statusRecommended);
+							}
+						}						
+					}
+				}				
+			} else if(workflowDetails.getWorkflowType().equals(ApplicationConstants.TRANSLATION_WORKFLOW)) {				
+				if(domain.getTranslationStatus()!=null) {
+					currentStatusType = domain.getTranslationStatus().getType();
+					if(currentStatusType!=null) {
+						finalApprovingAuthority=CustomParameter.findByName(CustomParameter.class,deviceType.getType().toUpperCase()+"_TRANSLATION_FINAL_AUTHORITY", "");
+						if(currentStatusType.contains("reject")) {
+							recommendedAction = currentStatusType.split("_")[currentStatusType.split("_").length-2]
+									+ "_" + currentStatusType.split("_")[currentStatusType.split("_").length-1] ;
+						} else {
+							recommendedAction = currentStatusType.split("_")[currentStatusType.split("_").length-1];
+						}
+						if(finalApprovingAuthority!=null&&recommendedAction!=null) {
+							if(finalApprovingAuthority.getValue().contains(usergroupType)) {							
+								statusRecommended = Status.findByType("bill_final_"+recommendedAction, locale);
+								model.addAttribute("hideActorsFlag",true);
+								domain.setTranslationStatus(statusRecommended);								
+							}
+						}						
+					}
+				}					
+			} else if(workflowDetails.getWorkflowType().equals(ApplicationConstants.OPINION_FROM_LAWANDJD_WORKFLOW)) {				
+				if(domain.getOpinionFromLawAndJDStatus()!=null) {
+					currentStatusType = domain.getOpinionFromLawAndJDStatus().getType();
+					if(currentStatusType!=null) {
+						finalApprovingAuthority=CustomParameter.findByName(CustomParameter.class,deviceType.getType().toUpperCase()+"_OPINION_FROM_LAWANDJD_FINAL_AUTHORITY", "");
+						if(currentStatusType.contains("reject")) {
+							recommendedAction = currentStatusType.split("_")[currentStatusType.split("_").length-2]
+									+ "_" + currentStatusType.split("_")[currentStatusType.split("_").length-1] ;
+						} else {
+							recommendedAction = currentStatusType.split("_")[currentStatusType.split("_").length-1];
+						}
+						if(finalApprovingAuthority!=null&&recommendedAction!=null) {
+							if(finalApprovingAuthority.getValue().contains(usergroupType)) {							
+								statusRecommended = Status.findByType("bill_final_"+recommendedAction, locale);
+								model.addAttribute("hideActorsFlag",true);
+								domain.setOpinionFromLawAndJDStatus(statusRecommended);								
+							}
+						}						
 					}
 				}
-				if(internalStatusRecommended!=null) {
-					model.addAttribute("internalStatusSelected",internalStatusRecommended.getId());
-				}				
-				model.addAttribute("actors",actors);
-				if(actors!=null&&!actors.isEmpty()){
-					String nextActor=actors.get(0).getId();
-					String[] actorArr=nextActor.split("#");
-					domain.setLevel(actorArr[2]);
-					domain.setLocalizedActorName(actorArr[3]+"("+actorArr[4]+")");
+			} else if(workflowDetails.getWorkflowType().equals(ApplicationConstants.RECOMMENDATION_FROM_GOVERNOR_WORKFLOW)) {				
+				if(domain.getRecommendationFromGovernorStatus()!=null) {
+					currentStatusType = domain.getRecommendationFromGovernorStatus().getType();
+					if(currentStatusType!=null) {
+						finalApprovingAuthority=CustomParameter.findByName(CustomParameter.class,deviceType.getType().toUpperCase()+"_RECOMMENDATION_FROM_GOVERNOR_FINAL_AUTHORITY", "");
+						if(currentStatusType.contains("reject")) {
+							recommendedAction = currentStatusType.split("_")[currentStatusType.split("_").length-2]
+									+ "_" + currentStatusType.split("_")[currentStatusType.split("_").length-1] ;
+						} else {
+							recommendedAction = currentStatusType.split("_")[currentStatusType.split("_").length-1];
+						}
+						if(finalApprovingAuthority!=null&&recommendedAction!=null) {
+							if(finalApprovingAuthority.getValue().contains(usergroupType)) {							
+								statusRecommended = Status.findByType("bill_final_"+recommendedAction, locale);
+								model.addAttribute("hideActorsFlag",true);
+								domain.setRecommendationFromGovernorStatus(statusRecommended);								
+							}
+						}						
+					}
 				}
+			} else if(workflowDetails.getWorkflowType().equals(ApplicationConstants.RECOMMENDATION_FROM_PRESIDENT_WORKFLOW)) {				
+				if(domain.getRecommendationFromPresidentStatus()!=null) {
+					currentStatusType = domain.getRecommendationFromPresidentStatus().getType();
+					if(currentStatusType!=null) {
+						finalApprovingAuthority=CustomParameter.findByName(CustomParameter.class,deviceType.getType().toUpperCase()+"_RECOMMENDATION_FROM_PRESIDENT_FINAL_AUTHORITY", "");
+						if(currentStatusType.contains("reject")) {
+							recommendedAction = currentStatusType.split("_")[currentStatusType.split("_").length-2]
+									+ "_" + currentStatusType.split("_")[currentStatusType.split("_").length-1] ;
+						} else {
+							recommendedAction = currentStatusType.split("_")[currentStatusType.split("_").length-1];
+						}
+						if(finalApprovingAuthority!=null&&recommendedAction!=null) {
+							if(finalApprovingAuthority.getValue().contains(usergroupType)) {							
+								statusRecommended = Status.findByType("bill_final_"+recommendedAction, locale);
+								model.addAttribute("hideActorsFlag",true);
+								domain.setRecommendationFromPresidentStatus(statusRecommended);								
+							}
+						}						
+					}
+				}
+			}			
+			if(statusRecommended!=null) {
+				model.addAttribute("internalStatusSelected",statusRecommended.getId());
+			}				
+			model.addAttribute("actors",actors);
+			if(actors!=null&&!actors.isEmpty()){
+				String nextActor=actors.get(0).getId();
+				String[] actorArr=nextActor.split("#");
+				domain.setLevel(actorArr[2]);
+				domain.setLocalizedActorName(actorArr[3]+"("+actorArr[4]+")");
 			}
-		}
+		}		
 		/**** level ****/
 		model.addAttribute("level",workflowDetails.getAssigneeLevel());			
 		/**** add domain to model ****/
@@ -2762,8 +2853,8 @@ public class BillWorkflowController extends BaseController {
 		} else if(internalStatus.equals(ApplicationConstants.BILL_FINAL_NAMECLUBBING)&&
 				recommendationStatus.equals(ApplicationConstants.BILL_FINAL_NAMECLUBBING)){
 			performActionOnNameClubbing(domain, request);
-		} else if(internalStatus.equals(ApplicationConstants.BILL_FINAL_NAMECLUBBING_REJECTED)&&
-				recommendationStatus.equals(ApplicationConstants.BILL_FINAL_NAMECLUBBING_REJECTED)){
+		} else if(internalStatus.equals(ApplicationConstants.BILL_FINAL_REJECT_NAMECLUBBING)&&
+				recommendationStatus.equals(ApplicationConstants.BILL_FINAL_REJECT_NAMECLUBBING)){
 			performActionOnNameClubbingRejection(domain, request);
 		}
 	}
