@@ -202,6 +202,17 @@
 		    },'html');		    	
 		    return false;
 		}
+		/**** To Generate Citation Report ****/
+		function generateCitationReport() {			
+			var selectedBillId = $("#grid").jqGrid ('getGridParam', 'selarrrow').toString();
+			if(selectedBillId.split(",").length!=1) {
+				selectedBillId = "";
+			}		
+			$.get('bill/citationReport?'+$("#gridURLParams").val()+'&billId='+selectedBillId, function(data){
+			    $.fancybox.open(data, {autoSize: false, width: 800, height:600});
+		    },'html');		    	
+		    return false;
+		}
 		/**** To Send Green Copy For Endorsement ****/
 		function sendGreenCopyForEndorsement() {			
 			var selectedBillId = $("#grid").jqGrid ('getGridParam', 'selarrrow').toString();

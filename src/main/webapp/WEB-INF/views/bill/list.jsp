@@ -91,7 +91,11 @@
 			/**** Manage Print Requisition ****/			
 			$("#managePrintRequisition").click(function(){			
 				managePrintRequisition();
-			});			
+			});	
+			/**** Generate Citation Report ****/			
+			$("#generateCitationReport").click(function(){			
+				generateCitationReport();
+			});
 			/**** Send Green Copy For Endorsement ****/			
 			$("#sendGreenCopyForEndorsement").click(function(){			
 				sendGreenCopyForEndorsement();
@@ -183,6 +187,11 @@
 			<security:authorize access="hasAnyRole('BIS_ASSISTANT','BIS_SECTION_OFFICER')">
 				<a href="#" id="managePrintRequisition" class="butSim">
 					<spring:message code="bill.managePrintRequisition" text="Manage Print Requisition"/>
+				</a> |
+			</security:authorize>
+			<security:authorize access="hasAnyRole('BIS_ASSISTANT','BIS_SECTION_OFFICER')">
+				<a href="#" id="generateCitationReport" class="butSim">
+					<spring:message code="bill.generateCitationReport" text="Generate Citation Report"/>
 				</a> |
 			</security:authorize>			
 			<security:authorize access="hasAnyRole('BIS_ASSISTANT')">
