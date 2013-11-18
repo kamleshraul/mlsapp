@@ -2081,8 +2081,10 @@ public class BillWorkflowController extends BaseController {
 							if(finalApprovingAuthority.getValue().contains(usergroupType)) {							
 								statusRecommended = Status.findByType("bill_final_"+recommendedAction, locale);
 								model.addAttribute("hideActorsFlag",true);
-								domain.setInternalStatus(statusRecommended);
-								domain.setRecommendationStatus(statusRecommended);
+								if(statusRecommended!=null) {
+									domain.setInternalStatus(statusRecommended);
+									domain.setRecommendationStatus(statusRecommended);
+								}
 							}
 						}						
 					}
@@ -2102,8 +2104,10 @@ public class BillWorkflowController extends BaseController {
 							if(finalApprovingAuthority.getValue().contains(usergroupType)) {							
 								statusRecommended = Status.findByType("bill_final_"+recommendedAction, locale);
 								model.addAttribute("hideActorsFlag",true);
-								domain.setInternalStatus(statusRecommended);
-								domain.setRecommendationStatus(statusRecommended);
+								if(statusRecommended!=null) {
+									domain.setInternalStatus(statusRecommended);
+									domain.setRecommendationStatus(statusRecommended);
+								}
 							}
 						}						
 					}
@@ -2123,7 +2127,9 @@ public class BillWorkflowController extends BaseController {
 							if(finalApprovingAuthority.getValue().contains(usergroupType)) {							
 								statusRecommended = Status.findByType("bill_final_"+recommendedAction, locale);
 								model.addAttribute("hideActorsFlag",true);
-								domain.setTranslationStatus(statusRecommended);								
+								if(statusRecommended!=null) {
+									domain.setTranslationStatus(statusRecommended);		
+								}
 							}
 						}						
 					}
@@ -2143,7 +2149,9 @@ public class BillWorkflowController extends BaseController {
 							if(finalApprovingAuthority.getValue().contains(usergroupType)) {							
 								statusRecommended = Status.findByType("bill_final_"+recommendedAction, locale);
 								model.addAttribute("hideActorsFlag",true);
-								domain.setOpinionFromLawAndJDStatus(statusRecommended);								
+								if(statusRecommended!=null) {
+									domain.setOpinionFromLawAndJDStatus(statusRecommended);		
+								}
 							}
 						}						
 					}
@@ -2163,7 +2171,9 @@ public class BillWorkflowController extends BaseController {
 							if(finalApprovingAuthority.getValue().contains(usergroupType)) {							
 								statusRecommended = Status.findByType("bill_final_"+recommendedAction, locale);
 								model.addAttribute("hideActorsFlag",true);
-								domain.setRecommendationFromGovernorStatus(statusRecommended);								
+								if(statusRecommended!=null) {
+									domain.setRecommendationFromGovernorStatus(statusRecommended);	
+								}
 							}
 						}						
 					}
@@ -2183,7 +2193,9 @@ public class BillWorkflowController extends BaseController {
 							if(finalApprovingAuthority.getValue().contains(usergroupType)) {							
 								statusRecommended = Status.findByType("bill_final_"+recommendedAction, locale);
 								model.addAttribute("hideActorsFlag",true);
-								domain.setRecommendationFromPresidentStatus(statusRecommended);								
+								if(statusRecommended!=null) {
+									domain.setRecommendationFromPresidentStatus(statusRecommended);		
+								}
 							}
 						}						
 					}
