@@ -1,0 +1,33 @@
+﻿<h3 align="center">शासकीय विधेयकाबाबत कार्यपध्दती</h3>
+<br/>
+<table border="0" width="600" align="center">
+	<tr>
+		<td  valign="top" width="10%">
+			प्रभारी मंत्री
+		</td>
+		<td valign="top" width="2%">:</td>
+		<td  valign="top">
+			महोदय, सन $billYear चे विधानसभा विधेयक क्रमांक $billNumber, $billTitle विचारात घेण्यात यावे असा मी आपल्या अनुमतीने प्रस्ताव मांडतो.
+		</td>
+	</tr>	
+	
+	<tr><td colspan="3">&nbsp;</td></tr>
+	<tr><td colspan="3">&nbsp;</td></tr>
+	
+	<tr>
+		<td colspan="3" align="right">(मंत्री भाषण करतात)</td>
+	</tr>
+	
+	<tr><td colspan="3">&nbsp;</td></tr>
+	<tr><td colspan="3">&nbsp;</td></tr>
+	
+	<tr>
+		<td  valign="top" width="10%">
+			अध्यक्ष
+		</td>
+		<td valign="top" width="2%">:</td>
+		<td  valign="top">
+			प्रस्ताव असा आहे की, सन $billYear चे विधानसभा विधेयक क्रमांक $billNumber, $billTitle विचारात घेण्यात यावे.
+		</td>
+	</tr>	
+</table>
