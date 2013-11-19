@@ -1,0 +1,7 @@
+<div class="toolTip tpRed clearfix">
+	<p>
+		<img src="./resources/images/template/icons/light-bulb-off.png">
+		Custom Parameter 'HOUSE_FORMATION_YEAR'(Year in which assembly/council was formed) not set in velocity.
+	</p>
+	<p></p>
+</div>

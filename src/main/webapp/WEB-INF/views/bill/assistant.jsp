@@ -1093,24 +1093,24 @@
 						promptMessage = $('#sendForTranslationMessage').val();
 						operation = "sendForTranslation";
 					} else if(actionForUpdation==opinion_from_lawandjd) {
-						promptMessage = $('#sendForTranslationMessage').val();
-						operation = "sendForTranslation";
+						promptMessage = $('#sendForOpinionFromLawAndJdMessage').val();
+						operation = "sendForOpinionFromLawAndJD";
 					} else if(actionForUpdation==recommendation_from_governor) {
 						var fieldNameForGovernorRecommendation = "checklist['isRecommendedAsPerConstitutionArticle_207_3']";
 						if($("input[name='"+fieldNameForGovernorRecommendation+"']").val()=='no') {
 							alert("recommendation from governor is not required.");
 							return false;
 						}
-						promptMessage = $('#sendForTranslationMessage').val();
-						operation = "sendForTranslation";
+						promptMessage = $('#sendForRecommendationFromGovernorPrompt').val();
+						operation = "sendForRecommendationFromGovernor";
 					} else if(actionForUpdation==recommendation_from_president) {
 						var fieldNameForPresidentRecommendation = "checklist['isRecommendedAsPerConstitutionArticle_304_b']";
 						if($("input[name='"+fieldNameForPresidentRecommendation+"']").val()=='no') {
 							alert("recommendation from president is not required.");
 							return false;
 						}
-						promptMessage = $('#sendForTranslationMessage').val();
-						operation = "sendForTranslation";
+						promptMessage = $('#sendForRecommendationFromPresidentPrompt').val();
+						operation = "sendForRecommendationFromPresident";
 					} else if(actionForUpdation==admit || actionForUpdation==reject) {
 						if($('#opinionSoughtFromLawAndJD').val()=='') {
 							$.prompt("Opinion is not received yet from Law & Judiciary Department. So Bill cannot be put up.");

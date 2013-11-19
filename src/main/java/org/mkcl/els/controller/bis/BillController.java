@@ -5107,11 +5107,14 @@ public class BillController extends GenericController<Bill> {
 				}								
 			}
 		}
+		/**** Default Date For Status (Current Date) ****/
+		model.addAttribute("currentDate", FormaterUtil.formatDateToString(new Date(), ApplicationConstants.SERVER_DATEFORMAT, locale.toString()));
 		return "bill/citationreport/init";
 	}
 	
 	@RequestMapping(value = "/generateCitationReport", method = RequestMethod.GET)
 	public String generateCitationReport(final ModelMap model, final HttpServletRequest request, final HttpServletResponse response, final Locale locale) {
+		String reportPage = "";
 		String selectedBillId = request.getParameter("deviceId");
 		String status = request.getParameter("status");
 		String statusDate = request.getParameter("statusDate");
@@ -5133,6 +5136,12 @@ public class BillController extends GenericController<Bill> {
 						} else {
 							model.addAttribute("billYear", "");
 						}
+						model.addAttribute("statusDate", statusDate);
+						if(status.startsWith(ApplicationConstants.BILL_PROCESSED_DISCUSSEDCLAUSEBYCLAUSE)) {
+							reportPage = ApplicationConstants.BILL_PROCESSED_DISCUSSEDCLAUSEBYCLAUSE + "_citation";
+						} else {
+							reportPage = status + "_citation";
+						}						
 					} else {
 						logger.error("**** Check request parameter 'deviceId' for invalid value. ****");
 						model.addAttribute("errorcode", "REQUEST_PARAMETER_INVALID");
@@ -5154,6 +5163,6 @@ public class BillController extends GenericController<Bill> {
 			return "bill/error";
 		}
 		response.setContentType("text/html; charset=utf-8");
-		return "bill/citationreport/bill_processed_introduced_citation";
+		return "bill/citationreport/"+reportPage;
 	}
 }

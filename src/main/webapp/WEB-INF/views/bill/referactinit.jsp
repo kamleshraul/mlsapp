@@ -260,6 +260,8 @@
 			$('#viewReferredAct').css('text-decoration','underline');			
 			var yearText = "("+$('#referredActYearLabel').val()+": "+actYear+")";
 			$('#referredActYear').text(yearText);			
+			$('#referredActPara').show();
+			$('#referActPara').hide();
 			$("#referringActResult").empty();
 			$("#referringActResult").html("SUCCESS");
 			$("#operation"+actId).empty();
@@ -275,7 +277,9 @@
 			$('#viewReferredOrdinance').text(ordinanceNumber);
 			$('#viewReferredOrdinance').css('text-decoration','underline');
 			var yearText = "("+$('#referredOrdinanceYearLabel').val()+": "+ordinanceYear+")";
-			$('#referredOrdinanceYear').text(yearText);			
+			$('#referredOrdinanceYear').text(yearText);
+			$('#referredOrdinancePara').show();
+			$('#referOrdinancePara').hide();
 			$("#referringOrdinanceResult").empty();
 			if(whichLabel == 1){
 				$("#ordinanceRefered").html("SUCCESS");
@@ -291,6 +295,8 @@
 			$("#referredAct").val("");
 			$('#viewReferredAct').text("-");
 			$('#referredActYear').text("");
+			$('#referredActPara').hide();
+			$('#referActPara').show();
 			$("#referringActResult").empty();
 			$("#referringActResult").html("SUCCESS");
 			$("#operation"+actId).empty();
@@ -302,6 +308,8 @@
 			$("#referredOrdinance").val("");
 			$('#viewReferredOrdinance').text("-");
 			$('#referredOrdinanceYear').text("");
+			$('#referredOrdinancePara').hide();
+			$('#referOrdinancePara').show();
 			$("#referringOrdinanceResult").empty();
 			if(whichLabel == 1){
 				$("#ordinanceRefered").html("SUCCESS");

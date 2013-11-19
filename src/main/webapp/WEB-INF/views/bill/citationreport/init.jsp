@@ -5,6 +5,17 @@
 	<spring:message code="bill.citationReport" text="Citation Report"/>
 	</title>
 	<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>	
+	
+	<style type="text/css">
+		div.fixed-width-wysiwyg {
+			min-width: 675px !important;
+			left: 60px !important;
+			margin-top: 10px;
+		}
+		
+		#citation_editable-wysiwyg-iframe {height: 292px;}
+	</style>
+	
 	<script type="text/javascript">
 	function viewBillDetail(id){
 		$.blockUI({ message: '<img src="./resources/images/waitAnimated.gif" />' });	
@@ -25,9 +36,38 @@
 		},'html');	
 	}
 	
-	$('document').ready(function(){
-		initControls();
-		$('#key').val('');		
+	$('document').ready(function(){		
+		$('#citation_editable').wysiwyg({
+			resizeOptions: {maxWidth: 600},
+			controls:{	
+				fullscreen: {
+					visible: true,
+					hotkey:{
+						"ctrl":1|0,
+						"key":122
+					},
+					exec: function () {
+						if ($.wysiwyg.fullscreen) {
+							$.wysiwyg.fullscreen.init(this);
+						}
+					},
+					tooltip: "Fullscreen"
+				},
+				strikeThrough: { visible: true },
+				underline: { visible: true },
+				subscript: { visible: true },
+				superscript: { visible: true },
+				insertOrderedList  : { visible : true},
+				increaseFontSize:{visible:true},
+				decreaseFontSize:{visible:true},
+				highlight: {visible:true}			
+			},
+			plugins: {
+				autoload: true,
+				i18n: { lang: "mr" }
+			}
+		});		
+		$('#citation_editable_para').children().filter('div.wysiwyg').addClass('fixed-width-wysiwyg');
 		
 		var text="<option value='' selected='selected'>----"+$("#pleaseSelectMsg").val()+"----</option>";		
 		
@@ -85,7 +125,9 @@
 				$('#viewBillDetails').hide();
 			}			
 			$('#citationDiv').empty();
-			$('#citationDiv').hide();			
+			$('#citationDiv').hide();	
+			$('#citationPrintIcon_para').hide();			
+			$('#citation_editable_para').hide();
 		});
 		
 		$('#status').click(function(){
@@ -96,7 +138,9 @@
 		
 		$('#status').change(function() {
 			$('#citationDiv').empty();
-			$('#citationDiv').hide();			
+			$('#citationDiv').hide();	
+			$('#citationPrintIcon_para').hide();
+			$('#citation_editable_para').hide();
 		});
 		
 		$('#generateCitationReportButton').click(function(){
@@ -111,18 +155,60 @@
 				$.get('bill/generateCitationReport?deviceId='+$("#deviceId").val()
 						+'&status='+$("#status").val()+'&statusDate='+$("#statusDate").val(), function(data) {				
 					$('#citationDiv').html(data);					
-					$('#citationDiv').show();					
+					$('#citationDiv').show();	
+					$('#citationPrintIcon_para').show();
+					$('#citation_editable').wysiwyg("setContent", $('#citationDiv').html());					
 				},'html');
 			} else {
 				return false;
 			}			
 		});	
+		
+		$('#citationPrintIcon').click(function() {		
+			if(!$('#citation_editable_para').is(':hidden')) {
+				$('#citationDiv').html($('#citation_editable').val());
+			}
+			var printContents = new $("#citationDiv").clone();			
+			var myWindow = window.open("", "popup", "width=650,height=300,scrollbars=yes,resizable=no,titlebar=no," +
+			"toolbar=no,directories=no,location=no,menubar=no,status=no,left=0,top=0");
+			var doc = myWindow.document;
+			//doc.open();
+			//done in case your print button is in the same div as your content to be printed
+			//$(printContents).find("#PrintNews").remove(); 
+			console.log($(printContents).html());
+			doc.write("<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Transitional//EN\" \"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd\">");
+			doc.write("<html>");
+			doc.write("<head>");
+			doc.write("<link href='./resources/css/printCitationReport.css' rel='stylesheet' type='text/css' media='all' />"); // your css file comes here.
+			doc.write("</head>");
+			doc.write("<body><div class='printDiv'>");
+			doc.write($(printContents).html());
+			doc.write("</div></body>");
+			doc.write("</html>");			
+			myWindow.focus();			
+			myWindow.print();
+			//if you want you can close document after print command itself 
+			myWindow.close();
+		});
+		
+		$('#editCitationReportIcon').click(function() {	
+			if($('#citation_editable_para').is(':hidden')) {
+				$('#citationDiv').hide();
+				$('#citation_editable_para').show();
+				$('#editCitationReportIcon').find("img").attr("title", "View Citation Report");				
+			} else {					
+				$('#citation_editable_para').hide();
+				$('#citationDiv').html($('#citation_editable').val());
+				$('#citationDiv').show();
+				$('#editCitationReportIcon').find("img").attr("title", "Edit Citation Report");
+			}		
+		});
 	});		
-</script>
+	</script>
 </head>
 <body>
 <div class="fields clearfix vidhanmandalImg">
-	<form id="sendGreenCopyForEndorsementForm" action="printrequisition/sendForEndorsement" method="POST">
+	<div id="non-printable">
 	<h2><spring:message code="bill.citationReport" text="Citation Report"/></h2>
 	<p>
 		<label class="small"><spring:message code="bill.houseType" text="House Type"/></label>
@@ -155,11 +241,22 @@
 	<p align="right">
 		<input id="generateCitationReportButton" type="button" value="<spring:message code='bill.generateCitationReportButton' text='Generate Citation Report'/>" class="butDef">
 	</p>
-	<div id="citationDiv" style="display:none; width: 650px; height: 300px; margin: 10px 60px 0px 60px; padding: 10px; overflow: auto; border: 1px solid black; box-shadow: 2px 2px 2px grey;"">
+	<p id="citationPrintIcon_para" style="display: none;">
+		<a href="#" id="citationPrintIcon" style="text-decoration: none;margin-right: 20px;">
+			<img src="./resources/images/print_icon.gif" title="<spring:message code='bill.printCitationReport' text='Print Citation Report'></spring:message>" style="width: 32px; height: 32px; margin-left: 5px;" />
+		</a>
+		<a href="#" id="editCitationReportIcon" style="text-decoration: none;margin-right: 20px;">
+			<img src="./resources/images/Revise.jpg" title="<spring:message code='bill.editCitationReport' text='Edit Citation Report'></spring:message>" style="width: 18px; height: 18px; margin-bottom: 4px;" />
+		</a>
+	</p>
+	<p id="citation_editable_para" style="display: none;margin-top: 10px;">
+		<textarea class="wysiwyg" id="citation_editable"></textarea>
+	</p>
 	</div>	
+	<div id="citationDiv" style="display:none; width: 650px; height: 300px; margin: 0px 60px 0px 60px; padding: 10px; overflow: auto; border: 1px solid black; box-shadow: 2px 2px 2px grey;">
+	</div>		
 	<input type="hidden" id="operation" name="operation"/>
-	<input type="hidden" id="usergroupForCitation" name="usergroup"/>
-	</form>
+	<input type="hidden" id="usergroupForCitation" name="usergroup"/>	
 	<input id="pleaseSelectMsg" value="<spring:message code='please.select' text='Please Select'/>" type="hidden">
 	<input id="emptyBillNumberMsg" value="<spring:message code='bill.emptyBillNumberMsg' text='Please Enter Bill Number'/>" type="hidden">
 	<input id="emptyStatusMsg" value="<spring:message code='bill.emptyStatusMsg' text='Please Enter Status'/>" type="hidden">

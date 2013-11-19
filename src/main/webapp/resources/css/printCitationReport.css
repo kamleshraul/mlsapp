@@ -1,0 +1,32 @@
+.printDiv{
+	margin: 10px 80px 100px 10px;
+	padding: 10px;
+	width: 300px;
+	height: 500px;
+	font-family: 'Times New Roman';
+	font-size: 14px;
+	box-shadow: 2px 2p 5px black;
+}
+
+/* div#non-printable, div#test { display:none; }
+
+div#citationDiv { 
+  	display: inline !important;
+  	margin: 10px 10px 10px 10px !important;
+	padding: 10px !important;
+	width: auto !important;
+	height: auto !important;
+	font-family: 'Times New Roman' !important;
+	font-size: 18px;
+	box-shadow: 2px 2p 5px black !important;		
+} 
+  	
+div#citationDiv h3 {
+	font-size: 24px;
+	font-weight: bold;
+}
+  	
+div#citationDiv table {
+	width: 100%;
+	page: auto;
+} */

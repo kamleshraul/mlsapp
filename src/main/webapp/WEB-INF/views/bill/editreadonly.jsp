@@ -158,13 +158,36 @@
 			});			
 		});		
 		</script>
-		 <style type="text/css">
+		
+		<style type="text/css">
 	        @media print {
 	            .tabs,#selectionDiv1,#selectionDiv2,title,#pannelDash,.menu{
 	            display:none;
 	            }
 	        }
 	    </style>
+	    
+	    <style type="text/css">
+			.imageLink{
+				width: 18px;
+				height: 18px;				
+				/* box-shadow: 2px 2px 5px #000000;
+				border-radius: 5px;
+				padding: 2px;
+				border: 1px solid #000000; */ 
+			}
+			
+			/* .imageLink:hover{
+				box-shadow: 2px 2px 5px #888888;
+				border-radius: 5px;
+				padding: 2px;
+				border: 1px solid #888888; 
+			} */
+			
+			.impIcons{
+				box-shadow: 2px 2px 2px black;
+			}	
+		</style>
 	</head> 
 
 	<body>
@@ -311,7 +334,11 @@
 					</c:if>
 					
 					<div id="readonly_referredActDiv">
-						<p>
+						<c:choose>	
+						<c:when test="${empty referredAct}"><c:set var="displayReferredAct" value="none"/></c:when>
+						<c:otherwise><c:set var="displayReferredAct" value="inline"/></c:otherwise>		
+						</c:choose>	
+						<p id="readonly_referredActPara" style="display: ${displayReferredAct};">
 							<label class="small"><spring:message code="bill.referredAct" text="Referred Act"></spring:message></label>
 							<c:choose>
 								<c:when test="${!(empty referredAct)}">
@@ -324,6 +351,27 @@
 								</c:otherwise>
 							</c:choose>
 							<input type="hidden" id="referredAct" name="referredAct" value="${referredAct}">
+						</p>
+					</div>
+					
+					<div id="readonly_referredOrdinanceDiv">
+						<c:choose>	
+						<c:when test="${empty referredOrdinance}"><c:set var="displayReferredOrdinance" value="none"/></c:when>
+						<c:otherwise><c:set var="displayReferredOrdinance" value="inline"/></c:otherwise>		
+						</c:choose>	
+						<p id="readonly_referredOrdinancePara" style="display: ${displayReferredOrdinance};">
+							<label class="small"><spring:message code="bill.referredOrdinance" text="Referred Ordinance"></spring:message></label>
+							<c:choose>
+								<c:when test="${!(empty referredOrdinance)}">
+									<a href="#" id="readonly_viewReferredOrdinance" style="font-size: 18px;"><c:out value="${referredOrdinanceNumber}"></c:out></a>
+									<label id="referredOrdinanceYear">(<spring:message code="bill.referredOrdinanceYear" text="Year"/>: ${referredOrdinanceYear})</label>
+								</c:when>
+								<c:otherwise>
+									<a href="#" id="readonly_viewReferredOrdinance" style="font-size: 18px; text-decoration: none;"><c:out value="-"></c:out></a>
+									<label id="referredOrdinanceYear"></label>
+								</c:otherwise>
+							</c:choose>
+							<input type="hidden" id="referredOrdinance" name="referredOrdinance" value="${referredOrdinance}">
 						</p>
 					</div>
 					

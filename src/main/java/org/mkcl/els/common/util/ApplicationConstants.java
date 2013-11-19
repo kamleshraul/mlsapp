@@ -866,6 +866,8 @@ public static final String RULING_PARTY = "ruling_party";
 	
 	public static final String BILL_PROCESSED_REREFERTOJOINTCOMMITTEE = "bill_processed_reReferToJointCommittee";
 	
+	public static final String BILL_PROCESSED_DISCUSSEDCLAUSEBYCLAUSE = "bill_processed_discussedClauseByClause";
+	
 	public static final String BILL_PROCESSED_PASSEDBYFIRSTHOUSE = "bill_processed_passedByFirstHouse";
 	
 	public static final String BILL_PROCESSED_PASSED = "bill_processed_passed";
