@@ -74,6 +74,7 @@ import org.mkcl.els.domain.Member;
 import org.mkcl.els.domain.MemberMinister;
 import org.mkcl.els.domain.MemberRole;
 import org.mkcl.els.domain.MenuItem;
+import org.mkcl.els.domain.MessageResource;
 import org.mkcl.els.domain.Ministry;
 import org.mkcl.els.domain.Motion;
 import org.mkcl.els.domain.Ordinance;
@@ -4374,6 +4375,56 @@ public class ReferenceController extends BaseController {
 		@RequestMapping(value="/geteditingactors",method=RequestMethod.GET)
 		public @ResponseBody List<MasterVO> getEditingActors(HttpServletRequest request, Locale locale){
 			return EditingWorkflowController.getEditingActors(request, locale);
+		}
+		
+		@RequestMapping(value="/devicesofrosterproceeding", method=RequestMethod.GET)
+		public @ResponseBody List getRosterDevicesForProceeding(final HttpServletRequest request, final Locale locale){
+			List retVal = null;
+			boolean flag = false;
+			
+			try{
+				String strHouseType = request.getParameter("houseType");
+				String strSessionYear = request.getParameter("sessionYear");
+				String strSessionType = request.getParameter("sessionType");
+				String strLanguage = request.getParameter("language");
+				String strDay = request.getParameter("day");
+				
+				if((strHouseType != null && !strHouseType.isEmpty())
+						&& (strSessionType != null && !strSessionType.isEmpty())
+						&& (strSessionYear != null && !strSessionYear.isEmpty())
+						&& (strLanguage != null && !strLanguage.isEmpty())
+						&& (strDay != null && !strDay.isEmpty())) {
+					
+					HouseType houseType = HouseType.findByFieldName(HouseType.class, "type", strHouseType, locale.toString());
+					SessionType sessionType = SessionType.findById(SessionType.class, Long.parseLong(strSessionType));
+					Language language = Language.findById(Language.class, Long.parseLong(strLanguage));
+					Session session = Session.findSessionByHouseTypeSessionTypeYear(houseType, sessionType, Integer.parseInt(strSessionYear));
+					
+					Map<String, String[]> parameters = new HashMap<String, String[]>();
+					parameters.put("locale", new String[]{locale.toString()});
+					parameters.put("day", new String[]{strDay});
+					parameters.put("languageId", new String[]{language.getId().toString()});
+					parameters.put("sessionId", new String[]{session.getId().toString()});
+					retVal = Query.findReport("EDIS_ROSTER_DEVICES_OF_PROCEEDING", parameters);
+					flag = true;
+				}else{
+					flag = false;
+				}
+				
+			}catch (Exception e) {
+				flag = false;
+				logger.debug("ref/devicesofrosterproceeding", e);
+				e.printStackTrace();
+			}
+			
+			if(!flag){
+				retVal = new ArrayList();
+				Object[] data = new Object[2];
+				MessageResource msr = MessageResource.findByFieldName(MessageResource.class, "code", "generic.error", locale.toString());
+				
+				data[0] = "error:"+((msr != null)? msr.getValue():"Can not complete the last operation.");
+			}
+			return retVal; 
 		}
 		
 		@RequestMapping(value="/getpartDraftsInWorkflow/{id}",method=RequestMethod.GET)
