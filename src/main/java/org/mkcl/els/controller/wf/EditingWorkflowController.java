@@ -105,7 +105,13 @@ public class EditingWorkflowController extends BaseController{
 					parameters.put("rosterId", new String[]{workflowDetails.getDeviceId()});
 					parameters.put("primaryMemberId", new String[]{member.getId().toString()});
 					parameters.put("editedby", new String[]{this.getCurrentUser().getActualUsername()});
-					parts = Query.findReport("EDIS_WORKFLOW_MEMBER_SENT_DRAFTS_DESC", parameters);
+					if(workflowDetails.getDomainIds() != null){
+						parameters.put("devices", new String[]{workflowDetails.getDomainIds()});
+						parts = Query.findReport("EDIS_WORKFLOW_MEMBER_SENT_DRAFTS_DEVICED_DESC", parameters);
+					}else{
+						parts = Query.findReport("EDIS_WORKFLOW_MEMBER_SENT_DRAFTS_ALL_DESC", parameters);
+					}
+					
 					
 				}else if(strUserGroupType.equals(ApplicationConstants.EDITOR)){
 					if(status.getType().equals(ApplicationConstants.EDITING_FINAL_MEMBERAPPROVAL)){
@@ -116,7 +122,13 @@ public class EditingWorkflowController extends BaseController{
 						member = Member.findMember(user.getFirstName(),user.getMiddleName(), user.getLastName(), user.getBirthDate(), locale.toString());
 						parameters.put("primaryMemberId", new String[]{member.getId().toString()});
 						parameters.put("editedby", new String[]{workflowDetails.getAssigner()});
-						parts = Query.findReport("EDIS_WORKFLOW_MEMBER_SENT_DRAFTS_DESC", parameters);
+						if(workflowDetails.getDomainIds() != null){
+							parameters.put("devices", new String[]{workflowDetails.getDomainIds()});
+							parts = Query.findReport("EDIS_WORKFLOW_MEMBER_SENT_DRAFTS_DEVICED_DESC", parameters);
+						}else{
+							parts = Query.findReport("EDIS_WORKFLOW_MEMBER_SENT_DRAFTS_ALL_DESC", parameters);
+						}
+						
 					}else if(status.getType().equals(ApplicationConstants.EDITING_FINAL_SPEAKERAPPROVAL)){
 						parameters.put("locale", new String[]{locale.toString()});
 						parameters.put("rosterId", new String[]{workflowDetails.getDeviceId()});
