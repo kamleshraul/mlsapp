@@ -201,6 +201,10 @@ public class Part  extends BaseDomain implements Serializable{
 		return getPartRepository().findAllProceedingMembersOfRoster(roster, locale);
 	}
 	
+	public static List<Member> findAllProceedingMembersOfRosterHavingDevices(final Roster roster, final List<Long> devices, final String locale){
+		return getPartRepository().findAllProceedingMembersOfRosterHavingDevices(roster, devices, locale);
+	}
+	
 	public static List<Part> findAllPartsOfMemberOfRoster(final Roster roster, final String locale){
 		return getPartRepository().findAllPartsOfMemberOfRoster(roster, locale);
 	}
