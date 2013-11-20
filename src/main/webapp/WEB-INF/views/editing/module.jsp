@@ -12,8 +12,31 @@
 			$("#pageHeadingDiv").hide();
 			$("#selectedReportType").val(0);
 			$("#compileDiv").show();
+			$("#send_member").css('background-color','#ffffff');
+			$("#send_speaker").css('background-color','#ffffff');
+			$("#messageDiv").hide();
 		}
 		$(document).ready(function(){
+			
+			$("selectMemberDevicesDiv").hide();
+			
+			$(document).click(function(e){
+				var tId=$(e.target).attr('id');
+				if(tId=='sendToMember'){
+					$("#selectMemberDevicesDiv").hide();					
+					sendToMember();
+				}
+				
+				//console.log($(e.target).parent());				
+				
+				if(tId!='selectMemberDevicesDiv' && tId!='selectMemberDevices' && tId!='send_member' && $($(e.target).parent()).attr('id')!='selectMemberDevices'){
+					$("#selectMemberDevicesDiv").hide();
+				}
+				
+				if($("#messageDiv").css('background-color')!='transparent'){
+					$("#messageDiv").hide();	
+				}
+			});
 			/****Hide editing filters****/
 			hideEditingFilters();
 			/*Tooltip*/
@@ -139,8 +162,12 @@
 				}
 			});
 			
+			
 			$("#send_member").click(function(){
-				var params="?userGroup="+$("#userGroup").val()
+				var offset=$(this).offset();	
+				loadDevicesInRosterProceeding(offset);			
+				
+				/* var params="?userGroup="+$("#userGroup").val()
 							+"&userGroupType="+$("#userGroupType").val()
 							+"&level=1"
 							+"&wffor=member"
@@ -149,7 +176,33 @@
 							+ '&sessionType=' + $("#selectedSessionType").val()
 							+ '&language=' + $("#selectedLanguage").val()
 							+ '&day=' +$('#selectedDay').val();
-				$.post("editing/startworkflow"+params);
+				
+				$.prompt($('#sentForApproval').val(),{
+					buttons: {Ok:true, Cancel:false}, callback: function(v){
+			        if(v){
+						$.blockUI({ message: '<img src="./resources/images/waitAnimated.gif" />' }); 			        
+							$.post("editing/startworkflow"+params,function(data){
+								if(data=='SUCCESS'){ */
+									//$("#send_member").css('background-color','#2CC904');
+									//$("#send_member").css({'background-color':'#2CC904','border-radius':'5px'});
+									//$("#messageDiv").css({'display':'block','background-color': '#05B005', 'border-radius': '5px'}).html($("#sentSuccess").val());
+									
+									/* $('html, body').animate({
+								        scrollTop: $("#send_member").offset().top
+								    }, 100); */
+									/* $.unblockUI();
+								}else{
+									$.unblockUI();
+									$("#messageDiv").css({'display':'block','background-color': '#C41700', 'color':'#ffffff', 'border-radius': '5px'}).html($("#sentFailure").val());
+								}
+								
+							}).fail(function(){
+								$.unblockUI();
+								$("#messageDiv").css({'display':'block','background-color': '#C41700', 'color':'#ffffff', 'border-radius': '5px'}).html($("#sentFailure").val());
+							});
+							scrollTop();
+	    	            } 
+				}});*/				
 			});
 			
 			$("#send_speaker").click(function(){
@@ -162,9 +215,78 @@
 					+ '&sessionType=' + $("#selectedSessionType").val()
 					+ '&language=' + $("#selectedLanguage").val()
 					+ '&day=' +$('#selectedDay').val();
-				$.post("editing/startworkflow"+params);
+				
+				$.prompt($('#sentForApproval').val(),{
+					buttons: {Ok:true, Cancel:false}, callback: function(v){
+			        if(v){
+						$.blockUI({ message: '<img src="./resources/images/waitAnimated.gif" />' }); 			        
+							$.post("editing/startworkflow"+params,function(data){
+								if(data=='SUCCESS'){
+									//$("#send_speaker").css({'background-color':'#2CC904','border-radius':'5px'});
+									$.unblockUI();
+									$("#messageDiv").css({'display':'block','background-color': '#05B005', 'border-radius': '5px'}).html($("#sentSuccess").val());
+									/* $('html, body').animate({
+								        scrollTop: $("#send_member").offset().top
+								    }, 100); */
+								}else{
+									$.unblockUI();
+									//$("#send_speaker").css({'background-color':'#F20034','border-radius':'5px'});
+									$("#messageDiv").css({'display':'block', 'color':'#ffffff', 'background-color': '#C41700', 'border-radius': '5px'}).html($("#sentFailure").val());
+								}
+							}).fail(function(){
+								$.unblockUI();
+								//$("#send_speaker").css({'background-color':'#F20034','border-radius':'5px'});
+								$("#messageDiv").css({'display':'block', 'color':'#ffffff', 'background-color': '#C41700', 'border-radius': '5px'}).html($("#sentFailure").val());
+							});
+							scrollTop();
+	    	            }
+				}});
+				
 			});
+			
 		});
+		
+		function sendToMember(){
+			var params="?userGroup="+$("#userGroup").val()
+			+"&userGroupType="+$("#userGroupType").val()
+			+"&level=1"
+			+"&wffor=member"
+			+"&houseType=" + $('#selectedHouseType').val()
+			+ '&sessionYear=' + $("#selectedSessionYear").val()
+			+ '&sessionType=' + $("#selectedSessionType").val()
+			+ '&language=' + $("#selectedLanguage").val()
+			+ '&day=' +$('#selectedDay').val();
+			if($("#selectMemberDevices").val()!=null){
+				params+="&devices=" +  $("#selectMemberDevices").val();
+			}
+			$.prompt($('#sentForApproval').val(),{
+				buttons: {Ok:true, Cancel:false}, callback: function(v){
+			    if(v){
+					$.blockUI({ message: '<img src="./resources/images/waitAnimated.gif" />' }); 			        
+						$.post("editing/startworkflow"+params,function(data){
+							if(data=='SUCCESS'){
+								//$("#send_member").css('background-color','#2CC904');
+								//$("#send_member").css({'background-color':'#2CC904','border-radius':'5px'});
+								$("#messageDiv").css({'display':'block','background-color': '#05B005', 'border-radius': '5px'}).html($("#sentSuccess").val());
+								
+								/* $('html, body').animate({
+							        scrollTop: $("#send_member").offset().top
+							    }, 100); */
+								$.unblockUI();
+							}else{
+								$.unblockUI();
+								$("#messageDiv").css({'display':'block','background-color': '#C41700', 'color':'#ffffff', 'border-radius': '5px'}).html($("#sentFailure").val());
+							}
+							
+						}).fail(function(){
+							$.unblockUI();
+							$("#messageDiv").css({'display':'block','background-color': '#C41700', 'color':'#ffffff', 'border-radius': '5px'}).html($("#sentFailure").val());
+						});
+						scrollTop();
+			        }
+			}});
+		}
+		
 		/**** displaying grid ****/					
 		function showRosterList() {
 				//$("#selectionDiv1").show();				
@@ -450,7 +572,62 @@
 				
 			});	
 		}
+		
+		function loadDevicesInRosterProceeding(offset){
+			var params="houseType=" + $('#selectedHouseType').val()
+			+ '&sessionYear=' + $("#selectedSessionYear").val()
+			+ '&sessionType=' + $("#selectedSessionType").val()
+			+ '&language=' + $("#selectedLanguage").val()
+			+ '&day=' +$('#selectedDay').val()
+			+ '&userGroup=' + $("#userGroup").val()
+			+ '&userGroupType=' + $("#userGroupType").val();
+			
+			$.get('ref/devicesofrosterproceeding?'+params,function(data){
+				var text="";
+				if(data.length>0){
+					
+						var i;
+						for(i=0; i < data.length; i++){
+							text +="<option value='"+data[i][0]+"'>"+data[i][2]+"</option>";
+						}
+						$("#selectMemberDevices").empty();
+						$("#selectMemberDevices").html(text);
+						
+						var top=offset.top;
+						var left=offset.left;
+						$("#selectMemberDevicesDiv").css({'left':left+'px','top':top+'px','display':'block'}).slideDown(5000);
+						//$("#selectMemberDevices").multiSelect();
+						//$("#selectMemberDevicesDiv").show();
+				}else{
+					//$("#selectMemberDevices").html(text);
+				}
+			}).fail(function(){
+				
+			});	
+		}
 	</script>
+	<style type="text/css">
+		#sendToMember{
+			background-color: green;
+			color: #ffffff; 
+			font-weight: bold;
+			padding: 2px; 
+			border: 1px solid black; 
+			border-radius: 10px; 
+			text-decoration: none;
+		}
+		
+		#selectMemberDevicesLinkDiv{
+			float:left; 
+			display:inline-block; 
+			margin:40px 0px 0px 10px;
+		}
+		
+		#selectMemberDevicesSelectDiv{
+			float:left; 
+			display:inline-block;
+		}
+	</style>
 </head>
 <body>
 	<div class="clearfix tabbar">
@@ -469,7 +646,6 @@
 		</ul>
 		
 		<div class="commandbarContent" style="margin-top: 10px;" id="selectionDiv1">
-				
 			<a href="#" id="select_houseType" class="butSim">
 				<spring:message code="roster.houseType" text="House Type"/>
 			</a>
@@ -593,13 +769,14 @@
 					<a href="#" id="edit_copy" class="butSim">
 						<spring:message code="editor.edit" text="Editing"/>
 					</a> |
-					<a href="#" id="send_member" class="butSim">
+					<a href="javascript:void(0);" id="send_member" class="butSim">
 						<spring:message code="editor.send.member" text="Send To Member"/>
 					</a> |
 					<a href="#" id="send_speaker" class="butSim">
 						<spring:message code="editor.send.speaker" text="Send To Speaker"/>
 					</a>
 				</security:authorize>		
+				<div id="messageDiv" style="margin-top: 10px; display: none;"><p>&nbsp;</p></div>
 			</div>
 			<hr>							
 		</div>				
@@ -607,6 +784,15 @@
 		<div class="tabContent">
 		</div>
 		
+		<div id="selectMemberDevicesDiv" style="display: none; padding: 2px; position: absolute;">
+			<div id="selectMemberDevicesSelectDiv">
+				<select name="selectMemberDevices" style="border:2px solid black; " id="selectMemberDevices" multiple="multiple">												
+				</select>
+			</div>
+			<div id="selectMemberDevicesLinkDiv">
+				<a href="javascript:void(0);" id="sendToMember"><spring:message code="editor.send" text="Send"/></a>
+			</div>
+		</div>
 		<input type="hidden" id="key" name="key">
 		<input type="hidden" name="srole" id="srole" value="${role}">				
 		<input type="hidden" id="userGroupType" value="${userGroupType}" />
@@ -614,6 +800,9 @@
 		<input type="hidden" name="pleaseSelect" id="pleaseSelect" value="<spring:message code='please.select' text='Please Select'/>">	
 		<input type="hidden" id="selectRowFirstMessage" name="selectRowFirstMessage" value="<spring:message code='generic.selectRowFirstMessage' text='Please select the desired row first'></spring:message>" disabled="disabled">
 		<input type="hidden" id="confirmDeleteMessage" name="confirmDeleteMessage" value="<spring:message code='generic.confirmDeleteMessage' text='Do you want to delete the row with Id: '></spring:message>" disabled="disabled">
+		<input type="hidden" id="sentForApproval" value="<spring:message code='editing.send.approval' text='Send for approval?'></spring:message>" disabled="disabled">
+		<input type="hidden" id="sentSuccess" value="<spring:message code='editing.sent.success' text='Sent Successfully.'></spring:message>" disabled="disabled">
+		<input type="hidden" id="sentFailure" value="<spring:message code='editing.sent.failure' text='Could not send.'></spring:message>" disabled="disabled">
 		</div> 		
 </body>
 </html>
