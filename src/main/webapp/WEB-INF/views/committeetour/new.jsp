@@ -257,7 +257,7 @@
 		 it is not an attribute of the CommitteeTour instance. -->
 	<p>
 	<label class="small"><spring:message code="committeetour.state" text="State" />*</label>
-	<select class="sSelect" id="state">
+	<select class="sSelect" id="state" name="state">
 		<c:forEach items="${states}" var="i">
 			<c:choose>
 				<c:when test="${state.id == i.id}">
@@ -275,7 +275,7 @@
 		 it is not an attribute of the CommitteeTour instance. -->
 	<p>
 	<label class="small"><spring:message code="committeetour.district" text="District" />*</label>
-	<select class="sSelect" id="district">
+	<select class="sSelect" id="district" name="district">
 		<c:forEach items="${districts}" var="i">
 			<c:choose>
 				<c:when test="${district.id == i.id}">
