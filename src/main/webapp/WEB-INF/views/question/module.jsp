@@ -204,11 +204,6 @@
 				+ $("#currentusergroup").val() + "&usergroupType="
 				+ $("#currentusergroupType").val());
 	}
-	function memberStatistics() {
-
-		showTabByIdAndUrl('details_tab', 'test/memberstatistics?'
-				+ $("#gridURLParams").val());
-	}
 
 	/**** new question ****/
 	function newQuestion() {
