@@ -1,0 +1,78 @@
+<h3 align="center">विधेयक मागे घेण्यारबाबत कार्यपध्दती</h3>
+<br/>
+<table width="600" border="0" align="center">
+	<tr>
+		<td  valign="top" width="10%">
+			प्रभारी सदस्य
+		</td>
+		<td valign="top" width="2%">:</td>
+		<td  valign="top">
+			महोदय, हे विधेयक मागे घेण्यास मी सभागृहाची अनुमती मागतो.
+			<span style="align: center;font-weight: bold;">(सदस्यांचे भाषण)</span>
+		</td>
+	</tr>	
+	
+	<tr><td colspan="3">&nbsp;</td></tr>	
+	
+	<tr>
+		<td  valign="top" width="10%">
+			<b>अध्यक्ष</b>
+		</td>
+		<td valign="top" width="2%">:</td>
+		<td  valign="top">
+			<b>प्रश्न असा आहे की, माननीय सदस्यांना हे विधेयक मागे घेण्यास अनुमती आहे काय? अनुकूल असतील त्यांनी 'होय' म्हणावे.</b>
+			(थोडे थांबून) <b>प्रतिकूल असतील त्यांनी 'नाही' म्हणावे.</b><br/><br/>
+			<b>(बहुसंख्य सदस्यांनी 'होय' म्हटले तर)</b>
+		</td>
+	</tr>	
+	
+	<tr><td colspan="3">&nbsp;</td></tr>
+	
+	<tr>
+		<td  valign="top" width="10%">
+			<b>अध्यक्ष</b>
+		</td>
+		<td valign="top" width="2%">:</td>
+		<td  valign="top">
+			<b>'होय' चे बहुमत आहे, 'होय' चे बहुमत आहे. अनुमती देण्यात आली.</b>
+		</td>
+	</tr>	
+	
+	<tr><td colspan="3">&nbsp;</td></tr>
+	
+	<tr>
+		<td  valign="top" width="10%">
+			प्रभारी सदस्य
+		</td>
+		<td valign="top" width="2%">:</td>
+		<td  valign="top">
+			महोदय, मी विधेयक मागे घेतो.			
+		</td>
+	</tr>
+	
+	<tr><td colspan="3">&nbsp;</td></tr>
+	
+	<tr>
+		<td  valign="top" width="10%">
+			<b>अध्यक्ष</b>
+		</td>
+		<td valign="top" width="2%">:</td>
+		<td  valign="top">
+			<b>सन $billYear चे विधानसभा विधेयक क्रमांक $billNumber, $billTitle मागे घेण्यात आले.</b><br/><br/>			
+			<b>(बहुसंख्य सदस्यांनी 'नाही' म्हटले तर)</b>
+		</td>
+	</tr>	
+	
+	<tr><td colspan="3">&nbsp;</td></tr>
+	
+	<tr>
+		<td  valign="top" width="10%">
+			<b>अध्यक्ष</b>
+		</td>
+		<td valign="top" width="2%">:</td>
+		<td  valign="top">
+			<b>'नाही' चे बहुमत आहे, 'नाही' चे बहुमत आहे. अनुमती नाकारण्यात आली.</b>
+		</td>
+	</tr>
+</table>
+<p>&nbsp;</p>

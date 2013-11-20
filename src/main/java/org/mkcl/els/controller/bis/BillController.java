@@ -5137,7 +5137,11 @@ public class BillController extends GenericController<Bill> {
 							model.addAttribute("billYear", "");
 						}
 						model.addAttribute("statusDate", statusDate);
-						if(status.startsWith(ApplicationConstants.BILL_PROCESSED_DISCUSSEDCLAUSEBYCLAUSE)) {
+						if(status.startsWith(ApplicationConstants.BILL_PROCESSED_CONSIDERED)) {
+							reportPage = ApplicationConstants.BILL_PROCESSED_CONSIDERED + "_citation";
+						} else if(status.startsWith(ApplicationConstants.BILL_PROCESSED_WITHDRAWN)) {
+							reportPage = ApplicationConstants.BILL_PROCESSED_WITHDRAWN + "_citation";
+						} else if(status.startsWith(ApplicationConstants.BILL_PROCESSED_DISCUSSEDCLAUSEBYCLAUSE)) {
 							reportPage = ApplicationConstants.BILL_PROCESSED_DISCUSSEDCLAUSEBYCLAUSE + "_citation";
 						} else if(status.startsWith(ApplicationConstants.BILL_PROCESSED_PASSED)) {
 							reportPage = ApplicationConstants.BILL_PROCESSED_PASSED + "_citation";
