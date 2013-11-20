@@ -1,0 +1,60 @@
+﻿<h3 align="center">विधेयक संमत करणे</h3>
+<br/>
+<table width="600" border="0" align="center">
+	<tr>
+		<td valign="top" width="10%">
+			प्रभारी मंत्री
+		</td>
+		<td valign="top" width="2%">:</td>
+		<td  valign="top">
+			महोदय, सन $billYear चे विधानसभा विधेयक क्रमांक $billNumber, $billTitle (सुधारणा स्वीकृत झाल्यास, सुधारल्याप्रमाणे) संमत करावे असा मी आपल्या अनुमतीने प्रस्ताव मांडतो.<br/>
+			<span style="display: inline;align: center;">(आवश्यक वाटल्यास, मंत्री भाषण करतात)</span>
+		</td>
+	</tr>	
+	
+	<tr><td colspan="3">&nbsp;</td></tr>
+	
+	<tr>
+		<td valign="top" width="10%">
+			<b>अध्यक्ष</b>
+		</td>
+		<td valign="top" width="2%">:</td>
+		<td  valign="top">			
+			<p style="font-size: 18px;font-weight: bold;vertical-align: top;">
+				प्रस्ताव असा आहे की, सन $billYear चे विधानसभा विधेयक क्रमांक $billNumber, $billTitle 
+				<span style="display: inline;font-size: 12px;font-weight: normal;">(सुधारणा स्वीकृत झाल्यास, सुधारल्याप्रमाणे)</span>
+				संमत करावे.			
+			</p>
+		</td>
+	</tr>
+</table>
+<br/>
+<p>
+	(इतर सदस्य भाषण करतात) (या प्रस्तावावरील चर्चा विधेयकाला पाठिंबा देण्यासंबंधीच्या किंवा ते फेटाळण्यासंबंधीच्या युक्तीवादापुरतीच मर्यादित राहील. 
+	सदस्य भाषण करील तेव्हा सर्वसाधारण स्वरुपाच्या असणा-या त्याच्या युक्तीवादाकरीता आवश्यक असेल तितक्या विधेयकाच्या तपशीलाव्यतिरिक्त इतर तपशीलाचा उल्लेख करणार नाही.
+</p>
+<p>
+	विधेयक संमत करण्याकरीता असणा-या प्रस्तावावर भाषण करण्याची कोणत्याही सदस्याची इच्छा नसल्यास, सभागृहासमोर खालीलप्रमाणे प्रस्ताव मांडण्यात येईल)
+</p>
+<br/>
+<table width="600" border="0" align="center">
+	<tr>
+		<td valign="top" width="10%">
+			<b>अध्यक्ष</b>
+		</td>
+		<td valign="top" width="2%">:</td>
+		<td  valign="top">			
+			<p style="font-size: 18px;font-weight: bold;vertical-align: top;">
+				प्रश्न असा आहे की, सन $billYear चे विधानसभा विधेयक क्रमांक $billNumber, $billTitle 
+				<span style="display: inline;font-size: 12px;font-weight: normal;">(सुधारणा स्वीकृत झाल्यास, सुधारल्याप्रमाणे)</span>
+				संमत करावे.<br/>
+				अनुकूल असतील त्यांनी "होय" म्हणावे.
+				<span style="display: inline;font-size: 12px;font-weight: normal;font-style: italic;">(थोडे थांबून)</span>
+				प्रतिकूल असतील त्यांनी "नाही" म्हणावे.
+				<span style="display: inline;font-size: 12px;font-weight: normal;font-style: italic;">(थोडे थांबून)</span>
+				"होय" चे बहुमत आहे. विधेयक <span style="display: inline;font-size: 12px;font-weight: normal;">(सुधारणा स्वीकृत झाल्यास, सुधारल्याप्रमाणे)</span> संमत झाले.
+			</p>
+		</td>
+	</tr>
+</table>
+<p>&nbsp;</p>

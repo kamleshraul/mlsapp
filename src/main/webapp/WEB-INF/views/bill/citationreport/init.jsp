@@ -241,9 +241,9 @@
 	<p align="right">
 		<input id="generateCitationReportButton" type="button" value="<spring:message code='bill.generateCitationReportButton' text='Generate Citation Report'/>" class="butDef">
 	</p>
-	<p id="citationPrintIcon_para" style="display: none;">
+	<p id="citationPrintIcon_para" style="display: none;margin-left: 60px;">
 		<a href="#" id="citationPrintIcon" style="text-decoration: none;margin-right: 20px;">
-			<img src="./resources/images/print_icon.gif" title="<spring:message code='bill.printCitationReport' text='Print Citation Report'></spring:message>" style="width: 32px; height: 32px; margin-left: 5px;" />
+			<img src="./resources/images/print_icon.gif" title="<spring:message code='bill.printCitationReport' text='Print Citation Report'></spring:message>" style="width: 32px; height: 32px;" />
 		</a>
 		<a href="#" id="editCitationReportIcon" style="text-decoration: none;margin-right: 20px;">
 			<img src="./resources/images/Revise.jpg" title="<spring:message code='bill.editCitationReport' text='Edit Citation Report'></spring:message>" style="width: 18px; height: 18px; margin-bottom: 4px;" />

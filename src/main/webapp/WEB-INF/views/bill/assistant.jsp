@@ -425,6 +425,7 @@
 					},'html');
 				}				
 			});
+			
 			//to check/uncheck checkboxes for current checklist selection by assistant
 			$('.checklist_checkbox_fields').each(function() {
 				var fieldNumber = this.id.split("_")[3];
@@ -1009,7 +1010,7 @@
 			});
 			
 			/**** Single Updation for All Workflows ****/
-			$('#submit').click(function() {				
+			$('#submit').click(function() {		
 				//removing <p><br></p>  from wysiwyg editor
 				$(".wysiwyg").each(function(){
 					var wysiwygVal=$(this).val().trim();
@@ -1093,7 +1094,7 @@
 						promptMessage = $('#sendForTranslationMessage').val();
 						operation = "sendForTranslation";
 					} else if(actionForUpdation==opinion_from_lawandjd) {
-						promptMessage = $('#sendForOpinionFromLawAndJdMessage').val();
+						promptMessage = $('#sendForOpinionFromLawAndJDMessage').val();
 						operation = "sendForOpinionFromLawAndJD";
 					} else if(actionForUpdation==recommendation_from_governor) {
 						var fieldNameForGovernorRecommendation = "checklist['isRecommendedAsPerConstitutionArticle_207_3']";
@@ -1142,7 +1143,7 @@
 					$.prompt(promptMessage,{
 						buttons: {Ok:true, Cancel:false}, callback: function(v){
 				        if(v){
-							$.blockUI({ message: '<img src="./resources/images/waitAnimated.gif" />' }); 			        
+				        	$.blockUI({ message: '<img src="./resources/images/waitAnimated.gif" />' }); 			        
 				        	$.post($('form').attr('action')+'?operation='+operation,  
 				    	            $("form").serialize(),  
 				    	            function(data){

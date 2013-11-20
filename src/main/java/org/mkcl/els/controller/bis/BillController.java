@@ -5139,6 +5139,8 @@ public class BillController extends GenericController<Bill> {
 						model.addAttribute("statusDate", statusDate);
 						if(status.startsWith(ApplicationConstants.BILL_PROCESSED_DISCUSSEDCLAUSEBYCLAUSE)) {
 							reportPage = ApplicationConstants.BILL_PROCESSED_DISCUSSEDCLAUSEBYCLAUSE + "_citation";
+						} else if(status.startsWith(ApplicationConstants.BILL_PROCESSED_PASSED)) {
+							reportPage = ApplicationConstants.BILL_PROCESSED_PASSED + "_citation";
 						} else {
 							reportPage = status + "_citation";
 						}						

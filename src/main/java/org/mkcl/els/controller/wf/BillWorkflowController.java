@@ -2067,12 +2067,14 @@ public class BillWorkflowController extends BaseController {
 		if(usergroupType!=null&&!usergroupType.isEmpty()){				
 			UserGroup userGroup=UserGroup.findById(UserGroup.class,Long.parseLong(usergroup));
 			String currentStatusType=null;	
-			List<Reference> actors=WorkflowConfig.findBillActorsVO(domain, internalStatus, userGroup, 1, locale);
+			List<Reference> actors=new ArrayList<Reference>();
 			CustomParameter finalApprovingAuthority=null;
 			String recommendedAction = null;
 			Status statusRecommended = null;
 			if(workflowDetails.getWorkflowType().equals(ApplicationConstants.APPROVAL_WORKFLOW)) {
 				if(domain.getInternalStatus()!=null) {
+					actors = WorkflowConfig.findBillActorsVO(domain, domain.getInternalStatus(), userGroup, 1, locale);
+					statusRecommended = domain.getInternalStatus();
 					currentStatusType = domain.getInternalStatus().getType();
 					if(currentStatusType!=null) {
 						finalApprovingAuthority=CustomParameter.findByName(CustomParameter.class,deviceType.getType().toUpperCase()+"_FINAL_AUTHORITY", "");
@@ -2091,6 +2093,8 @@ public class BillWorkflowController extends BaseController {
 				}								
 			} else if(workflowDetails.getWorkflowType().equals(ApplicationConstants.NAMECLUBBING_WORKFLOW)) {
 				if(domain.getInternalStatus()!=null) {
+					actors = WorkflowConfig.findBillActorsVO(domain, domain.getInternalStatus(), userGroup, 1, locale);
+					statusRecommended = domain.getInternalStatus();
 					currentStatusType = domain.getInternalStatus().getType();
 					if(currentStatusType!=null) {
 						finalApprovingAuthority=CustomParameter.findByName(CustomParameter.class,deviceType.getType().toUpperCase()+"_FINAL_AUTHORITY", "");
@@ -2114,6 +2118,8 @@ public class BillWorkflowController extends BaseController {
 				}				
 			} else if(workflowDetails.getWorkflowType().equals(ApplicationConstants.TRANSLATION_WORKFLOW)) {				
 				if(domain.getTranslationStatus()!=null) {
+					actors = WorkflowConfig.findBillActorsVO(domain, domain.getTranslationStatus(), userGroup, 1, locale);
+					statusRecommended = domain.getTranslationStatus();
 					currentStatusType = domain.getTranslationStatus().getType();
 					if(currentStatusType!=null) {
 						finalApprovingAuthority=CustomParameter.findByName(CustomParameter.class,deviceType.getType().toUpperCase()+"_TRANSLATION_FINAL_AUTHORITY", "");
@@ -2136,6 +2142,8 @@ public class BillWorkflowController extends BaseController {
 				}					
 			} else if(workflowDetails.getWorkflowType().equals(ApplicationConstants.OPINION_FROM_LAWANDJD_WORKFLOW)) {				
 				if(domain.getOpinionFromLawAndJDStatus()!=null) {
+					actors = WorkflowConfig.findBillActorsVO(domain, domain.getOpinionFromLawAndJDStatus(), userGroup, 1, locale);
+					statusRecommended = domain.getOpinionFromLawAndJDStatus();
 					currentStatusType = domain.getOpinionFromLawAndJDStatus().getType();
 					if(currentStatusType!=null) {
 						finalApprovingAuthority=CustomParameter.findByName(CustomParameter.class,deviceType.getType().toUpperCase()+"_OPINION_FROM_LAWANDJD_FINAL_AUTHORITY", "");
@@ -2158,6 +2166,8 @@ public class BillWorkflowController extends BaseController {
 				}
 			} else if(workflowDetails.getWorkflowType().equals(ApplicationConstants.RECOMMENDATION_FROM_GOVERNOR_WORKFLOW)) {				
 				if(domain.getRecommendationFromGovernorStatus()!=null) {
+					actors = WorkflowConfig.findBillActorsVO(domain, domain.getRecommendationFromGovernorStatus(), userGroup, 1, locale);
+					statusRecommended = domain.getRecommendationFromGovernorStatus();
 					currentStatusType = domain.getRecommendationFromGovernorStatus().getType();
 					if(currentStatusType!=null) {
 						finalApprovingAuthority=CustomParameter.findByName(CustomParameter.class,deviceType.getType().toUpperCase()+"_RECOMMENDATION_FROM_GOVERNOR_FINAL_AUTHORITY", "");
@@ -2180,6 +2190,8 @@ public class BillWorkflowController extends BaseController {
 				}
 			} else if(workflowDetails.getWorkflowType().equals(ApplicationConstants.RECOMMENDATION_FROM_PRESIDENT_WORKFLOW)) {				
 				if(domain.getRecommendationFromPresidentStatus()!=null) {
+					actors = WorkflowConfig.findBillActorsVO(domain, domain.getRecommendationFromPresidentStatus(), userGroup, 1, locale);
+					statusRecommended = domain.getRecommendationFromPresidentStatus();
 					currentStatusType = domain.getRecommendationFromPresidentStatus().getType();
 					if(currentStatusType!=null) {
 						finalApprovingAuthority=CustomParameter.findByName(CustomParameter.class,deviceType.getType().toUpperCase()+"_RECOMMENDATION_FROM_PRESIDENT_FINAL_AUTHORITY", "");
@@ -2228,6 +2240,35 @@ public class BillWorkflowController extends BaseController {
 //				&& (usergroupType.equals(ApplicationConstants.ASSISTANT) || usergroupType.equals(ApplicationConstants.SECTION_OFFICER))) {
 //			populatePrintRequisition(ApplicationConstants.BILL_PRESS_COPY, ApplicationConstants.BILL_FINAL_ADMISSION, domain, model, request, workflowDetails);
 //		}
+		/**** checklist ****/
+		if(domain.getChecklist()!=null && !domain.getChecklist().isEmpty()) {
+			model.addAttribute("isChecklistFilled", true);
+		}
+		CustomParameter checklistCountParameter = CustomParameter.findByName(CustomParameter.class, ApplicationConstants.BILL_CHECKLIST_COUNT, "");
+		if(checklistCountParameter!=null) {
+			if(checklistCountParameter.getValue()!=null) {
+				try {
+					int checklistCount = Integer.parseInt(checklistCountParameter.getValue());
+					List<String> checklistSerialNumbers = new ArrayList<String>();
+					for(int i=0; i<=checklistCount; i++) {
+						checklistSerialNumbers.add(FormaterUtil.formatNumberNoGrouping(i, locale));
+					}
+					model.addAttribute("checklistSerialNumbers", checklistSerialNumbers);
+				} catch (NumberFormatException e) {
+					logger.error("custom parameter '"+ApplicationConstants.BILL_CHECKLIST_COUNT+"' is not set.");
+					model.addAttribute("errorcode", "BILL_CHECKLIST_COUNT_NOTSET");
+					return;
+				}
+			} else {
+				logger.error("custom parameter '"+ApplicationConstants.BILL_CHECKLIST_COUNT+"' is not set.");
+				model.addAttribute("errorcode", "BILL_CHECKLIST_COUNT_NOTSET");
+				return;
+			}
+		} else {
+			logger.error("custom parameter '"+ApplicationConstants.BILL_CHECKLIST_COUNT+"' is not set.");
+			model.addAttribute("errorcode", "BILL_CHECKLIST_COUNT_NOTSET");
+			return;
+		}
 	}
 	
 	@Transactional
