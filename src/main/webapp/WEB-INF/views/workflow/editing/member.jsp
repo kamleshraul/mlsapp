@@ -630,7 +630,8 @@
 			$("#wf_edit_copy").click(function(){
 				if($("#key").val()==undefined || $("#key").val()==''){
 				}else{
-					showEditCopyOfMember();
+					//TODO:have to decide upon how to utilize this parameter
+					showEditCopyOfMember('&str=str');
 				}
 			});
 		});

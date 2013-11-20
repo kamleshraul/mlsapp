@@ -105,11 +105,25 @@
 			background: scroll repeat-x #fff; 
 			width: 400px;
 			height: 262px;
-			z-index: 10000; 
+			z-index: 998; 
 			box-shadow: 2px 2px 5px #888; 
 			opacity:0.8;
 			overflow: scroll;
 			padding: 5px;
+		}
+		.partDraftContainerClose{
+			display: none; 
+			background: red scroll; 
+			width:16px; 
+			height: 16px; 
+			float: right; 
+			text-align: center; 
+			border-radius:16px; 
+			box-shadow: 1px 1px 2px #000; 
+			position: fixed;
+			left: 436px; 
+			top: 135px; 
+			z-index: 999; cursor: pointer;"
 		}
 		
 		.partDraftContainer div table ul{
@@ -474,36 +488,39 @@
 						whichId = $(this).attr('id');
 					}
 					
-					if(text.length>0){
-						if(showIt==0){
-							showIt=1;
-							showEditor(e);		
-							
-							var content = $(this).html().trim();
-							$("#prevcontent").val(content);
-							var newContent=content.replace(/<span.*?>/g,"");
-							$(".wysiwyg").wysiwyg('setContent', newContent.replace(text,'<span style="background: yellow;">'+text+'</span>'));
-							$("#ttA-wysiwyg-iframe").focus();
-						}else if(showIt==1){
-							showIt=0;
-							saveAndHide(e);
-							
-							/* var content = $("#ttA").val().trim();
-							var newContent=content.replace(/<span.*?>/g,"");
-							$("#"+whichId).empty();
-							$("#"+whichId).html(newContent); */
-							
-						}
-					}else{
-						if(showIt==1){
-							showIt=0;
-							saveAndHide();
+					if($("#wf_edit_copy").css('display')!='none'){
+						if(text.length>0){
+							if(showIt==0){
+								showIt=1;
+								showEditor(e);		
+								
+								var content = $(this).html().trim();
+								$("#prevcontent").val(content);
+								var newContent=content.replace(/<span.*?>/g,"");
+								$(".wysiwyg").wysiwyg('setContent', newContent.replace(text,'<span style="background: yellow;">'+text+'</span>'));
+								$("#ttA-wysiwyg-iframe").focus();
+							}else if(showIt==1){
+								showIt=0;
+								saveAndHide(e);
+								
+								/* var content = $("#ttA").val().trim();
+								var newContent=content.replace(/<span.*?>/g,"");
+								$("#"+whichId).empty();
+								$("#"+whichId).html(newContent); */
+								
+							}
+						}else{
+							if(showIt==1){
+								showIt=0;
+								saveAndHide();
+							}
 						}
 					}
 				}
 			});
 			
 			$(".partMerger").click(function(){
+				
 				var idx=$(this).attr('id').substring("partMerger".length);
 				$.get('ref/getpartDraftsInWorkflow/'+idx+'?wfdetailsId='+$("#workflowdetails").val()+'&userGroup='+$("#currentusergroup").val()+'&userGroupType='+$("#currentusergroupType").val(),function(data){
 					if(data.length>0){
@@ -718,36 +735,45 @@
 			     }); */
 			     //console.log($(element).attr('class').contains('replaceByMe'));
 			  
-			     if($("#action").val()=='edit'){
-						var clasess=$(element).attr('class').split(' ');
-						var sourcePartDraftId=clasess[1].substring(3);
-						var targetPartId=clasess[2].substring(3);
-											
-						var targetContent=$("#pp"+targetPartId).html().trim();
-						var sourceContent=$(element).html().trim();
-						console.log("\nSource: "+sourceContent);
-						console.log("\nTarget: "+targetContent);
-						if(sourceContent!=targetContent){
-							$("#pp"+targetPartId).empty();
-							$("#pp"+targetPartId).html(sourceContent);
-							
-							$(element).empty();
-							$(element).html(targetContent);	
-							$("#partUndo"+targetPartId).addClass(targetPartId);
-							
-							$("#data").val(sourceContent);
-							
-							$.post('workflow/editing/mergedraftcontent?partId='+targetPartId+'&draftId='+sourcePartDraftId+'&action='+$('#action').val(), 
-									$("form[action='workflow/editing/savepart']").serialize(),function(data){
-								if(data=='SUCCESS'){
-									//$("#partDraftContainer").hide();
-									$("#wf_edit_copy").hide();
+			     $.prompt($('#mergeMsg').val(),{
+						buttons: {Ok:true, Cancel:false}, callback: function(v){
+				        if(v){
+							if($("#action").val()=='edit'){
+									var clasess=$(element).attr('class').split(' ');
+									var sourcePartDraftId=clasess[1].substring(3);
+									var targetPartId=clasess[2].substring(3);
+														
+									var targetContent=$("#pp"+targetPartId).html().trim();
+									var sourceContent=$(element).html().trim();
+									if(sourceContent!=targetContent){
+										$("#pp"+targetPartId).empty();
+										$("#pp"+targetPartId).html(sourceContent);
+										
+										$(element).empty();
+										$(element).html(targetContent);	
+										$("#partUndo"+targetPartId).addClass(targetPartId);
+										
+										$("#data").val(sourceContent);
+										
+										$.blockUI({ message: '<img src="./resources/images/waitAnimated.gif" />' });
+										$.post('workflow/editing/mergedraftcontent?partId='+targetPartId+'&draftId='+sourcePartDraftId+'&action='+$('#action').val(), 
+												$("form[action='workflow/editing/savepart']").serialize(),function(data){
+											if(data=='SUCCESS'){
+												//$("#partDraftContainer").hide();
+												$.unblockUI();
+												$("#wf_edit_copy").hide();
+												$('html, body').animate({
+											        scrollTop: $("#pp"+targetPartId).offset().top
+											    }, 100);												
+											}
+										}).fail(function(){
+											$.unblockUI();
+										});
+									}
 								}
-							}).fail(function(){
-								
-							});
-						}
+				        }
 					}
+			     });
 			     
 			});
 			
@@ -970,14 +996,15 @@
 			demo
 		</div>
 	</div>
-	<div id="partDraftContainerClose" style="display: none; background: red scroll; width:16px; height: 16px; float: right; text-align: center; border-radius:16px; box-shadow: 1px 1px 2px #000; position: fixed;left: 436px; top: 135px; z-index:19991; cursor: pointer;"><b>X</b></div>
+	<div id="partDraftContainerClose" class="partDraftContainerClose"><b>X</b></div>
 	<input type="hidden" id="userName" value="${username}" />
 	<input type="hidden" id="workflowdetails" value="${workflowdetails}" />
 	<input type="hidden" id="workflowstatus" value="${workflowstatus}" />
 	<input id="reportType" type="hidden" value="${reportType}" />
 	<input id="prevcontent" type="hidden" value="" />
 	<input id="action" type="hidden" value="${action}" />
-	<input type="hidden" name="pleaseSelectMsg" id="pleaseSelectMsg" value="<spring:message code='please.select' text='Please Select'></spring:message>">	
+	<input type="hidden" name="pleaseSelectMsg" id="pleaseSelectMsg" value="<spring:message code='please.select' text='Please Select'></spring:message>">
+	<input type="hidden" name="mergeMsg" id="mergeMsg" value="<spring:message code='editing.merge' text='Are you sure to merge it?'></spring:message>">
 </div>
 </body>
 </html>

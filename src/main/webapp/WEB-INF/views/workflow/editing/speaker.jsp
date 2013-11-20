@@ -626,7 +626,10 @@
 			$("#wf_edit_copy").click(function(){
 				if($("#key").val()==undefined || $("#key").val()==''){
 				}else{
-					showEditCopyOfMember();
+					var speakerFilter=$("#speakerFilter").val();
+					if(speakerFilter!=undefined && speakerFilter!=''){
+						showEditCopyOfMember('&speakerFilter='+speakerFilter);
+					}
 				}
 			});
 		});
@@ -647,6 +650,13 @@
 				<spring:message code="editor.edit" text="Editing"/>
 			</a> |		
 		</c:if>		
+		<a href="#" id="wf_speaker_filter" class="butSim">
+			<spring:message code="editor.speaker_filter" text="Speaker Filter"/>
+		</a> |
+		<select id="speakerFilter">
+			<option value="others"><spring:message code='please.select' text='Others'></spring:message></option>
+			<option value="speaker"><spring:message code="editing.wf.speaker" text="Speaker's"></spring:message></option>
+		</select>
 		<hr />	
 	</div>
 <div>
@@ -790,13 +800,7 @@
 	<input type="hidden" id="workflowstatus" value="${workflowstatus}" />
 	<input id="reportType" type="hidden" value="${reportType}" />
 	<input id="prevcontent" type="hidden" value="" />
-	<input id="action" type="hidden" value="${action}" /> 
-	<input id="selectItemFirstMessage" value="<spring:message code='ris.selectitem' text='Select an item first'/>" type="hidden">
-	<input id="recreate_slots" value="<spring:message code='ris.recreate_slots' text='Recreate Slots'/>" type="hidden">
-	<input id="turnoff_slots" value="<spring:message code='ris.turnoff_slots' text='Turn Off Slots'/>" type="hidden">
-	<input id="delete_slots" value="<spring:message code='ris.delete_slots' text='Delete Slots'/>" type="hidden">
-	<input id="create_new_slots" value="<spring:message code='ris.create_new_slots' text='Create New Slots'/>" type="hidden">
-	<input id="recreate_slots_from_slot_duration_changed_time" value="<spring:message code='ris.recreate_slots_from_slot_duration_changed_time' text='Recreate Slots From Slot Duration Changed Time'/>" type="hidden">
+	<input id="action" type="hidden" value="${action}" />
 	<input type="hidden" name="pleaseSelectMsg" id="pleaseSelectMsg" value="<spring:message code='please.select' text='Please Select'></spring:message>">	
 </div>
 </body>
