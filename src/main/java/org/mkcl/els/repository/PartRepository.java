@@ -138,6 +138,29 @@ public class PartRepository extends BaseRepository<Part, Serializable> {
 		return members;
 	}
 	
+	public List<Member> findAllProceedingMembersOfRosterHavingDevices(final Roster roster, final List<Long> devices, final String locale){
+		
+		List<Member> members = new ArrayList<Member>();
+		
+		try{
+			String query = "SELECT pp.primaryMember FROM Part pp"
+							+ " LEFT JOIN pp.proceeding p"
+							+ " WHERE p.slot.roster.id=:rosterId"
+							+ " AND pp.deviceType.id IN (:devices)"
+							+ " AND pp.locale=:locale";
+			TypedQuery<Member> tQuery = this.em().createQuery(query, Member.class);
+			tQuery.setParameter("rosterId", roster.getId());
+			tQuery.setParameter("devices", devices);
+			tQuery.setParameter("locale", locale);
+			members = tQuery.getResultList();
+			
+		}catch(Exception e){
+			e.printStackTrace();
+		}
+		
+		return members;
+	}
+	
 	public List<Part> findAllPartsOfMemberOfRoster(final Roster roster, final String locale){
 		List<Part> parts = new ArrayList<Part>();
 		try{
