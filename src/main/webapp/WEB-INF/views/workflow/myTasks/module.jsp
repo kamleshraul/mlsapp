@@ -130,7 +130,7 @@
 			}
 		}		
 		
-		function showEditCopyOfMember(){
+		function showEditCopyOfMember(sentParams){
 			var params='?houseType='+$("#selectedHouseType").val()
 					+ '&sessionType='+$("#selectedSessionType").val()
 					+ '&sessionYear='+$("#selectedSessionYear").val()
@@ -138,7 +138,7 @@
 					+ '&userGroupType='+$("#currentusergroupType").val()
 					+ '&selectedSubWorkflow='+$("#selectedSubWorkflow").val()
 					+ '&action=edit';
-			showTabByIdAndUrl('process_tab', 'workflow/myTasks/' + $("#key").val() + '/process'+params);
+			showTabByIdAndUrl('process_tab', 'workflow/myTasks/' + $("#key").val() + '/process'+params+sentParams);
 		}
 		function showEditCopy(){
 			var params='?houseType='+$("#selectedHouseType").val()
