@@ -2072,7 +2072,7 @@ public class BillWorkflowController extends BaseController {
 			String recommendedAction = null;
 			Status statusRecommended = null;
 			if(workflowDetails.getWorkflowType().equals(ApplicationConstants.APPROVAL_WORKFLOW)) {
-				if(domain.getInternalStatus()!=null) {
+				if(domain.getInternalStatus()!=null) {					
 					actors = WorkflowConfig.findBillActorsVO(domain, domain.getInternalStatus(), userGroup, 1, locale);
 					statusRecommended = domain.getInternalStatus();
 					currentStatusType = domain.getInternalStatus().getType();
@@ -2118,7 +2118,9 @@ public class BillWorkflowController extends BaseController {
 				}				
 			} else if(workflowDetails.getWorkflowType().equals(ApplicationConstants.TRANSLATION_WORKFLOW)) {				
 				if(domain.getTranslationStatus()!=null) {
-					actors = WorkflowConfig.findBillActorsVO(domain, domain.getTranslationStatus(), userGroup, 1, locale);
+					if(!(usergroupType.equals(ApplicationConstants.TRANSLATOR) && workflowDetails.getStatus().equals(ApplicationConstants.MYTASK_COMPLETED))) {
+						actors = WorkflowConfig.findBillActorsVO(domain, domain.getTranslationStatus(), userGroup, 1, locale);
+					}					
 					statusRecommended = domain.getTranslationStatus();
 					currentStatusType = domain.getTranslationStatus().getType();
 					if(currentStatusType!=null) {
@@ -2142,7 +2144,9 @@ public class BillWorkflowController extends BaseController {
 				}					
 			} else if(workflowDetails.getWorkflowType().equals(ApplicationConstants.OPINION_FROM_LAWANDJD_WORKFLOW)) {				
 				if(domain.getOpinionFromLawAndJDStatus()!=null) {
-					actors = WorkflowConfig.findBillActorsVO(domain, domain.getOpinionFromLawAndJDStatus(), userGroup, 1, locale);
+					if(!(usergroupType.equals(ApplicationConstants.OPINION_ABOUT_BILL_DEPARTMENT) && workflowDetails.getStatus().equals(ApplicationConstants.MYTASK_COMPLETED))) {
+						actors = WorkflowConfig.findBillActorsVO(domain, domain.getOpinionFromLawAndJDStatus(), userGroup, 1, locale);
+					}					
 					statusRecommended = domain.getOpinionFromLawAndJDStatus();
 					currentStatusType = domain.getOpinionFromLawAndJDStatus().getType();
 					if(currentStatusType!=null) {
@@ -2166,7 +2170,9 @@ public class BillWorkflowController extends BaseController {
 				}
 			} else if(workflowDetails.getWorkflowType().equals(ApplicationConstants.RECOMMENDATION_FROM_GOVERNOR_WORKFLOW)) {				
 				if(domain.getRecommendationFromGovernorStatus()!=null) {
-					actors = WorkflowConfig.findBillActorsVO(domain, domain.getRecommendationFromGovernorStatus(), userGroup, 1, locale);
+					if(!(usergroupType.equals(ApplicationConstants.RECOMMENDATION_FROM_GOVERNOR_DEPARTMENT) && workflowDetails.getStatus().equals(ApplicationConstants.MYTASK_COMPLETED))) {
+						actors = WorkflowConfig.findBillActorsVO(domain, domain.getRecommendationFromGovernorStatus(), userGroup, 1, locale);
+					}					
 					statusRecommended = domain.getRecommendationFromGovernorStatus();
 					currentStatusType = domain.getRecommendationFromGovernorStatus().getType();
 					if(currentStatusType!=null) {
@@ -2190,7 +2196,9 @@ public class BillWorkflowController extends BaseController {
 				}
 			} else if(workflowDetails.getWorkflowType().equals(ApplicationConstants.RECOMMENDATION_FROM_PRESIDENT_WORKFLOW)) {				
 				if(domain.getRecommendationFromPresidentStatus()!=null) {
-					actors = WorkflowConfig.findBillActorsVO(domain, domain.getRecommendationFromPresidentStatus(), userGroup, 1, locale);
+					if(!(usergroupType.equals(ApplicationConstants.RECOMMENDATION_FROM_PRESIDENT_DEPARTMENT) && workflowDetails.getStatus().equals(ApplicationConstants.MYTASK_COMPLETED))) {
+						actors = WorkflowConfig.findBillActorsVO(domain, domain.getRecommendationFromPresidentStatus(), userGroup, 1, locale);
+					}
 					statusRecommended = domain.getRecommendationFromPresidentStatus();
 					currentStatusType = domain.getRecommendationFromPresidentStatus().getType();
 					if(currentStatusType!=null) {
