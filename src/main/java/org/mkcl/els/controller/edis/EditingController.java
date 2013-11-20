@@ -1,10 +1,7 @@
 package org.mkcl.els.controller.edis;
 
-import java.io.ByteArrayOutputStream;
 import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.OutputStream;
 import java.io.UnsupportedEncodingException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -35,13 +32,11 @@ import org.mkcl.els.controller.GenericController;
 import org.mkcl.els.domain.Credential;
 import org.mkcl.els.domain.CustomParameter;
 import org.mkcl.els.domain.Document;
-import org.mkcl.els.domain.Doom;
 import org.mkcl.els.domain.HouseType;
 import org.mkcl.els.domain.Language;
 import org.mkcl.els.domain.Member;
 import org.mkcl.els.domain.Part;
 import org.mkcl.els.domain.PartDraft;
-import org.mkcl.els.domain.Party;
 import org.mkcl.els.domain.Query;
 import org.mkcl.els.domain.Role;
 import org.mkcl.els.domain.Roster;
@@ -54,9 +49,7 @@ import org.mkcl.els.domain.UserGroupType;
 import org.mkcl.els.domain.WorkflowActor;
 import org.mkcl.els.domain.WorkflowConfig;
 import org.mkcl.els.domain.WorkflowDetails;
-import org.mkcl.els.domain.associations.MemberPartyAssociation;
 import org.mkcl.els.service.IProcessService;
-import org.mkcl.els.service.impl.ReportServiceImpl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -198,6 +191,7 @@ public class EditingController extends GenericController<Roster>{
 	@Transactional
 	@RequestMapping(value="/compiledreport", method=RequestMethod.GET)
 	public String viewEditingReport(final HttpServletRequest request, final ModelMap model, final Locale locale){
+			
 		String retVal= "editing/error"; 
 		
 		model.addAttribute("undoCount", 0);
@@ -808,7 +802,7 @@ public class EditingController extends GenericController<Roster>{
 	
 	@Transactional
 	@RequestMapping(value="/startworkflow",method=RequestMethod.POST)
-	public String startWorkFlow(HttpServletRequest request, ModelMap model, HttpServletResponse response, Locale locale){
+	public @ResponseBody String startWorkFlow(HttpServletRequest request, ModelMap model, HttpServletResponse response, Locale locale){
 		String strHouseType = request.getParameter("houseType");
 		String strSessionType = request.getParameter("sessionType");
 		String strSessionYear = request.getParameter("sessionYear");
@@ -818,13 +812,14 @@ public class EditingController extends GenericController<Roster>{
 		String strUserGroupType = request.getParameter("userGroupType");
 		String strWfFor = request.getParameter("wffor");
 		String strLevel = request.getParameter("level");
-		String form = "editing/error";
+		String strDevices = request.getParameter("devices");
+		String retVal = "fail";
 		try{
-			if (strHouseType != null && !strHouseType.equals("")
-					&& strSessionType != null && !strSessionType.equals("")
-					&& strSessionYear != null && !strSessionYear.equals("")
-					&& strLanguage != null && !strLanguage.equals("")
-					&& strDay != null && !strDay.equals("")) {
+			if (strHouseType != null && !strHouseType.isEmpty()
+					&& strSessionType != null && !strSessionType.isEmpty()
+					&& strSessionYear != null && !strSessionYear.isEmpty()
+					&& strLanguage != null && !strLanguage.isEmpty()
+					&& strDay != null && !strDay.isEmpty()) {
 	
 				HouseType houseType = HouseType.findByFieldName(HouseType.class, "type", strHouseType,locale.toString());
 				SessionType sessionType = SessionType.findById(SessionType.class, Long.parseLong(strSessionType));
@@ -845,7 +840,7 @@ public class EditingController extends GenericController<Roster>{
 				}else if(strWfFor.equals(ApplicationConstants.SPEAKER)){
 					fields.put("workflowSubType", new Object[]{ApplicationConstants.EDITING_RECOMMEND_SPEAKERAPPROVAL, ApplicationConstants.EDITING_FINAL_SPEAKERAPPROVAL});
 				}
-				
+								
 				fields.put("sessionType", new Object[]{session.getType().getSessionType()});
 				fields.put("sessionYear", new Object[]{FormaterUtil.formatNumberNoGrouping(Integer.valueOf(strSessionYear), locale.toString())});
 				fields.put("houseType", new Object[]{session.getHouse().getType().getName()});
@@ -857,19 +852,48 @@ public class EditingController extends GenericController<Roster>{
 					
 					List<Part> parts = Part.findAllPartOfProceedingOfRoster(roster, true, locale.toString());
 					for (Part p : parts) {
-						List<PartDraft> pds = p.getPartDrafts();
-						if (pds != null && !pds.isEmpty()) {
-							PartDraft pd = pds.get(pds.size() - 1);
-							if(pd.getEditedBy().equals(this.getCurrentUser().getActualUsername())){
-								if (strWfFor.equals(ApplicationConstants.MEMBER)) {
-									pd.setMemberSentCopy(true);
-								} else if (strWfFor.equals(ApplicationConstants.SPEAKER)) {
-									pd.setSpeakerSentCopy(true);
+						boolean flag = false;
+						if(p.getDeviceType() != null){
+							flag = isDeviceEnabled(p.getDeviceType().getId().toString(), strDevices);
+						}
+						if(flag){
+							List<PartDraft> pds = p.getPartDrafts();
+							if (pds != null && !pds.isEmpty()) {
+								PartDraft pd = pds.get(pds.size() - 1);
+								if(pd.getEditedBy().equals(this.getCurrentUser().getActualUsername())){
+									if (strWfFor.equals(ApplicationConstants.MEMBER)) {
+										pd.setMemberSentCopy(true);
+									} else if (strWfFor.equals(ApplicationConstants.SPEAKER)) {
+										pd.setSpeakerSentCopy(true);
+									}
+									pd.merge();
+								}else{
+									pd = new PartDraft();
+									
+									pd.setEditedBy(this.getCurrentUser().getActualUsername());
+									pd.setEditedOn(new Date());
+									pd.setEditedAs(userGroup.getUserGroupType().getName());
+									pd.setLocale(locale.toString());
+									pd.setMainHeading(p.getMainHeading());
+									pd.setPageHeading(p.getPageHeading());
+									pd.setWorkflowCopy(true);
+									
+									if(p.getEditedContent() != null && !p.getEditedContent().isEmpty()){
+										pd.setRevisedContent(p.getEditedContent());
+									}else if(p.getRevisedContent() != null && !p.getRevisedContent().isEmpty()){
+										pd.setRevisedContent(p.getRevisedContent());
+									}
+									
+									if (strWfFor.equals(ApplicationConstants.MEMBER)) {
+										pd.setMemberSentCopy(true);
+									} else if (strWfFor.equals(ApplicationConstants.SPEAKER)) {
+										pd.setSpeakerSentCopy(true);
+									}
+									p.getPartDrafts().add(pd);
+									p.merge();
 								}
-								pd.merge();
 							}else{
-								pd = new PartDraft();
-								
+								PartDraft pd = new PartDraft();
 								pd.setEditedBy(this.getCurrentUser().getActualUsername());
 								pd.setEditedOn(new Date());
 								pd.setEditedAs(userGroup.getUserGroupType().getName());
@@ -892,29 +916,6 @@ public class EditingController extends GenericController<Roster>{
 								p.getPartDrafts().add(pd);
 								p.merge();
 							}
-						}else{
-							PartDraft pd = new PartDraft();
-							pd.setEditedBy(this.getCurrentUser().getActualUsername());
-							pd.setEditedOn(new Date());
-							pd.setEditedAs(userGroup.getUserGroupType().getName());
-							pd.setLocale(locale.toString());
-							pd.setMainHeading(p.getMainHeading());
-							pd.setPageHeading(p.getPageHeading());
-							pd.setWorkflowCopy(true);
-							
-							if(p.getEditedContent() != null && !p.getEditedContent().isEmpty()){
-								pd.setRevisedContent(p.getEditedContent());
-							}else if(p.getRevisedContent() != null && !p.getRevisedContent().isEmpty()){
-								pd.setRevisedContent(p.getRevisedContent());
-							}
-							
-							if (strWfFor.equals(ApplicationConstants.MEMBER)) {
-								pd.setMemberSentCopy(true);
-							} else if (strWfFor.equals(ApplicationConstants.SPEAKER)) {
-								pd.setSpeakerSentCopy(true);
-							}
-							p.getPartDrafts().add(pd);
-							p.merge();
 						}
 					}
 					Status status = null;
@@ -932,8 +933,11 @@ public class EditingController extends GenericController<Roster>{
 					Map<String, String> properties = new HashMap<String, String>();
 					WorkflowActor wfActor = WorkflowConfig.findNextEditingActor(houseType, userGroup, status, workflowName, level, locale.toString());
 					if (strWfFor.equals("member")) {
-
-						List<Member> members = Part.findAllProceedingMembersOfRoster(roster, locale.toString());
+						List<Long> devices = new ArrayList<Long>();
+						for(String val : strDevices.split(",")){
+							devices.add(Long.valueOf(val));
+						}
+						List<Member> members = Part.findAllProceedingMembersOfRosterHavingDevices(roster, devices, locale.toString());
 						for (Member m : members) {
 							User user = User.findbyNameBirthDate(m.getFirstName(), m.getMiddleName(),m.getLastName(), m.getBirthDate());
 							Credential credential = user.getCredential();
@@ -952,8 +956,8 @@ public class EditingController extends GenericController<Roster>{
 								
 								ProcessInstance processInstance = processService.createProcessInstance(processDefinition,properties);
 								Task task = processService.getCurrentTask(processInstance);
-	
-								WorkflowDetails wfDetails = EditingWorkflowUtility.create(this.getCurrentUser(), roster.getId(),session, status, task, ApplicationConstants.APPROVAL_WORKFLOW, wfActor.getLevel().toString(),locale.toString());
+								EditingWorkflowUtility.create(this.getCurrentUser(), roster.getId(),session, status, task, ApplicationConstants.APPROVAL_WORKFLOW, strDevices, wfActor.getLevel().toString(),locale.toString());
+								
 							}
 
 						}
@@ -969,18 +973,36 @@ public class EditingController extends GenericController<Roster>{
 
 						ProcessInstance processInstance = processService.createProcessInstance(processDefinition,properties);
 						Task task = processService.getCurrentTask(processInstance);
-						WorkflowDetails wfDetails = EditingWorkflowUtility.create(this.getCurrentUser(), roster.getId(), session, status, task, ApplicationConstants.APPROVAL_WORKFLOW, wfActor.getLevel().toString(), locale.toString());
+						EditingWorkflowUtility.create(this.getCurrentUser(), roster.getId(), session, status, task, ApplicationConstants.APPROVAL_WORKFLOW, strDevices, wfActor.getLevel().toString(), locale.toString());
 					}
-					model.addAttribute("errorcode", "none");
+					retVal="SUCCESS";
 				}else{
-					model.addAttribute("errorcode", "MEMBER_OR_SPEAKER_WORKFLOW_IN_PROGRESS_FOR_THE_ROSTER");
+					retVal="FAIL";
 				}
 			}			
 		}catch(Exception e){
+			retVal="FAIL";
 			logger.error(e.toString());
 			e.printStackTrace();
 		}
-		return form;
+		return retVal;
+	}
+	
+	//finds out if given device is enabled
+	private boolean isDeviceEnabled(final String deviceId, final String devices){
+		
+		try{
+			for(String val : devices.split(",")){
+				if(deviceId.equals(val)){
+					return true;
+				}
+			}
+		}catch (Exception e) {
+			logger.debug("editing/startworkflow",e);
+			e.printStackTrace();
+		}
+		
+		return false;
 	}
 	
 //	@Transactional
@@ -1074,6 +1096,7 @@ class EditingWorkflowUtility{
 			final Status status,
 			final Task task,
 			final String workflowType,
+			final String devicesEnabled,
 			final String assigneeLevel,
 			final String locale) throws ELSException{
 		
@@ -1097,6 +1120,7 @@ class EditingWorkflowUtility{
 					workflowDetails.setAssigneeUserGroupType(userGroupType);
 					workflowDetails.setAssigneeUserGroupName(userGroupName);
 					workflowDetails.setAssigneeLevel(assigneeLevel);
+					workflowDetails.setDomainIds(devicesEnabled);
 					
 					workflowDetails.setAssigner(auser.getActualUsername());
 					UserGroup auserGroup = null;
