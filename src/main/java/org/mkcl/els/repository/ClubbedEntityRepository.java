@@ -780,7 +780,7 @@ public class ClubbedEntityRepository extends BaseRepository<ClubbedEntity, Seria
 		}	
 		Bill child=beingProcessedBill;		
 		Status unProcessedStatus=Status.findByType(ApplicationConstants.BILL_SYSTEM_ASSISTANT_PROCESSED, locale);
-		Status approvalStatus=Status.findByType(ApplicationConstants.BILL_FINAL_ADMISSION, locale);		
+		Status approvalStatus=Status.findByType(ApplicationConstants.BILL_FINAL_ADMISSION, locale);	
 		if(	(beingProcessedBillStatusType.equals(ApplicationConstants.BILL_SYSTEM_TO_BE_PUTUP) 
 				&& beingClubbedBillStatusType.equals(ApplicationConstants.BILL_SYSTEM_TO_BE_PUTUP))||
 				(beingProcessedBillStatusType.equals(ApplicationConstants.BILL_SYSTEM_ASSISTANT_PROCESSED)
@@ -801,12 +801,16 @@ public class ClubbedEntityRepository extends BaseRepository<ClubbedEntity, Seria
 				||beingProcessedBillStatusType.equals(ApplicationConstants.BILL_SYSTEM_TO_BE_PUTUP)
 				||beingProcessedRecommendationStatus.equals(ApplicationConstants.BILL_RECOMMEND_SENDBACK)
 				||beingProcessedRecommendationStatus.equals(ApplicationConstants.BILL_RECOMMEND_DISCUSS))
-				&&beingClubbedBillStatusType.equals(ApplicationConstants.BILL_FINAL_ADMISSION)){
+				&&(
+				beingClubbedBillStatusType.equals(ApplicationConstants.BILL_FINAL_ADMISSION)
+				||beingClubbedBillStatusType.equals(ApplicationConstants.BILL_PROCESSED_TOBEINTRODUCED))){
 			Status nameClubbing=Status.findByType(ApplicationConstants.BILL_PUTUP_NAMECLUBBING, locale);
 			actualClubbing(parent, child,nameClubbing,nameClubbing, locale);
 			return "PROCESSED_TO_BE_NAMED_CLUBBED_WITH_PENDING";
 		}else if(beingProcessedBillStatusType.equals(ApplicationConstants.BILL_FINAL_ADMISSION)
-				&&beingClubbedBillStatusType.equals(ApplicationConstants.BILL_FINAL_ADMISSION)){
+				&&(
+				beingClubbedBillStatusType.equals(ApplicationConstants.BILL_FINAL_ADMISSION)
+				||beingClubbedBillStatusType.equals(ApplicationConstants.BILL_PROCESSED_TOBEINTRODUCED))){
 			Status putOnHold=Status.findByType(ApplicationConstants.BILL_FINAL_ADMISSION, locale);
 			actualClubbing(parent, child,putOnHold,putOnHold, locale);
 			return "PROCESSED_CLUBBED_WITH_SEARCHED_AND_ADMITTED";
