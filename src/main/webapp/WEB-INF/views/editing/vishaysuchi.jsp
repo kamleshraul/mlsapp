@@ -37,7 +37,9 @@
 		<c:forEach items="${report}" var="r">
 			<tr>
 				<td>
-					
+					${r[0]}<br />
+					${r[1]}<br />
+					${r[2]}					
 				</td>
 			</tr>
 		</c:forEach>
