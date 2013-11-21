@@ -415,7 +415,7 @@
 							<fo:block/>
 							<xsl:choose>
 							<xsl:when test="element_26='bills_nonofficial'">
-								सदस्य.]
+								प्रभारी सदस्य.]
 							</xsl:when>
 							<xsl:when test="element_26='bills_government'">
 								<xsl:value-of select="element_5"/>.]

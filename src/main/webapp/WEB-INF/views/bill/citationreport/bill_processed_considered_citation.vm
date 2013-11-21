@@ -7,7 +7,7 @@
 		</td>
 		<td valign="top" width="2%">:</td>
 		<td  valign="top">
-			महोदय, सन $billYear चे विधानसभा विधेयक क्रमांक $billNumber, $billTitle विचारात घेण्यात यावे असा मी आपल्याय अनुमतीने प्रस्ताव मांडतो.<br/><br/>
+			महोदय, सन $billYear चे विधानसभा विधेयक क्रमांक $billNumber, $billTitle विचारात घेण्यात यावे असा मी आपल्या अनुमतीने प्रस्ताव मांडतो.<br/><br/>
 			<span style="align: center;font-weight: bold;">(सदस्यांचे भाषण)</span>
 		</td>
 	</tr>	

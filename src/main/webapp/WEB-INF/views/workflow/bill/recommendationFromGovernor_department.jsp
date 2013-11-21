@@ -1066,11 +1066,11 @@
 						</fieldset>
 					</div>
 					
-					<div style="margin-top: 20px;">
+					<div id="annexuresForAmendingBill_div" style="margin-top: 20px;">
 						<fieldset>
 							<p style="margin-bottom: -10px;">
 							<a href="#" class="viewRevisions" id="viewRevisions_annexuresForAmendingBill"  style="margin-left: 162px;text-decoration: none;">
-								<img src="./resources/images/ViewRevision.jpg" title="<spring:message code='bill.viewRevisionsForAnnexureForAmendingBills' text='View Revisions for Content Drafts'></spring:message>" class="imageLink" />
+								<img src="./resources/images/ViewRevision.jpg" title="<spring:message code='bill.viewRevisionsForAnnexureForAmendingBills' text='View Revisions for Annexures For Amending Bill'></spring:message>" class="imageLink" />
 							</a>
 							<c:forEach var="i" items="${annexuresForAmendingBill}" varStatus="position">
 							<c:choose>
@@ -1082,18 +1082,18 @@
 							</c:choose>					
 							</c:forEach>							
 							</p>						
-							<div id="annexuresForAmendingBill_div">
+							<div>
 								<c:forEach var="i" items="${annexuresForAmendingBill}" varStatus="draftNumber">
 									<div id="annexureForAmendingBill_para_${i.language.type}" style="display:none;">
 									<p>
-										<label class="wysiwyglabel">${i.language.name} <spring:message code="bill.annexureForAmendingBill" text="Draft"/></label>
+										<label class="wysiwyglabel">${i.language.name} <spring:message code="bill.annexureForAmendingBill" text="Annexure For Amending Bill"/></label>
 										<textarea class="wysiwyg annexureForAmendingBill" id="annexureForAmendingBill_text_${i.language.type}" name="annexureForAmendingBill_text_${i.language.type}" readonly="readonly">${i.text}</textarea>
 										<input type="hidden" name="annexureForAmendingBill_id_${i.language.type}" value="${i.id}">
 										<input type="hidden" name="annexureForAmendingBill_language_id_${i.language.type}" value="${i.language.id}">						
 									</p>
 									<p>
 										<a href="#" class="reviseAnnexureForAmendingBill" id="reviseAnnexureForAmendingBill_${i.language.type}" style="margin-left: 162px;margin-right: 20px;text-decoration: none;">
-											<img id="reviseAnnexureForAmendingBill_icon_${i.language.type}" src="./resources/images/Revise.jpg" title="<spring:message code='bill.reviseAnnexureForAmendingBill' text='Revise This Content Draft'></spring:message>" class="imageLink" />
+											<img id="reviseAnnexureForAmendingBill_icon_${i.language.type}" src="./resources/images/Revise.jpg" title="<spring:message code='bill.reviseAnnexureForAmendingBill' text='Revise This Annexure For Amending Bill'></spring:message>" class="imageLink" />
 										</a>
 										<c:if test="${i.language.type==defaultBillLanguage}">											
 											<a href="#" class="viewSchedule7OfConstitution" style="margin-right: 20px;text-decoration: none;">
@@ -1102,7 +1102,7 @@
 										</c:if>
 									</p>
 									<p id="revisedAnnexureForAmendingBillPara_${i.language.type}" style="display:none;">
-										<label class="wysiwyglabel">${i.language.name} <spring:message code="bill.revisedAnnexureForAmendingBill" text=" Revised Draft"/></label>						
+										<label class="wysiwyglabel">${i.language.name} <spring:message code="bill.revisedAnnexureForAmendingBill" text=" Revised Annexure For Amending Bill"/></label>						
 										<c:set var="revisedAnnexureForAmendingBillText" value=""></c:set>
 										<c:set var="revisedAnnexureForAmendingBillId" value=""></c:set>
 										<c:choose>

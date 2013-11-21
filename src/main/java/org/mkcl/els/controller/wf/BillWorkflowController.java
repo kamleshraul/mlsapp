@@ -2883,7 +2883,6 @@ public class BillWorkflowController extends BaseController {
 			bill.setLevel(request.getParameter("levelForWorkflow"));
 		}		
 		workflowDetails.merge();	
-		/**** Send Print Requisition to Press when SO ends admission flow ****/
 		if(domain.getStatus().getType().equals(ApplicationConstants.BILL_FINAL_ADMISSION) 
 				&& domain.getInternalStatus().getType().equals(ApplicationConstants.BILL_FINAL_ADMISSION) 
 				&& domain.getRecommendationStatus().getType().equals(ApplicationConstants.BILL_PROCESSED_DEPARTMENTINTIMATED)) {
