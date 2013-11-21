@@ -584,6 +584,10 @@
 		        return false;  
 		    });
 			$('#submit').click(function() {
+				if($('#workflowstatus').val()=='COMPLETED') {
+					$.prompt("Action completed already!!!!");
+					return false;
+				}
 				//removing <p><br></p>  from wysiwyg editor
 				$(".wysiwyg").each(function(){
 					var wysiwygVal=$(this).val().trim();
@@ -606,13 +610,19 @@
 						}
 					}					
 				});
-				$.blockUI({ message: '<img src="./resources/images/waitAnimated.gif" />' }); 
-				$.post($('form').attr('action'), $("form").serialize(), function(data){
-					$('.tabContent').html(data);
-						$('html').animate({scrollTop:0}, 'slow');
-						$('body').animate({scrollTop:0}, 'slow');	
-					$.unblockUI();
-				});
+				$.prompt($('#confirmApprovalMsg').val(),{
+					buttons: {Ok:true, Cancel:false}, callback: function(v){
+			        if(v){
+			        	$.blockUI({ message: '<img src="./resources/images/waitAnimated.gif" />' }); 			        
+			        	$.post($('form').attr('action'), $("form").serialize(), function(data){
+	       					$('.tabContent').html(data);
+	       					$('html').animate({scrollTop:0}, 'slow');
+	       				 	$('body').animate({scrollTop:0}, 'slow');
+	    					$.unblockUI();	   				 	   				
+		    	        });
+	    	        }
+				}});														
+		        return false;
 			});
 			/**** Right Click Menu ****/
 			$(".clubbedRefBills").contextMenu({
@@ -2231,6 +2241,8 @@
 				<input type="hidden" id="reviseStatutoryMemorandumDraft_text" value="<spring:message code="bill.reviseStatutoryMemorandumDraft_text" text="Revise This Statutory Memorandum"></spring:message>">
 				<input type="hidden" id="unReviseStatutoryMemorandumDraft_text" value="<spring:message code="bill.unReviseStatutoryMemorandumDraft_text" text="Un-Revise This Statutory Memorandum"></spring:message>">
 				<input type="hidden" id="workflowtype" value="${workflowtype}"/>
+				<input type="hidden" id="workflowstatus" value="${workflowstatus}"/>
+				<input type="hidden" id="confirmApprovalMsg" value="<spring:message code="bill.confirmApprovalMsg" text="Do you want to complete task now?"></spring:message>">
 				
 				<ul id="contextMenuItems">
 					<li><a href="#unclubbing" class="edit"><spring:message code="generic.unclubbing" text="Unclubbing"></spring:message></a></li>

@@ -326,11 +326,13 @@
 		    $("#changeInternalStatus").change(function(){
 			    var value=$(this).val();
 			    if(value!='-'){
+			    	$('#remarks_div').show();
 				    //var statusType=$("#internalStatusMaster option[value='"+value+"']").text();			    
 				    loadActors(value);				    	    
 			    }else{
 				    $("#actorForWorkflow").empty();
 				    $("#actorDiv").hide();
+				    $('#remarks_div').hide();
 				    $("#internalStatus").val($("#oldInternalStatus").val());
 				    $("#recommendationStatus").val($("#oldRecommendationStatus").val());
 				    $("#translationStatus").val($("#oldTranslationStatus").val());	
@@ -402,6 +404,10 @@
 		        return false;  
 		    });
 			$('#submit').click(function() {
+				if($('#workflowstatus').val()=='COMPLETED') {
+					$.prompt("Action completed already!!!!");
+					return false;
+				}
 				//removing <p><br></p>  from wysiwyg editor
 				$(".wysiwyg").each(function(){
 					var wysiwygVal=$(this).val().trim();
@@ -424,13 +430,19 @@
 						}
 					}					
 				});
-				$.blockUI({ message: '<img src="./resources/images/waitAnimated.gif" />' }); 
-				$.post($('form').attr('action'), $("form").serialize(), function(data){
-					$('.tabContent').html(data);
-						$('html').animate({scrollTop:0}, 'slow');
-						$('body').animate({scrollTop:0}, 'slow');	
-					$.unblockUI();
-				});
+				$.prompt($('#confirmApprovalMsg').val(),{
+					buttons: {Ok:true, Cancel:false}, callback: function(v){
+			        if(v){
+			        	$.blockUI({ message: '<img src="./resources/images/waitAnimated.gif" />' }); 			        
+			        	$.post($('form').attr('action'), $("form").serialize(), function(data){
+	       					$('.tabContent').html(data);
+	       					$('html').animate({scrollTop:0}, 'slow');
+	       				 	$('body').animate({scrollTop:0}, 'slow');
+	    					$.unblockUI();	   				 	   				
+		    	        });
+	    	        }
+				}});														
+		        return false;
 			});
 		    			    
 		    /**** On Page Load ****/
@@ -1539,6 +1551,8 @@
 				<input id="typeOfSelectedDeviceType" type="hidden" value="${selectedDeviceTypeForBill}" />
 				<input id="typeOfSelectedBillType" type="hidden" value="${typeOfSelectedBillType}" />
 				<input id="hideActorsFlag" type="hidden" value="${hideActorsFlag}" />
+				<input type="hidden" id="workflowstatus" value="${workflowstatus}"/>
+				<input type="hidden" id="confirmApprovalMsg" value="<spring:message code="bill.confirmApprovalMsg" text="Do you want to complete task now?"></spring:message>">
 			</div>		
 		</div>	
 	</body>
