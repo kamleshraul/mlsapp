@@ -72,6 +72,7 @@
 		div.wysiwyg{
 			left: 10px;
 			top: 10px;
+			width: 600px !important;
 		}
 	
 		.textDemo{
@@ -723,7 +724,7 @@
 				<tr>
 					<td>
 						<div style="text-align: center; font-size: 16px;">
-							<c:if test="${ph!=r[1] && mh!=r[2]}">
+							<c:if test="${(ph!=r[1] && mh!=r[2]) or (ph!=r[1]) or (mh!=r[2])}">
 								<c:choose>
 									<c:when test="${(fn:length(r[1])>0) && (fn:length(r[2])>0)}">
 										<c:set var="causePHMH" value="0" />
@@ -731,6 +732,7 @@
 										<b><spring:message code="editing.mainheading" text="Main Heading" /></b>${r[2]}
 									</c:when>
 									<c:when test="${(fn:length(r[1])>0) || (fn:length(r[2])>0)}">
+										<c:set var="causePHMH" value="0" />
 										<b><spring:message code="editing.pageheading" text="Page Heading" /></b> ${r[1]} / <b><spring:message code="editing.mainheading" text="Main Heading" /></b> ${r[2]}
 									</c:when>
 								</c:choose>
@@ -759,6 +761,7 @@
 												</c:if>:
 											</c:when>
 											<c:otherwise>
+												<c:set var="causePHMH" value="1" />
 												<c:set var="putTr" value="0" />
 												<c:if test="${not(empty r[15]) and (not (r[15]==null))}">
 													<div id="memberImageDiv" style="display: none;">

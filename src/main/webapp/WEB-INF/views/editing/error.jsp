@@ -27,6 +27,15 @@
 		<p></p>
 	</div>
 </c:when>
+<c:when test="${errorcode eq 'UNABLE_TO_GENERATE_VISHAYSUCHI'}">
+	<div class="toolTip tpRed clearfix">
+		<p>
+			<img src="./resources/images/template/icons/light-bulb-off.png">
+			<spring:message code="editing.error.vishaysuchigenerationerror" text="Can not prepare Vishaysuchi."/>
+		</p>
+		<p></p>
+	</div>
+</c:when>
 <c:when test="${errorcode eq 'none'}">
 	<div class="toolTip tpGreen clearfix">
 		<p>

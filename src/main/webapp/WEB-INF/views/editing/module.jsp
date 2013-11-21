@@ -244,6 +244,9 @@
 				
 			});
 			
+			$("#vishaysuchi").click(function(){
+				showVishaysuchi();
+			});
 		});
 		
 		function sendToMember(){
@@ -605,6 +608,18 @@
 				
 			});	
 		}
+		
+		function showVishaysuchi(){
+			var params="houseType=" + $('#selectedHouseType').val()
+			+ '&sessionYear=' + $("#selectedSessionYear").val()
+			+ '&sessionType=' + $("#selectedSessionType").val()
+			+ '&language=' + $("#selectedLanguage").val()
+			+ '&day=' +$('#selectedDay').val()
+			+ '&userGroup=' + $("#userGroup").val()
+			+ '&userGroupType=' + $("#userGroupType").val();
+			
+			showTabByIdAndUrl('details_tab', 'editing/vishaysuchi?'+params);
+		} 
 	</script>
 	<style type="text/css">
 		#sendToMember{
@@ -768,6 +783,9 @@
 					</a> |			
 					<a href="#" id="edit_copy" class="butSim">
 						<spring:message code="editor.edit" text="Editing"/>
+					</a> |
+					<a href="#" id="vishaysuchi" class="butSim">
+						<spring:message code="editor.vishaysuchi" text="Vishaysuchi"/>
 					</a> |
 					<a href="javascript:void(0);" id="send_member" class="butSim">
 						<spring:message code="editor.send.member" text="Send To Member"/>
