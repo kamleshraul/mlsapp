@@ -82,6 +82,7 @@
 		div.wysiwyg{
 			left: 10px;
 			top: 10px;
+			width: 600px !important;
 		}
 	
 		.textDemo{
@@ -624,7 +625,7 @@
 			$("#wf_edit_copy").click(function(){
 				if($("#key").val()==undefined || $("#key").val()==''){
 				}else{
-					showEditCopyOfMember();
+					showEditCopyOfMember("&str=str");
 				}
 			});
 		});

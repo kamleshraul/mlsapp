@@ -82,6 +82,7 @@
 		div.wysiwyg{
 			left: 10px;
 			top: 10px;
+			width: 600px !important;
 		}
 	
 		.textDemo{
@@ -619,7 +620,7 @@
 			$("#wf_edit_copy").click(function(){
 				if($("#key").val()==undefined || $("#key").val()==''){
 				}else{
-					showEditCopyOfMember();
+					showEditCopyOfMember("&str=str");
 				}
 			});
 		});
@@ -721,14 +722,15 @@
 					<tr>
 						<td>
 							<div style="text-align: center; font-size: 16px;">
-								<c:if test="${ph!=r[2] && mh!=r[3]}">
+								<c:if test="${(ph!=r[2] && mh!=r[3]) or (ph!=r[2]) or (mh!=r[3])}">
 									<c:choose>
 										<c:when test="${(fn:length(r[2])>0) && (fn:length(r[3])>0)}">
 											<c:set var="causePHMH" value="0" />
-											<b><spring:message code="editing.pageheading" text="Page Heading" /></b>${r[1]}<br />
-											<b><spring:message code="editing.mainheading" text="Main Heading" /></b>${r[2]}
+											<b><spring:message code="editing.pageheading" text="Page Heading" /></b>${r[2]}<br />
+											<b><spring:message code="editing.mainheading" text="Main Heading" /></b>${r[3]}
 										</c:when>
 										<c:when test="${(fn:length(r[2])>0) || (fn:length(r[3])>0)}">
+											<c:set var="causePHMH" value="0" />
 											<b><spring:message code="editing.pageheading" text="Page Heading" /></b> ${r[2]} / <b><spring:message code="editing.mainheading" text="Main Heading" /></b> ${r[3]}
 										</c:when>
 									</c:choose>
@@ -737,7 +739,7 @@
 							<c:choose>						
 								<c:when test="${action=='edited' or action=='edit'}">
 									<c:choose>
-										<c:when test="${not (empty r[15])}">
+										<c:when test="${not (empty r[15])}">											
 											<c:if test="${not(empty r[5]) and (not (r[5]==null))}">
 												<b class="member" style="display: inline-block;">${r[6]}</b>
 												<div id="memberImageDiv" style="display: inline;">
@@ -774,8 +776,8 @@
 					<c:set var="flagx" value="1" />
 				</c:if>
 				<c:set var="idx" value="${r[0]}" />
-				<c:set var="ph" value="${r[1]}"/>
-				<c:set var="mh" value="${r[2]}"/>
+				<c:set var="ph" value="${r[2]}"/>
+				<c:set var="mh" value="${r[3]}"/>
 			</c:forEach>
 		</table>
 	</div>

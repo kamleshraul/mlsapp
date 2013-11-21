@@ -81,7 +81,8 @@
 		
 		div.wysiwyg{
 			left: 10px;
-			top: 10px;
+			top: 10px;.
+			width: 600px !important;
 		}
 	
 		.textDemo{
@@ -722,70 +723,78 @@
 			<c:set var="mh" value="-" />
 			<c:set var="idx" value="0" />
 			<c:set var="flagx" value="0" />
-			<c:forEach items="${parts}" var="r">
-				<c:if test="${idx!=p[0]}">
-					<c:set var="flagx" value="0" />
-				</c:if>
-				<c:if test="${idx!=r[0]}">
-					<c:if test="${flagx=='0'}">
-						<tr>
-							<td>
-								<div style="text-align: center; font-size: 16px;">
-									<c:if test="${ph!=r[2] && mh!=r[3]}">
-										<c:choose>
-											<c:when test="${(fn:length(r[2])>0) && (fn:length(r[3])>0)}">
-												<b><spring:message code="editing.pageheading" text="Page Heading" /></b>${r[1]}<br />
-												<b><spring:message code="editing.mainheading" text="Main Heading" /></b>${r[2]}
-											</c:when>
-											<c:when test="${(fn:length(r[2])>0) || (fn:length(r[3])>0)}">
-												<b><spring:message code="editing.pageheading" text="Page Heading" /></b> ${r[2]} / <b><spring:message code="editing.mainheading" text="Main Heading" /></b> ${r[3]}
-											</c:when>
-										</c:choose>
-									</c:if>
-								</div>
-								<c:choose>						
-									<c:when test="${action=='edited' or action=='edit'}">
-										<c:choose>
-											<c:when test="${not (empty r[15])}">
-												<c:if test="${not(empty r[5]) and (not (r[5]==null))}">
-													<b class="member" style="display: inline-block;">${r[6]}</b>
-													<div id="memberImageDiv" style="display: inline;">
-														<img src="editing/gememberimage/${r[5]}" height="16px;" class="memberImg" />	
-													</div>
-												</c:if>										
-												<c:if test="${not(empty r[9]) and (not (r[9]==null))}">
-													<b>/${r[10]}</b>
-													<div id="memberImageDiv" style="display: inline;">
-														<img src="editing/gememberimage/${r[9]}" height="16px;" class="memberImg"/>	
-													</div>
-												</c:if>:
-												<div id="pp${r[0]}" style="width: 750px; max-width: 750px; word-wrap:break-word; display: inline;" class="replaceMe">
-													${r[15]}
-												</div>
-												<div class="imgId img${r[0]}" id="imgId${r[5]}" style="display: none;">
-													<img src="editing/gememberimage/${r[5]}" height="8px" class="imgIdDivImage"/>
-												</div>
-												<div id="ppsp${r[0]}" class="ppsp" style="display: none;">classes</div>
-												<div class="revision" id="pd${r[0]}" style="position: relative; border-radius: 10px; margin-left: 750px; top: -20px; text-align: center; display: inline-block; min-width: 16px; min-height: 16px; border: 1px solid blue; background: #00ff00; cursor: pointer;">
-													<spring:message code="editing.more" text="S" />
-												</div>
-											</c:when>
-										</c:choose>
+			<c:forEach items="${parts}" var="r">									
+				<tr>
+					<td>
+						<div style="text-align: center; font-size: 16px;">
+							<c:if test="${(ph!=r[2] && mh!=r[3]) or (ph!=r[2] or (mh!=r[3]))}">
+								<c:choose>
+									<c:when test="${(fn:length(r[2])>0) && (fn:length(r[3])>0)}">
+										<c:set var="causePHMH" value="0" />
+										<b><spring:message code="editing.pageheading" text="Page Heading" /></b>${r[1]}<br />
+										<b><spring:message code="editing.mainheading" text="Main Heading" /></b>${r[2]}
+									</c:when>
+									<c:when test="${(fn:length(r[2])>0) || (fn:length(r[3])>0)}">
+										<c:set var="causePHMH" value="0" />
+										<b><spring:message code="editing.pageheading" text="Page Heading" /></b> ${r[2]} / <b><spring:message code="editing.mainheading" text="Main Heading" /></b> ${r[3]}
 									</c:when>
 								</c:choose>
-							</td>
-						</tr>
-						<tr>
-							<td>
-								&nbsp;
-							</td>
-						</tr>
-						<c:set var="flagx" value="1" />
-					</c:if>
-				</c:if>
+							</c:if>
+						</div>
+						<c:choose>						
+							<c:when test="${action=='edited' or action=='edit'}">
+								<c:choose>
+									<c:when test="${causePHMH==0}">
+										<c:set var="causePHMH" value="1" />
+										<c:if test="${not(empty r[5]) and (not (r[5]==null))}">
+											<b class="member" style="display: inline-block;">${r[6]}</b>
+											<div id="memberImageDiv" style="display: inline;">
+												<img src="editing/gememberimage/${r[5]}" height="16px;" class="memberImg" />	
+											</div>
+										</c:if>										
+										<c:if test="${not(empty r[9]) and (not (r[9]==null))}">
+											<b>/${r[10]}</b>
+											<div id="memberImageDiv" style="display: inline;">
+												<img src="editing/gememberimage/${r[9]}" height="16px;" class="memberImg"/>	
+											</div>
+										</c:if>:
+									</c:when>
+									<c:otherwise>
+										<c:set var="putTr" value="0" />
+										<c:if test="${not(empty r[5]) and (not (r[5]==null))}">
+											<div id="memberImageDiv" style="display: none;">
+												<img src="editing/gememberimage/${r[6]}" height="16px;" class="memberImg" />	
+											</div>
+										</c:if>										
+										<c:if test="${not(empty r[9]) and (not (r[9]==null))}">
+											<div id="memberImageDiv" style="display: none;">
+												<img src="editing/gememberimage/${r[9]}" height="16px;" class="memberImg"/>	
+											</div>
+										</c:if>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+									</c:otherwise>
+								</c:choose>
+								<div id="pp${r[0]}" style="width: 750px; max-width: 750px; word-wrap:break-word; display: inline;" class="replaceMe">
+									${r[15]}
+								</div>
+								<div class="imgId img${r[0]}" id="imgId${r[5]}" style="display: none;">
+									<img src="editing/gememberimage/${r[5]}" height="8px" class="imgIdDivImage"/>
+								</div>
+								<div id="ppsp${r[0]}" class="ppsp" style="display: none;">classes</div>
+								<div class="revision" id="pd${r[0]}" style="position: relative; border-radius: 10px; margin-left: 750px; top: -20px; text-align: center; display: inline-block; min-width: 16px; min-height: 16px; border: 1px solid blue; background: #00ff00; cursor: pointer;">
+									<spring:message code="editing.more" text="S" />
+								</div>									
+							</c:when>
+						</c:choose>
+					</td>
+				</tr>
+				<tr>
+					<td>
+						&nbsp;
+					</td>
+				</tr>
 				<c:set var="idx" value="${p[0]}" />
-				<c:set var="ph" value="${r[1]}"/>
-				<c:set var="mh" value="${r[2]}"/>
+				<c:set var="ph" value="${r[2]}"/>
+				<c:set var="mh" value="${r[3]}"/>
 			</c:forEach>
 		</table>
 	</div>

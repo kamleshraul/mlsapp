@@ -82,6 +82,7 @@
 		div.wysiwyg{
 			left: 10px;
 			top: 10px;
+			width: 600px !important;
 		}
 	
 		.textDemo{
@@ -123,7 +124,9 @@
 			position: fixed;
 			left: 436px; 
 			top: 135px; 
-			z-index: 999; cursor: pointer;"
+			z-index: 999; 
+			cursor: pointer;
+			text-shadow: threeddarkshadow;
 		}
 		
 		.partDraftContainer div table ul{

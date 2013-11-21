@@ -82,6 +82,7 @@
 		div.wysiwyg{
 			left: 10px;
 			top: 10px;
+			width: 600px !important;
 		}
 	
 		.textDemo{
@@ -411,6 +412,33 @@
 				$.unblockUI();
 			});
 		}
+		
+		function hideShowAllNormalDiv(flag){
+			//$(".normal").each(function(){
+				if(flag==0){
+					$(".normal").hide();
+				}else{
+					$(".normal").show();
+				}
+		}
+		function showHideSpeakerChairmanDiv(flag){
+			
+			if(flag==0){
+				$($(".speakerChairman")).hide();
+			}else{
+				$(".speakerChairman").show();
+			}
+		}
+		
+		function showByFilter(filter){
+			
+			if(filter=='all'){
+				hideShowAllNormalDiv(1);
+			}else if(filter=='speaker'){
+				hideShowAllNormalDiv(0);
+				showHideSpeakerChairmanDiv(1);
+			}
+		}
 		$(document).ready(function(){
 			
 			$('.wysiwyg').wysiwyg({controls: {
@@ -624,14 +652,23 @@
 			});
 			
 			$("#wf_edit_copy").click(function(){
-				if($("#key").val()==undefined || $("#key").val()==''){
-				}else{
-					var speakerFilter=$("#speakerFilter").val();
-					if(speakerFilter!=undefined && speakerFilter!=''){
-						showEditCopyOfMember('&speakerFilter='+speakerFilter);
-					}
-				}
+				showEditCopy();
 			});
+			
+			$("#wf_speaker_filter").click(function(){
+				var filter=$("#filter").val();
+				if(filter=='all'){
+					$("#filter").val('speaker');
+					$(this).text($("#wfSpeakerSelfFilter").val());
+					$(this).css('text-shadow','1px 1px 1px green');
+				}else if(filter=='speaker'){
+					$("#filter").val('all');
+					$(this).text($("#wfSpeakerAllFilter").val());
+					$(this).css('text-shadow','1px 1px 1px gray');					
+				}
+				showByFilter(filter);
+			});
+			$("#wf_speaker_filter").css('text-shadow','1px 1px 1px green');
 		});
 	</script>
 </head>
@@ -651,12 +688,12 @@
 			</a> |		
 		</c:if>		
 		<a href="#" id="wf_speaker_filter" class="butSim">
-			<spring:message code="editor.speaker_filter" text="Speaker Filter"/>
+			<spring:message code='editor.wf.speaker.self' text='Speaker Text'/>
 		</a> |
-		<select id="speakerFilter">
+		<%-- <select id="speakerFilter">
 			<option value="others"><spring:message code='please.select' text='Others'></spring:message></option>
 			<option value="speaker"><spring:message code="editing.wf.speaker" text="Speaker's"></spring:message></option>
-		</select>
+		</select> --%>
 		<hr />	
 	</div>
 <div>
@@ -721,71 +758,109 @@
 		</div>
 	</c:if>
 
-	<div id="container" class="container">
-		<table id="containerTable">
+	<div id="container" class="container">		
 			<c:set var="ph" value="-" />
 			<c:set var="mh" value="-" />
 			<c:set var="idx" value="0" />
+			<c:set var="causePHMH" value="0" />
+			<c:set var="memberID" value="0" />
 			<c:forEach items="${parts}" var="r">
 				<c:if test="${idx!=r[0]}">
-					<tr>
-						<td>
-							<div style="text-align: center; font-size: 16px;">
-								<c:if test="${ph!=r[2] && mh!=r[3]}">
-									<c:choose>
-										<c:when test="${(fn:length(r[2])>0) && (fn:length(r[3])>0)}">
-											<b><spring:message code="editing.pageheading" text="Page Heading" /></b>${r[1]}<br />
-											<b><spring:message code="editing.mainheading" text="Main Heading" /></b>${r[2]}
-										</c:when>
-										<c:when test="${(fn:length(r[2])>0) || (fn:length(r[3])>0)}">
-											<b><spring:message code="editing.pageheading" text="Page Heading" /></b> ${r[2]} / <b><spring:message code="editing.mainheading" text="Main Heading" /></b> ${r[3]}
+					<c:choose>
+						<c:when test="${r[5]==memSpeaker or r[5]==memChairman}">
+							<c:set var="spClass" value="normal speakerChairman" />
+						</c:when>
+						<c:otherwise>
+							<c:set var="spClass" value="normal" />
+						</c:otherwise>
+					</c:choose>
+					<div class="${spClass}">
+						<table id="containerTable">
+							<tr>
+								<td>
+									${fn:length(r[2])}, ${fn:length(r[3])}
+									<div style="text-align: center; font-size: 16px;">
+										<c:if test="${(ph!=r[2] && mh!=r[3]) or (ph!=r[2])}">
+											<c:choose>
+												<c:when test="${(fn:length(r[2])>0) && (fn:length(r[3])>0)}">
+													<c:set var="causePHMH" value="0" />
+													<b><spring:message code="editing.pageheading" text="Page Heading" /></b>${r[2]}<br />
+													<b><spring:message code="editing.mainheading" text="Main Heading" /></b>${r[3]}
+												</c:when>
+												<c:when test="${(fn:length(r[2])>0) || (fn:length(r[3])>0)}">
+													<c:set var="causePHMH" value="0" />
+													<b><spring:message code="editing.pageheading" text="Page Heading" /></b> ${r[2]} / <b><spring:message code="editing.mainheading" text="Main Heading" /></b> ${r[3]}
+												</c:when>
+											</c:choose>
+										</c:if>
+									</div>
+									<c:choose>						
+										<c:when test="${action=='edited' or action=='edit'}">
+											<c:choose>
+												<c:when test="${not (empty r[15])}">
+													<c:choose>
+														<c:when test="${memberID!=r[5] or causePHMH==0}">
+															<c:set var="causePHMH" value="1" />
+															<c:if test="${not(empty r[5]) and (not (r[5]==null))}">
+																<b class="member" style="display: inline-block;">${r[6]}</b>
+																<div id="memberImageDiv" style="display: inline;">
+																	<img src="editing/gememberimage/${r[5]}" height="16px;" class="memberImg" />	
+																</div>
+															</c:if>										
+															<c:if test="${not(empty r[9]) and (not (r[9]==null))}">
+																<b>/${r[10]}</b>
+																<div id="memberImageDiv" style="display: inline;">
+																	<img src="editing/gememberimage/${r[9]}" height="16px;" class="memberImg"/>	
+																</div>
+															</c:if>:
+														</c:when>
+														<c:otherwise>
+															<c:if test="${not(empty r[5]) and (not (r[5]==null))}">
+																<div id="memberImageDiv" style="display: none;">
+																	<img src="editing/gememberimage/${r[5]}" height="16px;" class="memberImg" />	
+																</div>
+															</c:if>										
+															<c:if test="${not(empty r[9]) and (not (r[9]==null))}">
+																<div id="memberImageDiv" style="display: inline;">
+																	<img src="editing/gememberimage/${r[9]}" height="16px;" class="memberImg"/>	
+																</div>
+															</c:if>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+														</c:otherwise>
+													</c:choose>
+													<div id="pp${r[0]}" style="width: 750px; max-width: 750px; word-wrap:break-word; display: inline;" class="replaceMe">
+														${r[15]}
+													</div>
+													<div class="imgId img${r[0]}" id="imgId${r[5]}" style="display: none;">
+														<img src="editing/gememberimage/${r[5]}" height="8px" class="imgIdDivImage"/>
+													</div>
+													<div id="ppsp${r[0]}" class="ppsp" style="display: none;">classes</div>
+													<div class="revision" id="pd${r[0]}" style="position: relative; border-radius: 10px; margin-left: 750px; top: -20px; text-align: center; display: inline-block; min-width: 16px; min-height: 16px; border: 1px solid blue; background: #00ff00; cursor: pointer;">
+														<spring:message code="editing.more" text="S" />
+													</div>
+												</c:when>
+											</c:choose>
 										</c:when>
 									</c:choose>
-								</c:if>
-							</div>
-							<c:choose>						
-								<c:when test="${action=='edited' or action=='edit'}">
-									<c:choose>
-										<c:when test="${not (empty r[15])}">
-											<c:if test="${not(empty r[5]) and (not (r[5]==null))}">
-												<b class="member" style="display: inline-block;">${r[6]}</b>
-												<div id="memberImageDiv" style="display: inline;">
-													<img src="editing/gememberimage/${r[5]}" height="16px;" class="memberImg" />	
-												</div>
-											</c:if>										
-											<c:if test="${not(empty r[9]) and (not (r[9]==null))}">
-												<b>/${r[10]}</b>
-												<div id="memberImageDiv" style="display: inline;">
-													<img src="editing/gememberimage/${r[9]}" height="16px;" class="memberImg"/>	
-												</div>
-											</c:if>:
-											<div id="pp${r[0]}" style="width: 750px; max-width: 750px; word-wrap:break-word; display: inline;" class="replaceMe">
-												${r[15]}
-											</div>
-											<div class="imgId img${r[0]}" id="imgId${r[5]}" style="display: none;">
-												<img src="editing/gememberimage/${r[5]}" height="8px" class="imgIdDivImage"/>
-											</div>
-											<div id="ppsp${r[0]}" class="ppsp" style="display: none;">classes</div>
-											<div class="revision" id="pd${r[0]}" style="position: relative; border-radius: 10px; margin-left: 750px; top: -20px; text-align: center; display: inline-block; min-width: 16px; min-height: 16px; border: 1px solid blue; background: #00ff00; cursor: pointer;">
-												<spring:message code="editing.more" text="S" />
-											</div>
-										</c:when>
-									</c:choose>
-								</c:when>
-							</c:choose>
-						</td>
-					</tr>
-					<tr>
-						<td>
-							&nbsp;
-						</td>
-					</tr>
+								</td>
+							</tr>
+							<tr>
+								<c:choose>
+									<c:when test="${(fn:length(r[2])==0) && (fn:length(r[3])==0)}">
+										<td style="text-align: center;">--------------</td>
+									</c:when>
+									<c:otherwise>
+										<td>&nbsp;</td>
+									</c:otherwise>
+								</c:choose>
+							</tr>
+						</table>
+					</div>
 				</c:if>
+				<c:set var="memberID" value="${r[5]}" />
 				<c:set var="idx" value="${r[0]}" />
-				<c:set var="ph" value="${r[1]}"/>
-				<c:set var="mh" value="${r[2]}"/>
+				<c:set var="ph" value="${r[2]}"/>
+				<c:set var="mh" value="${r[3]}"/>
 			</c:forEach>
-		</table>
 	</div>
 		
 
@@ -796,6 +871,9 @@
 	</div>
 	<input type="hidden" name="editedContent" id="data" value="demo" />
 </form>
+	<input type="hidden" id="filter" value="speaker" />
+	<input type="hidden" id="wfSpeakerSelfFilter" value="<spring:message code='editor.wf.speaker.self' text='Speaker Text'/>" />
+	<input type="hidden" id="wfSpeakerAllFilter" value="<spring:message code='editor.wf.speaker.all' text='All Text'/>" />
 	<input type="hidden" id="workflowdetails" value="${workflowdetails}" />
 	<input type="hidden" id="workflowstatus" value="${workflowstatus}" />
 	<input id="reportType" type="hidden" value="${reportType}" />
