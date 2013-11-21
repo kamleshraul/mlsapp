@@ -507,11 +507,11 @@ public class EditingController extends GenericController<Roster>{
 			strUserGroupType = decodedValues[6];
 			
 			/****Prepare vishaysuchi ****/
-			if(strHouseType!=null&&!strHouseType.equals("")&&
-					strSessionType!=null&&!strSessionType.equals("")&&
-					strSessionYear!=null&&!strSessionYear.equals("")&&
-					strLanguage!=null&&!strLanguage.equals("")&&
-					strDay!=null&&!strDay.equals("")){
+			if(strHouseType!=null&&!strHouseType.isEmpty()&&
+					strSessionType!=null&&!strSessionType.isEmpty()&&
+					strSessionYear!=null&&!strSessionYear.isEmpty()&&
+					strLanguage!=null&&!strLanguage.isEmpty()&&
+					strDay!=null&&!strDay.isEmpty()){
 
 				HouseType houseType=HouseType.findByFieldName(HouseType.class, "type", strHouseType, locale.toString());
 				SessionType sessionType=SessionType.findById(SessionType.class, Long.parseLong(strSessionType));
@@ -531,10 +531,6 @@ public class EditingController extends GenericController<Roster>{
 					retVal = "editing/vishaysuchi";
 				}
 			}
-			
-			
-			
-			
 		}catch (Exception e) {
 			logger.debug("editing/vishaysuchi", e);
 			e.printStackTrace();
@@ -1618,6 +1614,14 @@ class EditingControllerUtility{
 		boolean retVal = false;
 		
 		if(WorkflowDetails.findIfWorkflowExists(session, houseType, deviceId, workflowSubTypeInitial, locale) > 0){
+			//TODO: completeness criteria is very primitive needs to be enhanced to include member and speaker wf
+			//Separately rather than including them as whole in 'COMPLETE or PENDING criteria
+			//change the way to find member wf then calculate how many member wfs have been
+			//been completed and how many pending and how many are timed out
+			//similar for speaker wf
+			//since if only one wf cycle is complete means vishaysuchi is ready and can be produced
+			//which may not be the case
+			//need some more clarification on this
 			List result = WorkflowDetails.findCompleteness(session, houseType, deviceId, locale);
 						
 			if(result != null && !result.isEmpty()){
