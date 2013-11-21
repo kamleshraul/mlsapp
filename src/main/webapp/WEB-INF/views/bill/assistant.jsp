@@ -1045,8 +1045,8 @@
 				var opinion_from_lawandjd=$("#internalStatusMaster option[value='bill_recommend_opinionFromLawAndJD']").text();
 				var recommendation_from_governor=$("#internalStatusMaster option[value='bill_recommend_recommendationFromGovernor']").text();
 				var recommendation_from_president=$("#internalStatusMaster option[value='bill_recommend_recommendationFromPresident']").text();
-				var actionForUpdation = $('#changeInternalStatus').val();
-				if(actionForUpdation=='-') {
+				var actionForUpdation = $('#changeInternalStatus').val();				
+				if(actionForUpdation==undefined || actionForUpdation=='-') {
 					//validations for introduction part
 					var updateToIntroduced = $("#recommendationStatusMaster option[value='bill_processed_introduced']").text();
 					if($('#changeRecommendationStatus').val()==updateToIntroduced) {
@@ -2261,11 +2261,7 @@
 					<div class="fields">
 						<h2></h2>
 						<p class="tright">
-							<c:choose>
-								<c:when test="${internalStatusType=='bill_submit' or internalStatusType=='bill_system_assistantprocessed'}">
-									<input id="submit" type="button" value="<spring:message code='generic.submit' text='Submit'/>" class="butDef">	
-								</c:when>								
-							</c:choose>
+							<input id="submit" type="button" value="<spring:message code='generic.submit' text='Submit'/>" class="butDef">
 						</p>
 					</div>
 					<form:hidden path="id"/>
