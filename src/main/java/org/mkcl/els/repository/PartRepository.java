@@ -143,7 +143,7 @@ public class PartRepository extends BaseRepository<Part, Serializable> {
 		List<Member> members = new ArrayList<Member>();
 		
 		try{
-			String query = "SELECT pp.primaryMember FROM Part pp"
+			String query = "SELECT DISTINCT pp.primaryMember FROM Part pp"
 							+ " LEFT JOIN pp.proceeding p"
 							+ " WHERE p.slot.roster.id=:rosterId"
 							+ " AND pp.deviceType.id IN (:devices)"

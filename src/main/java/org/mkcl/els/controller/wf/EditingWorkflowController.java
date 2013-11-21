@@ -31,6 +31,7 @@ import org.mkcl.els.domain.Member;
 import org.mkcl.els.domain.Part;
 import org.mkcl.els.domain.PartDraft;
 import org.mkcl.els.domain.Query;
+import org.mkcl.els.domain.Role;
 import org.mkcl.els.domain.Roster;
 import org.mkcl.els.domain.Session;
 import org.mkcl.els.domain.SessionType;
@@ -79,6 +80,18 @@ public class EditingWorkflowController extends BaseController{
 			strSessionType = decodedStrings[1];
 			strSessionYear = decodedStrings[2];
 			
+			UserGroup speakerUserGroup = UserGroup.findByFieldName(UserGroup.class, "userGroupType.type", ApplicationConstants.SPEAKER, locale.toString());
+			UserGroup chairmanUserGroup = UserGroup.findByFieldName(UserGroup.class, "userGroupType.type", ApplicationConstants.CHAIRMAN, locale.toString());
+			User speaker = EditingWorkflowUtility.getUser(speakerUserGroup, locale.toString());
+			User chairman = EditingWorkflowUtility.getUser(chairmanUserGroup, locale.toString());
+			Member memSpeaker = Member.findMember(speaker.getFirstName(), speaker.getMiddleName(), speaker.getLastName(), speaker.getBirthDate(), locale.toString());
+			Member memChairman = Member.findMember(chairman.getFirstName(), chairman.getMiddleName(), chairman.getLastName(), chairman.getBirthDate(), locale.toString());
+			
+			model.addAttribute("memSpeaker",memSpeaker.getId());
+			model.addAttribute("speakerUserGroupType", speakerUserGroup.getUserGroupType().getType());
+			model.addAttribute("memChairman",memChairman.getId());
+			model.addAttribute("chairmanUserGroupType", chairmanUserGroup.getUserGroupType().getType());
+			
 			/**** Workflowdetails ****/
 			Long longWorkflowdetails = (Long) request.getAttribute("workflowdetails");
 			if(longWorkflowdetails == null){
@@ -87,6 +100,7 @@ public class EditingWorkflowController extends BaseController{
 			workflowDetails = WorkflowDetails.findById(WorkflowDetails.class,longWorkflowdetails);
 			
 			HouseType houseType = HouseType.findByName(strHouseType, locale.toString());
+			model.addAttribute("edisHouseType", houseType.getType());
 			UserGroup userGroup = UserGroup.findById(UserGroup.class, Long.valueOf(strUserGroup));
 			Status status = Status.findByType(workflowDetails.getWorkflowSubType(), locale.toString());
 			
@@ -107,7 +121,7 @@ public class EditingWorkflowController extends BaseController{
 					parameters.put("editedby", new String[]{this.getCurrentUser().getActualUsername()});
 					if(workflowDetails.getDomainIds() != null){
 						parameters.put("devices", new String[]{workflowDetails.getDomainIds()});
-						parts = Query.findReport("EDIS_WORKFLOW_MEMBER_SENT_DRAFTS_DEVICED_DESC", parameters);
+						parts = Query.findReport("EDIS_WORKFLOW_MEMBER_SENT_DRAFTS_DEVICED_DESC", parameters, true);
 					}else{
 						parts = Query.findReport("EDIS_WORKFLOW_MEMBER_SENT_DRAFTS_ALL_DESC", parameters);
 					}
@@ -124,7 +138,7 @@ public class EditingWorkflowController extends BaseController{
 						parameters.put("editedby", new String[]{workflowDetails.getAssigner()});
 						if(workflowDetails.getDomainIds() != null){
 							parameters.put("devices", new String[]{workflowDetails.getDomainIds()});
-							parts = Query.findReport("EDIS_WORKFLOW_MEMBER_SENT_DRAFTS_DEVICED_DESC", parameters);
+							parts = Query.findReport("EDIS_WORKFLOW_MEMBER_SENT_DRAFTS_DEVICED_DESC", parameters, true);
 						}else{
 							parts = Query.findReport("EDIS_WORKFLOW_MEMBER_SENT_DRAFTS_ALL_DESC", parameters);
 						}

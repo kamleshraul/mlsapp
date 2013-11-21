@@ -25,6 +25,7 @@ import org.mkcl.els.domain.Motion;
 import org.mkcl.els.domain.PrintRequisition;
 import org.mkcl.els.domain.Question;
 import org.mkcl.els.domain.Resolution;
+import org.mkcl.els.domain.Session;
 import org.mkcl.els.domain.Status;
 import org.mkcl.els.domain.User;
 import org.mkcl.els.domain.UserGroup;
@@ -1185,5 +1186,61 @@ public class WorkflowDetailsRepository extends BaseRepository<WorkflowDetails, S
 			this.em().createQuery(query.toString(), WorkflowDetails.class);
 		WorkflowDetails workflowDetails = tQuery.getSingleResult();
 		return workflowDetails;
+	}
+	
+	public Integer findIfWorkflowExists(final Session session,
+			final HouseType houseType,
+			final String deviceId,
+			final String workflowSubTypeInitial,
+			final String locale){
+		
+		Integer retVal = null;
+
+		StringBuffer query = new StringBuffer("SELECT COUNT(wf) FROM WorkflowDetails wf"+
+												" WHERE wf.deviceId=:deviceID"+
+												" AND wf.houseType=:houseType"+
+												" AND wf.sessionType=:sessionType"+
+												" AND wf.sessionYear=:sessionYear"+
+												" AND wf.workflowSubType LIKE :subType"+
+												" AND wf.locale=:locale");
+		TypedQuery<Long> tQuery = this.em().createQuery(query.toString(), Long.class);
+		tQuery.setParameter("deviceID", deviceId);
+		tQuery.setParameter("houseType", houseType.getName());
+		tQuery.setParameter("sessionType", session.getType().getSessionType());
+		tQuery.setParameter("sessionYear", FormaterUtil.formatNumberNoGrouping(session.getYear(), locale));
+		tQuery.setParameter("subType", workflowSubTypeInitial+"%");
+		tQuery.setParameter("locale", locale);
+		
+		retVal = ((Long)tQuery.getSingleResult()).intValue();
+		
+		return retVal;
+	}	
+	
+	@SuppressWarnings("rawtypes")
+	public List findCompleteness(final Session session,
+			final HouseType houseType,
+			final String deviceId,
+			final String locale){
+		StringBuffer query = new StringBuffer("SELECT wf.id,(SELECT"+ 
+				" COUNT(twd.id) AS totaltasks"+
+				" FROM workflow_details AS twd"+ 
+				" WHERE twd.device_id='"+deviceId+"'"+
+				" AND twd.workflow_sub_type LIKE 'editing_%'"+
+				" AND twd.house_type='"+houseType.getName()+"'"+
+				" AND twd.session_year='"+FormaterUtil.formatNumberNoGrouping(session.getYear(), locale)+"'"+
+				" AND twd.session_type='"+ session.getType().getSessionType() +"') AS rs,"+
+				" (SELECT "+
+				" COUNT(pwd.id) AS donetasks"+	
+				" FROM workflow_details AS pwd"+
+				" WHERE pwd.device_id='"+deviceId+"'"+
+				" AND pwd.status='COMPLETED'"+
+				" AND pwd.house_type='"+houseType.getName()+"'"+
+				" AND pwd.session_year='"+FormaterUtil.formatNumberNoGrouping(session.getYear(), locale)+"'"+
+				" AND pwd.session_type='"+ session.getType().getSessionType() +"'"+
+				" AND pwd.workflow_sub_type LIKE 'editing_%') AS rs1"+
+				" FROM workflow_details wf LIMIT 1");
+		Query pQuery = this.em().createNativeQuery(query.toString());
+		
+		return pQuery.getResultList();
 	}
 }

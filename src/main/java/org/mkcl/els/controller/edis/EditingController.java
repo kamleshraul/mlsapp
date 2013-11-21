@@ -20,6 +20,8 @@ import javax.persistence.NoResultException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import net.sf.cglib.core.Local;
+
 import org.mkcl.els.common.exception.ELSException;
 import org.mkcl.els.common.util.ApplicationConstants;
 import org.mkcl.els.common.util.FormaterUtil;
@@ -29,6 +31,7 @@ import org.mkcl.els.common.vo.ProcessDefinition;
 import org.mkcl.els.common.vo.ProcessInstance;
 import org.mkcl.els.common.vo.Task;
 import org.mkcl.els.controller.GenericController;
+import org.mkcl.els.controller.wf.EditingWorkflowController;
 import org.mkcl.els.domain.Credential;
 import org.mkcl.els.domain.CustomParameter;
 import org.mkcl.els.domain.Document;
@@ -481,6 +484,66 @@ public class EditingController extends GenericController<Roster>{
 		}
 	}
 	
+	@Transactional
+	@RequestMapping(value="/vishaysuchi",method=RequestMethod.GET)
+	public String getVishaysuchi(HttpServletRequest request, ModelMap model, Locale locale){
+		String retVal = "editing/error";
+		try{
+			String strHouseType = request.getParameter("houseType");
+			String strSessionType = request.getParameter("sessionType");
+			String strSessionYear = request.getParameter("sessionYear");
+			String strLanguage = request.getParameter("language");
+			String strDay = request.getParameter("day");
+			String strUserGroup = request.getParameter("userGroup");
+			String strUserGroupType = request.getParameter("userGroupType");
+			
+			String[] decodedValues = EditingControllerUtility.getDecodedString(new String[]{strHouseType, strSessionType, strSessionYear, strLanguage, strDay, strUserGroup, strUserGroupType});
+			strHouseType = decodedValues[0];
+			strSessionType = decodedValues[1];
+			strSessionYear = decodedValues[2];
+			strLanguage = decodedValues[3];
+			strDay = decodedValues[4];
+			strUserGroup = decodedValues[5];
+			strUserGroupType = decodedValues[6];
+			
+			/****Prepare vishaysuchi ****/
+			if(strHouseType!=null&&!strHouseType.equals("")&&
+					strSessionType!=null&&!strSessionType.equals("")&&
+					strSessionYear!=null&&!strSessionYear.equals("")&&
+					strLanguage!=null&&!strLanguage.equals("")&&
+					strDay!=null&&!strDay.equals("")){
+
+				HouseType houseType=HouseType.findByFieldName(HouseType.class, "type", strHouseType, locale.toString());
+				SessionType sessionType=SessionType.findById(SessionType.class, Long.parseLong(strSessionType));
+				Language language=Language.findById(Language.class, Long.parseLong(strLanguage));
+				Session session=Session.findSessionByHouseTypeSessionTypeYear(houseType, sessionType, Integer.parseInt(strSessionYear));
+				Roster roster=Roster.findRosterBySessionLanguageAndDay(session,Integer.parseInt(strDay),language,locale.toString());
+				
+				boolean flag = EditingControllerUtility.canVishaysuchiBePrepared(session, houseType, roster.getId().toString(), "editing_", locale.toString());
+				
+				if(flag){
+					Map<String, String[]> parameters = new HashMap<String, String[]>();
+					parameters.put("rosterId", new String[]{roster.getId().toString()});
+					parameters.put("locale", new String[]{locale.toString()});
+					
+					List report = Query.findReport("EDIS_VISHAYSUCHI", parameters);
+					model.addAttribute("report", report);
+					retVal = "editing/vishaysuchi";
+				}
+			}
+			
+			
+			
+			
+		}catch (Exception e) {
+			logger.debug("editing/vishaysuchi", e);
+			e.printStackTrace();
+			model.addAttribute("errorcode", "UNABLE_TO_GENERATE_VISHAYSUCHI");
+		}
+		return retVal;
+	}	
+	
+	
 	@RequestMapping(value="/gememberimage/{id}", method=RequestMethod.GET)
 	public void getImage(@PathVariable(value="id") Long memberId , HttpServletRequest request, HttpServletResponse response, Locale locale){
 		Member member = Member.findById(Member.class, memberId);
@@ -853,9 +916,15 @@ public class EditingController extends GenericController<Roster>{
 					List<Part> parts = Part.findAllPartOfProceedingOfRoster(roster, true, locale.toString());
 					for (Part p : parts) {
 						boolean flag = false;
-						if(p.getDeviceType() != null){
-							flag = isDeviceEnabled(p.getDeviceType().getId().toString(), strDevices);
+						
+						if(strDevices != null){
+							if(p.getDeviceType() != null){
+								flag = isDeviceEnabled(p.getDeviceType().getId().toString(), strDevices);
+							}
+						}else{
+							flag = true;
 						}
+						
 						if(flag){
 							List<PartDraft> pds = p.getPartDrafts();
 							if (pds != null && !pds.isEmpty()) {
@@ -956,13 +1025,13 @@ public class EditingController extends GenericController<Roster>{
 								
 								ProcessInstance processInstance = processService.createProcessInstance(processDefinition,properties);
 								Task task = processService.getCurrentTask(processInstance);
-								EditingWorkflowUtility.create(this.getCurrentUser(), roster.getId(),session, status, task, ApplicationConstants.APPROVAL_WORKFLOW, strDevices, wfActor.getLevel().toString(),locale.toString());
+								EditingControllerUtility.create(this.getCurrentUser(), roster.getId(),session, status, task, ApplicationConstants.APPROVAL_WORKFLOW, strDevices, wfActor.getLevel().toString(),locale.toString());
 								
 							}
 
 						}
 					} else if (strWfFor.equals("speaker")) {
-						User user = EditingWorkflowUtility.getUser(wfActor, houseType, locale.toString());
+						User user = EditingControllerUtility.getUser(wfActor, houseType, locale.toString());
 						if (user != null && wfActor != null) {
 							properties.put("pv_user", user.getCredential().getUsername());
 							properties.put("pv_endflag", "continue");
@@ -973,7 +1042,7 @@ public class EditingController extends GenericController<Roster>{
 
 						ProcessInstance processInstance = processService.createProcessInstance(processDefinition,properties);
 						Task task = processService.getCurrentTask(processInstance);
-						EditingWorkflowUtility.create(this.getCurrentUser(), roster.getId(), session, status, task, ApplicationConstants.APPROVAL_WORKFLOW, strDevices, wfActor.getLevel().toString(), locale.toString());
+						EditingControllerUtility.create(this.getCurrentUser(), roster.getId(), session, status, task, ApplicationConstants.APPROVAL_WORKFLOW, strDevices, wfActor.getLevel().toString(), locale.toString());
 					}
 					retVal="SUCCESS";
 				}else{
@@ -1087,8 +1156,8 @@ public class EditingController extends GenericController<Roster>{
 	}
 }
 
-class EditingWorkflowUtility{
-	private static Logger logger = LoggerFactory.getLogger(EditingWorkflowUtility.class);
+class EditingControllerUtility{
+	private static Logger logger = LoggerFactory.getLogger(EditingControllerUtility.class);
 	
 	public static WorkflowDetails create(final AuthUser auser, 
 			final Long rosterId, 
@@ -1248,6 +1317,38 @@ class EditingWorkflowUtility{
 		}
 		return workflowDetailsList;	
 	}	
+	
+	public static String[] getDecodedString(String[] values){
+		CustomParameter deploymentServer = CustomParameter.findByName(CustomParameter.class, "DEPLOYMENT_SERVER", "");
+		if(deploymentServer != null && deploymentServer.getValue() != null && !deploymentServer.getValue().isEmpty()){
+			if(deploymentServer.getValue().equals("TOMCAT")){
+
+				for(int i = 0; i < values.length; i++){
+					try {
+						if(values[i] != null){
+							values[i] = new String(values[i].getBytes("ISO-8859-1"), "UTF-8");
+						}
+					} catch (UnsupportedEncodingException e) {
+						e.printStackTrace();
+					}
+				}
+			}
+		}
+		
+		return values;
+	}
+	
+	public static String concat(String[] value, String seperator){
+		StringBuffer buff = new StringBuffer();
+		for(int i = 0; i < value.length; i++){
+			buff.append(value[i]);
+			if(i < (value.length -1)){
+				buff.append(seperator);
+			}
+		}
+		
+		return buff.toString();
+	}
 
 	public static  User getUser(final WorkflowActor wfActor, final HouseType houseType, final String locale) {
 		UserGroup userGroup = getUserGroup(wfActor, houseType, locale);
@@ -1506,5 +1607,30 @@ class EditingWorkflowUtility{
 			workflowDetails.setNextWorkflowActorId(wfActorId);
 		}
 		workflowDetails.merge();
+	}
+	
+	@SuppressWarnings("rawtypes")
+	public static boolean canVishaysuchiBePrepared(final Session session, 
+					final HouseType houseType,
+					final String deviceId,
+					final String workflowSubTypeInitial,
+					final String locale){
+		boolean retVal = false;
+		
+		if(WorkflowDetails.findIfWorkflowExists(session, houseType, deviceId, workflowSubTypeInitial, locale) > 0){
+			List result = WorkflowDetails.findCompleteness(session, houseType, deviceId, locale);
+						
+			if(result != null && !result.isEmpty()){
+				Object[] data = (Object[])result.get(0);
+				Integer totalTasks = Integer.valueOf(data[1].toString());
+				Integer doneTasks = Integer.valueOf(data[2].toString());
+				
+				if((totalTasks - doneTasks) == 0){
+					retVal = true;
+				}
+			}
+		}
+		
+		return retVal;
 	}
 }

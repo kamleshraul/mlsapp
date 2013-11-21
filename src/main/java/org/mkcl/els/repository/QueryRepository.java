@@ -2,6 +2,7 @@ package org.mkcl.els.repository;
 
 import java.io.Serializable;
 import java.io.UnsupportedEncodingException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -46,6 +47,57 @@ public class QueryRepository extends BaseRepository<Query, Serializable>{
 			List results=persistenceQuery.getResultList();
 			return results;
 		}		
+		return null;
+	}
+	
+	@SuppressWarnings("rawtypes")
+	public List findReport(final String report,final Map<String, String[]> requestMap, final Boolean handleIN) {
+		if(handleIN){
+			if(requestMap!=null&&!requestMap.isEmpty()){
+				String locale=requestMap.get("locale")[0];
+				Query query = Query.findByFieldName(Query.class, "keyField", report, locale);
+				
+				//To handle the parameter setting in IN clause value
+				int indexOfIN = query.getQuery().indexOf(" IN "); 
+				int index = ((indexOfIN==-1)? ((query.getQuery().indexOf("in")==-1)? -1:query.getQuery().indexOf("in")): indexOfIN);
+				String inParameter = query.getQuery().substring(index+"IN".length()).trim();
+				inParameter = inParameter.substring(inParameter.indexOf(":")+1,inParameter.indexOf(")"));
+				
+				javax.persistence.Query persistenceQuery=this.em().createNativeQuery(query.getQuery());
+				CustomParameter customParameter=CustomParameter.findByName(CustomParameter.class,"DEPLOYMENT_SERVER", "");
+				Set<Parameter<?>> selectQueryParameters = persistenceQuery.getParameters();
+				for (Parameter i : selectQueryParameters) {
+					String param=requestMap.get(i.getName())[0];
+					String decodedParam=param;
+					if(customParameter!=null&&customParameter.getValue().equals("TOMCAT")){							
+						try {
+							decodedParam = new String(param.getBytes("ISO-8859-1"), "UTF-8");
+						}
+						catch (UnsupportedEncodingException e) {
+							e.printStackTrace();
+						}
+					}            	
+					if(decodedParam.equals("true") || decodedParam.equals("false")){
+						persistenceQuery.setParameter(i.getName(),((decodedParam.equals("true"))? true: false));
+					}else{
+						if(i.getName().equals(inParameter)){
+							List<String> values = new ArrayList<String>();
+							
+							for(String val : decodedParam.split(",")){
+								values.add(val);
+							}
+							persistenceQuery.setParameter(i.getName(),values);
+						}else{
+							persistenceQuery.setParameter(i.getName(),decodedParam);
+						}
+					}
+				}
+				List results=persistenceQuery.getResultList();
+				return results;
+			}
+		}else{
+			return findReport(report, requestMap);
+		}
 		return null;
 	}
 
