@@ -5128,6 +5128,7 @@ public class BillController extends GenericController<Bill> {
 						} else {
 							model.addAttribute("billNumber", "");
 						}
+						model.addAttribute("billDeviceType",bill.getType().getType());
 						String billTitle = bill.getDefaultTitle();
 						model.addAttribute("billTitle", billTitle);
 						Integer billYear = Bill.findYear(bill);

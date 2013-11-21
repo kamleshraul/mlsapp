@@ -1,9 +1,14 @@
+#if($billDeviceType=='bills_government')
+	#set($designation = "मंत्री")
+#elseif($billDeviceType=='bills_nonofficial')
+	#set($designation = "सदस्य")
+#end
 <h3 align="center">विधेयक मागे घेण्याबाबत कार्यपध्दती</h3>
 <br/>
 <table width="600" border="0" align="center">
 	<tr>
 		<td  valign="top" width="10%">
-			प्रभारी सदस्य
+			प्रभारी $designation
 		</td>
 		<td valign="top" width="2%">:</td>
 		<td  valign="top">
@@ -42,7 +47,7 @@
 	
 	<tr>
 		<td  valign="top" width="10%">
-			प्रभारी सदस्य
+			प्रभारी $designation
 		</td>
 		<td valign="top" width="2%">:</td>
 		<td  valign="top">
