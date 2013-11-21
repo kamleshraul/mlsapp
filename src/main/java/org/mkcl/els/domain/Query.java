@@ -75,6 +75,11 @@ public class Query extends BaseDomain{
 	}
 	
 	@SuppressWarnings("rawtypes")
+	public static List findReport(final String report,final Map<String, String[]> requestMap, final Boolean handleIN) {
+		return getQueryRepository().findReport(report, requestMap, handleIN);
+	}
+	
+	@SuppressWarnings("rawtypes")
 	public static List findMISPartyDistrictReport(final String report,
 			final Map<String, String[]> requestMap) {
 		return getQueryRepository().findMISPartyDistrictReport(report,

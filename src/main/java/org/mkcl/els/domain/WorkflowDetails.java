@@ -551,6 +551,23 @@ public class WorkflowDetails extends BaseDomain implements Serializable{
 		return getWorkflowDetailsRepository().findCurrentWorkflowDetail(bill, workflowType);
 	}
 
+	
+	public static Integer findIfWorkflowExists(final Session session,
+							final HouseType houseType,
+							final String deviceId,
+							final String workflowSubTypeInitial,
+							final String locale){
+		return getWorkflowDetailsRepository().findIfWorkflowExists(session, houseType, deviceId, workflowSubTypeInitial, locale);				
+	}
+	
+	@SuppressWarnings("rawtypes")
+	public static List findCompleteness(final Session session,
+			final HouseType houseType,
+			final String deviceId,
+			final String locale){
+		return getWorkflowDetailsRepository().findCompleteness(session, houseType, deviceId, locale);
+	}
+		
 	public String getModule() {
 		return module;
 	}
