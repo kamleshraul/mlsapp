@@ -552,11 +552,13 @@
 		    $("#changeRecommendationStatus").change(function(){
 		    	var value=$(this).val();
 		    	if(value!='-'){	
-		    		$('#contentForStatusUpdation').show();		    		
+		    		$('#contentForStatusUpdation').show();	
+		    		$('#remarks_div').show();
 			    	$("#recommendationStatus").val(value);
 			    	$('#submit').removeAttr('disabled');
 			    }else{
 			    	$('#contentForStatusUpdation').hide();
+			    	$('#remarks_div').hide();
 			    	$('#submit').attr('disabled', 'disabled');			    	
 			    	$("#internalStatus").val($("#oldInternalStatus").val());
 				    $("#recommendationStatus").val($("#oldRecommendationStatus").val()); 

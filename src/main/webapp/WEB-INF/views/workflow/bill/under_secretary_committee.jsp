@@ -456,11 +456,13 @@
 		    $("#changeInternalStatus").change(function(){
 			    var value=$(this).val();
 			    if(value!='-'){
+			    	$('#remarks_div').show();
 				    //var statusType=$("#internalStatusMaster option[value='"+value+"']").text();			    
 				    loadActors(value);				    	    
 			    }else{
 				    $("#actorForWorkflow").empty();
 				    $("#actorDiv").hide();
+				    $('#remarks_div').hide();
 				    $("#internalStatus").val($("#oldInternalStatus").val());
 				    $("#recommendationStatus").val($("#oldRecommendationStatus").val());
 				    $("#translationStatus").val($("#oldTranslationStatus").val());	
