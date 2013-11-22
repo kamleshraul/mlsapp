@@ -235,7 +235,7 @@
 																	<c:otherwise>
 																		<c:choose>
 																			<c:when test="${r[22]!=null}">
-																				&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<b>${r[15]} (${r[22]}) (${r[11]}) (${r[10]}) (${r[23]})</b> ${r[0]}
+																				&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<b>${r[15]} (${r[22]}) (${r[11]}) (${r[10]}) (${r[23]}):</b> ${r[0]}
 																			</c:when>
 																			<c:otherwise>
 																				&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<b>${r[15]} (${r[11]}) (${r[10]}) (${r[23]}):</b> ${r[0]}
@@ -315,7 +315,7 @@
 																	<c:otherwise>
 																		<c:choose>
 																			<c:when test="${r[22]!=null }">
-																				&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<b>${r[15]} (${r[22]}) (${r[10]}) (${r[23]})</b> ${r[0]}
+																				&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<b>${r[15]} (${r[22]}) (${r[10]}) (${r[23]}):</b> ${r[0]}
 																			</c:when>
 																			<c:otherwise>
 																				&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<b>${r[15]} (${r[10]}) (${r[23]}):</b> ${r[0]}
@@ -397,7 +397,7 @@
 															<c:otherwise>
 																<c:choose>
 																	<c:when test="${r[22]!=null }">
-																		&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<b>${r[15]} (${r[22]}) (${r[10]})</b> ${r[0]}
+																		&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<b>${r[15]} (${r[22]}) (${r[10]}):</b> ${r[0]}
 																	</c:when>
 																	<c:otherwise>
 																		&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<b>${r[15]} (${r[10]}):</b> ${r[0]}
@@ -479,7 +479,7 @@
 													<c:otherwise>
 														<c:choose>
 															<c:when test="${r[22]!=null }">
-																&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;${r[15]} (${r[22]}) ${r[0]}
+																&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;${r[15]} (${r[22]}): ${r[0]}
 															</c:when>
 															<c:otherwise>
 																&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;${r[15]}: ${r[0]}
@@ -594,7 +594,7 @@
 																<c:otherwise>
 																	<c:choose>
 																		<c:when test="${r[22]!=null }">
-																			&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<b>${r[15]} (${r[22]}) (${r[11]}) (${r[10]}) (${r[23]})</b> ${r[0]}
+																			&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<b>${r[15]} (${r[22]}) (${r[11]}) (${r[10]}) (${r[23]}):</b> ${r[0]}
 																		</c:when>
 																		<c:otherwise>
 																			&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<b>${r[15]} (${r[11]}) (${r[10]}) (${r[23]}):</b> ${r[0]}
@@ -674,7 +674,7 @@
 																<c:otherwise>
 																	<c:choose>
 																		<c:when test="${r[22]!=null }">
-																			&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<b>${r[15]} (${r[22]}) (${r[10]}) (${r[23]})</b> ${r[0]}
+																			&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<b>${r[15]} (${r[22]}) (${r[10]}) (${r[23]}):</b> ${r[0]}
 																		</c:when>
 																		<c:otherwise>
 																			&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<b>${r[15]} (${r[10]}) (${r[23]}):</b> ${r[0]}
@@ -756,7 +756,7 @@
 														<c:otherwise>
 															<c:choose>
 																<c:when test="${r[22]!=null }">
-																	&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<b>${r[15]} (${r[22]}) (${r[10]})</b> ${r[0]}
+																	&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<b>${r[15]} (${r[22]}) (${r[10]}):</b> ${r[0]}
 																</c:when>
 																<c:otherwise>
 																	&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<b>${r[15]} (${r[10]}):</b> ${r[0]}
@@ -838,7 +838,7 @@
 													<c:otherwise>
 														<c:choose>
 															<c:when test="${r[22]!=null }">
-																&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;${r[15]} (${r[22]}) ${r[0]}
+																&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;${r[15]} (${r[22]}): ${r[0]}
 															</c:when>
 															<c:otherwise>
 																&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;${r[15]}: ${r[0]}
@@ -908,7 +908,7 @@
 					<c:choose>
 						<c:when test="${r[1]!=null and r[2]!=null and r[1]!='' and r[2]!=''}">
 							<tr>
-								<td colspan="3" class="content" >
+								<td colspan="3" class="content" style="text-align: center;">
 									<b><spring:message code="part.pageHeading" text="Page Heading"/>:</b> ${r[1]}
 									<b><spring:message code="part.mainHeading" text="Main Heading"/> :</b> ${r[2]}
 								</td>
@@ -996,7 +996,7 @@
 																	<c:otherwise>
 																		<c:choose>
 																			<c:when test="${r[22]!=null }">
-																				&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<b>${r[15]} (${r[22]}) (${r[11]}) (${r[10]}) (${r[23]})</b> ${r[0]}
+																				&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<b>${r[15]} (${r[22]}) (${r[11]}) (${r[10]}) (${r[23]}):</b> ${r[0]}
 																			</c:when>
 																			<c:otherwise>
 																				&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<b>${r[15]} (${r[11]}) (${r[10]}) (${r[23]}):</b> ${r[0]}
@@ -1076,7 +1076,7 @@
 																	<c:otherwise>
 																		<c:choose>
 																			<c:when test="${r[22]!=null }">
-																				&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<b>${r[15]} (${r[22]}) (${r[10]}) (${r[23]})</b> ${r[0]}
+																				&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<b>${r[15]} (${r[22]}) (${r[10]}) (${r[23]}):</b> ${r[0]}
 																			</c:when>
 																			<c:otherwise>
 																				&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<b>${r[15]} (${r[10]}) (${r[23]}):</b> ${r[0]}
@@ -1158,7 +1158,7 @@
 															<c:otherwise>
 																<c:choose>
 																	<c:when test="${r[22]!=null }">
-																		&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<b>${r[15]} (${r[22]}) (${r[10]})</b> ${r[0]}
+																		&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<b>${r[15]} (${r[22]}) (${r[10]}):</b> ${r[0]}
 																	</c:when>
 																	<c:otherwise>
 																		&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<b>${r[15]} (${r[10]}):</b> ${r[0]}
@@ -1240,7 +1240,7 @@
 													<c:otherwise>
 														<c:choose>
 															<c:when test="${r[22]!=null }">
-																&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;${r[15]} (${r[22]}) ${r[0]}
+																&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;${r[15]} (${r[22]}): ${r[0]}
 															</c:when>
 															<c:otherwise>
 																&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;${r[15]}: ${r[0]}

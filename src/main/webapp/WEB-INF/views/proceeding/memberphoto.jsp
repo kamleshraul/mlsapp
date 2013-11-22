@@ -13,34 +13,33 @@ $(document).ready(function(){
 	});
 	
 	 
-	var text="";
 	var count=$('#count').val();
 	$('#loadMore').click(function(){
-		
-		console.log("count="+count);
-		console.log("memberArray"+memberArray);
+		var text="";
 		var i=0;
 		var j=parseInt(count)+10;
-		console.log("j="+j);
 		for(i=count;i<j && i<memberArray.length;i++){
 			var memberValue=memberArray[i].split('#');
-			console.log(memberValue);
 			text=text+"<div class='memImgA'>"+
 				 "<a href='javascript:void(0)' id='"+memberArray[i]+"' rel='member' class='memberImgA' title='"+memberValue[1] +"'><img src='ref/getphoto?memberId="+memberValue[0]+"'  style='width: 113px; height:150px'/></a>"+
+				  "<label>"+ memberValue[1]+"</label>"+ 
 				 "</div>";
 			count=i;
 		}
-		console.log("text="+text);
+		if(i>memberArray.length){
+			$('#loadMore').css("display","none");
+		}
+		count=i+1;
 		$('#imgDiv').append(text);
 	});
 	
 	
 	
 	
-	$(".memImgA a[title]").qtip({
+	/* $(".memImgA a[title]").qtip({
 		show: 'mouseover',
 		hide: 'mouseout'
-	});
+	}); */
 	
 	$('.memberImgA').click(function(){
 		var id=this.id;	
@@ -69,25 +68,28 @@ $(document).ready(function(){
 </head>
 <body>
 <c:choose>	
-	<c:when test="${!(empty members) }">]
+	<c:when test="${!(empty members) }">
 		<c:set var="count" value="0"></c:set>
-		<div id="imgDiv" style="width: 800px; height: 500px; text-align: center;">
-				<c:forEach items="${members}" var="i" begin="${count}" end="${count+5}">
+		<div id="imgDiv" style="width: 800px; height: 500px; text-align: center; display: block; margin-left:50px;">
+				<c:forEach items="${members}" var="i" begin="${count}" end="${count+10}">
 					<div class="memImgA">
 						<a href="javascript:void(0)" id="${i.id}#${i.getFullname()}" rel="member" class="memberImgA fancybox.ajax" title="${i.getFullname()}"><img src="ref/getphoto?memberId=${i.id}"  style="width: 113px; height:150px"/></a>
+						<label>${i.getFullname()}</label>
 					</div>
 					<c:set var="count" value="${count+1}"></c:set>
 				</c:forEach>
-				
-				<input type="hidden" id="count" value="${count}">
+			<input type="hidden" id="count" value="${count}">
 		</div>
-		<input type="button" id="loadMore" value="Load More"/>
 	</c:when>
 	<c:otherwise>
 		<spring:message code="proceeding.no members" text="No Member found"></spring:message>
 	</c:otherwise>
-</c:choose>	
-<select id="memberMaster">
+</c:choose>
+<div>
+	<input type="button" id="loadMore" value="Load More"/>
+</div>	
+
+<select id="memberMaster" style="display:none;">
 	<c:forEach items="${members}" var="i">
 		<option value="${i.id}#${i.getFullname()}"></option>
 	</c:forEach>
