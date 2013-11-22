@@ -7,12 +7,161 @@
 	<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
 	<script type="text/javascript">
 	$(document).ready(function(){
+		if(($('#financialMemorandumDraft_text_'+$('#defaultBillLanguage').val()).val()!=undefined
+				&& $('#financialMemorandumDraft_text_'+$('#defaultBillLanguage').val()).val()!="" 
+				&& $('#financialMemorandumDraft_text_'+$('#defaultBillLanguage').val()).val()!="<p></p>")
+			||
+			($('#revised_financialMemorandumDraft_text_'+$('#defaultBillLanguage').val()).val()!=undefined
+			&& $('#revised_financialMemorandumDraft_text_'+$('#defaultBillLanguage').val()).val()!="" 
+			&& $('#revised_financialMemorandumDraft_text_'+$('#defaultBillLanguage').val()).val()!="<p></p>")
+		) {
+			$('#financialMemorandumDrafts_button').hide();
+			$('#financialMemorandumDrafts_div').show();
+		} else {
+			$('#financialMemorandumDrafts_button').show();
+		}
+		
+		if(($('#statutoryMemorandumDraft_text_'+$('#defaultBillLanguage').val()).val()!=undefined
+				&& $('#statutoryMemorandumDraft_text_'+$('#defaultBillLanguage').val()).val()!="" 
+				&& $('#statutoryMemorandumDraft_text_'+$('#defaultBillLanguage').val()).val()!="<p></p>")
+			||
+			($('#revised_statutoryMemorandumDraft_text_'+$('#defaultBillLanguage').val()).val()!=undefined
+			&& $('#revised_statutoryMemorandumDraft_text_'+$('#defaultBillLanguage').val()).val()!="" 
+			&& $('#revised_statutoryMemorandumDraft_text_'+$('#defaultBillLanguage').val()).val()!="<p></p>")
+		) {
+			$('#statutoryMemorandumDrafts_button').hide();
+			$('#statutoryMemorandumDrafts_div').show();
+		} else {
+			$('#statutoryMemorandumDrafts_button').show();
+		}
+		
+		/**** show title for only default bill language ****/
+		$('.title').each(function() {
+			var currentLanguage = this.id.split("_")[2];				
+			if(currentLanguage==$('#defaultBillLanguage').val()) {		
+				$('#title_para_'+currentLanguage).show();					
+			} else {
+				$('#title_para_'+currentLanguage).hide();										
+			}
+		});
+		/**** toggle title for given language icon ****/
+		$('.toggleTitle').click(function() {
+			var currentLanguage = this.id.split("_")[1];				
+			if($('#title_para_'+currentLanguage).css('display')=='none') {
+				$('#title_para_'+currentLanguage).show();					
+			} else {
+				$('#title_para_'+currentLanguage).hide();					
+			}
+			return false;
+		});
+		
+		/**** show content draft for only default bill language ****/
+		$('.contentDraft').each(function() {
+			var currentLanguage = this.id.split("_")[2];				
+			if(currentLanguage==$('#defaultBillLanguage').val()) {		
+				$('#contentDraft_para_'+currentLanguage).show();					
+			} else {
+				$('#contentDraft_para_'+currentLanguage).hide();										
+			}
+		});
+		/**** toggle contentDraft for given language icon ****/
+		$('.toggleContentDraft').click(function() {
+			var currentLanguage = this.id.split("_")[1];				
+			if($('#contentDraft_para_'+currentLanguage).css('display')=='none') {
+				$('#contentDraft_para_'+currentLanguage).show();					
+			} else {
+				$('#contentDraft_para_'+currentLanguage).hide();					
+			}
+			return false;
+		});
+		
+		/**** show statement of object and reason draft for only default bill language ****/
+		$('.statementOfObjectAndReasonDraft').each(function() {
+			var currentLanguage = this.id.split("_")[2];				
+			if(currentLanguage==$('#defaultBillLanguage').val()) {		
+				$('#statementOfObjectAndReasonDraft_para_'+currentLanguage).show();					
+			} else {
+				$('#statementOfObjectAndReasonDraft_para_'+currentLanguage).hide();										
+			}
+		});
+		/**** toggle statement of object and reason draft for given language icon ****/
+		$('.toggleStatementOfObjectAndReasonDraft').click(function() {
+			var currentLanguage = this.id.split("_")[1];				
+			if($('#statementOfObjectAndReasonDraft_para_'+currentLanguage).css('display')=='none') {
+				$('#statementOfObjectAndReasonDraft_para_'+currentLanguage).show();					
+			} else {
+				$('#statementOfObjectAndReasonDraft_para_'+currentLanguage).hide();					
+			}
+			return false;
+		});
+		
+		/**** show financial memorandum draft for only default bill language ****/
+		$('.financialMemorandumDraft').each(function() {
+			var currentLanguage = this.id.split("_")[2];				
+			if(currentLanguage==$('#defaultBillLanguage').val()) {		
+				$('#financialMemorandumDraft_para_'+currentLanguage).show();					
+			} else {
+				$('#financialMemorandumDraft_para_'+currentLanguage).hide();										
+			}
+		});
+		/**** toggle financial memorandum draft on user demand ****/
+		$('#financialMemorandumDrafts_button').click(function() {
+			if($('#financialMemorandumDrafts_div').css('display')=='none') {
+				$('#financialMemorandumDrafts_div').show();
+			} else {
+				$('#financialMemorandumDrafts_div').hide();
+			}
+			return false;
+		});
+		/**** toggle financial memorandum draft for given language icon ****/
+		$('.toggleFinancialMemorandumDraft').click(function() {
+			var currentLanguage = this.id.split("_")[1];				
+			if($('#financialMemorandumDraft_para_'+currentLanguage).css('display')=='none') {
+				$('#financialMemorandumDraft_para_'+currentLanguage).show();					
+			} else {
+				$('#financialMemorandumDraft_para_'+currentLanguage).hide();					
+			}
+			return false;
+		});
+		
+		
+		/**** show statutory memorandum draft for only default bill language ****/
+		$('.statutoryMemorandumDraft').each(function() {
+			var currentLanguage = this.id.split("_")[2];				
+			if(currentLanguage==$('#defaultBillLanguage').val()) {		
+				$('#statutoryMemorandumDraft_para_'+currentLanguage).show();					
+			} else {
+				$('#statutoryMemorandumDraft_para_'+currentLanguage).hide();										
+			}
+		});
+		/**** toggle statutory memorandum draft on user demand ****/
+		$('#statutoryMemorandumDrafts_button').click(function() {
+			if($('#statutoryMemorandumDrafts_div').css('display')=='none') {
+				$('#statutoryMemorandumDrafts_div').show();
+			} else {
+				$('#statutoryMemorandumDrafts_div').hide();
+			}
+			return false;
+		});
+		/**** toggle statutory memorandum draft for given language icon ****/
+		$('.toggleStatutoryMemorandumDraft').click(function() {
+			var currentLanguage = this.id.split("_")[1];				
+			if($('#statutoryMemorandumDraft_para_'+currentLanguage).css('display')=='none') {
+				$('#statutoryMemorandumDraft_para_'+currentLanguage).show();					
+			} else {
+				$('#statutoryMemorandumDraft_para_'+currentLanguage).hide();					
+			}
+			return false;
+		});
+		
 		if($('#typeOfSelectedBillType').val() != 'amending') {
 			$('#referredActDiv').hide();			
 		}
+		
 		if($('#typeOfSelectedBillType').val() != 'replace_ordinance') {
 			$('#referredOrdinanceDiv').hide();
 		}
+		
 		$('#billType').change(function() {
 			$.get('ref/getTypeOfSelectedBillType?selectedBillTypeId='+$('#billType').val(),function(data) {
 				
@@ -35,6 +184,7 @@
 				}
 			});
 		});
+		
 		//view supporting members status
 	    $("#viewStatus").click(function(){
 		    $.get('bill/status/'+$("#bill").val(),function(data){
@@ -42,6 +192,7 @@
 		    });
 		    return false;
 	    });
+		
 	    /**** view detail of referred act (currently showing pdf of act) ****/		
 		$('#viewReferredAct').click(function() {
 			if(this.text!='-') {					
@@ -69,6 +220,28 @@
 		});
 	});
 	</script>
+	
+	<style type="text/css">
+		.imageLink{
+			width: 18px;
+			height: 18px;				
+			/* box-shadow: 2px 2px 5px #000000;
+			border-radius: 5px;
+			padding: 2px;
+			border: 1px solid #000000; */ 
+		}
+		
+		/* .imageLink:hover{
+			box-shadow: 2px 2px 5px #888888;
+			border-radius: 5px;
+			padding: 2px;
+			border: 1px solid #888888; 
+		} */
+		
+		.impIcons{
+			box-shadow: 2px 2px 2px black;
+		}						
+	</style>
 </head>
 
 <body>
@@ -161,81 +334,183 @@
 		</p>
 	</div>	
 					
-	<div>
+	<div style="margin-top: 20px;">
 		<fieldset>
-			<legend style="text-align: left; width: 150px;"><label><spring:message code="bill.titles" text="Titles of Bill" /></label></legend>
+			<c:set var="isFirstIcon" value="true"></c:set>
+			<c:forEach var="i" items="${titles}" varStatus="position">
+			<c:choose>
+				<c:when test="${i.language.type!=defaultBillLanguage and isFirstIcon=='true'}">
+					<a href="#" class="toggleTitle" id="toggleTitle_${i.language.type}" style="margin-left: 165px;text-decoration: none;">
+						<img src="./resources/images/ico_${i.language.type}.jpg" title="${i.language.name}" class="imageLink" />
+					</a>
+					<c:set var="isFirstIcon" value="false"></c:set>
+				</c:when>
+				<c:when test="${i.language.type!=defaultBillLanguage and isFirstIcon!='true'}">
+					<a href="#" class="toggleTitle" id="toggleTitle_${i.language.type}" style="margin-left: 20px;text-decoration: none;">
+						<img src="./resources/images/ico_${i.language.type}.jpg" title="${i.language.name}" class="imageLink" />
+					</a>
+				</c:when>
+			</c:choose>					
+			</c:forEach>																			
 			<div id="titles_div">
 				<c:forEach var="i" items="${titles}">
+					<div id="title_para_${i.language.type}" style="display:none;">
 					<p>
 						<label class="centerlabel">${i.language.name} <spring:message code="bill.title" text="Title"/></label>
-						<textarea rows="2" cols="50" id="title_text_${i.language.type}" name="title_text_${i.language.type}" readonly="readonly">${i.text}</textarea>
+						<textarea rows="2" cols="50" class="title" id="title_text_${i.language.type}" name="title_text_${i.language.type}" readonly="readonly">${i.text}</textarea>
 						<input type="hidden" name="title_id_${i.language.type}" value="${i.id}">
 						<input type="hidden" name="title_language_id_${i.language.type}" value="${i.language.id}">						
-					</p>
+					</p>							
+					</div>								
 				</c:forEach>
 			</div>
 		</fieldset>
-	</div>
-	
-	<div>
+	</div>	
+
+	<div style="margin-top: 20px;">
 		<fieldset>
-			<legend style="text-align: left; width: 150px;"><label><spring:message code="bill.contentDrafts" text="Drafts of Bill" /></label></legend>
+			<p style="margin-bottom: -10px;">
+			<c:set var="isFirstIcon" value="true"></c:set>
+			<c:forEach var="i" items="${contentDrafts}" varStatus="position">
+			<c:choose>
+				<c:when test="${i.language.type!=defaultBillLanguage and isFirstIcon=='true'}">
+					<a href="#" class="toggleContentDraft" id="toggleContentDraft_${i.language.type}" style="margin-left: 165px;text-decoration: none;">
+						<img src="./resources/images/ico_${i.language.type}.jpg" title="${i.language.name}" class="imageLink" />
+					</a>
+					<c:set var="isFirstIcon" value="false"></c:set>
+				</c:when>
+				<c:when test="${i.language.type!=defaultBillLanguage and isFirstIcon!='true'}">
+					<a href="#" class="toggleContentDraft" id="toggleContentDraft_${i.language.type}" style="margin-left: 20px;text-decoration: none;">
+						<img src="./resources/images/ico_${i.language.type}.jpg" title="${i.language.name}" class="imageLink" />
+					</a>
+				</c:when>
+			</c:choose>					
+			</c:forEach>
+			</p>						
 			<div id="contentDrafts_div">
-				<c:forEach var="i" items="${contentDrafts}">
+				<c:forEach var="i" items="${contentDrafts}" varStatus="draftNumber">
+					<div id="contentDraft_para_${i.language.type}" style="display:none;">
 					<p>
 						<label class="wysiwyglabel">${i.language.name} <spring:message code="bill.contentDraft" text="Draft"/></label>
-						<textarea class="wysiwyg" id="contentDraft_text_${i.language.type}" name="contentDraft_text_${i.language.type}" readonly="readonly">${i.text}</textarea>
+						<textarea class="wysiwyg contentDraft" id="contentDraft_text_${i.language.type}" name="contentDraft_text_${i.language.type}" readonly="readonly">${i.text}</textarea>
 						<input type="hidden" name="contentDraft_id_${i.language.type}" value="${i.id}">
 						<input type="hidden" name="contentDraft_language_id_${i.language.type}" value="${i.language.id}">						
-					</p>
+					</p>						
+					</div>
 				</c:forEach>
 			</div>
 		</fieldset>
 	</div>
 	
-	<div>
+	<div style="margin-top: 20px;">
 		<fieldset>
-			<legend style="text-align: left; width: 150px;"><label><spring:message code="bill.statementOfObjectAndReasonDrafts" text="Statement of Object & Reason" /></label></legend>
+			<p style="margin-bottom: -20px;">
+			<c:set var="isFirstIcon" value="true"></c:set>
+			<c:forEach var="i" items="${statementOfObjectAndReasonDrafts}" varStatus="position">
+			<c:choose>
+				<c:when test="${i.language.type!=defaultBillLanguage and isFirstIcon=='true'}">
+					<a href="#" class="toggleStatementOfObjectAndReasonDraft" id="toggleStatementOfObjectAndReasonDraft_${i.language.type}" style="margin-left: 165px;text-decoration: none;">
+						<img src="./resources/images/ico_${i.language.type}.jpg" title="${i.language.name}" class="imageLink" />
+					</a>
+					<c:set var="isFirstIcon" value="false"></c:set>
+				</c:when>
+				<c:when test="${i.language.type!=defaultBillLanguage and isFirstIcon!='true'}">
+					<a href="#" class="toggleStatementOfObjectAndReasonDraft" id="toggleStatementOfObjectAndReasonDraft_${i.language.type}" style="margin-left: 20px;text-decoration: none;">
+						<img src="./resources/images/ico_${i.language.type}.jpg" title="${i.language.name}" class="imageLink" />
+					</a>
+				</c:when>
+			</c:choose>					
+			</c:forEach>
+			</p>
 			<div id="statementOfObjectAndReasonDrafts_div">
 				<c:forEach var="i" items="${statementOfObjectAndReasonDrafts}">
+					<div id="statementOfObjectAndReasonDraft_para_${i.language.type}" style="display:none;">
 					<p>
 						<label class="wysiwyglabel">${i.language.name} <spring:message code="bill.statementOfObjectAndReasonDraft" text="Statement of Object & Reason"/></label>
-						<textarea class="wysiwyg" id="statementOfObjectAndReasonDraft_text_${i.language.type}" name="statementOfObjectAndReasonDraft_text_${i.language.type}" readonly="readonly">${i.text}</textarea>
+						<textarea class="wysiwyg statementOfObjectAndReasonDraft" id="statementOfObjectAndReasonDraft_text_${i.language.type}" name="statementOfObjectAndReasonDraft_text_${i.language.type}" readonly="readonly">${i.text}</textarea>
 						<input type="hidden" name="statementOfObjectAndReasonDraft_id_${i.language.type}" value="${i.id}">
 						<input type="hidden" name="statementOfObjectAndReasonDraft_language_id_${i.language.type}" value="${i.language.id}">						
 					</p>
+					</div>
 				</c:forEach>
 			</div>
 		</fieldset>
-	</div>
+	</div>					
 	
-	<div>
+	<p style="margin-left: 162px;margin-top: 20px;">
+	<a href="#" id="financialMemorandumDrafts_button" style="margin-right: 20px;text-decoration: none;">
+		<img src="./resources/images/Fmemo.jpg" title="<spring:message code='bill.financialMemorandumDrafts' text='Financial Memorandums'></spring:message>" class="imageLink impIcons" />
+	</a>	
+	<a href="#" id="statutoryMemorandumDrafts_button" style="margin-right: 20px;text-decoration: none;">
+		<img src="./resources/images/Smemo.jpg" title="<spring:message code='bill.statutoryMemorandumDrafts' text='Statutory Memorandums'></spring:message>" class="imageLink impIcons" />
+	</a>
+	</p>
+	
+	<div id="financialMemorandumDrafts_div"  style="display:none; margin-top: 20px;">
 		<fieldset>
-			<legend style="text-align: left; width: 150px;"><label><spring:message code="bill.financialMemorandumDrafts" text="Financial Memorandum" /></label></legend>
-			<div id="financialMemorandumDrafts_div">
+			<p style="margin-bottom: -10px;">
+			<c:set var="isFirstIcon" value="true"></c:set>
+			<c:forEach var="i" items="${financialMemorandumDrafts}" varStatus="position">
+			<c:choose>
+				<c:when test="${i.language.type!=defaultBillLanguage and isFirstIcon=='true'}">
+					<a href="#" class="toggleFinancialMemorandumDraft" id="toggleFinancialMemorandumDraft_${i.language.type}" style="margin-left: 165px;text-decoration: none;">
+						<img src="./resources/images/ico_${i.language.type}.jpg" title="${i.language.name}" class="imageLink" />
+					</a>
+					<c:set var="isFirstIcon" value="false"></c:set>
+				</c:when>
+				<c:when test="${i.language.type!=defaultBillLanguage and isFirstIcon!='true'}">
+					<a href="#" class="toggleFinancialMemorandumDraft" id="toggleFinancialMemorandumDraft_${i.language.type}" style="margin-left: 20px;text-decoration: none;">
+						<img src="./resources/images/ico_${i.language.type}.jpg" title="${i.language.name}" class="imageLink" />
+					</a>
+				</c:when>
+			</c:choose>					
+			</c:forEach>
+			</p>
+			<div>
 				<c:forEach var="i" items="${financialMemorandumDrafts}">
+					<div id="financialMemorandumDraft_para_${i.language.type}" style="display:none;">
 					<p>
 						<label class="wysiwyglabel">${i.language.name} <spring:message code="bill.financialMemorandumDraft" text="Financial Memorandum"/></label>
-						<textarea class="wysiwyg" id="financialMemorandumDraft_text_${i.language.type}" name="financialMemorandumDraft_text_${i.language.type}" readonly="readonly">${i.text}</textarea>
+						<textarea class="wysiwyg financialMemorandumDraft" id="financialMemorandumDraft_text_${i.language.type}" name="financialMemorandumDraft_text_${i.language.type}" readonly="readonly">${i.text}</textarea>
 						<input type="hidden" name="financialMemorandumDraft_id_${i.language.type}" value="${i.id}">
 						<input type="hidden" name="financialMemorandumDraft_language_id_${i.language.type}" value="${i.language.id}">						
 					</p>
+					</div>
 				</c:forEach>
 			</div>
 		</fieldset>
-	</div>
+	</div>					
 	
-	<div>
+	<div id="statutoryMemorandumDrafts_div"  style="display:none; margin-top: 20px;">
 		<fieldset>
-			<legend style="text-align: left; width: 150px;"><label><spring:message code="bill.statutoryMemorandumDrafts" text="Statutory Memorandum" /></label></legend>
-			<div id="statutoryMemorandumDrafts_div">
+			<p style="margin-bottom: -20px;">
+			<c:set var="isFirstIcon" value="true"></c:set>
+			<c:forEach var="i" items="${statutoryMemorandumDrafts}" varStatus="position">
+			<c:choose>
+				<c:when test="${i.language.type!=defaultBillLanguage and isFirstIcon=='true'}">
+					<a href="#" class="toggleStatutoryMemorandumDraft" id="toggleStatutoryMemorandumDraft_${i.language.type}" style="margin-left: 165px;text-decoration: none;">
+						<img src="./resources/images/ico_${i.language.type}.jpg" title="${i.language.name}" class="imageLink" />
+					</a>
+					<c:set var="isFirstIcon" value="false"></c:set>
+				</c:when>
+				<c:when test="${i.language.type!=defaultBillLanguage and isFirstIcon!='true'}">
+					<a href="#" class="toggleStatutoryMemorandumDraft" id="toggleStatutoryMemorandumDraft_${i.language.type}" style="margin-left: 20px;text-decoration: none;">
+						<img src="./resources/images/ico_${i.language.type}.jpg" title="${i.language.name}" class="imageLink" />
+					</a>
+				</c:when>
+			</c:choose>					
+			</c:forEach>
+			</p>
+			<div>
 				<c:forEach var="i" items="${statutoryMemorandumDrafts}">
+					<div id="statutoryMemorandumDraft_para_${i.language.type}" style="display:none;">
 					<p>
 						<label class="wysiwyglabel">${i.language.name} <spring:message code="bill.statutoryMemorandumDraft" text="Statutory Memorandum"/></label>
-						<textarea class="wysiwyg" id="statutoryMemorandumDraft_text_${i.language.type}" name="statutoryMemorandumDraft_text_${i.language.type}" readonly="readonly">${i.text}</textarea>
+						<textarea class="wysiwyg statutoryMemorandumDraft" id="statutoryMemorandumDraft_text_${i.language.type}" name="statutoryMemorandumDraft_text_${i.language.type}" readonly="readonly">${i.text}</textarea>
 						<input type="hidden" name="statutoryMemorandumDraft_id_${i.language.type}" value="${i.id}">
 						<input type="hidden" name="statutoryMemorandumDraft_language_id_${i.language.type}" value="${i.language.id}">						
 					</p>
+					</div>
 				</c:forEach>
 			</div>
 		</fieldset>
@@ -298,7 +573,8 @@
 	<input type="hidden" id="task" name="task" value="${task}">	
 	<input type="hidden" id="workflowDetailsId" name="workflowDetailsId" value="${workflowDetailsId}">
 	<input type="hidden" id="workflowdetails" name="workflowdetails" value="${workflowdetails}">	
-	<input type="hidden" id="requestReceivedOn" name="requestReceivedOn" value="${requestReceivedOn }">		
+	<input type="hidden" id="requestReceivedOn" name="requestReceivedOn" value="${requestReceivedOn }">	
+	<input type="hidden" id="defaultBillLanguage" name="defaultBillLanguage" value="${defaultBillLanguage}">	
 </form:form>
 </div>
 </body>
