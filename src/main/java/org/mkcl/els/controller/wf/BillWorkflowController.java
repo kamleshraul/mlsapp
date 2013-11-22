@@ -305,38 +305,13 @@ public class BillWorkflowController extends BaseController {
 				}
 			}
 		}
-		
-		
-		/**** titles ****/
-		List<TextDraft> titles = new ArrayList<TextDraft>();
-		if(bill.getTitles()!=null && !bill.getTitles().isEmpty()) {
-			titles.addAll(bill.getTitles());
+		/**** titles, content drafts, 'statement of object and reason' drafts, memorandum drafts ****/
+		String defaultBillLanguage = bill.getSession().getParameter(deviceType.getType()+"_defaultTitleLanguage");
+		model.addAttribute("defaultBillLanguage", defaultBillLanguage);
+		boolean isSuccessful = populateAllTypesOfDrafts(model, bill, bill.getSession(), deviceType);
+		if(!isSuccessful) {
+			return;
 		}
-		model.addAttribute("titles", titles);
-		/**** content drafts ****/
-		List<TextDraft> contentDrafts = new ArrayList<TextDraft>();
-		if(bill.getContentDrafts()!=null && !bill.getContentDrafts().isEmpty()) {
-			contentDrafts.addAll(bill.getContentDrafts());
-		}
-		model.addAttribute("contentDrafts", contentDrafts);
-		/**** 'statement of object and reason' drafts ****/
-		List<TextDraft> statementOfObjectAndReasonDrafts = new ArrayList<TextDraft>();
-		if(bill.getStatementOfObjectAndReasonDrafts()!=null && !bill.getStatementOfObjectAndReasonDrafts().isEmpty()) {
-			statementOfObjectAndReasonDrafts.addAll(bill.getStatementOfObjectAndReasonDrafts());
-		}
-		model.addAttribute("statementOfObjectAndReasonDrafts", statementOfObjectAndReasonDrafts);
-		/**** 'financial memorandum' drafts ****/
-		List<TextDraft> financialMemorandumDrafts = new ArrayList<TextDraft>();
-		if(bill.getFinancialMemorandumDrafts()!=null && !bill.getFinancialMemorandumDrafts().isEmpty()) {
-			financialMemorandumDrafts.addAll(bill.getFinancialMemorandumDrafts());
-		}
-		model.addAttribute("financialMemorandumDrafts", financialMemorandumDrafts);
-		/**** 'statutory memorandum' drafts ****/
-		List<TextDraft> statutoryMemorandumDrafts = new ArrayList<TextDraft>();
-		if(bill.getStatutoryMemorandumDrafts()!=null && !bill.getStatutoryMemorandumDrafts().isEmpty()) {
-			statutoryMemorandumDrafts.addAll(bill.getStatutoryMemorandumDrafts());
-		}
-		model.addAttribute("statutoryMemorandumDrafts", statutoryMemorandumDrafts);
 		/**** Supporting Members ****/
 		List<Member> members=new ArrayList<Member>();
 		if(supportingMembers!=null){
@@ -1756,7 +1731,9 @@ public class BillWorkflowController extends BaseController {
 			if(actor==null){
 				CustomParameter defaultStatus=CustomParameter.findByName(CustomParameter.class,"BILL_OPINION_FROM_LAWANDJD_OPTIONS_"+deviceType.getType().toUpperCase()+"_"+houseTypeForWorkflow.getType().toUpperCase()+"_DEFAULT", "");
 				try {
-					opinionFromLawAndJDStatuses=Status.findStatusContainedIn(defaultStatus.getValue(), locale);
+					if(defaultStatus!=null) {
+						opinionFromLawAndJDStatuses=Status.findStatusContainedIn(defaultStatus.getValue(), locale);
+					}					
 				} catch (ELSException e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
@@ -1764,7 +1741,9 @@ public class BillWorkflowController extends BaseController {
 			}else if(actor.isEmpty()){
 				CustomParameter defaultStatus=CustomParameter.findByName(CustomParameter.class,"BILL_OPINION_FROM_LAWANDJD_OPTIONS_"+deviceType.getType().toUpperCase()+"_"+houseTypeForWorkflow.getType().toUpperCase()+"_DEFAULT", "");
 				try {
-					opinionFromLawAndJDStatuses=Status.findStatusContainedIn(defaultStatus.getValue(), locale);
+					if(defaultStatus!=null) {
+						opinionFromLawAndJDStatuses=Status.findStatusContainedIn(defaultStatus.getValue(), locale);
+					}
 				} catch (ELSException e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
