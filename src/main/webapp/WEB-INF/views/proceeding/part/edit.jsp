@@ -7,8 +7,8 @@
 	<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>	
 	<style type="text/css">
 		.imageLink{
-			width: 16px;
-			height: 16px;
+			width: 14px;
+			height: 14px;
 			box-shadow: 2px 2px 5px #000000;
 			border-radius: 5px;
 			padding: 2px;
@@ -390,8 +390,17 @@
 			loadSubDepartments($(this).val(),"substituteMemberSubDepartment");
 		});
 		
+		$('#party').change(function(){
+		 	$.get('proceeding/part/getMemberByPartyPage?partyId='+$(this).val(),function(data){
+	 			$.fancybox.open(data,{autoSize: false,width:800,height:500});
+			},'html'); 
+	 
+	    return false;
+		});
+		
 		$('#mainHeading-wysiwyg-iframe').css('height','124px');
 		$('#pageHeading-wysiwyg-iframe').css('height','124px');
+		$('#party').prepend("<option value='' selected='selected'>----"+$("#pleaseSelectMessage").val()+"----</option>");
 	});
 	
 	/****Function to get the selected text from iframe****/
@@ -469,20 +478,20 @@
 	<%@ include file="/common/info.jsp" %>
 	<h2><spring:message code="part.edit.heading" text="Part:ID"/>(${domain.id })		
 		<span style="margin-left: 200px;">
-				<a href='#' id="interruptedProceeding"><img src="./resources/images/IcoInterruptProceeding.png" title="Interrupted Proceeding" class="imageLink" /></a>
+				<a href='#' id="interruptedProceeding"><img src="./resources/images/interruptedProceeding.jpg" title="Interrupted Proceeding" class="imageLink" /></a>
 				<select id="searchBy" class="sSelect searchBy" style="display: none;">
 					<option class="searchBy" selected="selected" value='pageHeading'><spring:message code="part.pageHeading"/></option>
 					<option class="searchBy" value='mainHeading'><spring:message code="part.mainHeading"/></option>
 				</select>
-				<a href="#" id="mainHeadingLink"><img src="./resources/images/IcoMainHeading.jpg" title="Main Heading" class="imageLink" /></a>
-				<a href="#"  id="pageHeadingLink"><img src="./resources/images/IcoPageHeading.jpg" title="Page Heading"class="imageLink" /></a>
-				<a href="#" id="addBookmark" class="addBookmark" ><img src="./resources/images/IcoBookMark.jpg" title="Bookmark" class="imageLink" /></a>
-				<a href="#" id="viewProceedingCitation" class="viewProceedingCitation"><img src="./resources/images/IcoCitation.jpg" title="Citation" class="imageLink" /></a>
-				<a href="#" id="addDevice" class="addDevice"><img src="./resources/images/IcoDeviceType.jpg" title="Device" class="imageLink" /></a>
-				<a href='#' id="privateLink"><img src="./resources/images/IcoPrivateMember.jpg" title="Private" class="imageLink" /></a>
-				<a href='#' id="ministerLink"><img src="./resources/images/IcoMinister.jpg" title="Minister" class="imageLink" /></a>
-				<a href='#' id="publicLink"><img src="./resources/images/IcoPublicRepresentative.jpg" title="Public" class="imageLink" /></a>
-				<a href='#' id="substituteLink"><img src="./resources/images/IcoSubstitute.jpg" title="In place of" class="imageLink" /></a>
+				<a href="#" id="mainHeadingLink"><img src="./resources/images/mainHeading.jpg" title="Main Heading" class="imageLink" /></a>
+				<a href="#"  id="pageHeadingLink"><img src="./resources/images/pageHeading.jpg" title="Page Heading"class="imageLink" /></a>
+				<a href="#" id="addBookmark" class="addBookmark" ><img src="./resources/images/bookmark.jpg" title="Bookmark" class="imageLink" /></a>
+				<a href="#" id="viewProceedingCitation" class="viewProceedingCitation"><img src="./resources/images/citation.jpg" title="Citation" class="imageLink" /></a>
+				<a href="#" id="addDevice" class="addDevice"><img src="./resources/images/device.jpg" title="Device" class="imageLink" /></a>
+				<a href='#' id="privateLink"><img src="./resources/images/privateMember.jpg" title="Private" class="imageLink" /></a>
+				<a href='#' id="ministerLink"><img src="./resources/images/minister.jpg" title="Minister" class="imageLink" /></a>
+				<a href='#' id="publicLink"><img src="./resources/images/publicRepresentative.jpg" title="Public" class="imageLink" /></a>
+				<a href='#' id="substituteLink"><img src="./resources/images/substitute.jpg" title="In place of" class="imageLink" /></a>
 				<span style="min-width:100px; margin-right: 120px;">&nbsp;</span>
 				<span style="text-align: right;">
 				<a href="#" id="previousLink"><img src="./resources/images/IcoBack.jpg" title="Previous Part" class="imageLink" /></a>
@@ -524,8 +533,14 @@
 		<input type="text" name="formattedMember" id="formattedMember" class="autosuggest sText" value="${formattedPrimaryMember}"/>
 		<%-- <form:hidden path="primaryMember" value="${primaryMember}"/> --%>
 		<input type="hidden" id="primaryMember" name="primaryMember" value="${primaryMember}">
+		<label class="small"><spring:message code="part.party" text=" OR party"/></label>
+		<select id="party" class="sSelect">
+			<c:forEach items="${parties}" var="i">
+				<option value="${i.id}">${i.name}</option>
+			</c:forEach>
+		</select>
 		<div id="memberPhoto" style=" display: none;">
-			<img src="" id="memberImage" style="width:60px; margin-right: 445px; float:right; margin-top: -72px; border-radius: 5px; box-shadow: 1px 1px 5px black;"/> 
+			<img src="" id="memberImage" style="width:60px; margin-right: 65px; float:right; margin-top: -70px; border-radius: 5px; box-shadow: 1px 1px 5px black;"/> 
 		</div>
 	</p>
 	<p>

@@ -6,14 +6,29 @@
 	</title>
 	<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>	
 	<style type="text/css">
-		.imageLink{
+		 .imageLink{
 			width: 14px;
 			height: 14px;
 			box-shadow: 2px 2px 5px #000000;
 			border-radius: 5px;
 			padding: 2px;
 			border: 1px solid #000000; 
+		} 
+		
+		.imgLink{
+			background-color: #256498;
+    		border: 1px solid #FFFFFF ;
+  		  	color: #FFFFFF;
+  		 	font-size: 10px;
+  		 	font-family:verdana;
+  			text-decoration: none;
+	   		text-shadow: 2px 1px 1px #000000;
+	   		padding-left:2px;
+	   		box-shadow:2px 1px 2px #000000;
+	   		padding-right:2px;
 		}
+		
+		
 		
 		.imageLink:hover{
 			box-shadow: 2px 2px 5px #888888;
@@ -140,8 +155,11 @@
 									'&proceeding='+$('#proceeding').val()+
 									'&partId='+$('#id').val()+
 									'&orderNo='+$('#orderNo').val(),function(data){
-								$('#id').val(data);
 								
+									$('#id').val(data.id);
+									$('#version').val(data.name);
+								
+							
 							});
 						}
 						if(j==0 && e.which==17){
@@ -387,42 +405,7 @@
 			});
 			
 			$('#party').change(function(){
-				
-				/*  $.get('proceeding/part/getMemberByParty?partyId='+$(this).val(),function(data){
-					var text="";
-					for(var i=0;i<data.length;i++){
-						 text=text+"<a href='javascript:void(0)' rel='member' class='memberImgA' title='"+data[i].firstName+"'>"+
-									"<img src='ref/getphoto?memberId="+data[i].id+"'  id='memImageA' style='width: 60px;'/>"+
-									"</a>";
-					}
-					$('#memberPic').html(text);
-					$("#memberPic").fancybox();
-					/*  $('.memberImgA').attr('rel', 'member')
-									.fancybox({
-										type:'image'
-									});  
-				}); */  
-				 /* $.get('proceeding/part/getMemberByParty?partyId='+$(this).val(),function(data){
-				  	 strPath = Array();
-					for(var i=0;i<data.length;i++){
-				  		strPath[i]={'href':'ref/getphoto?memberId='+data[i].id};
-				  	}
-					$.fancybox.open(
-							strPath,
-							{
-							type:'html',
-							helpers : {	
-								thumbs : {
-								width: 100,
-								height: 132
-								}
-							},
-							autoSize: false, 
-							width:800,
-							height:500
-						});
-			 	});  */
-			 	$.get('proceeding/part/getMemberByPartyPage?partyId='+$(this).val(),function(data){
+				 	$.get('proceeding/part/getMemberByPartyPage?partyId='+$(this).val(),function(data){
 			 			$.fancybox.open(data,{autoSize: false,width:800,height:500});
 					},'html'); 
 			 
@@ -520,30 +503,34 @@
 			<spring:message code="proceeding.slot" text="Slot"></spring:message>
 			: ${slotName}
 			
-			
+			<div style="margin-bottom:10px;display:inline-block; ">
 			<span style="margin-left: 20px;">
-			<a href='#' id="interruptedProceeding"><img src="./resources/images/IcoInterruptProceeding.png" title="Interrupted Proceeding" class="imageLink" /></a>
+			
+			<a href='#' id="interruptedProceeding" class="imgLink">IP<!-- <img src="./resources/images/interruptedProceeding.jpg" title="Interrupted Proceeding" class="imageLink" /> --></a>
 			<select id="searchBy" class="sSelect searchBy" style="display: none;">
 				<option class="searchBy" selected="selected" value='pageHeading'><spring:message code="part.pageHeading"/></option>
 				<option class="searchBy" value='mainHeading'><spring:message code="part.mainHeading"/></option>
 			</select>
-			<a href="#" id="mainHeadingLink"><img src="./resources/images/IcoMainHeading.jpg" title="Main Heading" class="imageLink" /></a>
-			<a href="#"  id="pageHeadingLink"><img src="./resources/images/IcoPageHeading.jpg" title="Page Heading" class="imageLink" /></a>
-			<a href="#" id="addBookmark" class="addBookmark" ><img src="./resources/images/IcoBookMark.jpg" class="imageLink" title="Bookmark" /></a>
-			<a href="#" id="viewProceedingCitation" class="viewProceedingCitation"><img src="./resources/images/IcoCitation.jpg" class="imageLink" title="Citation" /></a>
-			<a href="#" id="addDevice" class="addDevice"><img src="./resources/images/IcoDeviceType.jpg" title="Device" class="imageLink"/></a>
-			<a href='#' id="privateLink" style="display:none;"><img src="./resources/images/IcoPrivateMember.jpg" title="Private" class="imageLink" /></a>
-			<a href='#' id="ministerLink"><img src="./resources/images/IcoMinister.jpg" title="Minister"  class="imageLink"/></a>
-			<a href='#' id="publicLink"><img src="./resources/images/IcoPublicRepresentative.jpg" title="Public" class="imageLink" /></a>
-			<a href='#' id="substituteLink"><img src="./resources/images/IcoSubstitute.jpg" title="In place of" class="imageLink"/></a>
+			<a href="#" id="mainHeadingLink" class="imgLink">MH<!-- <img src="./resources/images/mainHeading.jpg" title="Main Heading" class="imageLink" /> --></a>
+			<a href="#"  id="pageHeadingLink" class="imgLink">PH<!-- <img src="./resources/images/pageHeading.jpg" title="Page Heading" class="imageLink" /> --></a>
+			<a href="#" id="addBookmark" class="addBookmark imgLink" >BK<!-- <img src="./resources/images/bookmark.jpg" class="imageLink" title="Bookmark" /> --></a>
+			<a href="#" id="viewProceedingCitation" class="viewProceedingCitation imgLink">CT<!-- <img src="./resources/images/citation.jpg" class="imageLink" title="Citation" /> --></a>
+			<a href="#" id="addDevice" class="addDevice imgLink">DE<!-- <img src="./resources/images/device.jpg" title="Device" class="imageLink"/> --></a>
+			<a href='#' id="privateLink" style="display:none;"  class="imgLink">PM<!-- <img src="./resources/images/privateMember.jpg" title="Private" class="imageLink" /> --></a>
+			<a href='#' id="ministerLink"  class="imgLink">MI<!-- <img src="./resources/images/minister.jpg" title="Minister"  class="imageLink"/> --></a>
+			<a href='#' id="publicLink"  class="imgLink">PU<!-- <img src="./resources/images/publicRepresentative.jpg" title="Public" class="imageLink" /> --></a>
+			<a href='#' id="substituteLink" class="imgLink" >SU<!-- <img src="./resources/images/substitute.jpg" title="In place of" class="imageLink"/> --></a>
 			<span style="min-width:80px; margin-right: 100px;">&nbsp;</span>
 			<span style="text-align: right;">
-			<a href="#" id="previousLink"><img src="./resources/images/IcoBack.jpg" title="Previous Part" class="imageLink"  /></a>
+			<a href="#" id="previousLink" class="imgLink">&lt;<!-- <img src="./resources/images/IcoBack.jpg" title="Previous Part" class="imageLink"  /> --></a>
 			<input type="text" id="orderNoInput" name="orderNoInput" style="width: 60px"/>
 			<!-- <input type="button" id="go" name="go" value="Go" style="width: 21px"/> --> 	
-			<a href="#" id="nextLink"><img src="./resources/images/IcoNext.jpg" class="imageLink" title="Next Part"/></a>
+			<a href="#" id="nextLink" class="imgLink">&gt;<!-- <img src="./resources/images/IcoNext.jpg" class="imageLink" title="Next Part"/> --></a>
+			
 			</span>
+			
 		</span>
+		</div>
 	</h2>
 	
 	
@@ -576,7 +563,7 @@
 			</c:forEach>
 		</select>
 		<div id="memberPhoto" style=" display: none;">
-			<img src="" id="memberImage" style="width:60px; margin-right: 445px; float:right; margin-top: -72px; border-radius: 5px; box-shadow: 1px 1px 5px black;"/> 
+			<img src="" id="memberImage" style="width:60px; margin-right: 65px; float:right; margin-top: -70px; border-radius: 5px; box-shadow: 1px 1px 5px black;"/> 
 		</div>
 	</p>
 	
@@ -722,9 +709,6 @@
 	<div id="interruptProceedingDiv" style="height:auto;width:400px; display:none; border:1px solid black; padding:5px; border-radius:5px; box-shadow:2px 2px 5px; position:absolute;"> 
 		<select id="iProceeding" style="width:400px;">
 		</select>
-	</div>	
-	<div id="memberPic">
-		
 	</div>	
 	
 </form:form>
