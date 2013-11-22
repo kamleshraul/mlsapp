@@ -951,6 +951,11 @@ public class ProceedingController extends GenericController<Proceeding>{
 		/****DeviceTypes****/
 		List<DeviceType> deviceTypes=DeviceType.findAll(DeviceType.class, "name", "asc", domain.getLocale());
 		model.addAttribute("deviceTypes", deviceTypes);
+		
+		/****Party****/
+		List<Party> parties=Party.findActiveParties(domain.getLocale());
+		model.addAttribute("parties", parties);
+		
 		//this is done so as to remove the bug due to which update message appears even though there
 		//is a fresh new/edit request i.e after creating/updating records if we click on
 		//new /edit then success message appears
@@ -1146,7 +1151,7 @@ public class ProceedingController extends GenericController<Proceeding>{
 	}
 	
 	@RequestMapping(value="/part/save",method=RequestMethod.POST)
-	public @ResponseBody Long savePart(final HttpServletRequest request, final Locale locale,final ModelMap model){
+	public @ResponseBody MasterVO savePart(final HttpServletRequest request, final Locale locale,final ModelMap model){
 		String strProceedingText=request.getParameter("content");
 		String strMember=request.getParameter("primaryMember");
 		String strProceeding=request.getParameter("proceeding");
@@ -1155,6 +1160,7 @@ public class ProceedingController extends GenericController<Proceeding>{
 		String strPublicRepresentative=request.getParameter("publicRepresentative");
 		String strPartId=request.getParameter("partId");
 		String strOrderNo=request.getParameter("orderNo");
+		MasterVO masterVO=new MasterVO();
 		if( strProceedingText!=null && !strProceedingText.isEmpty()
 			&& strProceeding!=null && !strProceeding.isEmpty()){
 			Part part=null;
@@ -1204,7 +1210,9 @@ public class ProceedingController extends GenericController<Proceeding>{
 			}else{
 				((BaseDomain)part).persist();
 			}
-			return ((BaseDomain)part).getId();
+			masterVO.setId(((BaseDomain)part).getId());
+			masterVO.setName(((BaseDomain)part).getVersion().toString());
+			return masterVO;
 		}
 		return null;
 		
