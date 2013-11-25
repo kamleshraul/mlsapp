@@ -1043,6 +1043,7 @@
 				});
 				var admit=$("#internalStatusMaster option[value='bill_recommend_admission']").text();			
 				var reject=$("#internalStatusMaster option[value='bill_recommend_rejection']").text();
+				var nameclub=$("#internalStatusMaster option[value='bill_recommend_nameclubbing']").text();
 				var translate=$("#internalStatusMaster option[value='bill_recommend_translation']").text();
 				var opinion_from_lawandjd=$("#internalStatusMaster option[value='bill_recommend_opinionFromLawAndJD']").text();
 				var recommendation_from_governor=$("#internalStatusMaster option[value='bill_recommend_recommendationFromGovernor']").text();
@@ -1114,6 +1115,9 @@
 						}
 						promptMessage = $('#sendForRecommendationFromPresidentPrompt').val();
 						operation = "sendForRecommendationFromPresident";
+					} else if(actionForUpdation==nameclub) {
+						promptMessage = $('#sendForNameclubbingPrompt').val();
+						operation = "sendForNameclubbing";
 					} else if(actionForUpdation==admit || actionForUpdation==reject) {
 						if($('#opinionSoughtFromLawAndJD').val()=='') {
 							$.prompt("Opinion is not received yet from Law & Judiciary Department. So Bill cannot be put up.");
@@ -2367,6 +2371,7 @@
 				<input id="sendForOpinionFromLawAndJDMessage" name="sendForOpinionFromLawAndJDMessage" value="<spring:message code='bill.sendForOpinionFromLawAndJDMessage' text='Do You Want To Send for Opinion Seeking From Law And Judiciary Department?'></spring:message>" type="hidden">
 				<input id="sendForRecommendationFromGovernorPrompt" value="<spring:message code='bill.sendForRecommendationFromGovernorPrompt' text='Do You Want To Send for Recommendation From Governor?'></spring:message>" type="hidden">
 				<input id="sendForRecommendationFromPresidentPrompt" value="<spring:message code='sendForRecommendationFromPresidentPrompt' text='Do You Want To Send for Recommendation From President?'></spring:message>" type="hidden">
+				<input id="sendForNameclubbingPrompt" value="<spring:message code='bill.sendForNameclubbingPrompt' text='Do You Want To Send for Name Clubbing?'></spring:message>" type="hidden">
 				<input id="startWorkflowMessage" name="startWorkflowMessage" value="<spring:message code='bill.startworkflowmessage' text='Do You Want To Put Up Bill?'></spring:message>" type="hidden">
 				<input id="billsSubmittedEarierPendingForPutupWarning" value="<spring:message code='bill.billsSubmittedEarierPendingForPutupWarning' text='There are bills submitted earier & pending for putup.. Do You Still Want To Put Up Bill?'></spring:message>" type="hidden">
 				<input id="translationPendingMessage" value="<spring:message code='bill.translationPendingMessage' text='Translation is neither received or timed out.. So Bill cannot be put up.'></spring:message>" type="hidden">
