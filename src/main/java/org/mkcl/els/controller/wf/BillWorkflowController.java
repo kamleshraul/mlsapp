@@ -2336,6 +2336,99 @@ public class BillWorkflowController extends BaseController {
 				}
 			}			
 		}
+//		if(workflowDetails.getWorkflowType().equals(ApplicationConstants.TRANSLATION_WORKFLOW)
+//				&& workflowDetails.getAssigneeUserGroupType().equals(ApplicationConstants.TRANSLATOR)) {
+//			Bill bill = Bill.findById(Bill.class, domain.getId());	
+//			/**** add/update titles in domain ****/
+//			List<TextDraft> titles = this.updateDraftsOfGivenType(bill, "title", request);
+//			bill.setTitles(titles);	
+//			/**** add/update revised titles in domain ****/
+//			List<TextDraft> revisedTitles = this.updateDraftsOfGivenType(bill, "revised_title", request);
+//			bill.setRevisedTitles(revisedTitles);
+//			/**** add/update content drafts in domain ****/
+//			List<TextDraft> contentDrafts = this.updateDraftsOfGivenType(bill, "contentDraft", request);
+//			bill.setContentDrafts(contentDrafts);	
+//			/**** add/update revised content drafts in domain ****/
+//			List<TextDraft> revisedContentDrafts = this.updateDraftsOfGivenType(bill, "revised_contentDraft", request);
+//			bill.setRevisedContentDrafts(revisedContentDrafts);	
+//			/**** add/update 'statement of object and reason drafts' in domain ****/
+//			List<TextDraft> statementOfObjectAndReasonDrafts = this.updateDraftsOfGivenType(bill, "statementOfObjectAndReasonDraft", request);		
+//			bill.setStatementOfObjectAndReasonDrafts(statementOfObjectAndReasonDrafts);
+//			/**** add/update revised 'statement of object and reason drafts' in domain ****/
+//			List<TextDraft> revisedStatementOfObjectAndReasonDrafts = this.updateDraftsOfGivenType(bill, "revised_statementOfObjectAndReasonDraft", request);		
+//			bill.setRevisedStatementOfObjectAndReasonDrafts(revisedStatementOfObjectAndReasonDrafts);	
+//			/**** add/update financial memorandum drafts in domain ****/
+//			List<TextDraft> financialMemorandumDrafts = this.updateDraftsOfGivenType(bill, "financialMemorandumDraft", request);		
+//			bill.setFinancialMemorandumDrafts(financialMemorandumDrafts);
+//			/**** add/update revised financial memorandum drafts in domain ****/
+//			List<TextDraft> revisedFinancialMemorandumDrafts = this.updateDraftsOfGivenType(bill, "revised_financialMemorandumDraft", request);		
+//			bill.setRevisedFinancialMemorandumDrafts(revisedFinancialMemorandumDrafts);	
+//			/**** add/update statutory memorandum drafts in domain ****/
+//			List<TextDraft> statutoryMemorandumDrafts = this.updateDraftsOfGivenType(bill, "statutoryMemorandumDraft", request);
+//			bill.setStatutoryMemorandumDrafts(statutoryMemorandumDrafts);
+//			/**** add/update revised statutory memorandum drafts in domain ****/
+//			List<TextDraft> revisedStatutoryMemorandumDrafts = this.updateDraftsOfGivenType(bill, "revised_statutoryMemorandumDraft", request);
+//			bill.setRevisedStatutoryMemorandumDrafts(revisedStatutoryMemorandumDrafts);
+//			bill.setEditedOn(new Date());
+//			bill.setEditedBy(this.getCurrentUser().getActualUsername());
+//			bill.setEditedAs(workflowDetails.getAssigneeUserGroupName());
+//			bill.merge();
+//			if(request.getParameter("operation")!=null && !request.getParameter("operation").isEmpty()) {
+//				if(request.getParameter("operation").equals("saveTranslation")) {
+//					model.addAttribute("type","success");
+//					model.addAttribute("workflowdetails",workflowDetails.getId());
+//					model.addAttribute("workflowstatus",workflowDetails.getStatus());
+//					model.addAttribute("workflowtype", workflowDetails.getWorkflowType());
+//					model.addAttribute("workflowsubtype", workflowDetails.getWorkflowSubType());
+//					populateModel(bill, model, request, workflowDetails);
+//					String userGroupType = workflowDetails.getAssigneeUserGroupType();
+//					return "workflow/bill/"+userGroupType;
+//				} else if(request.getParameter("operation").equals("sendTranslation")) {
+//					String endflag=domain.getEndFlagForTranslation();
+//					Map<String,String> properties=new HashMap<String, String>();
+//					String level="";
+//					String nextUserGroupType="";
+//					String nextuser = request.getParameter("actorForWorkflow");
+//					if(nextuser!=null){
+//						if(!nextuser.isEmpty()){
+//							String[] temp=nextuser.split("#");
+//							nextUserGroupType=temp[1];
+//							properties.put("pv_user",temp[0]);
+//							level=temp[2];
+//						}
+//					}
+//					properties.put("pv_deviceId",String.valueOf(bill.getId()));
+//					properties.put("pv_deviceTypeId",String.valueOf(bill.getType().getId()));		
+//					properties.put("pv_endflag", endflag);
+//					properties.put("pv_timerflag", "off");
+//					properties.put("pv_mailflag", "off");		
+//					String strTaskId=workflowDetails.getTaskId();
+//					Task task=processService.findTaskById(strTaskId);
+//					processService.completeTask(task,properties);		
+//					if(endflag!=null){
+//						if(!endflag.isEmpty()){
+//							if(endflag.equals("continue")){					
+//								ProcessInstance processInstance = processService.findProcessInstanceById(task.getProcessInstanceId());
+//								Task newtask=processService.getCurrentTask(processInstance);
+//								/**** Workflow Detail entry made only if its not the end of workflow ****/
+//								WorkflowDetails.create(domain,newtask,workflowDetails.getWorkflowType(),nextUserGroupType,level);
+//							}
+//						}
+//					}
+//					workflowDetails.setStatus("COMPLETED");
+//					workflowDetails.setCompletionTime(new Date());			
+//					workflowDetails.merge();
+//					/**** Stale State Exception ****/		
+//					Bill billUpdated=Bill.findById(Bill.class,bill.getId());
+//					Status translationCompletedStatus = Status.findByType(ApplicationConstants.BILL_TRANSLATION_COMPLETED, bill.getLocale());
+//					billUpdated.setTranslationStatus(translationCompletedStatus);
+//					billUpdated.simpleMerge();
+//					/**** display message ****/
+//					model.addAttribute("type","taskcompleted");
+//					return "workflow/info";					
+//				}
+//			}
+//		}
 		/**** Binding Supporting Members ****/
 		String[] strSupportingMembers=request.getParameterValues("selectedSupportingMembers");
 		List<SupportingMember> members=new ArrayList<SupportingMember>();
@@ -2372,7 +2465,7 @@ public class BillWorkflowController extends BaseController {
 			}			
 		}
 		
-		/***** To retain the referred act when moving through workflow ****/
+		/***** To retain the referred ordinance when moving through workflow ****/
 		if(domain.getBillType() != null){
 			if(domain.getBillType().getType().equals(ApplicationConstants.ORDINANCE_REPLACEMENT_BILL)){
 				String refOrdinance = request.getParameter("referredOrdinance");
@@ -2542,110 +2635,6 @@ public class BillWorkflowController extends BaseController {
 		/**** add/update revised annexures for amending bill in domain ****/
 		List<TextDraft> revisedAnnexuresForAmendingBill = this.updateDraftsOfGivenType(domain, "revised_annexureForAmendingBill", request);
 		domain.setRevisedAnnexuresForAmendingBill(revisedAnnexuresForAmendingBill);
-		
-//		/**** Update Print Requisition ****/
-//		if(domain.getStatus().getType().equals(ApplicationConstants.BILL_FINAL_ADMISSION) 
-//				&& domain.getInternalStatus().getType().equals(ApplicationConstants.BILL_FINAL_ADMISSION) 
-//				//&& domain.getRecommendationStatus().getType().equals(ApplicationConstants.BILL_PROCESSED_SENDTOSECTIONOFFICER)
-//				&& (workflowDetails.getAssigneeUserGroupType().equals(ApplicationConstants.ASSISTANT)
-//						|| workflowDetails.getAssigneeUserGroupType().equals(ApplicationConstants.SECTION_OFFICER))) {
-//			Map<String, String> printRequisitionIdentifiers = new HashMap<String, String>();
-//			printRequisitionIdentifiers.put("requisitionFor", ApplicationConstants.BILL_PRESS_COPY);
-//			printRequisitionIdentifiers.put("deviceId", String.valueOf(domain.getId()));
-//			printRequisitionIdentifiers.put("status", ApplicationConstants.BILL_FINAL_ADMISSION);
-//			PrintRequisition printRequisition = PrintRequisition.findByFieldNames(PrintRequisition.class, printRequisitionIdentifiers, domain.getLocale());			
-//			Map<String, String> fields = new HashMap<String, String>();
-//			if(printRequisition!=null) {
-//				fields = printRequisition.getFields();
-//				if(fields==null) {
-//					fields = new HashMap<String, String>();
-//				}
-//			}
-//			@SuppressWarnings("rawtypes")
-//			Enumeration paramNames = request.getParameterNames();
-//			if (paramNames != null) {
-//				while (paramNames.hasMoreElements()) {
-//					String paramName = (String) paramNames.nextElement();
-//					if(paramName.startsWith(ApplicationConstants.BILL_PRESS_COPY)) {						
-//						String paramValue = request.getParameter(paramName);
-//						if ((paramValue != null)) {
-//							if(paramValue.isEmpty()){
-//								if(fields.containsKey(paramName)){
-//									fields.remove(paramName);
-//								}
-//							}
-//							else {
-//								fields.put(paramName.split("#")[1], paramValue);
-//							}
-//						}
-//					}
-//				}
-//			}
-//			if(printRequisition!=null) {
-//				printRequisition.setFields(fields);
-//				if(request.getParameter("docketReportEnglish")!=null) {
-//					printRequisition.setDocketReportEnglish(request.getParameter("docketReportEnglish"));
-//				}
-//				if(request.getParameter("docketReportMarathi")!=null) {
-//					printRequisition.setDocketReportMarathi(request.getParameter("docketReportMarathi"));
-//				}
-//				if(request.getParameter("docketReportHindi")!=null) {
-//					printRequisition.setDocketReportHindi(request.getParameter("docketReportHindi"));
-//				}				 
-//				if(request.getParameterValues("optionalFieldsForDocket")!=null) {
-//					String optionalFieldsForDocket = "";
-//					for(int i=0; i<request.getParameterValues("optionalFieldsForDocket").length;i++) {
-//						if(i==request.getParameterValues("optionalFieldsForDocket").length-1) {
-//							optionalFieldsForDocket += request.getParameterValues("optionalFieldsForDocket")[i];
-//						} else {
-//							optionalFieldsForDocket += request.getParameterValues("optionalFieldsForDocket")[i] + "#";
-//						}
-//					}
-//					if(!optionalFieldsForDocket.isEmpty()) {
-//						printRequisition.setOptionalFieldsForDocket(optionalFieldsForDocket);
-//					} else {
-//						printRequisition.setOptionalFieldsForDocket(null);
-//					}
-//				}
-//				printRequisition.merge();
-//			} else {
-//				printRequisition = new PrintRequisition();
-//				printRequisition.setRequisitionFor(ApplicationConstants.BILL_PRESS_COPY);
-//				printRequisition.setDeviceId(String.valueOf(domain.getId()));
-//				printRequisition.setStatus(ApplicationConstants.BILL_FINAL_ADMISSION);
-//				for(Entry i:fields.entrySet()) {
-//					System.out.println(i.getKey()+": "+i.getValue());
-//				}
-//				printRequisition.setFields(fields);
-//				if(request.getParameter("docketReportEnglish")!=null) {
-//					printRequisition.setDocketReportEnglish(request.getParameter("docketReportEnglish"));
-//				}
-//				if(request.getParameter("docketReportMarathi")!=null) {
-//					printRequisition.setDocketReportMarathi(request.getParameter("docketReportMarathi"));
-//				}
-//				if(request.getParameter("docketReportHindi")!=null) {
-//					printRequisition.setDocketReportHindi(request.getParameter("docketReportHindi"));
-//				}
-//				if(request.getParameterValues("optionalFieldsForDocket")!=null) {
-//					String optionalFieldsForDocket = "";
-//					for(int i=0; i<request.getParameterValues("optionalFieldsForDocket").length;i++) {
-//						if(i==request.getParameterValues("optionalFieldsForDocket").length-1) {
-//							optionalFieldsForDocket = request.getParameterValues("optionalFieldsForDocket")[i];
-//						} else {
-//							optionalFieldsForDocket = request.getParameterValues("optionalFieldsForDocket")[i] + "#";
-//						}
-//					}
-//					if(!optionalFieldsForDocket.isEmpty()) {
-//						printRequisition.setOptionalFieldsForDocket(optionalFieldsForDocket);
-//					} else {
-//						printRequisition.setOptionalFieldsForDocket(null);
-//					}
-//				}
-//				printRequisition.setLocale(domain.getLocale());
-//				printRequisition.setVersion(new Long(0));
-//				printRequisition.persist();
-//			}
-//		}
 		
 		/**** preserve fields not in form for specific actors in specific workflows  ****/
 		if(workflowDetails.getWorkflowType().equals(ApplicationConstants.TRANSLATION_WORKFLOW)
