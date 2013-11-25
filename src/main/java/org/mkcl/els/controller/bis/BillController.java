@@ -3352,6 +3352,59 @@ public class BillController extends GenericController<Bill> {
 //					bill.setFileIndex(null);
 //					bill.setFileSent(false);
 					bill.simpleMerge();					
+				} else if(operation.equals("sendForNameclubbing")) {					
+						ProcessDefinition processDefinition=processService.findProcessDefinitionByKey(ApplicationConstants.APPROVAL_WORKFLOW);
+						Map<String,String> properties=new HashMap<String, String>();					
+						/**** Next user and usergroup ****/
+						String nextuser=request.getParameter("actorForWorkflow");
+						String nextUserGroupType="";
+						String level="";
+						if(nextuser!=null){
+							if(!nextuser.isEmpty()){
+								String[] temp=nextuser.split("#");
+								properties.put("pv_user",temp[0]);
+								nextUserGroupType=temp[1];
+								level=temp[2];
+							}
+						}
+						String endflag=domain.getEndFlag();
+						properties.put("pv_endflag",endflag);	
+						properties.put("pv_deviceId",String.valueOf(domain.getId()));
+						properties.put("pv_deviceTypeId",String.valueOf(domain.getType().getId()));
+						ProcessInstance processInstance=processService.createProcessInstance(processDefinition, properties);
+						/**** Stale State Exception ****/
+						Bill bill=Bill.findById(Bill.class,domain.getId());
+						/**** Process Started and task created ****/
+						Task task=processService.getCurrentTask(processInstance);
+						if(endflag!=null){
+							if(!endflag.isEmpty()){
+								if(endflag.equals("continue")){
+									/**** Workflow Detail entry made only if its not the end of workflow ****/
+									String workflowDetailsType = "";
+									if(domain.getInternalStatus().getType().equals(ApplicationConstants.BILL_RECOMMEND_NAMECLUBBING)) {
+										workflowDetailsType = ApplicationConstants.NAMECLUBBING_WORKFLOW;
+									} else {
+										workflowDetailsType = ApplicationConstants.APPROVAL_WORKFLOW;
+									}
+									WorkflowDetails workflowDetails = WorkflowDetails.create(domain,task,workflowDetailsType,nextUserGroupType,level);
+									bill.setWorkflowDetailsId(workflowDetails.getId());
+								}
+							}
+						}
+						/**** Workflow Started ****/
+						bill.setWorkflowStarted("YES");
+						bill.setWorkflowStartedOn(new Date());
+						bill.setTaskReceivedOn(new Date());
+						bill.setActor(request.getParameter("actorForWorkflow"));
+						bill.setLocalizedActorName(request.getParameter("localizedActorNameForWorkflow"));
+						bill.setLevel(request.getParameter("levelForWorkflow"));
+						/**** If question is sent individually then its file's parameters is set to null i.e 
+						 * it is removed from file ****/
+//						bill.setFile(null);
+//						bill.setFileIndex(null);
+//						bill.setFileSent(false);
+						bill.simpleMerge();		
+						
 				} else if(operation.equals("startworkflow")){
 					ProcessDefinition processDefinition=processService.findProcessDefinitionByKey(ApplicationConstants.APPROVAL_WORKFLOW);
 					Map<String,String> properties=new HashMap<String, String>();					
