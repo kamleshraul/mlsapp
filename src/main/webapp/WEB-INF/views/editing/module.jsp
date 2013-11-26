@@ -16,23 +16,33 @@
 			$("#send_speaker").css('background-color','#ffffff');
 			$("#messageDiv").hide();
 		}
+		function hideSSSM(){
+			$(".sm").hide();
+			$(".ss").hide();
+		}
+		function showSSSM(){
+			$(".sm").show();
+			$(".ss").show();
+		}
+		
 		$(document).ready(function(){
-			
+			hideSSSM();
 			$("selectMemberDevicesDiv").hide();
-			
+						
 			$(document).click(function(e){
 				var tId=$(e.target).attr('id');
-				if(tId=='sendToMember'){
-					$("#selectMemberDevicesDiv").hide();					
-					sendToMember();
-				}
-				
-				//console.log($(e.target).parent());				
-				
-				if(tId!='selectMemberDevicesDiv' && tId!='selectMemberDevices' && tId!='send_member' && $($(e.target).parent()).attr('id')!='selectMemberDevices'){
-					$("#selectMemberDevicesDiv").hide();
-				}
-				
+				if($("#selectMemberDevices").val() != null){
+					if(tId=='sendToMember'){
+						$("#selectMemberDevicesDiv").hide();					
+						sendToMember();
+					}
+					
+					//console.log($(e.target).parent());				
+					
+					if(tId!='selectMemberDevicesDiv' && tId!='selectMemberDevices' && tId!='send_member' && $($(e.target).parent()).attr('id')!='selectMemberDevices'){
+						$("#selectMemberDevicesDiv").hide();
+					}
+				}				
 				if($("#messageDiv").css('background-color')!='transparent'){
 					$("#messageDiv").hide();	
 				}
@@ -115,6 +125,7 @@
 			$('#list_tab').click(function(){
 				showRosterList(); 	
 				hideEditingFilters();
+				hideSSSM();
 			}); 
 			/***** Details Tab ****/
 			$('#details_tab').click(function(){
@@ -165,6 +176,7 @@
 			
 			$("#send_member").click(function(){
 				var offset=$(this).offset();	
+				console.log(offset.left+":"+ offset.top);
 				loadDevicesInRosterProceeding(offset);			
 				
 				/* var params="?userGroup="+$("#userGroup").val()
@@ -261,33 +273,33 @@
 			+ '&day=' +$('#selectedDay').val();
 			if($("#selectMemberDevices").val()!=null){
 				params+="&devices=" +  $("#selectMemberDevices").val();
-			}
-			$.prompt($('#sentForApproval').val(),{
-				buttons: {Ok:true, Cancel:false}, callback: function(v){
-			    if(v){
-					$.blockUI({ message: '<img src="./resources/images/waitAnimated.gif" />' }); 			        
-						$.post("editing/startworkflow"+params,function(data){
-							if(data=='SUCCESS'){
-								//$("#send_member").css('background-color','#2CC904');
-								//$("#send_member").css({'background-color':'#2CC904','border-radius':'5px'});
-								$("#messageDiv").css({'display':'block','background-color': '#05B005', 'border-radius': '5px'}).html($("#sentSuccess").val());
+				$.prompt($('#sentForApproval').val(),{
+					buttons: {Ok:true, Cancel:false}, callback: function(v){
+				    if(v){
+						$.blockUI({ message: '<img src="./resources/images/waitAnimated.gif" />' }); 			        
+							$.post("editing/startworkflow"+params,function(data){
+								if(data=='SUCCESS'){
+									//$("#send_member").css('background-color','#2CC904');
+									//$("#send_member").css({'background-color':'#2CC904','border-radius':'5px'});
+									$("#messageDiv").css({'display':'block','background-color': '#05B005', 'border-radius': '5px'}).html($("#sentSuccess").val());
+									
+									/* $('html, body').animate({
+								        scrollTop: $("#send_member").offset().top
+								    }, 100); */
+									$.unblockUI();
+								}else{
+									$.unblockUI();
+									$("#messageDiv").css({'display':'block','background-color': '#C41700', 'color':'#ffffff', 'border-radius': '5px'}).html($("#sentFailure").val());
+								}
 								
-								/* $('html, body').animate({
-							        scrollTop: $("#send_member").offset().top
-							    }, 100); */
-								$.unblockUI();
-							}else{
+							}).fail(function(){
 								$.unblockUI();
 								$("#messageDiv").css({'display':'block','background-color': '#C41700', 'color':'#ffffff', 'border-radius': '5px'}).html($("#sentFailure").val());
-							}
-							
-						}).fail(function(){
-							$.unblockUI();
-							$("#messageDiv").css({'display':'block','background-color': '#C41700', 'color':'#ffffff', 'border-radius': '5px'}).html($("#sentFailure").val());
-						});
-						scrollTop();
-			        }
-			}});
+							});
+							scrollTop();
+				        }
+				}});
+			}
 		}
 		
 		/**** displaying grid ****/					
@@ -443,7 +455,9 @@
 			+ '&pageheader=' + $("#selectedPageheader").val()
 			+ '&userGroup=' + $("#userGroup").val()
 			+ '&userGroupType=' + $("#userGroupType").val();
-			
+			if(command=='edited' || command=='edit'){
+				showSSSM();
+			}
 			showTabByIdAndUrl('details_tab', 'editing/compiledreport?'+params);
 		}
 		/**** double clicking record in grid handler ****/		
@@ -598,7 +612,7 @@
 						
 						var top=offset.top;
 						var left=offset.left;
-						$("#selectMemberDevicesDiv").css({'left':left+'px','top':top+'px','display':'block'}).slideDown(5000);
+						$("#selectMemberDevicesDiv").css({'left':(left-$("#selectMemberDevicesDiv").width())+'px','bottom':10+'px','display':'block'}).slideDown(5000);
 						//$("#selectMemberDevices").multiSelect();
 						//$("#selectMemberDevicesDiv").show();
 				}else{
@@ -786,13 +800,17 @@
 					</a> |
 					<a href="#" id="vishaysuchi" class="butSim">
 						<spring:message code="editor.vishaysuchi" text="Vishaysuchi"/>
-					</a> |
-					<a href="javascript:void(0);" id="send_member" class="butSim">
-						<spring:message code="editor.send.member" text="Send To Member"/>
-					</a> |
-					<a href="#" id="send_speaker" class="butSim">
-						<spring:message code="editor.send.speaker" text="Send To Speaker"/>
-					</a>
+					</a> 
+					<div class="sm" style="display: block; position: fixed; bottom: 50px; right: 65px; z-index: 996; border: 1px solid black; background: #719EBA scroll repeat-x; border-radius: 25px; padding: 2px 0px 2px 0px;">
+						<a href="javascript:void(0);" id="send_member" style="text-decoration: none; background-color: green; color: #719EBA; padding: 2px 0px 2px 0px; width: 24px; height: 24px; border-radius: 24px;">
+						&nbsp;<spring:message code="editor.send.member" text="M"/>&nbsp;
+						</a>
+					</div>
+					<div class="ss" style="display: block; position: fixed; bottom: 50px; right: 41px; z-index: 996; border: 1px solid black; background: #719EBA scroll repeat-x; border-radius: 25px; padding: 2px 0px 2px 0px;">
+						<a href="javascript:void(0);" id="send_speaker" style="text-decoration: none; background-color: green; color: #719EBA; padding: 1px; width: 24px; height: 24px; border-radius: 24px;">
+							&nbsp;<spring:message code="editor.send.speaker" text="S"/>&nbsp;
+						</a>
+					</div>
 				</security:authorize>		
 				<div id="messageDiv" style="margin-top: 10px; display: none;"><p>&nbsp;</p></div>
 			</div>
@@ -802,7 +820,7 @@
 		<div class="tabContent">
 		</div>
 		
-		<div id="selectMemberDevicesDiv" style="display: none; padding: 2px; position: absolute;">
+		<div id="selectMemberDevicesDiv" style="display: none; padding: 2px; position: fixed;">
 			<div id="selectMemberDevicesSelectDiv">
 				<select name="selectMemberDevices" style="border:2px solid black; " id="selectMemberDevices" multiple="multiple">												
 				</select>

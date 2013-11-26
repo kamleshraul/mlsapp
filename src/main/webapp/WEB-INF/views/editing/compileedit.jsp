@@ -748,7 +748,16 @@
 												<c:set var="putTr" value="1" />
 												<c:set var="causePHMH" value="1" />
 												<c:if test="${not(empty r[15]) and (not (r[15]==null))}">
-													<b class="member" style="display: inline-block;">${r[15]}</b>
+													<b class="member" style="display: inline-block;">
+														<c:choose>
+															<c:when test="${r[23]!=null and (not (empty r[23]))}">
+																${r[23]}
+															</c:when>
+															<c:otherwise>
+																${r[15]}
+															</c:otherwise>
+														</c:choose>
+													</b>
 													<div id="memberImageDiv" style="display: inline;">
 														<img src="editing/gememberimage/${r[14]}" height="16px;" class="memberImg" />	
 													</div>
@@ -794,7 +803,16 @@
 													<c:set var="putTr" value="1" />
 													<c:set var="causePHMH" value="1" />
 													<c:if test="${not(empty r[15]) and (not (r[15]==null))}">
-														<b class="member" style="display: inline-block;">${r[15]}</b>
+														<b class="member" style="display: inline-block;">
+															<c:choose>
+																<c:when test="${r[23]!=null and (not (empty r[23]))}">
+																	${r[23]}
+																</c:when>
+																<c:otherwise>
+																	${r[15]}
+																</c:otherwise>
+															</c:choose>
+														</b>
 														<div id="memberImageDiv" style="display: inline;">
 															<img src="editing/gememberimage/${r[14]}" height="16px;" class="memberImg" />	
 														</div>
@@ -843,7 +861,16 @@
 										<c:when test="${memberID!=r[14] or causePHMH==0}">
 											<c:set var="causePHMH" value="1" />
 											<c:if test="${not(empty r[15]) and (not (r[15]==null))}">
-												<b class="member" style="display: inline-block;">${r[15]}</b>
+												<b class="member" style="display: inline-block;">
+														<c:choose>
+															<c:when test="${not(r[23]==null)}">
+																${r[23]}
+															</c:when>
+															<c:otherwise>
+																${r[15]}
+															</c:otherwise>
+														</c:choose>
+													</b>
 												<div id="memberImageDiv" style="display: inline;">
 													<img src="editing/gememberimage/${r[14]}" height="16px;" class="memberImg" />	
 												</div>
