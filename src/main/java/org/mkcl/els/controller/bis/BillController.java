@@ -4500,19 +4500,51 @@ public class BillController extends GenericController<Bill> {
 							discussBills = Bill.findBillsByPriority(session, deviceType, introducedBill, false, "expectedIntroductionDate", ApplicationConstants.ASC, locale.toString());
 						}
 						for(Bill b: discussBills){
-							BillSearchVO bsVO = new BillSearchVO();
-							bsVO.setId(b.getId());
-							bsVO.setTitle(b.getDefaultTitle());
-							if(b.getNumber() != null){
-								bsVO.setNumber(FormaterUtil.formatNumberNoGrouping(b.getNumber(), locale.toString()));
+							boolean validForSelectedHouseType = false;
+							String recommendationStatusType = b.getRecommendationStatus().getType();
+							if(recommendationStatusType.equals(ApplicationConstants.BILL_PROCESSED_INTRODUCED)) {
+								if(b.findFirstHouseType()!=null) {
+									if(b.findFirstHouseType().equals(houseType.getType())) {
+										validForSelectedHouseType = true;										
+									}
+								}
+							} else if(recommendationStatusType.startsWith(ApplicationConstants.BILL_PROCESSED_PASSED)
+									&& recommendationStatusType.endsWith(ApplicationConstants.BILL_FIRST_HOUSE)) {
+								if(b.findSecondHouseType()!=null) {
+									if(b.findSecondHouseType().equals(houseType.getType())) {
+										validForSelectedHouseType = true;										
+									}
+								}
+							} else if(recommendationStatusType.startsWith(ApplicationConstants.BILL_PROCESSED_TOBEDISCUSSED)
+									&& recommendationStatusType.endsWith(ApplicationConstants.BILL_FIRST_HOUSE)) {
+								if(b.findFirstHouseType()!=null) {
+									if(b.findFirstHouseType().equals(houseType.getType())) {
+										validForSelectedHouseType = true;										
+									}
+								}
+							} else if(recommendationStatusType.startsWith(ApplicationConstants.BILL_PROCESSED_TOBEDISCUSSED)
+									&& recommendationStatusType.endsWith(ApplicationConstants.BILL_SECOND_HOUSE)) {
+								if(b.findSecondHouseType()!=null) {
+									if(b.findSecondHouseType().equals(houseType.getType())) {
+										validForSelectedHouseType = true;										
+									}
+								}
 							}
-							if(b.getExpectedIntroductionDate() != null){
-								bsVO.setFormattedExpectedIntroductionDate(FormaterUtil.formatDateToString(b.getExpectedIntroductionDate(), ApplicationConstants.SERVER_DATEFORMAT));
-							}
-							if(b.getExpectedDiscussionDate() != null){
-								bsVO.setFormattedExpectedDiscussionDate(FormaterUtil.formatDateToString(b.getExpectedDiscussionDate(), ApplicationConstants.SERVER_DATEFORMAT));
-							}
-							billSVOToReceiveDiscussionDate.add(bsVO);
+							if(validForSelectedHouseType) {
+								BillSearchVO bsVO = new BillSearchVO();
+								bsVO.setId(b.getId());
+								bsVO.setTitle(b.getDefaultTitle());
+								if(b.getNumber() != null){
+									bsVO.setNumber(FormaterUtil.formatNumberNoGrouping(b.getNumber(), locale.toString()));
+								}
+								if(b.getExpectedIntroductionDate() != null){
+									bsVO.setFormattedExpectedIntroductionDate(FormaterUtil.formatDateToString(b.getExpectedIntroductionDate(), ApplicationConstants.SERVER_DATEFORMAT));
+								}
+								if(b.getExpectedDiscussionDate() != null){
+									bsVO.setFormattedExpectedDiscussionDate(FormaterUtil.formatDateToString(b.getExpectedDiscussionDate(), ApplicationConstants.SERVER_DATEFORMAT));
+								}
+								billSVOToReceiveDiscussionDate.add(bsVO);
+							}							
 						}
 					}
 					model.addAttribute("introBills", billSVOToReceiveIntroductionDate);
