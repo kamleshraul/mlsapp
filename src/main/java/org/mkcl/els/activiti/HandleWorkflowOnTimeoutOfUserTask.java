@@ -8,6 +8,7 @@ import java.util.Map;
 import org.activiti.engine.impl.pvm.delegate.ActivityExecution;
 import org.mkcl.els.common.util.ApplicationConstants;
 import org.mkcl.els.common.vo.Reference;
+import org.mkcl.els.domain.Bill;
 import org.mkcl.els.domain.Device;
 import org.mkcl.els.domain.DeviceType;
 import org.mkcl.els.domain.HouseType;
@@ -22,7 +23,7 @@ import org.mkcl.els.service.impl.ActivitiServiceImpl;
 public class HandleWorkflowOnTimeoutOfUserTask extends ActivitiServiceImpl {
 	
 	@Override
-	public void execute(final ActivityExecution execution) throws Exception {
+	public void execute(ActivityExecution execution) throws Exception {
 		super.execute(execution);
 		
 		//device type
@@ -36,6 +37,8 @@ public class HandleWorkflowOnTimeoutOfUserTask extends ActivitiServiceImpl {
 			domain = Resolution.findById(Resolution.class, Long.parseLong(deviceId));
 		} else if(deviceType.getType().startsWith("questions")) {
 			domain = Question.findById(Question.class, Long.parseLong(deviceId));
+		} else if(deviceType.getType().startsWith("bills")) {
+			domain = Bill.findById(Bill.class, Long.parseLong(deviceId));
 		}
 		
 		//houseType
@@ -54,6 +57,9 @@ public class HandleWorkflowOnTimeoutOfUserTask extends ActivitiServiceImpl {
 			currentWorkflowDetails = WorkflowDetails.findCurrentWorkflowDetail((Resolution) domain, houseTypeForWorkflow.getName());
 		} else if(deviceType.getType().startsWith("questions")) {			
 			currentWorkflowDetails = WorkflowDetails.findCurrentWorkflowDetail((Question) domain);
+		} else if(deviceType.getType().startsWith("bills")) {	
+			Bill bill = (Bill) domain;
+			currentWorkflowDetails = WorkflowDetails.findCurrentWorkflowDetail(bill, String.valueOf(execution.getVariable("pv_workflowtype")));
 		}		
 		
 		//current level
@@ -82,6 +88,34 @@ public class HandleWorkflowOnTimeoutOfUserTask extends ActivitiServiceImpl {
 		if((userGroup.getUserGroupType().getType().equals(ApplicationConstants.MEMBER)) && (internalStatus.getType().equals(ApplicationConstants.RESOLUTION_FINAL_CLARIFICATIONNEEDEDFROMMEMBER))) {
 			return;
 		}
+		
+		//end workflow in following cases:		
+		if(deviceType.getType().startsWith("bills")) {
+			Bill bill = (Bill) domain;
+			if(currentWorkflowDetails.getWorkflowType().equals(ApplicationConstants.TRANSLATION_WORKFLOW)
+					&& userGroup.getUserGroupType().getType().equals(ApplicationConstants.TRANSLATOR)
+					&& bill.getTranslationStatus().getType().equals(ApplicationConstants.BILL_FINAL_TRANSLATION)) {
+				//----------------properties updated before task completion----------------//
+				Map<String,String> properties=new HashMap<String, String>();
+				properties.put("pv_endflag","end");
+				properties.put("pv_timerflag", "off");	
+				properties.put("pv_mailflag", "off");
+				//find current task to be completed
+				org.mkcl.els.common.vo.ProcessInstance processInstance = processService.findProcessInstanceById(execution.getProcessInstanceId());
+				org.mkcl.els.common.vo.Task task = processService.getCurrentTask(processInstance);				
+				//complete task	
+				processService.completeTask(task, properties);
+				//update workflowdetails
+				currentWorkflowDetails.setStatus("TIMEOUT");
+				currentWorkflowDetails.setCompletionTime(new Date());
+				currentWorkflowDetails.merge();
+				//update translation status
+				Status translationTimeoutStatus = Status.findByType(ApplicationConstants.BILL_TRANSLATION_TIMEOUT, bill.getLocale());
+				bill.setTranslationStatus(translationTimeoutStatus);
+				bill.simpleMerge();				
+				return;	
+			}					
+		}		
 		
 		//set desired internal status for the skipped actor based on current internal status
 		Status internalStatusSelected = null;		

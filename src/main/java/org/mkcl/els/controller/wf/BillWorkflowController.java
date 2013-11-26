@@ -2336,99 +2336,105 @@ public class BillWorkflowController extends BaseController {
 				}
 			}			
 		}
-//		if(workflowDetails.getWorkflowType().equals(ApplicationConstants.TRANSLATION_WORKFLOW)
-//				&& workflowDetails.getAssigneeUserGroupType().equals(ApplicationConstants.TRANSLATOR)) {
-//			Bill bill = Bill.findById(Bill.class, domain.getId());	
-//			/**** add/update titles in domain ****/
-//			List<TextDraft> titles = this.updateDraftsOfGivenType(bill, "title", request);
-//			bill.setTitles(titles);	
-//			/**** add/update revised titles in domain ****/
-//			List<TextDraft> revisedTitles = this.updateDraftsOfGivenType(bill, "revised_title", request);
-//			bill.setRevisedTitles(revisedTitles);
-//			/**** add/update content drafts in domain ****/
-//			List<TextDraft> contentDrafts = this.updateDraftsOfGivenType(bill, "contentDraft", request);
-//			bill.setContentDrafts(contentDrafts);	
-//			/**** add/update revised content drafts in domain ****/
-//			List<TextDraft> revisedContentDrafts = this.updateDraftsOfGivenType(bill, "revised_contentDraft", request);
-//			bill.setRevisedContentDrafts(revisedContentDrafts);	
-//			/**** add/update 'statement of object and reason drafts' in domain ****/
-//			List<TextDraft> statementOfObjectAndReasonDrafts = this.updateDraftsOfGivenType(bill, "statementOfObjectAndReasonDraft", request);		
-//			bill.setStatementOfObjectAndReasonDrafts(statementOfObjectAndReasonDrafts);
-//			/**** add/update revised 'statement of object and reason drafts' in domain ****/
-//			List<TextDraft> revisedStatementOfObjectAndReasonDrafts = this.updateDraftsOfGivenType(bill, "revised_statementOfObjectAndReasonDraft", request);		
-//			bill.setRevisedStatementOfObjectAndReasonDrafts(revisedStatementOfObjectAndReasonDrafts);	
-//			/**** add/update financial memorandum drafts in domain ****/
-//			List<TextDraft> financialMemorandumDrafts = this.updateDraftsOfGivenType(bill, "financialMemorandumDraft", request);		
-//			bill.setFinancialMemorandumDrafts(financialMemorandumDrafts);
-//			/**** add/update revised financial memorandum drafts in domain ****/
-//			List<TextDraft> revisedFinancialMemorandumDrafts = this.updateDraftsOfGivenType(bill, "revised_financialMemorandumDraft", request);		
-//			bill.setRevisedFinancialMemorandumDrafts(revisedFinancialMemorandumDrafts);	
-//			/**** add/update statutory memorandum drafts in domain ****/
-//			List<TextDraft> statutoryMemorandumDrafts = this.updateDraftsOfGivenType(bill, "statutoryMemorandumDraft", request);
-//			bill.setStatutoryMemorandumDrafts(statutoryMemorandumDrafts);
-//			/**** add/update revised statutory memorandum drafts in domain ****/
-//			List<TextDraft> revisedStatutoryMemorandumDrafts = this.updateDraftsOfGivenType(bill, "revised_statutoryMemorandumDraft", request);
-//			bill.setRevisedStatutoryMemorandumDrafts(revisedStatutoryMemorandumDrafts);
-//			bill.setEditedOn(new Date());
-//			bill.setEditedBy(this.getCurrentUser().getActualUsername());
-//			bill.setEditedAs(workflowDetails.getAssigneeUserGroupName());
-//			bill.merge();
-//			if(request.getParameter("operation")!=null && !request.getParameter("operation").isEmpty()) {
-//				if(request.getParameter("operation").equals("saveTranslation")) {
-//					model.addAttribute("type","success");
-//					model.addAttribute("workflowdetails",workflowDetails.getId());
-//					model.addAttribute("workflowstatus",workflowDetails.getStatus());
-//					model.addAttribute("workflowtype", workflowDetails.getWorkflowType());
-//					model.addAttribute("workflowsubtype", workflowDetails.getWorkflowSubType());
-//					populateModel(bill, model, request, workflowDetails);
-//					String userGroupType = workflowDetails.getAssigneeUserGroupType();
-//					return "workflow/bill/"+userGroupType;
-//				} else if(request.getParameter("operation").equals("sendTranslation")) {
-//					String endflag=domain.getEndFlagForTranslation();
-//					Map<String,String> properties=new HashMap<String, String>();
-//					String level="";
-//					String nextUserGroupType="";
-//					String nextuser = request.getParameter("actorForWorkflow");
-//					if(nextuser!=null){
-//						if(!nextuser.isEmpty()){
-//							String[] temp=nextuser.split("#");
-//							nextUserGroupType=temp[1];
-//							properties.put("pv_user",temp[0]);
-//							level=temp[2];
-//						}
-//					}
-//					properties.put("pv_deviceId",String.valueOf(bill.getId()));
-//					properties.put("pv_deviceTypeId",String.valueOf(bill.getType().getId()));		
-//					properties.put("pv_endflag", endflag);
-//					properties.put("pv_timerflag", "off");
-//					properties.put("pv_mailflag", "off");		
-//					String strTaskId=workflowDetails.getTaskId();
-//					Task task=processService.findTaskById(strTaskId);
-//					processService.completeTask(task,properties);		
-//					if(endflag!=null){
-//						if(!endflag.isEmpty()){
-//							if(endflag.equals("continue")){					
-//								ProcessInstance processInstance = processService.findProcessInstanceById(task.getProcessInstanceId());
-//								Task newtask=processService.getCurrentTask(processInstance);
-//								/**** Workflow Detail entry made only if its not the end of workflow ****/
-//								WorkflowDetails.create(domain,newtask,workflowDetails.getWorkflowType(),nextUserGroupType,level);
-//							}
-//						}
-//					}
-//					workflowDetails.setStatus("COMPLETED");
-//					workflowDetails.setCompletionTime(new Date());			
-//					workflowDetails.merge();
-//					/**** Stale State Exception ****/		
-//					Bill billUpdated=Bill.findById(Bill.class,bill.getId());
-//					Status translationCompletedStatus = Status.findByType(ApplicationConstants.BILL_TRANSLATION_COMPLETED, bill.getLocale());
-//					billUpdated.setTranslationStatus(translationCompletedStatus);
-//					billUpdated.simpleMerge();
-//					/**** display message ****/
-//					model.addAttribute("type","taskcompleted");
-//					return "workflow/info";					
-//				}
-//			}
-//		}
+		if(workflowDetails.getWorkflowType().equals(ApplicationConstants.TRANSLATION_WORKFLOW)
+				&& workflowDetails.getAssigneeUserGroupType().equals(ApplicationConstants.TRANSLATOR)) {
+			Bill bill = Bill.findById(Bill.class, domain.getId());	
+			/**** add/update revised titles in domain ****/
+			bill.getRevisedTitles().clear();
+			List<TextDraft> revisedTitles = this.updateDraftsOfGivenType(bill, "revised_title", request);
+			for(TextDraft rt: revisedTitles) {
+				bill.getRevisedTitles().add(rt);
+			}
+			/**** add/update revised content drafts in domain ****/
+			bill.getRevisedContentDrafts().clear();
+			List<TextDraft> revisedContentDrafts = this.updateDraftsOfGivenType(bill, "revised_contentDraft", request);
+			for(TextDraft rcd: revisedContentDrafts) {
+				bill.getRevisedContentDrafts().add(rcd);
+			}
+			/**** add/update revised 'statement of object and reason drafts' in domain ****/
+			bill.getRevisedStatementOfObjectAndReasonDrafts().clear();
+			List<TextDraft> revisedStatementOfObjectAndReasonDrafts = this.updateDraftsOfGivenType(bill, "revised_statementOfObjectAndReasonDraft", request);		
+			for(TextDraft rsor: revisedStatementOfObjectAndReasonDrafts) {
+				bill.getRevisedStatementOfObjectAndReasonDrafts().add(rsor);
+			}	
+			/**** add/update revised financial memorandum drafts in domain ****/
+			bill.getRevisedFinancialMemorandumDrafts().clear();
+			List<TextDraft> revisedFinancialMemorandumDrafts = this.updateDraftsOfGivenType(bill, "revised_financialMemorandumDraft", request);		
+			for(TextDraft rfm: revisedFinancialMemorandumDrafts) {
+				bill.getRevisedFinancialMemorandumDrafts().add(rfm);
+			}	
+			/**** add/update revised statutory memorandum drafts in domain ****/
+			bill.getRevisedStatutoryMemorandumDrafts().clear();
+			List<TextDraft> revisedStatutoryMemorandumDrafts = this.updateDraftsOfGivenType(bill, "revised_statutoryMemorandumDraft", request);
+			for(TextDraft rsm: revisedStatutoryMemorandumDrafts) {
+				bill.getRevisedStatutoryMemorandumDrafts().add(rsm);
+			}		
+			/**** add/update revised annexures for amending bill in domain ****/
+			bill.getRevisedAnnexuresForAmendingBill().clear();
+			List<TextDraft> revisedAnnexuresForAmendingBill = this.updateDraftsOfGivenType(bill, "revised_annexureForAmendingBill", request);
+			for(TextDraft ra: revisedAnnexuresForAmendingBill) {
+				bill.getRevisedAnnexuresForAmendingBill().add(ra);
+			}
+			bill.setEditedOn(new Date());
+			bill.setEditedBy(this.getCurrentUser().getActualUsername());
+			bill.setEditedAs(workflowDetails.getAssigneeUserGroupName());
+			bill.merge();
+			if(request.getParameter("operation")!=null && !request.getParameter("operation").isEmpty()) {
+				if(request.getParameter("operation").equals("saveTranslation")) {
+					model.addAttribute("type","success");
+					model.addAttribute("workflowdetails",workflowDetails.getId());
+					model.addAttribute("workflowstatus",workflowDetails.getStatus());
+					model.addAttribute("workflowtype", workflowDetails.getWorkflowType());
+					model.addAttribute("workflowsubtype", workflowDetails.getWorkflowSubType());
+					populateModel(bill, model, request, workflowDetails);
+					String userGroupType = workflowDetails.getAssigneeUserGroupType();
+					return "workflow/bill/"+userGroupType;
+				} else if(request.getParameter("operation").equals("sendTranslation")) {
+					String endflag=domain.getEndFlagForTranslation();
+					Map<String,String> properties=new HashMap<String, String>();
+					String level="";
+					String nextUserGroupType="";
+					String nextuser = request.getParameter("actorForWorkflow");
+					if(nextuser!=null){
+						if(!nextuser.isEmpty()){
+							String[] temp=nextuser.split("#");
+							nextUserGroupType=temp[1];
+							properties.put("pv_user",temp[0]);
+							level=temp[2];
+						}
+					}
+					properties.put("pv_deviceId",String.valueOf(bill.getId()));
+					properties.put("pv_deviceTypeId",String.valueOf(bill.getType().getId()));		
+					properties.put("pv_endflag", endflag);
+					properties.put("pv_timerflag", "off");
+					properties.put("pv_mailflag", "off");		
+					String strTaskId=workflowDetails.getTaskId();
+					Task task=processService.findTaskById(strTaskId);
+					processService.completeTask(task,properties);		
+					if(endflag!=null){
+						if(!endflag.isEmpty()){
+							if(endflag.equals("continue")){					
+								ProcessInstance processInstance = processService.findProcessInstanceById(task.getProcessInstanceId());
+								Task newtask=processService.getCurrentTask(processInstance);
+								/**** Workflow Detail entry made only if its not the end of workflow ****/
+								WorkflowDetails.create(domain,newtask,workflowDetails.getWorkflowType(),nextUserGroupType,level);
+							}
+						}
+					}
+					workflowDetails.setStatus("COMPLETED");
+					workflowDetails.setCompletionTime(new Date());			
+					workflowDetails.merge();
+					/**** Stale State Exception ****/		
+					Bill billUpdated=Bill.findById(Bill.class,bill.getId());
+					Status translationCompletedStatus = Status.findByType(ApplicationConstants.BILL_TRANSLATION_COMPLETED, bill.getLocale());
+					billUpdated.setTranslationStatus(translationCompletedStatus);
+					billUpdated.simpleMerge();
+					/**** display message ****/
+					model.addAttribute("type","taskcompleted");
+					return "workflow/info";					
+				}
+			}
+		}
 		/**** Binding Supporting Members ****/
 		String[] strSupportingMembers=request.getParameterValues("selectedSupportingMembers");
 		List<SupportingMember> members=new ArrayList<SupportingMember>();
@@ -2636,18 +2642,6 @@ public class BillWorkflowController extends BaseController {
 		List<TextDraft> revisedAnnexuresForAmendingBill = this.updateDraftsOfGivenType(domain, "revised_annexureForAmendingBill", request);
 		domain.setRevisedAnnexuresForAmendingBill(revisedAnnexuresForAmendingBill);
 		
-		/**** preserve fields not in form for specific actors in specific workflows  ****/
-		if(workflowDetails.getWorkflowType().equals(ApplicationConstants.TRANSLATION_WORKFLOW)
-			&& workflowDetails.getAssigneeUserGroupType().equals(ApplicationConstants.TRANSLATOR)) {
-			Bill bill = Bill.findById(Bill.class, domain.getId());
-			domain.setChecklist(bill.getChecklist());
-			domain.setOpinionSoughtFromLawAndJD(bill.getOpinionSoughtFromLawAndJD());
-			domain.setDateOfOpinionSoughtFromLawAndJD(bill.getDateOfOpinionSoughtFromLawAndJD());
-			domain.setRecommendationFromGovernor(bill.getRecommendationFromGovernor());
-			domain.setDateOfRecommendationFromGovernor(bill.getDateOfRecommendationFromGovernor());
-			domain.setRecommendationFromPresident(bill.getRecommendationFromPresident());
-			domain.setDateOfRecommendationFromPresident(bill.getDateOfRecommendationFromPresident());
-		}
 		performAction(domain, request);	
 		domain.merge();
 		
@@ -2656,20 +2650,7 @@ public class BillWorkflowController extends BaseController {
 		/**** Complete Task ****/	
 		String currentDeviceTypeWorkflowType = workflowDetails.getWorkflowType();
 		if(request.getParameter("operation")!=null && !request.getParameter("operation").isEmpty()) {
-			if(currentDeviceTypeWorkflowType.equals(ApplicationConstants.TRANSLATION_WORKFLOW) 
-					&& workflowDetails.getAssigneeUserGroupType().equals(ApplicationConstants.TRANSLATOR)
-					&& request.getParameter("operation").equals("saveTranslation")) {
-				model.addAttribute("type","success");
-				model.addAttribute("workflowdetails",workflowDetails.getId());
-				model.addAttribute("workflowstatus",workflowDetails.getStatus());
-				model.addAttribute("workflowtype", workflowDetails.getWorkflowType());
-				model.addAttribute("workflowsubtype", workflowDetails.getWorkflowSubType());
-				/** Stale State Exception **/
-				Bill bill = Bill.findById(Bill.class, domain.getId());
-				populateModel(bill, model, request, workflowDetails);
-				String userGroupType = workflowDetails.getAssigneeUserGroupType();
-				return "workflow/bill/"+userGroupType;
-			} else if(currentDeviceTypeWorkflowType.equals(ApplicationConstants.OPINION_FROM_LAWANDJD_WORKFLOW) 
+			if(currentDeviceTypeWorkflowType.equals(ApplicationConstants.OPINION_FROM_LAWANDJD_WORKFLOW) 
 					&& workflowDetails.getAssigneeUserGroupType().equals(ApplicationConstants.OPINION_ABOUT_BILL_DEPARTMENT)
 					&& request.getParameter("operation").equals("saveOpinionFromLawAndJD")) {
 				model.addAttribute("type","success");
