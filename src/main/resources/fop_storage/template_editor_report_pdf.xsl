@@ -621,7 +621,7 @@
 											<fo:table-row>
 												<fo:table-cell>
 													<fo:block font-weight="bold" font-size="16px" text-align="left">
-														<xsl:if test="position() = 1 or (preceding-sibling::element_1[1]/element_1_2!=./element_1_2 and preceding-sibling::element_1[1]/element_1_3!=./element_1_3) or (preceding-sibling::element_1[1]/element_1_2!=./element_1_2) or (preceding-sibling::element_1[1]/element_1_3!=./element_1_3)">
+														<!-- <xsl:if test="position() = 1 or (preceding-sibling::element_1[1]/element_1_2!=./element_1_2 and preceding-sibling::element_1[1]/element_1_3!=./element_1_3) or (preceding-sibling::element_1[1]/element_1_2!=./element_1_2) or (preceding-sibling::element_1[1]/element_1_3!=./element_1_3)">
 															 <xsl:choose>
 															 	<xsl:when test="string-length(./element_1_2)>0 and string-length(./element_1_3)>0">
 															 		<fo:block text-align="center">
@@ -638,11 +638,18 @@
 															 		</fo:block>															 		
 															 	</xsl:when>
 															 </xsl:choose>
-														</xsl:if>
+														</xsl:if> -->
 														<fo:inline font-weight="bold">															
 															<xsl:choose>
 																<xsl:when test="position() = 1 or (preceding-sibling::element_1[1]/element_1_15!=./element_1_15) or (preceding-sibling::element_1[1]/element_1_2!=./element_1_2 and preceding-sibling::element_1[1]/element_1_3!=./element_1_3) or (preceding-sibling::element_1[1]/element_1_2!=./element_1_2) or (preceding-sibling::element_1[1]/element_1_3!=./element_1_3) and (string-length(./element_1_2)>0 or string-length(./element_1_3)>0)">
-																	<xsl:value-of select="./element_1_16"></xsl:value-of>															
+																	<xsl:choose>
+																		<xsl:when test="string-length(./element_1_24)>0">
+																				<xsl:value-of select="./element_1_24"></xsl:value-of>
+																		</xsl:when>
+																		<xsl:otherwise>
+																			<xsl:value-of select="./element_1_16"></xsl:value-of>
+																		</xsl:otherwise>
+																	</xsl:choose>															
 																	<xsl:if test="./element_1_18!=''">
 																		/<xsl:value-of select="./element_1_18"></xsl:value-of>
 																	</xsl:if>
