@@ -192,10 +192,7 @@
 		}		
 		/**** To Manage Print Requisition ****/
 		function managePrintRequisition() {			
-			var selectedBillId = $("#grid").jqGrid ('getGridParam', 'selarrrow').toString();
-			if(selectedBillId.split(",").length!=1) {
-				selectedBillId = "";
-			}			
+			var selectedBillId = $("#grid").jqGrid ('getGridParam', 'selrow');			
 			$.get('printrequisition/bill?billId='+selectedBillId+ "&houseTypeType="+ $("#selectedHouseType").val()
 	    			+ "&billYear="+ $("#selectedSessionYear").val(), function(data){
 			    $.fancybox.open(data, {autoSize: false, width: 800, height:600});
@@ -204,10 +201,7 @@
 		}
 		/**** To Generate Citation Report ****/
 		function generateCitationReport() {			
-			var selectedBillId = $("#grid").jqGrid ('getGridParam', 'selarrrow').toString();
-			if(selectedBillId.split(",").length!=1) {
-				selectedBillId = "";
-			}		
+			var selectedBillId = $("#grid").jqGrid ('getGridParam', 'selrow');		
 			$.get('bill/citationReport?'+$("#gridURLParams").val()+'&billId='+selectedBillId, function(data){
 			    $.fancybox.open(data, {autoSize: false, width: 800, height:600});
 		    },'html');		    	
@@ -215,10 +209,7 @@
 		}
 		/**** To Send Green Copy For Endorsement ****/
 		function sendGreenCopyForEndorsement() {			
-			var selectedBillId = $("#grid").jqGrid ('getGridParam', 'selarrrow').toString();
-			if(selectedBillId.split(",").length!=1) {
-				selectedBillId = "";
-			}		
+			var selectedBillId = $("#grid").jqGrid ('getGridParam', 'selrow');		
 			$.get('printrequisition/bill/sendForEndorsement?'+$("#gridURLParams").val()+'&billId='+selectedBillId, function(data){
 			    $.fancybox.open(data, {autoSize: false, width: 800, height:600});
 		    },'html');		    	
@@ -226,10 +217,7 @@
 		}
 		/**** To Transmit Endorsement Copies ****/
 		function transmitEndorsementCopies() {			
-			var selectedBillId = $("#grid").jqGrid ('getGridParam', 'selarrrow').toString();
-			if(selectedBillId.split(",").length!=1) {
-				selectedBillId = "";
-			}		
+			var selectedBillId = $("#grid").jqGrid ('getGridParam', 'selrow');		
 			$.get('printrequisition/bill/transmitEndorsementCopies?'+$("#gridURLParams").val()+'&billId='+selectedBillId, function(data){
 			    $.fancybox.open(data, {autoSize: false, width: 800, height:600});
 		    },'html');		    	
@@ -237,10 +225,7 @@
 		}
 		/**** To Transmit Press Copies ****/
 		function transmitPressCopies() {			
-			var selectedBillId = $("#grid").jqGrid ('getGridParam', 'selarrrow').toString();
-			if(selectedBillId.split(",").length!=1) {
-				selectedBillId = "";
-			}		
+			var selectedBillId = $("#grid").jqGrid ('getGridParam', 'selrow');		
 			$.get('printrequisition/bill/transmitPressCopies?'+$("#gridURLParams").val()+'&billId='+selectedBillId, function(data){
 			    $.fancybox.open(data, {autoSize: false, width: 800, height:600});
 		    },'html');		    	
@@ -248,10 +233,7 @@
 		}
 		/**** To Lay Letter for Bill Passed by First House ****/
 		function layLetter() {			
-			var selectedBillId = $("#grid").jqGrid ('getGridParam', 'selarrrow').toString();
-			if(selectedBillId.split(",").length!=1) {
-				selectedBillId = "";
-			}		
+			var selectedBillId = $("#grid").jqGrid ('getGridParam', 'selrow');		
 			$.get('layingletter/bill/layLetterWhenPassedByFirstHouse?'+$("#gridURLParams").val()+'&billId='+selectedBillId, function(data){
 			    $.fancybox.open(data, {autoSize: false, width: 800, height:600});
 		    },'html');		    	

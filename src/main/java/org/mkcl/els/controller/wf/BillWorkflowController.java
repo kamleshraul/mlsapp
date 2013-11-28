@@ -2266,6 +2266,11 @@ public class BillWorkflowController extends BaseController {
 		/**** Workflowdetails ****/
 		String strWorkflowdetails=(String) request.getParameter("workflowdetails");
 		WorkflowDetails workflowDetails=WorkflowDetails.findById(WorkflowDetails.class,Long.parseLong(strWorkflowdetails));
+		if(workflowDetails.getStatus().equals(ApplicationConstants.MYTASK_COMPLETED)) {
+			/**** display message ****/
+			model.addAttribute("type","taskalreadycompleted");
+			return "workflow/info";
+		}
 		/**** handle workflows for print requisitions ****/
 		if((workflowDetails.getWorkflowType().equals(ApplicationConstants.REQUISITION_TO_PRESS_WORKFLOW))
 				&& workflowDetails.getAssigneeUserGroupType().equals(ApplicationConstants.PRESS)){					

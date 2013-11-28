@@ -21,7 +21,7 @@
 		var resourceURL='bill/'+id+'/edit?'+parameters;
 		$.get(resourceURL,function(data){
 			$.unblockUI();
-			$.fancybox.open(data,{autoSize:false,width:800,height:700});
+			$.fancybox.open(data,{autoSize:false,width:1000,height:750});
 		},'html');	
 	}
 	$(document).ready(function(){

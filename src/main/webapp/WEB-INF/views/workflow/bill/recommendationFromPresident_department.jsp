@@ -22,7 +22,7 @@
 			var resourceURL='bill/'+id+'/edit?'+parameters;
 			$.get(resourceURL,function(data){
 				$.unblockUI();
-				$.fancybox.open(data,{autoSize:false,width:750,height:700});
+				$.fancybox.open(data,{autoSize:false,width:1000,height:750});
 			},'html');	
 		}
 		function viewActDetail(id) {
@@ -436,7 +436,7 @@
 			});
 			
 			/**** show annexure for only default bill language ****/
-			$('.title').each(function() {
+			$('.annexureForAmendingBill').each(function() {
 				var currentLanguage = this.id.split("_")[2];				
 				if(currentLanguage==$('#defaultBillLanguage').val()) {		
 					$('#annexureForAmendingBill_para_'+currentLanguage).show();					

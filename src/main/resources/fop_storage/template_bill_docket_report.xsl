@@ -383,35 +383,35 @@
 						</xsl:choose>
 						<xsl:choose>
 							<xsl:when test="element_18='marathi'">
-								<fo:block text-align="right" margin-top="4cm" font-family="($font)" font-size="16px">
+								<fo:block text-align="right" margin-top="3.5cm" font-family="($font)" font-size="16px">
 									[सन <xsl:value-of select="element_24"/> चे <xsl:value-of select="element_19"/> विधेयक क्रमांक <xsl:value-of select="element_21"/>.]
 								</fo:block>
 							</xsl:when>
 							<xsl:when test="element_18='english'">
-								<fo:block text-align="right" margin-top="4cm" font-family="($font)" font-size="16px" font-weight="bold">
+								<fo:block text-align="right" margin-top="3.5cm" font-family="($font)" font-size="16px" font-weight="bold">
 									[L. A. BILL No. <xsl:value-of select="element_22"/> OF <xsl:value-of select="element_24"/>.]
 								</fo:block>
 							</xsl:when>
 							<xsl:when test="element_18='hindi'">
-								<fo:block text-align="right" margin-top="4cm" font-family="($font)" font-size="16px">
+								<fo:block text-align="right" margin-top="3.5cm" font-family="($font)" font-size="16px">
 									[साल <xsl:value-of select="element_24"/> का विधेयक क्रमांक <xsl:value-of select="element_21"/>.]
 								</fo:block>
 							</xsl:when>
 						</xsl:choose>
 						<xsl:choose>
 							<xsl:when test="element_18='english'">
-								<fo:block text-align="right" margin-top="4cm" font-family="($font)" font-size="16px" font-weight="bold">
+								<fo:block text-align="right" margin-top="3.5cm" font-family="($font)" font-size="16px" font-weight="bold">
 									[<xsl:value-of select="element_7"/>.]
 								</fo:block>
 							</xsl:when>
 							<xsl:otherwise>
-								<fo:block text-align="right" margin-top="4cm" font-family="($font)" font-size="16px">
+								<fo:block text-align="right" margin-top="3.5cm" font-family="($font)" font-size="16px">
 									[<xsl:value-of select="element_7"/>.]
 								</fo:block>
 							</xsl:otherwise>
 						</xsl:choose>
-						<fo:block text-align="right" margin-top="4cm" font-family="($font)" font-size="16px">
-							[<xsl:value-of select="element_4"/>,
+						<fo:block text-align="right" margin-top="3.5cm" font-family="($font)" font-size="16px">
+							[<xsl:value-of select="element_4"/>,<xsl:value-of select="element_27"/>,
 							<fo:block/>
 							<xsl:choose>
 							<xsl:when test="element_26='bills_nonofficial'">
@@ -425,21 +425,21 @@
 						</fo:block>
 						<xsl:choose>
 							<xsl:when test="element_18='marathi'">
-								<fo:block text-align="right" margin-top="4cm" font-family="($font)" font-size="16px">
+								<fo:block text-align="right" margin-top="3.5cm" font-family="($font)" font-size="16px">
 									<xsl:value-of select="element_25"/>,<fo:block/>									
 									प्रधान सचिव,<fo:block/>
 									महाराष्ट्र <xsl:value-of select="element_19"/>.
 								</fo:block>
 							</xsl:when>
 							<xsl:when test="element_18='english'">
-								<fo:block text-align="right" margin-top="4cm" font-family="($font)" font-size="16px">
+								<fo:block text-align="right" margin-top="3.5cm" font-family="($font)" font-size="16px">
 									<xsl:value-of select="element_25"/>,<fo:block/>
 									Principal Secretary,<fo:block/>
 									Maharashtra Legislative <xsl:value-of select="element_19"/>.								
 								</fo:block>
 							</xsl:when>
 							<xsl:when test="element_18='hindi'">
-								<fo:block text-align="right" margin-top="4cm" font-family="($font)" font-size="16px">
+								<fo:block text-align="right" margin-top="3.5cm" font-family="($font)" font-size="16px">
 									<xsl:value-of select="element_25"/>,<fo:block/>
 									प्रधान सचिव,<fo:block/>
 									महाराष्ट्र <xsl:value-of select="element_19"/>.

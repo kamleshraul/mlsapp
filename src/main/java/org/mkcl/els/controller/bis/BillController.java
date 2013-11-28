@@ -4244,6 +4244,43 @@ public class BillController extends GenericController<Bill> {
 				if(bill.getType()!=null) {
 					reportDataAsList.add(bill.getType().getType());
 				}
+				StringBuffer supportingMemberNames=new StringBuffer();
+				List<SupportingMember> supportingMembers = bill.getSupportingMembers();
+				if(supportingMembers!=null) {					
+					for(SupportingMember sm: supportingMembers) {
+						supportingMemberNames.append(sm.getMember().getFullname()+",");
+					}					
+				}
+				List<ClubbedEntity> clubbedEntities = bill.findClubbedEntitiesByBillSubmissionDate(ApplicationConstants.ASC, bill.getLocale());
+				if(clubbedEntities!=null){
+					for(ClubbedEntity ce:clubbedEntities){
+						/** show only those clubbed bills which are not in state of
+						 * (processed to be putup for nameclubbing, putup for nameclubbing, pending for nameclubbing approval) 
+						 **/
+						if(ce.getBill().getInternalStatus().getType().equals(ApplicationConstants.BILL_SYSTEM_CLUBBED)
+								|| ce.getBill().getInternalStatus().getType().equals(ApplicationConstants.BILL_FINAL_ADMISSION)) {
+							String tempPrimary=ce.getBill().getPrimaryMember().getFullname();
+							if(!supportingMemberNames.toString().contains(tempPrimary)){
+								supportingMemberNames.append(ce.getBill().getPrimaryMember().getFullname()+",");
+							}
+							List<SupportingMember> clubbedSupportingMember=ce.getBill().getSupportingMembers();
+							if(clubbedSupportingMember!=null){
+								if(!clubbedSupportingMember.isEmpty()){
+									for(SupportingMember l:clubbedSupportingMember){
+										String tempSupporting=l.getMember().getFullname();
+										if(!supportingMemberNames.toString().contains(tempSupporting)){
+											supportingMemberNames.append(tempSupporting+",");
+										}
+									}
+								}
+							}							
+						}						
+					}
+				}
+				if(!supportingMemberNames.toString().isEmpty()){
+					supportingMemberNames.deleteCharAt(supportingMemberNames.length()-1);
+				}
+				reportDataAsList.add(supportingMemberNames.toString());
 			}
 			//generate report
 			java.io.File reportFile = null;

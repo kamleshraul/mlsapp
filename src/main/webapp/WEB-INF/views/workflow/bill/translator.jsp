@@ -241,7 +241,7 @@
 				return false;
 			});			
 			/**** show annexure for only default bill language ****/
-			$('.title').each(function() {
+			$('.annexureForAmendingBill').each(function() {
 				var currentLanguage = this.id.split("_")[2];				
 				if(currentLanguage==$('#defaultBillLanguage').val()) {		
 					$('#annexureForAmendingBill_para_'+currentLanguage).show();					
