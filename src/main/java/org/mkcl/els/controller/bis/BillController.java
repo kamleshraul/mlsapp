@@ -1036,18 +1036,20 @@ public class BillController extends GenericController<Bill> {
 		if(domain.getCreationDate()!=null){
 			model.addAttribute("creationDate",FormaterUtil.getDateFormatter(dateTimeFormat.getValue(),"en_US").format(domain.getCreationDate()));
 		}
-		if(domain.getDateOfOpinionSoughtFromLawAndJD()!=null){
-			model.addAttribute("dateOfOpinionSoughtFromLawAndJD",FormaterUtil.getDateFormatter(dateTimeFormat.getValue(),"en_US").format(domain.getDateOfOpinionSoughtFromLawAndJD()));
-			model.addAttribute("formattedDateOfOpinionSoughtFromLawAndJD",FormaterUtil.getDateFormatter(dateTimeFormat.getValue(),locale).format(domain.getDateOfOpinionSoughtFromLawAndJD()));
-		}
-		if(domain.getDateOfRecommendationFromGovernor()!=null){
-			model.addAttribute("dateOfRecommendationFromGovernor",FormaterUtil.getDateFormatter(dateTimeFormat.getValue(),"en_US").format(domain.getDateOfRecommendationFromGovernor()));
-			model.addAttribute("formattedDateOfRecommendationFromGovernor",FormaterUtil.getDateFormatter(dateTimeFormat.getValue(),locale).format(domain.getDateOfRecommendationFromGovernor()));
-		}
-		if(domain.getDateOfRecommendationFromPresident()!=null){
-			model.addAttribute("dateOfRecommendationFromPresident",FormaterUtil.getDateFormatter(dateTimeFormat.getValue(),"en_US").format(domain.getDateOfRecommendationFromPresident()));
-			model.addAttribute("formattedDateOfRecommendationFromPresident",FormaterUtil.getDateFormatter(dateTimeFormat.getValue(),locale).format(domain.getDateOfRecommendationFromPresident()));
-		}
+		if(domain.getType().getType().equals(ApplicationConstants.NONOFFICIAL_BILL)) {
+			if(domain.getDateOfOpinionSoughtFromLawAndJD()!=null){
+				model.addAttribute("dateOfOpinionSoughtFromLawAndJD",FormaterUtil.getDateFormatter(dateTimeFormat.getValue(),"en_US").format(domain.getDateOfOpinionSoughtFromLawAndJD()));
+				model.addAttribute("formattedDateOfOpinionSoughtFromLawAndJD",FormaterUtil.getDateFormatter(dateTimeFormat.getValue(),locale).format(domain.getDateOfOpinionSoughtFromLawAndJD()));
+			}
+			if(domain.getDateOfRecommendationFromGovernor()!=null){
+				model.addAttribute("dateOfRecommendationFromGovernor",FormaterUtil.getDateFormatter(dateTimeFormat.getValue(),"en_US").format(domain.getDateOfRecommendationFromGovernor()));
+				model.addAttribute("formattedDateOfRecommendationFromGovernor",FormaterUtil.getDateFormatter(dateTimeFormat.getValue(),locale).format(domain.getDateOfRecommendationFromGovernor()));
+			}
+			if(domain.getDateOfRecommendationFromPresident()!=null){
+				model.addAttribute("dateOfRecommendationFromPresident",FormaterUtil.getDateFormatter(dateTimeFormat.getValue(),"en_US").format(domain.getDateOfRecommendationFromPresident()));
+				model.addAttribute("formattedDateOfRecommendationFromPresident",FormaterUtil.getDateFormatter(dateTimeFormat.getValue(),locale).format(domain.getDateOfRecommendationFromPresident()));
+			}
+		}		
 		if(domain.getWorkflowStartedOn()!=null){
 			model.addAttribute("workflowStartedOnDate",FormaterUtil.getDateFormatter(dateTimeFormat.getValue(),"en_US").format(domain.getWorkflowStartedOn()));
 		}
@@ -1125,17 +1127,17 @@ public class BillController extends GenericController<Bill> {
 				}else if(domain.getOpinionFromLawAndJDWorkflowStarted().isEmpty()){
 					domain.setOpinionFromLawAndJDWorkflowStarted("NO");
 				}
-			}
-			if(domain.getRecommendationFromGovernorWorkflowStarted()==null){
-				domain.setRecommendationFromGovernorWorkflowStarted("NO");
-			}else if(domain.getRecommendationFromGovernorWorkflowStarted().isEmpty()){
-				domain.setRecommendationFromGovernorWorkflowStarted("NO");
-			}
-			if(domain.getRecommendationFromPresidentWorkflowStarted()==null){
-				domain.setRecommendationFromPresidentWorkflowStarted("NO");
-			}else if(domain.getRecommendationFromPresidentWorkflowStarted().isEmpty()){
-				domain.setRecommendationFromPresidentWorkflowStarted("NO");
-			}
+				if(domain.getRecommendationFromGovernorWorkflowStarted()==null){
+					domain.setRecommendationFromGovernorWorkflowStarted("NO");
+				}else if(domain.getRecommendationFromGovernorWorkflowStarted().isEmpty()){
+					domain.setRecommendationFromGovernorWorkflowStarted("NO");
+				}
+				if(domain.getRecommendationFromPresidentWorkflowStarted()==null){
+					domain.setRecommendationFromPresidentWorkflowStarted("NO");
+				}else if(domain.getRecommendationFromPresidentWorkflowStarted().isEmpty()){
+					domain.setRecommendationFromPresidentWorkflowStarted("NO");
+				}
+			}			
 			if(domain.getEndFlag()==null){
 				domain.setEndFlag("continue");
 			}else if(domain.getEndFlag().isEmpty()){
@@ -1152,17 +1154,17 @@ public class BillController extends GenericController<Bill> {
 				}else if(domain.getEndFlagForOpinionFromLawAndJD().isEmpty()){
 					domain.setEndFlagForOpinionFromLawAndJD("continue");
 				}
-			}	
-			if(domain.getEndFlagForRecommendationFromGovernor()==null){
-				domain.setEndFlagForRecommendationFromGovernor("continue");
-			}else if(domain.getEndFlagForRecommendationFromGovernor().isEmpty()){
-				domain.setEndFlagForRecommendationFromGovernor("continue");
-			}
-			if(domain.getEndFlagForRecommendationFromPresident()==null){
-				domain.setEndFlagForRecommendationFromPresident("continue");
-			}else if(domain.getEndFlagForRecommendationFromPresident().isEmpty()){
-				domain.setEndFlagForRecommendationFromPresident("continue");
-			}
+				if(domain.getEndFlagForRecommendationFromGovernor()==null){
+					domain.setEndFlagForRecommendationFromGovernor("continue");
+				}else if(domain.getEndFlagForRecommendationFromGovernor().isEmpty()){
+					domain.setEndFlagForRecommendationFromGovernor("continue");
+				}
+				if(domain.getEndFlagForRecommendationFromPresident()==null){
+					domain.setEndFlagForRecommendationFromPresident("continue");
+				}else if(domain.getEndFlagForRecommendationFromPresident().isEmpty()){
+					domain.setEndFlagForRecommendationFromPresident("continue");
+				}
+			}		
 			if(domain.getLevel()==null){
 				domain.setLevel("1");
 			}else if(domain.getLevel().isEmpty()){
@@ -1179,17 +1181,17 @@ public class BillController extends GenericController<Bill> {
 				}else if(domain.getLevelForOpinionFromLawAndJD().isEmpty()){
 					domain.setLevelForOpinionFromLawAndJD("1");
 				}
-			}
-			if(domain.getLevelForRecommendationFromGovernor()==null){
-				domain.setLevelForRecommendationFromGovernor("1");
-			}else if(domain.getLevelForRecommendationFromGovernor().isEmpty()){
-				domain.setLevelForRecommendationFromGovernor("1");
-			}
-			if(domain.getLevelForRecommendationFromPresident()==null){
-				domain.setLevelForRecommendationFromPresident("1");
-			}else if(domain.getLevelForRecommendationFromPresident().isEmpty()){
-				domain.setLevelForRecommendationFromPresident("1");
-			}			
+				if(domain.getLevelForRecommendationFromGovernor()==null){
+					domain.setLevelForRecommendationFromGovernor("1");
+				}else if(domain.getLevelForRecommendationFromGovernor().isEmpty()){
+					domain.setLevelForRecommendationFromGovernor("1");
+				}
+				if(domain.getLevelForRecommendationFromPresident()==null){
+					domain.setLevelForRecommendationFromPresident("1");
+				}else if(domain.getLevelForRecommendationFromPresident().isEmpty()){
+					domain.setLevelForRecommendationFromPresident("1");
+				}
+			}						
 			/**** Referencing & Clubbing For Non-Official Bill ****/
 			if(domain.getType().getType().equals(ApplicationConstants.NONOFFICIAL_BILL)) {
 				/**** Referenced Bill ****/
@@ -1345,34 +1347,35 @@ public class BillController extends GenericController<Bill> {
 			if(opinionFromLawAndJDStatus==null) {
 				opinionFromLawAndJDStatus = Status.findByType(ApplicationConstants.BILL_OPINION_FROM_LAWANDJD_NOTSEND, locale);
 				domain.setOpinionFromLawAndJDStatus(opinionFromLawAndJDStatus);
-			}
-			
+			}			
 			if(opinionFromLawAndJDStatus!=null) {
 				model.addAttribute("opinionFromLawAndJDStatus",opinionFromLawAndJDStatus.getId());
 				model.addAttribute("opinionFromLawAndJDStatusType", opinionFromLawAndJDStatus.getType());
 				model.addAttribute("formattedOpinionFromLawAndJDStatus", opinionFromLawAndJDStatus.getName());
 			}
-		}	
-		Status recommendationFromGovernorStatus = domain.getRecommendationFromGovernorStatus();
-		if(recommendationFromGovernorStatus==null) {
-			recommendationFromGovernorStatus = Status.findByType(ApplicationConstants.BILL_RECOMMENDATION_FROM_GOVERNOR_NOTSEND, locale);	
-			domain.setRecommendationFromGovernorStatus(recommendationFromGovernorStatus);
-		}
-		if(recommendationFromGovernorStatus!=null) {
-			model.addAttribute("recommendationFromGovernorStatus",recommendationFromGovernorStatus.getId());
-			model.addAttribute("recommendationFromGovernorStatusType", recommendationFromGovernorStatus.getType());
-			model.addAttribute("formattedRecommendationFromGovernorStatus", recommendationFromGovernorStatus.getName());			
-		}
-		Status recommendationFromPresidentStatus = domain.getRecommendationFromPresidentStatus();
-		if(recommendationFromPresidentStatus==null) {
-			recommendationFromPresidentStatus = Status.findByType(ApplicationConstants.BILL_RECOMMENDATION_FROM_PRESIDENT_NOTSEND, locale);	
-			domain.setRecommendationFromPresidentStatus(recommendationFromPresidentStatus);
-		}
-		if(recommendationFromPresidentStatus!=null) {
-			model.addAttribute("recommendationFromPresidentStatus",recommendationFromPresidentStatus.getId());
-			model.addAttribute("recommendationFromPresidentStatusType", recommendationFromPresidentStatus.getType());
-			model.addAttribute("formattedRecommendationFromPresidentStatus", recommendationFromPresidentStatus.getName());			
-		}
+			
+			Status recommendationFromGovernorStatus = domain.getRecommendationFromGovernorStatus();
+			if(recommendationFromGovernorStatus==null) {
+				recommendationFromGovernorStatus = Status.findByType(ApplicationConstants.BILL_RECOMMENDATION_FROM_GOVERNOR_NOTSEND, locale);	
+				domain.setRecommendationFromGovernorStatus(recommendationFromGovernorStatus);
+			}
+			if(recommendationFromGovernorStatus!=null) {
+				model.addAttribute("recommendationFromGovernorStatus",recommendationFromGovernorStatus.getId());
+				model.addAttribute("recommendationFromGovernorStatusType", recommendationFromGovernorStatus.getType());
+				model.addAttribute("formattedRecommendationFromGovernorStatus", recommendationFromGovernorStatus.getName());			
+			}
+			
+			Status recommendationFromPresidentStatus = domain.getRecommendationFromPresidentStatus();
+			if(recommendationFromPresidentStatus==null) {
+				recommendationFromPresidentStatus = Status.findByType(ApplicationConstants.BILL_RECOMMENDATION_FROM_PRESIDENT_NOTSEND, locale);	
+				domain.setRecommendationFromPresidentStatus(recommendationFromPresidentStatus);
+			}
+			if(recommendationFromPresidentStatus!=null) {
+				model.addAttribute("recommendationFromPresidentStatus",recommendationFromPresidentStatus.getId());
+				model.addAttribute("recommendationFromPresidentStatusType", recommendationFromPresidentStatus.getType());
+				model.addAttribute("formattedRecommendationFromPresidentStatus", recommendationFromPresidentStatus.getName());			
+			}
+		}			
 		/**** Populate for Status Updation Post Admission Workflow End ****/
 		Status statusForBeginningStatusUpdation = Status.findByType(ApplicationConstants.BILL_PROCESSED_TOBEINTRODUCED, locale);
 		model.addAttribute("statusUpdationPriority", statusForBeginningStatusUpdation.getPriority());
@@ -1390,19 +1393,40 @@ public class BillController extends GenericController<Bill> {
 				if(i.getType().equals(ApplicationConstants.BILL_RECOMMEND_TRANSLATION)
 						&& !(domain.getTranslationStatus().getType().equals(ApplicationConstants.BILL_TRANSLATION_NOTSEND))) {
 					isCandidateToRemove = true;
-				} else if(i.getType().equals(ApplicationConstants.BILL_RECOMMEND_OPINION_FROM_LAWANDJD)
-						&& domain.getType().getType().equals(ApplicationConstants.NONOFFICIAL_BILL)
-						&& !(domain.getOpinionFromLawAndJDStatus().getType().equals(ApplicationConstants.BILL_OPINION_FROM_LAWANDJD_NOTSEND))) {
-					isCandidateToRemove = true;
-				} else if(i.getType().equals(ApplicationConstants.BILL_RECOMMEND_OPINION_FROM_LAWANDJD)
-						&& domain.getType().getType().equals(ApplicationConstants.GOVERNMENT_BILL)) {
-					isCandidateToRemove = true;
-				} else if(i.getType().equals(ApplicationConstants.BILL_RECOMMEND_RECOMMENDATION_FROM_GOVERNOR)
-						&& !(domain.getRecommendationFromGovernorStatus().getType().equals(ApplicationConstants.BILL_RECOMMENDATION_FROM_GOVERNOR_NOTSEND))) {
-					isCandidateToRemove = true;
-				} else if(i.getType().equals(ApplicationConstants.BILL_RECOMMEND_RECOMMENDATION_FROM_PRESIDENT)
-						&& !(domain.getRecommendationFromPresidentStatus().getType().equals(ApplicationConstants.BILL_RECOMMENDATION_FROM_PRESIDENT_NOTSEND))) {
-					isCandidateToRemove = true;
+				} 
+//				else if(i.getType().equals(ApplicationConstants.BILL_RECOMMEND_OPINION_FROM_LAWANDJD)
+//						&& domain.getType().getType().equals(ApplicationConstants.NONOFFICIAL_BILL)
+//						&& !(domain.getOpinionFromLawAndJDStatus().getType().equals(ApplicationConstants.BILL_OPINION_FROM_LAWANDJD_NOTSEND))) {
+//					isCandidateToRemove = true;
+//				} else if(i.getType().equals(ApplicationConstants.BILL_RECOMMEND_OPINION_FROM_LAWANDJD)
+//						&& domain.getType().getType().equals(ApplicationConstants.GOVERNMENT_BILL)) {
+//					isCandidateToRemove = true;
+//				} else if(i.getType().equals(ApplicationConstants.BILL_RECOMMEND_RECOMMENDATION_FROM_GOVERNOR)
+//						&& !(domain.getRecommendationFromGovernorStatus().getType().equals(ApplicationConstants.BILL_RECOMMENDATION_FROM_GOVERNOR_NOTSEND))) {
+//					isCandidateToRemove = true;
+//				} else if(i.getType().equals(ApplicationConstants.BILL_RECOMMEND_RECOMMENDATION_FROM_PRESIDENT)
+//						&& !(domain.getRecommendationFromPresidentStatus().getType().equals(ApplicationConstants.BILL_RECOMMENDATION_FROM_PRESIDENT_NOTSEND))) {
+//					isCandidateToRemove = true;
+//				} 
+				else {
+					if(domain.getType().getType().equals(ApplicationConstants.GOVERNMENT_BILL)) {
+						if(i.getType().equals(ApplicationConstants.BILL_RECOMMEND_OPINION_FROM_LAWANDJD)
+								|| i.getType().equals(ApplicationConstants.BILL_RECOMMEND_RECOMMENDATION_FROM_GOVERNOR)								
+								|| i.getType().equals(ApplicationConstants.BILL_RECOMMEND_RECOMMENDATION_FROM_PRESIDENT)) {
+							isCandidateToRemove = true;
+						}
+					} else {
+						if(i.getType().equals(ApplicationConstants.BILL_RECOMMEND_OPINION_FROM_LAWANDJD)
+								&& !(domain.getOpinionFromLawAndJDStatus().getType().equals(ApplicationConstants.BILL_OPINION_FROM_LAWANDJD_NOTSEND))) {
+							isCandidateToRemove = true;
+						} else if(i.getType().equals(ApplicationConstants.BILL_RECOMMEND_RECOMMENDATION_FROM_GOVERNOR)
+								&& !(domain.getRecommendationFromGovernorStatus().getType().equals(ApplicationConstants.BILL_RECOMMENDATION_FROM_GOVERNOR_NOTSEND))) {
+							isCandidateToRemove = true;
+						} else if(i.getType().equals(ApplicationConstants.BILL_RECOMMEND_RECOMMENDATION_FROM_PRESIDENT)
+								&& !(domain.getRecommendationFromPresidentStatus().getType().equals(ApplicationConstants.BILL_RECOMMENDATION_FROM_PRESIDENT_NOTSEND))) {
+							isCandidateToRemove = true;
+						}
+					}
 				}
 				if(isCandidateToRemove) {
 					statusesToRemove.add(i);
@@ -1769,6 +1793,11 @@ public class BillController extends GenericController<Bill> {
 						if(domain.getIntroducingHouseType()==null) {
 							result.rejectValue("introducingHouseType", "IntroducingHouseTypeEmpty", "Please select the preferred housetype for passing the bill.");
 						}
+						if(domain.getOpinionSoughtFromLawAndJD()==null) {
+							result.rejectValue("opinionSoughtFromLawAndJD", "opinionFromLawAndJDNotReceived", "Opinion from law and judiciary department is not mentioned");
+						} else if(domain.getOpinionSoughtFromLawAndJD().isEmpty()) {
+							result.rejectValue("opinionSoughtFromLawAndJD", "opinionFromLawAndJDNotReceived", "Opinion from law and judiciary department is not mentioned");
+						}						
 					}	
 					if(domain.getBillType()!=null) {
 						if(domain.getBillType().getType()!=null) {
@@ -1915,27 +1944,6 @@ public class BillController extends GenericController<Bill> {
 		if(strUserGroupType!=null){
 			UserGroupType userGroupType=UserGroupType.findByFieldName(UserGroupType.class,"type",strUserGroupType, domain.getLocale());
 			domain.setEditedAs(userGroupType.getName());
-		}
-		
-		/**** date of opinion sought from law & jd in case it is received for governement bill ****/
-		if(domain.getOpinionSoughtFromLawAndJD()!=null) {
-			if(!domain.getOpinionSoughtFromLawAndJD().isEmpty()) {
-				domain.setDateOfOpinionSoughtFromLawAndJD(new Date());
-			}
-		}
-		
-		/**** date of recommendation received from governor in case it is received for governement bill ****/
-		if(domain.getRecommendationFromGovernor()!=null) {
-			if(!domain.getRecommendationFromGovernor().isEmpty()) {
-				domain.setDateOfRecommendationFromGovernor(new Date());
-			}
-		}
-		
-		/**** date of recommendation received from president in case it is received for governement bill ****/
-		if(domain.getRecommendationFromPresident()!=null) {
-			if(!domain.getRecommendationFromPresident().isEmpty()) {
-				domain.setDateOfRecommendationFromPresident(new Date());
-			}
 		}
 		
 		/**** add/update content drafts in domain ****/
@@ -2113,10 +2121,15 @@ public class BillController extends GenericController<Bill> {
 					}
 				}else if(operation.equals("submit")){
 					/**** Submission ****/									
-					if(domain.getType().equals(ApplicationConstants.GOVERNMENT_BILL)) {
+					if(domain.getType().getType().equals(ApplicationConstants.GOVERNMENT_BILL)) {
 						if(domain.getIntroducingHouseType()==null) {
 							result.rejectValue("introducingHouseType", "IntroducingHouseTypeEmpty", "Please select the preferred housetype for passing the bill.");
 						}
+						if(domain.getOpinionSoughtFromLawAndJD()==null) {
+							result.rejectValue("opinionSoughtFromLawAndJD", "opinionFromLawAndJDNotReceived", "Opinion from law and judiciary department is not mentioned");
+						} else if(domain.getOpinionSoughtFromLawAndJD().isEmpty()) {
+							result.rejectValue("opinionSoughtFromLawAndJD", "opinionFromLawAndJDNotReceived", "Opinion from law and judiciary department is not mentioned");
+						}						
 					}
 					if(domain.getBillType()!=null) {
 						if(domain.getBillType().getType()!=null) {
@@ -2131,11 +2144,11 @@ public class BillController extends GenericController<Bill> {
 							}
 						}
 					}
-				} else if(operation.equals("startworkflow")){
+				} else if(operation.equals("startworkflow")){					
 					if(domain.getOpinionSoughtFromLawAndJD()==null) {
-						result.rejectValue("opinionSoughtFromLawAndJD", "opinionFromLawAndJDNotReceived", "Opinion from Law and JD is not received");
+						result.rejectValue("opinionSoughtFromLawAndJD", "opinionFromLawAndJDNotReceived", "Opinion from law and judiciary department is not received");
 					} else if(domain.getOpinionSoughtFromLawAndJD().isEmpty()) {
-						result.rejectValue("opinionSoughtFromLawAndJD", "opinionFromLawAndJDNotReceived", "Opinion from Law and JD is not received");
+						result.rejectValue("opinionSoughtFromLawAndJD", "opinionFromLawAndJDNotReceived", "Opinion from law and judiciary department is not received");
 					}
 					String languagesCompulsoryInSession = domain.getSession().getParameter(domain.getType().getType() + "_languagesCompulsory");
 					/**** title validation for compulsory languages ****/
@@ -2889,42 +2902,6 @@ public class BillController extends GenericController<Bill> {
 					domain.setInternalStatus(ASSISTANT_PROCESSED);
 					domain.setRecommendationStatus(ASSISTANT_PROCESSED);
 				}				
-				/**** File parameters are set when internal status is something other than 
-				 * submit,complete and incomplete and file is null .Then only the motion gets attached to a file.*/
-//				String currentStatus=domain.getInternalStatus().getType();
-//				if(operation==null){
-//					if(!domain.getType().getType().equals(ApplicationConstants.STARRED_BILL)
-//						|| !domain.getType().getType().equals(ApplicationConstants.HALF_HOUR_DISCUSSION_BILL_STANDALONE)
-//						&&!(currentStatus.equals(ApplicationConstants.BILL_SUBMIT)
-//							||currentStatus.equals(ApplicationConstants.BILL_COMPLETE)
-//							||currentStatus.equals(ApplicationConstants.BILL_INCOMPLETE))
-//							&& (domain.getType().getType().equals(ApplicationConstants.UNSTARRED_BILL)
-//							||domain.getType().getType().equals(ApplicationConstants.HALF_HOUR_DISCUSSION_BILL_FROM_BILL)
-//							||domain.getType().getType().equals(ApplicationConstants.SHORT_NOTICE_BILL))							
-//							&&domain.getFile()==null){
-//						/**** Add Bill to file ****/
-//						Reference reference=Bill.findCurrentFile(domain);
-//						domain.setFile(Integer.parseInt(reference.getId()));
-//						domain.setFileIndex(Integer.parseInt(reference.getName()));
-//						domain.setFileSent(false);
-//					}
-//				}else if(operation.isEmpty()){
-//					if(!domain.getType().getType().equals(ApplicationConstants.STARRED_BILL)
-//						|| !domain.getType().getType().equals(ApplicationConstants.HALF_HOUR_DISCUSSION_BILL_STANDALONE)
-//						&&!(currentStatus.equals(ApplicationConstants.BILL_SUBMIT)
-//							||currentStatus.equals(ApplicationConstants.BILL_COMPLETE)
-//							||currentStatus.equals(ApplicationConstants.BILL_INCOMPLETE))
-//							&& (domain.getType().getType().equals(ApplicationConstants.UNSTARRED_BILL)
-//							||domain.getType().getType().equals(ApplicationConstants.HALF_HOUR_DISCUSSION_BILL_FROM_BILL)
-//							||domain.getType().getType().equals(ApplicationConstants.SHORT_NOTICE_BILL))							
-//							&&domain.getFile()==null){
-//						/**** Add Bill to file ****/
-//						Reference reference=Bill.findCurrentFile(domain);
-//						domain.setFile(Integer.parseInt(reference.getId()));
-//						domain.setFileIndex(Integer.parseInt(reference.getName()));
-//						domain.setFileSent(false);
-//					}
-//				}
 			}
 		}
 		/**** updating various dates including submission date and creation date ****/
@@ -2955,34 +2932,13 @@ public class BillController extends GenericController<Bill> {
 				}
 				if(strDateOfOpinionSoughtFromLawAndJD!=null&&!strDateOfOpinionSoughtFromLawAndJD.isEmpty()) {
 					domain.setDateOfOpinionSoughtFromLawAndJD(format.parse(strDateOfOpinionSoughtFromLawAndJD));
-				} else if(domain.getInternalStatus().getType().equals(ApplicationConstants.BILL_SUBMIT) 
-						|| domain.getInternalStatus().getType().equals(ApplicationConstants.BILL_SYSTEM_ASSISTANT_PROCESSED)) {
-					if(domain.getOpinionSoughtFromLawAndJD()!=null) {
-						if(!domain.getOpinionSoughtFromLawAndJD().isEmpty()) {
-							domain.setDateOfOpinionSoughtFromLawAndJD(new Date());
-						}
-					}
-				}
+				} 
 				if(strDateOfRecommendationFromGovernor!=null&&!strDateOfRecommendationFromGovernor.isEmpty()) {
 					domain.setDateOfRecommendationFromGovernor(format.parse(strDateOfRecommendationFromGovernor));
 				} 
-//				else {
-//					if(domain.getRecommendationFromGovernor()!=null) {
-//						if(!domain.getRecommendationFromGovernor().isEmpty()) {
-//							domain.setDateOfRecommendationFromGovernor(new Date());
-//						}
-//					}
-//				}
 				if(strDateOfRecommendationFromPresident!=null&&!strDateOfRecommendationFromPresident.isEmpty()) {
 					domain.setDateOfRecommendationFromPresident(format.parse(strDateOfRecommendationFromPresident));
 				} 
-//				else {
-//					if(domain.getRecommendationFromPresident()!=null) {
-//						if(!domain.getRecommendationFromPresident().isEmpty()) {
-//							domain.setDateOfRecommendationFromPresident(new Date());
-//						}
-//					}
-//				}
 				if(strWorkflowStartedOnDate!=null&&!strWorkflowStartedOnDate.isEmpty()){
 					domain.setWorkflowStartedOn(format.parse(strWorkflowStartedOnDate));
 				}
