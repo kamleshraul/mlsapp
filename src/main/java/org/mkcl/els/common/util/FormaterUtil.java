@@ -636,5 +636,21 @@ public class FormaterUtil {
     	indianMonths_en_US.put(10, "MAGHA");
     	indianMonths_en_US.put(11, "PHALGUNA");	
     }
+	
+	public static String findIndexLetterByWord(final String word, final String locale){
+		String letters[] = {"अ", "आ", "इ", "ई", "उ", "ऊ", "ए", "ऐ", "ओ", "औ", 
+				"अं", "अः", "क", "ख", "ग", "घ", "च", "छ", "ज", "झ", "ञ", "ट", 
+				"ठ", "ड", "ढ", "ण", "त", "थ", "द", "ध", "न", "प", "फ", "ब", 
+				"भ", "म", "य", "र", "ल", "व", "श", "ष", "स", "ह", "ळ", "क्ष", "ज्ञ"};
+		String letter = null;
+		for(String l : letters){
+			if(word.indexOf(l) == 0){
+				letter = l;
+				break;
+			}
+		}
+		
+		return letter;
+	}
 
 }
