@@ -291,7 +291,7 @@ public class EditingController extends GenericController<Roster>{
 					parametersMap.put("rosterId", new String[]{roster.getId().toString()});
 					
 					if(strReportType.equals("other")){
-						result = Query.findReport(ApplicationConstants.PROCEEDING_CONTENT_MERGE_REPORT, parametersMap);
+						result = Query.findReport("EDIS_PROCEEDING_CONTENT_MERGE_REPORT2", parametersMap);
 					}else if(strReportType.equals("member")){
 						if(strMember != null && !strMember.isEmpty()){
 							parametersMap.put("memberId", new String[]{strMember});
