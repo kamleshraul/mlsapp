@@ -7,12 +7,15 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 import java.util.UUID;
 
@@ -20,18 +23,19 @@ import javax.persistence.NoResultException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import net.sf.cglib.core.Local;
-
 import org.mkcl.els.common.exception.ELSException;
 import org.mkcl.els.common.util.ApplicationConstants;
 import org.mkcl.els.common.util.FormaterUtil;
 import org.mkcl.els.common.vo.AuthUser;
+import org.mkcl.els.common.vo.CatchwordHeadingVO;
 import org.mkcl.els.common.vo.MasterVO;
 import org.mkcl.els.common.vo.ProcessDefinition;
 import org.mkcl.els.common.vo.ProcessInstance;
 import org.mkcl.els.common.vo.Task;
+import org.mkcl.els.common.vo.VishaysuchiDeviceVO;
+import org.mkcl.els.common.vo.VishaysuchiVO;
+import org.mkcl.els.common.xmlvo.VishaysuchiXMLVO;
 import org.mkcl.els.controller.GenericController;
-import org.mkcl.els.controller.wf.EditingWorkflowController;
 import org.mkcl.els.domain.Credential;
 import org.mkcl.els.domain.CustomParameter;
 import org.mkcl.els.domain.Document;
@@ -105,18 +109,7 @@ public class EditingController extends GenericController<Roster>{
 				model.addAttribute("errorcode","nosessionentriesfound");
 			}
 			model.addAttribute("sessionTypes",sessionTypes);
-			
-			/*UserGroup userGroup = null;
-			UserGroupType userGroupType = null;
-			
-			for(UserGroup ug : this.getCurrentUser().getUserGroups()){
-				if(ug != null){
-					userGroup = ug;
-					userGroupType = ug.getUserGroupType();
-					break;
-				}
-			}*/
-	
+				
 			/**** Years ****/
 			CustomParameter houseFormationYear=CustomParameter.findByName(CustomParameter.class, "HOUSE_FORMATION_YEAR", "");
 			List<Integer> years=new ArrayList<Integer>();
@@ -268,6 +261,7 @@ public class EditingController extends GenericController<Roster>{
 			model.addAttribute("action", strAction);
 			model.addAttribute("reedit", strReedit);
 			model.addAttribute("reportType", strReportType);
+			model.addAttribute("inPlaceOf","यांच्याकरिता");
 			List result = null;
 			if(!strReportType.isEmpty() && !strReportType.equals("nothing")){
 				if(strHouseType!=null&&!strHouseType.equals("")&&
@@ -486,48 +480,10 @@ public class EditingController extends GenericController<Roster>{
 	public String getVishaysuchi(HttpServletRequest request, ModelMap model, Locale locale){
 		String retVal = "editing/error";
 		try{
-			String strHouseType = request.getParameter("houseType");
-			String strSessionType = request.getParameter("sessionType");
-			String strSessionYear = request.getParameter("sessionYear");
-			String strLanguage = request.getParameter("language");
-			String strDay = request.getParameter("day");
-			String strUserGroup = request.getParameter("userGroup");
-			String strUserGroupType = request.getParameter("userGroupType");
+			model.addAttribute("report", prepareVishaysuchi(request, locale));
 			
-			String[] decodedValues = EditingControllerUtility.getDecodedString(new String[]{strHouseType, strSessionType, strSessionYear, strLanguage, strDay, strUserGroup, strUserGroupType});
-			strHouseType = decodedValues[0];
-			strSessionType = decodedValues[1];
-			strSessionYear = decodedValues[2];
-			strLanguage = decodedValues[3];
-			strDay = decodedValues[4];
-			strUserGroup = decodedValues[5];
-			strUserGroupType = decodedValues[6];
+			retVal = "editing/vishaysuchi";
 			
-			/****Prepare vishaysuchi ****/
-			if(strHouseType!=null&&!strHouseType.isEmpty()&&
-					strSessionType!=null&&!strSessionType.isEmpty()&&
-					strSessionYear!=null&&!strSessionYear.isEmpty()&&
-					strLanguage!=null&&!strLanguage.isEmpty()&&
-					strDay!=null&&!strDay.isEmpty()){
-
-				HouseType houseType=HouseType.findByFieldName(HouseType.class, "type", strHouseType, locale.toString());
-				SessionType sessionType=SessionType.findById(SessionType.class, Long.parseLong(strSessionType));
-				Language language=Language.findById(Language.class, Long.parseLong(strLanguage));
-				Session session=Session.findSessionByHouseTypeSessionTypeYear(houseType, sessionType, Integer.parseInt(strSessionYear));
-				Roster roster=Roster.findRosterBySessionLanguageAndDay(session,Integer.parseInt(strDay),language,locale.toString());
-				
-				boolean flag = EditingControllerUtility.canVishaysuchiBePrepared(session, houseType, roster.getId().toString(), "editing_", locale.toString());
-				
-				if(flag){
-					Map<String, String[]> parameters = new HashMap<String, String[]>();
-					parameters.put("rosterId", new String[]{roster.getId().toString()});
-					parameters.put("locale", new String[]{locale.toString()});
-					
-					List report = Query.findReport("EDIS_VISHAYSUCHI", parameters);
-					model.addAttribute("report", report);
-					retVal = "editing/vishaysuchi";
-				}
-			}
 		}catch (Exception e) {
 			logger.debug("editing/vishaysuchi", e);
 			e.printStackTrace();
@@ -535,6 +491,198 @@ public class EditingController extends GenericController<Roster>{
 		}
 		return retVal;
 	}	
+	
+	@RequestMapping(value="/vishaysuchireport",method=RequestMethod.GET)
+	public void getVishaysuchiReport(HttpServletRequest request, HttpServletResponse response, Locale locale){
+		try{
+			List<VishaysuchiVO> vishaysuchiVOs = prepareVishaysuchi(request, locale);
+			String strReportFormat = request.getParameter("outputFormat");
+			VishaysuchiXMLVO report = new VishaysuchiXMLVO();
+			report.setVishaysuchi(vishaysuchiVOs);
+			File reportFile = generateReportUsingFOP(report, "template_edis_vishaysuchi", strReportFormat, "vishaySuchi", locale.toString());
+			
+			openOrSaveReportFileFromBrowser(response, reportFile, strReportFormat);
+			
+		}catch (Exception e) {
+			logger.debug("editing/vishaysuchireport", e);
+			e.printStackTrace();
+		}
+	}
+	
+	@Transactional
+	@SuppressWarnings("rawtypes")
+	private List<VishaysuchiVO> prepareVishaysuchi(HttpServletRequest request, Locale locale) throws NumberFormatException, ELSException{
+		
+		List<VishaysuchiVO> copyVishaysuchi = null;
+		
+		String strHouseType = request.getParameter("houseType");
+		String strSessionType = request.getParameter("sessionType");
+		String strSessionYear = request.getParameter("sessionYear");
+		String strLanguage = request.getParameter("language");
+		String strDay = request.getParameter("day");
+		String strUserGroup = request.getParameter("userGroup");
+		String strUserGroupType = request.getParameter("userGroupType");
+		
+		String[] decodedValues = EditingControllerUtility.getDecodedString(new String[]{strHouseType, strSessionType, strSessionYear, strLanguage, strDay, strUserGroup, strUserGroupType});
+		strHouseType = decodedValues[0];
+		strSessionType = decodedValues[1];
+		strSessionYear = decodedValues[2];
+		strLanguage = decodedValues[3];
+		strDay = decodedValues[4];
+		strUserGroup = decodedValues[5];
+		strUserGroupType = decodedValues[6];
+		
+		/****Prepare vishaysuchi ****/
+		if(strHouseType!=null&&!strHouseType.isEmpty()&&
+				strSessionType!=null&&!strSessionType.isEmpty()&&
+				strSessionYear!=null&&!strSessionYear.isEmpty()&&
+				strLanguage!=null&&!strLanguage.isEmpty()&&
+				strDay!=null&&!strDay.isEmpty()){
+
+			HouseType houseType=HouseType.findByFieldName(HouseType.class, "type", strHouseType, locale.toString());
+			SessionType sessionType=SessionType.findById(SessionType.class, Long.parseLong(strSessionType));
+			Language language=Language.findById(Language.class, Long.parseLong(strLanguage));
+			Session session=Session.findSessionByHouseTypeSessionTypeYear(houseType, sessionType, Integer.parseInt(strSessionYear));
+			Roster roster=Roster.findRosterBySessionLanguageAndDay(session,Integer.parseInt(strDay),language,locale.toString());
+			
+			Map<String, String[]> params = new HashMap<String, String[]>();
+			params.put("locale", new String[]{locale.toString()});
+			List catchWords = Query.findReport("EDIS_DISTINCT_CATCHWORDS", params);
+			
+			params.put("rosterId", new String[]{roster.getId().toString()});				
+			List members = Query.findReport("EDIS_DISTINCT_MEMBERS_OF_ROSTER", params);
+			
+			List<VishaysuchiVO> vishaysuchi = new ArrayList<VishaysuchiVO>();
+			if(catchWords != null && !catchWords.isEmpty()){
+				for(Object o : catchWords){
+					Object[] dArr = (Object[])o;
+					
+					VishaysuchiVO vishaysuchiVO = new VishaysuchiVO();
+					vishaysuchiVO.setType("catchWord");
+					vishaysuchiVO.setValue(dArr[1].toString());
+					vishaysuchi.add(vishaysuchiVO);
+				}
+			}
+
+			if(members != null && !members.isEmpty()){
+				for(Object o : members){
+					Object[] dArr = (Object[])o;
+					VishaysuchiVO vishaysuchiVO = new VishaysuchiVO();
+					vishaysuchiVO.setType("member");
+					vishaysuchiVO.setValue(dArr[1].toString());
+					vishaysuchiVO.setMemberID(dArr[0].toString());
+					vishaysuchi.add(vishaysuchiVO);
+				}
+			}
+			
+			Collections.sort(vishaysuchi, new Comparator<VishaysuchiVO>() {
+				@Override
+				public int compare(VishaysuchiVO val1, VishaysuchiVO val2){
+					return (val1.getValue().compareTo(val2.getValue()));
+				}
+			});
+							
+			boolean flag = EditingControllerUtility.canVishaysuchiBePrepared(session, houseType, roster.getId().toString(), "editing_", locale.toString());
+			
+			if(flag){
+				copyVishaysuchi = new ArrayList<VishaysuchiVO>();
+				for(VishaysuchiVO vvo : vishaysuchi){					
+					copyVishaysuchi.add(vvo);
+				}		
+				
+				if(vishaysuchi != null && !vishaysuchi.isEmpty()){
+					int i = 0;
+					for(VishaysuchiVO vo : vishaysuchi){
+						List reportData = null;
+						if(vo.getType().equals("catchWord")){
+							reportData = Part.findVishaySuchiListWithoutMembers(vo.getValue(), roster.getId(), locale.toString());
+							
+							if(reportData != null && !reportData.isEmpty()){
+								List<CatchwordHeadingVO> headings = new ArrayList<CatchwordHeadingVO>();
+								for(Object o : reportData){
+									Object[] oArr = (Object[])o;
+									if(oArr[5] != null){
+										copyVishaysuchi.get(i).setDeviceName(oArr[5].toString());
+									}else{
+										copyVishaysuchi.get(i).setDeviceName("");
+									}
+									
+									if(oArr[6] != null){
+										copyVishaysuchi.get(i).setDeviceType(oArr[6].toString());
+									}else{
+										copyVishaysuchi.get(i).setDeviceType("");
+									}
+									
+									CatchwordHeadingVO cwHVO = new CatchwordHeadingVO();
+									if(oArr[1] != null){
+										cwHVO.setCatchWord(oArr[1].toString());
+									}
+									if(oArr[9] != null){
+										cwHVO.setHeading(oArr[9].toString());
+									}
+									headings.add(cwHVO);
+								}
+								copyVishaysuchi.get(i).setHeadings(headings);
+							}
+						}else if(vo.getType().equals("member")){
+							
+							params.put("locale", new String[]{locale.toString()});
+							params.put("rosterId", new String[]{roster.getId().toString()});
+							params.put("memberId", new String[]{vo.getMemberID()});
+							reportData = Query.findReport("EDIS_CATCHWORD_AND_HEADINGS_OF_MEMBER_BY_DEVICES", params);
+							
+							if(reportData != null && !reportData.isEmpty()){
+								List<VishaysuchiDeviceVO> vishaysuchiDeviceVos = new ArrayList<VishaysuchiDeviceVO>();
+								for(Object o : reportData){
+									Object[] objArr = (Object[]) o;
+									VishaysuchiDeviceVO vdv = new VishaysuchiDeviceVO();
+									if(objArr[0] != null){
+										CatchwordHeadingVO catchVO = new CatchwordHeadingVO();
+										catchVO.setCatchWord(objArr[0].toString());
+										if(objArr[2] != null){
+											catchVO.setHeading(objArr[2].toString());
+										}
+										vdv.setCatchwordHeading(catchVO);
+									}
+									if(objArr[4] != null){
+										vdv.setDeviceName(objArr[4].toString());
+									}
+									if(objArr[5] != null){
+										vdv.setDeviceType(objArr[5].toString());
+									}
+									if(objArr[6] != null){
+										vdv.setPartID(objArr[6].toString());
+									}
+									vishaysuchiDeviceVos.add(vdv);
+								}
+								
+								copyVishaysuchi.get(i).setVishaysuchiDevices(vishaysuchiDeviceVos);
+							}
+						}
+						 
+						if((vo.getHeadings() != null && !vo.getHeadings().isEmpty())
+								|| (vo.getVishaysuchiDevices() != null && !vo.getVishaysuchiDevices().isEmpty())){
+							copyVishaysuchi.get(i).setCatchWordIndex(FormaterUtil.findIndexLetterByWord(vo.getValue(), locale.toString()));
+						}
+						i++;
+					}
+				}
+			}
+		}
+		return copyVishaysuchi;
+	}
+	
+	@SuppressWarnings({ "rawtypes", "unused" })
+	private String getCatchWordOfPart(Map<String, List> catchWords, Long partId){
+		String word = null;
+		for(Entry<String, List> entry : catchWords.entrySet()){
+			if(entry.getValue().contains(partId)){
+				word = entry.getKey();
+				break;
+			}
+		}
+		return word;
+	}
 	
 	
 	@RequestMapping(value="/gememberimage/{id}", method=RequestMethod.GET)
@@ -565,16 +713,7 @@ public class EditingController extends GenericController<Roster>{
 		List matchedParts = null;
 		
 		try{			
-			/*model.addAttribute("searchTerm", domain.getSearchTerm());
-			model.addAttribute("replaceTerm", domain.getReplaceTerm());
-			model.addAttribute("undoCount", (domain.getUndoCount() + 1));
-			domain.setUniqueIdentifierForUndo(UUID.randomUUID().toString());
-			domain.setUniqueIdentifierForRedo(UUID.randomUUID().toString());
-			model.addAttribute("uniqueIdentifierForUndo", domain.getUniqueIdentifierForUndo());
-			model.addAttribute("uniqueIdentifierForRedo", domain.getUniqueIdentifierForRedo());
-			model.addAttribute("undoCount", (domain.getUndoCount() + 1));
-			model.addAttribute("redoCount", (domain.getRedoCount() + 1));*/
-			
+						
 			String strHouseType = request.getParameter("houseType");
 			String strSessionType = request.getParameter("sessionType");
 			String strSessionYear = request.getParameter("sessionYear");
@@ -605,8 +744,7 @@ public class EditingController extends GenericController<Roster>{
 				Roster roster = Roster.findRosterBySessionLanguageAndDay(session, Integer.parseInt(strDay), language,locale.toString());
 				UserGroup userGroup = UserGroup.findById(UserGroup.class, Long.valueOf(strUserGroup));
 				UserGroupType userGroupType = userGroup.getUserGroupType();
-				matchedParts = Part.findAllEligibleForReplacement(roster, strSearchTerm, strReplaceTerm, locale.toString()); 
-						//Part.findAllPartRosterSearchTerm(roster, domain.getSearchTerm(), locale.toString());//Query.findReport("EDIS_MATCHING_PARTS_FOR_REPLACEMENT", parametersMap);
+				matchedParts = Part.findAllEligibleForReplacement(roster, strSearchTerm, strReplaceTerm, locale.toString());
 				
 				if(matchedParts != null && !matchedParts.isEmpty()){
 					for(int i = 0; i < matchedParts.size(); i++){
@@ -1611,8 +1749,8 @@ class EditingControllerUtility{
 		boolean retVal = false;
 		
 		if(WorkflowDetails.findIfWorkflowExists(session, houseType, deviceId, workflowSubTypeInitial, locale) > 0){
-			//TODO: completeness criteria is very primitive needs to be enhanced to include member and speaker wf
-			//Separately rather than including them as whole in 'COMPLETE or PENDING criteria
+			//TODO: completeness criteria is very primitive needs to be enhanced to include member and speaker
+			//wf Separately rather than including them as whole in 'COMPLETE or PENDING criteria
 			//change the way to find member wf then calculate how many member wfs have been
 			//been completed and how many pending and how many are timed out
 			//similar for speaker wf
