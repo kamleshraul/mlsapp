@@ -197,20 +197,46 @@ public class Part  extends BaseDomain implements Serializable{
 		return getPartRepository().findAllEligibleForReplacement(roster, searchTerm, replaceTerm, locale);
 	}
 
-	public static List<Member> findAllProceedingMembersOfRoster(final Roster roster, final String locale){
-		return getPartRepository().findAllProceedingMembersOfRoster(roster, locale);
+	public static List<Member> findProceedingMembersOfRoster(final Roster roster, final String locale){
+		return getPartRepository().findProceedingMembersOfRoster(roster, locale);
 	}
 	
 	public static List<Member> findAllProceedingMembersOfRosterHavingDevices(final Roster roster, final List<Long> devices, final String locale){
 		return getPartRepository().findAllProceedingMembersOfRosterHavingDevices(roster, devices, locale);
 	}
 	
-	public static List<Part> findAllPartsOfMemberOfRoster(final Roster roster, final String locale){
-		return getPartRepository().findAllPartsOfMemberOfRoster(roster, locale);
+	public static List<Part> findAllPartsOfMemberOfRoster(final Roster roster, final Long memberId, final String locale){
+		return getPartRepository().findAllPartsOfMemberOfRoster(roster, memberId, locale);
 	}
 		
 	public static List<PartDraft> findAllNonWorkflowDraftsOfPart(final Part part, final String locale){
 		return getPartRepository().findAllNonWorkflowDraftsOfPart(part, locale);
+	}
+	
+	@SuppressWarnings({ "rawtypes"})
+	public static List findVishaySuchiListWithoutMembers(final String catchWord, 
+			final Long rosterId, 
+			final String locale){
+		
+		return getPartRepository().findVishaySuchiListWithoutMembers(catchWord, rosterId, locale);
+	}
+	
+	@SuppressWarnings("rawtypes")
+	public static List findVishaySuchiListWithMembers(final String catchWord, 
+			final Long rosterId,
+			final Long memberId,
+			final String locale){
+		return getPartRepository().findVishaySuchiListWithMembers(catchWord, rosterId, memberId, locale);
+	}
+	
+	@SuppressWarnings({"rawtypes"})
+	public static List findPartsOfCatchwordInRoster(final Long rosterId, final String catchWord, final String locale){
+		return getPartRepository().findPartsOfCatchwordInRoster(rosterId, catchWord, locale);
+	}
+	
+	@SuppressWarnings({"rawtypes"})
+	public static List findPartsOfMemberInRoster(final Long rosterId, final Long memberId, final String locale){
+		return getPartRepository().findPartsOfMemberInRoster(rosterId, memberId, locale);
 	}
 	
 	/****Getters and Setters****/
