@@ -1,8 +1,12 @@
 package org.mkcl.els.repository;
 
 import java.io.Serializable;
+import java.util.List;
+
+import javax.persistence.Query;
 
 import org.mkcl.els.domain.Proceeding;
+import org.mkcl.els.domain.Slot;
 import org.springframework.stereotype.Repository;
 
 @Repository
@@ -19,6 +23,14 @@ public class ProceedingRepository extends BaseRepository<Proceeding, Serializabl
 			return false;
 		}
 		return true;
+	}
+
+	public List<Proceeding> findAllFilledProceedingBySlot(Slot s) {
+		String strQuery="SELECT DISTINCT proc FROM Proceeding proc JOIN proc.parts p WHERE proc.slot=:slot";
+		Query query=this.em().createQuery(strQuery);
+		query.setParameter("slot", s);
+		List<Proceeding> proceedings=query.getResultList();
+		return proceedings;
 	}
 
 

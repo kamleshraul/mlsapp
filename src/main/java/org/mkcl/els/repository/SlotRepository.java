@@ -9,7 +9,10 @@ import javax.persistence.Query;
 import org.mkcl.els.common.util.ApplicationConstants;
 import org.mkcl.els.domain.HouseType;
 import org.mkcl.els.domain.Language;
+import org.mkcl.els.domain.Member;
+import org.mkcl.els.domain.Reporter;
 import org.mkcl.els.domain.Roster;
+import org.mkcl.els.domain.Session;
 import org.mkcl.els.domain.Slot;
 import org.mkcl.els.domain.User;
 import org.springframework.stereotype.Repository;
@@ -103,6 +106,51 @@ public class SlotRepository extends BaseRepository<Slot, Serializable>{
 		query.setParameter("endTime", slot.getEndTime());
 		query.setParameter("startTime", slot.getStartTime());
 		query.setParameter("language", language.getName());
+		List<Slot> result=query.getResultList();
+		return result;
+	}
+
+	public List<User> findDifferentLanguageUsersBySlot(Slot s) {
+		String strQuery="SELECT u FROM Slot s JOIN s.reporter r JOIN r.user u" +
+				" WHERE s.startTime<:endTime AND s.endTime>:startTime";
+		Query query=this.em().createQuery(strQuery);
+		query.setParameter("endTime", s.getEndTime());
+		query.setParameter("startTime", s.getStartTime());
+		List<User> result=query.getResultList();
+		return result;
+	}
+
+	public List<Slot> findSlotsBySessionAndLanguage(Session session,
+			Language language) {
+		String strQuery="SELECT s FROM Slot s JOIN s.roster r " +
+				" WHERE r.session=:session AND r.language=:language";
+				
+		Query query=this.em().createQuery(strQuery);
+		query.setParameter("session",session);
+		query.setParameter("language", language);
+		List<Slot> result=query.getResultList();
+		return result;
+	}
+
+	public List<Slot> findSlotsByReporterAndRoster(Roster roster,
+			Reporter reporter) {
+		String strQuery="SELECT DISTINCT s FROM Slot s JOIN s.roster r " +
+				" WHERE r.id=:rosterId AND s.reporter=:reporter";
+				
+		Query query=this.em().createQuery(strQuery);
+		query.setParameter("rosterId",roster.getId());
+		query.setParameter("reporter", reporter);
+		List<Slot> result=query.getResultList();
+		return result;
+	}
+
+	public List<Slot> findSlotsByMemberAndRoster(Roster roster, Member member) {
+		String strQuery="SELECT DISTINCT s FROM Part p JOIN p.proceeding proc JOIN proc.slot s " +
+				" WHERE s.roster=:roster AND (p.primaryMember=:member OR p.substituteMember=:member)";
+				
+		Query query=this.em().createQuery(strQuery);
+		query.setParameter("roster",roster);
+		query.setParameter("member", member);
 		List<Slot> result=query.getResultList();
 		return result;
 	}

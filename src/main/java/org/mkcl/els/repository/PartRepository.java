@@ -15,6 +15,7 @@ import org.mkcl.els.domain.DeviceType;
 import org.mkcl.els.domain.Member;
 import org.mkcl.els.domain.Part;
 import org.mkcl.els.domain.PartDraft;
+import org.mkcl.els.domain.Proceeding;
 import org.mkcl.els.domain.Roster;
 import org.springframework.stereotype.Repository;
 
@@ -199,6 +200,19 @@ public class PartRepository extends BaseRepository<Part, Serializable> {
 		List<PartDraft> pds = tQuery.getResultList();
 		return pds;
 	}
+
+
+	public List<Part> findPartsByProceedingAndMember(Proceeding proc,
+			Member member) {
+		String strQuery="SELECT p FROM Part p " +
+				"WHERE p.proceeding=:proceeding AND (p.primaryMember=:member OR p.substituteMember=:member)";
+		Query query=this.em().createQuery(strQuery);
+		query.setParameter("proceeding", proc);
+		query.setParameter("member", member);
+		List<Part> parts=query.getResultList();
+		return parts;
+	}
+
 	
 	//TODO: have to change the query to include main heading instead of page heading	
 	@SuppressWarnings("rawtypes")
@@ -315,4 +329,5 @@ public class PartRepository extends BaseRepository<Part, Serializable> {
 		
 		return devices;
 	}
+
 }
