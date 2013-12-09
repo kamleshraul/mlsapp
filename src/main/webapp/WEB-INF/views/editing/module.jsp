@@ -31,18 +31,20 @@
 						
 			$(document).click(function(e){
 				var tId=$(e.target).attr('id');
+				//console.log(tId);
 				if($("#selectMemberDevices").val() != null){
 					if(tId=='sendToMember'){
 						$("#selectMemberDevicesDiv").hide();					
 						sendToMember();
 					}
-					
-					//console.log($(e.target).parent());				
-					
-					if(tId!='selectMemberDevicesDiv' && tId!='selectMemberDevices' && tId!='send_member' && $($(e.target).parent()).attr('id')!='selectMemberDevices'){
-						$("#selectMemberDevicesDiv").hide();
-					}
+									
+					//console.log(tId);
 				}				
+				
+				if(tId!='selectMemberDevicesDiv' && tId!='selectMemberDevices' && tId!='send_member' && $($(e.target).parent()).attr('id')!='selectMemberDevices'){
+					$("#selectMemberDevicesDiv").hide();
+				}
+				
 				if($("#messageDiv").css('background-color')!='transparent'){
 					$("#messageDiv").hide();	
 				}
@@ -176,7 +178,7 @@
 			
 			$("#send_member").click(function(){
 				var offset=$(this).offset();	
-				console.log(offset.left+":"+ offset.top);
+				//console.log(offset.left+":"+ offset.top);
 				loadDevicesInRosterProceeding(offset);			
 				
 				/* var params="?userGroup="+$("#userGroup").val()
@@ -406,7 +408,7 @@
 				+ '&userGroup=' + $("#userGroup").val()
 				+ '&userGroupType=' + $("#userGroupType").val();
 			}
-			console.log(params);
+			//console.log(params);
 			//$("#selectionDiv1").hide();
 			showTabByIdAndUrl('details_tab', 'editing/compiledreport?'+params);
 		}		
@@ -646,6 +648,15 @@
 			text-decoration: none;
 		}
 		
+		#cancelSendToMember{
+			background-color: green;
+			color: #ffffff; 
+			font-weight: bold;
+			padding: 10px 2px 2px 2px; 
+			border: 1px solid black; 
+			border-radius: 10px; 
+			text-decoration: none;
+		}
 		#selectMemberDevicesLinkDiv{
 			float:left; 
 			display:inline-block; 
@@ -826,7 +837,7 @@
 				</select>
 			</div>
 			<div id="selectMemberDevicesLinkDiv">
-				<a href="javascript:void(0);" id="sendToMember"><spring:message code="editor.send" text="Send"/></a>
+				<a href="javascript:void(0);" id="sendToMember"><spring:message code="editor.send" text="Send"/></a>				
 			</div>
 		</div>
 		<input type="hidden" id="key" name="key">

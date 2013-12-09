@@ -645,11 +645,13 @@
 			});
 			
 			$(".replaceMe").mouseover(function(){
-				$("#zoomImgDiv").css("display", "block");
-				var srcURL = $(".img"+$(this).attr('id').substring(2)).children("img").attr("src");
 				
-				$("#zoomImg").attr("src", srcURL);
-				$("#zoomImg").css("height", "64px");
+				var srcURL = $(".img"+$(this).attr('id').substring(2)).children("img").attr("src");
+				if(srcURL!=undefined){
+					$("#zoomImg").attr("src", srcURL);
+					$("#zoomImg").css("height", "64px");
+					$("#zoomImgDiv").css("display", "block");
+				}
 			});
 			
 			$(".replaceMe").mouseout(function(){
@@ -720,200 +722,494 @@
 			<c:set var="memberID" value="0" />
 			<c:set var="causePHMH" value="0" />
 			<c:set var="putTr" value="0" />
+			<c:set var="currEntryDate" value="-" /> 
+			<c:set var="representativeData" value="-" />
 			<c:forEach items="${report}" var="r" varStatus="counter">
-				<tr>
-					<td>
-						<div style="text-align: center; font-size: 16px;">
-							<c:if test="${(ph!=r[1] && mh!=r[2]) or (ph!=r[1]) or (mh!=r[2])}">
-								<c:choose>
-									<c:when test="${(fn:length(r[1])>0) && (fn:length(r[2])>0)}">
-										<c:set var="causePHMH" value="0" />
-										<b><spring:message code="editing.pageheading" text="Page Heading" /></b>${r[1]}<br />
-										<b><spring:message code="editing.mainheading" text="Main Heading" /></b>${r[2]}
-									</c:when>
-									<c:when test="${(fn:length(r[1])>0) || (fn:length(r[2])>0)}">
-										<c:set var="causePHMH" value="0" />
-										<b><spring:message code="editing.pageheading" text="Page Heading" /></b> ${r[1]} / <b><spring:message code="editing.mainheading" text="Main Heading" /></b> ${r[2]}
-									</c:when>
-								</c:choose>
-							</c:if>
-						</div>
-						<c:choose>						
-							<c:when test="${action=='edited' or action=='edit'}">
-								<c:choose>
-									<c:when test="${not (empty r[21])}">
-										<%--Too show the member name and image only when its of different member--%>
+				<c:choose>
+					<c:when test="${currEntryDate!=r[26]}">
+						<%-- <tr>
+							<td style="width: 250px; min-width: 250px; max-width: 100px;">
+								&nbsp;
+							</td>
+							<td style="width: 250px; min-width: 250px; max-width: 550px; font-weight: bold; font-size: 14px; text-align: center;">
+								${r[25]}								
+							</td>	
+							<td style="width: 250px; min-width: 250px; max-width: 100px;">
+								&nbsp;
+							</td>			
+						</tr> --%>
+						<tr>
+							<td colspan="3">
+								<div style="text-align: center; font-size: 16px;">
+									<c:if test="${(ph!=r[1] && mh!=r[2]) or (ph!=r[1]) or (mh!=r[2])}">
 										<c:choose>
-											<c:when test="${memberID!=r[14] or causePHMH==0}">
-												<c:set var="putTr" value="1" />
-												<c:set var="causePHMH" value="1" />
-												<c:if test="${not(empty r[15]) and (not (r[15]==null))}">
-													<b class="member" style="display: inline-block;">
+											<c:when test="${(fn:length(r[1])>0) && (fn:length(r[2])>0)}">
+												<c:set var="causePHMH" value="0" />
+												<b><spring:message code="editing.pageheading" text="Page Heading" /></b>${r[1]}<br />
+												<b><spring:message code="editing.mainheading" text="Main Heading" /></b>${r[2]}
+											</c:when>
+											<c:when test="${(fn:length(r[1])>0) || (fn:length(r[2])>0)}">
+												<c:set var="causePHMH" value="0" />
+												<b><spring:message code="editing.pageheading" text="Page Heading" /></b> ${r[1]} / <b><spring:message code="editing.mainheading" text="Main Heading" /></b> ${r[2]}
+											</c:when>
+										</c:choose>
+									</c:if>
+								</div>
+								<c:choose>						
+									<c:when test="${action=='edited' or action=='edit'}">
+										<c:choose>
+											<c:when test="${not (empty r[21])}">
+												<%--Too show the member name and image only when its of different member--%>
+												<c:choose>
+													<c:when test="${r[4]!=null and (fn:length(r[4]) > 0)}">
+														<c:if test="${representativeData!=r[4] or causePHMH==0}">															
+															<c:set var="putTr" value="1" />
+															<c:set var="causePHMH" value="1" />
+															${r[4]}, (${r[5]}) : 
+														</c:if>
+													</c:when>
+													<c:otherwise>
 														<c:choose>
-															<c:when test="${r[23]!=null and (not (empty r[23]))}">
-																${r[23]}
+															<c:when test="${memberID!=r[14] or causePHMH==0}">
+																<c:set var="putTr" value="1" />
+																<c:set var="causePHMH" value="1" />
+																<c:if test="${not(empty r[15]) and (not (r[15]==null))}">
+																	<b class="member" style="display: inline-block;">
+																		<c:choose>
+																			<c:when test="${r[23]!=null and (not (empty r[23]))}">
+																				${r[23]}
+																			</c:when>
+																			<c:otherwise>
+																				${r[15]}
+																			</c:otherwise>
+																		</c:choose>
+																	</b>
+																	<div id="memberImageDiv" style="display: inline;">
+																		<img src="editing/gememberimage/${r[14]}" height="16px;" class="memberImg" />	
+																	</div>
+																</c:if>										
+																<c:if test="${not(empty r[17]) and (not (r[17]==null))}">
+																	<b>, ${r[17]} ${inPlaceOf}</b>
+																	<div id="memberImageDiv" style="display: inline;">
+																		<img src="editing/gememberimage/${r[16]}" height="16px;" class="memberImg"/>	
+																	</div>
+																</c:if>:
 															</c:when>
 															<c:otherwise>
-																${r[15]}
+																<c:set var="causePHMH" value="1" />
+																<c:set var="putTr" value="0" />
+																<c:if test="${not(empty r[15]) and (not (r[15]==null))}">
+																	<div id="memberImageDiv" style="display: none;">
+																		<img src="editing/gememberimage/${r[14]}" height="16px;" class="memberImg" />	
+																	</div>
+																</c:if>										
+																<c:if test="${not(empty r[17]) and (not (r[17]==null))}">
+																	<div id="memberImageDiv" style="display: none;">
+																		<img src="editing/gememberimage/${r[16]}" height="16px;" class="memberImg"/>	
+																	</div>
+																</c:if>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 															</c:otherwise>
 														</c:choose>
-													</b>
-													<div id="memberImageDiv" style="display: inline;">
-														<img src="editing/gememberimage/${r[14]}" height="16px;" class="memberImg" />	
+													</c:otherwise>
+												</c:choose>
+												<div id="pp${r[20]}" style="width: 750px; max-width: 750px; word-wrap:break-word; display: inline;" class="replaceMe">
+													${r[21]}
+												</div>
+												<c:if test="${r[14]!=null}" >
+													<div class="imgId img${r[20]}" id="imgId${r[14]}" style="display: none;">
+														<img src="editing/gememberimage/${r[14]}" height="8px" class="imgIdDivImage"/>
 													</div>
-												</c:if>										
-												<c:if test="${not(empty r[17]) and (not (r[17]==null))}">
-													<b>/${r[17]}</b>
-													<div id="memberImageDiv" style="display: inline;">
-														<img src="editing/gememberimage/${r[16]}" height="16px;" class="memberImg"/>	
-													</div>
-												</c:if>:
+												</c:if>
+												<div id="ppsp${r[20]}" class="ppsp" style="display: none;">classes</div>
+												<div id="pprp${r[20]}" class="pprp" style="display: none;">classes</div>
+												<div class="revision" id="pd${r[20]}" style="position: relative; border-radius: 10px; margin-left: 750px; top: -20px; text-align: center; display: inline-block; min-width: 16px; min-height: 16px; border: 1px solid blue; background: #00ff00; cursor: pointer;">
+													<spring:message code="editing.more" text="S" />
+												</div>
 											</c:when>
 											<c:otherwise>
-												<c:set var="causePHMH" value="1" />
-												<c:set var="putTr" value="0" />
-												<c:if test="${not(empty r[15]) and (not (r[15]==null))}">
-													<div id="memberImageDiv" style="display: none;">
-														<img src="editing/gememberimage/${r[14]}" height="16px;" class="memberImg" />	
+												<c:if test="${not (empty r[0])}">
+													<c:choose>
+														<c:when test="${r[4]!=null and (fn:length(r[4]) > 0)}">
+															<c:if test="${representativeData!=r[4] or causePHMH==0}">															<c:set var="putTr" value="1" />
+																<c:set var="causePHMH" value="1" />
+																${r[4]}, (${r[5]}) : 
+															</c:if>
+														</c:when>
+														<c:otherwise>
+															<c:choose>
+																<c:when test="${memberID!=r[14] or causePHMH==0}">
+																	<c:set var="putTr" value="1" />
+																	<c:set var="causePHMH" value="1" />
+																	<c:if test="${not(empty r[15]) and (not (r[15]==null))}">
+																		<b class="member" style="display: inline-block;">
+																			<c:choose>
+																				<c:when test="${r[23]!=null and (not (empty r[23]))}">
+																					${r[23]}
+																				</c:when>
+																				<c:otherwise>
+																					${r[15]}
+																				</c:otherwise>
+																			</c:choose>
+																		</b>
+																		<div id="memberImageDiv" style="display: inline;">
+																			<img src="editing/gememberimage/${r[14]}" height="16px;" class="memberImg" />	
+																		</div>
+																	</c:if>										
+																	<c:if test="${not(empty r[17]) and (not (r[17]==null))}">
+																		<b>,${r[17]} ${inPlaceOf}</b>
+																		<div id="memberImageDiv" style="display: inline;">
+																			<img src="editing/gememberimage/${r[16]}" height="16px;" class="memberImg" />	
+																		</div>
+																	</c:if>:
+																</c:when>
+																<c:otherwise>
+																	<c:set var="putTr" value="0" />
+																	<c:if test="${not(empty r[15]) and (not (r[15]==null))}">
+																		<%-- <b class="member" style="display: inline-block;">${r[15]}</b> --%>
+																		<div id="memberImageDiv" style="display: none;">
+																			<img src="editing/gememberimage/${r[14]}" height="16px;" class="memberImg" />	
+																		</div>
+																	</c:if>										
+																	<c:if test="${not(empty r[17]) and (not (r[17]==null))}">
+																		<%-- <b>/${r[17]}</b> --%>
+																		<div id="memberImageDiv" style="display: none;">
+																			<img src="editing/gememberimage/${r[16]}" height="16px;" class="memberImg" />	
+																		</div>
+																	</c:if>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+																</c:otherwise>
+															</c:choose>
+														</c:otherwise>
+													</c:choose>
+													<div id="pp${r[20]}" style="width: 750px; max-width: 750px; word-wrap:break-word; display: inline;" class="replaceMe">
+														${r[0]}
 													</div>
-												</c:if>										
-												<c:if test="${not(empty r[17]) and (not (r[17]==null))}">
-													<div id="memberImageDiv" style="display: none;">
-														<img src="editing/gememberimage/${r[16]}" height="16px;" class="memberImg"/>	
+													<c:if test="${r[14]!=null}" >
+														<div class="imgId img${r[20]}" id="imgId${r[14]}" style="display: none;">
+															<img src="editing/gememberimage/${r[14]}" height="8px" class="imgIdDivImage"/>
+														</div>
+													</c:if>
+													<div id="ppsp${r[20]}" class="ppsp" style="display: none;">classes</div>
+													<div id="pprp${r[20]}" class="pprp" style="display: none;">classes</div>
+													<div class="revision" id="pd${r[20]}" style="position: relative; border-radius: 10px; margin-left: 750px; top: -20px; text-align: center; display: inline-block; min-width: 16px; min-height: 16px; border: 1px solid blue; background: #013094; cursor: pointer;">
+														<spring:message code="editing.more" text="S" />
 													</div>
-												</c:if>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+												</c:if>
 											</c:otherwise>
 										</c:choose>
-										<div id="pp${r[20]}" style="width: 750px; max-width: 750px; word-wrap:break-word; display: inline;" class="replaceMe">
-											${r[21]}
-										</div>
-										<div class="imgId img${r[20]}" id="imgId${r[14]}" style="display: none;">
-											<img src="editing/gememberimage/${r[14]}" height="8px" class="imgIdDivImage"/>
-										</div>
-										<div id="ppsp${r[20]}" class="ppsp" style="display: none;">classes</div>
-										<div id="pprp${r[20]}" class="pprp" style="display: none;">classes</div>
-										<div class="revision" id="pd${r[20]}" style="position: relative; border-radius: 10px; margin-left: 750px; top: -20px; text-align: center; display: inline-block; min-width: 16px; min-height: 16px; border: 1px solid blue; background: #00ff00; cursor: pointer;">
-											<spring:message code="editing.more" text="S" />
-										</div>
 									</c:when>
 									<c:otherwise>
 										<c:if test="${not (empty r[0])}">
 											<c:choose>
-												<c:when test="${memberID!=r[14] or causePHMH==0}">
-													<c:set var="putTr" value="1" />
-													<c:set var="causePHMH" value="1" />
-													<c:if test="${not(empty r[15]) and (not (r[15]==null))}">
-														<b class="member" style="display: inline-block;">
-															<c:choose>
-																<c:when test="${r[23]!=null and (not (empty r[23]))}">
-																	${r[23]}
-																</c:when>
-																<c:otherwise>
-																	${r[15]}
-																</c:otherwise>
-															</c:choose>
-														</b>
-														<div id="memberImageDiv" style="display: inline;">
-															<img src="editing/gememberimage/${r[14]}" height="16px;" class="memberImg" />	
-														</div>
-													</c:if>										
-													<c:if test="${not(empty r[17]) and (not (r[17]==null))}">
-														<b>/${r[17]}</b>
-														<div id="memberImageDiv" style="display: inline;">
-															<img src="editing/gememberimage/${r[16]}" height="16px;" class="memberImg" />	
-														</div>
-													</c:if>:
+												<c:when test="${r[4]!=null and (fn:length(r[4]) > 0)}">
+													<c:if test="${representativeData!=r[4] or causePHMH==0}">															<c:set var="putTr" value="1" />
+														<c:set var="causePHMH" value="1" />
+														${r[4]}, (${r[5]}) : 
+													</c:if>
 												</c:when>
 												<c:otherwise>
-													<c:set var="putTr" value="0" />
-													<c:if test="${not(empty r[15]) and (not (r[15]==null))}">
-														<%-- <b class="member" style="display: inline-block;">${r[15]}</b> --%>
-														<div id="memberImageDiv" style="display: none;">
-															<img src="editing/gememberimage/${r[14]}" height="16px;" class="memberImg" />	
-														</div>
-													</c:if>										
-													<c:if test="${not(empty r[17]) and (not (r[17]==null))}">
-														<%-- <b>/${r[17]}</b> --%>
-														<div id="memberImageDiv" style="display: none;">
-															<img src="editing/gememberimage/${r[16]}" height="16px;" class="memberImg" />	
-														</div>
-													</c:if>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+													<c:choose>
+														<c:when test="${memberID!=r[14] or causePHMH==0}">
+															<c:set var="causePHMH" value="1" />
+															<c:if test="${not(empty r[15]) and (not (r[15]==null))}">
+																<b class="member" style="display: inline-block;">
+																		<c:choose>
+																			<c:when test="${not(r[23]==null)}">
+																				${r[23]}
+																			</c:when>
+																			<c:otherwise>
+																				${r[15]}
+																			</c:otherwise>
+																		</c:choose>
+																	</b>
+																<div id="memberImageDiv" style="display: inline;">
+																	<img src="editing/gememberimage/${r[14]}" height="16px;" class="memberImg" />	
+																</div>
+															</c:if>										
+															<c:if test="${not(empty r[17]) and (not (r[17]==null))}">
+																<b>, ${r[17]} ${inPlaceOf}</b>
+																<div id="memberImageDiv" style="display: inline;">
+																	<img src="editing/gememberimage/${r[16]}" height="16px;" class="memberImg" />	
+																</div>
+															</c:if>:
+														</c:when>
+														<c:otherwise>
+															<c:if test="${not(empty r[15]) and (not (r[15]==null))}">
+																<b class="member" style="display: inline-block;">${r[15]}</b>
+																<div id="memberImageDiv" style="display: none;">
+																	<img src="editing/gememberimage/${r[14]}" height="16px;" class="memberImg" />	
+																</div>
+															</c:if>										
+															<c:if test="${not(empty r[17]) and (not (r[17]==null))}">
+																<b>/${r[17]}</b>
+																<div id="memberImageDiv" style="display: none;">
+																	<img src="editing/gememberimage/${r[16]}" height="16px;" class="memberImg" />	
+																</div>
+															</c:if>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+														</c:otherwise>
+													</c:choose>
 												</c:otherwise>
-											</c:choose>
+											</c:choose>												
 											<div id="pp${r[20]}" style="width: 750px; max-width: 750px; word-wrap:break-word; display: inline;" class="replaceMe">
 												${r[0]}
 											</div>
-											<div class="imgId img${r[20]}" id="imgId${r[14]}" style="display: none;">
-												<img src="editing/gememberimage/${r[14]}" height="8px" class="imgIdDivImage"/>
-											</div>
+											<c:if test="${r[14]!=null}" >
+												<div class="imgId img${r[20]}" id="imgId${r[14]}" style="display: none;">
+													<img src="editing/gememberimage/${r[14]}" height="8px" class="imgIdDivImage"/>
+												</div>
+											</c:if>
 											<div id="ppsp${r[20]}" class="ppsp" style="display: none;">classes</div>
 											<div id="pprp${r[20]}" class="pprp" style="display: none;">classes</div>
-											<div class="revision" id="pd${r[20]}" style="position: relative; border-radius: 10px; margin-left: 750px; top: -20px; text-align: center; display: inline-block; min-width: 16px; min-height: 16px; border: 1px solid blue; background: #013094; cursor: pointer;">
+											<%-- <div style="position: relative; border-radius: 10px; margin-left: 750px; top: -20px; text-align: center; display: inline-block; min-width: 16px; min-height: 16px; border: 1px solid blue; background: #013094; cursor: pointer;">
 												<spring:message code="editing.more" text="S" />
-											</div>
+											</div> --%>
 										</c:if>
-									</c:otherwise>
+									</c:otherwise>	
 								</c:choose>
-							</c:when>
-							<c:otherwise>
-								<c:if test="${not (empty r[0])}">
-									<c:choose>
-										<c:when test="${memberID!=r[14] or causePHMH==0}">
-											<c:set var="causePHMH" value="1" />
-											<c:if test="${not(empty r[15]) and (not (r[15]==null))}">
-												<b class="member" style="display: inline-block;">
+							</td>
+						</tr>
+					</c:when>
+					<c:otherwise>
+						<%-- <tr>
+							<td style="width: 250px; min-width: 250px; max-width: 100px;">
+								${r[26]}
+							</td>
+							<td style="width: 250px; min-width: 250px; max-width: 550px; font-weight: bold; font-size: 14px; text-align: center;">
+								&nbsp;								
+							</td>	
+							<td style="width: 250px; min-width: 250px; max-width: 100px;">
+								&nbsp;
+							</td>			
+						</tr> --%>
+						<tr>
+							<td colspan="3">
+								<div style="text-align: center; font-size: 16px;">
+									<c:if test="${(ph!=r[1] && mh!=r[2]) or (ph!=r[1]) or (mh!=r[2])}">
+										<c:choose>
+											<c:when test="${(fn:length(r[1])>0) && (fn:length(r[2])>0)}">
+												<c:set var="causePHMH" value="0" />
+												<b><spring:message code="editing.pageheading" text="Page Heading" /></b>${r[1]}<br />
+												<b><spring:message code="editing.mainheading" text="Main Heading" /></b>${r[2]}
+											</c:when>
+											<c:when test="${(fn:length(r[1])>0) || (fn:length(r[2])>0)}">
+												<c:set var="causePHMH" value="0" />
+												<b><spring:message code="editing.pageheading" text="Page Heading" /></b> ${r[1]} / <b><spring:message code="editing.mainheading" text="Main Heading" /></b> ${r[2]}
+											</c:when>
+										</c:choose>
+									</c:if>
+								</div>
+								<c:choose>						
+									<c:when test="${action=='edited' or action=='edit'}">
+										<c:choose>
+											<c:when test="${not (empty r[21])}">
+												<%--Too show the member name and image only when its of different member--%>
+												<c:choose>
+													<c:when test="${r[4]!=null and (fn:length(r[4]) > 0)}">
+														<c:if test="${representativeData!=r[4] or causePHMH==0}">															<c:set var="putTr" value="1" />
+															<c:set var="causePHMH" value="1" />
+															${r[4]}, (${r[5]}) : 
+														</c:if>
+													</c:when>
+													<c:otherwise>
 														<c:choose>
-															<c:when test="${not(r[23]==null)}">
-																${r[23]}
+															<c:when test="${memberID!=r[14] or causePHMH==0}">
+																<c:set var="putTr" value="1" />
+																<c:set var="causePHMH" value="1" />
+																<c:if test="${not(empty r[15]) and (not (r[15]==null))}">
+																	<b class="member" style="display: inline-block;">
+																		<c:choose>
+																			<c:when test="${r[23]!=null and (not (empty r[23]))}">
+																				${r[23]}
+																			</c:when>
+																			<c:otherwise>
+																				${r[15]}
+																			</c:otherwise>
+																		</c:choose>
+																	</b>
+																	<div id="memberImageDiv" style="display: inline;">
+																		<img src="editing/gememberimage/${r[14]}" height="16px;" class="memberImg" />	
+																	</div>
+																</c:if>										
+																<c:if test="${not(empty r[17]) and (not (r[17]==null))}">
+																	<b>, ${r[17]} ${inPlaceOf}</b>
+																	<div id="memberImageDiv" style="display: inline;">
+																		<img src="editing/gememberimage/${r[16]}" height="16px;" class="memberImg"/>	
+																	</div>
+																</c:if>:
 															</c:when>
 															<c:otherwise>
-																${r[15]}
+																<c:set var="causePHMH" value="1" />
+																<c:set var="putTr" value="0" />
+																<c:if test="${not(empty r[15]) and (not (r[15]==null))}">
+																	<div id="memberImageDiv" style="display: none;">
+																		<img src="editing/gememberimage/${r[14]}" height="16px;" class="memberImg" />	
+																	</div>
+																</c:if>										
+																<c:if test="${not(empty r[17]) and (not (r[17]==null))}">
+																	<div id="memberImageDiv" style="display: none;">
+																		<img src="editing/gememberimage/${r[16]}" height="16px;" class="memberImg"/>	
+																	</div>
+																</c:if>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 															</c:otherwise>
 														</c:choose>
-													</b>
-												<div id="memberImageDiv" style="display: inline;">
-													<img src="editing/gememberimage/${r[14]}" height="16px;" class="memberImg" />	
+													</c:otherwise>
+												</c:choose>
+												<div id="pp${r[20]}" style="width: 750px; max-width: 750px; word-wrap:break-word; display: inline;" class="replaceMe">
+													${r[21]}
 												</div>
-											</c:if>										
-											<c:if test="${not(empty r[17]) and (not (r[17]==null))}">
-												<b>/${r[17]}</b>
-												<div id="memberImageDiv" style="display: inline;">
-													<img src="editing/gememberimage/${r[16]}" height="16px;" class="memberImg" />	
+												<c:if test="${r[14]!=null}">
+													<div class="imgId img${r[20]}" id="imgId${r[14]}" style="display: none;">
+														<img src="editing/gememberimage/${r[14]}" height="8px" class="imgIdDivImage"/>
+													</div>
+												</c:if>
+												<div id="ppsp${r[20]}" class="ppsp" style="display: none;">classes</div>
+												<div id="pprp${r[20]}" class="pprp" style="display: none;">classes</div>
+												<div class="revision" id="pd${r[20]}" style="position: relative; border-radius: 10px; margin-left: 750px; top: -20px; text-align: center; display: inline-block; min-width: 16px; min-height: 16px; border: 1px solid blue; background: #00ff00; cursor: pointer;">
+													<spring:message code="editing.more" text="S" />
 												</div>
-											</c:if>:
-										</c:when>
-										<c:otherwise>
-											<c:if test="${not(empty r[15]) and (not (r[15]==null))}">
-												<b class="member" style="display: inline-block;">${r[15]}</b>
-												<div id="memberImageDiv" style="display: none;">
-													<img src="editing/gememberimage/${r[14]}" height="16px;" class="memberImg" />	
+											</c:when>
+											<c:otherwise>
+												<c:if test="${not (empty r[0])}">
+													<c:choose>
+														<c:when test="${r[4]!=null and (fn:length(r[4]) > 0)}">
+															<c:if test="${representativeData!=r[4] or causePHMH==0}">															<c:set var="putTr" value="1" />
+																<c:set var="causePHMH" value="1" />
+																${r[4]}, (${r[5]}) : 
+															</c:if>
+														</c:when>
+														<c:otherwise>
+															<c:choose>
+																<c:when test="${memberID!=r[14] or causePHMH==0}">
+																	<c:set var="putTr" value="1" />
+																	<c:set var="causePHMH" value="1" />
+																	<c:if test="${not(empty r[15]) and (not (r[15]==null))}">
+																		<b class="member" style="display: inline-block;">
+																			<c:choose>
+																				<c:when test="${r[23]!=null and (not (empty r[23]))}">
+																					${r[23]}
+																				</c:when>
+																				<c:otherwise>
+																					${r[15]}
+																				</c:otherwise>
+																			</c:choose>
+																		</b>
+																		<div id="memberImageDiv" style="display: inline;">
+																			<img src="editing/gememberimage/${r[14]}" height="16px;" class="memberImg" />	
+																		</div>
+																	</c:if>										
+																	<c:if test="${not(empty r[17]) and (not (r[17]==null))}">
+																		<b>,${r[17]} ${inPlaceOf}</b>
+																		<div id="memberImageDiv" style="display: inline;">
+																			<img src="editing/gememberimage/${r[16]}" height="16px;" class="memberImg" />	
+																		</div>
+																	</c:if>:
+																</c:when>
+																<c:otherwise>
+																	<c:set var="putTr" value="0" />
+																	<c:if test="${not(empty r[15]) and (not (r[15]==null))}">
+																		<%-- <b class="member" style="display: inline-block;">${r[15]}</b> --%>
+																		<div id="memberImageDiv" style="display: none;">
+																			<img src="editing/gememberimage/${r[14]}" height="16px;" class="memberImg" />	
+																		</div>
+																	</c:if>										
+																	<c:if test="${not(empty r[17]) and (not (r[17]==null))}">
+																		<%-- <b>/${r[17]}</b> --%>
+																		<div id="memberImageDiv" style="display: none;">
+																			<img src="editing/gememberimage/${r[16]}" height="16px;" class="memberImg" />	
+																		</div>
+																	</c:if>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+																</c:otherwise>
+															</c:choose>
+														</c:otherwise>
+													</c:choose>
+													<div id="pp${r[20]}" style="width: 750px; max-width: 750px; word-wrap:break-word; display: inline;" class="replaceMe">
+														${r[0]}
+													</div>
+													<c:if test="${r[14]!=null}">
+														<div class="imgId img${r[20]}" id="imgId${r[14]}" style="display: none;">
+															<img src="editing/gememberimage/${r[14]}" height="8px" class="imgIdDivImage"/>
+														</div>
+													</c:if>
+													<div id="ppsp${r[20]}" class="ppsp" style="display: none;">classes</div>
+													<div id="pprp${r[20]}" class="pprp" style="display: none;">classes</div>
+													<div class="revision" id="pd${r[20]}" style="position: relative; border-radius: 10px; margin-left: 750px; top: -20px; text-align: center; display: inline-block; min-width: 16px; min-height: 16px; border: 1px solid blue; background: #013094; cursor: pointer;">
+														<spring:message code="editing.more" text="S" />
+													</div>
+												</c:if>
+											</c:otherwise>
+										</c:choose>
+									</c:when>
+									<c:otherwise>
+										<c:if test="${not (empty r[0])}">
+											<c:choose>
+												<c:when test="${r[4]!=null and (fn:length(r[4]) > 0)}">
+													<c:if test="${representativeData!=r[4] or causePHMH==0}">															<c:set var="putTr" value="1" />
+														<c:set var="causePHMH" value="1" />
+														${r[4]}, (${r[5]}) : 
+													</c:if>
+												</c:when>
+												<c:otherwise>
+													<c:choose>
+														<c:when test="${memberID!=r[14] or causePHMH==0}">
+															<c:set var="causePHMH" value="1" />
+															<c:if test="${not(empty r[15]) and (not (r[15]==null))}">
+																<b class="member" style="display: inline-block;">
+																		<c:choose>
+																			<c:when test="${not(r[23]==null)}">
+																				${r[23]}
+																			</c:when>
+																			<c:otherwise>
+																				${r[15]}
+																			</c:otherwise>
+																		</c:choose>
+																	</b>
+																<div id="memberImageDiv" style="display: inline;">
+																	<img src="editing/gememberimage/${r[14]}" height="16px;" class="memberImg" />	
+																</div>
+															</c:if>										
+															<c:if test="${not(empty r[17]) and (not (r[17]==null))}">
+																<b>, ${r[17]} ${inPlaceOf}</b>
+																<div id="memberImageDiv" style="display: inline;">
+																	<img src="editing/gememberimage/${r[16]}" height="16px;" class="memberImg" />	
+																</div>
+															</c:if>:
+														</c:when>
+														<c:otherwise>
+															<c:if test="${not(empty r[15]) and (not (r[15]==null))}">
+																<b class="member" style="display: inline-block;">${r[15]}</b>
+																<div id="memberImageDiv" style="display: none;">
+																	<img src="editing/gememberimage/${r[14]}" height="16px;" class="memberImg" />	
+																</div>
+															</c:if>										
+															<c:if test="${not(empty r[17]) and (not (r[17]==null))}">
+																<b>/${r[17]}</b>
+																<div id="memberImageDiv" style="display: none;">
+																	<img src="editing/gememberimage/${r[16]}" height="16px;" class="memberImg" />	
+																</div>
+															</c:if>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+														</c:otherwise>
+													</c:choose>
+												</c:otherwise>
+											</c:choose>												
+											<div id="pp${r[20]}" style="width: 750px; max-width: 750px; word-wrap:break-word; display: inline;" class="replaceMe">
+												${r[0]}
+											</div>
+											<c:if test="${r[14]!=null}">
+												<div class="imgId img${r[20]}" id="imgId${r[14]}" style="display: none;">
+													<img src="editing/gememberimage/${r[14]}" height="8px" class="imgIdDivImage"/>
 												</div>
-											</c:if>										
-											<c:if test="${not(empty r[17]) and (not (r[17]==null))}">
-												<b>/${r[17]}</b>
-												<div id="memberImageDiv" style="display: none;">
-													<img src="editing/gememberimage/${r[16]}" height="16px;" class="memberImg" />	
-												</div>
-											</c:if>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-										</c:otherwise>
-									</c:choose>
-										
-									<div id="pp${r[20]}" style="width: 750px; max-width: 750px; word-wrap:break-word; display: inline;" class="replaceMe">
-										${r[0]}
-									</div>
-									<div class="imgId img${r[20]}" id="imgId${r[14]}" style="display: none;">
-										<img src="editing/gememberimage/${r[14]}" height="8px" class="imgIdDivImage"/>
-									</div>
-									<div id="ppsp${r[20]}" class="ppsp" style="display: none;">classes</div>
-									<div id="pprp${r[20]}" class="pprp" style="display: none;">classes</div>
-									<%-- <div style="position: relative; border-radius: 10px; margin-left: 750px; top: -20px; text-align: center; display: inline-block; min-width: 16px; min-height: 16px; border: 1px solid blue; background: #013094; cursor: pointer;">
-										<spring:message code="editing.more" text="S" />
-									</div> --%>
-								</c:if>
-							</c:otherwise>	
-						</c:choose>
-					</td>
-				<tr>
+											</c:if>
+											<div id="ppsp${r[20]}" class="ppsp" style="display: none;">classes</div>
+											<div id="pprp${r[20]}" class="pprp" style="display: none;">classes</div>
+											<%-- <div style="position: relative; border-radius: 10px; margin-left: 750px; top: -20px; text-align: center; display: inline-block; min-width: 16px; min-height: 16px; border: 1px solid blue; background: #013094; cursor: pointer;">
+												<spring:message code="editing.more" text="S" />
+											</div> --%>
+										</c:if>
+									</c:otherwise>	
+								</c:choose>
+							</td>
+						</tr>
+					</c:otherwise>
+				</c:choose>
 				<c:if test="${r[14]!=report[counter.count][14]}">
 					<tr>
 						<td>
@@ -921,6 +1217,8 @@
 						</td>
 					<tr>
 				</c:if>
+				<c:set var="representativeData" value="${r[4]}" />
+				<c:set var="currEntryDate" value="${r[26]}" />
 				<c:set var="memberID" value="${r[14]}" />
 				<c:set var="ph" value="${r[1]}"/>
 				<c:set var="mh" value="${r[2]}"/>
