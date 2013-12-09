@@ -83,6 +83,11 @@ public class Proceeding extends BaseDomain implements Serializable{
 	}
 
 
+	public static List<Proceeding> findAllFilledProceedingBySlot(Slot s) {
+		return getProceedingRepository().findAllFilledProceedingBySlot(s);
+	}
+
+
 
 
 }

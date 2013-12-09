@@ -92,6 +92,25 @@ public class Slot extends BaseDomain implements Serializable{
 	public static List<Slot> findSlotsByLanguageContainingSlotTime(Language language, Slot slot) {
 		return getSlotRepository().findSlotsByLanguageContainingSlotTime(language,slot);
 	}
+	
+	public static List<User> findDifferentLanguageUsersBySlot(Slot s) {
+		return getSlotRepository().findDifferentLanguageUsersBySlot(s);
+	}
+	
+	public static List<Slot> findSlotsBySessionAndLanguage(Session session,
+			Language language) {
+		return getSlotRepository().findSlotsBySessionAndLanguage(session,language);
+	}
+	
+	public static List<Slot> findSlotsByReporterAndRoster(Roster roster,
+			Reporter reporter) {
+		return getSlotRepository().findSlotsByReporterAndRoster(roster,reporter);
+	}
+	
+	public static List<Slot> findSlotsByMemberAndRoster(Roster roster,
+			Member member) {
+		return getSlotRepository().findSlotsByMemberAndRoster(roster,member);
+	}
 	/*********** Setters and Getters ************/	
 	
 	public Reporter getReporter() {
@@ -149,5 +168,9 @@ public class Slot extends BaseDomain implements Serializable{
 	public String getName() {
 		return name;
 	}
+	
+	
+	
+	
 	
 }

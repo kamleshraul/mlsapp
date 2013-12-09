@@ -213,6 +213,12 @@ public class Part  extends BaseDomain implements Serializable{
 		return getPartRepository().findAllNonWorkflowDraftsOfPart(part, locale);
 	}
 	
+
+	public static List<Part> findPartsByProceedingAndMember(Proceeding proc,
+			Member member) {
+		return getPartRepository().findPartsByProceedingAndMember(proc, member);
+	}
+
 	@SuppressWarnings({ "rawtypes"})
 	public static List findVishaySuchiListWithoutMembers(final String catchWord, 
 			final Long rosterId, 
@@ -239,6 +245,7 @@ public class Part  extends BaseDomain implements Serializable{
 		return getPartRepository().findPartsOfMemberInRoster(rosterId, memberId, locale);
 	}
 	
+
 	/****Getters and Setters****/
 	public Integer getOrderNo() {
 		return orderNo;
@@ -472,6 +479,8 @@ public class Part  extends BaseDomain implements Serializable{
 			SubDepartment substituteMemberSubDepartment) {
 		this.substituteMemberSubDepartment = substituteMemberSubDepartment;
 	}
+
+	
 	
 	
 }
