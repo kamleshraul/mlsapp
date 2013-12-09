@@ -8,7 +8,10 @@ import java.util.Locale;
 import javax.persistence.Query;
 import javax.persistence.TypedQuery;
 
+import org.apache.batik.svggen.font.table.Device;
 import org.mkcl.els.common.exception.ELSException;
+import org.mkcl.els.common.vo.MasterVO;
+import org.mkcl.els.domain.DeviceType;
 import org.mkcl.els.domain.Member;
 import org.mkcl.els.domain.Part;
 import org.mkcl.els.domain.PartDraft;
@@ -117,12 +120,12 @@ public class PartRepository extends BaseRepository<Part, Serializable> {
 		return data;
 	}
 	
-	public List<Member> findAllProceedingMembersOfRoster(final Roster roster, final String locale){
+	public List<Member> findProceedingMembersOfRoster(final Roster roster, final String locale){
 		
 		List<Member> members = new ArrayList<Member>();
 		
 		try{
-			String query = "SELECT pp.primaryMember FROM Part pp"
+			String query = "SELECT DISTINCT pp.primaryMember FROM Part pp"
 							+ " LEFT JOIN pp.proceeding p"
 							+ " WHERE p.slot.roster.id=:rosterId"
 							+ " AND pp.locale=:locale";
@@ -161,16 +164,20 @@ public class PartRepository extends BaseRepository<Part, Serializable> {
 		return members;
 	}
 	
-	public List<Part> findAllPartsOfMemberOfRoster(final Roster roster, final String locale){
+	public List<Part> findAllPartsOfMemberOfRoster(final Roster roster,
+			final Long memberId,
+			final String locale){
 		List<Part> parts = new ArrayList<Part>();
 		try{
 			String query = "SELECT pr FROM Part pr"
 						+ " LEFT JOIN pr.proceeding p"
 						+ " WHERE p.slot.roster.id=:rosterId"
+						+ " AND pr.primaryMember.id=:memberId"
 						+ " AND pr.locale=:locale";
 			
 			TypedQuery<Part> tQuery = this.em().createQuery(query, Part.class);
 			tQuery.setParameter("rosterId", roster.getId());
+			tQuery.setParameter("memberId", memberId);
 			tQuery.setParameter("locale", locale);
 			parts = tQuery.getResultList();
 		}catch (Exception e) {
@@ -191,5 +198,121 @@ public class PartRepository extends BaseRepository<Part, Serializable> {
 		tQuery.setParameter("locale", locale);
 		List<PartDraft> pds = tQuery.getResultList();
 		return pds;
+	}
+	
+	//TODO: have to change the query to include main heading instead of page heading	
+	@SuppressWarnings("rawtypes")
+	public List findVishaySuchiListWithoutMembers(final String catchWord, final Long rosterId, final String locale){
+		String query = "SELECT" +  
+						" 'catchWord' AS memberorcatchword," +
+						" '"+ catchWord +"' AS catchword," +
+						" '0' AS catchwordId," +
+						" pr.primary_member AS memberId," +
+						" '0' AS member," + 
+						" (SELECT dt.name FROM devicetypes dt WHERE dt.id=pr.device_type) AS devicename," +
+						" (SELECT dt.type FROM devicetypes dt WHERE dt.id=pr.device_type) AS devicetype," +
+						" '0' AS devicecatchword," +
+						" pr.page_heading AS originalpageheading," +
+						" REPLACE(pr.page_heading,'" + catchWord + "','_____') AS replacedpageheading," +
+						" pr.id AS partid" +
+						" FROM parts pr" +
+						" INNER JOIN proceedings proc ON(proc.id=pr.proceeding)" +
+						" INNER JOIN slots sl ON(sl.id=proc.slot)" +
+						" WHERE sl.roster=" + rosterId +
+						" AND pr.primary_member IS NULL" +
+						" AND pr.locale='" + locale + "'" +
+						" AND POSITION('" + catchWord + "' IN pr.page_heading) > 0";
+		
+		Query pQuery = this.em().createNativeQuery(query);
+		List data = pQuery.getResultList();
+		
+		return data;
+	}
+	
+	//TODO: have to change the query to include main heading instead of page heading	
+	@SuppressWarnings("rawtypes")
+	public List findVishaySuchiListWithMembers(final String catchWord, 
+			final Long rosterId,
+			final Long memberId,
+			final String locale){
+		String query = "SELECT" +  
+						" 'member' AS memberorcatchword," +
+						" '" + catchWord + "' AS catchword," +
+						" '0' AS catchwordId," +
+						" m.id AS memberId," +
+						" CONCAT(m.last_name,', ',t.name,' ', m.first_name) AS member," + 
+						" (SELECT dt.name FROM devicetypes dt WHERE dt.id=pr.device_type) AS devicename," +
+						" (SELECT dt.type FROM devicetypes dt WHERE dt.id=pr.device_type) AS devicetype," +
+						" '0' AS devicecatchword," +
+						" pr.page_heading AS originalpageheading," +
+						" REPLACE(pr.page_heading,'" + catchWord + "','_____') AS replacedpageheading," +
+						" pr.id AS partid" +
+						" FROM parts pr" +
+						" INNER JOIN proceedings proc ON(proc.id=pr.proceeding)" +
+						" INNER JOIN slots sl ON(sl.id=proc.slot)" +
+						" INNER JOIN members m ON(m.id=pr.primary_member)" +
+						" INNER JOIN titles t ON(t.id=m.title_id)" +
+						" WHERE sl.roster=" + rosterId +
+						" AND pr.primary_member=" + memberId +
+						" AND pr.locale='" + locale + "'" +
+						" ORDER BY devicetype ASC";
+		
+		Query pQuery = this.em().createNativeQuery(query);
+		List data = pQuery.getResultList();
+		
+		return data;
+	}
+	
+	@SuppressWarnings({"rawtypes"})
+	public List findPartsOfCatchwordInRoster(final Long rosterId, final String catchWord, final String locale){
+		String query = "SELECT" +
+						" pr.id AS partid" +
+						" FROM parts pr" +
+						" INNER JOIN proceedings proc ON(proc.id=pr.proceeding)" +
+						" INNER JOIN slots sl ON(sl.id=proc.slot)" +
+						" WHERE sl.roster=" + rosterId +
+						" AND POSITION('" + catchWord + "' IN " + "pr.page_heading) > 0" +
+						" AND pr.locale='" + locale +"'";
+		Query pQuery = this.em().createNativeQuery(query);
+								
+		return pQuery.getResultList();
+	}
+	
+	@SuppressWarnings({"rawtypes"})
+	public List findPartsOfMemberInRoster(final Long rosterId, final Long memberId, final String locale){
+		String query = "SELECT" +
+						" pr.id AS partid" +
+						" FROM parts pr" +
+						" INNER JOIN proceedings proc ON(proc.id=pr.proceeding)" +
+						" INNER JOIN slots sl ON(sl.id=proc.slot)" +
+						" WHERE sl.roster=" + rosterId +
+						" AND pr.primary_member=" + memberId +
+						" AND pr.locale='" + locale +"'";
+		Query pQuery = this.em().createNativeQuery(query);
+								
+		return pQuery.getResultList();
+	}
+	
+	public List<MasterVO> findDevicesOfMemberInRoster(final Long rosterId, final Long memberId, final String locale){
+		String query = "SELECT pr.deviceType FROM Part pr" + 
+						" LEFT JOIN pr.proceeding pro" +
+						" WHERE pro.slot.roster=:rosterId" +
+						" AND pr.primaryMember.id=:memberId" +
+						" AND pr.locale=:locale";
+		
+		TypedQuery<DeviceType> tQuery = this.em().createQuery(query, DeviceType.class);
+		List<DeviceType> deviceTypes = tQuery.getResultList();
+		List<MasterVO> devices = new ArrayList<MasterVO>();
+		if(deviceTypes != null && !deviceTypes.isEmpty()){
+			for(DeviceType dt : deviceTypes){
+				MasterVO dtN = new MasterVO();
+				dtN.setId(dt.getId());
+				dtN.setValue(dt.getType());
+				dtN.setName(dt.getName());
+				devices.add(dtN);				
+			}
+		}
+		
+		return devices;
 	}
 }
