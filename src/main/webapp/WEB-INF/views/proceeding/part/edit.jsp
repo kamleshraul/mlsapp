@@ -62,7 +62,7 @@
 		/****AutoSuggest for House Specific Member****/
 		$( "#formattedMember").autocomplete({
 			minLength:3,			
-			source:'ref/member/supportingmembers?session='+$("#session").val(),
+			source:'ref/member/getmembers?session='+$("#session").val(),
 			select:function(event,ui){		
 				$("#primaryMember").val(ui.item.id);
 			}	
