@@ -882,12 +882,13 @@ public class ReferencedEntityRepository extends BaseRepository<ReferencedEntity,
 				" FROM acts as a " +	
 				" LEFT JOIN `acts_titles` AS at ON (at.act_id = a.id)" +
 				" LEFT JOIN `text_drafts` AS titleDraft ON (titleDraft.id = at.title_id)" +
-				" LEFT JOIN languages AS lang ON (lang.id = titleDraft.language_id)";
+				" LEFT JOIN languages AS lang ON (lang.id = titleDraft.language_id)" +
+				" WHERE lang.type = '" + language + "'";
 		
 		/**** fulltext query ****/
 		String searchQuery = null;	
 		if(!param.contains("+")&&!param.contains("-")){
-			searchQuery=" WHERE ((match(titleDraft.text) against('"+param+"' in natural language mode))" +
+			searchQuery=" AND ((match(titleDraft.text) against('"+param+"' in natural language mode))" +
 					" || titleDraft.text LIKE '"+param+"%')";					
 		}else if(param.contains("+")&&!param.contains("-")){
 			String[] parameters=param.split("\\+");
@@ -913,7 +914,7 @@ public class ReferencedEntityRepository extends BaseRepository<ReferencedEntity,
 		
 		/**** Final Query ****/
 		String finalQuery="SELECT rs.actId,rs.actNumber,rs.actTitle,rs.year" +
-				" FROM ("+actSelectQuery+searchQuery+orderByQuery+") as rs LIMIT "+start+","+noOfRecords;
+				" FROM ("+actSelectQuery+searchQuery+orderByQuery+") as rs";// LIMIT "+start+","+noOfRecords;
 		
 		List resultList=this.em().createNativeQuery(finalQuery).getResultList();
 		
@@ -1069,7 +1070,7 @@ public class ReferencedEntityRepository extends BaseRepository<ReferencedEntity,
 		finalQuery="SELECT rs.billId,rs.billNumber,rs.billTitle,rs.billRevisedTitle,rs.billContent, "+
 				" rs.billRevisedContent,rs.languageType,rs.billStatus,rs.billDeviceType," + 
 				" rs.billMinistry,rs.billSubDepartment,rs.billStatusType, rs.billSessionType, rs.billSessionYear," + 
-				" rs.billDate FROM ("+selectQuery+searchQuery+orderByQuery+") as rs LIMIT "+start+","+noOfRecords;
+				" rs.billDate FROM ("+selectQuery+searchQuery+orderByQuery+") as rs";// LIMIT "+start+","+noOfRecords;
 				
 		resultList=this.em().createNativeQuery(finalQuery).getResultList();
 		String billId = "";
@@ -1152,8 +1153,16 @@ public class ReferencedEntityRepository extends BaseRepository<ReferencedEntity,
 				}											
 			}
 		}
-		
-		return billSearchVOs;		
+		//return only required number of records
+		List<BillSearchVO> resultBillSearchVOs = new ArrayList<BillSearchVO>();
+		for(int i=start; i<billSearchVOs.size(); i++) {
+			if(i<noOfRecords) {
+				resultBillSearchVOs.add(billSearchVOs.get(i));
+			} else {
+				break;
+			}
+		}
+		return resultBillSearchVOs;		
 	}
 	
 	public List<BillSearchVO> exactSearchReferencingBill(final Bill bill, 
@@ -1191,7 +1200,7 @@ public class ReferencedEntityRepository extends BaseRepository<ReferencedEntity,
 		
 		/**** Final Query ****/
 		String finalQuery="SELECT rs.actId,rs.actNumber,rs.actTitle,rs.year" +
-				" FROM ("+actSelectQuery+exactSearchQuery+orderByQuery+") as rs LIMIT "+start+","+noOfRecords;
+				" FROM ("+actSelectQuery+exactSearchQuery+orderByQuery+") as rs";// LIMIT "+start+","+noOfRecords;
 				
 		List resultList=this.em().createNativeQuery(finalQuery).getResultList();
 		
@@ -1328,7 +1337,7 @@ public class ReferencedEntityRepository extends BaseRepository<ReferencedEntity,
 		finalQuery="SELECT rs.billId,rs.billNumber,rs.billTitle,rs.billRevisedTitle,rs.billContent, "+
 				" rs.billRevisedContent,rs.languageType,rs.billStatus,rs.billDeviceType," + 
 				" rs.billMinistry,rs.billSubDepartment,rs.billStatusType, rs.billSessionType, rs.billSessionYear," + 
-				" rs.billDate FROM ("+selectQuery+exactSearchQuery+orderByQuery+") as rs LIMIT "+start+","+noOfRecords;
+				" rs.billDate FROM ("+selectQuery+exactSearchQuery+orderByQuery+") as rs";// LIMIT "+start+","+noOfRecords;
 				
 		resultList=this.em().createNativeQuery(finalQuery).getResultList();
 		String billId = "";
@@ -1412,7 +1421,16 @@ public class ReferencedEntityRepository extends BaseRepository<ReferencedEntity,
 			}
 		}
 		
-		return billSearchVOs;		
+		//return only required number of records
+		List<BillSearchVO> resultBillSearchVOs = new ArrayList<BillSearchVO>();
+		for(int i=start; i<billSearchVOs.size(); i++) {
+			if(i<noOfRecords) {
+				resultBillSearchVOs.add(billSearchVOs.get(i));
+			} else {
+				break;
+			}
+		}
+		return resultBillSearchVOs;		
 	}
 	
 	//=========================

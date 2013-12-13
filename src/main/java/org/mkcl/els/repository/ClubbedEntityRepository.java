@@ -1421,7 +1421,16 @@ public class ClubbedEntityRepository extends BaseRepository<ClubbedEntity, Seria
 		}		
 		if(!billSearchVOs.isEmpty()) {
 			addClasification(billSearchVOs.get(billSearchVOs.size()-1),bill);
-		}		
-		return billSearchVOs;
+		}			
+		//return only required number of records
+		List<BillSearchVO> resultBillSearchVOs = new ArrayList<BillSearchVO>();
+		for(int i=start; i<billSearchVOs.size(); i++) {
+			if(i<noofRecords) {
+				resultBillSearchVOs.add(billSearchVOs.get(i));
+			} else {
+				break;
+			}
+		}
+		return resultBillSearchVOs;
 	}
 }
