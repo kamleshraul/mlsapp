@@ -21,6 +21,9 @@ public class PrintRequisitionParameter extends BaseDomain implements Serializabl
 	@Column
     private String parameterName;
 	
+	@Column
+    private String parameterValue;
+	
 //	@Column
 //    private String parameterType;
 	
@@ -54,6 +57,14 @@ public class PrintRequisitionParameter extends BaseDomain implements Serializabl
 //	public void setParameterType(String parameterType) {
 //		this.parameterType = parameterType;
 //	}
+
+	public String getParameterValue() {
+		return parameterValue;
+	}
+
+	public void setParameterValue(String parameterValue) {
+		this.parameterValue = parameterValue;
+	}
 
 	public Integer getParameterOrder() {
 		return parameterOrder;
