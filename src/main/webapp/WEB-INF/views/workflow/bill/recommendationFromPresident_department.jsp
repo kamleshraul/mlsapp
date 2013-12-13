@@ -341,7 +341,15 @@
 				});
 			});
 			/**** submit opinion ****/ 
-		    $('#submit').click(function() {			    	
+		    $('#submit').click(function() {	
+		    	if($('#recommendationFromPresident').val()==undefined 
+		    			|| $('#recommendationFromPresident').val().trim()==""
+		    			|| $('#recommendationFromPresident').val().trim()=="<p></p>"
+		    			|| $('#recommendationFromPresident').val().trim()=="<p><br></p>"
+		    			|| $('#recommendationFromPresident').val().trim()=="<br><p></p>") {
+		    		$.prompt($('#recommendationFromPresidentNotMentionedPrompt').val());
+		    		return false;
+		    	}
 				/**** read only form for department in opinion seeking workflow ****/
 				$("#currentForm :input").not("#recommendationFromPresident,#remarks,#save,#submit").removeAttr("disabled");	    	
 				//removing <p><br></p>  from wysiwyg editor
@@ -1722,6 +1730,7 @@
 				<input id="typeOfSelectedBillType" type="hidden" value="${typeOfSelectedBillType}" />
 				<input type="hidden" id="isActReferenced" value="${isActReferenced}">
 				<input type="hidden" id="defaultBillLanguage" value="${defaultBillLanguage}">
+				<input id="recommendationFromPresidentNotMentionedPrompt" value="<spring:message code='bill.recommendationFromPresidentNotMentionedPrompt' text='Please mention recommendation from president'></spring:message>" type="hidden">
 			</div>		
 		</div>
 	</body>

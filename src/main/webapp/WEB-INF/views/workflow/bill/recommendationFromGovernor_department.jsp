@@ -321,7 +321,15 @@
 				});
 			});
 			/**** submit recommendation ****/ 
-		    $('#submit').click(function() {			    	
+		    $('#submit').click(function() {	
+		    	if($('#recommendationFromGovernor').val()==undefined 
+		    			|| $('#recommendationFromGovernor').val().trim()==""
+		    			|| $('#recommendationFromGovernor').val().trim()=="<p></p>"
+		    			|| $('#recommendationFromGovernor').val().trim()=="<p><br></p>"
+		    			|| $('#recommendationFromGovernor').val().trim()=="<br><p></p>") {
+		    		$.prompt($('#recommendationFromGovernorNotMentionedPrompt').val());
+		    		return false;
+		    	}
 				/**** read only form for department in recommendation seeking workflow ****/
 				$("#currentForm :input").not("#recommendationFromGovernor,#remarks,#save,#submit").removeAttr("disabled");	    	
 				//removing <p><br></p>  from wysiwyg editor
@@ -1704,6 +1712,7 @@
 				<input id="typeOfSelectedBillType" type="hidden" value="${typeOfSelectedBillType}" />
 				<input type="hidden" id="isActReferenced" value="${isActReferenced}">
 				<input type="hidden" id="defaultBillLanguage" value="${defaultBillLanguage}">
+				<input id="recommendationFromGovernorNotMentionedPrompt" value="<spring:message code='bill.recommendationFromGovernorNotMentionedPrompt' text='Please mention recommendation from governor'></spring:message>" type="hidden">
 			</div>		
 		</div>
 	</body>
