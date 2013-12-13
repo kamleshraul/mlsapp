@@ -234,7 +234,11 @@ public class BaseRepository<T, ID extends Serializable> extends
     	
     	int index = 0; 
     	for (Entry<String, String> i : names.entrySet()) {
-            strQuery.append(" t." + i.getKey() + "=:" + i.getKey());
+    		if(i.getValue()!=null) {
+    			strQuery.append(" t." + i.getKey() + "=:" + i.getKey());
+    		} else {
+    			strQuery.append(" t." + i.getKey() + " IS NULL");
+    		}
             if(index < (names.entrySet().size() - 1)){
             	strQuery.append(" AND");	            	
             }
@@ -242,23 +246,21 @@ public class BaseRepository<T, ID extends Serializable> extends
         }
     	
     	if (locale == null) {
-    		strQuery.append(" AND locale=:locale");
-        }else if (locale.isEmpty()) {
-        	
-        }else {
+    		strQuery.append(" AND locale IS NULL");
+        }else if (!locale.isEmpty()) {
         	strQuery.append(" AND locale=:locale");
         }
     	
     	Query jpQuery = this.em().createQuery(strQuery.toString());
     	for (Entry<String, String> i : names.entrySet()) {
-            jpQuery.setParameter(i.getKey(), i.getValue());
+    		if(i.getValue()!=null) {
+    			jpQuery.setParameter(i.getKey(), i.getValue());
+    		}          
         }    	
-    	if (locale == null) {
-    		jpQuery.setParameter("locale", null);
-        }else if (locale.isEmpty()) {
-        	
-        }else {
-        	jpQuery.setParameter("locale", locale);
+    	if (locale != null) {    		
+    		if (!locale.isEmpty()) {
+    			jpQuery.setParameter("locale", locale);
+    		}
         }
     	List<U> list = jpQuery.getResultList();
     	U result = null;
