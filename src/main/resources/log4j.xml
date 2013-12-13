@@ -31,6 +31,10 @@
 	<logger name="org.springframework.web">
 		<level value="info" />
 	</logger>
+	
+	<logger name="org.apache.velocity.app">
+	    <level value="OFF" />
+	</logger>
 
 	<!-- Root Logger -->
 	<root>
