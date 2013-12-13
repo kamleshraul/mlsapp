@@ -479,8 +479,13 @@
 					if(wysiwygVal=="<p></p>"||wysiwygVal=="<p><br></p>"||wysiwygVal=="<br><p></p>"){
 						$(this).val("");
 					}
-				});
-				
+				});				
+				if($('#typeOfSelectedDeviceType').val()=='bills_government') {
+					if($('#opinionSoughtFromLawAndJD').val()=="") {
+						$.prompt($('opinionFromLawAndJDNotMentionedPrompt').val());
+						return false;
+					}					
+				}				
 				if($('#referredActDiv').is(':hidden')) {
 					$('#referredAct').val("");
 				}
@@ -489,20 +494,44 @@
 					$('#referredOrdinance').val("");
 				}
 					
-				$.prompt($('#submissionMsg').val(),{
-					buttons: {Ok:true, Cancel:false}, callback: function(v){
-			        if(v){
-						$.blockUI({ message: '<img src="./resources/images/waitAnimated.gif" />' });
-			        	$.post($('form').attr('action')+'?operation=submit',  
-			    	            $("form").serialize(),  
-			    	            function(data){
-			       					$('.tabContent').html(data);
-			       					$('html').animate({scrollTop:0}, 'slow');
-			       				 	$('body').animate({scrollTop:0}, 'slow');	
-			    					$.unblockUI();	   				 	   				
-			    	            });
-			        }
-				}});		
+				if($('#typeOfSelectedDeviceType').val()=='bills_government') {
+					if($('#recommendationFromGovernor').val()=="" && $('#recommendationFromPresident').val()=="") {
+						$.prompt($('#recommendationFromGovernorOrPresidentNotNeededPrompt').val(),{
+							buttons: {Ok:true, Cancel:false}, callback: function(u){
+					        if(u){
+					        	$.prompt($('#submissionMsg').val(),{
+									buttons: {Ok:true, Cancel:false}, callback: function(v){
+							        if(v){
+										$.blockUI({ message: '<img src="./resources/images/waitAnimated.gif" />' });
+							        	$.post($('form').attr('action')+'?operation=submit',  
+							    	            $("form").serialize(),  
+							    	            function(data){
+							       					$('.tabContent').html(data);
+							       					$('html').animate({scrollTop:0}, 'slow');
+							       				 	$('body').animate({scrollTop:0}, 'slow');	
+							    					$.unblockUI();	   				 	   				
+							    	            });
+							        }
+								}});
+					        }
+						}});
+					}					
+				} else {
+					$.prompt($('#submissionMsg').val(),{
+						buttons: {Ok:true, Cancel:false}, callback: function(v){
+				        if(v){
+							$.blockUI({ message: '<img src="./resources/images/waitAnimated.gif" />' });
+				        	$.post($('form').attr('action')+'?operation=submit',  
+				    	            $("form").serialize(),  
+				    	            function(data){
+				       					$('.tabContent').html(data);
+				       					$('html').animate({scrollTop:0}, 'slow');
+				       				 	$('body').animate({scrollTop:0}, 'slow');	
+				    					$.unblockUI();	   				 	   				
+				    	            });
+				        }
+					}});
+				}						
 				return false;
 		    });
 		});
@@ -960,9 +989,19 @@
 		
 		<c:if test="${selectedDeviceTypeForBill=='bills_government'}">
 		<p>
-		<label class="wysiwyglabel"><spring:message code="bill.opinionSoughtFromLawAndJD" text="Opinion from Law & Judiciary Department"/></label>
-		<form:textarea id="opinionSoughtFromLawAndJD" path="opinionSoughtFromLawAndJD" cssClass="wysiwyg"></form:textarea>
-		<form:errors path="opinionSoughtFromLawAndJD" />
+			<label class="wysiwyglabel"><spring:message code="bill.opinionSoughtFromLawAndJD" text="Opinion from Law & Judiciary Department"/></label>
+			<form:textarea id="opinionSoughtFromLawAndJD" path="opinionSoughtFromLawAndJD" cssClass="wysiwyg"></form:textarea>
+			<form:errors path="opinionSoughtFromLawAndJD" />
+		</p>
+		<p>
+			<label class="wysiwyglabel"><spring:message code="bill.recommendationFromGovernor" text="Recommendation From Governor"/></label>
+			<form:textarea id="recommendationFromGovernor" path="recommendationFromGovernor" cssClass="wysiwyg"></form:textarea>
+			<form:errors path="recommendationFromGovernor" />
+		</p>
+		<p>
+			<label class="wysiwyglabel"><spring:message code="bill.recommendationFromPresident" text="Recommendation From President"/></label>
+			<form:textarea id="recommendationFromPresident" path="recommendationFromPresident" cssClass="wysiwyg"></form:textarea>
+			<form:errors path="recommendationFromPresident" />
 		</p>
 		</c:if>		
 		</div>
@@ -1004,6 +1043,8 @@
 		<input type="hidden" id="dereferActWarningMessage" value="<spring:message code="dereferActWarningMessage" text="Do you really want to de-refer this act?"/>">
 		<input type="hidden" id="dereferOrdinanceWarningMessage" value="<spring:message code="dereferOrdinanceWarningMessage" text="Do you really want to de-refer this ordinance?"/>">
 		<input type="hidden" id="defaultBillLanguage" value="${defaultBillLanguage}">
+		<input type="hidden" id="opinionFromLawAndJDNotMentionedPrompt" value="<spring:message code="bill.opinionFromLawAndJDNotMentionedPrompt" text="Please mention opinion from law and judiciary department"/>">
+		<input type="hidden" id="recommendationFromGovernorOrPresidentNotNeededPrompt" value="<spring:message code="bill.recommendationFromGovernorOrPresidentNotNeededPrompt" text="Are you sure that recommendation from governor or president is not needed?"/>">
 	</div>
 	</div>
 	<ul id="contextMenuItems" style="width: 200px; list-style-type: none; list-style-position: inside;">

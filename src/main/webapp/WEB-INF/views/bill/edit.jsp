@@ -462,6 +462,13 @@
 					}
 				});
 				
+				if($('#typeOfSelectedDeviceType').val()=='bills_government') {
+					if($('#opinionSoughtFromLawAndJD').val()=="") {
+						$.prompt($('opinionFromLawAndJDNotMentionedPrompt').val());
+						return false;
+					}					
+				}
+				
 				if($('#referredActDiv').is(':hidden')) {
 					$('#referredAct').val("");
 				}
@@ -470,20 +477,44 @@
 					$('#referredOrdinance').val("");
 				}
 				
-				$.prompt($('#submissionMsg').val(),{
-					buttons: {Ok:true, Cancel:false}, callback: function(v){
-			        if(v){
-						$.blockUI({ message: '<img src="./resources/images/waitAnimated.gif" />' });
-			        	$.post($('form').attr('action')+'?operation=submit',  
-			    	            $("form").serialize(),  
-			    	            function(data){
-			       					$('.tabContent').html(data);
-			       					$('html').animate({scrollTop:0}, 'slow');
-			       				 	$('body').animate({scrollTop:0}, 'slow');	
-			    					$.unblockUI();	   				 	   				
-			    	            });
-			        }
-				}});		
+				if($('#typeOfSelectedDeviceType').val()=='bills_government') {
+					if($('#recommendationFromGovernor').val()=="" && $('#recommendationFromPresident').val()=="") {
+						$.prompt($('#recommendationFromGovernorOrPresidentNotNeededPrompt').val(),{
+							buttons: {Ok:true, Cancel:false}, callback: function(u){
+					        if(u){
+					        	$.prompt($('#submissionMsg').val(),{
+									buttons: {Ok:true, Cancel:false}, callback: function(v){
+							        if(v){
+										$.blockUI({ message: '<img src="./resources/images/waitAnimated.gif" />' });
+							        	$.post($('form').attr('action')+'?operation=submit',  
+							    	            $("form").serialize(),  
+							    	            function(data){
+							       					$('.tabContent').html(data);
+							       					$('html').animate({scrollTop:0}, 'slow');
+							       				 	$('body').animate({scrollTop:0}, 'slow');	
+							    					$.unblockUI();	   				 	   				
+							    	            });
+							        }
+								}});
+					        }
+						}});
+					}					
+				} else {
+					$.prompt($('#submissionMsg').val(),{
+						buttons: {Ok:true, Cancel:false}, callback: function(v){
+				        if(v){
+							$.blockUI({ message: '<img src="./resources/images/waitAnimated.gif" />' });
+				        	$.post($('form').attr('action')+'?operation=submit',  
+				    	            $("form").serialize(),  
+				    	            function(data){
+				       					$('.tabContent').html(data);
+				       					$('html').animate({scrollTop:0}, 'slow');
+				       				 	$('body').animate({scrollTop:0}, 'slow');	
+				    					$.unblockUI();	   				 	   				
+				    	            });
+				        }
+					}});
+				}		
 				return false;  
 		    });	
 			
@@ -994,18 +1025,44 @@
 	</div>
 	
 	<c:if test="${selectedDeviceTypeForBill=='bills_government'}">
-	<p>
-	<label class="wysiwyglabel"><spring:message code="bill.opinionSoughtFromLawAndJD" text="Opinion from Law & Judiciary Department"/></label>
-	<form:textarea id="opinionSoughtFromLawAndJD" path="opinionSoughtFromLawAndJD" cssClass="wysiwyg drafts"></form:textarea>
-	<form:errors path="opinionSoughtFromLawAndJD" />
-	</p>
-	<c:if test="${not empty dateOfOpinionSoughtFromLawAndJD}">
-	<p>
-	<label class="small"><spring:message code="bill.dateOfOpinionSoughtFromLawAndJD" text="Date Of Opinion Sought From Law And JD"/></label>
-	<input id="formattedDateOfOpinionSoughtFromLawAndJD" name="formattedDateOfOpinionSoughtFromLawAndJD" value="${formattedDateOfOpinionSoughtFromLawAndJD}" class="sText" readonly="readonly">
-	<input id="setDateOfOpinionSoughtFromLawAndJD" name="setDateOfOpinionSoughtFromLawAndJD" type="hidden"  value="${dateOfOpinionSoughtFromLawAndJD}">	
-	</p>
-	</c:if>
+		<p>
+			<label class="wysiwyglabel"><spring:message code="bill.opinionSoughtFromLawAndJD" text="Opinion from Law & Judiciary Department"/></label>
+			<form:textarea id="opinionSoughtFromLawAndJD" path="opinionSoughtFromLawAndJD" cssClass="wysiwyg drafts"></form:textarea>
+			<form:errors path="opinionSoughtFromLawAndJD" />
+		</p>
+		<c:if test="${not empty dateOfOpinionSoughtFromLawAndJD}">
+			<p>
+			<label class="small"><spring:message code="bill.dateOfOpinionSoughtFromLawAndJD" text="Date Of Opinion Sought From Law And JD"/></label>
+			<input id="formattedDateOfOpinionSoughtFromLawAndJD" name="formattedDateOfOpinionSoughtFromLawAndJD" value="${formattedDateOfOpinionSoughtFromLawAndJD}" class="sText" readonly="readonly">
+			<input id="setDateOfOpinionSoughtFromLawAndJD" name="setDateOfOpinionSoughtFromLawAndJD" type="hidden"  value="${dateOfOpinionSoughtFromLawAndJD}">	
+			</p>
+		</c:if>
+		
+		<p>
+			<label class="wysiwyglabel"><spring:message code="bill.recommendationFromGovernor" text="Recommendation From Governor"/></label>
+			<form:textarea id="recommendationFromGovernor" path="recommendationFromGovernor" cssClass="wysiwyg"></form:textarea>
+			<form:errors path="recommendationFromGovernor" />
+		</p>
+		<c:if test="${not empty dateOfRecommendationFromGovernor}">
+			<p>
+			<label class="small"><spring:message code="bill.dateOfRecommendationFromGovernor" text="Date Of Recommendation From Governor"/></label>
+			<input id="formattedDateOfRecommendationFromGovernor" name="formattedDateOfRecommendationFromGovernor" value="${formattedDateOfRecommendationFromGovernor}" class="sText" readonly="readonly">
+			<input id="setDateOfRecommendationFromGovernor" name="setDateOfRecommendationFromGovernor" type="hidden"  value="${dateOfRecommendationFromGovernor}">	
+			</p>
+		</c:if>
+		
+		<p>
+			<label class="wysiwyglabel"><spring:message code="bill.recommendationFromPresident" text="Recommendation From President"/></label>
+			<form:textarea id="recommendationFromPresident" path="recommendationFromPresident" cssClass="wysiwyg"></form:textarea>
+			<form:errors path="recommendationFromPresident" />
+		</p>
+		<c:if test="${not empty dateOfRecommendationFromPresident}">
+			<p>
+			<label class="small"><spring:message code="bill.dateOfRecommendationFromPresident" text="Date Of Recommendation From President"/></label>
+			<input id="formattedDateOfRecommendationFromPresident" name="formattedDateOfRecommendationFromPresident" value="${formattedDateOfRecommendationFromPresident}" class="sText" readonly="readonly">
+			<input id="setDateOfRecommendationFromPresident" name="setDateOfRecommendationFromPresident" type="hidden"  value="${dateOfRecommendationFromPresident}">	
+			</p>
+		</c:if>
 	</c:if>		
 	
 	<c:if test="${not empty sectionofficer_remark and internalStatusType=='bill_final_rejection'}">
@@ -1088,6 +1145,8 @@
 <input id="sendForApprovalMsg" value="<spring:message code='client.prompt.approve' text='A request for approval will be sent to the following members:'></spring:message>" type="hidden">
 <input id="pleaseSelectMsg" value="<spring:message code='client.prompt.select' text='Please Select'/>" type="hidden">
 <input id="submissionMsg" value="<spring:message code='bill.client.prompt.submit' text='Do you want to submit the bill.'></spring:message>" type="hidden">
+<input type="hidden" id="opinionFromLawAndJDNotMentionedPrompt" value="<spring:message code="bill.opinionFromLawAndJDNotMentionedPrompt" text="Please mention opinion from law and judiciary department"/>">
+<input type="hidden" id="recommendationFromGovernorOrPresidentNotNeededPrompt" value="<spring:message code="bill.recommendationFromGovernorOrPresidentNotNeededPrompt" text="Are you sure that recommendation from governor or president is not needed?"/>">
 <input id="billCount" value="${billCount}" type="hidden">
 <input type="hidden" id="defaultBillLanguage" value="${defaultBillLanguage}">
 <input id="extrasubmissionMsg" value="<spring:message code='bill.client.prompt.submit' text='The limit of 5 bill is Exceeded ,Do you still want to submit the bill'></spring:message>" type="hidden">

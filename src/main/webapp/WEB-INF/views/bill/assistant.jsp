@@ -1849,7 +1849,7 @@
 						<form:textarea id="recommendationFromGovernor" path="recommendationFromGovernor" cssClass="wysiwyg" readonly="true"></form:textarea>
 						<form:errors path="recommendationFromGovernor" />
 					</p>
-					<c:if test="${not empty dateOfRecommendationFromGovernor}">
+					<c:if test="${selectedDeviceTypeForBill=='bills_nonofficial' and not empty dateOfRecommendationFromGovernor}">
 					<p>
 					<label class="small"><spring:message code="bill.dateOfRecommendationFromGovernor" text="Date Of Recommendation From Governor"/></label>
 					<input id="formattedDateOfRecommendationFromGovernor" name="formattedDateOfRecommendationFromGovernor" value="${formattedDateOfRecommendationFromGovernor}" class="sText" readonly="readonly">
@@ -1864,7 +1864,7 @@
 						<form:textarea id="recommendationFromPresident" path="recommendationFromPresident" cssClass="wysiwyg" readonly="true"></form:textarea>
 						<form:errors path="recommendationFromPresident" />
 					</p>
-					<c:if test="${not empty dateOfRecommendationFromPresident}">
+					<c:if test="${selectedDeviceTypeForBill=='bills_nonofficial' and not empty dateOfRecommendationFromPresident}">
 					<p>
 					<label class="small"><spring:message code="bill.dateOfRecommendationFromPresident" text="Date Of Recommendation From President"/></label>
 					<input id="formattedDateOfRecommendationFromPresident" name="formattedDateOfRecommendationFromPresident" value="${formattedDateOfRecommendationFromPresident}" class="sText" readonly="readonly">
@@ -1881,7 +1881,7 @@
 								<form:textarea id="opinionSoughtFromLawAndJD" path="opinionSoughtFromLawAndJD" cssClass="wysiwyg" readonly="true"></form:textarea>
 								<form:errors path="opinionSoughtFromLawAndJD" />
 							</p>					
-							<c:if test="${not empty dateOfOpinionSoughtFromLawAndJD}">
+							<c:if test="${selectedDeviceTypeForBill=='bills_nonofficial' and not empty dateOfOpinionSoughtFromLawAndJD}">
 							<p>
 							<label><spring:message code="bill.dateOfOpinionSoughtFromLawAndJD" text="Date Of Opinion Sought From Law And JD"/></label>
 							<br/>
