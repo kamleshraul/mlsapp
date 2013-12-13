@@ -568,50 +568,81 @@ public class BillController extends GenericController<Bill> {
 				rotationOrderPubDate = FormaterUtil.getDateFormatter(serverDateFormat.getValue(), "en_US").parse(strRotationOrderPubDate);
 				model.addAttribute("rotationOrderPublishDate", FormaterUtil.getDateFormatter(locale).format(rotationOrderPubDate));
 				Date currentDate=new Date();
-					if(currentDate.equals(rotationOrderPubDate)||currentDate.after(rotationOrderPubDate)){
-						if(deviceType.getType().trim().equals(ApplicationConstants.NONOFFICIAL_BILL)){					
-							List<Ministry> ministries = new ArrayList<Ministry>();
-							try {
-								ministries = Ministry.findMinistriesAssignedToGroups(houseType, sessionYear, sessionType, locale);
-							} catch (ELSException e) {
-								// TODO Auto-generated catch block
-								e.printStackTrace();
-							}
-							model.addAttribute("ministries",ministries);
-							Ministry ministry=domain.getMinistry();
-							if(ministry!=null){
-								model.addAttribute("ministrySelected",ministry.getId());						
-								/**** Sub Departments ****/
-								List<SubDepartment> subDepartments=MemberMinister.findAssignedSubDepartments(ministry,locale);
-								model.addAttribute("subDepartments",subDepartments);
-								SubDepartment subDepartment=domain.getSubDepartment();
-								if(subDepartment!=null){
-									model.addAttribute("subDepartmentSelected",subDepartment.getId());
-								}
-							}							
-						}else if(deviceType.getType().trim().equals(ApplicationConstants.GOVERNMENT_BILL)){
-							if(role.startsWith("MEMBER")){
-								List<MemberMinister> memberMinisters=MemberMinister.findAssignedMemberMinisterOfMemberInSession(member, selectedSession, locale);
-								List<Ministry> assignedMinistries=new ArrayList<Ministry>();								
-								for(MemberMinister i:memberMinisters){
-									assignedMinistries.add(i.getMinistry());						
-								}
-								//setting first member ministry as selected ministry by default
-								if(!assignedMinistries.isEmpty()) {
-									domain.setMinistry(assignedMinistries.get(0));
-								}								
-							model.addAttribute("ministries",assignedMinistries);
-						}else{
-							List<Ministry> ministries = new ArrayList<Ministry>();
-							try {
-								ministries = Ministry.findMinistriesAssignedToGroups(houseType, sessionYear, sessionType, locale);
-							} catch (ELSException e) {
-								// TODO Auto-generated catch block
-								e.printStackTrace();
-							}	
-							model.addAttribute("ministries",ministries);
+				if(currentDate.equals(rotationOrderPubDate)||currentDate.after(rotationOrderPubDate)){
+					if(deviceType.getType().trim().equals(ApplicationConstants.NONOFFICIAL_BILL)){					
+						List<Ministry> ministries = new ArrayList<Ministry>();
+						try {
+							ministries = Ministry.findMinistriesAssignedToGroups(houseType, sessionYear, sessionType, locale);
+						} catch (ELSException e) {
+							// TODO Auto-generated catch block
+							e.printStackTrace();
 						}
-							
+						model.addAttribute("ministries",ministries);
+						Ministry ministry=domain.getMinistry();
+						if(ministry!=null){
+							model.addAttribute("ministrySelected",ministry.getId());						
+							/**** Sub Departments ****/
+							List<SubDepartment> subDepartments=MemberMinister.findAssignedSubDepartments(ministry,locale);
+							model.addAttribute("subDepartments",subDepartments);
+							SubDepartment subDepartment=domain.getSubDepartment();
+							if(subDepartment!=null){
+								model.addAttribute("subDepartmentSelected",subDepartment.getId());
+							}
+						}							
+					} else if(deviceType.getType().trim().equals(ApplicationConstants.GOVERNMENT_BILL)){
+						/**** To check whether to populate other ministries also for this minister ****/
+						Boolean isAllowedToAccessOtherMinistries = false;
+						CustomParameter designationsAllowedForAccessingOtherMinistriesParameter = CustomParameter.findByName(CustomParameter.class, "BILL_DESIGNATIONS_SUBMISSIONFORANYMINISTRY", "");
+						if(designationsAllowedForAccessingOtherMinistriesParameter==null) {
+							logger.error("Parameter 'BILL_DESIGNATIONS_SUBMISSIONFORANYMINISTRY' not set");
+							model.addAttribute("errorcode", "bill_designations_submissionforanyministry_notset");
+							return;
+						}
+						List<MemberMinister> memberMinisters=MemberMinister.findAssignedMemberMinisterOfMemberInSession(member, selectedSession, locale);
+						List<Ministry> assignedMinistries=new ArrayList<Ministry>();								
+						for(MemberMinister i:memberMinisters){
+							if(i.getMinistry()!=null) {
+								assignedMinistries.add(i.getMinistry());
+							}	
+							if(i.getDesignation()!=null) {
+								for(String d: designationsAllowedForAccessingOtherMinistriesParameter.getValue().split("#")) {
+									if(i.getDesignation().getName().equals(d)) {
+										isAllowedToAccessOtherMinistries = true;
+										break;
+									}
+								}								
+							}
+						}						
+						//setting first member ministry as selected ministry by default
+						if(!assignedMinistries.isEmpty()) {
+							domain.setMinistry(assignedMinistries.get(0));
+						}
+						if(isAllowedToAccessOtherMinistries) {
+							List<Ministry> totalMinistries = new ArrayList<Ministry>();
+							totalMinistries.addAll(assignedMinistries);
+							try {
+								List<Ministry> otherMinistries = Ministry.findMinistriesAssignedToGroups(houseType, sessionYear, sessionType, locale);
+								for(Ministry m: otherMinistries) {
+									boolean isRepeated = false;
+									for(Ministry mi: assignedMinistries) {
+										if(m.getId().equals(mi.getId())) {
+											isRepeated = true;
+											break;
+										}
+									}
+									if(!isRepeated) {
+										totalMinistries.add(m);
+									}									
+								}									
+							} catch (ELSException e) {
+								// TODO Auto-generated catch block
+								e.printStackTrace();
+							} finally {
+								model.addAttribute("ministries",totalMinistries);
+							}							
+						} else {
+							model.addAttribute("ministries",assignedMinistries);
+						}						
 						Ministry ministry=domain.getMinistry();
 						if(ministry!=null){
 							model.addAttribute("ministrySelected",ministry.getId());
@@ -928,76 +959,55 @@ public class BillController extends GenericController<Bill> {
 						}
 					}							
 				} else if(deviceType.getType().trim().equals(ApplicationConstants.GOVERNMENT_BILL)){
-					if(role.startsWith("MEMBER")){
-						List<MemberMinister> memberMinisters=MemberMinister.findAssignedMemberMinisterOfMemberInSession(member, selectedSession, locale);
-						/**** To check whether to populate other ministries also for this minister ****/
-						Boolean isAllowedToAccessOtherMinistries = false;
-						CustomParameter rolesAllowedForAccessingOtherMinistriesParameter = CustomParameter.findByName(CustomParameter.class, "MEMBERROLES_SUBMISSIONFORANYMINISTRY_IN_GOVERNMENT_BILL", "");
-						if(rolesAllowedForAccessingOtherMinistriesParameter != null) {
-							if(rolesAllowedForAccessingOtherMinistriesParameter.getValue() != null && !rolesAllowedForAccessingOtherMinistriesParameter.getValue().isEmpty()) {
-								List<MemberRole> memberRoles = HouseMemberRoleAssociation.findAllActiveRolesOfMemberInSession(member, selectedSession, locale);
-								for(MemberRole memberRole: memberRoles) {
-									for(String allowedRole: rolesAllowedForAccessingOtherMinistriesParameter.getValue().split("#")) {
-										if(memberRole.getName().trim().equals(allowedRole)) {
-											isAllowedToAccessOtherMinistries = true;
-											break;
-										}
-									}
-									if(isAllowedToAccessOtherMinistries == true) {
+					/**** To check whether to populate other ministries also for this minister ****/
+					Boolean isAllowedToAccessOtherMinistries = false;
+					CustomParameter designationsAllowedForAccessingOtherMinistriesParameter = CustomParameter.findByName(CustomParameter.class, "BILL_DESIGNATIONS_SUBMISSIONFORANYMINISTRY", "");
+					if(designationsAllowedForAccessingOtherMinistriesParameter==null) {
+						logger.error("Parameter 'BILL_DESIGNATIONS_SUBMISSIONFORANYMINISTRY' not set");
+						model.addAttribute("errorcode", "bill_designations_submissionforanyministry_notset");
+						return;
+					}					
+					List<MemberMinister> memberMinisters=MemberMinister.findAssignedMemberMinisterOfMemberInSession(member, selectedSession, locale);
+					List<Ministry> assignedMinistries=new ArrayList<Ministry>();								
+					for(MemberMinister i:memberMinisters){
+						if(i.getMinistry()!=null) {
+							assignedMinistries.add(i.getMinistry());
+						}	
+						if(i.getDesignation()!=null) {
+							for(String d: designationsAllowedForAccessingOtherMinistriesParameter.getValue().split("#")) {
+								if(i.getDesignation().getName().equals(d)) {
+									isAllowedToAccessOtherMinistries = true;
+									break;
+								}
+							}								
+						}
+					}						
+					if(isAllowedToAccessOtherMinistries) {
+						List<Ministry> totalMinistries = new ArrayList<Ministry>();
+						totalMinistries.addAll(assignedMinistries);
+						try {
+							List<Ministry> otherMinistries = Ministry.findMinistriesAssignedToGroups(houseType, sessionYear, sessionType, locale);
+							for(Ministry m: otherMinistries) {
+								boolean isRepeated = false;
+								for(Ministry mi: assignedMinistries) {
+									if(m.getId().equals(mi.getId())) {
+										isRepeated = true;
 										break;
 									}
 								}
-							} else {
-								logger.error("custom parameter 'MEMBERROLES_SUBMISSIONFORANYMINISTRY_IN_GOVERNMENT_BILL' is not set properly");
-								model.addAttribute("errorcode", "memberroles_submissionforanyministry_in_government_bill_notset");
-							}
-						} else {
-							logger.error("custom parameter 'MEMBERROLES_SUBMISSIONFORANYMINISTRY_IN_GOVERNMENT_RESOLUTION' is not set");
-							model.addAttribute("errorcode", "memberroles_submissionforanyministry_in_government_resolution_notset");
-						}
-						List<Ministry> assignedMinistries=new ArrayList<Ministry>();
-						if(isAllowedToAccessOtherMinistries == true) {
-							List<Ministry> memberMinistries = new ArrayList<Ministry>();
-							List<Ministry> otherMinistries = new ArrayList<Ministry>();
-							for(MemberMinister i:memberMinisters){
-								memberMinistries.add(i.getMinistry());						
-							}
-							//setting first member ministry as selected ministry by default
-							if(!memberMinistries.isEmpty()) {
-								domain.setMinistry(memberMinistries.get(0));
+								if(!isRepeated) {
+									totalMinistries.add(m);
+								}									
 							}									
-							//adding ministries of minister adding this resolution
-							assignedMinistries.addAll(memberMinistries);
-							//also adding ministries that do not belong to minister adding this resolution						
-							try {
-								otherMinistries = Ministry.findMinistriesAssignedToGroups(houseType, sessionYear, sessionType, locale);
-							} catch (ELSException e) {
-								// TODO Auto-generated catch block
-								e.printStackTrace();
-							} //Ministry.findAssignedMinistries(locale);
-							otherMinistries.removeAll(memberMinistries);					
-							assignedMinistries.addAll(otherMinistries);
-						} else {
-							for(MemberMinister i:memberMinisters){
-								assignedMinistries.add(i.getMinistry());						
-							}
-							//setting first member ministry as selected ministry by default
-							if(!assignedMinistries.isEmpty()) {
-								domain.setMinistry(assignedMinistries.get(0));
-							}									
-						}	
-						model.addAttribute("ministries",assignedMinistries);
-					}else{
-						List<Ministry> ministries = new ArrayList<Ministry>();
-						try {
-							ministries = Ministry.findMinistriesAssignedToGroups(houseType, sessionYear, sessionType, locale);
 						} catch (ELSException e) {
 							// TODO Auto-generated catch block
 							e.printStackTrace();
-						}	
-						model.addAttribute("ministries",ministries);
-					}
-						
+						} finally {
+							model.addAttribute("ministries",totalMinistries);
+						}							
+					} else {
+						model.addAttribute("ministries",assignedMinistries);
+					}						
 					Ministry ministry=domain.getMinistry();
 					if(ministry!=null){
 						model.addAttribute("ministrySelected",ministry.getId());
