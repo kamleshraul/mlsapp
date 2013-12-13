@@ -532,7 +532,6 @@ public class MemberMinisterRepository extends BaseRepository<MemberMinister, Lon
 		
 			CustomParameter parameter =CustomParameter.findByFieldName(CustomParameter.class, "name", "DB_DATEFORMAT", "");
 			Date currentDate = FormaterUtil.getCurrentDate(parameter.getValue());	
-			/**** used following code instead of above as the resulting member ministers should include group ministries in the session only ****/
 			String queryString = "SELECT mm FROM MemberMinister mm JOIN mm.ministry mi JOIN mm.house h JOIN mm.member m " +
 					"WHERE mi.id IN " +
 					"(SELECT gm.id FROM Group g join g.ministries gm " +
