@@ -248,6 +248,10 @@ public class PrintRequisitionController extends BaseController {
 						model.addAttribute("errorcode", "bill_gazette_receiving_departments_setincorrect");
 						return;
 					}
+				} else {
+					if(printRequisitionParameter.getParameterValue()!=null && !printRequisitionParameter.getParameterValue().isEmpty()) {
+						printRequisitionParameterVO.setValue(printRequisitionParameter.getParameterValue());
+					}
 				}
 			}
 			printRequisitionParameterVO.setOrder(printRequisitionParameter.getParameterOrder());
@@ -475,9 +479,9 @@ public class PrintRequisitionController extends BaseController {
 						printRequisitionIdentifiers.put("deviceId", selectedBillId);
 						printRequisitionIdentifiers.put("requisitionFor", requisitionFor);				
 						printRequisitionIdentifiers.put("status", status);
-						if(houseRound.isEmpty()) {
-							houseRound=null;
-						}
+//						if(houseRound.isEmpty()) {
+//							houseRound=null;
+//						}
 						printRequisitionIdentifiers.put("houseRound", houseRound);
 						PrintRequisition printRequisition = PrintRequisition.findByFieldNames(PrintRequisition.class, printRequisitionIdentifiers, locale.toString());
 						if(printRequisition==null) {
@@ -535,6 +539,8 @@ public class PrintRequisitionController extends BaseController {
 				}
 				if(printRequisition.getId()!=null) {
 					printRequisition.merge();
+					//handle stale state exception
+					printRequisition = PrintRequisition.findById(PrintRequisition.class, printRequisition.getId());
 				} else {					
 					printRequisition.persist();
 				}

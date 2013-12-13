@@ -318,6 +318,8 @@ public class LayingLetterController extends BaseController {
 		}
 		if(layingLetter.getId()!=null) {
 			layingLetter.merge();
+			//handle stale state exception
+			layingLetter = LayingLetter.findById(LayingLetter.class, layingLetter.getId());
 		} else {					
 			layingLetter.persist();
 		}
