@@ -419,8 +419,7 @@
 							</xsl:when>
 							<xsl:when test="element_26='bills_government'">
 								<xsl:value-of select="element_5"/>.]
-							</xsl:when>
-							<xsl:otherwise><xsl:value-of select="element_26"/>.]</xsl:otherwise>
+							</xsl:when>							
 							</xsl:choose>							
 						</fo:block>
 						<xsl:choose>
