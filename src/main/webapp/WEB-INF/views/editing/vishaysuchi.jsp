@@ -11,6 +11,8 @@
 			+ '&sessionType=' + $("#selectedSessionType").val()
 			+ '&language=' + $("#selectedLanguage").val()
 			+ '&day=' + $('#selectedDay').val()
+			+ '&fromDay=' + $("#fromDay").val()
+			+ '&toDay=' + $("#toDay").val()
 			+ '&userGroup=' + $("#userGroup").val()
 			+ '&userGroupType=' + $("#userGroupType").val()
 			+ '&outputFormat=' + repType;
@@ -92,8 +94,15 @@
 										<c:set var="deviceOfDevice" value="-" /> 
 										<c:forEach items="${r.vishaysuchiDevices}" var="vd">
 											<c:choose>
-												<c:when test="${deviceOfDevice != vd.deviceType}">
-													<span style="margin-left: 14px;">${vd.deviceName}-----</span><br />
+												<c:when test="${(fn:contains(deviceOfDevice,'questions_')) != (fn:contains(vd.deviceType,'questions_'))}">
+													<c:choose>
+														<c:when test="${fn:contains(vd.deviceType, 'questions_')}">
+															<span style="margin-left: 14px;"><spring:message code="editing.questions" text="Question"></spring:message>-----</span><br />
+														</c:when>
+														<c:otherwise>
+															<span style="margin-left: 14px;">${vd.deviceName}-----</span><br />
+														</c:otherwise>
+													</c:choose>
 													<c:choose>
 														<c:when test="${catchWordOfDevice != vd.catchwordHeading.catchWord}">
 															<span style="margin-left: 28px;">${vd.catchwordHeading.catchWord}-----</span><br />

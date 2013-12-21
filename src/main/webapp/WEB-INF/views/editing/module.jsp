@@ -258,7 +258,19 @@
 				
 			});
 			
-			$("#vishaysuchi").click(function(){
+			$("#vishaysuchiAnchor").click(function(){
+				if($("#vishaysuchiDiv").css('display')=='none'){
+					$("#vishaysuchiDiv").css('display', 'inline-block');
+				}else{
+					$("#vishaysuchiDiv").css('display', 'none');
+				}
+				$("#fromDay").val('-');
+				$("#toDay").val('-');
+			});
+			
+			$("#createvishaysuchi").click(function(){
+				//$("#selectionDiv1").hide();
+				$("#vishaysuchiDiv").hide();
 				showVishaysuchi();
 			});
 		});
@@ -631,6 +643,8 @@
 			+ '&sessionType=' + $("#selectedSessionType").val()
 			+ '&language=' + $("#selectedLanguage").val()
 			+ '&day=' +$('#selectedDay').val()
+			+ '&fromDay=' + $('#fromDay').val()
+			+ '&toDay=' + $('#toDay').val()
 			+ '&userGroup=' + $("#userGroup").val()
 			+ '&userGroupType=' + $("#userGroupType").val();
 			
@@ -666,6 +680,21 @@
 		#selectMemberDevicesSelectDiv{
 			float:left; 
 			display:inline-block;
+		}
+		
+		#goBtn{
+			padding: 2px; 
+			border: 1px solid #004D80; 
+			background-color: #B4D6ED; 
+			border-radius: 5px;
+			height: 12px;
+		}
+		#goBtn:hover{
+			padding: 2px; 
+			border: 1px solid #004D80; 
+			background-color: #6BB5E8; 
+			border-radius: 5px;
+			height: 12px;
 		}
 	</style>
 </head>
@@ -809,9 +838,31 @@
 					<a href="#" id="edit_copy" class="butSim">
 						<spring:message code="editor.edit" text="Editing"/>
 					</a> |
-					<a href="#" id="vishaysuchi" class="butSim">
+					<a href="#" id="vishaysuchiAnchor" class="butSim">
 						<spring:message code="editor.vishaysuchi" text="Vishaysuchi"/>
 					</a> 
+					<div style="display: none;" id="vishaysuchiDiv">
+						<a href="#" class="butSim">
+							<spring:message code="editor.vishaysuchi.from.date" text="From"/>
+						</a>
+						<select id="fromDay" size="1" style="height: 20px; font-size: 12px; min-width: 50px; vertical-align: middle;">
+							<option value="0">-</option>
+						 	<c:forEach items="${days}" var="i">
+								<option value="${i.number}"><c:out value="${i.value}"></c:out></option>
+							</c:forEach>
+						</select>
+						&nbsp;
+						<a href="#" class="butSim">
+							<spring:message code="editor.vishaysuchi.to.date" text="To"/>
+						</a>
+						<select id="toDay" size="1" style="height: 20px; font-size: 12px; min-width: 50px; vertical-align: middle;">
+							<option value="0">-</option>
+						 	<c:forEach items="${days}" var="i">
+								<option value="${i.number}"><c:out value="${i.value}"></c:out></option>
+							</c:forEach>
+						</select>
+					 	<a href="#" id="createvishaysuchi" style="text-decoration: none;"><span id="goBtn"><spring:message code="editing.vishaysuchi.prepare" text="Go" ></spring:message></span></a>
+					 </div>
 					<div class="sm" style="display: block; position: fixed; bottom: 50px; right: 65px; z-index: 996; border: 1px solid black; background: #719EBA scroll repeat-x; border-radius: 25px; padding: 2px 0px 2px 0px;">
 						<a href="javascript:void(0);" id="send_member" style="text-decoration: none; background-color: green; color: #719EBA; padding: 2px 0px 2px 0px; width: 24px; height: 24px; border-radius: 24px;">
 						&nbsp;<spring:message code="editor.send.member" text="M"/>&nbsp;
