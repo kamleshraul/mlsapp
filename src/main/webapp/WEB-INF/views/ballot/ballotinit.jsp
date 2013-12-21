@@ -406,9 +406,20 @@
 </c:if>
 <div class="commandbarContent" style="margin-top: 10px;" id="selectionDiv2">
 
-			<a href="#" id="select_answeringdate" class="butSim">
-				<spring:message code="ballotinitial.answeringdate" text="Answering Date"/>
-			</a>
+		<c:choose>
+			<c:when test="${deviceTypeType=='resolutions_nonofficial' 
+								or deviceTypeType == 'questions_halfhourdiscussion_from_question' 
+								or deviceTypeType == 'questions_halfhourdiscussion_standalone' }">
+				<a href="#" id="select_discussiondatedate" class="butSim">
+					<spring:message code="ballotinitial.discussiondate" text="Discussion Date"/>
+				</a>
+			</c:when>
+			<c:otherwise>
+				<a href="#" id="select_answeringdate" class="butSim">
+					<spring:message code="ballotinitial.answeringdate" text="Answering Date"/>
+				</a>
+			</c:otherwise>
+		</c:choose>
 			<c:choose>
 				<c:when test="${deviceTypeType == 'questions_starred'}">
 					<select name="selectedAnsweringDate" id="selectedAnsweringDate" style="width:100px;height: 25px;">				
