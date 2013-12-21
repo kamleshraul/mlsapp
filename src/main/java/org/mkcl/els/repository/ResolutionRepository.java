@@ -547,10 +547,92 @@ public class ResolutionRepository extends BaseRepository<Resolution, Long>{
 		ELSException elsException=new ELSException();
 		elsException.setParameter("ResolutionRepository_List<Member>_findActiveMembersWithoutResolutions", "Cannot get Members");
 		throw elsException;
-    }
+		}
 
 	}	
 
+	public List<Resolution> findChosenResolutionsForGivenDate(final Session session, 
+			final DeviceType deviceType,
+			final Status ballotStatus,
+			final Status discussionStatus,
+			final Date discussionDate,
+			final String locale){
+		
+		StringBuffer query = new StringBuffer("SELECT r FROM Resolution r"
+				+ " WHERE r.session.id=:sessionID"
+				+ " AND r.type.id=:deviceTypeID"
+				+ " AND r.ballotStatus.id=:ballotStatusID"
+				+ " AND r.discussionStatus.id=:discussionStatusID"
+				+ " AND r.discussionDate=:discussionDate"
+				+ " AND r.locale=:locale");
+		
+		TypedQuery<Resolution> tQuery = this.em().createQuery(query.toString(), Resolution.class);
+		tQuery.setParameter("sessionID", session.getId());
+		tQuery.setParameter("deviceTypeID", deviceType.getId());
+		tQuery.setParameter("ballotStatusID",  ballotStatus.getId());
+		tQuery.setParameter("discussionStatusID", discussionStatus.getId());
+		tQuery.setParameter("discussionDate", discussionDate);
+		tQuery.setParameter("locale", locale);
+		
+		List<Resolution> resos = tQuery.getResultList();
+		
+		return resos;
+	}
+	
+	
+	/**
+	 * @param session
+	 * @param deviceType
+	 * @param answeringDate
+	 * @param internalStatuses
+	 * @param startTime
+	 * @param endTime
+	 * @param sortOrder
+	 * @param locale
+	 * @return
+	 * @throws ELSException
+	 */
+	public List<Member> findMembersEligibleForTheBallot(final Session session,
+			final DeviceType deviceType,
+			final Date answeringDate,
+			final Status[] internalStatuses,
+			final Date startTime,
+			final Date endTime,
+			final String sortOrder,
+			final String locale) throws ELSException{
+		
+		StringBuffer query = new StringBuffer(
+				" SELECT DISTINCT(r.member) FROM Resolution r" +
+						" WHERE r.session.id=:sessionId AND r.type.id=:deviceTypeId " +
+						" AND r.discussionStatus IS NULL" +
+						" AND r.submissionDate>=:strStartTime AND r.submissionDate<=:strEndTime" +
+						" AND r.locale=:locale "
+				);
+		try{
+			query.append(this.getStatusFilters(internalStatuses, session.getHouse().getType().getType()));
+			if(sortOrder.equals(ApplicationConstants.ASC)) {
+				query.append(" ORDER BY r.number ASC");
+			}
+			else if(sortOrder.equals(ApplicationConstants.DESC)) {
+				query.append(" ORDER BY r.number DESC");
+			}
+			TypedQuery<Member> tQuery = this.em().createQuery(query.toString(), Member.class);
+			tQuery.setParameter("sessionId", session.getId());
+			tQuery.setParameter("deviceTypeId", deviceType.getId());
+			tQuery.setParameter("strStartTime", startTime);
+			tQuery.setParameter("strEndTime", endTime);
+			tQuery.setParameter("locale", locale);
+			List<Member> members = tQuery.getResultList();
+			return members;
+		}catch(Exception e){
+        	e.printStackTrace();
+			logger.error(e.getMessage());
+			ELSException elsException=new ELSException();
+			elsException.setParameter("ResolutionRepository_List<Member>_findMembersAll", "Cannot get Members");
+			throw elsException;
+        }
+	}
+	
 	/**
 	 * Find primary members.
 	 *
@@ -590,22 +672,22 @@ public class ResolutionRepository extends BaseRepository<Resolution, Long>{
 						" AND r.locale=:locale "
 				);
 		try{
-		query.append(this.getStatusFilters(internalStatuses, session.getHouse().getType().getType()));
-		if(sortOrder.equals(ApplicationConstants.ASC)) {
-			query.append(" ORDER BY r.number ASC");
-		}
-		else if(sortOrder.equals(ApplicationConstants.DESC)) {
-			query.append(" ORDER BY r.number DESC");
-		}
-		TypedQuery<Member> tQuery = this.em().createQuery(query.toString(), Member.class);
-		tQuery.setParameter("sessionId", session.getId());
-		tQuery.setParameter("deviceTypeId", deviceType.getId());
-		tQuery.setParameter("strDiscussionDate", answeringDate);
-		tQuery.setParameter("strStartTime", startTime);
-		tQuery.setParameter("strEndTime", endTime);
-		tQuery.setParameter("locale", locale);
-		List<Member> members = tQuery.getResultList();
-		return members;
+			query.append(this.getStatusFilters(internalStatuses, session.getHouse().getType().getType()));
+			if(sortOrder.equals(ApplicationConstants.ASC)) {
+				query.append(" ORDER BY r.number ASC");
+			}
+			else if(sortOrder.equals(ApplicationConstants.DESC)) {
+				query.append(" ORDER BY r.number DESC");
+			}
+			TypedQuery<Member> tQuery = this.em().createQuery(query.toString(), Member.class);
+			tQuery.setParameter("sessionId", session.getId());
+			tQuery.setParameter("deviceTypeId", deviceType.getId());
+			tQuery.setParameter("strDiscussionDate", answeringDate);
+			tQuery.setParameter("strStartTime", startTime);
+			tQuery.setParameter("strEndTime", endTime);
+			tQuery.setParameter("locale", locale);
+			List<Member> members = tQuery.getResultList();
+			return members;
 		}catch(Exception e){
         	e.printStackTrace();
 			logger.error(e.getMessage());
@@ -1342,4 +1424,57 @@ public class ResolutionRepository extends BaseRepository<Resolution, Long>{
         }
 	}
 
+	public Integer findChoiceCountForGivenDiscussionDateOfMember(final Session session, 
+						final DeviceType deviceType, 
+						final Member member, 
+						final Date discussionDate, 
+						final String locale){
+				
+		StringBuffer query = new StringBuffer("SELECT COUNT(r.id) FROM Resolution r"
+				+ " WHERE r.session.id=:sessionID"
+				+ " AND r.type.id=:deviceTypeID"
+				+ " AND r.member.id=:memberID"
+				+ " AND r.discussionDate=:discussionDate"
+				+ " AND r.ballotStatus IS NOT NULL"
+				+ " AND r.discussionStatus IS NOT NULL"
+				+ " AND r.locale=:locale");
+		
+		TypedQuery<Long> tQuery = this.em().createQuery(query.toString(), Long.class);
+		tQuery.setParameter("sessionID", session.getId());
+		tQuery.setParameter("deviceTypeID", deviceType.getId());
+		tQuery.setParameter("discussionDate", discussionDate);
+		tQuery.setParameter("memberID", member.getId());
+		tQuery.setParameter("locale", locale);
+		
+		Integer result = tQuery.getSingleResult().intValue();
+		
+		return result;
+	}
+	
+	public Resolution findChoResolutionOfMember(final Session session, 
+			final DeviceType deviceType, 
+			final Member member, 
+			final Date discussionDate, 
+			final String locale){
+	
+		StringBuffer query = new StringBuffer("SELECT r FROM Resolution r"
+			+ " WHERE r.session.id=:sessionID"
+			+ " AND r.type.id=:deviceTypeID"
+			+ " AND r.member.id=:memberID"
+			+ " AND r.discussionDate=:discussionDate"
+			+ " AND r.ballotStatus IS NOT NULL"
+			+ " AND r.discussionStatus IS NOT NULL"
+			+ " AND r.locale=:locale");
+		
+		TypedQuery<Resolution> tQuery = this.em().createQuery(query.toString(), Resolution.class);
+		tQuery.setParameter("sessionID", session.getId());
+		tQuery.setParameter("deviceTypeID", deviceType.getId());
+		tQuery.setParameter("discussionDate", discussionDate);
+		tQuery.setParameter("memberID", member.getId());
+		tQuery.setParameter("locale", locale);
+		
+		List<Resolution> result = tQuery.getResultList();
+		Resolution res = (result != null && !result.isEmpty())? result.get(0):null;
+		return res;
+	}
 }
