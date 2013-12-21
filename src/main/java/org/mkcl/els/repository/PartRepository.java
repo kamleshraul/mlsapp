@@ -216,8 +216,8 @@ public class PartRepository extends BaseRepository<Part, Serializable> {
 	
 	//TODO: have to change the query to include main heading instead of page heading	
 	@SuppressWarnings("rawtypes")
-	public List findVishaySuchiListWithoutMembers(final String catchWord, final Long rosterId, final String locale){
-		String query = "SELECT" +  
+	public List findVishaySuchiListWithoutMembers(final String catchWord, final Long[] rosterIds, final String locale){
+		StringBuffer query = new StringBuffer("SELECT" +  
 						" 'catchWord' AS memberorcatchword," +
 						" '"+ catchWord +"' AS catchword," +
 						" '0' AS catchwordId," +
@@ -232,12 +232,18 @@ public class PartRepository extends BaseRepository<Part, Serializable> {
 						" FROM parts pr" +
 						" INNER JOIN proceedings proc ON(proc.id=pr.proceeding)" +
 						" INNER JOIN slots sl ON(sl.id=proc.slot)" +
-						" WHERE sl.roster=" + rosterId +
-						" AND pr.primary_member IS NULL" +
+						" WHERE sl.roster IN (");
+		for(int i = 0; i < rosterIds.length; i++){
+			query.append(rosterIds[i]);
+			if(i < (rosterIds.length - 1)){
+				query.append(",");
+			}			
+		}
+		query.append(") AND pr.primary_member IS NULL" +
 						" AND pr.locale='" + locale + "'" +
-						" AND POSITION('" + catchWord + "' IN pr.page_heading) > 0";
+						" AND POSITION('" + catchWord + "' IN pr.page_heading) > 0");
 		
-		Query pQuery = this.em().createNativeQuery(query);
+		Query pQuery = this.em().createNativeQuery(query.toString());
 		List data = pQuery.getResultList();
 		
 		return data;
@@ -246,10 +252,10 @@ public class PartRepository extends BaseRepository<Part, Serializable> {
 	//TODO: have to change the query to include main heading instead of page heading	
 	@SuppressWarnings("rawtypes")
 	public List findVishaySuchiListWithMembers(final String catchWord, 
-			final Long rosterId,
+			final Long[] rosterIds,
 			final Long memberId,
 			final String locale){
-		String query = "SELECT" +  
+		StringBuffer query = new StringBuffer("SELECT" +  
 						" 'member' AS memberorcatchword," +
 						" '" + catchWord + "' AS catchword," +
 						" '0' AS catchwordId," +
@@ -266,12 +272,18 @@ public class PartRepository extends BaseRepository<Part, Serializable> {
 						" INNER JOIN slots sl ON(sl.id=proc.slot)" +
 						" INNER JOIN members m ON(m.id=pr.primary_member)" +
 						" INNER JOIN titles t ON(t.id=m.title_id)" +
-						" WHERE sl.roster=" + rosterId +
-						" AND pr.primary_member=" + memberId +
+						" WHERE sl.roster=");
+		for(int i = 0; i < rosterIds.length; i++){
+			query.append(rosterIds[i]);
+			if(i < (rosterIds.length - 1)){
+				query.append(",");
+			}			
+		}
+		query.append(") AND pr.primary_member=" + memberId +
 						" AND pr.locale='" + locale + "'" +
-						" ORDER BY devicetype ASC";
+						" ORDER BY devicetype ASC");
 		
-		Query pQuery = this.em().createNativeQuery(query);
+		Query pQuery = this.em().createNativeQuery(query.toString());
 		List data = pQuery.getResultList();
 		
 		return data;
@@ -329,5 +341,4 @@ public class PartRepository extends BaseRepository<Part, Serializable> {
 		
 		return devices;
 	}
-
 }
