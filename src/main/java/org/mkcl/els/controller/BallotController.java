@@ -2565,9 +2565,19 @@ public class BallotController extends BaseController{
 		}
 	}
 	
+	private Boolean isResolutionMemberValidForCurrentDateChoiceSubmission(final Session session,
+			final DeviceType deviceType,
+			final Member member,
+			final Date discussionDate, 
+			final String locale){
+		
+		return (Resolution.findChoiceCountForGivenDiscussionDateOfMember(session, deviceType, member, discussionDate, locale) > 0)? true : false;
+	}
+	
 	private void fillResolutionChoices(final ModelMap model, 
 			final HttpServletRequest request, 
 			final Locale locale) throws Exception{
+		
 		StringBuffer sb = new StringBuffer();
 		/** Create HouseType */
 		String strHouseType = request.getParameter("houseType");
@@ -2635,20 +2645,71 @@ public class BallotController extends BaseController{
 
 				List<MasterVO> members = new ArrayList<MasterVO>();
 				if(ballot != null){
+					/**** Statuses ****/
+					Status ballotStatus = Status.findByType(ApplicationConstants.RESOLUTION_PROCESSED_BALLOTED, locale.toString());
+					Status discussionStatus = Status.findByType(ApplicationConstants.RESOLUTION_PROCESSED_TOBEDISCUSSED, locale.toString());
+					List<Resolution> chosenResolutions = Resolution.findChosenResolutionsForGivenDate(session, deviceType, ballotStatus, discussionStatus, answeringDate, locale.toString());
 					List<BallotEntry> ballotEntries = ballot.getBallotEntries();
-					for(BallotEntry bE : ballotEntries){
-						if(bE != null){
-							if(bE.getMember() != null){
-								if(Resolution.getMemberChoiceCount(session, deviceType, bE.getMember().getId(), answeringDate, internalStatuses, startTime, endTime, locale.toString()) == 0){
-									MasterVO masterVO = new MasterVO();
-									masterVO.setId(bE.getMember().getId());
-									masterVO.setValue(bE.getMember().getFullname());
-									members.add(masterVO);
+					
+					if(chosenResolutions.size() < ballotEntries.size()){
+						
+						for(BallotEntry bE : ballotEntries){
+							if(bE != null){
+								if(bE.getMember() != null){
+									if(Resolution.getMemberChoiceCount(session, deviceType, bE.getMember().getId(), answeringDate, internalStatuses, startTime, endTime, locale.toString()) == 0){
+										MasterVO masterVO = new MasterVO();
+										masterVO.setId(bE.getMember().getId());
+										masterVO.setName(bE.getMember().getFullname());
+										masterVO.setValue(this.isResolutionMemberValidForCurrentDateChoiceSubmission(session, deviceType, bE.getMember(), answeringDate, locale.toString())? "0":"1");
+										members.add(masterVO);
+									}
 								}
 							}
 						}
+						
+						Map<Long, List<MasterVO>> memberResolutions = new HashMap<Long, List<MasterVO>>();
+						Map<Long, List<MasterVO>> memberChosenResolutions = new HashMap<Long, List<MasterVO>>();
+						
+						if(members != null && !members.isEmpty()){
+							internalStatuses = null;
+							Status[] tempInternalStatuses = {ADMITTED};
+							for(MasterVO mv : members){
+								List<MasterVO> resos = new ArrayList<MasterVO>();
+								List<Resolution> resosList = Resolution.find(session, deviceType, mv.getId(), answeringDate, tempInternalStatuses, startTime, endTime,ApplicationConstants.ASC, locale.toString());
+								for(Resolution r : resosList){
+									MasterVO resMV = new MasterVO();
+									resMV.setId(r.getId());
+									resMV.setName(FormaterUtil.formatNumberNoGrouping(r.getNumber(), locale.toString()));
+									resMV.setValue(r.getNoticeContent());
+									resos.add(resMV);
+									resMV = null;
+								}
+								memberResolutions.put(mv.getId(), resos);
+								resos = null;
+								
+								List<MasterVO> resosChosen = new ArrayList<MasterVO>();
+								List<Resolution> resosChosenList = Resolution.findResolutionsByDiscussionDateAndMember(session, deviceType, mv.getId(), answeringDate, tempInternalStatuses, startTime, endTime, ApplicationConstants.ASC, locale.toString());
+								for(Resolution rc : resosChosenList){
+									MasterVO resCMV = new MasterVO();
+									resCMV.setId(rc.getId());
+									resCMV.setName(FormaterUtil.formatNumberNoGrouping(rc.getNumber(), locale.toString()));
+									resCMV.setValue(rc.getNoticeContent());
+									resosChosen.add(resCMV);
+									resCMV = null;
+								}
+								memberChosenResolutions.put(mv.getId(), resosChosen);
+								resosChosen = null;
+								
+							}
+						}
+						
+						model.addAttribute("members", members);
+						model.addAttribute("memberRes", memberResolutions);
+						model.addAttribute("memberChosenRes", memberChosenResolutions);
+						model.addAttribute("choicedone", "no");
+					}else{
+						model.addAttribute("choicedone", "yes");
 					}
-					model.addAttribute("members", members);
 				}
 			}
 		}
@@ -2682,23 +2743,25 @@ public class BallotController extends BaseController{
 		String retVal = "ballot/error";
 		try {
 
-			String strResId = request.getParameter("choice");
+			String[] strResIds = request.getParameterValues("choice");
 			/** Create answeringDate */
 			String strAnsweringDate = request.getParameter("answeringDate");
 			CustomParameter dbDateFormat = CustomParameter.findByName(CustomParameter.class, "DB_DATEFORMAT", "");
 			Date answeringDate = FormaterUtil.formatStringToDate(strAnsweringDate, dbDateFormat.getValue());
 
 
-			if(strResId != null){
-				if(!strResId.isEmpty()){
-					Resolution resolution = Resolution.findById(Resolution.class, new Long(strResId));
-					Status statusBalloted = Status.findByFieldName(Status.class, "type", ApplicationConstants.RESOLUTION_PROCESSED_BALLOTED, locale.toString());
-					Status statusToBeDiscussed = Status.findByFieldName(Status.class, "type", ApplicationConstants.RESOLUTION_PROCESSED_TOBEDISCUSSED, locale.toString());
-
-					resolution.setBallotStatus(statusBalloted);
-					resolution.setDiscussionStatus(statusToBeDiscussed);
-					resolution.setDiscussionDate(answeringDate);
-					resolution.simpleMerge();
+			if(strResIds != null){
+				for(String resId : strResIds){
+					if(!resId.isEmpty()){
+						Resolution resolution = Resolution.findById(Resolution.class, new Long(resId));
+						Status statusBalloted = Status.findByFieldName(Status.class, "type", ApplicationConstants.RESOLUTION_PROCESSED_BALLOTED, locale.toString());
+						Status statusToBeDiscussed = Status.findByFieldName(Status.class, "type", ApplicationConstants.RESOLUTION_PROCESSED_TOBEDISCUSSED, locale.toString());
+		
+						resolution.setBallotStatus(statusBalloted);
+						resolution.setDiscussionStatus(statusToBeDiscussed);
+						resolution.setDiscussionDate(answeringDate);
+						resolution.simpleMerge();
+					}
 				}
 			}
 			retVal = "ballot/nonofficial_memberballot_choice";
