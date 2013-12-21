@@ -221,18 +221,18 @@ public class Part  extends BaseDomain implements Serializable{
 
 	@SuppressWarnings({ "rawtypes"})
 	public static List findVishaySuchiListWithoutMembers(final String catchWord, 
-			final Long rosterId, 
+			final Long[] rosterIds, 
 			final String locale){
 		
-		return getPartRepository().findVishaySuchiListWithoutMembers(catchWord, rosterId, locale);
+		return getPartRepository().findVishaySuchiListWithoutMembers(catchWord, rosterIds, locale);
 	}
 	
 	@SuppressWarnings("rawtypes")
 	public static List findVishaySuchiListWithMembers(final String catchWord, 
-			final Long rosterId,
+			final Long[] rosterIds,
 			final Long memberId,
 			final String locale){
-		return getPartRepository().findVishaySuchiListWithMembers(catchWord, rosterId, memberId, locale);
+		return getPartRepository().findVishaySuchiListWithMembers(catchWord, rosterIds, memberId, locale);
 	}
 	
 	@SuppressWarnings({"rawtypes"})
@@ -245,7 +245,6 @@ public class Part  extends BaseDomain implements Serializable{
 		return getPartRepository().findPartsOfMemberInRoster(rosterId, memberId, locale);
 	}
 	
-
 	/****Getters and Setters****/
 	public Integer getOrderNo() {
 		return orderNo;
@@ -479,8 +478,6 @@ public class Part  extends BaseDomain implements Serializable{
 			SubDepartment substituteMemberSubDepartment) {
 		this.substituteMemberSubDepartment = substituteMemberSubDepartment;
 	}
-
-	
 	
 	
 }
