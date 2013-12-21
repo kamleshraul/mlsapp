@@ -522,6 +522,8 @@ public class EditingController extends GenericController<Roster>{
 		String strDay = request.getParameter("day");
 		String strUserGroup = request.getParameter("userGroup");
 		String strUserGroupType = request.getParameter("userGroupType");
+		String strFromDay = request.getParameter("fromDay");
+		String strToDay = request.getParameter("toDay");
 		
 		String[] decodedValues = EditingControllerUtility.getDecodedString(new String[]{strHouseType, strSessionType, strSessionYear, strLanguage, strDay, strUserGroup, strUserGroupType});
 		strHouseType = decodedValues[0];
@@ -536,22 +538,76 @@ public class EditingController extends GenericController<Roster>{
 		if(strHouseType!=null&&!strHouseType.isEmpty()&&
 				strSessionType!=null&&!strSessionType.isEmpty()&&
 				strSessionYear!=null&&!strSessionYear.isEmpty()&&
-				strLanguage!=null&&!strLanguage.isEmpty()&&
-				strDay!=null&&!strDay.isEmpty()){
+				strLanguage!=null&&!strLanguage.isEmpty()&& 
+				((strDay!=null&&!strDay.isEmpty())|| 
+						(strFromDay!=null && !strFromDay.isEmpty() && strToDay!=null && !strToDay.isEmpty()))){
 
 			HouseType houseType=HouseType.findByFieldName(HouseType.class, "type", strHouseType, locale.toString());
 			SessionType sessionType=SessionType.findById(SessionType.class, Long.parseLong(strSessionType));
 			Language language=Language.findById(Language.class, Long.parseLong(strLanguage));
 			Session session=Session.findSessionByHouseTypeSessionTypeYear(houseType, sessionType, Integer.parseInt(strSessionYear));
-			Roster roster=Roster.findRosterBySessionLanguageAndDay(session,Integer.parseInt(strDay),language,locale.toString());
+			Roster roster = null;
+			Date fromDayDate = null;
+			Date toDayDate = null;
+			Long[] rosterIds = null;
+			
+			if(strFromDay!=null && !strFromDay.isEmpty() && strToDay!=null && !strToDay.isEmpty()){
+				int fromDay = Integer.parseInt(strFromDay);
+				int toDay = Integer.parseInt(strToDay);
+				
+				Date date = session.getStartDate();
+				Calendar calendarFrom = Calendar.getInstance();
+				Calendar calendarTo = Calendar.getInstance();
+				
+				calendarFrom.setTime(date);
+				calendarTo.setTime(date);
+				
+				if(fromDay > 0 && toDay > 0){
+					calendarFrom.add(Calendar.DAY_OF_MONTH, fromDay - 1);
+					calendarTo.add(Calendar.DAY_OF_MONTH, toDay - 1);
+				}else{
+					calendarFrom.add(Calendar.DAY_OF_MONTH, fromDay);
+					calendarTo.add(Calendar.DAY_OF_MONTH, toDay);
+				}
+				fromDayDate = calendarFrom.getTime();
+				toDayDate = calendarTo.getTime();
+				
+				Map<String, String[]> parameters = new HashMap<String, String[]>();
+				parameters.put("locale", new String[]{locale.toString()});
+				parameters.put("sessionID", new String[]{session.getId().toString()});
+				parameters.put("fromDate", new String[]{FormaterUtil.formatDateToString(fromDayDate, ApplicationConstants.DB_DATEFORMAT)});				
+				parameters.put("toDate", new String[]{FormaterUtil.formatDateToString(toDayDate, ApplicationConstants.DB_DATEFORMAT)});
+				parameters.put("language", new String[]{language.getId().toString()});
+				List rosters = Query.findReport("EDIS_ALL_ROSTER_BETWEEN_DATE", parameters);
+				if(rosters != null && !rosters.isEmpty()){
+					rosterIds = new Long[rosters.size()];
+					for(int i = 0; i < rosters.size(); i++){
+						Object[] obj = (Object[])rosters.get(i);
+						rosterIds[i] = new Long(obj[0].toString());						
+					}
+				}
+			}
 			
 			Map<String, String[]> params = new HashMap<String, String[]>();
 			params.put("locale", new String[]{locale.toString()});
 			List catchWords = Query.findReport("EDIS_DISTINCT_CATCHWORDS", params);
-			
-			params.put("rosterId", new String[]{roster.getId().toString()});				
-			List members = Query.findReport("EDIS_DISTINCT_MEMBERS_OF_ROSTER", params);
-			
+			List members =  null;
+			if(rosterIds == null){
+				roster = Roster.findRosterBySessionLanguageAndDay(session,Integer.parseInt(strDay),language,locale.toString());
+				Calendar fromToDate = Calendar.getInstance();
+				fromToDate.setTime(session.getStartDate());
+				fromToDate.add(Calendar.DAY_OF_MONTH, Integer.parseInt(strDay) - 1);
+				params.put("sessionID", new String[]{session.getId().toString()});
+				params.put("fromDate", new String[]{FormaterUtil.formatDateToString(fromToDate.getTime(), ApplicationConstants.DB_DATEFORMAT)});				
+				params.put("toDate", new String[]{FormaterUtil.formatDateToString(fromToDate.getTime(), ApplicationConstants.DB_DATEFORMAT)});
+				params.put("language", new String[]{language.getId().toString()});
+			}else{				
+				params.put("language", new String[]{language.getId().toString()});
+				params.put("sessionID", new String[]{session.getId().toString()});
+				params.put("fromDate", new String[]{FormaterUtil.formatDateToString(fromDayDate, ApplicationConstants.DB_DATEFORMAT)});				
+				params.put("toDate", new String[]{FormaterUtil.formatDateToString(toDayDate, ApplicationConstants.DB_DATEFORMAT)});
+			}
+			members = Query.findReport("EDIS_DISTINCT_MEMBERS_OF_ROSTER", params);
 			List<VishaysuchiVO> vishaysuchi = new ArrayList<VishaysuchiVO>();
 			if(catchWords != null && !catchWords.isEmpty()){
 				for(Object o : catchWords){
@@ -582,7 +638,12 @@ public class EditingController extends GenericController<Roster>{
 				}
 			});
 							
-			boolean flag = EditingControllerUtility.canVishaysuchiBePrepared(session, houseType, roster.getId().toString(), "editing_", locale.toString());
+			boolean flag = false;
+			if(rosterIds == null){
+				flag = EditingControllerUtility.canVishaysuchiBePrepared(session, houseType, new Long[]{roster.getId()}, "editing_", locale.toString());
+			}else{
+				flag = EditingControllerUtility.canVishaysuchiBePrepared(session, houseType, rosterIds, "editing_", locale.toString());
+			}
 			
 			if(flag){
 				copyVishaysuchi = new ArrayList<VishaysuchiVO>();
@@ -595,7 +656,11 @@ public class EditingController extends GenericController<Roster>{
 					for(VishaysuchiVO vo : vishaysuchi){
 						List reportData = null;
 						if(vo.getType().equals("catchWord")){
-							reportData = Part.findVishaySuchiListWithoutMembers(vo.getValue(), roster.getId(), locale.toString());
+							if(rosterIds == null){
+								reportData = Part.findVishaySuchiListWithoutMembers(vo.getValue(), new Long[]{roster.getId()}, locale.toString());
+							}else{
+								reportData = Part.findVishaySuchiListWithoutMembers(vo.getValue(), rosterIds, locale.toString());
+							}
 							
 							if(reportData != null && !reportData.isEmpty()){
 								List<CatchwordHeadingVO> headings = new ArrayList<CatchwordHeadingVO>();
@@ -627,7 +692,21 @@ public class EditingController extends GenericController<Roster>{
 						}else if(vo.getType().equals("member")){
 							
 							params.put("locale", new String[]{locale.toString()});
-							params.put("rosterId", new String[]{roster.getId().toString()});
+							if(rosterIds == null){
+								//params.put("rosterId", new String[]{roster.getId().toString()});
+								Calendar fromToDate = Calendar.getInstance();
+								fromToDate.setTime(session.getStartDate());
+								fromToDate.add(Calendar.DAY_OF_MONTH, Integer.parseInt(strDay) - 1);
+								params.put("sessionID", new String[]{session.getId().toString()});
+								params.put("fromDate", new String[]{FormaterUtil.formatDateToString(fromToDate.getTime(), ApplicationConstants.DB_DATEFORMAT)});				
+								params.put("toDate", new String[]{FormaterUtil.formatDateToString(fromToDate.getTime(), ApplicationConstants.DB_DATEFORMAT)});
+								params.put("language", new String[]{language.getId().toString()});
+							}else{
+								params.put("sessionID", new String[]{session.getId().toString()});
+								params.put("fromDate", new String[]{FormaterUtil.formatDateToString(fromDayDate, ApplicationConstants.DB_DATEFORMAT)});				
+								params.put("toDate", new String[]{FormaterUtil.formatDateToString(toDayDate, ApplicationConstants.DB_DATEFORMAT)});
+								params.put("language", new String[]{language.getId().toString()});
+							}
 							params.put("memberId", new String[]{vo.getMemberID()});
 							reportData = Query.findReport("EDIS_CATCHWORD_AND_HEADINGS_OF_MEMBER_BY_DEVICES", params);
 							
@@ -1743,33 +1822,48 @@ class EditingControllerUtility{
 	@SuppressWarnings("rawtypes")
 	public static boolean canVishaysuchiBePrepared(final Session session, 
 					final HouseType houseType,
-					final String deviceId,
+					final Long[] deviceIds,
 					final String workflowSubTypeInitial,
 					final String locale){
 		boolean retVal = false;
+		boolean[] flags = new boolean[deviceIds.length];
 		
-		if(WorkflowDetails.findIfWorkflowExists(session, houseType, deviceId, workflowSubTypeInitial, locale) > 0){
-			//TODO: completeness criteria is very primitive needs to be enhanced to include member and speaker
-			//wf Separately rather than including them as whole in 'COMPLETE or PENDING criteria
-			//change the way to find member wf then calculate how many member wfs have been
-			//been completed and how many pending and how many are timed out
-			//similar for speaker wf
-			//since if only one wf cycle is complete means vishaysuchi is ready and can be produced
-			//which may not be the case
-			//need some more clarification on this
-			List result = WorkflowDetails.findCompleteness(session, houseType, deviceId, locale);
-						
-			if(result != null && !result.isEmpty()){
-				Object[] data = (Object[])result.get(0);
-				Integer totalTasks = Integer.valueOf(data[1].toString());
-				Integer doneTasks = Integer.valueOf(data[2].toString());
-				
-				if((totalTasks - doneTasks) == 0){
-					retVal = true;
+		int i = 0;
+		for(Long deviceId : deviceIds){
+			flags[i] = false;
+			if(WorkflowDetails.findIfWorkflowExists(session, houseType, deviceId.toString(), workflowSubTypeInitial, locale) > 0){
+				//TODO: completeness criteria is very primitive needs to be enhanced to include member and speaker
+				//wf Separately rather than including them as whole in 'COMPLETE or PENDING criteria
+				//change the way to find member wf then calculate how many member wfs have been
+				//been completed and how many pending and how many are timed out
+				//similar for speaker wf
+				//since if only one wf cycle is complete means vishaysuchi is ready and can be produced
+				//which may not be the case
+				//need some more clarification on this
+				List result = WorkflowDetails.findCompleteness(session, houseType, deviceId.toString(), locale);
+							
+				if(result != null && !result.isEmpty()){
+					Object[] data = (Object[])result.get(0);
+					Integer totalTasks = Integer.valueOf(data[1].toString());
+					Integer doneTasks = Integer.valueOf(data[2].toString());
+					
+					if((totalTasks - doneTasks) == 0){
+						flags[i] = true;
+					}else{
+						flags[i] = false;
+					}
 				}
 			}
+			i++;
 		}
-		
+		for(boolean b : flags){
+			if(b){
+				retVal = true;
+			}else{
+				retVal = false;
+				break;
+			}
+		}
 		return retVal;
 	}
 }
