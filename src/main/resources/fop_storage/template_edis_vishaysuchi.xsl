@@ -92,101 +92,108 @@
 								</fo:block>
 							</xsl:when>						
 							<xsl:otherwise>
-										<xsl:for-each select="./vishaysuchiList/vishaysuchi">											
-											<xsl:choose>
-												<xsl:when test="./type='member'">
-													<xsl:if test="not(not(./vishaysuchiDevices))">
-														<fo:table>
-															<xsl:if test="(string-length(catchWordIndex)>0) and (not(./headings) or not(./vishaysuchiDevices))">
-																<fo:table-header>
-																	<fo:table-row>
-																		<fo:table-cell>
-																			<fo:block text-align="center" font-weight="bold">
-																				"<xsl:value-of select="./catchWordIndex"></xsl:value-of>"
-																			</fo:block>
-																		</fo:table-cell>
-																		<fo:table-cell>
-																			<fo:block text-align="right" font-family="{$font}" font-size="12px">
-																			   	पृष्ठ क्रमांक
-																			</fo:block>
-																		</fo:table-cell>
-																	</fo:table-row>
-																</fo:table-header>
-															</xsl:if>
-															<fo:table-body>
-																<fo:table-row>
-																	<fo:table-cell number-columns-spanned="2">
-																		<fo:block><xsl:value-of select="./value"></xsl:value-of></fo:block>
-																		<xsl:if test="not(not(./vishaysuchiDevices))">
-																			<xsl:for-each select="./vishaysuchiDevices">
+								<xsl:for-each select="./vishaysuchiList/vishaysuchi">											
+									<xsl:choose>
+										<xsl:when test="./type='member'">
+											<xsl:if test="not(not(./vishaysuchiDevices))">
+												<fo:table>
+													<xsl:if test="(string-length(catchWordIndex)>0) and (not(./headings) or not(./vishaysuchiDevices))">
+														<fo:table-header>
+															<fo:table-row>
+																<fo:table-cell>
+																	<fo:block text-align="center" font-weight="bold">
+																		"<xsl:value-of select="./catchWordIndex"></xsl:value-of>"
+																	</fo:block>
+																</fo:table-cell>
+																<fo:table-cell>
+																	<fo:block text-align="right" font-family="{$font}" font-size="12px">
+																	   	पृष्ठ क्रमांक
+																	</fo:block>
+																</fo:table-cell>
+															</fo:table-row>
+														</fo:table-header>
+													</xsl:if>
+													<fo:table-body>
+														<fo:table-row>
+															<fo:table-cell number-columns-spanned="2">
+																<fo:block><xsl:value-of select="./value"></xsl:value-of></fo:block>
+																<xsl:if test="not(not(./vishaysuchiDevices))">
+																	<xsl:for-each select="./vishaysuchiDevices">
+																		<xsl:choose>
+																			<xsl:when test="position()=1 or starts-with(preceding-sibling::vishaysuchiDevices[1]/deviceType,'questions_')!=starts-with(./deviceType,'questions_')">
 																				<xsl:choose>
-																					<xsl:when test="position()=1 or preceding-sibling::vishaysuchiDevices[1]/deviceType!=./deviceType">
-																						<fo:block margin-left="14px"><xsl:value-of select="./deviceName"></xsl:value-of>-----</fo:block>
-																						<xsl:choose>
-																							<xsl:when test="position()=1 or preceding-sibling::vishaysuchiDevices[1]/catchwordHeading/catchWord!=./catchwordHeading/catchWord">
-																								<fo:block margin-left="28px"><xsl:value-of select="./catchwordHeading/catchWord" />-----</fo:block>
-																								<fo:block margin-left="42px"><xsl:value-of select="./catchwordHeading/heading" /></fo:block>
-																							</xsl:when>
-																							<xsl:otherwise>
-																								<fo:block margin-left="42px"><xsl:value-of select="./catchwordHeading/heading" /></fo:block>
-																							</xsl:otherwise>
-																						</xsl:choose>
+																					<xsl:when test="starts-with(./deviceType,'questions_')">
+																						<fo:block margin-left="14px">प्रश्नोत्तरे-----</fo:block>
 																					</xsl:when>
 																					<xsl:otherwise>
-																						<xsl:choose>
-																							<xsl:when test="position()=1 or preceding-sibling::vishaysuchiDevices[1]/catchwordHeading/catchWord!=./catchwordHeading/catchWord">
-																								<fo:block margin-left="28px"><xsl:value-of select="./catchwordHeading/catchWord" />-----</fo:block>
-																								<fo:block margin-left="42px"><xsl:value-of select="./catchwordHeading/heading" /></fo:block>
-																							</xsl:when>
-																							<xsl:otherwise>
-																								<fo:block margin-left="42px"><xsl:value-of select="./catchwordHeading/heading" /></fo:block>
-																							</xsl:otherwise>
-																						</xsl:choose>
-																					</xsl:otherwise>										
-																				</xsl:choose> 
-																			</xsl:for-each>								
-																		</xsl:if>
-																	</fo:table-cell>
-																</fo:table-row>
-															</fo:table-body>
-														</fo:table>
+																						<fo:block margin-left="14px"><xsl:value-of select="./deviceName"></xsl:value-of>-----</fo:block>
+																					</xsl:otherwise>
+																				</xsl:choose>
+																				<xsl:choose>
+																					<xsl:when test="position()=1 or preceding-sibling::vishaysuchiDevices[1]/catchwordHeading/catchWord!=./catchwordHeading/catchWord">
+																						<fo:block margin-left="28px"><xsl:value-of select="./catchwordHeading/catchWord" />-----</fo:block>
+																						<fo:block margin-left="42px"><xsl:value-of select="./catchwordHeading/heading" /></fo:block>
+																					</xsl:when>
+																					<xsl:otherwise>
+																						<fo:block margin-left="42px"><xsl:value-of select="./catchwordHeading/heading" /></fo:block>
+																					</xsl:otherwise>
+																				</xsl:choose>
+																			</xsl:when>
+																			<xsl:otherwise>
+																				<xsl:choose>
+																					<xsl:when test="position()=1 or preceding-sibling::vishaysuchiDevices[1]/catchwordHeading/catchWord!=./catchwordHeading/catchWord">
+																						<fo:block margin-left="28px"><xsl:value-of select="./catchwordHeading/catchWord" />-----</fo:block>
+																						<fo:block margin-left="42px"><xsl:value-of select="./catchwordHeading/heading" /></fo:block>
+																					</xsl:when>
+																					<xsl:otherwise>
+																						<fo:block margin-left="42px"><xsl:value-of select="./catchwordHeading/heading" /></fo:block>
+																					</xsl:otherwise>
+																				</xsl:choose>
+																			</xsl:otherwise>										
+																		</xsl:choose> 
+																	</xsl:for-each>								
+																</xsl:if>
+															</fo:table-cell>
+														</fo:table-row>
+													</fo:table-body>
+												</fo:table>
+											</xsl:if>
+										</xsl:when>
+										<xsl:when test="./type='catchWord'">
+											<xsl:if test="not(not(./headings))">
+												<fo:table>
+													<xsl:if test="(string-length(catchWordIndex)>0) and (not(./headings) or not(./vishaysuchiDevices))">
+														<fo:table-header>
+															<fo:table-row>
+																<fo:table-cell>
+																	<fo:block text-align="center" font-weight="bold">
+																		"<xsl:value-of select="./catchWordIndex"></xsl:value-of>"
+																	</fo:block>
+																</fo:table-cell>
+																<fo:table-cell>
+																	<fo:block text-align="right" font-family="{$font}" font-size="12px">
+																	   	पृष्ठ क्रमांक
+																	</fo:block>
+																</fo:table-cell>
+															</fo:table-row>
+														</fo:table-header>
 													</xsl:if>
-												</xsl:when>
-												<xsl:when test="./type='catchWord'">
-													<xsl:if test="not(not(./headings))">
-														<fo:table>
-															<xsl:if test="(string-length(catchWordIndex)>0) and (not(./headings) or not(./vishaysuchiDevices))">
-																<fo:table-header>
-																	<fo:table-row>
-																		<fo:table-cell>
-																			<fo:block text-align="center" font-weight="bold">
-																				"<xsl:value-of select="./catchWordIndex"></xsl:value-of>"
-																			</fo:block>
-																		</fo:table-cell>
-																		<fo:table-cell>
-																			<fo:block text-align="right" font-family="{$font}" font-size="12px">
-																			   	पृष्ठ क्रमांक
-																			</fo:block>
-																		</fo:table-cell>
-																	</fo:table-row>
-																</fo:table-header>
-															</xsl:if>
-															<fo:table-body>
-																<fo:table-row>
-																	<fo:table-cell number-columns-spanned="2">
-																		<fo:block>&#160;</fo:block>
-																		<fo:block><xsl:value-of select="./value" />-----</fo:block>							
-																		<xsl:for-each select="./headings">
-																			<fo:block margin-left="14px"><xsl:value-of select="./heading" /></fo:block>
-																		</xsl:for-each>
-																	</fo:table-cell>
-																</fo:table-row>
-															</fo:table-body>
-														</fo:table>
-													</xsl:if>
-												</xsl:when>
-											</xsl:choose>			
-										</xsl:for-each>
+													<fo:table-body>
+														<fo:table-row>
+															<fo:table-cell number-columns-spanned="2">
+																<fo:block>&#160;</fo:block>
+																<fo:block><xsl:value-of select="./value" />-----</fo:block>							
+																<xsl:for-each select="./headings">
+																	<fo:block margin-left="14px"><xsl:value-of select="./heading" /></fo:block>
+																</xsl:for-each>
+															</fo:table-cell>
+														</fo:table-row>
+													</fo:table-body>
+												</fo:table>
+											</xsl:if>
+										</xsl:when>
+									</xsl:choose>			
+								</xsl:for-each>
 							</xsl:otherwise>
 						</xsl:choose>
 					</fo:block>
