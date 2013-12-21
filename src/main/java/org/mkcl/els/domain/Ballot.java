@@ -1346,6 +1346,25 @@ public class Ballot extends BaseDomain implements Serializable {
 		return members;
 	}	
 	
+	private static List<Member> computeMembersEligibleForTheBallot(final Session session,
+			final DeviceType deviceType,
+			final Date answeringDate,
+			final String sortOrder,
+			final String locale) throws ELSException{
+		
+		CustomParameter datePattern = CustomParameter.findByName(CustomParameter.class, "DB_TIMESTAMP", "");
+	
+		Date startTime = FormaterUtil.formatStringToDate(session.getParameter(deviceType.getType() + "_submissionStartDate"), datePattern.getValue(), locale);
+		Date endTime = FormaterUtil.formatStringToDate(session.getParameter(deviceType.getType() + "_submissionEndDate"), datePattern.getValue(), locale);
+		
+		Status ADMITTED = Status.findByType(ApplicationConstants.RESOLUTION_FINAL_ADMISSION, locale);
+		Status[] internalStatuses = new Status[] { ADMITTED };
+				
+		List<Member> members = Resolution.findMembersEligibleForTheBallot(session, deviceType, answeringDate, internalStatuses, startTime, endTime, sortOrder, locale); 
+		
+		return members;
+	}
+	
 	/**
 	 * For resolution nonofficial
 	 * @param session
@@ -1601,7 +1620,7 @@ public class Ballot extends BaseDomain implements Serializable {
 		
 		if(ballot == null) {
 			
-			List<Member> computedList = Ballot.computeMembersResolutionNonOfficial(this.getSession(), false, this.getAnsweringDate(), this.getLocale());
+			List<Member> computedList = Ballot.computeMembersEligibleForTheBallot(session, deviceType, answeringDate, ApplicationConstants.ASC, this.getLocale());
 					
 			List<Member> randomizedList = Ballot.randomizeMembers(computedList);
 			

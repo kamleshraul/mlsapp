@@ -64,6 +64,8 @@ public class DeviceType extends BaseDomain implements Serializable {
     @Column(length=100)
     private String device;
 
+	private Integer priority;
+    
     @Autowired
     private transient DeviceTypeRepository deviceTypeRepository;
 
@@ -163,4 +165,12 @@ public class DeviceType extends BaseDomain implements Serializable {
 	 public void setDevice(String device) {
 		this.device = device;
 	 }
+	 
+	public Integer getPriority() {
+		return priority;
+	}
+
+	public void setPriority(Integer priority) {
+		this.priority = priority;
+	}
 }
