@@ -770,7 +770,41 @@ public class Resolution extends Device implements Serializable{
     	return getResolutionRepository().findMembersAll(session, deviceType, answeringDate, internalStatuses,isPreBallot, startTime, endTime, sortOrder, locale);
     }
     
+    
+    /**
+     * @param session
+     * @param deviceType
+     * @param answeringDate
+     * @param internalStatuses
+     * @param startTime
+     * @param endTime
+     * @param sortOrder
+     * @param locale
+     * @return
+     * @throws ELSException
+     */
+    public static List<Member> findMembersEligibleForTheBallot(final Session session,
+			final DeviceType deviceType,
+			final Date answeringDate,
+			final Status[] internalStatuses,
+			final Date startTime,
+			final Date endTime,
+			final String sortOrder,
+			final String locale) throws ELSException{
+    	return getResolutionRepository().findMembersEligibleForTheBallot(session, deviceType, answeringDate, internalStatuses, startTime, endTime, sortOrder, locale);
+    }
    
+    public static List<Resolution> findChosenResolutionsForGivenDate(final Session session, 
+			final DeviceType deviceType,
+			final Status ballotStatus,
+			final Status discussionStatus,
+			final Date discussionDate,
+			final String locale){
+    	
+    	return getResolutionRepository().findChosenResolutionsForGivenDate(session, deviceType, ballotStatus, discussionStatus, discussionDate, locale);
+    			
+    }
+    
     /**
      * Gets the resolution for member of unique subject.
      *
@@ -1275,6 +1309,22 @@ public class Resolution extends Device implements Serializable{
 		return getResolutionRepository().findAllByFile(session,
 				deviceType,file,locale,houseType);
 	}	
+	
+	/**
+	 * @param session
+	 * @param deviceType
+	 * @param memberId
+	 * @param discussionDate
+	 * @param locale
+	 * @return
+	 */
+	public static Integer findChoiceCountForGivenDiscussionDateOfMember(final Session session, 
+			final DeviceType deviceType, 
+			final Member member, 
+			final Date discussionDate, 
+			final String locale){
+		return  getResolutionRepository().findChoiceCountForGivenDiscussionDateOfMember(session, deviceType, member, discussionDate, locale);
+	}
 
 	/*public static List<MasterVO> getMemberResolutionStatistics(final Member member, final Session session, final String locale){
 		return getResolutionRepository().getMemberResolutionStatistics(member, session, locale);
