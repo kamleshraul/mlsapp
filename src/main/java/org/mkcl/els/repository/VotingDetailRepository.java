@@ -24,7 +24,12 @@ public class VotingDetailRepository extends BaseRepository<VotingDetail, Long>{
 					" WHERE vd.houseType=:houseType"+
 					" AND vd.votingFor=:votingFor"+
 					" AND m.id=:device ORDER BY vd.houseRound "+ApplicationConstants.DESC;
-		}	
+		}else if(deviceType.getType().startsWith(ApplicationConstants.DEVICE_RESOLUTIONS)){
+			strQuery="SELECT vd FROM Resolution r JOIN r.votingDetails vd" +
+					" WHERE vd.houseType=:houseType" +
+					" AND vd.votingFor=:votingFor"+
+					" AND r.id=:device";
+		}
 		if(strQuery!=null) {
 			Query query=this.em().createQuery(strQuery);
 			query.setParameter("houseType",houseType.getType());
