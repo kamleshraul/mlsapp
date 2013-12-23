@@ -402,7 +402,7 @@
 		<pattern>/town/*/delete</pattern>
 		<pattern>/town</pattern>
 		
-				<pattern>/proceedingcitation</pattern>
+		<pattern>/proceedingcitation</pattern>
 		<pattern>/proceedingcitation/new</pattern>
 		<pattern>/proceedingcitation/*/edit</pattern>
 		<pattern>/proceedingcitation/*/delete</pattern>	
