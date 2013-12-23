@@ -58,6 +58,26 @@ public class VotingDetail extends BaseDomain implements Serializable {
 	   super();
 	}
 	
+	 //-----------------------------Domain Methods--------------------------------
+	/**
+     * Gets the voting detail repository.
+     *
+     * @return the voting detail repository
+     */
+    private static VotingDetailRepository getVotingDetailRepository() {
+    	VotingDetailRepository votingDetailRepository = new VotingDetail().votingDetailRepository;
+        if (votingDetailRepository == null) {
+            throw new IllegalStateException(
+            	"VotingDetailRepository has not been injected in VotingDetail Domain");
+        }
+        return votingDetailRepository;
+    }
+	
+    public static List<VotingDetail> findByVotingForDeviceInGivenHouse(final Device device, 
+			final DeviceType deviceType, final HouseType houseType, final String votingFor) {
+    	return getVotingDetailRepository().findByVotingForDeviceInGivenHouse(device, deviceType, houseType, votingFor);
+    }
+	
 	//-----------------------------Getters And Setters--------------------------------
 	public String getHouseType() {
 		return houseType;
@@ -152,24 +172,8 @@ public class VotingDetail extends BaseDomain implements Serializable {
 		this.isInDecorum = isInDecorum;
 	}	
 	
-	/**
-     * Gets the voting detail repository.
-     *
-     * @return the voting detail repository
-     */
-    private static VotingDetailRepository getVotingDetailRepository() {
-    	VotingDetailRepository votingDetailRepository = new VotingDetail().votingDetailRepository;
-        if (votingDetailRepository == null) {
-            throw new IllegalStateException(
-            	"VotingDetailRepository has not been injected in VotingDetail Domain");
-        }
-        return votingDetailRepository;
-    }
+	
     
-    //-----------------------------Domain Methods--------------------------------
-    public static List<VotingDetail> findByVotingForDeviceInGivenHouse(final Device device, 
-			final DeviceType deviceType, final HouseType houseType, final String votingFor) {
-    	return getVotingDetailRepository().findByVotingForDeviceInGivenHouse(device, deviceType, houseType, votingFor);
-    }
+   
 
 }
