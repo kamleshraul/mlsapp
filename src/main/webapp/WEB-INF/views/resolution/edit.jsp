@@ -334,7 +334,7 @@
 	</p>	
 		
 	<p>
-		<label class="small"><spring:message code="resolution.Member" text="Member"/>*</label>
+		<label class="small"><spring:message code="resolution.member" text="Member"/>*</label>
 		<input id="formattedMember" name="formattedMember"  value="${formattedMember}" type="text" class="sText"  readonly="readonly" class="sText">
 		<input id="member" name="member" value="${member}" type="hidden">		
 		<form:errors path="member" cssClass="validationError"/>		
@@ -377,12 +377,13 @@
 					<label class="small"><spring:message code="resolution.currentStatus" text="Current Status"/></label>
 					<input id="formattedInternalStatus" name="formattedInternalStatus" value="${formattedInternalStatus }" type="text" readonly="readonly" class="sText">
 				</p>
-				<p>
+				 <p>
 					<label class="small"><spring:message code="resolution.ministry" text="Ministry"/>*</label>
 					<select name="ministry" id="ministry" class="sSelect">
 						<c:forEach items="${ministries }" var="i">
 							<c:choose>
-								<c:when test="${i.id==ministrySelected }">									<option value="${i.id }" selected="selected">${i.name}</option>
+								<c:when test="${i.id==ministrySelected }">		
+									<option value="${i.id }" selected="selected">${i.name}</option>
 								</c:when>
 								<c:otherwise>
 									<option value="${i.id }" >${i.name}</option>

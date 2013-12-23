@@ -315,11 +315,37 @@
 	    /**** Internal Status Changes ****/   
 	    $("#changeInternalStatus").change(function(){
 		    var value=$(this).val();
-		    if(value!='-' || $("#isRepeatWorkFlow").val()=='yes'){
+		    if(value!='-' || $("#isRepeatWorkFlow").val()=='yes' ){
 			    //var statusType=$("#internalStatusMaster option[value='"+value+"']").text();			    
 			    loadActors(value);	
 			    //$("#submit").attr("disabled","disabled");
 			    $("#startworkflow").removeAttr("disabled");		    
+		    }else{
+		    	 if($('#houseTypeType').val()=='lowerhouse'){
+					 $("#actorLowerHouse").empty();
+				}else if($('#houseTypeType').val()=='upperhouse'){
+					$("#actorUpperHouse").empty();
+				}
+			    $("#actorDiv").hide();
+			    $("#internalStatus").val($("#oldInternalStatus").val());
+			    $("#recommendationStatus").val($("#oldRecommendationStatus").val());
+			    $("#startworkflow").attr("disabled","disabled");
+			    $("#submit").removeAttr("disabled");
+			}		    
+	    });
+	    
+	    /**** Recommendation Status Change ****/
+	     $("#changeRecommendationStatus").change(function(){
+		    var value=$(this).val();
+		    if(value!='-'){
+		    	var passed=$("#recommendationStatusMaster option[value='resolution_final_passed']").text();			
+			    var negatived=$("#recommendationStatusMaster option[value='resolution_final_negatived']").text();
+			    var withdrawn=$("#recommendationStatusMaster option[value='resolution_final_withdrawn']").text();
+			    if(value==passed || value==negatived || value==withdrawn){
+			    	$('#internalStatus').val(value);
+			    	$('#status').val(value);
+			    }
+		    	$("#recommendationStatus").val(value);	    
 		    }else{
 		    	 if($('#houseTypeType').val()=='lowerhouse'){
 					 $("#actorLowerHouse").empty();
@@ -354,7 +380,16 @@
 				if(wysiwygVal=="<p></p>"||wysiwygVal=="<p><br></p>"||wysiwygVal=="<br><p></p>"){
 					$(this).val("");
 				}
-			});			
+			});		
+			if($('#votingDetail').val()=="null"){
+				$('#votingDetail').val('');
+			}
+			if($('#ballotStatus').val()=="null"){
+				$('#ballotStatus').val('');
+			}
+			if($('#discussionStatus').val()=="null"){
+				$('#discussionStatus').val('');
+			}
 			$.prompt($('#startWorkflowMessage').val(),{
 				buttons: {Ok:true, Cancel:false}, callback: function(v){
 		        if(v){
@@ -387,7 +422,16 @@
 				if(wysiwygVal=="<p></p>"||wysiwygVal=="<p><br></p>"||wysiwygVal=="<br><p></p>"){
 					$(this).val("");
 				}
-			});								
+			});		
+			if($('#votingDetail').val()=="null"){
+				$('#votingDetail').val('');
+			}
+			if($('#ballotStatus').val()=="null"){
+				$('#ballotStatus').val('');
+			}
+			if($('#discussionStatus').val()=="null"){
+				$('#discussionStatus').val('');
+			}
 			$.post($('form').attr('action'),  
 	            $("form").serialize(),  
 	            function(data){
@@ -404,7 +448,52 @@
 	    		});
 	        return false;  
 	    });
-			    
+		
+		$("#submit").click(function(e){
+			//removing <p><br></p>  from wysiwyg editor
+			$(".wysiwyg").each(function(){
+				var wysiwygVal=$(this).val().trim();
+				if(wysiwygVal=="<p></p>"||wysiwygVal=="<p><br></p>"||wysiwygVal=="<br><p></p>"){
+					$(this).val("");
+				}
+			});		
+			
+			if($('#votingDetail').val()=="null"){
+				$('#votingDetail').val('');
+			}
+			if($('#ballotStatus').val()=="null"){
+				$('#ballotStatus').val('');
+			}
+			if($('#discussionStatus').val()=="null"){
+				$('#discussionStatus').val('');
+			}
+			$.blockUI({ message: '<img src="./resources/images/waitAnimated.gif" />' }); 
+			$.post($('form').attr('action'), $("form").serialize(), function(data){
+				$('.tabContent').html(data);
+					$('html').animate({scrollTop:0}, 'slow');
+					$('body').animate({scrollTop:0}, 'slow');	
+				$.unblockUI();
+			});
+	         
+	    });
+			  
+		$('#addVotingDetail').click(function(e) {
+	    	$.get('votingdetail/new?deviceId='+$("#id").val()+ "&houseType="+ $("#selectedHouseType").val()
+	    			+ "&deviceType="+ $("#selectedDeviceType").val()
+	    			+ "&votingFor="+ $("#votingForPassingOfResolution").val()+ "&openThroughOverlay=yes", function(data){
+			    $.fancybox.open(data, {autoSize: false, width: 800, height:600});
+		    },'html');		    	
+		    return false;
+	    });
+	    $('#editVotingDetails').click(function(e) {
+	    	$.get('votingdetail/'+$('#votingDetailsId').val()+'/edit?deviceId='+$("#id").val()+ "&houseType="+ $("#selectedHouseType").val()
+	    			+ "&openThroughOverlay=yes"
+	    			+ "&deviceType="+ $("#selectedDeviceType").val()
+	    			+ "&votingFor="+ $("#votingForPassingOfResolution").val(), function(data){
+			    $.fancybox.open(data, {autoSize: false, width: 1000, height:600});
+		    },'html');		    	
+		    return false;
+	    });
 	    /**** On Page Load ****/
 	   // loadActors($("#changeInternalStatus").val());
 	    if($("#ministrySelected").val()==''){
@@ -615,58 +704,113 @@
 		<form:errors path="factualPosition" cssClass="validationError" cssStyle="float:right;margin-top:-100px;margin-right:40px;"/>
 		</p>
 	</c:if>
-	<p id="internalStatusDiv">
-	<label class="small"><spring:message code="resolution.currentStatus" text="Current Status"/></label>
-	<input id="formattedInternalStatus" name="formattedInternalStatus" value="${formattedInternalStatus }" type="text" readonly="readonly">
-	</p>
-	 
-	 <c:if test="${((internalStatusType=='resolution_system_putup' or internalStatusType=='resolution_recommend_repeat') && selectedDeviceType=='resolutions_nonofficial') 
-			|| (internalStatusType=='resolution_system_assistantprocessed' && selectedDeviceType=='resolutions_government')
-			|| ((internalStatusType=='resolution_recommend_admission' or internalStatusType=='resolution_recommend_repeat' or internalStatusType=='resolution_recommend_rejection') && selectedDeviceType=='resolutions_nonofficial' && bulkedit=='yes')}">		
-	<p>
-	<label class="small"><spring:message code="resolution.putupfor" text="Put up for"/></label>
-	<select id="changeInternalStatus" class="sSelect">
-	<option value="-"><spring:message code='please.select' text='Please Select'/></option>
-	<c:forEach items="${internalStatuses}" var="i">
-		<c:if test="${(i.type!='resolution_recommend_sendback'&&i.type!='resolution_recommend_discuss') }">
-				<c:choose>
-					<c:when test="${i.id==internalStatusSelected}">
-						<option value="${i.id}" selected="selected"><c:out value="${i.name}"></c:out></option>	
-					</c:when>
-					<c:otherwise>
-						<option value="${i.id}"><c:out value="${i.name}"></c:out></option>		
-					</c:otherwise>
-				</c:choose>
-		</c:if>
-		</c:forEach>
-	</select>
-	
-	<select id="internalStatusMaster" style="display:none;">
-	<c:forEach items="${internalStatuses}" var="i">
-	<option value="${i.type}"><c:out value="${i.id}"></c:out></option>
-	</c:forEach>
-	</select>	
-	<c:if test="${houseTypeForStatus=='lowerhouse'}">
-	 <form:errors path="internalStatusLowerHouse" cssClass="validationError"/>	 
+	<c:if test="${internalStatusType=='resolution_processed_underconsideration' || 
+				  internalStatusType=='resolution_final_passed' ||
+				  internalStatusType=='resolution_final_negatived'||
+				  internalStatusType=='resolution_final_withdrawn'}">
+		<p style="margin-left:165px">
+			<a id="addVotingDetail" href="javascript:void(0);"><spring:message code="resolution.addVotingDetail" text="Add Voting Details"/></a>	
+			<a id="editVotingDetails" href="javascript:void(0);" style="display: inline; margin-left: 20px;"><spring:message code="resolution.editVotingDetails" text="Edit Voting Details"/></a>
+		</p>
 	</c:if>
-	<c:if test="${houseTypeForStatus=='upperhouse'}">
-	 <form:errors path="internalStatusUpperHouse" cssClass="validationError"/>	 
-	</c:if>
-	</p>
-	
-	<p id="actorDiv" style="display: none;">
-	<label class="small"><spring:message code="resolution.nextactor" text="Next Users"/></label>
-	<c:if test="${houseTypeForStatus=='lowerhouse'}">
-		<form:select path="actorLowerHouse" cssClass="sSelect" itemLabel="name" itemValue="id" items="${actors}"/>
-		<form:hidden path="actorUpperHouse"/>
-	</c:if>	
-	<c:if test="${houseTypeForStatus=='upperhouse'}">
-		<form:select path="actorUpperHouse" cssClass="sSelect" itemLabel="name" itemValue="id" items="${actors}"/>
-		<form:hidden path="actorLowerHouse"/>				
-	</c:if>
-	</p>
-	</c:if>	
-	
+	<c:choose>
+		<c:when test="${internalStatusType=='resolution_processed_underconsideration' }">
+			
+			<p id="recommendationStatusDiv">
+				<label class="small"><spring:message code="resolution.currentStatus" text="Current Status"/></label>
+				<input id="formattedRecommendationStatus" name="formattedRecommendationStatus" value="${formattedRecommendationStatus}" type="text" readonly="readonly">
+			</p>
+			<p>
+				<label class="small"><spring:message code="resolution.putupfor" text="Put up for"/></label>
+				<select id="changeRecommendationStatus" class="sSelect">
+					<option value="-"><spring:message code='please.select' text='Please Select'/></option>
+					<c:forEach items="${recommendationStatuses}" var="i">
+						<c:choose>
+							<c:when test="${i.id==recommendationStatusSelected}">
+								<option value="${i.id}" selected="selected"><c:out value="${i.name}"></c:out></option>	
+							</c:when>
+							<c:otherwise>
+								<option value="${i.id}"><c:out value="${i.name}"></c:out></option>		
+							</c:otherwise>
+						</c:choose>
+					</c:forEach>
+				</select>
+				<select id="recommendationStatusMaster" style="display:none;">
+				<c:forEach items="${recommendationStatuses}" var="i">
+				<option value="${i.type}"><c:out value="${i.id}"></c:out></option>
+				</c:forEach>
+				</select>
+				<c:if test="${houseTypeForStatus=='lowerhouse'}">
+				 <form:errors path="recommendationStatusLowerHouse" cssClass="validationError"/>	 
+				</c:if>
+				<c:if test="${houseTypeForStatus=='upperhouse'}">
+				 <form:errors path="recommendationStatusUpperHouse" cssClass="validationError"/>	 
+				</c:if>
+			</p>
+		</c:when>
+		<c:otherwise>
+			<p id="internalStatusDiv">
+				<label class="small"><spring:message code="resolution.currentStatus" text="Current Status"/></label>
+				<input id="formattedInternalStatus" name="formattedInternalStatus" value="${formattedInternalStatus }" type="text" readonly="readonly">
+				</p>
+				 
+				 <c:if test="${((internalStatusType=='resolution_system_putup' or internalStatusType=='resolution_recommend_repeat') && selectedDeviceType=='resolutions_nonofficial') 
+						|| (internalStatusType=='resolution_system_assistantprocessed' && selectedDeviceType=='resolutions_government')
+						|| ((internalStatusType=='resolution_recommend_admission' or internalStatusType=='resolution_recommend_repeat' or internalStatusType=='resolution_recommend_rejection') && selectedDeviceType=='resolutions_nonofficial' && bulkedit=='yes')}">		
+				<p>
+				<label class="small"><spring:message code="resolution.putupfor" text="Put up for"/></label>
+				<select id="changeInternalStatus" class="sSelect">
+				<option value="-"><spring:message code='please.select' text='Please Select'/></option>
+				<c:forEach items="${internalStatuses}" var="i">
+					<c:if test="${(i.type!='resolution_recommend_sendback'&&i.type!='resolution_recommend_discuss') }">
+							<c:choose>
+								<c:when test="${i.id==internalStatusSelected}">
+									<option value="${i.id}" selected="selected"><c:out value="${i.name}"></c:out></option>	
+								</c:when>
+								<c:otherwise>
+									<option value="${i.id}"><c:out value="${i.name}"></c:out></option>		
+								</c:otherwise>
+							</c:choose>
+					</c:if>
+					</c:forEach>
+				</select>
+				
+				<select id="internalStatusMaster" style="display:none;">
+				<c:forEach items="${internalStatuses}" var="i">
+				<option value="${i.type}"><c:out value="${i.id}"></c:out></option>
+				</c:forEach>
+				</select>	
+				<c:if test="${houseTypeForStatus=='lowerhouse'}">
+				 <form:errors path="internalStatusLowerHouse" cssClass="validationError"/>	 
+				</c:if>
+				<c:if test="${houseTypeForStatus=='upperhouse'}">
+				 <form:errors path="internalStatusUpperHouse" cssClass="validationError"/>	 
+				</c:if>
+				</p>
+				<p id="actorDiv" style="display: none;">
+				<label class="small"><spring:message code="resolution.nextactor" text="Next Users"/></label>
+				<c:if test="${houseTypeForStatus=='lowerhouse'}">
+					<form:select path="actorLowerHouse" cssClass="sSelect" itemLabel="name" itemValue="id" items="${actors}"/>
+					<form:hidden path="actorUpperHouse"/>
+				</c:if>	
+				<c:if test="${houseTypeForStatus=='upperhouse'}">
+					<form:select path="actorUpperHouse" cssClass="sSelect" itemLabel="name" itemValue="id" items="${actors}"/>
+					<form:hidden path="actorLowerHouse"/>				
+				</c:if>
+				</p>
+			</c:if>	
+		</c:otherwise>
+	</c:choose>
+	<c:choose>
+		<c:when test="${selectedDeviceType== 'resolutions_nonofficial' and domain.discussionDate!=null}">
+			<label class="small"><spring:message code="resolution.discussionDate" text="Discussion Date"/></label>
+		<form:input path="discussionDate" cssClass="datemask sText"/>
+		<form:errors path="discussionDate" cssClass="validationError"/>
+		</c:when>
+		<c:otherwise>
+			<form:hidden path="discussionDate"/>
+		</c:otherwise>
+	</c:choose>
 	<c:choose>
 		<c:when test="${selectedDeviceType == 'resolutions_government'}">
 			<c:if test="${houseTypeForStatus=='lowerhouse'}">
@@ -761,18 +905,18 @@
 		</c:if> --%>
 		<c:choose>
 			<c:when test="${internalStatusType=='resolution_submit'}">	
-			<input id="submit" type="submit" value="<spring:message code='generic.submit' text='Submit'/>" class="butDef">
+			<input id="submit" type="button" value="<spring:message code='generic.submit' text='Submit'/>" class="butDef">
 		</c:when>
 		<c:when test="${internalStatusType=='resolution_system_assistantprocessed' && selectedDeviceType=='resolutions_nonofficial'}">
-			<input id="submit" type="submit" value="<spring:message code='generic.submit' text='Submit'/>" class="butDef">
+			<input id="submit" type="button" value="<spring:message code='generic.submit' text='Submit'/>" class="butDef">
 		</c:when>
 		<c:otherwise>		
 				<c:if test="${bulkedit!='yes'}">
-					<input id="submit" type="submit" value="<spring:message code='generic.submit' text='Submit'/>" class="butDef">
+					<input id="submit" type="button" value="<spring:message code='generic.submit' text='Submit'/>" class="butDef">
 					<input id="startworkflow" type="button" value="<spring:message code='resolution.putupresolution' text='Put Up Resolution'/>" class="butDef">
 				</c:if>
 				<c:if test="${bulkedit=='yes'}">
-					<input id="submitBulkEdit" type="submit" value="<spring:message code='generic.submit' text='Submit'/>" class="butDef">	
+					<input id="submitBulkEdit" type="button" value="<spring:message code='generic.submit' text='Submit'/>" class="butDef">	
 				</c:if>
 			
 		</c:otherwise>
@@ -798,6 +942,9 @@
 	<form:hidden path="fileIndexUpperHouse"/>	
 	<form:hidden path="fileSentLowerHouse"/>
 	<form:hidden path="fileSentUpperHouse"/>
+	<form:hidden path="ballotStatus" value="${ballotStatusId}"/>
+	<form:hidden path="discussionStatus" value="${discussionStatusId}"/>
+	
 	<input id="bulkedit" name="bulkedit" value="${bulkedit}" type="hidden">	
 	<input id="taskid" name="taskid" value="${taskid}" type="hidden">	
 	<input type="hidden" name="createdBy" id="createdBy" value="${createdBy }">
@@ -830,12 +977,13 @@
 	<input id="usergroup" name="usergroup" value="${usergroup}" type="hidden">
 	<input id="usergroupType" name="usergroupType" value="${usergroupType}" type="hidden">	
 			
-	<form:hidden path="questionsAskedInFactualPosition"/>	
+	<form:hidden path="questionsAskedInFactualPosition"/>
+	<form:hidden path="votingDetail"/>		
 	<c:if test="${selectedDeviceType == 'resolutions_government'}">
 		<input type="hidden" name="ruleForDiscussionDate" value="${ruleForDiscussionDateSelected}"/>
 	</c:if>	
 </form:form>
-
+<input id="votingDetailsId" type="hidden" name="votingDetailsId" value="${votingDetailId}"/>
 <input id="pleaseSelectMessage" value="<spring:message code='please.select' text='Please Select'/>" type="hidden">
 <input id="confirmResolutionSubmission" value="<spring:message code='confirm.resolutionsubmission.message' text='Do you want to submit the resolution?'></spring:message>" type="hidden">
 <input id="startWorkflowMessage" name="startWorkflowMessage" value="<spring:message code='resolution.startworkflowmessage' text='Do You Want To Put Up Resolution?'></spring:message>" type="hidden">
@@ -850,6 +998,7 @@
 <input id="refResolutionEntity" type="hidden" value="${domain.referencedResolution.id}" />
 <input id="houseTypeType" type="hidden" value="${houseTypeForStatus }"/>
 <input type="hidden" id="ErrorMsg" value="<spring:message code='generic.error' text='Error Occured Contact For Support.'/>"/>
+<input type="hidden" id="votingForPassingOfResolution" value="${votingFor}">
 </div> 
 </div>
 <div id="referencingResultDiv" style="display:none;">

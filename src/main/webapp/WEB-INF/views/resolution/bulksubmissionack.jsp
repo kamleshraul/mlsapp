@@ -13,7 +13,7 @@
 	<c:if test="${(error!='') && (error!=null)}">
 		<h4 style="color: #FF0000;">${error}</h4>
 	</c:if>
-	<table class="uiTable">
+	<table class="uiTable" style="width: 100%">
 		<tr>
 			<th><spring:message code="resolution.number" text="Number"></spring:message></th>
 			<th><spring:message code="resolution.subject" text="Subject"></spring:message></th>
@@ -21,7 +21,15 @@
 		<c:forEach items="${resolutions}" var="i">
 			<tr>
 				<td>${i.formatNumber()}</td>
-				<td>${i.subject}</td>
+				<c:choose>
+					<c:when test="${i.subject==null or i.subject=='' }">
+						<td>${i.noticeContent}</td>
+					</c:when>
+					<c:otherwise>
+						<td>${i.subject}</td>
+					</c:otherwise>
+				</c:choose>
+				
 			</tr>
 		</c:forEach>
 	</table>	

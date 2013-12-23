@@ -86,7 +86,7 @@
 	<c:choose>
 		<c:when test="${!(empty resolutions) }">
 			<input type="button" id="bulksubmit" value="<spring:message code='generic.submit' text='Submit'/>"  style="width: 100px;margin: 10px;"/>		
-			<table class="uiTable">
+			<table class="uiTable" style="width: 100%">
 				<tr>
 					<th><spring:message code="resolution.submitall" text="Submit All"></spring:message>
 					<input type="checkbox" id="chkall" name="chkall" class="sCheck" value="true"></th>
@@ -98,7 +98,15 @@
 				<c:forEach items="${resolutions}" var="i">
 					<tr id="row${index}">
 						<td class="chk"><input type="checkbox" id="chk${i.id}" name="chk${i.id}" class="sCheck action" value="true"></td>
-						<td class="subject">${i.subject}</td>
+						<c:choose>
+							<c:when test="${i.subject==null || i.subject=='' }">
+								<td class="subject" style="text-align: justify;">${i.noticeContent}</td>
+							</c:when>
+							<c:otherwise>
+								<td class="subject" style="text-align: justify;">${i.subject}</td>
+							</c:otherwise>
+						</c:choose>
+						
 						<td><input type="button" value="&#x2191;" class="up" style="width: 40px;"/></td>
 						<td><input type="button" value="&#x2193;" class="down" style="width: 40px;"/></td>						
 					</tr>
