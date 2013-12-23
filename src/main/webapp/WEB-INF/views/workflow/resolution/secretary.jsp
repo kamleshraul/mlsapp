@@ -605,8 +605,9 @@
 		<label class="small"><spring:message code="resolution.referredresolution" text="Referred Resolution"></spring:message></label>
 		<c:choose>
 			<c:when test="${!(empty referencedResolutions) }">
-				<c:forEach items="${referencedResolutions }" var="i">
+				<c:forEach items="${referencedResolutions }" var="i" varStatus="index">
 					<a href="#" id="rr${i.number}" class="referencedResolution" onclick="viewResolutionDetail(${i.number});" style="font-size: 18px;"><c:out value="${i.name}"></c:out></a>
+					&nbsp;(${referencedResolutionsSessionAndDevice[index.count-1]})	
 					<input id="refResolution" name="refResolution" type="hidden" value="${i.number}" />
 				</c:forEach>
 			</c:when>
