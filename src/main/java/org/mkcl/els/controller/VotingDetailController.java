@@ -23,6 +23,7 @@ import org.mkcl.els.domain.Bill;
 import org.mkcl.els.domain.CustomParameter;
 import org.mkcl.els.domain.DeviceType;
 import org.mkcl.els.domain.HouseType;
+import org.mkcl.els.domain.Resolution;
 import org.mkcl.els.domain.Status;
 import org.mkcl.els.domain.Title;
 import org.mkcl.els.domain.VotingDetail;
@@ -194,8 +195,11 @@ public class VotingDetailController extends GenericController<VotingDetail> {
 							model.addAttribute("errorcode", "bill_houseorders_notset");
 							return;
 						}
+					}else if(selectedDeviceType.getType().startsWith(ApplicationConstants.DEVICE_RESOLUTIONS)){
+							Resolution resolution=Resolution.findById(Resolution.class, Long.parseLong(deviceId));
+							model.addAttribute("deviceVersion", resolution.getVersion());
 					}
-				}				
+				}
 			}
 		}	
 		if(houseRoundsAvailable==null) {
@@ -239,7 +243,8 @@ public class VotingDetailController extends GenericController<VotingDetail> {
 			return;
 		}
 		/**** Open through Overlay OR Master ****/
-		if(domain.getVotingFor().equals(ApplicationConstants.VOTING_FOR_PASSING_OF_BILL)) {
+		if(domain.getVotingFor().equals(ApplicationConstants.VOTING_FOR_PASSING_OF_BILL)||
+				domain.getVotingFor().equals(ApplicationConstants.VOTING_FOR_PASSING_OF_RESOLUTION)) {
 			model.addAttribute("openThroughOverlay", "yes");
 		}		
     }
@@ -350,6 +355,21 @@ public class VotingDetailController extends GenericController<VotingDetail> {
 						if(votingDetailsForDevice==null) {
 							votingDetailsForDevice = new ArrayList<VotingDetail>();
 						}						
+					}else if(selectedDeviceType.getType().startsWith(ApplicationConstants.DEVICE_RESOLUTIONS)){
+						/**** Voting For ****/
+						model.addAttribute("votingFor", votingFor);
+						Resolution resolution=Resolution.findById(Resolution.class, Long.parseLong(deviceId));
+						votingDetailsForDevice=VotingDetail.findByVotingForDeviceInGivenHouse(resolution, selectedDeviceType, selectedHouseType, votingFor);
+						/**** Populate Voting Decisions ****/
+						CustomParameter votingDecisionParameter = CustomParameter.findByName(CustomParameter.class, "VOTING_DECISIONS", "");
+						if(votingDecisionParameter!=null) {
+							List<Status> votingDecisionStatuses=Status.findStatusContainedIn(votingDecisionParameter.getValue(), locale.toString(), ApplicationConstants.ASC);
+							model.addAttribute("votingDecisionStatuses", votingDecisionStatuses);
+						} else {
+							logger.error("custom parameter 'VOTING_DECISIONS' is not set.");
+							model.addAttribute("errorcode", "voting_decisions_notset");		
+							return "votingdetail/error";
+						}
 					}
 					model.addAttribute("votingDetailsForDevice", votingDetailsForDevice);
 				}
