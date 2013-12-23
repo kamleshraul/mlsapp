@@ -497,6 +497,13 @@ public class ApplicationConstants {
 
 	public static final String RESOLUTION_NONOFFICIAL_SESSIONS_TOBE_SEARCHED_COUNT="RESOLUTION_NONOFFICIAL_SESSIONS_TOBE_SEARCHED_COUNT";
 
+	public static final String RESOLUTION_PROCESSED_UNDERCONSIDERATION = "resolution_processed_underconsideration";
+	
+	public static final String VOTING_FOR_PASSING_OF_RESOLUTION = "PASSING_OF_RESOLUTION";
+
+	public static final String RESOLUTION_PROCESSED_SELECTEDANDNOTDISCUSSED = "resolution_processed_selectedAndNotDiscussed";
+
+	
 	/**** Motion ****/	
 	
 	/**** Member View ****/	
