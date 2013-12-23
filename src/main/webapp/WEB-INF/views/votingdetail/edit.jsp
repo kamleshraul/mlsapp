@@ -9,7 +9,7 @@
 	$('document').ready(function(){	
 		initControls();
 		$('#key').val('');
-		
+		$('#votingDetail').val($('#votingDetailId').val());
 		$('#votesInFavor').change(function() {
 			if($('#votesInFavor').val()!='' && $('#votesAgainst').val()!='') {
 				if(parseInt($('#votesInFavor').val())>parseInt($('#votesAgainst').val())) {
@@ -157,15 +157,16 @@
 					<input id="submitThroughDevice" type="button" value="<spring:message code='generic.submit' text='Submit'/>" class="butDef">
 					</c:when>
 					<c:otherwise>
-					<input id="submit" type="submit" value="<spring:message code='generic.submit' text='Submit'/>" class="butDef">
+					<input id="submitThroughDevice" type="button" value="<spring:message code='generic.submit' text='Submit'/>" class="butDef">
 					</c:otherwise>
 				</c:choose>				
 			</p>
 		</div>	
-	<form:hidden path="version" />
-	<form:hidden path="id"/>
-	<form:hidden path="locale"/>	
-</form:form>
-</div>	
+	<form:hidden id="votingDetailVersion" path="version" />
+	<form:hidden id="votingDetailId" path="id"/>
+	<form:hidden id="votingDetailPath" path="locale"/>	
+	</form:form>
+</div>
+<input type="hidden" id="deviceVersion" value="${deviceVersion}"/>	
 </body>
 </html>

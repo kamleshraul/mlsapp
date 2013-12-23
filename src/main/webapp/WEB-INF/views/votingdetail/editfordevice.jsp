@@ -9,7 +9,7 @@
 	$('document').ready(function(){	
 		initControls();
 		$('#key').val('');	
-		
+		//$('#version').val($('#deviceVersion').val());
 		/**** Submit Details ****/
 		$("#submitDetails").click(function(e){			
 			$('.isInDecorum').each(function() {				
@@ -66,7 +66,9 @@
 			<div style="overflow: auto;">
 			<table class="uiTable">				
 				<tr>
+					<c:if test="${deviceType!='resolutions_nonofficial' }">
 					<th><spring:message code="votingdetail.houseRound" text="House Round"/></th>
+					</c:if>
 					<th><spring:message code="votingdetail.totalNumberOfVoters" text="Total Number Of Voters"/></th>
 					<th><spring:message code="votingdetail.actualNumberOfVoters" text="Actual Number Of Voters"/></th>
 					<th><spring:message code="votingdetail.votesInFavor" text="Votes In Favor"/></th>
@@ -76,7 +78,9 @@
 				</tr>
 				<c:forEach items="${votingDetailsForDevice}" var="i" varStatus="entry">							
 					<input type="hidden" name="id_${entry.count}" value="${i.id}"/>
+					
 					<tr>
+						<c:if test="${deviceType!='resolutions_nonofficial' }">
 						<td>
 							<select class="sSelect" name="houseRound_${entry.count}">
 								<c:forEach var="j" items="${houseRoundVOs}">
@@ -91,6 +95,7 @@
 								</c:forEach>
 							</select>
 						</td>
+						</c:if>
 						<td><input class="sInteger" name="totalNumberOfVoters_${entry.count}" value="${i.totalNumberOfVoters}"/></td>
 						<td><input class="sInteger" name="actualNumberOfVoters_${entry.count}" value="${i.actualNumberOfVoters}"/></td>
 						<td><input class="sInteger" name="votesInFavor_${entry.count}" value="${i.votesInFavor}"/></td>
@@ -139,6 +144,7 @@
 </form>
 <input type="hidden" id="errorMessage" value="<spring:message code="votingdetail.errorInUpdationForDevice" text="Error In Updation"/>">
 <input type="hidden" id="successMessage" value="<spring:message code="votingdetail.errorInUpdationForDevice" text="Success In Updation"/>">
+<input type="hidden" id="deviceVersion" value="${deviceVersion}"/>
 </div>	
 </body>
 </html>

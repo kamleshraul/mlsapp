@@ -73,6 +73,7 @@
 			<form:hidden id="houseType" path="houseType" value="${houseType}"/>
 			<form:errors path="houseType" cssClass="validationError"/>
 		</p>	 
+		<c:if test="${deviceType!='resolutions_nonofficial' }">
 		<p>
 			<label class="small"><spring:message code="votingdetail.houseRound" text="House Round"/></label>
 			<form:select id="houseRound" class="sSelect" path="houseRound">
@@ -88,6 +89,7 @@
 				</c:forEach>
 			</form:select>							
 		</p>
+		</c:if>
 		</c:if>
 		<c:if test="${not empty deviceType}">
 		<p>
@@ -155,14 +157,14 @@
 					<input id="submitThroughOverlay" type="button" value="<spring:message code='generic.submit' text='Submit'/>" class="butDef">
 					</c:when>
 					<c:otherwise>
-					<input id="submit" type="submit" value="<spring:message code='generic.submit' text='Submit'/>" class="butDef">
+					<input id="submitThroughOverlay" type="button" value="<spring:message code='generic.submit' text='Submit'/>" class="butDef">
 					</c:otherwise>
 				</c:choose>				
 			</p>
 		</div>	
-	<form:hidden path="version" />
-	<form:hidden path="id"/>
-	<form:hidden path="locale"/>
+	<form:hidden id="votingDetailVersion" path="version" />
+	<form:hidden id="votingDetailId" path="id"/>
+	<form:hidden id="votingDetailLocale" path="locale"/>
 	
 </form:form>
 </div>	
