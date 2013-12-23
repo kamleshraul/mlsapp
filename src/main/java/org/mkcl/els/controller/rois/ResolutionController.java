@@ -1111,7 +1111,7 @@ public class ResolutionController extends GenericController<Resolution> {
 				model.addAttribute("internalStatusType", internalStatus.getType());
 				model.addAttribute("formattedInternalStatus", internalStatus.getName());
 				/***********EndFlag,Level and Workflowstarted**********************/
-				if(usergroupType!=null&&!(usergroupType.isEmpty())&&usergroupType.equals("assistant")){
+				if(usergroupType!=null&&!(usergroupType.isEmpty())&&(usergroupType.equals("assistant")||usergroupType.equals("section_officer"))&& !(internalStatus.getType().equals(ApplicationConstants.RESOLUTION_PROCESSED_UNDERCONSIDERATION))){
 					populateInternalStatus(model,internalStatus.getType(),usergroupType,locale,resolutionType.getType());
 					if(houseTypeForStatus.equals(ApplicationConstants.LOWER_HOUSE)){
 						if(domain.getWorkflowStartedLowerHouse()==null){
@@ -1151,9 +1151,56 @@ public class ResolutionController extends GenericController<Resolution> {
 					
 				}
 			}
+			if(domain.getVotingDetail()!=null){
+				model.addAttribute("votingDetailId", domain.getVotingDetail().getId());
+			}
 			if(recommendationStatus!=null){
 				model.addAttribute("recommendationStatus",recommendationStatus.getId());
 				model.addAttribute("recommendationStatusType",recommendationStatus.getType());
+				model.addAttribute("formattedRecommendationStatus", recommendationStatus.getName());
+				model.addAttribute("votingFor", ApplicationConstants.VOTING_FOR_PASSING_OF_RESOLUTION);
+				if(usergroupType!=null&&!(usergroupType.isEmpty())
+						&&(usergroupType.equals("assistant")||usergroupType.equals("section_officer"))
+						&&(recommendationStatus.getType().equals(ApplicationConstants.RESOLUTION_PROCESSED_TOBEDISCUSSED) ||
+						   recommendationStatus.getType().equals(ApplicationConstants.RESOLUTION_PROCESSED_SELECTEDANDNOTDISCUSSED))){
+					/**** voting for ****/
+					
+					populateRecommendationStatus(model,recommendationStatus.getType(),usergroupType,locale,resolutionType.getType());
+					if(houseTypeForStatus.equals(ApplicationConstants.LOWER_HOUSE)){
+						if(domain.getWorkflowStartedLowerHouse()==null){
+							domain.setWorkflowStartedLowerHouse("NO");
+						}else if(domain.getWorkflowStartedLowerHouse().isEmpty()){
+							domain.setWorkflowStartedLowerHouse("NO");
+						}
+						if(domain.getEndFlagLowerHouse()==null){
+							domain.setEndFlagLowerHouse("continue");
+						}else if(domain.getEndFlagLowerHouse().isEmpty()){
+							domain.setEndFlagLowerHouse("continue");
+						}
+						if(domain.getLevelLowerHouse()==null){
+							domain.setLevelLowerHouse("1");
+						}else if(domain.getLevelLowerHouse().isEmpty()){
+							domain.setLevelLowerHouse("1");
+						}
+					}else if(houseTypeForStatus.equals(ApplicationConstants.UPPER_HOUSE)){
+						if(domain.getWorkflowStartedUpperHouse()==null){
+							domain.setWorkflowStartedUpperHouse("NO");
+						}else if(domain.getWorkflowStartedUpperHouse().isEmpty()){
+							domain.setWorkflowStartedUpperHouse("NO");
+						}
+						if(domain.getEndFlagUpperHouse()==null){
+							domain.setEndFlagUpperHouse("continue");
+						}else if(domain.getEndFlagUpperHouse().isEmpty()){
+							domain.setEndFlagUpperHouse("continue");
+						}
+						if(domain.getLevelUpperHouse()==null){
+							domain.setLevelUpperHouse("1");
+						}else if(domain.getLevelUpperHouse().isEmpty()){
+							domain.setLevelUpperHouse("1");
+						}
+					}
+				}
+				
 			}
 			HouseType houseTypeForWorkflow=null;
 			/**** if its a non official resolution ****/
@@ -1287,6 +1334,13 @@ public class ResolutionController extends GenericController<Resolution> {
 				}
 			}
 			
+			if(domain.getBallotStatus()!=null){
+				model.addAttribute("ballotStatusId", domain.getBallotStatus().getId());
+			}
+			
+			if(domain.getDiscussionStatus()!=null){
+				model.addAttribute("discussionStatusId",domain.getDiscussionStatus().getId());
+			}
 			
 			if(usergroupType.equals("assistant")
 					&&(internalStatusType.equals(ApplicationConstants.RESOLUTION_RECOMMEND_ADMISSION)
@@ -1387,6 +1441,59 @@ public class ResolutionController extends GenericController<Resolution> {
 		}
 	}
 	
+	private void populateRecommendationStatus(final ModelMap model, final String type, final String userGroupType, final String locale, final String resolutionType) {
+		try {
+			List<Status> recommendationStatuses=new ArrayList<Status>();
+			/**** First we will check if custom parameter for device type,internal status and usergroupType has been set ****/
+			CustomParameter specificDeviceStatusUserGroupStatuses=CustomParameter.findByName(CustomParameter.class,"RESOLUTION_PUT_UP_OPTIONS_"+resolutionType.toUpperCase()+"_"+type.toUpperCase()+"_"+userGroupType.toUpperCase(),"");
+			CustomParameter specificDeviceUserGroupStatuses=CustomParameter.findByName(CustomParameter.class,"RESOLUTION_PUT_UP_OPTIONS_"+resolutionType.toUpperCase()+"_"+userGroupType.toUpperCase(),"");
+			CustomParameter specificStatuses=CustomParameter.findByName(CustomParameter.class,"RESOLUTION_PUT_UP_OPTIONS_"+type.toUpperCase()+"_"+userGroupType.toUpperCase(),"");
+			if(specificDeviceStatusUserGroupStatuses!=null){
+				recommendationStatuses=Status.findStatusContainedIn(specificDeviceStatusUserGroupStatuses.getValue(), locale);
+			}else if(specificDeviceUserGroupStatuses!=null){
+				recommendationStatuses=Status.findStatusContainedIn(specificDeviceUserGroupStatuses.getValue(), locale);
+			}else if(specificStatuses!=null){
+				recommendationStatuses=Status.findStatusContainedIn(specificStatuses.getValue(), locale);
+			}else if(userGroupType.equals(ApplicationConstants.CHAIRMAN)
+					||userGroupType.equals(ApplicationConstants.SPEAKER)){
+				CustomParameter finalStatus=CustomParameter.findByName(CustomParameter.class,"RESOLUTION_PUT_UP_OPTIONS_FINAL","");
+				if(finalStatus!=null){
+					recommendationStatuses=Status.findStatusContainedIn(finalStatus.getValue(), locale);
+				}else{
+					CustomParameter recommendStatus=CustomParameter.findByName(CustomParameter.class,"RESOLUTION_PUT_UP_OPTIONS_RECOMMEND","");
+					if(recommendStatus!=null){
+						recommendationStatuses=Status.findStatusContainedIn(recommendStatus.getValue(), locale);
+					}else{
+						CustomParameter defaultCustomParameter=CustomParameter.findByName(CustomParameter.class,"RESOLUTION_PUT_UP_OPTIONS_BY_DEFAULT","");
+						if(defaultCustomParameter!=null){
+							recommendationStatuses=Status.findStatusContainedIn(defaultCustomParameter.getValue(), locale);
+						}else{
+							model.addAttribute("errorcode","resolution_putup_options_final_notset");
+						}		
+					}
+				}
+			}else if((!userGroupType.equals(ApplicationConstants.CHAIRMAN))
+					&&(!userGroupType.equals(ApplicationConstants.SPEAKER))){
+				CustomParameter recommendStatus=CustomParameter.findByName(CustomParameter.class,"RESOLUTION_PUT_UP_OPTIONS_RECOMMEND","");
+				if(recommendStatus!=null){
+					recommendationStatuses=Status.findStatusContainedIn(recommendStatus.getValue(), locale);
+				}else{
+					CustomParameter defaultCustomParameter=CustomParameter.findByName(CustomParameter.class,"RESOLUTION_PUT_UP_OPTIONS_BY_DEFAULT","");
+					if(defaultCustomParameter!=null){
+						recommendationStatuses=Status.findStatusContainedIn(defaultCustomParameter.getValue(), locale);
+					}else{
+						model.addAttribute("errorcode","resolution_putup_options_final_notset");
+					}		
+				}
+			}	
+			/**** Internal Status****/
+			model.addAttribute("recommendationStatuses",recommendationStatuses);
+		} catch (ELSException e) {
+			model.addAttribute("error", e.getParameter());
+			e.printStackTrace();
+		}
+	}
+	
 	
 	@Override
 	protected void customValidateCreate(final Resolution domain, final BindingResult result,
@@ -1414,9 +1521,9 @@ public class ResolutionController extends GenericController<Resolution> {
 					if(domain.getMember()==null){
 						result.rejectValue("member","MemberEmpty");
 					}
-					if(domain.getSubject().isEmpty()){
+					/*if(domain.getSubject().isEmpty()){
 						result.rejectValue("subject","SubjectEmpty");
-					}
+					}*/
 					if(domain.getNoticeContent().isEmpty()){
 						result.rejectValue("noticeContent","NoticeContentEmpty");
 					}
@@ -1435,9 +1542,9 @@ public class ResolutionController extends GenericController<Resolution> {
 						if(domain.getMember()==null){
 							result.rejectValue("member","MemberEmpty");
 						}
-						if(domain.getSubject().isEmpty()){
+						/*if(domain.getSubject().isEmpty()){
 							result.rejectValue("subject","SubjectEmpty");
-						}
+						}*/
 						if(domain.getNoticeContent().isEmpty()){
 							result.rejectValue("noticeContent","NoticeContentEmpty");
 						}
@@ -1457,9 +1564,9 @@ public class ResolutionController extends GenericController<Resolution> {
 			if(domain.getMember()==null){
 				result.rejectValue("member","MemberEmpty");
 			}
-			if(domain.getSubject().isEmpty()){
+			/*if(domain.getSubject().isEmpty()){
 				result.rejectValue("subject","SubjectEmpty");
-			}
+			}*/
 			if(domain.getNoticeContent().isEmpty()){
 				result.rejectValue("noticeContent","NoticeContentEmpty");
 			}
@@ -1542,7 +1649,7 @@ public class ResolutionController extends GenericController<Resolution> {
 		String operation=request.getParameter("operation");
 		String strUserGroupType=request.getParameter("usergroupType");
 		if(domain.getHouseType()!=null && domain.getSession()!=null
-				&&  domain.getType()!=null && domain.getMember()!=null && (!domain.getSubject().isEmpty())
+				&&  domain.getType()!=null && domain.getMember()!=null 
 				&&(!domain.getNoticeContent().isEmpty())){			
 
 			if(operation!=null){
@@ -1763,9 +1870,9 @@ public class ResolutionController extends GenericController<Resolution> {
 						if(domain.getMember()==null){
 							result.rejectValue("member","MemberEmpty");
 						}
-						if(domain.getSubject().isEmpty()){
+						/*if(domain.getSubject().isEmpty()){
 							result.rejectValue("subject","SubjectEmpty");
-						}
+						}*/
 						if(domain.getNoticeContent().isEmpty()){
 							result.rejectValue("noticeContent","NoticeContentEmpty");
 						}
@@ -1785,9 +1892,9 @@ public class ResolutionController extends GenericController<Resolution> {
 			if(domain.getMember()==null){
 				result.rejectValue("member","MemberEmpty");
 			}
-			if(domain.getSubject().isEmpty()){
+			/*if(domain.getSubject().isEmpty()){
 				result.rejectValue("subject","SubjectEmpty");
-			}
+			}*/
 			if(domain.getNoticeContent().isEmpty()){
 				result.rejectValue("noticeContent","NoticeContentEmpty");
 			}
@@ -1825,8 +1932,7 @@ public class ResolutionController extends GenericController<Resolution> {
 		
 		/**** Resolution status will be complete if all mandatory fields have been filled ****/
 		if(domain.getHouseType()!=null&&domain.getType()!=null&&domain.getSession()!=null
-				&& domain.getMember()!=null  && (!domain.getSubject().isEmpty())
-				&&(!domain.getNoticeContent().isEmpty())){			
+				&& domain.getMember()!=null &&(!domain.getNoticeContent().isEmpty())){			
 			if(operation!=null){
 				if(!operation.isEmpty()){
 					
@@ -2223,7 +2329,14 @@ public class ResolutionController extends GenericController<Resolution> {
 				}
 
 			}
-		}		
+		}
+		/****For Voting Details*****//*
+		Resolution resolution=Resolution.findById(Resolution.class, domain.getId());
+		if(resolution!=null){
+			if(resolution.getVotingDetails()!=null && !resolution.getVotingDetails().isEmpty()){
+				domain.setVotingDetails(resolution.getVotingDetails());
+			}
+		}*/
 		/**** updating submission date and creation date ****/
 		String strCreationDate=request.getParameter("setCreationDate");
 		String strSubmissionDate=request.getParameter("setSubmissionDate");
@@ -2581,7 +2694,17 @@ public class ResolutionController extends GenericController<Resolution> {
 						if(idAndSelctedForDiscussion[1].equals("unchecked")){
 							Resolution res = Resolution.findById(Resolution.class, Long.parseLong(idAndSelctedForDiscussion[0]));
 							Status status = Status.findByFieldName(Status.class, "type", ApplicationConstants.RESOLUTION_PROCESSED_TOBEDISCUSSED, locale.toString());
+							Status internalStatus=Status.findByType(ApplicationConstants.RESOLUTION_PROCESSED_UNDERCONSIDERATION, locale.toString());
 							res.setDiscussionStatus(status);
+							if(res.getHouseType()!=null){
+								if(res.getHouseType().getType().equals(ApplicationConstants.LOWER_HOUSE)){
+									res.setInternalStatusLowerHouse(internalStatus);
+									res.setRecommendationStatusLowerHouse(status);
+								}else if(res.getHouseType().getType().equals(ApplicationConstants.UPPER_HOUSE)){
+									res.setInternalStatusUpperHouse(internalStatus);
+									res.setRecommendationStatusUpperHouse(status);
+								}
+							}
 							Thread.sleep(100);
 							res.merge();
 						}
