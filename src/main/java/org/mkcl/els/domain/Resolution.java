@@ -25,6 +25,8 @@ import javax.persistence.JoinColumn;
 import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
+import javax.persistence.OneToMany;
+import javax.persistence.OneToOne;
 import javax.persistence.Table;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
@@ -55,7 +57,7 @@ import org.springframework.beans.factory.annotation.Configurable;
 @Entity
 @Table(name="resolutions")
 @JsonIgnoreProperties({"houseType", "session", "type","recommendationStatusLowerHouse","recommendationStatusUpperHouse", "ballotStatus", 
-	  "drafts", "referencedResolution","ruleForDiscussionDate"})
+	  "drafts", "referencedResolution","ruleForDiscussionDate","discussionStatus"})
 public class Resolution extends Device implements Serializable{
 	
 	/** The Constant serialVersionUID. */
@@ -325,6 +327,9 @@ public class Resolution extends Device implements Serializable{
     @ManyToOne(fetch=FetchType.LAZY)
     @JoinColumn(name="rule_id")
     private Rule ruleForDiscussionDate;
+    
+    @OneToOne
+    private VotingDetail votingDetail;
     
     /** The resolution repository. */
     @Autowired
@@ -2507,5 +2512,14 @@ public class Resolution extends Device implements Serializable{
 
 	public void setDataEnteredBy(String dataEnteredBy) {
 		this.dataEnteredBy = dataEnteredBy;
-	}	
+	}
+
+	public VotingDetail getVotingDetail() {
+		return votingDetail;
+	}
+
+	public void setVotingDetail(VotingDetail votingDetail) {
+		this.votingDetail = votingDetail;
+	}
+
 }
