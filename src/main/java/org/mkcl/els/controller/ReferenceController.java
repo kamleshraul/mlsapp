@@ -4510,4 +4510,57 @@ public class ReferenceController extends BaseController {
 			
 			return actors;
 		}
+		
+		@RequestMapping(value="/isBallotingAllowedForSession",method=RequestMethod.GET)
+		public @ResponseBody String isBallotingAllowedForSession(HttpServletRequest request, Locale locale) throws ELSException {
+			
+			String result = "error";
+			
+			String houseTypeStr = request.getParameter("houseType");
+			String sessionTypeStr = request.getParameter("sessionType");
+			String sessionYear = request.getParameter("sessionYear");	
+			String deviceTypeStr = request.getParameter("deviceType");
+			
+			if(houseTypeStr!=null&&sessionTypeStr!=null&&sessionYear!=null&&deviceTypeStr!=null) {
+				if(!houseTypeStr.isEmpty()&&!sessionTypeStr.isEmpty()&&!sessionYear.isEmpty()&&!deviceTypeStr.isEmpty()) {
+					CustomParameter deploymentServerParameter = CustomParameter.findByFieldName(CustomParameter.class, "name", "DEPLOYMENT_SERVER", "");
+					if(deploymentServerParameter!=null) {
+						if(deploymentServerParameter.getValue()!=null) {
+							if(deploymentServerParameter.getValue().equals("TOMCAT")) {
+								try {
+									houseTypeStr = new String(houseTypeStr.getBytes("ISO-8859-1"),"UTF-8");
+									sessionTypeStr = new String(sessionTypeStr.getBytes("ISO-8859-1"),"UTF-8");
+									sessionYear = new String(sessionYear.getBytes("ISO-8859-1"),"UTF-8");
+									deviceTypeStr = new String(deviceTypeStr.getBytes("ISO-8859-1"),"UTF-8");
+									HouseType houseType = HouseType.findByType(houseTypeStr, locale.toString());
+									if(houseType==null) {
+										houseType = HouseType.findById(HouseType.class, Long.parseLong(houseTypeStr));
+									}
+									SessionType sessionType = SessionType.findById(SessionType.class, Long.parseLong(sessionTypeStr));
+									if(sessionType==null) {
+										sessionType = SessionType.findByFieldName(SessionType.class, "type", sessionTypeStr, locale.toString());
+									}
+									Session session = Session.findSessionByHouseTypeSessionTypeYear(houseType, sessionType, Integer.parseInt(sessionYear));
+									if(session!=null) {
+										DeviceType deviceType = DeviceType.findById(DeviceType.class, Long.parseLong(deviceTypeStr));
+										if(deviceType==null) {
+											deviceType = DeviceType.findByFieldName(SessionType.class, "type", deviceTypeStr, locale.toString());
+										}
+										if(deviceType!=null) {
+											if(session.getParameter(deviceType.getType()+"_isBallotingRequired")!=null) {
+												result = session.getParameter(deviceType.getType()+"_isBallotingRequired");
+											}											
+										}																													
+									}
+								} catch (UnsupportedEncodingException e) {
+									e.printStackTrace();									
+								}
+							}
+						}
+					}
+				} 
+			} 	
+			
+			return result;
+		}
 }
