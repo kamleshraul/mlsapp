@@ -115,6 +115,18 @@ public class PrintRequisition extends BaseDomain implements Serializable {
 	/** The endorsement copy in hindi. */
 	@Column(length = 100)
 	private String endorsementCopyHindi;
+	
+	/** The publishing date in marathi. */
+	@Temporal(TemporalType.TIMESTAMP)    
+	private Date publishDateMarathi;
+	
+	/** The publishing date in english. */
+	@Temporal(TemporalType.TIMESTAMP)    
+	private Date publishDateEnglish;
+	
+	/** The publishing date in hindi. */
+	@Temporal(TemporalType.TIMESTAMP)    
+	private Date publishDateHindi;
     
 //    /** The date on which requisition is sent */
 //    @Temporal(TemporalType.TIMESTAMP)
@@ -352,135 +364,29 @@ public class PrintRequisition extends BaseDomain implements Serializable {
 	public void setEndorsementCopyHindi(String endorsementCopyHindi) {
 		this.endorsementCopyHindi = endorsementCopyHindi;
 	}
+
+	public Date getPublishDateMarathi() {
+		return publishDateMarathi;
+	}
+
+	public void setPublishDateMarathi(Date publishDateMarathi) {
+		this.publishDateMarathi = publishDateMarathi;
+	}
+
+	public Date getPublishDateEnglish() {
+		return publishDateEnglish;
+	}
+
+	public void setPublishDateEnglish(Date publishDateEnglish) {
+		this.publishDateEnglish = publishDateEnglish;
+	}
+
+	public Date getPublishDateHindi() {
+		return publishDateHindi;
+	}
+
+	public void setPublishDateHindi(Date publishDateHindi) {
+		this.publishDateHindi = publishDateHindi;
+	}	
 	
-//    public Date getDateOfRequisition() {
-//		return dateOfRequisition;
-//	}
-//
-//	public void setDateOfRequisition(Date dateOfRequisition) {
-//		this.dateOfRequisition = dateOfRequisition;
-//	}
-//
-//	public String getWorkOfPrinting() {
-//		return workOfPrinting;
-//	}
-//
-//	public void setWorkOfPrinting(String workOfPrinting) {
-//		this.workOfPrinting = workOfPrinting;
-//	}
-//
-//	public String getGovernmentAuthorityForPrinting() {
-//		return governmentAuthorityForPrinting;
-//	}
-//
-//	public void setGovernmentAuthorityForPrinting(
-//			String governmentAuthorityForPrinting) {
-//		this.governmentAuthorityForPrinting = governmentAuthorityForPrinting;
-//	}
-//
-//	public String getGovernmentOrdersForPrinting() {
-//		return governmentOrdersForPrinting;
-//	}
-//
-//	public void setGovernmentOrdersForPrinting(String governmentOrdersForPrinting) {
-//		this.governmentOrdersForPrinting = governmentOrdersForPrinting;
-//	}
-//
-//	public String getBudgetHeadOfAccounts() {
-//		return budgetHeadOfAccounts;
-//	}
-//
-//	public void setBudgetHeadOfAccounts(String budgetHeadOfAccounts) {
-//		this.budgetHeadOfAccounts = budgetHeadOfAccounts;
-//	}
-//
-//	public String getPrintSize() {
-//		return printSize;
-//	}
-//
-//	public void setPrintSize(String printSize) {
-//		this.printSize = printSize;
-//	}
-//
-//	public String getBindingStyle() {
-//		return bindingStyle;
-//	}
-//
-//	public void setBindingStyle(String bindingStyle) {
-//		this.bindingStyle = bindingStyle;
-//	}
-//
-//	public String getNumberOfProofsRequired() {
-//		return numberOfProofsRequired;
-//	}
-//
-//	public void setNumberOfProofsRequired(String numberOfProofsRequired) {
-//		this.numberOfProofsRequired = numberOfProofsRequired;
-//	}
-//
-//	public Date getDateForProofsRequired() {
-//		return dateForProofsRequired;
-//	}
-//
-//	public void setDateForProofsRequired(Date dateForProofsRequired) {
-//		this.dateForProofsRequired = dateForProofsRequired;
-//	}
-//
-//	public Date getDateForFinalCopiesRequired() {
-//		return dateForFinalCopiesRequired;
-//	}
-//
-//	public void setDateForFinalCopiesRequired(Date dateForFinalCopiesRequired) {
-//		this.dateForFinalCopiesRequired = dateForFinalCopiesRequired;
-//	}
-//
-//	public String getNumberOfFinalCopiesRequired() {
-//		return numberOfFinalCopiesRequired;
-//	}
-//
-//	public void setNumberOfFinalCopiesRequired(String numberOfFinalCopiesRequired) {
-//		this.numberOfFinalCopiesRequired = numberOfFinalCopiesRequired;
-//	}
-//
-//	public String getEditionOfPublication() {
-//		return editionOfPublication;
-//	}
-//
-//	public void setEditionOfPublication(String editionOfPublication) {
-//		this.editionOfPublication = editionOfPublication;
-//	}
-//
-//	public String getSpecialInstructionsForPress() {
-//		return specialInstructionsForPress;
-//	}
-//
-//	public void setSpecialInstructionsForPress(String specialInstructionsForPress) {
-//		this.specialInstructionsForPress = specialInstructionsForPress;
-//	}
-//
-//	public String getTypeToBeKeptAfterFinalCopiesSupplied() {
-//		return typeToBeKeptAfterFinalCopiesSupplied;
-//	}
-//
-//	public void setTypeToBeKeptAfterFinalCopiesSupplied(
-//			String typeToBeKeptAfterFinalCopiesSupplied) {
-//		this.typeToBeKeptAfterFinalCopiesSupplied = typeToBeKeptAfterFinalCopiesSupplied;
-//	}
-//
-//	public boolean isPriorReferenceNecessaryForFinalisingPrice() {
-//		return isPriorReferenceNecessaryForFinalisingPrice;
-//	}
-//
-//	public void setPriorReferenceNecessaryForFinalisingPrice(
-//			boolean isPriorReferenceNecessaryForFinalisingPrice) {
-//		this.isPriorReferenceNecessaryForFinalisingPrice = isPriorReferenceNecessaryForFinalisingPrice;
-//	}
-//
-//	public String getNotes() {
-//		return notes;
-//	}
-//
-//	public void setNotes(String notes) {
-//		this.notes = notes;
-//	}	
 }
