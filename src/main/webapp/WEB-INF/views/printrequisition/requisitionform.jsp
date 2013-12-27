@@ -1,5 +1,12 @@
 <script>
 	$('document').ready(function(){	
+		/**** Date Time Mask ****/
+		$('.datemask').focus(function(){		
+			if($(this).val()==""){
+				$(".datemask").mask("99/99/9999");
+			}
+		});
+		
 		$('.generateDocketReport').click(function() {			
 			generateDocketReport(this.id);		
 		});
@@ -202,6 +209,18 @@
 									</jsp:include>
 								</c:when>										
 							</c:choose>								
+						</p>
+						<p>
+							<label class="small"><spring:message code='bill.publishDateMarathi' text="Publish Date for Marathi Copy"/></label>
+							<input type="text" class="datemask sText" name="setPublishDateMarathi" value="${publishDateMarathi}"/>
+						</p>
+						<p>
+							<label class="small"><spring:message code='bill.publishDateEnglish' text="Publish Date for English Copy"/></label>
+							<input type="text" class="datemask sText" name="setPublishDateEnglish" value="${publishDateEnglish}"/>
+						</p>
+						<p>
+							<label class="small"><spring:message code='bill.publishDateHindi' text="Publish Date for Hindi Copy"/></label>
+							<input type="text" class="datemask sText" name="setPublishDateHindi" value="${publishDateHindi}"/>
 						</p>
 					<!-- </fieldset> -->
 				</div>

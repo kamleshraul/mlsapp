@@ -136,10 +136,11 @@
 						+'&houseRound='+$("#houseRound").val(), function(data) {				
 					$('#requisitionFieldsDiv').html(data);
 					$('#requisitionFieldsDiv').show();
+					$('#submitRequisitionButtonsDiv').show();					
 					if($('#isPrintRequisitionSent').val()=='true') {
-						$('#submitRequisitionButtonsDiv').hide();
+						$('#sendRequisition').hide();
 					} else {
-						$('#submitRequisitionButtonsDiv').show();
+						$('#sendRequisition').show();
 					}
 				});
 			} else {
@@ -170,9 +171,9 @@
 				$('#requisitionFieldsDiv').empty();
 					$('#requisitionFieldsDiv').html(data);
 					if($('#isPrintRequisitionSent').val()=='true') {
-						$('#submitRequisitionButtonsDiv').hide();
+						$('#sendRequisition').hide();
 					} else {
-						$('#submitRequisitionButtonsDiv').show();
+						$('#sendRequisition').show();
 					}
 					/* $(".fancybox-inner").attr("tabindex",1).focus();
 					$('html [id=printRequisitionHtml]').animate({scrollTop:0}, 'slow');
