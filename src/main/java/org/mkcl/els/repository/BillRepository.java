@@ -1365,8 +1365,9 @@ public class BillRepository extends BaseRepository<Bill, Serializable>{
 				"b.`recommendation_from_governor` AS billRecommendationFromGovernor, " +
 				"b.`recommendation_from_president` AS billRecommendationFromPresident, " +				
 				"lang.type AS billLanguage, " +
-				"ht.name as billHouseType, " +
-				"bt.type as billType " +
+				"ht.name as billHouseType, " +				
+				"bt.type as billType, " +
+				"ds.name as designation " +
 				"FROM bills b " +
 				"LEFT JOIN housetypes ht ON (ht.id = b.housetype_id) " +
 				"LEFT JOIN devicetypes dt ON (dt.id = b.devicetype_id) " +
@@ -1374,6 +1375,8 @@ public class BillRepository extends BaseRepository<Bill, Serializable>{
 				"LEFT JOIN members m ON (m.id = b.member_id ) " +
 				"LEFT JOIN titles t ON (t.id = m.title_id ) " +
 				"LEFT JOIN ministries mi ON (mi.id = b.ministry_id ) " +
+				"LEFT JOIN members_ministries mmi ON (mmi.ministry_id = b.ministry_id AND mmi.member_id = b.member_id ) " +
+				"LEFT JOIN designations ds ON (ds.id = mmi.designation_id ) " +
 				"LEFT JOIN subdepartments sd ON (sd.id = b.subdepartment_id) " +
 				"LEFT JOIN `bills_revisedtitles` AS brt ON (brt.bill_id = b.id) " +
 				"LEFT JOIN `bills_revisedcontentdrafts` AS brc ON (brc.bill_id = b.id) " +
@@ -1391,7 +1394,7 @@ public class BillRepository extends BaseRepository<Bill, Serializable>{
 				"LEFT JOIN languages AS title_lang ON (title_lang.id=tdt.language_id) " +
 				"WHERE b.id="+billId;
 		billData = this.em().createNativeQuery(queryString).getResultList();
-		Object[] result = new Object[20];
+		Object[] result = new Object[21];
 		for(Object i:billData) {
 			Object[] o = (Object[]) i;
 			String titleLanguage = (String) o[12];
@@ -1455,6 +1458,9 @@ public class BillRepository extends BaseRepository<Bill, Serializable>{
 			}
 			if(o[18]!=null) {
 				result[19] = o[18].toString();
+			}
+			if(o[19]!=null) {
+				result[20] = o[19].toString();
 			}
 		}
 		for(int i=0; i<result.length; i++) {
@@ -1774,5 +1780,47 @@ public class BillRepository extends BaseRepository<Bill, Serializable>{
 			return bill;
 		}
 		return bill;
+	}
+	
+	@SuppressWarnings("unchecked")
+	public List<Object[]> findStatusDatesForBill(final Bill bill) {
+		
+		List<Object[]> result = new ArrayList<Object[]>();
+		
+		String strQuery="SELECT bd.recommendationStatus.type, bd.houseRound, bd.expectedStatusDate, bd.statusDate, bd.internalStatus.type FROM Bill b JOIN b.drafts bd" +
+				" WHERE b.id=:billId"+				
+				" ORDER BY bd.id "+ApplicationConstants.DESC;
+		Query query=this.em().createQuery(strQuery);
+		query.setParameter("billId",bill.getId());
+		List<Object[]> drafts=query.getResultList();
+		
+		if(drafts!=null) {
+			if(!drafts.isEmpty()) {
+				String statusType = "";
+				for(Object[] draft: drafts) {
+					if(!draft[0].toString().equals(statusType)) {	
+						if(draft[1]==null) {
+							draft[1]="";
+						}
+						if(draft[2]!=null) {
+							Date expectationDate = FormaterUtil.formatStringToDate(draft[2].toString(), ApplicationConstants.DB_DATEFORMAT);
+							draft[2] = FormaterUtil.formatDateToString(expectationDate, ApplicationConstants.SERVER_DATEFORMAT,bill.getLocale());
+						} else {
+							draft[2] = "";
+						}
+						if(draft[3]!=null) {
+							Date statusDate = FormaterUtil.formatStringToDate(draft[3].toString(), ApplicationConstants.DB_DATEFORMAT);
+							draft[3] = FormaterUtil.formatDateToString(statusDate, ApplicationConstants.SERVER_DATEFORMAT,bill.getLocale());
+						} else {
+							draft[3] = "";
+						}
+						result.add(draft);
+						statusType = draft[0].toString();
+					}								
+				}
+			}
+		}				
+		
+		return result;			
 	}
 }
