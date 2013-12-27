@@ -224,7 +224,10 @@ public class BillController extends GenericController<Bill> {
 						break;
 					}
 				}
-				model.addAttribute("ugparam",this.getCurrentUser().getActualUsername());				
+				model.addAttribute("ugparam",this.getCurrentUser().getActualUsername());	
+				if(lastSessionCreated.getParameter("bills_nonofficial_isBallotingRequired")!=null) {
+					model.addAttribute("isBallotingRequired", lastSessionCreated.getParameter("bills_nonofficial_isBallotingRequired"));
+				}
 			} else{
 				model.addAttribute("errorcode","nosessionentriesfound");
 			}			
@@ -2810,6 +2813,8 @@ public class BillController extends GenericController<Bill> {
 			bill = Bill.findById(Bill.class, domain.getId());
 		}
 		domain.setVotingDetails(bill.getVotingDetails());
+		//version is updated from db as some other internal operation such as adding voting details may update bill
+		domain.setVersion(bill.getVersion());
 		super.populateUpdateIfErrors(model, domain, request);
 	}
 	
@@ -3068,7 +3073,7 @@ public class BillController extends GenericController<Bill> {
 			domain.setStatus(finalStatus);
 			domain.setInternalStatus(finalStatus);			
 		} else if(domain.getInternalStatus().getType().equals(ApplicationConstants.BILL_PROCESSED_UNDERCONSIDERATION)
-				&&domain.getRecommendationStatus().getType().equals(ApplicationConstants.BILL_PROCESSED_WITHDRAWN)) {
+				&&domain.getRecommendationStatus().getType().startsWith(ApplicationConstants.BILL_PROCESSED_WITHDRAWN)) {
 			/**** update bill status ****/
 			Status finalStatus = Status.findByType(ApplicationConstants.BILL_FINAL_WITHDRAWN, domain.getLocale());
 			domain.setStatus(finalStatus);
@@ -5259,5 +5264,162 @@ public class BillController extends GenericController<Bill> {
 		}
 		response.setContentType("text/html; charset=utf-8");
 		return "bill/citationreport/"+reportPage;
+	}
+	
+	@RequestMapping(value="/register", method=RequestMethod.GET)
+	public String generateRegister(ModelMap model, HttpServletRequest request) {
+		String resultPath = "bill/error";
+		String billId = request.getParameter("billId");
+		if(billId!=null && !billId.isEmpty()) {
+			Bill bill = Bill.findById(Bill.class, Long.parseLong(billId));
+			if(bill==null) {
+				model.addAttribute("errorcode", "billnotfound");
+			} else {
+//				List<Object> reportDataAsList = new ArrayList<Object>();
+//				reportDataAsList.add(FormaterUtil.formatNumberNoGrouping(bill.getNumber(), bill.getLocale()));
+//				reportDataAsList.add(bill.getDefaultTitle());
+				model.addAttribute("billNumber", FormaterUtil.formatNumberNoGrouping(bill.getNumber(), bill.getLocale()));			
+				model.addAttribute("billTitle", bill.getDefaultTitle());
+				model.addAttribute("billType", bill.getType().getName());
+				model.addAttribute("billSubmissionDate", FormaterUtil.formatDateToString(bill.getSubmissionDate(), ApplicationConstants.SERVER_DATEFORMAT, bill.getLocale()));
+				StringBuffer billMemberNames=new StringBuffer();
+				billMemberNames.append(bill.getPrimaryMember().getFullname()+",");
+				List<SupportingMember> supportingMembers = bill.getSupportingMembers();
+				if(supportingMembers!=null) {					
+					for(SupportingMember sm: supportingMembers) {
+						billMemberNames.append(sm.getMember().getFullname()+",");
+					}					
+				}
+				List<ClubbedEntity> clubbedEntities = bill.findClubbedEntitiesByBillSubmissionDate(ApplicationConstants.ASC, bill.getLocale());
+				if(clubbedEntities!=null){
+					for(ClubbedEntity ce:clubbedEntities){
+						/** show only those clubbed bills which are not in state of
+						 * (processed to be putup for nameclubbing, putup for nameclubbing, pending for nameclubbing approval) 
+						 **/
+						if(ce.getBill().getInternalStatus().getType().equals(ApplicationConstants.BILL_SYSTEM_CLUBBED)
+								|| ce.getBill().getInternalStatus().getType().equals(ApplicationConstants.BILL_FINAL_ADMISSION)) {
+							String tempPrimary=ce.getBill().getPrimaryMember().getFullname();
+							if(!billMemberNames.toString().contains(tempPrimary)){
+								billMemberNames.append(ce.getBill().getPrimaryMember().getFullname()+",");
+							}
+							List<SupportingMember> clubbedSupportingMember=ce.getBill().getSupportingMembers();
+							if(clubbedSupportingMember!=null){
+								if(!clubbedSupportingMember.isEmpty()){
+									for(SupportingMember l:clubbedSupportingMember){
+										String tempSupporting=l.getMember().getFullname();
+										if(!billMemberNames.toString().contains(tempSupporting)){
+											billMemberNames.append(tempSupporting+",");
+										}
+									}
+								}
+							}							
+						}						
+					}
+				}
+				if(!billMemberNames.toString().isEmpty()){
+					billMemberNames.deleteCharAt(billMemberNames.length()-1);
+				}
+				model.addAttribute("billMemberNames", billMemberNames.toString());
+				Map<String, String> printRequisitionIdentifiers = new HashMap<String, String>();
+				printRequisitionIdentifiers.put("deviceId", bill.getId().toString());
+				printRequisitionIdentifiers.put("requisitionFor", ApplicationConstants.BILL_GAZETTE_COPY);				
+				printRequisitionIdentifiers.put("status", ApplicationConstants.BILL_PROCESSED_INTRODUCED);
+				PrintRequisition printRequisitionForGazette = PrintRequisition.findByFieldNames(PrintRequisition.class, printRequisitionIdentifiers, bill.getLocale());
+				if(printRequisitionForGazette!=null) {
+					if(printRequisitionForGazette.getPublishDateMarathi()!=null) {
+						model.addAttribute("gazettePublishDateMarathi", FormaterUtil.formatDateToString(printRequisitionForGazette.getPublishDateMarathi(), ApplicationConstants.SERVER_DATEFORMAT, printRequisitionForGazette.getLocale()));
+					}
+					if(printRequisitionForGazette.getPublishDateEnglish()!=null) {
+						model.addAttribute("gazettePublishDateEnglish", FormaterUtil.formatDateToString(printRequisitionForGazette.getPublishDateEnglish(), ApplicationConstants.SERVER_DATEFORMAT, printRequisitionForGazette.getLocale()));
+					}
+					if(printRequisitionForGazette.getPublishDateHindi()!=null) {
+						model.addAttribute("gazettePublishDateHindi", FormaterUtil.formatDateToString(printRequisitionForGazette.getPublishDateHindi(), ApplicationConstants.SERVER_DATEFORMAT, printRequisitionForGazette.getLocale()));
+					}
+				}
+				String firstHouse = bill.findFirstHouseType();
+				if(firstHouse!=null) {
+					model.addAttribute("firsthouse", bill.findFirstHouseType());
+				} else {
+					model.addAttribute("errorcode", "firsthousenotfound");
+					return resultPath;
+				}
+				String secondHouse = bill.findSecondHouseType();
+				if(secondHouse!=null) {
+					model.addAttribute("secondhouse", secondHouse);
+				} else {
+					model.addAttribute("errorcode", "secondhousenotfound");
+					return resultPath;
+				}
+				List<Object[]> billDrafts = Bill.findStatusDatesForBill(bill);
+				for(Object[] billDraft: billDrafts) {
+					if(billDraft[4].equals(ApplicationConstants.BILL_FINAL_PASSED)) {
+						model.addAttribute(billDraft[0]+"_statusDate", billDraft[3]);
+					} else if(billDraft[1]!=null) {
+						model.addAttribute(billDraft[0]+"_"+billDraft[1]+"_expectedStatusDate", billDraft[2]);
+						model.addAttribute(billDraft[0]+"_"+billDraft[1]+"_statusDate", billDraft[3]);
+					} else {
+						model.addAttribute(billDraft[0]+"_expectedStatusDate", billDraft[2]);
+						model.addAttribute(billDraft[0]+"_statusDate", billDraft[3]);
+					}					
+				}
+				/**** Dates of transmission from one house to other house ****/
+				WorkflowDetails workflowDetails = null;
+				Map<String, String> workflowDetailsIdentifiers = new HashMap<String, String>();
+				Date transmissionDate = null;
+				//first house first round
+				printRequisitionIdentifiers.clear();
+				PrintRequisition printRequisition = null;				
+				printRequisitionIdentifiers.put("deviceId", bill.getId().toString());
+				printRequisitionIdentifiers.put("requisitionFor", ApplicationConstants.BILL_PRESS_COPY);				
+				printRequisitionIdentifiers.put("status", ApplicationConstants.BILL_PROCESSED_PASSED+"_"+firstHouse+"_firsthouse");
+				printRequisitionIdentifiers.put("houseRound", new String("1"));
+				printRequisition = PrintRequisition.findByFieldNames(PrintRequisition.class, printRequisitionIdentifiers, bill.getLocale());
+				if(printRequisition!=null) {
+					workflowDetailsIdentifiers.put("printRequisitionId", printRequisition.getId().toString());
+					workflowDetailsIdentifiers.put("workflowType", ApplicationConstants.TRANSMIT_PRESS_COPIES_WORKFLOW);
+					workflowDetails = WorkflowDetails.findByFieldNames(WorkflowDetails.class, workflowDetailsIdentifiers, bill.getLocale());
+					if(workflowDetails!=null) {						
+						transmissionDate = FormaterUtil.formatStringToDate(workflowDetails.getDateOfHardCopyReceived(), ApplicationConstants.SERVER_DATEFORMAT, bill.getLocale());
+						model.addAttribute("transmissionFromFirstHouseFirstRoundDate", FormaterUtil.formatDateToString(transmissionDate, ApplicationConstants.SERVER_DATEFORMAT, bill.getLocale()));
+					}					
+				}
+				//second house first round
+				printRequisitionIdentifiers.put("status", ApplicationConstants.BILL_PROCESSED_PASSED+"_"+secondHouse+"_secondhouse");
+				printRequisition = PrintRequisition.findByFieldNames(PrintRequisition.class, printRequisitionIdentifiers, bill.getLocale());
+				if(printRequisition!=null) {					
+					workflowDetailsIdentifiers.put("printRequisitionId", printRequisition.getId().toString());
+					workflowDetails = WorkflowDetails.findByFieldNames(WorkflowDetails.class, workflowDetailsIdentifiers, bill.getLocale());
+					if(workflowDetails!=null) {
+						transmissionDate = FormaterUtil.formatStringToDate(workflowDetails.getDateOfHardCopyReceived(), ApplicationConstants.SERVER_DATEFORMAT, bill.getLocale());
+						model.addAttribute("transmissionFromSecondHouseFirstRoundDate", FormaterUtil.formatDateToString(transmissionDate, ApplicationConstants.SERVER_DATEFORMAT, bill.getLocale()));
+					}
+				}
+				//first house second round
+				printRequisitionIdentifiers.put("status", ApplicationConstants.BILL_PROCESSED_PASSED+"_"+firstHouse+"_firsthouse");
+				printRequisitionIdentifiers.put("houseRound", new String("2"));
+				printRequisition = PrintRequisition.findByFieldNames(PrintRequisition.class, printRequisitionIdentifiers, bill.getLocale());
+				if(printRequisition!=null) {					
+					workflowDetailsIdentifiers.put("printRequisitionId", printRequisition.getId().toString());
+					workflowDetails = WorkflowDetails.findByFieldNames(WorkflowDetails.class, workflowDetailsIdentifiers, bill.getLocale());
+					if(workflowDetails!=null) {
+						transmissionDate = FormaterUtil.formatStringToDate(workflowDetails.getDateOfHardCopyReceived(), ApplicationConstants.SERVER_DATEFORMAT, bill.getLocale());
+						model.addAttribute("transmissionFromFirstHouseSecondRoundDate", FormaterUtil.formatDateToString(transmissionDate, ApplicationConstants.SERVER_DATEFORMAT, bill.getLocale()));
+					}					
+				}
+				//second house second round
+				printRequisitionIdentifiers.put("status", ApplicationConstants.BILL_PROCESSED_PASSED+"_"+secondHouse+"_secondhouse");
+				printRequisition = PrintRequisition.findByFieldNames(PrintRequisition.class, printRequisitionIdentifiers, bill.getLocale());
+				if(printRequisition!=null) {					
+					workflowDetailsIdentifiers.put("printRequisitionId", printRequisition.getId().toString());
+					workflowDetails = WorkflowDetails.findByFieldNames(WorkflowDetails.class, workflowDetailsIdentifiers, bill.getLocale());
+					if(workflowDetails!=null) {
+						transmissionDate = FormaterUtil.formatStringToDate(workflowDetails.getDateOfHardCopyReceived(), ApplicationConstants.SERVER_DATEFORMAT, bill.getLocale());
+						model.addAttribute("transmissionFromSecondHouseSecondRoundDate", FormaterUtil.formatDateToString(transmissionDate, ApplicationConstants.SERVER_DATEFORMAT, bill.getLocale()));
+					}					
+				}
+			}
+			resultPath = "bill/registerForSingleBill";
+		}
+		return resultPath;
 	}
 }
