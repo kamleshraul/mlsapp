@@ -76,10 +76,10 @@
 		       		<fo:block margin-top="16cm" text-align="center" font-size="20px" font-weight="bold">
 		       			<xsl:choose>
 		       				<xsl:when test="element_19='विधानसभा'">
-		       					L.A.BILL No. <xsl:value-of select="element_22"/> OF <xsl:value-of select="element_3"/>
+		       					L.A.BILL No. <xsl:value-of select="element_23"/> OF <xsl:value-of select="element_3"/>
 		       				</xsl:when>	   
 		       				<xsl:when test="element_19='विधानपरिषद'">
-		       					L.C.BILL No. <xsl:value-of select="element_22"/> OF <xsl:value-of select="element_3"/>
+		       					L.C.BILL No. <xsl:value-of select="element_23"/> OF <xsl:value-of select="element_3"/>
 		       				</xsl:when>  			
 		       			</xsl:choose>
 						
@@ -132,7 +132,7 @@
 						</xsl:otherwise>
 					</xsl:choose>								
 					   
-					<xsl:if test="contains(element_23, 'statementOfObjectAndReasonDraft')">
+					<xsl:if test="contains(element_24, 'statementOfObjectAndReasonDraft')">
 					<xsl:choose>
 						<xsl:when test="element_18='marathi'">
 							<fo:block text-align="center" font-family="($font)" font-size="18px" font-weight="bold">
@@ -165,7 +165,7 @@
 					</xsl:choose>
 					</xsl:if>	
 					
-					<xsl:if test="contains(element_23, 'financialMemorandumDraft')">
+					<xsl:if test="contains(element_24, 'financialMemorandumDraft')">
 					<xsl:choose>
 						<xsl:when test="element_18='marathi'">
 							<fo:block text-align="center" font-family="($font)" font-size="18px" font-weight="bold">
@@ -198,7 +198,7 @@
 					</xsl:choose>
 					</xsl:if>
 					
-					<xsl:if test="contains(element_23, 'statutoryMemorandumDraft')">
+					<xsl:if test="contains(element_24, 'statutoryMemorandumDraft')">
 					<xsl:choose>
 						<xsl:when test="element_18='marathi'">
 							<fo:block text-align="center" font-family="($font)" font-size="18px" font-weight="bold">
@@ -231,7 +231,7 @@
 					</xsl:choose>
 					</xsl:if>
 					
-					<xsl:if test="contains(element_23, 'annexureForAmendingBill') and element_20='amending'">
+					<xsl:if test="contains(element_24, 'annexureForAmendingBill') and element_20='amending'">
 					<xsl:choose>
 						<xsl:when test="element_18='marathi'">
 							<fo:block text-align="center" font-family="($font)" font-size="18px" font-weight="bold">
@@ -264,7 +264,7 @@
 					</xsl:choose>
 					</xsl:if>
 					
-					<xsl:if test="contains(element_23, 'opinionFromLawAndJD')">
+					<xsl:if test="contains(element_24, 'opinionFromLawAndJD')">
 					<xsl:choose>
 						<xsl:when test="element_18='marathi'">
 							<fo:block text-align="center" font-family="($font)" font-size="18px" font-weight="bold">
@@ -297,7 +297,7 @@
 					</xsl:choose>
 					</xsl:if>
 					
-					<xsl:if test="contains(element_23, 'recommendationFromGovernor')">
+					<xsl:if test="contains(element_24, 'recommendationFromGovernor')">
 					<xsl:choose>
 						<xsl:when test="element_18='marathi'">
 							<fo:block text-align="center" font-family="($font)" font-size="18px" font-weight="bold">
@@ -330,7 +330,7 @@
 					</xsl:choose>
 					</xsl:if>
 					
-					<xsl:if test="contains(element_23, 'recommendationFromPresident')">
+					<xsl:if test="contains(element_24, 'recommendationFromPresident')">
 					<xsl:choose>
 						<xsl:when test="element_18='marathi'">
 							<fo:block text-align="center" font-family="($font)" font-size="18px" font-weight="bold">
@@ -384,17 +384,17 @@
 						<xsl:choose>
 							<xsl:when test="element_18='marathi'">
 								<fo:block text-align="right" margin-top="3.5cm" font-family="($font)" font-size="16px">
-									[सन <xsl:value-of select="element_24"/> चे <xsl:value-of select="element_19"/> विधेयक क्रमांक <xsl:value-of select="element_21"/>.]
+									[सन <xsl:value-of select="element_25"/> चे <xsl:value-of select="element_19"/> विधेयक क्रमांक <xsl:value-of select="element_22"/>.]
 								</fo:block>
 							</xsl:when>
 							<xsl:when test="element_18='english'">
 								<fo:block text-align="right" margin-top="3.5cm" font-family="($font)" font-size="16px" font-weight="bold">
-									[L. A. BILL No. <xsl:value-of select="element_22"/> OF <xsl:value-of select="element_24"/>.]
+									[L. A. BILL No. <xsl:value-of select="element_23"/> OF <xsl:value-of select="element_25"/>.]
 								</fo:block>
 							</xsl:when>
 							<xsl:when test="element_18='hindi'">
 								<fo:block text-align="right" margin-top="3.5cm" font-family="($font)" font-size="16px">
-									[साल <xsl:value-of select="element_24"/> का विधेयक क्रमांक <xsl:value-of select="element_21"/>.]
+									[साल <xsl:value-of select="element_25"/> का विधेयक क्रमांक <xsl:value-of select="element_22"/>.]
 								</fo:block>
 							</xsl:when>
 						</xsl:choose>
@@ -411,35 +411,38 @@
 							</xsl:otherwise>
 						</xsl:choose>
 						<fo:block text-align="right" margin-top="3.5cm" font-family="($font)" font-size="16px">
-							[<xsl:value-of select="element_4"/>,<xsl:value-of select="element_27"/>,
+							[<xsl:value-of select="element_4"/>,<xsl:value-of select="element_28"/>
 							<fo:block/>
 							<xsl:choose>
-							<xsl:when test="element_26='bills_nonofficial'">
+							<xsl:when test="element_27='bills_nonofficial'">
 								प्रभारी सदस्य.]
 							</xsl:when>
-							<xsl:when test="element_26='bills_government'">
+							<xsl:when test="element_27='bills_government' and element_21='मुख्यमंत्री'">							
+								<xsl:value-of select="element_21"/>.]
+							</xsl:when>
+							<xsl:otherwise test="element_27='bills_government' and element_21!='मुख्यमंत्री'">							
 								<xsl:value-of select="element_5"/>.]
-							</xsl:when>							
+							</xsl:otherwise>							
 							</xsl:choose>							
 						</fo:block>
 						<xsl:choose>
 							<xsl:when test="element_18='marathi'">
 								<fo:block text-align="right" margin-top="3.5cm" font-family="($font)" font-size="16px">
-									<xsl:value-of select="element_25"/>,<fo:block/>									
+									<xsl:value-of select="element_26"/>,<fo:block/>									
 									प्रधान सचिव,<fo:block/>
 									महाराष्ट्र <xsl:value-of select="element_19"/>.
 								</fo:block>
 							</xsl:when>
 							<xsl:when test="element_18='english'">
 								<fo:block text-align="right" margin-top="3.5cm" font-family="($font)" font-size="16px">
-									<xsl:value-of select="element_25"/>,<fo:block/>
+									<xsl:value-of select="element_26"/>,<fo:block/>
 									Principal Secretary,<fo:block/>
 									Maharashtra Legislative <xsl:value-of select="element_19"/>.								
 								</fo:block>
 							</xsl:when>
 							<xsl:when test="element_18='hindi'">
 								<fo:block text-align="right" margin-top="3.5cm" font-family="($font)" font-size="16px">
-									<xsl:value-of select="element_25"/>,<fo:block/>
+									<xsl:value-of select="element_26"/>,<fo:block/>
 									प्रधान सचिव,<fo:block/>
 									महाराष्ट्र <xsl:value-of select="element_19"/>.
 								</fo:block>
