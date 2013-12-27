@@ -9,7 +9,6 @@
 	$('document').ready(function(){	
 		initControls();
 		$('#key').val('');	
-		//$('#version').val($('#deviceVersion').val());
 		/**** Submit Details ****/
 		$("#submitDetails").click(function(e){			
 			$('.isInDecorum').each(function() {				
@@ -23,7 +22,9 @@
 	            $("#editVotingDetailsForDeviceForm").serialize(),  
 	            function(data){
 					if(data=="success") {
-						$('#resultDiv').html("<h3>" + $('#successMessage').val() + "</h3>");						
+						$('#resultDiv').html("<h3>" + $('#successMessage').val() + "</h3>");		
+						var updatedVersion = parseInt($("#version").val(), 10);
+						$("#version").val(updatedVersion + 1);						
 					} else {						
 						$('#resultDiv').html("<h3>" + $('#errorMessage').val() + "</h3>");
 					}   					
@@ -144,7 +145,6 @@
 </form>
 <input type="hidden" id="errorMessage" value="<spring:message code="votingdetail.errorInUpdationForDevice" text="Error In Updation"/>">
 <input type="hidden" id="successMessage" value="<spring:message code="votingdetail.errorInUpdationForDevice" text="Success In Updation"/>">
-<input type="hidden" id="deviceVersion" value="${deviceVersion}"/>
 </div>	
 </body>
 </html>

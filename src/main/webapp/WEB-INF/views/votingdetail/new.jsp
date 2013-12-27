@@ -157,7 +157,7 @@
 					<input id="submitThroughOverlay" type="button" value="<spring:message code='generic.submit' text='Submit'/>" class="butDef">
 					</c:when>
 					<c:otherwise>
-					<input id="submitThroughOverlay" type="button" value="<spring:message code='generic.submit' text='Submit'/>" class="butDef">
+					<input id="submit" type="submit" value="<spring:message code='generic.submit' text='Submit'/>" class="butDef">
 					</c:otherwise>
 				</c:choose>				
 			</p>

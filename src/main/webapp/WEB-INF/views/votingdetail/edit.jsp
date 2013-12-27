@@ -9,6 +9,11 @@
 	$('document').ready(function(){	
 		initControls();
 		$('#key').val('');
+		if( ($('#submitThroughDevice').length > 0) 
+				&& ($('#deviceVersion').val()!=undefined || $('#deviceVersion').val()!="")) {
+			//update version of parent device
+			$('#version').val($('#deviceVersion').val());
+		}
 		$('#votingDetail').val($('#votingDetailId').val());
 		$('#votesInFavor').change(function() {
 			if($('#votesInFavor').val()!='' && $('#votesAgainst').val()!='') {
@@ -157,7 +162,7 @@
 					<input id="submitThroughDevice" type="button" value="<spring:message code='generic.submit' text='Submit'/>" class="butDef">
 					</c:when>
 					<c:otherwise>
-					<input id="submitThroughDevice" type="button" value="<spring:message code='generic.submit' text='Submit'/>" class="butDef">
+					<input id="submit" type="submit" value="<spring:message code='generic.submit' text='Submit'/>" class="butDef">
 					</c:otherwise>
 				</c:choose>				
 			</p>
