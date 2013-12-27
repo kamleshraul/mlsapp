@@ -319,6 +319,15 @@ public class PrintRequisitionController extends BaseController {
 				}
 			}
 		}
+		if(printRequisition.getPublishDateMarathi()!=null) {
+			model.addAttribute("publishDateMarathi", FormaterUtil.formatDateToString(printRequisition.getPublishDateMarathi(), ApplicationConstants.SERVER_DATEFORMAT, printRequisition.getLocale()));
+		}
+		if(printRequisition.getPublishDateEnglish()!=null) {
+			model.addAttribute("publishDateEnglish", FormaterUtil.formatDateToString(printRequisition.getPublishDateEnglish(), ApplicationConstants.SERVER_DATEFORMAT, printRequisition.getLocale()));
+		}
+		if(printRequisition.getPublishDateHindi()!=null) {
+			model.addAttribute("publishDateHindi", FormaterUtil.formatDateToString(printRequisition.getPublishDateHindi(), ApplicationConstants.SERVER_DATEFORMAT, printRequisition.getLocale()));
+		}
 		CustomParameter optionalFieldsForDocketParameter = CustomParameter.findByName(CustomParameter.class, "BILL_OPTIONAL_FIELDS_FOR_PRINTREQUISITION", "");
 		CustomParameter defaultOptionalFieldsForDocketParameter = CustomParameter.findByName(CustomParameter.class, "BILL_DEFAULT_OPTIONAL_FIELDS_FOR_"+printRequisition.getRequisitionFor().toUpperCase(), "");
 		if(optionalFieldsForDocketParameter!=null) {
@@ -597,6 +606,21 @@ public class PrintRequisitionController extends BaseController {
 						model.addAttribute("type", "saved");
 					}
 				}
+			} else {
+				String strPublishDateMarathi = request.getParameter("setPublishDateMarathi");
+				if(strPublishDateMarathi!=null) {
+					printRequisition.setPublishDateMarathi(FormaterUtil.formatStringToDate(strPublishDateMarathi, ApplicationConstants.SERVER_DATEFORMAT, locale.toString()));
+				}
+				String strPublishDateEnglish = request.getParameter("setPublishDateEnglish");
+				if(strPublishDateEnglish!=null) {
+					printRequisition.setPublishDateEnglish(FormaterUtil.formatStringToDate(strPublishDateEnglish, ApplicationConstants.SERVER_DATEFORMAT, locale.toString()));
+				}
+				String strPublishDateHindi = request.getParameter("setPublishDateHindi");
+				if(strPublishDateHindi!=null) {
+					printRequisition.setPublishDateHindi(FormaterUtil.formatStringToDate(strPublishDateHindi, ApplicationConstants.SERVER_DATEFORMAT, locale.toString()));
+				}
+				printRequisition.merge();
+				model.addAttribute("type", "saved");
 			}
 		}		
 		populatePrintRequisition(model, request, printRequisition);		

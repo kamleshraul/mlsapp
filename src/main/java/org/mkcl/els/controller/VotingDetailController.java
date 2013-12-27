@@ -182,7 +182,18 @@ public class VotingDetailController extends GenericController<VotingDetail> {
 					/**** Device ****/
 					if(deviceId!=null) {
 						if(!deviceId.isEmpty()) {
-							model.addAttribute("deviceId", Long.parseLong(deviceId));							
+							model.addAttribute("deviceId", Long.parseLong(deviceId));
+							/**** update version of device for which list of voting detail is set ****/
+							if(selectedDeviceType.getType().startsWith(ApplicationConstants.DEVICE_BILLS)) {
+								Bill bill = Bill.findById(Bill.class, Long.parseLong(deviceId));
+								if(bill!=null) {
+									model.addAttribute("deviceVersion", bill.getVersion());
+								} else {
+									logger.error("device not found for this voting detail.");
+									model.addAttribute("errorcode", "devicenotfound");
+									return;
+								}
+							}
 						}					
 					}
 					if(selectedDeviceType.getType().startsWith(ApplicationConstants.DEVICE_BILLS)) {
@@ -316,7 +327,7 @@ public class VotingDetailController extends GenericController<VotingDetail> {
 					model.addAttribute("formattedDeviceType", selectedDeviceType.getName());
 					model.addAttribute("deviceType", selectedDeviceType.getType());
 					/**** Device ****/					
-					model.addAttribute("deviceId", Long.parseLong(deviceId));
+					model.addAttribute("deviceId", Long.parseLong(deviceId));					
 					List<VotingDetail> votingDetailsForDevice = null; 
 					if(selectedDeviceType.getType().startsWith(ApplicationConstants.DEVICE_BILLS)) {
 						/**** House Rounds Available For Bill ****/
