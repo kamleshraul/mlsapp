@@ -6,8 +6,8 @@
 	<title><spring:message code="bill.list" text="List Of Bills"/></title>
 	<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
 	<script type="text/javascript">
-		$(document).ready(function(){			
-			if($('#currentDeviceType').val()=='bills_nonofficial') {
+		$(document).ready(function(){	
+			if($('#currentDeviceType').val()=='bills_nonofficial' && $('#isBallotingRequired').val()=='true') {
 				$('#ballotTab').show();
 			}
 			/**** displaying grid ****/		
@@ -19,20 +19,35 @@
 			$("#selectedHouseType").change(function(){
 				var value=$(this).val();
 				if(value!=""){	
+					$.get('ref/isBallotingAllowedForSession?houseType='+$("#selectedHouseType").val()+'&deviceType='+$("#selectedDeviceType").val()
+							+'&sessionType='+$("#selectedSessionType").val()+'&sessionYear='+$("#selectedSessionYear").val(), function(data) {
+						checkBallotTabForSelectedDeviceType(data);
+					});
+					checkBallotTabForSelectedDeviceType($('#isBallotingRequired').val());
 					reloadBillGrid();									
 				}	
 			});	
 			/**** session year changes then reload grid****/			
 			$("#selectedSessionYear").change(function(){
 				var value=$(this).val();
-				if(value!=""){		
+				if(value!=""){
+					$.get('ref/isBallotingAllowedForSession?houseType='+$("#selectedHouseType").val()+'&deviceType='+$("#selectedDeviceType").val()
+							+'&sessionType='+$("#selectedSessionType").val()+'&sessionYear='+$("#selectedSessionYear").val(), function(data) {
+						checkBallotTabForSelectedDeviceType(data);
+					});
+					checkBallotTabForSelectedDeviceType($('#isBallotingRequired').val());
 					reloadBillGrid();							
 				}			
 			});
 			/**** session type changes then reload grid****/
 			$("#selectedSessionType").change(function(){
 				var value=$(this).val();
-				if(value!=""){			
+				if(value!=""){		
+					$.get('ref/isBallotingAllowedForSession?houseType='+$("#selectedHouseType").val()+'&deviceType='+$("#selectedDeviceType").val()
+							+'&sessionType='+$("#selectedSessionType").val()+'&sessionYear='+$("#selectedSessionYear").val(), function(data) {
+						checkBallotTabForSelectedDeviceType(data);
+					});
+					checkBallotTabForSelectedDeviceType($('#isBallotingRequired').val());
 					reloadBillGrid();						
 				}			
 			});
@@ -48,7 +63,7 @@
 				}
 				
 				if(value != ""){
-					checkBallotTabForSelectedDeviceType();
+					checkBallotTabForSelectedDeviceType($('#isBallotingRequired').val());
 					showBillList();
 				}
 				
@@ -93,16 +108,22 @@
 		}
 		
 		/**** show/hide ballot tab as per selected device type****/
-		function checkBallotTabForSelectedDeviceType() {
-			$.get('ref/getTypeOfSelectedDeviceType?deviceTypeId='+$("#selectedDeviceType").val(), function(data) {
-				if(data!=null && data!=undefined && data!='') {
-					if(data=='bills_nonofficial') {
-						$('#ballotTab').show();
-					} else {
-						$('#ballotTab').hide();
+		function checkBallotTabForSelectedDeviceType(isBallotingRequired) {	
+			if(isBallotingRequired=='error') {
+				$.prompt($('#ballotAppliedCheckError').val());
+				$('#ballotTab').hide();
+				return false;
+			} else {
+				$.get('ref/getTypeOfSelectedDeviceType?deviceTypeId='+$("#selectedDeviceType").val(), function(data) {
+					if(data!=null && data!=undefined && data!='') {
+						if(data=='bills_nonofficial' && isBallotingRequired=='true') {
+							$('#ballotTab').show();
+						} else {
+							$('#ballotTab').hide();
+						}
 					}
-				}
-			});
+				});
+			}			
 		}
 		
 		function newBill() {
@@ -179,7 +200,16 @@
 			var parameters = parameters + "&category=bill";
 			var resourceURL = 'ballot/init?' + parameters;
 			showTabByIdAndUrl('ballot_tab', resourceURL);
-		}		
+		}
+		function generateRegister() {
+			var selectedBillId = $("#grid").jqGrid ('getGridParam', 'selrow');
+			if(selectedBillId==undefined) {
+				$.prompt("Please select a bill");
+			} else {
+				var registerURL = 'bill/register?sessionYear='+$("#selectedSessionYear").val()+'&billId='+selectedBillId;
+				showTabByIdAndUrl('details_tab',registerURL);
+			}			
+		}
 		/****Provide introduction date ****/
 		function provideDate(){
 			var rURL = 'bill/providedate?houseType=' + $("#selectedHouseType option:selected").val()+"&sessionType="+$("#selectedSessionType option:selected").val()+"&sessionYear="+$("#selectedSessionYear option:selected").val()+"&usergrouptype="+$("#currentusergroupType").val();
@@ -367,7 +397,9 @@
 		<input type="hidden" id="ballotSuccessMsg" value="<spring:message code='ballot.success' text='Member Ballot Created Succesfully'/>">			
 		<input type="hidden" id="ballotAlreadyCreatedMsg" value="<spring:message code='ballot.success' text='Member Ballot Already Created'/>">			
 		<input type="hidden" id="ballotFailedMsg" value="<spring:message code='ballot.failed' text='Member Ballot Couldnot be Created.Try Again'/>">			
-		<input type="hidden" id="gridURLParams_ForNew" name="gridURLParams_ForNew" /> 		
+		<input type="hidden" id="gridURLParams_ForNew" name="gridURLParams_ForNew" />
+		<input type="hidden" id="isBallotingRequired" value="${isBallotingRequired}"/>	
+		<input type="hidden" id="ballotAppliedCheckError" value="<spring:message code='ballot.ballotAppliedCheckError' text='Some Error In Ballot Check.. Please Contact Administrator'/>">
 		</div> 		
 </body>
 </html>

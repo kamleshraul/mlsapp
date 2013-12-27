@@ -43,7 +43,10 @@
 			$("#search").click(function() {
 				searchRecord();
 			});
-			
+			/**** Generate Register ****/			
+			$("#register").click(function(){			
+				generateRegister();
+			});	
 			$("#createpatrakbhagdon").click(function(){
 				/**** url parameters for Patrak Bhag 2 report ****/		
 				if($("#patrakbahgdonDate").val() !=''){
@@ -167,6 +170,11 @@
 			<a href="#" id="search" class="butSim">
 				<spring:message code="generic.search" text="Search"/>
 			</a> |
+			<security:authorize access="hasAnyRole('BIS_ASSISTANT','BIS_SECTION_OFFICER')">
+				<a href="#" id="register" class="butSim">
+					<spring:message code="bill.register" text="Register"/>
+				</a> |
+			</security:authorize>
 			<security:authorize access="hasAnyRole('BIS_ASSISTANT','BIS_SECTION_OFFICER')">			
 				<a href="#" id="generate_patrakbhag2" class="butSim">
 					<spring:message code="bill.patrakBhag2" text="Patrak Bhag 2"/>
