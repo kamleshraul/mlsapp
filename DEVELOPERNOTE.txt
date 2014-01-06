@@ -1,0 +1,8 @@
+Date:	   06-01-2014 
+Developer: dhananjayb
+Details:
+In language master table in database, type field for 2-3 entries had additional details enclosed in paranthesis.
+e.g. tulu (mother tongue)
+Those paranthesis didnot allow to use language type in dynamic naming of fields based on languages in html.
+So instead of paranthesis in language type, now using hyphen so that dynamic naming with language type is possible.
+Thus in above example, tulu (mother tongue) becomes tulu-mother tongue.
