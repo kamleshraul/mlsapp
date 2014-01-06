@@ -18,6 +18,11 @@
 		<pattern>/editing/*/edit</pattern>
 		<pattern>/editing/*/delete</pattern>
 
+		<pattern>/catchword/new</pattern>
+		<pattern>/catchword/*/edit</pattern>
+		<pattern>/catchword/*/delete</pattern>
+		<pattern>/catchword</pattern>
+
 
 		<pattern>/grid</pattern>
 		<pattern>/grid/new</pattern>
