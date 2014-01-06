@@ -168,6 +168,7 @@ public class BillController extends GenericController<Bill> {
 											status=Status.findStatusContainedIn(allowedStatus.getValue(),locale);
 										} catch (ELSException e) {
 											// TODO Auto-generated catch block
+											model.addAttribute("error",e.getParameter());
 											e.printStackTrace();
 										}
 									}else{
@@ -177,6 +178,7 @@ public class BillController extends GenericController<Bill> {
 												status=Status.findStatusContainedIn(defaultAllowedStatus.getValue(),locale);
 											} catch (ELSException e) {
 												// TODO Auto-generated catch block
+												model.addAttribute("error",e.getParameter());
 												e.printStackTrace();
 											}
 										}else{
@@ -193,6 +195,8 @@ public class BillController extends GenericController<Bill> {
 												translationStatuses = Status.findStatusContainedIn(translationStatusesParameter.getValue(),locale);
 											} catch (ELSException e) {
 												// TODO Auto-generated catch block
+												logger.debug("populateNew", e);
+												model.addAttribute("error",e.getParameter());
 												e.printStackTrace();
 											}
 											model.addAttribute("translationStatuses", translationStatuses);
@@ -224,10 +228,7 @@ public class BillController extends GenericController<Bill> {
 						break;
 					}
 				}
-				model.addAttribute("ugparam",this.getCurrentUser().getActualUsername());	
-				if(lastSessionCreated.getParameter("bills_nonofficial_isBallotingRequired")!=null) {
-					model.addAttribute("isBallotingRequired", lastSessionCreated.getParameter("bills_nonofficial_isBallotingRequired"));
-				}
+				model.addAttribute("ugparam",this.getCurrentUser().getActualUsername());				
 			} else{
 				model.addAttribute("errorcode","nosessionentriesfound");
 			}			
@@ -1004,6 +1005,8 @@ public class BillController extends GenericController<Bill> {
 							}									
 						} catch (ELSException e) {
 							// TODO Auto-generated catch block
+							logger.debug("populateNew", e);
+							model.addAttribute("error",e.getParameter());
 							e.printStackTrace();
 						} finally {
 							model.addAttribute("ministries",totalMinistries);
@@ -1028,6 +1031,7 @@ public class BillController extends GenericController<Bill> {
 			}
 		} catch (ParseException e) {
 			logger.error("Failed to parse rotation order publish date:'"+strRotationOrderPubDate+"' in "+serverDateFormat.getValue()+" format");
+			logger.debug("populateNew", e);
 			model.addAttribute("errorcode", "rotationorderpubdate_cannotbeparsed");
 		}
 		/**** Submission Date and Creation date****/ 
@@ -1575,6 +1579,8 @@ public class BillController extends GenericController<Bill> {
 				internalStatuses=Status.findStatusContainedIn(specificDeviceStatusUserGroupStatuses.getValue(), locale);
 			} catch (ELSException e) {
 				// TODO Auto-generated catch block
+				logger.debug("populateNew", e);
+				model.addAttribute("error",e.getParameter());
 				e.printStackTrace();
 			}
 		}else if(specificDeviceUserGroupStatuses!=null){
@@ -1582,6 +1588,8 @@ public class BillController extends GenericController<Bill> {
 				internalStatuses=Status.findStatusContainedIn(specificDeviceUserGroupStatuses.getValue(), locale);
 			} catch (ELSException e) {
 				// TODO Auto-generated catch block
+				logger.debug("populateNew", e);
+				model.addAttribute("error",e.getParameter());
 				e.printStackTrace();
 			}
 		}else if(specificStatuses!=null){
@@ -1589,6 +1597,8 @@ public class BillController extends GenericController<Bill> {
 				internalStatuses=Status.findStatusContainedIn(specificStatuses.getValue(), locale);
 			} catch (ELSException e) {
 				// TODO Auto-generated catch block
+				logger.debug("populateNew", e);
+				model.addAttribute("error",e.getParameter());
 				e.printStackTrace();
 			}
 		}else if(userGroupType.equals(ApplicationConstants.CHAIRMAN)
@@ -1599,6 +1609,8 @@ public class BillController extends GenericController<Bill> {
 					internalStatuses=Status.findStatusContainedIn(finalStatus.getValue(), locale);
 				} catch (ELSException e) {
 					// TODO Auto-generated catch block
+					logger.debug("populateNew", e);
+					model.addAttribute("error",e.getParameter());
 					e.printStackTrace();
 				}
 			}else{
@@ -1608,6 +1620,8 @@ public class BillController extends GenericController<Bill> {
 						internalStatuses=Status.findStatusContainedIn(recommendStatus.getValue(), locale);
 					} catch (ELSException e) {
 						// TODO Auto-generated catch block
+						logger.debug("populateNew", e);
+						model.addAttribute("error",e.getParameter());
 						e.printStackTrace();
 					}
 				}else{
@@ -1617,6 +1631,8 @@ public class BillController extends GenericController<Bill> {
 							internalStatuses=Status.findStatusContainedIn(defaultCustomParameter.getValue(), locale);
 						} catch (ELSException e) {
 							// TODO Auto-generated catch block
+							logger.debug("populateNew", e);
+							model.addAttribute("error",e.getParameter());
 							e.printStackTrace();
 						}
 					}else{
@@ -1632,6 +1648,8 @@ public class BillController extends GenericController<Bill> {
 					internalStatuses=Status.findStatusContainedIn(recommendStatus.getValue(), locale);
 				} catch (ELSException e) {
 					// TODO Auto-generated catch block
+					logger.debug("populateNew", e);
+					model.addAttribute("error",e.getParameter());
 					e.printStackTrace();
 				}
 			}else{
@@ -1641,6 +1659,8 @@ public class BillController extends GenericController<Bill> {
 						internalStatuses=Status.findStatusContainedIn(defaultCustomParameter.getValue(), locale);
 					} catch (ELSException e) {
 						// TODO Auto-generated catch block
+						logger.debug("populateNew", e);
+						model.addAttribute("error",e.getParameter());
 						e.printStackTrace();
 					}
 				}else{
@@ -1944,6 +1964,8 @@ public class BillController extends GenericController<Bill> {
 				user = User.findbyNameBirthDate(member.getFirstName(),member.getMiddleName(),member.getLastName(),member.getBirthDate());
 			} catch (ELSException e) {
 				// TODO Auto-generated catch block
+				logger.debug("populateNew", e);
+				model.addAttribute("error",e.getParameter());
 				e.printStackTrace();
 			}
 			domain.setCreatedBy(user.getCredential().getUsername());
@@ -2012,6 +2034,8 @@ public class BillController extends GenericController<Bill> {
 								user = User.findbyNameBirthDate(i.getMember().getFirstName(),i.getMember().getMiddleName(),i.getMember().getLastName(),i.getMember().getBirthDate());
 							} catch (ELSException e) {
 								// TODO Auto-generated catch block
+								logger.debug("populateNew", e);
+								model.addAttribute("error",e.getParameter());
 								e.printStackTrace();
 							}
 							Credential credential=user.getCredential();							
@@ -3123,6 +3147,8 @@ public class BillController extends GenericController<Bill> {
 								user = User.findbyNameBirthDate(i.getMember().getFirstName(),i.getMember().getMiddleName(),i.getMember().getLastName(),i.getMember().getBirthDate());
 							} catch (ELSException e) {
 								// TODO Auto-generated catch block
+								logger.debug("populateNew", e);
+								model.addAttribute("error",e.getParameter());
 								e.printStackTrace();
 							}
 							Credential credential=user.getCredential();
@@ -3942,6 +3968,7 @@ public class BillController extends GenericController<Bill> {
 			
 		}catch (Exception e) {
 			model.addAttribute("done", "fail");
+			logger.debug("doDiscussBills", e);
 			e.printStackTrace();
 		}		
 	}
@@ -4260,6 +4287,7 @@ public class BillController extends GenericController<Bill> {
 					reportFile = generateReportUsingFOP(reportDataAsList.toArray(), "template_bill_docket_report", "WORD", "bill_docket_report", locale.toString());
 				} catch (Exception e) {
 					// TODO Auto-generated catch block
+					logger.debug("generateDocket",e);					
 					e.printStackTrace();
 				}
 			} else if(requisitionFor.equals(ApplicationConstants.BILL_GAZETTE_COPY)) {
@@ -4267,6 +4295,7 @@ public class BillController extends GenericController<Bill> {
 					reportFile = generateReportUsingFOP(reportDataAsList.toArray(), "template_bill_gazette_report", "WORD", "bill_gazette_report", locale.toString());
 				} catch (Exception e) {
 					// TODO Auto-generated catch block
+					logger.debug("generateDocket",e);
 					e.printStackTrace();
 				}
 			}
@@ -4447,6 +4476,8 @@ public class BillController extends GenericController<Bill> {
 					session = Session.findSessionByHouseTypeSessionTypeYear(houseType, sessionType, sessionYear);
 				} catch (ELSException e1) {
 					// TODO Auto-generated catch block
+					logger.debug("generateDocket",e1);
+					model.addAttribute("error", e1.getParameter());
 					e1.printStackTrace();
 				}
 				
@@ -4463,6 +4494,8 @@ public class BillController extends GenericController<Bill> {
 							listStatus = Status.findStatusContainedIn(cpStatuses.getValue(), locale.toString());
 						} catch (ELSException e) {
 							// TODO Auto-generated catch block
+							logger.debug("generateDocket",e);
+							model.addAttribute("error", e.getParameter());
 							e.printStackTrace();
 						}
 						statuses = new Status[listStatus.size()];
@@ -4559,7 +4592,8 @@ public class BillController extends GenericController<Bill> {
 					model.addAttribute("discussBills", billSVOToReceiveDiscussionDate);
 					
 				} catch (ELSException e) {
-					model.addAttribute("error", e.getParameter());
+					logger.debug("generateDocket",e);
+					model.addAttribute("error", e.getParameter());					
 					e.printStackTrace();
 				}
 			}
@@ -4640,6 +4674,7 @@ public class BillController extends GenericController<Bill> {
 			
 		}catch (Exception e) {
 			success = false;
+			logger.debug("updateIntroductionDate",e);
 			e.printStackTrace();
 		}
 		return successData.toString();
@@ -4857,6 +4892,8 @@ public class BillController extends GenericController<Bill> {
 					e.printStackTrace();
 				} catch (ELSException e) {
 					// TODO Auto-generated catch block
+					logger.debug("generateDocket",e);
+					model.addAttribute("error", e.getParameter());
 					e.printStackTrace();
 				}
 				Status toBeIntroduced = Status.findByType(ApplicationConstants.BILL_PROCESSED_TOBEINTRODUCED, locale.toString());
