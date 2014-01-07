@@ -9,14 +9,14 @@
  */
 package org.mkcl.els.webservices;
 
-import org.mkcl.els.common.vo.MemberSearchPage;
+import java.util.List;
+import org.mkcl.els.common.vo.MemberInfo;
 import org.mkcl.els.domain.Member;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
-
 /**
  * The Class MemberSearchWebService.
  *
@@ -38,7 +38,7 @@ public class MemberSearchWebService {
      * @return the member search page
      */
     @RequestMapping(value = "/{housetype}/{house}/{criteria1}/{criteria2}/{locale}")
-    public @ResponseBody MemberSearchPage search(@PathVariable final String housetype ,
+    public @ResponseBody List<MemberInfo> search(@PathVariable final String housetype ,
             @PathVariable final Long house,
             @PathVariable final String criteria1 ,
             @PathVariable final Long criteria2 ,
