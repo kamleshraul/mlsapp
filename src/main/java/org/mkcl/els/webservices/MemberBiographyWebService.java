@@ -9,14 +9,11 @@
  */
 package org.mkcl.els.webservices;
 
-import java.io.UnsupportedEncodingException;
-
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.mkcl.els.common.exception.ELSException;
 import org.mkcl.els.common.vo.MemberBiographyVO;
-import org.mkcl.els.domain.CustomParameter;
 import org.mkcl.els.domain.Document;
 import org.mkcl.els.domain.Member;
 import org.springframework.stereotype.Controller;
@@ -47,32 +44,7 @@ public class MemberBiographyWebService {
     public @ResponseBody MemberBiographyVO getBiography(@PathVariable("id") final long id ,
             @PathVariable("locale") final String locale,
             final HttpServletRequest request){
-    	String constituency = null;
-    	String party=null;
-    	String gender=null;
-    	String maritalstatus=null;
-    	//for tomcat
-    	CustomParameter customParameter=CustomParameter.findByName(CustomParameter.class,"DEPLOYMENT_SERVER", "");
-		if(customParameter!=null){
-		if(customParameter.getValue().equals("TOMCAT")){
-    	try {
-			constituency = new String(request.getParameter("constituency").getBytes("ISO-8859-1"),"UTF-8");
-			party = new String(request.getParameter("party").getBytes("ISO-8859-1"),"UTF-8");
-			gender = new String(request.getParameter("gender").getBytes("ISO-8859-1"),"UTF-8");
-			maritalstatus = new String(request.getParameter("maritalstatus").getBytes("ISO-8859-1"),"UTF-8");
-		} catch (UnsupportedEncodingException e) {
-			e.printStackTrace();
-		}
-		}else{
-		//for glassfish
-		constituency = request.getParameter("constituency");
-		party = request.getParameter("party");
-		gender = request.getParameter("gender");
-		maritalstatus = request.getParameter("maritalstatus");
-		}
-		}
-    	String[] data={constituency,party,gender,maritalstatus};
-        return Member.findBiography(id , locale,data);
+    	return Member.findBiography(id , locale);
     }
 
     /**
@@ -86,13 +58,16 @@ public class MemberBiographyWebService {
     public @ResponseBody byte[] getPhoto(@PathVariable("tag")
             final String tag ,
             final HttpServletResponse response){
-        Document document = null;
-        try{
-        	document = Document.findByTag(tag);
-        }catch (ELSException e) {
+        Document document;
+		try {
+			document = Document.findByTag(tag);
+			return document.getFileData();
+		} catch (ELSException e) {
+			// TODO Auto-generated catch block
 			e.printStackTrace();
+			return null;
 		}
-        return document.getFileData();
+        
     }
 
     /**
