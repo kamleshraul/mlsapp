@@ -25,6 +25,8 @@ import org.mkcl.els.domain.Gender;
 import org.mkcl.els.domain.House;
 import org.mkcl.els.domain.HouseType;
 import org.mkcl.els.domain.MaritalStatus;
+import org.mkcl.els.domain.Member;
+import org.mkcl.els.domain.MemberRole;
 import org.mkcl.els.domain.Party;
 import org.mkcl.els.domain.State;
 import org.springframework.stereotype.Controller;
@@ -73,13 +75,13 @@ public class MasterWebService {
     List<Reference> getDistricts(@PathVariable("locale") final String locale,@PathVariable("housetype") final String housetype) {
         String defaultstate=((CustomParameter)CustomParameter.findByName(CustomParameter.class, "DEFAULT_STATE", locale)).getValue();
         State state=State.findByName(State.class,defaultstate, locale);
-        List<Reference> districts = new ArrayList<Reference>();
-        try{
-        	districts = District.findDistrictsRefByStateId(state.getId(), "name", ApplicationConstants.ASC, locale);
-        }catch (ELSException e) {
+        try {
+			return District.findDistrictsRefByStateId(state.getId(), "name", ApplicationConstants.ASC, locale);
+		} catch (ELSException e) {
+			// TODO Auto-generated catch block
 			e.printStackTrace();
+			return null;
 		}
-        return districts;
     }
 
     /**
@@ -135,6 +137,31 @@ public class MasterWebService {
         }
         return maritalStatusVOs;
     }
+    
+    @RequestMapping(value = "/memberroles/{houseType}/{locale}")
+    public @ResponseBody
+    List<MasterVO> getMemberRoles(@PathVariable final String houseType,@PathVariable final String locale) {
+        List<MemberRole> memberRoles=MemberRole.findByHouseType(houseType, locale);       	
+        List<MasterVO> masterVOs=new ArrayList<MasterVO>();
+        for(MemberRole i:memberRoles){
+        	MasterVO masterVO=new MasterVO(i.getId(),i.getName());
+        	masterVOs.add(masterVO);
+        }
+        return masterVOs;
+    }
+    
+    @RequestMapping(value = "/member/{house}/{memberrole}/{locale}")
+    public @ResponseBody
+    Long getMemberByMemberRole(@PathVariable final Long house,
+    		@PathVariable final Long memberrole,
+    		@PathVariable final String locale) {
+        Long memberid=null;
+        List<Member> members=Member.findByMemberRole(house,memberrole,locale);
+        if(members!=null&&!members.isEmpty()){
+        	return members.get(0).getId();
+        }
+        return memberid;
+    }
 
     @RequestMapping(value = "/months/{locale}")
     public @ResponseBody
@@ -157,18 +184,21 @@ public class MasterWebService {
     @RequestMapping(value = "/house/{houseType}/{locale}")
     public @ResponseBody
     List<Reference> getHouse(@PathVariable final String locale,@PathVariable final String houseType) {
-        List<House> houses = null;
+        List<House> houses;
 		try {
 			houses = House.findByHouseType(houseType, locale);
+			List<Reference> houseVOs=new ArrayList<Reference>();
+			for(House i:houses){
+			    Reference reference=new Reference(String.valueOf(i.getId()),i.getDisplayName());
+			    houseVOs.add(reference);
+			}
+			return houseVOs;  
 		} catch (ELSException e) {
+			// TODO Auto-generated catch block
 			e.printStackTrace();
+			return null;
 		}
-        List<Reference> houseVOs = new ArrayList<Reference>();
-        for(House i:houses){
-            Reference reference=new Reference(String.valueOf(i.getId()),i.getDisplayName());
-            houseVOs.add(reference);
-        }
-        return houseVOs;
+		      
     }
     
     @RequestMapping(value = "/{house}/headingcount/{locale}")
