@@ -503,7 +503,12 @@
 			<artifactId>icu4j</artifactId>
 			<version>51.1</version>
 		</dependency>          
-		
+		<!-- Added By Vikas for Bulk catchword Uploading -->
+		<dependency>
+			<groupId>org.apache.poi</groupId>
+			<artifactId>poi-scratchpad</artifactId>
+			<version>3.10-beta2</version>
+		</dependency>
 	</dependencies>
 	
 	<repositories>
