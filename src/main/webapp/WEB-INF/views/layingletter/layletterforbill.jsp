@@ -181,8 +181,8 @@
 	</p>
 	<p>
 		<label class="small"><spring:message code="layingletter.year" text="Year"/></label>
-		<input id="formattedSelectedYear" name="formattedSelectedYear" value="${formattedSelectedYear}" class="sInteger" readonly="readonly"/>
-		<input type="hidden" id="selectedYear" name="selectedYear" value="${selectedYear}"/>	
+		<input id="selectedYear" name="selectedYear" value="${formattedSelectedYear}" class="sInteger"/>
+		<%-- <input type="hidden" id="selectedYear" name="selectedYear" value="${selectedYear}"/> --%>	
 	</p>
 	<p>
 		<label class="small"><spring:message code="layingletter.billNumber" text="Bill Number"/></label>

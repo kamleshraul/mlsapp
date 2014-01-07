@@ -155,19 +155,31 @@
 					if(value==translate) {
 						$("#translationStatus").val(value);		
 						$("#internalStatus").val($("#oldInternalStatus").val());
-			    		$("#recommendationStatus").val($("#oldRecommendationStatus").val());				
+			    		$("#recommendationStatus").val($("#oldRecommendationStatus").val());
+			    		$("#opinionFromLawAndJDStatus").val($("#oldOpinionFromLawAndJDStatus").val());
+			    		$("#recommendationFromGovernorStatus").val($("#oldRecommendationFromGovernorStatus").val());	
+			    		$("#recommendationFromPresidentStatus").val($("#oldRecommendationFromPresidentStatus").val());
 					} else if(value==opinion_from_lawandjd) {
 						$("#opinionFromLawAndJDStatus").val(value);		
 						$("#internalStatus").val($("#oldInternalStatus").val());
-			    		$("#recommendationStatus").val($("#oldRecommendationStatus").val());				
+			    		$("#recommendationStatus").val($("#oldRecommendationStatus").val());	
+			    		$("#translationStatus").val($("#oldTranslationStatus").val());
+			    		$("#recommendationFromGovernorStatus").val($("#oldRecommendationFromGovernorStatus").val());	
+			    		$("#recommendationFromPresidentStatus").val($("#oldRecommendationFromPresidentStatus").val());
 					} else if(value==recommendation_from_governor) {
 						$("#recommendationFromGovernorStatus").val(value);		
 						$("#internalStatus").val($("#oldInternalStatus").val());
-			    		$("#recommendationStatus").val($("#oldRecommendationStatus").val());				
+			    		$("#recommendationStatus").val($("#oldRecommendationStatus").val());
+			    		$("#translationStatus").val($("#oldTranslationStatus").val());
+			    		$("#opinionFromLawAndJDStatus").val($("#oldOpinionFromLawAndJDStatus").val());
+			    		$("#recommendationFromPresidentStatus").val($("#oldRecommendationFromPresidentStatus").val());
 					} else if(value==recommendation_from_president) {
 						$("#recommendationFromPresidentStatus").val(value);		
 						$("#internalStatus").val($("#oldInternalStatus").val());
-			    		$("#recommendationStatus").val($("#oldRecommendationStatus").val());				
+			    		$("#recommendationStatus").val($("#oldRecommendationStatus").val());	
+			    		$("#translationStatus").val($("#oldTranslationStatus").val());
+			    		$("#opinionFromLawAndJDStatus").val($("#oldOpinionFromLawAndJDStatus").val());
+			    		$("#recommendationFromGovernorStatus").val($("#oldRecommendationFromGovernorStatus").val());
 					} else {
 						$("#recommendationStatus").val(value);						
 						$("#translationStatus").val($("#oldTranslationStatus").val());	

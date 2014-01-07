@@ -1787,40 +1787,55 @@ public class BillRepository extends BaseRepository<Bill, Serializable>{
 		
 		List<Object[]> result = new ArrayList<Object[]>();
 		
+		Status underConsiderationStatus = Status.findByType(ApplicationConstants.BILL_PROCESSED_UNDERCONSIDERATION, bill.getLocale());
+		
 		String strQuery="SELECT bd.recommendationStatus.type, bd.houseRound, bd.expectedStatusDate, bd.statusDate, bd.internalStatus.type FROM Bill b JOIN b.drafts bd" +
-				" WHERE b.id=:billId"+				
-				" ORDER BY bd.id "+ApplicationConstants.DESC;
+				" WHERE b.id=:billId AND (bd.internalStatus.priority >= "+	underConsiderationStatus.getPriority().toString() +	
+						" OR bd.recommendationStatus.type = '" + ApplicationConstants.BILL_PROCESSED_INTRODUCED + "')" +
+				" ORDER BY bd.id "+ApplicationConstants.ASC;
 		Query query=this.em().createQuery(strQuery);
 		query.setParameter("billId",bill.getId());
 		List<Object[]> drafts=query.getResultList();
 		
 		if(drafts!=null) {
 			if(!drafts.isEmpty()) {
-				String statusType = "";
+				String statusTypes = "";				
 				for(Object[] draft: drafts) {
-					if(!draft[0].toString().equals(statusType)) {	
-						if(draft[1]==null) {
-							draft[1]="";
+					if(draft[0]==null) {
+						continue;
+					}
+					if(draft[0].toString().isEmpty()) {
+						continue;
+					}
+					if(draft[1]==null) {
+						draft[1]="";
+					}
+					if(draft[2]!=null) {
+						Date expectationDate = FormaterUtil.formatStringToDate(draft[2].toString(), ApplicationConstants.DB_DATEFORMAT);
+						draft[2] = FormaterUtil.formatDateToString(expectationDate, ApplicationConstants.SERVER_DATEFORMAT,bill.getLocale());
+					} else {
+						draft[2] = "";
+					}
+					if(draft[3]!=null) {
+						Date statusDate = FormaterUtil.formatStringToDate(draft[3].toString(), ApplicationConstants.DB_DATEFORMAT);
+						draft[3] = FormaterUtil.formatDateToString(statusDate, ApplicationConstants.SERVER_DATEFORMAT,bill.getLocale());
+					} else {
+						draft[3] = "";
+					}
+					boolean isUnique = true;
+					for(String statusType: statusTypes.split(",")) {
+						if(draft[0].toString().equals(statusType)) {
+							isUnique = false;
+							break;
 						}
-						if(draft[2]!=null) {
-							Date expectationDate = FormaterUtil.formatStringToDate(draft[2].toString(), ApplicationConstants.DB_DATEFORMAT);
-							draft[2] = FormaterUtil.formatDateToString(expectationDate, ApplicationConstants.SERVER_DATEFORMAT,bill.getLocale());
-						} else {
-							draft[2] = "";
-						}
-						if(draft[3]!=null) {
-							Date statusDate = FormaterUtil.formatStringToDate(draft[3].toString(), ApplicationConstants.DB_DATEFORMAT);
-							draft[3] = FormaterUtil.formatDateToString(statusDate, ApplicationConstants.SERVER_DATEFORMAT,bill.getLocale());
-						} else {
-							draft[3] = "";
-						}
+					}
+					if(isUnique) {
 						result.add(draft);
-						statusType = draft[0].toString();
-					}								
+						statusTypes += draft[0].toString() + ",";						
+					}																	
 				}
 			}
-		}				
-		
+		}			
 		return result;			
 	}
 }

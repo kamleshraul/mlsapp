@@ -144,17 +144,17 @@
 							}
 							if(data[i].deviceType=='act') {
 								text+="<td>"+billNumber+"<span id='operation"+data[i].id+"'><a onclick='referencing("+data[i].id+");' style='margin:10px;'>"+$("#referMsg").val()+"</a></span>"
-								+"<a onclick='viewActDetail("+data[i].id+");' style='margin:10px;'>"+$("#viewDetailMsg").val()+"</a>"
+								+"<br/><a onclick='viewActDetail("+data[i].id+");' style='margin:10px;'>"+$("#viewDetailMsg").val()+"</a>"
 								+"</td>";
 							} else {
 								text+="<td>"+billNumber+"<span id='operation"+data[i].id+"'><a onclick='referencing("+data[i].id+");' style='margin:10px;'>"+$("#referMsg").val()+"</a></span>"
-								+"<a onclick='viewDetail("+data[i].id+");' style='margin:10px;'>"+$("#viewDetailMsg").val()+"</a>"
+								+"<br/><a onclick='viewDetail("+data[i].id+");' style='margin:10px;'>"+$("#viewDetailMsg").val()+"</a>"
 								+"</td>";
 							}							
 							if(data[i].revisedTitle!='null' && data[i].revisedTitle!='' && data[i].revisedTitle!=undefined) {
-								text+="<td style='width: 300px; max-width: 300px;>"+data[i].revisedTitle+"</td>";	
+								text+="<td style='width: 300px; max-width: 300px;'>"+data[i].revisedTitle+"</td>";	
 							} else if(data[i].title!='null' && data[i].title!='' && data[i].title!=undefined) {
-								text+="<td style='width: 300px; max-width: 300px;>"+data[i].title+"</td>";	
+								text+="<td style='width: 300px; max-width: 300px;'>"+data[i].title+"</td>";	
 							} else {
 								text+="<td>&nbsp;</td>";
 							}
@@ -164,7 +164,16 @@
 							} else if(data[i].content!='null' && data[i].content!='' && data[i].content!=undefined) {
 								content = data[i].content;
 							} 				
-							text+="<td style='width: 420px; max-width: 420px;'>"+content+"</td>";
+							text+="<td style='width: 420px; max-width: 420px;'>";
+							text+="<div id='contentInShortDiv"+i+"' style='height: 200px; max-height: 200px; overflow: hidden;'>";
+							text+=content;
+							text+="</div>";
+							text+="<div style='text-align: right;'>";
+							text+="<a href='#' style='text-decoration: none;' onclick='showFullContent("+i+");'>";
+							text+="<img src='./resources/images/ViewRevision.jpg' title='<spring:message code='referencing.viewContentInDetail' text='View Entire Details'></spring:message>' class='imageLink' />";
+							text+="</a>";
+							text+="</div>";
+							text+="</td>";
 							if(data[i].deviceType=='act') {
 								text+="<td><spring:message code='bill.referredAct' text='Act'/></td>";
 							} else {
@@ -304,16 +313,16 @@
 										+"</td>";
 									} else {
 										text+="<td>"+billNumber+"<span id='operation"+data[i].id+"'><a onclick='referencing("+data[i].id+");' style='margin:10px;'>"+$("#referMsg").val()+"</a></span>"
-										+"<a onclick='viewDetail("+data[i].id+");' style='margin:10px;'>"+$("#viewDetailMsg").val()+"</a>"
+										+"<br/><a onclick='viewDetail("+data[i].id+");' style='margin:10px;'>"+$("#viewDetailMsg").val()+"</a>"
 										+"</td>";
-									}							
+									}										
 									if(data[i].revisedTitle!='null' && data[i].revisedTitle!='' && data[i].revisedTitle!=undefined) {
-										text+="<td style='width: 300px; max-width: 300px;>"+data[i].revisedTitle+"</td>";	
+										text+="<td style='width: 300px; max-width: 300px;'>"+data[i].revisedTitle+"</td>";	
 									} else if(data[i].title!='null' && data[i].title!='' && data[i].title!=undefined) {
-										text+="<td style='width: 300px; max-width: 300px;>"+data[i].title+"</td>";	
+										text+="<td style='width: 300px; max-width: 300px;'>"+data[i].title+"</td>";	
 									} else {
 										text+="<td>&nbsp;</td>";
-									}
+									}									
 									var content = "";
 									if(data[i].revisedContent!='null' && data[i].revisedContent!='' && data[i].revisedContent!=undefined) {
 										content = data[i].revisedContent;									
@@ -322,7 +331,16 @@
 									} else {
 										content = "&nbsp;";
 									}				
-									text+="<td style='width: 420px; max-width: 420px;'>"+content+"</td>";
+									text+="<td style='width: 420px; max-width: 420px;'>";
+									text+="<div id='contentInShortDiv"+i+"' style='height: 200px; max-height: 200px; overflow: hidden;'>";
+									text+=content;
+									text+="</div>";
+									text+="<div style='text-align: right;'>";
+									text+="<a href='#' style='text-decoration: none;' onclick='showFullContent("+i+");'>";
+									text+="<img src='./resources/images/ViewRevision.jpg' title='<spring:message code='referencing.viewContentInDetail' text='View Entire Details'></spring:message>' class='imageLink' />";
+									text+="</a>";
+									text+="</div>";
+									text+="</td>";
 									if(data[i].deviceType=='act') {
 										text+="<td><spring:message code='bill.referredAct' text='Act'/></td>";
 									} else {
@@ -355,7 +373,7 @@
 										+"<td style='text-align:center;'><a onclick='search();' style='margin:10px;'>"+$("#loadMoreMsg").val()+"</a></td>"
 										+"</tr>";
 									start=start+10;							
-								}
+								}								
 								$("#searchTable tbody").empty();
 								$("#searchTable tbody").append(text);	
 								$("#referencingDiv").show();										
@@ -452,7 +470,11 @@
 				scrollTop();
 			});
 			return false;
-		}		
+		}	
+		
+		function showFullContent(indexOfContent) {		
+			$.fancybox.open($('#contentInShortDiv'+indexOfContent).html(),{autoSize:false,width:800,height:600});
+		}
 
 		function viewDetail(referId){
 			var resourceURL="";
@@ -761,11 +783,19 @@ cursor:pointer;
 								</c:choose>
 							</td>
 							<td style='width: 420px; max-width: 420px;'>
+								<div id="contentInShortDiv${exactReferenceEntry.count}" style="height: 200px; max-height: 200px; overflow: hidden;">
 								<c:choose>
 									<c:when test="${not empty i.revisedContent}">${i.revisedContent}</c:when>
 									<c:when test="${not empty i.content}">${i.content}</c:when>
 									<c:otherwise>&nbsp;</c:otherwise>
 								</c:choose>
+								</div>
+								<div style="text-align: right;">
+								<a href="#" style="text-decoration: none;" onclick="showFullContent(${exactReferenceEntry.count});">
+									<%-- <spring:message code="referencing.viewContentInDetail" text="<<View Entire Details"></spring:message> --%>
+									<img src="./resources/images/ViewRevision.jpg" title="<spring:message code='referencing.viewContentInDetail' text='View Entire Details'></spring:message>" class="imageLink" />
+								</a>
+								</div>							
 							</td>
 							<td>
 								<c:choose>
