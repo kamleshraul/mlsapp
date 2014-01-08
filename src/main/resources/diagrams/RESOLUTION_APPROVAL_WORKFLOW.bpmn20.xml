@@ -44,29 +44,6 @@ regards</activiti:expression>
         <timeDuration>${pv_timerduration}</timeDuration>
       </timerEventDefinition>
     </boundaryEvent>
-    <serviceTask id="mailtask3" name="Reminder Mail Task" activiti:async="true" activiti:type="mail">
-      <extensionElements>
-        <activiti:field name="to">
-          <activiti:expression>${pv_reminderto}</activiti:expression>
-        </activiti:field>
-        <activiti:field name="subject">
-          <activiti:expression>${pv_remindersubject}</activiti:expression>
-        </activiti:field>
-        <activiti:field name="text">
-          <activiti:expression>hello ${pv_user}
-
-	${pv_remindercontent}
-
-Regards</activiti:expression>
-        </activiti:field>
-        <activiti:field name="from">
-          <activiti:expression>${pv_reminderfrom}</activiti:expression>
-        </activiti:field>
-        <activiti:field name="charset">
-          <activiti:string>utf-8</activiti:string>
-        </activiti:field>
-      </extensionElements>
-    </serviceTask>
     <sequenceFlow id="flow14" sourceRef="exclusivegateway5" targetRef="mailtask2">
       <conditionExpression xsi:type="tFormalExpression"><![CDATA[${pv_mailflag=='set'}]]></conditionExpression>
     </sequenceFlow>
@@ -95,16 +72,59 @@ Regards</activiti:expression>
     </boundaryEvent>
     <exclusiveGateway id="exclusivegateway7" name="Exclusive Gateway"></exclusiveGateway>
     <sequenceFlow id="flow32" sourceRef="boundarytimer3" targetRef="exclusivegateway7"></sequenceFlow>
-    <sequenceFlow id="flow33" sourceRef="exclusivegateway7" targetRef="mailtask3">
-      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${pv_reminderflag=='set'}]]></conditionExpression>
-    </sequenceFlow>
-    <scriptTask id="scripttask1" name="Script Task" scriptFormat="groovy" activiti:autoStoreVariables="true">
+    <scriptTask id="scripttask1" name="Script Task" scriptFormat="groovy">
       <script>out:println "reminder not set...";</script>
     </scriptTask>
     <sequenceFlow id="flow34" sourceRef="exclusivegateway7" targetRef="scripttask1">
       <conditionExpression xsi:type="tFormalExpression"><![CDATA[${pv_reminderflag!='set'}]]></conditionExpression>
     </sequenceFlow>
     <sequenceFlow id="flow35" sourceRef="boundarytimer4" targetRef="servicetask1"></sequenceFlow>
+    <scriptTask id="scripttask2" name="Script Task" scriptFormat="javascript">
+      <script>reminderDuration=pv_remaindermailduration.split(",")[i-1];
+i=i+1;
+
+</script>
+    </scriptTask>
+    <intermediateCatchEvent id="timerintermediatecatchevent1" name="TimerCatchEvent">
+      <timerEventDefinition>
+        <timeDuration>${reminderDuration}</timeDuration>
+      </timerEventDefinition>
+    </intermediateCatchEvent>
+    <serviceTask id="mailtask3" name="Reminder Mail Task" activiti:async="true" activiti:type="mail">
+      <extensionElements>
+        <activiti:field name="to">
+          <activiti:expression>${pv_reminderto}</activiti:expression>
+        </activiti:field>
+        <activiti:field name="subject">
+          <activiti:expression>${pv_remindersubject}</activiti:expression>
+        </activiti:field>
+        <activiti:field name="text">
+          <activiti:expression>hello ${pv_user}
+
+	${pv_remindercontent}
+
+Regards</activiti:expression>
+        </activiti:field>
+        <activiti:field name="from">
+          <activiti:expression>${pv_reminderfrom}</activiti:expression>
+        </activiti:field>
+        <activiti:field name="charset">
+          <activiti:string>utf-8</activiti:string>
+        </activiti:field>
+      </extensionElements>
+    </serviceTask>
+    <sequenceFlow id="flow36" sourceRef="mailtask3" targetRef="scripttask2">
+      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${i<=pv_numberOfReminderMailForFactualPosition}]]></conditionExpression>
+    </sequenceFlow>
+    <sequenceFlow id="flow37" sourceRef="timerintermediatecatchevent1" targetRef="mailtask3"></sequenceFlow>
+    <scriptTask id="scripttask3" name="Script Task" scriptFormat="javascript">
+      <script>i=1;</script>
+    </scriptTask>
+    <sequenceFlow id="flow38" sourceRef="scripttask3" targetRef="mailtask3"></sequenceFlow>
+    <sequenceFlow id="flow39" sourceRef="exclusivegateway7" targetRef="scripttask3">
+      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${pv_reminderflag=='set'}]]></conditionExpression>
+    </sequenceFlow>
+    <sequenceFlow id="flow40" sourceRef="scripttask2" targetRef="timerintermediatecatchevent1"></sequenceFlow>
   </process>
   <bpmndi:BPMNDiagram id="BPMNDiagram_RESOLUTION_APPROVAL_WORKFLOW">
     <bpmndi:BPMNPlane bpmnElement="RESOLUTION_APPROVAL_WORKFLOW" id="BPMNPlane_RESOLUTION_APPROVAL_WORKFLOW">
@@ -130,7 +150,7 @@ Regards</activiti:expression>
         <omgdc:Bounds height="30.0" width="30.0" x="300.0" y="313.0"></omgdc:Bounds>
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape bpmnElement="mailtask3" id="BPMNShape_mailtask3">
-        <omgdc:Bounds height="55.0" width="105.0" x="377.0" y="460.0"></omgdc:Bounds>
+        <omgdc:Bounds height="55.0" width="105.0" x="400.0" y="547.0"></omgdc:Bounds>
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape bpmnElement="exclusivegateway6" id="BPMNShape_exclusivegateway6">
         <omgdc:Bounds height="40.0" width="40.0" x="100.0" y="193.0"></omgdc:Bounds>
@@ -149,6 +169,15 @@ Regards</activiti:expression>
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape bpmnElement="exclusivegateway7" id="BPMNShape_exclusivegateway7">
         <omgdc:Bounds height="40.0" width="40.0" x="294.0" y="386.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="scripttask2" id="BPMNShape_scripttask2">
+        <omgdc:Bounds height="55.0" width="105.0" x="607.0" y="547.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="timerintermediatecatchevent1" id="BPMNShape_timerintermediatecatchevent1">
+        <omgdc:Bounds height="35.0" width="35.0" x="642.0" y="628.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="scripttask3" id="BPMNShape_scripttask3">
+        <omgdc:Bounds height="55.0" width="105.0" x="400.0" y="450.0"></omgdc:Bounds>
       </bpmndi:BPMNShape>
       <bpmndi:BPMNEdge bpmnElement="flow1" id="BPMNEdge_flow1">
         <omgdi:waypoint x="530.0" y="213.0"></omgdi:waypoint>
@@ -200,11 +229,6 @@ Regards</activiti:expression>
         <omgdi:waypoint x="315.0" y="343.0"></omgdi:waypoint>
         <omgdi:waypoint x="314.0" y="386.0"></omgdi:waypoint>
       </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge bpmnElement="flow33" id="BPMNEdge_flow33">
-        <omgdi:waypoint x="334.0" y="406.0"></omgdi:waypoint>
-        <omgdi:waypoint x="429.0" y="405.0"></omgdi:waypoint>
-        <omgdi:waypoint x="429.0" y="460.0"></omgdi:waypoint>
-      </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge bpmnElement="flow34" id="BPMNEdge_flow34">
         <omgdi:waypoint x="294.0" y="406.0"></omgdi:waypoint>
         <omgdi:waypoint x="192.0" y="405.0"></omgdi:waypoint>
@@ -213,6 +237,28 @@ Regards</activiti:expression>
       <bpmndi:BPMNEdge bpmnElement="flow35" id="BPMNEdge_flow35">
         <omgdi:waypoint x="381.0" y="305.0"></omgdi:waypoint>
         <omgdi:waypoint x="458.0" y="304.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow36" id="BPMNEdge_flow36">
+        <omgdi:waypoint x="505.0" y="574.0"></omgdi:waypoint>
+        <omgdi:waypoint x="607.0" y="574.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow37" id="BPMNEdge_flow37">
+        <omgdi:waypoint x="642.0" y="645.0"></omgdi:waypoint>
+        <omgdi:waypoint x="447.0" y="645.0"></omgdi:waypoint>
+        <omgdi:waypoint x="452.0" y="602.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow38" id="BPMNEdge_flow38">
+        <omgdi:waypoint x="452.0" y="505.0"></omgdi:waypoint>
+        <omgdi:waypoint x="452.0" y="547.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow39" id="BPMNEdge_flow39">
+        <omgdi:waypoint x="334.0" y="406.0"></omgdi:waypoint>
+        <omgdi:waypoint x="452.0" y="406.0"></omgdi:waypoint>
+        <omgdi:waypoint x="452.0" y="450.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow40" id="BPMNEdge_flow40">
+        <omgdi:waypoint x="659.0" y="602.0"></omgdi:waypoint>
+        <omgdi:waypoint x="659.0" y="628.0"></omgdi:waypoint>
       </bpmndi:BPMNEdge>
     </bpmndi:BPMNPlane>
   </bpmndi:BPMNDiagram>
