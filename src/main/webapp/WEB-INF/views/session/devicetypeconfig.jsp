@@ -1016,6 +1016,11 @@
 				</p>
 				
 				<p>
+					<label class="small"><spring:message code="session.deviceType.numberOfReminderMailForFactualPosition" text="Number of Reminder mails" /></label>
+					<input type="text" class="sInteger" name="resolutions_nonofficial_numberOfReminderMailForFactualPosition" id="resolutions_nonofficial_numberOfReminderMailForFactualPosition" value="${resolutions_nonofficial_numberofremindermailforfactualposition}" />
+				</p>
+				
+				<p>
 					<label class="small"><spring:message code="session.deviceType.numberOfDaysForFactualPositionReceiving" text="Reply Day Numbers For Factual Position" /></label>
 					<input type="text" class="sInteger" name="resolutions_nonofficial_numberOfDaysForFactualPositionReceiving" id="resolutions_nonofficial_numberOfDaysForFactualPositionReceiving" value="${resolutions_nonofficial_numberofdaysforfactualpositionreceiving}" />
 				</p>	
