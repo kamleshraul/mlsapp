@@ -283,10 +283,17 @@
 																||
 						$('#internalStatusType').val()=="resolution_final_clarificationNeededFromMember"
 				  ) {
+					var timerDifference=0;
+					$(".remaindermailDifference").each(function(){
+						var value=$(this).val();
+						timerDifference=timerDifference+parseInt(value,10);
+					});
 					var timerduration = "PT" + $('#numberOfDaysForFactualPositionReceiving').val() + "M";
 					$('#timerduration').val(timerduration);
 					
 					var totalTimerDuration = parseInt($('#numberOfDaysForFactualPositionReceiving').val(), 10) 
+											 +
+											 timerDifference
 											 +
 											 parseInt($('#lasttimerduration').val(), 10);
 					
@@ -762,6 +769,13 @@
 				</p>
 			</c:otherwise>
 		</c:choose>
+		
+		<c:forEach begin="1" end="${numberOfReminderMailForFactualPosition}" var="i">
+			<p>
+				<label class="small"><spring:message code="resolution.remaindermailDifference" text="Difference Between reminder"></spring:message>&nbsp;${i}</label>
+				<input type="text" class="sText Integer remaindermailDifference" id="remainderMailDifference${i}" name="remainderMailDifference${i}"/>
+			</p>
+		</c:forEach>
 		<c:if test="${!(empty domain.factualPosition) }">
 		<p>
 		<label class="wysiwyglabel"><spring:message code="resolution.factualPosition" text="Factual Position"/></label>
@@ -926,6 +940,7 @@
 	<input id="bulkedit" name="bulkedit" value="${bulkedit}" type="hidden">
 	<input type="hidden" name="createdBy" id="createdBy" value="${createdBy }">
 	<input type="hidden" name="setCreationDate" id="setCreationDate" value="${creationDate }">
+	<input type="hidden" name="numberOfReminderMailForFactualPosition" id="numberOfReminderMailForFactualPosition" value="${numberOfReminderMailForFactualPosition }">
 		
 	<!-- --------------------------PROCESS VARIABLES -------------------------------- -->
 	
