@@ -2756,8 +2756,15 @@ public class BallotController extends BaseController{
 						Resolution resolution = Resolution.findById(Resolution.class, new Long(resId));
 						Status statusBalloted = Status.findByFieldName(Status.class, "type", ApplicationConstants.RESOLUTION_PROCESSED_BALLOTED, locale.toString());
 						Status statusToBeDiscussed = Status.findByFieldName(Status.class, "type", ApplicationConstants.RESOLUTION_PROCESSED_TOBEDISCUSSED, locale.toString());
-		
+						Status internalStatus=Status.findByType(ApplicationConstants.RESOLUTION_PROCESSED_UNDERCONSIDERATION, locale.toString());
 						resolution.setBallotStatus(statusBalloted);
+						if(resolution.getHouseType().getType().equals(ApplicationConstants.LOWER_HOUSE)){
+							resolution.setRecommendationStatusLowerHouse(statusToBeDiscussed);
+							resolution.setInternalStatusLowerHouse(internalStatus);
+						}else if(resolution.getHouseType().getType().equals(ApplicationConstants.UPPER_HOUSE)){
+							resolution.setRecommendationStatusUpperHouse(statusToBeDiscussed);
+							resolution.setInternalStatusUpperHouse(internalStatus);
+						}
 						resolution.setDiscussionStatus(statusToBeDiscussed);
 						resolution.setDiscussionDate(answeringDate);
 						resolution.simpleMerge();
