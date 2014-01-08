@@ -561,8 +561,14 @@ public class ResolutionWorkflowController extends BaseController{
 					}
 				}
 			}				
-			model.addAttribute("questionsToBeAskedInFactualPosition", questionsToBeAskedInFactualPosition);			
+			model.addAttribute("questionsToBeAskedInFactualPosition", questionsToBeAskedInFactualPosition);	
+			
+			String noOfRemainderSessionParameter=selectedSession.getParameter("resolutions_nonofficial_numberOfReminderMailForFactualPosition");
+			if(noOfRemainderSessionParameter!=null && !noOfRemainderSessionParameter.isEmpty()){
+				model.addAttribute("numberOfReminderMailForFactualPosition",Integer.parseInt(noOfRemainderSessionParameter)-1);
+			}
 		}
+		
 		
 		/**** populating the questions asked in factual position to show to department. ****/
 		if((userGroupType.equals(ApplicationConstants.DEPARTMENT)) && (internalStatus.getType().equals(ApplicationConstants.RESOLUTION_FINAL_CLARIFICATIONNEEDEDFROMDEPARTMENT) ||
@@ -1064,6 +1070,22 @@ public class ResolutionWorkflowController extends BaseController{
 								}
 							}						
 							properties.put("pv_remindercontent", remindercontent);						
+						}
+						
+						String noOfReminderMail=request.getParameter("numberOfReminderMailForFactualPosition");
+						String timeDuration="";
+						if(noOfReminderMail!=null && !noOfReminderMail.isEmpty()){
+							int numberOfReminderMail=Integer.parseInt(noOfReminderMail);
+							properties.put("pv_numberOfReminderMailForFactualPosition",noOfReminderMail);
+							for(int i=1;i<=numberOfReminderMail;i++){
+								String timeDurationForReminderMail=request.getParameter("remainderMailDifference"+i);
+								timeDuration=timeDuration+"PT"+timeDurationForReminderMail+"M";
+								if(i+1<=numberOfReminderMail){
+									timeDuration=timeDuration+",";
+								}
+								
+							}
+							properties.put("pv_remaindermailduration",timeDuration);
 						}
 					}
 					
