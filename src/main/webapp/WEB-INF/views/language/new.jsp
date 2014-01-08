@@ -30,10 +30,19 @@
 			</h2>
 			<form:errors path="version" cssClass="validationError" />
 			<p>
-				<label class="small"><spring:message
-						code="language.name" text="Languages" />&nbsp;*</label>
+				<label class="small"><spring:message code="language.name" text="Name" />&nbsp;*</label>
 				<form:input cssClass="sText " path="name" />
 				<form:errors path="name" cssClass="validationError" />
+			</p>
+			<p>
+				<label class="small"><spring:message code="language.type" text="Type" />&nbsp;*</label>
+				<form:input cssClass="sText " path="type" />
+				<form:errors path="type" cssClass="validationError" />
+			</p>
+			<p>
+				<label class="small"><spring:message code="language.priority" text="Priority" />&nbsp;*</label>
+				<form:input cssClass="sText Integer" path="priority" />
+				<form:errors path="priority" cssClass="validationError" />
 			</p>
 			<div class="fields expand">
 				<h2></h2>
