@@ -61,12 +61,18 @@
 </c:when>
 
 <c:otherwise>
+<c:if test="${firstDayData!=null and (fn:length(firstDayData) > 0) and firstDayData=='yes'}">
+	<div style="border-radius: 5px; text-align: right; color: #911103;">
+		<b>***</b>
+	</div>
+</c:if>
 <div id="reportDiv" >
 	<div style="text-align: center; max-width: 800px; width: 800px; margin-left: 25px;">
 		<h2 style="text-decoration: underline; font-family: 'Times New Roman';"><spring:message code="editing.vishaysuchi" text="Vishaysuchi" /></h2>
 	</div>
-	
+		<c:set var="prevCatchwordIndex" value="0"></c:set>
 		<c:forEach items="${report}" var="r">
+			<%-- <h1>start: ${prevCatchwordIndex}</h1> --%>
 			<c:choose>
 				<c:when test="${r.type=='member'}">
 					<c:if test="${r.vishaysuchiDevices!=null and not(empty r.vishaysuchiDevices)}">
@@ -77,10 +83,13 @@
 									<tr>
 										<td style="text-align: center;">
 											<br />
-											<b>"${r.catchWordIndex}"</b>
-											<span style="float: right;">
-												<spring:message code="editing.vishaysuchi.poageno" text="Page No."></spring:message>
-											</span>
+											<c:if test="${prevCatchwordIndex != r.catchWordIndex}">
+												<b>"${r.catchWordIndex}"</b>
+												<span style="float: right;">
+													<spring:message code="editing.vishaysuchi.poageno" text="Page No."></spring:message>
+												</span>
+												<c:set var="prevCatchwordIndex" value="${r.catchWordIndex}" />
+											</c:if>
 										</td>
 									</tr>
 								</thead>
@@ -143,10 +152,13 @@
 									<tr>
 										<td style="text-align: center;">
 											<br />
-											<b>"${r.catchWordIndex}"</b>
-											<span style="float: right;">
-												<spring:message code="editing.vishaysuchi.poageno" text="Page No."></spring:message>
-											</span>
+											<c:if test="${prevCatchwordIndex != r.catchWordIndex}">
+												<b>"${r.catchWordIndex}"</b>
+												<span style="float: right;">
+													<spring:message code="editing.vishaysuchi.poageno" text="Page No."></spring:message>
+												</span>
+												<c:set var="prevCatchwordIndex" value="${r.catchWordIndex}" />
+											</c:if>
 										</td>
 									</tr>
 								</thead>
@@ -157,16 +169,15 @@
 									<b>${r.value}</b>-----<br />							
 									<c:forEach items="${r.headings}" var="h">
 										<span style="margin-left: 14px;">${h.heading}</span><br />
-									</c:forEach>
-																	
+									</c:forEach>							
 								</td>
 							</tr>
 						</table>
 					</c:if>
 				</c:when>
-			</c:choose>			
+			</c:choose>
+			<%-- <h1>end: ${prevCatchwordIndex}</h1> --%>	
 		</c:forEach>
-	</table>
 </div>
 </c:otherwise>
 </c:choose>
