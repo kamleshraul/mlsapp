@@ -778,7 +778,7 @@
 						<table id="containerTable">
 							<tr>
 								<td>
-									${fn:length(r[2])}, ${fn:length(r[3])}
+									<%-- ${fn:length(r[2])}, ${fn:length(r[3])} --%>
 									<div style="text-align: center; font-size: 16px;">
 										<c:if test="${(ph!=r[2] && mh!=r[3]) or (ph!=r[2])}">
 											<c:choose>
