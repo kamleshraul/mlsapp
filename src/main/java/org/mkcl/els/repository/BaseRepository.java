@@ -324,7 +324,7 @@ public class BaseRepository<T, ID extends Serializable> extends
         
         final List<U> records = this._search(persistenceClass, search);
         return records;*/
-    	StringBuffer strQuery = new StringBuffer("SELECT t FROM " + persistenceClass.getSimpleName() + " t");
+    	StringBuffer strQuery = new StringBuffer("SELECT DISTINCT t FROM " + persistenceClass.getSimpleName() + " t");
     	if (locale == null) {
     		strQuery.append(" WHERE locale=:locale");
         }else if (locale.isEmpty()) {

@@ -226,8 +226,8 @@ public class PartRepository extends BaseRepository<Part, Serializable> {
 						" (SELECT dt.name FROM devicetypes dt WHERE dt.id=pr.device_type) AS devicename," +
 						" (SELECT dt.type FROM devicetypes dt WHERE dt.id=pr.device_type) AS devicetype," +
 						" '0' AS devicecatchword," +
-						" pr.page_heading AS originalpageheading," +
-						" REPLACE(pr.page_heading,'" + catchWord + "','_____') AS replacedpageheading," +
+						" pr.main_heading AS originalmainheading," +
+						" REPLACE(pr.main_heading,'" + catchWord + "','_____') AS replacedmainheading," +
 						" pr.id AS partid" +
 						" FROM parts pr" +
 						" INNER JOIN proceedings proc ON(proc.id=pr.proceeding)" +
@@ -241,7 +241,7 @@ public class PartRepository extends BaseRepository<Part, Serializable> {
 		}
 		query.append(") AND pr.primary_member IS NULL" +
 						" AND pr.locale='" + locale + "'" +
-						" AND POSITION('" + catchWord + "' IN pr.page_heading) > 0");
+						" AND POSITION('" + catchWord + "' IN pr.main_heading) > 0");
 		
 		Query pQuery = this.em().createNativeQuery(query.toString());
 		List data = pQuery.getResultList();
@@ -264,8 +264,8 @@ public class PartRepository extends BaseRepository<Part, Serializable> {
 						" (SELECT dt.name FROM devicetypes dt WHERE dt.id=pr.device_type) AS devicename," +
 						" (SELECT dt.type FROM devicetypes dt WHERE dt.id=pr.device_type) AS devicetype," +
 						" '0' AS devicecatchword," +
-						" pr.page_heading AS originalpageheading," +
-						" REPLACE(pr.page_heading,'" + catchWord + "','_____') AS replacedpageheading," +
+						" pr.main_heading AS originalmainheading," +
+						" REPLACE(pr.main_heading,'" + catchWord + "','_____') AS replacedmainheading," +
 						" pr.id AS partid" +
 						" FROM parts pr" +
 						" INNER JOIN proceedings proc ON(proc.id=pr.proceeding)" +
@@ -297,7 +297,7 @@ public class PartRepository extends BaseRepository<Part, Serializable> {
 						" INNER JOIN proceedings proc ON(proc.id=pr.proceeding)" +
 						" INNER JOIN slots sl ON(sl.id=proc.slot)" +
 						" WHERE sl.roster=" + rosterId +
-						" AND POSITION('" + catchWord + "' IN " + "pr.page_heading) > 0" +
+						" AND POSITION('" + catchWord + "' IN " + "pr.main_heading) > 0" +
 						" AND pr.locale='" + locale +"'";
 		Query pQuery = this.em().createNativeQuery(query);
 								
