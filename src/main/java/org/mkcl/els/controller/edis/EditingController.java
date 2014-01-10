@@ -144,14 +144,16 @@ public class EditingController extends GenericController<Roster>{
 			}
 			
 			List<MasterVO> days = new ArrayList<MasterVO>();
-			List<Roster> rosters = Roster.findAll(Roster.class, "day", ApplicationConstants.ASC, locale);
-			for(Roster r : rosters){
+			Map<String, String[]> parameters = new HashMap<String, String[]>();
+			parameters.put("locale", new String[]{locale});
+			List rosterDays = Query.findReport("EDIS_DISTINCT_ROSTER_DAYS", parameters);
+			for(Object o : rosterDays){
 				MasterVO mV = new MasterVO();
-				mV.setId(r.getId());
-				mV.setNumber(r.getDay());
-				mV.setValue(FormaterUtil.formatNumberNoGrouping(r.getDay(), locale));
-				
+				Integer number = Integer.valueOf(o.toString()); 
+				mV.setNumber(number);
+				mV.setValue(FormaterUtil.formatNumberNoGrouping(number, locale));
 				days.add(mV);
+				number = null;
 			}
 			
 			/****Days****/
@@ -480,7 +482,7 @@ public class EditingController extends GenericController<Roster>{
 	public String getVishaysuchi(HttpServletRequest request, ModelMap model, Locale locale){
 		String retVal = "editing/error";
 		try{
-			model.addAttribute("report", prepareVishaysuchi(request, locale));
+			model.addAttribute("report", prepareVishaysuchi(request, model, locale));
 			
 			retVal = "editing/vishaysuchi";
 			
@@ -494,8 +496,9 @@ public class EditingController extends GenericController<Roster>{
 	
 	@RequestMapping(value="/vishaysuchireport",method=RequestMethod.GET)
 	public void getVishaysuchiReport(HttpServletRequest request, HttpServletResponse response, Locale locale){
+		ModelMap model = new ModelMap();
 		try{
-			List<VishaysuchiVO> vishaysuchiVOs = prepareVishaysuchi(request, locale);
+			List<VishaysuchiVO> vishaysuchiVOs = prepareVishaysuchi(request, model, locale);
 			String strReportFormat = request.getParameter("outputFormat");
 			VishaysuchiXMLVO report = new VishaysuchiXMLVO();
 			report.setVishaysuchi(vishaysuchiVOs);
@@ -511,7 +514,8 @@ public class EditingController extends GenericController<Roster>{
 	
 	@Transactional
 	@SuppressWarnings("rawtypes")
-	private List<VishaysuchiVO> prepareVishaysuchi(HttpServletRequest request, Locale locale) throws NumberFormatException, ELSException{
+	private List<VishaysuchiVO> prepareVishaysuchi(HttpServletRequest request, ModelMap model,
+			Locale locale) throws NumberFormatException, ELSException{
 		
 		List<VishaysuchiVO> copyVishaysuchi = null;
 		
@@ -546,6 +550,7 @@ public class EditingController extends GenericController<Roster>{
 			SessionType sessionType=SessionType.findById(SessionType.class, Long.parseLong(strSessionType));
 			Language language=Language.findById(Language.class, Long.parseLong(strLanguage));
 			Session session=Session.findSessionByHouseTypeSessionTypeYear(houseType, sessionType, Integer.parseInt(strSessionYear));
+			Roster firstRoster = Roster.findRosterBySessionLanguageAndDay(session, 1, language, locale.toString());
 			Roster roster = null;
 			Date fromDayDate = null;
 			Date toDayDate = null;
@@ -555,7 +560,12 @@ public class EditingController extends GenericController<Roster>{
 				int fromDay = Integer.parseInt(strFromDay);
 				int toDay = Integer.parseInt(strToDay);
 				
-				Date date = session.getStartDate();
+				Date date = null;
+				if(firstRoster != null){
+					date = firstRoster.getStartTime();
+				}else{
+					date = session.getStartDate();
+				}
 				Calendar calendarFrom = Calendar.getInstance();
 				Calendar calendarTo = Calendar.getInstance();
 				
@@ -592,10 +602,20 @@ public class EditingController extends GenericController<Roster>{
 			params.put("locale", new String[]{locale.toString()});
 			List catchWords = Query.findReport("EDIS_DISTINCT_CATCHWORDS", params);
 			List members =  null;
+			
 			if(rosterIds == null){
+				
+				model.addAttribute("firstDayData", "yes");
+				
 				roster = Roster.findRosterBySessionLanguageAndDay(session,Integer.parseInt(strDay),language,locale.toString());
+				
 				Calendar fromToDate = Calendar.getInstance();
-				fromToDate.setTime(session.getStartDate());
+				if(firstRoster != null){
+					fromToDate.setTime(firstRoster.getStartTime());
+				}else{
+					fromToDate.setTime(session.getStartDate());
+				}
+				
 				fromToDate.add(Calendar.DAY_OF_MONTH, Integer.parseInt(strDay) - 1);
 				params.put("sessionID", new String[]{session.getId().toString()});
 				params.put("fromDate", new String[]{FormaterUtil.formatDateToString(fromToDate.getTime(), ApplicationConstants.DB_DATEFORMAT)});				
@@ -695,7 +715,11 @@ public class EditingController extends GenericController<Roster>{
 							if(rosterIds == null){
 								//params.put("rosterId", new String[]{roster.getId().toString()});
 								Calendar fromToDate = Calendar.getInstance();
-								fromToDate.setTime(session.getStartDate());
+								if(firstRoster != null){
+									fromToDate.setTime(firstRoster.getStartTime());
+								}else{
+									fromToDate.setTime(session.getStartDate());
+								}
 								fromToDate.add(Calendar.DAY_OF_MONTH, Integer.parseInt(strDay) - 1);
 								params.put("sessionID", new String[]{session.getId().toString()});
 								params.put("fromDate", new String[]{FormaterUtil.formatDateToString(fromToDate.getTime(), ApplicationConstants.DB_DATEFORMAT)});				
@@ -739,16 +763,45 @@ public class EditingController extends GenericController<Roster>{
 							}
 						}
 						 
-						if((vo.getHeadings() != null && !vo.getHeadings().isEmpty())
-								|| (vo.getVishaysuchiDevices() != null && !vo.getVishaysuchiDevices().isEmpty())){
+						/*if((vo.getHeadings() != null && !vo.getHeadings().isEmpty())
+								|| (vo.getVishaysuchiDevices() != null && !vo.getVishaysuchiDevices().isEmpty())){*/
 							copyVishaysuchi.get(i).setCatchWordIndex(FormaterUtil.findIndexLetterByWord(vo.getValue(), locale.toString()));
-						}
+						//}
 						i++;
 					}
 				}
 			}
 		}
-		return copyVishaysuchi;
+		
+		/*if(copyVishaysuchi != null && !copyVishaysuchi.isEmpty()){
+			
+			for(int i = 0; i < copyVishaysuchi.size(); ){
+				if(copyVishaysuchi.get(i).getHeadings() != null){
+					if(i > 0){
+						if(copyVishaysuchi.get(i - 1).getHeadings() == null || copyVishaysuchi.get(i).getVishaysuchiDevices() == null){
+							copyVishaysuchi.get(i - 1).setCatchWordIndex("-");
+						}
+					}
+				}
+				
+				if(copyVishaysuchi.get(i).getVishaysuchiDevices() != null){
+					if(i > 0){
+						if(copyVishaysuchi.get(i).getVishaysuchiDevices() == null){
+							copyVishaysuchi.get(i - 1).setCatchWordIndex("-");
+						}
+					}
+				}
+				
+				i++;
+			}
+		}*/
+		List<VishaysuchiVO> finalVishaysuchi = new ArrayList<VishaysuchiVO>();
+		for(VishaysuchiVO vo : copyVishaysuchi){
+			if(vo.getHeadings() != null || vo.getVishaysuchiDevices() != null){
+				finalVishaysuchi.add(vo);
+			}
+		}		
+		return finalVishaysuchi;
 	}
 	
 	@SuppressWarnings({ "rawtypes", "unused" })
