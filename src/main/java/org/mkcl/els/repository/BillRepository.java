@@ -1735,6 +1735,35 @@ public class BillRepository extends BaseRepository<Bill, Serializable>{
 	
 	public Bill findByNumberAndYear(final int billNumber, int billYear, final String locale) {
 		Bill bill = null;
+		String queryString="SELECT bill.id from bills bill LEFT JOIN devicetypes dt ON(bill.devicetype_id=dt.id)" +					
+				" WHERE bill.number=:billNumber" +
+				" AND " +
+				" CASE " +
+				" WHEN dt.type=:nb THEN year(bill.admission_date)=:billYear" +
+				" WHEN dt.type=:gb THEN year(bill.submission_date)=:billYear" +
+				" END " +
+				" AND bill.locale=:locale" +
+				" ORDER BY bill.number DESC";	
+		Query query = this.em().createNativeQuery(queryString);
+		query.setParameter("billNumber", billNumber);
+		query.setParameter("billYear", billYear);
+		query.setParameter("nb", ApplicationConstants.NONOFFICIAL_BILL);
+		query.setParameter("gb", ApplicationConstants.GOVERNMENT_BILL);
+		query.setParameter("locale", locale);
+		try {
+			Object billIdObj =  query.getSingleResult();
+			if(billIdObj!=null) {
+				bill =  Bill.findById(Bill.class, Long.parseLong(billIdObj.toString()));
+			}			
+		} catch(Exception e) {
+			return bill;
+		}
+		return bill;
+	}
+	
+	public Bill findByNumberYearAndHouseType(final int billNumber, final int billYear,final Long houseTypeId, final String locale) {
+		Bill bill = null;
+		/* commented jpql query below because currently year of date could not be found with standard jpql across jpa providers */
 //		String queryString="SELECT bill from Bill bill JOIN DeviceType dt" +					
 //				" WHERE bill.number=:billNumber" +
 //				" AND " +
@@ -1758,6 +1787,7 @@ public class BillRepository extends BaseRepository<Bill, Serializable>{
 //		}
 		String queryString="SELECT bill.id from bills bill LEFT JOIN devicetypes dt ON(bill.devicetype_id=dt.id)" +					
 				" WHERE bill.number=:billNumber" +
+				" AND bill.housetype_id=:houseTypeId"+
 				" AND " +
 				" CASE " +
 				" WHEN dt.type=:nb THEN year(bill.admission_date)=:billYear" +
@@ -1768,6 +1798,7 @@ public class BillRepository extends BaseRepository<Bill, Serializable>{
 		Query query = this.em().createNativeQuery(queryString);
 		query.setParameter("billNumber", billNumber);
 		query.setParameter("billYear", billYear);
+		query.setParameter("houseTypeId",houseTypeId);
 		query.setParameter("nb", ApplicationConstants.NONOFFICIAL_BILL);
 		query.setParameter("gb", ApplicationConstants.GOVERNMENT_BILL);
 		query.setParameter("locale", locale);

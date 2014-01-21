@@ -2402,6 +2402,10 @@ public class Bill extends Device implements Serializable {
 		return getBillRepository().findByNumberAndYear(billNumber, billYear, locale);
 	}
 	
+	public static Bill findByNumberYearAndHouseType(final int billNumber, final int billYear, final Long houseTypeId, final String locale) {
+		return getBillRepository().findByNumberYearAndHouseType(billNumber, billYear, houseTypeId, locale);
+	}
+	
 	public static List<Object[]> findStatusDatesForBill(final Bill bill) {
 		return getBillRepository().findStatusDatesForBill(bill);
 	}
