@@ -12,6 +12,8 @@ package org.mkcl.els.controller;
 
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
+import java.text.DecimalFormat;
+import java.text.NumberFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -3831,23 +3833,33 @@ public class ReferenceController extends BaseController {
 			List<MasterVO> printRequisitionStatusVOs = new ArrayList<MasterVO>();
 			String billNumberStr = request.getParameter("billNumber");
 			String billYearStr = request.getParameter("billYear");
+			String houseTypeId = request.getParameter("houseTypeId");
 			String currentHouseTypeType = request.getParameter("currentHouseTypeType");
-			if(billNumberStr!=null&&billYearStr!=null&&currentHouseTypeType!=null) {
-				if(!billNumberStr.isEmpty()&&!billYearStr.isEmpty()&&!currentHouseTypeType.isEmpty()) {
+			if(billNumberStr!=null&&billYearStr!=null&&houseTypeId!=null&&currentHouseTypeType!=null) {
+				if(!billNumberStr.isEmpty()&&!billYearStr.isEmpty()&&!houseTypeId.isEmpty()&&!currentHouseTypeType.isEmpty()) {
 					CustomParameter server=CustomParameter.findByName(CustomParameter.class, "DEPLOYMENT_SERVER", "");
 					if(server != null) {
 						if(server.getValue().equals("TOMCAT")) {
 							try {
-								billNumberStr = new String(billNumberStr.getBytes("ISO-8859-1"),"UTF-8");														
+								billNumberStr = new String(billNumberStr.getBytes("ISO-8859-1"),"UTF-8");
+								billYearStr = new String(billYearStr.getBytes("ISO-8859-1"),"UTF-8");
+								NumberFormat nf = NumberFormat.getInstance(locale);
+						        DecimalFormat df = (DecimalFormat) nf;	
+						        billNumberStr = df.parse(billNumberStr).toString();
+						        billYearStr = df.parse(billYearStr).toString();
 							}catch (UnsupportedEncodingException e) {
-								logger.error("Cannot Encode the Parameter 'billNumber'.");
+								logger.error("Cannot encode one of the request parameters.");
+								printRequisitionStatusVOs = null;
+								return printRequisitionStatusVOs;
+							}catch (ParseException e) {
+								logger.error("Cannot parse one of the request parameters.");
 								printRequisitionStatusVOs = null;
 								return printRequisitionStatusVOs;
 							}
 						}
 					}
 					try {
-						Bill bill = Bill.findByNumberAndYear(Integer.parseInt(billNumberStr), Integer.parseInt(billYearStr), locale.toString());
+						Bill bill = Bill.findByNumberYearAndHouseType(Integer.parseInt(billNumberStr), Integer.parseInt(billYearStr), Long.parseLong(houseTypeId), locale.toString());
 						if(bill==null) {
 							logger.error("Check Request Parameter 'billNumber' and 'billYear' for invalid values");
 							printRequisitionStatusVOs = null;
@@ -3921,23 +3933,33 @@ public class ReferenceController extends BaseController {
 			List<MasterVO> sendGreenCopyForEndorsementStatusVOs = new ArrayList<MasterVO>();
 			String billNumberStr = request.getParameter("billNumber");
 			String billYearStr = request.getParameter("billYear");
+			String houseTypeId = request.getParameter("houseTypeId");
 			String currentHouseTypeType = request.getParameter("currentHouseTypeType");
-			if(billNumberStr!=null&&billYearStr!=null&&currentHouseTypeType!=null) {
-				if(!billNumberStr.isEmpty()&&!billYearStr.isEmpty()&&!currentHouseTypeType.isEmpty()) {
+			if(billNumberStr!=null&&billYearStr!=null&&houseTypeId!=null&&currentHouseTypeType!=null) {
+				if(!billNumberStr.isEmpty()&&!billYearStr.isEmpty()&&!houseTypeId.isEmpty()&&!currentHouseTypeType.isEmpty()) {
 					CustomParameter server=CustomParameter.findByName(CustomParameter.class, "DEPLOYMENT_SERVER", "");
 					if(server != null) {
 						if(server.getValue().equals("TOMCAT")) {
 							try {
-								billNumberStr = new String(billNumberStr.getBytes("ISO-8859-1"),"UTF-8");														
+								billNumberStr = new String(billNumberStr.getBytes("ISO-8859-1"),"UTF-8");		
+								billYearStr = new String(billYearStr.getBytes("ISO-8859-1"),"UTF-8");
+								NumberFormat nf = NumberFormat.getInstance(locale);
+						        DecimalFormat df = (DecimalFormat) nf;	
+						        billNumberStr = df.parse(billNumberStr).toString();
+						        billYearStr = df.parse(billYearStr).toString();
 							}catch (UnsupportedEncodingException e) {
-								logger.error("Cannot Encode the Parameter 'billNumber'.");
+								logger.error("Cannot encode one of the request parameters.");
+								sendGreenCopyForEndorsementStatusVOs = null;
+								return sendGreenCopyForEndorsementStatusVOs;
+							}catch (ParseException e) {
+								logger.error("Cannot parse one of the request parameters.");
 								sendGreenCopyForEndorsementStatusVOs = null;
 								return sendGreenCopyForEndorsementStatusVOs;
 							}
 						}
 					}
 					try {
-						Bill bill = Bill.findByNumberAndYear(Integer.parseInt(billNumberStr), Integer.parseInt(billYearStr), locale.toString());
+						Bill bill = Bill.findByNumberYearAndHouseType(Integer.parseInt(billNumberStr), Integer.parseInt(billYearStr), Long.parseLong(houseTypeId), locale.toString());
 						if(bill==null) {
 							logger.error("Check Request Parameter 'billNumber' and 'billYear' for invalid values");
 							sendGreenCopyForEndorsementStatusVOs = null;
@@ -4011,23 +4033,33 @@ public class ReferenceController extends BaseController {
 			List<MasterVO> transmitEndorsementCopiesStatusVOs = new ArrayList<MasterVO>();
 			String billNumberStr = request.getParameter("billNumber");
 			String billYearStr = request.getParameter("billYear");
+			String houseTypeId = request.getParameter("houseTypeId");
 			String currentHouseTypeType = request.getParameter("currentHouseTypeType");
-			if(billNumberStr!=null&&billYearStr!=null&&currentHouseTypeType!=null) {
-				if(!billNumberStr.isEmpty()&&!billYearStr.isEmpty()&&!currentHouseTypeType.isEmpty()) {
+			if(billNumberStr!=null&&billYearStr!=null&&houseTypeId!=null&&currentHouseTypeType!=null) {
+				if(!billNumberStr.isEmpty()&&!billYearStr.isEmpty()&&!houseTypeId.isEmpty()&&!currentHouseTypeType.isEmpty()) {
 					CustomParameter server=CustomParameter.findByName(CustomParameter.class, "DEPLOYMENT_SERVER", "");
 					if(server != null) {
 						if(server.getValue().equals("TOMCAT")) {
 							try {
 								billNumberStr = new String(billNumberStr.getBytes("ISO-8859-1"),"UTF-8");														
+								billYearStr = new String(billYearStr.getBytes("ISO-8859-1"),"UTF-8");
+								NumberFormat nf = NumberFormat.getInstance(locale);
+						        DecimalFormat df = (DecimalFormat) nf;	
+						        billNumberStr = df.parse(billNumberStr).toString();
+						        billYearStr = df.parse(billYearStr).toString();
 							}catch (UnsupportedEncodingException e) {
-								logger.error("Cannot Encode the Parameter 'billNumber'.");
+								logger.error("Cannot encode one of the request parameters.");
+								transmitEndorsementCopiesStatusVOs = null;
+								return transmitEndorsementCopiesStatusVOs;
+							}catch (ParseException e) {
+								logger.error("Cannot parse one of the request parameters.");
 								transmitEndorsementCopiesStatusVOs = null;
 								return transmitEndorsementCopiesStatusVOs;
 							}
 						}
 					}
 					try {
-						Bill bill = Bill.findByNumberAndYear(Integer.parseInt(billNumberStr), Integer.parseInt(billYearStr), locale.toString());
+						Bill bill = Bill.findByNumberYearAndHouseType(Integer.parseInt(billNumberStr), Integer.parseInt(billYearStr), Long.parseLong(houseTypeId), locale.toString());
 						if(bill==null) {
 							logger.error("Check Request Parameter 'billNumber' and 'billYear' for invalid values");
 							transmitEndorsementCopiesStatusVOs = null;
@@ -4101,23 +4133,33 @@ public class ReferenceController extends BaseController {
 			Long validBillId = null;
 			String billNumberStr = request.getParameter("billNumber");
 			String billYearStr = request.getParameter("billYear");
+			String houseTypeId = request.getParameter("houseTypeId");
 			String currentHouseTypeType = request.getParameter("currentHouseTypeType");
-			if(billNumberStr!=null&&billYearStr!=null&&currentHouseTypeType!=null) {
-				if(!billNumberStr.isEmpty()&&!billYearStr.isEmpty()&&!currentHouseTypeType.isEmpty()) {
+			if(billNumberStr!=null&&billYearStr!=null&&houseTypeId!=null&&currentHouseTypeType!=null) {
+				if(!billNumberStr.isEmpty()&&!billYearStr.isEmpty()&&!houseTypeId.isEmpty()&&!currentHouseTypeType.isEmpty()) {
 					CustomParameter server=CustomParameter.findByName(CustomParameter.class, "DEPLOYMENT_SERVER", "");
 					if(server != null) {
 						if(server.getValue().equals("TOMCAT")) {
 							try {
-								billNumberStr = new String(billNumberStr.getBytes("ISO-8859-1"),"UTF-8");														
+								billNumberStr = new String(billNumberStr.getBytes("ISO-8859-1"),"UTF-8");
+								billYearStr = new String(billYearStr.getBytes("ISO-8859-1"),"UTF-8");
+								NumberFormat nf = NumberFormat.getInstance(locale);
+						        DecimalFormat df = (DecimalFormat) nf;	
+						        billNumberStr = df.parse(billNumberStr).toString();
+						        billYearStr = df.parse(billYearStr).toString();
 							}catch (UnsupportedEncodingException e) {
-								logger.error("Cannot Encode the Parameter 'billNumber'.");
+								logger.error("Cannot encode one of the request parameters.");
+								validBillId = null;
+								return validBillId;
+							}catch (ParseException e) {
+								logger.error("Cannot parse one of the request parameters.");
 								validBillId = null;
 								return validBillId;
 							}
 						}
 					}
 					try {
-						Bill bill = Bill.findByNumberAndYear(Integer.parseInt(billNumberStr), Integer.parseInt(billYearStr), locale.toString());
+						Bill bill = Bill.findByNumberYearAndHouseType(Integer.parseInt(billNumberStr), Integer.parseInt(billYearStr), Long.parseLong(houseTypeId), locale.toString());
 						if(bill==null) {
 							logger.error("Check Request Parameter 'billNumber' and 'billYear' for invalid values");
 							validBillId = null;
@@ -4159,23 +4201,37 @@ public class ReferenceController extends BaseController {
 			List<MasterVO> transmitPressCopiesStatusVOs = new ArrayList<MasterVO>();
 			String billNumberStr = request.getParameter("billNumber");
 			String billYearStr = request.getParameter("billYear");
+			String houseTypeId = request.getParameter("houseTypeId");
 			String currentHouseTypeType = request.getParameter("currentHouseTypeType");
-			if(billNumberStr!=null&&billYearStr!=null&&currentHouseTypeType!=null) {
-				if(!billNumberStr.isEmpty()&&!billYearStr.isEmpty()&&!currentHouseTypeType.isEmpty()) {
+			if(billNumberStr!=null&&billYearStr!=null&&houseTypeId!=null&&currentHouseTypeType!=null) {
+				if(!billNumberStr.isEmpty()&&!billYearStr.isEmpty()&&!houseTypeId.isEmpty()&&!currentHouseTypeType.isEmpty()) {
 					CustomParameter server=CustomParameter.findByName(CustomParameter.class, "DEPLOYMENT_SERVER", "");
 					if(server != null) {
 						if(server.getValue().equals("TOMCAT")) {
-							try {
-								billNumberStr = new String(billNumberStr.getBytes("ISO-8859-1"),"UTF-8");														
+							try {								
+								billNumberStr = new String(billNumberStr.getBytes("ISO-8859-1"),"UTF-8");
+								billYearStr = new String(billYearStr.getBytes("ISO-8859-1"),"UTF-8");
+								NumberFormat nf = NumberFormat.getInstance(locale);
+						        DecimalFormat df = (DecimalFormat) nf;	
+						        billNumberStr = df.parse(billNumberStr).toString();
+						        billYearStr = df.parse(billYearStr).toString();
 							}catch (UnsupportedEncodingException e) {
-								logger.error("Cannot Encode the Parameter 'billNumber'.");
+								logger.error("Cannot encode one of the request parameters.");
+								transmitPressCopiesStatusVOs = null;
+								return transmitPressCopiesStatusVOs;
+							}catch (ParseException e) {
+								logger.error("Cannot parse one of the request parameters.");
 								transmitPressCopiesStatusVOs = null;
 								return transmitPressCopiesStatusVOs;
 							}
 						}
 					}
 					try {
-						Bill bill = Bill.findByNumberAndYear(Integer.parseInt(billNumberStr), Integer.parseInt(billYearStr), locale.toString());
+						NumberFormat nf = NumberFormat.getInstance(locale);
+				        DecimalFormat df = (DecimalFormat) nf;	
+				        billNumberStr = df.parse(billNumberStr).toString();
+				        billYearStr = df.parse(billYearStr).toString();   
+				        Bill bill = Bill.findByNumberYearAndHouseType(Integer.parseInt(billNumberStr), Integer.parseInt(billYearStr), Long.parseLong(houseTypeId), locale.toString());
 						if(bill==null) {
 							logger.error("Check Request Parameter 'billNumber' and 'billYear' for invalid values");
 							transmitPressCopiesStatusVOs = null;
@@ -4230,7 +4286,10 @@ public class ReferenceController extends BaseController {
 						logger.error("Check Request Parameter 'billNumber', 'billYear' for Non-Numeric Values");
 						transmitPressCopiesStatusVOs = null;
 						return transmitPressCopiesStatusVOs;
-					}				
+					} catch(ParseException pe) {
+						transmitPressCopiesStatusVOs = null;
+						return transmitPressCopiesStatusVOs;
+					}
 				} else {
 					logger.error("Check Request Parameter 'billNumber', 'billYear' for empty Values");
 					transmitPressCopiesStatusVOs = null;
@@ -4249,23 +4308,33 @@ public class ReferenceController extends BaseController {
 			List<MasterVO> citationStatusVOs = new ArrayList<MasterVO>();
 			String billNumberStr = request.getParameter("billNumber");
 			String billYearStr = request.getParameter("billYear");
+			String houseTypeId = request.getParameter("houseTypeId");
 			String currentHouseTypeType = request.getParameter("currentHouseTypeType");
-			if(billNumberStr!=null&&billYearStr!=null&&currentHouseTypeType!=null) {
-				if(!billNumberStr.isEmpty()&&!billYearStr.isEmpty()&&!currentHouseTypeType.isEmpty()) {
+			if(billNumberStr!=null&&billYearStr!=null&&houseTypeId!=null&&currentHouseTypeType!=null) {
+				if(!billNumberStr.isEmpty()&&!billYearStr.isEmpty()&&!houseTypeId.isEmpty()&&!currentHouseTypeType.isEmpty()) {
 					CustomParameter server=CustomParameter.findByName(CustomParameter.class, "DEPLOYMENT_SERVER", "");
 					if(server != null) {
 						if(server.getValue().equals("TOMCAT")) {
 							try {
-								billNumberStr = new String(billNumberStr.getBytes("ISO-8859-1"),"UTF-8");														
+								billNumberStr = new String(billNumberStr.getBytes("ISO-8859-1"),"UTF-8");	
+								billYearStr = new String(billYearStr.getBytes("ISO-8859-1"),"UTF-8");
+								NumberFormat nf = NumberFormat.getInstance(locale);
+						        DecimalFormat df = (DecimalFormat) nf;	
+						        billNumberStr = df.parse(billNumberStr).toString();
+						        billYearStr = df.parse(billYearStr).toString();
 							}catch (UnsupportedEncodingException e) {
-								logger.error("Cannot Encode the Parameter 'billNumber'.");
+								logger.error("Cannot encode one of the request parameters.");
+								citationStatusVOs = null;
+								return citationStatusVOs;
+							} catch (ParseException e) {
+								logger.error("Cannot parse one of the request parameters.");
 								citationStatusVOs = null;
 								return citationStatusVOs;
 							}
 						}
 					}
 					try {
-						Bill bill = Bill.findByNumberAndYear(Integer.parseInt(billNumberStr), Integer.parseInt(billYearStr), locale.toString());
+						Bill bill = Bill.findByNumberYearAndHouseType(Integer.parseInt(billNumberStr), Integer.parseInt(billYearStr), Long.parseLong(houseTypeId), locale.toString());
 						if(bill==null) {
 							logger.error("Check Request Parameter 'billNumber' and 'billYear' for invalid values");
 							citationStatusVOs = null;
@@ -4335,26 +4404,35 @@ public class ReferenceController extends BaseController {
 			return citationStatusVOs;
 		}
 		
-		@RequestMapping(value="/findIdOfBillWithGivenNumberAndYear", method=RequestMethod.GET)
-		public @ResponseBody String findIdOfBillWithGivenNumberAndYear(final HttpServletRequest request, final Locale locale){
+		@RequestMapping(value="/findIdOfBillWithGivenNumberYearAndHouseType", method=RequestMethod.GET)
+		public @ResponseBody String findIdOfBillWithGivenNumberYearAndHouseType(final HttpServletRequest request, final Locale locale){
 			String billId = null;
 			String billNumberStr = request.getParameter("billNumber");
 			String billYearStr = request.getParameter("billYear");
-			if(billNumberStr!=null&&billYearStr!=null) {
-				if(!billNumberStr.isEmpty()&&!billYearStr.isEmpty()) {
+			String houseTypeId = request.getParameter("houseTypeId");
+			if(billNumberStr!=null&&billYearStr!=null&&houseTypeId!=null) {
+				if(!billNumberStr.isEmpty()&&!billYearStr.isEmpty()&&!houseTypeId.isEmpty()) {
 					CustomParameter server=CustomParameter.findByName(CustomParameter.class, "DEPLOYMENT_SERVER", "");
 					if(server != null) {
 						if(server.getValue().equals("TOMCAT")) {
 							try {
-								billNumberStr = new String(billNumberStr.getBytes("ISO-8859-1"),"UTF-8");														
+								billNumberStr = new String(billNumberStr.getBytes("ISO-8859-1"),"UTF-8");
+								billYearStr = new String(billYearStr.getBytes("ISO-8859-1"),"UTF-8");
+								NumberFormat nf = NumberFormat.getInstance(locale);
+						        DecimalFormat df = (DecimalFormat) nf;	
+						        billNumberStr = df.parse(billNumberStr).toString();
+						        billYearStr = df.parse(billYearStr).toString();
 							}catch (UnsupportedEncodingException e) {
-								logger.error("Cannot Encode the Parameter 'billNumber'.");							
+								logger.error("Cannot encode one of the request parameters.");
+								return billId;
+							}catch (ParseException e) {
+								logger.error("Cannot parse one of the request parameters.");
 								return billId;
 							}
 						}
 					}
 					try {
-						Bill bill = Bill.findByNumberAndYear(Integer.parseInt(billNumberStr), Integer.parseInt(billYearStr), locale.toString());
+						Bill bill = Bill.findByNumberYearAndHouseType(Integer.parseInt(billNumberStr), Integer.parseInt(billYearStr), Long.parseLong(houseTypeId), locale.toString());
 						if(bill!=null) {
 							billId = bill.getId().toString();
 						} else {

@@ -2398,10 +2398,6 @@ public class Bill extends Device implements Serializable {
 		return billYear;
 	}
 	
-	public static Bill findByNumberAndYear(final int billNumber, final int billYear, final String locale) {
-		return getBillRepository().findByNumberAndYear(billNumber, billYear, locale);
-	}
-	
 	public static Bill findByNumberYearAndHouseType(final int billNumber, final int billYear, final Long houseTypeId, final String locale) {
 		return getBillRepository().findByNumberYearAndHouseType(billNumber, billYear, houseTypeId, locale);
 	}
