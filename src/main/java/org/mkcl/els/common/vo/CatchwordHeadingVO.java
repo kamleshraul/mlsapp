@@ -1,13 +1,15 @@
 package org.mkcl.els.common.vo;
 
-import java.util.List;
-
 public class CatchwordHeadingVO {
 	
 	/**** Attributes ****/
 	private String catchWord;
 	
 	private String heading;
+	
+	private String deviceName;
+	
+	private String deviceType;
 	
 	
 	/**** Constructor ****/
@@ -33,5 +35,25 @@ public class CatchwordHeadingVO {
 
 	public void setHeading(String headings) {
 		this.heading = headings;
+	}
+
+
+	public String getDeviceName() {
+		return deviceName;
+	}
+
+
+	public void setDeviceName(String deviceName) {
+		this.deviceName = deviceName;
+	}
+
+
+	public String getDeviceType() {
+		return deviceType;
+	}
+
+
+	public void setDeviceType(String deviceType) {
+		this.deviceType = deviceType;
 	}
 }
