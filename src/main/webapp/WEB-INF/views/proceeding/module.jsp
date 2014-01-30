@@ -74,7 +74,8 @@
 			/**** session type changes then reload grid****/
 			$("#selectedSessionType").change(function(){
 				var value=$(this).val();
-				if(value!=""){			
+				if(value!=""){	
+					loadRosterDayFromSessions();
 					reloadProceedingGrid();							
 				}			
 			});	

@@ -31,6 +31,14 @@ $(document).ready(function(){
 		}
 		count=i+1;
 		$('#imgDiv').append(text);
+		
+		$('.memberImgA').click(function(){
+			var id=this.id;	
+			var member=id.split('#');
+			$('#primaryMember').val(member[0]);
+			$('#formattedMember').val(member[1]);
+			$.fancybox.close();
+		});
 	});
 	
 	
