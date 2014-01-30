@@ -1334,6 +1334,11 @@ public class Resolution extends Device implements Serializable{
 	/*public static List<MasterVO> getMemberResolutionStatistics(final Member member, final Session session, final String locale){
 		return getResolutionRepository().getMemberResolutionStatistics(member, session, locale);
 	}*/
+	
+	public static Resolution getResolution(Long sessionId, Long deviceTypeId,
+			Integer dNumber, String locale) {
+		return  getResolutionRepository().getResolution(sessionId, deviceTypeId, dNumber,locale);
+	}
 	    
 	/**** Getters and Setters ****/
 	/**
@@ -2521,5 +2526,7 @@ public class Resolution extends Device implements Serializable{
 	public void setVotingDetail(VotingDetail votingDetail) {
 		this.votingDetail = votingDetail;
 	}
+
+	
 
 }

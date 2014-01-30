@@ -476,6 +476,11 @@ import org.springframework.beans.factory.annotation.Configurable;
 		return getMotionRepository().findHighestFileNo(session,
 				motionType,locale);
 	}
+	
+	public static Motion getMotion(Long sessionId, Long deviceTypeId, Integer dNumber,
+			String locale) {
+		return getMotionRepository().getMotion(sessionId,deviceTypeId,dNumber,locale);
+	}
 
 	/**** Getters and Setters ****/
 	public HouseType getHouseType() {
@@ -813,4 +818,6 @@ import org.springframework.beans.factory.annotation.Configurable;
 	public Boolean getFileSent() {
 		return fileSent;
 	}
+
+	
 }
