@@ -168,7 +168,27 @@
 									<br />
 									<b>${r.value}</b>-----<br />							
 									<c:forEach items="${r.headings}" var="h">
-										<span style="margin-left: 14px;">${h.heading}</span><br />
+										<span style="margin-left: 14px; display: inline-block;">${h.heading}</span>
+										<span style="display: inline;">
+											<c:choose>
+												<c:when test="${fn:contains(h.deviceType, 'questions_')}">
+													(<spring:message code="editing.vishaysuchi.questions" text="Question"></spring:message>)
+												</c:when>
+												<c:when test="${fn:contains(h.deviceType, 'resolutions_')}">
+													(<spring:message code="editing.vishaysuchi.resolutions" text="Resolution"></spring:message>)
+												</c:when>
+												<c:when test="${fn:contains(h.deviceType, 'motions_')}">
+													(<spring:message code="editing.vishaysuchi.motions" text="Motion"></spring:message>)
+												</c:when>
+												<c:when test="${fn:contains(h.deviceType, 'bills_')}">
+													(<spring:message code="editing.vishaysuchi.bills" text="Bill"></spring:message>)
+												</c:when>
+												<%-- <c:otherwise>
+													(${h.deviceType})
+												</c:otherwise> --%>
+											</c:choose>
+										</span>
+										<br />
 									</c:forEach>							
 								</td>
 							</tr>
