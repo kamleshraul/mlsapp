@@ -1,0 +1,17 @@
+<div id="mainContent">
+		#if($otherTitle!='')
+			#if($billHouseType=='lowerhouse')
+			 <p style="text-align:center">L. A. BILL NO. $billNumber OF $billYear</p>
+			 <p>$otherTitle</p>
+			#else
+			 <p style="text-align:center">L. C. BILL NO. $billNumber OF $billYear</p>
+			 <p>$otherTitle</p> 
+			#end
+		#end
+</div>
+<div id="pageContent">
+	$marathiTitle
+</div>
+<div id="dId">
+	$billId
+</div

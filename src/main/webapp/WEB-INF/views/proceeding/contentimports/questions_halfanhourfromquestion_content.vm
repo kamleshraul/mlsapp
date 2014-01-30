@@ -1,0 +1,10 @@
+<div id="mainContent">
+	$questionSubject या विषयावरील $deviceType क्रमांक $number ला दिनांक $answeringDate रोजी शासनाने दिलेल्या उत्तराच्या संदर्भात $member 
+	यांनी उपस्थित केलेली अर्धा तास चर्चा 	
+</div>
+<div id="pageContent">
+	$questionSubject
+</div>
+<div id="dId">
+	$questionId
+</div
