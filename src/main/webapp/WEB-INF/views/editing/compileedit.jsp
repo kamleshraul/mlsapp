@@ -491,15 +491,43 @@
 			*/
 			
 			$('.wysiwyg').wysiwyg({controls: {
-			       save: { 
-			             visible: true, 
-			             tags: ['tt'],  
-			             exec: function(e){
-			            	 	showIt=0;
-			            	 	saveAndHide(e);
-			             },
-			             hotkey:{"ctrl":1,"shift":1,"key":88}			             
-			        	}
+				       Save: { 
+				             visible: true, 
+				             tags: ['tt'],  
+				             exec: function(e){
+				            	 	showIt=0;
+				            	 	saveAndHide(e);
+				             },
+				             hotkey:{"ctrl":1,"shift":1,"key":88}			             
+				        },
+						ReplaceByOrder: { 
+				             visible: true, 
+				             tags: ['bo'],  
+				             exec: function(e){
+				            	var wholeData = $("#ttA").val();
+                                var data = getIframeSelectionText($("iframe")[0]);
+                                var pattern = data.trim();
+                                var re = new RegExp(pattern,"g");
+                                var finalContent = wholeData.replace(re, "[***] " + $("#replaceByOrder").val());
+                                $("#ttA").wysiwyg("setContent","");               
+                                $("#ttA").wysiwyg("setContent",finalContent);
+				             },
+				             hotkey:{"ctrl":1,"alt":1,"key":79}			             
+				        },
+				        ReplaceByWithDrawal: { 
+				             visible: true, 
+				             tags: ['bw'],  
+				             exec: function(e){
+				            	var wholeData = $("#ttA").val();
+                                var data = getIframeSelectionText($("iframe")[0]);
+                                var pattern = data.trim();
+                                var re = new RegExp(pattern,"g");
+                                var finalContent = wholeData.replace(re, "[#] " + $("#replaceByWithdrawal").val());
+                                $("#ttA").wysiwyg("setContent","");               
+                                $("#ttA").wysiwyg("setContent",finalContent);
+				             },
+				             hotkey:{"ctrl":1,"alt":1,"key":87}			             
+				        }
 			    	},
 					events:{keydown:function(e){
          				}
@@ -563,7 +591,7 @@
 			});
 			
 			$(".revision").click(function(e){
-				$.get("editing/revisions/" + $(this).attr('id').substring(2)+"?includeWfCopy=true",function(data){
+				$.get("editing/revisions/" + $(this).attr('id').substring(2)+"?includeWfCopy="+$("#wfCopy").val(),function(data){
 				    $.fancybox.open(data);
 			    });
 			    return false;
@@ -1234,9 +1262,12 @@
 	</div>
 	<input type="hidden" name="editedContent" id="data" value="demo" />
 </form>
+	<input type="hidden" id="wfCopy" value="${includeWFCopy}" />
 	<input id="reportType" type="hidden" value="${reportType}" />
 	<input id="prevcontent" type="hidden" value="" />
 	<input id="action" type="hidden" value="${action}" />
+	<input type="hidden" id="replaceByOrder" value="<spring:message code='editing.replace.byorder' text='Replcaed by order'/>" />
+	<input type="hidden" id="replaceByWithdrawal" value="<spring:message code='editing.replace.bywithdrawal' text='Replcaed by withdrawal'/>" />
 	<input type="hidden" name="pleaseSelectMsg" id="pleaseSelectMsg" value="<spring:message code='please.select' text='Please Select'></spring:message>">	
 </div>
 </body>
