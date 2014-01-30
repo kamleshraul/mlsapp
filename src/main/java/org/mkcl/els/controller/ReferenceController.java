@@ -32,6 +32,7 @@ import javax.servlet.http.HttpServletResponse;
 import org.mkcl.els.common.exception.ELSException;
 import org.mkcl.els.common.util.ApplicationConstants;
 import org.mkcl.els.common.util.FormaterUtil;
+import org.mkcl.els.common.util.RomanNumeral;
 import org.mkcl.els.common.vo.AutoCompleteVO;
 import org.mkcl.els.common.vo.ConstituencyCompleteVO;
 import org.mkcl.els.common.vo.DynamicSelectVO;
@@ -93,6 +94,7 @@ import org.mkcl.els.domain.Roster;
 import org.mkcl.els.domain.Sanctuary;
 import org.mkcl.els.domain.Slot;
 import org.mkcl.els.domain.SupportingMember;
+import org.mkcl.els.domain.TextDraft;
 import org.mkcl.els.domain.Town;
 import org.mkcl.els.domain.University;
 import org.mkcl.els.domain.User;
@@ -2948,8 +2950,8 @@ public class ReferenceController extends BaseController {
 		for(int i=0;i<keys.length;i++){
 			if(Integer.parseInt(keys[i])==17){
 				searchKey=searchKey+"ctrl"+"+";
-			}else if(Integer.parseInt(keys[i])==16){
-				searchKey=searchKey+"shift"+"+";
+			}else if(Integer.parseInt(keys[i])==18){
+				searchKey=searchKey+"alt"+"+";
 			}else if(Integer.parseInt(keys[i])>=65 && Integer.parseInt(keys[i])<=90){
 				searchKey=searchKey+((char)Integer.parseInt(keys[i]));
 			}
@@ -3217,7 +3219,7 @@ public class ReferenceController extends BaseController {
 	
 	
 	@RequestMapping(value="/device",method=RequestMethod.GET)
-	public @ResponseBody MasterVO getDeviceContent(ModelMap model, HttpServletRequest request,Locale locale){
+	public String getDeviceContent(ModelMap model, HttpServletRequest request,HttpServletResponse response,Locale locale){
 
 		MasterVO masterVO = new MasterVO();
 
@@ -3249,37 +3251,120 @@ public class ReferenceController extends BaseController {
 						masterVO.setId(new Long(-1));
 						masterVO.setName("undefined");
 
-						return masterVO;
+						//return masterVO;
 					}
 				}	
 				DeviceType deviceType=DeviceType.findById(DeviceType.class, deviceTypeId);
 				String device=deviceType.getDevice();
 				Session currentSession = Session.findById(Session.class, new Long(strSessionId));
-				if(deviceType.getDevice().equals("Question")){
+				if(device.equals("Question")){
 					String content="";
 					Question question=Question.getQuestion(currentSession.getId(), deviceTypeId, dNumber, locale.toString());
 					if(question!=null){
-						masterVO.setId(question.getId());
-						content="<p>"+question.getRevisedSubject()+"</p>"
-								+"<p> * "+question.getNumber()+"   "+question.getPrimaryMember().getFullname();
-						if(!question.getSupportingMembers().isEmpty()){
-							for(SupportingMember m:question.getSupportingMembers()){
+						if(deviceType.getType().equals(ApplicationConstants.HALF_HOUR_DISCUSSION_QUESTION_FROM_QUESTION)){
+							Question referencedQuestion=question.getHalfHourDiscusionFromQuestionReference();
+							if(referencedQuestion!=null){
+								model.addAttribute("questionSubject",referencedQuestion.getSubject());
+								model.addAttribute("number", referencedQuestion.getNumber());
+								model.addAttribute("deviceType",referencedQuestion.getType().getName());
+							
+								String answeringDate=FormaterUtil.formatDateToString(referencedQuestion.getAnsweringDate().getAnsweringDate(), "dd MMM yyyy", locale.toString());
+								model.addAttribute("answeringDate",FormaterUtil.formatMonthsMarathi(answeringDate,locale.toString()));
+								model.addAttribute("member",question.getPrimaryMember().getFullname());
+								model.addAttribute("questionId", question.getId());
+								return "proceeding/contentimports/questions_halfanhourfromquestion_content";
+							}
+						}else{
+							model.addAttribute("questionId", question.getId());
+							model.addAttribute("questionSubject",question.getRevisedSubject());
+							model.addAttribute("questionNumber",question.getNumber());
+							model.addAttribute("questionText",question.getRevisedQuestionText());
+							model.addAttribute("answer",question.getAnswer());
+							model.addAttribute("questionPrimaryMember",question.getPrimaryMember().getFullname());
+							if(!question.getSupportingMembers().isEmpty()){
+								for(SupportingMember m:question.getSupportingMembers()){
+									content=content+","+m.getMember().getFullname();
+								}
+							}
+							model.addAttribute("supportingMember",content);
+							if(question.getMinistry()!=null){
+								Ministry ministry=question.getMinistry();
+								Member member=MemberMinister.findMemberHavingMinistryInSession(question.getSession(), ministry);
+								model.addAttribute("minister",member.getFullname());
+							}
+						}
+					}
+					return "proceeding/contentimports/questions_starred_content";
+				}else if(device.equals("Resolution")){
+					Resolution resolution=Resolution.getResolution(currentSession.getId(), deviceTypeId, dNumber, locale.toString());
+					if(resolution!=null){
+						model.addAttribute("noticeContent", resolution.getNoticeContent());
+						model.addAttribute("resolutionId",resolution.getId());
+					}
+					return "proceeding/contentimports/resolutions_content";
+				}else if(device.equals("Motion")){
+					String content="";
+					Motion motion=Motion.getMotion(currentSession.getId(), deviceTypeId, dNumber, locale.toString());
+					String isReply=request.getParameter("isReplyRequired");
+					Boolean isReplyRequired=Boolean.parseBoolean(isReply);
+					if(motion!=null){
+						model.addAttribute("motionNumber",motion.getNumber());
+						model.addAttribute("motionSubject",motion.getSubject());
+						model.addAttribute("motionDetails",motion.getDetails());
+						model.addAttribute("motionReply",motion.getReply());
+						model.addAttribute("motionId",motion.getId());
+						model.addAttribute("isReplyRequired",isReplyRequired);
+						model.addAttribute("motionPrimaryMember",motion.getPrimaryMember().getFullname());
+						if(!motion.getSupportingMembers().isEmpty()){
+							for(SupportingMember m:motion.getSupportingMembers()){
 								content=content+","+m.getMember().getFullname();
 							}
 						}
-						content=content+" : "+ question.getRevisedQuestionText()+"</p>";
-						if(question.getMinistry()!=null){
-							Ministry ministry=question.getMinistry();
-							Member member=MemberMinister.findMemberHavingMinistryInSession(question.getSession(), ministry);
-							if(question.getAnswer()!=null && !question.getAnswer().isEmpty())
-							content=content+"<p>"+member.getFullname()+":" +question.getAnswer();
+						model.addAttribute("supportingMember",content);
+						if(motion.getMinistry()!=null){
+							Ministry ministry=motion.getMinistry();
+							Member member=MemberMinister.findMemberHavingMinistryInSession(motion.getSession(), ministry);
+							model.addAttribute("minister",member.getFullname());
+						}
+						model.addAttribute("houseType", motion.getHouseType().getType());
+					}
+					return "proceeding/contentimports/motions_callingattention_content";
+				}else if(device.equals("Bill")){
+					String billyear=request.getParameter("billYear");
+					String billHouseType=request.getParameter("billHouseType");
+					Bill bill=null;
+					if(billyear!=null && !billyear.isEmpty() && 
+						billHouseType!=null && !billHouseType.isEmpty()){
+						Integer billYear=Integer.parseInt(billyear);
+						Long houseTypeId=Long.parseLong(billHouseType);
+						bill=Bill.findByNumberYearAndHouseType(dNumber, billYear, houseTypeId, locale.toString());
+						model.addAttribute("billYear",billyear);
+					}
+					CustomParameter languageParameter=CustomParameter.findByName(CustomParameter.class, ApplicationConstants.REPORTING_BILL_LANGUAGES, "");
+					List<TextDraft> titles=bill.getRevisedTitles();
+					if(languageParameter!=null){
+						String[] languages=languageParameter.getValue().split(",");
+						for(int i=0;i<languages.length;i++){
+							for(TextDraft t:titles){
+								if(t.getLanguage().getType().equals(languages[i])){
+									if(languages[i].equals(ApplicationConstants.MARATHI)){
+										model.addAttribute("marathiTitle",t.getText());
+									}else{
+										model.addAttribute("otherTitle",t.getText());
+									}
+								}
+							}
 						}
 					}
-					masterVO.setName(content);
-				}else if(deviceType.getDevice().equals("Resolution")){
+					if(deviceType.getType().equals(ApplicationConstants.NONOFFICIAL_BILL)){
+						model.addAttribute("billHouseType",bill.getHouseType().getType());
+					}else{
+						model.addAttribute("billHouseType",bill.getIntroducingHouseType().getType());
+					}
+					model.addAttribute("billNumber", RomanNumeral.getRomanEquivalent(bill.getNumber()));
 					
-				}else if(deviceType.getDevice().equals("Motion")){
-					
+					model.addAttribute("billId", bill.getId());
+					return "proceeding/contentimports/bills_content";
 				}
 //				try {
 //					
@@ -3315,7 +3400,7 @@ public class ReferenceController extends BaseController {
 			}
 		}
 
-		return masterVO;
+		return "";
 	}
 	
 	@RequestMapping(value="/gethalfhourdiscussionfromquestion",method=RequestMethod.GET)
