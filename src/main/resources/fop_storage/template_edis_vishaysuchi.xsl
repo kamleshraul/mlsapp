@@ -219,9 +219,25 @@
 														<fo:table-row>
 															<fo:table-cell number-columns-spanned="2">
 																<fo:block>&#160;</fo:block>
-																<fo:block><xsl:value-of select="./value" />-----</fo:block>							
+																<fo:block><xsl:value-of select="./value" />-----</fo:block>					
 																<xsl:for-each select="./headings">
-																	<fo:block margin-left="14px"><xsl:value-of select="./heading" /></fo:block>
+																	<fo:block margin-left="14px">
+																		<xsl:value-of select="./heading" />
+																		<xsl:choose>
+																			<xsl:when test="starts-with(deviceType,'questions_')">
+																				(प्रश्न)
+																			</xsl:when>
+																			<xsl:when test="starts-with(deviceType,'resolutions_')">
+																				(ठराव)
+																			</xsl:when>
+																			<xsl:when test="starts-with(deviceType,'motions_')">
+																				(प्रस्ताव)
+																			</xsl:when>
+																			<xsl:when test="starts-with(deviceType,'bills_')">
+																				(विधेयक)
+																			</xsl:when>
+																		</xsl:choose>
+																	</fo:block>
 																</xsl:for-each>
 															</fo:table-cell>
 														</fo:table-row>
