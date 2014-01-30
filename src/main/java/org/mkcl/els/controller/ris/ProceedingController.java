@@ -28,6 +28,7 @@ import org.mkcl.els.common.vo.ParentVO;
 import org.mkcl.els.common.xmlvo.ProceedingXMLVO;
 import org.mkcl.els.controller.GenericController;
 import org.mkcl.els.domain.BaseDomain;
+import org.mkcl.els.domain.Bill;
 import org.mkcl.els.domain.Bookmark;
 import org.mkcl.els.domain.Citation;
 import org.mkcl.els.domain.Constituency;
@@ -42,11 +43,14 @@ import org.mkcl.els.domain.Member;
 import org.mkcl.els.domain.MemberMinister;
 import org.mkcl.els.domain.MemberRole;
 import org.mkcl.els.domain.Ministry;
+import org.mkcl.els.domain.Motion;
 import org.mkcl.els.domain.Part;
 import org.mkcl.els.domain.Party;
 import org.mkcl.els.domain.Proceeding;
 import org.mkcl.els.domain.Query;
+import org.mkcl.els.domain.Question;
 import org.mkcl.els.domain.Reporter;
+import org.mkcl.els.domain.Resolution;
 import org.mkcl.els.domain.Roster;
 import org.mkcl.els.domain.Session;
 import org.mkcl.els.domain.SessionType;
@@ -665,6 +669,9 @@ public class ProceedingController extends GenericController<Proceeding>{
 		List<Party> parties=Party.findActiveParties(locale.toString());
 		model.addAttribute("parties", parties);
  
+		/****HouseTypes****/
+		List<HouseType> houseTypes=HouseType.findAll(HouseType.class, "name", "desc", locale.toString());
+		model.addAttribute("houseTypes", houseTypes);
 		//here making provisions for displaying error pages
 		if(model.containsAttribute("errorcode")){
 			return servletPath.replace("new","error");
@@ -953,7 +960,26 @@ public class ProceedingController extends GenericController<Proceeding>{
 		if(domain.getDeviceType()!=null){
 			DeviceType deviceType=domain.getDeviceType();
 			model.addAttribute("selectedDeviceType",deviceType.getId());
+			String device=deviceType.getDevice();
+			int deviceNumber=0;
+			if(domain.getDeviceId()!=null){
+				if(device.equals("Bill")){
+					Bill bill=Bill.findById(Bill.class, domain.getDeviceId());
+					deviceNumber=bill.getNumber();
+				}else if(device.equals("Resolution")){
+					Resolution resolution=Resolution.findById(Resolution.class, domain.getDeviceId());
+					deviceNumber=resolution.getNumber();
+				}else if(device.equals("Question")){
+					Question question=Question.findById(Question.class, domain.getDeviceId());
+					deviceNumber=question.getNumber();
+				}else if(device.equals("Motion")){
+					Motion motion=Motion.findById(Motion.class, domain.getDeviceId());
+					deviceNumber=motion.getNumber();
+				}
+			}
+			model.addAttribute("deviceNumber", deviceNumber);
 		}
+		
 		
 		/****DeviceTypes****/
 		List<DeviceType> deviceTypes=DeviceType.findAll(DeviceType.class, "name", "asc", domain.getLocale());
