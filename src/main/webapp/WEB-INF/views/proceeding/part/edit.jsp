@@ -687,10 +687,10 @@
 		</select>
 		<form:errors path="deviceType"></form:errors>
 	</p>
-	<%-- <p class="deviceNo">
+	<p class="deviceNo">
 		<label class="small"><spring:message code="part.deviceNo" text="Device No"/></label>
-		<input type="text" name="deviceNo" id="deviceNo" class="sInteger"/>
-	</p> --%>
+		<input type="text" name="deviceNo" id="deviceNo" class="sInteger" value="${deviceNumber}"/>
+	</p>
 	<p>
 		<label class="small"><spring:message code="part.isInterrupted" text="Is Interrupted"/></label>
 		<form:checkbox path="isInterrupted" cssClass="sCheck"/>
@@ -699,17 +699,16 @@
 		<label class="small"><spring:message code="part.isConstituencyRequired" text="Is Constituency Required?"/></label>
 		<form:checkbox path="isConstituencyRequired" cssClass="sCheck"/>
 	</p>
-	<p id="mainHeadingP">
-		<label class="wysiwyglabel"><spring:message code="part.mainHeading" text="Main Heading"/></label>
-		<form:textarea path="mainHeading" cssClass="wysiwyg"/>
-		<a href="javascript:void(0)" id="resetMainHeading" style="margin-right: 100px; float: right; margin-top: -150px;">reset</a>
-	</p>
 	<p id="pageHeadingP">
 		<label class="wysiwyglabel"><spring:message code="part.pageHeading" text="Page Heading"/></label>
 		<form:textarea path="pageHeading" cssClass="wysiwyg"/>
 		<a href="javascript:void(0)" id="resetPageHeading" style="margin-right: 100px; float: right; margin-top: -150px;">reset</a>
 	</p>
-	
+	<p id="mainHeadingP">
+		<label class="wysiwyglabel"><spring:message code="part.mainHeading" text="Main Heading"/></label>
+		<form:textarea path="mainHeading" cssClass="wysiwyg"/>
+		<a href="javascript:void(0)" id="resetMainHeading" style="margin-right: 100px; float: right; margin-top: -150px;">reset</a>
+	</p>
 	<p>
 		<label class="wysiwyglabel"><spring:message code="part.proceedingContent" text="Content"/></label>
 		<form:textarea path="proceedingContent"  cssClass="wysiwyg"/>

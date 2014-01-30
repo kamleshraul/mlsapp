@@ -66,6 +66,7 @@
 	var contentToBeReplaced="";
 	var lineCount=1;
 	var maxHeight = '';
+	var deviceType="";
 		$(document).ready(function(){
 			
 			/****Hiding the interrupted Proceeding Div****/
@@ -162,10 +163,15 @@
 							
 							});
 						}
+						if(keycode.length==1 && keycode[0]==17 &&  e.which!=18){
+							keycode.length=0;
+							j=0;
+						}
+						console.log(keycode);
 						if(j==0 && e.which==17){
 							keycode[j]=e.which;
 							j++;
-						}else if(j==1 && e.which==16){
+						} else if(j==1 && e.which==18){
 							keycode[j]=e.which;
 							j++;
 						}else if(j==2 && e.which!=0){
@@ -183,7 +189,7 @@
 							currentContent=replaceString(currentContent);
 						}
 						
-						if(keycode[0]==17 && keycode[1]==16){
+						if(keycode[0]==17 && keycode[1]==18){
 							var key="";
 							if(keycode.length>2){
 								e.preventDefault();
@@ -223,6 +229,8 @@
 								}
 							}
 							}
+						}else{
+							
 						}
 					}
 				},
@@ -303,21 +311,57 @@
 			
 			/****Import of Devices by Device Number****/
 			$('#deviceNo').change(function(){
-				$.get('ref/device?number='+$(this).val()+'&session='+$('#session').val()+'&deviceType='+$('#deviceType').val(),function(data){
-					if(data!=null){
-						$('#deviceId').val(data.id);
-						$('#proceedingContent').wysiwyg('setContent',data.name);
-					}
-				});
+				var isReplyRequired=false;
+				if($('#callingMotion').attr('checked')){
+					isReplyRequired=true;
+				}
+				if(deviceType=="bills_nonofficial" || deviceType=="bills_government"){
+					$.get('ref/device?number='+$(this).val()+'&session='+$('#session').val()+'&deviceType='+$('#deviceType').val()+'&billYear='+$('#billYear').val()+'&billHouseType='+$('#billHouseType').val(),function(data){
+						if(data!=null){
+							$('#dContent').html(data);
+							$('#mainHeading').wysiwyg('setContent',$('#mainContent').html());
+							$('#pageHeading').wysiwyg('setContent',$('#pageContent').html());
+							$('#mainHeadingP').show();
+							$('#pageHeadingP').show();
+							$('#deviceId').val(parseInt($('#dId').html()));
+						}
+					});
+				}else{
+					$.get('ref/device?number='+$(this).val()+'&session='+$('#session').val()+'&deviceType='+$('#deviceType').val()+'&isReplyRequired='+isReplyRequired,function(data){
+						if(data!=null){
+							$('#dContent').html(data);
+							if(deviceType=='questions_halfhourdiscussion_from_question'){
+								$('#mainHeading').wysiwyg('setContent',$('#mainContent').html());
+								$('#pageHeading').wysiwyg('setContent',$('#pageContent').html());
+								$('#mainHeadingP').show();
+								$('#pageHeadingP').show();
+								$('#deviceId').val(parseInt($('#dId').html()));
+							}else{
+								var pContent=$('#proceedingContent').val();
+								$('#proceedingContent').wysiwyg('setContent',pContent+$('#deviceContent').html());
+								$('#deviceId').val(parseInt($('#dId').html()));
+							}
+							
+						}
+					});
+				}
 			});
 			
 			$('#deviceType').change(function(){
-				var deviceType="";
+				
 				$.ajax({url: 'ref/getTypeOfSelectedDeviceType?deviceTypeId='+ $(this).val(), async: false, success : function(data){	
 					deviceType = data;
 				}}).done(function(){
+					$('.halfHourDiscussionFromQuestion').hide();
+					$('.starredQuestion').hide();
+					$('.bill').hide();
+					$('.motion').hide();
 					if(deviceType=="questions_halfhourdiscussion_from_question"){
 						$('.starredQuestion').show();
+					}else if(deviceType=='bills_nonofficial' || deviceType=='bills_government'){
+						$('.bill').show();
+					}else if(deviceType=='motions_calling_attention'){
+						$('.motion').show();
 					}else{
 						$('.halfHourDiscussionFromQuestion').hide();
 						$('.starredQuestion').hide();
@@ -648,6 +692,24 @@
 		</select>
 		<form:errors path="deviceType"></form:errors>
 	</p>
+	<p class="motion" style="display:none;">
+		<label class="small"><spring:message code="part.isMotionReplyRequired" text="is Motion Reply Required"/></label>
+		<input type="checkbox" id="callingMotion"  class="sCheck">
+	</p>
+	<p class="bill" style="display:none;">
+		<label class="small"><spring:message code="part.billHouseType" text="Bill HouseType"/></label>
+		<select id="billHouseType" name="billHouseType" class="sSelect">
+			<option value=""><spring:message code="please.select" text="--please select---"/></option>	
+			<c:forEach items="${houseTypes}" var="i">
+				<option value="${i.id}">${i.name}</option>
+			</c:forEach>
+		</select>
+	</p>
+	
+	<p class="bill" style="display:none;">
+		<label class="small"><spring:message code="part.billYear" text="Bill Year"/></label>
+		<input type="text" id="billYear" name="billYear" class="sInteger">
+	</p>
 	<p class="deviceNo deviceType" style="display:none;">
 		<label class="small"><spring:message code="part.deviceNo" text="Device No"/></label>
 		<input type="text" name="deviceNo" id="deviceNo" class="sInteger"/>
@@ -668,16 +730,15 @@
 		<label class="small"><spring:message code="part.isConstituencyRequired" text="Is Constituency Required?"/></label>
 		<form:checkbox path="isConstituencyRequired" cssClass="sCheck"/>
 	</p>
-	
-	<p id="mainHeadingP" style="display:none;">
-		<label class="wysiwyglabel"><spring:message code="part.mainHeading" text="Main Heading"/></label>
-		<form:textarea path="mainHeading" cssClass="wysiwyg mainHeading"/>
-		<a href="javascript:void(0)" id="resetMainHeading" style="margin-right: 100px; float: right; margin-top: -150px;">reset</a>
-	</p>
 	<p id="pageHeadingP" style="display:none;">
 		<label class="wysiwyglabel"><spring:message code="part.pageHeading" text="Page Heading"/></label>
 		<form:textarea path="pageHeading" cssClass="wysiwyg"/>
 		<a href="javascript:void(0)" id="resetPageHeading" style="margin-right: 100px; float: right; margin-top: -150px;">reset</a>
+	</p>
+	<p id="mainHeadingP" style="display:none;">
+		<label class="wysiwyglabel"><spring:message code="part.mainHeading" text="Main Heading"/></label>
+		<form:textarea path="mainHeading" cssClass="wysiwyg mainHeading"/>
+		<a href="javascript:void(0)" id="resetMainHeading" style="margin-right: 100px; float: right; margin-top: -150px;">reset</a>
 	</p>
 	<p>
 		<label class="wysiwyglabel"><spring:message code="part.proceedingContent" text="Content"/></label>
@@ -722,6 +783,8 @@
 <input type="hidden" id="mainHeadingContent" name="mainHeadingContent" value="${mainHeading}">
 <input type="hidden" id="pageHeadingContent" name="pageHeadingContent" value="${pageHeading}">
 </div>
-
+<div id='dContent' style="display: none">
+	
+</div>
 </body>
 </html>
