@@ -968,4 +968,8 @@ public static final String RULING_PARTY = "ruling_party";
 	public static final String EDITOR = "editor";
 	
 	public static final String CHIEF_EDITOR = "chief_editor";
+
+	public static final String REPORTING_BILL_LANGUAGES = "REPORTING_BILL_LANGUAGES";
+
+	public static final String MARATHI = "marathi";
 }
