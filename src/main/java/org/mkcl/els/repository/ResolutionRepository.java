@@ -1477,4 +1477,20 @@ public class ResolutionRepository extends BaseRepository<Resolution, Long>{
 		Resolution res = (result != null && !result.isEmpty())? result.get(0):null;
 		return res;
 	}
+
+	public Resolution getResolution(Long sessionId, Long deviceTypeId,
+			Integer dNumber, String locale) {
+		String strQuery="SELECT r FROM Resolution r WHERE " +
+				" r.session.id=:sessionId" +
+				" AND r.type.id=:deviceTypeId" +
+				" AND r.number=:dNumber" +
+				" AND r.locale=:locale";
+		Query query=this.em().createQuery(strQuery);
+		query.setParameter("sessionId", sessionId);
+		query.setParameter("deviceTypeId", deviceTypeId);
+		query.setParameter("dNumber", dNumber);
+		query.setParameter("locale", locale);
+		Resolution resolution=(Resolution) query.getSingleResult();
+		return resolution;
+	}
 }

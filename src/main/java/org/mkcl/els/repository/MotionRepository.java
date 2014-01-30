@@ -271,4 +271,20 @@ public class MotionRepository extends BaseRepository<Motion, Serializable>{
 			 return motions.get(0).getFile();
 		}
 	}
+
+	public Motion getMotion(Long sessionId, Long deviceTypeId, Integer dNumber,
+			String locale) {
+		String strQuery="SELECT m FROM Motion m WHERE" +
+				" m.session.id=:sessionId" +
+				" AND m.type.id=:deviceTypeId" +
+				" AND m.number=:dNumber" +
+				" AND m.locale=:locale";
+		Query query=this.em().createQuery(strQuery);
+		query.setParameter("sessionId", sessionId);
+		query.setParameter("deviceTypeId", deviceTypeId);
+		query.setParameter("dNumber", dNumber);
+		query.setParameter("locale", locale);
+		Motion motion=(Motion) query.getSingleResult();
+		return motion;
+	}
 }
