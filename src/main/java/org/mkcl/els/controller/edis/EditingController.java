@@ -211,7 +211,12 @@ public class EditingController extends GenericController<Roster>{
 			String strPageHeader = "";
 			
 			CustomParameter csptDeploymentServer = CustomParameter.findByName(CustomParameter.class, "DEPLOYMENT_SERVER", "");
-			
+			CustomParameter includeWFCopy = CustomParameter.findByName(CustomParameter.class, "EDIS_EDIT_INCLUDE_WF_COPY", "");
+			if(includeWFCopy != null){
+				if(includeWFCopy.getValue() != null && !includeWFCopy.getValue().isEmpty()){
+					model.addAttribute("includeWFCopy", includeWFCopy.getValue());
+				}
+			}
 			if((strReportType != null && !strReportType.isEmpty())
 					&& (strMember != null && !strMember.isEmpty())
 					&& (strMemberReportType != null && !strMemberReportType.isEmpty())
@@ -686,19 +691,24 @@ public class EditingController extends GenericController<Roster>{
 								List<CatchwordHeadingVO> headings = new ArrayList<CatchwordHeadingVO>();
 								for(Object o : reportData){
 									Object[] oArr = (Object[])o;
+									
+									CatchwordHeadingVO cwHVO = new CatchwordHeadingVO();
 									if(oArr[5] != null){
 										copyVishaysuchi.get(i).setDeviceName(oArr[5].toString());
+										cwHVO.setDeviceName(oArr[5].toString());
 									}else{
 										copyVishaysuchi.get(i).setDeviceName("");
+										cwHVO.setDeviceName("");
 									}
 									
 									if(oArr[6] != null){
 										copyVishaysuchi.get(i).setDeviceType(oArr[6].toString());
+										cwHVO.setDeviceType(oArr[6].toString());
 									}else{
 										copyVishaysuchi.get(i).setDeviceType("");
+										cwHVO.setDeviceType("");
 									}
 									
-									CatchwordHeadingVO cwHVO = new CatchwordHeadingVO();
 									if(oArr[1] != null){
 										cwHVO.setCatchWord(oArr[1].toString());
 									}
@@ -796,11 +806,13 @@ public class EditingController extends GenericController<Roster>{
 			}
 		}*/
 		List<VishaysuchiVO> finalVishaysuchi = new ArrayList<VishaysuchiVO>();
-		for(VishaysuchiVO vo : copyVishaysuchi){
-			if(vo.getHeadings() != null || vo.getVishaysuchiDevices() != null){
-				finalVishaysuchi.add(vo);
-			}
-		}		
+		if(copyVishaysuchi != null && !copyVishaysuchi.isEmpty()){
+			for(VishaysuchiVO vo : copyVishaysuchi){
+				if(vo.getHeadings() != null || vo.getVishaysuchiDevices() != null){
+					finalVishaysuchi.add(vo);
+				}
+			}	
+		}
 		return finalVishaysuchi;
 	}
 	
