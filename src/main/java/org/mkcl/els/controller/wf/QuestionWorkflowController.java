@@ -2154,6 +2154,8 @@ public class QuestionWorkflowController  extends BaseController{
 	private void performActionOnNameClubbing(Question domain) {
 		Status finalStatus=Status.findByType(ApplicationConstants.QUESTION_FINAL_ADMISSION, domain.getLocale());
 		domain.setStatus(finalStatus);
+		domain.setInternalStatus(finalStatus);
+		domain.setRecommendationStatus(finalStatus);
 		/**** Setting revised subject,question text,revised reason,revised brief explaination if not already set ****/
 		if(domain.getRevisedSubject()==null){			
 			domain.setRevisedSubject(domain.getSubject());			
