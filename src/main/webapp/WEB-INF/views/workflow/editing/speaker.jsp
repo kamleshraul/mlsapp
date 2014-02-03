@@ -442,15 +442,43 @@
 		$(document).ready(function(){
 			
 			$('.wysiwyg').wysiwyg({controls: {
-			       save: { 
-			             visible: true, 
-			             tags: ['tt'],  
-			             exec: function(e){
-			            	 	showIt=0;
-			            	 	saveAndHide(e);
-			             },
-			             hotkey:{"ctrl":1,"shift":1,"key":88}			             
-			        	}
+				       save: { 
+				             visible: true, 
+				             tags: ['tt'],  
+				             exec: function(e){
+				            	 	showIt=0;
+				            	 	saveAndHide(e);
+				             },
+				             hotkey:{"ctrl":1,"shift":1,"key":88}			             
+			        	},
+			        	ReplaceByOrder: { 
+				             visible: true, 
+				             tags: ['bo'],  
+				             exec: function(e){
+				            	var wholeData = $("#ttA").val();
+                               var data = getIframeSelectionText($("iframe")[0]);
+                               var pattern = data.trim();
+                               var re = new RegExp(pattern,"g");
+                               var finalContent = wholeData.replace(re, "[***] " + $("#replaceByOrder").val());
+                               $("#ttA").wysiwyg("setContent","");               
+                               $("#ttA").wysiwyg("setContent",finalContent);
+				             },
+				             hotkey:{"ctrl":1,"alt":1,"key":79}			             
+				        },
+				        ReplaceByWithDrawal: { 
+				             visible: true, 
+				             tags: ['bw'],  
+				             exec: function(e){
+				            	var wholeData = $("#ttA").val();
+                               var data = getIframeSelectionText($("iframe")[0]);
+                               var pattern = data.trim();
+                               var re = new RegExp(pattern,"g");
+                               var finalContent = wholeData.replace(re, "[#] " + $("#replaceByWithdrawal").val());
+                               $("#ttA").wysiwyg("setContent","");               
+                               $("#ttA").wysiwyg("setContent",finalContent);
+				             },
+				             hotkey:{"ctrl":1,"alt":1,"key":87}			             
+				        }
 			    	},
 					events:{keydown:function(e){
          				}

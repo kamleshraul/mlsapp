@@ -98,41 +98,6 @@
 			opacity:0.8;
 		}
 		
-		.partDraftContainer{
-			margin-top: 20px; 
-			display: none;
-			position: fixed; 
-			top: 120px; 
-			background: scroll repeat-x #fff; 
-			width: 400px;
-			height: 262px;
-			z-index: 998; 
-			box-shadow: 2px 2px 5px #888; 
-			opacity:0.8;
-			overflow: scroll;
-			padding: 5px;
-		}
-		.partDraftContainerClose{
-			display: none; 
-			background: red scroll; 
-			width:16px; 
-			height: 16px; 
-			float: right; 
-			text-align: center; 
-			border-radius:16px; 
-			box-shadow: 1px 1px 2px #000; 
-			position: fixed;
-			left: 436px; 
-			top: 135px; 
-			z-index: 999; 
-			cursor: pointer;
-			text-shadow: threeddarkshadow;
-		}
-		
-		.partDraftContainer div table ul{
-			background: none;
-		}
-		
 		#reportIconsDiv{
 			
 			border-radius: 5px; 
@@ -195,10 +160,6 @@
 			background: none;
 		}
 		
-		#partDraftContainer div ul{
-			background: none;
-		}
-		
 		.styleSelect select {
 		   background: transparent;
 		   width: 200px;
@@ -228,13 +189,14 @@
 		var showIt=0;
 	
 		function showEditor(e){
+			//console.log("Text: " +window.getSelection().toString().trim());
 			var pageWidth=$(window).width();
 			var pageHeight=$(window).height();
-			
+			//console.log("******************************************");
+			//console.log("Page: "+ pageWidth+":"+pageHeight);
 			var clickX=e.clientX;
 			var clickY=e.clientY;
-
-			
+			/****To Adjust the location of the editor when shown to the user by height****/ 
 			if((clickY+$('#textDemo').height()) > pageHeight){
 				var diffH=$('#textDemo').height() - clickY;
 				if(diffH < 0){
@@ -382,16 +344,21 @@
 			var params='houseType=' + $('#selectedHouseType').val()
 			+ '&sessionYear=' + $("#selectedSessionYear").val()
 			+ '&sessionType=' + $("#selectedSessionType").val()
-			+ '&workflowDetailsId=' + $("#workflowdetails").val();
-			+ '&userGroup=' + $("#currentusergroup").val()
-			+ '&userGroupType=' + $("#currentusergroupType").val();
+			+ '&language=' + $("#selectedLanguage").val()
+			+ '&day=' + $('#selectedDay').val()
+			+ '&action=' + command
+			+ '&reportType=' + $("#selectedReportType").val()
+			+ '&reedit=' + reedit
+			+ '&member='+ $("#selectedMember").val()
+			+ '&memberReportType=' + $("#selectedMemberReport").val()
+			+ '&pageheader=' + $("#selectedPageheader").val();
 			
 			$("#undoCount").val((parseInt($("#undoCount").val()) + 1));				
 			
 			$.blockUI({ message: '<img src="./resources/images/waitAnimated.gif" />' });
 			
-			$.post($("form[action='workflow/editing/replace']").attr('action')+"?"+params,
-					$("form[action='workflow/editing/replace']").serialize(),function(data){
+			$.post($("form[action='editing/replace']").attr('action')+"?"+params,
+					$("form[action='editing/replace']").serialize(),function(data){
 				if(data.length>0){
 					var i;
 					for(i = 0; i < data.length; i++){
@@ -444,6 +411,33 @@
 				}
 				$.unblockUI();
 			});
+		}
+		
+		function hideShowAllNormalDiv(flag){
+			//$(".normal").each(function(){
+				if(flag==0){
+					$(".normal").hide();
+				}else{
+					$(".normal").show();
+				}
+		}
+		function showHideSpeakerChairmanDiv(flag){
+			
+			if(flag==0){
+				$($(".speakerChairman")).hide();
+			}else{
+				$(".speakerChairman").show();
+			}
+		}
+		
+		function showByFilter(filter){
+			
+			if(filter=='all'){
+				hideShowAllNormalDiv(1);
+			}else if(filter=='speaker' || filter=='chairman'){
+				hideShowAllNormalDiv(0);
+				showHideSpeakerChairmanDiv(1);
+			}
 		}
 		$(document).ready(function(){
 			
@@ -519,55 +513,33 @@
 						whichId = $(this).attr('id');
 					}
 					
-					if($("#wf_edit_copy").css('display')!='none'){
-						if(text.length>0){
-							if(showIt==0){
-								showIt=1;
-								showEditor(e);		
-								
-								var content = $(this).html().trim();
-								$("#prevcontent").val(content);
-								var newContent=content.replace(/<span.*?>/g,"");
-								$(".wysiwyg").wysiwyg('setContent', newContent.replace(text,'<span style="background: yellow;">'+text+'</span>'));
-								$("#ttA-wysiwyg-iframe").focus();
-							}else if(showIt==1){
-								showIt=0;
-								saveAndHide(e);
-								
-								/* var content = $("#ttA").val().trim();
-								var newContent=content.replace(/<span.*?>/g,"");
-								$("#"+whichId).empty();
-								$("#"+whichId).html(newContent); */
-								
-							}
-						}else{
-							if(showIt==1){
-								showIt=0;
-								saveAndHide();
-							}
+					if(text.length>0){
+						if(showIt==0){
+							showIt=1;
+							showEditor(e);		
+							
+							var content = $(this).html().trim();
+							$("#prevcontent").val(content);
+							var newContent=content.replace(/<span.*?>/g,"");
+							$(".wysiwyg").wysiwyg('setContent', newContent.replace(text,'<span style="background: yellow;">'+text+'</span>'));
+							$("#ttA-wysiwyg-iframe").focus();
+						}else if(showIt==1){
+							showIt=0;
+							saveAndHide(e);
+							
+							/* var content = $("#ttA").val().trim();
+							var newContent=content.replace(/<span.*?>/g,"");
+							$("#"+whichId).empty();
+							$("#"+whichId).html(newContent); */
+							
+						}
+					}else{
+						if(showIt==1){
+							showIt=0;
+							saveAndHide();
 						}
 					}
 				}
-			});
-			
-			$(".partMerger").click(function(){
-				
-				var idx=$(this).attr('id').substring("partMerger".length);
-				$.get('ref/getpartDraftsInWorkflow/'+idx+'?wfdetailsId='+$("#workflowdetails").val()+'&userGroup='+$("#currentusergroup").val()+'&userGroupType='+$("#currentusergroupType").val(),function(data){
-					if(data.length>0){
-						var text="";
-						var i;
-						
-						for(i = 0; i < data.length; i++){
-							text+="<div style='border: 1px solid #000; word-wrap: break-word; display: inline-block;' class='replaceByMe msp"+data[i][14]+" pdp"+data[i][0]+"'>"
-									+ data[i][15]+"</div>";
-						}
-						$("#partDraftContainer").empty();
-						$("#partDraftContainer").html(text);
-						$("#partDraftContainer").show();
-						$("#partDraftContainerClose").show();
-					}
-				});
 			});
 			
 			$(".revision").click(function(e){
@@ -668,19 +640,6 @@
 				$("#zoomImgDiv").css("display", "none");
 			});
 			
-			/* $(".replaceByMe").mouseover(function(){
-				$("#zoomImgDiv").css("display", "block");
-				var idx=$(this).attr('class').split(' ')[2].substring(3);
-				var srcURL = $(".img"+idx).children("img").attr("src");
-				
-				$("#zoomImg").attr("src", srcURL);
-				$("#zoomImg").css("height", "64px");
-			});
-			
-			$(".replaceByMe").mouseout(function(){
-				$("#zoomImgDiv").css("display", "none");
-			}); */
-			
 			$("#replaceAll").click(function(){
 				replaceAll('edit','false');
 			});
@@ -693,160 +652,102 @@
 			});
 			
 			$("#submit").click(function(){
-				var actor=$("#selectedDecissiveActor").val();
-				var params="?userGroup="+$("#currentusergroup").val()
-				+ '&userGroupType='+$("#currentusergroupType").val()
-				+ '&houseType=' + $("#selectedHouseType").val()
-				+ '&sessionYear=' + $("#selectedSessionYear").val()
-				+ '&sessionType=' + $("#selectedSessionType").val()
-				+ '&workflowDetailsId=' + $("#workflowdetails").val()
-				+ '&selectedSubWorkflow='+$("#selectedSubWorkflow").val()
-				+ '&nextActor=' + ((actor!=undefined)? actor:"");
-				
-				$.blockUI({ message: '<img src="./resources/images/waitAnimated.gif" />' });
-				$.post('workflow/editing'+params, 
-						$("form[action='workflow/editing/savepart']").serialize(),function(data){
-					if(data=='SUCCESS'){
-					}
+				var status=$("#selectedDecissiveStatus").val();
+				if(status==undefined || status=='-'){
 					
+				}else{
+					var params="?userGroup="+$("#currentusergroup").val()
+					+ '&userGroupType='+$("#currentusergroupType").val()
+					+ '&houseType=' + $("#selectedHouseType").val()
+					+ '&sessionYear=' + $("#selectedSessionYear").val()
+					+ '&sessionType=' + $("#selectedSessionType").val()
+					+ '&workflowDetailsId=' + $("#workflowdetails").val()
+					+ '&selectedSubWorkflow='+$("#selectedSubWorkflow").val()
+					+ '&nextActor=' + $("#selectedDecissiveActor").val();
+	
 					$("#submitDiv").hide();
-					$("#wf_edit_copy").hide();
 					
-					$.unblockUI();
-				}).fail(function(){
-					$.unblockUI();
-				});
+					$.blockUI({ message: '<img src="./resources/images/waitAnimated.gif" />' });
+					$.post('workflow/editing'+params, 
+							$("form[action='workflow/editing/savepart']").serialize(),function(data){
+						if(data=='SUCCESS'){
+						}
+						$.unblockUI();
+					}).fail(function(){
+						$.unblockUI();
+					});
+				}
 			});
 			
 			$("#wf_edit_copy").click(function(){
-				if($("#key").val()==undefined || $("#key").val()==''){
-				}else{
-					showEditCopy();
+				showEditCopy();
+			});
+			
+			$("#wf_speaker_filter").click(function(){
+				var filter=$("#filter").val();
+				if(filter=='all'){
+					$("#filter").val('speaker');
+					$(this).text($("#wfSpeakerSelfFilter").val());
+					$(this).css('text-shadow','1px 1px 1px green');
+				}else if(filter=='speaker'){
+					$("#filter").val('all');
+					$(this).text($("#wfSpeakerAllFilter").val());
+					$(this).css('text-shadow','1px 1px 1px gray');					
 				}
+				showByFilter(filter);
 			});
-			$("#wf_edited_copy").click(function(){
-				if($("#key").val()==undefined || $("#key").val()==''){
-				}else{
-					showEditedCopy();
+			$("#wf_speaker_filter").css('text-shadow','1px 1px 1px green');
+			
+			$("#wf_chairman_filter").click(function(){
+				var filter=$("#filter").val();
+				if(filter=='all'){
+					$("#filter").val('chairman');
+					$(this).text($("#wfChairmanSelfFilter").val());
+					$(this).css('text-shadow','1px 1px 1px green');
+				}else if(filter=='chairman'){
+					$("#filter").val('all');
+					$(this).text($("#wfChairmanAllFilter").val());
+					$(this).css('text-shadow','1px 1px 1px gray');					
 				}
+				showByFilter(filter);
 			});
+			$("#wf_chairman_filter").css('text-shadow','1px 1px 1px green');
 			
-			/* $(".replaceByMe").click(function(){
-				
-				if($("#action").val()=='edit'){
-					var clasess=$(this).attr('class').split(' ');
-					var sourcePartDraftId=clasess[1].substring(3);
-					var targetPartId=clasess[2].substring(3);
-										
-					var targetContent=$("#pp"+targetPartId).html();
-					var sourceContent=$(this).html();
-					$("#pp"+targetPartId).empty();
-					$("#pp"+targetPartId).html(sourceContent);
-					
-					$(this).empty();
-					$(this).html(targetContent);	
-					$("#partUndo"+targetPartId).addClass(targetPartId);
-					
-					$("#data").val(sourceContent);
-					
-					$.post('workflow/editing/mergedraftcontent?partId='+targetPartId+'&draftId='+sourcePartDraftId+'&action='+$('#action').val(), 
-							$("form[action='workflow/editing/savepart']").serialize(),function(data){
-						if(data=='SUCCESS'){
-							$("#partDraftContainer").hide();
-						}
-					}).fail(function(){
-						
-					});
-				}
-			}); */
-			
-			$("#partDraftContainer").click(function(e) {
-			     var element = e.target;/* .children().each(function(){
-			    	 console.log('\nid: '+$(this));
-			     }); */
-			     //console.log($(element).attr('class').contains('replaceByMe'));
-			  
-			     $.prompt($('#mergeMsg').val(),{
-						buttons: {Ok:true, Cancel:false}, callback: function(v){
-				        if(v){
-							if($("#action").val()=='edit'){
-									var clasess=$(element).attr('class').split(' ');
-									var sourcePartDraftId=clasess[1].substring(3);
-									var targetPartId=clasess[2].substring(3);
-														
-									var targetContent=$("#pp"+targetPartId).html().trim();
-									var sourceContent=$(element).html().trim();
-									if(sourceContent!=targetContent){
-										$("#pp"+targetPartId).empty();
-										$("#pp"+targetPartId).html(sourceContent);
-										
-										$(element).empty();
-										$(element).html(targetContent);	
-										$("#partUndo"+targetPartId).addClass(targetPartId);
-										
-										$("#data").val(sourceContent);
-										
-										$.blockUI({ message: '<img src="./resources/images/waitAnimated.gif" />' });
-										$.post('workflow/editing/mergedraftcontent?partId='+targetPartId+'&draftId='+sourcePartDraftId+'&action='+$('#action').val(), 
-												$("form[action='workflow/editing/savepart']").serialize(),function(data){
-											if(data=='SUCCESS'){
-												//$("#partDraftContainer").hide();
-												$.unblockUI();
-												$("#wf_edit_copy").hide();
-												$('html, body').animate({
-											        scrollTop: $("#pp"+targetPartId).offset().top
-											    }, 100);												
-											}
-										}).fail(function(){
-											$.unblockUI();
-										});
-									}
-								}
-				        }
-					}
-			     });
-			     
-			});
-			
-			$("#partDraftContainerClose").click(function(){
-				$(this).hide();
-				$("#partDraftContainer").hide();
-			});
-			
-			
-			$(".partUndo").click(function(){
-				var idx=$(this).attr('id').substring(8);
-				
-				var sourceContent=$("#pp"+idx).html();
-				var targetContent=$(".pdp"+idx).html();
-				
-				$("#pp"+idx).empty();
-				$("#pp"+idx).html(targetContent);
-				
-				$(".pdp"+idx).empty();
-				$(".pdp"+idx).html(sourceContent);	
-				
-			});
 			
 		});
 	</script>
 </head>
 
 <body>
-<div id="editingLinkDiv" style="padding-top: 10px;">
-	<a href="#" id="wf_unedited_copy" class="butSim">
-		<spring:message code="editor.unedited" text="Unedited Copy" />
-	</a> |			
-	<a href="#" id="wf_edited_copy" class="butSim">
-		<spring:message code="editor.edited" text="Edited Copy"/>
-	</a> |			
-	<c:if test="${workflowstatus!='COMPLETED'}">			
-		<a href="#" id="wf_edit_copy" class="butSim">
-			<spring:message code="editor.edit" text="Editing"/>
-		</a> |		
-	</c:if>	
-	<hr />	
-</div>
+	
+	<div id="editingLinkDiv" style="padding-top: 10px;">
+		<a href="#" id="wf_unedited_copy" class="butSim">
+			<spring:message code="editor.unedited" text="Unedited Copy" />
+		</a> |			
+		<a href="#" id="wf_edited_copy" class="butSim">
+			<spring:message code="editor.edited" text="Edited Copy"/>
+		</a> |			
+		<c:if test="${workflowstatus!='COMPLETED'}">			
+			<a href="#" id="wf_edit_copy" class="butSim">
+				<spring:message code="editor.edit" text="Editing"/>
+			</a> |		
+		</c:if>		
+		<security:authorize access="hasAnyRole('EDIS_SPEAKER')">
+			<a href="#" id="wf_speaker_filter" class="butSim">
+				<spring:message code='editor.wf.speaker.self' text='Speaker Text'/>
+			</a> |
+		</security:authorize>		
+		<security:authorize access="hasAnyRole('EDIS_CHAIRMAN')">		
+			<a href="#" id="wf_chairman_filter" class="butSim">
+				<spring:message code='editor.wf.chairman.self' text='Chairman Text'/>
+			</a> |
+		</security:authorize>
+		<%-- <select id="speakerFilter">
+			<option value="others"><spring:message code='please.select' text='Others'></spring:message></option>
+			<option value="speaker"><spring:message code="editing.wf.speaker" text="Speaker's"></spring:message></option>
+		</select> --%>
+		<hr />	
+	</div>
 <div>
 	<div id="reportIconsDiv" style="display: none;">
 		<a id="editorreport_pdf" class="exportLink" href="javascript:void(0);" style="text-decoration: none; margin-left: 40px;" target="_blank">
@@ -883,7 +784,7 @@
 <form action="workflow/editing/savepart" method="post">
 	<c:if test="${workflowstatus=='PENDING'}">
 		<div id="submitDiv" style="width: 750px; margin-left: 50px;">
-			<c:if test="${not(statuses == null) and not(empty statuses) }">
+		<c:if test="${not(statuses == null) and not(empty statuses) }">
 				<a href="javascript:void(0);" id="selectStatus"><spring:message code="editing.selectdecissivestatus" text="Status" /></a> |
 				<div class="styleSelect" style="display: inline-block; margin: 5px 5px 0px 5px;">
 					<select id="selectedDecissiveStatus" name="decissiveStatus">
@@ -909,109 +810,109 @@
 		</div>
 	</c:if>
 
-	<div id="container" class="container">
-		<table id="containerTable">
+	<div id="container" class="container">		
 			<c:set var="ph" value="-" />
 			<c:set var="mh" value="-" />
-			<c:set var="cnt" value="0" />
 			<c:set var="idx" value="0" />
+			<c:set var="causePHMH" value="0" />
+			<c:set var="memberID" value="0" />
 			<c:forEach items="${parts}" var="r">
-				<c:choose>						
-					<c:when test="${action=='edited' or action=='edit'}">
-						<c:choose>
-							<c:when test="${not (empty r[15])}">										
-								<c:choose>
-									<c:when test="${username==r[19]}">
-										<c:if test="${idx!=r[0]}">
-											<c:set var="cnt" value="0" />
+				<c:if test="${idx!=r[0]}">
+					<c:choose>
+						<c:when test="${r[5]==memSpeaker or r[5]==memChairman}">
+							<c:set var="spClass" value="normal speakerChairman" />
+						</c:when>
+						<c:otherwise>
+							<c:set var="spClass" value="normal" />
+						</c:otherwise>
+					</c:choose>
+					<div class="${spClass}">
+						<table id="containerTable">
+							<tr>
+								<td>
+									<%-- ${fn:length(r[2])}, ${fn:length(r[3])} --%>
+									<div style="text-align: center; font-size: 16px;">
+										<c:if test="${(ph!=r[2] && mh!=r[3]) or (ph!=r[2])}">
+											<c:choose>
+												<c:when test="${(fn:length(r[2])>0) && (fn:length(r[3])>0)}">
+													<c:set var="causePHMH" value="0" />
+													<b><spring:message code="editing.pageheading" text="Page Heading" /></b>${r[2]}<br />
+													<b><spring:message code="editing.mainheading" text="Main Heading" /></b>${r[3]}
+												</c:when>
+												<c:when test="${(fn:length(r[2])>0) || (fn:length(r[3])>0)}">
+													<c:set var="causePHMH" value="0" />
+													<b><spring:message code="editing.pageheading" text="Page Heading" /></b> ${r[2]} / <b><spring:message code="editing.mainheading" text="Main Heading" /></b> ${r[3]}
+												</c:when>
+											</c:choose>
 										</c:if>
-										<c:if test="${cnt==0}">
-											<tr>
-												<td>
-													<div style="text-align: center; font-size: 16px;">
-														<c:if test="${ph!=r[2] && mh!=r[3]}">
-															<c:choose>
-																<c:when test="${(fn:length(r[2])>0) && (fn:length(r[3])>0)}">
-																	<b><spring:message code="editing.pageheading" text="Page Heading" /></b>${r[1]}<br />
-																	<b><spring:message code="editing.mainheading" text="Main Heading" /></b>${r[2]}
-																</c:when>
-																<c:when test="${(fn:length(r[2])>0) || (fn:length(r[3])>0)}">
-																	<b><spring:message code="editing.pageheading" text="Page Heading" /></b> ${r[2]} / <b><spring:message code="editing.mainheading" text="Main Heading" /></b> ${r[3]}
-																</c:when>
-															</c:choose>
-														</c:if>
-													</div>
-													<c:if test="${not(empty r[5]) and (not (r[5]==null))}">
-														<b class="member" style="display: inline-block;">${r[6]}</b>
-														<div id="memberImageDiv" style="display: inline;">
-															<img src="editing/gememberimage/${r[5]}" height="16px;" class="memberImg" />	
-														</div>
-													</c:if>										
-													<c:if test="${not(empty r[9]) and (not (r[9]==null))}">
-														<b>/${r[10]}</b>
-														<div id="memberImageDiv" style="display: inline;">
-															<img src="editing/gememberimage/${r[9]}" height="16px;" class="memberImg"/>	
-														</div>
-													</c:if>:
+									</div>
+									<c:choose>						
+										<c:when test="${action=='edited' or action=='edit'}">
+											<c:choose>
+												<c:when test="${not (empty r[15])}">
 													<c:choose>
-														<c:when test="${not(r[13]==null) and not(empty r[13])}">
-															<div id="pp${r[0]}" style="width: 750px; max-width: 750px; word-wrap:break-word; display: inline;" class="replaceMe">
-																${r[13]}
-															</div>
+														<c:when test="${memberID!=r[5] or causePHMH==0}">
+															<c:set var="causePHMH" value="1" />
+															<c:if test="${not(empty r[5]) and (not (r[5]==null))}">
+																<b class="member" style="display: inline-block;">${r[6]}</b>
+																<div id="memberImageDiv" style="display: inline;">
+																	<img src="editing/gememberimage/${r[5]}" height="16px;" class="memberImg" />	
+																</div>
+															</c:if>										
+															<c:if test="${not(empty r[9]) and (not (r[9]==null))}">
+																<b>/${r[10]}</b>
+																<div id="memberImageDiv" style="display: inline;">
+																	<img src="editing/gememberimage/${r[9]}" height="16px;" class="memberImg"/>	
+																</div>
+															</c:if>:
 														</c:when>
 														<c:otherwise>
-															<div id="pp${r[0]}" style="width: 750px; max-width: 750px; word-wrap:break-word; display: inline;" class="replaceMe">
-																${r[15]}
-															</div>
+															<c:if test="${not(empty r[5]) and (not (r[5]==null))}">
+																<div id="memberImageDiv" style="display: none;">
+																	<img src="editing/gememberimage/${r[5]}" height="16px;" class="memberImg" />	
+																</div>
+															</c:if>										
+															<c:if test="${not(empty r[9]) and (not (r[9]==null))}">
+																<div id="memberImageDiv" style="display: inline;">
+																	<img src="editing/gememberimage/${r[9]}" height="16px;" class="memberImg"/>	
+																</div>
+															</c:if>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 														</c:otherwise>
 													</c:choose>
-													<c:if test="${action=='edit'}">
-														<c:if test="${r[20]!=null and not(empty r[20]) and r[20]>1}">
-															<div id="partMerger${r[0]}" class="partMerger" style="position: relative; width: 16px; height: 16px; border-radius: 16px; margin-left: 725px; top: -2px; text-align: center; display: inline-block; min-height: 16px; min-width:16x; border: 1px solid blue; background: #DE00B1; cursor: pointer;">O</div>
-														</c:if>
-													</c:if>
-													<%-- <div id="partUndo${r[0]}" class="partUndo" style="position: relative; width: 16px; height: 16px; border-radius: 16px; margin-left: 725px; top: -3px; text-align: center; display: inline-block; min-height: 16px; min-width:16x; border: 1px solid blue; background: #eeccdd; cursor: pointer;">O</div> --%>
+													<div id="pp${r[0]}" style="width: 750px; max-width: 750px; word-wrap:break-word; display: inline;" class="replaceMe">
+														${r[15]}
+													</div>
+													<div class="imgId img${r[0]}" id="imgId${r[5]}" style="display: none;">
+														<img src="editing/gememberimage/${r[5]}" height="8px" class="imgIdDivImage"/>
+													</div>
 													<div id="ppsp${r[0]}" class="ppsp" style="display: none;">classes</div>
 													<div class="revision" id="pd${r[0]}" style="position: relative; border-radius: 10px; margin-left: 750px; top: -20px; text-align: center; display: inline-block; min-width: 16px; min-height: 16px; border: 1px solid blue; background: #00ff00; cursor: pointer;">
 														<spring:message code="editing.more" text="S" />
 													</div>
-												</td>
-											</tr>
-											<c:set var="cnt" value="1" />
-											<c:set var="idx" value="${r[0]}" />
-										</c:if>
-										<!-- <tr>
-											<td>
-												&nbsp;
-											</td>
-										</tr> -->
+												</c:when>
+											</c:choose>
+										</c:when>
+									</c:choose>
+								</td>
+							</tr>
+							<tr>
+								<c:choose>
+									<c:when test="${(fn:length(r[2])==0) && (fn:length(r[3])==0)}">
+										<td style="text-align: center;">--------------</td>
 									</c:when>
 									<c:otherwise>
-										<%-- <c:choose>
-											<c:when test="${r[13]==r[15]}">
-												<div style="border: 2px solid green; width: 750px; max-width: 750px; word-wrap:break-word; display: inline-block;" class="replaceByMe msp${r[14]} pdp${r[0]}">
-													${r[15]}
-												</div>
-											</c:when>
-											<c:otherwise>
-												<div style="border: 2px solid red; width: 750px; max-width: 750px; word-wrap:break-word; display: inline-block;" class="replaceByMe msp${r[14]} pdp${r[0]}">
-													${r[15]}
-												</div>
-											</c:otherwise>
-										</c:choose> --%>
+										<td>&nbsp;</td>
 									</c:otherwise>
 								</c:choose>
-								<div class="imgId img${r[0]}" id="imgId${r[5]}" style="display: none;">
-									<img src="editing/gememberimage/${r[5]}" height="8px" class="imgIdDivImage"/>
-								</div>
-							</c:when>
-						</c:choose>
-					</c:when>
-				</c:choose>
-				<c:set var="ph" value="${r[1]}"/>
-				<c:set var="mh" value="${r[2]}"/>
+							</tr>
+						</table>
+					</div>
+				</c:if>
+				<c:set var="memberID" value="${r[5]}" />
+				<c:set var="idx" value="${r[0]}" />
+				<c:set var="ph" value="${r[2]}"/>
+				<c:set var="mh" value="${r[3]}"/>
 			</c:forEach>
-		</table>
 	</div>
 		
 
@@ -1022,20 +923,17 @@
 	</div>
 	<input type="hidden" name="editedContent" id="data" value="demo" />
 </form>
-	<div id="partDraftContainer" class="partDraftContainer" style="display: none;">
-		<div class="replaceByMe">
-			demo
-		</div>
-	</div>
-	<div id="partDraftContainerClose" class="partDraftContainerClose"><b>X</b></div>
-	<input type="hidden" id="userName" value="${username}" />
+	<input type="hidden" id="filter" value="speaker" />
+	<input type="hidden" id="wfSpeakerSelfFilter" value="<spring:message code='editor.wf.speaker.self' text='Speaker Text'/>" />
+	<input type="hidden" id="wfSpeakerAllFilter" value="<spring:message code='editor.wf.speaker.all' text='All Text'/>" />
+	<input type="hidden" id="wfChairmanSelfFilter" value="<spring:message code='editor.wf.chairman.self' text='Chairman Text'/>" />
+	<input type="hidden" id="wfChairmanAllFilter" value="<spring:message code='editor.wf.chairman.all' text='All Text'/>" />
 	<input type="hidden" id="workflowdetails" value="${workflowdetails}" />
 	<input type="hidden" id="workflowstatus" value="${workflowstatus}" />
 	<input id="reportType" type="hidden" value="${reportType}" />
 	<input id="prevcontent" type="hidden" value="" />
 	<input id="action" type="hidden" value="${action}" />
-	<input type="hidden" name="pleaseSelectMsg" id="pleaseSelectMsg" value="<spring:message code='please.select' text='Please Select'></spring:message>">
-	<input type="hidden" name="mergeMsg" id="mergeMsg" value="<spring:message code='editing.merge' text='Are you sure to merge it?'></spring:message>">
+	<input type="hidden" name="pleaseSelectMsg" id="pleaseSelectMsg" value="<spring:message code='please.select' text='Please Select'></spring:message>">	
 </div>
 </body>
 </html>
