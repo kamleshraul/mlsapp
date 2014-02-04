@@ -547,7 +547,18 @@
 		        
 	        </fo:layout-master-set>
 	        
-	        <fo:page-sequence master-reference="standard" id="DocumentBody">
+	        <xsl:variable name="pageSequenceVariable">
+				<xsl:choose>
+					<xsl:when test="$formatOut='application/pdf'">
+						<xsl:value-of select="'standard'"></xsl:value-of>
+					</xsl:when>
+					<xsl:otherwise>
+						<xsl:value-of select="'otherPages'"></xsl:value-of>
+					</xsl:otherwise>
+				</xsl:choose>	
+			</xsl:variable>
+			
+	        <fo:page-sequence master-reference="{$pageSequenceVariable}" id="DocumentBody">
 		        <fo:static-content flow-name="page-number">	        	
 		        	<fo:block font-family="{$font}" font-size="11pt" text-align="center">
 		        		<fo:page-number/>		        				        		
