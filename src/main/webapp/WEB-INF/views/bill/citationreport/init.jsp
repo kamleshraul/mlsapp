@@ -88,8 +88,8 @@
 				if($('#deviceId').val()!='' && $('#deviceId').val()!=undefined) {
 					viewBillDetail($('#deviceId').val());
 				} else {
-					$.get('ref/findIdOfBillWithGivenNumberAndYear?billNumber='+$("#selectedBillNumber").val()
-							+'&billYear='+$("#selectedYear").val(), function(data) {
+					$.get('ref/findIdOfBillWithGivenNumberYearAndHouseType?billNumber='+$("#selectedBillNumber").val()
+							+'&billYear='+$("#selectedYear").val()+'&houseTypeId='+$("#houseType").val(), function(data) {
 						if(data!='' && data!=undefined) {
 							viewBillDetail(data);
 						}
@@ -104,7 +104,8 @@
 		$('#selectedBillNumber').change(function() {				
 			if($('#selectedBillNumber').val()!='') {
 				$.get('ref/bill/citation_statuses?billNumber='+$("#selectedBillNumber").val()
-						+'&billYear='+$("#selectedYear").val()+'&currentHouseTypeType='+$("#selectedHouseTypeType").val(), function(data) {
+						+'&billYear='+$("#selectedYear").val()+'&houseTypeId='+$("#houseType").val()
+						+'&currentHouseTypeType='+$("#currentHouseTypeType").val(), function(data) {
 					$("#status").empty();
 					var statusText=text;
 					if(data.length!=undefined) {
@@ -115,7 +116,67 @@
 						$('#deviceId').val(data[0].id);
 						$('#viewBillDetails').show();
 					} else {
-						alert($('#billNumberChangeInvalidMsg').val());
+						alert($('#billNotFoundMsg').val());
+						$('#status').html(text);
+					}					
+				});
+			} else {
+				$('#status').empty();				
+				$('#status').html(text);
+				$('#viewBillDetails').hide();
+			}			
+			$('#citationDiv').empty();
+			$('#citationDiv').hide();	
+			$('#citationPrintIcon_para').hide();			
+			$('#citation_editable_para').hide();
+		});
+		
+		$('#houseType').change(function() {				
+			if($('#selectedBillNumber').val()!='') {
+				$.get('ref/bill/citation_statuses?billNumber='+$("#selectedBillNumber").val()
+						+'&billYear='+$("#selectedYear").val()+'&houseTypeId='+$("#houseType").val()
+						+'&currentHouseTypeType='+$("#currentHouseTypeType").val(), function(data) {
+					$("#status").empty();
+					var statusText=text;
+					if(data.length!=undefined) {
+						for(var i=0;i<data.length;i++){
+							statusText+="<option value='"+data[i].value+"'>"+data[i].name;
+						}
+						$("#status").html(statusText);
+						$('#deviceId').val(data[0].id);
+						$('#viewBillDetails').show();
+					} else {
+						alert($('#billNotFoundMsg').val());
+						$('#status').html(text);
+					}					
+				});
+			} else {
+				$('#status').empty();				
+				$('#status').html(text);
+				$('#viewBillDetails').hide();
+			}			
+			$('#citationDiv').empty();
+			$('#citationDiv').hide();	
+			$('#citationPrintIcon_para').hide();			
+			$('#citation_editable_para').hide();
+		});
+		
+		$('#selectedYear').change(function() {				
+			if($('#selectedBillNumber').val()!='') {
+				$.get('ref/bill/citation_statuses?billNumber='+$("#selectedBillNumber").val()
+						+'&billYear='+$("#selectedYear").val()+'&houseTypeId='+$("#houseType").val()
+						+'&currentHouseTypeType='+$("#currentHouseTypeType").val(), function(data) {
+					$("#status").empty();
+					var statusText=text;
+					if(data.length!=undefined) {
+						for(var i=0;i<data.length;i++){
+							statusText+="<option value='"+data[i].value+"'>"+data[i].name;
+						}
+						$("#status").html(statusText);
+						$('#deviceId').val(data[0].id);
+						$('#viewBillDetails').show();
+					} else {
+						alert($('#billNotFoundMsg').val());
 						$('#status').html(text);
 					}					
 				});
@@ -211,9 +272,20 @@
 	<div id="non-printable">
 	<h2><spring:message code="bill.citationReport" text="Citation Report"/></h2>
 	<p>
-		<label class="small"><spring:message code="bill.houseType" text="House Type"/></label>
-		<input id="formattedHouseType" name="formattedSelectedHouseType" value="${selectedHouseType.getName()}" class="sText" readonly="readonly"/>
-		<input type="hidden" id="selectedHouseTypeType" name="houseType" value="${selectedHouseType.getType()}"/>		
+		<label class="small"><spring:message code="bill.citationReport.houseType" text="House Type"/></label>
+		<select id="houseType" class="sSelect">
+			<c:forEach items="${houseTypes}" var="houseType">
+				<c:choose>
+					<c:when test="${houseType.getId()==selectedHouseType.getId()}">
+						<option value="${houseType.getId()}" selected="selected">${houseType.getName()}</option>
+					</c:when>
+					<c:otherwise>
+						<option value="${houseType.getId()}">${houseType.getName()}</option>
+					</c:otherwise>
+				</c:choose>
+			</c:forEach>
+		</select>		
+		<input type="hidden" id="currentHouseTypeType" name="houseType" value="${currentHouseType.getType()}"/>		
 	</p>
 	<p>
 		<label class="small"><spring:message code="bill.year" text="Year"/></label>
@@ -260,7 +332,7 @@
 	<input id="pleaseSelectMsg" value="<spring:message code='please.select' text='Please Select'/>" type="hidden">
 	<input id="emptyBillNumberMsg" value="<spring:message code='bill.emptyBillNumberMsg' text='Please Enter Bill Number'/>" type="hidden">
 	<input id="emptyStatusMsg" value="<spring:message code='bill.emptyStatusMsg' text='Please Enter Status'/>" type="hidden">
-	<input id="billNumberChangeInvalidMsg" value="<spring:message code='bill.billNumberChangeInvalidMsg' text='Please check if bill number is valid for the year! If it is valid, contact Administrator'/>" type="hidden">
+	<input id="billNotFoundMsg" value="<spring:message code='bill.billNotFoundMsg' text='Bill not found.'/>" type="hidden">
 </div>	
 </body>
 </html>

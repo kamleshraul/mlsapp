@@ -715,6 +715,8 @@ public static final String RULING_PARTY = "ruling_party";
 	public static final String GOVERNMENT_BILL = "bills_government";
 	
 	/**** bill types ****/
+	public static final String ORIGINAL_BILL = "original";
+	
 	public static final String AMENDMENT_BILL = "amending";
 	
 	public static final String ORDINANCE_REPLACEMENT_BILL = "replace_ordinance";

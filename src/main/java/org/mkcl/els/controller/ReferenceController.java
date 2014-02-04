@@ -38,6 +38,7 @@ import org.mkcl.els.common.vo.ConstituencyCompleteVO;
 import org.mkcl.els.common.vo.DynamicSelectVO;
 import org.mkcl.els.common.vo.GroupVO;
 import org.mkcl.els.common.vo.MasterVO;
+import org.mkcl.els.common.vo.OrdinanceSearchVO;
 import org.mkcl.els.common.vo.Reference;
 import org.mkcl.els.controller.wf.EditingWorkflowController;
 import org.mkcl.els.domain.Abbreviation;
@@ -4710,9 +4711,11 @@ public class ReferenceController extends BaseController {
 											deviceType = DeviceType.findByFieldName(SessionType.class, "type", deviceTypeStr, locale.toString());
 										}
 										if(deviceType!=null) {
-											if(session.getParameter(deviceType.getType()+"_isBallotingRequired")!=null) {
+											if(deviceType.getType().equals(ApplicationConstants.NONOFFICIAL_BILL) && session.getParameter(deviceType.getType()+"_isBallotingRequired")!=null) {
 												result = session.getParameter(deviceType.getType()+"_isBallotingRequired");
-											}											
+											} else {
+												result = "";
+											}
 										}																													
 									}
 								} catch (UnsupportedEncodingException e) {
@@ -4725,5 +4728,60 @@ public class ReferenceController extends BaseController {
 			} 	
 			
 			return result;
+		}
+		
+		@RequestMapping(value="/referOrdinance/searchByNumber",method=RequestMethod.GET)
+	    public @ResponseBody OrdinanceSearchVO searchOrdinanceForReferring(final HttpServletRequest request,final ModelMap model,final Locale locale){
+			OrdinanceSearchVO ordSearchVO = new OrdinanceSearchVO();
+			String ordYearStr=request.getParameter("ordYear");
+			String ordNumberStr=request.getParameter("ordNumber");
+			if(ordYearStr!=null&&ordNumberStr!=null){
+	        	if((!ordYearStr.isEmpty())&&(!ordNumberStr.isEmpty())){
+	        		CustomParameter deploymentServer = CustomParameter.findByName(CustomParameter.class, "DEPLOYMENT_SERVER", "");      
+	        		if(deploymentServer!=null) {
+	        			String server=deploymentServer.getValue();
+        				if(server!=null) {
+        					if(server.equals("TOMCAT")){
+	        					try {
+	        						ordYearStr=new String(ordYearStr.getBytes("ISO-8859-1"),"UTF-8");
+	        						ordNumberStr=new String(ordNumberStr.getBytes("ISO-8859-1"),"UTF-8");
+	        					}
+	        					catch (UnsupportedEncodingException e) {
+	        						logger.error("**** encoding of request parameters failed ****");
+	        						ordSearchVO.setId(new Long(-1));
+	            					return ordSearchVO;
+	        					}
+	        				}
+        				} else {
+        					logger.error("**** Custom Parameter 'DEPLOYMENT_SERVER' value is not set ****");
+        					ordSearchVO.setId(new Long(-1));
+        					return ordSearchVO;
+        				}
+        				try { 
+        					Integer ordYear = Integer.parseInt(ordYearStr);
+        					Integer ordNumber = Integer.parseInt(ordNumberStr);
+        					Ordinance ordinance = Ordinance.findByYearAndNumber(ordYear, ordNumber);
+        					if(ordinance!=null) {
+        						ordSearchVO.setId(ordinance.getId());
+        						ordSearchVO.setNumber(ordinance.getNumber().toString());
+        						ordSearchVO.setYear(ordinance.getYear().toString());
+        						ordSearchVO.setTitle(ordinance.getDefaultTitle());        						
+        					} else {
+        						ordSearchVO.setId(new Long(0));
+            					return ordSearchVO;
+        					}
+        				} catch(NumberFormatException nfe) {
+        					logger.error("**** Some of numeric request parameters are invalid or not encoded due to incorrect 'DEPLOYMENT_SERVER' custom parameter value ****");
+        					ordSearchVO.setId(new Long(-1));
+        					return ordSearchVO;
+        				}        				
+	        		} else {
+	        			logger.error("**** Custom Parameter 'DEPLOYMENT_SERVER' is not set ****");
+	        			ordSearchVO.setId(new Long(-1));
+    					return ordSearchVO;
+	        		}	        		
+	        	}
+	        }
+			return ordSearchVO;
 		}
 }

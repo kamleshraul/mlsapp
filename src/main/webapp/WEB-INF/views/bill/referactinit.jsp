@@ -75,8 +75,7 @@
 			$("#referToOrdinance").hide();
 			
 			$("#backToReferringBill").click(function(){				
-				$("#referringActResultDiv").hide();
-				$("#referringOrdinanceResultDiv").hide();
+				$("#referringActOrdinanceResultDiv").hide();
 				
 				if($("#billDiv").length>0){
 					$("#billDiv").show();
@@ -428,7 +427,7 @@ cursor:pointer;
 		<c:if test="${action=='ordinance'}">
 			| 
 			<a href="#">
-				<spring:message code="advancedsearch.actordinancenumber" text="Ordinance"/>
+				<spring:message code="advancedsearch.ordinancenumber" text="Ordinance Number"/>
 			</a>	
 			<select name="ordNumber" id="refOrdNumber" style="width:100px;height: 25px;">				
 				<option value="-"><spring:message code="please.select" text="Please Select"></spring:message></option>			

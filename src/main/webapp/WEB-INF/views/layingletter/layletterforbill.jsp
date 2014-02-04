@@ -57,8 +57,8 @@
 				if($('#deviceId').val()!='' && $('#deviceId').val()!=undefined) {
 					viewBillDetail($('#deviceId').val());
 				} else {
-					$.get('ref/findIdOfBillWithGivenNumberAndYear?billNumber='+$("#selectedBillNumber").val()
-							+'&billYear='+$("#selectedYear").val(), function(data) {
+					$.get('ref/findIdOfBillWithGivenNumberYearAndHouseType?billNumber='+$("#selectedBillNumber").val()
+							+'&billYear='+$("#selectedYear").val()+'&houseTypeId='+$("#houseType").val(), function(data) {
 						if(data!='' && data!=undefined) {
 							viewBillDetail(data);
 						}
@@ -73,24 +73,83 @@
 		$('#selectedBillNumber').change(function() {				
 			if($('#selectedBillNumber').val()!='') {
 				$.get('ref/bill/checkeligibilityforlayingletter?billNumber='+$("#selectedBillNumber").val()
-						+'&billYear='+$("#selectedYear").val()+'&currentHouseTypeType='+$("#selectedHouseTypeType").val(), function(data) {
+						+'&billYear='+$("#selectedYear").val()+'&houseTypeId='+$("#houseType").val()+'&currentHouseTypeType='+$("#currentHouseTypeType").val(), function(data) {
 					if($("#houseRound option[value='']").length <= 0) {
 						$('#houseRound').prepend(text);
 					}				
 					if(data!=undefined) {
 						if(data=='-1') {
-							alert($('#billNumberChangeInvalidMsg2').val());
-							$('#selectedBillNumber').val("");
+							alert($('#billNumberChangeInvalidMsg2').val());							
 						} else if(data=='-2') {
-							alert($('#billNumberChangeInvalidMsg3').val());
-							$('#selectedBillNumber').val("");
+							alert($('#billNumberChangeInvalidMsg3').val());							
 						} else {
 							$('#deviceId').val(data);
 							$('#viewBillDetails').show();
 						}						
 					} else {
-						alert($('#billNumberChangeInvalidMsg1').val());
-						$('#selectedBillNumber').val("");
+						alert($('#billNumberChangeInvalidMsg1').val());						
+					}					
+				});
+			} else {				
+				if($("#houseRound option[value='']").length <= 0) {
+					$('#houseRound').prepend(text);
+				}				
+				$('#viewBillDetails').hide();
+			}			
+			$('#layingLetterFieldsDiv').empty();
+			$('#layingLetterFieldsDiv').hide();
+			$('#submitLayingLetterButtonsDiv').hide();
+		});
+		
+		$('#houseType').change(function() {				
+			if($('#selectedBillNumber').val()!='') {
+				$.get('ref/bill/checkeligibilityforlayingletter?billNumber='+$("#selectedBillNumber").val()
+						+'&billYear='+$("#selectedYear").val()+'&houseTypeId='+$("#houseType").val()+'&currentHouseTypeType='+$("#currentHouseTypeType").val(), function(data) {
+					if($("#houseRound option[value='']").length <= 0) {
+						$('#houseRound').prepend(text);
+					}				
+					if(data!=undefined) {
+						if(data=='-1') {
+							alert($('#billNumberChangeInvalidMsg2').val());							
+						} else if(data=='-2') {
+							alert($('#billNumberChangeInvalidMsg3').val());							
+						} else {
+							$('#deviceId').val(data);
+							$('#viewBillDetails').show();
+						}						
+					} else {
+						alert($('#billNumberChangeInvalidMsg1').val());						
+					}					
+				});
+			} else {				
+				if($("#houseRound option[value='']").length <= 0) {
+					$('#houseRound').prepend(text);
+				}				
+				$('#viewBillDetails').hide();
+			}			
+			$('#layingLetterFieldsDiv').empty();
+			$('#layingLetterFieldsDiv').hide();
+			$('#submitLayingLetterButtonsDiv').hide();
+		});
+		
+		$('#selectedYear').change(function() {				
+			if($('#selectedBillNumber').val()!='') {
+				$.get('ref/bill/checkeligibilityforlayingletter?billNumber='+$("#selectedBillNumber").val()
+						+'&billYear='+$("#selectedYear").val()+'&houseTypeId='+$("#houseType").val()+'&currentHouseTypeType='+$("#currentHouseTypeType").val(), function(data) {
+					if($("#houseRound option[value='']").length <= 0) {
+						$('#houseRound').prepend(text);
+					}				
+					if(data!=undefined) {
+						if(data=='-1') {
+							alert($('#billNumberChangeInvalidMsg2').val());							
+						} else if(data=='-2') {
+							alert($('#billNumberChangeInvalidMsg3').val());							
+						} else {
+							$('#deviceId').val(data);
+							$('#viewBillDetails').show();
+						}						
+					} else {
+						alert($('#billNumberChangeInvalidMsg1').val());						
 					}					
 				});
 			} else {				
@@ -175,9 +234,20 @@
 	<div id="resultOfRequisitionDiv"></div>
 	<h2><spring:message code="layingletter.heading" text="Laying Letter When Passed By First House"/></h2>
 	<p>
-		<label class="small"><spring:message code="layingletter.houseType" text="House Type"/></label>
-		<input id="formattedHouseType" name="formattedSelectedHouseType" value="${selectedHouseType.getName()}" class="sText" readonly="readonly"/>
-		<form:input type="hidden" id="selectedHouseTypeType" path="houseType" value="${selectedHouseType.getType()}"/>		
+		<label class="small"><spring:message code="printrequisition.houseType" text="House Type"/></label>
+		<select id="houseType" class="sSelect">
+			<c:forEach items="${houseTypes}" var="houseType">
+				<c:choose>
+					<c:when test="${houseType.getId()==selectedHouseType.getId()}">
+						<option value="${houseType.getId()}" selected="selected">${houseType.getName()}</option>
+					</c:when>
+					<c:otherwise>
+						<option value="${houseType.getId()}">${houseType.getName()}</option>
+					</c:otherwise>
+				</c:choose>
+			</c:forEach>
+		</select>		
+		<form:input type="hidden" id="currentHouseTypeType" path="houseType" value="${currentHouseType.getType()}"/>		
 	</p>
 	<p>
 		<label class="small"><spring:message code="layingletter.year" text="Year"/></label>
@@ -215,9 +285,9 @@
 	<input id="emptyBillNumberMsg" value="<spring:message code='layingletter.emptyBillNumberMsg' text='Please Enter Bill Number'/>" type="hidden">
 	<input id="emptyLayingDateMsg" value="<spring:message code='layingletter.emptyLayingDateMsg' text='Please Enter Laying Date'/>" type="hidden">
 	<input id="emptyStatusMsg" value="<spring:message code='layingletter.emptyStatusMsg' text='Please Enter Status'/>" type="hidden">
-	<input id="billNumberChangeInvalidMsg1" value="<spring:message code='layingletter.billNumberChangeInvalidMsg1' text='Please check if bill number is valid for the year! If it is valid, contact Administrator'/>" type="hidden">
+	<input id="billNumberChangeInvalidMsg1" value="<spring:message code='layingletter.billNumberChangeInvalidMsg1' text='Bill not found.'/>" type="hidden">
 	<input id="billNumberChangeInvalidMsg2" value="<spring:message code='layingletter.billNumberChangeInvalidMsg2' text='Selected bill is not currently passed from first house! So it is not eligible for laying letter.'/>" type="hidden">
-	<input id="billNumberChangeInvalidMsg3" value="<spring:message code='layingletter.billNumberChangeInvalidMsg3' text='selected housetype is not second house of selected bill! So it is not eligible for laying letter.'/>" type="hidden">
+	<input id="billNumberChangeInvalidMsg3" value="<spring:message code='layingletter.billNumberChangeInvalidMsg3' text='current housetype is not second house of selected bill! So it is not eligible for laying letter.'/>" type="hidden">
 	<input id="pressCopiesTransmittedAlreadyMsg" value="<spring:message code='layingletter.pressCopiesTransmittedAlreadyMsg' text='Press Copies are transmitted already'/>" type="hidden">
 </div>	
 </body>

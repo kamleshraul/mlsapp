@@ -47,10 +47,13 @@ import org.mkcl.els.domain.File;
 import org.mkcl.els.domain.HouseType;
 import org.mkcl.els.domain.Language;
 import org.mkcl.els.domain.LapsedEntity;
+import org.mkcl.els.domain.LayingLetter;
+import org.mkcl.els.domain.LayingLetterDraft;
 import org.mkcl.els.domain.Member;
 import org.mkcl.els.domain.MemberMinister;
 import org.mkcl.els.domain.MessageResource;
 import org.mkcl.els.domain.Ministry;
+import org.mkcl.els.domain.Ordinance;
 import org.mkcl.els.domain.PrintRequisition;
 import org.mkcl.els.domain.Query;
 import org.mkcl.els.domain.ReferencedEntity;
@@ -90,15 +93,50 @@ public class BillController extends GenericController<Bill> {
 			final String locale, final AuthUser currentUser) {
 		DeviceType deviceType=DeviceType.findByFieldName(DeviceType.class, "type",request.getParameter("type"), locale);
 		if(deviceType!=null){
+			/**** Roles ****/
+			Set<Role> roles=this.getCurrentUser().getRoles();
+			Boolean isMinister = false;
+			Boolean isMember = false;
+			for(Role i:roles){
+				if(i.getType().equals("MINISTER")){
+					isMinister = true;
+					if(deviceType.getType().equals(ApplicationConstants.NONOFFICIAL_BILL)) {						
+						model.addAttribute("errorcode","permissiondenied");
+						return;
+					}					
+				}else if(i.getType().startsWith("MEMBER_")){
+					isMember = true;
+					model.addAttribute("role",i.getType());
+					//break;
+				}else if(i.getType().contains("BIS_CLERK")){
+					model.addAttribute("role",i.getType());
+					break;
+				}else if(i.getType().startsWith("BIS_")){
+					model.addAttribute("role",i.getType());
+					break;
+				}
+			}
 			/**** Device Types ****/
 			List<DeviceType> deviceTypes = new ArrayList<DeviceType>();
+			List<DeviceType> allowedDeviceTypes = new ArrayList<DeviceType>();
 			try {
 				deviceTypes = DeviceType.findDeviceTypesStartingWith("bills", locale);
+				if(deviceTypes!=null) {
+					for(DeviceType i: deviceTypes) {
+						if(isMinister && i.getType().equals(ApplicationConstants.NONOFFICIAL_BILL)) {
+							continue;
+						} else if(isMember && !isMinister && i.getType().equals(ApplicationConstants.GOVERNMENT_BILL)) {
+							continue;
+						} else {
+							allowedDeviceTypes.add(i);
+						}
+					}
+				}
 			} catch (ELSException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
-			model.addAttribute("deviceTypes", deviceTypes);			
+			model.addAttribute("deviceTypes", allowedDeviceTypes);			
 			model.addAttribute("deviceType",deviceType.getId());
 			//Access Control Based on device Type
 			model.addAttribute("deviceTypeType",deviceType.getType());
@@ -212,21 +250,7 @@ public class BillController extends GenericController<Bill> {
 					}
 				}else{
 					model.addAttribute("errorcode","current_user_has_no_usergroups");
-				}
-				/**** Roles ****/
-				Set<Role> roles=this.getCurrentUser().getRoles();
-				for(Role i:roles){
-					if(i.getType().startsWith("MEMBER_")){
-						model.addAttribute("role",i.getType());
-						break;
-					}else if(i.getType().contains("BIS_CLERK")){
-						model.addAttribute("role",i.getType());
-						break;
-					}else if(i.getType().startsWith("BIS_")){
-						model.addAttribute("role",i.getType());
-						break;
-					}
-				}
+				}				
 				model.addAttribute("ugparam",this.getCurrentUser().getActualUsername());	
 				if(lastSessionCreated.getParameter("bills_nonofficial_isBallotingRequired")!=null) {
 					model.addAttribute("isBallotingRequired", lastSessionCreated.getParameter("bills_nonofficial_isBallotingRequired"));
@@ -304,7 +328,7 @@ public class BillController extends GenericController<Bill> {
 				return newUrlPattern;
 			}else if(i.getType().contains("ASSISTANT")||i.getType().contains("SECTION_OFFICER")){
 				return newUrlPattern.replace("edit","assistant");
-			}else if(i.getType().startsWith("ROIS_")){
+			}else if(i.getType().startsWith("BIS_")){
 				return newUrlPattern.replace("edit","editreadonly");
 			}
 		}	
@@ -671,19 +695,7 @@ public class BillController extends GenericController<Bill> {
 		}else{
 			logger.error("Parameter 'questions_starred_rotationOrderPublishingDate' not set in session with Id:"+selectedSession.getId());
 			model.addAttribute("errorcode", "rotationorderpubdate_notset");
-		}
-		/**** Referred Act for Amendment Bill ****/
-		if(domain.getBillType()!=null) {
-			if(domain.getBillType().getType().equals(ApplicationConstants.AMENDMENT_BILL)) {
-				Act referredAct = domain.getReferredAct();
-				referredAct = Act.findById(Act.class, new Long(1));
-				if(referredAct!=null) {
-					model.addAttribute("referredAct", referredAct.getId());
-					model.addAttribute("referredActNumber", FormaterUtil.getNumberFormatterNoGrouping(locale).format(referredAct.getNumber()));
-					model.addAttribute("referredActYear", FormaterUtil.getNumberFormatterNoGrouping(locale).format(referredAct.getYear()));
-				}
-			}
-		}		
+		}				
 	}
 	
 	@Override
@@ -826,8 +838,19 @@ public class BillController extends GenericController<Bill> {
 				Act referredAct = domain.getReferredAct();
 				if(referredAct!=null) {
 					model.addAttribute("referredAct", referredAct.getId());
-					model.addAttribute("referredActNumber", FormaterUtil.getNumberFormatterNoGrouping(locale).format(referredAct.getNumber()));
-					model.addAttribute("referredActYear", FormaterUtil.getNumberFormatterNoGrouping(locale).format(referredAct.getYear()));
+					model.addAttribute("referredActNumber", FormaterUtil.getNumberFormatterNoGrouping(domain.getLocale()).format(referredAct.getNumber()));
+					model.addAttribute("referredActYear", FormaterUtil.getNumberFormatterNoGrouping(domain.getLocale()).format(referredAct.getYear()));
+				}
+			}
+		}		
+		/**** Referred Ordinance for Amendment Bill ****/
+		if(domain.getBillType()!=null) {
+			if(domain.getBillType().getType().equals(ApplicationConstants.ORDINANCE_REPLACEMENT_BILL)) {
+				Ordinance referredOrdinance = domain.getReferredOrdinance();
+				if(referredOrdinance!=null) {
+					model.addAttribute("referredOrdinance", referredOrdinance.getId());
+					model.addAttribute("referredOrdinanceNumber", FormaterUtil.getNumberFormatterNoGrouping(domain.getLocale()).format(referredOrdinance.getNumber()));
+					model.addAttribute("referredOrdinanceYear", FormaterUtil.getNumberFormatterNoGrouping(domain.getLocale()).format(referredOrdinance.getYear()));
 				}
 			}
 		}		
@@ -1514,6 +1537,23 @@ public class BillController extends GenericController<Bill> {
 		/**** check for already submitted bills pending for to be putup ****/
 		Boolean isAnyBillSubmittedEarierThanCurrentBillToBePutup = Bill.isAnyBillSubmittedEarierThanCurrentBillToBePutup(domain);
 		model.addAttribute("isAnyBillSubmittedEarierThanCurrentBillToBePutup", isAnyBillSubmittedEarierThanCurrentBillToBePutup);
+	
+		/**** schedule 7 of constitution ****/
+		String languagesAllowedForBill = domain.getSession().getParameter(deviceType.getType().trim()+"_languagesAllowed");
+		if(languagesAllowedForBill!=null && !languagesAllowedForBill.isEmpty()) {
+			for(String language: languagesAllowedForBill.split("#")) {
+				String schedule7OfConstitutionForGivenLanguage = domain.getSession().getParameter(deviceType.getType().trim()+"_schedule7OfConstitution_"+language);
+				if(schedule7OfConstitutionForGivenLanguage!=null) {
+					model.addAttribute("schedule7OfConstitution_"+language, schedule7OfConstitutionForGivenLanguage);
+				}
+			}
+		}
+		
+		/**** instructional order ****/
+		String instructionalOrder = domain.getSession().getParameter(deviceType.getType().trim()+"_instructionalOrder");
+		if(instructionalOrder!=null) {
+			model.addAttribute("instructionalOrder", instructionalOrder);
+		}
 	}
 	
 	private void populateModelForStatusUpdation(ModelMap model, Bill domain, HttpServletRequest request, String usergroupType) {
@@ -1556,8 +1596,11 @@ public class BillController extends GenericController<Bill> {
 			} else {
 				currentDraft = Bill.findDraftByRecommendationStatus(domain, domain.getRecommendationStatus());
 			}
-			int currentHouseRound = currentDraft.getHouseRound();
-			model.addAttribute("currentHouseRound", FormaterUtil.formatNumberNoGrouping(currentHouseRound, domain.getLocale()));
+			Integer currentHouseRound = currentDraft.getHouseRound();
+			if(currentHouseRound!=null) {
+				model.addAttribute("currentHouseRound", currentDraft.getHouseRound());
+				model.addAttribute("formattedCurrentHouseRound", FormaterUtil.formatNumberNoGrouping(currentHouseRound, domain.getLocale()));
+			}			
 			Date currentExpectedStatusDate = currentDraft.getExpectedStatusDate();
 			if(currentExpectedStatusDate!=null) {
 				model.addAttribute("currentExpectedStatusDate", FormaterUtil.formatDateToString(currentExpectedStatusDate, ApplicationConstants.SERVER_DATEFORMAT, domain.getLocale()));	
@@ -1844,6 +1887,14 @@ public class BillController extends GenericController<Bill> {
 								if(domain.getReferredOrdinance()==null) {
 									result.rejectValue("version", "referredOrdinanceNotSet", "Please refer ordinance for the ordinance replacement bill");
 								}
+							} else if(domain.getBillType().getType().equals(ApplicationConstants.ORIGINAL_BILL)) {
+								if(domain.getReferredOrdinance()!=null || domain.getReferredAct()!=null) {
+									result.rejectValue("version", "referActOrOrdinanceNotAllowed", "Please de-refer act or ordinance referred. It's not allowed for original bill");
+								}
+							} else {
+								if(domain.getReferredOrdinance()==null && domain.getReferredAct()==null) {
+									result.rejectValue("version", "referActOrOrdinanceCompulsory", "Please refer act or ordinance.");
+								}
 							}
 						}
 					}					
@@ -1886,6 +1937,30 @@ public class BillController extends GenericController<Bill> {
 		/**** add/update statutory memorandum drafts in domain ****/
 		List<TextDraft> statutoryMemorandumDrafts = this.updateDraftsOfGivenType(domain, "statutoryMemorandumDraft", request);
 		domain.setStatutoryMemorandumDrafts(statutoryMemorandumDrafts);
+		
+		/**** Referred Act for Amendment Bill ****/
+		if(domain.getBillType()!=null) {
+			if(domain.getBillType().getType().equals(ApplicationConstants.AMENDMENT_BILL)) {
+				Act referredAct = domain.getReferredAct();
+				if(referredAct!=null) {
+					model.addAttribute("referredAct", referredAct.getId());
+					model.addAttribute("referredActNumber", FormaterUtil.getNumberFormatterNoGrouping(domain.getLocale()).format(referredAct.getNumber()));
+					model.addAttribute("referredActYear", FormaterUtil.getNumberFormatterNoGrouping(domain.getLocale()).format(referredAct.getYear()));
+				}
+			}
+		}
+		
+		/**** Referred Ordinance for Amendment Bill ****/
+		if(domain.getBillType()!=null) {
+			if(domain.getBillType().getType().equals(ApplicationConstants.ORDINANCE_REPLACEMENT_BILL)) {
+				Ordinance referredOrdinance = domain.getReferredOrdinance();
+				if(referredOrdinance!=null) {
+					model.addAttribute("referredOrdinance", referredOrdinance.getId());
+					model.addAttribute("referredOrdinanceNumber", FormaterUtil.getNumberFormatterNoGrouping(domain.getLocale()).format(referredOrdinance.getNumber()));
+					model.addAttribute("referredOrdinanceYear", FormaterUtil.getNumberFormatterNoGrouping(domain.getLocale()).format(referredOrdinance.getYear()));
+				}
+			}
+		}
 		
 		populateNew(model, domain, domain.getLocale(), request);
 		model.addAttribute("type", "error");
@@ -2179,6 +2254,14 @@ public class BillController extends GenericController<Bill> {
 							} else if(domain.getBillType().getType().equals(ApplicationConstants.ORDINANCE_REPLACEMENT_BILL)) {
 								if(domain.getReferredOrdinance()==null) {
 									result.rejectValue("version", "referredOrdinanceNotSet", "Please refer ordinance for the ordinance replacement bill");
+								}
+							} else if(domain.getBillType().getType().equals(ApplicationConstants.ORIGINAL_BILL)) {
+								if(domain.getReferredOrdinance()!=null || domain.getReferredAct()!=null) {
+									result.rejectValue("version", "referActOrOrdinanceNotAllowed", "Please de-refer act or ordinance referred. It's not allowed for original bill");
+								}
+							} else {
+								if(domain.getReferredOrdinance()==null && domain.getReferredAct()==null) {
+									result.rejectValue("version", "referActOrOrdinanceCompulsory", "Please refer act or ordinance.");
 								}
 							}
 						}
@@ -2526,8 +2609,38 @@ public class BillController extends GenericController<Bill> {
 						domain.setRecommendationStatus(oldRecommendationStatus);
 					}
 				}
-			}			
-		}		
+			}	
+			//validation for laying letter compulsory before updating in 2nd house
+			if(oldRecommendationStatus.getType().startsWith(ApplicationConstants.BILL_PROCESSED_PASSED) && oldRecommendationStatus.getType().endsWith(ApplicationConstants.BILL_FIRST_HOUSE)) {
+				String secondHouseForBill = domain.findSecondHouseType();
+				if(domain.getCurrentHouseType().getType().equals(secondHouseForBill)) {
+					String currentHouseRound = request.getParameter("currentHouseRound");
+					if(currentHouseRound!=null) {
+						Map<String, String> layingLetterIdentifiers = new HashMap<String, String>();
+						layingLetterIdentifiers.put("deviceId", domain.getId().toString());
+						layingLetterIdentifiers.put("layingFor", ApplicationConstants.LAYING_IN_SECONDHOUSE_POST_PASSED_BY_FIRST_HOUSE);				
+						layingLetterIdentifiers.put("houseRound", currentHouseRound);
+						LayingLetter layingLetter = LayingLetter.findLatestByFieldNames(layingLetterIdentifiers, domain.getLocale());
+						if(layingLetter==null) {
+							result.rejectValue("version", "layingLetterNotSent", "Letter of bill received in second house is not laid yet.");
+							domain.setRecommendationStatus(oldRecommendationStatus);
+						} else {
+							CustomParameter finalAuthorityParameter = CustomParameter.findByName(CustomParameter.class, "BILL_LAYLETTER_FINAL_AUTHORITY", "");
+							if(finalAuthorityParameter!=null) {
+								Map<String, String> finalLayingLetterDraftIdentifiers =  new HashMap<String, String>();
+								finalLayingLetterDraftIdentifiers.put("layingLetterId", layingLetter.getId().toString());
+								finalLayingLetterDraftIdentifiers.put("editedAs", finalAuthorityParameter.getValue());
+								LayingLetterDraft finalLayingLetterDraft = LayingLetterDraft.findByFieldNames(LayingLetterDraft.class, finalLayingLetterDraftIdentifiers, layingLetter.getLocale());
+								if(finalLayingLetterDraft==null) {
+									result.rejectValue("version", "layingLetterApprovalPending", "Letter of bill received in second house is not approved yet.");
+									domain.setRecommendationStatus(oldRecommendationStatus);
+								}
+							}
+						}
+					}
+				}
+			}
+		}				
 	}	
 	
 	private void populateSupportingMembers(final Bill domain,final HttpServletRequest request){
@@ -3531,47 +3644,52 @@ public class BillController extends GenericController<Bill> {
 		String thingToBeRevised = request.getParameter("thingToBeRevised");		
 		if(thingToBeRevised!=null && !thingToBeRevised.isEmpty()) {
 			drafts = Bill.getRevisions(billId, thingToBeRevised, locale.toString());
-			Bill b = Bill.findById(Bill.class, billId);
-			if(b != null){
-				if(b.getType() != null){
-					if(b.getType().getType() != null && !(b.getType().getType().isEmpty())){
-						model.addAttribute("selectedDeviceType", b.getType().getType());
-						String defaultTitleLanguage = b.getSession().getParameter(b.getType().getType()+"_defaultTitleLanguage");
-						model.addAttribute("defaultTitleLanguage", defaultTitleLanguage);
-						model.addAttribute("drafts",drafts);
-						if(thingToBeRevised.equals("checklist")) {
-							List<String> draftRevisedByHeaders = new ArrayList<String>();
-							String editedOnForFirstDraft = drafts.get(0)[3].toString();
-							for(Object[] i: drafts) {
-								if((!i.equals(drafts.get(0))) && i[3].toString().equals(editedOnForFirstDraft)) {
-									break;
-								} else {
-									String draftRevisedByHeader = i[1].toString() + 
-											"<br/>(" + i[2].toString() + "-" + i[3].toString() + ")" +
-											"<br/>" + i[4].toString();
-									draftRevisedByHeaders.add(draftRevisedByHeader);
+			if(drafts!=null && !drafts.isEmpty()) {
+				Bill b = Bill.findById(Bill.class, billId);
+				if(b != null){
+					if(b.getType() != null){
+						if(b.getType().getType() != null && !(b.getType().getType().isEmpty())){
+							model.addAttribute("selectedDeviceType", b.getType().getType());
+							String defaultTitleLanguage = b.getSession().getParameter(b.getType().getType()+"_defaultTitleLanguage");
+							model.addAttribute("defaultTitleLanguage", defaultTitleLanguage);
+							model.addAttribute("drafts",drafts);
+							if(thingToBeRevised.equals("checklist")) {
+								List<String> draftRevisedByHeaders = new ArrayList<String>();
+								String editedOnForFirstDraft = drafts.get(0)[3].toString();
+								for(Object[] i: drafts) {
+									if((!i.equals(drafts.get(0))) && i[3].toString().equals(editedOnForFirstDraft)) {
+										break;
+									} else {
+										String draftRevisedByHeader = i[1].toString() + 
+												"<br/>(" + i[2].toString() + "-" + i[3].toString() + ")" +
+												"<br/>" + i[4].toString();
+										draftRevisedByHeaders.add(draftRevisedByHeader);
+									}
 								}
-							}
-							model.addAttribute("draftRevisedByHeaders",draftRevisedByHeaders);
-							return "bill/checklist_revisions";
+								model.addAttribute("draftRevisedByHeaders",draftRevisedByHeaders);
+								return "bill/checklist_revisions";
+							} else {
+								return "bill/revisions";
+							}						
 						} else {
-							return "bill/revisions";
-						}						
+							logger.error("devicetype with id=" + b.getType().getId() + " has empty or null type attribute");
+							model.addAttribute("errorcode","some_error");
+							return "bill/error";
+						}
 					} else {
-						logger.error("devicetype with id=" + b.getType().getId() + " has empty or null type attribute");
+						logger.error("bill with id=" + b.getId() + " has no devicetype");
 						model.addAttribute("errorcode","some_error");
 						return "bill/error";
 					}
 				} else {
-					logger.error("bill with id=" + b.getId() + " has no devicetype");
+					logger.error("bill with id=" + billId + " does not exist.");
 					model.addAttribute("errorcode","some_error");
 					return "bill/error";
 				}
 			} else {
-				logger.error("bill with id=" + billId + " does not exist.");
-				model.addAttribute("errorcode","some_error");
+				model.addAttribute("errorcode","notrevisedyet");
 				return "bill/error";
-			}
+			}		
 		} else {
 			logger.error("request parameter 'thing to be revised' is not set.");
 			model.addAttribute("errorcode","some_error");
@@ -3920,85 +4038,182 @@ public class BillController extends GenericController<Bill> {
 	}
 	
 	@RequestMapping(value="/getSchedule7OfConstitution",method=RequestMethod.GET)
-	public String getFile(){				
+	public String getSchedule7OfConstitution(final ModelMap model, final HttpServletRequest request, final Locale locale){	
+		String language = request.getParameter("language");
+		model.addAttribute("language", language);
+		String sessionId = request.getParameter("sessionId");
+		model.addAttribute("sessionId", sessionId);
+		String deviceTypeId = request.getParameter("deviceTypeId");
+		model.addAttribute("deviceTypeId", deviceTypeId);
 		return "bill/schedule7OfConstitution";
 	}
+	
 	@RequestMapping(value="/viewSchedule7OfConstitution", method=RequestMethod.GET)
 	public void viewSchedule7OfConstitution(final ModelMap model, final HttpServletRequest request, final HttpServletResponse response, final Locale locale) {
-		CustomParameter billCheckListReferenceFileParameter = CustomParameter.findByName(CustomParameter.class, "BILL_CHECKLIST_REFERENCE_FILE", "");
-		boolean isBillCheckListReferenceFileParameterSet;
-		if(billCheckListReferenceFileParameter==null) {			
-			isBillCheckListReferenceFileParameterSet = false;
-		} else if(billCheckListReferenceFileParameter.getValue()==null) {
-			isBillCheckListReferenceFileParameterSet = false;
-		} else if(billCheckListReferenceFileParameter.getValue().isEmpty()) {
-			isBillCheckListReferenceFileParameterSet = false;
-		} else {
-			isBillCheckListReferenceFileParameterSet = true;
-		}
-		if(isBillCheckListReferenceFileParameterSet==false) {
-			logger.error("Custom Parameter 'BILL_CHECKLIST_REFERENCE_FILE' is not set");
-			MessageResource message = MessageResource.findByFieldName(MessageResource.class, "code", "bill.schedule7OfConstitution.notfound", locale.toString());
-    		try {
-				if(message != null) {
-	    			if(!message.getValue().isEmpty()) {
-	    				response.getWriter().println("<html><head><meta http-equiv='Content-Type' content='text/html; charset=utf-8'/></head><body><h3>" + message.getValue() + "</h3></body></html>");
-	    			} else {
-	    				response.getWriter().println("<h3>Sorry..Schedule 7 Of Constitution File is not found. Please contact administrator.</h3>");
-	    			}
-	    		} else {
-	    			response.getWriter().println("<h3>Sorry..Schedule 7 Of Constitution File is not found. Please contact administrator.</h3>");
-	    		}
-				
-    		} catch(IOException ex) {
-    			logger.error("Error in writing to response");
-    		}
-		}
-		File file = File.findByName(File.class, "schedule 7 of constitution", locale.toString());
-		if(file!=null) {
-			Document document = null;
-			try {
-				document = Document.findByTag(file.getValue());
-			} catch (ELSException e1) {
-				// TODO Auto-generated catch block
-				e1.printStackTrace();
+		boolean isError = false;
+		String errorCode = null;
+		String language = request.getParameter("language");
+		String sessionId = request.getParameter("sessionId");
+		String deviceTypeId = request.getParameter("deviceTypeId");
+		if(language!=null && sessionId!=null && deviceTypeId!=null && !language.isEmpty() && !sessionId.isEmpty() && !deviceTypeId.isEmpty()) {
+			Session session = Session.findById(Session.class, Long.parseLong(sessionId));
+			if(session!=null) {
+				DeviceType deviceType = DeviceType.findById(DeviceType.class, Long.parseLong(deviceTypeId));
+				if(deviceType!=null) {
+					String schedule7OfConstitutionForGivenLanguage = session.getParameter(deviceType.getType().trim()+"_schedule7OfConstitution_"+language);
+					if(schedule7OfConstitutionForGivenLanguage!=null) {
+						Document document = null;
+						try {
+							document = Document.findByTag(schedule7OfConstitutionForGivenLanguage);
+						} catch (ELSException e1) {
+							e1.printStackTrace();
+							isError = true;
+							errorCode = "schedule7OfConstitutionNotFoundFor"+language;
+						}
+				        try {
+				            response.setContentType(document.getType());
+				            response.setContentLength((int) document.getFileSize());
+				            response.setHeader("Content-Disposition", "inline; filename=\""
+				                    + document.getOriginalFileName() + "\"");
+				            FileCopyUtils.copy(
+				                    document.getFileData(), response.getOutputStream());
+				        } catch (IOException e) {
+				            logger.error("Error occured while opening file:" + e.toString());
+				            isError = true;
+							errorCode = "schedule7OfConstitutionDamagedFor"+language;
+				        }
+					} else {
+						isError = true;
+						errorCode = "schedule7OfConstitutionNotSetFor"+language;
+					}
+				} else {
+					isError = true;
+					errorCode = "devicetypenotfound";
+				}				
+			} else {
+				isError = true;
+				errorCode = "sessionnotfound";
 			}
-	        try {
-	            response.setContentType(document.getType());
-	            response.setContentLength((int) document.getFileSize());
-	            response.setHeader("Content-Disposition", "inline; filename=\""
-	                    + document.getOriginalFileName() + "\"");
-	            FileCopyUtils.copy(
-	                    document.getFileData(), response.getOutputStream());
-	        } catch (IOException e) {
-	            logger.error("Error occured while opening file:" + e.toString());
-	        }
 		} else {
-			MessageResource message = MessageResource.findByFieldName(MessageResource.class, "code", "bill.schedule7OfConstitution.notfound", locale.toString());
+			isError = true;
+			errorCode = "incorrectRequestParam";
+		}
+		if(isError) {
+			MessageResource message = MessageResource.findByFieldName(MessageResource.class, "code", "bill."+errorCode, locale.toString());
     		try {
 				if(message != null) {
 	    			if(!message.getValue().isEmpty()) {
 	    				response.getWriter().println("<html><head><meta http-equiv='Content-Type' content='text/html; charset=utf-8'/></head><body><h3>" + message.getValue() + "</h3></body></html>");
 	    			} else {
-	    				response.getWriter().println("<h3>Sorry..Schedule 7 Of Constitution File is not found. Please contact administrator.</h3>");
+	    				response.getWriter().println("<h3>Sorry..Seems Some Error with Schedule 7 Of Constitution File. Please contact administrator.</h3>");
 	    			}
 	    		} else {
-	    			response.getWriter().println("<h3>Sorry..Schedule 7 Of Constitution File is not found. Please contact administrator.</h3>");
+	    			response.getWriter().println("<h3>Sorry..Seems Some Error with Schedule 7 Of Constitution File. Please contact administrator.</h3>");
 	    		}
     		} catch(IOException ex) {
     			logger.error("Error in writing to response");
     		}
+		}		
+	}
+	
+	@RequestMapping(value="/getInstructionalOrder",method=RequestMethod.GET)
+	public String getInstructionalOrder(final ModelMap model, final HttpServletRequest request, final Locale locale){	
+		String sessionId = request.getParameter("sessionId");
+		model.addAttribute("sessionId", sessionId);
+		String deviceTypeId = request.getParameter("deviceTypeId");
+		model.addAttribute("deviceTypeId", deviceTypeId);
+		return "bill/instructionalOrder";
+	}
+	
+	@RequestMapping(value="/viewInstructionalOrder", method=RequestMethod.GET)
+	public void viewInstructionalOrder(final ModelMap model, final HttpServletRequest request, final HttpServletResponse response, final Locale locale) {
+		boolean isError = false;
+		String errorCode = null;
+		String sessionId = request.getParameter("sessionId");
+		String deviceTypeId = request.getParameter("deviceTypeId");
+		if(sessionId!=null && deviceTypeId!=null && !sessionId.isEmpty() && !deviceTypeId.isEmpty()) {
+			Session session = Session.findById(Session.class, Long.parseLong(sessionId));
+			if(session!=null) {
+				DeviceType deviceType = DeviceType.findById(DeviceType.class, Long.parseLong(deviceTypeId));
+				if(deviceType!=null) {
+					String instructionalOrder = session.getParameter(deviceType.getType().trim()+"_instructionalOrder");
+					if(instructionalOrder!=null) {
+						Document document = null;
+						try {
+							document = Document.findByTag(instructionalOrder);
+						} catch (ELSException e1) {
+							e1.printStackTrace();
+							isError = true;
+							errorCode = "instructionalOrderFileNotFound";
+						}
+				        try {
+				            response.setContentType(document.getType());
+				            response.setContentLength((int) document.getFileSize());
+				            response.setHeader("Content-Disposition", "inline; filename=\""
+				                    + document.getOriginalFileName() + "\"");
+				            FileCopyUtils.copy(
+				                    document.getFileData(), response.getOutputStream());
+				        } catch (IOException e) {
+				            logger.error("Error occured while opening file:" + e.toString());
+				            isError = true;
+							errorCode = "instructionalOrderFileDamaged";
+				        }
+					} else {
+						isError = true;
+						errorCode = "instructionalOrderParameterNotSet";
+					}
+				} else {
+					isError = true;
+					errorCode = "devicetypenotfound";
+				}				
+			} else {
+				isError = true;
+				errorCode = "sessionnotfound";
+			}
+		} else {
+			isError = true;
+			errorCode = "incorrectRequestParam";
 		}
-		
+		if(isError) {
+			MessageResource message = MessageResource.findByFieldName(MessageResource.class, "code", "bill."+errorCode, locale.toString());
+    		try {
+				if(message != null) {
+	    			if(!message.getValue().isEmpty()) {
+	    				response.getWriter().println("<html><head><meta http-equiv='Content-Type' content='text/html; charset=utf-8'/></head><body><h3>" + message.getValue() + "</h3></body></html>");
+	    			} else {
+	    				response.getWriter().println("<h3>Sorry..Seems Some Error with Instructional Order File. Please contact administrator.</h3>");
+	    			}
+	    		} else {
+	    			response.getWriter().println("<h3>Sorry..Seems Some Error with Instructional Order File. Please contact administrator.</h3>");
+	    		}
+    		} catch(IOException ex) {
+    			logger.error("Error in writing to response");
+    		}
+		}		
 	}
 	
 	@RequestMapping(value="/referAct/init",method=RequestMethod.GET)
-	public String initReferAct(final HttpServletRequest request,final ModelMap model, final Locale locale){
+	public String initReferActOrOrdinance(final HttpServletRequest request,final ModelMap model, final Locale locale){
+		String returnPath = null;
 		String action = request.getParameter("action");
 		if(action != null){
-			if(!action.isEmpty()){
+			if(!action.isEmpty()){				
 				model.addAttribute("action", action);
 				if(action.equals("act")){
+					CustomParameter defaultTitleLanguage = CustomParameter.findByName(CustomParameter.class, "ACT_DEFAULT_LANGUAGE", "");
+					if(defaultTitleLanguage!=null) {
+						if(defaultTitleLanguage.getValue()!=null && !defaultTitleLanguage.getValue().isEmpty()) {
+							model.addAttribute("defaultTitleLanguage", defaultTitleLanguage.getValue());
+						} else {
+							logger.error("**** Custom Parameter 'ACT_DEFAULT_LANGUAGE' is not set. ****");
+							model.addAttribute("errorcode", "actdefaultlanguagenotset");
+							return "bill/error";
+						}
+					} else {
+						logger.error("**** Custom Parameter 'ACT_DEFAULT_LANGUAGE' is not set. ****");
+						model.addAttribute("errorcode", "actdefaultlanguagenotset");
+						return "bill/error";
+					}
 					CustomParameter firstActYearParameter = CustomParameter.findByName(CustomParameter.class, "FIRST_ACT_YEAR", "");
 					if(firstActYearParameter!=null) {
 						String firstActYearStr = firstActYearParameter.getValue();
@@ -4015,7 +4230,8 @@ public class BillController extends GenericController<Bill> {
 									year.setName(FormaterUtil.formatNumberNoGrouping(i, locale.toString()));						
 									years.add(year);
 								}
-								model.addAttribute("years", years);										
+								model.addAttribute("years", years);		
+								returnPath = "bill/referactinit";
 							} else{
 								logger.error("**** Custom Parameter 'FIRST_ACT_YEAR' is set with empty value. ****");
 								model.addAttribute("errorcode", "firstactyearnotset");					
@@ -4029,7 +4245,21 @@ public class BillController extends GenericController<Bill> {
 						model.addAttribute("errorcode", "firstactyearnotset");			
 					}	
 				}else if(action.equals("ordinance")){
-					CustomParameter firstOrdinanceYearParameter = CustomParameter.findByName(CustomParameter.class, "FIRST_ORDINANCE_YEAR", "");
+					CustomParameter defaultTitleLanguage = CustomParameter.findByName(CustomParameter.class, "ORDINANCE_DEFAULT_LANGUAGE", "");
+					if(defaultTitleLanguage!=null) {
+						if(defaultTitleLanguage.getValue()!=null && !defaultTitleLanguage.getValue().isEmpty()) {
+							model.addAttribute("defaultTitleLanguage", defaultTitleLanguage.getValue());
+						} else {
+							logger.error("**** Custom Parameter 'ORDINANCE_DEFAULT_LANGUAGE' is not set. ****");
+							model.addAttribute("errorcode", "ordinancedefaultlanguagenotset");
+							return "bill/error";
+						}
+					} else {
+						logger.error("**** Custom Parameter 'ORDINANCE_DEFAULT_LANGUAGE' is not set. ****");
+						model.addAttribute("errorcode", "ordinancedefaultlanguagenotset");
+						return "bill/error";
+					}
+					CustomParameter firstOrdinanceYearParameter = CustomParameter.findByName(CustomParameter.class, "FIRST_ORDINANCE_YEAR", "");					
 					if(firstOrdinanceYearParameter!=null) {
 						String firstOrdinanceYearStr = firstOrdinanceYearParameter.getValue();
 						if(firstOrdinanceYearStr!=null) {
@@ -4046,7 +4276,7 @@ public class BillController extends GenericController<Bill> {
 									years.add(year);
 								}
 								model.addAttribute("years", years);
-								
+								returnPath = "bill/referordinanceinit";
 							} else{
 								logger.error("**** Custom Parameter 'FIRST_ACT_YEAR' is set with empty value. ****");
 								model.addAttribute("errorcode", "firstactyearnotset");					
@@ -4056,14 +4286,18 @@ public class BillController extends GenericController<Bill> {
 							model.addAttribute("errorcode", "firstactyearnotset");				
 						}		
 					} else{
-						logger.error("**** Custom Parameter 'FIRST_ACT_YEAR' is not set. ****");
-						model.addAttribute("errorcode", "firstactyearnotset");			
+						logger.error("**** Custom Parameter 'FIRST_ACT_YEAR' or 'ORDINANCE_DEFAULT_LANGUAGE' is not set. ****");
+						model.addAttribute("errorcode", "firstactyearnotset");						
 					}	
 				}
 					
 			}
-		}	
-		return "bill/referactinit";
+		}
+		if(returnPath!=null) {
+			return returnPath;
+		} else {
+			return "bill/error";
+		}		
 	}
 	
 	@RequestMapping(value="/referAct/search",method=RequestMethod.POST)
@@ -5053,17 +5287,30 @@ public class BillController extends GenericController<Bill> {
 	
 	@RequestMapping(value = "/citationReport", method = RequestMethod.GET)
 	public String getCitationReportInit(final ModelMap model, final HttpServletRequest request, final Locale locale) {
-		String selectedHouseTypeType = request.getParameter("houseType");
+		String currentHouseTypeType = request.getParameter("houseType");
 		String selectedYearStr = request.getParameter("sessionYear");
 		String selectedBillIdStr = request.getParameter("billId");
-		/**** House Type ****/
-		HouseType selectedHouseType = null;
-		if(selectedHouseTypeType!=null) {
-			if(!selectedHouseTypeType.isEmpty()) {
-				if(!selectedHouseTypeType.equals(ApplicationConstants.BOTH_HOUSE)) {
-					selectedHouseType = HouseType.findByFieldName(HouseType.class, "type", selectedHouseTypeType, locale.toString());
-					if(selectedHouseType!=null) {
-						model.addAttribute("selectedHouseType", selectedHouseType);					
+		/**** House Types ****/
+		List<HouseType> houseTypes = HouseType.findAll(HouseType.class, "type", ApplicationConstants.ASC, locale.toString());
+		if(houseTypes==null) {
+			logger.error("**** house types are not available. ****");
+			model.addAttribute("errorcode", "HOUSETYPES_NOT_AVAILABLE");		
+			return "bill/error";
+		}
+		if(houseTypes.isEmpty()) {
+			logger.error("**** house types are not available. ****");
+			model.addAttribute("errorcode", "HOUSETYPES_NOT_AVAILABLE");		
+			return "bill/error";
+		}
+		model.addAttribute("houseTypes", houseTypes);
+		/**** Current HouseType ****/
+		HouseType currentHouseType = null;
+		if(currentHouseTypeType!=null) {
+			if(!currentHouseTypeType.isEmpty()) {
+				if(!currentHouseTypeType.equals(ApplicationConstants.BOTH_HOUSE)) {
+					currentHouseType = HouseType.findByFieldName(HouseType.class, "type", currentHouseTypeType, locale.toString());
+					if(currentHouseType!=null) {
+						model.addAttribute("currentHouseType", currentHouseType);					
 					} else {
 						logger.error("**** Check request parameter 'houseType' for incorrect value. ****");
 						model.addAttribute("errorcode", "REQUEST_PARAMETER_INVALID");		
@@ -5080,75 +5327,48 @@ public class BillController extends GenericController<Bill> {
 			model.addAttribute("errorcode", "REQUEST_PARAMETER_NULL");		
 			return "bill/error";
 		}
-		/**** Bill Year ****/
-		int selectedYear;
-		if(selectedYearStr!=null) {
-			if(!selectedYearStr.isEmpty()) {
-				try {
-					selectedYear = Integer.parseInt(selectedYearStr);
-					model.addAttribute("formattedSelectedYear", FormaterUtil.formatNumberNoGrouping(selectedYear, locale.toString()));
-					model.addAttribute("selectedYear", selectedYear);
-				} catch(NumberFormatException ne) {
-					logger.error("**** Check request parameter 'year' for non-numeric value. ****");
-					model.addAttribute("errorcode", "REQUEST_PARAMETER_INVALID");		
-					return "bill/error";
-				}
-			} else {
-				logger.error("**** Check request parameter 'year' for empty value. ****");
-				model.addAttribute("errorcode", "REQUEST_PARAMETER_EMPTY");		
-				return "bill/error";
-			}
-		} else {
-			logger.error("**** Check request parameter 'year' for null value. ****");
-			model.addAttribute("errorcode", "REQUEST_PARAMETER_NULL");		
-			return "bill/error";
-		}
 		/**** Selected Bill ****/
+		Bill selectedBill = null;
 		if(selectedBillIdStr!=null) {
 			if(!selectedBillIdStr.isEmpty()) {
 				try {
 					long selectedBillId = Long.parseLong(selectedBillIdStr);
-					Bill selectedBill = Bill.findById(Bill.class, selectedBillId);
+					selectedBill = Bill.findById(Bill.class, selectedBillId);
 					if(selectedBill!=null) {
-						Integer selectedBillYear = Bill.findYear(selectedBill);
-						if(selectedBillYear!=null) {
-							if(selectedBillYear==selectedYear) {
-								if(selectedBill.getNumber()!=null) {
-									model.addAttribute("selectedBillNumber", FormaterUtil.formatNumberNoGrouping(selectedBill.getNumber(), locale.toString()));
-									model.addAttribute("selectedBillId", selectedBill.getId());
-									/**** Citation Statuses Allowed For Selected Bill In Selected House ****/
-									String currentHouseOrder = Bill.findHouseOrderOfGivenHouseForBill(selectedBill, selectedHouseType.getType());
-									CustomParameter citationStatusParameter = CustomParameter.findByName(CustomParameter.class, "BILL_CITATION_STATUSOPTIONS_"+currentHouseOrder.toUpperCase(), "");
-									if(citationStatusParameter!=null) {
-										if(citationStatusParameter.getValue()!=null) {									
-											StringBuffer filteredStatusTypes = new StringBuffer("");
-											String[] statusTypesArr = citationStatusParameter.getValue().split(",");
-											for(String i: statusTypesArr) {
-												System.out.println(filteredStatusTypes.toString());
-												if(!i.trim().isEmpty()) {
-													if(i.trim().endsWith(ApplicationConstants.BILL_FIRST_HOUSE) || i.trim().endsWith(ApplicationConstants.BILL_SECOND_HOUSE)) {
-														if(i.trim().endsWith(selectedHouseType.getType() + "_" + currentHouseOrder)) {
-															filteredStatusTypes.append(i.trim()+",");							
-														}
-													} else {
-														filteredStatusTypes.append(i.trim()+",");
-													}					
-												}				
-											}
-											filteredStatusTypes.deleteCharAt(filteredStatusTypes.length()-1);	
-											List<Status> citationStatuses = Status.findStatusContainedIn(filteredStatusTypes.toString(), locale.toString(), ApplicationConstants.ASC);
-											model.addAttribute("citationStatuses", citationStatuses);
-										} else {
-											logger.error("Custom Parameter 'BILL_CITATION_STATUSOPTIONS_"+currentHouseOrder.toUpperCase()+"' is not set properly");
-											model.addAttribute("errorcode", "bill_citation_statusoptions_setincorrect");
-											return "bill/error";
-										}
-									} else {
-										logger.error("Custom Parameter 'BILL_CITATION_STATUSOPTIONS_"+currentHouseOrder.toUpperCase()+"' is not set");
-										model.addAttribute("errorcode", "bill_citation_statusoptions_notset");
-										return "bill/error";
+						if(selectedBill.getNumber()!=null) {
+							model.addAttribute("selectedBillNumber", FormaterUtil.formatNumberNoGrouping(selectedBill.getNumber(), locale.toString()));
+							model.addAttribute("selectedBillId", selectedBill.getId());
+							/**** Citation Statuses Allowed For Selected Bill In Selected House ****/
+							String currentHouseOrder = Bill.findHouseOrderOfGivenHouseForBill(selectedBill, currentHouseType.getType());
+							CustomParameter citationStatusParameter = CustomParameter.findByName(CustomParameter.class, "BILL_CITATION_STATUSOPTIONS_"+currentHouseOrder.toUpperCase(), "");
+							if(citationStatusParameter!=null) {
+								if(citationStatusParameter.getValue()!=null) {									
+									StringBuffer filteredStatusTypes = new StringBuffer("");
+									String[] statusTypesArr = citationStatusParameter.getValue().split(",");
+									for(String i: statusTypesArr) {
+										System.out.println(filteredStatusTypes.toString());
+										if(!i.trim().isEmpty()) {
+											if(i.trim().endsWith(ApplicationConstants.BILL_FIRST_HOUSE) || i.trim().endsWith(ApplicationConstants.BILL_SECOND_HOUSE)) {
+												if(i.trim().endsWith(currentHouseType.getType() + "_" + currentHouseOrder)) {
+													filteredStatusTypes.append(i.trim()+",");							
+												}
+											} else {
+												filteredStatusTypes.append(i.trim()+",");
+											}					
+										}				
 									}
-								}								
+									filteredStatusTypes.deleteCharAt(filteredStatusTypes.length()-1);	
+									List<Status> citationStatuses = Status.findStatusContainedIn(filteredStatusTypes.toString(), locale.toString(), ApplicationConstants.ASC);
+									model.addAttribute("citationStatuses", citationStatuses);
+								} else {
+									logger.error("Custom Parameter 'BILL_CITATION_STATUSOPTIONS_"+currentHouseOrder.toUpperCase()+"' is not set properly");
+									model.addAttribute("errorcode", "bill_citation_statusoptions_setincorrect");
+									return "bill/error";
+								}
+							} else {
+								logger.error("Custom Parameter 'BILL_CITATION_STATUSOPTIONS_"+currentHouseOrder.toUpperCase()+"' is not set");
+								model.addAttribute("errorcode", "bill_citation_statusoptions_notset");
+								return "bill/error";
 							}
 						}						
 					}
@@ -5158,6 +5378,48 @@ public class BillController extends GenericController<Bill> {
 					return "bill/error";
 				}								
 			}
+		}
+		/**** Bill Year ****/
+		Integer selectedYear = null;
+		if(selectedBill!=null) {
+			selectedYear = Bill.findYear(selectedBill);
+		}
+		if(selectedYear==null) {
+			if(selectedYearStr!=null) {
+				if(!selectedYearStr.isEmpty()) {
+					try {
+						selectedYear = Integer.parseInt(selectedYearStr);					
+					} catch(NumberFormatException ne) {
+						logger.error("**** Check request parameter 'year' for non-numeric value. ****");
+						model.addAttribute("errorcode", "REQUEST_PARAMETER_INVALID");		
+						return "bill/error";
+					}
+				} else {
+					logger.error("**** Check request parameter 'year' for empty value. ****");
+					model.addAttribute("errorcode", "REQUEST_PARAMETER_EMPTY");		
+					return "bill/error";
+				}
+			} else {
+				logger.error("**** Check request parameter 'year' for null value. ****");
+				model.addAttribute("errorcode", "REQUEST_PARAMETER_NULL");		
+				return "bill/error";
+			}
+		}
+		if(selectedYear!=null) {
+			model.addAttribute("formattedSelectedYear", FormaterUtil.formatNumberNoGrouping(selectedYear, locale.toString()));
+			model.addAttribute("selectedYear", selectedYear);
+		}	
+		/**** Bill HouseType ****/
+		HouseType selectedHouseType = currentHouseType;
+		if(selectedBill!=null) {
+			if(selectedBill.getType().getType().equals(ApplicationConstants.NONOFFICIAL_BILL)) {
+				selectedHouseType = selectedBill.getHouseType();
+			} else if(selectedBill.getType().getType().equals(ApplicationConstants.GOVERNMENT_BILL)) {
+				selectedHouseType = selectedBill.getIntroducingHouseType();
+			}
+		}
+		if(selectedHouseType!=null) {
+			model.addAttribute("selectedHouseType", selectedHouseType);
 		}
 		/**** Default Date For Status (Current Date) ****/
 		model.addAttribute("currentDate", FormaterUtil.formatDateToString(new Date(), ApplicationConstants.SERVER_DATEFORMAT, locale.toString()));

@@ -905,7 +905,7 @@ public class BillWorkflowController extends BaseController {
 		String usergroupTypeForLayingLetter = request.getParameter("currentusergroupType");
 		if(usergroupTypeForLayingLetter!=null){
 			UserGroupType userGroupType=UserGroupType.findByFieldName(UserGroupType.class,"type",usergroupTypeForLayingLetter, layingLetter.getLocale());
-			layingLetter.setEditedAs(userGroupType.getName());
+			layingLetter.setEditedAs(userGroupType.getType());
 		}
 		layingLetter.merge();
 		/**** display message ****/

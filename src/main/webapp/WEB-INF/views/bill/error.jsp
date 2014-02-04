@@ -145,7 +145,7 @@
 		<div class="toolTip tpRed clearfix">
 			<p>
 				<img src="./resources/images/template/icons/light-bulb-off.png">
-				<spring:message code="bill.errorcode.rotationorderpubdate_notset" text="Parameter 'bills_starred_rotationOrderPublishingDate' not set in session"/>
+				<spring:message code="bill.errorcode.rotationorderpubdate_notset" text="Parameter 'questions_starred_rotationOrderPublishingDate' not set in session"/>
 			</p>
 			<p></p>
 		</div>

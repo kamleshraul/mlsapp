@@ -141,16 +141,18 @@
 				}
 			}
 			
-			//initialize languages allowed
+			//initialize languages allowed & schedule 7 of constitution for them
 			if(deviceTypeSelected == 'bills_nonofficial' || deviceTypeSelected == 'bills_government') {
 				if($("#"+deviceTypeSelected+"_languagesAllowed_hidden").attr('title')!=""){					
 					var languagesAllowed=$("#"+deviceTypeSelected+"_languagesAllowed_hidden").attr('title').split("#");
 					var i;					
 					for(i = 0; i < languagesAllowed.length; i++){
 						$("#"+deviceTypeSelected+"_languagesAllowed option").each(function(){
-							if(languagesAllowed[i]==$(this).val()){
+							var currentLanguage = $(this).val();							
+							if(languagesAllowed[i]==currentLanguage){
 								//$(this).prop('selected',true);
 								$(this).attr('selected','selected');
+								$('#'+deviceTypeSelected+'_schedule7OfConstitution_para_'+currentLanguage).show();
 							}	
 						});
 					}					
@@ -354,6 +356,49 @@
 				}
 			});
 			
+			$('.changeFile_schedule7OfConstitution').click(function() {
+				var deviceTypeForSchedule7 = $('#deviceType').val();				
+				deviceTypeForSchedule7 = deviceTypeForSchedule7.replace(/_/g, "-");
+				var linkId = this.id;
+				$.prompt($('#confirmFileChangeMsg').val(),{
+					buttons: {Ok:true, Cancel:false}, callback: function(v){
+			        if(v){			        				
+						$('#' + $('#deviceType').val() + '_languagesAllowed option:selected').each(function() {					
+							var language = this.value;
+							if(linkId.indexOf(language) >= 0) {
+								var fileid = deviceTypeForSchedule7+"-schedule7OfConstitution-"+language;
+								$.get('./common/file_upload.jsp?fileid='+fileid,function(dataupload){
+									$('#file_'+fileid+'_downloadUploadedFile').replaceWith(dataupload);
+									$('#image_'+fileid).attr("src","");
+									$('#image_'+fileid).hide();
+								});
+							}					
+						});
+						$('#'+linkId).hide();
+	    	        }
+				}});														
+		        return false;				
+			});
+			
+			$('.changeFile_instructionalOrder').click(function() {
+				var deviceTypeForInstructionalOrder = $('#deviceType').val();				
+				deviceTypeForInstructionalOrder = deviceTypeForInstructionalOrder.replace(/_/g, "-");
+				var linkId = this.id;
+				$.prompt($('#confirmFileChangeMsg').val(),{
+					buttons: {Ok:true, Cancel:false}, callback: function(v){
+			        if(v){			        				
+			        	var fileid = deviceTypeForInstructionalOrder+"-instructionalOrder";
+						$.get('./common/file_upload.jsp?fileid='+fileid,function(dataupload){
+							$('#file_'+fileid+'_downloadUploadedFile').replaceWith(dataupload);
+							$('#image_'+fileid).attr("src","");
+							$('#image_'+fileid).hide();
+						});
+						$('#'+linkId).hide();
+	    	        }
+				}});														
+		        return false;				
+			});
+			
 			$('#submit').click(function(){
 				//get selected device type
 				var deviceTypeSeleted = $('#deviceType').val();
@@ -461,6 +506,19 @@
 					//therefore setting value of selectbox to empty
 					$('#' +  deviceTypeSeleted+ '_ballotEvents').val("");				
 					
+				}
+				
+				if(deviceTypeSeleted == 'bills_nonofficial' || deviceTypeSeleted == 'bills_government') {
+					var deviceTypeForFile = deviceTypeSeleted.replace(/_/g, "-");
+					$('#' + deviceTypeSeleted + '_languagesAllowed option:selected').each(function() {
+						var language = $(this).val();
+						var fileTag = $('#'+deviceTypeForFile+'-schedule7OfConstitution-'+language).val();
+						$('#'+deviceTypeSeleted+'_schedule7OfConstitution_'+language).val(fileTag);	
+						$('#'+deviceTypeForFile+'-schedule7OfConstitution-'+language).removeAttr('name');
+					});	
+					fileTag = $('#'+deviceTypeForFile+'-instructionalOrder').val();					
+					$('#'+deviceTypeSeleted+'_instructionalOrder').val(fileTag);
+					$('#'+deviceTypeForFile+'-instructionalOrder').removeAttr('name');					
 				}
 				
 				//set selected device type as form field
@@ -1213,6 +1271,12 @@
 					<input type="hidden" class="datetimemask sText" name="bills_nonofficial_submissionStartDate" id="bills_nonofficial_submissionStartDate" value="${bills_nonofficial_submissionstartdate}" />
 				</p>
 				
+				<p>
+					<label class="small"><spring:message code="session.deviceType.isBallotingRequired" text="is Balloting Required" /></label>
+					<input type="checkbox" class="sCheck isBallotingRequired" id="bills_nonofficial_isBallotingRequired" value="${bills_nonofficial_isballotingrequired}" >
+					<input type="hidden" id="bills_nonofficial_isBallotingRequired_Hidden" name="bills_nonofficial_isBallotingRequired" value="" />
+				</p>
+				
 				<%-- <p>
 					<label class="small"><spring:message code="session.deviceType.numberOfBills" text="Number of Bills" /></label>
 					<input type="text" class="sInteger" name="bills_nonofficial_numberOfBills" id="bills_nonofficial_numberOfBills" value="${bills_nonofficial_numberofbills}" />
@@ -1323,7 +1387,50 @@
 					<select class="sSelectMultiple" name="bills_nonofficial_discussionDates" id="bills_nonofficial_discussionDates" multiple="multiple">
 					</select>
 					<label style="display: none;" id="bills_nonofficial_discussionDates_hidden" title="${bills_nonofficial_discussiondates}"></label>
-				</p>						
+				</p>
+				
+				<c:forEach items="${languages}" var="i">
+				<p id="bills_nonofficial_schedule7OfConstitution_para_${i.type}" style="display: none;">
+					<label class="small"><spring:message code="session.deviceType.schedule7OfConstitution.${i.type}" text="Schedule 7 Of Constitution in ${i.type}" /></label>
+					<c:set var="schedule7OfConstitutionForGivenLanguage" value="bills_nonofficial_schedule7ofconstitution_${i.type}"/>
+					<c:choose>
+						<c:when test="${empty requestScope[schedule7OfConstitutionForGivenLanguage]}">
+							<jsp:include page="/common/file_upload.jsp">
+								<jsp:param name="fileid" value="bills-nonofficial-schedule7OfConstitution-${i.type}" />
+							</jsp:include>
+						</c:when>
+						<c:otherwise>		
+							<jsp:include page="/common/file_download.jsp">
+								<jsp:param name="fileid" value="bills-nonofficial-schedule7OfConstitution-${i.type}" />
+								<jsp:param name="filetag" value="${requestScope[schedule7OfConstitutionForGivenLanguage]}" />
+								<jsp:param name="isRemovable" value="false" />
+							</jsp:include>
+							<a href="javascript:void(0)" id="changeFile_bills_nonofficial_schedule7OfConstitution_${i.type}" class="changeFile_schedule7OfConstitution">Change File</a>
+						</c:otherwise>
+					</c:choose>
+					<input type="hidden" id="bills_nonofficial_schedule7OfConstitution_${i.type}" name="bills_nonofficial_schedule7OfConstitution_${i.type}" value=""/>					
+				</p>
+				</c:forEach>	
+				
+				<p>
+					<label class="small"><spring:message code="session.deviceType.instructionalOrder" text="Schedule 7 Of Constitution in ${i.type}" /></label>
+					<c:choose>
+						<c:when test="${empty bills_nonofficial_instructionalorder}">
+							<jsp:include page="/common/file_upload.jsp">
+								<jsp:param name="fileid" value="bills-nonofficial-instructionalOrder" />
+							</jsp:include>
+						</c:when>
+						<c:otherwise>		
+							<jsp:include page="/common/file_download.jsp">
+								<jsp:param name="fileid" value="bills-nonofficial-instructionalOrder" />
+								<jsp:param name="filetag" value="${bills_nonofficial_instructionalorder}" />
+								<jsp:param name="isRemovable" value="false" />
+							</jsp:include>
+							<a href="javascript:void(0)" id="changeFile_bills_nonofficial_instructionalOrder" class="changeFile_instructionalOrder">Change File</a>
+						</c:otherwise>
+					</c:choose>
+					<input type="hidden" id="bills_nonofficial_instructionalOrder" name="bills_nonofficial_instructionalOrder" value=""/>					
+				</p>					
 			</div>
 		</c:if>
 		
@@ -1419,7 +1526,50 @@
 				<p>
 					<label class="small"><spring:message code="session.deviceType.translationTimeoutDays" text="Number of Translation Timeout Days" /></label>
 					<input type="text" class="sInteger" name="bills_government_translationTimeoutDays" id="bills_government_translationTimeoutDays" value="${bills_government_translationtimeoutdays}" />
-				</p>				
+				</p>
+				
+				<c:forEach items="${languages}" var="i">
+				<p id="bills_government_schedule7OfConstitution_para_${i.type}" style="display: none;">
+					<label class="small"><spring:message code="session.deviceType.schedule7OfConstitution.${i.type}" text="Schedule 7 Of Constitution in ${i.type}" /></label>
+					<c:set var="schedule7OfConstitutionForGivenLanguage" value="bills_government_schedule7ofconstitution_${i.type}"/>
+					<c:choose>
+						<c:when test="${empty requestScope[schedule7OfConstitutionForGivenLanguage]}">
+							<jsp:include page="/common/file_upload.jsp">
+								<jsp:param name="fileid" value="bills-government-schedule7OfConstitution-${i.type}" />
+							</jsp:include>
+						</c:when>
+						<c:otherwise>		
+							<jsp:include page="/common/file_download.jsp">
+								<jsp:param name="fileid" value="bills-government-schedule7OfConstitution-${i.type}" />
+								<jsp:param name="filetag" value="${requestScope[schedule7OfConstitutionForGivenLanguage]}" />
+								<jsp:param name="isRemovable" value="false" />
+							</jsp:include>
+							<a href="javascript:void(0)" id="changeFile_bills_government_schedule7OfConstitution_${i.type}" class="changeFile_schedule7OfConstitution">Change File</a>
+						</c:otherwise>
+					</c:choose>
+					<input type="hidden" id="bills_government_schedule7OfConstitution_${i.type}" name="bills_government_schedule7OfConstitution_${i.type}" value=""/>					
+				</p>
+				</c:forEach>		
+				
+				<p>
+					<label class="small"><spring:message code="session.deviceType.instructionalOrder" text="Schedule 7 Of Constitution in ${i.type}" /></label>
+					<c:choose>
+						<c:when test="${empty bills_government_instructionalorder}">
+							<jsp:include page="/common/file_upload.jsp">
+								<jsp:param name="fileid" value="bills-government-instructionalOrder" />
+							</jsp:include>
+						</c:when>
+						<c:otherwise>		
+							<jsp:include page="/common/file_download.jsp">
+								<jsp:param name="fileid" value="bills-government-instructionalOrder" />
+								<jsp:param name="filetag" value="${bills_government_instructionalorder}" />
+								<jsp:param name="isRemovable" value="false" />
+							</jsp:include>
+							<a href="javascript:void(0)" id="changeFile_bills_government_instructionalOrder" class="changeFile_instructionalOrder">Change File</a>
+						</c:otherwise>
+					</c:choose>
+					<input type="hidden" id="bills_government_instructionalOrder" name="bills_government_instructionalOrder" value=""/>					
+				</p>		
 			</div>
 		</c:if>
 		
@@ -1437,5 +1587,6 @@
 	<input type="hidden" id="noDiscussionDateSelected" value="<spring:message code='resolutions.noDiscussionDateSelected' text='Please set discussion date/s' />" />
 	<input type="hidden" id="ajaxErrorOccured" value="<spring:message code='ajaxErrorOccured' text='Some Error Occured' />" />
 	<input type="hidden" id="ErrorMsg" value="<spring:message code='generic.error' text='Error Occured Contact For Support.'/>"/>
+	<input type="hidden" id="confirmFileChangeMsg" value="<spring:message code='generic.confirmFileChangeMsg' text='Are you sure to change this file?'/>"/>
 </body>
 </html>

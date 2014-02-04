@@ -50,8 +50,8 @@
 				if($('#deviceId').val()!='' && $('#deviceId').val()!=undefined) {
 					viewBillDetail($('#deviceId').val());
 				} else {
-					$.get('ref/findIdOfBillWithGivenNumberAndYear?billNumber='+$("#selectedBillNumber").val()
-							+'&billYear='+$("#selectedYear").val(), function(data) {
+					$.get('ref/findIdOfBillWithGivenNumberYearAndHouseType?billNumber='+$("#selectedBillNumber").val()
+							+'&billYear='+$("#selectedYear").val()+'&houseTypeId='+$("#houseType").val(), function(data) {
 						if(data!='' && data!=undefined) {
 							viewBillDetail(data);
 						}
@@ -66,7 +66,8 @@
 		$('#selectedBillNumber').change(function() {				
 			if($('#selectedBillNumber').val()!='') {
 				$.get('ref/bill/transmitEndorsementCopies_statuses?billNumber='+$("#selectedBillNumber").val()
-						+'&billYear='+$("#selectedYear").val()+'&currentHouseTypeType='+$("#selectedHouseTypeType").val(), function(data) {
+						+'&billYear='+$("#selectedYear").val()+'&houseTypeId='+$("#houseType").val()
+						+'&currentHouseTypeType='+$("#currentHouseTypeType").val(), function(data) {
 					$("#status").empty();
 					var statusText=text;
 					if(data.length!=undefined) {
@@ -77,7 +78,65 @@
 						$('#deviceId').val(data[0].id);
 						$('#viewBillDetails').show();
 					} else {
-						alert($('#billNumberChangeInvalidMsg').val());
+						alert($('#billNotFoundMsg').val());
+						$('#status').html(text);
+					}					
+				});
+			} else {
+				$('#status').empty();				
+				$('#status').html(text);
+				$('#viewBillDetails').hide();
+			}			
+			$('#endorsementCopiesDiv').empty();
+			$('#endorsementCopiesDiv').hide();
+			$('#submitRequisitionButtonsDiv').hide();
+		});
+		
+		$('#houseType').change(function() {				
+			if($('#selectedBillNumber').val()!='') {
+				$.get('ref/bill/transmitEndorsementCopies_statuses?billNumber='+$("#selectedBillNumber").val()
+						+'&billYear='+$("#selectedYear").val()+'&houseTypeId='+$("#houseType").val()
+						+'&currentHouseTypeType='+$("#currentHouseTypeType").val(), function(data) {
+					$("#status").empty();
+					var statusText=text;
+					if(data.length!=undefined) {
+						for(var i=0;i<data.length;i++){
+							statusText+="<option value='"+data[i].value+"'>"+data[i].name;
+						}
+						$("#status").html(statusText);
+						$('#deviceId').val(data[0].id);
+						$('#viewBillDetails').show();
+					} else {
+						alert($('#billNotFoundMsg').val());
+						$('#status').html(text);
+					}					
+				});
+			} else {
+				$('#status').empty();				
+				$('#status').html(text);
+				$('#viewBillDetails').hide();
+			}			
+			$('#endorsementCopiesDiv').empty();
+			$('#endorsementCopiesDiv').hide();
+			$('#submitRequisitionButtonsDiv').hide();
+		});
+		
+		$('#selectedYear').change(function() {				
+			if($('#selectedBillNumber').val()!='') {
+				$.get('ref/bill/transmitEndorsementCopies_statuses?billNumber='+$("#selectedBillNumber").val()
+						+'&billYear='+$("#selectedYear").val()+'&houseTypeId='+$("#houseType").val()
+						+'&currentHouseTypeType='+$("#currentHouseTypeType").val(), function(data) {
+					$("#status").empty();
+					var statusText=text;
+					if(data.length!=undefined) {
+						for(var i=0;i<data.length;i++){
+							statusText+="<option value='"+data[i].value+"'>"+data[i].name;
+						}
+						$("#status").html(statusText);
+						$('#deviceId').val(data[0].id);
+						$('#viewBillDetails').show();
+					} else {
+						alert($('#billNotFoundMsg').val());
 						$('#status').html(text);
 					}					
 				});
@@ -162,8 +221,19 @@
 	<h2><spring:message code="printrequisition.heading" text="Transmit Endorsement Copies Details"/></h2>
 	<p>
 		<label class="small"><spring:message code="printrequisition.houseType" text="House Type"/></label>
-		<input id="formattedHouseType" name="formattedSelectedHouseType" value="${selectedHouseType.getName()}" class="sText" readonly="readonly"/>
-		<form:input type="hidden" id="selectedHouseTypeType" path="houseType" value="${selectedHouseType.getType()}"/>		
+		<select id="houseType" class="sSelect">
+			<c:forEach items="${houseTypes}" var="houseType">
+				<c:choose>
+					<c:when test="${houseType.getId()==selectedHouseType.getId()}">
+						<option value="${houseType.getId()}" selected="selected">${houseType.getName()}</option>
+					</c:when>
+					<c:otherwise>
+						<option value="${houseType.getId()}">${houseType.getName()}</option>
+					</c:otherwise>
+				</c:choose>
+			</c:forEach>
+		</select>		
+		<form:input type="hidden" id="currentHouseTypeType" path="houseType" value="${currentHouseType.getType()}"/>		
 	</p>
 	<p>
 		<label class="small"><spring:message code="printrequisition.year" text="Year"/></label>
@@ -209,7 +279,7 @@
 	<input id="pleaseSelectMsg" value="<spring:message code='please.select' text='Please Select'/>" type="hidden">
 	<input id="emptyBillNumberMsg" value="<spring:message code='printrequisition.emptyBillNumberMsg' text='Please Enter Bill Number'/>" type="hidden">
 	<input id="emptyStatusMsg" value="<spring:message code='printrequisition.emptyStatusMsg' text='Please Enter Status'/>" type="hidden">
-	<input id="billNumberChangeInvalidMsg" value="<spring:message code='printrequisition.billNumberChangeInvalidMsg' text='Please check if bill number is valid for the year! If it is valid, contact Administrator'/>" type="hidden">
+	<input id="billNotFoundMsg" value="<spring:message code='printrequisition.billNotFoundMsg' text='Bill not found.'/>" type="hidden">
 	<input id="endorsementCopiesTransmittedAlreadyMsg" value="<spring:message code='printrequisition.endorsementCopiesTransmittedAlreadyMsg' text='Endorsement Copies are transmitted already'/>" type="hidden">
 </div>	
 </body>

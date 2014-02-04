@@ -334,33 +334,33 @@
 				return false;
 			});
 			
-			/**** refer act only in case of amendment bill type ****/
-			if($('#typeOfSelectedBillType').val()!='amending') {
+			/**** allow refer act & ordinance as per bill type ****/
+			if($('#typeOfSelectedBillType').val()=='') {
 				$('#referredActDiv').hide();
-			} else {
-				$('#referredActDiv').show();
 				$('#referredOrdinanceDiv').hide();
-			}
-			
-			if($('#typeOfSelectedBillType').val()!='replace_ordinance') {
+			} else if($('#typeOfSelectedBillType').val()=='original') {
+				$('#referredActDiv').hide();
 				$('#referredOrdinanceDiv').hide();
-			} else {
+			} else if($('#typeOfSelectedBillType').val()=='replace_ordinance'){
 				$('#referredOrdinanceDiv').show();
 				$('#referredActDiv').hide();
-			}
+			}else{
+				$('#referredActDiv').show();
+				$('#referredOrdinanceDiv').show();
+			}			
 			
 			$('#billType').change(function() {
 				$.get('ref/getTypeOfSelectedBillType?selectedBillTypeId='+$('#billType').val(),function(data) {
 					if(data!=undefined || data!='') {
-						if(data=='amending') {
-							$('#referredActDiv').show();
+						if(data=='original') {
+							$('#referredActDiv').hide();
 							$('#referredOrdinanceDiv').hide();
 						} else if(data=='replace_ordinance'){
 							$('#referredOrdinanceDiv').show();
 							$('#referredActDiv').hide();
 						}else{
-							$('#referredActDiv').hide();
-							$('#referredOrdinanceDiv').hide();
+							$('#referredActDiv').show();
+							$('#referredOrdinanceDiv').show();
 						}
 					} else {
 						alert("Some Error Occured!");
@@ -604,17 +604,11 @@
 		function referenceForBill(refType){			
 			$.blockUI({ message: '<img src="./resources/images/waitAnimated.gif" />' });				
 			$.get('bill/referAct/init?action='+refType,function(data){
-				$.unblockUI();			
-				if(refType=='act'){
-					$("#referringActResultDiv").html(data);					
-					$("#referringActResultDiv").show();
-				}else if(refType=='ordinance'){
-					$("#referringOrdinanceResultDiv").html(data);					
-					$("#referringOrdinanceResultDiv").show();
-				}
-				$("#billDiv").hide();
-				$("#backToBillDiv").show();
-				
+				$.unblockUI();	
+				$("#referringActOrdinanceResultDiv").empty();
+				$("#referringActOrdinanceResultDiv").html(data);					
+				$("#referringActOrdinanceResultDiv").show();				
+				$("#billDiv").hide();				
 			},'html');
 		}
 	</script>
@@ -814,7 +808,7 @@
 		</p>
 	</div>
 	
-	<div id="referredOrdinanceDiv">
+	<div id="referredOrdinanceDiv" style="margin-top:10px;">
 		<c:choose>	
 		<c:when test="${not empty referredAct}"><c:set var="displayReferActLink" value="none"/></c:when>
 		<c:otherwise><c:set var="displayReferActLink" value="inline"/></c:otherwise>		
@@ -1156,9 +1150,7 @@
 	<li><a href="#dereferAct" class="edit"><spring:message code="bill.dereferact" text="De-Refer Act"></spring:message></a></li>
 	<li><a href="#dereferOrdinance" class="edit"><spring:message code="bill.dereferordinance" text="De-Refer Ordinance"></spring:message></a></li>
 </ul>
-<div id="referringActResultDiv" style="display:none;">
-</div>
-<div id="referringOrdinanceResultDiv" style="display:none;">
+<div id="referringActOrdinanceResultDiv" style="display:none;">
 </div>
 </body>
 </html>

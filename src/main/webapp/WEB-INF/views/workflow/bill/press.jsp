@@ -5,6 +5,7 @@
 		<title><spring:message code="bill" text="Bill Information System"/></title>
 		<script type="text/javascript">
 		$(document).ready(function(){
+			alert("isPressCopyRemovable: " + $('#isPressCopyRemovable').val());
 			$("#save").click(function(e){
 				//removing <p><br></p>  from wysiwyg editor
 				$(".wysiwyg").each(function(){
@@ -261,5 +262,6 @@
 				<input id="sendPressCopyMessage" value='<spring:message code="bill.sendPressCopyMessage" text="Do you want to send press copies for the bill?"/>' type="hidden">				
 			</div>
 		</div>
+		<input type="hidden" id="isPressCopyRemovable" value="${isPressCopyRemovable}">
 	</body>
 </html>

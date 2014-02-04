@@ -2,6 +2,7 @@ package org.mkcl.els.controller;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.List;
@@ -49,17 +50,30 @@ public class PrintRequisitionController extends BaseController {
 	
 	@RequestMapping(value = "/bill", method = RequestMethod.GET)
 	public String getRequisitionInitForBill(final ModelMap model, final HttpServletRequest request, final Locale locale) {
-		String selectedHouseTypeType = request.getParameter("houseTypeType");		
+		String currentHouseTypeType = request.getParameter("houseTypeType");		
 		String selectedYearStr = request.getParameter("billYear");
 		String selectedBillIdStr = request.getParameter("billId");
-		/**** House Type ****/
-		HouseType selectedHouseType = null;
-		if(selectedHouseTypeType!=null) {
-			if(!selectedHouseTypeType.isEmpty()) {
-				if(!selectedHouseTypeType.equals(ApplicationConstants.BOTH_HOUSE)) {
-					selectedHouseType = HouseType.findByFieldName(HouseType.class, "type", selectedHouseTypeType, locale.toString());
-					if(selectedHouseType!=null) {
-						model.addAttribute("selectedHouseType", selectedHouseType);					
+		/**** House Types ****/
+		List<HouseType> houseTypes = HouseType.findAll(HouseType.class, "type", ApplicationConstants.ASC, locale.toString());
+		if(houseTypes==null) {
+			logger.error("**** house types are not available. ****");
+			model.addAttribute("errorcode", "HOUSETYPES_NOT_AVAILABLE");		
+			return "printrequisition/error";
+		}
+		if(houseTypes.isEmpty()) {
+			logger.error("**** house types are not available. ****");
+			model.addAttribute("errorcode", "HOUSETYPES_NOT_AVAILABLE");		
+			return "printrequisition/error";
+		}
+		model.addAttribute("houseTypes", houseTypes);		
+		/**** Current HouseType ****/		
+		HouseType currentHouseType = null;
+		if(currentHouseTypeType!=null) {
+			if(!currentHouseTypeType.isEmpty()) {
+				if(!currentHouseTypeType.equals(ApplicationConstants.BOTH_HOUSE)) {
+					currentHouseType = HouseType.findByFieldName(HouseType.class, "type", currentHouseTypeType, locale.toString());
+					if(currentHouseType!=null) {
+						model.addAttribute("currentHouseType", currentHouseType);					
 					} else {
 						logger.error("**** Check request parameter 'houseType' for incorrect value. ****");
 						model.addAttribute("errorcode", "REQUEST_PARAMETER_INVALID");		
@@ -76,75 +90,48 @@ public class PrintRequisitionController extends BaseController {
 			model.addAttribute("errorcode", "REQUEST_PARAMETER_NULL");		
 			return "printrequisition/error";
 		}
-		/**** Bill Year ****/
-		int selectedYear;
-		if(selectedYearStr!=null) {
-			if(!selectedYearStr.isEmpty()) {
-				try {
-					selectedYear = Integer.parseInt(selectedYearStr);
-					model.addAttribute("formattedSelectedYear", FormaterUtil.formatNumberNoGrouping(selectedYear, locale.toString()));
-					model.addAttribute("selectedYear", selectedYear);
-				} catch(NumberFormatException ne) {
-					logger.error("**** Check request parameter 'year' for non-numeric value. ****");
-					model.addAttribute("errorcode", "REQUEST_PARAMETER_INVALID");		
-					return "printrequisition/error";
-				}
-			} else {
-				logger.error("**** Check request parameter 'year' for empty value. ****");
-				model.addAttribute("errorcode", "REQUEST_PARAMETER_EMPTY");		
-				return "printrequisition/error";
-			}
-		} else {
-			logger.error("**** Check request parameter 'year' for null value. ****");
-			model.addAttribute("errorcode", "REQUEST_PARAMETER_NULL");		
-			return "printrequisition/error";
-		}		
 		/**** Selected Bill ****/
+		Bill selectedBill = null;
 		if(selectedBillIdStr!=null) {
 			if(!selectedBillIdStr.isEmpty()) {
 				try {
 					long selectedBillId = Long.parseLong(selectedBillIdStr);
-					Bill selectedBill = Bill.findById(Bill.class, selectedBillId);
+					selectedBill = Bill.findById(Bill.class, selectedBillId);
 					if(selectedBill!=null) {
-						Integer selectedBillYear = Bill.findYear(selectedBill);
-						if(selectedBillYear!=null) {
-							if(selectedBillYear==selectedYear) {
-								if(selectedBill.getNumber()!=null) {
-									model.addAttribute("selectedBillNumber", FormaterUtil.formatNumberNoGrouping(selectedBill.getNumber(), locale.toString()));
-									model.addAttribute("selectedBillId", selectedBill.getId());
-									/**** Requisition Statuses Allowed For Selected Bill In Selected House ****/
-									String currentHouseOrder = Bill.findHouseOrderOfGivenHouseForBill(selectedBill, selectedHouseType.getType());
-									CustomParameter printRequisitionStatusParameter = CustomParameter.findByName(CustomParameter.class, "BILL_PRINTREQUISITION_STATUSOPTIONS_"+currentHouseOrder.toUpperCase(), "");
-									if(printRequisitionStatusParameter!=null) {
-										if(printRequisitionStatusParameter.getValue()!=null) {									
-											StringBuffer filteredStatusTypes = new StringBuffer("");
-											String[] statusTypesArr = printRequisitionStatusParameter.getValue().split(",");
-											for(String i: statusTypesArr) {
-												System.out.println(filteredStatusTypes.toString());
-												if(!i.trim().isEmpty()) {
-													if(i.trim().endsWith(currentHouseOrder)) {
-														if(i.trim().contains(selectedHouseType.getType())) {
-															filteredStatusTypes.append(i.trim()+",");
-														}																						
-													} else {
-														filteredStatusTypes.append(i.trim()+",");						
-													}					
-												}				
-											}
-											filteredStatusTypes.deleteCharAt(filteredStatusTypes.length()-1);	
-											List<Status> printRequisitionStatuses = Status.findStatusContainedIn(filteredStatusTypes.toString(), locale.toString(), ApplicationConstants.ASC);
-											model.addAttribute("printRequisitionStatuses", printRequisitionStatuses);
-										} else {
-											logger.error("Custom Parameter 'BILL_PRINTREQUISITION_STATUSOPTIONS_"+currentHouseOrder.toUpperCase() +"' is not set properly");
-											model.addAttribute("errorcode", "bill_printrequisition_statusoptions_"+currentHouseOrder+"_setincorrect");
-											return "printrequisition/error";
-										}
-									} else {
-										logger.error("Custom Parameter 'BILL_PRINTREQUISITION_STATUSOPTIONS_"+currentHouseOrder.toUpperCase() +"' is not set");
-										model.addAttribute("errorcode", "bill_printrequisition_statusoptions_"+currentHouseOrder+"_notset");
-										return "printrequisition/error";
+						if(selectedBill.getNumber()!=null) {
+							model.addAttribute("selectedBillNumber", FormaterUtil.formatNumberNoGrouping(selectedBill.getNumber(), locale.toString()));
+							model.addAttribute("selectedBillId", selectedBill.getId());
+							/**** Requisition Statuses Allowed For Selected Bill In Selected House ****/
+							String currentHouseOrder = Bill.findHouseOrderOfGivenHouseForBill(selectedBill, currentHouseType.getType());
+							CustomParameter printRequisitionStatusParameter = CustomParameter.findByName(CustomParameter.class, "BILL_PRINTREQUISITION_STATUSOPTIONS_"+currentHouseOrder.toUpperCase(), "");
+							if(printRequisitionStatusParameter!=null) {
+								if(printRequisitionStatusParameter.getValue()!=null) {									
+									StringBuffer filteredStatusTypes = new StringBuffer("");
+									String[] statusTypesArr = printRequisitionStatusParameter.getValue().split(",");
+									for(String i: statusTypesArr) {
+										System.out.println(filteredStatusTypes.toString());
+										if(!i.trim().isEmpty()) {
+											if(i.trim().endsWith(currentHouseOrder)) {
+												if(i.trim().contains(currentHouseType.getType())) {
+													filteredStatusTypes.append(i.trim()+",");
+												}																						
+											} else {
+												filteredStatusTypes.append(i.trim()+",");						
+											}					
+										}				
 									}
-								}								
+									filteredStatusTypes.deleteCharAt(filteredStatusTypes.length()-1);	
+									List<Status> printRequisitionStatuses = Status.findStatusContainedIn(filteredStatusTypes.toString(), locale.toString(), ApplicationConstants.ASC);
+									model.addAttribute("printRequisitionStatuses", printRequisitionStatuses);
+								} else {
+									logger.error("Custom Parameter 'BILL_PRINTREQUISITION_STATUSOPTIONS_"+currentHouseOrder.toUpperCase() +"' is not set properly");
+									model.addAttribute("errorcode", "bill_printrequisition_statusoptions_"+currentHouseOrder+"_setincorrect");
+									return "printrequisition/error";
+								}
+							} else {
+								logger.error("Custom Parameter 'BILL_PRINTREQUISITION_STATUSOPTIONS_"+currentHouseOrder.toUpperCase() +"' is not set");
+								model.addAttribute("errorcode", "bill_printrequisition_statusoptions_"+currentHouseOrder+"_notset");
+								return "printrequisition/error";
 							}
 						}						
 					}
@@ -154,7 +141,49 @@ public class PrintRequisitionController extends BaseController {
 					return "printrequisition/error";
 				}								
 			}
+		}		
+		/**** Bill Year ****/
+		Integer selectedYear = null;
+		if(selectedBill!=null) {
+			selectedYear = Bill.findYear(selectedBill);
 		}
+		if(selectedYear==null) {
+			if(selectedYearStr!=null) {
+				if(!selectedYearStr.isEmpty()) {
+					try {
+						selectedYear = Integer.parseInt(selectedYearStr);					
+					} catch(NumberFormatException ne) {
+						logger.error("**** Check request parameter 'year' for non-numeric value. ****");
+						model.addAttribute("errorcode", "REQUEST_PARAMETER_INVALID");		
+						return "printrequisition/error";
+					}
+				} else {
+					logger.error("**** Check request parameter 'year' for empty value. ****");
+					model.addAttribute("errorcode", "REQUEST_PARAMETER_EMPTY");		
+					return "printrequisition/error";
+				}
+			} else {
+				logger.error("**** Check request parameter 'year' for null value. ****");
+				model.addAttribute("errorcode", "REQUEST_PARAMETER_NULL");		
+				return "printrequisition/error";
+			}
+		}
+		if(selectedYear!=null) {
+			model.addAttribute("formattedSelectedYear", FormaterUtil.formatNumberNoGrouping(selectedYear, locale.toString()));
+			model.addAttribute("selectedYear", selectedYear);
+		}	
+		/**** Bill HouseType ****/
+		HouseType selectedHouseType = currentHouseType;
+		if(selectedBill!=null) {
+			if(selectedBill.getType().getType().equals(ApplicationConstants.NONOFFICIAL_BILL)) {
+				selectedHouseType = selectedBill.getHouseType();
+			} else if(selectedBill.getType().getType().equals(ApplicationConstants.GOVERNMENT_BILL)) {
+				selectedHouseType = selectedBill.getIntroducingHouseType();
+			}
+		}
+		if(selectedHouseType!=null) {
+			model.addAttribute("selectedHouseType", selectedHouseType);
+		}		
 		/**** Requisition For ****/
 		CustomParameter printRequisitionForParameter = CustomParameter.findByName(CustomParameter.class, "BILL_PRINTREQUISITION_REQUISITIONFOROPTIONS", "");
 		if(printRequisitionForParameter!=null) {
@@ -679,17 +708,17 @@ public class PrintRequisitionController extends BaseController {
 	
 	@RequestMapping(value = "/bill/sendForEndorsement", method = RequestMethod.GET)
 	public String sendGreenCopyForEndorsement(final ModelMap model, final HttpServletRequest request, final Locale locale) {
-		String selectedHouseTypeType = request.getParameter("houseType");
+		String currentHouseTypeType = request.getParameter("houseType");
 		String selectedYearStr = request.getParameter("sessionYear");
 		String selectedBillIdStr = request.getParameter("billId");
-		/**** House Type ****/
-		HouseType selectedHouseType = null;
-		if(selectedHouseTypeType!=null) {
-			if(!selectedHouseTypeType.isEmpty()) {
-				if(!selectedHouseTypeType.equals(ApplicationConstants.BOTH_HOUSE)) {
-					selectedHouseType = HouseType.findByFieldName(HouseType.class, "type", selectedHouseTypeType, locale.toString());
-					if(selectedHouseType!=null) {
-						model.addAttribute("selectedHouseType", selectedHouseType);					
+		/**** Current HouseType ****/
+		HouseType currentHouseType = null;
+		if(currentHouseTypeType!=null) {
+			if(!currentHouseTypeType.isEmpty()) {
+				if(!currentHouseTypeType.equals(ApplicationConstants.BOTH_HOUSE)) {
+					currentHouseType = HouseType.findByFieldName(HouseType.class, "type", currentHouseTypeType, locale.toString());
+					if(currentHouseType!=null) {
+						model.addAttribute("currentHouseType", currentHouseType);					
 					} else {
 						logger.error("**** Check request parameter 'houseType' for incorrect value. ****");
 						model.addAttribute("errorcode", "REQUEST_PARAMETER_INVALID");		
@@ -705,76 +734,49 @@ public class PrintRequisitionController extends BaseController {
 			logger.error("**** Check request parameter 'houseType' for null value. ****");
 			model.addAttribute("errorcode", "REQUEST_PARAMETER_NULL");		
 			return "printrequisition/error";
-		}
-		/**** Bill Year ****/
-		int selectedYear;
-		if(selectedYearStr!=null) {
-			if(!selectedYearStr.isEmpty()) {
-				try {
-					selectedYear = Integer.parseInt(selectedYearStr);
-					model.addAttribute("formattedSelectedYear", FormaterUtil.formatNumberNoGrouping(selectedYear, locale.toString()));
-					model.addAttribute("selectedYear", selectedYear);
-				} catch(NumberFormatException ne) {
-					logger.error("**** Check request parameter 'year' for non-numeric value. ****");
-					model.addAttribute("errorcode", "REQUEST_PARAMETER_INVALID");		
-					return "printrequisition/error";
-				}
-			} else {
-				logger.error("**** Check request parameter 'year' for empty value. ****");
-				model.addAttribute("errorcode", "REQUEST_PARAMETER_EMPTY");		
-				return "printrequisition/error";
-			}
-		} else {
-			logger.error("**** Check request parameter 'year' for null value. ****");
-			model.addAttribute("errorcode", "REQUEST_PARAMETER_NULL");		
-			return "printrequisition/error";
-		}
+		}		
 		/**** Selected Bill ****/
+		Bill selectedBill = null;
 		if(selectedBillIdStr!=null) {
 			if(!selectedBillIdStr.isEmpty()) {
 				try {
 					long selectedBillId = Long.parseLong(selectedBillIdStr);
-					Bill selectedBill = Bill.findById(Bill.class, selectedBillId);
+					selectedBill = Bill.findById(Bill.class, selectedBillId);
 					if(selectedBill!=null) {
-						Integer selectedBillYear = Bill.findYear(selectedBill);
-						if(selectedBillYear!=null) {
-							if(selectedBillYear==selectedYear) {
-								if(selectedBill.getNumber()!=null) {
-									model.addAttribute("selectedBillNumber", FormaterUtil.formatNumberNoGrouping(selectedBill.getNumber(), locale.toString()));
-									model.addAttribute("selectedBillId", selectedBill.getId());
-									/**** Requisition Statuses Allowed For Selected Bill In Selected House ****/
-									String currentHouseOrder = Bill.findHouseOrderOfGivenHouseForBill(selectedBill, selectedHouseType.getType());
-									CustomParameter sendGreenCopyForEndorsementStatusParameter = CustomParameter.findByName(CustomParameter.class, "BILL_SENDGREENCOPYFORENDORSEMENT_STATUSOPTIONS", "");
-									if(sendGreenCopyForEndorsementStatusParameter!=null) {
-										if(sendGreenCopyForEndorsementStatusParameter.getValue()!=null) {									
-											StringBuffer filteredStatusTypes = new StringBuffer("");
-											String[] statusTypesArr = sendGreenCopyForEndorsementStatusParameter.getValue().split(",");
-											for(String i: statusTypesArr) {
-												System.out.println(filteredStatusTypes.toString());
-												if(!i.trim().isEmpty()) {
-													if(i.trim().endsWith(ApplicationConstants.BILL_FIRST_HOUSE) || i.trim().endsWith(ApplicationConstants.BILL_SECOND_HOUSE)) {
-														if(i.trim().endsWith(selectedHouseType.getType() + "_" + currentHouseOrder)) {
-															filteredStatusTypes.append(i.trim()+",");							
-														}
-													} else {
-														filteredStatusTypes.append(i.trim()+",");
-													}					
-												}				
-											}
-											filteredStatusTypes.deleteCharAt(filteredStatusTypes.length()-1);	
-											List<Status> sendGreenCopyForEndorsementStatuses = Status.findStatusContainedIn(filteredStatusTypes.toString(), locale.toString(), ApplicationConstants.ASC);
-											model.addAttribute("sendGreenCopyForEndorsementStatuses", sendGreenCopyForEndorsementStatuses);
-										} else {
-											logger.error("Custom Parameter 'BILL_SENDGREENCOPYFORENDORSEMENT_STATUSOPTIONS' is not set properly");
-											model.addAttribute("errorcode", "bill_sendgreencopyforendorsement_statusoptions_setincorrect");
-											return "printrequisition/error";
-										}
-									} else {
-										logger.error("Custom Parameter 'BILL_SENDGREENCOPYFORENDORSEMENT_STATUSOPTIONS' is not set");
-										model.addAttribute("errorcode", "bill_sendgreencopyforendorsement_statusoptions_notset");
-										return "printrequisition/error";
+						if(selectedBill.getNumber()!=null) {
+							model.addAttribute("selectedBillNumber", FormaterUtil.formatNumberNoGrouping(selectedBill.getNumber(), locale.toString()));
+							model.addAttribute("selectedBillId", selectedBill.getId());
+							/**** Requisition Statuses Allowed For Selected Bill In Selected House ****/
+							String currentHouseOrder = Bill.findHouseOrderOfGivenHouseForBill(selectedBill, currentHouseType.getType());
+							CustomParameter sendGreenCopyForEndorsementStatusParameter = CustomParameter.findByName(CustomParameter.class, "BILL_SENDGREENCOPYFORENDORSEMENT_STATUSOPTIONS", "");
+							if(sendGreenCopyForEndorsementStatusParameter!=null) {
+								if(sendGreenCopyForEndorsementStatusParameter.getValue()!=null) {									
+									StringBuffer filteredStatusTypes = new StringBuffer("");
+									String[] statusTypesArr = sendGreenCopyForEndorsementStatusParameter.getValue().split(",");
+									for(String i: statusTypesArr) {
+										System.out.println(filteredStatusTypes.toString());
+										if(!i.trim().isEmpty()) {
+											if(i.trim().endsWith(ApplicationConstants.BILL_FIRST_HOUSE) || i.trim().endsWith(ApplicationConstants.BILL_SECOND_HOUSE)) {
+												if(i.trim().endsWith(currentHouseType.getType() + "_" + currentHouseOrder)) {
+													filteredStatusTypes.append(i.trim()+",");							
+												}
+											} else {
+												filteredStatusTypes.append(i.trim()+",");
+											}					
+										}				
 									}
-								}								
+									filteredStatusTypes.deleteCharAt(filteredStatusTypes.length()-1);	
+									List<Status> sendGreenCopyForEndorsementStatuses = Status.findStatusContainedIn(filteredStatusTypes.toString(), locale.toString(), ApplicationConstants.ASC);
+									model.addAttribute("sendGreenCopyForEndorsementStatuses", sendGreenCopyForEndorsementStatuses);
+								} else {
+									logger.error("Custom Parameter 'BILL_SENDGREENCOPYFORENDORSEMENT_STATUSOPTIONS' is not set properly");
+									model.addAttribute("errorcode", "bill_sendgreencopyforendorsement_statusoptions_setincorrect");
+									return "printrequisition/error";
+								}
+							} else {
+								logger.error("Custom Parameter 'BILL_SENDGREENCOPYFORENDORSEMENT_STATUSOPTIONS' is not set");
+								model.addAttribute("errorcode", "bill_sendgreencopyforendorsement_statusoptions_notset");
+								return "printrequisition/error";
 							}
 						}						
 					}
@@ -784,6 +786,48 @@ public class PrintRequisitionController extends BaseController {
 					return "printrequisition/error";
 				}								
 			}
+		}
+		/**** Bill Year ****/
+		Integer selectedYear = null;
+		if(selectedBill!=null) {
+			selectedYear = Bill.findYear(selectedBill);
+		}
+		if(selectedYear==null) {
+			if(selectedYearStr!=null) {
+				if(!selectedYearStr.isEmpty()) {
+					try {
+						selectedYear = Integer.parseInt(selectedYearStr);					
+					} catch(NumberFormatException ne) {
+						logger.error("**** Check request parameter 'year' for non-numeric value. ****");
+						model.addAttribute("errorcode", "REQUEST_PARAMETER_INVALID");		
+						return "printrequisition/error";
+					}
+				} else {
+					logger.error("**** Check request parameter 'year' for empty value. ****");
+					model.addAttribute("errorcode", "REQUEST_PARAMETER_EMPTY");		
+					return "printrequisition/error";
+				}
+			} else {
+				logger.error("**** Check request parameter 'year' for null value. ****");
+				model.addAttribute("errorcode", "REQUEST_PARAMETER_NULL");		
+				return "printrequisition/error";
+			}
+		}
+		if(selectedYear!=null) {
+			model.addAttribute("formattedSelectedYear", FormaterUtil.formatNumberNoGrouping(selectedYear, locale.toString()));
+			model.addAttribute("selectedYear", selectedYear);
+		}	
+		/**** Bill HouseType ****/
+		HouseType selectedHouseType = currentHouseType;
+		if(selectedBill!=null) {
+			if(selectedBill.getType().getType().equals(ApplicationConstants.NONOFFICIAL_BILL)) {
+				selectedHouseType = selectedBill.getHouseType();
+			} else if(selectedBill.getType().getType().equals(ApplicationConstants.GOVERNMENT_BILL)) {
+				selectedHouseType = selectedBill.getIntroducingHouseType();
+			}
+		}
+		if(selectedHouseType!=null) {
+			model.addAttribute("selectedHouseType", selectedHouseType);
 		}
 		/**** House Rounds Available For Bill ****/
 		CustomParameter billHouseRoundsParameter = CustomParameter.findByName(CustomParameter.class, "BILL_HOUSEROUNDS", "");
@@ -821,17 +865,17 @@ public class PrintRequisitionController extends BaseController {
 	
 	@RequestMapping(value = "/bill/transmitEndorsementCopies", method = RequestMethod.GET)
 	public String transmitEndorsementCopies(final ModelMap model, final HttpServletRequest request, final Locale locale) {
-		String selectedHouseTypeType = request.getParameter("houseType");
+		String currentHouseTypeType = request.getParameter("houseType");
 		String selectedYearStr = request.getParameter("sessionYear");
 		String selectedBillIdStr = request.getParameter("billId");
-		/**** House Type ****/
-		HouseType selectedHouseType = null;
-		if(selectedHouseTypeType!=null) {
-			if(!selectedHouseTypeType.isEmpty()) {
-				if(!selectedHouseTypeType.equals(ApplicationConstants.BOTH_HOUSE)) {
-					selectedHouseType = HouseType.findByFieldName(HouseType.class, "type", selectedHouseTypeType, locale.toString());
-					if(selectedHouseType!=null) {
-						model.addAttribute("selectedHouseType", selectedHouseType);					
+		/**** Current HouseType ****/
+		HouseType currentHouseType = null;
+		if(currentHouseTypeType!=null) {
+			if(!currentHouseTypeType.isEmpty()) {
+				if(!currentHouseTypeType.equals(ApplicationConstants.BOTH_HOUSE)) {
+					currentHouseType = HouseType.findByFieldName(HouseType.class, "type", currentHouseTypeType, locale.toString());
+					if(currentHouseType!=null) {
+						model.addAttribute("currentHouseType", currentHouseType);					
 					} else {
 						logger.error("**** Check request parameter 'houseType' for incorrect value. ****");
 						model.addAttribute("errorcode", "REQUEST_PARAMETER_INVALID");		
@@ -848,75 +892,48 @@ public class PrintRequisitionController extends BaseController {
 			model.addAttribute("errorcode", "REQUEST_PARAMETER_NULL");		
 			return "printrequisition/error";
 		}
-		/**** Bill Year ****/
-		int selectedYear;
-		if(selectedYearStr!=null) {
-			if(!selectedYearStr.isEmpty()) {
-				try {
-					selectedYear = Integer.parseInt(selectedYearStr);
-					model.addAttribute("formattedSelectedYear", FormaterUtil.formatNumberNoGrouping(selectedYear, locale.toString()));
-					model.addAttribute("selectedYear", selectedYear);
-				} catch(NumberFormatException ne) {
-					logger.error("**** Check request parameter 'year' for non-numeric value. ****");
-					model.addAttribute("errorcode", "REQUEST_PARAMETER_INVALID");		
-					return "printrequisition/error";
-				}
-			} else {
-				logger.error("**** Check request parameter 'year' for empty value. ****");
-				model.addAttribute("errorcode", "REQUEST_PARAMETER_EMPTY");		
-				return "printrequisition/error";
-			}
-		} else {
-			logger.error("**** Check request parameter 'year' for null value. ****");
-			model.addAttribute("errorcode", "REQUEST_PARAMETER_NULL");		
-			return "printrequisition/error";
-		}
 		/**** Selected Bill ****/
+		Bill selectedBill = null;
 		if(selectedBillIdStr!=null) {
 			if(!selectedBillIdStr.isEmpty()) {
 				try {
 					long selectedBillId = Long.parseLong(selectedBillIdStr);
-					Bill selectedBill = Bill.findById(Bill.class, selectedBillId);
+					selectedBill = Bill.findById(Bill.class, selectedBillId);
 					if(selectedBill!=null) {
-						Integer selectedBillYear = Bill.findYear(selectedBill);
-						if(selectedBillYear!=null) {
-							if(selectedBillYear==selectedYear) {
-								if(selectedBill.getNumber()!=null) {
-									model.addAttribute("selectedBillNumber", FormaterUtil.formatNumberNoGrouping(selectedBill.getNumber(), locale.toString()));
-									model.addAttribute("selectedBillId", selectedBill.getId());
-									/**** Requisition Statuses Allowed For Selected Bill In Selected House ****/
-									String currentHouseOrder = Bill.findHouseOrderOfGivenHouseForBill(selectedBill, selectedHouseType.getType());
-									CustomParameter transmitEndorsementCopiesStatusParameter = CustomParameter.findByName(CustomParameter.class, "BILL_TRANSMITENDORSEMENTCOPIES_STATUSOPTIONS", "");
-									if(transmitEndorsementCopiesStatusParameter!=null) {
-										if(transmitEndorsementCopiesStatusParameter.getValue()!=null) {									
-											StringBuffer filteredStatusTypes = new StringBuffer("");
-											String[] statusTypesArr = transmitEndorsementCopiesStatusParameter.getValue().split(",");
-											for(String i: statusTypesArr) {
-												System.out.println(filteredStatusTypes.toString());
-												if(!i.trim().isEmpty()) {
-													if(i.trim().endsWith(ApplicationConstants.BILL_FIRST_HOUSE) || i.trim().endsWith(ApplicationConstants.BILL_SECOND_HOUSE)) {
-														if(i.trim().endsWith(selectedHouseType.getType() + "_" + currentHouseOrder)) {
-															filteredStatusTypes.append(i.trim()+",");							
-														}
-													} else {
-														filteredStatusTypes.append(i.trim()+",");
-													}					
-												}				
-											}
-											filteredStatusTypes.deleteCharAt(filteredStatusTypes.length()-1);	
-											List<Status> transmitEndorsementCopiesStatuses = Status.findStatusContainedIn(filteredStatusTypes.toString(), locale.toString(), ApplicationConstants.ASC);
-											model.addAttribute("transmitEndorsementCopiesStatuses", transmitEndorsementCopiesStatuses);
-										} else {
-											logger.error("Custom Parameter 'BILL_TRANSMITENDORSEMENTCOPIES_STATUSOPTIONS' is not set properly");
-											model.addAttribute("errorcode", "bill_transmitendorsementcopies_statusoptions_setincorrect");
-											return "printrequisition/error";
-										}
-									} else {
-										logger.error("Custom Parameter 'BILL_TRANSMITENDORSEMENTCOPIES_STATUSOPTIONS' is not set");
-										model.addAttribute("errorcode", "bill_transmitendorsementcopies_statusoptions_notset");
-										return "printrequisition/error";
+						if(selectedBill.getNumber()!=null) {
+							model.addAttribute("selectedBillNumber", FormaterUtil.formatNumberNoGrouping(selectedBill.getNumber(), locale.toString()));
+							model.addAttribute("selectedBillId", selectedBill.getId());
+							/**** Requisition Statuses Allowed For Selected Bill In Selected House ****/
+							String currentHouseOrder = Bill.findHouseOrderOfGivenHouseForBill(selectedBill, currentHouseType.getType());
+							CustomParameter transmitEndorsementCopiesStatusParameter = CustomParameter.findByName(CustomParameter.class, "BILL_TRANSMITENDORSEMENTCOPIES_STATUSOPTIONS", "");
+							if(transmitEndorsementCopiesStatusParameter!=null) {
+								if(transmitEndorsementCopiesStatusParameter.getValue()!=null) {									
+									StringBuffer filteredStatusTypes = new StringBuffer("");
+									String[] statusTypesArr = transmitEndorsementCopiesStatusParameter.getValue().split(",");
+									for(String i: statusTypesArr) {
+										System.out.println(filteredStatusTypes.toString());
+										if(!i.trim().isEmpty()) {
+											if(i.trim().endsWith(ApplicationConstants.BILL_FIRST_HOUSE) || i.trim().endsWith(ApplicationConstants.BILL_SECOND_HOUSE)) {
+												if(i.trim().endsWith(currentHouseType.getType() + "_" + currentHouseOrder)) {
+													filteredStatusTypes.append(i.trim()+",");							
+												}
+											} else {
+												filteredStatusTypes.append(i.trim()+",");
+											}					
+										}				
 									}
-								}								
+									filteredStatusTypes.deleteCharAt(filteredStatusTypes.length()-1);	
+									List<Status> transmitEndorsementCopiesStatuses = Status.findStatusContainedIn(filteredStatusTypes.toString(), locale.toString(), ApplicationConstants.ASC);
+									model.addAttribute("transmitEndorsementCopiesStatuses", transmitEndorsementCopiesStatuses);
+								} else {
+									logger.error("Custom Parameter 'BILL_TRANSMITENDORSEMENTCOPIES_STATUSOPTIONS' is not set properly");
+									model.addAttribute("errorcode", "bill_transmitendorsementcopies_statusoptions_setincorrect");
+									return "printrequisition/error";
+								}
+							} else {
+								logger.error("Custom Parameter 'BILL_TRANSMITENDORSEMENTCOPIES_STATUSOPTIONS' is not set");
+								model.addAttribute("errorcode", "bill_transmitendorsementcopies_statusoptions_notset");
+								return "printrequisition/error";
 							}
 						}						
 					}
@@ -926,6 +943,48 @@ public class PrintRequisitionController extends BaseController {
 					return "printrequisition/error";
 				}								
 			}
+		}
+		/**** Bill Year ****/
+		Integer selectedYear = null;
+		if(selectedBill!=null) {
+			selectedYear = Bill.findYear(selectedBill);
+		}
+		if(selectedYear==null) {
+			if(selectedYearStr!=null) {
+				if(!selectedYearStr.isEmpty()) {
+					try {
+						selectedYear = Integer.parseInt(selectedYearStr);					
+					} catch(NumberFormatException ne) {
+						logger.error("**** Check request parameter 'year' for non-numeric value. ****");
+						model.addAttribute("errorcode", "REQUEST_PARAMETER_INVALID");		
+						return "printrequisition/error";
+					}
+				} else {
+					logger.error("**** Check request parameter 'year' for empty value. ****");
+					model.addAttribute("errorcode", "REQUEST_PARAMETER_EMPTY");		
+					return "printrequisition/error";
+				}
+			} else {
+				logger.error("**** Check request parameter 'year' for null value. ****");
+				model.addAttribute("errorcode", "REQUEST_PARAMETER_NULL");		
+				return "printrequisition/error";
+			}
+		}
+		if(selectedYear!=null) {
+			model.addAttribute("formattedSelectedYear", FormaterUtil.formatNumberNoGrouping(selectedYear, locale.toString()));
+			model.addAttribute("selectedYear", selectedYear);
+		}	
+		/**** Bill HouseType ****/
+		HouseType selectedHouseType = currentHouseType;
+		if(selectedBill!=null) {
+			if(selectedBill.getType().getType().equals(ApplicationConstants.NONOFFICIAL_BILL)) {
+				selectedHouseType = selectedBill.getHouseType();
+			} else if(selectedBill.getType().getType().equals(ApplicationConstants.GOVERNMENT_BILL)) {
+				selectedHouseType = selectedBill.getIntroducingHouseType();
+			}
+		}
+		if(selectedHouseType!=null) {
+			model.addAttribute("selectedHouseType", selectedHouseType);
 		}
 		/**** House Rounds Available For Bill ****/
 		CustomParameter billHouseRoundsParameter = CustomParameter.findByName(CustomParameter.class, "BILL_HOUSEROUNDS", "");
@@ -953,7 +1012,7 @@ public class PrintRequisitionController extends BaseController {
 				return "printrequisition/error";
 			}	
 		} else {
-			logger.error("custom parameter 'BILL_HOUSEORDERS' is not set.");
+			logger.error("custom parameter 'BILL_HOUSEORDERS' is not set."); 
 			model.addAttribute("errorcode", "bill_houseorders_notset");
 			return "printrequisition/error";
 		}
@@ -963,17 +1022,17 @@ public class PrintRequisitionController extends BaseController {
 	
 	@RequestMapping(value = "/bill/transmitPressCopies", method = RequestMethod.GET)
 	public String transmitPressCopies(final ModelMap model, final HttpServletRequest request, final Locale locale) {
-		String selectedHouseTypeType = request.getParameter("houseType");
+		String currentHouseTypeType = request.getParameter("houseType");
 		String selectedYearStr = request.getParameter("sessionYear");
 		String selectedBillIdStr = request.getParameter("billId");
-		/**** House Type ****/
-		HouseType selectedHouseType = null;
-		if(selectedHouseTypeType!=null) {
-			if(!selectedHouseTypeType.isEmpty()) {
-				if(!selectedHouseTypeType.equals(ApplicationConstants.BOTH_HOUSE)) {
-					selectedHouseType = HouseType.findByFieldName(HouseType.class, "type", selectedHouseTypeType, locale.toString());
-					if(selectedHouseType!=null) {
-						model.addAttribute("selectedHouseType", selectedHouseType);					
+		/**** Current HouseType ****/
+		HouseType currentHouseType = null;
+		if(currentHouseTypeType!=null) {
+			if(!currentHouseTypeType.isEmpty()) {
+				if(!currentHouseTypeType.equals(ApplicationConstants.BOTH_HOUSE)) {
+					currentHouseType = HouseType.findByFieldName(HouseType.class, "type", currentHouseTypeType, locale.toString());
+					if(currentHouseType!=null) {
+						model.addAttribute("currentHouseType", currentHouseType);					
 					} else {
 						logger.error("**** Check request parameter 'houseType' for incorrect value. ****");
 						model.addAttribute("errorcode", "REQUEST_PARAMETER_INVALID");		
@@ -990,75 +1049,48 @@ public class PrintRequisitionController extends BaseController {
 			model.addAttribute("errorcode", "REQUEST_PARAMETER_NULL");		
 			return "printrequisition/error";
 		}
-		/**** Bill Year ****/
-		int selectedYear;
-		if(selectedYearStr!=null) {
-			if(!selectedYearStr.isEmpty()) {
-				try {
-					selectedYear = Integer.parseInt(selectedYearStr);
-					model.addAttribute("formattedSelectedYear", FormaterUtil.formatNumberNoGrouping(selectedYear, locale.toString()));
-					model.addAttribute("selectedYear", selectedYear);
-				} catch(NumberFormatException ne) {
-					logger.error("**** Check request parameter 'year' for non-numeric value. ****");
-					model.addAttribute("errorcode", "REQUEST_PARAMETER_INVALID");		
-					return "printrequisition/error";
-				}
-			} else {
-				logger.error("**** Check request parameter 'year' for empty value. ****");
-				model.addAttribute("errorcode", "REQUEST_PARAMETER_EMPTY");		
-				return "printrequisition/error";
-			}
-		} else {
-			logger.error("**** Check request parameter 'year' for null value. ****");
-			model.addAttribute("errorcode", "REQUEST_PARAMETER_NULL");		
-			return "printrequisition/error";
-		}
 		/**** Selected Bill ****/
+		Bill selectedBill = null;
 		if(selectedBillIdStr!=null) {
 			if(!selectedBillIdStr.isEmpty()) {
 				try {
 					long selectedBillId = Long.parseLong(selectedBillIdStr);
-					Bill selectedBill = Bill.findById(Bill.class, selectedBillId);
+					selectedBill = Bill.findById(Bill.class, selectedBillId);
 					if(selectedBill!=null) {
-						Integer selectedBillYear = Bill.findYear(selectedBill);
-						if(selectedBillYear!=null) {
-							if(selectedBillYear==selectedYear) {
-								if(selectedBill.getNumber()!=null) {
-									model.addAttribute("selectedBillNumber", FormaterUtil.formatNumberNoGrouping(selectedBill.getNumber(), locale.toString()));
-									model.addAttribute("selectedBillId", selectedBill.getId());
-									/**** Requisition Statuses Allowed For Selected Bill In Selected House ****/
-									String currentHouseOrder = Bill.findHouseOrderOfGivenHouseForBill(selectedBill, selectedHouseType.getType());
-									CustomParameter transmitPressCopiesStatusParameter = CustomParameter.findByName(CustomParameter.class, "BILL_TRANSMITPRESSCOPIES_STATUSOPTIONS", "");
-									if(transmitPressCopiesStatusParameter!=null) {
-										if(transmitPressCopiesStatusParameter.getValue()!=null) {									
-											StringBuffer filteredStatusTypes = new StringBuffer("");
-											String[] statusTypesArr = transmitPressCopiesStatusParameter.getValue().split(",");
-											for(String i: statusTypesArr) {
-												System.out.println(filteredStatusTypes.toString());
-												if(!i.trim().isEmpty()) {
-													if(i.trim().endsWith(ApplicationConstants.BILL_FIRST_HOUSE) || i.trim().endsWith(ApplicationConstants.BILL_SECOND_HOUSE)) {
-														if(i.trim().endsWith(selectedHouseType.getType() + "_" + currentHouseOrder)) {
-															filteredStatusTypes.append(i.trim()+",");							
-														}
-													} else {
-														filteredStatusTypes.append(i.trim()+",");
-													}					
-												}				
-											}
-											filteredStatusTypes.deleteCharAt(filteredStatusTypes.length()-1);	
-											List<Status> transmitPressCopiesStatuses = Status.findStatusContainedIn(filteredStatusTypes.toString(), locale.toString(), ApplicationConstants.ASC);
-											model.addAttribute("transmitPressCopiesStatuses", transmitPressCopiesStatuses);
-										} else {
-											logger.error("Custom Parameter 'BILL_TRANSMITPRESSCOPIES_STATUSOPTIONS' is not set properly");
-											model.addAttribute("errorcode", "bill_transmitpresscopies_statusoptions_setincorrect");
-											return "printrequisition/error";
-										}
-									} else {
-										logger.error("Custom Parameter 'BILL_TRANSMITPRESSCOPIES_STATUSOPTIONS' is not set");
-										model.addAttribute("errorcode", "bill_transmitpresscopies_statusoptions_notset");
-										return "printrequisition/error";
+						if(selectedBill.getNumber()!=null) {
+							model.addAttribute("selectedBillNumber", FormaterUtil.formatNumberNoGrouping(selectedBill.getNumber(), locale.toString()));
+							model.addAttribute("selectedBillId", selectedBill.getId());
+							/**** Requisition Statuses Allowed For Selected Bill In Selected House ****/
+							String currentHouseOrder = Bill.findHouseOrderOfGivenHouseForBill(selectedBill, currentHouseType.getType());
+							CustomParameter transmitPressCopiesStatusParameter = CustomParameter.findByName(CustomParameter.class, "BILL_TRANSMITPRESSCOPIES_STATUSOPTIONS", "");
+							if(transmitPressCopiesStatusParameter!=null) {
+								if(transmitPressCopiesStatusParameter.getValue()!=null) {									
+									StringBuffer filteredStatusTypes = new StringBuffer("");
+									String[] statusTypesArr = transmitPressCopiesStatusParameter.getValue().split(",");
+									for(String i: statusTypesArr) {
+										System.out.println(filteredStatusTypes.toString());
+										if(!i.trim().isEmpty()) {
+											if(i.trim().endsWith(ApplicationConstants.BILL_FIRST_HOUSE) || i.trim().endsWith(ApplicationConstants.BILL_SECOND_HOUSE)) {
+												if(i.trim().endsWith(currentHouseType.getType() + "_" + currentHouseOrder)) {
+													filteredStatusTypes.append(i.trim()+",");							
+												}
+											} else {
+												filteredStatusTypes.append(i.trim()+",");
+											}					
+										}				
 									}
-								}								
+									filteredStatusTypes.deleteCharAt(filteredStatusTypes.length()-1);	
+									List<Status> transmitPressCopiesStatuses = Status.findStatusContainedIn(filteredStatusTypes.toString(), locale.toString(), ApplicationConstants.ASC);
+									model.addAttribute("transmitPressCopiesStatuses", transmitPressCopiesStatuses);
+								} else {
+									logger.error("Custom Parameter 'BILL_TRANSMITPRESSCOPIES_STATUSOPTIONS' is not set properly");
+									model.addAttribute("errorcode", "bill_transmitpresscopies_statusoptions_setincorrect");
+									return "printrequisition/error";
+								}
+							} else {
+								logger.error("Custom Parameter 'BILL_TRANSMITPRESSCOPIES_STATUSOPTIONS' is not set");
+								model.addAttribute("errorcode", "bill_transmitpresscopies_statusoptions_notset");
+								return "printrequisition/error";
 							}
 						}						
 					}
@@ -1068,6 +1100,48 @@ public class PrintRequisitionController extends BaseController {
 					return "printrequisition/error";
 				}								
 			}
+		}
+		/**** Bill Year ****/
+		Integer selectedYear = null;
+		if(selectedBill!=null) {
+			selectedYear = Bill.findYear(selectedBill);
+		}
+		if(selectedYear==null) {
+			if(selectedYearStr!=null) {
+				if(!selectedYearStr.isEmpty()) {
+					try {
+						selectedYear = Integer.parseInt(selectedYearStr);					
+					} catch(NumberFormatException ne) {
+						logger.error("**** Check request parameter 'year' for non-numeric value. ****");
+						model.addAttribute("errorcode", "REQUEST_PARAMETER_INVALID");		
+						return "printrequisition/error";
+					}
+				} else {
+					logger.error("**** Check request parameter 'year' for empty value. ****");
+					model.addAttribute("errorcode", "REQUEST_PARAMETER_EMPTY");		
+					return "printrequisition/error";
+				}
+			} else {
+				logger.error("**** Check request parameter 'year' for null value. ****");
+				model.addAttribute("errorcode", "REQUEST_PARAMETER_NULL");		
+				return "printrequisition/error";
+			}
+		}
+		if(selectedYear!=null) {
+			model.addAttribute("formattedSelectedYear", FormaterUtil.formatNumberNoGrouping(selectedYear, locale.toString()));
+			model.addAttribute("selectedYear", selectedYear);
+		}	
+		/**** Bill HouseType ****/
+		HouseType selectedHouseType = currentHouseType;
+		if(selectedBill!=null) {
+			if(selectedBill.getType().getType().equals(ApplicationConstants.NONOFFICIAL_BILL)) {
+				selectedHouseType = selectedBill.getHouseType();
+			} else if(selectedBill.getType().getType().equals(ApplicationConstants.GOVERNMENT_BILL)) {
+				selectedHouseType = selectedBill.getIntroducingHouseType();
+			}
+		}
+		if(selectedHouseType!=null) {
+			model.addAttribute("selectedHouseType", selectedHouseType);
 		}
 		/**** House Rounds Available For Bill ****/
 		CustomParameter billHouseRoundsParameter = CustomParameter.findByName(CustomParameter.class, "BILL_HOUSEROUNDS", "");
@@ -1164,6 +1238,34 @@ public class PrintRequisitionController extends BaseController {
 		if(workflowsOfTransmitPress!=null) {
 			if(!workflowsOfTransmitPress.isEmpty()) {
 				model.addAttribute("isAlreadyTransmitted", true);
+				CustomParameter finalAuthorityParameter = CustomParameter.findByName(CustomParameter.class, "BILL_TRANSMITPRESSCOPIES_FINAL_AUTHORITY", "");
+				if(finalAuthorityParameter!=null) {
+					WorkflowDetails finalActorWorkflowDetails = null;
+					for(WorkflowDetails workflowDetails: workflowsOfTransmitPress) {
+						if(finalAuthorityParameter.getValue().contains(workflowDetails.getAssigneeUserGroupType())) {
+							finalActorWorkflowDetails = workflowDetails;
+						}
+					}
+					if(finalActorWorkflowDetails!=null) {
+						if(finalActorWorkflowDetails.getStatus().equals(ApplicationConstants.MYTASK_COMPLETED)) {
+							model.addAttribute("isTransmissionAcknowledged",true);
+							model.addAttribute("isHardCopyReceived",finalActorWorkflowDetails.getIsHardCopyReceived());
+							if(finalActorWorkflowDetails.getDateOfHardCopyReceived()!=null) {
+								Date dateOfHardCopyReceived = FormaterUtil.formatStringToDate(finalActorWorkflowDetails.getDateOfHardCopyReceived(), ApplicationConstants.SERVER_DATEFORMAT, finalActorWorkflowDetails.getLocale());
+								model.addAttribute("dateOfHardCopyReceived", FormaterUtil.formatDateToString(dateOfHardCopyReceived, ApplicationConstants.SERVER_DATEFORMAT, finalActorWorkflowDetails.getLocale()));
+							}	
+							if(finalActorWorkflowDetails.getAcknowledgementDecision()!=null) {
+								Status acknowledgementDecisionStatus = Status.findByType(finalActorWorkflowDetails.getAcknowledgementDecision(), finalActorWorkflowDetails.getLocale());
+								model.addAttribute("formattedAcknowledgementDecision",acknowledgementDecisionStatus.getName());
+							}
+						} else {
+							model.addAttribute("isTransmissionAcknowledged",false);
+						}
+					}
+				} else {
+					logger.error("Custom parameter 'BILL_TRANSMITPRESSCOPIES_FINAL_AUTHORITY' is not set.");
+					model.addAttribute("errorcode", "BILL_TRANSMITPRESSCOPIES_FINAL_AUTHORITY_NOTSET");					
+				}
 			}
 		}
 	}

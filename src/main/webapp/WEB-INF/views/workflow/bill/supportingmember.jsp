@@ -154,30 +154,34 @@
 			return false;
 		});
 		
-		if($('#typeOfSelectedBillType').val() != 'amending') {
-			$('#referredActDiv').hide();			
-		}
-		
-		if($('#typeOfSelectedBillType').val() != 'replace_ordinance') {
+		/**** allow refer act & ordinance as per bill type ****/
+		if($('#typeOfSelectedBillType').val()=='') {
+			$('#referredActDiv').hide();
 			$('#referredOrdinanceDiv').hide();
+		} else if($('#typeOfSelectedBillType').val()=='original') {
+			$('#referredActDiv').hide();
+			$('#referredOrdinanceDiv').hide();
+		} else if($('#typeOfSelectedBillType').val()=='replace_ordinance'){
+			$('#referredOrdinanceDiv').show();
+			$('#referredActDiv').hide();
+		}else{
+			$('#referredActDiv').show();
+			$('#referredOrdinanceDiv').show();
 		}
-		
+
 		$('#billType').change(function() {
 			$.get('ref/getTypeOfSelectedBillType?selectedBillTypeId='+$('#billType').val(),function(data) {
 				
 				if(data!=undefined || data!='') {
-					if(data=='amending') {
-						$('#referredActDiv').show();
-						$('#annexuresForAmendingBill_div').show();
+					if(data=='original') {
+						$('#referredActDiv').hide();
 						$('#referredOrdinanceDiv').hide();
 					} else if(data=='replace_ordinance'){
 						$('#referredOrdinanceDiv').show();
 						$('#referredActDiv').hide();
-						$('#annexuresForAmendingBill_div').hide();
 					}else{
-						$('#referredActDiv').hide();
-						$('#annexuresForAmendingBill_div').hide();
-						$('#referredOrdinanceDiv').hide();
+						$('#referredActDiv').show();
+						$('#referredOrdinanceDiv').show();
 					}
 				} else {
 					alert("Some Error Occured!");
@@ -317,7 +321,7 @@
 		</p>
 	</div>
 	
-	<div id="referredOrdinanceDiv">
+	<div id="referredOrdinanceDiv" style="margin-top:10px;">
 		<p>
 			<label class="small"><spring:message code="bill.referredOrdinance" text="Referred Ordinance"></spring:message></label>
 			<c:choose>

@@ -127,10 +127,21 @@
 				$('#readonly_recommendationFromPresident_button').hide();
 			}
 			
-			/**** refer act only in case of amendment bill type ****/
-			if($('#readonly_typeOfSelectedBillType').val()!='amending') {
+			/**** allow refer act & ordinance as per bill type ****/
+			if($('#readonly_typeOfSelectedBillType').val()=='') {
 				$('#readonly_referredActDiv').hide();
+				$('#readonly_referredOrdinanceDiv').hide();
+			} else if($('#readonly_typeOfSelectedBillType').val()=='original') {
+				$('#readonly_referredActDiv').hide();
+				$('#readonly_referredOrdinanceDiv').hide();
+			} else if($('#readonly_typeOfSelectedBillType').val()=='replace_ordinance'){
+				$('#readonly_referredOrdinanceDiv').show();
+				$('#readonly_referredActDiv').hide();
+			}else{
+				$('#readonly_referredActDiv').show();
+				$('#readonly_referredOrdinanceDiv').show();
 			}
+			
 			//to check/uncheck checkboxes for current checklist selection by assistant
 			$('.readonly_checklist_checkbox_fields').each(function() {
 				var fieldNumber = this.id.split("_")[4];
@@ -172,9 +183,21 @@
 		    /**** view detail of referred act (currently showing pdf of act) ****/		
 			$('#readonly_viewReferredAct').click(function() {
 				if(this.text!='-') {					
-					var referredActId = $('#referredAct').val();
+					var referredActId = $('#readonly_referredAct').val();
 					$.blockUI({ message: '<img src="./resources/images/waitAnimated.gif" />' });	
 					var resourceURL='act/'+referredActId+'/edit?edit=false';
+					$.get(resourceURL,function(data){
+						$.unblockUI();
+						$.fancybox.open(data,{autoSize:false,width:800,height:700});
+					},'html');
+				}				
+			});
+			/**** view detail of referred ordinance****/		
+			$('#readonly_viewReferredOrdinance').click(function() {
+				if(this.text!='-') {					
+					var referredOrdinanceId = $('#readonly_referredOrdinance').val();
+					$.blockUI({ message: '<img src="./resources/images/waitAnimated.gif" />' });	
+					var resourceURL='ordinance/'+referredOrdinanceId+'/edit?edit=false';
 					$.get(resourceURL,function(data){
 						$.unblockUI();
 						$.fancybox.open(data,{autoSize:false,width:800,height:700});
@@ -642,7 +665,7 @@
 							<input type="hidden" id="readonly_referredAct" name="referredAct" value="${referredAct}">
 						</p>
 					</div>
-					<div id="readonly_referredOrdinanceDiv">
+					<div id="readonly_referredOrdinanceDiv" style="margin-top:10px;">
 						<p>
 							<label class="small"><spring:message code="bill.referredOrdinance" text="Referred Ordinance"></spring:message></label>
 							<c:choose>

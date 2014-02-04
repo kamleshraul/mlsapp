@@ -63,6 +63,27 @@
 						</p>
 					<!-- </fieldset> -->
 				</div>
+				<c:choose>
+					<c:when test="${isTransmissionAcknowledged=='true'}">
+						<p>
+							<label class="small"><spring:message code="transmitpresscopies.isHardCopyReceived" text="Is Hard Copy Received?"/>*</label>
+							<input id="isHardCopyReceived" class="sText" readonly="readonly" value="<spring:message code='generic.${isHardCopyReceived}'/>">
+						</p>	
+						<p>
+							<label class="small"><spring:message code="transmitpresscopies.dateOfHardCopyReceived" text="Date Of Hard Copy Received"/>*</label>
+							<input type="text" id="dateOfHardCopyReceived" class="datemask sText" value="${dateOfHardCopyReceived}"/>			
+						</p>	
+						<p>
+							<label class="small"><spring:message code="transmitpresscopies.acknowledgementDecision" text="Acknowledgement Decision?"/>*</label>
+							<input id="formattedAcknowledgementDecision" class="sText" readonly="readonly" value="${formattedAcknowledgementDecision}">
+						</p>
+					</c:when>
+					<c:otherwise>
+						<c:if test="${isAlreadyTransmitted=='true'}">
+							<h3><spring:message code='transmitpresscopies.acknowledgementNotReceived' text="Press copies not acknowledged yet.."/></h3>
+						</c:if>
+					</c:otherwise>
+				</c:choose>				
 			</c:when>
 			<c:when test="${pressCopiesReceived!='yes' and isPrintRequisitionSent=='true'}">
 				<h3><spring:message code='bill.pressCopies.notReceived' text="Press Copies Not Received Yet From Press"/></h3>

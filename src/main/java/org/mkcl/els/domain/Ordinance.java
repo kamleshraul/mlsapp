@@ -89,7 +89,7 @@ public class Ordinance extends BaseDomain implements Serializable {
 	 *
 	 * @return the ordinance repository
 	 */
-	public static OrdinanceRepository getOrdinanceRepository() {
+	private static OrdinanceRepository getOrdinanceRepository() {
 		OrdinanceRepository ordinanceRepository = new Ordinance().ordinanceRepository;
 		if (ordinanceRepository == null) {
 			throw new IllegalStateException(
@@ -100,15 +100,15 @@ public class Ordinance extends BaseDomain implements Serializable {
 	
 	public String getDefaultTitle() {
     	String defaultTitle = "";
-    	CustomParameter actDefaultLanguageParameter = CustomParameter.findByName(CustomParameter.class, "ORDINANCE_DEFAULT_LANGUAGE", "");
-    	if(actDefaultLanguageParameter!=null) {
-    		String actDefaultLanguage = actDefaultLanguageParameter.getValue();
-    		if(actDefaultLanguage!=null) {
-    			if(!actDefaultLanguage.isEmpty()) {
+    	CustomParameter ordinanceDefaultLanguageParameter = CustomParameter.findByName(CustomParameter.class, "ORDINANCE_DEFAULT_LANGUAGE", "");
+    	if(ordinanceDefaultLanguageParameter!=null) {
+    		String ordinanceDefaultLanguage = ordinanceDefaultLanguageParameter.getValue();
+    		if(ordinanceDefaultLanguage!=null) {
+    			if(!ordinanceDefaultLanguage.isEmpty()) {
     				if(this.getTitles()!=null) {
     	        		if(!this.getTitles().isEmpty()) {
     	    				for(TextDraft td: this.getTitles()) {
-    	            			if(td.getLanguage().getType().equals(actDefaultLanguage)) {
+    	            			if(td.getLanguage().getType().equals(ordinanceDefaultLanguage)) {
     	            				defaultTitle = td.getText();
     	            				break;
     	            			}
@@ -120,6 +120,10 @@ public class Ordinance extends BaseDomain implements Serializable {
     	}    	    	
     	return defaultTitle;
     }
+	
+	public static Ordinance findByYearAndNumber(final Integer ordYear, final Integer ordNumber) {
+		return getOrdinanceRepository().findByYearAndNumber(ordYear, ordNumber);
+	}
 
     // ----------------------------Getters/Setters------------------------//
     /**

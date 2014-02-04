@@ -447,7 +447,11 @@ public class BillRepository extends BaseRepository<Bill, Serializable>{
 
 	public Integer assignBillNo(final String year, final HouseType houseType, final String locale) {
 		String queryString="SELECT bill.number from bills bill LEFT JOIN devicetypes dt ON(bill.devicetype_id=dt.id)" +					
-				" WHERE housetype_id="+houseType.getId() +
+				" WHERE " +
+				" CASE " +
+				" WHEN dt.type='"+ApplicationConstants.NONOFFICIAL_BILL + "' THEN bill.housetype_id="+houseType.getId() +
+				" WHEN dt.type='"+ApplicationConstants.GOVERNMENT_BILL + "' THEN bill.introducing_housetype_id="+houseType.getId() +
+				" END " +
 				" AND " +
 				" CASE " +
 				" WHEN dt.type='"+ApplicationConstants.NONOFFICIAL_BILL + "' THEN year(bill.admission_date)="+year +
@@ -1797,7 +1801,7 @@ public class BillRepository extends BaseRepository<Bill, Serializable>{
 		Status underConsiderationStatus = Status.findByType(ApplicationConstants.BILL_PROCESSED_UNDERCONSIDERATION, bill.getLocale());
 		
 		String strQuery="SELECT bd.recommendationStatus.type, bd.houseRound, bd.expectedStatusDate, bd.statusDate, bd.internalStatus.type FROM Bill b JOIN b.drafts bd" +
-				" WHERE b.id=:billId AND (bd.internalStatus.priority >= "+	underConsiderationStatus.getPriority().toString() +	
+				" WHERE b.id=:billId AND ((bd.internalStatus.priority >= "+	underConsiderationStatus.getPriority().toString() +	" AND NOT (bd.recommendationStatus.type LIKE '" + ApplicationConstants.BILL_PROCESSED_TOBEDISCUSSED + "%'))" +
 						" OR bd.recommendationStatus.type = '" + ApplicationConstants.BILL_PROCESSED_INTRODUCED + "')" +
 				" ORDER BY bd.id "+ApplicationConstants.ASC;
 		Query query=this.em().createQuery(strQuery);

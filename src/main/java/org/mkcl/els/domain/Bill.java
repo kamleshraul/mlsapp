@@ -52,7 +52,7 @@ import org.springframework.beans.factory.annotation.Configurable;
 @JsonIgnoreProperties({"houseType", "introducingHouseType", "session", "originalType", "type", "billType", "billKind",
 	"titles", "contentDrafts", "statementOfObjectAndReasonDrafts", "revisedStatementOfObjectAndReasonDrafts", 
 	"financialMemorandumDrafts", "revisedFinancialMemorandumDrafts", "statutoryMemorandumDrafts", "revisedStatutoryMemorandumDrafts", 
-	"revisedContentDrafts", "referredAct", "translationStatus", "opinionFromLawAndJDStatus", 
+	"revisedContentDrafts", "referredAct", "referredOrdinance", "translationStatus", "opinionFromLawAndJDStatus", 
 	"recommendationFromGovernorStatus", "recommendationFromPresidentStatus", "ballotStatus", "discussionStatus", "supportingMembers", 
 	"drafts", "parent", "clubbedEntities", "referencedBill", "lapsedBill", "introducedBy", "votingDetails", "currentHouseType"})
 public class Bill extends Device implements Serializable {
@@ -558,7 +558,890 @@ public class Bill extends Device implements Serializable {
 		super();
 	}
 
-    //-----------------------------Getters And Setters--------------------------------
+  //-----------------------------Domain Methods--------------------------------
+    /**
+     * Gets the bill repository.
+     *
+     * @return the bill repository
+     */
+    private static BillRepository getBillRepository() {
+    	BillRepository billRepository = new Bill().billRepository;
+        if (billRepository == null) {
+            throw new IllegalStateException(
+            	"BillRepository has not been injected in Bill Domain");
+        }
+        return billRepository;
+    }
+    
+    
+    @Override
+    public Bill persist() {
+    	if(this.getStatus().getType().equals(ApplicationConstants.BILL_SUBMIT)) {
+    		if(this.getType().getType().equals(ApplicationConstants.GOVERNMENT_BILL)) {
+    			if(this.getNumber() == null) {
+    				synchronized (this) {
+    					String billSubmissionYear = FormaterUtil.formatDateToString(this.getSubmissionDate(), "yyyy");
+    					Integer number = Bill.assignBillNo(billSubmissionYear, this.getIntroducingHouseType(), this.getLocale());
+    					this.setNumber(number + 1);
+    				}
+    			}
+    		}
+    		addBillDraft();
+    	}
+    	return (Bill)super.persist();
+    }
+    
+    @Override
+    public Bill merge() {
+    	Bill bill = null;
+    	if(this.getStatus().getType().equals(ApplicationConstants.BILL_FINAL_ADMISSION) 
+    			&& this.getInternalStatus().getType().equals(ApplicationConstants.BILL_FINAL_ADMISSION)
+    			&& this.getRecommendationStatus().getType().equals(ApplicationConstants.BILL_FINAL_ADMISSION)) {
+    		if(this.getType().getType().equals(ApplicationConstants.NONOFFICIAL_BILL)) {
+    			if(this.getNumber() == null) {
+    				synchronized (this) {
+    					String billAdmissionYear = FormaterUtil.formatDateToString(this.getAdmissionDate(), "yyyy");
+    					Integer number = Bill.assignBillNo(billAdmissionYear, this.getHouseType(), this.getLocale());
+    					this.setNumber(number + 1);
+    				}
+    			}
+    		}
+    		addBillDraft();
+    		bill = (Bill)super.merge();
+    	} else if(this.getInternalStatus().getType().equals(ApplicationConstants.BILL_SUBMIT)) {
+    		if(this.getType().getType().equals(ApplicationConstants.GOVERNMENT_BILL)) {
+    			if(this.getNumber() == null) {
+    				synchronized (this) {
+    					String billSubmissionYear = FormaterUtil.formatDateToString(this.getSubmissionDate(), "yyyy");
+    					Integer number = Bill.assignBillNo(billSubmissionYear, this.getIntroducingHouseType(), this.getLocale());
+    					this.setNumber(number + 1);
+    				}
+    			}
+    		}
+    		addBillDraft();
+    		bill = (Bill)super.merge();
+    	} else if(this.getInternalStatus().getType().equals(ApplicationConstants.BILL_SYSTEM_ASSISTANT_PROCESSED)) {
+    		if(this.getType().getType().equals(ApplicationConstants.NONOFFICIAL_BILL)) {
+    			if(this.getClubbedEntities() == null || this.getReferencedBill()==null) {
+    				Bill oldBill = Bill.findById(Bill.class, this.getId());   
+    				if(this.getClubbedEntities() == null) {
+    					this.setClubbedEntities(oldBill.getClubbedEntities());
+    				}
+    				if(this.getReferencedBill()==null) {
+    					this.setReferencedBill(oldBill.getReferencedBill());
+    				}    				
+    			}
+    		}    		
+    		addBillDraft();
+    		bill = (Bill)super.merge();
+    	}
+    	if(bill != null) {
+    		return bill;
+    	} else {
+    		if(this.getInternalStatus().getType().equals(ApplicationConstants.BILL_INCOMPLETE) 
+                	|| 
+                	this.getInternalStatus().getType().equals(ApplicationConstants.BILL_COMPLETE)) {
+                    return (Bill) super.merge();
+                }
+                else {
+                	if(this.getType().getType().equals(ApplicationConstants.NONOFFICIAL_BILL)) {
+            			if(this.getClubbedEntities() == null || this.getReferencedBill()==null) {
+            				Bill oldBill = Bill.findById(Bill.class, this.getId());   
+            				if(this.getClubbedEntities() == null) {
+            					this.setClubbedEntities(oldBill.getClubbedEntities());
+            				}
+            				if(this.getReferencedBill()==null) {
+            					this.setReferencedBill(oldBill.getReferencedBill());
+            				}    				
+            			}
+            		}
+                	addBillDraft();
+                	return (Bill)super.merge();
+                }
+    	}    	
+    }
+    
+    /**
+     * The merge function, besides updating Bill, performs various actions
+     * based on Bill's status. What if we need just the simple functionality
+     * of updation? Use this method.
+     *
+     * @return the bill
+     */
+    public Bill simpleMerge() {
+        Bill bill = (Bill) super.merge();
+        return bill;
+    }    
+    
+//    private void 
+    		
+    /**
+     * Adds the bill draft.
+     */
+    private void addBillDraft() {
+        if(! this.getStatus().getType().equals(ApplicationConstants.BILL_INCOMPLETE) 
+        		&& ! this.getStatus().getType().equals(ApplicationConstants.BILL_COMPLETE)) {
+            BillDraft draft = new BillDraft();
+            draft.setType(this.getType());            
+            draft.setRemarks(this.getRemarks());           
+            
+            draft.setEditedAs(this.getEditedAs());
+            draft.setEditedBy(this.getEditedBy());
+            draft.setEditedOn(this.getEditedOn());
+            
+            draft.setMinistry(this.getMinistry());
+            draft.setSubDepartment(this.getSubDepartment());
+            
+            draft.setStatus(this.getStatus());
+            draft.setInternalStatus(this.getInternalStatus());
+            draft.setRecommendationStatus(this.getRecommendationStatus());  
+            
+            if(this.getCurrentHouseType()!=null) {
+            	draft.setHouseType(this.getCurrentHouseType());
+            }
+            
+            if(this.getHouseRound()!=null) {
+            	draft.setHouseRound(this.getHouseRound());
+            }
+            
+            if(this.getExpectedStatusDate()!=null) {
+            	draft.setExpectedStatusDate(this.getExpectedStatusDate());
+            }
+            
+            if(this.getStatusDate()!=null) {
+            	draft.setStatusDate(this.getStatusDate());
+            }
+            
+            if(this.getRevisedTitles()!= null && !this.getRevisedTitles().isEmpty()) {            	
+            	draft.setTitles(this.addDraftsOfGivenTypeForBillDraft("titles", this.getRevisedTitles()));
+            } else {
+            	draft.setTitles(this.addDraftsOfGivenTypeForBillDraft(this.getTitles()));
+            }
+            
+            if(this.getRevisedContentDrafts()!= null && !this.getRevisedContentDrafts().isEmpty()) {            	
+            	draft.setContentDrafts(this.addDraftsOfGivenTypeForBillDraft("contentDrafts", this.getRevisedContentDrafts()));
+            } else {
+            	draft.setContentDrafts(this.addDraftsOfGivenTypeForBillDraft(this.getContentDrafts()));
+            }
+            
+            if(this.getRevisedStatementOfObjectAndReasonDrafts()!= null && !this.getRevisedStatementOfObjectAndReasonDrafts().isEmpty()) {
+            	draft.setStatementOfObjectAndReasonDrafts(this.addDraftsOfGivenTypeForBillDraft("statementOfObjectAndReasonDrafts", this.getRevisedStatementOfObjectAndReasonDrafts()));
+            } else {
+            	draft.setStatementOfObjectAndReasonDrafts(this.addDraftsOfGivenTypeForBillDraft(this.getStatementOfObjectAndReasonDrafts()));
+            }
+            
+            if(this.getRevisedFinancialMemorandumDrafts()!= null && !this.getRevisedFinancialMemorandumDrafts().isEmpty()) {
+            	draft.setFinancialMemorandumDrafts(this.addDraftsOfGivenTypeForBillDraft("financialMemorandumDrafts", this.getRevisedFinancialMemorandumDrafts()));
+            } else {
+            	draft.setFinancialMemorandumDrafts(this.addDraftsOfGivenTypeForBillDraft(this.getFinancialMemorandumDrafts()));
+            }
+            
+            if(this.getRevisedStatutoryMemorandumDrafts()!= null && !this.getRevisedStatutoryMemorandumDrafts().isEmpty()) {
+            	draft.setStatutoryMemorandumDrafts(this.addDraftsOfGivenTypeForBillDraft("statutoryMemorandumDrafts", this.getRevisedStatutoryMemorandumDrafts()));
+            } else {
+            	draft.setStatutoryMemorandumDrafts(this.addDraftsOfGivenTypeForBillDraft(this.getStatutoryMemorandumDrafts()));
+            }
+            
+            if(this.getRevisedAnnexuresForAmendingBill()!= null && !this.getRevisedAnnexuresForAmendingBill().isEmpty()) {            	
+            	draft.setAnnexuresForAmendingBill(this.addDraftsOfGivenTypeForBillDraft("annexuresForAmendingBill", this.getRevisedAnnexuresForAmendingBill()));
+            } else {
+            	draft.setAnnexuresForAmendingBill(this.addDraftsOfGivenTypeForBillDraft(this.getAnnexuresForAmendingBill()));
+            }
+            
+            draft.setChecklist(this.getChecklist());
+            
+            draft.setReferredAct(this.getReferredAct());
+            
+            draft.setParent(this.getParent());
+            draft.setClubbedEntities(this.getClubbedEntities());
+            
+            draft.setReferencedBill(this.getReferencedBill());            
+            
+            if(this.getId() != null) {
+                Bill bill = Bill.findById(Bill.class, this.getId());
+                List<BillDraft> originalDrafts = bill.getDrafts();
+                if(originalDrafts != null){
+                    originalDrafts.add(draft);
+                }
+                else{
+                    originalDrafts = new ArrayList<BillDraft>();
+                    originalDrafts.add(draft);
+                }
+                this.setDrafts(originalDrafts);
+            }
+            else {
+                List<BillDraft> originalDrafts = new ArrayList<BillDraft>();
+                originalDrafts.add(draft);
+                this.setDrafts(originalDrafts);
+            }
+        }
+    }
+    
+    private static Integer assignBillNo(final String year, final HouseType houseType, final String locale) {		
+		return getBillRepository().assignBillNo(year, houseType, locale);
+	}
+
+    private List<TextDraft> addDraftsOfGivenTypeForBillDraft(List<TextDraft> draftsOfGivenType) {
+    	if(draftsOfGivenType!=null) {
+    		List<TextDraft> draftsOfGivenTypeForBillDraft = new ArrayList<TextDraft>();    	
+        	for(TextDraft draftOfGivenType : draftsOfGivenType) {
+        		TextDraft draftOfGivenTypeForBillDraft = new TextDraft();
+        		draftOfGivenTypeForBillDraft.setLanguage(draftOfGivenType.getLanguage());
+        		draftOfGivenTypeForBillDraft.setText(draftOfGivenType.getText());
+        		draftOfGivenTypeForBillDraft.setLocale(draftOfGivenType.getLocale());
+        		draftsOfGivenTypeForBillDraft.add(draftOfGivenTypeForBillDraft);
+        	}
+        	return draftsOfGivenTypeForBillDraft;
+    	} else {
+    		return null;
+    	}    	
+    }
+    
+    private TextDraft findDraftOfGivenTypeInGivenLanguage(String typeOfDraft, String languageType) {
+    	TextDraft draftOfGivenTypeInGivenLanguage = null;
+    	List<TextDraft> draftsOfGivenType = null;     	
+    	if(typeOfDraft.equals("titles")) {
+    		draftsOfGivenType = this.getTitles();
+    	} else if(typeOfDraft.equals("revisedTitles")) {
+    		draftsOfGivenType = this.getRevisedTitles();
+    	} else if(typeOfDraft.equals("contentDrafts")) {
+    		draftsOfGivenType = this.getContentDrafts();
+    	} else if(typeOfDraft.equals("revisedContentDrafts")) {
+    		draftsOfGivenType = this.getRevisedContentDrafts();
+    	} else if(typeOfDraft.equals("statementOfObjectAndReasonDrafts")) {
+    		draftsOfGivenType = this.getStatementOfObjectAndReasonDrafts();
+    	} else if(typeOfDraft.equals("revisedStatementOfObjectAndReasonDrafts")) {
+    		draftsOfGivenType = this.getRevisedStatementOfObjectAndReasonDrafts();
+    	} else if(typeOfDraft.equals("financialMemorandumDrafts")) {
+    		draftsOfGivenType = this.getFinancialMemorandumDrafts();
+    	} else if(typeOfDraft.equals("revisedFinancialMemorandumDrafts")) {
+    		draftsOfGivenType = this.getRevisedFinancialMemorandumDrafts();
+    	} else if(typeOfDraft.equals("statutoryMemorandumDrafts")) {
+    		draftsOfGivenType = this.getStatutoryMemorandumDrafts();
+    	} else if(typeOfDraft.equals("revisedStatutoryMemorandumDrafts")) {
+    		draftsOfGivenType = this.getRevisedStatutoryMemorandumDrafts();
+    	} else if(typeOfDraft.equals("annexuresForAmendingBill")) {
+    		draftsOfGivenType = this.getAnnexuresForAmendingBill();
+    	} else if(typeOfDraft.equals("revisedAnnexuresForAmendingBill")) {
+    		draftsOfGivenType = this.getRevisedAnnexuresForAmendingBill();
+    	}  	
+    	if(draftsOfGivenType != null) {
+    		for(TextDraft td: draftsOfGivenType) {
+    			if(td.getLanguage().getType().equals(languageType)) {
+    				draftOfGivenTypeInGivenLanguage = td;
+    				break;
+    			}
+    		}
+    	}    	
+    	return draftOfGivenTypeInGivenLanguage;
+    }
+    
+    private List<TextDraft> addDraftsOfGivenTypeForBillDraft(String typeOfDraft, List<TextDraft> draftsOfGivenType) {
+    	List<TextDraft> draftsOfGivenTypeForBillDraft = new ArrayList<TextDraft>();    	
+    	String revisedTypeOfDraft = "revised" + Character.toUpperCase(typeOfDraft.charAt(0)) + typeOfDraft.substring(1);
+    	String[] languagesForDraft = this.getSession().getParameter(this.getType().getType() + "_languagesAllowed").split("#");
+    	for(String languageForDraft : languagesForDraft) {    		
+    		TextDraft existingDraftOfGivenType = findDraftOfGivenTypeInGivenLanguage(revisedTypeOfDraft, languageForDraft);
+    		if(existingDraftOfGivenType==null) {
+    			existingDraftOfGivenType = findDraftOfGivenTypeInGivenLanguage(typeOfDraft, languageForDraft);
+    		}
+    		if(existingDraftOfGivenType!=null) {
+    			TextDraft draftOfGivenTypeForBillDraft = new TextDraft();
+        		draftOfGivenTypeForBillDraft.setLanguage(existingDraftOfGivenType.getLanguage());
+        		draftOfGivenTypeForBillDraft.setText(existingDraftOfGivenType.getText());
+        		draftOfGivenTypeForBillDraft.setLocale(existingDraftOfGivenType.getLocale());
+        		draftsOfGivenTypeForBillDraft.add(draftOfGivenTypeForBillDraft);
+    		}
+    	}    	
+    	return draftsOfGivenTypeForBillDraft;
+    }
+    
+    public static List<Bill> findAllByMember(final Session session,
+			final Member primaryMember,final DeviceType deviceType,final Integer itemsCount,
+			final String locale) {
+		return getBillRepository().findAllByMember(session,
+				primaryMember,deviceType,itemsCount,
+				locale);
+	}
+    
+    public String formatNumber() {
+		if(getNumber()!=null){
+			NumberFormat format=FormaterUtil.getNumberFormatterNoGrouping(this.getLocale());
+			return format.format(this.getNumber());
+		}else{
+			return "";
+		}
+	}
+    
+    public String getDefaultTitle() {
+    	String defaultTitle = "";
+    	String defaultTitleLanguage = this.getSession().getParameter(this.getType().getType()+"_defaultTitleLanguage");
+    	if(defaultTitleLanguage!=null&&!defaultTitleLanguage.isEmpty()) {
+    		if(this.getRevisedTitles()!=null) {
+        		if(!this.getRevisedTitles().isEmpty()) {
+        			for(TextDraft td: this.getRevisedTitles()) {
+            			if(td.getLanguage().getType().equals(defaultTitleLanguage)) {
+            				defaultTitle = td.getText();
+            				break;
+            			}
+            		}
+        			if(defaultTitle.isEmpty()) {
+        				if(this.getTitles()!=null) {
+        	        		if(!this.getTitles().isEmpty()) {
+        	    				for(TextDraft td: this.getTitles()) {
+        	            			if(td.getLanguage().getType().equals(defaultTitleLanguage)) {
+        	            				defaultTitle = td.getText();
+        	            				break;
+        	            			}
+        	            		}
+        	    			}
+        	        	}
+        			}
+        		} else if(this.getTitles()!=null) {
+        			if(!this.getTitles().isEmpty()) {
+        				for(TextDraft td: this.getTitles()) {
+                			if(td.getLanguage().getType().equals(defaultTitleLanguage)) {
+                				defaultTitle = td.getText();
+                				break;
+                			}
+                		}
+        			}        		
+            	}
+        	} else if(this.getTitles()!=null) {
+        		if(!this.getTitles().isEmpty()) {
+    				for(TextDraft td: this.getTitles()) {
+            			if(td.getLanguage().getType().equals(defaultTitleLanguage)) {
+            				defaultTitle = td.getText();
+            				break;
+            			}
+            		}
+    			}
+        	}
+    	}    	    	
+    	return defaultTitle;
+    }
+    
+    public String getDefaultContentDraft() {
+    	String defaultContentDraft = "";
+    	String defaultTitleLanguage = this.getSession().getParameter(this.getType().getType()+"_defaultTitleLanguage");
+    	if(defaultTitleLanguage!=null&&!defaultTitleLanguage.isEmpty()) {
+    		if(this.getRevisedContentDrafts()!=null) {
+        		if(!this.getRevisedContentDrafts().isEmpty()) {
+        			for(TextDraft td: this.getRevisedContentDrafts()) {
+            			if(td.getLanguage().getType().equals(defaultTitleLanguage)) {
+            				defaultContentDraft = td.getText();
+            				break;
+            			}
+            		}
+        			if(defaultContentDraft.isEmpty()) {
+        				if(this.getContentDrafts()!=null) {
+        	        		if(!this.getContentDrafts().isEmpty()) {
+        	    				for(TextDraft td: this.getContentDrafts()) {
+        	            			if(td.getLanguage().getType().equals(defaultTitleLanguage)) {
+        	            				defaultContentDraft = td.getText();
+        	            				break;
+        	            			}
+        	            		}
+        	    			}
+        	        	}
+        			}
+        		} else if(this.getContentDrafts()!=null) {
+        			if(!this.getContentDrafts().isEmpty()) {
+        				for(TextDraft td: this.getContentDrafts()) {
+                			if(td.getLanguage().getType().equals(defaultTitleLanguage)) {
+                				defaultContentDraft = td.getText();
+                				break;
+                			}
+                		}
+        			}        		
+            	}
+        	} else if(this.getContentDrafts()!=null) {
+        		if(!this.getContentDrafts().isEmpty()) {
+    				for(TextDraft td: this.getContentDrafts()) {
+            			if(td.getLanguage().getType().equals(defaultTitleLanguage)) {
+            				defaultContentDraft = td.getText();
+            				break;
+            			}
+            		}
+    			}
+        	}
+    	}    	    	
+    	return defaultContentDraft;
+    }
+    
+    public String findTextOfGivenDraftTypeInGivenLanguage(final String draftType, final String language) {
+    	String text = "";
+    	if(draftType.equals("title")) {
+    		if(this.getTitles()!=null) {
+        		if(!this.getTitles().isEmpty()) {
+    				for(TextDraft td: this.getTitles()) {
+            			if(td.getLanguage().getType().equals(language)) {
+            				text = td.getText();
+            				break;
+            			}
+            		}
+    			}
+        	}
+    	} else if(draftType.equals("revised_title")) {
+    		if(this.getRevisedTitles()!=null) {
+        		if(!this.getRevisedTitles().isEmpty()) {
+    				for(TextDraft td: this.getRevisedTitles()) {
+            			if(td.getLanguage().getType().equals(language)) {
+            				text = td.getText();
+            				break;
+            			}
+            		}
+    			}
+        	}
+    	} else if(draftType.equals("contentDraft")) {
+    		if(this.getContentDrafts()!=null) {
+        		if(!this.getContentDrafts().isEmpty()) {
+    				for(TextDraft td: this.getContentDrafts()) {
+            			if(td.getLanguage().getType().equals(language)) {
+            				text = td.getText();
+            				break;
+            			}
+            		}
+    			}
+        	}
+    	} else if(draftType.equals("revised_contentDraft")) {
+    		if(this.getRevisedContentDrafts()!=null) {
+        		if(!this.getRevisedContentDrafts().isEmpty()) {
+    				for(TextDraft td: this.getRevisedContentDrafts()) {
+            			if(td.getLanguage().getType().equals(language)) {
+            				text = td.getText();
+            				break;
+            			}
+            		}
+    			}
+        	}
+    	} else if(draftType.equals("statementOfObjectAndReasonDraft")) {
+    		if(this.getStatementOfObjectAndReasonDrafts()!=null) {
+        		if(!this.getStatementOfObjectAndReasonDrafts().isEmpty()) {
+    				for(TextDraft td: this.getStatementOfObjectAndReasonDrafts()) {
+            			if(td.getLanguage().getType().equals(language)) {
+            				text = td.getText();
+            				break;
+            			}
+            		}
+    			}
+        	}
+    	} else if(draftType.equals("revised_statementOfObjectAndReasonDraft")) {
+    		if(this.getRevisedStatementOfObjectAndReasonDrafts()!=null) {
+        		if(!this.getRevisedStatementOfObjectAndReasonDrafts().isEmpty()) {
+    				for(TextDraft td: this.getRevisedStatementOfObjectAndReasonDrafts()) {
+            			if(td.getLanguage().getType().equals(language)) {
+            				text = td.getText();
+            				break;
+            			}
+            		}
+    			}
+        	}
+    	} else if(draftType.equals("financialMemorandumDraft")) {
+    		if(this.getFinancialMemorandumDrafts()!=null) {
+        		if(!this.getFinancialMemorandumDrafts().isEmpty()) {
+    				for(TextDraft td: this.getFinancialMemorandumDrafts()) {
+            			if(td.getLanguage().getType().equals(language)) {
+            				text = td.getText();
+            				break;
+            			}
+            		}
+    			}
+        	}
+    	} else if(draftType.equals("revised_financialMemorandumDraft")) {
+    		if(this.getRevisedFinancialMemorandumDrafts()!=null) {
+        		if(!this.getRevisedFinancialMemorandumDrafts().isEmpty()) {
+    				for(TextDraft td: this.getRevisedFinancialMemorandumDrafts()) {
+            			if(td.getLanguage().getType().equals(language)) {
+            				text = td.getText();
+            				break;
+            			}
+            		}
+    			}
+        	}
+    	} else if(draftType.equals("statutoryMemorandumDraft")) {
+    		if(this.getStatutoryMemorandumDrafts()!=null) {
+        		if(!this.getStatutoryMemorandumDrafts().isEmpty()) {
+    				for(TextDraft td: this.getStatutoryMemorandumDrafts()) {
+            			if(td.getLanguage().getType().equals(language)) {
+            				text = td.getText();
+            				break;
+            			}
+            		}
+    			}
+        	}
+    	} else if(draftType.equals("revised_statutoryMemorandumDraft")) {
+    		if(this.getRevisedStatutoryMemorandumDrafts()!=null) {
+        		if(!this.getRevisedStatutoryMemorandumDrafts().isEmpty()) {
+    				for(TextDraft td: this.getRevisedStatutoryMemorandumDrafts()) {
+            			if(td.getLanguage().getType().equals(language)) {
+            				text = td.getText();
+            				break;
+            			}
+            		}
+    			}
+        	}
+    	} else if(draftType.equals("annexureForAmendingBill")) {
+    		if(this.getAnnexuresForAmendingBill()!=null) {
+        		if(!this.getAnnexuresForAmendingBill().isEmpty()) {
+    				for(TextDraft td: this.getAnnexuresForAmendingBill()) {
+            			if(td.getLanguage().getType().equals(language)) {
+            				text = td.getText();
+            				break;
+            			}
+            		}
+    			}
+        	}
+    	} else if(draftType.equals("revised_annexureForAmendingBill")) {
+    		if(this.getRevisedAnnexuresForAmendingBill()!=null) {
+        		if(!this.getRevisedAnnexuresForAmendingBill().isEmpty()) {
+    				for(TextDraft td: this.getRevisedAnnexuresForAmendingBill()) {
+            			if(td.getLanguage().getType().equals(language)) {
+            				text = td.getText();
+            				break;
+            			}
+            		}
+    			}
+        	}
+    	}
+    	return text;
+    }
+    
+    public String findChecklistValue(final String key){
+        Map<String,String> checklist=this.getChecklist();
+        if(checklist!=null){
+        if(checklist.containsKey(key)){
+            return checklist.get(key);
+        }else{
+            return "";
+        }
+        }else{
+            return "";
+        }
+    }
+    
+    public static HouseType findHouseTypeForWorkflow(Bill bill) {
+    	try {
+	    	HouseType houseTypeForWorkflow = null;		
+			if(bill.getStatus().getType().equals(ApplicationConstants.BILL_SUBMIT) 
+					|| bill.getStatus().getType().equals(ApplicationConstants.BILL_FINAL_ADMISSION)) {
+				if(bill.getType().getType().equals(ApplicationConstants.GOVERNMENT_BILL)) {
+					houseTypeForWorkflow = bill.getIntroducingHouseType(); 
+				} else {
+					houseTypeForWorkflow = bill.getHouseType();
+				}
+			} else {
+				String firstHouseType;
+				if(bill.getType().getType().equals(ApplicationConstants.GOVERNMENT_BILL)) {
+					firstHouseType = bill.getIntroducingHouseType().getType();								
+				} else {
+					firstHouseType = bill.getHouseType().getType();
+				}
+				if(firstHouseType.equals(ApplicationConstants.LOWER_HOUSE)) {
+					houseTypeForWorkflow = HouseType.findByFieldName(HouseType.class, "type", ApplicationConstants.UPPER_HOUSE, bill.getLocale()); 
+				} else if(firstHouseType.equals(ApplicationConstants.UPPER_HOUSE)) {
+					houseTypeForWorkflow = HouseType.findByFieldName(HouseType.class, "type", ApplicationConstants.LOWER_HOUSE, bill.getLocale());
+				}
+			}
+			return houseTypeForWorkflow;
+    	} catch(Exception e) {
+    		return null;
+    	}
+    }
+    
+    public static List<Object[]> getRevisions(final Long billId, final String thingToBeRevised, final String locale) {
+        return getBillRepository().getRevisions(billId,thingToBeRevised,locale);
+    }
+    
+    public static String getLatestRemarksOfActor(final Long billId, final String userGroupTypeName, final String username, final String locale) {
+    	return getBillRepository().getLatestRemarksOfActor(billId, userGroupTypeName, username, locale);
+    }
+    
+    public static List<Bill> findBillsByPriority(final Session session, 
+			final DeviceType deviceType,
+			final Status status,
+			final Boolean useDiscussionDate,
+			final String orderField,
+			final String sortOrder,
+			final String locale){
+    
+    	return getBillRepository().findBillsByPriority(session, deviceType, status, useDiscussionDate, orderField, sortOrder, locale);
+    }
+    
+    public static List<Bill> findBillsEligibleForDiscussionPriority(final Session session, 
+			final DeviceType deviceType,
+			final Boolean useDiscussionDate, 
+			final String orderField,
+			final String sortOrder,
+			final String locale){
+    	
+    	return getBillRepository().findBillsEligibleForDiscussionPriority(session, deviceType, useDiscussionDate, orderField, sortOrder, locale);    	
+    }
+
+    /**
+	 * Find.
+	 *
+	 * @param session the session
+	 * @param deviceType the device type
+	 * @param internalStatuses the internal statuses
+	 * @param sortOrder the sort order
+	 * @param locale the locale
+	 * @return the list< bill>
+	 * @author dhananjayb
+     * @throws ELSException 
+	 * @since v1.0.0
+	 */
+	public static List<Bill> findBillsForItroduction(final Session session,
+			final DeviceType deviceType,
+			final Status[] internalStatuses,
+			final Status admitted,
+			final Boolean useIntroductionDate,
+			final String sortOrder,
+			final String locale) throws ELSException {
+		return getBillRepository().findBillsForItroduction(session, deviceType, internalStatuses, admitted, useIntroductionDate, sortOrder, locale);
+	}
+		
+    /**
+	 * Find.
+	 *
+	 * @param session the session
+	 * @param deviceType the device type
+	 * @param answeringDate the answering date
+	 * @param internalStatuses the internal statuses
+	 * @param hasParent the has parent
+	 * @param startTime the start time
+	 * @param endTime the end time
+	 * @param sortOrder the sort order
+	 * @param locale the locale
+	 * @return the list< bill>
+	 * @author anandk
+     * @throws ELSException 
+	 * @since v1.0.0
+	 */
+	public static List<Bill> find(final Session session,
+			final DeviceType deviceType,
+			final Date answeringDate,
+			final Status[] internalStatuses,
+			final Boolean hasParent,
+			final String sortOrder,
+			final String locale) throws ELSException {
+		return getBillRepository().find(session, deviceType, answeringDate, internalStatuses, hasParent, sortOrder, locale);
+	}
+	
+	public static List<Bill> findForBallot(final Session session,
+			final DeviceType deviceType,
+			final Date answeringDate,
+			final Status[] internalStatuses,
+			final Status[] recommendationstatuses,
+			final Boolean hasParent,
+			final String sortOrder,
+			final String locale) throws ELSException {
+		return getBillRepository().findForBallot(session, deviceType, answeringDate, internalStatuses, recommendationstatuses, hasParent, sortOrder, locale);
+	}
+	
+	/**
+     * Find members all.
+     *
+     * @param session the session
+     * @param deviceType the device type
+     * @param answeringDate the answering date
+     * @param internalStatuses the internal statuses
+     * @param isPreBallot the is pre ballot
+     * @param startTime the start time
+     * @param endTime the end time
+     * @param sortOrder the sort order
+     * @param locale the locale
+     * @return the list< member>
+     * @author anandk
+	 * @throws ELSException 
+     * @since v1.0.0
+     */
+    public static List<Member> findMembersAll(final Session session,
+			final DeviceType deviceType,
+			final Date answeringDate,
+			final Status[] internalStatuses,
+			final Boolean isPreBallot,
+			final String sortOrder,
+			final String locale) throws ELSException {
+    	return getBillRepository().findMembersAll(session, deviceType, answeringDate, internalStatuses,isPreBallot, sortOrder, locale);
+    }
+    
+    public static List<Member> findMembersAllForBallot(final Session session,
+			final DeviceType deviceType,
+			final Date answeringDate,
+			final Status[] internalStatuses,
+			final Status[] recommendationStatuses,
+			final Boolean isPreBallot,
+			final String sortOrder,
+			final String locale) throws ELSException {
+    	return getBillRepository().findMembersAllForBallot(session, deviceType, answeringDate, internalStatuses, recommendationStatuses, isPreBallot, sortOrder, locale);
+    }
+    
+    /**
+     * Gets the bill for member of unique subject.
+     *
+     * @param session the session
+     * @param deviceType the device type
+     * @param answeringDate the answering date
+     * @param memberID the member id
+     * @param subjects the subjects
+     * @param locale the locale
+     * @return the bill for member of unique subject
+     * @throws ELSException 
+     */
+    public static Bill getBillForMemberOfUniqueSubject(final Session session, final DeviceType deviceType, final Date answeringDate, final Long memberID, final List<String> subjects, final String locale) throws ELSException{
+    	return getBillRepository().findBillForMemberOfUniqueSubject(session, deviceType, answeringDate, memberID, subjects, locale);
+    }
+
+	public static List<Bill> findPendingBillsBeforeBalloting(final Session session,
+			final DeviceType deviceType, final Date answeringDate, final String locale) throws ELSException {		
+		return getBillRepository().findPendingBillsBeforeBalloting(session, deviceType, answeringDate, locale);
+	}
+
+	public static List<ActSearchVO> fullTextSearchActForReferring(final String param,
+			final String actYear, final String actDefaultLanguage, final String start, final String noOfRecords) {		
+		return getBillRepository().fullTextSearchActForReferring(param, actYear, actDefaultLanguage, start, noOfRecords);
+	}
+	
+	public static List<OrdinanceSearchVO> fullTextSearchOrdinanceForReferring(final String param,
+			final String actYear, final String actDefaultLanguage, final String start, final String noOfRecords) {		
+		return getBillRepository().fullTextSearchOrdinanceForReferring(param, actYear, actDefaultLanguage, start, noOfRecords);
+	}
+	
+	public static List<Object> findBillDataForDocketReport(final String billId, final String language) {
+		return getBillRepository().findBillDataForDocketReport(billId, language);
+	}
+	
+	public Date findIntroductionDate() {
+		return getBillRepository().findIntroductionDate(this);
+	}
+	
+	public static BillDraft findByStatus(final Bill bill,final Status recommendationStatus) {
+		return getBillRepository().findStatusDate(bill, recommendationStatus);
+	}
+	
+	public Date findDiscussionDate(final String currentPosition) {
+		return getBillRepository().findDiscussionDate(this, currentPosition);
+	}
+	
+	public static List<ClubbedEntity> findClubbedEntitiesByPosition(final Bill bill) {
+    	return getBillRepository().findClubbedEntitiesByPosition(bill);
+    }
+
+	public List<ClubbedEntity> findClubbedEntitiesByBillSubmissionDate(final String sortOrder, final String locale) {
+		return getBillRepository().findClubbedEntitiesInAscendingOrder(this, sortOrder, locale);
+	}
+	
+	public static Reference findCurrentFile(Bill domain) {
+		return getBillRepository().findCurrentFile(domain);
+	}
+
+	/**
+	 * @return the referredOrdinance
+	 */
+	public Ordinance getReferredOrdinance() {
+		return referredOrdinance;
+	}
+
+	/**
+	 * @param referredOrdinance the referredOrdinance to set
+	 */
+	public void setReferredOrdinance(Ordinance referredOrdinance) {
+		this.referredOrdinance = referredOrdinance;
+	}
+	
+	public static Boolean isAnyBillSubmittedEarierThanCurrentBillToBePutup(final Bill bill) {
+		return getBillRepository().isAnyBillSubmittedEarierThanCurrentBillToBePutup(bill);
+	}
+	
+	public String findFirstHouseType() {
+		String firstHouseType = null;
+		if(this.getType().getType().equals(ApplicationConstants.NONOFFICIAL_BILL)) {
+			if(this.getHouseType()!=null) {
+				firstHouseType = this.getHouseType().getType();
+			}
+		} else if(this.getType().getType().equals(ApplicationConstants.GOVERNMENT_BILL)) {
+			if(this.getIntroducingHouseType()!=null) {
+				firstHouseType = this.getIntroducingHouseType().getType();
+			}
+		}
+		return firstHouseType;
+	}
+	
+	public String findSecondHouseType() {
+		String secondHouseType = null;
+		String firstHouseType = this.findFirstHouseType();
+		if(firstHouseType!=null) {
+			if(firstHouseType.equals(ApplicationConstants.LOWER_HOUSE)) {
+				secondHouseType = ApplicationConstants.UPPER_HOUSE;
+			} else if(firstHouseType.equals(ApplicationConstants.UPPER_HOUSE)) {
+				secondHouseType = ApplicationConstants.LOWER_HOUSE;
+			}
+		}
+		return secondHouseType;
+	}
+	
+	public static String findHouseOrderOfGivenHouseForBill(final Bill bill, final String houseType) {		
+		if(bill!=null&&houseType!=null) {
+			if(!houseType.equals(ApplicationConstants.BOTH_HOUSE)) {
+				String firstHouseType = bill.findFirstHouseType();
+				if(firstHouseType!=null) {
+					if(houseType.equals(firstHouseType)) {
+						return ApplicationConstants.BILL_FIRST_HOUSE;
+					} else {
+						return ApplicationConstants.BILL_SECOND_HOUSE;
+					}
+				}
+			}			
+		}		
+		return null;
+	}
+
+	public static BillDraft findDraftByRecommendationStatus(final Bill bill, final Status recommendationStatus) {
+		return getBillRepository().findDraftByRecommendationStatus(bill, recommendationStatus);
+	}
+	
+	public static BillDraft findDraftByRecommendationStatusAndHouseRound(final Bill bill, final Status recommendationStatus, final Integer houseRound) {
+		return getBillRepository().findDraftByRecommendationStatusAndHouseRound(bill, recommendationStatus, houseRound);
+	}
+	
+	public static List<BillDraft> findStatusUpdationDraftsForGivenHouse(final Bill bill, final HouseType houseType) {
+		return getBillRepository().findStatusUpdationDraftsForGivenHouse(bill, houseType);
+	}
+	
+	public static Integer findYear(final Bill bill) {	
+		Integer billYear = null;
+		if(bill!=null) {
+			if(bill.getType()!=null) {
+				if(bill.getType().getType()!=null) {
+					if(bill.getType().getType().equals(ApplicationConstants.NONOFFICIAL_BILL)) {
+						if(bill.getAdmissionDate()!=null) {
+							Calendar calendar = Calendar.getInstance();
+							calendar.setTime(bill.getAdmissionDate());
+							billYear =  calendar.get(Calendar.YEAR);
+						}
+					} else if(bill.getType().getType().equals(ApplicationConstants.GOVERNMENT_BILL)) {
+						if(bill.getSubmissionDate()!=null) {
+							Calendar calendar = Calendar.getInstance();
+							calendar.setTime(bill.getSubmissionDate());
+							billYear = calendar.get(Calendar.YEAR);
+						}
+					}
+				}
+			}
+		}
+		return billYear;
+	}
+	
+	public static Bill findByNumberYearAndHouseType(final int billNumber, final int billYear, final Long houseTypeId, final String locale) {
+		return getBillRepository().findByNumberYearAndHouseType(billNumber, billYear, houseTypeId, locale);
+	}
+	
+	public static List<Object[]> findStatusDatesForBill(final Bill bill) {
+		return getBillRepository().findStatusDatesForBill(bill);
+	}
+	
+//-----------------------------Getters And Setters--------------------------------
     
     public void setPriority(Integer priority){
     	this.priority = priority;
@@ -1516,893 +2399,5 @@ public class Bill extends Device implements Serializable {
 	public void setFileSent(Boolean fileSent) {
 		this.fileSent = fileSent;
 	}
-
-	/**
-     * Gets the bill repository.
-     *
-     * @return the bill repository
-     */
-    private static BillRepository getBillRepository() {
-    	BillRepository billRepository = new Bill().billRepository;
-        if (billRepository == null) {
-            throw new IllegalStateException(
-            	"BillRepository has not been injected in Bill Domain");
-        }
-        return billRepository;
-    }
-    
-    //-----------------------------Domain Methods--------------------------------
-    @Override
-    public Bill persist() {
-    	if(this.getStatus().getType().equals(ApplicationConstants.BILL_SUBMIT)) {
-    		if(this.getType().getType().equals(ApplicationConstants.GOVERNMENT_BILL)) {
-    			if(this.getNumber() == null) {
-    				synchronized (this) {
-    					String billSubmissionYear = FormaterUtil.formatDateToString(this.getSubmissionDate(), "yyyy");
-    					Integer number = Bill.assignBillNo(billSubmissionYear, this.getHouseType(), this.getLocale());
-    					this.setNumber(number + 1);
-    				}
-    			}
-    		}
-    		addBillDraft();
-    	}
-    	return (Bill)super.persist();
-    }
-    
-    private static Integer assignBillNo(final String year, final HouseType houseType, final String locale) {		
-		return getBillRepository().assignBillNo(year, houseType, locale);
-	}
-
-    public static List<Bill> findBillsByPriority(final Session session, 
-			final DeviceType deviceType,
-			final Status status,
-			final Boolean useDiscussionDate,
-			final String orderField,
-			final String sortOrder,
-			final String locale){
-    
-    	return getBillRepository().findBillsByPriority(session, deviceType, status, useDiscussionDate, orderField, sortOrder, locale);
-    }
-    
-    public static List<Bill> findBillsEligibleForDiscussionPriority(final Session session, 
-			final DeviceType deviceType,
-			final Boolean useDiscussionDate, 
-			final String orderField,
-			final String sortOrder,
-			final String locale){
-    	
-    	return getBillRepository().findBillsEligibleForDiscussionPriority(session, deviceType, useDiscussionDate, orderField, sortOrder, locale);    	
-    }
-    
-	@Override
-    public Bill merge() {
-    	Bill bill = null;
-    	if(this.getStatus().getType().equals(ApplicationConstants.BILL_FINAL_ADMISSION) 
-    			&& this.getInternalStatus().getType().equals(ApplicationConstants.BILL_FINAL_ADMISSION)
-    			&& this.getRecommendationStatus().getType().equals(ApplicationConstants.BILL_FINAL_ADMISSION)) {
-    		if(this.getType().getType().equals(ApplicationConstants.NONOFFICIAL_BILL)) {
-    			if(this.getNumber() == null) {
-    				synchronized (this) {
-    					String billAdmissionYear = FormaterUtil.formatDateToString(this.getAdmissionDate(), "yyyy");
-    					Integer number = Bill.assignBillNo(billAdmissionYear, this.getHouseType(), this.getLocale());
-    					this.setNumber(number + 1);
-    				}
-    			}
-    		}
-    		addBillDraft();
-    		bill = (Bill)super.merge();
-    	} else if(this.getInternalStatus().getType().equals(ApplicationConstants.BILL_SUBMIT)) {
-    		if(this.getType().getType().equals(ApplicationConstants.GOVERNMENT_BILL)) {
-    			if(this.getNumber() == null) {
-    				synchronized (this) {
-    					String billSubmissionYear = FormaterUtil.formatDateToString(this.getSubmissionDate(), "yyyy");
-    					Integer number = Bill.assignBillNo(billSubmissionYear, this.getHouseType(), this.getLocale());
-    					this.setNumber(number + 1);
-    				}
-    			}
-    		}
-    		addBillDraft();
-    		bill = (Bill)super.merge();
-    	} else if(this.getInternalStatus().getType().equals(ApplicationConstants.BILL_SYSTEM_ASSISTANT_PROCESSED)) {
-    		if(this.getType().getType().equals(ApplicationConstants.NONOFFICIAL_BILL)) {
-    			if(this.getClubbedEntities() == null || this.getReferencedBill()==null) {
-    				Bill oldBill = Bill.findById(Bill.class, this.getId());   
-    				if(this.getClubbedEntities() == null) {
-    					this.setClubbedEntities(oldBill.getClubbedEntities());
-    				}
-    				if(this.getReferencedBill()==null) {
-    					this.setReferencedBill(oldBill.getReferencedBill());
-    				}    				
-    			}
-    		}    		
-    		addBillDraft();
-    		bill = (Bill)super.merge();
-    	}
-    	if(bill != null) {
-    		return bill;
-    	} else {
-    		if(this.getInternalStatus().getType().equals(ApplicationConstants.BILL_INCOMPLETE) 
-                	|| 
-                	this.getInternalStatus().getType().equals(ApplicationConstants.BILL_COMPLETE)) {
-                    return (Bill) super.merge();
-                }
-                else {
-                	if(this.getType().getType().equals(ApplicationConstants.NONOFFICIAL_BILL)) {
-            			if(this.getClubbedEntities() == null || this.getReferencedBill()==null) {
-            				Bill oldBill = Bill.findById(Bill.class, this.getId());   
-            				if(this.getClubbedEntities() == null) {
-            					this.setClubbedEntities(oldBill.getClubbedEntities());
-            				}
-            				if(this.getReferencedBill()==null) {
-            					this.setReferencedBill(oldBill.getReferencedBill());
-            				}    				
-            			}
-            		}
-                	addBillDraft();
-                	return (Bill)super.merge();
-                }
-    	}    	
-    }
-    
-    /**
-     * The merge function, besides updating Bill, performs various actions
-     * based on Bill's status. What if we need just the simple functionality
-     * of updation? Use this method.
-     *
-     * @return the bill
-     */
-    public Bill simpleMerge() {
-        Bill bill = (Bill) super.merge();
-        return bill;
-    }    
-    
-//    private void 
-    		
-    /**
-     * Adds the bill draft.
-     */
-    private void addBillDraft() {
-        if(! this.getStatus().getType().equals(ApplicationConstants.BILL_INCOMPLETE) 
-        		&& ! this.getStatus().getType().equals(ApplicationConstants.BILL_COMPLETE)) {
-            BillDraft draft = new BillDraft();
-            draft.setType(this.getType());            
-            draft.setRemarks(this.getRemarks());           
-            
-            draft.setEditedAs(this.getEditedAs());
-            draft.setEditedBy(this.getEditedBy());
-            draft.setEditedOn(this.getEditedOn());
-            
-            draft.setMinistry(this.getMinistry());
-            draft.setSubDepartment(this.getSubDepartment());
-            
-            draft.setStatus(this.getStatus());
-            draft.setInternalStatus(this.getInternalStatus());
-            draft.setRecommendationStatus(this.getRecommendationStatus());  
-            
-            if(this.getCurrentHouseType()!=null) {
-            	draft.setHouseType(this.getCurrentHouseType());
-            }
-            
-            if(this.getHouseRound()!=null) {
-            	draft.setHouseRound(this.getHouseRound());
-            }
-            
-            if(this.getExpectedStatusDate()!=null) {
-            	draft.setExpectedStatusDate(this.getExpectedStatusDate());
-            }
-            
-            if(this.getStatusDate()!=null) {
-            	draft.setStatusDate(this.getStatusDate());
-            }
-            
-            if(this.getRevisedTitles()!= null && !this.getRevisedTitles().isEmpty()) {            	
-            	draft.setTitles(this.addDraftsOfGivenTypeForBillDraft("titles", this.getRevisedTitles()));
-            } else {
-            	draft.setTitles(this.addDraftsOfGivenTypeForBillDraft(this.getTitles()));
-            }
-            
-            if(this.getRevisedContentDrafts()!= null && !this.getRevisedContentDrafts().isEmpty()) {            	
-            	draft.setContentDrafts(this.addDraftsOfGivenTypeForBillDraft("contentDrafts", this.getRevisedContentDrafts()));
-            } else {
-            	draft.setContentDrafts(this.addDraftsOfGivenTypeForBillDraft(this.getContentDrafts()));
-            }
-            
-            if(this.getRevisedStatementOfObjectAndReasonDrafts()!= null && !this.getRevisedStatementOfObjectAndReasonDrafts().isEmpty()) {
-            	draft.setStatementOfObjectAndReasonDrafts(this.addDraftsOfGivenTypeForBillDraft("statementOfObjectAndReasonDrafts", this.getRevisedStatementOfObjectAndReasonDrafts()));
-            } else {
-            	draft.setStatementOfObjectAndReasonDrafts(this.addDraftsOfGivenTypeForBillDraft(this.getStatementOfObjectAndReasonDrafts()));
-            }
-            
-            if(this.getRevisedFinancialMemorandumDrafts()!= null && !this.getRevisedFinancialMemorandumDrafts().isEmpty()) {
-            	draft.setFinancialMemorandumDrafts(this.addDraftsOfGivenTypeForBillDraft("financialMemorandumDrafts", this.getRevisedFinancialMemorandumDrafts()));
-            } else {
-            	draft.setFinancialMemorandumDrafts(this.addDraftsOfGivenTypeForBillDraft(this.getFinancialMemorandumDrafts()));
-            }
-            
-            if(this.getRevisedStatutoryMemorandumDrafts()!= null && !this.getRevisedStatutoryMemorandumDrafts().isEmpty()) {
-            	draft.setStatutoryMemorandumDrafts(this.addDraftsOfGivenTypeForBillDraft("statutoryMemorandumDrafts", this.getRevisedStatutoryMemorandumDrafts()));
-            } else {
-            	draft.setStatutoryMemorandumDrafts(this.addDraftsOfGivenTypeForBillDraft(this.getStatutoryMemorandumDrafts()));
-            }
-            
-            if(this.getRevisedAnnexuresForAmendingBill()!= null && !this.getRevisedAnnexuresForAmendingBill().isEmpty()) {            	
-            	draft.setAnnexuresForAmendingBill(this.addDraftsOfGivenTypeForBillDraft("annexuresForAmendingBill", this.getRevisedAnnexuresForAmendingBill()));
-            } else {
-            	draft.setAnnexuresForAmendingBill(this.addDraftsOfGivenTypeForBillDraft(this.getAnnexuresForAmendingBill()));
-            }
-            
-            draft.setChecklist(this.getChecklist());
-            
-            draft.setReferredAct(this.getReferredAct());
-            
-            draft.setParent(this.getParent());
-            draft.setClubbedEntities(this.getClubbedEntities());
-            
-            draft.setReferencedBill(this.getReferencedBill());            
-            
-            if(this.getId() != null) {
-                Bill bill = Bill.findById(Bill.class, this.getId());
-                List<BillDraft> originalDrafts = bill.getDrafts();
-                if(originalDrafts != null){
-                    originalDrafts.add(draft);
-                }
-                else{
-                    originalDrafts = new ArrayList<BillDraft>();
-                    originalDrafts.add(draft);
-                }
-                this.setDrafts(originalDrafts);
-            }
-            else {
-                List<BillDraft> originalDrafts = new ArrayList<BillDraft>();
-                originalDrafts.add(draft);
-                this.setDrafts(originalDrafts);
-            }
-        }
-    }
-    
-    private List<TextDraft> addDraftsOfGivenTypeForBillDraft(List<TextDraft> draftsOfGivenType) {
-    	if(draftsOfGivenType!=null) {
-    		List<TextDraft> draftsOfGivenTypeForBillDraft = new ArrayList<TextDraft>();    	
-        	for(TextDraft draftOfGivenType : draftsOfGivenType) {
-        		TextDraft draftOfGivenTypeForBillDraft = new TextDraft();
-        		draftOfGivenTypeForBillDraft.setLanguage(draftOfGivenType.getLanguage());
-        		draftOfGivenTypeForBillDraft.setText(draftOfGivenType.getText());
-        		draftOfGivenTypeForBillDraft.setLocale(draftOfGivenType.getLocale());
-        		draftsOfGivenTypeForBillDraft.add(draftOfGivenTypeForBillDraft);
-        	}
-        	return draftsOfGivenTypeForBillDraft;
-    	} else {
-    		return null;
-    	}    	
-    }
-    
-    private TextDraft findDraftOfGivenTypeInGivenLanguage(String typeOfDraft, String languageType) {
-    	TextDraft draftOfGivenTypeInGivenLanguage = null;
-    	List<TextDraft> draftsOfGivenType = null;     	
-    	if(typeOfDraft.equals("titles")) {
-    		draftsOfGivenType = this.getTitles();
-    	} else if(typeOfDraft.equals("revisedTitles")) {
-    		draftsOfGivenType = this.getRevisedTitles();
-    	} else if(typeOfDraft.equals("contentDrafts")) {
-    		draftsOfGivenType = this.getContentDrafts();
-    	} else if(typeOfDraft.equals("revisedContentDrafts")) {
-    		draftsOfGivenType = this.getRevisedContentDrafts();
-    	} else if(typeOfDraft.equals("statementOfObjectAndReasonDrafts")) {
-    		draftsOfGivenType = this.getStatementOfObjectAndReasonDrafts();
-    	} else if(typeOfDraft.equals("revisedStatementOfObjectAndReasonDrafts")) {
-    		draftsOfGivenType = this.getRevisedStatementOfObjectAndReasonDrafts();
-    	} else if(typeOfDraft.equals("financialMemorandumDrafts")) {
-    		draftsOfGivenType = this.getFinancialMemorandumDrafts();
-    	} else if(typeOfDraft.equals("revisedFinancialMemorandumDrafts")) {
-    		draftsOfGivenType = this.getRevisedFinancialMemorandumDrafts();
-    	} else if(typeOfDraft.equals("statutoryMemorandumDrafts")) {
-    		draftsOfGivenType = this.getStatutoryMemorandumDrafts();
-    	} else if(typeOfDraft.equals("revisedStatutoryMemorandumDrafts")) {
-    		draftsOfGivenType = this.getRevisedStatutoryMemorandumDrafts();
-    	} else if(typeOfDraft.equals("annexuresForAmendingBill")) {
-    		draftsOfGivenType = this.getAnnexuresForAmendingBill();
-    	} else if(typeOfDraft.equals("revisedAnnexuresForAmendingBill")) {
-    		draftsOfGivenType = this.getRevisedAnnexuresForAmendingBill();
-    	}  	
-    	if(draftsOfGivenType != null) {
-    		for(TextDraft td: draftsOfGivenType) {
-    			if(td.getLanguage().getType().equals(languageType)) {
-    				draftOfGivenTypeInGivenLanguage = td;
-    				break;
-    			}
-    		}
-    	}    	
-    	return draftOfGivenTypeInGivenLanguage;
-    }
-    
-    private List<TextDraft> addDraftsOfGivenTypeForBillDraft(String typeOfDraft, List<TextDraft> draftsOfGivenType) {
-    	List<TextDraft> draftsOfGivenTypeForBillDraft = new ArrayList<TextDraft>();    	
-    	String revisedTypeOfDraft = "revised" + Character.toUpperCase(typeOfDraft.charAt(0)) + typeOfDraft.substring(1);
-    	String[] languagesForDraft = this.getSession().getParameter(this.getType().getType() + "_languagesAllowed").split("#");
-    	for(String languageForDraft : languagesForDraft) {    		
-    		TextDraft existingDraftOfGivenType = findDraftOfGivenTypeInGivenLanguage(revisedTypeOfDraft, languageForDraft);
-    		if(existingDraftOfGivenType==null) {
-    			existingDraftOfGivenType = findDraftOfGivenTypeInGivenLanguage(typeOfDraft, languageForDraft);
-    		}
-    		if(existingDraftOfGivenType!=null) {
-    			TextDraft draftOfGivenTypeForBillDraft = new TextDraft();
-        		draftOfGivenTypeForBillDraft.setLanguage(existingDraftOfGivenType.getLanguage());
-        		draftOfGivenTypeForBillDraft.setText(existingDraftOfGivenType.getText());
-        		draftOfGivenTypeForBillDraft.setLocale(existingDraftOfGivenType.getLocale());
-        		draftsOfGivenTypeForBillDraft.add(draftOfGivenTypeForBillDraft);
-    		}
-    	}    	
-    	return draftsOfGivenTypeForBillDraft;
-    }
-    
-    public static List<Bill> findAllByMember(final Session session,
-			final Member primaryMember,final DeviceType deviceType,final Integer itemsCount,
-			final String locale) {
-		return getBillRepository().findAllByMember(session,
-				primaryMember,deviceType,itemsCount,
-				locale);
-	}
-    
-    public String formatNumber() {
-		if(getNumber()!=null){
-			NumberFormat format=FormaterUtil.getNumberFormatterNoGrouping(this.getLocale());
-			return format.format(this.getNumber());
-		}else{
-			return "";
-		}
-	}
-    
-    public String getDefaultTitle() {
-    	String defaultTitle = "";
-    	String defaultTitleLanguage = this.getSession().getParameter(this.getType().getType()+"_defaultTitleLanguage");
-    	if(defaultTitleLanguage!=null&&!defaultTitleLanguage.isEmpty()) {
-    		if(this.getRevisedTitles()!=null) {
-        		if(!this.getRevisedTitles().isEmpty()) {
-        			for(TextDraft td: this.getRevisedTitles()) {
-            			if(td.getLanguage().getType().equals(defaultTitleLanguage)) {
-            				defaultTitle = td.getText();
-            				break;
-            			}
-            		}
-        			if(defaultTitle.isEmpty()) {
-        				if(this.getTitles()!=null) {
-        	        		if(!this.getTitles().isEmpty()) {
-        	    				for(TextDraft td: this.getTitles()) {
-        	            			if(td.getLanguage().getType().equals(defaultTitleLanguage)) {
-        	            				defaultTitle = td.getText();
-        	            				break;
-        	            			}
-        	            		}
-        	    			}
-        	        	}
-        			}
-        		} else if(this.getTitles()!=null) {
-        			if(!this.getTitles().isEmpty()) {
-        				for(TextDraft td: this.getTitles()) {
-                			if(td.getLanguage().getType().equals(defaultTitleLanguage)) {
-                				defaultTitle = td.getText();
-                				break;
-                			}
-                		}
-        			}        		
-            	}
-        	} else if(this.getTitles()!=null) {
-        		if(!this.getTitles().isEmpty()) {
-    				for(TextDraft td: this.getTitles()) {
-            			if(td.getLanguage().getType().equals(defaultTitleLanguage)) {
-            				defaultTitle = td.getText();
-            				break;
-            			}
-            		}
-    			}
-        	}
-    	}    	    	
-    	return defaultTitle;
-    }
-    
-    public String getDefaultContentDraft() {
-    	String defaultContentDraft = "";
-    	String defaultTitleLanguage = this.getSession().getParameter(this.getType().getType()+"_defaultTitleLanguage");
-    	if(defaultTitleLanguage!=null&&!defaultTitleLanguage.isEmpty()) {
-    		if(this.getRevisedContentDrafts()!=null) {
-        		if(!this.getRevisedContentDrafts().isEmpty()) {
-        			for(TextDraft td: this.getRevisedContentDrafts()) {
-            			if(td.getLanguage().getType().equals(defaultTitleLanguage)) {
-            				defaultContentDraft = td.getText();
-            				break;
-            			}
-            		}
-        			if(defaultContentDraft.isEmpty()) {
-        				if(this.getContentDrafts()!=null) {
-        	        		if(!this.getContentDrafts().isEmpty()) {
-        	    				for(TextDraft td: this.getContentDrafts()) {
-        	            			if(td.getLanguage().getType().equals(defaultTitleLanguage)) {
-        	            				defaultContentDraft = td.getText();
-        	            				break;
-        	            			}
-        	            		}
-        	    			}
-        	        	}
-        			}
-        		} else if(this.getContentDrafts()!=null) {
-        			if(!this.getContentDrafts().isEmpty()) {
-        				for(TextDraft td: this.getContentDrafts()) {
-                			if(td.getLanguage().getType().equals(defaultTitleLanguage)) {
-                				defaultContentDraft = td.getText();
-                				break;
-                			}
-                		}
-        			}        		
-            	}
-        	} else if(this.getContentDrafts()!=null) {
-        		if(!this.getContentDrafts().isEmpty()) {
-    				for(TextDraft td: this.getContentDrafts()) {
-            			if(td.getLanguage().getType().equals(defaultTitleLanguage)) {
-            				defaultContentDraft = td.getText();
-            				break;
-            			}
-            		}
-    			}
-        	}
-    	}    	    	
-    	return defaultContentDraft;
-    }
-    
-    public String findTextOfGivenDraftTypeInGivenLanguage(final String draftType, final String language) {
-    	String text = "";
-    	if(draftType.equals("title")) {
-    		if(this.getTitles()!=null) {
-        		if(!this.getTitles().isEmpty()) {
-    				for(TextDraft td: this.getTitles()) {
-            			if(td.getLanguage().getType().equals(language)) {
-            				text = td.getText();
-            				break;
-            			}
-            		}
-    			}
-        	}
-    	} else if(draftType.equals("revised_title")) {
-    		if(this.getRevisedTitles()!=null) {
-        		if(!this.getRevisedTitles().isEmpty()) {
-    				for(TextDraft td: this.getRevisedTitles()) {
-            			if(td.getLanguage().getType().equals(language)) {
-            				text = td.getText();
-            				break;
-            			}
-            		}
-    			}
-        	}
-    	} else if(draftType.equals("contentDraft")) {
-    		if(this.getContentDrafts()!=null) {
-        		if(!this.getContentDrafts().isEmpty()) {
-    				for(TextDraft td: this.getContentDrafts()) {
-            			if(td.getLanguage().getType().equals(language)) {
-            				text = td.getText();
-            				break;
-            			}
-            		}
-    			}
-        	}
-    	} else if(draftType.equals("revised_contentDraft")) {
-    		if(this.getRevisedContentDrafts()!=null) {
-        		if(!this.getRevisedContentDrafts().isEmpty()) {
-    				for(TextDraft td: this.getRevisedContentDrafts()) {
-            			if(td.getLanguage().getType().equals(language)) {
-            				text = td.getText();
-            				break;
-            			}
-            		}
-    			}
-        	}
-    	} else if(draftType.equals("statementOfObjectAndReasonDraft")) {
-    		if(this.getStatementOfObjectAndReasonDrafts()!=null) {
-        		if(!this.getStatementOfObjectAndReasonDrafts().isEmpty()) {
-    				for(TextDraft td: this.getStatementOfObjectAndReasonDrafts()) {
-            			if(td.getLanguage().getType().equals(language)) {
-            				text = td.getText();
-            				break;
-            			}
-            		}
-    			}
-        	}
-    	} else if(draftType.equals("revised_statementOfObjectAndReasonDraft")) {
-    		if(this.getRevisedStatementOfObjectAndReasonDrafts()!=null) {
-        		if(!this.getRevisedStatementOfObjectAndReasonDrafts().isEmpty()) {
-    				for(TextDraft td: this.getRevisedStatementOfObjectAndReasonDrafts()) {
-            			if(td.getLanguage().getType().equals(language)) {
-            				text = td.getText();
-            				break;
-            			}
-            		}
-    			}
-        	}
-    	} else if(draftType.equals("financialMemorandumDraft")) {
-    		if(this.getFinancialMemorandumDrafts()!=null) {
-        		if(!this.getFinancialMemorandumDrafts().isEmpty()) {
-    				for(TextDraft td: this.getFinancialMemorandumDrafts()) {
-            			if(td.getLanguage().getType().equals(language)) {
-            				text = td.getText();
-            				break;
-            			}
-            		}
-    			}
-        	}
-    	} else if(draftType.equals("revised_financialMemorandumDraft")) {
-    		if(this.getRevisedFinancialMemorandumDrafts()!=null) {
-        		if(!this.getRevisedFinancialMemorandumDrafts().isEmpty()) {
-    				for(TextDraft td: this.getRevisedFinancialMemorandumDrafts()) {
-            			if(td.getLanguage().getType().equals(language)) {
-            				text = td.getText();
-            				break;
-            			}
-            		}
-    			}
-        	}
-    	} else if(draftType.equals("statutoryMemorandumDraft")) {
-    		if(this.getStatutoryMemorandumDrafts()!=null) {
-        		if(!this.getStatutoryMemorandumDrafts().isEmpty()) {
-    				for(TextDraft td: this.getStatutoryMemorandumDrafts()) {
-            			if(td.getLanguage().getType().equals(language)) {
-            				text = td.getText();
-            				break;
-            			}
-            		}
-    			}
-        	}
-    	} else if(draftType.equals("revised_statutoryMemorandumDraft")) {
-    		if(this.getRevisedStatutoryMemorandumDrafts()!=null) {
-        		if(!this.getRevisedStatutoryMemorandumDrafts().isEmpty()) {
-    				for(TextDraft td: this.getRevisedStatutoryMemorandumDrafts()) {
-            			if(td.getLanguage().getType().equals(language)) {
-            				text = td.getText();
-            				break;
-            			}
-            		}
-    			}
-        	}
-    	} else if(draftType.equals("annexureForAmendingBill")) {
-    		if(this.getAnnexuresForAmendingBill()!=null) {
-        		if(!this.getAnnexuresForAmendingBill().isEmpty()) {
-    				for(TextDraft td: this.getAnnexuresForAmendingBill()) {
-            			if(td.getLanguage().getType().equals(language)) {
-            				text = td.getText();
-            				break;
-            			}
-            		}
-    			}
-        	}
-    	} else if(draftType.equals("revised_annexureForAmendingBill")) {
-    		if(this.getRevisedAnnexuresForAmendingBill()!=null) {
-        		if(!this.getRevisedAnnexuresForAmendingBill().isEmpty()) {
-    				for(TextDraft td: this.getRevisedAnnexuresForAmendingBill()) {
-            			if(td.getLanguage().getType().equals(language)) {
-            				text = td.getText();
-            				break;
-            			}
-            		}
-    			}
-        	}
-    	}
-    	return text;
-    }
-    
-    public String findChecklistValue(final String key){
-        Map<String,String> checklist=this.getChecklist();
-        if(checklist!=null){
-        if(checklist.containsKey(key)){
-            return checklist.get(key);
-        }else{
-            return "";
-        }
-        }else{
-            return "";
-        }
-    }
-    
-    public static HouseType findHouseTypeForWorkflow(Bill bill) {
-    	try {
-	    	HouseType houseTypeForWorkflow = null;		
-			if(bill.getStatus().getType().equals(ApplicationConstants.BILL_SUBMIT) 
-					|| bill.getStatus().getType().equals(ApplicationConstants.BILL_FINAL_ADMISSION)) {
-				if(bill.getType().getType().equals(ApplicationConstants.GOVERNMENT_BILL)) {
-					houseTypeForWorkflow = bill.getIntroducingHouseType(); 
-				} else {
-					houseTypeForWorkflow = bill.getHouseType();
-				}
-			} else {
-				String firstHouseType;
-				if(bill.getType().getType().equals(ApplicationConstants.GOVERNMENT_BILL)) {
-					firstHouseType = bill.getIntroducingHouseType().getType();								
-				} else {
-					firstHouseType = bill.getHouseType().getType();
-				}
-				if(firstHouseType.equals(ApplicationConstants.LOWER_HOUSE)) {
-					houseTypeForWorkflow = HouseType.findByFieldName(HouseType.class, "type", ApplicationConstants.UPPER_HOUSE, bill.getLocale()); 
-				} else if(firstHouseType.equals(ApplicationConstants.UPPER_HOUSE)) {
-					houseTypeForWorkflow = HouseType.findByFieldName(HouseType.class, "type", ApplicationConstants.LOWER_HOUSE, bill.getLocale());
-				}
-			}
-			return houseTypeForWorkflow;
-    	} catch(Exception e) {
-    		return null;
-    	}
-    }
-    
-//    public static void findSupportingMembersInOrderOfApproval()
-    
-    //=============== VIEW METHODS ==================
-//    public static List<RevisionHistoryVO> getRevisions(final Long billId, final String locale) {    	 
-//    	return getBillRepository().getRevisions(billId,locale);
-//    }
-    
-    public static List<Object[]> getRevisions(final Long billId, final String thingToBeRevised, final String locale) {
-        return getBillRepository().getRevisions(billId,thingToBeRevised,locale);
-    }
-    
-    public static String getLatestRemarksOfActor(final Long billId, final String userGroupTypeName, final String username, final String locale) {
-    	return getBillRepository().getLatestRemarksOfActor(billId, userGroupTypeName, username, locale);
-    }
-
-    /**
-	 * Find.
-	 *
-	 * @param session the session
-	 * @param deviceType the device type
-	 * @param internalStatuses the internal statuses
-	 * @param sortOrder the sort order
-	 * @param locale the locale
-	 * @return the list< bill>
-	 * @author dhananjayb
-     * @throws ELSException 
-	 * @since v1.0.0
-	 */
-	public static List<Bill> findBillsForItroduction(final Session session,
-			final DeviceType deviceType,
-			final Status[] internalStatuses,
-			final Status admitted,
-			final Boolean useIntroductionDate,
-			final String sortOrder,
-			final String locale) throws ELSException {
-		return getBillRepository().findBillsForItroduction(session, deviceType, internalStatuses, admitted, useIntroductionDate, sortOrder, locale);
-	}
-		
-    /**
-	 * Find.
-	 *
-	 * @param session the session
-	 * @param deviceType the device type
-	 * @param answeringDate the answering date
-	 * @param internalStatuses the internal statuses
-	 * @param hasParent the has parent
-	 * @param startTime the start time
-	 * @param endTime the end time
-	 * @param sortOrder the sort order
-	 * @param locale the locale
-	 * @return the list< bill>
-	 * @author anandk
-     * @throws ELSException 
-	 * @since v1.0.0
-	 */
-	public static List<Bill> find(final Session session,
-			final DeviceType deviceType,
-			final Date answeringDate,
-			final Status[] internalStatuses,
-			final Boolean hasParent,
-			final String sortOrder,
-			final String locale) throws ELSException {
-		return getBillRepository().find(session, deviceType, answeringDate, internalStatuses, hasParent, sortOrder, locale);
-	}
 	
-	public static List<Bill> findForBallot(final Session session,
-			final DeviceType deviceType,
-			final Date answeringDate,
-			final Status[] internalStatuses,
-			final Status[] recommendationstatuses,
-			final Boolean hasParent,
-			final String sortOrder,
-			final String locale) throws ELSException {
-		return getBillRepository().findForBallot(session, deviceType, answeringDate, internalStatuses, recommendationstatuses, hasParent, sortOrder, locale);
-	}
-	
-	/**
-     * Find members all.
-     *
-     * @param session the session
-     * @param deviceType the device type
-     * @param answeringDate the answering date
-     * @param internalStatuses the internal statuses
-     * @param isPreBallot the is pre ballot
-     * @param startTime the start time
-     * @param endTime the end time
-     * @param sortOrder the sort order
-     * @param locale the locale
-     * @return the list< member>
-     * @author anandk
-	 * @throws ELSException 
-     * @since v1.0.0
-     */
-    public static List<Member> findMembersAll(final Session session,
-			final DeviceType deviceType,
-			final Date answeringDate,
-			final Status[] internalStatuses,
-			final Boolean isPreBallot,
-			final String sortOrder,
-			final String locale) throws ELSException {
-    	return getBillRepository().findMembersAll(session, deviceType, answeringDate, internalStatuses,isPreBallot, sortOrder, locale);
-    }
-    
-    public static List<Member> findMembersAllForBallot(final Session session,
-			final DeviceType deviceType,
-			final Date answeringDate,
-			final Status[] internalStatuses,
-			final Status[] recommendationStatuses,
-			final Boolean isPreBallot,
-			final String sortOrder,
-			final String locale) throws ELSException {
-    	return getBillRepository().findMembersAllForBallot(session, deviceType, answeringDate, internalStatuses, recommendationStatuses, isPreBallot, sortOrder, locale);
-    }
-    
-    /**
-     * Gets the bill for member of unique subject.
-     *
-     * @param session the session
-     * @param deviceType the device type
-     * @param answeringDate the answering date
-     * @param memberID the member id
-     * @param subjects the subjects
-     * @param locale the locale
-     * @return the bill for member of unique subject
-     * @throws ELSException 
-     */
-    public static Bill getBillForMemberOfUniqueSubject(final Session session, final DeviceType deviceType, final Date answeringDate, final Long memberID, final List<String> subjects, final String locale) throws ELSException{
-    	return getBillRepository().findBillForMemberOfUniqueSubject(session, deviceType, answeringDate, memberID, subjects, locale);
-    }
-
-	public static List<Bill> findPendingBillsBeforeBalloting(final Session session,
-			final DeviceType deviceType, final Date answeringDate, final String locale) throws ELSException {		
-		return getBillRepository().findPendingBillsBeforeBalloting(session, deviceType, answeringDate, locale);
-	}
-
-	public static List<ActSearchVO> fullTextSearchActForReferring(final String param,
-			final String actYear, final String actDefaultLanguage, final String start, final String noOfRecords) {		
-		return getBillRepository().fullTextSearchActForReferring(param, actYear, actDefaultLanguage, start, noOfRecords);
-	}
-	
-	public static List<OrdinanceSearchVO> fullTextSearchOrdinanceForReferring(final String param,
-			final String actYear, final String actDefaultLanguage, final String start, final String noOfRecords) {		
-		return getBillRepository().fullTextSearchOrdinanceForReferring(param, actYear, actDefaultLanguage, start, noOfRecords);
-	}
-	
-	public static List<Object> findBillDataForDocketReport(final String billId, final String language) {
-		return getBillRepository().findBillDataForDocketReport(billId, language);
-	}
-	
-	public Date findIntroductionDate() {
-		return getBillRepository().findIntroductionDate(this);
-	}
-	
-	public static BillDraft findByStatus(final Bill bill,final Status recommendationStatus) {
-		return getBillRepository().findStatusDate(bill, recommendationStatus);
-	}
-	
-	public Date findDiscussionDate(final String currentPosition) {
-		return getBillRepository().findDiscussionDate(this, currentPosition);
-	}
-	
-	public static List<ClubbedEntity> findClubbedEntitiesByPosition(final Bill bill) {
-    	return getBillRepository().findClubbedEntitiesByPosition(bill);
-    }
-
-	public List<ClubbedEntity> findClubbedEntitiesByBillSubmissionDate(final String sortOrder, final String locale) {
-		return getBillRepository().findClubbedEntitiesInAscendingOrder(this, sortOrder, locale);
-	}
-	
-	public static Reference findCurrentFile(Bill domain) {
-		return getBillRepository().findCurrentFile(domain);
-	}
-
-	/**
-	 * @return the referredOrdinance
-	 */
-	public Ordinance getReferredOrdinance() {
-		return referredOrdinance;
-	}
-
-	/**
-	 * @param referredOrdinance the referredOrdinance to set
-	 */
-	public void setReferredOrdinance(Ordinance referredOrdinance) {
-		this.referredOrdinance = referredOrdinance;
-	}
-	
-	public static Boolean isAnyBillSubmittedEarierThanCurrentBillToBePutup(final Bill bill) {
-		return getBillRepository().isAnyBillSubmittedEarierThanCurrentBillToBePutup(bill);
-	}
-	
-	public String findFirstHouseType() {
-		String firstHouseType = null;
-		if(this.getType().getType().equals(ApplicationConstants.NONOFFICIAL_BILL)) {
-			if(this.getHouseType()!=null) {
-				firstHouseType = this.getHouseType().getType();
-			}
-		} else if(this.getType().getType().equals(ApplicationConstants.GOVERNMENT_BILL)) {
-			if(this.getIntroducingHouseType()!=null) {
-				firstHouseType = this.getIntroducingHouseType().getType();
-			}
-		}
-		return firstHouseType;
-	}
-	
-	public String findSecondHouseType() {
-		String secondHouseType = null;
-		String firstHouseType = this.findFirstHouseType();
-		if(firstHouseType!=null) {
-			if(firstHouseType.equals(ApplicationConstants.LOWER_HOUSE)) {
-				secondHouseType = ApplicationConstants.UPPER_HOUSE;
-			} else if(firstHouseType.equals(ApplicationConstants.UPPER_HOUSE)) {
-				secondHouseType = ApplicationConstants.LOWER_HOUSE;
-			}
-		}
-		return secondHouseType;
-	}
-	
-	public static String findHouseOrderOfGivenHouseForBill(final Bill bill, final String houseType) {		
-		if(bill!=null&&houseType!=null) {
-			if(!houseType.equals(ApplicationConstants.BOTH_HOUSE)) {
-				String firstHouseType = bill.findFirstHouseType();
-				if(firstHouseType!=null) {
-					if(houseType.equals(firstHouseType)) {
-						return ApplicationConstants.BILL_FIRST_HOUSE;
-					} else {
-						return ApplicationConstants.BILL_SECOND_HOUSE;
-					}
-				}
-			}			
-		}		
-		return null;
-	}
-
-	public static BillDraft findDraftByRecommendationStatus(final Bill bill, final Status recommendationStatus) {
-		return getBillRepository().findDraftByRecommendationStatus(bill, recommendationStatus);
-	}
-	
-	public static BillDraft findDraftByRecommendationStatusAndHouseRound(final Bill bill, final Status recommendationStatus, final Integer houseRound) {
-		return getBillRepository().findDraftByRecommendationStatusAndHouseRound(bill, recommendationStatus, houseRound);
-	}
-	
-	public static List<BillDraft> findStatusUpdationDraftsForGivenHouse(final Bill bill, final HouseType houseType) {
-		return getBillRepository().findStatusUpdationDraftsForGivenHouse(bill, houseType);
-	}
-	
-	public static Integer findYear(final Bill bill) {	
-		Integer billYear = null;
-		if(bill!=null) {
-			if(bill.getType()!=null) {
-				if(bill.getType().getType()!=null) {
-					if(bill.getType().getType().equals(ApplicationConstants.NONOFFICIAL_BILL)) {
-						if(bill.getAdmissionDate()!=null) {
-							Calendar calendar = Calendar.getInstance();
-							calendar.setTime(bill.getAdmissionDate());
-							billYear =  calendar.get(Calendar.YEAR);
-						}
-					} else if(bill.getType().getType().equals(ApplicationConstants.GOVERNMENT_BILL)) {
-						if(bill.getSubmissionDate()!=null) {
-							Calendar calendar = Calendar.getInstance();
-							calendar.setTime(bill.getSubmissionDate());
-							billYear = calendar.get(Calendar.YEAR);
-						}
-					}
-				}
-			}
-		}
-		return billYear;
-	}
-	
-	public static Bill findByNumberYearAndHouseType(final int billNumber, final int billYear, final Long houseTypeId, final String locale) {
-		return getBillRepository().findByNumberYearAndHouseType(billNumber, billYear, houseTypeId, locale);
-	}
-	
-	public static List<Object[]> findStatusDatesForBill(final Bill bill) {
-		return getBillRepository().findStatusDatesForBill(bill);
-	}
 }

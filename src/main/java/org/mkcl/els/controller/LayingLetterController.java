@@ -46,17 +46,17 @@ public class LayingLetterController extends BaseController {
 	
 	@RequestMapping(value = "/bill/layLetterWhenPassedByFirstHouse", method = RequestMethod.GET)
 	public String layLetterWhenPassedByFirstHouse(final ModelMap model, final HttpServletRequest request, final Locale locale) {
-		String selectedHouseTypeType = request.getParameter("houseType");
+		String currentHouseTypeType = request.getParameter("houseType");
 		String selectedYearStr = request.getParameter("sessionYear");
 		String selectedBillIdStr = request.getParameter("billId");
-		/**** House Type ****/
-		HouseType selectedHouseType = null;
-		if(selectedHouseTypeType!=null) {
-			if(!selectedHouseTypeType.isEmpty()) {
-				if(!selectedHouseTypeType.equals(ApplicationConstants.BOTH_HOUSE)) {
-					selectedHouseType = HouseType.findByFieldName(HouseType.class, "type", selectedHouseTypeType, locale.toString());
-					if(selectedHouseType!=null) {
-						model.addAttribute("selectedHouseType", selectedHouseType);					
+		/**** Current HouseType ****/
+		HouseType currentHouseType = null;
+		if(currentHouseTypeType!=null) {
+			if(!currentHouseTypeType.isEmpty()) {
+				if(!currentHouseTypeType.equals(ApplicationConstants.BOTH_HOUSE)) {
+					currentHouseType = HouseType.findByFieldName(HouseType.class, "type", currentHouseTypeType, locale.toString());
+					if(currentHouseType!=null) {
+						model.addAttribute("currentHouseType", currentHouseType);					
 					} else {
 						logger.error("**** Check request parameter 'houseType' for incorrect value. ****");
 						model.addAttribute("errorcode", "REQUEST_PARAMETER_INVALID");		
@@ -72,62 +72,31 @@ public class LayingLetterController extends BaseController {
 			logger.error("**** Check request parameter 'houseType' for null value. ****");
 			model.addAttribute("errorcode", "REQUEST_PARAMETER_NULL");		
 			return "layingletter/error";
-		}
-		/**** Bill Year ****/
-		int selectedYear;
-		if(selectedYearStr!=null) {
-			if(!selectedYearStr.isEmpty()) {
-				try {
-					selectedYear = Integer.parseInt(selectedYearStr);
-					model.addAttribute("formattedSelectedYear", FormaterUtil.formatNumberNoGrouping(selectedYear, locale.toString()));
-					model.addAttribute("selectedYear", selectedYear);
-				} catch(NumberFormatException ne) {
-					logger.error("**** Check request parameter 'year' for non-numeric value. ****");
-					model.addAttribute("errorcode", "REQUEST_PARAMETER_INVALID");		
-					return "layingletter/error";
-				}
-			} else {
-				logger.error("**** Check request parameter 'year' for empty value. ****");
-				model.addAttribute("errorcode", "REQUEST_PARAMETER_EMPTY");		
-				return "layingletter/error";
-			}
-		} else {
-			logger.error("**** Check request parameter 'year' for null value. ****");
-			model.addAttribute("errorcode", "REQUEST_PARAMETER_NULL");		
-			return "layingletter/error";
-		}
+		}		
 		/**** Selected Bill ****/
+		Bill selectedBill = null;
 		if(selectedBillIdStr!=null) {
 			if(!selectedBillIdStr.isEmpty()) {
 				try {
 					long selectedBillId = Long.parseLong(selectedBillIdStr);
-					Bill selectedBill = Bill.findById(Bill.class, selectedBillId);
+					selectedBill = Bill.findById(Bill.class, selectedBillId);
 					if(selectedBill!=null) {
-						Integer selectedBillYear = Bill.findYear(selectedBill);
-						if(selectedBillYear!=null) {
-							if(selectedBillYear==selectedYear) {								
-								if(selectedBill.getRecommendationStatus().getType().startsWith(ApplicationConstants.BILL_PROCESSED_PASSED)
-										&& selectedBill.getRecommendationStatus().getType().endsWith(ApplicationConstants.BILL_FIRST_HOUSE)) {
-									if(Bill.findHouseOrderOfGivenHouseForBill(selectedBill, selectedHouseType.getType()).equals(ApplicationConstants.BILL_SECOND_HOUSE)) {
-										if(selectedBill.getNumber()!=null) {
-											model.addAttribute("selectedBillNumber", FormaterUtil.formatNumberNoGrouping(selectedBill.getNumber(), locale.toString()));
-											model.addAttribute("selectedBillId", selectedBill.getId());									
-										}
-									} else {
-										logger.error("**** selected housetype is not second house of selected bill. so it is not eligible for laying letter. ****");
-										model.addAttribute("errorcode", "BILL_LAYINGERROR_HOUSETYPENOTSECOND");
-										return "layingletter/error";
-									}
-								} else {
-									logger.error("**** selected bill is not currently passed from first house. so it is not eligible for laying letter. ****");
-									model.addAttribute("errorcode", "BILL_LAYINGERROR_NOTPASSEDFROMFIRSTHOUSE");
-									return "layingletter/error";
+						if(selectedBill.getRecommendationStatus().getType().startsWith(ApplicationConstants.BILL_PROCESSED_PASSED)
+								&& selectedBill.getRecommendationStatus().getType().endsWith(ApplicationConstants.BILL_FIRST_HOUSE)) {
+							if(Bill.findHouseOrderOfGivenHouseForBill(selectedBill, currentHouseType.getType()).equals(ApplicationConstants.BILL_SECOND_HOUSE)) {
+								if(selectedBill.getNumber()!=null) {
+									model.addAttribute("selectedBillNumber", FormaterUtil.formatNumberNoGrouping(selectedBill.getNumber(), locale.toString()));
+									model.addAttribute("selectedBillId", selectedBill.getId());									
 								}
 							} else {
-								logger.error("**** selected bill has different year than selected year. ****");
-								model.addAttribute("errorcode", "BILL_YEAR_MISMATCH");
+								logger.error("**** selected housetype is not second house of selected bill. so it is not eligible for laying letter. ****");
+								model.addAttribute("errorcode", "BILL_LAYINGERROR_HOUSETYPENOTSECOND");
 								return "layingletter/error";
 							}
+						} else {
+							logger.error("**** selected bill is not currently passed from first house. so it is not eligible for laying letter. ****");
+							model.addAttribute("errorcode", "BILL_LAYINGERROR_NOTPASSEDFROMFIRSTHOUSE");
+							return "layingletter/error";
 						}						
 					}
 				} catch(NumberFormatException ne) {
@@ -136,6 +105,48 @@ public class LayingLetterController extends BaseController {
 					return "layingletter/error";
 				}								
 			}
+		}
+		/**** Bill Year ****/
+		Integer selectedYear = null;
+		if(selectedBill!=null) {
+			selectedYear = Bill.findYear(selectedBill);
+		}
+		if(selectedYear==null) {
+			if(selectedYearStr!=null) {
+				if(!selectedYearStr.isEmpty()) {
+					try {
+						selectedYear = Integer.parseInt(selectedYearStr);					
+					} catch(NumberFormatException ne) {
+						logger.error("**** Check request parameter 'year' for non-numeric value. ****");
+						model.addAttribute("errorcode", "REQUEST_PARAMETER_INVALID");		
+						return "layingletter/error";
+					}
+				} else {
+					logger.error("**** Check request parameter 'year' for empty value. ****");
+					model.addAttribute("errorcode", "REQUEST_PARAMETER_EMPTY");		
+					return "layingletter/error";
+				}
+			} else {
+				logger.error("**** Check request parameter 'year' for null value. ****");
+				model.addAttribute("errorcode", "REQUEST_PARAMETER_NULL");		
+				return "layingletter/error";
+			}
+		}
+		if(selectedYear!=null) {
+			model.addAttribute("formattedSelectedYear", FormaterUtil.formatNumberNoGrouping(selectedYear, locale.toString()));
+			model.addAttribute("selectedYear", selectedYear);
+		}	
+		/**** Bill HouseType ****/
+		HouseType selectedHouseType = currentHouseType;
+		if(selectedBill!=null) {
+			if(selectedBill.getType().getType().equals(ApplicationConstants.NONOFFICIAL_BILL)) {
+				selectedHouseType = selectedBill.getHouseType();
+			} else if(selectedBill.getType().getType().equals(ApplicationConstants.GOVERNMENT_BILL)) {
+				selectedHouseType = selectedBill.getIntroducingHouseType();
+			}
+		}
+		if(selectedHouseType!=null) {
+			model.addAttribute("selectedHouseType", selectedHouseType);
 		}
 		/**** House Rounds Available For Bill ****/
 		CustomParameter billHouseRoundsParameter = CustomParameter.findByName(CustomParameter.class, "BILL_HOUSEROUNDS", "");
@@ -314,7 +325,7 @@ public class LayingLetterController extends BaseController {
 		String usergroupTypeForLayingLetter = request.getParameter("usergroupTypeForLayingLetter");
 		if(usergroupTypeForLayingLetter!=null){
 			UserGroupType userGroupType=UserGroupType.findByFieldName(UserGroupType.class,"type",usergroupTypeForLayingLetter, layingLetter.getLocale());
-			layingLetter.setEditedAs(userGroupType.getName());
+			layingLetter.setEditedAs(userGroupType.getType());
 		}
 		if(layingLetter.getId()!=null) {
 			layingLetter.merge();

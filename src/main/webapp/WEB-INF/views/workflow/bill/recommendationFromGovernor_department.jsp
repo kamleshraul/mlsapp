@@ -180,13 +180,50 @@
 				$('#statutoryMemorandumDrafts_button').show();
 			}
 			
-			if($('#typeOfSelectedBillType').val() != 'amending') {
-				$('#referredActDiv').hide();
+			if($('#typeOfSelectedBillType').val() == '' || $('#typeOfSelectedBillType').val() == 'original'
+					|| $('#typeOfSelectedBillType').val() == 'replace_ordinance') {				
 				$('#annexuresForAmendingBill_div').hide();
 			}
-			if($('#typeOfSelectedBillType').val() != 'replace_ordinance') {
+			
+			/**** allow refer act & ordinance as per bill type ****/
+			if($('#typeOfSelectedBillType').val()=='') {
+				$('#referredActDiv').hide();
 				$('#referredOrdinanceDiv').hide();
+			} else if($('#typeOfSelectedBillType').val()=='original') {
+				$('#referredActDiv').hide();
+				$('#referredOrdinanceDiv').hide();
+			} else if($('#typeOfSelectedBillType').val()=='replace_ordinance'){
+				$('#referredOrdinanceDiv').show();
+				$('#referredActDiv').hide();
+			}else{
+				$('#referredActDiv').show();
+				$('#referredOrdinanceDiv').show();
 			}
+			
+			$('#billType').change(function() {
+				$.get('ref/getTypeOfSelectedBillType?selectedBillTypeId='+$('#billType').val(),function(data) {
+					
+					if(data!=undefined || data!='') {
+						if(data=='' || data=='original' || data=='replace_ordinance') {
+							$('#annexuresForAmendingBill_div').hide();
+						} else {
+							$('#annexuresForAmendingBill_div').show();
+						}
+						if(data=='original') {
+							$('#referredActDiv').hide();
+							$('#referredOrdinanceDiv').hide();
+						} else if(data=='replace_ordinance'){
+							$('#referredOrdinanceDiv').show();
+							$('#referredActDiv').hide();
+						}else{
+							$('#referredActDiv').show();
+							$('#referredOrdinanceDiv').show();
+						}
+					} else {
+						alert("Some Error Occured!");
+					}
+				});
+			});
 			/**** view detail of referred act (currently showing pdf of act) ****/		
 			$('#viewReferredAct').click(function() {
 				if(this.text!='-') {					
@@ -839,7 +876,7 @@
 							<input type="hidden" id="referredAct" name="referredAct" value="${referredAct}">
 						</p>
 					</div>
-					<div id="referredOrdinanceDiv">
+					<div id="referredOrdinanceDiv" style="margin-top:10px;">
 						<p>
 							<label class="small"><spring:message code="bill.referredOrdinance" text="Referred Ordinance"></spring:message></label>
 							<c:choose>

@@ -322,14 +322,18 @@
 			if($('#opinionSoughtFromLawAndJD').val()!=undefined
 					&& $('#opinionSoughtFromLawAndJD').val()!="" 
 					&& $('#opinionSoughtFromLawAndJD').val()!="<p></p>") {				
-				if($('#isChecklistFilled').val()=="true") {					
+				/* if($('#isChecklistFilled').val()=="true") {					
 					$('#checklist_button').hide();
 					$('#checklist_div').show();
 					$('#opinionSoughtFromLawAndJD_div').show();
 					$('.checklist_button_hr').show();
 				} else {
 					$('#checklist_button').show();
-				}
+				} */
+				$('#checklist_button').hide();
+				$('#checklist_div').show();
+				$('#opinionSoughtFromLawAndJD_div').show();
+				$('.checklist_button_hr').show();
 			} else {
 				$('#checklist_button').hide();
 			}			
@@ -386,38 +390,71 @@
 				$('#remarks_div').hide();
 			}			
 			
-			if($('#typeOfSelectedBillType').val() != 'amending') {
-				$('#referredActDiv').hide();
+			if($('#typeOfSelectedBillType').val() == '' || $('#typeOfSelectedBillType').val() == 'original'
+					|| $('#typeOfSelectedBillType').val() == 'replace_ordinance') {				
 				$('#annexuresForAmendingBill_div').hide();
 			}
 			
-			if($('#typeOfSelectedBillType').val() != 'replace_ordinance') {
+			/**** allow refer act & ordinance as per bill type ****/
+			if($('#typeOfSelectedBillType').val()=='') {
+				$('#referredActDiv').hide();
 				$('#referredOrdinanceDiv').hide();
+			} else if($('#typeOfSelectedBillType').val()=='original') {
+				$('#referredActDiv').hide();
+				$('#referredOrdinanceDiv').hide();
+			} else if($('#typeOfSelectedBillType').val()=='replace_ordinance'){
+				$('#referredOrdinanceDiv').show();
+				$('#referredActDiv').hide();
+			}else{
+				$('#referredActDiv').show();
+				$('#referredOrdinanceDiv').show();
 			}
 			
 			/**** Schedule 7 Of Constitution ****/
-			$(".viewSchedule7OfConstitution").click(function(){				
-				$.get('bill/getSchedule7OfConstitution',function(data){
+			$(".viewSchedule7OfConstitution").click(function(){	
+				var languageForSchedule7OfConstitution = "";
+				if(this.type=='checkbox') {
+					languageForSchedule7OfConstitution = $('#defaultBillLanguage').val();
+				} else {
+					languageForSchedule7OfConstitution = this.id.split("_")[1];
+				}
+				var resourceURL = 'bill/getSchedule7OfConstitution?sessionId='+$("#session").val()
+						+'&deviceTypeId='+$("#type").val()+'&language='+languageForSchedule7OfConstitution;
+				if(languageForSchedule7OfConstitution!="" && languageForSchedule7OfConstitution!=undefined) {
+					$.get(resourceURL,function(data){
+						$.fancybox.open(data, {autoSize: false, width: 800, height: 600});
+					},'html');
+				} else {
+					$.prompt("some error!");
+				}								
+			});
+			
+			/**** Instructional Order ****/
+			$(".viewInstructionalOrder").click(function(){
+				$.get('bill/getInstructionalOrder?sessionId='+$("#session").val()
+						+'&deviceTypeId='+$("#type").val(),function(data){
 					$.fancybox.open(data, {autoSize: false, width: 800, height: 600});
-				},'html');				
+				},'html');
 			});
 						
 			$('#billType').change(function() {
 				$.get('ref/getTypeOfSelectedBillType?selectedBillTypeId='+$('#billType').val(),function(data) {
 					
 					if(data!=undefined || data!='') {
-						if(data=='amending') {
-							$('#referredActDiv').show();
+						if(data=='' || data=='original' || data=='replace_ordinance') {
+							$('#annexuresForAmendingBill_div').hide();
+						} else {
 							$('#annexuresForAmendingBill_div').show();
+						}
+						if(data=='original') {
+							$('#referredActDiv').hide();
 							$('#referredOrdinanceDiv').hide();
 						} else if(data=='replace_ordinance'){
 							$('#referredOrdinanceDiv').show();
 							$('#referredActDiv').hide();
-							$('#annexuresForAmendingBill_div').hide();
 						}else{
-							$('#referredActDiv').hide();
-							$('#annexuresForAmendingBill_div').hide();
-							$('#referredOrdinanceDiv').hide();
+							$('#referredActDiv').show();
+							$('#referredOrdinanceDiv').show();
 						}
 					} else {
 						alert("Some Error Occured!");
@@ -1604,10 +1641,11 @@
 										<a href="#" class="reviseContentDraft" id="reviseContentDraft_${i.language.type}" style="margin-left: 162px;margin-right: 20px;text-decoration: none;">
 											<img id="reviseContentDraft_icon_${i.language.type}" src="./resources/images/Revise.jpg" title="<spring:message code='bill.reviseContentDraft' text='Revise This Content Draft'></spring:message>" class="imageLink" />
 										</a>
-										<c:if test="${i.language.type==defaultBillLanguage}">											
-											<a href="#" class="viewSchedule7OfConstitution" style="margin-right: 20px;text-decoration: none;">
-												<img id="s7C" src="./resources/images/s7C.jpg" title="<spring:message code='bill.viewSchedule7OfConstitution' text='View Schedule 7 Of Constitution'></spring:message>" class="imageLink" />
-											</a>											
+										<c:set var="schedule7OfConstitution" value="schedule7OfConstitution_${i.language.type}"/>
+										<c:if test="${not empty requestScope[schedule7OfConstitution]}">
+										<a href="javascript:void(0)" id="viewSchedule7OfConstitution_${i.language.type}" class="viewSchedule7OfConstitution" style="margin-right: 20px;text-decoration: none;">
+											<img id="s7C" src="./resources/images/s7C.jpg" title="<spring:message code='bill.viewSchedule7OfConstitution' text='View Schedule 7 Of Constitution'></spring:message>" class="imageLink" />
+										</a>
 										</c:if>
 									</p>
 									<p id="revisedContentDraftPara_${i.language.type}" style="display:none;">
@@ -1652,6 +1690,11 @@
 								</c:when>
 							</c:choose>					
 							</c:forEach>
+							<c:if test="${not empty instructionalOrder}">
+							<a href="javascript:void(0)" class="viewInstructionalOrder" style="margin-left: 20px;text-decoration: none;">
+								<img src="./resources/images/instruction_icon.png" title="<spring:message code='bill.viewInstructionalOrder' text='View Instructional Order'></spring:message>" class="imageLink" />
+							</a>
+							</c:if>
 							</p>							
 							<div>
 								<c:forEach var="i" items="${annexuresForAmendingBill}" varStatus="draftNumber">
@@ -1909,7 +1952,7 @@
 							<a href="#" class="viewRevisions" id="viewRevisions_checklist" style="margin-left: 20px;margin-bottom: 5px;margin-right: 20px;text-decoration: none;">
 								<img src="./resources/images/ViewRevision.jpg" title="<spring:message code='bill.viewRevisionsForChecklist' text='View Revisions for Checklist'></spring:message>" class="imageLink" />
 							</a>
-							<a href="#" class="viewSchedule7OfConstitution" style="margin-right: 20px;text-decoration: none;">
+							<a href="#" id="viewSchedule7OfConstitution_${defaultBillLanguage}" class="viewSchedule7OfConstitution" style="margin-right: 20px;text-decoration: none;">
 								<img id="s7C" src="./resources/images/s7C.jpg" title="<spring:message code='bill.viewSchedule7OfConstitution' text='View Schedule 7 Of Constitution'></spring:message>" class="imageLink" />
 							</a>
 							<br/>							
@@ -2191,7 +2234,8 @@
 						</p>	
 						<p>
 							<label class="small"><spring:message code="bill.currentHouseRound" text="Current House Round"/></label>
-							<input id="currentHouseRound" class="sInteger" value="${currentHouseRound}" type="text" readonly="readonly">
+							<input id="formattedCurrentHouseRound" class="sInteger" value="${formattedCurrentHouseRound}" type="text" readonly="readonly">
+							<input type="hidden" id="currentHouseRound" name="currentHouseRound" value="${currentHouseRound}">
 						</p>					
 						<p>
 							<label class="small"><spring:message code="bill.currentExpectedStatusDate" text="Current Expected Status Date"/></label>
