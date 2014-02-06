@@ -273,8 +273,10 @@
 			$("#undoCount").val(parseInt($("#undoCount").val()) + 1);			
 			if($("#undoCount").val()=='1'){
 				$("#redoCount").val('0');
-				$("#pprp"+whichId.substring(2)).empty();
-				$("#pprp"+whichId.substring(2)).html('classes');
+				/* $("#pprp"+whichId.substring(2)).empty();
+				$("#pprp"+whichId.substring(2)).html('classes'); */
+				$(".pprp").empty();
+				$(".pprp").html('classes');
 			}
 			
 			var params = "?userGroup="+$("#userGroup").val()
@@ -290,13 +292,18 @@
 						$("#"+whichId).html(newContent);
 						//showEditProceeding();
 						
-						var undoData=$("#ppsp"+whichId.substring(2)).html();
+						/* var undoData=$("#ppsp"+whichId.substring(2)).html(); */
+						var undoData=$(".ppsp").html();
 						var draftData=data.value;
 						if(undoData=='classes' || undoData==''){
-							$("#ppsp"+data.id).empty();
-							$("#ppsp"+data.id).html(draftData);
+							/* $("#ppsp"+data.id).empty();
+							$("#ppsp"+data.id).html(draftData); */
+							
+							$(".ppsp").empty();
+							$(".ppsp").html(draftData);
 						}else{
-							$("#ppsp"+data.id).html(undoData+";"+data.value);
+							/* $("#ppsp"+data.id).html(undoData+";"+data.value); */
+							$(".ppsp").html(undoData+";"+data.value);
 						}
 					}else{
 						$("#undoCount").val((parseInt($("#undoCount").val()) - 1));
@@ -352,14 +359,19 @@
 						if(data[i][7]=='include'){
 							$("#pp"+data[i][0]).empty();
 							$("#pp"+data[i][0]).html(data[i][4]);
-							var undoData = $("#ppsp"+data[i][0]).html();
-							if(undoData=='classes' || undoData==''){
-								$("#ppsp"+data[i][0]).empty();
-								$("#ppsp"+data[i][0]).html(data[i][5]);
-							}else{
-								$("#ppsp"+data[i][0]).html(undoData+";"+data[i][5]);
+							//var undoData = $("#ppsp"+data[i][0]).html();
+							if(i==0){
+								var undoData = $(".ppsp").html();
+								if(undoData=='classes' || undoData==''){
+									/* $("#ppsp"+data[i][0]).empty();
+									$("#ppsp"+data[i][0]).html(data[i][5]); */
+									$(".ppsp").empty();
+									$(".ppsp").html(data[i][5]);
+								}else{
+									//$("#ppsp"+data[i][0]).html(undoData+";"+data[i][5]);
+									$(".ppsp").html(undoData+";"+data[i][5]);
+								}
 							}
-							
 						}
 					}
 					$.unblockUI();
@@ -374,20 +386,21 @@
 		
 		function undoLastChange(){
 			$(".ppsp").each(function(){
-				$.blockUI({ message: '<img src="./resources/images/waitAnimated.gif" />' });
 				var undoData=$(this).html();
 				if(undoData!='classes'){
 					var undoDataArray = undoData.split(";");
 					var undoDataToWorkWith=undoDataArray[undoDataArray.length-1].split(":");
-					$("#uniqueIdentifierForUndo").val(undoDataToWorkWith[2]);
+					$("#uniqueIdentifierForUndo").val(undoDataToWorkWith[1]);
 					
-					var redoData=$("#pprp"+$(this).attr('id').substring(4)).html();
+					/* var redoData=$("#pprp"+$(this).attr('id').substring(4)).html(); */
+					var redoData=$(".pprp").html();
 					
-					var ppId=$(this).attr('id').substring(4);
-					
+					/* var ppId=$(this).attr('id').substring(4); */
+					var ppId=1;
+					$.blockUI({ message: '<img src="./resources/images/waitAnimated.gif" />' });
 					$.post("editing/undolastchange/"+ppId,
 							$("form[action='editing/replace']").serialize(),function(data){
-						if(data){
+						/* if(data){
 							$("#pp"+ppId).empty();
 							$("#pp"+ppId).html(data.value);
 							var pprpData=$("#pprp"+ppId).html();
@@ -416,12 +429,50 @@
 							$("#ppsp"+ppId).html(html);
 							
 							$.unblockUI();
+						} */
+												
+						if(data && data.length > 0){
+							var i;
+							for(i = 0 ; i < data.length; i++){
+								$("#pp"+data[i].id).empty();
+								$("#pp"+data[i].id).html(data[i].value);
+																
+								var redoCountX=undoDataArray[undoDataArray.length-1].split(":")[0];
+								if(redoCountX==''){
+									redoCountX='0';
+								}
+								
+								
+								if(i==0){
+									var pprpData=$(".pprp").html();
+									if(pprpData=='classes' || pprpData==''){
+										$(".pprp").empty();
+										$(".pprp").html(undoDataArray[undoDataArray.length-1]);
+										$("#redoCount").val(parseInt($("#redoCount").val())+1);
+									}else{
+										$(".pprp").html(pprpData+";"+undoDataArray[undoDataArray.length-1]);
+										$("#redoCount").val(parseInt($("#redoCount").val())+1);
+									}
+									
+									$("#undoCount").val(parseInt($("#undoCount").val())-1);
+								}
+								
+								console.log("undo data array length: "+undoDataArray.length);
+								var html="";
+								if(undoDataArray.length>1){
+									html=$(".ppsp").html().replace(";"+undoDataArray[undoDataArray.length-1],"");
+								}else{
+									html=$(".ppsp").html().replace(undoDataArray[undoDataArray.length-1],"");
+								}
+								console.log("undo data now: "+html);
+								$(".ppsp").html(html);
+							}
 						}
+						$.unblockUI();
 					}).fail(function(){
 						$.unblockUI();
 					});
 				}
-				$.unblockUI();
 			});
 		}
 		
@@ -429,7 +480,7 @@
 			$(".pprp").each(function(){
 				$.blockUI({ message: '<img src="./resources/images/waitAnimated.gif" />' });
 				var redoData=$(this).html();
-				if(redoData!='classes'){
+				/* if(redoData!='classes'){
 					var redoDataArray = redoData.split(";");
 					var redoDataToWorkWith=redoDataArray[redoDataArray.length-1].split(":");
 					$("#uniqueIdentifierForRedo").val(redoDataToWorkWith[2]);
@@ -466,8 +517,50 @@
 					}).fail(function(){
 						$.unblockUI();
 					});
+				} */
+				
+				if(redoData!='classes'){
+					var redoDataArray = redoData.split(";");
+					var redoDataToWorkWith=redoDataArray[redoDataArray.length-1].split(":");
+					$("#uniqueIdentifierForRedo").val(redoDataToWorkWith[1]);
+					var html="";
+					if(redoDataArray.length>1){
+						html=$(this).html().replace(";"+redoDataArray[redoDataArray.length-1],"");
+					}else{
+						html=$(this).html().replace(redoDataArray[redoDataArray.length-1],"");
+						
+					}
+					var redoData=$(".pprp").html();
+					
+					var ppspData=$(".ppsp").html();
+					if(ppspData=='classes' || ppspData==''){
+						$(".ppsp").empty();
+						$(".ppsp").html(redoDataArray[redoDataArray.length-1]);
+					}else{
+						$(".ppsp").html(ppspData+";"+redoDataArray[redoDataArray.length-1]);
+					}
+					$("#urData").val(redoDataArray[redoDataArray.length-1]);
+					
+					var ppId = 1;
+					$(this).html(html);			
+					$.post("editing/redolastchange/"+ppId,
+							$("form[action='editing/replace']").serialize(),function(data){
+						if(data){
+							var i;
+							for(i = 0; i < data.length; i++){								
+								$("#pp"+data[i].id).empty();
+								$("#pp"+data[i].id).html(data[i].value);
+								if(i==0){
+									$("#redoCount").val(parseInt($("#redoCount").val())-1);
+									$("#undoCount").val(parseInt($("#undoCount").val())+1);
+								}
+							}
+						}
+						$.unblockUI();
+					}).fail(function(){
+						$.unblockUI();
+					});
 				}
-				$.unblockUI();
 			});
 		}
 				
@@ -848,8 +941,8 @@
 														<img src="editing/gememberimage/${r[14]}" height="8px" class="imgIdDivImage"/>
 													</div>
 												</c:if>
-												<div id="ppsp${r[20]}" class="ppsp" style="display: none;">classes</div>
-												<div id="pprp${r[20]}" class="pprp" style="display: none;">classes</div>
+												<%-- <div id="ppsp${r[20]}" class="ppsp" style="display: none;">classes</div>
+												<div id="pprp${r[20]}" class="pprp" style="display: none;">classes</div> --%>
 												<div class="revision" id="pd${r[20]}" style="position: relative; border-radius: 10px; margin-left: 750px; top: -20px; text-align: center; display: inline-block; min-width: 16px; min-height: 16px; border: 1px solid blue; background: #00ff00; cursor: pointer;">
 													<spring:message code="editing.more" text="S" />
 												</div>
@@ -916,8 +1009,8 @@
 															<img src="editing/gememberimage/${r[14]}" height="8px" class="imgIdDivImage"/>
 														</div>
 													</c:if>
-													<div id="ppsp${r[20]}" class="ppsp" style="display: none;">classes</div>
-													<div id="pprp${r[20]}" class="pprp" style="display: none;">classes</div>
+													<%-- <div id="ppsp${r[20]}" class="ppsp" style="display: none;">classes</div>
+													<div id="pprp${r[20]}" class="pprp" style="display: none;">classes</div> --%>
 													<div class="revision" id="pd${r[20]}" style="position: relative; border-radius: 10px; margin-left: 750px; top: -20px; text-align: center; display: inline-block; min-width: 16px; min-height: 16px; border: 1px solid blue; background: #013094; cursor: pointer;">
 														<spring:message code="editing.more" text="S" />
 													</div>
@@ -985,8 +1078,8 @@
 													<img src="editing/gememberimage/${r[14]}" height="8px" class="imgIdDivImage"/>
 												</div>
 											</c:if>
-											<div id="ppsp${r[20]}" class="ppsp" style="display: none;">classes</div>
-											<div id="pprp${r[20]}" class="pprp" style="display: none;">classes</div>
+											<%-- <div id="ppsp${r[20]}" class="ppsp" style="display: none;">classes</div>
+											<div id="pprp${r[20]}" class="pprp" style="display: none;">classes</div> --%>
 											<%-- <div style="position: relative; border-radius: 10px; margin-left: 750px; top: -20px; text-align: center; display: inline-block; min-width: 16px; min-height: 16px; border: 1px solid blue; background: #013094; cursor: pointer;">
 												<spring:message code="editing.more" text="S" />
 											</div> --%>
@@ -1089,8 +1182,8 @@
 														<img src="editing/gememberimage/${r[14]}" height="8px" class="imgIdDivImage"/>
 													</div>
 												</c:if>
-												<div id="ppsp${r[20]}" class="ppsp" style="display: none;">classes</div>
-												<div id="pprp${r[20]}" class="pprp" style="display: none;">classes</div>
+												<%-- <div id="ppsp${r[20]}" class="ppsp" style="display: none;">classes</div>
+												<div id="pprp${r[20]}" class="pprp" style="display: none;">classes</div> --%>
 												<div class="revision" id="pd${r[20]}" style="position: relative; border-radius: 10px; margin-left: 750px; top: -20px; text-align: center; display: inline-block; min-width: 16px; min-height: 16px; border: 1px solid blue; background: #00ff00; cursor: pointer;">
 													<spring:message code="editing.more" text="S" />
 												</div>
@@ -1157,8 +1250,8 @@
 															<img src="editing/gememberimage/${r[14]}" height="8px" class="imgIdDivImage"/>
 														</div>
 													</c:if>
-													<div id="ppsp${r[20]}" class="ppsp" style="display: none;">classes</div>
-													<div id="pprp${r[20]}" class="pprp" style="display: none;">classes</div>
+													<%-- <div id="ppsp${r[20]}" class="ppsp" style="display: none;">classes</div>
+													<div id="pprp${r[20]}" class="pprp" style="display: none;">classes</div> --%>
 													<div class="revision" id="pd${r[20]}" style="position: relative; border-radius: 10px; margin-left: 750px; top: -20px; text-align: center; display: inline-block; min-width: 16px; min-height: 16px; border: 1px solid blue; background: #013094; cursor: pointer;">
 														<spring:message code="editing.more" text="S" />
 													</div>
@@ -1226,8 +1319,8 @@
 													<img src="editing/gememberimage/${r[14]}" height="8px" class="imgIdDivImage"/>
 												</div>
 											</c:if>
-											<div id="ppsp${r[20]}" class="ppsp" style="display: none;">classes</div>
-											<div id="pprp${r[20]}" class="pprp" style="display: none;">classes</div>
+											<%-- <div id="ppsp${r[20]}" class="ppsp" style="display: none;">classes</div>
+											<div id="pprp${r[20]}" class="pprp" style="display: none;">classes</div> --%>
 											<%-- <div style="position: relative; border-radius: 10px; margin-left: 750px; top: -20px; text-align: center; display: inline-block; min-width: 16px; min-height: 16px; border: 1px solid blue; background: #013094; cursor: pointer;">
 												<spring:message code="editing.more" text="S" />
 											</div> --%>
@@ -1261,6 +1354,8 @@
 		</textarea>
 	</div>
 	<input type="hidden" name="editedContent" id="data" value="demo" />
+	<div id="undoStack" class="ppsp" style="display: none;">classes</div>
+	<div id="redoStack" class="pprp" style="display: none;">classes</div>
 </form>
 	<input type="hidden" id="wfCopy" value="${includeWFCopy}" />
 	<input id="reportType" type="hidden" value="${reportType}" />
