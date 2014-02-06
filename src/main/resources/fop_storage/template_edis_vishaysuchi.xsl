@@ -219,9 +219,10 @@
 														<fo:table-row>
 															<fo:table-cell number-columns-spanned="2">
 																<fo:block>&#160;</fo:block>
-																<fo:block><xsl:value-of select="./value" />-----</fo:block>					
+																<fo:block><xsl:value-of select="./value" />-----</fo:block>							
 																<xsl:for-each select="./headings">
 																	<fo:block margin-left="14px">
+																		<xsl:value-of select="./heading" />
 																		<xsl:value-of select="./heading" />
 																		<xsl:choose>
 																			<xsl:when test="starts-with(deviceType,'questions_')">
