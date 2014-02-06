@@ -186,6 +186,15 @@ public class EditingController extends GenericController<Roster>{
 		
 	}
 	
+	
+	/**
+	 * @param request
+	 * @param model
+	 * @param locale
+	 * @return
+	 * 
+	 * <h3>Used to produce the report for viewing in various scenarios</h3>
+	 */
 	@Transactional
 	@RequestMapping(value="/compiledreport", method=RequestMethod.GET)
 	public String viewEditingReport(final HttpServletRequest request, final ModelMap model, final Locale locale){
@@ -197,34 +206,50 @@ public class EditingController extends GenericController<Roster>{
 		
 		try{
 			
+			/****To find the roster****/
+			/****To find the session ****/
 			String strHouseType = request.getParameter("houseType");
 			String strSessionType = request.getParameter("sessionType");
 			String strSessionYear = request.getParameter("sessionYear");
+			
 			String strLanguage = request.getParameter("language");
 			String strDay = request.getParameter("day");
+			
+			/****To find the report type i.e. member or anyother****/
 			String strReportType = request.getParameter("reportType");
+			/****What action to be allowed at client side****/
 			String strAction = request.getParameter("action");
+			/****Is it a reedit action****/
 			String strReedit = request.getParameter("reedit");
+			/****Member id if any****/
 			String strMember = request.getParameter("member");
 			String strMemberReportType = request.getParameter("memberReportType");
+			/****Heading of the page which is to be searched****/
 			String strEncodedPageHeader = request.getParameter("pageheader");
 			String strPageHeader = "";
 			
+			/****For decoding the ISO-8859-1 encoded marathi characters****/
 			CustomParameter csptDeploymentServer = CustomParameter.findByName(CustomParameter.class, "DEPLOYMENT_SERVER", "");
+			
+			/****For removing the drafted copies if configured to do so****/
 			CustomParameter includeWFCopy = CustomParameter.findByName(CustomParameter.class, "EDIS_EDIT_INCLUDE_WF_COPY", "");
 			if(includeWFCopy != null){
 				if(includeWFCopy.getValue() != null && !includeWFCopy.getValue().isEmpty()){
 					model.addAttribute("includeWFCopy", includeWFCopy.getValue());
 				}
 			}
+			
+			/****Proceed if all the required parameters are provided****/
 			if((strReportType != null && !strReportType.isEmpty())
 					&& (strMember != null && !strMember.isEmpty())
 					&& (strMemberReportType != null && !strMemberReportType.isEmpty())
 					&& (strEncodedPageHeader != null && !strEncodedPageHeader.isEmpty())){
 				
+				//produce normal report of rosterwise
 				if(strReportType.equals("-")){
 					strReportType = "other";
 				}else{
+					//produce reports based on the type of the report
 					if(strReportType.equals("member")){
 						if(strMember.equals("-")){
 							strReportType = "nothing";
@@ -265,11 +290,19 @@ public class EditingController extends GenericController<Roster>{
 					}
 				}
 			}
+			
+			/*
+			 * Supply the action, reportType and if its a re-edit action on 
+			 * client page
+			 * 
+			 */
 			model.addAttribute("action", strAction);
 			model.addAttribute("reedit", strReedit);
 			model.addAttribute("reportType", strReportType);
 			model.addAttribute("inPlaceOf","यांच्याकरिता");
 			List result = null;
+			//fetch report based on the report type provided
+			//using the categorised report queries 
 			if(!strReportType.isEmpty() && !strReportType.equals("nothing")){
 				if(strHouseType!=null&&!strHouseType.equals("")&&
 						strSessionType!=null&&!strSessionType.equals("")&&
@@ -277,12 +310,15 @@ public class EditingController extends GenericController<Roster>{
 						strLanguage!=null&&!strLanguage.equals("")&&
 						strDay!=null&&!strDay.equals("")){
 	
+					//find session and roster for that particular day
 					HouseType houseType=HouseType.findByFieldName(HouseType.class, "type", strHouseType, locale.toString());
 					SessionType sessionType=SessionType.findById(SessionType.class, Long.parseLong(strSessionType));
 					Language language=Language.findById(Language.class, Long.parseLong(strLanguage));
 					Session session=Session.findSessionByHouseTypeSessionTypeYear(houseType, sessionType, Integer.parseInt(strSessionYear));
 					Roster roster=Roster.findRosterBySessionLanguageAndDay(session,Integer.parseInt(strDay),language,locale.toString());
 					
+					//if cleanup is setup then clean
+					//unwanted drafts(i.e. used for replace and undo facility)
 					CustomParameter csptDoCleanUnusedDrafts = CustomParameter.findByName(CustomParameter.class, "EDIS_CLEAN_UNUSED_DRAFTS", "");
 					if(csptDoCleanUnusedDrafts != null){
 						if(csptDoCleanUnusedDrafts.getValue() != null && !csptDoCleanUnusedDrafts.getValue().isEmpty()){
@@ -292,11 +328,14 @@ public class EditingController extends GenericController<Roster>{
 							}
 						}
 					}
+					
+					//create parameter map to fetch report
 					Map<String, String[]> parametersMap = new HashMap<String, String[]>();
 					parametersMap.put("locale", new String[]{locale.toString()});
 					parametersMap.put("languageId", new String[]{language.getId().toString()});
 					parametersMap.put("rosterId", new String[]{roster.getId().toString()});
 					
+					//fetch report
 					if(strReportType.equals("other")){
 						result = Query.findReport("EDIS_PROCEEDING_CONTENT_MERGE_REPORT2", parametersMap);
 					}else if(strReportType.equals("member")){
@@ -323,6 +362,7 @@ public class EditingController extends GenericController<Roster>{
 						result=Query.findReport("EDIS_PROCEEDING_MEMBER_PAGEHEADING_REPORT", parametersMap);
 					}
 					
+					//if re-edit request then clean the drafts and allow re-edit 
 					if(strReedit != null && !strReedit.isEmpty()){
 						if(strReedit.equals("true")){
 							if(!result.isEmpty()){
@@ -349,9 +389,7 @@ public class EditingController extends GenericController<Roster>{
 								}
 							}
 							
-							/*if(strReportType == null){
-								result = Query.findReport(ApplicationConstants.PROCEEDING_CONTENT_MERGE_REPORT, parametersMap);
-							}else */
+							//find reports for re-edit
 							if(strReportType.equals("other")){
 								result = Query.findReport(ApplicationConstants.PROCEEDING_CONTENT_MERGE_REPORT, parametersMap);
 							}else if(strReportType.equals("member")){
@@ -380,6 +418,7 @@ public class EditingController extends GenericController<Roster>{
 						}
 					}
 					
+					//place report in model
 					model.addAttribute("report", result);
 					
 					retVal = "editing/compileedit";
@@ -398,16 +437,28 @@ public class EditingController extends GenericController<Roster>{
 		return retVal;
 	}
 	
+	/**
+	 * @param id
+	 * @param request
+	 * @param locale
+	 * @return
+	 * 
+	 * <h3>Save the draft after creating them.
+	 */
 	@Transactional
 	@RequestMapping(value="/savepart/{id}", method=RequestMethod.POST)
 	public @ResponseBody MasterVO saveDraft(@PathVariable(value="id") Long id, HttpServletRequest request, Locale locale){
 		MasterVO masterVO = null;
+		//find the part for which draft is to be created
+		//and save the draft
 		try{
+			//find the required data to be saved in the draft 
 			String editedContent = request.getParameter("editedContent");
 			String strUndoCount = request.getParameter("undoCount");
 			Part part = Part.findById(Part.class, id);
 			String strUserGroupType = request.getParameter("userGroupType");
 			UserGroupType userGroupType = UserGroupType.findByFieldName(UserGroupType.class, "type", strUserGroupType, locale.toString());
+			
 			if(part != null){
 				/****Create the part draft****/
 				AuthUser user = this.getCurrentUser();
@@ -422,17 +473,25 @@ public class EditingController extends GenericController<Roster>{
 				draft.setUndoCount(Integer.valueOf(strUndoCount));
 				draft.setUniqueIdentifierForUndo(UUID.randomUUID().toString());
 				draft.setRevisedContent(editedContent);
-				draft.setOriginalText(part.getEditedContent());
+				if(part.getEditedContent() != null){
+					draft.setOriginalText(part.getEditedContent());
+				}else{
+					draft.setOriginalText(part.getRevisedContent());
+				}
 				draft.setReplacedText(editedContent);
 				draft.setWorkflowCopy(false);
 				
+				//save the draft
 				part.getPartDrafts().add(draft);
 				part.setEditedContent(editedContent);
 				part.merge();
 				
+				//create an unique id and return as response so as to 
+				//carry-out undo re-do facility
 				masterVO = new MasterVO();
 				masterVO.setId(part.getId());
-				masterVO.setValue(part.getId()+":"+draft.getUndoCount()+":"+draft.getUniqueIdentifierForUndo());
+				/*masterVO.setValue(part.getId()+":"+draft.getUndoCount()+":"+draft.getUniqueIdentifierForUndo());*/
+				masterVO.setValue(draft.getUndoCount()+":"+draft.getUniqueIdentifierForUndo());
 			}
 		}catch (Exception e) {
 			e.printStackTrace();
@@ -440,6 +499,14 @@ public class EditingController extends GenericController<Roster>{
 		return masterVO;
 	}
 
+	/**
+	 * @param id
+	 * @param request
+	 * @param model
+	 * @param locale
+	 * @return
+	 * Fetches the versions of the part edited
+	 */
 	@RequestMapping(value="/revisions/{id}", method=RequestMethod.GET)	
 	public String getRevisions(@PathVariable(value="id") Long id, HttpServletRequest request, ModelMap model, Locale locale){
 		String retVal = "editing/error";
@@ -875,6 +942,9 @@ public class EditingController extends GenericController<Roster>{
 			Integer undoCount = Integer.valueOf(strUndoCount);
 			Integer redoCount = Integer.valueOf(strRedoCount);
 			
+			String uniqueIdentifierForUndo = UUID.randomUUID().toString();
+			String uniqueIdentifierForRedo = UUID.randomUUID().toString();
+					
 			if (strHouseType != null && !strHouseType.equals("")
 					&& strSessionType != null && !strSessionType.equals("")
 					&& strSessionYear != null && !strSessionYear.equals("")
@@ -909,13 +979,17 @@ public class EditingController extends GenericController<Roster>{
 							pd.setRevisedContent(objArr[4].toString());
 							pd.setUndoCount(undoCount);
 							pd.setRedoCount(redoCount);
-							pd.setUniqueIdentifierForUndo(UUID.randomUUID().toString());
-							pd.setUniqueIdentifierForRedo(UUID.randomUUID().toString());
+							/*pd.setUniqueIdentifierForUndo(UUID.randomUUID().toString());
+							pd.setUniqueIdentifierForRedo(UUID.randomUUID().toString());*/
+							pd.setUniqueIdentifierForUndo(uniqueIdentifierForUndo);
+							pd.setUniqueIdentifierForRedo(uniqueIdentifierForRedo);
 							pd.setWorkflowCopy(false);
 							
 							/****Attach undoCount and undoUID in the result list****/
-							((Object[])matchedParts.get(i))[5] = partToBeReplaced.getId().toString()+":"+pd.getUndoCount()+":"+pd.getUniqueIdentifierForUndo();
-							((Object[])matchedParts.get(i))[6] = partToBeReplaced.getId().toString()+":"+pd.getRedoCount()+":"+pd.getUniqueIdentifierForRedo();
+							/*((Object[])matchedParts.get(i))[5] = partToBeReplaced.getId().toString()+":"+pd.getUndoCount()+":"+pd.getUniqueIdentifierForUndo();
+							((Object[])matchedParts.get(i))[6] = partToBeReplaced.getId().toString()+":"+pd.getRedoCount()+":"+pd.getUniqueIdentifierForRedo();*/
+							((Object[])matchedParts.get(i))[5] = pd.getUndoCount()+":"+pd.getUniqueIdentifierForUndo();
+							((Object[])matchedParts.get(i))[6] = pd.getRedoCount()+":"+pd.getUniqueIdentifierForRedo();
 							((Object[])matchedParts.get(i))[7] = "include";
 							
 							partToBeReplaced.getPartDrafts().add(pd);
@@ -936,7 +1010,7 @@ public class EditingController extends GenericController<Roster>{
 	
 	@Transactional
 	@RequestMapping(value="/undolastchange/{partid}",method=RequestMethod.POST)
-	public @ResponseBody MasterVO doUndo(@PathVariable(value="partid") Long id, HttpServletRequest request, HttpServletResponse response, Locale locale){
+	public @ResponseBody List<MasterVO> doUndo(@PathVariable(value="partid") Long id, HttpServletRequest request, HttpServletResponse response, Locale locale){
 		MasterVO masterVO = null;
 		try{
 			Map<String, String[]> parameters = new HashMap<String, String[]>();
@@ -951,20 +1025,33 @@ public class EditingController extends GenericController<Roster>{
 				parameters.put("editedOn", new String[]{FormaterUtil.formatDateToString(new Date(), ApplicationConstants.DB_DATEFORMAT)});
 				parameters.put("editedBy", new String[]{this.getCurrentUser().getActualUsername()});
 				List pds = Query.findReport("EDIS_FIND_PART_DRAFTS", parameters);
+				List<MasterVO> undoData = new ArrayList<MasterVO>();
+				
 				if(pds != null){
 					for(Object o : pds){
 						Object[] pd = (Object[])o;
 						
 						masterVO = new MasterVO();
-						masterVO.setId(Long.valueOf(pd[0].toString()));
-						masterVO.setValue(pd[1].toString());
+						if(pd[1] != null){
+							masterVO.setValue(pd[1].toString());
+						}						
+							
+						Long pId = null;
+						if(pd[3] != null){							
+							pId = Long.valueOf(pd[3].toString());
+						}
+												
+						masterVO.setId(pId);
+						
+						Part pp = Part.findById(Part.class, pId);
+						pp.setEditedContent(masterVO.getValue());
+						pp.merge();
+						
+						undoData.add(masterVO);
 					}
-					Part pp = Part.findById(Part.class, id);
-					pp.setEditedContent(masterVO.getValue());
-					pp.merge();
 				}
 				
-				return masterVO;
+				return undoData;
 			}
 		}catch(Exception e){
 			e.printStackTrace();
@@ -974,35 +1061,40 @@ public class EditingController extends GenericController<Roster>{
 	
 	@Transactional
 	@RequestMapping(value="/redolastchange/{partid}",method=RequestMethod.POST)
-	public @ResponseBody MasterVO doRedo(@PathVariable(value="partid") Long id, HttpServletRequest request, HttpServletResponse response, Locale locale){
+	public @ResponseBody List<MasterVO> doRedo(@PathVariable(value="partid") Long id, HttpServletRequest request, HttpServletResponse response, Locale locale){
 		MasterVO masterVO = null;
 		try{
 			Map<String, String[]> parameters = new HashMap<String, String[]>();
 			String strUrData = request.getParameter("urData");
+			List<MasterVO> redoData = new ArrayList<MasterVO>();
 			
 			if(strUrData != null && !strUrData.isEmpty()){
 				String[] data = strUrData.split(":"); 
 				
 				parameters.put("locale", new String[]{locale.toString()});
-				parameters.put("uniqueIdentifierForUndo", new String[]{data[2]});
-				parameters.put("undoCount", new String[]{data[1]});
+				parameters.put("uniqueIdentifierForUndo", new String[]{data[1]});
+				parameters.put("undoCount", new String[]{data[0]});
 				parameters.put("editedOn", new String[]{FormaterUtil.formatDateToString(new Date(), ApplicationConstants.DB_DATEFORMAT)});
 				parameters.put("editedBy", new String[]{this.getCurrentUser().getActualUsername()});
 				List pds = Query.findReport("EDIS_FIND_PART_DRAFTS", parameters);
+				
 				if(pds != null){
 					for(Object o : pds){
 						Object[] pd = (Object[])o;
 						
 						masterVO = new MasterVO();
-						masterVO.setId(Long.valueOf(pd[0].toString()));
+						masterVO.setId(Long.valueOf(pd[3].toString()));
 						masterVO.setValue(pd[2].toString());
+						
+						redoData.add(masterVO);
+						
+						Part pp = Part.findById(Part.class, Long.valueOf(pd[3].toString()));
+						pp.setEditedContent(masterVO.getValue());
+						pp.merge();
 					}
-					Part pp = Part.findById(Part.class, id);
-					pp.setEditedContent(masterVO.getValue());
-					pp.merge();
 				}
 				
-				return masterVO;
+				return redoData;
 			}
 		}catch(Exception e){
 			e.printStackTrace();
@@ -1431,6 +1523,12 @@ public class EditingController extends GenericController<Roster>{
 	}
 }
 
+
+/**
+ * @author vikasg
+ *
+ * Helps to create the workflow by editor for the first time
+ */
 class EditingControllerUtility{
 	private static Logger logger = LoggerFactory.getLogger(EditingControllerUtility.class);
 	
@@ -1850,8 +1948,8 @@ class EditingControllerUtility{
 		
 		// User parameters
 		// Not applicable parameters: nextWorkflowActorId
-		WorkflowActor nextActor = null;//CommitteeWFUtility.getNextActor(request,currentActorUserGroup, houseType,currentActorLevel, locale);
-		UserGroup nextUserGroup = null;//CommitteeWFUtility.getUserGroup(nextActor, houseType, locale);
+		WorkflowActor nextActor = null;
+		UserGroup nextUserGroup = null;
 		UserGroupType nextUGT = nextUserGroup.getUserGroupType();
 		wfDetails.setAssignee(task.getAssignee());
 		wfDetails.setAssigneeUserGroupType(nextUGT.getType());
@@ -1884,6 +1982,15 @@ class EditingControllerUtility{
 		workflowDetails.merge();
 	}
 	
+	/**
+	 * @param session
+	 * @param houseType
+	 * @param deviceIds
+	 * @param workflowSubTypeInitial
+	 * @param locale
+	 * @return
+	 * verify if vishaysuchi can be prepared
+	 */
 	@SuppressWarnings("rawtypes")
 	public static boolean canVishaysuchiBePrepared(final Session session, 
 					final HouseType houseType,
