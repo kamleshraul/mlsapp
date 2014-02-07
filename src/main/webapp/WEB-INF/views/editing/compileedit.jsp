@@ -18,7 +18,7 @@
 		}
 		
 		/******CSS FOR PAGE *******/
-			textarea {
+		textarea {
 			height: 28px;
 			width: 400px;
 		}
