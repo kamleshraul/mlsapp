@@ -59,6 +59,15 @@ public class PartDraft extends BaseDomain implements Serializable {
 	
 	private boolean isWorkflowCopy;
 	
+	private String originalMainHeading;
+	
+	private String originalPageHeading;
+	
+	private String replacedMainHeading;
+	
+	private String replacedPageHeading;
+	
+	
 	public PartDraft() {
 		super();
 	}
@@ -193,6 +202,38 @@ public class PartDraft extends BaseDomain implements Serializable {
 
 	public void setWorkflowCopy(boolean isWorkflowCopy) {
 		this.isWorkflowCopy = isWorkflowCopy;
+	}
+
+	public String getOriginalMainHeading() {
+		return originalMainHeading;
+	}
+
+	public void setOriginalMainHeading(String originalMainHeading) {
+		this.originalMainHeading = originalMainHeading;
+	}
+
+	public String getOriginalPageHeading() {
+		return originalPageHeading;
+	}
+
+	public void setOriginalPageHeading(String originalPageHeading) {
+		this.originalPageHeading = originalPageHeading;
+	}
+
+	public String getReplacedMainHeading() {
+		return replacedMainHeading;
+	}
+
+	public void setReplacedMainHeading(String replacedMainHeading) {
+		this.replacedMainHeading = replacedMainHeading;
+	}
+
+	public String getReplacedPageHeading() {
+		return replacedPageHeading;
+	}
+
+	public void setReplacedPageHeading(String replacedPageHeading) {
+		this.replacedPageHeading = replacedPageHeading;
 	}
 	
 	

@@ -245,6 +245,17 @@ public class Part  extends BaseDomain implements Serializable{
 		return getPartRepository().findPartsOfMemberInRoster(rosterId, memberId, locale);
 	}
 	
+	public static List findAllEligibleForReplacement(Proceeding proceeding,
+			String strSearchTerm, String strReplaceTerm, String locale) {
+		return getPartRepository().findAllEligibleForReplacement(proceeding,strSearchTerm,strReplaceTerm,locale);
+	}
+	
+	public static List findAllPartsOfProceeding(Proceeding proceeding,
+			Language language, String bookmarkKey, String locale) {
+		return getPartRepository().findAllPartsOfProceeding(proceeding,language,bookmarkKey,locale);
+	}
+
+	
 	/****Getters and Setters****/
 	public Integer getOrderNo() {
 		return orderNo;
@@ -478,6 +489,9 @@ public class Part  extends BaseDomain implements Serializable{
 			SubDepartment substituteMemberSubDepartment) {
 		this.substituteMemberSubDepartment = substituteMemberSubDepartment;
 	}
+
+	
+	
 	
 	
 }

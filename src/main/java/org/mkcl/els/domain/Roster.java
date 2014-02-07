@@ -139,6 +139,10 @@ public class Roster extends BaseDomain implements Serializable{
 			final int day,final Language language,final String locale) {
 		return getRosterRepository().findRosterBySessionLanguageAndDay(session,day,language,locale);
 	}
+	
+	public static Roster findRosterByDate(Date sDate,Language language, String locale) {
+		return getRosterRepository().findRosterByDate(sDate,language,locale);
+	}
 	/*********** Setters and Getters ************/
 
 	public Session getSession() {
@@ -219,5 +223,7 @@ public class Roster extends BaseDomain implements Serializable{
 
 	public void setSlotDurationChangedFrom(Date slotDurationChangedFrom) {
 		this.slotDurationChangedFrom = slotDurationChangedFrom;
-	}	
+	}
+
+		
 }
