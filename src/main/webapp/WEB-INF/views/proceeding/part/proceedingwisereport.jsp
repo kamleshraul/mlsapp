@@ -844,7 +844,7 @@
 							</c:when>
 							<c:otherwise>
 								<c:choose>
-									<c:when test="${r[4]!=null}">
+									<c:when test="${r[4]!=null && r[4]!=''}">
 										&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;${r[4]} (${r[5]}): <%-- ${r[0]} --%>
 									</c:when>
 									<c:otherwise>
@@ -1154,7 +1154,7 @@
 							</c:when>
 							<c:otherwise>
 								<c:choose>
-									<c:when test="${r[4]!=null}">
+									<c:when test="${r[4]!=null && r[4]!=''}">
 										&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;${r[4]} (${r[5]}): <%-- ${r[0]} --%>
 									</c:when>
 									<c:otherwise>
@@ -1517,7 +1517,7 @@
 							</c:when>
 							<c:otherwise>
 								<c:choose>
-									<c:when test="${r[4]!=null}">
+									<c:when test="${r[4]!=null && r[4]!=''}">
 										&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;${r[4]} (${r[5]}): <%-- ${r[0]} --%>
 									</c:when>
 									<c:otherwise>
