@@ -12,6 +12,8 @@ package org.mkcl.els.controller;
 
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
 import java.text.ParseException;
@@ -25,10 +27,12 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.UUID;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.hibernate.jdbc.util.FormatStyle;
 import org.mkcl.els.common.exception.ELSException;
 import org.mkcl.els.common.util.ApplicationConstants;
 import org.mkcl.els.common.util.FormaterUtil;
@@ -83,6 +87,7 @@ import org.mkcl.els.domain.Ministry;
 import org.mkcl.els.domain.Motion;
 import org.mkcl.els.domain.Ordinance;
 import org.mkcl.els.domain.Part;
+import org.mkcl.els.domain.PartDraft;
 import org.mkcl.els.domain.PartyType;
 import org.mkcl.els.domain.Proceeding;
 import org.mkcl.els.domain.Query;
@@ -3730,13 +3735,20 @@ public class ReferenceController extends BaseController {
 		
 		@RequestMapping(value="/getInterruptedProceedings",method=RequestMethod.GET)
 		public @ResponseBody List<MasterVO> getInterruptedProceeding(final HttpServletRequest request, final Locale locale,final ModelMap model){
-			String strSlot=request.getParameter("currentSlot");
+			//String strSlot=request.getParameter("currentSlot");
+			String strDate=request.getParameter("selectedDate");
 			String strSearchBy=request.getParameter("searchBy");
+			String strLanguage=request.getParameter("language");
 			List<MasterVO> masterVOs=new ArrayList<MasterVO>();
-			if(strSlot!=null &&	!strSlot.isEmpty() && strSearchBy!=null &&!strSearchBy.isEmpty()){
-				Slot slot=Slot.findById(Slot.class, Long.parseLong(strSlot));
-				if(slot!=null){
-					Roster roster=slot.getRoster();
+			if(strDate!=null &&	!strDate.isEmpty() 
+					&& strSearchBy!=null &&!strSearchBy.isEmpty()
+					&& strLanguage!=null && !strLanguage.isEmpty()){
+				//Slot slot=Slot.findById(Slot.class, Long.parseLong(strSlot));
+				Language language=Language.findById(Language.class, Long.parseLong(strLanguage));
+				Date sDate=FormaterUtil.formatStringToDate(strDate, ApplicationConstants.SERVER_DATEFORMAT);
+				Roster roster=Roster.findRosterByDate(sDate,language,locale.toString());
+				if(roster!=null){
+								
 					List<Part> parts=Part.findInterruptedProceedingInRoster(roster,locale);
 					if(!parts.isEmpty()){
 						for(Part p:parts){
@@ -4729,6 +4741,7 @@ public class ReferenceController extends BaseController {
 			
 			return result;
 		}
+
 		
 		@RequestMapping(value="/referOrdinance/searchByNumber",method=RequestMethod.GET)
 	    public @ResponseBody OrdinanceSearchVO searchOrdinanceForReferring(final HttpServletRequest request,final ModelMap model,final Locale locale){
@@ -4784,4 +4797,5 @@ public class ReferenceController extends BaseController {
 	        }
 			return ordSearchVO;
 		}
+
 }
