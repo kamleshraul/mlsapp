@@ -15,6 +15,19 @@
 			border: 1px solid #000000; 
 		}
 		
+		.imgLink{
+			background-color: #256498;
+    		border: 1px solid #FFFFFF ;
+  		  	color: #FFFFFF;
+  		 	font-size: 10px;
+  		 	font-family:verdana;
+  			text-decoration: none;
+	   		text-shadow: 2px 1px 1px #000000;
+	   		padding-left:2px;
+	   		box-shadow:2px 1px 2px #000000;
+	   		padding-right:2px;
+		}
+		
 		.imageLink:hover{
 			box-shadow: 2px 2px 5px #888888;
 			border-radius: 5px;
@@ -52,15 +65,15 @@
 			totalPartCount=totalPartCount+1;
 			var text="<div id='part"+partCount+"'>"+
 						  "<p align='right'>"+
-						  "<a href='javascript:void(0)' id='mainHeadingLink"+partCount+"' class='mainHeadingLink'><img src='./resources/images/IcoMainHeading.jpg' title='Main Heading' class='imageLink' /></a>"+
-						  "<a href='javascript:void(0)'  id='pageHeadingLink"+partCount+"' class='pageHeadingLink'><img src='./resources/images/IcoPageHeading.jpg' title='Page Heading' class='imageLink' /></a>"+
-						  "<a href='javascript:void(0)' id='addBookmark"+partCount+"' class='addBookmark' ><img src='./resources/images/IcoBookMark.jpg' title='Bookmark' class='imageLink' /></a>"+
-						  "<a href='javascript:void(0)' id='viewProceedingCitation"+partCount+"' class='viewProceedingCitation'><img src='./resources/images/IcoCitation.jpg' title='Citation' class='imageLink' /></a>"+
-						  "<a href='javascript:void(0)' id='addDevice"+partCount+"' class='addDevice'><img src='./resources/images/IcoDeviceType.jpg' title='Device' class='imageLink' /></a>"+
-						  "<a href='javascript:void(0)' id='privateLink"+partCount+"' class='privateLink' style='display:none;'><img src='./resources/images/IcoPrivateMember.jpg' title='Private Member' class='imageLink' /> </a>"+
-			      		  "<a href='javascript:void(0)' id='ministerLink"+partCount+"' class='ministerLink'><img src='./resources/images/IcoMinister.jpg' title='Minister' class='imageLink' /></a>"+
-			      		  "<a href='javascript:void(0)' id='publicLink"+partCount+"' class='publicLink'><img src='./resources/images/IcoPublicRepresentative.jpg' title='Public' class='imageLink' /> </a>"+
-			      		  "<a href='javascript:void(0)' id='substituteLink"+partCount+"'><img src='./resources/images/IcoSubstitute.jpg' title='In place of ' class='imageLink' /> </a>"+
+						  "<a href='javascript:void(0)' id='mainHeadingLink"+partCount+"' class='mainHeadingLink imgLink'>MH</a>"+
+						  "<a href='javascript:void(0)'  id='pageHeadingLink"+partCount+"' class='pageHeadingLink imgLink'>PH</a>"+
+						  "<a href='javascript:void(0)' id='addBookmark"+partCount+"' class='addBookmark imgLink' >BK</a>"+
+						  "<a href='javascript:void(0)' id='viewProceedingCitation"+partCount+"' class='viewProceedingCitation imgLink'>CT</a>"+
+						  "<a href='javascript:void(0)' id='addDevice"+partCount+"' class='addDevice imgLink'>DE</a>"+
+						  "<a href='javascript:void(0)' id='privateLink"+partCount+"' class='privateLink imgLink' style='display:none;'>PM</a>"+
+			      		  "<a href='javascript:void(0)' id='ministerLink"+partCount+"' class='ministerLink imgLink'>MI</a>"+
+			      		  "<a href='javascript:void(0)' id='publicLink"+partCount+"' class='publicLink imgLink'>PU</a>"+
+			      		  "<a href='javascript:void(0)' id='substituteLink"+partCount+"' class='substituteLink imgLink'>SU</a>"+
 						  "</p>"+
 						  "<p>"+
 						  "<label class='small'>"+$('#roleMessage').val()+"</label>"+
@@ -846,15 +859,15 @@
 	<c:forEach items="${parts}" var="outer">
 	<div id="part${count}" class="abc">
 	<p align="right">
-		<a href="javascript:void(0)" id="mainHeadingLink${count}" class="mainHeadingLink"><img src="./resources/images/IcoMainHeading.jpg" title="Main Heading" class="imageLink" /></a>
-		<a href="javascript:void(0)"  id="pageHeadingLink${count}" class="pageHeadingLink"><img src="./resources/images/IcoPageHeading.jpg" title="Page Heading" class="imageLink" /></a>
-		<a href="javascript:void(0)" id="addBookmark${count}" class="addBookmark" ><img src="./resources/images/IcoBookMark.jpg" title="Bookmark" class="imageLink" /></a>
-		<a href="javascript:void(0)" id="viewProceedingCitation${count}" class="viewProceedingCitation"><img src="./resources/images/IcoCitation.jpg" title="Citation" class="imageLink" /></a>
-		<a href="javascript:void(0)" id="addDevice${count}" class="addDevice"><img src="./resources/images/IcoDeviceType.jpg" title="Device" class="imageLink" /></a>
-		<a href='javascript:void(0)' id="privateLink${count}" class="privateLink"><img src="./resources/images/IcoPrivateMember.jpg" title="Private" class="imageLink" /></a>
-		<a href='javascript:void(0)' id="ministerLink${count}" class="ministerLink"><img src="./resources/images/IcoMinister.jpg" title="Minister" class="imageLink" /></a>
-		<a href='javascript:void(0)' id="publicLink${count}" class="publicLink"><img src="./resources/images/IcoPublicRepresentative.jpg" title="Public" class="imageLink" /></a>
-		<a href='javascript:void(0)' id="substituteLink${count}" class="substituteLink"><img src="./resources/images/IcoSubstitute.jpg" title="In place of" class="imageLink" /></a>
+		<a href="javascript:void(0)" id="mainHeadingLink${count}" class="mainHeadingLink imgLink">MH<!-- <img src="./resources/images/IcoMainHeading.jpg" title="Main Heading" class="imageLink" /> --></a>
+		<a href="javascript:void(0)"  id="pageHeadingLink${count}" class="pageHeadingLink imgLink">PH<!-- <img src="./resources/images/IcoPageHeading.jpg" title="Page Heading" class="imageLink" /> --></a>
+		<a href="javascript:void(0)" id="addBookmark${count}" class="addBookmark imgLink" >BK<!-- <img src="./resources/images/IcoBookMark.jpg" title="Bookmark" class="imageLink" /> --></a>
+		<a href="javascript:void(0)" id="viewProceedingCitation${count}" class="viewProceedingCitation imgLink">CT<!-- <img src="./resources/images/IcoCitation.jpg" title="Citation" class="imageLink" /> --></a>
+		<a href="javascript:void(0)" id="addDevice${count}" class="addDevice imgLink">DE<!-- <img src="./resources/images/IcoDeviceType.jpg" title="Device" class="imageLink" /> --></a>
+		<a href='javascript:void(0)' id="privateLink${count}" class="privateLink imgLink">PM<!-- <img src="./resources/images/IcoPrivateMember.jpg" title="Private" class="imageLink" /> --></a>
+		<a href='javascript:void(0)' id="ministerLink${count}" class="ministerLink imgLink">MI<!-- <img src="./resources/images/IcoMinister.jpg" title="Minister" class="imageLink" /> --></a>
+		<a href='javascript:void(0)' id="publicLink${count}" class="publicLink imgLink">PU<!-- <img src="./resources/images/IcoPublicRepresentative.jpg" title="Public" class="imageLink" /> --></a>
+		<a href='javascript:void(0)' id="substituteLink${count}" class="substituteLink imgLink">SU<!-- <img src="./resources/images/IcoSubstitute.jpg" title="In place of" class="imageLink" /> --></a>
 	</p>
 	<p style="display: none;">
 		<label class="small"><spring:message code="part.chairPerson" text="Chair Person Name"/></label>
