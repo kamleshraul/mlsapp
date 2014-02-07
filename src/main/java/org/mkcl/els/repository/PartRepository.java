@@ -12,6 +12,7 @@ import org.apache.batik.svggen.font.table.Device;
 import org.mkcl.els.common.exception.ELSException;
 import org.mkcl.els.common.vo.MasterVO;
 import org.mkcl.els.domain.DeviceType;
+import org.mkcl.els.domain.Language;
 import org.mkcl.els.domain.Member;
 import org.mkcl.els.domain.Part;
 import org.mkcl.els.domain.PartDraft;
@@ -340,5 +341,105 @@ public class PartRepository extends BaseRepository<Part, Serializable> {
 		}
 		
 		return devices;
+	}
+
+	public List findAllEligibleForReplacement(Proceeding proceeding,
+			String strSearchTerm, String strReplaceTerm, String locale) {
+		List data = null;
+		String query = "SELECT pp.id," 
+							+" pp.revised_content," 
+							+" CASE WHEN pp.revised_content<>'' THEN pp.revised_content"
+							+" ELSE pp.proceeding_content "
+							+" END AS originalText,"
+							+" CASE WHEN pp.revised_content<>'' THEN"
+							+" REPLACE(pp.revised_content, '"+strSearchTerm+"','" + strReplaceTerm +"')"
+							+" ELSE REPLACE(pp.revised_content, '"+strSearchTerm+"','" + strReplaceTerm +"')"
+							+" END AS replacedText,"
+							+" pp.main_heading as mainHeading,"
+							+" pp.main_heading as originalmainHeading,"
+							+" CASE WHEN pp.main_heading<>'' THEN"
+							+" REPLACE(pp.main_heading, '"+strSearchTerm+"','" + strReplaceTerm +"')" 
+							+" ELSE ''" 
+							+" END AS replacedMainHeading,"
+							+" pp.page_heading as pageHeading,"
+							+" pp.page_heading as originalPageHeading,"
+							+" CASE WHEN pp.page_heading<>'' THEN"
+							+" REPLACE(pp.page_heading, '"+strSearchTerm+"','" + strReplaceTerm +"')" 
+							+" ELSE ''" 
+							+" END AS replacedPageHeading,"
+							+" '0' AS undoData,"
+							+" '0' AS redoData,"
+							+" '0' AS useit"
+							+" FROM proceedings p"
+							+" INNER JOIN parts pp ON(pp.proceeding=p.id)"
+							+" WHERE p.id=" + proceeding.getId()
+							+" AND MATCH(pp.revised_content,pp.main_heading,pp.page_heading) AGAINST('"+ strSearchTerm +"' IN NATURAL LANGUAGE MODE)";
+		Query tQuery = this.em().createNativeQuery(query);
+		data = tQuery.getResultList();
+		return data;
+	}
+
+	public List findAllPartsOfProceeding(Proceeding proceeding,
+			Language language, String bookmarkKey, String locale) {
+		String strQuery="SELECT "
+				+"CASE WHEN p.proceeding_content like '%"+bookmarkKey+"%'" 
+				+" THEN REPLACE (p.proceeding_content,'"+bookmarkKey+"',\"<div style='background: yellow;display:inline-block;' >"+bookmarkKey+"</div>\")"
+				+" ELSE p.proceeding_content " 
+				+" END AS proceeding_content,"	
+				+" CASE WHEN p.page_heading<>'' THEN p.page_heading"
+				+" ELSE ''"
+				+" END AS page_heading,"
+				+" CASE WHEN p.main_heading<>'' THEN p.main_heading"
+				+" ELSE ''"
+				+" END AS main_heading,p.chair_person,p.public_representative,"
+				+" p.public_representative_detail,s.name,"
+				+" DATE_FORMAT(DATE(s.start_time),'%d-%m-%y')AS startdate,"
+				+" DATE_FORMAT(TIME(s.start_time),'%k:%i')AS starttime,"
+				+" mr.name As memberrole,"
+				+" mi.name AS primaryMemberMinister,"
+				+" d.name AS primaryMemberDesignation,"
+				+" mini.name AS substituteMemberMinister,"
+				+" de.name AS substituteMemberDesignation,"
+				+" m.id As memberId,"
+				+" CONCAT(m.title,' ',m.first_name,' ',m.last_name)AS membername,"
+				+" mem.id AS substituteId,"
+				+" CONCAT(mem.title,' ',mem.first_name,' ',mem.last_name)AS substitutemembername,"
+				+" p.id as partId,"
+				+" CASE "
+				+  " WHEN p.is_constituency_required=TRUE THEN ("
+				   +" SELECT DISTINCT c.display_name AS constituency FROM constituencies c JOIN members_houses_roles mhr WHERE mhr.constituency_id=c.id AND mhr.member=p.primary_member)"
+				   + " ELSE NULL"
+				+" END AS constituency,"
+				+" pmsd.name AS primaryMemberSubDepartment,"
+				+" smsd.name AS substituteMemberSubDepartment"
+				+" FROM parts p"
+				+" JOIN proceedings proc"
+				+" JOIN slots s"
+				+" JOIN memberroles mr"
+				+" LEFT JOIN ministries AS mi ON (mi.id=p.primary_member_ministry)"
+				+" LEFT JOIN designations AS d ON (d.id=p.primary_member_designation)"
+				+" LEFT JOIN ministries AS mini ON(mini.id=p.substitute_member_ministry)"
+				+" LEFT JOIN designations AS de ON(de.id=p.substitute_member_designation)"
+				+" LEFT JOIN subdepartments AS pmsd ON(pmsd.id=p.primary_member_sub_department)"
+				+" LEFT JOIN subdepartments AS smsd ON(smsd.id=p.substitute_member_sub_department)"
+				+" LEFT JOIN ("
+					+" SELECT mx.id AS id,mx.first_name AS first_name,t.name AS title,mx.last_name AS last_name"
+					+" FROM members mx"
+					+" INNER JOIN titles t ON(mx.title_id=t.id)) AS m ON(m.id=p.primary_member)"
+				+" LEFT JOIN ("
+					+" SELECT me.id AS id,me.first_name AS first_name,t.name AS title,me.last_name AS last_name"
+					+" FROM members me"
+					+" INNER JOIN titles t ON(me.title_id=t.id)) AS mem ON(mem.id=p.substitute_member)"
+				+" WHERE p.proceeding=proc.id"
+				+" AND proc.slot=s.id"
+				+" AND proc.id=:proceedingId"
+				+" AND proc.locale=:locale"
+				+" AND mr.id=p.chair_person_role"
+				+" ORDER BY p.order_no";
+		Query query=this.em().createNativeQuery(strQuery);
+		query.setParameter("proceedingId", proceeding.getId());
+		query.setParameter("locale", locale);
+		
+		return query.getResultList();
 	}
 }

@@ -525,4 +525,17 @@ public class RosterRepository extends BaseRepository<Roster, Serializable>{
 		query.setParameter("day", day);
 		return (Roster) query.getSingleResult();
 	}
+
+	public Roster findRosterByDate(Date sDate,Language language, String locale) {
+		String strQuery="SELECT rs FROM Roster rs" +
+				" WHERE (DATE(rs.startTime)=:sDate" +
+				" OR DATE(rs.endTime)=:sDate)" +
+				" AND rs.locale=:locale" +
+				" AND rs.language.id=:languageId";
+		Query query=this.em().createQuery(strQuery);
+		query.setParameter("sDate", sDate);
+		query.setParameter("locale", locale);
+		query.setParameter("languageId",language.getId());
+		return (Roster) query.getSingleResult();
+	}
 }
