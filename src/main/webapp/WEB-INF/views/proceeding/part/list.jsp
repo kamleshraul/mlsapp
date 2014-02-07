@@ -90,9 +90,6 @@
 			<a href="#" id="search" class="butSim">
 				<spring:message code="generic.search" text="Search"/>
 			</a> |	
-			<a href="#" id="test" class="butSim">
-				<spring:message code="generic.test" text="test"/>
-			</a> |	
 			<a href="#" id="proceedingwiseReport" class="butSim">
 				<spring:message code="proceeding.proceedingwiseReport" text="proceeding wise report"/>
 			</a>					

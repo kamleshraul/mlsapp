@@ -15,6 +15,19 @@
 			border: 1px solid #000000; 
 		}
 		
+		.imgLink{
+			background-color: #256498;
+    		border: 1px solid #FFFFFF ;
+  		  	color: #FFFFFF;
+  		 	font-size: 10px;
+  		 	font-family:verdana;
+  			text-decoration: none;
+	   		text-shadow: 2px 1px 1px #000000;
+	   		padding-left:2px;
+	   		box-shadow:2px 1px 2px #000000;
+	   		padding-right:2px;
+		}
+		
 		.imageLink:hover{
 			box-shadow: 2px 2px 5px #888888;
 			border-radius: 5px;
@@ -32,6 +45,10 @@
 			font-size: 12px;
 		}
 		
+		.searchByDate{
+			width:70px;
+			font-size:12px;
+		}
 	</style>
 	<script type="text/javascript">
 	/***Global Variable***/
@@ -351,6 +368,8 @@
 		/****To import the mainHeading and PageHeading of Interrupted Proceeding****/	
 		$('#interruptedProceeding').click(function(){
 				$('#searchBy').toggle();
+				$('#searchByDate').toggle();
+				$('#diffSpan').css('margin-right','10px');
 		});
 			
 		$(document).click(function(){
@@ -358,7 +377,7 @@
 		});
 			
 		$('#searchBy').change(function(){
-			$.get('ref/getInterruptedProceedings?currentSlot='+$('#cSlot').val()+"&searchBy="+$(this).val(),function(data){
+			$.get('ref/getInterruptedProceedings?selectedDate='+$('#searchByDate').val()+"&searchBy="+$(this).val()+'&language='+$("#selectedLanguage").val(),function(data){
 				var text="";
 				if(data.length>0){
 				 for(var i=0;i<data.length;i++){
@@ -397,6 +416,11 @@
 	 
 	    return false;
 		});
+		
+		$(".imgLink a[title]").qtip({
+    		show: 'mouseover',
+    		hide: 'mouseout'
+    	});
 		
 		$('#mainHeading-wysiwyg-iframe').css('height','124px');
 		$('#pageHeading-wysiwyg-iframe').css('height','124px');
@@ -477,7 +501,7 @@
 <form:form action="proceeding/part" method="PUT" modelAttribute="domain">
 	<%@ include file="/common/info.jsp" %>
 	<h2><spring:message code="part.edit.heading" text="Part:ID"/>(${domain.id })		
-		<span style="margin-left: 200px;">
+		<%-- <span style="margin-left: 200px;">
 				<a href='#' id="interruptedProceeding"><img src="./resources/images/interruptedProceeding.jpg" title="Interrupted Proceeding" class="imageLink" /></a>
 				<select id="searchBy" class="sSelect searchBy" style="display: none;">
 					<option class="searchBy" selected="selected" value='pageHeading'><spring:message code="part.pageHeading"/></option>
@@ -501,7 +525,36 @@
 				&nbsp;
 				<a href="#" id="nextLink"><img src="./resources/images/IcoNext.jpg" title="Next Part" class="imageLink" /></a>
 				</span>
+		</span> --%>
+			<div style="margin-bottom:10px;display:inline-block; ">
+			<span style="margin-left: 250px;">
+			
+			<a href='#' id="interruptedProceeding" class="imgLink" title="Interrupted Proceeding">IP<!-- <img src="./resources/images/interruptedProceeding.jpg" title="Interrupted Proceeding" class="imageLink" /> --></a>
+			<input id="searchByDate" type="text" class=" sText datemask searchByDate" style="display:none;"/>
+			<select id="searchBy" class="sSelect searchBy" style="display: none;">
+				<option class="searchBy" selected="selected" value='pageHeading'><spring:message code="part.pageHeading"/></option>
+				<option class="searchBy" value='mainHeading'><spring:message code="part.mainHeading"/></option>
+			</select>
+			<a href="#" id="mainHeadingLink" class="imgLink" title="Main Heading">MH<!-- <img src="./resources/images/mainHeading.jpg" title="Main Heading" class="imageLink" /> --></a>
+			<a href="#"  id="pageHeadingLink" class="imgLink"  title="Page Heading">PH<!-- <img src="./resources/images/pageHeading.jpg" title="Page Heading" class="imageLink" /> --></a>
+			<a href="#" id="addBookmark" class="addBookmark imgLink" title="Bookmark" >BK<!-- <img src="./resources/images/bookmark.jpg" class="imageLink" title="Bookmark" /> --></a>
+			<a href="#" id="viewProceedingCitation" class="viewProceedingCitation imgLink" title="citation">CT<!-- <img src="./resources/images/citation.jpg" class="imageLink" title="Citation" /> --></a>
+			<a href="#" id="addDevice" class="addDevice imgLink" title="device">DE<!-- <img src="./resources/images/device.jpg" title="Device" class="imageLink"/> --></a>
+			<a href='#' id="privateLink" style="display:none;"  class="imgLink" title="Member">PM<!-- <img src="./resources/images/privateMember.jpg" title="Private" class="imageLink" /> --></a>
+			<a href='#' id="ministerLink"  class="imgLink" title="Minister">MI<!-- <img src="./resources/images/minister.jpg" title="Minister"  class="imageLink"/> --></a>
+			<a href='#' id="publicLink"  class="imgLink" title="Public">PU<!-- <img src="./resources/images/publicRepresentative.jpg" title="Public" class="imageLink" /> --></a>
+			<a href='#' id="substituteLink" class="imgLink" title="In place of">SU<!-- <img src="./resources/images/substitute.jpg" title="In place of" class="imageLink"/> --></a>
+			<span id="diffSpan" style="min-width:80px; margin-right:100px;">&nbsp;</span>
+			<span style="text-align: right;">
+			<a href="#" id="previousLink" class="imgLink" title="Previous Part">&lt;<!-- <img src="./resources/images/IcoBack.jpg" title="Previous Part" class="imageLink"  /> --></a>
+			<input type="text" id="orderNoInput" name="orderNoInput" style="width: 60px"/>
+			<!-- <input type="button" id="go" name="go" value="Go" style="width: 21px"/> --> 	
+			<a href="#" id="nextLink" class="imgLink" title="Next Part">&gt;<!-- <img src="./resources/images/IcoNext.jpg" class="imageLink" title="Next Part"/> --></a>
+			
+			</span>
+			
 		</span>
+		</div>
 	</h2>
 	<p>
 		<c:forEach items="${bookmarks}" var="i">
@@ -582,7 +635,7 @@
 	</p>
 	
 	<p class="minister" style="display:none;">
-		<label class="small"><spring:message code="part.primaryMemberSubDepartment" text="Primary Member SubDepartment"/></label>
+		<label class="small"><spring:message code="part.subDepartment" text="Primary Member SubDepartment"/></label>
 		<select id="primaryMemberSubDepartment" name="primaryMemberSubDepartment" class="sSelect">
 			<option value="" selected='selected'><spring:message code="please.select" text="Please Select"/></option>
 			<c:forEach items="${subDepartments}" var="i">
@@ -642,7 +695,7 @@
 	</p>
 	
 	<p class="substitute" style="display:none;">
-		<label class="small"><spring:message code="part.substituteMemberSubDepartment" text="Substitute Member SubDepartment"/></label>
+		<label class="small"><spring:message code="part.subDepartment" text="Substitute Member SubDepartment"/></label>
 		<select id="substituteMemberSubDepartment" name="substituteMemberSubDepartment" class="sSelect">
 			<option value="" selected='selected'><spring:message code="please.select" text="Please Select"/></option>
 			<c:forEach items="${subDepartments}" var="i">

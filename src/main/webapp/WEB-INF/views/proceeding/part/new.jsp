@@ -52,6 +52,11 @@
 			font-size: 12px;
 		}
 		
+		.searchByDate{
+			width:70px;
+			font-size:12px;
+		}
+		
 		 
 			
 	</style>
@@ -422,10 +427,12 @@
 			/****To import the mainHeading and PageHeading of Interrupted Proceeding****/
 			$('#interruptedProceeding').click(function(){
 				$('#searchBy').toggle();
+				$('#searchByDate').toggle();
+				$('#diffSpan').css('margin-right','10px');
 			});
 			
 			$('#searchBy').change(function(){
-				$.get('ref/getInterruptedProceedings?currentSlot='+$('#currentSlot').val()+"&searchBy="+$(this).val(),function(data){
+				$.get('ref/getInterruptedProceedings?selectedDate='+$('#searchByDate').val()+"&searchBy="+$(this).val()+'&language='+$("#selectedLanguage").val(),function(data){
 					var text="";
 					if(data.length>0){
 					 for(var i=0;i<data.length;i++){
@@ -464,6 +471,10 @@
 				loadSubDepartments($(this).val(),"substituteMemberSubDepartment");
 			});
 		
+			$(".imgLink a[title]").qtip({
+	    		show: 'mouseover',
+	    		hide: 'mouseout'
+	    	});
 			
 			$('#mainHeading-wysiwyg-iframe').css('height','124px');
 			$('#pageHeading-wysiwyg-iframe').css('height','124px');
@@ -550,26 +561,27 @@
 			<div style="margin-bottom:10px;display:inline-block; ">
 			<span style="margin-left: 20px;">
 			
-			<a href='#' id="interruptedProceeding" class="imgLink">IP<!-- <img src="./resources/images/interruptedProceeding.jpg" title="Interrupted Proceeding" class="imageLink" /> --></a>
+			<a href='#' id="interruptedProceeding" class="imgLink" title="Interrupted Proceeding">IP<!-- <img src="./resources/images/interruptedProceeding.jpg" title="Interrupted Proceeding" class="imageLink" /> --></a>
+			<input id="searchByDate" type="text" class=" sText datemask searchByDate" style="display:none;"/>
 			<select id="searchBy" class="sSelect searchBy" style="display: none;">
 				<option class="searchBy" selected="selected" value='pageHeading'><spring:message code="part.pageHeading"/></option>
 				<option class="searchBy" value='mainHeading'><spring:message code="part.mainHeading"/></option>
 			</select>
-			<a href="#" id="mainHeadingLink" class="imgLink">MH<!-- <img src="./resources/images/mainHeading.jpg" title="Main Heading" class="imageLink" /> --></a>
-			<a href="#"  id="pageHeadingLink" class="imgLink">PH<!-- <img src="./resources/images/pageHeading.jpg" title="Page Heading" class="imageLink" /> --></a>
-			<a href="#" id="addBookmark" class="addBookmark imgLink" >BK<!-- <img src="./resources/images/bookmark.jpg" class="imageLink" title="Bookmark" /> --></a>
-			<a href="#" id="viewProceedingCitation" class="viewProceedingCitation imgLink">CT<!-- <img src="./resources/images/citation.jpg" class="imageLink" title="Citation" /> --></a>
-			<a href="#" id="addDevice" class="addDevice imgLink">DE<!-- <img src="./resources/images/device.jpg" title="Device" class="imageLink"/> --></a>
-			<a href='#' id="privateLink" style="display:none;"  class="imgLink">PM<!-- <img src="./resources/images/privateMember.jpg" title="Private" class="imageLink" /> --></a>
-			<a href='#' id="ministerLink"  class="imgLink">MI<!-- <img src="./resources/images/minister.jpg" title="Minister"  class="imageLink"/> --></a>
-			<a href='#' id="publicLink"  class="imgLink">PU<!-- <img src="./resources/images/publicRepresentative.jpg" title="Public" class="imageLink" /> --></a>
-			<a href='#' id="substituteLink" class="imgLink" >SU<!-- <img src="./resources/images/substitute.jpg" title="In place of" class="imageLink"/> --></a>
-			<span style="min-width:80px; margin-right: 100px;">&nbsp;</span>
+			<a href="#" id="mainHeadingLink" class="imgLink" title="Main Heading">MH<!-- <img src="./resources/images/mainHeading.jpg" title="Main Heading" class="imageLink" /> --></a>
+			<a href="#"  id="pageHeadingLink" class="imgLink"  title="Page Heading">PH<!-- <img src="./resources/images/pageHeading.jpg" title="Page Heading" class="imageLink" /> --></a>
+			<a href="#" id="addBookmark" class="addBookmark imgLink" title="Bookmark" >BK<!-- <img src="./resources/images/bookmark.jpg" class="imageLink" title="Bookmark" /> --></a>
+			<a href="#" id="viewProceedingCitation" class="viewProceedingCitation imgLink" title="citation">CT<!-- <img src="./resources/images/citation.jpg" class="imageLink" title="Citation" /> --></a>
+			<a href="#" id="addDevice" class="addDevice imgLink" title="device">DE<!-- <img src="./resources/images/device.jpg" title="Device" class="imageLink"/> --></a>
+			<a href='#' id="privateLink" style="display:none;"  class="imgLink" title="Member">PM<!-- <img src="./resources/images/privateMember.jpg" title="Private" class="imageLink" /> --></a>
+			<a href='#' id="ministerLink"  class="imgLink" title="Minister">MI<!-- <img src="./resources/images/minister.jpg" title="Minister"  class="imageLink"/> --></a>
+			<a href='#' id="publicLink"  class="imgLink" title="Public">PU<!-- <img src="./resources/images/publicRepresentative.jpg" title="Public" class="imageLink" /> --></a>
+			<a href='#' id="substituteLink" class="imgLink" title="In place of">SU<!-- <img src="./resources/images/substitute.jpg" title="In place of" class="imageLink"/> --></a>
+			<span id="diffSpan" style="min-width:10px; margin-right: 100px;">&nbsp;</span>
 			<span style="text-align: right;">
-			<a href="#" id="previousLink" class="imgLink">&lt;<!-- <img src="./resources/images/IcoBack.jpg" title="Previous Part" class="imageLink"  /> --></a>
+			<a href="#" id="previousLink" class="imgLink" title="Previous Part">&lt;<!-- <img src="./resources/images/IcoBack.jpg" title="Previous Part" class="imageLink"  /> --></a>
 			<input type="text" id="orderNoInput" name="orderNoInput" style="width: 60px"/>
 			<!-- <input type="button" id="go" name="go" value="Go" style="width: 21px"/> --> 	
-			<a href="#" id="nextLink" class="imgLink">&gt;<!-- <img src="./resources/images/IcoNext.jpg" class="imageLink" title="Next Part"/> --></a>
+			<a href="#" id="nextLink" class="imgLink" title="Next Part">&gt;<!-- <img src="./resources/images/IcoNext.jpg" class="imageLink" title="Next Part"/> --></a>
 			
 			</span>
 			
@@ -600,7 +612,7 @@
 		<label  class="small"><spring:message code="part.memberName" text=" Member"/></label>
 		<input type="text" name="formattedMember" id="formattedMember" class="autosuggest sText"/>
 		<form:hidden path="primaryMember"/>
-		<label class="small"><spring:message code="part.party" text=" OR party"/></label>
+		<label class="small" style="margin-left: 20px;"><spring:message code="part.party" text=" OR party"/></label>
 		<select id="party" class="sSelect">
 			<c:forEach items="${parties}" var="i">
 				<option value="${i.id}">${i.name}</option>
@@ -632,7 +644,7 @@
 	
 	<p class="minister" style="display:none;">
 		<label class="small"><spring:message code="part.primaryMemberSubDepartment" text="Primary Member SubDepartment"/></label>
-		<select id="primaryMemberSubDepartment" name="primaryMemberSubDepartment" class="sSelect">
+		<select id="primaryMemberSubDepartment" name="subDepartment" class="sSelect">
 			
 		</select>
 		<form:errors path="primaryMemberSubDepartment"/>
@@ -665,7 +677,7 @@
 	</p>
 	
 	<p class="substitute" style="display:none;">
-		<label class="small"><spring:message code="part.substituteMemberSubDepartment" text="Substitute Member SubDepartment"/></label>
+		<label class="small"><spring:message code="part.subDepartment" text="Substitute Member SubDepartment"/></label>
 		<select id="substituteMemberSubDepartment" name="substituteMemberSubDepartment" class="sSelect">
 			
 		</select>
@@ -719,7 +731,7 @@
 		<input type="text" name="starredQuestionNo" id="starredQuestionNo" class="sInteger"/>
 	</p> 
 	<p class="halfHourDiscussionFromQuestion" style="display:none;">
-		<label class="small"><spring:message code="part.DeviceNo" text="Device No"/></label>
+		<label class="small"><spring:message code="part.halfHourDiscussionFromQuestionNo" text="Device No"/></label>
 		<select id="halfHourDiscussionFromQuestionNo" name="halfHourDiscussionFromQuestionNo" class="sSelect"></select>
 	</p>
 	<p>
@@ -733,12 +745,12 @@
 	<p id="pageHeadingP" style="display:none;">
 		<label class="wysiwyglabel"><spring:message code="part.pageHeading" text="Page Heading"/></label>
 		<form:textarea path="pageHeading" cssClass="wysiwyg"/>
-		<a href="javascript:void(0)" id="resetPageHeading" style="margin-right: 100px; float: right; margin-top: -150px;">reset</a>
+		<a href="javascript:void(0)" id="resetPageHeading" style="margin-right: 100px; float: right; margin-top: -150px;"><spring:message code="part.reset" text="Reset"/></a>
 	</p>
 	<p id="mainHeadingP" style="display:none;">
 		<label class="wysiwyglabel"><spring:message code="part.mainHeading" text="Main Heading"/></label>
 		<form:textarea path="mainHeading" cssClass="wysiwyg mainHeading"/>
-		<a href="javascript:void(0)" id="resetMainHeading" style="margin-right: 100px; float: right; margin-top: -150px;">reset</a>
+		<a href="javascript:void(0)" id="resetMainHeading" style="margin-right: 100px; float: right; margin-top: -150px;"><spring:message code="part.reset" text="Reset"/></a>
 	</p>
 	<p>
 		<label class="wysiwyglabel"><spring:message code="part.proceedingContent" text="Content"/></label>
