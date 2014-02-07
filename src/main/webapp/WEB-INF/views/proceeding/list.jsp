@@ -60,6 +60,9 @@
 				reporterWiseReport();
 			});
 			
+			$("#proceedingwise").click(function(){
+				proceedingwiseReport();
+			});
 					
 			$("#memberwise").click(function(){
 				flag=1;
@@ -166,15 +169,18 @@
 			<a href="#" id="delete_record" class="butSim">
 				<spring:message code="generic.delete" text="Delete"/>
 			</a> |			
-			<a href="#" id="search" class="butSim">
+			<%-- <a href="#" id="search" class="butSim">
 				<spring:message code="generic.search" text="Search"/>
-			</a> |	
+			</a> | --%>	
 			<a href="#" id="rosterwise" class="butSim">
 				<spring:message code="proceeding.rosterwisereport" text="Rosterwise Report"/>
 			</a>|	
 			<a href="#" id="reporterwise" class="butSim">
 				<spring:message code="proceeding.reporterwise" text="Reporterwise Report"/>
 			</a>|	
+			<a href="#" id="proceedingwise" class="butSim">
+				<spring:message code="proceeding.proceedingwiseReport" text="proceeding wise report"/>
+			</a>|
 			<a href="#" id="memberwise" class="butSim">
 				<spring:message code="proceeding.memberwise" text="Memberwise Report"/>
 			</a>|	

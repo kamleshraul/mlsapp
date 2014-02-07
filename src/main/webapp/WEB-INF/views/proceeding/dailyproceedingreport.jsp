@@ -133,6 +133,13 @@
 									</c:choose>
 									<th class="right">${r[8]}</th>
 								</tr>
+								<c:if test="${member==r[14]}">
+								<tr>
+									<th class="left">
+										${r[14]}....
+									</th>
+								</tr>	
+								</c:if>
 							</thead>
 							<tr><td colspan="3" height="30px"> </td></tr>
 							<c:if test="${r[9]!=null and r[9]!= chairPerson}">

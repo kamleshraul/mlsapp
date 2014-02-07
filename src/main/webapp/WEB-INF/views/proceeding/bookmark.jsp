@@ -115,7 +115,6 @@
 			}
 		});
 		$.get('ref/bookmarktext?slot='+param,function(data){
-			console.log(data);
 			var elementText="";
 			
 			if(data.length>0){
