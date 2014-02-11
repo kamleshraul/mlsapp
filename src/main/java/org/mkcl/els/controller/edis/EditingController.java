@@ -583,6 +583,130 @@ public class EditingController extends GenericController<Roster>{
 			e.printStackTrace();
 		}
 	}
+
+	
+	@RequestMapping(value="/anukramanika", method=RequestMethod.GET)
+	public String viewAnukramanika(ModelMap model, final HttpServletRequest request, final HttpServletResponse response, final Locale locale){
+		try{
+			
+			String strHouseType = request.getParameter("houseType");
+			String strSessionType = request.getParameter("sessionType");
+			String strSessionYear = request.getParameter("sessionYear");
+			String strLanguage = request.getParameter("language");
+			String strDay = request.getParameter("day");
+			String strUserGroup = request.getParameter("userGroup");
+			String strUserGroupType = request.getParameter("userGroupType");
+			String strFromDay = request.getParameter("fromDay");
+			String strToDay = request.getParameter("toDay");
+			
+			String[] decodedValues = EditingControllerUtility.getDecodedString(new String[]{strHouseType, strSessionType, strSessionYear, strLanguage, strDay, strUserGroup, strUserGroupType});
+			strHouseType = decodedValues[0];
+			strSessionType = decodedValues[1];
+			strSessionYear = decodedValues[2];
+			strLanguage = decodedValues[3];
+			strDay = decodedValues[4];
+			strUserGroup = decodedValues[5];
+			strUserGroupType = decodedValues[6];
+			
+			/****Prepare vishaysuchi ****/
+			if(strHouseType!=null&&!strHouseType.isEmpty()&&
+					strSessionType!=null&&!strSessionType.isEmpty()&&
+					strSessionYear!=null&&!strSessionYear.isEmpty()&&
+					strLanguage!=null&&!strLanguage.isEmpty()&& 
+					((strDay!=null&&!strDay.isEmpty())|| 
+							(strFromDay!=null && !strFromDay.isEmpty() && strToDay!=null && !strToDay.isEmpty()))){
+
+				HouseType houseType=HouseType.findByFieldName(HouseType.class, "type", strHouseType, locale.toString());
+				SessionType sessionType=SessionType.findById(SessionType.class, Long.parseLong(strSessionType));
+				Language language=Language.findById(Language.class, Long.parseLong(strLanguage));
+				Session session=Session.findSessionByHouseTypeSessionTypeYear(houseType, sessionType, Integer.parseInt(strSessionYear));
+				Roster firstRoster = Roster.findRosterBySessionLanguageAndDay(session, 1, language, locale.toString());
+				Roster roster = null;
+				Date fromDayDate = null;
+				Date toDayDate = null;
+				Long[] rosterIds = null;
+				
+				if(strFromDay!=null && !strFromDay.isEmpty() && strToDay!=null && !strToDay.isEmpty()){
+					int fromDay = Integer.parseInt(strFromDay);
+					int toDay = Integer.parseInt(strToDay);
+					
+					Date date = null;
+					if(firstRoster != null){
+						date = firstRoster.getStartTime();
+					}else{
+						date = session.getStartDate();
+					}
+					Calendar calendarFrom = Calendar.getInstance();
+					Calendar calendarTo = Calendar.getInstance();
+					
+					calendarFrom.setTime(date);
+					calendarTo.setTime(date);
+					
+					if(fromDay > 0 && toDay > 0){
+						calendarFrom.add(Calendar.DAY_OF_MONTH, fromDay - 1);
+						calendarTo.add(Calendar.DAY_OF_MONTH, toDay - 1);
+					}else{
+						calendarFrom.add(Calendar.DAY_OF_MONTH, fromDay);
+						calendarTo.add(Calendar.DAY_OF_MONTH, toDay);
+					}
+					fromDayDate = calendarFrom.getTime();
+					toDayDate = calendarTo.getTime();
+					
+					Map<String, String[]> parameters = new HashMap<String, String[]>();
+					parameters.put("locale", new String[]{locale.toString()});
+					parameters.put("sessionID", new String[]{session.getId().toString()});
+					parameters.put("fromDate", new String[]{FormaterUtil.formatDateToString(fromDayDate, ApplicationConstants.DB_DATEFORMAT)});				
+					parameters.put("toDate", new String[]{FormaterUtil.formatDateToString(toDayDate, ApplicationConstants.DB_DATEFORMAT)});
+					parameters.put("language", new String[]{language.getId().toString()});
+					List rosters = Query.findReport("EDIS_ALL_ROSTER_BETWEEN_DATE", parameters);
+					if(rosters != null && !rosters.isEmpty()){
+						rosterIds = new Long[rosters.size()];
+						for(int i = 0; i < rosters.size(); i++){
+							Object[] obj = (Object[])rosters.get(i);
+							rosterIds[i] = new Long(obj[0].toString());						
+						}
+					}
+				}
+				
+				Map<String, String[]> params = new HashMap<String, String[]>();
+				params.put("locale", new String[]{locale.toString()});
+				
+				if(rosterIds == null){
+					
+					model.addAttribute("firstDayData", "yes");
+					
+					roster = Roster.findRosterBySessionLanguageAndDay(session,Integer.parseInt(strDay),language,locale.toString());
+					
+					Calendar fromToDate = Calendar.getInstance();
+					if(firstRoster != null){
+						fromToDate.setTime(firstRoster.getStartTime());
+					}else{
+						fromToDate.setTime(session.getStartDate());
+					}
+					
+					fromToDate.add(Calendar.DAY_OF_MONTH, Integer.parseInt(strDay) - 1);
+					params.put("sessionID", new String[]{session.getId().toString()});
+					params.put("fromDate", new String[]{FormaterUtil.formatDateToString(fromToDate.getTime(), ApplicationConstants.DB_DATEFORMAT)});				
+					params.put("toDate", new String[]{FormaterUtil.formatDateToString(fromToDate.getTime(), ApplicationConstants.DB_DATEFORMAT)});
+					params.put("language", new String[]{language.getId().toString()});
+				}else{				
+					params.put("language", new String[]{language.getId().toString()});
+					params.put("sessionID", new String[]{session.getId().toString()});
+					params.put("fromDate", new String[]{FormaterUtil.formatDateToString(fromDayDate, ApplicationConstants.DB_DATEFORMAT)});				
+					params.put("toDate", new String[]{FormaterUtil.formatDateToString(toDayDate, ApplicationConstants.DB_DATEFORMAT)});
+				}
+				
+				List anukramanikaData = Query.findReport("EDIS_ANuKRAMANIKA", params);
+				model.addAttribute("report", anukramanikaData);				
+			}
+			
+		}catch(Exception e){
+			
+			logger.debug("editing/anukramanika", e);
+			e.printStackTrace();
+		}
+		return "editing/anukramanika";
+	}
 	
 	@Transactional
 	@SuppressWarnings("rawtypes")
