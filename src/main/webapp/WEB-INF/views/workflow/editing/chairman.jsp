@@ -351,10 +351,12 @@
 			+ '&reedit=' + reedit
 			+ '&member='+ $("#selectedMember").val()
 			+ '&memberReportType=' + $("#selectedMemberReport").val()
-			+ '&pageheader=' + $("#selectedPageheader").val();
-			
-			$("#undoCount").val((parseInt($("#undoCount").val()) + 1));				
-			
+			+ '&pageheader=' + $("#selectedPageheader").val()
+			+ '&userGroup=' + $("#userGroup").val()
+			+ '&userGroupType=' + $("#userGroupType").val();
+
+			$("#undoCount").val(parseInt($("#undoCount").val()) + 1);	
+
 			$.blockUI({ message: '<img src="./resources/images/waitAnimated.gif" />' });
 			
 			$.post($("form[action='editing/replace']").attr('action')+"?"+params,
@@ -366,7 +368,7 @@
 							$("#pp"+data[i][0]).empty();
 							$("#pp"+data[i][0]).html(data[i][4]);
 							var undoData = $("#ppsp"+data[i][0]).html();
-							if(undoData=='classes'){
+							if(undoData=='classes' || undoData==''){
 								$("#ppsp"+data[i][0]).empty();
 								$("#ppsp"+data[i][0]).html(data[i][5]);
 							}else{
@@ -392,17 +394,88 @@
 				if(undoData!='classes'){
 					var undoDataArray = undoData.split(";");
 					var undoDataToWorkWith=undoDataArray[undoDataArray.length-1].split(":");
-					$("#undoCount").val(parseInt($("#undoCount").val())-1);
 					$("#uniqueIdentifierForUndo").val(undoDataToWorkWith[2]);
-					var html=$(this).html().replace(";"+undoDataArray[undoDataArray.length-1],"");
 					
-					$(this).html(html);								
+					var redoData=$("#pprp"+$(this).attr('id').substring(4)).html();
 					
-					$.post("workflow/editing/undolastchange",
-							$("form[action='workflow/editing/replace']").serialize(),function(data){
+					var ppId=$(this).attr('id').substring(4);
+					
+					$.post("editing/undolastchange/"+ppId,
+							$("form[action='editing/replace']").serialize(),function(data){
 						if(data){
-							$("#"+$(this).attr('id').substring(4)).empty();
-							$("#"+$(this).attr('id').substring(4)).html(data.value);
+							$("#pp"+ppId).empty();
+							$("#pp"+ppId).html(data.value);
+							var pprpData=$("#pprp"+ppId).html();
+							
+							var redoCountX=undoDataArray[undoDataArray.length-1].split(":")[1];
+							if(redoCountX==''){
+								redoCountX='0';
+							}
+							
+							if(pprpData=='classes' || pprpData==''){
+								$("#pprp"+ppId).empty();
+								$("#pprp"+ppId).html(undoDataArray[undoDataArray.length-1]);
+								$("#redoCount").val(parseInt($("#redoCount").val())+1);
+							}else{
+								$("#pprp"+ppId).html(pprpData+";"+undoDataArray[undoDataArray.length-1]);
+								$("#redoCount").val(parseInt($("#redoCount").val())+1);
+							}
+							
+							$("#undoCount").val(parseInt($("#undoCount").val())-1);
+							var html="";
+							if(undoDataArray.length>1){
+								html=$("#ppsp"+ppId).html().replace(";"+undoDataArray[undoDataArray.length-1],"");
+							}else{
+								html=$("#ppsp"+ppId).html().replace(undoDataArray[undoDataArray.length-1],"");
+							}
+							$("#ppsp"+ppId).html(html);
+							
+							$.unblockUI();
+						}
+					}).fail(function(){
+						$.unblockUI();
+					});
+				}
+				$.unblockUI();
+			});
+		}
+		
+		function redoLastChange(){
+			$(".pprp").each(function(){
+				$.blockUI({ message: '<img src="./resources/images/waitAnimated.gif" />' });
+				var redoData=$(this).html();
+				if(redoData!='classes'){
+					var redoDataArray = redoData.split(";");
+					var redoDataToWorkWith=redoDataArray[redoDataArray.length-1].split(":");
+					$("#uniqueIdentifierForRedo").val(redoDataToWorkWith[2]);
+					var html="";
+					if(redoDataArray.length>1){
+						html=$(this).html().replace(";"+redoDataArray[redoDataArray.length-1],"");
+					}else{
+						html=$(this).html().replace(redoDataArray[redoDataArray.length-1],"");
+						
+					}
+					var redoData=$("#pprp"+$(this).attr('id').substring(4)).html();
+					
+					var ppspData=$("#pprp"+ppId).html();
+					if(ppspData=='classes' || ppspData==''){
+						$("#ppsp"+ppId).empty();
+						$("#ppsp"+ppId).html(redoDataArray[redoDataArray.length-1]);
+						//$("#undoCount").val(parseInt($("#undoCount").val())+1);
+					}else{
+						$("#ppsp"+ppId).html(ppspData+";"+redoDataArray[redoDataArray.length-1]);
+						//$("#undoCount").val(parseInt($("#undoCount").val())+1);
+					}
+					$("#urData").val(redoDataArray[redoDataArray.length-1]);
+					
+					var ppId=$(this).attr('id').substring(4);
+					$(this).html(html);			
+					$.post("editing/redolastchange/"+ppId,
+							$("form[action='editing/replace']").serialize(),function(data){
+						if(data){
+							$("#pp"+ppId).empty();
+							$("#pp"+ppId).html(data.value);
+							$("#redoCount").val(parseInt($("#redoCount").val())-1);
 							$.unblockUI();
 						}
 					}).fail(function(){
@@ -648,6 +721,13 @@
 				var undoCount = parseInt($("#undoCount").val());
 				if(undoCount>0){
 					undoLastChange();
+				}
+			});						
+			
+			$("#redo").click(function(){
+				var redoCount = parseInt($("#redoCount").val());
+				if(redoCount>0){
+					redoLastChange();
 				}
 			});
 			
