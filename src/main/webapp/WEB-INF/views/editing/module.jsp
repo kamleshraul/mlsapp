@@ -6,6 +6,8 @@
 	<title><spring:message code="roster.list" text="List Of Rosters"/></title>
 	<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
 	<script type="text/javascript">
+		var vishaysuchiOrAnukramanika = "";
+		
 		function hideEditingFilters(){
 			$("#memberDiv").hide();
 			$("#memberReportTypeDiv").hide();
@@ -259,10 +261,11 @@
 			});
 			
 			$("#vishaysuchiAnchor").click(function(){
-				if($("#vishaysuchiDiv").css('display')=='none'){
-					$("#vishaysuchiDiv").css('display', 'inline-block');
+				vishaysuchiOrAnukramanika = 'vishaysuchi';
+				if($("#fromToDateDiv").css('display')=='none'){
+					$("#fromToDateDiv").css('display', 'inline-block');
 				}else{
-					$("#vishaysuchiDiv").css('display', 'none');
+					$("#fromToDateDiv").css('display', 'none');
 				}
 				$("#fromDay").val('-');
 				$("#toDay").val('-');
@@ -270,8 +273,29 @@
 			
 			$("#createvishaysuchi").click(function(){
 				//$("#selectionDiv1").hide();
-				$("#vishaysuchiDiv").hide();
+				$("#fromToDateDiv").hide();
 				showVishaysuchi();
+			});
+			
+			
+			$("#anukramanikaAnchor").click(function(){
+				vishaysuchiOrAnukramanika = 'anukramanika';
+				if($("#fromToDateDiv").css('display')=='none'){
+					$("#fromToDateDiv").css('display', 'inline-block');
+				}else{
+					$("#fromToDateDiv").css('display', 'none');
+				}
+				$("#fromDay").val('-');
+				$("#toDay").val('-');
+			});
+			$("#create").click(function(){
+				//$("#selectionDiv1").hide();
+				$("#fromToDateDiv").hide();
+				if(vishaysuchiOrAnukramanika=='vishaysuchi'){
+					showVishaysuchi();
+				}else if(vishaysuchiOrAnukramanika=='anukramanika'){
+					showAnukramanika();
+				}
 			});
 		});
 		
@@ -650,6 +674,20 @@
 			
 			showTabByIdAndUrl('details_tab', 'editing/vishaysuchi?'+params);
 		} 
+		
+		function showAnukramanika(){
+			var params="houseType=" + $('#selectedHouseType').val()
+			+ '&sessionYear=' + $("#selectedSessionYear").val()
+			+ '&sessionType=' + $("#selectedSessionType").val()
+			+ '&language=' + $("#selectedLanguage").val()
+			+ '&day=' +$('#selectedDay').val()
+			+ '&fromDay=' + $('#fromDay').val()
+			+ '&toDay=' + $('#toDay').val()
+			+ '&userGroup=' + $("#userGroup").val()
+			+ '&userGroupType=' + $("#userGroupType").val();
+			
+			showTabByIdAndUrl('details_tab', 'editing/anukramanika?'+params);
+		}
 	</script>
 	<style type="text/css">
 		#sendToMember{
@@ -840,10 +878,13 @@
 					</a> |
 					<a href="#" id="vishaysuchiAnchor" class="butSim">
 						<spring:message code="editor.vishaysuchi" text="Vishaysuchi"/>
+					</a> |
+					 <a href="#" id="anukramanikaAnchor" class="butSim">
+						<spring:message code="editor.anukramanika" text="Anukramanika"/>
 					</a> 
-					<div style="display: none;" id="vishaysuchiDiv">
+					<div style="display: none;" id="fromToDateDiv">
 						<a href="#" class="butSim">
-							<spring:message code="editor.vishaysuchi.from.date" text="From"/>
+							<spring:message code="editor.from.date" text="From"/>
 						</a>
 						<select id="fromDay" size="1" style="height: 20px; font-size: 12px; min-width: 50px; vertical-align: middle;">
 							<option value="0">-</option>
@@ -853,7 +894,7 @@
 						</select>
 						&nbsp;
 						<a href="#" class="butSim">
-							<spring:message code="editor.vishaysuchi.to.date" text="To"/>
+							<spring:message code="editor.to.date" text="To"/>
 						</a>
 						<select id="toDay" size="1" style="height: 20px; font-size: 12px; min-width: 50px; vertical-align: middle;">
 							<option value="0">-</option>
@@ -861,7 +902,7 @@
 								<option value="${i.number}"><c:out value="${i.value}"></c:out></option>
 							</c:forEach>
 						</select>
-					 	<a href="#" id="createvishaysuchi" style="text-decoration: none;"><span id="goBtn"><spring:message code="editing.vishaysuchi.prepare" text="Go" ></spring:message></span></a>
+					 	<a href="#" id="create" style="text-decoration: none;"><span id="goBtn"><spring:message code="editing.vishaysuchianukramanika.prepare" text="Go" ></spring:message></span></a>
 					 </div>
 					<div class="sm" style="display: block; position: fixed; bottom: 50px; right: 65px; z-index: 996; border: 1px solid black; background: #719EBA scroll repeat-x; border-radius: 25px; padding: 2px 0px 2px 0px;">
 						<a href="javascript:void(0);" id="send_member" style="text-decoration: none; background-color: green; color: #719EBA; padding: 2px 0px 2px 0px; width: 24px; height: 24px; border-radius: 24px;">
