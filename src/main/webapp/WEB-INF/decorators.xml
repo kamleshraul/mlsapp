@@ -14,6 +14,8 @@
 		
 		<pattern>/editing</pattern>
 		<pattern>/editing/compileedit</pattern>
+		<pattern>/editing/anukramanika</pattern>
+		<pattern>/editing/vishaysuchi</pattern>
 		<pattern>/editing/new</pattern>
 		<pattern>/editing/*/edit</pattern>
 		<pattern>/editing/*/delete</pattern>
