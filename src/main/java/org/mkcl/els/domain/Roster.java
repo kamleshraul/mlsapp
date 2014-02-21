@@ -51,6 +51,9 @@ public class Roster extends BaseDomain implements Serializable{
 	
 	@Temporal(TemporalType.TIMESTAMP)
 	private Date slotDurationChangedFrom;
+	
+	@Temporal(TemporalType.TIMESTAMP)
+	private Date reporterChangedFrom;
 
 	@ManyToMany()
 	@JoinTable(name = "rosters_reporters", joinColumns =
@@ -78,12 +81,12 @@ public class Roster extends BaseDomain implements Serializable{
 		return rosterRepository;
 	}
 
-	public static Roster findLastCreated(final Session session,final String locale) {
-		return getRosterRepository().findLastCreated(session,locale);
+	public static Roster findLastCreated(final Session session,final Language language,final String locale) {
+		return getRosterRepository().findLastCreated(session,language,locale);
 	}
 
-	public Boolean generateSlot() {		
-		return getRosterRepository().generateSlot(this);
+	public Boolean generateSlot(String reporterAction) {		
+		return getRosterRepository().generateSlot(this,reporterAction);
 	}
 	
 	public static Boolean generateSlot(final Adjournment adjournment) {		
@@ -224,6 +227,16 @@ public class Roster extends BaseDomain implements Serializable{
 	public void setSlotDurationChangedFrom(Date slotDurationChangedFrom) {
 		this.slotDurationChangedFrom = slotDurationChangedFrom;
 	}
+
+	public Date getReporterChangedFrom() {
+		return reporterChangedFrom;
+	}
+
+	public void setReporterChangedFrom(Date reporterChangedFrom) {
+		this.reporterChangedFrom = reporterChangedFrom;
+	}
+	
+	
 
 		
 }

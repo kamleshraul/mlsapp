@@ -7,6 +7,7 @@ import java.util.List;
 import javax.persistence.Query;
 
 import org.mkcl.els.common.util.ApplicationConstants;
+import org.mkcl.els.domain.Adjournment;
 import org.mkcl.els.domain.HouseType;
 import org.mkcl.els.domain.Language;
 import org.mkcl.els.domain.Member;
@@ -22,13 +23,34 @@ public class SlotRepository extends BaseRepository<Slot, Serializable>{
 
 	@SuppressWarnings("unchecked")
 	public Slot lastGeneratedSlot(final Roster roster) {
-		String strQuery="SELECT s FROM Slot s WHERE s.roster.id=:roster" +
+		//add in query only slots that have delete flag=false
+		String strQuery="SELECT s FROM Slot s WHERE s.roster.id=:roster AND s.blnDeleted=false" +
 				" ORDER BY s.endTime "+ApplicationConstants.DESC;
 		Query query=this.em().createQuery(strQuery);
 		query.setParameter("roster",roster.getId());
 		query.setFirstResult(0);
 		query.setMaxResults(1);
 		List<Slot> slots=query.getResultList();
+		if(slots!=null&&!slots.isEmpty()){
+			return slots.get(0);
+		}
+		return null;
+	}
+	
+	@SuppressWarnings("unchecked")
+	public Slot lastAdjournedSlot(final Roster roster,final Adjournment adjournment) {
+		//add in query only slots that have delete flag as false
+		String strQuery="SELECT s FROM Slot s WHERE s.roster.id=:roster AND s.startTime>=:startTime" +
+				" AND s.endTime<=:endTime AND s.blnDeleted=true ORDER BY s.endTime " +
+				 ApplicationConstants.DESC + " ,s.id DESC"  ;
+		Query query=this.em().createQuery(strQuery);
+		query.setParameter("roster",roster.getId());
+		query.setParameter("startTime", adjournment.getStartTime());
+		query.setParameter("endTime", adjournment.getEndTime());
+		query.setFirstResult(0);
+		query.setMaxResults(1);
+		List<Slot> slots=query.getResultList();
+		
 		if(slots!=null&&!slots.isEmpty()){
 			return slots.get(0);
 		}
@@ -74,7 +96,7 @@ public class SlotRepository extends BaseRepository<Slot, Serializable>{
 
 	public Slot findByEndTime(final Roster roster,final Date endTime) {
 		try {
-			String strQuery="SELECT s FROM Slot s JOIN s.roster.id=:roster AND s.endTime=:endTime";
+			String strQuery="SELECT s FROM Slot s JOIN s.roster.id=:roster AND s.endTime=:endTime AND s.blnDeleted=false";
 			Query query=this.em().createQuery(strQuery);
 			query.setParameter("roster",roster.getId());
 			query.setParameter("endTime",endTime);
@@ -87,7 +109,7 @@ public class SlotRepository extends BaseRepository<Slot, Serializable>{
 	
 	public Slot findByStartTime(final Roster roster,final Date startTime) {
 		try {
-			String strQuery="SELECT s FROM Slot s JOIN s.roster.id=:roster AND s.startTime=:startTime";
+			String strQuery="SELECT s FROM Slot s JOIN s.roster.id=:roster AND s.startTime=:startTime AND s.blnDeleted=false";
 			Query query=this.em().createQuery(strQuery);
 			query.setParameter("roster",roster.getId());
 			query.setParameter("startTime",startTime);
@@ -101,7 +123,7 @@ public class SlotRepository extends BaseRepository<Slot, Serializable>{
 	public List<Slot> findSlotsByLanguageContainingSlotTime(final Language language,final Slot slot) {
 		String strQuery="SELECT s FROM Slot s JOIN s.reporter r JOIN r.user u" +
 				" WHERE s.startTime<:endTime AND s.endTime>:startTime" +
-				" AND u.language=:language" ;
+				" AND u.language=:language AND s.blnDeleted=false" ;
 		Query query=this.em().createQuery(strQuery);
 		query.setParameter("endTime", slot.getEndTime());
 		query.setParameter("startTime", slot.getStartTime());
@@ -112,7 +134,7 @@ public class SlotRepository extends BaseRepository<Slot, Serializable>{
 
 	public List<User> findDifferentLanguageUsersBySlot(Slot s) {
 		String strQuery="SELECT u FROM Slot s JOIN s.reporter r JOIN r.user u" +
-				" WHERE s.startTime<:endTime AND s.endTime>:startTime";
+				" WHERE s.startTime<:endTime AND s.endTime>:startTime AND s.blnDeleted=false";
 		Query query=this.em().createQuery(strQuery);
 		query.setParameter("endTime", s.getEndTime());
 		query.setParameter("startTime", s.getStartTime());
@@ -123,7 +145,7 @@ public class SlotRepository extends BaseRepository<Slot, Serializable>{
 	public List<Slot> findSlotsBySessionAndLanguage(Session session,
 			Language language) {
 		String strQuery="SELECT s FROM Slot s JOIN s.roster r " +
-				" WHERE r.session=:session AND r.language=:language";
+				" WHERE r.session=:session AND r.language=:language AND s.blnDeleted=false";
 				
 		Query query=this.em().createQuery(strQuery);
 		query.setParameter("session",session);
@@ -135,7 +157,7 @@ public class SlotRepository extends BaseRepository<Slot, Serializable>{
 	public List<Slot> findSlotsByReporterAndRoster(Roster roster,
 			Reporter reporter) {
 		String strQuery="SELECT DISTINCT s FROM Slot s JOIN s.roster r " +
-				" WHERE r.id=:rosterId AND s.reporter=:reporter";
+				" WHERE r.id=:rosterId AND s.reporter=:reporter AND s.blnDeleted=false";
 				
 		Query query=this.em().createQuery(strQuery);
 		query.setParameter("rosterId",roster.getId());
@@ -153,6 +175,40 @@ public class SlotRepository extends BaseRepository<Slot, Serializable>{
 		query.setParameter("member", member);
 		List<Slot> result=query.getResultList();
 		return result;
+	}
+
+	public Slot lastOriginalSlot(Roster roster) {
+		String strQuery="SELECT s FROM Slot s WHERE s.roster.id=:roster AND s.blnDeleted=true" +
+				" AND s.startTime=:startTime ORDER BY id "+ApplicationConstants.ASC;
+		Query query=this.em().createQuery(strQuery);
+		query.setParameter("roster",roster.getId());
+		query.setParameter("startTime", roster.getReporterChangedFrom());
+		query.setFirstResult(0);
+		query.setMaxResults(1);
+		List<Slot> slots=query.getResultList();
+		if(slots!=null&&!slots.isEmpty()){
+			return slots.get(0);
+		}
+		return null;
+	}
+
+	public Slot firstAdjournedSlot(Roster roster, Adjournment adjournment) {
+		String strQuery="SELECT s FROM Slot s WHERE s.roster.id=:roster AND s.startTime>=:startTime" +
+				" AND s.endTime<=:endTime AND s.blnDeleted=TRUE ORDER BY s.endTime " +
+				 ApplicationConstants.ASC + ",s.id DESC " ;
+		Query query=this.em().createQuery(strQuery);
+		query.setParameter("roster",roster.getId());
+		query.setParameter("startTime", adjournment.getStartTime());
+		query.setParameter("endTime", adjournment.getEndTime());
+		//query.setParameter("isDeleted", false);
+		query.setFirstResult(0);
+		query.setMaxResults(1);
+		List<Slot> slots=query.getResultList();
+		
+		if(slots!=null&&!slots.isEmpty()){
+			return slots.get(0);
+		}
+		return null;
 	}
 
 }

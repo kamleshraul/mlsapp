@@ -47,6 +47,8 @@ public class Slot extends BaseDomain implements Serializable{
 	@ManyToOne
 	private Roster roster;
 	
+	private Boolean blnDeleted=false;
+	
 	@Autowired
 	private transient SlotRepository slotRepository;
 
@@ -67,6 +69,10 @@ public class Slot extends BaseDomain implements Serializable{
 	
 	public static Slot lastGeneratedSlot(final Roster roster){
 		return getSlotRepository().lastGeneratedSlot(roster);
+	}
+	
+	public static Slot lastAdjournedSlot(final Roster roster,final Adjournment adjournment){
+		return getSlotRepository().lastAdjournedSlot(roster,adjournment);
 	}
 	
 	public HouseType findHouseType() {
@@ -110,6 +116,15 @@ public class Slot extends BaseDomain implements Serializable{
 	public static List<Slot> findSlotsByMemberAndRoster(Roster roster,
 			Member member) {
 		return getSlotRepository().findSlotsByMemberAndRoster(roster,member);
+	}
+	
+	public static Slot lastOriginalSlot(Roster roster) {
+		return getSlotRepository().lastOriginalSlot(roster);
+	}
+	
+	public static Slot firstAdjournedSlot(Roster roster,
+			Adjournment adjournment) {
+		return getSlotRepository().firstAdjournedSlot(roster,adjournment);
 	}
 	/*********** Setters and Getters ************/	
 	
@@ -168,7 +183,13 @@ public class Slot extends BaseDomain implements Serializable{
 	public String getName() {
 		return name;
 	}
-	
+	public Boolean getBlnDeleted() {
+		return blnDeleted;
+	}
+	public void setBlnDeleted(Boolean blnDeleted) {
+		this.blnDeleted = blnDeleted;
+	}
+
 	
 	
 	

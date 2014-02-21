@@ -27,12 +27,13 @@ public class RosterRepository extends BaseRepository<Roster, Serializable>{
 
 
 	@SuppressWarnings("unchecked")
-	public Roster findLastCreated(final Session session,final String locale) {
+	public Roster findLastCreated(final Session session,final Language language,final String locale) {
 		String strQuery="SELECT m FROM Roster m WHERE m.session.id=:session " +
-		"AND m.locale=:locale ORDER BY m.id "+ApplicationConstants.DESC;
+		"AND m.locale=:locale AND m.language.id=:languageId ORDER BY m.id "+ApplicationConstants.DESC;
 		Query query=this.em().createQuery(strQuery);
 		query.setParameter("session",session.getId());
 		query.setParameter("locale",locale);
+		query.setParameter("languageId", language.getId());
 		query.setFirstResult(0);
 		query.setMaxResults(1);
 		List<Roster> rosters=query.getResultList();
@@ -43,7 +44,7 @@ public class RosterRepository extends BaseRepository<Roster, Serializable>{
 		}		
 	}
 
-	public Boolean generateSlot(final Roster roster) {
+	public Boolean generateSlot(final Roster roster,final String reporterAction) {
 		/**** if false is returned then slot generation has failed.If true then successful action
 		 * has taken place ****/
 		/**** New Roster being created along with slot generation ****/
@@ -56,6 +57,7 @@ public class RosterRepository extends BaseRepository<Roster, Serializable>{
 		/**** Created roster being edited along slot generation ****/
 		else{			
 			Roster savedRoster=Roster.findById(Roster.class,roster.getId());	
+			List<Reporter> savedRosterReporters=Roster.findReportersByActiveStatus(savedRoster, true);
 			/**** Start Time/End Time/Slot Duration Changed ****/
 			if(!(roster.getStartTime().equals(savedRoster.getStartTime()))
 					&&!(roster.getEndTime().equals(savedRoster.getEndTime()))
@@ -142,7 +144,7 @@ public class RosterRepository extends BaseRepository<Roster, Serializable>{
 			}
 			/**** End Time is postponded ****/
 			else if(roster.getEndTime().after(savedRoster.getEndTime())){
-				if(roster.getAction().equals("create_new_slots")){
+				if(roster.getAction().equals("recreate_slots")){
 					return generateNewSlots(roster,savedRoster.getEndTime(),roster.getEndTime(),"LAST_ASSIGNED_USER");
 				}
 			}
@@ -160,14 +162,37 @@ public class RosterRepository extends BaseRepository<Roster, Serializable>{
 			/**** if reporters are being added/removed(This recreation of slots by not changing
 			 * any other parameter and just addding/removing reporters is allowed
 			 * till start time is a furture time) ****/
-			else if(roster.getAction().equals("recreate_slots")&&roster.getStartTime().after(new Date())){
-				Boolean deleteStatus=deleteExistingSlots(roster.getId(),savedRoster.getStartTime(),savedRoster.getEndTime());
-				if(deleteStatus){
-					return generateNewSlots(roster,roster.getStartTime(),roster.getEndTime(),"BEGINING");
-				}else{
-					return false;
+			//Here capture reporter change time
+			//Remove the future date validation
+			//savedRoster.getStartTime() has to be replaced with reporterChangedTime
+			//roster.getStartTime() has to be replaced with reporterChangedTime
+			//hidden field add/remove reporter
+			//In case of remove LAST_ASSIGNED_USER
+			//In case of add get the appropriate logic 
+//			else if(roster.getAction().equals("recreate_slots")&&roster.getStartTime().after(new Date())){
+//				Boolean deleteStatus=deleteExistingSlots(roster.getId(),savedRoster.getStartTime(),savedRoster.getEndTime());
+//				if(deleteStatus){
+//					return generateNewSlots(roster,roster.getStartTime(),roster.getEndTime(),"BEGINING");
+//				}else{
+//					return false;
+//				}
+//			}
+			else {
+				if(roster.getAction().equals("recreate_slots_from_reporter_changed_time")){
+					Boolean deleteStatus=deleteExistingSlots(roster.getId(),roster.getReporterChangedFrom(),savedRoster.getEndTime());
+					if(deleteStatus){
+						if(reporterAction.equals("add")){
+							return generateNewSlots(roster,roster.getReporterChangedFrom(),roster.getEndTime(),"ORIGINAL_ASSIGNED_USER");
+						}else if(reporterAction.equals("remove")){
+							return generateNewSlots(roster,roster.getReporterChangedFrom(),roster.getEndTime(),"LAST_ASSIGNED_USER");
+						}
+						
+					}else{
+						return false;
+					}
 				}
 			}
+			
 		}
 		return false;
 	}	
@@ -179,11 +204,12 @@ public class RosterRepository extends BaseRepository<Roster, Serializable>{
 		Roster roster=adjournment.getRoster();
 		if(roster!=null){
 			if(adjournment.getAction().equals("turnoff")){
-				return toggleSlots(roster.getId(),adjournment.getStartTime(),adjournment.getEndTime(),true);
+				return toggleSlotsAdjournment(roster.getId(),adjournment.getStartTime(),adjournment.getEndTime(),true);
 			}else if(adjournment.getAction().equals("turnoffandshift")){
-				Boolean deleteStatus=deleteExistingSlots(roster.getId(),adjournment.getEndTime(),roster.getEndTime());
-				Boolean toggleStatus= toggleSlots(roster.getId(),adjournment.getStartTime(),adjournment.getEndTime(),true);
-				Boolean generateStatus=generateNewSlots(roster,adjournment.getEndTime(),roster.getEndTime(), "START_TIME");
+				Boolean deleteStatus=deleteExistingSlotsAdjournment(roster.getId(),adjournment.getStartTime(),roster.getEndTime());
+				Boolean toggleStatus= toggleSlotsAdjournment(roster.getId(),adjournment.getStartTime(),adjournment.getEndTime(),true);
+				//Boolean generateStatus=generateNewSlotsAdjournment(roster,adjournment.getEndTime(),roster.getEndTime(), "BEGINING");
+				Boolean generateStatus=generateNewSlotsAdjournment(roster,adjournment, "LAST_ASSIGNED_USER");
 				if(toggleStatus&&generateStatus&&deleteStatus){
 					return true;
 				}
@@ -194,7 +220,7 @@ public class RosterRepository extends BaseRepository<Roster, Serializable>{
 
 	/**** Private Methods ****/
 	public Boolean slotsAlreadyCreated(final Roster roster) {
-		String strQuery="SELECT COUNT(s.id) FROM Slot s WHERE s.roster.id=:roster";
+		String strQuery="SELECT COUNT(s.id) FROM Slot s WHERE s.roster.id=:roster AND s.blnDeleted=false";
 		Query query=this.em().createQuery(strQuery);
 		query.setParameter("roster",roster.getId());
 		Long count=(Long) query.getSingleResult();
@@ -245,7 +271,21 @@ public class RosterRepository extends BaseRepository<Roster, Serializable>{
 							lastGeneratedSlot.merge();
 						}
 					}
+				}else if(reportersToBeTakenFrom.equals("ORIGINAL_ASSIGNED_USER")){
+					Slot originalGeneratedSlot=Slot.lastOriginalSlot(roster);
+					if(originalGeneratedSlot!=null){
+						if(originalGeneratedSlot.getReporter()!=null){
+							if(originalGeneratedSlot.getReporter().getPosition()!=null){
+								lastSlotReporterPosition=originalGeneratedSlot.getReporter().getPosition()-1;
+							}
+						}
+						if(originalGeneratedSlot.getName()!=null&&!originalGeneratedSlot.getName().isEmpty()){
+						ch=originalGeneratedSlot.getName().charAt(0);
+						repeat=originalGeneratedSlot.getName().length();
+						}
+					}
 				}
+				
 				Date slotStartTime=startTime;
 				Calendar calendar=Calendar.getInstance();
 				calendar.setTime(startTime);
@@ -341,25 +381,384 @@ public class RosterRepository extends BaseRepository<Roster, Serializable>{
 			return false;
 		}	
 	}	
+	
+//	public Boolean generateNewSlotsAdjournment(final Roster roster,final Date startTime,final Date endTime,
+//			final String reportersToBeTakenFrom) {
+//		
+//		try {
+//			if(startTime!=null&&endTime!=null&&roster.getSlotDuration()!=null
+//					&&roster.getReporters()!=null&&!roster.getReporters().isEmpty()){
+//				List<Reporter> reporters=new ArrayList<Reporter>();
+//				/**** getting all active reporters(This has to be done from the 
+//				 * reporters in memory rather than from database as the reporters 
+//				 * at this point have not been committed to memory) ****/
+//				for(Reporter i:roster.getReporters()){
+//					if(i.getIsActive()){
+//						reporters.add(i);
+//					}
+//				}
+//				/**** lastReporterPosition specifies the index of the reporter from where to start in reporters ****/
+//				int startingIndex=0;
+//				int lastSlotReporterPosition=0;
+//				char ch='A';
+//				int repeat=1;
+//				if(reportersToBeTakenFrom.equals("BEGINING")){
+//				}else if(reportersToBeTakenFrom.equals("LAST_ASSIGNED_USER")){
+//					Slot lastGeneratedSlot=Slot.lastAdjournedSlot(roster);
+//					if(lastGeneratedSlot!=null&&lastGeneratedSlot.getReporter()!=null){
+//						lastSlotReporterPosition=lastGeneratedSlot.getReporter().getPosition();			
+//						if(lastGeneratedSlot.getName()!=null&&!lastGeneratedSlot.getName().isEmpty()){
+//							ch=lastGeneratedSlot.getName().charAt(0);
+//							repeat=lastGeneratedSlot.getName().length();
+//							if(ch=='Z'){								
+//								ch='A';
+//								repeat++;
+//							}else{
+//								ch++;
+//							}
+//						}
+//						/**** if last generated slot end time is > start time then it must be updated ****/
+////						if(lastGeneratedSlot.getEndTime()!=null&&lastGeneratedSlot.getEndTime().after(startTime)){
+////							lastGeneratedSlot.setEndTime(startTime);
+////							lastGeneratedSlot.merge();
+////						}
+//					}
+//				}
+//				Date slotStartTime=startTime;
+//				Calendar calendar=Calendar.getInstance();
+//				calendar.setTime(startTime);
+//				calendar.add(Calendar.MINUTE,roster.getSlotDuration());
+//				Date slotEndTime=calendar.getTime();
+//				int count=startingIndex;	
+//				/**** last slot end time will be used to generate the last slot which falls short
+//				 * of end time by some margin
+//				 */
+//				Date lastSlotEndTime=null;
+//				while(slotEndTime.before(endTime)||slotEndTime.equals(endTime)){
+//					Slot slot=new Slot();
+//					slot.setEndTime(slotEndTime);
+//					slot.setLocale(roster.getLocale());
+//					slot.setRoster(roster);
+//					slot.setStartTime(slotStartTime);
+//					slot.setTurnedoff(false);
+//					if(lastSlotReporterPosition==0){
+//						slot.setReporter(reporters.get(count));
+//					}else{
+//						/**** Here we are trying to find out the position where to start adding reporters ****/
+//						/**** We find the first reporter whose position is greater thean the position
+//						 * of last generated slot reporter.If it is found then addition of reporter will
+//						 * carry from it else addition of reporter will start from begining.****/
+//						int innerIndex=0;
+//						for(Reporter i:reporters){
+//							int reporterPosition=i.getPosition();
+//							if(reporterPosition>lastSlotReporterPosition){
+//								count=innerIndex;
+//								lastSlotReporterPosition=0;
+//								slot.setReporter(reporters.get(count));
+//								break;
+//							}
+//							innerIndex++;
+//						}
+//						if(slot.getReporter()==null){
+//							lastSlotReporterPosition=0;
+//							slot.setReporter(reporters.get(count));
+//						}
+//					}
+//					StringBuffer buffer=new StringBuffer();
+//					for(int i=1;i<=repeat;i++){
+//						buffer.append(ch);
+//					}
+//					slot.setName(buffer.toString());									
+//					slot.persist();
+//					Proceeding proceeding=new Proceeding();
+//					proceeding.setLocale(slot.getLocale());
+//					proceeding.setSlot(slot);
+//					proceeding.persist();
+//					if(ch<'Z'){
+//						ch++;
+//					}else{
+//						ch='A';
+//						repeat++;
+//					}
+//					lastSlotEndTime=slotEndTime;
+//					slotStartTime=slotEndTime;
+//					calendar.add(Calendar.MINUTE, roster.getSlotDuration());
+//					slotEndTime=calendar.getTime();
+//					if(count==reporters.size()-1){
+//						count=0;
+//					}else{
+//						count++;
+//					}
+//				}
+//				/**** This is for the last slot which falls sort of end time for some margin****/
+//				if(lastSlotEndTime.before(endTime)){
+//					Slot slot=new Slot();
+//					slot.setEndTime(endTime);
+//					slot.setLocale(roster.getLocale());
+//					slot.setRoster(roster);
+//					slot.setStartTime(lastSlotEndTime);
+//					slot.setTurnedoff(false);
+//					slot.setReporter(reporters.get(count));
+//					StringBuffer buffer=new StringBuffer();
+//					for(int i=1;i<=repeat;i++){
+//						buffer.append(ch);
+//					}
+//					slot.setName(buffer.toString());									
+//					slot.persist();		
+//					Proceeding proceeding=new Proceeding();
+//					proceeding.setLocale(slot.getLocale());
+//					proceeding.setSlot(slot);
+//					proceeding.persist();
+//				}
+//				return true;
+//			}else{
+//				return false;
+//			}
+//		} catch (Exception e) {
+//			logger.error("SLOT GENERATION FAILED",e);
+//			return false;
+//		}	
+//	}
+	
+	public Boolean generateNewSlotsAdjournment(final Roster roster,final Adjournment adjournment,
+			final String reportersToBeTakenFrom) {
+		 Date startTime=adjournment.getEndTime();
+		 Date endTime=adjournment.getStartTime();
+		try {
+			if(startTime!=null&&endTime!=null&&roster.getSlotDuration()!=null
+					&&roster.getReporters()!=null&&!roster.getReporters().isEmpty()){
+				List<Reporter> reporters=new ArrayList<Reporter>();
+				/**** getting all active reporters(This has to be done from the 
+				 * reporters in memory rather than from database as the reporters 
+				 * at this point have not been committed to memory) ****/
+				for(Reporter i:roster.getReporters()){
+					if(i.getIsActive()){
+						reporters.add(i);
+					}
+				}
+				/**** lastReporterPosition specifies the index of the reporter from where to start in reporters ****/
+				int startingIndex=0;
+				int lastSlotReporterPosition=0;
+				char ch='A';
+				int repeat=1;
+				Slot newSlot = null;
+				if(reportersToBeTakenFrom.equals("BEGINING")){
+				}else if(reportersToBeTakenFrom.equals("LAST_ASSIGNED_USER")){
+					Slot lastAdjournedSlot=Slot.lastAdjournedSlot(roster,adjournment);
+					Slot firstAdjournedSlot=Slot.firstAdjournedSlot(roster, adjournment);
+					if(lastAdjournedSlot!=null&&lastAdjournedSlot.getReporter()!=null 
+							&& firstAdjournedSlot!=null &&firstAdjournedSlot.getReporter()!=null){
+						lastSlotReporterPosition=firstAdjournedSlot.getReporter().getPosition();			
+						if(lastAdjournedSlot.getName()!=null&&!lastAdjournedSlot.getName().isEmpty()){
+							ch=firstAdjournedSlot.getName().charAt(0);
+							repeat=firstAdjournedSlot.getName().length();
+							newSlot=new Slot();
+							
+							newSlot.setLocale(lastAdjournedSlot.getLocale());
+							newSlot.setName(firstAdjournedSlot.getName());
+							newSlot.setReporter(firstAdjournedSlot.getReporter());
+							newSlot.setRoster(roster);
+							Date slotStartTime=lastAdjournedSlot.getEndTime();
+							Calendar calendar=Calendar.getInstance();
+							calendar.setTime(slotStartTime);
+							calendar.add(Calendar.MINUTE,roster.getSlotDuration());
+							Date slotEndTime=calendar.getTime();
+							newSlot.setStartTime(lastAdjournedSlot.getEndTime());
+							newSlot.setEndTime(slotEndTime);
+							newSlot.setTurnedoff(false);
+							newSlot.merge();
+							if(ch=='Z'){								
+								ch='A';
+								repeat++;
+							}else{
+								ch++;
+							}
+						}
+						/**** if last generated slot end time is > start time then it must be updated ****/
+//						if(lastGeneratedSlot.getEndTime()!=null&&lastGeneratedSlot.getEndTime().after(startTime)){
+//							lastGeneratedSlot.setEndTime(startTime);
+//							lastGeneratedSlot.merge();
+//						}
+					}else{
+						Slot lastGeneratedSlot=Slot.lastGeneratedSlot(roster);
+						if(lastGeneratedSlot!=null&&lastGeneratedSlot.getReporter()!=null){
+							lastSlotReporterPosition=lastGeneratedSlot.getReporter().getPosition();			
+							newSlot=lastGeneratedSlot;
+							if(lastGeneratedSlot.getName()!=null&&!lastGeneratedSlot.getName().isEmpty()){
+								ch=lastGeneratedSlot.getName().charAt(0);
+								repeat=lastGeneratedSlot.getName().length();
+								if(ch=='Z'){								
+									ch='A';
+									repeat++;
+								}else{
+									ch++;
+								}
+							}
+							/**** if last generated slot end time is > start time then it must be updated ****/
+//							if(lastGeneratedSlot.getEndTime()!=null&&lastGeneratedSlot.getEndTime().after(startTime)){
+//								lastGeneratedSlot.setEndTime(startTime);
+//								lastGeneratedSlot.merge();
+//							}
+						}
+					}
+				}
+				Date slotStartTime=newSlot.getEndTime();
+				Calendar calendar=Calendar.getInstance();
+				calendar.setTime(newSlot.getEndTime());
+				calendar.add(Calendar.MINUTE,roster.getSlotDuration());
+				Date slotEndTime=calendar.getTime();
+				int count=startingIndex;	
+				/**** last slot end time will be used to generate the last slot which falls short
+				 * of end time by some margin
+				 */
+				Date lastSlotEndTime=null;
+				while(slotEndTime.before(roster.getEndTime())||slotEndTime.equals(roster.getEndTime())){
+					Slot slot=new Slot();
+					slot.setEndTime(slotEndTime);
+					slot.setLocale(roster.getLocale());
+					slot.setRoster(roster);
+					slot.setStartTime(slotStartTime);
+					slot.setTurnedoff(false);
+					if(lastSlotReporterPosition==0){
+						slot.setReporter(reporters.get(count));
+					}else{
+						/**** Here we are trying to find out the position where to start adding reporters ****/
+						/**** We find the first reporter whose position is greater thean the position
+						 * of last generated slot reporter.If it is found then addition of reporter will
+						 * carry from it else addition of reporter will start from begining.****/
+						int innerIndex=0;
+						for(Reporter i:reporters){
+							int reporterPosition=i.getPosition();
+							if(reporterPosition>lastSlotReporterPosition){
+								count=innerIndex;
+								lastSlotReporterPosition=0;
+								slot.setReporter(reporters.get(count));
+								break;
+							}
+							innerIndex++;
+						}
+						if(slot.getReporter()==null){
+							lastSlotReporterPosition=0;
+							slot.setReporter(reporters.get(count));
+						}
+					}
+					StringBuffer buffer=new StringBuffer();
+					for(int i=1;i<=repeat;i++){
+						buffer.append(ch);
+					}
+					slot.setName(buffer.toString());									
+					slot.persist();
+					Proceeding proceeding=new Proceeding();
+					proceeding.setLocale(slot.getLocale());
+					proceeding.setSlot(slot);
+					proceeding.persist();
+					if(ch<'Z'){
+						ch++;
+					}else{
+						ch='A';
+						repeat++;
+					}
+					lastSlotEndTime=slotEndTime;
+					slotStartTime=slotEndTime;
+					calendar.add(Calendar.MINUTE, roster.getSlotDuration());
+					slotEndTime=calendar.getTime();
+					if(count==reporters.size()-1){
+						count=0;
+					}else{
+						count++;
+					}
+				}
+				/**** This is for the last slot which falls sort of end time for some margin****/
+				if(lastSlotEndTime.before(endTime)){
+					Slot slot=new Slot();
+					slot.setEndTime(endTime);
+					slot.setLocale(roster.getLocale());
+					slot.setRoster(roster);
+					slot.setStartTime(lastSlotEndTime);
+					slot.setTurnedoff(false);
+					slot.setReporter(reporters.get(count));
+					StringBuffer buffer=new StringBuffer();
+					for(int i=1;i<=repeat;i++){
+						buffer.append(ch);
+					}
+					slot.setName(buffer.toString());									
+					slot.persist();		
+					Proceeding proceeding=new Proceeding();
+					proceeding.setLocale(slot.getLocale());
+					proceeding.setSlot(slot);
+					proceeding.persist();
+				}
+				return true;
+			}else{
+				return false;
+			}
+		} catch (Exception e) {
+			logger.error("SLOT GENERATION FAILED",e);
+			return false;
+		}	
+	}
 
 	public Boolean deleteExistingSlots(final Long rosterId,final Date startTime,final Date endTime) {
 		try {
 			String strquery1="DELETE FROM proceedings  WHERE slot IN(SELECT id " +
 					"FROM slots  WHERE roster=:roster AND start_time>=:startTime" +
-					" AND  end_time<=:endTime)";
+					" AND  end_time<=:endTime AND bln_deleted=false)";
 			Query query1=this.em().createNativeQuery(strquery1);
 			query1.setParameter("roster",rosterId);
 			query1.setParameter("startTime",startTime);
 			query1.setParameter("endTime",endTime);
 			query1.executeUpdate();
 			
-			String strQuery="DELETE FROM Slot s WHERE s.roster.id=:roster AND s.startTime>=:startTime" +
-			" and s.endTime<=:endTime";
+			//String strQuery="DELETE FROM Slot s WHERE s.roster.id=:roster AND s.startTime>=:startTime" +
+				//	" and s.endTime<=:endTime";
+			
+			String strQuery="SELECT s FROM Slot s WHERE s.roster.id=:roster AND s.startTime>=:startTime" +
+			" AND s.endTime<=:endTime AND s.blnDeleted=false ";			
 			Query query=this.em().createQuery(strQuery);
 			query.setParameter("roster",rosterId);
 			query.setParameter("startTime",startTime);
 			query.setParameter("endTime",endTime);
-			query.executeUpdate();
+			List<Slot> slots=query.getResultList();
+			for(Slot s:slots){
+				s.setBlnDeleted(true);
+				s.merge();
+			}
+			//query.executeUpdate();
+			return true;			
+		} catch (Exception e) {
+			logger.error("DELETION OF EXISTING SLOTS FAILED",e);
+			return false;
+		}
+	}
+	
+	public Boolean deleteExistingSlotsAdjournment(final Long rosterId,final Date startTime,final Date endTime) {
+		try {
+			String strquery1="DELETE FROM proceedings  WHERE slot IN(SELECT id " +
+				"FROM slots s WHERE roster=:roster " +
+				"AND (s.start_time>=:startTime "+
+				"OR (s.start_time<=:startTime AND s.end_time>=:startTime)) " +
+				"AND s.end_time<=:endTime " +
+				"AND s.bln_deleted=false) ";
+			Query query1=this.em().createNativeQuery(strquery1);
+			query1.setParameter("roster",rosterId);
+			query1.setParameter("startTime",startTime);
+			query1.setParameter("endTime",endTime);
+			query1.executeUpdate();
+			
+			String strQuery="SELECT s FROM Slot s "+ 
+				"WHERE s.roster.id=:roster "+ 
+				"AND s.startTime>=:startTime "+
+				"AND s.endTime<=:endTime "+
+				"AND s.blnDeleted=false"	;		
+			Query query=this.em().createQuery(strQuery);
+			query.setParameter("roster",rosterId);
+			query.setParameter("startTime",startTime);
+			query.setParameter("endTime",endTime);
+			List<Slot> slots=query.getResultList();
+			for(Slot s:slots){
+				s.setBlnDeleted(true);
+				s.merge();
+			}
 			return true;			
 		} catch (Exception e) {
 			logger.error("DELETION OF EXISTING SLOTS FAILED",e);
@@ -371,7 +770,32 @@ public class RosterRepository extends BaseRepository<Roster, Serializable>{
 	public Boolean toggleSlots(final Long rosterId,final Date startTime,final Date endTime,final Boolean toggle) {
 		try {
 			String strQuery="SELECT s FROM Slot s WHERE s.roster.id=:roster AND s.startTime>=:startTime" +
-			" AND s.endTime<=:endTime";
+			" AND s.endTime<=:endTime AND s.blnDeleted=false";
+			Query query=this.em().createQuery(strQuery);
+			query.setParameter("roster",rosterId);
+			query.setParameter("startTime", startTime);
+			query.setParameter("endTime", endTime);
+			List<Slot> slots=query.getResultList();
+			for(Slot i:slots){
+				i.setTurnedoff(toggle);
+				i.merge();
+			}
+			return true;
+		} catch (Exception e) {
+			logger.error("TURNING OFF SLOTS FAILED",e);
+			return false;
+		}
+	}
+	
+	@SuppressWarnings("unchecked")
+	public Boolean toggleSlotsAdjournment(final Long rosterId,final Date startTime,final Date endTime,final Boolean toggle) {
+		try {
+//			String strQuery="SELECT s FROM Slot s WHERE s.roster.id=:roster AND ((s.startTime>=:startTime" +
+//			" AND s.endTime<=:endTime) OR (s.startTime<=:startTime AND s.endTime>=:startTime)) AND s.isDeleted=false ";
+//			String strQuery="SELECT s FROM Slot s WHERE s.roster.id=:roster AND s.startTime<:endTime" +
+//					" AND s.endTime>:startTime AND s.isDeleted=false ";
+			String strQuery="SELECT s FROM Slot s WHERE s.roster.id=:roster AND s.startTime>=:startTime" +
+					" AND s.endTime<=:endTime AND s.blnDeleted=true AND s.turnedoff<>true ";
 			Query query=this.em().createQuery(strQuery);
 			query.setParameter("roster",rosterId);
 			query.setParameter("startTime", startTime);
@@ -392,12 +816,14 @@ public class RosterRepository extends BaseRepository<Roster, Serializable>{
 	@SuppressWarnings("rawtypes")
 	public boolean removeRoster(final Roster roster) {
 		try {
+			String strQuery="DELETE FROM proceedings where slot IN (SELECT id FROM slots where roster=:roster)";
 			String query1="DELETE FROM slots WHERE roster=:roster";
 			String query2="DELETE FROM adjournments WHERE roster=:roster";
 			String query3="SELECT r.id FROM Roster rs JOIN rs.reporters r WHERE rs.id=:id"; 
 			String query4="DELETE FROM rosters_reporters WHERE roster_id=:roster";
 			String query5="DELETE FROM rosters WHERE id=:roster";
 			String query6="DELETE FROM Reporter r WHERE r.id IN :reporters";
+			this.em().createNativeQuery(strQuery).setParameter("roster",roster.getId()).executeUpdate();
 			this.em().createNativeQuery(query1).setParameter("roster",roster.getId()).executeUpdate();
 			this.em().createNativeQuery(query2).setParameter("roster",roster.getId()).executeUpdate();
 			List reporters=this.em().createQuery(query3).setParameter("id",roster.getId()).getResultList();

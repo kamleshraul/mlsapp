@@ -187,7 +187,7 @@ public class RosterController extends GenericController<Roster>{
 			if(selectedSession!=null){
 				model.addAttribute("session",selectedSession.getId());
 				/**** Next Roster Entry In Current Session (Registry Number) ****/
-				Roster lastCreatedRoster=Roster.findLastCreated(selectedSession,locale);
+				Roster lastCreatedRoster=Roster.findLastCreated(selectedSession,language,locale);
 				if(lastCreatedRoster!=null){
 					domain.setDay(lastCreatedRoster.getDay()+1);
 					domain.setRegisterNo(lastCreatedRoster.getRegisterNo());
@@ -249,7 +249,7 @@ public class RosterController extends GenericController<Roster>{
 						model.addAttribute("error", e.getParameter());
 					}
 					if(previousSession!=null){
-						Roster lastCreatedRosterPreviouseSession=Roster.findLastCreated(previousSession,locale);
+						Roster lastCreatedRosterPreviouseSession=Roster.findLastCreated(previousSession,language,locale);
 						if(lastCreatedRosterPreviouseSession!=null){
 							domain.setRegisterNo(lastCreatedRosterPreviouseSession.getRegisterNo()+1);
 						}
@@ -342,6 +342,9 @@ public class RosterController extends GenericController<Roster>{
 			if(domain.getSlotDurationChangedFrom()!=null){
 				model.addAttribute("slotDurationChangedFrom",localizedFormat.format(domain.getSlotDurationChangedFrom()));
 			}
+			if(domain.getReporterChangedFrom()!=null){
+				model.addAttribute("reporterChangedFrom",localizedFormat.format(domain.getReporterChangedFrom()));
+			}
 		}
 
 		/**** Language ****/
@@ -361,14 +364,33 @@ public class RosterController extends GenericController<Roster>{
 					allRISUsers=User.findByRole(false,customParameter1.getValue(),domain.getLanguage().getName(),"houseType,joiningDate,lastName",ApplicationConstants.DESC+","+ApplicationConstants.ASC+","+ApplicationConstants.ASC,domain.getLocale(),"");
 				}
 			}
-			model.addAttribute("eligibles", allRISUsers);		
 			List<Reporter> reporters=domain.getReporters();
+			List<Integer> allRISUsersPositions=new ArrayList<Integer>();
+			model.addAttribute("eligibles", allRISUsers);
+			for(User u:allRISUsers){
+				boolean got = false;
+				for(Reporter j:reporters){
+					if(j.getUser().getId() == u.getId()){
+						allRISUsersPositions.add(j.getPosition());
+						got = true;
+						break;
+					}
+				}
+				if(!got){
+					allRISUsersPositions.add(null);
+				}
+			}
+			
+			model.addAttribute("allRisUserPositions", allRISUsersPositions);
 			List<User> selectedUsers=new ArrayList<User>();
 			List<User> notSelectedUsers=new ArrayList<User>();
+			List<Integer> selectedUserPositions = new ArrayList<Integer>();
+			List<Integer> nonSelectedUserPositions = new ArrayList<Integer>();
 			if(reporters!=null&&!reporters.isEmpty()){
 				for(Reporter i:reporters){
 					if(i.getIsActive()){
 						selectedUsers.add(i.getUser());
+						selectedUserPositions.add(i.getPosition());
 					}
 				}
 			}
@@ -383,11 +405,23 @@ public class RosterController extends GenericController<Roster>{
 						}						
 					}
 					if(!contains){
+						for(Reporter j:reporters){
+							if(j.getUser().getId() == i.getId()){
+								if(!j.getIsActive()){
+									nonSelectedUserPositions.add(j.getPosition());
+								}
+							}
+						}
 						notSelectedUsers.add(i);
 					}
 				}
-				model.addAttribute("selectedItemsCount",selectedUsers.size());	
+				
+				model.addAttribute("selectedItemsCount",selectedUsers.size());
 				model.addAttribute("selectedItems",selectedUsers);
+				model.addAttribute("selectedUserPositions", selectedUserPositions);
+				
+				model.addAttribute("nonSelectedUserPositions", nonSelectedUserPositions);
+				
 				model.addAttribute("allItems", notSelectedUsers);
 				model.addAttribute("allItemsCount", notSelectedUsers.size());
 			}else{
@@ -420,6 +454,11 @@ public class RosterController extends GenericController<Roster>{
 			model.addAttribute("slots_created","yes");
 		}else{
 			model.addAttribute("slots_created","no");
+		}
+		
+		if(!domain.getReporters().isEmpty()){
+			List<Reporter> reporters=Roster.findReportersByActiveStatus(domain, true);
+			model.addAttribute("reporterSize", reporters.size());
 		}
 	}
 
@@ -569,6 +608,7 @@ public class RosterController extends GenericController<Roster>{
 		String strStartTime=request.getParameter("selectedStartTime");
 		String strEndTime=request.getParameter("selectedEndTime");
 		String strSlotTimeChangedFrom=request.getParameter("selectedSlotDurationChangedFrom");
+		String strreporterChangedFrom=request.getParameter("selectedReporterChangedFrom");
 		CustomParameter customParameter=CustomParameter.findByName(CustomParameter.class,"ROSTER_DATETIMEFORMAT","");
 		if(strStartTime!=null&&!strStartTime.isEmpty()){			
 			if(customParameter!=null){
@@ -615,13 +655,28 @@ public class RosterController extends GenericController<Roster>{
 				}
 			}
 		}
+		if(strreporterChangedFrom!=null&&!strreporterChangedFrom.isEmpty()){
+			if(customParameter!=null){
+				SimpleDateFormat format=FormaterUtil.getDateFormatter(customParameter.getValue(),domain.getLocale());
+				try {
+					domain.setReporterChangedFrom(format.parse(strreporterChangedFrom));
+				} catch (ParseException e) {
+					SimpleDateFormat defaultFormat=FormaterUtil.getDateFormatter(customParameter.getValue(),"en_US");
+					try {
+						domain.setReporterChangedFrom(defaultFormat.parse(strreporterChangedFrom));
+					} catch (ParseException e1) {
+						logger.error("Unparseable Timestamp:"+strreporterChangedFrom,e1);;
+					}
+				}
+			}
+		}
 		if(domain.getStartTime()==null){
 			result.rejectValue("startTime","StartTimeEmpty");
 		}
 		/**** Start Time can be changed only if it is a future date ****/
-		if(domain.getStartTime()!=null&&domain.getStartTime().before(new Date())){
+		/*if(domain.getStartTime()!=null&&domain.getStartTime().before(new Date())){
 			result.rejectValue("startTime","StartTimeIsPastTime");
-		}
+		}*/
 		if(domain.getEndTime()==null){
 			result.rejectValue("endTime","EndTimeEmpty");
 		}		
@@ -760,7 +815,8 @@ public class RosterController extends GenericController<Roster>{
 	protected void populateAfterCreate(ModelMap model, Roster domain,
 			HttpServletRequest request) {
 		if(!domain.getAction().equals("save_without_creating_slots")){
-			Boolean status=domain.generateSlot();		
+			String reporterAction=request.getParameter("reporterAction");
+			Boolean status=domain.generateSlot(reporterAction);		
 		}
 	}
 
@@ -768,7 +824,8 @@ public class RosterController extends GenericController<Roster>{
 	protected void populateUpdateIfNoErrors(ModelMap model, Roster domain,
 			HttpServletRequest request) {
 		if(!domain.getAction().equals("save_without_creating_slots")){
-			Boolean status=domain.generateSlot();		
+			String reporterAction=request.getParameter("reporterAction");
+			Boolean status=domain.generateSlot(reporterAction);		
 		}
 	}	
 	

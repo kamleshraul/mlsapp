@@ -75,13 +75,14 @@ public class PartRepository extends BaseRepository<Part, Serializable> {
 		return parts;
 	}
 	
+	//Update by Anand For RIS
 	public List<Part> findAllPartRosterSearchTerm(final Roster roster, String searchTerm, final String locale) throws ELSException{
 		List<Part> parts = new ArrayList<Part>();
 		String query = "SELECT pp FROM Proceeding p"
 						+ " LEFT JOIN p.parts pp"
-						+ " WHERE p.slot.roater.id=:rosterId"
+						+ " WHERE p.slot.roster.id=:rosterId"
 						+ " AND p.locale=:locale"
-						+ " AND (p.editedContent LIKE :searchTerm OR p.reviseddContent LIKE :searchTerm)";
+						+ " AND (p.proceedingContent LIKE :searchTerm OR p.revisedContent LIKE :searchTerm)";
 		try{
 			TypedQuery<Part> tQuery = this.em().createQuery(query, Part.class);
 			tQuery.setParameter("rosterId", roster.getId());

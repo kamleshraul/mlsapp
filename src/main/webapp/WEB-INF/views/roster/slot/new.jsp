@@ -24,27 +24,27 @@
 		<select id="user" name="user" class="sSelect">
 		<c:forEach items="${users}"  var="i">
 		<c:choose>
-		<c:when test="${domain.user.id==i.id }">
-		<option selected="selected" value="${i.id}">${i.credential.username }(${i.findFullName})</option>
+		<c:when test="${domain.reporter.user.id==i.id }">
+		<option selected="selected" value="${i.id}">${i.credential.username }(${i.findFullName()})</option>
 		</c:when>
 		<c:otherwise>
-		<option  value="${i.id}">${i.credential.username }(${i.findFullName})</option>		
+		<option  value="${i.id}">${i.credential.username }(${i.findFullName()})</option>		
 		</c:otherwise>		
 		</c:choose>
 		</c:forEach>
 		</select>		
-		<form:errors path="user" cssClass="validationError"/>	
+		<form:errors path="reporter" cssClass="validationError"/>	
 	</p>	
 	
 	<p>
 		<label class="small"><spring:message code="roster.slot.starttime" text="Start Time"/>*</label>
-		<input type="text" class="sText datetimemask" name="selectedStartTime" id="selectedStartTime" value="${startTime }">
+		<input type="text" class="sText datetimenosecondmask" name="selectedStartTime" id="selectedStartTime" value="${startTime }">
 		<form:errors path="startTime" cssClass="validationError"/>	
 	</p>
 	
 	<p>
 		<label class="small"><spring:message code="roster.slot.endtime" text="End Time"/>*</label>
-		<input type="text" class="sText datetimemask" name="selectedEndTime" id="selectedEndTime" value="${endTime }">
+		<input type="text" class="sText datetimenosecondmask" name="selectedEndTime" id="selectedEndTime" value="${endTime }">
 		<form:errors path="endTime" cssClass="validationError"/>	
 	</p>
 	

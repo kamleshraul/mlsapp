@@ -1364,6 +1364,19 @@ public class ProceedingController extends GenericController<Proceeding>{
 				if(strPart!=null && !strPart.isEmpty()){
 					Part part=Part.findById(Part.class, Long.parseLong(strPart));
 					bookmark.setSlavePart(part);
+					List<Bookmark> bookmarks=Bookmark.findAllByFieldName(Bookmark.class, "masterPart", part, "id", "asc", locale.toString());
+					if(!bookmarks.isEmpty()){
+						for(Bookmark b:bookmarks){
+							if(part.getProceedingContent().contains(b.getBookmarkKey())){
+								String content=part.getProceedingContent();
+								if(b.getTextToBeReplaced()!=null && !b.getTextToBeReplaced().equals("")){
+									String revisedContent=content.replaceAll(b.getBookmarkKey(), b.getTextToBeReplaced());
+									part.setRevisedContent(revisedContent);
+									param=param.replaceAll(b.getBookmarkKey(), b.getTextToBeReplaced());
+								}
+							}
+						}
+					}
 				}
 				/****Slave slot****/
 				if(strSlot!=null && !strSlot.isEmpty()){
@@ -1379,10 +1392,20 @@ public class ProceedingController extends GenericController<Proceeding>{
 				/****Text replaced****/
 				bookmark.setTextToBeReplaced(param);
 				Part masterPart=bookmark.getMasterPart();
-				String masterContent=masterPart.getRevisedContent();
-				masterContent=masterContent.replace(bookmark.getBookmarkKey(), param);
-				masterPart.setRevisedContent(masterContent);
-				masterPart.merge();
+				Slot slot=masterPart.getProceeding().getSlot();
+				
+				try {
+					List<Part> parts=Part.findAllPartRosterSearchTerm(slot.getRoster(), bookmark.getBookmarkKey(), locale.toString());
+					for(Part p:parts){
+						String masterContent=p.getRevisedContent();
+						masterContent=masterContent.replace(bookmark.getBookmarkKey(), param);
+						p.setRevisedContent(masterContent);
+						p.merge();
+					}
+				} catch (ELSException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
 				bookmark.merge();
 				return "success";
 			}

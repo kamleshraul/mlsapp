@@ -94,6 +94,7 @@ import org.mkcl.els.domain.Query;
 import org.mkcl.els.domain.Question;
 import org.mkcl.els.domain.QuestionDates;
 import org.mkcl.els.domain.RailwayStation;
+import org.mkcl.els.domain.Reporter;
 import org.mkcl.els.domain.Resolution;
 import org.mkcl.els.domain.River;
 import org.mkcl.els.domain.Roster;
@@ -2747,11 +2748,13 @@ public class ReferenceController extends BaseController {
 		String strEndTime=request.getParameter("endTime");
 		String strSlotDuration=request.getParameter("slotDuration");
 		String strRoster=request.getParameter("roster");
+		String strReporterSize=request.getParameter("reporterSize");
 		List<Reference> references=new ArrayList<Reference>();
 		if(strStartTime!=null&&!strStartTime.isEmpty()
 				&&strEndTime!=null&&!strEndTime.isEmpty()
 				&&strSlotDuration!=null&&!strSlotDuration.isEmpty()
-				&&strRoster!=null&&!strRoster.isEmpty()){
+				&&strRoster!=null&&!strRoster.isEmpty()
+				&&strReporterSize!=null && !strReporterSize.isEmpty()){
 			CustomParameter customParameter=CustomParameter.findByName(CustomParameter.class,"ROSTER_DATETIMEFORMAT","");
 			Date startTime=null;
 			Date endTime=null;
@@ -2776,6 +2779,8 @@ public class ReferenceController extends BaseController {
 			Date storedStartTime=roster.getStartTime();
 			Date storedEndTime=roster.getEndTime();
 			Integer storedSlotDuration=roster.getSlotDuration();
+			List<Reporter> reporters=Roster.findReportersByActiveStatus(roster, true);
+			Integer storedReporterSize=reporters.size();
 			CustomParameter actionParameter=null;
 			String event="";
 			/**** StartTime/EndTime/Slot Duration are changed ****/
@@ -2837,6 +2842,11 @@ public class ReferenceController extends BaseController {
 					&&storedSlotDuration!=null&&slotDuration!=storedSlotDuration&&slotDuration>=0){
 				actionParameter=CustomParameter.findByName(CustomParameter.class,"ROSTER_SLOTDURATION_CHANGED","");
 				event="SLOTDURATION_CHANGED";
+			}else if(storedStartTime!=null && startTime.equals(storedStartTime)
+					&&storedEndTime!=null && endTime.equals(storedEndTime)
+					&&storedReporterSize!=null && storedReporterSize!=Integer.parseInt(strReporterSize)){
+				actionParameter=CustomParameter.findByName(CustomParameter.class,"ROSTER_REPORTER_CHANGED","");
+				event="REPORTER_CHANGED";
 			}
 			if(actionParameter!=null){
 				String[] actions=actionParameter.getValue().split(",");

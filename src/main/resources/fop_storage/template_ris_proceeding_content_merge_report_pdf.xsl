@@ -252,7 +252,7 @@
 																			</xsl:otherwise>
 																		</xsl:choose>
 																	</fo:inline>
-																	<fo:inline font-weight="normal">
+																	<fo:inline font-weight="normal" text-align="justify">
 																		<xsl:apply-templates select="proceedingContent"></xsl:apply-templates>
 																	</fo:inline>
 																</fo:block>
@@ -334,7 +334,7 @@
 																			</xsl:otherwise>
 																		</xsl:choose>
 																	</fo:inline>
-																	<fo:inline font-weight="normal">
+																	<fo:inline font-weight="normal" text-align="justify">
 																		<xsl:apply-templates select="proceedingContent"></xsl:apply-templates>
 																	</fo:inline>
 																</fo:block>

@@ -172,7 +172,7 @@
 							keycode.length=0;
 							j=0;
 						}
-						console.log(keycode);
+						
 						if(j==0 && e.which==17){
 							keycode[j]=e.which;
 							j++;
