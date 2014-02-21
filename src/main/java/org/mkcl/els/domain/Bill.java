@@ -52,8 +52,7 @@ import org.springframework.beans.factory.annotation.Configurable;
 @JsonIgnoreProperties({"houseType", "introducingHouseType", "session", "originalType", "type", "billType", "billKind",
 	"titles", "contentDrafts", "statementOfObjectAndReasonDrafts", "revisedStatementOfObjectAndReasonDrafts", 
 	"financialMemorandumDrafts", "revisedFinancialMemorandumDrafts", "statutoryMemorandumDrafts", "revisedStatutoryMemorandumDrafts", 
-	"revisedContentDrafts", "referredAct", "referredOrdinance", "translationStatus", "opinionFromLawAndJDStatus", 
-	"recommendationFromGovernorStatus", "recommendationFromPresidentStatus", "ballotStatus", "discussionStatus", "supportingMembers", 
+	"revisedContentDrafts", "referredAct", "referredOrdinance", "ballotStatus", "discussionStatus", "supportingMembers", 
 	"drafts", "parent", "clubbedEntities", "referencedBill", "lapsedBill", "introducedBy", "votingDetails", "currentHouseType"})
 public class Bill extends Device implements Serializable {
 	
@@ -330,26 +329,6 @@ public class Bill extends Device implements Serializable {
     @JoinColumn(name="recommendationstatus_id")
     private Status recommendationStatus;
     
-    /** The translation status. */
-    @ManyToOne(fetch=FetchType.LAZY)
-    @JoinColumn(name="translationstatus_id")
-    private Status translationStatus;
-    
-    /** The opinion from law and JD status. */
-    @ManyToOne(fetch=FetchType.LAZY)
-    @JoinColumn(name="opinionFromLawAndJDStatus_id")
-    private Status opinionFromLawAndJDStatus;
-    
-    /** The opinion from law and JD status. */
-    @ManyToOne(fetch=FetchType.LAZY)
-    @JoinColumn(name="recommendationFromGovernorStatus_id")
-    private Status recommendationFromGovernorStatus;
-    
-    /** The opinion from law and JD status. */
-    @ManyToOne(fetch=FetchType.LAZY)
-    @JoinColumn(name="recommendationFromPresidentStatus_id")
-    private Status recommendationFromPresidentStatus;
-    
     /** 
      * If a bill is balloted then its balloted status is set to balloted 
      */
@@ -437,109 +416,6 @@ public class Bill extends Device implements Serializable {
     		inverseJoinColumns={@JoinColumn(name="laying_letter_id", referencedColumnName="id")})
     private List<LayingLetter> layingLetters;
     
-//    /** The print requisitions. */
-//    @OneToMany(mappedBy="bill", fetch=FetchType.LAZY, cascade=CascadeType.ALL)
-//	private List<BillPrintRequisition> billPrintRequisitions;
-    
-//    @OneToMany(fetch=FetchType.LAZY, cascade=CascadeType.ALL)
-//    @JoinTable(name="bills_printrequisitions",
-//    joinColumns={@JoinColumn(name="bill_id", referencedColumnName="id")},
-//    inverseJoinColumns={@JoinColumn(name="print_requisition_id", referencedColumnName="id")})
-//    private List<PrintRequisition> printRequisitions;
-    
-    //=============== To be used in case of bulk submission and workflows ================
-    private String workflowStarted;
-    
-    private String translationWorkflowStarted;
-    
-    private String opinionFromLawAndJDWorkflowStarted;
-    
-    private String recommendationFromGovernorWorkflowStarted;
-    
-    private String recommendationFromPresidentWorkflowStarted;
-
-    private String actor;
-    
-    private String actorForTranslation;
-    
-    private String actorForOpinionFromLawAndJD;
-    
-    private String actorForRecommendationFromGovernor;
-    
-    private String actorForRecommendationFromPresident;
-
-    private String localizedActorName;
-    
-    private String localizedActorNameForTranslation;
-    
-    private String localizedActorNameForOpinionFromLawAndJD;
-    
-    private String localizedActorNameForRecommendationFromGovernor;
-    
-    private String localizedActorNameForRecommendationFromPresident;
-
-    private String endFlag;
-    
-    private String endFlagForTranslation;
-    
-    private String endFlagForOpinionFromLawAndJD;
-    
-    private String endFlagForRecommendationFromGovernor;
-    
-    private String endFlagForRecommendationFromPresident;
-
-    private String level;
-    
-    private String levelForTranslation;
-    
-    private String levelForOpinionFromLawAndJD;
-    
-    private String levelForRecommendationFromGovernor;
-    
-    private String levelForRecommendationFromPresident;
-
-    @Temporal(TemporalType.TIMESTAMP)
-    private Date workflowStartedOn;	
-    
-    @Temporal(TemporalType.TIMESTAMP)
-    private Date workflowForTranslationStartedOn;
-    
-    @Temporal(TemporalType.TIMESTAMP)
-    private Date workflowForOpinionFromLawAndJDStartedOn;
-    
-    @Temporal(TemporalType.TIMESTAMP)
-    private Date workflowForRecommendationFromGovernorStartedOn;
-    
-    @Temporal(TemporalType.TIMESTAMP)
-    private Date workflowForRecommendationFromPresidentStartedOn;
-
-    @Temporal(TemporalType.TIMESTAMP)
-    private Date taskReceivedOn;
-    
-    @Temporal(TemporalType.TIMESTAMP)
-    private Date taskReceivedOnForTranslation;
-    
-    @Temporal(TemporalType.TIMESTAMP)
-    private Date taskReceivedOnForOpinionFromLawAndJD;
-    
-    @Temporal(TemporalType.TIMESTAMP)
-    private Date taskReceivedOnForRecommendationFromGovernor;
-    
-    @Temporal(TemporalType.TIMESTAMP)
-    private Date taskReceivedOnForRecommendationFromPresident;
-
-    private boolean bulkSubmitted=false;
-
-    private Long workflowDetailsId;
-    
-    private Long workflowDetailsIdForTranslation;
-    
-    private Long workflowDetailsIdForOpinionFromLawAndJD;
-    
-    private Long workflowDetailsIdForRecommendationFromGovernor;
-    
-    private Long workflowDetailsIdForRecommendationFromPresident;
-
     private Integer file;
 
     private Integer fileIndex;
@@ -1441,6 +1317,32 @@ public class Bill extends Device implements Serializable {
 		return getBillRepository().findStatusDatesForBill(bill);
 	}
 	
+	public Status findAuxiliaryWorkflowStatus(String workflowType) throws ELSException {
+		if(workflowType==null) {
+			ELSException elsException=new ELSException();
+			elsException.setParameter("Bill_findAuxillaryWorkflowStatus", "workflow type is null");
+			throw elsException;
+		}
+		Status auxiliaryWorkflowStatus = null;
+		WorkflowDetails workflowDetails = WorkflowDetails.findCurrentWorkflowDetail(this, this.getType(), workflowType);
+		if(workflowDetails!=null) {
+			
+			if(workflowDetails.getCustomStatus()==null) {
+				ELSException elsException=new ELSException();
+				elsException.setParameter("Bill_findAuxillaryWorkflowStatus", "custom status not set for recommendation from president workflow.");
+				throw elsException;
+			} else {
+				auxiliaryWorkflowStatus = Status.findByType(workflowDetails.getCustomStatus(), this.getLocale());
+				if(auxiliaryWorkflowStatus==null) {
+					ELSException elsException=new ELSException();
+					elsException.setParameter("Bill_findAuxillaryWorkflowStatus", "status with type '" + workflowDetails.getCustomStatus() + "' not found");
+					throw elsException;
+				}
+			}
+		}				
+		return auxiliaryWorkflowStatus;
+	}
+	
 //-----------------------------Getters And Setters--------------------------------
     
     public void setPriority(Integer priority){
@@ -1877,40 +1779,6 @@ public class Bill extends Device implements Serializable {
 		this.recommendationStatus = recommendationStatus;
 	}
 
-	public Status getTranslationStatus() {
-		return translationStatus;
-	}
-
-	public void setTranslationStatus(Status translationStatus) {
-		this.translationStatus = translationStatus;
-	}
-
-	public Status getOpinionFromLawAndJDStatus() {
-		return opinionFromLawAndJDStatus;
-	}
-
-	public void setOpinionFromLawAndJDStatus(Status opinionFromLawAndJDStatus) {
-		this.opinionFromLawAndJDStatus = opinionFromLawAndJDStatus;
-	}
-
-	public Status getRecommendationFromGovernorStatus() {
-		return recommendationFromGovernorStatus;
-	}
-
-	public void setRecommendationFromGovernorStatus(
-			Status recommendationFromGovernorStatus) {
-		this.recommendationFromGovernorStatus = recommendationFromGovernorStatus;
-	}
-
-	public Status getRecommendationFromPresidentStatus() {
-		return recommendationFromPresidentStatus;
-	}
-
-	public void setRecommendationFromPresidentStatus(
-			Status recommendationFromPresidentStatus) {
-		this.recommendationFromPresidentStatus = recommendationFromPresidentStatus;
-	}
-
 	public Status getBallotStatus() {
 		return ballotStatus;
 	}
@@ -2021,359 +1889,6 @@ public class Bill extends Device implements Serializable {
 
 	public void setLayingLetters(List<LayingLetter> layingLetters) {
 		this.layingLetters = layingLetters;
-	}
-
-	public String getWorkflowStarted() {
-		return workflowStarted;
-	}
-
-	public void setWorkflowStarted(String workflowStarted) {
-		this.workflowStarted = workflowStarted;
-	}
-
-	public String getTranslationWorkflowStarted() {
-		return translationWorkflowStarted;
-	}
-
-	public void setTranslationWorkflowStarted(String translationWorkflowStarted) {
-		this.translationWorkflowStarted = translationWorkflowStarted;
-	}
-
-	public String getOpinionFromLawAndJDWorkflowStarted() {
-		return opinionFromLawAndJDWorkflowStarted;
-	}
-
-	public void setOpinionFromLawAndJDWorkflowStarted(
-			String opinionFromLawAndJDWorkflowStarted) {
-		this.opinionFromLawAndJDWorkflowStarted = opinionFromLawAndJDWorkflowStarted;
-	}
-
-	public String getRecommendationFromGovernorWorkflowStarted() {
-		return recommendationFromGovernorWorkflowStarted;
-	}
-
-	public void setRecommendationFromGovernorWorkflowStarted(
-			String recommendationFromGovernorWorkflowStarted) {
-		this.recommendationFromGovernorWorkflowStarted = recommendationFromGovernorWorkflowStarted;
-	}
-
-	public String getRecommendationFromPresidentWorkflowStarted() {
-		return recommendationFromPresidentWorkflowStarted;
-	}
-
-	public void setRecommendationFromPresidentWorkflowStarted(
-			String recommendationFromPresidentWorkflowStarted) {
-		this.recommendationFromPresidentWorkflowStarted = recommendationFromPresidentWorkflowStarted;
-	}
-
-	public String getActor() {
-		return actor;
-	}
-
-	public void setActor(String actor) {
-		this.actor = actor;
-	}
-
-	public String getActorForTranslation() {
-		return actorForTranslation;
-	}
-
-	public void setActorForTranslation(String actorForTranslation) {
-		this.actorForTranslation = actorForTranslation;
-	}
-
-	public String getActorForOpinionFromLawAndJD() {
-		return actorForOpinionFromLawAndJD;
-	}
-
-	public void setActorForOpinionFromLawAndJD(String actorForOpinionFromLawAndJD) {
-		this.actorForOpinionFromLawAndJD = actorForOpinionFromLawAndJD;
-	}
-
-	public String getActorForRecommendationFromGovernor() {
-		return actorForRecommendationFromGovernor;
-	}
-
-	public void setActorForRecommendationFromGovernor(
-			String actorForRecommendationFromGovernor) {
-		this.actorForRecommendationFromGovernor = actorForRecommendationFromGovernor;
-	}
-
-	public String getActorForRecommendationFromPresident() {
-		return actorForRecommendationFromPresident;
-	}
-
-	public void setActorForRecommendationFromPresident(
-			String actorForRecommendationFromPresident) {
-		this.actorForRecommendationFromPresident = actorForRecommendationFromPresident;
-	}
-
-	public String getLocalizedActorName() {
-		return localizedActorName;
-	}
-
-	public void setLocalizedActorName(String localizedActorName) {
-		this.localizedActorName = localizedActorName;
-	}
-
-	public String getLocalizedActorNameForTranslation() {
-		return localizedActorNameForTranslation;
-	}
-
-	public void setLocalizedActorNameForTranslation(
-			String localizedActorNameForTranslation) {
-		this.localizedActorNameForTranslation = localizedActorNameForTranslation;
-	}
-
-	public String getLocalizedActorNameForOpinionFromLawAndJD() {
-		return localizedActorNameForOpinionFromLawAndJD;
-	}
-
-	public void setLocalizedActorNameForOpinionFromLawAndJD(
-			String localizedActorNameForOpinionFromLawAndJD) {
-		this.localizedActorNameForOpinionFromLawAndJD = localizedActorNameForOpinionFromLawAndJD;
-	}
-
-	public String getLocalizedActorNameForRecommendationFromGovernor() {
-		return localizedActorNameForRecommendationFromGovernor;
-	}
-
-	public void setLocalizedActorNameForRecommendationFromGovernor(
-			String localizedActorNameForRecommendationFromGovernor) {
-		this.localizedActorNameForRecommendationFromGovernor = localizedActorNameForRecommendationFromGovernor;
-	}
-
-	public String getLocalizedActorNameForRecommendationFromPresident() {
-		return localizedActorNameForRecommendationFromPresident;
-	}
-
-	public void setLocalizedActorNameForRecommendationFromPresident(
-			String localizedActorNameForRecommendationFromPresident) {
-		this.localizedActorNameForRecommendationFromPresident = localizedActorNameForRecommendationFromPresident;
-	}
-
-	public String getEndFlag() {
-		return endFlag;
-	}
-
-	public void setEndFlag(String endFlag) {
-		this.endFlag = endFlag;
-	}
-
-	public String getEndFlagForTranslation() {
-		return endFlagForTranslation;
-	}
-
-	public void setEndFlagForTranslation(String endFlagForTranslation) {
-		this.endFlagForTranslation = endFlagForTranslation;
-	}
-
-	public String getEndFlagForOpinionFromLawAndJD() {
-		return endFlagForOpinionFromLawAndJD;
-	}
-
-	public void setEndFlagForOpinionFromLawAndJD(
-			String endFlagForOpinionFromLawAndJD) {
-		this.endFlagForOpinionFromLawAndJD = endFlagForOpinionFromLawAndJD;
-	}
-
-	public String getEndFlagForRecommendationFromGovernor() {
-		return endFlagForRecommendationFromGovernor;
-	}
-
-	public void setEndFlagForRecommendationFromGovernor(
-			String endFlagForRecommendationFromGovernor) {
-		this.endFlagForRecommendationFromGovernor = endFlagForRecommendationFromGovernor;
-	}
-
-	public String getEndFlagForRecommendationFromPresident() {
-		return endFlagForRecommendationFromPresident;
-	}
-
-	public void setEndFlagForRecommendationFromPresident(
-			String endFlagForRecommendationFromPresident) {
-		this.endFlagForRecommendationFromPresident = endFlagForRecommendationFromPresident;
-	}
-
-	public String getLevel() {
-		return level;
-	}
-
-	public void setLevel(String level) {
-		this.level = level;
-	}
-
-	public String getLevelForTranslation() {
-		return levelForTranslation;
-	}
-
-	public void setLevelForTranslation(String levelForTranslation) {
-		this.levelForTranslation = levelForTranslation;
-	}
-
-	public String getLevelForOpinionFromLawAndJD() {
-		return levelForOpinionFromLawAndJD;
-	}
-
-	public void setLevelForOpinionFromLawAndJD(String levelForOpinionFromLawAndJD) {
-		this.levelForOpinionFromLawAndJD = levelForOpinionFromLawAndJD;
-	}
-
-	public String getLevelForRecommendationFromGovernor() {
-		return levelForRecommendationFromGovernor;
-	}
-
-	public void setLevelForRecommendationFromGovernor(
-			String levelForRecommendationFromGovernor) {
-		this.levelForRecommendationFromGovernor = levelForRecommendationFromGovernor;
-	}
-
-	public String getLevelForRecommendationFromPresident() {
-		return levelForRecommendationFromPresident;
-	}
-
-	public void setLevelForRecommendationFromPresident(
-			String levelForRecommendationFromPresident) {
-		this.levelForRecommendationFromPresident = levelForRecommendationFromPresident;
-	}
-
-	public Date getWorkflowStartedOn() {
-		return workflowStartedOn;
-	}
-
-	public void setWorkflowStartedOn(Date workflowStartedOn) {
-		this.workflowStartedOn = workflowStartedOn;
-	}
-
-	public Date getWorkflowForTranslationStartedOn() {
-		return workflowForTranslationStartedOn;
-	}
-
-	public void setWorkflowForTranslationStartedOn(
-			Date workflowForTranslationStartedOn) {
-		this.workflowForTranslationStartedOn = workflowForTranslationStartedOn;
-	}
-
-	public Date getWorkflowForOpinionFromLawAndJDStartedOn() {
-		return workflowForOpinionFromLawAndJDStartedOn;
-	}
-
-	public void setWorkflowForOpinionFromLawAndJDStartedOn(
-			Date workflowForOpinionFromLawAndJDStartedOn) {
-		this.workflowForOpinionFromLawAndJDStartedOn = workflowForOpinionFromLawAndJDStartedOn;
-	}
-
-	public Date getWorkflowForRecommendationFromGovernorStartedOn() {
-		return workflowForRecommendationFromGovernorStartedOn;
-	}
-
-	public void setWorkflowForRecommendationFromGovernorStartedOn(
-			Date workflowForRecommendationFromGovernorStartedOn) {
-		this.workflowForRecommendationFromGovernorStartedOn = workflowForRecommendationFromGovernorStartedOn;
-	}
-
-	public Date getWorkflowForRecommendationFromPresidentStartedOn() {
-		return workflowForRecommendationFromPresidentStartedOn;
-	}
-
-	public void setWorkflowForRecommendationFromPresidentStartedOn(
-			Date workflowForRecommendationFromPresidentStartedOn) {
-		this.workflowForRecommendationFromPresidentStartedOn = workflowForRecommendationFromPresidentStartedOn;
-	}
-
-	public Date getTaskReceivedOn() {
-		return taskReceivedOn;
-	}
-
-	public void setTaskReceivedOn(Date taskReceivedOn) {
-		this.taskReceivedOn = taskReceivedOn;
-	}
-
-	public Date getTaskReceivedOnForTranslation() {
-		return taskReceivedOnForTranslation;
-	}
-
-	public void setTaskReceivedOnForTranslation(Date taskReceivedOnForTranslation) {
-		this.taskReceivedOnForTranslation = taskReceivedOnForTranslation;
-	}
-
-	public Date getTaskReceivedOnForOpinionFromLawAndJD() {
-		return taskReceivedOnForOpinionFromLawAndJD;
-	}
-
-	public void setTaskReceivedOnForOpinionFromLawAndJD(
-			Date taskReceivedOnForOpinionFromLawAndJD) {
-		this.taskReceivedOnForOpinionFromLawAndJD = taskReceivedOnForOpinionFromLawAndJD;
-	}
-
-	public Date getTaskReceivedOnForRecommendationFromGovernor() {
-		return taskReceivedOnForRecommendationFromGovernor;
-	}
-
-	public void setTaskReceivedOnForRecommendationFromGovernor(
-			Date taskReceivedOnForRecommendationFromGovernor) {
-		this.taskReceivedOnForRecommendationFromGovernor = taskReceivedOnForRecommendationFromGovernor;
-	}
-
-	public Date getTaskReceivedOnForRecommendationFromPresident() {
-		return taskReceivedOnForRecommendationFromPresident;
-	}
-
-	public void setTaskReceivedOnForRecommendationFromPresident(
-			Date taskReceivedOnForRecommendationFromPresident) {
-		this.taskReceivedOnForRecommendationFromPresident = taskReceivedOnForRecommendationFromPresident;
-	}
-
-	public boolean isBulkSubmitted() {
-		return bulkSubmitted;
-	}
-
-	public void setBulkSubmitted(boolean bulkSubmitted) {
-		this.bulkSubmitted = bulkSubmitted;
-	}
-
-	public Long getWorkflowDetailsId() {
-		return workflowDetailsId;
-	}
-
-	public void setWorkflowDetailsId(Long workflowDetailsId) {
-		this.workflowDetailsId = workflowDetailsId;
-	}
-
-	public Long getWorkflowDetailsIdForTranslation() {
-		return workflowDetailsIdForTranslation;
-	}
-
-	public void setWorkflowDetailsIdForTranslation(
-			Long workflowDetailsIdForTranslation) {
-		this.workflowDetailsIdForTranslation = workflowDetailsIdForTranslation;
-	}
-
-	public Long getWorkflowDetailsIdForOpinionFromLawAndJD() {
-		return workflowDetailsIdForOpinionFromLawAndJD;
-	}
-
-	public void setWorkflowDetailsIdForOpinionFromLawAndJD(
-			Long workflowDetailsIdForOpinionFromLawAndJD) {
-		this.workflowDetailsIdForOpinionFromLawAndJD = workflowDetailsIdForOpinionFromLawAndJD;
-	}
-
-	public Long getWorkflowDetailsIdForRecommendationFromGovernor() {
-		return workflowDetailsIdForRecommendationFromGovernor;
-	}
-
-	public void setWorkflowDetailsIdForRecommendationFromGovernor(
-			Long workflowDetailsIdForRecommendationFromGovernor) {
-		this.workflowDetailsIdForRecommendationFromGovernor = workflowDetailsIdForRecommendationFromGovernor;
-	}
-
-	public Long getWorkflowDetailsIdForRecommendationFromPresident() {
-		return workflowDetailsIdForRecommendationFromPresident;
-	}
-
-	public void setWorkflowDetailsIdForRecommendationFromPresident(
-			Long workflowDetailsIdForRecommendationFromPresident) {
-		this.workflowDetailsIdForRecommendationFromPresident = workflowDetailsIdForRecommendationFromPresident;
 	}
 
 	public Integer getFile() {
