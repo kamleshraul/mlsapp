@@ -1122,7 +1122,6 @@
 	<input id="usergroupType" name="usergroupType" value="${usergroupType}" type="hidden">	
 </form:form>
 
-<%-- <input id="bulkedit" name="bulkedit" value="${bulkedit}" type="hidden"> --%>
 <input id="currentStatus" value="${internalStatusType }" type="hidden">
 <input id="ministrySelected" value="${ministrySelected }" type="hidden">
 <%-- <input id="departmentSelected" value="${ departmentSelected}" type="hidden"> --%>

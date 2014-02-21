@@ -501,94 +501,6 @@ public class BillWorkflowController extends BaseController {
 		return "workflow/info";
 	}
 	
-	@Transactional
-	@RequestMapping(value="transmitpresscopies",method=RequestMethod.PUT)
-	public String updateTransmissionOfPressCopies(final ModelMap model,
-			final HttpServletRequest request,
-			final Locale locale) {
-		/**** update workflow details ****/		
-		String strWorkflowdetails=request.getParameter("workflowDetailsId");
-		if(strWorkflowdetails!=null&&!strWorkflowdetails.isEmpty()){
-			WorkflowDetails workflowDetails=WorkflowDetails.findById(WorkflowDetails.class,Long.parseLong(strWorkflowdetails));
-			workflowDetails.setIsHardCopyReceived(request.getParameter("isHardCopyReceived"));
-			workflowDetails.setDateOfHardCopyReceived(request.getParameter("dateOfHardCopyReceived"));
-			workflowDetails.setAcknowledgementDecision(request.getParameter("acknowledgementDecision"));
-			Bill bill = Bill.findById(Bill.class, Long.parseLong(workflowDetails.getDeviceId()));
-			PrintRequisition printRequisition = PrintRequisition.findById(PrintRequisition.class, Long.parseLong(workflowDetails.getPrintRequisitionId()));
-				
-			String endflag="";	
-			String level="";
-			Map<String,String> properties=new HashMap<String, String>();
-			/**** Next user and usergroup ****/
-			Status expectedStatus = Status.findByType(workflowDetails.getWorkflowSubType(), bill.getLocale());
-			HouseType houseTypeForWorkflow = HouseType.findByFieldName(HouseType.class, "type", printRequisition.getHouseType(),printRequisition.getLocale());
-			int currentLevel = Integer.parseInt(workflowDetails.getAssigneeLevel());					
-			String strCurrentUserGroup=workflowDetails.getAssigneeUserGroupId();
-			if(expectedStatus!=null && strCurrentUserGroup!=null) {
-				UserGroup currentUserGroup=UserGroup.findById(UserGroup.class,Long.parseLong(strCurrentUserGroup));
-				String finalAuthority = "";
-				if(workflowDetails.getWorkflowType().equals(ApplicationConstants.SEND_FOR_ENDORSEMENT_WORKFLOW)) {
-					finalAuthority = "BILL_ENDORSEMENT_FINAL_AUTHORITY";
-				} else if(workflowDetails.getWorkflowType().equals(ApplicationConstants.TRANSMIT_ENDORSEMENT_COPIES_WORKFLOW)) {
-					finalAuthority = "BILL_TRANSMITENDORSEMENTCOPIES_FINAL_AUTHORITY";
-				} else if(workflowDetails.getWorkflowType().equals(ApplicationConstants.TRANSMIT_PRESS_COPIES_WORKFLOW)) {
-					finalAuthority = "BILL_TRANSMITPRESSCOPIES_FINAL_AUTHORITY";
-				}
-				CustomParameter finalAuthorityParameter = CustomParameter.findByName(CustomParameter.class, finalAuthority, "");
-				if(finalAuthorityParameter.getValue().contains(workflowDetails.getAssigneeUserGroupType())) {
-					endflag="end";
-				} else {
-					endflag="continue";
-				}
-				properties.put("pv_endflag",endflag);	
-				properties.put("pv_deviceId",String.valueOf(bill.getId()));
-				properties.put("pv_deviceTypeId",String.valueOf(bill.getType().getId()));				
-				if(endflag!=null){
-					if(!endflag.isEmpty()){
-						if(endflag.equals("continue")){
-							List<Reference> eligibleActors = WorkflowConfig.findBillActorsVO(bill,houseTypeForWorkflow,false,expectedStatus,currentUserGroup,currentLevel,bill.getLocale());
-							if(eligibleActors!=null && !eligibleActors.isEmpty()) {
-								String nextuser=eligibleActors.get(0).getId();	
-								String nextUserGroupType="";
-								if(nextuser!=null){						
-									if(!nextuser.isEmpty()){
-										String[] temp=nextuser.split("#");
-										properties.put("pv_user",temp[0]);
-										nextUserGroupType=temp[1];
-										level=temp[2];
-										String localizedActorName=temp[3]+"("+temp[4]+")";
-									}
-								}	
-								/**** complete the task ****/		 
-								String strTaskId=workflowDetails.getTaskId();
-								Task task=processService.findTaskById(strTaskId);
-								processService.completeTask(task, properties);
-								model.addAttribute("task",strTaskId);
-								ProcessInstance processInstance = processService.findProcessInstanceById(task.getProcessInstanceId());
-								Task newtask=processService.getCurrentTask(processInstance);
-								/**** Workflow Detail entry made only if its not the end of workflow ****/
-								WorkflowDetails.create(bill,houseTypeForWorkflow,false,printRequisition,newtask,workflowDetails.getWorkflowType(),nextUserGroupType,level);
-							}																	
-						} else if(endflag.equals("end")) {
-							/**** complete the task ****/		 
-							String strTaskId=workflowDetails.getTaskId();
-							Task task=processService.findTaskById(strTaskId);
-							processService.completeTask(task, properties);
-							model.addAttribute("task",strTaskId);
-						}
-					}
-				}								
-			}
-			
-			workflowDetails.setStatus("COMPLETED");
-			workflowDetails.setCompletionTime(new Date());
-			workflowDetails.merge();			
-		}
-		/**** display message ****/
-		model.addAttribute("type","taskcompleted");
-		return "workflow/info";
-	}
-	
 	@RequestMapping(value="transmitpresscopies",method=RequestMethod.GET)
 	public String initTransmissionOfPressCopies(final ModelMap model,
 			final HttpServletRequest request,
@@ -719,6 +631,94 @@ public class BillWorkflowController extends BaseController {
 		model.addAttribute("status",workflowDetails.getStatus());
 
 		return workflowDetails.getForm();
+	}
+	
+	@Transactional
+	@RequestMapping(value="transmitpresscopies",method=RequestMethod.PUT)
+	public String updateTransmissionOfPressCopies(final ModelMap model,
+			final HttpServletRequest request,
+			final Locale locale) {
+		/**** update workflow details ****/		
+		String strWorkflowdetails=request.getParameter("workflowDetailsId");
+		if(strWorkflowdetails!=null&&!strWorkflowdetails.isEmpty()){
+			WorkflowDetails workflowDetails=WorkflowDetails.findById(WorkflowDetails.class,Long.parseLong(strWorkflowdetails));
+			workflowDetails.setIsHardCopyReceived(request.getParameter("isHardCopyReceived"));
+			workflowDetails.setDateOfHardCopyReceived(request.getParameter("dateOfHardCopyReceived"));
+			workflowDetails.setAcknowledgementDecision(request.getParameter("acknowledgementDecision"));
+			Bill bill = Bill.findById(Bill.class, Long.parseLong(workflowDetails.getDeviceId()));
+			PrintRequisition printRequisition = PrintRequisition.findById(PrintRequisition.class, Long.parseLong(workflowDetails.getPrintRequisitionId()));
+				
+			String endflag="";	
+			String level="";
+			Map<String,String> properties=new HashMap<String, String>();
+			/**** Next user and usergroup ****/
+			Status expectedStatus = Status.findByType(workflowDetails.getWorkflowSubType(), bill.getLocale());
+			HouseType houseTypeForWorkflow = HouseType.findByFieldName(HouseType.class, "type", printRequisition.getHouseType(),printRequisition.getLocale());
+			int currentLevel = Integer.parseInt(workflowDetails.getAssigneeLevel());					
+			String strCurrentUserGroup=workflowDetails.getAssigneeUserGroupId();
+			if(expectedStatus!=null && strCurrentUserGroup!=null) {
+				UserGroup currentUserGroup=UserGroup.findById(UserGroup.class,Long.parseLong(strCurrentUserGroup));
+				String finalAuthority = "";
+				if(workflowDetails.getWorkflowType().equals(ApplicationConstants.SEND_FOR_ENDORSEMENT_WORKFLOW)) {
+					finalAuthority = "BILL_ENDORSEMENT_FINAL_AUTHORITY";
+				} else if(workflowDetails.getWorkflowType().equals(ApplicationConstants.TRANSMIT_ENDORSEMENT_COPIES_WORKFLOW)) {
+					finalAuthority = "BILL_TRANSMITENDORSEMENTCOPIES_FINAL_AUTHORITY";
+				} else if(workflowDetails.getWorkflowType().equals(ApplicationConstants.TRANSMIT_PRESS_COPIES_WORKFLOW)) {
+					finalAuthority = "BILL_TRANSMITPRESSCOPIES_FINAL_AUTHORITY";
+				}
+				CustomParameter finalAuthorityParameter = CustomParameter.findByName(CustomParameter.class, finalAuthority, "");
+				if(finalAuthorityParameter.getValue().contains(workflowDetails.getAssigneeUserGroupType())) {
+					endflag="end";
+				} else {
+					endflag="continue";
+				}
+				properties.put("pv_endflag",endflag);	
+				properties.put("pv_deviceId",String.valueOf(bill.getId()));
+				properties.put("pv_deviceTypeId",String.valueOf(bill.getType().getId()));				
+				if(endflag!=null){
+					if(!endflag.isEmpty()){
+						if(endflag.equals("continue")){
+							List<Reference> eligibleActors = WorkflowConfig.findBillActorsVO(bill,houseTypeForWorkflow,false,expectedStatus,currentUserGroup,currentLevel,bill.getLocale());
+							if(eligibleActors!=null && !eligibleActors.isEmpty()) {
+								String nextuser=eligibleActors.get(0).getId();	
+								String nextUserGroupType="";
+								if(nextuser!=null){						
+									if(!nextuser.isEmpty()){
+										String[] temp=nextuser.split("#");
+										properties.put("pv_user",temp[0]);
+										nextUserGroupType=temp[1];
+										level=temp[2];
+										String localizedActorName=temp[3]+"("+temp[4]+")";
+									}
+								}	
+								/**** complete the task ****/		 
+								String strTaskId=workflowDetails.getTaskId();
+								Task task=processService.findTaskById(strTaskId);
+								processService.completeTask(task, properties);
+								model.addAttribute("task",strTaskId);
+								ProcessInstance processInstance = processService.findProcessInstanceById(task.getProcessInstanceId());
+								Task newtask=processService.getCurrentTask(processInstance);
+								/**** Workflow Detail entry made only if its not the end of workflow ****/
+								WorkflowDetails.create(bill,houseTypeForWorkflow,false,printRequisition,newtask,workflowDetails.getWorkflowType(),nextUserGroupType,level);
+							}																	
+						} else if(endflag.equals("end")) {
+							/**** complete the task ****/		 
+							String strTaskId=workflowDetails.getTaskId();
+							Task task=processService.findTaskById(strTaskId);
+							processService.completeTask(task, properties);
+							model.addAttribute("task",strTaskId);
+						}
+					}
+				}								
+			}
+			
+			workflowDetails.setStatus("COMPLETED");
+			workflowDetails.setCompletionTime(new Date());
+			workflowDetails.merge();			
+		}
+		/**** display message ****/
+		model.addAttribute("type","taskcompleted");
+		return "workflow/info";
 	}
 	
 	@RequestMapping(value="layletter",method=RequestMethod.GET)
@@ -1085,8 +1085,6 @@ public class BillWorkflowController extends BaseController {
 
 	private void populateModel(final Bill domain, final ModelMap model,
 			final HttpServletRequest request,final WorkflowDetails workflowDetails) {
-		/**** In case of bulk edit we can update only few parameters ****/
-		model.addAttribute("bulkedit",request.getParameter("bulkedit"));
 //		/**** clear remarks ****/
 //		domain.setRemarks("");
 		/**** remarks ****/	
@@ -1467,40 +1465,6 @@ public class BillWorkflowController extends BaseController {
 				model.addAttribute("formattedDateOfRecommendationFromPresident",FormaterUtil.getDateFormatter(dateTimeFormat.getValue(),locale).format(domain.getDateOfRecommendationFromPresident()));
 			}
 		}		
-		if(domain.getWorkflowStartedOn()!=null){
-			model.addAttribute("workflowStartedOnDate",FormaterUtil.getDateFormatter(dateTimeFormat.getValue(),"en_US").format(domain.getWorkflowStartedOn()));
-		}
-		if(domain.getWorkflowForTranslationStartedOn()!=null){
-			model.addAttribute("workflowForTranslationStartedOnDate",FormaterUtil.getDateFormatter(dateTimeFormat.getValue(),"en_US").format(domain.getWorkflowForTranslationStartedOn()));
-		}
-		if(domain.getType().getType().equals(ApplicationConstants.NONOFFICIAL_BILL)) {
-			if(domain.getWorkflowForOpinionFromLawAndJDStartedOn()!=null){
-				model.addAttribute("workflowForOpinionFromLawAndJDStartedOnDate",FormaterUtil.getDateFormatter(dateTimeFormat.getValue(),"en_US").format(domain.getWorkflowForOpinionFromLawAndJDStartedOn()));
-			}
-			if(domain.getWorkflowForRecommendationFromGovernorStartedOn()!=null){
-				model.addAttribute("workflowForRecommendationFromGovernorStartedOnDate",FormaterUtil.getDateFormatter(dateTimeFormat.getValue(),"en_US").format(domain.getWorkflowForRecommendationFromGovernorStartedOn()));
-			}
-			if(domain.getWorkflowForRecommendationFromPresidentStartedOn()!=null){
-				model.addAttribute("workflowForRecommendationFromPresidentStartedOnDate",FormaterUtil.getDateFormatter(dateTimeFormat.getValue(),"en_US").format(domain.getWorkflowForRecommendationFromPresidentStartedOn()));
-			}
-		}		
-		if(domain.getTaskReceivedOn()!=null){
-			model.addAttribute("taskReceivedOnDate",FormaterUtil.getDateFormatter(dateTimeFormat.getValue(),"en_US").format(domain.getTaskReceivedOn()));
-		}
-		if(domain.getTaskReceivedOnForTranslation()!=null){
-			model.addAttribute("taskReceivedOnDateForTranslation",FormaterUtil.getDateFormatter(dateTimeFormat.getValue(),"en_US").format(domain.getTaskReceivedOnForTranslation()));
-		}
-		if(domain.getType().getType().equals(ApplicationConstants.NONOFFICIAL_BILL)) {
-			if(domain.getTaskReceivedOnForOpinionFromLawAndJD()!=null){
-				model.addAttribute("taskReceivedOnDateForOpinionFromLawAndJD",FormaterUtil.getDateFormatter(dateTimeFormat.getValue(),"en_US").format(domain.getTaskReceivedOnForOpinionFromLawAndJD()));
-			}
-			if(domain.getTaskReceivedOnForRecommendationFromGovernor()!=null){
-				model.addAttribute("taskReceivedOnDateForRecommendationFromGovernor",FormaterUtil.getDateFormatter(dateTimeFormat.getValue(),"en_US").format(domain.getTaskReceivedOnForRecommendationFromGovernor()));
-			}
-			if(domain.getTaskReceivedOnForRecommendationFromPresident()!=null){
-				model.addAttribute("taskReceivedOnDateForRecommendationFromPresident",FormaterUtil.getDateFormatter(dateTimeFormat.getValue(),"en_US").format(domain.getTaskReceivedOnForRecommendationFromPresident()));
-			}
-		}		
 		/**** Number ****/
 		if(domain.getNumber()!=null){
 			model.addAttribute("formattedNumber",FormaterUtil.getNumberFormatterNoGrouping(locale).format(domain.getNumber()));
@@ -1665,66 +1629,47 @@ public class BillWorkflowController extends BaseController {
 				&& !workflowDetails.getAssigneeUserGroupType().equals(ApplicationConstants.TRANSLATOR)) {
 			List<Status> translationStatuses=new ArrayList<Status>();
 			Status internaStatus=domain.getInternalStatus();
-			String actor=domain.getActorForTranslation();
 			HouseType houseTypeForWorkflow = Bill.findHouseTypeForWorkflow(domain);
-			if(actor==null){
-				CustomParameter defaultStatus=CustomParameter.findByName(CustomParameter.class,"BILL_TRANSLATION_OPTIONS_"+deviceType.getType().toUpperCase()+"_"+houseTypeForWorkflow.getType().toUpperCase()+"_DEFAULT", "");
+			/**** Final Approving Authority(Final Status) ****/
+			CustomParameter finalApprovingAuthority=CustomParameter.findByName(CustomParameter.class,deviceType.getType().toUpperCase()+"_TRANSLATION_FINAL_AUTHORITY", "");
+			CustomParameter deviceTypeInternalStatusUsergroup=CustomParameter.findByName(CustomParameter.class, "BILL_TRANSLATION_OPTIONS_"+deviceType.getType().toUpperCase()+"_"+internaStatus.getType().toUpperCase()+"_"+usergroupType.toUpperCase(), "");
+			CustomParameter deviceTypeHouseTypeUsergroup=CustomParameter.findByName(CustomParameter.class, "BILL_TRANSLATION_OPTIONS_"+deviceType.getType().toUpperCase()+"_"+houseTypeForWorkflow.getType().toUpperCase()+"_"+internaStatus.getType().toUpperCase()+"_"+usergroupType.toUpperCase(), "");
+			CustomParameter deviceTypeUsergroup=CustomParameter.findByName(CustomParameter.class, "BILL_TRANSLATION_OPTIONS_"+deviceType.getType().toUpperCase()+"_"+internaStatus.getType().toUpperCase()+"_"+usergroupType.toUpperCase(), "");
+			if(finalApprovingAuthority!=null&&finalApprovingAuthority.getValue().contains(usergroupType)){
+				CustomParameter finalApprovingAuthorityStatus=CustomParameter.findByName(CustomParameter.class,"BILL_TRANSLATION_OPTIONS_"+usergroupType.toUpperCase(),"");
+				if(finalApprovingAuthorityStatus!=null){
+					try {
+						translationStatuses=Status.findStatusContainedIn(finalApprovingAuthorityStatus.getValue(), locale);
+					} catch (ELSException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+				}
+			}/**** BILL_TRANSLATION_OPTIONS_+DEVICETYPE_TYPE+INTERNALSTATUS_TYPE+USERGROUP(Post Final Status)****/
+			else if(deviceTypeInternalStatusUsergroup!=null){
 				try {
-					translationStatuses=Status.findStatusContainedIn(defaultStatus.getValue(), locale);
+					translationStatuses=Status.findStatusContainedIn(deviceTypeInternalStatusUsergroup.getValue(), locale);
 				} catch (ELSException e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
-			}else if(actor.isEmpty()){
-				CustomParameter defaultStatus=CustomParameter.findByName(CustomParameter.class,"BILL_TRANSLATION_OPTIONS_"+deviceType.getType().toUpperCase()+"_"+houseTypeForWorkflow.getType().toUpperCase()+"_DEFAULT", "");
+			}/**** BILL_TRANSLATION_OPTIONS_+DEVICETYPE_TYPE+HOUSETYPE+USERGROUP(Pre Final Status-House Type Basis)****/
+			else if(deviceTypeHouseTypeUsergroup!=null){
 				try {
-					translationStatuses=Status.findStatusContainedIn(defaultStatus.getValue(), locale);
+					translationStatuses=Status.findStatusContainedIn(deviceTypeHouseTypeUsergroup.getValue(), locale);
 				} catch (ELSException e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
-			}else{
-				/**** Final Approving Authority(Final Status) ****/
-				CustomParameter finalApprovingAuthority=CustomParameter.findByName(CustomParameter.class,deviceType.getType().toUpperCase()+"_TRANSLATION_FINAL_AUTHORITY", "");
-				CustomParameter deviceTypeInternalStatusUsergroup=CustomParameter.findByName(CustomParameter.class, "BILL_TRANSLATION_OPTIONS_"+deviceType.getType().toUpperCase()+"_"+internaStatus.getType().toUpperCase()+"_"+usergroupType.toUpperCase(), "");
-				CustomParameter deviceTypeHouseTypeUsergroup=CustomParameter.findByName(CustomParameter.class, "BILL_TRANSLATION_OPTIONS_"+deviceType.getType().toUpperCase()+"_"+houseTypeForWorkflow.getType().toUpperCase()+"_"+internaStatus.getType().toUpperCase()+"_"+usergroupType.toUpperCase(), "");
-				CustomParameter deviceTypeUsergroup=CustomParameter.findByName(CustomParameter.class, "BILL_TRANSLATION_OPTIONS_"+deviceType.getType().toUpperCase()+"_"+internaStatus.getType().toUpperCase()+"_"+usergroupType.toUpperCase(), "");
-				if(finalApprovingAuthority!=null&&finalApprovingAuthority.getValue().contains(usergroupType)){
-					CustomParameter finalApprovingAuthorityStatus=CustomParameter.findByName(CustomParameter.class,"BILL_TRANSLATION_OPTIONS_"+usergroupType.toUpperCase(),"");
-					if(finalApprovingAuthorityStatus!=null){
-						try {
-							translationStatuses=Status.findStatusContainedIn(finalApprovingAuthorityStatus.getValue(), locale);
-						} catch (ELSException e) {
-							// TODO Auto-generated catch block
-							e.printStackTrace();
-						}
-					}
-				}/**** BILL_TRANSLATION_OPTIONS_+DEVICETYPE_TYPE+INTERNALSTATUS_TYPE+USERGROUP(Post Final Status)****/
-				else if(deviceTypeInternalStatusUsergroup!=null){
-					try {
-						translationStatuses=Status.findStatusContainedIn(deviceTypeInternalStatusUsergroup.getValue(), locale);
-					} catch (ELSException e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
-					}
-				}/**** BILL_TRANSLATION_OPTIONS_+DEVICETYPE_TYPE+HOUSETYPE+USERGROUP(Pre Final Status-House Type Basis)****/
-				else if(deviceTypeHouseTypeUsergroup!=null){
-					try {
-						translationStatuses=Status.findStatusContainedIn(deviceTypeHouseTypeUsergroup.getValue(), locale);
-					} catch (ELSException e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
-					}
-				}	
-				/**** BILL_TRANSLATION_OPTIONS_+DEVICETYPE_TYPE+USERGROUP(Pre Final Status)****/
-				else if(deviceTypeUsergroup!=null){
-					try {
-						translationStatuses=Status.findStatusContainedIn(deviceTypeUsergroup.getValue(), locale);
-					} catch (ELSException e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
-					}
-				}		
+			}	
+			/**** BILL_TRANSLATION_OPTIONS_+DEVICETYPE_TYPE+USERGROUP(Pre Final Status)****/
+			else if(deviceTypeUsergroup!=null){
+				try {
+					translationStatuses=Status.findStatusContainedIn(deviceTypeUsergroup.getValue(), locale);
+				} catch (ELSException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
 			}		
 			/**** Internal Status****/
 			model.addAttribute("internalStatuses",translationStatuses);
@@ -1732,70 +1677,47 @@ public class BillWorkflowController extends BaseController {
 				&& !workflowDetails.getAssigneeUserGroupType().equals(ApplicationConstants.OPINION_ABOUT_BILL_DEPARTMENT)) {
 			List<Status> opinionFromLawAndJDStatuses=new ArrayList<Status>();
 			Status internaStatus=domain.getInternalStatus();
-			String actor=domain.getActorForOpinionFromLawAndJD();
 			HouseType houseTypeForWorkflow = Bill.findHouseTypeForWorkflow(domain);
-			if(actor==null){
-				CustomParameter defaultStatus=CustomParameter.findByName(CustomParameter.class,"BILL_OPINION_FROM_LAWANDJD_OPTIONS_"+deviceType.getType().toUpperCase()+"_"+houseTypeForWorkflow.getType().toUpperCase()+"_DEFAULT", "");
+			/**** Final Approving Authority(Final Status) ****/
+			CustomParameter finalApprovingAuthority=CustomParameter.findByName(CustomParameter.class,deviceType.getType().toUpperCase()+"_OPINION_FROM_LAWANDJD_FINAL_AUTHORITY", "");
+			CustomParameter deviceTypeInternalStatusUsergroup=CustomParameter.findByName(CustomParameter.class, "BILL_OPINION_FROM_LAWANDJD_OPTIONS_"+deviceType.getType().toUpperCase()+"_"+internaStatus.getType().toUpperCase()+"_"+usergroupType.toUpperCase(), "");
+			CustomParameter deviceTypeHouseTypeUsergroup=CustomParameter.findByName(CustomParameter.class, "BILL_OPINION_FROM_LAWANDJD_OPTIONS_"+deviceType.getType().toUpperCase()+"_"+houseTypeForWorkflow.getType().toUpperCase()+"_"+internaStatus.getType().toUpperCase()+"_"+usergroupType.toUpperCase(), "");
+			CustomParameter deviceTypeUsergroup=CustomParameter.findByName(CustomParameter.class, "BILL_OPINION_FROM_LAWANDJD_OPTIONS_"+deviceType.getType().toUpperCase()+"_"+internaStatus.getType().toUpperCase()+"_"+usergroupType.toUpperCase(), "");
+			if(finalApprovingAuthority!=null&&finalApprovingAuthority.getValue().contains(usergroupType)){
+				CustomParameter finalApprovingAuthorityStatus=CustomParameter.findByName(CustomParameter.class,"BILL_OPINION_FROM_LAWANDJD_OPTIONS_"+usergroupType.toUpperCase(),"");
+				if(finalApprovingAuthorityStatus!=null){
+					try {
+						opinionFromLawAndJDStatuses=Status.findStatusContainedIn(finalApprovingAuthorityStatus.getValue(), locale);
+					} catch (ELSException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+				}
+			}/**** BILL_OPINION_FROM_LAWANDJD_OPTIONS_+DEVICETYPE_TYPE+INTERNALSTATUS_TYPE+USERGROUP(Post Final Status)****/
+			else if(deviceTypeInternalStatusUsergroup!=null){
 				try {
-					if(defaultStatus!=null) {
-						opinionFromLawAndJDStatuses=Status.findStatusContainedIn(defaultStatus.getValue(), locale);
-					}					
+					opinionFromLawAndJDStatuses=Status.findStatusContainedIn(deviceTypeInternalStatusUsergroup.getValue(), locale);
 				} catch (ELSException e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
-			}else if(actor.isEmpty()){
-				CustomParameter defaultStatus=CustomParameter.findByName(CustomParameter.class,"BILL_OPINION_FROM_LAWANDJD_OPTIONS_"+deviceType.getType().toUpperCase()+"_"+houseTypeForWorkflow.getType().toUpperCase()+"_DEFAULT", "");
+			}/**** BILL_OPINION_FROM_LAWANDJD_OPTIONS_+DEVICETYPE_TYPE+HOUSETYPE+USERGROUP(Pre Final Status-House Type Basis)****/
+			else if(deviceTypeHouseTypeUsergroup!=null){
 				try {
-					if(defaultStatus!=null) {
-						opinionFromLawAndJDStatuses=Status.findStatusContainedIn(defaultStatus.getValue(), locale);
-					}
+					opinionFromLawAndJDStatuses=Status.findStatusContainedIn(deviceTypeHouseTypeUsergroup.getValue(), locale);
 				} catch (ELSException e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
-			}else{
-				/**** Final Approving Authority(Final Status) ****/
-				CustomParameter finalApprovingAuthority=CustomParameter.findByName(CustomParameter.class,deviceType.getType().toUpperCase()+"_OPINION_FROM_LAWANDJD_FINAL_AUTHORITY", "");
-				CustomParameter deviceTypeInternalStatusUsergroup=CustomParameter.findByName(CustomParameter.class, "BILL_OPINION_FROM_LAWANDJD_OPTIONS_"+deviceType.getType().toUpperCase()+"_"+internaStatus.getType().toUpperCase()+"_"+usergroupType.toUpperCase(), "");
-				CustomParameter deviceTypeHouseTypeUsergroup=CustomParameter.findByName(CustomParameter.class, "BILL_OPINION_FROM_LAWANDJD_OPTIONS_"+deviceType.getType().toUpperCase()+"_"+houseTypeForWorkflow.getType().toUpperCase()+"_"+internaStatus.getType().toUpperCase()+"_"+usergroupType.toUpperCase(), "");
-				CustomParameter deviceTypeUsergroup=CustomParameter.findByName(CustomParameter.class, "BILL_OPINION_FROM_LAWANDJD_OPTIONS_"+deviceType.getType().toUpperCase()+"_"+internaStatus.getType().toUpperCase()+"_"+usergroupType.toUpperCase(), "");
-				if(finalApprovingAuthority!=null&&finalApprovingAuthority.getValue().contains(usergroupType)){
-					CustomParameter finalApprovingAuthorityStatus=CustomParameter.findByName(CustomParameter.class,"BILL_OPINION_FROM_LAWANDJD_OPTIONS_"+usergroupType.toUpperCase(),"");
-					if(finalApprovingAuthorityStatus!=null){
-						try {
-							opinionFromLawAndJDStatuses=Status.findStatusContainedIn(finalApprovingAuthorityStatus.getValue(), locale);
-						} catch (ELSException e) {
-							// TODO Auto-generated catch block
-							e.printStackTrace();
-						}
-					}
-				}/**** BILL_OPINION_FROM_LAWANDJD_OPTIONS_+DEVICETYPE_TYPE+INTERNALSTATUS_TYPE+USERGROUP(Post Final Status)****/
-				else if(deviceTypeInternalStatusUsergroup!=null){
-					try {
-						opinionFromLawAndJDStatuses=Status.findStatusContainedIn(deviceTypeInternalStatusUsergroup.getValue(), locale);
-					} catch (ELSException e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
-					}
-				}/**** BILL_OPINION_FROM_LAWANDJD_OPTIONS_+DEVICETYPE_TYPE+HOUSETYPE+USERGROUP(Pre Final Status-House Type Basis)****/
-				else if(deviceTypeHouseTypeUsergroup!=null){
-					try {
-						opinionFromLawAndJDStatuses=Status.findStatusContainedIn(deviceTypeHouseTypeUsergroup.getValue(), locale);
-					} catch (ELSException e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
-					}
-				}	
-				/**** BILL_OPINION_FROM_LAWANDJD_OPTIONS_+DEVICETYPE_TYPE+USERGROUP(Pre Final Status)****/
-				else if(deviceTypeUsergroup!=null){
-					try {
-						opinionFromLawAndJDStatuses=Status.findStatusContainedIn(deviceTypeUsergroup.getValue(), locale);
-					} catch (ELSException e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
-					}
-				}		
+			}	
+			/**** BILL_OPINION_FROM_LAWANDJD_OPTIONS_+DEVICETYPE_TYPE+USERGROUP(Pre Final Status)****/
+			else if(deviceTypeUsergroup!=null){
+				try {
+					opinionFromLawAndJDStatuses=Status.findStatusContainedIn(deviceTypeUsergroup.getValue(), locale);
+				} catch (ELSException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
 			}		
 			/**** Internal Status****/
 			model.addAttribute("internalStatuses",opinionFromLawAndJDStatuses);
@@ -1803,66 +1725,47 @@ public class BillWorkflowController extends BaseController {
 				&& !workflowDetails.getAssigneeUserGroupType().equals(ApplicationConstants.RECOMMENDATION_FROM_GOVERNOR_DEPARTMENT)) {
 			List<Status> recommendationFromGovernorStatuses=new ArrayList<Status>();
 			Status internaStatus=domain.getInternalStatus();
-			String actor=domain.getActorForRecommendationFromGovernor();
 			HouseType houseTypeForWorkflow = Bill.findHouseTypeForWorkflow(domain);
-			if(actor==null){
-				CustomParameter defaultStatus=CustomParameter.findByName(CustomParameter.class,"BILL_RECOMMENDATION_FROM_GOVERNOR_OPTIONS_"+deviceType.getType().toUpperCase()+"_"+houseTypeForWorkflow.getType().toUpperCase()+"_DEFAULT", "");
+			/**** Final Approving Authority(Final Status) ****/
+			CustomParameter finalApprovingAuthority=CustomParameter.findByName(CustomParameter.class,deviceType.getType().toUpperCase()+"_RECOMMENDATION_FROM_GOVERNOR_FINAL_AUTHORITY", "");
+			CustomParameter deviceTypeInternalStatusUsergroup=CustomParameter.findByName(CustomParameter.class, "BILL_RECOMMENDATION_FROM_GOVERNOR_OPTIONS_"+deviceType.getType().toUpperCase()+"_"+internaStatus.getType().toUpperCase()+"_"+usergroupType.toUpperCase(), "");
+			CustomParameter deviceTypeHouseTypeUsergroup=CustomParameter.findByName(CustomParameter.class, "BILL_RECOMMENDATION_FROM_GOVERNOR_OPTIONS_"+deviceType.getType().toUpperCase()+"_"+houseTypeForWorkflow.getType().toUpperCase()+"_"+internaStatus.getType().toUpperCase()+"_"+usergroupType.toUpperCase(), "");
+			CustomParameter deviceTypeUsergroup=CustomParameter.findByName(CustomParameter.class, "BILL_RECOMMENDATION_FROM_GOVERNOR_OPTIONS_"+deviceType.getType().toUpperCase()+"_"+internaStatus.getType().toUpperCase()+"_"+usergroupType.toUpperCase(), "");
+			if(finalApprovingAuthority!=null&&finalApprovingAuthority.getValue().contains(usergroupType)){
+				CustomParameter finalApprovingAuthorityStatus=CustomParameter.findByName(CustomParameter.class,"BILL_RECOMMENDATION_FROM_GOVERNOR_OPTIONS_"+usergroupType.toUpperCase(),"");
+				if(finalApprovingAuthorityStatus!=null){
+					try {
+						recommendationFromGovernorStatuses=Status.findStatusContainedIn(finalApprovingAuthorityStatus.getValue(), locale);
+					} catch (ELSException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+				}
+			}/**** BILL_RECOMMENDATION_FROM_GOVERNOR_OPTIONS_+DEVICETYPE_TYPE+INTERNALSTATUS_TYPE+USERGROUP(Post Final Status)****/
+			else if(deviceTypeInternalStatusUsergroup!=null){
 				try {
-					recommendationFromGovernorStatuses=Status.findStatusContainedIn(defaultStatus.getValue(), locale);
+					recommendationFromGovernorStatuses=Status.findStatusContainedIn(deviceTypeInternalStatusUsergroup.getValue(), locale);
 				} catch (ELSException e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
-			}else if(actor.isEmpty()){
-				CustomParameter defaultStatus=CustomParameter.findByName(CustomParameter.class,"BILL_RECOMMENDATION_FROM_GOVERNOR_OPTIONS_"+deviceType.getType().toUpperCase()+"_"+houseTypeForWorkflow.getType().toUpperCase()+"_DEFAULT", "");
+			}/**** BILL_RECOMMENDATION_FROM_GOVERNOR_OPTIONS_+DEVICETYPE_TYPE+HOUSETYPE+USERGROUP(Pre Final Status-House Type Basis)****/
+			else if(deviceTypeHouseTypeUsergroup!=null){
 				try {
-					recommendationFromGovernorStatuses=Status.findStatusContainedIn(defaultStatus.getValue(), locale);
+					recommendationFromGovernorStatuses=Status.findStatusContainedIn(deviceTypeHouseTypeUsergroup.getValue(), locale);
 				} catch (ELSException e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
-			}else{
-				/**** Final Approving Authority(Final Status) ****/
-				CustomParameter finalApprovingAuthority=CustomParameter.findByName(CustomParameter.class,deviceType.getType().toUpperCase()+"_RECOMMENDATION_FROM_GOVERNOR_FINAL_AUTHORITY", "");
-				CustomParameter deviceTypeInternalStatusUsergroup=CustomParameter.findByName(CustomParameter.class, "BILL_RECOMMENDATION_FROM_GOVERNOR_OPTIONS_"+deviceType.getType().toUpperCase()+"_"+internaStatus.getType().toUpperCase()+"_"+usergroupType.toUpperCase(), "");
-				CustomParameter deviceTypeHouseTypeUsergroup=CustomParameter.findByName(CustomParameter.class, "BILL_RECOMMENDATION_FROM_GOVERNOR_OPTIONS_"+deviceType.getType().toUpperCase()+"_"+houseTypeForWorkflow.getType().toUpperCase()+"_"+internaStatus.getType().toUpperCase()+"_"+usergroupType.toUpperCase(), "");
-				CustomParameter deviceTypeUsergroup=CustomParameter.findByName(CustomParameter.class, "BILL_RECOMMENDATION_FROM_GOVERNOR_OPTIONS_"+deviceType.getType().toUpperCase()+"_"+internaStatus.getType().toUpperCase()+"_"+usergroupType.toUpperCase(), "");
-				if(finalApprovingAuthority!=null&&finalApprovingAuthority.getValue().contains(usergroupType)){
-					CustomParameter finalApprovingAuthorityStatus=CustomParameter.findByName(CustomParameter.class,"BILL_RECOMMENDATION_FROM_GOVERNOR_OPTIONS_"+usergroupType.toUpperCase(),"");
-					if(finalApprovingAuthorityStatus!=null){
-						try {
-							recommendationFromGovernorStatuses=Status.findStatusContainedIn(finalApprovingAuthorityStatus.getValue(), locale);
-						} catch (ELSException e) {
-							// TODO Auto-generated catch block
-							e.printStackTrace();
-						}
-					}
-				}/**** BILL_RECOMMENDATION_FROM_GOVERNOR_OPTIONS_+DEVICETYPE_TYPE+INTERNALSTATUS_TYPE+USERGROUP(Post Final Status)****/
-				else if(deviceTypeInternalStatusUsergroup!=null){
-					try {
-						recommendationFromGovernorStatuses=Status.findStatusContainedIn(deviceTypeInternalStatusUsergroup.getValue(), locale);
-					} catch (ELSException e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
-					}
-				}/**** BILL_RECOMMENDATION_FROM_GOVERNOR_OPTIONS_+DEVICETYPE_TYPE+HOUSETYPE+USERGROUP(Pre Final Status-House Type Basis)****/
-				else if(deviceTypeHouseTypeUsergroup!=null){
-					try {
-						recommendationFromGovernorStatuses=Status.findStatusContainedIn(deviceTypeHouseTypeUsergroup.getValue(), locale);
-					} catch (ELSException e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
-					}
-				}	
-				/**** BILL_RECOMMENDATION_FROM_GOVERNOR_OPTIONS_+DEVICETYPE_TYPE+USERGROUP(Pre Final Status)****/
-				else if(deviceTypeUsergroup!=null){
-					try {
-						recommendationFromGovernorStatuses=Status.findStatusContainedIn(deviceTypeUsergroup.getValue(), locale);
-					} catch (ELSException e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
-					}
-				}		
+			}	
+			/**** BILL_RECOMMENDATION_FROM_GOVERNOR_OPTIONS_+DEVICETYPE_TYPE+USERGROUP(Pre Final Status)****/
+			else if(deviceTypeUsergroup!=null){
+				try {
+					recommendationFromGovernorStatuses=Status.findStatusContainedIn(deviceTypeUsergroup.getValue(), locale);
+				} catch (ELSException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
 			}		
 			/**** Internal Status****/
 			model.addAttribute("internalStatuses",recommendationFromGovernorStatuses);
@@ -1870,151 +1773,51 @@ public class BillWorkflowController extends BaseController {
 				&& !workflowDetails.getAssigneeUserGroupType().equals(ApplicationConstants.RECOMMENDATION_FROM_PRESIDENT_DEPARTMENT)) {
 			List<Status> recommendationFromPresidentStatuses=new ArrayList<Status>();
 			Status internaStatus=domain.getInternalStatus();
-			String actor=domain.getActorForRecommendationFromPresident();
 			HouseType houseTypeForWorkflow = Bill.findHouseTypeForWorkflow(domain);
-			if(actor==null){
-				CustomParameter defaultStatus=CustomParameter.findByName(CustomParameter.class,"BILL_RECOMMENDATION_FROM_PRESIDENT_OPTIONS_"+deviceType.getType().toUpperCase()+"_"+houseTypeForWorkflow.getType().toUpperCase()+"_DEFAULT", "");
+			/**** Final Approving Authority(Final Status) ****/
+			CustomParameter finalApprovingAuthority=CustomParameter.findByName(CustomParameter.class,deviceType.getType().toUpperCase()+"_RECOMMENDATION_FROM_PRESIDENT_FINAL_AUTHORITY", "");
+			CustomParameter deviceTypeInternalStatusUsergroup=CustomParameter.findByName(CustomParameter.class, "BILL_RECOMMENDATION_FROM_PRESIDENT_OPTIONS_"+deviceType.getType().toUpperCase()+"_"+internaStatus.getType().toUpperCase()+"_"+usergroupType.toUpperCase(), "");
+			CustomParameter deviceTypeHouseTypeUsergroup=CustomParameter.findByName(CustomParameter.class, "BILL_RECOMMENDATION_FROM_PRESIDENT_OPTIONS_"+deviceType.getType().toUpperCase()+"_"+houseTypeForWorkflow.getType().toUpperCase()+"_"+internaStatus.getType().toUpperCase()+"_"+usergroupType.toUpperCase(), "");
+			CustomParameter deviceTypeUsergroup=CustomParameter.findByName(CustomParameter.class, "BILL_RECOMMENDATION_FROM_PRESIDENT_OPTIONS_"+deviceType.getType().toUpperCase()+"_"+internaStatus.getType().toUpperCase()+"_"+usergroupType.toUpperCase(), "");
+			if(finalApprovingAuthority!=null&&finalApprovingAuthority.getValue().contains(usergroupType)){
+				CustomParameter finalApprovingAuthorityStatus=CustomParameter.findByName(CustomParameter.class,"BILL_RECOMMENDATION_FROM_PRESIDENT_OPTIONS_"+usergroupType.toUpperCase(),"");
+				if(finalApprovingAuthorityStatus!=null){
+					try {
+						recommendationFromPresidentStatuses=Status.findStatusContainedIn(finalApprovingAuthorityStatus.getValue(), locale);
+					} catch (ELSException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+				}
+			}/**** BILL_RECOMMENDATION_FROM_PRESIDENT_OPTIONS_+DEVICETYPE_TYPE+INTERNALSTATUS_TYPE+USERGROUP(Post Final Status)****/
+			else if(deviceTypeInternalStatusUsergroup!=null){
 				try {
-					recommendationFromPresidentStatuses=Status.findStatusContainedIn(defaultStatus.getValue(), locale);
+					recommendationFromPresidentStatuses=Status.findStatusContainedIn(deviceTypeInternalStatusUsergroup.getValue(), locale);
 				} catch (ELSException e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
-			}else if(actor.isEmpty()){
-				CustomParameter defaultStatus=CustomParameter.findByName(CustomParameter.class,"BILL_RECOMMENDATION_FROM_PRESIDENT_OPTIONS_"+deviceType.getType().toUpperCase()+"_"+houseTypeForWorkflow.getType().toUpperCase()+"_DEFAULT", "");
+			}/**** BILL_RECOMMENDATION_FROM_PRESIDENT_OPTIONS_+DEVICETYPE_TYPE+HOUSETYPE+USERGROUP(Pre Final Status-House Type Basis)****/
+			else if(deviceTypeHouseTypeUsergroup!=null){
 				try {
-					recommendationFromPresidentStatuses=Status.findStatusContainedIn(defaultStatus.getValue(), locale);
+					recommendationFromPresidentStatuses=Status.findStatusContainedIn(deviceTypeHouseTypeUsergroup.getValue(), locale);
 				} catch (ELSException e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
-			}else{
-				/**** Final Approving Authority(Final Status) ****/
-				CustomParameter finalApprovingAuthority=CustomParameter.findByName(CustomParameter.class,deviceType.getType().toUpperCase()+"_RECOMMENDATION_FROM_PRESIDENT_FINAL_AUTHORITY", "");
-				CustomParameter deviceTypeInternalStatusUsergroup=CustomParameter.findByName(CustomParameter.class, "BILL_RECOMMENDATION_FROM_PRESIDENT_OPTIONS_"+deviceType.getType().toUpperCase()+"_"+internaStatus.getType().toUpperCase()+"_"+usergroupType.toUpperCase(), "");
-				CustomParameter deviceTypeHouseTypeUsergroup=CustomParameter.findByName(CustomParameter.class, "BILL_RECOMMENDATION_FROM_PRESIDENT_OPTIONS_"+deviceType.getType().toUpperCase()+"_"+houseTypeForWorkflow.getType().toUpperCase()+"_"+internaStatus.getType().toUpperCase()+"_"+usergroupType.toUpperCase(), "");
-				CustomParameter deviceTypeUsergroup=CustomParameter.findByName(CustomParameter.class, "BILL_RECOMMENDATION_FROM_PRESIDENT_OPTIONS_"+deviceType.getType().toUpperCase()+"_"+internaStatus.getType().toUpperCase()+"_"+usergroupType.toUpperCase(), "");
-				if(finalApprovingAuthority!=null&&finalApprovingAuthority.getValue().contains(usergroupType)){
-					CustomParameter finalApprovingAuthorityStatus=CustomParameter.findByName(CustomParameter.class,"BILL_RECOMMENDATION_FROM_PRESIDENT_OPTIONS_"+usergroupType.toUpperCase(),"");
-					if(finalApprovingAuthorityStatus!=null){
-						try {
-							recommendationFromPresidentStatuses=Status.findStatusContainedIn(finalApprovingAuthorityStatus.getValue(), locale);
-						} catch (ELSException e) {
-							// TODO Auto-generated catch block
-							e.printStackTrace();
-						}
-					}
-				}/**** BILL_RECOMMENDATION_FROM_PRESIDENT_OPTIONS_+DEVICETYPE_TYPE+INTERNALSTATUS_TYPE+USERGROUP(Post Final Status)****/
-				else if(deviceTypeInternalStatusUsergroup!=null){
-					try {
-						recommendationFromPresidentStatuses=Status.findStatusContainedIn(deviceTypeInternalStatusUsergroup.getValue(), locale);
-					} catch (ELSException e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
-					}
-				}/**** BILL_RECOMMENDATION_FROM_PRESIDENT_OPTIONS_+DEVICETYPE_TYPE+HOUSETYPE+USERGROUP(Pre Final Status-House Type Basis)****/
-				else if(deviceTypeHouseTypeUsergroup!=null){
-					try {
-						recommendationFromPresidentStatuses=Status.findStatusContainedIn(deviceTypeHouseTypeUsergroup.getValue(), locale);
-					} catch (ELSException e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
-					}
-				}	
-				/**** BILL_RECOMMENDATION_FROM_PRESIDENT_OPTIONS_+DEVICETYPE_TYPE+USERGROUP(Pre Final Status)****/
-				else if(deviceTypeUsergroup!=null){
-					try {
-						recommendationFromPresidentStatuses=Status.findStatusContainedIn(deviceTypeUsergroup.getValue(), locale);
-					} catch (ELSException e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
-					}
-				}		
+			}	
+			/**** BILL_RECOMMENDATION_FROM_PRESIDENT_OPTIONS_+DEVICETYPE_TYPE+USERGROUP(Pre Final Status)****/
+			else if(deviceTypeUsergroup!=null){
+				try {
+					recommendationFromPresidentStatuses=Status.findStatusContainedIn(deviceTypeUsergroup.getValue(), locale);
+				} catch (ELSException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
 			}		
 			/**** Internal Status****/
 			model.addAttribute("internalStatuses",recommendationFromPresidentStatuses);
-		}
-		if(domain.getWorkflowStarted()==null){
-			domain.setWorkflowStarted("NO");
-		}else if(domain.getWorkflowStarted().isEmpty()){
-			domain.setWorkflowStarted("NO");
-		}
-		if(domain.getTranslationWorkflowStarted()==null){
-			domain.setTranslationWorkflowStarted("NO");
-		}else if(domain.getTranslationWorkflowStarted().isEmpty()){
-			domain.setTranslationWorkflowStarted("NO");
-		}
-		if(domain.getType().getType().equals(ApplicationConstants.NONOFFICIAL_BILL)) {
-			if(domain.getOpinionFromLawAndJDWorkflowStarted()==null){
-				domain.setOpinionFromLawAndJDWorkflowStarted("NO");
-			}else if(domain.getOpinionFromLawAndJDWorkflowStarted().isEmpty()){
-				domain.setOpinionFromLawAndJDWorkflowStarted("NO");
-			}
-			if(domain.getRecommendationFromGovernorWorkflowStarted()==null){
-				domain.setRecommendationFromGovernorWorkflowStarted("NO");
-			}else if(domain.getRecommendationFromGovernorWorkflowStarted().isEmpty()){
-				domain.setRecommendationFromGovernorWorkflowStarted("NO");
-			}
-			if(domain.getRecommendationFromPresidentWorkflowStarted()==null){
-				domain.setRecommendationFromPresidentWorkflowStarted("NO");
-			}else if(domain.getRecommendationFromPresidentWorkflowStarted().isEmpty()){
-				domain.setRecommendationFromPresidentWorkflowStarted("NO");
-			}
-		}		
-		if(domain.getEndFlag()==null){
-			domain.setEndFlag("continue");
-		}else if(domain.getEndFlag().isEmpty()){
-			domain.setEndFlag("continue");
-		}
-		if(domain.getEndFlagForTranslation()==null){
-			domain.setEndFlagForTranslation("continue");
-		}else if(domain.getEndFlagForTranslation().isEmpty()){
-			domain.setEndFlagForTranslation("continue");
-		}
-		if(domain.getType().getType().equals(ApplicationConstants.NONOFFICIAL_BILL)) {
-			if(domain.getEndFlagForOpinionFromLawAndJD()==null){
-				domain.setEndFlagForOpinionFromLawAndJD("continue");
-			}else if(domain.getEndFlagForOpinionFromLawAndJD().isEmpty()){
-				domain.setEndFlagForOpinionFromLawAndJD("continue");
-			}
-			if(domain.getEndFlagForRecommendationFromGovernor()==null){
-				domain.setEndFlagForRecommendationFromGovernor("continue");
-			}else if(domain.getEndFlagForRecommendationFromGovernor().isEmpty()){
-				domain.setEndFlagForRecommendationFromGovernor("continue");
-			}
-			if(domain.getEndFlagForRecommendationFromPresident()==null){
-				domain.setEndFlagForRecommendationFromPresident("continue");
-			}else if(domain.getEndFlagForRecommendationFromPresident().isEmpty()){
-				domain.setEndFlagForRecommendationFromPresident("continue");
-			}
-		}			
-		if(domain.getLevel()==null){
-			domain.setLevel("1");
-		}else if(domain.getLevel().isEmpty()){
-			domain.setLevel("1");
-		}
-		if(domain.getLevelForTranslation()==null){
-			domain.setLevelForTranslation("1");
-		}else if(domain.getLevelForTranslation().isEmpty()){
-			domain.setLevelForTranslation("1");
-		}
-		if(domain.getType().getType().equals(ApplicationConstants.NONOFFICIAL_BILL)) {
-			if(domain.getLevelForOpinionFromLawAndJD()==null){
-				domain.setLevelForOpinionFromLawAndJD("1");
-			}else if(domain.getLevelForOpinionFromLawAndJD().isEmpty()){
-				domain.setLevelForOpinionFromLawAndJD("1");
-			}
-			if(domain.getLevelForRecommendationFromGovernor()==null){
-				domain.setLevelForRecommendationFromGovernor("1");
-			}else if(domain.getLevelForRecommendationFromGovernor().isEmpty()){
-				domain.setLevelForRecommendationFromGovernor("1");
-			}
-			if(domain.getLevelForRecommendationFromPresident()==null){
-				domain.setLevelForRecommendationFromPresident("1");
-			}else if(domain.getLevelForRecommendationFromPresident().isEmpty()){
-				domain.setLevelForRecommendationFromPresident("1");
-			}
-		}						
+		}								
 		if(recommendationStatus==null) {
 			logger.error("recommendation status is not set for this bill having id="+domain.getId()+".");
 			model.addAttribute("errorcode", "recommendationStatus_null");
@@ -2022,31 +1825,48 @@ public class BillWorkflowController extends BaseController {
 		}
 		model.addAttribute("recommendationStatus",recommendationStatus.getId());
 		model.addAttribute("recommendationStatusType",recommendationStatus.getType());
-		Status translationStatus = domain.getTranslationStatus();
-		if(translationStatus!=null) {
-			model.addAttribute("translationStatus",translationStatus.getId());
-			model.addAttribute("translationStatusType", translationStatus.getType());
-			model.addAttribute("formattedTranslationStatus", translationStatus.getName());			
+		/**** Auxiliary workflow statuses ****/
+		Status translationStatus = null;
+		Status opinionFromLawAndJDStatus = null;
+		Status recommendationFromGovernorStatus = null;
+		Status recommendationFromPresidentStatus = null;
+		try {
+			translationStatus = domain.findAuxiliaryWorkflowStatus(ApplicationConstants.TRANSLATION_WORKFLOW);
+		} catch (ELSException e) {
+			model.addAttribute("error", e.getParameter());
+			return;
 		}
+		if(translationStatus==null) {
+			translationStatus = Status.findByType(ApplicationConstants.BILL_TRANSLATION_NOTSEND, domain.getLocale());
+		}
+		model.addAttribute("translationStatusType", translationStatus.getType());
+		model.addAttribute("formattedTranslationStatus", translationStatus.getName());
 		if(domain.getType().getType().equals(ApplicationConstants.NONOFFICIAL_BILL)) {
-			Status opinionFromLawAndJDStatus = domain.getOpinionFromLawAndJDStatus();
-			if(opinionFromLawAndJDStatus!=null) {
-				model.addAttribute("opinionFromLawAndJDStatus",opinionFromLawAndJDStatus.getId());
+			try {
+				opinionFromLawAndJDStatus = domain.findAuxiliaryWorkflowStatus(ApplicationConstants.OPINION_FROM_LAWANDJD_WORKFLOW);
+				if(opinionFromLawAndJDStatus==null) {
+					opinionFromLawAndJDStatus = Status.findByType(ApplicationConstants.BILL_OPINION_FROM_LAWANDJD_NOTSEND, domain.getLocale());
+				}
 				model.addAttribute("opinionFromLawAndJDStatusType", opinionFromLawAndJDStatus.getType());
 				model.addAttribute("formattedOpinionFromLawAndJDStatus", opinionFromLawAndJDStatus.getName());
-			}
-			Status recommendationFromGovernorStatus = domain.getRecommendationFromGovernorStatus();
-			if(recommendationFromGovernorStatus!=null) {
-				model.addAttribute("recommendationFromGovernorStatus",recommendationFromGovernorStatus.getId());
+				
+				recommendationFromGovernorStatus = domain.findAuxiliaryWorkflowStatus(ApplicationConstants.RECOMMENDATION_FROM_GOVERNOR_WORKFLOW);
+				if(recommendationFromGovernorStatus==null) {
+					recommendationFromGovernorStatus = Status.findByType(ApplicationConstants.BILL_RECOMMENDATION_FROM_GOVERNOR_NOTSEND, domain.getLocale());
+				}
 				model.addAttribute("recommendationFromGovernorStatusType", recommendationFromGovernorStatus.getType());
-				model.addAttribute("formattedRecommendationFromGovernorStatus", recommendationFromGovernorStatus.getName());			
-			}
-			Status recommendationFromPresidentStatus = domain.getRecommendationFromPresidentStatus();
-			if(recommendationFromPresidentStatus!=null) {
-				model.addAttribute("recommendationFromPresidentStatus",recommendationFromPresidentStatus.getId());
+				model.addAttribute("formattedRecommendationFromGovernorStatus", recommendationFromGovernorStatus.getName());
+				
+				recommendationFromPresidentStatus = domain.findAuxiliaryWorkflowStatus(ApplicationConstants.RECOMMENDATION_FROM_PRESIDENT_WORKFLOW);
+				if(recommendationFromPresidentStatus==null) {
+					recommendationFromPresidentStatus = Status.findByType(ApplicationConstants.BILL_RECOMMENDATION_FROM_PRESIDENT_NOTSEND, domain.getLocale());
+				}
 				model.addAttribute("recommendationFromPresidentStatusType", recommendationFromPresidentStatus.getType());
-				model.addAttribute("formattedRecommendationFromPresidentStatus", recommendationFromPresidentStatus.getName());			
-			}
+				model.addAttribute("formattedRecommendationFromPresidentStatus", recommendationFromPresidentStatus.getName());
+			} catch(ELSException e) {
+				model.addAttribute("error", e.getParameter());
+				return;
+			}			
 		}			
 		/**** Populating Put up options and Actors ****/							
 		if(usergroupType!=null&&!usergroupType.isEmpty()){				
@@ -2102,12 +1922,12 @@ public class BillWorkflowController extends BaseController {
 					}
 				}				
 			} else if(workflowDetails.getWorkflowType().equals(ApplicationConstants.TRANSLATION_WORKFLOW)) {				
-				if(domain.getTranslationStatus()!=null) {
+				if(translationStatus!=null) {
 					if(!(usergroupType.equals(ApplicationConstants.TRANSLATOR) && workflowDetails.getStatus().equals(ApplicationConstants.MYTASK_COMPLETED))) {
-						actors = WorkflowConfig.findBillActorsVO(domain, domain.getTranslationStatus(), userGroup, 1, locale);
+						actors = WorkflowConfig.findBillActorsVO(domain, translationStatus, userGroup, 1, locale);
 					}					
-					statusRecommended = domain.getTranslationStatus();
-					currentStatusType = domain.getTranslationStatus().getType();
+					statusRecommended = translationStatus;
+					currentStatusType = translationStatus.getType();
 					if(currentStatusType!=null) {
 						finalApprovingAuthority=CustomParameter.findByName(CustomParameter.class,deviceType.getType().toUpperCase()+"_TRANSLATION_FINAL_AUTHORITY", "");
 						if(currentStatusType.contains("reject")) {
@@ -2119,21 +1939,18 @@ public class BillWorkflowController extends BaseController {
 						if(finalApprovingAuthority!=null&&recommendedAction!=null) {
 							if(finalApprovingAuthority.getValue().contains(usergroupType)) {							
 								statusRecommended = Status.findByType("bill_final_"+recommendedAction, locale);
-								model.addAttribute("hideActorsFlag",true);
-								if(statusRecommended!=null) {
-									domain.setTranslationStatus(statusRecommended);		
-								}
+								model.addAttribute("hideActorsFlag",true);								
 							}
 						}						
 					}
 				}					
 			} else if(workflowDetails.getWorkflowType().equals(ApplicationConstants.OPINION_FROM_LAWANDJD_WORKFLOW)) {				
-				if(domain.getOpinionFromLawAndJDStatus()!=null) {
+				if(opinionFromLawAndJDStatus!=null) {
 					if(!(usergroupType.equals(ApplicationConstants.OPINION_ABOUT_BILL_DEPARTMENT) && workflowDetails.getStatus().equals(ApplicationConstants.MYTASK_COMPLETED))) {
-						actors = WorkflowConfig.findBillActorsVO(domain, domain.getOpinionFromLawAndJDStatus(), userGroup, 1, locale);
+						actors = WorkflowConfig.findBillActorsVO(domain, opinionFromLawAndJDStatus, userGroup, 1, locale);
 					}					
-					statusRecommended = domain.getOpinionFromLawAndJDStatus();
-					currentStatusType = domain.getOpinionFromLawAndJDStatus().getType();
+					statusRecommended = opinionFromLawAndJDStatus;
+					currentStatusType = opinionFromLawAndJDStatus.getType();
 					if(currentStatusType!=null) {
 						finalApprovingAuthority=CustomParameter.findByName(CustomParameter.class,deviceType.getType().toUpperCase()+"_OPINION_FROM_LAWANDJD_FINAL_AUTHORITY", "");
 						if(currentStatusType.contains("reject")) {
@@ -2145,21 +1962,18 @@ public class BillWorkflowController extends BaseController {
 						if(finalApprovingAuthority!=null&&recommendedAction!=null) {
 							if(finalApprovingAuthority.getValue().contains(usergroupType)) {							
 								statusRecommended = Status.findByType("bill_final_"+recommendedAction, locale);
-								model.addAttribute("hideActorsFlag",true);
-								if(statusRecommended!=null) {
-									domain.setOpinionFromLawAndJDStatus(statusRecommended);		
-								}
+								model.addAttribute("hideActorsFlag",true);								
 							}
 						}						
 					}
 				}
 			} else if(workflowDetails.getWorkflowType().equals(ApplicationConstants.RECOMMENDATION_FROM_GOVERNOR_WORKFLOW)) {				
-				if(domain.getRecommendationFromGovernorStatus()!=null) {
+				if(recommendationFromGovernorStatus!=null) {
 					if(!(usergroupType.equals(ApplicationConstants.RECOMMENDATION_FROM_GOVERNOR_DEPARTMENT) && workflowDetails.getStatus().equals(ApplicationConstants.MYTASK_COMPLETED))) {
-						actors = WorkflowConfig.findBillActorsVO(domain, domain.getRecommendationFromGovernorStatus(), userGroup, 1, locale);
+						actors = WorkflowConfig.findBillActorsVO(domain, recommendationFromGovernorStatus, userGroup, 1, locale);
 					}					
-					statusRecommended = domain.getRecommendationFromGovernorStatus();
-					currentStatusType = domain.getRecommendationFromGovernorStatus().getType();
+					statusRecommended = recommendationFromGovernorStatus;
+					currentStatusType = recommendationFromGovernorStatus.getType();
 					if(currentStatusType!=null) {
 						finalApprovingAuthority=CustomParameter.findByName(CustomParameter.class,deviceType.getType().toUpperCase()+"_RECOMMENDATION_FROM_GOVERNOR_FINAL_AUTHORITY", "");
 						if(currentStatusType.contains("reject")) {
@@ -2171,21 +1985,18 @@ public class BillWorkflowController extends BaseController {
 						if(finalApprovingAuthority!=null&&recommendedAction!=null) {
 							if(finalApprovingAuthority.getValue().contains(usergroupType)) {							
 								statusRecommended = Status.findByType("bill_final_"+recommendedAction, locale);
-								model.addAttribute("hideActorsFlag",true);
-								if(statusRecommended!=null) {
-									domain.setRecommendationFromGovernorStatus(statusRecommended);	
-								}
+								model.addAttribute("hideActorsFlag",true);								
 							}
 						}						
 					}
 				}
 			} else if(workflowDetails.getWorkflowType().equals(ApplicationConstants.RECOMMENDATION_FROM_PRESIDENT_WORKFLOW)) {				
-				if(domain.getRecommendationFromPresidentStatus()!=null) {
+				if(recommendationFromPresidentStatus!=null) {
 					if(!(usergroupType.equals(ApplicationConstants.RECOMMENDATION_FROM_PRESIDENT_DEPARTMENT) && workflowDetails.getStatus().equals(ApplicationConstants.MYTASK_COMPLETED))) {
-						actors = WorkflowConfig.findBillActorsVO(domain, domain.getRecommendationFromPresidentStatus(), userGroup, 1, locale);
+						actors = WorkflowConfig.findBillActorsVO(domain, recommendationFromPresidentStatus, userGroup, 1, locale);
 					}
-					statusRecommended = domain.getRecommendationFromPresidentStatus();
-					currentStatusType = domain.getRecommendationFromPresidentStatus().getType();
+					statusRecommended = recommendationFromPresidentStatus;
+					currentStatusType = recommendationFromPresidentStatus.getType();
 					if(currentStatusType!=null) {
 						finalApprovingAuthority=CustomParameter.findByName(CustomParameter.class,deviceType.getType().toUpperCase()+"_RECOMMENDATION_FROM_PRESIDENT_FINAL_AUTHORITY", "");
 						if(currentStatusType.contains("reject")) {
@@ -2197,10 +2008,7 @@ public class BillWorkflowController extends BaseController {
 						if(finalApprovingAuthority!=null&&recommendedAction!=null) {
 							if(finalApprovingAuthority.getValue().contains(usergroupType)) {							
 								statusRecommended = Status.findByType("bill_final_"+recommendedAction, locale);
-								model.addAttribute("hideActorsFlag",true);
-								if(statusRecommended!=null) {
-									domain.setRecommendationFromPresidentStatus(statusRecommended);		
-								}
+								model.addAttribute("hideActorsFlag",true);								
 							}
 						}						
 					}
@@ -2210,12 +2018,12 @@ public class BillWorkflowController extends BaseController {
 				model.addAttribute("internalStatusSelected",statusRecommended.getId());
 			}				
 			model.addAttribute("actors",actors);
-			if(actors!=null&&!actors.isEmpty()){
-				String nextActor=actors.get(0).getId();
-				String[] actorArr=nextActor.split("#");
-				domain.setLevel(actorArr[2]);
-				domain.setLocalizedActorName(actorArr[3]+"("+actorArr[4]+")");
-			}
+//			if(actors!=null&&!actors.isEmpty()){
+//				String nextActor=actors.get(0).getId();
+//				String[] actorArr=nextActor.split("#");
+//				domain.setLevel(actorArr[2]);
+//				domain.setLocalizedActorName(actorArr[3]+"("+actorArr[4]+")");
+//			}
 		}		
 		/**** level ****/
 		model.addAttribute("level",workflowDetails.getAssigneeLevel());			
@@ -2276,6 +2084,17 @@ public class BillWorkflowController extends BaseController {
 			/**** display message ****/
 			model.addAttribute("type","taskalreadycompleted");
 			return "workflow/info";
+		}
+		/** Custom Status for Auxillary Workflows **/
+		Status customStatus = null;		
+		if(workflowDetails.getWorkflowType().equals(ApplicationConstants.TRANSLATION_WORKFLOW)
+				|| workflowDetails.getWorkflowType().equals(ApplicationConstants.OPINION_FROM_LAWANDJD_WORKFLOW) 
+				|| workflowDetails.getWorkflowType().equals(ApplicationConstants.RECOMMENDATION_FROM_GOVERNOR_WORKFLOW) 
+				|| workflowDetails.getWorkflowType().equals(ApplicationConstants.RECOMMENDATION_FROM_PRESIDENT_WORKFLOW)) {
+			if(request.getParameter("customStatus")!=null && !request.getParameter("customStatus").isEmpty()) {
+				customStatus = Status.findById(Status.class, Long.parseLong(request.getParameter("customStatus")));
+				workflowDetails.setCustomStatus(customStatus.getType());
+			}			
 		}
 		/**** handle workflows for print requisitions ****/
 		if((workflowDetails.getWorkflowType().equals(ApplicationConstants.REQUISITION_TO_PRESS_WORKFLOW))
@@ -2401,11 +2220,11 @@ public class BillWorkflowController extends BaseController {
 					String userGroupType = workflowDetails.getAssigneeUserGroupType();
 					return "workflow/bill/"+userGroupType;
 				} else if(request.getParameter("operation").equals("sendTranslation")) {
-					String endflag=domain.getEndFlagForTranslation();
+					String endflag=request.getParameter("endflag");
 					Map<String,String> properties=new HashMap<String, String>();
 					String level="";
 					String nextUserGroupType="";
-					String nextuser = request.getParameter("actorForWorkflow");
+					String nextuser = request.getParameter("actor");
 					if(nextuser!=null){
 						if(!nextuser.isEmpty()){
 							String[] temp=nextuser.split("#");
@@ -2428,18 +2247,20 @@ public class BillWorkflowController extends BaseController {
 								ProcessInstance processInstance = processService.findProcessInstanceById(task.getProcessInstanceId());
 								Task newtask=processService.getCurrentTask(processInstance);
 								/**** Workflow Detail entry made only if its not the end of workflow ****/
-								WorkflowDetails.create(domain,newtask,workflowDetails.getWorkflowType(),nextUserGroupType,level);
+								if(customStatus!=null) {
+									WorkflowDetails.create(domain,newtask,workflowDetails.getWorkflowType(),customStatus.getType(),nextUserGroupType, level);
+								} else {
+									WorkflowDetails.create(domain,newtask,workflowDetails.getWorkflowType(),null,nextUserGroupType, level);
+								}
+								
 							}
 						}
 					}
 					workflowDetails.setStatus("COMPLETED");
 					workflowDetails.setCompletionTime(new Date());			
-					workflowDetails.merge();
-					/**** Stale State Exception ****/		
-					Bill billUpdated=Bill.findById(Bill.class,bill.getId());
 					Status translationCompletedStatus = Status.findByType(ApplicationConstants.BILL_TRANSLATION_COMPLETED, bill.getLocale());
-					billUpdated.setTranslationStatus(translationCompletedStatus);
-					billUpdated.simpleMerge();
+					workflowDetails.setCustomStatus(translationCompletedStatus.getType());
+					workflowDetails.merge();
 					/**** display message ****/
 					model.addAttribute("type","taskcompleted");
 					return "workflow/info";					
@@ -2548,16 +2369,6 @@ public class BillWorkflowController extends BaseController {
 		String strDateOfOpinionSoughtFromLawAndJD=request.getParameter("setDateOfOpinionSoughtFromLawAndJD");
 		String strDateOfRecommendationFromGovernor=request.getParameter("setDateOfRecommendationFromGovernor");
 		String strDateOfRecommendationFromPresident=request.getParameter("setDateOfRecommendationFromPresident");
-		String strWorkflowStartedOnDate=request.getParameter("workflowStartedOnDate");
-		String strWorkflowForTranslationStartedOnDate=request.getParameter("workflowForTranslationStartedOnDate");
-		String strWorkflowForOpinionFromLawAndJDStartedOnDate=request.getParameter("workflowForOpinionFromLawAndJDStartedOnDate");
-		String strWorkflowForRecommendationFromGovernorStartedOnDate=request.getParameter("workflowForRecommendationFromGovernorStartedOnDate");
-		String strWorkflowForRecommendationFromPresidentStartedOnDate=request.getParameter("workflowForRecommendationFromPresidentStartedOnDate");
-		String strTaskReceivedOnDate=request.getParameter("taskReceivedOnDate");
-		String strTaskReceivedOnDateForTranslation=request.getParameter("taskReceivedOnDateForTranslation");
-		String strTaskReceivedOnDateForOpinionFromLawAndJD=request.getParameter("taskReceivedOnDateForOpinionFromLawAndJD");
-		String strTaskReceivedOnDateForRecommendationFromGovernor=request.getParameter("taskReceivedOnDateForRecommendationFromGovernor");
-		String strTaskReceivedOnDateForRecommendationFromPresident=request.getParameter("taskReceivedOnDateForRecommendationFromPresident");
 		CustomParameter dateTimeFormat=CustomParameter.findByName(CustomParameter.class,"SERVER_DATETIMEFORMAT", "");
 		if(dateTimeFormat!=null){
 			SimpleDateFormat format=FormaterUtil.getDateFormatter(dateTimeFormat.getValue(),"en_US");
@@ -2586,37 +2397,7 @@ public class BillWorkflowController extends BaseController {
 							&& workflowDetails.getAssigneeUserGroupType().equals(ApplicationConstants.RECOMMENDATION_FROM_PRESIDENT_DEPARTMENT)) {
 						domain.setDateOfRecommendationFromPresident(new Date());
 					}
-				}
-				if(strWorkflowStartedOnDate!=null&&!strWorkflowStartedOnDate.isEmpty()){
-					domain.setWorkflowStartedOn(format.parse(strWorkflowStartedOnDate));
-				}
-				if(strWorkflowForTranslationStartedOnDate!=null&&!strWorkflowForTranslationStartedOnDate.isEmpty()){
-					domain.setWorkflowForTranslationStartedOn(format.parse(strWorkflowForTranslationStartedOnDate));
-				}
-				if(strWorkflowForOpinionFromLawAndJDStartedOnDate!=null&&!strWorkflowForOpinionFromLawAndJDStartedOnDate.isEmpty()){
-					domain.setWorkflowForOpinionFromLawAndJDStartedOn(format.parse(strWorkflowForOpinionFromLawAndJDStartedOnDate));
-				}
-				if(strWorkflowForRecommendationFromGovernorStartedOnDate!=null&&!strWorkflowForRecommendationFromGovernorStartedOnDate.isEmpty()){
-					domain.setWorkflowForRecommendationFromGovernorStartedOn(format.parse(strWorkflowForRecommendationFromGovernorStartedOnDate));
-				}
-				if(strWorkflowForRecommendationFromPresidentStartedOnDate!=null&&!strWorkflowForRecommendationFromPresidentStartedOnDate.isEmpty()){
-					domain.setWorkflowForRecommendationFromPresidentStartedOn(format.parse(strWorkflowForRecommendationFromPresidentStartedOnDate));
-				}
-				if(strTaskReceivedOnDate!=null&&!strTaskReceivedOnDate.isEmpty()){
-					domain.setTaskReceivedOn(format.parse(strTaskReceivedOnDate));
-				}
-				if(strTaskReceivedOnDateForTranslation!=null&&!strTaskReceivedOnDateForTranslation.isEmpty()){
-					domain.setTaskReceivedOnForTranslation(format.parse(strTaskReceivedOnDateForTranslation));
-				}
-				if(strTaskReceivedOnDateForOpinionFromLawAndJD!=null&&!strTaskReceivedOnDateForOpinionFromLawAndJD.isEmpty()){
-					domain.setTaskReceivedOnForOpinionFromLawAndJD(format.parse(strTaskReceivedOnDateForOpinionFromLawAndJD));
-				}
-				if(strTaskReceivedOnDateForRecommendationFromGovernor!=null&&!strTaskReceivedOnDateForRecommendationFromGovernor.isEmpty()){
-					domain.setTaskReceivedOnForRecommendationFromGovernor(format.parse(strTaskReceivedOnDateForRecommendationFromGovernor));
-				}
-				if(strTaskReceivedOnDateForRecommendationFromPresident!=null&&!strTaskReceivedOnDateForRecommendationFromPresident.isEmpty()){
-					domain.setTaskReceivedOnForRecommendationFromPresident(format.parse(strTaskReceivedOnDateForRecommendationFromPresident));
-				}
+				}				
 			}
 			catch (ParseException e) {
 				e.printStackTrace();
@@ -2666,8 +2447,6 @@ public class BillWorkflowController extends BaseController {
 		performAction(domain, request);	
 		domain.merge();
 		
-		String bulkEdit=request.getParameter("bulkedit");
-		if(bulkEdit==null||!bulkEdit.equals("yes")){
 		/**** Complete Task ****/	
 		String currentDeviceTypeWorkflowType = workflowDetails.getWorkflowType();
 		if(request.getParameter("operation")!=null && !request.getParameter("operation").isEmpty()) {
@@ -2716,7 +2495,7 @@ public class BillWorkflowController extends BaseController {
 		Map<String,String> properties=new HashMap<String, String>();
 		String level="";
 		String nextUserGroupType="";
-		String nextuser = request.getParameter("actorForWorkflow");
+		String nextuser = request.getParameter("actor");
 		if(nextuser!=null){
 			if(!nextuser.isEmpty()){
 				String[] temp=nextuser.split("#");
@@ -2725,23 +2504,13 @@ public class BillWorkflowController extends BaseController {
 				level=temp[2];
 			}
 		}
-		if(currentDeviceTypeWorkflowType.equals(ApplicationConstants.TRANSLATION_WORKFLOW)) {
-			endflag=domain.getEndFlagForTranslation();			
-		} else if(currentDeviceTypeWorkflowType.equals(ApplicationConstants.OPINION_FROM_LAWANDJD_WORKFLOW)) {
-			endflag=domain.getEndFlagForOpinionFromLawAndJD();			
-		} else if(currentDeviceTypeWorkflowType.equals(ApplicationConstants.RECOMMENDATION_FROM_GOVERNOR_WORKFLOW)) {
-			endflag=domain.getEndFlagForRecommendationFromGovernor();			
-		} else if(currentDeviceTypeWorkflowType.equals(ApplicationConstants.RECOMMENDATION_FROM_PRESIDENT_WORKFLOW)) {
-			endflag=domain.getEndFlagForRecommendationFromPresident();			
-		} else {			
-			endflag=domain.getEndFlag();
-		}		
+		endflag=request.getParameter("endflag");		
 		properties.put("pv_deviceId",String.valueOf(domain.getId()));
 		properties.put("pv_deviceTypeId",String.valueOf(domain.getType().getId()));		
 		properties.put("pv_endflag", endflag);
 		/**** set timer for translation ****/
 		if(currentDeviceTypeWorkflowType.equals(ApplicationConstants.TRANSLATION_WORKFLOW)
-				&& domain.getTranslationStatus().getType().equals(ApplicationConstants.BILL_FINAL_TRANSLATION)
+				&& customStatus.getType().equals(ApplicationConstants.BILL_FINAL_TRANSLATION)
 				&& workflowDetails.getAssigneeUserGroupType().equals(ApplicationConstants.SECTION_OFFICER)) {
 			properties.put("pv_workflowtype", ApplicationConstants.TRANSLATION_WORKFLOW);
 			properties.put("pv_timerflag", "set");
@@ -2770,7 +2539,11 @@ public class BillWorkflowController extends BaseController {
 					ProcessInstance processInstance = processService.findProcessInstanceById(task.getProcessInstanceId());
 					Task newtask=processService.getCurrentTask(processInstance);
 					/**** Workflow Detail entry made only if its not the end of workflow ****/
-					WorkflowDetails.create(domain,newtask,currentDeviceTypeWorkflowType,nextUserGroupType,level);
+					if(customStatus!=null) {
+						WorkflowDetails.create(domain,newtask,currentDeviceTypeWorkflowType,customStatus.getType(),nextUserGroupType, level);
+					} else {
+						WorkflowDetails.create(domain,newtask,currentDeviceTypeWorkflowType,null,nextUserGroupType, level);
+					}					
 				}
 			}
 		}
@@ -2779,11 +2552,7 @@ public class BillWorkflowController extends BaseController {
 		/**** Stale State Exception ****/		
 		Bill bill=Bill.findById(Bill.class,domain.getId());
 		if(currentDeviceTypeWorkflowType.equals(ApplicationConstants.TRANSLATION_WORKFLOW)) {
-			bill.setTaskReceivedOnForTranslation(new Date());	
-			bill.setActorForTranslation(request.getParameter("actorForWorkflow"));
-			bill.setLocalizedActorNameForTranslation(request.getParameter("localizedActorNameForWorkflow"));
-			bill.setLevelForTranslation(request.getParameter("levelForWorkflow"));
-			if(domain.getTranslationStatus().getType().equals(ApplicationConstants.BILL_FINAL_TRANSLATION)) {
+			if(customStatus.getType().equals(ApplicationConstants.BILL_FINAL_TRANSLATION)) {
 				if(domain.getRemarks()!=null && !domain.getRemarks().isEmpty())
 				bill.setRemarksForTranslation(domain.getRemarks());
 			}
@@ -2791,19 +2560,15 @@ public class BillWorkflowController extends BaseController {
 				if(workflowDetails.getAssigneeUserGroupType().equals(ApplicationConstants.TRANSLATOR)
 					&& request.getParameter("operation").equals("sendTranslation")) {
 					Status translationCompletedStatus = Status.findByType(ApplicationConstants.BILL_TRANSLATION_COMPLETED, bill.getLocale());
-					bill.setTranslationStatus(translationCompletedStatus);
+					workflowDetails.setCustomStatus(translationCompletedStatus.getType());					
 				}
 			}
 		} else if(currentDeviceTypeWorkflowType.equals(ApplicationConstants.OPINION_FROM_LAWANDJD_WORKFLOW)) {
-			bill.setTaskReceivedOnForOpinionFromLawAndJD(new Date());	
-			bill.setActorForOpinionFromLawAndJD(request.getParameter("actorForWorkflow"));
-			bill.setLocalizedActorNameForOpinionFromLawAndJD(request.getParameter("localizedActorNameForWorkflow"));
-			bill.setLevelForOpinionFromLawAndJD(request.getParameter("levelForWorkflow"));
 			if(request.getParameter("operation")!=null && !request.getParameter("operation").isEmpty()) {
 				if(workflowDetails.getAssigneeUserGroupType().equals(ApplicationConstants.OPINION_ABOUT_BILL_DEPARTMENT)
 					&& request.getParameter("operation").equals("sendOpinionFromLawAndJD")) {
 					Status opinionFromLawAndJDReceivedStatus = Status.findByType(ApplicationConstants.BILL_OPINION_FROM_LAWANDJD_RECEIVED, bill.getLocale());
-					bill.setOpinionFromLawAndJDStatus(opinionFromLawAndJDReceivedStatus);	
+					workflowDetails.setCustomStatus(opinionFromLawAndJDReceivedStatus.getType());
 					if(domain.getOpinionSoughtFromLawAndJD()!=null) {
 						if(!domain.getOpinionSoughtFromLawAndJD().isEmpty()) {
 							bill.setDateOfOpinionSoughtFromLawAndJD(new Date());
@@ -2812,15 +2577,11 @@ public class BillWorkflowController extends BaseController {
 				}
 			}
 		} else if(currentDeviceTypeWorkflowType.equals(ApplicationConstants.RECOMMENDATION_FROM_GOVERNOR_WORKFLOW)) {
-			bill.setTaskReceivedOnForRecommendationFromGovernor(new Date());	
-			bill.setActorForRecommendationFromGovernor(request.getParameter("actorForWorkflow"));
-			bill.setLocalizedActorNameForRecommendationFromGovernor(request.getParameter("localizedActorNameForWorkflow"));
-			bill.setLevelForRecommendationFromGovernor(request.getParameter("levelForWorkflow"));
 			if(request.getParameter("operation")!=null && !request.getParameter("operation").isEmpty()) {
 				if(workflowDetails.getAssigneeUserGroupType().equals(ApplicationConstants.RECOMMENDATION_FROM_GOVERNOR_DEPARTMENT)
 					&& request.getParameter("operation").equals("sendRecommendationFromGovernor")) {
 					Status recommendationFromGovernorReceivedStatus = Status.findByType(ApplicationConstants.BILL_RECOMMENDATION_FROM_GOVERNOR_RECEIVED, bill.getLocale());
-					bill.setRecommendationFromGovernorStatus(recommendationFromGovernorReceivedStatus);	
+					workflowDetails.setCustomStatus(recommendationFromGovernorReceivedStatus.getType());
 					if(domain.getRecommendationFromGovernor()!=null) {
 						if(!domain.getRecommendationFromGovernor().isEmpty()) {
 							bill.setDateOfRecommendationFromGovernor(new Date());
@@ -2829,15 +2590,11 @@ public class BillWorkflowController extends BaseController {
 				}
 			}
 		} else if(currentDeviceTypeWorkflowType.equals(ApplicationConstants.RECOMMENDATION_FROM_PRESIDENT_WORKFLOW)) {
-			bill.setTaskReceivedOnForRecommendationFromPresident(new Date());	
-			bill.setActorForRecommendationFromPresident(request.getParameter("actorForWorkflow"));
-			bill.setLocalizedActorNameForRecommendationFromPresident(request.getParameter("localizedActorNameForWorkflow"));
-			bill.setLevelForRecommendationFromPresident(request.getParameter("levelForWorkflow"));
 			if(request.getParameter("operation")!=null && !request.getParameter("operation").isEmpty()) {
 				if(workflowDetails.getAssigneeUserGroupType().equals(ApplicationConstants.RECOMMENDATION_FROM_PRESIDENT_DEPARTMENT)
 					&& request.getParameter("operation").equals("sendRecommendationFromPresident")) {
 					Status recommendationFromPresidentReceivedStatus = Status.findByType(ApplicationConstants.BILL_RECOMMENDATION_FROM_PRESIDENT_RECEIVED, bill.getLocale());
-					bill.setRecommendationFromPresidentStatus(recommendationFromPresidentReceivedStatus);	
+					workflowDetails.setCustomStatus(recommendationFromPresidentReceivedStatus.getType());
 					if(domain.getRecommendationFromPresident()!=null) {
 						if(!domain.getRecommendationFromPresident().isEmpty()) {
 							bill.setDateOfRecommendationFromPresident(new Date());
@@ -2845,12 +2602,6 @@ public class BillWorkflowController extends BaseController {
 					}
 				}
 			}
-		} else if(currentDeviceTypeWorkflowType.equals(ApplicationConstants.APPROVAL_WORKFLOW)
-				|| currentDeviceTypeWorkflowType.equals(ApplicationConstants.NAMECLUBBING_WORKFLOW)) {	
-			bill.setTaskReceivedOn(new Date());
-			bill.setActor(request.getParameter("actorForWorkflow"));
-			bill.setLocalizedActorName(request.getParameter("localizedActorNameForWorkflow"));
-			bill.setLevel(request.getParameter("levelForWorkflow"));
 		}		
 		workflowDetails.merge();	
 		if(domain.getStatus().getType().equals(ApplicationConstants.BILL_FINAL_ADMISSION) 
@@ -2862,12 +2613,7 @@ public class BillWorkflowController extends BaseController {
 		bill.simpleMerge();
 		/**** display message ****/
 		model.addAttribute("type","taskcompleted");
-		return "workflow/info";
-		}
-		model.addAttribute("type","success");
-		populateModel(domain, model, request, workflowDetails);
-		String userGroupType = workflowDetails.getAssigneeUserGroupType();
-		return "workflow/bill/"+userGroupType;
+		return "workflow/info";		
 	}
 	
 	private void performAction(Bill domain, HttpServletRequest request) {		
@@ -3172,90 +2918,71 @@ public class BillWorkflowController extends BaseController {
 		DeviceType deviceType=domain.getType();
 		Status internaStatus=domain.getInternalStatus();
 		HouseType houseTypeForWorkflow = Bill.findHouseTypeForWorkflow(domain);
-		String actor=domain.getActor();
-		if(actor==null){
-			CustomParameter defaultStatus=CustomParameter.findByName(CustomParameter.class,"BILL_PUT_UP_OPTIONS_"+deviceType.getType().toUpperCase()+"_"+houseTypeForWorkflow.getType().toUpperCase()+"_DEFAULT", "");
+		String usergroupType=(String) model.get("usergroupType");
+		/**** Final Approving Authority(Final Status) ****/
+		CustomParameter finalApprovingAuthority=null;
+		CustomParameter finalApprovingAuthorityStatus=null;
+		if(workflowType.equals(ApplicationConstants.NAMECLUBBING_WORKFLOW)) {
+			finalApprovingAuthority=CustomParameter.findByName(CustomParameter.class,deviceType.getType().toUpperCase()+"_NAMECLUBBING_FINAL_AUTHORITY", "");
+			finalApprovingAuthorityStatus=CustomParameter.findByName(CustomParameter.class,"BILL_PUT_UP_OPTIONS_NAMECLUBBING_FINAL_"+usergroupType.toUpperCase(),"");
+		} else {
+			finalApprovingAuthority=CustomParameter.findByName(CustomParameter.class,deviceType.getType().toUpperCase()+"_FINAL_AUTHORITY", "");
+			finalApprovingAuthorityStatus=CustomParameter.findByName(CustomParameter.class,"BILL_PUT_UP_OPTIONS_"+usergroupType.toUpperCase(),"");
+		}			
+		CustomParameter deviceTypeInternalStatusUsergroup=CustomParameter.findByName(CustomParameter.class, "BILL_PUT_UP_OPTIONS_"+deviceType.getType().toUpperCase()+"_"+internaStatus.getType().toUpperCase()+"_"+usergroupType.toUpperCase(), "");
+		CustomParameter deviceTypeHouseTypeUsergroup=CustomParameter.findByName(CustomParameter.class, "BILL_PUT_UP_OPTIONS_"+deviceType.getType().toUpperCase()+"_"+houseTypeForWorkflow.getType().toUpperCase()+"_"+internaStatus.getType().toUpperCase()+"_"+usergroupType.toUpperCase(), "");
+		CustomParameter internalStatusUsergroup=CustomParameter.findByName(CustomParameter.class, "BILL_PUT_UP_OPTIONS_"+internaStatus.getType().toUpperCase()+"_"+usergroupType.toUpperCase(), "");
+		CustomParameter deviceTypeUsergroup=CustomParameter.findByName(CustomParameter.class, "BILL_PUT_UP_OPTIONS_"+deviceType.getType().toUpperCase()+"_"+usergroupType.toUpperCase(), "");
+		CustomParameter defaultCustomParameter=CustomParameter.findByName(CustomParameter.class,"BILL_PUT_UP_OPTIONS_BY_DEFAULT","");
+		if(finalApprovingAuthority!=null&&finalApprovingAuthority.getValue().contains(usergroupType)){
+			if(finalApprovingAuthorityStatus!=null){
+				try {
+					internalStatuses=Status.findStatusContainedIn(finalApprovingAuthorityStatus.getValue(), locale);
+				} catch (ELSException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+			}
+		}/**** BILL_PUT_UP_OPTIONS_+DEVICETYPE_TYPE+INTERNALSTATUS_TYPE+USERGROUP(Post Final Status)****/
+		else if(deviceTypeInternalStatusUsergroup!=null){
 			try {
-				internalStatuses=Status.findStatusContainedIn(defaultStatus.getValue(), locale);
+				internalStatuses=Status.findStatusContainedIn(deviceTypeInternalStatusUsergroup.getValue(), locale);
 			} catch (ELSException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
-		}else if(actor.isEmpty()){
-			CustomParameter defaultStatus=CustomParameter.findByName(CustomParameter.class,"BILL_PUT_UP_OPTIONS_"+deviceType.getType().toUpperCase()+"_"+houseTypeForWorkflow.getType().toUpperCase()+"_DEFAULT", "");
+		}/**** BILL_PUT_UP_OPTIONS_+DEVICETYPE_TYPE+HOUSETYPE+USERGROUP(Pre Final Status-House Type Basis)****/
+		else if(deviceTypeHouseTypeUsergroup!=null){
 			try {
-				internalStatuses=Status.findStatusContainedIn(defaultStatus.getValue(), locale);
+				internalStatuses=Status.findStatusContainedIn(deviceTypeHouseTypeUsergroup.getValue(), locale);
 			} catch (ELSException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
-		}else{
-			String usergroupType=actor.split("#")[1];
-			/**** Final Approving Authority(Final Status) ****/
-			CustomParameter finalApprovingAuthority=null;
-			CustomParameter finalApprovingAuthorityStatus=null;
-			if(workflowType.equals(ApplicationConstants.NAMECLUBBING_WORKFLOW)) {
-				finalApprovingAuthority=CustomParameter.findByName(CustomParameter.class,deviceType.getType().toUpperCase()+"_NAMECLUBBING_FINAL_AUTHORITY", "");
-				finalApprovingAuthorityStatus=CustomParameter.findByName(CustomParameter.class,"BILL_PUT_UP_OPTIONS_NAMECLUBBING_FINAL_"+usergroupType.toUpperCase(),"");
-			} else {
-				finalApprovingAuthority=CustomParameter.findByName(CustomParameter.class,deviceType.getType().toUpperCase()+"_FINAL_AUTHORITY", "");
-				finalApprovingAuthorityStatus=CustomParameter.findByName(CustomParameter.class,"BILL_PUT_UP_OPTIONS_"+usergroupType.toUpperCase(),"");
-			}			
-			CustomParameter deviceTypeInternalStatusUsergroup=CustomParameter.findByName(CustomParameter.class, "BILL_PUT_UP_OPTIONS_"+deviceType.getType().toUpperCase()+"_"+internaStatus.getType().toUpperCase()+"_"+usergroupType.toUpperCase(), "");
-			CustomParameter deviceTypeHouseTypeUsergroup=CustomParameter.findByName(CustomParameter.class, "BILL_PUT_UP_OPTIONS_"+deviceType.getType().toUpperCase()+"_"+houseTypeForWorkflow.getType().toUpperCase()+"_"+internaStatus.getType().toUpperCase()+"_"+usergroupType.toUpperCase(), "");
-			CustomParameter internalStatusUsergroup=CustomParameter.findByName(CustomParameter.class, "BILL_PUT_UP_OPTIONS_"+internaStatus.getType().toUpperCase()+"_"+usergroupType.toUpperCase(), "");
-			CustomParameter deviceTypeUsergroup=CustomParameter.findByName(CustomParameter.class, "BILL_PUT_UP_OPTIONS_"+deviceType.getType().toUpperCase()+"_"+usergroupType.toUpperCase(), "");
-			CustomParameter defaultCustomParameter=CustomParameter.findByName(CustomParameter.class,"BILL_PUT_UP_OPTIONS_BY_DEFAULT","");
-			if(finalApprovingAuthority!=null&&finalApprovingAuthority.getValue().contains(usergroupType)){
-				if(finalApprovingAuthorityStatus!=null){
-					try {
-						internalStatuses=Status.findStatusContainedIn(finalApprovingAuthorityStatus.getValue(), locale);
-					} catch (ELSException e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
-					}
-				}
-			}/**** BILL_PUT_UP_OPTIONS_+DEVICETYPE_TYPE+INTERNALSTATUS_TYPE+USERGROUP(Post Final Status)****/
-			else if(deviceTypeInternalStatusUsergroup!=null){
-				try {
-					internalStatuses=Status.findStatusContainedIn(deviceTypeInternalStatusUsergroup.getValue(), locale);
-				} catch (ELSException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
-			}/**** BILL_PUT_UP_OPTIONS_+DEVICETYPE_TYPE+HOUSETYPE+USERGROUP(Pre Final Status-House Type Basis)****/
-			else if(deviceTypeHouseTypeUsergroup!=null){
-				try {
-					internalStatuses=Status.findStatusContainedIn(deviceTypeHouseTypeUsergroup.getValue(), locale);
-				} catch (ELSException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
-			}	
-			/**** BILL_PUT_UP_OPTIONS_+INTERNALSTATUS_TYPE+USERGROUP(Pre Final Status)****/
-			else if(internalStatusUsergroup!=null){
-				try {
-					internalStatuses=Status.findStatusContainedIn(internalStatusUsergroup.getValue(), locale);
-				} catch (ELSException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
+		}	
+		/**** BILL_PUT_UP_OPTIONS_+INTERNALSTATUS_TYPE+USERGROUP(Pre Final Status)****/
+		else if(internalStatusUsergroup!=null){
+			try {
+				internalStatuses=Status.findStatusContainedIn(internalStatusUsergroup.getValue(), locale);
+			} catch (ELSException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
 			}
-			/**** BILL_PUT_UP_OPTIONS_+DEVICETYPE_TYPE+USERGROUP(Pre Final Status)****/
-			else if(deviceTypeUsergroup!=null){
-				try {
-					internalStatuses=Status.findStatusContainedIn(deviceTypeUsergroup.getValue(), locale);
-				} catch (ELSException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
-			} else if(defaultCustomParameter!=null){
-				try {
-					internalStatuses=Status.findStatusContainedIn(defaultCustomParameter.getValue(), locale);
-				} catch (ELSException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
+		}
+		/**** BILL_PUT_UP_OPTIONS_+DEVICETYPE_TYPE+USERGROUP(Pre Final Status)****/
+		else if(deviceTypeUsergroup!=null){
+			try {
+				internalStatuses=Status.findStatusContainedIn(deviceTypeUsergroup.getValue(), locale);
+			} catch (ELSException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		} else if(defaultCustomParameter!=null){
+			try {
+				internalStatuses=Status.findStatusContainedIn(defaultCustomParameter.getValue(), locale);
+			} catch (ELSException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
 			}
 		}		
 		/**** Internal Status****/

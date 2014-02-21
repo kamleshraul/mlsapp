@@ -20,6 +20,8 @@ import org.mkcl.els.common.vo.Task;
 import org.mkcl.els.domain.Bill;
 import org.mkcl.els.domain.Credential;
 import org.mkcl.els.domain.CustomParameter;
+import org.mkcl.els.domain.Device;
+import org.mkcl.els.domain.DeviceType;
 import org.mkcl.els.domain.HouseType;
 import org.mkcl.els.domain.Motion;
 import org.mkcl.els.domain.PrintRequisition;
@@ -758,9 +760,10 @@ public class WorkflowDetailsRepository extends BaseRepository<WorkflowDetails, S
     	return list;
 	}
 	
-	/************** Bill Related Domain Methods *********************/
+	/************** Bill Related Domain Methods 
+	 * @param customStatus status for auxillary workflow type*********************/
 	public WorkflowDetails create(final Bill bill,final Task task,
-			final String workflowType,final String userGroupType,final String assigneeLevel) {
+			final String workflowType,String customStatus,final String userGroupType, final String assigneeLevel) {
 		WorkflowDetails workflowDetails=new WorkflowDetails();
 		String userGroupId=null;		
 		String userGroupName=null;				
@@ -843,19 +846,14 @@ public class WorkflowDetailsRepository extends BaseRepository<WorkflowDetails, S
 					} else {
 						workflowDetails.setUrlPattern(ApplicationConstants.APPROVAL_WORKFLOW_URLPATTERN_BILL);
 						workflowDetails.setForm(workflowDetails.getUrlPattern()+"/"+userGroupType);
-						if(workflowType.equals(ApplicationConstants.TRANSLATION_WORKFLOW)) {
-							workflowDetails.setWorkflowSubType(bill.getTranslationStatus().getType());
-						} else if(workflowType.equals(ApplicationConstants.OPINION_FROM_LAWANDJD_WORKFLOW)) {
-							workflowDetails.setWorkflowSubType(bill.getOpinionFromLawAndJDStatus().getType());
-						} else if(workflowType.equals(ApplicationConstants.RECOMMENDATION_FROM_GOVERNOR_WORKFLOW)) {
-							workflowDetails.setWorkflowSubType(bill.getRecommendationFromGovernorStatus().getType());
-						} else if(workflowType.equals(ApplicationConstants.RECOMMENDATION_FROM_PRESIDENT_WORKFLOW)) {
-							workflowDetails.setWorkflowSubType(bill.getRecommendationFromPresidentStatus().getType());
-						} else if(workflowType.equals(ApplicationConstants.REQUISITION_TO_PRESS_WORKFLOW)) {
+						if(workflowType.equals(ApplicationConstants.REQUISITION_TO_PRESS_WORKFLOW)) {
 							Status requestStatus=Status.findByType(ApplicationConstants.BILL_FINAL_PRINT_REQUISITION_TO_PRESS, bill.getLocale());
 							if(requestStatus!=null){
 								workflowDetails.setWorkflowSubType(requestStatus.getType());
 							}
+						} else if(customStatus!=null && !customStatus.isEmpty()) {
+							workflowDetails.setWorkflowSubType(customStatus);
+							workflowDetails.setCustomStatus(customStatus);
 						} else {
 							workflowDetails.setWorkflowSubType(bill.getInternalStatus().getType());
 						}
@@ -1016,7 +1014,7 @@ public class WorkflowDetailsRepository extends BaseRepository<WorkflowDetails, S
 	}
 	
 	public List<WorkflowDetails> create(final Bill bill,final List<Task> tasks,
-			final String workflowType,final String assigneeLevel) {
+			final String workflowType,String customStatus, final String assigneeLevel) {
 		List<WorkflowDetails> workflowDetailsList=new ArrayList<WorkflowDetails>();
 		try {
 			Status requestStatus=Status.findByType(ApplicationConstants.REQUEST_TO_SUPPORTING_MEMBER, bill.getLocale());
@@ -1094,16 +1092,11 @@ public class WorkflowDetailsRepository extends BaseRepository<WorkflowDetails, S
 							} else {
 								workflowDetails.setUrlPattern(ApplicationConstants.APPROVAL_WORKFLOW_URLPATTERN_BILL);
 								workflowDetails.setForm(workflowDetails.getUrlPattern()+"/"+userGroupType);
-								if(workflowType.equals(ApplicationConstants.TRANSLATION_WORKFLOW)) {
-									workflowDetails.setWorkflowSubType(bill.getTranslationStatus().getType());
-								} else if(workflowType.equals(ApplicationConstants.OPINION_FROM_LAWANDJD_WORKFLOW)) {
-									workflowDetails.setWorkflowSubType(bill.getOpinionFromLawAndJDStatus().getType());
-								} else if(workflowType.equals(ApplicationConstants.RECOMMENDATION_FROM_GOVERNOR_WORKFLOW)) {
-									workflowDetails.setWorkflowSubType(bill.getRecommendationFromGovernorStatus().getType());
-								} else if(workflowType.equals(ApplicationConstants.RECOMMENDATION_FROM_PRESIDENT_WORKFLOW)) {
-									workflowDetails.setWorkflowSubType(bill.getRecommendationFromPresidentStatus().getType());
-								} else {
+								if(workflowType.equals(ApplicationConstants.APPROVAL_WORKFLOW)) {
 									workflowDetails.setWorkflowSubType(bill.getInternalStatus().getType());
+								} else if(customStatus!=null && !customStatus.isEmpty()) {
+									workflowDetails.setWorkflowSubType(customStatus);
+									workflowDetails.setCustomStatus(customStatus);
 								}
 							}
 							workflowDetailsList.add((WorkflowDetails) workflowDetails.persist());
@@ -1242,5 +1235,30 @@ public class WorkflowDetailsRepository extends BaseRepository<WorkflowDetails, S
 		Query pQuery = this.em().createNativeQuery(query.toString());
 		
 		return pQuery.getResultList();
+	}
+	
+	public WorkflowDetails findCurrentWorkflowDetail(final Device device, final DeviceType deviceType, final String workflowType) throws ELSException {
+		
+		try{
+			String strQuery="SELECT m FROM WorkflowDetails m" +
+					" WHERE m.deviceId=:deviceId"+
+					" AND m.deviceType=:deviceType" +
+					" AND m.workflowType=:workflowType" +					
+					" ORDER BY m.assignmentTime "+ApplicationConstants.DESC;
+			Query query=this.em().createQuery(strQuery);
+			query.setParameter("deviceId", device.getId().toString());
+			query.setParameter("deviceType", deviceType.getName());
+			query.setParameter("workflowType",workflowType);			
+			WorkflowDetails workflowDetails=(WorkflowDetails) query.setMaxResults(1).getSingleResult();
+			return workflowDetails;
+		}catch(NoResultException nre) {
+			return null;
+		}catch(Exception e){
+			e.printStackTrace();
+			logger.error(e.getMessage());
+			ELSException elsException=new ELSException();
+			elsException.setParameter("WorkflowDetailsRepository_WorkflowDetails_findCurrentWorkflowDetail_device#deviceType#workflowType", "Workflow Details for Recommendation From President Not Found");
+			throw elsException;
+		}
 	}
 }

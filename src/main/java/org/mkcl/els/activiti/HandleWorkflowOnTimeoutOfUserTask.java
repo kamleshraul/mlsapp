@@ -94,7 +94,7 @@ public class HandleWorkflowOnTimeoutOfUserTask extends ActivitiServiceImpl {
 			Bill bill = (Bill) domain;
 			if(currentWorkflowDetails.getWorkflowType().equals(ApplicationConstants.TRANSLATION_WORKFLOW)
 					&& userGroup.getUserGroupType().getType().equals(ApplicationConstants.TRANSLATOR)
-					&& bill.getTranslationStatus().getType().equals(ApplicationConstants.BILL_FINAL_TRANSLATION)) {
+					&& currentWorkflowDetails.getCustomStatus().equals(ApplicationConstants.BILL_FINAL_TRANSLATION)) {
 				//----------------properties updated before task completion----------------//
 				Map<String,String> properties=new HashMap<String, String>();
 				properties.put("pv_endflag","end");
@@ -107,12 +107,10 @@ public class HandleWorkflowOnTimeoutOfUserTask extends ActivitiServiceImpl {
 				processService.completeTask(task, properties);
 				//update workflowdetails
 				currentWorkflowDetails.setStatus("TIMEOUT");
-				currentWorkflowDetails.setCompletionTime(new Date());
-				currentWorkflowDetails.merge();
-				//update translation status
 				Status translationTimeoutStatus = Status.findByType(ApplicationConstants.BILL_TRANSLATION_TIMEOUT, bill.getLocale());
-				bill.setTranslationStatus(translationTimeoutStatus);
-				bill.simpleMerge();				
+				currentWorkflowDetails.setCustomStatus(translationTimeoutStatus.getType());
+				currentWorkflowDetails.setCompletionTime(new Date());
+				currentWorkflowDetails.merge();							
 				return;	
 			}					
 		}		

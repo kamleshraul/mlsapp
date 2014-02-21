@@ -410,7 +410,7 @@ public class BillController extends GenericController<Bill> {
 			}
 		}else{
 			logger.error("**** Check request parameter 'sessionYear' for null value ****");
-			model.addAttribute("errorcode","sessionyear_isnull");
+			model.addAttribute("errorcode","sessionYear_isnull");
 		}        
 		/**** Session Type ****/
 		String selectedSessionType=request.getParameter("sessionType");
@@ -1092,36 +1092,6 @@ public class BillController extends GenericController<Bill> {
 				model.addAttribute("formattedDateOfRecommendationFromPresident",FormaterUtil.getDateFormatter(dateTimeFormat.getValue(),locale).format(domain.getDateOfRecommendationFromPresident()));
 			}
 		}		
-		if(domain.getWorkflowStartedOn()!=null){
-			model.addAttribute("workflowStartedOnDate",FormaterUtil.getDateFormatter(dateTimeFormat.getValue(),"en_US").format(domain.getWorkflowStartedOn()));
-		}
-		if(domain.getWorkflowForTranslationStartedOn()!=null){
-			model.addAttribute("workflowForTranslationStartedOnDate",FormaterUtil.getDateFormatter(dateTimeFormat.getValue(),"en_US").format(domain.getWorkflowForTranslationStartedOn()));
-		}
-		if(domain.getWorkflowForOpinionFromLawAndJDStartedOn()!=null){
-			model.addAttribute("workflowForOpinionFromLawAndJDStartedOnDate",FormaterUtil.getDateFormatter(dateTimeFormat.getValue(),"en_US").format(domain.getWorkflowForOpinionFromLawAndJDStartedOn()));
-		}
-		if(domain.getWorkflowForRecommendationFromGovernorStartedOn()!=null){
-			model.addAttribute("workflowForRecommendationFromGovernorStartedOnDate",FormaterUtil.getDateFormatter(dateTimeFormat.getValue(),"en_US").format(domain.getWorkflowForRecommendationFromGovernorStartedOn()));
-		}
-		if(domain.getWorkflowForRecommendationFromPresidentStartedOn()!=null){
-			model.addAttribute("workflowForRecommendationFromPresidentStartedOnDate",FormaterUtil.getDateFormatter(dateTimeFormat.getValue(),"en_US").format(domain.getWorkflowForRecommendationFromPresidentStartedOn()));
-		}
-		if(domain.getTaskReceivedOn()!=null){
-			model.addAttribute("taskReceivedOnDate",FormaterUtil.getDateFormatter(dateTimeFormat.getValue(),"en_US").format(domain.getTaskReceivedOn()));
-		}
-		if(domain.getTaskReceivedOnForTranslation()!=null){
-			model.addAttribute("taskReceivedOnDateForTranslation",FormaterUtil.getDateFormatter(dateTimeFormat.getValue(),"en_US").format(domain.getTaskReceivedOnForTranslation()));
-		}
-		if(domain.getTaskReceivedOnForOpinionFromLawAndJD()!=null){
-			model.addAttribute("taskReceivedOnDateForOpinionFromLawAndJD",FormaterUtil.getDateFormatter(dateTimeFormat.getValue(),"en_US").format(domain.getTaskReceivedOnForOpinionFromLawAndJD()));
-		}
-		if(domain.getTaskReceivedOnForRecommendationFromGovernor()!=null){
-			model.addAttribute("taskReceivedOnDateForRecommendationFromGovernor",FormaterUtil.getDateFormatter(dateTimeFormat.getValue(),"en_US").format(domain.getTaskReceivedOnForRecommendationFromGovernor()));
-		}
-		if(domain.getTaskReceivedOnForRecommendationFromPresident()!=null){
-			model.addAttribute("taskReceivedOnDateForRecommendationFromPresident",FormaterUtil.getDateFormatter(dateTimeFormat.getValue(),"en_US").format(domain.getTaskReceivedOnForRecommendationFromPresident()));
-		}
 		/**** Number ****/
 		if(domain.getNumber()!=null){
 			model.addAttribute("formattedNumber",FormaterUtil.getNumberFormatterNoGrouping(locale).format(domain.getNumber()));
@@ -1151,89 +1121,10 @@ public class BillController extends GenericController<Bill> {
 		/**** in case of assistant and other approving BIS actors ****/
 		if(usergroupType!=null&&!(usergroupType.isEmpty())&&
 				(usergroupType.equals(ApplicationConstants.ASSISTANT)||usergroupType.equals(ApplicationConstants.SECTION_OFFICER))){
+			/**** level of current usergroup ****/
+			model.addAttribute("level",1);
 			/**** list of put up options available ****/
 			populateInternalStatus(model,internalStatus.getType(),usergroupType,locale,deviceType.getType());
-			if(domain.getWorkflowStarted()==null){
-				domain.setWorkflowStarted("NO");
-			}else if(domain.getWorkflowStarted().isEmpty()){
-				domain.setWorkflowStarted("NO");
-			}
-			if(domain.getTranslationWorkflowStarted()==null){
-				domain.setTranslationWorkflowStarted("NO");
-			}else if(domain.getTranslationWorkflowStarted().isEmpty()){
-				domain.setTranslationWorkflowStarted("NO");
-			}
-			if(domain.getType().getType().equals(ApplicationConstants.NONOFFICIAL_BILL)) {
-				if(domain.getOpinionFromLawAndJDWorkflowStarted()==null){
-					domain.setOpinionFromLawAndJDWorkflowStarted("NO");
-				}else if(domain.getOpinionFromLawAndJDWorkflowStarted().isEmpty()){
-					domain.setOpinionFromLawAndJDWorkflowStarted("NO");
-				}
-				if(domain.getRecommendationFromGovernorWorkflowStarted()==null){
-					domain.setRecommendationFromGovernorWorkflowStarted("NO");
-				}else if(domain.getRecommendationFromGovernorWorkflowStarted().isEmpty()){
-					domain.setRecommendationFromGovernorWorkflowStarted("NO");
-				}
-				if(domain.getRecommendationFromPresidentWorkflowStarted()==null){
-					domain.setRecommendationFromPresidentWorkflowStarted("NO");
-				}else if(domain.getRecommendationFromPresidentWorkflowStarted().isEmpty()){
-					domain.setRecommendationFromPresidentWorkflowStarted("NO");
-				}
-			}			
-			if(domain.getEndFlag()==null){
-				domain.setEndFlag("continue");
-			}else if(domain.getEndFlag().isEmpty()){
-				domain.setEndFlag("continue");
-			}
-			if(domain.getEndFlagForTranslation()==null){
-				domain.setEndFlagForTranslation("continue");
-			}else if(domain.getEndFlagForTranslation().isEmpty()){
-				domain.setEndFlagForTranslation("continue");
-			}
-			if(domain.getType().getType().equals(ApplicationConstants.NONOFFICIAL_BILL)) {
-				if(domain.getEndFlagForOpinionFromLawAndJD()==null){
-					domain.setEndFlagForOpinionFromLawAndJD("continue");
-				}else if(domain.getEndFlagForOpinionFromLawAndJD().isEmpty()){
-					domain.setEndFlagForOpinionFromLawAndJD("continue");
-				}
-				if(domain.getEndFlagForRecommendationFromGovernor()==null){
-					domain.setEndFlagForRecommendationFromGovernor("continue");
-				}else if(domain.getEndFlagForRecommendationFromGovernor().isEmpty()){
-					domain.setEndFlagForRecommendationFromGovernor("continue");
-				}
-				if(domain.getEndFlagForRecommendationFromPresident()==null){
-					domain.setEndFlagForRecommendationFromPresident("continue");
-				}else if(domain.getEndFlagForRecommendationFromPresident().isEmpty()){
-					domain.setEndFlagForRecommendationFromPresident("continue");
-				}
-			}		
-			if(domain.getLevel()==null){
-				domain.setLevel("1");
-			}else if(domain.getLevel().isEmpty()){
-				domain.setLevel("1");
-			}
-			if(domain.getLevelForTranslation()==null){
-				domain.setLevelForTranslation("1");
-			}else if(domain.getLevelForTranslation().isEmpty()){
-				domain.setLevelForTranslation("1");
-			}
-			if(domain.getType().getType().equals(ApplicationConstants.NONOFFICIAL_BILL)) {
-				if(domain.getLevelForOpinionFromLawAndJD()==null){
-					domain.setLevelForOpinionFromLawAndJD("1");
-				}else if(domain.getLevelForOpinionFromLawAndJD().isEmpty()){
-					domain.setLevelForOpinionFromLawAndJD("1");
-				}
-				if(domain.getLevelForRecommendationFromGovernor()==null){
-					domain.setLevelForRecommendationFromGovernor("1");
-				}else if(domain.getLevelForRecommendationFromGovernor().isEmpty()){
-					domain.setLevelForRecommendationFromGovernor("1");
-				}
-				if(domain.getLevelForRecommendationFromPresident()==null){
-					domain.setLevelForRecommendationFromPresident("1");
-				}else if(domain.getLevelForRecommendationFromPresident().isEmpty()){
-					domain.setLevelForRecommendationFromPresident("1");
-				}
-			}						
 			/**** Referencing & Clubbing For Non-Official Bill ****/
 			if(domain.getType().getType().equals(ApplicationConstants.NONOFFICIAL_BILL)) {
 				/**** Referenced Bill ****/
@@ -1374,49 +1265,48 @@ public class BillController extends GenericController<Bill> {
 		model.addAttribute("recommendationStatusType",recommendationStatus.getType());
 		model.addAttribute("recommendationStatusPriority", recommendationStatus.getPriority());
 		model.addAttribute("formattedRecommendationStatus", recommendationStatus.getName());
-		Status translationStatus = domain.getTranslationStatus();
+		/**** Auxiliary workflow statuses ****/
+		Status translationStatus = null;
+		Status opinionFromLawAndJDStatus = null;
+		Status recommendationFromGovernorStatus = null;
+		Status recommendationFromPresidentStatus = null;
+		try {
+			translationStatus = domain.findAuxiliaryWorkflowStatus(ApplicationConstants.TRANSLATION_WORKFLOW);
+		} catch (ELSException e) {
+			model.addAttribute("error", e.getParameter());
+			return;
+		}
 		if(translationStatus==null) {
-			translationStatus = Status.findByType(ApplicationConstants.BILL_TRANSLATION_NOTSEND, locale);	
-			domain.setTranslationStatus(translationStatus);
+			translationStatus = Status.findByType(ApplicationConstants.BILL_TRANSLATION_NOTSEND, domain.getLocale());
 		}
-		if(translationStatus!=null) {
-			model.addAttribute("translationStatus",translationStatus.getId());
-			model.addAttribute("translationStatusType", translationStatus.getType());
-			model.addAttribute("formattedTranslationStatus", translationStatus.getName());			
-		}
+		model.addAttribute("translationStatusType", translationStatus.getType());
+		model.addAttribute("formattedTranslationStatus", translationStatus.getName());
 		if(domain.getType().getType().equals(ApplicationConstants.NONOFFICIAL_BILL)) {
-			Status opinionFromLawAndJDStatus = domain.getOpinionFromLawAndJDStatus();
-			if(opinionFromLawAndJDStatus==null) {
-				opinionFromLawAndJDStatus = Status.findByType(ApplicationConstants.BILL_OPINION_FROM_LAWANDJD_NOTSEND, locale);
-				domain.setOpinionFromLawAndJDStatus(opinionFromLawAndJDStatus);
-			}			
-			if(opinionFromLawAndJDStatus!=null) {
-				model.addAttribute("opinionFromLawAndJDStatus",opinionFromLawAndJDStatus.getId());
+			try {
+				opinionFromLawAndJDStatus = domain.findAuxiliaryWorkflowStatus(ApplicationConstants.OPINION_FROM_LAWANDJD_WORKFLOW);
+				if(opinionFromLawAndJDStatus==null) {
+					opinionFromLawAndJDStatus = Status.findByType(ApplicationConstants.BILL_OPINION_FROM_LAWANDJD_NOTSEND, domain.getLocale());
+				}
 				model.addAttribute("opinionFromLawAndJDStatusType", opinionFromLawAndJDStatus.getType());
 				model.addAttribute("formattedOpinionFromLawAndJDStatus", opinionFromLawAndJDStatus.getName());
-			}
-			
-			Status recommendationFromGovernorStatus = domain.getRecommendationFromGovernorStatus();
-			if(recommendationFromGovernorStatus==null) {
-				recommendationFromGovernorStatus = Status.findByType(ApplicationConstants.BILL_RECOMMENDATION_FROM_GOVERNOR_NOTSEND, locale);	
-				domain.setRecommendationFromGovernorStatus(recommendationFromGovernorStatus);
-			}
-			if(recommendationFromGovernorStatus!=null) {
-				model.addAttribute("recommendationFromGovernorStatus",recommendationFromGovernorStatus.getId());
+				
+				recommendationFromGovernorStatus = domain.findAuxiliaryWorkflowStatus(ApplicationConstants.RECOMMENDATION_FROM_GOVERNOR_WORKFLOW);
+				if(recommendationFromGovernorStatus==null) {
+					recommendationFromGovernorStatus = Status.findByType(ApplicationConstants.BILL_RECOMMENDATION_FROM_GOVERNOR_NOTSEND, domain.getLocale());
+				}
 				model.addAttribute("recommendationFromGovernorStatusType", recommendationFromGovernorStatus.getType());
-				model.addAttribute("formattedRecommendationFromGovernorStatus", recommendationFromGovernorStatus.getName());			
-			}
-			
-			Status recommendationFromPresidentStatus = domain.getRecommendationFromPresidentStatus();
-			if(recommendationFromPresidentStatus==null) {
-				recommendationFromPresidentStatus = Status.findByType(ApplicationConstants.BILL_RECOMMENDATION_FROM_PRESIDENT_NOTSEND, locale);	
-				domain.setRecommendationFromPresidentStatus(recommendationFromPresidentStatus);
-			}
-			if(recommendationFromPresidentStatus!=null) {
-				model.addAttribute("recommendationFromPresidentStatus",recommendationFromPresidentStatus.getId());
+				model.addAttribute("formattedRecommendationFromGovernorStatus", recommendationFromGovernorStatus.getName());
+				
+				recommendationFromPresidentStatus = domain.findAuxiliaryWorkflowStatus(ApplicationConstants.RECOMMENDATION_FROM_PRESIDENT_WORKFLOW);
+				if(recommendationFromPresidentStatus==null) {
+					recommendationFromPresidentStatus = Status.findByType(ApplicationConstants.BILL_RECOMMENDATION_FROM_PRESIDENT_NOTSEND, domain.getLocale());
+				}
 				model.addAttribute("recommendationFromPresidentStatusType", recommendationFromPresidentStatus.getType());
-				model.addAttribute("formattedRecommendationFromPresidentStatus", recommendationFromPresidentStatus.getName());			
-			}
+				model.addAttribute("formattedRecommendationFromPresidentStatus", recommendationFromPresidentStatus.getName());
+			} catch(ELSException e) {
+				model.addAttribute("error", e.getParameter());
+				return;
+			}			
 		}			
 		/**** Populate for Status Updation Post Admission Workflow End ****/
 		Status statusForBeginningStatusUpdation = Status.findByType(ApplicationConstants.BILL_PROCESSED_TOBEINTRODUCED, locale);
@@ -1433,23 +1323,9 @@ public class BillController extends GenericController<Bill> {
 			for(Status i: internalStatuses) {
 				boolean isCandidateToRemove = false;
 				if(i.getType().equals(ApplicationConstants.BILL_RECOMMEND_TRANSLATION)
-						&& !(domain.getTranslationStatus().getType().equals(ApplicationConstants.BILL_TRANSLATION_NOTSEND))) {
+						&& !(translationStatus.getType().equals(ApplicationConstants.BILL_TRANSLATION_NOTSEND))) {
 					isCandidateToRemove = true;
 				} 
-//				else if(i.getType().equals(ApplicationConstants.BILL_RECOMMEND_OPINION_FROM_LAWANDJD)
-//						&& domain.getType().getType().equals(ApplicationConstants.NONOFFICIAL_BILL)
-//						&& !(domain.getOpinionFromLawAndJDStatus().getType().equals(ApplicationConstants.BILL_OPINION_FROM_LAWANDJD_NOTSEND))) {
-//					isCandidateToRemove = true;
-//				} else if(i.getType().equals(ApplicationConstants.BILL_RECOMMEND_OPINION_FROM_LAWANDJD)
-//						&& domain.getType().getType().equals(ApplicationConstants.GOVERNMENT_BILL)) {
-//					isCandidateToRemove = true;
-//				} else if(i.getType().equals(ApplicationConstants.BILL_RECOMMEND_RECOMMENDATION_FROM_GOVERNOR)
-//						&& !(domain.getRecommendationFromGovernorStatus().getType().equals(ApplicationConstants.BILL_RECOMMENDATION_FROM_GOVERNOR_NOTSEND))) {
-//					isCandidateToRemove = true;
-//				} else if(i.getType().equals(ApplicationConstants.BILL_RECOMMEND_RECOMMENDATION_FROM_PRESIDENT)
-//						&& !(domain.getRecommendationFromPresidentStatus().getType().equals(ApplicationConstants.BILL_RECOMMENDATION_FROM_PRESIDENT_NOTSEND))) {
-//					isCandidateToRemove = true;
-//				} 
 				else {
 					if(domain.getType().getType().equals(ApplicationConstants.GOVERNMENT_BILL)) {
 						if(i.getType().equals(ApplicationConstants.BILL_RECOMMEND_OPINION_FROM_LAWANDJD)
@@ -1459,13 +1335,13 @@ public class BillController extends GenericController<Bill> {
 						}
 					} else {
 						if(i.getType().equals(ApplicationConstants.BILL_RECOMMEND_OPINION_FROM_LAWANDJD)
-								&& !(domain.getOpinionFromLawAndJDStatus().getType().equals(ApplicationConstants.BILL_OPINION_FROM_LAWANDJD_NOTSEND))) {
+								&& !(opinionFromLawAndJDStatus.getType().equals(ApplicationConstants.BILL_OPINION_FROM_LAWANDJD_NOTSEND))) {
 							isCandidateToRemove = true;
 						} else if(i.getType().equals(ApplicationConstants.BILL_RECOMMEND_RECOMMENDATION_FROM_GOVERNOR)
-								&& !(domain.getRecommendationFromGovernorStatus().getType().equals(ApplicationConstants.BILL_RECOMMENDATION_FROM_GOVERNOR_NOTSEND))) {
+								&& !(recommendationFromGovernorStatus.getType().equals(ApplicationConstants.BILL_RECOMMENDATION_FROM_GOVERNOR_NOTSEND))) {
 							isCandidateToRemove = true;
 						} else if(i.getType().equals(ApplicationConstants.BILL_RECOMMEND_RECOMMENDATION_FROM_PRESIDENT)
-								&& !(domain.getRecommendationFromPresidentStatus().getType().equals(ApplicationConstants.BILL_RECOMMENDATION_FROM_PRESIDENT_NOTSEND))) {
+								&& !(recommendationFromPresidentStatus.getType().equals(ApplicationConstants.BILL_RECOMMENDATION_FROM_PRESIDENT_NOTSEND))) {
 							isCandidateToRemove = true;
 						}
 					}
@@ -1493,8 +1369,8 @@ public class BillController extends GenericController<Bill> {
 				if(actors!=null&&!actors.isEmpty()){
 					String nextActor=actors.get(0).getId();
 					String[] actorArr=nextActor.split("#");
-					domain.setLevel(actorArr[2]);
-					domain.setLocalizedActorName(actorArr[3]+"("+actorArr[4]+")");
+					model.addAttribute("level", actorArr[2]);			
+					model.addAttribute("localizedActorName", actorArr[3]+"("+actorArr[4]+")");					
 				}
 			}			
 		}
@@ -2096,7 +1972,7 @@ public class BillController extends GenericController<Bill> {
 					properties.put("pv_deviceTypeId",domain.getType().getType());
 					ProcessInstance processInstance=processService.createProcessInstance(processDefinition, properties);
 					List<Task> tasks=processService.getCurrentTasks(processInstance);
-					List<WorkflowDetails> workflowDetails=WorkflowDetails.create(domain,tasks,ApplicationConstants.SUPPORTING_MEMBER_WORKFLOW,"0");	
+					List<WorkflowDetails> workflowDetails=WorkflowDetails.create(domain,tasks,ApplicationConstants.SUPPORTING_MEMBER_WORKFLOW,null, "0");	
 					/**** Supporting members status changed to pending ****/
 					Bill bill=Bill.findById(Bill.class,domain.getId());
 					List<SupportingMember> supportingMembers=bill.getSupportingMembers();
@@ -2722,25 +2598,7 @@ public class BillController extends GenericController<Bill> {
 				}
 				if(strDateOfOpinionSoughtFromLawAndJD!=null&&!strDateOfOpinionSoughtFromLawAndJD.isEmpty()) {
 					domain.setDateOfOpinionSoughtFromLawAndJD(format.parse(strDateOfOpinionSoughtFromLawAndJD));
-				}
-				if(strWorkflowStartedOnDate!=null&&!strWorkflowStartedOnDate.isEmpty()){
-					domain.setWorkflowStartedOn(format.parse(strWorkflowStartedOnDate));
-				}
-				if(strTaskReceivedOnDate!=null&&!strTaskReceivedOnDate.isEmpty()){
-					domain.setTaskReceivedOn(format.parse(strTaskReceivedOnDate));
-				}
-				if(strWorkflowForTranslationStartedOnDate!=null&&!strWorkflowForTranslationStartedOnDate.isEmpty()){
-					domain.setWorkflowForTranslationStartedOn(format.parse(strWorkflowForTranslationStartedOnDate));
-				}
-				if(strTaskReceivedOnDateForTranslation!=null&&!strTaskReceivedOnDateForTranslation.isEmpty()){
-					domain.setTaskReceivedOnForTranslation(format.parse(strTaskReceivedOnDateForTranslation));
-				}
-				if(strWorkflowForOpinionFromLawAndJDStartedOnDate!=null&&!strWorkflowForOpinionFromLawAndJDStartedOnDate.isEmpty()){
-					domain.setWorkflowForOpinionFromLawAndJDStartedOn(format.parse(strWorkflowForOpinionFromLawAndJDStartedOnDate));
-				}
-				if(strTaskReceivedOnDateForOpinionFromLawAndJD!=null&&!strTaskReceivedOnDateForOpinionFromLawAndJD.isEmpty()){
-					domain.setTaskReceivedOnForOpinionFromLawAndJD(format.parse(strTaskReceivedOnDateForOpinionFromLawAndJD));
-				}
+				}				
 			}
 			catch (ParseException e) {
 				e.printStackTrace();
@@ -2829,43 +2687,7 @@ public class BillController extends GenericController<Bill> {
 							domain.setRecommendationStatus(bill.getRecommendationStatus());
 						}						
 					}
-				} else if(operation.equals("sendForTranslation")) {
-					Status oldTranslationStatus = null;
-					String oldTranslationStatusId = request.getParameter("oldTranslationStatus");
-					if(oldTranslationStatusId==null) {						
-						bill = Bill.findById(Bill.class, domain.getId());
-						domain.setTranslationStatus(bill.getTranslationStatus());
-					} else if(oldTranslationStatusId.isEmpty()) {
-						bill = Bill.findById(Bill.class, domain.getId());
-						domain.setTranslationStatus(bill.getTranslationStatus());
-					} else {
-						oldTranslationStatus = Status.findById(Status.class, Long.parseLong(oldTranslationStatusId));
-						if(oldTranslationStatus!=null) {
-							domain.setTranslationStatus(oldTranslationStatus);
-						} else {
-							bill = Bill.findById(Bill.class, domain.getId());
-							domain.setTranslationStatus(bill.getTranslationStatus());
-						}						
-					}
-				} else if(operation.equals("sendForOpinionFromLawAndJD")) {
-					Status oldOpinionFromLawAndJDStatus = null;
-					String oldOpinionFromLawAndJDStatusId = request.getParameter("oldOpinionFromLawAndJDStatus");
-					if(oldOpinionFromLawAndJDStatusId==null) {						
-						bill = Bill.findById(Bill.class, domain.getId());
-						domain.setOpinionFromLawAndJDStatus(bill.getOpinionFromLawAndJDStatus());
-					} else if(oldOpinionFromLawAndJDStatusId.isEmpty()) {
-						bill = Bill.findById(Bill.class, domain.getId());
-						domain.setOpinionFromLawAndJDStatus(bill.getOpinionFromLawAndJDStatus());
-					} else {
-						oldOpinionFromLawAndJDStatus = Status.findById(Status.class, Long.parseLong(oldOpinionFromLawAndJDStatusId));
-						if(oldOpinionFromLawAndJDStatus!=null) {
-							domain.setOpinionFromLawAndJDStatus(oldOpinionFromLawAndJDStatus);
-						} else {
-							bill = Bill.findById(Bill.class, domain.getId());
-							domain.setOpinionFromLawAndJDStatus(bill.getOpinionFromLawAndJDStatus());
-						}						
-					}
-				}
+				} 
 			}
 		}				
 		if(bill==null) {
@@ -2984,16 +2806,6 @@ public class BillController extends GenericController<Bill> {
 		String strDateOfOpinionSoughtFromLawAndJD=request.getParameter("setDateOfOpinionSoughtFromLawAndJD");
 		String strDateOfRecommendationFromGovernor=request.getParameter("setDateOfRecommendationFromGovernor");
 		String strDateOfRecommendationFromPresident=request.getParameter("setDateOfRecommendationFromPresident");
-		String strWorkflowStartedOnDate=request.getParameter("workflowStartedOnDate");
-		String strWorkflowForTranslationStartedOnDate=request.getParameter("workflowForTranslationStartedOnDate");
-		String strWorkflowForOpinionFromLawAndJDStartedOnDate=request.getParameter("workflowForOpinionFromLawAndJDStartedOnDate");
-		String strWorkflowForRecommendationFromGovernorStartedOnDate=request.getParameter("workflowForRecommendationFromGovernorStartedOnDate");
-		String strWorkflowForRecommendationFromPresidentStartedOnDate=request.getParameter("workflowForRecommendationFromPresidentStartedOnDate");
-		String strTaskReceivedOnDate=request.getParameter("taskReceivedOnDate");
-		String strTaskReceivedOnDateForTranslation=request.getParameter("taskReceivedOnDateForTranslation");
-		String strTaskReceivedOnDateForOpinionFromLawAndJD=request.getParameter("taskReceivedOnDateForOpinionFromLawAndJD");
-		String strTaskReceivedOnDateForRecommendationFromGovernor=request.getParameter("taskReceivedOnDateForRecommendationFromGovernor");
-		String strTaskReceivedOnDateForRecommendationFromPresident=request.getParameter("taskReceivedOnDateForRecommendationFromPresident");
 		CustomParameter dateTimeFormat=CustomParameter.findByName(CustomParameter.class,"SERVER_DATETIMEFORMAT", "");
 		if(dateTimeFormat!=null){
 			SimpleDateFormat format=FormaterUtil.getDateFormatter(dateTimeFormat.getValue(),"en_US");
@@ -3012,37 +2824,7 @@ public class BillController extends GenericController<Bill> {
 				} 
 				if(strDateOfRecommendationFromPresident!=null&&!strDateOfRecommendationFromPresident.isEmpty()) {
 					domain.setDateOfRecommendationFromPresident(format.parse(strDateOfRecommendationFromPresident));
-				} 
-				if(strWorkflowStartedOnDate!=null&&!strWorkflowStartedOnDate.isEmpty()){
-					domain.setWorkflowStartedOn(format.parse(strWorkflowStartedOnDate));
-				}
-				if(strWorkflowForTranslationStartedOnDate!=null&&!strWorkflowForTranslationStartedOnDate.isEmpty()){
-					domain.setWorkflowForTranslationStartedOn(format.parse(strWorkflowForTranslationStartedOnDate));
-				}
-				if(strWorkflowForOpinionFromLawAndJDStartedOnDate!=null&&!strWorkflowForOpinionFromLawAndJDStartedOnDate.isEmpty()){
-					domain.setWorkflowForOpinionFromLawAndJDStartedOn(format.parse(strWorkflowForOpinionFromLawAndJDStartedOnDate));
-				}
-				if(strWorkflowForRecommendationFromGovernorStartedOnDate!=null&&!strWorkflowForRecommendationFromGovernorStartedOnDate.isEmpty()){
-					domain.setWorkflowForRecommendationFromGovernorStartedOn(format.parse(strWorkflowForRecommendationFromGovernorStartedOnDate));
-				}
-				if(strWorkflowForRecommendationFromPresidentStartedOnDate!=null&&!strWorkflowForRecommendationFromPresidentStartedOnDate.isEmpty()){
-					domain.setWorkflowForRecommendationFromPresidentStartedOn(format.parse(strWorkflowForRecommendationFromPresidentStartedOnDate));
-				}
-				if(strTaskReceivedOnDate!=null&&!strTaskReceivedOnDate.isEmpty()){
-					domain.setTaskReceivedOn(format.parse(strTaskReceivedOnDate));
-				}
-				if(strTaskReceivedOnDateForTranslation!=null&&!strTaskReceivedOnDateForTranslation.isEmpty()){
-					domain.setTaskReceivedOnForTranslation(format.parse(strTaskReceivedOnDateForTranslation));
-				}
-				if(strTaskReceivedOnDateForOpinionFromLawAndJD!=null&&!strTaskReceivedOnDateForOpinionFromLawAndJD.isEmpty()){
-					domain.setTaskReceivedOnForOpinionFromLawAndJD(format.parse(strTaskReceivedOnDateForOpinionFromLawAndJD));
-				}
-				if(strTaskReceivedOnDateForRecommendationFromGovernor!=null&&!strTaskReceivedOnDateForRecommendationFromGovernor.isEmpty()){
-					domain.setTaskReceivedOnForRecommendationFromGovernor(format.parse(strTaskReceivedOnDateForRecommendationFromGovernor));
-				}
-				if(strTaskReceivedOnDateForRecommendationFromPresident!=null&&!strTaskReceivedOnDateForRecommendationFromPresident.isEmpty()){
-					domain.setTaskReceivedOnForRecommendationFromPresident(format.parse(strTaskReceivedOnDateForRecommendationFromPresident));
-				}
+				} 								
 			}
 			catch (ParseException e) {
 				e.printStackTrace();
@@ -3167,7 +2949,7 @@ public class BillController extends GenericController<Bill> {
 					ProcessInstance processInstance=processService.createProcessInstance(processDefinition, properties);
 					/**** Workflow Details Entries are created ****/
 					List<Task> tasks=processService.getCurrentTasks(processInstance);					
-					List<WorkflowDetails> workflowDetails=WorkflowDetails.create(domain,tasks,ApplicationConstants.SUPPORTING_MEMBER_WORKFLOW,"");
+					List<WorkflowDetails> workflowDetails=WorkflowDetails.create(domain,tasks,ApplicationConstants.SUPPORTING_MEMBER_WORKFLOW,null, "");
 					/**** Not Send supporting members status are changed to pending ****/
 					Bill bill=Bill.findById(Bill.class,domain.getId());
 					List<SupportingMember> supportingMembers=bill.getSupportingMembers();
@@ -3201,7 +2983,7 @@ public class BillController extends GenericController<Bill> {
 					ProcessDefinition processDefinition=processService.findProcessDefinitionByKey(ApplicationConstants.RESOLUTION_APPROVAL_WORKFLOW);
 					Map<String,String> properties=new HashMap<String, String>();					
 					/**** Next user and usergroup ****/
-					String nextuser=request.getParameter("actorForWorkflow");
+					String nextuser=request.getParameter("actor");
 					String nextUserGroupType="";
 					String level="";
 					if(nextuser!=null){						
@@ -3212,7 +2994,7 @@ public class BillController extends GenericController<Bill> {
 							level=temp[2];
 						}
 					}
-					String endflag=domain.getEndFlagForTranslation();
+					String endflag=request.getParameter("endflag");
 					properties.put("pv_endflag",endflag);	
 					properties.put("pv_timerflag", "off");
 					properties.put("pv_mailflag", "off");					
@@ -3227,30 +3009,18 @@ public class BillController extends GenericController<Bill> {
 						if(!endflag.isEmpty()){
 							if(endflag.equals("continue")){
 								/**** Workflow Detail entry made only if its not the end of workflow ****/
-								WorkflowDetails workflowDetails = WorkflowDetails.create(domain,task,ApplicationConstants.TRANSLATION_WORKFLOW,nextUserGroupType,level);
-								bill.setWorkflowDetailsIdForTranslation(workflowDetails.getId());
+								WorkflowDetails.create(domain,task,ApplicationConstants.TRANSLATION_WORKFLOW,ApplicationConstants.BILL_RECOMMEND_TRANSLATION,nextUserGroupType, level);
 							}
 						}
 					}
 					/**** Workflow Started ****/
-					bill.setTranslationWorkflowStarted("YES");					
-					bill.setWorkflowForTranslationStartedOn(new Date());					
-					bill.setTaskReceivedOnForTranslation(new Date());	
-					bill.setActorForTranslation(request.getParameter("actorForWorkflow"));
-					bill.setLocalizedActorNameForTranslation(request.getParameter("localizedActorNameForWorkflow"));
-					bill.setLevelForTranslation(request.getParameter("levelForWorkflow"));
 					bill.setRemarksForTranslation(domain.getRemarks());
-					/**** If question is sent individually then its file's parameters is set to null i.e 
-					 * it is removed from file ****/
-//					bill.setFile(null);
-//					bill.setFileIndex(null);
-//					bill.setFileSent(false);
 					bill.simpleMerge();					
 				} else if(operation.equals("sendForOpinionFromLawAndJD")){					
 					ProcessDefinition processDefinition=processService.findProcessDefinitionByKey(ApplicationConstants.APPROVAL_WORKFLOW);
 					Map<String,String> properties=new HashMap<String, String>();					
 					/**** Next user and usergroup ****/
-					String nextuser=request.getParameter("actorForWorkflow");
+					String nextuser=request.getParameter("actor");
 					String nextUserGroupType="";
 					String level="";
 					if(nextuser!=null){						
@@ -3261,7 +3031,7 @@ public class BillController extends GenericController<Bill> {
 							level=temp[2];
 						}
 					}
-					String endflag=domain.getEndFlagForOpinionFromLawAndJD();
+					String endflag=request.getParameter("endflag");
 					properties.put("pv_endflag",endflag);	
 					properties.put("pv_deviceId",String.valueOf(domain.getId()));
 					properties.put("pv_deviceTypeId",String.valueOf(domain.getType().getId()));
@@ -3274,29 +3044,15 @@ public class BillController extends GenericController<Bill> {
 						if(!endflag.isEmpty()){
 							if(endflag.equals("continue")){
 								/**** Workflow Detail entry made only if its not the end of workflow ****/
-								WorkflowDetails workflowDetails = WorkflowDetails.create(domain,task,ApplicationConstants.OPINION_FROM_LAWANDJD_WORKFLOW,nextUserGroupType,level);
-								bill.setWorkflowDetailsIdForOpinionFromLawAndJD(workflowDetails.getId());
+								WorkflowDetails.create(domain,task,ApplicationConstants.OPINION_FROM_LAWANDJD_WORKFLOW,ApplicationConstants.BILL_RECOMMEND_OPINION_FROM_LAWANDJD,nextUserGroupType, level);
 							}
 						}
 					}
-					/**** Workflow Started ****/
-					bill.setOpinionFromLawAndJDWorkflowStarted("YES");					
-					bill.setWorkflowForOpinionFromLawAndJDStartedOn(new Date());					
-					bill.setTaskReceivedOnForOpinionFromLawAndJD(new Date());	
-					bill.setActorForOpinionFromLawAndJD(request.getParameter("actorForWorkflow"));
-					bill.setLocalizedActorNameForOpinionFromLawAndJD(request.getParameter("localizedActorNameForWorkflow"));
-					bill.setLevelForOpinionFromLawAndJD(request.getParameter("levelForWorkflow"));
-					/**** If question is sent individually then its file's parameters is set to null i.e 
-					 * it is removed from file ****/
-//					bill.setFile(null);
-//					bill.setFileIndex(null);
-//					bill.setFileSent(false);
-					bill.simpleMerge();					
 				} else if(operation.equals("sendForRecommendationFromGovernor")){					
 					ProcessDefinition processDefinition=processService.findProcessDefinitionByKey(ApplicationConstants.APPROVAL_WORKFLOW);
 					Map<String,String> properties=new HashMap<String, String>();					
 					/**** Next user and usergroup ****/
-					String nextuser=request.getParameter("actorForWorkflow");
+					String nextuser=request.getParameter("actor");
 					String nextUserGroupType="";
 					String level="";
 					if(nextuser!=null){						
@@ -3307,7 +3063,7 @@ public class BillController extends GenericController<Bill> {
 							level=temp[2];
 						}
 					}
-					String endflag=domain.getEndFlagForRecommendationFromGovernor();
+					String endflag=request.getParameter("endflag");
 					properties.put("pv_endflag",endflag);	
 					properties.put("pv_deviceId",String.valueOf(domain.getId()));
 					properties.put("pv_deviceTypeId",String.valueOf(domain.getType().getId()));
@@ -3320,29 +3076,15 @@ public class BillController extends GenericController<Bill> {
 						if(!endflag.isEmpty()){
 							if(endflag.equals("continue")){
 								/**** Workflow Detail entry made only if its not the end of workflow ****/
-								WorkflowDetails workflowDetails = WorkflowDetails.create(domain,task,ApplicationConstants.RECOMMENDATION_FROM_GOVERNOR_WORKFLOW,nextUserGroupType,level);
-								bill.setWorkflowDetailsIdForRecommendationFromGovernor(workflowDetails.getId());
+								WorkflowDetails.create(domain,task,ApplicationConstants.RECOMMENDATION_FROM_GOVERNOR_WORKFLOW,ApplicationConstants.BILL_RECOMMEND_RECOMMENDATION_FROM_GOVERNOR,nextUserGroupType, level);
 							}
 						}
 					}
-					/**** Workflow Started ****/
-					bill.setRecommendationFromGovernorWorkflowStarted("YES");					
-					bill.setWorkflowForRecommendationFromGovernorStartedOn(new Date());					
-					bill.setTaskReceivedOnForRecommendationFromGovernor(new Date());	
-					bill.setActorForRecommendationFromGovernor(request.getParameter("actorForWorkflow"));
-					bill.setLocalizedActorNameForRecommendationFromGovernor(request.getParameter("localizedActorNameForWorkflow"));
-					bill.setLevelForRecommendationFromGovernor(request.getParameter("levelForWorkflow"));
-					/**** If question is sent individually then its file's parameters is set to null i.e 
-					 * it is removed from file ****/
-//					bill.setFile(null);
-//					bill.setFileIndex(null);
-//					bill.setFileSent(false);
-					bill.simpleMerge();					
 				} else if(operation.equals("sendForRecommendationFromPresident")){					
 					ProcessDefinition processDefinition=processService.findProcessDefinitionByKey(ApplicationConstants.APPROVAL_WORKFLOW);
 					Map<String,String> properties=new HashMap<String, String>();					
 					/**** Next user and usergroup ****/
-					String nextuser=request.getParameter("actorForWorkflow");
+					String nextuser=request.getParameter("actor");
 					String nextUserGroupType="";
 					String level="";
 					if(nextuser!=null){						
@@ -3353,7 +3095,7 @@ public class BillController extends GenericController<Bill> {
 							level=temp[2];
 						}
 					}
-					String endflag=domain.getEndFlagForRecommendationFromPresident();
+					String endflag=request.getParameter("endflag");
 					properties.put("pv_endflag",endflag);	
 					properties.put("pv_deviceId",String.valueOf(domain.getId()));
 					properties.put("pv_deviceTypeId",String.valueOf(domain.getType().getId()));
@@ -3366,29 +3108,15 @@ public class BillController extends GenericController<Bill> {
 						if(!endflag.isEmpty()){
 							if(endflag.equals("continue")){
 								/**** Workflow Detail entry made only if its not the end of workflow ****/
-								WorkflowDetails workflowDetails = WorkflowDetails.create(domain,task,ApplicationConstants.RECOMMENDATION_FROM_PRESIDENT_WORKFLOW,nextUserGroupType,level);
-								bill.setWorkflowDetailsIdForRecommendationFromPresident(workflowDetails.getId());
+								WorkflowDetails.create(domain,task,ApplicationConstants.RECOMMENDATION_FROM_PRESIDENT_WORKFLOW,ApplicationConstants.BILL_RECOMMEND_RECOMMENDATION_FROM_PRESIDENT,nextUserGroupType, level);
 							}
 						}
 					}
-					/**** Workflow Started ****/
-					bill.setRecommendationFromPresidentWorkflowStarted("YES");					
-					bill.setWorkflowForRecommendationFromPresidentStartedOn(new Date());					
-					bill.setTaskReceivedOnForRecommendationFromPresident(new Date());	
-					bill.setActorForRecommendationFromPresident(request.getParameter("actorForWorkflow"));
-					bill.setLocalizedActorNameForRecommendationFromPresident(request.getParameter("localizedActorNameForWorkflow"));
-					bill.setLevelForRecommendationFromPresident(request.getParameter("levelForWorkflow"));
-					/**** If question is sent individually then its file's parameters is set to null i.e 
-					 * it is removed from file ****/
-//					bill.setFile(null);
-//					bill.setFileIndex(null);
-//					bill.setFileSent(false);
-					bill.simpleMerge();					
 				} else if(operation.equals("sendForNameclubbing")) {					
 						ProcessDefinition processDefinition=processService.findProcessDefinitionByKey(ApplicationConstants.APPROVAL_WORKFLOW);
 						Map<String,String> properties=new HashMap<String, String>();					
 						/**** Next user and usergroup ****/
-						String nextuser=request.getParameter("actorForWorkflow");
+						String nextuser=request.getParameter("actor");
 						String nextUserGroupType="";
 						String level="";
 						if(nextuser!=null){
@@ -3399,7 +3127,7 @@ public class BillController extends GenericController<Bill> {
 								level=temp[2];
 							}
 						}
-						String endflag=domain.getEndFlag();
+						String endflag=request.getParameter("endflag");
 						properties.put("pv_endflag",endflag);	
 						properties.put("pv_deviceId",String.valueOf(domain.getId()));
 						properties.put("pv_deviceTypeId",String.valueOf(domain.getType().getId()));
@@ -3418,30 +3146,15 @@ public class BillController extends GenericController<Bill> {
 									} else {
 										workflowDetailsType = ApplicationConstants.APPROVAL_WORKFLOW;
 									}
-									WorkflowDetails workflowDetails = WorkflowDetails.create(domain,task,workflowDetailsType,nextUserGroupType,level);
-									bill.setWorkflowDetailsId(workflowDetails.getId());
+									WorkflowDetails.create(domain,task,workflowDetailsType,null,nextUserGroupType, level);
 								}
 							}
 						}
-						/**** Workflow Started ****/
-						bill.setWorkflowStarted("YES");
-						bill.setWorkflowStartedOn(new Date());
-						bill.setTaskReceivedOn(new Date());
-						bill.setActor(request.getParameter("actorForWorkflow"));
-						bill.setLocalizedActorName(request.getParameter("localizedActorNameForWorkflow"));
-						bill.setLevel(request.getParameter("levelForWorkflow"));
-						/**** If question is sent individually then its file's parameters is set to null i.e 
-						 * it is removed from file ****/
-//						bill.setFile(null);
-//						bill.setFileIndex(null);
-//						bill.setFileSent(false);
-						bill.simpleMerge();		
-						
 				} else if(operation.equals("startworkflow")){
 					ProcessDefinition processDefinition=processService.findProcessDefinitionByKey(ApplicationConstants.APPROVAL_WORKFLOW);
 					Map<String,String> properties=new HashMap<String, String>();					
 					/**** Next user and usergroup ****/
-					String nextuser=request.getParameter("actorForWorkflow");
+					String nextuser=request.getParameter("actor");
 					String nextUserGroupType="";
 					String level="";
 					if(nextuser!=null){
@@ -3452,7 +3165,7 @@ public class BillController extends GenericController<Bill> {
 							level=temp[2];
 						}
 					}
-					String endflag=domain.getEndFlag();
+					String endflag=request.getParameter("endflag");
 					properties.put("pv_endflag",endflag);	
 					properties.put("pv_deviceId",String.valueOf(domain.getId()));
 					properties.put("pv_deviceTypeId",String.valueOf(domain.getType().getId()));
@@ -3471,26 +3184,13 @@ public class BillController extends GenericController<Bill> {
 								} else {
 									workflowDetailsType = ApplicationConstants.APPROVAL_WORKFLOW;
 								}
-								WorkflowDetails workflowDetails = WorkflowDetails.create(domain,task,workflowDetailsType,nextUserGroupType,level);
-								bill.setWorkflowDetailsId(workflowDetails.getId());
+								WorkflowDetails.create(domain,task,workflowDetailsType,null,nextUserGroupType, level);
 							}
 						}
 					}
 					/**** Workflow Started ****/
-					bill.setWorkflowStarted("YES");
-					bill.setWorkflowStartedOn(new Date());
-					bill.setTaskReceivedOn(new Date());
-					bill.setActor(request.getParameter("actorForWorkflow"));
-					bill.setLocalizedActorName(request.getParameter("localizedActorNameForWorkflow"));
-					bill.setLevel(request.getParameter("levelForWorkflow"));
-					/**** If question is sent individually then its file's parameters is set to null i.e 
-					 * it is removed from file ****/
-					bill.setFile(null);
-					bill.setFileIndex(null);
-					bill.setFileSent(false);
-					
 					if(domain.findChecklistValue(ApplicationConstants.BILL_RECOMMENDATION_FROM_GOVERNOR_CHECKLIST_PARAMETER).equals("yes") 
-							&& domain.getRecommendationFromGovernorStatus().getType().equals(ApplicationConstants.BILL_RECOMMENDATION_FROM_GOVERNOR_NOTSEND)) {						
+							&& request.getParameter("recommendationFromGovernorStatus").equals(ApplicationConstants.BILL_RECOMMENDATION_FROM_GOVERNOR_NOTSEND)) {						
 						processDefinition=processService.findProcessDefinitionByKey(ApplicationConstants.APPROVAL_WORKFLOW);
 						properties=new HashMap<String, String>();					
 						/**** Next user and usergroup ****/
@@ -3514,7 +3214,7 @@ public class BillController extends GenericController<Bill> {
 										localizedActorName=temp[3]+"("+temp[4]+")";
 									}
 								}
-								endflag=domain.getEndFlagForRecommendationFromGovernor();
+								endflag=request.getParameter("endflag");
 								properties.put("pv_endflag",endflag);	
 								properties.put("pv_deviceId",String.valueOf(domain.getId()));
 								properties.put("pv_deviceTypeId",String.valueOf(domain.getType().getId()));
@@ -3525,26 +3225,16 @@ public class BillController extends GenericController<Bill> {
 									if(!endflag.isEmpty()){
 										if(endflag.equals("continue")){
 											/**** Workflow Detail entry made only if its not the end of workflow ****/
-											domain.setRecommendationFromGovernorStatus(expectedStatus);
-											WorkflowDetails workflowDetails = WorkflowDetails.create(domain,task,ApplicationConstants.RECOMMENDATION_FROM_GOVERNOR_WORKFLOW,nextUserGroupType,level);
-											bill.setWorkflowDetailsIdForRecommendationFromGovernor(workflowDetails.getId());
+											WorkflowDetails.create(domain,task,ApplicationConstants.RECOMMENDATION_FROM_GOVERNOR_WORKFLOW,expectedStatus.getType(),nextUserGroupType, level);
 										}
 									}
-								}
-								/**** Workflow Started ****/
-								bill.setRecommendationFromGovernorStatus(expectedStatus);
-								bill.setRecommendationFromGovernorWorkflowStarted("YES");					
-								bill.setWorkflowForRecommendationFromGovernorStartedOn(new Date());					
-								bill.setTaskReceivedOnForRecommendationFromGovernor(new Date());	
-								bill.setActorForRecommendationFromGovernor(nextuser);
-								bill.setLocalizedActorNameForRecommendationFromGovernor(localizedActorName);
-								bill.setLevelForRecommendationFromGovernor(level);
+								}															
 							}							
 						}						
 					}
 					
 					if(domain.findChecklistValue(ApplicationConstants.BILL_RECOMMENDATION_FROM_PRESIDENT_CHECKLIST_PARAMETER).equals("yes") 
-							&& domain.getRecommendationFromPresidentStatus().getType().equals(ApplicationConstants.BILL_RECOMMENDATION_FROM_PRESIDENT_NOTSEND)) {						
+							&& request.getParameter("recommendationFromPresidentStatus").equals(ApplicationConstants.BILL_RECOMMENDATION_FROM_PRESIDENT_NOTSEND)) {						
 						processDefinition=processService.findProcessDefinitionByKey(ApplicationConstants.APPROVAL_WORKFLOW);
 						properties=new HashMap<String, String>();					
 						/**** Next user and usergroup ****/
@@ -3568,7 +3258,7 @@ public class BillController extends GenericController<Bill> {
 										localizedActorName=temp[3]+"("+temp[4]+")";
 									}
 								}
-								endflag=domain.getEndFlagForRecommendationFromPresident();
+								endflag=request.getParameter("endflag");
 								properties.put("pv_endflag",endflag);	
 								properties.put("pv_deviceId",String.valueOf(domain.getId()));
 								properties.put("pv_deviceTypeId",String.valueOf(domain.getType().getId()));
@@ -3579,20 +3269,10 @@ public class BillController extends GenericController<Bill> {
 									if(!endflag.isEmpty()){
 										if(endflag.equals("continue")){
 											/**** Workflow Detail entry made only if its not the end of workflow ****/
-											domain.setRecommendationFromPresidentStatus(expectedStatus);
-											WorkflowDetails workflowDetails = WorkflowDetails.create(domain,task,ApplicationConstants.RECOMMENDATION_FROM_PRESIDENT_WORKFLOW,nextUserGroupType,level);
-											bill.setWorkflowDetailsIdForRecommendationFromPresident(workflowDetails.getId());
+											WorkflowDetails.create(domain,task,ApplicationConstants.RECOMMENDATION_FROM_PRESIDENT_WORKFLOW,expectedStatus.getType(),nextUserGroupType, level);
 										}
 									}
-								}
-								/**** Workflow Started ****/
-								bill.setRecommendationFromPresidentStatus(expectedStatus);
-								bill.setRecommendationFromPresidentWorkflowStarted("YES");					
-								bill.setWorkflowForRecommendationFromPresidentStartedOn(new Date());					
-								bill.setTaskReceivedOnForRecommendationFromPresident(new Date());	
-								bill.setActorForRecommendationFromPresident(nextuser);
-								bill.setLocalizedActorNameForRecommendationFromPresident(localizedActorName);
-								bill.setLevelForRecommendationFromPresident(level);
+								}								
 							}							
 						}						
 					}

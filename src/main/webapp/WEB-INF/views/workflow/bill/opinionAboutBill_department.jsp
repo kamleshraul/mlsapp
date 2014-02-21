@@ -278,7 +278,7 @@
 				$.prompt($('#sendOpinionFromLawAndJDMessage').val(),{
 					buttons: {Ok:true, Cancel:false}, callback: function(v){
 			        if(v){
-			        	$("#endFlagForOpinionFromLawAndJD").val("end");
+			        	$("#endflag").val("end");
 						$.blockUI({ message: '<img src="./resources/images/waitAnimated.gif" />' });						
 			        	$.post($('form').attr('action')+'?operation=sendOpinionFromLawAndJD',  
 			    	            $("form").serialize(),  
@@ -1214,10 +1214,6 @@
 					</p>							
 					<input type="hidden" id="internalStatus"  name="internalStatus" value="${internalStatus }">
 					<input type="hidden" id="recommendationStatus"  name="recommendationStatus" value="${recommendationStatus}">
-					<input type="hidden" id="translationStatus"  name="translationStatus" value="${translationStatus}">
-					<input type="hidden" id="opinionFromLawAndJDStatus"  name="opinionFromLawAndJDStatus" value="${opinionFromLawAndJDStatus}">
-					<input type="hidden" id="recommendationFromGovernorStatus"  name="recommendationFromGovernorStatus" value="${recommendationFromGovernorStatus}">
-					<input type="hidden" id="recommendationFromPresidentStatus"  name="recommendationFromPresidentStatus" value="${recommendationFromPresidentStatus}">
 					</div>
 											
 					<c:set var="isOpinionFromLawAndJDReadonly" value="true"/>
@@ -1256,36 +1252,6 @@
 					<form:hidden path="locale"/>
 					<form:hidden path="version"/>
 					<form:hidden path="remarksForTranslation"/>
-					<form:hidden path="workflowStarted"/>	
-					<form:hidden path="endFlag"/>
-					<form:hidden path="actor"/>
-					<form:hidden path="level"/>
-					<form:hidden path="localizedActorName"/>
-					<form:hidden path="workflowDetailsId"/>
-					<form:hidden path="translationWorkflowStarted"/>	
-					<form:hidden path="endFlagForTranslation"/>
-					<form:hidden path="actorForTranslation"/>
-					<form:hidden path="levelForTranslation"/>
-					<form:hidden path="localizedActorNameForTranslation"/>
-					<form:hidden path="workflowDetailsIdForTranslation"/>
-					<form:hidden path="opinionFromLawAndJDWorkflowStarted"/>	
-					<form:hidden path="endFlagForOpinionFromLawAndJD"/>
-					<form:hidden path="actorForOpinionFromLawAndJD"/>
-					<form:hidden path="levelForOpinionFromLawAndJD"/>
-					<form:hidden path="localizedActorNameForOpinionFromLawAndJD"/>
-					<form:hidden path="workflowDetailsIdForOpinionFromLawAndJD"/>
-					<form:hidden path="recommendationFromGovernorWorkflowStarted"/>	
-					<form:hidden path="endFlagForRecommendationFromGovernor"/>
-					<form:hidden path="actorForRecommendationFromGovernor"/>
-					<form:hidden path="levelForRecommendationFromGovernor"/>
-					<form:hidden path="localizedActorNameForRecommendationFromGovernor"/>
-					<form:hidden path="workflowDetailsIdForRecommendationFromGovernor"/>
-					<form:hidden path="recommendationFromPresidentWorkflowStarted"/>	
-					<form:hidden path="endFlagForRecommendationFromPresident"/>
-					<form:hidden path="actorForRecommendationFromPresident"/>
-					<form:hidden path="levelForRecommendationFromPresident"/>
-					<form:hidden path="localizedActorNameForRecommendationFromPresident"/>
-					<form:hidden path="workflowDetailsIdForRecommendationFromPresident"/>
 					<form:hidden path="admissionDate"/>
 					<form:hidden path="rejectionDate"/>
 					<form:hidden path="isIncomplete"/>
@@ -1295,23 +1261,15 @@
 					<form:hidden path="recommendationFromGovernor"/>
 					<form:hidden path="recommendationFromPresident"/>
 					
-					<input id="levelForWorkflow" name="levelForWorkflow" type="hidden">
+					<input id="level" name="level" value="${level}" type="hidden">
+					<input id="endflag" name="endflag" value="continue" type="hidden">
+					<input id="customStatus" name="customStatus" type="hidden">
 					<input id="bulkedit" name="bulkedit" value="${bulkedit}" type="hidden">	
 					<input type="hidden" name="status" id="status" value="${status }">
 					<input type="hidden" name="createdBy" id="createdBy" value="${createdBy }">
 					<input type="hidden" name="dataEnteredBy" id="dataEnteredBy" value="${dataEnteredBy }">
 					<input type="hidden" name="setCreationDate" id="setCreationDate" value="${creationDate }">
 					<input id="setSubmissionDate" name="setSubmissionDate" type="hidden"  value="${submissionDate}">
-					<input type="hidden" name="workflowStartedOnDate" id="workflowStartedOnDate" value="${workflowStartedOnDate }">
-					<input type="hidden" name="workflowForTranslationStartedOnDate" id="workflowForTranslationStartedOn" value="${workflowForTranslationStartedOnDate }">
-					<input type="hidden" name="workflowForOpinionFromLawAndJDStartedOnDate" id="workflowForOpinionFromLawAndJDStartedOn" value="${workflowForOpinionFromLawAndJDStartedOnDate }">
-					<input type="hidden" name="workflowForRecommendationFromGovernorStartedOnDate" id="workflowForRecommendationFromGovernorStartedOn" value="${workflowForRecommendationFromGovernorStartedOnDate }">
-					<input type="hidden" name="workflowForRecommendationFromPresidentStartedOnDate" id="workflowForRecommendationFromPresidentStartedOn" value="${workflowForRecommendationFromPresidentStartedOnDate }">
-					<input type="hidden" name="taskReceivedOnDate" id="taskReceivedOnDate" value="${taskReceivedOnDate }">	
-					<input type="hidden" name="taskReceivedOnDateForTranslation" id="taskReceivedOnDateForTranslation" value="${taskReceivedOnDateForTranslation }">
-					<input type="hidden" name="taskReceivedOnDateForOpinionFromLawAndJD" id="taskReceivedOnDateForOpinionFromLawAndJD" value="${taskReceivedOnDateForOpinionFromLawAndJD}">
-					<input type="hidden" name="taskReceivedOnDateForRecommendationFromGovernor" id="taskReceivedOnDateForRecommendationFromGovernor" value="${taskReceivedOnDateForRecommendationFromGovernor}">
-					<input type="hidden" name="taskReceivedOnDateForRecommendationFromPresident" id="taskReceivedOnDateForRecommendationFromPresident" value="${taskReceivedOnDateForRecommendationFromPresident}">
 					<input id="workflowdetails" name="workflowdetails" value="${workflowdetails}" type="hidden">
 					<input id="workflowtype" name="workflowtype" value="${workflowtype}" type="hidden">
 					<input id="role" name="role" value="${role}" type="hidden">
@@ -1355,10 +1313,6 @@
 				<input id="subDepartmentSelected" value="${subDepartmentSelected }" type="hidden">
 				<input id="oldInternalStatus" value="${ internalStatus}" type="hidden">
 				<input id="oldRecommendationStatus" value="${ RecommendationStatus}" type="hidden">
-				<input id="oldTranslationStatus" value="${translationStatus}" type="hidden">
-				<input id="oldOpinionFromLawAndJDStatus" value="${opinionFromLawAndJDStatus}" type="hidden">
-				<input id="oldRecommendationFromGovernorStatus" name="oldRecommendationFromGovernorStatus" value="${recommendationFromGovernorStatus}" type="hidden">
-				<input id="oldRecommendationFromPresidentStatus" name="oldRecommendationFromPresidentStatus" value="${recommendationFromPresidentStatus}" type="hidden">
 				<input id="ministryEmptyMsg" value='<spring:message code="client.error.ministryempty" text="Ministry can not be empty."></spring:message>' type="hidden">
 				<input id="questionType" type="hidden" value="${selectedQuestionType}" />
 				<input id="typeOfSelectedDeviceType" type="hidden" value="${selectedDeviceTypeForBill}" />

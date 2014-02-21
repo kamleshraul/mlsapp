@@ -3778,7 +3778,7 @@ public class ReferenceController extends BaseController {
 			String strBill=request.getParameter("bill");
 			String strInternalStatus=request.getParameter("status");		
 			String strUserGroup=request.getParameter("usergroup");
-			String strLevel=request.getParameter("levelForWorkflow");
+			String strLevel=request.getParameter("level");
 			if(strBill!=null&&strInternalStatus!=null&&strUserGroup!=null&&strLevel!=null){
 				if((!strBill.isEmpty())&&(!strInternalStatus.isEmpty())&&
 						(!strUserGroup.isEmpty())&&(!strLevel.isEmpty())){

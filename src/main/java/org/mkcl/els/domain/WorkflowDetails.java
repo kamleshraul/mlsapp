@@ -107,9 +107,6 @@ public class WorkflowDetails extends BaseDomain implements Serializable{
 	private String subject;
 	
 	@Column(length=30000)
-	private String title;
-	
-	@Column(length=30000)
 	private String text;
 	
 	private String groupNumber;
@@ -157,6 +154,10 @@ public class WorkflowDetails extends BaseDomain implements Serializable{
         }
         return workflowDetailsRepository;
     }
+	
+	public static WorkflowDetails findCurrentWorkflowDetail(final Device device, DeviceType deviceType, String workflowType) throws ELSException {
+		return getWorkflowDetailsRepository().findCurrentWorkflowDetail(device, deviceType, workflowType);
+	}
 
 	public String getProcessId() {
 		return processId;
@@ -528,11 +529,12 @@ public class WorkflowDetails extends BaseDomain implements Serializable{
 				userGroup, deviceId, domainIds, workflowType, status, locale);
 	}
 	
-	/**** Bill Related ****/
+	/**** Bill Related 
+	 * @param customStatus TODO****/
 	public static WorkflowDetails create(final Bill bill,final Task task,final String workflowType,
-			final String userGroupType, final String assigneeLevel) {
+			String customStatus, final String userGroupType, final String assigneeLevel) {
 		return getWorkflowDetailsRepository().create(bill,task,workflowType,
-				userGroupType,assigneeLevel);
+				customStatus,userGroupType, assigneeLevel);
 	}
 	
 	public static WorkflowDetails create(final Bill bill,final HouseType houseType,final Boolean isActorAcrossHouse,final PrintRequisition printRequisition,final Task task,final String workflowType,
@@ -542,9 +544,9 @@ public class WorkflowDetails extends BaseDomain implements Serializable{
 	}
 	
 	public static List<WorkflowDetails> create(final Bill bill,final List<Task> tasks,
-			final String workflowType,final String assigneeLevel) {
+			final String workflowType,String customStatus, final String assigneeLevel) {
 		return getWorkflowDetailsRepository().create(bill,tasks,
-				workflowType,assigneeLevel);
+				workflowType,customStatus, assigneeLevel);
 	}
 	
 	public static WorkflowDetails findCurrentWorkflowDetail(final Bill bill, String workflowType) {
@@ -622,14 +624,6 @@ public class WorkflowDetails extends BaseDomain implements Serializable{
 
 	public void setCustomStatus(String customStatus) {
 		this.customStatus = customStatus;
-	}
-
-	public String getTitle() {
-		return title;
-	}
-
-	public void setTitle(String title) {
-		this.title = title;
 	}
 
 	public String getPrintRequisitionId() {

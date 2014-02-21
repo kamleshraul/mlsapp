@@ -80,11 +80,11 @@
 			</p>
 			<p></p>
 		</div>
-	</c:when><c:when test="${errorcode eq 'sessionyear_isnull'}">
+	</c:when><c:when test="${errorcode eq 'sessionYear_isnull'}">
 		<div class="toolTip tpRed clearfix">
 			<p>
 				<img src="./resources/images/template/icons/light-bulb-off.png">
-				<spring:message code="bill.errorcode.sessionyear_isnull" text="Check request parameter 'sessionYear' for null value"/>
+				<spring:message code="bill.errorcode.sessionYear_isnull" text="Check request parameter 'sessionYear' for null value"/>
 			</p>
 			<p></p>
 		</div>
@@ -168,6 +168,60 @@
 			<p></p>
 		</div>
 	</c:when>
+	<c:when test="${errorcode eq 'bills_nonofficial_billTypesAllowed_notset'}">
+		<div class="toolTip tpRed clearfix">
+			<p>
+				<img src="./resources/images/template/icons/light-bulb-off.png">
+				<spring:message code="bill.errorcode.bills_nonofficial_billTypesAllowed_notset" text="Session Parameter 'bills_nonofficial_billTypesAllowed' not set"/>
+			</p>
+			<p></p>
+		</div>
+	</c:when>
+	<c:when test="${errorcode eq 'bills_government_billTypesAllowed_notset'}">
+		<div class="toolTip tpRed clearfix">
+			<p>
+				<img src="./resources/images/template/icons/light-bulb-off.png">
+				<spring:message code="bill.errorcode.bills_government_billTypesAllowed_notset" text="Session Parameter 'bills_government_billTypesAllowed' not set"/>
+			</p>
+			<p></p>
+		</div>
+	</c:when>
+	<c:when test="${errorcode eq 'bills_nonofficial_billKindsAllowed_notset'}">
+		<div class="toolTip tpRed clearfix">
+			<p>
+				<img src="./resources/images/template/icons/light-bulb-off.png">
+				<spring:message code="bill.errorcode.bills_nonofficial_billKindsAllowed_notset" text="Session Parameter 'bills_nonofficial_billKindsAllowed' not set"/>
+			</p>
+			<p></p>
+		</div>
+	</c:when>
+	<c:when test="${errorcode eq 'bills_government_billKindsAllowed_notset'}">
+		<div class="toolTip tpRed clearfix">
+			<p>
+				<img src="./resources/images/template/icons/light-bulb-off.png">
+				<spring:message code="bill.errorcode.bills_government_billKindsAllowed_notset" text="Session Parameter 'bills_government_billKindsAllowed' not set"/>
+			</p>
+			<p></p>
+		</div>
+	</c:when>
+	<c:when test="${errorcode eq 'billKind_notfound'}">
+		<div class="toolTip tpRed clearfix">
+			<p>
+				<img src="./resources/images/template/icons/light-bulb-off.png">
+				<spring:message code="bill.errorcode.billKind_notfound" text="Bill kinds are not defined"/>
+			</p>
+			<p></p>
+		</div>
+	</c:when>
+	<c:when test="${errorcode eq 'member_null'}">
+		<div class="toolTip tpRed clearfix">
+			<p>
+				<img src="./resources/images/template/icons/light-bulb-off.png">
+				<spring:message code="bill.errorcode.member_null" text="member is not set for this bill"/>
+			</p>
+			<p></p>
+		</div>
+	</c:when>
 	<c:when test="${errorcode eq 'highestbillprioritynotset'}">
 		<div class="toolTip tpRed clearfix">
 			<p>
@@ -190,7 +244,7 @@
 		<div class="toolTip tpRed clearfix">
 			<p>
 				<img src="./resources/images/template/icons/light-bulb-off.png">
-				<spring:message code="bill.errorcode.current_user_has_no_usergroups" text="No QIS usergroup set for current user"/>
+				<spring:message code="bill.errorcode.current_user_has_no_usergroups" text="No BIS usergroup set for current user"/>
 			</p>
 			<p></p>
 		</div>
@@ -200,6 +254,15 @@
 			<p>
 				<img src="./resources/images/template/icons/light-bulb-off.png">
 				<spring:message code="bill.errorcode.bill_status_allowed_by_default_not_set" text="Custom Parameter 'QUESTION_STATUS_ALLOWED_BY_DEFAULT' not set"/>
+			</p>
+			<p></p>
+		</div>
+	</c:when>
+	<c:when test="${errorcode eq 'bis_allowed_usergroups_notset'}">
+		<div class="toolTip tpRed clearfix">
+			<p>
+				<img src="./resources/images/template/icons/light-bulb-off.png">
+				<spring:message code="bill.errorcode.bis_allowed_usergroups_notset" text="Custom Parameter 'BIS_ALLOWED_USERGROUPTYPES' not set"/>
 			</p>
 			<p></p>
 		</div>

@@ -1430,15 +1430,10 @@
 						
 						<input type="hidden" id="readonly_internalStatus"  name="internalStatus" value="${internalStatus }">
 						<input type="hidden" id="readonly_recommendationStatus"  name="recommendationStatus" value="${recommendationStatus}">
-						<input type="hidden" id="readonly_translationStatus"  name="translationStatus" value="${translationStatus}">
-						<input type="hidden" id="readonly_opinionFromLawAndJDStatus"  name="opinionFromLawAndJDStatus" value="${opinionFromLawAndJDStatus}">
-						<input type="hidden" id="readonly_recommendationFromGovernorStatus"  name="recommendationFromGovernorStatus" value="${recommendationFromGovernorStatus}">
-						<input type="hidden" id="readonly_recommendationFromPresidentStatus"  name="recommendationFromPresidentStatus" value="${recommendationFromPresidentStatus}">
 					</div>		
 					
 					<form:hidden id="readonly_id" path="id"/>
 					<input id="readonly_levelForWorkflow" name="levelForWorkflow" type="hidden">
-					<input id="readonly_bulkedit" name="bulkedit" value="${bulkedit}" type="hidden">	
 					<input type="hidden" name="status" id="readonly_status" value="${status }">
 					<input type="hidden" name="createdBy" id="readonly_createdBy" value="${createdBy }">
 					<input type="hidden" name="dataEnteredBy" id="readonly_dataEnteredBy" value="${dataEnteredBy }">
@@ -1456,8 +1451,6 @@
 					<input id="readonly_usergroupType" name="usergroupType" value="${usergroupType}" type="hidden">
 					<input id="readonly_oldInternalStatus" name="oldInternalStatus" value="${internalStatus}" type="hidden">
 					<input id="readonly_oldRecommendationStatus" name="oldRecommendationStatus" value="${recommendationStatus}" type="hidden">
-					<input id="readonly_oldTranslationStatus" name="oldTranslationStatus" value="${translationStatus}" type="hidden">
-					<input id="readonly_oldOpinionFromLawAndJDStatus" name="oldOpinionFromLawAndJDStatus" value="${opinionFromLawAndJDStatus}" type="hidden">							
 				</form:form>
 				<input id="readonly_pleaseSelectMsg" value="<spring:message code='please.select' text='Please Select'/>" type="hidden">
 				<input id="readonly_ministrySelected" value="${ministrySelected }" type="hidden">
@@ -1466,7 +1459,6 @@
 				<input id="readonly_selectedBillKind" value="${selectedBillKind}" type="hidden">
 				<input id="readonly_typeOfSelectedDeviceType" type="hidden" value="${selectedDeviceTypeForBill}" />
 				<input id="readonly_typeOfSelectedBillType" type="hidden" value="${typeOfSelectedBillType}" />
-				<input id="readonly_translationStatusType" type="hidden" value="${translationStatusType}" />			
 				<input type="hidden" id="readonly_isActReferenced" value="${isActReferenced}">
 				<input type="hidden" id="readonly_defaultBillLanguage" value="${defaultBillLanguage}">
 				<input type="hidden" id="readonly_isMoneyBillPrompt" value="<spring:message code="bill.isMoneyBillPrompt" text="Are you sure this is a money bill?"></spring:message>">

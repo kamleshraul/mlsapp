@@ -121,107 +121,58 @@
 		    var opinion_from_lawandjd=$("#internalStatusMaster option[value='bill_recommend_opinionFromLawAndJD']").text();
 		    var recommendation_from_governor=$("#internalStatusMaster option[value='bill_recommend_recommendationFromGovernor']").text();
 		    var recommendation_from_president=$("#internalStatusMaster option[value='bill_recommend_recommendationFromPresident']").text();		    
-		    if(value==translate) {
-				$("#levelForWorkflow").val($('#levelForTranslation').val());				
-			} else if(value==opinion_from_lawandjd) {
-				$("#levelForWorkflow").val($('#levelForOpinionFromLawAndJD').val());				
-			} else if(value==recommendation_from_governor) {
-				$("#levelForWorkflow").val($('#levelForRecommendationFromGovernor').val());		
-			} else if(value==recommendation_from_president) {
-				$("#levelForWorkflow").val($('#levelForRecommendationFromPresident').val());	
-			} else {
-				$("#levelForWorkflow").val($('#level').val());
-			}		    
 		    var params="bill="+$("#id").val()+"&status="+value+
-			"&usergroup="+$("#usergroup").val()+"&levelForWorkflow="+$("#levelForWorkflow").val();
+			"&usergroup="+$("#usergroup").val()+"&level="+$("#level").val();
 			var resourceURL='ref/bill/actors?'+params;
 			$.post(resourceURL,function(data){
 				if(data!=undefined||data!=null||data!=''&&data.length!=0){
-					$("#actorForWorkflow").empty();
+					$("#actor").empty();
 					var text="";
 					for(var i=0;i<data.length;i++){
 					text+="<option value='"+data[i].id+"'>"+data[i].name+"</option>";
 					}
-					$("#actorForWorkflow").html(text);
+					$("#actor").html(text);
 					$("#actorDiv").show();				
-					if(value!=sendback&&value!=discuss&&value!=translate&&value!=opinion_from_lawandjd
-							&&value!=recommendation_from_governor&&value!=recommendation_from_president){
-						$("#internalStatus").val(value);
-						$("#translationStatus").val($("#oldTranslationStatus").val());	
-			    		$("#opinionFromLawAndJDStatus").val($("#oldOpinionFromLawAndJDStatus").val());
-			    		$("#recommendationFromGovernorStatus").val($("#oldRecommendationFromGovernorStatus").val());	
-			    		$("#recommendationFromPresidentStatus").val($("#oldRecommendationFromPresidentStatus").val());
-					} 
-					if(value==translate) {
-						$("#translationStatus").val(value);		
+					if(value==translate || value==opinion_from_lawandjd 
+							|| value==recommendation_from_governor || value==recommendation_from_president) {
+						$("#customStatus").val(value);
 						$("#internalStatus").val($("#oldInternalStatus").val());
-			    		$("#recommendationStatus").val($("#oldRecommendationStatus").val());
-			    		$("#opinionFromLawAndJDStatus").val($("#oldOpinionFromLawAndJDStatus").val());
-			    		$("#recommendationFromGovernorStatus").val($("#oldRecommendationFromGovernorStatus").val());	
-			    		$("#recommendationFromPresidentStatus").val($("#oldRecommendationFromPresidentStatus").val());
-					} else if(value==opinion_from_lawandjd) {
-						$("#opinionFromLawAndJDStatus").val(value);		
+			    		$("#recommendationStatus").val($("#oldRecommendationStatus").val());			    		
+					} else if(value==sendback || value==discuss) {
 						$("#internalStatus").val($("#oldInternalStatus").val());
-			    		$("#recommendationStatus").val($("#oldRecommendationStatus").val());	
-			    		$("#translationStatus").val($("#oldTranslationStatus").val());
-			    		$("#recommendationFromGovernorStatus").val($("#oldRecommendationFromGovernorStatus").val());	
-			    		$("#recommendationFromPresidentStatus").val($("#oldRecommendationFromPresidentStatus").val());
-					} else if(value==recommendation_from_governor) {
-						$("#recommendationFromGovernorStatus").val(value);		
-						$("#internalStatus").val($("#oldInternalStatus").val());
-			    		$("#recommendationStatus").val($("#oldRecommendationStatus").val());
-			    		$("#translationStatus").val($("#oldTranslationStatus").val());
-			    		$("#opinionFromLawAndJDStatus").val($("#oldOpinionFromLawAndJDStatus").val());
-			    		$("#recommendationFromPresidentStatus").val($("#oldRecommendationFromPresidentStatus").val());
-					} else if(value==recommendation_from_president) {
-						$("#recommendationFromPresidentStatus").val(value);		
-						$("#internalStatus").val($("#oldInternalStatus").val());
-			    		$("#recommendationStatus").val($("#oldRecommendationStatus").val());	
-			    		$("#translationStatus").val($("#oldTranslationStatus").val());
-			    		$("#opinionFromLawAndJDStatus").val($("#oldOpinionFromLawAndJDStatus").val());
-			    		$("#recommendationFromGovernorStatus").val($("#oldRecommendationFromGovernorStatus").val());
+						$("#recommendationStatus").val(value);							
 					} else {
-						$("#recommendationStatus").val(value);						
-						$("#translationStatus").val($("#oldTranslationStatus").val());	
-			    		$("#opinionFromLawAndJDStatus").val($("#oldOpinionFromLawAndJDStatus").val());
-			    		$("#recommendationFromGovernorStatus").val($("#oldRecommendationFromGovernorStatus").val());	
-			    		$("#recommendationFromPresidentStatus").val($("#oldRecommendationFromPresidentStatus").val());
-					}
-					/**** setting level,localizedActorName For Workflow ****/
-					 var actor1=data[0].id;
-					 var temp=actor1.split("#");
-					 $("#levelForWorkflow").val(temp[2]);		    
-					 $("#localizedActorNameForWorkflow").val(temp[3]+"("+temp[4]+")");
+						$("#internalStatus").val(value);
+						$("#recommendationStatus").val(value);
+					}	
+					/**** setting level,localizedActorName ****/
+					var actor1=data[0].id;
+					var temp=actor1.split("#");
+					$("#level").val(temp[2]);		    
+					$("#localizedActorName").val(temp[3]+"("+temp[4]+")");
 				}else{
-					$("#actorForWorkflow").empty();
+					$("#actor").empty();
 					$("#actorDiv").hide();
-					if(value!=sendback&&value!=discuss&&value!=translate&&value!=opinion_from_lawandjd
-							&&value!=recommendation_from_governor&&value!=recommendation_from_president
-							&&value!=requisition_to_press_for_gazette&&value!=introducedStatus){
-						$("#internalStatus").val(value);
-					} 
-					if(value==translate) {
-						$("#translationStatus").val(value);						
-					} else if(value==opinion_from_lawandjd) {
-						$("#opinionFromLawAndJDStatus").val(value);						
-					} else if(value==recommendation_from_governor) {
-						$("#recommendationFromGovernorStatus").val(value);						
-					} else if(value==recommendation_from_president) {
-						$("#recommendationFromPresidentStatus").val(value);						
+					if(value==translate || value==opinion_from_lawandjd 
+							|| value==recommendation_from_governor || value==recommendation_from_president) {
+						$("#customStatus").val(value);
+						$("#internalStatus").val($("#oldInternalStatus").val());
+			    		$("#recommendationStatus").val($("#oldRecommendationStatus").val());			    		
+					} else if(value==sendback || value==discuss) {
+						$("#internalStatus").val($("#oldInternalStatus").val());
+						$("#recommendationStatus").val(value);							
 					} else {
-						$("#recommendationStatus").val(value);						
+						$("#internalStatus").val(value);
+						$("#recommendationStatus").val(value);
 					}
 				}
 			});
 			}else{
-				$("#actorForWorkflow").empty();
+				$("#actor").empty();
 				$("#actorDiv").hide();				
 				$("#internalStatus").val($("#oldInternalStatus").val());
 			    $("#recommendationStatus").val($("#oldRecommendationStatus").val());
-			    $("#translationStatus").val($("#oldTranslationStatus").val());	
-			    $("#opinionFromLawAndJDStatus").val($("#oldOpinionFromLawAndJDStatus").val());		
-			    $("#recommendationFromGovernorStatus").val($("#oldRecommendationFromGovernorStatus").val());	
-	    		$("#recommendationFromPresidentStatus").val($("#oldRecommendationFromPresidentStatus").val());
+			    $("#customStatus").val("");
 			}
 		}
 		/**** sub departments ****/
@@ -509,14 +460,14 @@
 				$("#introducedBy").val(ui.item.id);
 			}	
 			});
-					
-			$("#actorForWorkflow").change(function(){
+			
+			$("#actor").change(function(){
 			    var actor=$(this).val();
 			    var temp=actor.split("#");
-			    $("#levelForWorkflow").val(temp[2]);		    
-			    $("#localizedActorNameForWorkflow").val(temp[3]+"("+temp[4]+")");
+			    $("#level").val(temp[2]);		    
+			    $("#localizedActorName").val(temp[3]+"("+temp[4]+")");
 		    });
-			
+					
 			/**** Back To Bill ****/
 			$("#backToBill").click(function(){
 				$("#clubbingResultDiv").hide();
@@ -574,27 +525,15 @@
 		    	var value=$(this).val();
 			    if(value!='-'){
 			    	$('#remarks_div').show();
-				    //var statusType=$("#internalStatusMaster option[value='"+value+"']").text();			    
-				    loadActors(value);
-				    /* if($('#internalStatusType').val()=='bill_submit' 
-				    		|| $('#internalStatusType').val()=='bill_system_assistantprocessed'
-				    		|| $('#internalStatusType').val()=='bill_putup_nameclubbing') {
-				    	$("#submit").attr("disabled","disabled");
-					    $("#startworkflow").removeAttr("disabled");
-				    } */				    		    
+				    loadActors(value);				    				    		    
 			    }else{
-				    $("#actorForWorkflow").empty();
+				    $("#actor").empty();
 				    $("#actorDiv").hide();
 				    $("#contentForIntroduction").hide();
 				    $('#remarks_div').hide();
 				    $("#internalStatus").val($("#oldInternalStatus").val());
-				    $("#recommendationStatus").val($("#oldRecommendationStatus").val());
-				    $("#translationStatus").val($("#oldTranslationStatus").val());	
-				    $("#opinionFromLawAndJDStatus").val($("#oldOpinionFromLawAndJDStatus").val());
-				    $("#recommendationFromGovernorStatus").val($("#oldRecommendationFromGovernorStatus").val());	
-		    		$("#recommendationFromPresidentStatus").val($("#oldRecommendationFromPresidentStatus").val());
-				    /* $("#startworkflow").attr("disabled","disabled");
-				    $("#submit").removeAttr("disabled"); */
+				    $("#recommendationStatus").val($("#oldRecommendationStatus").val());	
+				    $("#customStatus").val("");
 				}		    
 		    });
 		    /**** Recommendation Status Changes (Status Updation Post Admission)****/   
@@ -1181,7 +1120,7 @@
 							}
 						}						
 						/** putup not allowed when translation is pending **/
-						if($('#translationStatusType').val()=='bill_recommend_translation' 
+						if($('#translationStatusType').val()=='bill_recommend_translation'
 								|| $('#translationStatusType').val()=='bill_final_translation') {
 							$.prompt($('#translationPendingMessage').val());
 							return false;
@@ -2159,26 +2098,26 @@
 						<h2 class="checklist_button_hr" style="display: none;"></h2>									
 					</div>
 					
-					<div style="margin-top: 20px;">
-					<c:if test="${domain.translationWorkflowStarted=='YES' and not empty formattedTranslationStatus and memberStatusType=='bill_submit'}">
+					<div style="margin-top: 20px;">					
+					<c:if test="${translationStatusType!='translation_notsend' and not empty formattedTranslationStatus and memberStatusType=='bill_submit'}">
 					<p id="translationStatusDiv">
 						<label class="small"><spring:message code="bill.currentTranslationStatus" text="Current Translation Status"/></label>
 						<input id="formattedTranslationStatus" value="${formattedTranslationStatus}" type="text" readonly="readonly">
 					</p>
 					</c:if>
-					<c:if test="${domain.opinionFromLawAndJDWorkflowStarted=='YES' and not empty formattedOpinionFromLawAndJDStatus and selectedDeviceTypeForBill=='bills_nonofficial'}">
+					<c:if test="${opinionFromLawAndJDStatusType!='opinionFromLawAndJD_notsend' and not empty formattedOpinionFromLawAndJDStatus and selectedDeviceTypeForBill=='bills_nonofficial'}">
 					<p id="opinionFromLawAndJDStatusStatusDiv">
 						<label class="small"><spring:message code="bill.currentOpinionFromLawAndJDStatus" text="Current Opinion From Law And JD Status"/></label>
 						<input id="formattedOpinionFromLawAndJDStatus" value="${formattedOpinionFromLawAndJDStatus}" type="text" readonly="readonly">
 					</p>
 					</c:if>
-					<c:if test="${domain.recommendationFromGovernorWorkflowStarted=='YES' and not empty formattedRecommendationFromGovernorStatus}">
+					<c:if test="${recommendationFromGovernorStatusType!='recommendationFromGovernor_notsend' and not empty formattedRecommendationFromGovernorStatus and selectedDeviceTypeForBill=='bills_nonofficial'}">
 					<p id="recommendationFromGovernorStatusDiv">
 						<label class="small"><spring:message code="bill.currentRecommendationFromGovernorStatus" text="Current Recommendation From Governor Status"/></label>
 						<input id="formattedRecommendationFromGovernorStatus" value="${formattedRecommendationFromGovernorStatus}" type="text" readonly="readonly">
 					</p>
 					</c:if>
-					<c:if test="${domain.recommendationFromPresidentWorkflowStarted=='YES' and not empty formattedRecommendationFromPresidentStatus}">
+					<c:if test="${recommendationFromPresidentStatusType!='recommendationFromPresident_notsend' and not empty formattedRecommendationFromPresidentStatus and selectedDeviceTypeForBill=='bills_nonofficial'}">
 					<p id="recommendationFromPresidentStatusDiv">
 						<label class="small"><spring:message code="bill.currentRecommendationFromPresidentStatus" text="Current Recommendation From President Status"/></label>
 						<input id="formattedRecommendationFromPresidentStatus" value="${formattedRecommendationFromPresidentStatus}" type="text" readonly="readonly">
@@ -2193,7 +2132,7 @@
 						<%-- <c:if test="${(internalStatusType=='bill_submit') || (internalStatusType=='bill_system_assistantprocessed')
 							|| ((internalStatusType=='bill_recommend_admission' or internalStatusType=='bill_recommend_rejection') && bulkedit=='yes')}"> --%>
 						<p id="changeInternalStatusPara">
-							<label class="small"><spring:message code="resolution.putupfor" text="Put up for"/></label>
+							<label class="small"><spring:message code="bill.putupfor" text="Put up for"/></label>
 							<select id="changeInternalStatus" class="sSelect">
 								<option value="-"><spring:message code='please.select' text='Please Select'/></option>
 								<c:forEach items="${internalStatuses}" var="i">
@@ -2218,12 +2157,12 @@
 						</p>
 						<p id="actorDiv">
 						<label class="small"><spring:message code="bill.nextactor" text="Next Users"/></label>
-						<select id="actorForWorkflow" name="actorForWorkflow" class="sSelect">
+						<select id="actor" name="actor" class="sSelect">
 							<c:forEach var="i" items="${actors}">
 								<option value="${i.id}"><c:out value="${i.name}"></c:out></option>
 							</c:forEach>					
 						</select>	
-						<input type="hidden" id="localizedActorNameForWorkflow"  name="localizedActorNameForWorkflow">
+						<input type="hidden" id="localizedActorName" name="localizedActorName">
 						</p>
 					</c:if>
 					
@@ -2253,7 +2192,7 @@
 							</p>
 						</c:if>
 						<p id="changeRecommendationStatusPara">
-							<label class="small"><spring:message code="resolution.putupfor" text="Put up for"/></label>
+							<label class="small"><spring:message code="bill.putupfor" text="Put up for"/></label>
 							<select id="changeRecommendationStatus" class="sSelect">
 								<option value="-"><spring:message code='please.select' text='Please Select'/></option>
 								<c:forEach items="${recommendationStatuses}" var="i">
@@ -2303,10 +2242,6 @@
 									
 					<input type="hidden" id="internalStatus"  name="internalStatus" value="${internalStatus }">
 					<input type="hidden" id="recommendationStatus"  name="recommendationStatus" value="${recommendationStatus}">
-					<input type="hidden" id="translationStatus"  name="translationStatus" value="${translationStatus}">
-					<input type="hidden" id="opinionFromLawAndJDStatus"  name="opinionFromLawAndJDStatus" value="${opinionFromLawAndJDStatus}">
-					<input type="hidden" id="recommendationFromGovernorStatus"  name="recommendationFromGovernorStatus" value="${recommendationFromGovernorStatus}">
-					<input type="hidden" id="recommendationFromPresidentStatus"  name="recommendationFromPresidentStatus" value="${recommendationFromPresidentStatus}">
 					</div>
 					
 					<div id="remarks_div">
@@ -2328,72 +2263,31 @@
 					</div>
 					<form:hidden path="id"/>
 					<form:hidden path="locale"/>
-					<form:hidden path="version"/>
-					<form:hidden path="workflowStarted"/>	
-					<form:hidden path="endFlag"/>
-					<form:hidden path="actor"/>
-					<form:hidden path="level"/>
-					<form:hidden path="localizedActorName"/>
-					<form:hidden path="workflowDetailsId"/>
-					<form:hidden path="translationWorkflowStarted"/>	
-					<form:hidden path="endFlagForTranslation"/>
-					<form:hidden path="actorForTranslation"/>
-					<form:hidden path="levelForTranslation"/>
-					<form:hidden path="localizedActorNameForTranslation"/>
-					<form:hidden path="workflowDetailsIdForTranslation"/>
-					<form:hidden path="opinionFromLawAndJDWorkflowStarted"/>	
-					<form:hidden path="endFlagForOpinionFromLawAndJD"/>
-					<form:hidden path="actorForOpinionFromLawAndJD"/>
-					<form:hidden path="levelForOpinionFromLawAndJD"/>
-					<form:hidden path="localizedActorNameForOpinionFromLawAndJD"/>
-					<form:hidden path="workflowDetailsIdForOpinionFromLawAndJD"/>
-					<form:hidden path="recommendationFromGovernorWorkflowStarted"/>	
-					<form:hidden path="endFlagForRecommendationFromGovernor"/>
-					<form:hidden path="actorForRecommendationFromGovernor"/>
-					<form:hidden path="levelForRecommendationFromGovernor"/>
-					<form:hidden path="localizedActorNameForRecommendationFromGovernor"/>
-					<form:hidden path="workflowDetailsIdForRecommendationFromGovernor"/>
-					<form:hidden path="recommendationFromPresidentWorkflowStarted"/>	
-					<form:hidden path="endFlagForRecommendationFromPresident"/>
-					<form:hidden path="actorForRecommendationFromPresident"/>
-					<form:hidden path="levelForRecommendationFromPresident"/>
-					<form:hidden path="localizedActorNameForRecommendationFromPresident"/>
-					<form:hidden path="workflowDetailsIdForRecommendationFromPresident"/>
+					<form:hidden path="version"/>					
 					<form:hidden path="admissionDate"/>
 					<form:hidden path="rejectionDate"/>
 					<form:hidden path="isIncomplete"/>
+					<form:hidden path="remarksForTranslation"/>
 					<input type="hidden" name="currentHouseType" value="${currentHouseType}"/>
 					
 					<form:hidden path="file"/>
 					<form:hidden path="fileIndex"/>	
 					<form:hidden path="fileSent"/>
-					<input id="levelForWorkflow" name="levelForWorkflow" type="hidden">
+					<input id="level" name="level" value="${level}" type="hidden">
+					<input id="endflag" name="endflag" value="continue" type="hidden">
 					<input id="bulkedit" name="bulkedit" value="${bulkedit}" type="hidden">	
 					<input type="hidden" name="status" id="status" value="${status }">
 					<input type="hidden" name="createdBy" id="createdBy" value="${createdBy }">
 					<input type="hidden" name="dataEnteredBy" id="dataEnteredBy" value="${dataEnteredBy }">
 					<input type="hidden" name="setCreationDate" id="setCreationDate" value="${creationDate }">
 					<input id="setSubmissionDate" name="setSubmissionDate" type="hidden"  value="${submissionDate}">
-					<input type="hidden" name="workflowStartedOnDate" id="workflowStartedOnDate" value="${workflowStartedOnDate }">
-					<input type="hidden" name="workflowForTranslationStartedOnDate" id="workflowForTranslationStartedOn" value="${workflowForTranslationStartedOnDate }">
-					<input type="hidden" name="workflowForOpinionFromLawAndJDStartedOnDate" id="workflowForOpinionFromLawAndJDStartedOn" value="${workflowForOpinionFromLawAndJDStartedOnDate }">
-					<input type="hidden" name="workflowForRecommendationFromGovernorStartedOnDate" id="workflowForRecommendationFromGovernorStartedOn" value="${workflowForRecommendationFromGovernorStartedOnDate }">
-					<input type="hidden" name="workflowForRecommendationFromPresidentStartedOnDate" id="workflowForRecommendationFromPresidentStartedOn" value="${workflowForRecommendationFromPresidentStartedOnDate }">
-					<input type="hidden" name="taskReceivedOnDate" id="taskReceivedOnDate" value="${taskReceivedOnDate }">	
-					<input type="hidden" name="taskReceivedOnDateForTranslation" id="taskReceivedOnDateForTranslation" value="${taskReceivedOnDateForTranslation }">
-					<input type="hidden" name="taskReceivedOnDateForOpinionFromLawAndJD" id="taskReceivedOnDateForOpinionFromLawAndJD" value="${taskReceivedOnDateForOpinionFromLawAndJD}">
-					<input type="hidden" name="taskReceivedOnDateForRecommendationFromGovernor" id="taskReceivedOnDateForRecommendationFromGovernor" value="${taskReceivedOnDateForRecommendationFromGovernor}">
-					<input type="hidden" name="taskReceivedOnDateForRecommendationFromPresident" id="taskReceivedOnDateForRecommendationFromPresident" value="${taskReceivedOnDateForRecommendationFromPresident}">
 					<input id="role" name="role" value="${role}" type="hidden">
 					<input id="taskid" name="taskid" value="${taskid}" type="hidden">
 					<input id="usergroup" name="usergroup" value="${usergroup}" type="hidden">
 					<input id="usergroupType" name="usergroupType" value="${usergroupType}" type="hidden">
 					<input id="oldInternalStatus" name="oldInternalStatus" value="${internalStatus}" type="hidden">
 					<input id="oldRecommendationStatus" name="oldRecommendationStatus" value="${recommendationStatus}" type="hidden">
-					<input id="oldTranslationStatus" name="oldTranslationStatus" value="${translationStatus}" type="hidden">
-					<input id="oldOpinionFromLawAndJDStatus" name="oldOpinionFromLawAndJDStatus" value="${opinionFromLawAndJDStatus}" type="hidden">
-					<input id="oldRecommendationFromGovernorStatus" name="oldRecommendationFromGovernorStatus" value="${recommendationFromGovernorStatus}" type="hidden">
-					<input id="oldRecommendationFromPresidentStatus" name="oldRecommendationFromPresidentStatus" value="${recommendationFromPresidentStatus}" type="hidden">
+					<input id="customStatus" name="customStatus" type="hidden">
 					<input type="hidden" id="isPrintRequisitionForGazetteSent" name="isPrintRequisitionForGazetteSent" value="${isPrintRequisitionForGazetteSent}" />
 					<input type="hidden" id="isPrintRequisitionPostPassedByFirstHouseSent" name="isPrintRequisitionPostPassedByFirstHouseSent" value="${isPrintRequisitionPostPassedByFirstHouseSent}" />
 										
