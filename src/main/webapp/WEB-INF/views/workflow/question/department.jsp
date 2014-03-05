@@ -683,7 +683,7 @@
 			//console.log("Answer: " + $('#answer').val() + ", ReanswerStatus: "+$("#reanswerstatus").val() + ", Reanswer: " + $('#reanswer').val());
 			//console.log(($('#answer').val()=="" || ($("#reanswerstatus").val()=='reanswer' && $('#reanswer').val()=="")) && $('#selectedQuestionType').val()!='questions_halfhourdiscussion_standalone');
 			
-			if(($('#answer').val()=="" || ($("#workflowstatus").val()=='COMPLETED' && $('#reanswer').val()=="")) && $('#selectedQuestionType').val()!='questions_halfhourdiscussion_standalone'){
+			if(($('#answer').val()=="" && $('#factualPosition').val()=="" || ($("#workflowstatus").val()=='COMPLETED' && $('#reanswer').val()=="")) && $('#selectedQuestionType').val()!='questions_halfhourdiscussion_standalone'){
 				$.prompt($('#noAnswerProvidedMsg').val());
 			}else{
 				$.prompt($('#submissionMsg').val(),{
@@ -1173,14 +1173,7 @@
 	</c:if>
 	
 	<c:choose>
-		<c:when test="${selectedQuestionType != 'questions_halfhourdiscussion_standalone' and workflowstatus!='COMPLETED'}">
-			<p>
-				<label class="wysiwyglabel"><spring:message code="question.answer" text="Answer"/></label>
-				<form:textarea path="answer" cssClass="wysiwyg"></form:textarea>
-				<form:errors path="answer" cssClass="validationError"></form:errors>
-			</p>
-		</c:when>
-		<c:when test="${selectedQuestionType != 'questions_halfhourdiscussion_standalone' and workflowstatus=='COMPLETED'}">
+		<c:when test="${selectedQuestionType != 'questions_halfhourdiscussion_standalone' and workflowstatus=='COMPLETED' and internalStatusType != 'question_final_clarificationNeededFromDepartment'}">
 			<p>
 				<label class="wysiwyglabel"><spring:message code="question.answer" text="Answer"/></label>
 				<form:textarea path="answer" cssClass="wysiwyg" readonly="true"></form:textarea>
@@ -1213,7 +1206,13 @@
 		<form:errors path="factualPosition" cssClass="validationError" cssStyle="float:right;margin-top:-100px;margin-right:40px;"/>
 		</p>
 	</c:if>
-	
+	<c:if test="${(selectedQuestionType != 'questions_halfhourdiscussion_standalone' && internalStatusType == 'question_final_clarificationNeededFromDepartment' )}">
+		<p>
+		<label class="wysiwyglabel"><spring:message code="question.factualPosition" text="Factual Position"/></label>
+		<form:textarea path="factualPosition" cssClass="wysiwyg"></form:textarea>
+		<form:errors path="factualPosition" cssClass="validationError" cssStyle="float:right;margin-top:-100px;margin-right:40px;"/>
+		</p>
+	</c:if>
 	<c:if test="${currTimeMillis <= sendbacktimelimit and workflowstatus!='COMPLETED'}">
 		<p>
 		<label class="wysiwyglabel"><spring:message code="question.remarks" text="Remarks"/></label>

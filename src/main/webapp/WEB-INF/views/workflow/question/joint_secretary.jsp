@@ -1053,6 +1053,14 @@
 		
 	<input type="hidden" id="internalStatus"  name="internalStatus" value="${internalStatus }">
 	<input type="hidden" id="recommendationStatus"  name="recommendationStatus" value="${recommendationStatus}">
+	
+	<c:if test="${!(empty domain.factualPosition)}">
+		<p>
+		<label class="wysiwyglabel"><spring:message code="question.factualPosition" text="Factual Position"/></label>
+		<form:textarea path="factualPosition" cssClass="wysiwyg"></form:textarea>
+		<form:errors path="factualPosition" cssClass="validationError" cssStyle="float:right;margin-top:-100px;margin-right:40px;"/>
+		</p>
+	</c:if>	
 		
 	<p>
 	<a href="#" id="viewCitation" style="margin-left: 162px;margin-top: 30px;"><spring:message code="question.viewcitation" text="View Citations"></spring:message></a>	

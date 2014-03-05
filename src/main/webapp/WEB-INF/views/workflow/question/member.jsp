@@ -1003,6 +1003,13 @@
 		</p>
 	</c:if>
 	
+	<c:if test="${selectedQuestionType != 'questions_halfhourdiscussion_standalone' && internalStatusType == 'question_final_clarificationNeededFromMember' }">
+		<p>
+		<label class="wysiwyglabel"><spring:message code="hds.factualPosition" text="Factual Position"/></label>
+		<form:textarea path="factualPosition" cssClass="wysiwyg"></form:textarea>
+		<form:errors path="factualPosition" cssClass="validationError" cssStyle="float:right;margin-top:-100px;margin-right:40px;"/>
+		</p>
+	</c:if>
 	<p>
 	<label class="wysiwyglabel"><spring:message code="question.remarks" text="Remarks"/></label>
 	<form:textarea path="remarks" cssClass="wysiwyg"></form:textarea>

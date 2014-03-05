@@ -1153,6 +1153,18 @@
 		</c:if>
 	</c:if>
 	
+	<c:if test="${(selectedQuestionType != 'questions_halfhourdiscussion_standalone')}">
+		<c:if test="${!(empty domain.factualPosition)}">
+			<p>
+			<label class="wysiwyglabel"><spring:message code="question.factualPosition" text="Factual Position"/></label>
+			<form:textarea path="factualPosition" cssClass="wysiwyg"></form:textarea>
+			<form:errors path="factualPosition" cssClass="validationError" cssStyle="float:right;margin-top:-100px;margin-right:40px;"/>
+			</p>
+		</c:if>
+	</c:if>
+	
+	
+	
 	<c:if test="${(selectedQuestionType == 'questions_starred' || 
 				selectedQuestionType == 'questions_unstarred' ||
 				selectedQuestionType == 'questions_shortnotice') && internalStatusType != 'question_final_rejection' }">
