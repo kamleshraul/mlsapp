@@ -1418,57 +1418,68 @@ public class ResolutionWorkflowController extends BaseController{
 							properties.put("pv_deviceTypeId",String.valueOf(resolution.getType().getId()));
 							properties.put("pv_user",temp[0]);
 							properties.put("pv_endflag",endFlag);
-							String mailflag=request.getParameter("mailflag");				
-							properties.put("pv_mailflag", mailflag);
-							if(mailflag!=null) {
-								if(mailflag.equals("set")) {
-									String mailfrom=request.getParameter("mailfrom");
-									properties.put("pv_mailfrom", mailfrom);
-									
-									String mailto=request.getParameter("mailto");
-									properties.put("pv_mailto", mailto);
-									
-									String mailsubject=request.getParameter("mailsubject");
-									properties.put("pv_mailsubject", mailsubject);
-									
-									String mailcontent=request.getParameter("mailcontent");
-									properties.put("pv_mailcontent", mailcontent);
-								}
-							}
 							
-							String timerflag=request.getParameter("timerflag");
-							properties.put("pv_timerflag", timerflag);
-							
-							if(timerflag!=null) {
-								if(timerflag.equals("set")) {
-									String timerduration=request.getParameter("timerduration");
-									properties.put("pv_timerduration", timerduration);
-									
-									String lasttimerduration=request.getParameter("lasttimerduration");
-									properties.put("pv_lasttimerduration", lasttimerduration);
-									
-									String reminderflag=request.getParameter("reminderflag");
-									properties.put("pv_reminderflag", reminderflag);
-									
-									if(reminderflag!=null) {
-										if(reminderflag.equals("set")) {
-											String reminderfrom=request.getParameter("reminderfrom");
-											properties.put("pv_reminderfrom", reminderfrom);
+							CustomParameter customParameter=CustomParameter.findByName(CustomParameter.class, "SERVERCONFIGURED", "");
+							String isServerConfigured=customParameter.getValue();
+							if(isServerConfigured!=null && !isServerConfigured.equals("")){
+								if(isServerConfigured.equals("yes")){
+									String mailflag=request.getParameter("mailflag");				
+									properties.put("pv_mailflag", mailflag);
+									if(mailflag!=null) {
+										if(mailflag.equals("set")) {
+											String mailfrom=request.getParameter("mailfrom");
+											properties.put("pv_mailfrom", mailfrom);
 											
-											String reminderto=request.getParameter("reminderto");
-											properties.put("pv_reminderto", reminderto);
+											String mailto=request.getParameter("mailto");
+											properties.put("pv_mailto", mailto);
 											
-											//String remindersubject=request.getParameter("remindersubject");
-											String remindersubject=resolution.getSubject();
-											properties.put("pv_remindersubject", remindersubject);
+											String mailsubject=request.getParameter("mailsubject");
+											properties.put("pv_mailsubject", mailsubject);
 											
-											//String remindercontent=request.getParameter("remindercontent");
-											String remindercontent=resolution.getNoticeContent();
-											properties.put("pv_remindercontent", remindercontent);
+											String mailcontent=request.getParameter("mailcontent");
+											properties.put("pv_mailcontent", mailcontent);
 										}
 									}
+									
+									String timerflag=request.getParameter("timerflag");
+									properties.put("pv_timerflag", timerflag);
+									
+									if(timerflag!=null) {
+										if(timerflag.equals("set")) {
+											String timerduration=request.getParameter("timerduration");
+											properties.put("pv_timerduration", timerduration);
+											
+											String lasttimerduration=request.getParameter("lasttimerduration");
+											properties.put("pv_lasttimerduration", lasttimerduration);
+											
+											String reminderflag=request.getParameter("reminderflag");
+											properties.put("pv_reminderflag", reminderflag);
+											
+											if(reminderflag!=null) {
+												if(reminderflag.equals("set")) {
+													String reminderfrom=request.getParameter("reminderfrom");
+													properties.put("pv_reminderfrom", reminderfrom);
+													
+													String reminderto=request.getParameter("reminderto");
+													properties.put("pv_reminderto", reminderto);
+													
+													//String remindersubject=request.getParameter("remindersubject");
+													String remindersubject=resolution.getSubject();
+													properties.put("pv_remindersubject", remindersubject);
+													
+													//String remindercontent=request.getParameter("remindercontent");
+													String remindercontent=resolution.getNoticeContent();
+													properties.put("pv_remindercontent", remindercontent);
+												}
+											}
+										}
+									}
+								}else{
+									properties.put("pv_mailflag", "off");
+									properties.put("pv_timerflag", "off");
 								}
 							}
+
 							String strTaskId=wfDetails.getTaskId();
 							Task task=processService.findTaskById(strTaskId);
 							processService.completeTask(task,properties);	
