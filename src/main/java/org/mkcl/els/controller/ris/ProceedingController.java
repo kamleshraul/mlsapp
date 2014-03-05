@@ -63,6 +63,7 @@ import org.mkcl.els.domain.User;
 import org.mkcl.els.domain.UserGroup;
 import org.mkcl.els.domain.UserGroupType;
 import org.mkcl.els.domain.associations.HouseMemberRoleAssociation;
+import org.mkcl.els.domain.associations.MemberPartyAssociation;
 import org.springframework.stereotype.Controller;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.ui.ModelMap;
@@ -566,6 +567,7 @@ public class ProceedingController extends GenericController<Proceeding>{
 		model.addAttribute("type", "");
 		Part domain=new Part();
 		Proceeding proceeding=null;
+		Session session=null;
 		domain.setLocale(locale.toString());
 		String strProceeding= request.getParameter("proceeding");
 		if(strProceeding!=null && !strProceeding.isEmpty()){
@@ -583,7 +585,7 @@ public class ProceedingController extends GenericController<Proceeding>{
 				
 				/****session****/
 				Roster roster=slot.getRoster();
-				Session session=roster.getSession();
+				session=roster.getSession();
 				model.addAttribute("session",session.getId());
 				
 				/****Ministries****/
@@ -651,7 +653,7 @@ public class ProceedingController extends GenericController<Proceeding>{
 		model.addAttribute("designations",designations);
 
 		/****Party****/
-		List<Party> parties=Party.findActiveParties(locale.toString());
+		List<Party> parties=MemberPartyAssociation.findActivePartiesHavingMemberInHouse(session.getHouse(),locale.toString());
 		model.addAttribute("parties", parties);
  
 		/****HouseTypes****/
@@ -706,6 +708,7 @@ public class ProceedingController extends GenericController<Proceeding>{
 		String strProceeding=request.getParameter("proceeding");
 		String strReporter=request.getParameter("reporter");
 		String strRole=request.getParameter("chairPersonRole");
+		String strChairPerson=request.getParameter("chairPerson");
 		String strPrimaryMemberMinistry=request.getParameter("primaryMemberMinistry");
 		String strPrimaryMemberDesignation=request.getParameter("primaryMemberDesignation");
 		String strPrimaryMemberSubDepartment=request.getParameter("primaryMemberSubDepartment");
@@ -734,30 +737,32 @@ public class ProceedingController extends GenericController<Proceeding>{
 		/****MemberRole and ChairPerson****/
 		if(strRole!=null && !strRole.equals("")){
 			MemberRole mr=MemberRole.findById(MemberRole.class, Long.parseLong(strRole));
-			Member member=null;
-			if(mr!=null){
-				Slot slot=proceeding.getSlot();
-				Roster roster=slot.getRoster();
-				Session session=roster.getSession();
-				House house=session.getHouse();
-				List<HouseMemberRoleAssociation> hmras;
-				try {
-					hmras = HouseMemberRoleAssociation.findActiveHouseMemberRoles(house, mr, new Date(), domain.getLocale());
-					for(HouseMemberRoleAssociation h:hmras){
-						if(h.getRole().equals(mr)){
-							member=h.getMember();
-							break;
-						}
-					}
-					domain.setChairPerson(member.getFullname());
-				} catch (ELSException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
-				
-				domain.setChairPersonRole(mr);
-				
-			}
+			domain.setChairPersonRole(mr);
+//			Member member=null;
+//			if(mr!=null){
+//				Slot slot=proceeding.getSlot();
+//				Roster roster=slot.getRoster();
+//				Session session=roster.getSession();
+//				House house=session.getHouse();
+//				List<HouseMemberRoleAssociation> hmras;
+////				try {
+//					hmras = HouseMemberRoleAssociation.findActiveHouseMemberRoles(house, mr, new Date(), domain.getLocale());
+//					for(HouseMemberRoleAssociation h:hmras){
+//						if(h.getRole().equals(mr)){
+//							member=h.getMember();
+//							break;
+//						}
+//					}
+//					domain.setChairPerson(member.getFullname());
+//				} catch (ELSException e) {
+//					// TODO Auto-generated catch block
+//					e.printStackTrace();
+//				}
+	
+//			}
+		}
+		if(strChairPerson!=null && !strChairPerson.equals("")){
+			domain.setChairPerson(strChairPerson);
 		}
 		/****Revised Content****/
 		domain.setRevisedContent(domain.getProceedingContent());
@@ -831,7 +836,7 @@ public class ProceedingController extends GenericController<Proceeding>{
 		model.addAttribute("urlPattern", urlPattern);
 		Part domain = Part.findById(Part.class, id);
 		Slot slot=domain.getProceeding().getSlot();
-		
+		Session session=null;
 		if(slot!=null){
 			/****Current Slot****/
 			model.addAttribute("currentSlot",slot.getId());
@@ -841,7 +846,7 @@ public class ProceedingController extends GenericController<Proceeding>{
 			
 			/****Session****/
 			Roster roster=slot.getRoster();
-			Session session=roster.getSession();
+			 session=roster.getSession();
 			model.addAttribute("session",session.getId());
 			
 			/****Ministries****/
@@ -971,7 +976,7 @@ public class ProceedingController extends GenericController<Proceeding>{
 		model.addAttribute("deviceTypes", deviceTypes);
 		
 		/****Party****/
-		List<Party> parties=Party.findActiveParties(domain.getLocale());
+		List<Party> parties=MemberPartyAssociation.findActivePartiesHavingMemberInHouse(session.getHouse(),domain.getLocale());
 		model.addAttribute("parties", parties);
 		
 		//this is done so as to remove the bug due to which update message appears even though there
@@ -1363,6 +1368,8 @@ public class ProceedingController extends GenericController<Proceeding>{
 				/****Slave part****/
 				if(strPart!=null && !strPart.isEmpty()){
 					Part part=Part.findById(Part.class, Long.parseLong(strPart));
+//					List<Part> slaveParts=bookmark.getSlaveParts();
+//					slaveParts.add(part);
 					bookmark.setSlavePart(part);
 					List<Bookmark> bookmarks=Bookmark.findAllByFieldName(Bookmark.class, "masterPart", part, "id", "asc", locale.toString());
 					if(!bookmarks.isEmpty()){
@@ -1390,6 +1397,7 @@ public class ProceedingController extends GenericController<Proceeding>{
 				bookmark.setBookmarkReplacedDate(new Date());
 				
 				/****Text replaced****/
+				
 				bookmark.setTextToBeReplaced(param);
 				Part masterPart=bookmark.getMasterPart();
 				Slot slot=masterPart.getProceeding().getSlot();
