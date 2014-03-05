@@ -11,6 +11,7 @@ package org.mkcl.els.domain.associations;
 
 import java.io.Serializable;
 import java.util.Date;
+import java.util.List;
 
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
@@ -173,6 +174,11 @@ public class MemberPartyAssociation implements Serializable {
         }
         return retVal;
     }
+    
+	public static List<Party> findActivePartiesHavingMemberInHouse(
+			House house, String locale) {
+		 return getMemberPartyRepository().findActivePartiesHavingMemberInHouse(house,locale);
+	}
 
     // ------------------------------------------Getters/Setters-----------------------------------
 
