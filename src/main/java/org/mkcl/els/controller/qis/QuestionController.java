@@ -295,11 +295,11 @@ public class QuestionController extends GenericController<Question>{
 		String role=request.getParameter("role");		
 		if(role!=null){
 			if(!role.isEmpty()){
-				if(role.startsWith("MEMBER_")){
+				if(role.startsWith("MEMBER_")||role.contains("QIS_CLERK")){
 					return servletPath;
-				}else if(role.contains("CLERK")){
+				}/*else if(role.contains("CLERK")){
 					return servletPath.replace("new","newclerk");
-				}
+				}*/
 			}
 		}			
 		/**** For others permission denied ****/
@@ -402,20 +402,37 @@ public class QuestionController extends GenericController<Question>{
 			model.addAttribute("errorcode","questionType_isnull");
 		}
 
-		/**** Primary Member****/
+		/**** role ****/
+		String role=request.getParameter("role");
+		if(role!=null){
+			model.addAttribute("role",role);
+		}else{
+			role=(String) request.getSession().getAttribute("role");
+			model.addAttribute("role",role);
+			request.getSession().removeAttribute("role");
+		}
+		//added by sandeep singh(Jan 27 2013)
+		/**** usergroup and usergroupType ****/
+		String usergroupType=request.getParameter("usergroupType");
+		if(usergroupType!=null){
+			model.addAttribute("usergroupType",usergroupType);
+		}else{
+			usergroupType=(String) request.getSession().getAttribute("usergroupType");
+			model.addAttribute("usergroupType",usergroupType);
+			request.getSession().removeAttribute("usergroupType");
+		}
+		String usergroup=request.getParameter("usergroup");
+		if(usergroup!=null){
+			model.addAttribute("usergroup",usergroup);
+		}else{
+			usergroup=(String) request.getSession().getAttribute("usergroup");
+			model.addAttribute("usergroup",usergroup);
+			request.getSession().removeAttribute("usergroup");
+		}
+		
 		String memberNames=null;
 		String primaryMemberName=null;
-		Member member=Member.findMember(this.getCurrentUser().getFirstName(),this.getCurrentUser().getMiddleName(),this.getCurrentUser().getLastName(),this.getCurrentUser().getBirthDate(),locale);
-		if(member!=null){
-			model.addAttribute("primaryMember",member.getId());
-			primaryMemberName=member.getFullname();
-			memberNames=primaryMemberName;
-			model.addAttribute("formattedPrimaryMember",primaryMemberName);
-		}else{
-			logger.error("**** Authenticated user is not a member ****");
-			model.addAttribute("errorcode","member_isnull");
-		}
-
+		
 		/**** Session ****/
 		Session selectedSession=null;
 		if(houseType!=null&&selectedYear!=null&&sessionType!=null){
@@ -427,139 +444,6 @@ public class QuestionController extends GenericController<Question>{
 			}
 			if(selectedSession!=null){
 				model.addAttribute("session",selectedSession.getId());
-				/**** Constituency ****/
-				Long houseId=selectedSession.getHouse().getId();
-				MasterVO constituency=null;
-				if(houseType.getType().equals("lowerhouse")){
-					if(member != null){
-						constituency=Member.findConstituencyByAssemblyId(member.getId(), houseId);
-						model.addAttribute("constituency",constituency.getName());
-					}
-				}else if(houseType.getType().equals("upperhouse")){
-					Date currentDate=new Date();
-					String date=FormaterUtil.getDateFormatter("en_US").format(currentDate);
-					if(member != null){
-						constituency=Member.findConstituencyByCouncilDates(member.getId(), houseId, "DATE", date, date);
-						model.addAttribute("constituency",constituency.getName());
-					}
-				}
-				/**** Ministries ****/
-				if(questionType.getType().trim().equals("questions_starred")){
-					
-					Date rotationOrderPubDate=null;
-					CustomParameter serverDateFormat = null;
-					String strRotationOrderPubDate = null;
-					try{
-						serverDateFormat = CustomParameter.findByName(CustomParameter.class, "DB_DATEFORMAT", "");
-						strRotationOrderPubDate = selectedSession.getParameter("questions_starred_rotationOrderPublishingDate");
-						if(strRotationOrderPubDate!=null){
-						
-							rotationOrderPubDate = FormaterUtil.getDateFormatter(serverDateFormat.getValue(), "en_US").parse(strRotationOrderPubDate);
-							model.addAttribute("rotationOrderPublishDate", FormaterUtil.getDateFormatter(locale).format(rotationOrderPubDate));
-							Date currentDate=new Date();
-							if(currentDate.equals(rotationOrderPubDate)||currentDate.after(rotationOrderPubDate)){
-								List<Ministry> ministries=Ministry.findMinistriesAssignedToGroups(houseType, sessionYear, sessionType, locale);
-								model.addAttribute("ministries",ministries);
-								Ministry ministry=domain.getMinistry();
-								if(ministry!=null){
-									model.addAttribute("ministrySelected",ministry.getId());
-									/**** Group ****/
-									Group group=domain.getGroup();
-									if(domain.getType() != null){
-										if(!(domain.getType().getType().equals(ApplicationConstants.HALF_HOUR_DISCUSSION_QUESTION_STANDALONE)
-												&& domain.getHouseType().getType().equals(ApplicationConstants.LOWER_HOUSE))){
-											model.addAttribute("formattedGroup",FormaterUtil.getNumberFormatterNoGrouping(locale).format(domain.getGroup().getNumber()));
-											model.addAttribute("group",domain.getGroup().getId());
-										}
-									}
-
-									/**** Departments ****/
-									List<Department> departments=MemberMinister.findAssignedDepartments(ministry, locale);
-									model.addAttribute("departments",departments);
-									//Department department=domain.getDepartment();
-									//if(department!=null){                            	
-										//model.addAttribute("departmentSelected",department.getId());
-										/**** Sub Departments ****/
-										List<SubDepartment> subDepartments=MemberMinister.findAssignedSubDepartments(ministry, locale);
-										model.addAttribute("subDepartments",subDepartments);
-										SubDepartment subDepartment=domain.getSubDepartment();
-										if(subDepartment!=null){
-											model.addAttribute("subDepartmentSelected",subDepartment.getId());
-										}
-									//}
-
-									/**** Answering Dates ****/
-									if(group!=null){
-										List<QuestionDates> answeringDates=group.getQuestionDates();
-										List<MasterVO> masterVOs=new ArrayList<MasterVO>();
-										for(QuestionDates i:answeringDates){
-											MasterVO masterVO=new MasterVO(i.getId(),FormaterUtil.getDateFormatter(locale).format(i.getAnsweringDate()));
-											masterVOs.add(masterVO);
-										}
-										model.addAttribute("answeringDates",masterVOs);
-										if(domain.getAnsweringDate()!=null){
-											model.addAttribute("answeringDate",domain.getAnsweringDate().getId());
-											model.addAttribute("formattedAnsweringDate",FormaterUtil.getDateFormatter(locale).format(domain.getAnsweringDate().getAnsweringDate()));
-											model.addAttribute("answeringDateSelected",domain.getAnsweringDate().getId());
-
-										}
-									}
-
-								}							
-							}
-						}else{
-							logger.error("Parameter 'questions_starred_rotationOrderPublishingDate' not set in session with Id:"+selectedSession.getId());
-							model.addAttribute("errorcode", "rotationorderpubdate_notset");
-						}
-					}catch (ParseException e) {
-						logger.error("Failed to parse rotation order publish date:'"+strRotationOrderPubDate+"' in "+serverDateFormat.getValue()+" format");
-						model.addAttribute("errorcode", "rotationorderpubdate_cannotbeparsed");
-					} catch (ELSException e) {
-						model.addAttribute("error", e.getParameter());
-					}catch (Exception e) {
-						String message = e.getMessage();
-						if(message == null){
-							message = "** There is some problem, request may not complete successfully.";
-						}
-						model.addAttribute("error", message);
-						e.printStackTrace();
-					}
-				}else{
-					List<Ministry> ministries = null;;
-					try {
-						ministries = Ministry.findMinistriesAssignedToGroups(houseType, sessionYear, sessionType, locale);
-					} catch (ELSException e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
-					}
-					model.addAttribute("ministries",ministries);
-					Ministry ministry=domain.getMinistry();
-					if(ministry!=null){
-						model.addAttribute("ministrySelected",ministry.getId());
-
-						/**** Group ****/
-						Group group=domain.getGroup();
-						if(group!=null) {
-							model.addAttribute("formattedGroup",FormaterUtil.getNumberFormatterNoGrouping(locale).format(domain.getGroup().getNumber()));
-							model.addAttribute("group",domain.getGroup().getId());
-						}
-
-						/**** Departments ****/
-						List<Department> departments=MemberMinister.findAssignedDepartments(ministry, locale);
-						//model.addAttribute("departments",departments);
-						//Department department=domain.getDepartment();
-						//if(department!=null){                            	
-							//model.addAttribute("departmentSelected",department.getId());
-							/**** Sub Departments ****/
-							List<SubDepartment> subDepartments=MemberMinister.findAssignedSubDepartments(ministry, locale);
-							model.addAttribute("subDepartments",subDepartments);
-							SubDepartment subDepartment=domain.getSubDepartment();
-							if(subDepartment!=null){
-								model.addAttribute("subDepartmentSelected",subDepartment.getId());
-							}
-						//}
-					}
-				}
 			}else{
 				logger.error("**** Session doesnot exists ****");
 				model.addAttribute("errorcode","session_isnull");	
@@ -568,6 +452,155 @@ public class QuestionController extends GenericController<Question>{
 			logger.error("**** Check request parameters 'houseType,sessionYear and sessionType for null values' ****");
 			model.addAttribute("errorcode","requestparams_isnull");
 		}  
+		
+		/**** Primary Member****/
+		if(role.startsWith("MEMBER")){
+			Member member=Member.findMember(this.getCurrentUser().getFirstName(),this.getCurrentUser().getMiddleName(),this.getCurrentUser().getLastName(),this.getCurrentUser().getBirthDate(),locale);
+			if(member!=null){
+				model.addAttribute("primaryMember",member.getId());
+				primaryMemberName=member.getFullname();
+				memberNames=primaryMemberName;
+				model.addAttribute("formattedPrimaryMember",primaryMemberName);
+			}else{
+				logger.error("**** Authenticated user is not a member ****");
+				model.addAttribute("errorcode","member_isnull");
+			}
+			/**** Constituency ****/
+			Long houseId=selectedSession.getHouse().getId();
+			MasterVO constituency=null;
+			if(houseType.getType().equals("lowerhouse")){
+				if(member != null){
+					constituency=Member.findConstituencyByAssemblyId(member.getId(), houseId);
+					model.addAttribute("constituency",constituency.getName());
+				}
+			}else if(houseType.getType().equals("upperhouse")){
+				Date currentDate=new Date();
+				String date=FormaterUtil.getDateFormatter("en_US").format(currentDate);
+				if(member != null){
+					constituency=Member.findConstituencyByCouncilDates(member.getId(), houseId, "DATE", date, date);
+					model.addAttribute("constituency",constituency.getName());
+				}
+			}
+		}
+		
+		/**** Ministries ****/
+		if(questionType.getType().trim().equals("questions_starred")){
+			
+			Date rotationOrderPubDate=null;
+			CustomParameter serverDateFormat = null;
+			String strRotationOrderPubDate = null;
+			try{
+				serverDateFormat = CustomParameter.findByName(CustomParameter.class, "DB_DATEFORMAT", "");
+				strRotationOrderPubDate = selectedSession.getParameter("questions_starred_rotationOrderPublishingDate");
+				if(strRotationOrderPubDate!=null){
+				
+					rotationOrderPubDate = FormaterUtil.getDateFormatter(serverDateFormat.getValue(), "en_US").parse(strRotationOrderPubDate);
+					model.addAttribute("rotationOrderPublishDate", FormaterUtil.getDateFormatter(locale).format(rotationOrderPubDate));
+					Date currentDate=new Date();
+					if(currentDate.equals(rotationOrderPubDate)||currentDate.after(rotationOrderPubDate)){
+						List<Ministry> ministries=Ministry.findMinistriesAssignedToGroups(houseType, sessionYear, sessionType, locale);
+						model.addAttribute("ministries",ministries);
+						Ministry ministry=domain.getMinistry();
+						if(ministry!=null){
+							model.addAttribute("ministrySelected",ministry.getId());
+							/**** Group ****/
+							Group group=domain.getGroup();
+							if(domain.getType() != null){
+								if(!(domain.getType().getType().equals(ApplicationConstants.HALF_HOUR_DISCUSSION_QUESTION_STANDALONE)
+										&& domain.getHouseType().getType().equals(ApplicationConstants.LOWER_HOUSE))){
+									model.addAttribute("formattedGroup",FormaterUtil.getNumberFormatterNoGrouping(locale).format(domain.getGroup().getNumber()));
+									model.addAttribute("group",domain.getGroup().getId());
+								}
+							}
+
+							/**** Departments ****/
+							List<Department> departments=MemberMinister.findAssignedDepartments(ministry, locale);
+							model.addAttribute("departments",departments);
+							//Department department=domain.getDepartment();
+							//if(department!=null){                            	
+								//model.addAttribute("departmentSelected",department.getId());
+								/**** Sub Departments ****/
+								List<SubDepartment> subDepartments=MemberMinister.findAssignedSubDepartments(ministry, locale);
+								model.addAttribute("subDepartments",subDepartments);
+								SubDepartment subDepartment=domain.getSubDepartment();
+								if(subDepartment!=null){
+									model.addAttribute("subDepartmentSelected",subDepartment.getId());
+								}
+							//}
+
+							/**** Answering Dates ****/
+							if(group!=null){
+								List<QuestionDates> answeringDates=group.getQuestionDates();
+								List<MasterVO> masterVOs=new ArrayList<MasterVO>();
+								for(QuestionDates i:answeringDates){
+									MasterVO masterVO=new MasterVO(i.getId(),FormaterUtil.getDateFormatter(locale).format(i.getAnsweringDate()));
+									masterVOs.add(masterVO);
+								}
+								model.addAttribute("answeringDates",masterVOs);
+								if(domain.getAnsweringDate()!=null){
+									model.addAttribute("answeringDate",domain.getAnsweringDate().getId());
+									model.addAttribute("formattedAnsweringDate",FormaterUtil.getDateFormatter(locale).format(domain.getAnsweringDate().getAnsweringDate()));
+									model.addAttribute("answeringDateSelected",domain.getAnsweringDate().getId());
+
+								}
+							}
+
+						}							
+					}
+				}else{
+					logger.error("Parameter 'questions_starred_rotationOrderPublishingDate' not set in session with Id:"+selectedSession.getId());
+					model.addAttribute("errorcode", "rotationorderpubdate_notset");
+				}
+			}catch (ParseException e) {
+				logger.error("Failed to parse rotation order publish date:'"+strRotationOrderPubDate+"' in "+serverDateFormat.getValue()+" format");
+				model.addAttribute("errorcode", "rotationorderpubdate_cannotbeparsed");
+			} catch (ELSException e) {
+				model.addAttribute("error", e.getParameter());
+			}catch (Exception e) {
+				String message = e.getMessage();
+				if(message == null){
+					message = "** There is some problem, request may not complete successfully.";
+				}
+				model.addAttribute("error", message);
+				e.printStackTrace();
+			}
+		}else{
+			List<Ministry> ministries = null;;
+			try {
+				ministries = Ministry.findMinistriesAssignedToGroups(houseType, sessionYear, sessionType, locale);
+			} catch (ELSException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			model.addAttribute("ministries",ministries);
+			Ministry ministry=domain.getMinistry();
+			if(ministry!=null){
+				model.addAttribute("ministrySelected",ministry.getId());
+
+				/**** Group ****/
+				Group group=domain.getGroup();
+				if(group!=null) {
+					model.addAttribute("formattedGroup",FormaterUtil.getNumberFormatterNoGrouping(locale).format(domain.getGroup().getNumber()));
+					model.addAttribute("group",domain.getGroup().getId());
+				}
+
+				/**** Departments ****/
+				List<Department> departments=MemberMinister.findAssignedDepartments(ministry, locale);
+				//model.addAttribute("departments",departments);
+				//Department department=domain.getDepartment();
+				//if(department!=null){                            	
+					//model.addAttribute("departmentSelected",department.getId());
+					/**** Sub Departments ****/
+					List<SubDepartment> subDepartments=MemberMinister.findAssignedSubDepartments(ministry, locale);
+					model.addAttribute("subDepartments",subDepartments);
+					SubDepartment subDepartment=domain.getSubDepartment();
+					if(subDepartment!=null){
+						model.addAttribute("subDepartmentSelected",subDepartment.getId());
+					}
+				//}
+			}
+		}
+			
 		/**** Priorities ****/
 		CustomParameter customParameter=CustomParameter.findByName(CustomParameter.class, "HIGHEST_QUESTION_PRIORITY", "");
 		if(customParameter!=null){
@@ -602,33 +635,7 @@ public class QuestionController extends GenericController<Question>{
 		}else{
 			model.addAttribute("memberNames",memberNames);
 		}
-		/**** role ****/
-		String role=request.getParameter("role");
-		if(role!=null){
-			model.addAttribute("role",role);
-		}else{
-			role=(String) request.getSession().getAttribute("role");
-			model.addAttribute("role",role);
-			request.getSession().removeAttribute("role");
-		}
-		//added by sandeep singh(Jan 27 2013)
-		/**** usergroup and usergroupType ****/
-		String usergroupType=request.getParameter("usergroupType");
-		if(usergroupType!=null){
-			model.addAttribute("usergroupType",usergroupType);
-		}else{
-			usergroupType=(String) request.getSession().getAttribute("usergroupType");
-			model.addAttribute("usergroupType",usergroupType);
-			request.getSession().removeAttribute("usergroupType");
-		}
-		String usergroup=request.getParameter("usergroup");
-		if(usergroup!=null){
-			model.addAttribute("usergroup",usergroup);
-		}else{
-			usergroup=(String) request.getSession().getAttribute("usergroup");
-			model.addAttribute("usergroup",usergroup);
-			request.getSession().removeAttribute("usergroup");
-		}
+		
 		//---------------------------Added by vikas & dhananjay-------------------------------------
 		if(questionType != null){
 			if(questionType.getType().equals("questions_halfhourdiscussion_from_question") || questionType.getType().equals("questions_halfhourdiscussion_standalone")){
