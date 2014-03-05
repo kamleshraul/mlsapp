@@ -426,7 +426,8 @@ public class MemberHouseRoleController extends BaseController {
 	private void validateCreate(final HouseMemberRoleAssociation domain,
 			final Errors errors, final HttpServletRequest request) {
 		try {
-			if (domain.isDuplicate()) {
+			Boolean isDuplicate=domain.isDuplicate();
+			if (isDuplicate) {
 				Object[] params = new Object[4];
 				params[0] = domain.getHouse().getName();
 				params[1] = domain.getRole().getName();
@@ -437,14 +438,15 @@ public class MemberHouseRoleController extends BaseController {
 						"Member:"+params[2]+", House:" + params[0] + ", Role:" + params[1]
 						                                                     + " already exists");
 			}
-			if(domain.getConstituency()==null){
-				errors.rejectValue("constituency","NotEmpty");
-			}
-			if(domain.getRole()==null){
-				errors.rejectValue("role","NotEmpty");
-			}
+			
 		} catch (ELSException e) {
-			errors.reject("error", e.getParameter());
+			e.printStackTrace();
+		}
+		if(domain.getConstituency()==null){
+			errors.rejectValue("constituency","NotEmpty");
+		}
+		if(domain.getRole()==null){
+			errors.rejectValue("role","NotEmpty");
 		}
 	}
 
