@@ -1208,11 +1208,13 @@ public class QuestionWorkflowController  extends BaseController{
 				if(operation != null){
 					if(!operation.isEmpty()){
 						if(operation.equals("workflowsubmit")){
-							if(domain.getAnswer() == null){
-								result.rejectValue("answer", "AnswerEmpty");						
-							}else if(domain.getAnswer().isEmpty()){
+							if(domain.getAnswer() == null && domain.getFactualPosition()==null){
 								result.rejectValue("answer", "AnswerEmpty");
-							}
+								
+								if(domain.getAnswer().isEmpty() && domain.getFactualPosition().isEmpty()){
+									result.rejectValue("answer", "AnswerEmpty");
+								}
+							} 
 							if(domain.getInternalStatus().getType()==ApplicationConstants.QUESTION_FINAL_REJECTION){
 								if(domain.getRejectionReason()==null){
 									result.rejectValue("rejectionReason", "RejectionReasonEmpty");
@@ -1432,76 +1434,87 @@ public class QuestionWorkflowController  extends BaseController{
 							}
 						}	
 						properties.put("pv_endflag", endflag);
-						String mailflag=request.getParameter("mailflag");				
-						properties.put("pv_mailflag", mailflag);
 						
-						if(mailflag!=null) {
-							if(mailflag.equals("set")) {
-								String mailfrom=request.getParameter("mailfrom");
-								properties.put("pv_mailfrom", mailfrom);
+						CustomParameter customParameter=CustomParameter.findByName(CustomParameter.class, "SERVERCONFIGURED", "");
+						String isServerConfigured=customParameter.getValue();
+						if(isServerConfigured!=null && !isServerConfigured.equals("")){
+							if(isServerConfigured.equals("yes")){
+								String mailflag=request.getParameter("mailflag");				
+								properties.put("pv_mailflag", mailflag);
 								
-								String mailto=request.getParameter("mailto");
-								properties.put("pv_mailto", mailto);
-								
-								String mailsubject=request.getParameter("mailsubject");
-								properties.put("pv_mailsubject", mailsubject);
-								
-								String mailcontent=request.getParameter("mailcontent");
-								properties.put("pv_mailcontent", mailcontent);
-							}
-						}
-						
-						String timerflag=request.getParameter("timerflag");
-						properties.put("pv_timerflag", timerflag);
-						
-						if(timerflag!=null) {
-							if(timerflag.equals("set")) {
-								String timerduration=request.getParameter("timerduration");
-								properties.put("pv_timerduration", timerduration);
-								
-								String lasttimerduration=request.getParameter("lasttimerduration");
-								properties.put("pv_lasttimerduration", lasttimerduration);
-								
-								String reminderflag=request.getParameter("reminderflag");
-								properties.put("pv_reminderflag", reminderflag);
-								
-								if(reminderflag!=null) {
-									if(reminderflag.equals("set")) {
-										String reminderfrom=request.getParameter("reminderfrom");
-										properties.put("pv_reminderfrom", reminderfrom);
+								if(mailflag!=null) {
+									if(mailflag.equals("set")) {
+										String mailfrom=request.getParameter("mailfrom");
+										properties.put("pv_mailfrom", mailfrom);
 										
-										String reminderto = "";
-										if((userGroupType.equals(ApplicationConstants.SECTION_OFFICER)) && (domain.getInternalStatus().getType().equals(ApplicationConstants.QUESTION_FINAL_CLARIFICATION_NEEDED_FROM_DEPARTMENT) ||
-												domain.getInternalStatus().getType().equals(ApplicationConstants.QUESTION_FINAL_CLARIFICATION_NEEDED_FROM_MEMBER))) {
-											Credential recepient = Credential.findByFieldName(Credential.class, "username", username, "");
-											reminderto = recepient.getEmail();								
-										} else {
-											reminderto=request.getParameter("reminderto");								
-										}						
-										properties.put("pv_reminderto", reminderto);
+										String mailto=request.getParameter("mailto");
+										properties.put("pv_mailto", mailto);
 										
-										String remindersubject=request.getParameter("remindersubject");						
-										properties.put("pv_remindersubject", remindersubject);
+										String mailsubject=request.getParameter("mailsubject");
+										properties.put("pv_mailsubject", mailsubject);
 										
-										String remindercontent = "";
-										if((userGroupType.equals(ApplicationConstants.SECTION_OFFICER)) && (domain.getInternalStatus().getType().equals(ApplicationConstants.QUESTION_FINAL_CLARIFICATION_NEEDED_FROM_DEPARTMENT) ||
-												domain.getInternalStatus().getType().equals(ApplicationConstants.QUESTION_FINAL_CLARIFICATION_NEEDED_FROM_MEMBER))) {
-											remindercontent += domain.getRevisedQuestionText() + "\n\n";
-											if(domain.getQuestionsAskedInFactualPosition() !=null && !domain.getQuestionsAskedInFactualPosition().isEmpty()) {
-												int count = 1;
-												for(String i: domain.getQuestionsAskedInFactualPosition().split("##")) {
-													remindercontent += FormaterUtil.formatNumberNoGrouping(count, domain.getLocale()) + ". " + i + "\n\n";
-													count++;
-												}
-											}								
-										} else {
-											remindercontent=request.getParameter("remindercontent");								
-										}					
-										properties.put("pv_remindercontent", remindercontent);						
+										String mailcontent=request.getParameter("mailcontent");
+										properties.put("pv_mailcontent", mailcontent);
 									}
 								}
+								
+								String timerflag=request.getParameter("timerflag");
+								properties.put("pv_timerflag", timerflag);
+								
+								if(timerflag!=null) {
+									if(timerflag.equals("set")) {
+										String timerduration=request.getParameter("timerduration");
+										properties.put("pv_timerduration", timerduration);
+										
+										String lasttimerduration=request.getParameter("lasttimerduration");
+										properties.put("pv_lasttimerduration", lasttimerduration);
+										
+										String reminderflag=request.getParameter("reminderflag");
+										properties.put("pv_reminderflag", reminderflag);
+										
+										if(reminderflag!=null) {
+											if(reminderflag.equals("set")) {
+												String reminderfrom=request.getParameter("reminderfrom");
+												properties.put("pv_reminderfrom", reminderfrom);
+												
+												String reminderto = "";
+												if((userGroupType.equals(ApplicationConstants.SECTION_OFFICER)) && (domain.getInternalStatus().getType().equals(ApplicationConstants.QUESTION_FINAL_CLARIFICATION_NEEDED_FROM_DEPARTMENT) ||
+														domain.getInternalStatus().getType().equals(ApplicationConstants.QUESTION_FINAL_CLARIFICATION_NEEDED_FROM_MEMBER))) {
+													Credential recepient = Credential.findByFieldName(Credential.class, "username", username, "");
+													reminderto = recepient.getEmail();								
+												} else {
+													reminderto=request.getParameter("reminderto");								
+												}						
+												properties.put("pv_reminderto", reminderto);
+												
+												String remindersubject=request.getParameter("remindersubject");						
+												properties.put("pv_remindersubject", remindersubject);
+												
+												String remindercontent = "";
+												if((userGroupType.equals(ApplicationConstants.SECTION_OFFICER)) && (domain.getInternalStatus().getType().equals(ApplicationConstants.QUESTION_FINAL_CLARIFICATION_NEEDED_FROM_DEPARTMENT) ||
+														domain.getInternalStatus().getType().equals(ApplicationConstants.QUESTION_FINAL_CLARIFICATION_NEEDED_FROM_MEMBER))) {
+													remindercontent += domain.getRevisedQuestionText() + "\n\n";
+													if(domain.getQuestionsAskedInFactualPosition() !=null && !domain.getQuestionsAskedInFactualPosition().isEmpty()) {
+														int count = 1;
+														for(String i: domain.getQuestionsAskedInFactualPosition().split("##")) {
+															remindercontent += FormaterUtil.formatNumberNoGrouping(count, domain.getLocale()) + ". " + i + "\n\n";
+															count++;
+														}
+													}								
+												} else {
+													remindercontent=request.getParameter("remindercontent");								
+												}					
+												properties.put("pv_remindercontent", remindercontent);						
+											}
+										}
+									}
+								}
+							}else{
+								properties.put("pv_mailflag", "off");
+								properties.put("pv_timerflag", "off");
 							}
 						}
+
 					}else{
 						//String sendbackactor=request.getParameter("sendbackactor");
 						currentDeviceTypeWorkflowType = ApplicationConstants.APPROVAL_WORKFLOW;
@@ -2177,6 +2190,12 @@ public class QuestionWorkflowController  extends BaseController{
 
 
 	private void performActionOnClarificationReceived(Question domain) {
+		Status newStatus=Status.findByType(ApplicationConstants.QUESTION_SYSTEM_TO_BE_PUTUP, domain.getLocale());
+		domain.setInternalStatus(newStatus);
+		domain.setLevel("1");
+		domain.setActor(null);
+		domain.setLocalizedActorName("");
+		domain.setEndFlag("continue");
 		List<ClubbedEntity> clubbedEntities=domain.getClubbedEntities();
 		if(clubbedEntities!=null){
 			Status status=Status.findByType(ApplicationConstants.QUESTION_SYSTEM_CLUBBED, domain.getLocale());
