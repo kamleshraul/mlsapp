@@ -234,7 +234,7 @@
 		
 		function editPart(key,internalKey){
 			 columnNo=$('#grid').jqGrid('getGridParam','colModel');
-			 for(var j=0;j<columnNo.length;j++){
+			for(var j=0;j<columnNo.length;j++){
 					var colname=columnNo[j].name;
 					console.log(columnNo[j].name);
 					if(colname=="orderNo"){
