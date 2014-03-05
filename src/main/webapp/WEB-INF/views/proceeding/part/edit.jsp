@@ -425,6 +425,28 @@
 		$('#mainHeading-wysiwyg-iframe').css('height','124px');
 		$('#pageHeading-wysiwyg-iframe').css('height','124px');
 		$('#party').prepend("<option value='' selected='selected'>----"+$("#pleaseSelectMessage").val()+"----</option>");
+	
+		$("#submit").click(function(e){
+			//removing <p><br></p>  from wysiwyg editor
+			var wysiwygVal=$('#proceedingContent').val().trim();
+			if(wysiwygVal=="<p></p>"||wysiwygVal=="<p><br></p>"||wysiwygVal=="<br><p></p>"){
+				$('#proceedingContent').val("");
+			}
+						
+			if($('#proceedingContent').val()==''){
+				$.prompt($('#proceedingEmptyMsg').val(),{
+					buttons: {Ok:true, Cancel:false}, callback: function(v){
+			        if(v){
+			        	return true;
+			        }else{
+			        	return false;
+			        }
+				}});
+			}else{
+				return true;
+			} 
+			return false;
+	    });
 	});
 	
 	/****Function to get the selected text from iframe****/
@@ -810,5 +832,6 @@
 <input type="hidden" id="substituteMemberSubDeparmentSelected" name="substituteMemberSubDeparmentSelected" value="${substituteMemberSubDeparmentSelected }">
 <input type="hidden" id="substituteMemberDesignationSelected" name="substituteMemberDesignationSelected" value="${substituteMemberDesignationSelected }">
 </div> 
+<input id="proceedingEmptyMsg" value="<spring:message code='client.prompt.emptyProceeding' text='Proceeding is Not Entered.Do you still want to continue?'></spring:message>" type="hidden">
 </body>
 </html>

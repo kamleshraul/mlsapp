@@ -153,6 +153,7 @@
 					keydown:function(e){
 						if(e.which==32){
 							var pContent=$('#proceedingContent').wysiwyg('getContent').replace(/&nbsp;/g,"");
+							
 							$.post('proceeding/part/save?content='+pContent+
 									'&primaryMember='+$('#primaryMember').val()+
 									'&primaryMemberMinistry='+$('#primaryMemberMinistry').val()+
@@ -476,6 +477,28 @@
 	    		hide: 'mouseout'
 	    	});
 			
+			$('#chairPersonRole').change(function(){
+				$.get('ref/getchairperson?chairPersonRole='+$(this).val()+'&proceeding='+$('#proceeding').val(),function(data){
+					$("#chairPerson").empty();
+					var chairPersonText="<option value='' selected='selected'>----"+$("#pleaseSelectMessage").val()+"----</option>";
+					if(data.length>0){
+						if(data.length==1){
+							chairPersonText+="<option value='"+data[0]+"' selected='selected'>"+data[0];
+						}else{
+							for(var i=0;i<data.length;i++){
+								chairPersonText+="<option value='"+data[i]+"'>"+data[i];
+							}
+						}
+					$("#chairPerson").html(chairPersonText);
+					$("#chairPersonP").css('display','inline');
+					}else{
+						$("#chairPerson").empty();
+						var chairPersonText="<option value='' selected='selected'>----"+$("#pleaseSelectMessage").val()+"----</option>";				
+						$("#chairPerson").html(chairPersonText);	
+						$("#chairPersonP").css('display','inline');
+					}
+				});
+			});
 			$('#mainHeading-wysiwyg-iframe').css('height','124px');
 			$('#pageHeading-wysiwyg-iframe').css('height','124px');
 			
@@ -485,6 +508,28 @@
 			$("#primaryMemberMinistry").prepend("<option value='' selected='selected'>----"+$("#pleaseSelectMessage").val()+"----</option>");				
 			$("#primaryMemberDesignation").prepend("<option value='' selected='selected'>----"+$("#pleaseSelectMessage").val()+"----</option>");
 			$("#substituteMemberDesignation").prepend("<option value='' selected='selected'>----"+$("#pleaseSelectMessage").val()+"----</option>");
+		
+			$("#submit").click(function(e){
+				//removing <p><br></p>  from wysiwyg editor
+				var wysiwygVal=$('#proceedingContent').val().trim();
+				if(wysiwygVal=="<p></p>"||wysiwygVal=="<p><br></p>"||wysiwygVal=="<br><p></p>"){
+					$('#proceedingContent').val("");
+				}
+							
+				if($('#proceedingContent').val()==''){
+					$.prompt($('#proceedingEmptyMsg').val(),{
+						buttons: {Ok:true, Cancel:false}, callback: function(v){
+				        if(v){
+				        	return true;
+				        }else{
+				        	return false;
+				        }
+					}});
+				}else{
+					return true;
+				} 
+				return false;
+		    });
 		});
 		
 		/**** view Bookmark Details****/
@@ -602,11 +647,15 @@
 			</c:choose>
 		</c:forEach>
 	</p>
-	<p>
+	<p style="display:inline-block;">
 		<label class="small"><spring:message code="part.chairPersonRole" text="Chair Person Role"/></label>
 		<form:select path="chairPersonRole" items="${roles}" itemLabel="name" itemValue="id" cssClass="sSelect"></form:select>
+		
 	</p>
-	
+	<p id="chairPersonP" style="display: none;">
+		<label class="small" style="margin-left: 20px;"><spring:message code="part.chairPerson" text="Chair Person "/></label>
+		<form:select path="chairPerson" cssClass="sSelect"></form:select>
+	</p>
 	
 	<p class="member">
 		<label  class="small"><spring:message code="part.memberName" text=" Member"/></label>
@@ -761,7 +810,6 @@
 	<form:hidden path="version"/>
 	<form:hidden path="reporter" value="${reporter}"/>
 	<form:hidden path="EntryDate"/>
-	<form:hidden path="chairPerson"/>
 	<form:hidden path="RevisedContent"/>
 	<form:hidden path="orderNo" value="${orderNo}"/>
 	<form:hidden path="proceeding" value="${proceeding}"/>
@@ -798,5 +846,6 @@
 <div id='dContent' style="display: none">
 	
 </div>
+<input id="proceedingEmptyMsg" value="<spring:message code='client.prompt.emptyProceeding' text='Proceeding is Not Entered.Do you still want to continue?'></spring:message>" type="hidden">
 </body>
 </html>
