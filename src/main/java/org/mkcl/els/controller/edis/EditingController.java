@@ -696,7 +696,7 @@ public class EditingController extends GenericController<Roster>{
 					params.put("toDate", new String[]{FormaterUtil.formatDateToString(toDayDate, ApplicationConstants.DB_DATEFORMAT)});
 				}
 				
-				List anukramanikaData = Query.findReport("EDIS_ANuKRAMANIKA", params);
+				List anukramanikaData = Query.findReport("EDIS_ANUKRAMANIKA", params);
 				model.addAttribute("report", anukramanikaData);				
 			}
 			
@@ -819,7 +819,7 @@ public class EditingController extends GenericController<Roster>{
 					params.put("toDate", new String[]{FormaterUtil.formatDateToString(toDayDate, ApplicationConstants.DB_DATEFORMAT)});
 				}
 				
-				List anukramanikaData = Query.findReport("EDIS_ANuKRAMANIKA", params);
+				List anukramanikaData = Query.findReport("EDIS_ANUKRAMANIKA", params);
 			
 				
 				String strReportFormat = request.getParameter("outputFormat");
