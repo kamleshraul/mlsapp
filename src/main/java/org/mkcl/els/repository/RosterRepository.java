@@ -553,7 +553,6 @@ public class RosterRepository extends BaseRepository<Roster, Serializable>{
 							ch=firstAdjournedSlot.getName().charAt(0);
 							repeat=firstAdjournedSlot.getName().length();
 							newSlot=new Slot();
-							
 							newSlot.setLocale(lastAdjournedSlot.getLocale());
 							newSlot.setName(firstAdjournedSlot.getName());
 							newSlot.setReporter(firstAdjournedSlot.getReporter());
@@ -566,7 +565,11 @@ public class RosterRepository extends BaseRepository<Roster, Serializable>{
 							newSlot.setStartTime(lastAdjournedSlot.getEndTime());
 							newSlot.setEndTime(slotEndTime);
 							newSlot.setTurnedoff(false);
-							newSlot.merge();
+							newSlot.persist();
+							Proceeding proceeding=new Proceeding();
+							proceeding.setLocale(newSlot.getLocale());
+							proceeding.setSlot(newSlot);
+							proceeding.persist();
 							if(ch=='Z'){								
 								ch='A';
 								repeat++;
@@ -735,9 +738,8 @@ public class RosterRepository extends BaseRepository<Roster, Serializable>{
 		try {
 			String strquery1="DELETE FROM proceedings  WHERE slot IN(SELECT id " +
 				"FROM slots s WHERE roster=:roster " +
-				"AND (s.start_time>=:startTime "+
-				"OR (s.start_time<=:startTime AND s.end_time>=:startTime)) " +
-				"AND s.end_time<=:endTime " +
+				"AND s.start_time>=:startTime "+
+				"AND s.end_time<=:endTime "+
 				"AND s.bln_deleted=false) ";
 			Query query1=this.em().createNativeQuery(strquery1);
 			query1.setParameter("roster",rosterId);

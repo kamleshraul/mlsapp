@@ -16,6 +16,8 @@ import java.util.List;
 import javax.persistence.NoResultException;
 import javax.persistence.Query;
 
+import org.mkcl.els.domain.House;
+import org.mkcl.els.domain.Party;
 import org.mkcl.els.domain.associations.MemberPartyAssociation;
 import org.springframework.stereotype.Repository;
 
@@ -112,4 +114,15 @@ public class MemberPartyRepository extends
 		}
         return mPartyAssociation;//(MemberPartyAssociation) this.searchUnique(search);
     }
+
+	public List<Party> findActivePartiesHavingMemberInHouse(House house,
+			String locale) {
+		String strQuery="SELECT DISTINCT p FROM MemberPartyAssociation mpa LEFT JOIN mpa.party p " +
+				"WHERE mpa.house.id=:houseId  AND p.isDissolved=false AND p.locale=:locale";
+		Query query=this.em().createQuery(strQuery);
+		query.setParameter("houseId", house.getId());
+		query.setParameter("locale", locale);
+		List<Party> parties=query.getResultList();
+		return parties;
+	}
 }

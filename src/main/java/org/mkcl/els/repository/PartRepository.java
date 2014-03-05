@@ -80,12 +80,14 @@ public class PartRepository extends BaseRepository<Part, Serializable> {
 		List<Part> parts = new ArrayList<Part>();
 		String query = "SELECT pp FROM Proceeding p"
 						+ " LEFT JOIN p.parts pp"
-						+ " WHERE p.slot.roster.id=:rosterId"
+						+ " WHERE p.slot.roster.startTime<=:rosterEndTime" +
+						" AND p.slot.roster.endTime>=:rosterStartTime"
 						+ " AND p.locale=:locale"
-						+ " AND (p.proceedingContent LIKE :searchTerm OR p.revisedContent LIKE :searchTerm)";
+						+ " AND (pp.proceedingContent LIKE :searchTerm OR pp.revisedContent LIKE :searchTerm)";
 		try{
 			TypedQuery<Part> tQuery = this.em().createQuery(query, Part.class);
-			tQuery.setParameter("rosterId", roster.getId());
+			tQuery.setParameter("rosterStartTime", roster.getStartTime());
+			tQuery.setParameter("rosterEndTime", roster.getEndTime());
 			tQuery.setParameter("locale", locale);
 			tQuery.setParameter("searchTerm", "%" + searchTerm + "%");
 			parts = tQuery.getResultList();
