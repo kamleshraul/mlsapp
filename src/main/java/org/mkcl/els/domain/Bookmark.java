@@ -7,13 +7,11 @@ import java.util.List;
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
-import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
 
 import org.mkcl.els.repository.BookmarkRepository;
-import org.mkcl.els.repository.ClubbedEntityRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Configurable;
 
@@ -36,6 +34,12 @@ public class Bookmark extends BaseDomain implements Serializable {
 	
 	@ManyToOne(cascade=CascadeType.REMOVE)
 	private Part slavePart;
+	
+//	@ManyToMany(fetch=FetchType.LAZY,cascade=CascadeType.ALL)
+//    @JoinTable(name="slavepart__bookmark_association", 
+//    		joinColumns={@JoinColumn(name="bookmark_id", referencedColumnName="id")}, 
+//    		inverseJoinColumns={@JoinColumn(name="slave_part_id", referencedColumnName="id")})
+//    private List<Part> slaveParts;
 	
 	@OneToOne
 	private Reporter bookmarkReplacedBy;
@@ -63,6 +67,21 @@ public class Bookmark extends BaseDomain implements Serializable {
 		super(locale);
 	}
 
+//	public Bookmark(String bookmarkKey, Language language, Part masterPart,
+//			List<Part> slaveParts, Reporter bookmarkReplacedBy,
+//			Date bookmarkReplacedDate, String previousText,
+//			String textToBeReplaced, Slot slot) {
+//		super();
+//		this.bookmarkKey = bookmarkKey;
+//		this.language = language;
+//		this.masterPart = masterPart;
+//		this.slaveParts = slaveParts;
+//		this.bookmarkReplacedBy = bookmarkReplacedBy;
+//		this.bookmarkReplacedDate = bookmarkReplacedDate;
+//		this.previousText = previousText;
+//		this.textToBeReplaced = textToBeReplaced;
+//		this.slot = slot;
+//	}
 	public Bookmark(String bookmarkKey, Language language, Part masterPart,
 			Part slavePart, Reporter bookmarkReplacedBy,
 			Date bookmarkReplacedDate, String previousText,
@@ -79,16 +98,19 @@ public class Bookmark extends BaseDomain implements Serializable {
 		this.slot=slot;
 	}
 	
+	 
 	/****Domain Methods****/
 	
 	  public static BookmarkRepository getBookmarkRepository() {
-		  BookmarkRepository clubbedEntityRepository = new Bookmark().bookmarkRepository;
-	        if (clubbedEntityRepository == null) {
+		  BookmarkRepository bookmarkRepository = new Bookmark().bookmarkRepository;
+	        if (bookmarkRepository == null) {
 	            throw new IllegalStateException(
-	                    "ClubbedEntityRepository has not been injected in Clubbed Entity Domain");
+	                    "BookmarkRepository has not been injected in Bookmark Domain");
 	        }
-	        return clubbedEntityRepository;
+	        return bookmarkRepository;
 	    }
+
+	
 
 	public static List<Bookmark> findBookmarkBySlotPartAndKey(Slot slot, Part part,
 			String strBookmarkKey) {
@@ -123,15 +145,7 @@ public class Bookmark extends BaseDomain implements Serializable {
 	public void setMasterPart(Part masterPart) {
 		this.masterPart = masterPart;
 	}
-
-	public Part getSlavePart() {
-		return slavePart;
-	}
-
-	public void setSlavePart(Part slavePart) {
-		this.slavePart = slavePart;
-	}
-
+	
 	public Reporter getBookmarkReplacedBy() {
 		return bookmarkReplacedBy;
 	}
@@ -171,6 +185,22 @@ public class Bookmark extends BaseDomain implements Serializable {
 	public void setSlot(Slot slot) {
 		this.slot = slot;
 	}
+
+	public Part getSlavePart() {
+		return slavePart;
+	}
+
+	public void setSlavePart(Part slavePart) {
+		this.slavePart = slavePart;
+	}
+
+//	public List<Part> getSlaveParts() {
+//		return slaveParts;
+//	}
+//
+//	public void setSlaveParts(List<Part> slaveParts) {
+//		this.slaveParts = slaveParts;
+//	}
 
 	
 	
