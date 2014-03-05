@@ -985,114 +985,124 @@ public class ResolutionWorkflowController extends BaseController{
 				}
 			}	
 			properties.put("pv_endflag",request.getParameter("endflag"));
-			String mailflag=request.getParameter("mailflag");				
-			properties.put("pv_mailflag", mailflag);
-			
-			if(mailflag!=null) {
-				if(mailflag.equals("set")) {
-					String mailfrom=request.getParameter("mailfrom");
-					properties.put("pv_mailfrom", mailfrom);
+			CustomParameter customParameter=CustomParameter.findByName(CustomParameter.class, "SERVERCONFIGURED", "");
+			String isServerConfigured=customParameter.getValue();
+			if(isServerConfigured!=null && !isServerConfigured.equals("")){
+				if(isServerConfigured.equals("yes")){
+					String mailflag=request.getParameter("mailflag");				
+					properties.put("pv_mailflag", mailflag);
 					
-					String mailto=request.getParameter("mailto");
-					properties.put("pv_mailto", mailto);
-					
-					String mailsubject=request.getParameter("mailsubject");
-					properties.put("pv_mailsubject", mailsubject);
-					
-					String mailcontent=request.getParameter("mailcontent");
-					properties.put("pv_mailcontent", mailcontent);
-				}
-			}
-			
-			String timerflag=request.getParameter("timerflag");
-			properties.put("pv_timerflag", timerflag);
-			
-			if(timerflag!=null) {
-				if(timerflag.equals("set")) {
-					String timerduration=request.getParameter("timerduration");
-					properties.put("pv_timerduration", timerduration);
-					
-					String lasttimerduration=request.getParameter("lasttimerduration");
-					properties.put("pv_lasttimerduration", lasttimerduration);
-					
-					String reminderflag=request.getParameter("reminderflag");
-					properties.put("pv_reminderflag", reminderflag);
-					
-					if(reminderflag!=null) {
-						if(reminderflag.equals("set")) {
-							String reminderfrom=request.getParameter("reminderfrom");
-							properties.put("pv_reminderfrom", reminderfrom);
+					if(mailflag!=null) {
+						if(mailflag.equals("set")) {
+							String mailfrom=request.getParameter("mailfrom");
+							properties.put("pv_mailfrom", mailfrom);
 							
-							String reminderto = "";
-							if(houseType.getType().equals(ApplicationConstants.LOWER_HOUSE)){
-								if((userGroupType.equals(ApplicationConstants.SECTION_OFFICER)) && (domain.getInternalStatusLowerHouse().getType().equals(ApplicationConstants.RESOLUTION_FINAL_CLARIFICATIONNEEDEDFROMDEPARTMENT) ||
-										domain.getInternalStatusLowerHouse().getType().equals(ApplicationConstants.RESOLUTION_FINAL_CLARIFICATIONNEEDEDFROMMEMBER))) {
-									Credential recepient = Credential.findByFieldName(Credential.class, "username", username, "");
-									reminderto = recepient.getEmail();								
-								} else {
-									reminderto=request.getParameter("reminderto");								
-								}
-							}else if(houseType.getType().equals(ApplicationConstants.UPPER_HOUSE)){
-								if((userGroupType.equals(ApplicationConstants.SECTION_OFFICER)) && (domain.getInternalStatusUpperHouse().getType().equals(ApplicationConstants.RESOLUTION_FINAL_CLARIFICATIONNEEDEDFROMDEPARTMENT) ||
-										domain.getInternalStatusUpperHouse().getType().equals(ApplicationConstants.RESOLUTION_FINAL_CLARIFICATIONNEEDEDFROMMEMBER))) {
-									Credential recepient = Credential.findByFieldName(Credential.class, "username", username, "");
-									reminderto = recepient.getEmail();
-								} else {
-									reminderto=request.getParameter("reminderto");
-								}
-							}						
-							properties.put("pv_reminderto", reminderto);
+							String mailto=request.getParameter("mailto");
+							properties.put("pv_mailto", mailto);
 							
-							String remindersubject=request.getParameter("remindersubject");						
-							properties.put("pv_remindersubject", remindersubject);
+							String mailsubject=request.getParameter("mailsubject");
+							properties.put("pv_mailsubject", mailsubject);
 							
-							String remindercontent = "";
-							if(houseType.getType().equals(ApplicationConstants.LOWER_HOUSE)){
-								if((userGroupType.equals(ApplicationConstants.SECTION_OFFICER)) && (domain.getInternalStatusLowerHouse().getType().equals(ApplicationConstants.RESOLUTION_FINAL_CLARIFICATIONNEEDEDFROMDEPARTMENT) ||
-										domain.getInternalStatusLowerHouse().getType().equals(ApplicationConstants.RESOLUTION_FINAL_CLARIFICATIONNEEDEDFROMMEMBER))) {
-									remindercontent += domain.getRevisedNoticeContent() + "\n\n";
-									if(domain.getQuestionsAskedInFactualPosition() !=null && !domain.getQuestionsAskedInFactualPosition().isEmpty()) {
-										int count = 1;
-										for(String i: domain.getQuestionsAskedInFactualPosition().split("##")) {
-											remindercontent += FormaterUtil.formatNumberNoGrouping(count, domain.getLocale()) + ". " + i + "\n\n";
-											count++;
-										}
-									}								
-								} else {
-									remindercontent=request.getParameter("remindercontent");								
-								}
-							}else if(houseType.getType().equals(ApplicationConstants.UPPER_HOUSE)){
-								if((userGroupType.equals(ApplicationConstants.SECTION_OFFICER)) && (domain.getInternalStatusUpperHouse().getType().equals(ApplicationConstants.RESOLUTION_FINAL_CLARIFICATIONNEEDEDFROMDEPARTMENT) ||
-										domain.getInternalStatusUpperHouse().getType().equals(ApplicationConstants.RESOLUTION_FINAL_CLARIFICATIONNEEDEDFROMMEMBER))) {
-									
-								} else {
-									remindercontent=request.getParameter("remindercontent");
-								}
-							}						
-							properties.put("pv_remindercontent", remindercontent);						
+							String mailcontent=request.getParameter("mailcontent");
+							properties.put("pv_mailcontent", mailcontent);
 						}
-						
-						String noOfReminderMail=request.getParameter("numberOfReminderMailForFactualPosition");
-						String timeDuration="";
-						if(noOfReminderMail!=null && !noOfReminderMail.isEmpty()){
-							int numberOfReminderMail=Integer.parseInt(noOfReminderMail);
-							properties.put("pv_numberOfReminderMailForFactualPosition",noOfReminderMail);
-							for(int i=1;i<=numberOfReminderMail;i++){
-								String timeDurationForReminderMail=request.getParameter("remainderMailDifference"+i);
-								timeDuration=timeDuration+"PT"+timeDurationForReminderMail+"M";
-								if(i+1<=numberOfReminderMail){
-									timeDuration=timeDuration+",";
+					}
+					
+					String timerflag=request.getParameter("timerflag");
+					properties.put("pv_timerflag", timerflag);
+					
+					if(timerflag!=null) {
+						if(timerflag.equals("set")) {
+							String timerduration=request.getParameter("timerduration");
+							properties.put("pv_timerduration", timerduration);
+							
+							String lasttimerduration=request.getParameter("lasttimerduration");
+							properties.put("pv_lasttimerduration", lasttimerduration);
+							
+							String reminderflag=request.getParameter("reminderflag");
+							properties.put("pv_reminderflag", reminderflag);
+							
+							if(reminderflag!=null) {
+								if(reminderflag.equals("set")) {
+									String reminderfrom=request.getParameter("reminderfrom");
+									properties.put("pv_reminderfrom", reminderfrom);
+									
+									String reminderto = "";
+									if(houseType.getType().equals(ApplicationConstants.LOWER_HOUSE)){
+										if((userGroupType.equals(ApplicationConstants.SECTION_OFFICER)) && (domain.getInternalStatusLowerHouse().getType().equals(ApplicationConstants.RESOLUTION_FINAL_CLARIFICATIONNEEDEDFROMDEPARTMENT) ||
+												domain.getInternalStatusLowerHouse().getType().equals(ApplicationConstants.RESOLUTION_FINAL_CLARIFICATIONNEEDEDFROMMEMBER))) {
+											Credential recepient = Credential.findByFieldName(Credential.class, "username", username, "");
+											reminderto = recepient.getEmail();								
+										} else {
+											reminderto=request.getParameter("reminderto");								
+										}
+									}else if(houseType.getType().equals(ApplicationConstants.UPPER_HOUSE)){
+										if((userGroupType.equals(ApplicationConstants.SECTION_OFFICER)) && (domain.getInternalStatusUpperHouse().getType().equals(ApplicationConstants.RESOLUTION_FINAL_CLARIFICATIONNEEDEDFROMDEPARTMENT) ||
+												domain.getInternalStatusUpperHouse().getType().equals(ApplicationConstants.RESOLUTION_FINAL_CLARIFICATIONNEEDEDFROMMEMBER))) {
+											Credential recepient = Credential.findByFieldName(Credential.class, "username", username, "");
+											reminderto = recepient.getEmail();
+										} else {
+											reminderto=request.getParameter("reminderto");
+										}
+									}						
+									properties.put("pv_reminderto", reminderto);
+									
+									String remindersubject=request.getParameter("remindersubject");						
+									properties.put("pv_remindersubject", remindersubject);
+									
+									String remindercontent = "";
+									if(houseType.getType().equals(ApplicationConstants.LOWER_HOUSE)){
+										if((userGroupType.equals(ApplicationConstants.SECTION_OFFICER)) && (domain.getInternalStatusLowerHouse().getType().equals(ApplicationConstants.RESOLUTION_FINAL_CLARIFICATIONNEEDEDFROMDEPARTMENT) ||
+												domain.getInternalStatusLowerHouse().getType().equals(ApplicationConstants.RESOLUTION_FINAL_CLARIFICATIONNEEDEDFROMMEMBER))) {
+											remindercontent += domain.getRevisedNoticeContent() + "\n\n";
+											if(domain.getQuestionsAskedInFactualPosition() !=null && !domain.getQuestionsAskedInFactualPosition().isEmpty()) {
+												int count = 1;
+												for(String i: domain.getQuestionsAskedInFactualPosition().split("##")) {
+													remindercontent += FormaterUtil.formatNumberNoGrouping(count, domain.getLocale()) + ". " + i + "\n\n";
+													count++;
+												}
+											}								
+										} else {
+											remindercontent=request.getParameter("remindercontent");								
+										}
+									}else if(houseType.getType().equals(ApplicationConstants.UPPER_HOUSE)){
+										if((userGroupType.equals(ApplicationConstants.SECTION_OFFICER)) && (domain.getInternalStatusUpperHouse().getType().equals(ApplicationConstants.RESOLUTION_FINAL_CLARIFICATIONNEEDEDFROMDEPARTMENT) ||
+												domain.getInternalStatusUpperHouse().getType().equals(ApplicationConstants.RESOLUTION_FINAL_CLARIFICATIONNEEDEDFROMMEMBER))) {
+											
+										} else {
+											remindercontent=request.getParameter("remindercontent");
+										}
+									}						
+									properties.put("pv_remindercontent", remindercontent);						
 								}
 								
+								String noOfReminderMail=request.getParameter("numberOfReminderMailForFactualPosition");
+								String timeDuration="";
+								if(noOfReminderMail!=null && !noOfReminderMail.isEmpty()){
+									int numberOfReminderMail=Integer.parseInt(noOfReminderMail);
+									properties.put("pv_numberOfReminderMailForFactualPosition",noOfReminderMail);
+									for(int i=1;i<=numberOfReminderMail;i++){
+										String timeDurationForReminderMail=request.getParameter("remainderMailDifference"+i);
+										timeDuration=timeDuration+"PT"+timeDurationForReminderMail+"M";
+										if(i+1<=numberOfReminderMail){
+											timeDuration=timeDuration+",";
+										}
+										
+									}
+									properties.put("pv_remaindermailduration",timeDuration);
+								}
 							}
-							properties.put("pv_remaindermailduration",timeDuration);
+							
+							
 						}
 					}
-					
-					if(domain.getType().getType().trim().equals(ApplicationConstants.GOVERNMENT_RESOLUTION)) {
-						properties.put("pv_houseType", houseType.getType());
-					}
+				}else{
+				properties.put("pv_mailflag", "off");
+				properties.put("pv_timerflag", "off");
 				}
+			}
+			if(domain.getType().getType().trim().equals(ApplicationConstants.GOVERNMENT_RESOLUTION)) {
+				properties.put("pv_houseType", houseType.getType());
 			}
 			if(!bulkEdit.equals("yes")){
 				String strTaskId=workflowDetails.getTaskId();
