@@ -1792,7 +1792,7 @@ public class QuestionController extends GenericController<Question>{
 					}else{
 						Status status=Status.findByFieldName(Status.class, "type", ApplicationConstants.QUESTION_COMPLETE, domain.getLocale());
 						/**** if status is not submit then status,internal status and recommendation status is set to complete ****/
-						if(!domain.getStatus().getType().equals(ApplicationConstants.QUESTION_SUBMIT)){
+						if(!domain.getStatus().getType().equals(ApplicationConstants.QUESTION_SUBMIT) && !operation.trim().equals("startworkflow")){
 							domain.setStatus(status);
 							domain.setInternalStatus(status);
 							domain.setRecommendationStatus(status);
