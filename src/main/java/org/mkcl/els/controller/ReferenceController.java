@@ -4808,4 +4808,41 @@ public class ReferenceController extends BaseController {
 			return ordSearchVO;
 		}
 
+	
+		@RequestMapping(value="/getchairperson",method=RequestMethod.GET)
+		public @ResponseBody List<String> getChairPerson(final HttpServletRequest request, final Locale locale,final ModelMap model){
+			List<String> chairPersons=new ArrayList<String>();
+			String strMemberRole=request.getParameter("chairPersonRole");
+			String strProceeding=request.getParameter("proceeding");
+			Proceeding proceeding=null;
+			MemberRole mr=null;
+			if(strProceeding!=null && !strProceeding.isEmpty()){
+				proceeding=Proceeding.findById(Proceeding.class, Long.parseLong(strProceeding));
+			}
+			if(strMemberRole!=null && !strMemberRole.isEmpty()){
+				 mr=MemberRole.findById(MemberRole.class, Long.parseLong(strMemberRole));
+			}
+			
+			Member member=null;
+			if(mr!=null && proceeding!=null){
+				Slot slot=proceeding.getSlot();
+				Roster roster=slot.getRoster();
+				Session session=roster.getSession();
+				House house=session.getHouse();
+				List<HouseMemberRoleAssociation> hmras;
+				try {
+					hmras = HouseMemberRoleAssociation.findActiveHouseMemberRoles(house, mr, new Date(), locale.toString());
+					for(HouseMemberRoleAssociation h:hmras){
+						if(h.getRole().equals(mr)){
+							member=h.getMember();
+							chairPersons.add(member.getFullname());
+						}
+					}
+				}catch (ELSException e) {
+					e.printStackTrace();
+				}
+								
+		}
+		return chairPersons;
+	}
 }
