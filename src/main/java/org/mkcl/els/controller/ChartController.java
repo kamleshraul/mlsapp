@@ -185,6 +185,7 @@ public class ChartController extends BaseController{
 		return retVal;
 	}
 
+	@SuppressWarnings({ "unchecked", "rawtypes" })
 	@RequestMapping(value="/view", method=RequestMethod.GET)
 	public String viewChart(final ModelMap model,
 			final HttpServletRequest request,
@@ -296,7 +297,10 @@ public class ChartController extends BaseController{
 				//chartVOs = Chart.getChartVOs(session, group, answeringDate, deviceType, locale.toString());				
 				List starredChartView = null;
 				Chart chart = Chart.find(new Chart(session, group, answeringDate, deviceType, locale.toString()));
+				List extraMembers = null;
 				if(chart != null){
+					
+					MemberRole memberRole=MemberRole.find(session.getHouse().getType(), ApplicationConstants.MEMBER, locale.toString());
 					
 					Map<String, String[]> parametersMap = new HashMap<String, String[]>();
 					parametersMap.put("locale", new String[]{locale.toString()});
@@ -304,11 +308,15 @@ public class ChartController extends BaseController{
 					parametersMap.put("deviceTypeId", new String[]{deviceType.getId().toString()});
 					parametersMap.put("groupId", new String[]{group.getId().toString()});
 					parametersMap.put("answeringDate", new String[]{FormaterUtil.formatDateToString(answeringDate, ApplicationConstants.DB_DATEFORMAT)});
-					
+										
 					List questionParents = org.mkcl.els.domain.Query.findReport("CHART_QUESTION_ONLY_PARENTS", parametersMap);
 					
-					starredChartView = org.mkcl.els.domain.Query.findReport("STARRED_CHART_VIEW", parametersMap);
+					starredChartView = org.mkcl.els.domain.Query.findReport("STARRED_CHART_VIEW", parametersMap);					
 					
+					parametersMap.put("houseId", new String[]{session.getHouse().getId().toString()});
+					parametersMap.put("roleId", new String[]{memberRole.getId().toString()});					
+					parametersMap.put("currentDate", new String[]{FormaterUtil.formatDateToString(new Date(), ApplicationConstants.DB_DATEFORMAT)});
+					extraMembers = org.mkcl.els.domain.Query.findReport("STARRED_CHART_VIEW_2", parametersMap);
 					if(questionParents != null && !questionParents.isEmpty()){
 						for(int i = 0; i < starredChartView.size(); i++ ){
 							Object[] obj = ((Object[])starredChartView.get(i));
@@ -332,10 +340,14 @@ public class ChartController extends BaseController{
 								strKids = null;
 							}
 						}
+						
+						
 					}else{
 						
 					}
 				}
+				
+				starredChartView.addAll(extraMembers);
 				model.addAttribute("report", starredChartView);
 			}else if(deviceType.getType().equals(ApplicationConstants.HALF_HOUR_DISCUSSION_QUESTION_STANDALONE)){
 				//chartVOs = Chart.getChartVOs(session, null, answeringDate, deviceType, locale.toString());
