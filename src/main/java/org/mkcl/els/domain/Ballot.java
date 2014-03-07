@@ -2019,9 +2019,17 @@ public class Ballot extends BaseDomain implements Serializable {
 					}
 					currentIndex++;
 				}
-				if(toNextMember) {
+				if(toNextMember) {					
 					memberIndex++;
-					currentIndex=0;
+					if(memberIndex<questionSequenceVOs.size()) {
+						currentIndex=0;
+					} else {
+						int questionsExcludingLastRound = 0;
+						for(int l : questionsInRounds) {				
+							questionsExcludingLastRound += l;
+						}
+						questionsInRounds.add(questionSequenceVOs.size() - questionsExcludingLastRound);
+					}					
 				}
 			}
 			memberIndex = 0;
@@ -2037,91 +2045,93 @@ public class Ballot extends BaseDomain implements Serializable {
 		//now gather all details of each round		
 		int questionsTillGivenRound = 0;
 		int count=0;
-		for(int i : questionsInRounds) {				
-			String formattedNumberOfQuestionsInGivenRound = FormaterUtil.formatNumberNoGrouping(i, locale);
-			String firstElementInGivenRound = FormaterUtil.formatNumberNoGrouping(questionsTillGivenRound+1, locale);
-			String lastElementInGivenRound = FormaterUtil.formatNumberNoGrouping(questionsTillGivenRound+i, locale);
-			RoundVO roundVO = new RoundVO();
-			roundVO.setNumberOfQuestionsInGivenRound(i);
-			roundVO.setFormattedNumberOfQuestionsInGivenRound(formattedNumberOfQuestionsInGivenRound);
-			roundVO.setFirstElementInGivenRound(firstElementInGivenRound);
-			roundVO.setLastElementInGivenRound(lastElementInGivenRound);
-			List<DeviceVO> deviceVOs = new ArrayList<DeviceVO>();
-			for(int j=questionsTillGivenRound; j<(questionsTillGivenRound + i); j++) {
-				DeviceVO deviceVO = new DeviceVO();
-				count++;
-				deviceVO.setSerialNumber(FormaterUtil.formatNumberNoGrouping(count, locale));
-				deviceVO.setId(questionSequenceVOs.get(j).getQuestionId());
-				deviceVO.setNumber(questionSequenceVOs.get(j).getNumber());
-				deviceVO.setFormattedNumber(FormaterUtil.formatNumberNoGrouping(questionSequenceVOs.get(j).getNumber(), locale));
-				Question q = Question.findById(Question.class, questionSequenceVOs.get(j).getQuestionId());
-				String memberNames="";
-				Member member=q.getPrimaryMember();
-				if(member!=null){
-					memberNames+=member.findFirstLastName();
-				}
-				List<SupportingMember> selectedSupportingMembers=q.getSupportingMembers();					
-				if(selectedSupportingMembers!=null){
-					if(!selectedSupportingMembers.isEmpty()){
-						StringBuffer bufferFirstNamesFirst=new StringBuffer();
-						for(SupportingMember k:selectedSupportingMembers){
-							Member m=k.getMember();
-							bufferFirstNamesFirst.append(m.findFirstLastName()+",");								
+		for(int i : questionsInRounds) {
+			if(i>0) {
+				String formattedNumberOfQuestionsInGivenRound = FormaterUtil.formatNumberNoGrouping(i, locale);
+				String firstElementInGivenRound = FormaterUtil.formatNumberNoGrouping(questionsTillGivenRound+1, locale);
+				String lastElementInGivenRound = FormaterUtil.formatNumberNoGrouping(questionsTillGivenRound+i, locale);
+				RoundVO roundVO = new RoundVO();
+				roundVO.setNumberOfQuestionsInGivenRound(i);
+				roundVO.setFormattedNumberOfQuestionsInGivenRound(formattedNumberOfQuestionsInGivenRound);
+				roundVO.setFirstElementInGivenRound(firstElementInGivenRound);
+				roundVO.setLastElementInGivenRound(lastElementInGivenRound);
+				List<DeviceVO> deviceVOs = new ArrayList<DeviceVO>();
+				for(int j=questionsTillGivenRound; j<(questionsTillGivenRound + i); j++) {
+					DeviceVO deviceVO = new DeviceVO();
+					count++;
+					deviceVO.setSerialNumber(FormaterUtil.formatNumberNoGrouping(count, locale));
+					deviceVO.setId(questionSequenceVOs.get(j).getQuestionId());
+					deviceVO.setNumber(questionSequenceVOs.get(j).getNumber());
+					deviceVO.setFormattedNumber(FormaterUtil.formatNumberNoGrouping(questionSequenceVOs.get(j).getNumber(), locale));
+					Question q = Question.findById(Question.class, questionSequenceVOs.get(j).getQuestionId());
+					String memberNames="";
+					Member member=q.getPrimaryMember();
+					if(member!=null){
+						memberNames+=member.findFirstLastName();
+					}
+					List<SupportingMember> selectedSupportingMembers=q.getSupportingMembers();					
+					if(selectedSupportingMembers!=null){
+						if(!selectedSupportingMembers.isEmpty()){
+							StringBuffer bufferFirstNamesFirst=new StringBuffer();
+							for(SupportingMember k:selectedSupportingMembers){
+								Member m=k.getMember();
+								bufferFirstNamesFirst.append(m.findFirstLastName()+",");								
+							}
+							bufferFirstNamesFirst.deleteCharAt(bufferFirstNamesFirst.length()-1);
+							memberNames+=","+bufferFirstNamesFirst.toString();
 						}
-						bufferFirstNamesFirst.deleteCharAt(bufferFirstNamesFirst.length()-1);
-						memberNames+=","+bufferFirstNamesFirst.toString();
+					}					
+					deviceVO.setMemberNames(memberNames);
+					deviceVO.setSubject(q.getRevisedSubject());
+					String content = q.getRevisedQuestionText();
+					if(content != null) {
+						if(content.endsWith("<br><p></p>")) {
+							content = content.substring(0, content.length()-12);
+						}
+					}				
+					deviceVO.setContent(content);		
+					String answer = q.getAnswer();
+					if(answer != null) {
+						if(answer.endsWith("<br><p></p>")) {
+							answer = answer.substring(0, answer.length()-12);
+						}
+					}				
+					deviceVO.setAnswer(answer);				
+					Member answeringMember = MemberMinister.findMemberHavingMinistryInSession(session, q.getMinistry());
+					List<MemberRole> memberRoles = HouseMemberRoleAssociation.findAllActiveRolesOfMemberInSession(answeringMember, session, locale);
+					for(MemberRole l : memberRoles) {
+						if(l.getType().equals(ApplicationConstants.CHIEF_MINISTER) || l.getType().equals(ApplicationConstants.DEPUTY_CHIEF_MINISTER)) {
+							deviceVO.setMinistryName(q.getMinistry().getName());
+							break;
+						}
 					}
-				}					
-				deviceVO.setMemberNames(memberNames);
-				deviceVO.setSubject(q.getRevisedSubject());
-				String content = q.getRevisedQuestionText();
-				if(content != null) {
-					if(content.endsWith("<br><p></p>")) {
-						content = content.substring(0, content.length()-12);
+					if(deviceVO.getMinistryName()==null) {
+						Role ministerRole = Role.findByFieldName(Role.class, "type", ApplicationConstants.MINISTER, locale);
+						String localizedMinisterRoleName = ministerRole.getLocalizedName();				
+						deviceVO.setMinistryName(q.getSubDepartment().getName() + " " + localizedMinisterRoleName);
+					}				
+					if(answeringMember != null){
+						deviceVO.setAnsweredBy(answeringMember.findFirstLastName());
 					}
-				}				
-				deviceVO.setContent(content);		
-				String answer = q.getAnswer();
-				if(answer != null) {
-					if(answer.endsWith("<br><p></p>")) {
-						answer = answer.substring(0, answer.length()-12);
+					if(q.getParent()!=null) {
+						deviceVO.setParent(FormaterUtil.formatNumberNoGrouping(q.getParent().getNumber(), locale));
+						SimpleDateFormat dbFormat = null;
+			            CustomParameter dbDateFormat=CustomParameter.findByName(CustomParameter.class,"ROTATION_ORDER_DATE_FORMAT", "");
+				    	if(dbDateFormat!=null){
+				    		dbFormat=FormaterUtil.getDateFormatter(dbDateFormat.getValue(), locale.toString());
+				    	}
+						String[] strAnsweringDates=dbFormat.format(answeringDate).split(",");
+		        		String[] strAnsweringMonth=strAnsweringDates[1].split(" ");
+		        		String answeringMonth=FormaterUtil.getMonthInMarathi(strAnsweringMonth[1], locale.toString());
+		        		String formattedAnsweringDate = strAnsweringMonth[0] + " " + answeringMonth + ", " + strAnsweringDates[2];
+		        		deviceVO.setParentAnsweringDate(formattedAnsweringDate);
 					}
-				}				
-				deviceVO.setAnswer(answer);				
-				Member answeringMember = MemberMinister.findMemberHavingMinistryInSession(session, q.getMinistry());
-				List<MemberRole> memberRoles = HouseMemberRoleAssociation.findAllActiveRolesOfMemberInSession(answeringMember, session, locale);
-				for(MemberRole l : memberRoles) {
-					if(l.getType().equals(ApplicationConstants.CHIEF_MINISTER) || l.getType().equals(ApplicationConstants.DEPUTY_CHIEF_MINISTER)) {
-						deviceVO.setMinistryName(q.getMinistry().getName());
-						break;
-					}
+					deviceVOs.add(deviceVO);
 				}
-				if(deviceVO.getMinistryName()==null) {
-					Role ministerRole = Role.findByFieldName(Role.class, "type", ApplicationConstants.MINISTER, locale);
-					String localizedMinisterRoleName = ministerRole.getLocalizedName();				
-					deviceVO.setMinistryName(q.getSubDepartment().getName() + " " + localizedMinisterRoleName);
-				}				
-				if(answeringMember != null){
-					deviceVO.setAnsweredBy(answeringMember.findFirstLastName());
-				}
-				if(q.getParent()!=null) {
-					deviceVO.setParent(FormaterUtil.formatNumberNoGrouping(q.getParent().getNumber(), locale));
-					SimpleDateFormat dbFormat = null;
-		            CustomParameter dbDateFormat=CustomParameter.findByName(CustomParameter.class,"ROTATION_ORDER_DATE_FORMAT", "");
-			    	if(dbDateFormat!=null){
-			    		dbFormat=FormaterUtil.getDateFormatter(dbDateFormat.getValue(), locale.toString());
-			    	}
-					String[] strAnsweringDates=dbFormat.format(answeringDate).split(",");
-	        		String[] strAnsweringMonth=strAnsweringDates[1].split(" ");
-	        		String answeringMonth=FormaterUtil.getMonthInMarathi(strAnsweringMonth[1], locale.toString());
-	        		String formattedAnsweringDate = strAnsweringMonth[0] + " " + answeringMonth + ", " + strAnsweringDates[2];
-	        		deviceVO.setParentAnsweringDate(formattedAnsweringDate);
-				}
-				deviceVOs.add(deviceVO);
-			}
-			roundVO.setDeviceVOs(deviceVOs);
-			roundVOs.add(roundVO);
-			questionsTillGivenRound += i;
+				roundVO.setDeviceVOs(deviceVOs);
+				roundVOs.add(roundVO);
+				questionsTillGivenRound += i;
+			}			
 		}
 		return roundVOs;
 	}
