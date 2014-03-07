@@ -5,6 +5,7 @@ import java.util.Date;
 import java.util.List;
 
 import javax.persistence.EntityNotFoundException;
+import javax.persistence.NoResultException;
 import javax.persistence.Query;
 import javax.persistence.TemporalType;
 import javax.persistence.TypedQuery;
@@ -100,6 +101,9 @@ public class SessionRepository extends BaseRepository<Session, Long>{
 		 try{
 			 Session session=(Session) query.getSingleResult();
 		     return session;
+		 }catch(NoResultException e){
+			 logger.warn(e.getMessage());
+			return null;
 		 }catch(EntityNotFoundException e){
 			logger.error(e.getMessage());
 			return null;
@@ -124,6 +128,9 @@ public class SessionRepository extends BaseRepository<Session, Long>{
 	    try{
 			 Session session=(Session) query.getSingleResult();
 		     return session;
+		 }catch(NoResultException e){
+			 logger.warn(e.getMessage());
+			return null;
 		 }catch(EntityNotFoundException e){
 			logger.error(e.getMessage());
 			return null;
@@ -195,6 +202,9 @@ public class SessionRepository extends BaseRepository<Session, Long>{
     	try{
 			 Session session=(Session) query.getSingleResult();
 		     return session;
+		 }catch(NoResultException e){
+			logger.warn(e.getMessage());
+			return null;
 		 }catch(EntityNotFoundException e){
 			logger.error(e.getMessage());
 			return null;
