@@ -356,6 +356,7 @@ public class ChartController extends BaseController{
 				if(chart != null){
 					Status rejectionStatus = Status.findByType(ApplicationConstants.QUESTION_FINAL_REJECTION, locale.toString());
 					Status repeatRejectionStatus = Status.findByType(ApplicationConstants.QUESTION_FINAL_REPEATREJECTION, locale.toString());
+					MemberRole memberRole=MemberRole.find(session.getHouse().getType(), ApplicationConstants.MEMBER, locale.toString());
 					
 					Map<String, String[]> parametersMap = new HashMap<String, String[]>();
 					parametersMap.put("locale", new String[]{locale.toString()});
@@ -363,7 +364,10 @@ public class ChartController extends BaseController{
 					parametersMap.put("deviceTypeId", new String[]{deviceType.getId().toString()});
 					parametersMap.put("rejectionStatusId", new String[]{rejectionStatus.getId().toString()});
 					parametersMap.put("repeatRejectionStatusId", new String[]{repeatRejectionStatus.getId().toString()});
-									
+					parametersMap.put("houseId", new String[]{session.getHouse().getId().toString()});
+					parametersMap.put("roleId", new String[]{memberRole.getId().toString()});
+					parametersMap.put("currentDate", new String[]{FormaterUtil.formatDateToString(new Date(), ApplicationConstants.DB_DATEFORMAT)});
+					
 					hdsChartView = org.mkcl.els.domain.Query.findReport("HDS_CHART_VIEW", parametersMap);						
 					
 					for(int i = 0; i < hdsChartView.size(); i++ ){
@@ -378,9 +382,11 @@ public class ChartController extends BaseController{
 						obj = null;
 						rejectedQuestions = null;
 					}
-				}
-				model.addAttribute("report", hdsChartView);
-				
+					List newList = getSimplifiedChart(hdsChartView);
+					List extraMembers = org.mkcl.els.domain.Query.findReport("HDS_CHART_VIEW_2", parametersMap);
+					newList.addAll(extraMembers);
+					model.addAttribute("report", hdsChartView);
+				}				
 			}
 			
 			model.addAttribute("chartVOs", chartVOs);
@@ -410,6 +416,12 @@ public class ChartController extends BaseController{
 		return retVal;
 	}
 	
+	
+	/**
+	 * TO sort the chart in ascending order of the device number
+	 * @param chartList
+	 * @return
+	 */
 	private List getSimplifiedChart(List chartList){
 		
 		Map<String, List<Object[]>> chartMap = new HashMap<String, List<Object[]>>();
