@@ -1208,7 +1208,7 @@ public class QuestionWorkflowController  extends BaseController{
 				if(operation != null){
 					if(!operation.isEmpty()){
 						if(operation.equals("workflowsubmit")){
-							if(domain.getAnswer() == null && domain.getFactualPosition()==null){
+							if(domain.getAnswer() == null && domain.getFactualPosition()==null && domain.getType().getType().equals(ApplicationConstants.STARRED_QUESTION)){
 								result.rejectValue("answer", "AnswerEmpty");
 								
 								if(domain.getAnswer().isEmpty() && domain.getFactualPosition().isEmpty()){
