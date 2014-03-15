@@ -386,6 +386,7 @@ public class RosterController extends GenericController<Roster>{
 			List<User> notSelectedUsers=new ArrayList<User>();
 			List<Integer> selectedUserPositions = new ArrayList<Integer>();
 			List<Integer> nonSelectedUserPositions = new ArrayList<Integer>();
+			/**** Here add all the selected users i.e. reporters selected in the previous slot ****/
 			if(reporters!=null&&!reporters.isEmpty()){
 				for(Reporter i:reporters){
 					if(i.getIsActive()){
@@ -394,23 +395,41 @@ public class RosterController extends GenericController<Roster>{
 					}
 				}
 			}
+			/**** Here find the user who was not selected in the previous slot ****/
 			if(selectedUsers!=null&&!selectedUsers.isEmpty()){
 				model.addAttribute("selectedItemsCount",selectedUsers.size());	
 				for(User i:allRISUsers){
 					boolean contains=false;
 					for(User j:selectedUsers){
 						if(i.getId()==j.getId()){
-							contains=true;
+							contains=true;//indicates whether user is selected
 							break;
 						}						
 					}
+					
+					boolean addedPosition = false;//indicates whether the current user in the context
+													// who is not selected having position/not having position
+													// is added to nonSelectedUserPosition
+					/****Id user is not selected then check for if its an active reporter and add its position
+					 * to nonSelectedUsers as well as its position
+					 */
 					if(!contains){
 						for(Reporter j:reporters){
+							//If user is reporter i.e. previously selected user
 							if(j.getUser().getId() == i.getId()){
+								
 								if(!j.getIsActive()){
 									nonSelectedUserPositions.add(j.getPosition());
+									addedPosition = true;
 								}
+								break;
 							}
+						}
+						//if user was not in the previous slot i.e. not reporter
+						//then also add its position as null
+						//so as to match the positional value
+						if(!addedPosition){
+							nonSelectedUserPositions.add(null);
 						}
 						notSelectedUsers.add(i);
 					}
