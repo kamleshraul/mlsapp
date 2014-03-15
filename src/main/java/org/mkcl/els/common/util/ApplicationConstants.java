@@ -636,6 +636,8 @@ public class ApplicationConstants {
 	public static String MAIN_HEADING="mainHeading";
 
 	public static String REPORTING="reporting";
+
+	public static String CLERK="clerk";
 	
 	/****Custom Parameters name ****/
 	public static final String RESOLUTION_CHART_WITHDEVICES_VIEW = "RESOLUTION_CHART_WITHDEVICES_VIEW";
