@@ -99,6 +99,7 @@ import org.mkcl.els.domain.Resolution;
 import org.mkcl.els.domain.River;
 import org.mkcl.els.domain.Roster;
 import org.mkcl.els.domain.Sanctuary;
+import org.mkcl.els.domain.Section;
 import org.mkcl.els.domain.Slot;
 import org.mkcl.els.domain.SupportingMember;
 import org.mkcl.els.domain.TextDraft;
@@ -4842,7 +4843,66 @@ public class ReferenceController extends BaseController {
 					e.printStackTrace();
 				}
 								
+			}
+			return chairPersons;
 		}
-		return chairPersons;
-	}
+		
+		@RequestMapping(value="/bill/checkSection", method=RequestMethod.GET)
+		public @ResponseBody String checkBillSectionDetails(final HttpServletRequest request, final Locale locale) {
+			String billId = request.getParameter("billId");
+			String language = request.getParameter("language");
+			String sectionNumber = request.getParameter("sectionNumber");
+			String returnValue = null;
+			if(billId!=null && !billId.isEmpty() && language!=null && !language.isEmpty() && sectionNumber!=null && !sectionNumber.isEmpty()) {
+				CustomParameter deploymentServerParameter = CustomParameter.findByFieldName(CustomParameter.class, "name", "DEPLOYMENT_SERVER", "");
+				if(deploymentServerParameter!=null) {
+					if(deploymentServerParameter.getValue()!=null) {
+						if(deploymentServerParameter.getValue().equals("TOMCAT")) {
+							try {
+								sectionNumber = new String(sectionNumber.getBytes("ISO-8859-1"),"UTF-8");
+								Section section = Bill.findSection(Long.parseLong(billId), language, sectionNumber);
+								if(section!=null) {
+									returnValue = section.getText();
+								} else {
+									returnValue = "sectionnotfound";
+								}
+//								Bill bill = Bill.findById(Bill.class, Long.parseLong(billId));
+//								if(bill!=null) {
+//									Section section = null;
+//									List<Section> sections = bill.getSections();
+//									if(sections!=null && !sections.isEmpty()) {
+//										for(Section s: sections) {
+//											if(s.getLanguage().equals(language) && s.getNumber().equals(Integer.parseInt(sectionNumber))) {
+//												section = s;
+//												break;
+//											}
+//										}
+//										if(section!=null) {
+//											returnValue = section.getText();
+//										}
+//									}
+//								}
+							} catch (UnsupportedEncodingException e) {
+								e.printStackTrace();
+								returnValue = "invalidSectionNumber";
+							} catch (ELSException e) {
+								e.printStackTrace();
+								if(e.getParameter("bill_section_notfound")!=null) {
+									returnValue = "sectionnotfound";
+								} else {
+									returnValue = "error";
+								}								
+							} catch (Exception e) {
+								e.printStackTrace();
+								returnValue = "error";
+							}
+						}
+					}
+				}
+			} else {
+				returnValue = "error";
+			}	
+			return returnValue;
+		}		
+		
 }

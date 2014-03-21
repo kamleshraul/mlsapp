@@ -8,6 +8,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Random;
 
+import javax.persistence.NoResultException;
 import javax.persistence.Query;
 import javax.persistence.TypedQuery;
 
@@ -28,6 +29,7 @@ import org.mkcl.els.domain.HouseType;
 import org.mkcl.els.domain.Member;
 import org.mkcl.els.domain.MessageResource;
 import org.mkcl.els.domain.Question;
+import org.mkcl.els.domain.Section;
 import org.mkcl.els.domain.Session;
 import org.mkcl.els.domain.Status;
 import org.mkcl.els.domain.UserGroupType;
@@ -639,6 +641,7 @@ public class BillRepository extends BaseRepository<Bill, Serializable>{
 			final Date answeringDate,
 			final Status[] internalStatuses,
 			final Status[] recommendationStatuses,
+			final Boolean isPreballot,
 			final Boolean forBalloting,
 			final String sortOrder,
 			final String locale) throws ELSException {
@@ -689,11 +692,14 @@ public class BillRepository extends BaseRepository<Bill, Serializable>{
 				" WHEN (dt.type=:deviceType_nonofficial" + 
 				" AND ht.type=:houseType_upperhouse" +
 				" ) THEN m.id IN (" + sb + ") END" +
-				" AND (ista.type <> 'bill_final_lapsed')" +
-				" AND b.expected_discussion_date IS NULL");
+				" AND (ista.type <> 'bill_final_lapsed')");
 
 		try{
-			if(forBalloting.booleanValue()){
+			if(isPreballot!=null && isPreballot) {
+				query.append(" AND b.expected_discussion_date IS NULL");
+			}
+			
+			if(forBalloting!=null && forBalloting.booleanValue()){
 				query.append(" AND b.ballotstatus_id IS NULL");
 			}
 	
@@ -1848,5 +1854,26 @@ public class BillRepository extends BaseRepository<Bill, Serializable>{
 			}
 		}			
 		return result;			
+	}
+	
+	public Section findSection(final Long billId, final String language, final String sectionNumber) throws ELSException {
+		Section section = null;
+		
+		String strQuery = "SELECT bs FROM Bill b JOIN b.sections bs" +
+				" WHERE b.id=:billId AND bs.language=:language AND bs.number=:number";
+		
+		Query query=this.em().createQuery(strQuery);
+		query.setParameter("billId",billId);
+		query.setParameter("language",language);
+		query.setParameter("number",sectionNumber);
+		
+		try {
+			section = (Section) query.getSingleResult();	
+		} catch(NoResultException e) {
+			return null;
+		} catch(Exception e) {
+			throw new ELSException("bill_section_notfound", "Error in finding section");
+		}
+		return section;		
 	}
 }

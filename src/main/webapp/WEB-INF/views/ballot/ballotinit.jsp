@@ -407,7 +407,8 @@
 <div class="commandbarContent" style="margin-top: 10px;" id="selectionDiv2">
 
 		<c:choose>
-			<c:when test="${deviceTypeType=='resolutions_nonofficial' 
+			<c:when test="${deviceTypeType=='resolutions_nonofficial'
+								or deviceTypeType=='bills_nonofficial' 
 								or deviceTypeType == 'questions_halfhourdiscussion_from_question' 
 								or deviceTypeType == 'questions_halfhourdiscussion_standalone' }">
 				<a href="#" id="select_discussiondatedate" class="butSim">

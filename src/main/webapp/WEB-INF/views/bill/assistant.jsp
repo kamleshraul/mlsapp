@@ -237,6 +237,16 @@
 			}
 		}	
 		
+		function getIframeSelectionText(iframe) {
+		  var win = iframe.contentWindow;
+		  var doc = iframe.contentDocument || win.document;		  
+		  if (win.getSelection) {		  
+		    return win.getSelection().toString();
+		  } else if (doc.selection && doc.selection.createRange) {			 
+		    return doc.selection.createRange().text;
+		  }
+		}
+		
 		$(document).ready(function(){	
 			$('#opinionSoughtFromLawAndJD').wysiwyg({
 				resizeOptions: {maxWidth: 600},
@@ -1150,6 +1160,24 @@
 					}});														
 			        return false;
 				}				 
+			});		
+			
+			$('.saveAsSection').click(function() {
+				var selectedText = "";
+				var language = this.id.split("_")[2];
+				/* var iframeId = "";
+				var language = this.id.split("_")[2];
+				//alert($('#revised_contentDraft_text_marathi').wysiwyg('getSelection'));
+				if(this.id.split("_")[1]=='contentDraft') {
+					iframeId = "contentDraft_text_"+language+"-wysiwyg-iframe";										
+				} else if(this.id.split("_")[1]=='revisedContentDraft') {
+					iframeId = "revised_contentDraft_text_"+language+"-wysiwyg-iframe";					
+				}				
+				selectedText = getIframeSelectionText(document.getElementById(iframeId)); */				
+				$.get('bill/addSection?language='+language+'&selectedText='+selectedText,function(data){
+					$.fancybox.open(data, {autoSize: false, width: 720, height:420});		    	
+			    });
+				return false;
 			});
 		});			
 		</script>
@@ -1191,7 +1219,12 @@
 				margin-top: 10px;
 			}
 			
-			#opinionSoughtFromLawAndJD-wysiwyg-iframe {height: 400px;}				
+			#opinionSoughtFromLawAndJD-wysiwyg-iframe {height: 400px;}			
+			
+			.saveAsSection {
+				float: right; 
+				margin: -210px 140px;
+			}	
 		</style>
 	</head> 
 
@@ -1331,7 +1364,7 @@
 					</p>
 					
 					<c:if test="${selectedDeviceTypeForBill == 'bills_government'}">
-					<p>
+					<p style="display: none;">
 						<label class="small"><spring:message code="bill.introducingHouseType" text="Introducing House Type"/></label>
 						<form:select id="introducingHouseType" class="sSelect" path="introducingHouseType">
 						<c:forEach var="i" items="${introducingHouseTypes}">							
@@ -1573,6 +1606,7 @@
 									<p>
 										<label class="wysiwyglabel">${i.language.name} <spring:message code="bill.contentDraft" text="Draft"/></label>
 										<textarea class="wysiwyg contentDraft" id="contentDraft_text_${i.language.type}" name="contentDraft_text_${i.language.type}" readonly="readonly">${i.text}</textarea>
+										<a id="saveAsSection_contentDraft_${i.language.type}" class="saveAsSection" href="javascript:void(0)"><spring:message code="bill.addSection" text="Add Section"/></a>
 										<input type="hidden" name="contentDraft_id_${i.language.type}" value="${i.id}">
 										<input type="hidden" name="contentDraft_language_id_${i.language.type}" value="${i.language.id}">						
 									</p>
@@ -1606,6 +1640,7 @@
 											</c:when>							
 										</c:choose>
 										<textarea class="wysiwyg revisedContentDraft" id="revised_contentDraft_text_${i.language.type}" name="revised_contentDraft_text_${i.language.type}">${revisedContentDraftText}</textarea>
+										<a id="saveAsSection_revisedContentDraft_${i.language.type}" class="saveAsSection" href="javascript:void(0)"><spring:message code="bill.addSection" text="Add Section"/></a>
 										<input type="hidden" name="revised_contentDraft_id_${i.language.type}" value="${revisedContentDraftId}">												
 									</p>
 									</div>

@@ -21,8 +21,7 @@
 				<h2><spring:message code="generic.edit.heading" text="Details"/>
 					[<spring:message code="generic.id" text="Id"></spring:message>:${domain.id}]
 				</h2>	
-				<form:errors path="version" cssClass="validationError"/>
-					
+				<form:errors path="version" cssClass="validationError"/>				
 				<p> 
 					<label class="small"><spring:message code="act.year" text="Year"/></label>
 					<form:select id="readonly_year" path="year">

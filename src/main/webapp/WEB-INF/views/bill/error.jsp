@@ -312,4 +312,13 @@
 				<p></p>
 			</div>
 	</c:when>
+	<c:when test="${empty errorcode}">
+		<div class="toolTip tpRed clearfix">
+			<p>
+				<img src="./resources/images/template/icons/light-bulb-off.png">
+				<spring:message code="bill.errorcode.someerror" text="Some error occured.. Please contact support."/>
+			</p>
+			<p></p>
+		</div>
+	</c:when>
 </c:choose>

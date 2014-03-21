@@ -58,6 +58,7 @@ import org.mkcl.els.domain.PrintRequisition;
 import org.mkcl.els.domain.Query;
 import org.mkcl.els.domain.ReferencedEntity;
 import org.mkcl.els.domain.Role;
+import org.mkcl.els.domain.Section;
 import org.mkcl.els.domain.Session;
 import org.mkcl.els.domain.SessionType;
 import org.mkcl.els.domain.Status;
@@ -142,7 +143,12 @@ public class BillController extends GenericController<Bill> {
 			model.addAttribute("deviceTypeType",deviceType.getType());
 			/**** House Types ****/
 			List<HouseType> houseTypes = new ArrayList<HouseType>();
-			String houseType = this.getCurrentUser().getHouseType();
+			String houseType = null;
+			if(isMinister) {
+				houseType = ApplicationConstants.BOTH_HOUSE;
+			} else {
+				houseType = this.getCurrentUser().getHouseType();
+			}
 			if(houseType.equals(ApplicationConstants.LOWER_HOUSE)){
 				houseTypes = HouseType.findAllByFieldName(HouseType.class, "type",houseType,"name",ApplicationConstants.ASC, locale);
 			}else if(houseType.equals(ApplicationConstants.UPPER_HOUSE)){
@@ -151,9 +157,13 @@ public class BillController extends GenericController<Bill> {
 				houseTypes = HouseType.findAll(HouseType.class, "type", ApplicationConstants.ASC, locale);
 			}
 			model.addAttribute("houseTypes", houseTypes);
-			if(houseType.equals(ApplicationConstants.BOTH_HOUSE)){
-				houseType = ApplicationConstants.LOWER_HOUSE;
-			}
+			if(houseType.equals(ApplicationConstants.BOTH_HOUSE)) {
+				if(isMinister){
+					houseType = this.getCurrentUser().getHouseType();
+				} else {
+					houseType = ApplicationConstants.LOWER_HOUSE;
+				}
+			}			
 			model.addAttribute("houseType",houseType);			
 			/**** Latest Session of a House Type ****/
 			HouseType authUserHouseType=HouseType.findByFieldName(HouseType.class, "type",houseType, locale);
@@ -223,22 +233,22 @@ public class BillController extends GenericController<Bill> {
 										}
 									}
 									model.addAttribute("status",status);
-									/**** translation status filter in case of assistant processing ****/
-									if(userGroupType.equals(ApplicationConstants.ASSISTANT)) {
-										CustomParameter translationStatusesParameter = CustomParameter.findByName(CustomParameter.class, "BILL_TRANSLATION_FILTER_STATUSES", "");
-										if(translationStatusesParameter!=null) {
-											List<Status> translationStatuses = new ArrayList<Status>();
-											try {
-												translationStatuses = Status.findStatusContainedIn(translationStatusesParameter.getValue(),locale);
-											} catch (ELSException e) {
-												// TODO Auto-generated catch block
-												logger.debug("populateNew", e);
-												model.addAttribute("error",e.getParameter());
-												e.printStackTrace();
-											}
-											model.addAttribute("translationStatuses", translationStatuses);
-										}										
-									}
+//									/**** translation status filter in case of assistant processing ****/
+//									if(userGroupType.equals(ApplicationConstants.ASSISTANT)) {
+//										CustomParameter translationStatusesParameter = CustomParameter.findByName(CustomParameter.class, "BILL_TRANSLATION_FILTER_STATUSES", "");
+//										if(translationStatusesParameter!=null) {
+//											List<Status> translationStatuses = new ArrayList<Status>();
+//											try {
+//												translationStatuses = Status.findStatusContainedIn(translationStatusesParameter.getValue(),locale);
+//											} catch (ELSException e) {
+//												// TODO Auto-generated catch block
+//												logger.debug("populateNew", e);
+//												model.addAttribute("error",e.getParameter());
+//												e.printStackTrace();
+//											}
+//											model.addAttribute("translationStatuses", translationStatuses);
+//										}										
+//									}
 									break;
 								}
 							}
@@ -519,7 +529,6 @@ public class BillController extends GenericController<Bill> {
 			model.addAttribute("role",role);
 			request.getSession().removeAttribute("role");
 		}
-		
 		/****UserGroupType****/
 		String usergroupType=request.getParameter("usergroupType");
 		if(usergroupType!=null){
@@ -573,26 +582,58 @@ public class BillController extends GenericController<Bill> {
 			}
 			model.addAttribute("memberNames",memberNames);
 			/**** Constituency ****/
-			Long houseId=selectedSession.getHouse().getId();
-			MasterVO constituency=null;
-			if(houseType.getType().equals("lowerhouse")){
-				if(member != null){
-					constituency=Member.findConstituencyByAssemblyId(member.getId(), houseId);
-					model.addAttribute("constituency",constituency.getName());
+			if(!deviceType.getType().trim().equals(ApplicationConstants.GOVERNMENT_BILL)){
+				Long houseId=selectedSession.getHouse().getId();
+				MasterVO constituency=null;
+				if(houseType.getType().equals("lowerhouse")){
+					if(member != null){
+						constituency=Member.findConstituencyByAssemblyId(member.getId(), houseId);
+						model.addAttribute("constituency",constituency.getName());
+					}
+				}else if(houseType.getType().equals("upperhouse")){
+					Date currentDate=new Date();
+					String date=FormaterUtil.getDateFormatter("en_US").format(currentDate);
+					if(member != null){
+						constituency=Member.findConstituencyByCouncilDates(member.getId(), houseId, "DATE", date, date);
+						model.addAttribute("constituency",constituency.getName());
+					}
 				}
-			}else if(houseType.getType().equals("upperhouse")){
-				Date currentDate=new Date();
-				String date=FormaterUtil.getDateFormatter("en_US").format(currentDate);
-				if(member != null){
-					constituency=Member.findConstituencyByCouncilDates(member.getId(), houseId, "DATE", date, date);
-					model.addAttribute("constituency",constituency.getName());
-				}
-			}
+			}			
 		}
 		/**** Ministries ****/
+		Session ministrySession = null;
+		List<MemberMinister> memberMinisters = null;
+		if(deviceType.getType().trim().equals(ApplicationConstants.GOVERNMENT_BILL)) {
+			memberMinisters=MemberMinister.findAssignedMemberMinisterOfMemberInSession(member, selectedSession, locale);
+			if(memberMinisters!=null && !memberMinisters.isEmpty()) {
+				ministrySession = selectedSession;
+			} else {
+				if(selectedSession.findHouseType().equals(ApplicationConstants.LOWER_HOUSE)) {
+					try {
+						ministrySession = Session.find(selectedSession.getYear(), selectedSession.getType().getType(), ApplicationConstants.UPPER_HOUSE);
+						if(ministrySession!=null) {
+							memberMinisters=MemberMinister.findAssignedMemberMinisterOfMemberInSession(member, ministrySession, locale);
+						}
+					} catch (ELSException e) {
+						e.printStackTrace();
+					}
+				} else if(selectedSession.findHouseType().equals(ApplicationConstants.UPPER_HOUSE)) {
+					try {
+						ministrySession = Session.find(selectedSession.getYear(), selectedSession.getType().getType(), ApplicationConstants.LOWER_HOUSE);
+						if(ministrySession!=null) {
+							memberMinisters=MemberMinister.findAssignedMemberMinisterOfMemberInSession(member, ministrySession, locale);
+						}
+					} catch (ELSException e) {
+						e.printStackTrace();
+					}
+				}
+			}
+		} else {
+			ministrySession = selectedSession;
+		}
 		Date rotationOrderPubDate=null;
 		CustomParameter serverDateFormat = CustomParameter.findByName(CustomParameter.class, "DB_DATEFORMAT", "");
-		String strRotationOrderPubDate = selectedSession.getParameter("questions_starred_rotationOrderPublishingDate");
+		String strRotationOrderPubDate = ministrySession.getParameter("questions_starred_rotationOrderPublishingDate");
 		if(strRotationOrderPubDate!=null){
 			try {
 				rotationOrderPubDate = FormaterUtil.getDateFormatter(serverDateFormat.getValue(), "en_US").parse(strRotationOrderPubDate);
@@ -628,21 +669,22 @@ public class BillController extends GenericController<Bill> {
 							model.addAttribute("errorcode", "bill_designations_submissionforanyministry_notset");
 							return;
 						}
-						List<MemberMinister> memberMinisters=MemberMinister.findAssignedMemberMinisterOfMemberInSession(member, selectedSession, locale);
-						List<Ministry> assignedMinistries=new ArrayList<Ministry>();								
-						for(MemberMinister i:memberMinisters){
-							if(i.getMinistry()!=null) {
-								assignedMinistries.add(i.getMinistry());
-							}	
-							if(i.getDesignation()!=null) {
-								for(String d: designationsAllowedForAccessingOtherMinistriesParameter.getValue().split("#")) {
-									if(i.getDesignation().getName().equals(d)) {
-										isAllowedToAccessOtherMinistries = true;
-										break;
-									}
-								}								
+						List<Ministry> assignedMinistries=new ArrayList<Ministry>();
+						if(memberMinisters!=null) {
+							for(MemberMinister i:memberMinisters){
+								if(i.getMinistry()!=null) {
+									assignedMinistries.add(i.getMinistry());
+								}	
+								if(i.getDesignation()!=null) {
+									for(String d: designationsAllowedForAccessingOtherMinistriesParameter.getValue().split("#")) {
+										if(i.getDesignation().getName().equals(d)) {
+											isAllowedToAccessOtherMinistries = true;
+											break;
+										}
+									}								
+								}
 							}
-						}						
+						}												
 						//setting first member ministry as selected ministry by default
 						if(!assignedMinistries.isEmpty()) {
 							domain.setMinistry(assignedMinistries.get(0));
@@ -651,7 +693,7 @@ public class BillController extends GenericController<Bill> {
 							List<Ministry> totalMinistries = new ArrayList<Ministry>();
 							totalMinistries.addAll(assignedMinistries);
 							try {
-								List<Ministry> otherMinistries = Ministry.findMinistriesAssignedToGroups(houseType, sessionYear, sessionType, locale);
+								List<Ministry> otherMinistries = Ministry.findMinistriesAssignedToGroups(ministrySession.getHouse().getType(), ministrySession.getYear(), ministrySession.getType(), locale);
 								for(Ministry m: otherMinistries) {
 									boolean isRepeated = false;
 									for(Ministry mi: assignedMinistries) {
@@ -927,36 +969,68 @@ public class BillController extends GenericController<Bill> {
 			model.addAttribute("memberNames",memberNames);
 		}		
 		/**** Constituency ****/
-		if(selectedSession.getHouse()==null) {
-			logger.error("house is not set for session of this bill having id="+domain.getId()+".");
-			model.addAttribute("errorcode", "house_null");
-			return;
-		}
-		Long houseId=selectedSession.getHouse().getId();
-		MasterVO constituency=null;
-		if(houseType.getType().equals(ApplicationConstants.LOWER_HOUSE)){
-			constituency=Member.findConstituencyByAssemblyId(member.getId(), houseId);
-			
-		}else if(houseType.getType().equals(ApplicationConstants.UPPER_HOUSE)){
-			Date currentDate=new Date();
-			String date=FormaterUtil.getDateFormatter("en_US").format(currentDate);
-			constituency=Member.findConstituencyByCouncilDates(member.getId(), houseId, "DATE", date, date);
-		}
-		if(constituency==null) {
-			logger.error("constituency is not set for member of this bill having id="+domain.getId()+".");
-			model.addAttribute("errorcode", "constituency_null");
-			return;
-		}
-		model.addAttribute("constituency",constituency.getName());
+		if(!deviceType.getType().trim().equals(ApplicationConstants.GOVERNMENT_BILL)){
+			if(selectedSession.getHouse()==null) {
+				logger.error("house is not set for session of this bill having id="+domain.getId()+".");
+				model.addAttribute("errorcode", "house_null");
+				return;
+			}
+			Long houseId=selectedSession.getHouse().getId();
+			MasterVO constituency=null;
+			if(houseType.getType().equals(ApplicationConstants.LOWER_HOUSE)){
+				constituency=Member.findConstituencyByAssemblyId(member.getId(), houseId);
+				
+			}else if(houseType.getType().equals(ApplicationConstants.UPPER_HOUSE)){
+				Date currentDate=new Date();
+				String date=FormaterUtil.getDateFormatter("en_US").format(currentDate);
+				constituency=Member.findConstituencyByCouncilDates(member.getId(), houseId, "DATE", date, date);
+			}
+			if(constituency==null) {
+				logger.error("constituency is not set for member of this bill having id="+domain.getId()+".");
+				model.addAttribute("errorcode", "constituency_null");
+				return;
+			}
+			model.addAttribute("constituency",constituency.getName());
+		}		
 		/**** Ministries ****/
-		String strRotationOrderPubDate = selectedSession.getParameter("questions_starred_rotationOrderPublishingDate");
+		Session ministrySession = null;
+		List<MemberMinister> memberMinisters = null;
+		if(deviceType.getType().trim().equals(ApplicationConstants.GOVERNMENT_BILL)) {
+			memberMinisters=MemberMinister.findAssignedMemberMinisterOfMemberInSession(member, selectedSession, locale);
+			if(memberMinisters!=null && !memberMinisters.isEmpty()) {
+				ministrySession = selectedSession;
+			} else {
+				if(selectedSession.findHouseType().equals(ApplicationConstants.LOWER_HOUSE)) {
+					try {
+						ministrySession = Session.find(selectedSession.getYear(), selectedSession.getType().getType(), ApplicationConstants.UPPER_HOUSE);
+						if(ministrySession!=null) {
+							memberMinisters=MemberMinister.findAssignedMemberMinisterOfMemberInSession(member, ministrySession, locale);
+						}
+					} catch (ELSException e) {
+						e.printStackTrace();
+					}
+				} else if(selectedSession.findHouseType().equals(ApplicationConstants.UPPER_HOUSE)) {
+					try {
+						ministrySession = Session.find(selectedSession.getYear(), selectedSession.getType().getType(), ApplicationConstants.LOWER_HOUSE);
+						if(ministrySession!=null) {
+							memberMinisters=MemberMinister.findAssignedMemberMinisterOfMemberInSession(member, ministrySession, locale);
+						}
+					} catch (ELSException e) {
+						e.printStackTrace();
+					}
+				}
+			}
+		} else {
+			ministrySession = selectedSession;
+		}
+		String strRotationOrderPubDate = ministrySession.getParameter("questions_starred_rotationOrderPublishingDate");
 		if(strRotationOrderPubDate==null) {
-			logger.error("Parameter 'questions_starred_rotationOrderPublishingDate' not set in session with Id:"+selectedSession.getId());
+			logger.error("Parameter 'questions_starred_rotationOrderPublishingDate' not set in session with Id:"+ministrySession.getId());
 			model.addAttribute("errorcode", "rotationorderpubdate_notset");
 			return;
 		}
 		if(strRotationOrderPubDate.isEmpty()) {
-			logger.error("Parameter 'questions_starred_rotationOrderPublishingDate' not set in session with Id:"+selectedSession.getId());
+			logger.error("Parameter 'questions_starred_rotationOrderPublishingDate' not set in session with Id:"+ministrySession.getId());
 			model.addAttribute("errorcode", "rotationorderpubdate_notset");
 			return;
 		}
@@ -996,7 +1070,6 @@ public class BillController extends GenericController<Bill> {
 						model.addAttribute("errorcode", "bill_designations_submissionforanyministry_notset");
 						return;
 					}					
-					List<MemberMinister> memberMinisters=MemberMinister.findAssignedMemberMinisterOfMemberInSession(member, selectedSession, locale);
 					List<Ministry> assignedMinistries=new ArrayList<Ministry>();								
 					for(MemberMinister i:memberMinisters){
 						if(i.getMinistry()!=null) {
@@ -1015,7 +1088,7 @@ public class BillController extends GenericController<Bill> {
 						List<Ministry> totalMinistries = new ArrayList<Ministry>();
 						totalMinistries.addAll(assignedMinistries);
 						try {
-							List<Ministry> otherMinistries = Ministry.findMinistriesAssignedToGroups(houseType, sessionYear, sessionType, locale);
+							List<Ministry> otherMinistries = Ministry.findMinistriesAssignedToGroups(ministrySession.getHouse().getType(), ministrySession.getYear(), ministrySession.getType(), locale);
 							for(Ministry m: otherMinistries) {
 								boolean isRepeated = false;
 								for(Ministry mi: assignedMinistries) {
@@ -5721,5 +5794,76 @@ public class BillController extends GenericController<Bill> {
 			model.addAttribute("errorcode", "billnotfound");			
 		}
 		return resultPath;
+	}	
+	
+	@RequestMapping(value="/addSection",method=RequestMethod.GET)
+	public String addSection(final HttpServletRequest request, final ModelMap model) {
+		String language = request.getParameter("language");
+		String selectedText = request.getParameter("selectedText");
+		if(language!=null && !language.isEmpty()) {
+			model.addAttribute("language", language);		
+			if(selectedText!=null && !selectedText.isEmpty()) {
+				model.addAttribute("selectedText", selectedText);
+			}						
+			return "bill/addsection";
+		} else {
+			logger.error("/**** Check Request Parameters for null or empty values ****/");				
+			return "bill/error";
+		}				
+	}
+	
+	@RequestMapping(value="/addSection",method=RequestMethod.POST)
+	public @ResponseBody String updateSection(final HttpServletRequest request, final ModelMap model) {
+		String billId = request.getParameter("billId");
+		String language = request.getParameter("language");
+		String sectionNumber = request.getParameter("sectionNumber");
+		String sectionText = request.getParameter("sectionText");
+		String returnValue = "error";
+		if(billId!=null && !billId.isEmpty() && language!=null && !language.isEmpty() 
+				&& sectionNumber!=null && !sectionNumber.isEmpty() && sectionText!=null && !sectionText.isEmpty()) {
+			/**** Server encoding request parameter ****/
+			CustomParameter deploymentServerParameter = CustomParameter.findByFieldName(CustomParameter.class, "name", "DEPLOYMENT_SERVER", "");
+			if(deploymentServerParameter!=null) {
+				if(deploymentServerParameter.getValue()!=null) {
+					if(deploymentServerParameter.getValue().equals("TOMCAT")) {
+						try {
+							sectionNumber = new String(sectionNumber.getBytes("ISO-8859-1"),"UTF-8");	
+							sectionText = new String(sectionText.getBytes("ISO-8859-1"),"UTF-8");
+							Bill bill = Bill.findById(Bill.class, Long.parseLong(billId));
+							if(bill!=null) {
+								Section section = Bill.findSection(bill.getId(), language, sectionNumber);
+								if(section==null) {
+									section = new Section();
+									section.setLocale(bill.getLocale());
+									section.setLanguage(language);
+									section.setNumber(sectionNumber);
+									section.setText(sectionText);
+									if(bill.getSections()!=null) {
+										bill.getSections().add(section);
+										
+									} else {
+										List<Section> sections = new ArrayList<Section>();
+										sections.add(section);
+										bill.setSections(sections);
+									}
+									bill.simpleMerge();
+									returnValue = "added";
+								} else {
+									section.setText(sectionText);
+									section.merge();
+									
+									returnValue = "updated";
+								}											
+							}							
+						} catch (UnsupportedEncodingException e) {
+							e.printStackTrace();									
+						} catch (ELSException e) {
+							e.printStackTrace();															
+						}
+					}
+				}
+			}
+		}
+		return returnValue;
 	}
 }

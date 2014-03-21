@@ -5,7 +5,6 @@
 		<title><spring:message code="bill" text="Bill Information System"/></title>
 		<script type="text/javascript">
 		$(document).ready(function(){
-			alert("isPressCopyRemovable: " + $('#isPressCopyRemovable').val());
 			$("#save").click(function(e){
 				//removing <p><br></p>  from wysiwyg editor
 				$(".wysiwyg").each(function(){

@@ -325,7 +325,7 @@ public class Ballot extends BaseDomain implements Serializable {
 			preBallotResolution.setBallotEntries(preBallotEntries);
 			preBallotResolution.persist();
 		} else if(deviceType.getType().startsWith(ApplicationConstants.NONOFFICIAL_BILL)){
-			List<Bill> bills = Ballot.computeBillNonOfficial(session, answeringDate, locale);
+			List<Bill> bills = Ballot.computeBillNonOfficial(session, answeringDate, true, locale);
 			PreBallot preBallotBill = new PreBallot(session, deviceType, answeringDate, new Date(), locale);
 			List<BallotEntry> preBallotEntries = new ArrayList<BallotEntry>();
 			
@@ -951,7 +951,7 @@ public class Ballot extends BaseDomain implements Serializable {
 		
 	//=============== ASSEMBLY: NONOFFICIAL BILL BALLOT ==========
 	public Ballot createBillNonOfficialBallot() throws ELSException {
-		return this.createBallotBillNonOfficial();
+		return this.createBallotBillNonOfficial_UniqueSubject();
 	}
 		
 	/**
@@ -1060,8 +1060,8 @@ public class Ballot extends BaseDomain implements Serializable {
 		return ballot;
 	}
 	
-	public Ballot createBallotBillNonOfficial() throws ELSException{
-		Ballot ballot = Ballot.find(this.getSession(), this.getDeviceType(), 
+	public Ballot createBallotBillNonOfficial_UniqueMember() throws ELSException{
+		Ballot ballot = Ballot.find(this.getSession(), this.getDeviceType(),
 				this.getAnsweringDate(), this.getLocale());
 		
 		if(ballot == null) {
@@ -1085,6 +1085,41 @@ public class Ballot extends BaseDomain implements Serializable {
 					this.getLocale());
 			this.setBallotEntries(ballotEntries);
 			ballot = (Ballot) this.persist();	
+		}
+		
+		return ballot;
+	}
+	
+	public Ballot createBallotBillNonOfficial_UniqueSubject() throws ELSException {
+		Ballot ballot = Ballot.find(this.getSession(), this.getDeviceType(), 
+				this.getAnsweringDate(), this.getLocale());
+		
+		if(ballot == null) {
+			List<Bill> bills = Ballot.computeBillNonOfficial(this.getSession(), this.getAnsweringDate(), false, this.getLocale());
+			List<Bill> randomizedList = Ballot.randomizeBills(bills);
+			// Read the constant 5 as a configurable parameter
+			CustomParameter ballotOutputCountCustomParameter =  CustomParameter.findByFieldName(CustomParameter.class, "name", ApplicationConstants.BILL_NONOFFICIAL_BALLOT_OUTPUT_COUNT, "");
+			Integer ballotOutputCount = null;
+			if(ballotOutputCountCustomParameter != null){
+				ballotOutputCount = new Integer(ballotOutputCountCustomParameter.getValue());
+			}else{
+				ballotOutputCount = 6;
+			}			
+			List<Bill> selectedList = Ballot.selectBillsForBallot(randomizedList, ballotOutputCount);
+			List<BallotEntry> ballotEntries = new ArrayList<BallotEntry>();				
+			for(Bill b : selectedList) {				
+				BallotEntry ballotEntry = new BallotEntry();
+				ballotEntry.setMember(b.getPrimaryMember());
+				ballotEntry.setLocale(b.getLocale());					
+				List<DeviceSequence> deviceSequence = new ArrayList<DeviceSequence>(1);
+				deviceSequence.add(new DeviceSequence(b, b.getLocale()));
+				ballotEntry.setDeviceSequences(deviceSequence);
+				ballotEntries.add(ballotEntry);					
+				deviceSequence = null;
+				ballotEntry = null;								
+			}
+			this.setBallotEntries(ballotEntries);
+			ballot = (Ballot) this.persist();
 		}
 		
 		return ballot;
@@ -1460,6 +1495,19 @@ public class Ballot extends BaseDomain implements Serializable {
 		return selectedMList;
 	}
 	
+	/**
+	 * A subset of eligible Bills of size @param maxBills are taken in Ballot.
+	 */
+	private static List<Bill> selectBillsForBallot(final List<Bill> bills,
+			final Integer maxBills) {
+		List<Bill> selectedBList = new ArrayList<Bill>();
+		selectedBList.addAll(bills);
+		if(selectedBList.size() >= maxBills) {
+			selectedBList = selectedBList.subList(0, maxBills); 
+		}
+		return selectedBList;
+	}
+	
 	private static List<BallotEntry> createMemberBallotEntries(final List<Member> members,
 			final String locale) {
 		List<BallotEntry> ballotEntries = new ArrayList<BallotEntry>();
@@ -1716,7 +1764,7 @@ public class Ballot extends BaseDomain implements Serializable {
 	}
 	
 	private static List<Bill> computeBillNonOfficial(final Session session,
-			final Date answeringDate,
+			final Date answeringDate, final Boolean isPreballot,
 			final String locale) throws ELSException {
 		DeviceType deviceType = DeviceType.findByType(
 				ApplicationConstants.NONOFFICIAL_BILL, locale);
@@ -1728,9 +1776,21 @@ public class Ballot extends BaseDomain implements Serializable {
 		Status[] recommendationStatuses = new Status[] { INTRODUCED };
 		
 		List<Bill> bills = Bill.findForBallot(session, deviceType, 
-				answeringDate, internalStatuses, recommendationStatuses, false, ApplicationConstants.ASC, locale);
+				answeringDate, internalStatuses, recommendationStatuses, isPreballot, false, ApplicationConstants.ASC, locale);
 		
 		return bills;
+	}
+	
+	/**
+	 * Does not shuffle in place, returns a new list.
+	 */
+	private static List<Bill> randomizeBills(final List<Bill> bills) {
+		List<Bill> newBills = new ArrayList<Bill>();
+		newBills.addAll(bills);
+		Long seed = System.nanoTime();
+		Random rnd = new Random(seed);
+		Collections.shuffle(newBills, rnd);
+		return newBills;
 	}
 	
 	/**

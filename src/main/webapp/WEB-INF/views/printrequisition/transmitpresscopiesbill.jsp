@@ -168,7 +168,7 @@
 			$('#submitRequisitionButtonsDiv').hide();			
 		});
 		
-		$('#checkFoPressCopies').click(function(){
+		$('#checkForPressCopies').click(function(){
 			if($('#selectedBillNumber').val()=='') {
 				alert($("#emptyBillNumberMsg").val());
 				return false;
@@ -261,7 +261,7 @@
 		</form:select>
 	</p>
 	<p align="right">
-		<input id="checkFoPressCopies" type="button" value="<spring:message code='printrequisition.checkFoPressCopies' text='Check For Press Copies'/>" class="butDef">
+		<input id="checkForPressCopies" type="button" value="<spring:message code='printrequisition.checkForPressCopies' text='Check For Press Copies'/>" class="butDef">
 	</p>
 	<div id="pressCopiesDiv" style="display:none;">
 	</div>	

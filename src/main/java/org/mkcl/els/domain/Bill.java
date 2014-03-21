@@ -221,6 +221,13 @@ public class Bill extends Device implements Serializable {
     joinColumns={@JoinColumn(name="bill_id", referencedColumnName="id")},
     inverseJoinColumns={@JoinColumn(name="revised_content_draft_id", referencedColumnName="id")})
     private List<TextDraft> revisedContentDrafts;
+    
+    /** The sections. */
+    @OneToMany(fetch=FetchType.LAZY, cascade=CascadeType.ALL, orphanRemoval=true)
+    @JoinTable(name="bills_sections",
+    joinColumns={@JoinColumn(name="bill_id", referencedColumnName="id")},
+    inverseJoinColumns={@JoinColumn(name="section_id", referencedColumnName="id")})
+    private List<Section> sections;
 
     /** The statement of object and reason. */
     @OneToMany(fetch=FetchType.LAZY, cascade=CascadeType.ALL, orphanRemoval=true)
@@ -469,6 +476,9 @@ public class Bill extends Device implements Serializable {
     
     @Override
     public Bill merge() {
+    	//handle for sections
+    	Bill existingBill = Bill.findById(Bill.class, this.getId());
+    	this.setSections(existingBill.getSections());
     	Bill bill = null;
     	if(this.getStatus().getType().equals(ApplicationConstants.BILL_FINAL_ADMISSION) 
     			&& this.getInternalStatus().getType().equals(ApplicationConstants.BILL_FINAL_ADMISSION)
@@ -598,6 +608,10 @@ public class Bill extends Device implements Serializable {
             	draft.setContentDrafts(this.addDraftsOfGivenTypeForBillDraft("contentDrafts", this.getRevisedContentDrafts()));
             } else {
             	draft.setContentDrafts(this.addDraftsOfGivenTypeForBillDraft(this.getContentDrafts()));
+            }
+            
+            if(this.getSections()!= null) {            	
+            	draft.setSections(this.addSectionsForBillDraft(this.getSections()));
             }
             
             if(this.getRevisedStatementOfObjectAndReasonDrafts()!= null && !this.getRevisedStatementOfObjectAndReasonDrafts().isEmpty()) {
@@ -730,6 +744,23 @@ public class Bill extends Device implements Serializable {
     		}
     	}    	
     	return draftsOfGivenTypeForBillDraft;
+    }
+    
+    private List<Section> addSectionsForBillDraft(List<Section> sections) {
+    	if(sections!=null) {
+    		List<Section> sectionDrafts = new ArrayList<Section>();    	
+        	for(Section section : sections) {
+        		Section sectionDraft = new Section();
+        		sectionDraft.setNumber(section.getNumber());
+        		sectionDraft.setLanguage(section.getLanguage());
+        		sectionDraft.setText(section.getText());
+        		sectionDraft.setLocale(section.getLocale());
+        		sectionDrafts.add(sectionDraft);
+        	}
+        	return sectionDrafts;
+    	} else {
+    		return null;
+    	}    	
     }
     
     public static List<Bill> findAllByMember(final Session session,
@@ -1109,10 +1140,11 @@ public class Bill extends Device implements Serializable {
 			final Date answeringDate,
 			final Status[] internalStatuses,
 			final Status[] recommendationstatuses,
+			final Boolean isPreballot,
 			final Boolean hasParent,
 			final String sortOrder,
 			final String locale) throws ELSException {
-		return getBillRepository().findForBallot(session, deviceType, answeringDate, internalStatuses, recommendationstatuses, hasParent, sortOrder, locale);
+		return getBillRepository().findForBallot(session, deviceType, answeringDate, internalStatuses, recommendationstatuses, isPreballot, hasParent, sortOrder, locale);
 	}
 	
 	/**
@@ -1343,7 +1375,11 @@ public class Bill extends Device implements Serializable {
 		return auxiliaryWorkflowStatus;
 	}
 	
-//-----------------------------Getters And Setters--------------------------------
+	public static Section findSection(final Long billId, final String language, final String sectionNumber) throws ELSException {
+		return getBillRepository().findSection(billId, language, sectionNumber);
+	}
+	
+	//-----------------------------Getters And Setters--------------------------------
     
     public void setPriority(Integer priority){
     	this.priority = priority;
@@ -1626,6 +1662,14 @@ public class Bill extends Device implements Serializable {
 
 	public void setRevisedContentDrafts(List<TextDraft> revisedContentDrafts) {
 		this.revisedContentDrafts = revisedContentDrafts;
+	}
+
+	public List<Section> getSections() {
+		return sections;
+	}
+
+	public void setSections(List<Section> sections) {
+		this.sections = sections;
 	}
 
 	public List<TextDraft> getStatementOfObjectAndReasonDrafts() {

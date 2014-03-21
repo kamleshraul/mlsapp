@@ -50,6 +50,13 @@ public class BillDraft extends BaseDomain implements Serializable{
     inverseJoinColumns={@JoinColumn(name="content_draft_id", referencedColumnName="id")})
     private List<TextDraft> contentDrafts;
     
+    /** The sections. */
+    @OneToMany(fetch=FetchType.LAZY, cascade=CascadeType.ALL, orphanRemoval=true)
+    @JoinTable(name="billdrafts_sections",
+    joinColumns={@JoinColumn(name="bill_draft_id", referencedColumnName="id")},
+    inverseJoinColumns={@JoinColumn(name="section_id", referencedColumnName="id")})
+    private List<Section> sections;
+    
     /** The statement of object and reason. */
     @OneToMany(fetch=FetchType.LAZY, cascade=CascadeType.ALL, orphanRemoval=true)
     @JoinTable(name="billdrafts_statementofobjectandreasondrafts",
@@ -189,6 +196,14 @@ public class BillDraft extends BaseDomain implements Serializable{
 
 	public void setContentDrafts(List<TextDraft> contentDrafts) {
 		this.contentDrafts = contentDrafts;
+	}
+
+	public List<Section> getSections() {
+		return sections;
+	}
+
+	public void setSections(List<Section> sections) {
+		this.sections = sections;
 	}
 
 	public List<TextDraft> getStatementOfObjectAndReasonDrafts() {

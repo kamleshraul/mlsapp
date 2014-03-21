@@ -836,7 +836,7 @@
 					</p>
 					
 					<c:if test="${selectedDeviceTypeForBill == 'bills_government'}">
-					<p>
+					<p style="display: none;">
 						<label class="small"><spring:message code="bill.introducingHouseType" text="Introducing House Type"/></label>
 						<form:select id="introducingHouseType" class="sSelect" path="introducingHouseType">
 						<c:forEach var="i" items="${introducingHouseTypes}">							

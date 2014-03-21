@@ -199,8 +199,7 @@
 	            $("#sendGreenCopyForEndorsementForm").serialize(),  
 	            function(data){	
 					$('#endorsementCopiesDiv').empty();
-					$('#endorsementCopiesDiv').html(data);
-					alert($('#isAlreadySentForEndorsement').val());
+					$('#endorsementCopiesDiv').html(data);					
 					if($('#isAlreadySentForEndorsement').val()=='true') {
 						$('#submitRequisitionButtonsDiv').hide();
 					} else {

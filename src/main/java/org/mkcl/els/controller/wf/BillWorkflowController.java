@@ -1257,36 +1257,68 @@ public class BillWorkflowController extends BaseController {
 			model.addAttribute("memberNames",memberNames);
 		}		
 		/**** Constituency ****/
-		if(selectedSession.getHouse()==null) {
-			logger.error("house is not set for session of this bill having id="+domain.getId()+".");
-			model.addAttribute("errorcode", "house_null");
-			return;
-		}
-		Long houseId=selectedSession.getHouse().getId();
-		MasterVO constituency=null;
-		if(houseType.getType().equals(ApplicationConstants.LOWER_HOUSE)){
-			constituency=Member.findConstituencyByAssemblyId(member.getId(), houseId);
-			
-		}else if(houseType.getType().equals(ApplicationConstants.UPPER_HOUSE)){
-			Date currentDate=new Date();
-			String date=FormaterUtil.getDateFormatter("en_US").format(currentDate);
-			constituency=Member.findConstituencyByCouncilDates(member.getId(), houseId, "DATE", date, date);
-		}
-		if(constituency==null) {
-			logger.error("constituency is not set for member of this bill having id="+domain.getId()+".");
-			model.addAttribute("errorcode", "constituency_null");
-			return;
-		}
-		model.addAttribute("constituency",constituency.getName());
+		if(!deviceType.getType().trim().equals(ApplicationConstants.GOVERNMENT_BILL)){
+			if(selectedSession.getHouse()==null) {
+				logger.error("house is not set for session of this bill having id="+domain.getId()+".");
+				model.addAttribute("errorcode", "house_null");
+				return;
+			}
+			Long houseId=selectedSession.getHouse().getId();
+			MasterVO constituency=null;
+			if(houseType.getType().equals(ApplicationConstants.LOWER_HOUSE)){
+				constituency=Member.findConstituencyByAssemblyId(member.getId(), houseId);
+				
+			}else if(houseType.getType().equals(ApplicationConstants.UPPER_HOUSE)){
+				Date currentDate=new Date();
+				String date=FormaterUtil.getDateFormatter("en_US").format(currentDate);
+				constituency=Member.findConstituencyByCouncilDates(member.getId(), houseId, "DATE", date, date);
+			}
+			if(constituency==null) {
+				logger.error("constituency is not set for member of this bill having id="+domain.getId()+".");
+				model.addAttribute("errorcode", "constituency_null");
+				return;
+			}
+			model.addAttribute("constituency",constituency.getName());
+		}		
 		/**** Ministries ****/
-		String strRotationOrderPubDate = selectedSession.getParameter("questions_starred_rotationOrderPublishingDate");
+		Session ministrySession = null;
+		List<MemberMinister> memberMinisters = null;
+		if(deviceType.getType().trim().equals(ApplicationConstants.GOVERNMENT_BILL)) {
+			memberMinisters=MemberMinister.findAssignedMemberMinisterOfMemberInSession(member, selectedSession, locale);
+			if(memberMinisters!=null && !memberMinisters.isEmpty()) {
+				ministrySession = selectedSession;
+			} else {
+				if(selectedSession.findHouseType().equals(ApplicationConstants.LOWER_HOUSE)) {
+					try {
+						ministrySession = Session.find(selectedSession.getYear(), selectedSession.getType().getType(), ApplicationConstants.UPPER_HOUSE);
+						if(ministrySession!=null) {
+							memberMinisters=MemberMinister.findAssignedMemberMinisterOfMemberInSession(member, ministrySession, locale);
+						}
+					} catch (ELSException e) {
+						e.printStackTrace();
+					}
+				} else if(selectedSession.findHouseType().equals(ApplicationConstants.UPPER_HOUSE)) {
+					try {
+						ministrySession = Session.find(selectedSession.getYear(), selectedSession.getType().getType(), ApplicationConstants.LOWER_HOUSE);
+						if(ministrySession!=null) {
+							memberMinisters=MemberMinister.findAssignedMemberMinisterOfMemberInSession(member, ministrySession, locale);
+						}
+					} catch (ELSException e) {
+						e.printStackTrace();
+					}
+				}
+			}
+		} else {
+			ministrySession = selectedSession;
+		}
+		String strRotationOrderPubDate = ministrySession.getParameter("questions_starred_rotationOrderPublishingDate");
 		if(strRotationOrderPubDate==null) {
-			logger.error("Parameter 'questions_starred_rotationOrderPublishingDate' not set in session with Id:"+selectedSession.getId());
+			logger.error("Parameter 'questions_starred_rotationOrderPublishingDate' not set in session with Id:"+ministrySession.getId());
 			model.addAttribute("errorcode", "rotationorderpubdate_notset");
 			return;
 		}
 		if(strRotationOrderPubDate.isEmpty()) {
-			logger.error("Parameter 'questions_starred_rotationOrderPublishingDate' not set in session with Id:"+selectedSession.getId());
+			logger.error("Parameter 'questions_starred_rotationOrderPublishingDate' not set in session with Id:"+ministrySession.getId());
 			model.addAttribute("errorcode", "rotationorderpubdate_notset");
 			return;
 		}
@@ -1319,13 +1351,12 @@ public class BillWorkflowController extends BaseController {
 					}							
 				} else if(deviceType.getType().trim().equals(ApplicationConstants.GOVERNMENT_BILL)){
 					if(usergroupType.startsWith("member")){
-						List<MemberMinister> memberMinisters=MemberMinister.findAssignedMemberMinisterOfMemberInSession(member, selectedSession, locale);
 						/**** To check whether to populate other ministries also for this minister ****/
 						Boolean isAllowedToAccessOtherMinistries = false;
 						CustomParameter rolesAllowedForAccessingOtherMinistriesParameter = CustomParameter.findByName(CustomParameter.class, "MEMBERROLES_SUBMISSIONFORANYMINISTRY_IN_GOVERNMENT_BILL", "");
 						if(rolesAllowedForAccessingOtherMinistriesParameter != null) {
 							if(rolesAllowedForAccessingOtherMinistriesParameter.getValue() != null && !rolesAllowedForAccessingOtherMinistriesParameter.getValue().isEmpty()) {
-								List<MemberRole> memberRoles = HouseMemberRoleAssociation.findAllActiveRolesOfMemberInSession(member, selectedSession, locale);
+								List<MemberRole> memberRoles = HouseMemberRoleAssociation.findAllActiveRolesOfMemberInSession(member, ministrySession, locale);
 								for(MemberRole memberRole: memberRoles) {
 									for(String allowedRole: rolesAllowedForAccessingOtherMinistriesParameter.getValue().split("#")) {
 										if(memberRole.getName().trim().equals(allowedRole)) {
@@ -1360,7 +1391,7 @@ public class BillWorkflowController extends BaseController {
 							assignedMinistries.addAll(memberMinistries);
 							//also adding ministries that do not belong to minister adding this resolution						
 							try {
-								otherMinistries = Ministry.findMinistriesAssignedToGroups(houseType, sessionYear, sessionType, locale);
+								otherMinistries = Ministry.findMinistriesAssignedToGroups(ministrySession.getHouse().getType(), ministrySession.getYear(), ministrySession.getType(), locale);
 							} catch (ELSException e) {
 								// TODO Auto-generated catch block
 								e.printStackTrace();
@@ -1380,7 +1411,7 @@ public class BillWorkflowController extends BaseController {
 					}else{
 						List<Ministry> ministries = new ArrayList<Ministry>();
 						try {
-							ministries = Ministry.findMinistriesAssignedToGroups(houseType, sessionYear, sessionType, locale);
+							ministries = Ministry.findMinistriesAssignedToGroups(ministrySession.getHouse().getType(), ministrySession.getYear(), ministrySession.getType(), locale);
 						} catch (ELSException e) {
 							// TODO Auto-generated catch block
 							e.printStackTrace();
@@ -2069,6 +2100,23 @@ public class BillWorkflowController extends BaseController {
 			logger.error("custom parameter '"+ApplicationConstants.BILL_CHECKLIST_COUNT+"' is not set.");
 			model.addAttribute("errorcode", "BILL_CHECKLIST_COUNT_NOTSET");
 			return;
+		}
+		
+		/**** schedule 7 of constitution ****/
+		String languagesAllowedForBill = domain.getSession().getParameter(deviceType.getType().trim()+"_languagesAllowed");
+		if(languagesAllowedForBill!=null && !languagesAllowedForBill.isEmpty()) {
+			for(String language: languagesAllowedForBill.split("#")) {
+				String schedule7OfConstitutionForGivenLanguage = domain.getSession().getParameter(deviceType.getType().trim()+"_schedule7OfConstitution_"+language);
+				if(schedule7OfConstitutionForGivenLanguage!=null) {
+					model.addAttribute("schedule7OfConstitution_"+language, schedule7OfConstitutionForGivenLanguage);
+				}
+			}
+		}
+		
+		/**** instructional order ****/
+		String instructionalOrder = domain.getSession().getParameter(deviceType.getType().trim()+"_instructionalOrder");
+		if(instructionalOrder!=null) {
+			model.addAttribute("instructionalOrder", instructionalOrder);
 		}
 	}
 	

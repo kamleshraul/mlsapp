@@ -498,6 +498,21 @@
 								}});
 					        }
 						}});
+					} else {
+						$.prompt($('#submissionMsg').val(),{
+							buttons: {Ok:true, Cancel:false}, callback: function(v){
+					        if(v){
+								$.blockUI({ message: '<img src="./resources/images/waitAnimated.gif" />' });
+					        	$.post($('form').attr('action')+'?operation=submit',  
+					    	            $("form").serialize(),  
+					    	            function(data){
+					       					$('.tabContent').html(data);
+					       					$('html').animate({scrollTop:0}, 'slow');
+					       				 	$('body').animate({scrollTop:0}, 'slow');	
+					    					$.unblockUI();	   				 	   				
+					    	            });
+					        }
+						}});
 					}					
 				} else {
 					$.prompt($('#submissionMsg').val(),{
@@ -741,7 +756,7 @@
 	</p>
 	
 	<c:if test="${selectedDeviceTypeForBill == 'bills_government'}">
-	<p>
+	<p style="display: none;">
 		<label class="small"><spring:message code="bill.introducingHouseType" text="Introducing House Type"/></label>
 		<form:select id="introducingHouseType" class="sSelect" path="introducingHouseType">
 		<c:forEach var="i" items="${introducingHouseTypes}">	

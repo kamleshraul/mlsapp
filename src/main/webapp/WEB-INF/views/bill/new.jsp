@@ -478,6 +478,18 @@
 		        return false; 
 			});
 			
+			$('#submit').click(function() {
+				$.blockUI({ message: '<img src="./resources/images/waitAnimated.gif" />' });
+	        	$.post($('form').attr('action'),  
+	    	            $("form").serialize(),  
+	    	            function(data){
+	       					$('.tabContent').html(data);
+	       					$('html').animate({scrollTop:0}, 'slow');
+	       				 	$('body').animate({scrollTop:0}, 'slow');	
+	    					$.unblockUI();	   				 	   				
+	    	            });
+			});
+			
 			$("#submitbill").click(function(e){
 				//removing <p><br></p>  from wysiwyg editor
 				$(".wysiwyg").each(function(){
@@ -519,6 +531,21 @@
 							    	            });
 							        }
 								}});
+					        }
+						}});
+					} else {
+						$.prompt($('#submissionMsg').val(),{
+							buttons: {Ok:true, Cancel:false}, callback: function(v){
+					        if(v){
+								$.blockUI({ message: '<img src="./resources/images/waitAnimated.gif" />' });
+					        	$.post($('form').attr('action')+'?operation=submit',  
+					    	            $("form").serialize(),  
+					    	            function(data){
+					       					$('.tabContent').html(data);
+					       					$('html').animate({scrollTop:0}, 'slow');
+					       				 	$('body').animate({scrollTop:0}, 'slow');	
+					    					$.unblockUI();	   				 	   				
+					    	            });
 					        }
 						}});
 					}					
@@ -712,7 +739,7 @@
 		</p>
 		
 		<c:if test="${selectedDeviceTypeForBill == 'bills_government'}">
-		<p>
+		<p style="display: none;">
 			<label class="small"><spring:message code="bill.introducingHouseType" text="Introducing House Type"/></label>
 			<form:select id="introducingHouseType" class="sSelect" path="introducingHouseType">
 			<c:forEach var="i" items="${introducingHouseTypes}">	
@@ -1012,7 +1039,7 @@
 				<input id="submitbill" type="button" value="<spring:message code='bill.submitBill' text='Submit Bill'/>" class="butDef">			
 			</security:authorize>
 			<security:authorize access="hasAnyRole('MEMBER_LOWERHOUSE','MEMBER_UPPERHOUSE')">		
-				<input id="submit" type="submit" value="<spring:message code='generic.submit' text='Submit'/>" class="butDef">
+				<input id="submit" type="button" value="<spring:message code='generic.submit' text='Submit'/>" class="butDef">
 				<c:if test="${selectedDeviceTypeForBill!='bills_government'}">
 				<input id="sendforapproval" type="button" value="<spring:message code='bill.sendforapproval' text='Send For Approval'/>" class="butDef">
 				</c:if>

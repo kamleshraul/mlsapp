@@ -200,7 +200,6 @@
 	            function(data){	
 					$('#endorsementCopiesDiv').empty();
 					$('#endorsementCopiesDiv').html(data);
-					alert($('#isAlreadyTransmitted').val());
 					if($('#isAlreadyTransmitted').val()=='true') {
 						$('#submitRequisitionButtonsDiv').hide();
 					} else {
