@@ -49,6 +49,19 @@ public class LayingLetterController extends BaseController {
 		String currentHouseTypeType = request.getParameter("houseType");
 		String selectedYearStr = request.getParameter("sessionYear");
 		String selectedBillIdStr = request.getParameter("billId");
+		/**** House Types ****/
+		List<HouseType> houseTypes = HouseType.findAll(HouseType.class, "type", ApplicationConstants.ASC, locale.toString());
+		if(houseTypes==null) {
+			logger.error("**** house types are not available. ****");
+			model.addAttribute("errorcode", "HOUSETYPES_NOT_AVAILABLE");		
+			return "printrequisition/error";
+		}
+		if(houseTypes.isEmpty()) {
+			logger.error("**** house types are not available. ****");
+			model.addAttribute("errorcode", "HOUSETYPES_NOT_AVAILABLE");		
+			return "printrequisition/error";
+		}
+		model.addAttribute("houseTypes", houseTypes);
 		/**** Current HouseType ****/
 		HouseType currentHouseType = null;
 		if(currentHouseTypeType!=null) {
