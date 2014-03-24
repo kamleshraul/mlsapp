@@ -17,6 +17,7 @@ import javax.persistence.JoinColumn;
 import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
+import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
@@ -39,7 +40,7 @@ import org.springframework.beans.factory.annotation.Configurable;
 @Table(name="motions")
 @JsonIgnoreProperties({"houseType", "session", "type", 
 	"recommendationStatus", "supportingMembers",
-	"department", "drafts", "parent", "clubbedEntities"})
+	"department", "drafts", "parent", "clubbedEntities", "amendments"})
 	public class Motion extends Device implements Serializable{
 
 	
@@ -109,6 +110,13 @@ import org.springframework.beans.factory.annotation.Configurable;
 	/**** The question text. ****/
 	@Column(length=30000)
 	private String revisedDetails;
+	
+	/** The sections. */
+    @OneToMany(fetch=FetchType.LAZY, cascade=CascadeType.ALL, orphanRemoval=true)
+    @JoinTable(name="motions_amendments",
+    joinColumns={@JoinColumn(name="motion_id", referencedColumnName="id")},
+    inverseJoinColumns={@JoinColumn(name="amendment_id", referencedColumnName="id")})
+    private List<Amendment> amendments;
 
 	/** ** The Status ***. */
 
@@ -225,7 +233,7 @@ import org.springframework.beans.factory.annotation.Configurable;
 			final Integer number, final Date submissionDate, final Date creationDate,
 			final String createdBy, final Date editedOn, final String editedBy, final String editedAs,
 			final String subject, final String revisedSubject, final String details,
-			final String revisedDetails, final Status status, final Status internalStatus,
+			final String revisedDetails, final List<Amendment> amendments, final Status status, final Status internalStatus,
 			final Status recommendationStatus, final String remarks, final Member primaryMember,
 			final List<SupportingMember> supportingMembers, final Ministry ministry,
 			final Department department, final SubDepartment subDepartment,
@@ -246,6 +254,7 @@ import org.springframework.beans.factory.annotation.Configurable;
 		this.revisedSubject = revisedSubject;
 		this.details = details;
 		this.revisedDetails = revisedDetails;
+		this.amendments = amendments;
 		this.status = status;
 		this.internalStatus = internalStatus;
 		this.recommendationStatus = recommendationStatus;
@@ -593,6 +602,14 @@ import org.springframework.beans.factory.annotation.Configurable;
 
 	public void setRevisedDetails(String revisedDetails) {
 		this.revisedDetails = revisedDetails;
+	}
+
+	public List<Amendment> getAmendments() {
+		return amendments;
+	}
+
+	public void setAmendments(List<Amendment> amendments) {
+		this.amendments = amendments;
 	}
 
 	public Status getStatus() {

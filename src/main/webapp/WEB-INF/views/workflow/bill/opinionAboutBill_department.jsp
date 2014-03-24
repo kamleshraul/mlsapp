@@ -138,7 +138,10 @@
 			} else if($('#typeOfSelectedBillType').val()=='replace_ordinance'){
 				$('#referredOrdinanceDiv').show();
 				$('#referredActDiv').hide();
-			}else{
+			} else if($('#typeOfSelectedBillType').val()=='amending' && $('#typeOfSelectedDeviceType').val()=='bills_nonofficial') {
+				$('#referredActDiv').show();
+				$('#referredOrdinanceDiv').hide();
+			} else{
 				$('#referredActDiv').show();
 				$('#referredOrdinanceDiv').show();
 			}
@@ -158,7 +161,10 @@
 						} else if(data=='replace_ordinance'){
 							$('#referredOrdinanceDiv').show();
 							$('#referredActDiv').hide();
-						}else{
+						} else if(data=='amending' && $('#typeOfSelectedDeviceType').val()=='bills_nonofficial') {
+							$('#referredActDiv').show();
+							$('#referredOrdinanceDiv').hide();
+						} else{
 							$('#referredActDiv').show();
 							$('#referredOrdinanceDiv').show();
 						}

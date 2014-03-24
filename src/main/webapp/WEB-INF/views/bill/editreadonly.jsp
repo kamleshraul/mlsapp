@@ -137,7 +137,10 @@
 			} else if($('#readonly_typeOfSelectedBillType').val()=='replace_ordinance'){
 				$('#readonly_referredOrdinanceDiv').show();
 				$('#readonly_referredActDiv').hide();
-			}else{
+			} else if($('#readonly_typeOfSelectedBillType').val()=='amending' && $('#readonly_typeOfSelectedDeviceType').val()=='bills_nonofficial'){
+				$('#readonly_referredOrdinanceDiv').hide();
+				$('#readonly_referredActDiv').show();
+			} else{
 				$('#readonly_referredActDiv').show();
 				$('#readonly_referredOrdinanceDiv').show();
 			}

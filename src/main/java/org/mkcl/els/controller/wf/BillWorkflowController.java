@@ -3111,7 +3111,8 @@ public class BillWorkflowController extends BaseController {
 		domain.setStatus(finalStatus);
 		domain.setStatusDate(new Date());
 		domain.setInternalStatus(finalStatus);
-		domain.setRecommendationStatus(finalStatus);
+//		domain.setRecommendationStatus(finalStatus);
+		
 //		if(domain.getParent()!=null) {
 //			if(domain.getParent().getInternalStatus().getType().equals(ApplicationConstants.BILL_PROCESSED_TOBEINTRODUCED)) {
 //				domain.setInternalStatus(domain.getParent().getInternalStatus());
@@ -3134,7 +3135,7 @@ public class BillWorkflowController extends BaseController {
 			domain.setInternalStatus(internalStatusExpected);
 		} else if(domain.getStatus().equals(ApplicationConstants.BILL_FINAL_ADMISSION)) {
 			domain.setInternalStatus(domain.getStatus());
-			domain.setRecommendationStatus(domain.getStatus());
+//			domain.setRecommendationStatus(domain.getStatus());
 		}
 		domain.setParent(null);
 		this.copyOriginalToEmptyRevisedDrafts(domain, request);		

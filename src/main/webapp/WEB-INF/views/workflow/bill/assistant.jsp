@@ -407,7 +407,10 @@
 			} else if($('#typeOfSelectedBillType').val()=='replace_ordinance'){
 				$('#referredOrdinanceDiv').show();
 				$('#referredActDiv').hide();
-			}else{
+			} else if($('#typeOfSelectedBillType').val()=='amending' && $('#typeOfSelectedDeviceType').val()=='bills_nonofficial') {
+				$('#referredActDiv').show();
+				$('#referredOrdinanceDiv').hide();
+			} else{
 				$('#referredActDiv').show();
 				$('#referredOrdinanceDiv').show();
 			}
@@ -430,7 +433,10 @@
 						} else if(data=='replace_ordinance'){
 							$('#referredOrdinanceDiv').show();
 							$('#referredActDiv').hide();
-						}else{
+						} else if(data=='amending' && $('#typeOfSelectedDeviceType').val()=='bills_nonofficial') {
+							$('#referredActDiv').show();
+							$('#referredOrdinanceDiv').hide();
+						} else{
 							$('#referredActDiv').show();
 							$('#referredOrdinanceDiv').show();
 						}
@@ -654,7 +660,7 @@
 							$('#'+this.id+'_div').find('input[type=checkbox]').removeAttr('checked');																				
 						}
 					}					
-				});
+				});					
 				$.prompt($('#confirmApprovalMsg').val(),{
 					buttons: {Ok:true, Cancel:false}, callback: function(v){
 			        if(v){
