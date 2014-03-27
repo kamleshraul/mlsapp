@@ -155,6 +155,8 @@
 				 var temp=actor1.split("#");
 				 $("#level").val(temp[2]);		    
 				 $("#localizedActorName").val(temp[3]+"("+temp[4]+")");
+				 $("#actorName").val(temp[4]);
+				 $("#actorName").css('display','inline');
 			}else{
 			$("#actor").empty();
 			$("#actorDiv").hide();
@@ -327,6 +329,8 @@
 		    var temp=actor.split("#");
 		    $("#level").val(temp[2]);		    
 		    $("#localizedActorName").val(temp[3]+"("+temp[4]+")");
+		    $("#actorName").val(temp[4]);
+		    $("#actorName").css('display','inline');
 	    });
 		/**** Back To Question ****/
 		$("#backToQuestion").click(function(){
@@ -417,7 +421,7 @@
 		/**** Revisions ****/
 	    $("#viewRevision").click(function(){
 		    $.get('question/revisions/'+$("#id").val(),function(data){
-			    $.fancybox.open(data);
+			    $.fancybox.open(data,{autoSize: false, width: 800, height:700});
 		    }).fail(function(){
     			if($("#ErrorMsg").val()!=''){
     				$("#error_p").html($("#ErrorMsg").val()).css({'color':'red', 'display':'block'});
@@ -755,8 +759,8 @@
 		<input id="formattedAnsweringDate" name="formattedAnsweringDate" value="${formattedAnsweringDate }" class="sText" readonly="readonly">
 		</c:if>
 		<input id="answeringDate" name="answeringDate" type="hidden"  value="${answeringDate}">
-		<input id="chartAnsweringDate" name="chartAnsweringDate" type="hidden"  value="${chartAnsweringDate}">
 	</c:if>
+	
 	<c:if test="${selectedQuestionType=='questions_halfhourdiscussion_from_question' or selectedQuestionType=='questions_halfhourdiscussion_standalone'}">
 		<c:if test="${not (discussionDateSelected==null && (empty discussionDateSelected))}">
 			<label class="small"><spring:message code="question.discussionDate" text="Discussion Date"/></label>
@@ -766,6 +770,15 @@
 	</c:if>
 	</p>
 	
+	<c:if test="${selectedQuestionType=='questions_starred'}">
+		<p>
+		<c:if test="${formattedChartAnsweringDate !=null}">
+			<label class="small"><spring:message code="question.chartAnsweringDate" text="Chart Answering Date"/></label>
+			<input id="formattedChartAnsweringDate" name="formattedChartAnsweringDate" value="${formattedChartAnsweringDate}" class="sText" readonly="readonly">
+		</c:if>	
+		<input id="chartAnsweringDate" name="chartAnsweringDate" type="hidden"  value="${chartAnsweringDate}">
+		</p>
+	</c:if>
 	<p>
 	<label class="small"><spring:message code="question.ministry" text="Ministry"/>*</label>
 	<select name="ministry" id="ministry" class="sSelect" >
@@ -1065,6 +1078,7 @@
 	<p id="actorDiv">
 	<label class="small"><spring:message code="question.nextactor" text="Next Users"/></label>
 	<form:select path="actor" cssClass="sSelect" itemLabel="name" itemValue="id" items="${actors }"/>
+	<input type="text" id="actorName" name="actorName" style="display: none;" class="sText" readonly="readonly"/>
 	</p>		
 	</c:if>
 		

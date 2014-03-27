@@ -405,7 +405,7 @@
 		/**** Revisions ****/
 	    $("#viewRevision").click(function(){
 		    $.get('question/revisions/'+$("#id").val(),function(data){
-			    $.fancybox.open(data);
+			    $.fancybox.open(data,{autoSize: false, width: 800, height:700});
 		    });
 		    return false;
 	    });
@@ -1189,6 +1189,15 @@
 				<form:errors path="answer" cssClass="validationError"></form:errors>
 			</p>
 		</c:when>
+		<c:otherwise>
+			<c:if test="${selectedQuestionType != 'questions_halfhourdiscussion_standalone' and internalStatusType != 'question_final_clarificationNeededFromDepartment'}">
+				<p>
+					<label class="wysiwyglabel"><spring:message code="question.answer" text="Answer"/></label>
+					<form:textarea path="answer" cssClass="wysiwyg"></form:textarea>
+					<form:errors path="answer" cssClass="validationError"></form:errors>
+				</p>
+			</c:if>
+		</c:otherwise>
 	</c:choose>
 	
 	<c:if test="${selectedQuestionType != 'questions_halfhourdiscussion_standalone' and workflowstatus=='COMPLETED'}">

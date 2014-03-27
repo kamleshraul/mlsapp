@@ -373,7 +373,7 @@
 		/**** Revisions ****/
 	    $("#viewRevision").click(function(){
 		    $.get('question/revisions/'+$("#id").val(),function(data){
-			    $.fancybox.open(data);
+			    $.fancybox.open(data,{autoSize: false, width: 800, height:700});
 		    }).fail(function(){
     			if($("#ErrorMsg").val()!=''){
     				$("#error_p").html($("#ErrorMsg").val()).css({'color':'red', 'display':'block'});
@@ -701,8 +701,8 @@
 		<input id="formattedAnsweringDate" name="formattedAnsweringDate" value="${formattedAnsweringDate }" class="sText" readonly="readonly">
 		</c:if>
 		<input id="answeringDate" name="answeringDate" type="hidden"  value="${answeringDate}">
-		<input id="chartAnsweringDate" name="chartAnsweringDate" type="hidden"  value="${chartAnsweringDate}">
 	</c:if>
+	
 	<c:if test="${selectedQuestionType=='questions_halfhourdiscussion_from_question' or selectedQuestionType=='questions_halfhourdiscussion_standalone'}">
 		<c:if test="${not (discussionDateSelected==null && (empty discussionDateSelected))}">
 			<label class="small"><spring:message code="question.discussionDate" text="Discussion Date"/></label>
@@ -711,28 +711,39 @@
 		</c:if>
 	</c:if>
 	</p>
+	<c:if test="${selectedQuestionType=='questions_starred'}">
+		<p>
+		<c:if test="${formattedChartAnsweringDate !=null}">
+			<label class="small"><spring:message code="question.chartAnsweringDate" text="Chart Answering Date"/></label>
+			<input id="formattedChartAnsweringDate" name="formattedChartAnsweringDate" value="${formattedChartAnsweringDate}" class="sText" readonly="readonly">
+		</c:if>	
+		<input id="chartAnsweringDate" name="chartAnsweringDate" type="hidden"  value="${chartAnsweringDate}">
+		</p>
+	</c:if>
 	
 	<p>
 	<label class="small"><spring:message code="question.ministry" text="Ministry"/>*</label>
 	<select name="ministry" id="ministry" class="sSelect" >
-	<c:forEach items="${ministries }" var="i">
-	<c:choose>
-	<c:when test="${i.id==ministrySelected }">
-	<option value="${i.id }" selected="selected">${i.name}</option>
-	</c:when>
-	<c:otherwise>
-	<option value="${i.id }" >${i.name}</option>
-	</c:otherwise>
-	</c:choose>
-	</c:forEach>
+		<c:forEach items="${ministries }" var="i">
+			<c:choose>
+				<c:when test="${i.id==ministrySelected }">
+					<option value="${i.id }" selected="selected">${i.name}</option>
+				</c:when>
+				<c:otherwise>
+					<option value="${i.id }" >${i.name}</option>
+				</c:otherwise>
+			</c:choose>
+		</c:forEach>
 	</select>		
 	<form:errors path="ministry" cssClass="validationError"/>	
-	<c:if test="${not (selectedQuestionType!='questions_halfhourdiscussion_standalone' and houseTypeType=='lowerhouse')}">
+	
+	<c:if test="${not (selectedQuestionType=='questions_halfhourdiscussion_standalone' and houseTypeType=='lowerhouse')}">
 		<label class="small"><spring:message code="question.group" text="Group"/>*</label>
 		<input type="text" class="sText" id="formattedGroup" name="formattedGroup"  readonly="readonly" value="${formattedGroup}">		
 		<input type="hidden" id="group" name="group" value="${group }">
 		<form:errors path="group" cssClass="validationError"/>
 	</c:if>		
+	
 	</p>	
 	
 	<p>
@@ -768,9 +779,6 @@
 	</select>		
 	<form:errors path="subDepartment" cssClass="validationError"/>	
 	
-	<label class="small"><spring:message code="question.lastDateOfAnswerReceiving" text="Last date of receiving answer"/></label>
-	<form:input path="lastDateOfAnswerReceiving" cssClass="datemask sText" readonly="true"/>
-	<form:errors path="lastDateOfAnswerReceiving" cssClass="validationError"/>
 	</p>	
 		
 	
@@ -1005,7 +1013,12 @@
 	
 	<c:if test="${selectedQuestionType != 'questions_halfhourdiscussion_standalone' && internalStatusType == 'question_final_clarificationNeededFromMember' }">
 		<p>
-		<label class="wysiwyglabel"><spring:message code="hds.factualPosition" text="Factual Position"/></label>
+		<label class="small"><spring:message code="question.lastDateOfFactualPositionReceiving" text="Last date of receiving Clarification"/></label>
+		<form:input path="lastDateOfFactualPositionReceiving" cssClass="datemask sText" readonly="true"/>
+		<form:errors path="lastDateOfFactualPositionReceiving" cssClass="validationError"/>
+		</p>
+		<p>
+		<label class="wysiwyglabel"><spring:message code="question.factualPosition" text="Factual Position"/></label>
 		<form:textarea path="factualPosition" cssClass="wysiwyg"></form:textarea>
 		<form:errors path="factualPosition" cssClass="validationError" cssStyle="float:right;margin-top:-100px;margin-right:40px;"/>
 		</p>

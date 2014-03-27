@@ -176,6 +176,8 @@
 				 var temp=actor1.split("#");
 				 $("#level").val(temp[2]);
 				 $("#localizedActorName").val(temp[3]+"("+temp[4]+")");
+				 $("#actorName").val(temp[4]);
+				 $("#actorName").css('display','inline');
 			}else{
 			$("#actor").empty();
 			$("#actorDiv").hide();
@@ -346,6 +348,8 @@
 		    var temp=actor.split("#");
 		    $("#level").val(temp[2]);		    
 		    $("#localizedActorName").val(temp[3]+"("+temp[4]+")");
+		    $("#actorName").val(temp[4]);
+		    $("#actorName").css('display','inline');
 	    });
 		/********Submit Click*********/
 		$('#submit').click(function(){
@@ -520,7 +524,7 @@
 		/**** Revisions ****/
 	    $("#viewRevision").click(function(){
 		    $.get('question/revisions/'+$("#id").val(),function(data){
-			    $.fancybox.open(data);
+			    $.fancybox.open(data,{autoSize: false, width: 800, height:700});
 		    }).fail(function(){
     			if($("#ErrorMsg").val()!=''){
     				$("#error_p").html($("#ErrorMsg").val()).css({'color':'red', 'display':'block'});
@@ -838,7 +842,6 @@
 		<input id="formattedAnsweringDate" name="formattedAnsweringDate" value="${formattedAnsweringDate }" class="sText" readonly="readonly">
 		</c:if>
 		<input id="answeringDate" name="answeringDate" type="hidden"  value="${answeringDate}">
-		<input id="chartAnsweringDate" name="chartAnsweringDate" type="hidden"  value="${chartAnsweringDate}">
 	</c:if>
 	<c:if test="${selectedQuestionType=='questions_halfhourdiscussion_from_question' or selectedQuestionType=='questions_halfhourdiscussion_standalone'}">
 		<c:if test="${not (discussionDateSelected==null or (empty discussionDateSelected))}">
@@ -848,7 +851,15 @@
 		</c:if>
 	</c:if>
 	</p>
-	
+	<c:if test="${selectedQuestionType=='questions_starred'}">
+		<p>
+		<c:if test="${formattedChartAnsweringDate !=null}">
+			<label class="small"><spring:message code="question.chartAnsweringDate" text="Chart Answering Date"/></label>
+			<input id="formattedChartAnsweringDate" name="formattedChartAnsweringDate" value="${formattedChartAnsweringDate}" class="sText" readonly="readonly">
+		</c:if>	
+		<input id="chartAnsweringDate" name="chartAnsweringDate" type="hidden"  value="${chartAnsweringDate}">
+		</p>
+	</c:if>
 	<p>
 	<label class="small"><spring:message code="question.ministry" text="Ministry"/>*</label>
 	<select name="ministry" id="ministry" class="sSelect" >
@@ -1176,11 +1187,22 @@
 	
 	<c:if test="${(selectedQuestionType == 'questions_starred' || 
 				selectedQuestionType == 'questions_unstarred' ||
-				selectedQuestionType == 'questions_shortnotice') && internalStatusType != 'question_final_rejection' }">
+				selectedQuestionType == 'questions_shortnotice') && 
+				(internalStatusType != 'question_final_rejection'&&
+				 internalStatusType!='question_final_clarificationNeededFromDepartment' &&
+				 internalStatusType!='question_final_clarificationNeededFromMember') }">
 		<p>
 		<label class="small"><spring:message code="question.lastDateOfAnswerReceiving" text="Last date of receiving answer"/></label>
-		<form:input path="lastDateOfAnswerReceiving" cssClass="datemask sText"/>
+		<form:input path="lastDateOfAnswerReceiving" cssClass="datemask sText" value='${formattedLastAnswerReceivingDate}'/>
 		<form:errors path="lastDateOfAnswerReceiving" cssClass="validationError"/>
+		</p>
+	</c:if>
+	
+	<c:if test="${selectedQuestionType == 'questions_starred' && (internalStatusType=='question_final_clarificationNeededFromDepartment' ||
+				 internalStatusType=='question_final_clarificationNeededFromMember') }">
+		<p>
+		<label class="small"><spring:message code="question.lastDateOfFactualPositionReceiving" text="Last Date Of Clarification Receiving"/></label>
+		<form:input path="lastDateOfFactualPositionReceiving" cssClass="datemask sText"/>
 		</p>
 	</c:if>
 	
@@ -1188,23 +1210,23 @@
 	<p>
 	<label class="small"><spring:message code="question.putupfor" text="Put up for"/></label>
 	<select id="changeInternalStatus" class="sSelect">
-	<c:forEach items="${internalStatuses}" var="i">
-	<c:choose>
-	<c:when test="${i.type=='question_system_groupchanged' }">
-	<option value="${i.id}" style="display: none;"><c:out value="${i.name}"></c:out></option>	
-	</c:when>
-	<c:otherwise>
-	<c:choose>
-	<c:when test="${i.id==internalStatus }">
-	<option value="${i.id}" selected="selected"><c:out value="${i.name}"></c:out></option>	
-	</c:when>
-	<c:otherwise>
-	<option value="${i.id}"><c:out value="${i.name}"></c:out></option>		
-	</c:otherwise>
-	</c:choose>
-	</c:otherwise>
-	</c:choose>
-	</c:forEach>
+		<c:forEach items="${internalStatuses}" var="i">
+			<c:choose>
+				<c:when test="${i.type=='question_system_groupchanged' }">
+					<option value="${i.id}" style="display: none;"><c:out value="${i.name}"></c:out></option>	
+				</c:when>
+				<c:otherwise>
+					<c:choose>
+						<c:when test="${i.id==internalStatus }">
+							<option value="${i.id}" selected="selected"><c:out value="${i.name}"></c:out></option>	
+						</c:when>
+						<c:otherwise>
+							<option value="${i.id}"><c:out value="${i.name}"></c:out></option>		
+						</c:otherwise>
+					</c:choose>
+				</c:otherwise>
+			</c:choose>
+		</c:forEach>
 	</select>
 	
 	<select id="internalStatusMaster" style="display:none;">
@@ -1218,6 +1240,7 @@
 	<p id="actorDiv" style="display:none;">
 	<label class="small"><spring:message code="question.nextactor" text="Next Users"/></label>
 	<form:select path="actor" cssClass="sSelect" itemLabel="name" itemValue="id" items="${actors }"/>
+	<input type="text" id="actorName" name="actorName" style="display: none;" class="sText" readonly="readonly"/>
 	</p>		
 	</c:if>
 		

@@ -418,7 +418,7 @@
 		/**** Revisions ****/
 	    $("#viewRevision").click(function(){
 		    $.get('question/revisions/'+$("#id").val(),function(data){
-			    $.fancybox.open(data);
+			    $.fancybox.open(data,{autoSize: false, width: 800, height:700});
 		    }).fail(function(){
     			if($("#ErrorMsg").val()!=''){
     				$("#error_p").html($("#ErrorMsg").val()).css({'color':'red', 'display':'block'});
@@ -755,7 +755,6 @@
 		<input id="formattedAnsweringDate" name="formattedAnsweringDate" value="${formattedAnsweringDate }" class="sText" readonly="readonly">
 		</c:if>
 		<input id="answeringDate" name="answeringDate" type="hidden"  value="${answeringDate}">
-		<input id="chartAnsweringDate" name="chartAnsweringDate" type="hidden"  value="${chartAnsweringDate}">
 	</c:if>
 	<c:if test="${selectedQuestionType=='questions_halfhourdiscussion_from_question' or selectedQuestionType=='questions_halfhourdiscussion_standalone'}">
 		<c:if test="${not (discussionDateSelected==null && (empty discussionDateSelected))}">
@@ -765,7 +764,15 @@
 		</c:if>
 	</c:if>
 	</p>
-	
+	<c:if test="${selectedQuestionType=='questions_starred'}">
+		<p>
+		<c:if test="${formattedChartAnsweringDate !=null}">
+			<label class="small"><spring:message code="question.chartAnsweringDate" text="Chart Answering Date"/></label>
+			<input id="formattedChartAnsweringDate" name="formattedChartAnsweringDate" value="${formattedChartAnsweringDate}" class="sText" readonly="readonly">
+		</c:if>	
+		<input id="chartAnsweringDate" name="chartAnsweringDate" type="hidden"  value="${chartAnsweringDate}">
+		</p>
+	</c:if>
 	<p>
 	<label class="small"><spring:message code="question.ministry" text="Ministry"/>*</label>
 	<select name="ministry" id="ministry" class="sSelect" >
@@ -1026,23 +1033,31 @@
 	<p>
 	<label class="small"><spring:message code="question.putupfor" text="Put up for"/></label>
 	<select id="changeInternalStatus" class="sSelect">
-	<c:forEach items="${internalStatuses}" var="i">
-	<c:choose>
-	<c:when test="${i.type=='question_system_groupchanged' }">
-	<option value="${i.id}" style="display: none;"><c:out value="${i.name}"></c:out></option>	
-	</c:when>
-	<c:otherwise>
-	<c:choose>
-	<c:when test="${i.id==internalStatus }">
-	<option value="${i.id}" selected="selected"><c:out value="${i.name}"></c:out></option>	
-	</c:when>
-	<c:otherwise>
-	<option value="${i.id}"><c:out value="${i.name}"></c:out></option>		
-	</c:otherwise>
-	</c:choose>
-	</c:otherwise>
-	</c:choose>
-	</c:forEach>
+		<c:forEach items="${internalStatuses}" var="i">
+			<c:choose>
+				<c:when test="${i.type=='question_system_groupchanged' }">
+					<option value="${i.id}" style="display: none;"><c:out value="${i.name}"></c:out></option>	
+				</c:when>
+				<c:otherwise>
+					<c:choose>
+						<c:when test="${i.id==internalStatus }">
+							<option value="${i.id}" selected="selected"><c:out value="${i.name}"></c:out></option>	
+						</c:when>
+						<c:otherwise>
+							<c:choose>
+								<c:when test="${fn:contains(i.type,nextInternalStatus)}">
+									<option value="${i.id}" selected="selected"><c:out value="${i.name}"></c:out></option>
+								</c:when>
+								<c:otherwise>
+									<option value="${i.id}"><c:out value="${i.name}"></c:out></option>
+								</c:otherwise>
+							</c:choose>
+									
+						</c:otherwise>
+					</c:choose>
+				</c:otherwise>
+			</c:choose>
+		</c:forEach>
 	</select>
 	
 	<select id="internalStatusMaster" style="display:none;">
