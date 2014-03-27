@@ -549,12 +549,14 @@ public class QuestionWorkflowController  extends BaseController{
 						model.addAttribute("answeringDate",domain.getAnsweringDate().getId());
 						model.addAttribute("formattedAnsweringDate",FormaterUtil.getDateFormatter(locale).format(domain.getAnsweringDate().getAnsweringDate()));
 						model.addAttribute("answeringDateSelected",domain.getAnsweringDate().getId());
+						model.addAttribute("formattedLastAnswerReceivingDate", FormaterUtil.getDateFormatter(locale).format(domain.getAnsweringDate().getLastReceivingDateFromDepartment()));
 					}
 				}
 			}
 			/**** Set Chart answering date ****/
 			if(domain.getChartAnsweringDate() != null) {
 				model.addAttribute("chartAnsweringDate", domain.getChartAnsweringDate().getId());
+				model.addAttribute("formattedChartAnsweringDate",FormaterUtil.getDateFormatter(locale).format(domain.getChartAnsweringDate().getAnsweringDate()));
 			}
 		}	
 		/**** Submission Date and Creation date****/
@@ -623,6 +625,8 @@ public class QuestionWorkflowController  extends BaseController{
 		if(internalStatus!=null){
 			model.addAttribute("internalStatus",internalStatus.getId());
 			model.addAttribute("internalStatusType", internalStatus.getType());
+			String nextInternalStatus[]=internalStatus.getType().split("_");
+			model.addAttribute("nextInternalStatus",nextInternalStatus[2]);
 			model.addAttribute("formattedInternalStatus", internalStatus.getName());
 			/**** list of put up options available ****/
 			/**** added by sandeep singh(jan 29 2013) ****/
@@ -2235,6 +2239,10 @@ public class QuestionWorkflowController  extends BaseController{
 		}else if(domain.getRevisedBriefExplanation().isEmpty()){
 			domain.setRevisedBriefExplanation(domain.getBriefExplanation());
 		}
+		DeviceType deviceType=DeviceType.findByType(ApplicationConstants.UNSTARRED_QUESTION,domain.getLocale());
+		domain.setType(deviceType);
+		Status internalStatus=Status.findByType(ApplicationConstants.QUESTION_FINAL_ADMISSION, domain.getLocale());
+		domain.setInternalStatus(internalStatus);
 		List<ClubbedEntity> clubbedEntities=domain.getClubbedEntities();
 		if(clubbedEntities!=null){
 			String subject=null;
@@ -2260,8 +2268,7 @@ public class QuestionWorkflowController  extends BaseController{
 
 			Status newInternalStatus=Status.findByType(ApplicationConstants.QUESTION_PUTUP_NAMECLUBBING, domain.getLocale());
 			Status newRecommendationStatus=Status.findByType(ApplicationConstants.QUESTION_PUTUP_CONVERT_TO_UNSTARRED_AND_ADMIT, domain.getLocale());
-			DeviceType deviceType=DeviceType.findByType(ApplicationConstants.UNSTARRED_QUESTION,domain.getLocale());
-			domain.setType(deviceType);
+			
 			for(ClubbedEntity i:clubbedEntities){
 				Question question=i.getQuestion();
 				if(question.getInternalStatus().getType().equals(ApplicationConstants.QUESTION_SYSTEM_CLUBBED)){
