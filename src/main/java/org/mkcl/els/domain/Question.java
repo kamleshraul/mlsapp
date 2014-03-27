@@ -51,7 +51,7 @@ import org.springframework.beans.factory.annotation.Configurable;
 @Entity
 @Table(name="questions")
 @JsonIgnoreProperties({"houseType", "session", "originalType", "type", "answeringDate",
-	"chartAnsweringDate", "recommendationStatus", "ballotStatus", "supportingMembers",
+	"chartAnsweringDate",  "ballotStatus", "supportingMembers",
 	"group", "subDepartment", "drafts", "parent", "clubbedEntities", "referencedEntities",
 	"halfHourDiscusionFromQuestionReference", "language", "referencedHDS"})
 public class Question extends Device implements Serializable {
@@ -1573,6 +1573,10 @@ public class Question extends Device implements Serializable {
 	    	return getQuestionRepository().getQuestion(sessionId, deviceTypeId,number, locale);
 	 }
 	
+	 public QuestionDraft findSecondPreviousDraft() {
+		 Long id = this.getId();
+		 return getQuestionRepository().findSecondPreviousDraft(id);
+		}
 	/**** Getters and Setters ****/
 	public HouseType getHouseType() {
 		return houseType;
@@ -2146,4 +2150,7 @@ public class Question extends Device implements Serializable {
 			Integer answeringAttemptsByDepartment) {
 		this.answeringAttemptsByDepartment = answeringAttemptsByDepartment;
 	}
+
+
+	
 }
