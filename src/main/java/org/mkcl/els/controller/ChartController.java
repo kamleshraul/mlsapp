@@ -345,11 +345,12 @@ public class ChartController extends BaseController{
 					}else{
 						
 					}
+					List simplifiedList = (starredChartView!=null)?getSimplifiedChart(starredChartView):null;
+					simplifiedList.addAll(extraMembers);
+					model.addAttribute("report", simplifiedList);
 				}
+			
 				
-				List simplifiedList = getSimplifiedChart(starredChartView);
-				simplifiedList.addAll(extraMembers);
-				model.addAttribute("report", simplifiedList);
 			}else if(deviceType.getType().equals(ApplicationConstants.HALF_HOUR_DISCUSSION_QUESTION_STANDALONE)){
 				//chartVOs = Chart.getChartVOs(session, null, answeringDate, deviceType, locale.toString());
 				Chart chart = Chart.find(new Chart(session, deviceType, locale.toString()));
