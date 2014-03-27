@@ -65,6 +65,8 @@ public class QuestionSearchVO {
 	
 	private String[] formattedSupportingMembers;
 	
+	private String chartAnsweringDate;
+	
 	/**
 	 * Gets the id.
 	 *
@@ -296,6 +298,16 @@ public class QuestionSearchVO {
 	public void setFormattedSupportingMembers(final String[] formattedSupportingMembers) {
 		this.formattedSupportingMembers = formattedSupportingMembers;
 	}
+
+	public String getChartAnsweringDate() {
+		return chartAnsweringDate;
+	}
+
+	public void setChartAnsweringDate(String chartAnsweringDate) {
+		this.chartAnsweringDate = chartAnsweringDate;
+	}
+
+	
 
 	
 }
