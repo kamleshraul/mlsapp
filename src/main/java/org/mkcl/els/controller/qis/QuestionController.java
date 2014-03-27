@@ -835,6 +835,7 @@ public class QuestionController extends GenericController<Question>{
 							}
 							
 							if(domain.getChartAnsweringDate() != null){
+								model.addAttribute("formattedChartAnsweringDate",FormaterUtil.getDateFormatter(locale).format(domain.getChartAnsweringDate().getAnsweringDate()));
 								model.addAttribute("chartAnsweringDate",domain.getChartAnsweringDate().getId());
 							}
 						}
@@ -1356,7 +1357,12 @@ public class QuestionController extends GenericController<Question>{
 		/**** In case of submission ****/
 		String operation=request.getParameter("operation");
 		boolean canGoAhead = false;
-		
+		String strUserGroupType=request.getParameter("usergroupType");
+		UserGroupType userGroupType=null;
+		if(strUserGroupType!=null){
+			userGroupType=UserGroupType.findByFieldName(UserGroupType.class,"type",strUserGroupType, domain.getLocale());
+			domain.setEditedAs(userGroupType.getName());
+		}
 		if(domain.getType() != null){
 			if(domain.getType().getType().equals(ApplicationConstants.HALF_HOUR_DISCUSSION_QUESTION_STANDALONE)){
 				if(domain.getHouseType() != null){
@@ -1403,8 +1409,12 @@ public class QuestionController extends GenericController<Question>{
 						if(domain.getSupportingMembers()!=null){
 							if(!domain.getSupportingMembers().isEmpty()){
 								for(SupportingMember i:domain.getSupportingMembers()){
-									if(i.getDecisionStatus().getType().trim().equals(ApplicationConstants.SUPPORTING_MEMBER_APPROVED)){
+									if(userGroupType.getType().equals(ApplicationConstants.CLERK)){
 										supportingMembers.add(i);
+									}else{
+										if(i.getDecisionStatus().getType().trim().equals(ApplicationConstants.SUPPORTING_MEMBER_APPROVED)){
+											supportingMembers.add(i);
+										}
 									}
 								}
 								domain.setSupportingMembers(supportingMembers);
@@ -1447,11 +1457,7 @@ public class QuestionController extends GenericController<Question>{
 		domain.setCreatedBy(this.getCurrentUser().getActualUsername());
 		domain.setEditedOn(new Date());
 		domain.setEditedBy(this.getCurrentUser().getActualUsername());
-		String strUserGroupType=request.getParameter("usergroupType");
-		if(strUserGroupType!=null){
-			UserGroupType userGroupType=UserGroupType.findByFieldName(UserGroupType.class,"type",strUserGroupType, domain.getLocale());
-			domain.setEditedAs(userGroupType.getName());
-		}
+		
 		/**** Added by vikas & dhananjay ****/
 		/**** to find referred question for half hour discussion from question ****/
 		if(domain!=null && domain.getType() != null){
@@ -1869,7 +1875,7 @@ public class QuestionController extends GenericController<Question>{
 						 * status to GROUP_CHANGED
 						 */
 						Group group = domain.getGroup();
-						if(internalStatus.equals(ApplicationConstants.QUESTION_SUBMIT) && domain.getMinistry()!=null && group!=null && domain.getSubDepartment()!=null) {
+						if((internalStatus.equals(ApplicationConstants.QUESTION_SUBMIT)||internalStatus.equals(ApplicationConstants.QUESTION_SYSTEM_GROUPCHANGED)) && domain.getMinistry()!=null && group!=null && domain.getSubDepartment()!=null) {
 							Status ASSISTANT_PROCESSED = Status.findByType(ApplicationConstants.QUESTION_SYSTEM_ASSISTANT_PROCESSED, domain.getLocale());
 							domain.setInternalStatus(ASSISTANT_PROCESSED);
 							domain.setRecommendationStatus(ASSISTANT_PROCESSED);
@@ -2235,7 +2241,7 @@ public class QuestionController extends GenericController<Question>{
 				equals(ApplicationConstants.QUESTION_SYSTEM_GROUPCHANGED)
 				&&deviceType.equals(ApplicationConstants.STARRED_QUESTION)) {
 			Question question = Question.findById(Question.class, domain.getId());
-			QuestionDraft draft = question.findPreviousDraft();
+			QuestionDraft draft = question.findSecondPreviousDraft();
 			Group affectedGroup = draft.getGroup();
 			try{
 				Chart.groupChange(question, affectedGroup);
