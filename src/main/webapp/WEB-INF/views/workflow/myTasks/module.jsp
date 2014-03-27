@@ -362,11 +362,14 @@
 				   <spring:message code="generic.details" text="Details"></spring:message>
 				</a>
 			</li>
-			<li>
-				<a id="bulkapproval_tab" href="#" class="tab">
-				   <spring:message code="generic.bulkputup" text="Bulk Putup"></spring:message>
-				</a>
-			</li>		
+			<c:if test="${usergroupType!='department'}">
+				<li>
+					<a id="bulkapproval_tab" href="#" class="tab">
+					   <spring:message code="generic.bulkputup" text="Bulk Putup"></spring:message>
+					</a>
+				</li>
+			</c:if>
+					
 		</ul>
 		<div class="commandbarContent" style="margin-top: 10px;" id="selectionDiv">	
 			<a href="#" id="houseTypeLabel" class="butSim">
@@ -447,30 +450,32 @@
 			<c:forEach items="${workflowTypes}" var="i">
 			<option value="${i.type}">${i.name}</option>
 			</c:forEach>			
-			</select> |	
-			<a href="#" id="select_itemcount" class="butSim">
-				<spring:message code="device.itemcount" text="No. of Devices(Bulk Putup)"/>
-			</a>
-			<select name="selectedItemsCount" id="selectedItemsCount" style="width:100px;height: 25px;">			
-			<option value="100">100</option>
-			<option value="75">75</option>
-			<option value="50">50</option>
-			<option value="25">25</option>
-			<option value="10">10</option>
-			<option value="5">05</option>		
-			</select>|	
-			<a href="#" id="select_filecount" class="butSim">
-				<spring:message code="motion.filecount" text="Select File(Bulk Putup)"/>
-			</a>
-			<select name="selectedFileCount" id="selectedFileCount" style="width:100px;height: 25px;">			
-			<option value="-"><spring:message code='please.select' text='Please Select'/></option>			
-			<option value="1">1</option>
-			<option value="2">2</option>
-			<option value="3">3</option>
-			<option value="4">4</option>
-			<option value="5">5</option>
-			<option value="6">6</option>		
-			</select>|		
+			</select>| 
+			<c:if test="${usergroupType!='department'}">
+				<a href="#" id="select_itemcount" class="butSim">
+					<spring:message code="device.itemcount" text="No. of Devices(Bulk Putup)"/>
+				</a>
+				<select name="selectedItemsCount" id="selectedItemsCount" style="width:100px;height: 25px;">			
+					<option value="100">100</option>
+					<option value="75">75</option>
+					<option value="50">50</option>
+					<option value="25">25</option>
+					<option value="10">10</option>
+					<option value="5">05</option>		
+				</select>|	
+				<a href="#" id="select_filecount" class="butSim">
+					<spring:message code="motion.filecount" text="Select File(Bulk Putup)"/>
+				</a>
+				<select name="selectedFileCount" id="selectedFileCount" style="width:100px;height: 25px;">			
+					<option value="-"><spring:message code='please.select' text='Please Select'/></option>			
+					<option value="1">1</option>
+					<option value="2">2</option>
+					<option value="3">3</option>
+					<option value="4">4</option>
+					<option value="5">5</option>
+					<option value="6">6</option>		
+				</select>|
+			</c:if>		
 			<hr>		
 		</div>
 		<div class="tabContent clearfix">
