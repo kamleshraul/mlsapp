@@ -455,7 +455,7 @@
 							if(deviceNumber==undefined || deviceNumber=='') {
 								deviceNumber = $('#billWithoutNumber').val();
 							}
-							var textTemp=textTemp+"<tr>"+
+							textTemp=textTemp+"<tr>"+
 									"<td class='expand' style='width: 150px; max-width: 150px;'>"+
 									"<span id='number"+data[i].id+"'>"+
 									"<a onclick='viewDetail("+data[i].id+");' style='margin:10px; text-decoration: underline;'>"+									
@@ -491,19 +491,23 @@
 							}
 							
 							if($('#whichDevice').val()=='questions_') {
-								textTemp+="<td class='expand' style='width: 420px; max-width: 420px;'>"+data[i].questionText
+								textTemp+="<td class='expand' style='width: 420px; max-width: 420px;'>"+data[i].formattedPrimaryMember+" : "+data[i].questionText
 								+"<br/>"
 								+data[i].sessionYear+","+data[i].sessionType+","+data[i].deviceType+"<br>"
-								+"<strong>"+data[i].formattedGroup+"</span>,"+data[i].ministry+"<br>"
-								+data[i].department;
-								if(data[i].subDepartment==null||data[i].subdepartment!=""){
-									textTemp+=","+data[i].status+"<br>"
-								    +"</td>";
+								+"<strong>"+data[i].formattedGroup+"</span>,"+data[i].ministry;
+								if(data[i].subDepartment==null||data[i].subdepartment==""){
+									textTemp+=","+data[i].status+"<br>";
+								   
 							    }else{						     
-							    textTemp+=","+data[i].subDepartment+"<br>"
-								 +data[i].status
-							     +"</td>";
-							    }									
+							    textTemp+=","+data[i].subDepartment+" "+$('#subdepartmentValue').val()+"<br>"+ data[i].status;
+								 
+							     
+							    }
+								if(data[i].chartAnsweringDate==null||data[i].chartAnsweringDate==''){
+									textTemp+="</td>";
+								}else{
+									textTemp+=" ,"+data[i].chartAnsweringDate+"</td>";
+								} 
 							} else if($('#whichDevice').val()=='bills_') {
 								var content = "";
 								if(data[i].revisedContent!='null' && data[i].revisedContent!='' && data[i].revisedContent!=undefined) {
@@ -1089,6 +1093,7 @@ td>table{
 <input type="hidden" id="whichDevice" value="${whichDevice}" />
 <input id="refDeviceType" type="hidden" value="${deviceType}" />
 <input type="hidden" id="defaultTitleLanguage" value="${defaultTitleLanguage}" />
+<input type="hidden" id="subdepartmentValue" value="<spring:message code='question.department' text='subDepartment'/>" />
 <input type="hidden" id="billWithoutNumber" value="<spring:message code='bill.referredBillWithoutNumber' text='Click To See'/>">
 </body>
 </html>
