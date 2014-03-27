@@ -14,12 +14,16 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Random;
 
 import javax.persistence.EntityNotFoundException;
 import javax.persistence.Query;
 import javax.persistence.TypedQuery;
+
+import name.fraser.neil.plaintext.diff_match_patch;
+import name.fraser.neil.plaintext.diff_match_patch.Diff;
 
 import org.mkcl.els.common.exception.ELSException;
 import org.mkcl.els.common.util.ApplicationConstants;
@@ -185,32 +189,99 @@ public class QuestionRepository extends BaseRepository<Question, Long> {
 		query.setParameter("questionId",questionId);
 		List results = query.getResultList();
 		List<RevisionHistoryVO> questionRevisionVOs = new ArrayList<RevisionHistoryVO>();
-		for(Object i:results) {
-			Object[] o = (Object[]) i;
+//		for(Object i:results) {
+//			Object[] o = (Object[]) i;
+//			RevisionHistoryVO questionRevisionVO = new RevisionHistoryVO();
+//			if(o[0] != null) {
+//				questionRevisionVO.setEditedAs(o[0].toString());
+//			}
+//			else {
+//				UserGroupType userGroupType = 
+//					UserGroupType.findByFieldName(UserGroupType.class, "type", "member", locale);
+//				questionRevisionVO.setEditedAs(userGroupType.getName());
+//			}
+//			questionRevisionVO.setEditedBY(o[1].toString());
+//			questionRevisionVO.setEditedOn(o[2].toString());
+//			questionRevisionVO.setStatus(o[3].toString());
+//			questionRevisionVO.setDetails(o[4].toString());
+//			questionRevisionVO.setSubject(o[5].toString());
+//			if(o[6] != null){
+//				questionRevisionVO.setRemarks(o[6].toString());
+//			}
+//			if(o[7] != null){
+//				questionRevisionVO.setReason(o[7].toString());
+//			}
+//			if(o[8] != null){
+//				questionRevisionVO.setBriefExplanation(o[8].toString());
+//			}
+//			
+//			questionRevisionVOs.add(questionRevisionVO);
+//		}
+		diff_match_patch d=new diff_match_patch();
+		for(int i=0;i<results.size();i++){
+			Object[] o = (Object[]) results.get(i);
+			Object[] o1=null;
+			if(i+1<results.size()){
+				o1=(Object[])results.get(i+1);
+			}
 			RevisionHistoryVO questionRevisionVO = new RevisionHistoryVO();
 			if(o[0] != null) {
 				questionRevisionVO.setEditedAs(o[0].toString());
 			}
 			else {
 				UserGroupType userGroupType = 
-					UserGroupType.findByFieldName(UserGroupType.class, "type", "member", locale);
+						UserGroupType.findByFieldName(UserGroupType.class, "type", "member", locale);
 				questionRevisionVO.setEditedAs(userGroupType.getName());
 			}
 			questionRevisionVO.setEditedBY(o[1].toString());
 			questionRevisionVO.setEditedOn(o[2].toString());
 			questionRevisionVO.setStatus(o[3].toString());
-			questionRevisionVO.setDetails(o[4].toString());
-			questionRevisionVO.setSubject(o[5].toString());
+			if(o1!=null){
+				if(!o[4].toString().isEmpty() && !o1[4].toString().isEmpty()){
+					LinkedList<Diff> diff=d.diff_main(o1[4].toString(), o[4].toString());
+					String question=d.diff_prettyHtml(diff);
+					if(question.contains("&lt;")){
+						question=question.replaceAll("&lt;", "<");
+					}
+					if(question.contains("&gt;")){
+						question=question.replaceAll("&gt;", ">");
+					}
+					if(question.contains("&amp;nbsp;")){
+						question=question.replaceAll("&amp;nbsp;"," ");
+					}
+					questionRevisionVO.setDetails(question);
+				}else{
+					questionRevisionVO.setDetails(o[4].toString());
+				}
+
+			}else{
+				questionRevisionVO.setDetails(o[4].toString());
+			}
+			if(o1!=null){
+				if(!o[5].toString().isEmpty() && o1[5].toString().isEmpty()){
+					LinkedList<Diff> diff=d.diff_main(o1[5].toString(), o[5].toString());
+					String question=d.diff_prettyHtml(diff);
+					if(question.contains("&lt;")){
+						question=question.replaceAll("&lt;", "<");
+					}
+					if(question.contains("&gt;")){
+						question=question.replaceAll("&gt;", ">");
+					}
+					if(question.contains("&amp;nbsp;")){
+						question=question.replaceAll("&amp;nbsp;"," ");
+					}
+					questionRevisionVO.setSubject(question);
+				}else{
+					questionRevisionVO.setSubject(o[5].toString());
+				}
+
+			}else{
+				questionRevisionVO.setSubject(o[5].toString());
+			}
 			if(o[6] != null){
 				questionRevisionVO.setRemarks(o[6].toString());
 			}
-			if(o[7] != null){
-				questionRevisionVO.setReason(o[7].toString());
-			}
-			if(o[8] != null){
-				questionRevisionVO.setBriefExplanation(o[8].toString());
-			}
-			
+
 			questionRevisionVOs.add(questionRevisionVO);
 		}
 		return questionRevisionVOs;
@@ -2280,6 +2351,20 @@ public class QuestionRepository extends BaseRepository<Question, Long> {
 		TypedQuery<QuestionDraft> tQuery = 
 			this.em().createQuery(query, QuestionDraft.class);
 		tQuery.setParameter("qid", id);
+		tQuery.setMaxResults(1);
+		QuestionDraft draft = tQuery.getSingleResult();
+		return draft;
+	}
+
+	public QuestionDraft findSecondPreviousDraft(final Long id) {
+		String query = "SELECT qd" +
+				" FROM Question q join q.drafts qd" +
+				" WHERE q.id=:qid" +
+				" ORDER BY qd.id DESC";
+		TypedQuery<QuestionDraft> tQuery = 
+			this.em().createQuery(query, QuestionDraft.class);
+		tQuery.setParameter("qid", id);
+		tQuery.setFirstResult(1);
 		tQuery.setMaxResults(1);
 		QuestionDraft draft = tQuery.getSingleResult();
 		return draft;

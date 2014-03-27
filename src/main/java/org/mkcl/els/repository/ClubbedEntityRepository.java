@@ -35,7 +35,8 @@ public class ClubbedEntityRepository extends BaseRepository<ClubbedEntity, Seria
 		"  q.question_text as questionText,q.revised_question_text as revisedQuestionText,"+
 		"  st.name as status,dt.name as deviceType,s.session_year as sessionYear,"+
 		"  sety.session_type as sessionType ,g.number as groupnumber,"+
-		"  mi.name as ministry,d.name as department,sd.name as subdepartment,st.type as statustype"+
+		"  mi.name as ministry,d.name as department,sd.name as subdepartment,st.type as statustype," +
+		"  CONCAT(t.name,' ',m.first_name,' ',m.last_name) as memberName, qd1.answering_date as answeringDate"+
 		"  FROM questions as q "+
 		"  LEFT JOIN housetypes as ht ON(q.housetype_id=ht.id) "+
 		"  LEFT JOIN sessions as s ON(q.session_id=s.id) "+
@@ -46,6 +47,7 @@ public class ClubbedEntityRepository extends BaseRepository<ClubbedEntity, Seria
 		"  LEFT JOIN titles as t ON(m.title_id=t.id) "+
 		"  LEFT JOIN groups as g ON(q.group_id=g.id) "+
 		"  LEFT JOIN question_dates as qd ON(q.answering_date=qd.id) "+
+		"  LEFT JOIN question_dates as qd1 ON(q.chart_answering_date=qd1.id) "+
 		"  LEFT JOIN ministries as mi ON(q.ministry_id=mi.id) "+
 		"  LEFT JOIN departments as d ON(q.department_id=d.id) "+
 		"  LEFT JOIN subdepartments as sd ON(q.subdepartment_id=sd.id) "+
@@ -136,7 +138,7 @@ public class ClubbedEntityRepository extends BaseRepository<ClubbedEntity, Seria
 		/**** Final Query ****/
 		String query=selectQuery+deviceTypeQuery.toString()+filter+searchQuery+orderByQuery;
 		String finalQuery="SELECT rs.id,rs.number,rs.subject,rs.revisedSubject,rs.questionText, "+
-		" rs.revisedQuestionText,rs.status,rs.deviceType,rs.sessionYear,rs.sessionType,rs.groupnumber,rs.ministry,rs.department,rs.subdepartment,rs.statustype FROM ("+query+") as rs LIMIT "+start+","+noofRecords;
+		" rs.revisedQuestionText,rs.status,rs.deviceType,rs.sessionYear,rs.sessionType,rs.groupnumber,rs.ministry,rs.department,rs.subdepartment,rs.statustype,rs.memberName,rs.answeringDate FROM ("+query+") as rs LIMIT "+start+","+noofRecords;
 
 		List results=this.em().createNativeQuery(finalQuery).getResultList();
 		List<QuestionSearchVO> questionSearchVOs=new ArrayList<QuestionSearchVO>();
@@ -203,6 +205,12 @@ public class ClubbedEntityRepository extends BaseRepository<ClubbedEntity, Seria
 				}
 				if(o[14]!=null){
 					questionSearchVO.setStatusType(o[14].toString());
+				}
+				if(o[15]!=null){
+					questionSearchVO.setFormattedPrimaryMember(o[15].toString());
+				}
+				if(o[16]!=null){
+					questionSearchVO.setChartAnsweringDate(FormaterUtil.formatDateToString(FormaterUtil.formatStringToDate(o[16].toString(), ApplicationConstants.DB_DATEFORMAT), ApplicationConstants.SERVER_DATEFORMAT, locale));
 				}
 				addClasification(questionSearchVO,question);
 				questionSearchVOs.add(questionSearchVO);
