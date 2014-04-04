@@ -123,11 +123,11 @@
 			$.prompt($("#selectItemsMsg").val());
 			return false;	
 		}	
-		var status="";
+		var internalstatus="";
 		if($("#apprworkflowSubType").val()=='request_to_supporting_member'){
 		status=$("#apprInternalStatus").val();
 		}else{
-			status=$("#apprInternalStatusWf").val();			
+			internalstatus=$("#apprInternalStatusWf").val();			
 		}
 		$.prompt($('#submissionMsg').val(),{
 			buttons: {Ok:true, Cancel:false}, callback: function(v){
@@ -135,7 +135,7 @@
 				$.blockUI({ message: '<img src="./resources/images/waitAnimated.gif" />' });
 				$.post('workflow/question/bulkapproval/update?actor='+next+"&level="+level,
 			        	{items:items
-			        	 ,status:status
+			        	 ,internalstatus:internalstatus
 			        	 ,houseType:$("#apprhouseType").val()
 						 ,sessionYear:$("#apprsessionYear").val()
 						 ,sessionType:$("#apprsessionType").val()
@@ -146,6 +146,7 @@
 						 ,file:$("#apprfile").val()
 						 ,itemscount:$("#appritemscount").val()
 						 ,workflowSubType:$("#apprworkflowSubType").val()
+						 ,status:$("#apprstatus").val()
 					 	},
 	    	            function(data){
 	       					$('html').animate({scrollTop:0}, 'slow');

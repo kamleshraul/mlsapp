@@ -77,9 +77,7 @@
 	<c:if test="${(error!='') && (error!=null)}">
 		<h4 style="color: #FF0000;">${error}</h4>
 	</c:if>
-	<c:choose>
-		<c:when test="${!(empty bulkapprovals) }">			
-			<c:if test="${! (empty recommendAdmission) }">
+	<c:if test="${! (empty recommendAdmission) }">
 			<p style="color:green;margin-bottom: 15px;">${recommendAdmission} sent for admission.</p>
 			</c:if>
 			<c:if test="${! (empty recommendRejection) }">
@@ -91,6 +89,9 @@
 			<c:if test="${! (empty rejected) }">
 			<p style="color:green;margin-bottom: 15px;">${rejected} are rejected.</p>
 			</c:if>
+	<c:choose>
+		<c:when test="${!(empty bulkapprovals) }">			
+			
 			<div style="overflow: scroll;">
 			<table class="uiTable">
 				<tr>					
