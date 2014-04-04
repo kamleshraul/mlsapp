@@ -101,7 +101,7 @@
 		
 	$(document).ready(function(){	
 				
-		$("#ministry").change(function(){
+		/*$("#formattedMinistry").change(function(){
 			if($(this).val()!=''){
 				loadGroup($(this).val());
 				loadSubDepartments($(this).val());
@@ -114,14 +114,14 @@
 				$("#subDepartment").prepend("<option value=''>----"+$("#pleaseSelectMsg").val()+"----</option>");				
 				$("#answeringDate").prepend("<option value=''>----"+$("#pleaseSelectMsg").val()+"----</option>");			
 			}
-		});		
+		});	*/	
 				
 		//initially only minsitry will be visible as either disabled or enabled
-		if($("#ministrySelected").val()==''){
+		/* if($("#ministrySelected").val()==''){
 			$("#ministry").prepend("<option value='' selected='selected'>----"+$("#pleaseSelectMsg").val()+"----</option>");			
 		}else{
 			$("#ministry").prepend("<option value=''>----"+$("#pleaseSelectMsg").val()+"----</option>");		
-		}		
+		} */		
 		if($("#subDepartmentSelected").val()==''){
 			$("#subDepartment").prepend("<option value='' selected='selected'>----"+$("#pleaseSelectMsg").val()+"----</option>");			
 		}else{
@@ -133,12 +133,17 @@
 		$("#answeringDate").prepend("<option value=''>----"+$("#pleaseSelectMsg").val()+"----</option>");
 		}		
 		//autosuggest		
-		$( ".autosuggest").autocomplete({
+		$( "#formattedPrimaryMember").autocomplete({
 			minLength:3,			
 			source:'ref/member/supportingmembers?session='+$("#session").val(),
 			select:function(event,ui){			
 			$("#primaryMember").val(ui.item.id);
-		}	
+			},
+			change:function(event,ui){
+			if($("#formattedPrimaryMember").val()==""){
+				$("#primaryMember").val("");
+			}				
+			}
 		});	
 		$("select[name='"+controlName+"']").hide();	
 		$( ".autosuggestmultiple" ).change(function(){
@@ -502,6 +507,32 @@
 		$("#selectedSupportingMembers").bind('copy paste', function (e) {
 		       e.preventDefault();
 		 });
+		
+		$( "#formattedMinistry").autocomplete({
+			minLength:3,			
+			source:'ref/getministries?session='+$('#session').val(),
+			select:function(event,ui){			
+			$("#ministry").val(ui.item.id);
+			},
+			change:function(event,ui){
+				var ministryVal=ui.item.id;	
+				console.log(ministryVal);
+				if(ministryVal!=''){
+					console.log(ministryVal);
+					loadGroup(ministryVal);
+					loadSubDepartments(ministryVal);
+				}else{
+					$("#formattedGroup").val("");
+					$("#group").val("");				
+					//$("#department").empty();				
+					$("#subDepartment").empty();				
+					$("#answeringDate").empty();
+					//$("#department").prepend("<option value=''>----"+$("#pleaseSelectMsg").val()+"----</option>");				
+					$("#subDepartment").prepend("<option value=''>----"+$("#pleaseSelectMsg").val()+"----</option>");				
+					$("#answeringDate").prepend("<option value=''>----"+$("#pleaseSelectMsg").val()+"----</option>");					
+				}
+			}
+		});
 	});
 	
 	/**** new question ****/
@@ -518,7 +549,7 @@
 </c:if>
 	<div class="commandbar">
 		<div class="commandbarContent">	
-			<security:authorize access="hasAnyRole('MEMBER_LOWERHOUSE','MEMBER_UPPERHOUSE','QIS_CLERK')">			
+			<security:authorize access="hasAnyRole('MEMBER_LOWERHOUSE','MEMBER_UPPERHOUSE','QIS_TYPIST')">			
 			<a href="#" id="new_record_ForNew" class="butSim">
 				<c:choose>
 					<c:when test="${selectedQuestionType!='questions_halfhourdiscussion_standalone'}">
@@ -541,8 +572,45 @@
 	<c:if test="${!(empty domain.number)}">
 	<p>
 		<label class="small"><spring:message code="question.number" text="Question Number"/>*</label>
-		<input id="formattedNumber" name="formattedNumber" value="${formattedNumber}" class="sText" readonly="readonly">		
+		<c:choose>
+		<c:when test="${memberStatusType=='question_complete' or memberStatusType=='question_incomplete'}">
+		<security:authorize access="hasAnyRole('QIS_TYPIST')">
+		<form:input path="number" cssClass="sText"/>
+		</security:authorize>	
+		</c:when>
+		<c:otherwise>
+		<security:authorize access="hasAnyRole('QIS_TYPIST')">
+		<input id="formattedNumber" name="formattedNumber" value="${formattedNumber}" class="sText" readonly="readonly">
 		<input id="number" name="number" value="${domain.number}" type="hidden">
+		</security:authorize>
+		</c:otherwise>
+		</c:choose>
+		
+		<security:authorize access="hasAnyRole('MEMBER_LOWERHOUSE','MEMBER_UPPERHOUSE')">
+		<input id="formattedNumber" name="formattedNumber" value="${formattedNumber}" class="sText"  readonly="readonly">
+		<input id="number" name="number" value="${domain.number}" type="hidden">
+		</security:authorize>		
+				
+		<form:errors path="number" cssClass="validationError"/>
+	</p>
+	</c:if>
+	
+	<c:if test="${(empty domain.number)}">
+	<p>
+		<label class="small"><spring:message code="question.number" text="Question Number"/>*</label>
+		<c:choose>
+		<c:when test="${memberStatusType=='question_complete' or memberStatusType=='question_incomplete'}">
+		<security:authorize access="hasAnyRole('QIS_TYPIST')">
+		<form:input path="number" cssClass="sText"/>
+		</security:authorize>	
+		</c:when>
+		<c:otherwise>
+		<security:authorize access="hasAnyRole('QIS_TYPIST')">
+		<input id="formattedNumber" name="formattedNumber" value="${formattedNumber}" class="sText" readonly="readonly">
+		<input id="number" name="number" value="${domain.number}" type="hidden">
+		</security:authorize>
+		</c:otherwise>
+		</c:choose>		
 		<form:errors path="number" cssClass="validationError"/>
 	</p>
 	</c:if>
@@ -583,17 +651,27 @@
 		<form:errors path="type" cssClass="validationError"/>		
 	</p>	
 		
+	<security:authorize access="hasAnyRole('MEMBER_LOWERHOUSE','MEMBER_UPPERHOUSE')">		
 	<p>
 		<label class="small"><spring:message code="question.primaryMember" text="Primary Member"/>*</label>
 		<input id="formattedPrimaryMember" name="formattedPrimaryMember"  value="${formattedPrimaryMember}" type="text" class="sText"  readonly="readonly" class="sText">
-		<input id="primaryMember" name="primaryMember" value="${primaryMember}" type="hidden">		
+		<input name="primaryMember" id="primaryMember" value="${primaryMember}" type="hidden">		
 		<form:errors path="primaryMember" cssClass="validationError"/>		
 	</p>
-	
 	<p>
 		<label class="small"><spring:message code="question.primaryMemberConstituency" text="Constituency"/>*</label>
 		<input type="text" readonly="readonly" value="${constituency}" class="sText" id="constituency" name="constituency">
 	</p>
+	</security:authorize>
+	
+	<security:authorize access="hasAnyRole('QIS_TYPIST')">		
+	<p>
+		<label class="small"><spring:message code="question.primaryMember" text="Primary Member"/>*</label>
+		<input id="formattedPrimaryMember" name="formattedPrimaryMember" type="text" class="sText autosuggest" value="${formattedPrimaryMember}">
+		<input name="primaryMember" id="primaryMember" type="hidden" value="${primaryMember}">		
+		<form:errors path="primaryMember" cssClass="validationError"/>		
+	</p>	
+	</security:authorize>	
 	
 	<c:if test="${selectedQuestionType=='questions_halfhourdiscussion_from_question'}">
 		<p>
@@ -701,7 +779,9 @@
 					<td style="vertical-align: top;">
 						<p>
 							<label class="small"><spring:message code="question.ministry" text="Ministry"/>*</label>
-							<select name="ministry" id="ministry" class="sSelect">
+							<input id="formattedMinistry" name="formattedMinistry" type="text" class="sText" value="${formattedMinistry}">
+							<input name="ministry" id="ministry" type="hidden" value="${ministrySelected}">
+							<%-- <select name="ministry" id="ministry" class="sSelect">
 								<c:forEach items="${ministries }" var="i">
 									<c:choose>
 										<c:when test="${i.id==ministrySelected }">
@@ -712,7 +792,7 @@
 										</c:otherwise>
 									</c:choose>
 								</c:forEach>
-							</select>		
+							</select> --%>	
 							<form:errors path="ministry" cssClass="validationError"/>
 							<br />
 							<label class="small"><spring:message code="question.department" text="Department"/></label>
@@ -813,19 +893,13 @@
 		<c:when test="${memberStatusType=='question_complete' or memberStatusType=='question_incomplete'}">
 			<p class="tright">
 			<input id="submit" type="submit" value="<spring:message code='generic.submit' text='Submit'/>" class="butDef">
+			<security:authorize access="hasAnyRole('MEMBER_LOWERHOUSE','MEMBER_UPPERHOUSE')">
 			<input id="sendforapproval" type="button" value="<spring:message code='question.sendforapproval' text='Send For Approval'/>" class="butDef">
+			</security:authorize>
 			<input id="submitquestion" type="button" value="<spring:message code='question.submitquestion' text='Submit Question'/>" class="butDef">
 			<input id="cancel" type="button" value="<spring:message code='generic.cancel' text='Cancel'/>" class="butDef">
 		</p>
-		</c:when>	
-		<c:otherwise>
-			<p class="tright">
-				<input id="submit" type="submit" value="<spring:message code='generic.submit' text='Submit'/>" class="butDef" disabled="disabled">
-				<input id="sendforapproval" type="button" value="<spring:message code='question.sendforapproval' text='Send For Approval'/>" class="butDef" disabled="disabled">
-				<input id="submitquestion" type="button" value="<spring:message code='question.submitquestion' text='Submit Question'/>" class="butDef" disabled="disabled">
-				<input id="cancel" type="button" value="<spring:message code='generic.cancel' text='Cancel'/>" class="butDef" disabled="disabled">
-			</p>
-		</c:otherwise>
+		</c:when>		
 		</c:choose>
 		
 	</div>
@@ -844,6 +918,8 @@
 	<input id="usergroup" name="usergroup" value="${usergroup}" type="hidden">
 	<input id="usergroupType" name="usergroupType" value="${usergroupType}" type="hidden">
 	<input type="hidden" name="originalType" id="originalType" value="${originalType}">
+	<input type="hidden" name="department" id="department" value="${departmentSelected }">
+	
 </form:form>
 <input id="currentStatus" value="${internalStatusType }" type="hidden">
 

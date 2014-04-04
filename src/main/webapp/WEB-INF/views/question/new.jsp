@@ -10,6 +10,20 @@
 		textarea[class=wysiwyg]{
 			display:block;
 		}
+		 .ui-combobox-toggle {
+		    position: absolute;
+		    top: 0;
+		    bottom: 0;
+		    margin-left: -1px;
+		    padding: 0;
+		    /* support: IE7 */
+		    *height: 1.7em;
+		    *top: 0.1em;
+ 		 }
+		  .ui-combobox-input {
+		    margin: 0;
+		    padding: 0.3em;
+		  }
 	</style>
 	
 	<script type="text/javascript"><!--
@@ -119,10 +133,13 @@
 	
 	$(document).ready(function(){
 		
-		$("#ministry").change(function(){
-			if($(this).val()!=''){
-				loadGroup($(this).val());
-				loadSubDepartments($(this).val());
+		/*$("#formattedMinistry").change(function(){
+			var ministryVal=$('#ministry').val();
+			console.log(ministryVal);
+			if(ministryVal!=''){
+				console.log(ministryVal);
+				loadGroup(ministryVal);
+				loadSubDepartments(ministryVal);
 			}else{
 				$("#formattedGroup").val("");
 				$("#group").val("");				
@@ -133,21 +150,21 @@
 				$("#subDepartment").prepend("<option value=''>----"+$("#pleaseSelectMsg").val()+"----</option>");				
 				$("#answeringDate").prepend("<option value=''>----"+$("#pleaseSelectMsg").val()+"----</option>");					
 			}
-		});					
+		});	*/				
 		
-		if($('#ministrySelected').val()=="" || $('#ministrySelected').val()==undefined){		
+		/* if($('#ministrySelected').val()=="" || $('#ministrySelected').val()==undefined){		
 			$("#ministry").prepend("<option value='' selected='selected'>----"+$("#pleaseSelectMsg").val()+"----</option>");
-		}
+		} */
 		$("#subDepartment").prepend("<option value=''>----"+$("#pleaseSelectMsg").val()+"----</option>");				
 		$("#answeringDate").prepend("<option value=''>----"+$("#pleaseSelectMsg").val()+"----</option>");
 		
 		//autosuggest		
-		$( ".autosuggest").autocomplete({
+		$( "#formattedPrimaryMember").autocomplete({
 			minLength:3,			
 			source:'ref/member/supportingmembers?session='+$("#session").val(),
 			select:function(event,ui){			
 			$("#primaryMember").val(ui.item.id);
-		}	
+			}			
 		});		
 		$("select[name='"+controlName+"']").hide();			
 		$( ".autosuggestmultiple" ).change(function(){
@@ -491,6 +508,33 @@
 		$("#selectedSupportingMembers").bind('copy paste', function (e) {
 		       e.preventDefault();
 		 });
+		
+
+		$( "#formattedMinistry").autocomplete({
+			minLength:3,			
+			source:'ref/getministries?session='+$('#session').val(),
+			select:function(event,ui){			
+			$("#ministry").val(ui.item.id);
+			},
+			change:function(event,ui){
+				var ministryVal=ui.item.id;	
+				console.log(ministryVal);
+				if(ministryVal!=''){
+					console.log(ministryVal);
+					loadGroup(ministryVal);
+					loadSubDepartments(ministryVal);
+				}else{
+					$("#formattedGroup").val("");
+					$("#group").val("");				
+					//$("#department").empty();				
+					$("#subDepartment").empty();				
+					$("#answeringDate").empty();
+					//$("#department").prepend("<option value=''>----"+$("#pleaseSelectMsg").val()+"----</option>");				
+					$("#subDepartment").prepend("<option value=''>----"+$("#pleaseSelectMsg").val()+"----</option>");				
+					$("#answeringDate").prepend("<option value=''>----"+$("#pleaseSelectMsg").val()+"----</option>");					
+				}
+			}
+		});
 	});
 	</script>
 </head>
@@ -509,7 +553,7 @@
 	</h2>
 	<form:errors path="version" cssClass="validationError"/>
 	
-	<security:authorize access="hasAnyRole('QIS_CLERK')">	
+	<security:authorize access="hasAnyRole('QIS_TYPIST')">	
 	<p>
 		<label class="small"><spring:message code="question.number" text="Motion Number"/>*</label>
 		<form:input path="number" cssClass="sText"/>
@@ -559,7 +603,7 @@
 	</p>
 	</security:authorize>
 	
-	<security:authorize access="hasAnyRole('QIS_CLERK')">		
+	<security:authorize access="hasAnyRole('QIS_TYPIST')">		
 	<p>
 		<label class="small"><spring:message code="question.primaryMember" text="Primary Member"/>*</label>
 		<input id="formattedPrimaryMember" name="formattedPrimaryMember" type="text" class="sText autosuggest" value="${formattedPrimaryMember}">
@@ -652,7 +696,9 @@
 				<td>
 				<p>
 					<label class="small"><spring:message code="question.ministry" text="Ministry"/>*</label>
-					<select name="ministry" id="ministry" class="sSelect">
+					<input id="formattedMinistry" name="formattedMinistry" type="text" class="sText" value="${formattedMinistry}">
+					<input name="ministry" id="ministry" type="hidden" value="${ministrySelected}">
+					<%-- <select name="ministry" id="ministry" class="sSelect">
 						<c:forEach items="${ministries }" var="i">
 							<c:choose>
 								<c:when test="${i.id==ministrySelected }">
@@ -663,7 +709,7 @@
 								</c:otherwise>
 							</c:choose>
 						</c:forEach>
-					</select>
+					</select> --%>
 					<form:errors path="ministry" cssClass="validationError"/>
 					<br />	
 					<label class="small"><spring:message code="question.department" text="Department"/>*</label>
@@ -752,7 +798,9 @@
 		<h2></h2>
 		<p class="tright">
 			<input id="submit" type="submit" value="<spring:message code='generic.submit' text='Submit'/>" class="butDef">
+			<security:authorize access="hasAnyRole('MEMBER_LOWERHOUSE','MEMBER_UPPERHOUSE')">	
 			<input id="sendforapproval" type="button" value="<spring:message code='question.sendforapproval' text='Send For Approval'/>" class="butDef">
+			</security:authorize>
 			<input id="submitquestion" type="button" value="<spring:message code='question.submitquestion' text='Submit Question'/>" class="butDef">
 			<input id="cancel" type="button" value="<spring:message code='generic.cancel' text='Cancel'/>" class="butDef">
 		</p>

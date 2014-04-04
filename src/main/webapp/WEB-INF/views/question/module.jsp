@@ -61,6 +61,8 @@
 						/**** session year changes then reload grid****/
 						$("#selectedSessionYear").change(function() {
 							var value = $(this).val();
+							$('#questionDepartment').hide();
+							$('#subDepartment').val("");
 							if (value != "") {
 								loadGroupsFromSessions();
 							}
@@ -68,6 +70,8 @@
 						/**** session type changes then reload grid****/
 						$("#selectedSessionType").change(function() {
 							var value = $(this).val();
+							$('#questionDepartment').hide();
+							$('#subDepartment').val("");
 							if (value != "") {
 								loadGroupsFromSessions();
 							}
@@ -116,7 +120,20 @@
 							var value = $(this).val();
 							if (value != "") {
 								$("#ugparam").val(value);
-								reloadQuestionGrid();
+								$.get('ref/getDepartment?group='+value+'&userGroup='+$('#currentusergroup').val(),function(data){
+									var subDepartmentText='';
+									$('#selectedSubDepartment').empty();
+									if(data.length>0){
+										for(var i=0;i<data.length;i++){
+											subDepartmentText+="<option value='"+data[i].id+"'>"+data[i].name;
+											
+										}
+										$("#selectedSubDepartment").html(subDepartmentText);
+									}
+								}).done(function(){
+									reloadQuestionGrid();
+								});
+								
 							}
 						});
 						/**** Chart Tab ****/
@@ -148,6 +165,14 @@
 						$("#bulkputupassistant_tab").click(function() {
 							$("#selectionDiv1").hide();
 							bulkPutupAssistant();
+						});
+						
+						/**** status changes then reload grid****/
+						$("#selectedSubDepartment").change(function() {
+							var value = $(this).val();
+							if (value != "") {
+								reloadQuestionGrid();
+							}
 						});
 						/**** show question list method is called by default.****/
 						showQuestionList();
@@ -202,7 +227,8 @@
 				+ $("#ugparam").val() + "&status=" + $("#selectedStatus").val()
 				+ "&role=" + $("#srole").val() + "&usergroup="
 				+ $("#currentusergroup").val() + "&usergroupType="
-				+ $("#currentusergroupType").val());
+				+ $("#currentusergroupType").val()+"&subdepartment="
+				+ $("#selectedSubDepartment").val());
 	}
 
 	/**** new question ****/
@@ -210,8 +236,16 @@
 		$("#cancelFn").val("newQuestion");
 		//since id of question has not been created so key is set to empty value
 		$("#key").val("");
-		showTabByIdAndUrl('details_tab', 'question/new?'
-				+ $("#gridURLParams_ForNew").val());
+		var parameters = "houseType=" + $("#selectedHouseType").val()
+		+ "&sessionYear=" + $("#selectedSessionYear").val()
+		+ "&sessionType=" + $("#selectedSessionType").val()
+		+ "&questionType=" + $("#selectedQuestionType").val()
+		+ "&ugparam=" + $("#ugparam").val() + "&status="
+		+ $("#selectedStatus").val() + "&role=" + $("#srole").val()
+		+ "&usergroup=" + $("#currentusergroup").val()
+		+ "&usergroupType=" + $("#currentusergroupType").val();
+		var resourceUrl="question/new?"+parameters;
+		showTabByIdAndUrl('details_tab', resourceUrl);
 	}
 	/**** edit question ****/
 	/* function editQuestion() {
@@ -227,15 +261,21 @@
 	} */
 	function editQuestion(row) {
 		$("#cancelFn").val("editQuestion");
-
 		row = $('#key').val();
-
 		if (row == null || row == '') {
 			$.prompt($('#selectRowFirstMessage').val());
 			return false;
 		} else {
-			showTabByIdAndUrl('details_tab', 'question/' + row + '/edit?'
-					+ $("#gridURLParams").val());
+			var parameters = "houseType=" + $("#selectedHouseType").val()
+			+ "&sessionYear=" + $("#selectedSessionYear").val()
+			+ "&sessionType=" + $("#selectedSessionType").val()
+			+ "&questionType=" + $("#selectedQuestionType").val()
+			+ "&ugparam=" + $("#ugparam").val() + "&status="
+			+ $("#selectedStatus").val() + "&role=" + $("#srole").val()
+			+ "&usergroup=" + $("#currentusergroup").val()
+			+ "&usergroupType=" + $("#currentusergroupType").val();
+			var resourceUrl="question/" + row + "/edit?"+parameters;
+			showTabByIdAndUrl('details_tab',resourceUrl);
 		}
 	}
 	function showDemo() {
@@ -245,8 +285,16 @@
 	function rowDblClickHandler(rowid, iRow, iCol, e) {
 		$("#cancelFn").val("rowDblClickHandler");
 		$('#key').val(rowid);
-		showTabByIdAndUrl('details_tab', 'question/' + rowid + '/edit?'
-				+ $("#gridURLParams").val());
+		var parameters = "houseType=" + $("#selectedHouseType").val()
+		+ "&sessionYear=" + $("#selectedSessionYear").val()
+		+ "&sessionType=" + $("#selectedSessionType").val()
+		+ "&questionType=" + $("#selectedQuestionType").val()
+		+ "&ugparam=" + $("#ugparam").val() + "&status="
+		+ $("#selectedStatus").val() + "&role=" + $("#srole").val()
+		+ "&usergroup=" + $("#currentusergroup").val()
+		+ "&usergroupType=" + $("#currentusergroupType").val();
+		var resourceUrl="question/" + row + "/edit?"+parameters;
+		showTabByIdAndUrl('details_tab', resourceUrl);
 	}
 	/**** delete question ****/
 	function deleteQuestion() {
@@ -296,7 +344,8 @@
 						+ $("#selectedStatus").val() + "&role="
 						+ $("#srole").val() + "&usergroup="
 						+ $("#currentusergroup").val() + "&usergroupType="
-						+ $("#currentusergroupType").val());
+						+ $("#currentusergroupType").val()+"&subDepartment="
+						+ $("#selectedSubDepartment").val());
 		var oldURL = $("#grid").getGridParam("url");
 		var baseURL = oldURL.split("?")[0];
 		newURL = baseURL + "?" + $("#gridURLParams").val();
@@ -452,7 +501,7 @@
 			</security:authorize>
 			<c:if test="${questionTypeType == 'questions_starred'}">
 				<security:authorize
-					access="hasAnyRole('QIS_ASSISTANT', 'QIS_UNDER_SECRETARY',
+					access="hasAnyRole('QIS_CLERK','QIS_ASSISTANT', 'QIS_UNDER_SECRETARY',
 						'QIS_DEPUTY_SECRETARY', 'QIS_PRINCIPAL_SECRETARY', 'QIS_SPEAKER', 'QIS_JOINT_SECRETARY',
 						'QIS_SECRETARY', 'QIS_OFFICER_ON_SPECIAL_DUTY', 'QIS_DEPUTY_SPEAKER', 'QIS_CHAIRMAN',
 						'QIS_DEPUTY_CHAIRMAN', 'QIS_SECTION_OFFICER', 'QIS_UNDER_SECRETARY_COMMITTEE',
@@ -464,7 +513,7 @@
 			</c:if>
 
 			<security:authorize
-				access="hasAnyRole('QIS_ASSISTANT', 'QIS_UNDER_SECRETARY',
+				access="hasAnyRole('QIS_CLERK','QIS_ASSISTANT', 'QIS_UNDER_SECRETARY',
 				'QIS_DEPUTY_SECRETARY', 'QIS_PRINCIPAL_SECRETARY', 'QIS_JOINT_SECRETARY',
 				'QIS_SECRETARY', 'QIS_OFFICER_ON_SPECIAL_DUTY', 'QIS_SECTION_OFFICER', 
 				'QIS_UNDER_SECRETARY_COMMITTEE','SUPER_ADMIN','HDS_ASSISTANT','QIS_ADDITIONAL_SECRETARY')">
@@ -497,7 +546,6 @@
 				'QIS_SECRETARY', 'QIS_OFFICER_ON_SPECIAL_DUTY', 'QIS_DEPUTY_SPEAKER', 'QIS_CHAIRMAN',
 				'QIS_DEPUTY_CHAIRMAN', 'QIS_SECTION_OFFICER', 'QIS_UNDER_SECRETARY_COMMITTEE',
 				'SUPER_ADMIN','HDS_ASSISTANT','QIS_ADDITIONAL_SECRETARY')">
-
 				<li><a id="ballot_tab" href="#" class="tab"> <spring:message
 							code="question.ballot" text="Ballot"></spring:message>
 				</a></li>
@@ -631,11 +679,26 @@
 							<c:out value="${i.name}"></c:out>
 						</option>
 					</c:forEach>
-				</select> |			 
+				</select> |	
+				<div id='questionDepartment' style="display:inline;">
+				<c:if test="${questionTypeType!='questions_halfhourdiscussion_standalone'}">
+					<a href="#" id="select_department" class="butSim"> <spring:message
+							code="question.department" text="Group" />
+					</a>
+					<select name="selectedSubDepartment" id="selectedSubDepartment"
+						style="width: 250px; height: 25px;">
+						<c:forEach items="${subDepartments}" var="i">
+							<option value="${i.id}">
+								<c:out value="${i.name}"></c:out>
+							</option>
+						</c:forEach>
+					</select>|
+				</c:if>	
+				</div>	 
 			</security:authorize>
-
+			
 			<security:authorize
-				access="hasAnyRole('MEMBER_LOWERHOUSE','MEMBER_UPPERHOUSE','QIS_CLERK')">
+				access="hasAnyRole('MEMBER_LOWERHOUSE','MEMBER_UPPERHOUSE','QIS_TYPIST','HDS_TYPIST')">
 				<a href="#" id="select_status" class="butSim"> <spring:message
 						code="question.status" text="Status" />
 				</a>
@@ -672,6 +735,7 @@
 			</security:authorize>
 			<security:authorize
 				access="hasAnyRole('QIS_ASSISTANT','HDS_ASSISTANT')">
+				<hr>
 				<a href="#" id="select_itemcount" class="butSim"> <spring:message
 						code="question.itemcount" text="No. of Questions(Bulk Putup)" />
 				</a>

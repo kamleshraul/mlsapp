@@ -17,6 +17,7 @@
 					+"&role="+$("#srole").val()
 					+"&usergroup="+$("#currentusergroup").val()
 					+"&usergroupType="+$("#currentusergroupType").val()
+					+"&subDepartment="+$('#selectedSubDepartment').val()
 					);
 			
 			$("#member_statistics").click(function(){
@@ -59,13 +60,12 @@
 						+"&usergroup="+$("#currentusergroup").val()
 						+"&usergroupType="+$("#currentusergroupType").val()
 						);
-				$('#gridURLParams_ForNew').val($('#gridURLParams').val());
-				
+				$('#gridURLParams_ForNew').val($('#gridURLParams').val());				
 				var standAlone = $("#deviceTypeMaster option[value='"+$(this).val()+"']").text();
 				if(standAlone=='questions_halfhourdiscussion_standalone'){
 					$("#new_record").html("<spring:message code='question.newStandAlone' text='New'/>");
 				}
-			});
+			});		
 			
 		});
 		/**** double clicking record in grid handler ****/
@@ -93,7 +93,7 @@
 	<div>
 	<div class="commandbar">
 		<div class="commandbarContent">	
-			<security:authorize access="hasAnyRole('MEMBER_LOWERHOUSE','MEMBER_UPPERHOUSE','QIS_CLERK')">			
+			<security:authorize access="hasAnyRole('MEMBER_LOWERHOUSE','MEMBER_UPPERHOUSE','QIS_TYPIST','HDS_TYPIST')">			
 			<a href="#" id="new_record" class="butSim">
 				<spring:message code="question.new" text="New"/>
 			</a> |
@@ -101,11 +101,11 @@
 			<a href="#" id="edit_record" class="butSim">
 			<spring:message code="question.edit" text="Edit"/>
 			</a> |
-			<security:authorize access="hasAnyRole('MEMBER_LOWERHOUSE','MEMBER_UPPERHOUSE','QIS_CLERK')">			
+			<security:authorize access="hasAnyRole('MEMBER_LOWERHOUSE','MEMBER_UPPERHOUSE','QIS_TYPIST','HDS_TYPIST')">			
 			<a href="#" id="delete_record" class="butSim">
 				<spring:message code="question.delete" text="Delete"/>
 			</a> |			
-			<a href="#" id="submitQuestion" class="butSim">
+			<a href="#" id="submitQuestion" class="butSim" style="display: none;">
 				<spring:message code="generic.submitquestion" text="submit"/>
 			</a> |
 			</security:authorize>			
