@@ -2190,6 +2190,7 @@ public class ReferenceController extends BaseController {
 		List<MasterVO> masterVOs=new ArrayList<MasterVO>();
 		for(SubDepartment i:subDepartments){
 			MasterVO masterVO=new MasterVO(i.getId(),i.getName());
+			masterVO.setValue(String.valueOf(i.getDepartment().getId()));
 			masterVOs.add(masterVO);
 		}
 		return masterVOs;
@@ -4905,4 +4906,73 @@ public class ReferenceController extends BaseController {
 			return returnValue;
 		}		
 		
+		@RequestMapping(value="/getDepartment", method=RequestMethod.GET)
+		public @ResponseBody List<MasterVO> getDepartmentFromGroup(final HttpServletRequest request, final Locale locale){
+			String strGroup=request.getParameter("group");
+			String strUserGroup=request.getParameter("userGroup");
+			List<MasterVO> masterVos=new ArrayList<MasterVO>();
+			if(strGroup!=null && !strGroup.isEmpty() 
+				&& strUserGroup!=null && !strUserGroup.isEmpty()){
+				Group group=Group.findById(Group.class, Long.parseLong(strGroup));
+				List<Ministry> ministrys= group.getMinistries();
+				UserGroup userGroup=UserGroup.findById(UserGroup.class, Long.parseLong(strUserGroup));
+				Map<String,String> parameters=UserGroup.findParametersByUserGroup(userGroup);
+				if(parameters.get(ApplicationConstants.MINISTRY_KEY+"_"+locale.toString())!=null && !parameters.get(ApplicationConstants.SUBDEPARTMENT_KEY+"_"+locale.toString()).equals(" ")){
+					String strministries=parameters.get(ApplicationConstants.MINISTRY_KEY+"_"+locale.toString());
+					for(Ministry m:ministrys){
+						if(strministries.contains(m.getName())){
+							List<SubDepartment> subDepartments=MemberMinister.findAssignedSubDepartments(m, locale.toString());
+							for(SubDepartment s:subDepartments){
+								MasterVO masterVo=new MasterVO();
+								masterVo.setId(s.getId());
+								masterVo.setName(s.getName());
+								masterVos.add(masterVo);
+							}
+						}
+					}
+					
+				}
+			}
+			return masterVos;
+	}
+		
+
+		@RequestMapping(value="/getministries",method=RequestMethod.GET)
+		public @ResponseBody List<AutoCompleteVO> getMinistries(final HttpServletRequest request,
+				final Locale locale,
+				final ModelMap model){
+			CustomParameter customParameter=CustomParameter.findByName(CustomParameter.class,"DEPLOYMENT_SERVER", "");
+			List<MasterVO> ministerVOs=new ArrayList<MasterVO>();
+			List<AutoCompleteVO> autoCompleteVOs=new ArrayList<AutoCompleteVO>();
+			String strSession=request.getParameter("session");
+			Session session=null;
+			if(strSession!=null && !strSession.isEmpty()){
+				session=Session.findById(Session.class, Long.parseLong(strSession));
+				
+			}
+			if(customParameter!=null){
+				String server=customParameter.getValue();
+				if(server.equals("TOMCAT")){
+					String strParam=request.getParameter("term");
+					try {
+						String param=new String(strParam.getBytes("ISO-8859-1"),"UTF-8");
+						ministerVOs = Ministry.findMinistriesAssignedToGroupsByTerm(session.getHouse().getType(), session.getYear(), session.getType(),param, locale.toString());
+					}
+					catch (UnsupportedEncodingException e){
+						e.printStackTrace();
+					}
+				}else{
+					String param=request.getParameter("term");
+					ministerVOs=Ministry.findMinistriesAssignedToGroupsByTerm(session.getHouse().getType(), session.getYear(), session.getType(),param, locale.toString());
+				}
+			}
+			for(MasterVO i:ministerVOs){
+				AutoCompleteVO autoCompleteVO=new AutoCompleteVO();
+				autoCompleteVO.setId(i.getId());
+				autoCompleteVO.setValue(i.getName());
+				autoCompleteVOs.add(autoCompleteVO);
+			}
+
+			return autoCompleteVOs;
+		}	
 }
