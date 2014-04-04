@@ -18,6 +18,7 @@ import javax.persistence.Table;
 
 import org.codehaus.jackson.annotate.JsonIgnoreProperties;
 import org.mkcl.els.common.exception.ELSException;
+import org.mkcl.els.common.vo.MasterVO;
 import org.mkcl.els.repository.MinistryRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Configurable;
@@ -100,6 +101,10 @@ public class Ministry extends BaseDomain implements Serializable{
         return getMinistryRepository().findMinistriesAssignedToGroups(houseType,sessionYear,sessionType,locale);
 
     }
+    public static List<MasterVO> findMinistriesAssignedToGroupsByTerm(HouseType houseType,
+			Integer sessionYear, SessionType sessionType, String param, String locale) {
+    	 return getMinistryRepository().findMinistriesAssignedToGroupsByTerm(houseType,sessionYear,sessionType,param,locale);
+	}
 
     /**** Getters and Setters ****/
     
@@ -156,5 +161,7 @@ public class Ministry extends BaseDomain implements Serializable{
 	public void setRemarks(final String remarks) {
 		this.remarks = remarks;
 	}
+
+	
 
 }

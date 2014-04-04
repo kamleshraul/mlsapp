@@ -164,4 +164,7 @@ public class UserGroup extends BaseDomain implements Serializable {
 			final String locale) throws ELSException {
 		return getUserGroupRepository().findQuestionActor(question, actor, level, locale);
 	}
+	public static Map<String, String> findParametersByUserGroup(UserGroup userGroup) {
+		return getUserGroupRepository().findParametersByUserGroup(userGroup);
+	}
 }
