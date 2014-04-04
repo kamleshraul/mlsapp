@@ -1848,18 +1848,18 @@ public class QuestionWorkflowController  extends BaseController{
 	public String bulkApproval(final HttpServletRequest request,final Locale locale,
 			final Model model){			
 		String[] selectedItems = request.getParameterValues("items[]");
-		String strStatus=request.getParameter("status");
+		String strInternalStatus=request.getParameter("internalstatus");
 		String strWorkflowSubType=request.getParameter("workflowSubType");
 		StringBuffer recommendAdmissionMsg=new StringBuffer();
 		StringBuffer recommendRejectionMsg=new StringBuffer();
 		StringBuffer admittedMsg=new StringBuffer();
 		StringBuffer rejectedMsg=new StringBuffer();
 		if(selectedItems != null && (selectedItems.length >0)
-				&&strStatus!=null&&!strStatus.isEmpty()
+				&&strInternalStatus!=null&&!strInternalStatus.isEmpty()
 				&&strWorkflowSubType!=null&&!strWorkflowSubType.isEmpty()) {
 			Status status=null;
-			if(!strStatus.equals("-")){
-				status=Status.findById(Status.class,Long.parseLong(strStatus));
+			if(!strInternalStatus.equals("-")){
+				status=Status.findById(Status.class,Long.parseLong(strInternalStatus));
 			}
 			for(String i : selectedItems) {
 				if(strWorkflowSubType.equals("request_to_supporting_member")){
