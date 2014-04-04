@@ -7,6 +7,8 @@ import java.util.List;
 
 import org.mkcl.els.common.exception.ELSException;
 import org.mkcl.els.common.util.ApplicationConstants;
+import org.mkcl.els.common.vo.MasterVO;
+import org.mkcl.els.common.vo.MinistryVO;
 import org.mkcl.els.domain.CustomParameter;
 import org.mkcl.els.domain.HouseType;
 import org.mkcl.els.domain.Ministry;
@@ -114,6 +116,39 @@ public class MinistryRepository extends BaseRepository<Ministry, Long> {
 		}
         return ministries;
     }
+
+	public List<MasterVO> findMinistriesAssignedToGroupsByTerm(HouseType houseType,
+			Integer sessionYear, SessionType sessionType, String param,
+			String locale) {
+		String strQuery="SELECT m.id,m.name" +
+				" FROM ministries AS m " +
+				"JOIN groups_ministries AS gm " +
+				"JOIN groups AS g " +
+				"WHERE m.id=gm.ministry_id " +
+				"AND gm.group_id=g.id " +
+				"AND m.locale=:locale " +
+				"AND g.housetype_id=:houseTypeId " +
+				"AND g.sessiontype_id=:sessionTypeId " +
+				"AND g.group_year=:sessionYear " +
+				"AND m.name like :term " +
+				"ORDER BY m.name ASC";
+		javax.persistence.Query query=this.em().createNativeQuery(strQuery);
+		query.setParameter("locale", locale);
+		query.setParameter("houseTypeId", houseType.getId());
+		query.setParameter("sessionTypeId", sessionType.getId());
+		query.setParameter("sessionYear", sessionYear);
+		query.setParameter("term","%"+param+"%");
+		List ministries=query.getResultList();
+		List<MasterVO> ministryVos=new ArrayList<MasterVO>();
+		for(Object i:ministries){
+			Object[] o=(Object[]) i;
+			MasterVO masterVO=new MasterVO();
+			masterVO.setId(Long.parseLong(o[0].toString()));
+			masterVO.setName( o[1].toString());
+			ministryVos.add(masterVO);
+		}
+		return ministryVos;
+	}
 
 	
 }

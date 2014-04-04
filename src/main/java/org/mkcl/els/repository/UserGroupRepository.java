@@ -308,4 +308,12 @@ public class UserGroupRepository extends BaseRepository<UserGroup, Serializable>
 		}
 
 	}
+
+	public Map<String, String> findParametersByUserGroup(UserGroup userGroup) {
+		String strQuery="SELECT u FROM UserGroup u WHERE u.id=:userGroupId";
+		Query query=this.em().createQuery(strQuery);
+		query.setParameter("userGroupId", userGroup.getId());
+		UserGroup ug1=  (UserGroup) query.getSingleResult();
+		return ug1.getParameters();
+	}
 }
