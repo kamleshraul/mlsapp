@@ -105,8 +105,7 @@ public class MemberPartyRepository extends
 	    	query.setParameter("party", association.getParty());
 	    	query.setParameter("recordIndex", association.getRecordIndex());
 	    	query.setParameter("fromDate", association.getFromDate());
-	    	query.setParameter("toDate", association.getToDate());
-	    	
+	    	query.setParameter("toDate", association.getToDate());	    	
 	    	mPartyAssociation = (MemberPartyAssociation) query.getSingleResult();
     	}catch (Exception e) {
 			e.printStackTrace();

@@ -49,7 +49,7 @@ public class ElectionRepository extends BaseRepository<Election,Long> {
 	            
 	        }else{
 	            query="SELECT e FROM Election e" +
-	            		" WHERE e.locale:locale" +
+	            		" WHERE e.locale=:locale" +
 	            		" AND e.electionType.houseType.type=:houseType";
 	            
 	            jpQuery = this.em().createQuery(query, Election.class);

@@ -9,6 +9,8 @@
  */
 package org.mkcl.els.repository;
 
+import java.math.BigInteger;
+import java.text.DateFormat;
 import java.util.Date;
 import java.util.List;
 
@@ -16,6 +18,8 @@ import javax.persistence.EntityNotFoundException;
 import javax.persistence.Query;
 
 import org.mkcl.els.common.exception.ELSException;
+import org.mkcl.els.common.util.ApplicationConstants;
+import org.mkcl.els.common.util.FormaterUtil;
 import org.mkcl.els.domain.Member;
 import org.mkcl.els.domain.User;
 import org.slf4j.Logger;
@@ -85,46 +89,55 @@ public class UserRepository extends BaseRepository<User,Long>{
 		
 	}
 	public User find(final Member member) throws ELSException {
-		StringBuffer buffer=new StringBuffer();
-		buffer.append("SELECT u FROM User u WHERE ");
-		if(!member.getFirstName().isEmpty()){
-			buffer.append(" u.firstName=:firstName");
-		}
-		if(!member.getMiddleName().isEmpty()){
-			buffer.append(" AND u.middleName=:middleName");
-		}
-		if(!member.getLastName().isEmpty()){
-			buffer.append(" AND u.lastName=:lastName");
-		}
-		if(member.getBirthDate()!=null){
-			buffer.append(" AND u.birthDate=:birthDate");
-		}
-		buffer.append(" ORDER BY u.lastName");
+//		StringBuffer buffer=new StringBuffer();
+//		buffer.append("SELECT u FROM User u WHERE ");
+//		if(!member.getFirstName().isEmpty()){
+//			buffer.append("u.firstName=:firstName");
+//		}
+//		if(!member.getMiddleName().isEmpty()){
+//			buffer.append(" AND u.middleName=:middleName");
+//		}
+//		if(!member.getLastName().isEmpty()){
+//			buffer.append(" AND u.lastName=:lastName");
+//		}
+//		if(member.getBirthDate()!=null){
+//			buffer.append(" AND u.birthDate=:birthDate");
+//		}
+//		buffer.append(" ORDER BY u.lastName");
+//		
+//		Query query=this.em().createQuery(buffer.toString());
+//		if(!member.getFirstName().isEmpty()){
+//			query.setParameter("firstName", member.getFirstName());
+//		}
+//		if(!member.getMiddleName().isEmpty()){
+//			query.setParameter("middleName", member.getMiddleName());
+//		}
+//		if(!member.getLastName().isEmpty()){
+//			query.setParameter("lastName", member.getLastName());
+//		}
+//		if(member.getBirthDate()!=null){
+//			query.setParameter("birthDate",member.getBirthDate());
+//		}		
+		String dbBirthDate=FormaterUtil.formatDateToString(member.getBirthDate(), ApplicationConstants.DB_DATEFORMAT,"en_US");
 		
-		Query query=this.em().createQuery(buffer.toString());
-		if(!member.getFirstName().isEmpty()){
-			query.setParameter("firstName", member.getFirstName());
-		}
-		if(!member.getMiddleName().isEmpty()){
-			query.setParameter("middleName", member.getMiddleName());
-		}
-		if(!member.getLastName().isEmpty()){
-			query.setParameter("lastName", member.getLastName());
-		}
-		if(member.getBirthDate()!=null){
-			query.setParameter("birthDate",member.getBirthDate());
-		}
+		String strQuery="SELECT u.id FROM users as u WHERE u.first_name='"+member.getFirstName()+"' AND u.middle_name='"+
+				member.getMiddleName()+ "' AND u.last_name='"+  member.getLastName()+"' AND u.birth_date='"+dbBirthDate+"'";
+		Query query=this.em().createNativeQuery(strQuery);		
 		try{
-			User user= (User) query.getSingleResult();
-			if(user!=null){			
+			Long id=new Long(0);
+			Object results= query.getSingleResult();
+			if(results!=null){
+				BigInteger o=(BigInteger) results;				
+				id=Long.parseLong(o.toString());	
+				User user=User.findById(User.class, id);
 				return user;
 			}else{
 				return new User();
-			}
+			}			
 		}catch(EntityNotFoundException ex){
 			logger.error(ex.getMessage());
 			return new User();
-		}catch(Exception e){
+		}catch(Exception e){			
 			e.printStackTrace();
 			logger.error(e.getMessage());
 			ELSException elsException=new ELSException();
@@ -133,6 +146,8 @@ public class UserRepository extends BaseRepository<User,Long>{
 		}
 		
 	}
+	
+	
 	public User findbyNameBirthDate(final String firstName,final String middleName,final String lastName,
 			final Date birthDate) throws ELSException {
 		String strQuery="SELECT u FROM User u WHERE u.firstName=:firstName AND u.middleName=:middleName"+
