@@ -159,16 +159,17 @@ public class MemberPartyAssociation implements Serializable {
     public Boolean isDuplicate() {
         MemberPartyAssociation duplicate = MemberPartyAssociation
                 .findByPK(this);
-        if (duplicate == null) {
-            return false;
+        if (duplicate.getMember()==null) {
+        	  return false;
         }
         return true;
     }
     @Transactional(readOnly = true)
     public boolean isVersionMismatch() {
         Boolean retVal = false;
+        MemberPartyAssociation storedDomain=MemberPartyAssociation.findByMemberIdAndId(this.getMember().getId(),this.getRecordIndex());
         MemberPartyAssociation domain = getMemberPartyRepository().findByPK(
-                    this);
+                    storedDomain);
         if(domain!=null){
             retVal = (!domain.getVersion().equals(this.version));
         }

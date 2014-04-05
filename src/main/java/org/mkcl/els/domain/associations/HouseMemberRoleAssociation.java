@@ -218,7 +218,8 @@ public class HouseMemberRoleAssociation implements Serializable {
     @Transactional(readOnly = true)
     public boolean isVersionMismatch() throws ELSException {
         Boolean retVal = false;
-        HouseMemberRoleAssociation domain = getMemberHouseRoleRepository().findByPK(this);
+        HouseMemberRoleAssociation storedDomain=HouseMemberRoleAssociation.findByMemberIdAndId(this.getMember().getId(),this.getRecordIndex());
+        HouseMemberRoleAssociation domain = getMemberHouseRoleRepository().findByPK(storedDomain);
         if(domain!=null){
             retVal = (!domain.getVersion().equals(this.version));
         }
