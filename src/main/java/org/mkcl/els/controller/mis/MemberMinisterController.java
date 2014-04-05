@@ -131,7 +131,8 @@ public class MemberMinisterController extends GenericController<MemberMinister> 
 		request.getSession().setAttribute("houseType", request.getParameter("houseType"));
 	}
 	
-	@RequestMapping(value="/department/{id}/delete", method=RequestMethod.DELETE)
+	
+	@RequestMapping(value="/department/{id}/delete", method=RequestMethod.POST)
 	public String deleteMemberDepartment(final @PathVariable("id") Long id,
 	        final ModelMap model,
 	        final HttpServletRequest request) {

@@ -28,6 +28,7 @@ import org.mkcl.els.domain.Degree;
 import org.mkcl.els.domain.FamilyMember;
 import org.mkcl.els.domain.Gender;
 import org.mkcl.els.domain.House;
+import org.mkcl.els.domain.HouseType;
 import org.mkcl.els.domain.Language;
 import org.mkcl.els.domain.MaritalStatus;
 import org.mkcl.els.domain.Member;
@@ -417,8 +418,17 @@ public class MemberPersonalController extends GenericController<Member> {
     				Long houseId=Long.parseLong(request.getParameter("house"));
     				HouseMemberRoleAssociation houseMemberRoleAssociation=new HouseMemberRoleAssociation();
     				House house=House.findById(House.class,houseId);
-    				houseMemberRoleAssociation.setFromDate(house.getFirstDate());
-    				houseMemberRoleAssociation.setToDate(house.getLastDate());
+    				HouseType houseType=null;
+    				if(house!=null){
+    					houseType=house.getType();
+    					if(houseType!=null&&houseType.getType().equals(ApplicationConstants.UPPER_HOUSE)){
+    						houseMemberRoleAssociation.setFromDate(new Date());
+    	    				houseMemberRoleAssociation.setToDate(new Date());
+    					}else if(houseType!=null&&houseType.getType().equals(ApplicationConstants.LOWER_HOUSE)){
+    						houseMemberRoleAssociation.setFromDate(house.getFirstDate());
+    	    				houseMemberRoleAssociation.setToDate(house.getLastDate());
+    					}
+    				}    	    				
     				houseMemberRoleAssociation.setHouse(house);
     				Date currentDate=new Date();
     				if(house.getLastDate()!=null){

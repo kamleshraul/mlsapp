@@ -10,6 +10,7 @@
 package org.mkcl.els.controller.mis;
 
 import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 
@@ -335,6 +336,8 @@ public class MemberPartyController extends BaseController{
     private void validateCreate(final MemberPartyAssociation domain, final Errors errors,
             final HttpServletRequest request) {
         //checking for duplicate entry
+    	
+    
         if (domain.isDuplicate()) {
             Object[] params = new Object[3];
             params[0] = domain.getParty().getName();
@@ -421,6 +424,12 @@ public class MemberPartyController extends BaseController{
     private void populateUpdateIfNoErrors(final ModelMap model,
             final MemberPartyAssociation domain, final HttpServletRequest request) {
         //member is added to session so as to allow for redirection
+    	if(domain.getFromDate()==null){
+    		domain.setFromDate(new Date());
+    	}
+    	if(domain.getToDate()==null){
+    		domain.setToDate(new Date());
+    	}
         request.getSession().setAttribute("member",request.getParameter("member"));
         request.getSession().setAttribute("houseType",request.getParameter("houseType"));
     }
@@ -428,6 +437,12 @@ public class MemberPartyController extends BaseController{
     private void populateCreateIfNoErrors(final ModelMap model,
             final MemberPartyAssociation domain, final HttpServletRequest request) {
         //member is added to session so as to allow for redirection
+    	if(domain.getFromDate()==null){
+    		domain.setFromDate(new Date());
+    	}
+    	if(domain.getToDate()==null){
+    		domain.setToDate(new Date());
+    	}
         request.getSession().setAttribute("member",request.getParameter("member"));
         request.getSession().setAttribute("houseType",request.getParameter("houseType"));
     }
