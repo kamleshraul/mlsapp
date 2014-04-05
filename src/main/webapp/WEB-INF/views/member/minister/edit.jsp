@@ -63,7 +63,7 @@
 	function deleteMemberDepartment(id){
 		var memberDepartmentId = $('#memberDepartmentId'+id).val();
 		if(memberDepartmentId != ''){			
-	    	$.delete_('member/minister/department/'+memberDepartmentId+'/delete', 
+	    	$.post('member/minister/department/'+memberDepartmentId+'/delete', 
 	    	    null, 
 	    	    function(data, textStatus, XMLHttpRequest) {
 	    			$('#memberDepartment'+id).remove();
