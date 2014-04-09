@@ -33,7 +33,7 @@ import org.springframework.beans.factory.annotation.Configurable;
 @Configurable
 @Entity
 @Table(name = "status")
-@JsonIgnoreProperties({"priority","type","locale","version","versionMismatch"})
+@JsonIgnoreProperties({"priority","locale","version","versionMismatch"})
 public class Status extends BaseDomain implements Serializable{
 	// ---------------------------------Attributes-------------------------------------------------
     /** The Constant serialVersionUID. */
