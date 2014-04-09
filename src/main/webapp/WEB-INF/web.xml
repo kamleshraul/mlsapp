@@ -23,7 +23,7 @@
 
 	<!-- Sets the session timeout in minutes. Set it to -1 if the session should never expire. -->
 	<session-config>
-		<session-timeout>30</session-timeout>
+		<session-timeout>180</session-timeout>
 	</session-config>
 	
 	<!-- Processes application requests -->
