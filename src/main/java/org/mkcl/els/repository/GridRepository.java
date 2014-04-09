@@ -248,7 +248,7 @@ public class GridRepository extends BaseRepository<Grid, Long> {
 			start = 0;
 		}
 		query.setFirstResult(start);
-		query.setMaxResults((int) (count > limit ? count : limit));
+		query.setMaxResults((int) (count > limit * page ? limit: count - (limit * (page-1))));
 
 		List<Map<String, Object>> records = query.getResultList();
 		GridData gridVO = new GridData(page, totalPages, count, records);
@@ -424,7 +424,7 @@ public class GridRepository extends BaseRepository<Grid, Long> {
 			start = 0;
 		}
 		query.setFirstResult(start);
-		query.setMaxResults((int) (count > limit ? count : limit));
+		query.setMaxResults((int) (count > limit * page ? limit: count - (limit * (page-1))));
 
 		List<Map<String, Object>> records = query.getResultList();
 		GridData gridVO = new GridData(page, totalPages, count, records);
