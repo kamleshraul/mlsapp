@@ -196,7 +196,9 @@ public class ClubbedEntityController extends BaseController{
 		try {
 			workflowDetails = WorkflowDetails.findCurrentWorkflowDetail(question);
 		
-			String usergroupType=request.getParameter("usergroupType");		
+			String usergroupType=request.getParameter("usergroupType");	
+			/****To enable the userGroups who can do clubbing ****/
+			CustomParameter clubbingAllowedUserGroups = CustomParameter.findByName(CustomParameter.class, "QIS_ALLOWED_USERGROUP_TO_DO_CLUBBING", "");
 			/**** if deviceType=unstarred||half-hour||short notice,internal status=assistant_processed 
 			 * ,workflow has not started and this is assistant's login****/
 			if((deviceType.equals(ApplicationConstants.UNSTARRED_QUESTION)
@@ -205,7 +207,8 @@ public class ClubbedEntityController extends BaseController{
 					||deviceType.equals(ApplicationConstants.SHORT_NOTICE_QUESTION))
 					&&(internalStatusType.equals(ApplicationConstants.QUESTION_SYSTEM_ASSISTANT_PROCESSED))
 					&& workflowDetails==null&&usergroupType!=null){
-				if(usergroupType.equals("assistant")){
+				
+				if(clubbingAllowedUserGroups != null && clubbingAllowedUserGroups.getValue().contains(usergroupType)){
 					return true;
 				}
 			}else{ 
@@ -214,7 +217,7 @@ public class ClubbedEntityController extends BaseController{
 				if(deviceType.equals(ApplicationConstants.STARRED_QUESTION)
 						&&internalStatusType.equals(ApplicationConstants.QUESTION_SYSTEM_TO_BE_PUTUP)
 						&& workflowDetails==null&&usergroupType!=null){
-					if(usergroupType.equals("assistant")){
+					if(clubbingAllowedUserGroups != null && clubbingAllowedUserGroups.getValue().contains(usergroupType)){
 						return true;
 					}
 				}else{
@@ -226,7 +229,7 @@ public class ClubbedEntityController extends BaseController{
 							&&workflowDetails.getId()!=null){
 						if(workflowDetails.getAssigneeUserGroupType().equals("assistant")
 								&&usergroupType!=null){
-							if(usergroupType.equals("assistant")){
+							if(clubbingAllowedUserGroups != null && clubbingAllowedUserGroups.getValue().contains(usergroupType)){
 								return true;
 							}
 						}
