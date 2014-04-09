@@ -82,7 +82,10 @@
 				$('#key').val(rowid);
 			}
 		}	
-					
+		/**** Generate Intimation Letter ****/			
+		$("#generateIntimationLetter").click(function(){			
+			generateIntimationLetter();
+		});			
 	</script>
 </head>
 <body>
@@ -112,6 +115,11 @@
 			<a href="#" id="search" class="butSim">
 				<spring:message code="question.search" text="Search"/>
 			</a> |
+			<security:authorize access="hasAnyRole('QIS_ASSISTANT','QIS_SECTION_OFFICER','HDS_SECTION_OFFICER')">
+			<a href="#" id="generateIntimationLetter" class="butSim">
+				<spring:message code="question.generateIntimationLetter" text="Generate Intimation Letter"/>
+			</a> |
+			</security:authorize>
 			<%-- <a href="#" id="showdemo" class="butSim">
 				<spring:message code="question.demo" text="Show Demo"/>
 			</a> |	 --%>
