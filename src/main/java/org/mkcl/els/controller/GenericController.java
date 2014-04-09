@@ -22,6 +22,8 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Set;
 
+import javax.persistence.EntityNotFoundException;
+import javax.persistence.NoResultException;
 import javax.persistence.PersistenceException;
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
@@ -129,6 +131,7 @@ public class GenericController<T extends BaseDomain> extends BaseController {
         	grid = Grid.findByDetailView(newurlPattern, locale.toString());
         	model.addAttribute("gridId", grid.getId());
         }catch (ELSException e) {
+        	logger.error(e.getMessage());
 			model.addAttribute("error", e.getParameter());			
 		}        
         /******* Hook **********/
@@ -187,31 +190,35 @@ public class GenericController<T extends BaseDomain> extends BaseController {
         }
         catch (InstantiationException e) {
             logger.error(e.getMessage());
+            String message = null; 
+			message = "There is some problem, request may not complete successfully.";						
+			model.addAttribute("error", message);
         }
         catch (IllegalAccessException e) {
-            logger.error(e.getMessage());
+        	logger.error(e.getMessage());
+            String message = null; 
+			message = "There is some problem, request may not complete successfully.";						
+			model.addAttribute("error", message);
         }
         try{
 	        /******* Hook **********/
 	        populateNew(model, domain, locale.toString(), request);
 	        /***********************/
         }catch (Exception e) {
+        	logger.error(e.getMessage());
         	String message = null; 
 			if(e instanceof ELSException){
 				message = ((ELSException) e).getParameter();
 			}else{
 				message = e.getMessage();
 				e.printStackTrace();
-			}
-			
+			}			
 			if(message == null){
 				message = "There is some problem, request may not complete successfully.";
-			}
-			
+			}			
 			model.addAttribute("error", message);
 		}
         model.addAttribute("domain", domain);
-        //here making provisions for displaying error pages
         if(model.containsAttribute("errorcode")){
             return servletPath.replace("new","error");
         }else{
@@ -245,28 +252,24 @@ public class GenericController<T extends BaseDomain> extends BaseController {
         String messagePattern=urlPattern.replaceAll("\\/",".");
         model.addAttribute("messagePattern", messagePattern);
         model.addAttribute("urlPattern", urlPattern);
-        T domain = (T) BaseDomain.findById(domainClass, id);
-        
+        T domain = (T) BaseDomain.findById(domainClass, id);        
         try{
 	        /******* Hook **********/
-	        populateEdit(model, domain, request);
-	        
+	        populateEdit(model, domain, request);	        
         }catch (Exception e) {
+        	logger.error(e.getMessage());
         	String message = null; 
 			if(e instanceof ELSException){
 				message = ((ELSException) e).getParameter();
 			}else{
 				message = e.getMessage();
 				e.printStackTrace();
-			}
-			
+			}			
 			if(message == null){
 				message = "There is some problem, request may not complete successfully.";
-			}
-			
+			}			
 			model.addAttribute("error", message);
-		}
-        
+		}        
         /***********************/
         model.addAttribute("domain", domain);
         //this is done so as to remove the bug due to which update message appears even though there
@@ -318,8 +321,7 @@ public class GenericController<T extends BaseDomain> extends BaseController {
         final String servletPath = request.getServletPath().replaceFirst("\\/","");
         String messagePattern=servletPath.replaceAll("\\/",".");
         model.addAttribute("messagePattern", messagePattern);
-        model.addAttribute("urlPattern", servletPath);
-        
+        model.addAttribute("urlPattern", servletPath);        
         try{
 	        /*****Hook*************/
 	        preValidateCreate(domain, result, request);
@@ -333,7 +335,8 @@ public class GenericController<T extends BaseDomain> extends BaseController {
 	            /*****Hook*************/
 	            populateCreateIfErrors(model,domain, request);
 	            /**********************/
-	            return servletPath+"/" + "new";
+	            String modifiedNewUrlPattern=modifyNewUrlPattern(servletPath,request,model,locale.toString());
+	            return modifiedNewUrlPattern;
 	        }
 	        /*****Hook*************/
 	        populateCreateIfNoErrors(model, domain, request);
@@ -342,25 +345,21 @@ public class GenericController<T extends BaseDomain> extends BaseController {
 	        ((BaseDomain) domain).persist();
 	        populateAfterCreate(model, domain, request);
         }catch (Exception e) {
+        	logger.error(e.getMessage());
         	String message = null; 
 			if(e instanceof ELSException){
 				message = ((ELSException) e).getParameter();
 			}else{
 				message = e.getMessage();
 				e.printStackTrace();
-			}
-			
+			}			
 			if(message == null){
 				message = "There is some problem, request may not complete successfully.";
-			}
-			
-			model.addAttribute("error", message);
-			
-			if((e instanceof PersistenceException) || (e instanceof BatchUpdateException)){
-				/*****Hook*************/
-	            populateCreateIfErrors(model,domain, request);
-				return servletPath+"/" + "new";
-			}
+			}			
+			model.addAttribute("error", message);	
+	        populateCreateIfErrors(model,domain, request);
+	        String modifiedNewUrlPattern=modifyNewUrlPattern(servletPath,request,model,locale.toString());
+            return modifiedNewUrlPattern;			
 		}
         redirectAttributes.addFlashAttribute("type", "success");
         //this is done so as to remove the bug due to which update message appears even though there
@@ -372,8 +371,6 @@ public class GenericController<T extends BaseDomain> extends BaseController {
         + ((BaseDomain) domain).getId() + "/edit";
         return returnUrl;
     }
-
-
 
     /**
      * Update.
@@ -395,8 +392,7 @@ public class GenericController<T extends BaseDomain> extends BaseController {
         final String servletPath = request.getServletPath().replaceFirst("\\/","");
         String messagePattern=servletPath.replaceAll("\\/",".");
         model.addAttribute("messagePattern", messagePattern);
-        model.addAttribute("urlPattern", servletPath);
-	       
+        model.addAttribute("urlPattern", servletPath);	       
         try{
         	/*****Hook*************/
 	        preValidateUpdate(domain, result, request);
@@ -417,33 +413,41 @@ public class GenericController<T extends BaseDomain> extends BaseController {
 	        populateUpdateIfNoErrors(model, domain, request);
 	        /**********************/
 	        /****Partial Update ***************/
-	        PartialUpdate partialUp = PartialUpdate.findByFieldName(
-	                PartialUpdate.class, "urlPattern", servletPath, "");
+	        PartialUpdate partialUp=null;
+	        try{
+	        	partialUp = PartialUpdate.findByFieldName(
+		                PartialUpdate.class, "urlPattern", servletPath, "");
+	        }catch(EntityNotFoundException e){
+	        	logger.error(e.getMessage());
+	        }catch(NoResultException e){
+	        	logger.error(e.getMessage());
+	        }	        
 	        if (partialUp != null) {
 	            partialUpdate(domain, partialUp.getFieldsNotToBeOverwritten(),
-	                    domain.getId());
-	
+	                    domain.getId());	
 	        }
 	        /**********************************/
 	        trimString(model, domain, request);
 	        ((BaseDomain) domain).merge();
 	        populateAfterUpdate(model, domain, request);
         }catch (Exception e) {
+        	logger.error(e.getMessage());
         	String message = null; 
 			if(e instanceof ELSException){
 				message = ((ELSException) e).getParameter();
 			}else{
 				message = e.getMessage();
 				e.printStackTrace();
-			}
-			
+			}			
 			if(message == null){
 				message = "There is some problem, request may not complete successfully.";
-			}
-			
+			}			
 			model.addAttribute("error", message);
-		}
-        
+	        populateUpdateIfErrors(model,domain, request);
+	        String newUrlPattern=servletPath+"/edit";
+            String modifiedEditUrlPattern=modifyEditUrlPattern(newUrlPattern,request,model,domain.getLocale());
+            return modifiedEditUrlPattern; 			
+		}        
         redirectAttributes.addFlashAttribute("type", "success");
         //this is done so as to remove the bug due to which update message appears even though there
         //is a fresh new/edit request i.e after creating/updating records if we click on
@@ -568,6 +572,7 @@ public class GenericController<T extends BaseDomain> extends BaseController {
 			/**********Hook**************/
 			postDelete(model, domain, request);
 		} catch (Exception e) {
+			logger.error(e.getMessage());
         	String message = null; 
 			if(e instanceof ELSException){
 				message = ((ELSException) e).getParameter();
