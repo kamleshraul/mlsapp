@@ -577,13 +577,13 @@ public class QuestionController extends GenericController<Question>{
 							Department department=domain.getDepartment();
 							if(department!=null){                            	
 							model.addAttribute("departmentSelected",department.getId());
+							}
 							List<SubDepartment> subDepartments=MemberMinister.findAssignedSubDepartments(ministry, locale);
 							model.addAttribute("subDepartments",subDepartments);
 							SubDepartment subDepartment=domain.getSubDepartment();
 							if(subDepartment!=null){
 								model.addAttribute("subDepartmentSelected",subDepartment.getId());
-							}
-							}
+							}							
 							if(group!=null){
 								List<QuestionDates> answeringDates=group.getQuestionDates();
 								List<MasterVO> masterVOs=new ArrayList<MasterVO>();
@@ -640,13 +640,13 @@ public class QuestionController extends GenericController<Question>{
 				Department department=domain.getDepartment();
 				if(department!=null){                            	
 				model.addAttribute("departmentSelected",department.getId());
+				}
 				List<SubDepartment> subDepartments=MemberMinister.findAssignedSubDepartments(ministry, locale);
 				model.addAttribute("subDepartments",subDepartments);
 				SubDepartment subDepartment=domain.getSubDepartment();
 				if(subDepartment!=null){
 					model.addAttribute("subDepartmentSelected",subDepartment.getId());
-				}
-				}
+				}				
 			}
 		}
 		/**** Ministries,Departments,Sub Departments,Groups,Answering Dates Ends ****/
@@ -1800,12 +1800,10 @@ public class QuestionController extends GenericController<Question>{
 	@Override
 	protected void populateCreateIfNoErrors(final ModelMap model, final Question domain,
 			final HttpServletRequest request) {
-
 		if(domain.getSubDepartment()!=null ){
 			domain.setDepartment(domain.getSubDepartment().getDepartment());
 		}
-
-		/**** Status ,Internal Status,Recommendation Status,submission date,creation date,created by,created as *****/		
+		/**** Status,Internal Status,Recommendation Status,submission date,creation date,created by,created as *****/		
 		/**** In case of submission ****/
 		String operation=request.getParameter("operation");
 		boolean canGoAhead = false;
@@ -1815,7 +1813,10 @@ public class QuestionController extends GenericController<Question>{
 			userGroupType=UserGroupType.findByFieldName(UserGroupType.class,"type",strUserGroupType, domain.getLocale());
 			domain.setEditedAs(userGroupType.getName());
 		}
+		/**** Status,Internal Status,Recommendation Status Update Starts ****/
+		/**** canGoAhead =true when all mandatory parameters for a question type has been filled ****/
 		if(domain.getType() != null){
+			/**** for half hour discussion ****/
 			if(domain.getType().getType().equals(ApplicationConstants.HALF_HOUR_DISCUSSION_QUESTION_STANDALONE)){
 				if(domain.getHouseType() != null){
 					if(domain.getHouseType().getType().equals(ApplicationConstants.LOWER_HOUSE)){
@@ -1838,7 +1839,8 @@ public class QuestionController extends GenericController<Question>{
 						}
 					}
 				}
-			}else{
+			}/**** for other question types ****/
+			else{
 				if(domain.getHouseType()!=null && domain.getSession()!=null &&  domain.getType()!=null 
 						&& domain.getPrimaryMember()!=null && domain.getMinistry()!=null && domain.getGroup()!=null 
 						&& (!domain.getSubject().isEmpty()) && (!domain.getQuestionText().isEmpty())){
@@ -1848,15 +1850,19 @@ public class QuestionController extends GenericController<Question>{
 				}
 			}
 		}
+		/**** canGoAhead=true parameter is used to check if all mandatory fields have been set(condition
+		 * for complete or submit status)****/
 		if(canGoAhead){
 			if(operation!=null){
 				if(!operation.isEmpty()){
 					if(operation.trim().equals("submit")){
+						/**** a.canGoAhead=true all mandatory fields have been field
+						 * b.operation=submit ****/
 						/****  submission date is set ****/
 						if(domain.getSubmissionDate()==null){
 							domain.setSubmissionDate(new Date());
 						}
-						/**** only those supporting members will be included who have approved the requests ****/
+						/**** Supporting Members is updates(in case of submit) Starts ****/
 						List<SupportingMember> supportingMembers=new ArrayList<SupportingMember>();
 						if(domain.getSupportingMembers()!=null){
 							if(!domain.getSupportingMembers().isEmpty()){
@@ -1868,66 +1874,70 @@ public class QuestionController extends GenericController<Question>{
 								domain.setSupportingMembers(supportingMembers);
 							}
 						}
+						/**** Supporting Members is updates(in case of submit) Starts ****/
+						
 						/**** Status,Internal Status and recommendation Status is set ****/
 						Status newstatus=Status.findByFieldName(Status.class, "type", ApplicationConstants.QUESTION_SUBMIT, domain.getLocale());
 						domain.setStatus(newstatus);
 						domain.setInternalStatus(newstatus);
 						domain.setRecommendationStatus(newstatus);
 					}else{
+						/**** case of complete status ****/
 						Status status=Status.findByFieldName(Status.class, "type", ApplicationConstants.QUESTION_COMPLETE, domain.getLocale());
 						domain.setStatus(status);
 						domain.setInternalStatus(status);
 						domain.setRecommendationStatus(status);
 					}
 				}else{
+					/**** case of complete status ****/
 					Status status=Status.findByFieldName(Status.class, "type", ApplicationConstants.QUESTION_COMPLETE, domain.getLocale());
 					domain.setStatus(status);
 					domain.setInternalStatus(status);
 					domain.setRecommendationStatus(status);
 				}
 			}else{
+				/**** case of complete status ****/
 				Status status=Status.findByFieldName(Status.class, "type", ApplicationConstants.QUESTION_COMPLETE, domain.getLocale());
 				domain.setStatus(status);
 				domain.setInternalStatus(status);
 				domain.setRecommendationStatus(status);
 			}
 		}
-		/**** Drafts ****/
+		/**** Drafts case or incomplete status case.canGo Ahead=false all mandatory fields
+		 * have not been filled ****/
 		else{
 			Status status=Status.findByFieldName(Status.class, "type", ApplicationConstants.QUESTION_INCOMPLETE, domain.getLocale());
 			domain.setStatus(status);
 			domain.setInternalStatus(status);
 			domain.setRecommendationStatus(status);
 		}
-
-		/**** add creation date and created by ****/
+		/**** Status,Internal Status,Recommendation Status Update Ends ****/
+		
+		/**** creation date,created by,edited on,edited by Starts ****/
 		domain.setCreationDate(new Date());
 		domain.setCreatedBy(this.getCurrentUser().getActualUsername());
 		domain.setEditedOn(new Date());
 		domain.setEditedBy(this.getCurrentUser().getActualUsername());
+		/**** creation date,created by,edited on,edited by Ends ****/
+
 
 		/**** Added by vikas & dhananjay ****/
 		/**** to find referred question for half hour discussion from question ****/
 		if(domain!=null && domain.getType() != null){
 			Question refQuestion = null;
-
 			if(domain.getType().getType().equalsIgnoreCase("questions_halfhourdiscussion_from_question")){
 				String strQuestionId = request.getParameter("halfHourDiscussionReference_questionId_H");
 				String strQuestionNumber = request.getParameter("halfHourDiscussionReference_questionNumber"); 
-
 				if(strQuestionId!=null && !strQuestionId.isEmpty()){
 					Long questionId = new Long(strQuestionId);
 					refQuestion = Question.findById(Question.class, questionId);
 				}else if(strQuestionNumber != null && !strQuestionNumber.isEmpty()){
-
 					Integer qNumber = null;
-
 					try {
 						qNumber=new Integer(FormaterUtil.getNumberFormatterNoGrouping(domain.getLocale()).parse(strQuestionNumber).intValue());
 					} catch (ParseException e) {
 						logger.error("Number parse exception.");							
 					}
-
 					try {
 						Session currentSession = Session.findById(Session.class, new Long(domain.getSession().getId()));
 						DeviceType halfHourDiscussionStandAlone = DeviceType.findByType(ApplicationConstants.HALF_HOUR_DISCUSSION_QUESTION_STANDALONE, domain.getLocale());
@@ -1955,7 +1965,6 @@ public class QuestionController extends GenericController<Question>{
 	@Override
 	protected void populateUpdateIfNoErrors(final ModelMap model, final Question domain,
 			final HttpServletRequest request) {
-
 		if(domain.getSubDepartment()!=null ){
 			domain.setDepartment(domain.getSubDepartment().getDepartment());
 		}
@@ -2013,18 +2022,15 @@ public class QuestionController extends GenericController<Question>{
 		if(canGoAhead){			
 			if(operation!=null){
 				if(!operation.isEmpty()){
-					/**** Submission request ****/
 					if(operation.trim().equals("submit")){
-						/**** Submission date is set ****/
 						if(domain.getSubmissionDate()==null){
 							domain.setSubmissionDate(new Date());
 						}
-						/**** Supporting Members who have approved request are included ****/
 						List<SupportingMember> supportingMembers=new ArrayList<SupportingMember>();
 						if(domain.getSupportingMembers()!=null){
 							if(!domain.getSupportingMembers().isEmpty()){
 								for(SupportingMember i:domain.getSupportingMembers()){
-									if(userGroupType.getType().equals(ApplicationConstants.CLERK)){
+									if(userGroupType.getType().equals("typist")){
 										supportingMembers.add(i);
 									}else{
 										if(i.getDecisionStatus().getType().trim().equals(ApplicationConstants.SUPPORTING_MEMBER_APPROVED)){
@@ -2035,24 +2041,18 @@ public class QuestionController extends GenericController<Question>{
 								domain.setSupportingMembers(supportingMembers);
 							}
 						}
-						/**** Status,Internal status and recommendation status is set to complete ****/
 						Status newstatus=Status.findByFieldName(Status.class, "type", ApplicationConstants.QUESTION_SUBMIT, domain.getLocale());
 						domain.setStatus(newstatus);
 						domain.setInternalStatus(newstatus);
 						domain.setRecommendationStatus(newstatus);
 					}else{
 						Status status=Status.findByFieldName(Status.class, "type", ApplicationConstants.QUESTION_COMPLETE, domain.getLocale());
-						/**** if status is not submit then status,internal status and recommendation status is set to complete ****/
 						if(!domain.getStatus().getType().equals(ApplicationConstants.QUESTION_SUBMIT) && !operation.trim().equals("startworkflow")){
 							domain.setStatus(status);
 							domain.setInternalStatus(status);
 							domain.setRecommendationStatus(status);
 						}
-
-						/**
-						 * Added by Amit
-						 * Set answeringdate = chartAnsweringDate whenever a Question is put up. 
-						 */
+						/**** Once a question is put up its answering date is set to chart answering date ****/
 						if(operation.trim().equals("startworkflow") && 
 								domain.getType().getType().equals(ApplicationConstants.STARRED_QUESTION)) {
 							domain.setAnsweringDate(domain.getChartAnsweringDate());
@@ -2060,7 +2060,6 @@ public class QuestionController extends GenericController<Question>{
 					}
 				}else{
 					Status status=Status.findByFieldName(Status.class, "type", ApplicationConstants.QUESTION_COMPLETE, domain.getLocale());
-					/**** if status is not submit then status,internal status and recommendation status is set to complete ****/
 					if(!domain.getStatus().getType().equals(ApplicationConstants.QUESTION_SUBMIT)){
 						domain.setStatus(status);
 						domain.setInternalStatus(status);
@@ -2069,7 +2068,6 @@ public class QuestionController extends GenericController<Question>{
 				}
 			}else{
 				Status status=Status.findByFieldName(Status.class, "type", ApplicationConstants.QUESTION_COMPLETE, domain.getLocale());
-				/**** if status is not submit then status,internal status and recommendation status is set to complete ****/
 				if(!domain.getStatus().getType().equals(ApplicationConstants.QUESTION_SUBMIT)){
 					domain.setStatus(status);
 					domain.setInternalStatus(status);
@@ -2077,14 +2075,13 @@ public class QuestionController extends GenericController<Question>{
 				}
 			}
 		}
-		/**** If all mandatory fields have not been set then status,internal status and recommendation status is set to incomplete ****/
 		else{
 			Status status=Status.findByFieldName(Status.class, "type", ApplicationConstants.QUESTION_INCOMPLETE, domain.getLocale());
 			domain.setStatus(status);
 			domain.setInternalStatus(status);
 			domain.setRecommendationStatus(status);
 		}
-		/**** Edited On,Edited By and Edited As is set ****/
+		/**** Edited On,Edited By Starts ****/
 		domain.setEditedOn(new Date());
 		domain.setEditedBy(this.getCurrentUser().getActualUsername());
 
@@ -2123,7 +2120,7 @@ public class QuestionController extends GenericController<Question>{
 							domain.setInternalStatus(ASSISTANT_PROCESSED);
 							domain.setRecommendationStatus(ASSISTANT_PROCESSED);
 						}
-
+						
 						QuestionDraft draft = domain.findPreviousDraft();				        
 						if(group != null && draft != null) {
 							Group prevGroup = draft.getGroup();
@@ -2262,19 +2259,17 @@ public class QuestionController extends GenericController<Question>{
 	@Override
 	protected void populateAfterCreate(final ModelMap model, final Question domain,
 			final HttpServletRequest request) {
+		/**** Parameters which will be read from request in populate new Starts ****/
 		request.getSession().setAttribute("role",request.getParameter("role"));
 		request.getSession().setAttribute("usergroup",request.getParameter("usergroup"));
 		request.getSession().setAttribute("usergroupType",request.getParameter("usergroupType"));
+		/**** Parameters which will be read from request in populate new Ends ****/
 
-		/**** Supporting Member Workflow ****/
+		/**** Supporting Member Workflow Starts ****/
 		String operation=request.getParameter("operation");
-		request.getSession().setAttribute("usergroup",request.getParameter("usergroup"));
-		request.getSession().setAttribute("userrole",request.getParameter("userrole"));
 		if(operation!=null){
 			if(!operation.isEmpty()){
 				if(operation.equals("approval")){
-					/**** Added By Sandeep Singh ****/
-					/**** process Started ****/
 					ProcessDefinition processDefinition=processService.findProcessDefinitionByKey(ApplicationConstants.SUPPORTING_MEMBER_WORKFLOW);
 					Map<String,String> properties=new HashMap<String, String>();
 					properties.put("pv_deviceId",String.valueOf(domain.getId()));
@@ -2284,8 +2279,6 @@ public class QuestionController extends GenericController<Question>{
 					List<WorkflowDetails> workflowDetails;
 					try {
 						workflowDetails = WorkflowDetails.create(domain,tasks,ApplicationConstants.SUPPORTING_MEMBER_WORKFLOW,"0");
-
-						/**** Supporting members status changed to pending ****/
 						Question question=Question.findById(Question.class,domain.getId());
 						List<SupportingMember> supportingMembers=question.getSupportingMembers();
 						Status status=Status.findByFieldName(Status.class,"type",ApplicationConstants.SUPPORTING_MEMBER_PENDING,domain.getLocale());
@@ -2296,7 +2289,6 @@ public class QuestionController extends GenericController<Question>{
 								i.setApprovalType(ApplicationConstants.SUPPORTING_MEMBER_APPROVALTYPE_ONLINE);
 								User user=User.findbyNameBirthDate(i.getMember().getFirstName(),i.getMember().getMiddleName(),i.getMember().getLastName(),i.getMember().getBirthDate());
 								Credential credential=user.getCredential();							
-								/**** Updating WorkflowDetails ****/
 								for(WorkflowDetails j:workflowDetails){
 									if(j.getAssignee().equals(credential.getUsername())){
 										i.setWorkflowDetailsId(String.valueOf(j.getId()));
@@ -2314,37 +2306,33 @@ public class QuestionController extends GenericController<Question>{
 				}
 			}
 		}
+		/**** Supporting Member Workflow Ends ****/
 	}
 	
 	@Override
 	protected void populateAfterUpdate(final ModelMap model, final Question domain,
 			final HttpServletRequest request) {
-		/**** In case of error when request gets re-directed to .../edit then these parameters are read from session****/
+		/**** Parameters which are read from request in populate edit needs to be saved in session Starts ****/
 		request.getSession().setAttribute("role",request.getParameter("role"));
 		request.getSession().setAttribute("usergroup",request.getParameter("usergroup"));
 		request.getSession().setAttribute("usergroupType",request.getParameter("usergroupType"));
 		request.getSession().setAttribute("bulkedit",request.getParameter("bulkedit"));
+		/**** Parameters which are read from request in populate edit needs to be saved in session Starts ****/
 
-		/**** Approval Workflow ****/
+		/**** Supporting Member Workflow/Put Up Workflow ****/
 		String operation=request.getParameter("operation");
 		if(operation!=null){
 			if(!operation.isEmpty()){
-				/**** Supporting Member Workflow ****/
 				if(operation.equals("approval")){
-					/**** Added by Sandeep Singh ****/
-					/**** Supporting Member Workflow is started ****/
 					ProcessDefinition processDefinition=processService.findProcessDefinitionByKey(ApplicationConstants.SUPPORTING_MEMBER_WORKFLOW);
 					Map<String,String> properties=new HashMap<String, String>();
 					properties.put("pv_deviceId",String.valueOf(domain.getId()));
 					properties.put("pv_deviceTypeId",domain.getType().getType());
 					ProcessInstance processInstance=processService.createProcessInstance(processDefinition, properties);
-					/**** Workflow Details Entries are created ****/
 					List<Task> tasks=processService.getCurrentTasks(processInstance);					
 					List<WorkflowDetails> workflowDetails;
 					try {
 						workflowDetails = WorkflowDetails.create(domain,tasks,ApplicationConstants.SUPPORTING_MEMBER_WORKFLOW,"");
-
-						/**** Not Send supporting members status are changed to pending ****/
 						Question question=Question.findById(Question.class,domain.getId());
 						List<SupportingMember> supportingMembers=question.getSupportingMembers();
 						Status status=Status.findByFieldName(Status.class,"type",ApplicationConstants.SUPPORTING_MEMBER_PENDING,domain.getLocale());
@@ -2355,7 +2343,6 @@ public class QuestionController extends GenericController<Question>{
 								i.setApprovalType(ApplicationConstants.SUPPORTING_MEMBER_APPROVALTYPE_ONLINE);
 								User user=User.findbyNameBirthDate(i.getMember().getFirstName(),i.getMember().getMiddleName(),i.getMember().getLastName(),i.getMember().getBirthDate());
 								Credential credential=user.getCredential();
-								/**** Updating WorkflowDetails ****/
 								for(WorkflowDetails j:workflowDetails){
 									if(j.getAssignee().equals(credential.getUsername())){
 										i.setWorkflowDetailsId(String.valueOf(j.getId()));
@@ -2370,15 +2357,12 @@ public class QuestionController extends GenericController<Question>{
 						model.addAttribute("error", e.getParameter());
 						e.printStackTrace();
 					}
-
 				}else if(operation.equals("startworkflow")){
 					if(domain.getType() != null){
 						if(domain.getType().getType().equals(ApplicationConstants.HALF_HOUR_DISCUSSION_QUESTION_STANDALONE)
 								&& domain.getHouseType().getType().equals(ApplicationConstants.LOWER_HOUSE)){
-
 							ProcessDefinition processDefinition=processService.findProcessDefinitionByKey(ApplicationConstants.RESOLUTION_APPROVAL_WORKFLOW);
 							Map<String,String> properties=new HashMap<String, String>();					
-							/**** Next user and usergroup ****/
 							String nextuser=request.getParameter("actor");
 							String level="";
 							String username = "";
@@ -2390,16 +2374,12 @@ public class QuestionController extends GenericController<Question>{
 									level=temp[2];
 								}
 							}
-
 							properties.put("pv_deviceId",String.valueOf(domain.getId()));
 							properties.put("pv_deviceTypeId",String.valueOf(domain.getType().getId()));
-
 							String endflag=domain.getEndFlag();
 							properties.put("pv_endflag",endflag);	
-
 							String mailflag=request.getParameter("mailflag");				
 							properties.put("pv_mailflag", mailflag);
-
 							if(mailflag!=null) {
 								if(mailflag.equals("set")) {
 									String mailfrom=request.getParameter("mailfrom");
@@ -2415,34 +2395,24 @@ public class QuestionController extends GenericController<Question>{
 									properties.put("pv_mailcontent", mailcontent);
 								}
 							}
-
 							String timerflag=request.getParameter("timerflag");
 							properties.put("pv_timerflag", timerflag);
-
 							if(timerflag!=null) {
 								if(timerflag.equals("set")) {
 									String timerduration=request.getParameter("timerduration");
 									properties.put("pv_timerduration", timerduration);
-
 									String lasttimerduration=request.getParameter("lasttimerduration");
 									properties.put("pv_lasttimerduration", lasttimerduration);
-
 									String reminderflag=request.getParameter("reminderflag");
 									properties.put("pv_reminderflag", reminderflag);
-
 									if(reminderflag!=null) {
 										if(reminderflag.equals("set")) {
 											String reminderfrom=request.getParameter("reminderfrom");
 											properties.put("pv_reminderfrom", reminderfrom);
-
 											String reminderto=request.getParameter("reminderto");
 											properties.put("pv_reminderto", reminderto);
-
-											//String remindersubject=request.getParameter("remindersubject");
 											String remindersubject=domain.getSubject();
 											properties.put("pv_remindersubject", remindersubject);
-
-											//String remindercontent=request.getParameter("remindercontent");
 											String remindercontent=domain.getQuestionText();
 											properties.put("pv_remindercontent", remindercontent);
 										}
@@ -2450,14 +2420,11 @@ public class QuestionController extends GenericController<Question>{
 								}
 							}
 							ProcessInstance processInstance=processService.createProcessInstance(processDefinition, properties);
-							/**** Stale State Exception ****/
 							Question question=Question.findById(Question.class,domain.getId());
-							/**** Process Started and task created ****/
 							Task task=processService.getCurrentTask(processInstance);
 							if(endflag!=null){
 								if(!endflag.isEmpty()){
 									if(endflag.equals("continue")){
-										/**** Workflow Detail entry made only if its not the end of workflow ****/								
 										WorkflowDetails workflowDetails;
 										try {
 											workflowDetails = WorkflowDetails.create(domain,task,ApplicationConstants.RESOLUTION_APPROVAL_WORKFLOW,level);
@@ -2471,10 +2438,8 @@ public class QuestionController extends GenericController<Question>{
 								}
 							}
 						}else{
-							/**** Added by Sandeep Singh ****/
 							ProcessDefinition processDefinition=processService.findProcessDefinitionByKey(ApplicationConstants.APPROVAL_WORKFLOW);
 							Map<String,String> properties=new HashMap<String, String>();					
-							/**** Next user and usergroup ****/
 							String nextuser=request.getParameter("actor");
 							String level="";
 							if(nextuser!=null){
@@ -2489,14 +2454,11 @@ public class QuestionController extends GenericController<Question>{
 							properties.put("pv_deviceId",String.valueOf(domain.getId()));
 							properties.put("pv_deviceTypeId",String.valueOf(domain.getType().getId()));
 							ProcessInstance processInstance=processService.createProcessInstance(processDefinition, properties);
-							/**** Stale State Exception ****/
 							Question question=Question.findById(Question.class,domain.getId());
-							/**** Process Started and task created ****/
 							Task task=processService.getCurrentTask(processInstance);
 							if(endflag!=null){
 								if(!endflag.isEmpty()){
 									if(endflag.equals("continue")){
-										/**** Workflow Detail entry made only if its not the end of workflow ****/
 										WorkflowDetails workflowDetails;
 										try {
 											workflowDetails = WorkflowDetails.create(domain,task,ApplicationConstants.APPROVAL_WORKFLOW,level);
@@ -2509,12 +2471,9 @@ public class QuestionController extends GenericController<Question>{
 									}
 								}
 							}
-							/**** Workflow Started ****/
 							question.setWorkflowStarted("YES");
 							question.setWorkflowStartedOn(new Date());
 							question.setTaskReceivedOn(new Date());
-							/**** If question is sent individually then its file's parameters is set to null i.e 
-							 * it is removed from file ****/
 							question.setFile(null);
 							question.setFileIndex(null);
 							question.setFileSent(false);
@@ -2525,11 +2484,12 @@ public class QuestionController extends GenericController<Question>{
 				}
 			}
 		}
-
+		/**** Supporting Member Workflow/Put Up Workflow ****/
+		
+		/**** Adding to Chart and Group Changed Code Starts ****/
 		Status internalStatus = domain.getInternalStatus();
 		String deviceType=domain.getType().getType();
-		/**** Add to chart in case of starred question if internal and recommendation status is already
-		 * assistant processed ****/
+		/**** Starred question,internal status=assistant processed ****/
 		if(internalStatus.getType().equals(ApplicationConstants.QUESTION_SYSTEM_ASSISTANT_PROCESSED)
 				&& deviceType.equals(ApplicationConstants.STARRED_QUESTION)) {
 			Question question = Question.findById(Question.class, domain.getId());
@@ -2539,7 +2499,7 @@ public class QuestionController extends GenericController<Question>{
 				model.addAttribute("QuestionController", e.getParameter());
 			}
 		}
-		/**** In case internal status and recommendation status is group changed ****/
+		/**** Starred question,internal status=group changed ****/
 		else if(internalStatus.getType().
 				equals(ApplicationConstants.QUESTION_SYSTEM_GROUPCHANGED)
 				&&deviceType.equals(ApplicationConstants.STARRED_QUESTION)) {
@@ -2552,16 +2512,12 @@ public class QuestionController extends GenericController<Question>{
 				model.addAttribute("QuestionController", e.getParameter());
 			}
 		}
-
-		/**** Add to chart if internal and recommendation status is already
-		 * assistant processed ****/
+		/**** Half hour discussion standalone,lowerhouse,internal status=assistant processed ****/
 		if(internalStatus.getType().equals(ApplicationConstants.QUESTION_SYSTEM_ASSISTANT_PROCESSED)
 				&& deviceType.equals(ApplicationConstants.HALF_HOUR_DISCUSSION_QUESTION_STANDALONE)
 				&& domain.getHouseType().getType().equals(ApplicationConstants.LOWER_HOUSE)) {
 			Question question = Question.findById(Question.class, domain.getId());
-
 			if(question.getNumber()!= null){
-
 				try{
 					Chart.addToChart(question);
 				}catch (ELSException e) {
@@ -2569,6 +2525,7 @@ public class QuestionController extends GenericController<Question>{
 				}
 			}
 		}
+		/**** Adding to Chart and Group Changed Code Ends ****/
 	}	
 	
 	@Transactional
