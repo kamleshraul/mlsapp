@@ -31,6 +31,7 @@ import org.mkcl.els.common.vo.Reference;
 import org.mkcl.els.common.vo.RevisionHistoryVO;
 import org.mkcl.els.common.vo.RoundVO;
 import org.mkcl.els.common.vo.Task;
+import org.mkcl.els.common.xmlvo.QuestionIntimationLetterXmlVO;
 import org.mkcl.els.common.xmlvo.QuestionYaadiSuchiXmlVO;
 import org.mkcl.els.controller.GenericController;
 import org.mkcl.els.domain.Ballot;
@@ -4148,6 +4149,196 @@ public class QuestionController extends GenericController<Question>{
 		}
 	}
 	
-	
+	@RequestMapping(value="/generateIntimationLetter" ,method=RequestMethod.GET)
+	public @ResponseBody void generateIntimationLetter(final HttpServletRequest request, HttpServletResponse response, final Locale locale, final ModelMap model){
+		File reportFile = null; 
+		Boolean isError = false;
+		MessageResource errorMessage = null;
+
+		String strQuestionId = request.getParameter("questionId");		
+		
+		if(strQuestionId!=null && !strQuestionId.isEmpty()) {
+			Question question = Question.findById(Question.class, Long.parseLong(strQuestionId));
+			if(question!=null) {
+				QuestionIntimationLetterXmlVO letterVO = new QuestionIntimationLetterXmlVO();
+				DeviceType deviceType = question.getType();
+				letterVO.setDeviceType(deviceType.getType());
+				if(question.getNumber()!=null) {
+					letterVO.setNumber(FormaterUtil.formatNumberNoGrouping(question.getNumber(), question.getLocale()));
+				}
+				HouseType houseType = question.getHouseType();
+				if(houseType!=null) {
+					letterVO.setHouseType(houseType.getType());
+					letterVO.setHouseTypeName(houseType.getName());
+				}
+				Group group = question.getGroup();
+				if(group!=null) {
+					letterVO.setGroupNumber(FormaterUtil.formatNumberNoGrouping(group.getNumber(), question.getLocale()));
+				}
+				if(question.getRevisedSubject()!=null && !question.getRevisedSubject().isEmpty()) {
+					letterVO.setSubject(question.getRevisedSubject());
+				} else {
+					letterVO.setSubject(question.getSubject());
+				}
+				if(question.getRevisedQuestionText()!=null && !question.getRevisedQuestionText().isEmpty()) {
+					letterVO.setQuestionText(question.getRevisedQuestionText());
+				} else {
+					letterVO.setQuestionText(question.getQuestionText());
+				}				
+				Member primaryMember = question.getPrimaryMember();
+				letterVO.setPrimaryMemberName(primaryMember.getFullname());
+				StringBuffer supportingMemberNames=new StringBuffer();
+				List<SupportingMember> supportingMembers = question.getSupportingMembers();
+				if(supportingMembers!=null) {					
+					for(SupportingMember sm: supportingMembers) {
+						supportingMemberNames.append(sm.getMember().getFullname()+",");
+					}					
+				}
+				List<ClubbedEntity> clubbedEntities = Question.findClubbedEntitiesByPosition(question);
+				if(clubbedEntities!=null){
+					for(ClubbedEntity ce:clubbedEntities){
+						/** show only those clubbed questions which are not in state of
+						 * (processed to be putup for nameclubbing, putup for nameclubbing, pending for nameclubbing approval) 
+						 **/
+						if(ce.getQuestion().getInternalStatus().getType().equals(ApplicationConstants.QUESTION_SYSTEM_CLUBBED)
+								|| ce.getQuestion().getInternalStatus().getType().equals(ApplicationConstants.QUESTION_FINAL_ADMISSION)) {
+							String tempPrimary=ce.getBill().getPrimaryMember().getFullname();
+							if(!supportingMemberNames.toString().contains(tempPrimary)){
+								supportingMemberNames.append(ce.getQuestion().getPrimaryMember().getFullname()+",");
+							}
+							List<SupportingMember> clubbedSupportingMember=ce.getQuestion().getSupportingMembers();
+							if(clubbedSupportingMember!=null){
+								if(!clubbedSupportingMember.isEmpty()){
+									for(SupportingMember l:clubbedSupportingMember){
+										String tempSupporting=l.getMember().getFullname();
+										if(!supportingMemberNames.toString().contains(tempSupporting)){
+											supportingMemberNames.append(tempSupporting+", ");
+										}
+									}
+								}
+							}							
+						}						
+					}
+				}
+				if(!supportingMemberNames.toString().isEmpty()){
+					supportingMemberNames.deleteCharAt(supportingMemberNames.length()-1);
+					supportingMemberNames.deleteCharAt(supportingMemberNames.length()-1);
+				}					
+				if(supportingMemberNames!=null&&supportingMemberNames.length()>0) {
+					letterVO.setMemberNames(primaryMember.getFullname()+", "+supportingMemberNames.toString());
+					letterVO.setHasMoreMembers("yes");
+				} else {
+					letterVO.setMemberNames(primaryMember.getFullname());
+					letterVO.setHasMoreMembers("no");
+				}								
+				SubDepartment subDepartment = question.getSubDepartment();
+				if(subDepartment!=null) {
+					letterVO.setSubDepartment(subDepartment.getName());
+				}
+				Department department = subDepartment.getDepartment();
+				if(department!=null) {
+					letterVO.setDepartment(department.getName());
+				}
+				Date answeringDate = null;
+				if(question.getType().getType().trim().equals(ApplicationConstants.STARRED_QUESTION)) {
+					QuestionDates questionDates = question.getAnsweringDate();
+					if(questionDates!=null) {
+						answeringDate = questionDates.getAnsweringDate();
+						if(answeringDate!=null) {
+							letterVO.setAnsweringDate(FormaterUtil.formatDateToString(answeringDate, "dd-MM-yyyy", question.getLocale()));
+						}
+						Date lastSendingDateToDepartment = questionDates.getLastSendingDateToDepartment();
+						if(lastSendingDateToDepartment!=null) {
+							letterVO.setLastSendingDateToDepartment(FormaterUtil.formatDateToString(lastSendingDateToDepartment, "dd-MM-yyyy", question.getLocale()));
+						}
+					}					
+				} else {
+					//answeringDate = question.getDiscussionDate();
+				}
+				if(question.getRejectionReason()!=null) {
+					letterVO.setRejectionReason(question.getRejectionReason());
+				}
+				Status status = question.getInternalStatus();				
+				if(status.getType().equals(ApplicationConstants.QUESTION_FINAL_CLARIFICATION_NEEDED_FROM_DEPARTMENT)
+						|| status.getType().equals(ApplicationConstants.QUESTION_FINAL_CLARIFICATION_NEEDED_FROM_MEMBER)) {
+					String questionsAsked = question.getQuestionsAskedInFactualPosition();					
+					if(questionsAsked!=null && !questionsAsked.isEmpty()) {
+						List<MasterVO> questionsAskedForClarification = new ArrayList<MasterVO>();
+						StringBuffer questionIndexesForClarification=new StringBuffer();	
+						String allQuestions = "";
+						if(status.getType().equals(ApplicationConstants.QUESTION_FINAL_CLARIFICATION_NEEDED_FROM_DEPARTMENT)) {
+							allQuestions = question.getSession().getParameter(deviceType.getType().trim()+"_clarificationFromDepartmentQuestions");
+						} else if(status.getType().equals(ApplicationConstants.QUESTION_FINAL_CLARIFICATION_NEEDED_FROM_MEMBER)) {
+							allQuestions = question.getSession().getParameter(deviceType.getType().trim()+"_clarificationFromMemberQuestions");
+						}								
+						for(String questionAsked : questionsAsked.split("##")) {
+							MasterVO questionAskedForClarification = new MasterVO();
+							questionAskedForClarification.setValue(questionAsked);
+							questionsAskedForClarification.add(questionAskedForClarification);
+							int index = 1;
+							for(String allQuestion : allQuestions.split("##")) {
+								if(questionAsked.equals(allQuestion)) {
+									questionIndexesForClarification.append("(");
+									questionIndexesForClarification.append(FormaterUtil.formatNumberNoGrouping(index, question.getLocale()));
+									questionIndexesForClarification.append("), ");											
+									break;
+								} else {
+									index++;
+								}
+							}
+						}
+						if(!questionIndexesForClarification.toString().isEmpty()) {
+							questionIndexesForClarification.deleteCharAt(questionIndexesForClarification.length()-1);
+							questionIndexesForClarification.deleteCharAt(questionIndexesForClarification.length()-1);
+						}		
+						letterVO.setQuestionIndexesForClarification(questionIndexesForClarification.toString());
+						letterVO.setQuestionsAskedForClarification(questionsAskedForClarification);
+					}					
+				}
+				
+				/**** In case username is required ****/
+//				Role role = Role.findByFieldName(Role.class, "type", "QIS_PRINCIPAL_SECRETARY", locale.toString());
+//				List<User> users = User.findByRole(false, role.getName(), locale.toString());
+//				//as principal secretary for starred question is only one, so user is obviously first element of the list.
+//				letterVO.setUserName(users.get(0).findFirstLastName());
+				
+				/**** generate report ****/
+				String statusType = status.getType().split("_")[status.getType().split("_").length-1];
+				try {
+					if(status.getType().equals(ApplicationConstants.QUESTION_FINAL_REJECTION)) {
+						reportFile = generateReportUsingFOP(letterVO, "question_intimationletter_"+statusType, "WORD", "intimation_letter", locale.toString());
+					} else {
+						reportFile = generateReportUsingFOP(letterVO, deviceType.getType()+"_intimationletter_"+statusType, "WORD", "intimation_letter", locale.toString());
+					}					
+					System.out.println("Intimation Letter generated successfully in WORD format!");
+
+					openOrSaveReportFileFromBrowser(response, reportFile, "WORD");
+				} catch (Exception e) {
+					e.printStackTrace();
+				}				
+			}			
+		} else {
+			isError = true;
+			errorMessage = MessageResource.findByFieldName(MessageResource.class, "code", "question.intimationLetter.noQuestionFound", locale.toString());
+		}
+		if(isError) {
+			try {
+				//response.sendError(404, "Report cannot be generated at this stage.");
+				if(errorMessage != null) {
+					if(!errorMessage.getValue().isEmpty()) {
+						response.getWriter().println("<html><head><meta http-equiv='Content-Type' content='text/html; charset=utf-8'/></head><body><h3>" + errorMessage.getValue() + "</h3></body></html>");
+					} else {
+						response.getWriter().println("<h3>Some Error In Letter Generation. Please Contact Administrator.</h3>");
+					}
+				} else {
+					response.getWriter().println("<h3>Some Error In Letter Generation. Please Contact Administrator.</h3>");
+				}
+
+				return;
+			} catch (IOException e) {						
+				e.printStackTrace();
+			}
+		}	
+	}
 }
 
