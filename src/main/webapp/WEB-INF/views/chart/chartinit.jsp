@@ -436,7 +436,7 @@
 			</select> |
 		</c:if>
 	</c:if>
-	<security:authorize access="hasAnyRole('QIS_ASSISTANT', 'SUPER_ADMIN','ROIS_ASSISTANT','HDS_ASSISTANT')">
+	<security:authorize access="hasAnyRole('QIS_ASSISTANT', 'SUPER_ADMIN','ROIS_ASSISTANT','HDS_ASSISTANT','QIS_CLERK','HDS_CLERK')">
 	<a href="#" id="create_chart" class="butSim">
 		<spring:message code="chartinitial.createchart" text="Create Chart"/>
 	</a> |
