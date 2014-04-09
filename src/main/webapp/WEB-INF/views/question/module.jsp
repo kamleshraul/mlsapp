@@ -61,8 +61,8 @@
 						/**** session year changes then reload grid****/
 						$("#selectedSessionYear").change(function() {
 							var value = $(this).val();
-							$('#questionDepartment').hide();
-							$('#subDepartment').val("");
+							/* $('#questionDepartment').hide();
+							$('#subDepartment').val(""); */
 							if (value != "") {
 								loadGroupsFromSessions();
 							}
@@ -70,8 +70,8 @@
 						/**** session type changes then reload grid****/
 						$("#selectedSessionType").change(function() {
 							var value = $(this).val();
-							$('#questionDepartment').hide();
-							$('#subDepartment').val("");
+							/* $('#questionDepartment').hide();
+							$('#subDepartment').val(""); */
 							if (value != "") {
 								loadGroupsFromSessions();
 							}
@@ -194,6 +194,7 @@
 							}
 							$("#selectedGroup").empty();
 							$("#selectedGroup").html(text);
+							$("#ugparam").val(data[0].id);
 						} else {
 							$("#selectedGroup").empty();
 						}
