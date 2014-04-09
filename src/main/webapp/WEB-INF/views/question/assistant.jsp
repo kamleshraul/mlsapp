@@ -1168,8 +1168,6 @@
 	<input id="remindercontent" name="remindercontent" value="${pv_remindercontent}" type="hidden">	
 	</c:if>		
 </form:form>
-<input id="usergroup" name="usergroup" type="hidden" value="${usergroup}">
-<input id="usergroupType" name="usergroupType" type="hidden" value="${usergroupType}">
 <input id="oldgroup" name="oldgroup" value="${group}" type="hidden">
 <input id="formattedoldgroup" name="formattedoldgroup" value="${formattedGroup}" type="hidden">
 
