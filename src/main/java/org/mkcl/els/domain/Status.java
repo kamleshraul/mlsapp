@@ -16,6 +16,7 @@ import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Table;
 
+import org.codehaus.jackson.annotate.JsonIgnoreProperties;
 import org.mkcl.els.common.exception.ELSException;
 import org.mkcl.els.repository.StatusRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -32,6 +33,7 @@ import org.springframework.beans.factory.annotation.Configurable;
 @Configurable
 @Entity
 @Table(name = "status")
+@JsonIgnoreProperties({"priority","type","locale","version","versionMismatch"})
 public class Status extends BaseDomain implements Serializable{
 	// ---------------------------------Attributes-------------------------------------------------
     /** The Constant serialVersionUID. */
