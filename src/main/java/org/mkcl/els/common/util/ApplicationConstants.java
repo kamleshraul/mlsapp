@@ -122,7 +122,7 @@ public class ApplicationConstants {
 	public static final String QUESTION_COMPLETE="question_complete";
 
 	public static final String QUESTION_SUBMIT="question_submit";    
-	/**** Supporting Member ****/
+	/**** Supporting Member Status****/
 	public static final String SUPPORTING_MEMBER_TIMEOUT="supportingmember_timeout";
 	
 	public static final String SUPPORTING_MEMBER_APPROVED="supportingmember_approved";
@@ -131,7 +131,12 @@ public class ApplicationConstants {
 
 	public static final String SUPPORTING_MEMBER_PENDING="supportingmember_pending";
 
-	public static final String SUPPORTING_MEMBER_NOTSEND="supportingmember_notsend";    
+	public static final String SUPPORTING_MEMBER_NOTSEND="supportingmember_notsend";
+	
+	/**** Supporting Member Approval Type****/
+	public static final String SUPPORTING_MEMBER_APPROVALTYPE_AUTOAPPROVED="AUTO_APPROVAL"; 
+	
+	public static final String SUPPORTING_MEMBER_APPROVALTYPE_ONLINE="ONLINE"; 
 	/**** System ****/    
 	public static final String QUESTION_SYSTEM_ASSISTANT_PROCESSED="question_system_assistantprocessed";
 
