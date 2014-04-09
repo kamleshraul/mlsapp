@@ -120,20 +120,7 @@
 							var value = $(this).val();
 							if (value != "") {
 								$("#ugparam").val(value);
-								$.get('ref/getDepartment?group='+value+'&userGroup='+$('#currentusergroup').val(),function(data){
-									var subDepartmentText='';
-									$('#selectedSubDepartment').empty();
-									if(data.length>0){
-										for(var i=0;i<data.length;i++){
-											subDepartmentText+="<option value='"+data[i].id+"'>"+data[i].name;
-											
-										}
-										$("#selectedSubDepartment").html(subDepartmentText);
-									}
-								}).done(function(){
-									reloadQuestionGrid();
-								});
-								
+								loadSubDepartmentsFromGroup(value);								
 							}
 						});
 						/**** Chart Tab ****/
@@ -195,6 +182,7 @@
 							$("#selectedGroup").empty();
 							$("#selectedGroup").html(text);
 							$("#ugparam").val(data[0].id);
+							loadSubDepartmentsFromGroup(data[0].id);
 						} else {
 							$("#selectedGroup").empty();
 						}
@@ -488,6 +476,22 @@
 			//$.get('question/generateIntimationLetter?questionId='+selectedQuestionId);		    
 		}		
 	}
+	function loadSubDepartmentsFromGroup(group){
+		$.get('ref/getDepartment?group='+group+'&userGroup='+$('#currentusergroup').val(),function(data){
+			var subDepartmentText='';
+			$('#selectedSubDepartment').empty();
+			if(data.length>0){
+				for(var i=0;i<data.length;i++){
+					subDepartmentText+="<option value='"+data[i].id+"'>"+data[i].name;
+					
+				}
+				$("#selectedSubDepartment").html(subDepartmentText);
+			}
+		}).done(function(){
+			reloadQuestionGrid();
+		});
+	}
+	
 </script>
 </head>
 <body>

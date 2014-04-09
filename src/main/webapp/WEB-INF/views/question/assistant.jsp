@@ -1008,7 +1008,8 @@
 	||(internalStatusType=='question_system_assistantprocessed'&&selectedQuestionType=='questions_halfhourdiscussion_from_question')
 	||(internalStatusType=='question_system_assistantprocessed'&&selectedQuestionType=='questions_unstarred')
 	||(internalStatusType=='question_system_putup'&&selectedQuestionType=='questions_halfhourdiscussion_standalone' && houseTypeType=='lowerhouse')
-	||(internalStatusType=='question_system_assistantprocessed'&&selectedQuestionType=='questions_halfhourdiscussion_standalone' && houseTypeType=='upperhouse')}">		
+	||(internalStatusType=='question_system_assistantprocessed'&&selectedQuestionType=='questions_halfhourdiscussion_standalone' && houseTypeType=='upperhouse')}">
+		<security:authorize access="hasAnyRole('QIS_ASSISTANT','HDS_ASSISTANT')">		
 		<p>
 			<label class="small"><spring:message code="question.putupfor" text="Put up for"/></label>
 			<select id="changeInternalStatus" class="sSelect">
@@ -1050,7 +1051,7 @@
 			</select>	
 			<form:errors path="internalStatus" cssClass="validationError"/>	
 		</p>
-	
+		</security:authorize>.
 		<p id="actorDiv" style="display: none;">
 			<label class="small"><spring:message code="motion.nextactor" text="Next Users"/></label>
 			<form:select path="actor" cssClass="sSelect" itemLabel="name" itemValue="id" items="${actors }" />
