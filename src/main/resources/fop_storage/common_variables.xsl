@@ -33,7 +33,7 @@
 		</xsl:choose>	
 	     </xsl:when>
 	     <xsl:when test="$language='en_US'"><xsl:value-of select="document('Lang.xml')/Lang/en_US/fontname" /></xsl:when>
-	     <xsl:otherwise>FreeSerif</xsl:otherwise>
+	     <xsl:otherwise>Kokila</xsl:otherwise>
 	   </xsl:choose>
     </xsl:variable>       
     
