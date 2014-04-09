@@ -131,7 +131,7 @@
 						<fo:block font-weight="bold"><xsl:value-of select="rejectionReason"/></fo:block>	
 						-------------------------------------------------------------------------------------------------
 						<fo:block>&#160;</fo:block>
-						<fo:block font-weight="bold">
+						<fo:block>
 							<fo:inline>प्रश्न - </fo:inline>
 							<fo:inline margin-left="1cm"><xsl:apply-templates select="questionText"/></fo:inline>
 						</fo:block>
