@@ -473,6 +473,20 @@
 				+ "&itemscount=" + $("#selectedItemsCount").val();
 		showTabByIdAndUrl('bulkputupassistant_tab', resourceURL);
 	}
+	/**** To Generate Intimation Letter ****/
+	function generateIntimationLetter() {			
+		var selectedQuestionId = $("#grid").jqGrid ('getGridParam', 'selarrrow');
+		if(selectedQuestionId.length<1) {
+			$.prompt("Please select a question first!");
+			return false;
+		} else if(selectedQuestionId.length>1) {
+			$.prompt("Please select only one question!");
+			return false;
+		} else {
+			$('#generateIntimationLetter').attr('href', 'question/generateIntimationLetter?questionId='+selectedQuestionId);
+			//$.get('question/generateIntimationLetter?questionId='+selectedQuestionId);		    
+		}		
+	}
 </script>
 </head>
 <body>
