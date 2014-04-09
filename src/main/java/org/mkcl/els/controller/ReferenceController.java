@@ -1093,7 +1093,10 @@ public class ReferenceController extends BaseController {
 		String strhouseType=request.getParameter("houseType");
 		String stryear=request.getParameter("sessionYear");
 		String strsessionType=request.getParameter("sessionType");
-		String strAllowedGroups=request.getParameter("allowedgroups");
+		//String strAllowedGroups=request.getParameter("allowedgroups");
+		
+		String strAllowedGroups = this.getCurrentUser().getGroupsAllowed();
+		
 		if(strhouseType!=null&&stryear!=null&&strsessionType!=null&&strAllowedGroups!=null){
 			HouseType selectedHouseType=HouseType.findByFieldName(HouseType.class,"type",strhouseType,locale.toString());
 			SessionType selectedSessionType=SessionType.findById(SessionType.class, Long.parseLong(strsessionType));
