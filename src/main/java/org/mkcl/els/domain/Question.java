@@ -46,21 +46,29 @@ import org.springframework.beans.factory.annotation.Configurable;
  * @author amitd
  * @author sandeeps
  * @since v1.0.0
- */
+ */ 
+
 @Configurable
 @Entity
 @Table(name="questions")
-@JsonIgnoreProperties({"houseType", "session", "originalType", "type", "answeringDate",
-	"chartAnsweringDate",  "ballotStatus", "supportingMembers",
-	"group", "subDepartment", "drafts", "parent", "clubbedEntities", "referencedEntities",
-	"halfHourDiscusionFromQuestionReference", "language", "referencedHDS"})
+@JsonIgnoreProperties(value={"houseType", "session", "originalType", "type","creationDate","createdBy",
+	"dataEnteredBy","editedOn","editedBy","answeringDate","chartAnsweringDate",
+	"subject","revisedSubject","questionText","revisedQuestionText","answer","priority",
+	"ballotStatus","remarks","rejectionReason", "supportingMembers",
+	"group","department", "drafts", "parent", "clubbedEntities", "referencedEntities",
+	"halfHourDiscusionFromQuestionReference", "language", "referencedHDS","fileSent","fileIndex",
+	"file","workflowDetailsId","bulkSubmitted","taskReceivedOn","workflowStartedOn","level",
+	"endFlag","localizedActorName","actor","workflowStarted","answeringAttemptsByDepartment"
+	,"markAsAnswered","prospectiveClubbings","lastDateOfAnswerReceiving","revisedBriefExplanation",
+	"briefExplanation","discussionDate","dateOfAnsweringByMinister","toBeAnsweredByMinister"
+	,"revisedReason","reason","numberOfDaysForFactualPositionReceiving",
+	"lastDateOfFactualPositionReceiving","factualPosition","questionsAskedInFactualPosition"
+	,"locale","version","versionMismatch","editedAs"},ignoreUnknown=true)
 public class Question extends Device implements Serializable {
 
     /** The Constant serialVersionUID. */
     private static final long serialVersionUID = 1L;
-
-    /**** Attributes ****/
-    
+    /**** Attributes ****/    
     /** The house type. */
     @ManyToOne(fetch=FetchType.LAZY)
     @JoinColumn(name="housetype_id")
@@ -385,10 +393,8 @@ public class Question extends Device implements Serializable {
             if(this.getNumber() == null) {
                 synchronized (this) {
                 	if(this.getType().getType().equals(ApplicationConstants.HALF_HOUR_DISCUSSION_QUESTION_STANDALONE)
-                			&& this.getHouseType().getType().equals(ApplicationConstants.LOWER_HOUSE)){
-                		
-                		String key = "NO_OF_HALFHOURDISCUSSIONSTANDALONE_MEMBER_PUTUP_COUNT_LH";
-                		
+                			&& this.getHouseType().getType().equals(ApplicationConstants.LOWER_HOUSE)){                		
+                		String key = "NO_OF_HALFHOURDISCUSSIONSTANDALONE_MEMBER_PUTUP_COUNT_LH";    		
                 		
                 		CustomParameter halfhourDiscussionStandalonePutupCount_CP;
                 		Integer memberHalfHourPutupCount = null;
@@ -419,8 +425,7 @@ public class Question extends Device implements Serializable {
                 	}else{
                 		
                 		//HDS Upper House
-            			//key = "NO_OF_HALFHOURDISCUSSIONSTANDALONE_MEMBER_PUTUP_COUNT_UH";
-            			
+            			//key = "NO_OF_HALFHOURDISCUSSIONSTANDALONE_MEMBER_PUTUP_COUNT_UH";            			
                 		Integer number = null;
 						try {
 							number = Question.assignQuestionNo(this.getHouseType(),this.getSession(), this.getType(),this.getLocale());
@@ -432,6 +437,9 @@ public class Question extends Device implements Serializable {
                     addQuestionDraft();
                     return (Question)super.persist();
                 }
+            }/**** This is for typist.See if role check can be done. ****/            
+            else if(this.getNumber()!=null){
+            	addQuestionDraft();
             }
         }
         return (Question) super.persist();
