@@ -146,7 +146,7 @@
 						<fo:block margin-left="1cm" font-weight="bold">
 							<fo:inline><xsl:value-of select="memberNames"/></fo:inline>			
 						</fo:block>
-						<fo:block font-weight="bold"><xsl:value-of select="questionText"/></fo:block>
+						<fo:block><xsl:apply-templates select="questionText"/></fo:block>
 					</fo:block>							          
 	            </fo:flow>
 	        </fo:page-sequence>        
