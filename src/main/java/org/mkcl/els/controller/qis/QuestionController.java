@@ -1071,7 +1071,8 @@ public class QuestionController extends GenericController<Question>{
 		/**** Status,Internal Status and Recommendation Status Starts ****/
 		
 		/**** Referenced Questions Starts ****/
-		if(usergroupType.equals("assistant")){
+		CustomParameter clubbedReferencedEntitiesVisibleUserGroups = CustomParameter.findByName(CustomParameter.class, "QIS_ALLOWED_USERGROUP_TO_DO_VIEW_CLUBBING_REFERENCING", "");   
+		if(clubbedReferencedEntitiesVisibleUserGroups != null&&clubbedReferencedEntitiesVisibleUserGroups.getValue().contains(usergroupType)){
 			model.addAttribute("level",1);				
 			List<Reference> refentities=new ArrayList<Reference>();
 			List<String> refentitiesSessionDevice = new ArrayList<String>();
@@ -2090,7 +2091,8 @@ public class QuestionController extends GenericController<Question>{
 		/**** In case of assistant if internal status=submit,ministry,department,group is set 
 		 * then change its internal and recommendstion status to assistant processed ****/
 		if(strUserGroupType!=null){
-			if(strUserGroupType.equals("assistant")){
+			CustomParameter assistantProcessedAllowed=CustomParameter.findByName(CustomParameter.class,"QIS_ASSISTANT_PROCESSED_ALLOWED_FOR","");
+			if(assistantProcessedAllowed!=null&&assistantProcessedAllowed.getValue().contains(strUserGroupType)){
 				Long id = domain.getId();
 				Question question = Question.findById(Question.class, id);
 				String internalStatus = question.getInternalStatus().getType();
