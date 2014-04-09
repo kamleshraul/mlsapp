@@ -13,6 +13,7 @@ import java.io.Serializable;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
@@ -29,6 +30,8 @@ import org.springframework.beans.factory.annotation.Configurable;
 @Configurable
 @Entity
 @Table(name = "subdepartments")
+@JsonIgnoreProperties({"department","remarks","isExpired","locale"
+	,"version","versionMismatch"})
 public class SubDepartment extends BaseDomain implements Serializable{
 	 // ---------------------------------Attributes-------------------------------------------------
     /** The Constant serialVersionUID. */
@@ -39,7 +42,7 @@ public class SubDepartment extends BaseDomain implements Serializable{
     private String name;
 
     /** The department. */
-    @ManyToOne
+    @ManyToOne(fetch=FetchType.LAZY)
     @JoinColumn(name = "department_id")
     private Department department;
 
