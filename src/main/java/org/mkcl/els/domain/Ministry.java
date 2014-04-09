@@ -32,7 +32,8 @@ import org.springframework.beans.factory.annotation.Configurable;
 @Configurable
 @Entity
 @Table(name = "ministries")
-@JsonIgnoreProperties({"groups"})
+@JsonIgnoreProperties({"groups","isExpired","remarks","locale","version"
+	,"versionMismatch"})
 public class Ministry extends BaseDomain implements Serializable{
 	
 	/**** Attributes ****/
