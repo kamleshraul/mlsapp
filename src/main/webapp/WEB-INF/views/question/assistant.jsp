@@ -1093,7 +1093,9 @@
 							||(internalStatusType=='question_system_assistantprocessed'&&selectedQuestionType=='questions_halfhourdiscussion_standalone' && houseTypeType=='upperhouse')
 							}">
 					<input id="submit" type="submit" value="<spring:message code='generic.submit' text='Submit'/>" class="butDef">
-					<input id="startworkflow" type="button" value="<spring:message code='question.putupquestion' text='Put Up Question'/>" class="butDef">					
+					<security:authorize access="hasAnyRole('QIS_ASSISTANT','HDS_ASSISTANT')">
+					<input id="startworkflow" type="button" value="<spring:message code='question.putupquestion' text='Put Up Question'/>" class="butDef">
+					</security:authorize>					
 				</c:if>
 				<%-- <c:if test="${(internalStatusType=='question_system_putup'||internalStatusType=='question_putup_nameclubbing'&& selectedQuestionType=='questions_starred')
 							||(internalStatusType=='question_system_assistantprocessed'&&selectedQuestionType=='questions_shortnotice')
