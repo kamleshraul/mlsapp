@@ -430,7 +430,8 @@ public class GroupRepository extends BaseRepository<Group, Long> {
 					" (SELECT mi.id FROM Group g" +
 					" JOIN g.ministries mi" +
 					" WHERE g.id=:groupId)" +
-					" AND m.isExpired=false ORDER BY mm.priority";
+					" AND m.isExpired=false" +
+					" AND mm.ministryToDate IS NULL ORDER BY mm.priority";
 		
 		
 		List<Ministry> ministries = new ArrayList<Ministry>();
