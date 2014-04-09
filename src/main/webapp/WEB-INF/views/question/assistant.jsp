@@ -505,7 +505,7 @@
 				if(id.indexOf("cq")!=-1){
 				var questionId=$("#id").val();
 				var clubId=id.split("cq")[1];				
-				$.post('clubentity/unclubbing?pId='+questionId+"&cId="+clubId,function(data){
+				$.post('clubentity/unclubbing?pId='+questionId+"&cId="+clubId+"&whichDevice=questions_",function(data){
 					if(data=='SUCCESS'){
 					$.prompt("Unclubbing Successful");				
 					}else{
