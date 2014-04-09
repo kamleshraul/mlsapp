@@ -60,16 +60,23 @@ import org.springframework.beans.factory.annotation.Configurable;
  * @author sandeeps
  * @since v1.0.0
  */
+
 @Configurable
 @Entity
 @Table(name="members")
-@JsonIgnoreProperties({ "qualifications", "religion", "languages",
+@JsonIgnoreProperties(value={"title","qualifications", "religion", "languages",
 	"familyMembers", "positionsHeld", "reservation", "electionResults",
 	"memberPartyAssociations", "memberMinisters", "books",
 	"credential", "title", "maritalStatus", "gender", "professions",
 	"nationality", "permanentAddress","permanentAddress1","permanentAddress2","presentAddress","presentAddress1","presentAddress2"
 	,"tempAddress1","tempAddress2", "contact",
-	"officeAddress","officeAddress1","officeAddress2","correspondenceAddress","houseMemberRoleAssociations"})
+	"officeAddress","officeAddress1","officeAddress2","correspondenceAddress","houseMemberRoleAssociations"
+	,"deathRemarks","deathHouseDismissed","obituary","condolenceDate","deathDate","status","paAddress",
+	"paContactNo","paName","publications","educationalCulturalActivities","otherInformation",
+	"countriesVisited","sportsClubs","favoritePastimeRecreation","hobbySpecialInterests","literaryArtisticScientificAccomplishments"
+	,"socialCulturalActivities","caste","alias","aliasEnabled","specimenSignature","photo",
+	"marriageDate","fullnameLastNameFirst","fullname","birthPlace","locale",
+	"version","versionMismatch"},ignoreUnknown=true)
 	public class Member extends BaseDomain implements Serializable {
 
 	// ---------------------------------Attributes------------------------------------------
