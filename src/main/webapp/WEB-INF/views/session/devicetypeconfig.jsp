@@ -5,7 +5,9 @@
 	<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
 	<title></title>
 	<script type="text/javascript">	
-		var countOfQuestionsToBeAskedForFactualPosition = 0;		
+		var countOfQuestionsToBeAskedForFactualPosition = 0;
+		var countOfQuestionsToBeAskedForClarificationFromMember = 0;
+		var countOfQuestionsToBeAskedForClarificationFromDepartment = 0;
 	
 		//fill contents required for the device type fields 
 		//called on document.ready & devicetype change events
@@ -182,38 +184,12 @@
 		  	}
 		  	
 		  	//initialize questions to be asked in factual position of non-official resolution
-		  	if(deviceTypeSelected == 'resolutions_nonofficial' || deviceTypeSelected == 'questions_halfhourdiscussion_standalone') {		  		
-		  		var questions = $('#'+deviceTypeSelected+'_questionsAskedForFactualPosition').val().split("##");		  		
-		  		var questionsHtml = "";		  		
-		  		if(questions.length==1 && questions == '') {
-		  			questionsHtml += "<p id='"+deviceTypeSelected+"_questionsAskedForFactualPosition_para1' class='questionPara'><label class='small questionLabel' style='vertical-align: top; text-align: right;'><spring:message code='question.details' text='Question'/> 1&nbsp;</label><textarea class='sTextArea' cols='50' rows='2' id='"+deviceTypeSelected+"_questionsAskedForFactualPosition1'></textarea></p>";
-		  			countOfQuestionsToBeAskedForFactualPosition++;
-		  		} else {
-		  			for(var i=0; i<questions.length; i++) {	
-		  				if(i==0) {
-		  					questionsHtml += "<p id='"+deviceTypeSelected+"_questionsAskedForFactualPosition_para"+(i+1)+"' class='questionPara'><label class='small questionLabel' style='vertical-align: top; text-align: right;'><spring:message code='question.details' text='Question'/> "+(i+1)+"&nbsp;</label><textarea class='sTextArea' cols='50' rows='2' id='"+deviceTypeSelected+"_questionsAskedForFactualPosition"+(i+1)+"'>"+questions[i]+"</textarea></p>";
-		  				} else {
-		  					questionsHtml += "<p id='"+deviceTypeSelected+"_questionsAskedForFactualPosition_para"+(i+1)+"' class='questionPara'><label class='small questionLabel' style='vertical-align: top; text-align: right;'><spring:message code='question.details' text='Question'/> "+(i+1)+"&nbsp;</label><textarea class='sTextArea' cols='50' rows='2' id='"+deviceTypeSelected+"_questionsAskedForFactualPosition"+(i+1)+"'>"+questions[i]+"</textarea><input id='"+deviceTypeSelected+"_removeQuestionForFactualPosition"+(i+1)+"' type='button' value='Remove Question' class='butDef' onClick='deleteQuestionToBeAskedForFactualPosition("+(i+1)+")'></p>";
-		  				}
-		  				countOfQuestionsToBeAskedForFactualPosition++;
-			  		}		  			
-		  		}
-		  		questionsHtml += "<input id='"+deviceTypeSelected+"_addQuestionForFactualPosition' type='button' value='Add Question' class='butDef' style='margin-left: 160px;'>";
-		  		$('#'+deviceTypeSelected+'_questionsAskedForFactualPosition_div').html(questionsHtml);		  		
-		  		
-		  		$('#'+deviceTypeSelected+'_addQuestionForFactualPosition').click(function() {		  			
-					countOfQuestionsToBeAskedForFactualPosition++;
-		  			var questionNumber = countOfQuestionsToBeAskedForFactualPosition;
-		  			var questionHtml = "";
-		  			questionHtml += "<p id='"+deviceTypeSelected+"_questionsAskedForFactualPosition_para"+questionNumber+"' class='questionPara'><label class='small questionLabel' style='vertical-align: top; text-align: right;'><spring:message code='question.details' text='Question'/> "+questionNumber+"&nbsp;</label><textarea class='sTextArea' cols='50' rows='2' id='"+deviceTypeSelected+"_questionsAskedForFactualPosition"+questionNumber+"'></textarea><input id='"+deviceTypeSelected+"_removeQuestionForFactualPosition"+questionNumber+"' type='button' value='Remove Question' class='butDef' onClick='deleteQuestionToBeAskedForFactualPosition("+questionNumber+")'></p>";
-		  			$('#'+deviceTypeSelected+'_addQuestionForFactualPosition').before(questionHtml);
-		  			var countLabel = 0;
-					$('#'+deviceTypeSelected+'_questionsAskedForFactualPosition_div').children('p.questionPara').each(function() {
-						countLabel++;
-						labelInSequence = "<spring:message code='question.details' text='Question'/> " + countLabel + "&nbsp;";
-						$(this).find('label.questionLabel').html(labelInSequence);							
-					});
-				});
+		  	if(deviceTypeSelected == 'resolutions_nonofficial'
+		  			|| deviceTypeSelected == 'questions_halfhourdiscussion_standalone') {		  		
+		  		initializeQuestionsAskedForClarification(deviceTypeSelected, "questionsAskedForFactualPosition");
+		  	} else if(deviceTypeSelected == 'questions_starred') {		  		
+		  		initializeQuestionsAskedForClarification(deviceTypeSelected, "clarificationFromMemberQuestions");
+		  		initializeQuestionsAskedForClarification(deviceTypeSelected, "clarificationFromDepartmentQuestions");
 		  	}
 		    
 		  	//hide all the divs
@@ -235,6 +211,67 @@
 		  	//show div of selected device type
 		    $(selectedDiv).show();
 		    
+		}
+		
+		function initializeQuestionsAskedForClarification(deviceTypeSelected, fieldname) {			
+			var clarificationFor = "FactualPosition";
+			if(fieldname=="clarificationFromMemberQuestions") {
+				clarificationFor = "ClarificationFromMember";
+			} else if(fieldname=="clarificationFromDepartmentQuestions") {
+				clarificationFor = "ClarificationFromDepartment";
+			}			
+			var questions = $('#'+deviceTypeSelected+'_'+fieldname).val().split("##");				
+	  		var questionsHtml = "";		  		
+	  		if(questions.length==1 && questions == '') {
+	  			questionsHtml += "<p id='"+deviceTypeSelected+"_"+fieldname+"_para1' class='questionPara'><label class='small questionLabel' style='vertical-align: top; text-align: right;'><spring:message code='question.details' text='Question'/> 1&nbsp;</label><textarea class='sTextArea' cols='50' rows='2' id='"+deviceTypeSelected+"_"+fieldname+"1'></textarea></p>";
+	  			if(fieldname=="clarificationFromMemberQuestions") {
+	  				countOfQuestionsToBeAskedForClarificationFromMember++;
+				} else if(fieldname=="clarificationFromDepartmentQuestions") {
+					countOfQuestionsToBeAskedForClarificationFromDepartment++;
+				} else {
+					countOfQuestionsToBeAskedForFactualPosition++;
+				}	  			
+	  		} else {
+	  			for(var i=0; i<questions.length; i++) {	
+	  				if(i==0) {
+	  					questionsHtml += "<p id='"+deviceTypeSelected+"_"+fieldname+"_para"+(i+1)+"' class='questionPara'><label class='small questionLabel' style='vertical-align: top; text-align: right;'><spring:message code='question.details' text='Question'/> "+(i+1)+"&nbsp;</label><textarea class='sTextArea' cols='50' rows='2' id='"+deviceTypeSelected+"_"+fieldname+(i+1)+"'>"+questions[i]+"</textarea></p>";
+	  				} else {
+	  					questionsHtml += "<p id='"+deviceTypeSelected+"_"+fieldname+"_para"+(i+1)+"' class='questionPara'><label class='small questionLabel' style='vertical-align: top; text-align: right;'><spring:message code='question.details' text='Question'/> "+(i+1)+"&nbsp;</label><textarea class='sTextArea' cols='50' rows='2' id='"+deviceTypeSelected+"_"+fieldname+(i+1)+"'>"+questions[i]+"</textarea><input id='"+deviceTypeSelected+"_removeQuestionFor"+clarificationFor+(i+1)+"' type='button' value='Remove Question' class='butDef' onClick='deleteQuestionToBeAskedForClarification(\""+fieldname+"\","+(i+1)+")'></p>";
+	  				}
+	  				if(fieldname=="clarificationFromMemberQuestions") {
+		  				countOfQuestionsToBeAskedForClarificationFromMember++;
+					} else if(fieldname=="clarificationFromDepartmentQuestions") {
+						countOfQuestionsToBeAskedForClarificationFromDepartment++;
+					} else {
+						countOfQuestionsToBeAskedForFactualPosition++;
+					}
+		  		}		  			
+	  		}
+	  		questionsHtml += "<input id='"+deviceTypeSelected+"_addQuestionFor"+clarificationFor+"' type='button' value='Add Question' class='butDef' style='margin-left: 160px;'>";
+	  		$('#'+deviceTypeSelected+'_'+fieldname+'_div').html(questionsHtml);		  		
+	  		
+	  		$('#'+deviceTypeSelected+'_addQuestionFor'+clarificationFor).click(function() {		
+	  			var questionNumber = "";
+	  			if(fieldname=="clarificationFromMemberQuestions") {
+	  				countOfQuestionsToBeAskedForClarificationFromMember++;
+	  				questionNumber = countOfQuestionsToBeAskedForClarificationFromMember;
+				} else if(fieldname=="clarificationFromDepartmentQuestions") {
+					countOfQuestionsToBeAskedForClarificationFromDepartment++;
+					questionNumber = countOfQuestionsToBeAskedForClarificationFromDepartment;
+				} else {
+					countOfQuestionsToBeAskedForFactualPosition++;
+					questionNumber = countOfQuestionsToBeAskedForFactualPosition;
+				}
+	  			var questionHtml = "";
+	  			questionHtml += "<p id='"+deviceTypeSelected+"_"+fieldname+"_para"+questionNumber+"' class='questionPara'><label class='small questionLabel' style='vertical-align: top; text-align: right;'><spring:message code='question.details' text='Question'/> "+questionNumber+"&nbsp;</label><textarea class='sTextArea' cols='50' rows='2' id='"+deviceTypeSelected+"_"+fieldname+questionNumber+"'></textarea><input id='"+deviceTypeSelected+"_removeQuestionFor"+clarificationFor+(questionNumber)+"' type='button' value='Remove Question' class='butDef' onClick='deleteQuestionToBeAskedForClarification(\""+fieldname+"\","+questionNumber+")'></p>";
+	  			$('#'+deviceTypeSelected+'_addQuestionFor'+clarificationFor).before(questionHtml);
+	  			var countLabel = 0;
+				$('#'+deviceTypeSelected+'_'+fieldname+'_div').children('p.questionPara').each(function() {
+					countLabel++;
+					labelInSequence = "<spring:message code='question.details' text='Question'/> " + countLabel + "&nbsp;";
+					$(this).find('label.questionLabel').html(labelInSequence);							
+				});
+			});
 		}
 		
 		//hide all the divs
@@ -266,11 +303,11 @@
 			});			
 		};
 		
-		function deleteQuestionToBeAskedForFactualPosition(questionNumber) {
+		function deleteQuestionToBeAskedForClarification(fieldname, questionNumber) {			
 			var selectedDeviceType = $('#deviceType').val();			
-			$('#'+selectedDeviceType+'_questionsAskedForFactualPosition_para'+questionNumber).remove();
+			$('#'+selectedDeviceType+'_'+fieldname+'_para'+questionNumber).remove();
 			var countLabel = 0;
-			$('#'+selectedDeviceType+'_questionsAskedForFactualPosition_div').children('p.questionPara').each(function() {
+			$('#'+selectedDeviceType+'_'+fieldname+'_div').children('p.questionPara').each(function() {
 				countLabel++;
 				labelInSequence = "<spring:message code='question.details' text='Question'/> " + countLabel + "&nbsp;";
 				$(this).find('label.questionLabel').html(labelInSequence);							
@@ -279,7 +316,7 @@
 		
 		$('document').ready(function(){
 			initControls();
-						
+			
 			//add please select option if not exists already for all select & multiselect fields.
 			//this is necessary to pass empty value in case no option is/should be selected.
 			$('.sSelectMultiple, .sSelect').each(function() {
@@ -326,6 +363,8 @@
 				}
 				
 				countOfQuestionsToBeAskedForFactualPosition = 0;
+				countOfQuestionsToBeAskedForClarificationFromMember = 0;
+				countOfQuestionsToBeAskedForClarificationFromDepartment = 0;
 				
 				//fill contents required for the device type fields
 				fillContent(deviceTypeSelected);	
@@ -476,6 +515,27 @@
 					}
 					questionsAsked = questionsAsked.slice(0,-2);					
 					$('#'+deviceTypeSeleted+'_questionsAskedForFactualPosition').val(questionsAsked);					
+				} else if(deviceTypeSeleted == 'questions_starred') {
+					var questionsAsked = "";
+					for(var i=1; i<=countOfQuestionsToBeAskedForClarificationFromMember; i++) {
+						var questionContent = $('#'+deviceTypeSeleted+'_clarificationFromMemberQuestions'+i).val();
+						if(questionContent != undefined && questionContent!= "") {
+							questionsAsked += questionContent;
+							questionsAsked += "##";
+						}						
+					}
+					questionsAsked = questionsAsked.slice(0,-2);					
+					$('#'+deviceTypeSeleted+'_clarificationFromMemberQuestions').val(questionsAsked);
+					questionsAsked = "";
+					for(var i=1; i<=countOfQuestionsToBeAskedForClarificationFromDepartment; i++) {
+						questionContent = $('#'+deviceTypeSeleted+'_clarificationFromDepartmentQuestions'+i).val();
+						if(questionContent != undefined && questionContent!= "") {
+							questionsAsked += questionContent;
+							questionsAsked += "##";
+						}						
+					}
+					questionsAsked = questionsAsked.slice(0,-2);					
+					$('#'+deviceTypeSeleted+'_clarificationFromDepartmentQuestions').val(questionsAsked);
 				}				
 				
 				//set final value for isBallotingRequired
@@ -751,7 +811,27 @@
 					<label class="small"><spring:message code="session.deviceType.questions_starred_noOfRoundsBallot" text="No. of Rounds In Ballot" /></label>
 					<c:set var="key" value="questions_starred_noOfRoundsBallot"></c:set>
 					<input type="text" class="sText" id="questions_starred_noOfRoundsBallot" name="questions_starred_noOfRoundsBallot" value="${questions_starred_noofroundsballot}" />
-				</p>				
+				</p>
+				
+				<div>
+					<fieldset>
+					<legend style="text-align: left; width: 150px;"><label><spring:message code="session.deviceType.clarificationFromMemberQuestions" text="Questions Asked For Clarification From Member" /></label></legend>
+					<div id="questions_starred_clarificationFromMemberQuestions_div">
+						
+					</div>					
+					<input type="hidden" id="questions_starred_clarificationFromMemberQuestions" name="questions_starred_clarificationFromMemberQuestions" value="${questions_starred_clarificationfrommemberquestions}"/>
+					</fieldset>
+				</div>
+				
+				<div>
+					<fieldset>
+					<legend style="text-align: left; width: 150px;"><label><spring:message code="session.deviceType.clarificationFromDepartmentQuestions" text="Questions Asked For Clarification From Department" /></label></legend>
+					<div id="questions_starred_clarificationFromDepartmentQuestions_div">
+						
+					</div>					
+					<input type="hidden" id="questions_starred_clarificationFromDepartmentQuestions" name="questions_starred_clarificationFromDepartmentQuestions" value="${questions_starred_clarificationfromdepartmentquestions}"/>
+					</fieldset>
+				</div>				
 			</div>
 		</c:if>
 		
