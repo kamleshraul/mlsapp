@@ -4119,7 +4119,7 @@ public class QuestionController extends GenericController<Question>{
 			if(question!=null) {
 				QuestionIntimationLetterXmlVO letterVO = new QuestionIntimationLetterXmlVO();
 				DeviceType deviceType = question.getType();
-				letterVO.setDeviceType(deviceType.getType());
+				letterVO.setDeviceType(deviceType.getName());
 				if(question.getNumber()!=null) {
 					letterVO.setNumber(FormaterUtil.formatNumberNoGrouping(question.getNumber(), question.getLocale()));
 				}
@@ -4159,7 +4159,7 @@ public class QuestionController extends GenericController<Question>{
 						 **/
 						if(ce.getQuestion().getInternalStatus().getType().equals(ApplicationConstants.QUESTION_SYSTEM_CLUBBED)
 								|| ce.getQuestion().getInternalStatus().getType().equals(ApplicationConstants.QUESTION_FINAL_ADMISSION)) {
-							String tempPrimary=ce.getBill().getPrimaryMember().getFullname();
+							String tempPrimary=ce.getQuestion().getPrimaryMember().getFullname();
 							if(!supportingMemberNames.toString().contains(tempPrimary)){
 								supportingMemberNames.append(ce.getQuestion().getPrimaryMember().getFullname()+",");
 							}
