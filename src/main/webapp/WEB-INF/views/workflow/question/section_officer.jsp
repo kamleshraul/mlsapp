@@ -126,7 +126,7 @@
 			$("#actor").empty();
 			$("#actorDiv").hide();
 			return false;
-		}else if(((value==clarificationReceived) && questionType == 'questions_halfhourdiscussion_standalone')|| value==nameclubbing){
+		}else if(value==clarificationReceived || value==nameclubbing){
 			$("#endFlag").val("end");
 			$("#recommendationStatus").val(value);
 			$("#actor").empty();
@@ -342,6 +342,7 @@
 		});
 	}
 	$(document).ready(function(){
+		$('#questionsAskedInThisFactualPosition').multiSelect();
 		/*******Actor changes*************/
 		$("#actor").change(function(){
 		    var actor=$(this).val();
@@ -359,31 +360,35 @@
 					$(this).val("");
 				}
 			});
-			if($("#selectedQuestionType").val()=='questions_halfhourdiscussion_standalone'){
+			if($("#selectedQuestionType").val()=='questions_halfhourdiscussion_standalone'
+					|| $("#selectedQuestionType").val()=='questions_starred'){
+				
 				if($("#questionsAskedInThisFactualPosition").val()!=undefined) {
 					var questionsAskedInThisFactualPosition = $("#questionsAskedInThisFactualPosition").val();
 					questionsAskedInThisFactualPosition = questionsAskedInThisFactualPosition.join("##");
-					$('#questionsAskedInFactualPosition').val(questionsAskedInThisFactualPosition);				
+					$('#questionsAskedInFactualPosition').val(questionsAskedInThisFactualPosition);	
 				}				
-				if($('#timerflag').val()=="set") {
-					if(
-							$('#internalStatusType').val()=="question_final_clarificationNeededFromDepartment"
-																	||
-							$('#internalStatusType').val()=="question_final_clarificationNeededFromMember"
-					  ) {
-						
-						var timerduration = "PT" + $('#numberOfDaysForFactualPositionReceiving').val() + "M";
-						$('#timerduration').val(timerduration);
-						
-						var totalTimerDuration = parseInt($('#numberOfDaysForFactualPositionReceiving').val(), 10) 
-												 +
-												 parseInt($('#lasttimerduration').val(), 10);
-						
-						var lasttimerduration = "PT" + totalTimerDuration + "M";
-						$('#lasttimerduration').val(lasttimerduration);
+				if($("#selectedQuestionType").val()!='questions_starred') {
+					if($('#timerflag').val()=="set") {
+						if(
+								$('#internalStatusType').val()=="question_final_clarificationNeededFromDepartment"
+																		||
+								$('#internalStatusType').val()=="question_final_clarificationNeededFromMember"
+						  ) {
+							
+							var timerduration = "PT" + $('#numberOfDaysForFactualPositionReceiving').val() + "M";
+							$('#timerduration').val(timerduration);
+							
+							var totalTimerDuration = parseInt($('#numberOfDaysForFactualPositionReceiving').val(), 10) 
+													 +
+													 parseInt($('#lasttimerduration').val(), 10);
+							
+							var lasttimerduration = "PT" + totalTimerDuration + "M";
+							$('#lasttimerduration').val(lasttimerduration);
 
+						}
 					}
-				}
+				}				
 			}
 			
 			if($('#internalStatusType').val()=="question_final_rejection"){
@@ -1119,7 +1124,7 @@
 	<input id="formattedInternalStatus" name="formattedInternalStatus" value="${formattedInternalStatus }" type="text" readonly="readonly">
 	</p>
 	
-	<c:if test="${(selectedQuestionType == 'questions_halfhourdiscussion_standalone' && houseTypeType=='lowerhouse') && (internalStatusType == 'question_final_clarificationNeededFromDepartment' || internalStatusType == 'question_final_clarificationNeededFromMember')}">
+	<c:if test="${((selectedQuestionType == 'questions_halfhourdiscussion_standalone' && houseTypeType=='lowerhouse') || selectedQuestionType == 'questions_starred') && (internalStatusType == 'question_final_clarificationNeededFromDepartment' || internalStatusType == 'question_final_clarificationNeededFromMember')}">
 		<p>
 			<label class="small"><spring:message code="hds.questionsAskedInFactualPosition" text="Questions To Be Asked In Factual Position"/></label>
 			<select name="questionsAskedInThisFactualPosition" id="questionsAskedInThisFactualPosition" class="sSelectMultiple" size="5" multiple="multiple">
@@ -1139,7 +1144,7 @@
 		</p>		
 		
 		<c:choose>
-			<c:when test="${empty domain.lastDateOfFactualPositionReceiving}">
+			<c:when test="${empty domain.lastDateOfFactualPositionReceiving and selectedQuestionType != 'questions_starred'}">
 				<p>
 					<label class="small"><spring:message code="hds.numberOfDaysForFactualPositionReceiving" text="Number Of Days For FactualPosition Receiving"/></label>
 					<select name="numberOfDaysForFactualPositionReceiving" id="numberOfDaysForFactualPositionReceiving" class="sSelect" >
@@ -1157,12 +1162,12 @@
 					<form:errors path="numberOfDaysForFactualPositionReceiving" cssClass="validationError"/>	
 				</p>
 			</c:when>
-			<c:otherwise>
+			<c:when test="${not empty domain.lastDateOfFactualPositionReceiving and selectedQuestionType != 'questions_starred'}">
 				<p>
 					<label class="small"><spring:message code="hds.lastDateOfFactualPositionReceiving" text="Last Date Of Factual Position Receiving"/></label>
 					<form:input path="lastDateOfFactualPositionReceiving" readonly="true"/>
 				</p>
-			</c:otherwise>
+			</c:when>
 		</c:choose>
 		<c:if test="${!(empty domain.factualPosition)}">
 			<p>
@@ -1173,7 +1178,7 @@
 		</c:if>
 	</c:if>
 	
-	<c:if test="${(selectedQuestionType != 'questions_halfhourdiscussion_standalone')}">
+	<c:if test="${selectedQuestionType != 'questions_halfhourdiscussion_standalone' and selectedQuestionType != 'questions_starred'}">
 		<c:if test="${!(empty domain.factualPosition)}">
 			<p>
 			<label class="wysiwyglabel"><spring:message code="question.factualPosition" text="Factual Position"/></label>

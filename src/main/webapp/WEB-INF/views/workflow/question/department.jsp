@@ -1207,24 +1207,24 @@
 		</p>
 	</c:if>
 	
-	<c:if test="${(selectedQuestionType == 'questions_halfhourdiscussion_standalone' && houseTypeType=='lowerhouse') && internalStatusType == 'question_final_clarificationNeededFromDepartment' }">
+	<c:if test="${((selectedQuestionType == 'questions_halfhourdiscussion_standalone' && houseTypeType=='lowerhouse') || selectedQuestionType=='questions_starred') && internalStatusType == 'question_final_clarificationNeededFromDepartment' }">
 		<p>
-			<label class="small"><spring:message code="hds.questionsAskedInFactualPosition" text="Questions Asked In Factual Position"/></label>
-			<%-- <textarea class="wysiwyg" rows="5" cols="50" readonly="readonly">${questionsAskedInFactualPosition}</textarea> --%>
-			<form:textarea path="questionsAskedInFactualPosition" cssClass="wysiwyg" readonly="true"/>
+			<label class="small"><spring:message code="question.questionsAskedInFactualPosition" text="Questions Asked In Factual Position"/></label>
+			<textarea class="wysiwyg" rows="5" cols="50" readonly="readonly">${formattedQuestionsAskedInFactualPosition}</textarea>
+			<form:hidden path="questionsAskedInFactualPosition"/>
 		</p>
 		<p>
-		<label class="small"><spring:message code="hds.lastDateOfFactualPositionReceiving" text="Last date of receiving Factual Position"/></label>
+		<label class="small"><spring:message code="question.lastDateOfFactualPositionReceiving" text="Last date of receiving Factual Position"/></label>
 		<form:input path="lastDateOfFactualPositionReceiving" cssClass="datemask sText" readonly="true"/>
 		<form:errors path="lastDateOfFactualPositionReceiving" cssClass="validationError"/>
 		</p>
 		<p>
-		<label class="wysiwyglabel"><spring:message code="hds.factualPosition" text="Factual Position"/></label>
+		<label class="wysiwyglabel"><spring:message code="question.factualPosition" text="Factual Position"/></label>
 		<form:textarea path="factualPosition" cssClass="wysiwyg"></form:textarea>
 		<form:errors path="factualPosition" cssClass="validationError" cssStyle="float:right;margin-top:-100px;margin-right:40px;"/>
 		</p>
 	</c:if>
-	<c:if test="${(selectedQuestionType != 'questions_halfhourdiscussion_standalone' && internalStatusType == 'question_final_clarificationNeededFromDepartment' )}">
+	<c:if test="${(selectedQuestionType != 'questions_halfhourdiscussion_standalone' && selectedQuestionType != 'questions_starred' && internalStatusType == 'question_final_clarificationNeededFromDepartment' )}">
 		<p>
 		<label class="wysiwyglabel"><spring:message code="question.factualPosition" text="Factual Position"/></label>
 		<form:textarea path="factualPosition" cssClass="wysiwyg"></form:textarea>

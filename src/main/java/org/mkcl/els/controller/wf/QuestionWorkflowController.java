@@ -732,31 +732,26 @@ public class QuestionWorkflowController  extends BaseController{
 		/**** setting the date of factual position receiving. ****/
 		String userGroupType=workflowDetails.getAssigneeUserGroupType();
 		String userGroupId=workflowDetails.getAssigneeUserGroupId();
-		if(domain.getType().getType().equals(ApplicationConstants.HALF_HOUR_DISCUSSION_QUESTION_STANDALONE) 
-				&& domain.getHouseType().getType().equals(ApplicationConstants.LOWER_HOUSE)){
+		if((domain.getType().getType().equals(ApplicationConstants.HALF_HOUR_DISCUSSION_QUESTION_STANDALONE) 
+				&& domain.getHouseType().getType().equals(ApplicationConstants.LOWER_HOUSE))
+				||
+				(domain.getType().getType().equals(ApplicationConstants.STARRED_QUESTION))){
 			if((userGroupType.equals(ApplicationConstants.SECTION_OFFICER)) 
 					&& (internalStatus.getType().equals(ApplicationConstants.QUESTION_FINAL_CLARIFICATION_NEEDED_FROM_DEPARTMENT) 
 							|| internalStatus.getType().equals(ApplicationConstants.QUESTION_FINAL_CLARIFICATION_NEEDED_FROM_MEMBER))) {
-				if(domain.getLastDateOfFactualPositionReceiving() == null) {
-					List<MasterVO> numberOfDaysForFactualPositionReceiving = new ArrayList<MasterVO>();
-					String sessionParameter = selectedSession.getParameter(domain.getType().getType()+"_numberOfDaysForFactualPositionReceiving");
-					if(sessionParameter != null) {
-						if(!sessionParameter.isEmpty()) {
-							for(String i : sessionParameter.split("#")) {
-								MasterVO data = new MasterVO();
-								data.setName(FormaterUtil.formatNumberNoGrouping(Integer.parseInt(i), domain.getLocale()));
-								data.setNumber(Integer.parseInt(i));
-								numberOfDaysForFactualPositionReceiving.add(data);
-							}
-						}
-					}	
-					
-					model.addAttribute("numberOfDaysForFactualPositionReceiving", numberOfDaysForFactualPositionReceiving);
-				}
 				
 				/**** setting the questions to be asked in factual position. ****/
 				List<MasterVO> questionsToBeAskedInFactualPosition = new ArrayList<MasterVO>();
-				String sessionParameter = selectedSession.getParameter("questions_halfhourdiscussion_standalone_questionsAskedForFactualPosition");
+				String sessionParameter = null;
+				if(domain.getType().getType().equals(ApplicationConstants.HALF_HOUR_DISCUSSION_QUESTION_STANDALONE)) {
+					sessionParameter = selectedSession.getParameter("questions_halfhourdiscussion_standalone_questionsAskedForFactualPosition");
+				} else if(domain.getType().getType().equals(ApplicationConstants.STARRED_QUESTION)
+						&& internalStatus.getType().equals(ApplicationConstants.QUESTION_FINAL_CLARIFICATION_NEEDED_FROM_MEMBER)) {
+					sessionParameter = selectedSession.getParameter("questions_starred_clarificationFromMemberQuestions");
+				} else if(domain.getType().getType().equals(ApplicationConstants.STARRED_QUESTION)
+						&& internalStatus.getType().equals(ApplicationConstants.QUESTION_FINAL_CLARIFICATION_NEEDED_FROM_DEPARTMENT)) {
+					sessionParameter = selectedSession.getParameter("questions_starred_clarificationFromDepartmentQuestions");
+				}
 				if(sessionParameter != null) {
 					if(!sessionParameter.isEmpty()) {
 						for(String i : sessionParameter.split("##")) {	
@@ -779,22 +774,41 @@ public class QuestionWorkflowController  extends BaseController{
 						}
 					}
 				}				
-				model.addAttribute("questionsToBeAskedInFactualPosition", questionsToBeAskedInFactualPosition);			
+				model.addAttribute("questionsToBeAskedInFactualPosition", questionsToBeAskedInFactualPosition);
+				
+				if(domain.getLastDateOfFactualPositionReceiving() == null
+						&& !domain.getType().getType().equals(ApplicationConstants.STARRED_QUESTION)) {
+					List<MasterVO> numberOfDaysForFactualPositionReceiving = new ArrayList<MasterVO>();
+					sessionParameter = selectedSession.getParameter(domain.getType().getType()+"_numberOfDaysForFactualPositionReceiving");
+					if(sessionParameter != null) {
+						if(!sessionParameter.isEmpty()) {
+							for(String i : sessionParameter.split("#")) {
+								MasterVO data = new MasterVO();
+								data.setName(FormaterUtil.formatNumberNoGrouping(Integer.parseInt(i), domain.getLocale()));
+								data.setNumber(Integer.parseInt(i));
+								numberOfDaysForFactualPositionReceiving.add(data);
+							}
+						}
+					}	
+					
+					model.addAttribute("numberOfDaysForFactualPositionReceiving", numberOfDaysForFactualPositionReceiving);
+				}						
 			}
 			
 			/**** populating the questions asked in factual position to show to department. ****/
-			if((userGroupType.equals(ApplicationConstants.DEPARTMENT) || userGroupType.equals(ApplicationConstants.SECTION_OFFICER)) 
+			if((userGroupType.equals(ApplicationConstants.DEPARTMENT) || userGroupType.equals(ApplicationConstants.MEMBER)) 
 					&& (internalStatus.getType().equals(ApplicationConstants.QUESTION_FINAL_CLARIFICATION_NEEDED_FROM_DEPARTMENT) 
 							|| internalStatus.getType().equals(ApplicationConstants.QUESTION_FINAL_CLARIFICATION_NEEDED_FROM_MEMBER))) {
 				String questionsAskedInFactualPosition = "";
 				if(domain.getQuestionsAskedInFactualPosition() !=null && !domain.getQuestionsAskedInFactualPosition().isEmpty()) {
-					int count = 1;
-					for(String i: domain.getQuestionsAskedInFactualPosition().split("##")) {
-						questionsAskedInFactualPosition += FormaterUtil.formatNumberNoGrouping(count, domain.getLocale()) + ". " + i;
-						count++;
-					}
+//					int count = 1;
+//					for(String i: domain.getQuestionsAskedInFactualPosition().split("##")) {
+//						questionsAskedInFactualPosition += FormaterUtil.formatNumberNoGrouping(count, domain.getLocale()) + ". " + i;
+//						count++;
+//					}
+					questionsAskedInFactualPosition = domain.getQuestionsAskedInFactualPosition().replaceAll("##", "<br/>");
 				}
-				model.addAttribute("questionsAskedInFactualPosition", questionsAskedInFactualPosition);
+				model.addAttribute("formattedQuestionsAskedInFactualPosition", questionsAskedInFactualPosition);
 			}
 		}
 		if(domain.getType() != null){
@@ -1167,18 +1181,22 @@ public class QuestionWorkflowController  extends BaseController{
 			
 			if(domain.getType() != null){
 				if(domain.getType().getType().equals(ApplicationConstants.HALF_HOUR_DISCUSSION_QUESTION_STANDALONE) 
-						&& domain.getHouseType().getType().equals(ApplicationConstants.LOWER_HOUSE)
-						&& (domain.getInternalStatus().getType().equals(ApplicationConstants.QUESTION_FINAL_CLARIFICATION_NEEDED_FROM_DEPARTMENT) 
-								|| domain.getInternalStatus().getType().equals(ApplicationConstants.QUESTION_FINAL_CLARIFICATION_NEEDED_FROM_MEMBER))){
+						&& domain.getHouseType().getType().equals(ApplicationConstants.LOWER_HOUSE)) {
 			
-					String strQuestionInFactualPosition = request.getParameter("questionsAskedInThisFactualPosition");
-					String strDaysToReceiveFactualPosition = request.getParameter("numberOfDaysForFactualPositionReceiving");
-					
-					if(strQuestionInFactualPosition != null && strDaysToReceiveFactualPosition != null && !strQuestionInFactualPosition.isEmpty() && !strDaysToReceiveFactualPosition.isEmpty()){
-						domain.setQuestionsAskedInFactualPosition(strQuestionInFactualPosition);
-						Integer daysToReceiveFactualPosition = new Integer(strDaysToReceiveFactualPosition);
-						domain.setNumberOfDaysForFactualPositionReceiving(daysToReceiveFactualPosition);
-					}
+					if(domain.getInternalStatus().getType().equals(ApplicationConstants.QUESTION_FINAL_CLARIFICATION_NEEDED_FROM_DEPARTMENT) 
+							|| domain.getInternalStatus().getType().equals(ApplicationConstants.QUESTION_FINAL_CLARIFICATION_NEEDED_FROM_MEMBER)) {
+						
+						String strQuestionInFactualPosition = request.getParameter("questionsAskedInThisFactualPosition");
+						String strDaysToReceiveFactualPosition = request.getParameter("numberOfDaysForFactualPositionReceiving");
+						
+						if(strQuestionInFactualPosition != null && !strQuestionInFactualPosition.isEmpty()) {
+							domain.setQuestionsAskedInFactualPosition(strQuestionInFactualPosition);
+						}						
+						if(strDaysToReceiveFactualPosition != null && !strDaysToReceiveFactualPosition.isEmpty()){
+							Integer daysToReceiveFactualPosition = new Integer(strDaysToReceiveFactualPosition);
+							domain.setNumberOfDaysForFactualPositionReceiving(daysToReceiveFactualPosition);
+						}
+					}				
 				}
 			}
 			
@@ -1422,7 +1440,7 @@ public class QuestionWorkflowController  extends BaseController{
 				String currentDeviceTypeWorkflowType = null;
 				if(domain.getType() != null){
 					if(domain.getType().getType().equals(ApplicationConstants.HALF_HOUR_DISCUSSION_QUESTION_STANDALONE) 
-									&& domain.getHouseType().getType().equals(ApplicationConstants.LOWER_HOUSE)){
+							&& domain.getHouseType().getType().equals(ApplicationConstants.LOWER_HOUSE)) {
 						
 						currentDeviceTypeWorkflowType = ApplicationConstants.RESOLUTION_APPROVAL_WORKFLOW;
 						String nextuser=domain.getActor();

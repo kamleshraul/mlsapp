@@ -993,11 +993,11 @@
 	<a href="#" id="viewCitation" style="margin-left: 162px;margin-top: 30px;"><spring:message code="question.viewcitation" text="View Citations"></spring:message></a>	
 	</p>
 	
-	<c:if test="${selectedQuestionType == 'questions_halfhourdiscussion_standalone' && internalStatusType == 'question_final_clarificationNeededFromMember' }">
+	<c:if test="${((selectedQuestionType == 'questions_halfhourdiscussion_standalone' && houseTypeType=='lowerhouse') || selectedQuestionType=='questions_starred') && internalStatusType == 'question_final_clarificationNeededFromMember' }">
 		<p>
-			<label class="small"><spring:message code="hds.questionsAskedInFactualPosition" text="Questions Asked In Factual Position"/></label>
-			<%-- <textarea class="wysiwyg" rows="5" cols="50" readonly="readonly">${questionsAskedInFactualPosition}</textarea> --%>
-			<form:textarea path="questionsAskedInFactualPosition" cssClass="wysiwyg" readonly="true"/>
+			<label class="small"><spring:message code="question.questionsAskedInFactualPosition" text="Questions Asked In Factual Position"/></label>
+			<textarea class="wysiwyg" rows="5" cols="50" readonly="readonly">${formattedQuestionsAskedInFactualPosition}</textarea>
+			<form:hidden path="questionsAskedInFactualPosition"/>
 		</p>
 		<p>
 		<label class="small"><spring:message code="hds.lastDateOfFactualPositionReceiving" text="Last date of receiving Factual Position"/></label>
@@ -1011,7 +1011,7 @@
 		</p>
 	</c:if>
 	
-	<c:if test="${selectedQuestionType != 'questions_halfhourdiscussion_standalone' && internalStatusType == 'question_final_clarificationNeededFromMember' }">
+	<c:if test="${(selectedQuestionType != 'questions_halfhourdiscussion_standalone' && selectedQuestionType != 'questions_starred' && internalStatusType == 'question_final_clarificationNeededFromMember' )}">
 		<p>
 		<label class="small"><spring:message code="question.lastDateOfFactualPositionReceiving" text="Last date of receiving Clarification"/></label>
 		<form:input path="lastDateOfFactualPositionReceiving" cssClass="datemask sText" readonly="true"/>
