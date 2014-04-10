@@ -334,9 +334,10 @@ public class GenericController<T extends BaseDomain> extends BaseController {
 	        if (result.hasErrors()) {
 	            /*****Hook*************/
 	            populateCreateIfErrors(model,domain, request);
-	            /**********************/
-	            String modifiedNewUrlPattern=modifyNewUrlPattern(servletPath,request,model,locale.toString());
-	            return modifiedNewUrlPattern;
+	            /**********************/	           
+	            String newUrlPattern=servletPath+"/new";
+	            String modifiedNewUrlPattern=modifyNewUrlPattern(newUrlPattern,request,model,domain.getLocale());
+	            return modifiedNewUrlPattern;    
 	        }
 	        /*****Hook*************/
 	        populateCreateIfNoErrors(model, domain, request);
@@ -358,8 +359,9 @@ public class GenericController<T extends BaseDomain> extends BaseController {
 			}			
 			model.addAttribute("error", message);	
 	        populateCreateIfErrors(model,domain, request);
-	        String modifiedNewUrlPattern=modifyNewUrlPattern(servletPath,request,model,locale.toString());
-            return modifiedNewUrlPattern;			
+	        String newUrlPattern=servletPath+"/new";
+            String modifiedNewUrlPattern=modifyNewUrlPattern(newUrlPattern,request,model,domain.getLocale());
+            return modifiedNewUrlPattern;		
 		}
         redirectAttributes.addFlashAttribute("type", "success");
         //this is done so as to remove the bug due to which update message appears even though there
