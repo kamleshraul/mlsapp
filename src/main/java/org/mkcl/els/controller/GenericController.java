@@ -420,9 +420,9 @@ public class GenericController<T extends BaseDomain> extends BaseController {
 	        	partialUp = PartialUpdate.findByFieldName(
 		                PartialUpdate.class, "urlPattern", servletPath, "");
 	        }catch(EntityNotFoundException e){
-	        	logger.error(e.getMessage());
+	        	//logger.error(e.getMessage());
 	        }catch(NoResultException e){
-	        	logger.error(e.getMessage());
+	        	//logger.error(e.getMessage());
 	        }	        
 	        if (partialUp != null) {
 	            partialUpdate(domain, partialUp.getFieldsNotToBeOverwritten(),
