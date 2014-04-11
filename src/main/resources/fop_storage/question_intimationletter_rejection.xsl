@@ -58,23 +58,28 @@
 	        <fo:page-sequence master-reference="first" id="DocumentBody">	        	
 	        	<!-- header -->
 	        	<fo:static-content flow-name="rb-first">
-					<fo:block text-align="center" font-family="{$font}">
+					<fo:block text-align="center" font-family="Mangal">
 					   	<!-- content for header for first page -->
 					</fo:block>
 			    </fo:static-content>
 		
 				<!-- footer -->
 		    	<fo:static-content flow-name="ra-first">
-					<fo:block  text-align="center" font-family="{$font}">
+					<fo:block  text-align="center" font-family="Mangal">
 					   	<!-- content for footer for first page -->
 					</fo:block>
 			    </fo:static-content>
 	
 				<!-- body -->
 	            <fo:flow flow-name="xsl-region-body">	
-	            	<fo:block font-family="{$font}" font-size="16px">	            					
+	            	<fo:block font-family="Mangal" font-size="11px">	            					
 						<fo:block text-align="right">
-							<fo:block>क्रमांक - _____&#160;/&#160;ई-१ महाराष्ट्र</fo:block>						
+							<fo:block>क्रमांक - _____&#160;/&#160;
+							<xsl:choose>
+								<xsl:when test="houseType='lowerhouse'">ब-१</xsl:when>
+								<xsl:when test="houseType='upperhouse'">ई-१</xsl:when>
+							</xsl:choose>
+							महाराष्ट्र</fo:block>						
 							<fo:block margin-right="1.05cm">विधानमंडळ सचिवालय</fo:block>
 							<fo:block margin-right="0.75cm">विधान भवन, मुंबई/नागपूर</fo:block>
 							<fo:block margin-right="0.95cm">दिनांक - <xsl:value-of select="reportDate"/></fo:block>

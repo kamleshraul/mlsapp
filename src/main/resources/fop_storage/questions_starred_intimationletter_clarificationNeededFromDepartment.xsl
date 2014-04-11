@@ -58,23 +58,28 @@
 	        <fo:page-sequence master-reference="first" id="DocumentBody">	        	
 	        	<!-- header -->
 	        	<fo:static-content flow-name="rb-first">
-					<fo:block text-align="center" font-family="{$font}">
+					<fo:block text-align="center" font-family="Mangal">
 					   	<!-- content for header for first page -->
 					</fo:block>
 			    </fo:static-content>
 		
 				<!-- footer -->
 		    	<fo:static-content flow-name="ra-first">
-					<fo:block  text-align="center" font-family="{$font}">
+					<fo:block  text-align="center" font-family="Mangal">
 					   	<!-- content for footer for first page -->
 					</fo:block>
 			    </fo:static-content>
 	
 				<!-- body -->
 	            <fo:flow flow-name="xsl-region-body">	
-	            	<fo:block font-family="{$font}" font-size="16px">	            					
+	            	<fo:block font-family="Mangal" font-size="11px">	            					
 						<fo:block text-align="right">
-							<fo:block>क्रमांक - _____&#160;/&#160;ई-१ महाराष्ट्र</fo:block>						
+							<fo:block>क्रमांक - _____&#160;/&#160;
+							<xsl:choose>
+								<xsl:when test="houseType='lowerhouse'">ब-१</xsl:when>
+								<xsl:when test="houseType='upperhouse'">ई-१</xsl:when>
+							</xsl:choose>
+							महाराष्ट्र</fo:block>						
 							<fo:block margin-right="1.05cm">विधानमंडळ सचिवालय</fo:block>
 							<fo:block margin-right="0.75cm">विधान भवन, मुंबई/नागपूर</fo:block>
 							<fo:block margin-right="0.95cm">दिनांक - <xsl:value-of select="reportDate"/></fo:block>
@@ -95,13 +100,13 @@
 							<fo:block margin-left="1cm" font-weight="bold">					
 							<fo:block>उप सचिव</fo:block>
 							<fo:block><xsl:value-of select="department"/> (<xsl:value-of select="subDepartment"/>)</fo:block>
-							<fo:block font-weight="normal">महाराष्ट्र शासन मंत्रालय, मुंबई - 400 032</fo:block>	
+							<fo:block font-weight="normal">महाराष्ट्र शासन मंत्रालय, मुंबई - ४०० ०३२</fo:block>	
 							</fo:block>
 						</fo:block>		
 						
 						<fo:block>&#160;</fo:block>
 						
-						<fo:block text-align="center" font-weight="bold">विषय: <xsl:value-of select="houseTypeName"/> <xsl:value-of select="deviceType"/> क्रमांक - <xsl:value-of select="number"/></fo:block>
+						<fo:block text-align="center" font-weight="bold">विषय: <xsl:value-of select="houseTypeName"/>&#160;<xsl:value-of select="deviceType"/> क्रमांक - <xsl:value-of select="number"/></fo:block>
 						
 						<fo:block>&#160;</fo:block>
 						
@@ -114,7 +119,7 @@
 						</fo:block>	
 						<fo:block>&#160;</fo:block>
 						<fo:block margin-left="1cm">							
-							&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;सदरहू प्रश्न  स्वीकृत करण्यासारख्या आहे की नाही हे ठरविण्यासाठी ही माहिती आवश्यक असून ती हे पत्र मिळाल्या‍पासून चार दिवसांच्या आत या सचिवालयास कळवावी. 
+							&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;सदरहू प्रश्न  स्वीकृत करण्यासारख्या आहे की नाही हे ठरविण्यासाठी ही माहिती आवश्यक असून ती हे पत्र मिळाल्यापासून चार दिवसांच्या आत या सचिवालयास कळवावी. 
 							उक्त अवधीत आपणाकडून माहिती न आल्यास, प्रश्न स्वीकृत होऊन तो शासनाकडे उत्तरासाठी पाठविला जाण्याची शक्यता आहे 												
 						</fo:block>
 						<fo:block>&#160;</fo:block>
@@ -146,6 +151,23 @@
 						<fo:block margin-left="1cm" font-weight="bold">
 							<fo:inline><xsl:value-of select="memberNames"/></fo:inline>			
 						</fo:block>
+						<fo:block>&#160;</fo:block>
+						<fo:block font-weight="bold">
+							सन्माननीय
+							<xsl:choose>
+								<xsl:when test="primaryMemberDesignation='मुख्यमंत्री' or primaryMemberDesignation='उप मुख्यमंत्री'">
+									<xsl:value-of select="primaryMemberDesignation"/>
+								</xsl:when>
+								<!-- <xsl:when test="primaryMemberDesignation='उप मुख्यमंत्री'">
+									<xsl:value-of select="primaryMemberDesignation"/>
+								</xsl:when> -->
+								<xsl:otherwise>
+									<xsl:value-of select="subDepartment"/> मंत्री										
+								</xsl:otherwise>
+							</xsl:choose>
+							पुढील गोष्टींचा खुलासा करतील काय :-
+						</fo:block>
+						<fo:block>&#160;</fo:block>
 						<fo:block><xsl:apply-templates select="questionText"/></fo:block>
 					</fo:block>							          
 	            </fo:flow>

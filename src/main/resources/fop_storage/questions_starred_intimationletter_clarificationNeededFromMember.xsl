@@ -58,23 +58,28 @@
 	        <fo:page-sequence master-reference="first" id="DocumentBody">	        	
 	        	<!-- header -->
 	        	<fo:static-content flow-name="rb-first">
-					<fo:block text-align="center" font-family="{$font}">
+					<fo:block text-align="center" font-family="Mangal">
 					   	<!-- content for header for first page -->
 					</fo:block>
 			    </fo:static-content>
 		
 				<!-- footer -->
 		    	<fo:static-content flow-name="ra-first">
-					<fo:block  text-align="center" font-family="{$font}">
+					<fo:block  text-align="center" font-family="Mangal">
 					   	<!-- content for footer for first page -->
 					</fo:block>
 			    </fo:static-content>
 	
 				<!-- body -->
 	            <fo:flow flow-name="xsl-region-body">	
-	            	<fo:block font-family="{$font}" font-size="16px">	            					
+	            	<fo:block font-family="Mangal" font-size="11px">	            					
 						<fo:block text-align="right">
-							<fo:block>क्रमांक - _____&#160;/&#160;ई-१ महाराष्ट्र</fo:block>						
+							<fo:block>क्रमांक - _____&#160;/&#160;
+							<xsl:choose>
+								<xsl:when test="houseType='lowerhouse'">ब-१</xsl:when>
+								<xsl:when test="houseType='upperhouse'">ई-१</xsl:when>
+							</xsl:choose>
+							महाराष्ट्र</fo:block>						
 							<fo:block margin-right="1.05cm">विधानमंडळ सचिवालय</fo:block>
 							<fo:block margin-right="0.75cm">विधान भवन, मुंबई/नागपूर</fo:block>
 							<fo:block margin-right="0.95cm">दिनांक - <xsl:value-of select="reportDate"/></fo:block>
@@ -140,6 +145,23 @@
 						<fo:block margin-left="1cm" font-weight="bold">
 							<fo:inline><xsl:value-of select="memberNames"/></fo:inline>			
 						</fo:block>
+						<fo:block>&#160;</fo:block>
+						<fo:block font-weight="bold">
+							सन्माननीय
+							<xsl:choose>
+								<xsl:when test="primaryMemberDesignation='मुख्यमंत्री' or primaryMemberDesignation='उप मुख्यमंत्री'">
+									<xsl:value-of select="primaryMemberDesignation"/>
+								</xsl:when>
+								<!-- <xsl:when test="primaryMemberDesignation='उप मुख्यमंत्री'">
+									<xsl:value-of select="primaryMemberDesignation"/>
+								</xsl:when> -->
+								<xsl:otherwise>
+									<xsl:value-of select="subDepartment"/> मंत्री										
+								</xsl:otherwise>
+							</xsl:choose>
+							पुढील गोष्टींचा खुलासा करतील काय :-
+						</fo:block>
+						<fo:block>&#160;</fo:block>
 						<fo:block><xsl:apply-templates select="questionText"/></fo:block>
 					</fo:block>							          
 	            </fo:flow>
