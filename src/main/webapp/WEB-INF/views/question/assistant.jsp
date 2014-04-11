@@ -121,7 +121,6 @@
 		    var discuss=$("#internalStatusMaster option[value='question_recommend_discuss']").text();		
 			$.post(resourceURL,function(data){
 				if(data!=undefined||data!=null||data!=''){
-					var length=data.length;
 					$("#actor").empty();
 					var text="";
 					for(var i=0;i<data.length;i++){
@@ -623,10 +622,8 @@
 	});
 	
 	function dereferencingInt(referId){
-		var whichDevice= $('#whichDevice').val();
 		var device=$("#questionType").val();
-		var deviceId=$("#id").val();
-		
+		var deviceId=$("#id").val();		
 		$.post('refentity/dereferencing?pId='+deviceId+"&rId="+referId+"&device="+device,function(data){
 			if(data=='SUCCESS'){
 				$("#referencingResult").empty();
@@ -833,33 +830,33 @@
 		<label class="small"><spring:message code="question.primaryMemberConstituency" text="Constituency"/>*</label>
 		<input type="text" readonly="readonly" value="${constituency}" class="sText">
 		<a href="#" id="viewContacts" style="margin-left:20px;margin-right: 20px;"><img src="/els/resources/images/contactus.jpg" width="40" height="25"></a>		
-	</p>			
+	</p>		
 	
-	<c:if test="${not (selectedQuestionType=='questions_halfhourdiscussion_standalone' and houseTypeType=='lowerhouse')}">
-		<p>
-			<a href="#" id="clubbing" onclick="clubbingInt(${domain.id});" style="margin-left: 162px;margin-right: 20px;margin-bottom: 20px;margin-top: 20px;"><spring:message code="question.clubbing" text="Clubbing"></spring:message></a>
-			<a href="#" id="referencing" onclick="referencingInt(${domain.id});" style="margin: 20px;"><spring:message code="question.referencing" text="Referencing"></spring:message></a>
-			<a href="#" id="refresh" onclick="refreshEdit(${domain.id});" style="margin: 20px;"><spring:message code="question.refresh" text="Refresh"></spring:message></a>	
-		</p>	
-	</c:if>
-	
-	<c:if test="${selectedQuestionType=='questions_halfhourdiscussion_standalone' and houseTypeType=='lowerhouse'}">
-		<p>
+	<c:choose>
+	<c:when test="${selectedQuestionType=='questions_halfhourdiscussion_standalone' and houseTypeType=='lowerhouse'}">
+	<p>
 			<a href="#" id="referencing" onclick="referencingInt(${domain.id});" style="margin-left: 162px;"><spring:message code="question.referencing" text="Referencing"></spring:message></a>
 			<a href="#" id="dereferencing" onclick="dereferencingInt(${referencedHDS});" style="margin: 20px;"><spring:message code="question.dereferencing" text="Dereferencing"></spring:message></a>
 			<a href="#" id="refresh" onclick="refreshEdit(${domain.id});" style="margin: 20px;"><spring:message code="question.refresh" text="Refresh"></spring:message></a>	
-		</p>	
-	</c:if>
-	
-	<c:if test="${not (selectedQuestionType=='questions_halfhourdiscussion_standalone' and houseTypeType=='lowerhouse')}">
-		<p>
+	</p>
+	<p>
 			<label class="small"><spring:message code="question.parentquestion" text="Clubbed To"></spring:message></label>
 			<a href="#" id="p${parent}" onclick="viewQuestionDetail(${parent});"><c:out value="${formattedParentNumber}"></c:out></a>
 			<input type="hidden" id="parent" name="parent" value="${parent}">
-		</p>	
-	</c:if>
-	<c:if test="${not (selectedQuestionType=='questions_halfhourdiscussion_standalone' and houseTypeType=='lowerhouse')}">
-		<p>
+	</p>	
+	</c:when>
+	<c:otherwise>
+	<p>
+			<a href="#" id="clubbing" onclick="clubbingInt(${domain.id});" style="margin-left: 162px;margin-right: 20px;margin-bottom: 20px;margin-top: 20px;"><spring:message code="question.clubbing" text="Clubbing"></spring:message></a>
+			<a href="#" id="referencing" onclick="referencingInt(${domain.id});" style="margin: 20px;"><spring:message code="question.referencing" text="Referencing"></spring:message></a>
+			<a href="#" id="refresh" onclick="refreshEdit(${domain.id});" style="margin: 20px;"><spring:message code="question.refresh" text="Refresh"></spring:message></a>	
+	</p>
+	<p>
+			<label class="small"><spring:message code="question.parentquestion" text="Clubbed To"></spring:message></label>
+			<a href="#" id="p${parent}" onclick="viewQuestionDetail(${parent});"><c:out value="${formattedParentNumber}"></c:out></a>
+			<input type="hidden" id="parent" name="parent" value="${parent}">
+	</p>		
+	<p>
 			<label class="small"><spring:message code="question.clubbedquestions" text="Clubbed Questions"></spring:message></label>
 			<c:choose>
 				<c:when test="${!(empty clubbedQuestions) }">
@@ -876,9 +873,10 @@
 					<option value="${i.id}" selected="selected"></option>
 				</c:forEach>
 			</select>
-		</p>
-	</c:if>
-		
+	</p>
+	</c:otherwise>	
+	</c:choose>			
+	
 	<p>
 		<label class="small"><spring:message code="question.referencedquestions" text="Referenced Questions"></spring:message></label>
 		<c:choose>
