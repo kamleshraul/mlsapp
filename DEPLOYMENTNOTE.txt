@@ -1,0 +1,47 @@
+PROBLEM: 
+The data in the UI grid does not load when the application is deployed on Glassfish 3.1.2. But it works fine in Tomcat.
+
+SOLUTION: 
+The code for the GridData (List<Map<String, Object>>) is written in order to confirm with jackson 1.4.2 jar. It won't work with higher versions of jackson. Since 3.1, Glassfish comes with some default jars in its modules folder. Glassfish, by default chooses the jars in modules folder before the jars packaged with an application. The module folder contains jackson jars which are higher than 1.4.2 version.
+
+Hence, 
+	Remove the jackson jar files from glassfish/modules.
+	
+	OR
+	
+	Add a glassfish-web.xml file in your applications WEB-INF. The contents in the file should be following:
+	
+	<!DOCTYPE glassfish-web-app PUBLIC "-//GlassFish.org//DTD 
+GlassFish Application Server 3.1 Servlet 3.0//EN" 
+"http://glassfish.org/dtds/glassfish-web-app_3_0-1.dtd">
+<glassfish-web-app>
+   <class-loader delegate="false"/>
+</glassfish-web-app>
+
+	The statement <class-loader delegate="false"/> instructs the Glassfish server to use the jars provided by application before using the default jars in modules subfolder.
+	
+We have chosen the second approach wherein we provide a glassfish-web.xml file.
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+PROBLEM: 
+When a URL is of type PUT or DELETE HTTP Method, a 405 error is thrown by the Glassfish Server 3.1.2. But it works fine on Tomcat. 
+
+SOLUTION:
+The problem arises due to the difference in the HTTP methods allowed by a web container by default. On one hand Tomcat allows GET, POST, PUT, DELETE by default, Glassfish on the other hand provides only GET and POST by default. 
+
+The solution is to make Glassfish allow PUT and DELETE methods. Modify default-web.xml (Location: glassfish\glassfish\domains\domain1\config) by updating "httpMethods" value to include PUT and DELETE.
+
+Before:
+	<init-param>
+      <param-name>httpMethods</param-name>
+      <param-value>GET,POST,HEAD</param-value>
+    </init-param>
+
+After:
+	<init-param>
+      <param-name>httpMethods</param-name>
+      <param-value>GET,POST,HEAD,PUT,DELETE</param-value>
+    </init-param>
+	
+////////////////////////////////////////////////////////////////////////////////////////////////////////
