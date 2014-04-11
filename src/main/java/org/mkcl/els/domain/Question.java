@@ -1585,6 +1585,11 @@ public class Question extends Device implements Serializable {
 		 Long id = this.getId();
 		 return getQuestionRepository().findSecondPreviousDraft(id);
 		}
+	 
+	 public static MemberMinister findMemberMinisterIfExists(Question question) throws ELSException {
+		 return getQuestionRepository().findMemberMinisterIfExists(question);		 
+	 }
+	 
 	/**** Getters and Setters ****/
 	public HouseType getHouseType() {
 		return houseType;

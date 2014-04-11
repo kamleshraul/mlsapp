@@ -19,6 +19,7 @@ import java.util.List;
 import java.util.Random;
 
 import javax.persistence.EntityNotFoundException;
+import javax.persistence.NoResultException;
 import javax.persistence.Query;
 import javax.persistence.TypedQuery;
 
@@ -40,6 +41,7 @@ import org.mkcl.els.domain.Group;
 import org.mkcl.els.domain.House;
 import org.mkcl.els.domain.HouseType;
 import org.mkcl.els.domain.Member;
+import org.mkcl.els.domain.MemberMinister;
 import org.mkcl.els.domain.MemberRole;
 import org.mkcl.els.domain.Question;
 import org.mkcl.els.domain.QuestionDraft;
@@ -2368,5 +2370,42 @@ public class QuestionRepository extends BaseRepository<Question, Long> {
 		tQuery.setMaxResults(1);
 		QuestionDraft draft = tQuery.getSingleResult();
 		return draft;
+	}
+	
+	public MemberMinister findMemberMinisterIfExists(Question question) throws ELSException {
+		MemberMinister  memberMinister = null;
+		Session session = question.getSession();
+		if(session==null) {
+			logger.error("This question has no session.");
+			throw new ELSException("question_session_null", "This question has no session.");
+		}
+		try{			
+			String queryString = "SELECT mm FROM MemberMinister mm JOIN mm.ministry mi JOIN mm.house h JOIN mm.member m " +
+					"WHERE mi.id IN " +
+					"(SELECT gm.id FROM Group g join g.ministries gm " +
+					"WHERE g.houseType.id=:houseTypeId AND g.sessionType.id=:sessionTypeId"+
+					" AND g.year=:sessionYear AND g.locale=:locale) " +
+					"AND h.id=:houseId AND m.id=:memberId AND " +
+					"(mm.ministryFromDate <=:questionSubmissionDate AND (mm.ministryToDate >:questionSubmissionDate  OR mm.ministryToDate IS NULL)) AND " +
+					"mm.locale=:locale";
+			
+			TypedQuery<MemberMinister> query = this.em().createQuery(queryString, MemberMinister.class);
+			query.setParameter("houseTypeId", session.getHouse().getType().getId());
+			query.setParameter("sessionTypeId", session.getType().getId());
+			query.setParameter("sessionYear", session.getYear());
+			query.setParameter("locale", question.getLocale());
+			query.setParameter("houseId", session.getHouse().getId());
+			query.setParameter("memberId", question.getPrimaryMember().getId());
+			query.setParameter("questionSubmissionDate", question.getSubmissionDate());
+			memberMinister = query.getSingleResult();
+		}catch (NoResultException  e) {
+			//As this is normal case because question may not be submitted by minister
+			return null;
+		}catch (Exception e) {
+			e.printStackTrace();
+			logger.error(e.getMessage());
+			return null;
+		}
+		return memberMinister;
 	}
 }
