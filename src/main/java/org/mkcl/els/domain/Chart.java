@@ -1593,8 +1593,13 @@ class QuestionChart {
 			Date chartAnsweringDate = chart.getAnsweringDate();
 			Date questionSubmissionDate = q.getSubmissionDate();
 			Date finalSubmissionDate = q.getGroup().getFinalSubmissionDate(chartAnsweringDate);
-			int flag = questionSubmissionDate.compareTo(finalSubmissionDate);
-			if(flag <= 0) { 
+			int questionSubmittedBeforeFinal = questionSubmissionDate.compareTo(finalSubmissionDate);
+			CustomParameter datePattern = CustomParameter.findByName(CustomParameter.class, "DB_TIMESTAMP", "");
+			Date initialSubmissionDate = FormaterUtil.formatStringToDate(chart.getSession().getParameter(
+					chart.getDeviceType().getType() + "_submissionStartDate"), 
+					datePattern.getValue(), chart.getLocale());
+			int questionSubmittedAfterInitial=questionSubmissionDate.compareTo(initialSubmissionDate);
+			if(questionSubmittedBeforeFinal <= 0 && questionSubmittedAfterInitial >= 0) { 
 				QuestionDates questionAnsweringDate = q.getAnsweringDate();
 				if(questionAnsweringDate == null) {
 					return true;
