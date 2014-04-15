@@ -252,7 +252,8 @@
 		$.get('ref/ministry/'+ministry+'/group?houseType='+$("#houseType").val()+'&sessionYear='+$("#sessionYear").val()+'&sessionType='+$("#sessionType").val(),function(data){
 			$("#formattedGroup").val(data.name);
 			$("#group").val(data.id);
-			loadDepartments(ministry);			
+			//loadDepartments(ministry);
+			loadSubDepartments(ministry);
 		}).fail(function(){
 			if($("#ErrorMsg").val()!=''){
 				$("#error_p").html($("#ErrorMsg").val()).css({'color':'red', 'display':'block'});
@@ -310,7 +311,7 @@
 		$("#ministry").change(function(){
 			if($(this).val()!=''){
 				loadGroup($(this).val());
-				loadSubDepartments(ministry, department);
+				//loadSubDepartments($(this).val());
 			}else{
 				$("#formattedGroup").val("");
 				$("#group").val("");				
@@ -324,9 +325,9 @@
 			}
 		});
 		/**** Department Changes ****/
-		$("#department").change(function(){
+		/* $("#department").change(function(){
 			loadSubDepartments($("#ministry").val(),$(this).val());
-		});
+		}); */
 		/**** Citations ****/
 		$("#viewCitation").click(function(){
 			$.get('question/citations/'+$("#type").val()+ "?status=" + $("#internalStatus").val(),function(data){

@@ -110,7 +110,7 @@
 			</a> |			
 			<a href="#" id="submitQuestion" class="butSim" style="display: none;">
 				<spring:message code="generic.submitquestion" text="submit"/>
-			</a> |
+			</a> 
 			</security:authorize>			
 			<a href="#" id="search" class="butSim">
 				<spring:message code="question.search" text="Search"/>
