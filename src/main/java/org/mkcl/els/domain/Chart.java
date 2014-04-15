@@ -1227,8 +1227,11 @@ class QuestionChart {
 						return true;
 					}
 					else {
-						Integer maxNoOfQuestions = QuestionChart.maxQuestionsOnChartUH(question.getType());
-						return QuestionChart.addToChartIfApplicable(chart, question, maxNoOfQuestions);
+						Boolean isEligibleForChart = isEligibleForChartUH(chart, question);
+						if(isEligibleForChart) {
+							Integer maxNoOfQuestions = QuestionChart.maxQuestionsOnChartUH(question.getType());
+							return QuestionChart.addToChartIfApplicable(chart, question, maxNoOfQuestions);
+						}
 					}
 				}
 			}
@@ -1265,6 +1268,29 @@ class QuestionChart {
 		return isAddedToChart;
 	}
 	
+	/**
+	 * 1. Check if Question.submissionDate <= chart.finalSubmissionDate?
+	 * 2. Check if Question.answeringDate == null OR
+	 * Question.answeringDate == LatestChart.answeringDate OR
+	 * Question.answeringDate < LatestChart.answeringDate? (Case of Group Change)
+	 * 3. If the answer to 1 and 2 is YES then return true
+	 */
+	private static Boolean isEligibleForChartUH(final Chart chart, final Question q) {
+		if(chart.getDeviceType().getType().equals(ApplicationConstants.HALF_HOUR_DISCUSSION_QUESTION_STANDALONE)) {
+			return true;
+		} 
+		else {
+			Date chartAnsweringDate = chart.getAnsweringDate(); 
+			QuestionDates questionAnsweringDate = q.getAnsweringDate();
+			if(questionAnsweringDate == null) {
+				return true;
+			}
+			else if(questionAnsweringDate.getAnsweringDate().compareTo(chartAnsweringDate) <= 0) {
+				return true;
+			}
+		}
+		return false;
+	}
 
 	//=============== ASSEMBLY METHODS ================
 	/**
