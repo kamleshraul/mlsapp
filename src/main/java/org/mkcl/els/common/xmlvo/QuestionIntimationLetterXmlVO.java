@@ -27,6 +27,8 @@ public class QuestionIntimationLetterXmlVO extends XmlVO {
 	
 	private String primaryMemberName;
 	
+	private String primaryMemberDesignation;
+	
 	private String memberNames;
 	
 	private String hasMoreMembers;
@@ -36,6 +38,12 @@ public class QuestionIntimationLetterXmlVO extends XmlVO {
 	private String subDepartment;
 	
 	private String answeringDate;
+	
+	private String parentDeviceType;
+	
+	private String parentNumber;
+	
+	private String parentAnsweringDate;
 	
 	private String lastSendingDateToDepartment;
 	
@@ -119,6 +127,15 @@ public class QuestionIntimationLetterXmlVO extends XmlVO {
 		this.primaryMemberName = primaryMemberName;
 	}
 
+	@XmlElement(name = "primaryMemberDesignation")
+	public String getPrimaryMemberDesignation() {
+		return primaryMemberDesignation;
+	}
+
+	public void setPrimaryMemberDesignation(String primaryMemberDesignation) {
+		this.primaryMemberDesignation = primaryMemberDesignation;
+	}
+
 	@XmlElement(name = "memberNames")
 	public String getMemberNames() {
 		return memberNames;
@@ -162,6 +179,33 @@ public class QuestionIntimationLetterXmlVO extends XmlVO {
 
 	public void setAnsweringDate(String answeringDate) {
 		this.answeringDate = answeringDate;
+	}
+
+	@XmlElement(name = "parentDeviceType")
+	public String getParentDeviceType() {
+		return parentDeviceType;
+	}
+
+	public void setParentDeviceType(String parentDeviceType) {
+		this.parentDeviceType = parentDeviceType;
+	}
+
+	@XmlElement(name = "parentNumber")
+	public String getParentNumber() {
+		return parentNumber;
+	}
+
+	public void setParentNumber(String parentNumber) {
+		this.parentNumber = parentNumber;
+	}
+
+	@XmlElement(name = "parentAnsweringDate")
+	public String getParentAnsweringDate() {
+		return parentAnsweringDate;
+	}
+
+	public void setParentAnsweringDate(String parentAnsweringDate) {
+		this.parentAnsweringDate = parentAnsweringDate;
 	}
 
 	@XmlElement(name = "lastSendingDateToDepartment")
