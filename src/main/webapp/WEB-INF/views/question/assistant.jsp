@@ -501,6 +501,9 @@
 		$("#hideClubQTDiv").hide();
 		$("#viewClubbedQuestionTextsDiv").click(function(){
 			var parent = $("#key").val();
+			if(parent==undefined || parent==''){
+				parent = ($("#id").val()!=undefined && $("#id").val()!='')? $("#id").val():"";
+			}
 			if(parent!=undefined && parent!=''){			
 				
 				if($("#clubbedQuestionTextsDiv").css('display')=='none'){
