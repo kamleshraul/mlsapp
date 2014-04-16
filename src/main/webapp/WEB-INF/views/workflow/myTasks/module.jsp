@@ -4,6 +4,18 @@
 	<title><spring:message code="workflow.myTasks.list" text="List of My Tasks"/></title>
 	<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
 	<script type="text/javascript">
+		
+		/* $.fn.wait = function(time, type) {
+		    time = time || 1000;
+		    type = type || "fx";
+		    return this.queue(type, function() {
+		        var self = this;
+		        setTimeout(function() {
+		            $(self).dequeue();
+		        }, time);
+		    });
+		}; */
+		
 		$(document).ready(function(){
 			onPageLoad();
 						
@@ -109,7 +121,9 @@
 			});
 			showTabByIdAndUrl('list_tab', 'workflow/myTasks/list');	
 			
-			var myTasks = setInterval(function(){pendingNewTasks()}, 5000); 
+			if($("#getNewTasks").val() != undefined && $("#getNewTasks").val() != ''){
+				var myTasks = setInterval(function(){pendingNewTasks()}, 5000);
+			}
 			$("#notificationDiv").hide();
 			$("#newTasksDiv").hide();
 			
@@ -129,26 +143,28 @@
 				
 		//to get the new pending tasks
 		function pendingNewTasks(){
-			var url = "ref/newpendingtasks?sessionYear=" + $("#selectedSessionYear").val() +
-						"&sessionType=" + $("#selectedSessionType").val() + 
-						"&houseType=" + $("#selectedHouseType").val() +
-						"&status=PENDING";
-			$.get(url, function(data){
-				if(data){
-					$("#notificationDiv").html(data.length);
-					
-					var text = "";
-					for(var i = 0; i < data.length; i++){
-						text += "<p>" + data[i].value + "&nbsp;&nbsp;" + data[i].name + "</p><hr />";
+			if($("#getNewTasks").val() != undefined && $("#getNewTasks").val() != ''){
+				var url = "ref/newpendingtasks?sessionYear=" + $("#selectedSessionYear").val() +
+							"&sessionType=" + $("#selectedSessionType").val() + 
+							"&houseType=" + $("#selectedHouseType").val() +
+							"&status=PENDING";
+				$.get(url, function(data){
+					if(data){
+						$("#notificationDiv").html(data.length);
+						
+						var text = "";
+						for(var i = 0; i < data.length; i++){
+							text += "<p>" + data[i].value + "&nbsp;&nbsp;" + data[i].name + "</p><hr />";
+						}
+						
+						$("#newTasksDiv").empty();
+						$("#newTasksDiv").html(text);
+						$("#notificationDiv").fadeIn(700);//"slide", {direction: 'bottom'}, 700);					
+					}else{
+						$("#notificationDiv").hide();
 					}
-					$("#newTasksDiv").empty();
-					$("#newTasksDiv").html(text);
-					$("#notificationDiv").show();					
-				}else{
-					$("#notificationDiv").hide();
-				}
-			});
-			
+				});
+			}
 		}
 		
 		function showList() {
@@ -564,7 +580,7 @@
 		<div id="notificationDiv">
 			V
 		</div>
-		
+		<input type="hidden" id="getNewTasks" value="yes" />
 		<input type="hidden" name="currentusergroup" id="currentusergroup" value="${usergroup}">		
 		<input type="hidden" name="currentusergroupType" id="currentusergroupType" value="${usergroupType}">
 		<input type="hidden" id="key" name="key">
