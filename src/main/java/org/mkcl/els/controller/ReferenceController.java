@@ -12,8 +12,6 @@ package org.mkcl.els.controller;
 
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
 import java.text.ParseException;
@@ -23,16 +21,13 @@ import java.util.Calendar;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
-import java.util.UUID;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.hibernate.jdbc.util.FormatStyle;
 import org.mkcl.els.common.exception.ELSException;
 import org.mkcl.els.common.util.ApplicationConstants;
 import org.mkcl.els.common.util.FormaterUtil;
@@ -87,7 +82,6 @@ import org.mkcl.els.domain.Ministry;
 import org.mkcl.els.domain.Motion;
 import org.mkcl.els.domain.Ordinance;
 import org.mkcl.els.domain.Part;
-import org.mkcl.els.domain.PartDraft;
 import org.mkcl.els.domain.PartyType;
 import org.mkcl.els.domain.Proceeding;
 import org.mkcl.els.domain.Query;
@@ -145,13 +139,8 @@ public class ReferenceController extends BaseController {
 	 * @param locale the locale
 	 * @return the districts by state id
 	 */
-	@RequestMapping(value = "state/{stateId}/districts",
-			method = RequestMethod.GET)
-			public @ResponseBody
-			List<Reference> getDistrictsByState(
-					@PathVariable("stateId") final Long stateId,
-					final ModelMap map,
-					final Locale locale) {
+	@RequestMapping(value = "state/{stateId}/districts", method = RequestMethod.GET)
+	public @ResponseBody List<Reference> getDistrictsByState(@PathVariable("stateId") final Long stateId, final ModelMap map, final Locale locale) {
 		List<Reference> districts = new ArrayList<Reference>();
 		try {
 			districts = District.findDistrictsRefByStateId(stateId , "name" , ApplicationConstants.ASC ,locale.toString());
@@ -170,13 +159,8 @@ public class ReferenceController extends BaseController {
 	 * @param locale the locale
 	 * @return the tehsils by district
 	 */
-	@RequestMapping(value = "district/{districtId}/tehsils",
-			method = RequestMethod.GET)
-			public @ResponseBody
-			List<Reference> getTehsilsByDistrict(
-					@PathVariable("districtId") final Long districtId,
-					final ModelMap map,
-					final Locale locale) {
+	@RequestMapping(value = "district/{districtId}/tehsils", method = RequestMethod.GET)
+	public @ResponseBody List<Reference> getTehsilsByDistrict(@PathVariable("districtId") final Long districtId, final ModelMap map, final Locale locale) {
 		
 		try {
 			return Tehsil.findTehsilsRefByDistrictId(districtId , "name" , ApplicationConstants.ASC ,locale.toString());
@@ -195,18 +179,17 @@ public class ReferenceController extends BaseController {
 	 * @param locale the locale
 	 * @return the districts by state id
 	 */
-	@RequestMapping(value = "/state{state_id}/districts",
-			method = RequestMethod.GET)
-			public @ResponseBody
-			List<District> getDistrictsByStateId(
-					@PathVariable("state_id") final Long stateId,
-					final ModelMap map,
-					final Locale locale) {
-		List<District> districts = new ArrayList<District>();
+	@RequestMapping(value = "/state{state_id}/districts", method = RequestMethod.GET)
+	public @ResponseBody List<Reference> getDistrictsByStateId(@PathVariable("state_id") final Long stateId, final ModelMap map, final Locale locale) {
+		List<Reference> districts = new ArrayList<Reference>();
 		try{
-			districts = District.findDistrictsByStateId(stateId,"name", "ASC", locale.toString());
+			for(District district : District.findDistrictsByStateId(stateId,"name", "ASC", locale.toString())){
+				Reference ref = new Reference();
+				ref.setId(district.getId().toString());
+				ref.setName(district.getName());
+			}
 		}catch (ELSException e) {
-			map.addAttribute("REFERENCE_CONTROLLER", "Request can not be completed at the moment.");
+			
 		}
 		return districts;
 	}
@@ -220,15 +203,19 @@ public class ReferenceController extends BaseController {
 	 * @return the divisions by state id
 	 */
 	@RequestMapping(value = "/{state_id}/divisions", method = RequestMethod.GET)
-	public @ResponseBody
-	List<Division> getDivisionsByStateId(
-			@PathVariable("state_id") final Long stateId, 
-			final ModelMap map,
-			final Locale locale) {
+	public @ResponseBody List<MasterVO> getDivisionsByStateId(@PathVariable("state_id") final Long stateId, final ModelMap map, final Locale locale) {
 		
-		return Division.findAllByFieldName(Division.class, "state",
-				State.findById(State.class, stateId), "name", "asc",
-				locale.toString());
+		List<Division> divisions = Division.findAllByFieldName(Division.class, "state", State.findById(State.class, stateId), "name", "asc", locale.toString());
+		List<MasterVO> divisionsVO = new ArrayList<MasterVO>();
+		
+		for(Division division : divisions){
+			MasterVO vo = new MasterVO();
+			vo.setId(division.getId());
+			vo.setName(division.getName());
+			divisionsVO.add(vo);
+		}
+		
+		return divisionsVO; 
 	}
 
 	/**
@@ -239,21 +226,24 @@ public class ReferenceController extends BaseController {
 	 * @param locale the locale
 	 * @return the districts by division id
 	 */
-	@RequestMapping(value = "/{division_id}/districts",
-			method = RequestMethod.GET)
-			public @ResponseBody
-			List<District> getDistrictsByDivisionId(
-					@PathVariable("division_id") final Long divisionId,
-					final ModelMap map, 
-					final Locale locale) {
-		List<District> districts = new LinkedList<District>();
+	@RequestMapping(value = "/{division_id}/districts", method = RequestMethod.GET)
+	public @ResponseBody List<MasterVO> getDistrictsByDivisionId(@PathVariable("division_id") final Long divisionId, final ModelMap map, final Locale locale) {
+		List<District> districts = null;
+		List<MasterVO> districtsVO = new ArrayList<MasterVO>();
+		
 		Division division = Division.findById(Division.class, divisionId);
 		if (division != null) {
-			districts = District.findAllByFieldName(District.class, "division",
-					division, "name", "asc", locale.toString());
+			districts = District.findAllByFieldName(District.class, "division", division, "name", "asc", locale.toString());
+			
+			for(District district : districts){
+				MasterVO vo = new MasterVO();
+				vo.setId(district.getId());
+				vo.setName(district.getName());
+				districtsVO.add(vo);
+			}
 		}
 
-		return districts;
+		return districtsVO;
 	}
 
 	/**
@@ -264,28 +254,27 @@ public class ReferenceController extends BaseController {
 	 * @param locale the locale
 	 * @return the railway stations by selected districts
 	 */
-	@RequestMapping(value = "/districts{selectedDistricts}/railwayStations",
-			method = RequestMethod.GET)
-			public @ResponseBody
-			List<RailwayStation> getRailwayStationsBySelectedDistricts(
-					@PathVariable("selectedDistricts") final String districtsStr,
-					final ModelMap map,
-					final Locale locale) {
-		List<RailwayStation> railwayStationsForSelectedDistricts = new LinkedList<RailwayStation>();
-		List<RailwayStation> railwayStationsForDistrict = new LinkedList<RailwayStation>();
+	@RequestMapping(value = "/districts{selectedDistricts}/railwayStations", method = RequestMethod.GET)
+	public @ResponseBody List<Reference> getRailwayStationsBySelectedDistricts(@PathVariable("selectedDistricts") final String districtsStr, final ModelMap map, final Locale locale) {
+				
+		List<Reference> railwayStationsForSelectedDistrictsVO = new ArrayList<Reference>();
+		
 		String districts[] = districtsStr.split(",");
 		for (int i = 0; i < districts.length; i++) {
-			railwayStationsForDistrict = RailwayStation.findAllByFieldName(
-					RailwayStation.class,
-					"district",
-					District.findById(District.class,
-							Long.parseLong(districts[i])), "name", "asc",
-							locale.toString());
-			railwayStationsForSelectedDistricts
-			.addAll(railwayStationsForDistrict);
-			railwayStationsForDistrict.clear();
+			
+			List<RailwayStation> railwayStationsForDistrict = RailwayStation.findAllByFieldName(RailwayStation.class, "district", District.findById(District.class, Long.parseLong(districts[i])), "name", "asc", locale.toString());
+			
+			for(RailwayStation railwayStation : railwayStationsForDistrict){
+				Reference ref = new Reference();
+				ref.setId(railwayStation.getId().toString());
+				ref.setName(railwayStation.getName());
+				railwayStationsForSelectedDistrictsVO.add(ref);
+			}
+			
+			railwayStationsForDistrict = null;
 		}
-		return railwayStationsForSelectedDistricts;
+		
+		return railwayStationsForSelectedDistrictsVO;
 	}
 
 	/**
@@ -296,25 +285,23 @@ public class ReferenceController extends BaseController {
 	 * @param locale the locale
 	 * @return the airports by selected districts
 	 */
-	@RequestMapping(value = "/districts{selectedDistricts}/airports",
-			method = RequestMethod.GET)
-			public @ResponseBody
-			List<Airport> getAirportsBySelectedDistricts(
-					@PathVariable("selectedDistricts") final String districtsStr,
-					final ModelMap map, 
-					final Locale locale) {
-		List<Airport> airportsForSelectedDistricts = new LinkedList<Airport>();
-		List<Airport> airportsForDistrict = new LinkedList<Airport>();
+	@RequestMapping(value = "/districts{selectedDistricts}/airports", method = RequestMethod.GET)
+	public @ResponseBody List<Reference> getAirportsBySelectedDistricts(@PathVariable("selectedDistricts") final String districtsStr, final ModelMap map, final Locale locale) {
+		
+		List<Reference> airportsForSelectedDistricts = new ArrayList<Reference>();
+		
 		String districts[] = districtsStr.split(",");
 		for (int i = 0; i < districts.length; i++) {
-			airportsForDistrict = Airport.findAllByFieldName(
-					Airport.class,
-					"district",
-					District.findById(District.class,
-							Long.parseLong(districts[i])), "name", "asc",
-							locale.toString());
-			airportsForSelectedDistricts.addAll(airportsForDistrict);
-			airportsForDistrict.clear();
+			List<Airport> airportsForDistrict = Airport.findAllByFieldName( Airport.class, "district", District.findById(District.class, Long.parseLong(districts[i])), "name", "asc", locale.toString());
+			
+			for(Airport airport : airportsForDistrict){
+				Reference ref = new Reference();
+				ref.setId(airport.getId().toString());
+				ref.setName(airport.getName());
+				airportsForSelectedDistricts.add(ref);
+			}
+			
+			airportsForDistrict = null;
 		}
 		return airportsForSelectedDistricts;
 	}
@@ -328,17 +315,21 @@ public class ReferenceController extends BaseController {
 	 * @param locale the locale
 	 * @return the tehsils by district id
 	 */
-	@RequestMapping(value = "/{district_id}/tehsils",
-			method = RequestMethod.GET)
-			public @ResponseBody
-			List<Tehsil> getTehsilsByDistrictId(
-					@PathVariable("district_id") final Long districtId,
-					final ModelMap map, 
-					final HttpServletRequest request,
-					final Locale locale) {
+	@RequestMapping(value = "/{district_id}/tehsils", method = RequestMethod.GET)
+	public @ResponseBody List<Reference> getTehsilsByDistrictId(@PathVariable("district_id") final Long districtId, final ModelMap map, final HttpServletRequest request, final Locale locale) {
 		District district = District.findById(District.class, districtId);
-		return Tehsil.findAllByFieldName(Tehsil.class, "district", district,
-				"name", "asc", locale.toString());
+		List<Reference> tehsils = new ArrayList<Reference>();
+		
+		if(district != null){
+			List<Tehsil> tehs = Tehsil.findAllByFieldName(Tehsil.class, "district", district, "name", "asc", locale.toString());
+			for(Tehsil tehsil : tehs){
+				Reference ref = new Reference();
+				ref.setId(tehsil.getId().toString());
+				ref.setName(tehsil.getName());
+				tehsils.add(ref);
+			}
+		}
+		return tehsils; 
 	}
 
 	/**
@@ -418,37 +409,31 @@ public class ReferenceController extends BaseController {
 	 *         locale and hence need for second parameter seems meaningless.But
 	 *         still need discussions.
 	 */
-	@RequestMapping(value = "/data/{constituency_name}/districts",
-			method = RequestMethod.GET)
-			public @ResponseBody
-			List<District> getDistrictsByConstituencyId(
-					@PathVariable("constituency_name") final String constituencyName,
-					final ModelMap map, 
-					final HttpServletRequest request,
-					final Locale locale) {
+	@RequestMapping(value = "/data/{constituency_name}/districts",method = RequestMethod.GET)
+	public @ResponseBody List<Reference> getDistrictsByConstituencyId(@PathVariable("constituency_name") final String constituencyName, final ModelMap map, final HttpServletRequest request, final Locale locale) {
+		
 		String decodedString = null;
-		List<District> districts = new ArrayList<District>();
+		
+		List<Reference> districtsVO = new ArrayList<Reference>();
+		
 		try {
-			CustomParameter customParameter = CustomParameter.findByName(
-					CustomParameter.class, "DEFAULT_URI_ENCODING",
-					locale.toString());
-			CustomParameter customParameter1 = CustomParameter.findByName(
-					CustomParameter.class, "DEFAULT_ENCODING",
-					locale.toString());
-			decodedString = new String(
-					constituencyName.getBytes(customParameter.getValue()),
-					customParameter1.getValue());
-			Constituency constituency = Constituency
-			.findByName(Constituency.class, decodedString.trim(),
-					locale.toString());
-			districts = District.findDistrictsByConstituencyId(constituency.getId(),
-					"name", "ASC");
+			CustomParameter customParameter = CustomParameter.findByName(CustomParameter.class, "DEFAULT_URI_ENCODING", locale.toString());
+			CustomParameter customParameter1 = CustomParameter.findByName(CustomParameter.class, "DEFAULT_ENCODING", locale.toString());
+			decodedString = new String(constituencyName.getBytes(customParameter.getValue()), customParameter1.getValue());
+			Constituency constituency = Constituency.findByName(Constituency.class, decodedString.trim(), locale.toString());
+			List<District> districts = District.findDistrictsByConstituencyId(constituency.getId(), "name", "ASC");
+			for(District district : districts){
+				Reference ref = new Reference();
+				ref.setId(district.getId().toString());
+				ref.setName(district.getName());
+				districtsVO.add(ref);
+			}
 		}catch (UnsupportedEncodingException e) {
 			e.printStackTrace();
 		}catch (ELSException e) {
 			map.addAttribute("REFERENCE_CONTROLLER", "Request can not be completed at the moment.");
 		}
-		return districts; 
+		return districtsVO; 
 	}
 
 	/**
@@ -475,13 +460,20 @@ public class ReferenceController extends BaseController {
 	 * @return the sub departments by department
 	 */
 	@RequestMapping(value="department/{department}/subDepartments",method=RequestMethod.GET)
-	public @ResponseBody List<SubDepartment> getSubDepartmentsByDepartment(
-			@PathVariable("department") final Long department,
-			final ModelMap map,
-			final Locale locale){
-		Department dept=Department.findById(Department.class, department);
-		List<SubDepartment> subDepartments=SubDepartment.findAllByFieldName(SubDepartment.class, "department", dept, "name", ApplicationConstants.ASC, locale.toString());
-		return subDepartments;
+	public @ResponseBody List<Reference> getSubDepartmentsByDepartment(@PathVariable("department") final Long department, final ModelMap map, final Locale locale){
+		List<Reference> subDepts = new ArrayList<Reference>();
+		
+		Department dept = Department.findById(Department.class, department);
+		if(dept != null){
+			List<SubDepartment> subDepartments = SubDepartment.findAllByFieldName(SubDepartment.class, "department", dept, "name", ApplicationConstants.ASC, locale.toString());
+			for(SubDepartment subDept : subDepartments){
+				Reference ref = new Reference();
+				ref.setId(subDept.getId().toString());
+				ref.setName(subDept.getName());
+				subDepts.add(ref);
+			}
+		}
+		return subDepts;
 	}
 
 	/**
@@ -507,8 +499,7 @@ public class ReferenceController extends BaseController {
 	 * @return the member death date
 	 */
 	@RequestMapping(value="member/{memberId}/deathDate", method=RequestMethod.GET)
-	public @ResponseBody Reference getMemberDeathDate(@PathVariable("memberId") final Long memberId,
-			final Locale locale){
+	public @ResponseBody Reference getMemberDeathDate(@PathVariable("memberId") final Long memberId, final Locale locale){
 		Member member = Member.findById(Member.class, memberId);
 		Reference reference = new Reference();
 		reference.setId(member.getId().toString());
@@ -530,8 +521,7 @@ public class ReferenceController extends BaseController {
 	 * @return the division districts by constituency
 	 */
 	@RequestMapping(value="divdis/{constituency}", method=RequestMethod.GET)
-	public @ResponseBody ConstituencyCompleteVO getDivisionDistrictsByConstituency(	@PathVariable("constituency") final Long constituency,
-			final Locale locale){
+	public @ResponseBody ConstituencyCompleteVO getDivisionDistrictsByConstituency(	@PathVariable("constituency") final Long constituency, final Locale locale){
 		Constituency selectedConstituency=Constituency.findById(Constituency.class,constituency);
 		ConstituencyCompleteVO constituencyCompleteVO=new ConstituencyCompleteVO();
 		List<MasterVO> districtsToPopulate=new ArrayList<MasterVO>();
@@ -636,8 +626,7 @@ public class ReferenceController extends BaseController {
 	 * @return the election type
 	 */
 	@RequestMapping(value="election/{electionId}/electionType", method=RequestMethod.GET)
-	public @ResponseBody Reference getElectionType(@PathVariable("electionId") final Long electionId,
-			final Locale locale) {
+	public @ResponseBody Reference getElectionType(@PathVariable("electionId") final Long electionId, final Locale locale) {
 		Election election = Election.findById(Election.class, electionId);
 		ElectionType electionType = election.getElectionType();
 		Reference reference = new Reference();
@@ -671,10 +660,7 @@ public class ReferenceController extends BaseController {
 	 * @return the group vo
 	 */
 	@RequestMapping(value="/ministrydeptsubdeptdates/{group}", method=RequestMethod.GET)
-	public @ResponseBody GroupVO getGroupVO(
-			@PathVariable("group") final Long group,
-			final Locale locale
-	) {
+	public @ResponseBody GroupVO getGroupVO(@PathVariable("group") final Long group, final Locale locale) {
 		Group selectedGroup=Group.findById(Group.class, group);
 		GroupVO groupVO=new GroupVO();
 		//populating ministries
@@ -732,9 +718,7 @@ public class ReferenceController extends BaseController {
 	 * @return the departments
 	 */
 	@RequestMapping(value="/departments/{ministry}", method=RequestMethod.GET)
-	public @ResponseBody List<MasterVO> getDepartments(
-			@PathVariable("ministry") final Long ministry,
-			final Locale locale){
+	public @ResponseBody List<MasterVO> getDepartments(@PathVariable("ministry") final Long ministry, final Locale locale){
 		Ministry selectedMinistry=Ministry.findById(Ministry.class, ministry);
 		//populating departments
 		List<Department> departments=MemberMinister.findAssignedDepartments(selectedMinistry, locale.toString());
@@ -756,9 +740,7 @@ public class ReferenceController extends BaseController {
 	 * @return the departments by ministry name
 	 */
 	@RequestMapping(value="/departments/byministriesname", method=RequestMethod.POST)
-	public @ResponseBody List<MasterVO> getDepartmentsByMinistryName(
-			final HttpServletRequest request,
-			final Locale locale){
+	public @ResponseBody List<MasterVO> getDepartmentsByMinistryName(final HttpServletRequest request, final Locale locale){
 		String[] strMinistries=request.getParameterValues("ministries[]");
 		List<MasterVO> departmentVOs=new ArrayList<MasterVO>();
 		if(strMinistries != null){
@@ -813,10 +795,7 @@ public class ReferenceController extends BaseController {
 	 * @return the sub departments by ministry department names
 	 */
 	@RequestMapping(value="/subdepartments/{ministry}/{department}", method=RequestMethod.GET)
-	public @ResponseBody List<MasterVO> getSubDepartmentsByMinistryDepartmentNames(
-			@PathVariable("ministry") final Long ministry,
-			@PathVariable("department") final Long department,
-			final Locale locale){
+	public @ResponseBody List<MasterVO> getSubDepartmentsByMinistryDepartmentNames(@PathVariable("ministry") final Long ministry, @PathVariable("department") final Long department, final Locale locale){
 		Ministry selectedMinistry=Ministry.findById(Ministry.class, ministry);
 		Department selectedDepartment=Department.findById(Department.class,department);
 		//populating sub departments
@@ -918,8 +897,7 @@ public class ReferenceController extends BaseController {
 	 */
 	@RequestMapping(value="/supportingmembers",method=RequestMethod.GET)
 	public @ResponseBody List<DynamicSelectVO> getSupportingMembers(final HttpServletRequest request,
-			final Locale locale,
-			@RequestParam("session")final Long session
+			final Locale locale,@RequestParam("session")final Long session
 			,final ModelMap model){
 		CustomParameter customParameter=CustomParameter.findByName(CustomParameter.class, "DEPLOYMENT_SERVER", "");
 		List<MasterVO> memberVOs=new ArrayList<MasterVO>();
@@ -1021,18 +999,18 @@ public class ReferenceController extends BaseController {
 	 * @param locale the locale
 	 * @return the houses by house type
 	 */
-	@RequestMapping(value = "/{houseType}/house",
-			method = RequestMethod.GET)
-			public @ResponseBody
-			List<House> getHousesByHouseType(
-					@PathVariable("houseType") final Long houseTypeId,
-					final ModelMap map, 
-					final Locale locale) {
-		List<House> houses = new ArrayList<House>();
+	@RequestMapping(value = "/{houseType}/house", method = RequestMethod.GET)
+	public @ResponseBody List<Reference> getHousesByHouseType(@PathVariable("houseType") final Long houseTypeId, final ModelMap map, final Locale locale) {
+		List<Reference> houses = new ArrayList<Reference>();
 		HouseType houseType = HouseType.findById(HouseType.class, houseTypeId);
 		if (houseType != null) {
-			houses = House.findAllByFieldName(House.class, "type",
-					houseType, "firstDate", ApplicationConstants.DESC, locale.toString());
+			List<House> houseList = House.findAllByFieldName(House.class, "type", houseType, "firstDate", ApplicationConstants.DESC, locale.toString());
+			for(House house : houseList){
+				Reference ref = new Reference();
+				ref.setId(house.getId().toString());
+				ref.setName(house.getName());
+				houses.add(ref);
+			}
 		}
 
 		return houses;
@@ -1051,8 +1029,7 @@ public class ReferenceController extends BaseController {
 	 * @since v1.0.0
 	 */
 	@RequestMapping(value="/groups")
-	public @ResponseBody List<MasterVO> loadGroups(final HttpServletRequest request,
-			final Locale locale){
+	public @ResponseBody List<MasterVO> loadGroups(final HttpServletRequest request, final Locale locale){
 		//CustomParameter customParameter=CustomParameter.findByName(CustomParameter.class, "DEPLOYMENT_SERVER", "");
 		List<MasterVO> masterVOs=new ArrayList<MasterVO>();
 		List<Group> groups=new ArrayList<Group>();
@@ -1473,10 +1450,19 @@ public class ReferenceController extends BaseController {
 	 * @return the house by type
 	 */
 	@RequestMapping(value="{houseType}/houses", method=RequestMethod.GET)
-	public @ResponseBody List<House> getHouseByType(@PathVariable("houseType") final String houseType,
-			final Locale locale){
+	public @ResponseBody List<Reference> getHouseByType(@PathVariable("houseType") final String houseType, final Locale locale){
 		HouseType selectedHouseType=HouseType.findByFieldName(HouseType.class,"type",houseType, locale.toString());
-		List<House> houses=House.findAllByFieldName(House.class, "type",selectedHouseType, "firstDate",ApplicationConstants.DESC, locale.toString());
+		List<Reference> houses = new ArrayList<Reference>();
+		
+		if(selectedHouseType != null){
+			List<House> houseList = House.findAllByFieldName(House.class, "type",selectedHouseType, "firstDate",ApplicationConstants.DESC, locale.toString());
+			for(House house : houseList){
+				Reference ref = new Reference();
+				ref.setId(house.getId().toString());
+				ref.setName(house.getName());
+				houses.add(ref);
+			}
+		}
 		return houses;
 	}
 
@@ -1563,8 +1549,7 @@ public class ReferenceController extends BaseController {
 	 * @return List<Reference> of Dates on which submitted days come
 	 */
 	@RequestMapping(value="/session/{id}/devicetypeconfig/discussiondates", method=RequestMethod.GET)
-	public @ResponseBody
-	List<MasterVO> getSessionConfigAnsweringDates(@PathVariable("id") final Long id) {
+	public @ResponseBody List<MasterVO> getSessionConfigAnsweringDates(@PathVariable("id") final Long id) {
 
 		Session session = Session.findById(Session.class, id);
 		List<MasterVO> masterVOs = new ArrayList<MasterVO>();
@@ -1943,9 +1928,7 @@ public class ReferenceController extends BaseController {
 	 * @return the list
 	 */
 	@RequestMapping(value="/resolution/actors",method=RequestMethod.POST)
-	public @ResponseBody List<Reference> findResolutionActors(final HttpServletRequest request,
-			final ModelMap model,
-			final Locale locale){
+	public @ResponseBody List<Reference> findResolutionActors(final HttpServletRequest request, final ModelMap model, final Locale locale){
 		List<Reference> actors=new ArrayList<Reference>();
 		String strResolution=request.getParameter("resolution");
 		String strInternalStatus=request.getParameter("status");
@@ -1988,51 +1971,59 @@ public class ReferenceController extends BaseController {
 	 * @return the list
 	 */
 	@RequestMapping(value="/status",method=RequestMethod.GET)
-	public @ResponseBody List<Status> loadSubWorkflowByDeviceType(final HttpServletRequest request,
-			final ModelMap model,
-			final Locale locale){
-		List<Status> workflowTypes= new ArrayList<Status>();
+	public @ResponseBody List<MasterVO> loadSubWorkflowByDeviceType(final HttpServletRequest request, final ModelMap model, final Locale locale){
+		List<MasterVO> workflowTypes = new ArrayList<MasterVO>();
 		try{
-			DeviceType deviceType=null;
-			String server=null;
-			CustomParameter customParameter=CustomParameter.findByName(CustomParameter.class, "DEPLOYMENT_SERVER", "");
-			if(customParameter!=null){
-				server=customParameter.getValue();
-				String strDeviceType=request.getParameter("deviceType");
+			DeviceType deviceType = null;
+			String server = null;
+			CustomParameter customParameter = CustomParameter.findByName(CustomParameter.class, "DEPLOYMENT_SERVER", "");
+			if(customParameter != null){
+				server = customParameter.getValue();
+				String strDeviceType = request.getParameter("deviceType");
 				if(!strDeviceType.isEmpty()){
 					if(server.equals("TOMCAT")){
 						try {
 							String param = new String(strDeviceType.getBytes("ISO-8859-1"),"UTF-8");
-							deviceType=DeviceType.findByName(DeviceType.class, param, locale.toString());
+							deviceType = DeviceType.findByName(DeviceType.class, param, locale.toString());
 						}catch (UnsupportedEncodingException e) {
 							logger.error("Cannot Encode the Parameter.");
 						}
 					}else{
-						deviceType=DeviceType.findByName(DeviceType.class, strDeviceType, locale.toString());
+						deviceType = DeviceType.findByName(DeviceType.class, strDeviceType, locale.toString());
 					}
 				}
-				if(deviceType!=null){
-					List<UserGroup> userGroups=this.getCurrentUser().getUserGroups();
-					if(userGroups!=null){
-						for(UserGroup i:userGroups){
-							UserGroup userGroup=UserGroup.findById(UserGroup.class,i.getId());
-							String userGroupDeviceType=userGroup.getParameterValue(ApplicationConstants.DEVICETYPE_KEY+"_"+locale);
+				if(deviceType != null){
+					List<UserGroup> userGroups = this.getCurrentUser().getUserGroups();
+					if(userGroups != null){
+						for(UserGroup i : userGroups){
+							UserGroup userGroup = UserGroup.findById(UserGroup.class,i.getId());
+							String userGroupDeviceType = userGroup.getParameterValue(ApplicationConstants.DEVICETYPE_KEY+"_"+locale);
 							if(userGroupDeviceType.contains(deviceType.getName())){
 								/**** Authenticated User's usergroup and usergroupType ****/
-								String userGroupType=i.getUserGroupType().getType();
+								String userGroupType = i.getUserGroupType().getType();
 								/**** Status Allowed ****/
-								CustomParameter allowedWorkflowTypes=CustomParameter.findByName(CustomParameter.class,"MYTASK_GRID_WORKFLOW_TYPES_ALLOWED_"+deviceType
-										.getType().toUpperCase()+"_"+userGroupType.toUpperCase(), "");
-								if(allowedWorkflowTypes!=null){
-									List<Status> workflowTypesForUsergroup=Status.findStatusContainedIn(allowedWorkflowTypes.getValue(), locale.toString());
-									workflowTypes.addAll(workflowTypesForUsergroup);
+								CustomParameter allowedWorkflowTypes = CustomParameter.findByName(CustomParameter.class,"MYTASK_GRID_WORKFLOW_TYPES_ALLOWED_"+deviceType.getType().toUpperCase()+"_"+userGroupType.toUpperCase(), "");
+								if(allowedWorkflowTypes != null){
+									List<Status> workflowTypesForUsergroup = Status.findStatusContainedIn(allowedWorkflowTypes.getValue(), locale.toString());
+									for(Status status : workflowTypesForUsergroup){
+										MasterVO statusVO = new MasterVO();
+										statusVO.setName(status.getName());
+										statusVO.setValue(status.getType());
+										workflowTypes.add(statusVO);
+									}
 								}							
 							}						
 						}
 						if(workflowTypes.isEmpty()) {
 							CustomParameter defaultAllowedWorkflowTypes=CustomParameter.findByName(CustomParameter.class,"MYTASK_GRID_WORKFLOW_TYPES_ALLOWED_BY_DEFAULT", "");
-							if(defaultAllowedWorkflowTypes!=null){
-								workflowTypes=Status.findStatusContainedIn(defaultAllowedWorkflowTypes.getValue(), locale.toString());
+							if(defaultAllowedWorkflowTypes != null){
+								List<Status> workflowTypeList = Status.findStatusContainedIn(defaultAllowedWorkflowTypes.getValue(), locale.toString());
+								for(Status status : workflowTypeList){
+									MasterVO statusVO = new MasterVO();
+									statusVO.setName(status.getName());
+									statusVO.setValue(status.getType());
+									workflowTypes.add(statusVO);
+								}
 							}else{
 								logger.error("Custom Parameter 'MYTASK_GRID_WORKFLOW_TYPES_ALLOWED_BY_DEFAULT' not set");
 							}
@@ -2064,8 +2055,7 @@ public class ReferenceController extends BaseController {
 	 */
 	@RequestMapping(value="/getLastSubmissionDateFromLastDiscussionDate", method=RequestMethod.GET)
 	public @ResponseBody Reference getLastSubmissionDateFromLastDiscussionDate(@RequestParam String lastDiscussionDateStr, 
-			@RequestParam String daysBetweenSubmissionEndDateAndLastDiscussionDateOfSession, 
-			final Locale locale){
+			@RequestParam String daysBetweenSubmissionEndDateAndLastDiscussionDateOfSession, final Locale locale){
 		Reference reference = new Reference();
 		Date lastDiscussionDate = null;
 		Date submissionEndDate = null;
@@ -2302,8 +2292,7 @@ public class ReferenceController extends BaseController {
 	}
 
 	@RequestMapping(value="/resolutions_government/isDiscussionDateEarly",method=RequestMethod.GET)
-	public @ResponseBody String isDiscussionDateEarlyInGovernmentResolution(final HttpServletRequest request, 
-			final Locale locale){
+	public @ResponseBody String isDiscussionDateEarlyInGovernmentResolution(final HttpServletRequest request, final Locale locale){
 		String isDiscussionDateEarly = "";		
 		String strExpectedDiscussionDate=request.getParameter("expectedDiscussionDate");
 		String strRequestedDiscussionDate=request.getParameter("requestedDiscussionDate");	
@@ -2405,9 +2394,7 @@ public class ReferenceController extends BaseController {
 	}
 	
 	@RequestMapping(value="committeeName/{committeeName}/foundationDate", method=RequestMethod.GET)
-	public @ResponseBody Reference findFoundationDate(
-			@PathVariable("committeeName") final Long committeeNameId,
-			final Locale locale) {
+	public @ResponseBody Reference findFoundationDate(@PathVariable("committeeName") final Long committeeNameId, final Locale locale) {
 		CommitteeName committeeName = CommitteeName.findById(CommitteeName.class, committeeNameId);
 		Date foundationDate = committeeName.getFoundationDate();
 		
@@ -2425,8 +2412,7 @@ public class ReferenceController extends BaseController {
 	}
 	
 	@RequestMapping(value="committee/dissolutionDate", method=RequestMethod.GET)
-	public @ResponseBody Reference computeDissolutionDate(
-			@RequestParam("committeeName") final Long committeeNameId,
+	public @ResponseBody Reference computeDissolutionDate(@RequestParam("committeeName") final Long committeeNameId,
 			@RequestParam("formationDate") final String strDate,
 			final Locale locale) {
 		String strFormationDate = strDate;
@@ -2463,8 +2449,7 @@ public class ReferenceController extends BaseController {
 	}
 	
 	@RequestMapping(value="committeeNames/houseType/{houseType}", method=RequestMethod.GET)
-	public @ResponseBody List<MasterVO> findCommitteeNamesByHouseType(
-			@PathVariable("houseType") final Long houseTypeId,
+	public @ResponseBody List<MasterVO> findCommitteeNamesByHouseType(@PathVariable("houseType") final Long houseTypeId,
 			final HttpServletRequest request,
 			final Locale locale) {
 		List<MasterVO> masterVOs = new ArrayList<MasterVO>();
@@ -2516,8 +2501,7 @@ public class ReferenceController extends BaseController {
 	}
 	
 	@RequestMapping(value="/workflowTypes",method=RequestMethod.GET)
-	public @ResponseBody List<Status> loadSubWorkflowByModule(
-			final HttpServletRequest request,
+	public @ResponseBody List<Status> loadSubWorkflowByModule(final HttpServletRequest request,
 			@RequestParam("module") final String module,
 			final Locale localeObj) {
 		List<Status> workflowTypes = new ArrayList<Status>();
@@ -2564,10 +2548,8 @@ public class ReferenceController extends BaseController {
 		return workflowTypes;
 	}
 	
-	@RequestMapping(value="partyType/{partyType}/members",
-			method=RequestMethod.GET)
-	public @ResponseBody List<AutoCompleteVO> getPartyTypewiseMembers(
-			final HttpServletRequest request,
+	@RequestMapping(value="partyType/{partyType}/members", method=RequestMethod.GET)
+	public @ResponseBody List<AutoCompleteVO> getPartyTypewiseMembers(final HttpServletRequest request,
 			@PathVariable("partyType") final Long partyTypeId,
 			@RequestParam("houseType") final Long houseTypeId,
 			@RequestParam("term") final String term,
@@ -2605,10 +2587,8 @@ public class ReferenceController extends BaseController {
 		return vos;
 	}
 
-	@RequestMapping(value="houseType/{houseType}/members",
-			method=RequestMethod.GET)
-	public @ResponseBody List<AutoCompleteVO> getHouseTypeWiseActiveMembers(
-			final HttpServletRequest request,
+	@RequestMapping(value="houseType/{houseType}/members", method=RequestMethod.GET)
+	public @ResponseBody List<AutoCompleteVO> getHouseTypeWiseActiveMembers(final HttpServletRequest request,
 			@PathVariable("houseType") final Long houseTypeId,
 			@RequestParam("term") final String term,
 			final Locale localeObj){
@@ -2643,10 +2623,8 @@ public class ReferenceController extends BaseController {
 		return vos;
 	}
 	
-	@RequestMapping(value="committee/actors/workflow/{workflowName}",
-			method=RequestMethod.GET)
-	public @ResponseBody List<Reference> getCommitteeActors(
-			@PathVariable("workflowName") final String workflowName,
+	@RequestMapping(value="committee/actors/workflow/{workflowName}", method=RequestMethod.GET)
+	public @ResponseBody List<Reference> getCommitteeActors(@PathVariable("workflowName") final String workflowName,
 			@RequestParam("status") final Long statusId,
 			@RequestParam("houseType") final Long houseTypeId,
 			@RequestParam("userGroup") final Long userGroupId,
@@ -2679,11 +2657,8 @@ public class ReferenceController extends BaseController {
 		return actors;
 	}
 	
-	@RequestMapping(value="district/{districtId}/towns", 
-			method=RequestMethod.GET)
-	public @ResponseBody List<Reference> getTownsByDistrict(
-			@PathVariable("districtId") final Long districtId,
-			final Locale localeObj) {
+	@RequestMapping(value="district/{districtId}/towns", method=RequestMethod.GET)
+	public @ResponseBody List<Reference> getTownsByDistrict(@PathVariable("districtId") final Long districtId, final Locale localeObj) {
 		List<Reference> refs = new ArrayList<Reference>();
 		
 		District district = District.findById(District.class, districtId);
@@ -2747,8 +2722,7 @@ public class ReferenceController extends BaseController {
 	
 	/****RIS Related Ajax Calls****/
 	@RequestMapping(value="/roster/actions",method=RequestMethod.POST)
-	public @ResponseBody List<Reference> findRosterActions(final HttpServletRequest request,
-			final Locale locale){
+	public @ResponseBody List<Reference> findRosterActions(final HttpServletRequest request, final Locale locale){
 		String strStartTime=request.getParameter("startTime");
 		String strEndTime=request.getParameter("endTime");
 		String strSlotDuration=request.getParameter("slotDuration");
@@ -3426,19 +3400,21 @@ public class ReferenceController extends BaseController {
 	
 	@RequestMapping(value="/gethalfhourdiscussionfromquestion",method=RequestMethod.GET)
 	public @ResponseBody List<MasterVO> getHalfHourDiscussionFromQuestion(final HttpServletRequest request, final Locale locale,final ModelMap model){
-		String strStarredQuestionNo=request.getParameter("starredQuestionNo");
-		String strSession=request.getParameter("session");
-		List<MasterVO> masterVOs=new ArrayList<MasterVO>();
-		if(strSession!=null && !strSession.equals("") &&
-			strStarredQuestionNo!=null && !strStarredQuestionNo.equals("")){
-			Session session=Session.findById(Session.class, Long.parseLong(strSession));
-			Integer number=Integer.parseInt(strStarredQuestionNo);
-			DeviceType deviceType=DeviceType.findByType("questions_starred", locale.toString());
-			Question question=Question.getQuestion(session.getId(), deviceType.getId(), number, locale.toString());
-			if(question!=null){
-				List<Question> halfHourDiscussionsFromQuestions=Question.findAllByFieldName(Question.class, "halfHourDiscusionFromQuestionReference", question, "number", "desc", locale.toString());
-				for(Question q:halfHourDiscussionsFromQuestions){
-					MasterVO masterVo=new MasterVO();
+		
+		String strStarredQuestionNo = request.getParameter("starredQuestionNo");
+		String strSession = request.getParameter("session");
+		List<MasterVO> masterVOs = new ArrayList<MasterVO>();
+		
+		if(strSession != null && !strSession.isEmpty() &&
+			strStarredQuestionNo != null && !strStarredQuestionNo.isEmpty()){
+			Session session = Session.findById(Session.class, Long.parseLong(strSession));
+			Integer number = Integer.parseInt(strStarredQuestionNo);
+			DeviceType deviceType = DeviceType.findByType("questions_starred", locale.toString());
+			Question question = Question.getQuestion(session.getId(), deviceType.getId(), number, locale.toString());
+			if(question != null){
+				List<Question> halfHourDiscussionsFromQuestions = Question.findAllByFieldName(Question.class, "halfHourDiscusionFromQuestionReference", question, "number", "desc", locale.toString());
+				for(Question q : halfHourDiscussionsFromQuestions){
+					MasterVO masterVo = new MasterVO();
 					masterVo.setId(q.getId());
 					masterVo.setName(q.getNumber().toString());
 					masterVOs.add(masterVo);
@@ -3451,14 +3427,13 @@ public class ReferenceController extends BaseController {
 	
 	@RequestMapping(value="/getphoto",method=RequestMethod.GET)
 	public @ResponseBody void getPhotoOfMember(final HttpServletRequest request,final HttpServletResponse response, final Locale locale,final ModelMap model){
-		String strMemberId=request.getParameter("memberId");
-		if(strMemberId!=null && !strMemberId.isEmpty()){
-			Member member=Member.findById(Member.class, Long.parseLong(strMemberId));
+		String strMemberId = request.getParameter("memberId");
+		if(strMemberId != null && !strMemberId.isEmpty()){
+			Member member = Member.findById(Member.class, Long.parseLong(strMemberId));
 			Document doc = null;
 			try {
 				doc = Document.findByTag(member.getPhoto());
 			} catch (ELSException e1) {
-				// TODO Auto-generated catch block
 				e1.printStackTrace();
 			}
 				
@@ -3483,10 +3458,7 @@ public class ReferenceController extends BaseController {
 	}
 	
 	@RequestMapping(value="/member/getmembers",method=RequestMethod.GET)
-	public @ResponseBody List<AutoCompleteVO> getActiveMembersAndMinisters(final HttpServletRequest request,
-			final Locale locale,
-			@RequestParam("session")final Long session,
-			final ModelMap model){
+	public @ResponseBody List<AutoCompleteVO> getActiveMembersAndMinisters(final HttpServletRequest request, final Locale locale, @RequestParam("session")final Long session, final ModelMap model){
 		CustomParameter customParameter=CustomParameter.findByName(CustomParameter.class,"DEPLOYMENT_SERVER", "");
 		List<MasterVO> memberVOs=new ArrayList<MasterVO>();
 		List<MasterVO> ministerVOs=new ArrayList<MasterVO>();
@@ -4568,6 +4540,7 @@ public class ReferenceController extends BaseController {
 			return EditingWorkflowController.getEditingActors(request, locale);
 		}
 		
+		@SuppressWarnings("rawtypes")
 		@RequestMapping(value="/devicesofrosterproceeding", method=RequestMethod.GET)
 		public @ResponseBody List getRosterDevicesForProceeding(final HttpServletRequest request, final Locale locale){
 			List retVal = null;
@@ -4618,6 +4591,13 @@ public class ReferenceController extends BaseController {
 			return retVal; 
 		}
 		
+		/**
+		 * @param id
+		 * @param request
+		 * @param locale
+		 * @return
+		 */
+		@SuppressWarnings("rawtypes")
 		@RequestMapping(value="/getpartDraftsInWorkflow/{id}",method=RequestMethod.GET)
 		public @ResponseBody List getDraftsOfPartInWorkflow(@PathVariable(value="id") Long id, HttpServletRequest request, Locale locale){
 			try{
@@ -4630,8 +4610,6 @@ public class ReferenceController extends BaseController {
 					
 					if(strUserGroup != null && !strUserGroup.isEmpty()
 							&& strUserGroupType != null && !strUserGroupType.isEmpty()){
-						
-						UserGroup userGroup = UserGroup.findById(UserGroup.class, Long.valueOf(strUserGroup));
 						
 						Status status = Status.findByType(wfDetails.getWorkflowSubType(), locale.toString());
 						
@@ -4665,8 +4643,7 @@ public class ReferenceController extends BaseController {
 			return null;
 		}
 		
-		@RequestMapping(value="committeetour/actors/workflow/{workflowName}",
-				method=RequestMethod.GET)
+		@RequestMapping(value="committeetour/actors/workflow/{workflowName}", method=RequestMethod.GET)
 		public @ResponseBody List<Reference> getCommitteeTourActors(
 				@PathVariable("workflowName") final String workflowName,
 				@RequestParam("status") final Long statusId,
@@ -4977,5 +4954,94 @@ public class ReferenceController extends BaseController {
 			}
 
 			return autoCompleteVOs;
-		}	
+		}
+		
+		/**** To get the clubbed questions text ****/
+		@RequestMapping(value="/{id}/clubbedquestiontext", method=RequestMethod.GET)
+		public @ResponseBody List<MasterVO> getClubbedQuestionTexts(@PathVariable("id") Long id, final HttpServletRequest request, final Locale locale){
+			
+			List<MasterVO> clubbedQuestionsVO = new ArrayList<MasterVO>();
+			
+			try{
+				
+				Question parent = Question.findById(Question.class, id);
+				
+				if(parent != null){
+					List<ClubbedEntity> clubbedQuestions = parent.getClubbedEntities();
+					
+					for(ClubbedEntity ce : clubbedQuestions){
+						Question cQuestion = ce.getQuestion();
+						if(cQuestion != null){
+							MasterVO mVO = new MasterVO();
+							mVO.setId(cQuestion.getId());
+							mVO.setName(FormaterUtil.formatNumberNoGrouping(cQuestion.getNumber(), locale.toString()));
+							if(cQuestion.getRevisedQuestionText() != null && !cQuestion.getRevisedQuestionText().isEmpty()){
+								mVO.setValue(cQuestion.getRevisedQuestionText());
+							}else{
+								mVO.setValue(cQuestion.getQuestionText());
+							}
+							
+							clubbedQuestionsVO.add(mVO);
+						}
+					}
+				}
+			}catch(Exception e){
+				logger.error(e.toString());
+			}
+			
+			
+			return clubbedQuestionsVO;
+		}
+		
+		@RequestMapping(value="/newpendingtasks", method=RequestMethod.GET)
+		public @ResponseBody List<MasterVO> getNewPendingTasks(HttpServletRequest request, Locale locale){
+			List<MasterVO> data = new ArrayList<MasterVO>();
+			try{
+				String strSessionYear = request.getParameter("sessionYear");
+				String strSessionType = request.getParameter("sessionType");
+				String strHouseType = request.getParameter("houseType");
+				String strStatus = request.getParameter("status");
+				
+				if(strSessionYear != null && !strSessionYear.isEmpty()
+						&& strSessionType != null && !strSessionType.isEmpty()
+						&& strHouseType != null && !strHouseType.isEmpty()
+						&& strStatus != null && !strStatus.isEmpty()){
+					
+					CustomParameter csptServer = CustomParameter.findByName(CustomParameter.class, "DEPLOYMENT_SERVER", "");
+					if(csptServer != null && csptServer.getValue() != null && !csptServer.getValue().isEmpty()){
+					
+						if(csptServer.getValue().equals("TOMCAT")){
+							
+							strSessionYear = new String(strSessionYear.getBytes("ISO-8859-1"), "UTF-8");
+							strSessionType = new String(strSessionType.getBytes("ISO-8859-1"), "UTF-8");
+							strHouseType = new String(strHouseType.getBytes("ISO-8859-1"), "UTF-8");
+						}
+					}
+					
+					Map<String, String> parameters = new HashMap<String, String>();
+					parameters.put("locale", locale.toString());
+					parameters.put("assignee", this.getCurrentUser().getActualUsername());
+					parameters.put("sessionYear", strSessionYear);
+					parameters.put("sessionType", strSessionType);
+					parameters.put("houseType", strHouseType);
+					parameters.put("status", strStatus);
+					List<WorkflowDetails> workflows = WorkflowDetails.findPendingWorkflowOfCurrentUser(parameters, "assignmentTime", ApplicationConstants.ASC);
+					
+					if(workflows != null){
+						for(WorkflowDetails wd : workflows){
+							MasterVO vo = new MasterVO();
+							vo.setId(new Long(wd.getDeviceId()));
+							vo.setName(wd.getInternalStatus());
+							vo.setValue(wd.getDeviceNumber());
+							data.add(vo);
+						}
+					}
+				}
+			}catch(Exception e){
+				logger.error(e.getMessage());
+				e.printStackTrace();
+			}
+			
+			return data;
+		}
 }
