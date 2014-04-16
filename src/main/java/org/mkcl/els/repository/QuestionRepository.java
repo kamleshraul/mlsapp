@@ -299,11 +299,15 @@ public class QuestionRepository extends BaseRepository<Question, Long> {
 					}
 					questionRevisionVO.setReason(question);
 				}else{
-					questionRevisionVO.setReason(o[7].toString());
+					if(o[7] != null){
+						questionRevisionVO.setReason(o[7].toString());
+					}
 				}
 
 			}else{
-				questionRevisionVO.setReason(o[7].toString());
+				if(o[7] != null){
+					questionRevisionVO.setReason(o[7].toString());
+				}
 			}
 			
 			if(o1!=null){
@@ -321,11 +325,15 @@ public class QuestionRepository extends BaseRepository<Question, Long> {
 					}
 					questionRevisionVO.setBriefExplanation(question);
 				}else{
-					questionRevisionVO.setBriefExplanation(o[8].toString());
+					if(o[8] != null){
+						questionRevisionVO.setBriefExplanation(o[8].toString());	
+					}
 				}
 
 			}else{
-				questionRevisionVO.setBriefExplanation(o[8].toString());
+				if(o[8] != null){
+					questionRevisionVO.setBriefExplanation(o[8].toString());
+				}
 			}
 			
 			questionRevisionVOs.add(questionRevisionVO);
