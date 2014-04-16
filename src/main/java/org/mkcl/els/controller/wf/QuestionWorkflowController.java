@@ -522,17 +522,17 @@ public class QuestionWorkflowController  extends BaseController{
 			/**** Departments ****/
 			List<Department> departments=MemberMinister.findAssignedDepartments(ministry, locale);
 			model.addAttribute("departments",departments);
-			//Department department=domain.getDepartment();
-			//if(department!=null){  
-			//model.addAttribute("departmentSelected",department.getId());
+			if(domain.getDepartment()!=null){  
+				model.addAttribute("departmentSelected",domain.getDepartment().getId());
+			}
 			/**** Sub Departments ****/
 			List<SubDepartment> subDepartments=MemberMinister.findAssignedSubDepartments(ministry, locale);
 			model.addAttribute("subDepartments",subDepartments); 
 			SubDepartment subDepartment=domain.getSubDepartment();
 			if(subDepartment!=null){
-				model.addAttribute("subDepartmentSelected",subDepartment.getId());
+				
+				model.addAttribute("subDepartmentSelected",subDepartment.getId());				
 			}
-			//}
 
 			if(!(domain.getType().getType().equals(ApplicationConstants.HALF_HOUR_DISCUSSION_QUESTION_STANDALONE)
 					&& domain.getHouseType().getType().equals(ApplicationConstants.LOWER_HOUSE))){
@@ -1129,6 +1129,13 @@ public class QuestionWorkflowController  extends BaseController{
 							domain.setRecommendationStatus(reanswerStatus);
 						}
 					}
+				}
+			}
+			
+			/**** Set the department if department is null ****/
+			if(domain.getDepartment() == null){
+				if(domain.getSubDepartment() != null){
+					domain.setDepartment(domain.getSubDepartment().getDepartment());
 				}
 			}
 			
