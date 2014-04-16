@@ -108,8 +108,49 @@
 		        }
 			});
 			showTabByIdAndUrl('list_tab', 'workflow/myTasks/list');	
+			
+			var myTasks = setInterval(function(){pendingNewTasks()}, 5000); 
+			$("#notificationDiv").hide();
+			$("#newTasksDiv").hide();
+			
+			$("#notificationDiv").click(function(e){
+				 // Set the effect type
+			    var effect = 'slide';
+
+			    // Set the options for the effect type chosen
+			    var options = { direction: 'right' };
+
+			    // Set the duration (default: 400 milliseconds)
+			    var duration = 700;
+
+			    $('#newTasksDiv').toggle(effect, options, duration);
+			});
 		});
 				
+		//to get the new pending tasks
+		function pendingNewTasks(){
+			var url = "ref/newpendingtasks?sessionYear=" + $("#selectedSessionYear").val() +
+						"&sessionType=" + $("#selectedSessionType").val() + 
+						"&houseType=" + $("#selectedHouseType").val() +
+						"&status=PENDING";
+			$.get(url, function(data){
+				if(data){
+					$("#notificationDiv").html(data.length);
+					
+					var text = "";
+					for(var i = 0; i < data.length; i++){
+						text += "<p>" + data[i].value + "&nbsp;&nbsp;" + data[i].name + "</p><hr />";
+					}
+					$("#newTasksDiv").empty();
+					$("#newTasksDiv").html(text);
+					$("#notificationDiv").show();					
+				}else{
+					$("#notificationDiv").hide();
+				}
+			});
+			
+		}
+		
 		function showList() {
 			$("#selectionDiv").show();
 			showTabByIdAndUrl('list_tab', 'workflow/myTasks/list');								
@@ -213,7 +254,7 @@
 				var selectedSubWorkflowText="";
 				if(data.length>0){
 					for(var i=0;i<data.length;i++){
-						selectedSubWorkflowText+="<option value='"+data[i].type+"'>"+data[i].name;
+						selectedSubWorkflowText+="<option value='"+data[i].value+"'>"+data[i].name;
 					}
 				}else{
 					selectedSubWorkflowText="<option value='' selected='selected'>----"+$("#pleaseSelectMessage").val()+"----</option>";				
@@ -347,6 +388,38 @@
 			showTabByIdAndUrl('details_tab','bill/providedate?houseType=' + $("#selectedHouseType").val()+"&sessionType="+$("#selectedSessionType").val()+"&sessionYear="+$("#selectedSessionYear").val());
 		}
 	</script>
+	
+	<style type="text/css">
+		#notificationDiv{
+			background: #FCCD32 scroll no-repeat;
+			max-width: 100px;
+			width: 50px;
+			max-height: 15px;
+			/*border-radius: 10px;*/
+			text-align: center;
+			border: 1px solid black;
+			z-index: 5000;
+			bottom: 5px;
+			right: 5px;			
+			position: fixed;
+			cursor: pointer;
+		}
+		#newTasksDiv{
+			background: #FCCD32 scroll no-repeat;
+			max-width: 300px;
+			width: 250px;
+			max-height: 100px;
+			height: 80px;
+			/*border-radius: 10px;*/
+			padding-left 5px;
+			border: 1px solid black;
+			z-index: 5000;
+			bottom: 25px;
+			right: 5px;			
+			position: fixed;
+			overflow: auto;
+		}
+	</style>
 </head>
 <body>
 	<!-- .section -->
@@ -483,6 +556,14 @@
 				<h4 style="color: #FF0000;">${error}</h4>
 			</c:if>
 		</div>		
+		
+		<div id="newTasksDiv">
+			Content
+		</div>
+		
+		<div id="notificationDiv">
+			V
+		</div>
 		
 		<input type="hidden" name="currentusergroup" id="currentusergroup" value="${usergroup}">		
 		<input type="hidden" name="currentusergroupType" id="currentusergroupType" value="${usergroupType}">
