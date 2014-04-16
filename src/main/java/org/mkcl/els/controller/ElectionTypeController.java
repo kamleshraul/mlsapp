@@ -41,10 +41,8 @@ public class ElectionTypeController extends GenericController<ElectionType> {
             final String locale,
             final HttpServletRequest request) {
     	domain.setLocale(locale);
-        String strHouseTypeName = ((CustomParameter) CustomParameter.findByName(
-                CustomParameter.class, "DEFAULT_HOUSETYPE", locale)).getValue();
-        HouseType defaultHouseType = HouseType.findByFieldName(HouseType.class, "type",
-                strHouseTypeName, locale);
+        String strHouseTypeName = ((CustomParameter) CustomParameter.findByName(CustomParameter.class, "DEFAULT_HOUSETYPE", locale)).getValue();
+        HouseType defaultHouseType = HouseType.findByFieldName(HouseType.class, ((locale.equals("en_US"))? "type":"name"), strHouseTypeName, locale);
         domain.setHouseType(defaultHouseType);
         List<HouseType> houseTypes = HouseType.findAll(HouseType.class, "type", "asc", locale);
         model.addAttribute("assemblycounciltype", houseTypes);

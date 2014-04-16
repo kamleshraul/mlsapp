@@ -51,9 +51,7 @@ public class TehsilController extends GenericController<Tehsil> {
 	@Override
 	protected void populateNew(final ModelMap model, final Tehsil domain,
 			final String locale, final HttpServletRequest request) {
-		String stateName = ((CustomParameter) CustomParameter.findByName(
-				CustomParameter.class, "DEFAULT_STATE", locale.toString()))
-				.getValue();
+		String stateName = ((CustomParameter) CustomParameter.findByName(CustomParameter.class, "DEFAULT_STATE", locale.toString())).getValue();
 		populate(model, domain, locale, request, stateName);
 		model.addAttribute("tehsil", domain);
 	}
@@ -74,12 +72,9 @@ public class TehsilController extends GenericController<Tehsil> {
 		if (district != null) {
 			stateName = district.getDivision().getState().getName();
 		} else {
-			stateName = ((CustomParameter) CustomParameter.findByName(
-					CustomParameter.class, "DEFAULT_STATE", domain.getLocale()
-							.toString())).getValue();
+			stateName = ((CustomParameter) CustomParameter.findByName(CustomParameter.class, "DEFAULT_STATE", domain.getLocale().toString())).getValue();
 		}
-		populate(model, domain, domain.getLocale(), request,
-				stateName);
+		populate(model, domain, domain.getLocale(), request, stateName);
 		model.addAttribute("tehsil", domain);
 	}
 
@@ -103,10 +98,8 @@ public class TehsilController extends GenericController<Tehsil> {
 			final String locale, final HttpServletRequest request,
 			final String stateName) {
 		domain.setLocale(locale.toString());
-		List<State> states = State.findAll(State.class, "name", "asc",
-				locale.toString());
-		State selectedState = State.findByName(State.class, stateName,
-				locale.toString());
+		List<State> states = State.findAll(State.class, "name", "asc", locale.toString());
+		State selectedState = State.findByName(State.class, stateName, locale.toString());
 		List<State> newStates = new ArrayList<State>();
 		newStates.add(selectedState);
 		states.remove(selectedState);
@@ -114,8 +107,7 @@ public class TehsilController extends GenericController<Tehsil> {
 		model.addAttribute("states", newStates);
 		List<District> districts = new ArrayList<District>();
 		try{
-			District.getDistrictRepository()
-				.findDistrictsByStateId(selectedState.getId(), "name", "asc",locale.toString());
+			districts = District.getDistrictRepository().findDistrictsByStateId(selectedState.getId(), "name", "asc",locale.toString());
 		}catch (ELSException e) {
 			model.addAttribute("TehsilController", e.getParameter());
 			
