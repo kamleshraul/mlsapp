@@ -260,7 +260,7 @@ public class QuestionRepository extends BaseRepository<Question, Long> {
 				questionRevisionVO.setDetails(o[4].toString());
 			}
 			if(o1!=null){
-				if(!o[5].toString().isEmpty() && o1[5].toString().isEmpty()){
+				if(!o[5].toString().isEmpty() && !o1[5].toString().isEmpty()){
 					LinkedList<Diff> diff=d.diff_main(o1[5].toString(), o[5].toString());
 					String question=d.diff_prettyHtml(diff);
 					if(question.contains("&lt;")){
@@ -284,6 +284,50 @@ public class QuestionRepository extends BaseRepository<Question, Long> {
 				questionRevisionVO.setRemarks(o[6].toString());
 			}
 
+			if(o1!=null){
+				if(!o[7].toString().isEmpty() && !o1[7].toString().isEmpty()){
+					LinkedList<Diff> diff=d.diff_main(o1[7].toString(), o[7].toString());
+					String question=d.diff_prettyHtml(diff);
+					if(question.contains("&lt;")){
+						question=question.replaceAll("&lt;", "<");
+					}
+					if(question.contains("&gt;")){
+						question=question.replaceAll("&gt;", ">");
+					}
+					if(question.contains("&amp;nbsp;")){
+						question=question.replaceAll("&amp;nbsp;"," ");
+					}
+					questionRevisionVO.setReason(question);
+				}else{
+					questionRevisionVO.setReason(o[7].toString());
+				}
+
+			}else{
+				questionRevisionVO.setReason(o[7].toString());
+			}
+			
+			if(o1!=null){
+				if(!o[8].toString().isEmpty() && !o1[8].toString().isEmpty()){
+					LinkedList<Diff> diff=d.diff_main(o1[8].toString(), o[8].toString());
+					String question=d.diff_prettyHtml(diff);
+					if(question.contains("&lt;")){
+						question=question.replaceAll("&lt;", "<");
+					}
+					if(question.contains("&gt;")){
+						question=question.replaceAll("&gt;", ">");
+					}
+					if(question.contains("&amp;nbsp;")){
+						question=question.replaceAll("&amp;nbsp;"," ");
+					}
+					questionRevisionVO.setBriefExplanation(question);
+				}else{
+					questionRevisionVO.setBriefExplanation(o[8].toString());
+				}
+
+			}else{
+				questionRevisionVO.setBriefExplanation(o[8].toString());
+			}
+			
 			questionRevisionVOs.add(questionRevisionVO);
 		}
 		return questionRevisionVOs;
