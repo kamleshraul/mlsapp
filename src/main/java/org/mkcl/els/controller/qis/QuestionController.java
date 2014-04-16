@@ -924,6 +924,7 @@ public class QuestionController extends GenericController<Question>{
 			Ministry ministry=domain.getMinistry();
 			if(ministry!=null){
 				model.addAttribute("ministrySelected",ministry.getId());
+				model.addAttribute("formattedMinistry",ministry.getName());
 				Group group=domain.getGroup();
 				if(domain.getType() != null){
 					if(!(domain.getType().getType().equals(ApplicationConstants.HALF_HOUR_DISCUSSION_QUESTION_STANDALONE)
