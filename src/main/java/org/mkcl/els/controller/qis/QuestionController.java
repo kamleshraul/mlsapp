@@ -1063,6 +1063,13 @@ public class QuestionController extends GenericController<Question>{
 					domain.setLevel("1");
 				}
 
+			}else if(usergroupType!=null&&!(usergroupType.isEmpty())&&usergroupType.equals("clerk")){
+				populateInternalStatus(model,internalStatus.getType(),usergroupType,locale,questionType.getType());
+				if(domain.getWorkflowStarted()==null){
+					domain.setWorkflowStarted("NO");
+				}else if(domain.getWorkflowStarted().isEmpty()){
+					domain.setWorkflowStarted("NO");
+				}
 			}
 		}
 		if(recommendationStatus!=null){
