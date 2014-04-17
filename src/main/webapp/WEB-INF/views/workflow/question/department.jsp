@@ -679,10 +679,7 @@
 					$(this).val("");
 				}
 			});
-			
-			//console.log("Answer: " + $('#answer').val() + ", ReanswerStatus: "+$("#reanswerstatus").val() + ", Reanswer: " + $('#reanswer').val());
-			//console.log(($('#answer').val()=="" || ($("#reanswerstatus").val()=='reanswer' && $('#reanswer').val()=="")) && $('#selectedQuestionType').val()!='questions_halfhourdiscussion_standalone');
-			
+						
 			if(($('#answer').val()=="" && $('#factualPosition').val()=="" || ($("#workflowstatus").val()=='COMPLETED' && $('#reanswer').val()=="")) && $('#selectedQuestionType').val()!='questions_halfhourdiscussion_standalone'){
 				$.prompt($('#noAnswerProvidedMsg').val());
 			}else{
