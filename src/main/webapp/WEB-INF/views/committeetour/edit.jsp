@@ -289,34 +289,6 @@
 			var statusId = $('#status').val();
 			onStatusChange(statusId);
 		});
-
-		$('#requestForTour').click(function(e){
-			$.prompt($('#requestForTourMsg').val(), {
-				buttons: {Ok:true, Cancel:false},
-				callback: function(v){
-					if(v){
-						$.blockUI({ message: '<img src="./resources/images/waitAnimated.gif" />' }); 
-						$.post($('form').attr('action') + '/init/requestForTour',
-							$("form").serialize(),
-							function(data){
-								$('.tabContent').html(data);
-								$('html').animate({scrollTop:0}, 'slow');
-								$('body').animate({scrollTop:0}, 'slow');	
-								$.unblockUI();	   				 	   				
-							}).fail(function(){
-								$.unblockUI();
-								if($("#ErrorMsg").val() != ''){
-									$("#error_p").html($("#ErrorMsg").val()).css({'color':'red', 'display':'block'});
-								}else{
-									$("#error_p").html("Error occured contact for support.").css({'color':'red', 'display':'block'});
-								}
-								scrollTop();
-							});
-					}
-				}
-			});
-			return false;
-		});
 	});		
 	</script>
 </head>
@@ -590,15 +562,9 @@
 	<div class="fields expand">
 		<h2></h2>
 		<p class="tright">
-		<c:if test="${internalStatus.type eq 'committeetour_incomplete'
-				or internalStatus.type eq 'committeetour_created'}">
-			<input id="submit" type="submit" value="<spring:message code='generic.submit' text='Submit'/>" class="butDef">
-		</c:if>
+		<input id="submit" type="submit" value="<spring:message code='generic.submit' text='Submit'/>" class="butDef">
 		<c:if test="${internalStatus.type eq 'committeetour_incomplete'}">
 			<input id="cancel" type="button" value="<spring:message code='generic.cancel' text='Cancel'/>" class="butDef">
-		</c:if>
-		<c:if test="${internalStatus.type eq 'committeetour_created'}">
-			<input id="requestForTour" type="button" value="<spring:message code='committeetour.requestForTour' text='Request For Tour'/>" class="butDef">
 		</c:if>
 		</p>
 	</div>	
@@ -607,6 +573,7 @@
 	<form:hidden path="locale"/>
 	<form:hidden path="version"/>
 	
+	<input type="hidden" id="workflowInit" name="workflowInit" value="${workflowInit}"/>
 	<input type="hidden" id="workflowName" name="workflowName" value="${workflowName}"/>
 	<input type="hidden" id="assigneeLevel" name="assigneeLevel" value="${assigneeLevel}"/>
  	<input type="hidden" id="houseTypeId" name="houseTypeId" value="${houseType.id}"/>
