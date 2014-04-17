@@ -706,6 +706,7 @@
 					</a>
 					<select name="selectedSubDepartment" id="selectedSubDepartment"
 						style="width: 250px; height: 25px;">
+						<option value="0" selected="selected"><spring:message code="please.select"></spring:message></option>
 						<c:forEach items="${subDepartments}" var="i">
 							<option value="${i.id}">
 								<c:out value="${i.name}"></c:out>

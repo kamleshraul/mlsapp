@@ -657,7 +657,97 @@
 				$.prompt('Please provide valid question number.');
 			}
 		});
+	  
+	  
+	  /*****AutoSuggest Multiple for supporting members******/
+		
+	var controlName=$(".autosuggestmultiple").attr("id");
+		$("select[name='"+controlName+"']").hide();	
+		$( ".autosuggestmultiple" ).change(function(){
+			//if we are removing a value from autocomplete box then that value needs to be removed from the attached select box also.
+			//for this we iterate through the slect box selected value and check if that value is present in the 
+			//current value of autocomplete.if a value is found which is there in autocomplete but not in select box
+			//then that value will be removed from the select box.
+			var value=$(this).val();
+			$("select[name='"+controlName+"'] option:selected").each(function(){
+				var optionClass=$(this).attr("class");
+				if(value.indexOf(optionClass)==-1){
+					$("select[name='"+controlName+"'] option[class='"+optionClass+"']").remove();
+				}		
+			});	
+			$("select[name='"+controlName+"']").hide();				
+		});
+		//http://api.jqueryui.com/autocomplete/#event-select
+		$( ".autosuggestmultiple" ).autocomplete({
+			minLength:3,
+			source: function( request, response ) {
+				$.getJSON( 'ref/member/supportingmembers?session='+$("#session").val()+'&primaryMemberId='+$('#primaryMember').val(), {
+					term: extractLast( request.term )
+				}, response ).fail(function(){
+					$.unblockUI();
+					if($("#ErrorMsg").val()!=''){
+						$("#error_p").html($("#ErrorMsg").val()).css({'color':'red', 'display':'block'});
+					}else{
+						$("#error_p").html("Error occured contact for support.").css({'color':'red', 'display':'block'});
+					}
+					scrollTop();
+				});
+			},			
+			search: function() {
+				var term = extractLast( this.value );
+				if ( term.length < 2 ) {
+					return false;
+				}
+			},
+			focus: function() {
+				return false;
+			},
+			select: function( event, ui ) {
+				//what happens when we are selecting a value from drop down
+				var terms = $(this).val().split(",");
+				//if select box is already present i.e atleast one option is already added
+				if($("select[name='"+controlName+"']").length>0){
+					if($("select[name='"+controlName+"'] option[value='"+ui.item.id+"']").length>0){
+					//if option being selected is already present then do nothing
+					this.value = $(this).val();					
+					$("select[name='"+controlName+"']").hide();						
+					}else{
+					//if option is not present then add it in select box and autocompletebox
+					if(ui.item.id!=undefined&&ui.item.value!=undefined){
+					var text="<option value='"+ui.item.id+"' selected='selected' class='"+ui.item.value+"'></option>";
+					$("select[name='"+controlName+"']").append(text);
+					terms.pop();
+					terms.push( ui.item.value );
+					terms.push( "" );
+					this.value = terms.join( "," );
+					}							
+					$("select[name='"+controlName+"']").hide();								
+					}
+				}else{
+					if(ui.item.id!=undefined&&ui.item.value!=undefined){
+					text="<select name='"+$(this).attr("id")+"'  multiple='multiple'>";
+					textoption="<option value='"+ui.item.id+"' selected='selected' class='"+ui.item.value+"'></option>";				
+					text=text+textoption+"</select>";
+					$(this).after(text);
+					terms.pop();
+					terms.push( ui.item.value );
+					terms.push( "" );
+					this.value = terms.join( "," );
+					}	
+					$("select[name='"+controlName+"']").hide();									
+				}		
+				return false;
+			}
+		});
+	  
 	});
+	
+  	function split( val ) {
+		return val.split( /,\s*/ );
+	}	
+	function extractLast( term ) {
+		return split( term ).pop();
+	}
 	
 	function dereferencingInt(referId){
 		var device=$("#questionType").val();
@@ -864,14 +954,14 @@
 	
 	<p>
 	<label class="centerlabel"><spring:message code="question.members" text="Members"/></label>
-	<textarea id="members" class="sTextarea" readonly="readonly" rows="2" cols="50">${memberNames}</textarea>
+	<textarea id="selectedSupportingMembers" class="autosuggestmultiple"  rows="2" cols="50">${memberNames}</textarea>
 	<c:if test="${!(empty primaryMember)}">
 		<input id="primaryMember" name="primaryMember" value="${primaryMember}" type="hidden">
 	</c:if>
 	<c:if test="${!(empty supportingMembers)}">
-		<select  name="selectedSupportingMembers" id="selectedSupportingMembers" multiple="multiple" style="display:none;">
+		<select  name="selectedSupportingMembers" multiple="multiple">
 		<c:forEach items="${supportingMembers}" var="i">
-		<option value="${i.id}" selected="selected"></option>
+		<option value="${i.id}" class="${i.getFullname()}" selected="selected"></option>
 		</c:forEach>		
 		</select>
 	</c:if>	
