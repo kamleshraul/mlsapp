@@ -711,13 +711,14 @@ public class MemberBallotRepository extends BaseRepository<MemberBallot, Seriali
 				" WHERE mb.session.id=:sessionId" +
 				" AND mb.deviceType.id=:deviceTypeId" +
 				" AND mb.locale=:locale" +
-				" AND q.parent=:parent";
+				" AND q.parent IS NULL";
+				// " AND q.parent=:parent";
 		try{
 			Query jpQuery = this.em().createQuery(query);
 			jpQuery.setParameter("sessionId", session.getId());
 			jpQuery.setParameter("deviceTypeId", deviceType.getId());
 			jpQuery.setParameter("locale", locale);
-			jpQuery.setParameter("parent", null);
+			// jpQuery.setParameter("parent", null);
 			
 			return jpQuery.getResultList().size();
 		}catch (Exception e) {
