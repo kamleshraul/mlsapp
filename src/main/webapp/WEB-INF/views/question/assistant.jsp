@@ -867,11 +867,24 @@
 	<input id="setSubmissionDate" name="setSubmissionDate" type="hidden"  value="${submissionDate}">
 	
 	<c:if test="${selectedQuestionType=='questions_starred'}">
-		<c:if test="${formattedAnsweringDate !=null}">
+	<label class="small"><spring:message code="question.answeringDate" text="Answering Date"/></label>
+		<select name="answeringDate" id="answeringDate" class="sSelect">
+			<c:forEach items="${answeringDates }" var="i">
+				<c:choose>
+					<c:when test="${i.id==answeringDate }">
+						<option value="${i.id }" selected="selected">${i.name}</option>
+					</c:when>
+					<c:otherwise>
+						<option value="${i.id }" >${i.name}</option>
+					</c:otherwise>
+				</c:choose>
+			</c:forEach>
+		</select>
+		<%-- <c:if test="${formattedAnsweringDate !=null}">
 			<label class="small"><spring:message code="question.answeringDate" text="Answering Date"/></label>
 			<input id="formattedAnsweringDate" name="formattedAnsweringDate" value="${formattedAnsweringDate }" class="sText" readonly="readonly">
-		</c:if>
-		<input id="answeringDate" name="answeringDate" type="hidden"  value="${answeringDate}">
+		</c:if> --%>
+		<%-- <input id="answeringDate" name="answeringDate" type="hidden"  value="${answeringDate}"> --%>
 	</c:if>
 	
 	<c:if test="${selectedQuestionType=='questions_halfhourdiscussion_from_question' or selectedQuestionType=='questions_halfhourdiscussion_standalone'}">
