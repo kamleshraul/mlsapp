@@ -1395,37 +1395,39 @@ public class QuestionWorkflowController  extends BaseController{
 			
 			/**** If reanswer workflow is invoked then its straight forward ****/
 			/****  to set the domain's answer as reanswer by department ****/
-			if(workflowDetails.getAssigneeUserGroupType().equals(ApplicationConstants.SECTION_OFFICER)){
-				if(workflowDetails.getDepartmentAnswer() != null){
-					if(workflowDetails.getAssigneeUserGroupType().equals(ApplicationConstants.SECTION_OFFICER)){
-						if(workflowDetails.getDepartmentAnswer() != null){
-							domain.setAnswer(workflowDetails.getDepartmentAnswer());
-						}
-					}
-				}else{
-					/**** if workflow is not of reanswer then in that case find the ****/
-					/**** reanswer workflow and set the reanswer to domain ****/
-					
-					Map<String, String> parameters = new HashMap<String, String>();
-					parameters.put("locale", locale.toString());
-					parameters.put("assignee", workflowDetails.getAssignee());
-					parameters.put("status", "PENDING");
-					parameters.put("deviceId", workflowDetails.getDeviceId());
-					
-					
-					List<WorkflowDetails> reanswerWorkflowsIfAny = WorkflowDetails.findPendingWorkflowOfCurrentUser(parameters, "assignmentTime", ApplicationConstants.DESC);
-					WorkflowDetails reanswerWorkflowIfAny = null;
-					
-					if(reanswerWorkflowsIfAny != null && !reanswerWorkflowsIfAny.isEmpty()){
-						for(WorkflowDetails wf : reanswerWorkflowsIfAny){
-							if(!wf.getProcessId().equals(workflowDetails.getProcessId()) && wf.getDepartmentAnswer() != null){
-								reanswerWorkflowIfAny = wf;
-								break;
+			if(domain.getType() != null && domain.getType().getType().equals(ApplicationConstants.STARRED_QUESTION)){
+				if(workflowDetails.getAssigneeUserGroupType().equals(ApplicationConstants.SECTION_OFFICER)){
+					if(workflowDetails.getDepartmentAnswer() != null){
+						if(workflowDetails.getAssigneeUserGroupType().equals(ApplicationConstants.SECTION_OFFICER)){
+							if(workflowDetails.getDepartmentAnswer() != null){
+								domain.setAnswer(workflowDetails.getDepartmentAnswer());
 							}
-						}					
-						if(reanswerWorkflowIfAny != null){
-							domain.setAnswer(reanswerWorkflowIfAny.getDepartmentAnswer());
-						}				
+						}
+					}else{
+						/**** if workflow is not of reanswer then in that case find the ****/
+						/**** reanswer workflow and set the reanswer to domain ****/
+						
+						Map<String, String> parameters = new HashMap<String, String>();
+						parameters.put("locale", locale.toString());
+						parameters.put("assignee", workflowDetails.getAssignee());
+						parameters.put("status", "PENDING");
+						parameters.put("deviceId", workflowDetails.getDeviceId());
+						
+						
+						List<WorkflowDetails> reanswerWorkflowsIfAny = WorkflowDetails.findPendingWorkflowOfCurrentUser(parameters, "assignmentTime", ApplicationConstants.DESC);
+						WorkflowDetails reanswerWorkflowIfAny = null;
+						
+						if(reanswerWorkflowsIfAny != null && !reanswerWorkflowsIfAny.isEmpty()){
+							for(WorkflowDetails wf : reanswerWorkflowsIfAny){
+								if(!wf.getProcessId().equals(workflowDetails.getProcessId()) && wf.getDepartmentAnswer() != null){
+									reanswerWorkflowIfAny = wf;
+									break;
+								}
+							}					
+							if(reanswerWorkflowIfAny != null){
+								domain.setAnswer(reanswerWorkflowIfAny.getDepartmentAnswer());
+							}				
+						}
 					}
 				}
 			}
@@ -1577,64 +1579,66 @@ public class QuestionWorkflowController  extends BaseController{
 					task=processService.findTaskById(strTaskId);
 					processService.completeTask(task,properties);
 					
-					/**** If user is section officer and if he/she amrks the end of workflow ****/
-					/**** Terminate the flows of both normal and reanswer flow if any ****/
-					if(workflowDetails.getAssigneeUserGroupType().equals(ApplicationConstants.SECTION_OFFICER)){
-						if(workflowDetails.getDepartmentAnswer() != null){
-							
-							
-							if(workflowDetails.getPreviousWorkflowDetail() != null){
-								WorkflowDetails prevWorkflowDetails = WorkflowDetails.findById(WorkflowDetails.class, workflowDetails.getPreviousWorkflowDetail());
+					if(domain.getType() != null && domain.getType().getType().equals(ApplicationConstants.STARRED_QUESTION)){
+						/**** If user is section officer and if he/she amrks the end of workflow ****/
+						/**** Terminate the flows of both normal and reanswer flow if any ****/
+						if(workflowDetails.getAssigneeUserGroupType().equals(ApplicationConstants.SECTION_OFFICER)){
+							if(workflowDetails.getDepartmentAnswer() != null){
 								
+								
+								if(workflowDetails.getPreviousWorkflowDetail() != null){
+									WorkflowDetails prevWorkflowDetails = WorkflowDetails.findById(WorkflowDetails.class, workflowDetails.getPreviousWorkflowDetail());
+									
+									Map<String, String> parameters = new HashMap<String, String>();
+									parameters.put("locale", locale.toString());
+									parameters.put("assignee", workflowDetails.getAssignee());
+									parameters.put("status", "PENDING");
+									parameters.put("processId", prevWorkflowDetails.getProcessId());
+									
+									List<WorkflowDetails> pendingWorkflows = WorkflowDetails.findPendingWorkflowOfCurrentUser(parameters, "assignmentTime", ApplicationConstants.DESC);
+									WorkflowDetails pendingWorkflow;
+									
+									if(pendingWorkflows != null && !pendingWorkflows.isEmpty()){
+										pendingWorkflow = pendingWorkflows.get(0);
+										
+										Task prevTask = processService.findTaskById(pendingWorkflow.getTaskId());
+										processService.completeTask(prevTask, properties);
+										
+										pendingWorkflow.setStatus("COMPLETED");
+										pendingWorkflow.setCompletionTime(new Date());
+										pendingWorkflow.merge();
+									}								
+								}
+							}else{
+							
 								Map<String, String> parameters = new HashMap<String, String>();
 								parameters.put("locale", locale.toString());
 								parameters.put("assignee", workflowDetails.getAssignee());
 								parameters.put("status", "PENDING");
-								parameters.put("processId", prevWorkflowDetails.getProcessId());
+								parameters.put("deviceId", workflowDetails.getDeviceId());
 								
-								List<WorkflowDetails> pendingWorkflows = WorkflowDetails.findPendingWorkflowOfCurrentUser(parameters, "assignmentTime", ApplicationConstants.DESC);
-								WorkflowDetails pendingWorkflow;
 								
-								if(pendingWorkflows != null && !pendingWorkflows.isEmpty()){
-									pendingWorkflow = pendingWorkflows.get(0);
-									
-									Task prevTask = processService.findTaskById(pendingWorkflow.getTaskId());
-									processService.completeTask(prevTask, properties);
-									
-									pendingWorkflow.setStatus("COMPLETED");
-									pendingWorkflow.setCompletionTime(new Date());
-									pendingWorkflow.merge();
-								}								
-							}
-						}else{
-						
-							Map<String, String> parameters = new HashMap<String, String>();
-							parameters.put("locale", locale.toString());
-							parameters.put("assignee", workflowDetails.getAssignee());
-							parameters.put("status", "PENDING");
-							parameters.put("deviceId", workflowDetails.getDeviceId());
-							
-							
-							List<WorkflowDetails> reanswerWorkflowsIfAny = WorkflowDetails.findPendingWorkflowOfCurrentUser(parameters, "assignmentTime", ApplicationConstants.DESC);
-							WorkflowDetails reanswerWorkflowIfAny = null;
-							
-							if(reanswerWorkflowsIfAny != null && !reanswerWorkflowsIfAny.isEmpty()){
-								for(WorkflowDetails wf : reanswerWorkflowsIfAny){
-									if(!wf.getProcessId().equals(workflowDetails.getProcessId()) && wf.getDepartmentAnswer() != null){
-										reanswerWorkflowIfAny = wf;
-										break;
+								List<WorkflowDetails> reanswerWorkflowsIfAny = WorkflowDetails.findPendingWorkflowOfCurrentUser(parameters, "assignmentTime", ApplicationConstants.DESC);
+								WorkflowDetails reanswerWorkflowIfAny = null;
+								
+								if(reanswerWorkflowsIfAny != null && !reanswerWorkflowsIfAny.isEmpty()){
+									for(WorkflowDetails wf : reanswerWorkflowsIfAny){
+										if(!wf.getProcessId().equals(workflowDetails.getProcessId()) && wf.getDepartmentAnswer() != null){
+											reanswerWorkflowIfAny = wf;
+											break;
+										}
 									}
-								}
-								
-								if(reanswerWorkflowIfAny != null){
-									Task prevTask = processService.findTaskById(reanswerWorkflowIfAny.getTaskId());
-									processService.completeTask(prevTask, properties);
 									
-									reanswerWorkflowIfAny.setStatus("COMPLETED");
-									reanswerWorkflowIfAny.setCompletionTime(new Date());
-									reanswerWorkflowIfAny.merge();
-								}
-							}	
+									if(reanswerWorkflowIfAny != null){
+										Task prevTask = processService.findTaskById(reanswerWorkflowIfAny.getTaskId());
+										processService.completeTask(prevTask, properties);
+										
+										reanswerWorkflowIfAny.setStatus("COMPLETED");
+										reanswerWorkflowIfAny.setCompletionTime(new Date());
+										reanswerWorkflowIfAny.merge();
+									}
+								}	
+							}
 						}
 					}
 				}

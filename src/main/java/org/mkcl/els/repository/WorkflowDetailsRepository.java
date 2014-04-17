@@ -4,6 +4,7 @@ import java.io.Serializable;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -747,13 +748,45 @@ public class WorkflowDetailsRepository extends BaseRepository<WorkflowDetails, S
             index++;
         }
     	
-    	strQuery.append(" ORDER BY t."+orderBy +" " + sortOrder + " LIMIT 1");
+    	strQuery.append(" ORDER BY t."+orderBy +" " + sortOrder);
     	
     	Query jpQuery = this.em().createQuery(strQuery.toString());
     	
     	for (Entry<String, String> i : parameters.entrySet()) {
             jpQuery.setParameter(i.getKey(), i.getValue());
         }
+    	
+    	@SuppressWarnings("unchecked")
+		List<WorkflowDetails> list = jpQuery.getResultList();
+    	return list;
+	}
+
+	public List<WorkflowDetails> findPendingWorkflowOfCurrentUserByAssignmentTimeRange(final java.util.Map<String, String> parameters,
+			final Date toDate,
+			final Date fromDate,
+			final String orderBy, 
+			final String sortOrder){
+		
+		StringBuffer strQuery = new StringBuffer("SELECT t FROM WorkflowDetails t WHERE ");
+		int index = 0; 
+    	for (Entry<String, String> i : parameters.entrySet()) {
+            strQuery.append(" t." + i.getKey() + "=:" + i.getKey());
+            if(index < (parameters.entrySet().size() - 1)){
+            	strQuery.append(" AND");	            	
+            }
+            index++;
+        }
+    	strQuery.append(" AND t.assignmentTime BETWEEN :fromDate AND :toDate");
+    	
+    	strQuery.append(" ORDER BY t."+orderBy +" " + sortOrder );
+    	
+    	Query jpQuery = this.em().createQuery(strQuery.toString());
+    	
+    	for (Entry<String, String> i : parameters.entrySet()) {
+            jpQuery.setParameter(i.getKey(), i.getValue());
+        }
+    	jpQuery.setParameter("fromDate", fromDate);
+    	jpQuery.setParameter("toDate", toDate);
     	
     	@SuppressWarnings("unchecked")
 		List<WorkflowDetails> list = jpQuery.getResultList();

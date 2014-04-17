@@ -429,6 +429,15 @@ public class WorkflowDetails extends BaseDomain implements Serializable{
 			final String sortOrder){
 		return getWorkflowDetailsRepository().findPendingWorkflowOfCurrentUser(parameters, orderBy, sortOrder);
 	}
+	
+	public static List<WorkflowDetails> findPendingWorkflowOfCurrentUserByAssignmentTimeRange(final Map<String, String> parameters,
+			final Date toDate,
+			final Date fromDate,
+			final String orderBy, 
+			final String sortOrder){
+		return getWorkflowDetailsRepository().findPendingWorkflowOfCurrentUserByAssignmentTimeRange(parameters, toDate, fromDate, orderBy, sortOrder);
+	}
+	
 	//kept to hide errors only method needs to be replaced with actual code
 	public static WorkflowDetails findCurrentWorkflowDetail(Device device, String houseTypeName){
 		return null;

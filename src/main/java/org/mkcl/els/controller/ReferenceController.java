@@ -4999,12 +4999,10 @@ public class ReferenceController extends BaseController {
 			try{
 				String strSessionYear = request.getParameter("sessionYear");
 				String strSessionType = request.getParameter("sessionType");
-				String strHouseType = request.getParameter("houseType");
 				String strStatus = request.getParameter("status");
 				
 				if(strSessionYear != null && !strSessionYear.isEmpty()
 						&& strSessionType != null && !strSessionType.isEmpty()
-						&& strHouseType != null && !strHouseType.isEmpty()
 						&& strStatus != null && !strStatus.isEmpty()){
 					
 					CustomParameter csptServer = CustomParameter.findByName(CustomParameter.class, "DEPLOYMENT_SERVER", "");
@@ -5014,25 +5012,26 @@ public class ReferenceController extends BaseController {
 							
 							strSessionYear = new String(strSessionYear.getBytes("ISO-8859-1"), "UTF-8");
 							strSessionType = new String(strSessionType.getBytes("ISO-8859-1"), "UTF-8");
-							strHouseType = new String(strHouseType.getBytes("ISO-8859-1"), "UTF-8");
 						}
 					}
+					
 					
 					Map<String, String> parameters = new HashMap<String, String>();
 					parameters.put("locale", locale.toString());
 					parameters.put("assignee", this.getCurrentUser().getActualUsername());
 					parameters.put("sessionYear", strSessionYear);
 					parameters.put("sessionType", strSessionType);
-					parameters.put("houseType", strHouseType);
 					parameters.put("status", strStatus);
-					List<WorkflowDetails> workflows = WorkflowDetails.findPendingWorkflowOfCurrentUser(parameters, "assignmentTime", ApplicationConstants.ASC);
+					Date currentDate = new Date();
+					
+					List<WorkflowDetails> workflows = WorkflowDetails.findPendingWorkflowOfCurrentUserByAssignmentTimeRange(parameters, currentDate, new Date(currentDate.getTime() - (24 * 3600 * 1000)), "assignmentTime", ApplicationConstants.ASC);
 					
 					if(workflows != null){
 						for(WorkflowDetails wd : workflows){
 							MasterVO vo = new MasterVO();
 							vo.setId(new Long(wd.getDeviceId()));
 							vo.setName(wd.getInternalStatus());
-							vo.setValue(wd.getDeviceNumber());
+							vo.setValue(wd.getDeviceNumber() + "#" + wd.getDeviceType());
 							data.add(vo);
 						}
 					}
