@@ -1590,6 +1590,9 @@ public class Question extends Device implements Serializable {
 		 return getQuestionRepository().findMemberMinisterIfExists(question);		 
 	 }
 	 
+	 public static Question isExist(Integer number, Session session,String locale) {
+		 return getQuestionRepository().isExist(number,session,locale);
+		}
 	/**** Getters and Setters ****/
 	public HouseType getHouseType() {
 		return houseType;
@@ -2163,6 +2166,9 @@ public class Question extends Device implements Serializable {
 			Integer answeringAttemptsByDepartment) {
 		this.answeringAttemptsByDepartment = answeringAttemptsByDepartment;
 	}
+
+
+	
 
 
 	
