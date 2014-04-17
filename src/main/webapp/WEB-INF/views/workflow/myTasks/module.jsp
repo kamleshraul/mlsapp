@@ -77,7 +77,7 @@
 			$("#selectedSubWorkflow").change(function(){
 				var value=$(this).val();
 				if(value!=""){				
-					if(($('#assignee').val().contains("assistant")||$('#assignee').val().contains("sectionofficer"))&& value.contains("final")){
+					if(($('#currentusergroupType').val()=="assistant"||$('#currentusergroupType').val()=="section_officer")&& value.contains("final")){
 						$('#bulkapproval_tab').hide();
 						$('#selectedItemsCount').hide();
 						$('#selectedFileCount').hide();
@@ -120,9 +120,9 @@
 		        }
 			});
 			showTabByIdAndUrl('list_tab', 'workflow/myTasks/list');	
-			
+			pendingNewTasks();
 			if($("#getNewTasks").val() != undefined && $("#getNewTasks").val() != ''){
-				var myTasks = setInterval(function(){pendingNewTasks()}, 5000);
+				setInterval(function(){pendingNewTasks();}, 60000);
 			}
 			$("#notificationDiv").hide();
 			$("#newTasksDiv").hide();
@@ -154,7 +154,8 @@
 						
 						var text = "";
 						for(var i = 0; i < data.length; i++){
-							text += "<p>" + data[i].value + "&nbsp;&nbsp;" + data[i].name + "</p><hr />";
+							var splittedValue = data[i].value.split("#"); 
+							text += "<p>" + splittedValue[0] + "&nbsp;&nbsp;" + splittedValue[1] + "&nbsp;&nbsp;" + data[i].name + "</p><hr />";
 						}
 						
 						$("#newTasksDiv").empty();
@@ -422,8 +423,8 @@
 		}
 		#newTasksDiv{
 			background: #FCCD32 scroll no-repeat;
-			max-width: 300px;
-			width: 250px;
+			max-width: 400px;
+			width: 350px;
 			max-height: 100px;
 			height: 80px;
 			/*border-radius: 10px;*/
