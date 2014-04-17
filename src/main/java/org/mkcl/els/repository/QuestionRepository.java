@@ -2460,4 +2460,23 @@ public class QuestionRepository extends BaseRepository<Question, Long> {
 		}
 		return memberMinister;
 	}
+
+	public Question isExist(Integer number, Session session, String locale) {
+		try{
+			String strQuery="SELECT q FROM Question q " +
+					" WHERE q.session.id=:sessionId" +
+					" AND q.number=:number" +
+					" AND q.locale=:locale";
+			Query query=this.em().createQuery(strQuery);
+			query.setParameter("sessionId", session.getId());
+			query.setParameter("number", number);
+			query.setParameter("locale", locale);
+			Question question=(Question) query.getSingleResult();
+			return question;
+		}catch(Exception e) {
+			e.printStackTrace();
+			logger.error(e.getMessage());
+			return null;
+		}
+	}
 }
