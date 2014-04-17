@@ -5022,9 +5022,12 @@ public class ReferenceController extends BaseController {
 					parameters.put("sessionYear", strSessionYear);
 					parameters.put("sessionType", strSessionType);
 					parameters.put("status", strStatus);
-					Date currentDate = new Date();
 					
-					List<WorkflowDetails> workflows = WorkflowDetails.findPendingWorkflowOfCurrentUserByAssignmentTimeRange(parameters, currentDate, new Date(currentDate.getTime() - (24 * 3600 * 1000)), "assignmentTime", ApplicationConstants.ASC);
+					Date currentDate = new Date();
+					CustomParameter csptNotificationHours = CustomParameter.findByName(CustomParameter.class, "QIS_NOTIFICATION_HOURS", "");
+					
+					int notificationHours = (csptNotificationHours != null && csptNotificationHours.getValue() != null && !csptNotificationHours.getValue().isEmpty())? Integer.parseInt(csptNotificationHours.getValue()): 24;
+					List<WorkflowDetails> workflows = WorkflowDetails.findPendingWorkflowOfCurrentUserByAssignmentTimeRange(parameters, currentDate, new Date(currentDate.getTime() - (notificationHours * 3600 * 1000)), "assignmentTime", ApplicationConstants.ASC);
 					
 					if(workflows != null){
 						for(WorkflowDetails wd : workflows){
