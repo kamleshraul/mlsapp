@@ -1331,6 +1331,10 @@ public class QuestionController extends GenericController<Question>{
 								result.rejectValue("number","NumberEmpty");
 								//check for duplicate questions
 							}
+							Question question=Question.isExist(domain.getNumber(),domain.getSession(),domain.getLocale());
+							if(question!=null){
+								 result.rejectValue("number", "NonUnique","Duplicate Parameter");
+							}
 						}
 						if(domain.getHouseType()==null){
 							result.rejectValue("houseType","HousetypeEmpty");
@@ -1355,6 +1359,9 @@ public class QuestionController extends GenericController<Question>{
 						if(domain.getMinistry()==null){
 							result.rejectValue("ministry","MinistryEmpty");
 						}
+						if(domain.getSubDepartment()==null){
+							result.rejectValue("subDepartment","SubDepartmentEmpty");
+						}
 						if(domain.getType().getType().equals(ApplicationConstants.HALF_HOUR_DISCUSSION_QUESTION_FROM_QUESTION)){
 							validateNumberOfSupportingMembersForHalfHourDiscussionFromQuestion(domain, result, request);
 						}else if(domain.getType().getType().equals(ApplicationConstants.HALF_HOUR_DISCUSSION_QUESTION_STANDALONE)){
@@ -1369,6 +1376,10 @@ public class QuestionController extends GenericController<Question>{
 					result.rejectValue("number","NumberEmpty");
 				}
 				//check for duplicate questions
+				Question question=Question.isExist(domain.getNumber(),domain.getSession(),domain.getLocale());
+				if(question!=null){
+					 result.rejectValue("number", "NonUnique","Duplicate Parameter");
+				}
 			}
 			if(domain.getHouseType()==null){
 				result.rejectValue("houseType","HousetypeEmpty");
@@ -1384,6 +1395,9 @@ public class QuestionController extends GenericController<Question>{
 			}
 			if(domain.getSubject().isEmpty()){
 				result.rejectValue("subject","SubjectEmpty");
+			}
+			if(domain.getSubDepartment()==null){
+				result.rejectValue("subDepartment","SubDepartmentEmpty");
 			}
 			if(!(domain.getType().getType().equals(ApplicationConstants.HALF_HOUR_DISCUSSION_QUESTION_STANDALONE)
 					&& domain.getHouseType().getType().equals(ApplicationConstants.UPPER_HOUSE))
@@ -1457,6 +1471,10 @@ public class QuestionController extends GenericController<Question>{
 								result.rejectValue("number","NumberEmpty");
 							}
 							//check for duplicate questions
+							Question question=Question.isExist(domain.getNumber(),domain.getSession(),domain.getLocale());
+							if(question!=null){
+								 result.rejectValue("number", "NonUnique","Duplicate Parameter");
+							}
 						}
 						if(domain.getHouseType()==null){
 							result.rejectValue("houseType","HousetypeEmpty");
@@ -1481,6 +1499,9 @@ public class QuestionController extends GenericController<Question>{
 						if(domain.getMinistry()==null){
 							result.rejectValue("ministry","MinistryEmpty");
 						}
+						if(domain.getSubDepartment()==null){
+							result.rejectValue("subDepartment","SubDepartmentEmpty");
+						}
 						validateNumberOfSupportingMembersForHalfHourDiscussionFromQuestion(domain, result, request);
 					}
 			}
@@ -1494,6 +1515,9 @@ public class QuestionController extends GenericController<Question>{
 			}
 			if(domain.getHouseType()==null){
 				result.rejectValue("houseType","HousetypeEmpty");
+			}
+			if(domain.getSubDepartment()==null){
+				result.rejectValue("subDepartment","SubDepartmentEmpty");
 			}
 			if(domain.getType()==null){
 				result.rejectValue("type","QuestionTypeEmpty");
