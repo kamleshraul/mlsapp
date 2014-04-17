@@ -2437,7 +2437,7 @@ public class QuestionRepository extends BaseRepository<Question, Long> {
 					"(SELECT gm.id FROM Group g join g.ministries gm " +
 					"WHERE g.houseType.id=:houseTypeId AND g.sessionType.id=:sessionTypeId"+
 					" AND g.year=:sessionYear AND g.locale=:locale) " +
-					"AND h.id=:houseId AND m.id=:memberId AND " +
+					" AND mi.id=:ministryId AND " +
 					"(mm.ministryFromDate <=:questionSubmissionDate AND (mm.ministryToDate >:questionSubmissionDate  OR mm.ministryToDate IS NULL)) AND " +
 					"mm.locale=:locale";
 			
@@ -2446,8 +2446,8 @@ public class QuestionRepository extends BaseRepository<Question, Long> {
 			query.setParameter("sessionTypeId", session.getType().getId());
 			query.setParameter("sessionYear", session.getYear());
 			query.setParameter("locale", question.getLocale());
-			query.setParameter("houseId", session.getHouse().getId());
-			query.setParameter("memberId", question.getPrimaryMember().getId());
+			//query.setParameter("houseId", session.getHouse().getId());
+			query.setParameter("ministryId", question.getMinistry().getId());
 			query.setParameter("questionSubmissionDate", question.getSubmissionDate());
 			memberMinister = query.getSingleResult();
 		}catch (NoResultException  e) {
