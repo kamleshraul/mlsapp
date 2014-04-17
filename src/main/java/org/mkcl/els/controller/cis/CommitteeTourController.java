@@ -103,8 +103,14 @@ public class CommitteeTourController extends GenericController<CommitteeTour> {
 			final HttpServletRequest request) {
 		this.commonPopulateEdit(model, domain, request);
 		
+		// If the status is equal to COMMITTEETOUR_CREATED, 
+		// then show the workflow specific attributes
+		// (viz, Put up for, Next actor, Remarks, etc)
 		Status status = domain.getStatus();
 		if(status != null) {
+			Integer statusPriority = status.getPriority();
+			model.addAttribute("currentStatusPriority", statusPriority);
+			
 			this.populateInternalStatus(model, status);
 			
 			if(status.getType().equals(
@@ -113,20 +119,53 @@ public class CommitteeTourController extends GenericController<CommitteeTour> {
 			}
 		}
 	}
+	
+	@Override
+	protected String modifyEditUrlPattern(final String newUrlPattern,
+			final HttpServletRequest request, 
+			final ModelMap model, 
+			final String locale) {
+		Status recommendAdmission = 
+			Status.findByType(
+					ApplicationConstants.COMMITTEETOUR_RECOMMEND_ADMISSION, 
+					locale);
+		Integer recommendAdmissionPriority = recommendAdmission.getPriority();
+		
+		Integer currentStatusPriority = 
+			(Integer) model.get("currentStatusPriority");
+		
+		// If the currentStatusPriority is greater than or equal to 
+		// recommendAdmissionPriority then it means that the request is in
+		// workflow. Hence, render workflow specific pages for the 
+		// actors instead of showing edit page.
+		if(currentStatusPriority.compareTo(recommendAdmissionPriority) >= 0) {
+			List<UserGroup> userGroups = this.getCurrentUser().getUserGroups();
+			UserGroup userGroup = 
+				this.getUserGroup(request, userGroups, locale);
+			String ugt = userGroup.getUserGroupType().getType();
+			String returnURL = 
+				ApplicationConstants.COMMITTEETOUR_RETURN_URL + "/" + ugt;
+			return returnURL;
+		}
+		
+		// By default show edit page
+		return newUrlPattern;
+	}
 
 	@Override
 	protected void preValidateUpdate(final CommitteeTour domain,
 			final BindingResult result, 
 			final HttpServletRequest request) {
+		this.setCommittee(domain, request);
+		this.setTourItineraries(domain, request);
+		this.setCommitteeReporters(domain, request);
+		
 		// Determine the houseType
 		String locale = domain.getLocale();
 		List<UserGroup> userGroups = this.getCurrentUser().getUserGroups();
 		UserGroup userGroup = this.getUserGroup(request, userGroups, locale);
 		HouseType houseType = this.getHouseType(domain, userGroup, locale);
 		
-		this.setCommittee(domain, request);
-		this.setTourItineraries(domain, request);
-		this.setCommitteeReporters(domain, request);
 		this.setStatus(domain, houseType, request);
 		this.setRemarks(domain, houseType, request);
 	}
@@ -143,14 +182,9 @@ public class CommitteeTourController extends GenericController<CommitteeTour> {
 	@Override
 	protected void populateAfterUpdate(final ModelMap model, 
 			final CommitteeTour domain,
-			final HttpServletRequest request) {
-		Status status = this.getStatus(request);
-		WorkflowActor wfActor = this.getNextActor(request);
-		
-		// If status & wfActor are set, then start the workflow
-		// TODO: Add in a condition where if wfInit is true, only then
-		// start the workflow. i.e if(status != null && wfActor != null && wfInit == 'true')
-		if(status != null && wfActor != null) {
+			final HttpServletRequest request) {		
+		Status status = this.getStatus(request);		
+		if(status != null) {
 			// Determine the houseType
 			String locale = domain.getLocale();
 			List<UserGroup> userGroups = this.getCurrentUser().getUserGroups();
@@ -158,22 +192,21 @@ public class CommitteeTourController extends GenericController<CommitteeTour> {
 				this.getUserGroup(request, userGroups, locale);
 			HouseType houseType = this.getHouseType(domain, userGroup, locale);
 			
-			AuthUser authUser = this.getCurrentUser();
-			WorkflowDetails wfDetails = this.startTourRequestProcess(domain, 
-					request, authUser, userGroup, houseType, locale);
+			String wfInit = this.getWorkflowInit(request);
 			
-			// String returnURL = "redirect:requestForTour/processed/" 
-			//	+ wfDetails.getId();
+			// If wfInit is 'true' then start the workflow
+			if(wfInit != null && wfInit.equals("true")) {
+				AuthUser authUser = this.getCurrentUser();
+				this.startTourRequestProcess(domain, 
+						request, authUser, userGroup, houseType, locale);
+			}
+			// Else If wfInit is 'false' then proceed the workflow
+			else if(wfInit != null && wfInit.equals("false")) {
+				String wfName = this.getWorkflowName(status);
+				this.proceedTourRequestProcess(domain, 
+						request, userGroup, houseType, wfName, locale);
+			}
 		}
-		// Else if (status != null && wfActor != null && wfInit == 'false')
-		// then proceed the workflow as follows
-		// To accomodate this change, i have changed the value of the
-		// action attribute in committeetour workflow jsps from
-		// "workflow/committeetour/requestForTour" to "workflow/committeetour"
-//		Status status = this.getStatus(request);
-//		String wfName = this.getWorkflowName(status);
-//		WorkflowDetails wfDetails = this.proceedTourRequestProcess(domain, 
-//				request, userGroup, houseType, wfName, locale);
 	}
 	
 	@RequestMapping(value="{id}/view", method=RequestMethod.GET)
@@ -275,6 +308,7 @@ public class CommitteeTourController extends GenericController<CommitteeTour> {
 		
 		String locale = localeObj.toString();
 		String wfName = wfDetails.getWorkflowType();
+		String wfSubtype = wfDetails.getWorkflowSubType();
 		HouseType houseType = this.getHouseType(wfDetails);
 		UserGroup userGroup = this.getUserGroup(wfDetails);
 		
@@ -289,7 +323,7 @@ public class CommitteeTourController extends GenericController<CommitteeTour> {
 		
 		// STEP 3: Populate Statuses & Status
 		List<Status> statuses = this.populateStatuses(model, 
-				userGroup, wfName, locale);
+				userGroup, wfSubtype, locale);
 		Status status = statuses.get(0);
 		this.populateStatus(model, status);
 		
@@ -320,7 +354,9 @@ public class CommitteeTourController extends GenericController<CommitteeTour> {
 
 		// STEP 5: Populate Workflow attributes
 		String fullWFName = wfName + "_workflow";
-		this.populateWorkflowAttributes(model, fullWFName, assigneeLevel);
+		Boolean isWorkflowInit = false;
+		this.populateWorkflowAttributes(model, fullWFName, isWorkflowInit, 
+				assigneeLevel);
 		
 		// STEP 6: Populate HouseType, UserGroup
 		this.populateHouseType(model, houseType);
@@ -329,97 +365,8 @@ public class CommitteeTourController extends GenericController<CommitteeTour> {
 		// STEP 5: Return View
 		String urlPattern = wfDetails.getUrlPattern();
 		String ugtType = userGroup.getUserGroupType().getType();
-		return urlPattern + "/" + ugtType;
+		return "workflow/" + urlPattern + "/" + ugtType;
 	}
-	
-	/**
-	 * Initial PUT request for "REQUEST FOR TOUR" workflow will land here.
-	 * 
-	 * STEPS:
-	 * 1. Save the incoming information.
-	 * 2. Start request for tour process. 	
-	 */
-//	@RequestMapping(value="init/requestForTour", method=RequestMethod.PUT)
-//	public String processInitRequestForTour(
-//			final CommitteeTour domain,
-//			final HttpServletRequest request,
-//			final BindingResult result
-//			) {
-//		// Determine the houseType
-//		String locale = domain.getLocale();
-//		List<UserGroup> userGroups = this.getCurrentUser().getUserGroups();
-//		UserGroup userGroup = this.getUserGroup(request, userGroups, locale);
-//		HouseType houseType = this.getHouseType(domain, userGroup, locale);
-//		
-//		// Set domain attributes
-//		this.setCommittee(domain, request);
-//		this.setTourItineraries(domain, request);
-//		this.setCommitteeReporters(domain, request);
-//		this.setStatus(domain, houseType, request);
-//		this.setRemarks(domain, houseType, request);
-//		
-//		// Validations
-//		this.valEmptyAndNull(domain, result);
-//		this.valInstanceUpdationUniqueness(domain, result);
-//		this.valVersionMismatch(domain, result);
-//		
-//		// STEP 1
-//		domain.merge();
-//		
-//		// STEP 2
-//		AuthUser authUser = this.getCurrentUser();
-//		WorkflowDetails wfDetails = this.startTourRequestProcess(domain, 
-//				request, authUser, userGroup, houseType, locale);
-//		
-//		String returnURL = "redirect:requestForTour/processed/" 
-//			+ wfDetails.getId();
-//		return returnURL;
-//	}
-	
-	/**
-	 * Intermediate PUT request for "REQUEST FOR TOUR" workflow will land 
-	 * here.
-	 * 
-	 * STEPS:
-	 * 1. Save the incoming information.
-	 * 2. Proceed request for tour process. 	
-	 */
-//	@RequestMapping(value="requestForTour", method=RequestMethod.PUT)
-//	public String processRequestForTour(
-//			final CommitteeTour domain,
-//			final HttpServletRequest request,
-//			final BindingResult result) {
-//		// Determine the houseType
-//		String locale = domain.getLocale();
-//		List<UserGroup> userGroups = this.getCurrentUser().getUserGroups();
-//		UserGroup userGroup = this.getUserGroup(request, userGroups, locale);
-//		HouseType houseType = this.getHouseType(domain, userGroup, locale);
-//		
-//		// Set domain attributes
-//		this.setCommittee(domain, request);
-//		this.setTourItineraries(domain, request);
-//		this.setCommitteeReporters(domain, request);
-//		this.setStatus(domain, houseType, request);
-//		this.setRemarks(domain, houseType, request);
-//		
-//		// Validations
-//		this.valEmptyAndNull(domain, result);
-//		this.valInstanceUpdationUniqueness(domain, result);
-//		this.valVersionMismatch(domain, result);
-//		
-//		// STEP 1
-//		domain.merge();
-//		
-//		// STEP 2
-//		Status status = this.getStatus(request);
-//		String wfName = this.getWorkflowName(status);
-//		WorkflowDetails wfDetails = this.proceedTourRequestProcess(domain, 
-//				request, userGroup, houseType, wfName, locale);
-//		
-//		String returnURL = "redirect:requestForTour/processed/" 
-//			+ wfDetails.getId();
-//		return returnURL;
-//	}
 	
 	/**
 	 * Once the PUT request is processed for "REQUEST FOR TOUR" 
@@ -495,7 +442,7 @@ public class CommitteeTourController extends GenericController<CommitteeTour> {
 		// STEP 7: Return View
 		String urlPattern = wfDetails.getUrlPattern();
 		String ugtType = userGroup.getUserGroupType().getType();
-		return urlPattern + "/" + ugtType;
+		return "workflow/" + urlPattern + "/" + ugtType;
 	}
 
 	//=============== INTERNAL METHODS ================
@@ -534,8 +481,9 @@ public class CommitteeTourController extends GenericController<CommitteeTour> {
 				this.populateNextActor(model, wfActor);
 				
 				// STEP 3: Populate Workflow attributes
+				Boolean isWorkflowInit = true;
 				this.populateWorkflowAttributes(
-						model, fullWFName, assigneeLevel);
+						model, fullWFName, isWorkflowInit, assigneeLevel);
 				
 				// STEP 4: Populate HouseType, UserGroup
 				this.populateHouseType(model, houseType);
@@ -615,7 +563,7 @@ public class CommitteeTourController extends GenericController<CommitteeTour> {
 		if(newTask != null) {
 			Status status = this.getStatus(request);
 			String urlPattern = 
-				ApplicationConstants.COMMITTEE_MEMBER_ADDITION_URL;
+				ApplicationConstants.COMMITTEETOUR_REQUEST_FOR_TOUR_URL;
 			this.createNextActorWorkflowDetails(tour, request, newTask, 
 					userGroup, houseType, status, assigneeLevel, 
 					urlPattern, locale);
@@ -836,11 +784,29 @@ public class CommitteeTourController extends GenericController<CommitteeTour> {
 		String statusType = status.getType();
 		String[] tokens = tokenize(statusType, "_");
 		int length = tokens.length;
-		return tokens[length - 1];
+		
+		String workflowName = tokens[length - 1];
+		if(workflowName.equals(ApplicationConstants.SENDBACK)) {
+			return ApplicationConstants.ADMISSIONTOUR;
+		}
+		
+		return workflowName;
 	}
 	
 	private String getWorkflowSubType(final Status status) {
 		return status.getType();
+	}
+	
+	private List<UserGroup> getUserGroups(
+			final WorkflowActor workflowActor,
+			final String locale) {
+		UserGroupType userGroupType = workflowActor.getUserGroupType();
+		
+		List<UserGroup> userGroups = 
+			UserGroup.findAllByFieldName(UserGroup.class, "userGroupType", 
+					userGroupType, "activeFrom", ApplicationConstants.DESC, 
+					locale);
+		return userGroups;
 	}
 	
 	/**
@@ -870,9 +836,15 @@ public class CommitteeTourController extends GenericController<CommitteeTour> {
 			final List<UserGroup> userGroups,
 			final String locale) {
 		Status status = getStatus(request);
-		String wfName = getWorkflowName(status);
-		String[] ugtTypes = getUserGroupTypeTypes(wfName, locale);
-		return getUserGroup(userGroups, ugtTypes);
+		if(status != null) {
+			String wfName = getWorkflowName(status);
+			String[] ugtTypes = getUserGroupTypeTypes(wfName, locale);
+			return getUserGroup(userGroups, ugtTypes);
+		}
+		else {
+			String[] ugtTypes = getDefaultUserGroupTypeTypes(locale);
+			return getUserGroup(userGroups, ugtTypes);
+		}
 	}
 	
 	private UserGroup getUserGroup(final List<UserGroup> userGroups,
@@ -911,6 +883,96 @@ public class CommitteeTourController extends GenericController<CommitteeTour> {
 		return null;
 	}
 	
+	private UserGroup getUserGroup(final WorkflowActor wfActor, 
+			final HouseType houseType,
+			final String locale) {
+		List<UserGroup> userGroups = getUserGroups(wfActor, locale);		
+		UserGroup userGroup = 
+			getEligibleUserGroup(userGroups, houseType, true, locale);
+		if(userGroup != null) {
+			return userGroup;
+		}
+		
+		return null;
+	}
+	
+	/**
+	 * For any of the UserGroup (here on refered as ug) in the list 
+	 * @param userGroups to be an eligible userGroup, it must satisfy 
+	 * 3 cases:
+	 * 1. If @param isIncludeBothHouseType is true then ug's houseType 
+	 * must be same as @param houseType, else ug's houseType must be 
+	 * same as @param houseType or BOTHHOUSE.
+	 * 2. ug must be configured to handle committees
+	 * 3. As on the current date, ug must be active.
+	 */
+	private UserGroup getEligibleUserGroup(List<UserGroup> userGroups,
+			final HouseType houseType,
+			final Boolean isIncludeBothHouseType,
+			final String locale) {
+		for(UserGroup ug : userGroups) {
+			// ug's houseType should be same as @param houseType
+			boolean flag1 = false;
+			String houseTypeType = houseType.getType();
+			HouseType usersHouseType = this.getHouseType(ug, locale);
+			if(isIncludeBothHouseType) {
+				if(usersHouseType != null &&
+						(usersHouseType.getType().equals(houseTypeType)
+						|| usersHouseType.getType().equals(
+								ApplicationConstants.BOTH_HOUSE))) {
+					flag1 = true;
+				}
+			}
+			else {
+				if(usersHouseType != null &&
+						usersHouseType.getType().equals(houseTypeType)) {
+					flag1 = true;
+				}
+			}
+			
+			// ug must have commitees configured
+			boolean flag2 = this.isCommitteeNamesConfigured(ug, locale);
+			
+			// ug must be active
+			boolean flag3 = false;
+			Date fromDate = ug.getActiveFrom();
+			Date toDate = ug.getActiveTo();
+			Date currentDate = new Date();
+			if((fromDate == null || currentDate.after(fromDate) 
+					||currentDate.equals(fromDate))
+					&& (toDate == null || currentDate.before(toDate)
+							|| currentDate.equals(toDate))) {
+				flag3 = true;
+			}
+			
+			// if all 3 cases are met then return user
+			if(flag1 && flag2 && flag3) {
+				return ug;
+			}
+		}
+		
+		return null;
+	}
+	
+	private UserGroup getUserGroup(
+			final WorkflowDetails workflowDetails) {
+		String strUserGroupId = workflowDetails.getAssigneeUserGroupId();
+		Long userGroupId = Long.valueOf(strUserGroupId);
+		UserGroup userGroup = UserGroup.findById(UserGroup.class, userGroupId);
+		return userGroup;
+	}
+	
+	/**
+	 * The template for default configured usergrouptypes is:
+	 * 		"COMMITTEETOUR_ALLOWED_USERGROUPTYPES"
+	 */
+	private String[] getDefaultUserGroupTypeTypes(final String locale) {
+		String name = "COMMITTEETOUR_ALLOWED_USERGROUPTYPES";
+		String value = getCustomParameterValue(name, locale);
+		String[] ugtTypes = tokenize(value, ",");
+		return ugtTypes;
+	}
+	
 	/**
 	 * The usergrouptypes allowed for a workflow are configured as key-value
 	 * pairs in CustomParameter. The template for key formation is:
@@ -918,8 +980,7 @@ public class CommitteeTourController extends GenericController<CommitteeTour> {
 	 * 		"_ALLOWED_USERGROUPTYPES"
 	 * 
 	 * If the aforementioned key-value pair is not configured for this workflow,
-	 * then return the default configured usergrouptypes. The template is:
-	 * 		"COMMITTEETOUR_ALLOWED_USERGROUPTYPES"
+	 * then return the default configured usergrouptypes.
 	 */
 	private String[] getUserGroupTypeTypes(final String workflowName,
 			final String locale) {
@@ -927,8 +988,7 @@ public class CommitteeTourController extends GenericController<CommitteeTour> {
 		String name = "COMMITTEETOUR_" + wfName + "_ALLOWED_USERGROUPTYPES";
 		String value = getCustomParameterValue(name, locale);
 		if(value == null) {
-			name = "COMMITTEETOUR_ALLOWED_USERGROUPTYPES";
-			value = getCustomParameterValue(name, locale);
+			return getDefaultUserGroupTypeTypes(locale);
 		}
 		String[] ugtTypes = tokenize(value, ",");
 		return ugtTypes;
@@ -997,30 +1057,8 @@ public class CommitteeTourController extends GenericController<CommitteeTour> {
 		return null;
 	}
 	
-	private WorkflowActor getNextActor(final HttpServletRequest request) {
-		String strWfActorId = request.getParameter("actor");
-		if(strWfActorId != null) {
-			Long wfActorId = Long.valueOf(strWfActorId);
-			WorkflowActor wfActor = 
-				WorkflowActor.findById(WorkflowActor.class, wfActorId); 
-			return wfActor;
-		}
-		return null;
-	}
-	
 	private String getRemarks(final HttpServletRequest request) {
 		return request.getParameter("remarks");
-	}
-	
-	private String getCustomParameterValue(final String name,
-			final String locale) {
-		CustomParameter parameter = 
-			CustomParameter.findByName(CustomParameter.class, name, locale);
-		if(parameter != null) {
-			return parameter.getValue();
-		}
-		
-		return null;
 	}
 	
 	/**
@@ -1098,89 +1136,6 @@ public class CommitteeTourController extends GenericController<CommitteeTour> {
 		return null;
 	}
 	
-	private UserGroup getUserGroup(final WorkflowActor wfActor, 
-			final HouseType houseType,
-			final String locale) {
-		List<UserGroup> userGroups = getUserGroups(wfActor, locale);		
-		UserGroup userGroup = 
-			getEligibleUserGroup(userGroups, houseType, true, locale);
-		if(userGroup != null) {
-			return userGroup;
-		}
-		
-		return null;
-	}
-	
-	private List<UserGroup> getUserGroups(
-			final WorkflowActor workflowActor,
-			final String locale) {
-		UserGroupType userGroupType = workflowActor.getUserGroupType();
-		
-		List<UserGroup> userGroups = 
-			UserGroup.findAllByFieldName(UserGroup.class, "userGroupType", 
-					userGroupType, "activeFrom", ApplicationConstants.DESC, 
-					locale);
-		return userGroups;
-	}
-	
-	/**
-	 * For any of the UserGroup (here on refered as ug) in the list 
-	 * @param userGroups to be an eligible userGroup, it must satisfy 
-	 * 3 cases:
-	 * 1. If @param isIncludeBothHouseType is true then ug's houseType 
-	 * must be same as @param houseType, else ug's houseType must be 
-	 * same as @param houseType or BOTHHOUSE.
-	 * 2. ug must be configured to handle committees
-	 * 3. As on the current date, ug must be active.
-	 */
-	private UserGroup getEligibleUserGroup(List<UserGroup> userGroups,
-			final HouseType houseType,
-			final Boolean isIncludeBothHouseType,
-			final String locale) {
-		for(UserGroup ug : userGroups) {
-			// ug's houseType should be same as @param houseType
-			boolean flag1 = false;
-			String houseTypeType = houseType.getType();
-			HouseType usersHouseType = this.getHouseType(ug, locale);
-			if(isIncludeBothHouseType) {
-				if(usersHouseType != null &&
-						(usersHouseType.getType().equals(houseTypeType)
-						|| usersHouseType.getType().equals(
-								ApplicationConstants.BOTH_HOUSE))) {
-					flag1 = true;
-				}
-			}
-			else {
-				if(usersHouseType != null &&
-						usersHouseType.getType().equals(houseTypeType)) {
-					flag1 = true;
-				}
-			}
-			
-			// ug must have commitees configured
-			boolean flag2 = this.isCommitteeNamesConfigured(ug, locale);
-			
-			// ug must be active
-			boolean flag3 = false;
-			Date fromDate = ug.getActiveFrom();
-			Date toDate = ug.getActiveTo();
-			Date currentDate = new Date();
-			if((fromDate == null || currentDate.after(fromDate) 
-					||currentDate.equals(fromDate))
-					&& (toDate == null || currentDate.before(toDate)
-							|| currentDate.equals(toDate))) {
-				flag3 = true;
-			}
-			
-			// if all 3 cases are met then return user
-			if(flag1 && flag2 && flag3) {
-				return ug;
-			}
-		}
-		
-		return null;
-	}
-	
 	private User getUser(final UserGroup userGroup,
 			final String locale) {
 		Credential credential = userGroup.getCredential();
@@ -1209,14 +1164,6 @@ public class CommitteeTourController extends GenericController<CommitteeTour> {
 		return houseType;
 	}
 	
-	private UserGroup getUserGroup(
-			final WorkflowDetails workflowDetails) {
-		String strUserGroupId = workflowDetails.getAssigneeUserGroupId();
-		Long userGroupId = Long.valueOf(strUserGroupId);
-		UserGroup userGroup = UserGroup.findById(UserGroup.class, userGroupId);
-		return userGroup;
-	}
-	
 	private Status getStatus(final WorkflowDetails workflowDetails) {
 		String statusType = workflowDetails.getWorkflowSubType();
 		String locale = workflowDetails.getLocale();
@@ -1242,6 +1189,10 @@ public class CommitteeTourController extends GenericController<CommitteeTour> {
 		}
 		
 		return null;
+	}
+	
+	private String getWorkflowInit(final HttpServletRequest request) {
+		return request.getParameter("workflowInit");
 	}
 	
 	//=============== "SET" METHODS ============
@@ -1421,7 +1372,20 @@ public class CommitteeTourController extends GenericController<CommitteeTour> {
 		this.populateCommitteeNames(model, locale);
 		
 		Town town = domain.getTown();
-		District district = District.find(town, locale);
+		
+		District district = null;
+		if(town != null) {
+			district = District.find(town, locale);
+		}
+		else {
+			// Populate the district as chosen by the User
+			String strDistrictId = request.getParameter("district");
+			if(strDistrictId != null) {
+				Long districtId = Long.valueOf(strDistrictId);
+				district = District.findById(District.class, districtId);
+			}
+		}
+		
 		State state = State.find(district, locale);
 		this.populateStates(model, locale);
 		this.populateState(model, state);		
@@ -1582,47 +1546,6 @@ public class CommitteeTourController extends GenericController<CommitteeTour> {
 		return statuses;
 	}
 	
-	/**
-	 * The put up options are configured as key-value pairs in CustomParameter.
-	 * The template for key formation is:
-	 * 		"COMMITTEETOUR_PUT_UP_OPTIONS_" + toUpperCase(STATUSTYPE)
-	 * 		+ "_" + toUpperCase(USERGROUPTYPE)
-	 * 
-	 * If the aforementioned key-value pair is not configured for this user,
-	 * then return the default configured options. The template is:
-	 * 		"COMMITTEETOUR_PUT_UP_OPTIONS_" + toUpperCase(STATUSTYPE)
-	 * 		+ "_" + "DEFAULT"
-	 */
-//	private List<Status> populateStatuses(final ModelMap model,
-//			final UserGroup userGroup,
-//			final Status internalStatus,
-//			final String locale) {
-//		// Prepare the parameters
-//		String statusType = internalStatus.getType().toUpperCase();
-//		String ugtType = userGroup.getUserGroupType().getType().toUpperCase();
-//		
-//		// Retrieve statuses as comma separated string
-//		String name = "COMMITTEETOUR_PUT_UP_OPTIONS_" 
-//			+ statusType + "_" + ugtType;
-//		String options = getCustomParameterValue(name, locale); 
-//		if(options == null) {
-//			name = "COMMITTEETOUR_PUT_UP_OPTIONS_" + statusType + "_DEFAULT";
-//			options = getCustomParameterValue(name, locale);
-//		}
-//		
-//		// Retrieve & Populate Statuses
-//		List<Status> statuses = new ArrayList<Status>();
-//		try {
-//			statuses = Status.findStatusContainedIn(options, locale);
-//		} 
-//		catch (ELSException e) {
-//			logger.error(e.getMessage());
-//		}
-//		model.addAttribute("statuses", statuses);
-//		
-//		return statuses;
-//	}
-	
 	private void populateStatus(final ModelMap model,
 			final Status status) {
 		model.addAttribute("status", status);
@@ -1687,8 +1610,10 @@ public class CommitteeTourController extends GenericController<CommitteeTour> {
 	
 	private void populateWorkflowAttributes(final ModelMap model,
 			final String fullWorkflowName,
+			final Boolean isWorkflowInit,
 			final Integer assigneeLevel) {
 		model.addAttribute("workflowName", fullWorkflowName);
+		model.addAttribute("workflowInit", isWorkflowInit);
 		model.addAttribute("assigneeLevel", assigneeLevel);
 	}
 	
@@ -1825,6 +1750,17 @@ public class CommitteeTourController extends GenericController<CommitteeTour> {
 	}
 	
 	//=============== "UTILITY" METHODS ===============
+	private String getCustomParameterValue(final String name,
+			final String locale) {
+		CustomParameter parameter = 
+			CustomParameter.findByName(CustomParameter.class, name, locale);
+		if(parameter != null) {
+			return parameter.getValue();
+		}
+		
+		return null;
+	}
+	
 	private String[] tokenize(final String str,
 			final String token) {
 		String[] tokens = str.split(token);
