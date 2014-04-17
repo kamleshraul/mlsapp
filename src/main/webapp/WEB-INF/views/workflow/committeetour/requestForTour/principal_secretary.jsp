@@ -72,7 +72,7 @@
 	<h4 style="color: #FF0000;">${error}</h4>
 </c:if>
 <div class="fields clearfix">
-<form:form action="workflow/committeetour" method="PUT" modelAttribute="domain">
+<form:form action="committeetour" method="PUT" modelAttribute="domain">
 	<%@ include file="/common/info.jsp" %>
 	
 	<h2>
@@ -107,25 +107,25 @@
 	
 	<p> 
 	<label class="small"><spring:message code="committeetour.venueName" text="Venue Name"/>*</label>
-	<form:input path="venueName" cssClass="sText"/>
+	<form:input path="venueName" cssClass="sText" readonly="true"/>
 	<form:errors path="venueName" cssClass="validationError"/>	
 	</p>
 	
 	<p> 
 	<label class="small"><spring:message code="committeetour.subject" text="Subject"/>*</label>
-	<form:input path="subject" cssClass="sText"/>
+	<form:input path="subject" cssClass="sText" readonly="true"/>
 	<form:errors path="subject" cssClass="validationError"/>	
 	</p>
 	
 	<p>
 	<label class="small"><spring:message code="committeetour.fromDate" text="From Date"/>*</label>
-	<form:input path="fromDate" cssClass="datetimemask sText" />
+	<form:input path="fromDate" cssClass="datetimemask sText" readonly="true"/>
 	<form:errors path="fromDate" cssClass="validationError"/>	
 	</p>
 	
 	<p>
 	<label class="small"><spring:message code="committeetour.toDate" text="To Date"/>*</label>
-	<form:input path="toDate" cssClass="datetimemask sText" />
+	<form:input path="toDate" cssClass="datetimemask sText" readonly="true"/>
 	<form:errors path="toDate" cssClass="validationError"/>	
 	</p>
 	
@@ -147,15 +147,22 @@
 					<td>${itinerary.fromTime}</td>
 					<td>${itinerary.toTime}</td>
 					<td>
-						<textarea id="tourItineraryDetails${itineraryCount}" name="tourItineraryDetails${itineraryCount}"  class="wysiwyg" readonly="readonly" rows="2" cols="50">${itinerary.details}</textarea>
+						<textarea id="tourItineraryDetails${itineraryCount}" name="tourItineraryDetails${itineraryCount}"  readonly="readonly" rows="2" cols="50">${itinerary.details}</textarea>
 					</td>
 					<td>
-						<textarea id="tourItineraryStayover${itineraryCount}" name="tourItineraryStayover${itineraryCount}"  class="wysiwyg" readonly="readonly" rows="2" cols="50">${itinerary.stayOver}</textarea>
+						<textarea id="tourItineraryStayover${itineraryCount}" name="tourItineraryStayover${itineraryCount}"  readonly="readonly" rows="2" cols="50">${itinerary.stayOver}</textarea>
 					</td>
 				</tr>
+				<input type="hidden" id="tourItineraryId${itineraryCount}" name="tourItineraryId${itineraryCount}" value="${itinerary.id}"/>
+				<input type="hidden" id="tourItineraryLocale${itineraryCount}" name="tourItineraryLocale${itineraryCount}" value="${itinerary.locale}"/>
+				<input type="hidden" id="tourItineraryVersion${itineraryCount}" name="tourItineraryVersion${itineraryCount}" value="${itinerary.version}"/>
+				<input type="hidden" id="tourItineraryDate${itineraryCount}" name="tourItineraryDate${itineraryCount}" value="${itinerary.formatDate()}"/>
+				<input type="hidden" id="tourItineraryFromTime${itineraryCount}" name="tourItineraryFromTime${itineraryCount}" value="${itinerary.fromTime}"/>
+				<input type="hidden" id="tourItineraryToTime${itineraryCount}" name="tourItineraryToTime${itineraryCount}" value="${itinerary.toTime}"/>
 				<c:set var="itineraryCount" value="${itineraryCount + 1}"></c:set>
 			</c:forEach>
 		</table>
+		<input type="hidden" id="tourItineraryCount" name="tourItineraryCount" value="${fn:length(itineraries)}"/>
 	</c:if>
 	
 	<!-- Table displaying Reporters -->
@@ -166,13 +173,21 @@
 				<th><spring:message code="committeetour.committeereporter.language" text="Language"/></th>
 				<th><spring:message code="committeetour.committeereporter.noOfReporters" text="No. Of Reporters"/></th>
 			</tr>
+			<c:set var="reporterCount" value="1"></c:set>
 			<c:forEach items="${reporters}" var="reporter">
-				<tr>
+				<tr>		
 					<td>${reporter.language.name}</td>
 					<td>${reporter.noOfReporters}</td>
 				</tr>
+				<input type="hidden" id="committeeReporterId${reporterCount}" name="committeeReporterId${reporterCount}" value="${reporter.id}"/>
+				<input type="hidden" id="committeeReporterLocale${reporterCount}" name="committeeReporterLocale${reporterCount}" value="${reporter.locale}"/>
+				<input type="hidden" id="committeeReporterVersion${reporterCount}" name="committeeReporterVersion${reporterCount}" value="${reporter.version}"/>
+				<input type="hidden" id="committeeReporterLanguage${reporterCount}" name="committeeReporterLanguage${reporterCount}" value="${reporter.language.id}"/>
+				<input type="hidden" id="committeeReporterNoOfReporters${reporterCount}" name="committeeReporterNoOfReporters${reporterCount}" value="${reporter.noOfReporters}"/>
+				<c:set var="reporterCount" value="${reporterCount + 1}"></c:set>
 			</c:forEach>
 		</table>
+		<input type="hidden" id="committeeReporterCount" name="committeeReporterCount" value="${fn:length(reporters)}"/>
 	</c:if>	
 	
 	<p>
@@ -243,6 +258,7 @@
 	<form:hidden path="locale"/>
 	<form:hidden path="version"/>
 	
+	<input type="hidden" id="workflowInit" name="workflowInit" value="${workflowInit}"/>
 	<input type="hidden" id="workflowName" name="workflowName" value="${workflowName}"/>
 	<input type="hidden" id="assigneeLevel" name="assigneeLevel" value="${assigneeLevel}"/>
  	<input type="hidden" id="houseTypeId" name="houseTypeId" value="${houseType.id}"/>
