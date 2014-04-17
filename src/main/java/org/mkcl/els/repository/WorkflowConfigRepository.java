@@ -1101,8 +1101,25 @@ public class WorkflowConfigRepository extends BaseRepository<WorkflowConfig, Ser
 			final String workflowName, 
 			final Integer assigneeLevel,
 			final String locale) {
-		return this.findCommitteeActors(houseType, userGroup, status, 
-				workflowName, assigneeLevel, locale);
+		List<WorkflowActor> wfActors = new ArrayList<WorkflowActor>();
+		
+		WorkflowConfig wfConfig = 
+			this.getLatest(houseType, workflowName, locale);
+		UserGroupType userGroupType = userGroup.getUserGroupType();
+		WorkflowActor currentWfActor = 
+			this.getWorkflowActor(wfConfig, userGroupType, assigneeLevel);
+		
+		if(status.getType().equals(
+				ApplicationConstants.COMMITTEETOUR_RECOMMEND_SENDBACK)) {
+			wfActors = getWorkflowActorsExcludingCurrent(wfConfig, 
+					currentWfActor, ApplicationConstants.DESC);
+		}
+		else {
+			wfActors = getWorkflowActorsExcludingCurrent(wfConfig, 
+					currentWfActor, ApplicationConstants.ASC);
+		}
+		
+		return wfActors;
 	}
 
 	public WorkflowActor findNextCommitteeTourActor(
@@ -1112,8 +1129,24 @@ public class WorkflowConfigRepository extends BaseRepository<WorkflowConfig, Ser
 			final String workflowName,
 			final Integer assigneeLevel, 
 			final String locale) {
-		return this.findNextCommitteeActor(houseType, userGroup, status, 
-				workflowName, assigneeLevel, locale);
-	}
-	
+		WorkflowActor wfActor = null;
+		
+		WorkflowConfig wfConfig = 
+			this.getLatest(houseType, workflowName, locale);
+		UserGroupType userGroupType = userGroup.getUserGroupType();
+		WorkflowActor currentWfActor = 
+			this.getWorkflowActor(wfConfig, userGroupType, assigneeLevel);
+		
+		if(status.getType().equals(
+				ApplicationConstants.COMMITTEETOUR_RECOMMEND_SENDBACK)) {
+			wfActor = getNextWorkflowActor(wfConfig, 
+					currentWfActor, ApplicationConstants.DESC);
+		}
+		else {
+			wfActor = getNextWorkflowActor(wfConfig, 
+					currentWfActor, ApplicationConstants.ASC);
+		}
+		
+		return wfActor;
+	}	
 }
