@@ -1948,7 +1948,10 @@ public class QuestionWorkflowController  extends BaseController{
 							question.setLevel(temp[2]);
 							/**** Update Internal Status and Recommendation Status ****/
 							if(status!=null){
-								question.setInternalStatus(status);
+								if(!status.getType().equals(ApplicationConstants.QUESTION_RECOMMEND_DISCUSS) 
+									&& !status.getType().equals(ApplicationConstants.QUESTION_RECOMMEND_SENDBACK)){
+									question.setInternalStatus(status);
+								}
 								question.setRecommendationStatus(status);	
 								question.setEndFlag("continue");
 							}
