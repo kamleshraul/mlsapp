@@ -285,57 +285,61 @@ public class QuestionRepository extends BaseRepository<Question, Long> {
 			}
 
 			if(o1!=null){
-				if(!o[7].toString().isEmpty() && !o1[7].toString().isEmpty()){
-					LinkedList<Diff> diff=d.diff_main(o1[7].toString(), o[7].toString());
-					String question=d.diff_prettyHtml(diff);
-					if(question.contains("&lt;")){
-						question=question.replaceAll("&lt;", "<");
+				if(o[7]!=null && o1[7]!=null){
+					if(!o[7].toString().isEmpty() && !o1[7].toString().isEmpty()){
+						LinkedList<Diff> diff=d.diff_main(o1[7].toString(), o[7].toString());
+						String question=d.diff_prettyHtml(diff);
+						if(question.contains("&lt;")){
+							question=question.replaceAll("&lt;", "<");
+						}
+						if(question.contains("&gt;")){
+							question=question.replaceAll("&gt;", ">");
+						}
+						if(question.contains("&amp;nbsp;")){
+							question=question.replaceAll("&amp;nbsp;"," ");
+						}
+						questionRevisionVO.setReason(question);
+					}else{
+						if(o[7] != null){
+							questionRevisionVO.setReason(o[7].toString());
+						}
 					}
-					if(question.contains("&gt;")){
-						question=question.replaceAll("&gt;", ">");
-					}
-					if(question.contains("&amp;nbsp;")){
-						question=question.replaceAll("&amp;nbsp;"," ");
-					}
-					questionRevisionVO.setReason(question);
+
 				}else{
 					if(o[7] != null){
 						questionRevisionVO.setReason(o[7].toString());
 					}
 				}
-
-			}else{
-				if(o[7] != null){
-					questionRevisionVO.setReason(o[7].toString());
-				}
 			}
+				
 			
 			if(o1!=null){
-				if(!o[8].toString().isEmpty() && !o1[8].toString().isEmpty()){
-					LinkedList<Diff> diff=d.diff_main(o1[8].toString(), o[8].toString());
-					String question=d.diff_prettyHtml(diff);
-					if(question.contains("&lt;")){
-						question=question.replaceAll("&lt;", "<");
+				if(o[8]!=null && o1[8]!=null){
+					if(!o[8].toString().isEmpty() && !o1[8].toString().isEmpty()){
+						LinkedList<Diff> diff=d.diff_main(o1[8].toString(), o[8].toString());
+						String question=d.diff_prettyHtml(diff);
+						if(question.contains("&lt;")){
+							question=question.replaceAll("&lt;", "<");
+						}
+						if(question.contains("&gt;")){
+							question=question.replaceAll("&gt;", ">");
+						}
+						if(question.contains("&amp;nbsp;")){
+							question=question.replaceAll("&amp;nbsp;"," ");
+						}
+						questionRevisionVO.setBriefExplanation(question);
+					}else{
+						if(o[8] != null){
+							questionRevisionVO.setBriefExplanation(o[8].toString());	
+						}
 					}
-					if(question.contains("&gt;")){
-						question=question.replaceAll("&gt;", ">");
-					}
-					if(question.contains("&amp;nbsp;")){
-						question=question.replaceAll("&amp;nbsp;"," ");
-					}
-					questionRevisionVO.setBriefExplanation(question);
+
 				}else{
 					if(o[8] != null){
-						questionRevisionVO.setBriefExplanation(o[8].toString());	
+						questionRevisionVO.setBriefExplanation(o[8].toString());
 					}
 				}
-
-			}else{
-				if(o[8] != null){
-					questionRevisionVO.setBriefExplanation(o[8].toString());
-				}
 			}
-			
 			questionRevisionVOs.add(questionRevisionVO);
 		}
 		return questionRevisionVOs;
