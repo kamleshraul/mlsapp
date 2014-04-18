@@ -9,11 +9,13 @@
  */
 package org.mkcl.els.controller;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
 
 
+import org.mkcl.els.common.exception.ELSException;
 import org.mkcl.els.domain.Citation;
 import org.mkcl.els.domain.DeviceType;
 import org.mkcl.els.domain.Status;
@@ -45,8 +47,8 @@ public class CitationController extends GenericController<Citation>{
         List<DeviceType> deviceTypes=DeviceType.findAll(DeviceType.class, "name", "desc", locale);
         model.addAttribute("deviceTypes", deviceTypes);
         
-        List<Status> statuses=Status.findAll(Status.class, "type", "desc", domain.getLocale());
-        model.addAttribute("statuses", statuses);
+        /*List<Status> statuses=Status.findAll(Status.class, "type", "desc", domain.getLocale());
+        model.addAttribute("statuses", statuses);*/
     }
 	
 	
@@ -59,7 +61,14 @@ public class CitationController extends GenericController<Citation>{
             final HttpServletRequest request) {
 		List<DeviceType> deviceTypes=DeviceType.findAll(DeviceType.class, "name", "desc", domain.getLocale());
         model.addAttribute("deviceTypes", deviceTypes);
-        List<Status> statuses=Status.findAll(Status.class, "type", "desc", domain.getLocale());
+        DeviceType deviceType=domain.getDeviceType();
+        List<Status> statuses = new ArrayList<Status>();
+		try {
+			statuses = Status.findStartingWith(deviceType.getDevice(), "name", "asc", domain.getLocale());
+		} catch (ELSException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
         model.addAttribute("statuses", statuses);
     }
 

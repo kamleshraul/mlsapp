@@ -5046,4 +5046,30 @@ public class ReferenceController extends BaseController {
 			
 			return data;
 		}
+	
+	@RequestMapping(value="/getStatusByDeviceType", method=RequestMethod.GET)
+	public @ResponseBody List<MasterVO> getStatusByDeviceType(HttpServletRequest request, Locale locale){
+		String strDeviceType=request.getParameter("deviceType");
+		List<MasterVO> masterVOs=new ArrayList<MasterVO>();
+		if(strDeviceType!=null && !strDeviceType.isEmpty()){
+			DeviceType deviceType=DeviceType.findById(DeviceType.class, Long.parseLong(strDeviceType));
+			if(deviceType!=null){
+				try {
+					List<Status> statuses=Status.findStartingWith(deviceType.getDevice(), "name", "desc", locale.toString());
+					for(Status s:statuses){
+						MasterVO masterVO=new MasterVO();
+						masterVO.setValue(s.getType());
+						masterVO.setName(s.getName());
+						masterVOs.add(masterVO);
+					}
+					
+				} catch (ELSException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+				
+			}
+		}
+		return masterVOs;
+	}
 }
