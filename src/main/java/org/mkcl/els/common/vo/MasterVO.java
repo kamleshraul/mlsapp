@@ -26,6 +26,8 @@ public class MasterVO {
     
     private Integer number;
     
+    private String formattedNumber;
+    
     private Integer order;
     
     private Boolean isSelected;
@@ -78,6 +80,14 @@ public class MasterVO {
 
 	public Integer getNumber() {
 		return number;
+	}
+
+	public String getFormattedNumber() {
+		return formattedNumber;
+	}
+
+	public void setFormattedNumber(String formattedNumber) {
+		this.formattedNumber = formattedNumber;
 	}
 
 	public String getValue() {

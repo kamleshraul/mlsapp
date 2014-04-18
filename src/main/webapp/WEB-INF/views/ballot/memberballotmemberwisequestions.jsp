@@ -3,6 +3,27 @@
 <head>
 <title></title>
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<script type="text/javascript">
+		$(document).ready(function() {
+			$('#memberwisequestions_pdf').click(function() {
+				var parameters = "session="+$("#session").val()
+				 +"&questionType="+$("#questionType").val()
+				 +"&member="+$("#member").val()				 
+				 +"&outputFormat=PDF";
+				var resourceURL = 'ballot/memberballot/member/questionsreport?'+ parameters;			
+				$(this).attr('href', resourceURL);
+			});
+			
+			$('#memberwisequestions_word').click(function() {
+				var parameters = "session="+$("#session").val()
+				 +"&questionType="+$("#questionType").val()
+				 +"&member="+$("#member").val()
+				 +"&outputFormat=WORD";
+				var resourceURL = 'ballot/memberballot/member/questionsreport?'+ parameters;			
+				$(this).attr('href', resourceURL);
+			});
+		});
+	</script>
 <link rel="stylesheet" href="resources/css/printerfriendly.css" media="print" type="text/css">
 <style type="text/css">
 .underlined{
@@ -28,7 +49,15 @@ margin-left: 30px;
 <c:choose>
 
 <c:when test="${!(empty report) }">
-
+<div id="exportDiv" style="margin-bottom: 20px;">
+	<a id="memberwisequestions_pdf" href="#" style="text-decoration: none;">
+	<img src="./resources/images/pdf_icon.jpg" alt="Export to PDF" width="32" height="32">
+	</a>
+	&nbsp;
+	<a id="memberwisequestions_word" href="#" style="text-decoration: none;">
+		<img src="./resources/images/word_icon.jpg" alt="Export to WORD" width="32" height="32">
+	</a>
+</div>
 <div id="reportDiv">
 		<c:if test="${!(empty report.memberBallotMemberWiseCountVOs)}">
 			<c:set value="0" var="count"></c:set>
@@ -48,10 +77,10 @@ margin-left: 30px;
 			</c:otherwise>
 			</c:choose>
 			<c:set value="${index+1 }" var="index"></c:set>
-			<c:if test="${index==size }">
+			<c:if test="${index==size }">			
 			<c:set value="${i.formatNumber(count,locale) }" var="count"></c:set>
 			</c:if>
-			</c:forEach>
+			</c:forEach>			
 			<c:if test="${count>0 }">
 			<strong><spring:message code="memberballotmemberwisewuestions.clrificationneeded" text="Clarification From Member/Fact Finding From Department"></spring:message>-${count}</strong>
 			</c:if>

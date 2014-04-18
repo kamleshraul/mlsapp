@@ -30,13 +30,17 @@ import org.mkcl.els.common.vo.AuthUser;
 import org.mkcl.els.common.vo.BallotMemberVO;
 import org.mkcl.els.common.vo.BallotVO;
 import org.mkcl.els.common.vo.BillBallotVO;
+import org.mkcl.els.common.vo.GroupVO;
 import org.mkcl.els.common.vo.MasterVO;
 import org.mkcl.els.common.vo.MemberBallotFinalBallotVO;
+import org.mkcl.els.common.vo.MemberBallotMemberWiseCountVO;
+import org.mkcl.els.common.vo.MemberBallotMemberWiseQuestionVO;
 import org.mkcl.els.common.vo.MemberBallotMemberWiseReportVO;
 import org.mkcl.els.common.vo.MemberBallotQuestionDistributionVO;
 import org.mkcl.els.common.vo.MemberBallotVO;
 import org.mkcl.els.common.vo.Reference;
 import org.mkcl.els.common.vo.StarredBallotVO;
+import org.mkcl.els.common.xmlvo.MemberwiseQuestionsXmlVO;
 import org.mkcl.els.domain.Ballot;
 import org.mkcl.els.domain.BallotEntry;
 import org.mkcl.els.domain.Bill;
@@ -49,6 +53,7 @@ import org.mkcl.els.domain.MemberBallot;
 import org.mkcl.els.domain.MemberBallotAttendance;
 import org.mkcl.els.domain.MemberBallotChoice;
 import org.mkcl.els.domain.MessageResource;
+import org.mkcl.els.domain.Ministry;
 import org.mkcl.els.domain.PreBallot;
 import org.mkcl.els.domain.Question;
 import org.mkcl.els.domain.QuestionDates;
@@ -1334,6 +1339,159 @@ public class BallotController extends BaseController{
 			return errorpage;
 		}
 		return "ballot/memberballotmemberwisequestions";
+	}
+	/****** Member Ballot(Council) Member Wise Question Report Page ****/
+	@RequestMapping(value="/memberballot/member/questionsreport",method=RequestMethod.GET)
+	public @ResponseBody void generateMemberQuestionsReportUsingFOP(final HttpServletRequest request,final HttpServletResponse response, final ModelMap model,final Locale locale){
+		File reportFile = null; 
+		Boolean isError = false;
+		MessageResource errorMessage = null;
+
+		String strSession = request.getParameter("session");
+		String strQuestionType = request.getParameter("questionType");
+		String strMember = request.getParameter("member");
+		String outputFormat = request.getParameter("outputFormat");
+		
+		if(strSession!=null&&strQuestionType!=null&&strMember!=null&&outputFormat!=null){
+			if((!strSession.isEmpty())&&(!strQuestionType.isEmpty())
+					&&(!strMember.isEmpty())&&(!outputFormat.isEmpty())){
+				try {
+					Session session=Session.findById(Session.class,Long.parseLong(strSession));
+					DeviceType questionType=DeviceType.findById(DeviceType.class,Long.parseLong(strQuestionType));
+					Member member=Member.findById(Member.class,Long.parseLong(strMember));
+					if(session!=null&&questionType!=null&&member!=null) {
+						MemberwiseQuestionsXmlVO memberwiseQuestionsXmlVO = new MemberwiseQuestionsXmlVO();
+						/**** First Batch Questions Final Status Distribution member wise ****/
+						MemberBallotMemberWiseReportVO memberBallotMemberWiseReportVO=MemberBallot.findMemberWiseReportVO(session, questionType, member, locale.toString());
+						//memberwiseQuestionsXmlVO.setMemberBallotMemberWiseReportVO(memberBallotMemberWiseReportVO);
+						memberwiseQuestionsXmlVO.setMember(memberBallotMemberWiseReportVO.getMember());
+						String houseType = session.findHouseType();
+						if(houseType==null) {
+							houseType = "";
+						}
+						memberwiseQuestionsXmlVO.setHouseType(houseType);
+						System.out.println(memberwiseQuestionsXmlVO.getHouseType());
+						memberwiseQuestionsXmlVO.setMemberBallotMemberWiseCountVOs(memberBallotMemberWiseReportVO.getMemberBallotMemberWiseCountVOs());
+						memberwiseQuestionsXmlVO.setMemberBallotMemberWiseQuestionVOs(memberBallotMemberWiseReportVO.getMemberBallotMemberWiseQuestionVOs());
+						Integer clarificationCount = 0;
+						Integer admittedCount = 0;
+						Integer convertedToUnstarredAndAdmittedCount = 0;
+						Integer rejectedCount = 0;
+						if(memberBallotMemberWiseReportVO!=null) {
+							for(MemberBallotMemberWiseCountVO i: memberBallotMemberWiseReportVO.getMemberBallotMemberWiseCountVOs()) {
+								if(i.getStatusTypeType().equals(ApplicationConstants.QUESTION_RECOMMEND_CLARIFICATION_FROM_MEMBER)
+										 ||i.getStatusTypeType().equals(ApplicationConstants.QUESTION_RECOMMEND_CLARIFICATION_FROM_DEPARTMENT)
+										 ||i.getStatusTypeType().equals(ApplicationConstants.QUESTION_RECOMMEND_CLARIFICATION_FROM_GOVT)
+										 ||i.getStatusTypeType().equals(ApplicationConstants.QUESTION_RECOMMEND_CLARIFICATION_FROM_MEMBER_AND_DEPARTMENT)) {
+									
+									clarificationCount += Integer.parseInt(i.getCount());
+								} else if(i.getStatusTypeType().equals(ApplicationConstants.QUESTION_FINAL_ADMISSION)) {
+									admittedCount = Integer.parseInt(i.getCount());
+								} else if(i.getStatusTypeType().equals(ApplicationConstants.QUESTION_FINAL_CONVERT_TO_UNSTARRED_AND_ADMIT)) {
+									convertedToUnstarredAndAdmittedCount = Integer.parseInt(i.getCount());
+								} else if(i.getStatusTypeType().equals(ApplicationConstants.QUESTION_FINAL_REJECTION)) {
+									rejectedCount = Integer.parseInt(i.getCount());
+								}
+							}
+						}
+						memberwiseQuestionsXmlVO.setAdmittedQuestionCount(FormaterUtil.formatNumberNoGrouping(admittedCount, locale.toString()));
+						memberwiseQuestionsXmlVO.setConvertedToUnstarredAndAdmittedQuestionCount(FormaterUtil.formatNumberNoGrouping(convertedToUnstarredAndAdmittedCount, locale.toString()));
+						memberwiseQuestionsXmlVO.setRejectedQuestionCount(FormaterUtil.formatNumberNoGrouping(rejectedCount, locale.toString()));
+						memberwiseQuestionsXmlVO.setClarificationQuestionCount(FormaterUtil.formatNumberNoGrouping(clarificationCount, locale.toString()));
+						/**** Populating Groups, Corresponding Ministries & Answering Dates ****/
+						List<Group> groups=Group.findByHouseTypeSessionTypeYear(session.getHouse().getType(),session.getType(),session.getYear());
+						List<GroupVO> groupVOs = new ArrayList<GroupVO>();						
+						for(Group g: groups) {
+							GroupVO groupVO = new GroupVO();
+							List<MemberBallotMemberWiseQuestionVO> starredQuestionVOs = new ArrayList<MemberBallotMemberWiseQuestionVO>();
+							List<MemberBallotMemberWiseQuestionVO> unstarredQuestionVOs = new ArrayList<MemberBallotMemberWiseQuestionVO>();
+							List<MemberBallotMemberWiseQuestionVO> clarificationQuestionVOs = new ArrayList<MemberBallotMemberWiseQuestionVO>();
+							List<MemberBallotMemberWiseQuestionVO> rejectedQuestionVOs = new ArrayList<MemberBallotMemberWiseQuestionVO>();
+							groupVO.setNumber(g.getNumber());
+							groupVO.setFormattedNumber(g.formatNumber());
+							List<Ministry> ministries = g.findMinistriesByPriority();	
+							List<MasterVO> ministryMasterVOs = new ArrayList<MasterVO>();
+							int ministryCount = 1;
+							for(Ministry m: ministries) {
+								MasterVO ministryMasterVO = new MasterVO();
+								ministryMasterVO.setFormattedNumber("(" + FormaterUtil.formatNumberNoGrouping(ministryCount, locale.toString())+ ")");
+								ministryMasterVO.setName(m.getName());
+								ministryMasterVOs.add(ministryMasterVO);
+								ministryCount++;
+							}
+							groupVO.setMinistries(ministryMasterVOs);							
+							groupVO.setAnsweringDates(g.findQuestionDateReferenceVOByGroup());
+							boolean hasQuestionsForGivenMember = false;
+							String currentGroupNumber = groupVO.getFormattedNumber();
+							if(memberBallotMemberWiseReportVO!=null) {
+								for(MemberBallotMemberWiseQuestionVO i: memberBallotMemberWiseReportVO.getMemberBallotMemberWiseQuestionVOs()) {
+									if(i.getGroupFormattedNumber().equals(currentGroupNumber)) {
+										if(i.getStatusTypeType().equals(ApplicationConstants.QUESTION_FINAL_ADMISSION)) {
+											starredQuestionVOs.add(i);											
+										} else if(i.getStatusTypeType().equals(ApplicationConstants.QUESTION_FINAL_CONVERT_TO_UNSTARRED_AND_ADMIT)) {
+											unstarredQuestionVOs.add(i);											
+										} else if(i.getStatusTypeType().equals(ApplicationConstants.QUESTION_RECOMMEND_CLARIFICATION_FROM_MEMBER)
+												 ||i.getStatusTypeType().equals(ApplicationConstants.QUESTION_RECOMMEND_CLARIFICATION_FROM_DEPARTMENT)
+												 ||i.getStatusTypeType().equals(ApplicationConstants.QUESTION_RECOMMEND_CLARIFICATION_FROM_GOVT)
+												 ||i.getStatusTypeType().equals(ApplicationConstants.QUESTION_RECOMMEND_CLARIFICATION_FROM_MEMBER_AND_DEPARTMENT)) {
+											clarificationQuestionVOs.add(i);											
+										} else if(i.getStatusTypeType().equals(ApplicationConstants.QUESTION_FINAL_REJECTION)) {
+											rejectedQuestionVOs.add(i);											
+										}
+									}
+								}								
+								if(!starredQuestionVOs.isEmpty() || !unstarredQuestionVOs.isEmpty()
+										|| !clarificationQuestionVOs.isEmpty() || !rejectedQuestionVOs.isEmpty()) {
+									hasQuestionsForGivenMember = true;
+								}								
+								groupVO.setHasQuestionsForGivenMember(hasQuestionsForGivenMember);
+								groupVO.setStarredQuestionVOs(starredQuestionVOs);
+								groupVO.setUnstarredQuestionVOs(unstarredQuestionVOs);
+								groupVO.setClarificationQuestionVOs(clarificationQuestionVOs);
+								groupVO.setRejectedQuestionVOs(rejectedQuestionVOs);
+							}
+							groupVOs.add(groupVO);
+						}
+						memberwiseQuestionsXmlVO.setGroupVOs(groupVOs);
+						/**** generate report ****/
+						reportFile = generateReportUsingFOP(memberwiseQuestionsXmlVO, "memberballot_memberwise_questions", outputFormat, "memberballot_memberwise_questions_report", locale.toString());
+						if(reportFile!=null) {
+							System.out.println("Memberballot Memberwise Questions Report generated successfully in " + outputFormat + " format!");
+							openOrSaveReportFileFromBrowser(response, reportFile, outputFormat);
+						}
+					}					
+				} catch(Exception e) {
+					isError = true;
+					errorMessage = MessageResource.findByFieldName(MessageResource.class, "code", "REQUEST_PARAMETER_NULL", locale.toString());
+				}
+			}else{
+				logger.error("**** Check request parameter 'session,questionType,member' for empty values ****");
+				model.addAttribute("type", "REQUEST_PARAMETER_EMPTY");
+				//return errorpage;
+			}
+		}else{
+			logger.error("**** Check request parameter 'session,questionType,member' for null values ****");
+			isError = true;
+			errorMessage = MessageResource.findByFieldName(MessageResource.class, "code", "REQUEST_PARAMETER_NULL", locale.toString());
+		}
+		if(isError) {
+			try {
+				//response.sendError(404, "Report cannot be generated at this stage.");
+				if(errorMessage != null) {
+					if(!errorMessage.getValue().isEmpty()) {
+						response.getWriter().println("<html><head><meta http-equiv='Content-Type' content='text/html; charset=utf-8'/></head><body><h3>" + errorMessage.getValue() + "</h3></body></html>");
+					} else {
+						response.getWriter().println("<h3>Some Error In Letter Generation. Please Contact Administrator.</h3>");
+					}
+				} else {
+					response.getWriter().println("<h3>Some Error In Letter Generation. Please Contact Administrator.</h3>");
+				}
+
+				return;
+			} catch (IOException e) {						
+				e.printStackTrace();
+			}
+		}
 	}
 	/****** Member Ballot(Council) Question Distribution Report Page ****/
 	@RequestMapping(value="/memberballot/questiondistribution",method=RequestMethod.GET)
