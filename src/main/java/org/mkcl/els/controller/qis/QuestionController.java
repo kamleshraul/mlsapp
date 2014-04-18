@@ -49,6 +49,7 @@ import org.mkcl.els.domain.Member;
 import org.mkcl.els.domain.MemberMinister;
 import org.mkcl.els.domain.MessageResource;
 import org.mkcl.els.domain.Ministry;
+import org.mkcl.els.domain.Query;
 import org.mkcl.els.domain.Question;
 import org.mkcl.els.domain.QuestionDates;
 import org.mkcl.els.domain.QuestionDraft;
@@ -4380,5 +4381,30 @@ public class QuestionController extends GenericController<Question>{
 			}
 		}	
 	}
+	
+	@RequestMapping(value="report/{qId}/currentstatusreport", method=RequestMethod.GET)
+	public String getCurrentStatusReport(@PathVariable("qId") Long id, Model model, HttpServletRequest request, Locale locale){
+		
+		String strDevice = request.getParameter("device");
+		
+		if(strDevice != null && !strDevice.isEmpty()){
+			model.addAttribute("report", generatetCurrentStatusReport(id, strDevice, locale.toString()));
+			model.addAttribute("device", strDevice);			
+		}
+		
+		return "question/report/statusreport";
+	}
+	
+	
+	@SuppressWarnings("rawtypes")
+	private List generatetCurrentStatusReport(final Long id, final String device, final String locale){
+		Map<String, String[]> parameters = new HashMap<String, String[]>();
+		parameters.put("locale",new String[]{locale.toString()});
+		parameters.put("id",new String[]{id.toString()});
+		parameters.put("device", new String[]{device});
+		return Query.findReport("QIS_CURRENTSTATUS_REPORT", parameters);
+	}
+	
+	
 }
 
