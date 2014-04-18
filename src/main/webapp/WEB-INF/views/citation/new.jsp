@@ -9,7 +9,22 @@
 		initControls();
 		$('#key').val('');
 		$("#deviceType").prepend("<option value='' selected='selected'>----"+$("#pleaseSelectMessage").val()+"----</option>");
-		$("#status").prepend("<option value='' selected='selected'>----"+$("#pleaseSelectMessage").val()+"----</option>");
+		/* $("#status").prepend("<option value='' selected='selected'>----"+$("#pleaseSelectMessage").val()+"----</option>"); */
+		
+		$('#deviceType').change(function(){
+			$.get("ref/getStatusByDeviceType?deviceType="+$('#deviceType').val(),function(data){
+				if(data!=null){
+					$('#status').empty();
+					var text="<option value='' selected='selected'>----"+$("#pleaseSelectMessage").val()+"----</option>";
+					if(data.length>0){
+						for(var i=0;i<data.length;i++){
+							text= text+"<option value='"+ data[i].value+"'>" +data[i].name+"</option>";
+						}
+						$('#status').html(text);
+					}
+				}
+			});	
+		});
 	});		
 </script>
 </head>
@@ -38,7 +53,7 @@
 			</p>
 			<p> 
 			<label class="small"><spring:message code="citation.status" text="Status"/></label>
-			<form:select id="status" name="status" path="status" items="${statuses}" itemValue="type" itemLabel="name" cssClass="sSelect"></form:select>	
+			<form:select path="status" cssClass="sSelect"></form:select>	
 	        <form:errors path="status" cssClass="validationError"/>	
 			</p>
 			<p>

@@ -11,6 +11,20 @@
 		$('#key').val('');	
 		$("#deviceType").prepend("<option value='' >----"+$("#pleaseSelectMessage").val()+"----</option>");
 		$("#status").prepend("<option value=''>----"+$("#pleaseSelectMessage").val()+"----</option>");
+		$('#deviceType').change(function(){
+			$.get("ref/getStatusByDeviceType?deviceType="+$('#deviceType').val(),function(data){
+				if(data!=null){
+					$('#status').empty();
+					var text="<option value='' selected='selected'>----"+$("#pleaseSelectMessage").val()+"----</option>";
+					if(data.length>0){
+						for(var i=0;i<data.length;i++){
+							text= text+"<option value='"+ data[i].value+"'>" +data[i].name+"</option>";
+						}
+						$('#status').html(text);
+					}
+				}
+			});	
+		});
 	});		
 </script>
 </head>
