@@ -1148,5 +1148,21 @@ public class WorkflowConfigRepository extends BaseRepository<WorkflowConfig, Ser
 		}
 		
 		return wfActor;
-	}	
+	}
+	
+	public WorkflowActor findFirstActor(final Question question, final Status status, final String locale) {
+		/**** Latest Workflow Configurations ****/
+		WorkflowConfig latestWorkflowConfig = getLatest(question, status.getType(), locale);
+		String query = "SELECT wa" +
+				" FROM WorkflowConfig wc join wc.workflowactors wa" +
+				" WHERE wc.id=:wcid" +
+				" AND wa.level=1" +				
+				" ORDER BY wa.id DESC";
+		TypedQuery<WorkflowActor> tQuery = 
+			this.em().createQuery(query, WorkflowActor.class);
+		tQuery.setParameter("wcid", latestWorkflowConfig.getId());		
+		tQuery.setMaxResults(1);
+		WorkflowActor firstActor = tQuery.getSingleResult();
+		return firstActor;		
+	}
 }

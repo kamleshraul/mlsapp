@@ -63,6 +63,9 @@ public class ApplicationConstants {
 	public static final String DB_DATEFORMAT="yyyy-MM-dd";
 	
 	public static final String DB_DATETIME_FORMAT="yyyy-MM-dd hh:mm:ss";
+	
+	/** The Constant REPORT_DATEFORMAT. */
+	public static final String REPORT_DATEFORMAT="dd-MM-yyyy";
 
 	/** The Constant en_US_DAUGHTER. */
 	public static final String DAUGHTER="Daughter";
@@ -509,7 +512,9 @@ public class ApplicationConstants {
 	public static final String RESOLUTION_PROCESSED_SELECTEDANDNOTDISCUSSED = "resolution_processed_selectedAndNotDiscussed";
 
 	
-	/**** Motion ****/	
+	/****************Motion Information System********************/
+	/**** device types ****/
+	public static final String AMENDMENT_FOR_BILL_MOTION = "motions_amendment_for_bill";
 	
 	/**** Member View ****/	
 	public static final String MOTION_INCOMPLETE="motion_incomplete";

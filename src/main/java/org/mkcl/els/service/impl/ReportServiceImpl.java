@@ -263,7 +263,7 @@ public class ReportServiceImpl implements IReportService {
 				if(reportDateFormatParameter!=null && reportDateFormatParameter.getValue()!=null) {					
 					configParamElement.setText(FormaterUtil.formatDateToString(new Date(), reportDateFormatParameter.getValue(), locale));
 				} else {
-					configParamElement.setText(FormaterUtil.formatDateToString(new Date(), ApplicationConstants.DB_DATEFORMAT, locale));
+					configParamElement.setText(FormaterUtil.formatDateToString(new Date(), ApplicationConstants.REPORT_DATEFORMAT, locale));
 				}				
 				root.addContent(configParamElement);
 				configParamElement = null;				

@@ -95,11 +95,19 @@ public class StatusRepository extends BaseRepository<Status, Serializable>{
 				buffer.append(" (s.type='"+i.trim()+"') OR");
 			}
 		}
-		buffer.deleteCharAt(buffer.length()-1);
-		buffer.deleteCharAt(buffer.length()-1);
-		String query=initialQuery+" AND ("+buffer.toString()+") ORDER BY s.priority "+sortOrder
-		+",s.name "+ApplicationConstants.ASC;
-		return this.em().createQuery(query).getResultList();
+		if(buffer.length()!=0) {
+			buffer.deleteCharAt(buffer.length()-1);
+			buffer.deleteCharAt(buffer.length()-1);
+		}
+		String query = null;
+		if(!buffer.toString().isEmpty()) {
+			query=initialQuery+" AND ("+buffer.toString()+") ORDER BY s.priority "+sortOrder
+					+",s.name "+ApplicationConstants.ASC;
+		} else {
+			query=initialQuery+" ORDER BY s.priority "+sortOrder
+					+",s.name "+ApplicationConstants.ASC;
+		}
+		return this.em().createQuery(query).getResultList();		
 	}
 
 }

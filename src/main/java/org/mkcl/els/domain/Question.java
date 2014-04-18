@@ -1592,7 +1592,12 @@ public class Question extends Device implements Serializable {
 	 
 	 public static Question isExist(Integer number, Session session,String locale) {
 		 return getQuestionRepository().isExist(number,session,locale);
-		}
+	 }
+	 
+	 public static QuestionDraft findPutupDraft(final Long id, final String putupStatus, final String putupActorUsergroupName) {
+		 return getQuestionRepository().findPutupDraft(id, putupStatus, putupActorUsergroupName); 
+	 }
+	 
 	/**** Getters and Setters ****/
 	public HouseType getHouseType() {
 		return houseType;

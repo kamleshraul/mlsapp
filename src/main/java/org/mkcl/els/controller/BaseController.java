@@ -13,15 +13,17 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.util.List;
+import java.util.Date;
 import java.util.Locale;
 
-import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.apache.fop.apps.MimeConstants;
+import org.mkcl.els.common.util.ApplicationConstants;
+import org.mkcl.els.common.util.FormaterUtil;
 import org.mkcl.els.common.vo.AuthUser;
 import org.mkcl.els.common.xmlvo.XmlVO;
+import org.mkcl.els.domain.CustomParameter;
 import org.mkcl.els.service.impl.ReportServiceImpl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -91,6 +93,12 @@ public abstract class BaseController {
     	File reportFile = null;    	
         ReportServiceImpl reportGenerator = null;
         data.setLocale(locale);
+        CustomParameter reportDateFormatParameter = CustomParameter.findByName(CustomParameter.class, xsltFileName.toUpperCase() + "_REPORTDATE_FORMAT", "");
+		if(reportDateFormatParameter!=null && reportDateFormatParameter.getValue()!=null) {					
+			data.setReportDate(FormaterUtil.formatDateToString(new Date(), reportDateFormatParameter.getValue(), locale));
+		} else {
+			data.setReportDate(FormaterUtil.formatDateToString(new Date(), ApplicationConstants.REPORT_DATEFORMAT, locale));
+		}
         if(reportFormat.equals("PDF")) {
         	data.setOutputFormat(MimeConstants.MIME_PDF);
         	

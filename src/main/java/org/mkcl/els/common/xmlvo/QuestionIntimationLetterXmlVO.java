@@ -53,6 +53,8 @@ public class QuestionIntimationLetterXmlVO extends XmlVO {
 	
 	private List<MasterVO> questionsAskedForClarification;
 	
+	private String remarks;
+	
 	private String userName;
 
 	@XmlElement(name = "deviceType")
@@ -245,6 +247,15 @@ public class QuestionIntimationLetterXmlVO extends XmlVO {
 	public void setQuestionsAskedForClarification(
 			List<MasterVO> questionsAskedForClarification) {
 		this.questionsAskedForClarification = questionsAskedForClarification;
+	}
+
+	@XmlElement(name = "remarks")
+	public String getRemarks() {
+		return remarks;
+	}
+
+	public void setRemarks(String remarks) {
+		this.remarks = remarks;
 	}
 
 	@XmlElement(name = "userName")

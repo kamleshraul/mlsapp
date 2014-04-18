@@ -2424,6 +2424,23 @@ public class QuestionRepository extends BaseRepository<Question, Long> {
 		return draft;
 	}
 	
+	public QuestionDraft findPutupDraft(final Long id, final String putupStatus, final String putupActorUsergroupName) {
+		String query = "SELECT qd" +
+				" FROM Question q join q.drafts qd" +
+				" WHERE q.id=:qid" +
+				" AND qd.internalStatus.type LIKE :putupStatus" +
+				" AND qd.editedAs=:usergroupName" +
+				" ORDER BY qd.id DESC";
+		TypedQuery<QuestionDraft> tQuery = 
+			this.em().createQuery(query, QuestionDraft.class);
+		tQuery.setParameter("qid", id);
+		tQuery.setParameter("putupStatus", "question_recommend%");
+		tQuery.setParameter("usergroupName", putupActorUsergroupName);
+		tQuery.setMaxResults(1);
+		QuestionDraft draft = tQuery.getSingleResult();
+		return draft;
+	}
+	
 	public MemberMinister findMemberMinisterIfExists(Question question) throws ELSException {
 		MemberMinister  memberMinister = null;
 		Session session = question.getSession();

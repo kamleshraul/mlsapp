@@ -43,6 +43,9 @@ public class XmlVO {
 	/** The output format. */
 	private String outputFormat;
 	
+	/** The report date. */
+	private String reportDate;
+	
 	/**
 	 * Gets the locale.
 	 *
@@ -77,6 +80,19 @@ public class XmlVO {
 	 */
 	public void setOutputFormat(final String outputFormat) {
 		this.outputFormat = outputFormat;
+	}
+
+	/**
+	 * Gets the report date.
+	 *
+	 * @return the report date
+	 */
+	public String getReportDate() {
+		return reportDate;
+	}
+
+	public void setReportDate(String reportDate) {
+		this.reportDate = reportDate;
 	}
 
 	/**

@@ -62,6 +62,7 @@ import org.mkcl.els.domain.SupportingMember;
 import org.mkcl.els.domain.User;
 import org.mkcl.els.domain.UserGroup;
 import org.mkcl.els.domain.UserGroupType;
+import org.mkcl.els.domain.WorkflowActor;
 import org.mkcl.els.domain.WorkflowConfig;
 import org.mkcl.els.domain.WorkflowDetails;
 import org.mkcl.els.service.IProcessService;
@@ -4277,7 +4278,20 @@ public class QuestionController extends GenericController<Question>{
 				Status status = question.getInternalStatus();				
 				if(status.getType().equals(ApplicationConstants.QUESTION_FINAL_CLARIFICATION_NEEDED_FROM_DEPARTMENT)
 						|| status.getType().equals(ApplicationConstants.QUESTION_FINAL_CLARIFICATION_NEEDED_FROM_MEMBER)) {
-					String questionsAsked = question.getQuestionsAskedInFactualPosition();					
+					String questionsAsked = question.getQuestionsAskedInFactualPosition();
+					if(questionsAsked==null) {
+						if(status.getType().equals(ApplicationConstants.QUESTION_FINAL_CLARIFICATION_NEEDED_FROM_DEPARTMENT)) {
+							questionsAsked = question.getSession().getParameter(deviceType.getType().trim()+"_clarificationFromDepartmentQuestions");
+						} else if(status.getType().equals(ApplicationConstants.QUESTION_FINAL_CLARIFICATION_NEEDED_FROM_MEMBER)) {
+							questionsAsked = question.getSession().getParameter(deviceType.getType().trim()+"_clarificationFromMemberQuestions");
+						}
+					} else if(!questionsAsked.isEmpty()) {
+						if(status.getType().equals(ApplicationConstants.QUESTION_FINAL_CLARIFICATION_NEEDED_FROM_DEPARTMENT)) {
+							questionsAsked = question.getSession().getParameter(deviceType.getType().trim()+"_clarificationFromDepartmentQuestions");
+						} else if(status.getType().equals(ApplicationConstants.QUESTION_FINAL_CLARIFICATION_NEEDED_FROM_MEMBER)) {
+							questionsAsked = question.getSession().getParameter(deviceType.getType().trim()+"_clarificationFromMemberQuestions");
+						}
+					}
 					if(questionsAsked!=null && !questionsAsked.isEmpty()) {
 						List<MasterVO> questionsAskedForClarification = new ArrayList<MasterVO>();
 						StringBuffer questionIndexesForClarification=new StringBuffer();	
@@ -4309,17 +4323,27 @@ public class QuestionController extends GenericController<Question>{
 						}		
 						letterVO.setQuestionIndexesForClarification(questionIndexesForClarification.toString());
 						letterVO.setQuestionsAskedForClarification(questionsAskedForClarification);
-					}					
+					}
 				}
-				
+				String statusType = status.getType().split("_")[status.getType().split("_").length-1];
+				if(status.getType().equals(ApplicationConstants.QUESTION_FINAL_ADMISSION)
+						|| status.getType().equals(ApplicationConstants.QUESTION_FINAL_REJECTION)) {
+					WorkflowActor putupActor = WorkflowConfig.findFirstActor(question, status, locale.toString());
+					if(putupActor!=null) {
+						String putupActorUsergroupName = putupActor.getUserGroupType().getName();
+						QuestionDraft putupDraft = Question.findPutupDraft(question.getId(), "question_recommend_"+statusType, putupActorUsergroupName);				
+						if(putupDraft!=null) {
+							letterVO.setRemarks(putupDraft.getRemarks());
+						}
+					}
+				}				
 				/**** In case username is required ****/
 //				Role role = Role.findByFieldName(Role.class, "type", "QIS_PRINCIPAL_SECRETARY", locale.toString());
 //				List<User> users = User.findByRole(false, role.getName(), locale.toString());
 //				//as principal secretary for starred question is only one, so user is obviously first element of the list.
 //				letterVO.setUserName(users.get(0).findFirstLastName());
 				
-				/**** generate report ****/
-				String statusType = status.getType().split("_")[status.getType().split("_").length-1];
+				/**** generate report ****/				
 				try {
 					if(status.getType().equals(ApplicationConstants.QUESTION_FINAL_REJECTION)) {
 						reportFile = generateReportUsingFOP(letterVO, "question_intimationletter_"+statusType, "WORD", "intimation_letter", locale.toString());

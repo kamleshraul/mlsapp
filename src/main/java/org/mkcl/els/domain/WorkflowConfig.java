@@ -263,4 +263,8 @@ public class WorkflowConfig extends BaseDomain implements Serializable {
 				workflowName, assigneeLevel, locale);
 	}
 	
+	public static WorkflowActor findFirstActor(final Question question, final Status status, final String locale) {
+		return WorkflowConfig.getWorkflowConfigRepository().findFirstActor(question, status, locale);
+	}
+	
 }

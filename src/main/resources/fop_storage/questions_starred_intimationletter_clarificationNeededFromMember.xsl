@@ -80,9 +80,9 @@
 								<xsl:when test="houseType='upperhouse'">ई-१</xsl:when>
 							</xsl:choose>
 							महाराष्ट्र</fo:block>						
-							<fo:block margin-right="1.05cm">विधानमंडळ सचिवालय</fo:block>
-							<fo:block margin-right="0.75cm">विधान भवन, मुंबई/नागपूर</fo:block>
-							<fo:block margin-right="0.95cm">दिनांक - <xsl:value-of select="reportDate"/></fo:block>
+							<fo:block margin-right="1.81cm">विधानमंडळ सचिवालय</fo:block>
+							<fo:block margin-right="1.21cm">विधान भवन, मुंबई/नागपूर</fo:block>
+							<fo:block margin-right="1.92cm">दिनांक - <xsl:value-of select="reportDate"/></fo:block>
 						</fo:block>		
 						
 						<fo:block>&#160;</fo:block>
