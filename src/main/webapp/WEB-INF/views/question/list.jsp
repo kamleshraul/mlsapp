@@ -124,7 +124,7 @@
 					<spring:message code="question.generateIntimationLetter" text="Generate Intimation Letter"/>
 				</a> |
 			</security:authorize>
-			<security:authorize access="hasAnyRole('QIS_PRINCIPALSECRETARY', ,'HDS_PRINCIPALSECRETARY')">
+			<security:authorize access="hasAnyRole('QIS_PRINCIPALSECRETARY', 'HDS_PRINCIPALSECRETARY')">
 				<a href="#" id="generateCurrentStatusReport" class="butSim">
 					<spring:message code="question.generateCurrentStatusReport" text="Generate Current Status Report"/>
 				</a> |
