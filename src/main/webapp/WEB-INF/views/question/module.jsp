@@ -504,7 +504,7 @@
 			$('#generateIntimationLetter').attr('href', 'question/generateIntimationLetter?questionId='+selectedQuestionId);
 			//$.get('question/generateIntimationLetter?questionId='+selectedQuestionId);		    
 		}	
-		showTabByIdAndUrl('details_tab', "question/report/" + selectedQuestionId + "/currentstatusreport");
+		showTabByIdAndUrl('details_tab', "question/report/" + selectedQuestionId + "/currentstatusreport?device=question");
 	}	
 </script>
 </head>
