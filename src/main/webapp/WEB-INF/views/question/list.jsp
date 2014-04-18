@@ -128,13 +128,7 @@
 				<a href="#" id="generateCurrentStatusReport" class="butSim">
 					<spring:message code="question.generateCurrentStatusReport" text="Generate Current Status Report"/>
 				</a> |
-			</security:authorize>
-			<%-- <a href="#" id="showdemo" class="butSim">
-				<spring:message code="question.demo" text="Show Demo"/>
-			</a> |	 --%>
-			<%-- <a href="#" id="member_statistics" class="butSim">
-				<spring:message code="generic.statistics" text="Statistics"/>
-			</a> | --%>						
+			</security:authorize>					
 			<p>&nbsp;</p>
 		</div>
 	</div>
