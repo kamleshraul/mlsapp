@@ -24,9 +24,11 @@ import org.mkcl.els.common.util.ApplicationConstants;
 import org.mkcl.els.common.util.FormaterUtil;
 import org.mkcl.els.common.vo.MasterVO;
 import org.mkcl.els.common.vo.QuestionDatesVO;
+import org.mkcl.els.common.vo.Reference;
 import org.mkcl.els.domain.CustomParameter;
 import org.mkcl.els.domain.Group;
 import org.mkcl.els.domain.HouseType;
+import org.mkcl.els.domain.MessageResource;
 import org.mkcl.els.domain.Ministry;
 import org.mkcl.els.domain.Question;
 import org.mkcl.els.domain.QuestionDates;
@@ -292,20 +294,21 @@ public class GroupRepository extends BaseRepository<Group, Long> {
 		}
 		return questionDatesVOs;
 	}
-
-	public List<MasterVO> findQuestionDateByGroup(final HouseType houseType,
+	
+	private List<QuestionDates> findQuestionDatesByGroup(final HouseType houseType,
 			final SessionType sessionType, final Integer sessionYear, final Integer groupNumber,
 			final String locale) throws ELSException {
 		
-		String query="SELECT qd FROM Group g" +
-						" JOIN g.questionDates qd " +
-						" WHERE g.houseType.id=:houseTypeId" +
-						" AND g.sessionType.id=:sessionTypeId" +
-						" AND g.year=:sessionYear" +
-						" AND g.number=:groupNumber" + 
-						" AND g.locale=:locale";
+		List<QuestionDates> questionDates = null;		
 		
-		List<MasterVO> dates=new ArrayList<MasterVO>();
+		String query="SELECT qd FROM Group g" +
+				" JOIN g.questionDates qd " +
+				" WHERE g.houseType.id=:houseTypeId" +
+				" AND g.sessionType.id=:sessionTypeId" +
+				" AND g.year=:sessionYear" +
+				" AND g.number=:groupNumber" + 
+				" AND g.locale=:locale";
+		
 		try{
 			TypedQuery<QuestionDates> jpQuery = this.em().createQuery(query, QuestionDates.class);
 			jpQuery.setParameter("houseTypeId", houseType.getId());
@@ -314,14 +317,7 @@ public class GroupRepository extends BaseRepository<Group, Long> {
 			jpQuery.setParameter("groupNumber", groupNumber);
 			jpQuery.setParameter("locale", locale);
 			
-			List<QuestionDates> questionDates = jpQuery.getResultList();
-			SimpleDateFormat format=FormaterUtil.getDateFormatter(locale);
-			for(QuestionDates i:questionDates){
-				if(i.getAnsweringDate()!=null){
-					MasterVO masterVO=new MasterVO(i.getId(),format.format(i.getAnsweringDate()));
-					dates.add(masterVO);
-				}
-			}
+			questionDates = jpQuery.getResultList();			
 		}catch (Exception e) {
 			e.printStackTrace();
 			logger.error(e.getMessage());
@@ -329,8 +325,63 @@ public class GroupRepository extends BaseRepository<Group, Long> {
 			elsException.setParameter("GroupRepository_List<MasterVO>_findQuestionDateByGroup", "No date found.");
 			throw elsException;
 		}
+		
+		return questionDates;
+	}
+
+	public List<MasterVO> findQuestionDateByGroup(final HouseType houseType,
+			final SessionType sessionType, final Integer sessionYear, final Integer groupNumber,
+			final String locale) throws ELSException {
+		
+		List<MasterVO> dates=new ArrayList<MasterVO>();
+		
+		List<QuestionDates> questionDates = findQuestionDatesByGroup(houseType, sessionType, sessionYear, groupNumber, locale);
+		if(questionDates!=null) {
+			SimpleDateFormat format=FormaterUtil.getDateFormatter(locale);
+			for(QuestionDates i:questionDates){
+				if(i.getAnsweringDate()!=null){
+					MasterVO masterVO=new MasterVO(i.getId(),format.format(i.getAnsweringDate()));
+					dates.add(masterVO);
+				}
+			}
+		}			
+		
 		return dates;
 	}    
+	
+	public List<Reference> findQuestionDateReferenceVOByGroup(final HouseType houseType,
+			final SessionType sessionType, final Integer sessionYear, final Integer groupNumber,
+			final String locale) throws ELSException {
+		
+		List<Reference> dates=new ArrayList<Reference>();
+		
+		List<QuestionDates> questionDates = findQuestionDatesByGroup(houseType, sessionType, sessionYear, groupNumber, locale);
+		if(questionDates!=null) {
+			CustomParameter dbDateFormat=CustomParameter.findByName(CustomParameter.class,"ROTATION_ORDER_DATE_FORMAT", "");
+			SimpleDateFormat dbFormat = FormaterUtil.getDateFormatter(dbDateFormat.getValue(), locale.toString());
+			MessageResource mrDate = MessageResource.findByFieldName(MessageResource.class, "code", "generic.date", locale.toString());
+			for(QuestionDates i:questionDates){
+				if(i.getAnsweringDate()!=null){
+					//Added the following code to solve the marathi month and day issue
+					if(dbDateFormat!=null && dbFormat!=null) {
+		            	String[] strAnsweringDates=dbFormat.format(i.getAnsweringDate()).split(",");
+	            		String answeringDay=FormaterUtil.getDayInMarathi(strAnsweringDates[0],locale.toString());
+	            		String[] strAnsweringMonth=strAnsweringDates[1].split(" ");
+	            		String answeringMonth=FormaterUtil.getMonthInMarathi(strAnsweringMonth[1], locale.toString());
+	            		String genericDateLabel  = (mrDate!=null)? mrDate.getValue():"Date";
+	            		String formattedAnsweringDate = answeringDay+", "+ genericDateLabel + " " +strAnsweringMonth[0]+" "+ answeringMonth +","+strAnsweringDates[2];
+	            		Reference referenceVO=new Reference(i.getId().toString(),formattedAnsweringDate);
+						dates.add(referenceVO);
+		            } else {
+		            	Reference referenceVO=new Reference(i.getId().toString(),FormaterUtil.formatDateToString(i.getAnsweringDate(), ApplicationConstants.REPORT_DATEFORMAT, locale.toString()));
+						dates.add(referenceVO);
+		            }
+				}
+			}
+		}			
+		
+		return dates;
+	}
 
 	public List<Ministry> findMinistriesByName(final Long groupid) throws ELSException {
 		String query="SELECT m FROM Group g" +
