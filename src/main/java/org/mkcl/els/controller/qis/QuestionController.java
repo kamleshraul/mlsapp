@@ -1472,10 +1472,10 @@ public class QuestionController extends GenericController<Question>{
 								result.rejectValue("number","NumberEmpty");
 							}
 							//check for duplicate questions
-							Question question=Question.isExist(domain.getNumber(),domain.getSession(),domain.getLocale());
-							if(question!=null){
-								 result.rejectValue("number", "NonUnique","Duplicate Parameter");
-							}
+//							Question question=Question.isExist(domain.getNumber(),domain.getSession(),domain.getLocale());
+//							if(question!=null){
+//								 result.rejectValue("number", "NonUnique","Duplicate Parameter");
+//							}
 						}
 						if(domain.getHouseType()==null){
 							result.rejectValue("houseType","HousetypeEmpty");
