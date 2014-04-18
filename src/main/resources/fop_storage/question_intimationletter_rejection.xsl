@@ -140,7 +140,7 @@
 							<fo:inline>प्रश्न - </fo:inline>
 							<fo:inline margin-left="1cm"><xsl:apply-templates select="questionText"/></fo:inline>
 						</fo:block>
-						<fo:block break-after="page">
+						<fo:block break-before="page">
 							<xsl:value-of select="remarks"></xsl:value-of>
 						</fo:block>
 					</fo:block>							          

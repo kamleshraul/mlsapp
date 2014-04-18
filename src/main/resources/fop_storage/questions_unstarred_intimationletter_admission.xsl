@@ -173,7 +173,7 @@
 						</fo:block>
 						<fo:block>&#160;</fo:block>
 						<fo:block><xsl:apply-templates select="questionText"/></fo:block>
-						<fo:block break-after="page">
+						<fo:block break-before="page">
 							<xsl:value-of select="remarks"></xsl:value-of>
 						</fo:block>
 					</fo:block>							          
