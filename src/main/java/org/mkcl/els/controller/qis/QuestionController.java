@@ -4327,8 +4327,8 @@ public class QuestionController extends GenericController<Question>{
 					}
 				}
 				String statusType = status.getType().split("_")[status.getType().split("_").length-1];
-				if(status.getType().equals(ApplicationConstants.QUESTION_FINAL_ADMISSION)
-						|| status.getType().equals(ApplicationConstants.QUESTION_FINAL_REJECTION)) {
+				if(statusType.equals("admission")
+						|| statusType.equals("rejection")) {
 					WorkflowActor putupActor = WorkflowConfig.findFirstActor(question, status, locale.toString());
 					if(putupActor!=null) {
 						String putupActorUsergroupName = putupActor.getUserGroupType().getName();
