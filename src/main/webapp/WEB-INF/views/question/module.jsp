@@ -504,13 +504,8 @@
 			$('#generateIntimationLetter').attr('href', 'question/generateIntimationLetter?questionId='+selectedQuestionId);
 			//$.get('question/generateIntimationLetter?questionId='+selectedQuestionId);		    
 		}	
-		showTabByIdAndUrl('details_tab', "question/report/" + selectedQuestionId + "currentstatusreport");
-	}
-	
-	function showMock(){
-		showTabByIdAndUrl('details_tab', "mockscreen/startmock");
-	}
-	
+		showTabByIdAndUrl('details_tab', "question/report/" + selectedQuestionId + "/currentstatusreport");
+	}	
 </script>
 </head>
 <body>

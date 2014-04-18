@@ -71,10 +71,6 @@
 			$("#generateCurrentStatusReport").click(function(){
 				showCurrentStatusReport();
 			});
-			
-			$("#mock").click(function(){
-				showMock();
-			});
 		});
 		/**** double clicking record in grid handler ****/
 		function rowDblClickHandler(rowid, iRow, iCol, e) {
@@ -138,8 +134,7 @@
 			</a> |	 --%>
 			<%-- <a href="#" id="member_statistics" class="butSim">
 				<spring:message code="generic.statistics" text="Statistics"/>
-			</a> | --%>		
-			<a href="javascript:void(0);" id="mock" >Mock</a>	
+			</a> | --%>						
 			<p>&nbsp;</p>
 		</div>
 	</div>
