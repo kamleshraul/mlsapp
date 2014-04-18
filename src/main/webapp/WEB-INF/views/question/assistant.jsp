@@ -1059,14 +1059,14 @@
 	
 	<p>	
 		<label class="centerlabel"><spring:message code="question.subject" text="Subject"/></label>
-		<form:textarea path="subject" readonly="true" rows="2" cols="50"></form:textarea>
+		<form:textarea path="subject" rows="2" cols="50"></form:textarea>
 		<form:errors path="subject" cssClass="validationError"/>	
 	</p>
 
 	<c:if test="${not (selectedQuestionType=='questions_halfhourdiscussion_standalone' and houseTypeType=='upperhouse')}">
 		<p>
 			<label class="wysiwyglabel"><spring:message code="question.details" text="Details"/></label>
-			<form:textarea path="questionText" readonly="true" cssClass="wysiwyg"></form:textarea>
+			<form:textarea path="questionText" cssClass="wysiwyg"></form:textarea>
 			<form:errors path="questionText" cssClass="validationError"/>	
 		</p>
 	</c:if>
