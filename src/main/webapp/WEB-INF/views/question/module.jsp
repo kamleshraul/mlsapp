@@ -492,6 +492,25 @@
 		});
 	}
 	
+	function showCurrentStatusReport(){
+		var selectedQuestionId = $("#grid").jqGrid ('getGridParam', 'selarrrow');
+		if(selectedQuestionId.length<1) {
+			$.prompt("Please select a question first!");
+			return false;
+		} else if(selectedQuestionId.length>1) {
+			$.prompt("Please select only one question!");
+			return false;
+		} else {
+			$('#generateIntimationLetter').attr('href', 'question/generateIntimationLetter?questionId='+selectedQuestionId);
+			//$.get('question/generateIntimationLetter?questionId='+selectedQuestionId);		    
+		}	
+		showTabByIdAndUrl('details_tab', "question/report/" + selectedQuestionId + "currentstatusreport");
+	}
+	
+	function showMock(){
+		showTabByIdAndUrl('details_tab', "mockscreen/startmock");
+	}
+	
 </script>
 </head>
 <body>
