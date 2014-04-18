@@ -47,6 +47,7 @@
 				showDemo();
 			});
 			//---ADDED BY VIKAS------------------
+			
 			$('#gridURLParams_ForNew').val($('#gridURLParams').val());		
 			
 			$("#selectedQuestionType").change(function(){
@@ -65,8 +66,15 @@
 				if(standAlone=='questions_halfhourdiscussion_standalone'){
 					$("#new_record").html("<spring:message code='question.newStandAlone' text='New'/>");
 				}
-			});		
+			});	
 			
+			$("#generateCurrentStatusReport").click(function(){
+				showCurrentStatusReport();
+			});
+			
+			$("#mock").click(function(){
+				showMock();
+			});
 		});
 		/**** double clicking record in grid handler ****/
 		function rowDblClickHandler(rowid, iRow, iCol, e) {
@@ -116,16 +124,22 @@
 				<spring:message code="question.search" text="Search"/>
 			</a> |
 			<security:authorize access="hasAnyRole('QIS_ASSISTANT','QIS_SECTION_OFFICER','HDS_SECTION_OFFICER')">
-			<a href="#" id="generateIntimationLetter" class="butSim">
-				<spring:message code="question.generateIntimationLetter" text="Generate Intimation Letter"/>
-			</a> |
+				<a href="#" id="generateIntimationLetter" class="butSim">
+					<spring:message code="question.generateIntimationLetter" text="Generate Intimation Letter"/>
+				</a> |
+			</security:authorize>
+			<security:authorize access="hasAnyRole('QIS_PRINCIPALSECRETARY', ,'HDS_PRINCIPALSECRETARY')">
+				<a href="#" id="generateCurrentStatusReport" class="butSim">
+					<spring:message code="question.generateCurrentStatusReport" text="Generate Current Status Report"/>
+				</a> |
 			</security:authorize>
 			<%-- <a href="#" id="showdemo" class="butSim">
 				<spring:message code="question.demo" text="Show Demo"/>
 			</a> |	 --%>
 			<%-- <a href="#" id="member_statistics" class="butSim">
 				<spring:message code="generic.statistics" text="Statistics"/>
-			</a> | --%>			
+			</a> | --%>		
+			<a href="javascript:void(0);" id="mock" >Mock</a>	
 			<p>&nbsp;</p>
 		</div>
 	</div>
