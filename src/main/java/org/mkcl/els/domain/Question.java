@@ -63,7 +63,7 @@ import org.springframework.beans.factory.annotation.Configurable;
 	"briefExplanation","discussionDate","dateOfAnsweringByMinister","toBeAnsweredByMinister"
 	,"revisedReason","reason","numberOfDaysForFactualPositionReceiving",
 	"lastDateOfFactualPositionReceiving","factualPosition","questionsAskedInFactualPosition"
-	,"locale","version","versionMismatch","editedAs"},ignoreUnknown=true)
+	,"locale","version","versionMismatch","editedAs","questionreferenceText"},ignoreUnknown=true)
 public class Question extends Device implements Serializable {
 
     /** The Constant serialVersionUID. */
@@ -137,6 +137,10 @@ public class Question extends Device implements Serializable {
     /** The question text. */
     @Column(length=30000)
     private String questionText;
+    
+    /**** Question Referencing Text ****/
+    @Column(length=30000)
+    private String questionreferenceText;
 
     /** The question text. */
     @Column(length=30000)
@@ -1598,6 +1602,55 @@ public class Question extends Device implements Serializable {
 		 return getQuestionRepository().findPutupDraft(id, putupStatus, putupActorUsergroupName); 
 	 }
 	 
+	public String getAllSupportingMembers() {
+		StringBuffer strBuffer = new StringBuffer("");
+		StringBuffer supportingMemberNames = new StringBuffer();
+		List<SupportingMember> supportingMembers = this.getSupportingMembers();
+		if (supportingMembers != null) {
+			for (SupportingMember sm : supportingMembers) {
+				supportingMemberNames.append(sm.getMember().getFullname() + ",");
+			}
+		}
+		List<ClubbedEntity> clubbedEntities = Question
+				.findClubbedEntitiesByPosition(this);
+		if (clubbedEntities != null) {
+			for (ClubbedEntity ce : clubbedEntities) {
+				/**
+				 * show only those clubbed questions which are not in state of
+				 * (processed to be putup for nameclubbing, putup for
+				 * nameclubbing, pending for nameclubbing approval)
+				 **/
+				if (ce.getQuestion().getInternalStatus().getType().equals(ApplicationConstants.QUESTION_SYSTEM_CLUBBED)
+						|| ce.getQuestion().getInternalStatus().getType().equals(ApplicationConstants.QUESTION_FINAL_ADMISSION)) {
+					String tempPrimary = ce.getQuestion().getPrimaryMember().getFullname();
+					if (!supportingMemberNames.toString().contains(tempPrimary)) {
+						supportingMemberNames.append(ce.getQuestion().getPrimaryMember().getFullname()+ ",");
+					}
+					List<SupportingMember> clubbedSupportingMember = ce.getQuestion().getSupportingMembers();
+					if (clubbedSupportingMember != null) {
+						if (!clubbedSupportingMember.isEmpty()) {
+							for (SupportingMember l : clubbedSupportingMember) {
+								String tempSupporting = l.getMember().getFullname();
+								if (!supportingMemberNames.toString().contains(tempSupporting)) {
+									supportingMemberNames.append(tempSupporting+ ", ");
+								}
+							}
+						}
+					}
+				}
+			}
+		}
+		if (!supportingMemberNames.toString().isEmpty()) {
+			supportingMemberNames.deleteCharAt(supportingMemberNames.length() - 1);
+			supportingMemberNames.deleteCharAt(supportingMemberNames.length() - 1);
+		}
+		if (supportingMemberNames != null && supportingMemberNames.length() > 0) {
+			strBuffer.append(supportingMemberNames.toString());
+		}
+
+		return strBuffer.toString();
+	}
+	 
 	/**** Getters and Setters ****/
 	public HouseType getHouseType() {
 		return houseType;
@@ -1727,6 +1780,16 @@ public class Question extends Device implements Serializable {
 		this.questionText = questionText;
 	}
 		
+	public String getQuestionreferenceText() {
+		return questionreferenceText;
+	}
+
+
+	public void setQuestionreferenceText(String questionreferenceText) {
+		this.questionreferenceText = questionreferenceText;
+	}
+
+
 	public String getRevisedQuestionText() {
 		return revisedQuestionText;
 	}	
