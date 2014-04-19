@@ -2482,7 +2482,7 @@ public class QuestionRepository extends BaseRepository<Question, Long> {
 		return memberMinister;
 	}
 
-	public Question isExist(Integer number, Session session, String locale) {
+	public Boolean isExist(Integer number, Session session, String locale) {
 		try{
 			String strQuery="SELECT q FROM Question q " +
 					" WHERE q.session.id=:sessionId" +
@@ -2493,11 +2493,15 @@ public class QuestionRepository extends BaseRepository<Question, Long> {
 			query.setParameter("number", number);
 			query.setParameter("locale", locale);
 			Question question=(Question) query.getSingleResult();
-			return question;
+			if(question!=null){
+				return true;
+			}else{
+				return false;
+			}
 		}catch(Exception e) {
 			e.printStackTrace();
 			logger.error(e.getMessage());
-			return null;
+			return false;
 		}
 	}
 }
