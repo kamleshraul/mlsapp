@@ -501,10 +501,10 @@
 			$.prompt("Please select only one question!");
 			return false;
 		} else {
-			$('#generateIntimationLetter').attr('href', 'question/generateIntimationLetter?questionId='+selectedQuestionId);
-			//$.get('question/generateIntimationLetter?questionId='+selectedQuestionId);		    
+			$("#selectionDiv1").hide();
+			showTabByIdAndUrl('details_tab', "question/report/" + selectedQuestionId + "/currentstatusreport/?device=question");		    
 		}	
-		showTabByIdAndUrl('details_tab', "question/report/" + selectedQuestionId + "/currentstatusreport?device=question");
+		
 	}	
 </script>
 </head>

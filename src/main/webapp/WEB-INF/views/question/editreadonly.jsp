@@ -202,6 +202,13 @@
 	<form:textarea path="questionText" readonly="true" cssClass="wysiwyg"></form:textarea>
 	</p>
 	
+	<c:if test="${domain.type.type=='questions_starred' or domain.type.type=='questions_unstarred'}">
+		<p>
+			<label class="wysiwyglabel"><spring:message code="question.questionreferenceText" text="Reference Text"/>*</label>
+			<form:textarea path="questionreferenceText" cssClass="wysiwyg" readonly="true"></form:textarea>
+		</p>
+	</c:if>
+	
 	<c:if test="${domain.type.type=='questions_shortnotice' or domain.type.type=='questions_halfhourdiscussion_from_question'}">
 	<p>
 		<label class="wysiwyglabel"><spring:message code="question.reason" text="Reason"/>*</label>
