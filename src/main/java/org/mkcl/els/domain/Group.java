@@ -34,6 +34,7 @@ import org.mkcl.els.common.util.ApplicationConstants;
 import org.mkcl.els.common.util.FormaterUtil;
 import org.mkcl.els.common.vo.MasterVO;
 import org.mkcl.els.common.vo.QuestionDatesVO;
+import org.mkcl.els.common.vo.Reference;
 import org.mkcl.els.repository.GroupRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Configurable;
@@ -300,6 +301,14 @@ public class Group extends BaseDomain implements Serializable {
 	               getYear(),getNumber(),getLocale());
 	    	}else{
 	    		return new ArrayList<MasterVO>();
+	    	}
+	 }	 
+	 public  List<Reference> findQuestionDateReferenceVOByGroup() throws ELSException {
+	    	if(getHouseType()!=null&&getSessionType()!=null&&getYear()!=null&&getNumber()!=null&&getLocale()!=null){
+	        return getGroupRepository().findQuestionDateReferenceVOByGroup(getHouseType(),getSessionType(),
+	               getYear(),getNumber(),getLocale());
+	    	}else{
+	    		return new ArrayList<Reference>();
 	    	}
 	 }
 	 /**** Used in various jsps ****/
