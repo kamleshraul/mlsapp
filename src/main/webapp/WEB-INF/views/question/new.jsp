@@ -535,6 +535,14 @@
 				}
 			}
 		});
+		
+		$('#number').change(function(){
+			$.get('ref/getQuestionByNumberAndSession?number='+$(this).val()+'&session='+$('#session').val(),function(data){
+				if(data){
+					$('#numberError').css('display','inline');
+				}
+			});
+		});
 	});
 	</script>
 </head>
@@ -558,6 +566,9 @@
 		<label class="small"><spring:message code="question.number" text="Motion Number"/>*</label>
 		<form:input path="number" cssClass="sText"/>
 		<form:errors path="number" cssClass="validationError"/>
+		<span id='numberError' style="display: none; color: red;">
+			<spring:message code="QuestionNumber.domain.NonUnique" text="Duplicate Number"></spring:message>
+		</span>
 		<input type="hidden" name="dataEntryType" id="dataEntryType" value="offline">
 	</p>
 	</security:authorize>	
