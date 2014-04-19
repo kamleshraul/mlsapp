@@ -954,11 +954,19 @@
 	<form:errors path="subject" cssClass="validationError"/>	
 	</p>
 	<c:if test="${not (selectedQuestionType=='questions_halfhourdiscussion_standalone' and houseTypeType=='upperhouse')}">
-	<p>
-		<label class="wysiwyglabel"><spring:message code="question.details" text="Details"/></label>
-		<form:textarea path="questionText" readonly="true" cssClass="wysiwyg"></form:textarea>
-		<form:errors path="questionText" cssClass="validationError"/>	
-	</p>
+		<p>
+			<label class="wysiwyglabel"><spring:message code="question.details" text="Details"/></label>
+			<form:textarea path="questionText" readonly="true" cssClass="wysiwyg"></form:textarea>
+			<form:errors path="questionText" cssClass="validationError"/>	
+		</p>
+		
+		<c:if test="${selectedQuestionType=='questions_starred' or selectedQuestionType=='questions_unstarred'}">
+			<p>
+				<label class="wysiwyglabel"><spring:message code="question.reference" text="Reference Text"/>*</label>
+				<form:textarea path="questionreferenceText" cssClass="wysiwyg"></form:textarea>
+				<form:errors path="questionreferenceText" cssClass="validationError" cssStyle="float:right;margin-top:-100px;margin-right:40px;"/>
+			</p>
+		</c:if>
 	</c:if>	
 	
 	<c:if test="${selectedQuestionType=='questions_shortnotice' or selectedQuestionType=='questions_halfhourdiscussion_from_question' or (selectedQuestionType=='questions_halfhourdiscussion_standalone' and houseTypeType=='upperhouse')}">

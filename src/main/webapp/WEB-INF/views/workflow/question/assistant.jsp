@@ -111,6 +111,7 @@
 	}
 	/**** load actors ****/
 	function loadActors(value){
+		console.log(value);
 		if(value!='-'){
 		var sendback=$("#internalStatusMaster option[value='question_recommend_sendback']").text();			
 		var discuss=$("#internalStatusMaster option[value='question_recommend_discuss']").text();
@@ -128,6 +129,7 @@
 		else {
 			valueToSend = value;
 		}
+		console.log(valueToSend);
 		var params="question="+$("#id").val()+"&status="+valueToSend+
 		"&usergroup="+$("#usergroup").val()+"&level="+$("#level").val();
 		var resourceURL='ref/question/actors?'+params;
@@ -971,6 +973,14 @@
 			<form:textarea path="questionText" readonly="true" cssClass="wysiwyg"></form:textarea>
 			<form:errors path="questionText" cssClass="validationError"/>	
 		</p>
+		
+		<c:if test="${selectedQuestionType=='questions_starred' or selectedQuestionType=='questions_unstarred'}">
+			<p>
+				<label class="wysiwyglabel"><spring:message code="question.reference" text="Reference Text"/>*</label>
+				<form:textarea path="questionreferenceText" cssClass="wysiwyg"></form:textarea>
+				<form:errors path="questionreferenceText" cssClass="validationError" cssStyle="float:right;margin-top:-100px;margin-right:40px;"/>
+			</p>
+		</c:if>
 	</c:if>
 	
 	<c:if test="${selectedQuestionType=='questions_shortnotice' or selectedQuestionType=='questions_halfhourdiscussion_from_question' or (selectedQuestionType=='questions_halfhourdiscussion_standalone' and houseTypeType=='upperhouse')}">
