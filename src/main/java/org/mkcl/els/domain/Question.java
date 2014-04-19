@@ -1590,7 +1590,7 @@ public class Question extends Device implements Serializable {
 		 return getQuestionRepository().findMemberMinisterIfExists(question);		 
 	 }
 	 
-	 public static Question isExist(Integer number, Session session,String locale) {
+	 public static Boolean isExist(Integer number, Session session,String locale) {
 		 return getQuestionRepository().isExist(number,session,locale);
 	 }
 	 
