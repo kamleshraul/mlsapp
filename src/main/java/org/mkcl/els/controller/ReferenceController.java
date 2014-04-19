@@ -5072,4 +5072,17 @@ public class ReferenceController extends BaseController {
 		}
 		return masterVOs;
 	}
+	
+	@RequestMapping(value="/getQuestionByNumberAndSession", method=RequestMethod.GET)
+	public @ResponseBody Boolean getQuestionByNumberAndSession(HttpServletRequest request, Locale locale){
+		Boolean flag=false;
+		String strNumber=request.getParameter("number");
+		String strSession=request.getParameter("session");
+		if(strNumber!=null && !strNumber.isEmpty() 
+			&& strSession!=null && !strSession.isEmpty()){
+			Session session=Session.findById(Session.class, Long.parseLong(strSession));
+			flag=Question.isExist(Integer.parseInt(strNumber), session, locale.toString());
+		}
+		return flag;
+	}
 }
