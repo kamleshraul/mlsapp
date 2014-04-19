@@ -1069,7 +1069,7 @@ public class ClubbedEntityRepository extends BaseRepository<ClubbedEntity, Seria
 					beingProcessedQuestion.setClubbedEntities(null);
 				}            
 				beingProcessedQuestion.simpleMerge();
-				clubbedEntityToRemove.remove();
+				//clubbedEntityToRemove.remove();
 				beingClubbedQuestion.setParent(null);
 				String clubbedDeviceType=beingClubbedQuestion.getType().getType();
 				Status newstatus=null;
@@ -1113,7 +1113,7 @@ public class ClubbedEntityRepository extends BaseRepository<ClubbedEntity, Seria
 				}
 				beingClubbedQuestion.setClubbedEntities(newClubbedQuestions);
 				beingClubbedQuestion.simpleMerge();
-				clubbedEntityToRemove.remove();
+				//clubbedEntityToRemove.remove();
 				beingProcessedQuestion.setParent(null);
 				String clubbedDeviceType=beingClubbedQuestion.getType().getType();
 				Status newstatus=null;
