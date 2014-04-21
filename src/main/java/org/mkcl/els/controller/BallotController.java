@@ -11,6 +11,7 @@ package org.mkcl.els.controller;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -1507,8 +1508,44 @@ public class BallotController extends BaseController{
 					List<MemberBallotQuestionDistributionVO> questionDistributions=MemberBallot.viewQuestionDistribution(session,questionType,locale.toString());
 					model.addAttribute("questionDistributions",questionDistributions);
 					model.addAttribute("session",session.getId());
-					model.addAttribute("questionType",questionType.getId());
-					model.addAttribute("locale",locale.toString());
+					if(questionDistributions!=null && !questionDistributions.isEmpty()) {
+						MemberBallotQuestionDistributionVO memberBallotQuestionDistributionVO = questionDistributions.get(0);
+						/** question submission date formatting **/
+						SimpleDateFormat dbFormat = null;
+						CustomParameter dbDateFormat=CustomParameter.findByName(CustomParameter.class,"ROTATION_ORDER_DATE_FORMAT", "");
+			            if(dbDateFormat!=null){
+			            	dbFormat=FormaterUtil.getDateFormatter(dbDateFormat.getValue(), locale.toString());
+			            }
+						String[] strQuestionSubmissionDate=dbFormat.format(memberBallotQuestionDistributionVO.getQuestionSubmissionEndTime()).split(",");
+	            		String[] strAnsweringMonth=strQuestionSubmissionDate[1].split(" ");
+	            		String answeringMonth=FormaterUtil.getMonthInMarathi(strAnsweringMonth[1], locale.toString());
+	            		MessageResource mrDate = MessageResource.findByFieldName(MessageResource.class, "code", "generic.date", locale.toString());
+	            		String genericDateLabel  = (mrDate!=null)? mrDate.getValue():"";
+	            		model.addAttribute("questionSubmissionDate",genericDateLabel + " " +strAnsweringMonth[0]+" "+ answeringMonth +","+strQuestionSubmissionDate[2]);
+			            /** question submission start time **/
+						java.util.Calendar calendar = java.util.Calendar.getInstance();
+						calendar.setTime(memberBallotQuestionDistributionVO.getQuestionSubmissionStartTime());
+						int hours = calendar.get(Calendar.HOUR);
+						int minutes = calendar.get(Calendar.MINUTE);
+						model.addAttribute("questionSubmissionStartTime", FormaterUtil.formatNumberNoGrouping(hours, locale.toString())+"."+FormaterUtil.formatNumberNoGrouping(minutes, locale.toString()));
+						Integer dayTime = calendar.get(java.util.Calendar.AM_PM);	
+						model.addAttribute("dayTime",dayTime);
+						/** question submission end time **/
+						calendar.setTime(memberBallotQuestionDistributionVO.getQuestionSubmissionEndTime());
+						hours = calendar.get(Calendar.HOUR);
+						minutes = calendar.get(Calendar.MINUTE);
+						model.addAttribute("questionSubmissionEndTime", FormaterUtil.formatNumberNoGrouping(hours, locale.toString())+"."+FormaterUtil.formatNumberNoGrouping(minutes, locale.toString()));
+						
+						model.addAttribute("houseType",memberBallotQuestionDistributionVO.getHouseType());
+						model.addAttribute("houseTypeName",memberBallotQuestionDistributionVO.getHouseTypeName());
+						model.addAttribute("sessionTypeName",memberBallotQuestionDistributionVO.getSessionTypeName());
+						model.addAttribute("sessionYear",memberBallotQuestionDistributionVO.getSessionYear());
+						model.addAttribute("sessionCountName",memberBallotQuestionDistributionVO.getSessionCountName());
+						
+						model.addAttribute("questionType",questionType.getId());
+						model.addAttribute("questionTypeName",questionType.getName());
+						model.addAttribute("locale",locale.toString());
+					}		            
 				}else{
 					logger.error("**** Check request parameter 'session,questionType' for empty values ****");
 					model.addAttribute("type", "REQUEST_PARAMETER_EMPTY");
@@ -1525,6 +1562,69 @@ public class BallotController extends BaseController{
 			return errorpage;
 		}
 		return "ballot/memberballotquestiondistribution";
+	}
+	/****** Member Ballot(Council) Question Distribution Report Header Page ****/
+	@RequestMapping(value="/memberballot/questiondistribution/header",method=RequestMethod.GET)
+	public String generateQuestionDistributionReportHeader(HttpServletRequest request, ModelMap model, Locale locale) {
+		String returnPath = "ballot/templates/error";
+		
+		String houseType = request.getParameter("houseType");
+		String houseTypeName = request.getParameter("houseTypeName");
+		String sessionTypeName = request.getParameter("sessionTypeName");
+		String sessionYear = request.getParameter("sessionYear");
+		String sessionCountName = request.getParameter("sessionCountName");
+		String questionSubmissionStartTime = request.getParameter("questionSubmissionStartTime");
+		String questionSubmissionEndTime = request.getParameter("questionSubmissionEndTime");
+		String questionSubmissionDate = request.getParameter("questionSubmissionDate");
+		String dayTime = request.getParameter("dayTime");
+		String questionTypeName = request.getParameter("questionTypeName");
+		
+		if(houseType!=null&&!houseType.isEmpty() && houseTypeName!=null&&!houseTypeName.isEmpty()
+				&&sessionTypeName!=null&&!sessionTypeName.isEmpty() && sessionYear!=null&&!sessionYear.isEmpty()
+				&&sessionCountName!=null&&!sessionCountName.isEmpty() && questionSubmissionStartTime!=null&&!questionSubmissionStartTime.isEmpty()
+				&&questionSubmissionEndTime!=null&&!questionSubmissionEndTime.isEmpty() && questionSubmissionDate!=null&&!questionSubmissionDate.isEmpty()
+				&&dayTime!=null&&!dayTime.isEmpty() && questionTypeName!=null&&!questionTypeName.isEmpty()) {
+			
+			/**** Server encoding request parameter ****/
+			CustomParameter deploymentServerParameter = CustomParameter.findByFieldName(CustomParameter.class, "name", "DEPLOYMENT_SERVER", "");
+			if(deploymentServerParameter!=null) {
+				if(deploymentServerParameter.getValue()!=null) {
+					if(deploymentServerParameter.getValue().equals("TOMCAT")) {
+						try {
+							houseTypeName = new String(houseTypeName.getBytes("ISO-8859-1"),"UTF-8");
+							sessionTypeName = new String(sessionTypeName.getBytes("ISO-8859-1"),"UTF-8");
+							sessionYear = new String(sessionYear.getBytes("ISO-8859-1"),"UTF-8");
+							sessionCountName = new String(sessionCountName.getBytes("ISO-8859-1"),"UTF-8");
+							questionSubmissionStartTime = new String(questionSubmissionStartTime.getBytes("ISO-8859-1"),"UTF-8");
+							questionSubmissionEndTime = new String(questionSubmissionEndTime.getBytes("ISO-8859-1"),"UTF-8");
+							questionSubmissionDate = new String(questionSubmissionDate.getBytes("ISO-8859-1"),"UTF-8");
+							dayTime = new String(dayTime.getBytes("ISO-8859-1"),"UTF-8");
+							questionTypeName = new String(questionTypeName.getBytes("ISO-8859-1"),"UTF-8");
+						} catch (UnsupportedEncodingException e) {
+							e.printStackTrace();									
+						}
+					}
+				}
+			}
+			
+			model.addAttribute("houseType", houseType);
+			model.addAttribute("houseTypeName", houseTypeName);
+			model.addAttribute("sessionTypeName", sessionTypeName);
+			model.addAttribute("sessionYear", sessionYear);
+			model.addAttribute("sessionCountName", sessionCountName);
+			model.addAttribute("questionSubmissionStartTime", questionSubmissionStartTime);
+			model.addAttribute("questionSubmissionEndTime", questionSubmissionEndTime);
+			model.addAttribute("questionSubmissionDate", questionSubmissionDate);
+			model.addAttribute("dayTime", dayTime);
+			model.addAttribute("questionTypeName", questionTypeName);
+			
+			returnPath = "ballot/templates/memberballotquestiondistribution_header";
+			
+		} else {
+			model.addAttribute("errorMessage", "Request Parameter/s are either null or empty.");
+		}
+		
+		return returnPath;
 	}
 	/****** Member Ballot(Council) Member Ballot Choices Initial Page ****/
 	@RequestMapping(value="/memberballot/choices",method=RequestMethod.GET)

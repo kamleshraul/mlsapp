@@ -1074,19 +1074,20 @@ public class MemberBallotRepository extends BaseRepository<MemberBallot, Seriali
 			final String locale) throws ELSException {
 		try {
 			List<MemberBallotQuestionDistributionVO> distributions=new ArrayList<MemberBallotQuestionDistributionVO>();
-			String startDate=session.getParameter(ApplicationConstants.QUESTION_STARRED_FIRSTBATCH_SUBMISSION_STARTTIME_UH);
-			String endDate=session.getParameter(ApplicationConstants.QUESTION_STARRED_FIRSTBATCH_SUBMISSION_ENDTIME_UH);
-			if(startDate!=null&&endDate!=null){
-				if((!startDate.isEmpty())&&(!endDate.isEmpty())){
-					
+			String startDateParameter=session.getParameter(ApplicationConstants.QUESTION_STARRED_FIRSTBATCH_SUBMISSION_STARTTIME_UH);
+			String endDateParameter=session.getParameter(ApplicationConstants.QUESTION_STARRED_FIRSTBATCH_SUBMISSION_ENDTIME_UH);
+			if(startDateParameter!=null&&endDateParameter!=null){
+				if((!startDateParameter.isEmpty())&&(!endDateParameter.isEmpty())){					
+					Date startDate = FormaterUtil.formatStringToDate(startDateParameter, ApplicationConstants.DB_DATETIME_FORMAT);
+					Date endDate = FormaterUtil.formatStringToDate(endDateParameter, ApplicationConstants.DB_DATETIME_FORMAT);
 					org.mkcl.els.domain.Query elsQuery = org.mkcl.els.domain.Query.findByFieldName(org.mkcl.els.domain.Query.class, "keyField", "MEMBERBALLOT_VIEW_QUESTION_DISTRIBUTION_MEMBER", "");
 					if(elsQuery != null){
 						Query jpQuery = this.em().createNativeQuery(elsQuery.getQuery());
 						jpQuery.setParameter("sessionId", session.getId());
 						jpQuery.setParameter("questionTypeId", questionType.getId());
 						jpQuery.setParameter("locale", locale);
-						jpQuery.setParameter("startDate", FormaterUtil.formatStringToDate(startDate, ApplicationConstants.DB_DATEFORMAT));
-						jpQuery.setParameter("endDate", FormaterUtil.formatStringToDate(endDate, ApplicationConstants.DB_DATEFORMAT));
+						jpQuery.setParameter("startDate", startDate);
+						jpQuery.setParameter("endDate", endDate);
 						
 						List members = jpQuery.getResultList();
 						int count=1;
@@ -1102,7 +1103,24 @@ public class MemberBallotRepository extends BaseRepository<MemberBallot, Seriali
 							if(o[1]!=null){
 								distribution.setMember(o[1].toString());
 							}
-							distribution.setsNo(numberFormat.format(count));
+							if(o[2]!=null){
+								distribution.setHouseType(o[2].toString());
+							}
+							if(o[3]!=null){
+								distribution.setHouseTypeName(o[3].toString());
+							}
+							if(o[4]!=null){
+								distribution.setSessionTypeName(o[4].toString());
+							}
+							if(o[5]!=null){
+								distribution.setSessionYear(o[5].toString());
+							}
+							if(o[6]!=null){
+								distribution.setSessionCountName(o[6].toString());
+							}							
+							distribution.setQuestionSubmissionStartTime(startDate);	
+							distribution.setQuestionSubmissionEndTime(endDate);	
+		            		distribution.setsNo(numberFormat.format(count));
 							count++;
 							distributions.add(distribution);
 						}
@@ -1121,8 +1139,8 @@ public class MemberBallotRepository extends BaseRepository<MemberBallot, Seriali
 								jpQuery.setParameter("sessionId", session.getId());
 								jpQuery.setParameter("memberId", i.getMemberId());
 								jpQuery.setParameter("locale", locale);
-								jpQuery.setParameter("startDate", FormaterUtil.formatStringToDate(startDate, ApplicationConstants.DB_DATEFORMAT));
-								jpQuery.setParameter("endDate", FormaterUtil.formatStringToDate(endDate, ApplicationConstants.DB_DATEFORMAT));
+								jpQuery.setParameter("startDate", FormaterUtil.formatStringToDate(startDateParameter, ApplicationConstants.DB_DATEFORMAT));
+								jpQuery.setParameter("endDate", FormaterUtil.formatStringToDate(endDateParameter, ApplicationConstants.DB_DATEFORMAT));
 								jpQuery.setParameter("questionTypeId", questionType.getId());
 								
 								List countResults = jpQuery.getResultList();

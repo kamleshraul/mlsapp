@@ -297,7 +297,8 @@
 												<fo:table table-layout="fixed" width="100%">
 													<fo:table-column column-number="1" column-width="1.5cm" />
                    									<fo:table-column column-number="2" column-width="2.5cm" />
-                   									<fo:table-column column-number="3" column-width="12cm" />
+                   									<fo:table-column column-number="3" column-width="6cm" />
+                   									<fo:table-column column-number="4" column-width="6cm" />
 													<fo:table-header>
 														<fo:table-row>
 															<fo:table-cell display-align="center" margin-left="0.2cm" border-width="0.5pt" border-style="solid">
@@ -308,6 +309,9 @@
 															</fo:table-cell>
 															<fo:table-cell display-align="center" text-align="center" border-width="0.5pt" border-style="solid">
 																<fo:block font-weight="bold" font-size="13px">विषय</fo:block>
+															</fo:table-cell>
+															<fo:table-cell display-align="center" text-align="center" border-width="0.5pt" border-style="solid">
+																<fo:block font-weight="bold" font-size="13px">कारणे</fo:block>
 															</fo:table-cell>
 														</fo:table-row>
 													</fo:table-header>
@@ -322,6 +326,9 @@
 															</fo:table-cell>
 															<fo:table-cell margin-left="0.2cm" border-width="0.5pt" border-style="solid">
 																<fo:block font-weight="normal"><xsl:value-of select="questionSubject"/></fo:block>
+															</fo:table-cell>
+															<fo:table-cell margin-left="0.2cm" border-width="0.5pt" border-style="solid">
+																<fo:block font-weight="normal"><xsl:value-of select="questionReason"/></fo:block>
 															</fo:table-cell>
 														</fo:table-row>																																					
 														</xsl:for-each>

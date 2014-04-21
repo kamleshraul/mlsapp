@@ -1,5 +1,6 @@
 package org.mkcl.els.common.vo;
 
+import java.util.Date;
 import java.util.List;
 
 import org.mkcl.els.common.util.FormaterUtil;
@@ -13,6 +14,20 @@ public class MemberBallotQuestionDistributionVO {
 	private String memberId;
 	
 	private String totalCount;
+	
+	private String houseType;
+	
+	private String houseTypeName;
+	
+	private String sessionTypeName;
+	
+	private String sessionYear;	
+	
+	private String sessionCountName;
+	
+	private Date questionSubmissionStartTime;
+	
+	private Date questionSubmissionEndTime;
 	
 	private List<MemberBallotMemberWiseCountVO> distributions;
 
@@ -56,6 +71,62 @@ public class MemberBallotQuestionDistributionVO {
 		return totalCount;
 	}	
 	
+	public String getHouseType() {
+		return houseType;
+	}
+
+	public void setHouseType(String houseType) {
+		this.houseType = houseType;
+	}
+
+	public String getHouseTypeName() {
+		return houseTypeName;
+	}
+
+	public void setHouseTypeName(String houseTypeName) {
+		this.houseTypeName = houseTypeName;
+	}
+
+	public String getSessionTypeName() {
+		return sessionTypeName;
+	}
+
+	public void setSessionTypeName(String sessionTypeName) {
+		this.sessionTypeName = sessionTypeName;
+	}
+
+	public String getSessionYear() {
+		return sessionYear;
+	}
+
+	public void setSessionYear(String sessionYear) {
+		this.sessionYear = sessionYear;
+	}
+
+	public String getSessionCountName() {
+		return sessionCountName;
+	}
+
+	public void setSessionCountName(String sessionCountName) {
+		this.sessionCountName = sessionCountName;
+	}
+
+	public Date getQuestionSubmissionStartTime() {
+		return questionSubmissionStartTime;
+	}
+
+	public void setQuestionSubmissionStartTime(Date questionSubmissionStartTime) {
+		this.questionSubmissionStartTime = questionSubmissionStartTime;
+	}
+
+	public Date getQuestionSubmissionEndTime() {
+		return questionSubmissionEndTime;
+	}
+
+	public void setQuestionSubmissionEndTime(Date questionSubmissionEndTime) {
+		this.questionSubmissionEndTime = questionSubmissionEndTime;
+	}
+
 	public String formatNumber(final Integer number, final String locale){
 		return FormaterUtil.getNumberFormatterNoGrouping(locale).format(number);
 	}
