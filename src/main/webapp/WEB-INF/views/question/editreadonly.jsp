@@ -237,6 +237,11 @@
 	<label class="small"><spring:message code="question.currentStatus" text="Current Status"/></label>
 	<input id="formattedInternalStatus" name="formattedInternalStatus" value="${formattedInternalStatus }" type="text" readonly="readonly">
 	</p>
+	
+	<p>
+		<label class="wysiwyglabel"><spring:message code="question.rejectionReason" text="Rejection reason"/></label>
+		<textarea id="rejectionReason" class="wysiwyg" readonly="readonly">${domain.rejectionReason}</textarea>
+	</p>
 		
 	<p>
 	<label class="wysiwyglabel"><spring:message code="question.remarks" text="Remarks"/></label>
