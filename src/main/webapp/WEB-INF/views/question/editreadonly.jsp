@@ -238,11 +238,13 @@
 	<input id="formattedInternalStatus" name="formattedInternalStatus" value="${formattedInternalStatus }" type="text" readonly="readonly">
 	</p>
 	
-	<c:if test="${not empty domain.rejectionReason}">
-	<p>
-		<label class="wysiwyglabel"><spring:message code="question.rejectionReason" text="Rejection reason"/></label>
-		<textarea id="rejectionReason" class="wysiwyg" readonly="readonly">${domain.rejectionReason}</textarea>
-	</p>
+	<c:if test="${domain.houseType.type=='upperhouse'}">
+		<c:if test="${not empty domain.rejectionReason}">
+		<p>
+			<label class="wysiwyglabel"><spring:message code="question.rejectionReason" text="Rejection reason"/></label>
+			<textarea id="rejectionReason" class="wysiwyg" readonly="readonly">${domain.rejectionReason}</textarea>
+		</p>
+		</c:if>
 	</c:if>
 		
 	<p>

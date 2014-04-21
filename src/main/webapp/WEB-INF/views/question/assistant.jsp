@@ -1232,10 +1232,12 @@
 		</p>
 	</c:if>	
 	
-	<p>
-		<label class="wysiwyglabel"><spring:message code="question.rejectionReason" text="Rejection reason"/></label>
-		<form:textarea path="rejectionReason" cssClass="wysiwyg"></form:textarea>
-	</p>
+	<c:if test="${houseTypeType=='upperhouse'}">
+		<p>
+			<label class="wysiwyglabel"><spring:message code="question.rejectionReason" text="Rejection reason"/></label>
+			<form:textarea path="rejectionReason" cssClass="wysiwyg"></form:textarea>
+		</p>
+	</c:if>
 	
 	<p>
 	<a href="#" id="viewCitation" style="margin-left: 162px;margin-top: 30px;"><spring:message code="question.viewcitation" text="View Citations"></spring:message></a>	

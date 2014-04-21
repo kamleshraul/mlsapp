@@ -503,9 +503,16 @@
 		} else {
 			$("#selectionDiv1").hide();
 			showTabByIdAndUrl('details_tab', "question/report/" + selectedQuestionId + "/currentstatusreport/?device=question");		    
-		}	
-		
+		}
 	}	
+	
+	function statReport(){
+		var url = "question/statreport?sessionYear="+$("#selectedSessionYear").val()
+				+ "&sessionType="+$("#selectedSessionType").val()
+				+ "&houseType="+$("#selectedHouseType").val()
+				+ "&deviceType="+$("#selectedQuestionType").val();
+		showTabByIdAndUrl('details_tab', url);
+	}
 </script>
 </head>
 <body>
