@@ -1091,11 +1091,13 @@
 		</p>
 	</c:if>	
 	
-	<c:if test="${internalStatusType == 'question_recommend_rejection' or internalStatusType == 'question_final_rejection'}">
-	<p>
-		<label class="wysiwyglabel"><spring:message code="question.rejectionReason" text="Rejection reason"/></label>
-		<form:textarea path="rejectionReason" cssClass="wysiwyg"></form:textarea>
-	</p>
+	<c:if test="${houseTypeType=='upperhouse'}">
+		<c:if test="${internalStatusType == 'question_recommend_rejection' or internalStatusType == 'question_final_rejection'}">
+		<p>
+			<label class="wysiwyglabel"><spring:message code="question.rejectionReason" text="Rejection reason"/></label>
+			<form:textarea path="rejectionReason" cssClass="wysiwyg"></form:textarea>
+		</p>
+		</c:if>
 	</c:if>
 		
 	<p>

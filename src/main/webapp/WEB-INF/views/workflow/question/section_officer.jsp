@@ -1271,6 +1271,7 @@
 	</p>
 	</c:if>	
 	
+	
 	<c:if test="${selectedQuestionType == 'questions_shortnotice' and domain.dateOfAnsweringByMinister != null}">
 		<p>
 		<label class="small"><spring:message code="question.dateOfAnsweringByMinister" text="Date of Answering By Minister"/></label>
