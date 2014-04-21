@@ -997,10 +997,6 @@
 	<input type="hidden" id="internalStatus"  name="internalStatus" value="${internalStatus }">
 	<input type="hidden" id="recommendationStatus"  name="recommendationStatus" value="${recommendationStatus}">
 		
-	<p>
-	<a href="#" id="viewCitation" style="margin-left: 162px;margin-top: 30px;"><spring:message code="question.viewcitation" text="View Citations"></spring:message></a>	
-	</p>
-	
 	<c:if test="${((selectedQuestionType == 'questions_halfhourdiscussion_standalone' && houseTypeType=='lowerhouse') || selectedQuestionType=='questions_starred') && internalStatusType == 'question_final_clarificationNeededFromMember' }">
 		<p>
 			<label class="small"><spring:message code="question.questionsAskedInFactualPosition" text="Questions Asked In Factual Position"/></label>
@@ -1031,6 +1027,18 @@
 		<form:errors path="factualPosition" cssClass="validationError" cssStyle="float:right;margin-top:-100px;margin-right:40px;"/>
 		</p>
 	</c:if>
+	
+	<c:if test="${internalStatusType == 'question_recommend_rejection' or internalStatusType == 'question_final_rejection'}">
+	<p>
+		<label class="wysiwyglabel"><spring:message code="question.rejectionReason" text="Rejection reason"/></label>
+		<form:textarea path="rejectionReason" cssClass="wysiwyg"></form:textarea>
+	</p>
+	</c:if>	
+		
+	<p>
+	<a href="#" id="viewCitation" style="margin-left: 162px;margin-top: 30px;"><spring:message code="question.viewcitation" text="View Citations"></spring:message></a>	
+	</p>
+	
 	<p>
 	<label class="wysiwyglabel"><spring:message code="question.remarks" text="Remarks"/></label>
 	<form:textarea path="remarks" cssClass="wysiwyg"></form:textarea>
