@@ -10,7 +10,15 @@
 		$(document).ready(function(){
 			$.get('question/report/'+ $("#key").val() + '/currentstatusreportvm?device=question',function(data){
 				if(data!=null){
-					$('#reportWindow').html(data);				
+					$('#reportWindow1').html(data);				
+				}
+			}).fail(function(){
+				
+			});
+			
+			$.get('question/report/'+ $("#key").val() + '/currentstatusreportstarredvm?device=question',function(data){
+				if(data!=null){
+					$('#reportWindow2').html(data);				
 				}
 			}).fail(function(){
 				
@@ -21,13 +29,13 @@
         @media screen{
 	        #reportDiv{
 	        	border: 1px solid;
-	        	width: 840px;
+	        	width: 800px;
 	        	padding: 10px;
 	        }	        
         }
         @media print{
 	        #reportDiv{
-	        	width: 840px;
+	        	width: 800px;
 	        	padding: 10px;
 	        }	        
         }
@@ -55,10 +63,14 @@
 						<spring:message code="question.statusreport" text="Status Report"/>
 					</c:when>
 					<c:otherwise>
-						<div id="reportWindow" style="size: 800px;">s
-							v
-						</div>
-						<div>
+						<div id="reportWindow" style="size: 600px;">
+							<div id="reportWindow1" style="word-wrap: break-word;">
+								v
+							</div>
+							<span class="page-break-before-forced">&nbsp;</span>
+							<div id="reportWindow2" style="word-wrap: break-word;">
+								v
+							</div>
 						</div>
 					</c:otherwise>
 				</c:choose>

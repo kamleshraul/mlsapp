@@ -1,52 +1,33 @@
-<div id="reportHeader" style="width: 100%; height: 200px;">
-	<div id="mlsLogo" style="left: 10px; width: 200px; display: inline-block; vertical-align: top;"><img src="./resources/images/vidhanmandal.jpg" alt="Logo"/></div>
-	<div id="headerText" style="width: 400px; display: inline-block; text-align:center;">
+<div id="reportHeader" style="width: 100%;">
+	<div id="headerText" style="display:block; text-align:center;">
 		<span style="font-size: 20px; text-decoration: underline;">
-			महाराष्ट्र विधानसभा
+			विधानसभा तारांकित प्रश्न
 		</span>		
-		<br/><br />
-		<span style="font-size: 13px;">
-			$fullSessionName<br />
-			$deviceName
+		<br/>
+		<span style="font-size: 13px; border-bottom: 2px solid black;">
+			गट क्रमांक $groupNumber उत्तराचा दिनांक: $answeringDate स्वीकृत प्रश्न प्रश्न विभागाकडे पाठविण्याचा दिनांक: $deptSendDate
 		</span>
-	</div>
-	<div id="headerSubText" style="display: inline-block; min-width: 200px;float: right; margin-top: 25px;">
-		<span style="font-weight: bold; font-size: 14px;">प्रपत्र क्रमांक :</span><br />
-		दिनांक : $currentDate <br />
-		निर्वाचन क्षेत्र: $primaryMemConstituency						
 	</div>
 </div>
 <div id="reportContent" style="width: 100%; font-size: 13px;">
-	<pre>
-			श्री./श्रीमती $memberName, वि. स. स.
+	<div style="text-align: justify;">
+				कृपया पृष्ट क्रमांक १ वरील $memberName व इतर वि. स. स.
+		यांचा तारांकित प्रश्न $deviceNumber तसेच पृष्ठ क्रमांक ___________ वरील <br />
+		श्री. / श्रीमती __________________	व इतर वि. स. स. यांचा / यांचे  <br />
+		ता. र. करा. ___________ पाहावा / पाहावेत.
 		
-		प्रति
-			प्रधान सचिव,
-			महाराष्ट्र विधानसभा,
-			विधान भवन, मुंबई ४०० ०३२.
+				प्रश्नोक्त विषयावर गत सत्रात तारांकित / अतारांकित प्रश्न क्रमांक __________ 
+		दिनांक ___________ रोजी उत्तरीत झाला असून विषयाचा पाठपुरावा करण्यासाठी या सत्रात प्रश्न विचारण्यात आला आहे.
+		सबब विषय पर्याप्त सार्वजनिक महत्त्वाचा आहे.
 		
-		महोदय,
-		
-			महाराष्ट्र विधानसभा नियमातील नियम ७२ (१) व नियम ७४ आणि ७५ अन्वये, मी, खालील तारांकित प्रश्नाची
-		सूचना देत आहे. हा प्रश्न दिनांक $answeringDate, $support ला उत्तराकरिता ठेवण्यात यावा. या प्रश्नाला
-		क्रमांक $priority चे प्राथम्य द्यावे;
-												
-												आपला,
-												
-												
-												सदस्य,
-											   महाराष्ट्र विधानसभा.
-											
-		विषय : $subject
-		
-									*प्रश्न क्रमांक $deviceNumber गट क्रमांक $groupNumber
-									
-									श्री. ......................., वि. स. स.
-		सन्मानीय $ministry, पुढील गोष्टींचा खुलासा करतील काय :-
-		
-		$details
-		
-		$principalSec
-		प्रधान सचिव		 
-	</pre>	
+		<table>
+			#foreach($r in $actors)
+				<tr>
+					<td>$r</td>
+					<td>$r</td>
+					<td>$r</td>
+				</tr>
+			#end
+		</table>		
+	</div>	
 </div>
