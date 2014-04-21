@@ -63,7 +63,7 @@ import org.springframework.beans.factory.annotation.Configurable;
 	"briefExplanation","discussionDate","dateOfAnsweringByMinister","toBeAnsweredByMinister"
 	,"revisedReason","reason","numberOfDaysForFactualPositionReceiving",
 	"lastDateOfFactualPositionReceiving","factualPosition","questionsAskedInFactualPosition"
-	,"locale","version","versionMismatch","editedAs","questionreferenceText"},ignoreUnknown=true)
+	,"locale","version","versionMismatch","editedAs","questionreferenceText","rejectionReason"},ignoreUnknown=true)
 public class Question extends Device implements Serializable {
 
     /** The Constant serialVersionUID. */
