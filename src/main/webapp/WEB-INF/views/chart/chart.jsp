@@ -97,7 +97,6 @@
 	<c:if test="${deviceType!='questions_halfhourdiscussion_standalone'}">
 		<label class="small"><spring:message code="question.chart.answeringDate" text="Answering Date"/>: ${answeringDate}</label>
 	</c:if>
-
 <table class="uiTable" border="1">
 	<thead>
 		<tr>
@@ -265,6 +264,13 @@
 </c:otherwise>
 </c:choose>
 </div>
+<c:if test="${deviceType=='questions_starred'}">
+	<div style="position: fixed; z-index: 999; background: scroll; right: 45px; bottom: 50px;">
+		<div style="color: #FFF; border: 1px solid black; background: #F00; width: 25px; height: 17px; padding: 2px; text-align: center; font-weight: bold; vertical-align: middle; display: inline-block;">${report[2][17]}</div>
+		<div style="color: #000; border: 1px solid black; background: #0F0; width: 25px; height: 17px; padding: 2px; text-align: center; font-weight: bold; vertical-align: middle; display: inline-block;">${report[2][15]}</div>
+		<div style="color: #FFF; border: 1px solid black; background: #00F; width: 25px; height: 17px; padding: 2px; text-align: center; font-weight: bold; vertical-align: middle; display: inline-block;;">${report[2][16]}</div>
+	</div>
+</c:if>
 <input type="hidden" id="ErrorMsg" value="<spring:message code='generic.error' text='Error Occured Contact For Support.'/>"/>
 </body>
 </html>
