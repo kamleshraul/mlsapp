@@ -511,6 +511,20 @@
 				+ "&sessionType="+$("#selectedSessionType").val()
 				+ "&houseType="+$("#selectedHouseType").val()
 				+ "&deviceType="+$("#selectedQuestionType").val();
+		
+			if($("#selectedHouseType").val()=='lowerhouse'){
+				var items = new Array();
+				items.push('under_secretary');
+				items.push('principal_secretary');
+				items.push('speaker');
+				url += "&userGroups="+items;
+			}else if($("#selectedHouseType").val()=='upperhouse'){
+				var items = new Array();
+				items.push('under_secretary');
+				items.push('principal_secretary');
+				items.push('chairman');
+				url += "&userGroups=" + items;
+			}
 		showTabByIdAndUrl('details_tab', url);
 	}
 </script>

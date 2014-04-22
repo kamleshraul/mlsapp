@@ -825,6 +825,9 @@
 		</p>
 	</div>
 	
+	<p>
+		Choice: <input type="checkbox" name="sport" value="Cricket">Cricket&nbsp;&nbsp;<input type="checkbox" name="sport" value="Tennis">Tennis&nbsp;&nbsp;<input type="checkbox" name="sport" value="Football">Football&nbsp;&nbsp;
+	</p>
 	
 	<form:hidden path="version" />
 	<form:hidden path="locale"/>
