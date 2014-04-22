@@ -4579,11 +4579,13 @@ public class QuestionController extends GenericController<Question>{
 			String strSessionType = request.getParameter("sessionType");
 			String strHouseType = request.getParameter("houseType");
 			String strDeviceType = request.getParameter("deviceType");
+			String strUserGroups = request.getParameter("userGroups");
 			
 			if(strSessionYear != null && !strSessionYear.isEmpty()
 					&& strSessionType != null && !strSessionType.isEmpty()
 					&& strHouseType != null && !strHouseType.isEmpty()
-					&& strDeviceType != null && !strDeviceType.isEmpty()){
+					&& strDeviceType != null && !strDeviceType.isEmpty()
+					&& strUserGroups != null && !strUserGroups.isEmpty()){
 				
 				model.addAttribute("col1", "गट क्रमांक");
 				model.addAttribute("col2", "दिलेले एकूण प्रश्न");
@@ -4595,10 +4597,10 @@ public class QuestionController extends GenericController<Question>{
 				model.addAttribute("col8", "मा. अध्यक्ष यांची मान्यता प्राप्त झालेले एकूण प्रश्न");
 				model.addAttribute("total", "एकूण");
 				StringBuffer head1 = new StringBuffer(FormaterUtil.getDayInMarathi(FormaterUtil.formatDateToString(new Date(), "EEEE", locale.toString()), locale.toString()));
-				head1.append(", दिनांक " + FormaterUtil.formatDateToString(new Date(), ApplicationConstants.SERVER_DATEFORMAT, locale.toString()) + " रोजीपर्यंत \"ब\" कक्षास प्राप्त तारांकित");
+				head1.append(", दिनांक " + FormaterUtil.formatDateToString(new Date(), ApplicationConstants.SERVER_DATEFORMAT, locale.toString()) + " रोजीपर्यंत \"" + ((strHouseType.equals(ApplicationConstants.LOWER_HOUSE))? "ब":"इ") + "\" कक्षास प्राप्त तारांकित");
 				model.addAttribute("head1", head1.toString());
 				model.addAttribute("head2", "प्रश्नांवरील कार्यवाहीबाबत गटनिहाय तपशील");
-				
+								
 				SessionType sessionType = SessionType.findById(SessionType.class, new Long(strSessionType));
 				HouseType houseType = HouseType.findByType(strHouseType, locale.toString());
 				Session session = Session.findSessionByHouseTypeSessionTypeYear(houseType, sessionType, new Integer(strSessionYear));
@@ -4607,15 +4609,36 @@ public class QuestionController extends GenericController<Question>{
 				parameters.put("sessionId", new String[]{session.getId().toString()});
 				parameters.put("deviceTypeId", new String[]{deviceType.getId().toString()});
 				parameters.put("locale", new String[]{locale.toString()});
+				
 				List report1 = Query.findReport("QIS_STATS_REPORT_ONE", parameters);
 				List report2 = Query.findReport("QIS_STATS_REPORT_TWO", parameters);
 				List report3 = Query.findReport("QIS_STATS_REPORT_THREE", parameters);
-				List report4 = Query.findReport("QIS_STATS_REPORT_FOUR", parameters);
-				List report5 = Query.findReport("QIS_STATS_REPORT_FIVE", parameters);
-				List report6 = Query.findReport("QIS_STATS_REPORT_SIX", parameters);
-				List report7 = Query.findReport("QIS_STATS_REPORT_SEVEN", parameters);
-				List report8 = Query.findReport("QIS_STATS_REPORT_TYPIST", parameters);
 				
+				String[] strUsergroups = strUserGroups.split(",");
+
+				parameters.put("houseTypeId", new String[]{houseType.getId().toString()});
+				parameters.put("userGroupType", new String[]{strUsergroups[0]});
+				parameters.put("wfStatus", new String[]{"PENDING"});				
+				List report4 = Query.findReport("QIS_STATS_REPORT_FOUR", parameters);
+				
+				parameters.put("userGroupType", new String[]{strUsergroups[1]});
+				parameters.put("wfStatus", new String[]{"PENDING"});
+				List report5 = Query.findReport("QIS_STATS_REPORT_FIVE", parameters);
+				
+				
+				parameters.put("userGroupType", new String[]{strUsergroups[2]});
+				parameters.put("wfStatus", new String[]{"PENDING"});
+				List report6 = Query.findReport("QIS_STATS_REPORT_SIX", parameters);
+								
+				parameters.put("userGroupType", new String[]{strUsergroups[2]});
+				parameters.put("wfStatus", new String[]{"COMPLETED"});
+				List report7 = Query.findReport("QIS_STATS_REPORT_SEVEN", parameters);
+				
+				List report8 = Query.findReport("QIS_STATS_REPORT_TYPIST", parameters);
+								
+				for(int i = 0; i < report8.size(); i++){
+					((Object[])report8.get(i))[0] = FormaterUtil.formatNumberNoGrouping((i+1), locale.toString());
+				}
 				model.addAttribute("report1", report1);
 				model.addAttribute("report2", report2);
 				model.addAttribute("report3", report3);
