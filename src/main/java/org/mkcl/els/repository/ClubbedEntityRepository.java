@@ -6,6 +6,8 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
+import javax.persistence.Query;
+
 import org.mkcl.els.common.util.ApplicationConstants;
 import org.mkcl.els.common.util.FormaterUtil;
 import org.mkcl.els.common.vo.BillSearchVO;
@@ -544,9 +546,19 @@ public class ClubbedEntityRepository extends BaseRepository<ClubbedEntity, Seria
 	private String alreadyClubbed(final Question beingProcessedQuestion,
 			final Question beingClubbedQuestion,final String locale) {
 		/**** If either of the two question has an entry in clubbed entity it means the question is already clubbed ****/
-		ClubbedEntity clubbedEntity1=ClubbedEntity.findByFieldName(ClubbedEntity.class,"question",
-				beingClubbedQuestion, locale);
-		if(clubbedEntity1!=null){
+		/*ClubbedEntity clubbedEntity1=ClubbedEntity.findByFieldName(ClubbedEntity.class,"question",
+				beingClubbedQuestion, locale);*/
+		String strQuery="SELECT ce FROM Question q JOIN q.clubbedEntities ce " +
+				"WHERE ce.question.id=:clubbedQuestionId " +
+				"AND q.id=:processedQuestionId AND ce.locale=:locale";
+		Query query=this.em().createQuery(strQuery);
+		query.setParameter("clubbedQuestionId", beingClubbedQuestion.getId());
+		query.setParameter("processedQuestionId",beingProcessedQuestion.getId());
+		query.setParameter("locale",locale);
+		
+		/****Result list is used as getsingleresult logs the exception when the entity is not found****/
+		List<ClubbedEntity> clubEntities=query.getResultList();
+		if(clubEntities!=null && clubEntities.size()>0){
 			/**** Clubbed question has an entry in clubbed entities ****/
 			return "BEINGSEARCHED_QUESTION_ALREADY_CLUBBED";
 		}else{
