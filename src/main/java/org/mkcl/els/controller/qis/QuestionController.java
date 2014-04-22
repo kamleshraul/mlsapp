@@ -4542,25 +4542,42 @@ public class QuestionController extends GenericController<Question>{
 					model.addAttribute("deptSendDate", FormaterUtil.formatDateToString(deptSendDate, ApplicationConstants.SERVER_DATEFORMAT, locale.toString()));
 				}
 				
-				List<String> actors = new ArrayList<String>();
-				CustomParameter csptAllwedUserGroupForStatusReportSign = CustomParameter.findByName(CustomParameter.class, "QIS_ALLOWED_USERGROUPS_FOR_STATUS_REPORT_SIGN", "");
+				List<MasterVO> actors = new ArrayList<MasterVO>();
+				CustomParameter csptAllwedUserGroupForStatusReportSign = CustomParameter.findByName(CustomParameter.class, (qt.getHouseType().getType().equals(ApplicationConstants.LOWER_HOUSE)? "QIS_ALLOWED_USERGROUPS_FOR_STATUS_REPORT_SIGN_LOWERHOUSE": "QIS_ALLOWED_USERGROUPS_FOR_STATUS_REPORT_SIGN_UPPERHOUSE"), "");
 				if(csptAllwedUserGroupForStatusReportSign != null){
 					if(csptAllwedUserGroupForStatusReportSign.getValue() != null && !csptAllwedUserGroupForStatusReportSign.getValue().isEmpty()){
 						for(Object o : report){
 							Object[] objx = (Object[])o;
 							
 							if(objx[27] != null && !objx[27].toString().isEmpty()){
-								if(csptAllwedUserGroupForStatusReportSign.getValue().contains(objx[27].toString())){									
-									String actor = (new StringBuffer(objx[0].toString() + "," + objx[6].toString())).toString();
+								if(csptAllwedUserGroupForStatusReportSign.getValue().contains(objx[27].toString())){							
+									UserGroupType userGroupType = UserGroupType.findByFieldName(UserGroupType.class, "type", objx[27].toString(), locale.toString());
+									MasterVO actor = new MasterVO();
+									actor.setName(userGroupType.getName());
+									if(objx[6] != null){
+										actor.setValue(objx[6].toString());
+									}
 									actors.add(actor);
 								}
 							}
 						}
+						
+						
+						if(actors.isEmpty()){
+							for(String val : csptAllwedUserGroupForStatusReportSign.getValue().split(",")){
+								UserGroupType userGroupType = UserGroupType.findByFieldName(UserGroupType.class, "type", val, locale.toString());
+								MasterVO actor = new MasterVO();
+								actor.setName(userGroupType.getName());
+								actor.setValue("");
+								actors.add(actor);
+							}
+						}
+						
+						model.addAttribute("actors", actors);
 					}
 				}
 				
-				List<User> users = User.findByRole(false, "QIS_PRINCIPAL_SECRETARY", locale.toString());
-				
+				List<User> users = User.findByRole(false, "QIS_PRINCIPAL_SECRETARY", locale.toString());				
 				model.addAttribute("principalSec", users.get(0).getTitle() + " " + users.get(0).getFirstName() + " " + users.get(0).getLastName());
 				
 				page = (qt.getHouseType().getType().equals(ApplicationConstants.LOWER_HOUSE))? "question/reports/statusreportlowerhousesupplementstarred": "question/reports/statusreportupperhousesupplementstarred";
