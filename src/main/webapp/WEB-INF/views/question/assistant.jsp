@@ -1267,6 +1267,11 @@
 					<input id="startworkflow" type="button" value="<spring:message code='question.putupquestion' text='Put Up Question'/>" class="butDef">
 					</security:authorize>					
 				</c:if>
+				<c:if test="${fn:contains(internalStatusType, 'question_final') && selectedQuestionType=='questions_starred' && houseTypeType=='upperhouse'}">
+					<security:authorize access="hasAnyRole('QIS_CLERK','QIS_ASSISTANT','HDS_ASSISTANT')">
+						<input id="submit" type="submit" value="<spring:message code='generic.submit' text='Submit'/>" class="butDef">
+					</security:authorize>					
+				</c:if>
 				<%-- <c:if test="${(internalStatusType=='question_system_putup'||internalStatusType=='question_putup_nameclubbing'&& selectedQuestionType=='questions_starred')
 							||(internalStatusType=='question_system_assistantprocessed'&&selectedQuestionType=='questions_shortnotice')
 							||(internalStatusType=='question_system_assistantprocessed'&&selectedQuestionType=='questions_halfhourdiscussion_from_question')
