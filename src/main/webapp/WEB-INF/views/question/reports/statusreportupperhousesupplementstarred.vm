@@ -1,7 +1,7 @@
 <div id="reportHeader" style="width: 100%;">
 	<div id="headerText" style="display:block; text-align:center;">
 		<span style="font-size: 22px; text-decoration: underline;">
-			विधानसभा तारांकित प्रश्न
+			विधानपरिषद तारांकित प्रश्न
 		</span>		
 		<br/>
 		<span style="font-size: 16px; border-bottom: 2px solid black;">
@@ -12,12 +12,11 @@
 <div id="reportContent" style="width: 100%; font-size: 16px;">
 	<div style="text-align: justify;">
 				<br />
-				कृपया पृष्ट क्रमांक १ वरील $memberName व इतर वि. स. स.
-		यांचा तारांकित प्रश्न $deviceNumber तसेच पृष्ठ क्रमांक ___________ वरील <br />
-		श्री. / श्रीमती __________________	व इतर वि. स. स. यांचा / यांचे  <br />
+				<span style="margin-left: 50px;">कृपया</span> पृष्ट क्रमांक १ वरील $memberName व इतर वि. स. स.
+		यांचा तारांकित प्रश्न $deviceNumber तसेच पृष्ठ क्रमांक ___________ वरील श्री. / श्रीमती __________________	व इतर वि. स. स. यांचा / यांचे 
 		ता. र. करा. ___________ पाहावा / पाहावेत.
-		
-				प्रश्नोक्त विषयावर गत सत्रात तारांकित / अतारांकित प्रश्न क्रमांक __________ 
+		<br>
+				<span style="margin-left: 50px;">प्रश्नोक्त</span> विषयावर गत सत्रात तारांकित / अतारांकित प्रश्न क्रमांक __________ 
 		दिनांक ___________ रोजी उत्तरीत झाला असून विषयाचा पाठपुरावा करण्यासाठी या सत्रात प्रश्न विचारण्यात आला आहे.
 		सबब विषय पर्याप्त सार्वजनिक महत्त्वाचा आहे.
 		
@@ -34,6 +33,6 @@
 		
 		<br />
 		<br />
-		<span style="margin-left: 560px;">मा. अध्यक्ष</span>	
+		<span style="margin-left: 560px;">मा. सभापती</span>	
 	</div>	
 </div>

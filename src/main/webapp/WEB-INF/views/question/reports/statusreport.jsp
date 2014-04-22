@@ -37,7 +37,12 @@
 	        #reportDiv{
 	        	width: 800px;
 	        	padding: 10px;
-	        }	        
+	        	margin-top: 10px !important;
+	        }
+	        
+	        .page-breakx{
+	        	page-break-after: always;
+	        }           
         }
         
         pre{
@@ -53,27 +58,26 @@
 <body>
 <p id="error_p" style="display: none;">&nbsp;</p>
 <div id="reportDiv">
-	<div id="statusReportDiv">
-		<%@ include file="/common/info.jsp" %>
-				<c:choose>
-					<c:when test="${size==null}">
-						<spring:message code="question.statusreport" text="Status Report"/>
-					</c:when>
-					<c:when test="${size==0}">
-						<spring:message code="question.statusreport" text="Status Report"/>
-					</c:when>
-					<c:otherwise>
-						<div id="reportWindow" style="size: 600px;">
-							<div id="reportWindow1" style="word-wrap: break-word;">
-								v
-							</div>
-							<span class="page-break-before-forced">&nbsp;</span>
-							<div id="reportWindow2" style="word-wrap: break-word;">
-								v
-							</div>
-						</div>
-					</c:otherwise>
-				</c:choose>
+	<div id="statusReportDiv">		
+		<c:choose>
+			<c:when test="${size==null}">
+				<spring:message code="question.statusreport" text="Status Report"/>
+			</c:when>
+			<c:when test="${size==0}">
+				<spring:message code="question.statusreport" text="Status Report"/>
+			</c:when>
+			<c:otherwise>
+				<div id="reportWindow" style="size: 600px;">
+					<div id="reportWindow1" style="word-wrap: break-word;">
+						v
+					</div>
+					<span class="page-break-before-forced">&nbsp;</span>
+					<div id="reportWindow2" style="word-wrap: break-word;">
+						v
+					</div>
+				</div>
+			</c:otherwise>
+		</c:choose>
 	</div>
 </div>
 <input type="hidden" id="device" value="${device}" />

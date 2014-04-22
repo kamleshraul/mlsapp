@@ -2,7 +2,7 @@
 	<tr>
 		<td style="width: 600px; text-align: center;" colspan="2">
 			<span style="font-size: 22px; text-decoration: underline;">
-				महाराष्ट्र विधानसभा
+				महाराष्ट्र विधानपरिषद
 			</span>	
 			<br/><br />
 			<span style="font-size: 16px;">
@@ -27,17 +27,17 @@
 					<span style="margin-left: 80px; width: 100%;">$memberName, $support वि. स. स.</span><br />
 				<span style="margin-left: 40px;">प्रति</span><br />
 					<span style="margin-left: 50px;">प्रधान सचिव,</span><br />
-					<span style="margin-left: 50px;">महाराष्ट्र विधानसभा,</span><br />
+					<span style="margin-left: 50px;">महाराष्ट्र विधानपरिषद,</span><br />
 					<span style="margin-left: 50px;">विधान भवन, मुंबई ४०० ०३२.</span><br /><br />
 				
 				<span style="margin-left: 40px;">महोदय,</span><br />				
-					<span style="margin-left: 50px;">महाराष्ट्र विधानसभा नियमातील नियम ७२ (१) व नियम ७४ आणि ७५ अन्वये, मी, खालील तारांकित प्रश्नाची
+					<span style="margin-left: 50px;">महाराष्ट्र विधानपरिषद नियमातील नियम ७२ (१) व नियम ७४ आणि ७५ अन्वये, मी, खालील तारांकित प्रश्नाची
 				सूचना देत आहे.</span><br />
 				<span style="margin-left: 40px;">हा प्रश्न दिनांक $answeringDate, $support ला उत्तराकरिता ठेवण्यात यावा. या प्रश्नाला क्रमांक $priority चे प्राथम्य द्यावे;</span><br />														
 														<span style="margin-left: 600px;">आपला,</span>
 														<br /><br /><br />													
 														<span style="margin-left: 600px;">सदस्य,</span><br />
-													   <span style="margin-left: 571px;">महाराष्ट्र विधानसभा.</span><br /><br />				
+													   <span style="margin-left: 569px;">महाराष्ट्र विधानपरिषद.</span><br /><br />				
 				<span style="max-width: 800px;">									
 					<span style="margin-left: 40px;">विषय : $subject</span><br />
 					
