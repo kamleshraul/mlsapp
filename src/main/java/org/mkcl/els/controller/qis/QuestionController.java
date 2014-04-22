@@ -2102,11 +2102,28 @@ public class QuestionController extends GenericController<Question>{
 				}
 			}else{
 				Status status=Status.findByFieldName(Status.class, "type", ApplicationConstants.QUESTION_COMPLETE, domain.getLocale());
-				if(!domain.getStatus().getType().equals(ApplicationConstants.QUESTION_SUBMIT)){
+				
+				/*****Uncomment the following Code when processing of question for council will be 
+				 * done online And delete the code following the below code******/
+				/*if(!domain.getStatus().getType().equals(ApplicationConstants.QUESTION_SUBMIT)){
 					domain.setStatus(status);
 					domain.setInternalStatus(status);
 					domain.setRecommendationStatus(status);
+				}*/
+				if(domain.getHouseType().getType().equals(ApplicationConstants.LOWER_HOUSE)){
+					if(!domain.getStatus().getType().equals(ApplicationConstants.QUESTION_SUBMIT)){
+						domain.setStatus(status);
+						domain.setInternalStatus(status);
+						domain.setRecommendationStatus(status);
+					}
+				}else if(domain.getHouseType().getType().equals(ApplicationConstants.UPPER_HOUSE)){
+					if(!domain.getStatus().getType().equals(ApplicationConstants.QUESTION_SUBMIT) && !domain.getStatus().getType().contains("question_final")){
+						domain.setStatus(status);
+						domain.setInternalStatus(status);
+						domain.setRecommendationStatus(status);
+					}
 				}
+				
 			}
 		}
 		else{
