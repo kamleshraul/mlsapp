@@ -116,6 +116,7 @@
 					<th style="width: 80px; padding: 2px;">${col2}</th>
 					<th style="width: 80px; padding: 2px;">${col3}</th>
 					<th style="width: 80px; padding: 2px;">${col4}</th>
+					<th style="width: 80px; padding: 2px;">${col9}</th>
 					<th style="width: 90px; padding: 2px;">${col5}</th>
 					<th style="width: 95px; padding: 2px;">${col6}</th>
 					<th style="width: 95px; padding: 2px;">${col7}</th>
@@ -172,6 +173,16 @@
 								</c:when>
 								<c:otherwise>
 									${report4[counter.count-1][2]}
+								</c:otherwise>
+							</c:choose>
+						</td>
+						<td>
+							<c:choose>
+								<c:when test="${empty report9[counter.count-1][2]}">
+									-
+								</c:when>
+								<c:otherwise>
+									${report9[counter.count-1][2]}
 								</c:otherwise>
 							</c:choose>
 						</td>
@@ -255,6 +266,16 @@
 							</c:when>
 							<c:otherwise>
 								${report4[0][3]}
+							</c:otherwise>
+						</c:choose>
+					</td>
+					<td class="finalTotal">
+						<c:choose>
+							<c:when test="${empty report9[0][3]}">
+								-
+							</c:when>
+							<c:otherwise>
+								${report9[0][3]}
 							</c:otherwise>
 						</c:choose>
 					</td>
