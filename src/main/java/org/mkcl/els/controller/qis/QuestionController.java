@@ -4398,213 +4398,7 @@ public class QuestionController extends GenericController<Question>{
 			}
 		}	
 	}
-	
-	@SuppressWarnings("rawtypes")
-	@RequestMapping(value="report/{qId}/currentstatusreport", method=RequestMethod.GET)
-	public String getCurrentStatusReport(@PathVariable("qId") Long id, Model model, HttpServletRequest request, HttpServletResponse response, Locale locale){
 		
-		String strDevice = request.getParameter("device");
-		
-		if(strDevice != null && !strDevice.isEmpty()){
-			Question qt = Question.findById(Question.class, id);
-			List report = generatetCurrentStatusReport(qt, strDevice, locale.toString());			
-			model.addAttribute("device", strDevice);	
-			model.addAttribute("size", report.size());
-		}
-		
-		response.setContentType("text/html; charset=utf-8");
-		return "question/reports/statusreport";
-	}
-	
-	@SuppressWarnings("rawtypes")
-	@RequestMapping(value="report/{qId}/currentstatusreportvm", method=RequestMethod.GET)
-	public String getCurrentStatusReportVM(@PathVariable("qId") Long id, Model model, HttpServletRequest request, HttpServletResponse response, Locale locale){
-		
-		String strDevice = request.getParameter("device");
-		String page = "question/error";
-		if(strDevice != null && !strDevice.isEmpty()){
-			Question qt = Question.findById(Question.class, id);
-			List report = generatetCurrentStatusReport(qt, strDevice, locale.toString());
-			//model.addAttribute("report", report);
-			if(report != null && !report.isEmpty()){
-				
-				Object[] obj = (Object[]) report.get(0);
-				if(obj[26] != null){
-					model.addAttribute("fullSessionName", obj[26].toString());
-				}
-				if(obj[11] != null){
-					model.addAttribute("deviceName", obj[11].toString());
-				}
-				
-				model.addAttribute("currentDate", FormaterUtil.formatDateToString(new Date(), ApplicationConstants.SERVER_DATEFORMAT, locale.toString()));
-								
-				if(obj[16] != null){
-					model.addAttribute("primaryMemConstituency", obj[16].toString());
-				}
-				
-				if(obj[12] != null){
-					model.addAttribute("memberName", obj[12].toString());
-				}
-								
-				if(obj[17] != null){
-					model.addAttribute("support", obj[17].toString());
-				}
-				
-				if(obj[19] != null){
-					model.addAttribute("groupNumber", obj[19].toString());
-				}
-				
-				if(obj[21] != null){
-					Date answeringDate = FormaterUtil.formatStringToDate(obj[21].toString(), ApplicationConstants.DB_DATEFORMAT);
-					model.addAttribute("answeringDate", FormaterUtil.formatDateToString(answeringDate, ApplicationConstants.SERVER_DATEFORMAT, locale.toString()));
-				}
-				
-				if(obj[23] != null){
-					model.addAttribute("priority", obj[23].toString());
-				}
-				
-				if(obj[5] != null){
-					model.addAttribute("subject", obj[5].toString());
-				}
-				
-				if(obj[9] != null){
-					model.addAttribute("deviceNumber", obj[9].toString());
-				}
-				
-				if(obj[24] != null){
-					model.addAttribute("ministry", obj[24].toString());
-				}
-				
-				if(obj[4] != null){
-					model.addAttribute("details", obj[4].toString());
-				}
-				
-				List<User> users = User.findByRole(false, "QIS_PRINCIPAL_SECRETARY", locale.toString());
-				
-				model.addAttribute("principalSec", users.get(0).getTitle() + " " + users.get(0).getFirstName() + " " + users.get(0).getLastName());
-				
-				page = (qt.getHouseType().getType().equals(ApplicationConstants.LOWER_HOUSE))? "question/reports/statusreportlowerhouse": "question/reports/statusreportupperhouse";
-			}			
-		}
-		
-		response.setContentType("text/html; charset=utf-8");		
-		return page;
-	}
-	
-	@SuppressWarnings("rawtypes")
-	@RequestMapping(value="report/{qId}/currentstatusreportstarredvm", method=RequestMethod.GET)
-	public String getCurrentStatusReportStarredSupplementVM(@PathVariable("qId") Long id, Model model, HttpServletRequest request, HttpServletResponse response, Locale locale){
-		
-		String strDevice = request.getParameter("device");
-		String page = "question/error";
-		if(strDevice != null && !strDevice.isEmpty()){
-			Question qt = Question.findById(Question.class, id);
-			List report = generatetCurrentStatusReport(qt, strDevice, locale.toString());
-			//model.addAttribute("report", report);
-			if(report != null && !report.isEmpty()){
-				
-				Object[] obj = (Object[]) report.get(0);
-				if(obj[26] != null){
-					model.addAttribute("fullSessionName", obj[26].toString());
-				}
-				if(obj[11] != null){
-					model.addAttribute("deviceName", obj[11].toString());
-				}
-				
-				model.addAttribute("currentDate", FormaterUtil.formatDateToString(new Date(), ApplicationConstants.SERVER_DATEFORMAT, locale.toString()));
-								
-				if(obj[16] != null){
-					model.addAttribute("primaryMemConstituency", obj[16].toString());
-				}
-				
-				if(obj[12] != null){
-					model.addAttribute("memberName", obj[12].toString());
-				}
-								
-				if(obj[17] != null){
-					model.addAttribute("support", obj[17].toString());
-				}
-				
-				if(obj[19] != null){
-					model.addAttribute("groupNumber", obj[19].toString());
-				}
-				
-				if(obj[21] != null){
-					Date answeringDate = FormaterUtil.formatStringToDate(obj[21].toString(), ApplicationConstants.DB_DATEFORMAT);
-					model.addAttribute("answeringDate", FormaterUtil.formatDateToString(answeringDate, ApplicationConstants.SERVER_DATEFORMAT, locale.toString()));
-				}
-				
-				if(obj[23] != null){
-					model.addAttribute("priority", obj[23].toString());
-				}
-				
-				if(obj[5] != null){
-					model.addAttribute("subject", obj[5].toString());
-				}
-				
-				if(obj[9] != null){
-					model.addAttribute("deviceNumber", obj[9].toString());
-				}
-				
-				if(obj[24] != null){
-					model.addAttribute("ministry", obj[24].toString());
-				}
-				
-				if(obj[4] != null){
-					model.addAttribute("details", obj[4].toString());
-				}
-				
-				if(obj[22] != null){
-					Date deptSendDate = FormaterUtil.formatStringToDate(obj[22].toString(), ApplicationConstants.DB_DATEFORMAT);
-					model.addAttribute("deptSendDate", FormaterUtil.formatDateToString(deptSendDate, ApplicationConstants.SERVER_DATEFORMAT, locale.toString()));
-				}
-				
-				List<MasterVO> actors = new ArrayList<MasterVO>();
-				CustomParameter csptAllwedUserGroupForStatusReportSign = CustomParameter.findByName(CustomParameter.class, (qt.getHouseType().getType().equals(ApplicationConstants.LOWER_HOUSE)? "QIS_ALLOWED_USERGROUPS_FOR_STATUS_REPORT_SIGN_LOWERHOUSE": "QIS_ALLOWED_USERGROUPS_FOR_STATUS_REPORT_SIGN_UPPERHOUSE"), "");
-				if(csptAllwedUserGroupForStatusReportSign != null){
-					if(csptAllwedUserGroupForStatusReportSign.getValue() != null && !csptAllwedUserGroupForStatusReportSign.getValue().isEmpty()){
-						for(Object o : report){
-							Object[] objx = (Object[])o;
-							
-							if(objx[27] != null && !objx[27].toString().isEmpty()){
-								if(csptAllwedUserGroupForStatusReportSign.getValue().contains(objx[27].toString())){							
-									UserGroupType userGroupType = UserGroupType.findByFieldName(UserGroupType.class, "type", objx[27].toString(), locale.toString());
-									MasterVO actor = new MasterVO();
-									actor.setName(userGroupType.getName());
-									if(objx[6] != null){
-										actor.setValue(objx[6].toString());
-									}
-									actors.add(actor);
-								}
-							}
-						}
-						
-						
-						if(actors.isEmpty()){
-							for(String val : csptAllwedUserGroupForStatusReportSign.getValue().split(",")){
-								UserGroupType userGroupType = UserGroupType.findByFieldName(UserGroupType.class, "type", val, locale.toString());
-								MasterVO actor = new MasterVO();
-								actor.setName(userGroupType.getName());
-								actor.setValue("");
-								actors.add(actor);
-							}
-						}
-						
-						model.addAttribute("actors", actors);
-					}
-				}
-				
-				List<User> users = User.findByRole(false, "QIS_PRINCIPAL_SECRETARY", locale.toString());				
-				model.addAttribute("principalSec", users.get(0).getTitle() + " " + users.get(0).getFirstName() + " " + users.get(0).getLastName());
-				
-				page = (qt.getHouseType().getType().equals(ApplicationConstants.LOWER_HOUSE))? "question/reports/statusreportlowerhousesupplementstarred": "question/reports/statusreportupperhousesupplementstarred";
-			}			
-		}
-		
-		response.setContentType("text/html; charset=utf-8");		
-		return page;
-	}
-	
 	@SuppressWarnings("rawtypes")
 	@RequestMapping(value="/statreport", method=RequestMethod.GET)
 	public String getStatsReport(HttpServletRequest request, HttpServletResponse response, Model model, Locale locale){
@@ -4613,13 +4407,11 @@ public class QuestionController extends GenericController<Question>{
 			String strSessionType = request.getParameter("sessionType");
 			String strHouseType = request.getParameter("houseType");
 			String strDeviceType = request.getParameter("deviceType");
-			String strUserGroups = request.getParameter("userGroups");
 			
 			if(strSessionYear != null && !strSessionYear.isEmpty()
 					&& strSessionType != null && !strSessionType.isEmpty()
 					&& strHouseType != null && !strHouseType.isEmpty()
-					&& strDeviceType != null && !strDeviceType.isEmpty()
-					&& strUserGroups != null && !strUserGroups.isEmpty()){
+					&& strDeviceType != null && !strDeviceType.isEmpty()){
 				
 				model.addAttribute("col1", "गट क्रमांक");
 				model.addAttribute("col2", "दिलेले एकूण प्रश्न");
@@ -4628,7 +4420,8 @@ public class QuestionController extends GenericController<Question>{
 				model.addAttribute("col5", "अवर सचिवांकडे पाठविलेले एकूण प्रश्न");
 				model.addAttribute("col6", "प्रधान सचिवांकडे पाठविलेले एकूण प्रश्न");
 				model.addAttribute("col7", "मा. अध्यक्षांकडे पाठविलेले एकूण प्रश्न");
-				model.addAttribute("col8", "मा. अध्यक्ष यांची मान्यता प्राप्त झालेले एकूण प्रश्न");
+				model.addAttribute("col8", "मा. " + ((strHouseType.equals(ApplicationConstants.LOWER_HOUSE))? "अध्यक्ष":"सभापती") + " यांची मान्यता प्राप्त झालेले एकूण प्रश्न");
+				model.addAttribute("col9", "अवर सचिवांकडे(समिती) पाठविलेले एकूण प्रश्न");
 				model.addAttribute("total", "एकूण");
 				StringBuffer head1 = new StringBuffer(FormaterUtil.getDayInMarathi(FormaterUtil.formatDateToString(new Date(), "EEEE", locale.toString()), locale.toString()));
 				head1.append(", दिनांक " + FormaterUtil.formatDateToString(new Date(), ApplicationConstants.SERVER_DATEFORMAT, locale.toString()) + " रोजीपर्यंत \"" + ((strHouseType.equals(ApplicationConstants.LOWER_HOUSE))? "ब":"इ") + "\" कक्षास प्राप्त तारांकित");
@@ -4648,23 +4441,37 @@ public class QuestionController extends GenericController<Question>{
 				List report2 = Query.findReport("QIS_STATS_REPORT_TWO", parameters);
 				List report3 = Query.findReport("QIS_STATS_REPORT_THREE", parameters);
 				
-				String[] strUsergroups = strUserGroups.split(",");
+				String[] strUsergroups = null;
+				CustomParameter csptStatReportUserGroups = CustomParameter.findByName(CustomParameter.class, "QIS_ALLOWED_USERGROUPS_FOR_STAT_REPORT_" + strHouseType.toUpperCase() , "");
+				
+				if(csptStatReportUserGroups != null){
+					strUsergroups = csptStatReportUserGroups.getValue().split(",");
+				}
 
 				parameters.put("houseTypeId", new String[]{houseType.getId().toString()});
-				parameters.put("userGroupType", new String[]{strUsergroups[0]});
+				parameters.put("userGroupType1", new String[]{strUsergroups[0]});
+				parameters.put("userGroupType2", new String[]{strUsergroups[0]});
 				parameters.put("wfStatus", new String[]{"PENDING"});				
 				List report4 = Query.findReport("QIS_STATS_REPORT_FOUR", parameters);
 				
-				parameters.put("userGroupType", new String[]{strUsergroups[1]});
+				parameters.put("userGroupType1", new String[]{strUsergroups[1]});
+				parameters.put("userGroupType2", new String[]{strUsergroups[1]});
+				parameters.put("wfStatus", new String[]{"PENDING"});				
+				List report9 = Query.findReport("QIS_STATS_REPORT_FOUR", parameters);
+				
+				parameters.put("userGroupType1", new String[]{strUsergroups[2]});
+				parameters.put("userGroupType2", new String[]{strUsergroups[2]});
 				parameters.put("wfStatus", new String[]{"PENDING"});
 				List report5 = Query.findReport("QIS_STATS_REPORT_FIVE", parameters);
 				
 				
-				parameters.put("userGroupType", new String[]{strUsergroups[2]});
+				parameters.put("userGroupType1", new String[]{strUsergroups[3]});
+				parameters.put("userGroupType2", new String[]{strUsergroups[3]});
 				parameters.put("wfStatus", new String[]{"PENDING"});
 				List report6 = Query.findReport("QIS_STATS_REPORT_SIX", parameters);
 								
-				parameters.put("userGroupType", new String[]{strUsergroups[2]});
+				parameters.put("userGroupType1", new String[]{strUsergroups[3]});
+				parameters.put("userGroupType2", new String[]{strUsergroups[3]});
 				parameters.put("wfStatus", new String[]{"COMPLETED"});
 				List report7 = Query.findReport("QIS_STATS_REPORT_SEVEN", parameters);
 				
@@ -4681,28 +4488,13 @@ public class QuestionController extends GenericController<Question>{
 				model.addAttribute("report6", report6);
 				model.addAttribute("report7", report7);
 				model.addAttribute("report8", report8);
+				model.addAttribute("report9", report9);
 				
 			}
 		}catch(Exception e){
 			e.printStackTrace();
 		}
 		return "question/reports/statreport";
-	}
-	
-	@SuppressWarnings("rawtypes")
-	private List generatetCurrentStatusReport(final Question question, final String device, final String locale){
-		String support = question.getAllSupportingMembers();
-		Map<String, String[]> parameters = new HashMap<String, String[]>();
-		parameters.put("locale",new String[]{locale.toString()});
-		parameters.put("id",new String[]{question.getId().toString()});
-		parameters.put("device", new String[]{device});
-		
-		List list = Query.findReport("QIS_CURRENTSTATUS_REPORT", parameters);
-		for(Object o : list){
-			((Object[])o)[17] = support;			
-		}
-		
-		return list;  
 	}
 		
 }
