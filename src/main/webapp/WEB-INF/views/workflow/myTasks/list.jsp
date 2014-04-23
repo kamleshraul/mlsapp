@@ -25,6 +25,10 @@
 				$("#selectionDiv").hide();
 				provideDate();
 			});
+			
+			$("#generateCurrentStatusReport").click(function(){
+				showCurrentStatusReport();
+			});
 		});
 	</script>
 </head>
@@ -47,6 +51,12 @@
 				<spring:message code="generic.giveintroductiondate" text="Provide Introduction Date"/>
 			</a>
 			</security:authorize>
+			<security:authorize access="hasAnyRole('QIS_PRINCIPAL_SECRETARY','QIS_SECTION_OFFICER')">
+				|
+				<a href="#" id="generateCurrentStatusReport" class="butSim">
+					<spring:message code="question.generateCurrentStatusReport" text="Generate Current Status Report"/>
+				</a> |
+			 </security:authorize>
 			<p>&nbsp;</p>
 		</div>
 	</div>

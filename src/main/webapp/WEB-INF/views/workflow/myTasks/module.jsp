@@ -139,6 +139,18 @@
 
 			    $('#newTasksDiv').toggle(effect, options, duration);
 			});
+			
+			$("#notificationDiv").mouseover(function(e){
+				 var effect = 'slide';
+
+				    // Set the options for the effect type chosen
+				    var options = { direction: 'right' };
+
+				    // Set the duration (default: 400 milliseconds)
+				    var duration = 700;
+
+				    $('#newTasksDiv').css({'height': 500+'px'}).toggle(effect, options, duration);
+			});		
 		});
 				
 		//to get the new pending tasks
@@ -404,6 +416,11 @@
 		function provideDate(){
 			showTabByIdAndUrl('details_tab','bill/providedate?houseType=' + $("#selectedHouseType").val()+"&sessionType="+$("#selectedSessionType").val()+"&sessionYear="+$("#selectedSessionYear").val());
 		}
+		
+		function showCurrentStatusReport(){
+			$("#selectionDiv1").hide();
+			showTabByIdAndUrl('details_tab', "workflow/question/report/currentstatusreport/?device=question");
+		}	
 	</script>
 	
 	<style type="text/css">
@@ -425,7 +442,7 @@
 			background: #FCCD32 scroll no-repeat;
 			max-width: 400px;
 			width: 350px;
-			max-height: 100px;
+			max-height: 600px;
 			height: 80px;
 			/*border-radius: 10px;*/
 			padding-left 5px;
@@ -596,7 +613,7 @@
 		<input type="hidden" id="allRowIds" value="" />
 		<input type="hidden" id="persistentGridRowId" value="" />
 		<input type="hidden" id="pleaseSelectOption" name="pleaseSelectOption" value="<spring:message code='client.prompt.selectForDropdown' text='----Please Select----'></spring:message>">
-		
+		<input type="hidden" id="demoFunction" value="${vim.format(1,vim.value)}" />
 	</div> 
 </body>
 </html>
