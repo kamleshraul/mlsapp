@@ -492,19 +492,6 @@
 		});
 	}
 	
-	function showCurrentStatusReport(){
-		var selectedQuestionId = $("#grid").jqGrid ('getGridParam', 'selarrrow');
-		if(selectedQuestionId.length<1) {
-			$.prompt("Please select a question first!");
-			return false;
-		} else if(selectedQuestionId.length>1) {
-			$.prompt("Please select only one question!");
-			return false;
-		} else {
-			$("#selectionDiv1").hide();
-			showTabByIdAndUrl('details_tab', "question/report/" + selectedQuestionId + "/currentstatusreport/?device=question");		    
-		}
-	}	
 	
 	function statReport(){
 		var url = "question/statreport?sessionYear="+$("#selectedSessionYear").val()
@@ -515,12 +502,14 @@
 			if($("#selectedHouseType").val()=='lowerhouse'){
 				var items = new Array();
 				items.push('under_secretary');
+				items.push('under_secretary_committee');
 				items.push('principal_secretary');
 				items.push('speaker');
 				url += "&userGroups="+items;
 			}else if($("#selectedHouseType").val()=='upperhouse'){
 				var items = new Array();
 				items.push('under_secretary');
+				items.push('under_secretary_committee');
 				items.push('principal_secretary');
 				items.push('chairman');
 				url += "&userGroups=" + items;

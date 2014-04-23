@@ -70,10 +70,6 @@
 				if(standAlone=='questions_halfhourdiscussion_standalone'){
 					$("#new_record").html("<spring:message code='question.newStandAlone' text='New'/>");
 				}
-			});	
-			
-			$("#generateCurrentStatusReport").click(function(){
-				showCurrentStatusReport();
 			});
 		});
 		/**** double clicking record in grid handler ****/
@@ -127,12 +123,7 @@
 				<a href="#" id="generateIntimationLetter" class="butSim">
 					<spring:message code="question.generateIntimationLetter" text="Generate Intimation Letter"/>
 				</a> |
-			</security:authorize>
-			<security:authorize access="hasAnyRole('QIS_PRINCIPAL_SECRETARY', 'HDS_PRINCIPAL_SECRETARY')">
-				<a href="#" id="generateCurrentStatusReport" class="butSim">
-					<spring:message code="question.generateCurrentStatusReport" text="Generate Current Status Report"/>
-				</a> |
-			 </security:authorize>		
+			</security:authorize>				
 			 <security:authorize access="hasAnyRole('QIS_SECTION_OFFICER')">
 				<a href="#" id="statreport" class="butSim">
 					<spring:message code="question.statreport" text="Generate Statistics Report"/>
