@@ -66,10 +66,10 @@ margin-left: 30px;
 			<c:set value="${fn:length(report.memberBallotMemberWiseCountVOs) }" var="size"></c:set>
 			<c:forEach items="${report.memberBallotMemberWiseCountVOs }" var="i">
 			<c:choose>
-			<c:when test="${i.statusTypeType=='question_recommend_clarificationNeededFromMember'
-			 ||i.statusTypeType=='question_recommend_clarificationNeededFromDepartment'
-			 ||i.statusTypeType=='question_recommend_clarificationNeededFromGovt'
-			 ||i.statusTypeType=='question_recommend_clarificationNeededFromMemberAndDepartment'}">
+			<c:when test="${i.statusTypeType=='question_final_clarificationNeededFromMember'
+			 ||i.statusTypeType=='question_final_clarificationNeededFromDepartment'
+			 ||i.statusTypeType=='question_final_clarificationNeededFromGovt'
+			 ||i.statusTypeType=='question_final_clarificationNeededFromMemberAndDepartment'}">
 			<c:set value="${count+i.count }" var="count"></c:set>
 			</c:when>
 			<c:otherwise>
@@ -238,10 +238,10 @@ margin-left: 30px;
 			<c:if test="${!(empty report.memberBallotMemberWiseQuestionVOs) }">
 			<c:set value="0" var="count"></c:set>
 			<c:forEach items="${report.memberBallotMemberWiseQuestionVOs }" var="j">
-			<c:if test="${(j.statusTypeType=='question_recommend_clarificationNeededFromMember'
-			||j.statusTypeType=='question_recommend_clarificationNeededFromMemberAndDepartment'
-			||j.statusTypeType=='question_recommend_clarificationNeededFromDepartment'
-			||j.statusTypeType=='question_recommend_clarificationNeededFromGovt')&&j.groupNumber==i.number }">
+			<c:if test="${(j.statusTypeType=='question_final_clarificationNeededFromMember'
+			||j.statusTypeType=='question_final_clarificationNeededFromMemberAndDepartment'
+			||j.statusTypeType=='question_final_clarificationNeededFromDepartment'
+			||j.statusTypeType=='question_final_clarificationNeededFromGovt')&&j.groupNumber==i.number }">
 			<c:set value="${count+1 }" var="count"></c:set>
 			<c:set var="clarification" value="${j.statusType}"></c:set>
 			</c:if>
@@ -256,10 +256,10 @@ margin-left: 30px;
 			<th><spring:message code="memberballotmemberwisewuestions.status" text="Status"></spring:message></th>
 			</tr>
 			<c:forEach items="${report.memberBallotMemberWiseQuestionVOs }" var="j">
-			<c:if test="${(j.statusTypeType=='question_recommend_clarificationNeededFromMember'
-			||j.statusTypeType=='question_recommend_clarificationNeededFromMemberAndDepartment'
-			||j.statusTypeType=='question_recommend_clarificationNeededFromDepartment'
-			||j.statusTypeType=='question_recommend_clarificationNeededFromGovt')&&j.groupNumber==i.number }">
+			<c:if test="${(j.statusTypeType=='question_final_clarificationNeededFromMember'
+			||j.statusTypeType=='question_final_clarificationNeededFromMemberAndDepartment'
+			||j.statusTypeType=='question_final_clarificationNeededFromDepartment'
+			||j.statusTypeType=='question_final_clarificationNeededFromGovt')&&j.groupNumber==i.number }">
 			<tr>
 			<td>${j.sno}</td>
 			<td>${j.questionNumber}</td>
