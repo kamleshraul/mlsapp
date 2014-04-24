@@ -243,11 +243,11 @@ public class ApplicationConstants {
 	/**** Approving Authority ****/
 	public static final String CHAIRMAN="chairman";
 
+	public static final String SPEAKER="speaker";  
+	
 	/**** User Group Types    ****/
 	/**** Member			  ****/
-	public static final String MEMBER="member";
-
-	public static final String SPEAKER="speaker";   
+	public static final String MEMBER="member"; 
 
 	public static final String ASSISTANT="assistant";
 
@@ -256,6 +256,10 @@ public class ApplicationConstants {
 	public static final String SECTION_OFFICER="section_officer";
 
 	public static final String UNDER_SECRETARY="under_secretary";
+	
+	public static final String UNDER_SECRETARY_COMMITTEE="under_secretary_committee";
+	
+	public static final String PRINCIPAL_SECRETARY="principal_secretary";
 	
 	public static final String TRANSLATOR = "translator";
 	
