@@ -104,115 +104,135 @@
 <p id="error_p" style="display: none;">&nbsp;</p>
 <div id="reportDiv">
 	<div id="statHeaderDiv">
-		<h2 style="color: black !important; margin-left: 50px;">${head1}</h2>
-		<h2 style="color: black !important; margin-left: 20px;">${head2}</h2>
+		<h2 style="color: black !important; margin-left: 50px;">
+			${day}, <spring:message code="generic.date" text="date" /> 
+			${currDate} <spring:message code="qis.report.stat.tilldate" text="till date" />
+				<c:choose>
+					<c:when test="${statsHouseType=='lowerhouse'}">
+			 			<spring:message code="qis.report.stat.branch.lowerhouse" text="branch" />
+			 		</c:when>
+			 		<c:when test="${statsHouseType=='upperhouse'}">
+			 			<spring:message code="qis.report.stat.branch.upperhouse" text="branch" />
+			 		</c:when>
+			 	</c:choose> 
+			<spring:message code="qis.report.stat.head1" text="stat header"/>
+		</h2>
+		<h2 style="color: black !important; margin-left: 20px;"><spring:message code="qis.report.stat.head2" text="stat header"/></h2>
 		<br />	
 	</div>
 	<div id="statsReportDiv">
 		<table border="1" id="reportTable" class="strippedTable">
 			<thead>
 				<tr>
-					<th style="width: 71px; padding: 2px;">${col1}</th>
-					<th style="width: 80px; padding: 2px;">${col2}</th>
-					<th style="width: 80px; padding: 2px;">${col3}</th>
-					<th style="width: 80px; padding: 2px;">${col4}</th>
-					<th style="width: 80px; padding: 2px;">${col9}</th>
-					<th style="width: 90px; padding: 2px;">${col5}</th>
-					<th style="width: 95px; padding: 2px;">${col6}</th>
-					<th style="width: 95px; padding: 2px;">${col7}</th>
-					<th style="width: 95px; padding: 2px;">${col8}</th>
+					<th style="width: 82px; padding: 2px;"><spring:message code="qis.report.stat.col1" text="Column 1"/></th>
+					<th style="width: 80px; padding: 2px;"><spring:message code="qis.report.stat.col2" text="Column 2"/></th>
+					<th style="width: 80px; padding: 2px;"><spring:message code="qis.report.stat.col3" text="Column 3"/></th>
+					<th style="width: 80px; padding: 2px;"><spring:message code="qis.report.stat.col4" text="Column 4"/></th>
+					<th style="width: 80px; padding: 2px;"><spring:message code="qis.report.stat.col5" text="Column 5"/></th>
+					<th style="width: 90px; padding: 2px;"><spring:message code="qis.report.stat.col6" text="Column 6"/></th>
+					<th style="width: 95px; padding: 2px;"><spring:message code="qis.report.stat.col7" text="Column 7"/></th>
+					<c:choose>
+						<c:when test="${statsHouseType=='lowerhouse'}">
+							<th style="width: 95px; padding: 2px;"><spring:message code="qis.report.stat.col8.lowerhouse" text="Column 8"/></th>
+							<th style="width: 95px; padding: 2px;"><spring:message code="qis.report.stat.col9.lowerhouse" text="Column 9"/></th>
+						</c:when>
+						<c:when test="${statsHouseType=='upperhouse'}">
+							<th style="width: 95px; padding: 2px;"><spring:message code="qis.report.stat.col8.upperhouse" text="Column 8"/></th>
+							<th style="width: 95px; padding: 2px;"><spring:message code="qis.report.stat.col9.upperhouse" text="Column 9"/></th>
+						</c:when>
+					</c:choose>
 				</tr>
 			</thead>
 			<tbody>
-				<c:forEach begin="1" end="5" step="1" varStatus="counter">
+				<c:forEach items="${report}" var="r" varStatus="counter">
 					<tr>
 						<td>
 							<c:choose>
-								<c:when test="${empty report1[counter.count-1][1]}">
+								<c:when test="${empty r[1]}">
 									-
 								</c:when>
 								<c:otherwise>
-									${report1[counter.count-1][1]}
+									${r[1]}
 								</c:otherwise>
 							</c:choose>
 						</td>
 						<td>
 							<c:choose>
-								<c:when test="${empty report1[counter.count-1][2]}">
+								<c:when test="${empty r[2]}">
 									-
 								</c:when>
 								<c:otherwise>
-									${report1[counter.count-1][2]}
+									${r[2]}
 								</c:otherwise>
 							</c:choose>
 						</td>
 						<td>
 							<c:choose>
-								<c:when test="${empty report2[counter.count-1][2]}">
+								<c:when test="${empty r[3]}">
 									-
 								</c:when>
 								<c:otherwise>
-									${report2[counter.count-1][2]}
+									${r[3]}
 								</c:otherwise>
 							</c:choose>
 						</td>
 						<td>
 							<c:choose>
-								<c:when test="${empty report3[counter.count-1][2]}">
+								<c:when test="${empty r[4]}">
 									-
 								</c:when>
 								<c:otherwise>
-									${report3[counter.count-1][2]}
+									${r[4]}
 								</c:otherwise>
 							</c:choose>
 						</td>
 						<td>
 							<c:choose>
-								<c:when test="${empty report4[counter.count-1][2]}">
+								<c:when test="${empty r[5]}">
 									-
 								</c:when>
 								<c:otherwise>
-									${report4[counter.count-1][2]}
+									${r[5]}
 								</c:otherwise>
 							</c:choose>
 						</td>
 						<td>
 							<c:choose>
-								<c:when test="${empty report9[counter.count-1][2]}">
+								<c:when test="${empty r[6]}">
 									-
 								</c:when>
 								<c:otherwise>
-									${report9[counter.count-1][2]}
+									${r[6]}
 								</c:otherwise>
 							</c:choose>
 						</td>
 						<td>
 							<c:choose>
-								<c:when test="${empty report5[counter.count-1][2]}">
+								<c:when test="${empty r[7]}">
 									-
 								</c:when>
 								<c:otherwise>
-									${report5[counter.count-1][2]}
+									${r[7]}
 								</c:otherwise>
 							</c:choose>
 						</td>
 						<td>
 							<c:choose>
-								<c:when test="${empty report6[counter.count-1][2]}">
+								<c:when test="${empty r[8]}">
 									-
 								</c:when>
 								<c:otherwise>
-									${report6[counter.count-1][2]}
+									${r[8]}
 								</c:otherwise>
 							</c:choose>
 						</td>
 						<td>
 							<c:choose>
-								<c:when test="${empty report7[counter.count-1][2]}">
+								<c:when test="${empty r[9]}">
 									-
 								</c:when>
 								<c:otherwise>
-									${report7[counter.count-1][2]}
+									${r[9]}
 								</c:otherwise>
 							</c:choose>
 						</td>
@@ -220,92 +240,85 @@
 				</c:forEach>
 				<tr>
 					<td class="finalTotal">
+						<spring:message code="qis.report.stat.total" text="Total" />
+					</td>
+					<td class="finalTotal">
 						<c:choose>
-							<c:when test="${empty total}">
+							<c:when test="${empty report[0][10]}">
 								-
 							</c:when>
 							<c:otherwise>
-								${total}
+								${report[0][10]}
 							</c:otherwise>
 						</c:choose>
 					</td>
 					<td class="finalTotal">
 						<c:choose>
-							<c:when test="${empty report1[0][3]}">
+							<c:when test="${empty report[0][11]}">
 								-
 							</c:when>
 							<c:otherwise>
-								${report1[0][3]}
+								${report[0][11]}
 							</c:otherwise>
 						</c:choose>
 					</td>
 					<td class="finalTotal">
 						<c:choose>
-							<c:when test="${empty report2[0][3]}">
+							<c:when test="${empty report[0][12]}">
 								-
 							</c:when>
 							<c:otherwise>
-								${report2[0][3]}
+								${report[0][12]}
 							</c:otherwise>
 						</c:choose>
 					</td>
 					<td class="finalTotal">
 						<c:choose>
-							<c:when test="${empty report3[0][3]}">
+							<c:when test="${empty report[0][13]}">
 								-
 							</c:when>
 							<c:otherwise>
-								${report3[0][3]}
+								${report[0][13]}
 							</c:otherwise>
 						</c:choose>
 					</td>
 					<td class="finalTotal">
 						<c:choose>
-							<c:when test="${empty report4[0][3]}">
+							<c:when test="${empty report[0][14]}">
 								-
 							</c:when>
 							<c:otherwise>
-								${report4[0][3]}
+								${report[0][14]}
 							</c:otherwise>
 						</c:choose>
 					</td>
 					<td class="finalTotal">
 						<c:choose>
-							<c:when test="${empty report9[0][3]}">
+							<c:when test="${empty report[0][15]}">
 								-
 							</c:when>
 							<c:otherwise>
-								${report9[0][3]}
+								${report[0][15]}
 							</c:otherwise>
 						</c:choose>
 					</td>
 					<td class="finalTotal">
 						<c:choose>
-							<c:when test="${empty report5[0][3]}">
+							<c:when test="${empty report[0][16]}">
 								-
 							</c:when>
 							<c:otherwise>
-								${report5[0][3]}
+								${report[0][16]}
 							</c:otherwise>
 						</c:choose>
 					</td>
 					<td class="finalTotal">
 						<c:choose>
-							<c:when test="${empty report6[0][3]}">
+							<c:when test="${empty report[0][17]}">
 								-
 							</c:when>
 							<c:otherwise>
-								${report6[0][3]}
-							</c:otherwise>
-						</c:choose>
-					</td>
-					<td class="finalTotal">
-						<c:choose>
-							<c:when test="${empty report7[0][3]}">
-								-
-							</c:when>
-							<c:otherwise>
-								${report7[0][3]}
+								${report[0][17]}
 							</c:otherwise>
 						</c:choose>
 					</td>
@@ -315,7 +328,7 @@
 	</div>
 	
 	<c:choose>
-		<c:when test="${report8==null or empty report8}">
+		<c:when test="${typistReport==null or empty typistReport}">
 			<div id="rep8NoData">
 				<spring:message code="no.data.found" text="No data found"></spring:message>
 			</div>
@@ -323,42 +336,45 @@
 		<c:otherwise>
 			<span class="page-break-before-forced">&nbsp;</span>
 			<div id="typistDiv">
-				<h2 style="text-align: center; color: black !important; width: 100%;"><spring:message code="qis.stat.report.typist.header" text="Typped Questions"/></h2>
+				<h2 style="text-align: center; color: black !important; width: 100%;"><spring:message code="qis.report.stat.typist.header" text="Typed Questions"/></h2>
 				<br />
 				<table class="strippedTable" border="1" id="reportTypistTable">
 					<thead>
 						<tr>
-							<th style="width: 20px;"><spring:message code="qis.stat.report.typist.col1" text="Sr. No." /></th>
-							<th><spring:message code="qis.stat.report.typist.col2" text="Name" /></th>
-							<th><spring:message code="qis.stat.report.typist.col3" text="Login Name" /></th>
-							<th><spring:message code="qis.stat.report.typist.col4" text="Total By User" /></th>					
+							<th style="width: 20px;"><spring:message code="qis.report.stat.typist.col1" text="Sr. No." /></th>
+							<th><spring:message code="qis.report.stat.typist.col2" text="Name" /></th>
+							<th><spring:message code="qis.report.stat.typist.col3" text="Login Name" /></th>
+							<th><spring:message code="qis.report.stat.typist.col4" text="Total By User" /></th>					
 						</tr>
 					</thead>
-					<c:forEach items="${report8}" var="r8">
+					<c:forEach items="${typistReport}" var="r8" varStatus="counterT">
 						<tr>
-							<td class="center">${r8[0]}</td>
+							<td class="center">${counterT.count}</td>
+							<td>${r8[1]}</td>
 							<td>${r8[2]}</td>
-							<td>${r8[3]}</td>
-							<td class="center">${r8[4]}</td>
+							<td class="center">${r8[3]}</td>
 						</tr>
 					</c:forEach>
 					<tr>
 						<td colspan="3">&nbsp;</td>
-						<td class="center">${total} : 
-							<c:choose>
-								<c:when test="${empty report8[0][5]}">
-									-
-								</c:when>
-								<c:otherwise>
-									${report8[0][5]}
-							</c:otherwise>
-						</c:choose>
+						<td class="center"><spring:message code="qis.report.stat.total" text="total" />:
+							<span style="font-weight: bold;"> 
+							 	<c:choose>
+									<c:when test="${empty typistReport[0][4]}">
+										-
+									</c:when>
+									<c:otherwise>
+										${typistReport[0][4]}
+									</c:otherwise>
+							 	</c:choose>
+						</span>
 					</tr>
 				</table>
 			</div>
 		</c:otherwise>
 	</c:choose>
 </div>
+
 <input type="hidden" id="device" value="${device}" />
 <input type="hidden" id="qId" value="${id}" /> 
 </body>
