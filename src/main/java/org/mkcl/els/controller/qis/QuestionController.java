@@ -4399,7 +4399,14 @@ public class QuestionController extends GenericController<Question>{
 		}	
 	}
 		
-	@SuppressWarnings("rawtypes")
+	/**
+	 * To generate statistics report for section officer
+	 * @param request
+	 * @param response
+	 * @param model
+	 * @param locale
+	 * @return
+	 */
 	@RequestMapping(value="/statreport", method=RequestMethod.GET)
 	public String getStatsReport(HttpServletRequest request, HttpServletResponse response, Model model, Locale locale){
 		try{
@@ -4412,83 +4419,58 @@ public class QuestionController extends GenericController<Question>{
 					&& strSessionType != null && !strSessionType.isEmpty()
 					&& strHouseType != null && !strHouseType.isEmpty()
 					&& strDeviceType != null && !strDeviceType.isEmpty()){
-				
-				model.addAttribute("col1", "गट क्रमांक");
-				model.addAttribute("col2", "दिलेले एकूण प्रश्न");
-				model.addAttribute("col3", "चार्टवर आलेले प्रश्न");
-				model.addAttribute("col4", "टाईप झालेले प्रश्न");
-				model.addAttribute("col5", "अवर सचिवांकडे पाठविलेले एकूण प्रश्न");
-				model.addAttribute("col6", "प्रधान सचिवांकडे पाठविलेले एकूण प्रश्न");
-				model.addAttribute("col7", "मा. अध्यक्षांकडे पाठविलेले एकूण प्रश्न");
-				model.addAttribute("col8", "मा. " + ((strHouseType.equals(ApplicationConstants.LOWER_HOUSE))? "अध्यक्ष":"सभापती") + " यांची मान्यता प्राप्त झालेले एकूण प्रश्न");
-				model.addAttribute("col9", "अवर सचिवांकडे(समिती) पाठविलेले एकूण प्रश्न");
-				model.addAttribute("total", "एकूण");
-				StringBuffer head1 = new StringBuffer(FormaterUtil.getDayInMarathi(FormaterUtil.formatDateToString(new Date(), "EEEE", locale.toString()), locale.toString()));
-				head1.append(", दिनांक " + FormaterUtil.formatDateToString(new Date(), ApplicationConstants.SERVER_DATEFORMAT, locale.toString()) + " रोजीपर्यंत \"" + ((strHouseType.equals(ApplicationConstants.LOWER_HOUSE))? "ब":"इ") + "\" कक्षास प्राप्त तारांकित");
-				model.addAttribute("head1", head1.toString());
-				model.addAttribute("head2", "प्रश्नांवरील कार्यवाहीबाबत गटनिहाय तपशील");
-								
+
+				//find session
 				SessionType sessionType = SessionType.findById(SessionType.class, new Long(strSessionType));
 				HouseType houseType = HouseType.findByType(strHouseType, locale.toString());
 				Session session = Session.findSessionByHouseTypeSessionTypeYear(houseType, sessionType, new Integer(strSessionYear));
 				DeviceType deviceType = DeviceType.findById(DeviceType.class, new Long(strDeviceType));
-				Map<String, String[]> parameters = new HashMap<String, String[]>();
-				parameters.put("sessionId", new String[]{session.getId().toString()});
-				parameters.put("deviceTypeId", new String[]{deviceType.getId().toString()});
-				parameters.put("locale", new String[]{locale.toString()});
-				
-				List report1 = Query.findReport("QIS_STATS_REPORT_ONE", parameters);
-				List report2 = Query.findReport("QIS_STATS_REPORT_TWO", parameters);
-				List report3 = Query.findReport("QIS_STATS_REPORT_THREE", parameters);
 				
 				String[] strUsergroups = null;
-				CustomParameter csptStatReportUserGroups = CustomParameter.findByName(CustomParameter.class, "QIS_ALLOWED_USERGROUPS_FOR_STAT_REPORT_" + strHouseType.toUpperCase() , "");
-				
+				CustomParameter csptStatReportUserGroups = CustomParameter.findByName(CustomParameter.class, "QIS_ALLOWED_USERGROUPS_FOR_STAT_REPORT_" + strHouseType.toUpperCase() , "");				
 				if(csptStatReportUserGroups != null){
 					strUsergroups = csptStatReportUserGroups.getValue().split(",");
 				}
-
+								
+				model.addAttribute("day", FormaterUtil.getDayInMarathi(FormaterUtil.formatDateToString(new Date(), "EEEE", locale.toString()), locale.toString()));
+				model.addAttribute("currDate", FormaterUtil.formatDateToString(new Date(), ApplicationConstants.SERVER_DATEFORMAT, locale.toString()));								
+				model.addAttribute("statsHouseType", houseType.getType());
+				
+				//stat report
+				Map<String, String[]> parameters = new HashMap<String, String[]>();
+				parameters.put("locale", new String[]{locale.toString()});
+				parameters.put("sessionId", new String[]{session.getId().toString()});
+				parameters.put("deviceTypeId", new String[]{deviceType.getId().toString()});
 				parameters.put("houseTypeId", new String[]{houseType.getId().toString()});
-				parameters.put("userGroupType1", new String[]{strUsergroups[0]});
-				parameters.put("userGroupType2", new String[]{strUsergroups[0]});
-				parameters.put("wfStatus", new String[]{"PENDING"});				
-				List report4 = Query.findReport("QIS_STATS_REPORT_FOUR", parameters);
-				
-				parameters.put("userGroupType1", new String[]{strUsergroups[1]});
-				parameters.put("userGroupType2", new String[]{strUsergroups[1]});
-				parameters.put("wfStatus", new String[]{"PENDING"});				
-				List report9 = Query.findReport("QIS_STATS_REPORT_FOUR", parameters);
-				
-				parameters.put("userGroupType1", new String[]{strUsergroups[2]});
-				parameters.put("userGroupType2", new String[]{strUsergroups[2]});
-				parameters.put("wfStatus", new String[]{"PENDING"});
-				List report5 = Query.findReport("QIS_STATS_REPORT_FIVE", parameters);
-				
-				
-				parameters.put("userGroupType1", new String[]{strUsergroups[3]});
-				parameters.put("userGroupType2", new String[]{strUsergroups[3]});
-				parameters.put("wfStatus", new String[]{"PENDING"});
-				List report6 = Query.findReport("QIS_STATS_REPORT_SIX", parameters);
+				parameters.put("sessionTypeId", new String[]{sessionType.getId().toString()});
+				parameters.put("sessionYear", new String[]{strSessionYear});
+				parameters.put("wfStatusPending", new String[]{"PENDING"});
+				parameters.put("wfStatusCompleted", new String[]{"COMPLETED"});
 								
-				parameters.put("userGroupType1", new String[]{strUsergroups[3]});
-				parameters.put("userGroupType2", new String[]{strUsergroups[3]});
-				parameters.put("wfStatus", new String[]{"COMPLETED"});
-				List report7 = Query.findReport("QIS_STATS_REPORT_SEVEN", parameters);
-				
-				List report8 = Query.findReport("QIS_STATS_REPORT_TYPIST", parameters);
-								
-				for(int i = 0; i < report8.size(); i++){
-					((Object[])report8.get(i))[0] = FormaterUtil.formatNumberNoGrouping((i+1), locale.toString());
+				for(String numUg : strUsergroups){
+					
+					String[] ugNum = numUg.split(":");
+					
+					switch(Integer.parseInt(ugNum[0])){
+						case 1:{
+							parameters.put("ugUS", new String[]{ugNum[1]});
+						}break;
+						case 2:{
+							parameters.put("ugUSC", new String[]{ugNum[1]});
+						}break;
+						case 3:{
+							parameters.put("ugPS", new String[]{ugNum[1]});
+						}break;
+						case 4:{
+							parameters.put("ugSPCM", new String[]{ugNum[1]});
+						}break;
+					}
 				}
-				model.addAttribute("report1", report1);
-				model.addAttribute("report2", report2);
-				model.addAttribute("report3", report3);
-				model.addAttribute("report4", report4);
-				model.addAttribute("report5", report5);
-				model.addAttribute("report6", report6);
-				model.addAttribute("report7", report7);
-				model.addAttribute("report8", report8);
-				model.addAttribute("report9", report9);
+				
+				model.addAttribute("report", Query.findReport("QIS_STATS_REPORT", parameters));
+				
+				//typist stat report
+				model.addAttribute("typistReport", Query.findReport("QIS_STATS_REPORT_TYPIST", parameters));
 				
 			}
 		}catch(Exception e){
