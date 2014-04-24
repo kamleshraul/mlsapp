@@ -56,12 +56,7 @@
 		function addRemarkReport(){
 			
 			if(ids.length > 0){
-				 $.ajax({
-					 url: 'workflow/question/report/'+ ids[counter] + '/currentstatusreportvm?device=question',
-					 type: "GET",
-					 dataType: "html",
-					 asynch: false,
-					 success:function(data1){
+				 $.get('workflow/question/report/'+ ids[counter] + '/currentstatusreportvm?device=question',function(data1){
 						 								
 							if($('#reportWindow1').text().trim()=='v'){
 								$('#reportWindow1').empty();
@@ -69,8 +64,6 @@
 							}else{
 								$('#reportWindow1').append(data1);
 							}
-					 }
-				 }).done(function(){				
 				 }).fail(function(){				 
 				 });
 				 
