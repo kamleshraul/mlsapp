@@ -613,7 +613,6 @@
 		<input type="hidden" id="allRowIds" value="" />
 		<input type="hidden" id="persistentGridRowId" value="" />
 		<input type="hidden" id="pleaseSelectOption" name="pleaseSelectOption" value="<spring:message code='client.prompt.selectForDropdown' text='----Please Select----'></spring:message>">
-		<input type="hidden" id="demoFunction" value="${vim.format(1,vim.value)}" />
 	</div> 
 </body>
 </html>
