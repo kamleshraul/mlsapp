@@ -4293,20 +4293,27 @@ public class QuestionController extends GenericController<Question>{
 				if(question.getRejectionReason()!=null) {
 					letterVO.setRejectionReason(question.getRejectionReason());
 				}
-				Status status = question.getInternalStatus();				
-				if(status.getType().equals(ApplicationConstants.QUESTION_FINAL_CLARIFICATION_NEEDED_FROM_DEPARTMENT)
-						|| status.getType().equals(ApplicationConstants.QUESTION_FINAL_CLARIFICATION_NEEDED_FROM_MEMBER)) {
+				Status status = question.getInternalStatus();	
+				String statusType=status.getType();
+				String memberOrDepartment=request.getParameter("memberOrDepartment");				
+				if(statusType.equals(ApplicationConstants.QUESTION_FINAL_CLARIFICATION_NEEDED_FROM_MEMBER_DEPARTMENT) && memberOrDepartment!=null && !memberOrDepartment.isEmpty()&&memberOrDepartment.equals(ApplicationConstants.MEMBER)){
+					statusType=ApplicationConstants.QUESTION_FINAL_CLARIFICATION_NEEDED_FROM_MEMBER;
+				}else if(statusType.equals(ApplicationConstants.QUESTION_FINAL_CLARIFICATION_NEEDED_FROM_MEMBER_DEPARTMENT) && memberOrDepartment!=null && !memberOrDepartment.isEmpty()&&memberOrDepartment.equals(ApplicationConstants.DEPARTMENT)){
+					statusType=ApplicationConstants.QUESTION_FINAL_CLARIFICATION_NEEDED_FROM_DEPARTMENT;
+				}
+				if(statusType.equals(ApplicationConstants.QUESTION_FINAL_CLARIFICATION_NEEDED_FROM_DEPARTMENT)
+						|| statusType.equals(ApplicationConstants.QUESTION_FINAL_CLARIFICATION_NEEDED_FROM_MEMBER)) {
 					String questionsAsked = question.getQuestionsAskedInFactualPosition();
 					if(questionsAsked==null) {
-						if(status.getType().equals(ApplicationConstants.QUESTION_FINAL_CLARIFICATION_NEEDED_FROM_DEPARTMENT)) {
+						if(statusType.equals(ApplicationConstants.QUESTION_FINAL_CLARIFICATION_NEEDED_FROM_DEPARTMENT)) {
 							questionsAsked = question.getSession().getParameter(deviceType.getType().trim()+"_clarificationFromDepartmentQuestions");
-						} else if(status.getType().equals(ApplicationConstants.QUESTION_FINAL_CLARIFICATION_NEEDED_FROM_MEMBER)) {
+						} else if(statusType.equals(ApplicationConstants.QUESTION_FINAL_CLARIFICATION_NEEDED_FROM_MEMBER)) {
 							questionsAsked = question.getSession().getParameter(deviceType.getType().trim()+"_clarificationFromMemberQuestions");
 						}
 					} else if(!questionsAsked.isEmpty()) {
-						if(status.getType().equals(ApplicationConstants.QUESTION_FINAL_CLARIFICATION_NEEDED_FROM_DEPARTMENT)) {
+						if(statusType.equals(ApplicationConstants.QUESTION_FINAL_CLARIFICATION_NEEDED_FROM_DEPARTMENT)) {
 							questionsAsked = question.getSession().getParameter(deviceType.getType().trim()+"_clarificationFromDepartmentQuestions");
-						} else if(status.getType().equals(ApplicationConstants.QUESTION_FINAL_CLARIFICATION_NEEDED_FROM_MEMBER)) {
+						} else if(statusType.equals(ApplicationConstants.QUESTION_FINAL_CLARIFICATION_NEEDED_FROM_MEMBER)) {
 							questionsAsked = question.getSession().getParameter(deviceType.getType().trim()+"_clarificationFromMemberQuestions");
 						}
 					}
@@ -4314,9 +4321,9 @@ public class QuestionController extends GenericController<Question>{
 						List<MasterVO> questionsAskedForClarification = new ArrayList<MasterVO>();
 						StringBuffer questionIndexesForClarification=new StringBuffer();	
 						String allQuestions = "";
-						if(status.getType().equals(ApplicationConstants.QUESTION_FINAL_CLARIFICATION_NEEDED_FROM_DEPARTMENT)) {
+						if(statusType.equals(ApplicationConstants.QUESTION_FINAL_CLARIFICATION_NEEDED_FROM_DEPARTMENT)) {
 							allQuestions = question.getSession().getParameter(deviceType.getType().trim()+"_clarificationFromDepartmentQuestions");
-						} else if(status.getType().equals(ApplicationConstants.QUESTION_FINAL_CLARIFICATION_NEEDED_FROM_MEMBER)) {
+						} else if(statusType.equals(ApplicationConstants.QUESTION_FINAL_CLARIFICATION_NEEDED_FROM_MEMBER)) {
 							allQuestions = question.getSession().getParameter(deviceType.getType().trim()+"_clarificationFromMemberQuestions");
 						}								
 						for(String questionAsked : questionsAsked.split("##")) {
@@ -4343,18 +4350,19 @@ public class QuestionController extends GenericController<Question>{
 						letterVO.setQuestionsAskedForClarification(questionsAskedForClarification);
 					}
 				}
-				String statusType = status.getType().split("_")[status.getType().split("_").length-1];
-				if(statusType.equals("admission")
-						|| statusType.equals("rejection")) {
-					WorkflowActor putupActor = WorkflowConfig.findFirstActor(question, status, locale.toString());
-					if(putupActor!=null) {
-						String putupActorUsergroupName = putupActor.getUserGroupType().getName();
-						QuestionDraft putupDraft = Question.findPutupDraft(question.getId(), "question_recommend_"+statusType, putupActorUsergroupName);				
-						if(putupDraft!=null) {
-							letterVO.setRemarks(putupDraft.getRemarks());
-						}
-					}
-				}				
+				String statusTypeSplit = statusType.split("_")[statusType.split("_").length-1];
+				letterVO.setRemarks(question.getRejectionReason());
+//				if(statusType.equals("admission")
+//						|| statusType.equals("rejection")) {
+//					WorkflowActor putupActor = WorkflowConfig.findFirstActor(question, status, locale.toString());
+//					if(putupActor!=null) {
+//						String putupActorUsergroupName = putupActor.getUserGroupType().getName();
+//						QuestionDraft putupDraft = Question.findPutupDraft(question.getId(), "question_recommend_"+statusType, putupActorUsergroupName);				
+//						if(putupDraft!=null) {
+//							letterVO.setRemarks(putupDraft.getRemarks());
+//						}
+//					}
+//				}				
 				/**** In case username is required ****/
 //				Role role = Role.findByFieldName(Role.class, "type", "QIS_PRINCIPAL_SECRETARY", locale.toString());
 //				List<User> users = User.findByRole(false, role.getName(), locale.toString());
@@ -4364,9 +4372,9 @@ public class QuestionController extends GenericController<Question>{
 				/**** generate report ****/				
 				try {
 					if(status.getType().equals(ApplicationConstants.QUESTION_FINAL_REJECTION)) {
-						reportFile = generateReportUsingFOP(letterVO, "question_intimationletter_"+statusType, "WORD", "intimation_letter", locale.toString());
+						reportFile = generateReportUsingFOP(letterVO, "question_intimationletter_"+statusTypeSplit, "WORD", "intimation_letter", locale.toString());
 					} else {
-						reportFile = generateReportUsingFOP(letterVO, deviceType.getType()+"_intimationletter_"+statusType, "WORD", "intimation_letter", locale.toString());
+						reportFile = generateReportUsingFOP(letterVO, deviceType.getType()+"_intimationletter_"+statusTypeSplit, "WORD", "intimation_letter", locale.toString());
 					}					
 					System.out.println("Intimation Letter generated successfully in WORD format!");
 
