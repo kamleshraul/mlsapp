@@ -71,6 +71,13 @@
 					$("#new_record").html("<spring:message code='question.newStandAlone' text='New'/>");
 				}
 			});
+			
+			
+			/**** Generate Intimation Letter ****/			
+			$("#generateIntimationLetter").click(function(){
+				generateIntimationLetter();
+			});					
+			
 		});
 		/**** double clicking record in grid handler ****/
 		function rowDblClickHandler(rowid, iRow, iCol, e) {
@@ -122,7 +129,13 @@
 			<security:authorize access="hasAnyRole('QIS_ASSISTANT','QIS_SECTION_OFFICER','HDS_SECTION_OFFICER')">
 				<a href="#" id="generateIntimationLetter" class="butSim">
 					<spring:message code="question.generateIntimationLetter" text="Generate Intimation Letter"/>
-				</a> |
+				</a> 				
+				<select id="memDeptReport" size="1" style="height: 20px; font-size: 12px; min-width: 50px; vertical-align: middle;">
+						<option value="-">-</option>
+					 	<option value="member"><spring:message code='generic.usergroup.member' text='member' /></option>
+						<option value="department"><spring:message code='generic.usergroup.department' text='department' /></option>
+				</select>
+				|
 			</security:authorize>				
 			 <security:authorize access="hasAnyRole('QIS_SECTION_OFFICER')">
 				<a href="#" id="statreport" class="butSim">
