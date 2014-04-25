@@ -5098,55 +5098,54 @@ public class ReferenceController extends BaseController {
 		
 		CustomParameter csptDeployment = CustomParameter.findByName(CustomParameter.class, "DEPLOYMENT_SERVER", "");
 		List<MasterVO> vos = new ArrayList<MasterVO>();
-		
-		if(csptDeployment!=null){
-			String server=csptDeployment.getValue();
-			if(server.equals("TOMCAT")){
-				try {
+				
+		String server=csptDeployment.getValue();
+		try {
+			if(csptDeployment!=null){
+				if(server.equals("TOMCAT")){
 					strSessionYear = new String(strSessionYear.getBytes("ISO-8859-1"),"UTF-8");
 					strSessionType = new String(strSessionType.getBytes("ISO-8859-1"),"UTF-8");
 					strHouseType = new String(strHouseType.getBytes("ISO-8859-1"),"UTF-8");
 					strDeviceType = new String(strDeviceType.getBytes("ISO-8859-1"),"UTF-8");
 					strStatus = new String(strStatus.getBytes("ISO-8859-1"),"UTF-8");
 					strWfSubType = new String(strWfSubType.getBytes("ISO-8859-1"),"UTF-8");
-
-					SessionType sessionType = SessionType.findByFieldName(SessionType.class, "sessionType", strSessionType, locale.toString());
-					HouseType houseType = HouseType.findByName(strHouseType, locale.toString());
-					Integer year = new Integer(FormaterUtil.getNumberFormatterNoGrouping(locale.toString()).parse(strSessionYear).intValue());
-					Session session = Session.findSessionByHouseTypeSessionTypeYear(houseType, sessionType, year);					
-					DeviceType deviceType = DeviceType.findByName(DeviceType.class, strDeviceType, locale.toString());
-					
-					Map<String, String[]> parameters = new HashMap<String, String[]>();
-					parameters.put("sessionId", new String[]{session.getId().toString()});
-					parameters.put("deviceTypeId", new String[]{deviceType.getId().toString()});
-					parameters.put("status", new String[]{strStatus});
-					parameters.put("workflowSubType", new String[]{strWfSubType});
-					parameters.put("assignee", new String[]{this.getCurrentUser().getActualUsername()});
-					parameters.put("locale", new String[]{locale.toString()});
-					List data = Query.findReport("QIS_STATUS_REPORT_DEVICES", parameters);
-					
-					if(data != null){
-						for(Object o : data){
-							Object[] objx = (Object[]) o;
-							MasterVO vo = new MasterVO();
-							if(objx[0] != null){
-								vo.setValue(objx[0].toString());
-								vos.add(vo);
-							}
-						}
-					}
-					
-				}catch (ELSException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
-				catch (UnsupportedEncodingException e) {
-					e.printStackTrace();
-				} catch (ParseException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
 				}
 			}
+
+			SessionType sessionType = SessionType.findByFieldName(SessionType.class, "sessionType", strSessionType, locale.toString());
+			HouseType houseType = HouseType.findByName(strHouseType, locale.toString());
+			Integer year = new Integer(FormaterUtil.getNumberFormatterNoGrouping(locale.toString()).parse(strSessionYear).intValue());
+			Session session = Session.findSessionByHouseTypeSessionTypeYear(houseType, sessionType, year);					
+			DeviceType deviceType = DeviceType.findByName(DeviceType.class, strDeviceType, locale.toString());
+			
+			Map<String, String[]> parameters = new HashMap<String, String[]>();
+			parameters.put("sessionId", new String[]{session.getId().toString()});
+			parameters.put("deviceTypeId", new String[]{deviceType.getId().toString()});
+			parameters.put("status", new String[]{strStatus});
+			parameters.put("workflowSubType", new String[]{strWfSubType});
+			parameters.put("assignee", new String[]{this.getCurrentUser().getActualUsername()});
+			parameters.put("locale", new String[]{locale.toString()});
+			List data = Query.findReport("QIS_STATUS_REPORT_DEVICES", parameters);
+			
+			if(data != null){
+				for(Object o : data){
+					Object[] objx = (Object[]) o;
+					MasterVO vo = new MasterVO();
+					if(objx[0] != null){
+						vo.setValue(objx[0].toString());
+						vos.add(vo);
+					}
+				}
+			}
+			
+		} catch (ELSException e) {
+			e.printStackTrace();
+		} catch (UnsupportedEncodingException e) {
+			e.printStackTrace();
+		} catch (ParseException e) {
+			e.printStackTrace();
+		} catch (Exception e) {
+			e.printStackTrace();
 		}
 		return vos;
 	}
