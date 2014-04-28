@@ -116,7 +116,7 @@
 		    var resubmitDate = $("#internalStatusMaster option[value='question_processed_resubmitDate']").text();
 		    var finalRepeatAdmission =  $("#internalStatusMaster option[value='question_final_repeatadmission']").text();
 		    var nameclubbing=$("#internalStatusMaster option[value='question_final_nameclubbing']").text();
-			var changedInternalStatus = $("#changeInternalStatus").val();
+		    var changedInternalStatus = $("#changeInternalStatus").val();
 			if(changedInternalStatus == admitDate || 
 					changedInternalStatus == resubmitDate) {
 				valueToSend = $("#internalStatus").val();
@@ -134,7 +134,7 @@
 			var resourceURL='ref/question/actors?'+params;
 			
 			$.post(resourceURL,function(data){
-				if(data!=undefined||data!=null||data!=''){
+				if(data!=undefined||data!=null||data!=''||data.length>0){
 					var length=data.length;
 					$("#actor").empty();
 					var text="";
