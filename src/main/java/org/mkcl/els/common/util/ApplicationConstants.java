@@ -158,6 +158,8 @@ public class ApplicationConstants {
 	public static final String QUESTION_RECOMMEND_CONVERT_TO_UNSTARRED="question_recommend_convertToUnstarred";
 
 	public static final String QUESTION_RECOMMEND_CONVERT_TO_UNSTARRED_AND_ADMIT="question_recommend_convertToUnstarredAndAdmit";
+	
+	public static final String QUESTION_RECOMMEND_CONVERT_TO_UNSTARRED_AND_ADMIT_CLUBBED="question_recommend_convertToUnstarredAndAdmitClubbedWithPreviousSession";
 
 	public static final String QUESTION_RECOMMEND_CLARIFICATION_FROM_MEMBER="question_recommend_clarificationNeededFromMember";
 
@@ -214,6 +216,8 @@ public class ApplicationConstants {
 
 	public static final String QUESTIONS_HALFHOURDISCUSSION_STANDALONE_BALLOT_OUTPUT_COUNT_COUNCIL="QUESTIONS_HALFHOURDISCUSSION_STANDALONE_BALLOT_OUTPUT_COUNT_COUNCIL";
 	
+	public static final String QUESTION_FINAL_CONVERT_TO_UNSTARRED_AND_ADMIT_CLUBBED="question_final_convertToUnstarredAndAdmitClubbedWithPreviousSession";
+
 	//------------
 	
 	/**** Put Up ****/
@@ -226,6 +230,8 @@ public class ApplicationConstants {
 	public static final String QUESTION_PUTUP_REJECTION="question_putup_rejection";
 
 	public static final String QUESTION_PUTUP_CONVERT_TO_UNSTARRED_AND_ADMIT="question_putup_convertToUnstarredAndAdmit";
+	
+	public static final String QUESTION_PUTUP_CONVERT_TO_UNSTARRED_AND_ADMIT_CLUBBED="question_putup_convertToUnstarredAndAdmitClubbedWithPreviousSession";
 
 	/**** Processed Status ****/
 	public static final String QUESTION_PROCESSED_BALLOTED="question_processed_balloted";
