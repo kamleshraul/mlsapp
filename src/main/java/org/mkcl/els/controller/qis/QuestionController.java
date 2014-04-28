@@ -1467,7 +1467,7 @@ public class QuestionController extends GenericController<Question>{
 						}
 					}
 				}else
-					if(operation.equals("submit")){
+					if(operation.equals("submit") ||operation.equals("")){
 						if(role.equals("QIS_TYPIST")){
 							if(domain.getNumber()==null){
 								result.rejectValue("number","NumberEmpty");
