@@ -2891,7 +2891,7 @@ public class QuestionWorkflowController  extends BaseController{
 								if(csptAllwedUserGroupForStatusReportSign.getValue().contains(objx[27].toString())){							
 									UserGroupType userGroupType = UserGroupType.findByFieldName(UserGroupType.class, "type", objx[27].toString(), locale.toString());
 									MasterVO actor = new MasterVO();
-									actor.setName(userGroupType.getName());
+									actor.setName(userGroupType.getName() + " " + ((objx[1]!=null)?objx[1].toString() : "" ));
 									if(objx[6] != null){
 										actor.setValue(objx[6].toString());
 									}
@@ -2903,18 +2903,29 @@ public class QuestionWorkflowController  extends BaseController{
 							}
 						}
 
-						if(actors.isEmpty() || actors.size() < csptAllwedUserGroupForStatusReportSign.getValue().split(",").length){
+						if(!actors.isEmpty()){
 							String lastUSerGroup = actors.get(actors.size() - 1).getName();
+							UserGroupType userGroupType = UserGroupType.findByFieldName(UserGroupType.class, "type", ApplicationConstants.PRINCIPAL_SECRETARY, locale.toString());
+							
+							if(!lastUSerGroup.equals(userGroupType.getName())){
+								MasterVO actor = new MasterVO();
+								actor.setName(userGroupType.getName() + " " + (users.get(0).getTitle() + " " + users.get(0).getFirstName() + " " + users.get(0).getLastName()));
+								actor.setValue("");
+								actor.setFormattedNumber("");
+								actors.add(actor);
+							}
+						}
+						
+						if(actors.isEmpty()){
 							for(String val : csptAllwedUserGroupForStatusReportSign.getValue().split(",")){
 
-								UserGroupType userGroupType = UserGroupType.findByFieldName(UserGroupType.class, "type", val, locale.toString());
-								if(!userGroupType.getName().contains(lastUSerGroup)){
-									MasterVO actor = new MasterVO();
-									actor.setName(userGroupType.getName());
-									actor.setValue("");
-									actor.setFormattedNumber("");
-									actors.add(actor);
-								}
+								UserGroupType userGroupTypeT = UserGroupType.findByFieldName(UserGroupType.class, "type", val, locale.toString());
+								
+								MasterVO actor = new MasterVO();
+								actor.setName(userGroupTypeT.getName());
+								actor.setValue("");
+								actor.setFormattedNumber("");
+								actors.add(actor);
 							}
 						}
 
