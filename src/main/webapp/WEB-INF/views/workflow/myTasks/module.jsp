@@ -4,18 +4,7 @@
 	<title><spring:message code="workflow.myTasks.list" text="List of My Tasks"/></title>
 	<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
 	<script type="text/javascript">
-		
-		/* $.fn.wait = function(time, type) {
-		    time = time || 1000;
-		    type = type || "fx";
-		    return this.queue(type, function() {
-		        var self = this;
-		        setTimeout(function() {
-		            $(self).dequeue();
-		        }, time);
-		    });
-		}; */
-		
+				
 		$(document).ready(function(){
 			onPageLoad();
 						
@@ -122,35 +111,10 @@
 			showTabByIdAndUrl('list_tab', 'workflow/myTasks/list');	
 			pendingNewTasks();
 			if($("#getNewTasks").val() != undefined && $("#getNewTasks").val() != ''){
-				setInterval(function(){pendingNewTasks();}, 60000);
+				setInterval(function(){pendingNewTasks();}, 900000);
 			}
 			$("#notificationDiv").hide();
-			$("#newTasksDiv").hide();
-			
-			$("#notificationDiv").click(function(e){
-				 // Set the effect type
-			    var effect = 'slide';
-
-			    // Set the options for the effect type chosen
-			    var options = { direction: 'right' };
-
-			    // Set the duration (default: 400 milliseconds)
-			    var duration = 700;
-
-			    $('#newTasksDiv').toggle(effect, options, duration);
-			});
-			
-			$("#notificationDiv").mouseover(function(e){
-				 var effect = 'slide';
-
-				    // Set the options for the effect type chosen
-				    var options = { direction: 'right' };
-
-				    // Set the duration (default: 400 milliseconds)
-				    var duration = 700;
-
-				    $('#newTasksDiv').css({'height': 500+'px'}).toggle(effect, options, duration);
-			});		
+			$("#newTasksDiv").hide();	
 		});
 				
 		//to get the new pending tasks
@@ -162,19 +126,8 @@
 							"&status=PENDING";
 				$.get(url, function(data){
 					if(data){
-						$("#notificationDiv").html(data.length);
-						
-						var text = "";
-						for(var i = 0; i < data.length; i++){
-							var splittedValue = data[i].value.split("#"); 
-							text += "<p>" + splittedValue[0] + "&nbsp;&nbsp;" + splittedValue[1] + "&nbsp;&nbsp;" + data[i].name + "</p><hr />";
-						}
-						
-						$("#newTasksDiv").empty();
-						$("#newTasksDiv").html(text);
-						$("#notificationDiv").fadeIn(700);//"slide", {direction: 'bottom'}, 700);					
-					}else{
-						$("#notificationDiv").hide();
+						$("#notificationDiv").html(data.value);
+						$("#notificationDiv").show();
 					}
 				});
 			}
