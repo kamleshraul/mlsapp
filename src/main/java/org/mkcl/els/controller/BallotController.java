@@ -1380,10 +1380,10 @@ public class BallotController extends BaseController{
 						Integer rejectedCount = 0;
 						if(memberBallotMemberWiseReportVO!=null) {
 							for(MemberBallotMemberWiseCountVO i: memberBallotMemberWiseReportVO.getMemberBallotMemberWiseCountVOs()) {
-								if(i.getStatusTypeType().equals(ApplicationConstants.QUESTION_RECOMMEND_CLARIFICATION_FROM_MEMBER)
-										 ||i.getStatusTypeType().equals(ApplicationConstants.QUESTION_RECOMMEND_CLARIFICATION_FROM_DEPARTMENT)
-										 ||i.getStatusTypeType().equals(ApplicationConstants.QUESTION_RECOMMEND_CLARIFICATION_FROM_GOVT)
-										 ||i.getStatusTypeType().equals(ApplicationConstants.QUESTION_RECOMMEND_CLARIFICATION_FROM_MEMBER_AND_DEPARTMENT)) {
+								if(i.getStatusTypeType().equals(ApplicationConstants.QUESTION_FINAL_CLARIFICATION_NEEDED_FROM_MEMBER_DEPARTMENT)
+										 ||i.getStatusTypeType().equals(ApplicationConstants.QUESTION_FINAL_CLARIFICATION_NEEDED_FROM_DEPARTMENT)
+										 ||i.getStatusTypeType().equals(ApplicationConstants.QUESTION_FINAL_CLARIFICATION_NEEDED_FROM_GOVT)
+										 ||i.getStatusTypeType().equals(ApplicationConstants.QUESTION_FINAL_CLARIFICATION_NEEDED_FROM_MEMBER_DEPARTMENT)) {
 									
 									clarificationCount += Integer.parseInt(i.getCount());
 								} else if(i.getStatusTypeType().equals(ApplicationConstants.QUESTION_FINAL_ADMISSION)) {
@@ -1431,10 +1431,10 @@ public class BallotController extends BaseController{
 											starredQuestionVOs.add(i);											
 										} else if(i.getStatusTypeType().equals(ApplicationConstants.QUESTION_FINAL_CONVERT_TO_UNSTARRED_AND_ADMIT)) {
 											unstarredQuestionVOs.add(i);											
-										} else if(i.getStatusTypeType().equals(ApplicationConstants.QUESTION_RECOMMEND_CLARIFICATION_FROM_MEMBER)
-												 ||i.getStatusTypeType().equals(ApplicationConstants.QUESTION_RECOMMEND_CLARIFICATION_FROM_DEPARTMENT)
-												 ||i.getStatusTypeType().equals(ApplicationConstants.QUESTION_RECOMMEND_CLARIFICATION_FROM_GOVT)
-												 ||i.getStatusTypeType().equals(ApplicationConstants.QUESTION_RECOMMEND_CLARIFICATION_FROM_MEMBER_AND_DEPARTMENT)) {
+										} else if(i.getStatusTypeType().equals(ApplicationConstants.QUESTION_FINAL_CLARIFICATION_NEEDED_FROM_MEMBER)
+												 ||i.getStatusTypeType().equals(ApplicationConstants.QUESTION_FINAL_CLARIFICATION_NEEDED_FROM_DEPARTMENT)
+												 ||i.getStatusTypeType().equals(ApplicationConstants.QUESTION_FINAL_CLARIFICATION_NEEDED_FROM_GOVT)
+												 ||i.getStatusTypeType().equals(ApplicationConstants.QUESTION_FINAL_CLARIFICATION_NEEDED_FROM_MEMBER_DEPARTMENT)) {
 											clarificationQuestionVOs.add(i);											
 										} else if(i.getStatusTypeType().equals(ApplicationConstants.QUESTION_FINAL_REJECTION)) {
 											rejectedQuestionVOs.add(i);											
