@@ -661,6 +661,8 @@ public class ApplicationConstants {
 	public static String REPORTING="reporting";
 
 	public static String CLERK="clerk";
+
+	public static String QUESTION_FINAL_CLARIFICATION_NEEDED_FROM_GOVT="question_final_clarificationNeededFromGovt";
 	
 	/****Custom Parameters name ****/
 	public static final String RESOLUTION_CHART_WITHDEVICES_VIEW = "RESOLUTION_CHART_WITHDEVICES_VIEW";
