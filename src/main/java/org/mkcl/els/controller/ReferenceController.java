@@ -4994,8 +4994,8 @@ public class ReferenceController extends BaseController {
 		}
 		
 		@RequestMapping(value="/newpendingtasks", method=RequestMethod.GET)
-		public @ResponseBody List<MasterVO> getNewPendingTasks(HttpServletRequest request, Locale locale){
-			List<MasterVO> data = new ArrayList<MasterVO>();
+		public @ResponseBody MasterVO getNewPendingTasks(HttpServletRequest request, Locale locale){
+			MasterVO data = new MasterVO();
 			try{
 				String strSessionYear = request.getParameter("sessionYear");
 				String strSessionType = request.getParameter("sessionType");
@@ -5023,20 +5023,11 @@ public class ReferenceController extends BaseController {
 					parameters.put("sessionType", strSessionType);
 					parameters.put("status", strStatus);
 					
-					Date currentDate = new Date();
-					CustomParameter csptNotificationHours = CustomParameter.findByName(CustomParameter.class, "QIS_NOTIFICATION_HOURS", "");
-					
-					int notificationHours = (csptNotificationHours != null && csptNotificationHours.getValue() != null && !csptNotificationHours.getValue().isEmpty())? Integer.parseInt(csptNotificationHours.getValue()): 24;
-					List<WorkflowDetails> workflows = WorkflowDetails.findPendingWorkflowOfCurrentUserByAssignmentTimeRange(parameters, currentDate, new Date(currentDate.getTime() - (notificationHours * 3600 * 1000)), "assignmentTime", ApplicationConstants.ASC);
+					List<WorkflowDetails> workflows = WorkflowDetails.findPendingWorkflowOfCurrentUser(parameters, "assignmentTime", ApplicationConstants.ASC);
 					
 					if(workflows != null){
-						for(WorkflowDetails wd : workflows){
-							MasterVO vo = new MasterVO();
-							vo.setId(new Long(wd.getDeviceId()));
-							vo.setName(wd.getInternalStatus());
-							vo.setValue(wd.getDeviceNumber() + "#" + wd.getDeviceType());
-							data.add(vo);
-						}
+						
+							data.setValue(String.valueOf(workflows.size()));
 					}
 				}
 			}catch(Exception e){
