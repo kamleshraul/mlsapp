@@ -858,8 +858,8 @@ public class MemberBallotRepository extends BaseRepository<MemberBallot, Seriali
 			List<MemberBallotFinalBallotVO> ballots = new ArrayList<MemberBallotFinalBallotVO>();
 			NumberFormat numberFormat=FormaterUtil.getNumberFormatterNoGrouping(locale);		
 			
-			queryInner = org.mkcl.els.domain.Query.findByFieldName(org.mkcl.els.domain.Query.class, "keyField", "MEMBERBALLOT_VIEW_BALLOT_IF_EMPTY_INNER_QUERY", null);
-			queryWrapper = org.mkcl.els.domain.Query.findByFieldName(org.mkcl.els.domain.Query.class, "keyField", "MEMBERBALLOT_VIEW_BALLOT_IF_EMPTY_WRAPPER", null);
+			queryInner = org.mkcl.els.domain.Query.findByFieldName(org.mkcl.els.domain.Query.class, "keyField", "MEMBERBALLOT_VIEW_BALLOT_IF_EMPTY_INNER_QUERY", locale);
+			queryWrapper = org.mkcl.els.domain.Query.findByFieldName(org.mkcl.els.domain.Query.class, "keyField", "MEMBERBALLOT_VIEW_BALLOT_IF_EMPTY_WRAPPER", locale);
 			if(queryInner != null){
 				if(queryWrapper != null){
 					ballotEntryQuery = queryWrapper.getQuery().replaceAll("INNER_QUERY", queryInner.getQuery());				
@@ -896,8 +896,8 @@ public class MemberBallotRepository extends BaseRepository<MemberBallot, Seriali
 			
 			if(!ballots.isEmpty()){
 				for(MemberBallotFinalBallotVO i:ballots){
-					queryInner = org.mkcl.els.domain.Query.findByFieldName(org.mkcl.els.domain.Query.class, "keyField", "MEMBERBALLOT_VIEW_BALLOT_IF_NOT_EMPTY_INNER_QUERY", null);
-					queryWrapper = org.mkcl.els.domain.Query.findByFieldName(org.mkcl.els.domain.Query.class, "keyField", "MEMBERBALLOT_VIEW_BALLOT_IF_NOT_EMPTY_WRAPPER", null);
+					queryInner = org.mkcl.els.domain.Query.findByFieldName(org.mkcl.els.domain.Query.class, "keyField", "MEMBERBALLOT_VIEW_BALLOT_IF_NOT_EMPTY_INNER_QUERY", locale);
+					queryWrapper = org.mkcl.els.domain.Query.findByFieldName(org.mkcl.els.domain.Query.class, "keyField", "MEMBERBALLOT_VIEW_BALLOT_IF_NOT_EMPTY_WRAPPER", locale);
 									
 					List questionEntries= null;
 					String finalQuestionQuery = null;
@@ -964,7 +964,7 @@ public class MemberBallotRepository extends BaseRepository<MemberBallot, Seriali
 			if(startDate!=null&&endDate!=null){
 				if((!startDate.isEmpty())&&(!endDate.isEmpty())){
 					/**** Count of questions ****/
-					org.mkcl.els.domain.Query queryCounter = org.mkcl.els.domain.Query.findByFieldName(org.mkcl.els.domain.Query.class, "keyField", "MEMBERBALLOT_MEMBER_WISE_REPORT_COUNT_QUERY", "");
+					org.mkcl.els.domain.Query queryCounter = org.mkcl.els.domain.Query.findByFieldName(org.mkcl.els.domain.Query.class, "keyField", "MEMBERBALLOT_MEMBER_WISE_REPORT_COUNT_QUERY", locale);
 					if(queryCounter != null){
 						
 						String countQuery=queryCounter.getQuery();
@@ -999,8 +999,8 @@ public class MemberBallotRepository extends BaseRepository<MemberBallot, Seriali
 						jpQuery = null;
 						queryCounter = null;
 						
-						org.mkcl.els.domain.Query questionQueryInner = org.mkcl.els.domain.Query.findByFieldName(org.mkcl.els.domain.Query.class, "keyField", "MEMBERBALLOT_MEMBER_WISE_REPORT_QUESTION_QUERY_INNER", "");
-						org.mkcl.els.domain.Query questionQueryFinal = org.mkcl.els.domain.Query.findByFieldName(org.mkcl.els.domain.Query.class, "keyField", "MEMBERBALLOT_MEMBER_WISE_REPORT_QUESTION_QUERY_FINAL", "");
+						org.mkcl.els.domain.Query questionQueryInner = org.mkcl.els.domain.Query.findByFieldName(org.mkcl.els.domain.Query.class, "keyField", "MEMBERBALLOT_MEMBER_WISE_REPORT_QUESTION_QUERY_INNER", locale);
+						org.mkcl.els.domain.Query questionQueryFinal = org.mkcl.els.domain.Query.findByFieldName(org.mkcl.els.domain.Query.class, "keyField", "MEMBERBALLOT_MEMBER_WISE_REPORT_QUESTION_QUERY_FINAL", locale);
 						if(questionQueryInner != null){
 							if(questionQueryFinal != null){
 								
@@ -1080,7 +1080,7 @@ public class MemberBallotRepository extends BaseRepository<MemberBallot, Seriali
 				if((!startDateParameter.isEmpty())&&(!endDateParameter.isEmpty())){					
 					Date startDate = FormaterUtil.formatStringToDate(startDateParameter, ApplicationConstants.DB_DATETIME_FORMAT);
 					Date endDate = FormaterUtil.formatStringToDate(endDateParameter, ApplicationConstants.DB_DATETIME_FORMAT);
-					org.mkcl.els.domain.Query elsQuery = org.mkcl.els.domain.Query.findByFieldName(org.mkcl.els.domain.Query.class, "keyField", "MEMBERBALLOT_VIEW_QUESTION_DISTRIBUTION_MEMBER", "");
+					org.mkcl.els.domain.Query elsQuery = org.mkcl.els.domain.Query.findByFieldName(org.mkcl.els.domain.Query.class, "keyField", "MEMBERBALLOT_VIEW_QUESTION_DISTRIBUTION_MEMBER", locale);
 					if(elsQuery != null){
 						Query jpQuery = this.em().createNativeQuery(elsQuery.getQuery());
 						jpQuery.setParameter("sessionId", session.getId());
@@ -1128,7 +1128,7 @@ public class MemberBallotRepository extends BaseRepository<MemberBallot, Seriali
 						elsQuery = null;
 						jpQuery = null;
 						
-						elsQuery =org.mkcl.els.domain.Query.findByFieldName(org.mkcl.els.domain.Query.class, "keyField", "MEMBERBALLOT_VIEW_QUESTION_DISTRIBUTION_COUNT", "");
+						elsQuery =org.mkcl.els.domain.Query.findByFieldName(org.mkcl.els.domain.Query.class, "keyField", "MEMBERBALLOT_VIEW_QUESTION_DISTRIBUTION_COUNT", locale);
 						
 						if(elsQuery != null){
 							
