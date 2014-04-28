@@ -69,7 +69,7 @@ text-align: center;
 			<c:forEach items="${questionDistributions}"  var="i" varStatus="rowNumber">
 			<c:set value="${totalMembers+1 }" var="totalMembers"></c:set>
 			<c:choose>
-				<c:when test="${rowNumber.count%20==0}">
+				<c:when test="${rowNumber.count%14==0}">
 					<tr style="page-break-after: always;">					
 				</c:when>
 				<c:otherwise>
