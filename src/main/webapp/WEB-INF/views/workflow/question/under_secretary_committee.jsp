@@ -135,7 +135,7 @@
 		var resourceURL='ref/question/actors?'+params;
 	
 		$.post(resourceURL,function(data){
-			if(data!=undefined||data!=null||data!=''){
+			if(data!=undefined||data!=null||data!=''||data.length>0){
 				var length=data.length;
 				$("#actor").empty();
 				var text="";
