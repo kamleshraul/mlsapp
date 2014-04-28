@@ -75,7 +75,8 @@
 			
 			/**** Generate Intimation Letter ****/			
 			$("#generateIntimationLetter").click(function(){
-				generateIntimationLetter();
+				$(this).attr('href','#');
+				generateIntimationLetter();				
 			});					
 			
 		});
