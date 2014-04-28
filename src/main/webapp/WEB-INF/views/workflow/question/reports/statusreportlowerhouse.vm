@@ -1,7 +1,7 @@
-<div>
-	<table style="width: 800px; margin-top: 10px;">
+<div style="width: 800px; margin-top: 0px !important;">
+	<table style="width: 800px; margin-top: 0px !important;">
 		<tr>
-			<td style="width: 600px; text-align: center;" colspan="2">
+			<td style="width: 800px; text-align: center;" colspan="2">
 				<span style="font-size: 22px; text-decoration: underline;">
 					महाराष्ट्र विधानसभा
 				</span>	
@@ -25,7 +25,7 @@
 		</tr>	
 		<tr>
 			<td colspan="2" style="font-size: 16px; word-wrap: break-word;">
-						<span style="margin-left: 80px; width: 100%;">$memberName, $support वि. स. स.</span><br />
+						<span style="margin-left: 80px; width: 100%;"><b>$memberName</b>, $support वि. स. स.</span><br />
 					<span style="margin-left: 40px;">प्रति</span><br />
 						<span style="margin-left: 50px;">प्रधान सचिव,</span><br />
 						<span style="margin-left: 50px;">महाराष्ट्र विधानसभा,</span><br />
@@ -34,7 +34,7 @@
 					<span style="margin-left: 40px;">महोदय,</span><br />				
 						<span style="margin-left: 50px;">महाराष्ट्र विधानसभा नियमातील नियम ७२ (१) व नियम ७४ आणि ७५ अन्वये, मी, खालील तारांकित प्रश्नाची
 					सूचना देत आहे.</span><br />
-					<span style="margin-left: 40px;">हा प्रश्न दिनांक $answeringDate, $support ला उत्तराकरिता ठेवण्यात यावा. या प्रश्नाला क्रमांक $priority चे प्राथम्य द्यावे;</span><br />														
+					<span style="margin-left: 40px;">हा प्रश्न दिनांक <b>$answeringDate</b>, $support ला उत्तराकरिता ठेवण्यात यावा. या प्रश्नाला क्रमांक $priority चे प्राथम्य द्यावे;</span><br />														
 															<span style="margin-left: 600px;">आपला,</span>
 															<br /><br /><br />													
 															<span style="margin-left: 600px;">सदस्य,</span><br />
@@ -42,10 +42,10 @@
 					<span style="max-width: 800px;">									
 						<span style="margin-left: 40px;">विषय : $subject</span><br />
 						
-													<span style="margin-left: 555px;">*प्रश्न क्रमांक $deviceNumber गट क्रमांक $groupNumber</span>
+													<span style="margin-left: 555px;">*प्रश्न क्रमांक <b>$deviceNumber</b> गट क्रमांक <b>$groupNumber</b></span>
 													<br /><br/>
 													<span style="margin-left: 555px;">श्री. ......................., वि. स. स.</span><br />
-						<span style="margin-left: 40px;">सन्मानीय $ministry, पुढील गोष्टींचा खुलासा करतील काय :-</span><br />
+						<span style="margin-left: 40px;">सन्मानीय <b>$ministry</b>, पुढील गोष्टींचा खुलासा करतील काय :-</span><br />
 					
 									
 						<div style="margin-left: 40px;">$details</div>
@@ -58,7 +58,7 @@
 	</table>
 </div>
 <span class='page-break-before-forced'>&nbsp;</span>
-<div>
+<div style="width: 800px;">
 	<div class="loupHead" style="width: 100%;">
 		<div id="headerText" style="display:block; text-align:center;">
 			<span style="font-size: 22px; text-decoration: underline;">
@@ -66,15 +66,15 @@
 			</span>		
 			<br/>
 			<span style="font-size: 16px; border-bottom: 2px solid black;">
-				गट क्रमांक $groupNumber उत्तराचा दिनांक: $answeringDate स्वीकृत प्रश्न प्रश्न विभागाकडे पाठविण्याचा दिनांक: $deptSendDate
+				गट क्रमांक <b>$groupNumber</b> उत्तराचा दिनांक: <b>$answeringDate</b> स्वीकृत प्रश्न प्रश्न विभागाकडे पाठविण्याचा दिनांक: $deptSendDate
 			</span>
 		</div>
 	</div>
 	<div class="loupContent" style="width: 100%; font-size: 16px;">
 		<div style="text-align: justify;">
 					<br />
-					कृपया पृष्ट क्रमांक १ वरील $memberName व इतर वि. स. स.
-			यांचा तारांकित प्रश्न $deviceNumber तसेच पृष्ठ क्रमांक ___________ वरील <br />
+					कृपया पृष्ट क्रमांक १ वरील <b>$memberName</b> व इतर वि. स. स.
+			यांचा तारांकित प्रश्न <b>$deviceNumber</b> तसेच पृष्ठ क्रमांक ______________________ वरील <br />
 			श्री. / श्रीमती __________________	व इतर वि. स. स. यांचा / यांचे  <br />
 			ता. र. करा. ___________ पाहावा / पाहावेत.
 			
@@ -83,13 +83,13 @@
 			सबब विषय पर्याप्त सार्वजनिक महत्त्वाचा आहे.
 			
 			<br/><br/><br/>
-			<table>
+			<table style="width: 800px; font-weight: bold; border: 1px solid black;" border="1">
 				#foreach($r in $actors)
-					<tr class="page-break">
-						<td style="width: 100px; padding: 5px;">$r.name</td>
-						<td style="width: 100px; padding: 5px;">$r.formattedNumber</td>
-						<td style="width: 520px; padding: 5px;">$r.value</td>
-						<td style="width: 80px; padding: 5px;">&nbsp;</td>
+					<tr class="page-break" style="font-weight: bold;">
+						<td style="width: 200px; padding: 5px;">$r.name</td>
+						<td style="width: 150px; padding: 5px;">$r.formattedNumber</td>
+						<td style="width: 480px; padding: 5px;">$r.value</td>
+						<td style="width: 100px; padding: 5px;">&nbsp;</td>
 					</tr>
 				#end
 			</table>	
@@ -102,3 +102,4 @@
 	</div>
 </div>
 <span class='page-break-before-forced'>&nbsp;</span>
+<hr>

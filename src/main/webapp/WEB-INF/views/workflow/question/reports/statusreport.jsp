@@ -14,7 +14,7 @@
 			showRemarkReport();
 			
 			$("#loadMore").click(function(){
-				limit += 5;;
+				limit += 10;
 				if(limit > dataSize){
 					limit = dataSize;
 				}				
@@ -40,7 +40,7 @@
 							ids.push(data[i].value);
 						}
 						counter = 0;
-						limit = 5;
+						limit = 10;
 						if(ids.length > 0){
 							addRemarkReport();
 						}
@@ -87,12 +87,21 @@
 	        #reportDiv{
 	        	width: 800px;
 	        	padding: 10px;
-	        	margin-top: 10px !important;
+	        	margin-top: 0px !important;
 	        }
 	        
 	        .page-break-before-forced{
 	        	page-break-before: always;
-	        }           
+	        }     
+	        
+	        @page{
+	        	size: 21cm 29.7cm;   /* auto is the initial value */
+  				margin: 20mm;
+	        }  
+	        
+	        hr{
+	        	display: none !important;
+	        }    
         }
         
         pre{
