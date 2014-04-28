@@ -689,13 +689,13 @@
 														</xsl:choose>                           			
 													</xsl:when>
 													<xsl:otherwise>
-														<xsl:value-of select="element_5_11" />&#160;&#160;(<xsl:value-of select="element_5_12" />)&#160;&#160;
+														<xsl:value-of select="element_5_8" />&#160;&#160;(<xsl:value-of select="element_5_12" />)&#160;&#160;
 														<xsl:choose>
 															<xsl:when test="$language='mr_IN'">
-																(प्रश्न क्रमांक <xsl:value-of select="element_5_8" /> शी जोडलेला आहे)
+																(प्रश्न क्रमांक <xsl:value-of select="element_5_11" /> शी जोडलेला आहे)
 															</xsl:when>
 															<xsl:otherwise>
-																(clubbed to <xsl:value-of select="element_5_8" />)
+																(clubbed to <xsl:value-of select="element_5_11" />)
 															</xsl:otherwise>
 														</xsl:choose>
 													</xsl:otherwise>

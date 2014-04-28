@@ -620,7 +620,7 @@
 				                        	<fo:table-cell padding-left="5" border-width="0.5pt" border-style="solid" display-align="center" text-align="center">
 				                        	    
 				                        	    	<xsl:choose>
-				                        	    		<xsl:when test="attendance='true'">
+				                        	    		<xsl:when test="element_2='true'">
 				                        	    			<fo:block font-weight="bold">
 					                                                                    उपस्थित असलेल्या मा. सदस्यांचे नाव
 						                                    </fo:block>				                        	    			

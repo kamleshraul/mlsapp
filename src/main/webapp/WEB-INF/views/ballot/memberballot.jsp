@@ -129,10 +129,10 @@
 			<h5 style="text-align: center;font-weight: normal;font-size: 16px;"><spring:message code="memberballot.topheader.${round }" text="Round ${round } Member Ballot List"></spring:message></h5><br/>
 			<c:choose>
 				<c:when test="${attendance=='true' }">
-					<h3 style="text-align: center; font-weight: normal; font-size: 18px; margin: 0px; padding: 0px;"><spring:message code="memberballot.presentmember" text="Present Members"/></h3>
+					<h3 style="text-align: center; font-weight: normal; font-size: 18px; margin: 0px; padding: 0px;"><spring:message code="memberballot.presentmember.name" text="Present Members"/></h3>
 				</c:when>
 				<c:otherwise>
-					<h3 style="text-align: center; font-weight: normal; font-size: 18px; margin: 0px; padding: 0px;"><spring:message code="memberballot.absentmember" text="Absent Members"/></h3>	
+					<h3 style="text-align: center; font-weight: normal; font-size: 18px; margin: 0px; padding: 0px;"><spring:message code="memberballot.absentmember.name" text="Absent Members"/></h3>	
 				</c:otherwise>
 			</c:choose>
 			<p style="text-align: right;font-weight: normal;font-size: 14px; margin-top: -28px;margin-bottom:0px; float: right; margin-right: 15px;">
@@ -146,10 +146,10 @@
 			<th class="leftalign" style="font-size: 16px;">
 			<c:choose>
 			<c:when test="${attendance=='true' }">
-			<spring:message code="memberballot.presentmember.name" text="Present Members"/>
+			<spring:message code="memberballot.presentmember" text="Present Members"/>
 			</c:when>
 			<c:otherwise>
-			<spring:message code="memberballot.absentmember.name" text="Absent Members"/>	
+			<spring:message code="memberballot.absentmember" text="Absent Members"/>	
 			</c:otherwise>
 			</c:choose>
 			</th>	

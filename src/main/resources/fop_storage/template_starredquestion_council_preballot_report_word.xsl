@@ -10,8 +10,8 @@
     
     <xsl:param name="page-size" select="'ltr'"/>    
 
-    <xsl:variable name="language" select="MemberBallotData/locale"/>
-    <xsl:variable name="formatOut" select="MemberBallotData/outputFormat"/>
+    <xsl:variable name="language" select="root/locale"/>
+    <xsl:variable name="formatOut" select="root/outputFormat"/>
 
     <xsl:variable name="font">
 	   <xsl:choose>
@@ -407,7 +407,7 @@
 	    <xsl:attribute name="color">blue</xsl:attribute>
 	  </xsl:attribute-set>
 
-    <xsl:template match="MemberBallotData">
+    <xsl:template match="root">
 
 	    <!-- <xsl:text disable-output-escaping="yes">
 		    &lt;!DOCTYPE fo:root [&lt;!ENTITY nbsp "&amp;#160;"&gt;]&gt;
@@ -584,19 +584,19 @@
 										   <fo:block/><fo:block/>
 										   <fo:block font-weight="normal">
 										   	<xsl:choose>
-										   		<xsl:when test="round='१'">
+										   		<xsl:when test="element_1='१'">
 											   		पहिल्या
 											   	</xsl:when>
-											   	<xsl:when test="round='२'">
+											   	<xsl:when test="element_1='२'">
 											   		दुसऱ्या
 											   	</xsl:when>
-											   	<xsl:when test="round='३'">
+											   	<xsl:when test="element_1='३'">
 											   		तिसऱ्या
 											   	</xsl:when>
-											   	<xsl:when test="round='४'">
+											   	<xsl:when test="element_1='४'">
 											   		चौथ्या
 											   	</xsl:when>
-											   	<xsl:when test="round='५'">
+											   	<xsl:when test="element_1='५'">
 											   		पाचव्या
 											   	</xsl:when>											   	
 										   	</xsl:choose>
@@ -607,7 +607,7 @@
 										<fo:block>&#160;</fo:block>
 										
 										<fo:block text-align='right' font-family="{$font}" font-size="16pt">
-										    दिनांक - &#160;&#160;&#160;<xsl:value-of select="date"/>
+										    दिनांक - &#160;&#160;&#160;<xsl:value-of select="element_4"/>
 										</fo:block>
 							   	  </fo:table-cell>
 							   </fo:table-row>
@@ -620,7 +620,7 @@
 				                        	<fo:table-cell padding-left="5" border-width="0.5pt" border-style="solid" display-align="center" text-align="center">
 				                        	    
 				                        	    	<xsl:choose>
-				                        	    		<xsl:when test="attendance='true'">
+				                        	    		<xsl:when test="element_2='true'">
 				                        	    			<fo:block font-weight="bold">
 					                                                                    उपस्थित असलेल्या मा. सदस्यांचे नाव
 						                                    </fo:block>				                        	    			
@@ -636,19 +636,19 @@
 				            	</fo:table-row>				
 							</fo:table-header>
 	                        <fo:table-body>	                        	
-	                            <xsl:for-each select="./memberBallotList/memberBallot" >
+	                            <xsl:for-each select="./element_5" >
 	                                <fo:table-row border="solid 0.1mm black" height="25pt">
 					
 	                                	
 	                                    <fo:table-cell padding-left="5" display-align="center" text-align="center" border-width="0.5pt" border-style="solid">
 	                                        <fo:block>
-	                                        	<xsl:value-of select="position" />
+	                                        	<xsl:value-of select="element_5_1" />
 	                                        </fo:block>
 	                                    </fo:table-cell>
 	                                    
 	                                    <fo:table-cell padding-left="5" display-align="center" text-align="left" border-width="0.5pt" border-style="solid">
                                             <fo:block>
-                                            	<xsl:value-of select="member" />                                            	
+                                            	<xsl:value-of select="element_5_2" />                                            	
 						  					</fo:block>
 	                                    </fo:table-cell>
 	                                    
