@@ -1,5 +1,5 @@
-<div>
-	<table style="width: 800px; margin-top: 10px;">
+<div style="width: 800px; margin-top: 0px !important;">
+	<table style="width: 800px; margin-top: 0px !important;">
 		<tr>
 			<td style="width: 800px; text-align: center;" colspan="2">
 				<span style="font-size: 22px; text-decoration: underline;">
@@ -23,81 +23,85 @@
 		<tr>
 			<td colspan="2">&nbsp;</td>
 		</tr>	
+	</table>
+	
+	<table>
+		<tr style="font-weight: bold;">
+			<td style="font-size: 16px; word-wrap: break-word; width: 250px; padding-left: 5px;">
+				सदस्यांचे नाव
+			</td>
+			<td style="font-size: 16px; word-wrap: break-word; width: 550px; padding-left: 5px;">
+				$memberName<br /> $support
+			</td>
+		</tr>
+		<tr style="font-weight: bold;">													
+			<td style="font-size: 16px; word-wrap: break-word; width: 250px; padding-left: 5px;">					
+				प्रश्न क्रमांक
+			</td>
+			<td style="font-size: 16px; word-wrap: break-word; width: 550px; padding-left: 5px;">
+				$deviceNumber
+			</td>
+		</tr>
+		<tr style="font-weight: bold;">
+			<td style="font-size: 16px; word-wrap: break-word; width: 250px; padding-left: 5px;">					
+				गट क्रमांक 
+			</td>
+			<td style="font-size: 16px; word-wrap: break-word; width: 550px; padding-left: 5px;">
+				$groupNumber 
+			</td>	
+		</tr>
+		<tr style="font-weight: bold;">
+			<td style="font-size: 16px; word-wrap: break-word; width: 250px; padding-left: 5px;">					
+				उत्तराचा दिनांक 
+			</td>
+			<td style="font-size: 16px; word-wrap: break-word; width: 550px; padding-left: 5px;">
+				$answeringDate 
+			</td>	
+		</tr>
 		<tr>
-			<td colspan="2" style="font-size: 16px; word-wrap: break-word;">
-						<span style="margin-left: 80px; width: 100%;"><b>$memberName</b>, $support वि. स. स.</span><br />
-					<span style="margin-left: 40px;">प्रति</span><br />
-						<span style="margin-left: 50px;">प्रधान सचिव,</span><br />
-						<span style="margin-left: 50px;">महाराष्ट्र विधानपरिषद,</span><br />
-						<span style="margin-left: 50px;">विधान भवन, मुंबई ४०० ०३२.</span><br /><br />
-					
-					<span style="margin-left: 40px;">महोदय,</span><br />				
-						<span style="margin-left: 50px;">महाराष्ट्र विधानपरिषद नियमातील नियम ७२ (१) व नियम ७४ आणि ७५ अन्वये, मी, खालील तारांकित प्रश्नाची
-					सूचना देत आहे.</span><br />
-					<span style="margin-left: 40px;">हा प्रश्न दिनांक <b>$answeringDate</b>, $support ला उत्तराकरिता ठेवण्यात यावा. या प्रश्नाला क्रमांक $priority चे प्राथम्य द्यावे;</span><br />														
-															<span style="margin-left: 600px;">आपला,</span>
-															<br /><br /><br />													
-															<span style="margin-left: 600px;">सदस्य,</span><br />
-														   <span style="margin-left: 569px;">महाराष्ट्र विधानपरिषद.</span><br /><br />				
-					<span style="max-width: 800px;">									
-						<span style="margin-left: 40px;">विषय : $subject</span><br />
-						
-													<span style="margin-left: 555px;">*प्रश्न क्रमांक <b>$deviceNumber</b> गट क्रमांक <b>$groupNumber</b></span>
-													<br /><br/>
-													<span style="margin-left: 555px;">श्री. ......................., वि. स. स.</span><br />
-						<span style="margin-left: 40px;">सन्मानीय <b>$ministry</b>, पुढील गोष्टींचा खुलासा करतील काय :-</span><br />
-					
-									
-						<div style="margin-left: 40px;">$details</div>
-					</span>
-					<br/><br/>
-					<span style="margin-left: 60px;">$principalSec</span><br />
-					<span style="margin-left: 65px;">प्रधान सचिव</span>
+			<td style="font-weight: bold; width: 250px; font-size: 16px; word-wrap: break-word; padding-left: 5px;">
+				विषय 
+			</td>
+			<td style="width: 550px; font-size: 16px; word-wrap: break-word; padding-left: 5px;">
+				$subject
+			</td>
+		</tr>
+		<tr>
+			<td colspan="2">&nbsp;</td>
+		</tr>
+		<tr>
+			<td colspan="2" style="width: 800px; font-size: 16px; word-wrap: break-word; padding-left: 5px;">
+				$details
 			</td>
 		</tr>
 	</table>
 </div>
-<span class='page-break-before-forced'><hr></span>
-<div>
-	<div class="loupHead" style="width: 100%;">
-		<div id="headerText" style="display:block; text-align:center;">
-			<span style="font-size: 22px; text-decoration: underline;">
-				विधानपरिषद तारांकित प्रश्न
-			</span>		
-			<br/>
-			<span style="font-size: 16px; border-bottom: 2px solid black;">
-				गट क्रमांक <b>$groupNumber</b> उत्तराचा दिनांक: <b>$answeringDate</b> स्वीकृत प्रश्न प्रश्न विभागाकडे पाठविण्याचा दिनांक: $deptSendDate
-			</span>
-		</div>
-	</div>
-	<div class="loupContent" style="width: 100%; font-size: 16px;">
-		<div style="text-align: justify;">
-					<br />
-					<span style="margin-left: 50px;">कृपया</span> पृष्ट क्रमांक १ वरील <b>$memberName</b> व इतर वि. स. स. यांचा तारांकित प्रश्न <b>$deviceNumber</b> <br/ >तसेच पृष्ठ क्रमांक ______________________ वरील <br> 
-					श्री. / श्रीमती __________________	व इतर वि. स. स. यांचा / यांचे 
-			ता. र. करा. ___________ पाहावा / पाहावेत.
-			<br>
-					<span style="margin-left: 50px;">प्रश्नोक्त</span> विषयावर गत सत्रात तारांकित / अतारांकित प्रश्न क्रमांक __________ 
-			दिनांक ___________ रोजी उत्तरीत झाला असून विषयाचा पाठपुरावा करण्यासाठी या सत्रात प्रश्न विचारण्यात आला आहे.
-			सबब विषय पर्याप्त सार्वजनिक महत्त्वाचा आहे.
-			
-			<br/><br/><br/>
-			<table style="border: 1px solid black;" border="1">
-				#foreach($r in $actors)
-					<tr class="page-break" style="width: 800px;">
-						<td style="width: 200px; padding: 5px;">$r.name</td>
-						<td style="width: 150px; padding: 5px;">$r.formattedNumber</td>
-						<td style="width: 480px; padding: 5px;">$r.value</td>
-						<td style="width: 100px; padding: 5px;">&nbsp;</td>
-					</tr>
-				#end
-			</table>				
-			<br />
-			<br />
-			<span style="margin-left: 560px;">मा. सभापती</span>	
-			<br>
-			<hr>
-		</div>	
-	</div>
+<div style="width: 800px;">
+	<br>
+	<table style="width: 800px; font-weight: bold; border: 1px solid black; font-size: 16px;" border="1">
+		#foreach($r in $actors)
+			<tr class="page-break" style="font-weight: bold;">
+				<td style="width: 250px; padding: 5px; text-align: center;">$r.name</td>
+				<td style="width: 110px; padding: 5px; text-align: center;">$r.formattedNumber</td>
+				<td style="width: 340px; padding: 5px;">$r.value</td>
+				<td style="width: 100px; padding: 5px; text-align: center;">&nbsp;</td>
+			</tr>
+		#end
+	</table>
+	<table style="width: 800px; font-size: 16px;">
+		<tr><td colspan="2">&nbsp;</td></tr>
+		<tr><td colspan="2">&nbsp;</td></tr>
+		<tr>
+			<td style="width: 300px; font-size: 16px; word-wrap: break-word; padding-left: 5px; text-align: center;">
+				<br><br>
+				$principalSec<br />
+				प्रधान सचिव
+			</td>
+			<td style="width: 500px; font-size: 16px; word-wrap: break-word; padding-left: 5px;">
+				&nbsp;
+			</td>
+		</tr>
+	</table>
 </div>
 <span class='page-break-before-forced'>&nbsp;</span>
+<hr>

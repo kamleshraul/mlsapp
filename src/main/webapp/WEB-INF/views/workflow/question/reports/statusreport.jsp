@@ -14,7 +14,11 @@
 			showRemarkReport();
 			
 			$("#loadMore").click(function(){
-				limit += 10;
+				
+				if(counter == limit){
+					limit += 10;
+				}
+				
 				if(limit > dataSize){
 					limit = dataSize;
 				}				
@@ -55,7 +59,7 @@
 		
 		function addRemarkReport(){
 			
-			if(ids.length > 0){
+			if(ids.length > 0 && counter < ids.length){
 				 $.get('workflow/question/report/'+ ids[counter] + '/currentstatusreportvm?device=question',function(data1){
 						 								
 							if($('#reportWindow1').text().trim()=='v'){
