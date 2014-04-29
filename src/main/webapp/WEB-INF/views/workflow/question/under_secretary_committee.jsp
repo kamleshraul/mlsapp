@@ -115,6 +115,7 @@
 		var admitDate = $("#internalStatusMaster option[value='question_processed_admitDate']").text();
 		var resubmitDate = $("#internalStatusMaster option[value='question_processed_resubmitDate']").text();
 		var nameclubbing=$("#internalStatusMaster option[value='question_final_nameclubbing']").text();
+		var nameclubbingWithConvertToUnstarredAndAdmit=$("#internalStatusMaster option[value='question_final_convertToUnstarredAndAdmitClubbedWithPreviousSession']").text();
 
 		var changedInternalStatus = $("#changeInternalStatus").val();
 		if(changedInternalStatus == admitDate || 
@@ -135,7 +136,9 @@
 		var resourceURL='ref/question/actors?'+params;
 	
 		$.post(resourceURL,function(data){
-			if(data!=undefined||data!=null||data!=''||data.length>0){
+			
+			console.log(data);
+			if((data!=undefined || data!=null || data!='') && (data.length>0)){
 				var length=data.length;
 				$("#actor").empty();
 				var text="";
@@ -158,6 +161,7 @@
 				 $("#actorName").val(temp[4]);
 				 $("#actorName").css('display','inline');
 			}else{
+			$("#endFlag").val("end");	
 			$("#actor").empty();
 			$("#actorDiv").hide();
 			/**** in case of sendback and discuss only recommendation status is changed ****/

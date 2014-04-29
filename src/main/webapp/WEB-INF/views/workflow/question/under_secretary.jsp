@@ -134,7 +134,7 @@
 			var resourceURL='ref/question/actors?'+params;
 			
 			$.post(resourceURL,function(data){
-				if(data!=undefined||data!=null||data!=''||data.length>0){
+				if((data!=undefined||data!=null||data!='') && (data.length>0)){
 					var length=data.length;
 					$("#actor").empty();
 					var text="";
@@ -157,6 +157,7 @@
 					 $("#actorName").val(temp[4]);
 					 $("#actorName").css('display','inline');
 				}else{
+				$("#endFlag").val("end");
 				$("#actor").empty();
 				$("#actorDiv").hide();
 				/**** in case of sendback and discuss only recommendation status is changed ****/
