@@ -4299,13 +4299,13 @@ public class QuestionController extends GenericController<Question>{
 				Status status = question.getInternalStatus();	
 				String statusType=status.getType();
 				
-				if(question.getRejectionReason()!=null) {
-					formattedText = question.getRejectionReason();	
-					formattedText = FormaterUtil.formatNumbersInGivenText(formattedText, question.getLocale());
+				if(statusType.equals(ApplicationConstants.QUESTION_FINAL_REJECTION)) {
+					formattedText = FormaterUtil.formatNumbersInGivenText(question.getRejectionReason(), question.getLocale());
 					letterVO.setRejectionReason(formattedText);
 					letterVO.setRemarks(formattedText);
-				} else {
-					letterVO.setRemarks("");
+				} else {//if(statusType.equals(ApplicationConstants.QUESTION_FINAL_ADMISSION)) {
+					formattedText = FormaterUtil.formatNumbersInGivenText(question.getQuestionreferenceText(), question.getLocale());
+					letterVO.setRemarks(formattedText);
 				}
 				
 				String memberOrDepartment=request.getParameter("memberOrDepartment");				
