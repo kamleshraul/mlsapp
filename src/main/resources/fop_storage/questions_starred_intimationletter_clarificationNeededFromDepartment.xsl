@@ -25,8 +25,8 @@
 	    	<fo:layout-master-set>				
 				<fo:simple-page-master master-name="first"
 	                  	page-height="29.7cm" page-width="21cm"
-	                  	margin-top="2cm" margin-bottom="2cm"
-	                  	margin-left="2.5cm" margin-right="2.5cm">
+	                  	margin-top="0.5cm" margin-bottom="1.5cm"
+	                  	margin-left="1.5cm" margin-right="1.25cm">
 			      	<fo:region-body margin-top="0cm"/>
 			      	<fo:region-before region-name="rb-first" extent="2cm"/>
 			      	<fo:region-after region-name="ra-first" extent="1.5cm"/>
@@ -74,13 +74,13 @@
 	            <fo:flow flow-name="xsl-region-body">	
 	            	<fo:block font-family="Mangal" font-size="11px">	            					
 						<fo:block text-align="right">
-							<fo:block>क्रमांक - _____&#160;/&#160;
+							<fo:block margin-right="1.45cm">क्रमांक - _____&#160;/&#160;
 							<xsl:choose>
 								<xsl:when test="houseType='lowerhouse'">ब-१</xsl:when>
 								<xsl:when test="houseType='upperhouse'">ई-१</xsl:when>
 							</xsl:choose>
-							महाराष्ट्र</fo:block>						
-							<fo:block margin-right="1.81cm">विधानमंडळ सचिवालय</fo:block>
+							</fo:block>						
+							<fo:block margin-right="0.30cm">महाराष्ट्र विधानमंडळ सचिवालय</fo:block>
 							<fo:block margin-right="1.21cm">विधान भवन, मुंबई/नागपूर</fo:block>
 							<fo:block margin-right="1.92cm">दिनांक - <xsl:value-of select="reportDate"/></fo:block>
 						</fo:block>		
@@ -135,7 +135,7 @@
 							<fo:block margin-right="1.4cm">कक्ष अधिकारी,</fo:block>		
 							<fo:block margin-right="0.3cm">महाराष्ट्र विधानमंडळ सचिवालय</fo:block>								
 						</fo:block>
-						-------------------------------------------------------------------------------------------------
+						-----------------------------------------------------------------------------------------------------------------------------------------
 						<fo:block font-weight="bold">
 							<xsl:for-each select="questionsAskedForClarification/questionAskedForClarification">
 								<fo:block><xsl:value-of select="value"/></fo:block>
@@ -144,7 +144,7 @@
 								</xsl:if> -->								
 							</xsl:for-each>
 						</fo:block>	
-						-------------------------------------------------------------------------------------------------
+						-----------------------------------------------------------------------------------------------------------------------------------------
 						<fo:block>&#160;</fo:block>
 						<fo:block text-align="center" font-weight="bold">विषय - <xsl:value-of select="subject"/></fo:block>
 						<fo:block>&#160;</fo:block>
