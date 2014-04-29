@@ -57,6 +57,7 @@ text-align: center;
 			<p id="headerContent" style="font-weight: bold; margin-left:25px; margin-bottom: 10px; line-height: 200%; font-size: 16px;">
 			</p>
 			<table class="strippedTable" border="1">
+			<thead>
 			<tr height="30px;">
 			<th><spring:message code="memberdistribution.sno" text="S.No"></spring:message></th>
 			<th style="text-align: left;"><spring:message code="memberdistribution.member" text="Member"></spring:message></th>
@@ -66,16 +67,10 @@ text-align: center;
 			<th><spring:message code="memberdistribution.clarificationneeded" text="Clarification From Member/Fact Finding"></spring:message></th>
 			<th><spring:message code="memberdistribution.totalcount" text="Total Count"></spring:message></th>
 			</tr>
+			</thead>
+			<tbody>
 			<c:forEach items="${questionDistributions}"  var="i" varStatus="rowNumber">
-			<c:set value="${totalMembers+1 }" var="totalMembers"></c:set>
-			<c:choose>
-				<c:when test="${rowNumber.count%14==0}">
-					<tr style="page-break-after: always;">					
-				</c:when>
-				<c:otherwise>
-					<tr>
-				</c:otherwise>
-			</c:choose>
+			<c:set value="${totalMembers+1 }" var="totalMembers"></c:set>			
 			<tr>
 			<td>${i.sNo}</td>
 			<td style="text-align: left;">${i.member}, <br/>
@@ -190,6 +185,7 @@ text-align: center;
 			<td style="font-weight: bold;">${clarificationpercent }%</td>
 			<td></td>
 			</tr>
+			</tbody>
 			</table>
 		</div>
 	</c:when>
