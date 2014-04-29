@@ -37,7 +37,7 @@ public class MemberBallotAttendanceRepository extends BaseRepository<MemberBallo
 		search.addFilterEqual("deviceType.id", questionType.getId());
 		search.addFilterEqual("locale", locale);
 		search.addFilterEqual("round", round);*/
-		
+
 		/*if(attendance.equals("true")){
 			search.addFilterEqual("attendance", true);
 		}else if(attendance.equals("false")){
@@ -49,40 +49,40 @@ public class MemberBallotAttendanceRepository extends BaseRepository<MemberBallo
 			search.addSort("position",false);
 		}
 		return this.search(search);*/
-		
+
 		StringBuffer strQuery = new StringBuffer(
-					"SELECT m FROM MemberBallotAttendance m" +
-					" WHERE m.session.id=:sessionId" +
-					" AND m.deviceType.id=:deviceTypeId" +
-					" AND m.locale=:locale" +
-					" AND m.round=:round"
+				"SELECT m FROM MemberBallotAttendance m" +
+						" WHERE m.session.id=:sessionId" +
+						" AND m.deviceType.id=:deviceTypeId" +
+						" AND m.locale=:locale" +
+						" AND m.round=:round"
 				);
 		if(!attendance.isEmpty()){
 			strQuery.append(" AND m.attendance=:attendance");
 		}
 		strQuery.append(" ORDER BY ");
-		
+
 		if(sortBy.equals("member")){
 			strQuery.append(" m.member.lastName ASC");
 		}else{
 			strQuery.append(" m.position ASC");
 		}
-		
+
 		try{
 			TypedQuery<MemberBallotAttendance> jpQuery = this.em().createQuery(strQuery.toString(), MemberBallotAttendance.class);
 			jpQuery.setParameter("sessionId", session.getId());
 			jpQuery.setParameter("deviceTypeId", questionType.getId());
 			jpQuery.setParameter("locale", locale);
 			jpQuery.setParameter("round", round);
-			
+
 			if(attendance.equals("true")){
 				jpQuery.setParameter("attendance", true);
 			}else if(attendance.equals("false")){
 				jpQuery.setParameter("attendance", false);
 			}
-			
+
 			return jpQuery.getResultList();
-			
+
 		}catch (Exception e) {
 			e.printStackTrace();
 			logger.error(e.getMessage());
@@ -98,15 +98,15 @@ public class MemberBallotAttendanceRepository extends BaseRepository<MemberBallo
 			final Boolean attendance,
 			final Integer round, 
 			final String locale) throws ELSException {
-		
+
 		String query="SELECT m FROM MemberBallotAttendance mba" +
-						" JOIN mba.member m" +
-						" WHERE mba.session.id=:sessionId" +
-						" AND mba.deviceType.id=:deviceTypeId" +
-						" AND mba.attendance=:attendance" +
-						" AND mba.locale=:locale" +
-						" AND mba.round=:round" +
-						" ORDER BY mba.position";
+				" JOIN mba.member m" +
+				" WHERE mba.session.id=:sessionId" +
+				" AND mba.deviceType.id=:deviceTypeId" +
+				" AND mba.attendance=:attendance" +
+				" AND mba.locale=:locale" +
+				" AND mba.round=:round" +
+				" ORDER BY mba.position";
 		try{
 			Query jpQuery = this.em().createQuery(query);
 			jpQuery.setParameter("sessionId", session.getId());
@@ -114,7 +114,7 @@ public class MemberBallotAttendanceRepository extends BaseRepository<MemberBallo
 			jpQuery.setParameter("attendance", attendance);
 			jpQuery.setParameter("locale", locale);
 			jpQuery.setParameter("round", round);
-			
+
 			return jpQuery.getResultList();
 		}catch (Exception e) {
 			e.printStackTrace();
@@ -138,13 +138,13 @@ public class MemberBallotAttendanceRepository extends BaseRepository<MemberBallo
 				" WHERE mba.session.id=:sessionId" +
 				" AND mba.deviceType.id=:deviceTypeId" +
 				" AND mba.locale=:locale ORDER BY m.lastName";
-		
+
 		try{
 			Query jpQuery = this.em().createQuery(query);
 			jpQuery.setParameter("sessionId", session.getId());
 			jpQuery.setParameter("deviceTypeId", deviceType.getId());
 			jpQuery.setParameter("locale", locale);
-			
+
 			return jpQuery.getResultList();
 		}catch (Exception e) {
 			e.printStackTrace();
@@ -173,7 +173,7 @@ public class MemberBallotAttendanceRepository extends BaseRepository<MemberBallo
 			final String createdBy,
 			final String createdAs,
 			final String locale) {
-		
+
 		String flag=null;
 		try{
 			CustomParameter customParameter=CustomParameter.findByName(CustomParameter.class,"DB_TIMESTAMP", "");
@@ -217,20 +217,20 @@ public class MemberBallotAttendanceRepository extends BaseRepository<MemberBallo
 			final String locale) throws ELSException {
 		/**** we are checking if attendance has already been created i.e entries are already
 		 * present in MemberBallotAttendance for particular locale,devicetype,session and round****/
-		
+
 		String query="SELECT count(m.id) FROM MemberBallotAttendance m" +
-						" WHERE m.session.id=:sessionId" +
-						" AND m.deviceType.id=:questionTypeId" +
-						" AND m.locale=:locale" +
-						" AND m.round=:round";
-		
+				" WHERE m.session.id=:sessionId" +
+				" AND m.deviceType.id=:questionTypeId" +
+				" AND m.locale=:locale" +
+				" AND m.round=:round";
+
 		try{
 			Query jpQuery = this.em().createQuery(query);
 			jpQuery.setParameter("sessionId", session.getId());
 			jpQuery.setParameter("questionTypeId", questionType.getId());
 			jpQuery.setParameter("locale", locale);
 			jpQuery.setParameter("round", round);
-			
+
 			Long count=(Long) jpQuery.getSingleResult();
 			if(count>0){
 				return true;
@@ -293,11 +293,14 @@ public class MemberBallotAttendanceRepository extends BaseRepository<MemberBallo
 		SimpleDateFormat format=FormaterUtil.getDateFormatter(dbTimeStampFormat,"en_US");
 		Date startTime = FormaterUtil.formatStringToDate(session.getParameter(questionType.getType() +"_submissionFirstBatchStartDate"), dbTimeStampFormat, session.getLocale());
 		Date endTime = FormaterUtil.formatStringToDate(session.getParameter(questionType.getType() +"_submissionFirstBatchEndDate"), dbTimeStampFormat, session.getLocale());
+		Date currentDate=new Date();
+		String role=ApplicationConstants.MEMBER;
+		CustomParameter customParameter=CustomParameter.findByName(CustomParameter.class, "MEMBERBALLOT_STARRED_COUNCIL_ONLY_ACTIVE_MEMBERS_IN_FIRST_BATCH", "");
 		List<Member> members=new ArrayList<Member>();
-		if(startTime!=null && endTime!=null){
+		if(startTime!=null && endTime!=null && customParameter!=null){
 			/*String startTimeStr=format.format(startTime);
 			String endTimeStr=format.format(endTime);*/
-			
+
 			/**** Here all members who have submitted atleast one questions 
 			 * will appear even though there might be some members whose none of the questions have been admitted
 			 * in first batch.These cases of members will be allowed to participate
@@ -309,25 +312,34 @@ public class MemberBallotAttendanceRepository extends BaseRepository<MemberBallo
 			 * their names will not appear in final ballot for a particular 
 			 * answering date.These will involve members whose all questions
 			 * have been either rejected,converted to unstarred and admitted,
-			 * have been sent for clarification needed.
+			 * have been sent for clarification needed.Also members should be active
 			 */
 			String query="SELECT DISTINCT m FROM Question q" +
 					" JOIN q.primaryMember m" +
+					" JOIN m.houseMemberRoleAssociations hmra"+
 					" JOIN m.title t" +
 					" WHERE q.session.id=:sessionId" +
 					" AND q.originalType.id=:questionTypeId" +
 					" AND q.submissionDate>=:startTime" +
-					" AND q.submissionDate<=:endTime" +
-					" ORDER BY m.lastName " + ApplicationConstants.ASC;
-			
+					" AND q.submissionDate<=:endTime" ;
+			if(customParameter.getValue().equals("YES")){
+				query=query+ " AND (hmra.toDate>=:currentDate"+
+						" OR hmra.toDate IS NULL)"+
+						" AND hmra.role.type=:role";
+			}
+			query=query+" ORDER BY m.lastName " + ApplicationConstants.ASC;							
 			try{
 				Query jpQuery = this.em().createQuery(query);
 				jpQuery.setParameter("sessionId", session.getId());
 				jpQuery.setParameter("questionTypeId", questionType.getId());
 				jpQuery.setParameter("startTime", startTime);
 				jpQuery.setParameter("endTime", endTime);
+				if(customParameter.getValue().equals("YES")){
+					jpQuery.setParameter("currentDate",currentDate);
+					jpQuery.setParameter("role",role);
+				}
 				members = jpQuery.getResultList();
-	
+
 				for(Member i:members){
 					MemberBallotAttendance memberBallotAttendance=null;
 					if(round==1){
@@ -376,14 +388,14 @@ public class MemberBallotAttendanceRepository extends BaseRepository<MemberBallo
 		search.addFilterEqual("round", round);
 		search.addFilterEqual("locale", locale);
 		return this.searchUnique(search);*/
-		
+
 		String strQuery = "SELECT m FROM MemberBallotAttendance m" +
-							" WHERE m.session.id=:sessionId" +
-							" AND m.deviceType.id=:deviceTypeId" +
-							" AND m.member.id=:memberId" +
-							" AND m.round=:round" +
-							" AND m.locale=:locale";
-		
+				" WHERE m.session.id=:sessionId" +
+				" AND m.deviceType.id=:deviceTypeId" +
+				" AND m.member.id=:memberId" +
+				" AND m.round=:round" +
+				" AND m.locale=:locale";
+
 		try{
 			Query jpQuery = this.em().createQuery(strQuery);
 			jpQuery.setParameter("sessionId", session.getId());
@@ -391,7 +403,7 @@ public class MemberBallotAttendanceRepository extends BaseRepository<MemberBallo
 			jpQuery.setParameter("memberId", member.getId());
 			jpQuery.setParameter("round", round);
 			jpQuery.setParameter("locale", locale);
-			
+
 			return (MemberBallotAttendance)jpQuery.getSingleResult();
 		}catch (Exception e) {
 			e.printStackTrace();
@@ -414,16 +426,16 @@ public class MemberBallotAttendanceRepository extends BaseRepository<MemberBallo
 		search.addFilterEqual("attendance",attendance);
 		search.addFilterEqual("locale", locale);
 		int totalCount=this.count(search);*/
-		
+
 		StringBuffer strQuery = new StringBuffer(
-					"SELECT COUNT(m.id) FROM MemberBallotAttendance m" +
-					" WHERE m.session.id=:sessionId" +
-					" AND m.deviceType.id=:deviceTypeId" +
-					" AND m.round=:round" +
-					" AND m.attendance=:attendance" +
-					" AND m.locale=:locale"
+				"SELECT COUNT(m.id) FROM MemberBallotAttendance m" +
+						" WHERE m.session.id=:sessionId" +
+						" AND m.deviceType.id=:deviceTypeId" +
+						" AND m.round=:round" +
+						" AND m.attendance=:attendance" +
+						" AND m.locale=:locale"
 				);
-		
+
 		try{
 			Query jpQuery = this.em().createQuery(strQuery.toString());
 			jpQuery.setParameter("sessionId", session.getId());
@@ -431,12 +443,12 @@ public class MemberBallotAttendanceRepository extends BaseRepository<MemberBallo
 			jpQuery.setParameter("round", round);
 			jpQuery.setParameter("attendance", attendance);
 			jpQuery.setParameter("locale", locale);
-			
+
 			int totalCount = ((Long)jpQuery.getSingleResult()).intValue(); 
-			
+
 			strQuery = null;
 			jpQuery = null;
-	
+
 			/*Search search1=new Search();
 			search1.addFilterEqual("session.id", session.getId());
 			search1.addFilterEqual("deviceType.id", questionType.getId());
@@ -445,17 +457,17 @@ public class MemberBallotAttendanceRepository extends BaseRepository<MemberBallo
 			search1.addFilterEqual("locked",true);
 			search1.addFilterEqual("attendance",attendance);
 			int lockedCount=this.count(search1);*/
-			
+
 			strQuery = new StringBuffer(
 					"SELECT COUNT(m.id) FROM MemberBallotAttendance m" +
-					" WHERE m.session.id=:sessionId" +
-					" AND m.deviceType.id=:deviceTypeId" +
-					" AND m.round=:round" +
-					" AND m.locked=:locked" +
-					" AND m.attendance=:attendance" +
-					" AND m.locale=:locale"
-				);
-		
+							" WHERE m.session.id=:sessionId" +
+							" AND m.deviceType.id=:deviceTypeId" +
+							" AND m.round=:round" +
+							" AND m.locked=:locked" +
+							" AND m.attendance=:attendance" +
+							" AND m.locale=:locale"
+					);
+
 			jpQuery = this.em().createQuery(strQuery.toString());
 			jpQuery.setParameter("sessionId", session.getId());
 			jpQuery.setParameter("deviceTypeId", questionType.getId());
@@ -463,9 +475,9 @@ public class MemberBallotAttendanceRepository extends BaseRepository<MemberBallo
 			jpQuery.setParameter("locked", true);
 			jpQuery.setParameter("attendance", attendance);
 			jpQuery.setParameter("locale", locale);
-			
+
 			int lockedCount = ((Long)jpQuery.getSingleResult()).intValue(); 	
-			
+
 			if(totalCount==0&&lockedCount==0&&attendance==false){
 				return false;
 			}else if(totalCount==0&&lockedCount==0&&attendance==true){
@@ -496,16 +508,16 @@ public class MemberBallotAttendanceRepository extends BaseRepository<MemberBallo
 		search.addFilterEqual("attendance", attendance);
 		search.addFilterEqual("locale", locale);
 		return this.count(search);*/
-		
+
 		StringBuffer strQuery = new StringBuffer(
 				"SELECT COUNT(m.id) FROM MemberBallotAttendance m" +
-				" WHERE m.session.id=:sessionId" +
-				" AND m.deviceType.id=:deviceTypeId" +
-				" AND m.round=:round" +
-				" AND m.attendance=:attendance" +
-				" AND m.locale=:locale"
-			);
-	
+						" WHERE m.session.id=:sessionId" +
+						" AND m.deviceType.id=:deviceTypeId" +
+						" AND m.round=:round" +
+						" AND m.attendance=:attendance" +
+						" AND m.locale=:locale"
+				);
+
 		try{
 			Query jpQuery = this.em().createQuery(strQuery.toString());
 			jpQuery.setParameter("sessionId", session.getId());
@@ -513,7 +525,7 @@ public class MemberBallotAttendanceRepository extends BaseRepository<MemberBallo
 			jpQuery.setParameter("round", round);
 			jpQuery.setParameter("attendance", attendance);
 			jpQuery.setParameter("locale", locale);
-			
+
 			return ((Long)jpQuery.getSingleResult()).intValue(); 
 		}catch (Exception e) {
 			e.printStackTrace();
@@ -532,7 +544,7 @@ public class MemberBallotAttendanceRepository extends BaseRepository<MemberBallo
 			final String locale,
 			final int startingRecordToFetch,
 			final int noOfRecordsToFetch) throws ELSException {
-		
+
 		String query="SELECT m FROM MemberBallotAttendance mba" +
 				" JOIN mba.member m" +
 				" WHERE mba.session.id=:sessionId" +
@@ -540,7 +552,7 @@ public class MemberBallotAttendanceRepository extends BaseRepository<MemberBallo
 				" AND mba.attendance=:attendance" +
 				" AND mba.locale=:locale" +
 				" AND mba.round=:round ORDER BY mba.position";
-		
+
 		try{
 			Query jpQuery = this.em().createQuery(query);
 			jpQuery.setParameter("sessionId", session.getId());
@@ -548,7 +560,7 @@ public class MemberBallotAttendanceRepository extends BaseRepository<MemberBallo
 			jpQuery.setParameter("attendance", attendance);
 			jpQuery.setParameter("locale", locale);
 			jpQuery.setParameter("round", round);
-			
+
 			return jpQuery.setFirstResult(startingRecordToFetch).setMaxResults(noOfRecordsToFetch).getResultList();
 		}catch (Exception e) {
 			e.printStackTrace();
@@ -576,7 +588,7 @@ public class MemberBallotAttendanceRepository extends BaseRepository<MemberBallo
 				" AND smba.deviceType.id=:deviceTypeId_B" +
 				" AND smba.attendance=:attendance_B AND smba.locale=:locale_B" +
 				" AND smba.round=:previousRound) ORDER BY mba.position";
-		
+
 		try{
 			TypedQuery<Member> jpQuery = this.em().createQuery(query, Member.class);
 			jpQuery.setParameter("sessionId_A", session.getId());
@@ -589,7 +601,7 @@ public class MemberBallotAttendanceRepository extends BaseRepository<MemberBallo
 			jpQuery.setParameter("attendance_B", attendance);
 			jpQuery.setParameter("locale_B", locale);
 			jpQuery.setParameter("previousRound", previousRound);		
-		
+
 			return jpQuery.getResultList();
 		}catch (Exception e) {
 			e.printStackTrace();
@@ -615,13 +627,13 @@ public class MemberBallotAttendanceRepository extends BaseRepository<MemberBallo
 				" AND mba.locale=:locale_A" +
 				" AND mba.round=:round" +
 				" AND m.id IN(SELECT sm.id FROM MemberBallotAttendance smba" +
-								" JOIN smba.member sm" +
-								" WHERE smba.session.id=:sessionId_B" +
-								" AND smba.deviceType.id=:deviceTypeId_B" +
-								" AND smba.attendance=:attendance_B" +
-								" AND smba.locale=:locale_B" +
-								" AND smba.round=:previousRound) ORDER BY mba.position";
-		
+				" JOIN smba.member sm" +
+				" WHERE smba.session.id=:sessionId_B" +
+				" AND smba.deviceType.id=:deviceTypeId_B" +
+				" AND smba.attendance=:attendance_B" +
+				" AND smba.locale=:locale_B" +
+				" AND smba.round=:previousRound) ORDER BY mba.position";
+
 		try{
 			Query jpQuery = this.em().createQuery(query);
 			jpQuery.setParameter("sessionId_A", session.getId());
@@ -634,7 +646,7 @@ public class MemberBallotAttendanceRepository extends BaseRepository<MemberBallo
 			jpQuery.setParameter("attendance_B", attendance);
 			jpQuery.setParameter("locale_B", locale);
 			jpQuery.setParameter("previousRound", previousRound);
-			
+
 			return jpQuery.getResultList();		
 		}catch (Exception e) {
 			e.printStackTrace();
@@ -679,26 +691,26 @@ public class MemberBallotAttendanceRepository extends BaseRepository<MemberBallo
 	private boolean checkAttendance(final Session session,
 			final DeviceType deviceType,
 			final String locale) throws ELSException {
-		
+
 		/*Search search=new Search();
 		search.addFilterEqual("session.id", session.getId());
 		search.addFilterEqual("deviceType.id", deviceType.getId());
 		search.addFilterEqual("locale", locale);
 		int count=this.count(search);*/
-		
+
 		String query = "SELECT COUNT(m.id) FROM MemberBallotAttendance m" +
-						" WHERE m.session.id=:sessionId" +
-						" AND m.deviceType.id=:deviceTypeId" +
-						" AND m.locale=:locale"; 
-		
+				" WHERE m.session.id=:sessionId" +
+				" AND m.deviceType.id=:deviceTypeId" +
+				" AND m.locale=:locale"; 
+
 		try{
 			Query jpQuery = this.em().createQuery(query);
 			jpQuery.setParameter("sessionId", session.getId());
 			jpQuery.setParameter("deviceTypeId", deviceType.getId());
 			jpQuery.setParameter("locale", locale);
-			
+
 			int count = ((Long) jpQuery.getSingleResult()).intValue();	
-			
+
 			if(count==0){
 				return false;
 			}else{
@@ -721,7 +733,7 @@ public class MemberBallotAttendanceRepository extends BaseRepository<MemberBallo
 		members=Member.findActiveMembers(house, new Date(), ApplicationConstants.ASC, locale);
 		for(Member i:members){
 			MemberBallotAttendance memberBallotAttendance=new 
-			MemberBallotAttendance(session,deviceType,i,false,locale);			
+					MemberBallotAttendance(session,deviceType,i,false,locale);			
 			memberBallotAttendance.persist();
 		}		
 		return "SUCCESS";
@@ -739,39 +751,39 @@ public class MemberBallotAttendanceRepository extends BaseRepository<MemberBallo
 			final String attendance,
 			final String sortOrder,
 			final String locale) throws ELSException {
-		
+
 		/*Search search=new Search();
 		search.addFilterEqual("session.id", session.getId());
 		search.addFilterEqual("deviceType.id", deviceType.getId());
 		search.addFilterEqual("locale", locale);
-		
+
 		if(attendance.equals("true")){
 			search.addFilterEqual("attendance", true);
 		}else if(attendance.equals("false")){
 			search.addFilterEqual("attendance", false);
 		}
-		
+
 		if(sortOrder.equals("member")){
 			search.addSort("member.lastName",false);
 		}else{
 			search.addSort("position",false);
 		}
 		return this.search(search);*/
-		
-		
+
+
 		StringBuffer strQuery = new StringBuffer(
 				"SELECT m FROM MemberBallotAttendance m" +
-				" WHERE m.session.id=:sessionId" +
-				" AND m.deviceType.id=:deviceTypeId" +
-				" AND m.locale=:locale"
-			);
-		
+						" WHERE m.session.id=:sessionId" +
+						" AND m.deviceType.id=:deviceTypeId" +
+						" AND m.locale=:locale"
+				);
+
 		if(!attendance.isEmpty()){
 			strQuery.append(" AND m.attendance=:attendance");
 		}
-		
+
 		strQuery.append(" ORDER BY ");
-		
+
 		if(sortOrder.equals("member")){
 			strQuery.append(" m.member.lastName ASC");
 		}else{
@@ -782,13 +794,13 @@ public class MemberBallotAttendanceRepository extends BaseRepository<MemberBallo
 			jpQuery.setParameter("sessionId", session.getId());
 			jpQuery.setParameter("deviceTypeId", deviceType.getId());
 			jpQuery.setParameter("locale", locale);
-			
+
 			if(attendance.equals("true")){
 				jpQuery.setParameter("attendance", true);
 			}else if(attendance.equals("false")){
 				jpQuery.setParameter("attendance", false);
 			}
-			
+
 			return jpQuery.getResultList();
 		}catch (Exception e) {
 			e.printStackTrace();
@@ -804,21 +816,21 @@ public class MemberBallotAttendanceRepository extends BaseRepository<MemberBallo
 			final DeviceType deviceType,
 			final Boolean attendance,
 			final String locale) throws ELSException {
-		
+
 		String query = "SELECT m FROM MemberBallotAttendance mba" +
 				" JOIN mba.member m" +
 				" WHERE mba.session.id=:sessionId" +
 				" AND mba.deviceType.id=:deviceTypeId" +
 				" AND mba.attendance=:attendance" +
 				" AND mba.locale=:locale ORDER BY mba.position";
-		
+
 		try{
 			Query jpQuery = this.em().createQuery(query);
 			jpQuery.setParameter("sessionId", session.getId());
 			jpQuery.setParameter("deviceTypeId", deviceType.getId());
 			jpQuery.setParameter("attendance", attendance);
 			jpQuery.setParameter("locale", locale);
-			
+
 			return jpQuery.getResultList();
 		}catch (Exception e) {
 			e.printStackTrace();
@@ -847,19 +859,19 @@ public class MemberBallotAttendanceRepository extends BaseRepository<MemberBallo
 		search.addFilterEqual("round", round);
 		search.addFilterNull("position");
 		return this.count(search);*/
-		
+
 		StringBuffer strQuery = new StringBuffer("SELECT COUNT(m.id) FROM MemberBallotAttendance m" +
-					" WHERE m.session.id=:sessionId" +
-					" AND m.deviceType.id=:deviceTypeId" +
-					" AND m.round=:round" +
-					" AND m.position=:position" +
-					" AND m.locale=:locale"
+				" WHERE m.session.id=:sessionId" +
+				" AND m.deviceType.id=:deviceTypeId" +
+				" AND m.round=:round" +
+				" AND m.position=:position" +
+				" AND m.locale=:locale"
 				); 
 
 		if(!attendance.isEmpty()){
 			strQuery.append(" AND m.attendance=:attendance");
 		}	
-		
+
 		try{
 			Query jpQuery = this.em().createQuery(strQuery.toString());
 			jpQuery.setParameter("sessionId", session.getId());
@@ -867,13 +879,13 @@ public class MemberBallotAttendanceRepository extends BaseRepository<MemberBallo
 			jpQuery.setParameter("round", round);
 			jpQuery.setParameter("position", null);
 			jpQuery.setParameter("locale", locale);
-			
+
 			if(attendance.equals("true")){
 				jpQuery.setParameter("attendance", true);
 			}else if(attendance.equals("false")){
 				jpQuery.setParameter("attendance", false);
 			}
-			
+
 			return ((Long)jpQuery.getSingleResult()).intValue();
 		}catch (Exception e) {
 			e.printStackTrace();
@@ -891,13 +903,13 @@ public class MemberBallotAttendanceRepository extends BaseRepository<MemberBallo
 			final boolean attendance,
 			final String locale) {
 		try {
-//			Search search1=new Search();
-//			search1.addFilterEqual("session.id",session.getId());
-//			search1.addFilterEqual("deviceType.id",deviceType.getId());
-//			search1.addFilterEqual("locale",locale);
-//			search1.addFilterEqual("attendance",false);
-//			search1.addFilterEqual("round",round);
-//			int toalAbsentMembers=this.count(search1);
+			//			Search search1=new Search();
+			//			search1.addFilterEqual("session.id",session.getId());
+			//			search1.addFilterEqual("deviceType.id",deviceType.getId());
+			//			search1.addFilterEqual("locale",locale);
+			//			search1.addFilterEqual("attendance",false);
+			//			search1.addFilterEqual("round",round);
+			//			int toalAbsentMembers=this.count(search1);
 
 			/*Search search2=new Search();
 			search2.addFilterEqual("session.id",session.getId());
@@ -907,16 +919,16 @@ public class MemberBallotAttendanceRepository extends BaseRepository<MemberBallo
 			search2.addFilterEqual("round",round);
 			search2.addFilterNull("position");
 			List<MemberBallotAttendance> absentMemberAttendance=this.search(search2);*/
-			
+
 			StringBuffer strQuery = new StringBuffer("SELECT m FROM MemberBallotAttendance m" +
-									" WHERE m.session.id=:sessionId" +
-									" AND m.deviceType.id=:deviceTypeId" +
-									" AND m.round=:round" +
-									" AND m.attendance=:attendance" +
-									" AND m.position=:position" +
-									" AND m.locale=:locale"
-								); 
-		
+					" WHERE m.session.id=:sessionId" +
+					" AND m.deviceType.id=:deviceTypeId" +
+					" AND m.round=:round" +
+					" AND m.attendance=:attendance" +
+					" AND m.position=:position" +
+					" AND m.locale=:locale"
+					); 
+
 			Query jpQuery = this.em().createQuery(strQuery.toString());
 			jpQuery.setParameter("sessionId", session.getId());
 			jpQuery.setParameter("deviceTypeId", deviceType.getId());
@@ -924,7 +936,7 @@ public class MemberBallotAttendanceRepository extends BaseRepository<MemberBallo
 			jpQuery.setParameter("attendance", false);
 			jpQuery.setParameter("position", null);
 			jpQuery.setParameter("locale", locale);
-				
+
 			List<MemberBallotAttendance> absentMemberAttendance = jpQuery.getResultList();
 			for(MemberBallotAttendance i:absentMemberAttendance){
 				MemberBallotAttendance previousEntry=MemberBallotAttendance.find(session,deviceType,i.getMember(), round-1, locale);
@@ -934,54 +946,54 @@ public class MemberBallotAttendanceRepository extends BaseRepository<MemberBallo
 					i.merge();
 				}
 			}
-			
-//			Search search3=new Search();
-//			search3.addFilterEqual("session.id",session.getId());
-//			search3.addFilterEqual("deviceType.id",deviceType.getId());
-//			search3.addFilterEqual("locale",locale);
-//			search3.addFilterEqual("attendance",false);
-//			search3.addFilterEqual("round",round);
-//			search2.addFilterEqual("positionDiscontious",true);
-//			int toalPositionDiscontinous=this.count(search3);
 
-//			if(toalAbsentMembers==toalNullPositions){
-//				if(round==1){
-//					/**** Update position according to members last name ****/
-//					List<MemberBallotAttendance> memberAttendance=findAll(session,deviceType,"false",round,"member",locale.toString());
-//					int count=1;
-//					for(MemberBallotAttendance i:memberAttendance){
-//						i.setPosition(count);
-//						i.setPositionDiscontious(true);
-//						i.merge();
-//						count++;
-//					}
-//				}else{
-//					/**** Update position according to previoud round ****/
-//					List<MemberBallotAttendance> memberAttendance=findAll(session,deviceType,"false",round,"member",locale.toString());
-//					for(MemberBallotAttendance i:memberAttendance){
-//						MemberBallotAttendance previousEntry=MemberBallotAttendance.find(session,deviceType,i.getMember(), round-1, locale);
-//						if(previousEntry!=null){
-//							i.setPosition(previousEntry.getPosition());
-//							i.setPositionDiscontious(true);
-//							i.merge();
-//						}
-//					}
-//				}
-//			}else if(toalAbsentMembers==toalPositionDiscontinous){
-//				if(round!=1){
-//					List<MemberBallotAttendance> memberAttendance=findAll(session,deviceType,"false",round,"member",locale.toString());
-//					for(MemberBallotAttendance i:memberAttendance){
-//						MemberBallotAttendance previousEntry=MemberBallotAttendance.find(session,deviceType,i.getMember(), round-1, locale);
-//						if(previousEntry!=null){
-//							i.setPosition(previousEntry.getPosition());
-//							i.setPositionDiscontious(true);
-//							i.merge();
-//						}
-//					}
-//				}				
-//			}else{
-//				return "NOT_FIRST_TIME";
-//			}
+			//			Search search3=new Search();
+			//			search3.addFilterEqual("session.id",session.getId());
+			//			search3.addFilterEqual("deviceType.id",deviceType.getId());
+			//			search3.addFilterEqual("locale",locale);
+			//			search3.addFilterEqual("attendance",false);
+			//			search3.addFilterEqual("round",round);
+			//			search2.addFilterEqual("positionDiscontious",true);
+			//			int toalPositionDiscontinous=this.count(search3);
+
+			//			if(toalAbsentMembers==toalNullPositions){
+			//				if(round==1){
+			//					/**** Update position according to members last name ****/
+			//					List<MemberBallotAttendance> memberAttendance=findAll(session,deviceType,"false",round,"member",locale.toString());
+			//					int count=1;
+			//					for(MemberBallotAttendance i:memberAttendance){
+			//						i.setPosition(count);
+			//						i.setPositionDiscontious(true);
+			//						i.merge();
+			//						count++;
+			//					}
+			//				}else{
+			//					/**** Update position according to previoud round ****/
+			//					List<MemberBallotAttendance> memberAttendance=findAll(session,deviceType,"false",round,"member",locale.toString());
+			//					for(MemberBallotAttendance i:memberAttendance){
+			//						MemberBallotAttendance previousEntry=MemberBallotAttendance.find(session,deviceType,i.getMember(), round-1, locale);
+			//						if(previousEntry!=null){
+			//							i.setPosition(previousEntry.getPosition());
+			//							i.setPositionDiscontious(true);
+			//							i.merge();
+			//						}
+			//					}
+			//				}
+			//			}else if(toalAbsentMembers==toalPositionDiscontinous){
+			//				if(round!=1){
+			//					List<MemberBallotAttendance> memberAttendance=findAll(session,deviceType,"false",round,"member",locale.toString());
+			//					for(MemberBallotAttendance i:memberAttendance){
+			//						MemberBallotAttendance previousEntry=MemberBallotAttendance.find(session,deviceType,i.getMember(), round-1, locale);
+			//						if(previousEntry!=null){
+			//							i.setPosition(previousEntry.getPosition());
+			//							i.setPositionDiscontious(true);
+			//							i.merge();
+			//						}
+			//					}
+			//				}				
+			//			}else{
+			//				return "NOT_FIRST_TIME";
+			//			}
 		} catch (Exception e) {
 			logger.error("DB_EXCEPTION",e);
 			return "FAILED";
@@ -1001,14 +1013,14 @@ public class MemberBallotAttendanceRepository extends BaseRepository<MemberBallo
 		search1.addFilterEqual("attendance",false);
 		search1.addFilterEqual("round",round);
 		int toalAbsentMembers=this.count(search1);*/
-		
+
 		StringBuffer strQuery = new StringBuffer(
-					"SELECT COUNT(m.id) FROM MemberBallotAttendance m" +
-					" WHERE m.session.id=:sessionId" +
-					" AND m.deviceType.id=:deviceTypeId" +
-					" AND m.attendance=:attendance" +
-					" AND m.round=:round" +
-					" AND m.locale=:locale"
+				"SELECT COUNT(m.id) FROM MemberBallotAttendance m" +
+						" WHERE m.session.id=:sessionId" +
+						" AND m.deviceType.id=:deviceTypeId" +
+						" AND m.attendance=:attendance" +
+						" AND m.round=:round" +
+						" AND m.locale=:locale"
 				);
 
 		try{
@@ -1018,12 +1030,12 @@ public class MemberBallotAttendanceRepository extends BaseRepository<MemberBallo
 			jpQuery.setParameter("attendance", false);
 			jpQuery.setParameter("round", round);
 			jpQuery.setParameter("locale", locale);
-			
+
 			int toalAbsentMembers = ((Long)jpQuery.getSingleResult()).intValue();
-			
+
 			strQuery = null;
 			jpQuery = null;
-			
+
 			/*Search search2=new Search();
 			search2.addFilterEqual("session.id",session.getId());
 			search2.addFilterEqual("deviceType.id",deviceType.getId());
@@ -1032,17 +1044,17 @@ public class MemberBallotAttendanceRepository extends BaseRepository<MemberBallo
 			search2.addFilterEqual("round",round);
 			search2.addFilterEqual("positionDiscontious",true);
 			int toalDiscontinousPositions=this.count(search2);*/
-			
+
 			strQuery = new StringBuffer(
 					"SELECT COUNT(m.id) FROM MemberBallotAttendance m" +
-					" WHERE m.session.id=:sessionId" +
-					" AND m.deviceType.id=:deviceTypeId" +
-					" AND m.attendance=:attendance" +
-					" AND m.round=:round" +
-					" AND m.positionDiscontious=:positionDiscontious" +
-					" AND m.locale=:locale"
-				);
-	
+							" WHERE m.session.id=:sessionId" +
+							" AND m.deviceType.id=:deviceTypeId" +
+							" AND m.attendance=:attendance" +
+							" AND m.round=:round" +
+							" AND m.positionDiscontious=:positionDiscontious" +
+							" AND m.locale=:locale"
+					);
+
 			jpQuery = this.em().createQuery(strQuery.toString());
 			jpQuery.setParameter("sessionId", session.getId());
 			jpQuery.setParameter("deviceTypeId", deviceType.getId());
@@ -1050,9 +1062,9 @@ public class MemberBallotAttendanceRepository extends BaseRepository<MemberBallo
 			jpQuery.setParameter("round", round);
 			jpQuery.setParameter("positionDiscontious",true);
 			jpQuery.setParameter("locale", locale);
-			
+
 			int toalDiscontinousPositions = ((Long)jpQuery.getSingleResult()).intValue();
-		
+
 			if(toalAbsentMembers==toalDiscontinousPositions){
 				return true;
 			}else{
