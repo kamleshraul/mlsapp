@@ -2891,7 +2891,7 @@ public class QuestionWorkflowController  extends BaseController{
 								if(csptAllwedUserGroupForStatusReportSign.getValue().contains(objx[27].toString())){							
 									UserGroupType userGroupType = UserGroupType.findByFieldName(UserGroupType.class, "type", objx[27].toString(), locale.toString());
 									MasterVO actor = new MasterVO();
-									actor.setName(userGroupType.getName() + " " + ((objx[1]!=null)?objx[1].toString() : "" ));
+									actor.setName(userGroupType.getName() + "<br>" + ((objx[1]!=null)?objx[1].toString() : "" ));
 									if(objx[6] != null){
 										actor.setValue(objx[6].toString());
 									}
@@ -2909,7 +2909,7 @@ public class QuestionWorkflowController  extends BaseController{
 							
 							if(!lastUSerGroup.equals(userGroupType.getName())){
 								MasterVO actor = new MasterVO();
-								actor.setName(userGroupType.getName() + " " + (users.get(0).getTitle() + " " + users.get(0).getFirstName() + " " + users.get(0).getLastName()));
+								actor.setName(userGroupType.getName() + "<br>" + (users.get(0).getTitle() + " " + users.get(0).getFirstName() + " " + users.get(0).getLastName()));
 								actor.setValue("");
 								actor.setFormattedNumber("");
 								actors.add(actor);
@@ -2922,7 +2922,7 @@ public class QuestionWorkflowController  extends BaseController{
 								UserGroupType userGroupTypeT = UserGroupType.findByFieldName(UserGroupType.class, "type", val, locale.toString());
 								
 								MasterVO actor = new MasterVO();
-								actor.setName(userGroupTypeT.getName());
+								actor.setName(userGroupTypeT.getName() + "<br>" + (users.get(0).getTitle() + " " + users.get(0).getFirstName() + " " + users.get(0).getLastName()));
 								actor.setValue("");
 								actor.setFormattedNumber("");
 								actors.add(actor);
