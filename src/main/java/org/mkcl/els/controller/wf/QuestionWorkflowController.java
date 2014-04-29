@@ -2385,8 +2385,7 @@ public class QuestionWorkflowController  extends BaseController{
 			}else{
 				questionText=domain.getQuestionText();
 			}
-			//Status clubbedQuestionsNotInWorkflowStatus=Status.findByType(ApplicationConstants.QUESTION_PUTUP_CONVERT_TO_UNSTARRED_AND_ADMIT_CLUBBED, domain.getLocale());
-			Status clubbedQuestionsNotInWorkflowStatus=Status.findByType(ApplicationConstants.QUESTION_PUTUP_CONVERT_TO_UNSTARRED_AND_ADMIT, domain.getLocale());
+			Status clubbedQuestionsNotInWorkflowStatus=Status.findByType(ApplicationConstants.QUESTION_PUTUP_CONVERT_TO_UNSTARRED_AND_ADMIT_CLUBBED, domain.getLocale());
 			for(ClubbedEntity i:clubbedEntities){
 				Question question=i.getQuestion();
 				if(question.getInternalStatus().getType().equals(ApplicationConstants.QUESTION_SYSTEM_CLUBBED)){
