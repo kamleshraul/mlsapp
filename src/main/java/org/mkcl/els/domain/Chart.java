@@ -814,7 +814,10 @@ class QuestionChart {
 	 *
 	 * @param question the question
 	 * @param affectedGroup the group from which this question was removed
-	 * @throws ELSException 
+	 * @throws ELSException
+	 * 
+	 * TODO: What if the @param question which should leave the Chart
+	 * is a clubbed question or has any clubbings? 
 	 */
 	private static void groupChangeUH(final Question question, 
 			final Group affectedGroup) throws ELSException {
@@ -1383,7 +1386,10 @@ class QuestionChart {
 	 *
 	 * @param question the question
 	 * @param affectedGroup the group from which this question was removed
-	 * @throws ELSException 
+	 * @throws ELSException
+	 * 
+	 *  TODO: What if the @param question which should leave the Chart
+	 * is a clubbed question or has any clubbings? 
 	 */
 	private static void groupChangeLH(final Question question, 
 			final Group affectedGroup) throws ELSException {
