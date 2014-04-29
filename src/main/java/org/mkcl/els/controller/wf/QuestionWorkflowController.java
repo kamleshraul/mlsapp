@@ -2254,8 +2254,13 @@ public class QuestionWorkflowController  extends BaseController{
 
 
 	private void performActionOnConvertToUnstarredAndAdmit(Question domain) {
+		/********/
 		Status finalStatus=Status.findByType(ApplicationConstants.QUESTION_FINAL_CONVERT_TO_UNSTARRED_AND_ADMIT, domain.getLocale());
 		domain.setStatus(finalStatus);
+		DeviceType deviceType=DeviceType.findByType(ApplicationConstants.UNSTARRED_QUESTION,domain.getLocale());
+		domain.setType(deviceType);
+		Status internalStatus=Status.findByType(ApplicationConstants.QUESTION_FINAL_ADMISSION, domain.getLocale());
+		domain.setInternalStatus(internalStatus);
 		/**** Setting revised subject,question text,revised reason,revised brief explaination if not already set ****/
 		if(domain.getRevisedSubject()==null){			
 			domain.setRevisedSubject(domain.getSubject());			
@@ -2277,10 +2282,7 @@ public class QuestionWorkflowController  extends BaseController{
 		}else if(domain.getRevisedBriefExplanation().isEmpty()){
 			domain.setRevisedBriefExplanation(domain.getBriefExplanation());
 		}
-		DeviceType deviceType=DeviceType.findByType(ApplicationConstants.UNSTARRED_QUESTION,domain.getLocale());
-		domain.setType(deviceType);
-		Status internalStatus=Status.findByType(ApplicationConstants.QUESTION_FINAL_ADMISSION, domain.getLocale());
-		domain.setInternalStatus(internalStatus);
+		
 		List<ClubbedEntity> clubbedEntities=domain.getClubbedEntities();
 		if(clubbedEntities!=null){
 			String subject=null;
@@ -2303,10 +2305,8 @@ public class QuestionWorkflowController  extends BaseController{
 			}else{
 				questionText=domain.getQuestionText();
 			}
-
 			Status newInternalStatus=Status.findByType(ApplicationConstants.QUESTION_PUTUP_NAMECLUBBING, domain.getLocale());
 			Status newRecommendationStatus=Status.findByType(ApplicationConstants.QUESTION_PUTUP_CONVERT_TO_UNSTARRED_AND_ADMIT, domain.getLocale());
-
 			for(ClubbedEntity i:clubbedEntities){
 				Question question=i.getQuestion();
 				if(question.getInternalStatus().getType().equals(ApplicationConstants.QUESTION_SYSTEM_CLUBBED)){
@@ -2330,7 +2330,8 @@ public class QuestionWorkflowController  extends BaseController{
 		 * The recommendation status of primary question will be "question_final_convertToUnstarredAndAdmitClubbedWithPreviousSession" 
 		 * The type of primary question will be unstarred and original type will be starred 
 		 * The revised subject,revised question text,revised reason and revised brief explaination will be updated ****/
-		Status primaryQuestionNewStatus=Status.findByType(ApplicationConstants.QUESTION_FINAL_CONVERT_TO_UNSTARRED_AND_ADMIT, domain.getLocale());
+		//Status primaryQuestionNewStatus=Status.findByType(ApplicationConstants.QUESTION_FINAL_CONVERT_TO_UNSTARRED_AND_ADMIT, domain.getLocale());
+		Status primaryQuestionNewStatus=Status.findByType(ApplicationConstants.QUESTION_FINAL_ADMISSION, domain.getLocale());
 		domain.setStatus(primaryQuestionNewStatus);		
 		domain.setInternalStatus(primaryQuestionNewStatus);
 		DeviceType deviceType=DeviceType.findByType(ApplicationConstants.UNSTARRED_QUESTION,domain.getLocale());
@@ -2384,7 +2385,8 @@ public class QuestionWorkflowController  extends BaseController{
 			}else{
 				questionText=domain.getQuestionText();
 			}
-			Status clubbedQuestionsNotInWorkflowStatus=Status.findByType(ApplicationConstants.QUESTION_PUTUP_CONVERT_TO_UNSTARRED_AND_ADMIT_CLUBBED, domain.getLocale());
+			//Status clubbedQuestionsNotInWorkflowStatus=Status.findByType(ApplicationConstants.QUESTION_PUTUP_CONVERT_TO_UNSTARRED_AND_ADMIT_CLUBBED, domain.getLocale());
+			Status clubbedQuestionsNotInWorkflowStatus=Status.findByType(ApplicationConstants.QUESTION_PUTUP_CONVERT_TO_UNSTARRED_AND_ADMIT, domain.getLocale());
 			for(ClubbedEntity i:clubbedEntities){
 				Question question=i.getQuestion();
 				if(question.getInternalStatus().getType().equals(ApplicationConstants.QUESTION_SYSTEM_CLUBBED)){
