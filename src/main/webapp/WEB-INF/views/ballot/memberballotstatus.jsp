@@ -20,6 +20,7 @@
 	color: #F26522;
 	}	
 	</style>
+	<link rel="stylesheet" type="text/css" href="./resources/css/printerfriendly.css?v=4" media="print" />
 	</head>
 	<body>
 	<p id="error_p" style="display: none;">&nbsp;</p>
@@ -27,6 +28,7 @@
 	<h4 style="color: #FF0000;">${error}</h4>
 </c:if>
 <br><br>
+<div id="reportDiv">
 <table class="uiTable">
 	<thead>		
 		<tr>
@@ -76,6 +78,7 @@
 		</c:forEach>
 	</tbody>	
 </table>
+</div>
 <input type="hidden" id="ErrorMsg" value="<spring:message code='generic.error' text='Error Occured Contact For Support.'/>"/>
 </body>
 </html>
