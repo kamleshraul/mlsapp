@@ -169,7 +169,7 @@
 				<c:forEach items="${i.questions}" var="j">
 				<c:choose>
 				<c:when test="${!(empty j.parentNumber) }">
-				<div style="margin-right:5px;" class="${i.attendance} round${i.round}">${j.number}&nbsp;&nbsp;(${j.answeringDate})(<spring:message code="memberballot.clubbedto" text="Clubbed To"></spring:message>-${j.parentNumber})</div>
+				<div style="margin-right:5px;" class="${i.attendance} round${i.round}">${j.number}&nbsp;&nbsp;(${j.answeringDate})&nbsp;&nbsp;(${j.parentNumber} <spring:message code="memberballot.clubbedto" text="is Parent"></spring:message>)</div>
 				</c:when>
 				<c:otherwise>
 				<div style="margin-right:5px;" class="${i.attendance} round${i.round}">${j.number}&nbsp;&nbsp;(${j.answeringDate})</div>
