@@ -4204,7 +4204,7 @@ public class QuestionController extends GenericController<Question>{
 				List<SupportingMember> supportingMembers = question.getSupportingMembers();
 				if(supportingMembers!=null) {					
 					for(SupportingMember sm: supportingMembers) {
-						supportingMemberNames.append(sm.getMember().getFullname()+",");
+						supportingMemberNames.append(sm.getMember().getFullname()+", ");
 					}					
 				}
 				List<ClubbedEntity> clubbedEntities = Question.findClubbedEntitiesByPosition(question);
