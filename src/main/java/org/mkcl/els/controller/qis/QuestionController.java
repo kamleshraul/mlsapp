@@ -4183,16 +4183,21 @@ public class QuestionController extends GenericController<Question>{
 				if(group!=null) {
 					letterVO.setGroupNumber(FormaterUtil.formatNumberNoGrouping(group.getNumber(), question.getLocale()));
 				}
+				String formattedText = "";
 				if(question.getRevisedSubject()!=null && !question.getRevisedSubject().isEmpty()) {
-					letterVO.setSubject(question.getRevisedSubject());
+					formattedText = question.getRevisedSubject();					
 				} else {
-					letterVO.setSubject(question.getSubject());
+					formattedText = question.getSubject();
 				}
+				formattedText = FormaterUtil.formatNumbersInGivenText(formattedText, question.getLocale());
+				letterVO.setSubject(formattedText);
 				if(question.getRevisedQuestionText()!=null && !question.getRevisedQuestionText().isEmpty()) {
-					letterVO.setQuestionText(question.getRevisedQuestionText());
+					formattedText = question.getRevisedQuestionText();					
 				} else {
-					letterVO.setQuestionText(question.getQuestionText());
-				}				
+					formattedText = question.getQuestionText();
+				}
+				formattedText = FormaterUtil.formatNumbersInGivenText(formattedText, question.getLocale());
+				letterVO.setQuestionText(formattedText);			
 				Member primaryMember = question.getPrimaryMember();				
 				letterVO.setPrimaryMemberName(primaryMember.getFullname());
 				StringBuffer supportingMemberNames=new StringBuffer();
@@ -4289,12 +4294,20 @@ public class QuestionController extends GenericController<Question>{
 	        		letterVO.setParentAnsweringDate(formattedAnsweringDate);
 				} else {
 					letterVO.setParentNumber("");
-				}
-				if(question.getRejectionReason()!=null) {
-					letterVO.setRejectionReason(question.getRejectionReason());
-				}
+				}				
+				
 				Status status = question.getInternalStatus();	
 				String statusType=status.getType();
+				
+				if(question.getRejectionReason()!=null) {
+					formattedText = question.getRejectionReason();	
+					formattedText = FormaterUtil.formatNumbersInGivenText(formattedText, question.getLocale());
+					letterVO.setRejectionReason(formattedText);
+					letterVO.setRemarks(formattedText);
+				} else {
+					letterVO.setRemarks("");
+				}
+				
 				String memberOrDepartment=request.getParameter("memberOrDepartment");				
 				if(statusType.equals(ApplicationConstants.QUESTION_FINAL_CLARIFICATION_NEEDED_FROM_MEMBER_DEPARTMENT) && memberOrDepartment!=null && !memberOrDepartment.isEmpty()&&memberOrDepartment.equals(ApplicationConstants.MEMBER)){
 					statusType=ApplicationConstants.QUESTION_FINAL_CLARIFICATION_NEEDED_FROM_MEMBER;
@@ -4351,7 +4364,7 @@ public class QuestionController extends GenericController<Question>{
 					}
 				}
 				String statusTypeSplit = statusType.split("_")[statusType.split("_").length-1];
-				letterVO.setRemarks(question.getRejectionReason());
+				
 //				if(statusType.equals("admission")
 //						|| statusType.equals("rejection")) {
 //					WorkflowActor putupActor = WorkflowConfig.findFirstActor(question, status, locale.toString());

@@ -652,5 +652,24 @@ public class FormaterUtil {
 		
 		return letter;
 	}
+	
+	public static String formatNumbersInGivenText(final String givenText, final String locale) {
+		String formattedText = givenText;
+		
+		if(formattedText!=null && !formattedText.isEmpty()) {
+			formattedText = formattedText.replaceAll("0", FormaterUtil.formatNumberNoGrouping(0, locale));
+			formattedText = formattedText.replaceAll("1", FormaterUtil.formatNumberNoGrouping(1, locale));
+			formattedText = formattedText.replaceAll("2", FormaterUtil.formatNumberNoGrouping(2, locale));
+			formattedText = formattedText.replaceAll("3", FormaterUtil.formatNumberNoGrouping(3, locale));
+			formattedText = formattedText.replaceAll("4", FormaterUtil.formatNumberNoGrouping(4, locale));
+			formattedText = formattedText.replaceAll("5", FormaterUtil.formatNumberNoGrouping(5, locale));
+			formattedText = formattedText.replaceAll("6", FormaterUtil.formatNumberNoGrouping(6, locale));
+			formattedText = formattedText.replaceAll("7", FormaterUtil.formatNumberNoGrouping(7, locale));
+			formattedText = formattedText.replaceAll("8", FormaterUtil.formatNumberNoGrouping(8, locale));
+			formattedText = formattedText.replaceAll("9", FormaterUtil.formatNumberNoGrouping(9, locale));
+		}
+		
+		return formattedText;
+	}
 
 }
