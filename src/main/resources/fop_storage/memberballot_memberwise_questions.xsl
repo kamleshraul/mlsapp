@@ -75,7 +75,7 @@
 	            	<fo:block font-family="Mangal" font-size="12px">	            			
 	            		<fo:block font-weight="bold">
 	            			<fo:block margin-left="2cm">            				     				
-								दिनांक <xsl:value-of select="reportDate"/> रोजी स्विकारण्यात आलेल्या तारांकित प्रश्नांचा तपशिल
+								<xsl:value-of select="submissionDate"/> रोजी स्विकारण्यात आलेल्या तारांकित प्रश्नांचा तपशिल
 							</fo:block>
 							<fo:block>&#160;</fo:block>							
 							<fo:block margin-left="0.5cm">	
