@@ -1608,7 +1608,7 @@ public class Question extends Device implements Serializable {
 		List<SupportingMember> supportingMembers = this.getSupportingMembers();
 		if (supportingMembers != null) {
 			for (SupportingMember sm : supportingMembers) {
-				supportingMemberNames.append(sm.getMember().getFullname() + ",");
+				supportingMemberNames.append(sm.getMember().getFullname() + ", ");
 			}
 		}
 		List<ClubbedEntity> clubbedEntities = Question
@@ -1624,7 +1624,7 @@ public class Question extends Device implements Serializable {
 						|| ce.getQuestion().getInternalStatus().getType().equals(ApplicationConstants.QUESTION_FINAL_ADMISSION)) {
 					String tempPrimary = ce.getQuestion().getPrimaryMember().getFullname();
 					if (!supportingMemberNames.toString().contains(tempPrimary)) {
-						supportingMemberNames.append(ce.getQuestion().getPrimaryMember().getFullname()+ ",");
+						supportingMemberNames.append(ce.getQuestion().getPrimaryMember().getFullname()+ ", ");
 					}
 					List<SupportingMember> clubbedSupportingMember = ce.getQuestion().getSupportingMembers();
 					if (clubbedSupportingMember != null) {
