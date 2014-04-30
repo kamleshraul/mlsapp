@@ -25,6 +25,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
 
+import org.apache.velocity.app.event.ReferenceInsertionEventHandler.referenceInsertExecutor;
 import org.mkcl.els.common.editors.BaseEditor;
 import org.mkcl.els.common.exception.ELSException;
 import org.mkcl.els.common.util.ApplicationConstants;
@@ -2813,131 +2814,141 @@ public class QuestionWorkflowController  extends BaseController{
 	@SuppressWarnings("rawtypes")
 	@RequestMapping(value="report/{qId}/currentstatusreportvm", method=RequestMethod.GET)
 	public String getCurrentStatusReportVM(@PathVariable("qId") Long id, Model model, HttpServletRequest request, HttpServletResponse response, Locale locale){
-
-		String strDevice = request.getParameter("device");
 		String page = "question/error";
-		if(strDevice != null && !strDevice.isEmpty()){
-			Question qt = Question.findById(Question.class, id);
-			List report = generatetCurrentStatusReport(qt, strDevice, locale.toString());
-			//model.addAttribute("report", report);
-			if(report != null && !report.isEmpty()){
-
-				Object[] obj = (Object[]) report.get(0);
-				if(obj[26] != null){
-					model.addAttribute("fullSessionName", obj[26].toString());
-				}
-				if(obj[11] != null){
-					model.addAttribute("deviceName", obj[11].toString());
-				}
-
-				model.addAttribute("currentDate", FormaterUtil.formatDateToString(new Date(), ApplicationConstants.SERVER_DATEFORMAT, locale.toString()));
-
-				if(obj[16] != null){
-					model.addAttribute("primaryMemConstituency", obj[16].toString());
-				}
-
-				if(obj[12] != null){
-					model.addAttribute("memberName", obj[12].toString());
-				}
-
-				if(obj[17] != null){
-					model.addAttribute("support", obj[17].toString());
-				}
-
-				if(obj[19] != null){
-					model.addAttribute("groupNumber", obj[19].toString());
-				}
-
-				if(obj[21] != null){
-					Date answeringDate = FormaterUtil.formatStringToDate(obj[21].toString(), ApplicationConstants.DB_DATEFORMAT);
-					model.addAttribute("answeringDate", FormaterUtil.formatDateToString(answeringDate, ApplicationConstants.SERVER_DATEFORMAT, locale.toString()));
-				}
-
-				if(obj[22] != null){
-					Date deptSendDate = FormaterUtil.formatStringToDate(obj[21].toString(), ApplicationConstants.DB_DATEFORMAT);
-					model.addAttribute("deptSendDate", FormaterUtil.formatDateToString(deptSendDate, ApplicationConstants.SERVER_DATEFORMAT, locale.toString()));
-				}
-
-				if(obj[23] != null){
-					model.addAttribute("priority", obj[23].toString());
-				}
-
-				if(obj[5] != null){
-					model.addAttribute("subject", obj[5].toString());
-				}
-
-				if(obj[9] != null){
-					model.addAttribute("deviceNumber", obj[9].toString());
-				}
-
-				if(obj[24] != null){
-					model.addAttribute("ministry", obj[24].toString());
-				}
-
-				if(obj[4] != null){
-					model.addAttribute("details", obj[4].toString());
-				}
-
-				List<User> users = User.findByRole(false, "QIS_PRINCIPAL_SECRETARY", locale.toString());
-				model.addAttribute("principalSec", users.get(0).getTitle() + " " + users.get(0).getFirstName() + " " + users.get(0).getLastName());
-
-				List<MasterVO> actors = new ArrayList<MasterVO>();
-				CustomParameter csptAllwedUserGroupForStatusReportSign = CustomParameter.findByName(CustomParameter.class, (qt.getHouseType().getType().equals(ApplicationConstants.LOWER_HOUSE)? "QIS_ALLOWED_USERGROUPS_FOR_STATUS_REPORT_SIGN_LOWERHOUSE": "QIS_ALLOWED_USERGROUPS_FOR_STATUS_REPORT_SIGN_UPPERHOUSE"), "");
-				if(csptAllwedUserGroupForStatusReportSign != null){
-					if(csptAllwedUserGroupForStatusReportSign.getValue() != null && !csptAllwedUserGroupForStatusReportSign.getValue().isEmpty()){
-						for(Object o : report){
-							Object[] objx = (Object[])o;
-
-							if(objx[27] != null && !objx[27].toString().isEmpty()){
-								if(csptAllwedUserGroupForStatusReportSign.getValue().contains(objx[27].toString())){							
-									UserGroupType userGroupType = UserGroupType.findByFieldName(UserGroupType.class, "type", objx[27].toString(), locale.toString());
+		try{
+			String strDevice = request.getParameter("device");
+			if(strDevice != null && !strDevice.isEmpty()){
+				Question qt = Question.findById(Question.class, id);
+				List report = generatetCurrentStatusReport(qt, strDevice, locale.toString());
+				//model.addAttribute("report", report);
+				if(report != null && !report.isEmpty()){
+	
+					Object[] obj = (Object[]) report.get(0);
+					if(obj[26] != null){
+						model.addAttribute("fullSessionName", obj[26].toString());
+					}
+					if(obj[11] != null){
+						model.addAttribute("deviceName", obj[11].toString());
+					}
+	
+					model.addAttribute("currentDate", FormaterUtil.formatDateToString(new Date(), ApplicationConstants.SERVER_DATEFORMAT, locale.toString()));
+	
+					if(obj[16] != null){
+						model.addAttribute("primaryMemConstituency", obj[16].toString());
+					}
+	
+					if(obj[12] != null){
+						model.addAttribute("memberName", obj[12].toString());
+					}
+	
+					if(obj[17] != null){
+						model.addAttribute("support", obj[17].toString());
+					}
+	
+					if(obj[19] != null){
+						model.addAttribute("groupNumber", obj[19].toString());
+					}
+	
+					if(obj[21] != null){
+						Date answeringDate = FormaterUtil.formatStringToDate(obj[21].toString(), ApplicationConstants.DB_DATEFORMAT);
+						model.addAttribute("answeringDate", FormaterUtil.formatDateToString(answeringDate, ApplicationConstants.SERVER_DATEFORMAT, locale.toString()));
+					}
+	
+					if(obj[22] != null){
+						Date deptSendDate = FormaterUtil.formatStringToDate(obj[21].toString(), ApplicationConstants.DB_DATEFORMAT);
+						model.addAttribute("deptSendDate", FormaterUtil.formatDateToString(deptSendDate, ApplicationConstants.SERVER_DATEFORMAT, locale.toString()));
+					}
+	
+					if(obj[23] != null){
+						model.addAttribute("priority", obj[23].toString());
+					}
+	
+					if(obj[5] != null){
+						model.addAttribute("subject", FormaterUtil.formatNumbersInGivenText(obj[5].toString(), locale.toString()));
+					}
+	
+					if(obj[9] != null){
+						model.addAttribute("deviceNumber", obj[9].toString());
+					}
+	
+					if(obj[24] != null){
+						model.addAttribute("ministry", obj[24].toString());
+					}
+	
+					if(obj[4] != null){
+						model.addAttribute("details", FormaterUtil.formatNumbersInGivenText(obj[4].toString(), locale.toString()));
+					}
+	
+					List<User> users = User.findByRole(false, "QIS_PRINCIPAL_SECRETARY", locale.toString());
+					model.addAttribute("principalSec", users.get(0).getTitle() + " " + users.get(0).getFirstName() + " " + users.get(0).getLastName());
+	
+					List<MasterVO> actors = new ArrayList<MasterVO>();
+					CustomParameter csptAllwedUserGroupForStatusReportSign = CustomParameter.findByName(CustomParameter.class, (qt.getHouseType().getType().equals(ApplicationConstants.LOWER_HOUSE)? "QIS_ALLOWED_USERGROUPS_FOR_STATUS_REPORT_SIGN_LOWERHOUSE": "QIS_ALLOWED_USERGROUPS_FOR_STATUS_REPORT_SIGN_UPPERHOUSE"), "");
+					if(csptAllwedUserGroupForStatusReportSign != null){
+						if(csptAllwedUserGroupForStatusReportSign.getValue() != null && !csptAllwedUserGroupForStatusReportSign.getValue().isEmpty()){
+							for(Object o : report){
+								Object[] objx = (Object[])o;
+	
+								if(objx[27] != null && !objx[27].toString().isEmpty()){
+									if(csptAllwedUserGroupForStatusReportSign.getValue().contains(objx[27].toString())){							
+										UserGroupType userGroupType = UserGroupType.findByFieldName(UserGroupType.class, "type", objx[27].toString(), locale.toString());
+										MasterVO actor = new MasterVO();
+										if(userGroupType.getType().equals(ApplicationConstants.UNDER_SECRETARY_COMMITTEE) || userGroupType.getType().equals(ApplicationConstants.UNDER_SECRETARY)){
+											actor.setName(userGroupType.getName() + "<br>" + ((objx[1]!=null)?objx[1].toString() : "" ));
+										}else{
+											actor.setName(userGroupType.getName() + "<br>");
+										}
+										if(objx[6] != null){
+											actor.setValue(objx[6].toString());
+										}
+										if(objx[28] != null){
+											actor.setFormattedNumber(objx[28].toString());
+										}
+										actors.add(actor);
+									}
+								}
+							}
+	
+							if(!actors.isEmpty()){
+								String lastUSerGroup = actors.get(actors.size() - 1).getName();
+								UserGroupType userGroupType = UserGroupType.findByFieldName(UserGroupType.class, "type", ApplicationConstants.PRINCIPAL_SECRETARY, locale.toString());
+								
+								if(!lastUSerGroup.split("<br>")[0].equals(userGroupType.getName())){
 									MasterVO actor = new MasterVO();
-									actor.setName(userGroupType.getName() + "<br>" + ((objx[1]!=null)?objx[1].toString() : "" ));
-									if(objx[6] != null){
-										actor.setValue(objx[6].toString());
-									}
-									if(objx[28] != null){
-										actor.setFormattedNumber(objx[28].toString());
-									}
+									actor.setName(userGroupType.getName() + "<br>");
+									actor.setValue("");
+									actor.setFormattedNumber("");
 									actors.add(actor);
 								}
 							}
-						}
-
-						if(!actors.isEmpty()){
-							String lastUSerGroup = actors.get(actors.size() - 1).getName();
-							UserGroupType userGroupType = UserGroupType.findByFieldName(UserGroupType.class, "type", ApplicationConstants.PRINCIPAL_SECRETARY, locale.toString());
 							
-							if(!lastUSerGroup.equals(userGroupType.getName())){
-								MasterVO actor = new MasterVO();
-								actor.setName(userGroupType.getName() + "<br>" + (users.get(0).getTitle() + " " + users.get(0).getFirstName() + " " + users.get(0).getLastName()));
-								actor.setValue("");
-								actor.setFormattedNumber("");
-								actors.add(actor);
-							}
-						}
-						
-						if(actors.isEmpty()){
-							for(String val : csptAllwedUserGroupForStatusReportSign.getValue().split(",")){
-
-								UserGroupType userGroupTypeT = UserGroupType.findByFieldName(UserGroupType.class, "type", val, locale.toString());
+							if(actors.isEmpty()){
+								for(String val : csptAllwedUserGroupForStatusReportSign.getValue().split(",")){
 								
-								MasterVO actor = new MasterVO();
-								actor.setName(userGroupTypeT.getName() + "<br>" + (users.get(0).getTitle() + " " + users.get(0).getFirstName() + " " + users.get(0).getLastName()));
-								actor.setValue("");
-								actor.setFormattedNumber("");
-								actors.add(actor);
+									Reference ref = UserGroup.findQuestionActor(qt, val, String.valueOf(0), locale.toString());
+									MasterVO actor = new MasterVO();
+									if(ref.getId().split("#")[1].equals(ApplicationConstants.UNDER_SECRETARY_COMMITTEE) || ref.getId().split("#")[1].equals(ApplicationConstants.UNDER_SECRETARY)){
+										actor.setName(ref.getId().split("#")[3] + "<br>" + ref.getId().split("#")[4]);
+									}else{
+										actor.setName(ref.getId().split("#")[3] + "<br>");
+									}
+									actor.setValue("");
+									actor.setFormattedNumber("");
+									actors.add(actor);
+								}
 							}
+	
+							model.addAttribute("actors", actors);
 						}
-
-						model.addAttribute("actors", actors);
 					}
-				}
-
-				page = (qt.getHouseType().getType().equals(ApplicationConstants.LOWER_HOUSE))? "workflow/question/reports/statusreportlowerhouse": "workflow/question/reports/statusreportupperhouse";
-			}		
-
-			model.addAttribute("qid", qt.getId());
+	
+					page = (qt.getHouseType().getType().equals(ApplicationConstants.LOWER_HOUSE))? "workflow/question/reports/statusreportlowerhouse": "workflow/question/reports/statusreportupperhouse";
+				}		
+	
+				model.addAttribute("qid", qt.getId());
+			}
+		}catch(Exception e){
+			logger.error(e.getMessage(), e);
 		}
 
 		response.setContentType("text/html; charset=utf-8");		
