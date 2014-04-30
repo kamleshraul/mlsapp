@@ -2886,25 +2886,30 @@ public class QuestionWorkflowController  extends BaseController{
 					CustomParameter csptAllwedUserGroupForStatusReportSign = CustomParameter.findByName(CustomParameter.class, (qt.getHouseType().getType().equals(ApplicationConstants.LOWER_HOUSE)? "QIS_ALLOWED_USERGROUPS_FOR_STATUS_REPORT_SIGN_LOWERHOUSE": "QIS_ALLOWED_USERGROUPS_FOR_STATUS_REPORT_SIGN_UPPERHOUSE"), "");
 					if(csptAllwedUserGroupForStatusReportSign != null){
 						if(csptAllwedUserGroupForStatusReportSign.getValue() != null && !csptAllwedUserGroupForStatusReportSign.getValue().isEmpty()){
+							String prevUserGroupTemp = "";
 							for(Object o : report){
 								Object[] objx = (Object[])o;
 	
 								if(objx[27] != null && !objx[27].toString().isEmpty()){
-									if(csptAllwedUserGroupForStatusReportSign.getValue().contains(objx[27].toString())){							
-										UserGroupType userGroupType = UserGroupType.findByFieldName(UserGroupType.class, "type", objx[27].toString(), locale.toString());
-										MasterVO actor = new MasterVO();
-										if(userGroupType.getType().equals(ApplicationConstants.UNDER_SECRETARY_COMMITTEE) || userGroupType.getType().equals(ApplicationConstants.UNDER_SECRETARY)){
-											actor.setName(userGroupType.getName() + "<br>" + ((objx[1]!=null)?objx[1].toString() : "" ));
-										}else{
-											actor.setName(userGroupType.getName() + "<br>");
+									if(csptAllwedUserGroupForStatusReportSign.getValue().contains(objx[27].toString())){
+										if(!prevUserGroupTemp.equals(objx[27].toString())){
+											UserGroupType userGroupType = UserGroupType.findByFieldName(UserGroupType.class, "type", objx[27].toString(), locale.toString());
+											MasterVO actor = new MasterVO();
+											if(userGroupType.getType().equals(ApplicationConstants.UNDER_SECRETARY_COMMITTEE) || userGroupType.getType().equals(ApplicationConstants.UNDER_SECRETARY)){
+												actor.setName(userGroupType.getName() + "<br>" + ((objx[1]!=null)?objx[1].toString() : "" ));
+											}else{
+												actor.setName(userGroupType.getName() + "<br>");
+											}
+											if(objx[6] != null){
+												actor.setValue(objx[6].toString());
+											}
+											if(objx[28] != null){
+												actor.setFormattedNumber(objx[28].toString());
+											}
+											actors.add(actor);
+											prevUserGroupTemp = null;
+											prevUserGroupTemp = objx[27].toString();
 										}
-										if(objx[6] != null){
-											actor.setValue(objx[6].toString());
-										}
-										if(objx[28] != null){
-											actor.setFormattedNumber(objx[28].toString());
-										}
-										actors.add(actor);
 									}
 								}
 							}
