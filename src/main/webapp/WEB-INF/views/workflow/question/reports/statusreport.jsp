@@ -58,7 +58,6 @@
 		}
 		
 		function addRemarkReport(){
-			console.log(ids.length+":"+counter);
 			if(ids.length > 0 && counter < ids.length){
 				 $.get('workflow/question/report/'+ ids[counter] + '/currentstatusreportvm?device=question',function(data1){
 						 								
