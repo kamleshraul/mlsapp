@@ -13,6 +13,8 @@ import org.mkcl.els.common.vo.MemberBallotMemberWiseQuestionVO;
 @XmlRootElement(name="MemberwiseQuestionData")
 public class MemberwiseQuestionsXmlVO extends XmlVO {
 	
+	private String submissionDate;
+	
 	private List<GroupVO> groupVOs;
 	
 	private String member;
@@ -31,6 +33,14 @@ public class MemberwiseQuestionsXmlVO extends XmlVO {
 	
 	public MemberwiseQuestionsXmlVO() {
 		super();
+	}
+
+	public String getSubmissionDate() {
+		return submissionDate;
+	}
+
+	public void setSubmissionDate(String submissionDate) {
+		this.submissionDate = submissionDate;
 	}
 
 	@XmlElementWrapper(name = "groupList")
