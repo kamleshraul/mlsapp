@@ -539,34 +539,34 @@
 	        <fo:page-sequence master-reference="simple" id="DocumentBody">
 		
 		    <fo:static-content flow-name="ra-right">
-			  <fo:block font-family="{$font}" font-size="16pt" text-align="right">
+			  <fo:block font-family="Mangal" font-size="12pt" text-align="right">
 			  	अवर सचिव,&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;<fo:block/>
 			  	महाराष्ट्र विधानमंडळ सचिवालय
 			  </fo:block>
 		    </fo:static-content>
 
 		    <!-- <fo:static-content flow-name="ra-left">
-			  <fo:block font-family="{$font}" font-size="10pt" text-align="right">
+			  <fo:block font-family="Mangal" font-size="10pt" text-align="right">
 			  	अवर सचिव,&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;<fo:block/>
 			  	महाराष्ट्र विधानमंडळ सचिवालय
 			  </fo:block>
 		    </fo:static-content> -->
 
 		    <!-- <fo:static-content flow-name="rb-right">
-			<fo:block font-size="10pt" text-align="start" font-family="{$font}" font-style="italic" font-weight="bold">
+			<fo:block font-size="10pt" text-align="start" font-family="Mangal" font-style="italic" font-weight="bold">
 			    ई-विधानमंडळ
 			</fo:block>
 		    </fo:static-content>
 
 		    <fo:static-content flow-name="rb-left">
-			<fo:block font-size="10pt" text-align="start" font-family="{$font}" font-style="italic" font-weight="bold">
+			<fo:block font-size="10pt" text-align="start" font-family="Mangal" font-style="italic" font-weight="bold">
 			    ई-विधानमंडळ
 			</fo:block>
 		    </fo:static-content> -->
 	
 	        <fo:flow flow-name="xsl-region-body">
 		    
-			<fo:block font-family="{$font}" font-size="16px" font-weight="normal" font-style="normal" space-after.optimum="3pt" text-align="justify">
+			<fo:block font-family="Mangal" font-size="12px" font-weight="normal" font-style="normal" space-after.optimum="3pt" text-align="justify">
 	                    <fo:table border-collapse="collapse" table-layout="fixed" width="100%">
 	                        <fo:table-column column-number="1" column-width="2.8cm" />
 	                        <fo:table-column column-number="2" column-width="6.8cm" />
@@ -574,11 +574,11 @@
 							<fo:table-header>
 							   <fo:table-row>
 							   	  <fo:table-cell  number-columns-spanned="3">
-							   			<fo:block text-align='center' font-family="{$font}" font-weight="bold">
-							   				<fo:block font-size="21pt">
+							   			<fo:block text-align='center' font-family="Mangal" font-weight="bold">
+							   				<fo:block font-size="16pt">
 							   	  				महाराष्ट्र विधानमंडळ सचिवालय
 							   	  			</fo:block>
-							   	  			<fo:block font-size="19pt">
+							   	  			<fo:block font-size="14pt">
 							   	  				विधानपरिषद प्रश्नांचे सदस्यनिहाय बॅलेट
 							   	  			</fo:block>										    
 										   <fo:block/><fo:block/>
@@ -606,7 +606,7 @@
 										
 										<fo:block>&#160;</fo:block>
 										
-										<fo:block text-align='right' font-family="{$font}" font-size="16pt">
+										<fo:block text-align='right' font-family="Mangal">
 										    दिनांक - &#160;&#160;&#160;<xsl:value-of select="element_4"/>
 										</fo:block>
 							   	  </fo:table-cell>
