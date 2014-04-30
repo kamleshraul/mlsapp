@@ -1372,6 +1372,23 @@ public class BallotController extends BaseController{
 						}
 						memberwiseQuestionsXmlVO.setHouseType(houseType);
 						System.out.println(memberwiseQuestionsXmlVO.getHouseType());
+						/** question submission date formatting **/
+						String startDateParameter=session.getParameter(ApplicationConstants.QUESTION_STARRED_FIRSTBATCH_SUBMISSION_STARTTIME_UH);
+						if(startDateParameter!=null){
+							Date startDate = FormaterUtil.formatStringToDate(startDateParameter, ApplicationConstants.DB_DATETIME_FORMAT);
+							SimpleDateFormat dbFormat = null;
+							CustomParameter dbDateFormat=CustomParameter.findByName(CustomParameter.class,"ROTATION_ORDER_DATE_FORMAT", "");
+				            if(dbDateFormat!=null){
+				            	dbFormat=FormaterUtil.getDateFormatter(dbDateFormat.getValue(), locale.toString());
+				            }
+							String[] strQuestionSubmissionDate=dbFormat.format(startDate).split(",");
+		            		String[] strAnsweringMonth=strQuestionSubmissionDate[1].split(" ");
+		            		String answeringMonth=FormaterUtil.getMonthInMarathi(strAnsweringMonth[1], locale.toString());
+		            		MessageResource mrDate = MessageResource.findByFieldName(MessageResource.class, "code", "generic.date", locale.toString());
+		            		String genericDateLabel  = (mrDate!=null)? mrDate.getValue():"";
+		            		model.addAttribute("questionSubmissionDate",genericDateLabel + " " +strAnsweringMonth[0]+" "+ answeringMonth +","+strQuestionSubmissionDate[2]);
+		            		memberwiseQuestionsXmlVO.setSubmissionDate(genericDateLabel + " " +strAnsweringMonth[0]+" "+ answeringMonth +","+strQuestionSubmissionDate[2]);
+						}												
 						memberwiseQuestionsXmlVO.setMemberBallotMemberWiseCountVOs(memberBallotMemberWiseReportVO.getMemberBallotMemberWiseCountVOs());
 						memberwiseQuestionsXmlVO.setMemberBallotMemberWiseQuestionVOs(memberBallotMemberWiseReportVO.getMemberBallotMemberWiseQuestionVOs());
 						Integer clarificationCount = 0;
@@ -1516,7 +1533,7 @@ public class BallotController extends BaseController{
 			            if(dbDateFormat!=null){
 			            	dbFormat=FormaterUtil.getDateFormatter(dbDateFormat.getValue(), locale.toString());
 			            }
-						String[] strQuestionSubmissionDate=dbFormat.format(memberBallotQuestionDistributionVO.getQuestionSubmissionEndTime()).split(",");
+						String[] strQuestionSubmissionDate=dbFormat.format(memberBallotQuestionDistributionVO.getQuestionSubmissionStartTime()).split(",");
 	            		String[] strAnsweringMonth=strQuestionSubmissionDate[1].split(" ");
 	            		String answeringMonth=FormaterUtil.getMonthInMarathi(strAnsweringMonth[1], locale.toString());
 	            		MessageResource mrDate = MessageResource.findByFieldName(MessageResource.class, "code", "generic.date", locale.toString());
