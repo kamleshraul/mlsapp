@@ -633,7 +633,7 @@
 				                        	    	</xsl:choose>		                                                                    
 			                                    
 				                        	</fo:table-cell>
-				                        	<fo:table-cell padding-left="5" border-width="0.5pt" border-style="solid" display-align="center" text-align="center">
+				                        	<fo:table-cell padding-left="5" border-width="0.5pt" border-style="solid" display-align="center">
 				                        	    <fo:block font-weight="bold">
 		                                                                    प्रश्न क्रमांक
 			                                    </fo:block>
@@ -674,7 +674,7 @@
 														</fo:block>
 													</fo:table-cell> 
 	                                     -->
-	                                    <fo:table-cell padding-left="5" display-align="center" text-align="center" border-width="0.5pt" border-style="solid">	
+	                                    <fo:table-cell padding-left="5" display-align="center" border-width="0.5pt" border-style="solid">	
 	                                    	<fo:block>     
                                     		    <xsl:choose>
 													<xsl:when test="element_5_11=''">
@@ -692,7 +692,7 @@
 														<xsl:value-of select="element_5_8" />&#160;&#160;(<xsl:value-of select="element_5_12" />)&#160;&#160;
 														<xsl:choose>
 															<xsl:when test="$language='mr_IN'">
-																(प्रश्न क्रमांक <xsl:value-of select="element_5_11" /> शी जोडलेला आहे)
+																(<xsl:value-of select="element_5_11" /> या प्रश्नाशी जोडलेला आहे)
 															</xsl:when>
 															<xsl:otherwise>
 																(clubbed to <xsl:value-of select="element_5_11" />)
