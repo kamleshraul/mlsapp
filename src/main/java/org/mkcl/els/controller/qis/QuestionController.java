@@ -4499,6 +4499,238 @@ public class QuestionController extends GenericController<Question>{
 		}
 		return "question/reports/statreport";
 	}
+	
+	
+	@RequestMapping(value="report/currentstatusreport", method=RequestMethod.GET)
+	public String getCurrentStatusReport(Model model, HttpServletRequest request, HttpServletResponse response, Locale locale){
+		String page = "question/error";
+		try{
+			String strDevice = request.getParameter("device");
+			String strGrid = request.getParameter("grid");
+					
+			if(strDevice != null && !strDevice.isEmpty()
+					&& strGrid != null && !strGrid.isEmpty()){
+				
+				DeviceType deviceType = null;
+				if(strGrid.equals("device")){
+				  deviceType= DeviceType.findById(DeviceType.class, new Long(strDevice));
+				}else if(strGrid.equals("workflow")){
+					CustomParameter csptServer = CustomParameter.findByName(CustomParameter.class, "DEPLOYMENT_SERVER", "");
+					if(csptServer != null && csptServer.getValue() != null && !csptServer.getValue().isEmpty()){
+						if(csptServer.getValue().equals("TOMCAT")){
+							strDevice = new String(strDevice.getBytes("ISO-8859-1"), "UTF-8");
+						}
+					}
+				}
+				
+				if(deviceType != null){
+					model.addAttribute("device",deviceType.getType().split("_")[0]);
+				}
+				
+				if(strGrid.equals("device")){
+					page = "question/reports/statusreport";
+							
+				}else if(strGrid.equals("workflow")){
+					page = "workflow/question/reports/statusreport";
+				}
+			}
+		}catch(Exception e){
+			logger.error("error", e);
+		}
+		
+		return page;
+	}
+
+	@SuppressWarnings("rawtypes")
+	@RequestMapping(value="report/{qId}/currentstatusreportvm", method=RequestMethod.GET)
+	public String getCurrentStatusReportVM(@PathVariable("qId") Long id, Model model, HttpServletRequest request, HttpServletResponse response, Locale locale){
+		String page = "question/error";
+		try{
+			String strDevice = request.getParameter("device");
+			String strGrid = request.getParameter("grid");
+			Map<String, MasterVO> finalDataMap = new HashMap<String, MasterVO>();
+			
+			if(strDevice != null && !strDevice.isEmpty()
+					&& strGrid != null && !strGrid.isEmpty()){
+				
+				Question qt = Question.findById(Question.class, id);
+				List report = generatetCurrentStatusReport(qt, strDevice, locale.toString());
+				//model.addAttribute("report", report);
+				if(report != null && !report.isEmpty()){
+	
+					Object[] obj = (Object[]) report.get(0);
+					if(obj[26] != null){
+						model.addAttribute("fullSessionName", obj[26].toString());
+					}
+					if(obj[11] != null){
+						model.addAttribute("deviceName", obj[11].toString());
+					}
+	
+					model.addAttribute("currentDate", FormaterUtil.formatDateToString(new Date(), ApplicationConstants.SERVER_DATEFORMAT, locale.toString()));
+	
+					if(obj[16] != null){
+						model.addAttribute("primaryMemConstituency", obj[16].toString());
+					}
+	
+					if(obj[12] != null){
+						model.addAttribute("memberName", obj[12].toString());
+					}
+	
+					if(obj[17] != null){
+						model.addAttribute("support", obj[17].toString());
+					}
+	
+					if(obj[19] != null){
+						model.addAttribute("groupNumber", obj[19].toString());
+					}
+	
+					if(obj[21] != null){
+						Date answeringDate = FormaterUtil.formatStringToDate(obj[21].toString(), ApplicationConstants.DB_DATEFORMAT);
+						model.addAttribute("answeringDate", FormaterUtil.formatDateToString(answeringDate, ApplicationConstants.SERVER_DATEFORMAT, locale.toString()));
+					}
+	
+					if(obj[22] != null){
+						Date deptSendDate = FormaterUtil.formatStringToDate(obj[21].toString(), ApplicationConstants.DB_DATEFORMAT);
+						model.addAttribute("deptSendDate", FormaterUtil.formatDateToString(deptSendDate, ApplicationConstants.SERVER_DATEFORMAT, locale.toString()));
+					}
+	
+					if(obj[23] != null){
+						model.addAttribute("priority", obj[23].toString());
+					}
+	
+					if(obj[5] != null){
+						model.addAttribute("subject", FormaterUtil.formatNumbersInGivenText(obj[5].toString(), locale.toString()));
+					}
+	
+					if(obj[9] != null){
+						model.addAttribute("deviceNumber", obj[9].toString());
+					}
+					
+					if(obj[20] != null){
+						model.addAttribute("department", obj[20].toString());
+					}
+	
+					if(obj[24] != null){
+						model.addAttribute("ministry", obj[24].toString());
+					}
+	
+					if(obj[4] != null){
+						model.addAttribute("details", FormaterUtil.formatNumbersInGivenText(obj[4].toString(), locale.toString()));
+					}
+	
+					List<User> users = User.findByRole(false, "QIS_PRINCIPAL_SECRETARY", locale.toString());
+					model.addAttribute("principalSec", users.get(0).getTitle() + " " + users.get(0).getFirstName() + " " + users.get(0).getLastName());
+	
+					List<MasterVO> actors = new ArrayList<MasterVO>();
+					CustomParameter csptAllwedUserGroupForStatusReportSign = CustomParameter.findByName(CustomParameter.class, (qt.getHouseType().getType().equals(ApplicationConstants.LOWER_HOUSE)? "QIS_ALLOWED_USERGROUPS_FOR_STATUS_REPORT_SIGN_LOWERHOUSE": "QIS_ALLOWED_USERGROUPS_FOR_STATUS_REPORT_SIGN_UPPERHOUSE"), "");
+					if(csptAllwedUserGroupForStatusReportSign != null){
+						if(csptAllwedUserGroupForStatusReportSign.getValue() != null && !csptAllwedUserGroupForStatusReportSign.getValue().isEmpty()){
+							
+							for(Object o : report){
+								Object[] objx = (Object[])o;
+	
+								if(objx[27] != null && !objx[27].toString().isEmpty()){
+									if(csptAllwedUserGroupForStatusReportSign.getValue().contains(objx[27].toString())){
+										
+										UserGroupType userGroupType = UserGroupType.findByFieldName(UserGroupType.class, "type", objx[27].toString(), locale.toString());
+										MasterVO actor = new MasterVO();
+										if(userGroupType.getType().equals(ApplicationConstants.UNDER_SECRETARY_COMMITTEE) || userGroupType.getType().equals(ApplicationConstants.UNDER_SECRETARY)){
+											actor.setName(userGroupType.getName() + "<br>" + ((objx[1]!=null)?objx[1].toString() : "" ));
+										}else{
+											actor.setName(userGroupType.getName() + "<br>");
+										}
+										if(objx[6] != null){
+											actor.setValue(objx[6].toString());
+										}
+										if(objx[28] != null){
+											actor.setFormattedNumber(objx[28].toString());
+										}
+										if(userGroupType.getType().equals(ApplicationConstants.UNDER_SECRETARY_COMMITTEE) || userGroupType.getType().equals(ApplicationConstants.UNDER_SECRETARY)){
+											finalDataMap.put(ApplicationConstants.UNDER_SECRETARY, actor);
+										}else{
+											finalDataMap.put(userGroupType.getType(), actor);
+										}
+										
+									}
+								}
+							}
+							
+							for(String var : csptAllwedUserGroupForStatusReportSign.getValue().split(",")){
+								if(var.equals(ApplicationConstants.UNDER_SECRETARY_COMMITTEE) || var.equals(ApplicationConstants.UNDER_SECRETARY)){
+									actors.add(finalDataMap.get(ApplicationConstants.UNDER_SECRETARY));
+								}else{
+									if(finalDataMap.get(var) != null){
+										actors.add(finalDataMap.get(var));
+									}
+								}
+							}
+							
+							if(!actors.isEmpty()){
+								String lastUSerGroup = actors.get(actors.size() - 1).getName();
+								UserGroupType userGroupType = UserGroupType.findByFieldName(UserGroupType.class, "type", ApplicationConstants.PRINCIPAL_SECRETARY, locale.toString());
+								
+								if(!lastUSerGroup.split("<br>")[0].equals(userGroupType.getName())){
+									MasterVO actor = new MasterVO();
+									actor.setName(userGroupType.getName() + "<br>");
+									actor.setValue("");
+									actor.setFormattedNumber("");
+									actors.add(actor);
+								}
+							}
+							
+							if(actors.isEmpty()){
+								for(String val : csptAllwedUserGroupForStatusReportSign.getValue().split(",")){
+								
+									Reference ref = UserGroup.findQuestionActor(qt, val, String.valueOf(0), locale.toString());
+									MasterVO actor = new MasterVO();
+									if(ref.getId().split("#")[1].equals(ApplicationConstants.UNDER_SECRETARY_COMMITTEE) || ref.getId().split("#")[1].equals(ApplicationConstants.UNDER_SECRETARY)){
+										actor.setName(ref.getId().split("#")[3] + "<br>" + ref.getId().split("#")[4]);
+									}else{
+										actor.setName(ref.getId().split("#")[3] + "<br>");
+									}
+									actor.setValue("");
+									actor.setFormattedNumber("");
+									actors.add(actor);
+								}
+							}
+	
+							model.addAttribute("actors", actors);
+						}
+					}
+	
+					if(strGrid.equals("device")){
+						page = "question/reports/statusreport"+qt.getHouseType().getType();
+					}else if(strGrid.equals("workflow")){
+						page = "workflow/question/reports/statusreport"+qt.getHouseType().getType();
+					}
+				}		
+	
+				model.addAttribute("qid", qt.getId());
+			}
+		}catch(Exception e){
+			logger.error(e.getMessage(), e);
+			e.printStackTrace();
+		}
+
+		response.setContentType("text/html; charset=utf-8");		
+		return page;
+	}	
+
+	@SuppressWarnings("rawtypes")
+	private List generatetCurrentStatusReport(final Question question, final String device, final String locale){
+		String support = question.getAllSupportingMembers();
+		Map<String, String[]> parameters = new HashMap<String, String[]>();
+		parameters.put("locale",new String[]{locale.toString()});
+		parameters.put("id",new String[]{question.getId().toString()});
+		parameters.put("device", new String[]{device});
+
+		List list = Query.findReport("QIS_CURRENTSTATUS_REPORT", parameters);
+		for(Object o : list){
+			((Object[])o)[17] = support;			
+		}
+
+		return list;  
+	}
 		
 }
 
