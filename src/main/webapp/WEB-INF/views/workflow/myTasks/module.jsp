@@ -65,7 +65,7 @@
 			/**** workflow changes then reload grid****/			
 			$("#selectedSubWorkflow").change(function(){
 				var value=$(this).val();
-				if(value!=""){				
+				if(value!=null){				
 					if(($('#currentusergroupType').val()=="assistant"||$('#currentusergroupType').val()=="section_officer")&& value.contains("final")){
 						$('#bulkapproval_tab').hide();
 						$('#selectedItemsCount').hide();
@@ -233,7 +233,7 @@
 		function loadSubWorkflowByDeviceType(deviceType){
 			$.get('ref/status?deviceType='+ deviceType,function(data){
 				$("#selectedSubWorkflow").empty();
-				var selectedSubWorkflowText="";
+				var selectedSubWorkflowText="<option value='' selected='selected'>----"+$("#pleaseSelectMessage").val()+"----</option>";
 				if(data.length>0){
 					for(var i=0;i<data.length;i++){
 						selectedSubWorkflowText+="<option value='"+data[i].value+"'>"+data[i].name;
