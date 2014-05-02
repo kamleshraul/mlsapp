@@ -31,9 +31,9 @@
 			'&sessionYear='+$("#selectedSessionYear").val()+
 			'&sessionType='+$("#selectedSessionType").val()+
 			'&houseType='+$("#selectedHouseType").val()+
-			'&wfStatus='+$("#selectedStatus").val()+
+			'&status='+$("#selectedStatus").val()+
 			'&wfSubType='+$("#selectedSubWorkflow").val()+
-			'&grid=device';
+			'&grid=workflow';
 
 			$.get('ref/pendingtasksdevices'+paramVar,function(data){
 			
@@ -60,7 +60,7 @@
 		
 		function addRemarkReport(){
 			if(ids.length > 0 && counter < ids.length){
-				 $.get('workflow/question/report/'+ ids[counter] + '/currentstatusreportvm?device=question',function(data1){
+				 $.get('workflow/question/report/'+ ids[counter] + '/currentstatusreportvm?device='+$("#device").val(),function(data1){
 						 								
 							if($('#reportWindow1').text().trim()=='v'){
 								$('#reportWindow1').empty();
