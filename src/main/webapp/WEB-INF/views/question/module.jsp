@@ -8,164 +8,171 @@
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
 <script type="text/javascript">
 	$(document).ready(function() {
-						/**** On Page Load ****/
-						var currentDeviceType = $("#currentDeviceType").val();
-						var currentHouseType = $("#currentHouseType").val();
-						/**** Fro chart_tab to show or hide ****/
-						if (currentDeviceType == 'questions_starred' || (currentDeviceType=='questions_halfhourdiscussion_standalone' && currentHouseType=='lowerhouse')) {
-							$("#chart_tab").show();
-						} else {
-							$("#chart_tab").hide();
-						}
+		/**** On Page Load ****/
+		var currentDeviceType = $("#currentDeviceType").val();
+		var currentHouseType = $("#currentHouseType").val();
+		/**** Fro chart_tab to show or hide ****/
+		if (currentDeviceType == 'questions_starred' || (currentDeviceType=='questions_halfhourdiscussion_standalone' && currentHouseType=='lowerhouse')) {
+			$("#chart_tab").show();
+		} else {
+			$("#chart_tab").hide();
+		}
 
-						/**** For ballot or member ballot tab to be visible ****/
-						if (currentDeviceType == 'questions_starred'
-								&& currentHouseType == 'upperhouse') {
-							$("#memberballot_tab").show();
-							$("#ballot_tab").hide();
-						} else if ((currentDeviceType == 'questions_starred' && currentHouseType == 'lowerhouse')
-								|| currentDeviceType == 'questions_halfhourdiscussion_from_question'
-								|| currentDeviceType == 'questions_halfhourdiscussion_standalone') {
-							$("#memberballot_tab").hide();
-							$("#ballot_tab").show();
-						} else {
-							$("#memberballot_tab").hide();
-							$("#ballot_tab").hide();
-						}
-						/*Tooltip*/
-						$(".toolTip").hide();
-						/**** here we are trying to add date mask in grid search when field names ends with date ****/
-						$(".sf .field").change(function() {
-							var field = $(this).val();
-							if (field.indexOf("Date") != -1) {
-								$(".sf .data").mask("99/99/9999");
-							}
-						});
-						/**** displaying grid ****/
-						$('#list_tab').click(function() {
-							$("#selectionDiv1").show();
-							showQuestionList();
-						});
-						/**** house type changes then reload grid****/
-						$("#selectedHouseType").change(function() {
+		/**** For ballot or member ballot tab to be visible ****/
+		if (currentDeviceType == 'questions_starred'
+				&& currentHouseType == 'upperhouse') {
+			$("#memberballot_tab").show();
+			$("#ballot_tab").hide();
+		} else if ((currentDeviceType == 'questions_starred' && currentHouseType == 'lowerhouse')
+				|| currentDeviceType == 'questions_halfhourdiscussion_from_question'
+				|| currentDeviceType == 'questions_halfhourdiscussion_standalone') {
+			$("#memberballot_tab").hide();
+			$("#ballot_tab").show();
+		} else {
+			$("#memberballot_tab").hide();
+			$("#ballot_tab").hide();
+		}
+		/*Tooltip*/
+		$(".toolTip").hide();
+		/**** here we are trying to add date mask in grid search when field names ends with date ****/
+		$(".sf .field").change(function() {
+			var field = $(this).val();
+			if (field.indexOf("Date") != -1) {
+				$(".sf .data").mask("99/99/9999");
+			}
+		});
+		/**** displaying grid ****/
+		$('#list_tab').click(function() {
+			$("#selectionDiv1").show();
+			showQuestionList();
+		});
+		/**** house type changes then reload grid****/
+		$("#selectedHouseType").change(function() {
+			var value = $(this).val();
+			if (value != "") {
+				loadGroupsFromSessions();
+				if (value == 'upperhouse') {
+					$('#memberballot_tab').show();
+				} else {
+					$('#memberballot_tab').hide();
+				}
+			}
+		});
+		/**** session year changes then reload grid****/
+		$("#selectedSessionYear").change(function() {
+			var value = $(this).val();
+			/* $('#questionDepartment').hide();
+			$('#subDepartment').val(""); */
+			if (value != "") {
+				loadGroupsFromSessions();
+			}
+		});
+		/**** session type changes then reload grid****/
+		$("#selectedSessionType").change(function() {
+			var value = $(this).val();
+			/* $('#questionDepartment').hide();
+			$('#subDepartment').val(""); */
+			if (value != "") {
+				loadGroupsFromSessions();
+			}
+		});
+		/**** question type changes then reload grid****/
+		$("#selectedQuestionType")
+				.change(
+						function() {
 							var value = $(this).val();
-							if (value != "") {
-								loadGroupsFromSessions();
-								if (value == 'upperhouse') {
-									$('#memberballot_tab').show();
-								} else {
-									$('#memberballot_tab').hide();
-								}
+							var text = $(
+									"#deviceTypeMaster option[value='"
+											+ value + "']")
+									.text();
+							if (text == 'questions_starred') {
+								$("#chart_tab").show();
+							} else {
+								$("#chart_tab").hide();
 							}
-						});
-						/**** session year changes then reload grid****/
-						$("#selectedSessionYear").change(function() {
-							var value = $(this).val();
-							/* $('#questionDepartment').hide();
-							$('#subDepartment').val(""); */
-							if (value != "") {
-								loadGroupsFromSessions();
+							if (text == 'questions_starred'
+									&& currentHouseType == 'upperhouse') {
+								$("#memberballot_tab").show();
+								$("#ballot_tab").hide();
+							} else if ((text == 'questions_starred' && currentHouseType == 'lowerhouse')
+									|| text == 'questions_halfhourdiscussion_from_question'
+									|| text == 'questions_halfhourdiscussion_standalone') {
+								$("#memberballot_tab").hide();
+								$("#ballot_tab").show();
+							} else {
+								$("#memberballot_tab").hide();
+								$("#ballot_tab").hide();
 							}
-						});
-						/**** session type changes then reload grid****/
-						$("#selectedSessionType").change(function() {
-							var value = $(this).val();
-							/* $('#questionDepartment').hide();
-							$('#subDepartment').val(""); */
-							if (value != "") {
-								loadGroupsFromSessions();
-							}
-						});
-						/**** question type changes then reload grid****/
-						$("#selectedQuestionType")
-								.change(
-										function() {
-											var value = $(this).val();
-											var text = $(
-													"#deviceTypeMaster option[value='"
-															+ value + "']")
-													.text();
-											if (text == 'questions_starred') {
-												$("#chart_tab").show();
-											} else {
-												$("#chart_tab").hide();
-											}
-											if (text == 'questions_starred'
-													&& currentHouseType == 'upperhouse') {
-												$("#memberballot_tab").show();
-												$("#ballot_tab").hide();
-											} else if ((text == 'questions_starred' && currentHouseType == 'lowerhouse')
-													|| text == 'questions_halfhourdiscussion_from_question'
-													|| text == 'questions_halfhourdiscussion_standalone') {
-												$("#memberballot_tab").hide();
-												$("#ballot_tab").show();
-											} else {
-												$("#memberballot_tab").hide();
-												$("#ballot_tab").hide();
-											}
-											if (value != "") {
-												reloadQuestionGrid();
-											}
-
-										});
-						/**** status changes then reload grid****/
-						$("#selectedStatus").change(function() {
-							var value = $(this).val();
 							if (value != "") {
 								reloadQuestionGrid();
 							}
-							$("#generateIntimationLetter").attr("href","");
-							
+
 						});
-						/**** group changes then reload grid ****/
-						$("#selectedGroup").change(function() {
-							var value = $(this).val();
-							if (value != "") {
-								$("#ugparam").val(value);
-								loadSubDepartmentsFromGroup(value);								
-							}
-						});
-						/**** Chart Tab ****/
-						$('#chart_tab').click(function() {
-							$("#selectionDiv1").hide();
-							viewChart();
-						});
-						/**** Ballot Tab ****/
-						$('#ballot_tab').click(function() {
-							$("#selectionDiv1").hide();
-							viewBallot();
-						});
-						/**** Rotation Order Tab ****/
-						$('#rotationorder_tab').click(function() {
-							$("#selectionDiv1").hide();
-							viewRotationOrder();
-						});
-						/**** Member Ballot Tab ****/
-						$('#memberballot_tab').click(function() {
-							$("#selectionDiv1").hide();
-							viewMemberBallot();
-						});
-						/**** Bulk Putup ****/
-						$("#bulkputup_tab").click(function() {
-							$("#selectionDiv1").hide();
-							bulkPutup();
-						});
-						/**** Bulk Putup ****/
-						$("#bulkputupassistant_tab").click(function() {
-							$("#selectionDiv1").hide();
-							bulkPutupAssistant();
-						});
-						
-						/**** status changes then reload grid****/
-						$("#selectedSubDepartment").change(function() {
-							var value = $(this).val();
-							if (value != "") {
-								reloadQuestionGrid();
-							}
-						});
-						/**** show question list method is called by default.****/
-						showQuestionList();
-					});
+		/**** status changes then reload grid****/
+		$("#selectedStatus").change(function() {
+			var value = $(this).val();
+			if (value != "") {
+				reloadQuestionGrid();
+			}
+			$("#generateIntimationLetter").attr("href","");
+			
+		});
+		/**** group changes then reload grid ****/
+		$("#selectedGroup").change(function() {
+			var value = $(this).val();
+			if (value != "") {
+				$("#ugparam").val(value);
+				loadSubDepartmentsFromGroup(value);								
+			}
+		});
+		/**** Chart Tab ****/
+		$('#chart_tab').click(function() {
+			$("#selectionDiv1").hide();
+			viewChart();
+		});
+		/**** Ballot Tab ****/
+		$('#ballot_tab').click(function() {
+			$("#selectionDiv1").hide();
+			viewBallot();
+		});
+		/**** Rotation Order Tab ****/
+		$('#rotationorder_tab').click(function() {
+			$("#selectionDiv1").hide();
+			viewRotationOrder();
+		});
+		/**** Member Ballot Tab ****/
+		$('#memberballot_tab').click(function() {
+			$("#selectionDiv1").hide();
+			viewMemberBallot();
+		});
+		/**** Bulk Putup ****/
+		$("#bulkputup_tab").click(function() {
+			$("#selectionDiv1").hide();
+			bulkPutup();
+		});
+		/**** Bulk Putup ****/
+		$("#bulkputupassistant_tab").click(function() {
+			$("#selectionDiv1").hide();
+			bulkPutupAssistant();
+		});
+		
+		/**** status changes then reload grid****/
+		$("#selectedSubDepartment").change(function() {
+			var value = $(this).val();
+			if (value != "") {
+				reloadQuestionGrid();
+			}
+		});
+		
+		/**** show question list method is called by default.****/
+		showQuestionList();
+		
+	});
+	
+	function showCurrentStatusReport(){
+		$("#selectionDiv1").hide();
+		showTabByIdAndUrl('details_tab', "question/report/currentstatusreport?device="+$("#selectedQuestionType").val()+"&grid=device");
+	}
 	function loadGroupsFromSessions() {
 		if ($("#selectedGroup").length > 0) {
 			params = "houseType=" + $('#selectedHouseType').val()

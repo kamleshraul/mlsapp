@@ -50,6 +50,7 @@
 			$("#statreport").click(function(){
 				statReport();
 			});
+			
 			//---ADDED BY VIKAS------------------
 			
 			$('#gridURLParams_ForNew').val($('#gridURLParams').val());		
@@ -77,7 +78,11 @@
 			$("#generateIntimationLetter").click(function(){
 				$(this).attr('href','#');
 				generateIntimationLetter();				
-			});					
+			});		
+			
+			$("#generateCurrentStatusReport").click(function(){
+				showCurrentStatusReport();
+			});
 			
 		});
 		/**** double clicking record in grid handler ****/
@@ -93,11 +98,7 @@
 			if($('#key')){
 				$('#key').val(rowid);
 			}
-		}	
-		/**** Generate Intimation Letter ****/			
-		$("#generateIntimationLetter").click(function(){			
-			generateIntimationLetter();
-		});			
+		}			
 	</script>
 </head>
 <body>
@@ -142,7 +143,12 @@
 				<a href="#" id="statreport" class="butSim">
 					<spring:message code="question.statreport" text="Generate Statistics Report"/>
 				</a> |
-			 </security:authorize>
+			 </security:authorize>	
+			 <security:authorize access="hasAnyRole('QIS_ABC')">
+				<a href="#" id="generateCurrentStatusReport" class="butSim">
+					<spring:message code="question.generateCurrentStatusReport" text="Generate Current Status Report"/>
+				</a> |
+			 </security:authorize>		 
 			<p>&nbsp;</p>
 		</div>
 	</div>
