@@ -716,11 +716,6 @@
 		});
 		
 		/**** To make the next task available ****/
-		$("#next_task").click(function() {
-			nextTask();
-		});
-		
-		/**** To make the next task available ****/
 		$("#reanswer_workflow").click(function() {
 			resendAnswer();
 		});
@@ -757,9 +752,6 @@
 			<spring:message code="generic.reactivate_task" text="Re-Send Answer"/>
 		</a> | 
 	</c:if> --%>
-	<a href="#" id="next_task" class="butSim">	
-		<spring:message code="generic.next_task" text="Next Task"/>
-	</a>
 	<h2>
 	<c:choose>
 	<c:when test="${workflowstatus=='COMPLETED'}">

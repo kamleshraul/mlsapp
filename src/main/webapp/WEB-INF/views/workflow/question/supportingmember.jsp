@@ -21,11 +21,6 @@
     		});
 		    return false;
 	    });
-		  
-	    /**** To make the next task available ****/
-		$("#next_task").click(function() {
-			nextTask();
-		});
 	});
 	</script>
 </head>
@@ -38,9 +33,6 @@
 <div class="fields clearfix watermark">
 <form:form action="workflow/question/supportingmember" method="PUT" modelAttribute="domain">
 	<%@ include file="/common/info.jsp" %>
-	<a href="#" id="next_task" class="butSim">	
-		<spring:message code="generic.next_task" text="Next Task"/>
-	</a>
 	<h2>
 	<c:choose>
 	<c:when test="${status=='COMPLETED'}">
