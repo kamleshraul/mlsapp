@@ -372,7 +372,8 @@
 		
 		function showCurrentStatusReport(){
 			$("#selectionDiv1").hide();
-			showTabByIdAndUrl('details_tab', "workflow/question/report/currentstatusreport/?device=question");
+			var device = $("#deviceTypeMaster option[value='"+$("#selectedDeviceType").val()+"']").text().split("_")[0];
+			showTabByIdAndUrl('details_tab', "workflow/question/report/currentstatusreport/?device="+device);
 		}	
 	</script>
 	
@@ -550,6 +551,14 @@
 		
 		<div id="notificationDiv">
 			V
+		</div>
+		
+		<div style="display: none;">
+			<select id="deviceTypeMaster">			
+				<c:forEach items="${deviceTypes}" var="i">
+					<option value="${i.name}"><c:out value="${i.type}"></c:out></option>			
+				</c:forEach>
+			</select>
 		</div>
 		<input type="hidden" id="getNewTasks" value="yes" />
 		<input type="hidden" name="currentusergroup" id="currentusergroup" value="${usergroup}">		
