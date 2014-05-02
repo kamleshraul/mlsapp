@@ -1437,6 +1437,18 @@ public class QuestionWorkflowController  extends BaseController{
 					}
 				}
 			}
+			
+			/****Following code sets the internalstatus and recommendstatus as group change and end flag as end****/
+			QuestionDraft draft = domain.findPreviousDraft();				        
+			if(domain.getGroup() != null && draft != null) {
+				Group prevGroup = draft.getGroup();
+				if(prevGroup != null && ! prevGroup.getNumber().equals(domain.getGroup().getNumber())) {
+					Status GROUP_CHANGED = Status.findByType(ApplicationConstants.QUESTION_SYSTEM_GROUPCHANGED, domain.getLocale());
+					domain.setInternalStatus(GROUP_CHANGED);
+					domain.setRecommendationStatus(GROUP_CHANGED);
+					domain.setEndFlag("end");
+				}
+			}
 			performAction(domain);
 			domain.merge();
 			String bulkEdit=request.getParameter("bulkedit");
@@ -2205,8 +2217,26 @@ public class QuestionWorkflowController  extends BaseController{
 		}else if(internalStatus.equals(ApplicationConstants.QUESTION_FINAL_NAMECLUBBING)&&
 				recommendationStatus.equals(ApplicationConstants.QUESTION_FINAL_NAMECLUBBING)){
 			performActionOnNameClubbing(domain);
+		}else if(internalStatus.equals(ApplicationConstants.QUESTION_SYSTEM_GROUPCHANGED)&&
+				recommendationStatus.equals(ApplicationConstants.QUESTION_SYSTEM_GROUPCHANGED)){
+			performActionOnGroupChange(domain);
 		}
 	}
+
+	/** Remove the Group changed question from chart
+	 ** add a new candidate question on respective chart***/
+	private void performActionOnGroupChange(Question domain) {
+		Question question = Question.findById(Question.class, domain.getId());
+		QuestionDraft draft = question.findPreviousDraft();
+		Group affectedGroup = draft.getGroup();
+		try{
+			Chart.groupChange(question, affectedGroup);
+		}catch (ELSException e) {
+			
+		}
+		
+	}
+
 
 	private void performActionOnNameClubbing(Question domain) {
 		Status finalStatus=Status.findByType(ApplicationConstants.QUESTION_FINAL_ADMISSION, domain.getLocale());
