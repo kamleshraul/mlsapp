@@ -19,6 +19,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 
 import javax.servlet.http.HttpServletRequest;
@@ -2817,6 +2818,8 @@ public class QuestionWorkflowController  extends BaseController{
 		String page = "question/error";
 		try{
 			String strDevice = request.getParameter("device");
+			Map<String, MasterVO> finalDataMap = new HashMap<String, MasterVO>();
+			
 			if(strDevice != null && !strDevice.isEmpty()){
 				Question qt = Question.findById(Question.class, id);
 				List report = generatetCurrentStatusReport(qt, strDevice, locale.toString());
@@ -2870,6 +2873,10 @@ public class QuestionWorkflowController  extends BaseController{
 					if(obj[9] != null){
 						model.addAttribute("deviceNumber", obj[9].toString());
 					}
+					
+					if(obj[20] != null){
+						model.addAttribute("department", obj[20].toString());
+					}
 	
 					if(obj[24] != null){
 						model.addAttribute("ministry", obj[24].toString());
@@ -2886,34 +2893,46 @@ public class QuestionWorkflowController  extends BaseController{
 					CustomParameter csptAllwedUserGroupForStatusReportSign = CustomParameter.findByName(CustomParameter.class, (qt.getHouseType().getType().equals(ApplicationConstants.LOWER_HOUSE)? "QIS_ALLOWED_USERGROUPS_FOR_STATUS_REPORT_SIGN_LOWERHOUSE": "QIS_ALLOWED_USERGROUPS_FOR_STATUS_REPORT_SIGN_UPPERHOUSE"), "");
 					if(csptAllwedUserGroupForStatusReportSign != null){
 						if(csptAllwedUserGroupForStatusReportSign.getValue() != null && !csptAllwedUserGroupForStatusReportSign.getValue().isEmpty()){
-							String prevUserGroupTemp = "";
+							
 							for(Object o : report){
 								Object[] objx = (Object[])o;
 	
 								if(objx[27] != null && !objx[27].toString().isEmpty()){
 									if(csptAllwedUserGroupForStatusReportSign.getValue().contains(objx[27].toString())){
-										if(!prevUserGroupTemp.equals(objx[27].toString())){
-											UserGroupType userGroupType = UserGroupType.findByFieldName(UserGroupType.class, "type", objx[27].toString(), locale.toString());
-											MasterVO actor = new MasterVO();
-											if(userGroupType.getType().equals(ApplicationConstants.UNDER_SECRETARY_COMMITTEE) || userGroupType.getType().equals(ApplicationConstants.UNDER_SECRETARY)){
-												actor.setName(userGroupType.getName() + "<br>" + ((objx[1]!=null)?objx[1].toString() : "" ));
-											}else{
-												actor.setName(userGroupType.getName() + "<br>");
-											}
-											if(objx[6] != null){
-												actor.setValue(objx[6].toString());
-											}
-											if(objx[28] != null){
-												actor.setFormattedNumber(objx[28].toString());
-											}
-											actors.add(actor);
-											prevUserGroupTemp = null;
-											prevUserGroupTemp = objx[27].toString();
+										
+										UserGroupType userGroupType = UserGroupType.findByFieldName(UserGroupType.class, "type", objx[27].toString(), locale.toString());
+										MasterVO actor = new MasterVO();
+										if(userGroupType.getType().equals(ApplicationConstants.UNDER_SECRETARY_COMMITTEE) || userGroupType.getType().equals(ApplicationConstants.UNDER_SECRETARY)){
+											actor.setName(userGroupType.getName() + "<br>" + ((objx[1]!=null)?objx[1].toString() : "" ));
+										}else{
+											actor.setName(userGroupType.getName() + "<br>");
 										}
+										if(objx[6] != null){
+											actor.setValue(objx[6].toString());
+										}
+										if(objx[28] != null){
+											actor.setFormattedNumber(objx[28].toString());
+										}
+										if(userGroupType.getType().equals(ApplicationConstants.UNDER_SECRETARY_COMMITTEE) || userGroupType.getType().equals(ApplicationConstants.UNDER_SECRETARY)){
+											finalDataMap.put(ApplicationConstants.UNDER_SECRETARY, actor);
+										}else{
+											finalDataMap.put(userGroupType.getType(), actor);
+										}
+										
 									}
 								}
 							}
-	
+							
+							for(String var : csptAllwedUserGroupForStatusReportSign.getValue().split(",")){
+								if(var.equals(ApplicationConstants.UNDER_SECRETARY_COMMITTEE) || var.equals(ApplicationConstants.UNDER_SECRETARY)){
+									actors.add(finalDataMap.get(ApplicationConstants.UNDER_SECRETARY));
+								}else{
+									if(finalDataMap.get(var) != null){
+										actors.add(finalDataMap.get(var));
+									}
+								}
+							}
+							
 							if(!actors.isEmpty()){
 								String lastUSerGroup = actors.get(actors.size() - 1).getName();
 								UserGroupType userGroupType = UserGroupType.findByFieldName(UserGroupType.class, "type", ApplicationConstants.PRINCIPAL_SECRETARY, locale.toString());
