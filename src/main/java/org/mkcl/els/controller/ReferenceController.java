@@ -5084,39 +5084,67 @@ public class ReferenceController extends BaseController {
 		String strSessionType = request.getParameter("sessionType");
 		String strHouseType = request.getParameter("houseType");
 		String strDeviceType = request.getParameter("deviceType");
-		String strStatus = request.getParameter("wfStatus");
+		String strStatus = request.getParameter("status");
 		String strWfSubType = request.getParameter("wfSubType");
+		String strGrid = request.getParameter("grid");
+		String strGroup = request.getParameter("group");
+		String strSubdepartment = request.getParameter("subdepartment");
 		
 		CustomParameter csptDeployment = CustomParameter.findByName(CustomParameter.class, "DEPLOYMENT_SERVER", "");
 		List<MasterVO> vos = new ArrayList<MasterVO>();
 				
-		String server=csptDeployment.getValue();
 		try {
-			if(csptDeployment!=null){
-				if(server.equals("TOMCAT")){
-					strSessionYear = new String(strSessionYear.getBytes("ISO-8859-1"),"UTF-8");
-					strSessionType = new String(strSessionType.getBytes("ISO-8859-1"),"UTF-8");
-					strHouseType = new String(strHouseType.getBytes("ISO-8859-1"),"UTF-8");
-					strDeviceType = new String(strDeviceType.getBytes("ISO-8859-1"),"UTF-8");
-					strStatus = new String(strStatus.getBytes("ISO-8859-1"),"UTF-8");
-					strWfSubType = new String(strWfSubType.getBytes("ISO-8859-1"),"UTF-8");
-				}
-			}
-
-			SessionType sessionType = SessionType.findByFieldName(SessionType.class, "sessionType", strSessionType, locale.toString());
-			HouseType houseType = HouseType.findByName(strHouseType, locale.toString());
-			Integer year = new Integer(FormaterUtil.getNumberFormatterNoGrouping(locale.toString()).parse(strSessionYear).intValue());
-			Session session = Session.findSessionByHouseTypeSessionTypeYear(houseType, sessionType, year);					
-			DeviceType deviceType = DeviceType.findByName(DeviceType.class, strDeviceType, locale.toString());
+			String server=csptDeployment.getValue();
+			SessionType sessionType = null;
+			HouseType houseType = null;
+			Integer year = null;
+			Session session = null;					
+			DeviceType deviceType = null;
 			
 			Map<String, String[]> parameters = new HashMap<String, String[]>();
-			parameters.put("sessionId", new String[]{session.getId().toString()});
-			parameters.put("deviceTypeId", new String[]{deviceType.getId().toString()});
-			parameters.put("status", new String[]{strStatus});
-			parameters.put("workflowSubType", new String[]{strWfSubType});
-			parameters.put("assignee", new String[]{this.getCurrentUser().getActualUsername()});
-			parameters.put("locale", new String[]{locale.toString()});
-			List data = Query.findReport("QIS_STATUS_REPORT_DEVICES", parameters);
+			List data = null;
+			
+			if(strGrid.equals("workflow")){
+				if(csptDeployment!=null){
+					if(server.equals("TOMCAT")){
+						strSessionYear = new String(strSessionYear.getBytes("ISO-8859-1"),"UTF-8");
+						strSessionType = new String(strSessionType.getBytes("ISO-8859-1"),"UTF-8");
+						strHouseType = new String(strHouseType.getBytes("ISO-8859-1"),"UTF-8");
+						strDeviceType = new String(strDeviceType.getBytes("ISO-8859-1"),"UTF-8");
+						strStatus = new String(strStatus.getBytes("ISO-8859-1"),"UTF-8");
+						strWfSubType = new String(strWfSubType.getBytes("ISO-8859-1"),"UTF-8");
+					}
+				}
+				
+				sessionType = SessionType.findByFieldName(SessionType.class, "sessionType", strSessionType, locale.toString());
+				houseType = HouseType.findByName(strHouseType, locale.toString());
+				year = new Integer(FormaterUtil.getNumberFormatterNoGrouping(locale.toString()).parse(strSessionYear).intValue());
+				session = Session.findSessionByHouseTypeSessionTypeYear(houseType, sessionType, year);					
+				deviceType = DeviceType.findByName(DeviceType.class, strDeviceType, locale.toString());
+				
+				parameters.put("sessionId", new String[]{session.getId().toString()});
+				parameters.put("deviceTypeId", new String[]{deviceType.getId().toString()});
+				parameters.put("status", new String[]{strStatus});
+				parameters.put("workflowSubType", new String[]{strWfSubType});
+				parameters.put("assignee", new String[]{this.getCurrentUser().getActualUsername()});
+				parameters.put("locale", new String[]{locale.toString()});
+				data = Query.findReport("QIS_STATUS_REPORT_DEVICES_WF", parameters);
+				
+			}else if(strGrid.equals("device")){
+				sessionType = SessionType.findById(SessionType.class, new Long(strSessionType));
+				houseType = HouseType.findByType(strHouseType, locale.toString());
+				year = new Integer(Integer.parseInt(strSessionYear));
+				session = Session.findSessionByHouseTypeSessionTypeYear(houseType, sessionType, year);					
+				deviceType = DeviceType.findById(DeviceType.class, new Long(strDeviceType));
+				
+				parameters.put("sessionId", new String[]{session.getId().toString()});
+				parameters.put("deviceTypeId", new String[]{deviceType.getId().toString()});
+				parameters.put("status", new String[]{strStatus});
+				parameters.put("group", new String[]{strGroup});
+				parameters.put("subdepartment", new String[]{strSubdepartment});
+				parameters.put("locale", new String[]{locale.toString()});
+				data = Query.findReport("QIS_STATUS_REPORT_DEVICES_DV", parameters);
+			}
 			
 			if(data != null){
 				for(Object o : data){
