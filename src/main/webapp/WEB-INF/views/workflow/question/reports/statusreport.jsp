@@ -32,7 +32,8 @@
 			'&sessionType='+$("#selectedSessionType").val()+
 			'&houseType='+$("#selectedHouseType").val()+
 			'&wfStatus='+$("#selectedStatus").val()+
-			'&wfSubType='+$("#selectedSubWorkflow").val();
+			'&wfSubType='+$("#selectedSubWorkflow").val()+
+			'&grid=device';
 
 			$.get('ref/pendingtasksdevices'+paramVar,function(data){
 			
