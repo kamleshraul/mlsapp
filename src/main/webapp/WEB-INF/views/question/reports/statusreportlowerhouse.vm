@@ -58,6 +58,22 @@
 				$answeringDate 
 			</td>	
 		</tr>
+		<tr style="font-weight: bold;">
+			<td style="font-size: 16px; word-wrap: break-word; width: 250px; padding-left: 5px;">					
+				विभागाला पाठवण्याची दिनांक 
+			</td>
+			<td style="font-size: 16px; word-wrap: break-word; width: 550px; padding-left: 5px;">
+				$deptSendDate 
+			</td>	
+		</tr>
+		<tr>
+			<td style="font-weight: bold; width: 250px; font-size: 16px; word-wrap: break-word; padding-left: 5px;">
+				स्थिती 
+			</td>
+			<td style="font-weight: bold; text-decoration: underline; width: 550px; font-size: 16px; word-wrap: break-word; padding-left: 5px;">
+				$finalStatus
+			</td>
+		</tr>
 		<tr>
 			<td style="font-weight: bold; width: 250px; font-size: 16px; word-wrap: break-word; padding-left: 5px;">
 				विषय 
