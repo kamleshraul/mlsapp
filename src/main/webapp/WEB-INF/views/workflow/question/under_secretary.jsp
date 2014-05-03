@@ -122,6 +122,7 @@
 				valueToSend = $("#internalStatus").val();
 			}else if(value==nameclubbing){
 				$("#endFlag").val("end");
+				$("#internalStatus").val(value);
 				$("#recommendationStatus").val(value);
 				$("#actor").empty();
 				$("#actorDiv").hide();
