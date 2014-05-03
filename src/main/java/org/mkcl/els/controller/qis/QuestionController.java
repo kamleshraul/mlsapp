@@ -4590,7 +4590,7 @@ public class QuestionController extends GenericController<Question>{
 					}
 	
 					if(obj[22] != null){
-						Date deptSendDate = FormaterUtil.formatStringToDate(obj[21].toString(), ApplicationConstants.DB_DATEFORMAT);
+						Date deptSendDate = FormaterUtil.formatStringToDate(obj[22].toString(), ApplicationConstants.DB_DATEFORMAT);
 						model.addAttribute("deptSendDate", FormaterUtil.formatDateToString(deptSendDate, ApplicationConstants.SERVER_DATEFORMAT, locale.toString()));
 					}
 	
@@ -4612,6 +4612,10 @@ public class QuestionController extends GenericController<Question>{
 	
 					if(obj[24] != null){
 						model.addAttribute("ministry", obj[24].toString());
+					}
+					
+					if(obj[29] != null){
+						model.addAttribute("finalStatus", obj[29].toString());
 					}
 	
 					if(obj[4] != null){
@@ -4657,7 +4661,9 @@ public class QuestionController extends GenericController<Question>{
 							
 							for(String var : csptAllwedUserGroupForStatusReportSign.getValue().split(",")){
 								if(var.equals(ApplicationConstants.UNDER_SECRETARY_COMMITTEE) || var.equals(ApplicationConstants.UNDER_SECRETARY)){
-									actors.add(finalDataMap.get(ApplicationConstants.UNDER_SECRETARY));
+									if(finalDataMap.get(ApplicationConstants.UNDER_SECRETARY) != null){
+										actors.add(finalDataMap.get(ApplicationConstants.UNDER_SECRETARY));
+									}
 								}else{
 									if(finalDataMap.get(var) != null){
 										actors.add(finalDataMap.get(var));
