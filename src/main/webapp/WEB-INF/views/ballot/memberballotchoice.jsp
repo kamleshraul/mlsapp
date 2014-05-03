@@ -5,6 +5,7 @@
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
 <script type="text/javascript">
 	$(document).ready(function() {
+		
 		$("#member").change(function(){
 			$.blockUI({ message: '<img src="./resources/images/waitAnimated.gif" />' });		
 			var value=$(this).val();
@@ -31,7 +32,8 @@
 			}
 			$("#errorDiv").hide();
 			$("#successDiv").hide();
-		});		
+		});
+		
 		$("form").submit(function(e){
 			$.blockUI({ message: '<img src="./resources/images/waitAnimated.gif" />' }); 
 			var autofillingstartsat=$("#autofillingstartsat").val();
@@ -46,11 +48,35 @@
 					}
 				});
 				if(totalQuestionFilled<noOfAdmittedQuestion){
-					$.unblockUI();				
-				 	$.prompt($("#filledLessThanAdmitted").val());	
+					$.unblockUI();	
+					$.prompt($("#filledLessThanAdmitted").val(),{
+						buttons: {Ok:true, Cancel:false}, callback: function(v){
+				        if(v){
+							$.blockUI({ message: '<img src="./resources/images/waitAnimated.gif" />' });
+							$.post($('form').attr('action'),  
+						            $("form").serialize(),  
+						            function(data){
+										$("#listchoices").empty();	
+					   					$("#listchoices").html(data);   	   					
+					   					$('html').animate({scrollTop:0}, 'slow');
+					   				 	$('body').animate({scrollTop:0}, 'slow');	
+										$.unblockUI();	   				 	   				
+						            },'html').fail(function(){
+										$.unblockUI();
+										if($("#ErrorMsg").val()!=''){
+											$("#error_p").html($("#ErrorMsg").val()).css({'color':'red', 'display':'block'});
+										}else{
+											$("#error_p").html("Error occured contact for support.");
+										}
+										scrollTop();
+									});
+					  	  }
+					}});
+				 	//$.prompt($("#filledLessThanAdmitted").val());	
 					return false;
 				}
 			}
+			
 			/**** For Partially Auto Filling Choices ****/
 			else if(autofillingstartsat>1){
 				var totalQuestionFilled=0;
@@ -62,12 +88,76 @@
 					}
 				});
 				if(totalQuestionFilled!=autofillingstartsat-1){
-					$.unblockUI();				
-				 	$.prompt($("#filledLessThanAdmitted").val());	
+					$.unblockUI();	
+					$.prompt($("#filledLessThanAdmitted").val(),{
+						buttons: {Ok:true, Cancel:false}, callback: function(v){
+				        if(v){
+							$.blockUI({ message: '<img src="./resources/images/waitAnimated.gif" />' });
+							$.post($('form').attr('action'),  
+						            $("form").serialize(),  
+						            function(data){
+										$("#listchoices").empty();	
+					   					$("#listchoices").html(data);   	   					
+					   					$('html').animate({scrollTop:0}, 'slow');
+					   				 	$('body').animate({scrollTop:0}, 'slow');	
+										$.unblockUI();	   				 	   				
+						            },'html').fail(function(){
+										$.unblockUI();
+										if($("#ErrorMsg").val()!=''){
+											$("#error_p").html($("#ErrorMsg").val()).css({'color':'red', 'display':'block'});
+										}else{
+											$("#error_p").html("Error occured contact for support.");
+										}
+										scrollTop();
+									});
+					  	  }
+					}});
+				 	//$.prompt($("#filledLessThanAdmitted").val());	
 					return false;
 				}	
-			}			
-			$.post($('form').attr('action'),  
+				
+				
+				/***Allow Submission even if AnsweringDate not specified ***/
+				var totalAnsweringDateFilled=0;
+				$(".answeringDate").each(function(){
+					var value=$(this).val();
+					var disabled=$(this).attr("disabled");
+					if(value!='-'&&disabled==undefined){
+						totalAnsweringDateFilled++;	
+					}
+				});
+				if(totalAnsweringDateFilled!=autofillingstartsat-1){
+					$.unblockUI();				
+				 	//$.prompt($("#filledLessThanAdmitted").val());
+				 	$.prompt($("#filledAnsweringDatesLessThanAdmitted").val(),{
+						buttons: {Ok:true, Cancel:false}, callback: function(v){
+				        if(v){
+							$.blockUI({ message: '<img src="./resources/images/waitAnimated.gif" />' });
+							$.post($('form').attr('action'),  
+						            $("form").serialize(),  
+						            function(data){
+										$("#listchoices").empty();	
+					   					$("#listchoices").html(data);   	   					
+					   					$('html').animate({scrollTop:0}, 'slow');
+					   				 	$('body').animate({scrollTop:0}, 'slow');	
+										$.unblockUI();	   				 	   				
+						            },'html').fail(function(){
+										$.unblockUI();
+										if($("#ErrorMsg").val()!=''){
+											$("#error_p").html($("#ErrorMsg").val()).css({'color':'red', 'display':'block'});
+										}else{
+											$("#error_p").html("Error occured contact for support.");
+										}
+										scrollTop();
+									});
+					  	  }
+					}});
+					return false;
+				}
+				
+			}	
+			
+		 	$.post($('form').attr('action'),  
 	            $("form").serialize(),  
 	            function(data){
 					$("#listchoices").empty();	
@@ -113,7 +203,9 @@
 <input type="hidden" name="pleaseSelect" id="pleaseSelect"
 	value="<spring:message code='please.select' text='Please Select'/>">
 	<input type="hidden" name="filledLessThanAdmitted" id="filledLessThanAdmitted"
-	value="<spring:message code='memberballotchoice.filledlessthanadmitted' text='Please Specify All Choices'/>">
+	value="<spring:message code='memberballotchoice.filledlessthanadmitted' text='All choices are not specified, do you still want to continue?'/>">
+	<input type="hidden" name="filledAnsweringDatesLessThanAdmitted" id="filledAnsweringDatesLessThanAdmitted"
+	value="<spring:message code='memberballotchoice.filledAnsweringDatelessthanadmitted' text='Answering dates are not specified, do you still want to continue?'/>">
 	<input type="hidden" id="ErrorMsg" value="<spring:message code='generic.error' text='Error Occured Contact For Support.'/>"/>
 </body>
 </html>
