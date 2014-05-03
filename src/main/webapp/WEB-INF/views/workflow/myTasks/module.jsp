@@ -7,8 +7,13 @@
 				
 		$(document).ready(function(){
 			onPageLoad();
-						
+			
+			$("#next_task").click(function(){
+				nextTask();
+			});
+			
 			$('#list_tab').click(function(){
+				$("#nextTaskDiv").hide();
 				showList();
 			});	
 			/**** Bulk Approval ****/
@@ -189,7 +194,7 @@
 			$("#currentRowId").val(row);
 			$("#persistentGridRowId").val(row);
 			$("#allRowIds").val($('#grid').jqGrid('getDataIDs'));
-			
+			$("#nextTaskDiv").show();
 			
 			var row = $('#key').val();
 			$("#cancelFn").val("rowDblClickHandler");
@@ -315,38 +320,23 @@
 		/**** To enable the next task link ****/
 		function nextTask(){
 			var currentrowid = $("#currentRowId").val(); 
-				//$("#grid").jqGrid('getGridParam','selrow');
-			var allrids = $("#allRowIds").val().split(",");
-				//$('#grid').jqGrid('getDataIDs');
-			var nextRowId = -1;
-			var i;
-			var prevRid = allrids[0];
+			var allIds = $("#allRowIds").val();
+			var allNextIds = allIds.substring(allIds.indexOf(currentrowid)+currentrowid.length+1);
+			if(allNextIds.length>0){
+				var nextRowId = allNextIds.split(',')[0];
 			
-			for(i = 0; i < allrids.length; i++){
-				if(prevRid==currentrowid){
-					i++;
-					nextRowId = allrids[i];
-					break;
+				//console.log(allNextIds+"\n"+nextRowId+"\n"+isValidRow(allIds, nextRowId));
+					
+				$("#currentRowId").val(nextRowId);			
+				
+				if(isValidRow(allIds, nextRowId)){
+					showTabByIdAndUrl('process_tab', 'workflow/myTasks/' + nextRowId + '/process');
 				}
-			}
-			$("#currentRowId").val(nextRowId);
-			//$("#grid").jqGrid('getCell', rowid, 0));
-			if(isValidRow(allrids, nextRowId) > -1){
-				showTabByIdAndUrl('process_tab', 'workflow/myTasks/' + nextRowId + '/process');
 			}
 		}
 		
-		function isValidRow(allrows, row){
-			var i;
-			var retVal = -1;
-			for(i = 0; i < allrows.length; i++){
-				if(row==allrows[i]){
-					retVal = 1;
-					break;					
-				}
-			}
-			
-			return retVal;
+		function isValidRow(ids, row){
+			return (ids.contains(row));
 		}
 
 		function onPageLoad() {
@@ -538,6 +528,11 @@
 				</select>|
 			</c:if>		
 			<hr>		
+		</div>
+		<div id="nextTaskDiv" style="display: none;">
+			<a href="#" id="next_task" class="butSim">	
+				<spring:message code="generic.next_task" text="Next Task"/>
+			</a>
 		</div>
 		<div class="tabContent clearfix">
 			<c:if test="${(error!='') && (error!=null)}">
