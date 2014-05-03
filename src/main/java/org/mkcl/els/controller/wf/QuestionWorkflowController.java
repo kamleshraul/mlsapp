@@ -2888,12 +2888,16 @@ public class QuestionWorkflowController  extends BaseController{
 					}
 	
 					if(obj[22] != null){
-						Date deptSendDate = FormaterUtil.formatStringToDate(obj[21].toString(), ApplicationConstants.DB_DATEFORMAT);
+						Date deptSendDate = FormaterUtil.formatStringToDate(obj[22].toString(), ApplicationConstants.DB_DATEFORMAT);
 						model.addAttribute("deptSendDate", FormaterUtil.formatDateToString(deptSendDate, ApplicationConstants.SERVER_DATEFORMAT, locale.toString()));
 					}
 	
 					if(obj[23] != null){
 						model.addAttribute("priority", obj[23].toString());
+					}
+					
+					if(obj[29] != null){
+						model.addAttribute("finalStatus", obj[29].toString());
 					}
 	
 					if(obj[5] != null){
