@@ -4270,7 +4270,7 @@ public class QuestionController extends GenericController<Question>{
 						if(answeringDate!=null) {
 							letterVO.setAnsweringDate(FormaterUtil.formatDateToString(answeringDate, "dd-MM-yyyy", question.getLocale()));
 						}
-						Date lastSendingDateToDepartment = questionDates.getLastSendingDateToDepartment();
+						Date lastSendingDateToDepartment = questionDates.getLastReceivingDateFromDepartment();
 						if(lastSendingDateToDepartment!=null) {
 							letterVO.setLastSendingDateToDepartment(FormaterUtil.formatDateToString(lastSendingDateToDepartment, "dd-MM-yyyy", question.getLocale()));
 						}
