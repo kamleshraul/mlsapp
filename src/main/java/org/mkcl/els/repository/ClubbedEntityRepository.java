@@ -1154,6 +1154,120 @@ public class ClubbedEntityRepository extends BaseRepository<ClubbedEntity, Seria
 	}
 	
 	/**
+	 * Unclub without Merge.
+	 *
+	 * @param questionBeingProcessed the question being processed
+	 * @param questionBeingClubbed the question being clubbed
+	 * @param locale the locale
+	 * @return the boolean
+	 */
+	public Question unclubWithoutMerge(final Question beingProcessedQuestion,
+			final Question beingClubbedQuestion, final String locale) {
+		try {
+			//ClubbedEntity clubbedEntityToRemove=null;
+
+			/**** If processed question's number is less than clubbed question's number
+			 * then clubbed question is removed from the clubbing of processed question
+			 * ,clubbed question's parent is set to null ,new clubbing of processed 
+			 * question is set,their position is updated****/
+			if(beingProcessedQuestion.getNumber()<beingClubbedQuestion.getNumber()){
+				List<ClubbedEntity> oldClubbedQuestions=beingProcessedQuestion.getClubbedEntities();
+				List<ClubbedEntity> newClubbedQuestions=new ArrayList<ClubbedEntity>();
+				Integer position=0;
+				boolean found=false;
+				for(ClubbedEntity i:oldClubbedQuestions){
+					if(! (i.getQuestion().getId().equals(beingClubbedQuestion.getId())) ){
+						if(found){
+							i.setPosition(position);
+							position++;
+							i.merge();
+							newClubbedQuestions.add(i);
+						}else{
+							newClubbedQuestions.add(i);                		
+						}
+					}else{
+						found=true;
+						position=i.getPosition();
+						//clubbedEntityToRemove=i;
+					}
+				}
+				if(!newClubbedQuestions.isEmpty()){
+					beingProcessedQuestion.setClubbedEntities(newClubbedQuestions);
+				}else{
+					beingProcessedQuestion.setClubbedEntities(null);
+				}            
+				beingProcessedQuestion.simpleMerge();
+				//clubbedEntityToRemove.remove();
+				beingClubbedQuestion.setParent(null);
+				String clubbedDeviceType=beingClubbedQuestion.getType().getType();
+				Status newstatus=null;
+				if(clubbedDeviceType.equals("questions_unstarred")
+						||clubbedDeviceType.equals("questions_halfhourdiscussion_from_question")
+						||clubbedDeviceType.equals("questions_shortnotice")){
+					newstatus=Status.findByFieldName(Status.class,"type",ApplicationConstants.QUESTION_SYSTEM_ASSISTANT_PROCESSED, locale);
+				}else{
+					newstatus=Status.findByFieldName(Status.class,"type",ApplicationConstants.QUESTION_SYSTEM_TO_BE_PUTUP, locale);
+				}
+				beingClubbedQuestion.setInternalStatus(newstatus);
+				beingClubbedQuestion.setRecommendationStatus(newstatus);
+				if(beingClubbedQuestion.getFile()==null){
+					/**** Add Question to file ****/
+					Reference reference=Question.findCurrentFile(beingClubbedQuestion);
+					beingClubbedQuestion.setFile(Integer.parseInt(reference.getId()));
+					beingClubbedQuestion.setFileIndex(Integer.parseInt(reference.getName()));
+					beingClubbedQuestion.setFileSent(false);
+				}				
+			}else if(beingProcessedQuestion.getNumber()>beingClubbedQuestion.getNumber()){
+				List<ClubbedEntity> oldClubbedQuestions=beingClubbedQuestion.getClubbedEntities();
+				List<ClubbedEntity> newClubbedQuestions=new ArrayList<ClubbedEntity>();
+				Integer position=0;
+				boolean found=false;
+				for(ClubbedEntity i:oldClubbedQuestions){
+					if(i.getQuestion().getId()!=beingProcessedQuestion.getId()){
+						if(found){
+							i.setPosition(position);
+							position++;
+							i.merge();
+							newClubbedQuestions.add(i);
+						}else{
+							newClubbedQuestions.add(i);                		
+						}
+					}else{
+						found=true;
+						position=i.getPosition();
+						//clubbedEntityToRemove=i;
+					}
+				}
+				beingClubbedQuestion.setClubbedEntities(newClubbedQuestions);				
+				//clubbedEntityToRemove.remove();
+				beingProcessedQuestion.setParent(null);
+				String clubbedDeviceType=beingClubbedQuestion.getType().getType();
+				Status newstatus=null;
+				if(clubbedDeviceType.equals("questions_unstarred")
+						||clubbedDeviceType.equals("questions_halfhourdiscussion_from_question")
+						||clubbedDeviceType.equals("questions_shortnotice")){
+					newstatus=Status.findByFieldName(Status.class,"type",ApplicationConstants.QUESTION_SYSTEM_ASSISTANT_PROCESSED, locale);
+				}else{
+					newstatus=Status.findByFieldName(Status.class,"type",ApplicationConstants.QUESTION_SYSTEM_TO_BE_PUTUP, locale);
+				}
+				beingProcessedQuestion.setInternalStatus(newstatus);
+				beingProcessedQuestion.setRecommendationStatus(newstatus);
+				if(beingClubbedQuestion.getFile()==null){
+					/**** Add Question to file ****/
+					Reference reference=Question.findCurrentFile(beingClubbedQuestion);
+					beingClubbedQuestion.setFile(Integer.parseInt(reference.getId()));
+					beingClubbedQuestion.setFileIndex(Integer.parseInt(reference.getName()));
+					beingClubbedQuestion.setFileSent(false);
+				}
+				beingProcessedQuestion.simpleMerge();
+			}
+		} catch (Exception e) {
+			logger.error("FAILED",e);
+		}		
+		return beingClubbedQuestion;
+	}
+	
+	/**
 	 * Unclub.
 	 *
 	 * @param billBeingProcessed the bill being processed

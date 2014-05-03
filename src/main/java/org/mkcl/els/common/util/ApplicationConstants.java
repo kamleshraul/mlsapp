@@ -584,6 +584,8 @@ public class ApplicationConstants {
 	public static final String SUPPORTING_MEMBER_WORKFLOW_URLPATTERN_MOTION="workflow/motion/supportingmember";
 
 	public static final String QUESTION_FINAL_NAMECLUBBING = "question_final_nameclubbing";
+	
+	public static final String QUESTION_FINAL_REJECT_NAMECLUBBING = "question_final_reject_nameclubbing";
 
 	public static final String BALLOT_REPORT_DATE_FORMAT = "dd-MM-yyyy";
 	

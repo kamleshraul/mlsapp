@@ -166,6 +166,10 @@ public class ClubbedEntity extends BaseDomain implements Serializable{
         return getClubbedEntityRepository().unclub(questionBeingProcessed,questionBeingClubbed,locale);
     }
     
+    public static Question unclubWithoutMerge(final Question questionBeingProcessed,final Question questionBeingClubbed,final String locale){
+        return getClubbedEntityRepository().unclubWithoutMerge(questionBeingProcessed,questionBeingClubbed,locale);
+    }
+    
     public static String unclubBill(final Long billBeingProcessed,final Long billBeingClubbed,final String locale){
         return getClubbedEntityRepository().unclubBill(billBeingProcessed,billBeingClubbed,locale);
     }

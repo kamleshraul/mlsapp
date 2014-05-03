@@ -2217,6 +2217,9 @@ public class QuestionWorkflowController  extends BaseController{
 		}else if(internalStatus.equals(ApplicationConstants.QUESTION_FINAL_NAMECLUBBING)&&
 				recommendationStatus.equals(ApplicationConstants.QUESTION_FINAL_NAMECLUBBING)){
 			performActionOnNameClubbing(domain);
+		}else if(internalStatus.equals(ApplicationConstants.QUESTION_FINAL_REJECT_NAMECLUBBING)&&
+				recommendationStatus.equals(ApplicationConstants.QUESTION_FINAL_REJECT_NAMECLUBBING)){
+			performActionOnNameClubbingRejection(domain);
 		}else if(internalStatus.equals(ApplicationConstants.QUESTION_SYSTEM_GROUPCHANGED)&&
 				recommendationStatus.equals(ApplicationConstants.QUESTION_SYSTEM_GROUPCHANGED)){
 			performActionOnGroupChange(domain);
@@ -2260,6 +2263,11 @@ public class QuestionWorkflowController  extends BaseController{
 			domain.setRevisedReason(domain.getReason());
 		}
 
+	}
+	
+	private void performActionOnNameClubbingRejection(Question domain) {
+		/**** remove clubbing (status is changed accordingly in unclub method itself) ****/
+		domain = ClubbedEntity.unclubWithoutMerge(domain.getParent(), domain, domain.getLocale());
 	}
 
 

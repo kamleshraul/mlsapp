@@ -115,13 +115,14 @@
 		var admitDate = $("#internalStatusMaster option[value='question_processed_admitDate']").text();
 		var resubmitDate = $("#internalStatusMaster option[value='question_processed_resubmitDate']").text();
 		var nameclubbing=$("#internalStatusMaster option[value='question_final_nameclubbing']").text();
+		var nameclubbing_reject=$("#internalStatusMaster option[value='question_final_reject_nameclubbing']").text();
 		var nameclubbingWithConvertToUnstarredAndAdmit=$("#internalStatusMaster option[value='question_final_convertToUnstarredAndAdmitClubbedWithPreviousSession']").text();
 
 		var changedInternalStatus = $("#changeInternalStatus").val();
 		if(changedInternalStatus == admitDate || 
 				changedInternalStatus == resubmitDate) {
 			valueToSend = $("#internalStatus").val();
-		}else if(value==nameclubbing){
+		}else if(value==nameclubbing || value==nameclubbing_reject){
 			$("#endFlag").val("end");
 			$("#internalStatus").val(value);
 			$("#recommendationStatus").val(value);
