@@ -49,11 +49,12 @@ public class MemberBallotChoice extends BaseDomain implements Serializable{
 	/** The choice. */
 	private Integer choice;
 
-    /** The clubbing updated. */
+    /** The clubbing updated.To distinguish if clubbing has been updated using member ballot **/
     private Boolean clubbingUpdated;
     
     private Boolean processed=false;
     
+    /** To distinguish choices which were manually filled and which were filled automatically **/
     private Boolean autoFilled=false;
 
 
