@@ -87,6 +87,9 @@ public class MemberBallotChoiceRepository extends BaseRepository<MemberBallotCho
 							" AND q.submissionDate>=:startTime" +
 							" AND q.submissionDate<=:endTime";
 					
+					    /**** PARTIAL is used in case of auto filling of question choices to get those questions which
+					     * have not been entered as choice by member****/
+					
 						String questionsToExclude=null;
 						if(pattern.toUpperCase().equals("PARTIAL")){
 							questionsToExclude=" AND q.id NOT IN (SELECT sq.id FROM MemberBallot mb " +
