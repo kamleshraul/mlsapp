@@ -18,6 +18,7 @@
 					if($("#qIDs").val().length>0){
 						counter = 0;
 						ids = $("#qIDs").val().split(",");
+						dataSize = ids.length;
 						limit = ids.length;
 						
 						addRemarkReport();
@@ -26,6 +27,9 @@
 			}
 			
 			$("#loadMore").click(function(){
+				if(limit==dataSize){
+					$.prompt($("#noMorePages").val());
+				}
 				
 				if($("#qIDs").val().length==0){
 					if(counter == limit){
@@ -161,6 +165,7 @@
 <div id="loadMore">
 	<b>&#9660;</b>
 </div>
+<input type="hidden" id="noMorePages" value="<spring:message code='client.message.no_more_pages' text='No more pages.' />"/>
 <input type="hidden" id="device" value="${device}" /> 
 <input type="hidden" id="reportType" value="${reportType}" />
 <input type="hidden" id="qIDs" value="${qId}" />
