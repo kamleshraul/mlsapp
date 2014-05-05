@@ -1420,7 +1420,7 @@ public class QuestionWorkflowController  extends BaseController{
 						parameters.put("deviceId", workflowDetails.getDeviceId());
 
 
-						List<WorkflowDetails> reanswerWorkflowsIfAny = WorkflowDetails.findPendingWorkflowOfCurrentUser(parameters, "assignmentTime", ApplicationConstants.DESC);
+						List<WorkflowDetails> reanswerWorkflowsIfAny = WorkflowDetails.findPendingWorkflowOfCurrentUser(parameters, "assignmentTime", 0, 0, ApplicationConstants.DESC);
 						WorkflowDetails reanswerWorkflowIfAny = null;
 
 						if(reanswerWorkflowsIfAny != null && !reanswerWorkflowsIfAny.isEmpty()){
@@ -1613,7 +1613,7 @@ public class QuestionWorkflowController  extends BaseController{
 									parameters.put("status", "PENDING");
 									parameters.put("processId", prevWorkflowDetails.getProcessId());
 
-									List<WorkflowDetails> pendingWorkflows = WorkflowDetails.findPendingWorkflowOfCurrentUser(parameters, "assignmentTime", ApplicationConstants.DESC);
+									List<WorkflowDetails> pendingWorkflows = WorkflowDetails.findPendingWorkflowOfCurrentUser(parameters, "assignmentTime", 0, 0, ApplicationConstants.DESC);
 									WorkflowDetails pendingWorkflow;
 
 									if(pendingWorkflows != null && !pendingWorkflows.isEmpty()){
@@ -1636,7 +1636,7 @@ public class QuestionWorkflowController  extends BaseController{
 								parameters.put("deviceId", workflowDetails.getDeviceId());
 
 
-								List<WorkflowDetails> reanswerWorkflowsIfAny = WorkflowDetails.findPendingWorkflowOfCurrentUser(parameters, "assignmentTime", ApplicationConstants.DESC);
+								List<WorkflowDetails> reanswerWorkflowsIfAny = WorkflowDetails.findPendingWorkflowOfCurrentUser(parameters, "assignmentTime", 0, 0, ApplicationConstants.DESC);
 								WorkflowDetails reanswerWorkflowIfAny = null;
 
 								if(reanswerWorkflowsIfAny != null && !reanswerWorkflowsIfAny.isEmpty()){
@@ -2841,7 +2841,11 @@ public class QuestionWorkflowController  extends BaseController{
 	public String getCurrentStatusReport(Model model, HttpServletRequest request, HttpServletResponse response, Locale locale){
 
 		String strDevice = request.getParameter("device");
-
+		String strReportType = request.getParameter("reportType");
+		String strQid = request.getParameter("qId");
+		
+		model.addAttribute("reportType", strReportType);
+		model.addAttribute("qId", strQid);
 		if(strDevice != null && !strDevice.isEmpty()){		
 			model.addAttribute("device", strDevice);
 		}
@@ -2967,7 +2971,9 @@ public class QuestionWorkflowController  extends BaseController{
 							
 							for(String var : csptAllwedUserGroupForStatusReportSign.getValue().split(",")){
 								if(var.equals(ApplicationConstants.UNDER_SECRETARY_COMMITTEE) || var.equals(ApplicationConstants.UNDER_SECRETARY)){
-									actors.add(finalDataMap.get(ApplicationConstants.UNDER_SECRETARY));
+									if(finalDataMap.get(ApplicationConstants.UNDER_SECRETARY) != null){
+										actors.add(finalDataMap.get(ApplicationConstants.UNDER_SECRETARY));
+									}
 								}else{
 									if(finalDataMap.get(var) != null){
 										actors.add(finalDataMap.get(var));
