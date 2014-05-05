@@ -35,7 +35,14 @@
 	     <xsl:when test="$language='en_US'"><xsl:value-of select="document('Lang.xml')/Lang/en_US/fontname" /></xsl:when>
 	     <xsl:otherwise>Kokila</xsl:otherwise>
 	   </xsl:choose>
-    </xsl:variable>       
+    </xsl:variable>  
+    
+    <xsl:variable name="masterReference">
+        <xsl:choose>
+        	<xsl:when test="$formatOut='application/pdf'">pdf_first</xsl:when>
+        	<xsl:when test="$formatOut='WORD'">word_first</xsl:when>        	
+        </xsl:choose>
+    </xsl:variable>     
     
     <!--=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
        Block-level

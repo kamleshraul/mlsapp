@@ -41,6 +41,7 @@ import org.mkcl.els.common.vo.MemberBallotQuestionDistributionVO;
 import org.mkcl.els.common.vo.MemberBallotVO;
 import org.mkcl.els.common.vo.Reference;
 import org.mkcl.els.common.vo.StarredBallotVO;
+import org.mkcl.els.common.xmlvo.MemberBallotTotalQuestionReportXmlVO;
 import org.mkcl.els.common.xmlvo.MemberwiseQuestionsXmlVO;
 import org.mkcl.els.domain.Ballot;
 import org.mkcl.els.domain.BallotEntry;
@@ -1643,6 +1644,136 @@ public class BallotController extends BaseController{
 		
 		return returnPath;
 	}
+	@RequestMapping(value="/memberballot/questiondistribution/report",method=RequestMethod.GET)
+	public @ResponseBody void generateQuestionDistributionReportUsingFOP(final HttpServletRequest request,final HttpServletResponse response, final ModelMap model,final Locale locale) {
+		File reportFile = null; 
+		Boolean isError = false;
+		MessageResource errorMessage = MessageResource.findByFieldName(MessageResource.class, "code", "generic.errorMessage", locale.toString());
+		
+		String strQuestionType=request.getParameter("questionType");
+		String strSession=request.getParameter("session");
+		String outputFormat = request.getParameter("outputFormat");
+		
+		if(strQuestionType!=null&&strSession!=null&&outputFormat!=null){
+			if((!strSession.isEmpty())&&(!strQuestionType.isEmpty())&&!outputFormat.isEmpty()){
+				try {
+					/**** Generate & Process Report Data ****/
+					Session session=Session.findById(Session.class,Long.parseLong(strSession));
+					DeviceType questionType=DeviceType.findById(DeviceType.class,Long.parseLong(strQuestionType));
+					List<MemberBallotQuestionDistributionVO> questionDistributions=MemberBallot.viewQuestionDistribution(session,questionType,locale.toString());
+					if(questionDistributions!=null && !questionDistributions.isEmpty()) {
+						MemberBallotTotalQuestionReportXmlVO xmlVO = new MemberBallotTotalQuestionReportXmlVO();
+						xmlVO.setQuestionDistributionVOs(questionDistributions);
+						int totalAdmittedQuestions = 0;
+						int totalConvertToUnstarredAndAdmitQuestions = 0;
+						int totalRejectedQuestions = 0;
+						int totalClarificationQuestions = 0;
+						int totalQuestions = 0;
+						for(MemberBallotQuestionDistributionVO i: questionDistributions) {
+							for(MemberBallotMemberWiseCountVO j: i.getDistributions()) {
+								if(j.getStatusTypeType().equals(ApplicationConstants.QUESTION_FINAL_ADMISSION)) {
+									totalAdmittedQuestions += Integer.parseInt(j.getCount());																		
+								} else if(j.getStatusTypeType().equals(ApplicationConstants.QUESTION_FINAL_CONVERT_TO_UNSTARRED_AND_ADMIT)) {
+									totalConvertToUnstarredAndAdmitQuestions += Integer.parseInt(j.getCount());
+								} else if(j.getStatusTypeType().equals(ApplicationConstants.QUESTION_FINAL_REJECTION)) {
+									totalRejectedQuestions += Integer.parseInt(j.getCount());
+								} else if(j.getStatusTypeType().equals("clarification")) {
+									totalClarificationQuestions += Integer.parseInt(j.getCount());
+								}
+							}
+							totalQuestions += Integer.parseInt(i.getTotalCount());							
+						}
+						xmlVO.setTotalAdmittedQuestions(FormaterUtil.formatNumberNoGrouping(totalAdmittedQuestions, locale.toString()));
+						xmlVO.setTotalConvertToUnstarredAndAdmitQuestions(FormaterUtil.formatNumberNoGrouping(totalConvertToUnstarredAndAdmitQuestions, locale.toString()));
+						xmlVO.setTotalRejectedQuestions(FormaterUtil.formatNumberNoGrouping(totalRejectedQuestions, locale.toString()));
+						xmlVO.setTotalClarificationQuestions(FormaterUtil.formatNumberNoGrouping(totalClarificationQuestions, locale.toString()));
+						xmlVO.setTotalQuestions(FormaterUtil.formatNumberNoGrouping(totalQuestions, locale.toString()));
+						
+						String percentTotalAdmittedQuestions = FormaterUtil.getDeciamlFormatterWithNoGrouping(2, locale.toString()).format((double)totalAdmittedQuestions/(double)totalQuestions*100);
+						xmlVO.setPercentTotalAdmittedQuestions(percentTotalAdmittedQuestions);
+						String percentTotalConvertToUnstarredAndAdmitQuestions = FormaterUtil.getDeciamlFormatterWithNoGrouping(2, locale.toString()).format((double)totalConvertToUnstarredAndAdmitQuestions/(double)totalQuestions*100);
+						xmlVO.setPercentTotalConvertToUnstarredAndAdmitQuestions(percentTotalConvertToUnstarredAndAdmitQuestions);
+						String percentTotalRejectedQuestions = FormaterUtil.getDeciamlFormatterWithNoGrouping(2, locale.toString()).format((double)totalRejectedQuestions/(double)totalQuestions*100);
+						xmlVO.setPercentTotalRejectedQuestions(percentTotalRejectedQuestions);
+						String percentTotalClarificationQuestions = FormaterUtil.getDeciamlFormatterWithNoGrouping(2, locale.toString()).format((double)totalClarificationQuestions/(double)totalQuestions*100);
+						xmlVO.setPercentTotalClarificationQuestions(percentTotalClarificationQuestions);
+						
+						MemberBallotQuestionDistributionVO memberBallotQuestionDistributionVO = questionDistributions.get(0);
+						/** question submission date formatting **/
+						SimpleDateFormat dbFormat = null;
+						CustomParameter dbDateFormat=CustomParameter.findByName(CustomParameter.class,"ROTATION_ORDER_DATE_FORMAT", "");
+			            if(dbDateFormat!=null){
+			            	dbFormat=FormaterUtil.getDateFormatter(dbDateFormat.getValue(), locale.toString());
+			            }
+						String[] strQuestionSubmissionDate=dbFormat.format(memberBallotQuestionDistributionVO.getQuestionSubmissionStartTime()).split(",");
+	            		String[] strAnsweringMonth=strQuestionSubmissionDate[1].split(" ");
+	            		String answeringMonth=FormaterUtil.getMonthInMarathi(strAnsweringMonth[1], locale.toString());
+	            		MessageResource mrDate = MessageResource.findByFieldName(MessageResource.class, "code", "generic.date", locale.toString());
+	            		String genericDateLabel  = (mrDate!=null)? mrDate.getValue():"";
+	            		xmlVO.setQuestionSubmissionDate(genericDateLabel + " " +strAnsweringMonth[0]+" "+ answeringMonth +","+strQuestionSubmissionDate[2]);
+	            		/** question submission start time **/
+						java.util.Calendar calendar = java.util.Calendar.getInstance();
+						calendar.setTime(memberBallotQuestionDistributionVO.getQuestionSubmissionStartTime());
+						int hours = calendar.get(Calendar.HOUR);
+						int minutes = calendar.get(Calendar.MINUTE);
+						xmlVO.setQuestionSubmissionStartTime(FormaterUtil.formatNumberNoGrouping(hours, locale.toString())+"."+FormaterUtil.formatNumberNoGrouping(minutes, locale.toString()));
+						xmlVO.setDayTime(calendar.get(java.util.Calendar.AM_PM));
+						/** question submission end time **/
+						calendar.setTime(memberBallotQuestionDistributionVO.getQuestionSubmissionEndTime());
+						hours = calendar.get(Calendar.HOUR);
+						minutes = calendar.get(Calendar.MINUTE);
+						xmlVO.setQuestionSubmissionEndTime(FormaterUtil.formatNumberNoGrouping(hours, locale.toString())+"."+FormaterUtil.formatNumberNoGrouping(minutes, locale.toString()));
+									
+						xmlVO.setHouseType(memberBallotQuestionDistributionVO.getHouseType());
+						xmlVO.setHouseTypeName(memberBallotQuestionDistributionVO.getHouseTypeName());
+						xmlVO.setSessionTypeName(memberBallotQuestionDistributionVO.getSessionTypeName());
+						xmlVO.setSessionYear(memberBallotQuestionDistributionVO.getSessionYear());
+						xmlVO.setSessionCountName(memberBallotQuestionDistributionVO.getSessionCountName());
+						xmlVO.setQuestionTypeName(questionType.getName());						
+						
+						/**** generate report ****/						
+						reportFile = generateReportUsingFOP(xmlVO, "total_questions_distribution", outputFormat, "total_questions_distribution_report", locale.toString());
+						if(reportFile!=null) {
+							System.out.println("Report generated successfully in " + outputFormat + " format!");
+							openOrSaveReportFileFromBrowser(response, reportFile, outputFormat);
+						}
+					} else {
+						logger.error("**** question distributions not found  ****");				
+						isError = true;
+					}
+				} catch(Exception e) {
+					logger.error("**** Some Runtime Exception Occurred ****");
+					e.printStackTrace();
+					isError = true;
+				}
+			} else{
+				logger.error("**** Check request parameter 'strRequestParameter,outputFormat' for null values ****");
+				isError = true;				
+			}		
+		} else{
+			logger.error("**** Check request parameter 'strRequestParameter,outputFormat' for null values ****");
+			isError = true;				
+		}
+		
+		if(isError) {
+			try {
+				//response.sendError(404, "Report cannot be generated at this stage.");
+				if(errorMessage != null) {
+					if(!errorMessage.getValue().isEmpty()) {
+						response.getWriter().println("<html><head><meta http-equiv='Content-Type' content='text/html; charset=utf-8'/></head><body><h3>" + errorMessage.getValue() + "</h3></body></html>");
+					} else {
+						response.getWriter().println("<h3>Some Error In Report Generation. Please Contact Administrator.</h3>");
+					}
+				} else {
+					response.getWriter().println("<h3>Some Error In Report Generation. Please Contact Administrator.</h3>");
+				}
+
+				return;
+			} catch (IOException e) {						
+				e.printStackTrace();
+			}
+		}
+	}	
 	/****** Member Ballot(Council) Member Ballot Choices Initial Page ****/
 	@RequestMapping(value="/memberballot/choices",method=RequestMethod.GET)
 	public String viewMemberBallotChoice(final HttpServletRequest request,final ModelMap model,final Locale locale){

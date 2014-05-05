@@ -19,6 +19,22 @@
 			$('#headerContent').empty();
 			$('#headerContent').html(data);
 		}, 'html');
+		
+		$('#totalquestions_pdf').click(function() {
+			var parameters = "session="+$("#session").val()
+			 +"&questionType="+$("#questionType").val()			 			 
+			 +"&outputFormat=PDF";
+			var resourceURL = 'ballot/memberballot/questiondistribution/report?'+ parameters;			
+			$(this).attr('href', resourceURL);
+		});
+		
+		$('#totalquestions_word').click(function() {
+			var parameters = "session="+$("#session").val()
+			 +"&questionType="+$("#questionType").val()
+			 +"&outputFormat=WORD";
+			var resourceURL = 'ballot/memberballot/questiondistribution/report?'+ parameters;			
+			$(this).attr('href', resourceURL);
+		});
 	});
 </script>
 <style type="text/css">
@@ -53,6 +69,17 @@ text-align: center;
 <c:choose>
 	<c:when test="${!(empty questionDistributions) }">
 		<c:set value="${fn:length(questionDistributions) }" var="size"></c:set>
+		
+		<div id="exportDiv" style="margin-bottom: 20px;">
+			<a id="totalquestions_pdf" href="#" style="text-decoration: none;">
+			<img src="./resources/images/pdf_icon.jpg" alt="Export to PDF" width="32" height="32">
+			</a>
+			&nbsp;
+			<a id="totalquestions_word" href="#" style="text-decoration: none;">
+				<img src="./resources/images/word_icon.jpg" alt="Export to WORD" width="32" height="32">
+			</a>
+		</div>
+		
 		<div id="reportDiv">
 			<p id="headerContent" style="font-weight: bold; margin-left:25px; margin-bottom: 10px; line-height: 200%; font-size: 16px;">
 			</p>
