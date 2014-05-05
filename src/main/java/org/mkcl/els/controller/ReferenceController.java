@@ -5023,7 +5023,7 @@ public class ReferenceController extends BaseController {
 					parameters.put("sessionType", strSessionType);
 					parameters.put("status", strStatus);
 					
-					List<WorkflowDetails> workflows = WorkflowDetails.findPendingWorkflowOfCurrentUser(parameters, "assignmentTime", ApplicationConstants.ASC);
+					List<WorkflowDetails> workflows = WorkflowDetails.findPendingWorkflowOfCurrentUser(parameters, "assignmentTime", 0, 0, ApplicationConstants.ASC);
 					
 					if(workflows != null){
 						
@@ -5167,5 +5167,11 @@ public class ReferenceController extends BaseController {
 			e.printStackTrace();
 		}
 		return vos;
+	}
+	
+	@RequestMapping(value="dummypage", method=RequestMethod.GET)
+	public String getDummyPage(ModelMap model, Locale locale){
+		model.addAttribute("data","data");
+		return "question/dummy";
 	}
 }
