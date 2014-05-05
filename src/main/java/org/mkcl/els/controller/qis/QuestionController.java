@@ -4507,7 +4507,12 @@ public class QuestionController extends GenericController<Question>{
 		try{
 			String strDevice = request.getParameter("device");
 			String strGrid = request.getParameter("grid");
-					
+			String strReportType = request.getParameter("reportType");
+			String strQid = request.getParameter("qId");
+			
+			model.addAttribute("reportType", strReportType);
+			model.addAttribute("qId", strQid);
+			
 			if(strDevice != null && !strDevice.isEmpty()
 					&& strGrid != null && !strGrid.isEmpty()){
 				
