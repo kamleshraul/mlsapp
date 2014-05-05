@@ -46,6 +46,7 @@ import org.mkcl.els.domain.DeviceType;
 import org.mkcl.els.domain.Group;
 import org.mkcl.els.domain.HouseType;
 import org.mkcl.els.domain.Member;
+import org.mkcl.els.domain.MemberBallotChoice;
 import org.mkcl.els.domain.MemberMinister;
 import org.mkcl.els.domain.MessageResource;
 import org.mkcl.els.domain.Ministry;
@@ -4261,10 +4262,34 @@ public class QuestionController extends GenericController<Question>{
 				Department department = subDepartment.getDepartment();
 				if(department!=null) {
 					letterVO.setDepartment(department.getName());
-				}				
+				}	
+				Status status = question.getInternalStatus();	
+				String statusType=status.getType();
 				Date answeringDate = null;
 				if(question.getType().getType().trim().equals(ApplicationConstants.STARRED_QUESTION)) {
-					QuestionDates questionDates = question.getAnsweringDate();
+					QuestionDates questionDates = null;
+					if(question.getHouseType().getType().equals(ApplicationConstants.UPPER_HOUSE)
+							&& statusType.equals(ApplicationConstants.QUESTION_FINAL_ADMISSION)) {
+						String firstBatchStartDateParameter=question.getSession().getParameter(ApplicationConstants.QUESTION_STARRED_FIRSTBATCH_SUBMISSION_STARTTIME_UH);
+						String firstBatchEndDateParameter=question.getSession().getParameter(ApplicationConstants.QUESTION_STARRED_FIRSTBATCH_SUBMISSION_ENDTIME_UH);
+						if(firstBatchStartDateParameter!=null&&firstBatchEndDateParameter!=null){
+							if((!firstBatchStartDateParameter.isEmpty())&&(!firstBatchEndDateParameter.isEmpty())){
+								Date firstBatchStartDate = FormaterUtil.formatStringToDate(firstBatchStartDateParameter, ApplicationConstants.DB_DATETIME_FORMAT);
+								Date firstBatchEndDate = FormaterUtil.formatStringToDate(firstBatchEndDateParameter, ApplicationConstants.DB_DATETIME_FORMAT);
+								if(question.getSubmissionDate().compareTo(firstBatchStartDate)>=0
+										|| question.getSubmissionDate().compareTo(firstBatchEndDate)<=0) {
+									MemberBallotChoice mbc = MemberBallotChoice.findByFieldName(MemberBallotChoice.class, "question", question, locale.toString());
+									if(mbc!=null) {
+										questionDates = mbc.getNewAnsweringDate();
+									}								
+								} else {
+									questionDates = question.getChartAnsweringDate();
+								}
+							}
+						}
+					} else {
+						questionDates = question.getChartAnsweringDate();
+					}
 					if(questionDates!=null) {
 						answeringDate = questionDates.getAnsweringDate();
 						if(answeringDate!=null) {
@@ -4274,7 +4299,7 @@ public class QuestionController extends GenericController<Question>{
 						if(lastSendingDateToDepartment!=null) {
 							letterVO.setLastSendingDateToDepartment(FormaterUtil.formatDateToString(lastSendingDateToDepartment, "dd-MM-yyyy", question.getLocale()));
 						}
-					}					
+					}
 				} else {
 					//answeringDate = question.getDiscussionDate();
 				}
@@ -4295,9 +4320,6 @@ public class QuestionController extends GenericController<Question>{
 				} else {
 					letterVO.setParentNumber("");
 				}				
-				
-				Status status = question.getInternalStatus();	
-				String statusType=status.getType();
 				
 				if(statusType.equals(ApplicationConstants.QUESTION_FINAL_REJECTION)) {
 					formattedText = FormaterUtil.formatNumbersInGivenText(question.getRejectionReason(), question.getLocale());
