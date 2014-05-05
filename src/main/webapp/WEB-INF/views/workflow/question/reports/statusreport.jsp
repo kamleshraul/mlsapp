@@ -10,19 +10,33 @@
 		var ids, counter, limit, dataSize;
 		$(document).ready(function(){
 			
-			//load the remark report
-			showRemarkReport();
+			if($("#qIDs").val().length==0){
+				//load the remark report
+				showRemarkReport();
+			}else{
+				if($("#reportType").val()=='multiple'){
+					if($("#qIDs").val().length>0){
+						counter = 0;
+						ids = $("#qIDs").val().split(",");
+						limit = ids.length;
+						
+						addRemarkReport();
+					}
+				}
+			}
 			
 			$("#loadMore").click(function(){
 				
-				if(counter == limit){
-					limit += 10;
+				if($("#qIDs").val().length==0){
+					if(counter == limit){
+						limit += 10;
+					}
+					
+					if(limit > dataSize){
+						limit = dataSize;
+					}				
+					addRemarkReport();
 				}
-				
-				if(limit > dataSize){
-					limit = dataSize;
-				}				
-				addRemarkReport();
 			});
 		});
 		
@@ -148,5 +162,7 @@
 	<b>&#9660;</b>
 </div>
 <input type="hidden" id="device" value="${device}" /> 
+<input type="hidden" id="reportType" value="${reportType}" />
+<input type="hidden" id="qIDs" value="${qId}" />
 </body>
 </html>
