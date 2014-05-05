@@ -27,7 +27,14 @@
 			});
 			
 			$("#generateCurrentStatusReport").click(function(){
-				showCurrentStatusReport();
+				var selectedQuestionId = $('#grid').jqGrid('getGridParam', 'selrow'); 
+					//$("#grid").jqGrid ('getGridParam', 'selarrrow');
+				
+				if(selectedQuestionId != null && selectedQuestionId.length >= 1){
+					showCurrentStatusReport('multiple',selectedQuestionId);
+				}else{
+					showCurrentStatusReport('all','');
+				}
 			});
 		});
 	</script>

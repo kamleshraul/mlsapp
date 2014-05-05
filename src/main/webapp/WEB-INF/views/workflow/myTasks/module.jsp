@@ -323,14 +323,24 @@
 			var allIds = $("#allRowIds").val();
 			var allNextIds = allIds.substring(allIds.indexOf(currentrowid)+currentrowid.length+1);
 			if(allNextIds.length>0){
+				$(".tabContent").hide();
+				//filler to neutralize the previous content i.e. previous question id 
+				showTabByIdAndUrl('list_tab', 'ref/dummypage');
 				var nextRowId = allNextIds.split(',')[0];
 			
 				//console.log(allNextIds+"\n"+nextRowId+"\n"+isValidRow(allIds, nextRowId));
 					
-				$("#currentRowId").val(nextRowId);			
-				
+				$("#currentRowId").val(nextRowId);
+				$.blockUI({ message: '<img src="./resources/images/waitAnimated.gif" />' });
+				showTabByIdAndUrl('process_tab', 'workflow/myTasks/' + nextRowId + '/process');
 				if(isValidRow(allIds, nextRowId)){
-					showTabByIdAndUrl('process_tab', 'workflow/myTasks/' + nextRowId + '/process');
+					setTimeout(function(){
+						$.unblockUI();
+					}, 800);
+					$(".tabContent").show();
+				}else{
+					$(".tabContent").show();
+					$.unblockUI();
 				}
 			}
 		}
@@ -360,14 +370,28 @@
 			showTabByIdAndUrl('details_tab','bill/providedate?houseType=' + $("#selectedHouseType").val()+"&sessionType="+$("#selectedSessionType").val()+"&sessionYear="+$("#selectedSessionYear").val());
 		}
 		
-		function showCurrentStatusReport(){
+		function showCurrentStatusReport(val, qId){
 			$("#selectionDiv1").hide();
 			var device = $("#deviceTypeMaster option[value='"+$("#selectedDeviceType").val()+"']").text().split("_")[0];
-			showTabByIdAndUrl('details_tab', "workflow/question/report/currentstatusreport/?device="+device);
-		}	
+			showTabByIdAndUrl('details_tab', "workflow/question/report/currentstatusreport?device="+device+"&grid=workflow&reportType="+val+"&qId="+qId);
+		}
 	</script>
 	
 	<style type="text/css">
+		#nextTaskDiv{
+			background: #A6F7BE scroll no-repeat;
+			max-width: 100px;
+			width: 50px;
+			max-height: 15px;
+			/*border-radius: 10px;*/
+			text-align: center;
+			border: 1px solid black;
+			z-index: 5000;
+			bottom: 5px;
+			right: 90px;			
+			position: fixed;
+			cursor: pointer;
+		}
 		#notificationDiv{
 			background: #FCCD32 scroll no-repeat;
 			max-width: 100px;
@@ -530,8 +554,8 @@
 			<hr>		
 		</div>
 		<div id="nextTaskDiv" style="display: none;">
-			<a href="#" id="next_task" class="butSim">	
-				<spring:message code="generic.next_task" text="Next Task"/>
+			<a href="#" id="next_task" class="butSim" style="text-decoration: none;">	
+				<spring:message code="generic.next_task" text="Next"/>
 			</a>
 		</div>
 		<div class="tabContent clearfix">
