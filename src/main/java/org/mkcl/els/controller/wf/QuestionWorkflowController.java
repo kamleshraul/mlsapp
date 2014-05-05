@@ -2295,12 +2295,12 @@ public class QuestionWorkflowController  extends BaseController{
 
 	private void performActionOnConvertToUnstarredAndAdmit(Question domain) {
 		/********/
-		Status finalStatus=Status.findByType(ApplicationConstants.QUESTION_FINAL_CONVERT_TO_UNSTARRED_AND_ADMIT, domain.getLocale());
-		domain.setStatus(finalStatus);
+		//Status finalStatus=Status.findByType(ApplicationConstants.QUESTION_FINAL_CONVERT_TO_UNSTARRED_AND_ADMIT, domain.getLocale());
 		DeviceType deviceType=DeviceType.findByType(ApplicationConstants.UNSTARRED_QUESTION,domain.getLocale());
 		domain.setType(deviceType);
 		Status internalStatus=Status.findByType(ApplicationConstants.QUESTION_FINAL_ADMISSION, domain.getLocale());
 		domain.setInternalStatus(internalStatus);
+		domain.setStatus(internalStatus);
 		/**** Setting revised subject,question text,revised reason,revised brief explaination if not already set ****/
 		if(domain.getRevisedSubject()==null){			
 			domain.setRevisedSubject(domain.getSubject());			
@@ -2352,9 +2352,9 @@ public class QuestionWorkflowController  extends BaseController{
 				if(question.getInternalStatus().getType().equals(ApplicationConstants.QUESTION_SYSTEM_CLUBBED)){
 					question.setRevisedSubject(subject);
 					question.setRevisedQuestionText(questionText);
-					question.setStatus(finalStatus);
-					question.setInternalStatus(finalStatus);
-					question.setRecommendationStatus(finalStatus);
+					question.setStatus(internalStatus);
+					question.setInternalStatus(internalStatus);
+					question.setRecommendationStatus(internalStatus);
 					question.setType(deviceType);
 				}else{
 					question.setInternalStatus(newInternalStatus);
