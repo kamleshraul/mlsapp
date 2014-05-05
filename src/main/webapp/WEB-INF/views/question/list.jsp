@@ -81,9 +81,14 @@
 			});		
 			
 			$("#generateCurrentStatusReport").click(function(){
-				showCurrentStatusReport();
-			});
-			
+				var selectedQuestionId = $("#grid").jqGrid ('getGridParam', 'selarrrow');
+				
+				if(selectedQuestionId.length>=1){
+					showCurrentStatusReport('multiple',selectedQuestionId);
+				}else{
+					showCurrentStatusReport('all','');
+				}
+			});			
 		});
 		/**** double clicking record in grid handler ****/
 		function rowDblClickHandler(rowid, iRow, iCol, e) {

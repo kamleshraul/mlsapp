@@ -169,9 +169,9 @@
 		
 	});
 	
-	function showCurrentStatusReport(){
+	function showCurrentStatusReport(val, qId){
 		$("#selectionDiv1").hide();
-		showTabByIdAndUrl('details_tab', "question/report/currentstatusreport?device="+$("#selectedQuestionType").val()+"&grid=device");
+		showTabByIdAndUrl('details_tab', "question/report/currentstatusreport?device="+$("#selectedQuestionType").val()+"&grid=device&reportType="+val+"&qId="+qId);
 	}
 	function loadGroupsFromSessions() {
 		if ($("#selectedGroup").length > 0) {
