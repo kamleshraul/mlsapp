@@ -42,14 +42,20 @@
 			});
 			if(window.customLogicBeforeSubmission!=undefined){
 				customLogicBeforeSubmission();
-			};								
+			};					
+			
 			$.post($('form').attr('action'),  
 	            $("form").serialize(),  
 	            function(data){
    					$('.tabContent').html(data);
    					$('html').animate({scrollTop:0}, 'slow');
    				 	$('body').animate({scrollTop:0}, 'slow');
-					$.unblockUI();	   				 	   				
+   				 	
+					$.unblockUI();
+	            }).done(function(){
+	            	if(window.pendingNewTasks!=undefined){	            		
+	            		pendingNewTasks();
+	    			};
 	            });
 		}
 	</script>	
