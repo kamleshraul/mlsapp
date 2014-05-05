@@ -685,6 +685,7 @@ public class WorkflowDetailsRepository extends BaseRepository<WorkflowDetails, S
 			buffer.append(" AND status=:status");
 			buffer.append(" AND workflowSubType=:workflowSubType");
 		}
+		buffer.append(" ORDER BY group_number");
 		List<WorkflowDetails> workflowDetails=new ArrayList<WorkflowDetails>();
 		try{
 			Query query=this.em().createQuery(buffer.toString());
