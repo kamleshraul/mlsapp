@@ -4262,36 +4262,12 @@ public class QuestionController extends GenericController<Question>{
 				Department department = subDepartment.getDepartment();
 				if(department!=null) {
 					letterVO.setDepartment(department.getName());
-				}	
-				Status status = question.getInternalStatus();	
-				String statusType=status.getType();
-				Date answeringDate = null;
+				}
+				/** answering date for starred question **/
 				if(question.getType().getType().trim().equals(ApplicationConstants.STARRED_QUESTION)) {
-					QuestionDates questionDates = null;
-					if(question.getHouseType().getType().equals(ApplicationConstants.UPPER_HOUSE)
-							&& statusType.equals(ApplicationConstants.QUESTION_FINAL_ADMISSION)) {
-						String firstBatchStartDateParameter=question.getSession().getParameter(ApplicationConstants.QUESTION_STARRED_FIRSTBATCH_SUBMISSION_STARTTIME_UH);
-						String firstBatchEndDateParameter=question.getSession().getParameter(ApplicationConstants.QUESTION_STARRED_FIRSTBATCH_SUBMISSION_ENDTIME_UH);
-						if(firstBatchStartDateParameter!=null&&firstBatchEndDateParameter!=null){
-							if((!firstBatchStartDateParameter.isEmpty())&&(!firstBatchEndDateParameter.isEmpty())){
-								Date firstBatchStartDate = FormaterUtil.formatStringToDate(firstBatchStartDateParameter, ApplicationConstants.DB_DATETIME_FORMAT);
-								Date firstBatchEndDate = FormaterUtil.formatStringToDate(firstBatchEndDateParameter, ApplicationConstants.DB_DATETIME_FORMAT);
-								if(question.getSubmissionDate().compareTo(firstBatchStartDate)>=0
-										|| question.getSubmissionDate().compareTo(firstBatchEndDate)<=0) {
-									MemberBallotChoice mbc = MemberBallotChoice.findByFieldName(MemberBallotChoice.class, "question", question, locale.toString());
-									if(mbc!=null) {
-										questionDates = mbc.getNewAnsweringDate();
-									}								
-								} else {
-									questionDates = question.getChartAnsweringDate();
-								}
-							}
-						}
-					} else {
-						questionDates = question.getChartAnsweringDate();
-					}
+					QuestionDates questionDates = Question.findQuestionDatesForStarredQuestion(question);
 					if(questionDates!=null) {
-						answeringDate = questionDates.getAnsweringDate();
+						Date answeringDate = questionDates.getAnsweringDate();
 						if(answeringDate!=null) {
 							letterVO.setAnsweringDate(FormaterUtil.formatDateToString(answeringDate, "dd-MM-yyyy", question.getLocale()));
 						}
@@ -4303,24 +4279,35 @@ public class QuestionController extends GenericController<Question>{
 				} else {
 					//answeringDate = question.getDiscussionDate();
 				}
+				/** parent question details **/
 				Question parentQuestion = question.getParent();
 				if(parentQuestion!=null) {
 					letterVO.setParentDeviceType(parentQuestion.getType().getName());
 					letterVO.setParentNumber(FormaterUtil.formatNumberNoGrouping(question.getParent().getNumber(), question.getLocale()));
-					SimpleDateFormat dbFormat = null;
-		            CustomParameter dbDateFormat=CustomParameter.findByName(CustomParameter.class,"ROTATION_ORDER_DATE_FORMAT", "");
-			    	if(dbDateFormat!=null){
-			    		dbFormat=FormaterUtil.getDateFormatter(dbDateFormat.getValue(), locale.toString());
-			    	}
-					String[] strAnsweringDates=dbFormat.format(answeringDate).split(",");
-	        		String[] strAnsweringMonth=strAnsweringDates[1].split(" ");
-	        		String answeringMonth=FormaterUtil.getMonthInMarathi(strAnsweringMonth[1], locale.toString());
-	        		String formattedAnsweringDate = strAnsweringMonth[0] + " " + answeringMonth + ", " + strAnsweringDates[2];
-	        		letterVO.setParentAnsweringDate(formattedAnsweringDate);
+					if(parentQuestion.getType().getType().trim().equals(ApplicationConstants.STARRED_QUESTION)) {
+						QuestionDates questionDates = Question.findQuestionDatesForStarredQuestion(question);
+						if(questionDates!=null) {
+							Date answeringDate = questionDates.getAnsweringDate();										    	
+					    	if(answeringDate!=null) {
+					    		SimpleDateFormat dbFormat = null;
+					            CustomParameter dbDateFormat=CustomParameter.findByName(CustomParameter.class,"ROTATION_ORDER_DATE_FORMAT", "");
+						    	if(dbDateFormat!=null){
+						    		dbFormat=FormaterUtil.getDateFormatter(dbDateFormat.getValue(), locale.toString());
+						    	}
+					    		String[] strAnsweringDates=dbFormat.format(answeringDate).split(",");
+				        		String[] strAnsweringMonth=strAnsweringDates[1].split(" ");
+				        		String answeringMonth=FormaterUtil.getMonthInMarathi(strAnsweringMonth[1], locale.toString());
+				        		String formattedAnsweringDate = strAnsweringMonth[0] + " " + answeringMonth + ", " + strAnsweringDates[2];
+				        		letterVO.setParentAnsweringDate(formattedAnsweringDate);
+					    	}							
+						}
+					}										
 				} else {
 					letterVO.setParentNumber("");
-				}				
+				}		
 				
+				Status status = question.getInternalStatus();	
+				String statusType=status.getType();
 				if(statusType.equals(ApplicationConstants.QUESTION_FINAL_REJECTION)) {
 					formattedText = FormaterUtil.formatNumbersInGivenText(question.getRejectionReason(), question.getLocale());
 					letterVO.setRejectionReason(formattedText);

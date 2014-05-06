@@ -1650,6 +1650,38 @@ public class Question extends Device implements Serializable {
 
 		return strBuffer.toString();
 	}
+	
+	public static QuestionDates findQuestionDatesForStarredQuestion(final Question question) {
+		if(question==null) {
+			return null;
+		}
+		QuestionDates questionDates = null;
+		if(question.getHouseType().getType().equals(ApplicationConstants.UPPER_HOUSE)
+				&& question.getStatus().getType().equals(ApplicationConstants.QUESTION_FINAL_ADMISSION)) {
+			String firstBatchStartDateParameter=question.getSession().getParameter(ApplicationConstants.QUESTION_STARRED_FIRSTBATCH_SUBMISSION_STARTTIME_UH);
+			String firstBatchEndDateParameter=question.getSession().getParameter(ApplicationConstants.QUESTION_STARRED_FIRSTBATCH_SUBMISSION_ENDTIME_UH);
+			if(firstBatchStartDateParameter!=null&&firstBatchEndDateParameter!=null){
+				if((!firstBatchStartDateParameter.isEmpty())&&(!firstBatchEndDateParameter.isEmpty())){
+					Date firstBatchStartDate = FormaterUtil.formatStringToDate(firstBatchStartDateParameter, ApplicationConstants.DB_DATETIME_FORMAT);
+					Date firstBatchEndDate = FormaterUtil.formatStringToDate(firstBatchEndDateParameter, ApplicationConstants.DB_DATETIME_FORMAT);
+					if(question.getSubmissionDate().compareTo(firstBatchStartDate)>=0
+							|| question.getSubmissionDate().compareTo(firstBatchEndDate)<=0) {
+						MemberBallotChoice mbc = MemberBallotChoice.findByFieldName(MemberBallotChoice.class, "question", question, question.getLocale());
+						if(mbc!=null) {
+							questionDates = mbc.getNewAnsweringDate();
+						} else {
+							questionDates = question.getChartAnsweringDate();
+						}
+					} else {
+						questionDates = question.getChartAnsweringDate();
+					}
+				}
+			}
+		} else {
+			questionDates = question.getChartAnsweringDate();
+		}		
+		return questionDates;
+	}
 	 
 	/**** Getters and Setters ****/
 	public HouseType getHouseType() {
