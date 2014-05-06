@@ -4993,17 +4993,19 @@ public class ReferenceController extends BaseController {
 			return clubbedQuestionsVO;
 		}
 		
-		@RequestMapping(value="/newpendingtasks", method=RequestMethod.GET)
+				@RequestMapping(value="/newpendingtasks", method=RequestMethod.GET)
 		public @ResponseBody MasterVO getNewPendingTasks(HttpServletRequest request, Locale locale){
 			MasterVO data = new MasterVO();
 			try{
 				String strSessionYear = request.getParameter("sessionYear");
 				String strSessionType = request.getParameter("sessionType");
 				String strStatus = request.getParameter("status");
+				String strHouseType = request.getParameter("houseType");
 				
 				if(strSessionYear != null && !strSessionYear.isEmpty()
 						&& strSessionType != null && !strSessionType.isEmpty()
-						&& strStatus != null && !strStatus.isEmpty()){
+						&& strStatus != null && !strStatus.isEmpty()
+						&& strHouseType != null && !strHouseType.isEmpty()){
 					
 					CustomParameter csptServer = CustomParameter.findByName(CustomParameter.class, "DEPLOYMENT_SERVER", "");
 					if(csptServer != null && csptServer.getValue() != null && !csptServer.getValue().isEmpty()){
@@ -5012,6 +5014,7 @@ public class ReferenceController extends BaseController {
 							
 							strSessionYear = new String(strSessionYear.getBytes("ISO-8859-1"), "UTF-8");
 							strSessionType = new String(strSessionType.getBytes("ISO-8859-1"), "UTF-8");
+							strHouseType = new String(strHouseType.getBytes("ISO-8859-1"), "UTF-8");
 						}
 					}
 					
@@ -5021,6 +5024,7 @@ public class ReferenceController extends BaseController {
 					parameters.put("assignee", this.getCurrentUser().getActualUsername());
 					parameters.put("sessionYear", strSessionYear);
 					parameters.put("sessionType", strSessionType);
+					parameters.put("houseType", strHouseType);
 					parameters.put("status", strStatus);
 					
 					List<WorkflowDetails> workflows = WorkflowDetails.findPendingWorkflowOfCurrentUser(parameters, "assignmentTime", 0, 0, ApplicationConstants.ASC);
