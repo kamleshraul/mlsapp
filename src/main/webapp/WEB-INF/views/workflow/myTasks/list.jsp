@@ -27,11 +27,11 @@
 			});
 			
 			$("#generateCurrentStatusReport").click(function(){
-				var selectedQuestionId = $('#grid').jqGrid('getGridParam', 'selrow'); 
+				var selectedWorkflowDetailsId = $('#grid').jqGrid('getGridParam', 'selrow'); 
 					//$("#grid").jqGrid ('getGridParam', 'selarrrow');
 				
-				if(selectedQuestionId != null && selectedQuestionId.length >= 1){
-					showCurrentStatusReport('multiple',selectedQuestionId);
+				if(selectedWorkflowDetailsId != null && selectedWorkflowDetailsId.length >= 1){
+					showCurrentStatusReport('multiple',selectedWorkflowDetailsId);
 				}else{
 					showCurrentStatusReport('all','');
 				}

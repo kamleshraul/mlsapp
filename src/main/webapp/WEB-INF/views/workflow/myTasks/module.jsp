@@ -370,10 +370,10 @@
 			showTabByIdAndUrl('details_tab','bill/providedate?houseType=' + $("#selectedHouseType").val()+"&sessionType="+$("#selectedSessionType").val()+"&sessionYear="+$("#selectedSessionYear").val());
 		}
 		
-		function showCurrentStatusReport(val, qId){
+		function showCurrentStatusReport(val, wfdId){
 			$("#selectionDiv1").hide();
 			var device = $("#deviceTypeMaster option[value='"+$("#selectedDeviceType").val()+"']").text().split("_")[0];
-			showTabByIdAndUrl('details_tab', "workflow/question/report/currentstatusreport?device="+device+"&grid=workflow&reportType="+val+"&qId="+qId);
+			showTabByIdAndUrl('details_tab', "workflow/question/report/currentstatusreport?device="+device+"&grid=workflow&reportType="+val+"&wfdId="+wfdId);
 		}
 	</script>
 	
