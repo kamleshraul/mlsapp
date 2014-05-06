@@ -2842,10 +2842,15 @@ public class QuestionWorkflowController  extends BaseController{
 
 		String strDevice = request.getParameter("device");
 		String strReportType = request.getParameter("reportType");
-		String strQid = request.getParameter("qId");
-		
+		String strWfid = request.getParameter("wfdId");
+		WorkflowDetails wfd = null;
+		if(strWfid != null && !strWfid.isEmpty()){
+			wfd = WorkflowDetails.findById(WorkflowDetails.class, new Long(strWfid));
+			if(wfd != null){
+				model.addAttribute("qId", wfd.getDeviceId());
+			}
+		}
 		model.addAttribute("reportType", strReportType);
-		model.addAttribute("qId", strQid);
 		if(strDevice != null && !strDevice.isEmpty()){		
 			model.addAttribute("device", strDevice);
 		}
@@ -2871,65 +2876,95 @@ public class QuestionWorkflowController  extends BaseController{
 					Object[] obj = (Object[]) report.get(0);
 					if(obj[26] != null){
 						model.addAttribute("fullSessionName", obj[26].toString());
+					}else{
+						model.addAttribute("fullSessionName", "-");
 					}
 					if(obj[11] != null){
 						model.addAttribute("deviceName", obj[11].toString());
+					}else{
+						model.addAttribute("deviceName", "-");
 					}
 	
 					model.addAttribute("currentDate", FormaterUtil.formatDateToString(new Date(), ApplicationConstants.SERVER_DATEFORMAT, locale.toString()));
 	
 					if(obj[16] != null){
 						model.addAttribute("primaryMemConstituency", obj[16].toString());
+					}else{
+						model.addAttribute("primaryMemConstituency", "-");
 					}
 	
 					if(obj[12] != null){
 						model.addAttribute("memberName", obj[12].toString());
+					}else{
+						model.addAttribute("memberName", "-");
 					}
 	
 					if(obj[17] != null){
 						model.addAttribute("support", obj[17].toString());
+					}else{
+						model.addAttribute("support", "-");
 					}
 	
 					if(obj[19] != null){
 						model.addAttribute("groupNumber", obj[19].toString());
+					}else{
+						model.addAttribute("groupNumber", "-");
 					}
 	
 					if(obj[21] != null){
 						Date answeringDate = FormaterUtil.formatStringToDate(obj[21].toString(), ApplicationConstants.DB_DATEFORMAT);
 						model.addAttribute("answeringDate", FormaterUtil.formatDateToString(answeringDate, ApplicationConstants.SERVER_DATEFORMAT, locale.toString()));
+					}else{
+						model.addAttribute("answeringDate", "-");
 					}
 	
 					if(obj[22] != null){
 						Date deptSendDate = FormaterUtil.formatStringToDate(obj[22].toString(), ApplicationConstants.DB_DATEFORMAT);
 						model.addAttribute("deptSendDate", FormaterUtil.formatDateToString(deptSendDate, ApplicationConstants.SERVER_DATEFORMAT, locale.toString()));
+					}else{
+						model.addAttribute("deptSendDate", "-");
 					}
 	
 					if(obj[23] != null){
 						model.addAttribute("priority", obj[23].toString());
+					}else{
+						model.addAttribute("priority", "-");
 					}
 					
 					if(obj[29] != null){
 						model.addAttribute("finalStatus", obj[29].toString());
+					}else{
+						model.addAttribute("finalStatus", "-");
 					}
 	
 					if(obj[5] != null){
 						model.addAttribute("subject", FormaterUtil.formatNumbersInGivenText(obj[5].toString(), locale.toString()));
+					}else{
+						model.addAttribute("subject", "-");
 					}
 	
 					if(obj[9] != null){
 						model.addAttribute("deviceNumber", obj[9].toString());
+					}else{
+						model.addAttribute("deviceNumber", "-");
 					}
 					
 					if(obj[20] != null){
 						model.addAttribute("department", obj[20].toString());
+					}else{
+						model.addAttribute("department", "-");
 					}
 	
 					if(obj[24] != null){
 						model.addAttribute("ministry", obj[24].toString());
+					}else{
+						model.addAttribute("ministry", "-");
 					}
 	
 					if(obj[4] != null){
 						model.addAttribute("details", FormaterUtil.formatNumbersInGivenText(obj[4].toString(), locale.toString()));
+					}else{
+						model.addAttribute("details", "-");
 					}
 	
 					List<User> users = User.findByRole(false, "QIS_PRINCIPAL_SECRETARY", locale.toString());
