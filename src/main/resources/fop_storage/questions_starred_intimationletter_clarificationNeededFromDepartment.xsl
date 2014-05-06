@@ -72,7 +72,7 @@
 	
 				<!-- body -->
 	            <fo:flow flow-name="xsl-region-body">	
-	            	<fo:block font-family="Mangal" font-size="11px">	            					
+	            	<fo:block font-family="Mangal" font-size="10.5px">	            					
 						<fo:block text-align="right">
 							<fo:block margin-right="1.45cm">क्रमांक - _____&#160;/&#160;
 							<xsl:choose>
@@ -85,7 +85,7 @@
 							<fo:block margin-right="1.92cm">दिनांक - <xsl:value-of select="reportDate"/></fo:block>
 						</fo:block>		
 						
-						<fo:block>&#160;</fo:block>
+						<!-- <fo:block>&#160;</fo:block> -->
 						
 						<fo:block text-align="left">
 							<fo:block>प्रेषक:</fo:block>						
@@ -93,7 +93,7 @@
 							<fo:block margin-left="1cm">महाराष्ट्र विधानमंडळ सचिवालय</fo:block>
 						</fo:block>	
 						
-						<fo:block>&#160;</fo:block>					
+						<fo:block font-size="6px">&#160;</fo:block>					
 						
 						<fo:block text-align="left">
 							<fo:block>प्रति,</fo:block>	
@@ -104,30 +104,30 @@
 							</fo:block>
 						</fo:block>		
 						
-						<fo:block>&#160;</fo:block>
+						<fo:block font-size="6px">&#160;</fo:block>
 						
 						<fo:block text-align="center" font-weight="bold">विषय: <xsl:value-of select="houseTypeName"/>&#160;<xsl:value-of select="deviceType"/> क्रमांक - <xsl:value-of select="number"/></fo:block>
 						
-						<fo:block>&#160;</fo:block>
+						<fo:block font-size="6px">&#160;</fo:block>
 						
 						<fo:block>महोदय,</fo:block>	
 						
-						<fo:block>&#160;</fo:block>	
+						<fo:block font-size="4px">&#160;</fo:block>	
 						
 						<fo:block margin-left="1cm">							
 							&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;उपरिनिर्दिष्ट प्रश्नाबाबत खाली नमूद केलेल्या क्रमांक <xsl:value-of select="questionIndexesForClarification"/> वरील मुद्द्याबाबतची माहिती, या सचिवायलास त्वरीत कळवावी अशी विनंती आहे. 												
 						</fo:block>	
-						<fo:block>&#160;</fo:block>
+						<fo:block font-size="4px">&#160;</fo:block>
 						<fo:block margin-left="1cm">							
 							&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;सदरहू प्रश्न  स्वीकृत करण्यासारख्या आहे की नाही हे ठरविण्यासाठी ही माहिती आवश्यक असून ती हे पत्र मिळाल्यापासून चार दिवसांच्या आत या सचिवालयास कळवावी. 
 							उक्त अवधीत आपणाकडून माहिती न आल्यास, प्रश्न स्वीकृत होऊन तो शासनाकडे उत्तरासाठी पाठविला जाण्याची शक्यता आहे 												
 						</fo:block>
-						<fo:block>&#160;</fo:block>
+						<fo:block font-size="4px">&#160;</fo:block>
 						<fo:block margin-left="1cm">							
 							&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;सदरहू प्रश्न  स्वीकृत झाल्यास, तो दिनांक __________ रोजी उत्तरासाठी ठेवण्यात येईल.												
 						</fo:block>
 							
-						<fo:block>&#160;</fo:block>		
+						<fo:block font-size="6px">&#160;</fo:block>		
 								
 						<fo:block text-align="right">
 							<fo:block margin-right="2cm">आपला</fo:block>
@@ -145,13 +145,13 @@
 							</xsl:for-each>
 						</fo:block>	
 						-----------------------------------------------------------------------------------------------------------------------------------------
-						<fo:block>&#160;</fo:block>
+						<fo:block font-size="4px">&#160;</fo:block>
 						<fo:block text-align="center" font-weight="bold">विषय - <xsl:value-of select="subject"/></fo:block>
-						<fo:block>&#160;</fo:block>
+						<fo:block font-size="4px">&#160;</fo:block>
 						<fo:block margin-left="1cm" font-weight="bold">
 							<fo:inline><xsl:value-of select="memberNames"/></fo:inline>			
 						</fo:block>
-						<fo:block>&#160;</fo:block>
+						<fo:block font-size="6px">&#160;</fo:block>
 						<fo:block font-weight="bold">
 							सन्माननीय
 							<xsl:choose>
@@ -167,8 +167,8 @@
 							</xsl:choose>
 							पुढील गोष्टींचा खुलासा करतील काय :-
 						</fo:block>
-						<fo:block>&#160;</fo:block>
-						<fo:block><xsl:apply-templates select="questionText"/></fo:block>
+						<!-- <fo:block>&#160;</fo:block> -->						
+						<fo:block>&#160;&#160;<xsl:apply-templates select="questionText"/></fo:block>
 					</fo:block>							          
 	            </fo:flow>
 	        </fo:page-sequence>        

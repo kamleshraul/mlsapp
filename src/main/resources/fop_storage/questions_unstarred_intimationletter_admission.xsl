@@ -72,7 +72,7 @@
 	
 				<!-- body -->
 	            <fo:flow flow-name="xsl-region-body">	
-	            	<fo:block font-family="Mangal" font-size="11px">	            					
+	            	<fo:block font-family="Mangal" font-size="10.5px">	            					
 						<fo:block text-align="right">
 							<fo:block margin-right="1.45cm">क्रमांक - _____&#160;/&#160;
 							<xsl:choose>
@@ -85,7 +85,7 @@
 							<fo:block margin-right="1.92cm">दिनांक - <xsl:value-of select="reportDate"/></fo:block>
 						</fo:block>			
 						
-						<fo:block>&#160;</fo:block>					
+						<!-- <fo:block>&#160;</fo:block> -->					
 						
 						<fo:block text-align="left">
 							<fo:block>प्रति,</fo:block>						
@@ -94,11 +94,11 @@
 							<fo:block>महाराष्ट्र शासन मंत्रालय, मुंबई - ४०० ०३२</fo:block>							
 						</fo:block>		
 						
-						<fo:block>&#160;</fo:block>
+						<fo:block font-size="6px">&#160;</fo:block>
 						
 						<fo:block>महोदय,</fo:block>	
 						
-						<fo:block>&#160;</fo:block>	
+						<fo:block font-size="4px">&#160;</fo:block>	
 						
 						<fo:block margin-left="1.5cm">							
 							&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;खालील उदधृत केलेला <xsl:value-of select="houseTypeName"/> अतारांकित प्रश्न माननीय
@@ -108,13 +108,12 @@
 							</xsl:choose>
 							स्वीकृत केला आहे. सदरहू प्रश्नाचे उत्तर महाराष्‍ट्र विधानमंडळ नियमांतील नियम ७०(२) अन्वये तीस दिवसांच्‍या आत म्‍हणजे दिनांक __________ पावेतो या सचिवालयास पाठविण्‍यात यावे – 
 						</fo:block>	
-						<fo:block>&#160;</fo:block>				
+						<fo:block font-size="4px">&#160;</fo:block>				
 						<fo:block>
-							<fo:block font-weight="bold">प्रत माहितीसाठी सादर अग्रेषित -- 
+							<fo:block font-weight="bold">प्रत माहितीसाठी सादर अग्रेषित -- </fo:block>
+							<!-- &#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;
 							&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;
-							&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;
-							&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;
-							<fo:inline font-weight="normal">आपला</fo:inline></fo:block>
+							&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; -->
 							<fo:block margin-left="1.5cm">
 								<xsl:choose>
 									<xsl:when test="primaryMemberDesignation='मुख्यमंत्री'">
@@ -134,8 +133,10 @@
 								</xsl:choose>
 							</fo:block>
 						</fo:block>	
-						<fo:block>&#160;</fo:block>				
+						<!-- <fo:block>&#160;</fo:block> -->				
 						<fo:block text-align="right">
+							<fo:block margin-right="2.5cm">आपला</fo:block>
+							<fo:block font-size="10.5px">&#160;</fo:block>							
 							<fo:block margin-right="2cm">प्रधान सचिव</fo:block>							
 							<xsl:choose>
 								<xsl:when test="houseType='lowerhouse'">
@@ -147,15 +148,19 @@
 							</xsl:choose>
 						</fo:block>
 						-------------------------------------------------------------------------------------------------------------------------------
-						<fo:block>&#160;</fo:block>
+						<fo:block font-size="4px">&#160;</fo:block>
 						<fo:block text-align="center" font-weight="bold"><xsl:value-of select="subject"/></fo:block>
-						<fo:block>&#160;</fo:block>
+						<fo:block font-size="4px">&#160;</fo:block>
 						<fo:block margin-left="2cm" font-weight="bold">
 							अतारांकित प्रश्‍न क्रमांक <xsl:value-of select="number"/>	
 							&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;		
 							<fo:inline><xsl:value-of select="memberNames"/></fo:inline>			
 						</fo:block>
-						<fo:block>&#160;</fo:block>
+						<fo:block font-size="4px">&#160;</fo:block>
+						<xsl:if test="parentNumber!=''">
+							<xsl:value-of select="parentDeviceType"/> क्रमांक <xsl:value-of select="parentNumber"/> ला 
+							दिनांक <xsl:value-of select="parentAnsweringDate"/> रोजी दिलेल्या उत्तराच्या संदर्भात
+						</xsl:if>
 						<fo:block font-weight="bold">
 							सन्माननीय
 							<xsl:choose>
@@ -172,10 +177,12 @@
 							पुढील गोष्टींचा खुलासा करतील काय :-
 						</fo:block>
 						<fo:block>&#160;</fo:block>
-						<fo:block><xsl:apply-templates select="questionText"/></fo:block>
-						<fo:block break-before="page">
-							<xsl:value-of select="remarks"></xsl:value-of>
-						</fo:block>
+						<fo:block>&#160;&#160;&#160;<xsl:apply-templates select="questionText"/></fo:block>
+						<xsl:if test="remarks!=''">
+							<fo:block break-before="page">
+								<xsl:value-of select="remarks"></xsl:value-of>
+							</fo:block>
+						</xsl:if>
 					</fo:block>							          
 	            </fo:flow>
 	        </fo:page-sequence>        
