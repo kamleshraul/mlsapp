@@ -18,7 +18,7 @@
 	<h4 style="color: #FF0000;">${error}</h4>
 </c:if>
 
-<div class="fields clearfix vidhanmandalImg">
+<div class="fields clearfix">
 	${data}
 </div>	
 </body>
