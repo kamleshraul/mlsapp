@@ -149,7 +149,7 @@
 					<spring:message code="question.statreport" text="Generate Statistics Report"/>
 				</a> |
 			 </security:authorize>	
-			 <security:authorize access="hasAnyRole('QIS_ASSISTANT')">
+			 <security:authorize access="hasAnyRole('QIS_ABC')">
 				<a href="#" id="generateCurrentStatusReport" class="butSim">
 					<spring:message code="question.generateCurrentStatusReport" text="Generate Current Status Report"/>
 				</a> |
