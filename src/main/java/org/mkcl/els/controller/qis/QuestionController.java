@@ -20,6 +20,7 @@ import javax.servlet.http.HttpServletResponse;
 import org.mkcl.els.common.exception.ELSException;
 import org.mkcl.els.common.util.ApplicationConstants;
 import org.mkcl.els.common.util.FormaterUtil;
+import org.mkcl.els.common.vo.ActorVO;
 import org.mkcl.els.common.vo.AuthUser;
 import org.mkcl.els.common.vo.DeviceVO;
 import org.mkcl.els.common.vo.MasterVO;
@@ -4562,7 +4563,7 @@ public class QuestionController extends GenericController<Question>{
 		try{
 			String strDevice = request.getParameter("device");
 			String strGrid = request.getParameter("grid");
-			Map<String, MasterVO> finalDataMap = new HashMap<String, MasterVO>();
+			Map<String, ActorVO> finalDataMap = new HashMap<String, ActorVO>();
 			
 			if(strDevice != null && !strDevice.isEmpty()
 					&& strGrid != null && !strGrid.isEmpty()){
@@ -4671,7 +4672,7 @@ public class QuestionController extends GenericController<Question>{
 					List<User> users = User.findByRole(false, "QIS_PRINCIPAL_SECRETARY", locale.toString());
 					model.addAttribute("principalSec", users.get(0).getTitle() + " " + users.get(0).getFirstName() + " " + users.get(0).getLastName());
 	
-					List<MasterVO> actors = new ArrayList<MasterVO>();
+					List<ActorVO> actors = new ArrayList<ActorVO>();
 					CustomParameter csptAllwedUserGroupForStatusReportSign = CustomParameter.findByName(CustomParameter.class, (qt.getHouseType().getType().equals(ApplicationConstants.LOWER_HOUSE)? "QIS_ALLOWED_USERGROUPS_FOR_STATUS_REPORT_SIGN_LOWERHOUSE": "QIS_ALLOWED_USERGROUPS_FOR_STATUS_REPORT_SIGN_UPPERHOUSE"), "");
 					if(csptAllwedUserGroupForStatusReportSign != null){
 						if(csptAllwedUserGroupForStatusReportSign.getValue() != null && !csptAllwedUserGroupForStatusReportSign.getValue().isEmpty()){
@@ -4683,17 +4684,19 @@ public class QuestionController extends GenericController<Question>{
 									if(csptAllwedUserGroupForStatusReportSign.getValue().contains(objx[27].toString())){
 										
 										UserGroupType userGroupType = UserGroupType.findByFieldName(UserGroupType.class, "type", objx[27].toString(), locale.toString());
-										MasterVO actor = new MasterVO();
+										ActorVO actor = new ActorVO();
 										if(userGroupType.getType().equals(ApplicationConstants.UNDER_SECRETARY_COMMITTEE) || userGroupType.getType().equals(ApplicationConstants.UNDER_SECRETARY)){
-											actor.setName(userGroupType.getName() + "<br>" + ((objx[1]!=null)?objx[1].toString() : "" ));
+											actor.setName(userGroupType.getName());
+											actor.setDesignation(((objx[1]!=null)?objx[1].toString() : "" ));
 										}else{
-											actor.setName(userGroupType.getName() + "<br>");
+											actor.setName(userGroupType.getName());
+											actor.setDesignation("");
 										}
 										if(objx[6] != null){
 											actor.setValue(objx[6].toString());
 										}
 										if(objx[28] != null){
-											actor.setFormattedNumber(objx[28].toString());
+											actor.setStatus(objx[28].toString());
 										}
 										if(userGroupType.getType().equals(ApplicationConstants.UNDER_SECRETARY_COMMITTEE) || userGroupType.getType().equals(ApplicationConstants.UNDER_SECRETARY)){
 											finalDataMap.put(ApplicationConstants.UNDER_SECRETARY, actor);
@@ -4721,11 +4724,12 @@ public class QuestionController extends GenericController<Question>{
 								String lastUSerGroup = actors.get(actors.size() - 1).getName();
 								UserGroupType userGroupType = UserGroupType.findByFieldName(UserGroupType.class, "type", ApplicationConstants.PRINCIPAL_SECRETARY, locale.toString());
 								
-								if(!lastUSerGroup.split("<br>")[0].equals(userGroupType.getName())){
-									MasterVO actor = new MasterVO();
-									actor.setName(userGroupType.getName() + "<br>");
+								if(!lastUSerGroup.equals(userGroupType.getName())){
+									ActorVO actor = new ActorVO();
+									actor.setName(userGroupType.getName());
 									actor.setValue("");
-									actor.setFormattedNumber("");
+									actor.setDesignation("");
+									actor.setStatus("");
 									actors.add(actor);
 								}
 							}
@@ -4734,14 +4738,16 @@ public class QuestionController extends GenericController<Question>{
 								for(String val : csptAllwedUserGroupForStatusReportSign.getValue().split(",")){
 								
 									Reference ref = UserGroup.findQuestionActor(qt, val, String.valueOf(0), locale.toString());
-									MasterVO actor = new MasterVO();
+									ActorVO actor = new ActorVO();
 									if(ref.getId().split("#")[1].equals(ApplicationConstants.UNDER_SECRETARY_COMMITTEE) || ref.getId().split("#")[1].equals(ApplicationConstants.UNDER_SECRETARY)){
-										actor.setName(ref.getId().split("#")[3] + "<br>" + ref.getId().split("#")[4]);
+										actor.setName(ref.getId().split("#")[3]);
+										actor.setDesignation(ref.getId().split("#")[4]);
 									}else{
-										actor.setName(ref.getId().split("#")[3] + "<br>");
+										actor.setName(ref.getId().split("#")[3]);
+										actor.setDesignation("");
 									}
 									actor.setValue("");
-									actor.setFormattedNumber("");
+									actor.setStatus("");
 									actors.add(actor);
 								}
 							}
