@@ -19,7 +19,8 @@ package org.mkcl.els.common.util;
  * @since v1.0.0
  */
 public class ApplicationConstants {
-
+	/**************************************************************************************************************************/
+	/************************************************MIS AND MISCELLANEOUS BEGINS********************************************************/
 	/** The Constant ASC. */
 	public static final String ASC = "asc";
 
@@ -61,9 +62,9 @@ public class ApplicationConstants {
 
 	/** The Constant DB_DATEFORMAT. */
 	public static final String DB_DATEFORMAT="yyyy-MM-dd";
-	
+
 	public static final String DB_DATETIME_FORMAT="yyyy-MM-dd hh:mm:ss";
-	
+
 	/** The Constant REPORT_DATEFORMAT. */
 	public static final String REPORT_DATEFORMAT="dd-MM-yyyy";
 
@@ -93,14 +94,18 @@ public class ApplicationConstants {
 	//related to question module
 	/** The Constant QIS_ACTOR_LIST_CUSTOMPARAM_NAME. */
 	public static final String QIS_ACTOR_LIST_CUSTOMPARAM_NAME="QIS_ACTOR_LIST";
-
+	
 	//parameters for starred question
-
 	//Session Keys
 	public static final String QUESTIONS_STARRED_TOTALROUNDS_MEMBERBALLOT="questions_starred_totalRoundsMemberBallot";
 
 	public static final String QUESTIONS_STARRED_TOTALROUNDS_FINALBALLOT="questions_starred_totalRoundsFinalBallot";
+	/**************************************************************************************************************************/
+	/************************************************MIS AND MISCELLANEOUS BEGINS********************************************************/
 
+
+	/**************************************************************************************************************************/
+	/************************************************DEVICE TYPE BEGINS********************************************************/
 	/**** Question Types ****/
 	public static final String STARRED_QUESTION="questions_starred";
 
@@ -109,48 +114,27 @@ public class ApplicationConstants {
 	public static final String SHORT_NOTICE_QUESTION="questions_shortnotice";
 
 	public static final String HALFHOURDISCUSSIONSTANDALONE_MEMBER_MAX_PUTUP_COUNT_LH = "NO_OF_HALFHOURDISCUSSIONSTANDALONE_MEMBER_PUTUP_COUNT_LH";
-	
+
 	public static final String HALFHOURDISCUSSIONSTANDALONE_MEMBER_MAX_PUTUP_COUNT_UH = "NO_OF_HALFHOURDISCUSSIONSTANDALONE_MEMBER_PUTUP_COUNT_UH";
-	
+
 	public static final String HALF_HOUR_DISCUSSION_QUESTION_STANDALONE="questions_halfhourdiscussion_standalone";
 
 	public static final String HALF_HOUR_DISCUSSION_QUESTION_FROM_QUESTION="questions_halfhourdiscussion_from_question";
 
 	public static final String HALF_HOUR_DISCUSSION_QUESTION_STANDALONE_ROLE="HDS_ASSISTANT";
-	
-	/**** Question Status ****/
-	/**** Member *****/
+	/**************************************************************************************************************************/
+	/************************************************DEVICE TYPE ENDS*************************************************************/
+
+	/**************************************************************************************************************************/
+	/************************************************STATUS BEGINS*************************************************************/
+	/**** Member(Starred) *****/
 	public static final String QUESTION_INCOMPLETE="question_incomplete";
 
 	public static final String QUESTION_COMPLETE="question_complete";
 
-	public static final String QUESTION_SUBMIT="question_submit";    
-	/**** Supporting Member Status****/
-	public static final String SUPPORTING_MEMBER_TIMEOUT="supportingmember_timeout";
-	
-	public static final String SUPPORTING_MEMBER_APPROVED="supportingmember_approved";
+	public static final String QUESTION_SUBMIT="question_submit"; 	
 
-	public static final String SUPPORTING_MEMBER_REJECTED="supportingmember_rejected";
-
-	public static final String SUPPORTING_MEMBER_PENDING="supportingmember_pending";
-
-	public static final String SUPPORTING_MEMBER_NOTSEND="supportingmember_notsend";
-	
-	/**** Supporting Member Approval Type****/
-	public static final String SUPPORTING_MEMBER_APPROVALTYPE_AUTOAPPROVED="AUTO_APPROVAL"; 
-	
-	public static final String SUPPORTING_MEMBER_APPROVALTYPE_ONLINE="ONLINE"; 
-	/**** System ****/    
-	public static final String QUESTION_SYSTEM_ASSISTANT_PROCESSED="question_system_assistantprocessed";
-
-	public static final String QUESTION_SYSTEM_TO_BE_PUTUP="question_system_putup";
-
-	public static final String QUESTION_SYSTEM_GROUPCHANGED="question_system_groupchanged";
-
-	public static final String QUESTION_SYSTEM_CLUBBED="question_system_clubbed";
-
-	public static final String QUESTION_SYSTEM_CLUBBED_WITH_PENDING="question_system_clubbedwithpending";
-	/**** Recommendation ****/
+	/**** Recommendation(Starred) ****/
 	public static final String QUESTION_RECOMMEND_ADMISSION="question_recommend_admission";
 
 	public static final String QUESTION_RECOMMEND_REJECTION="question_recommend_rejection";
@@ -158,7 +142,7 @@ public class ApplicationConstants {
 	public static final String QUESTION_RECOMMEND_CONVERT_TO_UNSTARRED="question_recommend_convertToUnstarred";
 
 	public static final String QUESTION_RECOMMEND_CONVERT_TO_UNSTARRED_AND_ADMIT="question_recommend_convertToUnstarredAndAdmit";
-	
+
 	public static final String QUESTION_RECOMMEND_CONVERT_TO_UNSTARRED_AND_ADMIT_CLUBBED="question_recommend_convertToUnstarredAndAdmitClubbedWithPreviousSession";
 
 	public static final String QUESTION_RECOMMEND_CLARIFICATION_FROM_MEMBER="question_recommend_clarificationNeededFromMember";
@@ -176,49 +160,34 @@ public class ApplicationConstants {
 	public static final String QUESTION_RECOMMEND_SENDBACK="question_recommend_sendback";
 
 	public static final String QUESTION_RECOMMEND_DISCUSS="question_recommend_discuss";
-	
+
 	public static final String QUESTION_RECOMMEND_REPEATADMISSION="question_recommend_repeatadmission";
-	
+
 	public static final String QUESTION_RECOMMEND_REPEATREJECTION="question_recommend_repeatrejection";
-	
-	/**** Final ****/ 
+
+	/**** Final(Starred) ****/ 
 	public static final String QUESTION_FINAL_REANSWER = "question_final_reanswer";
-	
+
 	public static final String QUESTION_FINAL_ADMISSION="question_final_admission";
 
 	public static final String QUESTION_FINAL_REJECTION="question_final_rejection";
-	
+
+	public static final String QUESTION_FINAL_CONVERT_TO_UNSTARRED="question_final_rejection";
+
 	public static final String QUESTION_PROCESSED_REJECTIONWITHREASON="question_processed_rejectionWithReason";
 
-	public static final String QUESTION_FINAL_CONVERT_TO_UNSTARRED_AND_ADMIT="question_final_convertToUnstarredAndAdmit";
+	public static final String QUESTION_FINAL_CONVERT_TO_UNSTARRED_AND_ADMIT="question_final_convertToUnstarredAndAdmit";	
 
-	/** added for HDS ***/
-	public static final String QUESTION_FINAL_CLARIFICATION_NOT_RECEIVED_FROM_MEMBER="question_final_clarificationNotReceivedFromMember";
-	
-	public static String QUESTION_PROCESSED_CLARIFICATION_RECIEVED="question_processed_clarificationReceived";
-	
-	public static final String QUESTION_FINAL_CLARIFICATION_NEEDED_FROM_MEMBER="question_final_clarificationNeededFromMember";
+	/**** System(Starred) ****/    
+	public static final String QUESTION_SYSTEM_ASSISTANT_PROCESSED="question_system_assistantprocessed";
 
-	public static final String QUESTION_FINAL_CLARIFICATION_NEEDED_FROM_DEPARTMENT="question_final_clarificationNeededFromDepartment";
+	public static final String QUESTION_SYSTEM_TO_BE_PUTUP="question_system_putup";
 
-	public static final String QUESTION_FINAL_CLARIFICATION_NEEDED_FROM_MEMBER_DEPARTMENT="question_final_clarificationNeededFromMemberAndDepartment";
+	public static final String QUESTION_SYSTEM_GROUPCHANGED="question_system_groupchanged";
 
-	
-	public static final String QUESTION_FINAL_CLARIFICATION_NOT_RECEIVED_FROM_DEPARTMENT="question_final_clarificationNotReceivedFromDepartment";
-	
-	public static final String QUESTION_FINAL_REPEATADMISSION="question_final_repeatadmission";
-	
-	public static final String QUESTION_FINAL_REPEATREJECTION="question_final_repeatrejection";
-	
-	public static final String QUESTION_PROCESSED_SENDTOSECTIONOFFICER = "question_processed_sendToSectionOfficer";
-	
-	public static final String QUESTIONS_HALFHOURDISCUSSION_STANDALONE_BALLOT_OUTPUT_COUNT_ASSEMBLY="QUESTIONS_HALFHOURDISCUSSION_STANDALONE_BALLOT_OUTPUT_COUNT_ASSEMBLY";
+	public static final String QUESTION_SYSTEM_CLUBBED="question_system_clubbed";
 
-	public static final String QUESTIONS_HALFHOURDISCUSSION_STANDALONE_BALLOT_OUTPUT_COUNT_COUNCIL="QUESTIONS_HALFHOURDISCUSSION_STANDALONE_BALLOT_OUTPUT_COUNT_COUNCIL";
-	
-	public static final String QUESTION_FINAL_CONVERT_TO_UNSTARRED_AND_ADMIT_CLUBBED="question_final_convertToUnstarredAndAdmitClubbedWithPreviousSession";
-
-	//------------
+	public static final String QUESTION_SYSTEM_CLUBBED_WITH_PENDING="question_system_clubbedwithpending";
 	
 	/**** Put Up ****/
 	public static final String QUESTION_PUTUP_NAMECLUBBING="question_putup_nameclubbing";
@@ -230,7 +199,7 @@ public class ApplicationConstants {
 	public static final String QUESTION_PUTUP_REJECTION="question_putup_rejection";
 
 	public static final String QUESTION_PUTUP_CONVERT_TO_UNSTARRED_AND_ADMIT="question_putup_convertToUnstarredAndAdmit";
-	
+
 	public static final String QUESTION_PUTUP_CONVERT_TO_UNSTARRED_AND_ADMIT_CLUBBED="question_putup_convertToUnstarredAndAdmitClubbedWithPreviousSession";
 
 	/**** Processed Status ****/
@@ -238,6 +207,375 @@ public class ApplicationConstants {
 
 	public static final String QUESTION_PROCESSED_YAADILAID="question_processed_yaadilaid";
 
+	/**** Member(Unstarred) *****/
+	public static final String QUESTION_UNSTARRED_INCOMPLETE="question_incomplete";
+
+	public static final String QUESTION_UNSTARRED_COMPLETE="question_complete";
+
+	public static final String QUESTION_UNSTARRED_SUBMIT="question_submit"; 
+
+	/**** Recommendation(Unstarred) ****/
+	public static final String QUESTION_UNSTARRED_RECOMMEND_ADMISSION="question_recommend_admission";
+
+	public static final String QUESTION_UNSTARRED_RECOMMEND_REJECTION="question_recommend_rejection";
+
+	public static final String QUESTION_UNSTARRED_RECOMMEND_CONVERT_TO_UNSTARRED="question_recommend_convertToUnstarred";
+
+	public static final String QUESTION_UNSTARRED_RECOMMEND_CONVERT_TO_UNSTARRED_AND_ADMIT="question_recommend_convertToUnstarredAndAdmit";
+
+	public static final String QUESTION_UNSTARRED_RECOMMEND_CONVERT_TO_UNSTARRED_AND_ADMIT_CLUBBED="question_recommend_convertToUnstarredAndAdmitClubbedWithPreviousSession";
+
+	public static final String QUESTION_UNSTARRED_RECOMMEND_CLARIFICATION_FROM_MEMBER="question_recommend_clarificationNeededFromMember";
+
+	public static final String QUESTION_UNSTARRED_RECOMMEND_CLARIFICATION_FROM_DEPARTMENT="question_recommend_clarificationNeededFromDepartment";
+
+	public static final String QUESTION_UNSTARRED_RECOMMEND_CLARIFICATION_FROM_GOVT="question_recommend_clarificationNeededFromGovt";
+
+	public static final String QUESTION_UNSTARRED_RECOMMEND_CLARIFICATION_FROM_MEMBER_AND_DEPARTMENT="question_recommend_clarificationNeededFromMemberAndDepartment";
+
+	public static final String QUESTION_UNSTARRED_RECOMMEND_NAMECLUBBING="question_recommend_nameclubbing";
+
+	public static final String QUESTION_UNSTARRED_RECOMMEND_PUTONHOLD="question_recommend_putonhold";
+
+	public static final String QUESTION_UNSTARRED_RECOMMEND_SENDBACK="question_recommend_sendback";
+
+	public static final String QUESTION_UNSTARRED_RECOMMEND_DISCUSS="question_recommend_discuss";
+
+	public static final String QUESTION_UNSTARRED_RECOMMEND_REPEATADMISSION="question_recommend_repeatadmission";
+
+	public static final String QUESTION_UNSTARRED_RECOMMEND_REPEATREJECTION="question_recommend_repeatrejection";
+
+	/**** Final(Unstarred) ****/ 
+	public static final String QUESTION_UNSTARRED_FINAL_REANSWER = "question_final_reanswer";
+
+	public static final String QUESTION_UNSTARRED_FINAL_ADMISSION="question_final_admission";
+
+	public static final String QUESTION_UNSTARRED_FINAL_REJECTION="question_final_rejection";
+
+	public static final String QUESTION_UNSTARRED_FINAL_CONVERT_TO_UNSTARRED="question_final_rejection";
+
+	public static final String QUESTION_UNSTARRED_PROCESSED_REJECTIONWITHREASON="question_processed_rejectionWithReason";
+
+	public static final String QUESTION_UNSTARRED_FINAL_CONVERT_TO_UNSTARRED_AND_ADMIT="question_final_convertToUnstarredAndAdmit";
+
+	/**** System(Unstarred) ****/    
+	public static final String QUESTION_UNSTARRED_SYSTEM_ASSISTANT_PROCESSED="question_system_assistantprocessed";
+
+	public static final String QUESTION_UNSTARRED_SYSTEM_TO_BE_PUTUP="question_system_putup";
+
+	public static final String QUESTION_UNSTARRED_SYSTEM_GROUPCHANGED="question_system_groupchanged";
+
+	public static final String QUESTION_UNSTARRED_SYSTEM_CLUBBED="question_system_clubbed";
+
+	public static final String QUESTION_UNSTARRED_SYSTEM_CLUBBED_WITH_PENDING="question_system_clubbedwithpending";
+	
+	/**** Put Up(Unstarred) ****/
+	public static final String QUESTION_UNSTARRED_PUTUP_NAMECLUBBING="question_putup_nameclubbing";
+
+	public static final String QUESTION_UNSTARRED_PUTUP_ONHOLD="question_putup_onhold";
+
+	public static final String QUESTION_UNSTARRED_PUTUP_CONVERT_TO_UNSTARRED="question_putup_convertToUnstarred";
+
+	public static final String QUESTION_UNSTARRED_PUTUP_REJECTION="question_putup_rejection";
+
+	public static final String QUESTION_UNSTARRED_PUTUP_CONVERT_TO_UNSTARRED_AND_ADMIT="question_putup_convertToUnstarredAndAdmit";
+
+	public static final String QUESTION_UNSTARRED_PUTUP_CONVERT_TO_UNSTARRED_AND_ADMIT_CLUBBED="question_putup_convertToUnstarredAndAdmitClubbedWithPreviousSession";
+
+	/**** Processed Status(Unstarred) ****/
+	public static final String QUESTION_UNSTARRED_PROCESSED_BALLOTED="question_processed_balloted";
+
+	public static final String QUESTION_UNSTARRED_PROCESSED_YAADILAID="question_processed_yaadilaid";
+
+	/**** Member(Short Notice) *****/
+	public static final String QUESTION_SHORTNOTICE_INCOMPLETE="question_incomplete";
+
+	public static final String QUESTION_SHORTNOTICE_COMPLETE="question_complete";
+
+	public static final String QUESTION_SHORTNOTICE_SUBMIT="question_submit"; 
+
+	/**** Recommendation(Short Notice) ****/
+	public static final String QUESTION_SHORTNOTICE_RECOMMEND_ADMISSION="question_recommend_admission";
+
+	public static final String QUESTION_SHORTNOTICE_RECOMMEND_REJECTION="question_recommend_rejection";
+
+	public static final String QUESTION_SHORTNOTICE_RECOMMEND_CONVERT_TO_UNSTARRED="question_recommend_convertToUnstarred";
+
+	public static final String QUESTION_SHORTNOTICE_RECOMMEND_CONVERT_TO_UNSTARRED_AND_ADMIT="question_recommend_convertToUnstarredAndAdmit";
+
+	public static final String QUESTION_SHORTNOTICE_RECOMMEND_CONVERT_TO_UNSTARRED_AND_ADMIT_CLUBBED="question_recommend_convertToUnstarredAndAdmitClubbedWithPreviousSession";
+
+	public static final String QUESTION_SHORTNOTICE_RECOMMEND_CLARIFICATION_FROM_MEMBER="question_recommend_clarificationNeededFromMember";
+
+	public static final String QUESTION_SHORTNOTICE_RECOMMEND_CLARIFICATION_FROM_DEPARTMENT="question_recommend_clarificationNeededFromDepartment";
+
+	public static final String QUESTION_SHORTNOTICE_RECOMMEND_CLARIFICATION_FROM_GOVT="question_recommend_clarificationNeededFromGovt";
+
+	public static final String QUESTION_SHORTNOTICE_RECOMMEND_CLARIFICATION_FROM_MEMBER_AND_DEPARTMENT="question_recommend_clarificationNeededFromMemberAndDepartment";
+
+	public static final String QUESTION_SHORTNOTICE_RECOMMEND_NAMECLUBBING="question_recommend_nameclubbing";
+
+	public static final String QUESTION_SHORTNOTICE_RECOMMEND_PUTONHOLD="question_recommend_putonhold";
+
+	public static final String QUESTION_SHORTNOTICE_RECOMMEND_SENDBACK="question_recommend_sendback";
+
+	public static final String QUESTION_SHORTNOTICE_RECOMMEND_DISCUSS="question_recommend_discuss";
+
+	public static final String QUESTION_SHORTNOTICE_RECOMMEND_REPEATADMISSION="question_recommend_repeatadmission";
+
+	public static final String QUESTION_SHORTNOTICE_RECOMMEND_REPEATREJECTION="question_recommend_repeatrejection";
+
+	/**** Final(Short Notice) ****/ 
+	public static final String QUESTION_SHORTNOTICE_FINAL_REANSWER = "question_final_reanswer";
+
+	public static final String QUESTION_SHORTNOTICE_FINAL_ADMISSION="question_final_admission";
+
+	public static final String QUESTION_SHORTNOTICE_FINAL_REJECTION="question_final_rejection";
+
+	public static final String QUESTION_SHORTNOTICE_FINAL_CONVERT_TO_UNSTARRED="question_final_rejection";
+
+	public static final String QUESTION_SHORTNOTICE_PROCESSED_REJECTIONWITHREASON="question_processed_rejectionWithReason";
+
+	public static final String QUESTION_SHORTNOTICE_FINAL_CONVERT_TO_UNSTARRED_AND_ADMIT="question_final_convertToUnstarredAndAdmit";
+
+	/**** System(Short Notice) ****/    
+	public static final String QUESTION_SHORTNOTICE_SYSTEM_ASSISTANT_PROCESSED="question_system_assistantprocessed";
+
+	public static final String QUESTION_SHORTNOTICE_SYSTEM_TO_BE_PUTUP="question_system_putup";
+
+	public static final String QUESTION_SHORTNOTICE_SYSTEM_GROUPCHANGED="question_system_groupchanged";
+
+	public static final String QUESTION_SHORTNOTICE_SYSTEM_CLUBBED="question_system_clubbed";
+
+	public static final String QUESTION_SHORTNOTICE_SYSTEM_CLUBBED_WITH_PENDING="question_system_clubbedwithpending";
+	
+	/**** Put Up(Short Notice) ****/
+	public static final String QUESTION_SHORTNOTICE_PUTUP_NAMECLUBBING="question_putup_nameclubbing";
+
+	public static final String QUESTION_SHORTNOTICE_PUTUP_ONHOLD="question_putup_onhold";
+
+	public static final String QUESTION_SHORTNOTICE_PUTUP_CONVERT_TO_UNSTARRED="question_putup_convertToUnstarred";
+
+	public static final String QUESTION_SHORTNOTICE_PUTUP_REJECTION="question_putup_rejection";
+
+	public static final String QUESTION_SHORTNOTICE_PUTUP_CONVERT_TO_UNSTARRED_AND_ADMIT="question_putup_convertToUnstarredAndAdmit";
+
+	public static final String QUESTION_SHORTNOTICE_PUTUP_CONVERT_TO_UNSTARRED_AND_ADMIT_CLUBBED="question_putup_convertToUnstarredAndAdmitClubbedWithPreviousSession";
+
+	/**** Processed Status(Short Notice) ****/
+	public static final String QUESTION_SHORTNOTICE_PROCESSED_BALLOTED="question_processed_balloted";
+
+	public static final String QUESTION_SHORTNOTICE_PROCESSED_YAADILAID="question_processed_yaadilaid";
+
+	/**** Member(half hour discussion standalone) *****/
+	public static final String QUESTION_HALFHOURDISCUSSION_STANDALONE_INCOMPLETE="question_incomplete";
+
+	public static final String QUESTION_HALFHOURDISCUSSION_STANDALONE_COMPLETE="question_complete";
+
+	public static final String QUESTION_HALFHOURDISCUSSION_STANDALONE_SUBMIT="question_submit";
+
+	/**** Recommendation(half hour discussion standalone) ****/
+	public static final String QUESTION_HALFHOURDISCUSSION_STANDALONE_RECOMMEND_ADMISSION="question_recommend_admission";
+
+	public static final String QUESTION_HALFHOURDISCUSSION_STANDALONE_RECOMMEND_REJECTION="question_recommend_rejection";
+
+	public static final String QUESTION_HALFHOURDISCUSSION_STANDALONE_RECOMMEND_CONVERT_TO_UNSTARRED="question_recommend_convertToUnstarred";
+
+	public static final String QUESTION_HALFHOURDISCUSSION_STANDALONE_RECOMMEND_CONVERT_TO_UNSTARRED_AND_ADMIT="question_recommend_convertToUnstarredAndAdmit";
+
+	public static final String QUESTION_HALFHOURDISCUSSION_STANDALONE_RECOMMEND_CONVERT_TO_UNSTARRED_AND_ADMIT_CLUBBED="question_recommend_convertToUnstarredAndAdmitClubbedWithPreviousSession";
+
+	public static final String QUESTION_HALFHOURDISCUSSION_STANDALONE_RECOMMEND_CLARIFICATION_FROM_MEMBER="question_recommend_clarificationNeededFromMember";
+
+	public static final String QUESTION_HALFHOURDISCUSSION_STANDALONE_RECOMMEND_CLARIFICATION_FROM_DEPARTMENT="question_recommend_clarificationNeededFromDepartment";
+
+	public static final String QUESTION_HALFHOURDISCUSSION_STANDALONE_CLARIFICATION_FROM_GOVT="question_recommend_clarificationNeededFromGovt";
+
+	public static final String QUESTION_HALFHOURDISCUSSION_STANDALONE_CLARIFICATION_FROM_MEMBER_AND_DEPARTMENT="question_recommend_clarificationNeededFromMemberAndDepartment";
+
+	public static final String QUESTION_HALFHOURDISCUSSION_STANDALONE_RECOMMEND_NAMECLUBBING="question_recommend_nameclubbing";
+
+	public static final String QUESTION_HALFHOURDISCUSSION_STANDALONE_RECOMMEND_PUTONHOLD="question_recommend_putonhold";
+
+	public static final String QUESTION_HALFHOURDISCUSSION_STANDALONE_RECOMMEND_SENDBACK="question_recommend_sendback";
+
+	public static final String QUESTION_HALFHOURDISCUSSION_STANDALONE_RECOMMEND_DISCUSS="question_recommend_discuss";
+
+	public static final String QUESTION_HALFHOURDISCUSSION_STANDALONE_RECOMMEND_REPEATADMISSION="question_recommend_repeatadmission";
+
+	public static final String QUESTION_HALFHOURDISCUSSION_STANDALONE_RECOMMEND_REPEATREJECTION="question_recommend_repeatrejection";
+
+	/**** Final(half hour discussion standalone) ****/ 
+	public static final String QUESTION_HALFHOURDISCUSSION_STANDALONE_FINAL_REANSWER = "question_final_reanswer";
+
+	public static final String QUESTION_HALFHOURDISCUSSION_STANDALONE_FINAL_ADMISSION="question_final_admission";
+
+	public static final String QUESTION_HALFHOURDISCUSSION_STANDALONE_FINAL_REJECTION="question_final_rejection";
+
+	public static final String QUESTION_HALFHOURDISCUSSION_STANDALONE_FINAL_CONVERT_TO_UNSTARRED="question_final_rejection";
+
+	public static final String QUESTION_HALFHOURDISCUSSION_STANDALONE_PROCESSED_REJECTIONWITHREASON="question_processed_rejectionWithReason";
+
+	public static final String QUESTION_HALFHOURDISCUSSION_STANDALONE_FINAL_CONVERT_TO_UNSTARRED_AND_ADMIT="question_final_convertToUnstarredAndAdmit";
+
+	/**** System(half hour discussion standalone) ****/    
+	public static final String QUESTION_HALFHOURDISCUSSION_STANDALONE_SYSTEM_ASSISTANT_PROCESSED="question_system_assistantprocessed";
+
+	public static final String QUESTION_HALFHOURDISCUSSION_STANDALONE_SYSTEM_TO_BE_PUTUP="question_system_putup";
+
+	public static final String QUESTION_HALFHOURDISCUSSION_STANDALONE_SYSTEM_GROUPCHANGED="question_system_groupchanged";
+
+	public static final String QUESTION_HALFHOURDISCUSSION_STANDALONE_SYSTEM_CLUBBED="question_system_clubbed";
+
+	public static final String QUESTION_HALFHOURDISCUSSION_STANDALONE_SYSTEM_CLUBBED_WITH_PENDING="question_system_clubbedwithpending";
+
+	/**** Put Up(half hour discussion standalone) ****/
+	public static final String QUESTION_HALFHOURDISCUSSION_STANDALONE_PUTUP_NAMECLUBBING="question_putup_nameclubbing";
+
+	public static final String QUESTION_HALFHOURDISCUSSION_STANDALONE_PUTUP_ONHOLD="question_putup_onhold";
+
+	public static final String QUESTION_HALFHOURDISCUSSION_STANDALONE_PUTUP_CONVERT_TO_UNSTARRED="question_putup_convertToUnstarred";
+
+	public static final String QUESTION_HALFHOURDISCUSSION_STANDALONE_PUTUP_REJECTION="question_putup_rejection";
+
+	public static final String QUESTION_HALFHOURDISCUSSION_STANDALONE_PUTUP_CONVERT_TO_UNSTARRED_AND_ADMIT="question_putup_convertToUnstarredAndAdmit";
+
+	public static final String QUESTION_HALFHOURDISCUSSION_STANDALONE_PUTUP_CONVERT_TO_UNSTARRED_AND_ADMIT_CLUBBED="question_putup_convertToUnstarredAndAdmitClubbedWithPreviousSession";
+
+	/**** Processed Status(half hour discussion standalone) ****/
+	public static final String QUESTION_HALFHOURDISCUSSION_STANDALONE_PROCESSED_BALLOTED="question_processed_balloted";
+
+	public static final String QUESTION_HALFHOURDISCUSSION_STANDALONE_PROCESSED_YAADILAID="question_processed_yaadilaid";
+	
+	/**** Member(Half Hour Discussion from question) *****/
+	public static final String QUESTION_HALFHOURDISCUSSION_FROMQUESTION_INCOMPLETE="question_incomplete";
+
+	public static final String QUESTION_HALFHOURDISCUSSION_FROMQUESTION_COMPLETE="question_complete";
+
+	public static final String QUESTION_HALFHOURDISCUSSION_FROMQUESTION_SUBMIT="question_submit"; 
+
+	/**** Recommendation(half hour discussion from question) ****/
+	public static final String QUESTION_HALFHOURDISCUSSION_FROMQUESTION_RECOMMEND_ADMISSION="question_recommend_admission";
+
+	public static final String QUESTION_HALFHOURDISCUSSION_FROMQUESTION_RECOMMEND_REJECTION="question_recommend_rejection";
+
+	public static final String QUESTION_HALFHOURDISCUSSION_FROMQUESTION_RECOMMEND_CONVERT_TO_UNSTARRED="question_recommend_convertToUnstarred";
+
+	public static final String QUESTION_HALFHOURDISCUSSION_FROMQUESTION_RECOMMEND_CONVERT_TO_UNSTARRED_AND_ADMIT="question_recommend_convertToUnstarredAndAdmit";
+
+	public static final String QUESTION_HALFHOURDISCUSSION_FROMQUESTION_RECOMMEND_CONVERT_TO_UNSTARRED_AND_ADMIT_CLUBBED="question_recommend_convertToUnstarredAndAdmitClubbedWithPreviousSession";
+
+	public static final String QUESTION_HALFHOURDISCUSSION_FROMQUESTION_RECOMMEND_CLARIFICATION_FROM_MEMBER="question_recommend_clarificationNeededFromMember";
+
+	public static final String QUESTION_HALFHOURDISCUSSION_FROMQUESTION_RECOMMEND_CLARIFICATION_FROM_DEPARTMENT="question_recommend_clarificationNeededFromDepartment";
+
+	public static final String QUESTION_HALFHOURDISCUSSION_FROMQUESTION_CLARIFICATION_FROM_GOVT="question_recommend_clarificationNeededFromGovt";
+
+	public static final String QUESTION_HALFHOURDISCUSSION_FROMQUESTION_CLARIFICATION_FROM_MEMBER_AND_DEPARTMENT="question_recommend_clarificationNeededFromMemberAndDepartment";
+
+	public static final String QUESTION_HALFHOURDISCUSSION_FROMQUESTION_RECOMMEND_NAMECLUBBING="question_recommend_nameclubbing";
+
+	public static final String QUESTION_HALFHOURDISCUSSION_FROMQUESTION_RECOMMEND_PUTONHOLD="question_recommend_putonhold";
+
+	public static final String QUESTION_HALFHOURDISCUSSION_FROMQUESTION_RECOMMEND_SENDBACK="question_recommend_sendback";
+
+	public static final String QUESTION_HALFHOURDISCUSSION_FROMQUESTION_RECOMMEND_DISCUSS="question_recommend_discuss";
+
+	public static final String QUESTION_HALFHOURDISCUSSION_FROMQUESTION_RECOMMEND_REPEATADMISSION="question_recommend_repeatadmission";
+
+	public static final String QUESTION_HALFHOURDISCUSSION_FROMQUESTION_RECOMMEND_REPEATREJECTION="question_recommend_repeatrejection";
+
+	/**** Final(half hour discussion from question) ****/ 
+	public static final String QUESTION_HALFHOURDISCUSSION_FROMQUESTION_FINAL_REANSWER = "question_final_reanswer";
+
+	public static final String QUESTION_HALFHOURDISCUSSION_FROMQUESTION_FINAL_ADMISSION="question_final_admission";
+
+	public static final String QUESTION_HALFHOURDISCUSSION_FROMQUESTION_FINAL_REJECTION="question_final_rejection";
+
+	public static final String QUESTION_HALFHOURDISCUSSION_FROMQUESTION_FINAL_CONVERT_TO_UNSTARRED="question_final_rejection";
+
+	public static final String QUESTION_HALFHOURDISCUSSION_FROMQUESTION_PROCESSED_REJECTIONWITHREASON="question_processed_rejectionWithReason";
+
+	public static final String QUESTION_HALFHOURDISCUSSION_FROMQUESTION_FINAL_CONVERT_TO_UNSTARRED_AND_ADMIT="question_final_convertToUnstarredAndAdmit";
+
+	/**** System(half hour discussion from question) ****/    
+	public static final String QUESTION_HALFHOURDISCUSSION_FROMQUESTION_SYSTEM_ASSISTANT_PROCESSED="question_system_assistantprocessed";
+
+	public static final String QUESTION_HALFHOURDISCUSSION_FROMQUESTION_SYSTEM_TO_BE_PUTUP="question_system_putup";
+
+	public static final String QUESTION_HALFHOURDISCUSSION_FROMQUESTION_SYSTEM_GROUPCHANGED="question_system_groupchanged";
+
+	public static final String QUESTION_HALFHOURDISCUSSION_FROMQUESTION_SYSTEM_CLUBBED="question_system_clubbed";
+
+	public static final String QUESTION_HALFHOURDISCUSSION_FROMQUESTION_SYSTEM_CLUBBED_WITH_PENDING="question_system_clubbedwithpending";
+	
+	/**** Put Up(half hour discussion from question) ****/
+	public static final String QUESTION_HALFHOURDISCUSSION_FROMQUESTION_PUTUP_NAMECLUBBING="question_putup_nameclubbing";
+
+	public static final String QUESTION_HALFHOURDISCUSSION_FROMQUESTION_PUTUP_ONHOLD="question_putup_onhold";
+
+	public static final String QUESTION_HALFHOURDISCUSSION_FROMQUESTION_PUTUP_CONVERT_TO_UNSTARRED="question_putup_convertToUnstarred";
+
+	public static final String QUESTION_HALFHOURDISCUSSION_FROMQUESTION_PUTUP_REJECTION="question_putup_rejection";
+
+	public static final String QUESTION_HALFHOURDISCUSSION_FROMQUESTION_PUTUP_CONVERT_TO_UNSTARRED_AND_ADMIT="question_putup_convertToUnstarredAndAdmit";
+
+	public static final String QUESTION_HALFHOURDISCUSSION_FROMQUESTION_PUTUP_CONVERT_TO_UNSTARRED_AND_ADMIT_CLUBBED="question_putup_convertToUnstarredAndAdmitClubbedWithPreviousSession";
+
+	/**** Processed Status(half hour discussion from question) ****/
+	public static final String QUESTION_HALFHOURDISCUSSION_FROMQUESTION_PROCESSED_BALLOTED="question_processed_balloted";
+
+	public static final String QUESTION_HALFHOURDISCUSSION_FROMQUESTION_PROCESSED_YAADILAID="question_processed_yaadilaid";
+
+	/**************************************************************************************************************************/
+	/************************************************STATUS ENDS***************************************************************/
+
+	/**************************************************************************************************************************/
+	/************************************************SUPPORTING MEMBER BEGINS *************************************************/
+	/**** Supporting Member Status****/
+	public static final String SUPPORTING_MEMBER_TIMEOUT="supportingmember_timeout";
+
+	public static final String SUPPORTING_MEMBER_APPROVED="supportingmember_approved";
+
+	public static final String SUPPORTING_MEMBER_REJECTED="supportingmember_rejected";
+
+	public static final String SUPPORTING_MEMBER_PENDING="supportingmember_pending";
+
+	public static final String SUPPORTING_MEMBER_NOTSEND="supportingmember_notsend";
+
+	/**** Supporting Member Approval Type****/
+	public static final String SUPPORTING_MEMBER_APPROVALTYPE_AUTOAPPROVED="AUTO_APPROVAL"; 
+
+	public static final String SUPPORTING_MEMBER_APPROVALTYPE_ONLINE="ONLINE"; 
+	/**************************************************************************************************************************/
+	/************************************************SUPPORTING MEMBER ENDS *************************************************/
+
+	/** added for HDS ***/
+	public static final String QUESTION_FINAL_CLARIFICATION_NOT_RECEIVED_FROM_MEMBER="question_final_clarificationNotReceivedFromMember";
+
+	public static String QUESTION_PROCESSED_CLARIFICATION_RECIEVED="question_processed_clarificationReceived";
+
+	public static final String QUESTION_FINAL_CLARIFICATION_NEEDED_FROM_MEMBER="question_final_clarificationNeededFromMember";
+
+	public static final String QUESTION_FINAL_CLARIFICATION_NEEDED_FROM_DEPARTMENT="question_final_clarificationNeededFromDepartment";
+
+	public static final String QUESTION_FINAL_CLARIFICATION_NEEDED_FROM_MEMBER_DEPARTMENT="question_final_clarificationNeededFromMemberAndDepartment";
+
+
+	public static final String QUESTION_FINAL_CLARIFICATION_NOT_RECEIVED_FROM_DEPARTMENT="question_final_clarificationNotReceivedFromDepartment";
+
+	public static final String QUESTION_FINAL_REPEATADMISSION="question_final_repeatadmission";
+
+	public static final String QUESTION_FINAL_REPEATREJECTION="question_final_repeatrejection";
+
+	public static final String QUESTION_PROCESSED_SENDTOSECTIONOFFICER = "question_processed_sendToSectionOfficer";
+
+	public static final String QUESTIONS_HALFHOURDISCUSSION_STANDALONE_BALLOT_OUTPUT_COUNT_ASSEMBLY="QUESTIONS_HALFHOURDISCUSSION_STANDALONE_BALLOT_OUTPUT_COUNT_ASSEMBLY";
+
+	public static final String QUESTIONS_HALFHOURDISCUSSION_STANDALONE_BALLOT_OUTPUT_COUNT_COUNCIL="QUESTIONS_HALFHOURDISCUSSION_STANDALONE_BALLOT_OUTPUT_COUNT_COUNCIL";
+
+	public static final String QUESTION_FINAL_CONVERT_TO_UNSTARRED_AND_ADMIT_CLUBBED="question_final_convertToUnstarredAndAdmitClubbedWithPreviousSession";
+	
 	/**** Question Ministry,Department and Subdepartment parameters key in UserGroup ****/
 	public static final String HOUSETYPE_KEY="HOUSETYPE";
 
@@ -253,7 +591,7 @@ public class ApplicationConstants {
 	public static final String CHAIRMAN="chairman";
 
 	public static final String SPEAKER="speaker";  
-	
+
 	/**** User Group Types    ****/
 	/**** Member			  ****/
 	public static final String MEMBER="member"; 
@@ -265,17 +603,17 @@ public class ApplicationConstants {
 	public static final String SECTION_OFFICER="section_officer";
 
 	public static final String UNDER_SECRETARY="under_secretary";
-	
+
 	public static final String UNDER_SECRETARY_COMMITTEE="under_secretary_committee";
-	
+
 	public static final String PRINCIPAL_SECRETARY="principal_secretary";
-	
+
 	public static final String TRANSLATOR = "translator";
-	
+
 	public static final String OPINION_ABOUT_BILL_DEPARTMENT = "opinionAboutBill_department";
-	
+
 	public static final String RECOMMENDATION_FROM_GOVERNOR_DEPARTMENT = "recommendationFromGovernor_department";
-	
+
 	public static final String RECOMMENDATION_FROM_PRESIDENT_DEPARTMENT = "recommendationFromPresident_department";
 
 	public static final String PRESS = "press";
@@ -286,55 +624,55 @@ public class ApplicationConstants {
 	public static final String MYTASK_COMPLETED="COMPLETED";    
 	/**** Workflow Types ****/
 	public static final String APPROVAL_WORKFLOW="APPROVAL_WORKFLOW";
-	
+
 	public static final String RESOLUTION_APPROVAL_WORKFLOW = "RESOLUTION_APPROVAL_WORKFLOW";
 
 	public static final String SUPPORTING_MEMBER_WORKFLOW="Supporting_Members_Approval_Process";    
-	
+
 	public static final String TRANSLATION_WORKFLOW="TRANSLATION_WORKFLOW";
-	
+
 	public static final String OPINION_FROM_LAWANDJD_WORKFLOW="OPINION_FROM_LAWANDJD_WORKFLOW";
-	
+
 	public static final String RECOMMENDATION_FROM_GOVERNOR_WORKFLOW="RECOMMENDATION_FROM_GOVERNOR_WORKFLOW";
-	
+
 	public static final String RECOMMENDATION_FROM_PRESIDENT_WORKFLOW="RECOMMENDATION_FROM_PRESIDENT_WORKFLOW";
-	
+
 	public static final String REQUISITION_TO_PRESS_POST_ADMISSION_WORKFLOW = "REQUISITION_TO_PRESS_POST_ADMISSION_WORKFLOW";
-	
+
 	public static final String REQUISITION_TO_PRESS_POST_PASSEDBYFIRSTHOUSE_WORKFLOW = "REQUISITION_TO_PRESS_POST_PASSEDBYFIRSTHOUSE_WORKFLOW";
-	
+
 	public static final String REQUISITION_TO_PRESS_FOR_GAZETTE_WORKFLOW = "REQUISITION_TO_PRESS_FOR_GAZETTE_WORKFLOW";
-	
+
 	public static final String REQUISITION_TO_PRESS_WORKFLOW = "REQUISITION_TO_PRESS_WORKFLOW";
-	
+
 	public static final String NAMECLUBBING_WORKFLOW="NAMECLUBBING_WORKFLOW";
-	
+
 	public static final String TRANSMIT_LETTER_OF_PASSED_BY_FIRST_HOUSE_WORKFLOW = "TRANSMIT_LETTER_OF_PASSED_BY_FIRST_HOUSE_WORKFLOW";
-	
+
 	public static final String SEND_FOR_ENDORSEMENT_WORKFLOW = "SEND_FOR_ENDORSEMENT_WORKFLOW";
-	
+
 	public static final String TRANSMIT_ENDORSEMENT_COPIES_WORKFLOW = "TRANSMIT_ENDORSEMENT_COPIES_WORKFLOW";
-	
+
 	public static final String TRANSMIT_PRESS_COPIES_WORKFLOW = "TRANSMIT_PRESS_COPIES_WORKFLOW";
-	
+
 	public static final String LAY_LETTER_WORKFLOW = "LAY_LETTER_WORKFLOW";
 	/**** URL Pattern of Various Workflows ****/
 	public static final String APPROVAL_WORKFLOW_URLPATTERN="workflow/question";
-	
+
 	public static final String APPROVAL_WORKFLOW_URLPATTERN_MOTION="workflow/motion";
-	
+
 	public static final String APPROVAL_WORKFLOW_URLPATTERN_BILL="workflow/bill";
 
 	public static final String SUPPORTING_MEMBER_WORKFLOW_URLPATTERN="workflow/question/supportingmember";
 
 	public static final String REQUEST_TO_SUPPORTING_MEMBER="request_to_supporting_member";
-	
+
 	public static final String SUPPORTING_MEMBER_WORKFLOW_URLPATTERN_BILL="workflow/bill/supportingmember";
-	
+
 	public static final String SEND_FOR_ENDORSEMENT_WORKFLOW_URLPATTERN_BILL="workflow/bill/transmitpresscopies";
-	
+
 	public static final String TRANSMIT_ENDORSEMENT_COPIES_WORKFLOW_URLPATTERN_BILL="workflow/bill/transmitpresscopies";
-	
+
 	public static final String TRANSMIT_PRESS_COPIES_WORKFLOW_URLPATTERN_BILL="workflow/bill/transmitpresscopies";
 
 	public static final String LAY_LETTER_WORKFLOW_URLPATTERN_BILL="workflow/bill/layletter";
@@ -354,7 +692,7 @@ public class ApplicationConstants {
 
 	public static final String FINAL_BALLOT_UPDATE_SEQUENCE_PROCEDURE="memberballot_finalballot_updatesequenceno_procedure";
 	/**** Session parameters ****/
-	
+
 	public static final String QUESTION_STARRED_SUBMISSION_STARTTIME_LH="questions_starred_submissionStartDate";
 
 	public static final String QUESTION_STARRED_SUBMISSION_ENDTIME_LH="questions_starred_submissionEndDate";
@@ -392,9 +730,9 @@ public class ApplicationConstants {
 	public static final String QUESTION_HALFHOURDISCUSSION_STANDALONE_NO_OF_SUPPORTING_MEMBERS="questions_halfhourdiscussion_standalone_numberOfSupportingMembers";
 
 	public static final String QUESTION_HALFHOURDISCUSSION_STANDALONE_NO_OF_SUPPORTING_MEMBERS_COMPARATOR = "questions_halfhourdiscussion_standalone_numberOfSupportingMembersComparator";
-	
+
 	public static final String QUESTIONS_HALFHOURDISCUSSION_STANDALONE_SUBMISSIONSTARTDATE = "questions_halfhourdiscussion_standalone_submissionStartDate";
-	
+
 	public static final String QUESTIONS_HALFHOURDISCUSSION_STANDALONE_SUBMISSIONENDDATE = "questions_halfhourdiscussion_standalone_submissionEndDate"; 
 
 	/**** member ballot ****/
@@ -436,9 +774,9 @@ public class ApplicationConstants {
 	public static final String RESOLUTION_RECOMMEND_DISCUSS="resolution_recommend_discuss";
 
 	public static final String RESOLUTION_RECOMMEND_REPEAT="resolution_recommend_repeat";
-	
+
 	public static final String RESOLUTION_PROCESSED_SENDTOSECTIONOFFICER = "resolution_processed_sendToSectionOfficer";
-	
+
 	/**** Final ****/ 
 	public static final String RESOLUTION_FINAL_ADMISSION="resolution_final_admission";    
 
@@ -447,7 +785,7 @@ public class ApplicationConstants {
 	public static final String RESOLUTION_FINAL_CLARIFICATIONNEEDEDFROMDEPARTMENT="resolution_final_clarificationNeededFromDepartment";
 
 	public static final String RESOLUTION_FINAL_CLARIFICATIONNOTRECEIVEDFROMDEPARTMENT="resolution_final_clarificationNotReceivedFromDepartment";
-	
+
 	public static final String RESOLUTION_FINAL_REJECTION="resolution_final_rejection";
 
 	public static final String RESOLUTION_PUTUP_REJECTION="resolution_putup_rejection";
@@ -458,16 +796,16 @@ public class ApplicationConstants {
 
 	/** Prefix of questions **/
 	public static final String DEVICE_QUESTIONS="questions_";
-	
+
 	/**** Prefix of motions ****/
 	public static final String DEVICE_MOTIONS="motions_";
 
 	/** Prefix of resolutions **/
 	public static final String DEVICE_RESOLUTIONS="resolutions_";
-	
+
 	/** Prefix of bills **/
 	public static final String DEVICE_BILLS="bills_";
-	
+
 	/** Prefix of acts **/
 	public static final String DEVICE_ACTS="act";
 
@@ -493,17 +831,17 @@ public class ApplicationConstants {
 	public static String RESOLUTION_RECOMMEND_CLARIFICATION_FROM_MEMBER="resolution_recommend_clarificationNeededFromMember";
 
 	public static String RESOLUTION_RECOMMEND_CLARIFICATION_FROM_MEMBER_AND_DEPARTMENT="resolution_recommend_clarificationNeededFromMemberAndDepartment";
-	
+
 	public static String RESOLUTION_PROCESSED_CLARIFICATIONNOTRECIEVED="resolution_processed_clarificationNotReceived";
 
 	public static String CATEGORY_MASTER="CATEGORY_MASTER";
 
 	public static final String RESOLUTION_RECOMMEND_REPEATADMISSION="resolution_recommend_repeatadmission";
-	
+
 	public static final String RESOLUTION_RECOMMEND_REPEATREJECTION="resolution_recommend_repeatrejection";
-	
+
 	public static final String RESOLUTION_FINAL_REPEATADMISSION="resolution_final_repeatadmission";
-	
+
 	public static final String RESOLUTION_FINAL_REPEATREJECTION="resolution_final_repeatrejection";
 
 	public static final String RESOLUTION_PROCESSED_BALLOTED="resolution_processed_balloted";
@@ -519,23 +857,23 @@ public class ApplicationConstants {
 	public static final String RESOLUTION_NONOFFICIAL_SESSIONS_TOBE_SEARCHED_COUNT="RESOLUTION_NONOFFICIAL_SESSIONS_TOBE_SEARCHED_COUNT";
 
 	public static final String RESOLUTION_PROCESSED_UNDERCONSIDERATION = "resolution_processed_underconsideration";
-	
+
 	public static final String VOTING_FOR_PASSING_OF_RESOLUTION = "PASSING_OF_RESOLUTION";
 
 	public static final String RESOLUTION_PROCESSED_SELECTEDANDNOTDISCUSSED = "resolution_processed_selectedAndNotDiscussed";
 
-	
+
 	/****************Motion Information System********************/
 	/**** device types ****/
 	public static final String AMENDMENT_FOR_BILL_MOTION = "motions_amendment_for_bill";
-	
+
 	/**** Member View ****/	
 	public static final String MOTION_INCOMPLETE="motion_incomplete";
 
 	public static final String MOTION_COMPLETE="motion_complete";
 
 	public static final String MOTION_SUBMIT="motion_submit"; 
-	
+
 	/**** System ****/    
 	public static final String MOTION_SYSTEM_ASSISTANT_PROCESSED="motion_system_assistantprocessed";
 
@@ -544,7 +882,7 @@ public class ApplicationConstants {
 	public static final String MOTION_SYSTEM_CLUBBED="motion_system_clubbed";
 
 	public static final String MOTION_SYSTEM_CLUBBED_WITH_PENDING="motion_system_clubbedwithpending";
-	
+
 	/**** Recommendation ****/
 	public static final String MOTION_RECOMMEND_ADMISSION="motion_recommend_admission";
 
@@ -565,30 +903,30 @@ public class ApplicationConstants {
 	public static final String MOTION_RECOMMEND_SENDBACK="motion_recommend_sendback";
 
 	public static final String MOTION_RECOMMEND_DISCUSS="motion_recommend_discuss";
-	
+
 	/**** Final ****/ 
 	public static final String MOTION_FINAL_ADMISSION="motion_final_admission";
 
 	public static final String MOTION_FINAL_REJECTION="motion_final_rejection";
 
 	public static final String MOTION_FINAL_CLARIFICATION_NOT_RECEIVED_FROM_MEMBER="motion_final_clarificationNotReceivedFromMember";
-	
+
 	/**** Put Up ****/
 	public static final String MOTION_PUTUP_NAMECLUBBING="motion_putup_nameclubbing";
 
 	public static final String MOTION_PUTUP_ONHOLD="motion_putup_onhold";
 
 	public static final String MOTION_PUTUP_REJECTION="motion_putup_rejection";
-	
+
 	/**** Supporting Member ****/
 	public static final String SUPPORTING_MEMBER_WORKFLOW_URLPATTERN_MOTION="workflow/motion/supportingmember";
 
 	public static final String QUESTION_FINAL_NAMECLUBBING = "question_final_nameclubbing";
-	
+
 	public static final String QUESTION_FINAL_REJECT_NAMECLUBBING = "question_final_reject_nameclubbing";
 
 	public static final String BALLOT_REPORT_DATE_FORMAT = "dd-MM-yyyy";
-	
+
 	public static final String WORKFLOWCONFIG_REMOVEACTOR_WFCONFIG_WFACTORS_QUERY = "WORKFLOWCONFIG_REMOVEACTOR_WFCONFIG_WFACTORS_QUERY";
 
 	public static final String WORKFLOWCONFIG_REMOVEACTOR_WORKFLOWACTORS_QUERY = "WORKFLOWCONFIG_REMOVEACTOR_WORKFLOWACTORS_QUERY";
@@ -624,21 +962,21 @@ public class ApplicationConstants {
 	public static final String MEMBERHOUSEROLE_FIND_ALL_ACTIVE_MEMBERVOS_IN_SESSION = "MEMBERHOUSEROLE_FIND_ALL_ACTIVE_MEMBERVOS_IN_SESSION";
 
 	public static final String MEMBERHOUSEROLE_FIND_ALL_ACTIVE_MEMBERVOS_IN_SESSION_WITH_PARAM = "MEMBERHOUSEROLE_FIND_ALL_ACTIVE_MEMBERVOS_IN_SESSION_WITH_PARAM";
-	
+
 	/**** role types for comparison ****/
-	
+
 	public static final String MINISTER = "MINISTER";
-	
-	
+
+
 	/**** member role types for comparison ****/
 	public static final String CHIEF_MINISTER = "CHIEF_MINISTER";
-	
+
 	public static final String DEPUTY_CHIEF_MINISTER = "DEPUTY_CHIEF_MINISTER";
-	
+
 	public static String DEPUTY_SPEAKER="DEPUTY_SPEAKER";
 
 	public static String DEPUTY_CHAIRMAN="DEPUTY_CHAIRMAN";
-	
+
 	/****Reporting*******/
 	public static String PROCEEDING_SEARCHOPTION="PROCEEDING_SEARCHOPTIONS";
 
@@ -653,11 +991,11 @@ public class ApplicationConstants {
 	public static String RIS_REPORTER_WISE_REPORT="RIS_REPORTER_WISE_REPORT";
 
 	public static String RIS_MEMBER_WISE_REPORT="RIS_MEMBER_WISE_REPORT";
-	
+
 	public static String RIS_MEMBER_WISE_REPORT2="RIS_MEMBER_WISE_REPORT2";
 
 	public static String PAGE_HEADING="pageHeading";
-	
+
 	public static String MAIN_HEADING="mainHeading";
 
 	public static String REPORTING="reporting";
@@ -665,99 +1003,99 @@ public class ApplicationConstants {
 	public static String CLERK="clerk";
 
 	public static String QUESTION_FINAL_CLARIFICATION_NEEDED_FROM_GOVT="question_final_clarificationNeededFromGovt";
-	
+
 	/****Custom Parameters name ****/
 	public static final String RESOLUTION_CHART_WITHDEVICES_VIEW = "RESOLUTION_CHART_WITHDEVICES_VIEW";
-	
+
 	public static final String RESOLUTION_CHART_WITHOUTDEVICES_VIEW = "RESOLUTION_CHART_WITHOUTDEVICES_VIEW";
-	
+
 	public static final String RESOLUTION_CHART_VIEW = "RESOLUTION_CHART_VIEW";
-	
+
 	public static final String MAX_ASWERING_ATTEMPTS_STARRED = "MAX_ASWERING_ATTEMPTS_STARRED";
-	
+
 	public static final String DEPARTMENT_SENDBACK_TIME_LIMIT = "DEPARTMENT_SENDBACK_TIME_LIMIT"; 
-	
+
 	/**** Rotation order ministry report query key_field ****/
 	public static final String ROTATIONORDER_MINISTRY_DEPARTMENTS_REPORT="ROTATIONORDER_MINISTRY_DEPARTMENTS_REPORT";
-	
+
 	/**** COMMITTEE ****/
 	public static final String RULING_PARTY = "ruling_party";
-	
+
 	public static final String OPPOSITION_PARTY = "opposition_party";
-	
+
 	public static final String INDEPENDENT_PARTY = "independent";
-	
+
 	public static final String COMMITTEE_CREATED = "committee_created";
 
 	public static final String COMMITTEE_RECOMMEND_SENDBACK = "committee_recommend_sendback";
-	
+
 	public static final String COMMITTEE_PROCESSED_SENDBACK = "committee_processed_sendback";
-	
+
 	public static final String COMMITTEE_REQUEST_TO_PARLIAMENTARY_MINISTER = "committeeMemberAdditionRequestToParliamentaryAffairsMinister";
-	
+
 	public static final String COMMITTEE_REQUEST_TO_LEADER_OF_OPPOSITION = "committeeMemberAdditionRequestToLeaderOfOpposition";
-	
+
 	public static final String COMMITTEE_ADDITION_OF_INVITED_MEMBERS = "committeeInvitedMemberAddition";
-	
+
 	public static final String COMMITTEE_USERS_EXCLUDED_FROM_CHOOSING_NEXT_ACTOR_IN_WORKFLOW = "COMMITTEE_USERS_EXCLUDED_FROM_CHOOSING_NEXT_ACTOR_IN_WORKFLOW";
-	
+
 	public static final int WORKFLOW_START_LEVEL = 1;
-	
+
 	public static final String COMMITTEE = "COMMITTEE";
-	
+
 	public static final String COMMITTEE_MEMBER_ADDITION_URL = "workflow/committee/memberAddition";
-	
+
 	public static final String COMMITTEE_INVITED_MEMBER_ADDITION_URL = "workflow/committee/invitedMemberAddition";
-	
+
 	public static final String COMMITTEE_CHAIRMAN = "comittee_chairman";
-	
+
 	public static final String COMMITTEE_MEMBER = "committee_member";
-	
+
 	public static final String COMMITTEE_INVITED_MEMBER = "committee_invited_member";
-	
+
 	public static final String COMMITTEE_REQUEST_TO_PARLIAMENTARY_MINISTER_PROCESSED = "committee_final_approved_committeeMemberAdditionRequestToParliamentaryAffairsMinister";
-	
+
 	public static final String COMMITTEE_REQUEST_TO_LEADER_OF_OPPOSITION_PROCESSED = "committee_final_approved_committeeMemberAdditionRequestToLeaderOfOpposition";
-	
+
 	public static final String COMMITTEE_MEMBERS_ADDED = "committee_membersAdded";
-	
+
 	public static final String COMMITTEE_INVITED_MEMBER_ADDITION_PROCESSED = "committee_final_approved_committeeInvitedMemberAddition";
-	
+
 	public static final String COMMITTEE_INVITED_MEMBERS_ADDED = "committee_invitedMembersAdded";
-	
+
 	public static final String COMMITTEETOUR_INCOMPLETE = "committeetour_incomplete";
-	
+
 	public static final String COMMITTEETOUR_CREATED = "committeetour_created";
-	
+
 	public static final String COMMITTEETOUR_RECOMMEND_ADMISSION = "committeetour_recommend_admissionTour";
-	
+
 	public static final String COMMITTEETOUR_REQUEST_FOR_TOUR_URL = "committeetour/requestForTour";
-	
+
 	public static final String COMMITTEETOUR_USERS_EXCLUDED_FROM_CHOOSING_NEXT_ACTOR_IN_WORKFLOW = "COMMITTEETOUR_USERS_EXCLUDED_FROM_CHOOSING_NEXT_ACTOR_IN_WORKFLOW";
-	
+
 	public static final String COMMITTEETOUR_RECOMMEND_SENDBACK = "committeetour_recommend_sendback";
-	
+
 	public static final String SENDBACK = "sendback";
-	
+
 	public static final String ADMISSIONTOUR = "admissionTour";
-	
+
 	public static final String COMMITTEETOUR_RETURN_URL = "workflow/committeetour/requestForTour";
-	
+
 	public static final String SERVER_DATETIMEFORMAT = "SERVER_DATETIMEFORMAT";
-	
+
 	/****************Bill Information System********************/
 	/**** device types ****/
 	public static final String NONOFFICIAL_BILL = "bills_nonofficial";
 
 	public static final String GOVERNMENT_BILL = "bills_government";
-	
+
 	/**** bill types ****/
 	public static final String ORIGINAL_BILL = "original";
-	
+
 	public static final String AMENDMENT_BILL = "amending";
-	
+
 	public static final String ORDINANCE_REPLACEMENT_BILL = "replace_ordinance";
-	
+
 	/**** bill kinds ****/
 	public static final String MONEY_BILL = "money";	
 
@@ -772,96 +1110,96 @@ public class ApplicationConstants {
 	public static final String BILL_SYSTEM_ASSISTANT_PROCESSED="bill_system_assistantprocessed";
 
 	public static final String BILL_SYSTEM_TO_BE_PUTUP="bill_system_putup";
-	
+
 	public static final String BILL_SYSTEM_CLUBBED="bill_system_clubbed";
-	
+
 	public static final String BILL_SYSTEM_CLUBBED_WITH_PENDING="bill_system_clubbedwithpending";
-	
+
 	/**** Translation & Its Workflow Status ****/
 	public static final String BILL_TRANSLATION_NOTSEND = "translation_notsend";
 
 	public static final String BILL_TRANSLATION_COMPLETED = "translation_completed";
-	
+
 	public static final String BILL_TRANSLATION_TIMEOUT = "translation_timeout";
-	
+
 	public static final String BILL_TRANSLATION_CANCELLED = "translation_cancelled";
-	
+
 	public static final String BILL_RECOMMEND_TRANSLATION="bill_recommend_translation";
-	
+
 	public static final String BILL_RECOMMEND_REJECT_TRANSLATION="bill_recommend_reject_translation";
-	
+
 	public static final String BILL_FINAL_TRANSLATION="bill_final_translation";
-	
+
 	public static final String BILL_FINAL_REJECT_TRANSLATION="bill_final_reject_translation";
-	
+
 	/**** Opinion Seeking From Law and JD & Its Workflow Status ****/
 	public static final String BILL_OPINION_FROM_LAWANDJD_NOTSEND = "opinionFromLawAndJD_notsend";
-	
+
 	public static final String BILL_OPINION_FROM_LAWANDJD_RECEIVED = "opinionFromLawAndJD_received";
-	
+
 	public static final String BILL_RECOMMEND_OPINION_FROM_LAWANDJD="bill_recommend_opinionFromLawAndJD";
-	
+
 	public static final String BILL_FINAL_OPINION_FROM_LAWANDJD="bill_final_opinionFromLawAndJD";
-	
+
 	/**** Recommendation From Governor & Its Workflow Status ****/
 	public static final String BILL_RECOMMENDATION_FROM_GOVERNOR_NOTSEND = "recommendationFromGovernor_notsend";
-	
+
 	public static final String BILL_RECOMMENDATION_FROM_GOVERNOR_RECEIVED = "recommendationFromGovernor_received";
-	
+
 	public static final String BILL_RECOMMEND_RECOMMENDATION_FROM_GOVERNOR="bill_recommend_recommendationFromGovernor";
-	
+
 	public static final String BILL_FINAL_RECOMMENDATION_FROM_GOVERNOR="bill_final_recommendationFromGovernor";
-	
+
 	/**** Recommendation From President & Its Workflow Status ****/
 	public static final String BILL_RECOMMENDATION_FROM_PRESIDENT_NOTSEND = "recommendationFromPresident_notsend";
-	
+
 	public static final String BILL_RECOMMENDATION_FROM_PRESIDENT_RECEIVED = "recommendationFromPresident_received";
-	
+
 	public static final String BILL_RECOMMEND_RECOMMENDATION_FROM_PRESIDENT="bill_recommend_recommendationFromPresident";
-	
+
 	public static final String BILL_FINAL_RECOMMENDATION_FROM_PRESIDENT="bill_final_recommendationFromPresident";
-	
+
 	/**** Print Requisition Workflow Status ****/
 	public static final String BILL_FINAL_PRINT_REQUISITION_TO_PRESS="bill_final_printRequisitionToPress";
-	
+
 	public static final String BILL_FINAL_PRINT_REQUISITION_TO_PRESS_FOR_GAZETTE="bill_final_printRequisitionToPressForGazette";
-	
+
 	public static final String BILL_FINAL_PRINT_REQUISITION_TO_PRESS_POST_PASSEDBYFIRSTHOUSE="bill_final_printRequisitionToPressPostPassedByFirstHouse";
-	
+
 	/**** Send for Endorsement Workflow Status ****/
 	public static final String BILL_FINAL_SENDFORENDORSEMENT="bill_final_sendForEndorsement";
-	
+
 	/**** Transmit Endorsement Copies Workflow Status ****/
 	public static final String BILL_FINAL_TRANSMITENDORSEMENTCOPIES="bill_final_transmitEndorsementCopies";
-	
+
 	/**** Transmit Press Copies Workflow Status ****/
 	public static final String BILL_FINAL_TRANSMITPRESSCOPIES="bill_final_transmitPressCopies";
-	
+
 	/**** Lay Letter Workflow Status ****/
 	public static final String BILL_FINAL_LAYLETTER="bill_final_layLetter";
-	
+
 	/**** Transmit Letter Of Passed By First House Workflow Status ****/
 	public static final String BILL_RECOMMEND_TRANSMIT_LETTER_OF_PASSED_BY_FIRST_HOUSE = "bill_recommend_transmitLetterOfPassedByFirstHouse";
-	
+
 	public static final String BILL_FINAL_TRANSMIT_LETTER_OF_PASSED_BY_FIRST_HOUSE = "bill_final_transmitLetterOfPassedByFirstHouse";
-	
+
 	public static final String BILL_TRANSMIT_LETTER_OF_PASSED_BY_FIRST_HOUSE_NOTSTARTED = "bill_transmitLetterOfPassedByFirstHouse_notStarted";
-	
+
 	public static final String BILL_TRANSMIT_LETTER_OF_PASSED_BY_FIRST_HOUSE_PENDING = "bill_transmitLetterOfPassedByFirstHouse_pending";
-	
+
 	public static final String BILL_TRANSMIT_LETTER_OF_PASSED_BY_FIRST_HOUSE_COMPLETED = "bill_transmitLetterOfPassedByFirstHouse_completed";
-	
-	
+
+
 
 	/**** Recommendation status ****/	
 	public static final String BILL_RECOMMEND_ADMISSION="bill_recommend_admission";
 
 	public static final String BILL_RECOMMEND_REJECTION="bill_recommend_rejection";
-	
+
 	public static final String BILL_RECOMMEND_NAMECLUBBING="bill_recommend_nameclubbing";
-	
-//	public static final String BILL_RECOMMEND_REJECT_NAMECLUBBING="bill_recommend_reject_nameclubbing";
-	
+
+	//	public static final String BILL_RECOMMEND_REJECT_NAMECLUBBING="bill_recommend_reject_nameclubbing";
+
 	public static final String BILL_RECOMMEND_SENDBACK="bill_recommend_sendback";	
 
 	public static final String BILL_RECOMMEND_DISCUSS="bill_recommend_discuss";
@@ -870,142 +1208,142 @@ public class ApplicationConstants {
 	public static final String BILL_FINAL_ADMISSION="bill_final_admission";    
 
 	public static final String BILL_FINAL_REJECTION="bill_final_rejection";
-	
+
 	public static final String BILL_FINAL_REJECTION_DUETOINCOMPLETENESS="bill_final_rejection_dueToIncompleteness";
-	
+
 	public static final String BILL_FINAL_REJECTION_DUETOREFERENCING="bill_final_rejection_dueToReferencing";
-	
+
 	public static final String BILL_FINAL_REJECTION_DUETOFINALAUTHORITYDECISION="bill_final_rejection_dueToFinalAuthorityDecision";
-	
+
 	public static final String BILL_FINAL_NAMECLUBBING = "bill_final_nameclubbing";
-	
+
 	public static final String BILL_FINAL_REJECT_NAMECLUBBING = "bill_final_reject_nameclubbing";
-	
+
 	public static final String BILL_FINAL_WITHDRAWN="bill_final_withdrawn";
-	
+
 	public static final String BILL_FINAL_NEGATIVED="bill_final_negatived";
-	
+
 	public static final String BILL_FINAL_LAPSED="bill_final_lapsed";
-	
+
 	public static final String BILL_FINAL_PASSED="bill_final_passed";
-	
+
 	/**** Processed Status ****/
 	public static final String BILL_PROCESSED_REJECTIONWITHREASON = "bill_processed_rejectionWithReason";
-	
+
 	public static final String BILL_PROCESSED_SENDTOSECTIONOFFICER = "bill_processed_sendToSectionOfficer";
-	
+
 	public static final String BILL_PROCESSED_DEPARTMENTINTIMATED = "bill_processed_departmentIntimated";
-	
+
 	public static final String BILL_PROCESSED_TOBEINTRODUCED = "bill_processed_toBeIntroduced";
-	
+
 	public static final String BILL_PROCESSED_INTRODUCED = "bill_processed_introduced";
-	
+
 	public static final String BILL_PROCESSED_UNDERCONSIDERATION = "bill_processed_underConsideration";
-	
+
 	public static final String BILL_PROCESSED_BALLOTED = "bill_processed_balloted";
 
 	public static final String BILL_PROCESSED_TOBEDISCUSSED = "bill_processed_toBeDiscussed";	
-	
+
 	public static final String BILL_PROCESSED_PARTIALLYDISCUSSED = "bill_processed_partiallydiscussed";
-	
+
 	public static final String BILL_PROCESSED_REFERTOJOINTCOMMITTEE = "bill_processed_referToJointCommittee";
-	
+
 	public static final String BILL_PROCESSED_REREFERTOJOINTCOMMITTEE = "bill_processed_reReferToJointCommittee";
-	
+
 	public static final String BILL_PROCESSED_DISCUSSEDCLAUSEBYCLAUSE = "bill_processed_discussedClauseByClause";
-	
+
 	public static final String BILL_PROCESSED_PASSEDBYFIRSTHOUSE = "bill_processed_passedByFirstHouse";
-	
+
 	public static final String BILL_PROCESSED_PASSED = "bill_processed_passed";
-	
+
 	public static final String BILL_PROCESSED_NEGATIVED = "bill_processed_negatived";
-	
+
 	public static final String BILL_PROCESSED_WITHDRAWN = "bill_processed_withdrawn";
-	
+
 	public static final String BILL_PROCESSED_LAPSED = "bill_processed_lapsed";	
-	
+
 	public static final String BILL_PROCESSED_PASSEDBYBOTHHOUSES = "bill_processed_passedByBothHouses";
-	
+
 	/**** Changed Processed Status After Refactoring ****/
 	public static final String BILL_PROCESSED_CONSIDERED = "bill_processed_considered";
-	
-//	public static final String BILL_PROCESSED_CONSIDERED_UPPERHOUSE_FIRSTHOUSE_1 = "bill_processed_considered_upperhouse_firsthouse_1";
-//	
-//	public static final String BILL_PROCESSED_CONSIDERED_LOWERHOUSE_FIRSTHOUSE_2 = "bill_processed_considered_lowerhouse_firsthouse_2";
-//	
-//	public static final String BILL_PROCESSED_CONSIDERED_UPPERHOUSE_FIRSTHOUSE_2 = "bill_processed_considered_upperhouse_firsthouse_2";
-//	
-//	public static final String BILL_PROCESSED_CONSIDERED_LOWERHOUSE_SECONDHOUSE_1 = "bill_processed_considered_lowerhouse_secondhouse_1";
-//	
-//	public static final String BILL_PROCESSED_CONSIDERED_UPPERHOUSE_SECONDHOUSE_1 = "bill_processed_considered_upperhouse_secondhouse_1";
-//	
-//	public static final String BILL_PROCESSED_CONSIDERED_LOWERHOUSE_SECONDHOUSE_2 = "bill_processed_considered_lowerhouse_secondhouse_2";
-//	
-//	public static final String BILL_PROCESSED_CONSIDERED_UPPERHOUSE_SECONDHOUSE_2 = "bill_processed_considered_upperhouse_secondhouse_2";
-	
+
+	//	public static final String BILL_PROCESSED_CONSIDERED_UPPERHOUSE_FIRSTHOUSE_1 = "bill_processed_considered_upperhouse_firsthouse_1";
+	//	
+	//	public static final String BILL_PROCESSED_CONSIDERED_LOWERHOUSE_FIRSTHOUSE_2 = "bill_processed_considered_lowerhouse_firsthouse_2";
+	//	
+	//	public static final String BILL_PROCESSED_CONSIDERED_UPPERHOUSE_FIRSTHOUSE_2 = "bill_processed_considered_upperhouse_firsthouse_2";
+	//	
+	//	public static final String BILL_PROCESSED_CONSIDERED_LOWERHOUSE_SECONDHOUSE_1 = "bill_processed_considered_lowerhouse_secondhouse_1";
+	//	
+	//	public static final String BILL_PROCESSED_CONSIDERED_UPPERHOUSE_SECONDHOUSE_1 = "bill_processed_considered_upperhouse_secondhouse_1";
+	//	
+	//	public static final String BILL_PROCESSED_CONSIDERED_LOWERHOUSE_SECONDHOUSE_2 = "bill_processed_considered_lowerhouse_secondhouse_2";
+	//	
+	//	public static final String BILL_PROCESSED_CONSIDERED_UPPERHOUSE_SECONDHOUSE_2 = "bill_processed_considered_upperhouse_secondhouse_2";
+
 	/**** Put Up ****/
 	public static final String BILL_PUTUP_NAMECLUBBING="bill_putup_nameclubbing";
-	
+
 	public static final String BILL_PUTUP_REJECTION="bill_putup_rejection";
-	
+
 	/**** Custom Parameters ****/
 	public static final String BILL_NONOFFICIAL_BALLOT_OUTPUT_COUNT = "BILL_NONOFFICIAL_BALLOT_OUTPUT_COUNT";
-	
+
 	public static final String BILL_CHECKLIST_COUNT = "BILL_CHECKLIST_COUNT";
-	
+
 	/**** Native Query Keys ****/
 	public static final String BILL_GET_DRAFT_BY_STATUS = "BILL_GET_DRAFT_BY_STATUS";
-	
+
 	/**** Others ****/
 	public static final String BILL_RECOMMENDATION_FROM_GOVERNOR_CHECKLIST_PARAMETER = "isRecommendedAsPerConstitutionArticle_207_3";
-	
+
 	public static final String BILL_RECOMMENDATION_FROM_PRESIDENT_CHECKLIST_PARAMETER = "isRecommendedAsPerConstitutionArticle_304_b";
 
 	public static final String BILL_PRESS_COPY = "BILL_PRESS_COPY";
-	
+
 	public static final String BILL_GAZETTE_COPY = "BILL_GAZETTE_COPY";
-	
+
 	public static final String BILL_GAZETTE_RECEIVING_DEPARTMENTS = "BILL_GAZETTE_RECEIVING_DEPARTMENTS";
-	
+
 	public static final String BILL_FIRST_HOUSE = "firsthouse";
-	
+
 	public static final String BILL_SECOND_HOUSE = "secondhouse";	
-	
+
 	/**** Voting For ****/
 	public static final String VOTING_FOR_PASSING_OF_BILL = "PASSING_OF_BILL";
-	
+
 	/**** Laying For ****/
 	public static final String LAYING_IN_SECONDHOUSE_POST_PASSED_BY_FIRST_HOUSE = "LAYING_IN_SECONDHOUSE_POST_PASSED_BY_FIRST_HOUSE";
-	
+
 	/**** Transmission/Endorsement of Print Requisition Decisions ****/
 	public static final String TRANSMISSION_APPROVED="transmission_approved";
 
 	public static final String TRANSMISSION_REJECTED="transmission_rejected";
-	
+
 	/**** Laying Letter Statuses & Decisions ****/
 	public static final String LAYINGLETTER_NOTSEND="layingLetter_notsend";
-	
+
 	public static final String LAYINGLETTER_PENDING="layingLetter_pending";
-	
+
 	public static final String LAYINGLETTER_APPROVED="layingLetter_approved";
 
 	public static final String LAYINGLETTER_REJECTED="layingLetter_rejected";
-	
+
 	/***Editing ****/
 	public static final String EDITING = "EDITING";
-	
+
 	public static final String EDITING_RECOMMEND_SENDBACK = "editing_recommend_sendback";
-	
+
 	public static final String EDITING_RECOMMEND_MEMBERAPPROVAL = "editing_recommend_memberapproval";
-	
+
 	public static final String EDITING_RECOMMEND_SPEAKERAPPROVAL = "editing_recommend_speakerapproval";
-	
+
 	public static final String EDITING_FINAL_MEMBERAPPROVAL = "editing_final_memberapproval";
-	
+
 	public static final String EDITING_FINAL_SPEAKERAPPROVAL = "editing_final_speakerapproval";
-	
+
 	public static final String EDITOR = "editor";
-	
+
 	public static final String CHIEF_EDITOR = "chief_editor";
 
 	public static final String REPORTING_BILL_LANGUAGES = "REPORTING_BILL_LANGUAGES";
