@@ -90,7 +90,14 @@
 						<fo:block text-align="left">
 							<fo:block>प्रति,</fo:block>						
 							<fo:block font-weight="bold">सचिव</fo:block>
-							<fo:block font-weight="bold"><xsl:value-of select="department"/> (<xsl:value-of select="subDepartment"/>)</fo:block>
+							<xsl:choose>
+								<xsl:when test="department=subDepartment">
+									<fo:block font-weight="bold"><xsl:value-of select="department"/></fo:block>
+								</xsl:when>
+								<xsl:otherwise>
+									<fo:block font-weight="bold"><xsl:value-of select="department"/> (<xsl:value-of select="subDepartment"/>)</fo:block>
+								</xsl:otherwise>
+							</xsl:choose>								
 							<fo:block>महाराष्ट्र शासन मंत्रालय, मुंबई - ४०० ०३२</fo:block>	
 						</fo:block>		
 						
