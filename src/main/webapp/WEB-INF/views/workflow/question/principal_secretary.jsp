@@ -113,6 +113,7 @@
 		var sendback=$("#internalStatusMaster option[value='question_recommend_sendback']").text();			
 		var discuss=$("#internalStatusMaster option[value='question_recommend_discuss']").text();
 		var clarificationFromDepartment=$("#internalStatusMaster option[value='question_final_clarificationNeededFromDepartment']").text();
+		var clarificationFromMemberAndDepartment=$("#internalStatusMaster option[value='question_recommend_clarificationNeededFromMemberAndDepartment']").text();
 		var clarificationFromMember=$("#internalStatusMaster option[value='question_final_clarificationNeededFromMember']").text();
 		var admitDate = $("#internalStatusMaster option[value='question_processed_admitDate']").text();
 		var resubmitDate = $("#internalStatusMaster option[value='question_processed_resubmitDate']").text();
@@ -152,7 +153,11 @@
 						&& $("#houseTypeHDS").val()=='lowerhouse') || (value == clarificationFromDepartment || value == clarificationFromMember)){
 					$("#actorDiv").hide();
 				}else{
-					$("#actorDiv").show();
+					if($('#selectedQuestionType').val()=='questions_starred' && value==clarificationFromMemberAndDepartment){
+						$("#actorDiv").hide();
+					}else{
+						$("#actorDiv").show();
+					}
 				}
 				/**** in case of sendback and discuss only recommendation status is changed ****/
 				if(value != sendback && value != discuss
@@ -675,7 +680,7 @@
 		$("#subDepartment option[selected!='selected']").hide();
 		//**** Load Actors On Start Up ****/
 		if($('#workflowstatus').val()!='COMPLETED'){
-			loadActors($("#changeInternalStatus").val());
+			loadActors($("#internalStatus").val());
 		}
 	});
 	</script>

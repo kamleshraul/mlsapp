@@ -629,7 +629,7 @@
 		$("#subDepartment option[selected!='selected']").hide();
 		//**** Load Actors On page Load ****/
 		if($('#workflowstatus').val()!='COMPLETED'){
-			loadActors($("#changeInternalStatus").val());
+			loadActors($("#internalStatus").val());
 		}
 		
 		

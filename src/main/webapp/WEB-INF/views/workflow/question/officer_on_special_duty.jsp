@@ -649,7 +649,7 @@
 		$("#subDepartment option[selected!='selected']").hide();
 		//**** Load Actors On Start Up ****/
 		if($('#workflowstatus').val()!='COMPLETED'){
-			loadActors($("#changeInternalStatus").val());
+			loadActors($("#internalStatus").val());
 		}
 	});
 	</script>

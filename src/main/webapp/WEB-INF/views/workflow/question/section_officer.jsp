@@ -116,6 +116,7 @@
 		var rejectedWithReason = $("#internalStatusMaster option[value='question_processed_rejectionWithReason']").text();
 		var dateAndAnswerReceived = $("#internalStatusMaster option[value='question_processed_dateAndAnswerReceived']").text();
 		var clarificationReceived = $("#internalStatusMaster option[value='question_processed_clarificationReceived']").text();
+		var clarificationFromMemberAndDepartment=$("#internalStatusMaster option[value='question_recommend_clarificationNeededFromMemberAndDepartment']").text();
 		var departmentIntimated = $("#internalStatusMaster option[value='question_processed_departmentIntimated']").text();
 		var questionType = $("#selectedQuestionType").val();
 		var recommendRepeatAdmission = $("#internalStatusMaster option[value='question_recommend_repeatadmission']").text();
@@ -139,6 +140,12 @@
 	    else if(questionType == 'questions_shortnotice' && value == dateAndAnswerReceived) {
 	    	$("#recommendationStatus").val(value);
 	    	valueToSend=$("#internalStatus").val();
+	    }else if(questionType=='questions_starred'
+					&& value==clarificationFromMemberAndDepartment){
+			$("#endFlag").val('end');
+			$("#actor").empty();
+			$("#actorDiv").hide();
+			return false;
 	    }
 	    else {
 		    valueToSend=value;
@@ -152,6 +159,7 @@
 		var resourceURL='ref/question/actors?'+params;
 		
 		$.post(resourceURL,function(data){
+			
 			if(data!=undefined||data!=null||data!=''){
 				var length=data.length;
 				$("#actor").empty();
@@ -360,6 +368,7 @@
 					$(this).val("");
 				}
 			});
+			
 			if($("#selectedQuestionType").val()=='questions_halfhourdiscussion_standalone'
 					|| $("#selectedQuestionType").val()=='questions_starred'){
 				
@@ -739,7 +748,7 @@
 		$("#subDepartment option[selected!='selected']").hide();
 		//**** Load actors on page load ****/
 		if($('#workflowstatus').val()!='COMPLETED'){
-			loadActors($("#changeInternalStatus").val());
+			loadActors($("#internalStatus").val());
 		}
 	});
 	</script>

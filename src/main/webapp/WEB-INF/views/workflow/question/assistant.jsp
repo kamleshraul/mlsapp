@@ -671,7 +671,7 @@
 		});
 		//***** On Page Load Internal Status Actors Will be Loaded ****/
 		if($('#workflowstatus').val()!='COMPLETED'){
-			loadActors($("#changeInternalStatus").val());
+			loadActors($("#internalStatus").val());
 		}
 	});
 	</script>
