@@ -109,8 +109,8 @@
         }
         @media print{
 	        #reportDiv{
-	        	width: 800px;
-	        	padding: 10px;
+	        	width: 750px;
+	        	padding: 5px;
 	        	margin-top: 0px !important;
 	        }
 	        
@@ -119,9 +119,9 @@
 	        }     
 	        
 	        @page{
-	        	size: 21cm 29.7cm;   /* auto is the initial value */
-  				margin: 20mm;
-	        }  
+	        	size: 210mm 297mm !important;   /* auto is the initial value */
+  				margin: 0px 0px 0px 15px !important;
+	        } 
 	        
 	        hr{
 	        	display: none !important;
