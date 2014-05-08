@@ -75,7 +75,7 @@ margin-left: 30px;
 			<c:otherwise>
 			<c:choose>
 				<c:when test="${i.currentDeviceType=='questions_starred' }">
-					<strong>${i.statusType}-${i.count}</strong><br>
+					<strong><spring:message code="memberballotmemberwisequestions.starredAdmit" text="Starred Admit"></spring:message>-${i.count}</strong><br>
 				</c:when>
 				<c:when test="${i.currentDeviceType=='questions_unstarred' }">
 					<strong><spring:message code="memberballotmemberwisequestions.unstarredAndAdmit" text="Unstarred Admit"></spring:message>-${i.count}</strong><br>
@@ -160,7 +160,8 @@ margin-left: 30px;
 			</c:if>
 			</c:forEach>
 			<c:if test="${count>0 }"><br />
-			<h2 class="underlined">${admitted}</h2>
+			<%-- <h2 class="underlined">${admitted}</h2> --%>
+			<h2 class="underlined"><spring:message code="memberballotmemberwisequestions.starredAdmit" text="Starred Admit"/></h2>
 			<br />
 			<table class="strippedTable" border="1">
 			<thead>
