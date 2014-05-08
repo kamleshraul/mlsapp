@@ -71,7 +71,10 @@
 			    </fo:static-content>
 	
 				<!-- body -->
-	            <fo:flow flow-name="xsl-region-body">	
+	            <fo:flow flow-name="xsl-region-body">
+	            	<xsl:variable name="endPartOfSubDepartment">
+						<xsl:value-of select="substring(subDepartment,(string-length(subDepartment)-4))"/>
+					</xsl:variable>
 	            	<fo:block font-family="Mangal" font-size="10.5px">	            					
 						<fo:block text-align="right">
 							<fo:block margin-right="1.45cm">क्रमांक - _____&#160;/&#160;
@@ -82,7 +85,7 @@
 							</fo:block>						
 							<fo:block margin-right="0.40cm">महाराष्ट्र विधानमंडळ सचिवालय</fo:block>
 							<fo:block margin-right="1.21cm">विधान भवन, मुंबई/नागपूर</fo:block>
-							<fo:block margin-right="1.92cm">दिनांक - <xsl:value-of select="reportDate"/></fo:block>
+							<fo:block margin-right="1.82cm">दिनांक - &#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;</fo:block>
 						</fo:block>		
 						
 						<!-- <fo:block>&#160;</fo:block> -->
@@ -156,7 +159,14 @@
 									<xsl:value-of select="primaryMemberDesignation"/>
 								</xsl:when> -->
 								<xsl:otherwise>
-									<xsl:value-of select="subDepartment"/> मंत्री										
+									<xsl:choose>
+										<xsl:when test="department=subDepartment and $endPartOfSubDepartment='विभाग'">											
+											<xsl:value-of select="substring(subDepartment,1,(string-length(subDepartment)-5))"/> मंत्री
+										</xsl:when>
+										<xsl:otherwise>
+											<xsl:value-of select="subDepartment"/> मंत्री
+										</xsl:otherwise>
+									</xsl:choose>									
 								</xsl:otherwise>
 							</xsl:choose>
 							पुढील गोष्टींचा खुलासा करतील काय :-
