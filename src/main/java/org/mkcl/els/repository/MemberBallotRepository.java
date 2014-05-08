@@ -1124,7 +1124,7 @@ public class MemberBallotRepository extends BaseRepository<MemberBallot, Seriali
 							}
 							if(o[6]!=null){
 								distribution.setSessionCountName(o[6].toString());
-							}							
+							}
 							distribution.setQuestionSubmissionStartTime(startDate);	
 							distribution.setQuestionSubmissionEndTime(endDate);	
 		            		distribution.setsNo(numberFormat.format(count));
@@ -1168,6 +1168,7 @@ public class MemberBallotRepository extends BaseRepository<MemberBallot, Seriali
 												memberBallotMemberWiseCountVO.setCount(numberFormat.format(Integer.parseInt(o[0].toString())));
 												memberBallotMemberWiseCountVO.setStatusType(o[1].toString());
 												memberBallotMemberWiseCountVO.setStatusTypeType(o[2].toString());
+												memberBallotMemberWiseCountVO.setCurrentDeviceType(o[3].toString());
 												countVOs.add(memberBallotMemberWiseCountVO);
 											}
 											totalCount=totalCount+Integer.parseInt(o[0].toString());
