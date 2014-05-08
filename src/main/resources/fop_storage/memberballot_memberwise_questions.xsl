@@ -82,7 +82,7 @@
 	            				<fo:table border-collapse="collapse" table-layout="fixed" width="65%">
 	            					<fo:table-body>
 	            						<fo:table-row>
-	            							<fo:table-cell><fo:block>तारांकित प्रश्न</fo:block></fo:table-cell>
+	            							<fo:table-cell><fo:block>तारांकित स्वीकृत प्रश्न</fo:block></fo:table-cell>
 	            							<xsl:choose>
 	            								<xsl:when test="admittedQuestionCount != '०'">
 	            									<fo:table-cell><fo:block><xsl:value-of select="admittedQuestionCount"/></fo:block></fo:table-cell>
@@ -93,7 +93,7 @@
 	            							</xsl:choose>	            							
 	            						</fo:table-row>
 	            						<fo:table-row>
-	            							<fo:table-cell><fo:block>अतारांकित प्रश्न</fo:block></fo:table-cell>
+	            							<fo:table-cell><fo:block>अतारांकित स्वीकृत प्रश्न</fo:block></fo:table-cell>
 	            							<xsl:choose>
 	            								<xsl:when test="convertedToUnstarredAndAdmittedQuestionCount != '०'">
 	            									<fo:table-cell><fo:block><xsl:value-of select="convertedToUnstarredAndAdmittedQuestionCount"/></fo:block></fo:table-cell>
@@ -115,7 +115,7 @@
 	            							</xsl:choose>		           							
 		           						</fo:table-row>
 		           						<fo:table-row>
-	            							<fo:table-cell><fo:block>अस्विकृत प्रश्न</fo:block></fo:table-cell>
+	            							<fo:table-cell><fo:block>अस्वीकृत प्रश्न</fo:block></fo:table-cell>
 	            							<xsl:choose>
 	            								<xsl:when test="rejectedQuestionCount != '०'">
 	            									<fo:table-cell><fo:block><xsl:value-of select="rejectedQuestionCount"/></fo:block></fo:table-cell>
@@ -204,7 +204,7 @@
 																															
 											<xsl:if test="count(./starredQuestionVOs)>0">				
 												<fo:block font-size="15px" font-weight="bold">
-													तारांकीत स्वीकृत प्रश्न
+													तारांकित स्वीकृत प्रश्न
 												</fo:block>	
 												<fo:block font-size="5px">&#160;</fo:block>	
 												<fo:block>
@@ -247,7 +247,7 @@
 											
 											<xsl:if test="count(./unstarredQuestionVOs)>0">				
 												<fo:block font-size="15px" font-weight="bold">
-													अतारांकीत स्वीकृत प्रश्न
+													अतारांकित स्वीकृत प्रश्न
 												</fo:block>	
 												<fo:block font-size="5px">&#160;</fo:block>	
 												<fo:block>

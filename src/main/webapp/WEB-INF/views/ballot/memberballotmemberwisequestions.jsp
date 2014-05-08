@@ -74,10 +74,13 @@ margin-left: 30px;
 			</c:when>
 			<c:otherwise>
 			<c:choose>
-				<c:when test="${i.currentDeviceType=='questions_starred' }">
+				<c:when test="${i.currentDeviceType=='questions_starred' && i.statusTypeType=='question_final_admission'}">
 					<strong><spring:message code="memberballotmemberwisequestions.starredAdmit" text="Starred Admit"></spring:message>-${i.count}</strong><br>
 				</c:when>
-				<c:when test="${i.currentDeviceType=='questions_unstarred' }">
+				<c:when test="${i.currentDeviceType=='questions_starred' && i.statusTypeType=='question_final_rejection'}">
+					<strong><spring:message code="memberballotmemberwisequestions.starredReject" text="Starred Reject"></spring:message>-${i.count}</strong><br>
+				</c:when>
+				<c:when test="${i.currentDeviceType=='questions_unstarred' && i.statusTypeType=='question_final_admission'}">
 					<strong><spring:message code="memberballotmemberwisequestions.unstarredAndAdmit" text="Unstarred Admit"></spring:message>-${i.count}</strong><br>
 				</c:when>
 			</c:choose>
