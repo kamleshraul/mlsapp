@@ -73,7 +73,15 @@ margin-left: 30px;
 			<c:set value="${count+i.count }" var="count"></c:set>
 			</c:when>
 			<c:otherwise>
-			<strong>${i.statusType}-${i.count}</strong><br>
+			<c:choose>
+				<c:when test="${i.currentDeviceType=='questions_starred' }">
+					<strong>${i.statusType}-${i.count}</strong><br>
+				</c:when>
+				<c:when test="${i.currentDeviceType=='questions_unstarred' }">
+					<strong><spring:message code="memberballotmemberwisequestions.unstarredAndAdmit" text="Unstarred Admit"></spring:message>-${i.count}</strong><br>
+				</c:when>
+			</c:choose>
+			
 			</c:otherwise>
 			</c:choose>
 			<c:set value="${index+1 }" var="index"></c:set>
@@ -146,7 +154,7 @@ margin-left: 30px;
 			<c:if test="${!(empty report.memberBallotMemberWiseQuestionVOs) }">
 			<c:set value="0" var="count"></c:set>
 			<c:forEach items="${report.memberBallotMemberWiseQuestionVOs }" var="j">
-			<c:if test="${j.statusTypeType=='question_final_admission'&&j.groupNumber==i.number }">
+			<c:if test="${j.currentDeviceType=='questions_starred' && j.statusTypeType=='question_final_admission'&&j.groupNumber==i.number }">
 			<c:set value="${count+1 }" var="count"></c:set>
 			<c:set var="admitted" value="${j.statusType}"></c:set>
 			</c:if>
@@ -163,7 +171,7 @@ margin-left: 30px;
 				</tr>
 			</thead>
 			<c:forEach items="${report.memberBallotMemberWiseQuestionVOs }" var="j">
-			<c:if test="${j.statusTypeType=='question_final_admission'&&j.groupNumber==i.number }">
+			<c:if test="${j.currentDeviceType=='questions_starred' && j.statusTypeType=='question_final_admission'&&j.groupNumber==i.number }">
 			<tr class="page-break">
 			<td>${j.sno}</td>
 			<td>${j.questionNumber}</td>
@@ -178,13 +186,14 @@ margin-left: 30px;
 			<c:if test="${!(empty report.memberBallotMemberWiseQuestionVOs) }">
 			<c:set value="0" var="count"></c:set>
 			<c:forEach items="${report.memberBallotMemberWiseQuestionVOs }" var="j">
-			<c:if test="${j.statusTypeType=='question_final_convertToUnstarredAndAdmit'&&j.groupNumber==i.number }">
+			<c:if test="${j.currentDeviceType=='questions_unstarred' && j.statusTypeType=='question_final_admission'&&j.groupNumber==i.number }">
 			<c:set value="${count+1 }" var="count"></c:set>
 			<c:set var="unstarred" value="${j.statusType}"></c:set>
 			</c:if>
 			</c:forEach>
 			<c:if test="${count>0 }">
-			<h2 class="underlined">${unstarred}</h2>
+			<%-- <h2 class="underlined">${unstarred}</h2> --%>
+			<h2 class="underlined"><spring:message code="memberballotmemberwisequestions.unstarredAndAdmit" text="Unstarred Admit"></spring:message></h2>
 			<table class="strippedTable" border="1">
 			<tr>
 			<th><spring:message code="memberballotmemberwisewuestions.sno" text="S.No"></spring:message></th>
@@ -192,7 +201,7 @@ margin-left: 30px;
 			<th><spring:message code="memberballotmemberwisewuestions.subject" text="Subject"></spring:message></th>
 			</tr>
 			<c:forEach items="${report.memberBallotMemberWiseQuestionVOs }" var="j">
-			<c:if test="${j.statusTypeType=='question_final_convertToUnstarredAndAdmit'&&j.groupNumber==i.number }">
+			<c:if test="${j.currentDeviceType=='questions_unstarred' && j.statusTypeType=='question_final_admission'&&j.groupNumber==i.number }">
 			<tr>
 			<td>${j.sno}</td>
 			<td>${j.questionNumber}</td>
