@@ -285,6 +285,7 @@ public class WorkflowDetailsRepository extends BaseRepository<WorkflowDetails, S
 			String strQuery="SELECT m FROM WorkflowDetails m" +
 					" WHERE m.deviceId=:deviceId"+
 					" AND m.workflowType=:workflowType" +
+					" AND m.status='PENDING'" +
 					" ORDER BY m.assignmentTime " + ApplicationConstants.DESC;
 			Query query=this.em().createQuery(strQuery);
 			query.setParameter("deviceId", question.getId().toString());
