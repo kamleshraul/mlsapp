@@ -983,11 +983,12 @@ public class MemberBallotRepository extends BaseRepository<MemberBallot, Seriali
 						for(Object i:countResults){
 							Object[] o=(Object[]) i;
 							MemberBallotMemberWiseCountVO memberBallotMemberWiseCountVO=new MemberBallotMemberWiseCountVO();
-							if(o[0]!=null&&o[1]!=null&&o[2]!=null){
+							if(o[0]!=null&&o[1]!=null&&o[2]!=null&&o[3]!=null){
 								if((!o[0].toString().isEmpty())&&(!o[1].toString().isEmpty())&&(!o[2].toString().isEmpty())){
 									memberBallotMemberWiseCountVO.setCount(numberFormat.format(Integer.parseInt(o[0].toString())));
 									memberBallotMemberWiseCountVO.setStatusType(o[1].toString());
 									memberBallotMemberWiseCountVO.setStatusTypeType(o[2].toString());
+									memberBallotMemberWiseCountVO.setCurrentDeviceType(o[3].toString());
 									countVOs.add(memberBallotMemberWiseCountVO);
 								}					
 							}
@@ -1045,6 +1046,12 @@ public class MemberBallotRepository extends BaseRepository<MemberBallot, Seriali
 									}
 									if(o[5]!=null){
 										questionVO.setStatusTypeType(o[5].toString());
+									}
+									if(o[6]!=null){
+										questionVO.setOriginalDeviceType(o[6].toString());
+									}
+									if(o[7]!=null){
+										questionVO.setCurrentDeviceType(o[7].toString());
 									}
 									questionVOs.add(questionVO);
 									position++;
