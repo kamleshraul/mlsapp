@@ -1404,9 +1404,9 @@ public class BallotController extends BaseController{
 										 ||i.getStatusTypeType().equals(ApplicationConstants.QUESTION_FINAL_CLARIFICATION_NEEDED_FROM_MEMBER_DEPARTMENT)) {
 									
 									clarificationCount += Integer.parseInt(i.getCount());
-								} else if(i.getStatusTypeType().equals(ApplicationConstants.QUESTION_FINAL_ADMISSION)) {
+								} else if(i.getCurrentDeviceType().equals(ApplicationConstants.STARRED_QUESTION) && i.getStatusTypeType().equals(ApplicationConstants.QUESTION_FINAL_ADMISSION)) {
 									admittedCount = Integer.parseInt(i.getCount());
-								} else if(i.getStatusTypeType().equals(ApplicationConstants.QUESTION_FINAL_CONVERT_TO_UNSTARRED_AND_ADMIT)) {
+								} else if(i.getCurrentDeviceType().equals(ApplicationConstants.UNSTARRED_QUESTION) && i.getStatusTypeType().equals(ApplicationConstants.QUESTION_FINAL_ADMISSION)) {
 									convertedToUnstarredAndAdmittedCount = Integer.parseInt(i.getCount());
 								} else if(i.getStatusTypeType().equals(ApplicationConstants.QUESTION_FINAL_REJECTION)) {
 									rejectedCount = Integer.parseInt(i.getCount());
@@ -1445,9 +1445,9 @@ public class BallotController extends BaseController{
 							if(memberBallotMemberWiseReportVO!=null) {
 								for(MemberBallotMemberWiseQuestionVO i: memberBallotMemberWiseReportVO.getMemberBallotMemberWiseQuestionVOs()) {
 									if(i.getGroupFormattedNumber().equals(currentGroupNumber)) {
-										if(i.getStatusTypeType().equals(ApplicationConstants.QUESTION_FINAL_ADMISSION)) {
+										if(i.getCurrentDeviceType().equals(ApplicationConstants.STARRED_QUESTION) && i.getStatusTypeType().equals(ApplicationConstants.QUESTION_FINAL_ADMISSION)) {
 											starredQuestionVOs.add(i);											
-										} else if(i.getStatusTypeType().equals(ApplicationConstants.QUESTION_FINAL_CONVERT_TO_UNSTARRED_AND_ADMIT)) {
+										} else if(i.getCurrentDeviceType().equals(ApplicationConstants.UNSTARRED_QUESTION) && i.getStatusTypeType().equals(ApplicationConstants.QUESTION_FINAL_ADMISSION)) {
 											unstarredQuestionVOs.add(i);											
 										} else if(i.getStatusTypeType().equals(ApplicationConstants.QUESTION_FINAL_CLARIFICATION_NEEDED_FROM_MEMBER)
 												 ||i.getStatusTypeType().equals(ApplicationConstants.QUESTION_FINAL_CLARIFICATION_NEEDED_FROM_DEPARTMENT)
