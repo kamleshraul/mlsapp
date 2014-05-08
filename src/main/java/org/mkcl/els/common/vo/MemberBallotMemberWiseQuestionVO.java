@@ -17,6 +17,10 @@ public class MemberBallotMemberWiseQuestionVO {
 	private String groupNumber;
 	
 	private String groupFormattedNumber;
+	
+	private String originalDeviceType;
+	
+	private String currentDeviceType;
 
 	public void setSno(String sno) {
 		this.sno = sno;
@@ -81,5 +85,23 @@ public class MemberBallotMemberWiseQuestionVO {
 	public String getStatusTypeType() {
 		return statusTypeType;
 	}
+
+	public String getOriginalDeviceType() {
+		return originalDeviceType;
+	}
+
+	public void setOriginalDeviceType(String originalDeviceType) {
+		this.originalDeviceType = originalDeviceType;
+	}
+
+	public String getCurrentDeviceType() {
+		return currentDeviceType;
+	}
+
+	public void setCurrentDeviceType(String currentDeviceType) {
+		this.currentDeviceType = currentDeviceType;
+	}
+	
+	
 	
 }

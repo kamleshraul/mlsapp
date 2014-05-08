@@ -11,6 +11,8 @@ public class MemberBallotMemberWiseCountVO {
 	private String count;
 	
 	private String statusTypeType;
+	
+	private String currentDeviceType;
 
 	public void setStatusType(final String statusType) {
 		this.statusType = statusType;
@@ -36,10 +38,20 @@ public class MemberBallotMemberWiseCountVO {
 		return statusTypeType;
 	}
 	
+	public String getCurrentDeviceType() {
+		return currentDeviceType;
+	}
+
+	public void setCurrentDeviceType(String currentDeviceType) {
+		this.currentDeviceType = currentDeviceType;
+	}
+	
 	public String formatNumber(final Integer number, final String locale){
 		NumberFormat format=FormaterUtil.getNumberFormatterNoGrouping(locale);
 		return format.format(number);
 	}
+
+
 	
 	
 }
