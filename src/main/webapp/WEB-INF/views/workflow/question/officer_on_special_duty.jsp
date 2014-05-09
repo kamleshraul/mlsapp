@@ -1053,7 +1053,60 @@
 		<form:errors path="dateOfAnsweringByMinister" cssClass="validationError"/>
 		</p>
 	</c:if>
+	<table class="uiTable" style="margin-left:165px;">
+	<thead>
+	<tr>
+	<th>
+	<spring:message code="qis.latestrevisions.user" text="Usergroup"></spring:message>
+	</th>
+	<th>
+	<spring:message code="qis.latestrevisions.decision" text="Decision"></spring:message>
+	</th>
+	<th>
+	<spring:message code="qis.latestrevisions.remarks" text="Remarks"></spring:message>
+	</th>
+	</tr>
+	</thead>
+	<tbody>	
+	<c:set var="startingActor" value="${startingActor}"></c:set>
+	<c:set var="count" value="0"></c:set>
+	<c:set var="startingActorCount" value="0"></c:set>
+	<c:forEach items="${latestRevisions}" var="i">	
+	<c:choose>
+	<c:when test="${i[0]==startingActor}">	
+	<c:set var="startingActorCount" value="${count}"></c:set>
+	<c:set var="count" value="${count+1 }"></c:set>
+	</c:when>
+	<c:otherwise>
+	<c:set var="count" value="${count+1 }"></c:set>
+	</c:otherwise>
+	</c:choose>
+	</c:forEach>
 	
+	<c:set var="count" value="0"></c:set>
+	<c:forEach items="${latestRevisions }" var="i">
+	<c:choose>
+	<c:when test="${count>= startingActorCount}">
+	<tr>
+		<td>
+		${i[0]}<br>${i[1]}
+		</td>
+		<td>
+		${i[3]}
+		</td>
+		<td>
+		${i[4]}
+		</td>
+	</tr>
+	<c:set var="count" value="${count+1 }"></c:set>
+	</c:when>
+	<c:otherwise>
+	<c:set var="count" value="${count+1 }"></c:set>
+	</c:otherwise>
+	</c:choose>
+	</c:forEach>	
+	</tbody>
+	</table>
 	<c:if test="${workflowstatus!='COMPLETED' }">	
 	<p>
 	<label class="small"><spring:message code="question.putupfor" text="Put up for"/></label>
