@@ -50,22 +50,24 @@
 				$groupNumber&nbsp;&nbsp;&nbsp;&nbsp;$department
 			</td>	
 		</tr>
-		<tr style="font-weight: bold;">
-			<td style="font-size: 16px; word-wrap: break-word; width: 250px; padding-left: 5px;">					
-				उत्तराचा दिनांक 
-			</td>
-			<td style="font-size: 16px; word-wrap: break-word; width: 550px; padding-left: 5px;">
-				$answeringDate 
-			</td>	
-		</tr>
-		<tr style="font-weight: bold;">
-			<td style="font-size: 16px; word-wrap: break-word; width: 250px; padding-left: 5px;">					
-				विभागाला पाठवण्याची दिनांक 
-			</td>
-			<td style="font-size: 16px; word-wrap: break-word; width: 550px; padding-left: 5px;">
-				$deptSendDate 
-			</td>	
-		</tr>
+		#if($finalStatus!='अतारांकित स्वीकृत करावा' && $finalStatus!='अतारांकित करावा')
+			<tr style="font-weight: bold;">
+				<td style="font-size: 16px; word-wrap: break-word; width: 250px; padding-left: 5px;">					
+					उत्तराचा दिनांक 
+				</td>
+				<td style="font-size: 16px; word-wrap: break-word; width: 550px; padding-left: 5px;">
+					$answeringDate 
+				</td>	
+			</tr>
+			<tr style="font-weight: bold;">
+				<td style="font-size: 16px; word-wrap: break-word; width: 250px; padding-left: 5px;">					
+					विभागाला पाठवण्याची दिनांक 
+				</td>
+				<td style="font-size: 16px; word-wrap: break-word; width: 550px; padding-left: 5px;">
+					$deptSendDate 
+				</td>	
+			</tr>
+		#end
 		<tr>
 			<td style="font-weight: bold; width: 250px; font-size: 16px; word-wrap: break-word; padding-left: 5px;">
 				स्थिती 
