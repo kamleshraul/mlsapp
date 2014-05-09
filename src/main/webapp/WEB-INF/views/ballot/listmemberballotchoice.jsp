@@ -245,6 +245,14 @@
 <p></p>
 </div>
 </c:if>
+<c:if test="${type=='FAILED' }">
+<div class="toolTip tpRed clearfix" id="failedDiv">
+<p style="font-size: 14px;"><img
+	src="./resources/images/template/icons/light-bulb-off.png"> <spring:message
+	code="update_failure" text="Data couldnot be saved.Please try after sometime" /></p>
+<p></p>
+</div>
+</c:if>
 <div id="memberChoicesDiv">
 	<table class="uiTable" style="width:100%">					
 		<tr>						
