@@ -99,20 +99,20 @@ public class BallotController extends BaseController{
 					/** Create DeviceType */
 					String strQuestionType = request.getParameter("questionType");			
 					DeviceType deviceType = 
-						DeviceType.findById(DeviceType.class, Long.parseLong(strQuestionType));
+							DeviceType.findById(DeviceType.class, Long.parseLong(strQuestionType));
 					model.addAttribute("deviceTypeType", deviceType.getType());
-	
+
 					if(deviceType.getType().equals(ApplicationConstants.STARRED_QUESTION)) {
 						/** Create Group*/
 						String strGroup = request.getParameter("group");
 						Group group = Group.findById(Group.class, Long.parseLong(strGroup));
-	
+
 						/** Compute & Add answeringDates to model*/
 						List<MasterVO> masterVOs = new ArrayList<MasterVO>();
 						List<QuestionDates> questionDates = group.getQuestionDates();
 						for(QuestionDates i : questionDates){
 							String strAnsweringDate = 
-								FormaterUtil.getDateFormatter(locale.toString()).format(i.getAnsweringDate());
+									FormaterUtil.getDateFormatter(locale.toString()).format(i.getAnsweringDate());
 							MasterVO masterVO = new MasterVO(i.getId(), strAnsweringDate);
 							masterVOs.add(masterVO);
 						}
@@ -122,38 +122,38 @@ public class BallotController extends BaseController{
 						/** Create HouseType */
 						String strHouseType = request.getParameter("houseType");
 						HouseType houseType =
-							HouseType.findByFieldName(HouseType.class, "type", strHouseType, locale.toString());
-	
+								HouseType.findByFieldName(HouseType.class, "type", strHouseType, locale.toString());
+
 						/** Create SessionType */
 						String strSessionTypeId = request.getParameter("sessionType");
 						SessionType sessionType =
-							SessionType.findById(SessionType.class, Long.valueOf(strSessionTypeId));
-	
+								SessionType.findById(SessionType.class, Long.valueOf(strSessionTypeId));
+
 						/** Create year */
 						String strYear = request.getParameter("sessionYear");
 						Integer year = Integer.valueOf(strYear);
-	
+
 						/** Create Session */
 						Session session = Session.findSessionByHouseTypeSessionTypeYear(houseType, sessionType, year);
-	
+
 						/** Compute & Add discussionDates to model*/
 						CustomParameter dbDateFormat = 
-							CustomParameter.findByName(CustomParameter.class, "DB_DATEFORMAT", "");
+								CustomParameter.findByName(CustomParameter.class, "DB_DATEFORMAT", "");
 						CustomParameter serverDateFormat = 
-							CustomParameter.findByName(CustomParameter.class, "SERVER_DATEFORMAT", "");
+								CustomParameter.findByName(CustomParameter.class, "SERVER_DATEFORMAT", "");
 						String strDiscussionDates = 
-							session.getParameter("questions_halfhourdiscussion_from_question_discussionDates");
+								session.getParameter("questions_halfhourdiscussion_from_question_discussionDates");
 						String[] strDiscussionDatesArr = strDiscussionDates.split("#");
 						List<MasterVO> masterVOs = new ArrayList<MasterVO>();
 						for(String strDiscussionDate : strDiscussionDatesArr) {
 							Date discussionDate = 
-								FormaterUtil.formatStringToDate(strDiscussionDate, dbDateFormat.getValue());
+									FormaterUtil.formatStringToDate(strDiscussionDate, dbDateFormat.getValue());
 							String localizedDate = FormaterUtil.formatDateToString(discussionDate, 
 									serverDateFormat.getValue(), locale.toString());
 							MasterVO masterVO = new MasterVO();
 							masterVO.setName(localizedDate);
 							masterVO.setValue(strDiscussionDate);
-	
+
 							masterVOs.add(masterVO);
 						}
 						model.addAttribute("answeringDates", masterVOs);
@@ -162,48 +162,48 @@ public class BallotController extends BaseController{
 						/** Create HouseType */
 						String strHouseType = request.getParameter("houseType");
 						HouseType houseType =
-							HouseType.findByFieldName(HouseType.class, "type", strHouseType, locale.toString());
+								HouseType.findByFieldName(HouseType.class, "type", strHouseType, locale.toString());
 						model.addAttribute("houseType",houseType.getType());
-						
+
 						/** Create SessionType */
 						String strSessionTypeId = request.getParameter("sessionType");
 						SessionType sessionType =
-							SessionType.findById(SessionType.class, Long.valueOf(strSessionTypeId));
-	
+								SessionType.findById(SessionType.class, Long.valueOf(strSessionTypeId));
+
 						/** Create year */
 						String strYear = request.getParameter("sessionYear");
 						Integer year = Integer.valueOf(strYear);
-	
+
 						/** Create Session */
 						Session session = Session.findSessionByHouseTypeSessionTypeYear(houseType, sessionType, year);
 						/** Compute & Add discussionDates to model*/
 						CustomParameter dbDateFormat = 
-							CustomParameter.findByName(CustomParameter.class, "DB_DATEFORMAT", "");
+								CustomParameter.findByName(CustomParameter.class, "DB_DATEFORMAT", "");
 						CustomParameter serverDateFormat = 
-							CustomParameter.findByName(CustomParameter.class, "SERVER_DATEFORMAT", "");
+								CustomParameter.findByName(CustomParameter.class, "SERVER_DATEFORMAT", "");
 						String strDiscussionDates = 
-							session.getParameter("questions_halfhourdiscussion_standalone_discussionDates");
+								session.getParameter("questions_halfhourdiscussion_standalone_discussionDates");
 						String[] strDiscussionDatesArr = strDiscussionDates.split("#");
 						List<MasterVO> masterVOs = new ArrayList<MasterVO>();
 						for(String strDiscussionDate : strDiscussionDatesArr) {
 							Date discussionDate = 
-								FormaterUtil.formatStringToDate(strDiscussionDate, dbDateFormat.getValue());
+									FormaterUtil.formatStringToDate(strDiscussionDate, dbDateFormat.getValue());
 							String localizedDate = FormaterUtil.formatDateToString(discussionDate, 
 									serverDateFormat.getValue(), locale.toString());
 							MasterVO masterVO = new MasterVO();
 							masterVO.setName(localizedDate);
 							masterVO.setValue(strDiscussionDate);
-	
+
 							masterVOs.add(masterVO);
 						}
 						model.addAttribute("answeringDates", masterVOs);
 					}
 				}else if(category.equals("resolution")){
-	
+
 					model.addAttribute("category", "resolution");
 					String strDeviceType = request.getParameter("deviceType");			
 					DeviceType deviceType = 
-						DeviceType.findById(DeviceType.class, Long.parseLong(strDeviceType));
+							DeviceType.findById(DeviceType.class, Long.parseLong(strDeviceType));
 					model.addAttribute("deviceTypeType", deviceType.getType());
 
 					if(deviceType.getType().equals(ApplicationConstants.NONOFFICIAL_RESOLUTION)) {
@@ -241,11 +241,11 @@ public class BallotController extends BaseController{
 						model.addAttribute("answeringDates", masterVOs);
 					}
 				}else if(category.equals("bill")){
-	
+
 					model.addAttribute("category", "bill");
 					String strDeviceType = request.getParameter("deviceType");			
 					DeviceType deviceType = 
-						DeviceType.findById(DeviceType.class, Long.parseLong(strDeviceType));
+							DeviceType.findById(DeviceType.class, Long.parseLong(strDeviceType));
 					model.addAttribute("deviceTypeType", deviceType.getType());
 
 					if(deviceType.getType().equals(ApplicationConstants.NONOFFICIAL_BILL)) {
@@ -282,7 +282,7 @@ public class BallotController extends BaseController{
 						model.addAttribute("answeringDates", masterVOs);
 					}
 				}
-				
+
 				List<MasterVO> outputFormats = new ArrayList<MasterVO>();
 				MasterVO pdfFormat = new MasterVO();
 				pdfFormat.setName("PDF");
@@ -293,10 +293,10 @@ public class BallotController extends BaseController{
 				wordFormat.setValue("WORD");
 				outputFormats.add(wordFormat);									
 				model.addAttribute("outputFormats", outputFormats);
-				
+
 				retVal = "ballot/ballotinit";
 			}
-			
+
 		}
 		catch(Exception e) {
 			logger.error("error", e);
@@ -320,12 +320,12 @@ public class BallotController extends BaseController{
 			/** Create HouseType */
 			String strHouseType = request.getParameter("houseType");
 			HouseType houseType =
-				HouseType.findByFieldName(HouseType.class, "type", strHouseType, locale.toString());
+					HouseType.findByFieldName(HouseType.class, "type", strHouseType, locale.toString());
 
 			/** Create SessionType */
 			String strSessionTypeId = request.getParameter("sessionType");
 			SessionType sessionType =
-				SessionType.findById(SessionType.class, Long.valueOf(strSessionTypeId));
+					SessionType.findById(SessionType.class, Long.valueOf(strSessionTypeId));
 
 			/** Create year */
 			String strYear = request.getParameter("sessionYear");
@@ -355,19 +355,19 @@ public class BallotController extends BaseController{
 			Date answeringDate = null;
 			if(deviceType.getType().equals(ApplicationConstants.STARRED_QUESTION)) {
 				QuestionDates questionDates = 
-					QuestionDates.findById(QuestionDates.class, Long.parseLong(strAnsweringDate));
+						QuestionDates.findById(QuestionDates.class, Long.parseLong(strAnsweringDate));
 				answeringDate = questionDates.getAnsweringDate();
 			}
 			else if(deviceType.getType().equals(ApplicationConstants.HALF_HOUR_DISCUSSION_QUESTION_FROM_QUESTION) ||
 					deviceType.getType().equals(ApplicationConstants.HALF_HOUR_DISCUSSION_QUESTION_STANDALONE)) {
 				CustomParameter dbDateFormat = 
-					CustomParameter.findByName(CustomParameter.class, "DB_DATEFORMAT", "");
+						CustomParameter.findByName(CustomParameter.class, "DB_DATEFORMAT", "");
 				answeringDate = FormaterUtil.formatStringToDate(strAnsweringDate, dbDateFormat.getValue());
 			}else if(deviceType.getType().equals(ApplicationConstants.NONOFFICIAL_RESOLUTION) || deviceType.getType().equals(ApplicationConstants.NONOFFICIAL_BILL)){
 				CustomParameter dbDateFormat = CustomParameter.findByName(CustomParameter.class, "DB_DATEFORMAT", "");
 				answeringDate = FormaterUtil.formatStringToDate(strAnsweringDate, dbDateFormat.getValue());
 			}
-			
+
 			/**** Validate whether ballot can be created for bill ****/
 			if(deviceType.getType().equals(ApplicationConstants.NONOFFICIAL_BILL)) {
 				boolean isBallotAllowedToCreate = validateBallotCreationForBill(session, deviceType, answeringDate, locale.toString());
@@ -381,7 +381,7 @@ public class BallotController extends BaseController{
 			Ballot ballot = Ballot.find(session, deviceType, answeringDate, locale.toString());
 			if(ballot == null) {
 				Ballot newBallot = 
-					new Ballot(session, deviceType, answeringDate, new Date(), locale.toString());
+						new Ballot(session, deviceType, answeringDate, new Date(), locale.toString());
 				newBallot.create();
 				retVal = "CREATED";
 			}
@@ -406,13 +406,13 @@ public class BallotController extends BaseController{
 			/** Create HouseType */
 			String strHouseType = request.getParameter("houseType");
 			HouseType houseType =
-				HouseType.findByFieldName(HouseType.class, "type", strHouseType, locale.toString());
+					HouseType.findByFieldName(HouseType.class, "type", strHouseType, locale.toString());
 			model.addAttribute("houseType", houseType.getType());
 
 			/** Create SessionType */
 			String strSessionTypeId = request.getParameter("sessionType");
 			SessionType sessionType =
-				SessionType.findById(SessionType.class, Long.valueOf(strSessionTypeId));
+					SessionType.findById(SessionType.class, Long.valueOf(strSessionTypeId));
 			model.addAttribute("sessionType", sessionType.getType());
 
 			/** Create year */
@@ -442,18 +442,18 @@ public class BallotController extends BaseController{
 				String strGroup = request.getParameter("group");
 				group = Group.findById(Group.class, Long.valueOf(strGroup));
 			}
-			
+
 			/** Create answeringDate */
 			String strAnsweringDate = request.getParameter("answeringDate");
 			Date answeringDate = null;
 			if(deviceType.getType().equals(ApplicationConstants.STARRED_QUESTION)) {
 				QuestionDates questionDates = 
-					QuestionDates.findById(QuestionDates.class, Long.parseLong(strAnsweringDate));
+						QuestionDates.findById(QuestionDates.class, Long.parseLong(strAnsweringDate));
 				answeringDate = questionDates.getAnsweringDate();
 			}
 			else if(deviceType.getType().equals(ApplicationConstants.HALF_HOUR_DISCUSSION_QUESTION_FROM_QUESTION) ||
 					deviceType.getType().equals(ApplicationConstants.HALF_HOUR_DISCUSSION_QUESTION_STANDALONE)) {
-				
+
 				CustomParameter dbDateFormat = CustomParameter.findByName(CustomParameter.class, "DB_DATEFORMAT", "");
 				answeringDate = FormaterUtil.formatStringToDate(strAnsweringDate, dbDateFormat.getValue());
 			}else if(deviceType.getType().equals(ApplicationConstants.NONOFFICIAL_RESOLUTION) || deviceType.getType().equals(ApplicationConstants.NONOFFICIAL_BILL)){
@@ -471,7 +471,7 @@ public class BallotController extends BaseController{
 				if(deviceType.getType().equals(ApplicationConstants.STARRED_QUESTION)) {
 					/*List<StarredBallotVO> ballotVOs = Ballot.findStarredBallotVOs(session, answeringDate, locale.toString());
 					model.addAttribute("ballotVOs", ballotVOs);*/
-					
+
 					Map<String, String[]> parametersMap = new HashMap<String, String[]>();
 					parametersMap.put("locale", new String[]{locale.toString()});
 					parametersMap.put("sessionId", new String[]{session.getId().toString()});
@@ -492,17 +492,17 @@ public class BallotController extends BaseController{
 				}else if(deviceType.getType().equals(ApplicationConstants.HALF_HOUR_DISCUSSION_QUESTION_FROM_QUESTION)) {
 					/*List<BallotMemberVO> ballotVOs = Ballot.findBallotedMemberVO(session, deviceType, answeringDate, locale.toString());
 					model.addAttribute("ballotVOs", ballotVOs);*/
-					
+
 					Map<String, String[]> parametersMap = new HashMap<String, String[]>();
 					parametersMap.put("locale", new String[]{locale.toString()});
 					parametersMap.put("sessionId", new String[]{session.getId().toString()});
 					parametersMap.put("deviceTypeId", new String[]{deviceType.getId().toString()});
 					parametersMap.put("groupId", new String[]{group.getId().toString()});
 					parametersMap.put("answeringDate", new String[]{FormaterUtil.formatDateToString(answeringDate, ApplicationConstants.DB_DATEFORMAT)});
-					
+
 					List ballotVOs = org.mkcl.els.domain.Query.findReport("HDQ_ASSEMBLY_BALLOT_VIEW", parametersMap);
 					parametersMap = null;
-					
+
 					model.addAttribute("ballotVOs", ballotVOs);
 					retVal = "ballot/halfhour_member_ballot";
 				}else if(deviceType.getType().equals(ApplicationConstants.HALF_HOUR_DISCUSSION_QUESTION_STANDALONE)){
@@ -516,13 +516,13 @@ public class BallotController extends BaseController{
 						}
 					}
 					model.addAttribute("ids",voIds.toString());*/
-					
+
 					Map<String, String[]> parametersMap = new HashMap<String, String[]>();
 					parametersMap.put("locale", new String[]{locale.toString()});
 					parametersMap.put("sessionId", new String[]{session.getId().toString()});
 					parametersMap.put("deviceTypeId", new String[]{deviceType.getId().toString()});
 					parametersMap.put("answeringDate", new String[]{FormaterUtil.formatDateToString(answeringDate, ApplicationConstants.DB_DATEFORMAT)});
-					
+
 					List ballotVOs = org.mkcl.els.domain.Query.findReport("HDS_BALLOT_VIEW", parametersMap);
 					parametersMap = null;
 					List<MasterVO> serialNumber = new ArrayList<MasterVO>(ballotVOs.size());
@@ -550,11 +550,11 @@ public class BallotController extends BaseController{
 						parametersMap.put("sessionId", new String[]{session.getId().toString()});
 						parametersMap.put("deviceTypeId", new String[]{deviceType.getId().toString()});
 						parametersMap.put("answeringDate", new String[]{FormaterUtil.formatDateToString(answeringDate, ApplicationConstants.DB_DATEFORMAT)});
-						
+
 						List report = org.mkcl.els.domain.Query.findReport("RESOLUTION_NONOFFICIAL_ASSEMBLY_BALLOT_VIEW", parametersMap);
 						List<MasterVO> serialNumber = new ArrayList<MasterVO>(report.size());
 						parametersMap = null;				
-						
+
 						StringBuilder voIds = new StringBuilder();
 						for(int i = 0; i < report.size(); i++){
 							serialNumber.add(new MasterVO((i + 1), FormaterUtil.formatNumberNoGrouping((i + 1), locale.toString())));
@@ -563,11 +563,11 @@ public class BallotController extends BaseController{
 							if(i < (report.size() - 1)){
 								voIds.append("#");
 							}
-							
+
 						}
-						
+
 						model.addAttribute("serialnumber", serialNumber);
-						
+
 						model.addAttribute("ids",voIds.toString());
 						model.addAttribute("ballotVOs", report);
 						retVal = "ballot/nonofficial_membersubjectcombo_ballot";
@@ -591,39 +591,39 @@ public class BallotController extends BaseController{
 					/*List<BallotVO> ballotVOs = 
 						Ballot.findBallotedVO(session, deviceType, answeringDate, locale.toString());
 					model.addAttribute("ballotVOs", ballotVOs);*/
-					
+
 					Map<String, String[]> parametersMap = new HashMap<String, String[]>();
 					parametersMap.put("locale", new String[]{locale.toString()});
 					parametersMap.put("sessionId", new String[]{session.getId().toString()});
 					parametersMap.put("deviceTypeId", new String[]{deviceType.getId().toString()});
 					parametersMap.put("groupId", new String[]{group.getId().toString()});
 					parametersMap.put("answeringDate", new String[]{FormaterUtil.formatDateToString(answeringDate, ApplicationConstants.DB_DATEFORMAT)});
-					
+
 					List ballotVOs = org.mkcl.els.domain.Query.findReport("HDQ_COUNCIL_BALLOT_VIEW", parametersMap);
 					parametersMap = null;
-					
+
 					model.addAttribute("ballotVOs", ballotVOs);
-					
+
 					retVal = "ballot/halfhour_ballot";
 				}else if(deviceType.getType().equals(ApplicationConstants.HALF_HOUR_DISCUSSION_QUESTION_STANDALONE)){
 					/*List<BallotMemberVO> ballotVOs = Ballot.findBallotedMemberVO(session, deviceType, answeringDate, locale.toString());
 					model.addAttribute("ballotVOs", ballotVOs);
 					retVal = "ballot/nonofficial_member_ballot";*/
-					
+
 					Map<String, String[]> parametersMap = new HashMap<String, String[]>();
 					parametersMap.put("locale", new String[]{locale.toString()});
 					parametersMap.put("sessionId", new String[]{session.getId().toString()});
 					parametersMap.put("deviceTypeId", new String[]{deviceType.getId().toString()});
 					parametersMap.put("groupId", new String[]{group.getId().toString()});
 					parametersMap.put("answeringDate", new String[]{FormaterUtil.formatDateToString(answeringDate, ApplicationConstants.DB_DATEFORMAT)});
-					
+
 					List ballotVOs = org.mkcl.els.domain.Query.findReport("HDQ_COUNCIL_BALLOT_VIEW", parametersMap);
 					parametersMap = null;
-					
+
 					model.addAttribute("ballotVOs", ballotVOs);
-					
+
 					retVal = "ballot/halfhour_ballot";
-					
+
 				}else if(deviceType.getType().equals(ApplicationConstants.NONOFFICIAL_RESOLUTION)){					
 					List<BallotMemberVO> ballotVOs = Ballot.findBallotedMemberVO(session, deviceType, answeringDate, locale.toString());
 					model.addAttribute("ballotVOs", ballotVOs);
@@ -943,7 +943,7 @@ public class BallotController extends BaseController{
 						memberBallotAttendance.setEditedBy(createdBy);
 						memberBallotAttendance.setEditedOn(date);
 						if(attendance==false){
-						memberBallotAttendance.setPositionDiscontious(false);
+							memberBallotAttendance.setPositionDiscontious(false);
 						}
 						memberBallotAttendance.merge();						
 					}
@@ -1010,13 +1010,13 @@ public class BallotController extends BaseController{
 					return "ballot/error";
 				}
 				/**** if positions are discontinous ****/
-//				Boolean positionsDiscontinous=MemberBallotAttendance.checkPositionDiscontinous(session,questionType,false,round,locale.toString());
-//				if(positionsDiscontinous){
-//					model.addAttribute("type","SUBMIT_BUTTON_NOT_CLICKED");
-//					return "ballot/error";
-//				}				
+				//				Boolean positionsDiscontinous=MemberBallotAttendance.checkPositionDiscontinous(session,questionType,false,round,locale.toString());
+				//				if(positionsDiscontinous){
+				//					model.addAttribute("type","SUBMIT_BUTTON_NOT_CLICKED");
+				//					return "ballot/error";
+				//				}				
 			}	
-		
+
 			List<MemberBallotAttendance> memberBallotAttendances=null;
 			if(attendance){
 				memberBallotAttendances=MemberBallotAttendance.findAll(session,questionType,"true",round,"position",locale.toString());
@@ -1093,7 +1093,7 @@ public class BallotController extends BaseController{
 					contain n entries from previous round whose attendance=true
 					and position is same as that from previous round.These entries positions 
 					cannot be changed.Only newly added present members positions can be changed).
-					*/
+					 */
 					if(attendance){
 						int memberBallotAttendanceCount=MemberBallotAttendance.findMembersByAttendanceCount(session,questionType,attendance,round,locale.toString());
 						if(memberBallotAttendanceCount == 0){
@@ -1108,11 +1108,11 @@ public class BallotController extends BaseController{
 							return "ballot/error";
 						}
 						/**** if positions are discontinous ****/
-//						Boolean positionsDiscontinous=MemberBallotAttendance.checkPositionDiscontinous(session,questionType,false,round,locale.toString());
-//						if(positionsDiscontinous){
-//							model.addAttribute("type","SUBMIT_BUTTON_NOT_CLICKED");
-//							return "ballot/error";
-//						}				
+						//						Boolean positionsDiscontinous=MemberBallotAttendance.checkPositionDiscontinous(session,questionType,false,round,locale.toString());
+						//						if(positionsDiscontinous){
+						//							model.addAttribute("type","SUBMIT_BUTTON_NOT_CLICKED");
+						//							return "ballot/error";
+						//						}				
 					}						
 					/**** Under Signed(Created By and Created As) ****/
 					Set<Role> roles=this.getCurrentUser().getRoles();
@@ -1215,7 +1215,7 @@ public class BallotController extends BaseController{
 		}
 		return "ballot/memberballotstatus";
 	}
-	
+
 	@RequestMapping(value="/memberballot/memberballotstatusround",method=RequestMethod.GET)
 	public @ResponseBody String viewMemberBallotStatusOfRound(final HttpServletRequest request,final ModelMap model,final Locale locale){
 		String errorpage="ballot/error";
@@ -1244,19 +1244,19 @@ public class BallotController extends BaseController{
 				if(attendance){
 					int memberBallotAttendanceCount=MemberBallotAttendance.findMembersByAttendanceCount(session,questionType,attendance,round,locale.toString());
 					if(memberBallotAttendanceCount == 0){
-					return "COMPLETE";
+						return "COMPLETE";
 					}
 				}else{
 					/**** If positions are null ****/
 					int noOfPositionsNull=MemberBallotAttendance.checkPositionForNullValues(session,questionType,"false",round,"position",locale.toString());
 					if(noOfPositionsNull>0){
-					return "COMPLETE";
+						return "COMPLETE";
 					}
 					/**** if positions are discontinous ****/
-//					Boolean positionsDiscontinous=MemberBallotAttendance.checkPositionDiscontinous(session,questionType,false,round,locale.toString());
-//					if(positionsDiscontinous){
-//					return "COMPLETE";
-//					}				
+					//					Boolean positionsDiscontinous=MemberBallotAttendance.checkPositionDiscontinous(session,questionType,false,round,locale.toString());
+					//					if(positionsDiscontinous){
+					//					return "COMPLETE";
+					//					}				
 				}					
 				int count=MemberBallot.findEntryCount(session,questionType,round,attendance,locale.toString());
 				if(count>0){
@@ -1353,7 +1353,7 @@ public class BallotController extends BaseController{
 		String strQuestionType = request.getParameter("questionType");
 		String strMember = request.getParameter("member");
 		String outputFormat = request.getParameter("outputFormat");
-		
+
 		if(strSession!=null&&strQuestionType!=null&&strMember!=null&&outputFormat!=null){
 			if((!strSession.isEmpty())&&(!strQuestionType.isEmpty())
 					&&(!strMember.isEmpty())&&(!outputFormat.isEmpty())){
@@ -1379,16 +1379,16 @@ public class BallotController extends BaseController{
 							Date startDate = FormaterUtil.formatStringToDate(startDateParameter, ApplicationConstants.DB_DATETIME_FORMAT);
 							SimpleDateFormat dbFormat = null;
 							CustomParameter dbDateFormat=CustomParameter.findByName(CustomParameter.class,"ROTATION_ORDER_DATE_FORMAT", "");
-				            if(dbDateFormat!=null){
-				            	dbFormat=FormaterUtil.getDateFormatter(dbDateFormat.getValue(), locale.toString());
-				            }
+							if(dbDateFormat!=null){
+								dbFormat=FormaterUtil.getDateFormatter(dbDateFormat.getValue(), locale.toString());
+							}
 							String[] strQuestionSubmissionDate=dbFormat.format(startDate).split(",");
-		            		String[] strAnsweringMonth=strQuestionSubmissionDate[1].split(" ");
-		            		String answeringMonth=FormaterUtil.getMonthInMarathi(strAnsweringMonth[1], locale.toString());
-		            		MessageResource mrDate = MessageResource.findByFieldName(MessageResource.class, "code", "generic.date", locale.toString());
-		            		String genericDateLabel  = (mrDate!=null)? mrDate.getValue():"";
-		            		model.addAttribute("questionSubmissionDate",genericDateLabel + " " +strAnsweringMonth[0]+" "+ answeringMonth +","+strQuestionSubmissionDate[2]);
-		            		memberwiseQuestionsXmlVO.setSubmissionDate(genericDateLabel + " " +strAnsweringMonth[0]+" "+ answeringMonth +","+strQuestionSubmissionDate[2]);
+							String[] strAnsweringMonth=strQuestionSubmissionDate[1].split(" ");
+							String answeringMonth=FormaterUtil.getMonthInMarathi(strAnsweringMonth[1], locale.toString());
+							MessageResource mrDate = MessageResource.findByFieldName(MessageResource.class, "code", "generic.date", locale.toString());
+							String genericDateLabel  = (mrDate!=null)? mrDate.getValue():"";
+							model.addAttribute("questionSubmissionDate",genericDateLabel + " " +strAnsweringMonth[0]+" "+ answeringMonth +","+strQuestionSubmissionDate[2]);
+							memberwiseQuestionsXmlVO.setSubmissionDate(genericDateLabel + " " +strAnsweringMonth[0]+" "+ answeringMonth +","+strQuestionSubmissionDate[2]);
 						}												
 						memberwiseQuestionsXmlVO.setMemberBallotMemberWiseCountVOs(memberBallotMemberWiseReportVO.getMemberBallotMemberWiseCountVOs());
 						memberwiseQuestionsXmlVO.setMemberBallotMemberWiseQuestionVOs(memberBallotMemberWiseReportVO.getMemberBallotMemberWiseQuestionVOs());
@@ -1399,10 +1399,10 @@ public class BallotController extends BaseController{
 						if(memberBallotMemberWiseReportVO!=null) {
 							for(MemberBallotMemberWiseCountVO i: memberBallotMemberWiseReportVO.getMemberBallotMemberWiseCountVOs()) {
 								if(i.getStatusTypeType().equals(ApplicationConstants.QUESTION_FINAL_CLARIFICATION_NEEDED_FROM_MEMBER)
-										 ||i.getStatusTypeType().equals(ApplicationConstants.QUESTION_FINAL_CLARIFICATION_NEEDED_FROM_DEPARTMENT)
-										 ||i.getStatusTypeType().equals(ApplicationConstants.QUESTION_FINAL_CLARIFICATION_NEEDED_FROM_GOVT)
-										 ||i.getStatusTypeType().equals(ApplicationConstants.QUESTION_FINAL_CLARIFICATION_NEEDED_FROM_MEMBER_DEPARTMENT)) {
-									
+										||i.getStatusTypeType().equals(ApplicationConstants.QUESTION_FINAL_CLARIFICATION_NEEDED_FROM_DEPARTMENT)
+										||i.getStatusTypeType().equals(ApplicationConstants.QUESTION_FINAL_CLARIFICATION_NEEDED_FROM_GOVT)
+										||i.getStatusTypeType().equals(ApplicationConstants.QUESTION_FINAL_CLARIFICATION_NEEDED_FROM_MEMBER_DEPARTMENT)) {
+
 									clarificationCount += Integer.parseInt(i.getCount());
 								} else if(i.getCurrentDeviceType().equals(ApplicationConstants.STARRED_QUESTION) && i.getStatusTypeType().equals(ApplicationConstants.QUESTION_FINAL_ADMISSION)) {
 									admittedCount = Integer.parseInt(i.getCount());
@@ -1450,9 +1450,9 @@ public class BallotController extends BaseController{
 										} else if(i.getCurrentDeviceType().equals(ApplicationConstants.UNSTARRED_QUESTION) && i.getStatusTypeType().equals(ApplicationConstants.QUESTION_FINAL_ADMISSION)) {
 											unstarredQuestionVOs.add(i);											
 										} else if(i.getStatusTypeType().equals(ApplicationConstants.QUESTION_FINAL_CLARIFICATION_NEEDED_FROM_MEMBER)
-												 ||i.getStatusTypeType().equals(ApplicationConstants.QUESTION_FINAL_CLARIFICATION_NEEDED_FROM_DEPARTMENT)
-												 ||i.getStatusTypeType().equals(ApplicationConstants.QUESTION_FINAL_CLARIFICATION_NEEDED_FROM_GOVT)
-												 ||i.getStatusTypeType().equals(ApplicationConstants.QUESTION_FINAL_CLARIFICATION_NEEDED_FROM_MEMBER_DEPARTMENT)) {
+												||i.getStatusTypeType().equals(ApplicationConstants.QUESTION_FINAL_CLARIFICATION_NEEDED_FROM_DEPARTMENT)
+												||i.getStatusTypeType().equals(ApplicationConstants.QUESTION_FINAL_CLARIFICATION_NEEDED_FROM_GOVT)
+												||i.getStatusTypeType().equals(ApplicationConstants.QUESTION_FINAL_CLARIFICATION_NEEDED_FROM_MEMBER_DEPARTMENT)) {
 											clarificationQuestionVOs.add(i);											
 										} else if(i.getStatusTypeType().equals(ApplicationConstants.QUESTION_FINAL_REJECTION)) {
 											rejectedQuestionVOs.add(i);											
@@ -1531,16 +1531,16 @@ public class BallotController extends BaseController{
 						/** question submission date formatting **/
 						SimpleDateFormat dbFormat = null;
 						CustomParameter dbDateFormat=CustomParameter.findByName(CustomParameter.class,"ROTATION_ORDER_DATE_FORMAT", "");
-			            if(dbDateFormat!=null){
-			            	dbFormat=FormaterUtil.getDateFormatter(dbDateFormat.getValue(), locale.toString());
-			            }
+						if(dbDateFormat!=null){
+							dbFormat=FormaterUtil.getDateFormatter(dbDateFormat.getValue(), locale.toString());
+						}
 						String[] strQuestionSubmissionDate=dbFormat.format(memberBallotQuestionDistributionVO.getQuestionSubmissionStartTime()).split(",");
-	            		String[] strAnsweringMonth=strQuestionSubmissionDate[1].split(" ");
-	            		String answeringMonth=FormaterUtil.getMonthInMarathi(strAnsweringMonth[1], locale.toString());
-	            		MessageResource mrDate = MessageResource.findByFieldName(MessageResource.class, "code", "generic.date", locale.toString());
-	            		String genericDateLabel  = (mrDate!=null)? mrDate.getValue():"";
-	            		model.addAttribute("questionSubmissionDate",genericDateLabel + " " +strAnsweringMonth[0]+" "+ answeringMonth +","+strQuestionSubmissionDate[2]);
-			            /** question submission start time **/
+						String[] strAnsweringMonth=strQuestionSubmissionDate[1].split(" ");
+						String answeringMonth=FormaterUtil.getMonthInMarathi(strAnsweringMonth[1], locale.toString());
+						MessageResource mrDate = MessageResource.findByFieldName(MessageResource.class, "code", "generic.date", locale.toString());
+						String genericDateLabel  = (mrDate!=null)? mrDate.getValue():"";
+						model.addAttribute("questionSubmissionDate",genericDateLabel + " " +strAnsweringMonth[0]+" "+ answeringMonth +","+strQuestionSubmissionDate[2]);
+						/** question submission start time **/
 						java.util.Calendar calendar = java.util.Calendar.getInstance();
 						calendar.setTime(memberBallotQuestionDistributionVO.getQuestionSubmissionStartTime());
 						int hours = calendar.get(Calendar.HOUR);
@@ -1553,13 +1553,13 @@ public class BallotController extends BaseController{
 						hours = calendar.get(Calendar.HOUR);
 						minutes = calendar.get(Calendar.MINUTE);
 						model.addAttribute("questionSubmissionEndTime", FormaterUtil.formatNumberNoGrouping(hours, locale.toString())+"."+FormaterUtil.formatNumberNoGrouping(minutes, locale.toString()));
-						
+
 						model.addAttribute("houseType",memberBallotQuestionDistributionVO.getHouseType());
 						model.addAttribute("houseTypeName",memberBallotQuestionDistributionVO.getHouseTypeName());
 						model.addAttribute("sessionTypeName",memberBallotQuestionDistributionVO.getSessionTypeName());
 						model.addAttribute("sessionYear",memberBallotQuestionDistributionVO.getSessionYear());
 						model.addAttribute("sessionCountName",memberBallotQuestionDistributionVO.getSessionCountName());
-						
+
 						model.addAttribute("questionType",questionType.getId());
 						model.addAttribute("questionTypeName",questionType.getName());
 						model.addAttribute("locale",locale.toString());
@@ -1585,7 +1585,7 @@ public class BallotController extends BaseController{
 	@RequestMapping(value="/memberballot/questiondistribution/header",method=RequestMethod.GET)
 	public String generateQuestionDistributionReportHeader(HttpServletRequest request, ModelMap model, Locale locale) {
 		String returnPath = "ballot/templates/error";
-		
+
 		String houseType = request.getParameter("houseType");
 		String houseTypeName = request.getParameter("houseTypeName");
 		String sessionTypeName = request.getParameter("sessionTypeName");
@@ -1596,13 +1596,13 @@ public class BallotController extends BaseController{
 		String questionSubmissionDate = request.getParameter("questionSubmissionDate");
 		String dayTime = request.getParameter("dayTime");
 		String questionTypeName = request.getParameter("questionTypeName");
-		
+
 		if(houseType!=null&&!houseType.isEmpty() && houseTypeName!=null&&!houseTypeName.isEmpty()
 				&&sessionTypeName!=null&&!sessionTypeName.isEmpty() && sessionYear!=null&&!sessionYear.isEmpty()
 				&&sessionCountName!=null&&!sessionCountName.isEmpty() && questionSubmissionStartTime!=null&&!questionSubmissionStartTime.isEmpty()
 				&&questionSubmissionEndTime!=null&&!questionSubmissionEndTime.isEmpty() && questionSubmissionDate!=null&&!questionSubmissionDate.isEmpty()
 				&&dayTime!=null&&!dayTime.isEmpty() && questionTypeName!=null&&!questionTypeName.isEmpty()) {
-			
+
 			/**** Server encoding request parameter ****/
 			CustomParameter deploymentServerParameter = CustomParameter.findByFieldName(CustomParameter.class, "name", "DEPLOYMENT_SERVER", "");
 			if(deploymentServerParameter!=null) {
@@ -1624,7 +1624,7 @@ public class BallotController extends BaseController{
 					}
 				}
 			}
-			
+
 			model.addAttribute("houseType", houseType);
 			model.addAttribute("houseTypeName", houseTypeName);
 			model.addAttribute("sessionTypeName", sessionTypeName);
@@ -1635,13 +1635,13 @@ public class BallotController extends BaseController{
 			model.addAttribute("questionSubmissionDate", questionSubmissionDate);
 			model.addAttribute("dayTime", dayTime);
 			model.addAttribute("questionTypeName", questionTypeName);
-			
+
 			returnPath = "ballot/templates/memberballotquestiondistribution_header";
-			
+
 		} else {
 			model.addAttribute("errorMessage", "Request Parameter/s are either null or empty.");
 		}
-		
+
 		return returnPath;
 	}
 	@RequestMapping(value="/memberballot/questiondistribution/report",method=RequestMethod.GET)
@@ -1649,11 +1649,11 @@ public class BallotController extends BaseController{
 		File reportFile = null; 
 		Boolean isError = false;
 		MessageResource errorMessage = MessageResource.findByFieldName(MessageResource.class, "code", "generic.errorMessage", locale.toString());
-		
+
 		String strQuestionType=request.getParameter("questionType");
 		String strSession=request.getParameter("session");
 		String outputFormat = request.getParameter("outputFormat");
-		
+
 		if(strQuestionType!=null&&strSession!=null&&outputFormat!=null){
 			if((!strSession.isEmpty())&&(!strQuestionType.isEmpty())&&!outputFormat.isEmpty()){
 				try {
@@ -1688,7 +1688,7 @@ public class BallotController extends BaseController{
 						xmlVO.setTotalRejectedQuestions(FormaterUtil.formatNumberNoGrouping(totalRejectedQuestions, locale.toString()));
 						xmlVO.setTotalClarificationQuestions(FormaterUtil.formatNumberNoGrouping(totalClarificationQuestions, locale.toString()));
 						xmlVO.setTotalQuestions(FormaterUtil.formatNumberNoGrouping(totalQuestions, locale.toString()));
-						
+
 						String percentTotalAdmittedQuestions = FormaterUtil.getDeciamlFormatterWithNoGrouping(2, locale.toString()).format((double)totalAdmittedQuestions/(double)totalQuestions*100);
 						xmlVO.setPercentTotalAdmittedQuestions(percentTotalAdmittedQuestions);
 						String percentTotalConvertToUnstarredAndAdmitQuestions = FormaterUtil.getDeciamlFormatterWithNoGrouping(2, locale.toString()).format((double)totalConvertToUnstarredAndAdmitQuestions/(double)totalQuestions*100);
@@ -1697,21 +1697,21 @@ public class BallotController extends BaseController{
 						xmlVO.setPercentTotalRejectedQuestions(percentTotalRejectedQuestions);
 						String percentTotalClarificationQuestions = FormaterUtil.getDeciamlFormatterWithNoGrouping(2, locale.toString()).format((double)totalClarificationQuestions/(double)totalQuestions*100);
 						xmlVO.setPercentTotalClarificationQuestions(percentTotalClarificationQuestions);
-						
+
 						MemberBallotQuestionDistributionVO memberBallotQuestionDistributionVO = questionDistributions.get(0);
 						/** question submission date formatting **/
 						SimpleDateFormat dbFormat = null;
 						CustomParameter dbDateFormat=CustomParameter.findByName(CustomParameter.class,"ROTATION_ORDER_DATE_FORMAT", "");
-			            if(dbDateFormat!=null){
-			            	dbFormat=FormaterUtil.getDateFormatter(dbDateFormat.getValue(), locale.toString());
-			            }
+						if(dbDateFormat!=null){
+							dbFormat=FormaterUtil.getDateFormatter(dbDateFormat.getValue(), locale.toString());
+						}
 						String[] strQuestionSubmissionDate=dbFormat.format(memberBallotQuestionDistributionVO.getQuestionSubmissionStartTime()).split(",");
-	            		String[] strAnsweringMonth=strQuestionSubmissionDate[1].split(" ");
-	            		String answeringMonth=FormaterUtil.getMonthInMarathi(strAnsweringMonth[1], locale.toString());
-	            		MessageResource mrDate = MessageResource.findByFieldName(MessageResource.class, "code", "generic.date", locale.toString());
-	            		String genericDateLabel  = (mrDate!=null)? mrDate.getValue():"";
-	            		xmlVO.setQuestionSubmissionDate(genericDateLabel + " " +strAnsweringMonth[0]+" "+ answeringMonth +","+strQuestionSubmissionDate[2]);
-	            		/** question submission start time **/
+						String[] strAnsweringMonth=strQuestionSubmissionDate[1].split(" ");
+						String answeringMonth=FormaterUtil.getMonthInMarathi(strAnsweringMonth[1], locale.toString());
+						MessageResource mrDate = MessageResource.findByFieldName(MessageResource.class, "code", "generic.date", locale.toString());
+						String genericDateLabel  = (mrDate!=null)? mrDate.getValue():"";
+						xmlVO.setQuestionSubmissionDate(genericDateLabel + " " +strAnsweringMonth[0]+" "+ answeringMonth +","+strQuestionSubmissionDate[2]);
+						/** question submission start time **/
 						java.util.Calendar calendar = java.util.Calendar.getInstance();
 						calendar.setTime(memberBallotQuestionDistributionVO.getQuestionSubmissionStartTime());
 						int hours = calendar.get(Calendar.HOUR);
@@ -1723,14 +1723,14 @@ public class BallotController extends BaseController{
 						hours = calendar.get(Calendar.HOUR);
 						minutes = calendar.get(Calendar.MINUTE);
 						xmlVO.setQuestionSubmissionEndTime(FormaterUtil.formatNumberNoGrouping(hours, locale.toString())+"."+FormaterUtil.formatNumberNoGrouping(minutes, locale.toString()));
-									
+
 						xmlVO.setHouseType(memberBallotQuestionDistributionVO.getHouseType());
 						xmlVO.setHouseTypeName(memberBallotQuestionDistributionVO.getHouseTypeName());
 						xmlVO.setSessionTypeName(memberBallotQuestionDistributionVO.getSessionTypeName());
 						xmlVO.setSessionYear(memberBallotQuestionDistributionVO.getSessionYear());
 						xmlVO.setSessionCountName(memberBallotQuestionDistributionVO.getSessionCountName());
 						xmlVO.setQuestionTypeName(questionType.getName());						
-						
+
 						/**** generate report ****/						
 						reportFile = generateReportUsingFOP(xmlVO, "total_questions_distribution", outputFormat, "total_questions_distribution_report", locale.toString());
 						if(reportFile!=null) {
@@ -1754,7 +1754,7 @@ public class BallotController extends BaseController{
 			logger.error("**** Check request parameter 'strRequestParameter,outputFormat' for null values ****");
 			isError = true;				
 		}
-		
+
 		if(isError) {
 			try {
 				//response.sendError(404, "Report cannot be generated at this stage.");
@@ -1813,41 +1813,73 @@ public class BallotController extends BaseController{
 			String strQuestionType=request.getParameter("questionType");
 			String strSession=request.getParameter("session");
 			String strMember=request.getParameter("member");
-			
+
 			if(strQuestionType!=null&&strSession!=null&&strMember!=null){
-			
 				Session session=Session.findById(Session.class,Long.parseLong(strSession));
 				DeviceType questionType=DeviceType.findById(DeviceType.class,Long.parseLong(strQuestionType));
+
+				/**** Populating New page ****/
+				/**** Member whose choice is being filled ****/
 				Member member=Member.findById(Member.class,Long.parseLong(strMember));
+				model.addAttribute("member",member);
+
+				/**** Total admitted questions of member and list of admitted questions ****/
 				List<Question> questions=MemberBallotChoice.findFirstBatchQuestions(session, questionType, member,"ALL","number",ApplicationConstants.ASC, locale.toString());
-				
 				model.addAttribute("admittedQuestions",questions);
 				model.addAttribute("noOfAdmittedQuestions",questions.size());
-				
+
+				/**** Total rounds and list of member ballots ****/
 				List<MemberBallot> memberBallots=MemberBallot.findByMember(session, questionType, member, locale.toString());
-				
 				model.addAttribute("memberBallots",memberBallots);
-				
 				int rounds=memberBallots.size();
 				model.addAttribute("totalRounds", rounds);
-				
-				List<MemberBallotChoice> memberBallotChoices=MemberBallotChoice.findByMember(session,questionType, member, locale.toString());
-				if(memberBallotChoices.isEmpty()){
-					model.addAttribute("flag","new");
-					request.setAttribute("totalRounds", rounds);
-					for(int i=1;i<=rounds;i++){
-						CustomParameter questionsInEachRound=CustomParameter.findByName(CustomParameter.class,"STARRED_MEMBERBALLOTCOUNCIL_ROUND"+i, "");
-						if(questionsInEachRound!=null){
-							request.setAttribute("round"+i, Integer.parseInt(questionsInEachRound.getValue()));
-						}else{
-							model.addAttribute("type","NO_OF_QUESTIONS_IN_EACH_ROUND_NOT_SET");
-							return "ballot/error";
-						}
-					}
-				}else{
-					model.addAttribute("flag","edit");
+
+				/**** Blank Form(default-no) and in case of blank form submitted auto filling to start at ****/
+				model.addAttribute("blankForm","no");
+				CustomParameter customParameter1=CustomParameter.findByName(CustomParameter.class, "MEMBERBALLOT_CHOICE_BLANK_FORM_FILL_FROM_ROUND", "");
+				int blankFormAutoFillingStartsAt=5;
+				if(customParameter1!=null){
+					blankFormAutoFillingStartsAt = Integer.parseInt(customParameter1.getValue());			
 				}
-	
+				model.addAttribute("blankFormAutoFillingStartsAt",blankFormAutoFillingStartsAt);
+
+				/**** Map of Member Ballot Choices and Question In Each Rounds ****/
+				Map<Integer,Map<Integer,MemberBallotChoice>> memberBallotChoicesMap=new HashMap<Integer, Map<Integer,MemberBallotChoice>>();
+				Map<Integer,Integer> questionsInEachRoundMap=new HashMap<Integer, Integer>();
+				int noOfMemberBallotChoices=0;
+				int noOfMemberBallotChoicesExceptLast=0;
+				for(int i=1;i<=rounds;i++){
+					CustomParameter questionsInEachRound=CustomParameter.findByName(CustomParameter.class,"STARRED_MEMBERBALLOTCOUNCIL_ROUND"+i, "");
+					if(questionsInEachRound!=null){
+						int noOfQuestions=Integer.parseInt(questionsInEachRound.getValue());
+						questionsInEachRoundMap.put(i,noOfQuestions);
+						if(i!=rounds){
+							noOfMemberBallotChoicesExceptLast+=noOfQuestions;
+						}
+						Map<Integer,MemberBallotChoice> choicesMap=new HashMap<Integer, MemberBallotChoice>();
+						for(int j=1;j<=Integer.parseInt(questionsInEachRound.getValue());j++){
+							MemberBallotChoice memberBallotChoice=MemberBallotChoice.findMemberBallotChoice(session, questionType, member, i, j);
+							if(memberBallotChoice!=null){
+								noOfMemberBallotChoices=noOfMemberBallotChoices+1;
+							}
+							choicesMap.put(j,memberBallotChoice);
+						}
+						memberBallotChoicesMap.put(i,choicesMap);
+					}
+				}	
+				model.addAttribute("questionsInEachRoundMap",questionsInEachRoundMap);
+				model.addAttribute("memberBallotChoicesMap",memberBallotChoicesMap);
+				model.addAttribute("noOfMemberBallotChoices",noOfMemberBallotChoices);
+				model.addAttribute("noOfMemberBallotChoicesExceptLast",noOfMemberBallotChoicesExceptLast);
+
+				/**** Questions In Last Round By Default ****/
+				CustomParameter questionsInLastRoundByDefault=CustomParameter.findByName(CustomParameter.class,"STARRED_MEMBERBALLOTCOUNCIL_LASTROUND_BYDEFAULT", "");
+				if(questionsInLastRoundByDefault!=null){
+					model.addAttribute("questionsInLastRoundByDefault", Integer.parseInt(questionsInLastRoundByDefault.getValue()));
+				}else{
+					model.addAttribute("questionsInLastRoundByDefault",20);
+				}		
+
 			}else{
 				model.addAttribute("type","REQUEST_PARAMETER_NULL");
 				return "ballot/error";
@@ -1858,12 +1890,14 @@ public class BallotController extends BaseController{
 		}
 		return "ballot/listmemberballotchoice";
 	}
+
 	/****** Member Ballot(Council) Member Ballot Choices Update Page ****/
 	@Transactional
 	@RequestMapping(value="/memberballot/choices",method=RequestMethod.POST)
 	public  String updateMemberBallotChoice(final HttpServletRequest request,
 			final HttpServletResponse response,
 			final ModelMap model,final Locale locale){
+		boolean fillStatus=false;
 		try{
 			String strNoOfAdmittedQuestions=request.getParameter("noOfAdmittedQuestions");
 			String strQuestionType=request.getParameter("questionType");
@@ -1878,6 +1912,7 @@ public class BallotController extends BaseController{
 				Member member=Member.findById(Member.class,Long.parseLong(strMember));
 				int totalRounds=Integer.parseInt(strTotalRounds);
 				int noOfAdmittedQuestions=Integer.parseInt(strNoOfAdmittedQuestions);
+
 				/**** No of question choices allowed in each round ****/
 				Map<String,Integer> noofQuestionsInEachRound=new HashMap<String, Integer>();
 				for(int i=1;i<=Integer.parseInt(strTotalRounds);i++){
@@ -1889,35 +1924,72 @@ public class BallotController extends BaseController{
 						return "ballot/error";
 					}
 				}	
-				fillChoices(noofQuestionsInEachRound,
+				fillStatus=fillChoices(noofQuestionsInEachRound,
 						totalRounds,noOfAdmittedQuestions,session,
 						questionType,member,locale.toString(),
 						request);
-				/**** Repopulating edit page to display ****/
-				/**** Question Choices ****/
+
+				/**** Populating Edit page ****/
+				/**** Member whose choice is being filled ****/
+				model.addAttribute("member",member);
+
+				/**** Total admitted questions of member and list of admitted questions ****/
 				List<Question> questions=MemberBallotChoice.findFirstBatchQuestions(session, questionType, member,"ALL","number",ApplicationConstants.ASC, locale.toString());
 				model.addAttribute("admittedQuestions",questions);
 				model.addAttribute("noOfAdmittedQuestions",questions.size());
+
+				/**** Total rounds and list of member ballots ****/
 				List<MemberBallot> memberBallots=MemberBallot.findByMember(session, questionType, member, locale.toString());
 				model.addAttribute("memberBallots",memberBallots);
 				int rounds=memberBallots.size();
 				model.addAttribute("totalRounds", rounds);
-				List<MemberBallotChoice> memberBallotChoices=MemberBallotChoice.findByMember(session,questionType, member, locale.toString());
-				if(memberBallotChoices.isEmpty()){
-					model.addAttribute("flag","new");
-					request.setAttribute("totalRounds", rounds);
-					for(int i=1;i<=rounds;i++){
-						CustomParameter questionsInEachRound=CustomParameter.findByName(CustomParameter.class,"STARRED_MEMBERBALLOTCOUNCIL_ROUND"+i, "");
-						if(questionsInEachRound!=null){
-							request.setAttribute("round"+i, Integer.parseInt(questionsInEachRound.getValue()));
-						}else{
-							model.addAttribute("type","NO_OF_QUESTIONS_IN_EACH_ROUND_NOT_SET");
-							return "ballot/error";
-						}
-					}
-				}else{
-					model.addAttribute("flag","edit");
+
+				/**** Blank Form(default-no) and in case of blank form submitted auto filling to start at ****/
+				model.addAttribute("blankForm","no");
+				CustomParameter customParameter1=CustomParameter.findByName(CustomParameter.class, "MEMBERBALLOT_CHOICE_BLANK_FORM_FILL_FROM_ROUND", "");
+				int blankFormAutoFillingStartsAt=5;
+				if(customParameter1!=null){
+					blankFormAutoFillingStartsAt = Integer.parseInt(customParameter1.getValue());			
 				}
+				model.addAttribute("blankFormAutoFillingStartsAt",blankFormAutoFillingStartsAt);
+
+				/**** Map of Member Ballot Choices and Question In Each Rounds ****/
+				Map<Integer,Map<Integer,MemberBallotChoice>> memberBallotChoicesMap=new HashMap<Integer, Map<Integer,MemberBallotChoice>>();
+				Map<Integer,Integer> questionsInEachRoundMap=new HashMap<Integer, Integer>();
+				int noOfMemberBallotChoices=0;
+				int noOfMemberBallotChoicesExceptLast=0;
+				for(int i=1;i<=rounds;i++){
+					CustomParameter questionsInEachRound=CustomParameter.findByName(CustomParameter.class,"STARRED_MEMBERBALLOTCOUNCIL_ROUND"+i, "");
+					if(questionsInEachRound!=null){
+						int noOfQuestions=Integer.parseInt(questionsInEachRound.getValue());
+						questionsInEachRoundMap.put(i,noOfQuestions);
+						if(i!=rounds){
+							noOfMemberBallotChoicesExceptLast+=noOfQuestions;
+						}
+						Map<Integer,MemberBallotChoice> choicesMap=new HashMap<Integer, MemberBallotChoice>();
+						for(int j=1;j<=Integer.parseInt(questionsInEachRound.getValue());j++){
+							MemberBallotChoice memberBallotChoice=MemberBallotChoice.findMemberBallotChoice(session, questionType, member, i, j);
+							if(memberBallotChoice!=null){
+								noOfMemberBallotChoices=noOfMemberBallotChoices+1;
+							}
+							choicesMap.put(j,memberBallotChoice);
+						}
+						memberBallotChoicesMap.put(i,choicesMap);
+					}
+				}	
+				model.addAttribute("questionsInEachRoundMap",questionsInEachRoundMap);
+				model.addAttribute("memberBallotChoicesMap",memberBallotChoicesMap);
+				model.addAttribute("noOfMemberBallotChoices",noOfMemberBallotChoices);
+				model.addAttribute("noOfMemberBallotChoicesExceptLast",noOfMemberBallotChoicesExceptLast);
+
+				/**** Questions In Last Round By Default ****/
+				CustomParameter questionsInLastRoundByDefault=CustomParameter.findByName(CustomParameter.class,"STARRED_MEMBERBALLOTCOUNCIL_LASTROUND_BYDEFAULT", "");
+				if(questionsInLastRoundByDefault!=null){
+					model.addAttribute("questionsInLastRoundByDefault", Integer.parseInt(questionsInLastRoundByDefault.getValue()));
+				}else{
+					model.addAttribute("questionsInLastRoundByDefault",20);
+				}
+
 			}else{
 				model.addAttribute("type","REQUEST_PARAMETER_NULL");
 				return "ballot/error";
@@ -1929,93 +2001,145 @@ public class BallotController extends BaseController{
 			model.addAttribute("type","REQUEST_PARAMETER_NULL");
 			return "ballot/error";
 		}
-		model.addAttribute("type","SUCCESS");
+		if(fillStatus){
+			model.addAttribute("type","SUCCESS");
+		}else{
+			model.addAttribute("type","FAILED");
+		}
 		return "ballot/listmemberballotchoice";
 	}
-	private void fillChoices(Map<String, Integer> noofQuestionsInEachRound,
+
+	private boolean fillChoices(Map<String, Integer> noofQuestionsInEachRound,
 			int totalRounds, int noOfAdmittedQuestions, Session session,
 			DeviceType questionType, Member member, String locale,
 			HttpServletRequest request) {
 		try{
-			/**** Here mixing of manual and auto fill can take place depending on the way member has filled
-			 * the form ****/
+			/**** Total manually set choices ****/
+			Map<Long,MemberBallotChoice> manuallySetChoices=new HashMap<Long, MemberBallotChoice>();
+			/**** Total Blank Choices kept deliberately blank ****/			
+			Map<Integer,Map<Integer,Integer>> manuallySetBlankChoices=new HashMap<Integer, Map<Integer,Integer>>();
+
+			/**** Obtain value of 'autofillingstartsat' ****/
 			String strAutoFillingStartsAt=request.getParameter("autofillingstartsat");
 			int autoFillingStartsAt=Integer.parseInt(strAutoFillingStartsAt);
-			String flag=request.getParameter("flag");
-			Map<Long,MemberBallotChoice> manuallySetChoices=new HashMap<Long, MemberBallotChoice>();
+
+			/**** Blank form is submitted without clicking on auto fill.
+			 * All admitted questions will be taken from last round ****/
+			//			String strBlankForm=request.getParameter("blankForm");				
+			//			if(strBlankForm!=null&&!strBlankForm.isEmpty()&&strBlankForm.equals("yes")&&autoFillingStartsAt==0){
+			//				return autoFillChoices("ALL",noofQuestionsInEachRound,
+			//						totalRounds,noOfAdmittedQuestions,session,
+			//						questionType,member,locale,
+			//						manuallySetChoices,"BLANK_FORM_NO_AUTOFILL_CLICKED",manuallySetBlankChoices);	
+			//			}	
+
+			/**** Blank form is submitted and auto fill clicked at round 5 ****/
+			//			String strblankFormAutoFillFromLast=request.getParameter("blankFormAutoFillingStartsFromLast");
+			//			if(strblankFormAutoFillFromLast!=null && !strblankFormAutoFillFromLast.isEmpty()&& strblankFormAutoFillFromLast.equals("yes")){
+			//				return autoFillChoices("ALL",noofQuestionsInEachRound,
+			//						totalRounds,noOfAdmittedQuestions,session,
+			//						questionType,member,locale,
+			//						manuallySetChoices,"BLANK_FORM_AUTOFILL_CLICKED_AUTOFILL_AT_LASTROUND",manuallySetBlankChoices);
+			//			}		
+
+			/**** count=no of manually filled choices(except choices kept deliberately blank) ****/
 			int count=1;
+			/**** choicesClearedForRounds=clear choices which were not manually filled but might have been there in db ****/
 			int choicesClearedForRounds=0;
-			for(int i=1;i<=totalRounds;i++){
-				if(autoFillingStartsAt==1){
-					break;
-				}else if((autoFillingStartsAt>1)&&(count>=autoFillingStartsAt)){
-					break;
-				}else if(count>noOfAdmittedQuestions){
-					break;
-				}			
-				MemberBallot memberBallot=MemberBallot.findByMemberRound(session, questionType, member,i, locale.toString());
-				List<MemberBallotChoice> choices=new ArrayList<MemberBallotChoice>();
-				if(memberBallot.getQuestionChoices()!=null){
-					for(MemberBallotChoice c:memberBallot.getQuestionChoices()){
-						choices.add(c);
-					}	
-					/**** Set member ballot's choices to null and update member ballot****/
-					memberBallot.setQuestionChoices(null);
-					memberBallot.merge();
-					/**** remove all previous entries ****/
-					for(MemberBallotChoice c:choices){
-						c.remove();
-					}					
-				}
-				choicesClearedForRounds++;
-				List<MemberBallotChoice> memberBallotChoices=new ArrayList<MemberBallotChoice>();
-				Integer questionsInEachRound=noofQuestionsInEachRound.get("round"+i);
-				for(int j=1;j<=questionsInEachRound;j++){
-					if((autoFillingStartsAt>1)&&(count>=autoFillingStartsAt)){
+			/**** How many times loop has been travelled ****/
+			int loopCount=0;
+			/**** Manual Filling of Choices ****/
+			if(autoFillingStartsAt > 1 || autoFillingStartsAt==0){
+				for(int i=1;i<=totalRounds;i++){					
+					if((autoFillingStartsAt>1)&&(loopCount>=autoFillingStartsAt-1)){
+						/**** some questions have been filled manually and some will be auto filled ****/
 						break;
 					}else if(count>noOfAdmittedQuestions){
-						break;
+						/**** All questions have been manually filled ****/					
+						return true;
+					}		
+					/**** Clear existing member ballot choice association entries and member ballot choices entries ****/
+					MemberBallot memberBallot=MemberBallot.findByMemberRound(session, questionType, member,i, locale.toString());
+					List<MemberBallotChoice> choices=new ArrayList<MemberBallotChoice>();			
+					if(memberBallot.getQuestionChoices()!=null && !memberBallot.getQuestionChoices().isEmpty()){
+						for(MemberBallotChoice c:memberBallot.getQuestionChoices()){
+							choices.add(c);
+						}	
+						/**** Set member ballot's choices to null and update member ballot****/
+						memberBallot.setQuestionChoices(null);
+						memberBallot.merge();
+						/**** remove all previous entries ****/
+						for(MemberBallotChoice c:choices){
+							c.remove();
+						}					
 					}
-					String strChoice=request.getParameter("choice"+count);
-					String strQuestion=request.getParameter("question"+count);
-					String strAnsweringDate=request.getParameter("answeringDate"+count);
-					if(strChoice!=null&&strQuestion!=null&&strAnsweringDate!=null){
-						MemberBallotChoice memberBallotChoice=null;					
-						memberBallotChoice=new MemberBallotChoice();
-						if(!strChoice.isEmpty()){
-							memberBallotChoice.setChoice(Integer.parseInt(strChoice));
+					choicesClearedForRounds++;			
+					List<MemberBallotChoice> memberBallotChoices=new ArrayList<MemberBallotChoice>();
+					/**** Blank choices in each round  ****/
+					Map<Integer,Integer> blankChoices=new HashMap<Integer, Integer>();
+					Integer questionsInEachRound=noofQuestionsInEachRound.get("round"+i);
+					for(int j=1;j<=questionsInEachRound;j++){
+						if((autoFillingStartsAt>1)&&(loopCount>=autoFillingStartsAt-1)){
+							break;
+						}else if(count>noOfAdmittedQuestions){
+							break;
 						}
-						if(!strQuestion.equals("-")){
-							Question question=Question.findById(Question.class,Long.parseLong(strQuestion));
-							if(!strAnsweringDate.equals("-")){
-								QuestionDates questionDates=QuestionDates.findById(QuestionDates.class,Long.parseLong(strAnsweringDate));
-								memberBallotChoice.setNewAnsweringDate(questionDates);
-								question.setAnsweringDate(questionDates);
-								question.simpleMerge();
-							}else{
-								memberBallotChoice.setNewAnsweringDate(question.getChartAnsweringDate());
+						String strChoice=request.getParameter("choice"+(loopCount+1));
+						String strQuestion=request.getParameter("question"+(loopCount+1));
+						String strAnsweringDate=request.getParameter("answeringDate"+(loopCount+1));
+						/**** Manual filling 
+						 * a.both question and answering date has been filled
+						 * b.question has been filled but not answering date
+						 * c.both have been left empty ****/
+						if(strChoice!=null&&strQuestion!=null&&strAnsweringDate!=null&&!strQuestion.equals("-")){
+							MemberBallotChoice memberBallotChoice=null;					
+							memberBallotChoice=new MemberBallotChoice();
+							if(!strChoice.isEmpty()){
+								memberBallotChoice.setChoice(Integer.parseInt(strChoice));
 							}
-							memberBallotChoice.setQuestion(question);
-						}
-						memberBallotChoice.setLocale(locale);
-						memberBallotChoice.setClubbingUpdated(false);
-						memberBallotChoice.setProcessed(false);
-						memberBallotChoice.setAutoFilled(false);
-						if(memberBallotChoice.getId()==null){
-							memberBallotChoice.persist();
+							if(!strQuestion.equals("-")){
+								Question question=Question.findById(Question.class,Long.parseLong(strQuestion));
+								if(!strAnsweringDate.equals("-")){
+									QuestionDates questionDates=QuestionDates.findById(QuestionDates.class,Long.parseLong(strAnsweringDate));
+									memberBallotChoice.setNewAnsweringDate(questionDates);
+									question.setAnsweringDate(questionDates);
+									question.simpleMerge();
+								}else{
+									memberBallotChoice.setNewAnsweringDate(question.getChartAnsweringDate());
+								}
+								memberBallotChoice.setQuestion(question);
+							}
+							memberBallotChoice.setLocale(locale);
+							memberBallotChoice.setClubbingUpdated(false);
+							memberBallotChoice.setProcessed(false);
+							memberBallotChoice.setAutoFilled(false);
+							memberBallotChoice.setBlankFormAutoFilled(false);
+							if(memberBallotChoice.getId()==null){
+								memberBallotChoice.persist();
+							}else{
+								memberBallotChoice.merge();
+							}
+							memberBallotChoices.add(memberBallotChoice);
+							manuallySetChoices.put(memberBallotChoice.getId(),memberBallotChoice);
+							count++;
+							loopCount++;
 						}else{
-							memberBallotChoice.merge();
+							/**** The choices in each round which are deliberately kept blank ****/
+							blankChoices.put(j,j);
+							loopCount++;
 						}
-						memberBallotChoices.add(memberBallotChoice);
-						manuallySetChoices.put(memberBallotChoice.getId(),memberBallotChoice);
 					}
-					count++;
+					/**** if no choices have been filled for a round its choices will be set to null ****/
+					if(memberBallotChoices.isEmpty()){
+						memberBallotChoices=null;
+					}
+					memberBallot.setQuestionChoices(memberBallotChoices);
+					memberBallot.merge();
+					/**** Blank Choices In each round ****/
+					manuallySetBlankChoices.put(i,blankChoices);
 				}
-				memberBallot.setQuestionChoices(memberBallotChoices);
-				memberBallot.merge();
 			}
-			/**** Here first we will clear the entries for the rounds which were not updated manually
-			 * and might be present in the db.
+			/**** Here first we will clear the entries for the rounds which were not updated manually and might be present in the db.
 			 */
 			for(int i=choicesClearedForRounds+1;i<=totalRounds;i++){
 				MemberBallot memberBallot=MemberBallot.findByMemberRound(session, questionType, member,i, locale.toString());
@@ -2032,34 +2156,45 @@ public class BallotController extends BaseController{
 						c.remove();
 					}			
 				}
-			}
+			}			
+			/**** Partially filled choices(manually-blank+properly filled choices) and no auto filling clicked 
+			 * No auto filling will take place */
+			//			if(autoFillingStartsAt==0 && count< noOfAdmittedQuestions){
+			//				return true;
+			//			}else 
 			if(autoFillingStartsAt>=1){
 				if(autoFillingStartsAt==1){
-					autoFillChoices("ALL",noofQuestionsInEachRound,
+					return autoFillChoices("ALL",noofQuestionsInEachRound,
 							totalRounds,noOfAdmittedQuestions,session,
 							questionType,member,locale,
-							flag,manuallySetChoices);
+							manuallySetChoices,"BLANKFORM_AUTOFILL_CLICKED_AT_BEGINING",manuallySetBlankChoices);
 				}else{
-					autoFillChoices("PARTIAL",noofQuestionsInEachRound,
+					/**** Partially filled choices and want rest questions to be auto filled from last round by clicking auto
+					 * fill at last round ****/
+					return autoFillChoices("PARTIAL",noofQuestionsInEachRound,
 							totalRounds,noOfAdmittedQuestions,session,
 							questionType,member,locale,
-							flag,manuallySetChoices);
+							manuallySetChoices,"PARTIALLYFILLED_CHOICES_AUTOFILL_CLICKED",manuallySetBlankChoices);
 				}			
 			}
 		}catch (ELSException e) {
 			logger.error(e.getMessage());
 		}
+		return false;
 	}
-	private void autoFillChoices(String autofillingPattern,Map<String, Integer> noofQuestionsInEachRound,
+	private boolean autoFillChoices(String autofillingPattern,Map<String, Integer> noofQuestionsInEachRound,
 			int totalRounds, int noOfAdmittedQuestions, Session session,
 			DeviceType questionType, Member member, String locale,
-			String flag,Map<Long,MemberBallotChoice> manuallySetChoices){
-		
-		try{
-			/**** Auto Filling Can Take Place by arranging questions according to lowest number 
-			 * or lowest chart answering date ****/	
-			/**** Now auto filling can be of all entries or of all entries - n entries ****/
+			Map<Long,MemberBallotChoice> manuallySetChoices,String autoFillingCase,
+			Map<Integer,Map<Integer,Integer>> manuallySetBlankChoices){
+
+		try{			
 			List<Question> inputQuestions=new ArrayList<Question>();
+			CustomParameter customParameter1=CustomParameter.findByName(CustomParameter.class, "MEMBERBALLOT_CHOICE_BLANK_FORM_FILL_FROM_ROUND", "");
+			int fillingStartsFromRound=5;
+			if(customParameter1!=null){
+				fillingStartsFromRound = Integer.parseInt(customParameter1.getValue());			
+			}
 			CustomParameter customParameter=CustomParameter.findByName(CustomParameter.class, "MEMBERBALLOT_AUTOFILL_BY_NUMBER","");
 			if(customParameter!=null){
 				if(customParameter.getValue().toUpperCase().equals(("NO"))){
@@ -2085,32 +2220,40 @@ public class BallotController extends BaseController{
 			if(!inputQuestions.isEmpty()){
 				int count=0;
 				int size=inputQuestions.size();
+				//int startingRound=1;
+				//				if(autoFillingCase!=null && !autoFillingCase.isEmpty() && 
+				//						(autoFillingCase.equals("BLANK_FORM_NO_AUTOFILL_CLICKED")
+				//								||autoFillingCase.equals("BLANK_FORM_AUTOFILL_CLICKED_AUTOFILL_AT_LASTROUND")
+				//								||autoFillingCase.equals("PARTIALLYFILLED_NO_AUTOFILL_CLICKED_AUTOFILL_AT_LAST")
+				//								||autoFillingCase.equals("PARTIALLYFILLED_CHOICES_AUTOFILL_CLICKED_AT_LAST"))){					
+				//					startingRound=fillingStartsFromRound;
+				//				}
 				for(int i=1;i<=totalRounds;i++){
-					/**** if n(=size) entries have been created then stop ****/
 					if(count>=size){
 						break;
 					}
+					/**** Manually set choices in each round ****/
 					List<MemberBallotChoice> memberBallotChoices=new ArrayList<MemberBallotChoice>();
-					/**** Getting Member Ballot Entry for a particular round ****/
+					/**** Member ballot of current round ****/
 					MemberBallot memberBallot=MemberBallot.findByMemberRound(session, questionType, member,i, locale.toString());
-					/**** Remove existing choices in case of edit ****/
-					//if(flag.equals("edit")){
-					/**** Obtain current choices ****/
+					/**** Existing choices in each round ****/
 					List<MemberBallotChoice> choices=new ArrayList<MemberBallotChoice>();
+
+					/**** set member ballot of current round choices to null and update
+					 * remove all existing choices if pattern is ALL
+					 * remove those entries which have not been set manually
+					 * collect existing manually set entries in memberBallotChoices ****/
 					if(memberBallot.getQuestionChoices()!=null){
 						for(MemberBallotChoice c:memberBallot.getQuestionChoices()){
 							choices.add(c);
 						}	
-						/**** Set member ballot's choices to null and update member ballot****/
 						memberBallot.setQuestionChoices(null);
 						memberBallot.merge();
 						if(autofillingPattern.toUpperCase().equals("ALL")){
-							/**** remove all previous entries ****/
 							for(MemberBallotChoice c:choices){
 								c.remove();
 							}					
 						}else{
-							/**** we will remove entries other than those which member has manually set ****/
 							for(MemberBallotChoice c:choices){
 								if(manuallySetChoices.get(c.getId())==null){
 									c.remove();
@@ -2120,39 +2263,52 @@ public class BallotController extends BaseController{
 							}	
 						}
 					}
-					//}
-					/**** In case of new and edit both auto fill will create entries automatically ****/
 					Integer questionsInEachRound=noofQuestionsInEachRound.get("round"+i);
-					int noOfmanuallyPopulatedChoices=memberBallotChoices.size();
-					/**** Iterating for the no of questions allowed in each round times ****/
-					for(int j=noOfmanuallyPopulatedChoices+1;j<=questionsInEachRound;j++){
-						/**** if n(=size) entries have been created then stop ****/
+					/**** Choices which are manually filled in each round ****/
+					Map<Integer,Long> choicesManuallySetEachRound=new HashMap<Integer, Long>();
+					if(memberBallotChoices!=null && !memberBallotChoices.isEmpty()){
+						for(MemberBallotChoice mb:memberBallotChoices){
+							if(mb.getChoice()!=null){
+								choicesManuallySetEachRound.put(mb.getChoice(), mb.getId());
+							}
+						}						
+					}
+					/**** size of existing manually set choices in each round-blank choices ****/
+					//	if((startingRound!=1 && i==startingRound)||(startingRound==1 && i<=totalRounds)){
+					for(int j=1;j<=questionsInEachRound;j++){
 						if(count>=size){
 							break;
-						}else if(noOfmanuallyPopulatedChoices==questionsInEachRound){
-							break;
 						}
-						/**** Creating choice entry from the admitted question ****/
-						MemberBallotChoice memberBallotChoice=new MemberBallotChoice();
-						memberBallotChoice.setLocale(locale.toString());
-						memberBallotChoice.setClubbingUpdated(false);
-						memberBallotChoice.setProcessed(false);
-						Question question=inputQuestions.get(count);
-						memberBallotChoice.setChoice(j);
-						memberBallotChoice.setQuestion(question);
-						memberBallotChoice.setNewAnsweringDate(question.getChartAnsweringDate());
-						memberBallotChoice.setAutoFilled(true);
-						memberBallotChoice.persist();
-						memberBallotChoices.add(memberBallotChoice);
-						count++;
+						if(!choicesManuallySetEachRound.isEmpty()&& choicesManuallySetEachRound.get(j)!=null){
+
+						}else if(manuallySetBlankChoices.get(i)!=null && manuallySetBlankChoices.get(i).get(j)!=null){
+
+						}else{
+							/**** Creating choice entry from the admitted question ****/
+							MemberBallotChoice memberBallotChoice=new MemberBallotChoice();
+							memberBallotChoice.setLocale(locale.toString());
+							memberBallotChoice.setClubbingUpdated(false);
+							memberBallotChoice.setProcessed(false);
+							Question question=inputQuestions.get(count);
+							memberBallotChoice.setChoice(j);
+							memberBallotChoice.setQuestion(question);
+							memberBallotChoice.setNewAnsweringDate(question.getChartAnsweringDate());
+							memberBallotChoice.setAutoFilled(true);
+							memberBallotChoice.persist();
+							memberBallotChoices.add(memberBallotChoice);
+							count++;
+						}
 					}
+					//}					
 					memberBallot.setQuestionChoices(memberBallotChoices);
 					memberBallot.merge();
 				}
 			}	
+			return true;
 		}catch (ELSException e) {
 			logger.error(e.getMessage());
 		}
+		return false;
 	}
 
 	/****** Member Ballot(Council) Member Ballot Update Clubbing Page ****/
@@ -2201,11 +2357,11 @@ public class BallotController extends BaseController{
 	public String createFinalMemberBallot(final HttpServletRequest request,
 			final ModelMap model,
 			final Locale locale){
-		
+
 		String errorpage="ballot/error";
-		
+
 		try{
-			
+
 			String strSession=request.getParameter("session");
 			String strDeviceType=request.getParameter("questionType");
 			String strGroup=request.getParameter("group");
@@ -2271,7 +2427,7 @@ public class BallotController extends BaseController{
 		}
 		return "ballot/memberballotfinal";		
 	}
-	
+
 	/****** Member Ballot(Council) Member Ballot report in PDF or WORD using FOP ****//*
 	@RequestMapping(value="/memberballot/report",method=RequestMethod.GET)
 	public @ResponseBody void createMemberBallotReport(final HttpServletRequest request,
@@ -2279,7 +2435,7 @@ public class BallotController extends BaseController{
 			final ModelMap model,
 			final Locale locale){		
 		File reportFile = null;
-		
+
 		String strAttendance=request.getParameter("attendance");
 		String strQuestionType=request.getParameter("questionType");
 		String strSession=request.getParameter("session");
@@ -2296,7 +2452,7 @@ public class BallotController extends BaseController{
 				Boolean attendance=Boolean.parseBoolean(strAttendance);
 				Integer round=Integer.parseInt(strRound);
 				try {
-					*//**** check whether member ballot is done or not for given round  ****//*
+	 *//**** check whether member ballot is done or not for given round  ****//*
 					int count=MemberBallot.findEntryCount(session,questionType,round,attendance,locale.toString());
 					if(count>0){
 						List<MemberBallotVO> memberBallots=null;
@@ -2312,14 +2468,14 @@ public class BallotController extends BaseController{
 							Group group=Group.findById(Group.class,Long.parseLong(strGroup));
 							memberBallots=MemberBallot.viewMemberBallotVO(session,questionType,attendance,round,group,answeringDate,locale.toString());
 						}
-											
+
 		            	StarredQuestionCouncilBallotXmlVO data = new StarredQuestionCouncilBallotXmlVO();
 		            	data.setRound(FormaterUtil.formatNumberNoGrouping(round, locale.toString()));
 		            	data.setMemberBallots(memberBallots);
 		            	data.setAttendance(strAttendance);
 		            	data.setSessionPlace(session.getPlace().getPlace());		            	
 		            	data.setDate(FormaterUtil.formatDateToString(new Date(), ApplicationConstants.BALLOT_REPORT_DATE_FORMAT, locale.toString()));
-		            	
+
 		            	//generate report
 		            	if(reportFormat.equals("WORD")) {
 		            		reportFile = generateReportUsingFOP(data, "template_starredquestion_council_ballot_report_word", reportFormat, "memberballot_r" + round, locale.toString());
@@ -2327,7 +2483,7 @@ public class BallotController extends BaseController{
 		            		reportFile = generateReportUsingFOP(data, "template_starredquestion_council_ballot_report", reportFormat, "memberballot_r" + round, locale.toString());
 		            	}        		
 		        		System.out.println("Member Ballot Report for Round " + round + " generated successfully in " + reportFormat + " format!");
-		            	
+
 		        		openOrSaveReportFileFromBrowser(response, reportFile, reportFormat);					
 					} else {
 						//response.sendError(404, "Report cannot be generated at this stage.");
@@ -2366,15 +2522,15 @@ public class BallotController extends BaseController{
 			}				
 		}					
 	}
-	
-	*//****** Member Ballot(Council) Pre Ballot report in PDF or WORD using FOP ****//*
+
+	  *//****** Member Ballot(Council) Pre Ballot report in PDF or WORD using FOP ****//*
 	@RequestMapping(value="/memberballot/preballotreport",method=RequestMethod.GET)
 	public @ResponseBody void councilStarredPreBallotReport(final HttpServletRequest request,
 			final HttpServletResponse response,
 			final ModelMap model,
 			final Locale locale){
 		File reportFile = null;		
-		
+
 		String strAttendance=request.getParameter("attendance");
 		String strQuestionType=request.getParameter("questionType");
 		String strSession=request.getParameter("session");
@@ -2387,10 +2543,10 @@ public class BallotController extends BaseController{
 				Boolean attendance=Boolean.parseBoolean(strAttendance);
 				Integer round=Integer.parseInt(strRound);		
 				try {
-					*//**** Before Pre-Ballot we must first check if atleast once submit button has been 
-					 * clicked or not.Because if submit button is not clicked for a particular round and
-					 * attendance type then position is not preserved and position will be null in that case.
-					 *//*
+	   *//**** Before Pre-Ballot we must first check if atleast once submit button has been 
+	   * clicked or not.Because if submit button is not clicked for a particular round and
+	   * attendance type then position is not preserved and position will be null in that case.
+	   *//*
 					if(attendance){
 						int memberBallotAttendanceCount=MemberBallotAttendance.findMembersByAttendanceCount(session,questionType,attendance,round,locale.toString());
 						if(memberBallotAttendanceCount == 0){
@@ -2437,14 +2593,14 @@ public class BallotController extends BaseController{
 	    				memberPreBallot.setMember(i.getMember().findFirstLastName());	
 	    				memberPreBallots.add(memberPreBallot);
 	    			}
-	    			
+
 	            	StarredQuestionCouncilBallotXmlVO data = new StarredQuestionCouncilBallotXmlVO();
 	            	data.setRound(FormaterUtil.formatNumberNoGrouping(round, locale.toString()));
 	            	data.setMemberBallots(memberPreBallots);
 	            	data.setAttendance(strAttendance);
 	            	data.setSessionPlace(session.getPlace().getPlace());		            	
 	            	data.setDate(FormaterUtil.formatDateToString(new Date(), ApplicationConstants.BALLOT_REPORT_DATE_FORMAT, locale.toString()));
-	            	
+
 	            	//generate report
 	            	if(reportFormat.equals("WORD")) {
 	            		reportFile = generateReportUsingFOP(data, "template_starredquestion_council_preballot_report_word", reportFormat, "preballot_r" + round, locale.toString());
@@ -2452,7 +2608,7 @@ public class BallotController extends BaseController{
 	            		reportFile = generateReportUsingFOP(data, "template_starredquestion_council_preballot_report", reportFormat, "preballot_r" + round, locale.toString());
 	            	}        		
 	        		System.out.println("Pre-Ballot Report for Round " + round + " generated successfully in " + reportFormat + " format!");
-	            	
+
 	        		openOrSaveReportFileFromBrowser(response, reportFile, reportFormat);
 				} catch (IOException e) {						
 					e.printStackTrace();
@@ -2476,12 +2632,12 @@ public class BallotController extends BaseController{
 			}				
 		}							
 	}*/
-	
+
 	/****** Member Ballot(Council) Member Ballot report in PDF or WORD using FOP ****/
 	@RequestMapping(value="/memberballot/report",method=RequestMethod.GET)
 	public void createMemberBallotReport(final HttpServletRequest request,final HttpServletResponse response,final ModelMap model,final Locale locale){		
 		File reportFile = null;
-		
+
 		String strAttendance=request.getParameter("attendance");
 		String strQuestionType=request.getParameter("questionType");
 		String strSession=request.getParameter("session");
@@ -2489,113 +2645,113 @@ public class BallotController extends BaseController{
 		String strGroup=request.getParameter("group");
 		String strAnsweringDate=request.getParameter("answeringDate");
 		String reportFormat=request.getParameter("outputFormat");
-		
+
 		if(strSession!=null&&strQuestionType!=null &&strAttendance!=null&&strRound!=null&&reportFormat!=null){
-			
+
 			if((!strSession.isEmpty())&&(!strQuestionType.isEmpty())&&(!strAttendance.isEmpty())&&(!strRound.isEmpty())&&(!reportFormat.isEmpty())){
-				
+
 				Session session=Session.findById(Session.class,Long.parseLong(strSession));
 				DeviceType questionType=DeviceType.findById(DeviceType.class,Long.parseLong(strQuestionType));
 				Boolean attendance=Boolean.parseBoolean(strAttendance);
 				Integer round=Integer.parseInt(strRound);
-				
+
 				try {
 					/**** check whether member ballot is done or not for given round  ****/
 					int count=MemberBallot.findEntryCount(session,questionType,round,attendance,locale.toString());
 					Map<String, String[]> parametersMap = new HashMap<String, String[]>();
 					if(count>0){
-	
+
 						parametersMap.put("locale", new String[]{locale.toString()});
 						parametersMap.put("sessionId", new String[]{session.getId().toString()});
 						parametersMap.put("deviceTypeId", new String[]{questionType.getId().toString()});
 						parametersMap.put("round", new String[]{round.toString()});
 						parametersMap.put("attendance", new String[]{attendance.toString()});
 						List memberBallotsReport = null;
-										
+
 						if(strGroup==null&&strAnsweringDate==null){
 							parametersMap.put("locale", new String[]{locale.toString()});
 							memberBallotsReport = org.mkcl.els.domain.Query.findReport("MEMBERBALLOT_FINAL_REPORT_BALLOT_WITH_CHOICE_PLAIN_QUERY", parametersMap);
-							
-							
+
+
 						}else if(strGroup.equals("-")&&strAnsweringDate.equals("-")){
-							
+
 							parametersMap.put("locale", new String[]{locale.toString()});
 							memberBallotsReport = org.mkcl.els.domain.Query.findReport("MEMBERBALLOT_FINAL_REPORT_BALLOT_WITH_CHOICE_PLAIN_QUERY", parametersMap);
-							
-							
+
+
 						}else if((!strGroup.equals("-"))&&(!strAnsweringDate.equals("-"))){
-							
+
 							QuestionDates answeringDate=Question.findById(QuestionDates.class,Long.parseLong(strAnsweringDate));
 							Group group=Group.findById(Group.class,Long.parseLong(strGroup));
-															
+
 							parametersMap.put("locale", new String[]{locale.toString()});
 							parametersMap.put("qdId", new String[]{answeringDate.getId().toString()});
 							parametersMap.put("groupId", new String[]{group.getId().toString()});
 							memberBallotsReport = org.mkcl.els.domain.Query.findReport("MEMBERBALLOT_FINAL_REPORT_BALLOT_WITH_CHOICE_ANSWERINGDATE_GROUP_QUERY", parametersMap);
-							
-							
+
+
 						}else if((!strGroup.equals("-"))&&strAnsweringDate.equals("-")){
-							
+
 							Group group=Group.findById(Group.class,Long.parseLong(strGroup));
-							
+
 							parametersMap.put("locale", new String[]{locale.toString()});
 							parametersMap.put("groupId", new String[]{group.getId().toString()});
 							memberBallotsReport = org.mkcl.els.domain.Query.findReport("MEMBERBALLOT_FINAL_REPORT_BALLOT_WITH_CHOICE_GROUP_QUERY", parametersMap);
-							
-							
+
+
 						}else if((strGroup.equals("-"))&&!strAnsweringDate.equals("-")){
 							QuestionDates answeringDate=Question.findById(QuestionDates.class,Long.parseLong(strAnsweringDate));
-							
+
 							parametersMap.put("locale", new String[]{locale.toString()});
 							parametersMap.put("qdId", new String[]{answeringDate.getId().toString()});
 							memberBallotsReport = org.mkcl.els.domain.Query.findReport("MEMBERBALLOT_FINAL_REPORT_BALLOT_WITH_CHOICE_ANSWERINGDATE_QUERY", parametersMap);		
 						}
-						
+
 						Object[] xmlData = new Object[]{FormaterUtil.formatNumberNoGrouping(round, locale.toString()), strAttendance, session.getPlace().getPlace(), FormaterUtil.formatDateToString(new Date(), ApplicationConstants.BALLOT_REPORT_DATE_FORMAT, locale.toString()), memberBallotsReport};
-		            	
-		            	//generate report
-		            	if(reportFormat.equals("WORD")) {
-		            		reportFile = generateReportUsingFOP(xmlData, "template_starredquestion_council_ballot_report_word", reportFormat, "memberballot_r" + round, locale.toString());
-		            	} else {
-		            		reportFile = generateReportUsingFOP(xmlData, "template_starredquestion_council_ballot_report", reportFormat, "memberballot_r" + round, locale.toString());
-		            	}        		
-		        		System.out.println("Member Ballot Report for Round " + round + " generated successfully in " + reportFormat + " format!");
-		            	xmlData = null;
-		        		openOrSaveReportFileFromBrowser(response, reportFile, reportFormat);					
+
+						//generate report
+						if(reportFormat.equals("WORD")) {
+							reportFile = generateReportUsingFOP(xmlData, "template_starredquestion_council_ballot_report_word", reportFormat, "memberballot_r" + round, locale.toString());
+						} else {
+							reportFile = generateReportUsingFOP(xmlData, "template_starredquestion_council_ballot_report", reportFormat, "memberballot_r" + round, locale.toString());
+						}        		
+						System.out.println("Member Ballot Report for Round " + round + " generated successfully in " + reportFormat + " format!");
+						xmlData = null;
+						openOrSaveReportFileFromBrowser(response, reportFile, reportFormat);					
 					} else {
 						//response.sendError(404, "Report cannot be generated at this stage.");
-	            		MessageResource message = MessageResource.findByFieldName(MessageResource.class, "code", "ballot.memberpreballot.incomplete", locale.toString());
-	            		if(message != null) {
-	            			if(!message.getValue().isEmpty()) {
-	            				response.getWriter().println("<html><head><meta http-equiv='Content-Type' content='text/html; charset=utf-8'/></head><body><h3>" + message.getValue() + "</h3></body></html>");
-	            			} else {
-	            				response.getWriter().println("<h3>member ballot for this round is not completed.</h3>");
-	            			}
-	            		} else {
-	            			response.getWriter().println("<h3>member ballot for this round is not completed.</h3>");
-	            		}
-	            		return ;
+						MessageResource message = MessageResource.findByFieldName(MessageResource.class, "code", "ballot.memberpreballot.incomplete", locale.toString());
+						if(message != null) {
+							if(!message.getValue().isEmpty()) {
+								response.getWriter().println("<html><head><meta http-equiv='Content-Type' content='text/html; charset=utf-8'/></head><body><h3>" + message.getValue() + "</h3></body></html>");
+							} else {
+								response.getWriter().println("<h3>member ballot for this round is not completed.</h3>");
+							}
+						} else {
+							response.getWriter().println("<h3>member ballot for this round is not completed.</h3>");
+						}
+						return ;
 					}
 				} catch (IOException e) {						
 					String message = e.getMessage();
-					
+
 					if(message == null){
 						message = "There is some problem, request may not complete successfully.";
 					}
 					model.addAttribute("error", message);
 					e.printStackTrace();
-					
+
 				} catch (ELSException e) {
 					model.addAttribute("error", e.getParameter());
 				} catch (Exception e) {
 					String message = e.getMessage();
-					
+
 					if(message == null){
 						message = "There is some problem, request may not complete successfully.";
 					}
 					model.addAttribute("error", message);
 					e.printStackTrace();
-					
+
 					try {
 						response.getWriter().println("<h3>Check request parameters 'attendance,questionType,session,round,outputFormat' for empty values</h3>");
 					} catch (IOException e1) {
@@ -2620,12 +2776,12 @@ public class BallotController extends BaseController{
 			}				
 		}					
 	}
-	
+
 	/****** Member Ballot(Council) Pre Ballot report in PDF or WORD using FOP ****/
 	@RequestMapping(value="/memberballot/preballotreport",method=RequestMethod.GET)
 	public @ResponseBody void councilStarredPreBallotReport(final HttpServletRequest request,final HttpServletResponse response,final ModelMap model,final Locale locale){
 		File reportFile = null;		
-		
+
 		String strAttendance=request.getParameter("attendance");
 		String strQuestionType=request.getParameter("questionType");
 		String strSession=request.getParameter("session");
@@ -2646,87 +2802,87 @@ public class BallotController extends BaseController{
 						int memberBallotAttendanceCount=MemberBallotAttendance.findMembersByAttendanceCount(session,questionType,attendance,round,locale.toString());
 						if(memberBallotAttendanceCount == 0){
 							//response.sendError(404, "Report cannot be generated at this stage.");
-		            		MessageResource message = MessageResource.findByFieldName(MessageResource.class, "code", "ballot.memberpreballot.incomplete", locale.toString());
-		            		if(message != null) {
-		            			if(!message.getValue().isEmpty()) {
-		            				response.getWriter().println("<html><head><meta http-equiv='Content-Type' content='text/html; charset=utf-8'/></head><body><h3>" + message.getValue() + "</h3></body></html>");
-		            			} else {
-		            				response.getWriter().println("<h3>preballot for this round is not completed.</h3>");
-		            			}
-		            		} else {
-		            			response.getWriter().println("<h3>preballot for this round is not completed.</h3>");
-		            		}
-		            		return;
+							MessageResource message = MessageResource.findByFieldName(MessageResource.class, "code", "ballot.memberpreballot.incomplete", locale.toString());
+							if(message != null) {
+								if(!message.getValue().isEmpty()) {
+									response.getWriter().println("<html><head><meta http-equiv='Content-Type' content='text/html; charset=utf-8'/></head><body><h3>" + message.getValue() + "</h3></body></html>");
+								} else {
+									response.getWriter().println("<h3>preballot for this round is not completed.</h3>");
+								}
+							} else {
+								response.getWriter().println("<h3>preballot for this round is not completed.</h3>");
+							}
+							return;
 						}
 					}else{
 						int noOfPositionsNull=MemberBallotAttendance.checkPositionForNullValues(session,questionType,"false",round,"position",locale.toString());
 						if(noOfPositionsNull>0){
 							//response.sendError(404, "Report cannot be generated at this stage.");
-		            		MessageResource message = MessageResource.findByFieldName(MessageResource.class, "code", "ballot.memberpreballot.incomplete", locale.toString());
-		            		if(message != null) {
-		            			if(!message.getValue().isEmpty()) {
-		            				response.getWriter().println("<html><head><meta http-equiv='Content-Type' content='text/html; charset=utf-8'/></head><body><h3>" + message.getValue() + "</h3></body></html>");
-		            			} else {
-		            				response.getWriter().println("<h3>preballot for this round is not completed.</h3>");
-		            			}
-		            		} else {
-		            			response.getWriter().println("<h3>preballot for this round is not completed.</h3>");
-		            		}
-		            		return;
+							MessageResource message = MessageResource.findByFieldName(MessageResource.class, "code", "ballot.memberpreballot.incomplete", locale.toString());
+							if(message != null) {
+								if(!message.getValue().isEmpty()) {
+									response.getWriter().println("<html><head><meta http-equiv='Content-Type' content='text/html; charset=utf-8'/></head><body><h3>" + message.getValue() + "</h3></body></html>");
+								} else {
+									response.getWriter().println("<h3>preballot for this round is not completed.</h3>");
+								}
+							} else {
+								response.getWriter().println("<h3>preballot for this round is not completed.</h3>");
+							}
+							return;
 						}
 					}
-					
+
 					Map<String, String[]> parametersMap = new HashMap<String, String[]>();
 					parametersMap.put("locale", new String[]{locale.toString()});
 					parametersMap.put("sessionId", new String[]{session.getId().toString()});
 					parametersMap.put("deviceTypeId", new String[]{questionType.getId().toString()});
 					parametersMap.put("round", new String[]{round.toString()});
 					parametersMap.put("attendance", new String[]{((attendance==true)? "true":"false")});					
-					
+
 					List memberBallotAttendances = org.mkcl.els.domain.Query.findReport("MEMBERBALLOT_PREBALLOT_REPORT_QUERY", parametersMap);
-					
+
 					/*if(attendance){
 						memberBallotAttendances=MemberBallotAttendance.findAll(session,questionType,"true",round,"position",locale.toString());
 					}else{
 						memberBallotAttendances=MemberBallotAttendance.findAll(session,questionType,"false",round,"position",locale.toString());
 					}*/
-					
-	            	List<MemberBallotVO> memberPreBallots = new ArrayList<MemberBallotVO>();
-	    			for(Object i : memberBallotAttendances) {
-	    				
-	    				/*MemberBallotVO memberPreBallot = new MemberBallotVO();	    				
+
+					List<MemberBallotVO> memberPreBallots = new ArrayList<MemberBallotVO>();
+					for(Object i : memberBallotAttendances) {
+
+						/*MemberBallotVO memberPreBallot = new MemberBallotVO();	    				
 	    				memberPreBallot.setPosition(FormaterUtil.formatNumberNoGrouping(i.getPosition(), locale.toString()));
 	    				memberPreBallot.setMember(i.getMember().findFirstLastName());	
 	    				memberPreBallots.add(memberPreBallot);*/
-	    			}
+					}
 
-	    			Object[] xmlData = new Object[]{FormaterUtil.formatNumberNoGrouping(round, locale.toString()), strAttendance, session.getPlace().getPlace(), FormaterUtil.formatDateToString(new Date(), ApplicationConstants.BALLOT_REPORT_DATE_FORMAT, locale.toString()), memberBallotAttendances};	            	
-	            	
-	            	//generate report
-	            	if(reportFormat.equals("WORD")) {
-	            		//reportFile = generateReportUsingFOP(data, "template_starredquestion_council_preballot_report_word", reportFormat, "preballot_r" + round, locale.toString());
-	            		reportFile = generateReportUsingFOP(xmlData, "template_starredquestion_council_preballot_report_word", reportFormat, "preballot_r" + round, locale.toString());
-	            		
-	            	} else {
-	            		//reportFile = generateReportUsingFOP(data, "template_starredquestion_council_preballot_report", reportFormat, "preballot_r" + round, locale.toString());
-	            		reportFile = generateReportUsingFOP(xmlData, "template_starredquestion_council_preballot_report", reportFormat, "preballot_r" + round, locale.toString());
-	            	}        		
-	        		System.out.println("Pre-Ballot Report for Round " + round + " generated successfully in " + reportFormat + " format!");
-	            	
-	        		openOrSaveReportFileFromBrowser(response, reportFile, reportFormat);
+					Object[] xmlData = new Object[]{FormaterUtil.formatNumberNoGrouping(round, locale.toString()), strAttendance, session.getPlace().getPlace(), FormaterUtil.formatDateToString(new Date(), ApplicationConstants.BALLOT_REPORT_DATE_FORMAT, locale.toString()), memberBallotAttendances};	            	
+
+					//generate report
+					if(reportFormat.equals("WORD")) {
+						//reportFile = generateReportUsingFOP(data, "template_starredquestion_council_preballot_report_word", reportFormat, "preballot_r" + round, locale.toString());
+						reportFile = generateReportUsingFOP(xmlData, "template_starredquestion_council_preballot_report_word", reportFormat, "preballot_r" + round, locale.toString());
+
+					} else {
+						//reportFile = generateReportUsingFOP(data, "template_starredquestion_council_preballot_report", reportFormat, "preballot_r" + round, locale.toString());
+						reportFile = generateReportUsingFOP(xmlData, "template_starredquestion_council_preballot_report", reportFormat, "preballot_r" + round, locale.toString());
+					}        		
+					System.out.println("Pre-Ballot Report for Round " + round + " generated successfully in " + reportFormat + " format!");
+
+					openOrSaveReportFileFromBrowser(response, reportFile, reportFormat);
 				} catch (IOException e) {						
 					String message = e.getMessage();
-					
+
 					if(message == null){
 						message = "There is some problem, request may not complete successfully.";
 					}
 					model.addAttribute("error", message);
-					
+
 				} catch (ELSException e) {
 					model.addAttribute("error", e.getParameter());
 				} catch (Exception e) {
 					String message = e.getMessage();
-					
+
 					if(message == null){
 						message = "There is some problem, request may not complete successfully.";
 					}
@@ -2791,19 +2947,19 @@ public class BallotController extends BaseController{
 
 			if(deviceType.getType().equals(ApplicationConstants.STARRED_QUESTION)) {
 				QuestionDates questionDates = 
-					QuestionDates.findById(QuestionDates.class, Long.parseLong(strAnsweringDate));
+						QuestionDates.findById(QuestionDates.class, Long.parseLong(strAnsweringDate));
 				answeringDate = questionDates.getAnsweringDate();
 			}else if(deviceType.getType().equals(ApplicationConstants.HALF_HOUR_DISCUSSION_QUESTION_FROM_QUESTION) ||
 					deviceType.getType().equals(ApplicationConstants.HALF_HOUR_DISCUSSION_QUESTION_STANDALONE)) {
 				CustomParameter dbDateFormat = 
-					CustomParameter.findByName(CustomParameter.class, "DB_DATEFORMAT", "");
+						CustomParameter.findByName(CustomParameter.class, "DB_DATEFORMAT", "");
 				answeringDate = FormaterUtil.formatStringToDate(strAnsweringDate, dbDateFormat.getValue());
 			}else if(deviceType.getType().equals(ApplicationConstants.NONOFFICIAL_RESOLUTION) || deviceType.getType().equals(ApplicationConstants.NONOFFICIAL_BILL)){
 				CustomParameter dbDateFormat = 
-					CustomParameter.findByName(CustomParameter.class, "DB_DATEFORMAT", "");
+						CustomParameter.findByName(CustomParameter.class, "DB_DATEFORMAT", "");
 				answeringDate = FormaterUtil.formatStringToDate(strAnsweringDate, dbDateFormat.getValue());
 			}
-			
+
 			/**** Validate whether pre-ballot can be created for bill ****/
 			if(deviceType.getType().equals(ApplicationConstants.NONOFFICIAL_BILL)) {
 				boolean isBallotAllowedToCreate = validateBallotCreationForBill(session, deviceType, answeringDate, locale.toString());
@@ -2827,7 +2983,7 @@ public class BallotController extends BaseController{
 
 				}else if(deviceType.getType().equals(ApplicationConstants.NONOFFICIAL_BILL)) {
 					retVal = this.billNonOfficialPreBallot(model, session, deviceType, answeringDate, locale.toString());
-				
+
 				}				
 			}else if(houseType.getType().equals(ApplicationConstants.LOWER_HOUSE)) {
 
@@ -2855,7 +3011,7 @@ public class BallotController extends BaseController{
 		}
 		return retVal;
 	}
-	
+
 	private boolean validateBallotCreationForBill(Session session,
 			DeviceType deviceType, Date answeringDate, String locale) {
 		boolean isAllowedToCreateBallot = true;
@@ -2885,10 +3041,10 @@ public class BallotController extends BaseController{
 			}else{
 				ballotVOs = Ballot.findPreBallotVO(session, deviceType, answeringDate, locale);
 			}
-			
+
 			model.addAttribute("ballotVOs", ballotVOs);
 			return "ballot/halfhourq_preballot";
-			
+
 		} catch (ELSException e) {			
 			e.printStackTrace();
 			model.addAttribute("error", e.getParameter());
@@ -2936,7 +3092,7 @@ public class BallotController extends BaseController{
 			model.addAttribute("ballotVOs", ballotVOs);
 			return "ballot/nonofficial_member_preballot";
 		} catch (ELSException e) {
-			
+
 			e.printStackTrace();
 			model.addAttribute("error", e.getParameter());
 			return "ballot/error";
@@ -2949,7 +3105,7 @@ public class BallotController extends BaseController{
 			final Date answeringDate,
 			final String locale) throws ELSException {
 		List<StarredBallotVO> ballotVOs = 
-			Ballot.findStarredPreBallotVOs(session, deviceType, answeringDate, locale);
+				Ballot.findStarredPreBallotVOs(session, deviceType, answeringDate, locale);
 		model.addAttribute("ballotVOs", ballotVOs);
 		return "ballot/starred_preballot";
 	}
@@ -2970,20 +3126,20 @@ public class BallotController extends BaseController{
 			return "ballot/error";
 		}
 	}
-	
+
 	private Boolean isResolutionMemberValidForCurrentDateChoiceSubmission(final Session session,
 			final DeviceType deviceType,
 			final Member member,
 			final Date discussionDate, 
 			final String locale){
-		
+
 		return (Resolution.findChoiceCountForGivenDiscussionDateOfMember(session, deviceType, member, discussionDate, locale) > 0)? true : false;
 	}
-	
+
 	private void fillResolutionChoices(final ModelMap model, 
 			final HttpServletRequest request, 
 			final Locale locale) throws Exception{
-		
+
 		StringBuffer sb = new StringBuffer();
 		/** Create HouseType */
 		String strHouseType = request.getParameter("houseType");
@@ -3056,9 +3212,9 @@ public class BallotController extends BaseController{
 					Status discussionStatus = Status.findByType(ApplicationConstants.RESOLUTION_PROCESSED_TOBEDISCUSSED, locale.toString());
 					List<Resolution> chosenResolutions = Resolution.findChosenResolutionsForGivenDate(session, deviceType, ballotStatus, discussionStatus, answeringDate, locale.toString());
 					List<BallotEntry> ballotEntries = ballot.getBallotEntries();
-					
+
 					if(chosenResolutions.size() < ballotEntries.size()){
-						
+
 						for(BallotEntry bE : ballotEntries){
 							if(bE != null){
 								if(bE.getMember() != null){
@@ -3072,10 +3228,10 @@ public class BallotController extends BaseController{
 								}
 							}
 						}
-						
+
 						Map<Long, List<MasterVO>> memberResolutions = new HashMap<Long, List<MasterVO>>();
 						Map<Long, List<MasterVO>> memberChosenResolutions = new HashMap<Long, List<MasterVO>>();
-						
+
 						if(members != null && !members.isEmpty()){
 							internalStatuses = null;
 							Status[] tempInternalStatuses = {ADMITTED};
@@ -3092,7 +3248,7 @@ public class BallotController extends BaseController{
 								}
 								memberResolutions.put(mv.getId(), resos);
 								resos = null;
-								
+
 								List<MasterVO> resosChosen = new ArrayList<MasterVO>();
 								List<Resolution> resosChosenList = Resolution.findResolutionsByDiscussionDateAndMember(session, deviceType, mv.getId(), answeringDate, tempInternalStatuses, startTime, endTime, ApplicationConstants.ASC, locale.toString());
 								for(Resolution rc : resosChosenList){
@@ -3105,10 +3261,10 @@ public class BallotController extends BaseController{
 								}
 								memberChosenResolutions.put(mv.getId(), resosChosen);
 								resosChosen = null;
-								
+
 							}
 						}
-						
+
 						model.addAttribute("members", members);
 						model.addAttribute("memberRes", memberResolutions);
 						model.addAttribute("memberChosenRes", memberChosenResolutions);
@@ -3120,7 +3276,7 @@ public class BallotController extends BaseController{
 			}
 		}
 	}
-	
+
 	//Using for filling the choice of a resolution by the assistant
 	//once he receives the choice of resolution from the member
 	@RequestMapping(value="/fillresolutionchoices", method=RequestMethod.GET)
@@ -3198,14 +3354,14 @@ public class BallotController extends BaseController{
 
 		String retVal = "ballot/error";
 		try {
-					
+
 			patrakBhagTwoDateFormat = CustomParameter.findByFieldName(CustomParameter.class, "name", "PATRAK_BHAG_TWO_DATE_FORMAT", "");
 			dayFormat = CustomParameter.findByFieldName(CustomParameter.class, "name", "DAY_OF_WEEK_FORMAT", "");
-			
+
 			String marathiCurrentDay = FormaterUtil.formatDateToString(date, dayFormat.getValue(), locale.toString());
-			
+
 			model.addAttribute("formattedCurrentDay", FormaterUtil.getDayInMarathi(marathiCurrentDay, locale.toString()));
-			
+
 			/*** To form the patrakbhag don formatted date ***/
 			Calendar calendar = Calendar.getInstance();
 			calendar.setTime(date);
@@ -3213,22 +3369,22 @@ public class BallotController extends BaseController{
 			Integer intMonth = calendar.get(Calendar.MONTH);
 			Integer intYear = calendar.get(Calendar.YEAR);
 			String formattedCurrentDate = FormaterUtil.formatNumberNoGrouping(intDay, locale.toString()) + 
-						" " + FormaterUtil.getMonthInMarathi(intMonth, locale.toString()) + 
-						", " + FormaterUtil.formatNumberNoGrouping(intYear, locale.toString());
-			
+					" " + FormaterUtil.getMonthInMarathi(intMonth, locale.toString()) + 
+					", " + FormaterUtil.formatNumberNoGrouping(intYear, locale.toString());
+
 			model.addAttribute("formattedCurrentDate", formattedCurrentDate);
 			model.addAttribute("patrakbhag2indianDateFormat", FormaterUtil.getIndianDate(date, locale));
 
 			/** Create HouseType */
 			String strHouseType = request.getParameter("houseType");
 			HouseType houseType =
-				HouseType.findByFieldName(HouseType.class, "type", strHouseType, locale.toString());
+					HouseType.findByFieldName(HouseType.class, "type", strHouseType, locale.toString());
 			model.addAttribute("houseType", houseType.getType());
 
 			/** Create SessionType */
 			String strSessionTypeId = request.getParameter("sessionType");
 			SessionType sessionType =
-				SessionType.findById(SessionType.class, Long.valueOf(strSessionTypeId));
+					SessionType.findById(SessionType.class, Long.valueOf(strSessionTypeId));
 			model.addAttribute("sessionType", sessionType.getType());
 
 			/** Create year */
@@ -3239,12 +3395,12 @@ public class BallotController extends BaseController{
 			/** Create Session */
 			Session session = Session.findSessionByHouseTypeSessionTypeYear(houseType, sessionType, year);
 			model.addAttribute("session", session.getId());
-			
+
 			SessionPlace sessionPlace = session.getPlace();
 			if(sessionPlace != null){
 				model.addAttribute("sessionPlace", sessionPlace.getPlace());
 			}
-			
+
 			AuthUser currentUser = getCurrentUser();
 			String user = currentUser.getTitle() +" " + currentUser.getFirstName() + " " + currentUser.getLastName();
 			model.addAttribute("authorityName", user);
@@ -3256,7 +3412,7 @@ public class BallotController extends BaseController{
 					}
 				}
 			}
-			
+
 			model.addAttribute("userRole", userRole);
 
 			/** Create DeviceType */
@@ -3264,7 +3420,7 @@ public class BallotController extends BaseController{
 			String strDeviceType = request.getParameter("deviceType");
 			deviceType = DeviceType.findById(DeviceType.class, Long.parseLong(strDeviceType));
 			model.addAttribute("deviceType", deviceType.getType());
-			
+
 			model.addAttribute("footer", session.getParameter(deviceType.getType() + "_patrakbhag2footer"));
 
 			/** Create answeringDate */
@@ -3277,15 +3433,15 @@ public class BallotController extends BaseController{
 
 			String marathiDiscussionDay = FormaterUtil.formatDateToString(answeringDate, dayFormat.getValue(), locale.toString());
 			model.addAttribute("formattedDiscussionDay", FormaterUtil.getDayInMarathi(marathiDiscussionDay, locale.toString()));
-					
+
 			/*** To form the patrakbhag don formatted date ***/
 			calendar.setTime(answeringDate);
 			intDay = calendar.get(Calendar.DAY_OF_MONTH);
 			intMonth = calendar.get(Calendar.MONTH);
 			intYear = calendar.get(Calendar.YEAR);
 			String formattedAnsweringDate = FormaterUtil.formatNumberNoGrouping(intDay, locale.toString()) + 
-						" " + FormaterUtil.getMonthInMarathi(intMonth, locale.toString()) + 
-						", " + FormaterUtil.formatNumberNoGrouping(intYear, locale.toString());
+					" " + FormaterUtil.getMonthInMarathi(intMonth, locale.toString()) + 
+					", " + FormaterUtil.formatNumberNoGrouping(intYear, locale.toString());
 			model.addAttribute("formattedDiscussionDate", formattedAnsweringDate);
 
 			if(deviceType.getType().equals(ApplicationConstants.NONOFFICIAL_RESOLUTION)){		
@@ -3294,9 +3450,9 @@ public class BallotController extends BaseController{
 				parametersMap.put("sessionId", new String[]{session.getId().toString()});
 				parametersMap.put("deviceTypeId", new String[]{deviceType.getId().toString()});
 				parametersMap.put("answeringDate", new String[]{FormaterUtil.formatDateToString(answeringDate, ApplicationConstants.DB_DATEFORMAT)});
-				
+
 				List report = org.mkcl.els.domain.Query.findReport("RESOLUTION_PATRAKBHAGDON_VIEW", parametersMap);
-								
+
 				model.addAttribute("report", report);
 				List<MasterVO> masterVOs = new ArrayList<MasterVO>();
 				if(report != null){
@@ -3314,7 +3470,7 @@ public class BallotController extends BaseController{
 					}
 					model.addAttribute("counter",masterVOs);
 				}
-				
+
 				retVal = "resolution/reports/patrakbhagtwo";
 			}
 		}
@@ -3326,7 +3482,7 @@ public class BallotController extends BaseController{
 
 		return retVal;
 	}
-	
+
 	/**** Motion Ballot Begins(Sandeep)****/
 	@Transactional
 	@RequestMapping(value="/motion/init",method=RequestMethod.GET)
@@ -3375,7 +3531,7 @@ public class BallotController extends BaseController{
 		}
 		return "ballot/motionballotinit";
 	}
-	
+
 	/**** Attendance-View and Update****/
 	@Transactional
 	@RequestMapping(value="/attendance",method=RequestMethod.GET)
@@ -3541,7 +3697,7 @@ public class BallotController extends BaseController{
 	}
 	/**** Motion Ballot Ends ****/
 	/****************************/
-	
+
 	/**** Bill Ballot Handler Methods ****/
 	private String billNonOfficialPreBallot(final ModelMap model,
 			final Session session,
