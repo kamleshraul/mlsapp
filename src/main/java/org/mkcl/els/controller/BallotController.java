@@ -2156,7 +2156,10 @@ public class BallotController extends BaseController{
 						c.remove();
 					}			
 				}
-			}			
+			}		
+			if(count> noOfAdmittedQuestions){
+				return true;
+			}
 			/**** Partially filled choices(manually-blank+properly filled choices) and no auto filling clicked 
 			 * No auto filling will take place */
 			//			if(autoFillingStartsAt==0 && count< noOfAdmittedQuestions){
