@@ -118,6 +118,7 @@
 		var nameclubbing_reject=$("#internalStatusMaster option[value='question_final_reject_nameclubbing']").text();
 		var nameclubbingWithConvertToUnstarredAndAdmit=$("#internalStatusMaster option[value='question_final_convertToUnstarredAndAdmitClubbedWithPreviousSession']").text();
 
+		
 		var changedInternalStatus = $("#changeInternalStatus").val();
 		if(changedInternalStatus == admitDate || 
 				changedInternalStatus == resubmitDate) {
@@ -139,10 +140,10 @@
 	
 		$.post(resourceURL,function(data){
 			
-			console.log(data);
+			
 			if((data!=undefined || data!=null || data!='') && (data.length>0)){
 				var length=data.length;
-				$("#actor").empty();
+				
 				var text="";
 				for(var i=0;i<data.length;i++){
 				text+="<option value='"+data[i].id+"'>"+data[i].name+"</option>";
@@ -154,6 +155,10 @@
 						&& value != admitDate && value != resubmitDate){
 					$("#internalStatus").val(value);
 				}
+				
+				if(value==sendback||value==discuss){
+					$("#internalStatus").val($("#oldInternalStatus").val());
+				}
 				$("#recommendationStatus").val(value);			
 				/**** setting level,localizedActorName ****/
 				 var actor1=data[0].id;
@@ -163,15 +168,20 @@
 				 $("#actorName").val(temp[4]);
 				 $("#actorName").css('display','inline');
 			}else{
-			$("#endFlag").val("end");	
-			$("#actor").empty();
-			$("#actorDiv").hide();
-			/**** in case of sendback and discuss only recommendation status is changed ****/
-			if(value != sendback && value != discuss
-						&& value != admitDate && value != resubmitDate){
-				$("#internalStatus").val(value);
-			}
-		    $("#recommendationStatus").val(value);
+				$("#endFlag").val("end");	
+				$("#actor").empty();
+				$("#actorDiv").hide();
+				/**** in case of sendback and discuss only recommendation status is changed ****/
+				if(value != sendback && value != discuss
+							&& value != admitDate && value != resubmitDate){
+					$("#internalStatus").val(value);
+				}
+				
+				if(value==sendback||value==discuss){
+					
+					$("#internalStatus").val($("#oldInternalStatus").val());
+				}
+			    $("#recommendationStatus").val(value);
 			}
 		}).fail(function(){
 			if($("#ErrorMsg").val()!=''){
@@ -657,7 +667,11 @@
 		$("#subDepartment option[selected!='selected']").hide();
 		//**** Load Actors On Start Up ****/
 		if($('#workflowstatus').val()!='COMPLETED'){
-			loadActors($("#internalStatus").val());
+			var statusType = $("#internalStatusType").val().split("_");
+			var id = $("#internalStatusMaster option[value$='"+statusType[statusType.length-1]+"']").text();
+			$("#changeInternalStatus").val(id);
+			$("#changeInternalStatus").change();
+			//loadActors($("#changeInternalStatus").val());
 		}
 	});
 	</script>
@@ -1167,6 +1181,7 @@
 <input id="subDepartmentSelected" value="${subDepartmentSelected }" type="hidden">
 <input id="answeringDateSelected" value="${ answeringDateSelected}" type="hidden">
 <input id="oldInternalStatus" value="${ internalStatus}" type="hidden">
+<input id="internalStatusType" name="internalStatusType" type="hidden" value="${internalStatusType}">
 <input id="oldRecommendationStatus" value="${oldRecommendationStatus}" type="hidden">
 <input id="ministryEmptyMsg" value='<spring:message code="client.error.ministryempty" text="Ministry can not be empty."></spring:message>' type="hidden">
 <input id="workflowstatus" type="hidden" value="${workflowstatus}"/>

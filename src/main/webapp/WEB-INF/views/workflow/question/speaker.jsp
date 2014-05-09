@@ -118,55 +118,60 @@
 				$("#endFlag").val("continue");
 			}
 
-		var params="question="+$("#id").val()+"&status="+value+
-		"&usergroup="+$("#usergroup").val()+"&level="+$("#level").val();
-		var resourceURL='ref/question/actors?'+params;
-	    var sendback=$("#internalStatusMaster option[value='question_recommend_sendback']").text();			
-	    var discuss=$("#internalStatusMaster option[value='question_recommend_discuss']").text();		
-	    var nameclubbing=$("#internalStatusMaster option[value='question_final_nameclubbing']").text();
-	    $.post(resourceURL,function(data){
-			if(data!=undefined||data!=null||data!=''){
-				var length=data.length;
-				$("#actor").empty();
-				var text="";
-				for(var i=0;i<data.length;i++){
-				text+="<option value='"+data[i].id+"'>"+data[i].name+"</option>";
-				}
-				$("#actor").html(text);
-				$("#actorDiv").hide();				
-				/**** in case of sendback and discuss only recommendation status is changed ****/
-				if(value!=sendback&&value!=discuss){
-					$("#internalStatus").val(value);
-				}else if(value==nameclubbing){
-					$("#endFlag").val("end");
-					$("#recommendationStatus").val(value);
+			var params="question="+$("#id").val()+"&status="+value+
+			"&usergroup="+$("#usergroup").val()+"&level="+$("#level").val();
+			var resourceURL='ref/question/actors?'+params;
+		    var sendback=$("#internalStatusMaster option[value='question_recommend_sendback']").text();			
+		    var discuss=$("#internalStatusMaster option[value='question_recommend_discuss']").text();		
+		    var nameclubbing=$("#internalStatusMaster option[value='question_final_nameclubbing']").text();
+		    $.post(resourceURL,function(data){
+				if(data!=undefined||data!=null||data!=''){
+					$("#actor").empty();
+					var text="";
+					for(var i=0;i<data.length;i++){
+					text+="<option value='"+data[i].id+"'>"+data[i].name+"</option>";
+					}
+					$("#actor").html(text);
+					$("#actorDiv").hide();				
+					/**** in case of sendback and discuss only recommendation status is changed ****/
+					if(value==sendback||value==discuss){
+						$("#internalStatus").val($("#oldInternalStatus").val());
+					}
+					if(value!=sendback&&value!=discuss){
+						$("#internalStatus").val(value);
+					}else if(value==nameclubbing){
+						$("#endFlag").val("end");
+						$("#recommendationStatus").val(value);
+						$("#actor").empty();
+						$("#actorDiv").hide();
+						return false;
+					}
+					$("#recommendationStatus").val(value);				
+					/**** setting level,localizedActorName ****/
+					 var actor1=data[0].id;
+					 var temp=actor1.split("#");
+					 $("#level").val(temp[2]);		    
+					 $("#localizedActorName").val(temp[3]+"("+temp[4]+")");
+				}else{
 					$("#actor").empty();
 					$("#actorDiv").hide();
-					return false;
+					/**** in case of sendback and discuss only recommendation status is changed ****/
+					if(value!=sendback&&value!=discuss){
+						$("#internalStatus").val(value);
+					}
+					if(value==sendback||value==discuss){
+						$("#internalStatus").val($("#oldInternalStatus").val());
+					}
+				    $("#recommendationStatus").val(value);
 				}
-				$("#recommendationStatus").val(value);				
-				/**** setting level,localizedActorName ****/
-				 var actor1=data[0].id;
-				 var temp=actor1.split("#");
-				 $("#level").val(temp[2]);		    
-				 $("#localizedActorName").val(temp[3]+"("+temp[4]+")");
-			}else{
-				$("#actor").empty();
-				$("#actorDiv").hide();
-				/**** in case of sendback and discuss only recommendation status is changed ****/
-				if(value!=sendback&&value!=discuss){
-				$("#internalStatus").val(value);
+			}).fail(function(){
+				if($("#ErrorMsg").val()!=''){
+					$("#error_p").html($("#ErrorMsg").val()).css({'color':'red', 'display':'block'});
+				}else{
+					$("#error_p").html("Error occured contact for support.").css({'color':'red', 'display':'block'});
 				}
-			    $("#recommendationStatus").val(value);
-			}
-		}).fail(function(){
-			if($("#ErrorMsg").val()!=''){
-				$("#error_p").html($("#ErrorMsg").val()).css({'color':'red', 'display':'block'});
-			}else{
-				$("#error_p").html("Error occured contact for support.").css({'color':'red', 'display':'block'});
-			}
-			scrollTop();
-		});
+				scrollTop();
+			});
 		}else{
 			$("#actor").empty();
 			$("#actorDiv").hide();
@@ -647,8 +652,11 @@
 		$("#subDepartment option[selected!='selected']").hide();
 		//**** Load Actors On Start Up ****/
 		if($('#workflowstatus').val()!='COMPLETED'){
+			var statusType = $("#internalStatusType").val().split("_");
+			var id = $("#internalStatusMaster option[value$='"+statusType[statusType.length-1]+"']").text();
+			$("#changeInternalStatus").val(id);
+			$("#changeInternalStatus").change();
 			//loadActors($("#changeInternalStatus").val());
-			loadActors($("#internalStatus").val());
 		}
 	});
 	</script>
@@ -1159,6 +1167,7 @@
 <input id="selectedQuestionType" value="${selectedQuestionType}" type="hidden">
 <input id="ministryEmptyMsg" value='<spring:message code="client.error.ministryempty" text="Ministry can not be empty."></spring:message>' type="hidden">
 <input id="workflowstatus" type="hidden" value="${workflowstatus}"/>
+<input id="internalStatusType" name="internalStatusType" type="hidden" value="${internalStatusType}"> 
 <ul id="contextMenuItems" >
 <li><a href="#unclubbing" class="edit"><spring:message code="generic.unclubbing" text="Unclubbing"></spring:message></a></li>
 <li><a href="#dereferencing" class="edit"><spring:message code="generic.dereferencing" text="Dereferencing"></spring:message></a></li>
