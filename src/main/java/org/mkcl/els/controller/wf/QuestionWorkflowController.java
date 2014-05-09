@@ -369,6 +369,8 @@ public class QuestionWorkflowController  extends BaseController{
 
 			/**** Populate Model ****/		
 			populateModel(domain,model,request,workflowDetails);
+			/**** Find Latest Remarks ****/
+			findLatestRemarksByUserGroup(domain,model,request,workflowDetails);
 		}catch (ELSException e1) {
 			model.addAttribute("error", e1.getParameter());
 		}catch (Exception e) {
@@ -3089,6 +3091,18 @@ public class QuestionWorkflowController  extends BaseController{
 		}
 
 		return list;  
+	}
+	
+	@SuppressWarnings("rawtypes")
+	private void findLatestRemarksByUserGroup(final Question domain, final ModelMap model,
+			final HttpServletRequest request,final WorkflowDetails workflowDetails)throws ELSException {
+		Map<String, String[]> requestMap=new HashMap<String, String[]>();			
+		requestMap.put("questionId",new String[]{String.valueOf(domain.getId())});
+		requestMap.put("locale",new String[]{domain.getLocale()});
+		List result=Query.findReport("QIS_LATEST_REVISIONS", requestMap);
+		model.addAttribute("latestRevisions",result);
+		UserGroupType userGroupType=UserGroupType.findByFieldName(UserGroupType.class, "type", ApplicationConstants.ASSISTANT, domain.getLocale());
+		model.addAttribute("startingActor", userGroupType.getName());
 	}
 
 }
