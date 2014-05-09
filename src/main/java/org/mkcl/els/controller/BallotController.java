@@ -1671,11 +1671,11 @@ public class BallotController extends BaseController{
 						int totalQuestions = 0;
 						for(MemberBallotQuestionDistributionVO i: questionDistributions) {
 							for(MemberBallotMemberWiseCountVO j: i.getDistributions()) {
-								if(j.getStatusTypeType().equals(ApplicationConstants.QUESTION_FINAL_ADMISSION)) {
+								if(j.getStatusTypeType().equals(ApplicationConstants.QUESTION_FINAL_ADMISSION) && j.getCurrentDeviceType().equals(ApplicationConstants.STARRED_QUESTION)) {
 									totalAdmittedQuestions += Integer.parseInt(j.getCount());																		
-								} else if(j.getStatusTypeType().equals(ApplicationConstants.QUESTION_FINAL_CONVERT_TO_UNSTARRED_AND_ADMIT)) {
+								} else if(j.getStatusTypeType().equals(ApplicationConstants.QUESTION_FINAL_ADMISSION) && j.getCurrentDeviceType().equals(ApplicationConstants.UNSTARRED_QUESTION)) {
 									totalConvertToUnstarredAndAdmitQuestions += Integer.parseInt(j.getCount());
-								} else if(j.getStatusTypeType().equals(ApplicationConstants.QUESTION_FINAL_REJECTION)) {
+								} else if(j.getStatusTypeType().equals(ApplicationConstants.QUESTION_FINAL_REJECTION) && j.getCurrentDeviceType().equals(ApplicationConstants.STARRED_QUESTION)) {
 									totalRejectedQuestions += Integer.parseInt(j.getCount());
 								} else if(j.getStatusTypeType().equals("clarification")) {
 									totalClarificationQuestions += Integer.parseInt(j.getCount());
