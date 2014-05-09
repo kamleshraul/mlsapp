@@ -148,4 +148,24 @@ public class MemberBallotChoiceRepository extends BaseRepository<MemberBallotCho
 		}
 	}
 
+	@SuppressWarnings("unchecked")
+	public MemberBallotChoice findMemberBallotChoice(final Session session,
+			final DeviceType deviceType,final Member member,final int round,final int choice) {
+		String strQuery="SELECT mbc FROM MemberBallot mb JOIN mb.questionChoices mbc "
+					 +" WHERE mb.session.id=:session AND mb.deviceType.id=:deviceType AND mb.member.id=:member "
+					 +" AND mb.round=:round AND mbc.choice=:choice";
+		Query query=this.em().createQuery(strQuery);
+		query.setParameter("session", session.getId());
+		query.setParameter("deviceType", deviceType.getId());
+		query.setParameter("member", member.getId());
+		query.setParameter("round", round);
+		query.setParameter("choice",choice);
+		List<MemberBallotChoice> results=query.getResultList();
+		if(results!=null && ! results.isEmpty()){
+			return results.get(0);
+		}else{
+			return null;
+		}
+	}
+
 }
