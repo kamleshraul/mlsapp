@@ -56,6 +56,8 @@ public class MemberBallotChoice extends BaseDomain implements Serializable{
     
     /** To distinguish choices which were manually filled and which were filled automatically **/
     private Boolean autoFilled=false;
+    
+    private Boolean blankFormAutoFilled=false;
 
 
     /** The member ballot choice repository. */
@@ -214,4 +216,20 @@ public class MemberBallotChoice extends BaseDomain implements Serializable{
 	public void setAutoFilled(Boolean autoFilled) {
 		this.autoFilled = autoFilled;
 	}
+
+	public Boolean getBlankFormAutoFilled() {
+		return blankFormAutoFilled;
+	}
+
+	public void setBlankFormAutoFilled(Boolean blankFormAutoFilled) {
+		this.blankFormAutoFilled = blankFormAutoFilled;
+	}
+	
+	/**** find member ballot choice at a particular round and choice ****/
+	public static MemberBallotChoice findMemberBallotChoice(final Session session,final DeviceType deviceType,
+			final Member member,final int round,final int choice){
+		return getMemberBallotChoiceRepository().findMemberBallotChoice(session,deviceType,
+				member,round,choice);
+	}
+	
 }
