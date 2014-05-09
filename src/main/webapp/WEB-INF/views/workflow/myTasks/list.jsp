@@ -25,7 +25,11 @@
 				$("#selectionDiv").hide();
 				provideDate();
 			});
-			
+			/**** Generate Intimation Letter ****/			
+			$("#generateIntimationLetter").click(function(){
+				$(this).attr('href','#');
+				generateIntimationLetter();				
+			});
 			$("#generateCurrentStatusReport").click(function(){
 				var selectedWorkflowDetailsId = $('#grid').jqGrid('getGridParam', 'selrow'); 
 					//$("#grid").jqGrid ('getGridParam', 'selarrrow');
@@ -57,6 +61,16 @@
 			| <a href="#" id="provide_date" class="butSim">
 				<spring:message code="generic.giveintroductiondate" text="Provide Introduction Date"/>
 			</a>
+			</security:authorize>
+			<security:authorize access="hasAnyRole('QIS_ASSISTANT','QIS_SECTION_OFFICER','HDS_SECTION_OFFICER')">
+			|	<a href="#" id="generateIntimationLetter" class="butSim">
+					<spring:message code="question.generateIntimationLetter" text="Generate Intimation Letter"/>
+				</a> 				
+				<select id="memDeptReport" size="1" style="height: 20px; font-size: 12px; min-width: 50px; vertical-align: middle;">
+						<option value="-">-</option>
+					 	<option value="member"><spring:message code='generic.usergroup.member' text='member' /></option>
+						<option value="department"><spring:message code='generic.usergroup.department' text='department' /></option>
+				</select>				
 			</security:authorize>
 			<security:authorize access="hasAnyRole('QIS_PRINCIPAL_SECRETARY','QIS_UNDER_SECRETARY','QIS_UNDER_SECRETARY_COMMITTEE')">
 				|

@@ -370,6 +370,17 @@
 			showTabByIdAndUrl('details_tab','bill/providedate?houseType=' + $("#selectedHouseType").val()+"&sessionType="+$("#selectedSessionType").val()+"&sessionYear="+$("#selectedSessionYear").val());
 		}
 		
+		/**** To Generate Intimation Letter ****/
+		function generateIntimationLetter() {			
+			var workflowId = $("#grid").jqGrid ('getGridParam', 'selrow');
+			if(workflowId==undefined || workflowId=='') {
+				$.prompt($('#selectRowFirstMessage').val());
+				return false;
+			} else {			
+				$('#generateIntimationLetter').attr('href', 'question/generateIntimationLetter?workflowId='+workflowId+'&memberOrDepartment='+$("#memDeptReport").val());
+			}
+		}
+		
 		function showCurrentStatusReport(val, wfdId){
 			$("#selectionDiv1").hide();
 			var device = $("#deviceTypeMaster option[value='"+$("#selectedDeviceType").val()+"']").text().split("_")[0];
