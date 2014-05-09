@@ -1603,16 +1603,30 @@ public class Question extends Device implements Serializable {
 	 }
 	 
 	public String getAllSupportingMembers() {
-		StringBuffer strBuffer = new StringBuffer("");
-		StringBuffer supportingMemberNames = new StringBuffer();
+		StringBuffer allMemberNamesBuffer = new StringBuffer("");
+		Member member = null;
+		String memberName = "";	
+		/** supporting members **/
 		List<SupportingMember> supportingMembers = this.getSupportingMembers();
 		if (supportingMembers != null) {
+			int count = 1;
 			for (SupportingMember sm : supportingMembers) {
-				supportingMemberNames.append(sm.getMember().getFullname() + ", ");
+				member = sm.getMember();
+				if(member!=null) {
+					memberName = member.findFirstLastName();
+					if(memberName!=null && !memberName.isEmpty() && !allMemberNamesBuffer.toString().contains(memberName)) {
+						if(count==1) {
+							allMemberNamesBuffer.append(memberName);
+							count++;
+						} else {
+							allMemberNamesBuffer.append(", " + memberName);
+						}												
+					}									
+				}				
 			}
-		}
-		List<ClubbedEntity> clubbedEntities = Question
-				.findClubbedEntitiesByPosition(this);
+		}		
+		/** clubbed questions members **/
+		List<ClubbedEntity> clubbedEntities = Question.findClubbedEntitiesByPosition(this);
 		if (clubbedEntities != null) {
 			for (ClubbedEntity ce : clubbedEntities) {
 				/**
@@ -1622,33 +1636,180 @@ public class Question extends Device implements Serializable {
 				 **/
 				if (ce.getQuestion().getInternalStatus().getType().equals(ApplicationConstants.QUESTION_SYSTEM_CLUBBED)
 						|| ce.getQuestion().getInternalStatus().getType().equals(ApplicationConstants.QUESTION_FINAL_ADMISSION)) {
-					String tempPrimary = ce.getQuestion().getPrimaryMember().getFullname();
-					if (!supportingMemberNames.toString().contains(tempPrimary)) {
-						supportingMemberNames.append(ce.getQuestion().getPrimaryMember().getFullname()+ ", ");
+					member = ce.getQuestion().getPrimaryMember();
+					if(member!=null) {
+						memberName = member.findFirstLastName();
+						if(memberName!=null && !memberName.isEmpty() && !allMemberNamesBuffer.toString().contains(memberName)) {
+							allMemberNamesBuffer.append(", " + memberName);							
+						}												
 					}
-					List<SupportingMember> clubbedSupportingMember = ce.getQuestion().getSupportingMembers();
-					if (clubbedSupportingMember != null) {
-						if (!clubbedSupportingMember.isEmpty()) {
-							for (SupportingMember l : clubbedSupportingMember) {
-								String tempSupporting = l.getMember().getFullname();
-								if (!supportingMemberNames.toString().contains(tempSupporting)) {
-									supportingMemberNames.append(tempSupporting+ ", ");
-								}
+					List<SupportingMember> clubbedSupportingMembers = ce.getQuestion().getSupportingMembers();
+					if (clubbedSupportingMembers != null) {
+						for (SupportingMember csm : clubbedSupportingMembers) {
+							member = csm.getMember();
+							if(member!=null) {
+								memberName = member.findFirstLastName();
+								if(memberName!=null && !memberName.isEmpty() && !allMemberNamesBuffer.toString().contains(memberName)) {
+									allMemberNamesBuffer.append(", " + memberName);									
+								}								
 							}
 						}
 					}
 				}
 			}
+		}		
+		return allMemberNamesBuffer.toString();
+	}
+	
+	public String findAllMemberNames() {
+		StringBuffer allMemberNamesBuffer = new StringBuffer("");
+		Member member = null;
+		String memberName = "";				
+		/** primary member **/
+		member = this.getPrimaryMember();		
+		if(member==null) {
+			return allMemberNamesBuffer.toString();
+		}		
+		memberName = member.findFirstLastName();
+		if(memberName!=null && !memberName.isEmpty()) {
+			allMemberNamesBuffer.append(memberName);			
+		} else {
+			return allMemberNamesBuffer.toString();
+		}						
+		/** supporting members **/
+		List<SupportingMember> supportingMembers = this.getSupportingMembers();
+		if (supportingMembers != null) {
+			for (SupportingMember sm : supportingMembers) {
+				member = sm.getMember();
+				if(member!=null) {
+					memberName = member.findFirstLastName();
+					if(memberName!=null && !memberName.isEmpty() && !allMemberNamesBuffer.toString().contains(memberName)) {
+						allMemberNamesBuffer.append(", " + memberName);						
+					}									
+				}				
+			}
+		}		
+		/** clubbed questions members **/
+		List<ClubbedEntity> clubbedEntities = Question.findClubbedEntitiesByPosition(this);
+		if (clubbedEntities != null) {
+			for (ClubbedEntity ce : clubbedEntities) {
+				/**
+				 * show only those clubbed questions which are not in state of
+				 * (processed to be putup for nameclubbing, putup for
+				 * nameclubbing, pending for nameclubbing approval)
+				 **/
+				if (ce.getQuestion().getInternalStatus().getType().equals(ApplicationConstants.QUESTION_SYSTEM_CLUBBED)
+						|| ce.getQuestion().getInternalStatus().getType().equals(ApplicationConstants.QUESTION_FINAL_ADMISSION)) {
+					member = ce.getQuestion().getPrimaryMember();
+					if(member!=null) {
+						memberName = member.findFirstLastName();
+						if(memberName!=null && !memberName.isEmpty() && !allMemberNamesBuffer.toString().contains(memberName)) {
+							allMemberNamesBuffer.append(", " + memberName);							
+						}												
+					}
+					List<SupportingMember> clubbedSupportingMembers = ce.getQuestion().getSupportingMembers();
+					if (clubbedSupportingMembers != null) {
+						for (SupportingMember csm : clubbedSupportingMembers) {
+							member = csm.getMember();
+							if(member!=null) {
+								memberName = member.findFirstLastName();
+								if(memberName!=null && !memberName.isEmpty() && !allMemberNamesBuffer.toString().contains(memberName)) {
+									allMemberNamesBuffer.append(", " + memberName);									
+								}								
+							}
+						}
+					}
+				}
+			}
+		}		
+		return allMemberNamesBuffer.toString();
+	}
+	
+	public String findAllMemberNamesWithConstituencies() {
+		StringBuffer allMemberNamesBuffer = new StringBuffer("");
+		Member member = null;
+		String memberName = "";
+		String constituencyName = "";
+		
+		House questionHouse = this.getSession().getHouse();
+		Date currentDate = new Date();
+		
+		/** primary member **/
+		member = this.getPrimaryMember();		
+		if(member==null) {
+			return allMemberNamesBuffer.toString();
+		}		
+		memberName = member.findFirstLastName();
+		if(memberName!=null && !memberName.isEmpty()) {
+			allMemberNamesBuffer.append(memberName);
+			constituencyName = member.findConstituencyNameForYadiReport(questionHouse, "DATE", currentDate, currentDate);
+			if(!constituencyName.isEmpty()) {
+				allMemberNamesBuffer.append(" (" + constituencyName + ")");			
+			}
+		} else {
+			return allMemberNamesBuffer.toString();
+		}				
+		
+		/** supporting members **/
+		List<SupportingMember> supportingMembers = this.getSupportingMembers();
+		if (supportingMembers != null) {
+			for (SupportingMember sm : supportingMembers) {
+				member = sm.getMember();
+				if(member!=null) {
+					memberName = member.findFirstLastName();
+					if(memberName!=null && !memberName.isEmpty() && !allMemberNamesBuffer.toString().contains(memberName)) {
+						allMemberNamesBuffer.append(", " + memberName);
+						constituencyName = member.findConstituencyNameForYadiReport(questionHouse, "DATE", currentDate, currentDate);
+						if(!constituencyName.isEmpty()) {
+							allMemberNamesBuffer.append(" (" + constituencyName + ")");						
+						}
+					}									
+				}				
+			}
 		}
-		if (!supportingMemberNames.toString().isEmpty()) {
-			supportingMemberNames.deleteCharAt(supportingMemberNames.length() - 1);
-			supportingMemberNames.deleteCharAt(supportingMemberNames.length() - 1);
-		}
-		if (supportingMemberNames != null && supportingMemberNames.length() > 0) {
-			strBuffer.append(supportingMemberNames.toString());
-		}
-
-		return strBuffer.toString();
+		
+		/** clubbed questions members **/
+		List<ClubbedEntity> clubbedEntities = Question.findClubbedEntitiesByPosition(this);
+		if (clubbedEntities != null) {
+			for (ClubbedEntity ce : clubbedEntities) {
+				/**
+				 * show only those clubbed questions which are not in state of
+				 * (processed to be putup for nameclubbing, putup for
+				 * nameclubbing, pending for nameclubbing approval)
+				 **/
+				if (ce.getQuestion().getInternalStatus().getType().equals(ApplicationConstants.QUESTION_SYSTEM_CLUBBED)
+						|| ce.getQuestion().getInternalStatus().getType().equals(ApplicationConstants.QUESTION_FINAL_ADMISSION)) {
+					member = ce.getQuestion().getPrimaryMember();
+					if(member!=null) {
+						memberName = member.findFirstLastName();
+						if(memberName!=null && !memberName.isEmpty() && !allMemberNamesBuffer.toString().contains(memberName)) {
+							allMemberNamesBuffer.append(", " + memberName);
+							constituencyName = member.findConstituencyNameForYadiReport(questionHouse, "DATE", currentDate, currentDate);
+							if(!constituencyName.isEmpty()) {
+								allMemberNamesBuffer.append(" (" + constituencyName + ")");							
+							}
+						}												
+					}
+					List<SupportingMember> clubbedSupportingMembers = ce.getQuestion().getSupportingMembers();
+					if (clubbedSupportingMembers != null) {
+						for (SupportingMember csm : clubbedSupportingMembers) {
+							member = csm.getMember();
+							if(member!=null) {
+								memberName = member.findFirstLastName();
+								if(memberName!=null && !memberName.isEmpty() && !allMemberNamesBuffer.toString().contains(memberName)) {
+									allMemberNamesBuffer.append(", " + memberName);
+									constituencyName = member.findConstituencyNameForYadiReport(questionHouse, "DATE", currentDate, currentDate);
+									if(!constituencyName.isEmpty()) {
+										allMemberNamesBuffer.append(" (" + constituencyName + ")");							
+									}
+								}								
+							}
+						}
+					}
+				}
+			}
+		}		
+		return allMemberNamesBuffer.toString();
 	}
 	
 	public static QuestionDates findQuestionDatesForStarredQuestion(final Question question) {

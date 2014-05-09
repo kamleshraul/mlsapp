@@ -13,6 +13,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -32,6 +33,7 @@ import javax.persistence.TemporalType;
 
 import org.codehaus.jackson.annotate.JsonIgnoreProperties;
 import org.mkcl.els.common.util.ApplicationConstants;
+import org.mkcl.els.common.util.FormaterUtil;
 import org.mkcl.els.common.vo.MasterVO;
 import org.mkcl.els.common.vo.MemberAgeWiseReportVO;
 import org.mkcl.els.common.vo.MemberBiographyVO;
@@ -636,6 +638,69 @@ import org.springframework.beans.factory.annotation.Configurable;
 	
 	public static List<MasterVO> findAllMembersVOsWithGivenIdsAndWithNameContainingParam(final String memberIds, final String param) {
 		return getMemberRepository().findAllMembersVOsWithGivenIdsAndWithNameContainingParam(memberIds, param);
+	}
+	
+	public String findConstituencyNameForYadiReport(final House house, final String criteria, final Date fromDate, final Date toDate) {		
+		String constituencyName = "";
+		if(house!=null) {			
+			if(house.getType().getType().equals(ApplicationConstants.LOWER_HOUSE)) {
+				constituencyName = this.findConstituencyNameForAssemblyYadiReport(house);
+			} else if(house.getType().getType().equals(ApplicationConstants.UPPER_HOUSE)) {
+				constituencyName = this.findConstituencyNameForCouncilYadiReport(house, criteria, fromDate, toDate);
+			}
+		}
+		return constituencyName;
+	}
+	
+	public String findConstituencyNameForAssemblyYadiReport(final House house) {
+		String constituencyName = "";
+		if(house!=null) {
+			Map<String, String[]> reportParameters = new HashMap<String, String[]>();
+			reportParameters.put("houseId", new String[]{house.getId().toString()});
+			reportParameters.put("memberId", new String[]{this.getId().toString()});
+			reportParameters.put("locale", new String[]{this.getLocale()});
+			List constituencyNames= Query.findReport("YADI_LOWERHOUSE_MEMBER_CONSTITUENCY_NAME", reportParameters);
+			if(constituencyNames!=null && !constituencyNames.isEmpty()) {
+				if(constituencyNames.get(0)!=null) {
+					constituencyName = constituencyNames.get(0).toString();
+				}					
+			}
+		}		
+		return constituencyName;
+	}
+	
+	public String findConstituencyNameForCouncilYadiReport(final House house, final String criteria, final Date fromDate, final Date toDate) {
+		String constituencyName = "";
+		if(house!=null) {
+			Map<String, String[]> reportParameters = new HashMap<String, String[]>();
+			reportParameters.put("houseId", new String[]{house.getId().toString()});
+			reportParameters.put("memberId", new String[]{this.getId().toString()});
+			reportParameters.put("locale", new String[]{this.getLocale()});
+			if(criteria!=null && !criteria.isEmpty()) {
+				reportParameters.put("criteria", new String[]{criteria});
+				if(fromDate!=null) {
+					String fromDateDBFormat=FormaterUtil.formatDateToString(fromDate, ApplicationConstants.DB_DATEFORMAT);
+					reportParameters.put("fromDateDBFormat", new String[]{fromDateDBFormat});
+				} else {
+					reportParameters.put("fromDateDBFormat", new String[]{""});
+				}
+				if(toDate!=null) {
+					String toDateDBFormat=FormaterUtil.formatDateToString(toDate, ApplicationConstants.DB_DATEFORMAT);
+					reportParameters.put("toDateDBFormat", new String[]{toDateDBFormat});
+				} else {
+					reportParameters.put("toDateDBFormat", new String[]{""});
+				}
+			} else {
+				reportParameters.put("criteria", new String[]{""});				
+			}			
+			List constituencyNames= Query.findReport("YADI_UPPERHOUSE_MEMBER_CONSTITUENCY_NAME", reportParameters);
+			if(constituencyNames!=null && !constituencyNames.isEmpty()) {
+				if(constituencyNames.get(0)!=null) {
+					constituencyName = constituencyNames.get(0).toString();
+				}					
+			}
+		}		
+		return constituencyName;
 	}
 	
 	// ------------------------------------------Getters/Setters-----------------------------------
