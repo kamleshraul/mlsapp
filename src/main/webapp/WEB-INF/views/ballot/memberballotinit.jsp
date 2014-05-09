@@ -384,10 +384,10 @@
 			<a href="#" id="memberballotchoice" class="butSim link">
 				<spring:message code="memberballot.memberballotchoice" text="Question Choices"/>
 			</a> |
-			<div style='display: none;'>
 			<a href="#" id="updateclubbing" class="butSim link">
 				<spring:message code="memberballot.updateclubbing" text="Update Clubbing"/>
 			</a> |
+			<div style="display:none;">
 			<a href="#" id="finalballot" class="butSim link">
 				<spring:message code="memberballot.finalballot" text="Final Ballot"/>
 			</a> |	
