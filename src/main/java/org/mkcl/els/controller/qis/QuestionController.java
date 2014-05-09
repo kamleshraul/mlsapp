@@ -45,6 +45,7 @@ import org.mkcl.els.domain.CustomParameter;
 import org.mkcl.els.domain.Department;
 import org.mkcl.els.domain.DeviceType;
 import org.mkcl.els.domain.Group;
+import org.mkcl.els.domain.House;
 import org.mkcl.els.domain.HouseType;
 import org.mkcl.els.domain.Member;
 import org.mkcl.els.domain.MemberBallotChoice;
@@ -4166,6 +4167,15 @@ public class QuestionController extends GenericController<Question>{
 		MessageResource errorMessage = null;
 
 		String strQuestionId = request.getParameter("questionId");		
+		String strWorkflowId = request.getParameter("workflowId");
+		
+		//in case if request comes from workflow page, question id is retrived from workflow details
+		if(strWorkflowId!=null && !strWorkflowId.isEmpty()) {
+			WorkflowDetails workflowDetails = WorkflowDetails.findById(WorkflowDetails.class, Long.parseLong(strWorkflowId));
+			if(workflowDetails!=null) {
+				strQuestionId = workflowDetails.getDeviceId();
+			}
+		}
 		
 		if(strQuestionId!=null && !strQuestionId.isEmpty()) {
 			Question question = Question.findById(Question.class, Long.parseLong(strQuestionId));
@@ -4199,52 +4209,23 @@ public class QuestionController extends GenericController<Question>{
 					formattedText = question.getQuestionText();
 				}
 				formattedText = FormaterUtil.formatNumbersInGivenText(formattedText, question.getLocale());
-				letterVO.setQuestionText(formattedText);			
-				Member primaryMember = question.getPrimaryMember();				
-				letterVO.setPrimaryMemberName(primaryMember.getFullname());
-				StringBuffer supportingMemberNames=new StringBuffer();
-				List<SupportingMember> supportingMembers = question.getSupportingMembers();
-				if(supportingMembers!=null) {					
-					for(SupportingMember sm: supportingMembers) {
-						supportingMemberNames.append(sm.getMember().getFullname()+", ");
+				letterVO.setQuestionText(formattedText);		
+				String allMemberNames = null;
+				if(question.getHouseType().getType().equals(ApplicationConstants.LOWER_HOUSE)) {
+					allMemberNames = question.findAllMemberNamesWithConstituencies();
+				} else if(question.getHouseType().getType().equals(ApplicationConstants.UPPER_HOUSE)) {
+					allMemberNames = question.findAllMemberNames();
+				}						
+				if(allMemberNames!=null && !allMemberNames.isEmpty()) {
+					letterVO.setMemberNames(allMemberNames);
+					if(allMemberNames.split(",").length>1) {
+						letterVO.setHasMoreMembers("yes");
+					} else {
+						letterVO.setHasMoreMembers("no");
 					}					
-				}
-				List<ClubbedEntity> clubbedEntities = Question.findClubbedEntitiesByPosition(question);
-				if(clubbedEntities!=null){
-					for(ClubbedEntity ce:clubbedEntities){
-						/** show only those clubbed questions which are not in state of
-						 * (processed to be putup for nameclubbing, putup for nameclubbing, pending for nameclubbing approval) 
-						 **/
-						if(ce.getQuestion().getInternalStatus().getType().equals(ApplicationConstants.QUESTION_SYSTEM_CLUBBED)
-								|| ce.getQuestion().getInternalStatus().getType().equals(ApplicationConstants.QUESTION_FINAL_ADMISSION)) {
-							String tempPrimary=ce.getQuestion().getPrimaryMember().getFullname();
-							if(!supportingMemberNames.toString().contains(tempPrimary)){
-								supportingMemberNames.append(ce.getQuestion().getPrimaryMember().getFullname()+",");
-							}
-							List<SupportingMember> clubbedSupportingMember=ce.getQuestion().getSupportingMembers();
-							if(clubbedSupportingMember!=null){
-								if(!clubbedSupportingMember.isEmpty()){
-									for(SupportingMember l:clubbedSupportingMember){
-										String tempSupporting=l.getMember().getFullname();
-										if(!supportingMemberNames.toString().contains(tempSupporting)){
-											supportingMemberNames.append(tempSupporting+", ");
-										}
-									}
-								}
-							}							
-						}						
-					}
-				}
-				if(!supportingMemberNames.toString().isEmpty()){
-					supportingMemberNames.deleteCharAt(supportingMemberNames.length()-1);
-					supportingMemberNames.deleteCharAt(supportingMemberNames.length()-1);
-				}					
-				if(supportingMemberNames!=null&&supportingMemberNames.length()>0) {
-					letterVO.setMemberNames(primaryMember.getFullname()+", "+supportingMemberNames.toString());
-					letterVO.setHasMoreMembers("yes");
 				} else {
-					letterVO.setMemberNames(primaryMember.getFullname());
-					letterVO.setHasMoreMembers("no");
+					isError = true;
+					errorMessage = MessageResource.findByFieldName(MessageResource.class, "code", "question.intimationLetter.noMemberFound", locale.toString());
 				}	
 				try {
 					MemberMinister memberMinister = Question.findMemberMinisterIfExists(question);
@@ -4404,6 +4385,8 @@ public class QuestionController extends GenericController<Question>{
 					openOrSaveReportFileFromBrowser(response, reportFile, "WORD");
 				} catch (Exception e) {
 					e.printStackTrace();
+					isError = true;
+					errorMessage = MessageResource.findByFieldName(MessageResource.class, "code", "report.runtimeException.error", locale.toString());
 				}				
 			}			
 		} else {
