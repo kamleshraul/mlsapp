@@ -1640,7 +1640,11 @@ public class Question extends Device implements Serializable {
 					if(member!=null) {
 						memberName = member.findFirstLastName();
 						if(memberName!=null && !memberName.isEmpty() && !allMemberNamesBuffer.toString().contains(memberName)) {
-							allMemberNamesBuffer.append(", " + memberName);							
+							if(!allMemberNamesBuffer.toString().isEmpty()){
+								allMemberNamesBuffer.append(", " + memberName);
+							}else{
+								allMemberNamesBuffer.append(memberName);
+							}
 						}												
 					}
 					List<SupportingMember> clubbedSupportingMembers = ce.getQuestion().getSupportingMembers();
@@ -1650,7 +1654,11 @@ public class Question extends Device implements Serializable {
 							if(member!=null) {
 								memberName = member.findFirstLastName();
 								if(memberName!=null && !memberName.isEmpty() && !allMemberNamesBuffer.toString().contains(memberName)) {
-									allMemberNamesBuffer.append(", " + memberName);									
+									if(allMemberNamesBuffer.toString().isEmpty()){
+										allMemberNamesBuffer.append(memberName);
+									}else{
+										allMemberNamesBuffer.append(", " + memberName);
+									}
 								}								
 							}
 						}
