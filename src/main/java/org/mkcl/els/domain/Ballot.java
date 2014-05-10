@@ -14,7 +14,9 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Random;
 
 import javax.persistence.CascadeType;
@@ -1935,21 +1937,44 @@ public class Ballot extends BaseDomain implements Serializable {
 		return ballotedVOs;
 	}
 	
-	public static List<DeviceVO> findBallotedQuestionVOs(final Session session, final String deviceType,
-			final Date answeringDate,
+	public static List<DeviceVO> findBallotedQuestionVOs(final Session session, final DeviceType deviceType, final Group group, final Date answeringDate,
 			final String locale) throws ELSException {			
-		List<DeviceVO> deviceVOs = new ArrayList<DeviceVO>();
-		DeviceType deviceTypeSelected = DeviceType.findByType(deviceType, locale);
-		Ballot ballot = Ballot.find(session, deviceTypeSelected, answeringDate, locale);
-		if(ballot != null) {
-			List<BallotEntry> ballotEntries = ballot.getBallotEntries();
+		List<DeviceVO> deviceVOs = new ArrayList<DeviceVO>();		
+		
+		Map<String, String[]> parametersMap = new HashMap<String, String[]>();
+		parametersMap.put("locale", new String[]{locale.toString()});
+		parametersMap.put("sessionId", new String[]{session.getId().toString()});
+		parametersMap.put("deviceTypeId", new String[]{deviceType.getId().toString()});
+		if(deviceType.getDevice().equals("Question")) {
+			parametersMap.put("groupId", new String[]{group.getId().toString()});
+		}		
+		parametersMap.put("answeringDate", new String[]{FormaterUtil.formatDateToString(answeringDate, ApplicationConstants.DB_DATEFORMAT)});
+		List ballotVOs = org.mkcl.els.domain.Query.findReport("YADI_BALLOT_VIEW", parametersMap);
+		parametersMap = null;
+		
+		if(ballotVOs!=null && !ballotVOs.isEmpty()) {
 			List<QuestionSequenceVO> questionSequenceVOs = new ArrayList<QuestionSequenceVO>();
-			for(BallotEntry be : ballotEntries) {
-				questionSequenceVOs.addAll(Ballot.getQuestionSequenceVOs(be.getDeviceSequences()));				
+			for(Object i: ballotVOs) {
+				Object[] ballotVO = (Object[])i;
+				QuestionSequenceVO questionSequenceVO = new QuestionSequenceVO();
+				if(ballotVO[0]!=null && !ballotVO[0].toString().isEmpty()) {
+					questionSequenceVO.setMemberId(Long.parseLong(ballotVO[0].toString()));
+				}
+				if(ballotVO[1]!=null && !ballotVO[1].toString().isEmpty()) {
+					questionSequenceVO.setQuestionId(Long.parseLong(ballotVO[1].toString()));
+				}
+				if(ballotVO[2]!=null && !ballotVO[2].toString().isEmpty()) {
+					questionSequenceVO.setNumber(Integer.parseInt(ballotVO[2].toString()));
+				}
+				if(ballotVO[3]!=null && !ballotVO[3].toString().isEmpty()) {
+					questionSequenceVO.setSequenceNo(Integer.parseInt(ballotVO[3].toString()));
+				}
+				questionSequenceVOs.add(questionSequenceVO);
 			}
 			QuestionSequenceVO.sortBySequenceNumber(questionSequenceVOs);
 			int count=0;
 			for(QuestionSequenceVO questionSequenceVO: questionSequenceVOs) {
+				System.out.println(questionSequenceVO.getNumber() + ": " + questionSequenceVO.getSequenceNo());
 				DeviceVO deviceVO = new DeviceVO();
 				count++;
 				deviceVO.setSerialNumber(FormaterUtil.formatNumberNoGrouping(count, locale));
@@ -1966,8 +1991,8 @@ public class Ballot extends BaseDomain implements Serializable {
 				if(selectedSupportingMembers!=null){
 					if(!selectedSupportingMembers.isEmpty()){
 						StringBuffer bufferFirstNamesFirst=new StringBuffer();
-						for(SupportingMember i:selectedSupportingMembers){
-							Member m=i.getMember();
+						for(SupportingMember sm:selectedSupportingMembers){
+							Member m=sm.getMember();
 							bufferFirstNamesFirst.append(m.findFirstLastName()+",");								
 						}
 						bufferFirstNamesFirst.deleteCharAt(bufferFirstNamesFirst.length()-1);
@@ -1979,21 +2004,21 @@ public class Ballot extends BaseDomain implements Serializable {
 				String content = q.getRevisedQuestionText();
 				if(content != null) {
 					if(content.endsWith("<br><p></p>")) {
-						content = content.substring(0, content.length()-12);
+						content = content.substring(0, content.length()-11);
 					}
 				}				
 				deviceVO.setContent(content);		
 				String answer = q.getAnswer();
 				if(answer != null) {
 					if(answer.endsWith("<br><p></p>")) {
-						answer = answer.substring(0, answer.length()-12);
+						answer = answer.substring(0, answer.length()-11);
 					}
 				}				
 				deviceVO.setAnswer(answer);				
 				Member answeringMember = MemberMinister.findMemberHavingMinistryInSession(session, q.getMinistry());
 				List<MemberRole> memberRoles = HouseMemberRoleAssociation.findAllActiveRolesOfMemberInSession(answeringMember, session, locale);
-				for(MemberRole i : memberRoles) {
-					if(i.getType().equals(ApplicationConstants.CHIEF_MINISTER) || i.getType().equals(ApplicationConstants.DEPUTY_CHIEF_MINISTER)) {
+				for(MemberRole mr : memberRoles) {
+					if(mr.getType().equals(ApplicationConstants.CHIEF_MINISTER) || mr.getType().equals(ApplicationConstants.DEPUTY_CHIEF_MINISTER)) {
 						deviceVO.setMinistryName(q.getMinistry().getName());
 						break;
 					}
@@ -2021,29 +2046,51 @@ public class Ballot extends BaseDomain implements Serializable {
 				}
 				deviceVOs.add(deviceVO);
 			}
-		}
-		else {
+		} else {
 			deviceVOs = null;
-		}		
+		}
+				
 		return deviceVOs;
 	}
 	
-	public static List<RoundVO> findBallotedRoundVOsForSuchi(final Session session, final String deviceType, Date answeringDate, final String locale) throws ELSException {
+	public static List<RoundVO> findBallotedRoundVOsForSuchi(final Session session, final DeviceType deviceType, Group group, Date answeringDate, final String locale) throws ELSException {
 		//first we find balloted questions in sequence order
 		List<QuestionSequenceVO> questionSequenceVOs = new ArrayList<QuestionSequenceVO>();
-		DeviceType deviceTypeSelected = DeviceType.findByType(deviceType, locale);
-		Ballot ballot = Ballot.find(session, deviceTypeSelected, answeringDate, locale);
-		if(ballot != null) {
-			List<BallotEntry> ballotEntries = ballot.getBallotEntries();
-			questionSequenceVOs = new ArrayList<QuestionSequenceVO>();			
-			for(BallotEntry be : ballotEntries) {
-				List<QuestionSequenceVO> memberQuestionSequenceVOs = Ballot.getQuestionSequenceVOs(be.getDeviceSequences());
-				for(QuestionSequenceVO i: memberQuestionSequenceVOs) {
-					i.setMemberId(be.getMember().getId());
+		
+		Map<String, String[]> parametersMap = new HashMap<String, String[]>();
+		parametersMap.put("locale", new String[]{locale.toString()});
+		parametersMap.put("sessionId", new String[]{session.getId().toString()});
+		parametersMap.put("deviceTypeId", new String[]{deviceType.getId().toString()});
+		if(deviceType.getDevice().equals("Question")) {
+			parametersMap.put("groupId", new String[]{group.getId().toString()});
+		}		
+		parametersMap.put("answeringDate", new String[]{FormaterUtil.formatDateToString(answeringDate, ApplicationConstants.DB_DATEFORMAT)});
+		List ballotVOs = org.mkcl.els.domain.Query.findReport("YADI_BALLOT_VIEW", parametersMap);
+		parametersMap = null;
+		
+		if(ballotVOs!=null && !ballotVOs.isEmpty()) {
+			for(Object i: ballotVOs) {
+				Object[] ballotVO = (Object[])i;
+				QuestionSequenceVO questionSequenceVO = new QuestionSequenceVO();
+				if(ballotVO[0]!=null && !ballotVO[0].toString().isEmpty()) {
+					questionSequenceVO.setMemberId(Long.parseLong(ballotVO[0].toString()));
 				}
-				questionSequenceVOs.addAll(memberQuestionSequenceVOs);				
+				if(ballotVO[1]!=null && !ballotVO[1].toString().isEmpty()) {
+					questionSequenceVO.setQuestionId(Long.parseLong(ballotVO[1].toString()));
+				}
+				if(ballotVO[2]!=null && !ballotVO[2].toString().isEmpty()) {
+					questionSequenceVO.setNumber(Integer.parseInt(ballotVO[2].toString()));
+				}
+				if(ballotVO[3]!=null && !ballotVO[3].toString().isEmpty()) {
+					questionSequenceVO.setSequenceNo(Integer.parseInt(ballotVO[3].toString()));
+				}
+				questionSequenceVOs.add(questionSequenceVO);
 			}
 			QuestionSequenceVO.sortBySequenceNumber(questionSequenceVOs);
+		}
+		for(QuestionSequenceVO questionSequenceVO: questionSequenceVOs) {
+			System.out.println(questionSequenceVO.getMemberId()+": "+questionSequenceVO.getQuestionId()
+					+": "+questionSequenceVO.getNumber()+": "+questionSequenceVO.getSequenceNo());
 		}
 		//now we arrange them in roundwise order.
 		List<RoundVO> roundVOs = new ArrayList<RoundVO>();		
@@ -2059,15 +2106,18 @@ public class Ballot extends BaseDomain implements Serializable {
 		List<Integer> questionsInRounds = new ArrayList<Integer>();
 		for(int i=1; i<numberOfRounds;i++) {				
 			while(questionsInRounds.size()<i) {
+				if(memberIndex==49) {
+					System.out.println();
+				}
 				Long memberId = questionSequenceVOs.get(memberIndex).getMemberId();
 				boolean toNextMember = true;
 				int currentIndex=0;
-				for(QuestionSequenceVO qs: questionSequenceVOs) {
+				for(QuestionSequenceVO qs: questionSequenceVOs) {					
 					if(currentIndex<=memberIndex) {
 						currentIndex++;
 						continue;
 					}
-					else if(qs.getMemberId() == memberId) {
+					else if(qs.getMemberId().equals(memberId)) {
 						int questionsExcludingLastRound = 0;
 						for(int k : questionsInRounds) {				
 							questionsExcludingLastRound += k;
@@ -2146,14 +2196,14 @@ public class Ballot extends BaseDomain implements Serializable {
 					String content = q.getRevisedQuestionText();
 					if(content != null) {
 						if(content.endsWith("<br><p></p>")) {
-							content = content.substring(0, content.length()-12);
+							content = content.substring(0, content.length()-11);
 						}
 					}				
 					deviceVO.setContent(content);		
 					String answer = q.getAnswer();
 					if(answer != null) {
 						if(answer.endsWith("<br><p></p>")) {
-							answer = answer.substring(0, answer.length()-12);
+							answer = answer.substring(0, answer.length()-11);
 						}
 					}				
 					deviceVO.setAnswer(answer);				

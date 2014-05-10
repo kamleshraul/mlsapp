@@ -3848,7 +3848,7 @@ public class QuestionController extends GenericController<Question>{
 					session = Session.findSessionByHouseTypeSessionTypeYear(houseType, sessionType, sessionYear);
 				} catch (ELSException e1) {					
 					e1.printStackTrace();
-				}
+				}				
 				DeviceType deviceType=DeviceType.findById(DeviceType.class, Long.parseLong(strDeviceType));
 				Date answeringDate = null;
 				if(deviceType.getType().equals(ApplicationConstants.STARRED_QUESTION)) {
@@ -3865,9 +3865,17 @@ public class QuestionController extends GenericController<Question>{
 					CustomParameter dbDateFormat = CustomParameter.findByName(CustomParameter.class, "DB_DATEFORMAT", "");
 					answeringDate = FormaterUtil.formatStringToDate(strAnsweringDate, dbDateFormat.getValue());
 				}
+				Group group = null;
+				if(deviceType.getDevice().equals("Question")) {
+					try {
+						group = Group.find(session, answeringDate, locale.toString());
+					} catch (ELSException e) {					
+						e.printStackTrace();
+					}
+				}				
 				List<DeviceVO> ballotedDeviceVOs = null;
 				try {
-					ballotedDeviceVOs = Ballot.findBallotedQuestionVOs(session, ApplicationConstants.STARRED_QUESTION, answeringDate, "mr_IN");
+					ballotedDeviceVOs = Ballot.findBallotedQuestionVOs(session, deviceType, group, answeringDate, "mr_IN");
 				} catch (ELSException e1) {
 					e1.printStackTrace();
 				}
@@ -3919,12 +3927,7 @@ public class QuestionController extends GenericController<Question>{
 				List<User> users = User.findByRole(false, role.getName(), locale.toString());
 				//as principal secretary for starred question is only one, so user is obviously first element of the list.
 				data.setUserName(users.get(0).findFirstLastName());
-				Group group = null;
-				try {
-					group = Group.find(session, answeringDate, locale.toString());
-				} catch (ELSException e) {					
-					e.printStackTrace();
-				}
+				
 				List<MinistryVO> ministryVOs = new ArrayList<MinistryVO>();
 				int count = 0;
 
@@ -4027,10 +4030,18 @@ public class QuestionController extends GenericController<Question>{
 					}else if(deviceType.getType().equals(ApplicationConstants.NONOFFICIAL_RESOLUTION)){
 						CustomParameter dbDateFormat = CustomParameter.findByName(CustomParameter.class, "DB_DATEFORMAT", "");
 						answeringDate = FormaterUtil.formatStringToDate(strAnsweringDate, dbDateFormat.getValue());
-					}				
+					}	
+					Group group = null;
+					if(deviceType.getDevice().equals("Question")) {
+						try {
+							group = Group.find(session, answeringDate, locale.toString());
+						} catch (ELSException e1) {
+							e1.printStackTrace();
+						}
+					}					
 					List<RoundVO> roundVOs = null;
 					try {
-						roundVOs = Ballot.findBallotedRoundVOsForSuchi(session, deviceType.getType(), answeringDate, locale.toString());
+						roundVOs = Ballot.findBallotedRoundVOsForSuchi(session, deviceType, group, answeringDate, locale.toString());
 					} catch (ELSException e2) {
 						e2.printStackTrace();
 					}				
@@ -4082,12 +4093,7 @@ public class QuestionController extends GenericController<Question>{
 					List<User> users = User.findByRole(false, role.getName(), locale.toString());
 					//as principal secretary for starred question is only one, so user is obviously first element of the list.
 					data.setUserName(users.get(0).findFirstLastName());
-					Group group = null;
-					try {
-						group = Group.find(session, answeringDate, locale.toString());
-					} catch (ELSException e1) {
-						e1.printStackTrace();
-					}
+					
 					List<MinistryVO> ministryVOs = new ArrayList<MinistryVO>();
 					int count = 0;
 					try {
