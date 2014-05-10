@@ -2106,9 +2106,6 @@ public class Ballot extends BaseDomain implements Serializable {
 		List<Integer> questionsInRounds = new ArrayList<Integer>();
 		for(int i=1; i<numberOfRounds;i++) {				
 			while(questionsInRounds.size()<i) {
-				if(memberIndex==49) {
-					System.out.println();
-				}
 				Long memberId = questionSequenceVOs.get(memberIndex).getMemberId();
 				boolean toNextMember = true;
 				int currentIndex=0;
