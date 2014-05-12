@@ -2967,7 +2967,7 @@ public class QuestionWorkflowController  extends BaseController{
 		String page = "question/error";
 		try{
 			String strDevice = request.getParameter("device");
-			Map<String, ActorVO> finalDataMap = new HashMap<String, MasterVO>();
+			Map<String, ActorVO> finalDataMap = new HashMap<String, ActorVO>();
 
 			if(strDevice != null && !strDevice.isEmpty()){
 				Question qt = Question.findById(Question.class, id);
@@ -3072,7 +3072,7 @@ public class QuestionWorkflowController  extends BaseController{
 					List<User> users = User.findByRole(false, "QIS_PRINCIPAL_SECRETARY", locale.toString());
 					model.addAttribute("principalSec", users.get(0).getTitle() + " " + users.get(0).getFirstName() + " " + users.get(0).getLastName());
 
-					List<ActorVO> actors = new ArrayList<MasterVO>();
+					List<ActorVO> actors = new ArrayList<ActorVO>();
 					CustomParameter csptAllwedUserGroupForStatusReportSign = CustomParameter.findByName(CustomParameter.class, (qt.getHouseType().getType().equals(ApplicationConstants.LOWER_HOUSE)? "QIS_ALLOWED_USERGROUPS_FOR_STATUS_REPORT_SIGN_LOWERHOUSE": "QIS_ALLOWED_USERGROUPS_FOR_STATUS_REPORT_SIGN_UPPERHOUSE"), "");
 					if(csptAllwedUserGroupForStatusReportSign != null){
 						if(csptAllwedUserGroupForStatusReportSign.getValue() != null && !csptAllwedUserGroupForStatusReportSign.getValue().isEmpty()){
@@ -3196,6 +3196,18 @@ public class QuestionWorkflowController  extends BaseController{
 		}
 
 		return list;  
+	}
+	
+	@SuppressWarnings("rawtypes")
+	private void findLatestRemarksByUserGroup(final Question domain, final ModelMap model,
+			final HttpServletRequest request,final WorkflowDetails workflowDetails)throws ELSException {
+		Map<String, String[]> requestMap=new HashMap<String, String[]>();			
+		requestMap.put("questionId",new String[]{String.valueOf(domain.getId())});
+		requestMap.put("locale",new String[]{domain.getLocale()});
+		List result=Query.findReport("QIS_LATEST_REVISIONS", requestMap);
+		model.addAttribute("latestRevisions",result);
+		UserGroupType userGroupType=UserGroupType.findByFieldName(UserGroupType.class, "type", ApplicationConstants.ASSISTANT, domain.getLocale());
+		model.addAttribute("startingActor", userGroupType.getName());
 	}
 
 }
