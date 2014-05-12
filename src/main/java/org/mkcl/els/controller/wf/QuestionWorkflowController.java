@@ -594,8 +594,9 @@ public class QuestionWorkflowController  extends BaseController{
 
 		/**** UserGroup and UserGroup Type ****/
 		model.addAttribute("usergroup",workflowDetails.getAssigneeUserGroupId());
-		model.addAttribute("usergroupType",workflowDetails.getAssigneeUserGroupType());
-
+		model.addAttribute("usergroupType", workflowDetails.getAssigneeUserGroupType());
+		model.addAttribute("userGroupName", workflowDetails.getAssigneeUserGroupName());
+		
 		/**** To have the task creation date and lastReceivingDate if userGroup is department in case of starred questions ***/
 		if(workflowDetails.getAssigneeUserGroupType().equals(ApplicationConstants.DEPARTMENT)){
 			boolean canAdd = false;
@@ -2977,7 +2978,7 @@ public class QuestionWorkflowController  extends BaseController{
 					CustomParameter csptAllwedUserGroupForStatusReportSign = CustomParameter.findByName(CustomParameter.class, (qt.getHouseType().getType().equals(ApplicationConstants.LOWER_HOUSE)? "QIS_ALLOWED_USERGROUPS_FOR_STATUS_REPORT_SIGN_LOWERHOUSE": "QIS_ALLOWED_USERGROUPS_FOR_STATUS_REPORT_SIGN_UPPERHOUSE"), "");
 					if(csptAllwedUserGroupForStatusReportSign != null){
 						if(csptAllwedUserGroupForStatusReportSign.getValue() != null && !csptAllwedUserGroupForStatusReportSign.getValue().isEmpty()){
-							String previousRemark = "";
+							//String previousRemark = "";
 							for(Object o : report){
 								Object[] objx = (Object[])o;
 	
@@ -2995,21 +2996,28 @@ public class QuestionWorkflowController  extends BaseController{
 										}
 										
 										if(objx[6] != null){
-											if(objx[6].toString().isEmpty()){
-												actor.setValue(FormaterUtil.formatNumbersInGivenText(previousRemark, locale.toString()));
-											}else{
-												actor.setValue(FormaterUtil.formatNumbersInGivenText(objx[6].toString(), locale.toString()));
-												previousRemark = objx[6].toString();
-											}
+											actor.setValue(FormaterUtil.formatNumbersInGivenText(objx[6].toString(), locale.toString()));
 										}
 										
 										if(objx[28] != null){
 											actor.setStatus(objx[28].toString());
 										}
 										if(userGroupType.getType().equals(ApplicationConstants.UNDER_SECRETARY_COMMITTEE) || userGroupType.getType().equals(ApplicationConstants.UNDER_SECRETARY)){
-											finalDataMap.put(ApplicationConstants.UNDER_SECRETARY, actor);
+											if(finalDataMap.get(ApplicationConstants.UNDER_SECRETARY) != null){
+												if(actor.getValue() != null && actor.getValue().length() > 0){
+													finalDataMap.put(ApplicationConstants.UNDER_SECRETARY, actor);
+												}
+											}else{
+												finalDataMap.put(ApplicationConstants.UNDER_SECRETARY, actor);
+											}
 										}else{
-											finalDataMap.put(userGroupType.getType(), actor);
+											if(finalDataMap.get(userGroupType.getType()) != null){
+												if(actor.getValue() != null && actor.getValue().length() > 0){
+													finalDataMap.put(userGroupType.getType(), actor);
+												}
+											}else{
+												finalDataMap.put(userGroupType.getType(), actor);
+											}
 										}
 									}
 								}
@@ -3103,6 +3111,8 @@ public class QuestionWorkflowController  extends BaseController{
 		model.addAttribute("latestRevisions",result);
 		UserGroupType userGroupType=UserGroupType.findByFieldName(UserGroupType.class, "type", ApplicationConstants.ASSISTANT, domain.getLocale());
 		model.addAttribute("startingActor", userGroupType.getName());
+		
+		model.addAttribute("userName", this.getCurrentUser().getTitle() + " " + this.getCurrentUser().getFirstName() + " " + this.getCurrentUser().getMiddleName() + " " + this.getCurrentUser().getLastName());
 	}
 
 }
