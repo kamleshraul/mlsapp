@@ -43,6 +43,8 @@
 			 ,file:$("#apprfile").val()
 			 ,itemscount:$("#appritemscount").val()
 			 ,workflowSubType:$("#apprworkflowSubType").val()
+			 ,group:$('#apprGroup').val()
+			 ,answeringDate:$('#apprAnsweringDate').val()
 		 },function(data){
 			 $("#bulkResultDiv").empty();
 			 $("#bulkResultDiv").html(data);
@@ -211,7 +213,9 @@
 <input type="hidden" id="apprusergroup" value="${usergroup }">
 <input type="hidden" id="apprusergroupType" value="${usergroupType }">
 <input type="hidden" id="appritemscount" value="${itemscount }">
-<input type="hidden" id="apprfile" value="${file }">		
+<input type="hidden" id="apprfile" value="${file }">	
+<input type="hidden" id="apprGroup" value="${group}">
+<input type="hidden" id="apprAnsweringDate" value="${answeringDate }">	
 <input id="apprworkflowSubType" value="${workflowSubType }" type="hidden">
 <input id="submissionMsg" value="<spring:message code='client.prompt.submit' text='Do you want to submit the motions.'></spring:message>" type="hidden">
 <input id="selectActorMsg" value="<spring:message code='client.prompt.selectactor' text='Please select the actor.'></spring:message>" type="hidden">
