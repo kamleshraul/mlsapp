@@ -146,13 +146,16 @@
 						<fo:block font-size="4px">&#160;</fo:block>
 						<fo:block>
 							<fo:inline>प्रश्न - </fo:inline>
-							<fo:inline margin-left="1cm"><xsl:apply-templates select="questionText"/></fo:inline>
-						</fo:block>
-						<xsl:if test="remarks!=''">
-							<fo:block break-before="page">
-								<xsl:value-of select="remarks"></xsl:value-of>
-							</fo:block>
-						</xsl:if>
+							<xsl:choose>
+							<xsl:when test="questionReferenceText!=''">
+								<xsl:value-of select="questionReferenceText"/>
+								<fo:block margin-left="1cm"><xsl:apply-templates select="questionText"/></fo:block>
+							</xsl:when>
+							<xsl:otherwise>
+								<fo:inline margin-left="1cm"><xsl:apply-templates select="questionText"/></fo:inline>
+							</xsl:otherwise>
+							</xsl:choose>							
+						</fo:block>						
 					</fo:block>							          
 	            </fo:flow>
 	        </fo:page-sequence>        

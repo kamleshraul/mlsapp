@@ -4267,42 +4267,17 @@ public class QuestionController extends GenericController<Question>{
 				} else {
 					//answeringDate = question.getDiscussionDate();
 				}
-				/** parent question details **/
-				Question parentQuestion = question.getParent();
-				if(parentQuestion!=null) {
-					letterVO.setParentDeviceType(parentQuestion.getType().getName());
-					letterVO.setParentNumber(FormaterUtil.formatNumberNoGrouping(question.getParent().getNumber(), question.getLocale()));
-					if(parentQuestion.getType().getType().trim().equals(ApplicationConstants.STARRED_QUESTION)) {
-						QuestionDates questionDates = Question.findQuestionDatesForStarredQuestion(question);
-						if(questionDates!=null) {
-							Date answeringDate = questionDates.getAnsweringDate();										    	
-					    	if(answeringDate!=null) {
-					    		SimpleDateFormat dbFormat = null;
-					            CustomParameter dbDateFormat=CustomParameter.findByName(CustomParameter.class,"ROTATION_ORDER_DATE_FORMAT", "");
-						    	if(dbDateFormat!=null){
-						    		dbFormat=FormaterUtil.getDateFormatter(dbDateFormat.getValue(), locale.toString());
-						    	}
-					    		String[] strAnsweringDates=dbFormat.format(answeringDate).split(",");
-				        		String[] strAnsweringMonth=strAnsweringDates[1].split(" ");
-				        		String answeringMonth=FormaterUtil.getMonthInMarathi(strAnsweringMonth[1], locale.toString());
-				        		String formattedAnsweringDate = strAnsweringMonth[0] + " " + answeringMonth + ", " + strAnsweringDates[2];
-				        		letterVO.setParentAnsweringDate(formattedAnsweringDate);
-					    	}							
-						}
-					}										
-				} else {
-					letterVO.setParentNumber("");
-				}		
+				
+				/** referenced question details (later should come through referenced entities) **/
+				letterVO.setQuestionReferenceText(question.getQuestionreferenceText());		
 				
 				Status status = question.getInternalStatus();	
 				String statusType=status.getType();
 				if(statusType.equals(ApplicationConstants.QUESTION_FINAL_REJECTION)) {
 					formattedText = FormaterUtil.formatNumbersInGivenText(question.getRejectionReason(), question.getLocale());
-					letterVO.setRejectionReason(formattedText);
-					letterVO.setRemarks(formattedText);
+					letterVO.setRejectionReason(formattedText);					
 				} else {//if(statusType.equals(ApplicationConstants.QUESTION_FINAL_ADMISSION)) {
 					formattedText = FormaterUtil.formatNumbersInGivenText(question.getQuestionreferenceText(), question.getLocale());
-					letterVO.setRemarks(formattedText);
 				}
 				
 				String memberOrDepartment=request.getParameter("memberOrDepartment");

@@ -39,11 +39,7 @@ public class QuestionIntimationLetterXmlVO extends XmlVO {
 	
 	private String answeringDate;
 	
-	private String parentDeviceType;
-	
-	private String parentNumber;
-	
-	private String parentAnsweringDate;
+	private String questionReferenceText;
 	
 	private String lastSendingDateToDepartment;
 	
@@ -52,8 +48,6 @@ public class QuestionIntimationLetterXmlVO extends XmlVO {
 	private String questionIndexesForClarification;
 	
 	private List<MasterVO> questionsAskedForClarification;
-	
-	private String remarks;
 	
 	private String userName;
 
@@ -183,31 +177,13 @@ public class QuestionIntimationLetterXmlVO extends XmlVO {
 		this.answeringDate = answeringDate;
 	}
 
-	@XmlElement(name = "parentDeviceType")
-	public String getParentDeviceType() {
-		return parentDeviceType;
+	@XmlElement(name = "questionReferenceText")
+	public String getQuestionReferenceText() {
+		return questionReferenceText;
 	}
 
-	public void setParentDeviceType(String parentDeviceType) {
-		this.parentDeviceType = parentDeviceType;
-	}
-
-	@XmlElement(name = "parentNumber")
-	public String getParentNumber() {
-		return parentNumber;
-	}
-
-	public void setParentNumber(String parentNumber) {
-		this.parentNumber = parentNumber;
-	}
-
-	@XmlElement(name = "parentAnsweringDate")
-	public String getParentAnsweringDate() {
-		return parentAnsweringDate;
-	}
-
-	public void setParentAnsweringDate(String parentAnsweringDate) {
-		this.parentAnsweringDate = parentAnsweringDate;
+	public void setQuestionReferenceText(String questionReferenceText) {
+		this.questionReferenceText = questionReferenceText;
 	}
 
 	@XmlElement(name = "lastSendingDateToDepartment")
@@ -247,15 +223,6 @@ public class QuestionIntimationLetterXmlVO extends XmlVO {
 	public void setQuestionsAskedForClarification(
 			List<MasterVO> questionsAskedForClarification) {
 		this.questionsAskedForClarification = questionsAskedForClarification;
-	}
-
-	@XmlElement(name = "remarks")
-	public String getRemarks() {
-		return remarks;
-	}
-
-	public void setRemarks(String remarks) {
-		this.remarks = remarks;
 	}
 
 	@XmlElement(name = "userName")

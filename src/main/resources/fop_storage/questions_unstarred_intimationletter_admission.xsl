@@ -174,9 +174,8 @@
 							<fo:inline><xsl:value-of select="memberNames"/></fo:inline>			
 						</fo:block>
 						<fo:block font-size="4px">&#160;</fo:block>
-						<xsl:if test="parentNumber!=''">
-							<xsl:value-of select="parentDeviceType"/> क्रमांक <xsl:value-of select="parentNumber"/> ला 
-							दिनांक <xsl:value-of select="parentAnsweringDate"/> रोजी दिलेल्या उत्तराच्या संदर्भात
+						<xsl:if test="questionReferenceText!=''">
+							<xsl:value-of select="questionReferenceText"/>
 						</xsl:if>
 						<fo:block font-weight="bold">
 							सन्माननीय
@@ -201,12 +200,7 @@
 							पुढील गोष्टींचा खुलासा करतील काय :-
 						</fo:block>
 						<fo:block>&#160;</fo:block>
-						<fo:block>&#160;&#160;&#160;<xsl:apply-templates select="questionText"/></fo:block>
-						<xsl:if test="remarks!=''">
-							<fo:block break-before="page">
-								<xsl:value-of select="remarks"></xsl:value-of>
-							</fo:block>
-						</xsl:if>
+						<fo:block>&#160;&#160;&#160;<xsl:apply-templates select="questionText"/></fo:block>						
 					</fo:block>							          
 	            </fo:flow>
 	        </fo:page-sequence>        
